@@ -18,6 +18,10 @@ export type BPModifiers = {
     isStatic?: boolean;
     /** 是否为只读 */
     isReadonly?: boolean;
+    /**
+     * 是否是自动运行
+     */
+    isAutoRun?: boolean;
 }
 
 export type TBPDeclaration = {

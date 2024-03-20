@@ -30,7 +30,7 @@ export class BlueprintGetTempVarNode extends BlueprintRuntimeBaseNode {
         context.parmFromCustom(_parmsArray, runId, "runId");
 
         if (this.nativeFun) {
-            let result = context.excuteFun(this.nativeFun, this.outPutParmPins, runtimeDataMgr, BlueprintStaticFun, _parmsArray, runId);
+            let result = context.excuteFun(this.nativeFun, this.returnValue, runtimeDataMgr, BlueprintStaticFun, _parmsArray, runId);
             if (result == undefined) {
                 runtimeDataMgr.setPinData(this.outPutParmPins[0], result, runId);
             }

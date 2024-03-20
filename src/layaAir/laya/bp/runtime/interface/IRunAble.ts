@@ -28,7 +28,7 @@ export interface IRunAble {
 
     parmFromCustom(parmsArray: any[], parm: any, parmname: string): void;
 
-    excuteFun(nativeFun: Function, outPutParmPins: BlueprintPinRuntime[],runtimeDataMgr:IRuntimeDataManger, caller: any, parmsArray: any[],runId:number): any;
+    excuteFun(nativeFun: Function, returnResult: BlueprintPinRuntime,runtimeDataMgr:IRuntimeDataManger, caller: any, parmsArray: any[],runId:number): any;
 
     getCode(): string;
 
@@ -45,4 +45,8 @@ export interface IRunAble {
     initData(key: number | symbol, nodeMap: Map<number, BlueprintRuntimeBaseNode>,localVarMap:Record<string, TBPVarProperty>): void;
 
     getDataMangerByID(id:symbol|number):IRuntimeDataManger;
+
+    setCacheAble(node: BlueprintRuntimeBaseNode, runId: number, value: any):void ;
+
+    getCacheAble(node: BlueprintRuntimeBaseNode, runId: number):boolean;
 }

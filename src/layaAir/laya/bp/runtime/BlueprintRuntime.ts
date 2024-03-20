@@ -14,6 +14,7 @@ import { BlueprintCustomFunReturn } from "./node/BlueprintCustomFunReturn";
 import { IRuntimeDataManger } from "../core/interface/IRuntimeDataManger";
 import { BluePrintAsNode } from "./node/BlueprintAsNode";
 import { BlueprintUtil } from "../core/BlueprintUtil";
+import { BlueprintAutoRun } from "./node/BlueprintAutoRun";
 
 
 const mainScope = Symbol("mainScope");
@@ -348,10 +349,12 @@ export class BluePrintBlock implements INodeManger<BlueprintRuntimeBaseNode>, IB
 
 export class BluePrintMainBlock extends BluePrintBlock {
     autoAnonymousfuns: BlueprintEventNode[];
+    autoRunNodes: BlueprintAutoRun[];
     constructor(id: symbol) {
         super(id);
         this.eventMap = new Map();
         this.autoAnonymousfuns = [];
+        this.autoRunNodes = [];
     }
     eventMap: Map<any, BlueprintEventNode>;
     cls: Function;
@@ -361,6 +364,23 @@ export class BluePrintMainBlock extends BluePrintBlock {
             this.optimizeByStart(value, this.excuteList);
             // let 
         });
+        for (let i = 0, n = this.autoRunNodes.length; i < n; i++) {
+            let item = this.autoRunNodes[i];
+            let hasLink = false;
+            for (let j = 0, m = item.outPutParmPins.length; j < m; j++) {
+                let pin = item.outPutParmPins[j];
+                if (pin.linkTo.length > 0) {
+                    hasLink = true;
+                    break;
+                }
+            }
+            if (hasLink) {
+                this.autoRunNodes.splice(i, 1);
+                i--;
+                n--;
+            }
+        }
+
     }
 
     protected onEventParse(eventName: string) {
@@ -388,6 +408,11 @@ export class BluePrintMainBlock extends BluePrintBlock {
     append(node: BlueprintRuntimeBaseNode, item: TBPNode) {
         super.append(node, item);
         switch (node.type) {
+            case BPType.Pure:
+                if (node instanceof BlueprintAutoRun) {
+                    this.autoRunNodes.push(node);
+                }
+                break;
             case BPType.Event:
                 if (!item.dataId) {
                     this.eventMap.set(node.name, node as BlueprintEventNode);
@@ -396,6 +421,15 @@ export class BluePrintMainBlock extends BluePrintBlock {
                     this.autoAnonymousfuns.push(node as BlueprintEventNode);
                 }
                 break;
+        }
+    }
+
+    runAuto(context:IRunAble){
+        context.initData(this.id, this.nodeMap, this.localVarMap);
+        let id=this.getRunID();
+        for (let i = 0, n = this.autoRunNodes.length; i < n; i++) {
+            let item = this.autoRunNodes[i];
+            item.step(context, context.getDataMangerByID(this.id), true, this, true, id, null);
         }
     }
 

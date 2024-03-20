@@ -35,7 +35,7 @@ export class BlueprintFunNode extends BlueprintRuntimeBaseNode {
 
     private excuteHookFun(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, runner: IBPRutime, caller: any, parmsArray: any[], runId: number, fromPin: BlueprintPinRuntime) {
         parmsArray.unshift(this.eventName);
-        return context.excuteFun(this.nativeFun, this.outPutParmPins, runtimeDataMgr, caller, parmsArray, runId);
+        return context.excuteFun(this.nativeFun, this.returnValue, runtimeDataMgr, caller, parmsArray, runId);
     }
 
 

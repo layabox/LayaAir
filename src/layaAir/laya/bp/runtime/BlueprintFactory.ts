@@ -24,10 +24,13 @@ import { BPMathLib } from "../export/BPMathLib";
 import { BlueprintGetTempVarNode } from "./node/BlueprintGetTempVarNode";
 import { BlueprintSetTempVarNode } from "./node/BlueprintSetTempVarNode";
 import { BPArray } from "../export/BPArray";
+import { BlueprintAutoRun } from "./node/BlueprintAutoRun";
 
 export class BlueprintFactory {
     public static readonly bpSymbol: unique symbol = Symbol("bpruntime");
     public static readonly contextSymbol: unique symbol = Symbol("context");
+
+    public static readonly autoRunSymbol: unique symbol = Symbol("autoRun");
     private static _funMap: Map<string, [Function, boolean]>;
 
     private static _instance: BlueprintFactory;
@@ -173,7 +176,7 @@ export class BlueprintFactory {
                         let varMap = this[BlueprintFactory.bpSymbol].varMap;
                         if (varMap) {
                             for (let str in varMap) {
-                                if(!varMap[str].modifiers?.isStatic){
+                                if (!varMap[str].modifiers?.isStatic) {
                                     this[BlueprintFactory.contextSymbol].initVar(varMap[str].name, varMap[str].value);
                                 }
                                 //a[str]
@@ -213,6 +216,9 @@ export class BlueprintFactory {
                         }
                     }
 
+                    [BlueprintFactory.autoRunSymbol](){
+                        this[BlueprintFactory.bpSymbol].mainBlock.runAuto(this[BlueprintFactory.contextSymbol]);
+                    }
                     // onAwake() {
                     //     this.bp.run(this.context, "onAwake", null);
                     // }
@@ -221,17 +227,17 @@ export class BlueprintFactory {
         }
 
         let newClass = classFactory(name, cls);
-        let staticContext:IRunAble=newClass[BlueprintFactory.contextSymbol] = new BlueprintFactory.BPExcuteCls(newClass);
+        let staticContext: IRunAble = newClass[BlueprintFactory.contextSymbol] = new BlueprintFactory.BPExcuteCls(newClass);
         if (varMap) {
             for (let str in varMap) {
-                if(varMap[str].modifiers?.isStatic){
+                if (varMap[str].modifiers?.isStatic) {
                     staticContext.initVar(varMap[str].name, varMap[str].value);
                 }
                 //a[str]
             }
         }
         BlueprintUtil.regClass(name, newClass);
-        let bp:BlueprintRuntime = newClass.prototype[BlueprintFactory.bpSymbol] = new BlueprintFactory.BPRuntimeCls();
+        let bp: BlueprintRuntime = newClass.prototype[BlueprintFactory.bpSymbol] = new BlueprintFactory.BPRuntimeCls();
         bp.dataMap = data.dataMap;
         // debugger;
         let c = function (node: TBPNode): TBPCNode {
@@ -264,13 +270,21 @@ export class BlueprintFactory {
     }
 
     createNew(config: TBPCNode, item: TBPNode) {
+        let isAutoRun = config.modifiers?.isAutoRun;
         let cls = BlueprintFactory._bpMap.get(config.type) || BlueprintRuntimeBaseNode;
+        if (isAutoRun) {
+            cls = BlueprintAutoRun;
+        }
         let result = new cls();
         result.nid = item.id;
         if (item.autoReg) {
             (result as BlueprintEventNode).autoReg = item.autoReg;
         }
         result.parse(config);
+        //@ts-ignore
+        result._testItem = item;
+        //@ts-ignore
+        result._testConfig = config;
         return result;
     }
 }

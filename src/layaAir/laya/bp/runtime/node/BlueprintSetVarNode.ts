@@ -29,7 +29,7 @@ export class BlueprintSetVarNode extends BlueprintFunNode {
         context.parmFromCustom(_parmsArray, context, "context");
 
         if (this.nativeFun) {
-            context.excuteFun(this.nativeFun, this.outPutParmPins, runtimeDataMgr, BlueprintFunNode, _parmsArray, runId);
+            context.excuteFun(this.nativeFun, this.returnValue, runtimeDataMgr, BlueprintFunNode, _parmsArray, runId);
         }
         return this.next();
     }

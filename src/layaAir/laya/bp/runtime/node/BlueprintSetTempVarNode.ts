@@ -31,7 +31,7 @@ export class BlueprintSetTempVarNode extends BlueprintFunNode {
         context.parmFromCustom(_parmsArray, runId, "runId");
 
         if (this.nativeFun) {
-            context.excuteFun(this.nativeFun, this.outPutParmPins, runtimeDataMgr, BlueprintFunNode, _parmsArray, runId);
+            context.excuteFun(this.nativeFun, this.returnValue, runtimeDataMgr, BlueprintFunNode, _parmsArray, runId);
         }
         return this.next();
     }

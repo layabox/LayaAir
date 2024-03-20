@@ -8,6 +8,12 @@ import { BlueprintRunBase } from "./BlueprintRunBase";
 import { RuntimeNodeData } from "./RuntimeNodeData";
 
 export class BlueprintGenCodeNode extends BlueprintRunBase implements IRunAble {
+    setCacheAble(node: BlueprintRuntimeBaseNode, runId: number, value: any): void {
+        throw new Error("Method not implemented.");
+    }
+    getCacheAble(node: BlueprintRuntimeBaseNode, runId: number): boolean {
+        throw new Error("Method not implemented.");
+    }
     getDataMangerByID(id: number | symbol): IRuntimeDataManger {
         throw new Error("Method not implemented.");
     }
@@ -88,7 +94,7 @@ export class BlueprintGenCodeNode extends BlueprintRunBase implements IRunAble {
         parmsArray.push(parmname);
     }
 
-    excuteFun(nativeFun: Function, outPutParmPins: BlueprintPinRuntime[], runtimeDataMgr: IRuntimeDataManger, caller: any, parmsArray: any[], runId: number): void {
+    excuteFun(nativeFun: Function, returnResult: BlueprintPinRuntime, runtimeDataMgr: IRuntimeDataManger, caller: any, parmsArray: any[], runId: number): void {
 
         let a = (nativeFun.name + "(" + parmsArray.join(",") + ");");
         this.currentFun.push(a);

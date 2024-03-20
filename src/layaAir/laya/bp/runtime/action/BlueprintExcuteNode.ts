@@ -16,6 +16,20 @@ export class BlueprintExcuteNode extends BlueprintRunBase implements IRunAble {
     runtimeDataMgrMap: Map<number | symbol, RuntimeDataManger>;
     readCache: boolean;
 
+    private _cacheMap: Map<number,Map<number,boolean>> = new Map();
+
+    setCacheAble(node: BlueprintRuntimeBaseNode, runId: number, value: any):void {
+        let map = this._cacheMap.get(node.nid);
+        if (!map) {
+            map = new Map();
+            this._cacheMap.set(node.nid, map);
+        }
+        map.set(runId, value);
+    }
+
+    getCacheAble(node: BlueprintRuntimeBaseNode, runId: number): boolean {
+        return this._cacheMap.get(node.nid)?.get(runId);
+    }
 
     constructor(data: any) {
         super();
@@ -97,10 +111,10 @@ export class BlueprintExcuteNode extends BlueprintRunBase implements IRunAble {
         }
     }
 
-    excuteFun(nativeFun: Function, outPutParmPins: BlueprintPinRuntime[], runtimeDataMgr: IRuntimeDataManger, caller: any, parmsArray: any[], runId: number): any {
+    excuteFun(nativeFun: Function, returnResult: BlueprintPinRuntime, runtimeDataMgr: IRuntimeDataManger, caller: any, parmsArray: any[], runId: number): any {
         let result = nativeFun.apply(caller, parmsArray);
         //if (result != undefined && !(result instanceof Promise)) {
-        outPutParmPins[0] && runtimeDataMgr.setPinData(outPutParmPins[0], result, runId);
+        returnResult && runtimeDataMgr.setPinData(returnResult, result, runId);
         //outPutParmPins[0].setValue(result);
         //}
         return result;
@@ -171,7 +185,6 @@ class RuntimeDataManger implements IRuntimeDataManger {
     getPinData(pin: BlueprintPinRuntime, runId: number) {
         return this.pinMap.get(pin.id).getValue(runId);
     }
-
 
 
     initData(nodeMap: Map<number, BlueprintRuntimeBaseNode>, localVarMap: Record<string, TBPVarProperty>): void {
