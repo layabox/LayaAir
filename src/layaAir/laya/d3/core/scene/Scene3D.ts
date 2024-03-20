@@ -56,6 +56,7 @@ import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 import { CommandUniformMap } from "../../../RenderDriver/DriverDesign/RenderDevice/CommandUniformMap";
 import { RenderTexture2D } from "../../../resource/RenderTexture2D";
 import { BaseRender } from "../render/BaseRender";
+import {PERF_STAT, PerformanceDefine} from "../../../tools/PerformanceTool";
 
 export enum FogMode {
     Linear = 0, //Linear
@@ -267,7 +268,7 @@ export class Scene3D extends Sprite {
     /**
      * create Scene UniformBuffer
      * @internal
-     * @returns 
+     * @returns
      */
     static createSceneUniformBlock(): UnifromBufferData {
         if (!Scene3D.SceneUBOData) {
@@ -1064,7 +1065,7 @@ export class Scene3D extends Sprite {
     }
     /**
      * scence外的Camera渲染场景,需要设置这个接口
-     * @param camera 
+     * @param camera
      */
     _setCullCamera(camera: Camera) {
         this._cullInfoCamera = camera;
@@ -1160,7 +1161,7 @@ export class Scene3D extends Sprite {
 
     /**
      * 获得某个组件的管理器
-     * @param type 
+     * @param type
      */
     getComponentElementManager(type: string) {
         return this.componentElementMap.get(type);
@@ -1171,6 +1172,7 @@ export class Scene3D extends Sprite {
      * @override
      * @internal
      */
+    @PERF_STAT(PerformanceDefine.SCENE3D_RENDER)
     render(ctx: Context): void {
         if (this._children.length > 0) {
             //temp
@@ -1215,10 +1217,10 @@ export class Scene3D extends Sprite {
 
     /**
      * @internal
-     * @param source 
-     * @param normalizeViewPort 
-     * @param camera 
-     * @returns 
+     * @param source
+     * @param normalizeViewPort
+     * @param camera
+     * @returns
      */
     blitMainCanvans(source: BaseTexture, normalizeViewPort: Viewport, camera: Camera) {
         if (!source)

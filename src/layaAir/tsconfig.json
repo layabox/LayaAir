@@ -16,6 +16,7 @@
         "skipLibCheck": true,
         "strict": true,
         "strictNullChecks": false,
+        "experimentalDecorators": true
         // "strict": true /* Enable all strict type-checking options. */,
         //"noUnusedLocals": true /* Report errors on unused locals. */,
         //"noUnusedParameters": true /* Report errors on unused parameters. */,
