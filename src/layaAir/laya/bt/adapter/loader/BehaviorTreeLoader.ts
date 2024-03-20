@@ -1,3 +1,4 @@
+import { Dependence } from "../../../bp/adapter/loader/BlueprintLoader";
 import { HierarchyLoader } from "../../../loaders/HierarchyLoader";
 import { ILoadTask, IResourceLoader, Loader } from "../../../net/Loader";
 import { URL } from "../../../net/URL";
@@ -30,9 +31,28 @@ export class BehaviorTreeLoader implements IResourceLoader {
         //引擎精灵解析
         let links = HierarchyLoader.v3.collectResourceLinks(data, basePath);
 
-        return task.loader.load(links, null, task.progress.createCallback()).then((resArray: any[]) => {
-            return new BehaviorTreeImpl(data, task, version);
-        });
+        Dependence.instance.finish("res://" + task.uuid);
+
+        if (links && links.length !== 0) {
+            let promises:Promise<any>[] = [];
+            let progress = 0;
+            for (let i = links.length - 1; i > -1; i--) {
+                let link = links[i];
+                let url = typeof(link) == "string" ? link : link.url;
+                // if (!res) {
+                    let promise = Dependence.instance.wait(url)
+                    .finally(()=>{progress ++});
+                    promises.push(promise);
+                // }else{
+                //     progress ++;
+                // }
+            }
+
+            return Promise.all(promises).then(()=>{
+                return new BehaviorTreeImpl(data , task ,version);
+            });
+        }else
+            return Promise.resolve(new BehaviorTreeImpl(data, task, version));
     }
 }
 

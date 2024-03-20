@@ -26,7 +26,7 @@ export class BlueprintLoader implements IResourceLoader{
         //引擎精灵解析
         let links = HierarchyLoader.v3.collectResourceLinks(data,basePath);
         
-        BPDependencieMgr.instance.finish("res://" + task.uuid);
+        Dependence.instance.finish("res://" + task.uuid);
 
         if (links && links.length !== 0) {
             let promises:Promise<any>[] = [];
@@ -35,7 +35,7 @@ export class BlueprintLoader implements IResourceLoader{
                 let link = links[i];
                 let url = typeof(link) == "string" ? link : link.url;
                 // if (!res) {
-                    let promise = BPDependencieMgr.instance.wait(url)
+                    let promise = Dependence.instance.wait(url)
                     .finally(()=>{progress ++});
                     promises.push(promise);
                 // }else{
@@ -51,10 +51,10 @@ export class BlueprintLoader implements IResourceLoader{
     }
 }
 
-class BPDependencieMgr{
-    private static _instance: BPDependencieMgr;
-    public static get instance(): BPDependencieMgr {
-        return this._instance ||= new BPDependencieMgr;
+export class Dependence{
+    private static _instance: Dependence;
+    public static get instance(): Dependence {
+        return this._instance ||= new Dependence;
     }
 
     tasks: Record<string,BPDependencieTask> = {};
@@ -86,7 +86,14 @@ class BPDependencieMgr{
             this.tasks[url] = task;
             return new Promise((resolve) => {
                 task.onComplete.add(resolve);
-                Laya.loader.load(url);
+                Laya.loader.load(url)
+                .then(res=>{
+                    if (!(res instanceof BlueprintImpl)) {
+                        this.finish(url);
+                        delete this.tasks[url];
+                    }
+                    return Promise.resolve();
+                });
             });
         }
         else if (task.loaded) {
