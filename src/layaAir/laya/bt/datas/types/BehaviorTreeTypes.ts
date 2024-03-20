@@ -42,7 +42,17 @@ export interface TBTNode {
     },
     childs?: string[];
     debugType?: number;
-    decorators?: Record<string, any>;
-    services?: Record<string, any>;
+    decorators?: TBTDecorator[];
+    services?: TBTService[];
     autoReg?: boolean;
+}
+
+export interface TBTDecorator {
+    id: number;
+    cid: string;
+}
+
+export interface TBTService {
+    id: number;
+    cid: string;
 }

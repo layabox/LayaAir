@@ -62,6 +62,13 @@ export class BTTaskNode extends BTExecutableNode {
         //console.log(">>>>>>>>>>任务结束：" + a.nodeName + ">>>>:" + Laya.Stat.loopCount)
     }
 
+    isTaskExecuting(): boolean {
+        return false;
+    }
+
+    isTaskAborting(): boolean {
+        return false;
+    }
 }
 
 export class BTTaskNodeContext extends BTNodeContext {

@@ -3,16 +3,16 @@ import { BTAuxiliaryNode } from "./BTAuxiliaryNode";
 
 export class BTDecorator extends BTAuxiliaryNode {
 
-    onActive(btCmp: BehaviorTreeComponent) {
-
-    }
-
-    onLeave(btCmp: BehaviorTreeComponent) {
-
-    }
-
     canExcute(btCmp:BehaviorTreeComponent): boolean {
         return true;
     }
 
+
+    isDecoratorObserverActive(): boolean {
+        return false;
+    }
+
+    isDecoratorExecutionActive(): boolean {
+        return this._active;
+    }
 }
