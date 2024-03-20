@@ -55,6 +55,7 @@ export class ReflectionProbe extends Volume {
 		this._importance = 0;
 		this._type = VolumeManager.ReflectionProbeVolumeType;
 		this._dataModule = Laya3DRender.Render3DModuleDataFactory.createReflectionProbe();
+		this._dataModule.bound = this._bounds;
 		this._dataModule.ambientIntensity = 1.0;
 		this._dataModule.reflectionIntensity = 1.0;
 		this.boundsMax = new Vector3(5, 5, 5);
