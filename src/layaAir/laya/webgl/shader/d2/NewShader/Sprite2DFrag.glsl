@@ -21,7 +21,7 @@ vec4 linearToGamma(in vec4 value)
     return vec4(linearToGamma(value.rgb), value.a);
 }
 
-vec4 colorGamma(inout vec4 color) {
+void colorGamma(inout vec4 color) {
 #ifndef GAMMATEXTURE
     //是linear数据
     #ifdef GAMMASPACE

@@ -583,6 +583,9 @@ mat4 inverse(mat4 m)
         attributeMap: { [name: string]: [number, ShaderDataType] },
         uniformMap: UniformMapType, VS: ShaderNode, FS: ShaderNode) {
 
+        if (defineString.indexOf('UPDOWN_NDC_Y') === -1)
+            defineString.push('UPDOWN_NDC_Y');
+
         const arrayMap: NameNumberMap = {}; //uniform中的数组
         const varyingMap: NameStringMap = {};
         const varyingMapVS: NameStringMap = {};

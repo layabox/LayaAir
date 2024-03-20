@@ -18,6 +18,8 @@ export class WebGPUShaderInstance implements IShaderInstance {
     /**@internal */
     private _fsShader: GPUShaderModule;
 
+    destroyed: boolean = false;
+
     name: string;
     complete: boolean = false;
 
@@ -170,7 +172,10 @@ export class WebGPUShaderInstance implements IShaderInstance {
     }
 
     _disposeResource(): void {
-        WebGPUGlobal.releaseId(this);
-        this.renderPipelineMap.clear();
+        if (!this.destroyed) {
+            WebGPUGlobal.releaseId(this);
+            this.renderPipelineMap.clear();
+            this.destroyed = true;
+        }
     }
 }

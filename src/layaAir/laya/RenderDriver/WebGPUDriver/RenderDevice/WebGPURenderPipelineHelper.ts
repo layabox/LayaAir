@@ -10,16 +10,16 @@ import { WebGPURenderEngine } from "./WebGPURenderEngine";
 import { WebGPURenderGeometry } from "./WebGPURenderGeometry";
 import { WebGPUShaderInstance } from "./WebGPUShaderInstance";
 
-enum WebGPUCullMode {
-    None = "none",
-    Front = "front",
-    Back = "back"
-}
+// enum WebGPUCullMode {
+//     None = "none",
+//     Front = "front",
+//     Back = "back"
+// }
 
-enum WebGPUFrontFace {
-    CCW = "ccw",
-    CW = "cw"
-}
+// enum WebGPUFrontFace {
+//     CCW = "ccw",
+//     CW = "cw"
+// }
 
 export interface WebGPUBlendStateCache {
     state: GPUBlendState,
@@ -276,10 +276,10 @@ export class WebGPUPrimitiveState {
         }
         switch (frontFace) {
             case FrontFace.CCW:
-                state.frontFace = "ccw";
+                state.frontFace = "cw"; //由于WebGPU和WebGL的坐标系不同，这里需要反转
                 break;
             case FrontFace.CW:
-                state.frontFace = "cw";
+                state.frontFace = "ccw";
                 break;
         }
         return state;
@@ -308,7 +308,7 @@ export class WebGPURenderPipeline {
         const primitiveState = WebGPUPrimitiveState.getGPUPrimitiveState(info.geometry.mode, info.frontFace, info.cullMode);
         const bufferState = info.geometry.bufferState;
         const depthStencilId = info.depthStencilState ? info.depthStencilState.key : -1;
-        const strId = `${primitiveState.key}_${info.blendState.key}_${depthStencilId}_${renderTarget.formatId}_${bufferState.id}_${bufferState.updateBufferLayoutFlag}`;
+        const strId = `${shaderInstance._id}_${primitiveState.key}_${info.blendState.key}_${depthStencilId}_${renderTarget.formatId}_${bufferState.id}_${bufferState.updateBufferLayoutFlag}`;
         let renderPipeline = map.get(strId);
         if (!renderPipeline) {
             renderPipeline = this._createRenderPipeline

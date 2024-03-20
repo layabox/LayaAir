@@ -1,7 +1,7 @@
 export class WebGPUStatis {
     private static _start: number = Date.now();
     private static _totalStatis: { memory: number } = { memory: 0 };
-    private static _frameStatis: { renderElement?: number, uploadNum?: number, submit?: number } = {};
+    private static _frameStatis: { renderElement?: number, uploadNum?: number, uploadBytes?: number, submit?: number } = {};
     private static _dataTiming: { action: string, name: string, id: number, time: number, memory: number, object: any }[] = [];
     private static _dataCreate: { [key: string]: { id: number[], count: number, time: number[], memory: number, object: any[] } } = {};
     private static _dataRelease: { [key: string]: { id: number[], count: number, time: number[], memory: number, object: any[] } } = {};
@@ -10,11 +10,16 @@ export class WebGPUStatis {
     static startFrame() {
         this._frameStatis.submit = 0;
         this._frameStatis.uploadNum = 0;
+        this._frameStatis.uploadBytes = 0;
         this._frameStatis.renderElement = 0;
     }
 
     static addUploadNum(n: number = 1) {
         this._frameStatis.uploadNum += n;
+    }
+
+    static addUploadBytes(n: number = 1) {
+        this._frameStatis.uploadBytes += n;
     }
 
     static addRenderElement(n: number = 1) {

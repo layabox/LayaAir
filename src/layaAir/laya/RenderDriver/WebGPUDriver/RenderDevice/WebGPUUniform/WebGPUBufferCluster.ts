@@ -96,12 +96,13 @@ export class WebGPUBufferCluster {
      */
     upload() {
         let count = 0;
+        let bytes = 0;
         let next = false;
         let startIndex = -1;
         let endIndex = -1;
         let offset = 0;
         let size = 0;
-        
+
         //遍历needUpload数组，找到需要上传的块，然后合并相邻块，上传数据
         for (let i = 0, len = this.needUpload.length; i < len; i++) {
             if (this.needUpload[i]) {
@@ -117,6 +118,7 @@ export class WebGPUBufferCluster {
                     size = (endIndex - startIndex + 1) * this.sliceSize;
                     this.device.queue.writeBuffer(this.buffer, offset, this.arrayBuffer, offset, size);
                     count++;
+                    bytes += size;
                     startIndex = -1;
                     endIndex = -1;
                     next = false;
@@ -130,10 +132,12 @@ export class WebGPUBufferCluster {
             size = (endIndex - startIndex + 1) * this.sliceSize;
             this.device.queue.writeBuffer(this.buffer, offset, this.arrayBuffer, offset, size);
             count++;
+            bytes += size;
         }
 
-        //记录上传次数
+        //记录上传次数，字节数
         WebGPUStatis.addUploadNum(count);
+        WebGPUStatis.addUploadBytes(bytes);
     }
 
     /**
