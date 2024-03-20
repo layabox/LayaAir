@@ -187,6 +187,7 @@ export class GLESRender3DProcess implements IRender3DProcess {
         let renderList = camera.scene.sceneRenderableManager.renderBaselist;
 
         this.renderFowarAddCameraPass(context, this.renderpass, <RTBaseRenderNode[]>renderList.elements, renderList.length);
+        Camera.depthPass.cleanUp();
     }
 
     renderFowarAddCameraPass(context: GLESRenderContext3D, renderpass: GLESForwardAddRP, list: RTBaseRenderNode[], count: number): void {

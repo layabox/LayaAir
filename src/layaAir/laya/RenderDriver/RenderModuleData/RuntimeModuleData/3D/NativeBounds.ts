@@ -50,7 +50,7 @@ export class NativeBounds implements IClone {
         this.float64Array[0] = value.x;
         this.float64Array[1] = value.y;
         this.float64Array[2] = value.z;
-		this._nativeObj.setMin();
+        this._nativeObj.setMin();
     }
 
     /**
@@ -74,7 +74,7 @@ export class NativeBounds implements IClone {
         this.float64Array[0] = value.x;
         this.float64Array[1] = value.y;
         this.float64Array[2] = value.z;
-		this._nativeObj.setMax();
+        this._nativeObj.setMax();
     }
 
     /**
@@ -98,7 +98,7 @@ export class NativeBounds implements IClone {
         this.float64Array[0] = value.x;
         this.float64Array[1] = value.y;
         this.float64Array[2] = value.z;
-		this._nativeObj.setCenter();
+        this._nativeObj.setCenter();
     }
 
     /**
@@ -122,7 +122,7 @@ export class NativeBounds implements IClone {
         this.float64Array[0] = value.x;
         this.float64Array[1] = value.y;
         this.float64Array[2] = value.z;
-		this._nativeObj.setExtent();
+        this._nativeObj.setExtent();
     }
 
     /**
@@ -147,7 +147,7 @@ export class NativeBounds implements IClone {
         this.nativeMemory = new NativeMemory(NativeBounds.MemoryBlock_size, true);
         this.float32Array = this.nativeMemory.float32Array;
         this.float64Array = this.nativeMemory.float64Array;
-        this._nativeObj = new (window as any).conchBounds(this.nativeMemory._buffer); 
+        this._nativeObj = new (window as any).conchBounds(this.nativeMemory._buffer);
         min && this.setMin(min);
         max && this.setMax(max);
     }
@@ -156,7 +156,7 @@ export class NativeBounds implements IClone {
      */
     _tranform(matrix: Matrix4x4, out: NativeBounds): void {
         this.float32Array.set(matrix.elements);
-        this._nativeObj._tranform(out._nativeObj);
+        this._nativeObj._tranform(matrix, out._nativeObj);
     }
 
     _getBoundBox(): BoundBox {

@@ -314,45 +314,53 @@ export class GLESSetRenderData extends SetRenderDataCMD {
     set value(value: ShaderDataItem) {
         switch (this.dataType) {
             case ShaderDataType.Int:
+                this.data_number = value as number;
+                this._value = this.data_number;
+                this._nativeObj.setInt(this.value)
+                break;
             case ShaderDataType.Float:
+                this.data_number = value as number;
+                this._value = this.data_number;
+                this._nativeObj.setFloat(this.value)
+                break;
             case ShaderDataType.Bool:
                 this.data_number = value as number;
                 this._value = this.data_number;
-                this._nativeObj.setValue(this.value)
+                this._nativeObj.setBool(this.value)
                 break;
             case ShaderDataType.Matrix4x4:
                 this.data_mat && (this.data_mat = new Matrix4x4());
                 (value as Matrix4x4).cloneTo(this.data_mat);
                 this._value = this.data_mat;
-                this._nativeObj.setValue(this.value)
+                this._nativeObj.setMatrix4x4(this.value)
                 break;
             case ShaderDataType.Color:
                 this.data_Color && (this.data_Color = new Color());
                 (value as Color).cloneTo(this.data_Color);
                 this._value = this.data_Color;
-                this._nativeObj.setValue(this.value)
+                this._nativeObj.setColor(this.value)
                 break;
             case ShaderDataType.Texture2D:
                 this._value = this.data_texture = value as BaseTexture;
-                this._nativeObj.setValue((this.data_texture._texture as GLESInternalTex))
+                this._nativeObj.setTexture2D((this.data_texture._texture as GLESInternalTex))
                 break;
             case ShaderDataType.Vector4:
                 this.data_v4 && (this.data_v4 = new Vector4());
                 (value as Vector4).cloneTo(this.data_v4);
                 this._value = this.data_v4;
-                this._nativeObj.setValue(this.value)
+                this._nativeObj.setVector(this.value)
                 break;
             case ShaderDataType.Vector2:
                 this.data_v2 && (this.data_v2 = new Vector2());
                 (value as Vector2).cloneTo(this.data_v2);
                 this._value = this.data_v2;
-                this._nativeObj.setValue(this.value)
+                this._nativeObj.setVector2(this.value)
                 break;
             case ShaderDataType.Vector3:
                 this.data_v3 && (this.data_v3 = new Vector3());
                 (value as Vector3).cloneTo(this.data_v3);
                 this._value = this.data_v3;
-                this._nativeObj.setValue(this.value)
+                this._nativeObj.setVector3(this.value);
                 break;
             case ShaderDataType.Buffer:
                 this._value = this.data_Buffer = value as Float32Array;
