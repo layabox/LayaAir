@@ -1,7 +1,7 @@
 
 import { Component } from "../../../components/Component";
 import { HierarchyLoader } from "../../../loaders/HierarchyLoader";
-import { ILoadTask } from "../../../net/Loader";
+import { ILoadTask, ILoadURL } from "../../../net/Loader";
 import { URL } from "../../../net/URL";
 import { IHierarchyParserAPI } from "../../../resource/PrefabImpl";
 import { Resource } from "../../../resource/Resource";
@@ -16,6 +16,9 @@ import { LayaEnv } from "../../../../LayaEnv";
 export class BlueprintImpl extends Resource {
 
     public readonly version: number;
+
+    /** @internal */
+    public internalVer:number;
 
     /** @private */
     public data: TBPSaveData;
@@ -42,6 +45,7 @@ export class BlueprintImpl extends Resource {
         this.name = URL.getFileName(task.url);
         this.initClass();
     }
+
 
     create(options?: Record<string, any>, errors?: any[]) {
         if (this.state == -1) {
@@ -70,6 +74,7 @@ export class BlueprintImpl extends Resource {
 
         return result;
     }
+
     constData: Record<string, any> = {};
     allData: Record<string, any>;
 

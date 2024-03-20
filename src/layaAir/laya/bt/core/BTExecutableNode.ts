@@ -1,4 +1,5 @@
 import { BehaviorTreeFactory } from "../BehaviorTreeFactory";
+import { TBTDecorator, TBTNode, TBTService } from "../datas/types/BehaviorTreeTypes";
 import { BTDecorator } from "./BTDecorator";
 import { BTNode } from "./BTNode";
 import { BTService } from "./BTService";
@@ -26,6 +27,11 @@ export abstract class BTExecutableNode extends BTNode {
     onActive(btCmp: BehaviorTreeComponent) {
         if (this.decorators) {
             this.decorators.forEach(value => {
+                value.onActive(btCmp);
+            })
+        }
+        if (this.services) {
+            this.services.forEach(value => {
                 value.onActive(btCmp);
             })
         }
@@ -77,16 +83,21 @@ export abstract class BTExecutableNode extends BTNode {
         return super.preCheck(preNode, btCmp);
     }
 
-    parseAuxiliary(config: any, btConfig: any) {
+    parse(config: TBTNode): void {
+        super.parse(config);
+        this.parseAuxiliary(config);
+    }
+
+    parseAuxiliary(config: TBTNode) {
         if (config.decorators) {
-            config.decorators.forEach((value: any) => {
-                let node = BehaviorTreeFactory.instance.createNew(btConfig[value]) as BTDecorator;
+            config.decorators.forEach((value: TBTDecorator) => {
+                let node = BehaviorTreeFactory.instance.createNew(value as TBTNode) as BTDecorator;
                 this.addDecorator(node);
             })
         }
         if (config.services) {
-            config.services.forEach((value: any) => {
-                let node = BehaviorTreeFactory.instance.createNew(btConfig[value]) as BTService;
+            config.services.forEach((value: TBTService) => {
+                let node = BehaviorTreeFactory.instance.createNew(value as TBTNode) as BTService;
                 this.addService(node);
             })
         }
