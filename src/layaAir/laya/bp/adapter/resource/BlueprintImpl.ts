@@ -312,9 +312,9 @@ export class BlueprintImpl extends Resource {
         // this._obsolute = value;
     }
 
-    protected _disposeResource(): void {
-        super._disposeResource();
-        delete ClassUtils._classMap[this.uuid];
-        delete ClassUtils._classMap[this.typeName];
-    }
+    // protected _disposeResource(): void {
+    //     super._disposeResource();
+    //     delete ClassUtils._classMap[this.uuid];
+    //     delete ClassUtils._classMap[this.typeName];
+    // }
 }
