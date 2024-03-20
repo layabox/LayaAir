@@ -82,7 +82,7 @@ vec3 BlinnPhongLighting(const in Surface surface, const in PixelParams pixel)
 		// {
 		//     continue;
 		// }
-        if (spotLight.lightMode == LightMode_Mix) {
+        if (spotLight.lightMode != LightMode_Mix) {
 	        Light light = getLight(spotLight, normalWS, positionWS);
 	        lightColor += BlinnPhongLighting(surface, light, info) * light.attenuation;
         }
