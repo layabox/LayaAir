@@ -74,7 +74,7 @@ export class MeshRenderer extends BaseRender {
      * @returns 
      */
     protected _createBaseRenderNode(): IMeshRenderNode {
-       
+
         return Laya3DRender.Render3DModuleDataFactory.createMeshRenderNode();
     }
 
@@ -373,10 +373,13 @@ export class MeshRenderer extends BaseRender {
         if (this._renderElements.length == 1) {
             this._renderElements[0]._renderElementOBJ.isRender = this._renderElements[0]._geometry._prepareRender(context);
             this._renderElements[0]._geometry._updateRenderParams(context);
+            this._renderElements[0]._renderElementOBJ.materialRenderQueue = this.sharedMaterial.renderQueue;
         } else {
             for (var i = 0, n = this._renderElements.length; i < n; i++) {
                 this._renderElements[i]._renderElementOBJ.isRender = this._renderElements[i]._geometry._prepareRender(context);
                 this._renderElements[i]._geometry._updateRenderParams(context);
+                let material = this.sharedMaterials[i] ?? this.sharedMaterial;
+                this._renderElements[i]._renderElementOBJ.materialRenderQueue = material.renderQueue;
             }
         }
     }

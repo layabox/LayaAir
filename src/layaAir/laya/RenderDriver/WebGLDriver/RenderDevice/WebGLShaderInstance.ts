@@ -207,7 +207,6 @@ export class WebGLShaderInstance implements IShaderInstance {
         }
         //Stencil
         var stencilWrite: any = (renderState.stencilWrite ?? datas[Shader3D.STENCIL_WRITE]) ?? RenderState.Default.stencilWrite;
-        var stencilWrite: any = (renderState.stencilWrite ?? datas[Shader3D.STENCIL_WRITE]) ?? RenderState.Default.stencilWrite;
         var stencilTest: any = (renderState.stencilTest ?? datas[Shader3D.STENCIL_TEST]) ?? RenderState.Default.stencilTest;
         RenderStateContext.setStencilMask(stencilWrite);
         if (stencilWrite) {
@@ -216,7 +215,8 @@ export class WebGLShaderInstance implements IShaderInstance {
         }
         if (stencilTest == RenderState.STENCILTEST_OFF) {
             RenderStateContext.setStencilTest(false);
-        } else {
+        }
+        else {
             var stencilRef: any = (renderState.stencilRef ?? datas[Shader3D.STENCIL_Ref]) ?? RenderState.Default.stencilRef;
             RenderStateContext.setStencilTest(true);
             RenderStateContext.setStencilFunc(stencilTest, stencilRef);
