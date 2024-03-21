@@ -80,7 +80,7 @@ export class Dependence{
      * @param  
      * @returns 
      */
-    public wait(url:string){
+    public wait(url:string):Promise<any>{
         let res = Laya.loader.getRes(url);
         if (res){
             delete this.tasks[url];
