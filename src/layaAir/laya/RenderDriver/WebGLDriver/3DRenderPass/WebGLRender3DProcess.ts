@@ -136,7 +136,7 @@ export class WebGLRender3DProcess implements IRender3DProcess {
             }
         }
 
-        if (Stat.enablePostprocess && camera.postProcess&& camera.postProcess.enable) {
+        if (Stat.enablePostprocess && camera.postProcess && camera.postProcess.enable) {
             this.renderpass.enablePostProcess = Stat.enablePostprocess;
             this.renderpass.postProcess = camera.postProcess._context.command;
             camera.postProcess._render(camera);
@@ -205,7 +205,9 @@ export class WebGLRender3DProcess implements IRender3DProcess {
         renderpass._beforeImageEffectCMDS && renderpass._beforeImageEffectCMDS.forEach(element => {
             context.runCMDList(element._renderCMDs);
         });
-        renderpass.postProcess && context.runCMDList(renderpass.postProcess._renderCMDs);
+        if (renderpass.enablePostProcess) {
+            renderpass.postProcess && context.runCMDList(renderpass.postProcess._renderCMDs);
+        }
         renderpass._afterAllRenderCMDS && renderpass._afterAllRenderCMDS.forEach(element => {
             context.runCMDList(element._renderCMDs);
         });
