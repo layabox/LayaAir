@@ -1,4 +1,5 @@
 import { LayaEnv } from "../../../../../LayaEnv";
+import { GPUEngineStatisticsInfo } from "../../../../RenderEngine/RenderEnum/RenderStatInfo";
 import { ShaderVariable } from "../../../../RenderEngine/RenderShader/ShaderVariable";
 import { UniformBufferObject } from "../../../../RenderEngine/UniformBufferObject";
 import { Matrix3x3 } from "../../../../maths/Matrix3x3";
@@ -54,7 +55,8 @@ export class GLShaderInstance extends GLObject {
     }
 
     private _create(): void {
-
+        WebGLEngine.instance._addStatisticsInfo(GPUEngineStatisticsInfo.C_ShaderCompile, 1);
+        
         const gl: WebGLRenderingContext = this._gl;
         this._program = gl.createProgram();
         this._vshader = this._createShader(gl, this._vs, gl.VERTEX_SHADER);
@@ -233,6 +235,8 @@ export class GLShaderInstance extends GLObject {
             return false;
         this._gl.useProgram(this._program);
         this._engine._glUseProgram = this;
+        //不知道准不准
+        WebGLEngine.instance._addStatisticsInfo(GPUEngineStatisticsInfo.C_SetRenderPassCount, 1);
         return true;
     }
 

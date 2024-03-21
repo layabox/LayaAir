@@ -2,7 +2,7 @@ import { InternalTexture } from "../../../RenderDriver/DriverDesign/RenderDevice
 import { FilterMode } from "../../../RenderEngine/RenderEnum/FilterMode";
 import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
 import { RenderParams } from "../../../RenderEngine/RenderEnum/RenderParams";
-import { RenderStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
+import { GPUEngineStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
 import { TextureCompareMode } from "../../../RenderEngine/RenderEnum/TextureCompareMode";
 import { TextureDimension } from "../../../RenderEngine/RenderEnum/TextureDimension";
 import { WrapMode } from "../../../RenderEngine/RenderEnum/WrapMode";
@@ -56,11 +56,11 @@ export class WebGLInternalTex extends GLObject implements InternalTexture {
         return this._gpuMemory;
     }
     set gpuMemory(value: number) {
-        this._engine._addStatisticsInfo(RenderStatisticsInfo.GPUMemory, -this._gpuMemory);
-        this._engine._addStatisticsInfo(RenderStatisticsInfo.TextureMemeory, -this._gpuMemory);
+        this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.M_GPUMemory, -this._gpuMemory);
+        this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.M_ALLTexture, -this._gpuMemory);
         this._gpuMemory = value;
-        this._engine._addStatisticsInfo(RenderStatisticsInfo.GPUMemory, this._gpuMemory);
-        this._engine._addStatisticsInfo(RenderStatisticsInfo.TextureMemeory, this._gpuMemory);
+        this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.M_GPUMemory, this._gpuMemory);
+        this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.M_ALLTexture, this._gpuMemory);
     }
 
     constructor(engine: WebGLEngine, target: number, width: number, height: number, depth: number, dimension: TextureDimension, mipmap: boolean, useSRGBLoader: boolean, gammaCorrection: number) {
@@ -292,8 +292,8 @@ export class WebGLInternalTex extends GLObject implements InternalTexture {
     dispose(): void {
         let gl = this._gl;
         gl.deleteTexture(this.resource);
-        this._engine._addStatisticsInfo(RenderStatisticsInfo.GPUMemory, -this._gpuMemory);
-        this._engine._addStatisticsInfo(RenderStatisticsInfo.TextureMemeory, -this._gpuMemory);
+        this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.M_GPUMemory, -this._gpuMemory);
+        this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.M_ALLTexture, -this._gpuMemory);
         this._gpuMemory = 0;
     }
 }

@@ -1,6 +1,6 @@
 import { InternalRenderTarget } from "../../../RenderDriver/DriverDesign/RenderDevice/InternalRenderTarget";
 import { InternalTexture } from "../../../RenderDriver/DriverDesign/RenderDevice/InternalTexture";
-import { RenderStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
+import { GPUEngineStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
 import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { WebGLEngine } from "./WebGLEngine";
 import { GLObject } from "./WebGLEngine/GLObject";
@@ -38,8 +38,8 @@ export class WebGLInternalRT extends GLObject implements InternalRenderTarget {
     set gpuMemory(value: number) {
 
         this._gpuMemory = value;
-        this._engine._addStatisticsInfo(RenderStatisticsInfo.GPUMemory, this._gpuMemory);
-        this._engine._addStatisticsInfo(RenderStatisticsInfo.RenderTextureMemory, this._gpuMemory);
+        this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.M_GPUMemory, this._gpuMemory);
+        this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.M_ALLRenderTexture, this._gpuMemory);
     }
 
 
@@ -80,8 +80,8 @@ export class WebGLInternalRT extends GLObject implements InternalRenderTarget {
         this._msaaRenderbuffer && this._gl.deleteRenderbuffer(this._msaaRenderbuffer);
         this._msaaRenderbuffer = null;
 
-        this._engine._addStatisticsInfo(RenderStatisticsInfo.GPUMemory,-this._gpuMemory);
-        this._engine._addStatisticsInfo(RenderStatisticsInfo.RenderTextureMemory,-this._gpuMemory);
+        this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.M_GPUMemory,-this._gpuMemory);
+        this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.M_ALLRenderTexture,-this._gpuMemory);
         this._gpuMemory = 0;
     }
 }

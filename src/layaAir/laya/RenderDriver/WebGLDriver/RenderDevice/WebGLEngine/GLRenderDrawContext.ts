@@ -2,7 +2,7 @@
 import { DrawType } from "../../../../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../../../../RenderEngine/RenderEnum/IndexFormat";
 import { MeshTopology } from "../../../../RenderEngine/RenderEnum/RenderPologyMode";
-import { RenderStatisticsInfo } from "../../../../RenderEngine/RenderEnum/RenderStatInfo";
+import { GPUEngineStatisticsInfo } from "../../../../RenderEngine/RenderEnum/RenderStatInfo";
 import { WebGLEngine } from "../WebGLEngine";
 import { WebGLRenderGeometryElement } from "../WebGLRenderGeometryElement";
 import { WebGLExtension } from "./GLEnum/WebGLExtension";
@@ -69,9 +69,9 @@ export class GLRenderDrawContext extends GLObject {
         else
             this._angleInstancedArrays.drawElementsInstancedANGLE(mode, count, type, offset, instanceCount);
 
-        this._engine._addStatisticsInfo(RenderStatisticsInfo.DrawCall, 1);
-        this._engine._addStatisticsInfo(RenderStatisticsInfo.InstanceDrawCall, 1);
-        this._engine._addStatisticsInfo(RenderStatisticsInfo.Triangle, count / 3 * instanceCount);
+        this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.C_DrawCallCount, 1);
+        this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.C_Instancing_DrawCallCount, 1);
+        this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.C_TriangleCount, count / 3 * instanceCount);
 
     }
 
@@ -83,9 +83,9 @@ export class GLRenderDrawContext extends GLObject {
             (<WebGL2RenderingContext>this._gl).drawArraysInstanced(mode, first, count, instanceCount);
         else
             this._angleInstancedArrays.drawArraysInstancedANGLE(mode, first, count, instanceCount);
-        this._engine._addStatisticsInfo(RenderStatisticsInfo.DrawCall, 1);
-        this._engine._addStatisticsInfo(RenderStatisticsInfo.InstanceDrawCall, 1);
-        this._engine._addStatisticsInfo(RenderStatisticsInfo.Triangle, (count - 2) * instanceCount);
+        this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.C_DrawCallCount, 1);
+        this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.C_Instancing_DrawCallCount, 1);
+        this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.C_TriangleCount, (count - 2) * instanceCount);
     }
 
     /**
@@ -96,8 +96,8 @@ export class GLRenderDrawContext extends GLObject {
      */
     drawArrays(mode: number, first: number, count: number): void {
         this._gl.drawArrays(mode, first, count);
-        this._engine._addStatisticsInfo(RenderStatisticsInfo.DrawCall, 1);
-        this._engine._addStatisticsInfo(RenderStatisticsInfo.Triangle, (count - 2));
+        this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.C_DrawCallCount, 1);
+        this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.C_TriangleCount, (count - 2));
     }
 
     /**
@@ -109,8 +109,8 @@ export class GLRenderDrawContext extends GLObject {
      */
     drawElements(mode: number, count: number, type: IndexFormat, offset: number): void {
         this._gl.drawElements(mode, count, type, offset);
-        this._engine._addStatisticsInfo(RenderStatisticsInfo.DrawCall, 1);
-        this._engine._addStatisticsInfo(RenderStatisticsInfo.Triangle, count / 3);
+        this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.C_DrawCallCount, 1);
+        this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.C_TriangleCount, count / 3);
     }
 
     /**
@@ -124,8 +124,8 @@ export class GLRenderDrawContext extends GLObject {
         mode = this.getMeshTopology(mode);
         type = this.getIndexType(type);
         this._gl.drawElements(mode, count, type, offset);
-        this._engine._addStatisticsInfo(RenderStatisticsInfo.DrawCall, 1);
-        this._engine._addStatisticsInfo(RenderStatisticsInfo.Triangle, count / 3);
+        this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.C_DrawCallCount, 1);
+        this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.C_TriangleCount, count / 3);
     }
 
     /**

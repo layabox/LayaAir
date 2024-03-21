@@ -56,7 +56,6 @@ import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 import { CommandUniformMap } from "../../../RenderDriver/DriverDesign/RenderDevice/CommandUniformMap";
 import { RenderTexture2D } from "../../../resource/RenderTexture2D";
 import { BaseRender } from "../render/BaseRender";
-import {PERF_STAT, PerformanceDefine} from "../../../tools/PerformanceTool";
 
 export enum FogMode {
     Linear = 0, //Linear
@@ -1172,7 +1171,6 @@ export class Scene3D extends Sprite {
      * @override
      * @internal
      */
-    @PERF_STAT(PerformanceDefine.SCENE3D_RENDER)
     render(ctx: Context): void {
         if (this._children.length > 0) {
             //temp

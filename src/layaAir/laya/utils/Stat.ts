@@ -1,5 +1,4 @@
 import { ILaya } from "../../ILaya";
-import { RenderStatisticsInfo } from "../RenderEngine/RenderEnum/RenderStatInfo";
 import { LayaGL } from "../layagl/LayaGL";
 import { Browser } from "./Browser";
 import { ClassUtils } from "./ClassUtils";
@@ -211,7 +210,7 @@ export class Stat {
         this.hide();
 
         Stat._show = true;
-        Stat._currentShowArray = views||Stat.AllShow;
+        Stat._currentShowArray = views || Stat.AllShow;
         Stat._statUI.show(x, y, Stat._currentShowArray);
         ILaya.systemTimer.frameLoop(1, null, Stat.loop);
     }
@@ -281,14 +280,14 @@ export class Stat {
     }
 
     static updateEngineData(): void {
-        Stat.trianglesFaces = LayaGL.renderEngine.getStatisticsInfo(RenderStatisticsInfo.Triangle);
-        Stat.drawCall = LayaGL.renderEngine.getStatisticsInfo(RenderStatisticsInfo.DrawCall);
-        Stat.instanceDrawCall = LayaGL.renderEngine.getStatisticsInfo(RenderStatisticsInfo.InstanceDrawCall);
+        // Stat.trianglesFaces = LayaGL.renderEngine.getStatisticsInfo(GPUEngineStatisticsInfo.Triangle);
+        // Stat.drawCall = LayaGL.renderEngine.getStatisticsInfo(GPUEngineStatisticsInfo.DrawCall);
+        // Stat.instanceDrawCall = LayaGL.renderEngine.getStatisticsInfo(GPUEngineStatisticsInfo.InstanceDrawCall);
 
-        Stat.gpuMemory = LayaGL.renderEngine.getStatisticsInfo(RenderStatisticsInfo.GPUMemory);
-        Stat.textureMemory = LayaGL.renderEngine.getStatisticsInfo(RenderStatisticsInfo.TextureMemeory);
-        Stat.renderTextureMemory = LayaGL.renderEngine.getStatisticsInfo(RenderStatisticsInfo.RenderTextureMemory);
-        Stat.bufferMemory = LayaGL.renderEngine.getStatisticsInfo(RenderStatisticsInfo.BufferMemory);
+        // Stat.gpuMemory = LayaGL.renderEngine.getStatisticsInfo(GPUEngineStatisticsInfo.GPUMemory);
+        // Stat.textureMemory = LayaGL.renderEngine.getStatisticsInfo(GPUEngineStatisticsInfo.TextureMemeory);
+        // Stat.renderTextureMemory = LayaGL.renderEngine.getStatisticsInfo(GPUEngineStatisticsInfo.RenderTextureMemory);
+        // Stat.bufferMemory = LayaGL.renderEngine.getStatisticsInfo(GPUEngineStatisticsInfo.BufferMemory);
     }
 
     /**
@@ -302,9 +301,9 @@ export class Stat {
             if (element.mode == "average")
                 (Stat as any)[element.value] = 0;
         });
-        LayaGL.renderEngine.clearStatisticsInfo(RenderStatisticsInfo.Triangle);
-        LayaGL.renderEngine.clearStatisticsInfo(RenderStatisticsInfo.DrawCall);
-        LayaGL.renderEngine.clearStatisticsInfo(RenderStatisticsInfo.InstanceDrawCall);
+        // LayaGL.renderEngine.clearStatisticsInfo(RenderStatisticsInfo.Triangle);
+        // LayaGL.renderEngine.clearStatisticsInfo(RenderStatisticsInfo.DrawCall);
+        // LayaGL.renderEngine.clearStatisticsInfo(RenderStatisticsInfo.InstanceDrawCall);
     }
 
     static render(ctx: any, x: number, y: number) {
