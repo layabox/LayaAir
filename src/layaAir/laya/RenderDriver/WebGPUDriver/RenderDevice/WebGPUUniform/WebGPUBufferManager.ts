@@ -16,12 +16,17 @@ export class WebGPUBufferManager {
         this.namedBuffers = new Map();
     }
 
-    getBufferAlone(size: number) {
-        const buffer = this.device.createBuffer({
+    /**
+     * 获取单独的GPUBuffer
+     * @param size 
+     * @param name 
+     */
+    getBufferAlone(size: number, name?: string) {
+        return this.device.createBuffer({
+            label: name,
             size: size,
             usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
         });
-        return buffer;
     }
 
     /**

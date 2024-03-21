@@ -12,9 +12,9 @@ export class WebGPUBufferAlone {
 
     constructor(buffer: GPUBuffer, size: number) {
         this.queue = WebGPURenderEngine._instance.getDevice().queue;
+        this.data = new ArrayBuffer(size);
         this.buffer = buffer;
         this.size = size;
-        this.data = new ArrayBuffer(size);
     }
 
     upload() {
@@ -24,8 +24,8 @@ export class WebGPUBufferAlone {
     }
 
     destroy() {
-        this.queue = null;
         this.buffer.destroy();
+        this.queue = null;
         this.data = null;
     }
 }

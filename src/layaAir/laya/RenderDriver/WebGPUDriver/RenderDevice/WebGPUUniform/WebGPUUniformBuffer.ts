@@ -486,11 +486,11 @@ export class WebGPUUniformBuffer {
     }
 
     /**
-     * 根据strID判断是否命中
-     * @param strID 
+     * 根据strId判断是否命中
+     * @param strId 
      */
-    isMe(strID: string) {
-        return this.strId === strID;
+    isMe(strId: string) {
+        return this.strId === strId;
     }
 
     /**
@@ -607,7 +607,7 @@ export class WebGPUUniformBuffer {
                     return 'Float32Array';
                 return 'Unknown';
             }
-            console.log("strID =", this.strId);
+            console.log("strId =", this.strId);
             this.items.forEach((item, key) => {
                 console.log("key: %d, type: %s, view: %s, offset: %d, size: %d, padding: %d, elements: %d, count: %d",
                     key, item.type, typeName(item.view), item.view.byteOffset, item.view.byteLength,
