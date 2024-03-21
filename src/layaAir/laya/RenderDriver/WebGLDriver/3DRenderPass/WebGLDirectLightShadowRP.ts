@@ -158,7 +158,8 @@ export class WebGLDirectLightShadowRP {
         var shaderValues: WebGLShaderData = context.sceneData;
         context.pipelineMode = "ShadowCaster";
         var shadowMap = this.destTarget
-        context.setRenderTarget(shadowMap);
+        context.setRenderTarget(shadowMap, RenderClearFlag.Depth);
+        context.setClearData(RenderClearFlag.Depth, Color.BLACK, 1, 0);
 
         let originCameraData = context.cameraData;
 

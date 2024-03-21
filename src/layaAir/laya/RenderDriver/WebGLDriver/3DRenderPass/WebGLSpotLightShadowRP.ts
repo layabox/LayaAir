@@ -139,7 +139,7 @@ export class WebGLSpotLightShadowRP {
 
         var shaderValues: WebGLShaderData = context.sceneData;
         context.pipelineMode = "ShadowCaster";
-        context.setRenderTarget(this.destTarget);
+        context.setRenderTarget(this.destTarget, RenderClearFlag.Depth);
         var shadowSpotData: ShadowSpotData = this._shadowSpotData;
         this._getShadowBias(shadowSpotData.resolution, this._shadowBias);
         this._setupShadowCasterShaderValues(shaderValues, shadowSpotData, this._shadowParams, this._shadowBias);

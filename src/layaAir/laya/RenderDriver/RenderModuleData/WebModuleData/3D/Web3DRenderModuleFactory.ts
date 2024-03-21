@@ -49,7 +49,7 @@ export class Web3DRenderModuleFactory implements I3DRenderModuleFactory {
   }
 
   createPointLight(): IPointLightData {
-    throw new WebPointLight();
+    return new WebPointLight();
   }
 
   createCameraModuleData(): WebCameraNodeData {
