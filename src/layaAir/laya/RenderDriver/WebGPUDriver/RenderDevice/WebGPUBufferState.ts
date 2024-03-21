@@ -13,7 +13,7 @@ export class WebGPUBufferState implements IBufferState {
     static idCounter: number = 0;
     id: number;
     updateBufferLayoutFlag: number = 0;
-    vertexState: Array<GPUVertexBufferLayout> = new Array();//GPURenderPipelineDescriptor-GPUVertexState
+    vertexState: GPUVertexBufferLayout[] = [];
     _bindedIndexBuffer: WebGPUIndexBuffer;
     _vertexBuffers: WebGPUVertexBuffer[];
 

@@ -96,7 +96,7 @@ export class WebGPUTest {
 
             const boxMesh1 = PrimitiveMesh.createBox(0.2, 0.2, 0.2);
             const coneMesh1 = PrimitiveMesh.createCone(0.1, 0.3, 64);
-            const sphereMesh1 = PrimitiveMesh.createSphere(0.25, 32, 32);
+            const sphereMesh1 = PrimitiveMesh.createSphere(0.25, 64, 64);
 
             const material1 = new BlinnPhongMaterial();
             const material2 = new BlinnPhongMaterial();
@@ -186,19 +186,19 @@ export class WebGPUTest {
             // meshRenderer2.castShadow = false;
             // meshRenderer2.receiveShadow = false;
 
-            if (this.useWebGPU) {
-                Laya.timer.loop(3000, this, () => { WebGPUStatis.printFrameStatis(); });
-                Laya.timer.once(5000, this, () => {
-                    WebGPUStatis.printStatisticsAsTable();
-                    WebGPUStatis.printTotalStatis();
-                    WebGPUStatis.printTextureStatis();
-                    console.log(WebGPURenderEngine._instance.gpuBufferMgr.namedBuffers.get('scene3D'));
-                    console.log(WebGPURenderEngine._instance.gpuBufferMgr.namedBuffers.get('camera'));
-                    console.log(WebGPURenderEngine._instance.gpuBufferMgr.namedBuffers.get('material'));
-                    console.log(WebGPURenderEngine._instance.gpuBufferMgr.namedBuffers.get('sprite3D'));
-                    console.log(WebGPURenderEngine._instance.gpuBufferMgr.namedBuffers.get('sprite3D_static'));
-                });
-            }
+            // if (this.useWebGPU) {
+            //     Laya.timer.loop(3000, this, () => { WebGPUStatis.printFrameStatis(); });
+            //     Laya.timer.once(5000, this, () => {
+            //         WebGPUStatis.printStatisticsAsTable();
+            //         WebGPUStatis.printTotalStatis();
+            //         WebGPUStatis.printTextureStatis();
+            //         console.log(WebGPURenderEngine._instance.gpuBufferMgr.namedBuffers.get('scene3D'));
+            //         console.log(WebGPURenderEngine._instance.gpuBufferMgr.namedBuffers.get('camera'));
+            //         console.log(WebGPURenderEngine._instance.gpuBufferMgr.namedBuffers.get('material'));
+            //         console.log(WebGPURenderEngine._instance.gpuBufferMgr.namedBuffers.get('sprite3D'));
+            //         console.log(WebGPURenderEngine._instance.gpuBufferMgr.namedBuffers.get('sprite3D_static'));
+            //     });
+            // }
         });
     }
 }

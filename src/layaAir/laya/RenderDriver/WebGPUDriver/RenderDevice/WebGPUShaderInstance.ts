@@ -54,9 +54,6 @@ export class WebGPUShaderInstance implements IShaderInstance {
             this.uniformSetMap[item.set].push(item);
         });
 
-        //生成pipeLineLayout
-        //const pipelineLayout = this.createPipelineLayout(device, 'pipelineLayout');
-
         this._vsShader = device.createShaderModule({ code: shaderObj.vs });
         this._fsShader = device.createShaderModule({ code: shaderObj.fs });
 
@@ -109,7 +106,8 @@ export class WebGPUShaderInstance implements IShaderInstance {
             },
         };
 
-        this.complete = true;
+        this.complete = true; //@ts-ignore
+        console.log('create ShaderInstance:', this._id, shaderPass._owner._owner.name);
     }
 
     /**

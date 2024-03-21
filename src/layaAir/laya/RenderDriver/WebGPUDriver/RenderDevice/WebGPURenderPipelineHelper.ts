@@ -314,7 +314,7 @@ export class WebGPURenderPipeline {
             renderPipeline = this._createRenderPipeline
                 (info.blendState.state, info.depthStencilState?.state, primitiveState.state, bufferState.vertexState, shaderInstance, renderTarget, entries);
             map.set(strId, renderPipeline);
-            console.log(strId);
+            console.log('renderPipeline key =', strId);
         }
         return renderPipeline;
     }

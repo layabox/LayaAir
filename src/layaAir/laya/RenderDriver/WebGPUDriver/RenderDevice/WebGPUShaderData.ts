@@ -36,9 +36,9 @@ export class WebGPUShaderData extends ShaderData {
 
     private static _bindGroupCounter: number = 0;
 
+    isShare: boolean = true; //是否共享模式，该ShaderData数据是否会被多个节点共享
     isStatic: boolean = false; //是否静态，静态的节点会使用静态的大Buffer，减少上传次数
-    changeMark: number = 0; //变化标记，用于标记是否有数据变化，数据变化，值+1
-    share: boolean = true;
+    changeMark: number = 0; //变化标记，用于标记预编译设置是否变化，如变化，值+1
 
     globalId: number;
     objectName: string = 'WebGPUShaderData';
@@ -120,14 +120,19 @@ export class WebGPUShaderData extends ShaderData {
         let bindGroupLayoutEntries;
 
         //构建key，查找缓存bindGroup
-        if (this.share) {
+        if (this.isShare) { //只有共享的ShaderData才可能会需要不同的bindGroup
             key = name + '_' + this._infoId + ' | ';
             for (let i = info.length - 1; i > -1; i--)
                 key += info[i].propertyId + '_';
-            const bindInfo = this._bindGroupMap.get(key);
+            const bindInfo = this._bindGroupMap.get(key); //根据Key查找缓存
             bindGroup = bindInfo ? bindInfo[0] : null;
             bindGroupLayoutEntries = bindInfo ? bindInfo[1] : null;
         } else {
+            if (!this._bindGroup) { //首次创建
+                key = name + '_' + this._infoId + ' | ';
+                for (let i = info.length - 1; i > -1; i--)
+                    key += info[i].propertyId + '_';
+            }
             bindGroup = this._bindGroup;
             bindGroupLayoutEntries = this._bindGroupLayoutEntries;
         }
@@ -200,7 +205,7 @@ export class WebGPUShaderData extends ShaderData {
                 entries: bindGroupEntries,
             });
             //缓存绑定组
-            if (this.share)
+            if (this.isShare)
                 this._bindGroupMap.set(key, [bindGroup, bindGroupLayoutEntries]);
             else {
                 this._bindGroup = bindGroup;
@@ -231,13 +236,12 @@ export class WebGPUShaderData extends ShaderData {
     }
 
     /**
-    * 增加Shader宏定义。
-    * @param value 宏定义。
-    */
+     * 增加Shader宏定义。
+     * @param value 宏定义。
+     */
     addDefine(define: ShaderDefine): void {
         this._defineDatas.add(define);
     }
-
     addDefines(define: WebDefineDatas): void {
         this._defineDatas.addDefineDatas(define);
     }

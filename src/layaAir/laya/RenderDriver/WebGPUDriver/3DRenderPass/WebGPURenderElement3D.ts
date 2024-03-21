@@ -45,6 +45,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
     private _invertFrontFace: boolean;
 
     private _stateKey: string[] = [];
+    private _stateKeyCounter: number = 0;
     private _shaderInstances: WebGPUShaderInstance[] = [];
     private _pipelineCache: GPURenderPipeline[] = [];
 
@@ -110,6 +111,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
             this.materialShaderData.clearBindGroup();
     }
 
+    //这个函数每帧会被调用很多次，看能不能优化
     private _calcStateKey(shaderInstance: WebGPUShaderInstance, dest: WebGPUInternalRT, context: WebGPURenderContext3D) {
         this._getBlendState(shaderInstance);
         this._getDepthStencilState(shaderInstance, dest);
@@ -346,8 +348,6 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
      */
     private _isShaderDataChange(context: WebGPURenderContext3D) {
         let change = false;
-        //const sceneData = context.sceneData;
-        //const cameraData = context.cameraData;
         if (this._sceneData) {
             if (this._shaderDataState[0] != this._sceneData.changeMark) {
                 this._shaderDataState[0] = this._sceneData.changeMark;
@@ -405,7 +405,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
             }
         }
         if (this.renderShaderData) {
-            this.renderShaderData.share = false;
+            this.renderShaderData.isShare = false;
             entries = this.renderShaderData.bindGroup(2, 'sprite3D', shaderInstance.uniformSetMap[2], context.renderCommand);
             if (!entries)
                 complete = false;
@@ -415,7 +415,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
             }
         }
         if (this.materialShaderData) {
-            this.materialShaderData.share = false;
+            this.materialShaderData.isShare = false;
             entries = this.materialShaderData.bindGroup(3, 'material', shaderInstance.uniformSetMap[3], context.renderCommand);
             if (!entries)
                 complete = false;
@@ -441,26 +441,28 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
      */
     _render(context: WebGPURenderContext3D) {
         if (this.isRender) {
-            const sceneData = context.sceneData;
-            const cameraData = context.cameraData;
+            let stateKey;
+            this._stateKeyCounter++;
             for (let i = 0, len = this._shaderInstances.length; i < len; i++) {
                 const shaderInstance = this._shaderInstances[i];
                 if (shaderInstance.complete) {
                     if (this.useCache) { //启用缓存机制
-                        const stateKey = this._calcStateKey(shaderInstance, context.destRT, context);
+                        if (this._stateKeyCounter % 10 == 0)
+                            stateKey = this._calcStateKey(shaderInstance, context.destRT, context);
+                        else stateKey = this._stateKey[i];
                         if (stateKey != this._stateKey[i] || !this._pipelineCache[i])
                             this._createPipeline(i, context, shaderInstance, stateKey); //新建渲染管线
                         else { //使用缓存
                             let complete = true;
-                            if (sceneData) {
-                                if (!sceneData.bindGroup(0, 'scene3D', shaderInstance.uniformSetMap[0], context.renderCommand))
+                            if (this._sceneData) {
+                                if (!this._sceneData.bindGroup(0, 'scene3D', shaderInstance.uniformSetMap[0], context.renderCommand))
                                     complete = false;
-                                else sceneData.uploadUniform();
+                                else this._sceneData.uploadUniform();
                             }
-                            if (cameraData) {
-                                if (!cameraData.bindGroup(1, 'camera', shaderInstance.uniformSetMap[1], context.renderCommand))
+                            if (this._cameraData) {
+                                if (!this._cameraData.bindGroup(1, 'camera', shaderInstance.uniformSetMap[1], context.renderCommand))
                                     complete = false;
-                                else cameraData.uploadUniform();
+                                else this._cameraData.uploadUniform();
                             }
                             if (this.renderShaderData) {
                                 if (!this.renderShaderData.bindGroup(2, 'sprite3D', shaderInstance.uniformSetMap[2], context.renderCommand))
