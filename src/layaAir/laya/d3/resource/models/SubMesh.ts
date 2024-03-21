@@ -156,8 +156,8 @@ export class SubMesh extends GeometryElement {
 		if (this._destroyed)
 			return;
 		super.destroy();
-		this._indexBuffer.destroy();
 		this._indexBuffer = null;
+		this._vertexBuffer = null;
 		this._mesh = null;
 		this._boneIndicesList = null;
 		this._subIndexBufferStart = null;
