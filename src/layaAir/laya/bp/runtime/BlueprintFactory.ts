@@ -231,7 +231,7 @@ export class BlueprintFactory {
             }[className];
         }
         let newClass = classFactory(name, cls);
-        BlueprintUtil.regClass(name, newClass);
+        // BlueprintUtil.regClass(name, newClass);
         return newClass as unknown as T;
     }
     /**
