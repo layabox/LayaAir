@@ -14,12 +14,14 @@ export enum GPUEngineStatisticsInfo {
     //shader compile
     C_ShaderCompile,
     T_ShaderCompile,
+
+    FrameClearCount,//frame clear flag 需要每帧统计的数据写道上面
     //Memory
     M_GPUMemory,
     M_GPUBuffer,
     M_VertexBuffer,
     M_IndexBuffer,
-    M_UniformBlockBuffer,
+    M_UniformBlockBuffer,//Webgl TODO
     RC_GPUBuffer,
     RC_VertexBuffer,
     RC_IndexBuffer,

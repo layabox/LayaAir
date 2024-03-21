@@ -56,7 +56,7 @@ export class GLShaderInstance extends GLObject {
 
     private _create(): void {
         WebGLEngine.instance._addStatisticsInfo(GPUEngineStatisticsInfo.C_ShaderCompile, 1);
-        
+        let preTime = performance.now();
         const gl: WebGLRenderingContext = this._gl;
         this._program = gl.createProgram();
         this._vshader = this._createShader(gl, this._vs, gl.VERTEX_SHADER);
@@ -121,6 +121,7 @@ export class GLShaderInstance extends GLObject {
                 this._addShaderUnifiormFun(one);
             }
         }
+        WebGLEngine.instance._addStatisticsInfo(GPUEngineStatisticsInfo.T_ShaderCompile, (performance.now() - preTime) | 0);
     }
 
     private _legalUBObyteLength(bytelength: number): number {

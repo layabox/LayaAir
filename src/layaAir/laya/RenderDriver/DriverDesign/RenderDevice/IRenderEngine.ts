@@ -14,6 +14,8 @@ export interface IRenderEngine {
     _isShaderDebugMode: boolean;
     /**@internal */
     _renderOBJCreateContext: IRenderEngineFactory;
+
+    _enableStatistics: boolean;
     initRenderEngine(canvas: any): void;
     copySubFrameBuffertoTex(texture: InternalTexture, level: number, xoffset: number, yoffset: number, x: number, y: number, width: number, height: number): void;
 
@@ -33,7 +35,7 @@ export interface IRenderEngine {
 
     getCreateRenderOBJContext(): IRenderEngineFactory;
     /**@internal */
-    clearStatisticsInfo(info: GPUEngineStatisticsInfo): void;
+    clearStatisticsInfo(): void;
     /**@internal */
     getStatisticsInfo(info: GPUEngineStatisticsInfo): number;
 }

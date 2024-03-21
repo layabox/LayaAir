@@ -47,8 +47,9 @@ export class WebGLInternalTex extends GLObject implements InternalTexture {
     /**bytelength */
     _gpuMemory: number = 0;
 
-
-    _getSource(){
+    private _statistics_M_Texture: GPUEngineStatisticsInfo;
+    private _statistics_RC_Texture: GPUEngineStatisticsInfo;
+    _getSource() {
         return this.resource;
     }
 
@@ -56,11 +57,8 @@ export class WebGLInternalTex extends GLObject implements InternalTexture {
         return this._gpuMemory;
     }
     set gpuMemory(value: number) {
-        this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.M_GPUMemory, -this._gpuMemory);
-        this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.M_ALLTexture, -this._gpuMemory);
+        this._changeTexMemory(value);
         this._gpuMemory = value;
-        this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.M_GPUMemory, this._gpuMemory);
-        this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.M_ALLTexture, this._gpuMemory);
     }
 
     constructor(engine: WebGLEngine, target: number, width: number, height: number, depth: number, dimension: TextureDimension, mipmap: boolean, useSRGBLoader: boolean, gammaCorrection: number) {
@@ -79,6 +77,24 @@ export class WebGLInternalTex extends GLObject implements InternalTexture {
         this.isPotSize = isPot(width) && isPot(height);
         if (dimension == TextureDimension.Tex3D) {
             this.isPotSize = this.isPotSize && isPot(this.depth);
+        }
+        switch (dimension) {
+            case TextureDimension.Tex2D:
+                this._statistics_M_Texture = GPUEngineStatisticsInfo.M_Texture2D;
+                this._statistics_RC_Texture = GPUEngineStatisticsInfo.RC_Texture2D;
+                break;
+            case TextureDimension.Tex3D:
+                this._statistics_M_Texture = GPUEngineStatisticsInfo.M_Texture3D;
+                this._statistics_RC_Texture = GPUEngineStatisticsInfo.RC_Texture3D;
+                break;
+            case TextureDimension.Cube:
+                this._statistics_M_Texture = GPUEngineStatisticsInfo.M_TextureCube;
+                this._statistics_RC_Texture = GPUEngineStatisticsInfo.RC_TextureCube;
+                break;
+            case TextureDimension.Texture2DArray:
+                this._statistics_M_Texture = GPUEngineStatisticsInfo.M_Texture2DArray;
+                this._statistics_RC_Texture = GPUEngineStatisticsInfo.RC_Texture2DArray;
+                break;
         }
 
         this._mipmap = mipmap && this.isPotSize;
@@ -105,6 +121,7 @@ export class WebGLInternalTex extends GLObject implements InternalTexture {
         this.anisoLevel = 4;
 
         this.compareMode = TextureCompareMode.None;
+        WebGLEngine.instance._addStatisticsInfo(this._statistics_RC_Texture, 1);
     }
 
     private _filterMode: FilterMode;
@@ -289,11 +306,18 @@ export class WebGLInternalTex extends GLObject implements InternalTexture {
         this._setTexParameteri(pname, param);
     }
 
+    private _changeTexMemory(memory: number) {
+        this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.M_GPUMemory, -this._gpuMemory + memory);
+        this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.M_ALLTexture, -this._gpuMemory + memory);
+        this._engine._addStatisticsInfo(this._statistics_M_Texture, -this._gpuMemory + memory);
+
+    }
+
     dispose(): void {
         let gl = this._gl;
         gl.deleteTexture(this.resource);
-        this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.M_GPUMemory, -this._gpuMemory);
-        this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.M_ALLTexture, -this._gpuMemory);
+        this._changeTexMemory(0);
         this._gpuMemory = 0;
+        WebGLEngine.instance._addStatisticsInfo(this._statistics_RC_Texture, -1);
     }
 }

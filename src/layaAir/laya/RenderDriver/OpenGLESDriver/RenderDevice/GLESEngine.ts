@@ -24,6 +24,7 @@ export class GLESEngine implements IRenderEngine {
   constructor(config: WebGLConfig, webglMode: WebGLMode = WebGLMode.Auto) {
     this._nativeObj = new (window as any).conchGLESEngine(config, webglMode);
   }
+  _enableStatistics: boolean;
   resizeOffScreen(width: number, height: number): void { }
 
   getDefineByName(name: string): RTShaderDefine {
@@ -64,8 +65,8 @@ export class GLESEngine implements IRenderEngine {
   getCreateRenderOBJContext(): IRenderEngineFactory {
     throw new Error("Method not implemented.");
   }
-  clearStatisticsInfo(info: GPUEngineStatisticsInfo): void {
-    this._nativeObj.clearStatisticsInfo(info);
+  clearStatisticsInfo(): void {
+    this._nativeObj.clearStatisticsInfo();
   }
   getStatisticsInfo(info: GPUEngineStatisticsInfo): number {
     return this._nativeObj.getStatisticsInfo(info);

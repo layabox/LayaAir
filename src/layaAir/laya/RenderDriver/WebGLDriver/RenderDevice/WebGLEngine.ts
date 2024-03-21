@@ -27,7 +27,6 @@ import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
 import { WebGLShaderData } from "../../RenderModuleData/WebModuleData/WebGLShaderData";
 import { IDefineDatas } from "../../RenderModuleData/Design/IDefineDatas";
 import { WebGLInternalTex } from "./WebGLInternalTex";
-import { RenderState2D } from "../../../webgl/utils/RenderState2D";
 import { GPUEngineStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
 
 /**
@@ -62,7 +61,7 @@ export class WebGLEngine implements IRenderEngine {
 
     /**@internal ShaderDebugMode*/
     _isShaderDebugMode: boolean = true;
-
+    _enableStatistics: boolean = false;
     /**@internal gl.TextureID*/
     _glTextureIDParams: Array<number>;
 
@@ -146,6 +145,7 @@ export class WebGLEngine implements IRenderEngine {
         this._initStatisticsInfo();
         WebGLEngine.instance = this;
     }
+
     resizeOffScreen(width: number, height: number): void {
 
     }
@@ -181,7 +181,7 @@ export class WebGLEngine implements IRenderEngine {
      * @param value 
      */
     _addStatisticsInfo(info: GPUEngineStatisticsInfo, value: number) {
-        this._GLStatisticsInfo.set(info, this._GLStatisticsInfo.get(info) + value);
+        this._enableStatistics && this._GLStatisticsInfo.set(info, this._GLStatisticsInfo.get(info) + value);
     }
 
     /**
@@ -189,8 +189,12 @@ export class WebGLEngine implements IRenderEngine {
      * @internal
      * @param info 
      */
-    clearStatisticsInfo(info: GPUEngineStatisticsInfo) {
-        this._GLStatisticsInfo.set(info, 0);
+    clearStatisticsInfo() {
+        if (this._enableStatistics) {
+            for (var i = 0; i < GPUEngineStatisticsInfo.FrameClearCount; i++) {
+                this._GLStatisticsInfo.set(i, 0);
+            }
+        }
     }
 
     /**

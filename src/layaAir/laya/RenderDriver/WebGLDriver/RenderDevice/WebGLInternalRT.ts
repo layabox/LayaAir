@@ -36,13 +36,15 @@ export class WebGLInternalRT extends GLObject implements InternalRenderTarget {
         return this._gpuMemory;
     }
     set gpuMemory(value: number) {
-
+        this._changeTexMemory(value);
         this._gpuMemory = value;
-        this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.M_GPUMemory, this._gpuMemory);
-        this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.M_ALLRenderTexture, this._gpuMemory);
     }
 
+    private _changeTexMemory(value: number) {
+        this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.M_GPUMemory, -this._gpuMemory + value);
+        this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.M_ALLRenderTexture, -this._gpuMemory + value);
 
+    }
     constructor(engine: WebGLEngine, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, isCube: boolean, generateMipmap: boolean, samples: number) {
         super(engine);
 
@@ -59,8 +61,9 @@ export class WebGLInternalRT extends GLObject implements InternalRenderTarget {
         if (samples > 1) {
             this._msaaFramebuffer = this._gl.createFramebuffer();
         }
+        this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.RC_ALLRenderTexture, 1);
     }
-    
+
 
 
     dispose(): void {
@@ -80,8 +83,8 @@ export class WebGLInternalRT extends GLObject implements InternalRenderTarget {
         this._msaaRenderbuffer && this._gl.deleteRenderbuffer(this._msaaRenderbuffer);
         this._msaaRenderbuffer = null;
 
-        this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.M_GPUMemory,-this._gpuMemory);
-        this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.M_ALLRenderTexture,-this._gpuMemory);
-        this._gpuMemory = 0;
+        this._changeTexMemory(0);
+        this.gpuMemory = 0;
+        this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.RC_ALLRenderTexture, -1);
     }
 }

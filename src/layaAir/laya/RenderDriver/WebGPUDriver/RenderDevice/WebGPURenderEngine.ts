@@ -90,6 +90,7 @@ export class WebGPURenderEngine implements IRenderEngine {
 
         this.globalId = WebGPUGlobal.getId(this);
     }
+    _enableStatistics: boolean;
 
     /**
      * 获取适配器
@@ -341,7 +342,7 @@ export class WebGPURenderEngine implements IRenderEngine {
     }
 
     //统计相关
-    clearStatisticsInfo(info: GPUEngineStatisticsInfo): void {
+    clearStatisticsInfo(): void {
     }
 
     //统计相关
