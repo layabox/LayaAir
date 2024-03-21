@@ -2,6 +2,7 @@ import { WebGPUStatis } from "./WebGPUStatis";
 
 export class WebGPUGlobal {
     static debug: boolean = true;
+    static useBigBuffer: boolean = false;
     private static _idCounter: number = 0;
     private static _uniformInfoIdCounter: number = 0;
 

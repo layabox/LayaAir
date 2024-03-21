@@ -186,19 +186,19 @@ export class WebGPUTest {
             // meshRenderer2.castShadow = false;
             // meshRenderer2.receiveShadow = false;
 
-            // if (this.useWebGPU) {
-            //     Laya.timer.loop(3000, this, () => { WebGPUStatis.printFrameStatis(); });
-            //     Laya.timer.once(5000, this, () => {
-            //         WebGPUStatis.printStatisticsAsTable();
-            //         WebGPUStatis.printTotalStatis();
-            //         WebGPUStatis.printTextureStatis();
-            //         console.log(WebGPURenderEngine._instance.gpuBufferMgr.namedBuffers.get('scene3D'));
-            //         console.log(WebGPURenderEngine._instance.gpuBufferMgr.namedBuffers.get('camera'));
-            //         console.log(WebGPURenderEngine._instance.gpuBufferMgr.namedBuffers.get('material'));
-            //         console.log(WebGPURenderEngine._instance.gpuBufferMgr.namedBuffers.get('sprite3D'));
-            //         console.log(WebGPURenderEngine._instance.gpuBufferMgr.namedBuffers.get('sprite3D_static'));
-            //     });
-            // }
+            if (this.useWebGPU) {
+                Laya.timer.loop(3000, this, () => { WebGPUStatis.printFrameStatis(); });
+                Laya.timer.once(5000, this, () => {
+                    WebGPUStatis.printStatisticsAsTable();
+                    WebGPUStatis.printTotalStatis();
+                    WebGPUStatis.printTextureStatis();
+                    console.log(WebGPURenderEngine._instance.gpuBufferMgr.namedBuffers.get('scene3D'));
+                    console.log(WebGPURenderEngine._instance.gpuBufferMgr.namedBuffers.get('camera'));
+                    console.log(WebGPURenderEngine._instance.gpuBufferMgr.namedBuffers.get('material'));
+                    console.log(WebGPURenderEngine._instance.gpuBufferMgr.namedBuffers.get('sprite3D'));
+                    console.log(WebGPURenderEngine._instance.gpuBufferMgr.namedBuffers.get('sprite3D_static'));
+                });
+            }
         });
     }
 }

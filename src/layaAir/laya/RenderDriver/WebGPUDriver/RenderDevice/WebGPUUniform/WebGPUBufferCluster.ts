@@ -23,7 +23,7 @@ export class WebGPUBufferCluster {
     expand: number; //每次扩展数量
 
     needUpload: boolean[] = []; //哪些块需要上传
-    arrayBuffer: ArrayBuffer; //数据
+    data: ArrayBuffer; //数据
 
     globalId: number; //全局id
     objectName: string; //本对象名称
@@ -39,7 +39,7 @@ export class WebGPUBufferCluster {
         this.expand = 1; // 默认每次扩展数量
 
         this.totalLeft = this.totalSize;
-        this.arrayBuffer = new ArrayBuffer(this.totalSize);
+        this.data = new ArrayBuffer(this.totalSize);
 
         this.buffer = device.createBuffer({
             size: this.totalSize,
@@ -116,7 +116,7 @@ export class WebGPUBufferCluster {
                 if (next) {
                     offset = startIndex * this.sliceSize;
                     size = (endIndex - startIndex + 1) * this.sliceSize;
-                    this.device.queue.writeBuffer(this.buffer, offset, this.arrayBuffer, offset, size);
+                    this.device.queue.writeBuffer(this.buffer, offset, this.data, offset, size);
                     count++;
                     bytes += size;
                     startIndex = -1;
@@ -130,7 +130,7 @@ export class WebGPUBufferCluster {
         if (next) {
             offset = startIndex * this.sliceSize;
             size = (endIndex - startIndex + 1) * this.sliceSize;
-            this.device.queue.writeBuffer(this.buffer, offset, this.arrayBuffer, offset, size);
+            this.device.queue.writeBuffer(this.buffer, offset, this.data, offset, size);
             count++;
             bytes += size;
         }
@@ -155,7 +155,7 @@ export class WebGPUBufferCluster {
                 size: this.totalSize,
                 usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
             });
-            this.arrayBuffer = new ArrayBuffer(this.totalSize);
+            this.data = new ArrayBuffer(this.totalSize);
         }
         this.totalLeft = this.totalSize;
         this.free = [{ offset: 0, size: this.totalSize }];
@@ -203,8 +203,8 @@ export class WebGPUBufferCluster {
 
         //创建一个新的CPUBuffer，将旧数据拷贝过来
         const newArrayBuffer = new ArrayBuffer(this.totalSize);
-        new Uint8Array(newArrayBuffer).set(new Uint8Array(this.arrayBuffer));
-        this.arrayBuffer = newArrayBuffer;
+        new Uint8Array(newArrayBuffer).set(new Uint8Array(this.data));
+        this.data = newArrayBuffer;
 
         //创建一个新的GPUBuffer
         const newBuffer = this.device.createBuffer({
