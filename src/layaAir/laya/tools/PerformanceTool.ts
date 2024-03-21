@@ -56,7 +56,7 @@ export class PerformanceDefine {
     static T_Render_CameraEventCMD: string;
     static T_Render_ShadowPassMode: string;
     static T_Render_CameraOtherDest: string;
-    static T_RenderPreUpdate: string;
+    static T_RenderPreUpdate: string;//TODO 
     //Volume TODO
     //OtherSceneManager TODO
     //render type time
@@ -64,11 +64,11 @@ export class PerformanceDefine {
     static T_OnlySkinnedMeshRender: string;//TODO
     static T_OnlyShurikenParticleRender: string;//TODO
     //render count
-    static C_Sprite3DCount: string;
-    static C_BaseRenderCount: string;
-    static C_MeshRenderCount: string;
-    static C_SkinnedMeshRenderCount: string;
-    static C_ShurikenParticleRenderCount: string;
+    static C_Sprite3DCount: string;//Stat.sprite3DCount
+    static C_BaseRenderCount: string;//Stat.renderNode
+    static C_MeshRenderCount: string;//Stat.meshRenderNode
+    static C_SkinnedMeshRenderCount: string;//Stat.skinRenderNode
+    static C_ShurikenParticleRenderCount: string;//Stat.ParticleRenderNode
     //Animator
     static T_AnimatorUpdate: string;
     static T_SkinBoneUpdate: string;
@@ -91,9 +91,9 @@ export class PerformanceDefine {
     static C_PhysicaCharacterController: string;
     static C_PhysicsJoint: string;
     //--------PerformanceLoadDefine--------
-    static T_LoadResourceTime: string;
-    static C_LoadResourceCount: string;
-    static C_LoadRequestCount: string;
+    static T_LoadResourceTime: string;//TODO
+    static C_LoadResourceCount: string;//TODO
+    static C_LoadRequestCount: string;//TODO
     //--------Performance2DRenderDefine--------
     static T_UITime: string;
     static C_UICount: string;

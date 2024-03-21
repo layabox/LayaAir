@@ -1396,6 +1396,7 @@ export class Animator extends Component {
     /**
      * @internal
      */
+    //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_AnimatorUpdate)
     onUpdate(): void {
         let timer = this.owner._scene.timer;
         let delta = timer._delta / 1000.0;//Laya.timer.delta已结包含Laya.timer.scale

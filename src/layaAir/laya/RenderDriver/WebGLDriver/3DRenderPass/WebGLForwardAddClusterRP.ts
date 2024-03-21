@@ -155,6 +155,7 @@ export class WebGLForwardAddClusterRP {
      * @param context 
      * @param list 
      */
+    //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_Render_CameraOtherDest)
     private _renderDepthPass(context: WebGLRenderContext3D): void {
         context.pipelineMode = this.depthPipelineMode;
         var viewport = this._viewPort;
@@ -178,11 +179,28 @@ export class WebGLForwardAddClusterRP {
         shadervalue.removeDefine(DepthPass.DEPTHPASS);
     }
 
+
+    //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_Render_TransparentRender)
+    private _transparentListRender(context: WebGLRenderContext3D) {
+        this.transparent.renderQueue(context);
+    }
+
+    /**
+     * 渲染非透明物体Pass
+     * @param context 
+     * @param list 
+     */
+    //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_Render_OpaqueRender)
+    private _opaqueListRender(context: WebGLRenderContext3D) {
+        this.opaqueList.renderQueue(context);
+    }
+
     /**
      * 渲染法线深度Pass
      * @param context 
      * @param list 
      */
+    //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_Render_CameraOtherDest)
     private _renderDepthNormalPass(context: WebGLRenderContext3D): void {
         context.pipelineMode = this.depthNormalPipelineMode;
         //传入shader该传的值
@@ -197,7 +215,7 @@ export class WebGLForwardAddClusterRP {
 
     }
 
-
+    //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_Render_CameraOtherDest)
     private opaqueTexturePass() {
         //TODO
         // var blit: BlitScreenQuadCMD = BlitScreenQuadCMD.create(currentTarget, this._opaqueTexture);
@@ -211,7 +229,7 @@ export class WebGLForwardAddClusterRP {
         this._rendercmd(this.beforeForwardCmds, context);
         this._recoverRenderContext3D(context);
         context.setClearData(this.clearFlag, this.clearColor, 1, 0);
-        this.enableOpaque && this.opaqueList.renderQueue(context);
+        this.enableOpaque && this._opaqueListRender(context);
         this._rendercmd(this.beforeSkyboxCmds, context);
 
         if (this.skyRenderNode) {
@@ -225,9 +243,10 @@ export class WebGLForwardAddClusterRP {
         }
         this._rendercmd(this.beforeTransparentCmds, context);
         this._recoverRenderContext3D(context);
-        this.transparent && this.transparent.renderQueue(context);
+        this.transparent && this._transparentListRender(context);
     }
 
+     //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_Render_CameraEventCMD)
     private _rendercmd(cmds: Array<CommandBuffer>, context: WebGLRenderContext3D) {
         if (!cmds || cmds.length == 0)
             return;

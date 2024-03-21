@@ -20,7 +20,7 @@ export class WebGLIndexBuffer implements IIndexBuffer {
     private _changeMemory(bytelength: number) {
         WebGLEngine.instance._addStatisticsInfo(GPUEngineStatisticsInfo.M_IndexBuffer, -this._glBuffer._byteLength + bytelength);
     }
-
+    
     _setIndexDataLength(data: number): void {
         this._changeMemory(data);
         var curBufSta = WebGLBufferState._curBindedBufferState;

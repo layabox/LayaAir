@@ -4,6 +4,7 @@ import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTarge
 import { Camera, CameraClearFlags, CameraEventFlags } from "../../../d3/core/Camera";
 import { ShadowMode } from "../../../d3/core/light/ShadowMode";
 import { RenderContext3D } from "../../../d3/core/render/RenderContext3D";
+import { CommandBuffer } from "../../../d3/core/render/command/CommandBuffer";
 import { Scene3D } from "../../../d3/core/scene/Scene3D";
 import { Scene3DShaderDeclaration } from "../../../d3/core/scene/Scene3DShaderDeclaration";
 import { DepthPass } from "../../../d3/depthMap/DepthPass";
@@ -149,7 +150,6 @@ export class WebGLRender3DProcess implements IRender3DProcess {
     }
 
     renderDepth(camera: Camera) {
-
         let depthMode = camera.depthTextureMode;
         if (camera.postProcess && camera.postProcess.enable) {
             depthMode |= camera.postProcess.cameraDepthTextureMode;
@@ -204,15 +204,27 @@ export class WebGLRender3DProcess implements IRender3DProcess {
             }
         }
         renderpass.renderpass.render(context, list, count);
-        renderpass._beforeImageEffectCMDS && renderpass._beforeImageEffectCMDS.forEach(element => {
-            context.runCMDList(element._renderCMDs);
-        });
+        renderpass._beforeImageEffectCMDS && this._rendercmd(renderpass._beforeImageEffectCMDS, context)
+
         if (renderpass.enablePostProcess) {
-            renderpass.postProcess && context.runCMDList(renderpass.postProcess._renderCMDs);
+            renderpass.postProcess && this._renderPostProcess(renderpass.postProcess, context);
         }
-        renderpass._afterAllRenderCMDS && renderpass._afterAllRenderCMDS.forEach(element => {
-            context.runCMDList(element._renderCMDs);
-        });
+        renderpass._afterAllRenderCMDS && this._rendercmd(renderpass._afterAllRenderCMDS, context);
 
     }
+
+    //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_Render_CameraEventCMD)
+    private _rendercmd(cmds: CommandBuffer[], context: WebGLRenderContext3D) {
+        if (!cmds || cmds.length == 0)
+            return;
+        cmds.forEach(function (value) {
+            context.runCMDList(value._renderCMDs);
+        });
+    }
+    
+    //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_Render_PostProcess)
+    private _renderPostProcess(postprocessCMD: CommandBuffer, context: WebGLRenderContext3D) {
+        context.runCMDList(postprocessCMD._renderCMDs);
+    }
+
 }

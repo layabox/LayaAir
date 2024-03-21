@@ -22,6 +22,7 @@ import { BaseRender } from "./render/BaseRender"
 import { RenderContext3D } from "./render/RenderContext3D"
 import { RenderElement } from "./render/RenderElement"
 import { SubMeshRenderElement } from "./render/SubMeshRenderElement"
+import { Stat } from "../../utils/Stat"
 
 
 /**
@@ -222,6 +223,19 @@ export class MeshRenderer extends BaseRender {
             // active count == 0 disable morph ?
         }
 
+    }
+
+    _setBelongScene(scene: any): void {
+        super._setBelongScene(scene);
+        Stat.meshRenderNode++;
+    }
+
+    /**
+     * @internal
+     */
+    _setUnBelongScene() {
+        super._setUnBelongScene();
+        Stat.meshRenderNode--;
     }
 
     /**

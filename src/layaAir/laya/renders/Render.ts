@@ -108,6 +108,9 @@ export class Render {
     private _timeId: number = 0;
 
     /**@private */
+    /**
+     * @performanceTool  func count 
+     */
     private _onVisibilitychange(): void {
         if (!ILaya.stage.isVisibility) {
             this._timeId = window.setInterval(this._enterFrame, 1000);

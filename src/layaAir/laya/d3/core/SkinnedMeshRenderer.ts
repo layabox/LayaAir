@@ -303,6 +303,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
     _setBelongScene(scene: Scene3D): void {
         super._setBelongScene(scene);
         Stat.skinRenderNode++;
+        Stat.meshRenderNode--;
     }
 
     /**
@@ -312,37 +313,6 @@ export class SkinnedMeshRenderer extends MeshRenderer {
         super._setUnBelongScene();
         Stat.skinRenderNode--;
     }
-
-    // /**
-    //  * @inheritDoc
-    //  * @override
-    //  * @internal
-    //  */
-    // _renderUpdate(context: IRenderContext3D): void {
-    // this._applyReflection();
-    // if (this.bones.length > 0) {
-    //     this._computeSkinnedData();
-    //     this._shaderValues.setMatrix4x4(Sprite3D.WORLDMATRIX, Matrix4x4.DEFAULT);
-    //     this._worldParams.x = 1;
-    //     this._shaderValues.setVector(Sprite3D.WORLDINVERTFRONT, this._worldParams);
-    // } else {
-    //     this._shaderValues.setMatrix4x4(Sprite3D.WORLDMATRIX, transform.worldMatrix);
-    //     this._worldParams.x = transform.getFrontFaceValue();
-    //     this._shaderValues.setVector(Sprite3D.WORLDINVERTFRONT, this._worldParams);
-    // }
-
-    // this._mesh.morphTargetData && this._applyMorphdata();
-    // }
-
-    // /**
-    //  * @inheritDoc
-    //  * @override
-    //  * @internal
-    //  */
-    // _renderUpdateWithCamera(context: RenderContext3D, transform: Transform3D): void {
-    // 	var projectionView: Matrix4x4 = context.projectionViewMatrix;
-    // 	this._shaderValues.setMatrix4x4(Sprite3D.MVPMATRIX, projectionView);
-    // }
 
     _renderUpdate(context3D: IRenderContext3D): void {
         let mat = this.owner.transform.worldMatrix;
@@ -361,21 +331,11 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 
     }
 
+    //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_SkinBoneUpdate)
     renderUpdate(context: RenderContext3D): void {
         super.renderUpdate(context);
         this._computeSkinnedData();
     }
-
-    // _calculateBoundingBox(): void {
-    //     if (this._cacheRootBone) {
-    //         let trans = this._cacheRootBone.transform;
-    //         // @ts-ignore
-    //         this.geometryBounds._tranform(trans.worldMatrix, this._baseRenderNode._bounds);
-    //     }
-    //     else {
-
-    //     }
-    // }
 
     /**
      * @override

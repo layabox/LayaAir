@@ -1093,6 +1093,7 @@ export class Camera extends BaseCamera {
      * @param shader 着色器
      * @param replacementTag 替换标记。
      */
+    //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_CameraRender)
     render(scene: Scene3D): void {
         // set context
         let context = RenderContext3D._instance;

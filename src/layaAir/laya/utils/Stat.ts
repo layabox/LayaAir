@@ -135,6 +135,8 @@ export class Stat {
     /**@internal */
     public static renderNode: number = 0;
     /**@internal */
+    public static meshRenderNode:number = 0;
+    /**@internal */
     public static skinRenderNode: number = 0;
     /**@internal */
     public static particleRenderNode: number = 0;
