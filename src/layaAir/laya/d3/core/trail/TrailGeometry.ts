@@ -454,7 +454,7 @@ export class TrailGeometry extends GeometryElement {
 		this._vertexBuffer1.destroy();
 		this._vertexBuffer2.destroy();
 
-		this.bufferState = null;
+		this._bufferState = null;
 		this._vertices1 = null;
 		this._vertexBuffer1 = null;
 		this._vertices2 = null;
