@@ -1,3 +1,4 @@
+import { RenderClearFlag } from "../../../../RenderEngine/RenderEnum/RenderClearFlag";
 import { SubShader } from "../../../../RenderEngine/RenderShader/SubShader";
 import { Command } from "../../../../d3/core/render/command/Command";
 import { Viewport } from "../../../../d3/math/Viewport";
@@ -144,7 +145,7 @@ export class WebGLBlitQuadCMDData extends BlitQuadCMDData {
         this.element.materialShaderData.setVector(Command.MAINTEXTURE_TEXELSIZE_ID, this._sourceTexelSize);
         context.setViewPort(this._viewport);
         context.setScissor(this._scissor);
-        context.setRenderTarget(this.dest);
+        context.setRenderTarget(this.dest, RenderClearFlag.Nothing);
         context.drawRenderElementOne(this.element);
     }
 }
@@ -260,7 +261,7 @@ export class WebGLSetRenderTargetCMD extends SetRenderTargetCMD {
     }
 
     apply(context: WebGLRenderContext3D): void {
-        context.setRenderTarget(this.rt);
+        context.setRenderTarget(this.rt, RenderClearFlag.Nothing);
         context.setClearData(this.clearFlag, this.clearColorValue, this.clearDepthValue, this.clearStencilValue);
     }
 }

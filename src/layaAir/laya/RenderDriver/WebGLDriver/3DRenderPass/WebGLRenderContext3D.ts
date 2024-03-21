@@ -93,7 +93,7 @@ export class WebGLRenderContext3D implements IRenderContext3D {
         this._globalShaderData = value;
     }
 
-    setRenderTarget(value: InternalRenderTarget, clearFlag: RenderClearFlag = RenderClearFlag.Nothing) {
+    setRenderTarget(value: InternalRenderTarget, clearFlag: RenderClearFlag) {
         this._clearFlag = clearFlag;
         if (value == this._renderTarget)
             return;

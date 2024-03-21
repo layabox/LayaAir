@@ -165,7 +165,7 @@ export class WebGLForwardAddClusterRP {
         Vector4.tempVec4.setValue(viewport.x, viewport.y, viewport.width, viewport.height);
         context.setViewPort(Viewport._tempViewport);
         context.setScissor(Vector4.tempVec4);
-        context.setRenderTarget(this.depthTarget);
+        context.setRenderTarget(this.depthTarget, RenderClearFlag.Depth);
         context.setClearData(RenderClearFlag.Depth, Color.BLACK, 1, 0);
         this.opaqueList.renderQueue(context);
         //渲染完后传入使用的参数
@@ -192,7 +192,7 @@ export class WebGLForwardAddClusterRP {
         context.setViewPort(Viewport._tempViewport);
         context.setScissor(Vector4.tempVec4);
         context.setClearData(RenderClearFlag.Color | RenderClearFlag.Depth, this._defaultNormalDepthColor, 1, 0);
-        context.setRenderTarget(this.depthNormalTarget);
+        context.setRenderTarget(this.depthNormalTarget, RenderClearFlag.Color | RenderClearFlag.Depth);
         this.opaqueList.renderQueue(context);
 
     }
@@ -241,7 +241,7 @@ export class WebGLForwardAddClusterRP {
         const cacheScissor = WebGLForwardAddClusterRP._contextScissorPortCatch;
         context.setViewPort(cacheViewPor);
         context.setScissor(cacheScissor);
-        context.setRenderTarget(this.destTarget);
+        context.setRenderTarget(this.destTarget, RenderClearFlag.Nothing);
     }
 
 }

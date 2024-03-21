@@ -58,8 +58,6 @@ export class RenderContext3D {
         this._contextOBJ.setRenderTarget(value ? value._renderTarget : null, RenderClearFlag.Nothing);
     }
 
-
-
     set viewport(value: Viewport) {
         this._contextOBJ.setViewPort(value);
     }
