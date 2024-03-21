@@ -9,6 +9,8 @@ export class BlueprintUtil {
 
     static onfinishCallbacks: Record<number, [Function,any,any[]]> = {};
 
+    static resouceMap: Map<string, any> = new Map();
+
     static CustomClassFinish: string = "CustomClassFinish";
 
     static customModify = false;
@@ -58,6 +60,14 @@ export class BlueprintUtil {
 
     static regClass(name: string, cls: any) {
         this.classMap[name] = cls;
+    }
+
+    static regResByUUID(uuid: string, res: any) {
+        this.resouceMap.set(uuid, res);
+    }
+
+    static getResByUUID(uuid: string) {
+        return this.resouceMap.get(uuid);
     }
 
 }

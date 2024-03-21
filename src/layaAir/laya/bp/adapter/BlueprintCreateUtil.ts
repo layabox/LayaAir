@@ -20,6 +20,10 @@ export class BlueprintCreateUtil{
         }
         BlueprintUtil.regClass=ClassUtils.regClass;
 
+        BlueprintUtil.getResByUUID=function(uuid: string) {
+            return Laya.loader.getRes(URL.getResURLByUUID(uuid)).create();
+        }
+
         return Laya.loader.fetch(BlueprintConst.configPath , isJson ? "json" : "arraybuffer").then((result)=>{
             if (!result) {
                 console.error("Blueprint init fail");

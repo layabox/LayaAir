@@ -159,8 +159,13 @@ export class BlueprintFactory {
         }
     }
 
-
-    static createClsNew<T>(name: string, isPlaying: boolean, cls: T, data: TBPStageData, funs: TBPStageData[], varMap: Record<string, TBPVarProperty>): T {
+    /**
+     * 生成类
+     * @param name 
+     * @param cls 
+     * @returns 
+     */
+    static createCls<T>(name: string, cls: T): T {
         function classFactory(className: string, SuperClass: any) {
             return {
                 [className]: class extends SuperClass implements IBluePrintSubclass {
@@ -225,8 +230,20 @@ export class BlueprintFactory {
                 }
             }[className];
         }
-
         let newClass = classFactory(name, cls);
+        BlueprintUtil.regClass(name, newClass);
+        return newClass as unknown as T;
+    }
+    /**
+     * 解析数组
+     * @param name 
+     * @param isPlaying 
+     * @param newClass 
+     * @param data 
+     * @param funs 
+     * @param varMap 
+     */
+    static parseCls(name:string,isPlaying: boolean,newClass: any, data: TBPStageData, funs: TBPStageData[], varMap: Record<string, TBPVarProperty>) {
         let staticContext: IRunAble = newClass[BlueprintFactory.contextSymbol] = new BlueprintFactory.BPExcuteCls(newClass);
         if (varMap) {
             for (let str in varMap) {
@@ -236,7 +253,6 @@ export class BlueprintFactory {
                 //a[str]
             }
         }
-        BlueprintUtil.regClass(name, newClass);
         let bp: BlueprintRuntime = newClass.prototype[BlueprintFactory.bpSymbol] = new BlueprintFactory.BPRuntimeCls();
         bp.dataMap = data.dataMap;
         // debugger;
@@ -252,7 +268,13 @@ export class BlueprintFactory {
         }
         this.initClassHook(name, newClass);
         Object.defineProperty(newClass, 'name', { value: name });
+    }
 
+
+
+    static createClsNew<T>(name: string, isPlaying: boolean, cls: T, data: TBPStageData, funs: TBPStageData[], varMap: Record<string, TBPVarProperty>): T {
+        let newClass=this.createCls(name, cls);
+        this.parseCls(name,isPlaying,newClass,data,funs,varMap);
         return newClass as unknown as T;
     }
 
