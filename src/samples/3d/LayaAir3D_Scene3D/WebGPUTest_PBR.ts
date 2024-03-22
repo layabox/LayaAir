@@ -34,9 +34,10 @@ import { PostProcess } from "laya/d3/component/PostProcess";
 import { BloomEffect } from "laya/d3/core/render/PostEffect/BloomEffect";
 import { SkyProceduralMaterial } from "laya/d3/core/material/SkyProceduralMaterial";
 import { SkyDome } from "laya/d3/resource/models/SkyDome";
+import { MeshAddTangent } from "laya/RenderDriver/WebGPUDriver/RenderDevice/Utils/MeshEditor";
 
 export class WebGPUTest_PBR {
-    useWebGPU: boolean = false;
+    useWebGPU: boolean = true;
 
     constructor() {
         LayaGL.unitRenderModuleDataFactory = new WebUnitRenderModuleDataFactory();
@@ -64,11 +65,11 @@ export class WebGPUTest_PBR {
             const scene: Scene3D = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 
             // //初始化天空渲染器
-			// const skyRenderer = scene.skyRenderer;
-			// //创建天空盒mesh
-			// skyRenderer.mesh = SkyDome.instance;
-			// //使用程序化天空盒
-			// skyRenderer.material = new SkyProceduralMaterial();
+            // const skyRenderer = scene.skyRenderer;
+            // //创建天空盒mesh
+            // skyRenderer.mesh = SkyDome.instance;
+            // //使用程序化天空盒
+            // skyRenderer.material = new SkyProceduralMaterial();
 
             const camera: Camera = (<Camera>(scene.addChild(new Camera(0, 0.1, 300))));
             camera.transform.translate(new Vector3(0, 0.5, 5));
@@ -80,7 +81,7 @@ export class WebGPUTest_PBR {
             const directLight = new Sprite3D();
             const dirCom = directLight.addComponent(DirectionLightCom);
             scene.addChild(directLight);
-            dirCom.color.setValue(0.9, 0.9, 0.9, 1);
+            dirCom.color.setValue(1, 1, 1, 1);
 
             //打开后处理
             // if (true) {
@@ -104,6 +105,9 @@ export class WebGPUTest_PBR {
             const boxMesh1 = PrimitiveMesh.createBox(0.2, 0.2, 0.2);
             const coneMesh1 = PrimitiveMesh.createCone(0.1, 0.3, 64);
             const sphereMesh1 = PrimitiveMesh.createSphere(0.25, 64, 64);
+            MeshAddTangent(boxMesh1);
+            MeshAddTangent(coneMesh1);
+            MeshAddTangent(sphereMesh1);
 
             const material = new PBRStandardMaterial();
 
@@ -116,20 +120,22 @@ export class WebGPUTest_PBR {
                 { url: "res/threeDimen/pbr/metal022/normal.jpg", type: Loader.TEXTURE2D },
                 { url: "res/threeDimen/pbr/metal022/metallic.jpg", type: Loader.TEXTURE2D },
                 { url: "res/threeDimen/pbr/metal022/roughness.jpg", type: Loader.TEXTURE2D },
+                { url: "res/threeDimen/pbr/metal022/metallicRoughness.png", type: Loader.TEXTURE2D },
                 { url: "res/threeDimen/texture/normal2.jpg", type: Loader.TEXTURE2D },
                 { url: "res/threeDimen/texture/earthMap.jpg", type: Loader.TEXTURE2D },
                 { url: "res/threeDimen/texture/九宫格512.jpg", type: Loader.TEXTURE2D },
             ];
             Laya.loader.load(res, Handler.create(this, () => {
                 material.albedoTexture = Laya.loader.getRes("res/threeDimen/pbr/metal022/albedo.jpg", Loader.TEXTURE2D);
-                //material.normalTexture = Laya.loader.getRes("res/threeDimen/pbr/metal022/normal.jpg", Loader.TEXTURE2D);
-                material.normalTexture = Laya.loader.getRes("res/threeDimen/texture/normal2.jpg", Loader.TEXTURE2D);
-                material.metallicGlossTexture = Laya.loader.getRes("res/threeDimen/pbr/metal022/metallic.jpg", Loader.TEXTURE2D);
+                material.normalTexture = Laya.loader.getRes("res/threeDimen/pbr/metal022/normal.jpg", Loader.TEXTURE2D);
+                material.metallicGlossTexture = Laya.loader.getRes("res/threeDimen/pbr/metal022/metallicRoughness.png", Loader.TEXTURE2D);
+                material.normalTextureScale = 1.5;
+                material.smoothnessTextureScale = 1.2;
             }));
 
-            const n = 5;
-            const m = 5;
-            const l = 5;
+            const n = 1;
+            const m = 1;
+            const l = 1;
             for (let i = 0; i < n; i++) {
                 for (let j = 0; j < m; j++) {
                     for (let k = 0; k < l; k++) {
