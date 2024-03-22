@@ -299,7 +299,7 @@ export class PixelLineFilter extends GeometryElement {
 		super.destroy();
 		this.bufferState.destroy();
 		this._vertexBuffer.destroy();
-		this.bufferState = null;
+		this._bufferState = null;
 		this._vertexBuffer = null;
 		this._vertices = null;
 	}

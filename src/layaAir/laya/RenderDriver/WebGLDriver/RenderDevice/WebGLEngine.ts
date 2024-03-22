@@ -7,7 +7,6 @@ import { BufferTargetType, BufferUsage } from "../../../RenderEngine/RenderEnum/
 import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
 import { RenderParams } from "../../../RenderEngine/RenderEnum/RenderParams";
-import { RenderStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
 import { ShaderVariable } from "../../../RenderEngine/RenderShader/ShaderVariable";
 import { IRenderEngine } from "../../DriverDesign/RenderDevice/IRenderEngine";
 import { IRenderEngineFactory } from "../../DriverDesign/RenderDevice/IRenderEngineFactory";
@@ -28,7 +27,7 @@ import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
 import { WebGLShaderData } from "../../RenderModuleData/WebModuleData/WebGLShaderData";
 import { IDefineDatas } from "../../RenderModuleData/Design/IDefineDatas";
 import { WebGLInternalTex } from "./WebGLInternalTex";
-import { RenderState2D } from "../../../webgl/utils/RenderState2D";
+import { GPUEngineStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
 
 /**
  * 封装Webgl
@@ -62,7 +61,7 @@ export class WebGLEngine implements IRenderEngine {
 
     /**@internal ShaderDebugMode*/
     _isShaderDebugMode: boolean = true;
-
+    _enableStatistics: boolean = false;
     /**@internal gl.TextureID*/
     _glTextureIDParams: Array<number>;
 
@@ -133,7 +132,7 @@ export class WebGLEngine implements IRenderEngine {
     // private _RenderBufferResource: any;
 
     //GPU统计数据
-    private _GLStatisticsInfo: Map<RenderStatisticsInfo, number> = new Map();
+    private _GLStatisticsInfo: Map<GPUEngineStatisticsInfo, number> = new Map();
     static instance: WebGLEngine;
     constructor(config: WebGLConfig, webglMode: WebGLMode = WebGLMode.Auto) {
         this._config = config;
@@ -146,6 +145,7 @@ export class WebGLEngine implements IRenderEngine {
         this._initStatisticsInfo();
         WebGLEngine.instance = this;
     }
+
     resizeOffScreen(width: number, height: number): void {
 
     }
@@ -170,14 +170,9 @@ export class WebGLEngine implements IRenderEngine {
     }
 
     private _initStatisticsInfo() {
-        this._GLStatisticsInfo.set(RenderStatisticsInfo.DrawCall, 0);
-        this._GLStatisticsInfo.set(RenderStatisticsInfo.InstanceDrawCall, 0);
-        this._GLStatisticsInfo.set(RenderStatisticsInfo.Triangle, 0);
-        this._GLStatisticsInfo.set(RenderStatisticsInfo.UniformUpload, 0);
-        this._GLStatisticsInfo.set(RenderStatisticsInfo.TextureMemeory, 0);
-        this._GLStatisticsInfo.set(RenderStatisticsInfo.GPUMemory, 0);
-        this._GLStatisticsInfo.set(RenderStatisticsInfo.RenderTextureMemory, 0);
-        this._GLStatisticsInfo.set(RenderStatisticsInfo.BufferMemory, 0);
+        for (var i = 0; i < GPUEngineStatisticsInfo.Count; i++) {
+            this._GLStatisticsInfo.set(i, 0);
+        }
     }
 
     /**
@@ -185,8 +180,8 @@ export class WebGLEngine implements IRenderEngine {
      * @param info 
      * @param value 
      */
-    _addStatisticsInfo(info: RenderStatisticsInfo, value: number) {
-        this._GLStatisticsInfo.set(info, this._GLStatisticsInfo.get(info) + value);
+    _addStatisticsInfo(info: GPUEngineStatisticsInfo, value: number) {
+        this._enableStatistics && this._GLStatisticsInfo.set(info, this._GLStatisticsInfo.get(info) + value);
     }
 
     /**
@@ -194,8 +189,12 @@ export class WebGLEngine implements IRenderEngine {
      * @internal
      * @param info 
      */
-    clearStatisticsInfo(info: RenderStatisticsInfo) {
-        this._GLStatisticsInfo.set(info, 0);
+    clearStatisticsInfo() {
+        if (this._enableStatistics) {
+            for (var i = 0; i < GPUEngineStatisticsInfo.FrameClearCount; i++) {
+                this._GLStatisticsInfo.set(i, 0);
+            }
+        }
     }
 
     /**
@@ -203,7 +202,7 @@ export class WebGLEngine implements IRenderEngine {
      * @param info 
      * @returns 
      */
-    getStatisticsInfo(info: RenderStatisticsInfo): number {
+    getStatisticsInfo(info: GPUEngineStatisticsInfo): number {
         return this._GLStatisticsInfo.get(info);
     }
 

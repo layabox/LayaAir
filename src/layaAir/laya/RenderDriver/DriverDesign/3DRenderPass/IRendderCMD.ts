@@ -218,15 +218,15 @@ export class SetRenderDataCMD implements IRenderCMD {
     protected _dataType: ShaderDataType;
     protected _propertyID: number;
     protected _dest: ShaderData;
-    
+
     get value(): ShaderDataItem {
         return this._value;
     }
-    
+
     set value(value: ShaderDataItem) {
         this._value = value;
     }
-    
+
     get dataType(): ShaderDataType {
         return this._dataType;
     }
@@ -234,7 +234,7 @@ export class SetRenderDataCMD implements IRenderCMD {
     set dataType(value: ShaderDataType) {
         this._dataType = value;
     }
-   
+
     get propertyID(): number {
         return this._propertyID;
     }
@@ -242,7 +242,7 @@ export class SetRenderDataCMD implements IRenderCMD {
     set propertyID(value: number) {
         this._propertyID = value;
     }
-   
+
     get dest(): ShaderData {
         return this._dest;
     }

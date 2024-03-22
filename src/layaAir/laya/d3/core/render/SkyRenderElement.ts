@@ -62,6 +62,8 @@ export class SkyRenderElement extends RenderElement {
 
         this._renderElementOBJ.renderShaderData.setMatrix4x4(SkyRenderer.SKYVIEWMATRIX, this._viewMatrix);
 
+        this._renderElementOBJ.renderShaderData.setColor(SkyRenderer.SUNLIGHTDIRCOLOR, context.scene._sunColor);
+        this._renderElementOBJ.renderShaderData.setVector3(SkyRenderer.SUNLIGHTDIRECTION, context.scene._sundir);
     }
 
 }

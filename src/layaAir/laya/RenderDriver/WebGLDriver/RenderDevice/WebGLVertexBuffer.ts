@@ -1,5 +1,6 @@
 
 import { BufferTargetType, BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
+import { GPUEngineStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
 import { VertexDeclaration, VertexStateContext } from "../../../RenderEngine/VertexDeclaration";
 import { IVertexBuffer } from "../../DriverDesign/RenderDevice/IVertexBuffer";
 import { WebGLEngine } from "./WebGLEngine";
@@ -26,14 +27,15 @@ export class WebGLVertexBuffer implements IVertexBuffer {
 
     constructor(targetType: BufferTargetType, bufferUsageType: BufferUsage) {
         this._glBuffer = WebGLEngine.instance.createBuffer(targetType, bufferUsageType) as GLBuffer;
+        WebGLEngine.instance._addStatisticsInfo(GPUEngineStatisticsInfo.RC_VertexBuffer, 1);
     }
 
-    destory(): void {
-        this._glBuffer.destroy();
-        this._vertexDeclaration = null
+    private _changeMemory(bytelength: number) {
+        WebGLEngine.instance._addStatisticsInfo(GPUEngineStatisticsInfo.M_VertexBuffer, -this._glBuffer._byteLength+bytelength);
     }
 
     setDataLength(byteLength: number): void {
+        this._changeMemory(byteLength);
         this._glBuffer.setDataLength(byteLength);
     }
 
@@ -67,5 +69,11 @@ export class WebGLVertexBuffer implements IVertexBuffer {
         this._glBuffer.setDataLength(this._glBuffer._byteLength);
     }
 
+    destory(): void {
+        this._glBuffer.destroy();
+        this._vertexDeclaration = null
+        this._changeMemory(0);
+        WebGLEngine.instance._addStatisticsInfo(GPUEngineStatisticsInfo.RC_VertexBuffer, -1);
+    }
 
 }

@@ -8,6 +8,7 @@ import { Matrix4x4 } from "../../../../maths/Matrix4x4";
 import { Laya3DRender } from "../../../RenderObjs/Laya3DRender";
 import { Transform3D } from "../../Transform3D";
 import { DrawElementCMDData, DrawNodeCMDData } from "../../../../RenderDriver/DriverDesign/3DRenderPass/IRendderCMD";
+import { RenderContext3D } from "../RenderContext3D";
 
 /**
  * @internal
@@ -59,14 +60,10 @@ export class DrawMeshCMD extends Command {
     _transform: Transform3D;
 
     /**@internal */
-    _drawElementCMDData: DrawElementCMDData;
-
-    /**@internal */
     _drawRenderCMDDData: DrawNodeCMDData;
 
     constructor() {
         super();
-        this._drawElementCMDData = Laya3DRender.Render3DPassFactory.createDrawElementCMDData();
         this._drawRenderCMDDData = Laya3DRender.Render3DPassFactory.createDrawNodeCMDData();
         this._transform = Laya3DRender.Render3DModuleDataFactory.createTransform(null);
         this._meshRender = new MeshRenderer();
@@ -79,6 +76,10 @@ export class DrawMeshCMD extends Command {
         this._material && this._material._removeReference(1);
         this._material = value;
         this._material && this._material._addReference(1);
+    }
+
+    get material(): Material {
+        return this._material;
     }
 
     /**
@@ -104,23 +105,29 @@ export class DrawMeshCMD extends Command {
      * @returns 
      */
     getRenderCMD(): DrawElementCMDData | DrawNodeCMDData {
-        if (this._subMeshIndex == -1)
-            return this._drawRenderCMDDData;
-        else
-            return this._drawElementCMDData;
+        return this._drawRenderCMDDData;
     }
 
     /**
      * @inheritDoc
      * @override
      */
+
     run(): void {
-        if (this._subMeshIndex == -1) {
-            this._drawRenderCMDDData.node = this._meshRender._baseRenderNode;
-        } else {
-            let element = this._renderElemnts[this._subMeshIndex];
-            this._drawElementCMDData.setRenderelements([element._renderElementOBJ]);
-        }
+        this._meshRender.sharedMaterial = this.material;
+        this._meshRender._baseRenderNode.transform = this._transform;
+        this._meshRender.renderUpdate(RenderContext3D._instance);
+        // todo scene ibl
+        this._meshRender.probReflection = RenderContext3D._instance.scene.sceneReflectionProb;
+
+        this._meshRender._renderElements.forEach((element, index) => {
+            let isRender = element._renderElementOBJ.isRender;
+            element._renderElementOBJ.isRender = isRender && this._subMeshIndex == index;
+        });
+
+        this._drawRenderCMDDData.destSubShader = this.material.shader.getSubShaderAt(this._subShaderIndex);
+        this._drawRenderCMDDData.destShaderData = this.material.shaderData;
+        this._drawRenderCMDDData.node = this._meshRender._baseRenderNode;
     }
 
     /**

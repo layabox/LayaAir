@@ -267,7 +267,7 @@ export class Scene3D extends Sprite {
     /**
      * create Scene UniformBuffer
      * @internal
-     * @returns 
+     * @returns
      */
     static createSceneUniformBlock(): UnifromBufferData {
         if (!Scene3D.SceneUBOData) {
@@ -1064,7 +1064,7 @@ export class Scene3D extends Sprite {
     }
     /**
      * scence外的Camera渲染场景,需要设置这个接口
-     * @param camera 
+     * @param camera
      */
     _setCullCamera(camera: Camera) {
         this._cullInfoCamera = camera;
@@ -1160,7 +1160,7 @@ export class Scene3D extends Sprite {
 
     /**
      * 获得某个组件的管理器
-     * @param type 
+     * @param type
      */
     getComponentElementManager(type: string) {
         return this.componentElementMap.get(type);
@@ -1215,10 +1215,10 @@ export class Scene3D extends Sprite {
 
     /**
      * @internal
-     * @param source 
-     * @param normalizeViewPort 
-     * @param camera 
-     * @returns 
+     * @param source
+     * @param normalizeViewPort
+     * @param camera
+     * @returns
      */
     blitMainCanvans(source: BaseTexture, normalizeViewPort: Viewport, camera: Camera) {
         if (!source)

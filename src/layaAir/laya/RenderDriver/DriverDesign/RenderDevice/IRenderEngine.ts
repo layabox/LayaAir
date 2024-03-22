@@ -1,7 +1,7 @@
 
 import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
 import { RenderParams } from "../../../RenderEngine/RenderEnum/RenderParams";
-import { RenderStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
+import { GPUEngineStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
 import { IDefineDatas } from "../../RenderModuleData/Design/IDefineDatas";
 import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
 import { IRenderEngineFactory } from "./IRenderEngineFactory";
@@ -14,6 +14,8 @@ export interface IRenderEngine {
     _isShaderDebugMode: boolean;
     /**@internal */
     _renderOBJCreateContext: IRenderEngineFactory;
+
+    _enableStatistics: boolean;
     initRenderEngine(canvas: any): void;
     copySubFrameBuffertoTex(texture: InternalTexture, level: number, xoffset: number, yoffset: number, x: number, y: number, width: number, height: number): void;
 
@@ -32,10 +34,8 @@ export interface IRenderEngine {
     getTextureContext(): ITextureContext;
 
     getCreateRenderOBJContext(): IRenderEngineFactory;
-
-    // createBuffer(targetType: BufferTargetType, bufferUsageType: BufferUsage): IRenderBuffer;
     /**@internal */
-    clearStatisticsInfo(info: RenderStatisticsInfo): void;
+    clearStatisticsInfo(): void;
     /**@internal */
-    getStatisticsInfo(info: RenderStatisticsInfo): number;
+    getStatisticsInfo(info: GPUEngineStatisticsInfo): number;
 }

@@ -1,12 +1,11 @@
 import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
 import { RenderParams } from "../../../RenderEngine/RenderEnum/RenderParams";
-import { RenderStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
+import { GPUEngineStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
 import { IRenderEngine } from "../../DriverDesign/RenderDevice/IRenderEngine";
 import { IRenderEngineFactory } from "../../DriverDesign/RenderDevice/IRenderEngineFactory";
 import { ITextureContext } from "../../DriverDesign/RenderDevice/ITextureContext";
 import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
 import { IDefineDatas } from "../../RenderModuleData/Design/IDefineDatas";
-import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
 import { RTShaderDefine } from "../../RenderModuleData/RuntimeModuleData/RTShaderDefine";
 import { WebGLMode } from "../../WebGLDriver/RenderDevice/WebGLEngine/GLEnum/WebGLMode";
 import { WebGLConfig } from "../../WebGLDriver/RenderDevice/WebGLEngine/WebGLConfig";
@@ -25,7 +24,8 @@ export class GLESEngine implements IRenderEngine {
   constructor(config: WebGLConfig, webglMode: WebGLMode = WebGLMode.Auto) {
     this._nativeObj = new (window as any).conchGLESEngine(config, webglMode);
   }
-  resizeOffScreen(width: number, height: number): void {}
+  _enableStatistics: boolean;
+  resizeOffScreen(width: number, height: number): void { }
 
   getDefineByName(name: string): RTShaderDefine {
     let nativeRet: any = this._nativeObj.getDefineByName(name);
@@ -65,10 +65,10 @@ export class GLESEngine implements IRenderEngine {
   getCreateRenderOBJContext(): IRenderEngineFactory {
     throw new Error("Method not implemented.");
   }
-  clearStatisticsInfo(info: RenderStatisticsInfo): void {
-    this._nativeObj.clearStatisticsInfo(info);
+  clearStatisticsInfo(): void {
+    this._nativeObj.clearStatisticsInfo();
   }
-  getStatisticsInfo(info: RenderStatisticsInfo): number {
+  getStatisticsInfo(info: GPUEngineStatisticsInfo): number {
     return this._nativeObj.getStatisticsInfo(info);
   }
   viewport(x: number, y: number, width: number, height: number): void {

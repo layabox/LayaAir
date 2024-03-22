@@ -23,7 +23,7 @@ export class GLESRender3DProcess implements IRender3DProcess {
     private _tempList: any = [];
     private renderpass: GLESForwardAddRP = new GLESForwardAddRP();
     constructor() {
-        this._nativeObj = new (window as any).conchRTRender3DProcess();
+        this._nativeObj = new (window as any).conchGLESRender3DProcess();
     }
 
     initRenderpass(camera: Camera, context: GLESRenderContext3D) {
@@ -137,6 +137,14 @@ export class GLESRender3DProcess implements IRender3DProcess {
 
                 camera.scene._shaderValues.setTexture(ShadowCasterPass.SHADOW_SPOTMAP, spotShadowMap);
             }
+
+            if (Stat.enablePostprocess && camera.postProcess && camera.postProcess.enable) {
+                this.renderpass.enablePostProcess = camera.postProcess.enable;
+                camera.postProcess._render(camera);
+                this.renderpass.postProcess = camera.postProcess._context.command;
+            } else {
+                this.renderpass.enablePostProcess = false;
+            }
         }
     }
 
@@ -179,6 +187,7 @@ export class GLESRender3DProcess implements IRender3DProcess {
         let renderList = camera.scene.sceneRenderableManager.renderBaselist;
 
         this.renderFowarAddCameraPass(context, this.renderpass, <RTBaseRenderNode[]>renderList.elements, renderList.length);
+        Camera.depthPass.cleanUp();
     }
 
     renderFowarAddCameraPass(context: GLESRenderContext3D, renderpass: GLESForwardAddRP, list: RTBaseRenderNode[], count: number): void {

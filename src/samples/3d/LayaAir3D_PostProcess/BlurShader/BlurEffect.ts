@@ -175,7 +175,7 @@ export class BlurEffect extends PostProcessEffect {
         var th: number = Math.floor(viewport.height * scaleFactor);
         this._texSize.setValue(1.0 / tw, 1.0 / th, tw, th);
         //赋值
-        this._shaderData.setNumber(BlurEffect.SHADERVALUE_DOWNSAMPLEVALUE, this.blurSpreadSize);
+        this._shaderData.setInt(BlurEffect.SHADERVALUE_DOWNSAMPLEVALUE, this.blurSpreadSize);
         this._shaderData.setVector(BlurEffect.SHADERVALUE_TEXELSIZE, this._texSize);
         //降采样
         var downSampleTexture: RenderTexture = RenderTexture.createFromPool(tw, th, RenderTargetFormat.R8G8B8, RenderTargetFormat.None, false, 1);

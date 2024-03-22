@@ -1,10 +1,10 @@
 import { BufferTargetType, BufferUsage } from "../../../../RenderEngine/RenderEnum/BufferTargetType";
-import { RenderStatisticsInfo } from "../../../../RenderEngine/RenderEnum/RenderStatInfo";
+import { GPUEngineStatisticsInfo } from "../../../../RenderEngine/RenderEnum/RenderStatInfo";
 import { WebGLEngine } from "../WebGLEngine";
 import { GLObject } from "./GLObject";
 
 
-export class GLBuffer extends GLObject{
+export class GLBuffer extends GLObject {
     //GLParams
     _glBuffer: WebGLBuffer;
     _glTarget: number;
@@ -22,6 +22,7 @@ export class GLBuffer extends GLObject{
         this._getGLTarget(this._glTargetType);
         this._getGLUsage(this._glBufferUsageType);
         this._glBuffer = this._gl.createBuffer();
+        WebGLEngine.instance._addStatisticsInfo(GPUEngineStatisticsInfo.RC_GPUBuffer, 1);
     }
 
     private _getGLUsage(usage: BufferUsage) {
@@ -58,8 +59,7 @@ export class GLBuffer extends GLObject{
     }
 
     private _memorychange(bytelength: number) {
-        this._engine._addStatisticsInfo(RenderStatisticsInfo.BufferMemory, bytelength);
-        this._engine._addStatisticsInfo(RenderStatisticsInfo.GPUMemory, bytelength);
+        this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.M_GPUBuffer, -this._byteLength + bytelength);
     }
 
     bindBuffer(): boolean {
@@ -86,11 +86,10 @@ export class GLBuffer extends GLObject{
     setDataLength(srcData: number): void {
         let gl = this._gl;
         this.bindBuffer();
-        this._memorychange(-this._byteLength);
+        this._memorychange(srcData);
         this._byteLength = srcData;
         gl.bufferData(this._glTarget, this._byteLength, this._glUsage);
         this.unbindBuffer();
-        this._memorychange(this._byteLength);
     }
 
 
@@ -100,12 +99,15 @@ export class GLBuffer extends GLObject{
         let gl = this._gl;
         this.bindBuffer();
         gl.bufferSubData(this._glTarget, offset, <ArrayBufferView>srcData);
+        WebGLEngine.instance._addStatisticsInfo(GPUEngineStatisticsInfo.C_GeometryBufferUploadCount, 1);
         this.unbindBuffer();
     }
+
     setDataEx(srcData: ArrayBuffer | ArrayBufferView, offset: number, length: number): void {
         let gl = this._gl;
         this.bindBuffer();
         gl.bufferSubData(this._glTarget, offset, srcData as ArrayBufferView, 0, length);
+        WebGLEngine.instance._addStatisticsInfo(GPUEngineStatisticsInfo.C_GeometryBufferUploadCount, 1);
         this.unbindBuffer();
     }
 
@@ -134,8 +136,9 @@ export class GLBuffer extends GLObject{
     destroy() {
         super.destroy();
         const gl = this._gl;
+        WebGLEngine.instance._addStatisticsInfo(GPUEngineStatisticsInfo.RC_GPUBuffer, -1);
         gl.deleteBuffer(this._glBuffer);
-        this._memorychange(-this._byteLength);
+        this._memorychange(0);
         this._byteLength = 0;
         this._engine = null;
         this._glBuffer = null;

@@ -1,6 +1,5 @@
 import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
 import { RenderParams } from "../../../RenderEngine/RenderEnum/RenderParams";
-import { RenderStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
 import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { IRenderEngine } from "../../DriverDesign/RenderDevice/IRenderEngine";
 import { IRenderEngineFactory } from "../../DriverDesign/RenderDevice/IRenderEngineFactory";
@@ -14,6 +13,7 @@ import { WebGPUBufferManager } from "./WebGPUUniform/WebGPUBufferManager";
 import { WebGPURenderEngineFactory } from "./WebGPURenderEngineFactory";
 import { WebGPUTextureContext, WebGPUTextureFormat } from "./WebGPUTextureContext";
 import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
+import { GPUEngineStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
 
 export class WebGPUConfig {
     /**
@@ -90,6 +90,7 @@ export class WebGPURenderEngine implements IRenderEngine {
 
         this.globalId = WebGPUGlobal.getId(this);
     }
+    _enableStatistics: boolean;
 
     /**
      * 获取适配器
@@ -343,11 +344,11 @@ export class WebGPURenderEngine implements IRenderEngine {
     }
 
     //统计相关
-    clearStatisticsInfo(info: RenderStatisticsInfo): void {
+    clearStatisticsInfo(): void {
     }
 
     //统计相关
-    getStatisticsInfo(info: RenderStatisticsInfo): number {
+    getStatisticsInfo(info: GPUEngineStatisticsInfo): number {
         return 0;
     }
 

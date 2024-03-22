@@ -15,7 +15,7 @@ import { WebGLCullUtil } from "./WebGLRenderUtil/WebGLCullUtil";
 import { WebGLRenderListQueue } from "./WebGLRenderUtil/WebGLRenderListQueue";
 import { PipelineMode } from "../../DriverDesign/3DRenderPass/I3DRenderPass"
 import { WebGLRenderElement3D } from "./WebGLRenderElement3D";
-export class WebGLForwardAddClusterRP{
+export class WebGLForwardAddClusterRP {
 
     /** @internal*/
     static _context3DViewPortCatch: Viewport = new Viewport(0, 0, 0, 0);
@@ -90,6 +90,9 @@ export class WebGLForwardAddClusterRP{
         this._viewPort = new Viewport();
         this._defaultNormalDepthColor = new Color(0.5, 0.5, 1.0, 0.0);
         this.clearColor = new Color();
+
+        this.depthPipelineMode = "ShadowCaster";
+        this.depthNormalPipelineMode = "DepthNormal";
     }
 
     setCameraCullInfo(value: Camera): void {
@@ -152,6 +155,7 @@ export class WebGLForwardAddClusterRP{
      * @param context 
      * @param list 
      */
+    //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_Render_CameraOtherDest)
     private _renderDepthPass(context: WebGLRenderContext3D): void {
         context.pipelineMode = this.depthPipelineMode;
         var viewport = this._viewPort;
@@ -162,8 +166,8 @@ export class WebGLForwardAddClusterRP{
         Vector4.tempVec4.setValue(viewport.x, viewport.y, viewport.width, viewport.height);
         context.setViewPort(Viewport._tempViewport);
         context.setScissor(Vector4.tempVec4);
+        context.setRenderTarget(this.depthTarget, RenderClearFlag.Depth);
         context.setClearData(RenderClearFlag.Depth, Color.BLACK, 1, 0);
-        context.setRenderTarget(this.depthTarget);
         this.opaqueList.renderQueue(context);
         //渲染完后传入使用的参数
         var far = this.camera.farplane;
@@ -175,11 +179,28 @@ export class WebGLForwardAddClusterRP{
         shadervalue.removeDefine(DepthPass.DEPTHPASS);
     }
 
+
+    //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_Render_TransparentRender)
+    private _transparentListRender(context: WebGLRenderContext3D) {
+        this.transparent.renderQueue(context);
+    }
+
+    /**
+     * 渲染非透明物体Pass
+     * @param context 
+     * @param list 
+     */
+    //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_Render_OpaqueRender)
+    private _opaqueListRender(context: WebGLRenderContext3D) {
+        this.opaqueList.renderQueue(context);
+    }
+
     /**
      * 渲染法线深度Pass
      * @param context 
      * @param list 
      */
+    //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_Render_CameraOtherDest)
     private _renderDepthNormalPass(context: WebGLRenderContext3D): void {
         context.pipelineMode = this.depthNormalPipelineMode;
         //传入shader该传的值
@@ -189,12 +210,12 @@ export class WebGLForwardAddClusterRP{
         context.setViewPort(Viewport._tempViewport);
         context.setScissor(Vector4.tempVec4);
         context.setClearData(RenderClearFlag.Color | RenderClearFlag.Depth, this._defaultNormalDepthColor, 1, 0);
-        context.setRenderTarget(this.depthNormalTarget);
+        context.setRenderTarget(this.depthNormalTarget, RenderClearFlag.Color | RenderClearFlag.Depth);
         this.opaqueList.renderQueue(context);
 
     }
 
-
+    //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_Render_CameraOtherDest)
     private opaqueTexturePass() {
         //TODO
         // var blit: BlitScreenQuadCMD = BlitScreenQuadCMD.create(currentTarget, this._opaqueTexture);
@@ -208,7 +229,7 @@ export class WebGLForwardAddClusterRP{
         this._rendercmd(this.beforeForwardCmds, context);
         this._recoverRenderContext3D(context);
         context.setClearData(this.clearFlag, this.clearColor, 1, 0);
-        this.enableOpaque && this.opaqueList.renderQueue(context);
+        this.enableOpaque && this._opaqueListRender(context);
         this._rendercmd(this.beforeSkyboxCmds, context);
 
         if (this.skyRenderNode) {
@@ -222,9 +243,10 @@ export class WebGLForwardAddClusterRP{
         }
         this._rendercmd(this.beforeTransparentCmds, context);
         this._recoverRenderContext3D(context);
-        this.transparent && this.transparent.renderQueue(context);
+        this.transparent && this._transparentListRender(context);
     }
 
+     //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_Render_CameraEventCMD)
     private _rendercmd(cmds: Array<CommandBuffer>, context: WebGLRenderContext3D) {
         if (!cmds || cmds.length == 0)
             return;
@@ -238,7 +260,7 @@ export class WebGLForwardAddClusterRP{
         const cacheScissor = WebGLForwardAddClusterRP._contextScissorPortCatch;
         context.setViewPort(cacheViewPor);
         context.setScissor(cacheScissor);
-        context.setRenderTarget(this.destTarget);
+        context.setRenderTarget(this.destTarget, RenderClearFlag.Nothing);
     }
 
 }

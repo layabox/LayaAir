@@ -22,6 +22,7 @@ import { BaseRender } from "./render/BaseRender"
 import { RenderContext3D } from "./render/RenderContext3D"
 import { RenderElement } from "./render/RenderElement"
 import { SubMeshRenderElement } from "./render/SubMeshRenderElement"
+import { Stat } from "../../utils/Stat"
 
 
 /**
@@ -74,7 +75,7 @@ export class MeshRenderer extends BaseRender {
      * @returns 
      */
     protected _createBaseRenderNode(): IMeshRenderNode {
-       
+
         return Laya3DRender.Render3DModuleDataFactory.createMeshRenderNode();
     }
 
@@ -224,6 +225,19 @@ export class MeshRenderer extends BaseRender {
 
     }
 
+    _setBelongScene(scene: any): void {
+        super._setBelongScene(scene);
+        Stat.meshRenderNode++;
+    }
+
+    /**
+     * @internal
+     */
+    _setUnBelongScene() {
+        super._setUnBelongScene();
+        Stat.meshRenderNode--;
+    }
+
     /**
      * 更新 mesh 时 更新 morph target data (shader define)
      * @param mesh 
@@ -369,14 +383,23 @@ export class MeshRenderer extends BaseRender {
     }
 
     renderUpdate(context: RenderContext3D): void {
+        if (!this._mesh) {
+            return;
+        }
+
         this._mesh.morphTargetData && this._applyMorphdata();
         if (this._renderElements.length == 1) {
             this._renderElements[0]._renderElementOBJ.isRender = this._renderElements[0]._geometry._prepareRender(context);
             this._renderElements[0]._geometry._updateRenderParams(context);
+            let mat = this.sharedMaterial ?? BlinnPhongMaterial.defaultMaterial;
+            this._renderElements[0]._renderElementOBJ.materialRenderQueue = mat.renderQueue;
         } else {
             for (var i = 0, n = this._renderElements.length; i < n; i++) {
                 this._renderElements[i]._renderElementOBJ.isRender = this._renderElements[i]._geometry._prepareRender(context);
                 this._renderElements[i]._geometry._updateRenderParams(context);
+                let material = this.sharedMaterial ?? BlinnPhongMaterial.defaultMaterial;
+                material = this.sharedMaterials[i] ?? material;
+                this._renderElements[i]._renderElementOBJ.materialRenderQueue = material.renderQueue;
             }
         }
     }
