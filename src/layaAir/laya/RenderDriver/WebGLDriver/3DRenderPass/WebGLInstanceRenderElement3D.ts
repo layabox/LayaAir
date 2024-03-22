@@ -198,12 +198,13 @@ export class WebGLInstanceRenderElement3D extends WebGLRenderElement3D {
                 var elements: WebGLRenderElement3D[] = insBatches.elements;
                 var count: number = insBatches.length;
                 this.drawCount = count;
+                this.geometry.instanceCount = this.drawCount;
                 for (var i: number = 0; i < count; i++)
                     worldMatrixData.set(elements[i].transform.worldMatrix.elements, i * 16);
                 //simpleAnimationData
                 var simpleAnimatorData: Float32Array = this.getUpdateData(1, 4 * WebGLInstanceRenderElement3D.MaxInstanceCount);
                 for (var i: number = 0; i < count; i++) {
-                    var simpleAnimatorParams = this.renderShaderData.getVector(SimpleSkinnedMeshRenderer.SIMPLE_SIMPLEANIMATORPARAMS);
+                    var simpleAnimatorParams = elements[i].renderShaderData.getVector(SimpleSkinnedMeshRenderer.SIMPLE_SIMPLEANIMATORPARAMS);
                     var offset: number = i * 4;
                     simpleAnimatorData[offset] = simpleAnimatorParams.x;
                     simpleAnimatorData[offset + 1] = simpleAnimatorParams.y;
