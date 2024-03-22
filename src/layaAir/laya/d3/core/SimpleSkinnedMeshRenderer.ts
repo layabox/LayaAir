@@ -4,12 +4,14 @@ import { SubMeshRenderElement } from "./render/SubMeshRenderElement";
 import { SkinnedMeshSprite3DShaderDeclaration } from "./SkinnedMeshSprite3DShaderDeclaration";
 import { Mesh } from "../resource/models/Mesh";
 import { Texture2D } from "../../resource/Texture2D";
-import { Component } from "../../components/Component";
 import { Vector2 } from "../../maths/Vector2";
 import { Vector4 } from "../../maths/Vector4";
 import { IRenderContext3D } from "../../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
 import { BaseRenderType } from "../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
 import { RenderContext3D } from "./render/RenderContext3D";
+import { Sprite3D } from "./Sprite3D";
+import { Matrix4x4 } from "../../maths/Matrix4x4";
+import { MeshRenderer } from "./MeshRenderer";
 
 export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
     /**@internal 解决循环引用 */
@@ -82,10 +84,10 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
         return ["Sprite3D", "SimpleSkinnedMesh"];
     }
 
-    renderUpdate(context: RenderContext3D) {
+    protected _computeSkinnedData(): void {
         this._computeAnimatorParamsData();
-
     }
+
     /**
      *@inheritDoc
      *@override
@@ -93,7 +95,7 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
      */
     _createRenderElement() {
         let renderelement = new SubMeshRenderElement();
-        return renderelement as any;
+        return renderelement;
     }
 
     /**
@@ -117,6 +119,7 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
         if (!value)
             return;
         this._cacheMesh = (<Mesh>value);
+        this._setRenderElements();
 
     }
     /**
@@ -125,22 +128,21 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
      * @internal
      */
     _renderUpdate(context: IRenderContext3D): void {
-        // if (this.rootBone) {
-        //     var worldMat: Matrix4x4 = (this.rootBone as Sprite3D).transform.worldMatrix;
-        //     if (this._subUniformBufferData) {
-        //         let oriMat = this._shaderValues.getMatrix4x4(Sprite3D.WORLDMATRIX);
-        //         this._subUniformBufferData._needUpdate = oriMat ? !oriMat.equalsOtherMatrix(worldMat) : true;
-        //     }
-        //     this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, worldMat);
-        //     this._worldParams.x = (this.rootBone as Sprite3D).transform.getFrontFaceValue();
-        //     this._setShaderValue(Sprite3D.WORLDINVERTFRONT, ShaderDataType.Vector4, this._worldParams);
-        // } else {
-        //     this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, transform.worldMatrix);
-        //     this._worldParams.x = transform.getFrontFaceValue();
-        //     this._setShaderValue(Sprite3D.WORLDINVERTFRONT, ShaderDataType.Vector4, this._worldParams);
-        // }
-        // this._computeAnimatorParamsData();
-        // this._shaderValues.setVector(SimpleSkinnedMeshRenderer.SIMPLE_SIMPLEANIMATORPARAMS, this._simpleAnimatorParams);
+
+        let shaderData = this._baseRenderNode.shaderData;
+
+        let transform = this.rootBone ? this.rootBone.transform : this.owner.transform;
+        let worldMat = transform.worldMatrix;
+        let worldParams = this._worldParams;
+
+        worldParams.x = this.owner.transform.getFrontFaceValue();
+        shaderData.setMatrix4x4(Sprite3D.WORLDMATRIX, worldMat);
+        shaderData.setVector(Sprite3D.WORLDINVERTFRONT, worldParams);
+
+        this._baseRenderNode._applyLightProb();
+        this._baseRenderNode._applyReflection();
+
+        shaderData.setVector(SimpleSkinnedMeshRenderer.SIMPLE_SIMPLEANIMATORPARAMS, this._simpleAnimatorParams);
     }
 
     _cloneTo(dest: SimpleSkinnedMeshRenderer): void {
