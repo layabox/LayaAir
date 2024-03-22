@@ -1,7 +1,3 @@
-
-import { Laya } from "../../../Laya";
-import { URL } from "../../net/URL";
-import { ClassUtils } from "../../utils/ClassUtils";
 import { BPType, TBPCNode, TBPNode } from "../datas/types/BlueprintTypes";
 import { BlueprintFactory } from "../runtime/BlueprintFactory";
 import { BlueprintPin } from "./BlueprintPin";
@@ -115,7 +111,7 @@ export abstract class BlueprintNode<T extends BlueprintPin>{
                 else if (item.class != undefined) {
                     pin.value = BlueprintUtil.getClass(item.class);
                 } else if (item.resource != undefined) {
-                    pin.value = Laya.loader.getRes(URL.getResURLByUUID(item.resource)).create();
+                    pin.value = BlueprintUtil.getResByUUID(item.resource);
                 }
             }
         }

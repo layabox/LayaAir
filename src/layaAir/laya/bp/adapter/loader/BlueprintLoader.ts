@@ -26,6 +26,7 @@ export class BlueprintLoader implements IResourceLoader{
         //引擎精灵解析
         let links = HierarchyLoader.v3.collectResourceLinks(data,basePath);
         
+        let impl = new BlueprintImpl(data , task ,version);
         Dependence.instance.finish("res://" + task.uuid);
 
         if (links && links.length !== 0) {
@@ -34,20 +35,19 @@ export class BlueprintLoader implements IResourceLoader{
             for (let i = links.length - 1; i > -1; i--) {
                 let link = links[i];
                 let url = typeof(link) == "string" ? link : link.url;
-                // if (!res) {
-                    let promise = Dependence.instance.wait(url)
-                    .finally(()=>{progress ++});
-                    promises.push(promise);
-                // }else{
-                //     progress ++;
-                // }
-            }
+                let promise = Dependence.instance.wait(url)
+                .finally(()=>{progress ++});
 
+                promises.push(promise);
+            }
             return Promise.all(promises).then(()=>{
-                return new BlueprintImpl(data , task ,version);
+                impl.parse();
+                return impl;
             });
-        }else
-            return Promise.resolve(new BlueprintImpl(data , task ,version));
+        }else{
+            impl.parse();
+            return Promise.resolve(impl);
+        }
     }
 }
 
@@ -57,10 +57,14 @@ export class Dependence{
         return this._instance ||= new Dependence;
     }
 
+    /** 任务队列 */
     tasks: Record<string,BPDependencieTask> = {};
 
+    /**
+     * 完成任务
+     * @param url 
+     */
     public finish(url:string){
-        // let fullPath = URL.formatURL(url);
         let task = this.tasks[url];
         if (!task){
             task = new BPDependencieTask(url);
@@ -71,14 +75,18 @@ export class Dependence{
         task.loaded = true;
     }
 
-    public wait(url:string){
+    /**
+     * 等待资源完成
+     * @param  
+     * @returns 
+     */
+    public wait(url:string):Promise<any>{
         let res = Laya.loader.getRes(url);
         if (res){
             delete this.tasks[url];
             return Promise.resolve();
         } 
         
-        // let fullPath = URL.formatURL(url);
         let task = this.tasks[url];
         
         if (!task) {
@@ -88,7 +96,7 @@ export class Dependence{
                 task.onComplete.add(resolve);
                 Laya.loader.load(url)
                 .then(res=>{
-                    if (!(res instanceof BlueprintImpl)) {
+                    if (!(res instanceof BlueprintImpl)) {//非蓝图情况
                         this.finish(url);
                         delete this.tasks[url];
                     }
@@ -120,6 +128,5 @@ class BPDependencieTask{
     }
 
 }
-
 
 Loader.registerLoader([BlueprintConst.EXT],BlueprintLoader, BlueprintConst.TYPE); 

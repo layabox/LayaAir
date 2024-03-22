@@ -121,8 +121,6 @@ export class BlueprintImpl extends Resource {
     //             }
     //         }
     //     }
-
-
     //     setData[id] = cdata;
     //     return cdata;
     // }
@@ -143,14 +141,26 @@ export class BlueprintImpl extends Resource {
             return;
         }
 
-        // if (!LayaEnv.isPlaying && this.data.lhData) {
-        //     this._cls = runtime;
-        // } else {
-        //     BlueprintFactory.__init__();
+        //BlueprintFactory.createClsNew(this.uuid, LayaEnv.isPlaying, runtime, {
+        //     id: 0,
+        //     name: this.uuid,
+        //     dataMap,
+        //     arr
+        // }, this.data.functions, varMap);
+
+        //优先构建class
+        this._cls = BlueprintFactory.createCls(this.uuid, runtime);;
+
+        ClassUtils.regClass(this.uuid,this.cls);
+        ClassUtils.regClass(this.typeName, Object);
+    }
+
+    parse() {
+        if (this.state == -1) return
+
         let map = this.data.blueprintArr;
         let arr: TBPNode[] = [];
 
-        // TBPDeclaration
         let dec: TBPDeclaration = {
             type: "Node",
             name: this.name,
@@ -214,7 +224,6 @@ export class BlueprintImpl extends Resource {
                     ele.variable.forEach((ele) => {
                         dataMap[ele.id] = ele;
                         //varMap[ele.id] = ele;
-
                         // let decProp: TBPDeclarationProp = {
                         //     name: ele.name,
                         //     type: ele.type as string,
@@ -282,26 +291,22 @@ export class BlueprintImpl extends Resource {
             })
         }
 
-        if (runtime.prototype instanceof Component) {
+        if (this.cls.prototype instanceof Component) {
             dec.type = "Component";
         }
+
         this.dec = dec;
         BlueprintUtil.addCustomData(this.uuid, dec);
 
         this.allData = dataMap;
         BlueprintData.allDataMap.set(this.uuid, dataMap);
-        let cls = BlueprintFactory.createClsNew(this.uuid, LayaEnv.isPlaying, runtime, {
+
+        BlueprintFactory.parseCls(this.uuid, LayaEnv.isPlaying, this.cls, {
             id: 0,
             name: this.uuid,
             dataMap,
             arr
         }, this.data.functions, varMap);
-
-        this._cls = cls;
-
-        // }
-        ClassUtils.regClass(this.typeName, Object);
-
     }
 
     get obsolute(): boolean {
@@ -312,9 +317,9 @@ export class BlueprintImpl extends Resource {
         // this._obsolute = value;
     }
 
-    // protected _disposeResource(): void {
-    //     super._disposeResource();
-    //     delete ClassUtils._classMap[this.uuid];
-    //     delete ClassUtils._classMap[this.typeName];
-    // }
+    protected _disposeResource(): void {
+        super._disposeResource();
+        delete ClassUtils._classMap[this.uuid];
+        delete ClassUtils._classMap[this.typeName];
+    }
 }
