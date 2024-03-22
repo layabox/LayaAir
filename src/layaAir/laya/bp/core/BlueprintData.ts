@@ -281,9 +281,15 @@ export class BlueprintData {
                 type: BPType.NewTarget,
                 output: [{ name: "return", type: ext }]
             }
+
             cdata.data[po.id] = po;
             if (o.construct.params) {
                 po.input = o.construct.params.map(param => ({ name: param.name, type: param.type }));
+            }
+            for (let k in o.construct) {
+                if ('params' != k && null == (po as any)[k]) {
+                    (po as any)[k] = (o.construct as any)[k];
+                }
             }
         }
         if (o?.events) {
@@ -319,6 +325,11 @@ export class BlueprintData {
                         }
                     }
                     BlueprintData.handleCDataTypes(po, fun, ext);
+                    for (let k in fun) {
+                        if (null == (po as any)[k]) {
+                            (po as any)[k] = (fun as any)[k];
+                        }
+                    }
 
                     cdata.data[po.id] = po;
                 }
