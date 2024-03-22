@@ -176,7 +176,7 @@ export class Context {
     private _render2D: Render2D = null;
 
     private _clearColor = new Color(0,0,0,0);
-    private _clear=true;
+    private _clear=false;
 
     //temp
     //batchManager:RenderBatchManager2D=null;

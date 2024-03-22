@@ -21,22 +21,22 @@ vec4 linearToGamma(in vec4 value)
     return vec4(linearToGamma(value.rgb), value.a);
 }
 
-// vec4 sampleTexture(sampler2D spriteTexture, vec2 uv)
-// {
-//     vec4 color = texture2D(spriteTexture, uv);
-// #ifndef GAMMATEXTURE
-//     //是linear数据
-//     #ifdef GAMMASPACE
-//         color.xyz = linearToGamma(color.xyz);    
-//     #endif
-// #else
-//     //gamma数据
-//     #ifndef GAMMASPACE
-//         color.xyz = gammaToLinear(color.xyz);
-//     #endif
-// #endif
-//     return color;
-// }
+vec4 transspaceColor(vec4 color)
+{
+     
+ #ifndef GAMMATEXTURE
+     //是linear数据
+     #ifdef GAMMASPACE
+         color.xyz = linearToGamma(color.xyz);    
+     #endif
+ #else
+     //gamma数据
+     #ifndef GAMMASPACE
+         color.xyz = gammaToLinear(color.xyz);
+     #endif
+ #endif
+     return color;
+ }
 
 #if defined(PRIMITIVEMESH)
     varying vec4 v_color;
@@ -107,7 +107,7 @@ vec4 linearToGamma(in vec4 value)
                 for (float x = 0.0; x <= blurw; ++x)
                 {
                     // TODO 纹理坐标的固定偏移应该在vs中处理
-                    vec4Color += sampleTexture(u_spriteTexture, ctexcoord) * getGaussian(x - blurw / 2.0, y - blurw / 2.0);
+                    vec4Color +=transspaceColor(texture2D(u_spriteTexture, ctexcoord) * getGaussian(x - blurw / 2.0, y - blurw / 2.0));
                     ctexcoord.x += step.x;
                 }
                 ctexcoord.y += step.y;
@@ -120,24 +120,10 @@ vec4 linearToGamma(in vec4 value)
     vec4 getSpriteTextureColor(){
         #ifdef FILLTEXTURE
             vec4 color = texture2D(u_spriteTexture, fract(v_texcoordAlpha.xy) * u_TexRange.zw + u_TexRange.xy);
-            //return sampleTexture(u_spriteTexture, fract(v_texcoordAlpha.xy) * u_TexRange.zw + u_TexRange.xy);
         #else
             vec4 color = texture2D(u_spriteTexture, v_texcoordAlpha.xy);
-            //return sampleTexture(u_spriteTexture, v_texcoordAlpha.xy);
         #endif
-
-        #ifndef GAMMATEXTURE
-            //是linear数据
-            #ifdef GAMMASPACE
-                color.xyz = linearToGamma(color.xyz);
-            #endif
-        #else
-            //gamma数据
-            #ifndef GAMMASPACE
-                color.xyz = gammaToLinear(color.xyz);
-            #endif
-        #endif
-        return color;
+        return transspaceColor(color);
     }
 
     void setglColor(in vec4 color){
@@ -186,7 +172,7 @@ vec4 linearToGamma(in vec4 value)
             for (float i = 0.0; i <= c_IterationTime; ++i){
                 for (float j = 0.0; j <= c_IterationTime; ++j){
                     vec2Off = vec2(vec2FilterOff.x * (i - floatOff), vec2FilterOff.y * (j - floatOff));
-                    vec4Color += sampleTexture(u_spriteTexture, v_texcoordAlpha.xy + vec2FilterDir + vec2Off) ;
+                    vec4Color += transspaceColor(sampler2D(u_spriteTexture, v_texcoordAlpha.xy + vec2FilterDir + vec2Off))  ;
                 }
             }
             vec4Color /= floatIterationTotalTime;
