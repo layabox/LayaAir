@@ -125,6 +125,7 @@ export class WebGLInstanceRenderBatch {
             let element = this.revocerList.elements[i];
             element.recover();
         }
+        this.revocerList.length = 0;
     }
 
 }

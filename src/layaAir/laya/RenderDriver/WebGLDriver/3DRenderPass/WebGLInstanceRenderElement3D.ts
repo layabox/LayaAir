@@ -128,6 +128,7 @@ export class WebGLInstanceRenderElement3D extends WebGLRenderElement3D {
     }
 
     protected _compileShader(context: WebGLRenderContext3D) {
+        this._clearShaderInstance();
         let passes = this.subShader._passes;
         for (let i = 0; i < passes.length; i++) {
             let pass = passes[i];
