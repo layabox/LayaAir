@@ -2,6 +2,7 @@ import { Node } from "../display/Node";
 import { BlackboardComponent } from "./blackborad/BlackboardComponent";
 import { BehaviorTree } from "./core/BehaviorTree";
 import { BehaviorTreeComponent } from "./core/BehaviorTreeComponent";
+import { EBTExecutionMode } from "./core/EBTExecutionMode";
 
 /**
  * 
@@ -11,7 +12,7 @@ import { BehaviorTreeComponent } from "./core/BehaviorTreeComponent";
  */
 export class BehaviorTreeStaticFun {
     
-    static runBehaviorTree<T extends BehaviorTree>(owner: Node, behaviorTree: new () => T, excution?: number) {
+    static runBehaviorTree(owner: Node, behaviorTree: BehaviorTree, excution?: EBTExecutionMode) {
         let bt: BehaviorTreeComponent = owner.getComponent(BehaviorTreeComponent);
         if (!bt) {
             bt = owner.addComponent(BehaviorTreeComponent);

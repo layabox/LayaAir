@@ -50,7 +50,7 @@ export abstract class BTCompositeNode extends BTExecutableNode {
     }
 
     parse(config: any) {
-        this.name = config.name;
+        super.parse(config);
     }
 
     preCheck(preNode: BTNode, btCmp: BehaviorTreeComponent): BTNode {

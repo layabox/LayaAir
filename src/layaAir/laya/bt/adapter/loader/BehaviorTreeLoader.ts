@@ -31,8 +31,6 @@ export class BehaviorTreeLoader implements IResourceLoader {
         //引擎精灵解析
         let links = HierarchyLoader.v3.collectResourceLinks(data, basePath);
 
-        Dependence.instance.finish("res://" + task.uuid);
-
         if (links && links.length !== 0) {
             let promises:Promise<any>[] = [];
             let progress = 0;
@@ -49,7 +47,9 @@ export class BehaviorTreeLoader implements IResourceLoader {
             }
 
             return Promise.all(promises).then(()=>{
-                return new BehaviorTreeImpl(data , task ,version);
+                const bt = new BehaviorTreeImpl(data , task ,version);
+                Dependence.instance.finish("res://" + task.uuid);
+                return bt;
             });
         }else
             return Promise.resolve(new BehaviorTreeImpl(data, task, version));

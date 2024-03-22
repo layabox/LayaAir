@@ -1,18 +1,18 @@
 import { BlackboardComponent } from "./BlackboardComponent";
 
 export enum EBBType {
-    Number,
-    String,
-    Other
+    Number = 'number',
+    String = 'string',
+    Other = 'other'
 }
 
 export enum EBBNumberOperation {
-    equal,
-    notEqual,
-    less,
-    lessOrEqual,
     greater,
-    greaterOrEqual
+    greaterOrEqual,
+    equal,
+    lessOrEqual,
+    less,
+    notEqual
 }
 
 export enum EBBStringOperation {

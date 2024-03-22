@@ -7,7 +7,6 @@ export class BTDecorator extends BTAuxiliaryNode {
         return true;
     }
 
-
     isDecoratorObserverActive(): boolean {
         return false;
     }
