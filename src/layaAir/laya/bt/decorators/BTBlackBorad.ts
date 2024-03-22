@@ -19,7 +19,7 @@ export class BTBlackBorad extends BTDecorator {
             case EBBType.String:
                 result = BlackBoardUtils.caculateStringValue(btCmp.blackBoradComp, this.op, this.keyName, this.value);
                 break;
-            case EBBType.Other:
+            default:
                 result = BlackBoardUtils.caculateOtherValue(btCmp.blackBoradComp, this.op, this.keyName);
                 break;
         }

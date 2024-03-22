@@ -37,7 +37,7 @@ export class BTTaskNode extends BTExecutableNode {
     }
 
     parse(config: any): void {
-
+        super.parse(config);
     }
 
     protected newContext() {

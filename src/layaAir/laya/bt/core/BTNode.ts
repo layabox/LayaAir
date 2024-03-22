@@ -1,4 +1,5 @@
 import { IClone } from "../../utils/IClone";
+import { TBTNode } from "../datas/types/BehaviorTreeTypes";
 import { BehaviorTreeComponent } from "./BehaviorTreeComponent";
 
 import { BTCompositeNode } from "./BTCompositeNode";
@@ -23,13 +24,18 @@ export class BTNode implements IClone {
 
     orignNode: BTNode;
 
-
     constructor() {
         this.id = this.constructor.name + BTNode.ID++;
     }
 
-    parse(config: any) {
-
+    parse(config: TBTNode) {
+        const props = config.props;
+        if (props) {
+            for (const key in props) {
+                //@ts-ignore
+                this[key] = props[key];
+            }
+        }
     }
 
     onAdd(parentNode: BTCompositeNode) {

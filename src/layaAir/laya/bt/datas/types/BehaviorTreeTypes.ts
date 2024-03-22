@@ -1,17 +1,17 @@
 export enum BTType {
-    Wait = "Wait",
-    Test = "Test",
-    Loop = "Loop",
+    Wait = "BTTaskWait",
+    Test = "BTTaskTest",
+    Loop = "BTLoop",
+    Parallel = "SimpleParallel",
     Selector = "Selector",
     Sequence = "Sequence",
-    Parallel = "Parallel",
-    Cooldown = "Cooldown",
-    BlackBorad = "BlackBorad",
-    RunBehavior = "RunBehavior",
-    ForceSuccess = "ForceSuccess",
-    ConditionalLoop = "ConditionalLoop",
-    FinishWithResult = "FinishWithResult",
-    CompareBBEntries = "CompareBBEntries",
+    Cooldown = "BTCooldown",
+    BlackBorad = "BTBlackBorad",
+    RunBehavior = "BTTaskRunBehavior",
+    ForceSuccess = "BTForceSuccess",
+    ConditionalLoop = "BTConditionalLoop",
+    FinishWithResult = "BTTaskFinishWithResult",
+    CompareBBEntries = "BTCompareBBEntries",
 }
 
 export interface TBTNode {
@@ -42,9 +42,10 @@ export interface TBTNode {
     },
     childs?: string[];
     debugType?: number;
-    decorators?: TBTDecorator[];
-    services?: TBTService[];
+    decorator?: TBTDecorator[];
+    service?: TBTService[];
     autoReg?: boolean;
+    props?: Record<string, any>;
 }
 
 export interface TBTDecorator {
