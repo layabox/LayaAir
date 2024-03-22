@@ -1,3 +1,4 @@
+import { BlueprintUtil } from "../bp/core/BlueprintUtil";
 import { BTCompositeSelector } from "./composites/BTCompositeSelector";
 import { BTCompositeSequence } from "./composites/BTCompositeSequence";
 import { BTSimpleParallel } from "./composites/BTSimpleParallel";
@@ -59,6 +60,9 @@ export class BehaviorTreeFactory {
 
     createNew(config: TBTNode) {
         let cls = BehaviorTreeFactory._btMap.get(config.cid);
+        if (!cls) {
+            cls = BlueprintUtil.getClass(config.cid);
+        }
         let result = new cls();
         result.nid = config.id;
         result.parse(config);
