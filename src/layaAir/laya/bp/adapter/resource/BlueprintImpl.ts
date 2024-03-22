@@ -132,6 +132,10 @@ export class BlueprintImpl extends Resource {
         }
     }
 
+    private varMap: Record<string, TBPVarProperty> ;
+
+    private allNode: TBPNode[];
+
     public initClass() {
         let extendClass = this.data.extends;
         let runtime = BlueprintUtil.getClass(extendClass);
@@ -153,13 +157,9 @@ export class BlueprintImpl extends Resource {
 
         ClassUtils.regClass(this.uuid,this.cls);
         ClassUtils.regClass(this.typeName, Object);
-    }
-
-    parse() {
-        if (this.state == -1) return
 
         let map = this.data.blueprintArr;
-        let arr: TBPNode[] = [];
+        let arr: TBPNode[]=this.allNode = [];
 
         let dec: TBPDeclaration = {
             type: "Node",
@@ -177,7 +177,7 @@ export class BlueprintImpl extends Resource {
         }
 
         let dataMap: Record<string, TBPVarProperty | TBPEventProperty> = {}
-        let varMap: Record<string, TBPVarProperty> = {};
+        var varMap:Record<string, TBPVarProperty>=this.varMap = {};
 
         if (this.data.variable) {
             let decProps = dec.props;
@@ -300,13 +300,18 @@ export class BlueprintImpl extends Resource {
 
         this.allData = dataMap;
         BlueprintData.allDataMap.set(this.uuid, dataMap);
+    }
 
+    parse() {
+        if (this.state == -1) return;
         BlueprintFactory.parseCls(this.uuid, LayaEnv.isPlaying, this.cls, {
             id: 0,
             name: this.uuid,
-            dataMap,
-            arr
-        }, this.data.functions, varMap);
+            dataMap: this.allData,
+            arr: this.allNode
+        }, this.data.functions, this.varMap);
+        this.allNode=null;
+        this.varMap=null;
     }
 
     get obsolute(): boolean {
