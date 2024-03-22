@@ -150,7 +150,7 @@ export class BlueprintData {
 
     getConstNode(node?: TBPNode) {
         if (null != node.dataId) {
-            let id = node.cid + "_" + node.dataId;
+            let id = node.cid + "_" + node.dataId + "_" + node.target;
             if (null != this.autoCreateData[id]) return this.autoCreateData[id];
             let cdata = this._getConstData(node.cid, node.target);
             if ("static_get" == node.cid || "static_set" == node.cid || 'get' == node.cid || 'set' == node.cid || 'tmp_get' == node.cid || 'tmp_set' == node.cid) return cdata;
