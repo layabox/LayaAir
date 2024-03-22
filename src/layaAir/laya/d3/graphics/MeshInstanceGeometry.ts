@@ -8,22 +8,22 @@ import { SubMesh } from "../resource/models/SubMesh";
  * @internal
  */
 export class MeshInstanceGeometry extends GeometryElement {
-    private _subMesh:SubMesh;
+    private _subMesh: SubMesh;
     constructor(subMesh: SubMesh) {
-        super(subMesh?subMesh._geometryElementOBj.mode:MeshTopology.Triangles, DrawType.DrawElementInstance);
+        super(subMesh ? subMesh._geometryElementOBj.mode : MeshTopology.Triangles, DrawType.DrawElementInstance);
         this._subMesh = subMesh;
-        if(subMesh)
-        this.indexFormat = subMesh._mesh.indexFormat;
+        if (subMesh)
+            this.indexFormat = subMesh._mesh.indexFormat;
     }
 
-    set subMesh(value:SubMesh){
+    set subMesh(value: SubMesh) {
         this._subMesh = value;
-        if(value)
-        this.indexFormat = value._mesh.indexFormat;
+        if (value)
+            this.indexFormat = value._mesh.indexFormat;
         this.mode = value._geometryElementOBj.mode;
     }
 
-    get subMesh():SubMesh{
+    get subMesh(): SubMesh {
         return this._subMesh
     }
 
@@ -33,7 +33,7 @@ export class MeshInstanceGeometry extends GeometryElement {
      */
     _updateRenderParams(state: RenderContext3D): void {
         this.clearRenderParams();
-		this.setDrawElemenParams(this._subMesh.indexCount, this._subMesh._indexStart * 2);
+        this.setDrawElemenParams(this._subMesh.indexCount, this._subMesh._indexStart * 2);
     }
 
 }
