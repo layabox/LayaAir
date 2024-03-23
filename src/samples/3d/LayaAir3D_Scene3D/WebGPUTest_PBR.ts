@@ -64,12 +64,12 @@ export class WebGPUTest_PBR {
 
             const scene: Scene3D = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 
-            // //初始化天空渲染器
-            // const skyRenderer = scene.skyRenderer;
-            // //创建天空盒mesh
-            // skyRenderer.mesh = SkyDome.instance;
-            // //使用程序化天空盒
-            // skyRenderer.material = new SkyProceduralMaterial();
+            //初始化天空渲染器
+            const skyRenderer = scene.skyRenderer;
+            //创建天空盒mesh
+            skyRenderer.mesh = SkyDome.instance;
+            //使用程序化天空盒
+            skyRenderer.material = new SkyProceduralMaterial();
 
             const camera: Camera = (<Camera>(scene.addChild(new Camera(0, 0.1, 300))));
             camera.transform.translate(new Vector3(0, 0.5, 5));
