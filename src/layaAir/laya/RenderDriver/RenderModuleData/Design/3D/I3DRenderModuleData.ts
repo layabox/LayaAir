@@ -53,11 +53,6 @@ export interface IBaseRenderNode {
     set_renderUpdatePreCall(call: any, fun: any): void;
     set_caculateBoundingBox(call: any, fun: any): void;
 
-    /**
-     * @internal
-     * @param value 
-     */
-    setWorldParams(value: Vector4): void;
 
     /**
      * @internal

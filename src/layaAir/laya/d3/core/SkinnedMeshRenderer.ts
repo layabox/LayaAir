@@ -7,7 +7,6 @@ import { MeshRenderer } from "./MeshRenderer";
 import { Sprite3D } from "./Sprite3D";
 import { RenderContext3D } from "./render/RenderContext3D";
 import { SkinnedMeshSprite3DShaderDeclaration } from "./SkinnedMeshSprite3DShaderDeclaration";
-import { Component } from "../../components/Component";
 import { SkinRenderElement } from "./render/SkinRenderElement";
 import { Material } from "../../resource/Material";
 import { BlinnPhongMaterial } from "./material/BlinnPhongMaterial";

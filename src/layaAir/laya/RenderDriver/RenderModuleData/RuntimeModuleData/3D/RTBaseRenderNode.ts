@@ -27,42 +27,41 @@ export class RTBaseRenderNode implements IBaseRenderNode {
     }
 
     public get distanceForSort(): number {
-        return this._nativeObj._distanceForSort;
+        return this._nativeObj.distanceForSort;
     }
 
     public set distanceForSort(value: number) {
-        this._nativeObj.distanceForSort
-        this._nativeObj._distanceForSort = value;
+        this._nativeObj.distanceForSort = value;
     }
     public get sortingFudge(): number {
-        return this._nativeObj._sortingFudge;
+        return this._nativeObj.sortingFudge;
     }
     public set sortingFudge(value: number) {
-        this._nativeObj._sortingFudge = value;
+        this._nativeObj.sortingFudge = value;
     }
     public get castShadow(): boolean {
-        return this._nativeObj._castShadow;
+        return this._nativeObj.castShadow;
     }
     public set castShadow(value: boolean) {
-        this._nativeObj._castShadow = value;
+        this._nativeObj.castShadow = value;
     }
     public get enable(): boolean {
-        return this._nativeObj._enable;
+        return this._nativeObj.enable;
     }
     public set enable(value: boolean) {
-        this._nativeObj._enable = value;
+        this._nativeObj.enable = value;
     }
     public get renderbitFlag(): number {
-        return this._nativeObj._renderbitFlag;
+        return this._nativeObj.renderbitFlag;
     }
     public set renderbitFlag(value: number) {
-        this._nativeObj._renderbitFlag = value;
+        this._nativeObj.renderbitFlag = value;
     }
     public get layer(): number {
-        return this._nativeObj._layer;
+        return this._nativeObj.layer;
     }
     public set layer(value: number) {
-        this._nativeObj._layer = value;
+        this._nativeObj.layer = value;
     }
     private _bounds: Bounds;
     public get bounds(): Bounds {
@@ -81,10 +80,10 @@ export class RTBaseRenderNode implements IBaseRenderNode {
         this._nativeObj.setBaseGeometryBounds((value._imp as any)._nativeObj);
     }
     public get boundsChange(): boolean {
-        return this._nativeObj._boundsChange;
+        return this._nativeObj.boundsChange;
     }
     public set boundsChange(value: boolean) {
-        this._nativeObj._boundsChange = value;
+        this._nativeObj.boundsChange = value;
     }
     public get customCull(): boolean {
         return this._nativeObj._customCull;
@@ -99,10 +98,10 @@ export class RTBaseRenderNode implements IBaseRenderNode {
         this._nativeObj._customCullResoult = value;
     }
     public get staticMask(): number {
-        return this._nativeObj._staticMask;
+        return this._nativeObj.staticMask;
     }
     public set staticMask(value: number) {
-        this._nativeObj._staticMask = value;
+        this._nativeObj.staticMask = value;
     }
     private _shaderData: ShaderData;
     public get shaderData(): ShaderData {
@@ -113,10 +112,10 @@ export class RTBaseRenderNode implements IBaseRenderNode {
         this._nativeObj.setShaderData((value as any)._nativeObj);
     }
     public get lightmapIndex(): number {
-        return this._nativeObj._lightmapIndex;
+        return this._nativeObj.lightmapIndex;
     }
     public set lightmapIndex(value: number) {
-        this._nativeObj._lightmapIndex = value;
+        this._nativeObj.lightmapIndex = value;
     }
     private _lightmap: RTLightmapData;
     public get lightmap(): RTLightmapData {
@@ -124,6 +123,7 @@ export class RTBaseRenderNode implements IBaseRenderNode {
     }
     public set lightmap(value: RTLightmapData) {
         this._lightmap = value;
+        this._nativeObj.setLightmap(value._nativeObj);
     }
     private _probeReflection: RTReflectionProb;
     public get probeReflection(): RTReflectionProb {
@@ -131,18 +131,19 @@ export class RTBaseRenderNode implements IBaseRenderNode {
     }
     public set probeReflection(value: RTReflectionProb) {
         this._probeReflection = value;
+        this._nativeObj.setProbeReflection(value._nativeObj);
     }
     public get probeReflectionUpdateMark(): number {
-        return this._nativeObj._probeReflectionUpdateMark;
+        return this._nativeObj.probeReflectionUpdateMark;
     }
     public set probeReflectionUpdateMark(value: number) {
-        this._nativeObj._probeReflectionUpdateMark = value;
+        this._nativeObj.probeReflectionUpdateMark = value;
     }
     public get reflectionMode(): number {
-        return this._nativeObj._reflectionMode;
+        return this._nativeObj.reflectionMode;
     }
     public set reflectionMode(value: number) {
-        this._nativeObj._reflectionMode = value;
+        this._nativeObj.reflectionMode = value;
     }
     private _volumetricGI: RTVolumetricGI;
     public get volumetricGI(): RTVolumetricGI {
@@ -150,12 +151,13 @@ export class RTBaseRenderNode implements IBaseRenderNode {
     }
     public set volumetricGI(value: RTVolumetricGI) {
         this._volumetricGI = value;
+        this._nativeObj.setVolumetricGI(value._nativeObj)
     }
     public get lightProbUpdateMark(): number {
-        return this._nativeObj._lightProbUpdateMark;
+        return this._nativeObj.lightProbUpdateMark;
     }
     public set lightProbUpdateMark(value: number) {
-        this._nativeObj._lightProbUpdateMark = value;
+        this._nativeObj.lightProbUpdateMark = value;
     }
     private _irradientMode: IrradianceMode;
     public get irradientMode(): IrradianceMode {
@@ -163,7 +165,7 @@ export class RTBaseRenderNode implements IBaseRenderNode {
     }
     public set irradientMode(value: IrradianceMode) {
         this._irradientMode = value;
-        this._nativeObj._irradientMode = value;
+        this._nativeObj.irradianceMode = value;
     }
 
 
@@ -187,7 +189,6 @@ export class RTBaseRenderNode implements IBaseRenderNode {
      * @param fun 
      */
     set_caculateBoundingBox(call: any, fun: any): void {
-
         this._caculateBoundingBoxbindFun = fun.bind(call);
         this._nativeObj.setCalculateBoundingBox(this._caculateBoundingBoxbindFun);
     }
@@ -202,15 +203,22 @@ export class RTBaseRenderNode implements IBaseRenderNode {
         this._getNativeObj();
         this.renderelements = [];
     }
-    private _renderNodeType: number;
+
     public get renderNodeType(): number {
-        return this._renderNodeType;
+        return this._nativeObj.renderNodeType;
     }
+
     public set renderNodeType(value: number) {
-        this._renderNodeType = value;
-        //native TODO
+        this._nativeObj.renderNodeType = value;
     }
-    receiveShadow: boolean;
+
+    public get receiveShadow(): boolean {
+        return this._nativeObj.receiveShadow;
+    }
+
+    public set receiveShadow(value: boolean) {
+        this._nativeObj.receiveShadow = value;
+    }
     _applyLightProb(): void {
         this._nativeObj._applyLightProb();
      }
@@ -227,10 +235,6 @@ export class RTBaseRenderNode implements IBaseRenderNode {
             tempArray.push((value[i] as any)._nativeObj);
         }
         this._nativeObj.setRenderElements(tempArray);
-    }
-
-    setWorldParams(value: Vector4): void {
-        this._nativeObj.setWorldParams(value);
     }
 
     setLightmapScaleOffset(value: Vector4): void {

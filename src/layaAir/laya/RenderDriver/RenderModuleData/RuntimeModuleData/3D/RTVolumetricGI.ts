@@ -49,7 +49,8 @@ export class RTVolumetricGI implements IVolumetricGIData {
         this._nativeObj._updateMark = value;
     }
 
-    private _nativeObj: any;
+    /**@internal */
+    _nativeObj: any;
 
     constructor() {
         this._nativeObj = new (window as any).conchRTVolumetricGI();

@@ -126,13 +126,7 @@ export class WebBaseRenderNode implements IBaseRenderNode {
             return true;
     }
 
-    /**
-     * @internal
-     * @param value 
-     */
-    setWorldParams(value: Vector4) {
-        value.cloneTo(this._worldParams);
-    }
+
 
     /**
      * @internal
