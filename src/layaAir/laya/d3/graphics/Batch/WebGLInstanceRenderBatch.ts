@@ -48,7 +48,6 @@ export class WebGLInstanceRenderBatch {
         if (!Config3D.enableDynamicBatch || !LayaGL.renderEngine.getCapable(RenderCapable.DrawElement_Instance)) {
             return;
         }
-        this.recoverData();
         let elementCount = elements.length;
 
         let elementArray = elements.elements;
@@ -118,6 +117,13 @@ export class WebGLInstanceRenderBatch {
         }
 
 
+    }
+
+    clearRenderData() {
+        for (let i = 0, n = this.revocerList.length; i < n; i++) {
+            let element = this.revocerList.elements[i];
+            element.clearRenderData();
+        }
     }
 
     recoverData() {

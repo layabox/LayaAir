@@ -33,6 +33,8 @@ export class WebGLRenderListQueue {
         var count: number = this._elements.length;
         this.quickSort.sort(this._elements, this._isTransparent, 0, count - 1);
         context.drawRenderElementList(this._elements);
+
+        this._batch.clearRenderData();
     }
 
     clear(): void {
