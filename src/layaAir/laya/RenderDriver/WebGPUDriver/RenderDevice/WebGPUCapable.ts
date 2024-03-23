@@ -31,7 +31,7 @@ export class WebGPUCapable {
         this._capabilityMap.set(RenderCapable.COMPRESS_TEXTURE_ETC, true);
         this._capabilityMap.set(RenderCapable.COMPRESS_TEXTURE_ASTC, true);
         this._capabilityMap.set(RenderCapable.Texture_SRGB, true);
-        this._capabilityMap.set(RenderCapable.MSAA, false);
+        this._capabilityMap.set(RenderCapable.MSAA, true);
         this._capabilityMap.set(RenderCapable.UnifromBufferObject, false);
         this._capabilityMap.set(RenderCapable.Texture3D, false);
     }

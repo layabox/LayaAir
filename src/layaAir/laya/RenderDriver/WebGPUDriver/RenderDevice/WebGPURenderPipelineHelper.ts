@@ -338,27 +338,28 @@ export class WebGPURenderPipeline {
         descriptor.vertex.buffers = vertexBuffers;
         //descriptor.vertex.constants TODO
         const textureNum = renderTarget._textures.length;
-        if (renderTarget._colorState.length === textureNum) {
-            for (let i = renderTarget._colorState.length - 1; i > -1; i--)
-                renderTarget._colorState[i].blend = blendState;
+        if (renderTarget._colorStates.length === textureNum) {
+            for (let i = renderTarget._colorStates.length - 1; i > -1; i--)
+                renderTarget._colorStates[i].blend = blendState;
         } else {
-            renderTarget._colorState.length = textureNum;
+            renderTarget._colorStates.length = textureNum;
             for (let i = 0; i < textureNum; i++) {
-                renderTarget._colorState[i] = {
+                renderTarget._colorStates[i] = {
                     format: renderTarget._textures[i]._webGPUFormat,
                     blend: blendState,
                     writeMask: GPUColorWrite.ALL,
                 };
             }
         }
-        descriptor.fragment.targets = renderTarget._colorState;
+        descriptor.fragment.targets = renderTarget._colorStates;
         descriptor.primitive = primitiveState;
         if (depthState)
             descriptor.depthStencil = depthState;
         else delete descriptor.depthStencil;
         descriptor.layout = shaderInstance.createPipelineLayout(device, 'pipelineLayout_' + this.idCounter, entries);
+        descriptor.multisample.count = renderTarget._samples;
         const renderPipeline = device.createRenderPipeline(descriptor);
-        console.log('create renderPipeline_' + this.idCounter, descriptor);
+        console.log('create renderPipeline_' + this.idCounter, descriptor, renderTarget._samples);
         this.idCounter++;
         return renderPipeline;
     }

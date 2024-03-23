@@ -22,6 +22,7 @@ export class WebGPUInternalTex implements InternalTexture {
     gpuMemory: number;
     useSRGBLoad: boolean;
     gammaCorrection: number;
+    multiSamplers: number;
 
     _webGPUFormat: WebGPUTextureFormat;
 
@@ -129,11 +130,12 @@ export class WebGPUInternalTex implements InternalTexture {
         return this._webgpuSampler;
     }
 
-    constructor(width: number, height: number, depth: number, dimension: TextureDimension, mipmap: boolean, useSRGBLoader: boolean, gammaCorrection: number) {
+    constructor(width: number, height: number, depth: number, dimension: TextureDimension, mipmap: boolean, multiSamples: number, useSRGBLoader: boolean, gammaCorrection: number) {
         this.width = width;
         this.height = height;
         this.depth = depth;
         this.dimension = dimension;
+        this.multiSamplers = multiSamples;
 
         const isPot = (value: number): boolean => {
             return (value & (value - 1)) === 0;
@@ -145,9 +147,8 @@ export class WebGPUInternalTex implements InternalTexture {
         }
 
         this.mipmap = mipmap && this.isPotSize;
-        //mipmap TODO
-        // this._mipmapCount = this._mipmap ? Math.max(Math.ceil(Math.log2(width)) + 1, Math.ceil(Math.log2(height)) + 1) : 1;
-        // this._maxMipmapLevel = this._mipmapCount - 1;
+        this.mipmapCount = this.mipmap ? Math.max(Math.ceil(Math.log2(width)) + 1, Math.ceil(Math.log2(height)) + 1) : 1;
+        this.maxMipmapLevel = this.mipmapCount - 1;
         this.baseMipmapLevel = 0;
         this.useSRGBLoad = useSRGBLoader;
         this.gammaCorrection = gammaCorrection;

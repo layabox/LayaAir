@@ -76,7 +76,11 @@ export class WebGPUTest_PBR {
             camera.transform.rotate(new Vector3(-15, 0, 0), true, false);
             camera.clearColor = Color.BLACK;
             camera.clearFlag = CameraClearFlags.SolidColor;
-            camera.addComponent(CameraMoveScript);
+            camera.msaa = true;
+            if (this.useWebGPU)
+                WebGPURenderEngine._instance._config.msaa = camera.msaa;
+            const move = camera.addComponent(CameraMoveScript);
+            move.speed = 0.005;
 
             const directLight = new Sprite3D();
             const dirCom = directLight.addComponent(DirectionLightCom);
@@ -84,23 +88,23 @@ export class WebGPUTest_PBR {
             dirCom.color.setValue(1, 1, 1, 1);
 
             //打开后处理
-            // if (true) {
-            //     const postProcess = new PostProcess();
-            //     const bloom = new BloomEffect();
-            //     postProcess.addEffect(bloom);
-            //     camera.postProcess = postProcess;
-            //     camera.enableHDR = true;
+            if (true) {
+                const postProcess = new PostProcess();
+                const bloom = new BloomEffect();
+                postProcess.addEffect(bloom);
+                camera.postProcess = postProcess;
+                camera.enableHDR = true;
 
-            //     //设置泛光参数
-            //     bloom.intensity = 5;
-            //     bloom.threshold = 0.9;
-            //     bloom.softKnee = 0.5;
-            //     bloom.clamp = 65472;
-            //     bloom.diffusion = 5;
-            //     bloom.anamorphicRatio = 0.0;
-            //     bloom.color = new Color(1, 1, 1, 1);
-            //     bloom.fastMode = true;
-            // }
+                //设置泛光参数
+                bloom.intensity = 5;
+                bloom.threshold = 0.9;
+                bloom.softKnee = 0.5;
+                bloom.clamp = 65472;
+                bloom.diffusion = 5;
+                bloom.anamorphicRatio = 0.0;
+                bloom.color = new Color(1, 1, 1, 1);
+                bloom.fastMode = true;
+            }
 
             const boxMesh1 = PrimitiveMesh.createBox(0.2, 0.2, 0.2);
             const coneMesh1 = PrimitiveMesh.createCone(0.1, 0.3, 64);
@@ -129,7 +133,7 @@ export class WebGPUTest_PBR {
                 material.albedoTexture = Laya.loader.getRes("res/threeDimen/pbr/metal022/albedo.jpg", Loader.TEXTURE2D);
                 material.normalTexture = Laya.loader.getRes("res/threeDimen/pbr/metal022/normal.jpg", Loader.TEXTURE2D);
                 material.metallicGlossTexture = Laya.loader.getRes("res/threeDimen/pbr/metal022/metallicRoughness.png", Loader.TEXTURE2D);
-                material.normalTextureScale = 1.5;
+                material.normalTextureScale = 1.2;
                 material.smoothnessTextureScale = 1.2;
             }));
 
@@ -181,19 +185,19 @@ export class WebGPUTest_PBR {
                     sphereS3D[i].transform.rotate(sphereS3D[i].rotate, false);
             });
 
-            if (this.useWebGPU) {
-                Laya.timer.loop(3000, this, () => { WebGPUStatis.printFrameStatis(); });
-                Laya.timer.once(5000, this, () => {
-                    WebGPUStatis.printStatisticsAsTable();
-                    WebGPUStatis.printTotalStatis();
-                    WebGPUStatis.printTextureStatis();
-                    console.log(WebGPURenderEngine._instance.gpuBufferMgr.namedBuffers.get('scene3D'));
-                    console.log(WebGPURenderEngine._instance.gpuBufferMgr.namedBuffers.get('camera'));
-                    console.log(WebGPURenderEngine._instance.gpuBufferMgr.namedBuffers.get('material'));
-                    console.log(WebGPURenderEngine._instance.gpuBufferMgr.namedBuffers.get('sprite3D'));
-                    console.log(WebGPURenderEngine._instance.gpuBufferMgr.namedBuffers.get('sprite3D_static'));
-                });
-            }
+            // if (this.useWebGPU) {
+            //     Laya.timer.loop(3000, this, () => { WebGPUStatis.printFrameStatis(); });
+            //     Laya.timer.once(5000, this, () => {
+            //         WebGPUStatis.printStatisticsAsTable();
+            //         WebGPUStatis.printTotalStatis();
+            //         WebGPUStatis.printTextureStatis();
+            //         console.log(WebGPURenderEngine._instance.gpuBufferMgr.namedBuffers.get('scene3D'));
+            //         console.log(WebGPURenderEngine._instance.gpuBufferMgr.namedBuffers.get('camera'));
+            //         console.log(WebGPURenderEngine._instance.gpuBufferMgr.namedBuffers.get('material'));
+            //         console.log(WebGPURenderEngine._instance.gpuBufferMgr.namedBuffers.get('sprite3D'));
+            //         console.log(WebGPURenderEngine._instance.gpuBufferMgr.namedBuffers.get('sprite3D_static'));
+            //     });
+            // }
         });
     }
 }

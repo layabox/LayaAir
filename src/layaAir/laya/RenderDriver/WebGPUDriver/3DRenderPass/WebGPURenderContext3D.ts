@@ -199,6 +199,7 @@ export class WebGPURenderContext3D implements IRenderContext3D {
         if (!this.destRT) {
             const context = WebGPURenderEngine._instance._context;
             WebGPURenderEngine._instance._screenRT._textures[0].resource = context.getCurrentTexture();
+            WebGPURenderEngine._instance._screenRT._textures[0].multiSamplers = 1;
             this.setRenderTarget(WebGPURenderEngine._instance._screenRT, RenderClearFlag.Color | RenderClearFlag.Depth);
         }
     }

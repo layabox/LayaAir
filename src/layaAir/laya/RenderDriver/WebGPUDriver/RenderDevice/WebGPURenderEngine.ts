@@ -45,9 +45,9 @@ export class WebGPUConfig {
      */
     depthStencilFormat = WebGPUTextureFormat.depth24plus_stencil8;
     /**
-     * multi sample
+     * multi sample（msaa = 4x）
      */
-    multiSamples = 1;
+    msaa = false;
 }
 
 /**
@@ -359,6 +359,6 @@ export class WebGPURenderEngine implements IRenderEngine {
         this._screenRT =
             this._textureContext.createRenderTargetInternal
                 (this._canvas.width, this._canvas.height, RenderTargetFormat.R8G8B8A8,
-                    RenderTargetFormat.None, false, false, this._config.multiSamples) as WebGPUInternalRT;
+                    RenderTargetFormat.None, false, false, this._config.msaa ? 4 : 1) as WebGPUInternalRT;
     }
 }
