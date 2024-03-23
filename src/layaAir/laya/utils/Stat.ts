@@ -130,6 +130,7 @@ export class Stat {
     public static sprite3DCount: number = 0;//TODO
     /**@internal */
     public static drawCall: number = 0;
+    public static draw2D=0;
     /**@internal */
     public static trianglesFaces: number = 0;
     /**@internal */

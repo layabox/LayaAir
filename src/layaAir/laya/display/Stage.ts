@@ -25,6 +25,7 @@ import { LayaEnv } from "../../LayaEnv";
 import { LayaGL } from "../layagl/LayaGL";
 import { Scene3D } from "../d3/core/scene/Scene3D";
 import { Color } from "../maths/Color";
+import { PERF_BEGIN, PERF_END, PerformanceDefine } from "../tools/PerformanceTool";
 
 /**
  * stage大小经过重新调整时进行调度。
@@ -856,10 +857,13 @@ export class Stage extends Sprite {
             for (let i = 0, n = this._scene3Ds.length; i < n; i++)//更新3D场景,必须提出来,否则在脚本中移除节点会导致BUG
                 (<any>this._scene3Ds[i]).renderSubmit();
             //再渲染2d
+            //PERF_BEGIN(PerformanceDefine.T_UIRender);
+            Stat.draw2D=0;
             context2D.startRender();
             super.render(context2D, x, y);
             Stat.render(context2D, x, y);
             context2D.endRender();
+            //PERF_END(PerformanceDefine.T_UIRender);
 
             this._componentDriver.callPostRender();
 
