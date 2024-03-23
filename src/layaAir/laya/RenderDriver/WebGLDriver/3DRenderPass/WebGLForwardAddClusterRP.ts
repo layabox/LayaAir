@@ -139,6 +139,7 @@ export class WebGLForwardAddClusterRP {
         this.opaqueList.clear();
         this.transparent.clear();
         WebGLCullUtil.cullByCameraCullInfo(this.cameraCullInfo, list, count, this.opaqueList, this.transparent, context)
+
         if ((this.depthTextureMode & DepthTextureMode.Depth) != 0) {
             this._renderDepthPass(context);
         }
@@ -148,6 +149,8 @@ export class WebGLForwardAddClusterRP {
         this._viewPort.cloneTo(WebGLForwardAddClusterRP._context3DViewPortCatch);
         this._scissor.cloneTo(WebGLForwardAddClusterRP._contextScissorPortCatch);
         this._mainPass(context);
+
+        this.opaqueList._batch.recoverData();
     }
 
     /**
@@ -168,7 +171,10 @@ export class WebGLForwardAddClusterRP {
         context.setScissor(Vector4.tempVec4);
         context.setRenderTarget(this.depthTarget, RenderClearFlag.Depth);
         context.setClearData(RenderClearFlag.Depth, Color.BLACK, 1, 0);
+
+        // render
         this.opaqueList.renderQueue(context);
+
         //渲染完后传入使用的参数
         var far = this.camera.farplane;
         var near = this.camera.nearplane;
@@ -246,7 +252,7 @@ export class WebGLForwardAddClusterRP {
         this.transparent && this._transparentListRender(context);
     }
 
-     //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_Render_CameraEventCMD)
+    //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_Render_CameraEventCMD)
     private _rendercmd(cmds: Array<CommandBuffer>, context: WebGLRenderContext3D) {
         if (!cmds || cmds.length == 0)
             return;

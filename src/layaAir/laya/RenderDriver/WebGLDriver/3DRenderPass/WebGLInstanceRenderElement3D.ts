@@ -25,6 +25,7 @@ export class WebGLInstanceRenderElement3D extends WebGLRenderElement3D {
      * get Instance BufferState
      */
     static _instanceBufferStateMap: Map<number, WebGLInstanceStateInfo> = new Map();
+
     static getInstanceBufferState(geometry: WebGLRenderGeometryElement, renderType: number, spriteDefine: WebDefineDatas) {
         let stateinfo = WebGLInstanceRenderElement3D._instanceBufferStateMap.get(geometry._id);
         if (!stateinfo) {
@@ -243,15 +244,26 @@ export class WebGLInstanceRenderElement3D extends WebGLRenderElement3D {
         WebGLEngine.instance.getDrawContext().drawGeometryElement(this.geometry);
     }
 
-    recover() {
-        WebGLInstanceRenderElement3D._pool.push(this);
+    /**
+     * 清理单次渲染生成的数据
+     */
+    clearRenderData(): void {
+        this.drawCount = 0;
         this.updateNums = 0;
-        this._instanceElementList.clear();
         this._vertexBuffers.length = 0;
         this._updateData.forEach((data) => {
             WebGLInstanceRenderElement3D._bufferPool.get(data.length).push(data);
         });
+        this._updateData.length = 0;
         this._updateDataNum.length = 0;
+    }
+
+    /**
+     * 回收
+     */
+    recover() {
+        WebGLInstanceRenderElement3D._pool.push(this);
+        this._instanceElementList.clear();
     }
 
     destroy(): void {
