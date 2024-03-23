@@ -47,7 +47,6 @@ export class QuickTestTool {
         QuickTestTool._typeToNameDic[SpriteConst.TRANSFORM] = "TRANSFORM";
         QuickTestTool._typeToNameDic[SpriteConst.TEXTURE] = "TEXTURE";
         QuickTestTool._typeToNameDic[SpriteConst.GRAPHICS] = "GRAPHICS";
-        QuickTestTool._typeToNameDic[SpriteConst.ONECHILD] = "ONECHILD";
         QuickTestTool._typeToNameDic[SpriteConst.CHILDS] = "CHILDS";
         QuickTestTool._typeToNameDic[SpriteConst.TRANSFORM | SpriteConst.ALPHA] = "TRANSFORM|ALPHA";
 

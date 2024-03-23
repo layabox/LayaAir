@@ -20,6 +20,7 @@ import { Vector4 } from "../../maths/Vector4";
 import { Transform3D } from "./Transform3D";
 import { BaseRenderType, IBaseRenderNode } from "../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
 import { IRenderContext3D } from "../../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
+import { RenderElement } from "./render/RenderElement";
 /**
  * <code>SkinMeshRenderer</code> 类用于蒙皮渲染器。
  */
@@ -233,7 +234,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
      *@override
      *@internal
      */
-    _createRenderElement(): SkinRenderElement {
+    _createRenderElement(): RenderElement {
         let renderelement = new SkinRenderElement();
         return renderelement;
     }
@@ -248,10 +249,10 @@ export class SkinnedMeshRenderer extends MeshRenderer {
             var count: number = mesh.subMeshCount;
             this._renderElements.length = count;
             for (var i: number = 0; i < count; i++) {
-                var renderElement: SkinRenderElement = this._renderElements[i];
+                let renderElement: RenderElement = this._renderElements[i];
                 if (!renderElement) {
                     var material: Material = this.sharedMaterials[i];
-                    renderElement = this._renderElements[i] = this._renderElements[i] ? this._renderElements[i] : this._createRenderElement();
+                    renderElement = this._renderElements[i] = <SkinRenderElement>this._createRenderElement();
                     if (this._cacheRootBone) {
                         renderElement.setTransform(this._cacheRootBone.transform);
                     } else {

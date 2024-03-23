@@ -44,32 +44,6 @@ export class RenderToCache extends Render2D {
         let submesh = new RenderObject2D(mesh2d,vboff,vblen,iboff,iblen,mtl);
         mtl.shaderData.addDefine(ShaderDefines2D.WORLDMAT);
         this.renderResult.push(submesh);
-        // let geo = this.geo;
-        // let mesh = geo.bufferState
-        // let vb = mesh._vertexBuffers[0];
-        // let ib = mesh._bindedIndexBuffer;
-        // vb.setDataLength(vblen);
-        // vb.setData(mesh2d.vbBuffer, vboff, 0, vblen)
-        // ib._setIndexDataLength(iblen)
-        // ib._setIndexData(new Uint16Array(mesh2d.ibBuffer, iboff, iblen / 2), 0)
-        // geo.clearRenderParams();
-        // geo.setDrawElemenParams(iblen / 2, 0);
-
-        // //Material??
-        // let mat: Material;
-        // this._renderElement.geometry = geo;
-        // //this._renderElement.material = mtl;
-        // this._renderElement.value2DShaderData = mtl.shaderData;
-        // if (mat)//有Material Shader是Material的shader  没有是默认的Shader
-        // {
-        //     this._renderElement.subShader = mat._shader.getSubShaderAt(0);
-        //     this._renderElement.materialShaderData = mat.shaderData;
-        // } else {
-        //     this._renderElement.subShader = mtl._defaultShader.getSubShaderAt(0);
-        //     this._renderElement.materialShaderData = null;
-        // }
-        // //blendState TODO
-        // RenderToCache.rendercontext2D.drawRenderElementOne(this._renderElement);
     }
 
     renderEnd(): void {

@@ -1172,6 +1172,7 @@ export class Scene3D extends Sprite {
      * @internal
      */
     render(ctx: Context): void {
+        return;//3d的render由外面直接调rendersubmit
         if (this._children.length > 0) {
             //temp
             ctx.drawLeftData();
@@ -1182,8 +1183,10 @@ export class Scene3D extends Sprite {
     /**
      * 渲染入口
      */
-    renderSubmit(): number {
-        if (this._renderByEditor) return 1;
+    renderSubmit(): void {
+        if (this._children.length <= 0) return;
+
+        if (this._renderByEditor) return;
         //BufferState._curBindedBufferState && BufferState._curBindedBufferState.unBind();
         this._prepareSceneToRender();
         var i: number, n: number, n1: number;
@@ -1210,7 +1213,6 @@ export class Scene3D extends Sprite {
         }
         Context.set2DRenderConfig();//还原2D配置
         RenderTexture.clearPool();
-        return 1;
     }
 
     /**

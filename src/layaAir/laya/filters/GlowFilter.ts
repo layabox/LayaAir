@@ -1,6 +1,5 @@
 import { ShaderDefine } from "../RenderDriver/RenderModuleData/Design/ShaderDefine";
 import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
-import { WrapMode } from "../RenderEngine/RenderEnum/WrapMode";
 import { Color } from "../maths/Color";
 import { Vector2 } from "../maths/Vector2";
 import { Vector4 } from "../maths/Vector4";
@@ -9,7 +8,6 @@ import { ColorUtils } from "../utils/ColorUtils";
 import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
 import { TextureSV } from "../webgl/shader/d2/value/TextureSV";
 import { Filter } from "./Filter";
-import { GlowFilterGLRender } from "./GlowFilterGLRender";
 
 /**
  *  发光滤镜(也可以当成阴影滤使用）
