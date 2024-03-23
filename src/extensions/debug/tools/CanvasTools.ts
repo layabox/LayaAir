@@ -35,12 +35,12 @@ import { Sprite } from "laya/display/Sprite"
 				width = canvas.width;
 			if (height <= 0)
 				height = canvas.height;
-			var imgdata:any = canvas.context.getImageData(x, y, width, height);
+			var imgdata:any = null;//canvas.context.getImageData(x, y, width, height);
 			return imgdata;
 		}
 		 static getImageDataFromCanvasByRec(canvas:HTMLCanvas, rec:Rectangle):any
 		{
-			var imgdata:any = canvas.context.getImageData(rec.x, rec.y, rec.width, rec.height);
+			var imgdata:any = null;// canvas.context.getImageData(rec.x, rec.y, rec.width, rec.height);
 			return imgdata;
 		}
 		 static getDifferCount(imageData1:any, imageData2:any):number
