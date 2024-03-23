@@ -394,9 +394,9 @@ export class WebGPUTextureContext implements ITextureContext {
         return internalTex;
     }
 
-    setTextureImageData(texture: InternalTexture, source: HTMLCanvasElement | HTMLImageElement | ImageBitmap, premultiplyAlpha: boolean, invertY: boolean): void {
-        const imageBitmapSource = createImageBitmap(source);
-        const image: GPUImageCopyExternalImage = { source: source as ImageBitmap, flipY: invertY, origin: [0, 0] };
+    async setTextureImageData(texture: InternalTexture, source: HTMLCanvasElement | HTMLImageElement | ImageBitmap, premultiplyAlpha: boolean, invertY: boolean) {
+        const imageBitmapSource = await createImageBitmap(source);
+        const image: GPUImageCopyExternalImage = { source: imageBitmapSource as ImageBitmap, flipY: invertY, origin: [0, 0] };
 
         const textureCopyView: GPUImageCopyTextureTagged = {
             texture: texture.resource,

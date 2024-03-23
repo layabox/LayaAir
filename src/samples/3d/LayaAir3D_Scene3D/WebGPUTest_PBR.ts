@@ -88,23 +88,23 @@ export class WebGPUTest_PBR {
             dirCom.color.setValue(1, 1, 1, 1);
 
             //打开后处理
-            if (true) {
-                const postProcess = new PostProcess();
-                const bloom = new BloomEffect();
-                postProcess.addEffect(bloom);
-                camera.postProcess = postProcess;
-                camera.enableHDR = true;
+            // if (true) {
+            //     const postProcess = new PostProcess();
+            //     const bloom = new BloomEffect();
+            //     postProcess.addEffect(bloom);
+            //     camera.postProcess = postProcess;
+            //     camera.enableHDR = true;
 
-                //设置泛光参数
-                bloom.intensity = 5;
-                bloom.threshold = 0.9;
-                bloom.softKnee = 0.5;
-                bloom.clamp = 65472;
-                bloom.diffusion = 5;
-                bloom.anamorphicRatio = 0.0;
-                bloom.color = new Color(1, 1, 1, 1);
-                bloom.fastMode = true;
-            }
+            //     //设置泛光参数
+            //     bloom.intensity = 5;
+            //     bloom.threshold = 0.9;
+            //     bloom.softKnee = 0.5;
+            //     bloom.clamp = 65472;
+            //     bloom.diffusion = 5;
+            //     bloom.anamorphicRatio = 0.0;
+            //     bloom.color = new Color(1, 1, 1, 1);
+            //     bloom.fastMode = true;
+            // }
 
             const boxMesh1 = PrimitiveMesh.createBox(0.2, 0.2, 0.2);
             const coneMesh1 = PrimitiveMesh.createCone(0.1, 0.3, 64);
@@ -137,9 +137,9 @@ export class WebGPUTest_PBR {
                 material.smoothnessTextureScale = 1.2;
             }));
 
-            const n = 1;
-            const m = 1;
-            const l = 1;
+            const n = 5;
+            const m = 5;
+            const l = 5;
             for (let i = 0; i < n; i++) {
                 for (let j = 0; j < m; j++) {
                     for (let k = 0; k < l; k++) {
