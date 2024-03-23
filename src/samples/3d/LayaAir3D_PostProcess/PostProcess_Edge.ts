@@ -32,7 +32,6 @@ export class PostProcess_Edge {
         Laya.init(0, 0).then(() => {
             Laya.stage.scaleMode = Stage.SCALE_FULL;
             Laya.stage.screenMode = Stage.SCREEN_NONE;
-
             Stat.show();
 
             Shader3D.debugMode = true;

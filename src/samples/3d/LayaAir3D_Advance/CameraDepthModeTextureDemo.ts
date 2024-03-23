@@ -10,6 +10,7 @@ import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { DepthMaterial } from "./DepthNormalShader/DepthMaterial";
 import { DepthNormalsMaterial } from "./DepthNormalShader/DepthNormalsMaterial";
+import { MeshRenderer } from "laya/d3/core/MeshRenderer";
 import { DepthTextureMode } from "laya/resource/RenderTexture";
 
 /**
@@ -41,7 +42,6 @@ export class CameraDepthModeTextureDemo {
             "res/threeDimen/LayaScene_depthNormalScene/Conventional/depthPlane.lh",
             "res/threeDimen/LayaScene_depthNormalScene/Conventional/depthscene.lh",
             "res/threeDimen/LayaScene_depthNormalScene/Conventional/Main Camera.lh",
-            "res/threeDimen/LayaScene_depthNormalScene/Conventional/Assets/Scenes/depthNormalSceneGIReflection.ltcb.ls"
         ];
         Laya.loader.load(resource, Handler.create(this, this.onPreLoadFinish));
     }
@@ -49,17 +49,14 @@ export class CameraDepthModeTextureDemo {
     onPreLoadFinish() {
         this.scene = Laya.stage.addChild(new Scene3D()) as Scene3D;
         this.scene.ambientColor = new Color(0.858, 0.858, 0.858);
-        //this.scene.sceneReflectionProb.reflectionTexture = Loader.getRes("res/threeDimen/LayaScene_depthNormalScene/Conventional/Assets/Scenes/depthNormalSceneGIReflection.ltcb.ls") as TextureCube;
-        //this.scene.sceneReflectionProb.reflectionDecodingFormat = 1;
-        this.scene.sceneReflectionProb.reflectionIntensity = 1;
         this.depthNormalPlane = this.scene.addChild(Loader.createNodes("res/threeDimen/LayaScene_depthNormalScene/Conventional/depthNormalPlane.lh")) as MeshSprite3D;
         this.depthPlane = this.scene.addChild(Loader.createNodes("res/threeDimen/LayaScene_depthNormalScene/Conventional/depthPlane.lh")) as MeshSprite3D;
         this.scene.addChild(Loader.createNodes("res/threeDimen/LayaScene_depthNormalScene/Conventional/depthscene.lh"));
         var camera = this.scene.addChild(Loader.createNodes("res/threeDimen/LayaScene_depthNormalScene/Conventional/Main Camera.lh")) as Camera;
         camera.depthTextureMode |= DepthTextureMode.Depth;
-        this.depthPlane.meshRenderer.sharedMaterial = new DepthMaterial();
+        this.depthPlane.getComponent(MeshRenderer).sharedMaterial = new DepthMaterial();
 
         camera.depthTextureMode |= DepthTextureMode.DepthNormals;
-        this.depthNormalPlane.meshRenderer.sharedMaterial = new DepthNormalsMaterial();
+        this.depthNormalPlane.getComponent(MeshRenderer).sharedMaterial = new DepthNormalsMaterial();
     }
 }

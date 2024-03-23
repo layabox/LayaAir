@@ -10,7 +10,6 @@ import { Vector3 } from "laya/maths/Vector3";
 import { Texture2D } from "laya/resource/Texture2D";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { MultiplePassOutlineMaterial } from "./customMaterials/MultiplePassOutlineMaterial";
 import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";

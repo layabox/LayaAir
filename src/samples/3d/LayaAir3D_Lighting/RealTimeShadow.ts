@@ -16,7 +16,6 @@ import { Loader } from "laya/net/Loader";
 import { Button } from "laya/ui/Button";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
-import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Stat } from "laya/utils/Stat";
 import Client from "../../Client";
@@ -24,6 +23,7 @@ import { SkinnedMeshRenderer } from "laya/d3/core/SkinnedMeshRenderer";
 import { Script } from "laya/components/Script";
 import { Color } from "laya/maths/Color";
 import { Vector3 } from "laya/maths/Vector3";
+import { MeshRenderer } from "laya/d3/core/MeshRenderer";
 import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
 
 /**
@@ -72,30 +72,29 @@ export class RealTimeShadow {
 		camera.transform.rotate(new Vector3(-35, 0, 0), true, false);
 		camera.addComponent(CameraMoveScript);
 
-		//创建方向光
-		let directlightSprite = new Sprite3D();
-		let dircom = directlightSprite.addComponent(DirectionLightCom);
-		scene.addChild(directlightSprite);
-		dircom.color = new Color(0.85, 0.85, 0.8, 1);
-		directlightSprite.transform.rotate(new Vector3(-Math.PI / 3, 0, 0));
+		var directionLight: Sprite3D = new Sprite3D();
+		var directionLightCom: DirectionLightCom = directionLight.addComponent(DirectionLightCom);
+		scene.addChild(directionLight);
+		directionLightCom.color = new Color(0.85, 0.85, 0.8, 1);
+		directionLight.transform.rotate(new Vector3(-Math.PI / 3, 0, 0));
 
 		// Use soft shadow.
-		dircom.shadowMode = ShadowMode.SoftLow;
+		directionLightCom.shadowMode = ShadowMode.SoftLow;
 		// Set shadow max distance from camera.
-		dircom.shadowDistance = 3;
+		directionLightCom.shadowDistance = 3;
 		// Set shadow resolution.
-		dircom.shadowResolution = 1024;
+		directionLightCom.shadowResolution = 1024;
 		// Set shadow cascade mode.
-		dircom.shadowCascadesMode = ShadowCascadesMode.NoCascades;
+		directionLightCom.shadowCascadesMode = ShadowCascadesMode.NoCascades;
 		// Set shadow normal bias.
-		dircom.shadowNormalBias = 4;
+		directionLightCom.shadowNormalBias = 4;
 
 		// Add rotation script to light.
-		this.rotationScript = directlightSprite.addComponent(RotationScript);
+		this.rotationScript = directionLight.addComponent(RotationScript);
 
 		// A plane receive shadow.
 		var grid: Sprite3D = <Sprite3D>scene.addChild(Loader.createNodes("res/threeDimen/staticModel/grid/plane.lh"));
-		(<MeshSprite3D>grid.getChildAt(0)).meshRenderer.receiveShadow = true;
+		(<MeshSprite3D>grid.getChildAt(0)).getComponent(MeshRenderer).receiveShadow = true;
 
 		// A monkey cast shadow.
 		var layaMonkey: Sprite3D = <Sprite3D>scene.addChild(Loader.createNodes("res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh"));
@@ -104,7 +103,7 @@ export class RealTimeShadow {
 
 		// A sphere cast/receive shadow.
 		var sphereSprite: MeshSprite3D = this.addPBRSphere(PrimitiveMesh.createSphere(0.1), new Vector3(0, 0.2, 0.5), scene);
-		sphereSprite.meshRenderer.castShadow = true;
+		sphereSprite.getComponent(MeshRenderer).castShadow = true;
 
 		// Add Light controll UI.
 		this.loadUI();
@@ -118,7 +117,7 @@ export class RealTimeShadow {
 		mat.smoothness = 0.2;
 
 		var meshSprite: MeshSprite3D = new MeshSprite3D(sphereMesh);
-		meshSprite.meshRenderer.sharedMaterial = mat;
+		meshSprite.getComponent(MeshRenderer).sharedMaterial = mat;
 		var transform: Transform3D = meshSprite.transform;
 		transform.localPosition = position;
 		scene.addChild(meshSprite);

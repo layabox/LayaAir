@@ -15,7 +15,6 @@ import { Button } from "laya/ui/Button";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
 import Client from "../../Client";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { CustomAnimatorStateScript } from "../common/CustomAnimatorStateScript";
@@ -182,7 +181,7 @@ export class AnimatorDemo {
 
 	private loadUI(): void {
 
-		Laya.loader.load(["res/threeDimen/ui/button.png"], Handler.create(this, function (): void {
+		Laya.loader.load(["res/threeDimen/ui/button.png"], Handler.create(this, () => {
 
 			this._changeActionButton = (<Button>Laya.stage.addChild(new Button("res/threeDimen/ui/button.png", "播放动画")));
 			this._changeActionButton.size(160, 40);
@@ -271,9 +270,6 @@ export class AnimatorDemo {
 		curStateIndex = this._curStateIndex;
 		Client.instance.send({ type: "next", btype: this.btype, stype: 1, value: curStateIndex });
 	}
-
-
-
 
 	private onFrame(): void {
 		if (this._animator.speed > 0.0) {

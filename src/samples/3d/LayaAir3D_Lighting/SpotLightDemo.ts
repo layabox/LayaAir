@@ -9,7 +9,6 @@ import { Quaternion } from "laya/maths/Quaternion";
 import { Vector3 } from "laya/maths/Vector3";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { SpotLightCom } from "laya/d3/core/light/SpotLightCom";
 
@@ -29,7 +28,6 @@ export class SpotLightDemo {
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
 			//显示性能面板
 			Stat.show();
-
 			//创建场景
 			var scene: Scene3D = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 			//创建相机

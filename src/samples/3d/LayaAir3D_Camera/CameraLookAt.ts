@@ -13,7 +13,6 @@ import { Button } from "laya/ui/Button";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
 import Client from "../../Client";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";

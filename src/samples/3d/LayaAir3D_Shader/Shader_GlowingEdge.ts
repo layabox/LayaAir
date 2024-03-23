@@ -9,7 +9,6 @@ import { Stage } from "laya/display/Stage";
 import { Texture2D } from "laya/resource/Texture2D";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import GlowingEdgeShaderFS from "./customShader/glowingEdgeShader.fs";
 import GlowingEdgeShaderVS from "./customShader/glowingEdgeShader.vs";
@@ -20,6 +19,7 @@ import { Color } from "laya/maths/Color";
 import { Vector3 } from "laya/maths/Vector3";
 import { ShaderPass } from "laya/RenderEngine/RenderShader/ShaderPass";
 import { SubShader } from "laya/RenderEngine/RenderShader/SubShader";
+import { SkinnedMeshRenderer } from "laya/d3/core/SkinnedMeshRenderer";
 import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
 
 
@@ -39,7 +39,7 @@ export class Shader_GlowingEdge {
 			Stat.show();
 			//初始化shader
 			this.initShader();
-
+			
 			//创建场景
 			var scene: Scene3D = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 
@@ -50,10 +50,10 @@ export class Shader_GlowingEdge {
 			camera.addComponent(CameraMoveScript);
 
 			//创建平行光
-			let directlightSprite = new Sprite3D();
-			let dircom = directlightSprite.addComponent(DirectionLightCom);
-			scene.addChild(directlightSprite);
-			dircom.color = new Color(1, 1, 1, 1);
+			var directionLight: Sprite3D = new Sprite3D();
+			var directionLightCom: DirectionLightCom = directionLight.addComponent(DirectionLightCom);
+			scene.addChild(directionLight);
+			directionLightCom.color = new Color(1, 1, 1, 1);
 			scene.ambientColor = new Color(1.0, 0.0, 0.0);
 
 			//加载精灵
@@ -93,7 +93,7 @@ export class Shader_GlowingEdge {
 				baseMaterials[2] = glowingEdgeMaterial3;
 				baseMaterials[3] = glowingEdgeMaterial4;
 				baseMaterials[4] = glowingEdgeMaterial4;
-				(<SkinnedMeshSprite3D>dude.getChildAt(0).getChildAt(0)).skinnedMeshRenderer.materials = baseMaterials;
+				(<SkinnedMeshSprite3D>dude.getChildAt(0).getChildAt(0)).getComponent(SkinnedMeshRenderer).materials = baseMaterials;
 				dude.transform.position = new Vector3(0, 0.5, 0);
 				dude.transform.setWorldLossyScale(new Vector3(0.2, 0.2, 0.2));
 				dude.transform.rotate(new Vector3(0, 180, 0), false, false);

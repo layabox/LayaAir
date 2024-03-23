@@ -11,7 +11,6 @@ import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { SubShader } from "laya/RenderEngine/RenderShader/SubShader";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { CustomMaterial } from "./customMaterials/CustomMaterial";
 import SimpleShaderFS from "./customShader/simpleShader.fs";
@@ -31,7 +30,6 @@ export class Shader_Simple {
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
 			Stat.show();
-
 			this.initShader();
 
 			var scene: Scene3D = (<Scene3D>Laya.stage.addChild(new Scene3D()));

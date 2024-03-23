@@ -19,14 +19,10 @@ import { Vector4 } from "laya/maths/Vector4";
 import { Texture2D } from "laya/resource/Texture2D";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
 import Client from "../../Client";
 import { CameraMoveScript } from "../common/CameraMoveScript";
-import { Physics3DUtils } from "laya/d3/utils/Physics3DUtils";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
-
-
 
 
 /**
@@ -64,7 +60,6 @@ export class CameraRay {
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
 			//显示性能面板
 			Stat.show();
-
 			this.scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 
 			//初始化照相机
@@ -146,12 +141,12 @@ export class CameraRay {
 	}
 
 	private onMouseDown(): void {
-		this.posX = this.point.x = Laya.stage.mouseX;
-		this.posY = this.point.y = Laya.stage.mouseY;
+		this.posX = this.point.x = Laya.stage.mouseX * Laya.stage.clientScaleX;
+		this.posY = this.point.y = Laya.stage.mouseY * Laya.stage.clientScaleY;
 		//产生射线
 		this.camera.viewportPointToRay(this.point, this._ray);
 		//拿到射线碰撞的物体
-		this.scene.physicsSimulation.rayCastAll(this._ray, this.outs, Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER, Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER)
+		this.scene.physicsSimulation.rayCastAll(this._ray, this.outs);
 
 		//如果碰撞到物体
 		if (this.outs.length != 0) {

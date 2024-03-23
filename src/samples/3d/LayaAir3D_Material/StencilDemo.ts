@@ -5,7 +5,6 @@ import { UnlitMaterial } from "laya/d3/core/material/UnlitMaterial";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Stage } from "laya/display/Stage";
-import { Loader } from "laya/net/Loader";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
@@ -17,6 +16,7 @@ import { MeshRenderer } from "laya/d3/core/MeshRenderer";
 import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFormat";
 import { Color } from "laya/maths/Color";
 import { Vector3 } from "laya/maths/Vector3";
+import { Scene } from "laya/display/Scene";
 import { RenderState } from "laya/RenderDriver/RenderModuleData/Design/RenderState";
 /**
  * 模板测试示例
@@ -38,39 +38,39 @@ export class StencilDemo {
 	}
 
 	onPreLoadFinish() {
-		//初始化3D场景
-		var scene: Scene3D = (<Scene3D>Laya.stage.addChild(Loader.createNodes("res/threeDimen/scene/ChangeMaterialDemo/Conventional/scene.ls")));
-		//获取相机
-		var camera: Camera = (<Camera>scene.getChildByName("Main Camera"));
-		camera.depthTextureFormat = RenderTargetFormat.DEPTHSTENCIL_24_8;
-		//为相机添加视角控制组件(脚本)
-		camera.addComponent(CameraMoveScript);
-		//获取球型精灵
-		let sphere = (<MeshSprite3D>scene.getChildByName("Sphere"));
-		let sphereClone: MeshSprite3D = sphere.clone() as MeshSprite3D;
-		scene.addChild(sphereClone)
-		let matW = sphere.getComponent(MeshRenderer).sharedMaterial;
-		//打开材质模板写入
-		matW.stencilRef = 2;
-		matW.stencilWrite = true;
-		matW.stencilTest = RenderState.STENCILTEST_ALWAYS;
-		matW.renderQueue = Material.RENDERQUEUE_OPAQUE;
+		Scene.open("res/threeDimen/scene/ChangeMaterialDemo/Conventional/scene.ls", true, null, Handler.create(this, function (sce: Scene): void {
+			//初始化3D场景
+			var scene: Scene3D = sce.scene3D;
+			//获取相机
+			var camera: Camera = (<Camera>scene.getChildByName("Main Camera"));
+			camera.depthTextureFormat = RenderTargetFormat.DEPTHSTENCIL_24_8;
+			//为相机添加视角控制组件(脚本)
+			camera.addComponent(CameraMoveScript);
+			//获取球型精灵
+			let sphere = (<MeshSprite3D>scene.getChildByName("Sphere"));
+			let sphereClone: MeshSprite3D = sphere.clone() as MeshSprite3D;
+			scene.addChild(sphereClone)
+			let matW = sphere.getComponent(MeshRenderer).sharedMaterial;
+			//打开材质模板写入
+			matW.stencilRef = 2;
+			matW.stencilWrite = true;
+			matW.stencilTest = RenderState.STENCILTEST_ALWAYS;
+			matW.renderQueue = Material.RENDERQUEUE_OPAQUE;
 
+			let tempVector3 = new Vector3();
+			Vector3.scale(sphereClone.transform.localScale, 1.5, tempVector3);
+			sphereClone.transform.localScale = tempVector3;
 
-
-		let tempVector3 = new Vector3();
-		Vector3.scale(sphereClone.transform.localScale, 1.5, tempVector3);
-		sphereClone.transform.localScale = tempVector3;
-
-		let mat: UnlitMaterial = new UnlitMaterial();
-		mat.albedoColor = new Color(0.8, 0.5, 0.1);
-		sphereClone.getComponent(MeshRenderer).sharedMaterial = mat;
-		mat.stencilRef = 0;
-		mat.stencilWrite = false;
-		mat.stencilTest = RenderState.STENCILTEST_GEQUAL;
-		mat.renderQueue = Material.RENDERQUEUE_OPAQUE + 1;
-		this.stencilMat = mat;
-		this.loadUI();
+			let mat: UnlitMaterial = new UnlitMaterial();
+			mat.albedoColor = new Color(0.8, 0.5, 0.1);
+			sphereClone.getComponent(MeshRenderer).sharedMaterial = mat;
+			mat.stencilRef = 0;
+			mat.stencilWrite = false;
+			mat.stencilTest = RenderState.STENCILTEST_GEQUAL;
+			mat.renderQueue = Material.RENDERQUEUE_OPAQUE + 1;
+			this.stencilMat = mat;
+			this.loadUI();
+		}));
 	}
 
 	private curStateIndex: number = 0;

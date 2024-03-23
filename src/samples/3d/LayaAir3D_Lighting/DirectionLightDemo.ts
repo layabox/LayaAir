@@ -8,7 +8,6 @@ import { Quaternion } from "laya/maths/Quaternion";
 import { Vector3 } from "laya/maths/Vector3";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
 
@@ -29,7 +28,6 @@ export class DirectionLightDemo {
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
 			//显示性能面板
 			Stat.show();
-
 			//添加场景
 			var scene: Scene3D = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 

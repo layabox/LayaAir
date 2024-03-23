@@ -10,7 +10,6 @@ import { Button } from "laya/ui/Button";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Config } from "Config";
 import { Sprite } from "laya/display/Sprite";
@@ -18,6 +17,7 @@ import Client from "../../Client";
 import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFormat";
 import { Vector3 } from "laya/maths/Vector3";
 import { RenderTexture } from "laya/resource/RenderTexture";
+import { Scene } from "laya/display/Scene";
 
 export class PickPixel {
 	private isPick: boolean = false;
@@ -87,11 +87,11 @@ export class PickPixel {
 	}
 	private _thisscene: Scene3D;
 	private onComplete(): void {
-		this._thisscene = (<Scene3D>Laya.stage.addChild(Loader.createNodes("res/threeDimen/scene/CourtyardScene/Courtyard.ls")));
+		this._thisscene = (Laya.stage.addChild((Loader.createNodes("res/threeDimen/scene/CourtyardScene/Courtyard.ls") as Scene).scene3D));
 		//加载场景
 		var scene: Scene3D = this._thisscene;
 		//添加相机
-		var camera: Camera = (<Camera>scene.addChild(new Camera(0, 0.1, 1000)));
+		var camera: Camera = (<Camera>scene.addChild(new Camera(0, 0.01, 1000)));
 		camera.transform.translate(new Vector3(57, 2.5, 58));
 		camera.transform.rotate(new Vector3(-10, 150, 0), true, false);
 		//设置相机清除标识
@@ -99,10 +99,11 @@ export class PickPixel {
 		//相机添加视角控制组件(脚本)
 		camera.addComponent(CameraMoveScript);
 
-		//渲染到纹理的相机
+		// 渲染到纹理的相机
 		this.renderTargetCamera = (<Camera>scene.addChild(new Camera(0, 0.1, 1000)));
 		this.renderTargetCamera.transform.translate(new Vector3(57, 2.5, 58));
 		this.renderTargetCamera.transform.rotate(new Vector3(-10, 150, 0), true, false);
+		this.renderTargetCamera.clearFlag = CameraClearFlags.Sky;
 		//选择渲染目标为纹理
 		var stageHeight: number = Laya.stage.height;
 		var stageWidth: number = Laya.stage.width;

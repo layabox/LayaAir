@@ -6,14 +6,10 @@ import { SkyRenderer } from "laya/d3/resource/models/SkyRenderer";
 import { Stage } from "laya/display/Stage";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
 import { Material } from "laya/resource/Material";
 import { CameraMoveScript } from "../common/CameraMoveScript";
-import { Event } from "laya/events/Event";
 import { SkyDome } from "laya/d3/resource/models/SkyDome";
-import { Color } from "laya/maths/Color";
 import { Vector3 } from "laya/maths/Vector3";
-import { URL } from "laya/net/URL";
 export class Sky_SkyBox {
 	public camerad: Camera;
 	constructor() {

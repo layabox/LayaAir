@@ -29,7 +29,6 @@ export class PhysicsWorld_ContinueCollisionDetection {
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
 			Stat.show();
 			this.scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
-			this.scene.physicsSimulation.setGravity(new Vector3(0, -98.0, 0));
 
 			//初始化照相机
 			var camera: Camera = (<Camera>this.scene.addChild(new Camera(0, 0.1, 100)));
@@ -82,9 +81,10 @@ export class PhysicsWorld_ContinueCollisionDetection {
 		var pos: Vector3 = sphere.transform.position;
 		pos.setValue(Math.random() * 4 - 2, 10, Math.random() * 4 - 2);
 		sphere.transform.position = pos;
-
+		
 		var rigidBody: Rigidbody3D = sphere.addComponent(Rigidbody3D);
 		var sphereShape: SphereColliderShape = new SphereColliderShape(radius);
+		rigidBody.gravity = new Vector3(0, -98.0, 0);
 		rigidBody.colliderShape = sphereShape;
 		rigidBody.mass = 10;
 		rigidBody.ccdSweptSphereRadius = radius;

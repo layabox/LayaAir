@@ -31,7 +31,6 @@ export class Secne3DPlayer2D {
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
 			//显示性能面板
 			Stat.show();
-
 			//创建场景
 			this._scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 

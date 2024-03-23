@@ -13,7 +13,6 @@ import { SkyBoxMaterial } from "./core/material/SkyBoxMaterial";
 import { SkyPanoramicMaterial } from "./core/material/SkyPanoramicMaterial";
 import { SkyProceduralMaterial } from "./core/material/SkyProceduralMaterial";
 import { UnlitMaterial } from "./core/material/UnlitMaterial";
-import { WaterPrimaryMaterial } from "./core/material/WaterPrimaryMaterial";
 import { MeshFilter } from "./core/MeshFilter";
 import { MeshRenderer } from "./core/MeshRenderer";
 import { MeshSprite3D } from "./core/MeshSprite3D";
@@ -159,7 +158,6 @@ c("SkyBoxMaterial", SkyBoxMaterial);
 c("SkyPanoramicMaterial", SkyPanoramicMaterial);
 c("SkyProceduralMaterial", SkyProceduralMaterial);
 c("UnlitMaterial", UnlitMaterial);
-c("WaterPrimaryMaterial", WaterPrimaryMaterial);
 c("ShurikenParticleMaterial", ShurikenParticleMaterial);
 c("TrailMaterial", TrailMaterial);
 

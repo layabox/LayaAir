@@ -10,7 +10,6 @@ import { Vector3 } from "laya/maths/Vector3";
 import { Texture2D } from "laya/resource/Texture2D";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
 
@@ -29,7 +28,6 @@ export class BlinnPhong_SpecularMap {
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
 			Stat.show();
-
 			this.scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 
 			var camera: Camera = (<Camera>(this.scene.addChild(new Camera(0, 0.1, 1000))));
@@ -49,7 +47,7 @@ export class BlinnPhong_SpecularMap {
 	}
 
 	onComplete(): void {
-		Sprite3D.load("res/threeDimen/skinModel/dude/dude.lh", Handler.create(this, function (sprite: Sprite3D): void {
+		Sprite3D.load("res/threeDimen/skinModel/dude/dude.lh", Handler.create(this, (sprite: Sprite3D) => {
 			var dude1: Sprite3D = (<Sprite3D>this.scene.addChild(sprite));
 			dude1.transform.position = new Vector3(-1.5, 0, 0);
 
@@ -63,7 +61,7 @@ export class BlinnPhong_SpecularMap {
 				}, [material]));
 			}
 
-			Laya.timer.frameLoop(1, this, function (): void {
+			Laya.timer.frameLoop(1, this, () => {
 				dude1.transform.rotate(this.rotation);
 				dude2.transform.rotate(this.rotation);
 			});
