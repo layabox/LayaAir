@@ -189,7 +189,7 @@ export class WebGPURenderContext3D implements IRenderContext3D {
             let element: WebGPURenderElement3D;
             for (let i = 0; i < len; i++) {
                 element = elements[i];
-                if (this.bundleManager.getBundle(element.bundleId) === null) {
+                if (!this.bundleManager.has(element.bundleId)) {
                     if (this.elementsToBundle.indexOf(element) === -1)
                         this.elementsToBundle.push(element);
                     if (this.elementsToBundle.length >= this.bundleManager.elementsMaxPerBundle) {
@@ -212,7 +212,7 @@ export class WebGPURenderContext3D implements IRenderContext3D {
                     this.bundleManager.removeBundleByElement(needRemoveBundle[i]);
                 for (let i = 0; i < len; i++) {
                     element = elements[i];
-                    if (this.bundleManager.getBundle(element.bundleId) === null) {
+                    if (!this.bundleManager.has(element.bundleId)) {
                         if (!element.rendered)
                             element._render(this, this.renderCommand, null);
                     }

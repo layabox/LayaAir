@@ -46,6 +46,14 @@ export class WebGPURenderBundle {
         return has;
     }
 
+    addShot() {
+        this._shotNum++;
+    }
+
+    removeMyIds(elements: Map<number, WebGPURenderBundle>) {
+        this._elements.forEach(id => elements.delete(id));
+    }
+
     clearShotNum() {
         this._shotNum = 0;
     }
