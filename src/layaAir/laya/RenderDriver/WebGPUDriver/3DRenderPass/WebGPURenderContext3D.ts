@@ -15,6 +15,7 @@ import { WebGPURenderPassHelper } from "../RenderDevice/WebGPURenderPassHelper";
 import { WebGPUShaderData } from "../RenderDevice/WebGPUShaderData";
 import { WebGPUGlobal } from "../RenderDevice/WebGPUStatis/WebGPUGlobal";
 import { WebGPUStatis } from "../RenderDevice/WebGPUStatis/WebGPUStatis";
+import { WebGPUContext } from "./WebGPUContext";
 import { WebGPURenderElement3D } from "./WebGPURenderElement3D";
 
 export class WebGPURenderContext3D implements IRenderContext3D {
@@ -169,6 +170,8 @@ export class WebGPURenderContext3D implements IRenderContext3D {
             this._start();
             this._needStart = false;
         }
+
+        WebGPUContext.startRender();
 
         let compile = false;
         const elements = list.elements;

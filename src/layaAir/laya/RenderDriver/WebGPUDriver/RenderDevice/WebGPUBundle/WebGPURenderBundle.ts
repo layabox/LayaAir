@@ -73,16 +73,19 @@ export class WebGPURenderBundle {
     /**
      * 上传几何数据
      * @param geometry 
+     * @param setBuffer 
      */
-    applyGeometry(geometry: WebGPURenderGeometry): void {
+    applyGeometry(geometry: WebGPURenderGeometry, setBuffer: boolean = true): void {
         //解构geometry中的属性，减少代码重复
         const { bufferState, indexFormat, drawType, instanceCount, _drawArrayInfo, _drawElementInfo } = geometry;
         const { _vertexBuffers: vertexBuffers, _bindedIndexBuffer: indexBuffer } = bufferState;
 
-        vertexBuffers.forEach((vb, i) => this.setVertexBuffer(i, vb.source._source, 0, vb.source._size));
-        if (indexBuffer) {
-            const format = (indexFormat === IndexFormat.UInt16) ? "uint16" : "uint32";
-            this.setIndexBuffer(indexBuffer.source._source, format, indexBuffer.source._size, 0);
+        if (setBuffer) {
+            vertexBuffers.forEach((vb, i) => this.setVertexBuffer(i, vb.source._source, 0, vb.source._size));
+            if (indexBuffer) {
+                const format = (indexFormat === IndexFormat.UInt16) ? "uint16" : "uint32";
+                this.setIndexBuffer(indexBuffer.source._source, format, indexBuffer.source._size, 0);
+            }
         }
 
         //根据不同的数据类型绘制

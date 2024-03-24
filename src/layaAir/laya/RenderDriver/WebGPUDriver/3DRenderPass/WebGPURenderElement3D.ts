@@ -23,6 +23,7 @@ import {
 import { WebGPUShaderData } from "../RenderDevice/WebGPUShaderData";
 import { WebGPUShaderInstance } from "../RenderDevice/WebGPUShaderInstance";
 import { WebGPUGlobal } from "../RenderDevice/WebGPUStatis/WebGPUGlobal";
+import { WebGPUContext } from "./WebGPUContext";
 import { WebGPURenderContext3D } from "./WebGPURenderContext3D";
 
 export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineInfo {
@@ -60,7 +61,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
     bundleId: number; //用于bundle管理（被bundle管理器识别）
     needClearBundle: boolean = false; //是否需要清除bundle（bindGroup，pipeline等改变都需要清除指令缓存）
     static bundleIdCounter: number = 0;
-    
+
     globalId: number;
     objectName: string = 'WebGPURenderElement3D';
 
@@ -453,13 +454,17 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
         if (complete) {
             const pipeline = this._getWebGPURenderPipeline(shaderInstance, context.destRT, context, bindGroupLayout);
             if (command) {
-                command.setPipeline(pipeline);
-                command.applyGeometry(this.geometry);
+                WebGPUContext.setCommandPipeline(command, pipeline);
+                WebGPUContext.applyCommandGeometry(command, this.geometry);
+                //command.setPipeline(pipeline);
+                //command.applyGeometry(this.geometry);
                 //console.log('applyCommandGeometry1');
             }
             if (bundle) {
-                bundle.setPipeline(pipeline);
-                bundle.applyGeometry(this.geometry);
+                WebGPUContext.setBundlePipeline(bundle, pipeline);
+                WebGPUContext.applyBundleGeometry(bundle, this.geometry);
+                //bundle.setPipeline(pipeline);
+                //bundle.applyGeometry(this.geometry);
                 //console.log('applyBundleGeometry1');
             }
             if (this.useCache) {
@@ -527,13 +532,17 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
                             }
                             if (complete) {
                                 if (command) {
-                                    command.setPipeline(this._pipelineCache[i]);
-                                    command.applyGeometry(this.geometry);
+                                    WebGPUContext.setCommandPipeline(command, this._pipelineCache[i]);
+                                    WebGPUContext.applyCommandGeometry(command, this.geometry);
+                                    //command.setPipeline(this._pipelineCache[i]);
+                                    //command.applyGeometry(this.geometry);
                                     //console.log('applyCommandGeometry2');
                                 }
                                 if (bundle) {
-                                    bundle.setPipeline(this._pipelineCache[i]);
-                                    bundle.applyGeometry(this.geometry);
+                                    WebGPUContext.setBundlePipeline(bundle, this._pipelineCache[i]);
+                                    WebGPUContext.applyBundleGeometry(bundle, this.geometry);
+                                    //bundle.setPipeline(this._pipelineCache[i]);
+                                    //bundle.applyGeometry(this.geometry);
                                     //console.log('applyBundleGeometry2');
                                 }
                             }
