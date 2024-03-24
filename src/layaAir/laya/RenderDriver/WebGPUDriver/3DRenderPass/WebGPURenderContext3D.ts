@@ -171,7 +171,8 @@ export class WebGPURenderContext3D implements IRenderContext3D {
             this._needStart = false;
         }
 
-        WebGPUContext.startRender();
+        if (WebGPUGlobal.useGlobalContext)
+            WebGPUContext.startRender();
 
         let compile = false;
         const elements = list.elements;

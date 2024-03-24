@@ -145,9 +145,9 @@ export class WebGPUTest_PBR {
                 material2.metallicGlossTexture = Laya.loader.getRes("res/threeDimen/pbr/diamondPlate008C/metallic.jpg", Loader.TEXTURE2D);
             }));
 
-            const n = 10;
-            const m = 10;
-            const l = 10;
+            const n = 5;
+            const m = 5;
+            const l = 5;
             for (let i = 0; i < n; i++) {
                 for (let j = 0; j < m; j++) {
                     for (let k = 0; k < l; k++) {

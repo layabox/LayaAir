@@ -454,17 +454,23 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
         if (complete) {
             const pipeline = this._getWebGPURenderPipeline(shaderInstance, context.destRT, context, bindGroupLayout);
             if (command) {
-                WebGPUContext.setCommandPipeline(command, pipeline);
-                WebGPUContext.applyCommandGeometry(command, this.geometry);
-                //command.setPipeline(pipeline);
-                //command.applyGeometry(this.geometry);
+                if (WebGPUGlobal.useGlobalContext) {
+                    WebGPUContext.setCommandPipeline(command, pipeline);
+                    WebGPUContext.applyCommandGeometry(command, this.geometry);
+                } else {
+                    command.setPipeline(pipeline);
+                    command.applyGeometry(this.geometry);
+                }
                 //console.log('applyCommandGeometry1');
             }
             if (bundle) {
-                WebGPUContext.setBundlePipeline(bundle, pipeline);
-                WebGPUContext.applyBundleGeometry(bundle, this.geometry);
-                //bundle.setPipeline(pipeline);
-                //bundle.applyGeometry(this.geometry);
+                if (WebGPUGlobal.useGlobalContext) {
+                    WebGPUContext.setBundlePipeline(bundle, pipeline);
+                    WebGPUContext.applyBundleGeometry(bundle, this.geometry);
+                } else {
+                    bundle.setPipeline(pipeline);
+                    bundle.applyGeometry(this.geometry);
+                }
                 //console.log('applyBundleGeometry1');
             }
             if (this.useCache) {
@@ -532,17 +538,23 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
                             }
                             if (complete) {
                                 if (command) {
-                                    WebGPUContext.setCommandPipeline(command, this._pipelineCache[i]);
-                                    WebGPUContext.applyCommandGeometry(command, this.geometry);
-                                    //command.setPipeline(this._pipelineCache[i]);
-                                    //command.applyGeometry(this.geometry);
+                                    if (WebGPUGlobal.useGlobalContext) {
+                                        WebGPUContext.setCommandPipeline(command, this._pipelineCache[i]);
+                                        WebGPUContext.applyCommandGeometry(command, this.geometry);
+                                    } else {
+                                        command.setPipeline(this._pipelineCache[i]);
+                                        command.applyGeometry(this.geometry);
+                                    }
                                     //console.log('applyCommandGeometry2');
                                 }
                                 if (bundle) {
-                                    WebGPUContext.setBundlePipeline(bundle, this._pipelineCache[i]);
-                                    WebGPUContext.applyBundleGeometry(bundle, this.geometry);
-                                    //bundle.setPipeline(this._pipelineCache[i]);
-                                    //bundle.applyGeometry(this.geometry);
+                                    if (WebGPUGlobal.useGlobalContext) {
+                                        WebGPUContext.setBundlePipeline(bundle, this._pipelineCache[i]);
+                                        WebGPUContext.applyBundleGeometry(bundle, this.geometry);
+                                    } else {
+                                        bundle.setPipeline(this._pipelineCache[i]);
+                                        bundle.applyGeometry(this.geometry);
+                                    }
                                     //console.log('applyBundleGeometry2');
                                 }
                             }
