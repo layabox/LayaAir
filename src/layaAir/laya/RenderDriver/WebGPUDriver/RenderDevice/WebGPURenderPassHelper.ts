@@ -10,6 +10,17 @@ export class WebGPURenderPassHelper {
         return rt._renderPassDescriptor;
     }
 
+    static getBundleDescriptor(rt: WebGPUInternalRT): GPURenderBundleEncoderDescriptor {
+        const desc = rt._renderBundleDescriptor;
+        const colorFormats = desc.colorFormats as GPUTextureFormat[];
+        colorFormats.length = rt._textures.length;
+        for (let i = 0, len = rt._textures.length; i < len; i++)
+            colorFormats[i] = rt._textures[i]._webGPUFormat;
+        desc.depthStencilFormat = rt._depthTexture ? rt._depthTexture._webGPUFormat : undefined;
+        desc.sampleCount = rt._samples;
+        return desc;
+    }
+
     static setColorAttachments(desc: GPURenderPassDescriptor, rt: WebGPUInternalRT, clear: boolean, clearColor: Color = Color.BLACK) {
         desc.colorAttachments = [];
         const colorArray = desc.colorAttachments as GPURenderPassColorAttachment[];

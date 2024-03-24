@@ -1,8 +1,10 @@
 import { WebGPUStatis } from "./WebGPUStatis";
 
 export class WebGPUGlobal {
-    static debug: boolean = true;
-    static useBigBuffer: boolean = true;
+    static debug: boolean = true; // 是否开启调试信息
+    static useCache: boolean = true; //是否启用GPU资源缓存机制，减少资源创建
+    static useBundle: boolean = true; // 是否使用RenderBundle，缓存渲染指令
+    static useBigBuffer: boolean = true; // 是否使用大buffer, 减少缓存切换
     private static _idCounter: number = 0;
     private static _uniformInfoIdCounter: number = 0;
 

@@ -1,29 +1,57 @@
-import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
-import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
-import { WebGPURenderEngine } from "./WebGPURenderEngine";
-import { WebGPURenderGeometry } from "./WebGPURenderGeometry";
-import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
+import { DrawType } from "../../../../RenderEngine/RenderEnum/DrawType";
+import { IndexFormat } from "../../../../RenderEngine/RenderEnum/IndexFormat";
+import { WebGPURenderContext3D } from "../../3DRenderPass/WebGPURenderContext3D";
+import { WebGPURenderElement3D } from "../../3DRenderPass/WebGPURenderElement3D";
+import { WebGPUInternalRT } from "../WebGPUInternalRT";
+import { WebGPURenderGeometry } from "../WebGPURenderGeometry";
+import { WebGPURenderPassHelper } from "../WebGPURenderPassHelper";
 
-export class WebGPURenderCommandEncoder {
-    _commandEncoder: GPUCommandEncoder;
-    _encoder: GPURenderPassEncoder;
-    _engine: WebGPURenderEngine;
-    _device: GPUDevice;
+/**
+ * 渲染指令缓存
+ */
+export class WebGPURenderBundle {
+    private _encoder: GPURenderBundleEncoder;
+    private _elements: Set<number>; //包含的渲染节点id集合
+    private _shotNum: number = 0; //命中的渲染节点数量
+    renderBundle: GPURenderBundle; //渲染命令缓存对象
 
-    globalId: number;
-    objectName: string = 'WebGPURenderCommandEncoder';
+    id: number;
+    static idCounter: number = 0;
 
-    constructor() {
-        this._engine = WebGPURenderEngine._instance;
-        this._device = this._engine.getDevice();
-
-        this.globalId = WebGPUGlobal.getId(this);
+    constructor(device: GPUDevice, dest: WebGPUInternalRT) {
+        this.renderBundle = null;
+        this._elements = new Set();
+        const desc: GPURenderBundleEncoderDescriptor
+            = WebGPURenderPassHelper.getBundleDescriptor(dest);
+        this.id = WebGPURenderBundle.idCounter++;
+        desc.label = `BundleEncoder_${this.id}`;
+        this._encoder = device.createRenderBundleEncoder(desc);
     }
 
-    startRender(renderPassDesc: GPURenderPassDescriptor): void {
-        this._commandEncoder = this._device.createCommandEncoder();
-        this._encoder = this._commandEncoder.beginRenderPass(renderPassDesc);
-        //console.log('startRender', renderPassDesc);
+    render(context: WebGPURenderContext3D, element: WebGPURenderElement3D) {
+        this._elements.add(element.bundleId);
+        element._render(context, null, this);
+        this._shotNum++;
+    }
+
+    finish() {
+        this.renderBundle = this._encoder.finish();
+        this.renderBundle.label = `RenderBundle_${this.id}`;
+    }
+
+    hasElement(elementId: number) {
+        const has = this._elements.has(elementId);
+        if (has)
+            this._shotNum++;
+        return has;
+    }
+
+    clearShotNum() {
+        this._shotNum = 0;
+    }
+
+    getShotRate() {
+        return this._elements.size > 0 ? this._shotNum / this._elements.size : 0;
     }
 
     setPipeline(pipeline: GPURenderPipeline): void {
@@ -38,42 +66,8 @@ export class WebGPURenderCommandEncoder {
         this._encoder.setVertexBuffer(slot, buffer, offset, size);
     }
 
-    drawIndirect(indirectBuffer: GPUBuffer, indirectOffset: GPUSize64) {
-        //TODO
-    }
-
-    drawIndexedIndirect(indirectBuffer: GPUBuffer, indirectOffset: GPUSize64) {
-        //TODO
-    }
-
     setBindGroup(index: GPUIndex32, bindGroup: GPUBindGroup, dynamicOffsets?: Iterable<GPUBufferDynamicOffset>) {
         this._encoder.setBindGroup(index, bindGroup, dynamicOffsets);
-    }
-
-    setBindGroupByDataOffaset(index: GPUIndex32, bindGroup: GPUBindGroup, dynamicOffsetsData: Uint32Array, dynamicOffsetsDataStart: GPUSize64, dynamicOffsetsDataLength: GPUSize32) {
-        this._encoder.setBindGroup(index, bindGroup, dynamicOffsetsData, dynamicOffsetsDataStart, dynamicOffsetsDataLength);
-    }
-
-    setViewport(x: number, y: number, width: number, height: number, minDepth: number, maxDepth: number) {
-        this._encoder.setViewport(x, y, width, height, minDepth, maxDepth);
-    }
-
-    setScissorRect(x: GPUIntegerCoordinate, y: GPUIntegerCoordinate, width: GPUIntegerCoordinate, height: GPUIntegerCoordinate) {
-        this._encoder.setScissorRect(x, y, width, height);
-    }
-
-    end() {
-        this._encoder.end();
-        //console.log('endEncode');
-    }
-
-    finish() {
-        //console.log('finishRender');
-        return this._commandEncoder.finish();
-    }
-
-    playBundle(bundles: GPURenderBundle[]) {
-        this._encoder.executeBundles(bundles);
     }
 
     /**
@@ -109,6 +103,9 @@ export class WebGPURenderCommandEncoder {
     }
 
     destroy() {
-        WebGPUGlobal.releaseId(this);
+        this._encoder = null;
+        this._elements.clear();
+        this._elements = null;
+        this.renderBundle = null;
     }
 }

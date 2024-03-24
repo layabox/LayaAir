@@ -84,6 +84,7 @@ export class WebGPURenderGeometry implements IRenderGeometryElement {
         this.indexFormat = IndexFormat.UInt16;
         this._drawArrayInfo = [];
         this._drawElementInfo = [];
+        this._instanceCount = 1;
         this._id = WebGPURenderGeometry._idCounter++;
 
         this.globalId = WebGPUGlobal.getId(this);

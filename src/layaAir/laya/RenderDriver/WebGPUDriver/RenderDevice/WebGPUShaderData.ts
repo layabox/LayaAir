@@ -6,7 +6,6 @@ import { Vector3 } from "../../../maths/Vector3";
 import { Vector4 } from "../../../maths/Vector4";
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { Resource } from "../../../resource/Resource";
-import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
 import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
 import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
@@ -17,6 +16,7 @@ import { WebGPURenderCommandEncoder } from "./WebGPURenderCommandEncoder";
 import { WebGPURenderEngine } from "./WebGPURenderEngine";
 import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
 import { TextureFormat } from "../../../RenderEngine/RenderEnum/TextureFormat";
+import { WebGPURenderBundle } from "./WebGPUBundle/WebGPURenderBundle";
 
 export class WebGPUShaderData extends ShaderData {
     /**@internal */
@@ -33,13 +33,14 @@ export class WebGPUShaderData extends ShaderData {
     private _bindGroupMap: Map<string, [GPUBindGroup, GPUBindGroupLayoutEntry[]]>;
     private _bindGroup: GPUBindGroup;
     private _bindGroupLayoutEntries: GPUBindGroupLayoutEntry[];
+    bindGroupIsNew: boolean = false; //是否新建了bindGroup
 
     private static _bindGroupCounter: number = 0;
 
     isShare: boolean = true; //是否共享模式，该ShaderData数据是否会被多个节点共享
     isStatic: boolean = false; //是否静态，静态的节点会使用静态的大Buffer，减少上传次数
     changeMark: number = 0; //变化标记，用于标记预编译设置是否变化，如变化，值+1
-
+    
     globalId: number;
     objectName: string = 'WebGPUShaderData';
 
@@ -105,7 +106,8 @@ export class WebGPUShaderData extends ShaderData {
      * @param info 
      * @param command 
      */
-    bindGroup(groupId: number, name: string, info: WebGPUUniformPropertyBindingInfo[], command: WebGPURenderCommandEncoder) {
+    bindGroup(groupId: number, name: string, info: WebGPUUniformPropertyBindingInfo[],
+        command: WebGPURenderCommandEncoder, bundle: WebGPURenderBundle) {
         const device = WebGPURenderEngine._instance.getDevice();
 
         //同一个ShaderData可能需要不同的bindGroup，因为某些ShaderData是共享的（比如Scene3D和Camera）
@@ -211,11 +213,19 @@ export class WebGPUShaderData extends ShaderData {
                 this._bindGroup = bindGroup;
                 this._bindGroupLayoutEntries = bindGroupLayoutEntries;
             }
+            this.bindGroupIsNew = true;
             //console.log('create bindGroup_' + WebGPUShaderData._bindGroupCounter++, key, bindGroupLayoutDesc, bindGroupEntries);
-        }
+        } else this.bindGroupIsNew = false;
 
         //将绑定组附加到命令
-        command.setBindGroup(groupId, bindGroup);
+        if (command) {
+            command.setBindGroup(groupId, bindGroup);
+            //console.log('bindCommandGroup');
+        }
+        if (bundle) {
+            bundle.setBindGroup(groupId, bindGroup);
+            //console.log('bindBundleGroup');
+        }
         //返回绑定组结构（用于建立pipeline）
         return bindGroupLayoutEntries;
     }

@@ -21,6 +21,7 @@ export class WebGPUInternalRT implements InternalRenderTarget {
     _depthState: GPUColorTargetState;
 
     _renderPassDescriptor: GPURenderPassDescriptor;
+    _renderBundleDescriptor: GPURenderBundleEncoderDescriptor;
 
     globalId: number;
     objectName: string = 'WebGPUInternalRT';
@@ -37,6 +38,7 @@ export class WebGPUInternalRT implements InternalRenderTarget {
             this._texturesResolve = [];
         this._colorStates = [];
         this._renderPassDescriptor = { colorAttachments: [] };
+        this._renderBundleDescriptor = { colorFormats: [] };
         this.formatId = (this.depthStencilFormat << 10) + this.colorFormat;
 
         this.globalId = WebGPUGlobal.getId(this);
