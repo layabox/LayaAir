@@ -35,6 +35,7 @@ import { BloomEffect } from "laya/d3/core/render/PostEffect/BloomEffect";
 import { SkyProceduralMaterial } from "laya/d3/core/material/SkyProceduralMaterial";
 import { SkyDome } from "laya/d3/resource/models/SkyDome";
 import { MeshAddTangent } from "laya/RenderDriver/WebGPUDriver/RenderDevice/Utils/MeshEditor";
+import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFormat";
 
 export class WebGPUTest_PBR {
     useWebGPU: boolean = true;
@@ -77,8 +78,10 @@ export class WebGPUTest_PBR {
             camera.clearColor = Color.BLACK;
             camera.clearFlag = CameraClearFlags.SolidColor;
             camera.msaa = true;
-            if (this.useWebGPU)
+            if (this.useWebGPU) {
                 WebGPURenderEngine._instance._config.msaa = camera.msaa;
+                camera.depthTextureFormat = RenderTargetFormat.DEPTHSTENCIL_24_8;
+            }
             const move = camera.addComponent(CameraMoveScript);
             move.speed = 0.005;
 
@@ -113,7 +116,8 @@ export class WebGPUTest_PBR {
             MeshAddTangent(coneMesh1);
             MeshAddTangent(sphereMesh1);
 
-            const material = new PBRStandardMaterial();
+            const material1 = new PBRStandardMaterial();
+            const material2 = new PBRStandardMaterial();
 
             const boxS3D = [];
             const sphereS3D = [];
@@ -122,24 +126,28 @@ export class WebGPUTest_PBR {
             const res = [
                 { url: "res/threeDimen/pbr/metal022/albedo.jpg", type: Loader.TEXTURE2D },
                 { url: "res/threeDimen/pbr/metal022/normal.jpg", type: Loader.TEXTURE2D },
-                { url: "res/threeDimen/pbr/metal022/metallic.jpg", type: Loader.TEXTURE2D },
-                { url: "res/threeDimen/pbr/metal022/roughness.jpg", type: Loader.TEXTURE2D },
                 { url: "res/threeDimen/pbr/metal022/metallicRoughness.png", type: Loader.TEXTURE2D },
+                { url: "res/threeDimen/pbr/diamondPlate008C/albedo.jpg", type: Loader.TEXTURE2D },
+                { url: "res/threeDimen/pbr/diamondPlate008C/normal.jpg", type: Loader.TEXTURE2D },
+                { url: "res/threeDimen/pbr/diamondPlate008C/metallic.jpg", type: Loader.TEXTURE2D },
                 { url: "res/threeDimen/texture/normal2.jpg", type: Loader.TEXTURE2D },
                 { url: "res/threeDimen/texture/earthMap.jpg", type: Loader.TEXTURE2D },
                 { url: "res/threeDimen/texture/九宫格512.jpg", type: Loader.TEXTURE2D },
             ];
             Laya.loader.load(res, Handler.create(this, () => {
-                material.albedoTexture = Laya.loader.getRes("res/threeDimen/pbr/metal022/albedo.jpg", Loader.TEXTURE2D);
-                material.normalTexture = Laya.loader.getRes("res/threeDimen/pbr/metal022/normal.jpg", Loader.TEXTURE2D);
-                material.metallicGlossTexture = Laya.loader.getRes("res/threeDimen/pbr/metal022/metallicRoughness.png", Loader.TEXTURE2D);
-                material.normalTextureScale = 1.2;
-                material.smoothnessTextureScale = 1.2;
+                material1.albedoTexture = Laya.loader.getRes("res/threeDimen/pbr/metal022/albedo.jpg", Loader.TEXTURE2D);
+                material1.normalTexture = Laya.loader.getRes("res/threeDimen/pbr/metal022/normal.jpg", Loader.TEXTURE2D);
+                material1.metallicGlossTexture = Laya.loader.getRes("res/threeDimen/pbr/metal022/metallicRoughness.png", Loader.TEXTURE2D);
+                material1.normalTextureScale = 1.2;
+                material1.smoothnessTextureScale = 1.2;
+                material2.albedoTexture = Laya.loader.getRes("res/threeDimen/pbr/diamondPlate008C/albedo.jpg", Loader.TEXTURE2D);
+                material2.normalTexture = Laya.loader.getRes("res/threeDimen/pbr/diamondPlate008C/normal.jpg", Loader.TEXTURE2D);
+                material2.metallicGlossTexture = Laya.loader.getRes("res/threeDimen/pbr/diamondPlate008C/metallic.jpg", Loader.TEXTURE2D);
             }));
 
-            const n = 5;
-            const m = 5;
-            const l = 5;
+            const n = 10;
+            const m = 10;
+            const l = 10;
             for (let i = 0; i < n; i++) {
                 for (let j = 0; j < m; j++) {
                     for (let k = 0; k < l; k++) {
@@ -147,7 +155,7 @@ export class WebGPUTest_PBR {
                         boxS3D.push(bs3d);
                         bs3d.transform.position = new Vector3(i - n * 0.5, j - m * 0.5, k - l * 0.5);
                         bs3d.addComponent(MeshFilter).sharedMesh = boxMesh1;
-                        bs3d.addComponent(MeshRenderer).material = material;
+                        bs3d.addComponent(MeshRenderer).material = material2;
                         //@ts-ignore
                         bs3d.rotate = new Vector3((Math.random() - 0.5) * 0.02, (Math.random() - 0.5) * 0.02, (Math.random() - 0.5) * 0.02);
                     }
@@ -160,7 +168,7 @@ export class WebGPUTest_PBR {
                         sphereS3D.push(sp3d);
                         sp3d.transform.position = new Vector3(i - n * 0.5 - 0.5, j - m * 0.5, k - l * 0.5);
                         sp3d.addComponent(MeshFilter).sharedMesh = sphereMesh1;
-                        sp3d.addComponent(MeshRenderer).material = material;
+                        sp3d.addComponent(MeshRenderer).material = material1;
                         //@ts-ignore
                         sp3d.rotate = new Vector3((Math.random() - 0.5) * 0.02, (Math.random() - 0.5) * 0.02, (Math.random() - 0.5) * 0.02);
                     }
@@ -173,7 +181,7 @@ export class WebGPUTest_PBR {
                         coneS3D_static.push(co3d);
                         co3d.transform.position = new Vector3(i - n * 0.5, j - m * 0.5 - 0.5, k - l * 0.5);
                         co3d.addComponent(MeshFilter).sharedMesh = coneMesh1;
-                        co3d.addComponent(MeshRenderer).material = material;
+                        co3d.addComponent(MeshRenderer).material = material1;
                     }
                 }
             }

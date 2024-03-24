@@ -7,6 +7,7 @@ import { IRenderContext3D, PipelineMode } from "../../DriverDesign/3DRenderPass/
 import { IRenderCMD } from "../../DriverDesign/3DRenderPass/IRendderCMD";
 import { WebCameraNodeData, WebSceneNodeData } from "../../RenderModuleData/WebModuleData/3D/WebModuleData";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
+import { WebGPURenderBundleManager } from "../RenderDevice/WebGPUBundle/WebGPURenderBundleManager";
 import { WebGPUInternalRT } from "../RenderDevice/WebGPUInternalRT";
 import { WebGPURenderCommandEncoder } from "../RenderDevice/WebGPURenderCommandEncoder";
 import { WebGPURenderEngine } from "../RenderDevice/WebGPURenderEngine";
@@ -50,6 +51,10 @@ export class WebGPURenderContext3D implements IRenderContext3D {
     private _clearStencil: number;
     /**@internal */
     private _needStart: boolean = true;
+
+    device: GPUDevice;
+    bundleManager: WebGPURenderBundleManager = new WebGPURenderBundleManager();
+    elementsToBundle: WebGPURenderElement3D[] = [];
 
     destRT: WebGPUInternalRT;
     renderCommand: WebGPURenderCommandEncoder = new WebGPURenderCommandEncoder();
@@ -164,11 +169,48 @@ export class WebGPURenderContext3D implements IRenderContext3D {
             this._start();
             this._needStart = false;
         }
+
+        let compile = false;
         const elements = list.elements;
-        for (let i = 0, n = list.length; i < n; i++)
-            elements[i]._preUpdatePre(this);
-        for (let i = 0, n = list.length; i < n; i++)
-            elements[i]._render(this);
+        for (let i = 0, n = list.length; i < n; i++) {
+            compile = elements[i]._preUpdatePre(this);
+            if (compile && WebGPUGlobal.useBundle)
+                this.bundleManager.removeBundleByElement(elements[i].bundleId);
+        }
+
+        if (WebGPUGlobal.useBundle) {
+            const needRemoveBundle = [];
+            this.bundleManager.clearShot();
+            for (let i = 0, n = list.length; i < n; i++) {
+                if (this.bundleManager.getBundle(elements[i].bundleId) === null) {
+                    if (this.elementsToBundle.indexOf(elements[i]) === -1)
+                        this.elementsToBundle.push(elements[i]);
+                    if (this.elementsToBundle.length >= this.bundleManager.elementsMaxPerBundle) {
+                        this.bundleManager.createBundle(this, this.elementsToBundle);
+                        this.elementsToBundle.length = 0;
+                    }
+                    elements[i]._render(this, this.renderCommand, null);
+                } else {
+                    elements[i]._render(this, null, null);
+                    if (elements[i].needClearBundle) {
+                        needRemoveBundle.push(elements[i].bundleId);
+                        elements[i].needClearBundle = false;
+                    }
+                }
+            }
+            const remove = this.bundleManager.removeLowShotBundle();
+            if (needRemoveBundle.length > 0 || remove) {
+                for (let i = 0, n = needRemoveBundle.length; i < n; i++)
+                    this.bundleManager.removeBundleByElement(needRemoveBundle[i]);
+                for (let i = 0, n = list.length; i < n; i++)
+                    if (this.bundleManager.getBundle(elements[i].bundleId) === null)
+                        elements[i]._render(this, this.renderCommand, null);
+            }
+            this.bundleManager.renderBundles(this.renderCommand._encoder);
+        } else {
+            for (let i = 0, n = list.length; i < n; i++)
+                elements[i]._render(this, this.renderCommand, null);
+        }
         this._submit();
         WebGPUStatis.addRenderElement(list.length);
         return 0;
@@ -181,7 +223,7 @@ export class WebGPURenderContext3D implements IRenderContext3D {
             this._needStart = false;
         }
         node._preUpdatePre(this);
-        node._render(this);
+        node._render(this, this.renderCommand, null);
         this._submit();
         WebGPUStatis.addRenderElement(1);
         return 0;
@@ -205,6 +247,7 @@ export class WebGPURenderContext3D implements IRenderContext3D {
     }
 
     private _start() {
+        this.device = WebGPURenderEngine._instance.getDevice();
         const renderPassDesc: GPURenderPassDescriptor
             = WebGPURenderPassHelper.getDescriptor(this.destRT, this._clearFlag, this._clearColor, this._clearDepth, this._clearStencil);
         this.renderCommand.startRender(renderPassDesc);
@@ -218,9 +261,10 @@ export class WebGPURenderContext3D implements IRenderContext3D {
         this.renderCommand.end();
         if (WebGPUGlobal.useBigBuffer)
             WebGPURenderEngine._instance.upload(); //上传所有Uniform数据
-        WebGPURenderEngine._instance.getDevice().queue.submit([this.renderCommand.finish()]);
+        this.device.queue.submit([this.renderCommand.finish()]);
         this._needStart = true;
         WebGPUStatis.addSubmit();
+        //console.log('submit');
     }
 
     destroy() {
