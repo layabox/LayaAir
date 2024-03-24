@@ -220,11 +220,11 @@ export class WebGPUShaderData extends ShaderData {
         //将绑定组附加到命令
         if (command) {
             command.setBindGroup(groupId, bindGroup);
-            //console.log('bindCommandGroup');
+            //console.log('bind command');
         }
         if (bundle) {
             bundle.setBindGroup(groupId, bindGroup);
-            //console.log('bindBundleGroup');
+            //console.log('bind bundle');
         }
         //返回绑定组结构（用于建立pipeline）
         return bindGroupLayoutEntries;

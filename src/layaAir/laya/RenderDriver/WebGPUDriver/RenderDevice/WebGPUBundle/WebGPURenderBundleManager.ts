@@ -6,7 +6,7 @@ import { WebGPURenderBundle } from "./WebGPURenderBundle";
  * 渲染指令缓存管理器
  */
 export class WebGPURenderBundleManager {
-    elementsMaxPerBundle: number = 100; //每个Bundle最大元素数量
+    elementsMaxPerBundle: number = 50; //每个Bundle最大元素数量
     lowShotRate: number = 0.75; //低命中率移除阈值
     bundles: WebGPURenderBundle[] = []; //所有bundle
 

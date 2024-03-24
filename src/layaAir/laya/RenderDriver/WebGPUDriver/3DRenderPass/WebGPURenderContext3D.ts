@@ -164,7 +164,8 @@ export class WebGPURenderContext3D implements IRenderContext3D {
     }
 
     drawRenderElementList(list: SingletonList<WebGPURenderElement3D>): number {
-        if (list.length === 0) return 0;
+        const len = list.length;
+        if (len === 0) return 0;
         this._setScreenRT();
         if (this._needStart) {
             this._start();
@@ -176,7 +177,7 @@ export class WebGPURenderContext3D implements IRenderContext3D {
 
         let compile = false;
         const elements = list.elements;
-        for (let i = 0, n = list.length; i < n; i++) {
+        for (let i = 0; i < len; i++) {
             compile = elements[i]._preUpdatePre(this);
             if (compile && WebGPUGlobal.useBundle)
                 this.bundleManager.removeBundleByElement(elements[i].bundleId);
@@ -185,34 +186,41 @@ export class WebGPURenderContext3D implements IRenderContext3D {
         if (WebGPUGlobal.useBundle) {
             const needRemoveBundle = [];
             this.bundleManager.clearShot();
-            for (let i = 0, n = list.length; i < n; i++) {
-                if (this.bundleManager.getBundle(elements[i].bundleId) === null) {
-                    if (this.elementsToBundle.indexOf(elements[i]) === -1)
-                        this.elementsToBundle.push(elements[i]);
+            let element: WebGPURenderElement3D;
+            for (let i = 0; i < len; i++) {
+                element = elements[i];
+                if (this.bundleManager.getBundle(element.bundleId) === null) {
+                    if (this.elementsToBundle.indexOf(element) === -1)
+                        this.elementsToBundle.push(element);
                     if (this.elementsToBundle.length >= this.bundleManager.elementsMaxPerBundle) {
                         this.bundleManager.createBundle(this, this.elementsToBundle);
                         this.elementsToBundle.length = 0;
                     }
-                    elements[i]._render(this, this.renderCommand, null);
+                    element._render(this, this.renderCommand, null);
+                    element.rendered = true;
                 } else {
-                    elements[i]._render(this, null, null);
-                    if (elements[i].needClearBundle) {
-                        needRemoveBundle.push(elements[i].bundleId);
-                        elements[i].needClearBundle = false;
-                    }
+                    if (element.needClearBundle) {
+                        needRemoveBundle.push(element.bundleId);
+                        element.needClearBundle = false;
+                    } else element._render(this, null, null);
+                    element.rendered = false;
                 }
             }
             const remove = this.bundleManager.removeLowShotBundle();
             if (needRemoveBundle.length > 0 || remove) {
                 for (let i = 0, n = needRemoveBundle.length; i < n; i++)
                     this.bundleManager.removeBundleByElement(needRemoveBundle[i]);
-                for (let i = 0, n = list.length; i < n; i++)
-                    if (this.bundleManager.getBundle(elements[i].bundleId) === null)
-                        elements[i]._render(this, this.renderCommand, null);
+                for (let i = 0; i < len; i++) {
+                    element = elements[i];
+                    if (this.bundleManager.getBundle(element.bundleId) === null) {
+                        if (!element.rendered)
+                            element._render(this, this.renderCommand, null);
+                    }
+                }
             }
             this.bundleManager.renderBundles(this.renderCommand._encoder);
         } else {
-            for (let i = 0, n = list.length; i < n; i++)
+            for (let i = 0; i < len; i++)
                 elements[i]._render(this, this.renderCommand, null);
         }
         this._submit();
@@ -268,7 +276,6 @@ export class WebGPURenderContext3D implements IRenderContext3D {
         this.device.queue.submit([this.renderCommand.finish()]);
         this._needStart = true;
         WebGPUStatis.addSubmit();
-        //console.log('submit');
     }
 
     destroy() {

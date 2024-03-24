@@ -60,6 +60,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
 
     bundleId: number; //用于bundle管理（被bundle管理器识别）
     needClearBundle: boolean = false; //是否需要清除bundle（bindGroup，pipeline等改变都需要清除指令缓存）
+    rendered: boolean = false; //是否已经渲染过
     static bundleIdCounter: number = 0;
 
     globalId: number;
@@ -345,10 +346,11 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
         this._cameraData = context.cameraData;
         if (!this.renderShaderData)
             this.renderShaderData = new WebGPUShaderData();
-        if (this.transform?.owner?.isStatic)
+        if (!this.renderShaderData.isStatic
+            && this.transform?.owner?.isStatic)
             this.renderShaderData.isStatic = true;
         //只在数据发生变化的时候才重新编译
-        if (this._isShaderDataChange(context)) {
+        if (this._isShaderDataChange()) {
             this._compileShader(context);
             compile = true;
         }
@@ -358,31 +360,31 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
 
     /**
      * 着色器数据是否改变
-     * @param context 
      */
-    private _isShaderDataChange(context: WebGPURenderContext3D) {
+    private _isShaderDataChange() {
         let change = false;
+        const shaderDataState = this._shaderDataState;
         if (this._sceneData) {
-            if (this._shaderDataState[0] != this._sceneData.changeMark) {
-                this._shaderDataState[0] = this._sceneData.changeMark;
+            if (shaderDataState[0] != this._sceneData.changeMark) {
+                shaderDataState[0] = this._sceneData.changeMark;
                 change = true;
             }
         }
         if (this._cameraData) {
-            if (this._shaderDataState[1] != this._cameraData.changeMark) {
-                this._shaderDataState[1] = this._cameraData.changeMark;
+            if (shaderDataState[1] != this._cameraData.changeMark) {
+                shaderDataState[1] = this._cameraData.changeMark;
                 change = true;
             }
         }
         if (this.renderShaderData) {
-            if (this._shaderDataState[2] != this.renderShaderData.changeMark) {
-                this._shaderDataState[2] = this.renderShaderData.changeMark;
+            if (shaderDataState[2] != this.renderShaderData.changeMark) {
+                shaderDataState[2] = this.renderShaderData.changeMark;
                 change = true;
             }
         }
         if (this.materialShaderData) {
-            if (this._shaderDataState[3] != this.materialShaderData.changeMark) {
-                this._shaderDataState[3] = this.materialShaderData.changeMark;
+            if (shaderDataState[3] != this.materialShaderData.changeMark) {
+                shaderDataState[3] = this.materialShaderData.changeMark;
                 change = true;
             }
         }
@@ -403,51 +405,56 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
         let complete = true;
         let entries: GPUBindGroupLayoutEntry[];
         const bindGroupLayout = [];
+        const sceneData = this._sceneData;
+        const cameraData = this._cameraData;
+        const renderShaderData = this.renderShaderData;
+        const materialShaderData = this.materialShaderData;
+        const uniformSetMap = shaderInstance.uniformSetMap;
 
-        if (this._sceneData) {
-            entries = this._sceneData.bindGroup(0, 'scene3D', shaderInstance.uniformSetMap[0], command, bundle);
+        if (sceneData) {
+            entries = sceneData.bindGroup(0, 'scene3D', uniformSetMap[0], command, bundle);
             if (!entries)
                 complete = false;
             else {
-                this._sceneData.uploadUniform();
+                sceneData.uploadUniform();
                 bindGroupLayout.push(entries);
             }
-            if (this._sceneData.bindGroupIsNew)
+            if (sceneData.bindGroupIsNew)
                 this.needClearBundle = true;
         }
-        if (this._cameraData) {
-            entries = this._cameraData.bindGroup(1, 'camera', shaderInstance.uniformSetMap[1], command, bundle);
+        if (cameraData) {
+            entries = cameraData.bindGroup(1, 'camera', uniformSetMap[1], command, bundle);
             if (!entries)
                 complete = false;
             else {
-                this._cameraData.uploadUniform();
+                cameraData.uploadUniform();
                 bindGroupLayout.push(entries);
             }
-            if (this._cameraData.bindGroupIsNew)
+            if (cameraData.bindGroupIsNew)
                 this.needClearBundle = true;
         }
-        if (this.renderShaderData) {
-            this.renderShaderData.isShare = false;
-            entries = this.renderShaderData.bindGroup(2, 'sprite3D', shaderInstance.uniformSetMap[2], command, bundle);
+        if (renderShaderData) {
+            renderShaderData.isShare = false;
+            entries = renderShaderData.bindGroup(2, 'sprite3D', uniformSetMap[2], command, bundle);
             if (!entries)
                 complete = false;
             else {
-                this.renderShaderData.uploadUniform();
+                renderShaderData.uploadUniform();
                 bindGroupLayout.push(entries);
             }
-            if (this.renderShaderData.bindGroupIsNew)
+            if (renderShaderData.bindGroupIsNew)
                 this.needClearBundle = true;
         }
-        if (this.materialShaderData) {
-            this.materialShaderData.isShare = false;
-            entries = this.materialShaderData.bindGroup(3, 'material', shaderInstance.uniformSetMap[3], command, bundle);
+        if (materialShaderData) {
+            materialShaderData.isShare = false;
+            entries = materialShaderData.bindGroup(3, 'material', uniformSetMap[3], command, bundle);
             if (!entries)
                 complete = false;
             else {
-                this.materialShaderData.uploadUniform();
+                materialShaderData.uploadUniform();
                 bindGroupLayout.push(entries);
             }
-            if (this.materialShaderData.bindGroupIsNew)
+            if (materialShaderData.bindGroupIsNew)
                 this.needClearBundle = true;
         }
 
@@ -461,7 +468,6 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
                     command.setPipeline(pipeline);
                     command.applyGeometry(this.geometry);
                 }
-                //console.log('applyCommandGeometry1');
             }
             if (bundle) {
                 if (WebGPUGlobal.useGlobalContext) {
@@ -471,7 +477,6 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
                     bundle.setPipeline(pipeline);
                     bundle.applyGeometry(this.geometry);
                 }
-                //console.log('applyBundleGeometry1');
             }
             if (this.useCache) {
                 this._pipelineCache[sn] = pipeline;
@@ -493,6 +498,10 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
                 const shaderInstance = this._shaderInstances[i];
                 if (shaderInstance.complete) {
                     if (this.useCache) { //启用缓存机制
+                        const sceneData = this._sceneData;
+                        const cameraData = this._cameraData;
+                        const renderShaderData = this.renderShaderData;
+                        const materialShaderData = this.materialShaderData;
                         if (this._stateKeyCounter % 10 == 0)
                             stateKey = this._calcStateKey(shaderInstance, context.destRT, context);
                         else stateKey = this._stateKey[i];
@@ -500,40 +509,41 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
                             this._createPipeline(i, context, shaderInstance, command, bundle, stateKey); //新建渲染管线
                         else { //使用缓存
                             let complete = true;
-                            if (this._sceneData) {
+                            const uniformSetMap = shaderInstance.uniformSetMap;
+                            if (sceneData) {
                                 if (command || bundle) {
-                                    if (!this._sceneData.bindGroup(0, 'scene3D', shaderInstance.uniformSetMap[0], command, bundle))
+                                    if (!sceneData.bindGroup(0, 'scene3D', uniformSetMap[0], command, bundle))
                                         complete = false;
-                                    else this._sceneData.uploadUniform();
-                                } else this._sceneData.uploadUniform();
-                                if (this._sceneData.bindGroupIsNew)
+                                    else sceneData.uploadUniform();
+                                } else sceneData.uploadUniform();
+                                if (sceneData.bindGroupIsNew)
                                     this.needClearBundle = true;
                             }
-                            if (this._cameraData) {
+                            if (cameraData) {
                                 if (command || bundle) {
-                                    if (!this._cameraData.bindGroup(1, 'camera', shaderInstance.uniformSetMap[1], command, bundle))
+                                    if (!cameraData.bindGroup(1, 'camera', uniformSetMap[1], command, bundle))
                                         complete = false;
-                                    else this._cameraData.uploadUniform();
-                                } else this._cameraData.uploadUniform();
-                                if (this._cameraData.bindGroupIsNew)
+                                    else cameraData.uploadUniform();
+                                } else cameraData.uploadUniform();
+                                if (cameraData.bindGroupIsNew)
                                     this.needClearBundle = true;
                             }
-                            if (this.renderShaderData) {
+                            if (renderShaderData) {
                                 if (command || bundle) {
-                                    if (!this.renderShaderData.bindGroup(2, 'sprite3D', shaderInstance.uniformSetMap[2], command, bundle))
+                                    if (!renderShaderData.bindGroup(2, 'sprite3D', uniformSetMap[2], command, bundle))
                                         complete = false;
-                                    else this.renderShaderData.uploadUniform();
-                                } else this.renderShaderData.uploadUniform();
-                                if (this.renderShaderData.bindGroupIsNew)
+                                    else renderShaderData.uploadUniform();
+                                } else renderShaderData.uploadUniform();
+                                if (renderShaderData.bindGroupIsNew)
                                     this.needClearBundle = true;
                             }
-                            if (this.materialShaderData) {
+                            if (materialShaderData) {
                                 if (command || bundle) {
-                                    if (!this.materialShaderData.bindGroup(3, 'material', shaderInstance.uniformSetMap[3], command, bundle))
+                                    if (!materialShaderData.bindGroup(3, 'material', uniformSetMap[3], command, bundle))
                                         complete = false;
-                                    else this.materialShaderData.uploadUniform();
-                                } else this.materialShaderData.uploadUniform();
-                                if (this.materialShaderData.bindGroupIsNew)
+                                    else materialShaderData.uploadUniform();
+                                } else materialShaderData.uploadUniform();
+                                if (materialShaderData.bindGroupIsNew)
                                     this.needClearBundle = true;
                             }
                             if (complete) {
@@ -545,7 +555,6 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
                                         command.setPipeline(this._pipelineCache[i]);
                                         command.applyGeometry(this.geometry);
                                     }
-                                    //console.log('applyCommandGeometry2');
                                 }
                                 if (bundle) {
                                     if (WebGPUGlobal.useGlobalContext) {
@@ -555,7 +564,6 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
                                         bundle.setPipeline(this._pipelineCache[i]);
                                         bundle.applyGeometry(this.geometry);
                                     }
-                                    //console.log('applyBundleGeometry2');
                                 }
                             }
                         }
