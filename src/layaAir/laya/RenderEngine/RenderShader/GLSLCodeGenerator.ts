@@ -4,7 +4,6 @@ import { ShaderDataType } from "../../RenderDriver/DriverDesign/RenderDevice/Sha
 import { LayaGL } from "../../layagl/LayaGL";
 import { ShaderNode } from "../../webgl/utils/ShaderNode";
 import { RenderParams } from "../RenderEnum/RenderParams";
-import { LayaGL } from "../../layagl/LayaGL";
 import { RenderCapable } from "../RenderEnum/RenderCapable";
 import { UniformMapType } from "./SubShader";
 

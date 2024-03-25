@@ -88,7 +88,7 @@ export class Physics_CollisionEvent {
             let bodyA: RigidBody = this.sensorCollider.owner.getComponent(RigidBody);
             let bodyB: RigidBody = body.owner.getComponent(RigidBody);
             let position = bodyB.getWorldCenter();
-            let center = bodyA.getWorldPoint(this.sensorCollider.x, this.sensorCollider.y)
+            let center = bodyA.GetWorldPoint(this.sensorCollider.x, this.sensorCollider.y)
             let x = center.x - position.x;
             let y = center.y - position.y;
             let vec: Vector2 = new Vector2(x, y);

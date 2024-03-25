@@ -165,7 +165,7 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
      * 克隆到目标
      * @param dest 目标 
      */
-    _cloneTo(dest: Component): void {
+    _cloneTo(dest: SimpleSkinnedMeshRenderer): void {
         let render = dest as SimpleSkinnedMeshRenderer;
         render.simpleAnimatorOffset = this.simpleAnimatorOffset;
         render.simpleAnimatorTexture = this.simpleAnimatorTexture;

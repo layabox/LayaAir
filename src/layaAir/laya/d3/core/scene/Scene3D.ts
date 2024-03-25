@@ -432,12 +432,13 @@ export class Scene3D extends Sprite {
     _renderByEditor: boolean;
     /** @internal */
     _scene2D: Scene;
-
+    /** @internal */
+    _sceneModuleData: ISceneNodeData;
     /** @internal */
     componentElementMap: Map<string, IElementComponentManager> = new Map();
 
-    _sceneModuleData: ISceneNodeData;
-
+    /** @internal */
+    private _componentElementDatasMap: any = {};
     /**
      * Scene3D所属的2D场景，使用IDE编辑的场景载入后具有此属性。
      */

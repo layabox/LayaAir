@@ -6,7 +6,7 @@ let testfile = window.location.search.substring(1);
 async function testf(){
     usewebgl();
     (window as any).Laya=Laya;
-    await import('./'+testfile);
+   // await import('./'+testfile);
 
 }
 export class LayaTest{
