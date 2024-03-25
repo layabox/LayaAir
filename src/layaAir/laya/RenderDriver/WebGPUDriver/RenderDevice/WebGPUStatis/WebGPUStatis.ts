@@ -1,20 +1,32 @@
 export class WebGPUStatis {
+    //开始时刻
     private static _start: number = Date.now();
+    //总体资源统计
     private static _totalStatis: { memory: number } = { memory: 0 };
-    private static _frameStatis: { renderElement?: number, uploadNum?: number, submit?: number } = {};
+    //每帧统计
+    private static _frameStatis: { renderElement?: number, uploadNum?: number, uploadBytes?: number, submit?: number } = {};
+    //按时间顺序发生的行为
     private static _dataTiming: { action: string, name: string, id: number, time: number, memory: number, object: any }[] = [];
+    //创建行为
     private static _dataCreate: { [key: string]: { id: number[], count: number, time: number[], memory: number, object: any[] } } = {};
+    //释放行为
     private static _dataRelease: { [key: string]: { id: number[], count: number, time: number[], memory: number, object: any[] } } = {};
+    //纹理统计
     private static _textureStatis: any[] = [];
 
     static startFrame() {
         this._frameStatis.submit = 0;
         this._frameStatis.uploadNum = 0;
+        this._frameStatis.uploadBytes = 0;
         this._frameStatis.renderElement = 0;
     }
 
     static addUploadNum(n: number = 1) {
         this._frameStatis.uploadNum += n;
+    }
+
+    static addUploadBytes(n: number = 1) {
+        this._frameStatis.uploadBytes += n;
     }
 
     static addRenderElement(n: number = 1) {

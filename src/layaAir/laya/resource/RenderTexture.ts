@@ -191,7 +191,9 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
 
         // rt 格式 宽高可能不支持
         this._generateMipmap = this._renderTarget._generateMipmap;
-        this._texture = this._renderTarget._textures[0];
+        if (this._renderTarget._texturesResolve)
+            this._texture = this._renderTarget._texturesResolve[0];
+        else this._texture = this._renderTarget._textures[0];
 
         this.generateDepthTexture = this._generateDepthTexture;
     }

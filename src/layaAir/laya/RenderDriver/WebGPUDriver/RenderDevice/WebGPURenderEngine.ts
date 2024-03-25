@@ -45,9 +45,9 @@ export class WebGPUConfig {
      */
     depthStencilFormat = WebGPUTextureFormat.depth24plus_stencil8;
     /**
-     * multi sample
+     * multi sample（msaa = 4x）
      */
-    multiSamples = 1;
+    msaa = false;
 }
 
 /**
@@ -161,11 +161,13 @@ export class WebGPURenderEngine implements IRenderEngine {
         this._device.lost.then(this._deviceLostCall);
 
         this.gpuBufferMgr = new WebGPUBufferManager(device);
-        this.gpuBufferMgr.addBuffer('scene3D', 2 * 1024, 1, true);
-        this.gpuBufferMgr.addBuffer('camera', 2 * 1024, 1, true);
-        this.gpuBufferMgr.addBuffer('material', 16 * 1024, 1);
-        this.gpuBufferMgr.addBuffer('sprite3D', 64 * 1024, 2);
-        this.gpuBufferMgr.addBuffer('sprite3D_static', 64 * 1024, 4);
+        if (WebGPUGlobal.useBigBuffer) {
+            this.gpuBufferMgr.addBuffer('scene3D', 2 * 1024, 1, true);
+            this.gpuBufferMgr.addBuffer('camera', 2 * 1024, 1, true);
+            this.gpuBufferMgr.addBuffer('material', 16 * 1024, 1);
+            this.gpuBufferMgr.addBuffer('sprite3D', 64 * 1024, 2);
+            this.gpuBufferMgr.addBuffer('sprite3D_static', 64 * 1024, 4);
+        }
     }
 
     /**
@@ -357,6 +359,6 @@ export class WebGPURenderEngine implements IRenderEngine {
         this._screenRT =
             this._textureContext.createRenderTargetInternal
                 (this._canvas.width, this._canvas.height, RenderTargetFormat.R8G8B8A8,
-                    RenderTargetFormat.None, false, false, this._config.multiSamples) as WebGPUInternalRT;
+                    RenderTargetFormat.None, false, false, this._config.msaa ? 4 : 1) as WebGPUInternalRT;
     }
 }

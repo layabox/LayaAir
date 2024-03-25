@@ -17,13 +17,11 @@ import { WebGPU3DRenderPassFactory } from "laya/RenderDriver/WebGPUDriver/3DRend
 import { WebGPURenderEngineFactory } from "laya/RenderDriver/WebGPUDriver/RenderDevice/WebGPURenderEngineFactory";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
-import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
 import { Vector3 } from "laya/maths/Vector3";
 import { Stat } from "laya/utils/Stat";
 import { MeshFilter } from "laya/d3/core/MeshFilter";
 import { MeshRenderer } from "laya/d3/core/MeshRenderer";
-import { UnlitMaterial } from "laya/d3/core/material/UnlitMaterial";
 import { Color } from "laya/maths/Color";
 import { WebGPUStatis } from "laya/RenderDriver/WebGPUDriver/RenderDevice/WebGPUStatis/WebGPUStatis";
 import { Config3D } from "Config3D";
@@ -34,8 +32,12 @@ import { WebGPURender2DProcess } from "laya/RenderDriver/WebGPUDriver/2DRenderPa
 import { PBRStandardMaterial } from "laya/d3/core/material/PBRStandardMaterial";
 import { PostProcess } from "laya/d3/component/PostProcess";
 import { BloomEffect } from "laya/d3/core/render/PostEffect/BloomEffect";
+import { SkyProceduralMaterial } from "laya/d3/core/material/SkyProceduralMaterial";
+import { SkyDome } from "laya/d3/resource/models/SkyDome";
+import { MeshAddTangent } from "laya/RenderDriver/WebGPUDriver/RenderDevice/Utils/MeshEditor";
+import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFormat";
 
-export class WebGPUTest {
+export class WebGPUTest_PBR {
     useWebGPU: boolean = true;
 
     constructor() {
@@ -63,63 +65,84 @@ export class WebGPUTest {
 
             const scene: Scene3D = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 
+            //初始化天空渲染器
+            // const skyRenderer = scene.skyRenderer;
+            // //创建天空盒mesh
+            // skyRenderer.mesh = SkyDome.instance;
+            // //使用程序化天空盒
+            // skyRenderer.material = new SkyProceduralMaterial();
+
             const camera: Camera = (<Camera>(scene.addChild(new Camera(0, 0.1, 300))));
             camera.transform.translate(new Vector3(0, 0.5, 5));
             camera.transform.rotate(new Vector3(-15, 0, 0), true, false);
             camera.clearColor = Color.BLACK;
             camera.clearFlag = CameraClearFlags.SolidColor;
-            camera.addComponent(CameraMoveScript);
+            camera.msaa = true;
+            if (this.useWebGPU) {
+                WebGPURenderEngine._instance._config.msaa = camera.msaa;
+                camera.depthTextureFormat = RenderTargetFormat.DEPTHSTENCIL_24_8;
+            }
+            const move = camera.addComponent(CameraMoveScript);
+            move.speed = 0.005;
 
             const directLight = new Sprite3D();
             const dirCom = directLight.addComponent(DirectionLightCom);
             scene.addChild(directLight);
-            dirCom.color.setValue(0.8, 0.8, 0.8, 1);
+            dirCom.color.setValue(1, 1, 1, 1);
 
             //打开后处理
-            if (true) {
-                const postProcess = new PostProcess();
-                const bloom = new BloomEffect();
-                postProcess.addEffect(bloom);
-                camera.postProcess = postProcess;
-                camera.enableHDR = true;
+            // if (true) {
+            //     const postProcess = new PostProcess();
+            //     const bloom = new BloomEffect();
+            //     postProcess.addEffect(bloom);
+            //     camera.postProcess = postProcess;
+            //     camera.enableHDR = true;
 
-                //设置泛光参数
-                bloom.intensity = 5;
-                bloom.threshold = 0.9;
-                bloom.softKnee = 0.5;
-                bloom.clamp = 65472;
-                bloom.diffusion = 5;
-                bloom.anamorphicRatio = 0.0;
-                bloom.color = new Color(1, 1, 1, 1);
-                bloom.fastMode = true;
-            }
+            //     //设置泛光参数
+            //     bloom.intensity = 5;
+            //     bloom.threshold = 0.9;
+            //     bloom.softKnee = 0.5;
+            //     bloom.clamp = 65472;
+            //     bloom.diffusion = 5;
+            //     bloom.anamorphicRatio = 0.0;
+            //     bloom.color = new Color(1, 1, 1, 1);
+            //     bloom.fastMode = true;
+            // }
 
             const boxMesh1 = PrimitiveMesh.createBox(0.2, 0.2, 0.2);
             const coneMesh1 = PrimitiveMesh.createCone(0.1, 0.3, 64);
             const sphereMesh1 = PrimitiveMesh.createSphere(0.25, 64, 64);
+            MeshAddTangent(boxMesh1);
+            MeshAddTangent(coneMesh1);
+            MeshAddTangent(sphereMesh1);
 
-            const material1 = new BlinnPhongMaterial();
-            const material2 = new BlinnPhongMaterial();
-            const material3 = new PBRStandardMaterial();
+            const material1 = new PBRStandardMaterial();
+            const material2 = new PBRStandardMaterial();
 
             const boxS3D = [];
             const sphereS3D = [];
             const coneS3D_static = [];
 
             const res = [
-                { url: "res/threeDimen/texture/earth.jpg", type: Loader.TEXTURE2D },
-                { url: "res/threeDimen/texture/brick.jpg", type: Loader.TEXTURE2D },
-                { url: "res/threeDimen/texture/grass.jpg", type: Loader.TEXTURE2D },
-                { url: "res/threeDimen/texture/normal.jpg", type: Loader.TEXTURE2D },
+                { url: "res/threeDimen/pbr/metal022/albedo.jpg", type: Loader.TEXTURE2D },
+                { url: "res/threeDimen/pbr/metal022/normal.jpg", type: Loader.TEXTURE2D },
+                { url: "res/threeDimen/pbr/metal022/metallicRoughness.png", type: Loader.TEXTURE2D },
+                { url: "res/threeDimen/pbr/diamondPlate008C/albedo.jpg", type: Loader.TEXTURE2D },
+                { url: "res/threeDimen/pbr/diamondPlate008C/normal.jpg", type: Loader.TEXTURE2D },
+                { url: "res/threeDimen/pbr/diamondPlate008C/metallic.jpg", type: Loader.TEXTURE2D },
+                { url: "res/threeDimen/texture/normal2.jpg", type: Loader.TEXTURE2D },
                 { url: "res/threeDimen/texture/earthMap.jpg", type: Loader.TEXTURE2D },
                 { url: "res/threeDimen/texture/九宫格512.jpg", type: Loader.TEXTURE2D },
             ];
             Laya.loader.load(res, Handler.create(this, () => {
-                material1.albedoTexture = Laya.loader.getRes("res/threeDimen/texture/九宫格512.jpg", Loader.TEXTURE2D);
-                material2.albedoTexture = Laya.loader.getRes("res/threeDimen/texture/earthMap.jpg", Loader.TEXTURE2D);
-                material3.albedoTexture = Laya.loader.getRes("res/threeDimen/texture/grass.jpg", Loader.TEXTURE2D);
-                material3.normalTexture = Laya.loader.getRes("res/threeDimen/texture/normal.jpg", Loader.TEXTURE2D);
-                material3.metallicGlossTexture = Laya.loader.getRes("res/threeDimen/texture/normal.jpg", Loader.TEXTURE2D);
+                material1.albedoTexture = Laya.loader.getRes("res/threeDimen/pbr/metal022/albedo.jpg", Loader.TEXTURE2D);
+                material1.normalTexture = Laya.loader.getRes("res/threeDimen/pbr/metal022/normal.jpg", Loader.TEXTURE2D);
+                material1.metallicGlossTexture = Laya.loader.getRes("res/threeDimen/pbr/metal022/metallicRoughness.png", Loader.TEXTURE2D);
+                material1.normalTextureScale = 1.2;
+                material1.smoothnessTextureScale = 1.2;
+                material2.albedoTexture = Laya.loader.getRes("res/threeDimen/pbr/diamondPlate008C/albedo.jpg", Loader.TEXTURE2D);
+                material2.normalTexture = Laya.loader.getRes("res/threeDimen/pbr/diamondPlate008C/normal.jpg", Loader.TEXTURE2D);
+                material2.metallicGlossTexture = Laya.loader.getRes("res/threeDimen/pbr/diamondPlate008C/metallic.jpg", Loader.TEXTURE2D);
             }));
 
             const n = 10;
@@ -132,7 +155,7 @@ export class WebGPUTest {
                         boxS3D.push(bs3d);
                         bs3d.transform.position = new Vector3(i - n * 0.5, j - m * 0.5, k - l * 0.5);
                         bs3d.addComponent(MeshFilter).sharedMesh = boxMesh1;
-                        bs3d.addComponent(MeshRenderer).material = material1;
+                        bs3d.addComponent(MeshRenderer).material = material2;
                         //@ts-ignore
                         bs3d.rotate = new Vector3((Math.random() - 0.5) * 0.02, (Math.random() - 0.5) * 0.02, (Math.random() - 0.5) * 0.02);
                     }
@@ -145,7 +168,7 @@ export class WebGPUTest {
                         sphereS3D.push(sp3d);
                         sp3d.transform.position = new Vector3(i - n * 0.5 - 0.5, j - m * 0.5, k - l * 0.5);
                         sp3d.addComponent(MeshFilter).sharedMesh = sphereMesh1;
-                        sp3d.addComponent(MeshRenderer).material = material2;
+                        sp3d.addComponent(MeshRenderer).material = material1;
                         //@ts-ignore
                         sp3d.rotate = new Vector3((Math.random() - 0.5) * 0.02, (Math.random() - 0.5) * 0.02, (Math.random() - 0.5) * 0.02);
                     }
@@ -158,7 +181,7 @@ export class WebGPUTest {
                         coneS3D_static.push(co3d);
                         co3d.transform.position = new Vector3(i - n * 0.5, j - m * 0.5 - 0.5, k - l * 0.5);
                         co3d.addComponent(MeshFilter).sharedMesh = coneMesh1;
-                        co3d.addComponent(MeshRenderer).material = material3;
+                        co3d.addComponent(MeshRenderer).material = material1;
                     }
                 }
             }
@@ -166,39 +189,35 @@ export class WebGPUTest {
             Laya.timer.frameLoop(1, this, () => {
                 for (let i = boxS3D.length - 1; i > -1; i--)
                     boxS3D[i].transform.rotate(boxS3D[i].rotate, false);
-                for (let i = sphereS3D.length - 1; i > -1; i--)
+                for (let i = sphereS3D.length - 1; i > -1; i--) {
                     sphereS3D[i].transform.rotate(sphereS3D[i].rotate, false);
+                    sphereS3D[i].transform.localPositionX += Math.cos(Laya.timer.currTimer * 0.001 + i * 0.1) * 0.1;
+                    sphereS3D[i].transform.localPositionY += Math.sin(Laya.timer.currTimer * 0.001 + i * 0.1) * 0.1;
+                }
             });
 
-            // const earth1 = scene.addChild(new Sprite3D());
-            // earth1.transform.position = new Vector3(0, 0, 0);
-            // const meshFilter1 = earth1.addComponent(MeshFilter);
-            // const meshRenderer1 = earth1.addComponent(MeshRenderer);
-            // meshFilter1.sharedMesh = boxMesh1;
-            // meshRenderer1.castShadow = false;
-            // meshRenderer1.receiveShadow = false;
+            Laya.timer.loop(100, this, () => {
+                //if (Math.random() < 0.5)
+                //    material1.metallicGlossTexture = Laya.loader.getRes("res/threeDimen/pbr/metal022/metallicRoughness.png", Loader.TEXTURE2D);
+                //else material1.metallicGlossTexture = null;
+                //material1.emissionColor = new Color(Math.random(), Math.random(), Math.random(), 1);
+                //material1.emissionIntensity = Math.sin(Laya.timer.currTimer * 0.001) * 0.25 + 0.25;
+                //material1.enableEmission = true;
+            });
 
-            // const earth2 = scene.addChild(new Sprite3D());
-            // earth2.transform.position = new Vector3(0.5, 0, 0);
-            // const meshFilter2 = earth2.addComponent(MeshFilter);
-            // const meshRenderer2 = earth2.addComponent(MeshRenderer);
-            // meshFilter2.sharedMesh = sphereMesh1;
-            // meshRenderer2.castShadow = false;
-            // meshRenderer2.receiveShadow = false;
-
-            if (this.useWebGPU) {
-                Laya.timer.loop(3000, this, () => { WebGPUStatis.printFrameStatis(); });
-                Laya.timer.once(5000, this, () => {
-                    WebGPUStatis.printStatisticsAsTable();
-                    WebGPUStatis.printTotalStatis();
-                    WebGPUStatis.printTextureStatis();
-                    console.log(WebGPURenderEngine._instance.gpuBufferMgr.namedBuffers.get('scene3D'));
-                    console.log(WebGPURenderEngine._instance.gpuBufferMgr.namedBuffers.get('camera'));
-                    console.log(WebGPURenderEngine._instance.gpuBufferMgr.namedBuffers.get('material'));
-                    console.log(WebGPURenderEngine._instance.gpuBufferMgr.namedBuffers.get('sprite3D'));
-                    console.log(WebGPURenderEngine._instance.gpuBufferMgr.namedBuffers.get('sprite3D_static'));
-                });
-            }
+            // if (this.useWebGPU) {
+            //     Laya.timer.loop(3000, this, () => { WebGPUStatis.printFrameStatis(); });
+            //     Laya.timer.once(5000, this, () => {
+            //         WebGPUStatis.printStatisticsAsTable();
+            //         WebGPUStatis.printTotalStatis();
+            //         WebGPUStatis.printTextureStatis();
+            //         console.log(WebGPURenderEngine._instance.gpuBufferMgr.namedBuffers.get('scene3D'));
+            //         console.log(WebGPURenderEngine._instance.gpuBufferMgr.namedBuffers.get('camera'));
+            //         console.log(WebGPURenderEngine._instance.gpuBufferMgr.namedBuffers.get('material'));
+            //         console.log(WebGPURenderEngine._instance.gpuBufferMgr.namedBuffers.get('sprite3D'));
+            //         console.log(WebGPURenderEngine._instance.gpuBufferMgr.namedBuffers.get('sprite3D_static'));
+            //     });
+            // }
         });
     }
 }

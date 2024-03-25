@@ -22,8 +22,10 @@ export class WebGPUBufferCluster {
     single: boolean = false; //是否只分配一个块
     expand: number; //每次扩展数量
 
+    renderContext: any; //渲染上下文
+
     needUpload: boolean[] = []; //哪些块需要上传
-    arrayBuffer: ArrayBuffer; //数据
+    data: ArrayBuffer; //数据
 
     globalId: number; //全局id
     objectName: string; //本对象名称
@@ -39,7 +41,7 @@ export class WebGPUBufferCluster {
         this.expand = 1; // 默认每次扩展数量
 
         this.totalLeft = this.totalSize;
-        this.arrayBuffer = new ArrayBuffer(this.totalSize);
+        this.data = new ArrayBuffer(this.totalSize);
 
         this.buffer = device.createBuffer({
             size: this.totalSize,
@@ -50,6 +52,14 @@ export class WebGPUBufferCluster {
 
         //初始化，整个buffer最初可用
         this.free = [{ offset: 0, size: this.totalSize }];
+    }
+
+    /**
+     * 设置渲染上下文
+     * @param rc 
+     */
+    setRenderContext(rc: any) {
+        this.renderContext = rc;
     }
 
     /**
@@ -96,12 +106,13 @@ export class WebGPUBufferCluster {
      */
     upload() {
         let count = 0;
+        let bytes = 0;
         let next = false;
         let startIndex = -1;
         let endIndex = -1;
         let offset = 0;
         let size = 0;
-        
+
         //遍历needUpload数组，找到需要上传的块，然后合并相邻块，上传数据
         for (let i = 0, len = this.needUpload.length; i < len; i++) {
             if (this.needUpload[i]) {
@@ -115,8 +126,9 @@ export class WebGPUBufferCluster {
                 if (next) {
                     offset = startIndex * this.sliceSize;
                     size = (endIndex - startIndex + 1) * this.sliceSize;
-                    this.device.queue.writeBuffer(this.buffer, offset, this.arrayBuffer, offset, size);
+                    this.device.queue.writeBuffer(this.buffer, offset, this.data, offset, size);
                     count++;
+                    bytes += size;
                     startIndex = -1;
                     endIndex = -1;
                     next = false;
@@ -128,12 +140,14 @@ export class WebGPUBufferCluster {
         if (next) {
             offset = startIndex * this.sliceSize;
             size = (endIndex - startIndex + 1) * this.sliceSize;
-            this.device.queue.writeBuffer(this.buffer, offset, this.arrayBuffer, offset, size);
+            this.device.queue.writeBuffer(this.buffer, offset, this.data, offset, size);
             count++;
+            bytes += size;
         }
 
-        //记录上传次数
+        //记录上传次数，字节数
         WebGPUStatis.addUploadNum(count);
+        WebGPUStatis.addUploadBytes(bytes);
     }
 
     /**
@@ -151,7 +165,7 @@ export class WebGPUBufferCluster {
                 size: this.totalSize,
                 usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
             });
-            this.arrayBuffer = new ArrayBuffer(this.totalSize);
+            this.data = new ArrayBuffer(this.totalSize);
         }
         this.totalLeft = this.totalSize;
         this.free = [{ offset: 0, size: this.totalSize }];
@@ -199,8 +213,8 @@ export class WebGPUBufferCluster {
 
         //创建一个新的CPUBuffer，将旧数据拷贝过来
         const newArrayBuffer = new ArrayBuffer(this.totalSize);
-        new Uint8Array(newArrayBuffer).set(new Uint8Array(this.arrayBuffer));
-        this.arrayBuffer = newArrayBuffer;
+        new Uint8Array(newArrayBuffer).set(new Uint8Array(this.data));
+        this.data = newArrayBuffer;
 
         //创建一个新的GPUBuffer
         const newBuffer = this.device.createBuffer({
@@ -217,6 +231,9 @@ export class WebGPUBufferCluster {
 
         //通知所有使用者
         this.used.forEach(used => used.user.notifyGPUBufferChange());
+
+        //通知渲染上下文
+        this.renderContext.notifyGPUBufferChange();
 
         WebGPUGlobal.action(this, 'expandMemory | uniform', expandSize);
         console.log("GPUBuffer expand, newSize =", this.totalSize / 1024 + 'KB,', this.name);
