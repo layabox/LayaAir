@@ -267,7 +267,7 @@ export class ScalableAO extends PostProcessEffect {
         cmd.blitScreenTriangle(blurTex, finalTex, null, this._aoBlurHorizontalShader, this._shaderData, 0);
         //blur Composition
         cmd.setShaderDataTexture(shaderData, ScalableAO.aoTexture, finalTex);
-        cmd.blitScreenTriangle(context.indirectTarget, context.destination, null, this._aoComposition, this._shaderData, 0);
+        cmd.blitScreenTriangle(context.source, context.destination, null, this._aoComposition, this._shaderData, 0);
         //context.source = blurTex;
         context.deferredReleaseTextures.push(finalTex);
         context.deferredReleaseTextures.push(blurTex);

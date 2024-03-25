@@ -6,7 +6,7 @@ import { btColliderShape } from "./btColliderShape";
 export class btBoxColliderShape extends btColliderShape implements IBoxColliderShape {
     /** @internal */
     private _btSize: number;
-    /** @internal */
+    /** @interanl */
     private _size: Vector3;
 
     constructor() {

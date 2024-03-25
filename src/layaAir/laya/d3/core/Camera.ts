@@ -626,6 +626,9 @@ export class Camera extends BaseCamera {
 
     set depthTextureMode(value: DepthTextureMode) {
         this._depthTextureMode = value;
+        if (!LayaGL.renderEngine.getCapable(RenderCapable.RenderTextureFormat_Depth)) {
+            this._depthTextureMode &= ~DepthTextureMode.Depth;
+        }
     }
 
     /**
@@ -672,6 +675,7 @@ export class Camera extends BaseCamera {
             if (this._cacheDepthTexture)
                 this._cacheDepthTexture._inPool ? 0 : RenderTexture.recoverToPool(this._cacheDepthTexture);
         }
+
     }
     get enableBlitDepth() {
         return this._canBlitDepth;
@@ -700,7 +704,7 @@ export class Camera extends BaseCamera {
         this._rayViewport = new Viewport(0, 0, 0, 0);
         this._aspectRatio = aspectRatio;
         this._boundFrustum = new BoundFrustum(new Matrix4x4());
-        this._depthTextureMode = 0;
+        this.depthTextureMode = 0;
         this.opaquePass = false;
         this._calculateProjectionMatrix();
         ILaya.stage.on(Event.RESIZE, this, this._onScreenSizeChanged);
@@ -1212,6 +1216,9 @@ export class Camera extends BaseCamera {
         var cameraDepthMode = this._depthTextureMode;
         if (this._postProcess && this._postProcess.enable) {
             cameraDepthMode |= this._postProcess.cameraDepthTextureMode;
+        }
+        if (!LayaGL.renderEngine.getCapable(RenderCapable.RenderTextureFormat_Depth)) {
+            cameraDepthMode &= ~DepthTextureMode.Depth;
         }
         if ((cameraDepthMode & DepthTextureMode.Depth) != 0) {
             // todo

@@ -36,7 +36,7 @@ export class ShurikenParticleRenderer extends BaseRender {
     /**@internal */
     private _mesh: Mesh = null;
 
-    /**@internal */
+    /**@interanl */
     _particleSystem: ShurikenParticleSystem;
     /**拉伸广告牌模式摄像机速度缩放,暂不支持。*/
     stretchedBillboardCameraSpeedScale: number = 0;

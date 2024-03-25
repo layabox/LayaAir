@@ -4,9 +4,9 @@
 export class Physics2DOption {
 
     /**设置是否允许休眠，休眠可以提高稳定性和性能，但通常会牺牲准确性*/
-    static allowSleeping: boolean = true;
+    static allowSleeping: boolean = false;
 
-    /**重力加速度 （单位：米/秒²）*/
+    /**重力 （单位：像素）*/
     static gravity = { x: 0, y: 9.8 };
 
     /**是否由外部跟新*/

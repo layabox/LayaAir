@@ -8,11 +8,29 @@ import { PhysicsShape } from "./ColliderStructInfo";
  */
 export class BoxCollider extends ColliderBase {
 
-    /**@internal 矩形宽度*/
+    /**矩形宽度*/
     private _width: number = 100;
-
-    /**@internal 矩形高度*/
+    /**矩形高度*/
     private _height: number = 100;
+
+    /**
+    * 创建一个新的 <code>BoxCollider</code> 实例。
+    */
+    constructor() {
+        super();
+        this._physicShape = PhysicsShape.BoxShape;
+    }
+
+    /**@override */
+    protected _setShapeData(shape: any): void {
+        let helfW: number = this._width * 0.5;
+        let helfH: number = this._height * 0.5;
+        var center = {
+            x: helfW + this.pivotoffx,
+            y: helfH + this.pivotoffy
+        }
+        Physics2D.I._factory.set_collider_SetAsBox(shape, helfW, helfH, center, Math.abs(this.scaleX), Math.abs(this.scaleY));
+    }
 
     /**矩形宽度*/
     get width(): number {
@@ -36,26 +54,6 @@ export class BoxCollider extends ColliderBase {
         if (this._height == value) return;
         this._height = value;
         this._needupdataShapeAttribute();
-    }
-
-
-    /**
-    * 创建一个新的 <code>BoxCollider</code> 实例。
-    */
-    constructor() {
-        super();
-        this._physicShape = PhysicsShape.BoxShape;
-    }
-
-    /**@internal 设置碰撞体数据*/
-    _setShapeData(shape: any): void {
-        let helfW: number = this._width * 0.5;
-        let helfH: number = this._height * 0.5;
-        var center = {
-            x: helfW + this.pivotoffx,
-            y: helfH + this.pivotoffy
-        }
-        Physics2D.I._factory.set_collider_SetAsBox(shape, helfW, helfH, center, Math.abs(this.scaleX), Math.abs(this.scaleY));
     }
 
 }

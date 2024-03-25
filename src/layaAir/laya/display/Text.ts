@@ -519,17 +519,28 @@ export class Text extends Sprite {
         }
         else if (value && (Utils.getFileExtension(value) || value.startsWith("res://"))) {
             let t = value;
-            ILaya.loader.load(value).then(fontObj => {
-                if (!fontObj || this._realFont != t)
-                    return;
+            let fontObj = ILaya.loader.getRes(value);
+            if (!fontObj) {
+                ILaya.loader.load(value).then(fontObj => {
+                    if (!fontObj || this._realFont != t)
+                        return;
 
+                    if (fontObj instanceof BitmapFont)
+                        this._bitmapFont = fontObj;
+                    else
+                        this._realFont = fontObj.family;
+                    if (this._text)
+                        this.markChanged();
+                });
+            }
+            else {
                 if (fontObj instanceof BitmapFont)
                     this._bitmapFont = fontObj;
                 else
                     this._realFont = fontObj.family;
                 if (this._text)
                     this.markChanged();
-            });
+            }
         }
         else {
             this._realFont = (ILaya.Browser.onIPhone ? (Config.fontFamilyMap[value] || value) : value);

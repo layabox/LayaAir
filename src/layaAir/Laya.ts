@@ -105,12 +105,8 @@ export class Laya {
         //这个其实在Render中感觉更合理，但是runtime要求第一个canvas是主画布，所以必须在下面的那个离线画布之前
         let mainCanv = Browser.mainCanvas = new HTMLCanvas(true);
         //Render._mainCanvas = mainCanv;
-        let style: any = mainCanv.source.style;
-        style.position = 'absolute';
-        style.top = style.left = "0px";
-        style.background = "#000000";
-
-        if (!Browser.onKGMiniGame && !Browser.onAlipayMiniGame) {
+        Laya._setStyleInfo(mainCanv);
+        if (!Browser.onKGMiniGame && !Browser.onAlipayMiniGame && !Browser.onTBMiniGame) {
             Browser.container.appendChild(mainCanv.source);//xiaosong add
         }
 
@@ -164,6 +160,18 @@ export class Laya {
             p = p.then(step);
 
         return p;
+    }
+
+    /**
+     * @internal
+     * 适配淘宝小游戏
+     * @param mainCanv 
+     */
+    static _setStyleInfo(mainCanv: HTMLCanvas): void {
+        let style: any = mainCanv.source.style;
+        style.position = 'absolute';
+        style.top = style.left = "0px";
+        style.background = "#000000";
     }
 
     static initRender2D(stageConfig: IStageConfig) {

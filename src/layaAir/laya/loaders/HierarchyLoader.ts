@@ -35,7 +35,7 @@ export class HierarchyLoader implements IResourceLoader {
     private _load(api: IHierarchyParserAPI, task: ILoadTask, data: any, version: number): Promise<Prefab> {
         let basePath = URL.getPath(task.url);
         let links = api.collectResourceLinks(data, basePath);
-        return task.loader.load(links, null, task.progress.createCallback()).then((resArray: any[]) => {
+        return task.loader.load(links, { initiator: task }, task.progress.createCallback()).then((resArray: any[]) => {
             let res = new PrefabImpl(api, data, version);
             res.addDeps(resArray);
             return res;

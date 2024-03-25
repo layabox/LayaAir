@@ -374,11 +374,11 @@ export class InputManager {
 
                     touch.target = null;
                     this.handleRollOver(touch);
-
-                    touch.reset();
-                    this._touches.splice(this._touches.indexOf(touch), 1);
-                    this._touchPool.push(touch);
                 }
+
+                touch.reset();
+                this._touches.splice(this._touches.indexOf(touch), 1);
+                this._touchPool.push(touch);
             }
         }
     }

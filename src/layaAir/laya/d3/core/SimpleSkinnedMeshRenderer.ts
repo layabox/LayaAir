@@ -108,6 +108,16 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
     }
 
     /**
+     * 自定义数据
+     * @param value1 自定义数据1
+     * @param value2 自定义数据1
+     */
+    setCustomData(value1: number, value2: number = 0) {
+        this._simpleAnimatorParams.z = value1;
+        this._simpleAnimatorParams.w = value2;
+    }
+
+    /**
     *@inheritDoc
     *@override
     *@internal

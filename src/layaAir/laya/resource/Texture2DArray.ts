@@ -1,3 +1,4 @@
+import { RenderCapable } from "../RenderEngine/RenderEnum/RenderCapable";
 import { TextureDimension } from "../RenderEngine/RenderEnum/TextureDimension";
 import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
 import { ITexture3DContext } from "../RenderEngine/RenderInterface/ITextureContext";
@@ -9,9 +10,22 @@ import { BaseTexture } from "./BaseTexture";
  */
 export class Texture2DArray extends BaseTexture {
 
-    /**
-     * 2D纹理数组层数
-     */
+    private static _defaultTexture: Texture2DArray;
+
+    static get defaultTexture() {
+        return this._defaultTexture;
+    }
+
+    /** @internal */
+    static __init__() {
+        if (LayaGL.renderEngine.getCapable(RenderCapable.Texture3D)) {
+            this._defaultTexture = new Texture2DArray(1, 1, 1, TextureFormat.R8G8B8A8, false, false, false);
+            this._defaultTexture.lock = true;
+
+            this._defaultTexture.setPixelsData(new Uint8Array([255, 255, 255, 255]), false, false);
+        }
+    }
+
     depth: number;
 
     constructor(width: number, height: number, depth: number, format: TextureFormat, mipmap: boolean = true, canRead: boolean, sRGB: boolean = false) {

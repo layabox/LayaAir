@@ -1,5 +1,7 @@
 
 import { ShaderDataType } from "../../RenderEngine/RenderShader/ShaderData";
+import { LayaGL } from "../../layagl/LayaGL";
+import { RenderCapable } from "../RenderEnum/RenderCapable";
 import { UniformMapType } from "./SubShader";
 
 /**
@@ -12,7 +14,9 @@ export class GLSLCodeGenerator {
         let res = "";
         for (const key in attributeMap) {
             let type = getAttributeType(attributeMap[key][1]);
-            res = `${res}attribute ${type} ${key};\n`;
+            if (type != "") {
+                res = `${res}attribute ${type} ${key};\n`;
+            }
         }
 
         return res;
@@ -30,13 +34,19 @@ export class GLSLCodeGenerator {
                     blocksStr += `uniform ${key} {\n`;
                     for (const uniformName in blockUniforms) {
                         let dataType = blockUniforms[uniformName];
-                        blocksStr += `${getAttributeType(dataType)} ${uniformName};\n`;
+                        let typeStr = getAttributeType(dataType);
+                        if (typeStr != "") {
+                            blocksStr += `${typeStr} ${uniformName};\n`;
+                        }
                     }
                     blocksStr += "};\n";
                 }
                 else { // uniform
                     let dataType = <ShaderDataType>uniformsMap[key];
-                    uniformsStr += `uniform ${getAttributeType(dataType)} ${key};\n`;
+                    let typeStr = getAttributeType(dataType);
+                    if (typeStr != "") {
+                        uniformsStr += `uniform ${typeStr} ${key};\n`;
+                    }
                 }
             }
             return blocksStr + uniformsStr;
@@ -50,12 +60,18 @@ export class GLSLCodeGenerator {
                     let blockUniforms = <{ [uniformName: string]: ShaderDataType }>uniformsMap[key];
                     for (const uniformName in blockUniforms) {
                         let dataType = blockUniforms[uniformName];
-                        uniformsStr += `uniform ${getAttributeType(dataType)} ${uniformName};\n`;
+                        let typeStr = getAttributeType(dataType);
+                        if (typeStr != "") {
+                            uniformsStr += `uniform ${typeStr} ${uniformName};\n`;
+                        }
                     }
                 }
                 else { // uniform
                     let dataType = <ShaderDataType>uniformsMap[key];
-                    uniformsStr += `uniform ${getAttributeType(dataType)} ${key};\n`;
+                    let typeStr = getAttributeType(dataType);
+                    if (typeStr != "") {
+                        uniformsStr += `uniform ${typeStr} ${key};\n`;
+                    }
                 }
             }
             return uniformsStr;
@@ -87,6 +103,20 @@ function getAttributeType(type: ShaderDataType) {
             return "sampler2D";
         case ShaderDataType.TextureCube:
             return "samplerCube";
+        case ShaderDataType.Texture2DArray:
+            if (LayaGL.renderEngine.getCapable(RenderCapable.Texture3D)) {
+                return "sampler2DArray";
+            }
+            else {
+                return "";
+            }
+        case ShaderDataType.Texture3D:
+            if (LayaGL.renderEngine.getCapable(RenderCapable.Texture3D)) {
+                return "sampler3D";
+            }
+            else {
+                return "";
+            }
         default:
             return "";
     }

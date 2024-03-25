@@ -395,16 +395,16 @@ gulp.task("buildJs", async () => {
         await bundle.write(outputOption);
     }
 
-    return merge(
-        packsDef.map(pack => {
+    await new Promise(resolve => {
+        merge(packsDef.map(pack => {
             return gulp.src(path.join("./build/libs", "laya." + pack.libName + ".js"))
                 .pipe(inject.replace(/var Laya = \(function \(exports.*\)/, "window.Laya = (function (exports)"))
                 .pipe(inject.replace(/}\)\({}, Laya\);/, "})({});"))
                 .pipe(inject.replace(/Laya\$1\./g, "exports."))
                 .pipe(inject.replace(/\(this.Laya = this.Laya \|\| {}, Laya\)/, "(window.Laya = window.Laya || {}, Laya)"))
                 .pipe(gulp.dest(process.platform == 'win32' ? '.' : './build/libs')); //在win下dest竟然突然变成src的相对目录
-        }),
-    );
+        })).on("queueDrain", resolve);
+    });
 });
 
 //拷贝引擎的第三方js库

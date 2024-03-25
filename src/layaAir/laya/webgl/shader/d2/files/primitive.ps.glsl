@@ -1,4 +1,4 @@
-#define SHADER_NAME 2DPrimitiveFS
+#define SHADER_NAME PrimitiveFS2D
 precision mediump float;
 
 #include "Sprite2DFrag.glsl";
