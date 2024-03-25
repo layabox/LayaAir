@@ -49,8 +49,8 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
 
     private _stateKey: string[] = []; //用于判断渲染状态是否改变
     private _stateKeyCounter: number = 0; //用于控制stateKey计算频率
-    private _shaderInstances: WebGPUShaderInstance[] = [];
-    private _pipelineCache: GPURenderPipeline[] = [];
+    private _shaderInstances: WebGPUShaderInstance[] = []; //着色器缓存
+    private _pipelineCache: GPURenderPipeline[] = []; //渲染管线缓存
 
     //是否启用GPU资源缓存机制
     useCache: boolean = WebGPUGlobal.useCache;
@@ -60,7 +60,6 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
 
     bundleId: number; //用于bundle管理（被bundle管理器识别）
     needClearBundle: boolean = false; //是否需要清除bundle（bindGroup，pipeline等改变都需要清除指令缓存）
-    rendered: boolean = false; //是否已经渲染过
     static bundleIdCounter: number = 0;
 
     globalId: number;
@@ -492,6 +491,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
      * @param bundle 
      */
     _render(context: WebGPURenderContext3D, command: WebGPURenderCommandEncoder, bundle: WebGPURenderBundle) {
+        //如果command和bundle都是null，则只上传shaderData数据，不执行bindGroup操作
         if (this.isRender) {
             let stateKey;
             for (let i = 0, len = this._shaderInstances.length; i < len; i++) {

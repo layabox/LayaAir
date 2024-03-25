@@ -67,7 +67,7 @@ export class WebGPURenderBundleManager {
         bundle.finish();
         this.bundles.push(bundle);
         this._needUpdateRenderBundles = true;
-        //console.log('createBundle =', this.bundles.length - 1, bundle);
+        //console.log('createBundle =', this.bundles.length - 1);
     }
 
     /**
@@ -80,6 +80,7 @@ export class WebGPURenderBundleManager {
             this.bundles[idx].removeMyIds(this._elementsMap);
             this.bundles.splice(idx, 1);
             this._needUpdateRenderBundles = true;
+            //console.log('removeBundle =', idx);
         }
     }
 
