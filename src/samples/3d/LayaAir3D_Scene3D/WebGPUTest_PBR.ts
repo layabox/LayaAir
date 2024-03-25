@@ -189,8 +189,20 @@ export class WebGPUTest_PBR {
             Laya.timer.frameLoop(1, this, () => {
                 for (let i = boxS3D.length - 1; i > -1; i--)
                     boxS3D[i].transform.rotate(boxS3D[i].rotate, false);
-                for (let i = sphereS3D.length - 1; i > -1; i--)
+                for (let i = sphereS3D.length - 1; i > -1; i--) {
                     sphereS3D[i].transform.rotate(sphereS3D[i].rotate, false);
+                    sphereS3D[i].transform.localPositionX += Math.cos(Laya.timer.currTimer * 0.001 + i * 0.1) * 0.1;
+                    sphereS3D[i].transform.localPositionY += Math.sin(Laya.timer.currTimer * 0.001 + i * 0.1) * 0.1;
+                }
+            });
+
+            Laya.timer.loop(100, this, () => {
+                //if (Math.random() < 0.5)
+                //    material1.metallicGlossTexture = Laya.loader.getRes("res/threeDimen/pbr/metal022/metallicRoughness.png", Loader.TEXTURE2D);
+                //else material1.metallicGlossTexture = null;
+                //material1.emissionColor = new Color(Math.random(), Math.random(), Math.random(), 1);
+                //material1.emissionIntensity = Math.sin(Laya.timer.currTimer * 0.001) * 0.25 + 0.25;
+                //material1.enableEmission = true;
             });
 
             // if (this.useWebGPU) {

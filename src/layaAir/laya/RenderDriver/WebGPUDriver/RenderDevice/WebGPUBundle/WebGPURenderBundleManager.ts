@@ -6,8 +6,8 @@ import { WebGPURenderBundle } from "./WebGPURenderBundle";
  * 渲染指令缓存管理器
  */
 export class WebGPURenderBundleManager {
-    elementsMaxPerBundle: number = 50; //每个Bundle最大元素数量
-    lowShotRate: number = 0.75; //低命中率移除阈值
+    elementsMaxPerBundleStatic: number = 100; //每个Bundle最大元素数量（静态节点）
+    elementsMaxPerBundleDynamic: number = 30; //每个Bundle最大元素数量（动态节点）
     bundles: WebGPURenderBundle[] = []; //所有bundle
     private _elementsMap: Map<number, WebGPURenderBundle> = new Map(); //包含的渲染节点id集合
     private _renderBundles: GPURenderBundle[] = []; //渲染命令缓存对象
@@ -26,7 +26,7 @@ export class WebGPURenderBundleManager {
             this._needUpdateRenderBundles = false;
         }
         passEncoder.executeBundles(rbs);
-        //console.log('renderBundle =', bundles.length);
+        //console.log('renderBundle =', rbs.length);
     }
 
     /**
@@ -57,9 +57,10 @@ export class WebGPURenderBundleManager {
      * 通过渲染元素组创建bundle
      * @param context 
      * @param elements 
+     * @param shotRateSet 
      */
-    createBundle(context: WebGPURenderContext3D, elements: WebGPURenderElement3D[]) {
-        const bundle = new WebGPURenderBundle(context.device, context.destRT);
+    createBundle(context: WebGPURenderContext3D, elements: WebGPURenderElement3D[], shotRateSet: number) {
+        const bundle = new WebGPURenderBundle(context.device, context.destRT, shotRateSet);
         for (let i = 0, len = elements.length; i < len; i++) {
             bundle.render(context, elements[i]);
             this._elementsMap.set(elements[i].bundleId, bundle);
@@ -118,7 +119,7 @@ export class WebGPURenderBundleManager {
         let remove = false;
         const bundles = this.bundles;
         for (let i = bundles.length - 1; i > -1; i--) {
-            if (bundles[i].getShotRate() < this.lowShotRate) {
+            if (bundles[i].isLowShotRate()) {
                 bundles[i].removeMyIds(this._elementsMap);
                 bundles.splice(i, 1);
                 remove = true;

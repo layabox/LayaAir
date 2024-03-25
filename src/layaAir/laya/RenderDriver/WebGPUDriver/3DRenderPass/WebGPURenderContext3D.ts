@@ -58,7 +58,8 @@ export class WebGPURenderContext3D implements IRenderContext3D {
 
     device: GPUDevice; //GPU设备
     bundleManager: WebGPURenderBundleManager = new WebGPURenderBundleManager(); //绘图指令缓存管理器
-    elementsToBundle: WebGPURenderElement3D[] = []; //需要创建绘图指令缓存的渲染节点
+    elementsToBundleStatic: WebGPURenderElement3D[] = []; //需要创建绘图指令缓存的渲染节点（静态节点）
+    elementsToBundleDynamic: WebGPURenderElement3D[] = []; //需要创建绘图指令缓存的渲染节点（动态节点）
     needRemoveBundle: number[] = []; //需要清除绘图指令缓存的渲染节点
 
     destRT: WebGPUInternalRT; //渲染目标
@@ -69,6 +70,7 @@ export class WebGPURenderContext3D implements IRenderContext3D {
 
     constructor() {
         this.globalId = WebGPUGlobal.getId(this);
+        WebGPURenderEngine._instance.gpuBufferMgr.setRenderContext(this);
     }
 
     get sceneData(): WebGPUShaderData {
@@ -168,6 +170,14 @@ export class WebGPURenderContext3D implements IRenderContext3D {
     }
 
     /**
+     * 得到GPUBuffer改变的通知
+     */
+    notifyGPUBufferChange() {
+        if (this.bundleManager)
+            this.bundleManager.clearBundle();
+    }
+
+    /**
      * 渲染一组节点
      * @param list 
      */
@@ -185,11 +195,15 @@ export class WebGPURenderContext3D implements IRenderContext3D {
             WebGPUContext.startRender();
 
         let compile = false;
+        let canCreateBundle = true;
         const elements = list.elements;
         for (let i = 0; i < len; i++) {
             compile = elements[i]._preUpdatePre(this); //渲染前准备，如有必要，编译着色器
-            if (compile && WebGPUGlobal.useBundle) //如果着色器重新编译，则清除相应的绘图指令缓存
-                this.bundleManager.removeBundleByElement(elements[i].bundleId);
+            if (WebGPUGlobal.useBundle) //如果着色器重新编译，则清除相应的绘图指令缓存
+                if (compile || elements[i].staticChange) {
+                    elements[i].staticChange = false;
+                    this.bundleManager.removeBundleByElement(elements[i].bundleId);
+                }
         }
 
         if (WebGPUGlobal.useBundle) { //启用绘图指令缓存模式
@@ -203,19 +217,27 @@ export class WebGPURenderContext3D implements IRenderContext3D {
             for (let i = 0; i < len; i++) {
                 element = elements[i];
                 if (!this.bundleManager.has(element.bundleId)) { //如果该渲染节点没有在绘图指令缓存中
-                    if (this.elementsToBundle.indexOf(element) === -1)
-                        this.elementsToBundle.push(element); //放入创建绘图指令缓存队列
-                    if (this.elementsToBundle.length >= this.bundleManager.elementsMaxPerBundle) {
-                        this.bundleManager.createBundle(this, this.elementsToBundle); //如果队列中的数量达到最大值，则创建批量绘图指令缓存
-                        this.elementsToBundle.length = 0;
+                    if (canCreateBundle) { //本帧是否允许创建绘图指令缓存（每帧只允许创建一个指令缓存，避免卡顿）
+                        if (element.isStatic) {
+                            if (this.elementsToBundleStatic.indexOf(element) === -1)
+                                this.elementsToBundleStatic.push(element); //放入创建绘图指令缓存队列
+                            if (this.elementsToBundleStatic.length >= this.bundleManager.elementsMaxPerBundleStatic) {
+                                this.bundleManager.createBundle(this, this.elementsToBundleStatic, 0.7); //如果队列中的数量达到最大值，则创建批量绘图指令缓存
+                                this.elementsToBundleStatic.length = 0;
+                                canCreateBundle = false;
+                            }
+                        } else {
+                            if (this.elementsToBundleDynamic.indexOf(element) === -1)
+                                this.elementsToBundleDynamic.push(element); //放入创建绘图指令缓存队列
+                            if (this.elementsToBundleDynamic.length >= this.bundleManager.elementsMaxPerBundleDynamic) {
+                                this.bundleManager.createBundle(this, this.elementsToBundleDynamic, 1); //如果队列中的数量达到最大值，则创建批量绘图指令缓存
+                                this.elementsToBundleDynamic.length = 0;
+                                canCreateBundle = false;
+                            }
+                        }
                     }
                     element._render(this, this.renderCommand, null); //因为还没有在绘图指令缓存中，先直接渲染
-                } else { //如果该渲染节点在绘图指令缓存中
-                    if (element.needClearBundle) { //该渲染节点是否需要从绘图指令缓存中清除
-                        needRemoveBundle.push(element.bundleId); //放入需要清除的绘图指令缓存队列
-                        element.needClearBundle = false;
-                    } else element._render(this, null, null); //将该节点的shaderData数据上传到GPU
-                }
+                } else element._render(this, null, null); //将该节点的shaderData数据上传到GPU
             }
             this.bundleManager.renderBundles(this.renderCommand._encoder); //渲染所有绘图指令缓存
         } else { //不启用绘图指令缓存模式，直接绘制
@@ -300,7 +322,8 @@ export class WebGPURenderContext3D implements IRenderContext3D {
     destroy() {
         WebGPUGlobal.releaseId(this);
         this.bundleManager.destroy();
-        this.elementsToBundle.length = 0;
+        this.elementsToBundleStatic.length = 0;
+        this.elementsToBundleDynamic.length = 0;
         this.needRemoveBundle.length = 0;
         this.destRT = null;
         this.renderCommand.destroy();

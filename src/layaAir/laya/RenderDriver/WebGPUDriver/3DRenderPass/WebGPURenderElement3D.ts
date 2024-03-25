@@ -62,6 +62,10 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
     needClearBundle: boolean = false; //是否需要清除bundle（bindGroup，pipeline等改变都需要清除指令缓存）
     static bundleIdCounter: number = 0;
 
+    //是否静态节点
+    isStatic: boolean = false;
+    staticChange: boolean = false;
+
     globalId: number;
     objectName: string = 'WebGPURenderElement3D';
 
@@ -345,9 +349,17 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
         this._cameraData = context.cameraData;
         if (!this.renderShaderData)
             this.renderShaderData = new WebGPUShaderData();
-        if (!this.renderShaderData.isStatic
-            && this.transform?.owner?.isStatic)
+        if (this.transform?.owner?.isStatic) {
+            if (this.isStatic !== true)
+                this.staticChange = true;
+            this.isStatic = true;
             this.renderShaderData.isStatic = true;
+        } else {
+            if (this.isStatic !== false)
+                this.staticChange = true;
+            this.isStatic = false;
+            this.renderShaderData.isStatic = false;
+        }
         //只在数据发生变化的时候才重新编译
         if (this._isShaderDataChange()) {
             this._compileShader(context);
@@ -418,8 +430,6 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
                 sceneData.uploadUniform();
                 bindGroupLayout.push(entries);
             }
-            if (sceneData.bindGroupIsNew)
-                this.needClearBundle = true;
         }
         if (cameraData) {
             entries = cameraData.bindGroup(1, 'camera', uniformSetMap[1], command, bundle);
@@ -429,8 +439,6 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
                 cameraData.uploadUniform();
                 bindGroupLayout.push(entries);
             }
-            if (cameraData.bindGroupIsNew)
-                this.needClearBundle = true;
         }
         if (renderShaderData) {
             renderShaderData.isShare = false;
@@ -441,8 +449,6 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
                 renderShaderData.uploadUniform();
                 bindGroupLayout.push(entries);
             }
-            if (renderShaderData.bindGroupIsNew)
-                this.needClearBundle = true;
         }
         if (materialShaderData) {
             materialShaderData.isShare = false;
@@ -453,8 +459,6 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
                 materialShaderData.uploadUniform();
                 bindGroupLayout.push(entries);
             }
-            if (materialShaderData.bindGroupIsNew)
-                this.needClearBundle = true;
         }
 
         if (complete) {
@@ -516,8 +520,6 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
                                         complete = false;
                                     else sceneData.uploadUniform();
                                 } else sceneData.uploadUniform();
-                                if (sceneData.bindGroupIsNew)
-                                    this.needClearBundle = true;
                             }
                             if (cameraData) {
                                 if (command || bundle) {
@@ -525,8 +527,6 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
                                         complete = false;
                                     else cameraData.uploadUniform();
                                 } else cameraData.uploadUniform();
-                                if (cameraData.bindGroupIsNew)
-                                    this.needClearBundle = true;
                             }
                             if (renderShaderData) {
                                 if (command || bundle) {
@@ -534,8 +534,6 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
                                         complete = false;
                                     else renderShaderData.uploadUniform();
                                 } else renderShaderData.uploadUniform();
-                                if (renderShaderData.bindGroupIsNew)
-                                    this.needClearBundle = true;
                             }
                             if (materialShaderData) {
                                 if (command || bundle) {
@@ -543,8 +541,6 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
                                         complete = false;
                                     else materialShaderData.uploadUniform();
                                 } else materialShaderData.uploadUniform();
-                                if (materialShaderData.bindGroupIsNew)
-                                    this.needClearBundle = true;
                             }
                             if (complete) {
                                 if (command) {

@@ -22,6 +22,8 @@ export class WebGPUBufferCluster {
     single: boolean = false; //是否只分配一个块
     expand: number; //每次扩展数量
 
+    renderContext: any; //渲染上下文
+
     needUpload: boolean[] = []; //哪些块需要上传
     data: ArrayBuffer; //数据
 
@@ -50,6 +52,14 @@ export class WebGPUBufferCluster {
 
         //初始化，整个buffer最初可用
         this.free = [{ offset: 0, size: this.totalSize }];
+    }
+
+    /**
+     * 设置渲染上下文
+     * @param rc 
+     */
+    setRenderContext(rc: any) {
+        this.renderContext = rc;
     }
 
     /**
@@ -221,6 +231,9 @@ export class WebGPUBufferCluster {
 
         //通知所有使用者
         this.used.forEach(used => used.user.notifyGPUBufferChange());
+
+        //通知渲染上下文
+        this.renderContext.notifyGPUBufferChange();
 
         WebGPUGlobal.action(this, 'expandMemory | uniform', expandSize);
         console.log("GPUBuffer expand, newSize =", this.totalSize / 1024 + 'KB,', this.name);

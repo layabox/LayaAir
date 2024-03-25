@@ -13,12 +13,13 @@ export class WebGPURenderBundle {
     private _encoder: GPURenderBundleEncoder;
     private _elements: Set<number>; //包含的渲染节点id集合
     private _shotNum: number = 0; //命中的渲染节点数量
+    private _shotRateSet: number = 0.7; //命中率设置
     renderBundle: GPURenderBundle; //渲染命令缓存对象
 
     id: number;
     static idCounter: number = 0;
 
-    constructor(device: GPUDevice, dest: WebGPUInternalRT) {
+    constructor(device: GPUDevice, dest: WebGPUInternalRT, shotRateSet: number) {
         this.renderBundle = null;
         this._elements = new Set();
         const desc: GPURenderBundleEncoderDescriptor
@@ -26,6 +27,7 @@ export class WebGPURenderBundle {
         this.id = WebGPURenderBundle.idCounter++;
         desc.label = `BundleEncoder_${this.id}`;
         this._encoder = device.createRenderBundleEncoder(desc);
+        this._shotRateSet = shotRateSet;
     }
 
     render(context: WebGPURenderContext3D, element: WebGPURenderElement3D) {
@@ -58,8 +60,9 @@ export class WebGPURenderBundle {
         this._shotNum = 0;
     }
 
-    getShotRate() {
-        return this._elements.size > 0 ? this._shotNum / this._elements.size : 0;
+    isLowShotRate() {
+        const shotRate = this._elements.size > 0 ? this._shotNum / this._elements.size : 0;
+        return shotRate < this._shotRateSet;
     }
 
     setPipeline(pipeline: GPURenderPipeline): void {
