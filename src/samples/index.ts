@@ -13,10 +13,12 @@ import { LayaGL } from "laya/layagl/LayaGL";
 import { MeshLoad } from "./3d/LayaAir3D_Mesh/MeshLoad";
 import { SceneLoad1 } from "./3d/LayaAir3D_Scene3D/SceneLoad1";
 import {WebGLRenderEngineFactory} from "laya/RenderDriver/WebGLDriver/RenderDevice/WebGLRenderEngineFactory"
+import { Laya3D } from "Laya3D";
+import { btPhysicsCreateUtil } from "laya/Physics3D/Bullet/btPhysicsCreateUtil";
 
 Resource.DEBUG = true; 
 LayaGL.renderOBJCreate = new WebGLRenderEngineFactory();
 //Physics2D.I._factory = new physics2DJSFactory();
-// Laya3D.PhysicsCreateUtil = new pxPhysicsCreateUtil();
+ Laya3D.PhysicsCreateUtil = new btPhysicsCreateUtil();
 // new PhysicsWorld_BaseCollider();
-new SceneLoad1();
+new Main();
