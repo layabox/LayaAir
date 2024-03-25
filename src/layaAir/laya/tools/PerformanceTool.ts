@@ -75,6 +75,7 @@ export class PerformanceDefine {
     static T_shurikenUpdate: string;
     //--------Performance3DPhysicsDefine--------
     static T_Physics_Simulation: string;
+    static T_Physics_UpdateNode:string;
     static T_PhysicsEvent: string;
     static C_PhysicsEventCount: string;
     static T_PhysicsCollider: string;

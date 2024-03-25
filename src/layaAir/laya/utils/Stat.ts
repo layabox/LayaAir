@@ -168,6 +168,13 @@ export class Stat {
     /**@internal */
     public static uploadUniform: number = 0;
 
+    public static physics_dynamicRigidBodyCount:number;
+    public static physics_staticRigidBodyCount:number;
+    public static phyiscs_KinematicRigidBodyCount:number;
+    public static physics_CharacterControllerCount:number;
+    public static physics_jointCount:number;
+    public static phyiscs_EventCount:number
+
     //Toggle
     /**@internal 开启关闭阴影 */
     public static enableShadow: boolean = true;

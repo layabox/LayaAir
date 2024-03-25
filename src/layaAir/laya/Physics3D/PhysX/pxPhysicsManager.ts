@@ -5,6 +5,7 @@ import { PhysicsSettings } from "../../d3/physics/PhysicsSettings";
 import { PhysicsUpdateList } from "../../d3/physics/PhysicsUpdateList";
 import { Event } from "../../events/Event";
 import { Vector3 } from "../../maths/Vector3";
+import { Stat } from "../../utils/Stat";
 import { ICollider } from "../interface/ICollider";
 import { IPhysicsManager } from "../interface/IPhysicsManager";
 import { pxCharactorCollider } from "./Collider/pxCharactorCollider";
@@ -19,7 +20,7 @@ export enum partFlag {
     eSOLVE_CONTACT = (1 << 0),  // Dynamic中刚体触发碰撞
     eMODIFY_CONTACTS = (1 << 1),    // Dynamic中刚体碰撞需要修改碰撞
     eNOTIFY_TOUCH_FOUND = (1 << 2), // 
-    eNOTIFY_TOUCH_PERSISTS = (1 << 3),  //
+    eNOTIFY_TOUCH_PERSISTS = (1 << 3),//
     eNOTIFY_TOUCH_LOST = (1 << 4),  //
     eNOTIFY_TOUCH_CCD = (1 << 5),   //
     eNOTIFY_THRESHOLD_FORCE_FOUND = (1 << 6),   //
@@ -185,13 +186,20 @@ export class pxPhysicsManager implements IPhysicsManager {
         switch (pxcollider._type) {
             case pxColliderType.StaticCollider:
                 this._pxScene.addActor(pxcollider._pxActor, null);
+                Stat.physics_staticRigidBodyCount++;
                 break;
             case pxColliderType.RigidbodyCollider:
                 this._pxScene.addActor(pxcollider._pxActor, null);
-                !(collider as pxDynamicCollider).IsKinematic && this._dynamicUpdateList.add(collider);
+                if(!(collider as pxDynamicCollider).IsKinematic){
+                    this._dynamicUpdateList.add(collider);
+                    Stat.physics_dynamicRigidBodyCount++;
+                }else{
+                    Stat.phyiscs_KinematicRigidBodyCount++;
+                }
                 break;
             case pxColliderType.CharactorCollider:
                 this._addCharactorCollider(collider as pxCharactorCollider);
+                Stat.physics_CharacterControllerCount++;
                 break;
         }
         pxcollider._isSimulate = true;
@@ -205,22 +213,35 @@ export class pxPhysicsManager implements IPhysicsManager {
                 if (collider.inPhysicUpdateListIndex !== -1)
                     this._physicsUpdateList.remove(collider);
                 this._pxScene.removeActor(pxcollider._pxActor, true);
+                Stat.physics_staticRigidBodyCount--;
                 break;
             case pxColliderType.RigidbodyCollider:    //TODO
                 if (collider.inPhysicUpdateListIndex !== -1)
                     !(collider as pxDynamicCollider).IsKinematic && this._dynamicUpdateList.remove(collider);
                 this._pxScene.removeActor(pxcollider._pxActor, true);
+                if(!(collider as pxDynamicCollider).IsKinematic){
+                    this._dynamicUpdateList.add(collider);
+                    Stat.physics_dynamicRigidBodyCount--;
+                }else{
+                    Stat.phyiscs_KinematicRigidBodyCount--;
+                }
                 break;
             case pxColliderType.CharactorCollider:
                 //TODO:
                 this._removeCharactorCollider(pxcollider as pxCharactorCollider);
+                Stat.physics_CharacterControllerCount--;
                 break;
         }
         pxcollider._isSimulate = false;
     }
-
-    private _updatePhysicsEvents(): void {
-        // contact
+    //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_PhysicsCollider)
+    private _collision_event() {
+        this._collision_EnterEvent();
+        this._collision_StayEvent();
+        this._collision_ExitEvent();
+    }
+    //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_PhysicsColliderEnter)
+    private _collision_EnterEvent() {
         this._contactCollisionsBegin.forEach((value: Collision, key: number) => {
             if (!value) return;
             let ownerA = value._colliderA.owner;
@@ -231,7 +252,9 @@ export class pxPhysicsManager implements IPhysicsManager {
             ownerB.event(Event.COLLISION_ENTER, value);
             pxCollisionTool.reCoverCollision(value);
         });
-
+    }
+    //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_PhysicsColliderStay)
+    private _collision_StayEvent() {
         this._contactCollisionsPersist.forEach((value: Collision, key: number) => {
             if (!value) return;
             let ownerA = value._colliderA.owner;
@@ -242,7 +265,9 @@ export class pxPhysicsManager implements IPhysicsManager {
             ownerB.event(Event.COLLISION_STAY, value);
             pxCollisionTool.reCoverCollision(value);
         });
-
+    }
+    //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_PhysicsColliderExit)
+    private _collision_ExitEvent() {
         this._contactCollisionsEnd.forEach((value: Collision, key: number) => {
             if (!value) return;
             let ownerA = value._colliderA.owner;
@@ -253,6 +278,17 @@ export class pxPhysicsManager implements IPhysicsManager {
             ownerB.event(Event.COLLISION_EXIT, value);
             pxCollisionTool.reCoverCollision(value);
         });
+    }
+
+    //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_PhysicsTrigger)
+    private _trigger_Event() {
+        this._trigger_EnterEvent();
+        this._trigger_StayEvent();
+        this._trigger_ExitEvent();
+    }
+
+    //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_PhysicsTriggerEnter)
+    private _trigger_EnterEvent() {
         // trigger
         this._triggerCollisionsBegin.forEach((value: Collision, key: number) => {
             if (!value) return;
@@ -264,7 +300,10 @@ export class pxPhysicsManager implements IPhysicsManager {
             ownerB.event(Event.TRIGGER_ENTER, value);
             pxCollisionTool.reCoverCollision(value);
         });
+    }
 
+    //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_PhysicsTriggerStay)
+    private _trigger_StayEvent() {
         this._triggerCollisionsPersist.forEach((value: Collision, key: number) => {
             if (!value) return;
             let ownerA = value._colliderA.owner;
@@ -276,6 +315,10 @@ export class pxPhysicsManager implements IPhysicsManager {
             pxCollisionTool.reCoverCollision(value);
         });
 
+    }
+
+    //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_PhysicsTriggerExit)
+    private _trigger_ExitEvent() {
         this._triggerCollisionsEnd.forEach((value: Collision, key: number) => {
             if (!value) return;
             let ownerA = value._colliderA.owner;
@@ -286,7 +329,14 @@ export class pxPhysicsManager implements IPhysicsManager {
             ownerB.event(Event.TRIGGER_EXIT, value);
             pxCollisionTool.reCoverCollision(value);
         });
+    }
 
+
+    //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_PhysicsEvent)
+    private _updatePhysicsEvents(): void {
+        // contact
+        this._collision_event();
+        this._trigger_Event();
         this._contactCollisionsBegin.clear();
         this._contactCollisionsPersist.clear();
         this._contactCollisionsEnd.clear();
@@ -294,6 +344,7 @@ export class pxPhysicsManager implements IPhysicsManager {
         this._triggerCollisionsEnd.clear();
     }
 
+    //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_Physics_UpdateNode)
     private _updatePhysicsTransformToRender(): void {
         var elements: any = this._dynamicUpdateList.elements;
         for (var i = 0, n = this._dynamicUpdateList.length; i < n; i++) {
@@ -302,18 +353,6 @@ export class pxPhysicsManager implements IPhysicsManager {
             //physicCollider.inPhysicUpdateListIndex = -1;//置空索引
         }
         //this._physicsUpdateList.length = 0;//清空物理更新队列
-    }
-
-
-    private functiontest() {
-        let a = new Float32Array(30);
-        var length = 30 * 4;
-        var ptr = pxPhysicsCreateUtil._allocator.allocate(4 * length, 0, 0, 0); // Get buffer from emscripten.
-        var buffer = new Float32Array(pxPhysicsCreateUtil._physX.HEAPF32.buffer, ptr, 30);
-        for (var i = 0; i < length; i++) {
-            buffer[i] = i + 20;
-        }
-        let vecpointer = pxPhysicsCreateUtil._physX.wrapPointer(ptr, pxPhysicsCreateUtil._physX.PxVec3);//PXVec3
     }
 
 
@@ -330,6 +369,7 @@ export class pxPhysicsManager implements IPhysicsManager {
         this._physicsUpdateList.length = 0;//清空物理更新队列
     }
 
+    //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_Physics_Simulation)
     update(elapsedTime: number): void {
         this._updatePhysicsTransformFromRender();//update render to physics
         //simulate
