@@ -1,15 +1,15 @@
 import { ClassUtils } from "./laya/utils/ClassUtils";
 
-export type EnumDescriptor = {
+export type FEnumDescriptor = {
     name: string,
     value: any,
-    extend?: EnumDescriptor,
+    extend?: FEnumDescriptor,
     [index: string]: any,
 }[] | any[] | Object | string;
 
-export type PropertType = string | Function | Object | [PropertType] | ["Record", PropertType];
+export type FPropertyType = string | Function | Object | [FPropertyType] | ["Record", FPropertyType];
 
-export interface PropertyDescriptor {
+export interface FPropertyDescriptor {
     /** 属性名称。一般不需要设定。 */
     name: string;
     /** 
@@ -19,7 +19,7 @@ export interface PropertyDescriptor {
      * 其他对象类型可以直接使用类名，但要注意该类必须有使用regClass装饰器。也支持枚举类型。枚举类型不需要regClass。
      * 如果不提供type，表示只用于ui样式，没有实际对应数据，和不会序列化
      */
-    type: PropertType;
+    type: FPropertyType;
     /** 标题。如果不提供，则使用name。 */
     caption: string;
     /** 提示文字 */
@@ -70,6 +70,10 @@ export interface PropertyDescriptor {
      * 其中的value为当前用户在该属性输入的值，data为当前组件的对象数据，data.a是当前组件中的a属性值
      */
     validator: string;
+    /** 是否允许数据为空值。
+     * 可以用表达式，返回true或者false的结果。
+     */
+    required?: boolean | string;
 
     /** 是否序列化 */
     serializable: boolean;
@@ -82,11 +86,13 @@ export interface PropertyDescriptor {
     password: boolean;
     /** 如果true或者缺省，文本输入每次输入都提交；否则只有在失焦时才提交 */
     submitOnTyping: boolean;
-    /** 输入文本的提示信息 */
+    /** 如果是文本类型，是输入文本的提示信息；如果是布尔类型，是多选框的标题。 */
     prompt: string;
 
     /** 定义枚举 */
-    enumSource: EnumDescriptor;
+    enumSource: FEnumDescriptor;
+    /** 当数据源为空时，隐藏这个属性 */
+    hideIfEnumSourceEmpty?: boolean;
 
     /** 是否反转布尔值。例如当属性值为true时，多选框显示为不勾选。 */
     reverseBool: boolean;
@@ -112,7 +118,7 @@ export interface PropertyDescriptor {
     /** 对数组类型属性适用。如果不提供，则表示数组允许所有操作，如果提供，则只允许列出的操作。*/
     arrayActions: Array<"append" | "insert" | "delete" | "move">;
     /** 对数组类型属性适用。这里可以定义数组元素的属性 */
-    elementProps: Partial<PropertyDescriptor>;
+    elementProps: Partial<FPropertyDescriptor>;
 
     /** 对颜色类型属性适用。表示是否提供透明度a值的修改。 */
     showAlpha: boolean;
@@ -125,6 +131,11 @@ export interface PropertyDescriptor {
     hideHeader: boolean;
     /** 对对象类型属性适用。对象创建时可以下拉选择一个类型。如果显示设置为null，则禁止菜单。默认是显示一个创建基类的菜单。*/
     createObjectMenu: Array<string>;
+    /** 对对象类型属性适用。表示这个属性类型有类似结构体的行为特性，即总是作为一个整体使用。
+     * 例如，obj对象的某个属性b的值是a1，a1是T类型的实例，且T类型的structLike为true，那么当a1的属性改变时，编辑器将同时调用obj.b = a1。
+     * 默认为false。
+     */
+    structLike?: boolean;
 
     /** 说明此属性是引用一个资源 */
     isAsset?: boolean;
@@ -134,6 +145,11 @@ export interface PropertyDescriptor {
     useAssetPath: boolean;
     /** 对资源类型的属性适用。选择资源时是否允许选择内部资源 */
     allowInternalAssets: boolean;
+    /** 对资源类型的属性适用。可以设置一个自定义的过滤器。过滤器需要先通过EditorEnv.assetMgr.customAssetFilters注册。 */
+    customAssetFilter?: string;
+
+    /** 对类型是Node或者Component的属性适用。如果不为null，当在实际运行环境里执行反序列化时，引用对象不再实例化，而是将它的序列化数据原样保存到指定的属性中。*/
+    toTemplate?: string;
 
     /** 显示位置。语法：before xxx/after xxx/first/last。 */
     position: string;
@@ -160,15 +176,26 @@ export interface PropertyDescriptor {
     options: Record<string, any>;
 }
 
-export interface TypeDescriptor {
+export interface FTypeDescriptor {
     /** 标题。如果不提供，则使用name。 */
     caption: string;
+    /**帮助文档url地址 */
+    help?: string;
     /** 添加到组件菜单。 */
     menu: string;
     /** 图标。*/
     icon: string;
+    /** 是否资源类型 */
+    isAsset?: boolean;
+    /** 对资源类型的属性适用。多个资源类型用逗号分隔，例如“Image,Audio"。可用值参考editor/public/IAssetInfo.ts。 */
+    assetTypeFilter?: string;
+    /** 表示这个类型有类似结构体的行为特性，即总是作为一个整体使用。
+     * 例如，obj对象的某个属性b的值是a1，a1是T类型的实例，且T类型的structLike为true，那么当a1的属性改变时，编辑器将同时调用obj.b = a1。
+     * 默认为false。
+     */
+    structLike?: boolean;
     /** 属性列表 */
-    properties: Array<Partial<PropertyDescriptor>>;
+    properties: Array<Partial<FPropertyDescriptor>>;
     /** 编辑这个类实例的控件 */
     inspector: string;
     /** 对Component使用，表示这个组件允许挂载的节点类型。默认null */
@@ -192,7 +219,7 @@ export function regClass(assetId?: string): any {
  * 设置类型的额外信息。
  * @param info 类型的额外信息
  */
-export function classInfo(info?: Partial<TypeDescriptor>): any { return dummy; }
+export function classInfo(info?: Partial<FTypeDescriptor>): any { return dummy; }
 
 /**
  * 设置组件可以在编辑器环境中执行完整声明周期。
@@ -203,4 +230,4 @@ export function runInEditor(constructor: Function): void { }
  * 使用这个装饰器，可以使属性显示在编辑器属性设置面板上，并且能序列化保存。
  * @param info 属性的类型，如: Number,"number",[Number],["Record", Number]等。或传递对象描述详细信息，例如{ type: "string", multiline: true }。
  */
-export function property(info: PropertType | Partial<PropertyDescriptor>): any { return dummy; }
+export function property(info: FPropertyType | Partial<FPropertyDescriptor>): any { return dummy; }

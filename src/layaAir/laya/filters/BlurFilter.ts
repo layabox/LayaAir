@@ -71,6 +71,10 @@ export class BlurFilter extends Filter {
         render2d.renderEnd();
     }
 
+    /**
+     * Native使用，获取模糊强度
+     * @returns 
+     */
     getStrenth_sig2_2sig2_native(): Float32Array {
         if (!this.strength_sig2_native) {
             this.strength_sig2_native = new Float32Array(4);

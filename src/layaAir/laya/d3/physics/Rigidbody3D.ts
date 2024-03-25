@@ -41,6 +41,8 @@ export class Rigidbody3D extends PhysicsColliderComponent {
     private _sleepThreshold: number;
     /**@internal */
     private _trigger: boolean = false;
+    /**@internal */
+    private _collisionDetectionMode: number = 0;
 
     /**
      * @override
@@ -204,6 +206,9 @@ export class Rigidbody3D extends PhysicsColliderComponent {
         }
     }
 
+    /**
+     * 直接设置物理旋转
+     */
     set orientation(q: Quaternion) {
         if (this._collider && this.collider.getCapable(EColliderCapable.RigidBody_WorldOrientation)) {
             this._collider.setWorldRotation(q);
@@ -223,10 +228,27 @@ export class Rigidbody3D extends PhysicsColliderComponent {
         }
     }
 
+    /**
+     * 碰撞检测模式
+     */
+    public get collisionDetectionMode(): number {
+        return this._collisionDetectionMode;
+    }
+    public set collisionDetectionMode(value: number) {
+        this._collisionDetectionMode = value;
+        if (this._collider && this._collider.getCapable(EColliderCapable.Collider_CollisionDetectionMode)) {
+            this._collider.setCollisionDetectionMode(value);
+        }
+    }
+
     constructor() {
         super();
     }
 
+    /**
+     * @internal
+     * @protected
+     */
     protected _onAdded(): void {
         super._onAdded();
         this.mass = this._mass;
@@ -238,6 +260,10 @@ export class Rigidbody3D extends PhysicsColliderComponent {
         this.isKinematic = this._isKinematic;
     }
 
+    /**
+     * @internal
+     * @protected
+     */
     protected _onDestroy() {
         super._onDestroy();
         this._btLayaMotionState = null;

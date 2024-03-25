@@ -9,7 +9,11 @@ import { Utils } from "../utils/Utils";
  * <code>Component</code> 类用于创建组件的基类。
  */
 export class Component {
-    /** @private */
+    /** 
+     * 唯一标识
+     * @private
+     * @internal 
+     */
     _id: number;
     /**@private */
     private _hideFlags: number = 0;
@@ -25,6 +29,7 @@ export class Component {
     /** @internal */
     _enabled: boolean = true;
     /**
+     * @internal
      * 是否单例，即同一个节点只能添加此类型的脚本一次
      */
     _singleton?: boolean = true;
@@ -32,9 +37,20 @@ export class Component {
      * 是否可以在IDE环境中运行
      */
     runInEditor: boolean;
+
+    /**
+     * 脚本路径
+     */
     scriptPath: string;
+
+    /**
+     * @internal
+     */
     _extra: IComponentExtra;
 
+    /**
+     * 隐藏状态
+     */
     get hideFlags(): number {
         return this._hideFlags;
     }
@@ -57,6 +73,11 @@ export class Component {
         this._extra = {};
     }
 
+    /**
+     * 是否存在隐藏标志
+     * @param flag 
+     * @returns 
+     */
     hasHideFlag(flag: number): boolean {
         return (this._hideFlags & flag) != 0;
     }
@@ -83,6 +104,9 @@ export class Component {
         }
     }
 
+    /**
+     * 是否已唤醒
+     */
     get awaked(): boolean {
         return this._status > 0;
     }
@@ -109,6 +133,11 @@ export class Component {
         this.owner = null;
     }
 
+    /**
+     * 设置所属Node节点
+     * @internal
+     * @param node 
+     */
     _setOwner(node: Node) {
         if (this._status != 0) {
             throw 'reuse a destroyed component';
@@ -232,7 +261,7 @@ export class Component {
 
         if (this.owner)
             this.owner._destroyComponent(this);
-        else if(!this.destroyed)
+        else if (!this.destroyed)
             this._destroy(true);
     }
 

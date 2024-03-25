@@ -74,7 +74,7 @@ export class Scene3D extends Sprite {
     /** @internal */
     static _shadowCasterPass: ShadowCasterPass;
     /**@internal */
-    static physicsSettings: PhysicsSettings;
+    static physicsSettings: PhysicsSettings = new PhysicsSettings();
     /** reflection mode */
     static REFLECTIONMODE_SKYBOX: number = 0;
     static REFLECTIONMODE_CUSTOM: number = 1;
@@ -149,10 +149,11 @@ export class Scene3D extends Sprite {
     static _blitOffset: Vector4 = new Vector4();
     /**@internal */
     static mainCavansViewPort: Viewport = new Viewport(0, 0, 1, 1);
-
+    /**场景组件管理表 */
     static componentManagerMap: Map<string, any> = new Map();
 
     /**
+     * @internal
      * 场景更新标记
      */
     static set _updateMark(value: number) {
@@ -163,6 +164,11 @@ export class Scene3D extends Sprite {
         return RenderContext3D._instance._contextOBJ.cameraUpdateMask;
     }
 
+    /**
+     * 注册场景内的管理器
+     * @param type 管理器类型
+     * @param cla 实例
+     */
     static regManager(type: string, cla: any) {
         Scene3D.componentManagerMap.set(type, cla);
     }
@@ -310,8 +316,6 @@ export class Scene3D extends Sprite {
         if (Config3D._uniformBlock)
             configShaderValue.add(Shader3D.SHADERDEFINE_ENUNIFORMBLOCK);
 
-        Scene3D.physicsSettings = new PhysicsSettings();
-
         let supportFloatTex = LayaGL.renderEngine.getCapable(RenderCapable.TextureFormat_R32G32B32A32);
         if (supportFloatTex) {
             configShaderValue.add(Shader3D.SHADERDEFINE_FLOATTEXTURE);
@@ -343,11 +347,11 @@ export class Scene3D extends Sprite {
         });
     }
 
-    /**ide配置文件使用 */
+    /**@internal ide配置文件使用 */
     _reflectionsSource: number = 0;
-    /**ide配置文件使用 */
+    /**@internal ide配置文件使用 */
     _reflectionsResolution: string = "256";
-    /**ide配置文件使用 */
+    /**@internal ide配置文件使用 */
     _reflectionsIblSamples = 128;
 
 
@@ -429,6 +433,7 @@ export class Scene3D extends Sprite {
     /** @internal */
     _scene2D: Scene;
 
+    /** @internal */
     componentElementMap: Map<string, IElementComponentManager> = new Map();
 
     _sceneModuleData: ISceneNodeData;
@@ -546,7 +551,7 @@ export class Scene3D extends Sprite {
         this.fogParams = this._fogParams;
     }
 
-    /**@internal */
+    /**@internal 雾效参数*/
     get fogParams(): Vector4 {
         return this._shaderValues.getVector(Scene3D.FOGPARAMS);
     }
@@ -555,7 +560,9 @@ export class Scene3D extends Sprite {
         this._shaderValues.setVector(Scene3D.FOGPARAMS, value);
     }
 
-    //0-2PI
+    /**
+     * 0-2PI
+     */
     set GIRotate(value: number) {
         this._shaderValues.setNumber(Scene3D.GIRotate, value);
     }
@@ -576,6 +583,9 @@ export class Scene3D extends Sprite {
         this._sceneReflectionProb.ambientMode = value;
     }
 
+    /**
+     * 场景反射探针
+     */
     get sceneReflectionProb(): ReflectionProbe {
         return this._sceneReflectionProb;
     }
@@ -775,10 +785,24 @@ export class Scene3D extends Sprite {
         this._sceneReflectionProb.reflectionIntensity = 1.0;
         this.ambientColor = new Color(0.212, 0.227, 0.259);
 
-        Scene3D.componentManagerMap.forEach((key, val) => {
+        Scene3D.componentManagerMap.forEach((val, key) => {
             let cla: any = val;
             this.componentElementMap.set(key, new cla());
         });
+    }
+
+    /**
+   * @internal
+   */
+    set componentElementDatasMap(value: any) {
+        this._componentElementDatasMap = value;
+        this.componentElementMap.forEach((value, key) => {
+            value.Init(this._componentElementDatasMap[key])
+        });
+    }
+
+    get componentElementDatasMap(): any {
+        return this._componentElementDatasMap;
     }
 
     /**
@@ -805,6 +829,9 @@ export class Scene3D extends Sprite {
         else
             this._volumeManager.handleMotionlist();
 
+        this.componentElementMap.forEach((value) => {
+            value.update(delta);
+        });
         this._componentDriver.callStart();
         this._componentDriver.callUpdate();
 
@@ -853,6 +880,7 @@ export class Scene3D extends Sprite {
     }
 
     /**
+     * @internal
      * @inheritDoc
      * @override
      */
@@ -862,6 +890,7 @@ export class Scene3D extends Sprite {
     }
 
     /**
+     * @internal
      * @inheritDoc
      * @override
      */
@@ -1059,10 +1088,14 @@ export class Scene3D extends Sprite {
     }
 
     private _cullInfoCamera: Camera
+    /**
+     * 获取cullCamera
+     */
     get cullInfoCamera(): Camera {
         return this._cullInfoCamera;
     }
     /**
+     * @internal
      * scence外的Camera渲染场景,需要设置这个接口
      * @param camera
      */

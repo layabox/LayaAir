@@ -10,6 +10,7 @@ export interface IShaderObjStructor {
     name: string,
     enableInstancing: boolean,
     supportReflectionProbe: boolean,
+    surportVolumetricGI: boolean,
     attributeMap: any;
     uniformMap: any;
     defaultValue: any;
@@ -198,6 +199,7 @@ export class Shader3D {
             console.warn(`${data.name}: uniformMap is empty`);
 
         let shader = Shader3D.add(data.name, data.enableInstancing, data.supportReflectionProbe);
+        shader._surportVolumetricGI = data.surportVolumetricGI;
         let subshader = new SubShader(data.attributeMap ? data.attributeMap : SubShader.DefaultAttributeMap, data.uniformMap, data.defaultValue);
         shader.addSubShader(subshader);
         let passDataArray = data.shaderPass;

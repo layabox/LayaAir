@@ -31,7 +31,7 @@ export class AnimatorState2D extends EventDispatcher implements IClone {
     /**@internal */
     _currentFrameIndices: Int16Array | null = null;
 
-    /**play on awake start offset*/
+    /**启动时播放偏移 play on awake start offset*/
     cycleOffset: number = 0;
 
     /**

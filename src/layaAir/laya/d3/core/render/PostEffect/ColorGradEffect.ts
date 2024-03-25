@@ -77,6 +77,7 @@ export class ColorGradEffect extends PostProcessEffect {
 
 	private _needBuildLUT: boolean = false;
 
+	/**@internal */
 	_lutTex: RenderTexture;
 	private _lutBuilderMat = new Material();
 
@@ -158,7 +159,6 @@ export class ColorGradEffect extends PostProcessEffect {
 		this._toneMapping = value;
 	}
 
-	// split toning
 	/**
 	 * 是否开启Split Tone
 	 */
@@ -208,7 +208,9 @@ export class ColorGradEffect extends PostProcessEffect {
 		this._splitBalance = value;
 	}
 
-	// shadows, midtones, highlights
+	/**
+	 * shadows, midtones, highlights 
+	 */
 	public get enableSMH(): boolean {
 		return this._enableSMH;
 	}
@@ -308,7 +310,9 @@ export class ColorGradEffect extends PostProcessEffect {
 	}
 
 
-	//lift gamma gain
+	/**
+	 * lift gamma gain
+	 */
 	public get enableLiftGammaGain() {
 		return this._enableLiftGammaGain;
 	}
@@ -396,7 +400,9 @@ export class ColorGradEffect extends PostProcessEffect {
 		this._balance.set(w1.x / w2.x, w1.y / w2.y, w1.z / w2.z);
 	}
 
-	//balance
+	/**
+	 * balance
+	 */
 	public get enableBalance() {
 		return this._enableBalance;
 	}
@@ -433,7 +439,9 @@ export class ColorGradEffect extends PostProcessEffect {
 		this._ColorBalanceToLMSCoeffs(this._temperature, this._tint);
 	}
 
-	//Color Adjustments
+	/**
+	 * Color Adjustments
+	 */
 	public get enableColorAdjust() {
 		return this._enableColorAdjust;
 	}

@@ -7,7 +7,7 @@ import { Handler } from "../utils/Handler"
 import { HideFlags } from "../Const";
 import { XML } from "../html/XML";
 
-/**@private */
+/**@internal */
 interface ITreeDataSource {
     x: number;
     hasChild: boolean;
@@ -240,63 +240,18 @@ interface ITreeDataSource {
  * }
  */
 export class Tree extends Box {
-    /**@private */
+    /**@internal */
     protected _list: List;
-    /**@private */
+    /**@internal */
     protected _source: any[];
-    /**@private */
+    /**@internal */
     protected _renderHandler: Handler;
-    /**@private */
+    /**@internal */
     protected _spaceLeft: number = 10;
-    /**@private */
+    /**@internal */
     protected _spaceBottom: number = 0;
-    /**@private */
+    /**@internal */
     protected _keepStatus: boolean = true;
-
-    /**
-     * 创建一个新的 <code>Tree</code> 类实例。
-     * <p>在 <code>Tree</code> 构造函数中设置属性width、height的值都为200。</p>
-     */
-    constructor() {
-        super();
-        this.width = this.height = 200;
-    }
-
-    /**
-     * @inheritDoc 
-     * @override
-    */
-    destroy(destroyChild: boolean = true): void {
-        super.destroy(destroyChild);
-        this._list && this._list.destroy(destroyChild);
-        this._list = null;
-        this._source = null;
-        this._renderHandler = null;
-    }
-    /**
-     * @override
-     */
-    protected createChildren(): void {
-        this._list = new List();
-        this._list.hideFlags = HideFlags.HideAndDontSave;
-        this._list.left = 0;
-        this._list.right = 0;
-        this._list.top = 0;
-        this._list.bottom = 0;
-        this._list._skinBaseUrl = this._skinBaseUrl;
-        this.addChild(this._list);
-        this._list.renderHandler = Handler.create(this, this.renderItem, null, false);
-        this._list.repeatX = 1;
-        this._list.on(Event.CHANGE, this, this.onListChange);
-    }
-
-    /**
-     * @private
-     * 此对象包含的<code>List</code>实例的<code>Event.CHANGE</code>事件侦听处理函数。
-     */
-    protected onListChange(e: Event = null): void {
-        this.event(Event.CHANGE);
-    }
 
     /**
      * 数据源发生变化后，是否保持之前打开状态，默认为true。
@@ -443,7 +398,61 @@ export class Tree extends Box {
     }
 
     /**
-     * @private
+     *  xml结构的数据源。
+     */
+    set xml(value: XML) {
+        var arr: any[] = [];
+        this.parseXml(value, arr, null, true);
+
+        this.array = arr;
+    }
+
+    /**
+     * 表示选择的树节点项的<code>path</code>属性值。
+     */
+    get selectedPath(): string {
+        if (this._list.selectedItem) {
+            return this._list.selectedItem.path;
+        }
+        return null;
+    }
+
+    /**
+     * 创建一个新的 <code>Tree</code> 类实例。
+     * <p>在 <code>Tree</code> 构造函数中设置属性width、height的值都为200。</p>
+     */
+    constructor() {
+        super();
+        this.width = this.height = 200;
+    }
+
+    /**
+     * @internal
+     */
+    protected createChildren(): void {
+        this._list = new List();
+        this._list.hideFlags = HideFlags.HideAndDontSave;
+        this._list.left = 0;
+        this._list.right = 0;
+        this._list.top = 0;
+        this._list.bottom = 0;
+        this._list._skinBaseUrl = this._skinBaseUrl;
+        this.addChild(this._list);
+        this._list.renderHandler = Handler.create(this, this.renderItem, null, false);
+        this._list.repeatX = 1;
+        this._list.on(Event.CHANGE, this, this.onListChange);
+    }
+
+    /**
+     * @internal
+     * 此对象包含的<code>List</code>实例的<code>Event.CHANGE</code>事件侦听处理函数。
+     */
+    protected onListChange(e: Event = null): void {
+        this.event(Event.CHANGE);
+    }
+
+    /**
+     * @internal
      * 获取数据源集合。
      */
     protected getArray(): any[] {
@@ -459,7 +468,7 @@ export class Tree extends Box {
     }
 
     /**
-     * @private
+     * @internal
      * 获取项对象的深度。
      */
     protected getDepth(item: any, num: number = 0): number {
@@ -468,7 +477,7 @@ export class Tree extends Box {
     }
 
     /**
-     * @private
+     * @internal
      * 获取项对象的上一级的打开状态。
      */
     protected getParentOpenStatus(item: any): boolean {
@@ -486,7 +495,7 @@ export class Tree extends Box {
     }
 
     /**
-     * @private
+     * @internal
      * 渲染一个项对象。
      * @param cell 一个项对象。
      * @param index 项的索引。
@@ -520,7 +529,7 @@ export class Tree extends Box {
     }
 
     /**
-     * @private
+     * @internal
      */
     private onArrowClick(e: Event): void {
         var arrow = e.currentTarget;
@@ -528,6 +537,84 @@ export class Tree extends Box {
         this._list.array[index].isOpen = !this._list.array[index].isOpen;
         this.event(Event.OPEN);
         this._list.array = this.getArray();
+    }
+
+    /**
+     * @internal
+     * 解析并处理XML类型的数据源。
+     */
+    protected parseXml(xml: XML, source: any[], nodeParent: any, isRoot: boolean): void {
+        var obj: any;
+        var list = xml.elements();
+        var childCount = list.length;
+        if (!isRoot) {
+            obj = {};
+            var list2 = xml.attributes;
+            for (let key in list2) {
+                var value = list2[key];
+                obj[key] = value == "true" ? true : value == "false" ? false : value;
+            }
+            obj.nodeParent = nodeParent;
+            if (childCount > 0) obj.isDirectory = true;
+            obj.hasChild = childCount > 0;
+            source.push(obj);
+        }
+        for (var i = 0; i < childCount; i++) {
+            var node = list[i];
+            this.parseXml(node, source, obj, false);
+        }
+    }
+
+    /**
+     * @internal
+     * 处理数据项的打开状态。
+     */
+    protected parseOpenStatus(oldSource: any[], newSource: any[]): void {
+        for (var i = 0, n = newSource.length; i < n; i++) {
+            var newItem = newSource[i];
+            if (newItem.isDirectory) {
+                for (var j = 0, m = oldSource.length; j < m; j++) {
+                    var oldItem = oldSource[j];
+                    if (oldItem.isDirectory && this.isSameParent(oldItem, newItem) && newItem.label == oldItem.label) {
+                        newItem.isOpen = oldItem.isOpen;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * @internal
+     * 判断两个项对象在树结构中的父节点是否相同。
+     * @param item1 项对象。
+     * @param item2 项对象。
+     * @return 如果父节点相同值为true，否则值为false。
+     */
+    protected isSameParent(item1: any, item2: any): boolean {
+        if (item1.nodeParent == null && item2.nodeParent == null) return true;
+        else if (item1.nodeParent == null || item2.nodeParent == null) return false
+        else {
+            if (item1.nodeParent.label == item2.nodeParent.label) return this.isSameParent(item1.nodeParent, item2.nodeParent);
+            else return false;
+        }
+    }
+
+    /**
+     * @internal
+     * 获取数据源中指定键名的值。
+     */
+    private getFilterSource(array: any[], result: any[], key: string): void {
+        key = key.toLocaleLowerCase();
+        for (let item of array) {
+            if (!item.isDirectory && String(item.label).toLowerCase().indexOf(key) > -1) {
+                item.x = 0;
+                result.push(item);
+            }
+            if (item.child && item.child.length > 0) {
+                this.getFilterSource(item.child, result, key);
+            }
+        }
     }
 
     /**
@@ -560,87 +647,6 @@ export class Tree extends Box {
     }
 
     /**
-     *  xml结构的数据源。
-     */
-    set xml(value: XML) {
-        var arr: any[] = [];
-        this.parseXml(value, arr, null, true);
-
-        this.array = arr;
-    }
-
-    /**
-     * @private
-     * 解析并处理XML类型的数据源。
-     */
-    protected parseXml(xml: XML, source: any[], nodeParent: any, isRoot: boolean): void {
-        var obj: any;
-        var list = xml.elements();
-        var childCount = list.length;
-        if (!isRoot) {
-            obj = {};
-            var list2 = xml.attributes;
-            for (let key in list2) {
-                var value = list2[key];
-                obj[key] = value == "true" ? true : value == "false" ? false : value;
-            }
-            obj.nodeParent = nodeParent;
-            if (childCount > 0) obj.isDirectory = true;
-            obj.hasChild = childCount > 0;
-            source.push(obj);
-        }
-        for (var i = 0; i < childCount; i++) {
-            var node = list[i];
-            this.parseXml(node, source, obj, false);
-        }
-    }
-
-    /**
-     * @private
-     * 处理数据项的打开状态。
-     */
-    protected parseOpenStatus(oldSource: any[], newSource: any[]): void {
-        for (var i = 0, n = newSource.length; i < n; i++) {
-            var newItem = newSource[i];
-            if (newItem.isDirectory) {
-                for (var j = 0, m = oldSource.length; j < m; j++) {
-                    var oldItem = oldSource[j];
-                    if (oldItem.isDirectory && this.isSameParent(oldItem, newItem) && newItem.label == oldItem.label) {
-                        newItem.isOpen = oldItem.isOpen;
-                        break;
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * @private
-     * 判断两个项对象在树结构中的父节点是否相同。
-     * @param item1 项对象。
-     * @param item2 项对象。
-     * @return 如果父节点相同值为true，否则值为false。
-     */
-    protected isSameParent(item1: any, item2: any): boolean {
-        if (item1.nodeParent == null && item2.nodeParent == null) return true;
-        else if (item1.nodeParent == null || item2.nodeParent == null) return false
-        else {
-            if (item1.nodeParent.label == item2.nodeParent.label) return this.isSameParent(item1.nodeParent, item2.nodeParent);
-            else return false;
-        }
-    }
-
-    /**
-     * 表示选择的树节点项的<code>path</code>属性值。
-     */
-    get selectedPath(): string {
-        if (this._list.selectedItem) {
-            return this._list.selectedItem.path;
-        }
-        return null;
-    }
-
-    /**
      * 更新项列表，显示指定键名的数据项。
      * @param	key 键名。
      */
@@ -655,19 +661,14 @@ export class Tree extends Box {
     }
 
     /**
-     * @private
-     * 获取数据源中指定键名的值。
-     */
-    private getFilterSource(array: any[], result: any[], key: string): void {
-        key = key.toLocaleLowerCase();
-        for (let item of array) {
-            if (!item.isDirectory && String(item.label).toLowerCase().indexOf(key) > -1) {
-                item.x = 0;
-                result.push(item);
-            }
-            if (item.child && item.child.length > 0) {
-                this.getFilterSource(item.child, result, key);
-            }
-        }
+     * @inheritDoc 
+     * @override
+    */
+    destroy(destroyChild: boolean = true): void {
+        super.destroy(destroyChild);
+        this._list && this._list.destroy(destroyChild);
+        this._list = null;
+        this._source = null;
+        this._renderHandler = null;
     }
 }

@@ -2,7 +2,6 @@ import { ILaya } from "../../ILaya";
 import { LayaEnv } from "../../LayaEnv";
 import { Sprite } from "../display/Sprite";
 import { Event } from "../events/Event";
-import { SoundChannel } from "../media/SoundChannel";
 import { SoundManager } from "../media/SoundManager";
 import { Loader } from "../net/Loader";
 import { Handler } from "../utils/Handler";
@@ -30,17 +29,28 @@ import { SpineTemplet } from "./SpineTemplet";
  * spine动画由<code>SpineTemplet</code>，<code>SpineSkeletonRender</code>，<code>SpineSkeleton</code>三部分组成。
  */
 export class SpineSkeleton extends Sprite {
+    /**状态-停止 */
     static readonly STOPPED: number = 0;
+    /**状态-暂停 */
     static readonly PAUSED: number = 1;
+    /**状态-播放中 */
     static readonly PLAYING: number = 2;
 
+    /**@internal @protected */
     protected _source: string;
+    /**@internal @protected */
     protected _templet: SpineTemplet;
+    /**@internal @protected */
     protected _timeKeeper: spine.TimeKeeper;
+    /**@internal @protected */
     protected _skeleton: spine.Skeleton;
+    /**@internal @protected */
     protected _state: spine.AnimationState;
+    /**@internal @protected */
     protected _stateData: spine.AnimationStateData;
+    /**@internal @protected */
     protected _currentPlayTime: number = 0;
+    /**@internal @protected */
     protected _renerer: SpineSkeletonRenderer;
 
     /** @internal */
@@ -72,6 +82,9 @@ export class SpineSkeleton extends Sprite {
         super();
     }
 
+    /**
+     * 外部皮肤
+     */
     get externalSkins() {
         return this._externalSkins;
     }
@@ -83,6 +96,7 @@ export class SpineSkeleton extends Sprite {
         }
         this._externalSkins = value;
     }
+
     /**
      * 重置外部加载的皮肤的样式
      */
@@ -93,6 +107,9 @@ export class SpineSkeleton extends Sprite {
         }
     }
 
+    /**
+     * 动画源
+     */
     get source(): string {
         return this._source;
     }
@@ -112,6 +129,9 @@ export class SpineSkeleton extends Sprite {
             this.templet = null;
     }
 
+    /**
+     * 皮肤名
+     */
     get skinName(): string {
         return this._skinName;
     }
@@ -122,6 +142,9 @@ export class SpineSkeleton extends Sprite {
             this.showSkinByName(value);
     }
 
+    /**
+     * 动画名
+     */
     get animationName(): string {
         return this._animationName;
     }
@@ -132,6 +155,9 @@ export class SpineSkeleton extends Sprite {
             this.play(value, this._loop, true);
     }
 
+    /**
+     * 是否循环
+     */
     get loop(): boolean {
         return this._loop;
     }
@@ -151,7 +177,7 @@ export class SpineSkeleton extends Sprite {
     }
 
     /**
-     * 
+     * 设置动画模板的引用
      */
     set templet(value: SpineTemplet) {
         this.init(value);
@@ -185,6 +211,12 @@ export class SpineSkeleton extends Sprite {
         return SpineSkeleton.PLAYING;
     }
 
+    /**
+     * @internal
+     * @protected
+     * @param templet 模板
+     * @returns 
+     */
     protected init(templet: SpineTemplet): void {
         if (this._templet) {
             this.reset();

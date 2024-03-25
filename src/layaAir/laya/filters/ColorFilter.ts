@@ -24,7 +24,7 @@ export class ColorFilter extends Filter implements IFilter {
     _mat: Float32Array;
     /** @internal */
     _alpha: Float32Array;
-    /**当前使用的矩阵*/
+    /**@internal 当前使用的矩阵*/
     _matrix: any[];
 
     /**
@@ -90,6 +90,7 @@ export class ColorFilter extends Filter implements IFilter {
     }
 
     /**
+     * 滤镜类型
      * @private 
      * @override
     */
@@ -249,6 +250,9 @@ export class ColorFilter extends Filter implements IFilter {
         return this._matrix;
     }
 
+    /**
+     * 反序列化后调用
+     */
     onAfterDeserialize() {
         let arr: any[] = ColorUtils.create((<any>this)._color || "#FFFFFF").arrColor;
         this.color(arr[0], arr[1], arr[2], arr[3]);

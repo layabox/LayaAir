@@ -132,7 +132,7 @@ export class SeparableSSS_BlitMaterial extends Material {
 	//camera的view角度
 	set cameraFiledOfView(value: number) {
 		let distanceToProject = 1.0 / Math.tan(0.5 * value * MathUtils3D.Deg2Rad);
-		this._shaderValues.setNumber(SeparableSSS_BlitMaterial.SHADERVALUE_DISTANCETOPROJECTIONWINDOW, distanceToProject);
+		this.shaderData.setNumber(SeparableSSS_BlitMaterial.SHADERVALUE_DISTANCETOPROJECTIONWINDOW, distanceToProject);
 	}
 
 	/**

@@ -5,7 +5,6 @@ import { Texture } from "../resource/Texture"
 import { AutoBitmap } from "./AutoBitmap"
 import { UIComponent } from "./UIComponent"
 import { UIUtils } from "./UIUtils"
-import { Handler } from "../utils/Handler"
 import { ILaya } from "../../ILaya";
 import { URL } from "../net/URL";
 import { SerializeUtil } from "../loaders/SerializeUtil";
@@ -89,38 +88,14 @@ import { SerializeUtil } from "../loaders/SerializeUtil";
  * @see AutoBitmap
  */
 export class Image extends UIComponent {
-    /**@private */
+    /**@internal */
     protected _skin: string;
-    /**@private */
+    /**@internal */
     protected _group: string;
+    /**@internal */
     protected _useSourceSize: boolean;
-
+    /**@internal */
     declare _graphics: AutoBitmap;
-
-    /**
-     * 创建一个 <code>Image</code> 实例。
-     * @param skin 皮肤资源地址。
-     */
-    constructor(skin: string | null = null) {
-        super();
-        this.skin = skin;
-    }
-
-    /**
-     * 销毁对象并释放加载的皮肤资源。
-     */
-    dispose(): void {
-        this.destroy(true);
-        ILaya.loader.clearRes(this._skin);
-    }
-
-    /**
-     * @inheritDoc 
-     * @override
-     */
-    protected createChildren(): void {
-        this.setGraphics(new AutoBitmap(), true);
-    }
 
     /**
      * <p>对象的皮肤地址，以字符串表示。</p>
@@ -140,28 +115,22 @@ export class Image extends UIComponent {
         this._setSkin(value);
     }
 
-    _setSkin(url: string): Promise<void> {
-        this._skin = url;
-        if (url) {
-            if (this._skinBaseUrl)
-                url = URL.formatURL(url, this._skinBaseUrl);
-            let source = Loader.getRes(url);
-            if (source) {
-                this.source = source;
-                return Promise.resolve();
-            }
-            else {
-                let sk = this._skin;
-                return ILaya.loader.load(url, { type: Loader.IMAGE, group: this._group }).then(tex => {
-                    if (sk == this._skin)
-                        this.source = tex;
-                });
-            }
-        }
-        else {
-            this.source = null;
-            return Promise.resolve();
-        }
+    /**
+     * <p>当前实例的位图 <code>AutoImage</code> 实例的有效缩放网格数据。</p>
+     * <p>数据格式："上边距,右边距,下边距,左边距,是否重复填充(值为0：不重复填充，1：重复填充)"，以逗号分隔。
+     * <ul><li>例如："4,4,4,4,1"。</li></ul></p>
+     * @see laya.ui.AutoBitmap#sizeGrid
+     */
+    get sizeGrid(): string {
+        if (this._graphics.sizeGrid) return this._graphics.sizeGrid.join(",");
+        return null;
+    }
+
+    set sizeGrid(value: string) {
+        if (value)
+            this._graphics.sizeGrid = UIUtils.fillArray(Styles.defaultSizeGrid, value, Number);
+        else
+            this._graphics.sizeGrid = null;
     }
 
     get source(): Texture {
@@ -215,22 +184,43 @@ export class Image extends UIComponent {
     }
 
     /**
-     * @inheritDoc 
-     * @override
+     * 创建一个 <code>Image</code> 实例。
+     * @param skin 皮肤资源地址。
      */
-    protected measureWidth(): number {
-        return this._graphics.width;
+    constructor(skin: string | null = null) {
+        super();
+        this.skin = skin;
     }
 
     /**
-     * @inheritDoc 
-     * @override
+     * @internal
      */
-    protected measureHeight(): number {
-        return this._graphics.height;
+    _setSkin(url: string): Promise<void> {
+        this._skin = url;
+        if (url) {
+            if (this._skinBaseUrl)
+                url = URL.formatURL(url, this._skinBaseUrl);
+            let source = Loader.getRes(url);
+            if (source) {
+                this.source = source;
+                return Promise.resolve();
+            }
+            else {
+                let sk = this._skin;
+                return ILaya.loader.load(url, { type: Loader.IMAGE, group: this._group }).then(tex => {
+                    if (sk == this._skin)
+                        this.source = tex;
+                });
+            }
+        }
+        else {
+            this.source = null;
+            return Promise.resolve();
+        }
     }
 
     /**
+     * @internal
      * @inheritDoc 
      * @override
      */
@@ -242,6 +232,7 @@ export class Image extends UIComponent {
     }
 
     /**
+     * @internal
      * @inheritDoc 
      * @override
      */
@@ -252,22 +243,33 @@ export class Image extends UIComponent {
             this._useSourceSize = false;
     }
 
+
     /**
-     * <p>当前实例的位图 <code>AutoImage</code> 实例的有效缩放网格数据。</p>
-     * <p>数据格式："上边距,右边距,下边距,左边距,是否重复填充(值为0：不重复填充，1：重复填充)"，以逗号分隔。
-     * <ul><li>例如："4,4,4,4,1"。</li></ul></p>
-     * @see laya.ui.AutoBitmap#sizeGrid
+     * @internal
+     * @inheritDoc 
+     * @override
      */
-    get sizeGrid(): string {
-        if (this._graphics.sizeGrid) return this._graphics.sizeGrid.join(",");
-        return null;
+    protected measureWidth(): number {
+        return this._graphics.width;
     }
 
-    set sizeGrid(value: string) {
-        if (value)
-            this._graphics.sizeGrid = UIUtils.fillArray(Styles.defaultSizeGrid, value, Number);
-        else
-            this._graphics.sizeGrid = null;
+    /**
+     * @internal
+     * @inheritDoc 
+     * @override
+     */
+    protected measureHeight(): number {
+        return this._graphics.height;
+    }
+
+
+    /**
+     * @internal
+     * @inheritDoc 
+     * @override
+     */
+    protected createChildren(): void {
+        this.setGraphics(new AutoBitmap(), true);
     }
 
     /**
@@ -280,5 +282,13 @@ export class Image extends UIComponent {
             this.skin = value as string;
         else
             super.set_dataSource(value);
+    }
+
+    /**
+     * 销毁对象并释放加载的皮肤资源。
+     */
+    dispose(): void {
+        this.destroy(true);
+        ILaya.loader.clearRes(this._skin);
     }
 }

@@ -10,6 +10,7 @@ import { Pool } from "../../utils/Pool";
  * 填充贴图
  */
 export class FillTextureCmd {
+    /**绘制填充纹理CMD的标识符 */
     static ID: string = "FillTexture";
 
     /**
@@ -49,10 +50,11 @@ export class FillTextureCmd {
     /** （可选）绘图颜色 */
     color: number = 0xffffffff;
 
-    /**@private */
+    /**@private 创建绘制填充贴图的CMD*/
     static create(texture: Texture, x: number, y: number, width: number, height: number, type: string, offset: Point, color: string): FillTextureCmd {
         var cmd: FillTextureCmd = Pool.getItemByClass("FillTextureCmd", FillTextureCmd);
         cmd.texture = texture;
+        texture._addReference();
         cmd.x = x;
         cmd.y = y;
         cmd.width = width;
@@ -67,12 +69,13 @@ export class FillTextureCmd {
      * 回收到对象池
      */
     recover(): void {
+        this.texture && this.texture._removeReference();
         this.texture = null;
         this.offset = null;
         Pool.recover("FillTextureCmd", this);
     }
 
-    /**@private */
+    /**@private 执行绘制填充贴图CMD*/
     run(context: Context, gx: number, gy: number): void {
         if (this.texture) {
             if (this.percent && context.sprite) {
@@ -85,11 +88,16 @@ export class FillTextureCmd {
         }
     }
 
-    /**@private */
+    /**@private 获取绘制填充贴图CMD标识符*/
     get cmdID(): string {
         return FillTextureCmd.ID;
     }
 
+    /**
+     * 获取包围盒的顶点数据
+     * @param sp 绘制cmd的精灵
+     * @returns 
+     */
     getBoundPoints(sp?: { width: number, height?: number }): number[] {
         if (this.width && this.height)
             return Rectangle._getBoundPointS(this.x, this.y, this.width, this.height, this.percent ? sp : null);

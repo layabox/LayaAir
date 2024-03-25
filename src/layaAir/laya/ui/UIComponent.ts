@@ -12,145 +12,16 @@ import { SerializeUtil } from "../loaders/SerializeUtil";
  * <p>生命周期：preinitialize > createChildren > initialize > 组件构造函数</p>
  */
 export class UIComponent extends Sprite {
-    /**@private 控件的数据源。 */
+    /**@internal 控件的数据源。 */
     protected _dataSource: any;
-    /**@private 鼠标悬停提示 */
+    /**@internal 鼠标悬停提示 */
     protected _toolTip: any;
-    /**@private 禁用 */
+    /**@internal 禁用 */
     protected _disabled: boolean;
-    /**@private 变灰*/
+    /**@internal 变灰*/
     protected _gray: boolean;
-    /**@private 相对布局组件*/
+    /**@internal 相对布局组件*/
     protected _widget: Widget = Widget.EMPTY;
-
-    /**
-     * <p>创建一个新的 <code>Component</code> 实例。</p>
-     */
-    constructor(createChildren = true) {
-        super();
-        if (createChildren) {
-            this.preinitialize();
-            this.createChildren();
-            this.initialize();
-        }
-    }
-
-    /**
-     * @inheritDoc 
-     * @override
-     */
-    destroy(destroyChild: boolean = true): void {
-        super.destroy(destroyChild);
-        this._dataSource = null;
-        this._toolTip = null;
-    }
-
-    /**
-     * <p>预初始化。</p>
-     * 子类可在此函数内设置、修改属性默认值
-     */
-    protected preinitialize(): void {
-    }
-
-    /**
-     * <p>创建并添加控件子节点。</p>
-     * 子类可在此函数内创建并添加子节点。
-     */
-    protected createChildren(): void {
-    }
-
-    /**
-     * <p>控件初始化。</p>
-     * 在此子对象已被创建，可以对子对象进行修改。
-     */
-    protected initialize(): void {
-    }
-
-    /**
-     * @override
-     */
-    get_width(): number {
-        if (this._isWidthSet) return this._width;
-        return this.measureWidth();
-    }
-
-    /**
-     * <p>显示对象的实际显示区域宽度（以像素为单位）。</p>
-     */
-    protected measureWidth(): number {
-        var max: number = 0;
-        this.commitMeasure();
-        for (var i: number = this.numChildren - 1; i > -1; i--) {
-            var comp: Sprite = (<Sprite>this.getChildAt(i));
-            if (comp._visible) {
-                max = Math.max(comp._x + comp.width * comp.scaleX, max);
-            }
-        }
-        return max;
-    }
-
-    /**
-     * <p>立即执行影响宽高度量的延迟调用函数。</p>
-     * <p>使用 <code>runCallLater</code> 函数，立即执行影响宽高度量的延迟运行函数(使用 <code>callLater</code> 设置延迟执行函数)。</p>
-     * @see #callLater()
-     * @see #runCallLater()
-     */
-    protected commitMeasure(): void {
-    }
-
-    /**
-     * @override
-     */
-    get_height(): number {
-        if (this._isHeightSet) return this._height;
-        return this.measureHeight();
-    }
-
-    /**
-     * <p>显示对象的实际显示区域高度（以像素为单位）。</p>
-     */
-    protected measureHeight(): number {
-        var max: number = 0;
-        this.commitMeasure();
-        for (var i: number = this.numChildren - 1; i > -1; i--) {
-            var comp: Sprite = (<Sprite>this.getChildAt(i));
-            if (comp._visible) {
-                max = Math.max(comp._y + comp.height * comp.scaleY, max);
-            }
-        }
-        return max;
-    }
-
-    /**
-     * @implements
-     * <p>数据赋值，通过对UI赋值来控制UI显示逻辑。</p>
-     * <p>简单赋值会更改组件的默认属性，使用大括号可以指定组件的任意属性进行赋值。</p>
-     * @example
-       //默认属性赋值
-       dataSource = {label1: "改变了label", checkbox1: true};//(更改了label1的text属性值，更改checkbox1的selected属性)。
-       //任意属性赋值
-       dataSource = {label2: {text:"改变了label",size:14}, checkbox2: {selected:true,x:10}};
-     */
-    get dataSource(): any {
-        return this.get_dataSource();
-    }
-
-    get_dataSource(): any {
-        return this._dataSource;
-    }
-
-    set dataSource(value: any) {
-        this.set_dataSource(value);
-    }
-
-    set_dataSource(value: any) {
-        this._dataSource = value;
-        for (var prop in this._dataSource) {
-            if (prop in this && !(typeof ((this as any)[prop]) == 'function')) {
-                (this as any)[prop] = this._dataSource[prop];
-            }
-        }
-    }
 
     /**
      * <p>从组件顶边到其内容区域顶边之间的垂直距离（以像素为单位）。</p>
@@ -159,18 +30,8 @@ export class UIComponent extends Sprite {
         return this.get_top();
     }
 
-    get_top(): number {
-        return this._widget.top;
-    }
-
     set top(value: number) {
         this.set_top(value);
-    }
-
-    set_top(value: number) {
-        if (value != this._widget.top) {
-            this._getWidget().top = value;
-        }
     }
 
     /**
@@ -180,18 +41,8 @@ export class UIComponent extends Sprite {
         return this.get_bottom();
     }
 
-    get_bottom(): number {
-        return this._widget.bottom;
-    }
-
     set bottom(value: number) {
         this.set_bottom(value);
-    }
-
-    set_bottom(value: number) {
-        if (value != this._widget.bottom) {
-            this._getWidget().bottom = value;
-        }
     }
 
     /**
@@ -246,14 +97,22 @@ export class UIComponent extends Sprite {
         }
     }
 
-    protected _shouldRefreshLayout(): void {
-        super._shouldRefreshLayout();
-        this.callLater(this._sizeChanged);
+    /**
+     * @implements
+     * <p>数据赋值，通过对UI赋值来控制UI显示逻辑。</p>
+     * <p>简单赋值会更改组件的默认属性，使用大括号可以指定组件的任意属性进行赋值。</p>
+     * @example
+       //默认属性赋值
+       dataSource = {label1: "改变了label", checkbox1: true};//(更改了label1的text属性值，更改checkbox1的selected属性)。
+       //任意属性赋值
+       dataSource = {label2: {text:"改变了label",size:14}, checkbox2: {selected:true,x:10}};
+     */
+    get dataSource(): any {
+        return this.get_dataSource();
     }
 
-    protected _sizeChanged(): void {
-        this.event(Event.RESIZE);
-        if (this._widget !== Widget.EMPTY) this._widget.resetLayout();
+    set dataSource(value: any) {
+        this.set_dataSource(value);
     }
 
     /**
@@ -295,20 +154,6 @@ export class UIComponent extends Sprite {
         }
     }
 
-    /**
-     * 对象的 <code>Event.MOUSE_OVER</code> 事件侦听处理函数。
-     */
-    private onMouseOver(e: Event): void {
-        ILaya.stage.event(UIEvent.SHOW_TIP, this._toolTip);
-    }
-
-    /**
-     * 对象的 <code>Event.MOUSE_OUT</code> 事件侦听处理函数。
-     */
-    private onMouseOut(e: Event): void {
-        ILaya.stage.event(UIEvent.HIDE_TIP, this._toolTip);
-    }
-
     /** 是否变灰。*/
     get gray(): boolean {
         return this._gray;
@@ -336,22 +181,31 @@ export class UIComponent extends Sprite {
     }
 
     /**
-     * @private
-     * <p>获取对象的布局样式。请不要直接修改此对象</p>
+     * <p>创建一个新的 <code>Component</code> 实例。</p>
      */
-    private _getWidget(): Widget {
-        this._widget === Widget.EMPTY && (this._widget = this.addComponent(Widget));
-        return this._widget;
+    constructor(createChildren = true) {
+        super();
+        if (createChildren) {
+            this.preinitialize();
+            this.createChildren();
+            this.initialize();
+        }
     }
 
-    /**@private */
-    protected onCompResize(): void {
-        this._sizeChanged();
+    /**@internal */
+    protected _shouldRefreshLayout(): void {
+        super._shouldRefreshLayout();
+        this.callLater(this._sizeChanged);
+    }
 
+    /**@internal */
+    protected _sizeChanged(): void {
+        this.event(Event.RESIZE);
+        if (this._widget !== Widget.EMPTY) this._widget.resetLayout();
     }
 
     /**
-     * 
+     * @internal
      * @param child 
      * @override
      */
@@ -361,11 +215,163 @@ export class UIComponent extends Sprite {
     }
 
     /**
+     * @internal
+     * <p>获取对象的布局样式。请不要直接修改此对象</p>
+     */
+    private _getWidget(): Widget {
+        this._widget === Widget.EMPTY && (this._widget = this.addComponent(Widget));
+        return this._widget;
+    }
+
+    /**
+     * @internal
+     * <p>预初始化。</p>
+     * 子类可在此函数内设置、修改属性默认值
+     */
+    protected preinitialize(): void {
+    }
+
+    /**
+     * @internal
+     * <p>创建并添加控件子节点。</p>
+     * 子类可在此函数内创建并添加子节点。
+     */
+    protected createChildren(): void {
+    }
+
+    /**
+     * @internal
+     * <p>控件初始化。</p>
+     * 在此子对象已被创建，可以对子对象进行修改。
+     */
+    protected initialize(): void {
+    }
+
+    /**
+     * @internal
+     * <p>显示对象的实际显示区域宽度（以像素为单位）。</p>
+     */
+    protected measureWidth(): number {
+        var max: number = 0;
+        this.commitMeasure();
+        for (var i: number = this.numChildren - 1; i > -1; i--) {
+            var comp: Sprite = (<Sprite>this.getChildAt(i));
+            if (comp._visible) {
+                max = Math.max(comp._x + comp.width * comp.scaleX, max);
+            }
+        }
+        return max;
+    }
+
+    /**
+     * @internal
+     * <p>立即执行影响宽高度量的延迟调用函数。</p>
+     * <p>使用 <code>runCallLater</code> 函数，立即执行影响宽高度量的延迟运行函数(使用 <code>callLater</code> 设置延迟执行函数)。</p>
+     * @see #callLater()
+     * @see #runCallLater()
+     */
+    protected commitMeasure(): void {
+    }
+
+    /**
+     * @internal
+     * <p>显示对象的实际显示区域高度（以像素为单位）。</p>
+     */
+    protected measureHeight(): number {
+        var max: number = 0;
+        this.commitMeasure();
+        for (var i: number = this.numChildren - 1; i > -1; i--) {
+            var comp: Sprite = (<Sprite>this.getChildAt(i));
+            if (comp._visible) {
+                max = Math.max(comp._y + comp.height * comp.scaleY, max);
+            }
+        }
+        return max;
+    }
+
+    /**
+     * @internal
+     * 对象的 <code>Event.MOUSE_OVER</code> 事件侦听处理函数。
+     */
+    private onMouseOver(e: Event): void {
+        ILaya.stage.event(UIEvent.SHOW_TIP, this._toolTip);
+    }
+
+    /**
+     * @internal
+     * 对象的 <code>Event.MOUSE_OUT</code> 事件侦听处理函数。
+     */
+    private onMouseOut(e: Event): void {
+        ILaya.stage.event(UIEvent.HIDE_TIP, this._toolTip);
+    }
+
+    /**@internal */
+    protected onCompResize(): void {
+        this._sizeChanged();
+
+    }
+
+    /**@internal */
+    get_width(): number {
+        if (this._isWidthSet) return this._width;
+        return this.measureWidth();
+    }
+
+    /**@internal */
+    get_height(): number {
+        if (this._isHeightSet) return this._height;
+        return this.measureHeight();
+    }
+
+    get_top(): number {
+        return this._widget.top;
+    }
+
+    set_top(value: number) {
+        if (value != this._widget.top) {
+            this._getWidget().top = value;
+        }
+    }
+
+    get_bottom(): number {
+        return this._widget.bottom;
+    }
+
+    set_bottom(value: number) {
+        if (value != this._widget.bottom) {
+            this._getWidget().bottom = value;
+        }
+    }
+
+    get_dataSource(): any {
+        return this._dataSource;
+    }
+
+    set_dataSource(value: any) {
+        this._dataSource = value;
+        for (var prop in this._dataSource) {
+            if (prop in this && !(typeof ((this as any)[prop]) == 'function')) {
+                (this as any)[prop] = this._dataSource[prop];
+            }
+        }
+    }
+
+    /**
      * 重新排版
      */
     freshLayout() {
         if (this._widget != Widget.EMPTY) {
             this._widget.resetLayout();
         }
+    }
+
+    /**
+     * @inheritDoc 
+     * @override
+     */
+    destroy(destroyChild: boolean = true): void {
+        super.destroy(destroyChild);
+        this._dataSource = null;
+        this._toolTip = null;
     }
 }

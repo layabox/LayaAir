@@ -70,7 +70,7 @@ export class UniformBufferObject {
     bufferUsage: BufferUsage;
 
     /**
-     * @interanl
+     * @internal
      */
     constructor(glPointer: number, name: string, bufferUsage: BufferUsage, byteLength: number, isSingle: boolean) {
         // super(BufferTargetType.UNIFORM_BUFFER, bufferUsage);

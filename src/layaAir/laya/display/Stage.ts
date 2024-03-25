@@ -364,7 +364,6 @@ export class Stage extends Sprite {
         this.canvasRotation = rotation;
 
         var canvas: HTMLCanvas = Render._mainCanvas;
-        var canvasStyle: any = canvas.source.style;
         var mat: Matrix = this._canvasTransform.identity();
         var scaleMode: string = this._scaleMode;
         var scaleX: number = screenWidth / this.designWidth;
@@ -504,17 +503,27 @@ export class Stage extends Sprite {
         mat.ty = this._formatData(mat.ty);
 
         super.set_transform(this.transform);
-        canvasStyle.transformOrigin = canvasStyle.webkitTransformOrigin = canvasStyle.msTransformOrigin = canvasStyle.mozTransformOrigin = canvasStyle.oTransformOrigin = "0px 0px 0px";
-        canvasStyle.transform = canvasStyle.webkitTransform = canvasStyle.msTransform = canvasStyle.mozTransform = canvasStyle.oTransform = "matrix(" + mat.toString() + ")";
-        canvasStyle.width = canvasWidth;
-        canvasStyle.height = canvasHeight;
+        Stage._setStageStyle(canvas, canvasWidth, canvasHeight, mat);
         //修正用户自行设置的偏移
         if (this._safariOffsetY) mat.translate(0, -this._safariOffsetY);
-        mat.translate(parseInt(canvasStyle.left) || 0, parseInt(canvasStyle.top) || 0);
         this.visible = true;
         this._repaint |= SpriteConst.REPAINT_CACHE;
 
         this.event(Event.RESIZE);
+    }
+
+    /**
+     * @internal
+     * 适配淘宝小游戏
+     * @param mainCanv 
+     */
+    static _setStageStyle(mainCanv: HTMLCanvas, canvasWidth: number, canvasHeight: number, mat: Matrix) {
+        var canvasStyle: any = mainCanv.source.style;
+        canvasStyle.transformOrigin = canvasStyle.webkitTransformOrigin = canvasStyle.msTransformOrigin = canvasStyle.mozTransformOrigin = canvasStyle.oTransformOrigin = "0px 0px 0px";
+        canvasStyle.transform = canvasStyle.webkitTransform = canvasStyle.msTransform = canvasStyle.mozTransform = canvasStyle.oTransform = "matrix(" + mat.toString() + ")";
+        canvasStyle.width = canvasWidth;
+        canvasStyle.height = canvasHeight;
+        mat.translate(parseInt(canvasStyle.left) || 0, parseInt(canvasStyle.top) || 0);
     }
 
     /**
@@ -688,6 +697,15 @@ export class Stage extends Sprite {
         else
             this._wgColor = null;
 
+        Stage._setStyleBgColor(value);
+    }
+
+    /**
+     * @internal
+     * 适配淘宝小游戏
+     * @param value 
+     */
+    static _setStyleBgColor(value: string) {
         if (value) {
             Render.canvas.style.background = value;
         } else {
@@ -772,10 +790,20 @@ export class Stage extends Sprite {
     set visible(value: boolean) {
         if (this.visible !== value) {
             super.set_visible(value);
-            var style: any = Render._mainCanvas.source.style;
-            style.visibility = value ? "visible" : "hidden";
+            Stage._setVisibleStyle(value);
         }
     }
+
+    /**
+     * @internal
+     * 适配淘宝小游戏
+     * @param value 
+     */
+    static _setVisibleStyle(value: boolean) {
+        var style: any = Render._mainCanvas.source.style;
+        style.visibility = value ? "visible" : "hidden";
+    }
+
     /**
      * @inheritDoc 
      * @override

@@ -26,6 +26,7 @@ export enum ReflectionProbeMode {
  * @miner
  */
 export class ReflectionProbe extends Volume {
+	/**反射探针数量 */
 	static reflectionCount: number = 0;
 	/**获取一个全局唯一ID。*/
 	static getID(): number {
@@ -37,13 +38,13 @@ export class ReflectionProbe extends Volume {
 	/** 默认解码数据 */
 	static defaultTextureHDRDecodeValues: Vector4 = new Vector4(1.0, 1.0, 0.0, 0.0);
 
-	/** 探针重要度 */
+	/**@internal @protected 探针重要度 */
 	protected _importance: number;
 	/**漫反射顔色 */
 	private _ambientColor: Color = new Color();
 	/**漫反射SH */
 	private _ambientSH: Float32Array;
-	/** 是否是场景探针 */
+	/**@internal 是否是场景探针 */
 	_isScene: boolean = false;
 	/**@internal */
 	_reflectionProbeID: number;
@@ -241,25 +242,28 @@ export class ReflectionProbe extends Volume {
 	}
 
 	/**
-	* @inheritDoc
-	* @override
-	*/
+	 * @inheritdoc
+	 * @protected
+	 * @internal
+	 */
 	protected _onEnable(): void {
 		super._onEnable();
 		this._dataModule.updateMark = ILaya3D.Scene3D._updateMark;
 	}
 
 	/**
-	 * @inheritDoc
-	 * @override
+	 * @inheritdoc
+	 * @internal
+	 * @protected
 	 */
 	protected _onDisable(): void {
 		super._onDisable();
 	}
 
 	/**
-	 * @inheritDoc
-	 * @override
+	 * @inheritdoc
+	 * @internal
+	 * @protected
 	 */
 	protected _onDestroy() {
 		this.iblTex = null;

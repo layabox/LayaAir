@@ -48,6 +48,15 @@ export abstract class Filter implements IFilter {
     /**@private 滤镜类型。*/
     get type(): number { return -1 }
 
+    /**
+     * @internal
+     * @param this 
+     * @param sprite 
+     * @param context 
+     * @param x 
+     * @param y 
+     * @returns 
+     */
     static _filter = function (this: RenderSprite, sprite: Sprite, context: Context, x: number, y: number): void {
         var next = this._next;
         if(!next) return;

@@ -112,60 +112,20 @@ import { AssetDb } from "../resource/AssetDb"
  * }
  */
 export class ProgressBar extends UIComponent {
+
+    /**@internal */
+    protected _bg: Image;
+    /**@internal */
+    protected _bar: Image;
+    /**@internal */
+    protected _skin: string;
+    /**@internal */
+    protected _value: number = 0.5;
     /**
      * 当 <code>ProgressBar</code> 实例的 <code>value</code> 属性发生变化时的函数处理器。
      * <p>默认返回参数<code>value</code> 属性（进度值）。</p>
      */
     changeHandler: Handler;
-    /**@private */
-    protected _bg: Image;
-    /**@private */
-    protected _bar: Image;
-    /**@private */
-    protected _skin: string;
-    /**@private */
-    protected _value: number = 0.5;
-
-    /**
-     * 创建一个新的 <code>ProgressBar</code> 类实例。
-     * @param skin 皮肤地址。
-     */
-    constructor(skin: string = null) {
-        super();
-        this.skin = skin;
-    }
-
-    /**
-     * @inheritDoc 
-     * @override
-    */
-    destroy(destroyChild: boolean = true): void {
-        super.destroy(destroyChild);
-        this._bg && this._bg.destroy(destroyChild);
-        this._bar && this._bar.destroy(destroyChild);
-        this._bg = this._bar = null;
-        this.changeHandler = null;
-    }
-
-    /**
-     * @inheritDoc 
-     * @override
-    */
-    protected createChildren(): void {
-        this._bg = new Image();
-        this._bg.left = 0;
-        this._bg.right = 0;
-        this._bg.top = 0;
-        this._bg.bottom = 0;
-        this._bg.hideFlags = HideFlags.HideAndDontSave;
-        this.addChild(this._bg);
-
-        this._bar = new Image();
-        this._bar.hideFlags = HideFlags.HideAndDontSave;
-        this._bar.top = 0;
-        this._bar.bottom = 0;
-        this.addChild(this._bar);
-    }
 
     /**
      * @copy laya.ui.Image#skin
@@ -179,56 +139,6 @@ export class ProgressBar extends UIComponent {
             return;
 
         this._setSkin(value);
-    }
-
-    _setSkin(url: string): Promise<void> {
-        this._skin = url;
-
-        if (url) {
-            return AssetDb.inst.resolveURL(url).then(url => {
-                if (this._destroyed)
-                    return null;
-
-                if (this._skinBaseUrl)
-                    url = URL.formatURL(url, this._skinBaseUrl);
-
-                return Promise.all([
-                    this._bg._setSkin(url),
-                    this._bar._setSkin(Utils.replaceFileExtension(url, "$bar.png", true))
-                ]).then(() => this._skinLoaded());
-            });
-        }
-        else {
-            this._bg.skin = null;
-            this._bar.skin = null;
-            this._skinLoaded();
-            return Promise.resolve();
-        }
-    }
-
-    protected _skinLoaded(): void {
-        if (this._destroyed)
-            return;
-
-        this.callLater(this.changeValue);
-        this._sizeChanged();
-        this.event(Event.LOADED);
-    }
-
-    /**
-     * @inheritDoc 
-     * @override
-    */
-    protected measureWidth(): number {
-        return this._bg.width;
-    }
-
-    /**
-     * @inheritDoc 
-     * @override
-    */
-    protected measureHeight(): number {
-        return this._bg.height;
     }
 
     /**
@@ -246,28 +156,6 @@ export class ProgressBar extends UIComponent {
             this.callLater(this.changeValue);
             this.event(Event.CHANGE);
             this.changeHandler && this.changeHandler.runWith(num);
-        }
-    }
-
-    /**
-     * @private
-     * 更改进度值的显示。
-     */
-    protected changeValue(): void {
-        if (this.sizeGrid) {
-            let grid = this.sizeGrid.split(",");
-            let left = parseInt(grid[3]);
-            if (isNaN(left))
-                left = 0;
-            let right = parseInt(grid[1]);
-            if (isNaN(right))
-                right = 0;
-            let max = this.width - left - right;
-            let sw = max * this._value;
-            this._bar.width = left + right + sw;
-            this._bar.visible = this._bar.width > left + right;
-        } else {
-            this._bar.width = this.width * this._value;
         }
     }
 
@@ -299,6 +187,112 @@ export class ProgressBar extends UIComponent {
     }
 
     /**
+     * 创建一个新的 <code>ProgressBar</code> 类实例。
+     * @param skin 皮肤地址。
+     */
+    constructor(skin: string = null) {
+        super();
+        this.skin = skin;
+    }
+
+    /**
+     * @internal
+     * @inheritDoc 
+     * @override
+    */
+    protected createChildren(): void {
+        this._bg = new Image();
+        this._bg.left = 0;
+        this._bg.right = 0;
+        this._bg.top = 0;
+        this._bg.bottom = 0;
+        this._bg.hideFlags = HideFlags.HideAndDontSave;
+        this.addChild(this._bg);
+
+        this._bar = new Image();
+        this._bar.hideFlags = HideFlags.HideAndDontSave;
+        this._bar.top = 0;
+        this._bar.bottom = 0;
+        this.addChild(this._bar);
+    }
+
+    /**@internal */
+    _setSkin(url: string): Promise<void> {
+        this._skin = url;
+
+        if (url) {
+            return AssetDb.inst.resolveURL(url).then(url => {
+                if (this._destroyed)
+                    return null;
+
+                if (this._skinBaseUrl)
+                    url = URL.formatURL(url, this._skinBaseUrl);
+
+                return Promise.all([
+                    this._bg._setSkin(url),
+                    this._bar._setSkin(Utils.replaceFileExtension(url, "$bar.png", true))
+                ]).then(() => this._skinLoaded());
+            });
+        }
+        else {
+            this._bg.skin = null;
+            this._bar.skin = null;
+            this._skinLoaded();
+            return Promise.resolve();
+        }
+    }
+
+    /**@internal */
+    protected _skinLoaded(): void {
+        if (this._destroyed)
+            return;
+
+        this.callLater(this.changeValue);
+        this._sizeChanged();
+        this.event(Event.LOADED);
+    }
+
+    /**
+     * @internal
+     * @inheritDoc 
+     * @override
+    */
+    protected measureWidth(): number {
+        return this._bg.width;
+    }
+
+    /**
+     * @internal
+     * @inheritDoc 
+     * @override
+    */
+    protected measureHeight(): number {
+        return this._bg.height;
+    }
+
+    /**
+     * @internal
+     * 更改进度值的显示。
+     */
+    protected changeValue(): void {
+        if (this.sizeGrid) {
+            let grid = this.sizeGrid.split(",");
+            let left = parseInt(grid[3]);
+            if (isNaN(left))
+                left = 0;
+            let right = parseInt(grid[1]);
+            if (isNaN(right))
+                right = 0;
+            let max = this.width - left - right;
+            let sw = max * this._value;
+            this._bar.width = left + right + sw;
+            this._bar.visible = this._bar.width > left + right;
+        } else {
+            this._bar.width = this.width * this._value;
+        }
+    }
+
+    /**
      * @inheritDoc 
      * @override
     */
@@ -318,4 +312,17 @@ export class ProgressBar extends UIComponent {
         else
             super.set_dataSource(value);
     }
+
+    /**
+     * @inheritDoc 
+     * @override
+    */
+    destroy(destroyChild: boolean = true): void {
+        super.destroy(destroyChild);
+        this._bg && this._bg.destroy(destroyChild);
+        this._bar && this._bar.destroy(destroyChild);
+        this._bg = this._bar = null;
+        this.changeHandler = null;
+    }
+
 }

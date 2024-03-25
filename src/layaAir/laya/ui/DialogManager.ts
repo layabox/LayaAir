@@ -31,14 +31,14 @@ export class DialogManager extends Sprite {
     /**锁屏层*/
     lockLayer: Sprite;
 
-    /**@private 全局默认弹出对话框效果，可以设置一个效果代替默认的弹出效果，如果不想有任何效果，可以赋值为null*/
-    popupEffect = (dialog: Dialog)=>{
+    /**@internal 全局默认弹出对话框效果，可以设置一个效果代替默认的弹出效果，如果不想有任何效果，可以赋值为null*/
+    popupEffect = (dialog: Dialog) => {
         dialog.scale(1, 1);
         dialog._effectTween = Tween.from(dialog, { x: ILaya.stage.width / 2, y: ILaya.stage.height / 2, scaleX: 0, scaleY: 0 }, 300, Ease.backOut, Handler.create(this, this.doOpen, [dialog]), 0, false, false);
     }
 
-    /**@private 全局默认关闭对话框效果，可以设置一个效果代替默认的关闭效果，如果不想有任何效果，可以赋值为null*/
-    closeEffect = (dialog: Dialog)=>{
+    /**@internal 全局默认关闭对话框效果，可以设置一个效果代替默认的关闭效果，如果不想有任何效果，可以赋值为null*/
+    closeEffect = (dialog: Dialog) => {
         dialog._effectTween = Tween.to(dialog, { x: ILaya.stage.width / 2, y: ILaya.stage.height / 2, scaleX: 0, scaleY: 0 }, 300, Ease.strongOut, Handler.create(this, this.doClose, [dialog]), 0, false, false);
     }
 
@@ -60,26 +60,13 @@ export class DialogManager extends Sprite {
         this._onResize(null);
     }
 
+    /**@internal */
     private _closeOnSide(): void {
         var dialog: Dialog = (<Dialog>this.getChildAt(this.numChildren - 1));
         if (dialog instanceof Dialog) dialog.close("side");
     }
 
-    /**设置锁定界面，如果为空则什么都不显示*/
-    setLockView(value: UIComponent): void {
-        if (!this.lockLayer) {
-            this.lockLayer = new Box();
-            this.lockLayer.mouseEnabled = true;
-            this.lockLayer.size(ILaya.stage.width, ILaya.stage.height);
-        }
-        this.lockLayer.removeChildren();
-        if (value) {
-            value.centerX = value.centerY = 0;
-            this.lockLayer.addChild(value);
-        }
-    }
-
-    /**@private */
+    /**@internal */
     private _onResize(e: Event = null): void {
         var width: number = this.maskLayer.width = ILaya.stage.width;
         var height: number = this.maskLayer.height = ILaya.stage.height;
@@ -95,9 +82,56 @@ export class DialogManager extends Sprite {
         }
     }
 
+    /**@internal */
     private _centerDialog(dialog: Dialog): void {
         dialog.x = Math.round(((ILaya.stage.width - dialog.width) >> 1) + dialog.pivotX);
         dialog.y = Math.round(((ILaya.stage.height - dialog.height) >> 1) + dialog.pivotY);
+    }
+
+    /**@internal */
+    private _clearDialogEffect(dialog: Dialog): void {
+        if (dialog._effectTween) {
+            Tween.clear(dialog._effectTween);
+            dialog._effectTween = null;
+        }
+    }
+
+
+    /**@internal */
+    private _closeAll(): void {
+        for (var i: number = this.numChildren - 1; i > -1; i--) {
+            var item: Dialog = (<Dialog>this.getChildAt(i));
+            if (item && item.close != null) {
+                this.doClose(item);
+            }
+        }
+    }
+
+    /**@internal 发生层次改变后，重新检查遮罩层是否正确*/
+    _checkMask(): void {
+        this.maskLayer.removeSelf();
+        for (var i: number = this.numChildren - 1; i > -1; i--) {
+            var dialog: Dialog = (<Dialog>this.getChildAt(i));
+            if (dialog && dialog.isModal) {
+                //trace(numChildren,i);
+                this.addChildAt(this.maskLayer, i);
+                return;
+            }
+        }
+    }
+
+    /**设置锁定界面，如果为空则什么都不显示*/
+    setLockView(value: UIComponent): void {
+        if (!this.lockLayer) {
+            this.lockLayer = new Box();
+            this.lockLayer.mouseEnabled = true;
+            this.lockLayer.size(ILaya.stage.width, ILaya.stage.height);
+        }
+        this.lockLayer.removeChildren();
+        if (value) {
+            value.centerX = value.centerY = 0;
+            this.lockLayer.addChild(value);
+        }
     }
 
     /**
@@ -115,14 +149,6 @@ export class DialogManager extends Sprite {
         if (showEffect && dialog.popupEffect != null) dialog.popupEffect.runWith(dialog);
         else this.doOpen(dialog);
         this.event(Event.OPEN);
-    }
-
-    /**@private */
-    private _clearDialogEffect(dialog: Dialog): void {
-        if (dialog._effectTween) {
-            Tween.clear(dialog._effectTween);
-            dialog._effectTween = null;
-        }
     }
 
     /**
@@ -174,16 +200,6 @@ export class DialogManager extends Sprite {
         this.event(Event.CLOSE);
     }
 
-    /**@private */
-    private _closeAll(): void {
-        for (var i: number = this.numChildren - 1; i > -1; i--) {
-            var item: Dialog = (<Dialog>this.getChildAt(i));
-            if (item && item.close != null) {
-                this.doClose(item);
-            }
-        }
-    }
-
     /**
      * 根据组获取所有对话框
      * @param	group 组名称
@@ -215,18 +231,5 @@ export class DialogManager extends Sprite {
             }
         }
         return arr;
-    }
-
-    /**@internal 发生层次改变后，重新检查遮罩层是否正确*/
-    _checkMask(): void {
-        this.maskLayer.removeSelf();
-        for (var i: number = this.numChildren - 1; i > -1; i--) {
-            var dialog: Dialog = (<Dialog>this.getChildAt(i));
-            if (dialog && dialog.isModal) {
-                //trace(numChildren,i);
-                this.addChildAt(this.maskLayer, i);
-                return;
-            }
-        }
     }
 }

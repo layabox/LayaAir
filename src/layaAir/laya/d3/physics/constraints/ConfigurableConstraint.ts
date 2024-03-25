@@ -178,7 +178,7 @@ export class ConfigurableConstraint extends ConstraintComponent {
     }
 
     /**
-     * main Axis
+     * 主轴
      */
     set axis(value: Vector3) {
         if (!value)
@@ -206,7 +206,7 @@ export class ConfigurableConstraint extends ConstraintComponent {
     }
 
     /**
-     * X Motion
+     * X 位移运动类型
      */
     set XMotion(value: D6Axis) {
         this._xMotion = value;
@@ -218,7 +218,7 @@ export class ConfigurableConstraint extends ConstraintComponent {
     }
 
     /**
-     * Y Motion
+     * Y 位移运动类型
      */
     set YMotion(value: D6Axis) {
         this._yMotion = value;
@@ -230,7 +230,7 @@ export class ConfigurableConstraint extends ConstraintComponent {
     }
 
     /**
-     * Z Motion
+     * Z 位移运动类型
      */
     set ZMotion(value: D6Axis) {
         this._zMotion = value;
@@ -242,7 +242,7 @@ export class ConfigurableConstraint extends ConstraintComponent {
     }
 
     /**
-     * X 角度motion
+     * X 角度运动类型
      */
     set angularXMotion(value: D6Axis) {
         this._angularXMotion = value;
@@ -254,7 +254,7 @@ export class ConfigurableConstraint extends ConstraintComponent {
     }
 
     /**
-     * Y 角度motion
+     * Y 角度运动类型
      */
     set angularYMotion(value: D6Axis) {
         this._angularYMotion = value;
@@ -266,7 +266,7 @@ export class ConfigurableConstraint extends ConstraintComponent {
     }
 
     /**
-     * Z 角度motion
+     * Z 角度运动类型
      */
     set angularZMotion(value: D6Axis) {
         this._angularZMotion = value;
@@ -277,6 +277,9 @@ export class ConfigurableConstraint extends ConstraintComponent {
         return this._angularZMotion;
     }
 
+    /**
+     * 关节位移值
+     */
     set distanceLimit(value: number) {
         if (value < 0)
             return;
@@ -288,6 +291,9 @@ export class ConfigurableConstraint extends ConstraintComponent {
         return this._distanceLimit;
     }
 
+    /**
+     * 关节位移限制后的弹力值
+     */
     set distanceBounciness(value: number) {
         if (value < 0)
             return;
@@ -299,6 +305,9 @@ export class ConfigurableConstraint extends ConstraintComponent {
         return this._distanceBounciness;
     }
 
+    /**
+     * 关节位移限制后弹力阈值
+     */
     set distanceBounceThreshold(value: number) {
         if (value < 0)
             return;
@@ -310,6 +319,9 @@ export class ConfigurableConstraint extends ConstraintComponent {
         return this._distanceBounceThreshold;
     }
 
+    /**
+     * 关节位移弹簧系数值
+     */
     set distanceSpring(value: number) {
         if (value < 0)
             return;
@@ -321,6 +333,9 @@ export class ConfigurableConstraint extends ConstraintComponent {
         return this._distanceSpring;
     }
 
+    /**
+     * 关节位移阻尼值
+     */
     set distanceDamper(value: number) {
         if (value < 0)
             return;
@@ -333,9 +348,11 @@ export class ConfigurableConstraint extends ConstraintComponent {
     }
 
     //linear Axis Limit 
-    //TODO
 
-    /**-180 ---- 180 */
+    /**
+     * 关节X轴最大角度值
+     * -180° ~ 180°
+     */
     set angularXMaxLimit(value: number) {
         value = Math.min(180, Math.max(value, this._twistLower));
         this._twistUper = value;
@@ -346,6 +363,9 @@ export class ConfigurableConstraint extends ConstraintComponent {
         return this._twistUper;
     }
 
+    /**
+     * 关节X轴最小角度值
+     */
     set angularXMinLimit(value: number) {
         value = Math.max(-180, Math.min(value, this._twistUper));
         this._twistLower = value;
@@ -356,7 +376,9 @@ export class ConfigurableConstraint extends ConstraintComponent {
         return this._twistLower;
     }
 
-
+    /**
+     * 关节X轴角度最大值后的弹力值 
+     */
     set AngleXLimitBounceness(value: number) {
         value = Math.max(0, value);
         this._twistBounceness = value;
@@ -367,6 +389,9 @@ export class ConfigurableConstraint extends ConstraintComponent {
         return this._twistBounceness;
     }
 
+    /**
+     * 关节X轴角度最大值后弹力阈值
+     */
     set AngleXLimitBounceThreshold(value: number) {
         value = Math.max(0, value);
         this._twistBounceThreshold = value;
@@ -377,6 +402,9 @@ export class ConfigurableConstraint extends ConstraintComponent {
         return this._twistBounceThreshold;
     }
 
+    /**
+     * 关节X轴角度弹簧系数值
+     */
     set AngleXLimitSpring(value: number) {
         value = Math.max(0, value);
         this._twistStiffness = value;
@@ -387,6 +415,9 @@ export class ConfigurableConstraint extends ConstraintComponent {
         return this._twistStiffness;
     }
 
+    /**
+     * 关节X轴角度阻尼值
+     */
     set AngleXLimitDamp(value: number) {
         value = Math.max(0, value);
         this._twistDamping = value;
@@ -399,6 +430,9 @@ export class ConfigurableConstraint extends ConstraintComponent {
 
     //angular SwingLimit
 
+    /**
+     * 关节Y轴角度限制值
+     */
     set AngleYLimit(value: number) {
         value = Math.min(180, Math.max(0, value));
         this._ySwingAngleLimit = value;
@@ -409,6 +443,9 @@ export class ConfigurableConstraint extends ConstraintComponent {
         return this._ySwingAngleLimit;
     }
 
+    /**
+     * 关节Z轴角度限制值
+     */
     set AngleZLimit(value: number) {
         value = Math.min(180, Math.max(0, value));
         this._zSwingAngleLimit = value;
@@ -419,6 +456,9 @@ export class ConfigurableConstraint extends ConstraintComponent {
         return this._zSwingAngleLimit;
     }
 
+    /**
+     * 关节YZ平面角度最大值后弹力值
+     */
     set AngleYZLimitBounciness(value: number) {
         value = Math.max(0, value);
         this._Swingrestitution = value;
@@ -429,6 +469,9 @@ export class ConfigurableConstraint extends ConstraintComponent {
         return this._Swingrestitution;
     }
 
+    /**
+     * 关节YZ平面角度限制后弹力阈值
+     */
     set AngleYZLimitBounceThreshold(value: number) {
         value = Math.max(0, value);
         this._SwingbounceThreshold = value;
@@ -439,6 +482,9 @@ export class ConfigurableConstraint extends ConstraintComponent {
         return this._SwingbounceThreshold;
     }
 
+    /**
+     * 关节的YZ轴旋转的弹簧系数值
+     */
     set AngleYZLimitSpring(value: number) {
         value = Math.max(0, value);
         this._SwingStiffness = value;
@@ -449,6 +495,9 @@ export class ConfigurableConstraint extends ConstraintComponent {
         return this._SwingStiffness;
     }
 
+    /**
+     * 关节的YZ轴旋转的阻尼值
+     */
     set AngleYZLimitDamping(value: number) {
         value = Math.max(0, value);
         this._SwingDamping = value;
@@ -460,8 +509,9 @@ export class ConfigurableConstraint extends ConstraintComponent {
     }
 
     //set target transform Velocity
-
-
+    /**
+     * 关节移动到目标的位置
+     */
     set targetPosition(value: Vector3) {
         value.cloneTo(this._targetPosition);
         this._setTargetTransform();
@@ -471,6 +521,9 @@ export class ConfigurableConstraint extends ConstraintComponent {
         return this._targetPosition;
     }
 
+    /**
+     * 关节旋转驱动的方向
+     */
     set targetRotation(value: Vector3) {
         value.cloneTo(this._targetRotation);
         this._setTargetTransform();
@@ -480,6 +533,9 @@ export class ConfigurableConstraint extends ConstraintComponent {
         return this._targetRotation;
     }
 
+    /**
+     * 关节移动到目标位置的移动速度
+     */
     set targetPositionVelocity(value: Vector3) {
         value.cloneTo(this._targetVelocity);
         this._setTargetVelocirty();
@@ -489,6 +545,9 @@ export class ConfigurableConstraint extends ConstraintComponent {
         return this._targetVelocity;
     }
 
+    /**
+     * 关节旋转到目标角度驱动的角速度
+     */
     set targetAngularVelocity(value: Vector3) {
         value.cloneTo(this._targetAngularVelocity);
         this._setTargetVelocirty();
@@ -499,6 +558,9 @@ export class ConfigurableConstraint extends ConstraintComponent {
     }
 
 
+    /**
+     * 关节在X轴方向上的弹簧系数值
+     */
     set XDriveSpring(value: number) {
         value = Math.max(value, 0);
         this._linearDriveForce.x = value;
@@ -509,6 +571,9 @@ export class ConfigurableConstraint extends ConstraintComponent {
         return this._linearDriveForce.x;
     }
 
+    /**
+     * 关节在Y轴方向上的弹簧系数值
+     */
     set YDriveSpring(value: number) {
         value = Math.max(value, 0);
         this._linearDriveForce.y = value;
@@ -519,6 +584,9 @@ export class ConfigurableConstraint extends ConstraintComponent {
         return this._linearDriveForce.y;
     }
 
+    /**
+     * 关节在Z轴方向上的
+     */
     set ZDriveSpring(value: number) {
         value = Math.max(value, 0);
         this._linearDriveForce.z = value;
@@ -529,6 +597,9 @@ export class ConfigurableConstraint extends ConstraintComponent {
         return this._linearDriveForce.z;
     }
 
+    /**
+     * 关节在X轴方向上的阻尼值
+     */
     set XDriveDamp(value: number) {
         value = Math.max(value, 0);
         this._linearDriveDamping.x = value;
@@ -539,6 +610,9 @@ export class ConfigurableConstraint extends ConstraintComponent {
         return this._linearDriveDamping.x;
     }
 
+    /**
+     * 关节在Y轴方向上的阻尼值
+     */
     set YDriveDamp(value: number) {
         value = Math.max(value, 0);
         this._linearDriveDamping.y = value;
@@ -549,6 +623,9 @@ export class ConfigurableConstraint extends ConstraintComponent {
         return this._linearDriveDamping.y;
     }
 
+    /**
+     * 关节在Z轴方向上的阻尼值
+     */
     set ZDriveDamp(value: number) {
         value = Math.max(value, 0);
         this._linearDriveDamping.z = value;
@@ -559,6 +636,9 @@ export class ConfigurableConstraint extends ConstraintComponent {
         return this._linearDriveDamping.z;
     }
 
+    /**
+     * 关节在X轴方向上的最大驱动力值
+     */
     set XDriveForceLimit(value: number) {
         value = Math.max(value, 0);
         this._linearDriveforceLimit.x = value;
@@ -569,6 +649,9 @@ export class ConfigurableConstraint extends ConstraintComponent {
         return this._linearDriveforceLimit.x;
     }
 
+    /**
+     * 关节在Y轴方向上的最大驱动力值
+     */
     set YDriveForceLimit(value: number) {
         value = Math.max(value, 0);
         this._linearDriveforceLimit.y = value;
@@ -579,6 +662,9 @@ export class ConfigurableConstraint extends ConstraintComponent {
         return this._linearDriveforceLimit.y;
     }
 
+    /**
+     * 关节在Z轴方向上的最大驱动力值
+     */
     set ZDriveForceLimit(value: number) {
         value = Math.max(value, 0);
         this._linearDriveforceLimit.z = value;
@@ -589,6 +675,9 @@ export class ConfigurableConstraint extends ConstraintComponent {
         return this._linearDriveforceLimit.z;
     }
 
+    /**
+     * 关节在X轴角度的最大驱动力
+     */
     public get angularXDriveForceLimit(): number {
         return this._angularXDriveForceLimit;
     }
@@ -598,6 +687,9 @@ export class ConfigurableConstraint extends ConstraintComponent {
         this._setAngularXDrive();
     }
 
+    /**
+     * 关节在X轴的角度驱动力
+     */
     public get angularXDriveForce(): number {
         return this._angularXDriveForce;
     }
@@ -607,6 +699,9 @@ export class ConfigurableConstraint extends ConstraintComponent {
         this._setAngularXDrive();
     }
 
+    /**
+     * 关节在X轴方向的角度阻尼值
+     */
     public get angularXDriveDamp(): number {
         return this._angularXDriveDamp;
     }
@@ -616,6 +711,9 @@ export class ConfigurableConstraint extends ConstraintComponent {
         this._setAngularXDrive();
     }
 
+    /**
+     * 关节在YZ平面旋转驱动力最大值
+     */
     public get angularYZDriveForceLimit(): number {
         return this._angularYZDriveForceLimit;
     }
@@ -625,6 +723,9 @@ export class ConfigurableConstraint extends ConstraintComponent {
         this._setAngularYZDrive();
     }
 
+    /**
+     * 关节在YZ平面旋转驱动力
+     */
     public get angularYZDriveForce(): number {
         return this._angularYZDriveForce;
     }
@@ -634,6 +735,9 @@ export class ConfigurableConstraint extends ConstraintComponent {
         this._setAngularYZDrive();
     }
 
+    /**
+     * 关节在YZ平面上的阻尼
+     */
     public get angularYZDriveDamp(): number {
         return this._angularYZDriveDamp;
     }
@@ -643,6 +747,9 @@ export class ConfigurableConstraint extends ConstraintComponent {
         this._setAngularYZDrive();
     }
 
+    /**
+     * 关节的角度插值驱动力最大值
+     */
     public get angularSlerpDriveForceLimit(): number {
         return this._angularSlerpDriveForceLimit;
     }
@@ -652,6 +759,9 @@ export class ConfigurableConstraint extends ConstraintComponent {
         this._setAngularSlerpDrive();
     }
 
+    /**
+     * 关节的角度插值驱动力
+     */
     public get angularSlerpDriveForce(): number {
         return this._angularSlerpDriveForce;
     }
@@ -661,6 +771,9 @@ export class ConfigurableConstraint extends ConstraintComponent {
         this._setAngularSlerpDrive();
     }
 
+    /**
+     * 角度插值阻尼
+     */
     public get angularSlerpDriveDamp(): number {
         return this._angularSlerpDriveDamp;
     }
@@ -670,6 +783,9 @@ export class ConfigurableConstraint extends ConstraintComponent {
         this._setAngularSlerpDrive();
     }
 
+    /**
+     * @internal
+     */
     _initAllConstraintInfo(): void {
         this._setDriveLinearX();
         this._setDriveLinearY();
@@ -684,19 +800,30 @@ export class ConfigurableConstraint extends ConstraintComponent {
         this._setAxis();
         this._setTargetVelocirty();
     }
+
+    /**
+     * @internal
+     * @protected
+     */
     protected _onEnable(): void {
         if (this._joint)
             this._joint.isEnable(true);
     }
 
+    /**
+     * @internal
+     * @protected
+     */
     protected _onDisable(): void {
         if (this._joint)
             this._joint.isEnable(false);
     }
 
     /**
-    * create joint
-    */
+     * @internal
+     * @protected
+     * create joint
+     */
     protected _initJoint(): void {
         this._physicsManager = ((<Scene3D>this.owner._scene))._physicsManager;
         if (Laya3D.enablePhysics && Laya3D.PhysicsCreateUtil.getPhysicsCapable(EPhysicsCapable.Physics_D6Joint)) {

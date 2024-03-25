@@ -157,6 +157,9 @@ export class Light extends Component {
         }
     }
 
+    /**
+     * 获取灯光世界矩阵
+     */
     get lightWorldMatrix(): Matrix4x4 {
         var position = (this.owner as Sprite3D).transform.position;
         var quaterian = (this.owner as Sprite3D).transform.rotation;
@@ -164,6 +167,9 @@ export class Light extends Component {
         return this._lightWoldMatrix;
     }
 
+    /**
+     * 获取灯光类型
+     */
     get lightType() {
         return this._lightType;
     }
@@ -285,14 +291,26 @@ export class Light extends Component {
     protected _removeFromLightQueue(): void {
     }
 
+    /**
+     * @internal
+     * @protected
+     */
     protected _onEnable(): void {
         (this.lightmapBakedType !== LightMode.bakeOnly) && (this._addToScene());
     }
 
+    /**
+     * @internal
+     * @protected
+     */
     protected _onDisable(): void {
         (this.lightmapBakedType !== LightMode.bakeOnly) && (this._removeFromScene());
     }
 
+    /**
+     * @internal
+     * @protected
+     */
     protected _onDestroy() {
     }
 

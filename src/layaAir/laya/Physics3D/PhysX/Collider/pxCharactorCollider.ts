@@ -103,6 +103,7 @@ export class pxCharactorCollider extends pxCollider implements ICharacterControl
         this._characterCapableMap.set(ECharacterCapable.Character_Skin, true);
         this._characterCapableMap.set(ECharacterCapable.Character_minDistance, true);
         this._characterCapableMap.set(ECharacterCapable.Character_EventFilter, true);
+        this._characterCapableMap.set(ECharacterCapable.Character_SimulateGravity, true);
     }
 
     /**
@@ -124,6 +125,8 @@ export class pxCharactorCollider extends pxCollider implements ICharacterControl
         this._pxController = this._physicsManager._pxcontrollerManager.createController(desc);
         this._pxController.setShapeID(this._pxNullShape._id);
         // pxColliderShape._shapePool.set(this._id, this as any);
+        this.setRadius(this._radius);
+        this.setHeight(this._height);
         this.setPosition(this.owner.transform.position);
         this.setStepOffset(this._stepOffset);
         this.setUpDirection(this._upDirection);

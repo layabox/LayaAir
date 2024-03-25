@@ -57,6 +57,9 @@ export class TextureCube extends BaseTexture {
         return TextureCube._whiteTexture;
     }
 
+    /**
+     * 错误纹理
+     */
     static get errorTexture() {
         return TextureCube._errorTexture;
     }
@@ -93,8 +96,14 @@ export class TextureCube extends BaseTexture {
         return;
     }
 
-    // todo source数组 改为 CubeInfo 结构体?
+    /**
+     * 设置图片数据
+     * @param source 数据数组
+     * @param premultiplyAlpha 是否预乘Alpha 
+     * @param invertY 翻转Y轴
+     */
     setImageData(source: (HTMLImageElement | HTMLCanvasElement | ImageBitmap)[], premultiplyAlpha: boolean, invertY: boolean) {
+        // todo source数组 改为 CubeInfo 结构体?
         let error = false;
         let k = source.findIndex(s => s != null);
         if (k != -1) {
@@ -114,26 +123,55 @@ export class TextureCube extends BaseTexture {
         }
     }
 
+    /**
+     * 设置数据
+     * @param source 数据 
+     * @param premultiplyAlpha 是否预乘Alpha 
+     * @param invertY 翻转Y轴
+     */
     setPixelsData(source: ArrayBufferView[], premultiplyAlpha: boolean, invertY: boolean) {
         let texture = this._texture;
         LayaGL.textureContext.setCubePixelsData(texture, source, premultiplyAlpha, invertY);
     }
 
+    /**
+     * 更新子像素数据
+     * @param source 数据 
+     * @param xOffset x偏移
+     * @param yOffset y偏移
+     * @param width 宽度
+     * @param height 高度
+     * @param mipmapLevel 多级纹理等级 
+     * @param generateMipmap 是否生成多级纹理
+     * @param premultiplyAlpha 是否预乘Alpha
+     * @param invertY 翻转Y轴
+     */
     updateSubPixelsData(source: ArrayBufferView[], xOffset: number, yOffset: number, width: number, height: number, mipmapLevel: number, generateMipmap: boolean, premultiplyAlpha: boolean, invertY: boolean) {
         let texture = this._texture;
         LayaGL.textureContext.setCubeSubPixelData(texture, source, mipmapLevel, generateMipmap, xOffset, yOffset, width, height, premultiplyAlpha, invertY);
     }
 
+    /**
+     * 设置立方体贴图DDS数据
+     * @param ddsInfo DDS数据
+     */
     setDDSData(ddsInfo: DDSTextureInfo) {
         let texture = this._texture;
         LayaGL.textureContext.setCubeDDSData(texture, ddsInfo);
     }
 
+    /**
+     * 设置立方体贴图KTX数据
+     * @param ktxInfo KTX数据
+     */
     setKTXData(ktxInfo: KTXTextureInfo) {
         let texture = this._texture;
         LayaGL.textureContext.setCubeKTXData(texture, ktxInfo);
     }
 
+    /**
+     * 默认立方体纹理
+     */
     get defaultTexture(): BaseTexture {
         return TextureCube.grayTexture;
     }

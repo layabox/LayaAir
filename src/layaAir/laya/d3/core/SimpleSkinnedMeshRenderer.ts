@@ -80,6 +80,11 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
         this._baseRenderNode.shaderData.setVector(SimpleSkinnedMeshRenderer.SIMPLE_SIMPLEANIMATORPARAMS, new Vector4());
     }
 
+    /**
+     * @internal
+     * @protected
+     * @returns 
+     */
     protected _getcommonUniformMap(): string[] {
         return ["Sprite3D", "SimpleSkinnedMesh"];
     }
@@ -107,6 +112,16 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
             this._simpleAnimatorParams.y = Math.round(this._simpleAnimatorOffset.y) * this._bonesNums * 4;
             this._baseRenderNode.shaderData.setVector(SimpleSkinnedMeshRenderer.SIMPLE_SIMPLEANIMATORPARAMS, this._simpleAnimatorParams);
         }
+    }
+
+    /**
+     * 自定义数据
+     * @param value1 自定义数据1
+     * @param value2 自定义数据1
+     */
+    setCustomData(value1: number, value2: number = 0) {
+        this._simpleAnimatorParams.z = value1;
+        this._simpleAnimatorParams.w = value2;
     }
 
     /**
@@ -145,14 +160,22 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
         shaderData.setVector(SimpleSkinnedMeshRenderer.SIMPLE_SIMPLEANIMATORPARAMS, this._simpleAnimatorParams);
     }
 
-    _cloneTo(dest: SimpleSkinnedMeshRenderer): void {
-        dest.simpleAnimatorOffset = this.simpleAnimatorOffset;
-        dest.simpleAnimatorTexture = this.simpleAnimatorTexture;
-        dest._bonesNums = this._bonesNums;
+    /**
+     * @internal
+     * 克隆到目标
+     * @param dest 目标 
+     */
+    _cloneTo(dest: Component): void {
+        let render = dest as SimpleSkinnedMeshRenderer;
+        render.simpleAnimatorOffset = this.simpleAnimatorOffset;
+        render.simpleAnimatorTexture = this.simpleAnimatorTexture;
+        render._bonesNums = this._bonesNums;
         super._cloneTo(dest);
     }
 
     /**
+     * @internal
+     * @protected
      * 删除节点
      */
     protected _onDestroy() {

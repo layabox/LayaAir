@@ -329,6 +329,7 @@ export class UI3D extends BaseRender {
     }
 
     /**
+     * @internal
      * get camera distance
      * @param rayOri 
      * @returns 

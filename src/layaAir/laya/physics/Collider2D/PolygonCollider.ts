@@ -1,6 +1,7 @@
 import { ColliderBase } from "./ColliderBase";
 import { Physics2D } from "../Physics2D";
 import { PhysicsShape } from "./ColliderStructInfo";
+import { Sprite } from "../../display/Sprite";
 
 /**
  * 2D多边形碰撞体，暂时不支持凹多边形，如果是凹多边形，先手动拆分为多个凸多边形
@@ -20,6 +21,11 @@ export class PolygonCollider extends ColliderBase {
     constructor() {
         super();
         this._physicShape = PhysicsShape.PolygonShape;
+    }
+    onAdded() {
+        super.onAdded();
+        let sp = this.owner as Sprite;
+        this._datas.push(0, 0, sp.width, sp.height * 0.5, 0, sp.height);
     }
 
     /**

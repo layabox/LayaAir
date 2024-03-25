@@ -342,6 +342,7 @@ export class Animator2D extends Component {
         let clipDuration = clip!._duration;
         let time = playStateInfo._normalizedPlayTime * clipDuration;
         let frontPlay = playStateInfo._frontPlay;
+        let pTime = playStateInfo._parentPlayTime;
         let parentPlayTime = playStateInfo._parentPlayTime;
         if (null == parentPlayTime) {
             if (frontPlay) {
@@ -362,9 +363,11 @@ export class Animator2D extends Component {
             }
         }
 
-
         this._eventScript(events, parentPlayTime, time, frontPlay);
-        playStateInfo._parentPlayTime = time;
+        /**如果不相等，应该是event事件里面跳转了，被重置了动画 */
+        if (pTime == playStateInfo._parentPlayTime) {
+            playStateInfo._parentPlayTime = time;
+        }
     }
     /**
     * @internal
@@ -454,7 +457,7 @@ export class Animator2D extends Component {
     private _applyTransition(layerindex: number, transition: AnimatorTransition2D) {
         if (!transition)
             return false;
-        return this.crossFade(transition.destState.name, transition.transduration, layerindex, transition.transstartoffset);
+        return this.crossFade(transition.destState.name, layerindex, transition.transstartoffset, transition.transduration);
     }
 
     /**
@@ -478,6 +481,13 @@ export class Animator2D extends Component {
         return ret;
     }
 
+    /**
+     * 跳转到指定帧并停止播放动画
+     * @param name 动画名称
+     * @param layerIndex 动画层
+     * @param frame 指定帧
+     * @returns 
+     */
     gotoAndStopByFrame(name: string, layerIndex: number, frame: number) {
         var controllerLayer = this._controllerLayers[layerIndex];
         if (controllerLayer) {
@@ -491,6 +501,13 @@ export class Animator2D extends Component {
         }
     }
 
+    /**
+     * 跳转到指定时间并停止播放动画
+     * @param name 
+     * @param layerIndex 
+     * @param normalizedTime 
+     * @returns 
+     */
     gotoAndStop(name: string, layerIndex: number, normalizedTime: number) {
         var controllerLayer = this._controllerLayers[layerIndex];
         if (controllerLayer) {
@@ -667,19 +684,25 @@ export class Animator2D extends Component {
     /**
      * 在当前动画状态和目标动画状态之间进行融合过渡播放。
      * @param	name 目标动画状态。
+     * @param	layerIndex 层索引。
+     * @param	normalizedTime 归一化的播放起始时间。
      * @param	transitionDuration 过渡时间,该值为当前动画状态的归一化时间，值在0.0~1.0之间。
+     */
+    crossFade(name: string, layerIndex: number, normalizedTime: number, transitionDuration: number): boolean;
+    /**
+     * 在当前动画状态和目标动画状态之间进行融合过渡播放。
+     * @param	name 目标动画状态。
      * @param	layerIndex 层索引。
      * @param	normalizedTime 归一化的播放起始时间。
      */
-    crossFade(name: string, transitionDuration: number, layerIndex: number = 0, normalizedTime: number = Number.NEGATIVE_INFINITY) {
+    crossFade(name: string, layerIndex: number, normalizedTime: number): boolean;
+    crossFade(name: string, layerIndex: number = 0, normalizedTime: number = Number.NEGATIVE_INFINITY, transitionDuration?: number): boolean {
         var controllerLayer = this._controllerLayers[layerIndex];
         if (controllerLayer) {
             var destAnimatorState = controllerLayer.getStateByName(name);
             if (destAnimatorState) {
-
                 this.play(name, layerIndex, normalizedTime);
                 return true;
-
             }
             else {
                 console.warn("Invalid layerIndex " + layerIndex + ".");

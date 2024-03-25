@@ -6,6 +6,7 @@ import { Pool } from "../../utils/Pool"
  * 绘制多边形
  */
 export class DrawPolyCmd {
+    /**绘制多边形CMD的标识符 */
     static ID: string = "DrawPoly";
 
     /**
@@ -33,7 +34,7 @@ export class DrawPolyCmd {
      */
     lineWidth: number;
 
-    /**@private */
+    /**@private 创建绘制多边形CMD*/
     static create(x: number, y: number, points: any[], fillColor: any, lineColor: any, lineWidth: number): DrawPolyCmd {
         var cmd: DrawPolyCmd = Pool.getItemByClass("DrawPolyCmd", DrawPolyCmd);
         cmd.x = x;
@@ -55,14 +56,14 @@ export class DrawPolyCmd {
         Pool.recover("DrawPolyCmd", this);
     }
 
-    /**@private */
+    /**@private 执行绘制多边形CMD*/
     run(context: Context, gx: number, gy: number): void {
         let isConvexPolygon = this.points.length <= 6;
         let offset = (this.lineWidth >= 1 && this.lineColor) ? (this.lineWidth % 2 === 0 ? 0 : 0.5) : 0;
         this.points && context._drawPoly(this.x + offset + gx, this.y + offset + gy, this.points, this.fillColor, this.lineColor, this.lineWidth, isConvexPolygon, 0);
     }
 
-    /**@private */
+    /**@private 获取绘制多边形CMD的标识符*/
     get cmdID(): string {
         return DrawPolyCmd.ID;
     }

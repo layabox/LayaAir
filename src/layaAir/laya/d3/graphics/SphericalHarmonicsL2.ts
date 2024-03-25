@@ -1,4 +1,3 @@
-
 import { Color } from "../../maths/Color";
 import { Vector3 } from "../../maths/Vector3";
 import { TextureCubeFace } from "../../resource/TextureCube";

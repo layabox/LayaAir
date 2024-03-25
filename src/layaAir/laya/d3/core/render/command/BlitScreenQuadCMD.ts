@@ -49,7 +49,7 @@ export class BlitScreenQuadCMD extends Command {
 	/**@internal */
 	private _dest: RenderTexture = null;
 	/**@internal */
-	private _offsetScale: Vector4 = null;
+	private _offsetScale: Vector4 = new Vector4();
 	/**@internal */
 	private _shader: Shader3D = null;
 	/**@internal */
@@ -164,7 +164,7 @@ export class BlitScreenQuadCMD extends Command {
 		BlitScreenQuadCMD._pool.push(this);
 		this._source = null;
 		this._dest = null;
-		this._offsetScale = null;
+		BlitScreenQuadCMD._defaultOffsetScale.cloneTo(this._offsetScale);
 		this._shader = null;
 		this._shaderData = null;
 		super.recover();
