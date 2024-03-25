@@ -1,6 +1,5 @@
 import { ISubshaderData } from "../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
 import { ShaderDataType, ShaderDataItem } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
-import { ShaderDefine } from "../../RenderDriver/RenderModuleData/Design/ShaderDefine";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { UniformBufferParamsType, UnifromBufferData } from "../../RenderEngine/UniformBufferData";
 import { Laya3DRender } from "../../d3/RenderObjs/Laya3DRender";
