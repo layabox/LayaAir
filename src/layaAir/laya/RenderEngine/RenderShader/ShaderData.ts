@@ -15,6 +15,7 @@ import { Vector2 } from "../../maths/Vector2";
 import { Vector3 } from "../../maths/Vector3";
 import { Vector4 } from "../../maths/Vector4";
 import { Matrix3x3 } from "../../maths/Matrix3x3";
+import { Texture2DArray } from "../../resource/Texture2DArray";
 type uboParams = { ubo: UniformBufferObject; uboBuffer: UnifromBufferData };
 export enum ShaderDataType {
 	Int,
@@ -29,6 +30,8 @@ export enum ShaderDataType {
 	TextureCube,
 	Buffer,
 	Matrix3x3,
+	Texture2DArray,
+	Texture3D
 }
 
 export type ShaderDataItem = number | boolean | Vector2 | Vector3 | Vector4 | Color | Matrix4x4 | BaseTexture | Float32Array | Matrix3x3;
@@ -53,8 +56,13 @@ export function ShaderDataDefaultValue(type: ShaderDataType) {
 			return Matrix4x4.DEFAULT;
 		case ShaderDataType.Matrix3x3:
 			return Matrix3x3.DEFAULT;
+		case ShaderDataType.Texture2DArray:
+			return Texture2DArray.defaultTexture;
+		case ShaderDataType.Texture3D:
+			return Texture2DArray.defaultTexture;
+		default:
+			return null;
 	}
-	return null;
 }
 
 /**
@@ -553,6 +561,8 @@ export class ShaderData implements IClone {
 				break;
 			case ShaderDataType.Texture2D:
 			case ShaderDataType.TextureCube:
+			case ShaderDataType.Texture2DArray:
+			case ShaderDataType.Texture3D:
 				this.setTexture(uniformIndex, <BaseTexture>value);
 				break;
 			case ShaderDataType.Buffer:
@@ -583,6 +593,8 @@ export class ShaderData implements IClone {
 				return this.getMatrix4x4(uniformIndex);
 			case ShaderDataType.Texture2D:
 			case ShaderDataType.TextureCube:
+			case ShaderDataType.Texture2DArray:
+			case ShaderDataType.Texture3D:
 				return this.getTexture(uniformIndex);
 			case ShaderDataType.Buffer:
 				return this.getBuffer(uniformIndex);

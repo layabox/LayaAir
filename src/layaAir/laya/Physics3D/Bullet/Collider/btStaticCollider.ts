@@ -82,6 +82,7 @@ export class btStaticCollider extends btCollider implements IStaticCollider {
         this._staticCapableMap.set(EColliderCapable.Collider_BounceCombine, true);
         this._staticCapableMap.set(EColliderCapable.Collider_FrictionCombine, true);
         this._staticCapableMap.set(EColliderCapable.Collider_EventFilter, false);
+        this._staticCapableMap.set(EColliderCapable.Collider_CollisionDetectionMode, false);
     }
 
     setWorldPosition(value: Vector3): void {

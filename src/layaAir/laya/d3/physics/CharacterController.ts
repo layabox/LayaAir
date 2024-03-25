@@ -71,6 +71,7 @@ export class CharacterController extends PhysicsColliderComponent {
         this._radius = value;
         if (this._collider && this.collider.getCapable(ECharacterCapable.Character_Radius)) {
             this._collider.setRadius(this._radius);
+            this._colliderShape && ((this._colliderShape as CapsuleColliderShape).radius = value);
         }
     }
 
@@ -85,6 +86,7 @@ export class CharacterController extends PhysicsColliderComponent {
         this._height = value;
         if (this._collider && this.collider.getCapable(ECharacterCapable.Character_Height)) {
             this._collider.setHeight(this._height);
+            this._colliderShape && ((this._colliderShape as CapsuleColliderShape).length = value);
         }
     }
 
@@ -113,6 +115,7 @@ export class CharacterController extends PhysicsColliderComponent {
         this._offset = value;
         if (this._collider && this.collider.getCapable(ECharacterCapable.Character_offset)) {
             this._collider.setShapelocalOffset(this._offset);
+            this._colliderShape && ((this._colliderShape as CapsuleColliderShape).localOffset = value);
         }
     }
 

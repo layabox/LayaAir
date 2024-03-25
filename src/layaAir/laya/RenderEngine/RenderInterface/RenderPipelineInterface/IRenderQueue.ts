@@ -10,7 +10,7 @@ import { IRenderContext3D } from "./IRenderContext3D";
  * RenderQueue,渲染队列
  */
 export interface IRenderQueue {
-    /** @internal */
+    /** @interanl */
     _isTransparent: boolean;
     /** @internal */
     elements: SingletonList<RenderElement>;

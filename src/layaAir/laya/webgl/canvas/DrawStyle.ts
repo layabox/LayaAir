@@ -5,6 +5,7 @@ export class DrawStyle {
     static _Defaultinit() {
         DrawStyle.DEFAULT = new DrawStyle("#000000");
     }
+
     _color: ColorUtils;
 
     static create(value: any): DrawStyle {

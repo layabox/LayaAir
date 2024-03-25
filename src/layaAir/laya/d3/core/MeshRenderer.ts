@@ -69,7 +69,7 @@ export class MeshRenderer extends BaseRender {
         return new SubMeshRenderElement();
     }
 
-    /**@internal */
+    /**@intermal */
     getMesh() {
         return this._mesh;
     }

@@ -63,6 +63,8 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
         this._dynamicCapableMap.set(EColliderCapable.Collider_BounceCombine, true);
         this._dynamicCapableMap.set(EColliderCapable.Collider_FrictionCombine, true);
         this._dynamicCapableMap.set(EColliderCapable.Collider_EventFilter, true);
+        this._dynamicCapableMap.set(EColliderCapable.Collider_CollisionDetectionMode, true);
+
         this._dynamicCapableMap.set(EColliderCapable.RigidBody_AllowSleep, true);
         this._dynamicCapableMap.set(EColliderCapable.RigidBody_Gravity, true);
         this._dynamicCapableMap.set(EColliderCapable.RigidBody_LinearDamp, true);
@@ -102,7 +104,7 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
     }
 
     protected _initCollider() {
-        this._pxActor = pxPhysicsCreateUtil._pxPhysics.createRigidDynamic(this._transformTo(new Vector3(), new Quaternion())); 
+        this._pxActor = pxPhysicsCreateUtil._pxPhysics.createRigidDynamic(this._transformTo(new Vector3(), new Quaternion()));
     }
 
     protected _initColliderShapeByCollider() {

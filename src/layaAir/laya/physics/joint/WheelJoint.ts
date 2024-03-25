@@ -8,54 +8,71 @@ import { Utils } from "../../utils/Utils";
  * 轮子关节：围绕节点旋转，包含弹性属性，使得刚体在节点位置发生弹性偏移
  */
 export class WheelJoint extends JointBase {
-
-    /**@internal */
+    /**@private */
     private static _temp: physics2D_WheelJointDef;
-
-    /**@internal 弹簧系统的震动频率，可以视为弹簧的弹性系数，通常频率应该小于时间步长频率的一半*/
-    private _frequency: number = 1;
-
-    /**@internal 刚体在回归到节点过程中受到的阻尼比，建议取值0~1*/
-    private _dampingRatio: number = 0.7;
-
-    /**@internal 是否开启马达，开启马达可使目标刚体运动*/
-    private _enableMotor: boolean = false;
-
-    /**@internal 启用马达后，可以达到的最大旋转速度*/
-    private _motorSpeed: number = 0;
-
-    /**@internal 启用马达后，可以施加的最大扭距，如果最大扭矩太小，会导致不旋转*/
-    private _maxMotorTorque: number = 10000;
-
-    /**@internal 是否对刚体的移动范围加以约束*/
-    private _enableLimit: boolean = true;
-
-    /**@internal 启用约束后，刚体移动范围的下限，是距离anchor的偏移量*/
-    private _lowerTranslation: number = 0;
-
-    /**@internal 启用约束后，刚体移动范围的上限，是距离anchor的偏移量*/
-    private _upperTranslation: number = 0;
-
-    /**
-    * @internal
-    * @deprecated
-      * [首次设置有效]一个向量值，用于定义弹性运动方向，即轮子在哪个方向可以如弹簧一样压缩和伸展，比如1,0是沿X轴向右，0,1是沿Y轴向下*/
-    _axis: any[] = [0, 1];
-
     /**[首次设置有效]关节的自身刚体*/
     selfBody: RigidBody;
-
     /**[首次设置有效]关节的连接刚体*/
     otherBody: RigidBody;
-
     /**[首次设置有效]关节的链接点，是相对于自身刚体的左上角位置偏移*/
     anchor: any[] = [0, 0];
-
     /**[首次设置有效]两个刚体是否可以发生碰撞，默认为false*/
     collideConnected: boolean = false;
-
+    /**
+     * @deprecated
+     * [首次设置有效]一个向量值，用于定义弹性运动方向，即轮子在哪个方向可以如弹簧一样压缩和伸展，比如1,0是沿X轴向右，0,1是沿Y轴向下*/
+    _axis: any[] = [0, 1];
     /**[首次设置有效]一个角度值，用于定义弹性运动方向，即轮子在哪个方向可以如弹簧一样压缩和伸展，比如0是沿X轴向右, 90是沿Y轴向下*/
     angle: number = 90;
+
+    /**弹簧系统的震动频率，可以视为弹簧的弹性系数，通常频率应该小于时间步长频率的一半*/
+    private _frequency: number = 1;
+    /**刚体在回归到节点过程中受到的阻尼比，建议取值0~1*/
+    private _dampingRatio: number = 0.7;
+
+    /**是否开启马达，开启马达可使目标刚体运动*/
+    private _enableMotor: boolean = false;
+    /**启用马达后，可以达到的最大旋转速度*/
+    private _motorSpeed: number = 0;
+    /**启用马达后，可以施加的最大扭距，如果最大扭矩太小，会导致不旋转*/
+    private _maxMotorTorque: number = 10000;
+
+    /**是否对刚体的移动范围加以约束*/
+    private _enableLimit: boolean = true;
+    /**启用约束后，刚体移动范围的下限，是距离anchor的偏移量*/
+    private _lowerTranslation: number = 0;
+    /**启用约束后，刚体移动范围的上限，是距离anchor的偏移量*/
+    private _upperTranslation: number = 0;
+
+
+    /**
+     * @override
+     */
+    protected _createJoint(): void {
+        if (!this._joint) {
+            if (!this.otherBody) throw "otherBody can not be empty";
+            this.selfBody = this.selfBody || this.owner.getComponent(RigidBody);
+            if (!this.selfBody) throw "selfBody can not be empty";
+
+            var def: physics2D_WheelJointDef = WheelJoint._temp || (WheelJoint._temp = new physics2D_WheelJointDef());
+            var anchorPos: Point = this.selfBody.GetWorldPoint(this.anchor[0], this.anchor[1]);
+            def.anchor.setValue(anchorPos.x, anchorPos.y);
+            let radian = Utils.toRadian(this.angle);
+            def.axis.setValue(Math.cos(radian), Math.sin(radian));
+            def.bodyA = this.otherBody.getBody();
+            def.bodyB = this.selfBody.getBody();;
+            def.enableMotor = this._enableMotor;
+            def.motorSpeed = this._motorSpeed;
+            def.maxMotorTorque = this._maxMotorTorque;
+            def.collideConnected = this.collideConnected;
+            def.enableLimit = this._enableLimit;
+            def.lowerTranslation = this._lowerTranslation;
+            def.upperTranslation = this._upperTranslation;
+            def.frequency = this._frequency;
+            def.dampingRatio = this._dampingRatio;
+            this._joint = this._factory.create_WheelJoint(def);
+        }
+    }
 
     /**弹簧系统的震动频率，可以视为弹簧的弹性系数，通常频率应该小于时间步长频率的一半*/
     get frequency(): number {
@@ -148,40 +165,8 @@ export class WheelJoint extends JointBase {
         return this._axis;
     }
 
-    /** @deprecated */
     set axis(value: any) {
         this._axis = value;
         this.angle = Utils.toAngle(Math.atan2(value[1], value[0]));
-    }
-
-    constructor() {
-        super();
-    }
-
-    /**@internal */
-    protected _createJoint(): void {
-        if (!this._joint) {
-            if (!this.otherBody) throw "otherBody can not be empty";
-            this.selfBody = this.selfBody || this.owner.getComponent(RigidBody);
-            if (!this.selfBody) throw "selfBody can not be empty";
-
-            var def: physics2D_WheelJointDef = WheelJoint._temp || (WheelJoint._temp = new physics2D_WheelJointDef());
-            var anchorPos: Point = this.selfBody.getWorldPoint(this.anchor[0], this.anchor[1]);
-            def.anchor.setValue(anchorPos.x, anchorPos.y);
-            let radian = Utils.toRadian(this.angle);
-            def.axis.setValue(Math.cos(radian), Math.sin(radian));
-            def.bodyA = this.otherBody.getBody();
-            def.bodyB = this.selfBody.getBody();;
-            def.enableMotor = this._enableMotor;
-            def.motorSpeed = this._motorSpeed;
-            def.maxMotorTorque = this._maxMotorTorque;
-            def.collideConnected = this.collideConnected;
-            def.enableLimit = this._enableLimit;
-            def.lowerTranslation = this._lowerTranslation;
-            def.upperTranslation = this._upperTranslation;
-            def.frequency = this._frequency;
-            def.dampingRatio = this._dampingRatio;
-            this._joint = this._factory.create_WheelJoint(def);
-        }
     }
 }

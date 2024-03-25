@@ -47,7 +47,7 @@ export class AnimatorStateCondition {
     private _id: number;
 
     /**
-     * @internal
+     * @intenral
      */
     private _name: string;
 

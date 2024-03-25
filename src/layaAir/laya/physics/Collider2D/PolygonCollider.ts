@@ -1,6 +1,7 @@
 import { ColliderBase } from "./ColliderBase";
 import { Physics2D } from "../Physics2D";
 import { PhysicsShape } from "./ColliderStructInfo";
+import { Sprite } from "../../display/Sprite";
 
 /**
  * 2D多边形碰撞体，暂时不支持凹多边形，如果是凹多边形，先手动拆分为多个凸多边形
@@ -9,7 +10,6 @@ import { PhysicsShape } from "./ColliderStructInfo";
 export class PolygonCollider extends ColliderBase {
 
     /**
-     * @internal
      * @deprecated
      * 用逗号隔开的点的集合，格式：x,y,x,y ...
      */
@@ -17,6 +17,26 @@ export class PolygonCollider extends ColliderBase {
 
     /**顶点数据*/
     private _datas: number[] = [];
+
+    constructor() {
+        super();
+        this._physicShape = PhysicsShape.PolygonShape;
+    }
+    onAdded() {
+        super.onAdded();
+        let sp = this.owner as Sprite;
+        this._datas.push(0, 0, sp.width, sp.height * 0.5, 0, sp.height);
+    }
+
+    /**
+    * @override
+    */
+    protected _setShapeData(shape: any): void {
+        var len: number = this.datas.length;
+        if (len < 6) throw "PolygonCollider points must be greater than 3";
+        if (len % 2 == 1) throw "PolygonCollider points lenth must a multiplier of 2";
+        Physics2D.I._factory.set_PolygonShape_data(shape, this.pivotoffx, this.pivotoffy, this.datas, this.scaleX, this.scaleY);
+    }
 
     /**
      * @deprecated
@@ -47,18 +67,5 @@ export class PolygonCollider extends ColliderBase {
         if (!value) throw "PolygonCollider points cannot be empty";
         this._datas = value;
         this._needupdataShapeAttribute();
-    }
-
-    constructor() {
-        super();
-        this._physicShape = PhysicsShape.PolygonShape;
-    }
-
-    /**@internal 设置碰撞体数据*/
-    _setShapeData(shape: any): void {
-        var len: number = this.datas.length;
-        if (len < 6) throw "PolygonCollider points must be greater than 3";
-        if (len % 2 == 1) throw "PolygonCollider points lenth must a multiplier of 2";
-        Physics2D.I._factory.set_PolygonShape_data(shape, this.pivotoffx, this.pivotoffy, this.datas, this.scaleX, this.scaleY);
     }
 }

@@ -1,6 +1,7 @@
 import { ColliderBase } from "./ColliderBase";
 import { Physics2D } from "../Physics2D";
 import { PhysicsShape } from "./ColliderStructInfo";
+import { Sprite } from "../../display/Sprite";
 
 /**
  * 2D线形碰撞体
@@ -8,17 +9,30 @@ import { PhysicsShape } from "./ColliderStructInfo";
 export class ChainCollider extends ColliderBase {
 
     /**
-     * @internal
      * @deprecated
      * 用逗号隔开的点的集合，格式：x,y,x,y ...
      */
     private _points: string = "0,0,100,0";
 
-    /**@internal 顶点数据*/
+    /**顶点数据*/
     private _datas: number[] = [];
 
-    /**@internal 是否是闭环，注意不要有自相交的链接形状，它可能不能正常工作*/
+    /**是否是闭环，注意不要有自相交的链接形状，它可能不能正常工作*/
     private _loop: boolean = false;
+
+    constructor() {
+        super();
+        this._physicShape = PhysicsShape.ChainShape;
+    }
+
+    /**
+    * @override
+    */
+    protected _setShapeData(shape: any): void {
+        var len: number = this._datas.length;
+        if (len % 2 == 1) throw "ChainCollider datas lenth must a multiplier of 2";
+        Physics2D.I._factory.set_ChainShape_data(shape, this.pivotoffx, this.pivotoffy, this._datas, this._loop, this.scaleX, this.scaleY);
+    }
 
     /**
      * @deprecated
@@ -26,6 +40,11 @@ export class ChainCollider extends ColliderBase {
      */
     get points(): string {
         return this._points;
+    }
+    onAdded() {
+        super.onAdded();
+        let sp = this.owner as Sprite;
+        this._datas.push(0, 0, sp.width, 0, 0, sp.height, sp.width, sp.height);
     }
 
     set points(value: string) {
@@ -60,17 +79,5 @@ export class ChainCollider extends ColliderBase {
         if (this._loop == value) return;
         this._loop = value;
         this._needupdataShapeAttribute();
-    }
-
-    constructor() {
-        super();
-        this._physicShape = PhysicsShape.ChainShape;
-    }
-
-    /**@internal 设置碰撞体数据*/
-    _setShapeData(shape: any): void {
-        var len: number = this._datas.length;
-        if (len % 2 == 1) throw "ChainCollider datas lenth must a multiplier of 2";
-        Physics2D.I._factory.set_ChainShape_data(shape, this.pivotoffx, this.pivotoffy, this._datas, this._loop, this.scaleX, this.scaleY);
     }
 }

@@ -11,7 +11,7 @@ import { RenderElementBatch } from "../../graphics/Batch/RenderElementBatch";
 
 
 export class NativeBaseRenderQueue implements IRenderQueue {
-   /** @internal */
+   /** @interanl */
     _isTransparent: boolean = false;
    /** @internal */
    elements: SingletonList<RenderElement> = new SingletonList<RenderElement>();

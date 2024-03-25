@@ -9,6 +9,7 @@ export enum EColliderCapable {
     Collider_BounceCombine,
     Collider_FrictionCombine,
     Collider_EventFilter,   // 事件过滤
+    Collider_CollisionDetectionMode, // 碰撞过滤模式
 
     // RigidBody刚体能力
     RigidBody_CanKinematic,   // 是否支持运动学模式

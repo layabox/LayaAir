@@ -89,7 +89,7 @@ export class Scene3D extends Sprite implements ISubmit {
     /** @internal */
     static _shadowCasterPass: ShadowCasterPass;
     /**@internal */
-    static physicsSettings: PhysicsSettings;
+    static physicsSettings: PhysicsSettings = new PhysicsSettings();
     /** reflection mode */
     static REFLECTIONMODE_SKYBOX: number = 0;
     static REFLECTIONMODE_CUSTOM: number = 1;
@@ -334,8 +334,6 @@ export class Scene3D extends Sprite implements ISubmit {
         if (Config3D._uniformBlock)
             configShaderValue.add(Shader3D.SHADERDEFINE_ENUNIFORMBLOCK);
 
-        Scene3D.physicsSettings = new PhysicsSettings();
-
         let supportFloatTex = LayaGL.renderEngine.getCapable(RenderCapable.TextureFormat_R32G32B32A32);
         if (supportFloatTex) {
             configShaderValue.add(Shader3D.SHADERDEFINE_FLOATTEXTURE);
@@ -407,10 +405,10 @@ export class Scene3D extends Sprite implements ISubmit {
     /**@internal */
     private _physicsStepTime: number = 0;
     /**@internal */
-    _lightmapDirtyFlag:number = -1
+    _lightmapDirtyFlag: number = -1;
     /**@internal */
     _sunColor: Color = new Color(1.0, 1.0, 1.0);
-    /**@internal */
+    /**@interanl */
     _sundir: Vector3 = new Vector3();
     /**@internal*/
     _id = Scene3D.sceneID++;
@@ -426,7 +424,7 @@ export class Scene3D extends Sprite implements ISubmit {
     _collsionTestList: number[] = [];
     /** @internal */
     _shaderValues: ShaderData;
-    /** @internal */
+    /** @interanl */
     _sceneUniformData: UnifromBufferData;
     /** @internal */
     _sceneUniformObj: UniformBufferObject;
@@ -467,8 +465,6 @@ export class Scene3D extends Sprite implements ISubmit {
 
     /** @internal */
     private _componentElementDatasMap: any = {};
-
-
 
     /**
      * Scene3D所属的2D场景，使用IDE编辑的场景载入后具有此属性。
@@ -841,10 +837,9 @@ export class Scene3D extends Sprite implements ISubmit {
         });
     }
 
-
     /**
-     * @internal
-     */
+   * @internal
+   */
     set componentElementDatasMap(value: any) {
         this._componentElementDatasMap = value;
         this.componentElementMap.forEach((value, key) => {
@@ -883,7 +878,6 @@ export class Scene3D extends Sprite implements ISubmit {
         this.componentElementMap.forEach((value) => {
             value.update(delta);
         });
-
         this._componentDriver.callStart();
         this._componentDriver.callUpdate();
 
