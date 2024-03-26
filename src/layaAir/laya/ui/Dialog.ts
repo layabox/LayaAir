@@ -295,6 +295,7 @@ export class Dialog extends View {
         this.closeEffect = null;
         this._dragArea = null;
         super.destroy(destroyChild);
+        Dialog.manager._checkMask();
     }
 
     /**
