@@ -9,42 +9,24 @@ import { Sprite } from "../../display/Sprite";
 export class ChainCollider extends ColliderBase {
 
     /**
+     * @internal
      * @deprecated
      * 用逗号隔开的点的集合，格式：x,y,x,y ...
      */
     private _points: string = "0,0,100,0";
 
-    /**顶点数据*/
+    /**@internal 顶点数据*/
     private _datas: number[] = [];
 
-    /**是否是闭环，注意不要有自相交的链接形状，它可能不能正常工作*/
+    /**@internal 是否是闭环，注意不要有自相交的链接形状，它可能不能正常工作*/
     private _loop: boolean = false;
 
-    constructor() {
-        super();
-        this._physicShape = PhysicsShape.ChainShape;
-    }
-
     /**
-    * @override
+    * @deprecated
+    * 用逗号隔开的点的集合，格式：x,y,x,y ...
     */
-    protected _setShapeData(shape: any): void {
-        var len: number = this._datas.length;
-        if (len % 2 == 1) throw "ChainCollider datas lenth must a multiplier of 2";
-        Physics2D.I._factory.set_ChainShape_data(shape, this.pivotoffx, this.pivotoffy, this._datas, this._loop, this.scaleX, this.scaleY);
-    }
-
-    /**
-     * @deprecated
-     * 用逗号隔开的点的集合，格式：x,y,x,y ...
-     */
     get points(): string {
         return this._points;
-    }
-    onAdded() {
-        super.onAdded();
-        let sp = this.owner as Sprite;
-        this._datas.push(0, 0, sp.width, 0, 0, sp.height, sp.width, sp.height);
     }
 
     set points(value: string) {
@@ -80,4 +62,27 @@ export class ChainCollider extends ColliderBase {
         this._loop = value;
         this._needupdataShapeAttribute();
     }
+
+    constructor() {
+        super();
+        this._physicShape = PhysicsShape.ChainShape;
+    }
+
+    /**
+    * @override
+    */
+    protected _setShapeData(shape: any): void {
+        var len: number = this._datas.length;
+        if (len % 2 == 1) throw "ChainCollider datas lenth must a multiplier of 2";
+        Physics2D.I._factory.set_ChainShape_data(shape, this.pivotoffx, this.pivotoffy, this._datas, this._loop, this.scaleX, this.scaleY);
+    }
+
+
+    onAdded() {
+        super.onAdded();
+        let sp = this.owner as Sprite;
+        this._datas.push(0, 0, sp.width, 0, 0, sp.height, sp.width, sp.height);
+    }
+
+
 }

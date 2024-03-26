@@ -15,31 +15,33 @@ import { Laya } from "../../Laya";
  */
 export class Physics2D extends EventDispatcher {
 
-    /**@private */
+    /**@internal */
     private static _I: Physics2D;
-
-    /**@private 是否已经激活*/
-    private _enabled: boolean;
-
-    /**@private 根容器*/
-    private _worldRoot: Sprite;
-
-    /**@private 空的body节点，给一些不需要节点的关节使用*/
-    _emptyBody: any;
-    /**@private */
-    _eventList: any[] = [];
-
-    _factory: IPhysiscs2DFactory;
-
-    /**@private 需要同步实时跟新数据列表*/
-    _rigiBodyList: SingletonList<RigidBody>;
-    /**@private 需要同步物理数据的列表；使用后会及时释放*/
-    _updataattributeLists: SingletonList<RigidBody>;
 
     /**全局物理单例*/
     static get I(): Physics2D {
         return Physics2D._I || (Physics2D._I = new Physics2D());
     }
+
+    /**@internal 是否已经激活*/
+    private _enabled: boolean;
+
+    /**@internal 根容器*/
+    private _worldRoot: Sprite;
+
+    /**@internal 空的body节点，给一些不需要节点的关节使用*/
+    _emptyBody: any;
+
+    /**@internal */
+    _eventList: any[] = [];
+
+    _factory: IPhysiscs2DFactory;
+
+    /**@internal 需要同步实时跟新数据列表*/
+    _rigiBodyList: SingletonList<RigidBody>;
+
+    /**@internal 需要同步物理数据的列表；使用后会及时释放*/
+    _updataattributeLists: SingletonList<RigidBody>;
 
     /**
      * 设置物理绘制
@@ -112,6 +114,110 @@ export class Physics2D extends EventDispatcher {
         }
     }
 
+
+    /**
+     * 设置是否允许休眠，休眠可以提高稳定性和性能，但通常会牺牲准确性
+     */
+    get allowSleeping(): boolean {
+        return this._factory.allowSleeping;
+    }
+
+    set allowSleeping(value: boolean) {
+        this._factory.allowSleeping = value;
+    }
+
+    /**
+    * 物理世界重力环境，默认值为{x:0,y:10}
+    * 如果修改y方向重力方向向上，可以直接设置gravity.y=-10;
+    */
+    get gravity(): any {
+        return this._factory.gravity;
+    }
+
+    set gravity(value: Vector2) {
+        this._factory.gravity = value;
+    }
+
+    /**物理世界根容器，将根据此容器作为物理世界坐标世界，进行坐标变换，默认值为stage
+     * 设置特定容器后，就可整体位移物理对象，保持物理世界不变。
+     * 注意，仅会在 set worldRoot 时平移一次，其他情况请配合 updatePhysicsByWorldRoot 函数使用*/
+    get worldRoot(): Sprite {
+        return this._worldRoot || ILaya.stage;
+    }
+
+    set worldRoot(value: Sprite) {
+        this._worldRoot = value;
+        if (value) {
+            //TODO：
+            var p: Point = value.localToGlobal(Point.TEMP.setTo(0, 0));
+            this._factory.shiftOrigin(-p.x, -p.y);
+        }
+    }
+
+    /* 获得刚体总数量*/
+    get bodyCount(): number {
+        return this._factory.bodyCount;
+    }
+
+    /**获得碰撞总数量*/
+    get contactCount(): number {
+        return this._factory.contactCount;
+    }
+
+    /**获得关节总数量*/
+    get jointCount(): number {
+        return this._factory.jointCount;
+    }
+
+    /**@internal */
+    _addRigidBody(body: RigidBody) {
+        this._rigiBodyList.add(body);
+    }
+
+    /**@internal */
+    _removeRigidBody(body: RigidBody) {
+        this._rigiBodyList.remove(body);
+    }
+
+    /**@internal */
+    _updataRigidBodyAttribute(body: RigidBody) {
+        this._updataattributeLists.add(body);
+    }
+
+    /**@internal */
+    _removeRigidBodyAttribute(body: RigidBody) {
+        this._updataattributeLists.remove(body);
+    }
+
+    /**@internal*/
+    private _update(): void {
+        //同步渲染世界参数到物理世界
+        for (var i = 0, n = this._updataattributeLists.length; i < n; i++) {
+            this._updataattributeLists.elements[i]._updatePhysicsAttribute()
+        }
+        this._updataattributeLists.clear();
+        //时间步太长，会导致错误穿透
+        var delta = Math.min(ILaya.timer.delta / 1000, 0.033);
+        this._factory.update(delta);
+        //同步物理坐标到渲染坐标
+        this._updatePhysicsTransformToRender();
+        //同步事件
+        var len: number = this._eventList.length;
+        if (len > 0) {
+            for (var i: number = 0; i < len; i += 2) {
+                this._factory.sendEvent(this._eventList[i], this._eventList[i + 1]);
+            }
+            this._eventList.length = 0;
+        }
+    }
+
+    /**@internal */
+    _updatePhysicsTransformToRender() {
+        for (var i = 0, n = this._rigiBodyList.length; i < n; i++) {
+            this._rigiBodyList.elements[i]._updatePhysicsTransformToRender()
+        }
+    }
+
     enable(): Promise<void> {
         if (this._factory) {
             return this._factory.initialize().then(() => {
@@ -121,15 +227,6 @@ export class Physics2D extends EventDispatcher {
         }
         else
             return Promise.resolve();
-    }
-
-    /**
-    * 销毁当前物理世界
-    */
-    destroyWorld() {
-        this._enabled = false;
-        this._factory.destroyWorld();
-        ILaya.physicsTimer.clear(this, this._update);
     }
 
     /**
@@ -164,53 +261,13 @@ export class Physics2D extends EventDispatcher {
             ILaya.physicsTimer.frameLoop(1, this, this._update);
     }
 
-    /**@internal */
-    addRigidBody(body: RigidBody) {
-        this._rigiBodyList.add(body);
-    }
-
-    /**@internal */
-    removeRigidBody(body: RigidBody) {
-        this._rigiBodyList.remove(body);
-    }
-
-    /**@internal */
-    updataRigidBodyAttribute(body: RigidBody) {
-        this._updataattributeLists.add(body);
-    }
-
-    /**@internal */
-    removeRigidBodyAttribute(body: RigidBody) {
-        this._updataattributeLists.remove(body);
-    }
-
-    /**@private*/
-    private _update(): void {
-        //同步渲染世界参数到物理世界
-        for (var i = 0, n = this._updataattributeLists.length; i < n; i++) {
-            this._updataattributeLists.elements[i].updatePhysicsAttribute()
-        }
-        this._updataattributeLists.clear();
-        //时间步太长，会导致错误穿透
-        var delta = Math.min(ILaya.timer.delta / 1000, 0.033);
-        this._factory.update(delta);
-        //同步物理坐标到渲染坐标
-        this._updatePhysicsTransformToRender();
-        //同步事件
-        var len: number = this._eventList.length;
-        if (len > 0) {
-            for (var i: number = 0; i < len; i += 2) {
-                this._factory.sendEvent(this._eventList[i], this._eventList[i + 1]);
-            }
-            this._eventList.length = 0;
-        }
-    }
-
-    /**@private*/
-    _updatePhysicsTransformToRender() {
-        for (var i = 0, n = this._rigiBodyList.length; i < n; i++) {
-            this._rigiBodyList.elements[i].updatePhysicsTransformToRender()
-        }
+    /**
+    * 销毁当前物理世界
+    */
+    destroyWorld() {
+        this._enabled = false;
+        this._factory.destroyWorld();
+        ILaya.physicsTimer.clear(this, this._update);
     }
 
     /**
@@ -222,58 +279,32 @@ export class Physics2D extends EventDispatcher {
         ILaya.physicsTimer.clear(this, this._update);
     }
 
+
     /**
-     * 设置是否允许休眠，休眠可以提高稳定性和性能，但通常会牺牲准确性
+     * @deprecated
+     * 获得刚体总数量
+     * use bodyCount instead
      */
-    get allowSleeping(): boolean {
-        return this._factory.allowSleeping;
-    }
-
-    set allowSleeping(value: boolean) {
-        this._factory.allowSleeping = value;
-    }
-
-    /**
-    * 物理世界重力环境，默认值为{x:0,y:10}
-    * 如果修改y方向重力方向向上，可以直接设置gravity.y=-10;
-    */
-    get gravity(): any {
-        return this._factory.gravity;
-    }
-
-    set gravity(value: Vector2) {
-        this._factory.gravity = value;
-    }
-
-    /**获得刚体总数量*/
     getBodyCount(): number {
         return this._factory.bodyCount;
     }
 
-    /**获得碰撞总数量*/
+    /**
+     * @deprecated 
+     * 获得碰撞总数量
+     * use contactCount instead
+     */
     getContactCount(): number {
         return this._factory.contactCount;
     }
 
-    /**获得关节总数量*/
+    /**
+     *  @deprecated 
+     *  获得关节总数量
+     *  use jointCount instead
+     */
     getJointCount(): number {
         return this._factory.jointCount;
-    }
-
-    /**物理世界根容器，将根据此容器作为物理世界坐标世界，进行坐标变换，默认值为stage
-     * 设置特定容器后，就可整体位移物理对象，保持物理世界不变。
-     * 注意，仅会在 set worldRoot 时平移一次，其他情况请配合 updatePhysicsByWorldRoot 函数使用*/
-    get worldRoot(): Sprite {
-        return this._worldRoot || ILaya.stage;
-    }
-
-    set worldRoot(value: Sprite) {
-        this._worldRoot = value;
-        if (value) {
-            //TODO：
-            var p: Point = value.localToGlobal(Point.TEMP.setTo(0, 0));
-            this._factory.shiftOrigin(-p.x, -p.y);
-        }
     }
 
     /**
