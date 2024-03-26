@@ -25,7 +25,8 @@ export class BlueprintComplexNode extends BlueprintRuntimeBaseNode {
         //context.find()
         let result = this.find(this.outExcutes, ...parmsArray);
         if(result.linkTo.length){
-            return (result.linkTo[0] as BlueprintPinRuntime);    
+            // return (result.linkTo[0] as BlueprintPinRuntime);    
+            return result;
         }
         return null;
         // result.excute(context);

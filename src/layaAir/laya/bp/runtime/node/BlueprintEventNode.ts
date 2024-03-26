@@ -56,7 +56,7 @@ export class BlueprintEventNode extends BlueprintRuntimeBaseNode {
                 _this.initData(runtimeDataMgr, parms, newRunId);
                 let nextPin = _this.outExcute.linkTo[0] as BlueprintPinRuntime;
                 if (nextPin) {
-                    runner.runByContext(context, runtimeDataMgr, nextPin.owner, enableDebugPause, null, newRunId, nextPin);
+                    runner.runByContext(context, runtimeDataMgr, nextPin.owner, enableDebugPause, null, newRunId, nextPin, _this.outExcute);
                 }
             }
             runtimeDataMgr.setPinData(fromPin, data.callFun, runId);
@@ -68,7 +68,8 @@ export class BlueprintEventNode extends BlueprintRuntimeBaseNode {
         if (fromExcute) {
             context.endExcute(this);
         }
-        return fromPin ? fromPin.linkTo[0] as BlueprintPinRuntime : this.staticNext;
+        // return fromPin ? fromPin.linkTo[0] as BlueprintPinRuntime : this.staticNext;
+        return fromPin ? fromPin : this.staticNext;
     }
 
     addPin(pin: BlueprintPinRuntime) {
@@ -85,8 +86,9 @@ export class BlueprintEventNode extends BlueprintRuntimeBaseNode {
 
 
     optimize() {
-        let linkto = this.outExcute.linkTo;
-        this.staticNext = linkto[0] as BlueprintPinRuntime;
+        // let linkto = this.outExcute.linkTo;
+        // this.staticNext = linkto[0] as BlueprintPinRuntime;
+        this.staticNext = this.outExcute;
     }
 
     initData(runtimeDataMgr: IRuntimeDataManger, parms: any[], curRunId: number) {

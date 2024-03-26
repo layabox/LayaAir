@@ -6,7 +6,7 @@ import { BlueprintRuntimeBaseNode } from "./BlueprintRuntimeBaseNode";
 
 export class BlueprintAutoRun extends BlueprintRuntimeBaseNode {
 
-    protected colloctParam(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, inputPins: BlueprintPinRuntime[], runner: IBPRutime, runId: number) {
+    protected colloctParam(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, inputPins: BlueprintPinRuntime[], runner: IBPRutime, runId: number, prePin: BlueprintPinRuntime) {
         let _parmsArray: any[] = runtimeDataMgr.getDataById(this.nid).getParamsArray(runId);;
         _parmsArray.length = 0;
         for (let i = 0, n = inputPins.length; i < n; i++) {
@@ -15,7 +15,7 @@ export class BlueprintAutoRun extends BlueprintRuntimeBaseNode {
             if (from) {
                 let fowner = (from as BlueprintPinRuntime).owner;
                 if (!context.getCacheAble(fowner, runId)) {
-                    (from as BlueprintPinRuntime).step(context, runtimeDataMgr, runner, runId);
+                    (from as BlueprintPinRuntime).step(context, runtimeDataMgr, runner, runId, prePin);
                     context.setCacheAble(fowner, runId, true);
                 }
                 context.parmFromOtherPin(curInput, runtimeDataMgr, from as BlueprintPinRuntime, _parmsArray, runId);

@@ -23,8 +23,8 @@ export class BlueprintGetVarNode extends BlueprintRuntimeBaseNode {
         }
     }
 
-    step(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean, runId: number, fromPin: BlueprintPinRuntime): BlueprintPinRuntime | BlueprintPromise {
-        let _parmsArray: any[] = this.colloctParam(context, runtimeDataMgr, this.inPutParmPins, runner, runId);
+    step(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean, runId: number, fromPin: BlueprintPinRuntime, prePin:BlueprintPinRuntime): BlueprintPinRuntime | BlueprintPromise {
+        let _parmsArray: any[] = this.colloctParam(context, runtimeDataMgr, this.inPutParmPins, runner, runId, prePin);
 
         context.parmFromCustom(_parmsArray, this._varKey, '"' + this._varKey + '"');
         context.parmFromCustom(_parmsArray, context, "context");

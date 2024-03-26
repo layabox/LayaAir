@@ -27,9 +27,9 @@ export class BlueprintCustomFunNode extends BlueprintFunNode {
         this.inExcutes = [];
     }
 
-    colloctParam(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, inputPins: BlueprintPinRuntime[], runner: IBPRutime, runId: number) {
+    colloctParam(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, inputPins: BlueprintPinRuntime[], runner: IBPRutime, runId: number, prePin: BlueprintPinRuntime) {
         this._checkFun();
-        let parmsArray = super.colloctParam(context, runtimeDataMgr, this.inPutParmPins, runner, runId);
+        let parmsArray = super.colloctParam(context, runtimeDataMgr, this.inPutParmPins, runner, runId, prePin);
         context.parmFromOutPut(this.outPutParmPins, runtimeDataMgr, parmsArray);
         return parmsArray;
     }
@@ -111,8 +111,9 @@ export class BlueprintCustomFunNode extends BlueprintFunNode {
     }
 
     optimize() {
-        let linkto = this.outExcutes[0].linkTo;
-        this.staticNext = linkto[0] as BlueprintPinRuntime;
+        // let linkto = this.outExcutes[0].linkTo;
+        // this.staticNext = linkto[0] as BlueprintPinRuntime;
+        this.staticNext = this.outExcutes[0];
     }
 
 

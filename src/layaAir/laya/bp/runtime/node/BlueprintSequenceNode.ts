@@ -10,6 +10,7 @@ import { BlueprintRuntimeBaseNode } from "./BlueprintRuntimeBaseNode";
 
 export class BlueprintSequenceNode extends BlueprintComplexNode {
 
+
     next(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, parmsArray: any[], runner: IBPRutime, enableDebugPause: boolean, runId: number): BlueprintPinRuntime {
         let first = true;
         let arr: Promise<any>[] = [];
@@ -25,14 +26,14 @@ export class BlueprintSequenceNode extends BlueprintComplexNode {
                     let callback = (owner: BlueprintRuntimeBaseNode) => {
                         if (context.debuggerPause) {
                             context.pushBack(owner, callback);
-                        }else{
+                        } else {
                             result = runner.runByContext(context, runtimeDataMgr, owner, enableDebugPause, () => {
                                 if (result === false && cb) {
                                     cb();
                                 }
-                            }, runId, pin, true);
+                            }, runId, pin, item, true);
 
-                            if(result && cb){
+                            if (result && cb) {
                                 cb();
                             }
                         }
@@ -44,7 +45,7 @@ export class BlueprintSequenceNode extends BlueprintComplexNode {
                         if (result === false && cb) {
                             cb();
                         }
-                    }, runId, pin, true);
+                    }, runId, pin, item, true);
 
                 }
                 if (result === false) {

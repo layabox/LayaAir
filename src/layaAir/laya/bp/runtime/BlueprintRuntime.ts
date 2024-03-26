@@ -34,7 +34,7 @@ export class BlueprintRuntime {
     }
 
     run(context: IRunAble, event: BlueprintEventNode, parms: any[], cb: Function) {
-        this.mainBlock.run(context, event, parms, cb, 0, 0);
+        this.mainBlock.run(context, event, parms, cb, 0, -1);
         // context.initData(mainScope, this.nodeMap);
         // let event = this.eventMap.get(eventName);
         // if (event) {
@@ -308,7 +308,7 @@ export class BluePrintBlock implements INodeManger<BlueprintRuntimeBaseNode>, IB
     }
 
 
-    runByContext(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, node: IExcuteListInfo, enableDebugPause: boolean, cb: Function, runId: number, fromPin: BlueprintPinRuntime, notRecover: boolean = false): boolean {
+    runByContext(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, node: IExcuteListInfo, enableDebugPause: boolean, cb: Function, runId: number, fromPin: BlueprintPinRuntime, prePin: BlueprintPinRuntime, notRecover: boolean = false): boolean {
         if (runId == -1) {
             runId = this.getRunID();
         }
@@ -318,15 +318,20 @@ export class BluePrintBlock implements INodeManger<BlueprintRuntimeBaseNode>, IB
         //let fromPin: BlueprintPinRuntime;
         for (let i = currentIndex, n = excuteAbleList.length; i < n;) {
             const bpNode = excuteAbleList[i];
-            let index = bpNode.step(context, runtimeDataMgr, true, this, enableDebugPause, runId, fromPin);
+            let index = bpNode.step(context, runtimeDataMgr, true, this, enableDebugPause, runId, fromPin, prePin);
             enableDebugPause = true;
             if (index instanceof BlueprintPinRuntime) {
-                i = index.owner.index;
-                fromPin = index;
+                prePin = index;
+                fromPin = index.linkTo[0] as BlueprintPinRuntime;
+                if (fromPin == null) {
+                    break;
+                } else {
+                    i = fromPin.owner.index;
+                }
             }
             else if (index instanceof BlueprintPromise) {
                 index.wait((mis: BlueprintPromise) => {
-                    this.runByContext(context, runtimeDataMgr, mis, mis.enableDebugPause != undefined ? mis.enableDebugPause : enableDebugPause, cb, runId, mis.pin);
+                    this.runByContext(context, runtimeDataMgr, mis, mis.enableDebugPause != undefined ? mis.enableDebugPause : enableDebugPause, cb, runId, mis.pin, mis.prePin);
                 })
                 return false;
             }
@@ -424,12 +429,12 @@ export class BluePrintMainBlock extends BluePrintBlock {
         }
     }
 
-    runAuto(context:IRunAble){
+    runAuto(context: IRunAble) {
         context.initData(this.id, this.nodeMap, this.localVarMap);
-        let id=this.getRunID();
+        let id = this.getRunID();
         for (let i = 0, n = this.autoRunNodes.length; i < n; i++) {
             let item = this.autoRunNodes[i];
-            item.step(context, context.getDataMangerByID(this.id), true, this, true, id, null);
+            item.step(context, context.getDataMangerByID(this.id), true, this, true, id, null, null);
         }
     }
 
@@ -441,7 +446,7 @@ export class BluePrintMainBlock extends BluePrintBlock {
             if (parms) {
                 event.initData(runtimeDataMgr, parms, curRunId);
             }
-            return this.runByContext(context, runtimeDataMgr, event, true, cb, curRunId, event.outExcutes[execId]);
+            return this.runByContext(context, runtimeDataMgr, event, true, cb, curRunId, event.outExcutes[execId], null);
         }
         return null;
     }
@@ -495,7 +500,7 @@ export class BluePrintFunBlock extends BluePrintBlock {
                 })
                 fun.initData(runtimeDataMgr, parms, curRunId);
             }
-            return this.runByContext(context, runtimeDataMgr, fun, true, cb, curRunId, fun.outExcutes[execId]);
+            return this.runByContext(context, runtimeDataMgr, fun, true, cb, curRunId, fun.outExcutes[execId], null);
         }
         return null;
     }

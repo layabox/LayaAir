@@ -15,6 +15,8 @@ export class BlueprintPromise implements IExcuteListInfo {
 
     pin: BlueprintPinRuntime;
 
+    prePin: BlueprintPinRuntime;
+
     static create(): BlueprintPromise {
         return new BlueprintPromise();
     }
@@ -50,6 +52,7 @@ export class BlueprintPromise implements IExcuteListInfo {
         this._callback = null;
         this._completed = false;
         this.pin = null;
+        this.prePin = null;
     }
 
 }

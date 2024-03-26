@@ -10,13 +10,16 @@ export class BlueprintPinRuntime extends BlueprintPin {
     */
     owner: BlueprintRuntimeBaseNode;
 
-    step(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, runner: IBPRutime, runId: number) {
-        return this.owner.tryExcute(context, runtimeDataMgr, false, runner, true, runId, this);
+    step(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, runner: IBPRutime, runId: number, prePin: BlueprintPinRuntime) {
+        return this.owner.tryExcute(context, runtimeDataMgr, false, runner, true, runId, this, prePin);
         //(this.linkTo[0] as PinRuntime).owner.step(context);
     }
 
     excute(context: IRunAble,runtimeDataMgr: IRuntimeDataManger, runner: IBPRutime,runId: number) {
-        return (this.linkTo[0] as BlueprintPinRuntime)?.owner.step(context,runtimeDataMgr, true, runner, true, runId,this);
+        const nextPin = (this.linkTo[0] as BlueprintPinRuntime);
+        const index = nextPin?.owner.step(context,runtimeDataMgr, true, runner, true, runId, nextPin, this) as BlueprintPinRuntime;
+        // return index.linkTo[0];
+        return index;
     }
 
     getValueCode(): any {

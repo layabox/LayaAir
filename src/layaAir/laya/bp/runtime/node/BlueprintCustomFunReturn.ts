@@ -20,8 +20,8 @@ export class BlueprintCustomFunReturn extends BlueprintRuntimeBaseNode {
         this.inExcutes = [];
     }
 
-    step(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean, runId: number, fromPin: BlueprintPinRuntime): BlueprintPinRuntime | BlueprintPromise | number {
-        let result = super.step(context, runtimeDataMgr, fromExcute, runner, enableDebugPause, runId, fromPin);
+    step(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean, runId: number, fromPin: BlueprintPinRuntime, prePin: BlueprintPinRuntime): BlueprintPinRuntime | BlueprintPromise | number {
+        let result = super.step(context, runtimeDataMgr, fromExcute, runner, enableDebugPause, runId, fromPin, prePin);
         let nodeContext = runtimeDataMgr.getDataById(this.nid) as BlueprintCustomFunReturnContext;
         let index = this.inExcutes.indexOf(fromPin);
         if (index == 0) {//是否是函数结束
@@ -89,7 +89,7 @@ export class BlueprintCustomFunReturnContext extends RuntimeNodeData {
                 let nextPin = outExcute.linkTo[0] as BlueprintPinRuntime;
                 if (nextPin) {
                     let runner = this.runnerMap.get(runId);
-                    runner[0].runByContext(context, runner[1], nextPin.owner, true, null, runId, nextPin);
+                    runner[0].runByContext(context, runner[1], nextPin.owner, true, null, runId, nextPin, outExcute);
                 }
             }
         }

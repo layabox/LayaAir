@@ -60,7 +60,8 @@ export class BlueprintFunNode extends BlueprintRuntimeBaseNode {
     }
 
     optimize() {
-        let linkto = this.outExcute.linkTo;
-        this.staticNext = linkto[0] as BlueprintPinRuntime;
+        // let linkto = this.outExcute.linkTo;
+        // this.staticNext = linkto[0] as BlueprintPinRuntime;
+        this.staticNext = this.outExcute;
     }
 }

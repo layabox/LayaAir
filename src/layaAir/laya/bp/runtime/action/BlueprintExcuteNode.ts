@@ -16,9 +16,9 @@ export class BlueprintExcuteNode extends BlueprintRunBase implements IRunAble {
     runtimeDataMgrMap: Map<number | symbol, RuntimeDataManger>;
     readCache: boolean;
 
-    private _cacheMap: Map<number,Map<number,boolean>> = new Map();
+    private _cacheMap: Map<number, Map<number, boolean>> = new Map();
 
-    setCacheAble(node: BlueprintRuntimeBaseNode, runId: number, value: any):void {
+    setCacheAble(node: BlueprintRuntimeBaseNode, runId: number, value: any): void {
         let map = this._cacheMap.get(node.nid);
         if (!map) {
             map = new Map();
@@ -74,7 +74,7 @@ export class BlueprintExcuteNode extends BlueprintRunBase implements IRunAble {
     getCode(): string {
         return "";
     }
-    beginExcute(runtimeNode: BlueprintRuntimeBaseNode, runner: IBPRutime, enableDebugPause: boolean, fromPin: BlueprintPinRuntime, parmsArray: any[]): BlueprintPromise {
+    beginExcute(runtimeNode: BlueprintRuntimeBaseNode, runner: IBPRutime, enableDebugPause: boolean, fromPin: BlueprintPinRuntime, parmsArray: any[], prePin: BlueprintPinRuntime): BlueprintPromise {
         //throw new Error("Method not implemented.");
         if (this.listNode.indexOf(runtimeNode) == -1) {
             this.listNode.push(runtimeNode);
