@@ -17,11 +17,7 @@ export class ShaderProcessInfo {
 };
 export class ShaderCompileDefineBase {
     /** @internal */
-    static _defineString: Array<string> = [];
-    /** @internal */
-    static _debugDefineString: string[] = [];
-    /** @internal */
-    static _debugDefineMask: number[] = [];
+    static _defineStrings: Array<string> = [];
     /** @internal */
     public _VS: ShaderNode;
     /** @internal */
@@ -33,7 +29,7 @@ export class ShaderCompileDefineBase {
     /** @internal */
     protected _cacheShaderHierarchy: number = 1;
     /** @internal */
-    protected _owner: SubShader;
+    _owner: SubShader;
     /** @internal */
     name: string;
 
@@ -78,13 +74,13 @@ export class ShaderCompileDefineBase {
      * @internal
      */
     withCompile(compileDefine: DefineDatas): ShaderInstance {
-        var debugDefineString: string[] = ShaderCompileDefineBase._debugDefineString;
-        var debugDefineMask: number[] = ShaderCompileDefineBase._debugDefineMask;
-        var debugMaskLength: number;
+        // var debugDefineString: string[] = ShaderCompileDefineBase._debugDefineString;
+        // var debugDefineMask: number[] = ShaderCompileDefineBase._debugDefineMask;
+        // var debugMaskLength: number;
         compileDefine._intersectionDefineDatas(this._validDefine);
-        if (Shader3D.debugMode) {//add shader variant info to debug ShaderVariantCollection
-            debugMaskLength = compileDefine._length;
-        }
+        // if (Shader3D.debugMode) {//add shader variant info to debug ShaderVariantCollection
+        //     debugMaskLength = compileDefine._length;
+        // }
         //compileDefine.addDefineDatas(Scene3D._configDefineValues);
 
         var cacheShaders: any = this._cacheSharders;
@@ -109,32 +105,33 @@ export class ShaderCompileDefineBase {
         if (shader)
             return shader;
 
-        var defineString: string[] = ShaderCompileDefineBase._defineString;
+        var defines: string[] = ShaderCompileDefineBase._defineStrings;
+        defines.length = 0;
         //TODO
-        Shader3D._getNamesByDefineData(compileDefine, defineString);
+        Shader3D._getNamesByDefineData(compileDefine, defines);
         let shaderProcessInfo: ShaderProcessInfo = new ShaderProcessInfo();
         shaderProcessInfo.is2D = true;
         shaderProcessInfo.vs = this._VS;
         shaderProcessInfo.ps = this._PS;
         shaderProcessInfo.attributeMap = this._owner._attributeMap;
         shaderProcessInfo.uniformMap = this._owner._uniformMap;
-        shaderProcessInfo.defineString = defineString;
+        shaderProcessInfo.defineString = defines;
 
         shader = LayaGL.renderOBJCreate.createShaderInstance(shaderProcessInfo, this);
 
         cacheShaders[cacheKey] = shader;
 
-        if (Shader3D.debugMode) {
-            var defStr: string = "";
-            var defMask: string = "";
+        // if (Shader3D.debugMode) {
+        //     var defStr: string = "";
+        //     var defMask: string = "";
 
-            for (var i: number = 0, n: number = debugMaskLength; i < n; i++)
-                (i == n - 1) ? defMask += debugDefineMask[i] : defMask += debugDefineMask[i] + ",";
-            for (var i: number = 0, n: number = debugDefineString.length; i < n; i++)
-                (i == n - 1) ? defStr += debugDefineString[i] : defStr += debugDefineString[i] + ",";
+        //     for (var i: number = 0, n: number = debugMaskLength; i < n; i++)
+        //         (i == n - 1) ? defMask += debugDefineMask[i] : defMask += debugDefineMask[i] + ",";
+        //     for (var i: number = 0, n: number = debugDefineString.length; i < n; i++)
+        //         (i == n - 1) ? defStr += debugDefineString[i] : defStr += debugDefineString[i] + ",";
 
-            console.log("%cLayaAir: Shader Compile Information---ShaderName:" + this.name + " " + " DefineMask:[" + defMask + "]" + " DefineNames:[" + defStr + "]", "color:green");
-        }
+        //     console.log("%cLayaAir: Shader Compile Information---ShaderName:" + this.name + " " + " DefineMask:[" + defMask + "]" + " DefineNames:[" + defStr + "]", "color:green");
+        // }
 
         return shader;
     }

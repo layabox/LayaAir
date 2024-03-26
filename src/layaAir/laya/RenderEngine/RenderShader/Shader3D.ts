@@ -3,7 +3,6 @@ import { ShaderCompile } from "../../webgl/utils/ShaderCompile";
 import { DefineDatas } from "./DefineDatas";
 import { ShaderDefine } from "./ShaderDefine";
 import { ShaderPass } from "./ShaderPass";
-import { ShaderVariant, ShaderVariantCollection } from "./ShaderVariantCollection";
 import { SubShader } from "./SubShader";
 
 export interface IShaderObjStructor {
@@ -101,25 +100,19 @@ export class Shader3D {
     static _preCompileShader: { [key: string]: Shader3D } = {};
     /**@internal */
     static _maskMap: Array<{ [key: number]: string }> = [];
-    /**@internal */
-    static _debugShaderVariantInfo: ShaderVariant;
     /**是否开启调试模式。 */
     static debugMode: boolean = false;
-    /**调试着色器变种集合。 */
-    static debugShaderVariantCollection: ShaderVariantCollection;
-
 
     static init() {
-        Shader3D.debugShaderVariantCollection = new ShaderVariantCollection();
     }
 
     /**
      * @internal
      */
-    static _getNamesByDefineData(defineData: DefineDatas, out: Array<string>): void {
+    static _getNamesByDefineData(defineData: DefineDatas, out?: Array<string>): Array<string> {
+        out = out || [];
         var maskMap: Array<{ [key: number]: string }> = Shader3D._maskMap;
         var mask: Array<number> = defineData._mask;
-        out.length = 0;
         for (var i: number = 0, n: number = defineData._length; i < n; i++) {
             var subMaskMap: { [key: number]: string } = maskMap[i];
             var subMask: number = mask[i];
@@ -131,6 +124,7 @@ export class Shader3D {
                     out.push(subMaskMap[d]);
             }
         }
+        return out;
     }
 
     /**
@@ -185,7 +179,7 @@ export class Shader3D {
      * @param   passIndex  通道索引。
      * @param	defineNames 宏定义名字集合。
      */
-    static compileShaderByDefineNames(shaderName: string, subShaderIndex: number, passIndex: number, defineNames: string[], nodeCommonMap: string[]): void {
+    static compileShaderByDefineNames(shaderName: string, subShaderIndex: number, passIndex: number, defineNames: string[], nodeCommonMap: string[]): boolean {
         var shader: Shader3D = Shader3D.find(shaderName);
         if (shader) {
             var subShader: SubShader = shader.getSubShaderAt(subShaderIndex);
@@ -195,18 +189,15 @@ export class Shader3D {
                 if (pass) {
                     var compileDefineDatas: DefineDatas = Shader3D._compileDefineDatas;
                     Shader3D._configDefineValues.cloneTo(compileDefineDatas);
-                    for (var i: number = 0, n: number = defineNames.length; i < n; i++)
-                        compileDefineDatas.add(Shader3D.getDefineByName(defineNames[i]));
+                    for (let n of defineNames)
+                        compileDefineDatas.add(Shader3D.getDefineByName(n));
                     pass.withCompile(compileDefineDatas);
-                } else {
-                    console.warn("Shader3D: unknown passIndex.");
+                    return true;
                 }
-            } else {
-                console.warn("Shader3D: unknown subShaderIndex.");
             }
-        } else {
-            console.warn("Shader3D: unknown shader name.");
         }
+
+        return false;
     }
 
     /**
@@ -263,7 +254,7 @@ export class Shader3D {
     /**@internal */
     _supportReflectionProbe: boolean = false;
     /**@internal */
-    _surportVolumetricGI:boolean = false;
+    _surportVolumetricGI: boolean = false;
     /**@internal */
     _subShaders: SubShader[] = [];
 
