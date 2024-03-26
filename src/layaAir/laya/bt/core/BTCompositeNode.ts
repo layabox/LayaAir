@@ -132,11 +132,18 @@ export abstract class BTCompositeNode extends BTExecutableNode {
             result = this.children[nextCID];
             nodeContext.curChild = nextCID;
             if (BTCompositeNode.canExcute(result as BTExecutableNode, btCmp)) {
-                this._checkInacitive(before, btCmp);
-                if (nextCID != before) {
-                    this._checkLeave(before, btCmp);
+                const _next = () => {
+                    this._checkInacitive(before, btCmp);
+                    if (nextCID != before) {
+                        this._checkLeave(before, btCmp);
+                    }
+                    this._onChildActive(result, btCmp);
                 }
-                this._onChildActive(result, btCmp);
+                if ((result as BTExecutableNode).beginExcute(btCmp, excuteContext)) {
+                    excuteContext.childNext = _next;
+                    break;
+                }
+                _next();
                 break;
             }
             else {

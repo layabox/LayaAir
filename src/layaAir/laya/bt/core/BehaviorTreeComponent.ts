@@ -105,7 +105,7 @@ export class BehaviorTreeComponent extends Script implements ITickManger {
         }
     }
 
-    update(task: BTTaskNode): void {
+    update(task: BTTaskNode, hasDebuggerPause: boolean = true): void {
         if (task && this.onTaskCall(task)) {
             return;
         }
@@ -142,6 +142,7 @@ export class BehaviorTreeComponent extends Script implements ITickManger {
                 else {
                     currentNode = null;
                     currentCompositeNode = result as BTCompositeNode;
+                    if (currentCompositeNode && currentCompositeNode.hasDebugger) return;
                     runNext(excuteContext);
                 }
             }
@@ -149,6 +150,7 @@ export class BehaviorTreeComponent extends Script implements ITickManger {
 
         if (current.activeNode == null && this.excuteContext.excuteNode == null) {
             currentCompositeNode = current.rootNode;
+            if (hasDebuggerPause && currentCompositeNode.beginExcute(this, this.excuteContext)) return;
             runNext(this.excuteContext);
         }
         else {
@@ -157,6 +159,7 @@ export class BehaviorTreeComponent extends Script implements ITickManger {
 
             if (currentNode) {
                 if (this.excuteContext.lastResult != EBTNodeResult.InProgress) {
+                    if (hasDebuggerPause && currentCompositeNode.beginExcute(this, this.excuteContext)) return;
                     runNext(this.excuteContext);
                 }
             }
@@ -166,9 +169,11 @@ export class BehaviorTreeComponent extends Script implements ITickManger {
         if (currentNode) {
             current.activeNode = currentNode;
             this.excuteContext.excuteNode = currentCompositeNode;
+            if (currentNode.hasDebugger) return;
             this.executeTask(currentNode);
         }
         else {
+            if (currentCompositeNode && currentCompositeNode.hasDebugger) return;
             //如果是循环模式
             if (this.excutionMode == EBTExecutionMode.Looped) {
                 current.activeNode = null;
@@ -213,4 +218,5 @@ export class BTExcuteContext {
     exuteInstanceId: number;
     lastResult: EBTNodeResult;
     excuteNode: BTCompositeNode;
+    childNext?: any;
 }

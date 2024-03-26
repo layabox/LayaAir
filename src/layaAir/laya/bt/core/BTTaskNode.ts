@@ -12,9 +12,15 @@ export class BTTaskNode extends BTExecutableNode {
     tryExcuteTask(btCmp: BehaviorTreeComponent): EBTNodeResult {
         if (this.needCreate) {
             let task: BTTaskNode = this.getNodeInstance(btCmp) as BTTaskNode;
+            if(task.beginExcute(btCmp)){
+                return EBTNodeResult.InProgress;
+            }
             return task.excuteTask(btCmp);
         }
         else {
+            if(this.beginExcute(btCmp)){
+                return EBTNodeResult.InProgress;
+            }
             return this.excuteTask(btCmp);
         }
     }

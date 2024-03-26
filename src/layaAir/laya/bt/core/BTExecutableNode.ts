@@ -4,7 +4,7 @@ import { BTCompositeNode } from "./BTCompositeNode";
 import { BTDecorator } from "./BTDecorator";
 import { BTNode } from "./BTNode";
 import { BTService } from "./BTService";
-import { BehaviorTreeComponent } from "./BehaviorTreeComponent";
+import { BTExcuteContext, BehaviorTreeComponent } from "./BehaviorTreeComponent";
 
 /**
  * 
@@ -17,6 +17,8 @@ export abstract class BTExecutableNode extends BTNode {
 
     services: BTService[];
 
+    hasDebugger: boolean;
+    
     onAdd(parentNode: BTCompositeNode): void {
         super.onAdd(parentNode);
         const _childIndex = parentNode.children.indexOf(this);
@@ -119,5 +121,9 @@ export abstract class BTExecutableNode extends BTNode {
                 this.addService(node);
             })
         }
+    }
+
+    beginExcute(btCmp: BehaviorTreeComponent, excuteContext?: BTExcuteContext): boolean {
+        return false;
     }
 }
