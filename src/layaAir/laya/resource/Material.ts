@@ -378,10 +378,7 @@ export class Material extends Resource implements IClone {
      * 获得材质宏
      */
     get MaterialDefine(): Array<string> {
-        let shaderDefineArray = new Array<string>();
-        let defineData = this._shaderValues._defineDatas;
-        Shader3D._getNamesByDefineData(defineData, shaderDefineArray);
-        return shaderDefineArray;
+        return Shader3D._getNamesByDefineData(this._shaderValues._defineDatas);
     }
 
     /**
