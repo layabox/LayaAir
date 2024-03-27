@@ -15,6 +15,7 @@ async function test(){
     let sp = new Sprite();
     sp.graphics.drawRect(0,0,100,100,'gray','yellow',2)
     sp.rotation=45;
+    sp.scale(2,2);
     sp.pos(100,100)
     Laya.stage.addChild(sp);
 

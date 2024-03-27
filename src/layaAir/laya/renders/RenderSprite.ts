@@ -173,6 +173,7 @@ export class RenderSprite {
                     let py = y - sprite.pivotY + tex.offsetY * hRate;
                     context.material = sprite.graphics.material;
                     context.drawTexture(tex, px, py, width, height, 0xffffffff);
+                    context.material = null;
                 }
             }
         }
@@ -229,7 +230,6 @@ export class RenderSprite {
         if (transform && _next != RenderSprite.NORENDER) {
             context.save();
             context.transform(transform.a, transform.b, transform.c, transform.d, transform.tx + x, transform.ty + y);
-            context._curMat.copyTo(sprite._cacheStyle.cacheInfo.wMat);
             _next._fun(sprite, context, 0, 0);
             context.restore();
         } else {
@@ -344,6 +344,7 @@ export class RenderSprite {
             context.material = sprite.graphics.material;
             let rt = _cacheStyle.renderTexture;
             rt && context._drawRenderTexture(rt,x+tRec.x , y+tRec.y , rt.width, rt.height,null,1,[0,1, 1,1, 1,0, 0,0]);
+            context.material = null;
         }else{
             if(!RenderSprite.cacheNormalEnable){
                 _next._fun(sprite, context, x, y);
