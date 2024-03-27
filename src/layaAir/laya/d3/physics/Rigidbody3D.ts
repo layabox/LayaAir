@@ -247,8 +247,10 @@ export class Rigidbody3D extends PhysicsColliderComponent {
         this.linearFactor = this._linearFactor;
         this.angularFactor = this._angularFactor;
         this.linearDamping = this._linearDamping;
+        this.linearVelocity = this._linearVelocity;
         this.angularDamping = this._angularDamping;
         this.gravity = this._gravity;
+        this.trigger = this._trigger;
         this.isKinematic = this._isKinematic;
     }
 
