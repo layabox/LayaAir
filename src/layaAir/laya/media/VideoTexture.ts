@@ -446,9 +446,16 @@ export class VideoTexture extends BaseTexture {
     }
 
     destroy() {
-        var isConchApp: boolean = LayaEnv.isConch;
-        if (isConchApp) {
-            (<any>this.element)._destroy();
+        if (this.element) {
+            if (LayaEnv.isConch) {
+                (<any>this.element)._destroy();
+            }
+            else {
+                this.element.pause();
+                this.element.src = "";
+                while (this.element.childElementCount)
+                    this.element.firstChild.remove();
+            }
         }
 
         ILaya.timer.clear(this, this.render);
