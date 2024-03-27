@@ -73,12 +73,14 @@ export interface FPropertyDescriptor {
     /** 是否允许数据为空值。
      * 可以用表达式，返回true或者false的结果。
      */
-    required?: boolean | string;
+    required: boolean | string;
 
     /** 是否序列化 */
     serializable: boolean;
     /** 属性在不参与序列化时，如果它的数据可能受其他可序列化的属性影响，在这里填写其他属性名称。这通常用于判断预制体属性是否覆盖。*/
-    affectBy?: string;
+    affectBy: string;
+    /** 默认值。这个值只在面板中使用，它指从界面上创建对象时赋予属性的初始值。*/
+    init: any;
 
     /** 是否多行文本输入 */
     multiline: boolean;
@@ -92,7 +94,7 @@ export interface FPropertyDescriptor {
     /** 定义枚举 */
     enumSource: FEnumDescriptor;
     /** 当数据源为空时，隐藏这个属性 */
-    hideIfEnumSourceEmpty?: boolean;
+    hideIfEnumSourceEmpty: boolean;
 
     /** 是否反转布尔值。例如当属性值为true时，多选框显示为不勾选。 */
     reverseBool: boolean;
@@ -135,10 +137,10 @@ export interface FPropertyDescriptor {
      * 例如，obj对象的某个属性b的值是a1，a1是T类型的实例，且T类型的structLike为true，那么当a1的属性改变时，编辑器将同时调用obj.b = a1。
      * 默认为false。
      */
-    structLike?: boolean;
+    structLike: boolean;
 
     /** 说明此属性是引用一个资源 */
-    isAsset?: boolean;
+    isAsset: boolean;
     /** 对资源类型的属性适用。多个资源类型用逗号分隔，例如“Image,Audio"。*/
     assetTypeFilter: string;
     /** 如果属性类型是string，并且进行资源选择时，这个选项决定属性值是资源原始路径还是res://uuid这样的格式。如果是true，则是资源原始路径。默认false。*/
@@ -146,10 +148,10 @@ export interface FPropertyDescriptor {
     /** 对资源类型的属性适用。选择资源时是否允许选择内部资源 */
     allowInternalAssets: boolean;
     /** 对资源类型的属性适用。可以设置一个自定义的过滤器。过滤器需要先通过EditorEnv.assetMgr.customAssetFilters注册。 */
-    customAssetFilter?: string;
+    customAssetFilter: string;
 
     /** 对类型是Node或者Component的属性适用。如果不为null，当在实际运行环境里执行反序列化时，引用对象不再实例化，而是将它的序列化数据原样保存到指定的属性中。*/
-    toTemplate?: string;
+    toTemplate: string;
 
     /** 显示位置。语法：before xxx/after xxx/first/last。 */
     position: string;
@@ -180,26 +182,28 @@ export interface FTypeDescriptor {
     /** 标题。如果不提供，则使用name。 */
     caption: string;
     /**帮助文档url地址 */
-    help?: string;
+    help: string;
     /** 添加到组件菜单。 */
     menu: string;
     /** 图标。*/
     icon: string;
     /** 是否资源类型 */
-    isAsset?: boolean;
+    isAsset: boolean;
     /** 对资源类型的属性适用。多个资源类型用逗号分隔，例如“Image,Audio"。可用值参考editor/public/IAssetInfo.ts。 */
-    assetTypeFilter?: string;
+    assetTypeFilter: string;
     /** 表示这个类型有类似结构体的行为特性，即总是作为一个整体使用。
      * 例如，obj对象的某个属性b的值是a1，a1是T类型的实例，且T类型的structLike为true，那么当a1的属性改变时，编辑器将同时调用obj.b = a1。
      * 默认为false。
      */
-    structLike?: boolean;
+    structLike: boolean;
     /** 属性列表 */
     properties: Array<Partial<FPropertyDescriptor>>;
     /** 编辑这个类实例的控件 */
     inspector: string;
     /** 对Component使用，表示这个组件允许挂载的节点类型。默认null */
     worldType: "2d" | "3d" | null;
+    /** 对Component使用，如果为true，并且定义了menu属性，则这个组件还会显示在层级面板的新建对象菜单上。 */
+    inHierarchyMenu: boolean;
     /** 额外的选项 */
     options: Record<string, any>;
 }

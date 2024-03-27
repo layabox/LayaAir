@@ -49,6 +49,7 @@ export class HBox extends LayoutBox {
         for (let i = 0, n = this.numChildren; i < n; i++) {
             let item = (<UIComponent>this.getChildAt(i));
             if (item) {
+                item.x = 0;
                 items.push(item);
                 maxHeight = this._isHeightSet ? this._height : Math.max(maxHeight, item.height * item.scaleY);
             }
