@@ -71,17 +71,10 @@ import { Bounds } from "./math/Bounds";
 import { ReflectionProbe } from "./component/Volume/reflectionProbe/ReflectionProbe";
 import { VolumetricGI } from "./component/Volume/VolumetricGI/VolumetricGI";
 import { AreaLightCom } from "./core/light/AreaLightCom";
-import { BoxColliderShape } from "./physics/shape/BoxColliderShape";
-import { CapsuleColliderShape } from "./physics/shape/CapsuleColliderShape";
-import { CylinderColliderShape } from "./physics/shape/CylinderColliderShape";
-import { ConeColliderShape } from "./physics/shape/ConeColliderShape";
-import { SphereColliderShape } from "./physics/shape/SphereColliderShape";
-//import { MeshColliderShape } from "./physics/shape/MeshColliderShape";
 import { LODGroup, LODInfo } from "./component/LODGroup";
 import { PixelLineData } from "./core/pixelLine/PixelLineData";
 import { PixelLineRenderer } from "./core/pixelLine/PixelLineRenderer";
 import { FloatKeyframe } from "./core/FloatKeyframe";
-//import { CompoundColliderShape } from "./physics/shape/CompoundColliderShape";
 import { Animator } from "./component/Animator/Animator";
 import { AnimatorControllerLayer } from "./component/Animator/AnimatorControllerLayer";
 import { AnimatorState } from "./component/Animator/AnimatorState";
@@ -97,6 +90,7 @@ import { StaticInstanceBatchRender } from "./component/Volume/BatchVolume/Static
 import { RenderTexture } from "../resource/RenderTexture";
 import { ColorGradEffect } from "./core/render/PostEffect/ColorGradEffect";
 import { UI3D } from "./core/UI3D/UI3D";
+import { LensFlareData, LensFlareEffect, LensFlareElement } from "./core/render/PostEffect/LensFlares/LensFlareEffect";
 import "./loaders/AnimationClipLoader";
 import "./loaders/CubemapLoader";
 import "./loaders/MeshLoader";
@@ -104,9 +98,6 @@ import "./loaders/HierarchyParserV2";
 import "./loaders/AvatarMaskLoader";
 import "./loaders/GLSLLoader";
 import "./loaders/AnimationControllerLoader";
-import { LensFlareData, LensFlareEffect, LensFlareElement } from "./core/render/PostEffect/LensFlares/LensFlareEffect";
-
-
 
 let c = ClassUtils.regClass;
 c("Sprite3D", Sprite3D);
