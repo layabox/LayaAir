@@ -96,10 +96,6 @@ export class VideoTexture extends BaseTexture {
         if ('requestVideoFrameCallback' in ele) {
             ele.requestVideoFrameCallback(updateVideo);
         }
-        //ios微信浏览器环境下默认不触发loadedmetadata，在主动调用play方法的时候才会触发loadedmetadata事件
-        if (ILaya.Browser.onWeiXin) {
-            this.loadedmetadata();
-        }
     }
 
     private isNeedUpdate() {
