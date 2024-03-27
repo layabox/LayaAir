@@ -73,6 +73,7 @@ export class DrawRenderCMD extends Command {
 
     run(): void {
         if (this.render) {
+            this.render.renderUpdate(this._context);
             this._prematerial = this.render.sharedMaterials[this.subMeshIndex];
         }
     }
