@@ -22,9 +22,12 @@ import { WebGLRenderElement3D } from "../WebGLRenderElement3D";
 
 export class WebGLDrawNodeCMDData extends DrawNodeCMDData {
     type: RenderCMDType;
+
     protected _node: WebBaseRenderNode;
     protected _destShaderData: WebGLShaderData;
     protected _destSubShader: SubShader;
+
+    subMeshIndex: number;
 
     get node(): WebBaseRenderNode {
         return this._node;
@@ -57,16 +60,14 @@ export class WebGLDrawNodeCMDData extends DrawNodeCMDData {
 
     apply(context: WebGLRenderContext3D): void {
         this.node._renderUpdatePre(context);
-        let elements = this.node.renderelements;
-        elements.forEach(element => {
-            let oriSubmesh = element.subShader;
-            let oriMatShaderData = element.materialShaderData;
-            element.subShader = this._destSubShader;
-            element.materialShaderData = this._destShaderData;
-            context.drawRenderElementOne(element as WebGLRenderElement3D);
-            element.subShader = oriSubmesh;
-            element.materialShaderData = oriMatShaderData;
-        });
+        let element = this.node.renderelements[this.subMeshIndex];
+        let oriSubmesh = element.subShader;
+        let oriMatShaderData = element.materialShaderData;
+        element.subShader = this._destSubShader;
+        element.materialShaderData = this._destShaderData;
+        context.drawRenderElementOne(element as WebGLRenderElement3D);
+        element.subShader = oriSubmesh;
+        element.materialShaderData = oriMatShaderData;
     }
 }
 

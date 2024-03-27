@@ -112,12 +112,20 @@ export class Camera extends BaseCamera {
         scene._setCullCamera(camera);
         let recoverTexture = camera.renderTarget;
         camera.renderTarget = renderTexture;
+
+        let originScene = camera.scene;
+
+        camera._scene = scene;
+
         camera.render(scene);
         camera.renderTarget = recoverTexture;
         scene.recaculateCullCamera();
         scene._componentDriver.callPostRender();
         if (camera._internalRenderTexture)
             (!camera._internalRenderTexture._inPool) && RenderTexture.recoverToPool(camera._internalRenderTexture);
+
+        camera._scene = originScene;
+
         return renderTexture;
     }
 

@@ -664,7 +664,7 @@ export class BaseRender extends Component {
      */
     private _changeMaterialReference(lastValue: Material, value: Material): void {
         (lastValue) && (lastValue._removeReference());
-        value._addReference();//TODO:value可以为空
+        (value) && (value._addReference());//TODO:value可以为空
     }
 
     /**
