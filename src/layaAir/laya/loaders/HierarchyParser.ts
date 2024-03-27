@@ -183,10 +183,15 @@ export class HierarchyParser {
                 if (runtime.startsWith("res://"))
                     runtime = runtime.substring(6);
                 let cls = ClassUtils.getClass(runtime);
-                if (cls)
-                    runtime = cls;
+                if (cls) {
+                    if (!(cls instanceof Node)) {
+                        errors.push(new Error(`runtime class invalid - '${runtime}', must derive from Node`));
+                        cls = null;
+                    }
+                }
                 else
-                    errors.push(new Error(`unknown runtime '${runtime}'`));
+                    errors.push(new Error(`runtime class not found - '${runtime}'`));
+                runtime = cls;
             }
 
             let node = createNode(data, null, runtime);
