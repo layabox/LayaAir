@@ -12,7 +12,7 @@ import { EBTExecutionMode } from "./core/EBTExecutionMode";
  */
 export class BehaviorTreeStaticFun {
     
-    static runBehaviorTree(owner: Node, behaviorTree: BehaviorTree, excution?: EBTExecutionMode) {
+    static runBehaviorTree<T extends Node>(owner: T, behaviorTree: BehaviorTree, excution?: EBTExecutionMode) {
         let bt: BehaviorTreeComponent = owner.getComponent(BehaviorTreeComponent);
         if (!bt) {
             bt = owner.addComponent(BehaviorTreeComponent);
