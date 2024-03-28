@@ -7,6 +7,7 @@ import { btColliderShape } from "../Shape/btColliderShape";
 import { btPhysicsCreateUtil } from "../btPhysicsCreateUtil";
 import { btPhysicsManager } from "../btPhysicsManager";
 import { Sprite3D } from "../../../d3/core/Sprite3D";
+import { PhysicsColliderComponent } from "../../../d3/physics/PhysicsColliderComponent";
 
 export enum btColliderType {
     RigidbodyCollider,
@@ -15,6 +16,8 @@ export enum btColliderType {
 }
 
 export class btCollider implements ICollider {
+    /**@internal */
+    component: PhysicsColliderComponent;
     static _colliderID: number = 0;
     static _addUpdateList: boolean = true;
 

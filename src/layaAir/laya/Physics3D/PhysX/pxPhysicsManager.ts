@@ -229,9 +229,9 @@ export class pxPhysicsManager implements IPhysicsManager {
             if (!value) return;
             let ownerA = value._colliderA.owner;
             let ownerB = value._colliderB.owner;
-            value.other = value._colliderB;
+            value.other = value._colliderB.component;
             ownerA.event(Event.COLLISION_ENTER, value);
-            value.other = value._colliderA;
+            value.other = value._colliderA.component;
             ownerB.event(Event.COLLISION_ENTER, value);
             pxCollisionTool.reCoverCollision(value);
         });
@@ -240,9 +240,9 @@ export class pxPhysicsManager implements IPhysicsManager {
             if (!value) return;
             let ownerA = value._colliderA.owner;
             let ownerB = value._colliderB.owner;
-            value.other = value._colliderB;
+            value.other = value._colliderB.component;
             ownerA.event(Event.COLLISION_STAY, value);
-            value.other = value._colliderA;
+            value.other = value._colliderA.component;
             ownerB.event(Event.COLLISION_STAY, value);
             pxCollisionTool.reCoverCollision(value);
         });
@@ -251,9 +251,9 @@ export class pxPhysicsManager implements IPhysicsManager {
             if (!value) return;
             let ownerA = value._colliderA.owner;
             let ownerB = value._colliderB.owner;
-            value.other = value._colliderB;
+            value.other = value._colliderB.component;
             ownerA.event(Event.COLLISION_EXIT, value);
-            value.other = value._colliderA;
+            value.other = value._colliderA.component;
             ownerB.event(Event.COLLISION_EXIT, value);
             pxCollisionTool.reCoverCollision(value);
         });

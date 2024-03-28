@@ -1,6 +1,6 @@
 import { Sprite3D } from "../../../d3/core/Sprite3D";
 import { Transform3D } from "../../../d3/core/Transform3D";
-import { PhysicsCombineMode } from "../../../d3/physics/PhysicsColliderComponent";
+import { PhysicsColliderComponent, PhysicsCombineMode } from "../../../d3/physics/PhysicsColliderComponent";
 import { Physics3DUtils } from "../../../d3/utils/Physics3DUtils";
 import { Event } from "../../../events/Event";
 import { Quaternion } from "../../../maths/Quaternion";
@@ -45,6 +45,9 @@ export class pxCollider implements ICollider {
 
     /**@internal */
     componentEnable: boolean;
+
+    /**@internal */
+    component: PhysicsColliderComponent;
 
     /**actor */
     _pxActor: any;
