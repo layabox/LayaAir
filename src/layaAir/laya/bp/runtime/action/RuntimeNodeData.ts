@@ -13,12 +13,12 @@ export class RuntimeNodeData {
         this.callFunMap = new Map();
     }
 
-    getCallFun(runId:number):Function{
+    getCallFun(runId: number): Function {
         return this.callFunMap.get(runId);
     }
 
-    setCallFun(runId:number,fun:Function){
-        this.callFunMap.set(runId,fun);
+    setCallFun(runId: number, fun: Function) {
+        this.callFunMap.set(runId, fun);
     }
 
     getParamsArray(runId: number): any[] {
@@ -41,7 +41,7 @@ export class RuntimePinData implements IOutParm {
 
     copyValue(runId: number, toRunId: number) {
         let value = this.valueMap.get(runId);
-        if (value) {
+        if (value != undefined) {
             this.valueMap.set(toRunId, value);
         }
     }
