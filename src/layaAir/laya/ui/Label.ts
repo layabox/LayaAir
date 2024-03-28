@@ -241,6 +241,17 @@ export class Label extends UIComponent {
     }
 
     /**
+     * @copy laya.display.Text#alignItems
+     */
+    get alignItems(): string {
+        return this._tf.alignItems;
+    }
+
+    set alignItems(value: string) {
+        this._tf.alignItems = value;
+    }
+
+    /**
      * @copy laya.display.Text#bold
      */
     get bold(): boolean {
