@@ -2,6 +2,7 @@
 uniform vec4 u_clipMatDir;
 uniform vec2 u_clipMatPos;// 这个是全局的，不用再应用矩阵了。
 uniform vec2 u_size;
+uniform float u_VertAlpha;
 varying vec2 v_cliped;
 #ifdef WORLDMAT
     uniform mat4 u_mmat;
@@ -62,6 +63,7 @@ varying vec4 v_color;
         info.texcoordAlpha.xy = a_posuv.zw;
         //color
         info.color = a_attribColor/255.0;
+        info.color.a*=u_VertAlpha;
 	    info.color.xyz*= info.color.w;//反正后面也要预乘
         //useTex
         info.useTex = a_attribFlags.r/255.0;

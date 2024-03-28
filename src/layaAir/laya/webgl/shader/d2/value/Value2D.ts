@@ -35,8 +35,6 @@ export class Value2D {
     shaderData: ShaderData;
 
     _defaultShader: Shader3D;
-    //TODO
-    alpha = 1.0;	//这个目前只给setIBVB用。其他的都放到attribute的color中了
 
     private mainID = RenderSpriteData.Zero;
     private ref = 1;
@@ -90,6 +88,7 @@ export class Value2D {
         this.shaderData.setInt(Shader3D.BLEND_EQUATION, RenderState.BLENDEQUATION_ADD);
         this.shaderData.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ONE);
         this.shaderData.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA);
+        this.shaderData.setNumber(ShaderDefines2D.UNIFORM_VERTALPHA,1.0);
     }
 
     public static _initone(type: number, classT: any): void {
@@ -120,6 +119,14 @@ export class Value2D {
 
     get size() {
         return this.shaderData.getVector2(ShaderDefines2D.UNIFORM_SIZE);
+    }
+
+    set vertAlpha(value:number){
+        this.shaderData.setNumber(ShaderDefines2D.UNIFORM_VERTALPHA,value);
+    }
+
+    get vertAlpha(){
+        return this.shaderData.getNumber(ShaderDefines2D.UNIFORM_VERTALPHA);
     }
 
     /**@internal */
