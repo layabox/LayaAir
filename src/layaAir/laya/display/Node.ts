@@ -745,10 +745,6 @@ export class Node extends EventDispatcher {
     onDisable(): void {
         //trace("onDisable node", this.name);
     }
-    
-    onTest(a:number,str:string):void{
-
-    }
 
     /**
      * @internal
