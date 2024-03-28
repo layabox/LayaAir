@@ -17,6 +17,7 @@ export class BehaviorTree {
      */
     blackboardAsset: BlackboardData;
 
+    target: string;
     nodeMap: Map<any, BTExecutableNode>;
 
     constructor() {

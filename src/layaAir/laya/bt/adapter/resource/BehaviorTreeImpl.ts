@@ -1,6 +1,7 @@
 import { ILoadTask } from "../../../net/Loader";
 import { URL } from "../../../net/URL";
 import { Resource } from "../../../resource/Resource";
+import { BehaviorTreeFactory } from "../../BehaviorTreeFactory";
 import { BehaviorTree } from "../../core/BehaviorTree";
 
 /**
@@ -12,6 +13,7 @@ import { BehaviorTree } from "../../core/BehaviorTree";
 export class BehaviorTreeImpl extends Resource {
     data: any;
     version: number;
+    bt: BehaviorTree;
     typeName: string;
     constructor(data: any, task: ILoadTask, version?: number) {
         super();
@@ -25,8 +27,12 @@ export class BehaviorTreeImpl extends Resource {
     }
 
     create(): any {
-        let bt = new BehaviorTree();
-        bt.parse(this.data);
-        return bt;
+        if (!this.bt) {
+            this.bt = new BehaviorTree();
+            this.bt.target = this.uuid;
+            this.bt.parse(this.data);
+            BehaviorTreeFactory.initHook(this.uuid);
+        }
+        return this.bt;
     }
 }

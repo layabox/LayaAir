@@ -278,7 +278,7 @@ export class BlueprintFactory {
         return newClass as unknown as T;
     }
 
-    //给编辑时的钩子
+    //给编辑时的钩子，调试运行时也会调用
     static initClassHook(parent: string, cls: Function) {
 
     }

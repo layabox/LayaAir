@@ -58,6 +58,11 @@ export class BehaviorTreeFactory {
         this._btMap.set(type, cls);
     }
 
+    //调试运行时用
+    static initHook(parent: string) {
+
+    }
+
     createNew(config: TBTNode) {
         let cls = BehaviorTreeFactory._btMap.get(config.cid);
         if (!cls) {

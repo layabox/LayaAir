@@ -57,6 +57,7 @@ export class BehaviorTreeComponent extends Script implements ITickManger {
 
 
     startTree(bTree: BehaviorTree, excution: EBTExecutionMode = EBTExecutionMode.Looped) {
+        this.excuteContext.target = bTree.target;
         this.excutionMode = excution;
         this.addInstance(bTree);
     }
@@ -215,6 +216,7 @@ export class BehaviorTreeComponent extends Script implements ITickManger {
 }
 
 export class BTExcuteContext {
+    target: string;
     exuteInstanceId: number;
     lastResult: EBTNodeResult;
     excuteNode: BTCompositeNode;
