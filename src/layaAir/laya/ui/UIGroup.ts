@@ -248,6 +248,9 @@ export class UIGroup extends Box {
     }
 
     protected _skinLoaded(): void {
+        if (this._destroyed)
+            return;
+
         this._setLabelChanged();
         this.event(Event.LOADED);
     }

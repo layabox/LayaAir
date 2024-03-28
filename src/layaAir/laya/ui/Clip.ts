@@ -216,6 +216,9 @@ export class Clip extends UIComponent {
     }
 
     protected _skinLoaded(): void {
+        if (this._destroyed)
+            return;
+
         this._setClipChanged();
         this._sizeChanged();
         this.event(Event.LOADED);
