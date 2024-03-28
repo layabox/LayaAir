@@ -142,7 +142,8 @@ export class BlitScreenQuadCMD extends Command {
 			Vector4.tempVec4.setValue(0, 0, dest.width, dest.height);
 			this._blitQuadCMDData.viewport = Viewport._tempViewport;
 			this._blitQuadCMDData.scissor = Vector4.tempVec4;
-		} else {
+		}
+		else {
 			let camera = this._commandBuffer._camera;
 			let viewport: Viewport = camera.viewport;
 			let vpH = viewport.height;
