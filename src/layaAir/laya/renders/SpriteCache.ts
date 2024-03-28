@@ -59,6 +59,7 @@ export class Cache_Info{
     page:CachePage;
     mat:Matrix;
     alpha:number;
+    contextID=NaN;
 }
 
 class RenderPageContex{
@@ -239,17 +240,21 @@ export class SpriteCache{
                 }
                 //记录incache可以通过sprite找到父cache
                 let parentNode = sprite.parent as Sprite
-                parentNode._cacheStyle.cacheInfo.page = parentPage;
-                //这里稍微麻烦一些，需要计算parent的相对于所在page的矩阵
-                //自己相对于parent的page的矩阵= 在curMat 下(x,y)偏移
-                let curMat = context._curMat.clone();
-                if(x!=0||y!=0){
-                    //需要把xy加进去
-                    curMat.tx+=x*curMat.a+y*curMat.c;
-                    curMat.ty+=x*curMat.b+y*curMat.d;
+                let parentCacheInfo = parentNode._cacheStyle.cacheInfo;
+                parentCacheInfo.page = parentPage;
+                if(context.genID!=parentCacheInfo.contextID){
+                    parentCacheInfo.contextID = context.genID;
+                    //这里稍微麻烦一些，需要计算parent的相对于所在page的矩阵
+                    //自己相对于parent的page的矩阵= 在curMat 下(x,y)偏移
+                    let curMat = context._curMat.clone();
+                    if(x!=0||y!=0){
+                        //需要把xy加进去
+                        curMat.tx+=x*curMat.a+y*curMat.c;
+                        curMat.ty+=x*curMat.b+y*curMat.d;
+                    }
+                    //记录parent的相对所在page的矩阵
+                    parentNode._cacheStyle.cacheInfo.mat = SpriteCache.curMatSubSpriteMat(sprite,curMat,curMat);
                 }
-                //记录parent的相对所在page的矩阵
-                parentNode._cacheStyle.cacheInfo.mat = SpriteCache.curMatSubSpriteMat(sprite,curMat,curMat);
                 //parentNode._cacheStyle.cacheInfo.mat = curMat;
                 //计算parent的透明度
                 //记录parent的透明度
