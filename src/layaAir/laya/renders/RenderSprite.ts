@@ -406,15 +406,10 @@ export class RenderSprite {
     /**@internal */
     _blend(sprite: Sprite, context: Context, x: number, y: number): void {
         var style = sprite._style;
-        var next = this._next;
-        if (style.blendMode) {
-            context.save();
-            context.globalCompositeOperation = style.blendMode;
-            next._fun(sprite, context, x, y);
-            context.restore();
-        } else {
-            next._fun(sprite, context, x, y);
-        }
+        context.save();
+        context.globalCompositeOperation = style.blendMode;
+        this._next._fun(sprite, context, x, y);
+        context.restore();
     }
 
     _mask(sprite: Sprite, ctx: Context, x: number, y: number): void {

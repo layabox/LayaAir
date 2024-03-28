@@ -1,4 +1,6 @@
 import { ILaya } from "../../ILaya";
+import { RenderState } from "../RenderDriver/RenderModuleData/Design/RenderState";
+import { Shader3D } from "../RenderEngine/RenderShader/Shader3D";
 import { VertexDeclaration } from "../RenderEngine/VertexDeclaration";
 import { Sprite } from "../display/Sprite";
 import { SpriteConst } from "../display/SpriteConst";
@@ -7,6 +9,7 @@ import { Matrix4x4 } from "../maths/Matrix4x4";
 import { Rectangle } from "../maths/Rectangle";
 import { Vector2 } from "../maths/Vector2";
 import { Stat } from "../utils/Stat";
+import { BlendMode } from "../webgl/canvas/BlendMode";
 import { Value2D } from "../webgl/shader/d2/value/Value2D";
 import { TextTexture } from "../webgl/text/TextTexture";
 import { Context } from "./Context";
@@ -40,26 +43,16 @@ export class RenderObject2D implements IMesh2D{
     }
 }
 
-//sprite中保存自己相对于所在page的一些相对信息。对于根page来说，就是世界位置
-//只有需要挂其他cacheas noraml的对象才有这个结构
-export class SpriteInfoInPage{
-    page:CachePage=null;
-    x=0;y=0;                //这个sprite相对page的位置。
-    rot=0;
-    scalex=1;scaley=1;
-    alpha=1;                //alpha要继承，所以也要记录
-    clip:Rectangle=null;    //clip也要继承
-}
-
 export class Cache_Info{
-    //世界信息
-    //wMat=new Matrix();
-    wAlpha:number;
     //相对所在page的信息.如果本身就是normal则就是自己的cache结果
     page:CachePage=null;
+
+    //世界信息
+    //wMat=new Matrix();
     mat:Matrix;
     alpha:number;
-    contextID=NaN;
+    blend:string;    //undefined表示没有设置
+    contextID:number;   //当这sprite是挂点的时候，这个表示更新挂点信息的id
 }
 
 class RenderPageContex{
@@ -70,6 +63,7 @@ class RenderPageContex{
     width=0;    //TODO这个不应该在这里
     height=0;
     clipInfo: Matrix;
+    blend=0;
     /**
      * 这里的xy就是渲染的xy，需要这个参数是为了正确计算当前矩阵
      * @param ctx 
@@ -85,6 +79,7 @@ class RenderPageContex{
         this.width=ctx.width;
         this.height=ctx.height;
         this.clipInfo = ctx._globalClipMatrix.clone();
+        this.blend = ctx._nBlendType;
     }
     _copyClipInfo(shaderValue: Value2D): void {
         let clipInfo = this.clipInfo;
@@ -95,6 +90,40 @@ class RenderPageContex{
         cmp.x = clipInfo.tx; cmp.y = clipInfo.ty;
         shaderValue.clipMatPos = cmp;
     }    
+
+    setBlendMode(blend:string){
+        this.blend = BlendMode.TOINT[blend];
+    }
+    _applyBlend(shaderValue: Value2D) {
+        let shaderdata = shaderValue.shaderData;
+        switch (this.blend) {
+            case 1://add
+            case 3://screen
+            case 5://light
+                shaderdata.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ONE);
+                shaderdata.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE);
+                break;
+            case 2://BlendMultiply
+                shaderdata.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_DST_COLOR);
+                shaderdata.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA);
+                break;
+            case 6://mask
+                shaderdata.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ZERO);
+                shaderdata.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_SRC_ALPHA);
+                break;
+            case 7://destination
+                shaderdata.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ZERO);
+                shaderdata.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ZERO);
+                break;
+            case 9:// not premul alpha
+                shaderdata.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_SRC_ALPHA);
+                shaderdata.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA);
+                break;
+            default:// premul alpha
+                shaderdata.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ONE);
+                shaderdata.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA);
+        }
+    }
 }
 
 //page是在渲染的过程中动态创建的
@@ -127,6 +156,7 @@ export class CachePage{
         if(isRoot){
             curMat.copyTo(worldMat);
             //alpha直接使用
+            //blend直接使用
         }else{
             //如果sprite有旋转，则用矩阵乘法，否则用简单的偏移
             let x = sprite._x;
@@ -143,6 +173,10 @@ export class CachePage{
                 worldMat.ty=curMat.b*x+curMat.d*y+curMat.ty;
             }
             context.alpha*=sprite.alpha;
+            //如果有blend设置一些
+            if(sprite.blendMode){
+                context.setBlendMode(sprite.blendMode);
+            }
         }
 
         vec21.setValue(context.width, context.height);
@@ -165,6 +199,7 @@ export class CachePage{
             context._copyClipInfo(curMtl);
             curMtl.mmat = wMat4;
             curMtl.vertAlpha = context.alpha;
+            context._applyBlend(curMtl);
             render.draw(renderinfo,renderinfo.vboff,renderinfo.vblen, renderinfo.iboff, renderinfo.iblen, curMtl);
         })
 
@@ -178,14 +213,23 @@ export class CachePage{
             //根据sp更新shader数据，例如偏移等
             let oldMat = context.curMatrix.clone();
             let oldAlpha = context.alpha;
+            let parentCacheInfo = (sp.parent as Sprite)._cacheStyle.cacheInfo;
             //原点设置为父节点的世界坐标，所以加上父节点的相对偏移
-            let offmat = (sp.parent as Sprite)._cacheStyle.cacheInfo.mat;
+            let offmat = parentCacheInfo.mat;
             Matrix.mul(offmat,oldMat,context.curMatrix);
             //context.curMatrix.copyTo((sp.parent as Sprite)._cacheStyle.cacheInfo.wMat);//TODO需要么
+            //应用父的alpha
+            context.alpha*=parentCacheInfo.alpha;
+            //应用父的blend
+            let oldBlend = context.blend;
+            if(parentCacheInfo.blend!=undefined){
+                context.setBlendMode(parentCacheInfo.blend);
+            }
             sp._cacheStyle.cacheInfo.page.render(sp,context,false);
-            //恢复矩阵
+            //恢复
             context.curMatrix = oldMat;
             context.alpha = oldAlpha;
+            context.blend = oldBlend;
         });
     }
 }
@@ -266,10 +310,27 @@ export class SpriteCache{
 
                     //父节点相对于所在page的alpha
                     parentCacheInfo.alpha = context.globalAlpha/sprite.alpha;
+
+                    //记录父节点的blend信息
+                    //往上遍历所有的
+                    let pageRootSprite =  parentPage.sprite;
+                    if(parentNode.blendMode){
+                        parentCacheInfo.blend = parentNode.blendMode;
+                    }else{
+                        let curNode = parentNode;
+                        while(curNode!=pageRootSprite){
+                            curNode = curNode.parent as Sprite;
+                            if(curNode.blendMode){
+                                parentCacheInfo.blend = curNode.blendMode;
+                                break;
+                            }
+                        }
+                    }
                 }
             }
 
             cache = sprite._cacheStyle.cacheInfo.page = new CachePage();
+            cache.sprite = sprite;
             Stat.canvasNormal++;
             let ctx = new DefferTouchResContext();
             ctx.cache = cache;
