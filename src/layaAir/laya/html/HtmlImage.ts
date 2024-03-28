@@ -33,7 +33,8 @@ export class HtmlImage implements IHtmlObject {
         this._owner.objContainer.addChild(this.obj);
 
         let src = this._element.getAttrString("src");
-        this.loadTexture(src);
+        if (src)
+            this.loadTexture(src);
     }
 
     protected loadTexture(src: string) {
@@ -54,6 +55,7 @@ export class HtmlImage implements IHtmlObject {
         }
         else {
             ILaya.loader.load(src, { silent: true }).then(tex => {
+                if (this.obj.destroyed) return;
                 let w = this.obj.width;
                 let h = this.obj.height;
                 this.obj.texture = tex;

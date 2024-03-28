@@ -584,10 +584,9 @@ export class Loader extends EventDispatcher {
 
         if (type) { //指定了类型
             let typeEntry = Loader.typeMap[type];
-            if (!typeEntry) {
-                Loader.warn(`not recognize type: '${type}'`);
+            if (!typeEntry)
                 return NullURLInfo;
-            }
+
             typeId = typeEntry.typeId;
 
             let i: number = 0;
@@ -609,10 +608,8 @@ export class Loader extends EventDispatcher {
             }
         }
         else {
-            if (!extEntry) {
-                Loader.warn(`not recognize the resource suffix: '${url}'`);
+            if (!extEntry)
                 return NullURLInfo;
-            }
 
             //没有自定类型，则认为是主资源
             main = true;
@@ -624,14 +621,14 @@ export class Loader extends EventDispatcher {
     }
 
     private static warnFailed(url: string, err?: any) {
-        this.warn(`Failed to load ${url}`, err);
+        this.warn(`Failed to load '${url}'`, err);
     }
 
     public static warn(msg: string, err?: any) {
-        let errMsg = err ? (err.stack ? err.stack : err) : "";
-        if (errMsg)
-            errMsg = ": " + errMsg;
-        console.warn(msg + errMsg);
+        if (err)
+            console.warn(msg, err);
+        else
+            console.warn(msg);
     }
 
     /**
