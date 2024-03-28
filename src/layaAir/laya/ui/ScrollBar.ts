@@ -41,7 +41,7 @@ import { AssetDb } from "../resource/AssetDb";
  */
 export class ScrollBar extends UIComponent {
     /**滚动衰减系数*/
-    rollRatio: number = 0.97;
+    rollRatio: number = 0.9;
     /**滚动变化时回调，回传value参数。*/
     changeHandler: Handler;
     /**是否缩放滑动条，默认值为true。 */
