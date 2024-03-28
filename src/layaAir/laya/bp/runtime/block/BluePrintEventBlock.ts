@@ -5,7 +5,7 @@ import { BlueprintPinRuntime } from "../BlueprintPinRuntime";
 import { IRunAble } from "../interface/IRunAble";
 import { BlueprintEventNode } from "../node/BlueprintEventNode";
 import { BlueprintRuntimeBaseNode } from "../node/BlueprintRuntimeBaseNode";
-import { BluePrintBlock } from "./BluePrintBlock";
+import { BluePrintBlock, EBlockSource } from "./BluePrintBlock";
 import { BluePrintComplexBlock } from "./BluePrintComplexBlock";
 
 export class BluePrintEventBlock extends BluePrintBlock {
@@ -102,5 +102,13 @@ export class BluePrintEventBlock extends BluePrintBlock {
 
     getDataMangerByID(context:IRunAble): IRuntimeDataManger {
         return context.getDataMangerByID(this.parentId);
+    }
+
+    get bpId(): string {
+        return this.parent.name;
+    }
+
+    get blockSourceType(): EBlockSource {
+        return this.parent.blockSourceType;
     }
 }

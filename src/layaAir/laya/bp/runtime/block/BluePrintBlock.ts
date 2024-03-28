@@ -13,8 +13,12 @@ import { BluePrintEventBlock } from "./BluePrintEventBlock";
 
 export class BluePrintBlock implements INodeManger<BlueprintRuntimeBaseNode>, IBPRutime {
     hasRefAnony: boolean;
-
+    
     localVarMap: Record<string, TBPVarProperty>;
+
+    get blockSourceType(): EBlockSource {
+        return EBlockSource.Unknown;
+    }
 
     private poolIds: number[];
     protected _maxID: number;
@@ -62,7 +66,7 @@ export class BluePrintBlock implements INodeManger<BlueprintRuntimeBaseNode>, IB
         return context.getDataMangerByID(this.id);
     }
 
-    get target(): string {
+    get bpId(): string {
         return this.name;
     }
 
@@ -195,4 +199,10 @@ export class BluePrintBlock implements INodeManger<BlueprintRuntimeBaseNode>, IB
         //console.log(">>>>>>>>>>>>>runID over:" + runId);
         return true;
     }
+}
+
+export enum EBlockSource{
+    Unknown,
+    Main,
+    Function
 }

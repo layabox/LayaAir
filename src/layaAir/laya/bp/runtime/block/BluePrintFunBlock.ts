@@ -4,10 +4,9 @@ import { BlueprintPinRuntime } from "../BlueprintPinRuntime";
 
 import { IBPRutime } from "../interface/IBPRutime";
 import { IRunAble } from "../interface/IRunAble";
-import { BlueprintCustomFunReturn } from "../node/BlueprintCustomFunReturn";
 import { BlueprintCustomFunStart } from "../node/BlueprintCustomFunStart";
+import { EBlockSource } from "./BluePrintBlock";
 import { BluePrintComplexBlock } from "./BluePrintComplexBlock";
-import { BluePrintEventBlock } from "./BluePrintEventBlock";
 import { BluePrintFunStartBlock } from "./BluePrintFunStartBlock";
 import { BluePrintMainBlock } from "./BluePrintMainBlock";
 
@@ -20,8 +19,12 @@ export class BluePrintFunBlock extends BluePrintComplexBlock {
 
     funBlock:BluePrintFunStartBlock;
 
-    get target(): string {
+    get bpId(): string {
         return this.mainBlock.name;
+    }
+
+    get blockSourceType(): EBlockSource {
+        return EBlockSource.Function;
     }
 
     optimize() {

@@ -6,6 +6,7 @@ import { IRunAble } from "../interface/IRunAble";
 import { BlueprintAutoRun } from "../node/BlueprintAutoRun";
 import { BlueprintEventNode } from "../node/BlueprintEventNode";
 import { BlueprintRuntimeBaseNode } from "../node/BlueprintRuntimeBaseNode";
+import { EBlockSource } from "./BluePrintBlock";
 import { BluePrintComplexBlock } from "./BluePrintComplexBlock";
 import { BluePrintEventBlock } from "./BluePrintEventBlock";
 
@@ -22,6 +23,9 @@ export class BluePrintMainBlock extends BluePrintComplexBlock {
     }
     get bpName() {
         return BlueprintUtil.getNameByUUID(this.name);
+    }
+    get blockSourceType(): EBlockSource {
+        return EBlockSource.Main;
     }
     eventMap: Map<any, BlueprintEventNode>;
     cls: Function;
@@ -108,4 +112,5 @@ export class BluePrintMainBlock extends BluePrintComplexBlock {
         context.initData(this.id, this.nodeMap, this.localVarMap);
         return this.eventBlockMap.get(event.nid).run(context, event, parms, cb, runId, execId);
     }
+    
 }
