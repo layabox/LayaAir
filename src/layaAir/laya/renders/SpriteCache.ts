@@ -132,6 +132,8 @@ export class CachePage{
     meshes:RenderObject2D[]=null;
     defferTouchRes:IAutoExpiringResource[]=null;
     defferTouchResRand:IAutoExpiringResource[]=null;
+    //这个缓存的所有的clip的合并结果。这个合并结果是page内的，从全屏开始，这样才能渲染的时候正确与外面的取交集
+    localClipMatrix:Matrix;
     
     //挂载其他cacheas normal的sprite。实际的缓存数据保存在sprite身上，这里保存sprite比较方便。
     children:Sprite[]=null;
