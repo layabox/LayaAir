@@ -2,14 +2,7 @@ import { IExcuteListInfo } from "../core/interface/IExcuteListInfo";
 import { BlueprintPinRuntime } from "./BlueprintPinRuntime";
 
 export class BlueprintPromise implements IExcuteListInfo {
-    /**
-     * 在excuteAbleList中的索引
-    */
-    index: number;
-    /**
-     * excuteAbleList 的 map索引
-    */
-    listIndex: number | symbol;
+    nid: number;
 
     enableDebugPause: boolean;
 
@@ -52,6 +45,7 @@ export class BlueprintPromise implements IExcuteListInfo {
         this._callback = null;
         this._completed = false;
         this.pin = null;
+        this.nid = null;
         this.prePin = null;
     }
 

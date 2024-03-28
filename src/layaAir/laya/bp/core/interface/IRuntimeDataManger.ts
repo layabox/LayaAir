@@ -15,4 +15,6 @@ export interface IRuntimeDataManger {
     setVar(name: string, value: any,runId: number): void;
 
     clearVar(runId: number): void;
+
+    saveContextData(from: number, to: number): void;
 }

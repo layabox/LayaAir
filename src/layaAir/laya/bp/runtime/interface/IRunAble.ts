@@ -42,7 +42,7 @@ export interface IRunAble {
 
     getSelf(): any;
 
-    initData(key: number | symbol, nodeMap: Map<number, BlueprintRuntimeBaseNode>,localVarMap:Record<string, TBPVarProperty>): void;
+    initData(key: number | symbol, nodeMap: Map<number, BlueprintRuntimeBaseNode>,localVarMap:Record<string, TBPVarProperty>,parentId?:number|symbol): void;
 
     getDataMangerByID(id:symbol|number):IRuntimeDataManger;
 

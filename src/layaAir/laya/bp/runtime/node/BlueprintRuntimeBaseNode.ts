@@ -11,14 +11,7 @@ import { IRuntimeDataManger } from "../../core/interface/IRuntimeDataManger";
 import { TBPCNode } from "../../datas/types/BlueprintTypes";
 
 export class BlueprintRuntimeBaseNode extends BlueprintNode<BlueprintPinRuntime> implements IExcuteListInfo {
-    /**
-     * 在excuteAbleList中的索引
-     */
-    index: number;
-    /**
-     * excuteAbleList 的 map索引
-     */
-    listIndex: number | symbol;
+    private _refNumber:number;
     staticNext: BlueprintPinRuntime;//下一个节点
     private static _EMPTY: BlueprintPinRuntime[] = [];
     nativeFun: Function;
@@ -53,6 +46,16 @@ export class BlueprintRuntimeBaseNode extends BlueprintNode<BlueprintPinRuntime>
         // this._parmsArray=[];
     }
 
+    addRef() {
+        if(this._refNumber==undefined){
+            this._refNumber=0;
+        }
+        this._refNumber++;
+    }
+
+    getRef(){
+        return this._refNumber;
+    }
 
     emptyExcute(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean, runId: number, fromPin: BlueprintPinRuntime): BlueprintPinRuntime | BlueprintPromise {
         return null;
@@ -117,10 +120,9 @@ export class BlueprintRuntimeBaseNode extends BlueprintNode<BlueprintPinRuntime>
             promise.then((value) => {
                 //debugger;
                 if (bPromise.hasCallBack()) {
-                    bPromise.index = this.index;
+                    bPromise.nid = this.nid;
                     bPromise.pin = fromPin;
                     bPromise.prePin = prePin;
-                    bPromise.listIndex = this.listIndex;
                     context.readCache = true;
                     bPromise.complete();
                 }
@@ -150,10 +152,9 @@ export class BlueprintRuntimeBaseNode extends BlueprintNode<BlueprintPinRuntime>
                     this.returnValue && runtimeDataMgr.setPinData(this.returnValue, value, runId);
                     let pin = this.next(context, runtimeDataMgr, _parmsArray, runner, enableDebugPause, runId, fromPin);
                     pin = pin.linkTo[0] as BlueprintPinRuntime;
-                    promise.index = pin ? pin.owner.index : BlueprintConst.MAX_CODELINE;
+                    promise.nid = pin ? pin.owner.nid : BlueprintConst.NULL_NODE;
                     promise.pin = pin;
                     promise.prePin = prePin;
-                    promise.listIndex = this.listIndex;
                     promise.complete();
                     promise.recover();
                 })

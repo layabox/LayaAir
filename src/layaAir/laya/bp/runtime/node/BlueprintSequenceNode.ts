@@ -61,8 +61,7 @@ export class BlueprintSequenceNode extends BlueprintComplexNode {
         if (arr.length > 0) {
             let promise = BlueprintPromise.create();
             Promise.all(arr).then((value) => {
-                promise.index = BlueprintConst.MAX_CODELINE;
-                promise.listIndex = this.listIndex;
+                promise.nid =  BlueprintConst.NULL_NODE;
                 promise.complete();
                 promise.recover();
             })

@@ -9,6 +9,7 @@ import { BlueprintFactory } from "../BlueprintFactory";
 import { IRuntimeDataManger } from "../../core/interface/IRuntimeDataManger";
 import { BlueprintPromise } from "../BlueprintPromise";
 import { TBPVarProperty } from "../../datas/types/BlueprintTypes";
+import { EPinType } from "../../core/EBluePrint";
 
 export class BlueprintExcuteNode extends BlueprintRunBase implements IRunAble {
     owner: any;
@@ -41,11 +42,17 @@ export class BlueprintExcuteNode extends BlueprintRunBase implements IRunAble {
         return this.runtimeDataMgrMap.get(id);
     }
 
-    initData(key: number | symbol, nodeMap: Map<number, BlueprintRuntimeBaseNode>, localVarMap: Record<string, TBPVarProperty>): void {
+    initData(key: number | symbol, nodeMap: Map<number, BlueprintRuntimeBaseNode>, localVarMap: Record<string, TBPVarProperty>, parentId?: number | symbol): void {
         let runtimeDataMgr = this.runtimeDataMgrMap.get(key);
         if (!runtimeDataMgr) {
-            runtimeDataMgr = new RuntimeDataManger(key);
-            runtimeDataMgr.initData(nodeMap, localVarMap);
+            let parent = this.runtimeDataMgrMap.get(parentId);
+            if (parent) {
+                runtimeDataMgr = parent;
+            }
+            else {
+                runtimeDataMgr = new RuntimeDataManger(key);
+                runtimeDataMgr.initData(nodeMap, localVarMap);
+            }
             this.runtimeDataMgrMap.set(key, runtimeDataMgr);
         }
     }
@@ -139,6 +146,8 @@ class RuntimeDataManger implements IRuntimeDataManger {
      */
     pinMap: Map<string, RuntimePinData>;
 
+    parmsArray: RuntimePinData[];
+
     localVarObj: any;
 
     localVarMap: Map<number, any>;
@@ -147,7 +156,19 @@ class RuntimeDataManger implements IRuntimeDataManger {
         this.id = id;
         this.localVarObj = {};
         this.localVarMap = new Map();
+        this.parmsArray = [];
     }
+
+    saveContextData(from: number, to: number): void {
+        this.parmsArray.forEach((value) => {
+            value.copyValue(from, to);
+        });
+        let a = this.localVarMap.get(from);
+        if (a) {
+            this.localVarMap.set(to, Object.create(a));
+        }
+    }
+
 
     private _initGetVarObj(runId: number) {
         let a = this.localVarMap.get(runId);
@@ -215,6 +236,9 @@ class RuntimeDataManger implements IRuntimeDataManger {
                         debugger;
                     }
                     pinMap.set(pin.id, pinData);
+                    if (pin.type != EPinType.Exec) {
+                        this.parmsArray.push(pinData);
+                    }
                 })
             })
             if (localVarMap) {

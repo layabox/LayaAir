@@ -122,12 +122,12 @@ export class BlueprintFactory {
 
             }, true);
 
-            this.regFunction("event_call", function (eventName: string, ...args: any[]) {
+            this.regFunction("event_call", function (eventName: string,...args: any[]) {
                 //@ts-ignore
                 this.event(eventName, args);
 
             }, true);
-            this.regFunction("event_off", function (eventName: string, cb: Function) {
+            this.regFunction("event_off", function (eventName: string,cb: Function) {
                 //@ts-ignore
                 this.off(eventName, this, cb);
 

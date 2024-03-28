@@ -7,29 +7,34 @@ import { BlueprintFactory } from "../runtime/BlueprintFactory";
 import { ClassUtils } from "../../utils/ClassUtils";
 import { Browser } from "../../utils/Browser";
 import { URL } from "../../net/URL";
+import { AssetDb } from "../../resource/AssetDb";
 
-export class BlueprintCreateUtil{
+export class BlueprintCreateUtil {
 
-    static __init__():Promise<void>{
+    static __init__(): Promise<void> {
         let strs = BlueprintConst.configPath.split(".");
         let ext = strs[strs.length - 1];
         let isJson = ext == "json";
         //注册函数
-        BlueprintUtil.getClass=function(ext: any) {
+        BlueprintUtil.getClass = function (ext: any) {
             return ClassUtils.getClass(ext) || Browser.window.Laya[ext];
         }
-        BlueprintUtil.regClass=ClassUtils.regClass;
+        BlueprintUtil.regClass = ClassUtils.regClass;
 
-        BlueprintUtil.getResByUUID=function(uuid: string) {
+        BlueprintUtil.getResByUUID = function (uuid: string) {
             return Laya.loader.getRes(URL.getResURLByUUID(uuid)).create();
         }
 
-        return Laya.loader.fetch(BlueprintConst.configPath , isJson ? "json" : "arraybuffer").then((result)=>{
+        BlueprintUtil.getNameByUUID = function (uuid: string) {
+            return AssetDb.inst.uuidMap[uuid];
+        }
+
+        return Laya.loader.fetch(BlueprintConst.configPath, isJson ? "json" : "arraybuffer").then((result) => {
             if (!result) {
                 console.error("Blueprint init fail");
                 return Promise.resolve();
             }
-            let json:any = result;
+            let json: any = result;
             if (!isJson) {
                 json = JsonBinRead.instance.read(result);
             }
@@ -43,4 +48,4 @@ export class BlueprintCreateUtil{
     }
 }
 
-Laya.addAfterInitCallback( BlueprintCreateUtil.__init__ );
+Laya.addAfterInitCallback(BlueprintCreateUtil.__init__);

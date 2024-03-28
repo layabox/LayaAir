@@ -4,9 +4,7 @@ import { EPinDirection, EPinType } from "../../core/EBluePrint";
 import { BlueprintPinRuntime } from "../BlueprintPinRuntime";
 import { BlueprintRuntimeBaseNode } from "./BlueprintRuntimeBaseNode";
 import { IBPRutime } from "../interface/IBPRutime";
-import { BlueprintConst } from "../../core/BlueprintConst";
 import { IRuntimeDataManger } from "../../core/interface/IRuntimeDataManger";
-import { BlueprintPromise } from "../BlueprintPromise";
 
 export class BlueprintComplexNode extends BlueprintRuntimeBaseNode {
     /**
@@ -18,13 +16,13 @@ export class BlueprintComplexNode extends BlueprintRuntimeBaseNode {
         super();
         this.inExcutes = [];
         this.outExcutes = [];
-        this.tryExcute=this.emptyExcute;
+        this.tryExcute = this.emptyExcute;
     }
 
-    next(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, parmsArray: any[], runner: IBPRutime, enableDebugPause: boolean, runId: number,fromPin:BlueprintPinRuntime): BlueprintPinRuntime{
+    next(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, parmsArray: any[], runner: IBPRutime, enableDebugPause: boolean, runId: number, fromPin: BlueprintPinRuntime): BlueprintPinRuntime {
         //context.find()
         let result = this.find(this.outExcutes, ...parmsArray);
-        if(result.linkTo.length){
+        if (result.linkTo.length) {
             // return (result.linkTo[0] as BlueprintPinRuntime);    
             return result;
         }
@@ -33,7 +31,7 @@ export class BlueprintComplexNode extends BlueprintRuntimeBaseNode {
         //this.outExcute.excute(context);
     }
 
-    find: (outExcutes: BlueprintPinRuntime[],...args:any) => BlueprintPinRuntime;
+    find: (outExcutes: BlueprintPinRuntime[], ...args: any) => BlueprintPinRuntime;
 
     addPin(pin: BlueprintPinRuntime) {
         super.addPin(pin);

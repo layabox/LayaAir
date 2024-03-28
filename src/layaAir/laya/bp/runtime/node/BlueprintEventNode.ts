@@ -19,6 +19,8 @@ export class BlueprintEventNode extends BlueprintRuntimeBaseNode {
 
     autoReg: boolean;
 
+    isAnonymous: boolean;
+
     constructor() {
         super();
         this.tryExcute = this.emptyExcute;
@@ -26,6 +28,7 @@ export class BlueprintEventNode extends BlueprintRuntimeBaseNode {
 
     protected onParseLinkData(node: TBPNode, manger: INodeManger<BlueprintEventNode>) {
         if (node.dataId) {
+            this.isAnonymous = true;
             this.eventName = BlueprintUtil.getConstDataById(node.target, node.dataId).name;//(manger.dataMap[node.dataId] as TBPEventProperty).name;
         }
         else {
@@ -50,16 +53,18 @@ export class BlueprintEventNode extends BlueprintRuntimeBaseNode {
             let data = runtimeDataMgr.getDataById(this.nid);
             let _this = this;
             data.eventName = this.eventName;
-            data.callFun = data.callFun || function () {
-                let parms = Array.from(arguments);
-                let newRunId = runner.getRunID();
-                _this.initData(runtimeDataMgr, parms, newRunId);
-                let nextPin = _this.outExcute.linkTo[0] as BlueprintPinRuntime;
-                if (nextPin) {
-                    runner.runByContext(context, runtimeDataMgr, nextPin.owner, enableDebugPause, null, newRunId, nextPin, _this.outExcute);
+            let callFun = data.getCallFun(runId);
+            if (!callFun) {
+                callFun = function () {
+                    let parms = Array.from(arguments);
+                    let nextPin = _this.outExcute.linkTo[0] as BlueprintPinRuntime;
+                    if (nextPin) {
+                        runner.runAnonymous(context, _this, parms, null, runId, 0, runner.getRunID(), runtimeDataMgr);
+                    }
                 }
+                data.setCallFun(runId, callFun);
             }
-            runtimeDataMgr.setPinData(fromPin, data.callFun, runId);
+            runtimeDataMgr.setPinData(fromPin, callFun, runId);
         }
         return null;
     }

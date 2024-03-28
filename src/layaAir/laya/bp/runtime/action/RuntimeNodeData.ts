@@ -3,14 +3,22 @@ import { IOutParm } from "../../core/interface/IOutParm";
 export class RuntimeNodeData {
     map: Map<number, any[]>;
 
+    callFunMap: Map<number, Function>;
     //parmsArray: any[];
-
-    callFun: Function;
 
     eventName: string;
 
     constructor() {
         this.map = new Map();
+        this.callFunMap = new Map();
+    }
+
+    getCallFun(runId:number):Function{
+        return this.callFunMap.get(runId);
+    }
+
+    setCallFun(runId:number,fun:Function){
+        this.callFunMap.set(runId,fun);
     }
 
     getParamsArray(runId: number): any[] {
@@ -29,6 +37,13 @@ export class RuntimePinData implements IOutParm {
     private valueMap: Map<number, any>;
     constructor() {
         this.valueMap = new Map();
+    }
+
+    copyValue(runId: number, toRunId: number) {
+        let value = this.valueMap.get(runId);
+        if (value) {
+            this.valueMap.set(toRunId, value);
+        }
     }
     initValue(value: any) {
         this.value = value;

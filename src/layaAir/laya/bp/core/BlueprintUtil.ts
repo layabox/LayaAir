@@ -70,4 +70,8 @@ export class BlueprintUtil {
         return this.resouceMap.get(uuid);
     }
 
+    static getNameByUUID(uuid: string):string {
+        return null;
+    }
+
 }

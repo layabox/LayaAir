@@ -101,7 +101,7 @@ export class BlueprintStaticFun {
         return value;
     }
     /**
-     * 
+     * 等待
      * @param second 
      * @returns 
      */
