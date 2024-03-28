@@ -659,6 +659,20 @@ export class Text extends Sprite {
     }
 
     /**
+     * 图文混排时图片和文字的对齐方式。可选值是top,middle,bottom
+     */
+    get alignItems(): string {
+        return this._textStyle.alignItems;
+    }
+
+    set alignItems(value: string) {
+        if (this._textStyle.alignItems != value) {
+            this._textStyle.alignItems = value;
+            this.markChanged();
+        }
+    }
+
+    /**
      * <p>表示文本是否自动换行，默认为false。</p>
      * <p>若值为true，则自动换行；否则不自动换行。</p>
      */
@@ -1156,6 +1170,7 @@ export class Text extends Sprite {
         }
         let rectHeight = this._isHeightSet ? (this._height - padding[0] - padding[2]) : Number.MAX_VALUE;
         let bfont = this._bitmapFont;
+        let alignItems = this._textStyle.alignItems == "middle" ? 1 : (this._textStyle.alignItems == "bottom" ? 2 : 0);
 
         let lineX: number, lineY: number;
         let curLine: ITextLine;
@@ -1263,9 +1278,12 @@ export class Text extends Sprite {
             //调整元素y位置
             cmd = curLine.cmd;
             while (cmd) {
-                // cmd.y = Math.floor((lineHeight - cmd.height) * 0.5);
-                // CoderM: 这里不乘以0.5进行居中,否则超链接加图文混排一起使用的话会出现比较抽象的居中对齐现实效果
-                cmd.y = Math.floor((lineHeight - cmd.height));
+                if (alignItems == 1)
+                    cmd.y = Math.floor((lineHeight - cmd.height) * 0.5);
+                else if (alignItems == 2)
+                    cmd.y = Math.floor((lineHeight - cmd.height));
+                else
+                    cmd.y = 0;
                 cmd = cmd.next;
             }
 
