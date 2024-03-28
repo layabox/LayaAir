@@ -27,9 +27,7 @@ export class CacheStyle {
     renderTexOffx=0;
     renderTexOffy=0;
 
-    //cacheas normal的缓存
-    cacheAsNormal:CachePage=null;
-    //inCache:CachePage=null;
+    //cacheas normal相关的缓存
     cacheInfo=new Cache_Info();
 
     constructor() {

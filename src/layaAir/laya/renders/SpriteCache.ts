@@ -55,8 +55,8 @@ export class Cache_Info{
     //世界信息
     //wMat=new Matrix();
     wAlpha:number;
-    //相对所在page的信息
-    page:CachePage;
+    //相对所在page的信息.如果本身就是normal则就是自己的cache结果
+    page:CachePage=null;
     mat:Matrix;
     alpha:number;
     contextID=NaN;
@@ -178,7 +178,7 @@ export class CachePage{
             let offmat = (sp.parent as Sprite)._cacheStyle.cacheInfo.mat;
             Matrix.mul(offmat,oldmat,context.curMatrix);
             //context.curMatrix.copyTo((sp.parent as Sprite)._cacheStyle.cacheInfo.wMat);//TODO需要么
-            sp._cacheStyle.cacheAsNormal.render(sp,context,false);
+            sp._cacheStyle.cacheInfo.page.render(sp,context,false);
             //恢复矩阵
             context.curMatrix = oldmat;
         });
@@ -220,7 +220,7 @@ export class SpriteCache{
 
     static renderCacheAsNormal(context:Context|DefferTouchResContext,sprite:Sprite,next:RenderSprite,x:number,y:number){
         let rebuild=false;
-        var cacheResult = sprite._cacheStyle.cacheAsNormal;
+        var cacheResult = sprite._cacheStyle.cacheInfo.page;
         if (!cacheResult || sprite._needRepaint() || ILaya.stage.isGlobalRepaint()) {
             //计算包围盒
             //sprite._cacheStyle._calculateCacheRect(sprite, "bitmap", 0, 0);
@@ -262,7 +262,7 @@ export class SpriteCache{
                 //if(parentNode._cacheStyle.c)
             }
 
-            cacheResult = sprite._cacheStyle.cacheAsNormal = new CachePage();
+            cacheResult = sprite._cacheStyle.cacheInfo.page = new CachePage();
             Stat.canvasNormal++;
             let ctx = new DefferTouchResContext();
             ctx.cache = cacheResult;
