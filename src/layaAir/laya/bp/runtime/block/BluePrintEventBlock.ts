@@ -105,7 +105,7 @@ export class BluePrintEventBlock extends BluePrintBlock {
     }
 
     get bpId(): string {
-        return this.parent.name;
+        return this.parent.bpId;
     }
 
     get blockSourceType(): EBlockSource {
