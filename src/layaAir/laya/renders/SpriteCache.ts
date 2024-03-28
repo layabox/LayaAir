@@ -53,7 +53,7 @@ export class SpriteInfoInPage{
 
 export class Cache_Info{
     //世界信息
-    wMat=new Matrix();
+    //wMat=new Matrix();
     wAlpha:number;
     //相对所在page的信息
     page:CachePage;
@@ -114,23 +114,11 @@ export class CachePage{
     //clipRect:Rectangle;
 
     /**
-     * 从节点构造。构造的过程其实就是渲染每个小节点组成mesh的过程
-     * sp的父节点一定在指定的parentPage中
-     * @param parentPage 如果sp是第一层cache，则这个应该是context对应的根page
-     * @param sp 
-     */
-    constructFromSprite(parentPage:CachePage, sprite:Sprite){
-        //把sp加到
-
-
-    }
-
-    /**
      * 根据sprite的相对矩阵（相对于parent）画出缓存的mesh
      * 为了位置能正确，需要context中提供的矩阵是sprite的parent的世界矩阵
      * @param sprite 
      * @param context 
-     * @param isRoot  如果为true的话，则可以直接使用当前矩阵
+     * @param isRoot  如果为true的话，则可以直接使用当前矩阵。优化用。
      */
     render(sprite:Sprite,context:RenderPageContex,isRoot:boolean){
         let spriteTrans = sprite.transform;
@@ -138,12 +126,15 @@ export class CachePage{
         if(isRoot){
             curMat.copyTo(worldMat);
         }else{
+            //如果sprite有旋转，则用矩阵乘法，否则用简单的偏移
+            let x = sprite._x;
+            let y = sprite._y;
             if(spriteTrans){
-                //如果sprite有旋转，则用矩阵乘法，否则用简单的偏移
-                Matrix.mul(spriteTrans,curMat,worldMat);
+                spriteTrans.copyTo(tmpMat);
+                //现在transform本身没有偏移，所以要单独加上
+                tmpMat.tx=x; tmpMat.ty=y;
+                Matrix.mul(tmpMat,curMat,worldMat);
             }else{
-                let x = sprite._x;
-                let y = sprite._y;
                 worldMat.a=curMat.a; worldMat.b=curMat.b;
                 worldMat.c=curMat.c; worldMat.d=curMat.d;
                 worldMat.tx=curMat.a*x+curMat.c*y+curMat.tx; 
@@ -154,19 +145,19 @@ export class CachePage{
         vec21.setValue(context.width, context.height);
         //世界矩阵
         let wMat4 = new Matrix4x4();
-        let mate = wMat4.elements;//worldMat4.elements;
-        mate[0]=worldMat.a; mate[1]=worldMat.b;
-        mate[4]=worldMat.c; mate[5]=worldMat.d;
+        let mate = wMat4.elements;
+        mate[0]=worldMat.a;    mate[1]=worldMat.b;
+        mate[4]=worldMat.c;    mate[5]=worldMat.d;
         mate[12]=worldMat.tx;  mate[13]=worldMat.ty;
 
         this.meshes.forEach(renderinfo=>{
             let render = context.render2d;
             let curMtl = renderinfo.mtl;
             if(curMtl.textureHost instanceof TextTexture){
+                //针对texture的touch
                 curMtl.textureHost.touchTexture();
             }
             //通过context的裁剪，透明，矩阵等参数修改当前材质
-            //TODO
             curMtl.size=vec21;
             context._copyClipInfo(curMtl);
             curMtl.mmat = wMat4;
@@ -181,14 +172,13 @@ export class CachePage{
         //渲染子
         this.children && this.children.forEach(sp=>{
             //根据sp更新shader数据，例如偏移等
-            //TODO 先把contex矩阵转到parent那一层
-            let offmat = (sp.parent as Sprite)._cacheStyle.cacheInfo.mat;
             let oldmat = context.curMatrix.clone();
-            //原点设置为父节点的世界坐标
+            //原点设置为父节点的世界坐标，所以加上父节点的相对偏移
+            let offmat = (sp.parent as Sprite)._cacheStyle.cacheInfo.mat;
             Matrix.mul(offmat,oldmat,context.curMatrix);
-            context.curMatrix.copyTo((sp.parent as Sprite)._cacheStyle.cacheInfo.wMat);//TODO需要么
+            //context.curMatrix.copyTo((sp.parent as Sprite)._cacheStyle.cacheInfo.wMat);//TODO需要么
             sp._cacheStyle.cacheAsNormal.render(sp,context,false);
-            //TODO 恢复矩阵
+            //恢复矩阵
             context.curMatrix = oldmat;
         });
     }
@@ -200,9 +190,6 @@ var vec21 = new Vector2();
  * 把渲染结果保存成mesh和材质
  */
 export class SpriteCache{
-    static createRootCachePage(){
-        //context对应的page，其他的都是他的子
-    }
 
     /**
      * 已知sprite和当前世界矩阵curMat, 把sprite的偏移减掉，就是得到parent的世界矩阵
@@ -211,25 +198,19 @@ export class SpriteCache{
      * @param outMat 把curMat去掉sprite自身的偏移得到的结果
      */
     static curMatSubSpriteMat(sprite:Sprite, curMat:Matrix, outMat:Matrix){
-        curMat.copyTo(outMat);
-        if(!sprite.parent){
-            return outMat;
-        }
-
-        //自己相对于parent的page的矩阵= 在curMat 下(x,y)偏移
-        //let curMat = context._curMat.clone();
-        //下面要把自己对矩阵的影响消掉，得到parent相对于page的矩阵
+        //下面要把自己对矩阵的影响消掉，得到parent的矩阵
         if(sprite._renderType&SpriteConst.TRANSFORM){
-            //有矩阵
-            sprite.transform.copyTo(invMat).invert();//注意要clone，否则会直接修改原始矩阵
-            Matrix.mul(invMat,outMat,outMat);
+            //如果有矩阵
+            sprite.transform.copyTo(invMat);
+            invMat.tx=sprite._x;    //直接设置，不用+，因为transform就是没有记录xy
+            invMat.ty=sprite._y;
+            invMat.invert();//注意要clone，否则会直接修改原始矩阵
+            Matrix.mul(invMat,curMat,outMat);
         }else{
+            curMat.copyTo(outMat);
             //只有平移。把自己的相对位置减回去即可
-            //let cx = x-sprite._x;
-            //let cy = y-sprite._y;
             let cx = -sprite._x;
             let cy = -sprite._y;
-            //cx，cy是在curMat下的偏移，所以加上
             outMat.tx += (outMat.a*cx+outMat.c*cy);
             outMat.ty += (outMat.b*cx+outMat.d*cy);
         }
@@ -324,3 +305,4 @@ export class SpriteCache{
 
 var worldMat = new Matrix;
 var invMat = new Matrix;
+var tmpMat = new Matrix;
