@@ -214,6 +214,7 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
         this.setMass(this._mass);
         this.setConstraints(this._linearFactor, this._angularFactor);
         this.setLinearDamping(this._linearDamping);
+        this.setLinearVelocity(this._linearVelocity);
         this.setAngularDamping(this._angularDamping);
         this.setIsKinematic(this._isKinematic);
         this.setInertiaTensor(this._gravity);

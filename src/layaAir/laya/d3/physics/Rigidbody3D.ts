@@ -51,6 +51,7 @@ export class Rigidbody3D extends PhysicsColliderComponent {
         this._physicsManager = ((<Scene3D>this.owner._scene))._physicsManager;
         if (Laya3D.enablePhysics && this._physicsManager && Laya3D.PhysicsCreateUtil.getPhysicsCapable(EPhysicsCapable.Physics_DynamicCollider)) {
             this._collider = Laya3D.PhysicsCreateUtil.createDynamicCollider(this._physicsManager);
+            this._collider.component = this;
         } else {
             console.error("Rigidbody3D: cant enable Rigidbody3D");
         }
@@ -247,8 +248,10 @@ export class Rigidbody3D extends PhysicsColliderComponent {
         this.linearFactor = this._linearFactor;
         this.angularFactor = this._angularFactor;
         this.linearDamping = this._linearDamping;
+        this.linearVelocity = this._linearVelocity;
         this.angularDamping = this._angularDamping;
         this.gravity = this._gravity;
+        this.trigger = this._trigger;
         this.isKinematic = this._isKinematic;
     }
 

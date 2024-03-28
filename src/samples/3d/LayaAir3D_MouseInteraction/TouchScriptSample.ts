@@ -34,7 +34,7 @@ export class TouchScriptSample {
 	private kinematicSphere: Sprite3D;
 
 	constructor() {
-		Laya.init(0, 0, null).then(() => {
+		Laya.init(0, 0).then(() => {
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
 			//Stat.show();
@@ -168,11 +168,11 @@ class TouchScript extends Script {
 		this.subText += "onMouseClick  ";
 	}
 
-	onMouseDrag(evt:Event): void {
+	onMouseDrag(evt: Event): void {
 		this.subText += "onMouseDrag  ";
 	}
 
-	onMouseDragEnd() : void {
+	onMouseDragEnd(): void {
 		this.subText += "onMouseDragEnd  ";
 	}
 }
