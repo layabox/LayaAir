@@ -34,6 +34,11 @@ export class TextStyle {
     valign: string;
 
     /**
+     * 图文混排时图片和文字的对齐方式。可选值是top,middle,bottom
+     */
+    alignItems: string;
+
+    /**
      * <p>垂直行间距（以像素为单位）</p>
      */
     leading: number;
@@ -62,6 +67,7 @@ export class TextStyle {
         this.underlineColor = null;
         this.align = "left";
         this.valign = "top";
+        this.alignItems = "middle";
         this.leading = 2;
         this.stroke = 0;
         this.strokeColor = "#000000";
