@@ -307,6 +307,9 @@ export class Slider extends UIComponent {
     }
 
     protected _skinLoaded(): void {
+        if (this._destroyed)
+            return;
+
         this.setBarPoint();
         this.callLater(this.changeValue);
         this._sizeChanged();
