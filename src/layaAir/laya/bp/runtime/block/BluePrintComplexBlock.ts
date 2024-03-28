@@ -1,6 +1,8 @@
 import { BlueprintUtil } from "../../core/BlueprintUtil";
 import { TBPNode, TBPCNode, TBPVarProperty, BPType } from "../../datas/types/BlueprintTypes";
 import { BlueprintFactory } from "../BlueprintFactory";
+import { IBPRutime } from "../interface/IBPRutime";
+import { IRunAble } from "../interface/IRunAble";
 
 import { BluePrintAsNode } from "../node/BlueprintAsNode";
 import { BlueprintEventNode } from "../node/BlueprintEventNode";
@@ -125,6 +127,9 @@ export class BluePrintComplexBlock extends BluePrintBlock {
                 }
                 break;
         }
+    }
+
+    finishChild(context:IRunAble,runtime:IBPRutime) {
     }
 
 }

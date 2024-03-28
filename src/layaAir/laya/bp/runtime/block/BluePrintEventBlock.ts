@@ -111,4 +111,8 @@ export class BluePrintEventBlock extends BluePrintBlock {
     get blockSourceType(): EBlockSource {
         return this.parent.blockSourceType;
     }
+
+    finish(context:IRunAble){
+        this.parent.finishChild(context,this);
+    }
 }

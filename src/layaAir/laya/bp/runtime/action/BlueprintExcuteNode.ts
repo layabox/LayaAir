@@ -38,6 +38,9 @@ export class BlueprintExcuteNode extends BlueprintRunBase implements IRunAble {
         this.varDefineMap = new Map;
         this.runtimeDataMgrMap = new Map;
     }
+    finish(runtime: IBPRutime): void {
+        //console.log(runtime.name+ "finish");
+    }
     getDataMangerByID(id: number | symbol): IRuntimeDataManger {
         return this.runtimeDataMgrMap.get(id);
     }

@@ -13,7 +13,7 @@ import { BluePrintEventBlock } from "./BluePrintEventBlock";
 
 export class BluePrintBlock implements INodeManger<BlueprintRuntimeBaseNode>, IBPRutime {
     hasRefAnony: boolean;
-    
+
     localVarMap: Record<string, TBPVarProperty>;
 
     get blockSourceType(): EBlockSource {
@@ -195,9 +195,14 @@ export class BluePrintBlock implements INodeManger<BlueprintRuntimeBaseNode>, IB
         cb && cb();
         if (!notRecover && brecover) {
             this.recoverRunID(runId, runtimeDataMgr);
+            this.finish(context);
         }
         //console.log(">>>>>>>>>>>>>runID over:" + runId);
         return true;
+    }
+
+    finish(context:IRunAble){
+        
     }
 }
 

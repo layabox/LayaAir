@@ -2,12 +2,16 @@ import { IExcuteListInfo } from "../../core/interface/IExcuteListInfo";
 import { IRuntimeDataManger } from "../../core/interface/IRuntimeDataManger";
 import { BlueprintPinRuntime } from "../BlueprintPinRuntime";
 import { BlueprintPromise } from "../BlueprintPromise";
+import { IBPRutime } from "../interface/IBPRutime";
 import { IRunAble } from "../interface/IRunAble";
 import { BlueprintRuntimeBaseNode } from "../node/BlueprintRuntimeBaseNode";
 import { BlueprintRunBase } from "./BlueprintRunBase";
 import { RuntimeNodeData } from "./RuntimeNodeData";
 
 export class BlueprintGenCodeNode extends BlueprintRunBase implements IRunAble {
+    finish(runtime: IBPRutime): void {
+        throw new Error("Method not implemented.");
+    }
     setCacheAble(node: BlueprintRuntimeBaseNode, runId: number, value: any): void {
         throw new Error("Method not implemented.");
     }

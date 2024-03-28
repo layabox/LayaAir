@@ -6,6 +6,7 @@ import { BlueprintEventNode } from "../node/BlueprintEventNode";
 import { IRunAble } from "./IRunAble";
 
 export interface IBPRutime {
+    readonly name:string;
     readonly blockSourceType:EBlockSource;
     //蓝图文件id
     readonly bpId:string;

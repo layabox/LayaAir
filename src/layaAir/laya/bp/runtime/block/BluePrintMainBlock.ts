@@ -2,6 +2,7 @@ import { BlueprintUtil } from "../../core/BlueprintUtil";
 import { TBPNode, BPType } from "../../datas/types/BlueprintTypes";
 import { BlueprintFactory } from "../BlueprintFactory";
 import { BlueprintRuntime } from "../BlueprintRuntime";
+import { IBPRutime } from "../interface/IBPRutime";
 import { IRunAble } from "../interface/IRunAble";
 import { BlueprintAutoRun } from "../node/BlueprintAutoRun";
 import { BlueprintEventNode } from "../node/BlueprintEventNode";
@@ -111,6 +112,10 @@ export class BluePrintMainBlock extends BluePrintComplexBlock {
     run(context: IRunAble, event: BlueprintEventNode, parms: any[], cb: Function, runId: number, execId: number): boolean {
         context.initData(this.id, this.nodeMap, this.localVarMap);
         return this.eventBlockMap.get(event.nid).run(context, event, parms, cb, runId, execId);
+    }
+
+    finishChild(context:IRunAble,runtime:IBPRutime) {
+        context.finish(runtime);
     }
     
 }

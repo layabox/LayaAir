@@ -49,4 +49,6 @@ export interface IRunAble {
     setCacheAble(node: BlueprintRuntimeBaseNode, runId: number, value: any):void ;
 
     getCacheAble(node: BlueprintRuntimeBaseNode, runId: number):boolean;
+
+    finish(runtime:IBPRutime):void;
 }
