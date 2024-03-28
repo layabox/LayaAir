@@ -58,6 +58,9 @@ export class BluePrintBlock implements INodeManger<BlueprintRuntimeBaseNode>, IB
         this.anonymousfunMap = new Map();
         this.anonymousBlockMap = new Map();
     }
+    getDataMangerByID(context:IRunAble): IRuntimeDataManger {
+        return context.getDataMangerByID(this.id);
+    }
 
     get target(): string {
         return this.name;

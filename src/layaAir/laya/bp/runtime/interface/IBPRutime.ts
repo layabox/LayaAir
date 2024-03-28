@@ -7,6 +7,7 @@ import { IRunAble } from "./IRunAble";
 export interface IBPRutime {
     //蓝图文件id
     readonly target:string;
+    getDataMangerByID(context:IRunAble): IRuntimeDataManger;
     getRunID(): number;
     runAnonymous(context: IRunAble, event: BlueprintEventNode, parms: any[], cb: Function, runId: number, execId: number, newRunId: number, oldRuntimeDataMgr: IRuntimeDataManger): boolean;
     runByContext(context: IRunAble,runtimeDataMgr: IRuntimeDataManger, node: IExcuteListInfo, enableDebugPause: boolean, cb: Function, runid: number,fromPin:BlueprintPinRuntime,prePin:BlueprintPinRuntime,notRecover?:boolean): boolean;

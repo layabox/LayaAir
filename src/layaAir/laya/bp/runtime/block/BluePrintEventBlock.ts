@@ -99,4 +99,8 @@ export class BluePrintEventBlock extends BluePrintBlock {
         }
         return this.runByContext(context, runtimeDataMgr, event, true, cb, runId, event.outExcutes[execId], null);
     }
+
+    getDataMangerByID(context:IRunAble): IRuntimeDataManger {
+        return context.getDataMangerByID(this.parentId);
+    }
 }
