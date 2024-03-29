@@ -1,20 +1,38 @@
 import { BlackboardData } from "./BlackboardData";
+import { EBBType } from "./EBlackBoard";
 
 export class BlackboardComponent {
     /**
+     * @internal
      * 黑板定义数据
      */
-    dataAsset: BlackboardData;
+    private dataAsset: BlackboardData;
     /**
+     * @internal
      * 存储数据区
      */
-    valueData: any;
-
+    private valueData: any;
+    /**
+     * @private
+     * @param dataAsset 
+     */
     init(dataAsset: BlackboardData) {
         this.dataAsset = dataAsset;
         this.valueData = {};
+        for(let key in dataAsset.keys){
+            let data = dataAsset.keys[key];
+            if(data){
+                if(data.type==EBBType.Number){
+                    this.valueData[data.name] = 0;
+                }
+            }
+        }
     }
-
+    /**
+     * @private
+     * @param key 
+     * @returns 
+     */
     getDefineBykey(key: string) {
         return this.dataAsset.getDataDefineBykeyName(key);
     }

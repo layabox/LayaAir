@@ -1,11 +1,22 @@
+import { Node } from "../../display/Node";
+import { BlackboardComponent } from "../blackborad/BlackboardComponent";
 import { BehaviorTreeComponent } from "../core/BehaviorTreeComponent";
 import { BTTaskNode } from "../core/BTTaskNode";
 import { EBTNodeResult } from "../core/EBTNodeResult";
 
 
 export class BTTaskBluePrintBase extends BTTaskNode {
+    /**
+     * @private
+     */
     currentResult: EBTNodeResult;
+    /**
+     * @private
+     */
     isRuning: boolean;
+    /**
+     * @private
+     */
     myCMP: BehaviorTreeComponent;
 
     constructor() {
@@ -13,16 +24,24 @@ export class BTTaskBluePrintBase extends BTTaskNode {
         this.needCreate = true;
     }
 
-    onReciecve?() {
+    onReciecve?<T extends Node>(owner:T) {
 
     }
 
+    getOwnersBlackBoard():BlackboardComponent {
+        return this.myCMP.blackBoradComp;
+    }
+    /**
+     * @private
+     * @param btCmp 
+     * @returns 
+     */
     excuteTask(btCmp: BehaviorTreeComponent): EBTNodeResult {
         this.myCMP = btCmp;
         if (this.onReciecve) {
             this.isRuning = true;
             this.currentResult = EBTNodeResult.InProgress;
-            this.onReciecve();
+            this.onReciecve<Node>(btCmp.owner);
             this.isRuning = false;
         }
         else {
