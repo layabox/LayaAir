@@ -46,6 +46,9 @@ vec3 getViewDirection(in vec3 positionWS)
 vec4 remapPositionZ(vec4 position)
 {
     position.z = position.z * 2.0 - position.w;
+    #ifdef UPDOWN_NDC_Y
+    position.y = -position.y;
+    #endif
     return position;
 }
 

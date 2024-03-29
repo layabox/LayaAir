@@ -26,7 +26,7 @@ export class RevoluteJoint extends JointBase {
     /**启用马达后，可以达到的最大旋转速度*/
     private _motorSpeed: number = 0;
     /**启用马达后，可以施加的最大扭距，如果最大扭矩太小，会导致不旋转*/
-    private _maxMotorTorque: number = 0;
+    private _maxMotorTorque: number = 10000;
 
     /**是否对刚体的旋转范围加以约束*/
     private _enableLimit: boolean = false;
@@ -42,8 +42,8 @@ export class RevoluteJoint extends JointBase {
             this.selfBody = this.selfBody || this.owner.getComponent(RigidBody);
             if (!this.selfBody) throw "selfBody can not be empty";
             var def: physics2D_RevoluteJointDef = RevoluteJoint._temp || (RevoluteJoint._temp = new physics2D_RevoluteJointDef());
-            def.bodyA = this.selfBody.getBody();
-            def.bodyB = this.otherBody ? this.otherBody.getBody() : Physics2D.I._emptyBody;
+            def.bodyB = this.selfBody.getBody();
+            def.bodyA = this.otherBody ? this.otherBody.getBody() : Physics2D.I._emptyBody;
 
             let global = this.selfBody.GetWorldPoint(this.anchor[0], this.anchor[1]);
             def.anchor.setValue(global.x, global.y)

@@ -4,14 +4,16 @@ import { Vector3 } from "../../maths/Vector3";
  * 平面。
  */
 export class Plane {
-	/**平面与其他几何体相交类型*/
+	/**平面与其他几何体相交类型，后面*/
 	static PlaneIntersectionType_Back: number = 0;
+	/**平面与其他几何体相交类型，前面*/
 	static PlaneIntersectionType_Front: number = 1;
+	/**平面与其他几何体相交类型，相交*/
 	static PlaneIntersectionType_Intersecting: number = 2;
-	
+
 	/**@internal 平面的向量*/
 	_normal: Vector3;
-	
+
 	/**@internal 平面到坐标系原点的距离*/
 	_distance: number;
 

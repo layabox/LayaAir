@@ -59,6 +59,7 @@ import { IPhysicsCreateUtil } from "./laya/Physics3D/interface/IPhysicsCreateUti
 import { LayaGL } from "./laya/layagl/LayaGL";
 import { Laya } from "./Laya";
 import { PixelLineMaterial } from "./laya/d3/core/pixelLine/PixelLineMaterial";
+import { Texture2DArray } from "./laya/resource/Texture2DArray";
 
 /**
  * <code>Laya3D</code> 类用于初始化3D设置。
@@ -186,6 +187,7 @@ export class Laya3D {
         TrailMaterial.defaultMaterial.lock = true;
         Texture2D.__init__();
         TextureCube.__init__();
+        Texture2DArray.__init__();
         SkyBox.__init__();
         SkyDome.__init__();
         ScreenQuad.__init__();

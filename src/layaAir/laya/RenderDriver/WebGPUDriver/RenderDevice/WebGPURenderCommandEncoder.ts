@@ -8,12 +8,7 @@ export class WebGPURenderCommandEncoder {
     _commandEncoder: GPUCommandEncoder;
     _encoder: GPURenderPassEncoder;
     _engine: WebGPURenderEngine;
-    _cacheBindGroupMap: { [key: number]: GPUBindGroup } = {}; //Cache方案TODO
     _device: GPUDevice;
-
-    //curPipeline: GPURenderPipeline;
-    //curGeometry: WebGPURenderGeometry;
-    //bindGroup cache TODO
 
     globalId: number;
     objectName: string = 'WebGPURenderCommandEncoder';
@@ -25,9 +20,10 @@ export class WebGPURenderCommandEncoder {
         this.globalId = WebGPUGlobal.getId(this);
     }
 
-    startRender(renderpassDesc: GPURenderPassDescriptor): void {
+    startRender(renderPassDesc: GPURenderPassDescriptor): void {
         this._commandEncoder = this._device.createCommandEncoder();
-        this._encoder = this._commandEncoder.beginRenderPass(renderpassDesc);
+        this._encoder = this._commandEncoder.beginRenderPass(renderPassDesc);
+        //console.log('startRender', renderPassDesc);
     }
 
     setPipeline(pipeline: GPURenderPipeline): void {
@@ -54,7 +50,6 @@ export class WebGPURenderCommandEncoder {
         this._encoder.setBindGroup(index, bindGroup, dynamicOffsets);
     }
 
-    //大buffer偏移方案
     setBindGroupByDataOffaset(index: GPUIndex32, bindGroup: GPUBindGroup, dynamicOffsetsData: Uint32Array, dynamicOffsetsDataStart: GPUSize64, dynamicOffsetsDataLength: GPUSize32) {
         this._encoder.setBindGroup(index, bindGroup, dynamicOffsetsData, dynamicOffsetsDataStart, dynamicOffsetsDataLength);
     }
@@ -69,48 +64,49 @@ export class WebGPURenderCommandEncoder {
 
     end() {
         this._encoder.end();
+        //console.log('endEncode');
     }
 
     finish() {
+        //console.log('finishRender');
         return this._commandEncoder.finish();
     }
 
+    playBundle(bundles: GPURenderBundle[]) {
+        this._encoder.executeBundles(bundles);
+    }
+
     /**
-    * draw
-    * @param geometry 
-    */
-    applyGeometry(geometry: WebGPURenderGeometry) {
-        const vertexbuffers = geometry.bufferState._vertexBuffers;
-        const indexbuffer = geometry.bufferState._bindedIndexBuffer;
-        for (let i = 0; i < vertexbuffers.length; i++)
-            this.setVertexBuffer(i, vertexbuffers[i].source._source, 0, vertexbuffers[i].source._size);
-        if (indexbuffer) {
-            const format: GPUIndexFormat = (geometry.indexFormat === IndexFormat.UInt16) ? "uint16" : "uint32";
-            this.setIndexBuffer(indexbuffer.source._source, format, indexbuffer.source._size, 0);
+     * 上传几何数据
+     * @param geometry 
+     * @param setBuffer 
+     */
+    applyGeometry(geometry: WebGPURenderGeometry, setBuffer: boolean = true): void {
+        //解构geometry中的属性，减少代码重复
+        const { bufferState, indexFormat, drawType, instanceCount, _drawArrayInfo, _drawElementInfo } = geometry;
+        const { _vertexBuffers: vertexBuffers, _bindedIndexBuffer: indexBuffer } = bufferState;
+
+        if (setBuffer) {
+            vertexBuffers.forEach((vb, i) => this.setVertexBuffer(i, vb.source._source, 0, vb.source._size));
+            if (indexBuffer) {
+                const format = (indexFormat === IndexFormat.UInt16) ? "uint16" : "uint32";
+                this.setIndexBuffer(indexBuffer.source._source, format, indexBuffer.source._size, 0);
+            }
         }
 
-        switch (geometry.drawType) {
+        //根据不同的数据类型绘制
+        switch (drawType) {
             case DrawType.DrawArray:
-                for (let i = 0, n = geometry._drawArrayInfo.length; i < n; i++) {
-                    this._encoder.draw(geometry._drawArrayInfo[0].count, 1, geometry._drawArrayInfo[0].start, 0);
-                }
+                _drawArrayInfo.forEach(({ count, start }) => this._encoder.draw(count, 1, start, 0));
                 break;
             case DrawType.DrawElement:
-                for (let i = 0, n = geometry._drawElementInfo.length; i < n; i++) {
-                    this._encoder.drawIndexed(geometry._drawElementInfo[i].elementCount, 1, geometry._drawElementInfo[i].elementStart, 0);
-                }
+                _drawElementInfo.forEach(({ elementCount, elementStart }) => this._encoder.drawIndexed(elementCount, 1, elementStart, 0));
                 break;
             case DrawType.DrawArrayInstance:
-                for (let i = 0, n = geometry._drawArrayInfo.length; i < n; i++) {
-                    //instance offset TODO
-                    this._encoder.draw(geometry._drawArrayInfo[0].count, geometry.instanceCount, geometry._drawArrayInfo[0].start, 0);
-                }
+                _drawArrayInfo.forEach(({ count, start }) => this._encoder.draw(count, instanceCount, start, 0));
                 break;
             case DrawType.DrawElementInstance:
-                for (let i = 0; i < length; i += 2) {
-                    //instance offset TODO
-                    this._encoder.drawIndexed(geometry._drawElementInfo[i].elementCount, geometry.instanceCount, geometry._drawElementInfo[i].elementStart, 0);
-                }
+                _drawElementInfo.forEach(({ elementCount, elementStart }) => this._encoder.drawIndexed(elementCount, instanceCount, elementStart, 0));
                 break;
         }
     }

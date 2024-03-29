@@ -8,6 +8,7 @@ import { Vector4 } from "../../maths/Vector4";
 export class Viewport {
 	/** @internal */
 	static _tempMatrix4x4: Matrix4x4 = new Matrix4x4();
+	/** @internal */
 	static _tempViewport: Viewport = new Viewport(0, 0, 0, 0);
 	/**X轴坐标*/
 	x: number;
@@ -96,6 +97,13 @@ export class Viewport {
 		this.unprojectFromMat(source, Viewport._tempMatrix4x4, out);
 	}
 
+	/**
+	 * 设置视口值
+	 * @param x X轴坐标
+	 * @param y Y轴坐标
+	 * @param width 宽度
+	 * @param height 高度
+	 */
 	set(x: number, y: number, width: number, height: number) {
 		this.x = x;
 		this.y = y;

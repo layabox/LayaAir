@@ -38,6 +38,7 @@ import { Shader3D } from "./laya/RenderEngine/RenderShader/Shader3D";
 import { LayaGL } from "./laya/layagl/LayaGL";
 import { Material } from "./laya/resource/Material";
 import { VertexElementFormat } from "./laya/renders/VertexElementFormat";
+import { DrawStyle } from "./laya/webgl/canvas/DrawStyle";
 
 /**
  * <code>Laya</code> 是全局对象的引用入口集。
@@ -105,12 +106,8 @@ export class Laya {
         //这个其实在Render中感觉更合理，但是runtime要求第一个canvas是主画布，所以必须在下面的那个离线画布之前
         let mainCanv = Browser.mainCanvas = new HTMLCanvas(true);
         //Render._mainCanvas = mainCanv;
-        let style: any = mainCanv.source.style;
-        style.position = 'absolute';
-        style.top = style.left = "0px";
-        style.background = "#000000";
-
-        if (!Browser.onKGMiniGame && !Browser.onAlipayMiniGame) {
+        Laya._setStyleInfo(mainCanv);
+        if (!Browser.onKGMiniGame && !Browser.onAlipayMiniGame && !Browser.onTBMiniGame) {
             Browser.container.appendChild(mainCanv.source);//xiaosong add
         }
 
@@ -166,6 +163,18 @@ export class Laya {
         return p;
     }
 
+    /**
+     * @internal
+     * 适配淘宝小游戏
+     * @param mainCanv 
+     */
+    static _setStyleInfo(mainCanv: HTMLCanvas): void {
+        let style: any = mainCanv.source.style;
+        style.position = 'absolute';
+        style.top = style.left = "0px";
+        style.background = "#000000";
+    }
+
     static initRender2D(stageConfig: IStageConfig) {
         stage = ((<any>window)).stage = ILaya.stage = Laya.stage = new Stage();
         
@@ -175,7 +184,7 @@ export class Laya {
         MeshVG.__init__();
         MeshTexture.__init__();
 
-        Laya.render = new Render(0, 0, Browser.mainCanvas);
+        Laya.render = Laya.createRender();
         render = Laya.render;
         stage.size(stageConfig.designWidth, stageConfig.designHeight);
         if (stageConfig.scaleMode)
@@ -199,6 +208,7 @@ export class Laya {
         MeshParticle2D.__init__();
         RenderSprite.__init__();
         Material.__initDefine__();
+        DrawStyle._Defaultinit();
         InputManager.__init__(stage, Render.canvas);
         if (!!(window as any).conch && "conchUseWXAdapter" in Browser.window) {
             Input.isAppUseNewInput = true;
@@ -208,6 +218,15 @@ export class Laya {
         //Init internal 2D Value2D
         Value2D._initone(RenderSpriteData.Texture2D, TextureSV);
         Value2D._initone(RenderSpriteData.Primitive, PrimitiveSV);
+    }
+
+    /**
+     * hook function
+     * @internal
+     * @returns 
+     */
+    static createRender(): Render {
+        return new Render(0, 0, Browser.mainCanvas);
     }
 
     /**

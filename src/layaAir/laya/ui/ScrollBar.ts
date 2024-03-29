@@ -313,7 +313,7 @@ export class ScrollBar extends UIComponent {
      * @param max 滚动条最大位置值。
      * @param value 滚动条当前位置值。
      */
-    setScroll(min: number, max: number, value: number): void {
+    setScroll(min: number, max: number, value?: number): void {
         this.runCallLater(this._sizeChanged);
         this.slider.setSlider(min, max, value);
         //_upButton.disabled = max <= 0;

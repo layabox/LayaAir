@@ -7,6 +7,7 @@ import { WebGPUUniformBuffer } from "./WebGPUUniformBuffer";
  */
 export class WebGPUBufferManager {
     device: GPUDevice;
+    renderContext: any;
     namedBuffers: Map<string, WebGPUBufferCluster>;
 
     static snCounter: number = 0;
@@ -14,6 +15,28 @@ export class WebGPUBufferManager {
     constructor(device: GPUDevice) {
         this.device = device;
         this.namedBuffers = new Map();
+    }
+
+    /**
+     * 设置渲染上下文
+     * @param rc 
+     */
+    setRenderContext(rc: any) {
+        this.renderContext = rc;
+        this.namedBuffers.forEach(buf => buf.setRenderContext(rc));
+    }
+
+    /**
+     * 获取单独的GPUBuffer
+     * @param size 
+     * @param name 
+     */
+    getBufferAlone(size: number, name?: string) {
+        return this.device.createBuffer({
+            label: name,
+            size: size,
+            usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+        });
     }
 
     /**
@@ -28,7 +51,9 @@ export class WebGPUBufferManager {
             console.warn(`namedBuffer with name: ${name} already exist!`);
             return false;
         }
-        this.namedBuffers.set(name, new WebGPUBufferCluster(this.device, name, sliceSize, sliceNum, single));
+        const bc = new WebGPUBufferCluster(this.device, name, sliceSize, sliceNum, single);
+        bc.setRenderContext(this.renderContext);
+        this.namedBuffers.set(name, bc);
         return true;
     }
 

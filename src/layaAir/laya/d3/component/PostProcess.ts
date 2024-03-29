@@ -12,6 +12,7 @@ import { ColorGradEffect } from "../core/render/PostEffect/ColorGradEffect"
 import { LayaGL } from "../../layagl/LayaGL"
 import { ShaderDefine } from "../../RenderDriver/RenderModuleData/Design/ShaderDefine"
 import { ShaderData } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData"
+import { Vector4 } from "../../maths/Vector4"
 
 /**
  * <code>PostProcess</code> 类用于创建后期处理组件。
@@ -168,7 +169,8 @@ export class PostProcess {
         this._init(camera);
         var camera = this._context!.camera;
         var viewport: Viewport = camera!.viewport;
-        var cameraTarget: RenderTexture = camera!._internalRenderTexture;
+        var isTargetRenderTexture = !!camera._offScreenRenderTexture;
+        var cameraTarget: RenderTexture = isTargetRenderTexture ? RenderTexture.createFromPool(camera._offScreenRenderTexture.width, camera._offScreenRenderTexture.height, camera._getRenderTextureFormat(), RenderTargetFormat.None, false, 1, false, true) : camera._internalRenderTexture;
         var screenTexture: RenderTexture = RenderTexture.createFromPool(cameraTarget.width, cameraTarget.height, camera._getRenderTextureFormat(), RenderTargetFormat.None, false, 1, false, true);
         var Indirect: RenderTexture[] = [RenderTexture.createFromPool(cameraTarget.width, cameraTarget.height, camera._getRenderTextureFormat(), RenderTargetFormat.None, false, 1, false, true), RenderTexture.createFromPool(cameraTarget.width, cameraTarget.height, camera._getRenderTextureFormat(), RenderTargetFormat.None, false, 1, false, true)];
         //var screenTexture: RenderTexture = cameraTarget;
@@ -177,8 +179,12 @@ export class PostProcess {
         this._context!.indirectTarget = screenTexture;
         this._context!.destination = this._effects.length == 2 ? Indirect[0] : cameraTarget;
         this._context!.compositeShaderData!.clearDefine();
-
-        this._context.command.blitScreenTriangle(cameraTarget, screenTexture);
+        if (isTargetRenderTexture) {
+            Vector4.tempVec4.setValue(0, 1, 1, -1);
+            this._context.command.blitScreenTriangle(camera._offScreenRenderTexture, screenTexture, Vector4.tempVec4);
+        } else {
+            this._context.command.blitScreenTriangle(camera._internalRenderTexture, screenTexture);
+        }
 
         this._context!.compositeShaderData!.setTexture(PostProcess.SHADERVALUE_AUTOEXPOSURETEX, Texture2D.whiteTexture);//TODO:
         if (this._enableColorGrad) {
@@ -211,6 +217,7 @@ export class PostProcess {
         }
 
         //释放临时纹理
+        if (isTargetRenderTexture) RenderTexture.recoverToPool(cameraTarget);
         RenderTexture.recoverToPool(screenTexture);
         RenderTexture.recoverToPool(Indirect[0]);
         RenderTexture.recoverToPool(Indirect[1]);

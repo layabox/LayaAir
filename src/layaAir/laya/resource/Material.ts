@@ -55,7 +55,9 @@ export class Material extends Resource implements IClone {
 
     /**材质级着色器宏定义,透明测试。*/
     static SHADERDEFINE_ALPHATEST: ShaderDefine;
+    /**材质级着色器宏定义,主贴图。*/
     static SHADERDEFINE_MAINTEXTURE: ShaderDefine;
+    /**材质级着色器宏定义,叠加雾效。*/
     static SHADERDEFINE_ADDTIVEFOG: ShaderDefine;
     /**
      * 加载材质。
@@ -97,7 +99,7 @@ export class Material extends Resource implements IClone {
     private _matRenderNode: MaterialRenderMode;
     /** @internal */
     _shader: Shader3D;
-    /** @private */
+    /** @internal */
     _shaderValues: ShaderData | null;//TODO:剥离贴图ShaderValue
     /** 所属渲染队列. */
     renderQueue: number;
@@ -232,7 +234,7 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 混合目标 alpha
+     * 混合源 alpha
      */
     public get blendSrcAlpha(): number {
         return this._shaderValues.getInt(Shader3D.BLEND_SRC_ALPHA);
@@ -254,6 +256,9 @@ export class Material extends Resource implements IClone {
         this._shaderValues.setInt(Shader3D.BLEND_SRC_RGB, value);
     }
 
+    /**
+     * 混合目标 RGB
+     */
     public get blendDstRGB(): number {
         return this._shaderValues.getInt(Shader3D.BLEND_DST_RGB);
     }
@@ -510,6 +515,8 @@ export class Material extends Resource implements IClone {
     }
 
     /**
+     * 销毁资源
+     * @protected
      * @inheritDoc
      * @override
      */
@@ -519,6 +526,9 @@ export class Material extends Resource implements IClone {
         this._shaderValues = null;
     }
 
+    /**
+     * 获取材质的shader
+     */
     get shader() {
         return this._shader;
     }
@@ -574,7 +584,7 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 获得bool属性值
+     * 通过索引获得bool属性值
      * @param uniformIndex 属性索引
      * @returns 
      */
@@ -584,7 +594,7 @@ export class Material extends Resource implements IClone {
 
 
     /**
-     * 设置bool值
+     * 通过索引设置bool值
      * @param uniformIndex 属性索引
      * @param value 值
      */
@@ -593,7 +603,7 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 活得bool值
+     * 获得bool值
      * @param name 属性名称
      * @returns 
      */
@@ -613,7 +623,7 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 获得Float值
+     * 通过索引获得Float值
      * @param uniformIndex 属性索引
      * @returns 
      */
@@ -622,7 +632,7 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 设置Float值
+     * 通过索引设置Float值
      * @param uniformIndex 属性索引
      * @param value 值
      */
@@ -651,7 +661,7 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 获得Int值
+     * 通过索引获得Int值
      * @param uniformIndex 属性索引
      * @returns 
      */
@@ -660,7 +670,7 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 设置Int值
+     * 通过索引设置Int值
      * @param uniformIndex 属性索引
      * @param value 值
      */
@@ -689,7 +699,7 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 获得Vector2
+     * 通过索引获得Vector2
      * @param uniformIndex 属性索引
      * @returns 
      */
@@ -698,7 +708,7 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 设置Vector2
+     * 通过索引设置Vector2
      * @param uniformIndex 属性索引
      * @param value 值
      */
@@ -727,7 +737,7 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 获得Vector3
+     * 通过索引获得Vector3
      * @param uniformIndex 属性索引
      * @returns 
      */
@@ -736,7 +746,7 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 设置Vector3
+     * 通过索引设置Vector3
      * @param uniformIndex 属性索引
      * @param value 值
      */
@@ -765,7 +775,7 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 获得Vector4
+     * 通过索引设置Vector4
      * @param uniformIndex 属性索引
      * @param value 值
      */
@@ -774,7 +784,7 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 设置Vector4
+     * 通过索引获取Vector4
      * @param uniformIndex 属性索引
      * @returns 
      */
@@ -803,7 +813,7 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 获得Color
+     * 通过索引获得Color
      * @param uniformIndex 属性索引
      * @returns 
      */
@@ -812,7 +822,7 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 设置Color
+     * 通过索引设置Color
      * @param uniformIndex 属性索引
      * @param value 值
      */
@@ -850,7 +860,7 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 设置Matrix4x4
+     * 通过索引设置Matrix4x4
      * @param uniformIndex 属性索引
      * @param value 值
      */
@@ -879,8 +889,8 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 获取 matrix3x3
-     * @param index 
+     * 通过索引获取 matrix3x3
+     * @param index 索引 
      * @returns 
      */
     getMatrix3x3ByIndex(index: number) {
@@ -888,9 +898,9 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 设置 matrix3x3
-     * @param index 
-     * @param value 
+     * 通过索引设置 matrix3x3
+     * @param index 索引
+     * @param value 值
      */
     setMatrix3x3ByIndex(index: number, value: Matrix3x3) {
         this.shaderData.setMatrix3x3(index, value);
@@ -1072,7 +1082,8 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * override it
+     * 兼容老的解析结束事件
+     * @override
      */
     oldparseEndEvent() {
         //TODO

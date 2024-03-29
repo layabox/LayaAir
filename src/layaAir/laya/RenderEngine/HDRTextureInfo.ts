@@ -36,6 +36,13 @@ export class HDRTextureInfo {
 
         texture.setHDRData(hdrInfo);
 
+        if (propertyParams) {
+            if (propertyParams.wrapModeU != null) texture.wrapModeU = propertyParams.wrapModeU;
+            if (propertyParams.wrapModeV != null) texture.wrapModeV = propertyParams.wrapModeV;
+            if (propertyParams.filterMode != null) texture.filterMode = propertyParams.filterMode;
+            if (propertyParams.anisoLevel != null) texture.anisoLevel = propertyParams.anisoLevel;
+        }
+
         return texture;
     }
 

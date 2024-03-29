@@ -85,63 +85,16 @@ import { HideFlags } from "../Const";
  * }
  */
 export class TextArea extends TextInput {
+    /**@internal */
     protected _scrollType: ScrollType = 0;
+    /**@internal */
     protected _vScrollBarSkin: string;
+    /**@internal */
     protected _hScrollBarSkin: string;
-    /**@private */
+    /**@internal */
     protected _vScrollBar: VScrollBar;
-    /**@private */
+    /**@internal */
     protected _hScrollBar: HScrollBar;
-
-    /**
-     * <p>创建一个新的 <code>TextArea</code> 示例。</p>
-     * @param text 文本内容字符串。
-     */
-    constructor(text?: string) {
-        super(text);
-    }
-
-    protected _onPostLayout(): void {
-        super._onPostLayout();
-        this.callLater(this.changeScroll);
-    }
-    /**
-     * 
-     * @param destroyChild 
-     * @override
-     */
-    destroy(destroyChild: boolean = true): void {
-        this._vScrollBar && this._vScrollBar.destroy();
-        this._hScrollBar && this._hScrollBar.destroy();
-        this._vScrollBar = null;
-        this._hScrollBar = null;
-        super.destroy(destroyChild);
-    }
-    /**
-     * @override
-     */
-    protected initialize(): void {
-        this.width = 180;
-        this.height = 150;
-        this._tf.wordWrap = true;
-        this.multiline = true;
-    }
-    /**
-     * @override
-     */
-    _setWidth(value: number) {
-        super._setWidth(value);
-        this.callLater(this.changeScroll);
-    }
-    /**
-
-    /**
-     * @override
-     */
-    _setHeight(value: number) {
-        super._setHeight(value);
-        this.callLater(this.changeScroll);
-    }
 
     get scrollType() {
         return this._scrollType;
@@ -194,31 +147,34 @@ export class TextArea extends TextInput {
         }
     }
 
-    private createHScrollBar() {
-        this._hScrollBar = new HScrollBar();
-        this._hScrollBar.hideFlags = HideFlags.HideAndDontSave;
-        this._hScrollBar._skinBaseUrl = this._skinBaseUrl;
-        this._hScrollBar.skin = this._hScrollBarSkin;
-        this.addChild(this._hScrollBar);
-        this._hScrollBar.on(Event.CHANGE, this, this.onHBarChanged);
-        this._hScrollBar.on(Event.LOADED, this, this.changeScroll);
-        this._hScrollBar.mouseWheelEnable = false;
-        this._hScrollBar.touchScrollEnable = false;
-        this._hScrollBar.target = this._tf;
-        this.callLater(this.changeScroll);
+    /**垂直滚动条实体*/
+    get vScrollBar(): VScrollBar {
+        return this._vScrollBar;
     }
 
-    private createVScrollBar() {
-        this._vScrollBar = new VScrollBar();
-        this._vScrollBar.hideFlags = HideFlags.HideAndDontSave;
-        this._vScrollBar._skinBaseUrl = this._skinBaseUrl;
-        this._vScrollBar.skin = this._vScrollBarSkin;
-        this.addChild(this._vScrollBar);
-        this._vScrollBar.on(Event.CHANGE, this, this.onVBarChanged);
-        this._vScrollBar.on(Event.LOADED, this, this.changeScroll);
-        this._vScrollBar.touchScrollEnable = false;
-        this._vScrollBar.target = this._tf;
-        this.callLater(this.changeScroll);
+    /**水平滚动条实体*/
+    get hScrollBar(): HScrollBar {
+        return this._hScrollBar;
+    }
+
+    /**垂直滚动最大值*/
+    get maxScrollY(): number {
+        return this._tf.maxScrollY;
+    }
+
+    /**垂直滚动值*/
+    get scrollY(): number {
+        return this._tf.scrollY;
+    }
+
+    /**水平滚动最大值*/
+    get maxScrollX(): number {
+        return this._tf.maxScrollX;
+    }
+
+    /**水平滚动值*/
+    get scrollX(): number {
+        return this._tf.scrollX;
     }
 
     /**
@@ -261,48 +217,90 @@ export class TextArea extends TextInput {
         }
     }
 
+    /**
+     * <p>创建一个新的 <code>TextArea</code> 示例。</p>
+     * @param text 文本内容字符串。
+     */
+    constructor(text?: string) {
+        super(text);
+    }
+
+    /**@internal */
+    protected _onPostLayout(): void {
+        super._onPostLayout();
+        this.callLater(this.changeScroll);
+    }
+
+    /**
+     * @internal
+     */
+    _setWidth(value: number) {
+        super._setWidth(value);
+        this.callLater(this.changeScroll);
+    }
+
+    /**
+     * @internal
+     */
+    _setHeight(value: number) {
+        super._setHeight(value);
+        this.callLater(this.changeScroll);
+    }
+
+    /**
+     * @internal
+     */
+    protected initialize(): void {
+        this.width = 180;
+        this.height = 150;
+        this._tf.wordWrap = true;
+        this.multiline = true;
+    }
+
+    /**@internal */
+    private createHScrollBar() {
+        this._hScrollBar = new HScrollBar();
+        this._hScrollBar.hideFlags = HideFlags.HideAndDontSave;
+        this._hScrollBar._skinBaseUrl = this._skinBaseUrl;
+        this._hScrollBar.skin = this._hScrollBarSkin;
+        this.addChild(this._hScrollBar);
+        this._hScrollBar.on(Event.CHANGE, this, this.onHBarChanged);
+        this._hScrollBar.on(Event.LOADED, this, this.changeScroll);
+        this._hScrollBar.mouseWheelEnable = false;
+        this._hScrollBar.touchScrollEnable = false;
+        this._hScrollBar.target = this._tf;
+        this.callLater(this.changeScroll);
+    }
+
+    /**@internal */
+    private createVScrollBar() {
+        this._vScrollBar = new VScrollBar();
+        this._vScrollBar.hideFlags = HideFlags.HideAndDontSave;
+        this._vScrollBar._skinBaseUrl = this._skinBaseUrl;
+        this._vScrollBar.skin = this._vScrollBarSkin;
+        this.addChild(this._vScrollBar);
+        this._vScrollBar.on(Event.CHANGE, this, this.onVBarChanged);
+        this._vScrollBar.on(Event.LOADED, this, this.changeScroll);
+        this._vScrollBar.touchScrollEnable = false;
+        this._vScrollBar.target = this._tf;
+        this.callLater(this.changeScroll);
+    }
+
+    /**@internal */
     protected onVBarChanged(e: Event): void {
         if (this._tf.scrollY != this._vScrollBar.value) {
             this._tf.scrollY = this._vScrollBar.value;
         }
     }
 
+    /**@internal */
     protected onHBarChanged(e: Event): void {
         if (this._tf.scrollX != this._hScrollBar.value) {
             this._tf.scrollX = this._hScrollBar.value;
         }
     }
 
-    /**垂直滚动条实体*/
-    get vScrollBar(): VScrollBar {
-        return this._vScrollBar;
-    }
-
-    /**水平滚动条实体*/
-    get hScrollBar(): HScrollBar {
-        return this._hScrollBar;
-    }
-
-    /**垂直滚动最大值*/
-    get maxScrollY(): number {
-        return this._tf.maxScrollY;
-    }
-
-    /**垂直滚动值*/
-    get scrollY(): number {
-        return this._tf.scrollY;
-    }
-
-    /**水平滚动最大值*/
-    get maxScrollX(): number {
-        return this._tf.maxScrollX;
-    }
-
-    /**水平滚动值*/
-    get scrollX(): number {
-        return this._tf.scrollX;
-    }
-
+    /**@internal */
     private changeScroll(): void {
         let vShow = this._vScrollBar && this._tf.maxScrollY > 0;
         let hShow = this._hScrollBar && this._tf.maxScrollX > 0;
@@ -336,5 +334,18 @@ export class TextArea extends TextInput {
     scrollTo(y: number): void {
         this.commitMeasure();
         this._tf.scrollY = y;
+    }
+
+    /**
+     * 
+     * @param destroyChild 
+     * @override
+     */
+    destroy(destroyChild: boolean = true): void {
+        this._vScrollBar && this._vScrollBar.destroy();
+        this._hScrollBar && this._hScrollBar.destroy();
+        this._vScrollBar = null;
+        this._hScrollBar = null;
+        super.destroy(destroyChild);
     }
 }

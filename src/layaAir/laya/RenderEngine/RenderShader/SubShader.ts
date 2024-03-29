@@ -1,6 +1,5 @@
 import { ISubshaderData } from "../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
 import { ShaderDataType, ShaderDataItem } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
-import { ShaderDefine } from "../../RenderDriver/RenderModuleData/Design/ShaderDefine";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { UniformBufferParamsType, UnifromBufferData } from "../../RenderEngine/UniformBufferData";
 import { Laya3DRender } from "../../d3/RenderObjs/Laya3DRender";
@@ -47,7 +46,7 @@ export class SubShader {
         'a_BoneWeights': [VertexMesh.MESH_BLENDWEIGHT0, ShaderDataType.Vector4],
         'a_BoneIndices': [VertexMesh.MESH_BLENDINDICES0, ShaderDataType.Vector4],
         'a_WorldMat': [VertexMesh.MESH_WORLDMATRIX_ROW0, ShaderDataType.Matrix4x4],
-        'a_SimpleTextureParams': [VertexMesh.MESH_SIMPLEANIMATOR, ShaderDataType.Vector2],
+        'a_SimpleTextureParams': [VertexMesh.MESH_SIMPLEANIMATOR, ShaderDataType.Vector4],
         'a_LightmapScaleOffset': [VertexMesh.MESH_LIGHTMAPSCALEOFFSET, ShaderDataType.Vector4]
     }
 
@@ -114,7 +113,7 @@ export class SubShader {
             else {
                 let unifromType = <ShaderDataType>uniformMap[key];
                 this._uniformTypeMap.set(key, unifromType);
-                if (unifromType == ShaderDataType.Texture2D || unifromType == ShaderDataType.TextureCube) {
+                if (unifromType == ShaderDataType.Texture2D || unifromType == ShaderDataType.TextureCube || unifromType == ShaderDataType.Texture3D || unifromType == ShaderDataType.Texture2DArray) {
                     let textureGammaDefine = Shader3D.getDefineByName(`Gamma_${key}`);
                     let uniformIndex = Shader3D.propertyNameToID(key);
                     LayaGL.renderEngine.addTexGammaDefine(uniformIndex, textureGammaDefine);

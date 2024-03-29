@@ -10,10 +10,10 @@ export enum WebGPUVertexStepMode {
 }
 
 export class WebGPUBufferState implements IBufferState {
-    static IdCounter: number = 0;
+    static idCounter: number = 0;
     id: number;
     updateBufferLayoutFlag: number = 0;
-    vertexState: Array<GPUVertexBufferLayout> = new Array();//GPURenderPipelineDescriptor-GPUVertexState
+    vertexState: GPUVertexBufferLayout[] = [];
     _bindedIndexBuffer: WebGPUIndexBuffer;
     _vertexBuffers: WebGPUVertexBuffer[];
 
@@ -28,7 +28,7 @@ export class WebGPUBufferState implements IBufferState {
     }
 
     constructor() {
-        this.id = WebGPUBufferState.IdCounter++;
+        this.id = WebGPUBufferState.idCounter++;
         this.globalId = WebGPUGlobal.getId(this);
     }
 

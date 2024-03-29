@@ -49,7 +49,7 @@ export class BlitScreenQuadCMD extends Command {
 	/**@internal */
 	private _dest: RenderTexture = null;
 	/**@internal */
-	private _offsetScale: Vector4 = null;
+	private _offsetScale: Vector4 = new Vector4();
 	/**@internal */
 	private _shader: Shader3D = null;
 	/**@internal */
@@ -142,7 +142,8 @@ export class BlitScreenQuadCMD extends Command {
 			Vector4.tempVec4.setValue(0, 0, dest.width, dest.height);
 			this._blitQuadCMDData.viewport = Viewport._tempViewport;
 			this._blitQuadCMDData.scissor = Vector4.tempVec4;
-		} else {
+		}
+		else {
 			let camera = this._commandBuffer._camera;
 			let viewport: Viewport = camera.viewport;
 			let vpH = viewport.height;
@@ -164,7 +165,7 @@ export class BlitScreenQuadCMD extends Command {
 		BlitScreenQuadCMD._pool.push(this);
 		this._source = null;
 		this._dest = null;
-		this._offsetScale = null;
+		BlitScreenQuadCMD._defaultOffsetScale.cloneTo(this._offsetScale);
 		this._shader = null;
 		this._shaderData = null;
 		super.recover();

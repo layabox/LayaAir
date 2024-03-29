@@ -170,11 +170,11 @@ class TouchScript extends Script {
 		this.subText += "onMouseClick  ";
 	}
 
-	onMouseDrag(evt:Event): void {
+	onMouseDrag(evt: Event): void {
 		this.subText += "onMouseDrag  ";
 	}
 
-	onMouseDragEnd() : void {
+	onMouseDragEnd(): void {
 		this.subText += "onMouseDragEnd  ";
 	}
 }

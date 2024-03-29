@@ -9,6 +9,7 @@ import { Physics2DOption } from "../Physics2DOption";
 import { Physics2DDebugDraw } from "../Physics2DDebugDraw";
 import { RigidBody2DInfo } from "../RigidBody2DInfo";
 import { physics2D_DistancJointDef, physics2D_GearJointDef, physics2D_MotorJointDef, physics2D_MouseJointJointDef, physics2D_PrismaticJointDef, physics2D_PulleyJointDef, physics2D_RevoluteJointDef, physics2D_WeldJointDef, physics2D_WheelJointDef } from "../joint/JointDefStructInfo"
+import { Browser } from "../../utils/Browser";
 
 const b2_maxFloat = 1E+37;
 
@@ -81,6 +82,8 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
     protected _tempCircleShape: any;
     /**@internal  */
     protected _tempEdgeShape: any;
+    /**@internal  */
+    protected _tempWorldManifold: any;
 
 
 
@@ -270,9 +273,9 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      * create Box2D world
      */
     start() {
-        this._PIXEL_RATIO = Physics2DOption.pixelRatio;
-        this._Re_PIXEL_RATIO = 1 / Physics2DOption.pixelRatio;
-        var gravity: any = this.createPhyFromLayaVec2(Physics2DOption.gravity.x, Physics2DOption.gravity.y);
+        this._PIXEL_RATIO = Physics2DOption.pixelRatio * Browser.pixelRatio;;
+        this._Re_PIXEL_RATIO = 1 / this._PIXEL_RATIO;
+        var gravity: any = this.createPhyVec2(Physics2DOption.gravity.x, Physics2DOption.gravity.y);
         this._world = new this.box2d.b2World(gravity);
         this._world.destroyed = false;
 
@@ -293,6 +296,7 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
         this._tempRevoluteJointDef = new this.box2d.b2RevoluteJointDef();
         this._tempMotorJointDef = new this.box2d.b2MotorJointDef();
         this._tempPrismaticJointDef = new this.box2d.b2PrismaticJointDef();
+        this._tempWorldManifold = new this.box2d.b2WorldManifold();
 
         this.world.SetDestructionListener(this.getDestructionListener());
         this.world.SetContactListener(this.getContactListener());
@@ -370,6 +374,11 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
             this._tempPrismaticJointDef = null;
         }
 
+        if (this._tempWorldManifold) {
+            this.destory(this._tempWorldManifold);
+            this._tempWorldManifold = null;
+        }
+
         if (this._world) {
             this.box2d.destroy(this._world)
             this._world.destroyed = true;
@@ -399,7 +408,7 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      * @param type 
      * @param contact 
      */
-    sendEvent(type: number, contact: any): void {
+    sendEvent(type: string, contact: any): void {
         if (contact.GetFixtureA() == null || contact.GetFixtureB() == null) {
             return;
         }
@@ -415,41 +424,21 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
         let ownerB: any = colliderB.owner;
         let __this = this;
         contact.getHitInfo = function (): any {
-            var manifold: any = new this.box2d.b2WorldManifold();
+            var manifold: any = __this._tempWorldManifold;
             this.GetWorldManifold(manifold);
             //第一点？
-            let p: any = manifold.points[0];
+            let p: any = manifold.points;
             p.x = __this.phyToLayaValue(p.x);
             p.y = __this.phyToLayaValue(p.y);
             return manifold;
         }
         if (ownerA) {
             var args: any[] = [colliderB, colliderA, contact];
-            if (type === 0) {
-                ownerA.event("triggerenter", args);
-                if (!ownerA["_triggered"]) {
-                    ownerA["_triggered"] = true;
-                } else {
-                    ownerA.event("triggerstay", args);
-                }
-            } else {
-                ownerA["_triggered"] = false;
-                ownerA.event("triggerexit", args);
-            }
+            ownerA.event(type, args);
         }
         if (ownerB) {
             args = [colliderA, colliderB, contact];
-            if (type === 0) {
-                ownerB.event("triggerenter", args);
-                if (!ownerB["_triggered"]) {
-                    ownerB["_triggered"] = true;
-                } else {
-                    ownerB.event("triggerstay", args);
-                }
-            } else {
-                ownerB["_triggered"] = false;
-                ownerB.event("triggerexit", args);
-            }
+            ownerB.event(type, args);
         }
     }
 
@@ -473,6 +462,7 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
             jsDraw.DrawSolidCircle = this.DrawSolidCircle.bind(this);
             jsDraw.DrawTransform = this.DrawTransform.bind(this);
             jsDraw.DrawPoint = this.DrawPoint.bind(this);
+            jsDraw.DrawAABB = this.DrawAABB.bind(this);
         }
 
         this.world.SetDebugDraw(this._jsDraw);
@@ -719,8 +709,8 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      */
     set_DistanceJointStiffnessDamping(joint: any, steffness: number, damping: number) {
         let out: any = {};
-        let bodyA = joint.bodyA;
-        let bodyB = joint.bodyB;
+        let bodyA = joint.GetBodyA();
+        let bodyB = joint.GetBodyB();
         this.box2d.b2LinearStiffness(out, steffness, damping, bodyA, bodyB);
         joint.SetStiffness(out.stiffness);
         joint.SetDamping(out.damping);
@@ -1498,8 +1488,9 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
     DrawTransform(xf: any): void {
         xf = this.box2d.wrapPointer(xf, this.box2d.b2Transform);
         this._debugDraw.PushTransform(xf.p.x, xf.p.y, xf.q.GetAngle());
-        this._debugDraw.mG.drawLine(0, 0, 1, 0, this._debugDraw.Red, this._debugDraw.lineWidth);
-        this._debugDraw.mG.drawLine(0, 0, 0, 1, this._debugDraw.Green, this._debugDraw.lineWidth);
+        const length = 1 / Browser.pixelRatio;
+        this._debugDraw.mG.drawLine(0, 0, length, 0, this._debugDraw.Red, this._debugDraw.lineWidth);
+        this._debugDraw.mG.drawLine(0, 0, 0, length, this._debugDraw.Green, this._debugDraw.lineWidth);
         this._debugDraw.PopTransform();
     }
 
@@ -1508,8 +1499,8 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
         p = this.box2d.wrapPointer(p, this.box2d.b2Vec2);
         size *= this._debugDraw.camera.m_zoom;
         size /= this._debugDraw.camera.m_extent;
+        size /= Browser.pixelRatio;
         var hsize: any = size / 2;
-
         this._debugDraw.mG.drawRect(p.x - hsize, p.y - hsize, size, size, this.makeStyleString(color, 1), null);
     }
 
@@ -1524,13 +1515,19 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
     }
 
     /**@internal */
-    DrawAABB(aabb: any, color: any): void {
-        var x: number = aabb.lowerBound.x;
-        var y: number = aabb.lowerBound.y;
-        var w: number = aabb.upperBound.x - aabb.lowerBound.x;
-        var h: number = aabb.upperBound.y - aabb.lowerBound.y;
-
-        this._debugDraw.mG.drawRect(x, y, w, h, null, this.makeStyleString(color, 1), this._debugDraw.lineWidth);
+    DrawAABB(min: any, max: any, color: any): void {
+        min = this.box2d.wrapPointer(min, this.box2d.b2Vec2);
+        max = this.box2d.wrapPointer(max, this.box2d.b2Vec2);
+        var cx: number = (max.x + min.x) * 0.5;
+        var cy: number = (max.y + min.y) * 0.5;
+        var hw: number = (max.x - min.x) * 0.5;
+        var hh: number = (max.y - min.y) * 0.5;
+        const cs: string = this.makeStyleString(color, 1);
+        const linew: number = this._debugDraw.lineWidth;
+        this._debugDraw.mG.drawLine(cx - hw, cy - hh, cx + hw, cy - hh, cs, linew);
+        this._debugDraw.mG.drawLine(cx - hw, cy + hh, cx + hw, cy + hh, cs, linew);
+        this._debugDraw.mG.drawLine(cx - hw, cy - hh, cx - hw, cy + hh, cs, linew);
+        this._debugDraw.mG.drawLine(cx + hw, cy - hh, cx + hw, cy + hh, cs, linew);
     }
 
     /**@internal */
@@ -1539,15 +1536,15 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
         let _this = this;
         var listner = new this.box2d.JSContactListener();
         listner.BeginContact = function (contact: any): void {
-            Physics2D.I._eventList.push(0, box2d.wrapPointer(contact, box2d.b2Contact));
+            Physics2D.I._eventList.push("triggerenter", box2d.wrapPointer(contact, box2d.b2Contact));
         }
 
         listner.EndContact = function (contact: any): void {
-            Physics2D.I._eventList.push(1, box2d.wrapPointer(contact, box2d.b2Contact));
+            Physics2D.I._eventList.push("triggerexit", box2d.wrapPointer(contact, box2d.b2Contact));
         }
 
         listner.PreSolve = function (contact: any, oldManifold: any): void {
-            //console.log("PreSolve", contact);
+            Physics2D.I._eventList.push("triggerstay", box2d.wrapPointer(contact, box2d.b2Contact));
         }
 
         listner.PostSolve = function (contact: any, impulse: any): void {
@@ -1603,6 +1600,11 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
 
     /**@internal */
     b2LinearStiffness(def: any, frequencyHertz: number, dampingRatio: number, bodyA: any, bodyB: any) {
+        if (bodyA == undefined || bodyB == undefined) {
+            def.stiffness = 0;
+            def.damping = 0;
+            return;
+        }
         const massA = bodyA.GetMass();
         const massB = bodyB.GetMass();
         let mass;

@@ -20,6 +20,7 @@ export class TrailRenderer extends BaseRender {
     /**@internal */
     _trailFilter: TrailFilter;
 
+    /**@internal @protected */
     protected _projectionViewWorldMatrix: Matrix4x4 = new Matrix4x4();
 
     /**
@@ -38,6 +39,10 @@ export class TrailRenderer extends BaseRender {
         return Laya3DRender.Render3DModuleDataFactory.createMeshRenderNode();
     }
 
+    /**
+     * @internal
+     * @protected 
+     */
     protected _onAdded(): void {
         super._onAdded();
         this._trailFilter = new TrailFilter(this);
@@ -140,6 +145,9 @@ export class TrailRenderer extends BaseRender {
         this._trailFilter.textureMode = value;
     }
 
+    /**
+     * 拖尾轨迹准线
+     */
     get alignment(): TrailAlignment {
         return this._trailFilter.alignment;
     }
@@ -148,6 +156,10 @@ export class TrailRenderer extends BaseRender {
         this._trailFilter.alignment = value;
     }
 
+    /**
+     * @internal
+     * @protected
+     */
     protected _onEnable(): void {
         super._onEnable();
 
@@ -185,6 +197,9 @@ export class TrailRenderer extends BaseRender {
         this._trailFilter._update(context);
     }
 
+    /**
+     * 清除拖尾
+     */
     clear(): void {
         this._trailFilter.clear();
     }
@@ -197,6 +212,10 @@ export class TrailRenderer extends BaseRender {
         super._onDestroy();
     }
 
+    /**
+     * @internal
+     * @param dest 
+     */
     _cloneTo(dest: Component): void {
         super._cloneTo(dest);
         let render = dest as TrailRenderer;

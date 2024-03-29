@@ -237,6 +237,7 @@ export class RenderableSprite3D extends Sprite3D {
 	}
 
 	/** 
+	 * @internal
 	 * @inheritDoc
 	 * @override
 	 */
@@ -245,6 +246,7 @@ export class RenderableSprite3D extends Sprite3D {
 	}
 
 	/** 
+	 * @internal
 	 * @inheritDoc
 	 * @override
 	 */
@@ -253,6 +255,7 @@ export class RenderableSprite3D extends Sprite3D {
 	}
 
 	/**
+	 * @internal
 	 * @inheritDoc
 	 * @override
 	 */

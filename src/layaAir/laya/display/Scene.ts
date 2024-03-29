@@ -25,9 +25,16 @@ export class Scene extends Sprite {
     autoDestroyAtClosed: boolean = false;
     /**@internal */
     _idMap?: any;
+    /**
+     * @internal
+     */
     _scene3D: any;
 
-    /**@private 相对布局组件*/
+    /**
+     * @private
+     * @internal 
+     * 相对布局组件
+     */
     protected _widget: Widget;
 
     /**场景时钟*/
@@ -169,6 +176,7 @@ export class Scene extends Sprite {
     }
 
     /**
+     * 场景销毁
      * @inheritDoc 
      * @override
      */
@@ -184,6 +192,7 @@ export class Scene extends Sprite {
     }
 
     /**
+     * @internal
      * @inheritDoc 
      * @override
      */
@@ -200,6 +209,7 @@ export class Scene extends Sprite {
     }
 
     /**
+     * @internal
      * @inheritDoc 
      * @override
      */
@@ -312,12 +322,17 @@ export class Scene extends Sprite {
         }
     }
 
+    /**
+     * @internal
+     * @protected
+     */
     protected _shouldRefreshLayout(): void {
         super._shouldRefreshLayout();
         this.callLater(this._sizeChanged);
     }
 
     /**
+     * @internal
      * @private 
      * @override
     */

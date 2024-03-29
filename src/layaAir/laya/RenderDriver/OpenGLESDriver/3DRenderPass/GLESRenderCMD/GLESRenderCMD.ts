@@ -109,8 +109,8 @@ export class GLESBlitQuadCMDData extends BlitQuadCMDData {
     set source(value: GLESInternalTex) {
         this._source = value;
         this._nativeObj.setSource(value);
-        this._sourceTexelSize.setValue(1.0 / this._source.width, 1.0 / this._source.height, this._source.width, this._source.height);
-        this._nativeObj.setSourceTexelSize(this._sourceTexelSize);
+        // this._sourceTexelSize.setValue(1.0 / this._source.width, 1.0 / this._source.height, this._source.width, this._source.height);
+        // this._nativeObj.setSourceTexelSize(this._sourceTexelSize);
     }
 
     get offsetScale(): Vector4 {

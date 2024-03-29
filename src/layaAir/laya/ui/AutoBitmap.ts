@@ -10,41 +10,31 @@ import { LayaEnv } from "../../LayaEnv";
  * <p>封装了位置，宽高及九宫格的处理，供UI组件使用。</p>
  */
 export class AutoBitmap extends Graphics {
-    /**@private 宽度*/
+    /**@internal 宽度*/
     private _width: number = null;
-    /**@private 高度*/
+    /**@internal 高度*/
     private _height: number = null;
-    /**@private 源数据*/
+    /**@internal 源数据*/
     private _source: Texture;
-    /**@private 网格数据*/
+    /**@internal 网格数据*/
     private _sizeGrid: number[];
-    /**@private */
+    /**@internal */
     protected _isChanged: boolean;
-
+    /**@internal */
     protected _stateIndex: number;
+    /**@internal */
     protected _stateNum: number;
-
+    /**@internal */
+    _color: string = "#ffffff";
     /**@internal */
     _offset: any[];
+    /**@internal */
+    private _drawGridCmd: Draw9GridTextureCmd | DrawTextureCmd;
     uv: number[] = null;
 
-    _color: string = "#ffffff";
-
-    /**@private */
-    private _drawGridCmd: Draw9GridTextureCmd | DrawTextureCmd;
-
-    /**@inheritDoc 
-     * @override
-    */
-    destroy(): void {
-        super.destroy();
-        if (this._source && !LayaEnv.isPlaying)
-            this._source.off("reload", this, this._setChanged);
-        this._source = null;
-        this._sizeGrid = null;
-        this._offset = null;
-    }
-
+    /**
+     * 网格数据
+     */
     get sizeGrid(): number[] {
         return this._sizeGrid;
     }
@@ -107,12 +97,9 @@ export class AutoBitmap extends Graphics {
         }
     }
 
-    setState(index: number, numStates: number) {
-        this._stateIndex = index;
-        this._stateNum = numStates;
-        this._setChanged();
-    }
-
+    /**
+     * 颜色
+     */
     get color() {
         return this._color;
     }
@@ -124,7 +111,7 @@ export class AutoBitmap extends Graphics {
         }
     }
 
-    /** @private */
+    /** @internal */
     protected _setChanged(): void {
         if (!this._isChanged) {
             this._isChanged = true;
@@ -133,7 +120,7 @@ export class AutoBitmap extends Graphics {
     }
 
     /**
-     * @private
+     * @internal
      * 修改纹理资源。
      */
     protected changeSource(): void {
@@ -180,6 +167,7 @@ export class AutoBitmap extends Graphics {
     }
 
     /**
+     * @internal
      *  由于可能有其他的graphic命令，因此不能用原来的直接clear()的方法
      */
     private _setDrawGridCmd(newcmd: any) {
@@ -190,5 +178,26 @@ export class AutoBitmap extends Graphics {
         this._drawGridCmd = newcmd;
         if (newcmd)
             this.addCmd(newcmd);
+    }
+
+    /**@inheritDoc 
+     * @override
+     */
+    destroy(): void {
+        super.destroy();
+        if (this._source && !LayaEnv.isPlaying)
+            this._source.off("reload", this, this._setChanged);
+        this._source = null;
+        this._sizeGrid = null;
+        this._offset = null;
+    }
+
+    /**
+     * @internal
+     */
+    setState(index: number, numStates: number) {
+        this._stateIndex = index;
+        this._stateNum = numStates;
+        this._setChanged();
     }
 }

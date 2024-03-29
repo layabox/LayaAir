@@ -58,7 +58,7 @@ export class SpineTemplet extends Resource {
     }
 
     private getRuntimeVersion(desc: string | ArrayBuffer): string {
-        this._ns = spine;
+        this._ns = window.spine;
         return SpineTemplet.RuntimeVersion;
     }
 

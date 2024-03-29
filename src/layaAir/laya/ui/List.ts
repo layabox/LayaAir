@@ -181,83 +181,104 @@ export class List extends Box {
     /**禁用滚动条停止 */
     disableStopScroll: boolean = false;
 
-    /**@private */
+    /**@internal */
     protected _content!: Box;
-    /**@private */
+    /**@internal */
     protected _scrollBar: ScrollBar | null;
-    /**@private */
+    /**@internal */
     protected _itemRender: any;
-    /**@private */
+    /**@internal */
     protected _repeatX: number = 0;
-    /**@private */
+    /**@internal */
     protected _repeatY: number = 0;
-    /**@private */
+    /**@internal */
     protected _repeatX2: number = 0;
-    /**@private */
+    /**@internal */
     protected _repeatY2: number = 0;
-    /**@private */
+    /**@internal */
     protected _spaceX: number = 0;
-    /**@private */
+    /**@internal */
     protected _spaceY: number = 0;
-    /**@private */
+    /**@internal */
     protected _cells: UIComponent[] = [];
-    /**@private */
+    /**@internal */
     protected _array: any[] | null;
-    /**@private */
+    /**@internal */
     protected _startIndex: number = 0;
-    /**@private */
+    /**@internal */
     protected _selectedIndex: number = -1;
-    /**@private */
+    /**@internal */
     protected _page: number = 0;
-    /**@private */
+    /**@internal */
     protected _isVertical: boolean = true;
-    /**@private */
+    /**@internal */
     protected _cellSize: number = 20;
-    /**@private */
+    /**@internal */
     protected _cellOffset: number = 0;
-    /**@private */
+    /**@internal */
     protected _isMoved: boolean;
+    /**@internal */
+    protected _createdLine: number = 0;
+    /**@internal */
+    protected _cellChanged: boolean;
+    /**@internal */
+    protected _offset: Point = new Point();
+    /**@internal */
+    protected _usedCache: string | null = null;
+    /**@internal */
+    protected _elasticEnabled: boolean = false;
+    /**@internal */
+    protected _scrollType: ScrollType = 0;
+    /**@internal */
+    protected _vScrollBarSkin: string;
+    /**@internal */
+    protected _hScrollBarSkin: string;
+    /**@internal */
+    private _preLen = 0;
     /**是否缓存内容，如果数据源较少，并且list内无动画，设置此属性为true能大大提高性能 */
     cacheContent: boolean;
-    /**@private */
-    protected _createdLine: number = 0;
-    /**@private */
-    protected _cellChanged: boolean;
-    /**@private */
-    protected _offset: Point = new Point();
-    /**@private */
-    protected _usedCache: string | null = null;
-    /**@private */
-    protected _elasticEnabled: boolean = false;
-
-    protected _scrollType: ScrollType = 0;
-    protected _vScrollBarSkin: string;
-    protected _hScrollBarSkin: string;
 
     /**
-     * @inheritDoc 
-     * @override
+     * 列表的当前页码。
      */
-    destroy(destroyChild: boolean = true): void {
-        this._content && this._content.destroy(destroyChild);
-        this._scrollBar && this._scrollBar.destroy(destroyChild);
-        super.destroy(destroyChild);
-        this._content = null;
-        this._scrollBar = null;
-        this._itemRender = null;
-        this._cells = null;
-        this._array = null;
-        this.selectHandler = this.renderHandler = this.mouseHandler = null;
+    get page(): number {
+        return this._page;
+    }
+
+    set page(value: number) {
+        this._page = value
+        if (this._array) {
+            this._page = value > 0 ? value : 0;
+            this._page = this._page < this.totalPage ? this._page : this.totalPage - 1;
+            this.startIndex = this._page * this.repeatX * this.repeatY;
+        }
     }
 
     /**
-     * @inheritDoc 
-     * @override
+     * 列表的数据总个数。
      */
-    protected createChildren(): void {
-        this._content = new Box();
-        this._content.hideFlags = HideFlags.HideAndDontSave;
-        this.addChild(this._content);
+    get length(): number {
+        return this._array ? this._array.length : 0;
+    }
+
+    /**
+     * 单元格集合。
+     */
+    get cells(): UIComponent[] {
+        this.runCallLater(this.changeCells);
+        return this._cells;
+    }
+
+    /**是否开启橡皮筋效果*/
+    get elasticEnabled(): boolean {
+        return this._elasticEnabled;
+    }
+
+    set elasticEnabled(value: boolean) {
+        this._elasticEnabled = value;
+        if (this._scrollBar) {
+            this._scrollBar.elasticDistance = value ? 200 : 0;
+        }
     }
 
     /**
@@ -279,16 +300,6 @@ export class List extends Box {
      */
     get cacheAs() {
         return super.cacheAs;
-    }
-
-    private onScrollStart(): void {
-        this._usedCache || (this._usedCache = super.cacheAs);
-        super.cacheAs = "none";
-        this._scrollBar!.once(Event.END, this, this.onScrollEnd);
-    }
-
-    private onScrollEnd(): void {
-        super.cacheAs = this._usedCache || 'none';
     }
 
     /**
@@ -441,24 +452,6 @@ export class List extends Box {
         }
     }
 
-    /**
-     * @inheritDoc 
-     * @override
-    */
-    _setWidth(value: number) {
-        super._setWidth(value);
-        this._setCellChanged();
-    }
-
-    /**
-     * @inheritDoc 
-     * @override
-    */
-    _setHeight(value: number) {
-        super._setWidth(value);
-        this._setCellChanged();
-    }
-
 
     /**
      * 水平方向显示的单元格数量。
@@ -509,7 +502,262 @@ export class List extends Box {
     }
 
     /**
-     * @private
+     * 表示当前选择的项索引。selectedIndex值更改会引起list重新渲染
+     */
+    get selectedIndex(): number {
+        return this._selectedIndex;
+    }
+
+    set selectedIndex(value: number) {
+        if (this._selectedIndex != value) {
+            this._selectedIndex = value;
+            this.changeSelectStatus();
+            this.event(Event.CHANGE);
+            this.selectHandler && this.selectHandler.runWith(value);
+            //选择发生变化，自动渲染一次
+            this.startIndex = this._startIndex;
+        }
+    }
+
+    /**
+     * 列表数据源。
+     */
+    get array(): any[] {
+        return this._array as any[];
+    }
+
+    set array(value: any[]) {
+        this.runCallLater(this.changeCells);
+        this._array = value || [];
+        this._preLen = this._array.length;
+        let length = this._array.length;
+        this.totalPage = Math.ceil(length / (this.repeatX * this.repeatY));
+        //重设selectedIndex
+        this._selectedIndex = this._selectedIndex < length ? this._selectedIndex : length - 1;
+        //重设startIndex
+        this.startIndex = this._startIndex;
+        //重设滚动条
+        if (this._scrollBar) {
+            //根据开关决定滚动条是否停止，默认在重设的时候会停止滚动
+            (!this.disableStopScroll && this._scrollBar.stopScroll());
+            let numX = this._isVertical ? this.repeatX : this.repeatY;
+            let numY = this._isVertical ? this.repeatY : this.repeatX;
+            let lineCount = Math.ceil(length / numX);
+            let total = this._cellOffset > 0 ? this.totalPage + 1 : this.totalPage;
+            if (total > 1 && lineCount >= numY) {
+                this._scrollBar.scrollSize = this._cellSize;
+                this._scrollBar.thumbPercent = numY / lineCount;
+                this._scrollBar.setScroll(0, (lineCount - numY) * this._cellSize + this._cellOffset, this._scrollBar.value);
+            } else {
+                this._scrollBar.setScroll(0, 0, 0);
+            }
+        }
+    }
+
+    /**
+     * 当前选中的单元格数据源。
+     */
+    get selectedItem(): any {
+        if (!this._array) return null;
+        return this._selectedIndex != -1 ? this._array[this._selectedIndex] : null;
+    }
+
+    set selectedItem(value: any) {
+        this._array && (this.selectedIndex = this._array.indexOf(value));
+    }
+
+    /**
+     * 获取或设置当前选择的单元格对象。
+     */
+    get selection(): UIComponent {
+        return this.getCell(this._selectedIndex);
+    }
+
+    set selection(value: UIComponent) {
+        this.selectedIndex = this._startIndex + this._cells.indexOf(value);
+    }
+
+    /**
+     * 当前显示的单元格列表的开始索引。
+     */
+    get startIndex(): number {
+        return this._startIndex;
+    }
+
+    set startIndex(value: number) {
+        this._startIndex = value > 0 ? value : 0;
+        this.callLater(this.renderItems);
+    }
+
+    /**
+     * @internal
+     * @inheritDoc 
+     * @override
+     */
+    protected createChildren(): void {
+        this._content = new Box();
+        this._content.hideFlags = HideFlags.HideAndDontSave;
+        this.addChild(this._content);
+    }
+
+    /**
+     * @internal
+     * @inheritDoc 
+     * @override
+    */
+    _setWidth(value: number) {
+        super._setWidth(value);
+        this._setCellChanged();
+    }
+
+    /**
+     * @internal
+     * @inheritDoc 
+     * @override
+    */
+    _setHeight(value: number) {
+        super._setWidth(value);
+        this._setCellChanged();
+    }
+
+    /**@internal */
+    private _getOneCell(): UIComponent {
+        if (this._cells.length === 0) {
+            let item = this.createItem();
+            this._offset.setTo(item._x, item._y);
+            if (this.cacheContent) return item;
+            this._cells.push(item);
+        }
+        return this._cells[0];
+    }
+
+    /**@internal */
+    private _createItems(startY: number, numX: number, numY: number): void {
+        let box = this._content;
+        let cell = this._getOneCell();
+        let cellWidth = cell.width + this._spaceX;
+        let cellHeight = cell.height + this._spaceY;
+        let arr: Array<UIComponent>;
+
+        if (this.cacheContent) {
+            let cacheBox = new Box();
+            cacheBox.hideFlags = HideFlags.HideAndDontSave;
+            cacheBox.cacheAs = "normal";
+            cacheBox.pos((this._isVertical ? 0 : startY) * cellWidth, (this._isVertical ? startY : 0) * cellHeight);
+            this._content.addChild(cacheBox);
+            box = cacheBox;
+        } else {
+            arr = [];
+            for (let i = this._cells.length - 1; i > -1; i--) {
+                let item = this._cells[i];
+                item.removeSelf();
+                arr.push(item);
+            }
+            this._cells.length = 0;
+        }
+
+        for (let k = startY; k < numY; k++) {
+            for (let l = 0; l < numX; l++) {
+                if (arr && arr.length) {
+                    cell = arr.pop();
+                } else {
+                    cell = this.createItem();
+                    cell.hideFlags = HideFlags.HideAndDontSave;
+                }
+                cell.x = (this._isVertical ? l : k) * cellWidth - box._x;
+                cell.y = (this._isVertical ? k : l) * cellHeight - box._y;
+                cell.name = "item" + (k * numX + l);
+                box.addChild(cell);
+                this.addCell(cell);
+            }
+        }
+    }
+
+    /**@internal */
+    _afterInited(): void {
+        this.initItems();
+    }
+
+    /**@internal */
+    private _bindData(cell: any, data: any): void {
+        let arr: any[] = cell._$bindData;
+        for (let i = 0, n = arr.length; i < n; i++) {
+            let ele: any = arr[i++];
+            let prop: string = arr[i++];
+            let value: string = arr[i];
+            let fun = UIUtils.getBindFun(value);
+            ele[prop] = fun.call(this, data);
+        }
+    }
+
+    /** 
+     * @internal
+     * @inheritDoc 
+     * @override
+    */
+    protected _sizeChanged(): void {
+        super._sizeChanged();
+        this.setContentSize(this.width, this.height);
+        if (this._scrollBar) this.callLater(this.onScrollBarChange);
+    }
+
+    /**@internal */
+    protected _setCellChanged(): void {
+        if (!this._cellChanged) {
+            this._cellChanged = true;
+            this.callLater(this.changeCells);
+        }
+    }
+
+    /** @internal */
+    private onScrollStart(): void {
+        this._usedCache || (this._usedCache = super.cacheAs);
+        super.cacheAs = "none";
+        this._scrollBar!.once(Event.END, this, this.onScrollEnd);
+    }
+
+    /** @internal */
+    private onScrollEnd(): void {
+        super.cacheAs = this._usedCache || 'none';
+    }
+
+
+    /**@internal */
+    protected createItem(): UIComponent {
+        let arr: any[] = [];
+        let box: UIComponent;
+        if (typeof (this._itemRender) == "function") {//TODO:
+            box = new this._itemRender();
+            box._skinBaseUrl = this._skinBaseUrl;
+        } else {
+            if (this._itemRender._$type || this._itemRender._$prefab)
+                box = <UIComponent>HierarchyParser.parse(this._itemRender, { skinBaseUrl: this._skinBaseUrl })[0];
+            else
+                box = LegacyUIParser.createComp(this._itemRender, null, null, arr);
+            if (!box) {
+                console.warn("cannot create item");
+                box = new Box();
+            }
+        }
+        box.hideFlags = HideFlags.HideAndDontSave;
+
+        if (arr.length == 0 && (<any>box)["_watchMap"]) {
+            let watchMap = (<any>box)["_watchMap"];
+            for (let name in watchMap) {
+                let a: any[] = watchMap[name];
+                for (let i = 0; i < a.length; i++) {
+                    let watcher = a[i];
+                    arr.push(watcher.comp, watcher.prop, watcher.value)
+                }
+            }
+        }
+        if (arr.length) (<any>box)["_$bindData"] = arr;
+
+        return box;
+    }
+
+    /**
+     * @internal
      * 更改单元格的信息。
      * 在此销毁、创建单元格，并设置单元格的位置等属性。相当于此列表内容发送改变时调用此函数。
      */
@@ -555,92 +803,8 @@ export class List extends Box {
         }
     }
 
-    private _getOneCell(): UIComponent {
-        if (this._cells.length === 0) {
-            let item = this.createItem();
-            this._offset.setTo(item._x, item._y);
-            if (this.cacheContent) return item;
-            this._cells.push(item);
-        }
-        return this._cells[0];
-    }
-
-    private _createItems(startY: number, numX: number, numY: number): void {
-        let box = this._content;
-        let cell = this._getOneCell();
-        let cellWidth = cell.width + this._spaceX;
-        let cellHeight = cell.height + this._spaceY;
-        let arr: Array<UIComponent>;
-
-        if (this.cacheContent) {
-            let cacheBox = new Box();
-            cacheBox.hideFlags = HideFlags.HideAndDontSave;
-            cacheBox.cacheAs = "normal";
-            cacheBox.pos((this._isVertical ? 0 : startY) * cellWidth, (this._isVertical ? startY : 0) * cellHeight);
-            this._content.addChild(cacheBox);
-            box = cacheBox;
-        } else {
-            arr = [];
-            for (let i = this._cells.length - 1; i > -1; i--) {
-                let item = this._cells[i];
-                item.removeSelf();
-                arr.push(item);
-            }
-            this._cells.length = 0;
-        }
-
-        for (let k = startY; k < numY; k++) {
-            for (let l = 0; l < numX; l++) {
-                if (arr && arr.length) {
-                    cell = arr.pop();
-                } else {
-                    cell = this.createItem();
-                    cell.hideFlags = HideFlags.HideAndDontSave;
-                }
-                cell.x = (this._isVertical ? l : k) * cellWidth - box._x;
-                cell.y = (this._isVertical ? k : l) * cellHeight - box._y;
-                cell.name = "item" + (k * numX + l);
-                box.addChild(cell);
-                this.addCell(cell);
-            }
-        }
-    }
-
-    protected createItem(): UIComponent {
-        let arr: any[] = [];
-        let box: UIComponent;
-        if (typeof (this._itemRender) == "function") {//TODO:
-            box = new this._itemRender();
-            box._skinBaseUrl = this._skinBaseUrl;
-        } else {
-            if (this._itemRender._$type || this._itemRender._$prefab)
-                box = <UIComponent>HierarchyParser.parse(this._itemRender, { skinBaseUrl: this._skinBaseUrl })[0];
-            else
-                box = LegacyUIParser.createComp(this._itemRender, null, null, arr);
-            if (!box) {
-                console.warn("cannot create item");
-                box = new Box();
-            }
-        }
-        box.hideFlags = HideFlags.HideAndDontSave;
-
-        if (arr.length == 0 && (<any>box)["_watchMap"]) {
-            let watchMap = (<any>box)["_watchMap"];
-            for (let name in watchMap) {
-                let a: any[] = watchMap[name];
-                for (let i = 0; i < a.length; i++) {
-                    let watcher = a[i];
-                    arr.push(watcher.comp, watcher.prop, watcher.value)
-                }
-            }
-        }
-        if (arr.length) (<any>box)["_$bindData"] = arr;
-
-        return box;
-    }
-
     /**
-     * @private
+     * @internal
      * 添加单元格。
      * @param cell 需要添加的单元格对象。
      */
@@ -654,58 +818,8 @@ export class List extends Box {
         this._cells.push(cell);
     }
 
-    onAfterDeserialize() {
-        super.onAfterDeserialize();
-        this.initItems();
-    }
-
-    /**@internal */
-    _afterInited(): void {
-        this.initItems();
-    }
-
     /**
-     * 初始化单元格信息。
-     */
-    initItems(): void {
-        if (!this._itemRender && this.getChildByName("item0") != null) {
-            this.repeatX = 1;
-            let count: number;
-            count = 0;
-            for (let i = 0; i < 10000; i++) {
-                let cell = <UIComponent>this.getChildByName("item" + i);
-                if (cell) {
-                    this.addCell(cell);
-                    count++;
-                    continue;
-                }
-                break;
-            }
-            this.repeatY = count;
-        }
-    }
-
-    /**
-     * 设置可视区域大小。
-     * <p>以（0，0，width参数，height参数）组成的矩形区域为可视区域。</p>
-     * @param width 可视区域宽度。
-     * @param height 可视区域高度。
-     */
-    setContentSize(width: number, height: number): void {
-        this._content.width = width;
-        this._content.height = height;
-        if (this._scrollBar) {
-            let r = this._content.scrollRect;
-            if (!r)
-                r = Rectangle.create();
-            r.setTo(-this._offset.x, -this._offset.y, width, height);
-            this._content.scrollRect = r;
-        }
-        this.event(Event.RESIZE);
-    }
-
-    /**
-     * @private
+     * @internal
      * 单元格的鼠标事件侦听处理函数。
      */
     protected onCellMouse(e: Event): void {
@@ -723,7 +837,7 @@ export class List extends Box {
     }
 
     /**
-     * @private
+     * @internal
      * 改变单元格的可视状态。
      * @param cell 单元格对象。
      * @param visable 是否显示。
@@ -738,18 +852,8 @@ export class List extends Box {
         }
     }
 
-    /** 
-     * @inheritDoc 
-     * @override
-    */
-    protected _sizeChanged(): void {
-        super._sizeChanged();
-        this.setContentSize(this.width, this.height);
-        if (this._scrollBar) this.callLater(this.onScrollBarChange);
-    }
-
     /**
-     * @private
+     * @internal
      * 滚动条的 <code>Event.CHANGE</code> 事件侦听处理函数。
      */
     protected onScrollBarChange(e: Event | null = null): void {
@@ -814,6 +918,7 @@ export class List extends Box {
         this._content.scrollRect = r;
     }
 
+    /**@internal */
     private posCell(cell: UIComponent, cellIndex: number): void {
         if (!this._scrollBar) return;
         let lineX = (this._isVertical ? this.repeatX : this.repeatY);
@@ -823,25 +928,7 @@ export class List extends Box {
     }
 
     /**
-     * 表示当前选择的项索引。selectedIndex值更改会引起list重新渲染
-     */
-    get selectedIndex(): number {
-        return this._selectedIndex;
-    }
-
-    set selectedIndex(value: number) {
-        if (this._selectedIndex != value) {
-            this._selectedIndex = value;
-            this.changeSelectStatus();
-            this.event(Event.CHANGE);
-            this.selectHandler && this.selectHandler.runWith(value);
-            //选择发生变化，自动渲染一次
-            this.startIndex = this._startIndex;
-        }
-    }
-
-    /**
-     * @private
+     * @internal
      * 改变单元格的选择状态。
      */
     protected changeSelectStatus(): void {
@@ -851,42 +938,7 @@ export class List extends Box {
     }
 
     /**
-     * 当前选中的单元格数据源。
-     */
-    get selectedItem(): any {
-        if (!this._array) return null;
-        return this._selectedIndex != -1 ? this._array[this._selectedIndex] : null;
-    }
-
-    set selectedItem(value: any) {
-        this._array && (this.selectedIndex = this._array.indexOf(value));
-    }
-
-    /**
-     * 获取或设置当前选择的单元格对象。
-     */
-    get selection(): UIComponent {
-        return this.getCell(this._selectedIndex);
-    }
-
-    set selection(value: UIComponent) {
-        this.selectedIndex = this._startIndex + this._cells.indexOf(value);
-    }
-
-    /**
-     * 当前显示的单元格列表的开始索引。
-     */
-    get startIndex(): number {
-        return this._startIndex;
-    }
-
-    set startIndex(value: number) {
-        this._startIndex = value > 0 ? value : 0;
-        this.callLater(this.renderItems);
-    }
-
-    /**
-     * @private
+     * @internal
      * 渲染单元格列表。
      */
     protected renderItems(from: number = 0, to: number = 0): void {
@@ -898,6 +950,7 @@ export class List extends Box {
 
     /**
      * 渲染一个单元格。
+     * @internal
      * @param cell 需要渲染的单元格对象。
      * @param index 单元格索引。
      */
@@ -925,52 +978,9 @@ export class List extends Box {
         }
     }
 
-    private _bindData(cell: any, data: any): void {
-        let arr: any[] = cell._$bindData;
-        for (let i = 0, n = arr.length; i < n; i++) {
-            let ele: any = arr[i++];
-            let prop: string = arr[i++];
-            let value: string = arr[i];
-            let fun = UIUtils.getBindFun(value);
-            ele[prop] = fun.call(this, data);
-        }
-    }
-
-    /**
-     * 列表数据源。
-     */
-    get array(): any[] {
-        return this._array as any[];
-    }
-
-    private _preLen = 0;
-
-    set array(value: any[]) {
+    /**@internal */
+    protected commitMeasure(): void {
         this.runCallLater(this.changeCells);
-        this._array = value || [];
-        this._preLen = this._array.length;
-        let length = this._array.length;
-        this.totalPage = Math.ceil(length / (this.repeatX * this.repeatY));
-        //重设selectedIndex
-        this._selectedIndex = this._selectedIndex < length ? this._selectedIndex : length - 1;
-        //重设startIndex
-        this.startIndex = this._startIndex;
-        //重设滚动条
-        if (this._scrollBar) {
-            //根据开关决定滚动条是否停止，默认在重设的时候会停止滚动
-            (!this.disableStopScroll && this._scrollBar.stopScroll());
-            let numX = this._isVertical ? this.repeatX : this.repeatY;
-            let numY = this._isVertical ? this.repeatY : this.repeatX;
-            let lineCount = Math.ceil(length / numX);
-            let total = this._cellOffset > 0 ? this.totalPage + 1 : this.totalPage;
-            if (total > 1 && lineCount >= numY) {
-                this._scrollBar.scrollSize = this._cellSize;
-                this._scrollBar.thumbPercent = numY / lineCount;
-                this._scrollBar.setScroll(0, (lineCount - numY) * this._cellSize + this._cellOffset, this._scrollBar.value);
-            } else {
-                this._scrollBar.setScroll(0, 0, 0);
-            }
-        }
     }
 
     /**
@@ -998,27 +1008,49 @@ export class List extends Box {
         }
     }
 
-    /**
-     * 列表的当前页码。
-     */
-    get page(): number {
-        return this._page;
+    onAfterDeserialize() {
+        super.onAfterDeserialize();
+        this.initItems();
     }
 
-    set page(value: number) {
-        this._page = value
-        if (this._array) {
-            this._page = value > 0 ? value : 0;
-            this._page = this._page < this.totalPage ? this._page : this.totalPage - 1;
-            this.startIndex = this._page * this.repeatX * this.repeatY;
+    /**
+     * 初始化单元格信息。
+     */
+    initItems(): void {
+        if (!this._itemRender && this.getChildByName("item0") != null) {
+            this.repeatX = 1;
+            let count: number;
+            count = 0;
+            for (let i = 0; i < 10000; i++) {
+                let cell = <UIComponent>this.getChildByName("item" + i);
+                if (cell) {
+                    this.addCell(cell);
+                    count++;
+                    continue;
+                }
+                break;
+            }
+            this.repeatY = count;
         }
     }
 
     /**
-     * 列表的数据总个数。
+     * 设置可视区域大小。
+     * <p>以（0，0，width参数，height参数）组成的矩形区域为可视区域。</p>
+     * @param width 可视区域宽度。
+     * @param height 可视区域高度。
      */
-    get length(): number {
-        return this._array ? this._array.length : 0;
+    setContentSize(width: number, height: number): void {
+        this._content.width = width;
+        this._content.height = height;
+        if (this._scrollBar) {
+            let r = this._content.scrollRect;
+            if (!r)
+                r = Rectangle.create();
+            r.setTo(-this._offset.x, -this._offset.y, width, height);
+            this._content.scrollRect = r;
+        }
+        this.event(Event.RESIZE);
     }
 
     /**
@@ -1033,27 +1065,6 @@ export class List extends Box {
             this.array = (<any[]>value)
         else
             super.set_dataSource(value);
-    }
-
-
-    /**
-     * 单元格集合。
-     */
-    get cells(): UIComponent[] {
-        this.runCallLater(this.changeCells);
-        return this._cells;
-    }
-
-    /**是否开启橡皮筋效果*/
-    get elasticEnabled(): boolean {
-        return this._elasticEnabled;
-    }
-
-    set elasticEnabled(value: boolean) {
-        this._elasticEnabled = value;
-        if (this._scrollBar) {
-            this._scrollBar.elasticDistance = value ? 200 : 0;
-        }
     }
 
     /**
@@ -1178,15 +1189,21 @@ export class List extends Box {
         }
     }
 
-    /**@private */
-    protected _setCellChanged(): void {
-        if (!this._cellChanged) {
-            this._cellChanged = true;
-            this.callLater(this.changeCells);
-        }
+    /**
+     * @inheritDoc 
+     * @override
+     */
+    destroy(destroyChild: boolean = true): void {
+        this._content && this._content.destroy(destroyChild);
+        this._scrollBar && this._scrollBar.destroy(destroyChild);
+        super.destroy(destroyChild);
+        this._content = null;
+        this._scrollBar = null;
+        this._itemRender = null;
+        this._cells = null;
+        this._array = null;
+        this.selectHandler = this.renderHandler = this.mouseHandler = null;
     }
-    /**@override */
-    protected commitMeasure(): void {
-        this.runCallLater(this.changeCells);
-    }
+
+
 }

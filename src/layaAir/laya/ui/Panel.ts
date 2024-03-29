@@ -154,13 +154,13 @@ export class Panel extends Box {
             vscroll.height = this._height - (hShow ? hscroll.height : 0);
             vscroll.scrollSize = Math.max(this._height * 0.033, 1);
             vscroll.thumbPercent = showHeight / contentH;
-            vscroll.setScroll(0, contentH - showHeight, vscroll.value);
+            vscroll.setScroll(0, contentH - showHeight);
         }
         if (hscroll) {
             hscroll.width = this._width - (vShow ? vscroll.width : 0);
             hscroll.scrollSize = Math.max(this._width * 0.033, 1);
             hscroll.thumbPercent = showWidth / contentW;
-            hscroll.setScroll(0, contentW - showWidth, hscroll.value);
+            hscroll.setScroll(0, contentW - showWidth);
         }
     }
 

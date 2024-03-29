@@ -130,6 +130,7 @@ export class Stat {
     public static sprite3DCount: number = 0;//TODO
     /**@internal */
     public static drawCall: number = 0;
+    public static draw2D=0;
     /**@internal */
     public static trianglesFaces: number = 0;
     /**@internal */
@@ -166,6 +167,13 @@ export class Stat {
     public static bufferMemory: number = 0;
     /**@internal */
     public static uploadUniform: number = 0;
+
+    public static physics_dynamicRigidBodyCount:number;
+    public static physics_staticRigidBodyCount:number;
+    public static phyiscs_KinematicRigidBodyCount:number;
+    public static physics_CharacterControllerCount:number;
+    public static physics_jointCount:number;
+    public static phyiscs_EventCount:number
 
     //Toggle
     /**@internal 开启关闭阴影 */

@@ -94,8 +94,6 @@ export class Physics_Strandbeests {
 
         // Circle
         let wheel = this.wheel = new Sprite();
-        wheel.width = wheel.height = 2 * 16 * this.scale;
-        wheel.anchorX = wheel.anchorY = 0.5;
 
         wheel.pos(chassis.x, chassis.y);
         this.Main.box2D.addChild(wheel);
@@ -105,8 +103,6 @@ export class Physics_Strandbeests {
         let wheelCollider: CircleCollider = wheel.addComponent(CircleCollider);
         wheelCollider.density = 1;
         wheelCollider.radius = 16 * this.scale;
-
-
 
 
         // 转动关节

@@ -172,7 +172,7 @@ vec4 transspaceColor(vec4 color)
             for (float i = 0.0; i <= c_IterationTime; ++i){
                 for (float j = 0.0; j <= c_IterationTime; ++j){
                     vec2Off = vec2(vec2FilterOff.x * (i - floatOff), vec2FilterOff.y * (j - floatOff));
-                    vec4Color += transspaceColor(sampler2D(u_spriteTexture, v_texcoordAlpha.xy + vec2FilterDir + vec2Off))  ;
+                    vec4Color += transspaceColor(texture2D(u_spriteTexture, v_texcoordAlpha.xy + vec2FilterDir + vec2Off))  ;
                 }
             }
             vec4Color /= floatIterationTotalTime;

@@ -20,11 +20,11 @@ export class PulleyJoint extends JointBase {
     otherAnchor: any[] = [0, 0];
 
     /**[首次设置有效]滑轮上与节点selfAnchor相连接的节点，是相对于自身刚体的左上角位置偏移*/
-    selfGroundPoint: any[] = [0, 0];
+    selfGroundPoint: any[] = [0, -100];
     /**[首次设置有效]滑轮上与节点otherAnchor相连接的节点，是相对于otherBody的左上角位置偏移*/
-    otherGroundPoint: any[] = [0, 0];
+    otherGroundPoint: any[] = [0, -100];
     /**[首次设置有效]两刚体移动距离比率*/
-    ratio: number = 1.5;
+    ratio: number = 1;
     /**[首次设置有效]两个刚体是否可以发生碰撞，默认为false*/
     collideConnected: boolean = false;
     /**

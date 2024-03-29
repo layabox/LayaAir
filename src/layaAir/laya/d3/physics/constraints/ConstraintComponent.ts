@@ -1,10 +1,8 @@
 import { Component } from "../../../components/Component";
-import { Rigidbody3D } from "../Rigidbody3D";
 import { Vector3 } from "../../../maths/Vector3";
 import { IJoint } from "../../../Physics3D/interface/Joint/IJoint";
 import { Node } from "../../../display/Node";
 import { IPhysicsManager } from "../../../Physics3D/interface/IPhysicsManager";
-import { pxJoint } from "../../../Physics3D/PhysX/Joint/pxJoint";
 import { PhysicsColliderComponent } from "../PhysicsColliderComponent";
 /**
  * <code>ConstraintComponent</code> 类用于创建约束的父类。
@@ -14,13 +12,19 @@ export class ConstraintComponent extends Component {
     _joint: IJoint;
     /**@internal */
     private _enableCollison: boolean = false;
+    /**@internal @protected */
     protected _physicsManager: IPhysicsManager;
-    /**@internal */
+    /**@internal @protected */
     protected _ownCollider: PhysicsColliderComponent;
+    /**@internal @protected */
     protected _connectCollider: PhysicsColliderComponent;
+    /**@internal @protected */
     protected _breakForce: number = Number.MAX_VALUE;
+    /**@internal @protected */
     protected _breakTorque: number = Number.MAX_VALUE;
+    /**@internal @protected */
     protected _ownColliderLocalPos: Vector3 = new Vector3();
+    /**@internal @protected */
     protected _connectColliderLocalPos: Vector3 = new Vector3();
     /**
      * instance joint
@@ -34,11 +38,18 @@ export class ConstraintComponent extends Component {
         this._joint.setBreakTorque(this._breakTorque);
     }
 
+    /**
+     * @internal
+     * @protected
+     */
     protected _initJoint() {
         //createJoint
         //Override it
     }
 
+    /**
+     * 关节连接的物理组件刚体
+     */
     set connectedBody(value: PhysicsColliderComponent) {
         if (!value || this._connectCollider == value)
             return;
@@ -52,7 +63,9 @@ export class ConstraintComponent extends Component {
         return this._connectCollider;
     }
 
-
+    /**
+     * 关节所属的物理组件刚体 
+     */
     get ownBody(): PhysicsColliderComponent {
         return this._ownCollider;
     }
@@ -160,6 +173,10 @@ export class ConstraintComponent extends Component {
         super();
     }
 
+    /**
+     * @internal
+     * @protected
+     */
     protected _onAdded(): void {
         if (!this.owner.scene) {
             this.owner.on(Node.EVENT_SET_ACTIVESCENE, this, this._onAdded);
@@ -185,6 +202,10 @@ export class ConstraintComponent extends Component {
         //TODO
     }
 
+    /**
+     * @internal
+     * @protected
+     */
     protected _onDestroy() {
 
     }

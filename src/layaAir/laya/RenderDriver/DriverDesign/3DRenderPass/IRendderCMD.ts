@@ -30,6 +30,8 @@ export class DrawNodeCMDData implements IRenderCMD {
     protected _node: IBaseRenderNode;
     protected _destShaderData: ShaderData;
     protected _destSubShader: SubShader;
+    
+    subMeshIndex: number;
 
     get node(): IBaseRenderNode {
         return this._node;

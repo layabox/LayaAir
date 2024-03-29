@@ -17,21 +17,17 @@ export class SpriteConst {
     /** @private */
     static CLIP = 0x40;
     /** @private */
-    static STYLE = 0x80;
+    static TEXTURE = 0x80;
     /** @private */
-    static TEXTURE = 0x100;
+    static GRAPHICS = 0x100;
     /** @private */
-    static GRAPHICS = 0x200;
+    static LAYAGL3D = 0x200;
     /** @private */
-    static LAYAGL3D = 0x400;
+    static CUSTOM = 0x400;
     /** @private */
-    static CUSTOM = 0x800;
+    static HITAREA = 0x800;
     /** @private */
-    static ONECHILD = 0x1000;
-    /** @private */
-    static HITAREA = 0x2000;
-    /** @private */
-    static CHILDS = 0x4000;
+    static CHILDS = 0x1000;
 
     /** @private */
     static REPAINT_NONE = 0;

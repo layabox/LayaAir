@@ -109,6 +109,7 @@ export class WebGPUCodeGenerator {
         const simpleSkinnedMeshUniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap("SimpleSkinnedMesh") as WebGLCommandUniformMap;
         const shurikenSprite3DUniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap("ShurikenSprite3D") as WebGLCommandUniformMap;
         const trailRenderUniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap("TrailRender") as WebGLCommandUniformMap;
+        const skyRendererUniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap("SkyRenderer") as WebGLCommandUniformMap;
         let scene3DUniforms: NameAndType[] = [];
         let cameraUniforms: NameAndType[] = [];
         let sprite3DUniforms: NameAndType[] = [];
@@ -148,6 +149,10 @@ export class WebGPUCodeGenerator {
                     sprite3DUniforms.push({ name, type, set: 2 });
             }
             else if (trailRenderUniformMap.hasPtrID(id)) {
+                if (!_have(sprite3DUniforms, name))
+                    sprite3DUniforms.push({ name, type, set: 2 });
+            }
+            else if (skyRendererUniformMap.hasPtrID(id)) {
                 if (!_have(sprite3DUniforms, name))
                     sprite3DUniforms.push({ name, type, set: 2 });
             }
@@ -582,6 +587,9 @@ mat4 inverse(mat4 m)
     static shaderLanguageProcess(defineString: string[],
         attributeMap: { [name: string]: [number, ShaderDataType] },
         uniformMap: UniformMapType, VS: ShaderNode, FS: ShaderNode) {
+
+        if (defineString.indexOf('UPDOWN_NDC_Y') === -1)
+            defineString.push('UPDOWN_NDC_Y');
 
         const arrayMap: NameNumberMap = {}; //uniform中的数组
         const varyingMap: NameStringMap = {};

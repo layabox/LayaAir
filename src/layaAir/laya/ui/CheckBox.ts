@@ -94,6 +94,7 @@ export class CheckBox extends Button {
     }
 
     /**
+     * @internal
      * @inheritDoc 
      * @override
      */
@@ -104,6 +105,7 @@ export class CheckBox extends Button {
     }
 
     /**
+     * @internal
      * @inheritDoc 
      * @override
      */

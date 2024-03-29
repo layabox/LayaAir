@@ -616,12 +616,12 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
                         shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.COLOROVERLIFEGRADIENTCOLORS, rgbElements);
                         let ranges = gradientColor._keyRanges;
                         ranges.setValue(1, 0, 1, 0);
-                        for (let index = 0, n = Math.min(2, gradientColor.colorRGBKeysCount); index < n; index++) {
+                        for (let index = 0, n = Math.max(2, gradientColor.colorRGBKeysCount); index < n; index++) {
                             let colorKey = rgbElements[index * 4];
                             ranges.x = Math.min(ranges.x, colorKey);
                             ranges.y = Math.max(ranges.y, colorKey);
                         }
-                        for (let index = 0, n = Math.min(2, gradientColor.colorAlphaKeysCount); index < n; index++) {
+                        for (let index = 0, n = Math.max(2, gradientColor.colorAlphaKeysCount); index < n; index++) {
                             let alphaKey = alphaElements[index * 2];
                             ranges.z = Math.min(ranges.z, alphaKey);
                             ranges.w = Math.max(ranges.w, alphaKey);

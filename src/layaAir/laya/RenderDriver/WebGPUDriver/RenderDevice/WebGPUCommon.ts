@@ -31,3 +31,7 @@ export type TypedArrayConstructor =
 export function roundUp(n: number, align: number) {
     return (((n + align - 1) / align) | 0) * align;
 }
+
+// TODO: fix better?
+export const isTypedArray = (arr: any) =>
+    arr && typeof arr.length === 'number' && arr.buffer instanceof ArrayBuffer && typeof arr.byteLength === 'number';

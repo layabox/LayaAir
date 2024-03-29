@@ -1,19 +1,20 @@
 import { ILaya } from "../../ILaya";
 import { VertexDeclaration } from "../RenderEngine/VertexDeclaration";
 import { Sprite } from "../display/Sprite";
-import { resultForCacheAsNormal } from "../display/css/CacheStyle";
+import { SpriteConst } from "../display/SpriteConst";
 import { Matrix } from "../maths/Matrix";
 import { Matrix4x4 } from "../maths/Matrix4x4";
+import { Rectangle } from "../maths/Rectangle";
 import { Vector2 } from "../maths/Vector2";
 import { Stat } from "../utils/Stat";
-import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
 import { Value2D } from "../webgl/shader/d2/value/Value2D";
 import { TextTexture } from "../webgl/text/TextTexture";
 import { Context } from "./Context";
 import { DefferTouchResContext } from "./DefferTouchResContext";
-import { IMesh2D } from "./Render2D";
+import { IMesh2D, Render2D } from "./Render2D";
 import { RenderSprite } from "./RenderSprite";
 import { RenderToCache } from "./RenderToCache";
+import { IAutoExpiringResource } from "./ResNeedTouch";
 
 export class RenderObject2D implements IMesh2D{
     vboff: number;
@@ -39,13 +40,203 @@ export class RenderObject2D implements IMesh2D{
     }
 }
 
+//sprite中保存自己相对于所在page的一些相对信息。对于根page来说，就是世界位置
+//只有需要挂其他cacheas noraml的对象才有这个结构
+export class SpriteInfoInPage{
+    page:CachePage=null;
+    x=0;y=0;                //这个sprite相对page的位置。
+    rot=0;
+    scalex=1;scaley=1;
+    alpha=1;                //alpha要继承，所以也要记录
+    clip:Rectangle=null;    //clip也要继承
+}
+
+export class Cache_Info{
+    //世界信息
+    wMat=new Matrix();
+    wAlpha:number;
+    //相对所在page的信息
+    page:CachePage;
+    mat:Matrix;
+    alpha:number;
+}
+
+class RenderPageContex{
+    //简化的context，只是
+    curMatrix:Matrix;
+    alpha=1;
+    render2d:Render2D;
+    width=0;    //TODO这个不应该在这里
+    height=0;
+    clipInfo: Matrix;
+    /**
+     * 这里的xy就是渲染的xy，需要这个参数是为了正确计算当前矩阵
+     * @param ctx 
+     * @param x 
+     * @param y 
+     */
+    constructor(ctx:Context,x:number,y:number){
+        let mat = this.curMatrix = ctx._curMat.clone();
+        mat.tx+=mat.a*x+mat.c*y;
+        mat.ty+=mat.b*x+mat.d*y;
+        this.alpha=ctx.globalAlpha;
+        this.render2d = ctx.render2D;
+        this.width=ctx.width;
+        this.height=ctx.height;
+        this.clipInfo = ctx._globalClipMatrix.clone();
+    }
+    _copyClipInfo(shaderValue: Value2D): void {
+        let clipInfo = this.clipInfo;
+        var cm = shaderValue.clipMatDir;
+        cm.x = clipInfo.a; cm.y = clipInfo.b; cm.z = clipInfo.c; cm.w = clipInfo.d;
+        shaderValue.clipMatDir = cm;
+        var cmp = shaderValue.clipMatPos;
+        cmp.x = clipInfo.tx; cmp.y = clipInfo.ty;
+        shaderValue.clipMatPos = cmp;
+    }    
+}
+
+//page是在渲染的过程中动态创建的
+export class CachePage{
+    sprite:Sprite=null;     //这个page对应的根sprite，具体挂点信息从parent节点的SpriteInfoInPage中找
+    meshes:RenderObject2D[]=null;
+    defferTouchRes:IAutoExpiringResource[]=null;
+    defferTouchResRand:IAutoExpiringResource[]=null;
+    
+    //挂载其他cacheas normal的sprite。实际的缓存数据保存在sprite身上，这里保存sprite比较方便。
+    children:Sprite[]=null;
+
+    //与父的相对关系
+    //位置
+    //clip是全局的
+    //alpha是相对的
+    //相对clip,渲染的时候要与父的相交
+    //clipRect:Rectangle;
+
+    /**
+     * 从节点构造。构造的过程其实就是渲染每个小节点组成mesh的过程
+     * sp的父节点一定在指定的parentPage中
+     * @param parentPage 如果sp是第一层cache，则这个应该是context对应的根page
+     * @param sp 
+     */
+    constructFromSprite(parentPage:CachePage, sprite:Sprite){
+        //把sp加到
+
+
+    }
+
+    /**
+     * 根据sprite的相对矩阵（相对于parent）画出缓存的mesh
+     * 为了位置能正确，需要context中提供的矩阵是sprite的parent的世界矩阵
+     * @param sprite 
+     * @param context 
+     * @param isRoot  如果为true的话，则可以直接使用当前矩阵
+     */
+    render(sprite:Sprite,context:RenderPageContex,isRoot:boolean){
+        let spriteTrans = sprite.transform;
+        let curMat = context.curMatrix;
+        if(isRoot){
+            curMat.copyTo(worldMat);
+        }else{
+            if(spriteTrans){
+                //如果sprite有旋转，则用矩阵乘法，否则用简单的偏移
+                Matrix.mul(spriteTrans,curMat,worldMat);
+            }else{
+                let x = sprite._x;
+                let y = sprite._y;
+                worldMat.a=curMat.a; worldMat.b=curMat.b;
+                worldMat.c=curMat.c; worldMat.d=curMat.d;
+                worldMat.tx=curMat.a*x+curMat.c*y+curMat.tx; 
+                worldMat.ty=curMat.b*x+curMat.d*y+curMat.ty;
+            }
+        }
+
+        vec21.setValue(context.width, context.height);
+        //世界矩阵
+        let wMat4 = new Matrix4x4();
+        let mate = wMat4.elements;//worldMat4.elements;
+        mate[0]=worldMat.a; mate[1]=worldMat.b;
+        mate[4]=worldMat.c; mate[5]=worldMat.d;
+        mate[12]=worldMat.tx;  mate[13]=worldMat.ty;
+
+        this.meshes.forEach(renderinfo=>{
+            let render = context.render2d;
+            let curMtl = renderinfo.mtl;
+            if(curMtl.textureHost instanceof TextTexture){
+                curMtl.textureHost.touchTexture();
+            }
+            //通过context的裁剪，透明，矩阵等参数修改当前材质
+            //TODO
+            curMtl.size=vec21;
+            context._copyClipInfo(curMtl);
+            curMtl.mmat = wMat4;
+            render.draw(renderinfo,renderinfo.vboff,renderinfo.vblen, renderinfo.iboff, renderinfo.iblen, curMtl);
+        })
+
+        //touch资源
+        this.defferTouchRes.forEach(res=>{res.touch();});
+        //TODO 随机touch
+        this.defferTouchResRand.forEach(res=>res.touch());
+
+        //渲染子
+        this.children && this.children.forEach(sp=>{
+            //根据sp更新shader数据，例如偏移等
+            //TODO 先把contex矩阵转到parent那一层
+            let offmat = (sp.parent as Sprite)._cacheStyle.cacheInfo.mat;
+            let oldmat = context.curMatrix.clone();
+            //原点设置为父节点的世界坐标
+            Matrix.mul(offmat,oldmat,context.curMatrix);
+            context.curMatrix.copyTo((sp.parent as Sprite)._cacheStyle.cacheInfo.wMat);//TODO需要么
+            sp._cacheStyle.cacheAsNormal.render(sp,context,false);
+            //TODO 恢复矩阵
+            context.curMatrix = oldmat;
+        });
+    }
+}
+
 
 var vec21 = new Vector2();
 /**
  * 把渲染结果保存成mesh和材质
  */
 export class SpriteCache{
-    renderCacheAsNormal(context:Context,sprite:Sprite,next:RenderSprite,x:number,y:number){
+    static createRootCachePage(){
+        //context对应的page，其他的都是他的子
+    }
+
+    /**
+     * 已知sprite和当前世界矩阵curMat, 把sprite的偏移减掉，就是得到parent的世界矩阵
+     * @param sprite 
+     * @param curMat 当前的矩阵，这是增加了sprite自身的偏移后的矩阵
+     * @param outMat 把curMat去掉sprite自身的偏移得到的结果
+     */
+    static curMatSubSpriteMat(sprite:Sprite, curMat:Matrix, outMat:Matrix){
+        curMat.copyTo(outMat);
+        if(!sprite.parent){
+            return outMat;
+        }
+
+        //自己相对于parent的page的矩阵= 在curMat 下(x,y)偏移
+        //let curMat = context._curMat.clone();
+        //下面要把自己对矩阵的影响消掉，得到parent相对于page的矩阵
+        if(sprite._renderType&SpriteConst.TRANSFORM){
+            //有矩阵
+            sprite.transform.copyTo(invMat).invert();//注意要clone，否则会直接修改原始矩阵
+            Matrix.mul(invMat,outMat,outMat);
+        }else{
+            //只有平移。把自己的相对位置减回去即可
+            //let cx = x-sprite._x;
+            //let cy = y-sprite._y;
+            let cx = -sprite._x;
+            let cy = -sprite._y;
+            //cx，cy是在curMat下的偏移，所以加上
+            outMat.tx += (outMat.a*cx+outMat.c*cy);
+            outMat.ty += (outMat.b*cx+outMat.d*cy);
+        }
+        return outMat;
+    }
+
+    static renderCacheAsNormal(context:Context|DefferTouchResContext,sprite:Sprite,next:RenderSprite,x:number,y:number){
         let rebuild=false;
         var cacheResult = sprite._cacheStyle.cacheAsNormal;
         if (!cacheResult || sprite._needRepaint() || ILaya.stage.isGlobalRepaint()) {
@@ -56,9 +247,39 @@ export class SpriteCache{
             //    return rebuild;
             rebuild=true;
 
-            cacheResult = sprite._cacheStyle.cacheAsNormal = new resultForCacheAsNormal();
+            // 如果已经是在构造缓存的过程中了，这表示cacheas normal又包含cacheas normal，则
+            if(context instanceof DefferTouchResContext){
+                let parentPage = context.cache;
+                // 把自己加到缓存的children中
+                if(!parentPage.children){
+                    parentPage.children=[sprite];
+                }else if(parentPage.children.indexOf(sprite)<0){
+                    parentPage.children.push(sprite);
+                }
+                //记录incache可以通过sprite找到父cache
+                let parentNode = sprite.parent as Sprite
+                parentNode._cacheStyle.cacheInfo.page = parentPage;
+                //这里稍微麻烦一些，需要计算parent的相对于所在page的矩阵
+                //自己相对于parent的page的矩阵= 在curMat 下(x,y)偏移
+                let curMat = context._curMat.clone();
+                if(x!=0||y!=0){
+                    //需要把xy加进去
+                    curMat.tx+=x*curMat.a+y*curMat.c;
+                    curMat.ty+=x*curMat.b+y*curMat.d;
+                }
+                //记录parent的相对所在page的矩阵
+                parentNode._cacheStyle.cacheInfo.mat = SpriteCache.curMatSubSpriteMat(sprite,curMat,curMat);
+                //parentNode._cacheStyle.cacheInfo.mat = curMat;
+                //计算parent的透明度
+                //记录parent的透明度
+                // 更新记录parent节点的cache信息
+                //if(parentNode._cacheStyle.c)
+            }
+
+            cacheResult = sprite._cacheStyle.cacheAsNormal = new CachePage();
             Stat.canvasNormal++;
             let ctx = new DefferTouchResContext();
+            ctx.cache = cacheResult;
             let renderer = new RenderToCache();
             ctx.render2D= renderer;
             ctx.startRender();
@@ -75,46 +296,31 @@ export class SpriteCache{
             cacheResult.defferTouchResRand = ctx.randomTouchRes;
         }
 
-        //
-        let spriteTrans = sprite.transform;
-        let curMat = context._curMat;
-        if(spriteTrans){
-            Matrix.mul(spriteTrans,curMat,worldMat);
-        }else{
-            worldMat.a=curMat.a; worldMat.b=curMat.b;
-            worldMat.c=curMat.c; worldMat.d=curMat.d;
-            worldMat.tx=curMat.a*x+curMat.c*y+curMat.tx; 
-            worldMat.ty=curMat.b*x+curMat.d*y+curMat.ty;
+        if(!(context instanceof DefferTouchResContext)){
+            //根cache则开始渲染
+            /**
+                对于第一个page，直接使用自己的世界坐标渲染就行
+                    parent的page的世界坐标是I
+                对于子
+                    （parent的page的世界坐标 * parent的相对page的坐标） 这是自己的原点，
+                        然后加上自己的相对坐标
+
+                ctx.toSpriteParen
+                    先更新parent的相关信息
+                    如果
+                render(sprite,ctx)
+                render(sprite)
+
+             */
+            let ctx = new RenderPageContex(context,x,y);
+            // 此时的ctx.curMatrix是sprite节点所在的世界矩阵
+            //先给ctx计算正确的矩阵，即sprite的parent的世界矩阵，直接修改结果到ctx.curMatrix
+            //SpriteCache.curMatSubSpriteMat(sprite,ctx.curMatrix, ctx.curMatrix);
+            cacheResult.render(sprite,ctx,true);
         }
-
-        cacheResult.meshes.forEach(renderinfo=>{
-            let render = context.render2D;
-            let curMtl = renderinfo.mtl;
-            if(curMtl.textureHost instanceof TextTexture){
-                curMtl.textureHost.touchTexture();
-            }
-            //通过context的裁剪，透明，矩阵等参数修改当前材质
-            //TODO
-            vec21.setValue(context.width, context.height);
-            curMtl.size=vec21;
-            context._copyClipInfo(curMtl,context._globalClipMatrix);
-            //世界矩阵
-            let mate = worldMat4.elements;
-            mate[0]=worldMat.a; mate[1]=worldMat.b;
-            mate[4]=worldMat.c; mate[5]=worldMat.d;
-            mate[12]=worldMat.tx;  mate[13]=worldMat.ty;
-            curMtl.mmat = worldMat4;
-            render.draw(renderinfo,renderinfo.vboff,renderinfo.vblen, renderinfo.iboff, renderinfo.iblen, curMtl);
-        })
-
-        //touch资源
-        cacheResult.defferTouchRes.forEach(res=>{res.touch();});
-        //TODO 随机touch
-        cacheResult.defferTouchResRand.forEach(res=>res.touch());
         return rebuild;
     }
-
 }
 
 var worldMat = new Matrix;
-var worldMat4 = new Matrix4x4;
+var invMat = new Matrix;

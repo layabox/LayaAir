@@ -109,7 +109,6 @@ export class CommandBuffer {
 	setShaderDataTexture(shaderData: ShaderData, nameID: number, source: BaseTexture): void {
 		let cmd = SetShaderDataCMD.create(shaderData, nameID, source, ShaderDataType.Texture2D, this);
 		this._commands.push(cmd);
-		this._commands.push(cmd);
 		cmd.getRenderCMD && this._renderCMDs.push(cmd.getRenderCMD());
 
 	}
@@ -374,8 +373,8 @@ export class CommandBuffer {
 	 * @param material 材质
 	 * @param subShaderIndex 子shader索引 一般为0
 	 */
-	drawRender(render: BaseRender, material: Material): void {
-		let cmd = DrawRenderCMD.create(render, material, this);
+	drawRender(render: BaseRender, material: Material, subMeshIndex: number = 0): void {
+		let cmd = DrawRenderCMD.create(render, material, subMeshIndex, this);
 		this._commands.push(cmd);
 		cmd.getRenderCMD && this._renderCMDs.push(cmd.getRenderCMD());
 	}

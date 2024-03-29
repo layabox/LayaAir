@@ -52,8 +52,8 @@ export class GlassWithoutGrabMaterial extends Material {
         super();
         this.setShaderName("GlassShader");
         this.renderModeSet();
-        this._shaderValues.setVector(GlassWithoutGrabMaterial.TILINGOFFSET, new Vector4(1, 1, 0, 0));
-        this._shaderValues.setTexture(GlassWithoutGrabMaterial.TINTTEXTURE, texture);
+        this.shaderData.setVector(GlassWithoutGrabMaterial.TILINGOFFSET, new Vector4(1, 1, 0, 0));
+        this.shaderData.setTexture(GlassWithoutGrabMaterial.TINTTEXTURE, texture);
     }
 
     /**

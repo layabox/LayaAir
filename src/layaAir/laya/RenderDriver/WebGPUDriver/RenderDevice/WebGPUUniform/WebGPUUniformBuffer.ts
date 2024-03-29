@@ -8,6 +8,7 @@ import { WebGPUBufferBlock } from "./WebGPUBufferBlock";
 import { WebGPUBufferManager } from "./WebGPUBufferManager";
 import { WebGPUGlobal } from "../WebGPUStatis/WebGPUGlobal";
 import { TypedArray, TypedArrayConstructor, roundUp } from "../WebGPUCommon";
+import { WebGPUBufferAlone } from "./WebGPUBufferAlone";
 
 type ItemType = {
     name: string, //名称
@@ -21,14 +22,15 @@ type ItemType = {
 
 export class WebGPUUniformBuffer {
     name: string;
-    strID: string;
+    strId: string;
     items: Map<number, ItemType>;
     itemNum: number;
     needUpload: boolean;
 
     set: number;
     binding: number;
-    block: WebGPUBufferBlock;
+    bufferBlock: WebGPUBufferBlock;
+    bufferAlone: WebGPUBufferAlone;
     gpuBuffer: WebGPUBufferManager;
     user: WebGPUShaderData;
 
@@ -40,24 +42,36 @@ export class WebGPUUniformBuffer {
 
     constructor(name: string, set: number, binding: number, size: number, gpuBuffer: WebGPUBufferManager, user: WebGPUShaderData) {
         this.name = name + (user.isStatic ? '_static' : '');
-        this.strID = '';
+        this.strId = '';
         this.items = new Map();
         this.itemNum = 0;
         this.needUpload = false;
 
         this.set = set;
         this.binding = binding;
-        this.block = gpuBuffer.getBlock(this.name, size, this);
-
-        this._gpuBuffer = gpuBuffer.getBuffer(this.name);
-        this._gpuBindGroupEntry = {
-            binding,
-            resource: {
-                buffer: this._gpuBuffer,
-                offset: this.block.offset,
-                size,
-            },
-        };
+        if (WebGPUGlobal.useBigBuffer) {
+            this.bufferBlock = gpuBuffer.getBlock(this.name, size, this);
+            this._gpuBuffer = gpuBuffer.getBuffer(this.name);
+            this._gpuBindGroupEntry = {
+                binding,
+                resource: {
+                    buffer: this._gpuBuffer,
+                    offset: this.bufferBlock.offset,
+                    size,
+                },
+            };
+        } else {
+            this.bufferAlone = new WebGPUBufferAlone(gpuBuffer.getBufferAlone(size), size);
+            this._gpuBuffer = this.bufferAlone.buffer;
+            this._gpuBindGroupEntry = {
+                binding,
+                resource: {
+                    buffer: this._gpuBuffer,
+                    offset: 0,
+                    size,
+                },
+            };
+        }
 
         this.user = user;
         this.gpuBuffer = gpuBuffer;
@@ -73,21 +87,17 @@ export class WebGPUUniformBuffer {
             binding: this.binding,
             resource: {
                 buffer: this._gpuBuffer,
-                offset: this.block.offset,
-                size: this.block.size,
+                offset: this.bufferBlock.offset,
+                size: this.bufferBlock.size,
             },
         };
         this.needUpload = true;
-        this._updateItemView();
-        if (this.user)
-            this.user.clearBindGroup();
-    }
-
-    private _updateItemView() {
         this.items.forEach(item => {
             item.view = new (WebGPUUniformBuffer._typeArray(item.type))
-                (this.block.buffer.arrayBuffer, item.view.byteOffset, this._typeElements(item.type) * item.count);
+                (this.bufferBlock.buffer.data, item.view.byteOffset, this._typeElements(item.type) * item.count);
         });
+        if (this.user)
+            this.user.clearBindGroup();
     }
 
     /**
@@ -104,9 +114,9 @@ export class WebGPUUniformBuffer {
     addUniform(id: number, name: string, type: string, offset: number, align: number, size: number, elements: number, count: number) {
         if (this.items.has(id)) return; //该Uniform已经存在
         this.items.set(id, this._getUniformItem(name, WebGPUUniformBuffer._typeArray(type), type, offset, align, size, elements, count));
-        if (this.strID.length > 0)
-            this.strID += '|';
-        this.strID += id;
+        if (this.strId.length > 0)
+            this.strId += '|';
+        this.strId += id;
         this.itemNum++;
     }
 
@@ -476,11 +486,11 @@ export class WebGPUUniformBuffer {
     }
 
     /**
-     * 根据strID判断是否命中
-     * @param strID 
+     * 根据strId判断是否命中
+     * @param strId 
      */
-    isMe(strID: string) {
-        return this.strID === strID;
+    isMe(strId: string) {
+        return this.strId === strId;
     }
 
     /**
@@ -488,7 +498,9 @@ export class WebGPUUniformBuffer {
      */
     upload() {
         if (this.needUpload) {
-            this.block.needUpload();
+            if (WebGPUGlobal.useBigBuffer)
+                this.bufferBlock.needUpload();
+            else this.bufferAlone.upload();
             this.needUpload = false;
         }
     }
@@ -497,8 +509,10 @@ export class WebGPUUniformBuffer {
      * 清除所有uniform
      */
     clear() {
-        new Uint8Array(this.block.buffer.arrayBuffer).fill(0, this.block.offset, this.block.offset + this.block.size);
-        this.strID = '';
+        if (WebGPUGlobal.useBigBuffer)
+            new Uint8Array(this.bufferBlock.buffer.data).fill(0, this.bufferBlock.offset, this.bufferBlock.offset + this.bufferBlock.size);
+        else new Uint8Array(this.bufferAlone.data).fill(0);
+        this.strId = '';
         this.items.clear();
         this.itemNum = 0;
         this.needUpload = false;
@@ -506,7 +520,9 @@ export class WebGPUUniformBuffer {
 
     destroy() {
         WebGPUGlobal.releaseId(this);
-        this.gpuBuffer.freeBlock(this.name, this.block);
+        if (WebGPUGlobal.useBigBuffer)
+            this.gpuBuffer.freeBlock(this.name, this.bufferBlock);
+        else this.bufferAlone.destroy();
     }
 
     /**
@@ -528,7 +544,10 @@ export class WebGPUUniformBuffer {
      * @param count 
      */
     private _getUniformItem(name: string, tac: TypedArrayConstructor, type: string, offset: number, align: number, size: number, elements: number, count: number) {
-        const view = new tac(this.block.buffer.arrayBuffer, this.block.offset + offset, this._typeElements(type) * count);
+        let view: TypedArray;
+        if (WebGPUGlobal.useBigBuffer)
+            view = new tac(this.bufferBlock.buffer.data, this.bufferBlock.offset + offset, this._typeElements(type) * count);
+        else view = new tac(this.bufferAlone.data, offset, this._typeElements(type) * count);
         return { name, view, type, align, size, elements, count };
     }
 
@@ -588,9 +607,7 @@ export class WebGPUUniformBuffer {
                     return 'Float32Array';
                 return 'Unknown';
             }
-            console.log("arrayBuffer");
-            console.log("byteLength =", this.block.size);
-            console.log("strID =", this.strID);
+            console.log("strId =", this.strId);
             this.items.forEach((item, key) => {
                 console.log("key: %d, type: %s, view: %s, offset: %d, size: %d, padding: %d, elements: %d, count: %d",
                     key, item.type, typeName(item.view), item.view.byteOffset, item.view.byteLength,

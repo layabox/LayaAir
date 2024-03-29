@@ -9,10 +9,14 @@ import { Vector3 } from "../../maths/Vector3";
 export class BoundSphere implements IClone {
 	private static _tempVector3: Vector3 = new Vector3();
 
-	/**包围球的中心。*/
+	/** @internal 包围球的中心。*/
 	_center: Vector3;
-	/**包围球的半径。*/
+	/** @internal 包围球的半径。*/
 	_radius: number;
+
+	/**
+	* 中心
+	*/
 	set center(value: Vector3) {
 		value.cloneTo(this._center);
 	}
@@ -21,6 +25,9 @@ export class BoundSphere implements IClone {
 		return this._center;
 	}
 
+	/**
+	* 半径
+	*/
 	set radius(value: number) {
 		this._radius = value;
 	}
@@ -28,6 +35,7 @@ export class BoundSphere implements IClone {
 	get radius(): number {
 		return this._radius
 	}
+
 	/**
 	 * 创建一个 <code>BoundSphere</code> 实例。
 	 * @param	center 包围球的中心。
@@ -38,6 +46,9 @@ export class BoundSphere implements IClone {
 		this._radius = radius;
 	}
 
+	/**
+	 * default
+	 */
 	toDefault(): void {
 		this._center.toDefault();
 		this._radius = 0;

@@ -112,57 +112,12 @@ import { URL } from "../net/URL";
  * }
  */
 export class TextInput extends Label {
-    /** @private */
+    /** @internal */
     protected _skin: string;
-
+    /** @internal */
     declare _graphics: AutoBitmap;
+    /** @internal */
     declare _tf: Input;
-
-    /**
-     * 创建一个新的 <code>TextInput</code> 类实例。
-     * @param text 文本内容。
-     */
-    constructor(text?: string) {
-        super();
-        if (text != null)
-            this.text = text;
-        this.skin = this.skin;
-    }
-
-    /**
-     * @inheritDoc 
-     * @override
-    */
-    protected preinitialize(): void {
-        this.mouseEnabled = true;
-    }
-
-    /**
-     * @inheritDoc
-     * @override 
-    */
-    protected createChildren(): void {
-        this.setGraphics(new AutoBitmap(), true);
-
-        this._tf = new Input();
-        this._tf.hideFlags = HideFlags.HideAndDontSave;
-        this._tf.padding = Styles.inputLabelPadding;
-        this._tf._onPostLayout = () => this._onPostLayout();
-        this._tf.on(Event.INPUT, () => this.event(Event.INPUT));
-        this._tf.on(Event.ENTER, () => this.event(Event.ENTER));
-        this._tf.on(Event.BLUR, () => this.event(Event.BLUR));
-        this._tf.on(Event.FOCUS, () => this.event(Event.FOCUS));
-        this.addChild(this._tf);
-    }
-
-    /**
-     * @inheritDoc 
-     * @override
-    */
-    protected initialize(): void {
-        this.width = 128;
-        this.height = 22;
-    }
 
     /**
      * @copy laya.ui.Image#skin
@@ -180,31 +135,6 @@ export class TextInput extends Label {
         this._setSkin(value);
     }
 
-    _setSkin(url: string): Promise<void> {
-        this._skin = url;
-        if (url) {
-            if (this._skinBaseUrl)
-                url = URL.formatURL(url, this._skinBaseUrl);
-            let source = Loader.getRes(url);
-            if (source) {
-                this._skinLoaded(source);
-                return Promise.resolve();
-            }
-            else
-                return ILaya.loader.load(url, Loader.IMAGE).then(tex => this._skinLoaded(tex));
-        }
-        else {
-            this._skinLoaded(null);
-            return Promise.resolve();
-        }
-    }
-
-    protected _skinLoaded(source: any): void {
-        this._graphics.source = source;
-        this._sizeChanged();
-        this.event(Event.LOADED);
-    }
-
     /**
      * <p>当前实例的背景图（ <code>AutoBitmap</code> ）实例的有效缩放网格数据。</p>
      * <p>数据格式："上边距,右边距,下边距,左边距,是否重复填充(值为0：不重复填充，1：重复填充)"，以逗号分隔。
@@ -219,24 +149,6 @@ export class TextInput extends Label {
             this._graphics.sizeGrid = UIUtils.fillArray(Styles.defaultSizeGrid, value, Number);
         else
             this._graphics.sizeGrid = null;
-    }
-
-    /**
-     * @inheritDoc 
-     * @override
-     */
-    _setWidth(value: number) {
-        super._setWidth(value);
-        this._graphics && (this._graphics.width = value);
-    }
-
-    /**
-     * @inheritDoc 
-     * @override
-     */
-    _setHeight(value: number) {
-        super._setHeight(value);
-        this._graphics && (this._graphics.height = value);
     }
 
     /**
@@ -260,11 +172,6 @@ export class TextInput extends Label {
 
     get editable(): boolean {
         return this._tf.editable;
-    }
-
-    /**选中输入框内的文本。*/
-    select(): void {
-        this._tf.select();
     }
 
     /**限制输入的字符。*/
@@ -329,6 +236,107 @@ export class TextInput extends Label {
 
     set type(value: string) {
         this._tf.type = value;
+    }
+
+    /**
+     * 创建一个新的 <code>TextInput</code> 类实例。
+     * @param text 文本内容。
+     */
+    constructor(text?: string) {
+        super();
+        if (text != null)
+            this.text = text;
+        this.skin = this.skin;
+    }
+
+    /** @internal */
+    _setSkin(url: string): Promise<void> {
+        this._skin = url;
+        if (url) {
+            if (this._skinBaseUrl)
+                url = URL.formatURL(url, this._skinBaseUrl);
+            let source = Loader.getRes(url);
+            if (source) {
+                this._skinLoaded(source);
+                return Promise.resolve();
+            }
+            else
+                return ILaya.loader.load(url, Loader.IMAGE).then(tex => this._skinLoaded(tex));
+        }
+        else {
+            this._skinLoaded(null);
+            return Promise.resolve();
+        }
+    }
+
+    /**@internal */
+    protected _skinLoaded(source: any): void {
+        this._graphics.source = source;
+        this._sizeChanged();
+        this.event(Event.LOADED);
+    }
+
+    /**
+     * @internal
+     * @inheritDoc 
+     * @override
+     */
+    _setWidth(value: number) {
+        super._setWidth(value);
+        this._graphics && (this._graphics.width = value);
+    }
+
+    /**
+     * @internal
+     * @inheritDoc 
+     * @override
+     */
+    _setHeight(value: number) {
+        super._setHeight(value);
+        this._graphics && (this._graphics.height = value);
+    }
+
+    /**
+     * @internal
+     * @inheritDoc 
+     * @override
+    */
+    protected preinitialize(): void {
+        this.mouseEnabled = true;
+    }
+
+    /**
+     * @internal
+     * @inheritDoc
+     * @override 
+    */
+    protected createChildren(): void {
+        this.setGraphics(new AutoBitmap(), true);
+
+        this._tf = new Input();
+        this._tf.hideFlags = HideFlags.HideAndDontSave;
+        this._tf.padding = Styles.inputLabelPadding;
+        this._tf._onPostLayout = () => this._onPostLayout();
+        this._tf.on(Event.INPUT, () => this.event(Event.INPUT));
+        this._tf.on(Event.ENTER, () => this.event(Event.ENTER));
+        this._tf.on(Event.BLUR, () => this.event(Event.BLUR));
+        this._tf.on(Event.FOCUS, () => this.event(Event.FOCUS));
+        this.addChild(this._tf);
+    }
+
+    /**
+     * @internal
+     * @inheritDoc 
+     * @override
+    */
+    protected initialize(): void {
+        this.width = 128;
+        this.height = 22;
+    }
+
+    /**选中输入框内的文本。*/
+    select(): void {
+        this._tf.select();
     }
 
     setSelection(startIndex: number, endIndex: number): void {

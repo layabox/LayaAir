@@ -201,6 +201,11 @@ export class LODGroup extends Component {
         this._lodPosition = new Vector3();
         this.runInEditor = true;
     }
+
+    /**
+     * 阴影裁剪pass
+     * @returns 
+     */
     shadowCullPass(): boolean {
         return false;
     }
@@ -228,6 +233,9 @@ export class LODGroup extends Component {
         this._lodCount = this._lods.length;
     }
 
+    /**
+     * lod节点比例
+     */
     get nowRate() {
         return this._nowRate;
     }

@@ -128,24 +128,12 @@ export class btPhysicsManager implements IPhysicsManager {
     /** @internal */
     private static _btTempVector31: number;
     /** @internal */
-    private static _btTempQuaternion0: number;
-    /** @internal */
-    private static _btTempQuaternion1: number;
-    /** @internal */
-    private static _btTempTransform0: number;
-    /** @internal */
-    private static _btTempTransform1: number;
-    /** @internal */
     private static _tempVector30: Vector3;
 
     static init(): void {
         let bt = btPhysicsCreateUtil._bt;
         btPhysicsManager._btTempVector30 = bt.btVector3_create(0, 0, 0);
         btPhysicsManager._btTempVector31 = bt.btVector3_create(0, 0, 0);
-        btPhysicsManager._btTempQuaternion0 = bt.btQuaternion_create(0, 0, 0, 1);
-        btPhysicsManager._btTempQuaternion1 = bt.btQuaternion_create(0, 0, 0, 1);
-        btPhysicsManager._btTempTransform0 = bt.btTransform_create();
-        btPhysicsManager._btTempTransform1 = bt.btTransform_create();
         btPhysicsManager._tempVector30 = new Vector3();
     }
 
@@ -161,6 +149,12 @@ export class btPhysicsManager implements IPhysicsManager {
     public maxSubSteps = 1;
     /**物理模拟器帧的间隔时间:通过减少fixedTimeStep可增加模拟精度，默认是1.0 / 60.0。*/
     public fixedTimeStep = 1.0 / 60.0;
+    /**是否开启连续碰撞检测 */
+    public enableCCD: boolean = false;
+    /**连续碰撞检测阈值 */
+    public ccdThreshold: number = 0.0001;
+    /**连续碰撞检测球半径 */
+    public ccdSphereRadius: number = 0.0001;
     /**delta */
     public dt = 1 / 60;
     /**@internal */
@@ -226,6 +220,9 @@ export class btPhysicsManager implements IPhysicsManager {
         //Physcics World create
         this.maxSubSteps = physicsSettings.maxSubSteps;
         this.fixedTimeStep = physicsSettings.fixedTimeStep;
+        this.enableCCD = physicsSettings.enableCCD;
+        this.ccdThreshold = physicsSettings.ccdThreshold;
+        this.ccdSphereRadius = physicsSettings.ccdSphereRadius;
 
         this._btCollisionConfiguration = bt.btDefaultCollisionConfiguration_create();
         this._btDispatcher = bt.btCollisionDispatcher_create(this._btCollisionConfiguration);
@@ -308,11 +305,12 @@ export class btPhysicsManager implements IPhysicsManager {
     /**
      * @internal
      */
-    private _updatePhysicsTransformFromRender(): void {
+     //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_Physics_UpdateNode)
+    private _updatePhysicsTransformToRender(): void {
         var elements: any = this._physicsUpdateList.elements;
         for (var i = 0, n = this._physicsUpdateList.length; i < n; i++) {
             var physicCollider: btCollider = elements[i];
-            physicCollider._derivePhysicsTransformation(false);
+            physicCollider._derivePhysicsTransformation(true);
             physicCollider.inPhysicUpdateListIndex = -1;//置空索引
         }
         this._physicsUpdateList.length = 0;//清空物理更新队列
@@ -411,36 +409,42 @@ export class btPhysicsManager implements IPhysicsManager {
             }
         }
 
-        // 角色的碰撞需要特殊处理一下。由于在角色流程中有可能已经解决了碰撞，导致发现不了碰撞，所以特殊处理
-        for (var i = 0, n = this._characters.length; i < n; i++) {
-            var character = this._characters[i];
-
-            //取出所有碰撞对象
-            character.getOverlappingObj(body => {
-                // 如果body也是角色则忽略，因为每个角色都会遍历到
-                if (body instanceof btCharacterCollider) return;
-                let compa = character;
-                let compb = body;
-                if (character._id > body._id) {
-                    compa = body as any;
-                    compb = character as any;
+        // 角色的碰撞需要特殊处理一下。由于在角色流程中有可能已经解决了碰撞，导致发现不了碰撞，所以特殊处理,不使用AABB检测碰撞了
+        let _characters = this._characters;
+        for (let i = 0, n = _characters.length; i < n; i++) {
+            let character = _characters[i];
+            let btkc = character._btKinematicCharacter;
+            let collisionObjs = bt.btKinematicCharacterController_AllHitInfo_get_m_collisionObjects(btkc);
+            let count = bt.tBtCollisionObjectArray_size(collisionObjs) as number;
+            if (count > 0) {
+                for (let j = 0; j < count; j++) {
+                    let colobj = bt.tBtCollisionObjectArray_at(collisionObjs, j);
+                    if (colobj == 0) continue;
+                    let collider = btCollider._physicObjectsMap[bt.btCollisionObject_getUserIndex(colobj)];
+                    if (!collider) continue;
+                    let compa = character;
+                    let compb = collider;
+                    if (character._id > collider._id) {
+                        compa = collider as any;
+                        compb = character as any;
+                    }
+                    let collision = this._collisionsUtils.getCollision(compa, compb);
+                    // a和b已经有碰撞了，则忽略
+                    if (collision._updateFrame === loopCount) return;
+                    let contacts = collision.contacts;
+                    contacts.length = 1;	// 反正是假的，只记录一个假的碰撞点
+                    collision._setUpdateFrame(loopCount);
+                    // 添加假的碰撞点
+                    var contactPoint = this._collisionsUtils.getContactPoints();
+                    contactPoint._colliderA = compa;
+                    contactPoint._colliderB = compb;
+                    contactPoint.distance = 0;
+                    contacts[0] = contactPoint;
+                    let isTrigger = compa._isTrigger || compb._isTrigger;
+                    collision._isTrigger = isTrigger;
+                    this._currentFrameCollisions.push(collision);
                 }
-                let collision = this._collisionsUtils.getCollision(compa, compb);
-                // a和b已经有碰撞了，则忽略
-                if (collision._updateFrame === loopCount) return;
-                let contacts = collision.contacts;
-                contacts.length = 1;	// 反正是假的，只记录一个假的碰撞点
-                collision._setUpdateFrame(loopCount);
-                // 添加假的碰撞点
-                var contactPoint = this._collisionsUtils.getContactPoints();
-                contactPoint._colliderA = compa;
-                contactPoint._colliderB = compb;
-                contactPoint.distance = 0;
-                contacts[0] = contactPoint;
-                let isTrigger = compa._isTrigger || compb._isTrigger;
-                collision._isTrigger = isTrigger;
-                this._currentFrameCollisions.push(collision);
-            });
+            }
         }
     }
 
@@ -448,6 +452,7 @@ export class btPhysicsManager implements IPhysicsManager {
      * 这个只是给对象发送事件，不会挨个组件调用碰撞函数
      * 组件要响应碰撞的话，要通过监听事件
      */
+    //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_PhysicsEvent)
     dispatchCollideEvent(): void {
         let loopCount = this._updateCount;
         for (let i = 0, n = this._currentFrameCollisions.length; i < n; i++) {
@@ -627,9 +632,9 @@ export class btPhysicsManager implements IPhysicsManager {
         this._bt.btCollisionWorld_removeConstraint(this._btDiscreteDynamicsWorld, joint._btJoint);
         delete this._currentConstraint[joint._id];
     }
-
+ //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_Physics_Simulation)
     update(elapsedTime: number): void {
-        this._updatePhysicsTransformFromRender();
+        this._updatePhysicsTransformToRender();
         btCollider._addUpdateList = false;//物理模拟器会触发_updateTransformComponent函数,不加入更新队列
         //simulate physics
         this._simulate(elapsedTime);

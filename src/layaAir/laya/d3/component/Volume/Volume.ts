@@ -28,17 +28,17 @@ export class volumeIntersectInfo {
 export class Volume extends Component {
     /**@internal */
     protected _primitiveBounds: Bounds;
-    /** 包围盒 */
+    /** @internal @protected 包围盒 */
     protected _bounds: Bounds;
-    /**cache number of around Volume */
+    /**@internal @protected cache number of around Volume */
     protected _aroundVolumeCacheNum: number = 0;
-    /** around Volume */
+    /** @internal @protected around Volume */
     protected _aroundVolume: Volume[];
-    /** volume manager */
+    /** @internal @protected volume manager */
     protected _volumeManager: VolumeManager;
-    /** volume intersect Comonent */
+    /** @internal @protected volume intersect Comonent */
     protected _type: number;
-    /** 重要性 */
+    /** @internal @protected 重要性 */
     protected _importance: number;
 
     /**
@@ -90,10 +90,16 @@ export class Volume extends Component {
         return this._primitiveBounds.getMin();
     }
 
+    /**
+     * 探针位置
+     */
     get probePosition(): Vector3 {
         return (this.owner as Sprite3D).transform.position;
     }
 
+    /**
+     * 体积块探针重要度
+     */
     get importance() {
         return this._importance;
     }
@@ -103,6 +109,7 @@ export class Volume extends Component {
     }
 
     /**
+     * @internal
      * @inheritDoc
      * @override
      */
@@ -114,6 +121,7 @@ export class Volume extends Component {
     }
 
     /**
+     * @internal
      * @inheritDoc
      * @override
      */
@@ -123,18 +131,21 @@ export class Volume extends Component {
     }
 
     /**
+     * @internal
      * 当一个渲染节点进入体积
      * @param renderNode 
      */
     _addRenderNode?(renderNode: BaseRender): void;
 
     /**
+     * @internal
      * 当一个渲染节点移除体积
      * @param renderNode    
      */
     _removeRenderNode?(renderNode: BaseRender): void;
 
     /**
+     * @internal
      * 当一个渲染节点在体积中移动
      * @param renderNode 
      */
@@ -142,6 +153,7 @@ export class Volume extends Component {
 
 
     /**
+     * @internal
      * Volume change
      */
     _VolumeChange() {
@@ -153,6 +165,9 @@ export class Volume extends Component {
         this._reCaculateBoundBox();
     }
 
+    /**
+     * @internal
+     */
     _reCaculateBoundBox() {
         this.owner && this._primitiveBounds._tranform((this.owner as Sprite3D).transform.worldMatrix, this._bounds);
     }

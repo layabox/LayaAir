@@ -6,6 +6,7 @@ let testfile = window.location.search.substring(1);
 async function testf(){
     usewebgl();
     (window as any).Laya=Laya;
+    //@ts-ignore
     await import('./'+testfile);
 
 }

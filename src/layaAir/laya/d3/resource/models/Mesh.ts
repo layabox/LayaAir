@@ -134,6 +134,9 @@ export class Mesh extends Resource implements IClone {
     /** @internal */
     instanceLightMapScaleOffsetData: Float32Array;
 
+    /**
+     * 变形目标数据
+     */
     morphTargetData: MorphTargetData;
 
     /** @internal */
@@ -158,6 +161,7 @@ export class Mesh extends Resource implements IClone {
 
     /**
      * 获取索引个数。
+     * @returns 索引个数
      */
     get indexCount(): number {
         return this._indexBuffer.indexCount;
@@ -165,6 +169,7 @@ export class Mesh extends Resource implements IClone {
 
     /**
      * SubMesh的个数。
+     * @returns SubMesh的个数
      */
     get subMeshCount(): number {
         return this._subMeshes.length;
@@ -172,11 +177,16 @@ export class Mesh extends Resource implements IClone {
 
     /**
      * 边界。
+     * @returns 边界
      */
     get bounds(): Bounds {
         return this._bounds;
     }
 
+    /**
+     * 设置边界
+     * @param 边界
+     */
     set bounds(value: Bounds) {
         if (this._bounds !== value)
             value.cloneTo(this._bounds);
@@ -184,6 +194,7 @@ export class Mesh extends Resource implements IClone {
 
     /**
      * 索引格式。
+     * @returns 索引格式
      */
     get indexFormat(): IndexFormat {
         return this._indexFormat;
@@ -192,6 +203,7 @@ export class Mesh extends Resource implements IClone {
 
     /**
      * 设置indexformat
+     * @param 索引格式
      */
     set indexFormat(value: IndexFormat) {
         this._indexFormat = value
@@ -358,6 +370,8 @@ export class Mesh extends Resource implements IClone {
     }
 
     /**
+     * 销毁资源
+     * @internal
      * @inheritDoc
      * @override
      */
@@ -802,6 +816,7 @@ export class Mesh extends Resource implements IClone {
 
     /**
      * 获得Corve模型
+     * @returns Corve模型
      */
     getCorveMesh(): Mesh {
         if (this._convexMesh == null) {
@@ -850,6 +865,11 @@ export class Mesh extends Resource implements IClone {
             var destInverseBindPoses: Matrix4x4[] = destMesh._inverseBindPoses = [];
             for (i = 0; i < inverseBindPoses.length; i++)
                 destInverseBindPoses[i] = inverseBindPoses[i];
+        }
+        if (this._inverseBindPosesBuffer) {
+            let length = this._inverseBindPosesBuffer.byteLength;
+            destMesh._inverseBindPosesBuffer = new ArrayBuffer(length);
+            new Uint8Array(destMesh._inverseBindPosesBuffer).set(new Uint8Array(this._inverseBindPosesBuffer));
         }
 
         var cacheLength: number = this._skinnedMatrixCaches.length;

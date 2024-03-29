@@ -144,7 +144,7 @@ export class pxMeshColliderShape extends pxColliderShape implements IMeshCollide
 
 
     private _setScale(scale: Vector3) {
-        if (scale.equal(this._scale))
+        if (this._pxShape && scale.equal(this._scale))
             return;
         scale.cloneTo(this._scale);
         this._meshScale.scale = this._scale;

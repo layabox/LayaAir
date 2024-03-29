@@ -95,7 +95,10 @@ export class Animation extends AnimationBase {
      * <p>使用loadImages(...)、loadAtlas(...)、loadAnimation(...)、set source方法可以创建动画模版。使用play(...)可以播放指定动画。</p>
      */
     static framesMap: any = {};
-    /**@private */
+    /**
+     * @private
+     * @internal
+     */
     protected _frames: any[];
 
     private _source: string;
@@ -111,8 +114,10 @@ export class Animation extends AnimationBase {
         this._setControlNode(this);
     }
 
-    /** @inheritDoc
-     *  @override
+    /**
+     * 销毁 
+     * @inheritDoc
+     * @override
      */
     destroy(destroyChild: boolean = true): void {
         this.stop();
@@ -135,7 +140,10 @@ export class Animation extends AnimationBase {
         super.play(start, loop, name);
     }
 
-    /**@private */
+    /**
+     * @private
+     * @internal
+     */
     protected _setFramesFromCache(name: string, showWarn: boolean = false): boolean {
         if (this._url) name = this._url + "#" + name;
         if (name && Animation.framesMap[name]) {
@@ -174,8 +182,10 @@ export class Animation extends AnimationBase {
         return rst;
     }
 
-    /**@private 
-    *  @override
+    /**
+     * @private 
+     * @override
+     * @internal
     */
     protected _frameLoop(): void {
         if (this._visible && this._style.alpha > 0.01 && this._frames) {
@@ -183,8 +193,10 @@ export class Animation extends AnimationBase {
         }
     }
 
-    /**@private 
+    /**
+     * @private 
      * @override
+     * @internal
     */
     protected _displayToIndex(value: number): void {
         if (this._frames) this.graphics = this._frames[value];

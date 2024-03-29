@@ -13,9 +13,6 @@ import { Vector2 } from "laya/maths/Vector2";
 import { ChainCollider } from "laya/physics/Collider2D/ChainCollider";
 import { Physics2D } from "laya/physics/Physics2D";
 
-/**
- * 
- */
 export class Physics_CollisionEvent {
     Main: typeof Main = null;
     private count: number = 7;
@@ -63,6 +60,7 @@ export class Physics_CollisionEvent {
             rb.getBody().GetUserData().pointer = i;
             let circleCollider: CircleCollider = sp.addComponent(CircleCollider);
             circleCollider.radius = 20;
+            circleCollider.x = circleCollider.y = 20;
             sp.addComponent(MouseJoint);
         }
 

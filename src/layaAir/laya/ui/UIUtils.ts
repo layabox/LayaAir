@@ -7,7 +7,12 @@ import { WeakObject } from "../utils/WeakObject"
  * <code>UIUtils</code> 是文本工具集。
  */
 export class UIUtils {
+
+    /**@internal */
     private static grayFilter: ColorFilter = new ColorFilter([0.3086, 0.6094, 0.082, 0, 0, 0.3086, 0.6094, 0.082, 0, 0, 0.3086, 0.6094, 0.082, 0, 0, 0, 0, 0, 1, 0]);
+
+    /**@internal */
+    private static _funMap: WeakObject = null;//new WeakObject();
 
     /**
      * 用字符串填充数组，并返回数组副本。
@@ -59,11 +64,8 @@ export class UIUtils {
         }
     }
 
-    /**@private */
-    private static _funMap: WeakObject = null;//new WeakObject();
-
     /**
-     * @private 根据字符串，返回函数表达式
+     * @internal 根据字符串，返回函数表达式
      */
     //TODO:coverage
     static getBindFun(value: string): Function {

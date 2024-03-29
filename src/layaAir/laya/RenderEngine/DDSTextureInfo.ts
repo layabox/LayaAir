@@ -4,6 +4,7 @@ import { LayaGL } from "../layagl/LayaGL";
 
 const FOURCC_DXT1: number = 827611204;
 const FOURCC_DXT3 = 861165636;
+const FOURCC_DXT4 = 877942852;
 const FOURCC_DXT5: number = 894720068;
 const FOURCC_DX10 = 808540228;
 const DDPF_FOURCC: number = 0x4;
@@ -101,6 +102,7 @@ export class DDSTextureInfo {
                 layaTexFormat = TextureFormat.DXT3;
                 blockBytes = 16;
                 break;
+            case FOURCC_DXT4:
             case FOURCC_DXT5:
                 layaTexFormat = TextureFormat.DXT5;
                 blockBytes = 16;
