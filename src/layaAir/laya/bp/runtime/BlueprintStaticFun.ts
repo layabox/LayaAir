@@ -171,11 +171,12 @@ export class BlueprintStaticFun {
      * @param runner 
      * @param runtimeDataMgr 
      */
-    static runBranch(nextExec: BlueprintPinRuntime, outPutParmPins: BlueprintPinRuntime[], parms: any[], context: IRunAble, runner: IBPRutime, runtimeDataMgr: IRuntimeDataManger, prePin: BlueprintPinRuntime) {
+    private static runBranch(nextExec: BlueprintPinRuntime, outPutParmPins: BlueprintPinRuntime[], parms: any[], context: IRunAble, runner: IBPRutime, runtimeDataMgr: IRuntimeDataManger, prePin: BlueprintPinRuntime,runId:number) {
         let curRunId = runner.getRunID();
         parms.forEach((item, index) => {
             runtimeDataMgr.setPinData(outPutParmPins[index], item, curRunId);
         })
+        runtimeDataMgr.saveContextData(runId,curRunId);
         runner.runByContext(context, runtimeDataMgr, nextExec.owner, true, null, curRunId, nextExec, prePin);
     }
 
@@ -190,7 +191,7 @@ export class BlueprintStaticFun {
         let nextPin = (outExcutes[0].linkTo[0] as BlueprintPinRuntime);
         if (nextPin) {
             array.forEach((item, index) => {
-                BlueprintStaticFun.runBranch(nextPin, outPutParmPins, [item, index], context, runner, runtimeDataMgr, outExcutes[0]);
+                BlueprintStaticFun.runBranch(nextPin, outPutParmPins, [item, index], context, runner, runtimeDataMgr, outExcutes[0],runId);
             })
         }
         return outExcutes[1].excute(context, runtimeDataMgr, runner, runId);
@@ -218,7 +219,7 @@ export class BlueprintStaticFun {
         let nextPin = (outExcutes[0].linkTo[0] as BlueprintPinRuntime);
         if (nextPin) {
             for (let i = 0; i < array.length; i++) {
-                BlueprintStaticFun.runBranch(nextPin, outPutParmPins, [array[i], i], context, runner, runtimeDataMgr, outExcutes[0]);
+                BlueprintStaticFun.runBranch(nextPin, outPutParmPins, [array[i], i], context, runner, runtimeDataMgr, outExcutes[0],runId);
                 if (breakNode.getValue(runId) == ERunStat.break) {
                     break;
                 }
@@ -241,7 +242,7 @@ export class BlueprintStaticFun {
         let nextPin = (outExcutes[0].linkTo[0] as BlueprintPinRuntime);
         if (nextPin) {
             for (let i = firstIndex; i < lastIndex; i += step) {
-                BlueprintStaticFun.runBranch(nextPin, outPutParmPins, [i], context, runner, runtimeDataMgr, outExcutes[0]);
+                BlueprintStaticFun.runBranch(nextPin, outPutParmPins, [i], context, runner, runtimeDataMgr, outExcutes[0],runId);
             }
         }
         return outExcutes[1].excute(context, runtimeDataMgr, runner, runId);
@@ -267,7 +268,7 @@ export class BlueprintStaticFun {
             let nextPin = (outExcutes[0].linkTo[0] as BlueprintPinRuntime);
             if (nextPin) {
                 for (let i = firstIndex; i < lastIndex; i += step) {
-                    BlueprintStaticFun.runBranch(nextPin, outPutParmPins, [i], context, runner, runtimeDataMgr, outExcutes[0]);
+                    BlueprintStaticFun.runBranch(nextPin, outPutParmPins, [i], context, runner, runtimeDataMgr, outExcutes[0],runId);
                     if (breakNode.getValue(runId) == ERunStat.break) {
                         break;
                     }
