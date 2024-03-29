@@ -101,10 +101,7 @@ export class VideoTexture extends BaseTexture {
         } else {
             this._needUpdate = true;
         }
-        //ios微信浏览器环境下默认不触发loadedmetadata，在主动调用play方法的时候才会触发loadedmetadata事件
-        if (ILaya.Browser.onWeiXin) {
-            this.loadedmetadata();
-        }
+      
     }
 
     private isNeedUpdate() {
@@ -452,8 +449,16 @@ export class VideoTexture extends BaseTexture {
 
     destroy() {
         var isConchApp: boolean = LayaEnv.isConch;
-        if (isConchApp) {
-            (<any>this.element)._destroy();
+        if (this.element) {
+            if (LayaEnv.isConch) {
+                (<any>this.element)._destroy();
+            }
+            else {
+                this.element.pause();
+                this.element.src = "";
+                while (this.element.childElementCount)
+                    this.element.firstChild.remove();
+            }
         }
 
         ILaya.timer.clear(this, this.render);
