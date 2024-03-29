@@ -55,7 +55,7 @@ export class BTNode implements IClone {
     testTrace() {
         console.log(this.constructor.name + ">>:" + this.name);
     }
-
+    /**@private */
     createNodeContext(btCmp: BehaviorTreeComponent) {
         if (this.needCreate) {
             let result = this.clone();
@@ -67,7 +67,7 @@ export class BTNode implements IClone {
         result.nodeName = this.name;
         btCmp.getCurrentTreeInstance().setContextNode(this.id, result);
     }
-
+    /**@private */
     protected newContext() {
         return new BTNodeContext();
     }
