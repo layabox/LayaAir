@@ -30,11 +30,11 @@ export class PhysicsUpdateList extends SingletonList<ICollider> {
      */
     remove(element: ICollider): void {
         var index: number = element.inPhysicUpdateListIndex;
-        this.length--;
-        if (index !== this.length) {
+        if (index != -1 && index !== this.length) {
+            this.length--;
             var end: any = this.elements[this.length];
             this.elements[index] = end;
-            end._inPhysicUpdateListIndex = index;
+            end.inPhysicUpdateListIndex = index;
         }
         element.inPhysicUpdateListIndex = -1;
     }
