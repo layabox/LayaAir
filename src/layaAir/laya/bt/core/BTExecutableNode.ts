@@ -14,11 +14,11 @@ import { BTExcuteContext, BehaviorTreeComponent } from "./BehaviorTreeComponent"
  */
 export abstract class BTExecutableNode extends BTNode {
     decorators: BTDecorator[];
-
-    services: BTService[];
-
-    hasDebugger: boolean;
     
+    services: BTService[];
+    /**@private */
+    hasDebugger: boolean;
+    /**@private */
     onAdd(parentNode: BTCompositeNode): void {
         super.onAdd(parentNode);
         const _childIndex = parentNode.children.indexOf(this);
@@ -35,7 +35,7 @@ export abstract class BTExecutableNode extends BTNode {
             })
         }
     }
-
+    /**@private */
     onEnter(btCmp: BehaviorTreeComponent) {
         if (this.services) {
             this.services.forEach(value => {
@@ -43,7 +43,7 @@ export abstract class BTExecutableNode extends BTNode {
             })
         }
     }
-
+    /**@private */
     onActive(btCmp: BehaviorTreeComponent) {
         if (this.decorators) {
             this.decorators.forEach(value => {
@@ -56,7 +56,7 @@ export abstract class BTExecutableNode extends BTNode {
             })
         }
     }
-
+    /**@private */
     onLeave(btCmp: BehaviorTreeComponent) {
         if (this.services) {
             this.services.forEach(value => {
@@ -69,7 +69,7 @@ export abstract class BTExecutableNode extends BTNode {
             })
         }
     }
-
+    /**@private */
     addService(service: BTService) {
         if (!this.services) {
             this.services = [];
@@ -79,7 +79,7 @@ export abstract class BTExecutableNode extends BTNode {
         // service.childIndex = this.parentNode.children.indexOf(this);
 
     }
-
+    /**@private */
     addDecorator(decorator: BTDecorator) {
         if (!this.decorators) {
             this.decorators = [];
@@ -88,7 +88,7 @@ export abstract class BTExecutableNode extends BTNode {
         // decorator.parentNode = this.parentNode;
         // decorator.childIndex = this.parentNode.children.indexOf(this);
     }
-
+    /**@private */
     preCheck(preNode: BTNode, btCmp: BehaviorTreeComponent): BTNode {
         if (this.decorators) {
             this.decorators.forEach(value => {
@@ -102,12 +102,12 @@ export abstract class BTExecutableNode extends BTNode {
         }
         return super.preCheck(preNode, btCmp);
     }
-
+    /**@private */
     parse(config: TBTNode): void {
         super.parse(config);
         this.parseAuxiliary(config);
     }
-
+    /**@private */
     parseAuxiliary(config: TBTNode) {
         if (config.decorator) {
             config.decorator.forEach((value: TBTDecorator) => {
@@ -122,7 +122,7 @@ export abstract class BTExecutableNode extends BTNode {
             })
         }
     }
-
+    /**@private */
     beginExcute(btCmp: BehaviorTreeComponent, excuteContext?: BTExcuteContext): boolean {
         return false;
     }

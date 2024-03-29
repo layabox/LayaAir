@@ -5,29 +5,29 @@ import { BehaviorTreeComponent } from "./BehaviorTreeComponent";
 import { BTCompositeNode } from "./BTCompositeNode";
 
 export class BTNode implements IClone {
-    //TEST
+    /**@private */
     static ID: number = 0;
     /**
      * 唯一标识
      */
     id: string;
-
+    /**@private */
     nid: number;
-
+    /**@private */
     parentNode: BTCompositeNode;
 
     name: string;
-
+    /**@private */
     next: BTNode;
-
+    /**@private */
     needCreate: boolean;
-
+    /**@private */
     orignNode: BTNode;
 
     constructor() {
         this.id = this.constructor.name + BTNode.ID++;
     }
-
+    /**@private */
     parse(config: TBTNode) {
         const props = config.props;
         if (props) {
@@ -37,21 +37,21 @@ export class BTNode implements IClone {
             }
         }
     }
-
+    /**@private */
     onAdd(parentNode: BTCompositeNode) {
 
     }
-
+    /**@private */
     setNext(next: BTNode) {
         this.next = next;
     }
-
+    /**@private */
     preCheck(preNode: BTNode, btCmp: BehaviorTreeComponent): BTNode {
         this.createNodeContext(btCmp);
         preNode && preNode.setNext(this);
         return this;
     }
-
+    /**@private */
     testTrace() {
         console.log(this.constructor.name + ">>:" + this.name);
     }
@@ -71,16 +71,16 @@ export class BTNode implements IClone {
     protected newContext() {
         return new BTNodeContext();
     }
-
+    /**@private */
     getNodeContext(btCmp: BehaviorTreeComponent): BTNodeContext {
         return btCmp.getCurrentTreeInstance().getContextNode(this.id);
     }
-
+    /**@private */
     getNodeInstance(btCmp: BehaviorTreeComponent): BTNode {
         return btCmp.getCurrentTreeInstance().getNode(this.id);
     }
 
-
+    /**@private */
     clone() {
         //@ts-ignore
         let result = new this["constructor"]();
@@ -88,7 +88,7 @@ export class BTNode implements IClone {
         return result;
         //throw new Error("Method not implemented.");
     }
-
+    /**@private */
     cloneTo(destObject: any): void {
         destObject.name = this.name;
         destObject.parentNode = this.parentNode;

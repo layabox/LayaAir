@@ -4,6 +4,7 @@ import { BTNode } from "./BTNode";
 export class BTAuxiliaryNode extends BTNode {
 
     protected _active: boolean;
+    /**@private */
     childIndex: number;
 
     onActive(btCmp: BehaviorTreeComponent) {

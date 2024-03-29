@@ -24,24 +24,24 @@ export class BTTaskNode extends BTExecutableNode {
             return this.excuteTask(btCmp);
         }
     }
-
+    /**@private */
     excuteTask(btCmp: BehaviorTreeComponent): EBTNodeResult {
         return EBTNodeResult.Succeeded;
     }
 
-
+    /**@private */
     finishLatentTask(btCmp: BehaviorTreeComponent, taskResult: EBTNodeResult) {
         //
         let task = this.orignNode as BTTaskNode || this;
         btCmp.onTaskFinished(task, taskResult, false);
     }
 
-
+    
     onTaskFinished(btCmp: BehaviorTreeComponent, taskResult: EBTNodeResult) {
 
         //a.a
     }
-
+    /**@private */
     parse(config: any): void {
         super.parse(config);
     }
@@ -67,11 +67,11 @@ export class BTTaskNode extends BTExecutableNode {
         //let a = this.getNodeContext(btCmp);
         //console.log(">>>>>>>>>>任务结束：" + a.nodeName + ">>>>:" + Laya.Stat.loopCount)
     }
-
+    /**@private */
     isTaskExecuting(): boolean {
         return false;
     }
-
+    /**@private */
     isTaskAborting(): boolean {
         return false;
     }

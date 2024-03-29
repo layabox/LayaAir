@@ -14,10 +14,12 @@ export class BehaviorTreeComponent extends Script implements ITickManger {
 
     //bTree:BehaviorTree;
     /**
+     * @private
      * 行为树列表 （包含子树）
      */
     list: BehaviorTreeInstance[];
     /**
+     * @private
      * 执行上下文
      */
     excuteContext: BTExcuteContext;
@@ -30,9 +32,11 @@ export class BehaviorTreeComponent extends Script implements ITickManger {
      */
     blackBoradComp: BlackboardComponent;
     /**
+     * @private
      * 当前运行行为树的小标
      */
     activeID: number;
+    /**@private */
     timer: Timer;
     constructor() {
         super();
@@ -41,27 +45,27 @@ export class BehaviorTreeComponent extends Script implements ITickManger {
         this.excuteContext = new BTExcuteContext();
         this.blackBoradComp = new BlackboardComponent();
     }
-
+    /**@private */
     getCurrentTreeInstance() {
         return this.list[this.activeID];
     }
-
+    /**@private */
     addParallelTask(task: BTTaskNode) {
         let currentBT = this.list[this.activeID];
         currentBT.addParallelTask(task);
     }
-
+    /**@private */
     removeParallelTask(task: BTTaskNode) {
         this.list[this.activeID].removeParallelTask(task);
     }
 
-
+    /**@private */
     startTree(bTree: BehaviorTree, excution: EBTExecutionMode = EBTExecutionMode.Looped) {
         this.excuteContext.target = bTree.target;
         this.excutionMode = excution;
         this.addInstance(bTree);
     }
-
+    /**@private */
     addInstance(bTree: BehaviorTree): boolean {
         let activeNode = this.list.length > 0 ? this.list[this.activeID].activeNode : null;
         let activeParent = activeNode ? activeNode.parentNode : null;
@@ -84,12 +88,12 @@ export class BehaviorTreeComponent extends Script implements ITickManger {
         return true;
     }
 
-
+    /**@private */
     runNext() {
         this.excuteContext.lastResult = EBTNodeResult.Succeeded;
         this.nextFrame();
     }
-
+    /**@private */
     onTaskCall(task: BTTaskNode, result: EBTNodeResult = EBTNodeResult.Succeeded): boolean {
         let current = this.list[this.activeID];
         let tid = current.parallelTasks.indexOf(task);
@@ -105,7 +109,7 @@ export class BehaviorTreeComponent extends Script implements ITickManger {
             return false;
         }
     }
-
+    /**@private */
     update(task: BTTaskNode, hasDebuggerPause: boolean = true): void {
         if (task && this.onTaskCall(task)) {
             return;
@@ -184,7 +188,7 @@ export class BehaviorTreeComponent extends Script implements ITickManger {
         }
     }
 
-
+    /**@private */
     onTaskFinished(taskNode: BTTaskNode, taskResult: EBTNodeResult, isParalleTask: boolean) {
         if (taskNode == null || this.list.length == 0) {
             return;
@@ -203,11 +207,11 @@ export class BehaviorTreeComponent extends Script implements ITickManger {
             }
         }
     }
-
+    /**@private */
     nextFrame() {
         this.timer.frameOnce(1, this, this.update);
     }
-
+    /**@private */
     executeTask(task: BTTaskNode) {
         let result = task.tryExcuteTask(this);
         this.onTaskFinished(task, result, false);
