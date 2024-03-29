@@ -27,7 +27,10 @@ export class BTTaskBluePrintBase extends BTTaskNode {
     onReciecve?<T extends Node>(owner:T) {
 
     }
-
+    /**
+     * 获取黑板数据
+     * @returns 
+     */
     getOwnersBlackBoard():BlackboardComponent {
         return this.myCMP.blackBoradComp;
     }

@@ -36,7 +36,11 @@ export class BlackboardComponent {
     getDefineBykey(key: string) {
         return this.dataAsset.getDataDefineBykeyName(key);
     }
-
+    /**
+     * 根据key获取黑板数值
+     * @param key 
+     * @returns 
+     */
     getData(key: string): any {
         let data = this.dataAsset.getDataDefineBykeyName(key);
         if (!data) {
@@ -45,7 +49,11 @@ export class BlackboardComponent {
         return this.valueData[key];
 
     }
-
+    /**
+     * 设置黑板数值
+     * @param key 
+     * @param value 
+     */
     setData(key: string, value: any): void {
         let data = this.dataAsset.getDataDefineBykeyName(key);
         if (data) {
