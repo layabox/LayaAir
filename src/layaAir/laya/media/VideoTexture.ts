@@ -31,6 +31,8 @@ export class VideoTexture extends BaseTexture {
     /** @inernal 避免重复的加载 */
     _isLoaded: boolean;
     _needUpdate: boolean;
+    /** @inernal 是否使用了requestVideoFrameCallback 接口 */
+    _requestVideoFrame: boolean = false;
 
     /**
      * 创建VideoTexture对象，
@@ -87,19 +89,26 @@ export class VideoTexture extends BaseTexture {
         ele.addEventListener("loadedmetadata", () => {
             this.loadedmetadata();
         });
-        const scope = this;
-        function updateVideo() {
-            scope._needUpdate = true;
-            ele.requestVideoFrameCallback(updateVideo);
 
-        }
         if ('requestVideoFrameCallback' in ele) {
+            const scope = this;
+            function updateVideo() {
+                scope._needUpdate = true;
+                ele.requestVideoFrameCallback(updateVideo);
+            }
             ele.requestVideoFrameCallback(updateVideo);
+            this._requestVideoFrame = true
+        } else {
+            this._needUpdate = true;
+        }
+        //ios微信浏览器环境下默认不触发loadedmetadata，在主动调用play方法的时候才会触发loadedmetadata事件
+        if (ILaya.Browser.onWeiXin) {
+            this.loadedmetadata();
         }
     }
 
     private isNeedUpdate() {
-        return this._needUpdate;
+        return !this._requestVideoFrame || this._needUpdate;
     }
 
     loadedmetadata() {
@@ -442,16 +451,9 @@ export class VideoTexture extends BaseTexture {
     }
 
     destroy() {
-        if (this.element) {
-            if (LayaEnv.isConch) {
-                (<any>this.element)._destroy();
-            }
-            else {
-                this.element.pause();
-                this.element.src = "";
-                while (this.element.childElementCount)
-                    this.element.firstChild.remove();
-            }
+        var isConchApp: boolean = LayaEnv.isConch;
+        if (isConchApp) {
+            (<any>this.element)._destroy();
         }
 
         ILaya.timer.clear(this, this.render);
