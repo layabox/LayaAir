@@ -49,7 +49,7 @@ export class HierarchyParser {
             }
         }
 
-        function createNode(nodeData: any, prefab: Node, runtime?: any): Node {
+        function createNode(nodeData: any, prefab: Node, runtime?: string): Node {
             let node: Node;
             let pstr: string;
             if (pstr = nodeData._$override) { //prefab里的override节点
@@ -99,17 +99,21 @@ export class HierarchyParser {
                     }
                 }
                 else if (pstr = nodeData._$type) {
-                    let cls: any = runtime ?? ClassUtils.getClass(pstr);
+                    let cls = ClassUtils.getClass(runtime || pstr);
                     if (cls) {
                         try {
                             node = new cls();
+                            if (runtime != null && !(node instanceof Node)) {
+                                errors.push(new Error(`runtime class invalid - '${runtime}', must derive from Node`));
+                                node = null;
+                            }
                         }
                         catch (err: any) {
                             errors.push(err);
                         }
                     }
                     else {
-                        errors.push(new Error(`unknown type '${pstr}'`));
+                        errors.push(new Error(`unknown type '${runtime || pstr}'`));
                     }
                 }
 
@@ -177,22 +181,11 @@ export class HierarchyParser {
                 return nodeData;
         }
 
-        let runtime: any;
+        let runtime: string;
         if (data._$type || data._$prefab) {
-            if (runtime = data._$runtime) {
-                if (runtime.startsWith("res://"))
-                    runtime = runtime.substring(6);
-                let cls = ClassUtils.getClass(runtime);
-                if (cls) {
-                    if (!(cls instanceof Node)) {
-                        errors.push(new Error(`runtime class invalid - '${runtime}', must derive from Node`));
-                        cls = null;
-                    }
-                }
-                else
-                    errors.push(new Error(`runtime class not found - '${runtime}'`));
-                runtime = cls;
-            }
+            runtime = data._$runtime;
+            if (runtime && runtime.startsWith("res://"))
+                runtime = runtime.substring(6);
 
             let node = createNode(data, null, runtime);
             if (node) {
