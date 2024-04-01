@@ -39,10 +39,18 @@ export class DrawRenderCMD extends Command {
 
     set material(value: Material) {
         this._material && this._material._removeReference(1);
+
+        if (value) {
+            value._addReference(1);
+            this._drawNodeCMDData.destShaderData = value.shaderData;
+            this._drawNodeCMDData.destSubShader = value.shader.getSubShaderAt(0);
+        }
+
         this._material = value;
-        this._material && this._material._addReference(1);
-        this._drawNodeCMDData.destShaderData = value.shaderData;
-        this._drawNodeCMDData.destSubShader = value.shader.getSubShaderAt(0);
+    }
+
+    get material(): Material {
+        return this._material;
     }
 
     private _subMeshIndex: number;
@@ -73,6 +81,7 @@ export class DrawRenderCMD extends Command {
 
     run(): void {
         if (this.render) {
+            this.render.renderUpdate(this._context);
             this._prematerial = this.render.sharedMaterials[this.subMeshIndex];
         }
     }
@@ -84,8 +93,7 @@ export class DrawRenderCMD extends Command {
     recover(): void {
         DrawRenderCMD._pool.push(this);
         super.recover();
-        this._material && this._material._removeReference(1);
-        this._material = null;
+        this.material = null;
         this.render.sharedMaterials[this.subMeshIndex] = this._prematerial;
         this._render = null;
         this.subMeshIndex = 0;
@@ -93,8 +101,7 @@ export class DrawRenderCMD extends Command {
 
     destroy(): void {
         super.destroy();
-        this._material && this._material._removeReference(1);
-        this._material = null;
+        this.material = null;
     }
 
 }

@@ -12,7 +12,7 @@ import { Laya3DRender } from "../../../RenderObjs/Laya3DRender";
 export class SetShaderDataCMD extends Command {
 	static ShaderDataType_define: number = -2;
 	/**@internal */
-	private static _pool: any[] = [];
+	private static _pool: SetShaderDataCMD[] = [];
 
 	/**@internal */
 	_setRenderDataCMD: SetRenderDataCMD;

@@ -28,7 +28,7 @@ export class DrawMeshCMD extends Command {
         cmd._matrix = matrix;
         cmd._transform.worldMatrix = cmd._matrix;
         cmd.material = material;
-        cmd._subMeshIndex = subMeshIndex;
+        cmd.subMeshIndex = subMeshIndex;
         cmd._subShaderIndex = subShaderIndex;
         cmd.mesh = mesh;
         cmd._commandBuffer = commandBuffer;
@@ -43,6 +43,15 @@ export class DrawMeshCMD extends Command {
 
     /**@internal */
     private _subMeshIndex: number;
+
+    get subMeshIndex(): number {
+        return this._subMeshIndex;
+    }
+
+    set subMeshIndex(value: number) {
+        this._subMeshIndex = value;
+        this._drawRenderCMDDData.subMeshIndex = value;
+    }
 
     /**@internal */
     private _subShaderIndex: number;
@@ -119,11 +128,6 @@ export class DrawMeshCMD extends Command {
         this._meshRender.renderUpdate(RenderContext3D._instance);
         // todo scene ibl
         this._meshRender.probReflection = RenderContext3D._instance.scene.sceneReflectionProb;
-
-        this._meshRender._renderElements.forEach((element, index) => {
-            let isRender = element._renderElementOBJ.isRender;
-            element._renderElementOBJ.isRender = isRender && this._subMeshIndex == index;
-        });
 
         this._drawRenderCMDDData.destSubShader = this.material.shader.getSubShaderAt(this._subShaderIndex);
         this._drawRenderCMDDData.destShaderData = this.material.shaderData;
