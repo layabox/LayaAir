@@ -1,6 +1,9 @@
 import { Config } from "../../../../Config";
+import { Laya } from "../../../../Laya";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
+import { VertexMesh } from "../../../RenderEngine/RenderShader/VertexMesh";
 import { UniformBufferObject } from "../../../RenderEngine/UniformBufferObject";
+import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { IRenderEngineFactory } from "../../DriverDesign/RenderDevice/IRenderEngineFactory";
 import { WebGLMode } from "../../WebGLDriver/RenderDevice/WebGLEngine/GLEnum/WebGLMode";
@@ -30,7 +33,22 @@ export class GLESRenderEngineFactory implements IRenderEngineFactory {
         LayaGL.renderEngine = engine;
         LayaGL.textureContext = engine.getTextureContext();
 
+
+        Laya.addAfterInitCallback(this.afterInit)
         return Promise.resolve();
+    }
+
+    afterInit(): void {
+        GLESRenderEngineFactory._setVertexDec(VertexMesh.instanceWorldMatrixDeclaration,"instanceWorldMatrixDeclaration");
+        GLESRenderEngineFactory._setVertexDec(VertexMesh.instanceLightMapScaleOffsetDeclaration,"instanceLightMapScaleOffsetDeclaration");
+        GLESRenderEngineFactory._setVertexDec(VertexMesh.instanceSimpleAnimatorDeclaration,"instanceSimpleAnimatorDeclaration");
+    }
+
+    private static _setVertexDec(value:VertexDeclaration,regName:string){
+        let shaderValues = value._shaderValues;
+        for (var k in shaderValues) {
+            (LayaGL.renderEngine as GLESEngine)._nativeObj.regGlobalVertexDeclaration(regName,parseInt(k),shaderValues[k]);
+		}
     }
 
 }

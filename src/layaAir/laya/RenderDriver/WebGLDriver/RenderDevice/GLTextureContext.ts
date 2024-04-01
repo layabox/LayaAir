@@ -39,6 +39,18 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         this._compressedTextureASTC = this._engine._supportCapatable.getExtension(WebGLExtension.WEBGL_compressed_texture_astc)
         this._webgl_depth_texture = this._engine._supportCapatable.getExtension(WebGLExtension.WEBGL_depth_texture);
     }
+    createTexture3DInternal(dimension: TextureDimension, width: number, height: number, depth: number, format: TextureFormat, generateMipmap: boolean, sRGB: boolean, premultipliedAlpha: boolean): InternalTexture {
+        return null;
+    }
+    setTexture3DImageData(texture: InternalTexture, source: HTMLImageElement[] | HTMLCanvasElement[] | ImageBitmap[], depth: number, premultiplyAlpha: boolean, invertY: boolean): void {
+        return null;
+    }
+    setTexture3DPixelsData(texture: InternalTexture, source: ArrayBufferView, depth: number, premultiplyAlpha: boolean, invertY: boolean): void {
+        return null;
+    }
+    setTexture3DSubPixelsData(texture: InternalTexture, source: ArrayBufferView, mipmapLevel: number, generateMipmap: boolean, xOffset: number, yOffset: number, zOffset: number, width: number, height: number, depth: number, premultiplyAlpha: boolean, invertY: boolean): void {
+        return null;
+    }
 
     _glParam: {
         internalFormat: number,

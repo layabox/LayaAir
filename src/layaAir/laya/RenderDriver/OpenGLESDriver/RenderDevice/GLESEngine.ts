@@ -66,7 +66,7 @@ export class GLESEngine implements IRenderEngine {
     throw new Error("Method not implemented.");
   }
   clearStatisticsInfo(): void {
-    this._nativeObj.clearStatisticsInfo();
+    //this._nativeObj.clearStatisticsInfo();
   }
   getStatisticsInfo(info: GPUEngineStatisticsInfo): number {
     return this._nativeObj.getStatisticsInfo(info);

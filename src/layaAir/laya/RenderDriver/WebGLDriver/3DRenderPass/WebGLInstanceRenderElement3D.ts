@@ -24,7 +24,7 @@ export class WebGLInstanceRenderElement3D extends WebGLRenderElement3D {
     /**
      * get Instance BufferState
      */
-    static _instanceBufferStateMap: Map<number, WebGLInstanceStateInfo> = new Map();
+    private static _instanceBufferStateMap: Map<number, WebGLInstanceStateInfo> = new Map();
 
     static getInstanceBufferState(geometry: WebGLRenderGeometryElement, renderType: number, spriteDefine: WebDefineDatas) {
         let stateinfo = WebGLInstanceRenderElement3D._instanceBufferStateMap.get(geometry._id);

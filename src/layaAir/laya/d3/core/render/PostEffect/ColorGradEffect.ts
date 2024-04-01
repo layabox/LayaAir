@@ -14,7 +14,6 @@ import { PostProcessRenderContext } from "../PostProcessRenderContext";
 import BlitVS from "../../../../d3/shader/postprocess/BlitScreen.vs";
 import BlitLUTShader from "../../../../d3/shader/postprocess/BlitLUTScreen.fs";
 import { Texture2D } from "../../../../resource/Texture2D";
-import { RenderContext3D } from "../RenderContext3D";
 import { Color } from "../../../../maths/Color";
 import { PostProcess } from "../../../component/PostProcess";
 import { LayaGL } from "../../../../layagl/LayaGL";

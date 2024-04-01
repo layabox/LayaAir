@@ -1,5 +1,4 @@
 import { RenderCapable } from "../RenderEngine/RenderEnum/RenderCapable";
-import { ITexture3DContext } from "../RenderDriver/DriverDesign/RenderDevice/ITextureContext";
 import { TextureDimension } from "../RenderEngine/RenderEnum/TextureDimension";
 import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
 import { LayaGL } from "../layagl/LayaGL";
@@ -35,7 +34,7 @@ export class Texture3D extends BaseTexture {
 
         this._gammaSpace = sRGB;
 
-        let context = <ITexture3DContext>LayaGL.textureContext;
+        let context = LayaGL.textureContext;
 
         this._texture = context.createTexture3DInternal(this._dimension, width, height, depth, format, mipmap, sRGB, false);
     }
@@ -46,7 +45,7 @@ export class Texture3D extends BaseTexture {
     */
     setPixelsData(source: ArrayBufferView) {
         let texture = this._texture;
-        let context = <ITexture3DContext>LayaGL.textureContext;
+        let context = LayaGL.textureContext;
         context.setTexture3DPixelsData(texture, source, this.depth, false, false)
     }
 
@@ -64,7 +63,7 @@ export class Texture3D extends BaseTexture {
      */
     setSubPixelsData(xOffset: number, yOffset: number, zOffset: number, width: number, height: number, depth: number, pixels: ArrayBufferView, mipmapLevel: number, generateMipmap: boolean) {
         let texture = this._texture;
-        let context = <ITexture3DContext>LayaGL.textureContext;
+        let context = LayaGL.textureContext;
         context.setTexture3DSubPixelsData(texture, pixels, mipmapLevel, generateMipmap, xOffset, yOffset, zOffset, width, height, depth, false, false);
     }
 
