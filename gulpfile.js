@@ -232,6 +232,12 @@ const packsDef = [{
             "./layaAir/laya/bp/adapter/**/*.*",
             "./layaAir/laya/bt/**/*.*"
         ],
+    },
+    {
+        'libName': "bpextension",
+        'input': [
+            "./layaAir/laya/bp/extensions/**/*.*",
+        ],
     }
 ];
 
