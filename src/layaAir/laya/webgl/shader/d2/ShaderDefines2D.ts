@@ -41,7 +41,8 @@ export class ShaderDefines2D {
     static UNIFORM_CLIPMATDIR: number;// uniform vec4 u_clipMatDir;
     static UNIFORM_CLIPMATPOS: number;// uniform vec2 u_clipMatPos;
     static UNIFORM_MMAT2: number;// uniform mat4 u_mmat2;
-    static UNIFORM_SIZE: number;// uniform vec2 u_size;
+    static UNIFORM_SIZE:number;
+    static UNIFORM_VERTALPHA: number;//顶点alpha，给cacheas normal用;
     static UNIFORM_CLIPOFF: number;//uniform vec2 u_clipOff;	
     static UNIFORM_MVPMatrix: number;//uniform mat4 u_MvpMatrix;
 
@@ -90,6 +91,7 @@ export class ShaderDefines2D {
         ShaderDefines2D.UNIFORM_CLIPMATPOS = Shader3D.propertyNameToID("u_clipMatPos");
         ShaderDefines2D.UNIFORM_MMAT2 = Shader3D.propertyNameToID("u_mmat2");
         ShaderDefines2D.UNIFORM_SIZE = Shader3D.propertyNameToID("u_size");
+        ShaderDefines2D.UNIFORM_VERTALPHA = Shader3D.propertyNameToID("u_VertAlpha");
         ShaderDefines2D.UNIFORM_CLIPOFF = Shader3D.propertyNameToID("u_clipOff");
 
         ShaderDefines2D.UNIFORM_MVPMatrix = Shader3D.propertyNameToID("u_MvpMatrix");
@@ -112,6 +114,7 @@ export class ShaderDefines2D {
         commandUniform.addShaderUniform(ShaderDefines2D.UNIFORM_CLIPMATPOS, "u_clipMatPos", ShaderDataType.Vector2);
         commandUniform.addShaderUniform(ShaderDefines2D.UNIFORM_MMAT2, "u_mmat2", ShaderDataType.Matrix4x4);
         commandUniform.addShaderUniform(ShaderDefines2D.UNIFORM_SIZE, "u_size", ShaderDataType.Vector2);
+        commandUniform.addShaderUniform(ShaderDefines2D.UNIFORM_VERTALPHA, "u_VertAlpha", ShaderDataType.Float);
         commandUniform.addShaderUniform(ShaderDefines2D.UNIFORM_CLIPOFF, "u_clipOff", ShaderDataType.Vector2);
         commandUniform.addShaderUniform(ShaderDefines2D.UNIFORM_MVPMatrix, "u_MvpMatrix", ShaderDataType.Matrix4x4);
         commandUniform.addShaderUniform(ShaderDefines2D.UNIFORM_SPRITETEXTURE, "u_spriteTexture", ShaderDataType.Texture2D);

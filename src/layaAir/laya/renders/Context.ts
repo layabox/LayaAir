@@ -768,7 +768,8 @@ export class Context {
             if (!sameKey) {
                 submit = this._curSubmit = SubmitBase.create(this, mesh, Value2D.create(RenderSpriteData.Texture2D));
                 this.fillShaderValue(submit.shaderValue);
-                //this._copyClipInfo(submit, this._globalClipMatrix);
+                this._copyClipInfo(submit.shaderValue, this._globalClipMatrix);
+                submit.clipInfoID = this._clipInfoID;
                 if (!this._lastTex || this._lastTex.destroyed) {
                     submit.shaderValue.textureHost = this.defTexture;
                 } else {
@@ -870,7 +871,7 @@ export class Context {
             sv.u_TexRange = Vector4.tempVec4;
             submit = this._curSubmit = SubmitBase.create(this, this._mesh, sv);
             this.fillShaderValue(sv);
-            //this._copyClipInfo(submit, this._globalClipMatrix);
+            submit.clipInfoID = this._clipInfoID;
             submit.shaderValue.textureHost = texture;
             this._curSubmit._numEle += 6;
         }
