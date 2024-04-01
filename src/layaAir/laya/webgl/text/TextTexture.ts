@@ -28,7 +28,7 @@ export class TextTexture extends Texture2D {
     ri: CharRenderInfo = null; 		// 如果是独立文字贴图的话带有这个信息
     //public var isIso:Boolean = false;
     constructor(textureW=TextRender.atlasWidth, textureH=TextRender.atlasWidth) {
-        super(textureW,textureH,TextureFormat.R8G8B8A8,false,false,false);
+        super(textureW,textureH,TextureFormat.R8G8B8A8,false,false,true,true);
         this.setPixelsData(null, true, false);
         this.lock = true;//防止被资源管理清除
         //    this._render2DContext = LayaGL.render2DContext;
