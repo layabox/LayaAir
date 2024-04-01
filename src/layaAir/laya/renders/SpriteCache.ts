@@ -1,4 +1,5 @@
 import { ILaya } from "../../ILaya";
+import { Const } from "../Const";
 import { RenderState } from "../RenderDriver/RenderModuleData/Design/RenderState";
 import { Shader3D } from "../RenderEngine/RenderShader/Shader3D";
 import { VertexDeclaration } from "../RenderEngine/VertexDeclaration";
@@ -53,6 +54,43 @@ export class Cache_Info{
     alpha:number;
     blend:string;    //undefined表示没有设置
     contextID:number;   //当这sprite是挂点的时候，这个表示更新挂点信息的id
+    clipRect:Rectangle;
+}
+
+
+function mergeClipMatrix(a:Matrix, b:Matrix,out:Matrix){
+    out.tx = Math.max(a.tx,b.tx);
+    out.ty = Math.max(a.ty,b.ty);
+    let ex1 = a.tx+a.a;
+    let ey1 = a.ty+a.d;
+    let ex2 = b.tx+b.a;
+    let ey2 = b.ty+b.d;
+    
+    // if (cm.a > 0 && cm.d > 0) {
+    //     var cmaxx = cm.tx + cm.a;
+    //     var cmaxy = cm.ty + cm.d;
+    //     if (cmaxx <= minx || cmaxy <= miny || cm.tx >= maxx || cm.ty >= maxy) {
+    //         //超出范围了
+    //         cm.a = -0.1; cm.d = -0.1;
+    //     } else {
+    //         if (cm.tx < minx) {
+    //             cm.a -= (minx - cm.tx);
+    //             cm.tx = minx;
+    //         }
+    //         if (cmaxx > maxx) {
+    //             cm.a -= (cmaxx - maxx);
+    //         }
+    //         if (cm.ty < miny) {
+    //             cm.d -= (miny - cm.ty);
+    //             cm.ty = miny;
+    //         }
+    //         if (cmaxy > maxy) {
+    //             cm.d -= (cmaxy - maxy);
+    //         }
+    //         if (cm.a <= 0) cm.a = -0.1;
+    //         if (cm.d <= 0) cm.d = -0.1;
+    //     }
+    // }
 }
 
 class RenderPageContex{
@@ -90,6 +128,71 @@ class RenderPageContex{
         cmp.x = clipInfo.tx; cmp.y = clipInfo.ty;
         shaderValue.clipMatPos = cmp;
     }    
+
+    clipRect( rect:Rectangle){//} x: number|Rectangle, y: number, width: number, height: number){
+        let x = rect.x;
+        let y = rect.y;
+        let width = rect.width;
+        let height = rect.height;
+        var cm = this.clipInfo;
+        //TEMP 处理clip交集问题，这里有点问题，无法处理旋转，翻转
+        var minx = cm.tx;
+        var miny = cm.ty;
+        var maxx = minx + cm.a;
+        var maxy = miny + cm.d;
+        //TEMP end
+
+        if (width >= Const.MAX_CLIP_SIZE) {
+            cm.a = cm.d = Const.MAX_CLIP_SIZE;
+            cm.b = cm.c = cm.tx = cm.ty = 0;
+        } else {
+            //其实就是矩阵相乘
+            let mat = this.curMatrix;
+            if (mat._bTransform) {
+                cm.tx = x * mat.a + y * mat.c + mat.tx;
+                cm.ty = x * mat.b + y * mat.d + mat.ty;
+                cm.a = width * mat.a;
+                cm.b = width * mat.b;
+                cm.c = height * mat.c;
+                cm.d = height * mat.d;
+            } else {
+                cm.tx = x + mat.tx;
+                cm.ty = y + mat.ty;
+                cm.a = width;
+                cm.b = cm.c = 0;
+                cm.d = height;
+            }
+        }
+
+        //TEMP 处理clip交集问题，这里有点问题，无法处理旋转,翻转
+        if (cm.a > 0 && cm.d > 0) {
+            var cmaxx = cm.tx + cm.a;
+            var cmaxy = cm.ty + cm.d;
+            if (cmaxx <= minx || cmaxy <= miny || cm.tx >= maxx || cm.ty >= maxy) {
+                //超出范围了
+                cm.a = -0.1; cm.d = -0.1;
+            } else {
+                if (cm.tx < minx) {
+                    cm.a -= (minx - cm.tx);
+                    cm.tx = minx;
+                }
+                if (cmaxx > maxx) {
+                    cm.a -= (cmaxx - maxx);
+                }
+                if (cm.ty < miny) {
+                    cm.d -= (miny - cm.ty);
+                    cm.ty = miny;
+                }
+                if (cmaxy > maxy) {
+                    cm.d -= (cmaxy - maxy);
+                }
+                if (cm.a <= 0) cm.a = -0.1;
+                if (cm.d <= 0) cm.d = -0.1;
+            }
+        }
+        //TEMP end
+    }
+
 
     setBlendMode(blend:string){
         this.blend = BlendMode.TOINT[blend];
@@ -179,6 +282,9 @@ export class CachePage{
             if(sprite.blendMode){
                 context.setBlendMode(sprite.blendMode);
             }
+
+            //clip 这个不用处理。因为clip是在canvas之后，已经包含在下面的渲染数据中了
+            //if(sprite.scrollRect){ }
         }
 
         vec21.setValue(context.width, context.height);
@@ -198,6 +304,10 @@ export class CachePage{
             }
             //通过context的裁剪，透明，矩阵等参数修改当前材质
             curMtl.size=vec21;
+            //应用cliprect
+            curMtl.clipMatDir;
+            curMtl.clipMatPos;
+            //TODO
             context._copyClipInfo(curMtl);
             curMtl.mmat = wMat4;
             curMtl.vertAlpha = context.alpha;
@@ -227,11 +337,17 @@ export class CachePage{
             if(parentCacheInfo.blend!=undefined){
                 context.setBlendMode(parentCacheInfo.blend);
             }
+            //应用父的clip
+            let oldClipMatrix =  context.clipInfo.clone();
+            context.clipRect(parentCacheInfo.clipRect)
+            //TODO
+
             sp._cacheStyle.cacheInfo.page.render(sp,context,false);
             //恢复
             context.curMatrix = oldMat;
             context.alpha = oldAlpha;
             context.blend = oldBlend;
+            context.clipInfo = oldClipMatrix;
         });
     }
 }
@@ -328,6 +444,9 @@ export class SpriteCache{
                             }
                         }
                     }
+
+                    //记录父节点的clip信息
+                    parentCacheInfo.clipRect = context._clipRect.clone();
                 }
             }
 

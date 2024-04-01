@@ -1,7 +1,6 @@
 import { ILaya } from "../../ILaya";
 import { Const } from "../Const";
 import { RenderState } from "../RenderDriver/RenderModuleData/Design/RenderState";
-import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
 import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
 import { Shader3D } from "../RenderEngine/RenderShader/Shader3D";
 import { Sprite } from "../display/Sprite";
@@ -27,7 +26,6 @@ import { WordText } from "../utils/WordText";
 import { BlendMode } from "../webgl/canvas/BlendMode";
 import { DrawStyle } from "../webgl/canvas/DrawStyle";
 import { Path } from "../webgl/canvas/Path";
-import { WebGLCacheAsNormalCanvas } from "../webgl/canvas/WebGLCacheAsNormalCanvas";
 import { ISaveData } from "../webgl/canvas/save/ISaveData";
 import { SaveBase } from "../webgl/canvas/save/SaveBase";
 import { SaveClipRect } from "../webgl/canvas/save/SaveClipRect";
@@ -42,7 +40,6 @@ import { BasePoly } from "../webgl/shapes/BasePoly";
 import { Earcut } from "../webgl/shapes/Earcut";
 import { SubmitBase } from "../webgl/submit/SubmitBase";
 import { SubmitKey } from "../webgl/submit/SubmitKey";
-import { CharRenderInfo } from "../webgl/text/CharRenderInfo";
 import { CharSubmitCache } from "../webgl/text/CharSubmitCache";
 import { MeasureFont } from "../webgl/text/MeasureFont";
 import { TextRender } from "../webgl/text/TextRender";
@@ -768,7 +765,7 @@ export class Context {
             if (!sameKey) {
                 submit = this._curSubmit = SubmitBase.create(this, mesh, Value2D.create(RenderSpriteData.Texture2D));
                 this.fillShaderValue(submit.shaderValue);
-                this._copyClipInfo(submit.shaderValue, this._globalClipMatrix);
+                this._copyClipInfo(submit.shaderValue);
                 submit.clipInfoID = this._clipInfoID;
                 if (!this._lastTex || this._lastTex.destroyed) {
                     submit.shaderValue.textureHost = this.defTexture;
@@ -932,7 +929,8 @@ export class Context {
     }
 
     /**@internal */
-    _copyClipInfo(shaderValue: Value2D, clipInfo: Matrix): void {
+    _copyClipInfo(shaderValue: Value2D): void {
+        let clipInfo = this._globalClipMatrix;
         var cm = shaderValue.clipMatDir;
         cm.x = clipInfo.a; cm.y = clipInfo.b; cm.z = clipInfo.c; cm.w = clipInfo.d;
         shaderValue.clipMatDir = cm;
@@ -943,6 +941,9 @@ export class Context {
         if (this._clipInCache) {
             shaderValue.clipOff.x = 1;
             shaderValue.clipOff = shaderValue.clipOff;
+        }
+        if(!shaderValue.clipRect){
+            shaderValue.clipRect = this._clipRect.clone();
         }
     }
 
@@ -1108,7 +1109,7 @@ export class Context {
             shaderValue.textureHost = tex;
             this._curSubmit = submit = SubmitBase.create(this, this._mesh, shaderValue);
             submit._key.other = imgid;
-            this._copyClipInfo(submit.shaderValue, this._globalClipMatrix);
+            this._copyClipInfo(submit.shaderValue);
             submit.clipInfoID = this._clipInfoID;
         }
         (this._mesh as MeshQuadTexture).addQuad(ops, uv, rgba, true);
@@ -1294,7 +1295,7 @@ export class Context {
             this.fillShaderValue(submit.shaderValue);
             submit._key.submitType = SubmitBase.KEY_TRIANGLES;
             submit._key.other = webGLImg.id;
-            this._copyClipInfo(submit.shaderValue, this._globalClipMatrix);
+            this._copyClipInfo(submit.shaderValue);
             submit.clipInfoID = this._clipInfoID;
         }
 
@@ -1572,7 +1573,7 @@ export class Context {
         //submit._key.clear();
         //submit._key.blendShader = _submitKey.blendShader;	//TODO 这个在哪里赋值的啊
         submit._key.submitType = SubmitBase.KEY_VG;
-        this._copyClipInfo(submit.shaderValue, this._globalClipMatrix);
+        this._copyClipInfo(submit.shaderValue);
         submit.clipInfoID = this._clipInfoID;
         return submit;
     }

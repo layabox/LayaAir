@@ -6,6 +6,8 @@ import { DrawType } from "../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../RenderEngine/RenderEnum/IndexFormat";
 import { MeshTopology } from "../RenderEngine/RenderEnum/RenderPologyMode";
 import { VertexDeclaration } from "../RenderEngine/VertexDeclaration";
+import { GeometryElement } from "../d3/core/GeometryElement";
+import { Mesh } from "../d3/resource/models/Mesh";
 import { LayaGL } from "../layagl/LayaGL";
 import { Color } from "../maths/Color";
 import { Material } from "../resource/Material";
@@ -43,6 +45,8 @@ export abstract class Render2D {
     //abstract setVertexDecl(decl:VertexDeclaration):void;
     //shaderdata放到mtl中。之所以传内存buffer是为了给后面合并subdata机会，以便提高效率
     abstract draw(mesh: IMesh2D, vboff: number, vblen: number, iboff: number, iblen: number, mtl: Value2D): void;
+    abstract drawMesh(mesh:IRenderGeometryElement,mtl:Material):void;
+
     abstract renderEnd(): void;
 }
 
@@ -53,7 +57,6 @@ export class Render2DSimple extends Render2D {
     static rendercontext2D: IRenderContext2D;
     private _tex_vert_decl: VertexDeclaration;
     private geo: IRenderGeometryElement;
-    private static rectGeo: IRenderGeometryElement;
     private _renderElement: IRenderElement2D;
     constructor(out: RenderTexture2D = null) {
         super(out);
@@ -61,10 +64,6 @@ export class Render2DSimple extends Render2D {
             Render2DSimple.rendercontext2D = LayaGL.render2DRenderPassFactory.createRenderContext2D();
         }
         this._renderElement = LayaGL.render2DRenderPassFactory.createRenderElement2D();
-    }
-
-    private _createRectGeo() {
-
     }
 
     clone(out: RenderTexture2D): Render2D {
@@ -111,6 +110,18 @@ export class Render2DSimple extends Render2D {
         Render2DSimple.rendercontext2D.setRenderTarget(rt?._renderTarget, false, RenderTexture2D._clearColor);
     }
 
+    drawMesh(geo:IRenderGeometryElement,mtl:Material){
+        Stat.draw2D++;
+        //Material??
+        this._renderElement.geometry = geo;
+        //this._renderElement.material = mtl;
+        this._renderElement.value2DShaderData = mtl.shaderData;
+        this._renderElement.subShader = mtl._shader.getSubShaderAt(0);
+        this._renderElement.materialShaderData = mtl.shaderData;
+        //blendState TODO
+        Render2DSimple.rendercontext2D.drawRenderElementOne(this._renderElement);
+    }
+
     draw(mesh2d: IMesh2D, vboff: number, vblen: number, iboff: number, iblen: number, mtl: Value2D): void {
         //PERT_COUNT(PerformanceDefine.C_DrawCount,1);
         Stat.draw2D++;
@@ -143,42 +154,12 @@ export class Render2DSimple extends Render2D {
         Render2DSimple.rendercontext2D.drawRenderElementOne(this._renderElement);
     }
 
-    drawRect(texture: RenderTexture2D, width: number, height: number, mtl: Value2D, flipY = false) {
-
-    }
-
     renderEnd(): void {
         //分层
         // if (this._renderTexture) {
         //     this._renderTexture.end();
         //     this._renderTexture.restore();
         // }
-    }
-
-}
-
-export class Render2DMergeVB extends Render2D {
-    clone(out: RenderTexture2D): Render2D {
-        return new Render2DMergeVB(out);
-    }
-
-    setVertexDecl(decl: VertexDeclaration) {
-
-    }
-
-    renderStart(clear:boolean,clearColor:Color): void {
-        throw new Error("Method not implemented.");
-    }
-    draw(mesh2d: IMesh2D, vboff: number, vblen: number, iboff: number, iblen: number, mtl: Value2D): void {
-        //TODO 保证mtl的一致性
-        //1、拼起来vb ib  在复制mtl
-        //2、记录start end
-        //3、超过一定数量  就直接draw
-        throw new Error("Method not implemented.");
-    }
-    renderEnd(): void {
-        //真的渲染
-        throw new Error("Method not implemented.");
     }
 
 }

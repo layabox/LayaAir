@@ -15,6 +15,7 @@ import { WebGLShaderInstance } from "../../../../RenderDriver/WebGLDriver/Render
 import { RenderState } from "../../../../RenderDriver/RenderModuleData/Design/RenderState"
 import { ColorFilter } from "../../../../filters/ColorFilter"
 import { BaseTexture } from "../../../../resource/BaseTexture"
+import { Rectangle } from "../../../../maths/Rectangle"
 
 export enum RenderSpriteData {
     Zero,
@@ -31,6 +32,7 @@ export class Value2D {
 
     private _color: Vector4;
     private _colorAdd: Vector4;
+    clipRect:Rectangle;             //目前这个是给cacheas normal用的，用来动态修改clipRect
 
     shaderData: ShaderData;
 
