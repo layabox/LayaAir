@@ -54,7 +54,8 @@ export class Cache_Info{
     alpha:number;
     blend:string;    //undefined表示没有设置
     contextID:number;   //当这sprite是挂点的时候，这个表示更新挂点信息的id
-    clipRect:Rectangle;
+    //clipRect:Rectangle;
+    clipMatrix:Matrix;
 }
 
 //计算两个裁剪用matrix的交集
@@ -292,7 +293,7 @@ export class CachePage{
             //TODO 在没有改变的情况下不用每次都做
             // 把当前的clip转成世界空间，与context的合并
             let clipMat = curMtl.localClipMatrix;
-            Matrix.mul(clipMat, context.curMatrix,tmpMat1);
+            Matrix.mul(clipMat, worldMat,tmpMat1);  //注意是worldMat而不是context.curMat
             //合并
             mergeClipMatrix(context.clipInfo,tmpMat1,tmpMat1)
             let clipDir = curMtl.clipMatDir;
@@ -333,7 +334,11 @@ export class CachePage{
             }
             //应用父的clip
             let oldClipMatrix =  context.clipInfo.clone();
-            context.clipRect(parentCacheInfo.clipRect)
+
+            let clipMat = parentCacheInfo.clipMatrix;
+            Matrix.mul(clipMat, context.curMatrix,tmpMat1);
+            //合并
+            mergeClipMatrix(context.clipInfo,tmpMat1,context.clipInfo)
             //TODO
 
             sp._cacheStyle.cacheInfo.page.render(sp,context,false);
@@ -440,7 +445,7 @@ export class SpriteCache{
                     }
 
                     //记录父节点的clip信息
-                    parentCacheInfo.clipRect = context._clipRect.clone();
+                    parentCacheInfo.clipMatrix = context._globalClipMatrix.clone();
                 }
             }
 
