@@ -116,8 +116,6 @@ export class Context {
     /**@internal */
     _globalClipMatrix = defaultClipMatrix.clone();	//用矩阵描述的clip信息。最终的点投影到这个矩阵上，在0~1之间就可见。
     /**@internal */
-    _clipInCache = false; 	// 当前记录的clipinfo是在cacheas normal后赋值的，因为cacheas normal会去掉当前矩阵的tx，ty，所以需要记录一下，以便在是shader中恢复
-    /**@internal */
     _clipInfoID = 0;					//用来区分是不是clipinfo已经改变了
     private _clipID_Gen = 0;			//生成clipid的，原来是  _clipInfoID=++_clipInfoID 这样会有问题，导致兄弟clip的id都相同
     /**@internal */
@@ -931,33 +929,13 @@ export class Context {
     /**@internal */
     _copyClipInfo(shaderValue: Value2D): void {
         let clipInfo = this._globalClipMatrix;
+        this._globalClipMatrix.copyTo(shaderValue.localClipMatrix);
         var cm = shaderValue.clipMatDir;
         cm.x = clipInfo.a; cm.y = clipInfo.b; cm.z = clipInfo.c; cm.w = clipInfo.d;
         shaderValue.clipMatDir = cm;
         var cmp = shaderValue.clipMatPos;
         cmp.x = clipInfo.tx; cmp.y = clipInfo.ty;
         shaderValue.clipMatPos = cmp;
-
-        if (this._clipInCache) {
-            shaderValue.clipOff.x = 1;
-            shaderValue.clipOff = shaderValue.clipOff;
-        }
-        if(!shaderValue.clipRect){
-            shaderValue.clipRect = this._clipRect.clone();
-        }
-    }
-
-    _copyClipInfoToShaderValue(shaderValue: Value2D, clipInfo: Matrix): void {
-        var cm = shaderValue.clipMatDir;
-        cm.x = clipInfo.a; cm.y = clipInfo.b; cm.z = clipInfo.c; cm.w = clipInfo.d;
-        shaderValue.clipMatDir = cm;
-        var cmp = shaderValue.clipMatPos;
-        cmp.x = clipInfo.tx; cmp.y = clipInfo.ty;
-        shaderValue.clipMatPos = cmp;
-        if (this._clipInCache) {
-            shaderValue.clipOff.x = 1;
-            shaderValue.clipOff = shaderValue.clipOff;
-        }
     }
 
     //通用的部分的比较
@@ -1119,8 +1097,7 @@ export class Context {
 
     private fillShaderValue(shaderValue: Value2D) {
         shaderValue.size = new Vector2(this._width, this._height);
-        this._copyClipInfoToShaderValue(shaderValue, this._globalClipMatrix);
-
+        this._copyClipInfo(shaderValue);
     }
     /**
      * pt所描述的多边形完全在clip外边，整个被裁掉了
@@ -1384,9 +1361,6 @@ export class Context {
                 cm.a = this._clipRect.width;
                 cm.b = cm.c = 0;
                 cm.d = this._clipRect.height;
-            }
-            if (this._incache) {
-                this._clipInCache = true;
             }
         }
 

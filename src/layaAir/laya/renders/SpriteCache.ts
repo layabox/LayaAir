@@ -57,40 +57,31 @@ export class Cache_Info{
     clipRect:Rectangle;
 }
 
-
+//计算两个裁剪用matrix的交集
 function mergeClipMatrix(a:Matrix, b:Matrix,out:Matrix){
-    out.tx = Math.max(a.tx,b.tx);
-    out.ty = Math.max(a.ty,b.ty);
-    let ex1 = a.tx+a.a;
-    let ey1 = a.ty+a.d;
-    let ex2 = b.tx+b.a;
-    let ey2 = b.ty+b.d;
+    //假设a和b都是正的。TODO 起码应该假设a是正的
+    let amaxx = a.tx+a.a;
+    let amaxy = a.ty+a.d;
+    let bmaxx = b.tx+b.a;
+    let bmaxy = b.ty+b.d;
     
-    // if (cm.a > 0 && cm.d > 0) {
-    //     var cmaxx = cm.tx + cm.a;
-    //     var cmaxy = cm.ty + cm.d;
-    //     if (cmaxx <= minx || cmaxy <= miny || cm.tx >= maxx || cm.ty >= maxy) {
-    //         //超出范围了
-    //         cm.a = -0.1; cm.d = -0.1;
-    //     } else {
-    //         if (cm.tx < minx) {
-    //             cm.a -= (minx - cm.tx);
-    //             cm.tx = minx;
-    //         }
-    //         if (cmaxx > maxx) {
-    //             cm.a -= (cmaxx - maxx);
-    //         }
-    //         if (cm.ty < miny) {
-    //             cm.d -= (miny - cm.ty);
-    //             cm.ty = miny;
-    //         }
-    //         if (cmaxy > maxy) {
-    //             cm.d -= (cmaxy - maxy);
-    //         }
-    //         if (cm.a <= 0) cm.a = -0.1;
-    //         if (cm.d <= 0) cm.d = -0.1;
-    //     }
-    // }
+    let minx = out.tx = Math.max(a.tx,b.tx);
+    let miny = out.ty = Math.max(a.ty,b.ty);
+
+    out.b=out.c=0;
+    out.tx = minx;
+    out.ty = miny;
+    //如果没有交集
+    if(amaxx<=b.tx || amaxy<=b.ty || bmaxx<=a.tx || bmaxy<=a.ty){
+        out.a=-0.1;
+        out.d=-0.1;
+    }else{
+        let maxx = Math.min(amaxx,bmaxx);
+        let maxy = Math.min(amaxy,bmaxy);
+        out.a = maxx-minx;
+        out.d = maxy-miny;
+    }
+    return out;
 }
 
 class RenderPageContex{
@@ -237,16 +228,9 @@ export class CachePage{
     defferTouchResRand:IAutoExpiringResource[]=null;
     //这个缓存的所有的clip的合并结果。这个合并结果是page内的，从全屏开始，这样才能渲染的时候正确与外面的取交集
     localClipMatrix:Matrix;
-    
+   
     //挂载其他cacheas normal的sprite。实际的缓存数据保存在sprite身上，这里保存sprite比较方便。
     children:Sprite[]=null;
-
-    //与父的相对关系
-    //位置
-    //clip是全局的
-    //alpha是相对的
-    //相对clip,渲染的时候要与父的相交
-    //clipRect:Rectangle;
 
     /**
      * 根据sprite的相对矩阵（相对于parent）画出缓存的mesh
@@ -305,10 +289,20 @@ export class CachePage{
             //通过context的裁剪，透明，矩阵等参数修改当前材质
             curMtl.size=vec21;
             //应用cliprect
-            curMtl.clipMatDir;
-            curMtl.clipMatPos;
-            //TODO
-            context._copyClipInfo(curMtl);
+            //TODO 在没有改变的情况下不用每次都做
+            // 把当前的clip转成世界空间，与context的合并
+            let clipMat = curMtl.localClipMatrix;
+            Matrix.mul(clipMat, context.curMatrix,tmpMat1);
+            //合并
+            mergeClipMatrix(context.clipInfo,tmpMat1,tmpMat1)
+            let clipDir = curMtl.clipMatDir;
+            let clipPos = curMtl.clipMatPos;
+            clipDir.x=tmpMat1.a; clipDir.y=tmpMat1.b; 
+            clipDir.z=tmpMat1.c; clipDir.w=tmpMat1.d;
+            curMtl.clipMatDir = clipDir;
+            clipPos.x = tmpMat1.tx; clipPos.y = tmpMat1.ty;
+            curMtl.clipMatPos=clipPos;
+
             curMtl.mmat = wMat4;
             curMtl.vertAlpha = context.alpha;
             context._applyBlend(curMtl);
@@ -486,3 +480,4 @@ var worldMat = new Matrix;
 var invMat = new Matrix;
 var tmpMat = new Matrix;
 var tmpMat4 = new Matrix4x4;
+var tmpMat1 = new Matrix();

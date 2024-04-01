@@ -16,6 +16,7 @@ import { RenderState } from "../../../../RenderDriver/RenderModuleData/Design/Re
 import { ColorFilter } from "../../../../filters/ColorFilter"
 import { BaseTexture } from "../../../../resource/BaseTexture"
 import { Rectangle } from "../../../../maths/Rectangle"
+import { Matrix } from "../../../../maths/Matrix"
 
 export enum RenderSpriteData {
     Zero,
@@ -32,7 +33,6 @@ export class Value2D {
 
     private _color: Vector4;
     private _colorAdd: Vector4;
-    clipRect:Rectangle;             //目前这个是给cacheas normal用的，用来动态修改clipRect
 
     shaderData: ShaderData;
 
@@ -44,17 +44,11 @@ export class Value2D {
 
     private _cacheID = 0;
 
-    /**@internal */
-    private _size = new Vector2();
-
-    /**@internal */
-    private _mmat = new Matrix4x4();
     filters: any[];
     texture: any;
     private _textureHost: Texture | BaseTexture
-    private _clipMatDir = new Vector4(Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_CLIP_SIZE);
-    private _clipMatpos = new Vector2();
-    private _clipOff = new Vector2();//vector2			// 裁剪是否需要加上偏移，cacheas normal用
+    //给cacheas = normal用
+    localClipMatrix = new Matrix();
 
     constructor(mainID: RenderSpriteData) {
         this.shaderData = LayaGL.renderDeviceFactory.createShaderData(null);
@@ -72,9 +66,8 @@ export class Value2D {
         //this.strokeStyle = null;
         //this.colorAdd = null;
 
-        this.clipMatDir = this._clipMatDir;
-        this.clipMatPos = this._clipMatpos;
-        this.clipOff = this._clipOff;
+        this.clipMatDir = new Vector4(Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_CLIP_SIZE);;
+        this.clipMatPos = new Vector2();
         this._cacheID = mainID;
         this._inClassCache = Value2D._cache[this._cacheID];
         if (mainID > 0 && !this._inClassCache) {
@@ -211,15 +204,6 @@ export class Value2D {
     get clipMatPos() {
         return this.shaderData.getVector2(ShaderDefines2D.UNIFORM_CLIPMATPOS);
     }
-    set clipOff(value: Vector2) {
-        this.shaderData.setVector2(ShaderDefines2D.UNIFORM_CLIPOFF, value);
-    }
-
-    get clipOff() {
-        return this.shaderData.getVector2(ShaderDefines2D.UNIFORM_CLIPOFF);
-    }
-
-
 
     upload(material: Material | null, shaderData: ShaderData): void {
         //this._size.setValue(RenderState2D.width, RenderState2D.height)
@@ -274,8 +258,6 @@ export class Value2D {
     }
 
     clear(): void {
-        this.clipOff.x = 0;
-        this.clipOff = this.clipOff
     }
 
     //
@@ -305,8 +287,6 @@ export class Value2D {
             this.clear();
             this.filters = null;
             this.ref = 1;
-            this.clipOff.x = 0;
-            this.clipOff = this.clipOff
         }
     }
 }
