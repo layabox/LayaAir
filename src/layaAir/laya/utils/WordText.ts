@@ -58,7 +58,7 @@ export class WordText {
         let chars = this.pageChars;
         if (chars.length > 0) {
             for( var i in chars){
-                //should use for in since p maybe sparse 
+                //should use for in since chars maybe sparse 
                 let p = chars[i];
                 if(!p)continue;
                 let tex = p.tex;
