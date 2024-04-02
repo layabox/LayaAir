@@ -10,7 +10,6 @@ import { Event } from "laya/events/Event";
 import { Vector3 } from "laya/maths/Vector3";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
-import { Laya3D } from "Laya3D";
 
 /**
  * model rotation script.
@@ -52,7 +51,6 @@ export class DamagedHelmetModelShow {
 		Laya.init(0, 0).then(() => {
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
-
 			Scene3D.load("res/threeDimen/scene/LayaScene_DamagedHelmetScene/Conventional/DamagedHelmetScene.ls", Handler.create(this, function (scene: Scene3D): void {
 				Laya.stage.addChild(scene);
 

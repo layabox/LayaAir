@@ -12,7 +12,6 @@ import { Color } from "laya/maths/Color";
 import { Vector3 } from "laya/maths/Vector3";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { Handler } from "laya/utils/Handler";
-import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 
 export class PBRMaterialDemo {
@@ -23,10 +22,9 @@ export class PBRMaterialDemo {
 		Laya.init(0, 0).then(() => {
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
-
-			Scene3D.load("res/threeDimen/scene/LayaScene_EmptyScene/Conventional/EmptyScene.ls", Handler.create(this, function (scene: Scene3D): void {
+			Scene3D.load("res/threeDimen/scene/LayaScene_EmptyScene/Conventional/EmptyScene.ls", Handler.create(this, (scene: Scene3D) => {
 				Laya.stage.addChild(scene);
-				
+
 				var camera: Camera = <Camera>scene.getChildByName("Main Camera");
 				var moveScript: CameraMoveScript = camera.addComponent(CameraMoveScript);
 				moveScript.speed = 0.005;

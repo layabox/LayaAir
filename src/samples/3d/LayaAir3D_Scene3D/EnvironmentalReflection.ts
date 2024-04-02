@@ -7,7 +7,6 @@ import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { AmbientMode } from "laya/d3/core/scene/AmbientMode";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
-import { SphericalHarmonicsL2 } from "laya/d3/graphics/SphericalHarmonicsL2";
 import { Mesh } from "laya/d3/resource/models/Mesh";
 import { SkyBox } from "laya/d3/resource/models/SkyBox";
 import { SkyRenderer } from "laya/d3/resource/models/SkyRenderer";
@@ -16,9 +15,9 @@ import { Color } from "laya/maths/Color";
 import { Vector3 } from "laya/maths/Vector3";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
+import { Loader } from "laya/net/Loader";
 
 export class EnvironmentalReflection {
 	private rotation: Vector3 = new Vector3(0, 0.01, 0);
@@ -31,7 +30,6 @@ export class EnvironmentalReflection {
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
 			Stat.show();
-
 			//创建场景
 			var scene: Scene3D = new Scene3D();
 			Laya.stage.addChild(scene);
@@ -55,9 +53,9 @@ export class EnvironmentalReflection {
 			camera.clearFlag = CameraClearFlags.Sky;
 
 			//天空盒
-			Material.load("res/threeDimen/skyBox/DawnDusk/SkyBox.lmat", Handler.create(this, function (mat: SkyBoxMaterial): void {
+			Material.load("res/threeDimen/skyBox/DawnDusk/SkyBox.lmat", Handler.create(this, (mat: SkyBoxMaterial) => {
 				//获取相机的天空盒渲染体
-				var skyRenderer: SkyRenderer = camera.scene.skyRenderer;
+				var skyRenderer: SkyRenderer = scene.skyRenderer;
 				//设置天空盒mesh
 				skyRenderer.mesh = SkyBox.instance;
 				//设置天空盒材质
@@ -65,7 +63,8 @@ export class EnvironmentalReflection {
 				//设置曝光强度
 				mat.exposure = 0.6 + 1;
 				// 加载ibl反射贴图
-				Laya.loader.load("res/threeDimen/skyBox/DawnDusk/EnvironmentalReflection.ktx").then((res) => {
+				Laya.loader.load("res/threeDimen/skyBox/DawnDusk/EnvironmentalReflection.ktx", Loader.TEXTURECUBE).then((res) => {
+					scene.ambientMode = AmbientMode.SphericalHarmonics;
 					scene.sceneReflectionProb.iblTex = res;
 				});
 			}));
@@ -84,6 +83,7 @@ export class EnvironmentalReflection {
 				var pbrMat: PBRStandardMaterial = new PBRStandardMaterial();
 				//设置材质的金属度，尽量高点，反射效果更明显
 				pbrMat.metallic = 1;
+				pbrMat.smoothness = 1;
 				this.teapot.meshRenderer.material = pbrMat;
 			}));
 		});

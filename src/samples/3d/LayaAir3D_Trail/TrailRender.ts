@@ -7,7 +7,6 @@ import { Color } from "laya/maths/Color";
 import { Vector3 } from "laya/maths/Vector3";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
 
@@ -19,7 +18,6 @@ export class TrailRender {
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
 			//显示性能面板
 			Stat.show();
-
 			//加载场景
 			var scene: Scene3D = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 
@@ -28,7 +26,7 @@ export class TrailRender {
 			camera.transform.translate(new Vector3(0, 8, 10));
 			camera.transform.rotate(new Vector3(-45, 0, 0), true, false);
 			//设置相机清除标识为固定颜色
-			camera.clearFlag = CameraClearFlags.SolidColor;
+			camera.clearFlag = CameraClearFlags.Sky;
 			camera.addComponent(CameraMoveScript);
 			//创建平行光
 

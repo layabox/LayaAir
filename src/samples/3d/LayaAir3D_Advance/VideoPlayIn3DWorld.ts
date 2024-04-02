@@ -4,20 +4,17 @@ import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Stage } from "laya/display/Stage";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { ChinarMirrorPlane } from "../common/ChinarMirrorPlane";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { UnlitMaterial } from "laya/d3/core/material/UnlitMaterial";
 import { VideoTexture } from "laya/media/VideoTexture";
 import { Event } from "laya/events/Event";
-import { URL } from "laya/net/URL";
-import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { MeshRenderer } from "laya/d3/core/MeshRenderer";
 
 export class VideoPlayIn3DWorld {
-    private videoPlane: Sprite3D;
-    private isoneVideo: boolean = false
+    private videoPlane: MeshSprite3D;
+    private isoneVideo:boolean = false
     constructor() {
         //初始化引擎
         Laya.init(0, 0).then(() => {
@@ -46,18 +43,17 @@ export class VideoPlayIn3DWorld {
     }
 
     private createVideo(url: string): void {
-        if (!this.isoneVideo) {
+        if(!this.isoneVideo){
             var videoTexture = new VideoTexture();
             videoTexture.source = url;
             videoTexture.play();
             videoTexture.loop = true;
-
+    
             let mat = new UnlitMaterial();
             mat.albedoTexture = videoTexture;
-            let render = this.videoPlane.getComponent(MeshRenderer);
-            render.sharedMaterial = mat;
+            this.videoPlane.getComponent(MeshRenderer).sharedMaterial = mat;
             this.isoneVideo = true;
         }
-
+        
     }
 }

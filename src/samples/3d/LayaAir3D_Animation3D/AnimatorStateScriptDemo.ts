@@ -40,9 +40,9 @@ export class AnimatorStateScriptDemo {
 	private _rotation: Vector3 = new Vector3(-15, 0, 0);
 	private _forward: Vector3 = new Vector3(-1.0, -1.0, -1.0);
 
-	private btype:any = "AnimatorStateScriptDemo";
+	private btype: any = "AnimatorStateScriptDemo";
 	/**场景内按钮类型*/
-	private stype:any = 0;
+	private stype: any = 0;
 
 	constructor() {
 		//初始化引擎
@@ -167,8 +167,8 @@ export class AnimatorStateScriptDemo {
 			this.changeActionButton.on(Event.CLICK, this, this.stypeFun0);
 		}));
 	}
-	
-	stypeFun0(curStateIndex:any = 0) {
+
+	stypeFun0(curStateIndex: any = 0) {
 
 		this.curStateIndex++;
 		if (this.curStateIndex % 3 == 0) {
@@ -191,7 +191,7 @@ export class AnimatorStateScriptDemo {
 			this.animator.speed = 1.0;
 		}
 		curStateIndex = this.curStateIndex;
-		Client.instance.send({type:"next",btype:this.btype,stype:0,value:curStateIndex});
+		Client.instance.send({ type: "next", btype: this.btype, stype: 0, value: curStateIndex });
 	}
 }
 

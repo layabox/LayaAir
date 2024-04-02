@@ -41,11 +41,7 @@ export class CommandBuffer_DrawCustomInstance{
 	private stype:any = 0;
     private changeActionButton:Button;
 
-
-
     constructor(){
-        Laya.init(0,0);
-        Stat.show();
         //初始化引擎
         Laya.init(100, 100).then(()=>{
             Stat.show();

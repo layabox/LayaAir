@@ -21,7 +21,6 @@ export class SkeletonMask {
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
 			this.loadFont();
-
 			//加载场景
 			Scene3D.load("res/threeDimen/LayaScene_MaskModelTest/Conventional/MaskModelTest.ls", Handler.create(this, function (scene: Scene3D): void {
 				(<Scene3D>Laya.stage.addChild(scene));

@@ -7,7 +7,6 @@ import { Color } from "laya/maths/Color";
 import { Vector3 } from "laya/maths/Vector3";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 
 export class Sprite3DLoad {
@@ -16,7 +15,6 @@ export class Sprite3DLoad {
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
 			Stat.show();
-
 			var scene: Scene3D = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 			scene.ambientColor = new Color(1, 1, 1);
 

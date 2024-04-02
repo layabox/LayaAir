@@ -8,7 +8,6 @@ import { Vector3 } from "laya/maths/Vector3";
 import { Loader } from "laya/net/Loader";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
 
 export class Sprite3DClone {
 
@@ -21,7 +20,6 @@ export class Sprite3DClone {
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
 			//显示性能面板
 			Stat.show();
-
 			this.scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 			this.scene.ambientColor = new Color(1, 1, 1);
 

@@ -12,7 +12,6 @@ import { Button } from "laya/ui/Button";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Event } from "laya/events/Event";
 import Client from "../../Client";
@@ -36,7 +35,6 @@ export class ProstProcess_AO {
         Laya.init(0, 0).then(() => {
             Laya.stage.scaleMode = Stage.SCALE_FULL;
             Laya.stage.screenMode = Stage.SCREEN_NONE;
-
             Stat.show();
             this.onResComplate();
         });

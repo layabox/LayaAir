@@ -6,14 +6,14 @@ import { Mesh } from "laya/d3/resource/models/Mesh";
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
 import { Stage } from "laya/display/Stage";
 import { Event } from "laya/events/Event";
-import { Loader } from "laya/net/Loader";
 import { Button } from "laya/ui/Button";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
 import Client from "../../Client";
 import { CameraMoveScript } from "../common/CameraMoveScript";
+import { Scene } from "laya/display/Scene";
+import { MeshFilter } from "laya/d3/core/MeshFilter";
 
 /**
  * ...
@@ -35,44 +35,45 @@ export class ChangeMesh {
 	private stype: any = 0;
 
 	constructor() {
-
 		//初始化引擎
-		Laya.init(0, 0);
-		Laya.stage.scaleMode = Stage.SCALE_FULL;
-		Laya.stage.screenMode = Stage.SCREEN_NONE;
-		//显示性能面板
-		Stat.show();
-		//预加载所有资源
-		var resource: any[] = ["res/threeDimen/scene/ChangeMaterialDemo/Conventional/scene.ls"];
-		Laya.loader.load(resource, Handler.create(this, this.onPreLoadFinish));
+		Laya.init(0, 0).then(() => {
+			Laya.stage.scaleMode = Stage.SCALE_FULL;
+			Laya.stage.screenMode = Stage.SCREEN_NONE;
+			//显示性能面板
+			Stat.show();
+			//预加载所有资源
+			var resource: any[] = ["res/threeDimen/scene/ChangeMaterialDemo/Conventional/scene.ls"];
+			Laya.loader.load(resource, Handler.create(this, this.onPreLoadFinish));
+		});
 	}
 
 	onPreLoadFinish() {
 		//初始化3D场景
-		var scene: Scene3D = (<Scene3D>Laya.stage.addChild(Loader.createNodes("res/threeDimen/scene/ChangeMaterialDemo/Conventional/scene.ls")));
-		//获取相机
-		var camera: Camera = (<Camera>scene.getChildByName("Main Camera"));
-		//为相机添加视角控制组件(脚本)
-		camera.addComponent(CameraMoveScript);
-		//获取球型精灵
-		this.sphere = (<MeshSprite3D>scene.getChildByName("Sphere"));
-		//获取精灵的mesh
-		this.sphereMesh = this.sphere.meshFilter.sharedMesh;
-		//新建四个mesh
-		console.log("创建mesh");
-		this.box = this.createBox();
-		this.capsule = this.createCapsule();
-		this.cylinder = this.createCylinder();
-		this.cone = this.createCone();
-		//加载UI
-		this.loadUI();
-
+		Scene.open("res/threeDimen/scene/ChangeMaterialDemo/Conventional/scene.ls", true, null, Handler.create(this, (sce: Scene) => {
+			var scene: Scene3D = sce.scene3D;
+			//获取相机
+			var camera: Camera = (<Camera>scene.getChildByName("Main Camera"));
+			//为相机添加视角控制组件(脚本)
+			camera.addComponent(CameraMoveScript);
+			//获取球型精灵
+			this.sphere = (<MeshSprite3D>scene.getChildByName("Sphere"));
+			//获取精灵的mesh
+			this.sphereMesh = this.sphere.getComponent(MeshFilter).sharedMesh;
+			//新建四个mesh
+			console.log("创建mesh");
+			this.box = this.createBox();
+			this.capsule = this.createCapsule();
+			this.cylinder = this.createCylinder();
+			this.cone = this.createCone();
+			//加载UI
+			this.loadUI();
+		}));
 	}
 
 	createBox(): Mesh {
 		return PrimitiveMesh.createBox(0.5, 0.5, 0.5);
 	}
-	
+
 	createCapsule(): Mesh {
 		return PrimitiveMesh.createCapsule(0.25, 1, 10, 20);
 	}
@@ -87,7 +88,7 @@ export class ChangeMesh {
 
 	private loadUI(): void {
 
-		Laya.loader.load(["res/threeDimen/ui/button.png"], Handler.create(this, function (): void {
+		Laya.loader.load(["res/threeDimen/ui/button.png"], Handler.create(this, () => {
 
 			this.changeActionButton = (<Button>Laya.stage.addChild(new Button("res/threeDimen/ui/button.png", "切换Mesh")));
 			this.changeActionButton.size(160, 40);
@@ -105,19 +106,19 @@ export class ChangeMesh {
 		this.index++;
 		if (this.index % 5 === 1) {
 			//切换mesh
-			this.sphere.meshFilter.sharedMesh = this.createBox();
+			this.sphere.getComponent(MeshFilter).sharedMesh = this.createBox();
 		} else if (this.index % 5 === 2) {
 			//切换mesh
-			this.sphere.meshFilter.sharedMesh = this.createCapsule();
+			this.sphere.getComponent(MeshFilter).sharedMesh = this.createCapsule();
 		} else if (this.index % 5 === 3) {
 			//切换mesh
-			this.sphere.meshFilter.sharedMesh = this.createCylinder();
+			this.sphere.getComponent(MeshFilter).sharedMesh = this.createCylinder();
 		} else if (this.index % 5 === 4) {
 			//切换mesh
-			this.sphere.meshFilter.sharedMesh = this.createCone();
+			this.sphere.getComponent(MeshFilter).sharedMesh = this.createCone();
 		} else {
 			//切换mesh
-			this.sphere.meshFilter.sharedMesh = this.sphereMesh;
+			this.sphere.getComponent(MeshFilter).sharedMesh = this.sphereMesh;
 		}
 		index = this.index;
 		Client.instance.send({ type: "next", btype: this.btype, stype: 0, value: index });

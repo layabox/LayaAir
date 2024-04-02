@@ -8,13 +8,11 @@ import { Button } from "laya/ui/Button";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { BlurEffect } from "./BlurShader/BlurEffect";
 import Client from "../../Client";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { Matrix4x4 } from "laya/maths/Matrix4x4";
-import { URL } from "laya/net/URL";
 
 export class PostProcess_Blur {
 	/**实例类型*/

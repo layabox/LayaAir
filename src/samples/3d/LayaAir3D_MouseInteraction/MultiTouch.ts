@@ -21,7 +21,6 @@ export class MultiTouch {
 		Laya.init(0, 0).then(() => {
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
-
 			//预加载所有资源
 			var resource: any[] = ["res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh"];
 			Laya.loader.load(resource, Handler.create(this, this.onComplete));
@@ -77,6 +76,7 @@ import { Color } from "laya/maths/Color";
 import { Vector2 } from "laya/maths/Vector2";
 import { Vector3 } from "laya/maths/Vector3";
 import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
+import { URL } from "laya/net/URL";
 
 class MonkeyScript extends Script {
 

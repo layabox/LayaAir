@@ -5,13 +5,12 @@ import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { Stage } from "laya/display/Stage";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
 
 /**
  * ...
  * @author ...
  */
-export class AnimationEventByUnity {
+export class AnimationEventDemo {
 
 	constructor() {
 		//初始化引擎
@@ -19,7 +18,6 @@ export class AnimationEventByUnity {
 			Stat.show();
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
-
 			//加载场景
 			Scene3D.load("res/threeDimen/scene/LayaScene_AnimationEvent/Conventional/layaScene.ls", Handler.create(this, function (scene: Scene3D): void {
 				(<Scene3D>Laya.stage.addChild(scene));

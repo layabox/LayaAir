@@ -12,7 +12,6 @@ import { Vector3 } from "laya/maths/Vector3";
 import { Texture2D } from "laya/resource/Texture2D";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
 
 
 /**
@@ -27,7 +26,6 @@ export class EffectMaterialDemo {
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
 			Stat.show();
-
 			var scene: Scene3D = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 
 			var camera: Camera = (<Camera>(scene.addChild(new Camera(0, 0.1, 100))));
@@ -44,7 +42,7 @@ export class EffectMaterialDemo {
 			earth.transform.position = new Vector3(0, 0, 0);
 			//创建EffectMaterial材质
 			var material: EffectMaterial = new EffectMaterial();
-			Texture2D.load("res/threeDimen/texture/earth.png", Handler.create(this, function (texture: Texture2D): void {
+			Texture2D.load("res/threeDimen/texture/earth.png", Handler.create(this, (texture: Texture2D) => {
 				//设置纹理
 				material.texture = texture;
 				//设置材质颜色
@@ -52,7 +50,7 @@ export class EffectMaterialDemo {
 			}));
 			earth.meshRenderer.material = material;
 
-			Laya.timer.frameLoop(1, this, function (): void {
+			Laya.timer.frameLoop(1, this, () => {
 				earth.transform.rotate(this.rotation, false);
 			});
 		});

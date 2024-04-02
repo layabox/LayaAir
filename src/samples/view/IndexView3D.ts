@@ -12,7 +12,7 @@ import { DrawTextTexture } from "../3d/LayaAir3D_Advance/DrawTextTexture";
 import { Laya3DCombineHtml } from "../3d/LayaAir3D_Advance/Laya3DCombineHtml";
 import { Scene2DPlayer3D } from "../3d/LayaAir3D_Advance/Scene2DPlayer3D";
 import { Secne3DPlayer2D } from "../3d/LayaAir3D_Advance/Secne3DPlayer2D";
-import { AnimationEventByUnity } from "../3d/LayaAir3D_Animation3D/AnimationEventByUnity";
+import { AnimationEventDemo } from "../3d/LayaAir3D_Animation3D/AnimationEventDemo";
 import { AnimationLayerBlend } from "../3d/LayaAir3D_Animation3D/AnimationLayerBlend";
 import { AnimatorDemo } from "../3d/LayaAir3D_Animation3D/AnimatorDemo";
 import { AnimatorStateScriptDemo } from "../3d/LayaAir3D_Animation3D/AnimatorStateScriptDemo";
@@ -123,7 +123,6 @@ import { WebXRControllerDemo } from "../3d/WebXR/WebXRControllerDemo";
 import { GriendSkyAmbientDemo } from "../3d/LayaAir3D_Scene3D/GriendSkyAmbientDemo";
 import { Browser } from "laya/utils/Browser";
 import { ScrollType } from "laya/ui/Styles";
-import { PostProcess_LensFlare } from "../3d/LayaAir3D_PostProcess/PostPorcess_LensFlare";
 import { PhysicsWorld_ConstraintSpringJoint } from "../3d/LayaAir3D_Physics3D/PhysicsWorld_ConstraintSpringJoint";
 import { PhysicsWorld_ConstraintHingeJoint } from "../3d/LayaAir3D_Physics3D/PhysicsWorld_ConstraintHingeJoint";
 
@@ -149,17 +148,17 @@ export class IndexView3D extends IndexViewUI {
 	// SeparableSSS_RenderDemo暂时去掉
 	// Scene2DPlayer3D暂时去掉
 	// Laya3DCombineHtml暂时去掉
-	private _advanceClsArr: any[] = [DrawTextTexture, Secne3DPlayer2D, VideoPlayIn3DWorld, CommandBuffer_Outline, CommandBuffer_BlurryGlass, CommandBuffer_DrawCustomInstance, CameraDepthModeTextureDemo, ReflectionProbeDemo];//PostProcessBloom,AStarFindPath,
-	private _advanceArr: any[] = ['DrawTextTexture', 'Secne3DPlayer2D', 'VideoPlayIn3DWorld', 'CommandBuffer_Outline', 'CommandBuffer_BlurryGlass', 'CommandBuffer_DrawCustomInstance', 'CameraDepthTextureDemo', 'ReflectionProbeDemo'];//'后期处理之泛光','寻路示例',
+	private _advanceClsArr: any[] = [DrawTextTexture, Secne3DPlayer2D, VideoPlayIn3DWorld, CommandBuffer_Outline, CommandBuffer_BlurryGlass, CommandBuffer_DrawCustomInstance, CameraDepthModeTextureDemo, ReflectionProbeDemo, SeparableSSS_RenderDemo];//PostProcessBloom,AStarFindPath,
+	private _advanceArr: any[] = ['DrawTextTexture', 'Secne3DPlayer2D', 'VideoPlayIn3DWorld', 'CommandBuffer_Outline', 'CommandBuffer_BlurryGlass', 'CommandBuffer_DrawCustomInstance', 'CameraDepthTextureDemo', 'ReflectionProbeDemo', 'SeparableSSS_RenderDemo'];//'后期处理之泛光','寻路示例',
 
-	private _postProcessClsArr: any[] = [PostProcessBloom, PostProcess_Blur, PostProcess_Edge, PostProcessDoF, ProstProcess_AO, PostProcess_LensFlare];
-	private _postProcessArr: any[] = ['PostProcessBloom', 'PostProcess_Blur', 'PostProcess_Edge', 'PostProcessDOF', 'PostProcessAO', 'PostProcess_LensFlare'];
+	private _postProcessClsArr: any[] = [PostProcessBloom, PostProcess_Blur, PostProcess_Edge, PostProcessDoF, ProstProcess_AO];
+	private _postProcessArr: any[] = ['PostProcessBloom', 'PostProcess_Blur', 'PostProcess_Edge', 'PostProcessDOF', 'PostProcessAO'];
 	// AnimationLayerBlend暂时去掉
 	// BoneLinkSprite3D暂时去掉
 	// MaterialAnimation暂时去掉
 	// SkinAnimationSample暂时去掉
-	private _animationClsArr: any[] = [AnimationEventByUnity, AnimatorDemo, AnimatorStateScriptDemo, CameraAnimation, RigidbodyAnimationDemo, SimpleSkinAnimationInstance, SkeletonMask];//AnimationEventByUnity,AnimationLayerBlend,BoneLinkSprite3D,RigidbodyAnimationDemo
-	private _animationArr: any[] = ["AnimationEventByUnity", 'Animator', "AnimatorStateScript", "CameraAnimation", "RigidbodyAnimation", "SimpleSkinAnimationInstance,SkinMask"];
+	private _animationClsArr: any[] = [AnimationEventDemo, AnimatorDemo, AnimatorStateScriptDemo, CameraAnimation, RigidbodyAnimationDemo, SimpleSkinAnimationInstance, SkeletonMask];//AnimationEventByUnity,AnimationLayerBlend,BoneLinkSprite3D,RigidbodyAnimationDemo
+	private _animationArr: any[] = ["AnimationEventDemo", 'Animator', "AnimatorStateScript", "CameraAnimation", "RigidbodyAnimation", "SimpleSkinAnimationInstance,SkinMask"];
 
 	private _cameraClsArr: any[] = [CameraDemo, CameraLayer, CameraLookAt, CameraRay, D3SpaceToD2Space, MultiCamera, OrthographicCamera, PickPixel, RenderTargetCamera];
 	private _cameraArr: any[] = ['Camera', 'CameraLayer', 'CameraLookAt', 'CameraRay', 'D3SpaceToD2Space', 'MultiCamera', 'OrthographicCamera', 'PickPixel', 'RenderTargetCamera'];

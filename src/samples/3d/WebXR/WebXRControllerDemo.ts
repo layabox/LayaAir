@@ -5,7 +5,6 @@ import { Button } from "laya/ui/Button";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Event } from "laya/events/Event";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
@@ -15,11 +14,11 @@ import { WebXRInputManager } from "laya/d3/WebXR/core/WebXRInputManager";
 import { WebXRInput } from "laya/d3/WebXR/core/WebXRInput";
 import { AxiGamepad, ButtonGamepad } from "laya/d3/WebXR/core/WebXRGamepad";
 import { Laya } from "Laya";
-import { Loader } from "laya/net/Loader";
 import { HitResult } from "laya/d3/physics/HitResult";
 import { Color } from "laya/maths/Color";
 import { Vector2 } from "laya/maths/Vector2";
 import { Vector3 } from "laya/maths/Vector3";
+import { Scene } from "laya/display/Scene";
 
 export class WebXRControllerDemo {
 	public camera: Camera;
@@ -55,20 +54,21 @@ export class WebXRControllerDemo {
 	}
 
 	onPreLoadFinish() {
-		let scene: Scene3D = Loader.createNodes("res/VRscene/Conventional/SampleScene.ls");
-		(<Scene3D>Laya.stage.addChild(scene));
-		//获取场景中的相机
-		this.camera = (<Camera>scene.getChildByName("Main Camera"));
-		//旋转摄像机角度
-		this.camera.transform.rotate(new Vector3(0, 0, 0), true, false);
-		//设置摄像机视野范围（角度）
-		this.camera.fieldOfView = 60;
-		//设置背景颜色
-		this.camera.clearColor = new Color(0.7, 0.8, 0.9, 0);
-		this.camera.nearPlane = 0.01;
-		//加入摄像机移动控制脚本
-		this.camera.addComponent(CameraMoveScript);
-		this.loadUI();
+		Scene.open("res/VRscene/Conventional/SampleScene.ls", true, null, Handler.create(this, (sce: Scene) => {
+			let scene: Scene3D = sce.scene3D;
+			//获取场景中的相机
+			this.camera = (<Camera>scene.getChildByName("Main Camera"));
+			//旋转摄像机角度
+			this.camera.transform.rotate(new Vector3(0, 0, 0), true, false);
+			//设置摄像机视野范围（角度）
+			this.camera.fieldOfView = 60;
+			//设置背景颜色
+			this.camera.clearColor = new Color(0.7, 0.8, 0.9, 0);
+			this.camera.nearPlane = 0.01;
+			//加入摄像机移动控制脚本
+			this.camera.addComponent(CameraMoveScript);
+			this.loadUI();
+		}));
 	}
 
 	private loadUI() {

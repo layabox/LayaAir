@@ -11,12 +11,10 @@ import { Stage } from "laya/display/Stage";
 import { Matrix4x4 } from "laya/maths/Matrix4x4";
 import { Vector3 } from "laya/maths/Vector3";
 import { Loader } from "laya/net/Loader";
-import { URL } from "laya/net/URL";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { Texture2D } from "laya/resource/Texture2D";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
 
 
 export class BlinnPhong_NormalMap {
@@ -30,7 +28,6 @@ export class BlinnPhong_NormalMap {
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
 			Stat.show();
 			this.scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
-
 			var camera: Camera = (<Camera>(this.scene.addChild(new Camera(0, 0.1, 100))));
 			camera.transform.translate(new Vector3(0, 0.6, 1.1));
 			camera.transform.rotate(new Vector3(-30, 0, 0), true, false);

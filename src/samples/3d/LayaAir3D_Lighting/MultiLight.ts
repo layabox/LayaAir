@@ -2,12 +2,10 @@
 import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { Camera } from "laya/d3/core/Camera";
-import { LightSprite } from "laya/d3/core/light/LightSprite";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Transform3D } from "laya/d3/core/Transform3D";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Script } from "laya/components/Script";
 import { Vector3 } from "laya/maths/Vector3";

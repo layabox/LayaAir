@@ -19,7 +19,6 @@ export class Sky_Procedural {
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
 			Stat.show();
-
 			//初始化3D场景
 			var scene: Scene3D = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 

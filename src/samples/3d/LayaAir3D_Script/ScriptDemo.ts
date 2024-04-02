@@ -7,7 +7,6 @@ import { Stage } from "laya/display/Stage";
 import { Texture2D } from "laya/resource/Texture2D";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
 import { Script3D } from "laya/d3/component/Script3D";
 import { PBRStandardMaterial } from "laya/d3/core/material/PBRStandardMaterial";
 import { Color } from "laya/maths/Color";

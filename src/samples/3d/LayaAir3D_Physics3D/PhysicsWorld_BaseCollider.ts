@@ -21,19 +21,11 @@ import { Texture2D } from "laya/resource/Texture2D";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { CameraMoveScript } from "../common/CameraMoveScript";
-import { URL } from "laya/net/URL";
 import { Event } from "laya/events/Event";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
 export class PhysicsWorld_BaseCollider {
 	private scene: Scene3D;
-	private tmpVector: Vector3 = new Vector3(0, 0, 0);
-	private mat1: BlinnPhongMaterial;
-	private mat2: BlinnPhongMaterial;
-	private mat3: BlinnPhongMaterial;
-	private mat4: BlinnPhongMaterial;
-	private mat5: BlinnPhongMaterial;
-
 
 	constructor() {
 		//初始化引擎

@@ -11,13 +11,11 @@ import { Button } from "laya/ui/Button";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
 import Client from "../../Client";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
 
 export class Sprite3DParent {
-	private sprite3D: Sprite3D;
 	private scene: Scene3D;
 
 	private layaMonkeyParent:Sprite3D;
@@ -40,7 +38,6 @@ export class Sprite3DParent {
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
 			//显示性能面板
 			Stat.show();
-
 			//创建场景
 			this.scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 
@@ -79,7 +76,7 @@ export class Sprite3DParent {
 	}
 
 	private loadUI(): void {
-		Laya.loader.load(["res/threeDimen/ui/button.png"], Handler.create(this, function (): void {
+		Laya.loader.load(["res/threeDimen/ui/button.png"], Handler.create(this, ()=> {
 			this.changeActionButton = Laya.stage.addChild(new Button("res/threeDimen/ui/button.png", "移动父级猴子"));
 			this.changeActionButton.size(160, 30);
 			this.changeActionButton.labelBold = true;

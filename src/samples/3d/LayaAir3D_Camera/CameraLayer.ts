@@ -14,6 +14,7 @@ import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import Client from "../../Client";
 import { CameraMoveScript } from "../common/CameraMoveScript";
+import { MeshRenderer } from "laya/d3/core/MeshRenderer";
 import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
 /**
  * 精灵图层示例
@@ -31,9 +32,9 @@ export class CameraLayer {
 	private _position: Vector3 = new Vector3(0.0, 0, 0.5);
 
 	/**实例类型*/
-	private btype: any = "CameraLayer";
+	private btype:any = "CameraLayer";
 	/**场景内按钮类型*/
-	private stype: any = 0;
+	private stype:any = 0;
 	constructor() {
 		//初始化引擎
 		Laya.init(0, 0).then(() => {
@@ -41,7 +42,6 @@ export class CameraLayer {
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
 			//显示性能面板
 			Stat.show();
-
 			//创建场景
 			this._scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 
@@ -56,14 +56,12 @@ export class CameraLayer {
 			this.camera.removeAllLayers();
 			//添加显示图层(为相机添加一个蒙版)
 			this.camera.addLayer(5);
-			let directlightSprite = new Sprite3D();
-			let dircom = directlightSprite.addComponent(DirectionLightCom);
-			this._scene.addChild(directlightSprite);
-			//添加平行光
 
-			dircom.color.setValue(1, 1, 1, 1);
-			dircom.color = dircom.color;
-			directlightSprite.transform.rotate(this._rotation2);
+			//添加平行光
+			var directionLight: Sprite3D = (<Sprite3D>this._scene.addChild(new Sprite3D()));
+			var directionLightCom: DirectionLightCom = directionLight.addComponent(DirectionLightCom);
+			directionLightCom.color.setValue(1, 1, 1, 1);
+			directionLight.transform.rotate(this._rotation2);
 
 			Laya.loader.load(["res/threeDimen/staticModel/grid/plane.lh",
 				"res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh"], Handler.create(this, this.onComplete));
@@ -74,21 +72,21 @@ export class CameraLayer {
 		//添加地面
 		var grid: Sprite3D = (<Sprite3D>this._scene.addChild(Loader.createNodes("res/threeDimen/staticModel/grid/plane.lh")));
 		//地面接收阴影
-		((<MeshSprite3D>grid.getChildAt(0))).meshRenderer.receiveShadow = true;
+		((<MeshSprite3D>grid.getChildAt(0))).getComponent(MeshRenderer).receiveShadow = true;
 		//设置该精灵的蒙版为5(所属图层)
 		((<MeshSprite3D>grid.getChildAt(0))).layer = 5;
 
 		//添加静态猴子
 		var staticLayaMonkey: MeshSprite3D = (<MeshSprite3D>this._scene.addChild(new MeshSprite3D(Loader.getRes("res/threeDimen/skinModel/LayaMonkey/Assets/LayaMonkey/LayaMonkey-LayaMonkey.lm"))));
 		//设置静态猴子的材质
-		staticLayaMonkey.meshRenderer.material = Loader.getRes("res/threeDimen/skinModel/LayaMonkey/Assets/LayaMonkey/Materials/T_Diffuse.lmat");
+		staticLayaMonkey.getComponent(MeshRenderer).material = Loader.getRes("res/threeDimen/skinModel/LayaMonkey/Assets/LayaMonkey/Materials/T_Diffuse.lmat");
 		//设置静态猴子的蒙版为1(所属图层)
 		staticLayaMonkey.layer = 1;
 		staticLayaMonkey.transform.position = new Vector3(0, 0, 0.5);
 		staticLayaMonkey.transform.localScale = new Vector3(0.3, 0.3, 0.3);
 		staticLayaMonkey.transform.rotation = this._rotation3;
 		//产生阴影
-		staticLayaMonkey.meshRenderer.castShadow = true;
+		staticLayaMonkey.getComponent(MeshRenderer).castShadow = true;
 
 		//克隆sprite3d
 		var layaMonkey_clone1: Sprite3D = Sprite3D.instantiate(staticLayaMonkey, this._scene, false, this._position);
@@ -131,13 +129,13 @@ export class CameraLayer {
 		}));
 	}
 
-	stypeFun0(layerIndex: number = 0): void {
+	stypeFun0 (layerIndex:number = 0): void {
 		this.camera.removeAllLayers();
 		this.layerIndex++;
 		this.camera.addLayer(this.layerIndex % 4);
 		this.camera.addLayer(5);
 		layerIndex = this.layerIndex;
-		Client.instance.send({ type: "next", btype: this.btype, stype: 0, value: layerIndex });
+		Client.instance.send({type:"next",btype:this.btype,stype:0,value:layerIndex});
 	}
 
 }

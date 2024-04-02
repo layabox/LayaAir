@@ -8,7 +8,6 @@ import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
 import { Stage } from "laya/display/Stage";
 import { HalfFloatUtils } from "laya/utils/HalfFloatUtils";
 import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { FilterMode } from "laya/RenderEngine/RenderEnum/FilterMode";
 import { TextureFormat } from "laya/RenderEngine/RenderEnum/TextureFormat";
@@ -34,8 +33,8 @@ export class HalfFloatTexture {
             camera.clearColor = new Color(0.2, 0.2, 0.2, 1.0);
 
             let directlightSprite = new Sprite3D();
-			let dircom = directlightSprite.addComponent(DirectionLightCom);
-			scene.addChild(directlightSprite);
+            let dircom = directlightSprite.addComponent(DirectionLightCom);
+            scene.addChild(directlightSprite);
             //设置平行光的方向
             var mat: Matrix4x4 = directlightSprite.transform.worldMatrix;
             mat.setForward(new Vector3(-1.0, -1.0, -1.0));
