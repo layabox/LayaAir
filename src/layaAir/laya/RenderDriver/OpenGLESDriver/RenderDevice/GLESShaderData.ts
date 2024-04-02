@@ -288,7 +288,7 @@ export class GLESShaderData extends ShaderData {
      * @param	value  buffer数据。
      */
     setBuffer(index: number, value: Float32Array): void {
-        this._nativeObj.setBuffer(index, value.buffer, value.buffer.byteLength);
+        this._nativeObj.setBuffer(index,value);
     }
 
     /**

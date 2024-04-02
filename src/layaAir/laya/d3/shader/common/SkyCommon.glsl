@@ -2,7 +2,7 @@
     #define SkyCommon_lib
 
 uniform vec3 u_SunLight_direction;
-uniform vec3 u_SunLight_color;
+uniform vec4 u_SunLight_color;
 uniform mat4 u_SkyViewMat;
 uniform mat4 u_SkyProjectionMat;
 uniform mat4 u_SkyProjectionViewMat;
