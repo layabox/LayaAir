@@ -1,5 +1,5 @@
+import { ITextureContext } from "../RenderDriver/DriverDesign/RenderDevice/ITextureContext";
 import { RenderCapable } from "../RenderEngine/RenderEnum/RenderCapable";
-import { ITexture3DContext } from "../RenderDriver/DriverDesign/RenderDevice/ITextureContext";
 import { TextureDimension } from "../RenderEngine/RenderEnum/TextureDimension";
 import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
 import { LayaGL } from "../layagl/LayaGL";
@@ -35,7 +35,7 @@ export class Texture2DArray extends BaseTexture {
 
         this.depth = depth;
 
-        let context = <ITexture3DContext>LayaGL.textureContext;
+        let context = <ITextureContext>LayaGL.textureContext;
 
         this._texture = context.createTexture3DInternal(this._dimension, width, height, depth, format, mipmap, sRGB, false);
 
@@ -50,7 +50,7 @@ export class Texture2DArray extends BaseTexture {
      */
     setImageData(sources: HTMLImageElement[] | HTMLCanvasElement[] | ImageBitmap[], premultiplyAlpha: boolean, invertY: boolean) {
         let texture = this._texture;
-        let context = <ITexture3DContext>LayaGL.textureContext;
+        let context = <ITextureContext>LayaGL.textureContext;
         context.setTexture3DImageData(texture, sources, this.depth, premultiplyAlpha, invertY);
     }
 
@@ -62,7 +62,7 @@ export class Texture2DArray extends BaseTexture {
      */
     setPixelsData(source: ArrayBufferView, premultiplyAlpha: boolean, invertY: boolean) {
         let texture = this._texture;
-        let context = <ITexture3DContext>LayaGL.textureContext;
+        let context = <ITextureContext>LayaGL.textureContext;
         context.setTexture3DPixelsData(texture, source, this.depth, premultiplyAlpha, invertY)
     }
 
@@ -82,7 +82,7 @@ export class Texture2DArray extends BaseTexture {
      */
     setSubPixelsData(xOffset: number, yOffset: number, zOffset: number, width: number, height: number, depth: number, pixels: ArrayBufferView, mipmapLevel: number, generateMipmap: boolean, premultiplyAlpha: boolean, invertY: boolean) {
         let texture = this._texture;
-        let context = <ITexture3DContext>LayaGL.textureContext;
+        let context = <ITextureContext>LayaGL.textureContext;
         context.setTexture3DSubPixelsData(texture, pixels, mipmapLevel, generateMipmap, xOffset, yOffset, zOffset, width, height, depth, premultiplyAlpha, invertY);
     }
 

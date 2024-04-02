@@ -8,13 +8,13 @@ import { BatchMark } from "../../core/render/BatchMark";
 
 export class WebGLInstanceRenderBatch {
 
-    private revocerList: SingletonList<WebGLInstanceRenderElement3D>;
+    private _revocerList: SingletonList<WebGLInstanceRenderElement3D>;
 
     private _batchQpaqueMarks: any[] = [];
     private _updateCountMark: number = 0;
 
     constructor() {
-        this.revocerList = new SingletonList();
+        this._revocerList = new SingletonList();
     }
 
     getBathMark(element: WebGLRenderElement3D) {
@@ -84,7 +84,7 @@ export class WebGLInstanceRenderBatch {
 
                         // 替换 renderElement
                         let instanceRenderElement = WebGLInstanceRenderElement3D.create();
-                        this.revocerList.add(instanceRenderElement);
+                        this._revocerList.add(instanceRenderElement);
                         instanceRenderElement.subShader = element.subShader;
                         instanceRenderElement.materialShaderData = element.materialShaderData;
                         instanceRenderElement.materialRenderQueue = element.materialRenderQueue;
@@ -120,18 +120,18 @@ export class WebGLInstanceRenderBatch {
     }
 
     clearRenderData() {
-        for (let i = 0, n = this.revocerList.length; i < n; i++) {
-            let element = this.revocerList.elements[i];
+        for (let i = 0, n = this._revocerList.length; i < n; i++) {
+            let element = this._revocerList.elements[i];
             element.clearRenderData();
         }
     }
 
     recoverData() {
-        for (let i = 0, n = this.revocerList.length; i < n; i++) {
-            let element = this.revocerList.elements[i];
+        for (let i = 0, n = this._revocerList.length; i < n; i++) {
+            let element = this._revocerList.elements[i];
             element.recover();
         }
-        this.revocerList.length = 0;
+        this._revocerList.length = 0;
     }
 
 }

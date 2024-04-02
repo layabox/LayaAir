@@ -58,7 +58,7 @@ export class GLESRenderElement3D implements IRenderElement3D {
 
     set transform(data: NativeTransform3D) {
         this._transform = data;
-        this._nativeObj._transform = data ? (data as any)._nativeObj : null;
+        this._nativeObj.setTransform((data as any)._nativeObj);
     }
 
     get transform(): NativeTransform3D {
@@ -106,10 +106,10 @@ export class GLESRenderElement3D implements IRenderElement3D {
 
     // todo
     public get materialId(): number {
-        return this._nativeObj._materialId;
+        return this._nativeObj.materialId;
     }
     public set materialId(value: number) {
-        this._nativeObj._materialId = value;
+        this._nativeObj.materialId = value;
     }
 
     _nativeObj: any;

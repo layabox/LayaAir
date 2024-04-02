@@ -23,6 +23,9 @@ async function test(){
     sp.graphics.drawTexture(tex,100,100,null,null,null);
     sp.graphics.fillText('Abc文字',100,100,'36px Arial','red',"left");
     sp.graphics.drawTexture(tex,100,300,null,null,null);
+    sp.graphics.drawRect(150,190,300,100,'white')
+    sp.graphics.fillText('Abc文字一个',200,200,'36px Arial','#bbbbbb',"left");
+    sp.graphics.fillText('Abc文字一个',200,230,'36px Arial','white',"left");
     Laya.stage.addChild(sp);
 
     function renderloop(){

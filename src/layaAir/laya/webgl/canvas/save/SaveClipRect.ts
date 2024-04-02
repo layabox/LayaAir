@@ -11,7 +11,6 @@ export class SaveClipRect implements ISaveData {
     _globalClipMatrix: Matrix = new Matrix();
     _clipInfoID: number = -1;
     _clipRect: Rectangle = new Rectangle();
-    incache: boolean = false;
 
     isSaveMark(): boolean { return false; }
 
@@ -20,7 +19,6 @@ export class SaveClipRect implements ISaveData {
         this._clipRect.clone(context._clipRect);
         context._clipInfoID = this._clipInfoID;
         SaveClipRect.POOL[SaveClipRect.POOL._length++] = this;
-        context._clipInCache = this.incache;
     }
 
     static save(context: Context): void {
@@ -31,7 +29,6 @@ export class SaveClipRect implements ISaveData {
         context._globalClipMatrix.copyTo(o._globalClipMatrix);
         context._clipRect.clone(o._clipRect);
         o._clipInfoID = context._clipInfoID;
-        o.incache = context._clipInCache;
         var _save: any = context._save;
         _save[_save._length++] = o;
     }

@@ -10,13 +10,23 @@ import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRe
 import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
 
 
-export class GLESTextureContext implements ITextureContext  {
+export class GLESTextureContext implements ITextureContext {
     needBitmap: boolean;
     protected _native: any;
 
     constructor(native: any) {
         this._native = native;
         this.needBitmap = false;
+    }
+
+    createTexture3DInternal(dimension: TextureDimension, width: number, height: number, depth: number, format: TextureFormat, generateMipmap: boolean, sRGB: boolean, premultipliedAlpha: boolean): InternalTexture {
+        //return this._native.createTexture3DInternal
+        return null;
+    }
+
+    setTexture3DPixelsData(texture: InternalTexture, source: ArrayBufferView, depth: number, premultiplyAlpha: boolean, invertY: boolean): void {
+        //return this._native.setTexture3DPixelsData
+        return null;
     }
 
     createTextureInternal(dimension: TextureDimension, width: number, height: number, format: TextureFormat, generateMipmap: boolean, sRGB: boolean, premultipliedAlpha: boolean): InternalTexture {

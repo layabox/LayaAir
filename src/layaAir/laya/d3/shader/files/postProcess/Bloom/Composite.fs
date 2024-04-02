@@ -41,7 +41,7 @@ void main()
     // Additive bloom (artist friendly)
     bloom *= u_Bloom_Settings.y;
     dirt *= u_Bloom_Settings.z;
-    mediump vec4 bloomColor = vec4(u_Bloom_Color, 1.0);
+    mediump vec4 bloomColor = u_Bloom_Color;
     color += bloom * bloomColor;
     color += dirt * bloom;
 #endif

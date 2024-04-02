@@ -49,8 +49,6 @@ varying vec4 v_color;
     // attribute vec4 a_posuv;
     // attribute vec4 a_attribColor;
     // attribute vec4 a_attribFlags;
-    uniform vec2 u_clipOff;			// 使用要把clip偏移。cacheas normal用. 只用了[0]
-
     #ifdef MVP3D
         uniform mat4 u_MvpMatrix;
     #endif
@@ -73,11 +71,6 @@ varying vec4 v_color;
     	float cliph = length(u_clipMatDir.zw);
 	    vec2 clpos = u_clipMatPos.xy;
         #ifdef WORLDMAT
-            // 如果有mmat，需要修改clipMatPos,因为 这是cacheas normal （如果不是就错了）， clipMatPos被去掉了偏移
-            // if(u_clipOff[0]>0.0){
-            //     clpos.x+=u_mmat[3].x;	//tx	最简单处理
-            //     clpos.y+=u_mmat[3].y;	//ty
-            // }
             vec2 clippos = transedPos.xy - clpos;
         #else
         vec2 clippos = a_posuv.xy - clpos;	//pos已经应用矩阵了，为了减的有意义，clip的位置也要缩放

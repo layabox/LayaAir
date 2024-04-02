@@ -148,6 +148,18 @@ export class WebGPUTextureContext implements ITextureContext {
     constructor(engine: WebGPURenderEngine) {
         this._engine = engine;
     }
+    createTexture3DInternal(dimension: TextureDimension, width: number, height: number, depth: number, format: TextureFormat, generateMipmap: boolean, sRGB: boolean, premultipliedAlpha: boolean): InternalTexture {
+        return null;
+    }
+    setTexture3DImageData(texture: InternalTexture, source: HTMLImageElement[] | HTMLCanvasElement[] | ImageBitmap[], depth: number, premultiplyAlpha: boolean, invertY: boolean): void {
+        return null;
+    }
+    setTexture3DPixelsData(texture: InternalTexture, source: ArrayBufferView, depth: number, premultiplyAlpha: boolean, invertY: boolean): void {
+        return null;
+    }
+    setTexture3DSubPixelsData(texture: InternalTexture, source: ArrayBufferView, mipmapLevel: number, generateMipmap: boolean, xOffset: number, yOffset: number, zOffset: number, width: number, height: number, depth: number, premultiplyAlpha: boolean, invertY: boolean): void {
+        return null;
+    }
     needBitmap: boolean;
 
     private _getGPUTexturePixelByteSize(format: TextureFormat) {

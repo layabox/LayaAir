@@ -157,8 +157,9 @@ export class BloomEffect extends PostProcessEffect {
 			'u_Bloom_DirtTex': ShaderDataType.Texture2D,
 			'u_BloomTex_TexelSize': ShaderDataType.Vector4,
 			'u_Bloom_DirtTileOffset': ShaderDataType.Vector4,
-			'u_Bloom_Settings': ShaderDataType.Vector3,
-			'u_Bloom_Color': ShaderDataType.Vector3,
+			'u_Bloom_Settings': ShaderDataType.Vector4,
+			'u_Bloom_Color': ShaderDataType.Color,
+			
 		};
 		let shader = Shader3D.add("PostProcessComposite");
 
@@ -521,7 +522,7 @@ export class BloomEffect extends PostProcessEffect {
 
 		compositeShaderData.setVector(PostProcess.SHADERVALUE_BLOOM_DIRTTILEOFFSET, dirtTileOffset);
 		compositeShaderData.setVector(PostProcess.SHADERVALUE_BLOOM_SETTINGS, shaderSettings);
-		compositeShaderData.setVector(PostProcess.SHADERVALUE_BLOOM_COLOR, new Vector4(linearColor.r, linearColor.g, linearColor.b, linearColor.a));//TODO:需要Color支持
+		compositeShaderData.setColor(PostProcess.SHADERVALUE_BLOOM_COLOR, linearColor);//TODO:需要Color支持
 		compositeShaderData.setTexture(PostProcess.SHADERVALUE_BLOOM_DIRTTEX, usedirtTexture);
 		compositeShaderData.setTexture(PostProcess.SHADERVALUE_BLOOMTEX, lastUpTexture);
 		compositeShaderData.setVector(PostProcess.SHADERVALUE_BLOOMTEX_TEXELSIZE, this._bloomTextureTexelSize);

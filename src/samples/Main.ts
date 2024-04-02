@@ -55,7 +55,7 @@ export class Main {
      * @param isReadNetWorkRes true从网络读取资源，false从本地目录读取资源(bin/res)。
      */
     constructor(is3D: boolean = true, isReadNetWorkRes: boolean = false) {
-        if(!LayaEnv.isConch){
+        if(!LayaEnv.isConch || (LayaEnv.isConch && (window as any).conchConfig.conchWebGL)){
 			LayaGL.unitRenderModuleDataFactory = new WebUnitRenderModuleDataFactory();
 			LayaGL.renderDeviceFactory = new WebGLRenderDeviceFactory();
 			Laya3DRender.renderOBJCreate = new LengencyRenderEngine3DFactory();

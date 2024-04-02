@@ -1,3 +1,4 @@
+import { IRenderGeometryElement } from "../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
 import { VertexDeclaration } from "../RenderEngine/VertexDeclaration";
 import { Material } from "../resource/Material";
 import { RenderTexture2D } from "../resource/RenderTexture2D";
@@ -46,6 +47,9 @@ export class RenderToCache extends Render2D {
         this.renderResult.push(submesh);
     }
 
+    drawMesh(mesh: IRenderGeometryElement, mtl: Material): void {
+        throw "not implement"
+    }
     renderEnd(): void {
     }
 

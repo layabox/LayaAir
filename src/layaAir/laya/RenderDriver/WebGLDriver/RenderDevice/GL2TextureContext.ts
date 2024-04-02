@@ -11,12 +11,12 @@ import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTarge
 import { TextureCompareMode } from "../../../RenderEngine/RenderEnum/TextureCompareMode";
 import { TextureDimension } from "../../../RenderEngine/RenderEnum/TextureDimension";
 import { TextureFormat } from "../../../RenderEngine/RenderEnum/TextureFormat";
-import { ITexture3DContext } from "../../DriverDesign/RenderDevice/ITextureContext";
+import { ITextureContext } from "../../DriverDesign/RenderDevice/ITextureContext";
 
 /**
  * 将继承修改为类似 WebGLRenderingContextBase, WebGLRenderingContextOverloads 多继承 ?
  */
-export class GL2TextureContext extends GLTextureContext implements ITexture3DContext {
+export class GL2TextureContext extends GLTextureContext implements ITextureContext {
 
     declare protected _gl: WebGL2RenderingContext;
 
