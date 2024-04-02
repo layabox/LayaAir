@@ -19,6 +19,7 @@ import { LayaGL } from "../../../../layagl/LayaGL";
 import { Vector3 } from "../../../../maths/Vector3";
 import { Vector4 } from "../../../../maths/Vector4";
 import { DepthTextureMode, RenderTexture } from "../../../../resource/RenderTexture";
+import { RenderState } from "../../../../RenderDriver/RenderModuleData/Design/RenderState";
 
 /**
  *  <code>BloomEffect</code> 类用于创建环境光遮罩效果。
@@ -96,7 +97,9 @@ export class GaussianDoF extends PostProcessEffect {
          */
         let cocSubShader: SubShader = new SubShader(attributeMap, uniformMap);
         shader.addSubShader(cocSubShader);
-        cocSubShader.addShaderPass(FullScreenVert, CoCFS);
+        let cocPass = cocSubShader.addShaderPass(FullScreenVert, CoCFS);
+        cocPass.statefirst = true;
+        cocPass.renderState.cull = RenderState.CULL_NONE;
 
         /**
          * Prefilter pass
@@ -104,7 +107,9 @@ export class GaussianDoF extends PostProcessEffect {
          */
         let prefilterSubShader: SubShader = new SubShader(attributeMap, uniformMap);
         shader.addSubShader(prefilterSubShader);
-        prefilterSubShader.addShaderPass(FullScreenVert, PrefilterFS);
+        let prefilterPass = prefilterSubShader.addShaderPass(FullScreenVert, PrefilterFS);
+        prefilterPass.statefirst = true;
+        prefilterPass.renderState.cull = RenderState.CULL_NONE;
 
         // blur
         /**
@@ -112,22 +117,27 @@ export class GaussianDoF extends PostProcessEffect {
          */
         let blurHSubShader: SubShader = new SubShader(attributeMap, uniformMap);
         shader.addSubShader(blurHSubShader);
-        blurHSubShader.addShaderPass(FullScreenVert, BlurHFS);
+        let blurHPass = blurHSubShader.addShaderPass(FullScreenVert, BlurHFS);
+        blurHPass.statefirst = true;
+        blurHPass.renderState.cull = RenderState.CULL_NONE;
 
         /**
          * blurV pass
          */
         let blurVSubShader: SubShader = new SubShader(attributeMap, uniformMap);
         shader.addSubShader(blurVSubShader);
-        blurVSubShader.addShaderPass(FullScreenVert, BlurVFS);
+        let blurVPass = blurVSubShader.addShaderPass(FullScreenVert, BlurVFS);
+        blurVPass.statefirst = true;
+        blurVPass.renderState.cull = RenderState.CULL_NONE;
 
         /**
          * Composite pass
          */
         let compositeSubShader: SubShader = new SubShader(attributeMap, uniformMap);
         shader.addSubShader(compositeSubShader);
-        compositeSubShader.addShaderPass(FullScreenVert, CompositeFS);
-
+        let compositePass = compositeSubShader.addShaderPass(FullScreenVert, CompositeFS);
+        compositePass.statefirst = true;
+        compositePass.renderState.cull = RenderState.CULL_NONE;
     }
 
     /**@internal */

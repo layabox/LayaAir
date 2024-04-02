@@ -22,11 +22,12 @@ import { VertexMesh } from "../../../../RenderEngine/RenderShader/VertexMesh";
 import { LayaGL } from "../../../../layagl/LayaGL";
 import { ShaderDataType, ShaderData } from "../../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { ShaderDefine } from "../../../../RenderDriver/RenderModuleData/Design/ShaderDefine";
+import { RenderState } from "../../../../RenderDriver/RenderModuleData/Design/RenderState";
 
 /**
  * AO质量
  */
-export enum AOQUALITY{
+export enum AOQUALITY {
     /**高 */
     High,
     /**中 */
@@ -80,9 +81,9 @@ export class ScalableAO extends PostProcessEffect {
 
         ScalableAO.AOParams = Shader3D.propertyNameToID('u_AOParams');
         ScalableAO.SourceTex = Shader3D.propertyNameToID('u_SourceTex');
-        ScalableAO.SHADERDEFINE_AOHigh =Shader3D.getDefineByName("AO_High");
-        ScalableAO.SHADERDEFINE_AOMEDIUM =Shader3D.getDefineByName("AO_MEDIUM");
-        ScalableAO.SHADERDEFINE_LOWEST =Shader3D.getDefineByName("AO_LOWEST");
+        ScalableAO.SHADERDEFINE_AOHigh = Shader3D.getDefineByName("AO_High");
+        ScalableAO.SHADERDEFINE_AOMEDIUM = Shader3D.getDefineByName("AO_MEDIUM");
+        ScalableAO.SHADERDEFINE_LOWEST = Shader3D.getDefineByName("AO_LOWEST");
         Shader3D.addInclude("AmbientOcclusion.glsl", AmbientOcclusion);
         //scalableAoShader
         let attributeMap: any = {
@@ -103,18 +104,24 @@ export class ScalableAO extends PostProcessEffect {
         let shader: Shader3D = Shader3D.add("ScalableAO");
         let subShader: SubShader = new SubShader(attributeMap, uniformMap);
         shader.addSubShader(subShader);
-        subShader.addShaderPass(BlitScreenVS, FragAO);
+        let aoPass = subShader.addShaderPass(BlitScreenVS, FragAO);
+        aoPass.statefirst = true;
+        aoPass.renderState.cull = RenderState.CULL_NONE;
         //BlurShader
         shader = Shader3D.add("AOBlurHorizontal");
         subShader = new SubShader(attributeMap, uniformMap);
         shader.addSubShader(subShader);
-        subShader.addShaderPass(BlitScreenVS, AoBlurHorizontal);
+        let blurPass = subShader.addShaderPass(BlitScreenVS, AoBlurHorizontal);
+        blurPass.statefirst = true;
+        blurPass.renderState.cull = RenderState.CULL_NONE;
 
         //Composition
         shader = Shader3D.add("AOComposition");
         subShader = new SubShader(attributeMap, uniformMap);
         shader.addSubShader(subShader);
-        subShader.addShaderPass(BlitScreenVS, AOComposition);
+        let compositionPass = subShader.addShaderPass(BlitScreenVS, AOComposition);
+        compositionPass.statefirst = true;
+        compositionPass.renderState.cull = RenderState.CULL_NONE;
     }
 
     /*@internal scalable AO shader*/
@@ -132,7 +139,7 @@ export class ScalableAO extends PostProcessEffect {
     /**@internal */
     private _aoParams: Vector3 = new Vector3();
 
-    private _aoQuality:AOQUALITY = AOQUALITY.MEDIUM;
+    private _aoQuality: AOQUALITY = AOQUALITY.MEDIUM;
 
     /**
      * 实例化一个AO效果类
@@ -189,13 +196,13 @@ export class ScalableAO extends PostProcessEffect {
     /**
      * ao质量
      */
-    get aoQuality(){
+    get aoQuality() {
         return this._aoQuality;
     }
 
-    set aoQuality(value:AOQUALITY){
+    set aoQuality(value: AOQUALITY) {
         this._aoQuality = value;
-        switch(value){
+        switch (value) {
             case AOQUALITY.High:
                 this._shaderData.addDefine(ScalableAO.SHADERDEFINE_AOHigh);
                 this._shaderData.removeDefine(ScalableAO.SHADERDEFINE_AOMEDIUM);
@@ -213,7 +220,7 @@ export class ScalableAO extends PostProcessEffect {
                 break;
         }
     }
-    
+
     /**
      * @override
      */
