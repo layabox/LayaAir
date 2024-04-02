@@ -57,7 +57,10 @@ export class WordText {
         //TODO 这个效果不对。会造成文字错乱
         let chars = this.pageChars;
         if (chars.length > 0) {
-            for (let p of chars) {
+            for( var i in chars){
+                //should use for in since p maybe sparse 
+                let p = chars[i];
+                if(!p)continue;
                 let tex = p.tex;
                 let words = p.words;
                 if (words.length == 1 && tex && tex.ri) {// 如果有ri表示是独立贴图
