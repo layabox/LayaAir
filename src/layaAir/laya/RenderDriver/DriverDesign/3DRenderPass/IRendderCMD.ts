@@ -30,8 +30,7 @@ export class DrawNodeCMDData implements IRenderCMD {
     protected _node: IBaseRenderNode;
     protected _destShaderData: ShaderData;
     protected _destSubShader: SubShader;
-    
-    subMeshIndex: number;
+    protected _subMeshIndex: number;
 
     get node(): IBaseRenderNode {
         return this._node;
@@ -57,6 +56,14 @@ export class DrawNodeCMDData implements IRenderCMD {
         this._destSubShader = value;
     }
 
+    get subMeshIndex(): number {
+        return this._subMeshIndex;
+    }
+
+    set subMeshIndex(value: number) {
+        this._subMeshIndex = value;
+    }
+    
     apply(context: IRenderContext3D): void {
         throw new Error("Method not implemented.");
     }

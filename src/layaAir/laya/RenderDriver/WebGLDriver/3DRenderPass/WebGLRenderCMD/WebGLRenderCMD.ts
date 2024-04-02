@@ -26,8 +26,7 @@ export class WebGLDrawNodeCMDData extends DrawNodeCMDData {
     protected _node: WebBaseRenderNode;
     protected _destShaderData: WebGLShaderData;
     protected _destSubShader: SubShader;
-
-    subMeshIndex: number;
+    protected _subMeshIndex: number;
 
     get node(): WebBaseRenderNode {
         return this._node;
@@ -51,6 +50,14 @@ export class WebGLDrawNodeCMDData extends DrawNodeCMDData {
 
     set destSubShader(value: SubShader) {
         this._destSubShader = value;
+    }
+
+    get subMeshIndex(): number {
+        return this._subMeshIndex;
+    }
+
+    set subMeshIndex(value: number) {
+        this._subMeshIndex = value;
     }
 
     constructor() {

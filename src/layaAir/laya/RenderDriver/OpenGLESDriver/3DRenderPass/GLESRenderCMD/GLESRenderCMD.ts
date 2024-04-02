@@ -25,6 +25,7 @@ export class GLESDrawNodeCMDData extends DrawNodeCMDData {
     protected _node: RTBaseRenderNode;
     protected _destShaderData: GLESShaderData;
     protected _destSubShader: SubShader;
+    protected _subMeshIndex: number;
 
     /**@internal */
     _nativeObj: any;
@@ -54,6 +55,15 @@ export class GLESDrawNodeCMDData extends DrawNodeCMDData {
     set destSubShader(value: SubShader) {
         this._destSubShader = value;
         this._nativeObj.setSubShader((value.moduleData as any as RTSubShader)._nativeObj);
+    }
+
+    get subMeshIndex(): number {
+        return this._subMeshIndex;
+    }
+
+    set subMeshIndex(value: number) {
+        this._subMeshIndex = value;
+        this._nativeObj.setSubMeshIndex(value);
     }
 
     constructor() {
