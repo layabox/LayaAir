@@ -516,6 +516,7 @@ export class Graphics {
         for (let i = 0, n = cmds.length; i < n; i++) {
             cmds[i].run(context, x, y);
         }
+        context.material = null;
     }
 
     /**
@@ -525,6 +526,7 @@ export class Graphics {
         context.sprite = sprite;
         context.material = this._material;
         this._cmds[0].run(context, x, y);
+        context.material = null;
     }
 
     /**
