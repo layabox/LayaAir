@@ -9,7 +9,7 @@ export class RTLightmapData implements ILightMapData {
     _nativeObj: any;
 
     constructor() {
-        this._nativeObj = new (window as any).conchRTLightmap();
+        this._nativeObj = new (window as any).conchRTLightmapData();
     }
     public get lightmapColor(): InternalTexture {
         return this._lightmapColor;
