@@ -130,8 +130,8 @@ export class RTShaderPass implements IShaderPassData {
         var shaderIns = this._pass.withCompile(GLESRenderElement3D.getCompileDefine(),this._nativeObj.is2D) as GLESShaderInstance;
         return shaderIns._nativeObj;
     }
-    destory(): void {
-        this._nativeObj.destory();
+    destroy(): void {
+        this._nativeObj.destroy();
     }
 
     setCacheShader(defines: IDefineDatas, shaderInstance: IShaderInstance): void {

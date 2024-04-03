@@ -45,8 +45,8 @@ export class GLESVertexBuffer implements IVertexBuffer {
     setDataLength(byteLength: number): void {
         this._nativeObj.setDataLength(byteLength);
     }
-    destory(): void {
-        this._nativeObj.destory();
+    destroy(): void {
+        this._nativeObj.destroy();
         this._nativeObj = null;
     }
 

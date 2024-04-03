@@ -129,7 +129,7 @@ export class VertexBuffer3D {
 	 * @override
 	 */
 	destroy(): void {
-		this._deviceBuffer.destory();
+		this._deviceBuffer.destroy();
 		this._buffer = null;
 		this._float32Reader = null;
 		this._byteLength = 0;

@@ -30,7 +30,7 @@ export class WebGPUVertexBuffer implements IVertexBuffer {
         this.source.setDataLength(byteLength);
     }
 
-    destory(): void {
+    destroy(): void {
         WebGPUGlobal.releaseId(this);
         this.source.release();
         this.vertexDeclaration = null;
