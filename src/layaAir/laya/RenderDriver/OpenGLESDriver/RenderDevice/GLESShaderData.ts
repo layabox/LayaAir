@@ -19,6 +19,10 @@ export class GLESShaderData extends ShaderData {
     _defineDatas: RTDefineDatas = new RTDefineDatas();
     _textureData: { [key: number]: BaseTexture };
     _tempColor: Color = new Color();
+    _tempVector2: Vector2 = new Vector2();
+    _tempVector3: Vector3 = new Vector3();
+    _tempMatrix3x3: Matrix3x3 = new Matrix3x3();
+    _tempMatrix4x4: Matrix4x4 = new Matrix4x4();
     /**
      * @internal	
      */
@@ -164,7 +168,15 @@ export class GLESShaderData extends ShaderData {
      * @return Vector2向量。
      */
     getVector2(index: number): Vector2 {
-        return this._nativeObj.getVector2(index);
+        let value = this._nativeObj.getVector2(index);
+        if (value == null) {
+            return value;
+        }
+        else {
+            this._tempVector2.x = value.x;
+            this._tempVector2.y = value.y;
+            return this._tempVector2;
+        }
     }
 
     /**
@@ -182,7 +194,16 @@ export class GLESShaderData extends ShaderData {
      * @return Vector3向量。
      */
     getVector3(index: number): Vector3 {
-        return this._nativeObj.setVector3(index);
+        let value = this._nativeObj.setVector3(index);
+        if (value == null) {
+            return value;
+        }
+        else {
+            this._tempVector3.x = value.x;
+            this._tempVector3.y = value.y;
+            this._tempVector3.z = value.z;
+            return this._tempVector3;
+        }
     }
 
     /**
@@ -218,12 +239,17 @@ export class GLESShaderData extends ShaderData {
      * @returns 颜色
      */
     getColor(index: number): Color {
-        let c = this._nativeObj.getColor(index);
-        this._tempColor.r = c.r;
-        this._tempColor.g = c.g;
-        this._tempColor.b = c.b;
-        this._tempColor.a = c.a;
-        return this._tempColor;
+        let value = this._nativeObj.getColor(index);
+        if (value == null) {
+            return value;
+        }
+        else {
+            this._tempColor.r = value.r;
+            this._tempColor.g = value.g;
+            this._tempColor.b = value.b;
+            this._tempColor.a = value.a;
+            return this._tempColor;
+        }
     }
 
     /**
@@ -243,7 +269,14 @@ export class GLESShaderData extends ShaderData {
      * @return  矩阵。
      */
     getMatrix4x4(index: number): Matrix4x4 {
-        return this._nativeObj.getMatrix4x4(index);
+        let value = this._nativeObj.getMatrix4x4(index);
+        if (value == null) {
+            return value;
+        }
+        else {
+            this._tempMatrix4x4.elements.set(value.elements);
+            return this._tempMatrix4x4;
+        }
     }
 
     /**
@@ -261,7 +294,14 @@ export class GLESShaderData extends ShaderData {
      * @returns 
      */
     getMatrix3x3(index: number): Matrix3x3 {
-        return this._nativeObj.getMatrix3x3(index);
+        let value = this._nativeObj.getMatrix3x3(index);
+        if (value == null) {
+            return value;
+        }
+        else {
+            this._tempMatrix3x3.elements.set(value.elements);
+            return this._tempMatrix3x3;
+        }
     }
 
     /**
