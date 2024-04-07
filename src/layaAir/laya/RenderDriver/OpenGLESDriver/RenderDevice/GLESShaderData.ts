@@ -1,3 +1,4 @@
+import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { UniformBufferObject } from "../../../RenderEngine/UniformBufferObject";
 import { Color } from "../../../maths/Color";
 import { Matrix3x3 } from "../../../maths/Matrix3x3";

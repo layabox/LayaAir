@@ -34,6 +34,10 @@ export class GLESTextureContext implements ITextureContext {
     }
 
     setTextureImageData(texture: InternalTexture, source: HTMLImageElement | HTMLCanvasElement | ImageBitmap, premultiplyAlpha: boolean, invertY: boolean) {
+        if(source instanceof HTMLCanvasElement){
+            throw "native cant draw HTMLCanvasElement";
+            return;
+        }
         this._native.setTextureImageData(texture, (source as any)._nativeObj.conchImgId, premultiplyAlpha, invertY);
     }
 
