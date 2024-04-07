@@ -31,7 +31,7 @@ export interface IShaderpassStructor {
  * <code>Shader3D</code> 类用于创建Shader3D。
  */
 export class Shader3D {
-    static _configDefineValues:IDefineDatas;
+    static _configDefineValues: IDefineDatas;
     /**@internal */
     private static _compileDefineDatas: IDefineDatas;
     /**渲染状态_剔除。*/
@@ -92,7 +92,7 @@ export class Shader3D {
     static _propertyNameMap: any = {};
     /**@internal */
     private static _propertyNameCounter: number = 0;
-   
+
     /**@internal */
     static _preCompileShader: { [key: string]: Shader3D } = {};
     /**@internal */
@@ -230,7 +230,7 @@ export class Shader3D {
     /**@internal */
     _supportReflectionProbe: boolean = false;
     /**@internal */
-    _surportVolumetricGI:boolean = false;
+    _surportVolumetricGI: boolean = false;
     /**@internal */
     _subShaders: SubShader[] = [];
 
@@ -257,6 +257,7 @@ export class Shader3D {
     addSubShader(subShader: SubShader): void {
         this._subShaders.push(subShader);
         subShader._owner = this;
+        subShader.moduleData.enableInstance = this._enableInstancing;
     }
 
     /**

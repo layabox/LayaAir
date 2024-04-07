@@ -30,6 +30,7 @@ export class WebSceneNodeData implements ISceneNodeData {
 
 
 export class WebSubShader implements ISubshaderData {
+    enableInstance: boolean;
     destroy(): void {
         throw new Error("Method not implemented.");
     }

@@ -77,6 +77,12 @@ export class RTSubShader implements ISubshaderData {
     constructor() {
         this._nativeObj = new (window as any).conchRTSubShader();
     }
+    get enableInstance() {
+        return this._nativeObj.enableInstance;
+    }
+    set enableInstance(value: boolean) {
+        this._nativeObj.enableInstance = value;
+    }
     destroy(): void {
         this._nativeObj.destroy();
     }
@@ -127,7 +133,7 @@ export class RTShaderPass implements IShaderPassData {
         this._nativeObj.setValidDefine(value._nativeObj);
     }
     nativeCreateShaderInstance() {
-        var shaderIns = this._pass.withCompile(GLESRenderElement3D.getCompileDefine(),this._nativeObj.is2D) as GLESShaderInstance;
+        var shaderIns = this._pass.withCompile(GLESRenderElement3D.getCompileDefine(), this._nativeObj.is2D) as GLESShaderInstance;
         return shaderIns._nativeObj;
     }
     destroy(): void {

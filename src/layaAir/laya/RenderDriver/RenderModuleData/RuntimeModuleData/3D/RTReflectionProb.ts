@@ -24,7 +24,7 @@ export class RTReflectionProb implements IReflectionProbeData {
     }
     public set bound(value: Bounds) {
         this._bound = value;
-        //TODO:  this._nativeObj.setBounds(value._nativeObj);
+        this._nativeObj.setBounds(value._imp._nativeObj);
     }
     public get ambientMode(): AmbientMode {
         return this._nativeObj._ambientMode;

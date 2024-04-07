@@ -207,6 +207,7 @@ export interface ISceneNodeData {
 //shader
 export interface ISubshaderData {
     addShaderPass(pass: IShaderPassData): void;
+    enableInstance:boolean;
     destroy(): void;
 }
 
