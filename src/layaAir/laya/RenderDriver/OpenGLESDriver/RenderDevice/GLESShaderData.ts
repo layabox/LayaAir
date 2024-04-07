@@ -18,11 +18,7 @@ export class GLESShaderData extends ShaderData {
     _nativeObj: any;
     _defineDatas: RTDefineDatas = new RTDefineDatas();
     _textureData: { [key: number]: BaseTexture };
-    _tempColor: Color = new Color();
-    _tempVector2: Vector2 = new Vector2();
-    _tempVector3: Vector3 = new Vector3();
-    _tempMatrix3x3: Matrix3x3 = new Matrix3x3();
-    _tempMatrix4x4: Matrix4x4 = new Matrix4x4();
+    _bufferData: { [key: number]: Float32Array };
     /**
      * @internal	
      */
@@ -30,6 +26,7 @@ export class GLESShaderData extends ShaderData {
         super(ownerResource)
         this._nativeObj = new (window as any).conchGLESShaderData((this._defineDatas as any)._nativeObj);
         this._textureData = {};
+        this._bufferData = {};
     }
 
     // /**
@@ -173,9 +170,10 @@ export class GLESShaderData extends ShaderData {
             return value;
         }
         else {
-            this._tempVector2.x = value.x;
-            this._tempVector2.y = value.y;
-            return this._tempVector2;
+            let  _tempVector2: Vector2 = new Vector2()
+            _tempVector2.x = value.x;
+            _tempVector2.y = value.y;
+            return _tempVector2;
         }
     }
 
@@ -199,10 +197,11 @@ export class GLESShaderData extends ShaderData {
             return value;
         }
         else {
-            this._tempVector3.x = value.x;
-            this._tempVector3.y = value.y;
-            this._tempVector3.z = value.z;
-            return this._tempVector3;
+            let _tempVector3: Vector3 = new Vector3();
+            _tempVector3.x = value.x;
+            _tempVector3.y = value.y;
+            _tempVector3.z = value.z;
+            return _tempVector3;
         }
     }
 
@@ -244,11 +243,12 @@ export class GLESShaderData extends ShaderData {
             return value;
         }
         else {
-            this._tempColor.r = value.r;
-            this._tempColor.g = value.g;
-            this._tempColor.b = value.b;
-            this._tempColor.a = value.a;
-            return this._tempColor;
+            let _tempColor: Color = new Color();
+            _tempColor.r = value.r;
+            _tempColor.g = value.g;
+            _tempColor.b = value.b;
+            _tempColor.a = value.a;
+            return _tempColor;
         }
     }
 
@@ -274,8 +274,9 @@ export class GLESShaderData extends ShaderData {
             return value;
         }
         else {
-            this._tempMatrix4x4.elements.set(value.elements);
-            return this._tempMatrix4x4;
+            let _tempMatrix4x4: Matrix4x4 = new Matrix4x4();
+            _tempMatrix4x4.elements.set(value.elements);
+            return _tempMatrix4x4;
         }
     }
 
@@ -299,8 +300,9 @@ export class GLESShaderData extends ShaderData {
             return value;
         }
         else {
-            this._tempMatrix3x3.elements.set(value.elements);
-            return this._tempMatrix3x3;
+            let _tempMatrix3x3: Matrix3x3 = new Matrix3x3()
+            _tempMatrix3x3.elements.set(value.elements);
+            return _tempMatrix3x3;
         }
     }
 
@@ -329,6 +331,7 @@ export class GLESShaderData extends ShaderData {
      * @param	value  buffer数据。
      */
     setBuffer(index: number, value: Float32Array): void {
+        this._bufferData[index] = value;
         this._nativeObj.setBuffer(index,value);
     }
 
@@ -367,7 +370,19 @@ export class GLESShaderData extends ShaderData {
     }
 
     cloneTo(destObject: GLESShaderData): void {
-       // this._nativeObj.cloneTo(destObject._nativeObj);
+       this._nativeObj.cloneTo(destObject._nativeObj);
+       var dest: GLESShaderData = <GLESShaderData>destObject;
+       var destData: any = dest._textureData;
+       for (var k in this._textureData) {//TODO:需要优化,杜绝is判断，慢
+           var value: any = this._textureData[k];
+           if (value != null) {
+               if (value instanceof BaseTexture) {
+                   destData[k] = value;
+                   value._addReference();
+               }
+           }
+       }
+       //todo buffer _addReference
     }
     /**
      * 克隆。
