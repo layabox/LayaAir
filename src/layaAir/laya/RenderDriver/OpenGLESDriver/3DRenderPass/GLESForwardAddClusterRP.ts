@@ -180,7 +180,7 @@ export class GLESForwardAddClusterRP {
             this._nativeObj.clearBeforeTransparentCmds();
             value.forEach(element => {
                 element._apply(false);
-                this._nativeObj.setAddBeforeTransparentCmds(this._getRenderCMDArray(element._renderCMDs));
+                this._nativeObj.addBeforeTransparentCmds(this._getRenderCMDArray(element._renderCMDs));
             });
         } else {
             this._nativeObj.clearBeforeTransparentCmds();
