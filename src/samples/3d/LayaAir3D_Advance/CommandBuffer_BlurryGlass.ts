@@ -83,7 +83,7 @@ export class CommandBuffer_BlurryGlass {
 		var downSampleheigh: number = viewPort.height / downSampleFactor;
 		//设置模糊材质参数
 		var texSize: Vector4 = new Vector4(1.0 / viewPort.width, 1.0 / viewPort.height, viewPort.width, downSampleheigh);//材质所在坐标位置
-		shaderValue.setNumber(BlurEffect.SHADERVALUE_DOWNSAMPLEVALUE, 1);
+		shaderValue.setNumber(BlurEffect.SHADERVALUE_DOWNSAMPLEVALUE, 1.0);
 		shaderValue.setVector(BlurEffect.SHADERVALUE_TEXELSIZE, texSize);
 		//创建降采样RenderTexture1
 		var downRenderTexture = RenderTexture.createFromPool(downSampleWidth, downSampleheigh, RenderTargetFormat.R8G8B8, RenderTargetFormat.None, false, 1);
@@ -107,9 +107,6 @@ export class CommandBuffer_BlurryGlass {
 		buf.setGlobalTexture(globalUniformNameID, downRenderTexture);
 		// 将commandBuffer加入渲染流程
 		camera.addCommandBuffer(CameraEventFlags.BeforeTransparent, buf);
-		// 回收用过的RenderTexture
-		RenderTexture.recoverToPool(downRenderTexture);
-		RenderTexture.recoverToPool(blurTexture);
 		return;
 	}
 
