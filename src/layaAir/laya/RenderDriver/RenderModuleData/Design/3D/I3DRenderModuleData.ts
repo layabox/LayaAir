@@ -219,6 +219,6 @@ export interface IShaderPassData {
     renderState: RenderState;
     setCacheShader(defines: IDefineDatas, shaderInstance: IShaderInstance): void;
     getCacheShader(defines: IDefineDatas): IShaderInstance;
-    destory(): void;
+    destroy(): void;
 }
 

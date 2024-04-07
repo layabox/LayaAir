@@ -126,7 +126,7 @@ export class WebShaderPass implements IShaderPassData {
         return shader;
     }
 
-    destory(): void {
+    destroy(): void {
         //删除所有shader TODO
     }
 

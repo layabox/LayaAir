@@ -81,7 +81,7 @@ export class BlitScreenQuadCMD extends Command {
 	}
 
 	set offsetScale(value: Vector4) {
-		this._offsetScale = value;
+		value.cloneTo(this._offsetScale);
 		this._blitQuadCMDData.offsetScale = value;
 	}
 
@@ -153,7 +153,10 @@ export class BlitScreenQuadCMD extends Command {
 			this._blitQuadCMDData.viewport = Viewport._tempViewport;
 			this._blitQuadCMDData.scissor = Vector4.tempVec4;
 		}
-		this._renderElement.setGeometry((dest ? ScreenQuad.instance : false) ? ScreenQuad.InvertInstance : ScreenQuad.instance);
+
+		let invertY = dest ? true : false;
+		this._renderElement.setGeometry(invertY ? ScreenQuad.InvertInstance : ScreenQuad.instance);
+
 		Stat.blitDrawCall++;
 	}
 

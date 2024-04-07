@@ -5,5 +5,5 @@ export interface IVertexBuffer {
     instanceBuffer: boolean;
     setData(buffer: ArrayBuffer, bufferOffset: number, dataStartIndex: number, dataCount: number): void;
     setDataLength(byteLength: number): void;
-    destory():void;
+    destroy():void;
 }

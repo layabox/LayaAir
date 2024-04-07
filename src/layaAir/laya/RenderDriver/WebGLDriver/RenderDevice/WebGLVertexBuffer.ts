@@ -69,7 +69,7 @@ export class WebGLVertexBuffer implements IVertexBuffer {
         this._glBuffer.setDataLength(this._glBuffer._byteLength);
     }
 
-    destory(): void {
+    destroy(): void {
         this._glBuffer.destroy();
         this._vertexDeclaration = null
         this._changeMemory(0);

@@ -180,8 +180,9 @@ export class PostProcess {
         this._context!.destination = this._effects.length == 2 ? Indirect[0] : cameraTarget;
         this._context!.compositeShaderData!.clearDefine();
         if (isTargetRenderTexture) {
-            Vector4.tempVec4.setValue(0, 1, 1, -1);
-            this._context.command.blitScreenTriangle(camera._offScreenRenderTexture, screenTexture, Vector4.tempVec4);
+            let offsetScale = Vector4.tempVec4;
+            offsetScale.setValue(0, 1, 1, -1);
+            this._context.command.blitScreenTriangle(camera._offScreenRenderTexture, screenTexture);
         } else {
             this._context.command.blitScreenTriangle(camera._internalRenderTexture, screenTexture);
         }

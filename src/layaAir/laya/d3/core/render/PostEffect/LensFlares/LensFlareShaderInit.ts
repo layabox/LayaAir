@@ -6,6 +6,7 @@ import { SubShader } from "../../../../../RenderEngine/RenderShader/SubShader";
 import { Color } from "../../../../../maths/Color";
 import { LensFlareElementGeomtry } from "./LensFlareGeometry";
 import { ShaderDataType } from "../../../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { RenderState } from "../../../../../RenderDriver/RenderModuleData/Design/RenderState";
 
 export class LensFlareShaderInit {
 
@@ -31,6 +32,8 @@ export class LensFlareShaderInit {
         let shader = Shader3D.add("LensFlare", true, false);
         let subshader = new SubShader(attribute, uniformMap, defaultValue)
         shader.addSubShader(subshader);
-        subshader.addShaderPass(LensFlareVS, LensFlareFS);
+        let pass = subshader.addShaderPass(LensFlareVS, LensFlareFS);
+        pass.statefirst = true;
+        pass.renderState.cull = RenderState.CULL_NONE;
     }
 }
