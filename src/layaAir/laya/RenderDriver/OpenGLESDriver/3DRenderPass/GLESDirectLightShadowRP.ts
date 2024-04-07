@@ -21,7 +21,7 @@ export class GLESDirectLightShadowRP {
     }
     public set camera(value: RTCameraNodeData) {
         this._camera = value;
-        this._nativeObj.setCameraNodeData(value);
+        this._nativeObj.setCameraNodeData(value._nativeObj);
     }
     private _destTarget: InternalRenderTarget;
     public get destTarget(): InternalRenderTarget {
