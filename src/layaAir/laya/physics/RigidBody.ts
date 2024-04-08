@@ -132,8 +132,8 @@ export class RigidBody extends Component {
      */
     updatePhysicsAttribute(): void {
         var factory = Physics2D.I._factory;
-        let point = this.GetWorldPoint(0, 0);
-        factory.set_RigibBody_Transform(this._body, point.x, point.y, Utils.toRadian((<Sprite>this.owner).globalRotation));
+        var sp: Sprite = (<Sprite>this.owner);
+        factory.set_RigibBody_Transform(this._body, sp.globalPosX, sp.globalPosY, Utils.toRadian((<Sprite>this.owner).globalRotation));
         var comps: any[] = this.owner.getComponents(ColliderBase);
         if (comps) {
             for (var i: number = 0, n: number = comps.length; i < n; i++) {
@@ -264,8 +264,8 @@ export class RigidBody extends Component {
     setAngle(value: any): void {
         if (!this._body) this._onAwake();
         var factory = Physics2D.I._factory;
-        const p = this.GetWorldPoint(0, 0);
-        factory.set_RigibBody_Transform(this._body, p.x, p.y, value);
+        var sp: Sprite = (<Sprite>this.owner);
+        factory.set_RigibBody_Transform(this._body, sp.globalPosX, sp.globalPosY, value);
         factory.set_rigidbody_Awake(this._body, true);
     }
 
@@ -411,7 +411,7 @@ export class RigidBody extends Component {
      * @param y (单位： 像素)
     */
     GetLocalPoint(x: number, y: number) {
-        return (<Sprite>this.owner).getGlobalMatrix().transformPoint(Point.TEMP.setTo(x, y))
+        return (<Sprite>this.owner).getGlobalMatrix().invertTransformPoint(Point.TEMP.setTo(x, y))
     }
 
 }

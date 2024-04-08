@@ -204,6 +204,7 @@ export class RenderSprite {
                     let py = y - sprite.pivotY + tex.offsetY * hRate;
                     context.material = sprite.graphics.material;
                     context.drawTexture(tex, px, py, width, height, 0xffffffff);
+                    context.material = null;
                 }
             }
         }
@@ -351,6 +352,7 @@ export class RenderSprite {
         //Stage._dbgSprite.graphics.drawRect(x, y, 30,30, null, 'red');
         context.material = sprite.graphics.material;
         context.drawCanvas(_cacheStyle.canvas, x + tRec.x, y + tRec.y, tRec.width, tRec.height);
+        context.material = null;
     }
 
     /**@internal */
