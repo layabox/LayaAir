@@ -201,6 +201,10 @@ export class BaseRender extends Component {
         this._baseRenderNode.enable = value;
     }
 
+    get enabled(): boolean {
+        return super.enabled;
+    }
+
     /**排序矫正值。*/
     set sortingFudge(value: number) {
         this._baseRenderNode.sortingFudge = value;

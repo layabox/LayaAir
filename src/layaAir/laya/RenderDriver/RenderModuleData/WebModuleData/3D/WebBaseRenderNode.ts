@@ -89,6 +89,7 @@ export class WebBaseRenderNode implements IBaseRenderNode {
         this.renderelements = [];
         this._commonUniformMap = [];
         this._worldParams = new Vector4(1, 0, 0, 0);
+        this.lightmapDirtyFlag = -1;
         this.lightmapScaleOffset = new Vector4(1, 1, 0, 0);
         this.set_caculateBoundingBox(this, this._ownerCalculateBoundingBox);
     }
