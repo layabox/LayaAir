@@ -456,6 +456,7 @@ export class Material extends Resource implements IClone {
         super();
         this._shaderValues = LayaGL.renderOBJCreate.createShaderData(this);
         this.renderQueue = Material.RENDERQUEUE_OPAQUE;
+        this._matRenderNode = 0;
         this.alphaTest = false;
         this.cull = RenderState.CULL_BACK;
         this.blend = RenderState.BLEND_DISABLE;
