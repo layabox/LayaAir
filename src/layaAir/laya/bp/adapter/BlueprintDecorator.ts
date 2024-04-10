@@ -109,35 +109,36 @@ export function bpFunction(options: BPDecoratorsOptionFunction) {
             declare = initDeclaration("", target);
         }
 
-        if (options.propertType == "constructor") {
-            let construct: TBPDeclarationConstructor = {
-                params: options.params,
+        // if (options.propertType == "constructor") {
+        //     let construct: TBPDeclarationConstructor = {
+        //         params: options.params,
 
-            }
-            declare.construct = construct;
-        } else {
-            let func: TBPDeclarationFunction = {
-                name: propertyKey,
-                type: options.type || BPType.Function,
-                returnType: options.returnType,
-                caption: options.caption,
-                catalog: options.catalog,
-                modifiers: options.modifiers,
-                tips: options.tips,
-                params: options.params,
-            }
-
-            if (!func.modifiers) func.modifiers = {};
-            func.modifiers.isPublic = true;
-            // func.originFunc = descriptor.value;
-
-            if (!declare.funcs) {
-                declare.funcs = [];
-            }
-
-            declare.funcs.push(func);
+        //     }
+        //     declare.construct = construct;
+        // } else {
+            
+        let func: TBPDeclarationFunction = {
+            name: propertyKey,
+            type: options.type || BPType.Function,
+            returnType: options.returnType,
+            caption: options.caption,
+            catalog: options.catalog,
+            modifiers: options.modifiers,
+            tips: options.tips,
+            params: options.params,
         }
+
+        if (!func.modifiers) func.modifiers = {};
+        func.modifiers.isPublic = true;
+        // func.originFunc = descriptor.value;
+
+        if (!declare.funcs) {
+            declare.funcs = [];
+        }
+
+        declare.funcs.push(func);
     }
+    // }
 }
 
 /**
