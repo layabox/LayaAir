@@ -91,7 +91,7 @@ export function bpProperty(options: BPDecoratorsOptionProp) {
 }
 
 /**
- * 蓝图装饰器，方法包括getset
+ * 蓝图装饰器，方法
  */
 export function bpFunction(options: BPDecoratorsOptionFunction) {
 
@@ -141,7 +141,7 @@ export function bpFunction(options: BPDecoratorsOptionFunction) {
 }
 
 /**
- * 蓝图装饰器，方法包括
+ * 蓝图装饰器，getset
  */
 export function bpAccessor(options: BPDecoratorsOptionProp) {
 
