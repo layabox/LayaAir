@@ -96,7 +96,7 @@ export function bpProperty(options: BPDecoratorsOptionProp) {
 }
 
 /**
- * 蓝图装饰器，方法包括getset
+ * 蓝图装饰器，方法
  */
 export function bpFunction(options: BPDecoratorsOptionFunction) {
 
@@ -114,39 +114,40 @@ export function bpFunction(options: BPDecoratorsOptionFunction) {
             declare = initDeclaration("", target);
         }
 
-        if (options.propertType == "constructor") {
-            let construct: TBPDeclarationConstructor = {
-                params: options.params,
+        // if (options.propertType == "constructor") {
+        //     let construct: TBPDeclarationConstructor = {
+        //         params: options.params,
 
-            }
-            declare.construct = construct;
-        } else {
-            let func: TBPDeclarationFunction = {
-                name: propertyKey,
-                type: options.type || BPType.Function,
-                returnType: options.returnType,
-                caption: options.caption,
-                catalog: options.catalog,
-                modifiers: options.modifiers,
-                tips: options.tips,
-                params: options.params,
-            }
-
-            if (!func.modifiers) func.modifiers = {};
-            func.modifiers.isPublic = true;
-            // func.originFunc = descriptor.value;
-
-            if (!declare.funcs) {
-                declare.funcs = [];
-            }
-
-            declare.funcs.push(func);
+        //     }
+        //     declare.construct = construct;
+        // } else {
+            
+        let func: TBPDeclarationFunction = {
+            name: propertyKey,
+            type: options.type || BPType.Function,
+            returnType: options.returnType,
+            caption: options.caption,
+            catalog: options.catalog,
+            modifiers: options.modifiers,
+            tips: options.tips,
+            params: options.params,
         }
+
+        if (!func.modifiers) func.modifiers = {};
+        func.modifiers.isPublic = true;
+        // func.originFunc = descriptor.value;
+
+        if (!declare.funcs) {
+            declare.funcs = [];
+        }
+
+        declare.funcs.push(func);
     }
+    // }
 }
 
 /**
- * 蓝图装饰器，方法包括
+ * 蓝图装饰器，getset
  */
 export function bpAccessor(options: BPDecoratorsOptionProp) {
 

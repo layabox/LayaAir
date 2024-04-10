@@ -4,7 +4,7 @@ export type TBPDecoratorsPropertType = "function" | "property" | "class" | "cons
 
 export type TBPDecoratorsFuncType = "pure" | "function" | "event" | BPType.Pure | BPType.Function | BPType.Event;
 
-export type TBPDeclarationType = "Node" | "Component" | "Others";
+export type TBPDeclarationType = "Enum" | "Node" | "Component" | "Others";
 
 /** 修饰符 */
 export type BPModifiers = {
@@ -45,6 +45,21 @@ export type TBPDeclaration = {
     funcs?: TBPDeclarationFunction[];
     /** 构造函数 */
     construct?: TBPDeclarationConstructor;
+    /** 枚举成员 */
+    merbers?: TBPDeclarationMerber[];
+    /** 显示名称，没有默认使用name */
+    caption?: string;
+    /** 分组 */
+    catalog?: string;
+    /** 提示内容 */
+    tips?: string;
+}
+
+export type TBPDeclarationMerber = {
+    /** 枚举名称 */
+    name:string;
+    /** 枚举值 */
+    value:number | string;
     /** 显示名称，没有默认使用name */
     caption?: string;
     /** 分组 */
@@ -182,6 +197,8 @@ export interface BPDecoratorsOptionClass extends BPDecoratorsOptionBase {
     extends?: string;
     /** 能否被继承 */
     canInherited?: boolean;
+    /** 构造函数参数 */
+    construct?: TBPDeclarationConstructor;
 }
 
 export interface BPDecoratorsOptionFunction extends BPDecoratorsOptionBase {
