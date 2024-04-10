@@ -52,6 +52,10 @@ export function bpClass(options: BPDecoratorsOptionClass) {
             declare.canInherited = options.canInherited;
         }
         
+        if (options.construct) {
+            declare.construct = options.construct;
+        }
+
         bpUserMap.delete(propertType);
         //以uuid为识别
         // customData[options.uuid] = declare;
@@ -121,7 +125,7 @@ export function bpFunction(options: BPDecoratorsOptionFunction) {
         //     }
         //     declare.construct = construct;
         // } else {
-            
+
         let func: TBPDeclarationFunction = {
             name: propertyKey,
             type: options.type || BPType.Function,
