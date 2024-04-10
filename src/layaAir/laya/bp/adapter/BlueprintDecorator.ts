@@ -36,9 +36,10 @@ export function bpClass(options: BPDecoratorsOptionClass) {
             return;
         }
 
-        let declare = bpUserMap.get(target.prototype);
+        let propertType = target.prototype
+        let declare = bpUserMap.get(propertType);
         if (!declare) {
-            initDeclaration(options.name, target);
+            declare = initDeclaration(options.name, propertType);
         } else {
             declare.name = options.name;
         }
@@ -47,7 +48,11 @@ export function bpClass(options: BPDecoratorsOptionClass) {
             declare.extends = [options.extends];
         }
 
-        bpUserMap.delete(target.prototype);
+        if (options.canInherited) {
+            declare.canInherited = options.canInherited;
+        }
+        
+        bpUserMap.delete(propertType);
         //以uuid为识别
         // customData[options.uuid] = declare;
         BlueprintUtil.addCustomData(options.uuid, declare);

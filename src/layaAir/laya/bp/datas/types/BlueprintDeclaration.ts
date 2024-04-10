@@ -180,6 +180,8 @@ export interface BPDecoratorsOptionClass extends BPDecoratorsOptionBase {
     uuid?: string;
     /** 继承的父类 */
     extends?: string;
+    /** 能否被继承 */
+    canInherited?: boolean;
 }
 
 export interface BPDecoratorsOptionFunction extends BPDecoratorsOptionBase {
