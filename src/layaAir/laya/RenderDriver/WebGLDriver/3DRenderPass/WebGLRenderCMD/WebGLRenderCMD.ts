@@ -229,6 +229,9 @@ export class WebGLSetViewportCMD extends SetViewportCMD {
         context.setScissor(this.scissor);
     }
 }
+
+const viewport = new Viewport();
+const scissor = new Vector4();
 export class WebGLSetRenderTargetCMD extends SetRenderTargetCMD {
     type: RenderCMDType;
     protected _rt: InternalRenderTarget;
@@ -285,6 +288,15 @@ export class WebGLSetRenderTargetCMD extends SetRenderTargetCMD {
     apply(context: WebGLRenderContext3D): void {
         context.setRenderTarget(this.rt, RenderClearFlag.Nothing);
         context.setClearData(this.clearFlag, this.clearColorValue, this.clearDepthValue, this.clearStencilValue);
+
+        if (this.rt) {
+            // todo
+            viewport.set(0, 0, this.rt._textures[0].width, this.rt._textures[0].height);
+            scissor.setValue(0, 0, this.rt._textures[0].width, this.rt._textures[0].height);
+            context.setViewPort(viewport);
+            context.setScissor(scissor);
+        }
+
     }
 }
 export class WebGLSetRenderData extends SetRenderDataCMD {
