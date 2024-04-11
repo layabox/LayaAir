@@ -1,6 +1,6 @@
 import { BPType } from "./BlueprintTypes";
 
-export type TBPDecoratorsPropertType = "function" | "property" | "class" | "constructor" | "accessor";
+export type TBPDecoratorsPropertType = "function" | "property" | "class";
 
 export type TBPDecoratorsFuncType = "pure" | "function" | "event" | BPType.Pure | BPType.Function | BPType.Event;
 

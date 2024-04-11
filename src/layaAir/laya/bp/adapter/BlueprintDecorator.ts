@@ -93,8 +93,10 @@ export function bpProperty(options: BPDecoratorsOptionProp) {
             tips: options.tips
         };
 
-        if (!prop.modifiers) prop.modifiers = {};
-        prop.modifiers.isPublic = true;
+        if (!prop.modifiers) {
+            prop.modifiers = {};
+            prop.modifiers.isPublic = true;
+        }
 
         if (!declare.props) {
             declare.props = [];
@@ -110,10 +112,8 @@ export function bpFunction(options: BPDecoratorsOptionFunction) {
 
     return function (target: any, propertyKey: string, descriptor: any) {
 
-        if (options.propertType
-            && options.propertType != "constructor"
-            && options.propertType != "function") {
-            console.error("BP:Reg Function Fail :", propertyKey, " , propertType is not function or constructor!");
+        if (options.propertType && options.propertType != "function") {
+            console.error("BP:Reg Function Fail :", propertyKey, " , propertType is not function!");
             return;
         }
 
@@ -141,8 +141,10 @@ export function bpFunction(options: BPDecoratorsOptionFunction) {
             params: options.params,
         }
 
-        if (!func.modifiers) func.modifiers = {};
-        func.modifiers.isPublic = true;
+        if (!func.modifiers){
+            func.modifiers = {};
+            func.modifiers.isPublic = true;
+        } 
         // func.originFunc = descriptor.value;
 
         if (!declare.funcs) {
@@ -179,14 +181,6 @@ export function bpAccessor(options: BPDecoratorsOptionProp) {
             modifiers: options.modifiers,
             tips: options.tips,
         }
-        // if (options) {
-        //     prop 
-        // }else{
-        //     prop = {
-        //         name:propertyKey,
-        //         type:"any"
-        //     }
-        // }
 
         if (descriptor.get) {
             prop.getter = true;
@@ -196,16 +190,19 @@ export function bpAccessor(options: BPDecoratorsOptionProp) {
             prop.setter = true;
         }
 
+        if (!prop.modifiers) {
+            prop.modifiers = {}
+            prop.modifiers.isPublic = true;
+        }
+
         if (prop.getter && !prop.setter) {
-            if (!prop.modifiers) {
-                prop.modifiers = {}
-            }
             prop.modifiers.isReadonly = true;
         }
 
         if (!declare.props) {
             declare.props = [];
         }
+
         declare.props.push(prop);
     }
 }
