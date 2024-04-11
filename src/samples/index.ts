@@ -8,16 +8,13 @@ import "laya/spine/ModuleDef";
 import "laya/gltf/glTFLoader";
 import "laya/d3/RenderObjs/RenderObj/WebGLRenderEngine3DFactory"
 
-import "laya/physics/factory/physics2DwasmFactory"
 import { Resource } from "laya/resource/Resource";
 import { Main } from "./Main";
 import { LayaGL } from "laya/layagl/LayaGL";
 import { WebGLRenderEngineFactory } from "laya/RenderEngine/RenderEngine/WebGLEngine/WebGLRenderEngineFactory"
-import { Laya3D } from "Laya3D";
-import { pxPhysicsCreateUtil } from "laya/Physics3D/PhysX/pxPhysicsCreateUtil";
 Resource.DEBUG = true;
 LayaGL.renderOBJCreate = new WebGLRenderEngineFactory();
 //Physics2D.I._factory = new physics2DJSFactory();
-Laya3D.PhysicsCreateUtil = new pxPhysicsCreateUtil();
+// Laya3D.PhysicsCreateUtil = new pxPhysicsCreateUtil();
 // new PhysicsWorld_BaseCollider();
 new Main(false);

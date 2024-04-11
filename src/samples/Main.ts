@@ -10,7 +10,6 @@ import { IndexView2D } from "./view/IndexView2D";
 import { IndexView3D } from "./view/IndexView3D";
 import { Texture } from "laya/resource/Texture";
 import Client from "./Client";
-import { PerformanceTest_Cartoon2 } from "./2d/PerformanceTest_Cartoon2";
 
 export class Main {
     private static _box3D: Sprite;
@@ -88,8 +87,7 @@ export class Main {
             //Layaair1.0-2d
             Main.box2D = new Sprite();
             Laya.stage.addChild(Main.box2D);
-            // Main._indexView = new IndexView2D(Main.box2D, Main);
-            new PerformanceTest_Cartoon2(Main);
+            Main._indexView = new IndexView2D(Main.box2D, Main);
         } else {
             //Layaair1.0-3d
             Main.box3D = new Sprite();
@@ -98,9 +96,9 @@ export class Main {
         }
 
         Laya.stage.addChild(Main._indexView);
-        // Main._indexView.left = 10;
-        // Main._indexView.bottom = (window as any).viewtop || 50;
-        // Main._indexView.mouseEnabled = Main._indexView.mouseThrough = true;
-        // Main._indexView.switchFunc(0, 0);//切换到指定case
+        Main._indexView.left = 10;
+        Main._indexView.bottom = (window as any).viewtop || 50;
+        Main._indexView.mouseEnabled = Main._indexView.mouseThrough = true;
+        Main._indexView.switchFunc(0, 0);//切换到指定case
     }
 }
