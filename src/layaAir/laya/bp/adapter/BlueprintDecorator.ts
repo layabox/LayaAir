@@ -60,7 +60,8 @@ export function bpClass(options: BPDecoratorsOptionClass) {
             declare.events = options.events;
         }
         
-        bpUserMap.delete(propertType);
+        bpUserMap.delete(target);
+        bpUserMap.delete(target.prototype);
         //以uuid为识别
         // customData[options.uuid] = declare;
         BlueprintUtil.addCustomData(options.uuid, declare);
@@ -79,9 +80,12 @@ export function bpProperty(options: BPDecoratorsOptionProp) {
             return
         }
 
-        let declare = bpUserMap.get(target);
+        let isStatic = options.modifiers ? !!options.modifiers.isStatic : false;
+        let mapkey = isStatic ? target.prototype : target;
+
+        let declare = bpUserMap.get(mapkey);
         if (!declare) {
-            declare = initDeclaration("", target);
+            declare = initDeclaration("", mapkey);
         }
 
         let prop: TBPDeclarationProp = {
@@ -117,9 +121,12 @@ export function bpFunction(options: BPDecoratorsOptionFunction) {
             return;
         }
 
-        let declare = bpUserMap.get(target.prototype);
+        let isStatic = options.modifiers ? !!options.modifiers.isStatic : false;
+        let mapkey = isStatic ? target.prototype : target;
+
+        let declare = bpUserMap.get(mapkey);
         if (!declare) {
-            declare = initDeclaration("", target);
+            declare = initDeclaration("", mapkey);
         }
 
         // if (options.propertType == "constructor") {
@@ -168,9 +175,12 @@ export function bpAccessor(options: BPDecoratorsOptionProp) {
             return;
         }
 
-        let declare = bpUserMap.get(target);
+        let isStatic = options.modifiers ? !!options.modifiers.isStatic : false;
+        let mapkey = isStatic ? target.prototype : target;
+
+        let declare = bpUserMap.get(mapkey);
         if (!declare) {
-            declare = initDeclaration("", target);
+            declare = initDeclaration("", mapkey);
         }
 
         let prop: TBPDeclarationProp = {
