@@ -994,7 +994,7 @@ export class glTFResource extends Prefab {
 
         glTFNodes.forEach((glTFNode: glTF.glTFNode, index: number) => {
             let sprite: Sprite3D = this._nodes[index];
-            if (glTFNode.skin) {
+            if (glTFNode.skin != null) {
                 this.fixSkinnedSprite(glTFNode, sprite);
             }
         });
