@@ -116,7 +116,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
      */
     constructor() {
         super();
-        this._localBounds = new Bounds(Vector3.ZERO, Vector3.ZERO);
+        this.localBounds = new Bounds(Vector3.ZERO, Vector3.ZERO);
         this._baseRenderNode.shaderData.addDefine(SkinnedMeshSprite3DShaderDeclaration.SHADERDEFINE_BONE);
         this._baseRenderNode.renderNodeType = BaseRenderType.SkinnedMeshRender;
     }
