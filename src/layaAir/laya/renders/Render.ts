@@ -62,14 +62,14 @@ export class Render {
         }
 
         this.initRender(Render._mainCanvas, width, height);
-        window.requestAnimationFrame(loop);
+        requestAnimationFrame(loop);
         function loop(stamp: number): void {
             ILaya.stage._loop();
             if(!!Render._customRequestAnimationFrame&&!!Render._loopFunction){
                 Render._customRequestAnimationFrame(Render._loopFunction);
             }
             else
-            window.requestAnimationFrame(loop);
+            requestAnimationFrame(loop);
         }
         ILaya.stage.on("visibilitychange", this, this._onVisibilitychange);
     }
