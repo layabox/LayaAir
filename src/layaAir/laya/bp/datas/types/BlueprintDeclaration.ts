@@ -199,6 +199,8 @@ export interface BPDecoratorsOptionClass extends BPDecoratorsOptionBase {
     canInherited?: boolean;
     /** 构造函数参数 */
     construct?: TBPDeclarationConstructor;
+    /** 事件相关 */
+    events?: TBPDeclarationEvent[];
 }
 
 export interface BPDecoratorsOptionFunction extends BPDecoratorsOptionBase {

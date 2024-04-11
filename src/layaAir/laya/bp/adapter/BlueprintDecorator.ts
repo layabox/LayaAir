@@ -56,6 +56,10 @@ export function bpClass(options: BPDecoratorsOptionClass) {
             declare.construct = options.construct;
         }
 
+        if (options.events) {
+            declare.events = options.events;
+        }
+        
         bpUserMap.delete(propertType);
         //以uuid为识别
         // customData[options.uuid] = declare;
