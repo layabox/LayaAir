@@ -358,6 +358,7 @@ export class SpineSkeleton extends Sprite {
 
         this.graphics.clear();
         this._renerer.draw(this._skeleton, this.graphics, -1, -1);
+        //this._renerer.drawOld(this._skeleton, this.graphics, -1, -1);
     }
 
     private _flushExtSkin() {

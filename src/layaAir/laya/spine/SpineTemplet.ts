@@ -5,6 +5,10 @@ import { URL } from "../net/URL";
 import { ILoadURL } from "../net/Loader";
 import { SpineTexture } from "./SpineTexture";
 import { IBatchProgress } from "../net/BatchProgress";
+import { SpineMaterial } from "./material/SpineMaterial";
+import { Material } from "../resource/Material";
+import { Vector2 } from "../maths/Vector2";
+import { Laya } from "../../Laya";
 
 /**
  * Spine动画模板基类
@@ -14,6 +18,8 @@ export class SpineTemplet extends Resource {
 
     public skeletonData: spine.SkeletonData;
 
+    private materialMap: Map<string, SpineMaterial>;
+
     private _textures: Record<string, SpineTexture>;
     private _basePath: string;
     private _ns: any;
@@ -22,6 +28,7 @@ export class SpineTemplet extends Resource {
         super();
 
         this._textures = {};
+        this.materialMap = new Map();
     }
 
     get ns(): typeof spine {
@@ -30,6 +37,19 @@ export class SpineTemplet extends Resource {
 
     get basePath(): string {
         return this._basePath;
+    }
+
+    getMaterial(texture: Texture, blendMode: number): Material {
+        let key = texture.id + "_" + blendMode;
+        let mat = this.materialMap.get(key);
+        if (!mat) {
+            mat = new SpineMaterial();
+            mat.texture = texture;
+            mat.blendMode = blendMode;
+            //mat.setVector2("u_size",new Vector2(Laya.stage.width,Laya.stage.height));
+            this.materialMap.set(key, mat);
+        }
+        return mat;
     }
 
     getTexture(name: string): SpineTexture {
