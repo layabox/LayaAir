@@ -7,9 +7,9 @@ import { NavMeshSurface } from "./NavMeshSurface";
 
 
 /**
- * <code>NavNavMeshLink</code> 网格外链接。
+ * <code>NavMeshLink</code> 网格外链接。
  */
-export class NavNavMeshLink extends Component {
+export class NavMeshLink extends Component {
     /**@internal */
     _start: Vector3 = new Vector3();
 
@@ -186,7 +186,7 @@ export class NavNavMeshLink extends Component {
 
     /**@internal */
     _cloneTo(dest: Component): void {
-        let link = dest as NavNavMeshLink;
+        let link = dest as NavMeshLink;
         this._localstart.cloneTo(link._localstart);
         this._localend.cloneTo(link._localend);
         link._agentType = this._agentType;

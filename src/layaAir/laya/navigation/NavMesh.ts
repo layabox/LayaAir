@@ -7,7 +7,7 @@ import { SingletonList } from "../utils/SingletonList";
 import { AreaMask } from "./AreaMask";
 import { NavAgent } from "./Component/NavAgent";
 import { NavMeshModifierVolume } from "./Component/NavMeshModifierVolume";
-import { NavNavMeshLink } from "./Component/NavNavMeshLink";
+import { NavMeshLink } from "./Component/NavMeshLink";
 import { NavMeshGrid } from "./NavMeshGrid";
 import { NavigationManager } from "./NavigationManager";
 import { NavigationPathData } from "./NavigationPathData";
@@ -58,7 +58,7 @@ export class NavMesh {
     private _grid: NavMeshGrid;
 
     /** @internal */
-    private _meshlinkOffList: SingletonList<NavNavMeshLink>;
+    private _meshlinkOffList: SingletonList<NavMeshLink>;
     /** @internal */
     private _meshlinkoffIdLists: number[];
 
@@ -124,7 +124,7 @@ export class NavMesh {
         this._delayCreates = new Map<number, NavAgent[]>();
         this._fiterMap = new Map<number, any>();
 
-        this._meshlinkOffList = new SingletonList<NavNavMeshLink>();
+        this._meshlinkOffList = new SingletonList<NavMeshLink>();
         this._meshlinkoffIdLists = [];
 
         this._meshVolumeList = new SingletonList<NavMeshModifierVolume>();
@@ -199,6 +199,7 @@ export class NavMesh {
     private _createAgents(agent: NavAgent) {
         agent._filter = this._getFilter(agent._areaMask)
         const pos = (<Sprite3D>agent.owner).transform.position;
+
         let params = NavigationUtils.getCrowdAgentParams();
         const radius = agent._getradius()
         params.radius = radius;
@@ -211,7 +212,8 @@ export class NavMesh {
         params.separationWeight = agent.priority;
         params.queryFilterType = agent._filter.queryFilterType;
         params.updateFlags = agent._getUpdateFlags();
-        agent._agentId = this._crowd.addAgent(pos.toArray(), params);
+        let refPoint = this._navQuery.findNearestPoly(pos.toArray(), this._extents, agent._filter);
+        agent._agentId = this._crowd.addAgent(refPoint.data, params);
         agent._crowAgent = this._crowd.getAgent(agent._agentId);
     }
 
@@ -259,7 +261,7 @@ export class NavMesh {
      * @param link 
      * @returns 
      */
-    addNavMeshLink(link: NavNavMeshLink): void {
+    addNavMeshLink(link: NavMeshLink): void {
         if (this._meshlinkOffList.indexof(link) >= 0) return;
         this._meshlinkOffList.add(link);
         let index = this._meshlinkOffList.length - 1;
@@ -273,7 +275,7 @@ export class NavMesh {
      * @internal
      * @param linkid 
      */
-    removeNavMeshLink(link: NavNavMeshLink): void {
+    removeNavMeshLink(link: NavMeshLink): void {
         let index = this._meshlinkOffList.indexof(link);
         if (index < 0) return;
         this._navMeshLink.deleteOffMeshConnection(index);

@@ -7,7 +7,7 @@ import { NavTileData, NavTileCache } from "../NavTileData";
 import { NavModifleBase } from "./NavModifleBase";
 
 
-export class NavModifileSurface extends NavModifleBase {
+export class NavMeshModifileSurface extends NavModifleBase {
 
     /**@internal load*/
     _oriTiles: NavTileData;
@@ -17,7 +17,7 @@ export class NavModifileSurface extends NavModifleBase {
 
 
     /**
-     * <code>NavModifileSurface<Code>
+     * <code>NavMeshModifileSurface<Code>
      */
     constructor() {
         super();
@@ -61,7 +61,7 @@ export class NavModifileSurface extends NavModifleBase {
      * @internal
      */
     _cloneTo(dest: Component): void {
-        let surface = dest as NavModifileSurface;
+        let surface = dest as NavMeshModifileSurface;
         surface.datas = this._oriTiles._res;
         super._cloneTo(dest);
     }

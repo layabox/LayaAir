@@ -13,7 +13,7 @@ import { NavigationManager } from "../NavigationManager";
 import { NavigationUtils } from "../NavigationUtils";
 import { NavMeshModifierVolume } from "./NavMeshModifierVolume";
 import { NavModifleBase } from "./NavModifleBase";
-import { NavNavMeshLink } from "./NavNavMeshLink";
+import { NavMeshLink } from "./NavMeshLink";
 
 
 
@@ -254,14 +254,14 @@ export class NavMeshSurface extends Component {
     /**
      * @internal 
      */
-    _addMeshLink(meshLink: NavNavMeshLink) {
+    _addMeshLink(meshLink: NavMeshLink) {
         this._navMesh.addNavMeshLink(meshLink);
     }
 
     /**
      * @internal 
      */
-    _removeMeshLink(meshLink: NavNavMeshLink) {
+    _removeMeshLink(meshLink: NavMeshLink) {
         this._navMesh.removeNavMeshLink(meshLink);
     }
 
@@ -293,7 +293,7 @@ export class NavMeshSurface extends Component {
      */
     _cleanBindData() {
         this._bindDatas.forEach((value) => {
-            NavigationUtils.free(value);
+            NavigationUtils.freeLayaData(value);
         })
         this._bindDatas.clear();
     }

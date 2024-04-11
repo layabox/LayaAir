@@ -85,8 +85,8 @@ export class PhysicsWorld_ContinueCollisionDetection {
 		var sphereShape: SphereColliderShape = new SphereColliderShape(radius);
 		rigidBody.colliderShape = sphereShape;
 		rigidBody.mass = 10;
-		rigidBody.ccdSweptSphereRadius = radius;
-		rigidBody.ccdMotionThreshold = 0.0001;
+		// rigidBody.ccdSweptSphereRadius = radius;
+		// rigidBody.ccdMotionThreshold = 0.0001;
 	}
 
 }

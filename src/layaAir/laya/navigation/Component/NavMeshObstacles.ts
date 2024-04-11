@@ -15,7 +15,7 @@ export enum NavObstaclesMeshType {
     Num
 }
 
-let createObstacleData = function (slices: number, radiusOff: number = 0): NavTileCache {
+let createObstacleData = function (slices: number, radiusOff: number = 0, radius: number = 1): NavTileCache {
     let vertexs = new Float32Array(slices * 6);
     const triCount = (slices - 1) * 4;
     let flags = new Uint8Array(triCount);
@@ -38,10 +38,10 @@ let createObstacleData = function (slices: number, radiusOff: number = 0): NavTi
     var sliceAngle = (Math.PI * 2.0) / slices;
     for (var i = 0; i < slices; i++) {
         let triIndex = i * 6;
-        vertexs[triIndex] = vertexs[triIndex + 3] = 0.5 * Math.cos(sliceAngle * i + radiusOff);
-        vertexs[triIndex + 2] = vertexs[triIndex + 5] = 0.5 * Math.sin(sliceAngle * i + radiusOff);
-        vertexs[triIndex + 1] = 0.5;
-        vertexs[triIndex + 4] = -0.5;
+        vertexs[triIndex] = vertexs[triIndex + 3] = radius * Math.cos(sliceAngle * i + radiusOff);
+        vertexs[triIndex + 2] = vertexs[triIndex + 5] = radius * Math.sin(sliceAngle * i + radiusOff);
+        vertexs[triIndex + 1] = radius;
+        vertexs[triIndex + 4] = -radius;
     }
     let tileData = new NavTileCache();
     tileData.triVertex = vertexs;
@@ -51,9 +51,9 @@ let createObstacleData = function (slices: number, radiusOff: number = 0): NavTi
 }
 
 /**
- * <code>NavObstacles</code> 常用形状。
+ * <code>NavMeshObstacles</code> 常用形状。
  */
-export class NavObstacles extends NavModifleBase {
+export class NavMeshObstacles extends NavModifleBase {
 
     /**@internal */
     static _mapDatas: Map<NavObstaclesMeshType, NavTileCache>;
@@ -64,7 +64,7 @@ export class NavObstacles extends NavModifleBase {
     /**@internal */
     static _init_() {
         this._mapDatas = new Map<NavObstaclesMeshType, any>();
-        this._mapDatas.set(NavObstaclesMeshType.BOX, createObstacleData(4, Math.PI / 4));
+        this._mapDatas.set(NavObstaclesMeshType.BOX, createObstacleData(4, Math.PI / 4, 1 / Math.sqrt(2)));
         this._mapDatas.set(NavObstaclesMeshType.CAPSULE, createObstacleData(16, 0));
         this._defaltBound = new Bounds(new Vector3(-0.5, -0.5, -0.5), new Vector3(0.5, 0.5, 0.5));
         this._TempVec3 = new Vector3();
@@ -89,7 +89,7 @@ export class NavObstacles extends NavModifleBase {
         if (this._meshType == value)
             return;
         this._meshType = value;
-        this._dtNavTileCache.init(NavObstacles._mapDatas.get(this._meshType).bindData);
+        this._dtNavTileCache.init(NavMeshObstacles._mapDatas.get(this._meshType).bindData);
         if (this._enabled)
             this._onWorldMatNeedChange();
     }
@@ -160,7 +160,7 @@ export class NavObstacles extends NavModifleBase {
     /**@internal */
     protected _onEnable(): void {
         this._navManager = (this.owner.scene as Scene3D).getComponentElementManager("navMesh") as NavigationManager;
-        this._dtNavTileCache.init(NavObstacles._mapDatas.get(this._meshType).bindData);
+        this._dtNavTileCache.init(NavMeshObstacles._mapDatas.get(this._meshType).bindData);
         super._onEnable();
     }
 
@@ -172,11 +172,11 @@ export class NavObstacles extends NavModifleBase {
         if (this._meshType == NavObstaclesMeshType.BOX) {
             Matrix4x4.createAffineTransformation(this._center, Quaternion.DEFAULT, this._size, this._localMat);
         } else {
-            NavObstacles._TempVec3.setValue(this.radius, this.height, this.radius);
-            Matrix4x4.createAffineTransformation(this._center, Quaternion.DEFAULT, NavObstacles._TempVec3, this._localMat);
+            NavMeshObstacles._TempVec3.setValue(this.radius, this.height, this.radius);
+            Matrix4x4.createAffineTransformation(this._center, Quaternion.DEFAULT, NavMeshObstacles._TempVec3, this._localMat);
         }
         Matrix4x4.multiply(mat, this._localMat, this._localMat);
-        NavObstacles._defaltBound._tranform(this._localMat, bound);
+        NavMeshObstacles._defaltBound._tranform(this._localMat, bound);
         this._dtNavTileCache.transfromData(this._localMat.elements);
     }
 
@@ -187,7 +187,7 @@ export class NavObstacles extends NavModifleBase {
 
     /**@internal */
     _cloneTo(dest: Component): void {
-        let obstacles = dest as NavObstacles;
+        let obstacles = dest as NavMeshObstacles;
         this._center.cloneTo(obstacles.center);
         obstacles._meshType = this._meshType;
         this.size.cloneTo(obstacles.size);
