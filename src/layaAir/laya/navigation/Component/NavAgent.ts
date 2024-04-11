@@ -10,7 +10,7 @@ import { NavigationPathData } from "../NavigationPathData";
 import { AreaMask } from "../AreaMask";
 import { NavAgentLinkAnim } from "../NavAgentLinkAnim";
 import { NavMeshSurface } from "./NavMeshSurface";
-import { NavNavMeshLink } from "./NavNavMeshLink";
+import { NavMeshLink } from "./NavMeshLink";
 
 
 
@@ -242,7 +242,7 @@ export class NavAgent extends Component {
         let linkes = this._navManager.getNavMeshLink(this._currentNaveSurface, targetSurface);
         //没有找到链接
         if (linkes == null) return;
-        let link: NavNavMeshLink = null;
+        let link: NavMeshLink = null;
         let distance: number = Number.MAX_VALUE;
         let isstart: boolean;
         linkes.forEach((value) => {

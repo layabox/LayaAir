@@ -7,8 +7,8 @@ import { Vector3 } from "../maths/Vector3";
 import { SingletonList } from "../utils/SingletonList";
 import { AreaMask } from "./AreaMask";
 import { NavMeshSurface } from "./Component/NavMeshSurface";
-import { NavNavMeshLink } from "./Component/NavNavMeshLink";
-import { NavObstacles } from "./Component/NavObstacles";
+import { NavMeshLink } from "./Component/NavMeshLink";
+import { NavMeshObstacles } from "./Component/NavMeshObstacles";
 import { NavigationUtils } from "./NavigationUtils";
 import { RecastConfig } from "./RecastConfig";
 
@@ -41,9 +41,8 @@ export class NavigationManager implements IElementComponentManager {
      */
     static initialize(): Promise<void> {
         return (window as any).Recast().then((Recast: any) => {
-            console.log("Recast loaded.");
             NavigationUtils.initialize(Recast);
-            NavObstacles._init_();
+            NavMeshObstacles._init_();
             return Promise.resolve();
         });
     }
@@ -61,7 +60,7 @@ export class NavigationManager implements IElementComponentManager {
     _naveMeshMaps: Map<string, SingletonList<NavMeshSurface>> = new Map();
 
     /**@internal */
-    _naveMeshLinkMaps: Map<string, Array<NavNavMeshLink>> = new Map();
+    _naveMeshLinkMaps: Map<string, Array<NavMeshLink>> = new Map();
 
     /**@internal */
     _deflatAllMask: AreaMask;
@@ -142,6 +141,7 @@ export class NavigationManager implements IElementComponentManager {
                 config.agentHeight = agents[i].agentHeight;
                 config.agentRadius = agents[i].agentRadius;
                 config.agentMaxClimb = agents[i].agentMaxClimb;
+                config.tileSize = agents[i].tileSize;
                 this.regNavConfig(config);
             }
         }
@@ -221,17 +221,17 @@ export class NavigationManager implements IElementComponentManager {
     }
 
     /**
-     * 注册不同navMesh的NavNavMeshLink
+     * 注册不同navMesh的NavMeshLink
      * @param start NavMeshSurface
      * @param end NavMeshSurface
-     * @param link NavNavMeshLink
+     * @param link NavMeshLink
      */
-    regNavMeshLink(start: NavMeshSurface, end: NavMeshSurface, link: NavNavMeshLink) {
+    regNavMeshLink(start: NavMeshSurface, end: NavMeshSurface, link: NavMeshLink) {
         if (start == end) return;
         if (start.agentType != end.agentType) return;
         let key: string = this._getLinkIdByNavMeshSurfaces(start, end);
         if (!this._naveMeshLinkMaps.has(key)) {
-            this._naveMeshLinkMaps.set(key, Array<NavNavMeshLink>());
+            this._naveMeshLinkMaps.set(key, Array<NavMeshLink>());
         }
         this._naveMeshLinkMaps.get(key).push(link);
     }
@@ -242,9 +242,9 @@ export class NavigationManager implements IElementComponentManager {
      * @internal 
      * @param from NavMeshSurface
      * @param to NavMeshSurface
-     * @returns NavNavMeshLink[]
+     * @returns NavMeshLink[]
      */
-    getNavMeshLink(from: NavMeshSurface, to: NavMeshSurface): NavNavMeshLink[] {
+    getNavMeshLink(from: NavMeshSurface, to: NavMeshSurface): NavMeshLink[] {
         let key: string = this._getLinkIdByNavMeshSurfaces(from, to);
         if (!this._naveMeshLinkMaps.has(key)) {
             return null;

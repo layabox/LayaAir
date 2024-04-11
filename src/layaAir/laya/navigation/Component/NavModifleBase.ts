@@ -87,6 +87,7 @@ export class NavModifleBase extends Component {
      * @internal
      */
     protected _onWorldMatNeedChange() {
+        if (this._surface == null) return;
         this._surface.forEach(element => {
             element._removeModifileNavMesh(this);
         });

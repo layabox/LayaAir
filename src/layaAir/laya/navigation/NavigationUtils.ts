@@ -432,6 +432,12 @@ export class NavigationUtils {
     }
 
     /**
+    * free any layaData
+    */
+    static freeLayaData(data: any) {
+        this._recast._free(data);
+    }
+    /**
      * check Status is Succeed
      */
     static statusSucceed(data: any): boolean {
