@@ -192,7 +192,7 @@ export class GLESShaderData extends ShaderData {
      * @return Vector3向量。
      */
     getVector3(index: number): Vector3 {
-        let value = this._nativeObj.setVector3(index);
+        let value = this._nativeObj.getVector3(index);
         if (value == null) {
             return value;
         }
@@ -365,9 +365,6 @@ export class GLESShaderData extends ShaderData {
         return this._textureData[index];
     }
 
-    getSourceIndex(value: any): number {
-        throw new Error("Method not implemented.");
-    }
 
     cloneTo(destObject: GLESShaderData): void {
        this._nativeObj.cloneTo(destObject._nativeObj);

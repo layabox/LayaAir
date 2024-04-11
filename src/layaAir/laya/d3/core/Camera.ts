@@ -733,7 +733,7 @@ export class Camera extends BaseCamera {
         ILaya.stage.on(Event.RESIZE, this, this._onScreenSizeChanged);
         this.transform.on(Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
         this.opaquePass = false;
-
+        this._internalCommandBuffer.context = RenderContext3D._instance;
         this._renderDataModule.farplane = this.farPlane;
         this._renderDataModule.nearplane = this.nearPlane;
         this._renderDataModule.fieldOfView = this.fieldOfView;

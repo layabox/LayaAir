@@ -65,9 +65,9 @@ export class RTBaseRenderNode implements IBaseRenderNode {
     }
     private _bounds: Bounds;
     public get bounds(): Bounds {
-        //if(this.boundsChange){
-            this._bounds._imp._nativeObj = this._nativeObj._bounds;
-        //}
+        // //if(this.boundsChange){
+        var aa =this._nativeObj._bounds;//触发get
+        // //}
         return this._bounds as Bounds;
     }
     public set bounds(value: Bounds) {

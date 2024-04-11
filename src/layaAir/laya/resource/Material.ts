@@ -934,14 +934,11 @@ export class Material extends Resource implements IClone {
     setTextureByIndex(uniformIndex: number, texture: BaseTexture) {
         this.shaderData.setTexture(uniformIndex, texture);
         if (texture && !texture._texture)//贴图为加载完，需要重设
-            texture.once(Event.READY, this, this.reSetTexture);
+            texture.once(Event.READY, this, this.reSetTexture, [uniformIndex, texture]);
     }
 
-    private reSetTexture(texture: BaseTexture) {
-        let index = this.shaderData.getSourceIndex(texture);
-        if (index != -1) {
-            this.setTextureByIndex(index, texture);
-        }
+    private reSetTexture(uniformIndex: number, texture: BaseTexture) {
+        this.setTextureByIndex(uniformIndex, texture);
     }
 
     /**

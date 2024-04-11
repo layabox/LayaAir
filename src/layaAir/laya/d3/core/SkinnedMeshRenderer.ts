@@ -171,59 +171,6 @@ export class SkinnedMeshRenderer extends MeshRenderer {
     }
 
     /**
-     * @internal
-     * @protected
-     */
-    protected _computeSkinnedDataForNative(): void {
-        if (this._cacheMesh) {
-            var bindPoses: Matrix4x4[] = this._cacheMesh._inverseBindPoses;
-            var pathMarks: skinnedMatrixCache[] = this._cacheMesh._skinnedMatrixCaches;
-            if (this._inverseBindPosesBufferForNative == null) {
-                this._inverseBindPosesBufferForNative = new Float32Array(bindPoses.length * 16);
-                var offset: number = 0;
-                for (var i: number = 0, n: number = bindPoses.length; i < n; i++) {
-                    this._inverseBindPosesBufferForNative.set(bindPoses[i].elements, offset);
-                    offset += 16;
-                }
-            }
-            if (this._skinnedMatrixCachesBufferForNative == null) {
-                this._skinnedMatrixCachesBufferForNative = new Int32Array(pathMarks.length * 3);
-                var j: number = 0;
-                for (var i: number = 0, n: number = pathMarks.length; i < n; i++) {
-                    if (!pathMarks[i]) {
-                        break;
-                    }
-                    this._skinnedMatrixCachesBufferForNative[j] = pathMarks[i].subMeshIndex;
-                    this._skinnedMatrixCachesBufferForNative[j + 1] = pathMarks[i].batchIndex;
-                    this._skinnedMatrixCachesBufferForNative[j + 2] = pathMarks[i].batchBoneIndex;
-                    j += 3;
-                }
-            }
-            if (this._bonesTransformForNative == null) {
-                this._bonesTransformForNative = [];
-                for (var i: number = 0, n: number = this._bones.length; i < n; i++) {
-                    let bone = this._bones[i];
-                    if (bone) {
-                        this._bonesTransformForNative[i] = (bone.transform as any)._nativeObj;
-                    }
-                    else {
-                        this._bonesTransformForNative[i] = null;
-                    }
-                }
-            }
-
-            for (var i: number = 0, n: number = this._cacheMesh.subMeshCount; i < n; i++) {
-                var subMeshBoneIndices: Uint16Array[] = ((<SubMesh>this._cacheMesh.getSubMesh(i)))._boneIndicesList;
-                var subData: Float32Array[] = this._skinnedData[i];
-                for (var j: number = 0, m: number = subMeshBoneIndices.length; j < m; j++) {
-                    var boneIndices: Uint16Array = subMeshBoneIndices[j];
-                    (window as any).conch.computeSubSkinnedDataForNative(this._inverseBindPosesBufferForNative, boneIndices, subData[j], this._skinnedMatrixCachesBufferForNative, this._bonesTransformForNative, this._skinnedDataLoopMarks, this._skinnedData);
-                }
-            }
-        }
-    }
-
-    /**
     * @inheritDoc
     * @internal
     * @override
