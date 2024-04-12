@@ -310,12 +310,13 @@ export class BlueprintData {
         }
         if (o?.funcs) {
             o.funcs.forEach((fun: TBPDeclarationFunction) => {
-                if (fun.modifiers.isPublic || fun.modifiers.isProtected) {
+                const modifiers = fun.modifiers;
+                if ((modifiers.isPublic == undefined) || modifiers.isPublic || modifiers.isProtected) {
                     let po = BlueprintData.createCData(fun);
                     po.target = ext;
 
-                    let func = fun.modifiers.isStatic ? cls[fun.name] : cls.prototype[fun.name];
-                    BlueprintFactory.regFunction(po.id, func, !fun.modifiers.isStatic, cls, po.target);
+                    let func = modifiers.isStatic ? cls[fun.name] : cls.prototype[fun.name];
+                    BlueprintFactory.regFunction(po.id, func, !modifiers.isStatic, cls, po.target);
 
                     if (fun.params && fun.params.length > 0) {
                         if (BPType.Event == po.type) {
