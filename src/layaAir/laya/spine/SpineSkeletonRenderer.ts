@@ -83,7 +83,7 @@ export class SpineSkeletonRenderer {
         let skeletonColor = skeleton.color;
         let vertexSize = twoColorTint ? 12 : 8;
         let inRange = false;
-
+        let needSlot = this.templet.needSlot;
         if (slotRangeStart == -1) inRange = true;
         for (let i = 0, n = drawOrder.length; i < n; i++) {
             let clippedVertexSize = clipper.isClipping() ? 2 : vertexSize;
@@ -110,14 +110,10 @@ export class SpineSkeletonRenderer {
                 renderable.vertices = this.vertices;
                 renderable.numVertices = 4;
                 renderable.numFloats = clippedVertexSize << 2;
-                if ("4.1" == SpineTemplet.RuntimeVersion) {
-                    region.computeWorldVertices(slot as any, renderable.vertices, 0, clippedVertexSize);
-                } else {
-                    region.computeWorldVertices(slot.bone, renderable.vertices, 0, clippedVertexSize);
-                }
+                region.computeWorldVertices(needSlot ? slot as any : slot.bone, renderable.vertices, 0, clippedVertexSize);
                 triangles = QUAD_TRIANGLES;
                 uvs = region.uvs;
-                if ("4.1" == SpineTemplet.RuntimeVersion) {
+                if (needSlot) {
                     name = (region.region as any).page.name;
                 } else {
                     name = region.region.renderObject.page.name;
@@ -322,10 +318,11 @@ export class SpineSkeletonRenderer {
         let mesh: SpineVirtualMesh;//= this.nextBatch(material);
         //mesh.clear();
         let spineTex;
+        let needSlot = this.templet.needSlot;
         for (let i = 0, n = drawOrder.length; i < n; i++) {
             let clippedVertexSize = clipper.isClipping() ? 2 : vertexSize;
             let slot = drawOrder[i];
-            let boneOrSlot=("4.1" == SpineTemplet.RuntimeVersion)?slot:slot.bone;
+            let boneOrSlot = needSlot ? slot : slot.bone;
             if (!slot.bone.active) {
                 clipper.clipEndWithSlot(slot);
                 continue;

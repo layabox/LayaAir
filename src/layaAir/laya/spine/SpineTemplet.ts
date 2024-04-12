@@ -23,6 +23,8 @@ export class SpineTemplet extends Resource {
     private _textures: Record<string, SpineTexture>;
     private _basePath: string;
     private _ns: any;
+    public needSlot:boolean;
+    
 
     constructor() {
         super();
@@ -64,7 +66,9 @@ export class SpineTemplet extends Resource {
             parseAtlas = this.parseAtlas4;
         else
             parseAtlas = this.parseAtlas3;
-
+        if(version=="4.1"){
+            this.needSlot=true;
+        }
         return parseAtlas.call(this, atlasText, progress).then((atlas: any) => {
             let atlasLoader = new this._ns.AtlasAttachmentLoader(atlas);
             if (desc instanceof ArrayBuffer) {
