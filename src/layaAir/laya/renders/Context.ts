@@ -1,5 +1,7 @@
 import { ILaya } from "../../ILaya";
+import { Laya } from "../../Laya";
 import { Const } from "../Const";
+import { IRenderGeometryElement } from "../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
 import { RenderState } from "../RenderDriver/RenderModuleData/Design/RenderState";
 import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
 import { Shader3D } from "../RenderEngine/RenderShader/Shader3D";
@@ -120,6 +122,8 @@ export class Context {
     private _clipID_Gen = 0;			//生成clipid的，原来是  _clipInfoID=++_clipInfoID 这样会有问题，导致兄弟clip的id都相同
     /**@internal */
     _curMat: Matrix;
+    /**@internal */
+    _matBuffer: Float32Array = new Float32Array(6);
 
     //计算矩阵缩放的缓存
     /**@internal */
@@ -1224,6 +1228,20 @@ export class Context {
         this._drawTextureM(tex, x, y, width, height, transform, alpha, uv, color);
         if (blendMode)
             this.globalCompositeOperation = oldcomp;
+    }
+
+    drawGeo(geo: IRenderGeometryElement, material: Material, x: number, y: number) {
+        let mat = this._curMat;
+        let buffer = this._matBuffer;
+        buffer[0] = mat.a;
+        buffer[1] = mat.b;
+        buffer[2] = mat.tx + mat.a * x + mat.c * y;
+        buffer[3] = mat.c;
+        buffer[4] = mat.d;
+        buffer[5] = mat.ty + mat.b * x + mat.d * y;
+        material.setBuffer("u_NMatrix", buffer);
+        material.setVector2("u_size",new Vector2(this._width,this._height));//TODO LAOGUO
+        this._render2D.drawMesh(geo, material);
     }
 
     drawTriangles(tex: Texture,

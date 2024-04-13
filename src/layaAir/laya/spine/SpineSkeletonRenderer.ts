@@ -2,6 +2,9 @@ import { Graphics } from "../display/Graphics";
 import { Matrix } from "../maths/Matrix";
 import { SpineTexture } from "./SpineTexture";
 import { SpineTemplet } from "./SpineTemplet";
+import { Material } from "../resource/Material";
+import { SpineVirtualMesh } from "./SpineVirtualMesh";
+
 
 interface Renderable {
     vertices: spine.ArrayLike<number>;
@@ -23,10 +26,33 @@ export class SpineSkeletonRenderer {
     private twoColorTint = false;
     private renderable: Renderable;
     private clipper: spine.SkeletonClipping;
+    vmeshs: SpineVirtualMesh[] = [];
+
+    private nextBatchIndex: number = 0;
+
     private temp = new window.spine.Vector2();
     private temp2 = new window.spine.Vector2();
     private temp3 = new window.spine.Color();
     private temp4 = new window.spine.Color();
+
+    clearBatch() {
+        for (var i = 0; i < this.vmeshs.length; i++) {
+            this.vmeshs[i].clear();
+        }
+        this.nextBatchIndex = 0;
+    }
+
+    nextBatch(material: Material) {
+        if (this.vmeshs.length == this.nextBatchIndex) {
+            let vmesh = new SpineVirtualMesh(material);
+            this.vmeshs.push(vmesh);
+            this.nextBatchIndex++;
+            return vmesh;
+        }
+        let vmesh = this.vmeshs[this.nextBatchIndex++];
+        vmesh.material = material;
+        return vmesh;
+    }
 
     constructor(templet: SpineTemplet, twoColorTint: boolean = true) {
         this.twoColorTint = twoColorTint;
@@ -38,7 +64,7 @@ export class SpineSkeletonRenderer {
         this.clipper = new templet.ns.SkeletonClipping();
     }
 
-    draw(skeleton: spine.Skeleton, graphics: Graphics, slotRangeStart: number = -1, slotRangeEnd: number = -1) {
+    drawOld(skeleton: spine.Skeleton, graphics: Graphics, slotRangeStart: number = -1, slotRangeEnd: number = -1) {
         let clipper = this.clipper;
         let premultipliedAlpha = this.premultipliedAlpha;
         let twoColorTint = false;
@@ -57,7 +83,7 @@ export class SpineSkeletonRenderer {
         let skeletonColor = skeleton.color;
         let vertexSize = twoColorTint ? 12 : 8;
         let inRange = false;
-
+        let needSlot = this.templet.needSlot;
         if (slotRangeStart == -1) inRange = true;
         for (let i = 0, n = drawOrder.length; i < n; i++) {
             let clippedVertexSize = clipper.isClipping() ? 2 : vertexSize;
@@ -84,14 +110,10 @@ export class SpineSkeletonRenderer {
                 renderable.vertices = this.vertices;
                 renderable.numVertices = 4;
                 renderable.numFloats = clippedVertexSize << 2;
-                if ("4.1" == SpineTemplet.RuntimeVersion) {
-                    region.computeWorldVertices(slot as any, renderable.vertices, 0, clippedVertexSize);
-                } else {
-                    region.computeWorldVertices(slot.bone, renderable.vertices, 0, clippedVertexSize);
-                }
+                region.computeWorldVertices(needSlot ? slot as any : slot.bone, renderable.vertices, 0, clippedVertexSize);
                 triangles = QUAD_TRIANGLES;
                 uvs = region.uvs;
-                if ("4.1" == SpineTemplet.RuntimeVersion) {
+                if (needSlot) {
                     name = (region.region as any).page.name;
                 } else {
                     name = region.region.renderObject.page.name;
@@ -275,5 +297,153 @@ export class SpineSkeletonRenderer {
             clipper.clipEndWithSlot(slot);
         }
         clipper.clipEnd();
+    }
+
+    draw(skeleton: spine.Skeleton, graphics: Graphics, slotRangeStart: number = -1, slotRangeEnd: number = -1) {
+        let clipper = this.clipper;
+        this.clearBatch();
+        let premultipliedAlpha = this.premultipliedAlpha;
+        let twoColorTint = this.twoColorTint;
+        let blendMode: spine.BlendMode | null = null;
+
+        let renderable: Renderable = this.renderable;
+        let uvs: ArrayLike<number>;
+        let triangles: Array<number>;
+        let drawOrder = skeleton.drawOrder;
+        let attachmentColor: spine.Color;
+        let skeletonColor = skeleton.color;
+        let vertexSize = twoColorTint ? 12 : 8;
+        let inRange = false;
+        if (slotRangeStart == -1) inRange = true;
+        let mesh: SpineVirtualMesh;//= this.nextBatch(material);
+        //mesh.clear();
+        let spineTex;
+        let needSlot = this.templet.needSlot;
+        for (let i = 0, n = drawOrder.length; i < n; i++) {
+            let clippedVertexSize = clipper.isClipping() ? 2 : vertexSize;
+            let slot = drawOrder[i];
+            let boneOrSlot = needSlot ? slot : slot.bone;
+            if (!slot.bone.active) {
+                clipper.clipEndWithSlot(slot);
+                continue;
+            }
+
+            if (slotRangeStart >= 0 && slotRangeStart == slot.data.index) {
+                inRange = true;
+            }
+
+            if (!inRange) {
+                clipper.clipEndWithSlot(slot);
+                continue;
+            }
+
+            if (slotRangeEnd >= 0 && slotRangeEnd == slot.data.index) {
+                inRange = false;
+            }
+
+            let attachment = slot.getAttachment();
+            let texture: SpineTexture;
+            if (attachment instanceof spine.RegionAttachment) {
+                // continue;
+                let region = <spine.RegionAttachment>attachment;
+                renderable.vertices = this.vertices;
+                renderable.numVertices = 4;
+                renderable.numFloats = clippedVertexSize << 2;
+                region.computeWorldVertices(boneOrSlot as any, renderable.vertices, 0, clippedVertexSize);
+                triangles = QUAD_TRIANGLES;
+                uvs = region.uvs;
+                texture = <SpineTexture>(region.region as any).texture;
+                attachmentColor = region.color;
+                // graphics.drawTexture(texture.realTexture,0,0,100,100,null,1,"#ffffff","normal",uvs as any)
+
+            } else if (attachment instanceof spine.MeshAttachment) {
+                //continue;
+                //debugger;
+                let mesh = <spine.MeshAttachment>attachment;
+                renderable.vertices = this.vertices;
+                renderable.numVertices = (mesh.worldVerticesLength >> 1);
+                renderable.numFloats = renderable.numVertices * clippedVertexSize;
+                if (renderable.numFloats > renderable.vertices.length) {
+                    renderable.vertices = this.vertices = spine.Utils.newFloatArray(renderable.numFloats);
+                }
+                mesh.computeWorldVertices(slot, 0, mesh.worldVerticesLength, renderable.vertices, 0, clippedVertexSize);
+                triangles = mesh.triangles;
+                texture = <SpineTexture>(mesh.region as any).texture;
+                uvs = mesh.uvs;
+                attachmentColor = mesh.color;
+            } else if (attachment instanceof spine.ClippingAttachment) {
+                let clip = <spine.ClippingAttachment>(attachment);
+                clipper.clipStart(slot, clip);
+                continue;
+            } else {
+                clipper.clipEndWithSlot(slot);
+                continue;
+            }
+
+            if (texture) {
+                let slotColor = slot.color;
+                let finalColor = this.tempColor;
+                finalColor.r = skeletonColor.r * slotColor.r * attachmentColor.r;
+                finalColor.g = skeletonColor.g * slotColor.g * attachmentColor.g;
+                finalColor.b = skeletonColor.b * slotColor.b * attachmentColor.b;
+                finalColor.a = skeletonColor.a * slotColor.a * attachmentColor.a;
+                if (premultipliedAlpha) {
+                    finalColor.r *= finalColor.a;
+                    finalColor.g *= finalColor.a;
+                    finalColor.b *= finalColor.a;
+                }
+                let darkColor = this.tempColor2;
+                if (!slot.darkColor)
+                    darkColor.set(0, 0, 0, 1.0);
+                else {
+                    if (premultipliedAlpha) {
+                        darkColor.r = slot.darkColor.r * finalColor.a;
+                        darkColor.g = slot.darkColor.g * finalColor.a;
+                        darkColor.b = slot.darkColor.b * finalColor.a;
+                    } else {
+                        darkColor.setFromColor(slot.darkColor);
+                    }
+                    darkColor.a = premultipliedAlpha ? 1.0 : 0.0;
+                }
+
+                let slotBlendMode = slot.data.blendMode;
+                let needNewMat = false;
+                if (slotBlendMode != blendMode) {
+                    blendMode = slotBlendMode;
+                    needNewMat = true;
+                }
+                if (spineTex != texture) {
+                    spineTex = texture;
+                    needNewMat = true;
+                }
+
+                if (needNewMat) {
+                    mesh && mesh.draw(graphics);
+                    let mat = this.templet.getMaterial(texture.realTexture, blendMode);
+                    mesh = this.nextBatch(mat);
+                    mesh.clear();
+                }
+
+                if (clipper.isClipping()) {
+                    clipper.clipTriangles(renderable.vertices, renderable.numFloats, triangles, triangles.length, uvs, finalColor, darkColor, twoColorTint);
+                    if (!mesh.canAppend(clipper.clippedVertices.length, clipper.clippedTriangles.length)) {
+                        mesh.draw(graphics);
+                        mesh = this.nextBatch(mesh.material);
+                        mesh.clear();
+                    }
+                    mesh.appendVerticesClip(clipper.clippedVertices, clipper.clippedTriangles);
+                } else {
+                    if (!mesh.canAppend(renderable.numFloats, triangles.length)) {
+                        mesh.draw(graphics);
+                        mesh = this.nextBatch(mesh.material);
+                        mesh.clear();
+                    }
+                    mesh.appendVertices(renderable.vertices, renderable.numFloats, triangles, triangles.length, finalColor, uvs);
+                }
+            }
+            clipper.clipEndWithSlot(slot);
+        }
+        clipper.clipEnd();
+        mesh && mesh.draw(graphics);
     }
 }
