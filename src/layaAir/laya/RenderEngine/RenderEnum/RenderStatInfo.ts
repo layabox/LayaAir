@@ -32,7 +32,7 @@ export enum GPUEngineStatisticsInfo {
     M_TextureCube,
     M_Texture3D,
     M_Texture2DArray,
-    RC_ALLTexture,
+    RC_ALLTexture,  //TODO
     RC_Texture2D,
     RC_TextureCube,
     RC_Texture3D,

@@ -14,7 +14,7 @@ export class PerformanceDefine {
     static C_UniformBufferUploadCount: string;//GPUEngineStatisticsInfo
     //buffer change count
     static C_GeometryBufferUploadCount: string;//GPUEngineStatisticsInfo
-    //overdraw  
+    //overdraw
     static C_overdraw: string; //TODO
     //triangle count
     static C_trangleCount: string;//GPUEngineStatisticsInfo
@@ -22,6 +22,9 @@ export class PerformanceDefine {
     static C_SetRenderPassCount: string;//GPUEngineStatisticsInfo
     static C_DrawCallCount: string;//GPUEngineStatisticsInfo
     static C_Instancing_DrawCallCount: string;//GPUEngineStatisticsInfo
+    static C_TransDrawCall: string;//Stat.transdrawcall     //TODO
+    static C_OpaqueDrawCall :string;//Stat.opaqueDrawCall   //TODO
+    static C_DepthCastDrawCall:string;//Stat.depthCastDrawCall //TODO
     //shader compile
     static C_ShaderCompile: string;//GPUEngineStatisticsInfo
     static T_ShaderCompile: string;//GPUEngineStatisticsInfo
@@ -56,7 +59,7 @@ export class PerformanceDefine {
     static T_Render_CameraEventCMD: string;
     static T_Render_ShadowPassMode: string;
     static T_Render_CameraOtherDest: string;
-    static T_RenderPreUpdate: string;//TODO 
+    static T_RenderPreUpdate: string;//TODO
     //Volume TODO
     //OtherSceneManager TODO
     //render type time
@@ -104,8 +107,19 @@ export class PerformanceDefine {
 }
 (window as any).PerformanceDefine = PerformanceDefine;
 
+export class ReplaceMethod {
+    clz: any;
+    func: Function;
+    tag: string;
+}
 
-
+export function getReplaceMethod(): ReplaceMethod[] {
+    let replaceMethods: ReplaceMethod[] = [];
+    // replaceMethods.push({ clz: Camera,func: Camera.prototype.render, tag: PerformanceDefine.T_CameraRender });
+    // replaceMethods.push({ clz: SkinnedMeshRenderer,func: SkinnedMeshRenderer.prototype.renderUpdate, tag: PerformanceDefine.T_SkinBoneUpdate });
+    // replaceMethods.push({ clz: WebGLForwardAddClusterRP,func: WebGLForwardAddClusterRP.prototype["_transparentListRender"], tag: PerformanceDefine.T_Render_TransparentRender });
+    return replaceMethods;
+}
 /**
  * 性能统计开始
  * @param block 统计标识（例如：PerformanceDefine.SCENE3D_RENDER）
