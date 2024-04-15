@@ -600,7 +600,6 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
     set colorOverLifetime(value: ColorOverLifetime) {
         var shaDat: ShaderData = this._ownerRender._shaderValues;
 
-        shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_COLOROVERLIFETIME);
         shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_RANDOMCOLOROVERLIFETIME);
 
         this._colorOverLifetime = value;
@@ -608,15 +607,17 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
         if (value) {
             var color: GradientColor = value.color;
             if (value.enable) {
+
                 switch (color.type) {
                     case 1:
-                        shaDat.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_COLOROVERLIFETIME);
-
+                        shaDat.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_RANDOMCOLOROVERLIFETIME);
                         let gradientColor: Gradient = color.gradient;
                         let alphaElements: Float32Array = gradientColor.alphaElements;
                         let rgbElements: Float32Array = gradientColor.rgbElements;
                         shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.COLOROVERLIFEGRADIENTALPHAS, alphaElements);
                         shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.COLOROVERLIFEGRADIENTCOLORS, rgbElements);
+                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.MAXCOLOROVERLIFEGRADIENTALPHAS, alphaElements);
+                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.MAXCOLOROVERLIFEGRADIENTCOLORS, rgbElements);
                         let ranges = gradientColor._keyRanges;
                         ranges.setValue(1, 0, 1, 0);
                         for (let index = 0, n = Math.max(2, gradientColor.colorRGBKeysCount); index < n; index++) {
@@ -630,7 +631,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
                             ranges.w = Math.max(ranges.w, alphaKey);
                         }
                         shaDat.setVector(ShuriKenParticle3DShaderDeclaration.COLOROVERLIFEGRADIENTRANGES, ranges);
-
+                        shaDat.setVector(ShuriKenParticle3DShaderDeclaration.MAXCOLOROVERLIFEGRADIENTRANGES, ranges);
                         if (gradientColor.maxColorAlphaKeysCount == 8) {
                             shaDat.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_COLORKEYCOUNT_8);
                         }
@@ -640,7 +641,6 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
                         break;
                     case 3:
                         shaDat.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_RANDOMCOLOROVERLIFETIME);
-
                         let minGradientColor: Gradient = color.gradientMin;
                         let maxGradientColor: Gradient = color.gradientMax;
 

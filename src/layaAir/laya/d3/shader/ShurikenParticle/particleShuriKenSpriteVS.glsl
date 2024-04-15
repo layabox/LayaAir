@@ -32,11 +32,6 @@ uniform vec2 u_VOLVelocityGradientMaxZ[4]; // x为key,y为速度
     #define COLORCOUNT 4
 #endif
 
-#ifdef COLOROVERLIFETIME
-uniform vec4 u_ColorOverLifeGradientColors[COLORCOUNT]; // x为key,yzw为Color
-uniform vec2 u_ColorOverLifeGradientAlphas[COLORCOUNT]; // x为key,y为Alpha
-uniform vec4 u_ColorOverLifeGradientRanges;
-#endif
 #ifdef RANDOMCOLOROVERLIFETIME
 uniform vec4 u_ColorOverLifeGradientColors[COLORCOUNT]; // x为key,yzw为Color
 uniform vec2 u_ColorOverLifeGradientAlphas[COLORCOUNT]; // x为key,y为Alpha

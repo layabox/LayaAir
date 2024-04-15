@@ -124,12 +124,6 @@ vec3 computeParticlePosition(in vec3 startVelocity, in vec3 lifeVelocity, in flo
 
 vec4 computeParticleColor(in vec4 color, in float normalizedAge)
 {
-#ifdef COLOROVERLIFETIME
-    color *= getColorFromGradient(u_ColorOverLifeGradientAlphas,
-	u_ColorOverLifeGradientColors,
-	normalizedAge, u_ColorOverLifeGradientRanges);
-#endif
-
 #ifdef RANDOMCOLOROVERLIFETIME
     color *= mix(getColorFromGradient(u_ColorOverLifeGradientAlphas,
 		     u_ColorOverLifeGradientColors,
@@ -139,7 +133,6 @@ vec4 computeParticleColor(in vec4 color, in float normalizedAge)
 	    normalizedAge, u_MaxColorOverLifeGradientRanges),
 	a_Random0.y);
 #endif
-
     return color;
 }
 
@@ -427,7 +420,7 @@ void main()
     #else
 	    velocity = rotationByQuaternions(u_SizeScale * startVelocity, worldRotation) + gravityVelocity;
     #endif
-	
+
 	    vec3 cameraUpVector = normalize(velocity);
 	    vec3 direction = normalize(center - u_CameraPos);
 	    vec3 sideVector = normalize(cross(direction, normalize(velocity)));
