@@ -364,15 +364,7 @@ vec3 computeParticleRotationVec3(in vec3 rotation,
 
 vec2 computeParticleUV(in vec2 uv, in float normalizedAge)
 {
-#ifdef TEXTURESHEETANIMATIONCURVE
-    float cycleNormalizedAge = normalizedAge * u_TSACycles;
-    float frame = getFrameFromGradient(
-	u_TSAGradientUVs, cycleNormalizedAge - floor(cycleNormalizedAge));
-    float totalULength = frame * u_TSASubUVLength.x;
-    float floorTotalULength = floor(totalULength);
-    uv.x += totalULength - floorTotalULength;
-    uv.y += floorTotalULength * u_TSASubUVLength.y;
-#endif
+
 #ifdef TEXTURESHEETANIMATIONRANDOMCURVE
     float cycleNormalizedAge = normalizedAge * u_TSACycles;
     float uvNormalizedAge = cycleNormalizedAge - floor(cycleNormalizedAge);
@@ -607,6 +599,7 @@ void main()
 	    simulateUV = a_SimulationUV.xy + a_CornerTextureCoordinate.zw * a_SimulationUV.zw;
 	    v_TextureCoordinate = computeParticleUV(simulateUV, normalizedAge);
     #endif
+	
     #ifdef RENDERMODE_MESH
 	    simulateUV = a_SimulationUV.xy + a_MeshTextureCoordinate * a_SimulationUV.zw;
 	    v_TextureCoordinate = computeParticleUV(simulateUV, normalizedAge);

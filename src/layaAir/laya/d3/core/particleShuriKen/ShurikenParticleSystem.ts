@@ -851,8 +851,6 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 
     set textureSheetAnimation(value: TextureSheetAnimation) {
         var shaDat: ShaderData = this._ownerRender._shaderValues;
-
-        shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_TEXTURESHEETANIMATIONCURVE);
         shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_TEXTURESHEETANIMATIONRANDOMCURVE);
 
         this._textureSheetAnimation = value;
@@ -860,30 +858,20 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
         if (value) {
             var frameOverTime: FrameOverTime = value.frame;
             var textureAniType: number = frameOverTime.type;
+            shaDat.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_TEXTURESHEETANIMATIONRANDOMCURVE);
+            shaDat.setNumber(ShuriKenParticle3DShaderDeclaration.TEXTURESHEETANIMATIONCYCLES, value.cycles);
+            var title: Vector2 = value.tiles;
+            var _uvLengthE: Vector2 = this._uvLength;
+            _uvLengthE.x = 1.0 / title.x;
+            _uvLengthE.y = 1.0 / title.y;
+            shaDat.setVector2(ShuriKenParticle3DShaderDeclaration.TEXTURESHEETANIMATIONSUBUVLENGTH, this._uvLength);
             if (value.enable) {
                 switch (textureAniType) {
                     case 1:
-                        shaDat.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_TEXTURESHEETANIMATIONCURVE);
-
-                        shaDat.setNumber(ShuriKenParticle3DShaderDeclaration.TEXTURESHEETANIMATIONCYCLES, value.cycles);
-                        var title: Vector2 = value.tiles;
-                        var _uvLengthE: Vector2 = this._uvLength;
-                        _uvLengthE.x = 1.0 / title.x;
-                        _uvLengthE.y = 1.0 / title.y;
-                        shaDat.setVector2(ShuriKenParticle3DShaderDeclaration.TEXTURESHEETANIMATIONSUBUVLENGTH, this._uvLength);
-
                         shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.TEXTURESHEETANIMATIONGRADIENTUVS, frameOverTime.frameOverTimeData._elements);
+                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.TEXTURESHEETANIMATIONGRADIENTMAXUVS, frameOverTime.frameOverTimeData._elements);
                         break;
                     case 3:
-                        shaDat.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_TEXTURESHEETANIMATIONRANDOMCURVE);
-
-                        shaDat.setNumber(ShuriKenParticle3DShaderDeclaration.TEXTURESHEETANIMATIONCYCLES, value.cycles);
-                        var title: Vector2 = value.tiles;
-                        var _uvLengthE: Vector2 = this._uvLength;
-                        _uvLengthE.x = 1.0 / title.x;
-                        _uvLengthE.y = 1.0 / title.y;
-                        shaDat.setVector2(ShuriKenParticle3DShaderDeclaration.TEXTURESHEETANIMATIONSUBUVLENGTH, this._uvLength);
-
                         shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.TEXTURESHEETANIMATIONGRADIENTUVS, frameOverTime.frameOverTimeDataMin._elements);
                         shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.TEXTURESHEETANIMATIONGRADIENTMAXUVS, frameOverTime.frameOverTimeDataMax._elements);
                         break;

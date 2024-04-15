@@ -104,11 +104,9 @@ uniform vec2 u_ROLAngularVelocityGradientMaxW[4];
     #endif
 #endif
 
-#if defined(TEXTURESHEETANIMATIONCURVE) || defined(TEXTURESHEETANIMATIONRANDOMCURVE)
+#ifdef TEXTURESHEETANIMATIONRANDOMCURVE
 uniform float u_TSACycles;
 uniform vec2 u_TSASubUVLength;
 uniform vec2 u_TSAGradientUVs[4]; // x为key,y为frame
-#endif
-#ifdef TEXTURESHEETANIMATIONRANDOMCURVE
 uniform vec2 u_TSAMaxGradientUVs[4]; // x为key,y为frame
 #endif
