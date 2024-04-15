@@ -299,7 +299,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
     simulationSpace: number = 0;
     /**粒子的播放速度。 */
     simulationSpeed: number = 1.0;
-    /**缩放模式，0为Hiercachy,1为Local,2为World。*/
+    /**缩放模式，0为Hiercachy(world),1为Local,2为Shape。*/
     scaleMode: number = 1;
     /**激活时是否自动播放。*/
     playOnAwake: boolean = false;
@@ -361,10 +361,6 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 
     set shape(value: BaseShape) {
         if (this._shape !== value) {
-            if (value && value.enable)
-                this._ownerRender._shaderValues.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SHAPE);
-            else
-                this._ownerRender._shaderValues.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SHAPE);
             this._shape = value;
         }
     }

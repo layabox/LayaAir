@@ -56,8 +56,6 @@ export class ShuriKenParticle3DShaderDeclaration {
 	static SHADERDEFINE_SIZEOVERLIFETIMERANDOMCURVESSEPERATE: ShaderDefine;
 	/**@internal */
 	static SHADERDEFINE_RENDERMODE_MESH: ShaderDefine;
-	/**@internal */
-	static SHADERDEFINE_SHAPE: ShaderDefine;
 
 
 	//Base
@@ -208,7 +206,6 @@ export class ShuriKenParticle3DShaderDeclaration {
 		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SIZEOVERLIFETIMERANDOMCURVES = Shader3D.getDefineByName("SIZEOVERLIFETIMERANDOMCURVES");
 		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SIZEOVERLIFETIMERANDOMCURVESSEPERATE = Shader3D.getDefineByName("SIZEOVERLIFETIMERANDOMCURVESSEPERATE");
 		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_RENDERMODE_MESH = Shader3D.getDefineByName("RENDERMODE_MESH");
-		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SHAPE = Shader3D.getDefineByName("SHAPE");
 
 
 
