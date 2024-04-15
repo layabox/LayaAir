@@ -13,24 +13,17 @@ uniform float u_StretchedBillboardLengthScale;
 uniform float u_StretchedBillboardSpeedScale;
 uniform int u_SimulationSpace;
 
-#if defined(VELOCITYOVERLIFETIMECONSTANT) || defined(VELOCITYOVERLIFETIMECURVE) || defined(VELOCITYOVERLIFETIMERANDOMCONSTANT) || defined(VELOCITYOVERLIFETIMERANDOMCURVE)
+#ifdef VELOCITYOVERLIFETIMERANDOMCURVE
 uniform int u_VOLSpaceType;
-#endif
-#if defined(VELOCITYOVERLIFETIMECONSTANT) || defined(VELOCITYOVERLIFETIMERANDOMCONSTANT)
-uniform vec3 u_VOLVelocityConst;
-#endif
-#if defined(VELOCITYOVERLIFETIMECURVE) || defined(VELOCITYOVERLIFETIMERANDOMCURVE)
+
 uniform vec2 u_VOLVelocityGradientX[4]; // x为key,y为速度
 uniform vec2 u_VOLVelocityGradientY[4]; // x为key,y为速度
 uniform vec2 u_VOLVelocityGradientZ[4]; // x为key,y为速度
-#endif
-#ifdef VELOCITYOVERLIFETIMERANDOMCONSTANT
-uniform vec3 u_VOLVelocityConstMax;
-#endif
-#ifdef VELOCITYOVERLIFETIMERANDOMCURVE
+
 uniform vec2 u_VOLVelocityGradientMaxX[4]; // x为key,y为速度
 uniform vec2 u_VOLVelocityGradientMaxY[4]; // x为key,y为速度
 uniform vec2 u_VOLVelocityGradientMaxZ[4]; // x为key,y为速度
+
 #endif
 
 #ifdef COLORKEYCOUNT_8

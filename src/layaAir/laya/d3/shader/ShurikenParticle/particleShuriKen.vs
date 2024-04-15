@@ -24,27 +24,10 @@ vec2 TransformUV(vec2 texcoord, vec4 tilingOffset)
     return transTexcoord;
 }
 
-#if defined(VELOCITYOVERLIFETIMECONSTANT) || defined(VELOCITYOVERLIFETIMECURVE) || defined(VELOCITYOVERLIFETIMERANDOMCONSTANT) || defined(VELOCITYOVERLIFETIMERANDOMCURVE)
+#ifdef VELOCITYOVERLIFETIMERANDOMCURVE
 vec3 computeParticleLifeVelocity(in float normalizedAge)
 {
     vec3 outLifeVelocity;
-    #ifdef VELOCITYOVERLIFETIMECONSTANT
-    	outLifeVelocity = u_VOLVelocityConst;
-    #endif
-
-    #ifdef VELOCITYOVERLIFETIMECURVE
-    	outLifeVelocity = vec3(getCurValueFromGradientFloat(u_VOLVelocityGradientX, normalizedAge),
-		getCurValueFromGradientFloat(u_VOLVelocityGradientY, normalizedAge),
-		getCurValueFromGradientFloat(u_VOLVelocityGradientZ, normalizedAge));
-    #endif
-    
-	#ifdef VELOCITYOVERLIFETIMERANDOMCONSTANT
-    	outLifeVelocity = mix(u_VOLVelocityConst,
-		u_VOLVelocityConstMax,
-		vec3(a_Random1.y, a_Random1.z, a_Random1.w));
-    #endif
-    
-	#ifdef VELOCITYOVERLIFETIMERANDOMCURVE
     	outLifeVelocity = vec3(
 		mix(getCurValueFromGradientFloat(u_VOLVelocityGradientX, normalizedAge),
 			getCurValueFromGradientFloat(u_VOLVelocityGradientMaxX, normalizedAge),
@@ -55,7 +38,6 @@ vec3 computeParticleLifeVelocity(in float normalizedAge)
 		mix(getCurValueFromGradientFloat(u_VOLVelocityGradientZ, normalizedAge),
 			getCurValueFromGradientFloat(u_VOLVelocityGradientMaxZ, normalizedAge),
 			a_Random1.w));
-    #endif
 
     return outLifeVelocity;
 }
@@ -74,21 +56,8 @@ vec3 computeParticlePosition(in vec3 startVelocity, in vec3 lifeVelocity, in flo
 {
     vec3 startPosition = getStartPosition(startVelocity, age, dragData);
     vec3 lifePosition;
-#if defined(VELOCITYOVERLIFETIMECONSTANT) || defined(VELOCITYOVERLIFETIMECURVE) || defined(VELOCITYOVERLIFETIMERANDOMCONSTANT) || defined(VELOCITYOVERLIFETIMERANDOMCURVE)
-    #ifdef VELOCITYOVERLIFETIMECONSTANT
-		
-		lifePosition = lifeVelocity * age;
-    #endif
-    #ifdef VELOCITYOVERLIFETIMECURVE
-		
-		lifePosition = vec3(getTotalValueFromGradientFloat(u_VOLVelocityGradientX, normalizedAge),
-		getTotalValueFromGradientFloat(u_VOLVelocityGradientY, normalizedAge),
-		getTotalValueFromGradientFloat(u_VOLVelocityGradientZ, normalizedAge));
-    #endif
-    #ifdef VELOCITYOVERLIFETIMERANDOMCONSTANT
-	
-		lifePosition = lifeVelocity * age;
-    #endif
+#ifdef VELOCITYOVERLIFETIMERANDOMCURVE
+   
     #ifdef VELOCITYOVERLIFETIMERANDOMCURVE
 		lifePosition = vec3(
 		mix(
@@ -388,7 +357,7 @@ void main()
 	{
 	    vec3 startVelocity = a_DirectionTime.xyz * a_StartSpeed;
 	
-		#if defined(VELOCITYOVERLIFETIMECONSTANT) || defined(VELOCITYOVERLIFETIMECURVE) || defined(VELOCITYOVERLIFETIMERANDOMCONSTANT) || defined(VELOCITYOVERLIFETIMERANDOMCURVE)
+		#ifdef VELOCITYOVERLIFETIMERANDOMCURVE
 				lifeVelocity = computeParticleLifeVelocity(normalizedAge); //计算粒子生命周期速度
 		#endif
 	
@@ -448,7 +417,7 @@ void main()
 #ifdef STRETCHEDBILLBOARD
 	    vec2 corner = a_CornerTextureCoordinate.xy; // Billboard模式z轴无效
 	    vec3 velocity;
-    #if defined(VELOCITYOVERLIFETIMECONSTANT) || defined(VELOCITYOVERLIFETIMECURVE) || defined(VELOCITYOVERLIFETIMERANDOMCONSTANT) || defined(VELOCITYOVERLIFETIMERANDOMCURVE)
+    #ifdef VELOCITYOVERLIFETIMERANDOMCURVE
 	    if (u_VOLSpaceType == 0)
 		velocity = rotationByQuaternions(u_SizeScale * (startVelocity + lifeVelocity),
 			       worldRotation)
@@ -458,6 +427,7 @@ void main()
     #else
 	    velocity = rotationByQuaternions(u_SizeScale * startVelocity, worldRotation) + gravityVelocity;
     #endif
+	
 	    vec3 cameraUpVector = normalize(velocity);
 	    vec3 direction = normalize(center - u_CameraPos);
 	    vec3 sideVector = normalize(cross(direction, normalize(velocity)));
