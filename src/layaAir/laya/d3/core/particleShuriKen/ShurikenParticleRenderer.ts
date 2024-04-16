@@ -288,7 +288,10 @@ export class ShurikenParticleRenderer extends BaseRender {
         sv.setNumber(ShuriKenParticle3DShaderDeclaration.CURRENTTIME, particleSystem._currentTime);
     }
 
-    //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_ShurikenUpdate)
+    /**
+     * @param context
+     * @perfTag PerformanceDefine.T_ShurikenUpdate
+     */
     renderUpdate(context: RenderContext3D): void {
         this._renderElements.forEach(element => {
             element._renderElementOBJ.isRender = element._geometry._prepareRender(context);

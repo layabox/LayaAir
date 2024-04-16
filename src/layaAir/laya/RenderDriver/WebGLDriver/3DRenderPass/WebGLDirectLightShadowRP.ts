@@ -132,8 +132,11 @@ export class WebGLDirectLightShadowRP {
         this._frustumPlanes = new Array(new Plane(new Vector3(), 0), new Plane(new Vector3(), 0), new Plane(new Vector3(), 0), new Plane(new Vector3(), 0), new Plane(new Vector3(), 0), new Plane(new Vector3(), 0));
         this._shadowCullInfo = new ShadowCullInfo();
     }
-
-    //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_Render_ShadowPassMode)
+    
+    /**
+     * @param context
+     * @perfTag PerformanceDefine.T_Render_ShadowPassMode
+     */
     update(context: WebGLRenderContext3D): void {
         var splitDistance: number[] = this._cascadesSplitDistance;
         var frustumPlanes: Plane[] = this._frustumPlanes;
@@ -156,8 +159,13 @@ export class WebGLDirectLightShadowRP {
         }
         ShadowUtils.prepareShadowReceiverShaderValues(this._shadowMapWidth, this._shadowMapHeight, this._shadowSliceDatas, this._cascadeCount, this._shadowMapSize, shadowMatrices, boundSpheres);
     }
-
-    //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_Render_ShadowPassMode)
+    
+    /**
+     * @param context
+     * @param list
+     * @param count
+     * @perfTag PerformanceDefine.T_Render_ShadowPassMode
+     */
     render(context: WebGLRenderContext3D, list: WebBaseRenderNode[], count: number): void {
         var shaderValues: WebGLShaderData = context.sceneData;
         context.pipelineMode = "ShadowCaster";
