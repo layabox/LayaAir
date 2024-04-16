@@ -13,6 +13,7 @@ import { IRender3DProcess } from "../../DriverDesign/3DRenderPass/I3DRenderPass"
 import { WebBaseRenderNode } from "../../RenderModuleData/WebModuleData/3D/WebBaseRenderNode";
 import { WebDirectLight } from "../../RenderModuleData/WebModuleData/3D/WebDirectLight";
 import { WebCameraNodeData } from "../../RenderModuleData/WebModuleData/3D/WebModuleData";
+import { WebSpotLight } from "../../RenderModuleData/WebModuleData/3D/WebSpotLight";
 import { WebGLForwardAddRP } from "../../WebGLDriver/3DRenderPass/WebGLForwardAddRP";
 import { WebGPUGlobal } from "../RenderDevice/WebGPUStatis/WebGPUGlobal";
 import { WebGPUStatis } from "../RenderDevice/WebGPUStatis/WebGPUStatis";
@@ -117,7 +118,7 @@ export class WebGPU3DRenderPass implements IRender3DProcess {
             else camera.scene._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT);
             this._renderPass.enableSpotLightShadowPass = needSpotShadow;
             if (needSpotShadow) {
-                this._renderPass.spotLightShadowPass.light = mainSpotLight;
+                this._renderPass.spotLightShadowPass.light = <WebSpotLight>mainSpotLight._dataModule;
                 const spotShadowMap = ILaya3D.Scene3D._shadowCasterPass.getSpotLightShadowPassData(mainSpotLight);
                 this._renderPass.spotLightShadowPass.destTarget = spotShadowMap._renderTarget;
                 camera.scene._shaderValues.setTexture(ShadowCasterPass.SHADOW_SPOTMAP, spotShadowMap);

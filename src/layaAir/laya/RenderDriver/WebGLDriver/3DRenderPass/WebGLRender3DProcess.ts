@@ -17,6 +17,7 @@ import { IRender3DProcess } from "../../DriverDesign/3DRenderPass/I3DRenderPass"
 import { WebBaseRenderNode } from "../../RenderModuleData/WebModuleData/3D/WebBaseRenderNode";
 import { WebDirectLight } from "../../RenderModuleData/WebModuleData/3D/WebDirectLight";
 import { WebCameraNodeData } from "../../RenderModuleData/WebModuleData/3D/WebModuleData";
+import { WebSpotLight } from "../../RenderModuleData/WebModuleData/3D/WebSpotLight";
 import { WebGLForwardAddRP } from "./WebGLForwardAddRP";
 import { WebGLRenderContext3D } from "./WebGLRenderContext3D";
 
@@ -100,22 +101,19 @@ export class WebGLRender3DProcess implements IRender3DProcess {
         this.renderpass.shadowCastPass = enableShadow;
 
         if (enableShadow) {
+            let shadowParams = this.renderpass.shadowParams;
+            shadowParams.setValue(0, 0, 0, 0);
+
             // direction light shadow
             let mainDirectionLight = camera.scene._mainDirectionLight;
             let needDirectionShadow = mainDirectionLight && mainDirectionLight.shadowMode != ShadowMode.None;
-            if (needDirectionShadow) {
-                camera.scene._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW);
-            }
-            else {
-                camera.scene._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW);
-            }
-
             this.renderpass.enableDirectLightShadow = needDirectionShadow;
             if (needDirectionShadow) {
                 this.renderpass.directLightShadowPass.camera = <WebCameraNodeData>camera._renderDataModule;
                 this.renderpass.directLightShadowPass.light = <WebDirectLight>mainDirectionLight._dataModule;
                 let directionShadowMap = ILaya3D.Scene3D._shadowCasterPass.getDirectLightShadowMap(mainDirectionLight);
                 this.renderpass.directLightShadowPass.destTarget = directionShadowMap._renderTarget;
+                shadowParams.x = this.renderpass.directLightShadowPass.light.shadowStrength;
 
                 camera.scene._shaderValues.setTexture(ShadowCasterPass.SHADOW_MAP, directionShadowMap);
             }
@@ -123,20 +121,16 @@ export class WebGLRender3DProcess implements IRender3DProcess {
             // spot light shadow
             let mainSpotLight = camera.scene._mainSpotLight;
             let needSpotShadow = mainSpotLight && mainSpotLight.shadowMode != ShadowMode.None;
-            if (needSpotShadow) {
-                camera.scene._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT);
-            }
-            else {
-                camera.scene._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT);
-            }
             this.renderpass.enableSpotLightShadowPass = needSpotShadow;
             if (needSpotShadow) {
-                this.renderpass.spotLightShadowPass.light = mainSpotLight;
+                this.renderpass.spotLightShadowPass.light = <WebSpotLight>mainSpotLight._dataModule;
                 let spotShadowMap = ILaya3D.Scene3D._shadowCasterPass.getSpotLightShadowPassData(mainSpotLight);
                 this.renderpass.spotLightShadowPass.destTarget = spotShadowMap._renderTarget;
+                shadowParams.y = this.renderpass.spotLightShadowPass.light.shadowStrength;
 
                 camera.scene._shaderValues.setTexture(ShadowCasterPass.SHADOW_SPOTMAP, spotShadowMap);
             }
+            camera.scene._shaderValues.setVector(ShadowCasterPass.SHADOW_PARAMS, this.renderpass.shadowParams);
         }
 
         if (Stat.enablePostprocess && camera.postProcess && camera.postProcess.enable) {
@@ -195,12 +189,29 @@ export class WebGLRender3DProcess implements IRender3DProcess {
         //先渲染ShadowTexture
         if (renderpass.shadowCastPass) {
             if (renderpass.enableDirectLightShadow) {
+                context.sceneData.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW);
+                context.sceneData.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT);
                 renderpass.directLightShadowPass.update(context);
                 renderpass.directLightShadowPass.render(context, list, count);
             }
             if (renderpass.enableSpotLightShadowPass) {
+                context.sceneData.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT);
+                context.sceneData.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW);
                 renderpass.spotLightShadowPass.update(context);
                 renderpass.spotLightShadowPass.render(context, list, count);
+            }
+
+            if (renderpass.enableDirectLightShadow) {
+                context.sceneData.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW);
+            }
+            else {
+                context.sceneData.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW);
+            }
+            if (renderpass.enableSpotLightShadowPass) {
+                context.sceneData.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT);
+            }
+            else {
+                context.sceneData.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT);
             }
         }
         renderpass.renderpass.render(context, list, count);
