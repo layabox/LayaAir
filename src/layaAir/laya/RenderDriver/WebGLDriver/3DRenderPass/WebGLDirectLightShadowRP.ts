@@ -74,8 +74,6 @@ export class WebGLDirectLightShadowRP {
     /** @internal */
     private _shadowMapSize: Vector4 = new Vector4();
     /** @internal */
-    private _shadowParams: Vector4 = new Vector4();
-    /** @internal */
     private _shadowBias: Vector4 = new Vector4();
     /** @internal */
     private _cascadeCount: number = 0;
@@ -121,6 +119,10 @@ export class WebGLDirectLightShadowRP {
         }
     }
 
+    get light(): WebDirectLight {
+        return this._light;
+    }
+
     constructor() {
         this._lightup = new Vector3();
         this._lightSide = new Vector3();
@@ -130,7 +132,7 @@ export class WebGLDirectLightShadowRP {
         this._frustumPlanes = new Array(new Plane(new Vector3(), 0), new Plane(new Vector3(), 0), new Plane(new Vector3(), 0), new Plane(new Vector3(), 0), new Plane(new Vector3(), 0), new Plane(new Vector3(), 0));
         this._shadowCullInfo = new ShadowCullInfo();
     }
-    
+
     //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_Render_ShadowPassMode)
     update(context: WebGLRenderContext3D): void {
         var splitDistance: number[] = this._cascadesSplitDistance;
@@ -152,9 +154,9 @@ export class WebGLDirectLightShadowRP {
             if (this._cascadeCount > 1)
                 ShadowUtils.applySliceTransform(sliceData, this._shadowMapWidth, this._shadowMapHeight, i, shadowMatrices);
         }
-        ShadowUtils.prepareShadowReceiverShaderValues(this._light.shadowStrength, this._shadowMapWidth, this._shadowMapHeight, this._shadowSliceDatas, this._cascadeCount, this._shadowMapSize, this._shadowParams, shadowMatrices, boundSpheres);
+        ShadowUtils.prepareShadowReceiverShaderValues(this._shadowMapWidth, this._shadowMapHeight, this._shadowSliceDatas, this._cascadeCount, this._shadowMapSize, shadowMatrices, boundSpheres);
     }
-    
+
     //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_Render_ShadowPassMode)
     render(context: WebGLRenderContext3D, list: WebBaseRenderNode[], count: number): void {
         var shaderValues: WebGLShaderData = context.sceneData;
@@ -241,7 +243,6 @@ export class WebGLDirectLightShadowRP {
         }
         scene.setBuffer(ShadowCasterPass.SHADOW_MATRICES, this._shadowMatrices);
         scene.setVector(ShadowCasterPass.SHADOW_MAP_SIZE, this._shadowMapSize);
-        scene.setVector(ShadowCasterPass.SHADOW_PARAMS, this._shadowParams);
         scene.setBuffer(ShadowCasterPass.SHADOW_SPLIT_SPHERES, this._splitBoundSpheres);
     }
 
