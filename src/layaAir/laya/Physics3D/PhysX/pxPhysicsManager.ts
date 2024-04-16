@@ -238,13 +238,21 @@ export class pxPhysicsManager implements IPhysicsManager {
         }
         pxcollider._isSimulate = false;
     }
-    //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_PhysicsCollider)
+    /**
+     *
+     * @private
+     * @perfTag PerformanceDefine.T_PhysicsCollider
+     */
     private _collision_event() {
         this._collision_EnterEvent();
         this._collision_StayEvent();
         this._collision_ExitEvent();
     }
-    //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_PhysicsColliderEnter)
+    /**
+     *
+     * @private
+     * @perfTag PerformanceDefine.T_PhysicsColliderEnter
+     */
     private _collision_EnterEvent() {
         this._contactCollisionsBegin.forEach((value: Collision, key: number) => {
             if (!value) return;
@@ -257,7 +265,11 @@ export class pxPhysicsManager implements IPhysicsManager {
             pxCollisionTool.reCoverCollision(value);
         });
     }
-    //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_PhysicsColliderStay)
+    /**
+     *
+     * @private
+     * @perfTag PerformanceDefine.T_PhysicsColliderStay
+     */
     private _collision_StayEvent() {
         this._contactCollisionsPersist.forEach((value: Collision, key: number) => {
             if (!value) return;
@@ -270,7 +282,11 @@ export class pxPhysicsManager implements IPhysicsManager {
             pxCollisionTool.reCoverCollision(value);
         });
     }
-    //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_PhysicsColliderExit)
+    /**
+     *
+     * @private
+     * @perfTag PerformanceDefine.T_PhysicsColliderExit
+     */
     private _collision_ExitEvent() {
         this._contactCollisionsEnd.forEach((value: Collision, key: number) => {
             if (!value) return;
@@ -284,14 +300,22 @@ export class pxPhysicsManager implements IPhysicsManager {
         });
     }
 
-    //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_PhysicsTrigger)
+    /**
+     *
+     * @private
+     * @perfTag PerformanceDefine.T_PhysicsTrigger
+     */
     private _trigger_Event() {
         this._trigger_EnterEvent();
         this._trigger_StayEvent();
         this._trigger_ExitEvent();
     }
 
-    //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_PhysicsTriggerEnter)
+    /**
+     *
+     * @private
+     * @perfTag PerformanceDefine.T_PhysicsTriggerEnter
+     */
     private _trigger_EnterEvent() {
         // trigger
         this._triggerCollisionsBegin.forEach((value: Collision, key: number) => {
@@ -306,7 +330,11 @@ export class pxPhysicsManager implements IPhysicsManager {
         });
     }
 
-    //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_PhysicsTriggerStay)
+    /**
+     *
+     * @private
+     * @perfTag PerformanceDefine.T_PhysicsTriggerStay
+     */
     private _trigger_StayEvent() {
         this._triggerCollisionsPersist.forEach((value: Collision, key: number) => {
             if (!value) return;
@@ -321,7 +349,11 @@ export class pxPhysicsManager implements IPhysicsManager {
 
     }
 
-    //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_PhysicsTriggerExit)
+    /**
+     *
+     * @private
+     * @perfTag PerformanceDefine.T_PhysicsTriggerExit
+     */
     private _trigger_ExitEvent() {
         this._triggerCollisionsEnd.forEach((value: Collision, key: number) => {
             if (!value) return;
@@ -336,7 +368,11 @@ export class pxPhysicsManager implements IPhysicsManager {
     }
 
 
-    //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_PhysicsEvent)
+    /**
+     *
+     * @private
+     * @perfTag PerformanceDefine.T_PhysicsEvent
+     */
     private _updatePhysicsEvents(): void {
         // contact
         this._collision_event();
@@ -348,7 +384,11 @@ export class pxPhysicsManager implements IPhysicsManager {
         this._triggerCollisionsEnd.clear();
     }
 
-    //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_Physics_UpdateNode)
+    /**
+     *
+     * @private
+     * @perfTag PerformanceDefine.T_Physics_UpdateNode
+     */
     private _updatePhysicsTransformToRender(): void {
         var elements: any = this._dynamicUpdateList.elements;
         for (var i = 0, n = this._dynamicUpdateList.length; i < n; i++) {
@@ -373,7 +413,11 @@ export class pxPhysicsManager implements IPhysicsManager {
         this._physicsUpdateList.length = 0;//清空物理更新队列
     }
 
-    //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_Physics_Simulation)
+    /**
+     *
+     * @param elapsedTime
+     * @perfTag PerformanceDefine.T_Physics_Simulation
+     */
     update(elapsedTime: number): void {
         this._updatePhysicsTransformFromRender();//update render to physics
         //simulate
