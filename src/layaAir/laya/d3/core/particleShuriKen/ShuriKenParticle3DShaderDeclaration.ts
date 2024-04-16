@@ -29,10 +29,6 @@ export class ShuriKenParticle3DShaderDeclaration {
 	/**@internal */
 	static SHADERDEFINE_ROTATIONOVERLIFETIMESEPERATE: ShaderDefine;
 	/**@internal */
-	static SHADERDEFINE_SIZEOVERLIFETIMECURVE: ShaderDefine;
-	/**@internal */
-	static SHADERDEFINE_SIZEOVERLIFETIMECURVESEPERATE: ShaderDefine;
-	/**@internal */
 	static SHADERDEFINE_SIZEOVERLIFETIMERANDOMCURVES: ShaderDefine;
 	/**@internal */
 	static SHADERDEFINE_SIZEOVERLIFETIMERANDOMCURVESSEPERATE: ShaderDefine;
@@ -165,12 +161,10 @@ export class ShuriKenParticle3DShaderDeclaration {
 		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIME = Shader3D.getDefineByName("ROTATIONOVERLIFETIME");//
 		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMESEPERATE = Shader3D.getDefineByName("ROTATIONOVERLIFETIMESEPERATE");//
 
-		
-		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SIZEOVERLIFETIMECURVE = Shader3D.getDefineByName("SIZEOVERLIFETIMECURVE");//
-		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SIZEOVERLIFETIMECURVESEPERATE = Shader3D.getDefineByName("SIZEOVERLIFETIMECURVESEPERATE");//
 		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SIZEOVERLIFETIMERANDOMCURVES = Shader3D.getDefineByName("SIZEOVERLIFETIMERANDOMCURVES");//
 		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SIZEOVERLIFETIMERANDOMCURVESSEPERATE = Shader3D.getDefineByName("SIZEOVERLIFETIMERANDOMCURVESSEPERATE");
 
+	
 		//Base
 		ShuriKenParticle3DShaderDeclaration.WORLDPOSITION = Shader3D.propertyNameToID("u_WorldPosition");
 		ShuriKenParticle3DShaderDeclaration.WORLDROTATION = Shader3D.propertyNameToID("u_WorldRotation");

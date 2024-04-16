@@ -139,19 +139,10 @@ vec4 computeParticleColor(in vec4 color, in float normalizedAge)
 vec2 computeParticleSizeBillbard(in vec2 size, in float normalizedAge)
 {
 
-#ifdef SIZEOVERLIFETIMECURVE
-    size *= getCurValueFromGradientFloat(u_SOLSizeGradient, normalizedAge);
-#endif
-
 #ifdef SIZEOVERLIFETIMERANDOMCURVES
     size *= mix(getCurValueFromGradientFloat(u_SOLSizeGradient, normalizedAge),
 	getCurValueFromGradientFloat(u_SOLSizeGradientMax, normalizedAge),
 	a_Random0.z);
-#endif
-
-#ifdef SIZEOVERLIFETIMECURVESEPERATE
-    size *= vec2(getCurValueFromGradientFloat(u_SOLSizeGradientX, normalizedAge),
-	getCurValueFromGradientFloat(u_SOLSizeGradientY, normalizedAge));
 #endif
 
 #ifdef SIZEOVERLIFETIMERANDOMCURVESSEPERATE
@@ -169,32 +160,23 @@ vec2 computeParticleSizeBillbard(in vec2 size, in float normalizedAge)
 #ifdef RENDERMODE_MESH
 vec3 computeParticleSizeMesh(in vec3 size, in float normalizedAge)
 {
-    #ifdef SIZEOVERLIFETIMECURVE
-    	size *= getCurValueFromGradientFloat(u_SOLSizeGradient, normalizedAge);
-    #endif
 
     #ifdef SIZEOVERLIFETIMERANDOMCURVES
     	size *= mix(getCurValueFromGradientFloat(u_SOLSizeGradient, normalizedAge),
-	getCurValueFromGradientFloat(u_SOLSizeGradientMax, normalizedAge),
-	a_Random0.z);
-    #endif
-
-    #ifdef SIZEOVERLIFETIMECURVESEPERATE
-    	size *= vec3(getCurValueFromGradientFloat(u_SOLSizeGradientX, normalizedAge),
-		getCurValueFromGradientFloat(u_SOLSizeGradientY, normalizedAge),
-		getCurValueFromGradientFloat(u_SOLSizeGradientZ, normalizedAge));
+					getCurValueFromGradientFloat(u_SOLSizeGradientMax, normalizedAge),
+					a_Random0.z);
     #endif
 
     #ifdef SIZEOVERLIFETIMERANDOMCURVESSEPERATE
     	size *= vec3(mix(getCurValueFromGradientFloat(u_SOLSizeGradientX, normalizedAge),
 			     getCurValueFromGradientFloat(u_SOLSizeGradientMaxX, normalizedAge),
 		    	 a_Random0.z),
-		mix(getCurValueFromGradientFloat(u_SOLSizeGradientY, normalizedAge),
-			getCurValueFromGradientFloat(u_SOLSizeGradientMaxY, normalizedAge),
-			a_Random0.z),
-		mix(getCurValueFromGradientFloat(u_SOLSizeGradientZ, normalizedAge),
-			getCurValueFromGradientFloat(u_SOLSizeGradientMaxZ, normalizedAge),
-			a_Random0.z));
+				mix(getCurValueFromGradientFloat(u_SOLSizeGradientY, normalizedAge),
+					getCurValueFromGradientFloat(u_SOLSizeGradientMaxY, normalizedAge),
+					a_Random0.z),
+				mix(getCurValueFromGradientFloat(u_SOLSizeGradientZ, normalizedAge),
+					getCurValueFromGradientFloat(u_SOLSizeGradientMaxZ, normalizedAge),
+					a_Random0.z));
     #endif
 	
     return size;

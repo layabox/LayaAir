@@ -137,7 +137,17 @@ export class GradientAngularVelocity implements IClone {
 	private _separateAxes: boolean = false;
 
 
-	private _constantSeparate: Vector3 = null;
+	private __constantSeparate: Vector3 = null;
+	public get _constantSeparate(): Vector3 {
+		return this.__constantSeparate;
+	}
+	public set _constantSeparate(value: Vector3) {
+		this.__constantSeparate = value.clone();
+		this._constantXMinGradientDdata = GradientDataNumber.createConstantData(value.x);
+		this._constantYMinGradientDdata = GradientDataNumber.createConstantData(value.y);
+		this._constantZMinGradientDdata = GradientDataNumber.createConstantData(value.z);
+
+	}
 
 	private _gradient: GradientDataNumber = null;
 	private _gradientX: GradientDataNumber = null;

@@ -40,21 +40,18 @@ uniform int u_SimulationSpace;
     uniform vec4 u_MaxColorOverLifeGradientRanges;
 #endif
 
-#if defined(SIZEOVERLIFETIMECURVE) || defined(SIZEOVERLIFETIMERANDOMCURVES)
-uniform vec2 u_SOLSizeGradient[4]; // x为key,y为尺寸
-#endif
 #ifdef SIZEOVERLIFETIMERANDOMCURVES
-uniform vec2 u_SOLSizeGradientMax[4]; // x为key,y为尺寸
+    uniform vec2 u_SOLSizeGradient[4]; // x为key,y为尺寸
+    uniform vec2 u_SOLSizeGradientMax[4]; // x为key,y为尺寸
 #endif
-#if defined(SIZEOVERLIFETIMECURVESEPERATE) || defined(SIZEOVERLIFETIMERANDOMCURVESSEPERATE)
-uniform vec2 u_SOLSizeGradientX[4]; // x为key,y为尺寸
-uniform vec2 u_SOLSizeGradientY[4]; // x为key,y为尺寸
-uniform vec2 u_SOLSizeGradientZ[4]; // x为key,y为尺寸
-#endif
+
 #ifdef SIZEOVERLIFETIMERANDOMCURVESSEPERATE
-uniform vec2 u_SOLSizeGradientMaxX[4]; // x为key,y为尺寸
-uniform vec2 u_SOLSizeGradientMaxY[4]; // x为key,y为尺寸
-uniform vec2 u_SOLSizeGradientMaxZ[4]; // x为key,y为尺寸
+    uniform vec2 u_SOLSizeGradientX[4]; // x为key,y为尺寸
+    uniform vec2 u_SOLSizeGradientY[4]; // x为key,y为尺寸
+    uniform vec2 u_SOLSizeGradientZ[4]; // x为key,y为尺寸
+    uniform vec2 u_SOLSizeGradientMaxX[4]; // x为key,y为尺寸
+    uniform vec2 u_SOLSizeGradientMaxY[4]; // x为key,y为尺寸
+    uniform vec2 u_SOLSizeGradientMaxZ[4]; // x为key,y为尺寸
 #endif
 
 #ifdef ROTATIONOVERLIFETIME
