@@ -107,19 +107,6 @@ export class PerformanceDefine {
 }
 (window as any).PerformanceDefine = PerformanceDefine;
 
-export class ReplaceMethod {
-    clz: any;
-    func: Function;
-    tag: string;
-}
-
-export function getReplaceMethod(): ReplaceMethod[] {
-    let replaceMethods: ReplaceMethod[] = [];
-    // replaceMethods.push({ clz: Camera,func: Camera.prototype.render, tag: PerformanceDefine.T_CameraRender });
-    // replaceMethods.push({ clz: SkinnedMeshRenderer,func: SkinnedMeshRenderer.prototype.renderUpdate, tag: PerformanceDefine.T_SkinBoneUpdate });
-    // replaceMethods.push({ clz: WebGLForwardAddClusterRP,func: WebGLForwardAddClusterRP.prototype["_transparentListRender"], tag: PerformanceDefine.T_Render_TransparentRender });
-    return replaceMethods;
-}
 /**
  * 性能统计开始
  * @param block 统计标识（例如：PerformanceDefine.SCENE3D_RENDER）
