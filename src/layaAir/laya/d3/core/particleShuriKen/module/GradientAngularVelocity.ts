@@ -136,7 +136,7 @@ export class GradientAngularVelocity implements IClone {
 	private _type: number = 0;
 	private _separateAxes: boolean = false;
 
-	private _constant: number = 0;
+
 	private _constantSeparate: Vector3 = null;
 
 	private _gradient: GradientDataNumber = null;
@@ -145,13 +145,100 @@ export class GradientAngularVelocity implements IClone {
 	private _gradientZ: GradientDataNumber = null;
 	private _gradientW: GradientDataNumber = null;
 
-	private _constantMin: number = 0;
-	private _constantMax: number = 0;
-	private _constantMinSeparate: Vector3 = null;
-	private _constantMaxSeparate: Vector3 = null;
+
+
+	/**@internal */
+	_constantMinGradientDdata: GradientDataNumber = null;
+	/**@internal */
+	_constantMaxGradientDdata: GradientDataNumber = null;
+
+	private __constant: number = 0;
+	private __constantMin: number = 0;
+	private __constantMax: number = 0;
+	/**
+	 * @internal
+	 */
+	public get _constant(): number {
+		return this.__constant;
+	}
+	/**
+	 * @internal
+	 */
+	public set _constant(value: number) {
+		this.__constant = value;
+		this._constantMinGradientDdata = GradientDataNumber.createConstantData(value);
+	}
+
+	/**
+	 * @internal
+	 */
+	set _constantMin(value: number) {
+		this.__constantMin = value;
+		this._constantMinGradientDdata = GradientDataNumber.createConstantData(value);
+	}
+
+	/**
+	 * @internal
+	 */
+	get _constantMin() {
+		return this.__constantMin;
+	}
+
+	/**
+	 * @internal
+	 */
+	get _constantMax() {
+		return this.__constantMax;
+	}
+
+	/**
+	 * @internal
+	 */
+	set _constantMax(value: number) {
+		this.__constantMax = value;
+		this._constantMaxGradientDdata = GradientDataNumber.createConstantData(value);
+	}
+
+	private __constantMinSeparate: Vector3 = null;
+	private __constantMaxSeparate: Vector3 = null;
+	//@internal
+	_constantXMinGradientDdata: GradientDataNumber = null;
+	//@internal
+	_constantYMinGradientDdata: GradientDataNumber = null;
+	//@internal
+	_constantZMinGradientDdata: GradientDataNumber = null;
+	//@internal
+	_constantXMaxGradientDdata: GradientDataNumber = null;
+	//@internal
+	_constantYMaxGradientDdata: GradientDataNumber = null;
+	//@internal
+	_constantZMaxGradientDdata: GradientDataNumber = null;
+	public get _constantMinSeparate(): Vector3 {
+		return this.__constantMinSeparate;
+	}
+	public set _constantMinSeparate(value: Vector3) {
+		this.__constantMinSeparate = value.clone();
+		this._constantXMinGradientDdata = GradientDataNumber.createConstantData(value.x);
+		this._constantYMinGradientDdata = GradientDataNumber.createConstantData(value.y);
+		this._constantZMinGradientDdata = GradientDataNumber.createConstantData(value.z);
+	}
+
+	public get _constantMaxSeparate(): Vector3 {
+		return this.__constantMaxSeparate;
+	}
+	public set _constantMaxSeparate(value: Vector3) {
+		this.__constantMaxSeparate = value;
+		this._constantXMaxGradientDdata = GradientDataNumber.createConstantData(value.x);
+		this._constantYMaxGradientDdata = GradientDataNumber.createConstantData(value.y);
+		this._constantZMaxGradientDdata = GradientDataNumber.createConstantData(value.z);
+	}
+
+
+
 
 	private _gradientMin: GradientDataNumber = null;
 	private _gradientMax: GradientDataNumber = null;
+
 	private _gradientXMin: GradientDataNumber = null;
 	private _gradientXMax: GradientDataNumber = null;
 	private _gradientYMin: GradientDataNumber = null;

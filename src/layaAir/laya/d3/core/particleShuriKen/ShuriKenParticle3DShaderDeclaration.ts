@@ -29,14 +29,6 @@ export class ShuriKenParticle3DShaderDeclaration {
 	/**@internal */
 	static SHADERDEFINE_ROTATIONOVERLIFETIMESEPERATE: ShaderDefine;
 	/**@internal */
-	static SHADERDEFINE_ROTATIONOVERLIFETIMECONSTANT: ShaderDefine;
-	/**@internal */
-	static SHADERDEFINE_ROTATIONOVERLIFETIMECURVE: ShaderDefine;
-	/**@internal */
-	static SHADERDEFINE_ROTATIONOVERLIFETIMERANDOMCONSTANTS: ShaderDefine;
-	/**@internal */
-	static SHADERDEFINE_ROTATIONOVERLIFETIMERANDOMCURVES: ShaderDefine;
-	/**@internal */
 	static SHADERDEFINE_SIZEOVERLIFETIMECURVE: ShaderDefine;
 	/**@internal */
 	static SHADERDEFINE_SIZEOVERLIFETIMECURVESEPERATE: ShaderDefine;
@@ -125,10 +117,6 @@ export class ShuriKenParticle3DShaderDeclaration {
 
 	//RotationOverLifetime
 	/**@internal */
-	static ROLANGULARVELOCITYCONST: number;
-	/**@internal */
-	static ROLANGULARVELOCITYCONSTSEPRARATE: number;
-	/**@internal */
 	static ROLANGULARVELOCITYGRADIENT: number;
 	/**@internal */
 	static ROLANGULARVELOCITYGRADIENTX: number;
@@ -137,10 +125,6 @@ export class ShuriKenParticle3DShaderDeclaration {
 	/**@internal */
 	static ROLANGULARVELOCITYGRADIENTZ: number;
 	/**@internal */
-	static ROLANGULARVELOCITYCONSTMAX: number;
-	/**@internal */
-	static ROLANGULARVELOCITYCONSTMAXSEPRARATE: number;
-	/**@internal */
 	static ROLANGULARVELOCITYGRADIENTMAX: number;
 	/**@internal */
 	static ROLANGULARVELOCITYGRADIENTXMAX: number;
@@ -148,8 +132,6 @@ export class ShuriKenParticle3DShaderDeclaration {
 	static ROLANGULARVELOCITYGRADIENTYMAX: number;
 	/**@internal */
 	static ROLANGULARVELOCITYGRADIENTZMAX: number;
-	/**@internal */
-	static ROLANGULARVELOCITYGRADIENTWMAX: number;
 
 	//TextureSheetAnimation
 	/**@internal */
@@ -182,11 +164,6 @@ export class ShuriKenParticle3DShaderDeclaration {
 		
 		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIME = Shader3D.getDefineByName("ROTATIONOVERLIFETIME");//
 		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMESEPERATE = Shader3D.getDefineByName("ROTATIONOVERLIFETIMESEPERATE");//
-		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMECONSTANT = Shader3D.getDefineByName("ROTATIONOVERLIFETIMECONSTANT");//
-
-		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMECURVE = Shader3D.getDefineByName("ROTATIONOVERLIFETIMECURVE");//
-		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMERANDOMCONSTANTS = Shader3D.getDefineByName("ROTATIONOVERLIFETIMERANDOMCONSTANTS");//
-		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMERANDOMCURVES = Shader3D.getDefineByName("ROTATIONOVERLIFETIMERANDOMCURVES");
 
 		
 		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SIZEOVERLIFETIMECURVE = Shader3D.getDefineByName("SIZEOVERLIFETIMECURVE");//
@@ -236,19 +213,14 @@ export class ShuriKenParticle3DShaderDeclaration {
 		ShuriKenParticle3DShaderDeclaration.SOLSizeGradientZMAX = Shader3D.propertyNameToID("u_SOLSizeGradientMaxZ");
 
 		//RotationOverLifetime
-		ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYCONST = Shader3D.propertyNameToID("u_ROLAngularVelocityConst");
-		ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYCONSTSEPRARATE = Shader3D.propertyNameToID("u_ROLAngularVelocityConstSeprarate");
 		ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENT = Shader3D.propertyNameToID("u_ROLAngularVelocityGradient");
 		ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTX = Shader3D.propertyNameToID("u_ROLAngularVelocityGradientX");
 		ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTY = Shader3D.propertyNameToID("u_ROLAngularVelocityGradientY");
 		ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTZ = Shader3D.propertyNameToID("u_ROLAngularVelocityGradientZ");
-		ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYCONSTMAX = Shader3D.propertyNameToID("u_ROLAngularVelocityConstMax");
-		ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYCONSTMAXSEPRARATE = Shader3D.propertyNameToID("u_ROLAngularVelocityConstMaxSeprarate");
 		ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTMAX = Shader3D.propertyNameToID("u_ROLAngularVelocityGradientMax");
 		ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTXMAX = Shader3D.propertyNameToID("u_ROLAngularVelocityGradientMaxX");
 		ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTYMAX = Shader3D.propertyNameToID("u_ROLAngularVelocityGradientMaxY");
 		ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTZMAX = Shader3D.propertyNameToID("u_ROLAngularVelocityGradientMaxZ");
-		ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTWMAX = Shader3D.propertyNameToID("u_ROLAngularVelocityGradientMaxW");
 
 		//TextureSheetAnimation
 		ShuriKenParticle3DShaderDeclaration.TEXTURESHEETANIMATIONCYCLES = Shader3D.propertyNameToID("u_TSACycles");
@@ -293,19 +265,14 @@ export class ShuriKenParticle3DShaderDeclaration {
 		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.SOLSIZEGRADIENTXMAX, 'u_SOLSizeGradientMaxX',ShaderDataType.Buffer);
 		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.SOLSIZEGRADIENTYMAX, 'u_SOLSizeGradientMaxY',ShaderDataType.Buffer);
 		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.SOLSizeGradientZMAX, 'u_SOLSizeGradientMaxZ',ShaderDataType.Buffer);
-		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYCONST, 'u_ROLAngularVelocityConst',ShaderDataType.Float);
-		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYCONSTSEPRARATE, 'u_ROLAngularVelocityConstSeprarate',ShaderDataType.Vector3);
 		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENT, 'u_ROLAngularVelocityGradient',ShaderDataType.Buffer);
 		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTX, 'u_ROLAngularVelocityGradientX',ShaderDataType.Buffer);
 		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTY, 'u_ROLAngularVelocityGradientY',ShaderDataType.Buffer);
 		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTZ, 'u_ROLAngularVelocityGradientZ',ShaderDataType.Buffer);
-		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYCONSTMAX, 'u_ROLAngularVelocityConstMax',ShaderDataType.Float);
-		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYCONSTMAXSEPRARATE, 'u_ROLAngularVelocityConstMaxSeprarate',ShaderDataType.Vector3);
 		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTMAX, 'u_ROLAngularVelocityGradientMax',ShaderDataType.Buffer);
 		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTXMAX, 'u_ROLAngularVelocityGradientMaxX',ShaderDataType.Buffer);
 		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTYMAX, 'u_ROLAngularVelocityGradientMaxY',ShaderDataType.Buffer);
 		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTZMAX, 'u_ROLAngularVelocityGradientMaxZ',ShaderDataType.Buffer);
-		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTWMAX, 'u_ROLAngularVelocityGradientMaxW',ShaderDataType.Buffer);
 		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.TEXTURESHEETANIMATIONCYCLES, 'u_TSACycles',ShaderDataType.Float);
 		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.TEXTURESHEETANIMATIONSUBUVLENGTH, 'u_TSASubUVLength',ShaderDataType.Vector2);
 		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.TEXTURESHEETANIMATIONGRADIENTUVS, 'u_TSAGradientUVs',ShaderDataType.Vector2);

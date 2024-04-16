@@ -205,55 +205,20 @@ float computeParticleRotationFloat(in float rotation,
     in float age,
     in float normalizedAge)
 {
-#ifdef ROTATIONOVERLIFETIME
-    #ifdef ROTATIONOVERLIFETIMECONSTANT
-    	float ageRot = u_ROLAngularVelocityConst * age;
-    	rotation += ageRot;
-    #endif
-    
-	#ifdef ROTATIONOVERLIFETIMECURVE
-    	rotation += getTotalValueFromGradientFloat(u_ROLAngularVelocityGradient, normalizedAge);
-    #endif
-    
-	#ifdef ROTATIONOVERLIFETIMERANDOMCONSTANTS
-    	float ageRot = mix(u_ROLAngularVelocityConst, u_ROLAngularVelocityConstMax, a_Random0.w) * age;
-    	rotation += ageRot;
-    #endif
-    
-	#ifdef ROTATIONOVERLIFETIMERANDOMCURVES
-    rotation += mix(
-		getTotalValueFromGradientFloat(u_ROLAngularVelocityGradient, normalizedAge),
-		getTotalValueFromGradientFloat(u_ROLAngularVelocityGradientMax,normalizedAge),
-		a_Random0.w);
-    #endif
-#endif
+	#ifdef ROTATIONOVERLIFETIME
+		rotation += mix(
+			getTotalValueFromGradientFloat(u_ROLAngularVelocityGradient, normalizedAge),
+			getTotalValueFromGradientFloat(u_ROLAngularVelocityGradientMax,normalizedAge),
+			a_Random0.w);
+	#endif
 
-#ifdef ROTATIONOVERLIFETIMESEPERATE
-    
-	#ifdef ROTATIONOVERLIFETIMECONSTANT
-    	float ageRot = u_ROLAngularVelocityConstSeprarate.z * age;
-    	rotation += ageRot;
-    #endif
-    
-	#ifdef ROTATIONOVERLIFETIMECURVE
-    rotation += getTotalValueFromGradientFloat(u_ROLAngularVelocityGradientZ,
-	normalizedAge);
-    #endif
-    #ifdef ROTATIONOVERLIFETIMERANDOMCONSTANTS
-    float ageRot = mix(u_ROLAngularVelocityConstSeprarate.z,
-		       u_ROLAngularVelocityConstMaxSeprarate.z,
-		       a_Random0.w)
-	* age;
-    rotation += ageRot;
-    #endif
-    #ifdef ROTATIONOVERLIFETIMERANDOMCURVES
-    rotation += mix(getTotalValueFromGradientFloat(u_ROLAngularVelocityGradientZ,
-			normalizedAge),
-	getTotalValueFromGradientFloat(
-	    u_ROLAngularVelocityGradientMaxZ, normalizedAge),
-	a_Random0.w);
-    #endif
-#endif
+	#ifdef ROTATIONOVERLIFETIMESEPERATE
+		rotation += mix(getTotalValueFromGradientFloat(u_ROLAngularVelocityGradientZ,
+				normalizedAge),
+		getTotalValueFromGradientFloat(
+			u_ROLAngularVelocityGradientMaxZ, normalizedAge),
+		a_Random0.w);
+	#endif
     return rotation;
 }
 
@@ -263,62 +228,29 @@ vec3 computeParticleRotationVec3(in vec3 rotation,
     in float normalizedAge)
 {
     #ifdef ROTATIONOVERLIFETIME
-	#ifdef ROTATIONOVERLIFETIMECONSTANT
-    float ageRot = u_ROLAngularVelocityConst * age;
-    rotation += ageRot;
-	#endif
-	#ifdef ROTATIONOVERLIFETIMECURVE
-    rotation += getTotalValueFromGradientFloat(u_ROLAngularVelocityGradient, normalizedAge);
-	#endif
-	#ifdef ROTATIONOVERLIFETIMERANDOMCONSTANTS
-    float ageRot = mix(u_ROLAngularVelocityConst, u_ROLAngularVelocityConstMax, a_Random0.w) * age;
-    rotation += ageRot;
-	#endif
-	#ifdef ROTATIONOVERLIFETIMERANDOMCURVES
-    rotation += mix(
-	getTotalValueFromGradientFloat(u_ROLAngularVelocityGradient, normalizedAge),
-	getTotalValueFromGradientFloat(u_ROLAngularVelocityGradientMax,
-	    normalizedAge),
-	a_Random0.w);
-	#endif
+			rotation += mix(
+			getTotalValueFromGradientFloat(u_ROLAngularVelocityGradient, normalizedAge),
+			getTotalValueFromGradientFloat(u_ROLAngularVelocityGradientMax,
+				normalizedAge),
+			a_Random0.w);
     #endif
-    #ifdef ROTATIONOVERLIFETIMESEPERATE
-	#ifdef ROTATIONOVERLIFETIMECONSTANT
-    vec3 ageRot = u_ROLAngularVelocityConstSeprarate * age;
-    rotation += ageRot;
-	#endif
-	#ifdef ROTATIONOVERLIFETIMECURVE
-    rotation += vec3(getTotalValueFromGradientFloat(u_ROLAngularVelocityGradientX,
-			 normalizedAge),
-	getTotalValueFromGradientFloat(u_ROLAngularVelocityGradientY,
-	    normalizedAge),
-	getTotalValueFromGradientFloat(u_ROLAngularVelocityGradientZ,
-	    normalizedAge));
-	#endif
-	#ifdef ROTATIONOVERLIFETIMERANDOMCONSTANTS
-    vec3 ageRot = mix(u_ROLAngularVelocityConstSeprarate,
-		      u_ROLAngularVelocityConstMaxSeprarate,
-		      a_Random0.w)
-	* age;
-    rotation += ageRot;
-	#endif
-	#ifdef ROTATIONOVERLIFETIMERANDOMCURVES
-    rotation += vec3(mix(getTotalValueFromGradientFloat(u_ROLAngularVelocityGradientX,
-			     normalizedAge),
-			 getTotalValueFromGradientFloat(u_ROLAngularVelocityGradientMaxX,
-			     normalizedAge),
-			 a_Random0.w),
-	mix(getTotalValueFromGradientFloat(u_ROLAngularVelocityGradientY,
-		normalizedAge),
-	    getTotalValueFromGradientFloat(u_ROLAngularVelocityGradientMaxY,
-		normalizedAge),
-	    a_Random0.w),
-	mix(getTotalValueFromGradientFloat(u_ROLAngularVelocityGradientZ,
-		normalizedAge),
-	    getTotalValueFromGradientFloat(u_ROLAngularVelocityGradientMaxZ,
-		normalizedAge),
-	    a_Random0.w));
-	#endif
+    
+	#ifdef ROTATIONOVERLIFETIMESEPERATE
+		rotation += vec3(mix(getTotalValueFromGradientFloat(u_ROLAngularVelocityGradientX,
+					normalizedAge),
+				getTotalValueFromGradientFloat(u_ROLAngularVelocityGradientMaxX,
+					normalizedAge),
+				a_Random0.w),
+		mix(getTotalValueFromGradientFloat(u_ROLAngularVelocityGradientY,
+			normalizedAge),
+			getTotalValueFromGradientFloat(u_ROLAngularVelocityGradientMaxY,
+			normalizedAge),
+			a_Random0.w),
+		mix(getTotalValueFromGradientFloat(u_ROLAngularVelocityGradientZ,
+			normalizedAge),
+			getTotalValueFromGradientFloat(u_ROLAngularVelocityGradientMaxZ,
+			normalizedAge),
+			a_Random0.w));
     #endif
     return rotation;
 }
