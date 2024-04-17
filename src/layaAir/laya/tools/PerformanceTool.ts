@@ -75,7 +75,7 @@ export class PerformanceDefine {
     //Animator
     static T_AnimatorUpdate: string;
     static T_SkinBoneUpdate: string;
-    static T_shurikenUpdate: string;
+    static T_ShurikenUpdate: string;
     //--------Performance3DPhysicsDefine--------
     static T_Physics_Simulation: string;
     static T_Physics_UpdateNode:string;
