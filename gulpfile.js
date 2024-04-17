@@ -541,7 +541,12 @@ gulp.task('buildPerf', async () => {
 
     // 保存到文件
     const perfJson = JSON.stringify(perfList);
-    fs.writeFileSync("./build/statistic.json", perfJson);
+    const perfDir = "./build/performanceTool";
+    // 如果目录不存在则创建
+    if (!fs.existsSync(perfDir)) {
+        fs.mkdirSync(perfDir, { recursive: true });
+    }
+    fs.writeFileSync(path.join(perfDir, "statistic.json"), perfJson);
 });
 
 gulp.task('genDts', () => {
