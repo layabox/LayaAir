@@ -156,7 +156,7 @@ export class CharRender_Canvas extends ICharRender {
 		}
 		//ctx.restore();
 		if (rect) {
-			if (rect[2] < 0)//<0表示原点的x偏移，例如原点在2，则这里就是-2， 这时候测量的宽度是从原点开始的，所以要加上偏移。否则会有右边被裁剪的情况
+			if (rect[2] <= 0)//<=0表示原点的x偏移，例如原点在2，则这里就是-2， 这时候测量的宽度是从原点开始的，所以要加上偏移。否则会有右边被裁剪的情况
 				rect[2] = (-rect[2]+Math.ceil((cri.width + lineWidth * 2)) * this.lastScaleX);
 			//if (rect[2] == -1) rect[2] = Math.ceil((cri.width + lineWidth * 2) * this.lastScaleX); // 这个没有考虑左右margin
 			if (rect[2] <= 0) rect[2] = 1;	// 有的字体在处理不存在文字的时候，测量宽度为0，会导致getImageData出错
