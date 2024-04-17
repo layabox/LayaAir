@@ -1,5 +1,5 @@
 import { BlueprintUtil } from "../core/BlueprintUtil";
-import { TBPDeclaration, TBPDeclarationType, BPDecoratorsOptionClass, BPDecoratorsOptionProp, TBPDeclarationProp, BPDecoratorsOptionFunction, TBPDeclarationConstructor, TBPDeclarationFunction } from "../datas/types/BlueprintDeclaration";
+import { TBPDeclaration, TBPDeclarationType, BPDecoratorsOptionClass, BPDecoratorsOptionProp, TBPDeclarationProp, BPDecoratorsOptionFunction, TBPDeclarationConstructor, TBPDeclarationFunction, TBPDeclarationMerber } from "../datas/types/BlueprintDeclaration";
 import { BPType } from "../datas/types/BlueprintTypes";
 import { Component } from "../../components/Component";
 
@@ -215,4 +215,18 @@ export function bpAccessor(options: BPDecoratorsOptionProp) {
 
         declare.props.push(prop);
     }
+}
+
+/**
+ * 增加一个蓝图枚举
+ * @param name 枚举名称
+ * @param merbers 枚举成员
+ */
+export function createBPEnum(name: string, merbers: TBPDeclarationMerber[]) {
+    let declare: TBPDeclaration = {
+        name,
+        type: "Enum",
+        merbers
+    }
+    BlueprintUtil.addCustomData(name, declare);
 }
