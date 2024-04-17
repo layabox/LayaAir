@@ -3,7 +3,7 @@ import { Matrix } from "../maths/Matrix";
 import { SpineTexture } from "./SpineTexture";
 import { SpineTemplet } from "./SpineTemplet";
 import { Material } from "../resource/Material";
-import { SpineVirtualMesh } from "./SpineVirtualMesh";
+import { SpineVirtualMesh } from "./mesh/SpineVirtualMesh";
 
 
 interface Renderable {

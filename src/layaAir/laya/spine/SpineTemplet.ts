@@ -9,6 +9,8 @@ import { SpineMaterial } from "./material/SpineMaterial";
 import { Material } from "../resource/Material";
 import { Vector2 } from "../maths/Vector2";
 import { Laya } from "../../Laya";
+import { SpineOptimize } from "./SpineOptimize";
+import { SpineFastMaterial } from "./material/SpineFastMaterial";
 
 /**
  * Spine动画模板基类
@@ -20,10 +22,14 @@ export class SpineTemplet extends Resource {
 
     private materialMap: Map<string, SpineMaterial>;
 
+    private materialFastMap: Map<string, SpineFastMaterial>;
+
     private _textures: Record<string, SpineTexture>;
     private _basePath: string;
     private _ns: any;
     public needSlot:boolean;
+
+    slotManger:SpineOptimize;
     
 
     constructor() {
@@ -31,7 +37,25 @@ export class SpineTemplet extends Resource {
 
         this._textures = {};
         this.materialMap = new Map();
+        this.materialFastMap = new Map();
+        this.slotManger=new SpineOptimize();
     }
+
+    get mainTexture(): Texture {
+        let i=0;
+        let tex:Texture;
+        for(let k in this._textures){
+            tex= this._textures[k].realTexture;
+            if(tex){
+                i++;
+                if(i>1){
+                    return null;
+                }
+            }
+        }
+        return tex;
+    }
+
 
     get ns(): typeof spine {
         return this._ns;
@@ -39,6 +63,18 @@ export class SpineTemplet extends Resource {
 
     get basePath(): string {
         return this._basePath;
+    }
+
+    getFastMaterial(texture: Texture,blendMode: number): Material {
+        let key = texture.id + "_" + blendMode;
+        let mat = this.materialFastMap.get(key);
+        if (!mat) {
+            mat = new SpineFastMaterial();
+            mat.texture = texture;
+            mat.blendMode = blendMode;
+            this.materialFastMap.set(key, mat);
+        }
+        return mat;
     }
 
     getMaterial(texture: Texture, blendMode: number): Material {
