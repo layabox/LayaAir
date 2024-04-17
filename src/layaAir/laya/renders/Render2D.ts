@@ -12,7 +12,6 @@ import { LayaGL } from "../layagl/LayaGL";
 import { Color } from "../maths/Color";
 import { Material } from "../resource/Material";
 import { RenderTexture2D } from "../resource/RenderTexture2D";
-import { PERF_BEGIN, PERT_COUNT, PerformanceDefine } from "../tools/PerformanceTool";
 import { Stat } from "../utils/Stat";
 import { Value2D } from "../webgl/shader/d2/value/Value2D";
 import { RenderState2D } from "../webgl/utils/RenderState2D";
@@ -123,7 +122,6 @@ export class Render2DSimple extends Render2D {
     }
 
     draw(mesh2d: IMesh2D, vboff: number, vblen: number, iboff: number, iblen: number, mtl: Value2D): void {
-        //PERT_COUNT(PerformanceDefine.C_DrawCount,1);
         Stat.draw2D++;
         this.setVertexDecl(mesh2d.vertexDeclarition);
         let geo = this.geo;

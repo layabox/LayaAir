@@ -127,40 +127,6 @@ export function PERF_END(block: string): void {
 
 (window as any).PERF_BEGIN = PERF_END;
 
-/**
- * 性能统计装饰器，数量统计
- * @param block 统计标识（例如：PerformanceDefine.SCENE3D_RENDER）
- * @constructor
- */
-export function PERT_COUNT(block: string, count: number) :MethodDecorator{
-    //增加或者减少统计的数量 TODO
-    return null;
-}
-(window as any).PERT_COUNT = PERT_COUNT;
-/**
- * 性能统计装饰器，方法调用时间
- * @param block 统计标识（例如：PerformanceDefine.SCENE3D_RENDER）
- * @constructor
- */
-export function PERF_STAT(block: string): MethodDecorator {
-    return function (target: any, key: string | symbol, descriptor: PropertyDescriptor) {
-        const originalMethod = descriptor.value;
-
-        descriptor.value = function (...args: any[]) {
-            const _block = (PerformanceDefine as any)[block];
-            if (!_block) {
-                return originalMethod.apply(this, args);
-            } else {
-                PerfTools.begin(_block);
-                const result = originalMethod.apply(this, args);
-                PerfTools.end(_block);
-                return result;
-            }
-        }
-        return descriptor;
-    }
-}
-(window as any).PERF_STAT = PERF_STAT;
 
 export function PERF_FRAMECLEAR() {
     //清空上一帧的统计数据
