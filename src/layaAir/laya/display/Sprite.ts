@@ -1223,6 +1223,7 @@ export class Sprite extends Node {
      * 
      */
     static drawToTexture(sprite: Sprite, _renderType: number, canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt: RenderTexture2D | null = null): Texture | RenderTexture2D {
+        Context.set2DRenderConfig();
         if (!Sprite.drawtocanvCtx) {
             Sprite.drawtocanvCtx = new Context();
         }
