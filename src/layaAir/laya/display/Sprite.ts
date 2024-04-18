@@ -1585,7 +1585,7 @@ export class Sprite extends Node {
     }
 
     set mask(value: Sprite) {
-        if (value && this.mask == value && value._cacheStyle.maskParent == this)
+        if (value == this || (value && this.mask == value && value._cacheStyle.maskParent == this))
             return;
 
         if (this.mask)
@@ -1861,6 +1861,7 @@ export class Sprite extends Node {
         if (this._globalMatrix == null) this._globalMatrix = Matrix.create()
         if (this._getGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Matrix)) {
             this._globalMatrix.identity();
+            this._globalMatrix.translate(-this.pivotX, -this.pivotY);
             this._globalMatrix.rotate(Utils.toRadian(this.globalRotation));
             this._globalMatrix.scale(this.globalScaleX, this.globalScaleY);
             this._globalMatrix.translate(this.globalPosX, this.globalPosY);
@@ -1902,8 +1903,8 @@ export class Sprite extends Node {
             this.x = point.x;
             this.y = point.y;
         } else {
-            let mat = (<Sprite>this.parent).getGlobalMatrix();
-            let point = mat.invertTransformPoint(Point.TEMP.setTo(globalx, globaly));
+
+            let point = (<Sprite>this.parent).getGlobalMatrix().invertTransformPoint(Point.TEMP.setTo(globalx, globaly));
             this._setX(point.x);
             this._setY(point.y);
             this._globalPosx = globalx;
@@ -1928,7 +1929,7 @@ export class Sprite extends Node {
             if (this._getGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Matrix | Sprite.Sprite_GlobalDeltaFlage_Position_X)) {
                 this._setGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Position_X, false);
                 let mat = (<Sprite>this.parent).getGlobalMatrix();
-                let point = this.toParentPoint(Point.TEMP.setTo(0, 0));
+                let point = this.toParentPoint(Point.TEMP.setTo(this.pivotX, this.pivotY));
                 point = mat.transformPoint(point);
                 this._globalPosx = point.x;
                 this._setGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Matrix, true);
@@ -1951,7 +1952,7 @@ export class Sprite extends Node {
             if (this._getGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Matrix | Sprite.Sprite_GlobalDeltaFlage_Position_Y)) {
                 this._setGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Position_Y, false);
                 let mat = (<Sprite>this.parent).getGlobalMatrix();
-                let point = this.toParentPoint(Point.TEMP.setTo(0, 0));
+                let point = this.toParentPoint(Point.TEMP.setTo(this.pivotX, this.pivotY));
                 point = mat.transformPoint(point);
                 this._globalPosy = point.y;
                 this._setGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Matrix, true);
