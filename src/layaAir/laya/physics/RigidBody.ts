@@ -421,6 +421,6 @@ export class RigidBody extends Component {
      * @param y (单位： 像素)
     */
     getLocalPoint(x: number, y: number) {
-        return (<Sprite>this.owner).getGlobalMatrix().transformPoint(Point.TEMP.setTo(x, y))
+        return (<Sprite>this.owner).getGlobalMatrix().invertTransformPoint(Point.TEMP.setTo(x, y))
     }
 }

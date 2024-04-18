@@ -442,7 +442,8 @@ export class TextRender {
                 TextRender.imgdtRect[3] = Math.max(w1, fh);	// 高度也要取大的。 例如emoji
             } else {
                 // 多个字符的处理
-                TextRender.imgdtRect[2] = -1;	// -1 表示宽度要测量
+                //TextRender.imgdtRect[2] = -1;	// -1 表示宽度要测量
+                TextRender.imgdtRect[2] =  -(this.fontSizeOffX * this.fontScaleX);//<0表示要测量宽度，但是提供了原点偏移
                 TextRender.imgdtRect[3] = fh; 	// TODO 如果被裁剪了，可以考虑把这个加大一点点
             }
             this.charRender.fontsz = font._size;

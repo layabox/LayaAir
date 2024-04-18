@@ -31,13 +31,13 @@ export class DialogManager extends Sprite {
     /**锁屏层*/
     lockLayer: Sprite;
 
-    /**@internal 全局默认弹出对话框效果，可以设置一个效果代替默认的弹出效果，如果不想有任何效果，可以赋值为null*/
+    /**@private 全局默认弹出对话框效果，可以设置一个效果代替默认的弹出效果，如果不想有任何效果，可以赋值为null*/
     popupEffect = (dialog: Dialog) => {
         dialog.scale(1, 1);
         dialog._effectTween = Tween.from(dialog, { x: ILaya.stage.width / 2, y: ILaya.stage.height / 2, scaleX: 0, scaleY: 0 }, 300, Ease.backOut, Handler.create(this, this.doOpen, [dialog]), 0, false, false);
     }
 
-    /**@internal 全局默认关闭对话框效果，可以设置一个效果代替默认的关闭效果，如果不想有任何效果，可以赋值为null*/
+    /**@private 全局默认关闭对话框效果，可以设置一个效果代替默认的关闭效果，如果不想有任何效果，可以赋值为null*/
     closeEffect = (dialog: Dialog) => {
         dialog._effectTween = Tween.to(dialog, { x: ILaya.stage.width / 2, y: ILaya.stage.height / 2, scaleX: 0, scaleY: 0 }, 300, Ease.strongOut, Handler.create(this, this.doClose, [dialog]), 0, false, false);
     }
@@ -109,6 +109,7 @@ export class DialogManager extends Sprite {
 
     /**@internal 发生层次改变后，重新检查遮罩层是否正确*/
     _checkMask(): void {
+        if (this._destroyed) return;
         this.maskLayer.removeSelf();
         for (var i: number = this.numChildren - 1; i > -1; i--) {
             var dialog: Dialog = (<Dialog>this.getChildAt(i));

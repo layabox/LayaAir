@@ -88,6 +88,8 @@ export class Filter implements IFilter {
                 //重新计算宽和高
                 b.width += (tPadding + 8);//增加宽度 blur  由于blur系数为9
                 b.height += (tPadding + 8);//增加高度 blur
+                b.width = Math.ceil(b.width);
+                b.height = Math.ceil(b.height);
                 p.x = b.x * mat.a + b.y * mat.c;
                 p.y = b.y * mat.d + b.x * mat.b;
                 b.x = p.x;

@@ -1304,6 +1304,7 @@ export class Sprite extends Node {
      * 
      */
     static drawToTexture(sprite: Sprite, _renderType: number, canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt: RenderTexture2D | null = null): Texture | RenderTexture2D {
+        Context.set2DRenderConfig();
         if (!Sprite.drawtocanvCtx) {
             Sprite.drawtocanvCtx = new Context();
         }
@@ -1677,7 +1678,7 @@ export class Sprite extends Node {
     }
 
     set mask(value: Sprite) {
-        if (value && this.mask == value && value._cacheStyle.maskParent == this)
+        if (value == this || (value && this.mask == value && value._cacheStyle.maskParent == this))
             return;
 
         if (this.mask)
@@ -1957,6 +1958,7 @@ export class Sprite extends Node {
         if (this._globalMatrix == null) this._globalMatrix = Matrix.create()
         if (this._getGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Matrix)) {
             this._globalMatrix.identity();
+            this._globalMatrix.translate(-this.pivotX, -this.pivotY);
             this._globalMatrix.rotate(Utils.toRadian(this.globalRotation));
             this._globalMatrix.scale(this.globalScaleX, this.globalScaleY);
             this._globalMatrix.translate(this.globalPosX, this.globalPosY);
@@ -2001,8 +2003,8 @@ export class Sprite extends Node {
             this.x = point.x;
             this.y = point.y;
         } else {
-            let mat = (<Sprite>this.parent).getGlobalMatrix();
-            let point = mat.invertTransformPoint(Point.TEMP.setTo(globalx, globaly));
+
+            let point = (<Sprite>this.parent).getGlobalMatrix().invertTransformPoint(Point.TEMP.setTo(globalx, globaly));
             this._setX(point.x);
             this._setY(point.y);
             this._globalPosx = globalx;

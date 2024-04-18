@@ -1,5 +1,6 @@
 import { ICollider } from "../../Physics3D/interface/ICollider";
 import { ContactPoint } from "./ContactPoint";
+import { PhysicsColliderComponent } from "./PhysicsColliderComponent";
 
 /**
  * <code>Collision</code> 类用于创建物理碰撞信息。
@@ -20,7 +21,7 @@ export class Collision {
     /**@readonly*/
     contacts: ContactPoint[] = [];
     /**@readonly*/
-    other: ICollider;
+    other: PhysicsColliderComponent;
 
     /**@internal */
     _inPool: boolean = false;
