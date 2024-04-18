@@ -1584,7 +1584,7 @@ export class Sprite extends Node {
     }
 
     set mask(value: Sprite) {
-        if (value && this.mask == value && value._cacheStyle.maskParent == this)
+        if (value == this || (value && this.mask == value && value._cacheStyle.maskParent == this))
             return;
 
         if (this.mask)
