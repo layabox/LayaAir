@@ -1,9 +1,32 @@
 import { Vector2 } from "../../maths/Vector2";
-
+// 引入角度阈值，用于判断是否为尖角
+const minAngle = 10 * Math.PI / 180; // 10度的弧度值
 export class BasePoly {
 
     private static tempData: any[] = new Array(256);
     private static vec2: Vector2;
+
+    private static _checkMinAngle(p1x: number, p1y: number, p2x: number, p2y: number, p3x: number, p3y: number): boolean {
+        // 计算相邻线段的方向向量
+        const v1x = p2x - p1x;
+        const v1y = p2y - p1y;
+        const v2x = p3x - p2x;
+        const v2y = p3y - p2y;
+
+        // 计算方向向量的点积
+        const dot = v1x * v2x + v1y * v2y;
+        // const cross = v1x * v2y - v1y * v2x;
+
+        // 计算方向向量的长度
+        const len1 = Math.sqrt(v1x * v1x + v1y * v1y);
+        const len2 = Math.sqrt(v2x * v2x + v2y * v2y);
+
+        // 计算夹角的余弦值
+        const cosAngle = dot / (len1 * len2);
+        const angle = Math.acos(Math.abs(cosAngle));
+        return Math.abs(angle) < minAngle;
+    }
+
 
     /**
      * 构造线的三角形数据。根据一个位置数组生成vb和ib
@@ -61,7 +84,13 @@ export class BasePoly {
             p3x = points[(i + 1) * 2];
             p3y = points[(i + 1) * 2 + 1];
 
-            this._setMiddleVertexs(p1x, p1y, p2x, p2y, p3x, p3y, w, result, this.vec2);
+
+            indices.push(indexBase + 0, indexBase + 1, indexBase + 3, indexBase + 3, indexBase + 2, indexBase + 0);
+            indexBase += 2;
+            // 夹角小于阈值,视为尖角,使用线段的中点作为拐角处的顶点
+            if (!this._setMiddleVertexs(p1x, p1y, p2x, p2y, p3x, p3y, w, result, this.vec2)) {
+                indexBase += 2;
+            }
         }
 
         p1x = points[newlen - 4];
@@ -73,7 +102,9 @@ export class BasePoly {
         if (p2x == points[0] && p2y == points[1]) {
             p3x = points[2];
             p3y = points[3];
-            this._setMiddleVertexs(p1x, p1y, p2x, p2y, p3x, p3y, w, result, this.vec2);
+            if (!this._setMiddleVertexs(p1x, p1y, p2x, p2y, p3x, p3y, w, result, this.vec2)) {
+                indexBase += 2;
+            }
             let len = result.length;
             result[startIndex] = result[len - 4];
             result[startIndex + 1] = result[len - 3];
@@ -84,12 +115,10 @@ export class BasePoly {
             this.vec2 = this.getNormal(p1x, p1y, p2x, p2y, w, this.vec2);
             result.push(p2x - this.vec2.x, p2y - this.vec2.y, p2x + this.vec2.x, p2y + this.vec2.y);
         }
-        for (i = 1; i < length; i++) {
-            indices.push(indexBase + (i - 1) * 2, indexBase + (i - 1) * 2 + 1, indexBase + i * 2 + 1, indexBase + i * 2 + 1, indexBase + i * 2, indexBase + (i - 1) * 2);
-        }
-
+        indices.push(indexBase + 0, indexBase + 1, indexBase + 3, indexBase + 3, indexBase + 2, indexBase + 0);
         return result;
     }
+
     private static _setMiddleVertexs(x1: number, y1: number, x2: number, y2: number, x3: number, y3: number, w: number, vertexs: number[], out: Vector2) {
         this.getNormal(x1, y1, x2, y2, w, out);
         let perpx = out.x;
@@ -97,6 +126,11 @@ export class BasePoly {
         this.getNormal(x2, y2, x3, y3, w, out);
         let perp2x = out.x;
         let perp2y = out.y;
+        if (this._checkMinAngle(x1, y1, x2, y2, x3, y3)) {
+            vertexs.push(x2 - perpx, y2 - perpy, x2 + perpx, y2 + perpy);
+            vertexs.push(x2 - perp2x, y2 - perp2y, x2 + perp2x, y2 + perp2y);
+            return false;
+        }
 
         let a1 = (-perpy + y1) - (-perpy + y2);
         let b1 = (-perpx + x2) - (-perpx + x1);
@@ -109,12 +143,12 @@ export class BasePoly {
         if (Math.abs(denom) < 0.1) {
             denom += 10.1;
             vertexs.push(x2 - perpx, y2 - perpy, x2 + perpx, y2 + perpy);
-            return;
+            return true;
         }
-
         let px = (b1 * c2 - b2 * c1) / denom;
         let py = (a2 * c1 - a1 * c2) / denom;
         vertexs.push(px, py, x2 - (px - x2), y2 - (py - y2));
+        return true;
     }
 
     static getNormal(x1: number, y1: number, x2: number, y2: number, w: number, out?: Vector2) {
