@@ -2,7 +2,8 @@ var createImageBitmapOK = self.createImageBitmap ? true : false;
 
 onmessage = function (evt) {
     var data = evt.data;//通过evt.data获得发送来的数据
-    loadImage2(data.url, data.options);
+    if (data != null && typeof (data.url) === "string")
+        loadImage2(data.url, data.options);
 }
 
 var enableTrace = false;

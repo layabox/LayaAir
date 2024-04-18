@@ -1,6 +1,6 @@
 import { IColliderShape } from "./Shape/IColliderShape";
 import { Node } from "../../display/Node";
-import { PhysicsCombineMode } from "../../d3/physics/PhysicsColliderComponent";
+import { PhysicsColliderComponent, PhysicsCombineMode } from "../../d3/physics/PhysicsColliderComponent";
 
 export interface ICollider {
     owner: Node;
@@ -10,6 +10,8 @@ export interface ICollider {
      * component is enable
      */
     componentEnable: boolean;
+
+    component: PhysicsColliderComponent;
 
     /**
      * get capable

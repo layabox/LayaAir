@@ -271,6 +271,9 @@ export class TextInput extends Label {
 
     /**@internal */
     protected _skinLoaded(source: any): void {
+        if (this._destroyed)
+            return;
+
         this._graphics.source = source;
         this._sizeChanged();
         this.event(Event.LOADED);

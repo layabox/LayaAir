@@ -586,5 +586,6 @@ export class Input extends Text {
     set type(value: string) {
         this._asPassword = value === "password";
         this._type = value;
+        this.markChanged();
     }
 }

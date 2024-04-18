@@ -15,6 +15,7 @@ import { EPhysicsCapable } from "../physicsEnum/EPhycisCapable";
 import { Physics3DUtils } from "../../d3/utils/Physics3DUtils";
 import { PhysicsUpdateList } from "../../d3/physics/PhysicsUpdateList";
 import { ICollider } from "../interface/ICollider";
+import { PhysicsColliderComponent } from "../../d3/physics/PhysicsColliderComponent";
 
 export class btPhysicsManager implements IPhysicsManager {
     /**默认碰撞组 */
@@ -467,9 +468,9 @@ export class btPhysicsManager implements IPhysicsManager {
         let loopCount = this._updateCount;
         for (let i = 0, n = this._currentFrameCollisions.length; i < n; i++) {
             let curFrameCol = this._currentFrameCollisions[i];
-            let colliderA = curFrameCol._colliderA as btCollider;
-            let colliderB = curFrameCol._colliderB as btCollider;
-            if (colliderA._destroyed || colliderB._destroyed)//前一个循环可能会销毁后面循环的同一物理组件
+            let colliderA = curFrameCol._colliderA.component as PhysicsColliderComponent;
+            let colliderB = curFrameCol._colliderB.component as PhysicsColliderComponent;
+            if (colliderA.destroyed || colliderB.destroyed)//前一个循环可能会销毁后面循环的同一物理组件
                 continue;
             // TODO 下面是否正确。现在这个_enableProcessCollisions是kinematic的话，就是false，所以先改成&&
             //if(!colliderA._enableProcessCollisions && colliderB._enableProcessCollisions) return;	// 这个会导致角色和kinematic地板的碰撞不处理
@@ -500,9 +501,9 @@ export class btPhysicsManager implements IPhysicsManager {
 
         for (let i = 0, n = this._previousFrameCollisions.length; i < n; i++) {
             let preFrameCol = this._previousFrameCollisions[i];
-            let preColliderA = preFrameCol._colliderA as btCollider;
-            let preColliderB = preFrameCol._colliderB as btCollider;
-            if (preColliderA._destroyed || preColliderB._destroyed)
+            let preColliderA = preFrameCol._colliderA.component as PhysicsColliderComponent;
+            let preColliderB = preFrameCol._colliderB.component as PhysicsColliderComponent;
+            if (preColliderA.destroyed || preColliderB.destroyed)
                 continue;
             let ownerA = preColliderA.owner;
             let ownerB = preColliderB.owner;

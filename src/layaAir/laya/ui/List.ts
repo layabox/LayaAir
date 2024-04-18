@@ -452,7 +452,6 @@ export class List extends Box {
         }
     }
 
-
     /**
      * 水平方向显示的单元格数量。
      */
@@ -616,7 +615,7 @@ export class List extends Box {
      * @override
     */
     _setHeight(value: number) {
-        super._setWidth(value);
+        super._setHeight(value);
         this._setCellChanged();
     }
 

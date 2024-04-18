@@ -520,7 +520,7 @@ export class Text extends Sprite {
         else if (value && (Utils.getFileExtension(value) || value.startsWith("res://"))) {
             let t = value;
             let fontObj = ILaya.loader.getRes(value);
-            if (!fontObj) {
+            if (!fontObj || fontObj.obsolute) {
                 ILaya.loader.load(value).then(fontObj => {
                     if (!fontObj || this._realFont != t)
                         return;
