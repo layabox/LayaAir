@@ -6,7 +6,6 @@ import { Sprite3D } from "../core/Sprite3D";
 import { Bounds } from "../math/Bounds";
 import { Event } from "../../events/Event";
 import { Utils3D } from "../utils/Utils3D";
-import { IBoundsCell } from "../math/IBoundsCell";
 import { Vector3 } from "../../maths/Vector3";
 
 const tempVec = new Vector3();
@@ -150,7 +149,7 @@ export class LODInfo {
 /**
  * <code>SpotLight</code> 类用于构建LOD组件
  */
-export class LODGroup extends Component implements IBoundsCell {
+export class LODGroup extends Component {
 
     /**
      * 是否需要重新计算_lodBoundsRadius，和_bounds

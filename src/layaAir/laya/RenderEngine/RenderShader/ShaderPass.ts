@@ -1,12 +1,14 @@
 import { SubShader } from "./SubShader";
 import { ShaderCompileDefineBase, ShaderProcessInfo } from "../../webgl/utils/ShaderCompileDefineBase";
-import { DefineDatas } from "../../RenderEngine/RenderShader/DefineDatas";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { ShaderVariantCollection } from "../../RenderEngine/RenderShader/ShaderVariantCollection";
 import { IShaderCompiledObj } from "../../webgl/utils/ShaderCompile";
-import { RenderState } from "./RenderState";
-import { ShaderInstance } from "./ShaderInstance";
 import { LayaGL } from "../../layagl/LayaGL";
+import { IShaderPassData } from "../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
+import { RenderState } from "../../RenderDriver/RenderModuleData/Design/RenderState";
+import { IDefineDatas } from "../../RenderDriver/RenderModuleData/Design/IDefineDatas";
+import { Laya3DRender } from "../../d3/RenderObjs/Laya3DRender";
+import { IShaderInstance } from "../../RenderDriver/DriverDesign/RenderDevice/IShaderInstance";
 
 
 /**
@@ -15,77 +17,87 @@ import { LayaGL } from "../../layagl/LayaGL";
 export class ShaderPass extends ShaderCompileDefineBase {
 
     /** @internal */
-    private _renderState: RenderState;
+    private static _defineStrings: Array<string> = [];
     /** @internal */
-    _tags: any = {};
+    private static _debugDefineStrings: string[] = [];
     /** @internal */
-    _pipelineMode: string;
+    private static _debugDefineMasks: number[] = [];
+    // /** @internal */
+    // private _renderState: RenderState;
+    /** @internal */
+    private _pipelineMode: string;
+    public get pipelineMode(): string {
+        return this._pipelineMode;
+    }
+    public set pipelineMode(value: string) {
+        this._pipelineMode = value;
+        this.moduleData.pipelineMode = value;
+    }
     /**@internal */
     _nodeUniformCommonMap: Array<string>;
     /** 优先 ShaderPass 渲染状态 */
-    statefirst: boolean = false;
+    private _statefirst: boolean = false;
+    public get statefirst(): boolean {
+        return this._statefirst;
+    }
+    public set statefirst(value: boolean) {
+        this._statefirst = value;
+        this.moduleData.statefirst = value;
+    }
+
+    moduleData: IShaderPassData;
 
     /**
      * 渲染状态。
      */
     get renderState(): RenderState {
-        return this._renderState;
+        return this.moduleData.renderState;
     }
 
     constructor(owner: SubShader, compiledObj: IShaderCompiledObj) {
         super(owner, null, compiledObj);
-        this._renderState = LayaGL.renderOBJCreate.createRenderState();
-        this._renderState.setNull();
+        this.moduleData = Laya3DRender.Render3DModuleDataFactory.createShaderPass(this);
+        this.moduleData.validDefine = this._validDefine;
+    }
+
+    /**
+     * @internal
+     * @param IS2d 
+     * @param compileDefine 
+     * @returns 
+     */
+    static createShaderInstance(shaderpass: ShaderPass, IS2d: boolean, compileDefine: IDefineDatas): IShaderInstance {
+        var shader: IShaderInstance;
+        let shaderProcessInfo: ShaderProcessInfo = new ShaderProcessInfo();
+        shaderProcessInfo.is2D = IS2d;
+        shaderProcessInfo.vs = shaderpass._VS;
+        shaderProcessInfo.ps = shaderpass._PS;
+        shaderProcessInfo.attributeMap = shaderpass._owner._attributeMap;
+        shaderProcessInfo.uniformMap = shaderpass._owner._uniformMap;
+        var defines: string[] = ShaderCompileDefineBase._defineStrings;
+        defines.length = 0;
+        Shader3D._getNamesByDefineData(compileDefine, defines);
+        shaderProcessInfo.defineString = defines;
+        shader = LayaGL.renderDeviceFactory.createShaderInstance(shaderProcessInfo, shaderpass);
+
+        }
+
+        if (Shader3D.debugMode)
+            ShaderVariantCollection.active.add(this, defines);
+
+        return shader;
     }
 
     /**
      * @override
      * @internal
      */
-    withCompile(compileDefine: DefineDatas, IS2d: boolean = false): ShaderInstance {
-        compileDefine._intersectionDefineDatas(this._validDefine);
-
-        var cacheShaders: any = this._cacheSharders;
-        var maskLength: number = compileDefine._length;
-        if (maskLength > this._cacheShaderHierarchy) {//扩充已缓存ShaderMap
-            this._resizeCacheShaderMap(cacheShaders, 0, maskLength);
-            this._cacheShaderHierarchy = maskLength;
-        }
-
-        var mask: Array<number> = compileDefine._mask;
-        var endIndex: number = compileDefine._length - 1;
-        var maxEndIndex: number = this._cacheShaderHierarchy - 1;
-        for (var i: number = 0; i < maxEndIndex; i++) {
-            var subMask: number = endIndex < i ? 0 : mask[i];
-            var subCacheShaders = cacheShaders[subMask];
-            (subCacheShaders) || (cacheShaders[subMask] = subCacheShaders = {});
-            cacheShaders = subCacheShaders;
-        }
-
-        var cacheKey: number = endIndex < maxEndIndex ? 0 : mask[maxEndIndex];
-        var shader: ShaderInstance = cacheShaders[cacheKey];
+    withCompile(compileDefine: IDefineDatas, IS2d: boolean = false): IShaderInstance {
+        var shader: IShaderInstance = this.moduleData.getCacheShader(compileDefine);
         if (shader)
             return shader;
-
-        let shaderProcessInfo: ShaderProcessInfo = new ShaderProcessInfo();
-        shaderProcessInfo.is2D = IS2d;
-        shaderProcessInfo.vs = this._VS;
-        shaderProcessInfo.ps = this._PS;
-        shaderProcessInfo.attributeMap = this._owner._attributeMap;
-        shaderProcessInfo.uniformMap = this._owner._uniformMap;
-
-        var defines: string[] = ShaderCompileDefineBase._defineStrings;
-        defines.length = 0;
-        Shader3D._getNamesByDefineData(compileDefine, defines);
-        shaderProcessInfo.defineString = defines;
-
-        shader = LayaGL.renderOBJCreate.createShaderInstance(shaderProcessInfo, this);
-
-        cacheShaders[cacheKey] = shader;
-
-        if (Shader3D.debugMode)
-            ShaderVariantCollection.active.add(this, defines);
-
+        shader = ShaderPass.createShaderInstance(this, IS2d, compileDefine);
+        this.moduleData.setCacheShader(compileDefine, shader);
         return shader;
     }
 }

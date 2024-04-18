@@ -5,14 +5,13 @@ import { PostProcessEffect } from "../core/render/PostProcessEffect"
 import { PostProcessRenderContext } from "../core/render/PostProcessRenderContext"
 import { Viewport } from "../math/Viewport"
 import { RenderContext3D } from "../core/render/RenderContext3D"
-import { ShaderDefine } from "../../RenderEngine/RenderShader/ShaderDefine"
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D"
-import { ShaderData } from "../../RenderEngine/RenderShader/ShaderData"
 import { RenderTargetFormat } from "../../RenderEngine/RenderEnum/RenderTargetFormat"
-import { DepthTextureMode } from "../depthMap/DepthPass"
-import { RenderTexture } from "../../resource/RenderTexture"
+import { DepthTextureMode, RenderTexture } from "../../resource/RenderTexture"
 import { ColorGradEffect } from "../core/render/PostEffect/ColorGradEffect"
 import { LayaGL } from "../../layagl/LayaGL"
+import { ShaderDefine } from "../../RenderDriver/RenderModuleData/Design/ShaderDefine"
+import { ShaderData } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData"
 import { Vector4 } from "../../maths/Vector4"
 
 /**
@@ -74,7 +73,7 @@ export class PostProcess {
     private _compositeShader: Shader3D = Shader3D.find("PostProcessComposite");
 
     /**@internal */
-    private _compositeShaderData: ShaderData = LayaGL.renderOBJCreate.createShaderData(null);
+    private _compositeShaderData: ShaderData = LayaGL.renderDeviceFactory.createShaderData(null);
 
     /**@internal */
     private _effects: PostProcessEffect[] = [];
@@ -181,8 +180,9 @@ export class PostProcess {
         this._context!.destination = this._effects.length == 2 ? Indirect[0] : cameraTarget;
         this._context!.compositeShaderData!.clearDefine();
         if (isTargetRenderTexture) {
-            Vector4.tempVec4.setValue(0, 1, 1, -1);
-            this._context.command.blitScreenTriangle(camera._offScreenRenderTexture, screenTexture, Vector4.tempVec4);
+            let offsetScale = Vector4.tempVec4;
+            offsetScale.setValue(0, 1, 1, -1);
+            this._context.command.blitScreenTriangle(camera._offScreenRenderTexture, screenTexture);
         } else {
             this._context.command.blitScreenTriangle(camera._internalRenderTexture, screenTexture);
         }

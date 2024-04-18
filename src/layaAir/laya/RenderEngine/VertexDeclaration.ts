@@ -1,6 +1,14 @@
 import { VertexElement } from "../renders/VertexElement";
 import { VertexElementFormat } from "../renders/VertexElementFormat";
 import { VAElement } from "./VertexAttributeLayout"
+export class VertexStateContext{
+    elementCount:number;//0-4
+    elementType:number;//LayaGL.renderEngine.getParams(RenderParams.FLOAT)
+    normalized:number;//0 or 1
+    vertexStride:number;
+    elementOffset:number;
+    elementString:string;
+}
 /**
  * <code>VertexDeclaration</code> 类用于生成顶点声明。
  */
@@ -15,7 +23,7 @@ export class VertexDeclaration {
     /**@internal */
     private _vertexElementsDic: { [key: string]: VertexElement };
     /**@internal */
-    _shaderValues: { [key: number]: Int32Array };
+    _shaderValues: { [key: number]: VertexStateContext };//[{shaderlocationName}：{0:元素数，1：元素描述（Uint、byte等等），2：是否归一化，3:顶点字节跨度，4：顶点元素字节偏移}]
 
     /**@internal [只读]*/
     _vertexElements: Array<VertexElement>;
@@ -61,13 +69,14 @@ export class VertexDeclaration {
             var vertexElement: VertexElement = vertexElements[j];
             var name: number = vertexElement._elementUsage;
             this._vertexElementsDic[name] = vertexElement;
-            var value: Int32Array = new Int32Array(5);
+            var value: VertexStateContext = new VertexStateContext();
             var elmentInfo: any[] = VertexElementFormat.getElementInfos(vertexElement._elementFormat);
-            value[0] = elmentInfo[0];
-            value[1] = elmentInfo[1];
-            value[2] = elmentInfo[2];
-            value[3] = this._vertexStride;
-            value[4] = vertexElement._offset;
+            value.elementString = vertexElement._elementFormat;
+            value.elementCount = elmentInfo[0];
+            value.elementType = elmentInfo[1];
+            value.normalized = elmentInfo[2];
+            value.vertexStride = this._vertexStride;
+            value.elementOffset = vertexElement._offset;
             this._shaderValues[name] = value;
 
             //VAElement

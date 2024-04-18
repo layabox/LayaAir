@@ -1,26 +1,29 @@
 import { Config3D } from "../../../Config3D"
 import { Component } from "../../components/Component"
+import { LayaGL } from "../../layagl/LayaGL"
 import { Matrix4x4 } from "../../maths/Matrix4x4"
+import { BaseRenderType, IMeshRenderNode } from "../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData"
+import { ShaderData } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData"
+import { ShaderDefine } from "../../RenderDriver/RenderModuleData/Design/ShaderDefine"
 import { RenderCapable } from "../../RenderEngine/RenderEnum/RenderCapable"
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D"
-import { ShaderData, ShaderDataType } from "../../RenderEngine/RenderShader/ShaderData"
-import { ShaderDefine } from "../../RenderEngine/RenderShader/ShaderDefine"
 import { VertexMesh } from "../../RenderEngine/RenderShader/VertexMesh"
-import { Mesh } from "../resource/models/Mesh"
-import { MorphTargetChannel } from "../resource/models/MorphTarget"
-import { BlinnPhongMaterial } from "./material/BlinnPhongMaterial"
 import { Material } from "../../resource/Material"
+import { Laya3DRender } from "../RenderObjs/Laya3DRender"
+import { Mesh } from "../resource/models/Mesh"
+import { MeshUtil } from "../resource/models/MeshUtil"
+import { MorphTargetChannel } from "../resource/models/MorphTarget"
 import { MeshFilter } from "./MeshFilter"
 import { MeshSprite3DShaderDeclaration } from "./MeshSprite3DShaderDeclaration"
+import { RenderableSprite3D } from "./RenderableSprite3D"
+import { Sprite3D } from "./Sprite3D"
+import { BlinnPhongMaterial } from "./material/BlinnPhongMaterial"
 import { BaseRender } from "./render/BaseRender"
 import { RenderContext3D } from "./render/RenderContext3D"
 import { RenderElement } from "./render/RenderElement"
 import { SubMeshRenderElement } from "./render/SubMeshRenderElement"
-import { RenderableSprite3D } from "./RenderableSprite3D"
-import { Sprite3D } from "./Sprite3D"
-import { Transform3D } from "./Transform3D"
-import { MeshUtil } from "../resource/models/MeshUtil"
-import { LayaGL } from "../../layagl/LayaGL"
+import { Stat } from "../../utils/Stat"
+
 
 /**
  * <code>MeshRenderer</code> 类用于网格渲染器。
@@ -54,12 +57,26 @@ export class MeshRenderer extends BaseRender {
 
     private _morphWeightChange: boolean = true;
 
+    private _moduleData: IMeshRenderNode;
+
     /**
      * 创建一个新的 <code>MeshRender</code> 实例。
      */
     constructor() {
         super();
         this._projectionViewWorldMatrix = new Matrix4x4();
+        this._baseRenderNode.renderNodeType = BaseRenderType.MeshRender;
+    }
+
+
+
+    /**
+     * override it
+     * @returns 
+     */
+    protected _createBaseRenderNode(): IMeshRenderNode {
+
+        return Laya3DRender.Render3DModuleDataFactory.createMeshRenderNode();
     }
 
     /**
@@ -101,7 +118,7 @@ export class MeshRenderer extends BaseRender {
      * @param mesh 
      */
     protected _changeVertexDefine(mesh: Mesh) {
-        var defineDatas: ShaderData = this._shaderValues;
+        var defineDatas: ShaderData = this._baseRenderNode.shaderData;
         var lastValue: Mesh = this._mesh;
         if (lastValue) {
             this._getMeshDefine(lastValue, MeshFilter._meshVerticeDefine);
@@ -117,12 +134,14 @@ export class MeshRenderer extends BaseRender {
     }
 
     private _morphTargetValues: Record<string, number> = {}
+
     /**
      * @internal
      */
     public get morphTargetValues(): Record<string, number> {
         return this._morphTargetValues;
     }
+
     /**
      * @internal
      */
@@ -161,6 +180,7 @@ export class MeshRenderer extends BaseRender {
      */
     protected _applyMorphdata() {
         let mesh = this._mesh;
+        let shaderData = this._baseRenderNode.shaderData;
         if (this._morphWeightChange && mesh) {
 
             let morphData = mesh.morphTargetData;
@@ -197,10 +217,10 @@ export class MeshRenderer extends BaseRender {
             this.morphTargetActiveCount = Math.min(activeIndex, Config3D.maxMorphTargetCount);
 
             if (LayaGL.renderEngine.getCapable(RenderCapable.Texture3D)) {
-                this._shaderValues.setInt(RenderableSprite3D.MorphActiveCount, this.morphTargetActiveCount);
+                shaderData.setInt(RenderableSprite3D.MorphActiveCount, this.morphTargetActiveCount);
 
-                this._shaderValues.setBuffer(RenderableSprite3D.MorphActiceTargets, this.morphTargetActiveIndex);
-                this._shaderValues.setBuffer(RenderableSprite3D.MorphActiveWeights, this.morphTargetActiveWeight);
+                shaderData.setBuffer(RenderableSprite3D.MorphActiceTargets, this.morphTargetActiveIndex);
+                shaderData.setBuffer(RenderableSprite3D.MorphActiveWeights, this.morphTargetActiveWeight);
             }
             else {
                 // todo
@@ -212,6 +232,19 @@ export class MeshRenderer extends BaseRender {
 
     }
 
+    _setBelongScene(scene: any): void {
+        super._setBelongScene(scene);
+        Stat.meshRenderNode++;
+    }
+
+    /**
+     * @internal
+     */
+    _setUnBelongScene() {
+        super._setUnBelongScene();
+        Stat.meshRenderNode--;
+    }
+
     /**
      * @internal
      * @protected
@@ -219,7 +252,7 @@ export class MeshRenderer extends BaseRender {
      * @param mesh 
      */
     protected _changeMorphData(mesh: Mesh) {
-        let shaderData = this._shaderValues;
+        let shaderData = this._baseRenderNode.shaderData;
         let oldMesh = this._mesh;
 
         // todo
@@ -312,6 +345,10 @@ export class MeshRenderer extends BaseRender {
 
     }
 
+
+
+
+
     /**
      * @internal
      */
@@ -320,7 +357,10 @@ export class MeshRenderer extends BaseRender {
             this._changeVertexDefine(mesh);
             this._changeMorphData(mesh);
             this._mesh = mesh;
-            this.geometryBounds = mesh.bounds;
+            if (mesh.morphTargetData)
+                this.geometryBounds = mesh.morphTargetData.bounds
+            else
+                this.geometryBounds = mesh.bounds;
             var count: number = mesh.subMeshCount;
             this._renderElements.length = count;
             for (var i: number = 0; i < count; i++) {
@@ -331,6 +371,7 @@ export class MeshRenderer extends BaseRender {
                     this.owner && renderElement.setTransform((this.owner as Sprite3D)._transform);
                     renderElement.render = this;
                     renderElement.material = material ? material : BlinnPhongMaterial.defaultMaterial;//确保有材质,由默认材质代替。
+                    //renderElement.renderSubShader = renderElement.material.shader.getSubShaderAt(0);//TODO
                 }
                 renderElement.setGeometry(mesh.getSubMesh(i));
             }
@@ -338,6 +379,7 @@ export class MeshRenderer extends BaseRender {
         } else if (!mesh) {
             this._renderElements.forEach
             this._renderElements.forEach(element => {
+                element._renderElementOBJ.destroy();
                 element.destroy();
             });
             this._renderElements.length = 0;
@@ -346,11 +388,30 @@ export class MeshRenderer extends BaseRender {
             this._changeMorphData(null);
         }
         this.boundsChange = true;
-        // if (this._octreeNode && this._indexInOctreeMotionList === -1) {
-        // 	this._octreeNode.getManagerNode().addMotionObject(this);
-        // }
+        this._setRenderElements();
     }
 
+    renderUpdate(context: RenderContext3D): void {
+        if (!this._mesh) {
+            return;
+        }
+
+        this._mesh.morphTargetData && this._applyMorphdata();
+        if (this._renderElements.length == 1) {
+            this._renderElements[0]._renderElementOBJ.isRender = this._renderElements[0]._geometry._prepareRender(context);
+            this._renderElements[0]._geometry._updateRenderParams(context);
+            let mat = this.sharedMaterial ?? BlinnPhongMaterial.defaultMaterial;
+            this._renderElements[0]._renderElementOBJ.materialRenderQueue = mat.renderQueue;
+        } else {
+            for (var i = 0, n = this._renderElements.length; i < n; i++) {
+                this._renderElements[i]._renderElementOBJ.isRender = this._renderElements[i]._geometry._prepareRender(context);
+                this._renderElements[i]._geometry._updateRenderParams(context);
+                let material = this.sharedMaterial ?? BlinnPhongMaterial.defaultMaterial;
+                material = this.sharedMaterials[i] ?? material;
+                this._renderElements[i]._renderElementOBJ.materialRenderQueue = material.renderQueue;
+            }
+        }
+    }
 
     /**
      * @internal
@@ -398,43 +459,7 @@ export class MeshRenderer extends BaseRender {
             this._renderElements.length = 0;
         }
         this.boundsChange = true;
-        // if (this._octreeNode && this._indexInOctreeMotionList === -1) {
-        // 	this._octreeNode.getManagerNode().addMotionObject(this);
-        // }
-    }
-
-    /**
-     * @inheritDoc
-     * @override
-     * @internal
-     */
-    protected _calculateBoundingBox(): void {
-        var sharedMesh: Mesh = this._mesh;
-        if (sharedMesh) {
-            var worldMat: Matrix4x4 = this._transform.worldMatrix;
-            if (sharedMesh.morphTargetData) {
-                sharedMesh.morphTargetData.bounds._tranform(worldMat, this._bounds);
-            }
-            else {
-                sharedMesh.bounds._tranform(worldMat, this._bounds);
-            }
-        }
-    }
-
-    /**
-     * @inheritDoc
-     * @override
-     * @internal
-     */
-    _renderUpdate(context: RenderContext3D, transform: Transform3D): void {
-        (this._lightmapDirtyFlag == this.owner?.scene?._lightmapDirtyFlag) && this._applyLightMapParams();
-        this._applyReflection();
-        this._applyLightProb();
-        this._mesh.morphTargetData && this._applyMorphdata();
-        let trans = transform ? transform : this._transform;
-        this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, trans.worldMatrix);
-        this._worldParams.x = trans.getFrontFaceValue();
-        this._setShaderValue(Sprite3D.WORLDINVERTFRONT, ShaderDataType.Vector4, this._worldParams);
+        this._setRenderElements();
     }
 
     /**
@@ -451,15 +476,16 @@ export class MeshRenderer extends BaseRender {
      * @override
      * @param dest 
      */
-    _cloneTo(dest: Component): void {
+    _cloneTo(dest: MeshRenderer): void {
         super._cloneTo(dest);
         // todo clone morphtarget weight
         // onMeshChange in onEnable
+        dest._onMeshChange(this._mesh);
         if (this.morphTargetWeight) {
-            (<MeshRenderer>dest).morphTargetWeight = new Float32Array(this.morphTargetWeight);
+            dest.morphTargetWeight = new Float32Array(this.morphTargetWeight);
         }
         for (const key in this._morphTargetValues) {
-            (<MeshRenderer>dest)._morphTargetValues[key] = this._morphTargetValues[key];
+            dest._morphTargetValues[key] = this._morphTargetValues[key];
         }
     }
 }

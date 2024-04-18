@@ -6,7 +6,7 @@ export class VertexBuffer extends Buffer {
 	private _instanceBuffer: boolean = false;
 	/** @internal */
 	_vertexDeclaration: VertexDeclaration | null = null;
-
+	_buffer: Float32Array|Uint16Array|Uint8Array|Uint32Array;
 	/**
 	 * 获取顶点声明。
 	 */

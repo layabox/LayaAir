@@ -2,7 +2,7 @@
 import { Graphics } from "../display/Graphics"
 import { Sprite } from "../display/Sprite"
 import { Vector2 } from "../maths/Vector2";
-import { Context } from "../resource/Context"
+import { Context } from "../renders/Context"
 import { IPhysiscs2DFactory } from "./IPhysiscs2DFactory";
 /**
  * 物理辅助线

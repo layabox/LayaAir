@@ -2,7 +2,6 @@ import { BoundFrustum } from "../../math/BoundFrustum";
 import { Mesh } from "../../resource/models/Mesh";
 import { BaseRender } from "../render/BaseRender";
 import { RenderContext3D } from "../render/RenderContext3D";
-import { Transform3D } from "../Transform3D";
 import { ShurikenParticleSystem } from "./ShurikenParticleSystem";
 import { ShuriKenParticle3DShaderDeclaration } from "./ShuriKenParticle3DShaderDeclaration";
 import { ShurikenParticleInstanceSystem } from "./ShurikenParticleInstanceSystem";
@@ -11,13 +10,17 @@ import { Sprite3D } from "../Sprite3D";
 import { ShurikenParticleMaterial } from "./ShurikenParticleMaterial";
 import { Component } from "../../../components/Component";
 import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
-import { ShaderData, ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
 import { Stat } from "../../../utils/Stat";
 import { Bounds } from "../../math/Bounds";
 import { LayaEnv } from "../../../../LayaEnv";
 import { Vector2 } from "../../../maths/Vector2";
 import { Vector3 } from "../../../maths/Vector3";
 import { LayaGL } from "../../../layagl/LayaGL";
+import { ShaderData, ShaderDataType } from "../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { IRenderContext3D } from "../../../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
+import { Transform3D } from "../Transform3D";
+import { BaseRenderType } from "../../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
+
 
 
 /**
@@ -61,7 +64,7 @@ export class ShurikenParticleRenderer extends BaseRender {
 
     set renderMode(value: number) {
         if (this._renderMode !== value) {
-            var defineDatas: ShaderData = this._shaderValues;
+            var defineDatas: ShaderData = this._baseRenderNode.shaderData;
             switch (this._renderMode) {
                 case 0:
                     defineDatas.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_RENDERMODE_BILLBOARD);
@@ -126,7 +129,7 @@ export class ShurikenParticleRenderer extends BaseRender {
     constructor() {
         super();
         this.renderMode = 0;
-        this._supportOctree = false;
+        this._baseRenderNode.renderNodeType = BaseRenderType.ParticleRender
     }
 
     protected _getcommonUniformMap(): Array<string> {
@@ -147,6 +150,8 @@ export class ShurikenParticleRenderer extends BaseRender {
         element.render = this;
         element.setGeometry(this._particleSystem);
         element.material = ShurikenParticleMaterial.defaultMaterial;
+
+        this._setRenderElements();
     }
 
     protected _onEnable(): void {
@@ -158,7 +163,6 @@ export class ShurikenParticleRenderer extends BaseRender {
 
     protected _onDisable(): void {
         super._onDisable();
-
         Stat.particleRenderNode--;
         (this._particleSystem.isAlive) && (this._particleSystem.simulate(0, true));
     }
@@ -168,7 +172,7 @@ export class ShurikenParticleRenderer extends BaseRender {
      * @internal
      * @override
      */
-    protected _calculateBoundingBox(): void {
+    _calculateBoundingBox(): void {
         var particleSystem: ShurikenParticleSystem = this._particleSystem;
         var bounds: Bounds;
         if (particleSystem._useCustomBounds) {
@@ -228,9 +232,9 @@ export class ShurikenParticleRenderer extends BaseRender {
      * @internal
      * @override
      */
-    _renderUpdate(context: RenderContext3D, transfrom: Transform3D): void {
+    _renderUpdate(context: IRenderContext3D): void {
         var particleSystem: ShurikenParticleSystem = this._particleSystem;
-        var sv: ShaderData = this._shaderValues;
+        var sv: ShaderData = this._baseRenderNode.shaderData;
         var transform: Transform3D = (this.owner as Sprite3D).transform;
         switch (particleSystem.simulationSpace) {
             case 0: //World
@@ -282,6 +286,15 @@ export class ShurikenParticleRenderer extends BaseRender {
         sv.setNumber(ShuriKenParticle3DShaderDeclaration.STRETCHEDBILLBOARDLENGTHSCALE, this.stretchedBillboardLengthScale);
         sv.setNumber(ShuriKenParticle3DShaderDeclaration.STRETCHEDBILLBOARDSPEEDSCALE, this.stretchedBillboardSpeedScale);
         sv.setNumber(ShuriKenParticle3DShaderDeclaration.CURRENTTIME, particleSystem._currentTime);
+    }
+
+    //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_ShurikenUpdate)
+    renderUpdate(context: RenderContext3D): void {
+        this._renderElements.forEach(element => {
+            element._renderElementOBJ.isRender = element._geometry._prepareRender(context);
+            element._geometry._prepareRender(context);
+            element._geometry._updateRenderParams(context);
+        })
     }
 
     /**

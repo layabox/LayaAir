@@ -1,4 +1,3 @@
-import { Context } from "../resource/Context";
 
 /**
  * @private
@@ -7,7 +6,7 @@ export class WordText {
     text: string;
     width: number;	//整个WordText的长度。-1表示没有计算还。
     pageChars: any[];	//把本对象的字符按照texture分组保存的文字信息。里面又是一个数组。具体含义见使用的地方。
-    pagecharsCtx: Context = null;  // 上面缓存的时候用的ctx。跨ctx的时候（例如drawToTexture）要清理
+    pagecharsCtx: any = null;  // 上面缓存的时候用的ctx。跨ctx的时候（例如drawToTexture）要清理，（因为不同的ctx的设置不同？）。设置为any表示不关心具体类型，只是用来比较的
     scalex;	// 缓存的时候的缩放
     scaley;
 
@@ -15,14 +14,10 @@ export class WordText {
     _splitRender: boolean;	// 强制拆分渲染
 
     constructor() {
-        if ((window as any).conch && !(window as any).conchConfig.conchWebGL)
-            this._nativeObj = new (window as any)._conchWordText();
-        else {
-            this.width = -1;
-            this.pageChars = [];
-            this.scalex = 1;
-            this.scaley = 1;
-        }
+        this.width = -1;
+        this.pageChars = [];
+        this.scalex = 1;
+        this.scaley = 1;
     }
 
     setText(txt: string): void {

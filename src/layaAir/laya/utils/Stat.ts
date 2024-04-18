@@ -1,5 +1,5 @@
 import { ILaya } from "../../ILaya";
-import { RenderStatisticsInfo } from "../RenderEngine/RenderEnum/RenderStatInfo";
+import { GPUEngineStatisticsInfo } from "../RenderEngine/RenderEnum/RenderStatInfo";
 import { LayaGL } from "../layagl/LayaGL";
 import { Browser } from "./Browser";
 import { ClassUtils } from "./ClassUtils";
@@ -130,10 +130,13 @@ export class Stat {
     public static sprite3DCount: number = 0;//TODO
     /**@internal */
     public static drawCall: number = 0;
+    public static draw2D=0;
     /**@internal */
     public static trianglesFaces: number = 0;
     /**@internal */
     public static renderNode: number = 0;
+    /**@internal */
+    public static meshRenderNode:number = 0;
     /**@internal */
     public static skinRenderNode: number = 0;
     /**@internal */
@@ -164,6 +167,13 @@ export class Stat {
     public static bufferMemory: number = 0;
     /**@internal */
     public static uploadUniform: number = 0;
+
+    public static physics_dynamicRigidBodyCount:number;
+    public static physics_staticRigidBodyCount:number;
+    public static phyiscs_KinematicRigidBodyCount:number;
+    public static physics_CharacterControllerCount:number;
+    public static physics_jointCount:number;
+    public static phyiscs_EventCount:number
 
     //Toggle
     /**@internal 开启关闭阴影 */
@@ -202,6 +212,7 @@ export class Stat {
 
     /**
      * 显示性能统计信息。
+     * 需要最开始的时候调用才有效果。
      * @param	x X轴显示位置。
      * @param	y Y轴显示位置。
      */
@@ -211,7 +222,8 @@ export class Stat {
         this.hide();
 
         Stat._show = true;
-        Stat._currentShowArray = views||Stat.AllShow;
+        LayaGL.renderEngine._enableStatistics = true;
+        Stat._currentShowArray = views || Stat.AllShow;
         Stat._statUI.show(x, y, Stat._currentShowArray);
         ILaya.systemTimer.frameLoop(1, null, Stat.loop);
     }
@@ -281,14 +293,14 @@ export class Stat {
     }
 
     static updateEngineData(): void {
-        Stat.trianglesFaces = LayaGL.renderEngine.getStatisticsInfo(RenderStatisticsInfo.Triangle);
-        Stat.drawCall = LayaGL.renderEngine.getStatisticsInfo(RenderStatisticsInfo.DrawCall);
-        Stat.instanceDrawCall = LayaGL.renderEngine.getStatisticsInfo(RenderStatisticsInfo.InstanceDrawCall);
+        Stat.trianglesFaces = LayaGL.renderEngine.getStatisticsInfo(GPUEngineStatisticsInfo.C_TriangleCount);
+        Stat.drawCall = LayaGL.renderEngine.getStatisticsInfo(GPUEngineStatisticsInfo.C_DrawCallCount);
+        Stat.instanceDrawCall = LayaGL.renderEngine.getStatisticsInfo(GPUEngineStatisticsInfo.C_Instancing_DrawCallCount);
 
-        Stat.gpuMemory = LayaGL.renderEngine.getStatisticsInfo(RenderStatisticsInfo.GPUMemory);
-        Stat.textureMemory = LayaGL.renderEngine.getStatisticsInfo(RenderStatisticsInfo.TextureMemeory);
-        Stat.renderTextureMemory = LayaGL.renderEngine.getStatisticsInfo(RenderStatisticsInfo.RenderTextureMemory);
-        Stat.bufferMemory = LayaGL.renderEngine.getStatisticsInfo(RenderStatisticsInfo.BufferMemory);
+        Stat.gpuMemory = LayaGL.renderEngine.getStatisticsInfo(GPUEngineStatisticsInfo.M_GPUMemory);
+        Stat.textureMemory = LayaGL.renderEngine.getStatisticsInfo(GPUEngineStatisticsInfo.M_ALLTexture);
+        Stat.renderTextureMemory = LayaGL.renderEngine.getStatisticsInfo(GPUEngineStatisticsInfo.RC_ALLRenderTexture);
+        Stat.bufferMemory = LayaGL.renderEngine.getStatisticsInfo(GPUEngineStatisticsInfo.M_GPUBuffer);
     }
 
     /**
@@ -302,9 +314,7 @@ export class Stat {
             if (element.mode == "average")
                 (Stat as any)[element.value] = 0;
         });
-        LayaGL.renderEngine.clearStatisticsInfo(RenderStatisticsInfo.Triangle);
-        LayaGL.renderEngine.clearStatisticsInfo(RenderStatisticsInfo.DrawCall);
-        LayaGL.renderEngine.clearStatisticsInfo(RenderStatisticsInfo.InstanceDrawCall);
+        LayaGL.renderEngine.clearStatisticsInfo();
     }
 
     static render(ctx: any, x: number, y: number) {

@@ -51,13 +51,14 @@ const packsDef = [{
         './layaAir/laya/RenderEngine/RenderShader/**/*.*',
         './layaAir/laya/RenderEngine/*.*',
 
-        './layaAir/laya/renders/**/*.*',
-        './layaAir/laya/resource/**/*.*',
-        './layaAir/laya/system/**/*.*',
-        './layaAir/laya/utils/**/*.*',
-        './layaAir/laya/html/**/*.*',
-        './layaAir/laya/webgl/**/*.*',
-        './layaAir/Config3D.ts',
+            './layaAir/laya/renders/**/*.*',
+            './layaAir/laya/resource/**/*.*',
+            './layaAir/laya/system/**/*.*',
+            './layaAir/laya/utils/**/*.*',
+            './layaAir/laya/tools/**/*.*',
+            './layaAir/laya/html/**/*.*',
+            './layaAir/laya/webgl/**/*.*',
+            './layaAir/Config3D.ts',
 
 
     ],

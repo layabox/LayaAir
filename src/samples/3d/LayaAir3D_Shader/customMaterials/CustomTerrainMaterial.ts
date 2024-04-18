@@ -1,8 +1,8 @@
 import { Material } from "laya/resource/Material";
 import { Vector2 } from "laya/maths/Vector2";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
-import { ShaderDefine } from "laya/RenderEngine/RenderShader/ShaderDefine";
 import { BaseTexture } from "laya/resource/BaseTexture";
+import { ShaderDefine } from "laya/RenderDriver/RenderModuleData/Design/ShaderDefine";
 
 /**
  * ...

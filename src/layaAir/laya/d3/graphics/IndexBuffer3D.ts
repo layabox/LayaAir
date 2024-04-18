@@ -1,14 +1,24 @@
-import { IndexBuffer } from "../../RenderEngine/IndexBuffer";
-import { BufferTargetType, BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
+import { IIndexBuffer } from "../../RenderDriver/DriverDesign/RenderDevice/IIndexBuffer";
+import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
 import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
+import { LayaGL } from "../../layagl/LayaGL";
 /**
  * 请使用LayaGL.RenderOBJCreate.createIndexBuffer3D来创建
  * <code>IndexBuffer3D</code> 类用于创建索引缓冲。
  */
-export class IndexBuffer3D extends IndexBuffer {
+export class IndexBuffer3D {
 	/** @internal */
 	private _canRead: boolean;
-
+	private _indexType: IndexFormat = IndexFormat.UInt16;
+	/** @internal */
+	private _indexTypeByteCount: number;
+	/** @internal */
+	private _indexCount: number;
+	_byteLength: number;
+	_buffer: Float32Array | Uint16Array | Uint8Array | Uint32Array;
+	/**@internal */
+	_deviceBuffer: IIndexBuffer;
+	bufferUsage: BufferUsage;
 	/**
 	 * 索引类型。
 	 */
@@ -45,12 +55,11 @@ export class IndexBuffer3D extends IndexBuffer {
 	 * @param	canRead 是否可读。
 	 */
 	constructor(indexType: IndexFormat, indexCount: number, bufferUsage: BufferUsage = BufferUsage.Static, canRead: boolean = false) {
-		super(BufferTargetType.ELEMENT_ARRAY_BUFFER, bufferUsage);
-		this._indexType = indexType;
-		this._indexCount = indexCount;
-
+		this._deviceBuffer = LayaGL.renderDeviceFactory.createIndexBuffer(bufferUsage);
+		this._deviceBuffer.indexType = this._indexType = indexType;
+		this._deviceBuffer.indexCount = this._indexCount = indexCount;
 		this._canRead = canRead;
-
+		this.bufferUsage = bufferUsage;
 		switch (indexType) {
 			case IndexFormat.UInt32:
 				this._indexTypeByteCount = 4;
@@ -66,7 +75,7 @@ export class IndexBuffer3D extends IndexBuffer {
 		}
 		var byteLength: number = this._indexTypeByteCount * indexCount;
 		this._byteLength = byteLength;
-		this._setIndexData(byteLength);
+		this._deviceBuffer._setIndexDataLength(byteLength);
 		if (canRead) {
 			switch (indexType) {
 				case IndexFormat.UInt32:
@@ -105,7 +114,7 @@ export class IndexBuffer3D extends IndexBuffer {
 			}
 		}
 
-		this._setIndexData(data, bufferOffset * byteCount);
+		this._deviceBuffer._setIndexData(data, bufferOffset * byteCount);
 
 		if (this._canRead) {
 			if (bufferOffset !== 0 || dataStartIndex !== 0 || dataCount !== 4294967295/*uint.MAX_VALUE*/) {
@@ -127,7 +136,7 @@ export class IndexBuffer3D extends IndexBuffer {
 	 * 获取索引数据。
 	 * @return	索引数据。
 	 */
-	getData(): Uint16Array {
+	getData(): Uint16Array | Uint32Array {
 		if (this._canRead)
 			return <Uint16Array>this._buffer;
 		else
@@ -139,7 +148,7 @@ export class IndexBuffer3D extends IndexBuffer {
 	 * @override
 	 */
 	destroy(): void {
-		super.destroy();
+		this._deviceBuffer.destroy();
 		this._buffer = null;
 		this._byteLength = 0;
 		this._indexCount = 0;

@@ -1,7 +1,9 @@
+import { ISubshaderData } from "../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
+import { ShaderDataType, ShaderDataItem } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
-import { ShaderDataItem, ShaderDataType } from "../../RenderEngine/RenderShader/ShaderData";
-import { ShaderDefine } from "../../RenderEngine/RenderShader/ShaderDefine";
 import { UniformBufferParamsType, UnifromBufferData } from "../../RenderEngine/UniformBufferData";
+import { Laya3DRender } from "../../d3/RenderObjs/Laya3DRender";
+import { LayaGL } from "../../layagl/LayaGL";
 import { IShaderCompiledObj, ShaderCompile } from "../../webgl/utils/ShaderCompile";
 import { ShaderPass } from "./ShaderPass";
 import { VertexMesh } from "./VertexMesh";
@@ -74,6 +76,8 @@ export class SubShader {
     _owner: Shader3D;
     /**@internal */
     _flags: any = {};
+
+    moduleData: ISubshaderData;
     /**@internal */
     _passes: ShaderPass[] = [];
 
@@ -83,6 +87,7 @@ export class SubShader {
      * @param	uniformMap  uniform属性表。
      */
     constructor(attributeMap: { [name: string]: [number, ShaderDataType] } = SubShader.DefaultAttributeMap, uniformMap: UniformMapType = {}, uniformDefaultValue: { [name: string]: ShaderDataItem } = null) {
+        this.moduleData = Laya3DRender.Render3DModuleDataFactory.createSubShader();
         this._attributeMap = attributeMap;
         this._uniformMap = uniformMap;
         this._uniformDefaultValue = uniformDefaultValue;
@@ -111,31 +116,11 @@ export class SubShader {
                 if (unifromType == ShaderDataType.Texture2D || unifromType == ShaderDataType.TextureCube || unifromType == ShaderDataType.Texture3D || unifromType == ShaderDataType.Texture2DArray) {
                     let textureGammaDefine = Shader3D.getDefineByName(`Gamma_${key}`);
                     let uniformIndex = Shader3D.propertyNameToID(key);
-                    ShaderDefine._texGammaDefine[uniformIndex] = textureGammaDefine;
+                    LayaGL.renderEngine.addTexGammaDefine(uniformIndex, textureGammaDefine);
                 }
 
             }
         }
-    }
-
-    /**
-     * 添加标记。
-     * @param key 标记键。
-     * @param value 标记值。
-     */
-    setFlag(key: string, value: string): void {
-        if (value)
-            this._flags[key] = value;
-        else
-            delete this._flags[key];
-    }
-
-    /**
-     * 获取标记值。
-     * @return key 标记键。
-     */
-    getFlag(key: string): string {
-        return this._flags[key];
     }
 
     /**
@@ -151,8 +136,9 @@ export class SubShader {
 
     _addShaderPass(compiledObj: IShaderCompiledObj, pipelineMode: string = "Forward"): ShaderPass {
         var shaderPass: ShaderPass = new ShaderPass(this, compiledObj);
-        shaderPass._pipelineMode = pipelineMode;
+        shaderPass.pipelineMode = pipelineMode;
         this._passes.push(shaderPass);
+        this.moduleData.addShaderPass(shaderPass.moduleData);
         this._addIncludeUniform(compiledObj.includeNames);
         return shaderPass;
     }

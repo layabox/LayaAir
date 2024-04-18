@@ -4,11 +4,12 @@ import { Command } from "./Command";
 import { CommandBuffer } from "./CommandBuffer";
 import { MeshRenderer } from "../../../core/MeshRenderer";
 import { RenderElement } from "../RenderElement";
-import { Transform3D } from "../../Transform3D";
-import { RenderContext3D } from "../RenderContext3D";
-import { Camera } from "../../Camera";
 import { Matrix4x4 } from "../../../../maths/Matrix4x4";
 import { Laya3DRender } from "../../../RenderObjs/Laya3DRender";
+import { Transform3D } from "../../Transform3D";
+import { DrawElementCMDData, DrawNodeCMDData } from "../../../../RenderDriver/DriverDesign/3DRenderPass/IRendderCMD";
+import { RenderContext3D } from "../RenderContext3D";
+
 /**
  * @internal
  * <code>SetShaderDataTextureCMD</code> 类用于创建设置渲染目标指令。
@@ -24,11 +25,10 @@ export class DrawMeshCMD extends Command {
     static create(mesh: Mesh, matrix: Matrix4x4, material: Material, subMeshIndex: number, subShaderIndex: number, commandBuffer: CommandBuffer): DrawMeshCMD {
         var cmd: DrawMeshCMD;
         cmd = DrawMeshCMD._pool.length > 0 ? DrawMeshCMD._pool.pop() : new DrawMeshCMD();
-
         cmd._matrix = matrix;
         cmd._transform.worldMatrix = cmd._matrix;
         cmd.material = material;
-        cmd._subMeshIndex = subMeshIndex;
+        cmd.subMeshIndex = subMeshIndex;
         cmd._subShaderIndex = subShaderIndex;
         cmd.mesh = mesh;
         cmd._commandBuffer = commandBuffer;
@@ -43,6 +43,15 @@ export class DrawMeshCMD extends Command {
 
     /**@internal */
     private _subMeshIndex: number;
+
+    get subMeshIndex(): number {
+        return this._subMeshIndex;
+    }
+
+    set subMeshIndex(value: number) {
+        this._subMeshIndex = value;
+        this._drawRenderCMDDData.subMeshIndex = value;
+    }
 
     /**@internal */
     private _subShaderIndex: number;
@@ -59,21 +68,32 @@ export class DrawMeshCMD extends Command {
     /**@internal */
     _transform: Transform3D;
 
-    /**
-     * 
-     */
+    /**@internal */
+    _drawRenderCMDDData: DrawNodeCMDData;
+
     constructor() {
         super();
-        this._transform = Laya3DRender.renderOBJCreate.createTransform(null);
+        this._drawRenderCMDDData = Laya3DRender.Render3DPassFactory.createDrawNodeCMDData();
+        this._transform = Laya3DRender.Render3DModuleDataFactory.createTransform(null);
         this._meshRender = new MeshRenderer();
     }
 
+    /**
+     * @internal
+     */
     set material(value: Material) {
         this._material && this._material._removeReference(1);
         this._material = value;
         this._material && this._material._addReference(1);
     }
 
+    get material(): Material {
+        return this._material;
+    }
+
+    /**
+     * @internal
+     */
     set mesh(value: Mesh) {
         if (this._mesh == value)
             return;
@@ -87,24 +107,31 @@ export class DrawMeshCMD extends Command {
             element._subShaderIndex = this._subShaderIndex;
         });
     }
+
+    /**
+     * @override
+     * @internal
+     * @returns 
+     */
+    getRenderCMD(): DrawElementCMDData | DrawNodeCMDData {
+        return this._drawRenderCMDDData;
+    }
+
     /**
      * @inheritDoc
      * @override
      */
+
     run(): void {
-        var context = RenderContext3D._instance;
-        this._meshRender.probReflection = context.scene.sceneReflectionProb;
-        context._contextOBJ.applyContext(Camera._updateMark);
-        let submeshs = this._mesh._subMeshes
-        if (this._subMeshIndex == -1) {
-            for (let i = 0, n = submeshs.length; i < n; i++) {
-                let element = this._renderElemnts[i];
-                context.drawRenderElement(element);
-            }
-        } else {
-            let element = this._renderElemnts[this._subMeshIndex];
-            context.drawRenderElement(element);
-        }
+        this._meshRender.sharedMaterial = this.material;
+        this._meshRender._baseRenderNode.transform = this._transform;
+        this._meshRender.renderUpdate(RenderContext3D._instance);
+        // todo scene ibl
+        this._meshRender.probReflection = RenderContext3D._instance.scene.sceneReflectionProb;
+
+        this._drawRenderCMDDData.destSubShader = this.material.shader.getSubShaderAt(this._subShaderIndex);
+        this._drawRenderCMDDData.destShaderData = this.material.shaderData;
+        this._drawRenderCMDDData.node = this._meshRender._baseRenderNode;
     }
 
     /**
@@ -132,6 +159,6 @@ export class DrawMeshCMD extends Command {
         this._renderElemnts = null;
         this._transform = null;
         this._material = null;
-        this._matrix = null
+        this._matrix = null;
     }
 }

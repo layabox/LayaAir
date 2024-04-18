@@ -1,5 +1,5 @@
+import { ShaderDefine } from "../../../../../RenderDriver/RenderModuleData/Design/ShaderDefine";
 import { Shader3D } from "../../../../../RenderEngine/RenderShader/Shader3D";
-import { ShaderDefine } from "../../../../../RenderEngine/RenderShader/ShaderDefine";
 import { Color } from "../../../../../maths/Color";
 import { Vector2 } from "../../../../../maths/Vector2";
 import { Vector3 } from "../../../../../maths/Vector3";
@@ -337,7 +337,7 @@ export class LensFlareEffect extends PostProcessEffect {
     caculateDirCenter(camera: Camera) {
         //center caculate start
         // lightDirection
-        (this._light as DirectionLightCom)._direction.cloneTo(this._tempV3);
+        (this._light as DirectionLightCom).direction.cloneTo(this._tempV3);
         // lightDir revert
         Vector3.scale(this._tempV3, -10, this._tempV3);
         // offset of light to camera
@@ -380,7 +380,7 @@ export class LensFlareEffect extends PostProcessEffect {
     render(context: PostProcessRenderContext) {
         var cmd: CommandBuffer = context.command;
         let source: RenderTexture = context.indirectTarget;
-        cmd.setRenderTarget(source);
+        cmd.setRenderTarget(source,false,false);
         if (!this._light)
             return;
         switch (this._light.lightType) {

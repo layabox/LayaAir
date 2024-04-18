@@ -1,5 +1,4 @@
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
-import { ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
 import { VertexShuriKenParticle } from "../../graphics/Vertex/VertexShuriKenParticle";
 import ShurikenVS from "./particleShuriKen.vs";
 import ShurikenFS from "./particleShuriKen.fs";
@@ -8,6 +7,7 @@ import ParticleSpriteVS from "./particleShuriKenSpriteVS.glsl";
 import { Color } from "../../../maths/Color";
 import { Vector4 } from "../../../maths/Vector4";
 import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
+import { ShaderDataType } from "../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 /**
  * ParticleShuriKen Shader init
  */

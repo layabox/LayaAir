@@ -3,7 +3,6 @@ import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { Stage } from "laya/display/Stage";
 import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { Animator } from "laya/d3/component/Animator/Animator";
 import { Color } from "laya/maths/Color";
@@ -14,7 +13,7 @@ import { CameraMoveScript } from "../common/CameraMoveScript";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
-import { DirectionLight } from "laya/d3/core/light/DirectionLight";
+import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
 
 export class SimpleSkinAnimationInstance {
 	private animatorName: string[][] = [
@@ -41,10 +40,12 @@ export class SimpleSkinAnimationInstance {
 			camera.transform.localRotationEuler = new Vector3(-7.5, -30, 0.0);
 			camera.addComponent(CameraMoveScript);
 			// add Light
-			var light = new DirectionLight();
-			light.intensity = 0.5;
-			light.transform.localRotationEuler = new Vector3(-20, 0, 0);
-			this.scene.addChild(light);
+			let directlightSprite = new Sprite3D();
+			let dircom = directlightSprite.addComponent(DirectionLightCom);
+			this.scene.addChild(directlightSprite);
+			
+			dircom.intensity = 0.5;
+			directlightSprite.transform.localRotationEuler = new Vector3(-20, 0, 0);
 			var res = [
 				"res/threeDimen/texAnimation/Attack01/Attack01.lh",
 				"res/threeDimen/texAnimation/role/role.lh",

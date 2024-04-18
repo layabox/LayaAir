@@ -47,13 +47,13 @@ export class GriendSkyAmbientDemo {
             camera.msaa = true;
             scene.ambientColor = new Color(1.0, 0.2, 0.2, 1.0);
             scene.ambientMode = AmbientMode.SolidColor;
-            //天空颜色
-            let skyAmbientColor = new Vector3(0.56, 0.89, 1);
-            //地平线颜色
-            let equatorAmbientColor = new Vector3(0.4, 0.2, 0.2);
-            //地板颜色
-            let groundAmbientColor = new Vector3(0.09, 0.08, 0.5);
-            scene.sceneReflectionProb.setGradientAmbient(skyAmbientColor, equatorAmbientColor, groundAmbientColor);
+            // //天空颜色
+            // let skyAmbientColor = new Vector3(0.56, 0.89, 1);
+            // //地平线颜色
+            // let equatorAmbientColor = new Vector3(0.4, 0.2, 0.2);
+            // //地板颜色
+            // let groundAmbientColor = new Vector3(0.09, 0.08, 0.5);
+            //scene.sceneReflectionProb.setGradientAmbient(skyAmbientColor, equatorAmbientColor, groundAmbientColor);
             // var directionLight: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));
             // //设置平行光的方向
             // var mat: Matrix4x4 = directionLight.transform.worldMatrix;

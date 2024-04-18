@@ -7,7 +7,7 @@ import { Matrix } from "../maths/Matrix";
 import { Point } from "../maths/Point";
 import { Rectangle } from "../maths/Rectangle";
 import { RenderSprite } from "../renders/RenderSprite";
-import { Context } from "../resource/Context";
+import { Context } from "../renders/Context";
 import { HTMLCanvas } from "../resource/HTMLCanvas";
 import { Texture } from "../resource/Texture";
 import { Texture2D } from "../resource/Texture2D";
@@ -28,6 +28,7 @@ import { LayaEnv } from "../../LayaEnv";
 import { SpriteUtils } from "../utils/SpriteUtils";
 import { IHitArea } from "../utils/IHitArea";
 import type { Material } from "../resource/Material";
+import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
 
 /**在显示对象上按下后调度。
  * @eventType Event.MOUSE_DOWN
@@ -102,6 +103,7 @@ export class Sprite extends Node {
     _style: SpriteStyle = SpriteStyle.EMPTY;
     /**@internal */
     _cacheStyle: CacheStyle = CacheStyle.EMPTY;
+    private _filters:Filter[]=null;
     /**@internal */
     _boundStyle: BoundsStyle | null = null;
     /**@internal */
@@ -212,22 +214,17 @@ export class Sprite extends Node {
         return this._cacheStyle.userSetCache;
     }
 
-    /**@internal */
-    _setCacheAs(value: string): void {
-        //_dataf32[SpriteConst.POSCACHE] = value == "bitmap"?2:(value == "normal"?1:0);
-    }
-
     set cacheAs(value: string) {
         if (value === this._cacheStyle.userSetCache) return;
-        if ('bitmap' == value && !(this._cacheStyle.canvas instanceof HTMLCanvas)) {
-            this._cacheStyle.canvas = null;
-        }
-
         this._getCacheStyle().userSetCache = value;
 
         if (this.mask && value === 'normal') return;
-        this._setCacheAs(value);
-        this._checkCanvasEnable();
+        if(value=='bitmap'||value=='normal'){
+            this._renderType |= SpriteConst.CANVAS;
+        }else{
+            this._renderType &= ~SpriteConst.CANVAS;
+        }
+        //this._checkCanvasEnable();
         this.repaint();
     }
 
@@ -235,37 +232,43 @@ export class Sprite extends Node {
      * 更新_cnavas相关的状态
      */
     private _checkCanvasEnable(): void {
-        var tEnable: boolean = this._cacheStyle.needEnableCanvasRender();
-        this._getCacheStyle().enableCanvasRender = tEnable;
-        if (tEnable) {
-            if (this._cacheStyle.needBitmapCache()) {
-                this._cacheStyle.cacheAs = "bitmap";
-            } else {
-                this._cacheStyle.cacheAs = this._cacheStyle.userSetCache;
-            }
-            this._cacheStyle.reCache = true;
-            this._renderType |= SpriteConst.CANVAS;
-        } else {
-            this._cacheStyle.cacheAs = "none";
-            this._cacheStyle.releaseContext();
-            this._renderType &= ~SpriteConst.CANVAS;
-        }
-        this._setCacheAs(this._cacheStyle.cacheAs);
+        return;	//只有显式设置的才设置CANVAS标记，filter和mask不再设置这个标记
+        // var tEnable = this._cacheStyle.needEnableCanvasRender();
+        // this._getCacheStyle().enableCanvasRender = tEnable;
+        // if (tEnable) {
+        //     if (this._cacheStyle.needBitmapCache()) {
+        //         this._cacheStyle.cacheAs = "bitmap";
+        //     } else {
+        //         this._cacheStyle.cacheAs = this._cacheStyle.userSetCache;
+        //     }
+        //     this._cacheStyle.reCache = true;
+        //     this._renderType |= SpriteConst.CANVAS;
+        // } else {
+        //     this._cacheStyle.cacheAs = "none";
+        //     this._cacheStyle.releaseContext();
+        //     this._renderType &= ~SpriteConst.CANVAS;
+        // }
     }
 
-    /**设置cacheAs为非空时此值才有效，staticCache=true时，子对象变化时不会自动更新缓存，只能通过调用reCache方法手动刷新。*/
+    /**设置cacheAs为非空时此值才有效，staticCache=true时，子对象变化时不会自动更新缓存，只能通过调用reCache方法手动刷新。
+     * 
+     * @deprecated
+     */
     get staticCache(): boolean {
         return this._cacheStyle.staticCache;
     }
 
+    /**@deprecated */
     set staticCache(value: boolean) {
         this._getCacheStyle().staticCache = value;
         if (!value) this.reCache();
     }
 
-    /**在设置cacheAs的情况下，调用此方法会重新刷新缓存。*/
+    /**在设置cacheAs的情况下，调用此方法会重新刷新缓存。
+     * 
+     * @deprecated
+     */
     reCache(): void {
-        this._cacheStyle.reCache = true;
         this._repaint |= SpriteConst.REPAINT_CACHE;
     }
 
@@ -764,20 +767,20 @@ export class Sprite extends Node {
      */
     protected _adjustTransform(): Matrix {
         this._tfChanged = false;
-        var style: SpriteStyle = this._style;
-        var sx: number = style.scaleX, sy: number = style.scaleY;
-        var sskx: number = style.skewX;
-        var ssky: number = style.skewY;
-        var rot: number = style.rotation;
-        var m: Matrix = this._transform || (this._transform = this._createTransform());
+        var style = this._style;
+        var sx = style.scaleX, sy = style.scaleY;
+        var sskx = style.skewX;
+        var ssky = style.skewY;
+        var rot = style.rotation;
+        var m = this._transform || (this._transform = this._createTransform());
         if (rot || sx !== 1 || sy !== 1 || sskx !== 0 || ssky !== 0) {
             m._bTransform = true;
-            var skx: number = (rot - sskx) * 0.0174532922222222;//laya.CONST.PI180;
-            var sky: number = (rot + ssky) * 0.0174532922222222;
-            var cx: number = Math.cos(sky);
-            var ssx: number = Math.sin(sky);
-            var cy: number = Math.sin(skx);
-            var ssy: number = Math.cos(skx);
+            var skx = (rot - sskx) * 0.0174532922222222;//laya.CONST.PI180;
+            var sky = (rot + ssky) * 0.0174532922222222;
+            var cx = Math.cos(sky);
+            var ssx = Math.sin(sky);
+            var cy = Math.sin(skx);
+            var ssy = Math.cos(skx);
             m.a = sx * cx;
             m.b = sx * ssx;
             m.c = -sy * cy;
@@ -1115,7 +1118,7 @@ export class Sprite extends Node {
                 }
 
                 if (this.cacheGlobal) {
-                    let flag: number = Sprite.Sprite_GlobalDeltaFlage_Position_X | Sprite.Sprite_GlobalDeltaFlage_Position_Y;
+                    let flag = Sprite.Sprite_GlobalDeltaFlage_Position_X | Sprite.Sprite_GlobalDeltaFlage_Position_Y;
                     this._setGlobalCacheFlag(flag, true);
                     this._syncGlobalFlag(flag, true);
                 }
@@ -1195,8 +1198,11 @@ export class Sprite extends Node {
     /**
      * 更新、呈现显示对象。由系统调用。
      * @param	context 渲染的上下文引用。
-     * @param	x X轴坐标。
+     * @param	x X轴坐标。 
      * @param	y Y轴坐标。
+     * 关于上面的xy的含义比较复杂，在没有旋转的情况下，他就是当前节点的世界坐标的位置
+     * 如果此节点的某个某个父节点有旋转，xy会在那里被重置为00，然后继续累加
+     * 所以可以认为这个xy是表示当前节点到某个有旋转的节点（或者根节点）的累加值
      */
     render(ctx: Context, x: number, y: number): void {
         RenderSprite.renders[this._renderType]._fun(this, ctx, x + this._x, y + this._y);
@@ -1225,7 +1231,7 @@ export class Sprite extends Node {
      */
     drawToCanvas(canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number): HTMLCanvas {
         //console.log('drawToCanvas is deprecated, please use drawToTexture');
-        return Sprite.drawToCanvas(this, this._renderType, canvasWidth, canvasHeight, offsetX, offsetY);
+        return Sprite.drawToCanvas(this, canvasWidth, canvasHeight, offsetX, offsetY);
     }
 
     /**
@@ -1236,7 +1242,7 @@ export class Sprite extends Node {
      * @param offsetY 
      */
     drawToTexture(canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt: RenderTexture2D | null = null): Texture | RenderTexture2D {
-        let res = Sprite.drawToTexture(this, this._renderType, canvasWidth, canvasHeight, offsetX, offsetY, rt);
+        let res = Sprite.drawToTexture(this, canvasWidth, canvasHeight, offsetX, offsetY, rt);
         return res;
     }
 
@@ -1255,32 +1261,19 @@ export class Sprite extends Node {
      * @private
      * 绘制到画布。
      */
-    static drawToCanvas(sprite: Sprite, _renderType: number, canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number): HTMLCanvas {
-        offsetX -= sprite.x;
-        offsetY -= sprite.y;
-        offsetX |= 0;
-        offsetY |= 0;
-        canvasWidth |= 0;
-        canvasHeight |= 0;
-        var ctx: Context = new Context();
-        ctx.size(canvasWidth, canvasHeight);
-        ctx.asBitmap = true;
-        ctx._targets.start();
-        ctx._targets.clear(0, 0, 0, 0);
-        RenderSprite.renders[_renderType]._fun(sprite, ctx, offsetX, offsetY);
-        ctx.flush();
-        ctx._targets.end();
-        ctx._targets.restore();
-        var dt: Uint8Array = ctx._targets.getData(0, 0, canvasWidth, canvasHeight) as Uint8Array;
-        ctx.destroy();
-        var imgdata: any = new ImageData(canvasWidth, canvasHeight);;	//创建空的imagedata。因为下面要翻转，所以不直接设置内容
+    static drawToCanvas(sprite: Sprite, canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number): HTMLCanvas {
+        if(arguments.length>5){
+            throw 'drawToCanvas 接口参数不对'
+        }
+        let rt = Sprite.drawToTexture(sprite,canvasWidth,canvasHeight,offsetX, offsetY) as RenderTexture2D;
+        var dt = rt.getData(0, 0, canvasWidth, canvasHeight) as Uint8Array;
+        var imgdata = new ImageData(canvasWidth, canvasHeight);;	//创建空的imagedata。因为下面要翻转，所以不直接设置内容
         //翻转getData的结果。
-        var lineLen: number = canvasWidth * 4;
-        var temp: Uint8Array = new Uint8Array(lineLen);
-        var dst: Uint8Array = imgdata.data;
-        var y: number = canvasHeight - 1;
-        var off: number = y * lineLen;
-        var srcoff: number = 0;
+        var lineLen = canvasWidth * 4;
+        var dst = imgdata.data;
+        var y = canvasHeight - 1;
+        var off = y * lineLen;
+        var srcoff = 0;
         for (; y >= 0; y--) {
             dst.set(dt.subarray(srcoff, srcoff + lineLen), off);
             off -= lineLen;
@@ -1288,11 +1281,49 @@ export class Sprite extends Node {
         }
         //imgdata.data.set(dt);
         //画到2d画布上
-        var canv: HTMLCanvas = new HTMLCanvas(true);
+        var canv = new HTMLCanvas(true);
         canv.size(canvasWidth, canvasHeight);
-        var ctx2d: CanvasRenderingContext2D = <CanvasRenderingContext2D>(canv.getContext('2d') as any);
-        ctx2d.putImageData(imgdata, 0, 0);;
-        return canv;
+        var ctx2d = <CanvasRenderingContext2D>(canv.getContext('2d') as any);
+        ctx2d.putImageData(imgdata, 0, 0);
+        rt.destroy();
+        return canv;        
+        // offsetX -= sprite.x;
+        // offsetY -= sprite.y;
+        // offsetX |= 0;
+        // offsetY |= 0;
+        // canvasWidth |= 0;
+        // canvasHeight |= 0;
+        // var ctx = new Context();
+        // ctx.size(canvasWidth, canvasHeight);
+        // ctx.asBitmap = true;
+        // ctx._targets.start();
+        // ctx._targets.clear(0, 0, 0, 0);
+        // RenderSprite.renders[_renderType]._fun(sprite, ctx, offsetX, offsetY);
+        // ctx.flush();
+        // ctx._targets.end();
+        // ctx._targets.restore();
+        // var dt: Uint8Array = ctx._targets.getData(0, 0, canvasWidth, canvasHeight) as Uint8Array;
+        // ctx.destroy();
+        // var imgdata: any = new ImageData(canvasWidth, canvasHeight);;	//创建空的imagedata。因为下面要翻转，所以不直接设置内容
+        // //翻转getData的结果。
+        // var lineLen: number = canvasWidth * 4;
+        // var temp: Uint8Array = new Uint8Array(lineLen);
+        // var dst: Uint8Array = imgdata.data;
+        // var y: number = canvasHeight - 1;
+        // var off: number = y * lineLen;
+        // var srcoff: number = 0;
+        // for (; y >= 0; y--) {
+        //     dst.set(dt.subarray(srcoff, srcoff + lineLen), off);
+        //     off -= lineLen;
+        //     srcoff += lineLen;
+        // }
+        // //imgdata.data.set(dt);
+        // //画到2d画布上
+        // var canv: HTMLCanvas = new HTMLCanvas(true);
+        // canv.size(canvasWidth, canvasHeight);
+        // var ctx2d: CanvasRenderingContext2D = <CanvasRenderingContext2D>(canv.getContext('2d') as any);
+        // ctx2d.putImageData(imgdata, 0, 0);;
+        // return canv;
     }
 
     /**
@@ -1303,47 +1334,62 @@ export class Sprite extends Node {
      * @private 
      * 
      */
-    static drawToTexture(sprite: Sprite, _renderType: number, canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt: RenderTexture2D | null = null): Texture | RenderTexture2D {
-        Context.set2DRenderConfig();
-        if (!Sprite.drawtocanvCtx) {
-            Sprite.drawtocanvCtx = new Context();
+    static drawToTexture(sprite: Sprite, canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt: RenderTexture2D | null = null): Texture | RenderTexture2D {
+        let renderout = rt || new RenderTexture2D(canvasWidth,canvasHeight,RenderTargetFormat.R8G8B8A8);
+        let ctx = new Context();
+        if(rt){
+            ctx.size(rt.width,rt.height);
+        }else{
+            ctx.size(canvasWidth,canvasHeight)
         }
-        offsetX -= sprite.x;
-        offsetY -= sprite.y;
-        offsetX |= 0;
-        offsetY |= 0;
-        canvasWidth |= 0;
-        canvasHeight |= 0;
-        var ctx = rt ? Sprite.drawtocanvCtx : new Context();
-        ctx.clear();
-        ctx.size(canvasWidth, canvasHeight);
-        if (rt) {
-            ctx._targets = rt;
-        } else {
-            ctx.asBitmap = true;
-        }
-        let texRT;
-        if (ctx._targets) {
-            ctx._targets.start();
-            let color = RenderTexture2D._clearColor;
-            ctx._targets.clear(color.r, color.g, color.b, color.a);
-            ctx._drawingToTexture = true;
-            RenderSprite.renders[_renderType]._fun(sprite, ctx, offsetX, offsetY);
-            ctx._drawingToTexture = false;
-            ctx.flush();
-            ctx._targets.end();
-            ctx._targets.restore();
-            if (!rt)
-                texRT = ctx._targets;
-            ctx._targets = null;//IDE闪
-        }
-        if (!rt) {
-            var rtex: Texture = new Texture(((<Texture2D>(ctx._targets as any))) ? ((<Texture2D>(ctx._targets as any))) : texRT, Texture.INV_UV);
-            ctx.destroy(true);// 保留 _targets
-            return rtex;
-        }
-        sprite._repaint = 0;
-        return rt;
+        ctx.render2D = ctx.render2D.clone(renderout);
+        let outrt = RenderSprite.RenderToRenderTexture(sprite,ctx,offsetX,offsetY,renderout);
+        // if(!rt){
+        //     //这是原来的规则，如果没有提供rt就返回texture，否则就返回rt
+        //     var rtex: Texture = new Texture(outrt,Texture.INV_UV);
+        //     return rtex;
+        // }
+        return outrt;
+
+        // if (!Sprite.drawtocanvCtx) {
+        //     Sprite.drawtocanvCtx = new Context();
+        // }
+        // offsetX -= sprite.x;
+        // offsetY -= sprite.y;
+        // offsetX |= 0;
+        // offsetY |= 0;
+        // canvasWidth |= 0;
+        // canvasHeight |= 0;
+        // var ctx = rt ? Sprite.drawtocanvCtx : new Context();
+        // ctx.clear();
+        // ctx.size(canvasWidth, canvasHeight);
+        // if (rt) {
+        //     ctx._targets = rt;
+        // } else {
+        //     ctx.asBitmap = true;
+        // }
+        // let texRT;
+        // if (ctx._targets) {
+        //     ctx._targets.start();
+        //     let color = RenderTexture2D._clearColor;
+        //     ctx._targets.clear(color.r, color.g, color.b, color.a);
+        //     ctx._drawingToTexture = true;
+        //     RenderSprite.renders[_renderType]._fun(sprite, ctx, offsetX, offsetY);
+        //     ctx._drawingToTexture = false;
+        //     ctx.flush();
+        //     ctx._targets.end();
+        //     ctx._targets.restore();
+        //     if (!rt)
+        //         texRT = ctx._targets;
+        //     ctx._targets = null;//IDE闪
+        // }
+        // if (!rt) {
+        //     var rtex: Texture = new Texture(((<Texture2D>(ctx._targets as any))) ? ((<Texture2D>(ctx._targets as any))) : texRT, Texture.INV_UV);
+        //     ctx.destroy(true);// 保留 _targets
+        //     return rtex;
+        // }
+        // sprite._repaint = 0;
+        //return rt;
     }
 
     /**
@@ -1367,13 +1413,13 @@ export class Sprite extends Node {
     }
 
     /**滤镜集合。可以设置多个滤镜组合。*/
-    get filters(): any[] {
-        return this._cacheStyle.filters;
+    get filters(): Filter[] {
+        return this._filters;
     }
 
-    set filters(value: any[]) {
+    set filters(value: Filter[]) {
         value && value.length === 0 && (value = null);
-        this._getCacheStyle().filters = value ? value.slice() : null;
+        this._filters = value ? value.slice() : null;
         if (value)
             this._renderType |= SpriteConst.FILTERS;
         else
@@ -1381,40 +1427,8 @@ export class Sprite extends Node {
 
         if (value && value.length > 0) {
             if (!this._getBit(NodeFlags.DISPLAY)) this._setBitUp(NodeFlags.DISPLAY);
-            if (!(value.length == 1 && (value[0] instanceof ColorFilter))) {
-                this._getCacheStyle().cacheForFilters = true;
-                this._checkCanvasEnable();
-            }
-        } else {
-            if (this._cacheStyle.cacheForFilters) {
-                this._cacheStyle.cacheForFilters = false;
-                this._checkCanvasEnable();
-            }
         }
-        this._getCacheStyle().hasGlowFilter = this._isHaveGlowFilter();
         this.repaint();
-    }
-
-    /**
-     * @internal
-     * 查看当前原件中是否包含发光滤镜。
-     * @return 一个 Boolean 值，表示当前原件中是否包含发光滤镜。
-     */
-    _isHaveGlowFilter(): boolean {
-        var i: number, len: number;
-        if (this.filters) {
-            for (i = 0; i < this.filters.length; i++) {
-                if (this.filters[i].type == Filter.GLOW) {
-                    return true;
-                }
-            }
-        }
-        for (i = 0, len = this._children.length; i < len; i++) {
-            if ((<Sprite>this._children[i])._isHaveGlowFilter()) {
-                return true;
-            }
-        }
-        return false;
     }
 
     /**
@@ -1609,6 +1623,9 @@ export class Sprite extends Node {
             this._repaint |= type;
             this.parentRepaint(type);
         }
+        if(this._cacheStyle){
+            this._cacheStyle.renderTexture=null;//TODO 重用
+        }
         if (this._cacheStyle && this._cacheStyle.maskParent) {
             this._cacheStyle.maskParent.repaint(type);
         }
@@ -1621,7 +1638,8 @@ export class Sprite extends Node {
      * @return 如果重新缓存值为 true，否则值为 false。
      */
     _needRepaint(): boolean {
-        return (this._repaint & SpriteConst.REPAINT_CACHE) && this._cacheStyle.enableCanvasRender && this._cacheStyle.reCache;
+        //return (this._repaint & SpriteConst.REPAINT_CACHE) && this._cacheStyle.enableCanvasRender && this._cacheStyle.reCache;
+        return !!(this._repaint & SpriteConst.REPAINT_CACHE);
     }
 
     /**
@@ -1640,7 +1658,7 @@ export class Sprite extends Node {
 
     /**cacheAs时，设置所有父对象缓存失效。 */
     parentRepaint(type: number = SpriteConst.REPAINT_CACHE): void {
-        var p: Sprite = (<Sprite>this._parent);
+        var p: Sprite = <Sprite>this._parent;
         if (p && !(p._repaint & type)) {
             p._repaint |= type;
             p.parentRepaint(type);
@@ -1686,7 +1704,7 @@ export class Sprite extends Node {
 
         this._getCacheStyle().mask = value;
         this._setMask(value);
-        this._checkCanvasEnable();
+        //this._checkCanvasEnable();
 
         if (value) {
             value._getCacheStyle().maskParent = this;
@@ -1733,14 +1751,8 @@ export class Sprite extends Node {
      * @override
     */
     _setDisplay(value: boolean): void {
-        if (!value) {
-            if (this._cacheStyle) {
-                this._cacheStyle.releaseContext();
-                this._cacheStyle.releaseFilterCache();
-                if (this._cacheStyle.hasGlowFilter) {
-                    this._cacheStyle.hasGlowFilter = false;
-                }
-            }
+        if (!value && this._cacheStyle) {
+            this._cacheStyle.onInvisible();
         }
         super._setDisplay(value);
     }

@@ -10,7 +10,7 @@ import { Matrix } from "../maths/Matrix"
 import { Point } from "../maths/Point"
 import { Render } from "../renders/Render"
 import { RenderInfo } from "../renders/RenderInfo"
-import { Context } from "../resource/Context"
+import { Context } from "../renders/Context"
 import { HTMLCanvas } from "../resource/HTMLCanvas"
 import { Browser } from "../utils/Browser"
 import { CallLater } from "../utils/CallLater"
@@ -23,6 +23,9 @@ import { ILaya } from "../../ILaya";
 import { ComponentDriver } from "../components/ComponentDriver";
 import { LayaEnv } from "../../LayaEnv";
 import { LayaGL } from "../layagl/LayaGL";
+import { Scene3D } from "../d3/core/scene/Scene3D";
+import { Color } from "../maths/Color";
+import { PERF_BEGIN, PERF_END, PerformanceDefine } from "../tools/PerformanceTool";
 
 /**
  * stage大小经过重新调整时进行调度。
@@ -142,7 +145,7 @@ export class Stage extends Sprite {
     /**@private */
     private _alignH: string = "left";
     /**@private */
-    private _bgColor: string = "black";
+    private _bgColor: string = "gray";
     /**@internal */
     _mouseMoveTime: number = 0;
     /**@private */
@@ -158,9 +161,9 @@ export class Stage extends Sprite {
     /**@private */
     private _isVisibility: boolean;
     /**@internal webgl Color*/
-    _wgColor: number[] | null = [0, 0, 0, 1];
+    _wgColor = new Color(0,0,0,0);// number[] | null = [0, 0, 0, 1];
     /**@internal */
-    _scene3Ds: Node[] = [];
+    _scene3Ds: Scene3D[] = [];
 
     /**@private */
     private _globalRepaintSet: boolean = false;		// 设置全局重画标志。这个是给IDE用的。IDE的Image无法在onload的时候通知对应的sprite重画。
@@ -184,7 +187,7 @@ export class Stage extends Sprite {
         this._isVisibility = true;
 
         //this.drawCallOptimize=true;
-        this.useRetinalCanvas = Config.useRetinalCanvas;
+        this.useRetinalCanvas =LayaEnv.isConch?true:Config.useRetinalCanvas;
 
         var window: any = Browser.window;
         //var _me = this;	
@@ -687,8 +690,10 @@ export class Stage extends Sprite {
 
     set bgColor(value: string) {
         this._bgColor = value;
-        if (value)
-            this._wgColor = ColorUtils.create(value).arrColor;
+        if (value){
+            let colorArr =  ColorUtils.create(value).arrColor;
+            this._wgColor.setValue(colorArr[0],colorArr[1],colorArr[2],colorArr[3]);
+        }
         else
             this._wgColor = null;
 
@@ -808,26 +813,26 @@ export class Stage extends Sprite {
     }
 
     /** @private */
-    static clear: Function = function (value: string): void {
-        //修改需要同步到上面的native实现中
-        Context.set2DRenderConfig();//渲染2D前要还原2D状态,否则可能受3D影响
-        RenderState2D.worldScissorTest && LayaGL.renderEngine.scissorTest(false);
-        var ctx: Context = Render.context;
-        //兼容浏览器
-        var c: any[] = (ctx._submits._length == 0 || Config.preserveDrawingBuffer) ? ColorUtils.create(value).arrColor : ILaya.stage._wgColor;
-        if (c)
-            ctx.clearBG(c[0], c[1], c[2], c[3]);
-        else
-            ctx.clearBG(0, 0, 0, 0);
-        RenderState2D.clear();
-    };
+    // static clear: Function = function (value: string): void {
+    //     //修改需要同步到上面的native实现中
+    //     Context.set2DRenderConfig();//渲染2D前要还原2D状态,否则可能受3D影响
+    //     //RenderState2D.worldScissorTest && LayaGL.renderEngine.scissorTest(false);
+    //     var ctx: Context = Render.context;
+    //     //兼容浏览器
+    //     var c: any[] = Config.preserveDrawingBuffer ? ColorUtils.create(value).arrColor : ILaya.stage._wgColor;
+    //     if (c)
+    //         ctx.clearBG(c[0], c[1], c[2], c[3]);
+    //     else
+    //         ctx.clearBG(0, 0, 0, 0);
+    //     RenderState2D.clear();
+    // };
 
     /**@inheritDoc @override*/
-    render(context: Context, x: number, y: number): void {
-        if (LayaEnv.isConch) {
-            this.renderToNative(context, x, y);
-            return;
-        }
+    render(context2D: Context, x: number, y: number): void {
+        // if (LayaEnv.isConch) {
+        //     this.renderToNative(context2D, x, y);
+        //     return;
+        // }
 
         let delta: number = ILaya.timer._delta / 1000;
         if (this._frameRate === Stage.FRAME_SLEEP) {
@@ -865,21 +870,28 @@ export class Stage extends Sprite {
         RenderInfo.loopCount = Stat.loopCount;
 
         if (this.renderingEnabled) {
+            
             for (let i = 0, n = this._scene3Ds.length; i < n; i++)//更新3D场景,必须提出来,否则在脚本中移除节点会导致BUG
                 (<any>this._scene3Ds[i])._update(delta);
             this._runComponents();
-
-            context.clear();
-
             this._componentDriver.callPreRender();
+            
+            //仅仅是clear
+            context2D.render2D.renderStart(!Config.preserveDrawingBuffer,this._wgColor);
+            //context2D.render2D.renderEnd();
 
-            super.render(context, x, y);
-
-            Stat.render(context, x, y);
-
-            Stage.clear(this._bgColor);
-
-            context.flush();
+            //Stage.clear(this._bgColor);
+            //先渲染3d
+            for (let i = 0, n = this._scene3Ds.length; i < n; i++)//更新3D场景,必须提出来,否则在脚本中移除节点会导致BUG
+                (<any>this._scene3Ds[i]).renderSubmit();
+            //再渲染2d
+            //PERF_BEGIN(PerformanceDefine.T_UIRender);
+            Stat.draw2D=0;
+            context2D.startRender();
+            super.render(context2D, x, y);
+            Stat.render(context2D, x, y);
+            context2D.endRender();
+            //PERF_END(PerformanceDefine.T_UIRender);
 
             this._componentDriver.callPostRender();
 
@@ -888,52 +900,6 @@ export class Stage extends Sprite {
         else
             this._runComponents();
 
-        this._updateTimers();
-    }
-
-    renderToNative(context: Context, x: number, y: number): void {
-        this._renderCount++;
-
-        if (!this._visible) {
-            if (this._renderCount % 5 === 0) {
-                CallLater.I._update();
-                Stat.loopCount++;
-                RenderInfo.loopCount = Stat.loopCount;
-                this._runComponents();
-                this._updateTimers();
-            }
-            return;
-        }
-        this._frameStartTime = Browser.now();
-        //update
-        CallLater.I._update();
-        Stat.loopCount++;
-        RenderInfo.loopCount = Stat.loopCount;
-
-        //render
-        if (this.renderingEnabled) {
-            for (let i: number = 0, n: number = this._scene3Ds.length; i < n; i++)//更新3D场景,必须提出来,否则在脚本中移除节点会导致BUG
-                (<any>this._scene3Ds[i])._update();
-
-            this._runComponents();
-
-            this._componentDriver.callPreRender();
-
-            context.clear();
-            super.render(context, x, y);
-            Stat.render(context, x, y);
-
-            this._componentDriver.callPostRender();
-        }
-        else
-            this._runComponents();
-
-        //commit submit
-        if (this.renderingEnabled) {
-            Stage.clear(this._bgColor);
-            context.flush();
-            VectorGraphManager.instance && VectorGraphManager.getInstance().endDispose();
-        }
         this._updateTimers();
     }
 

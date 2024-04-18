@@ -2,7 +2,6 @@ import { Laya } from "Laya";
 import { Animator } from "laya/d3/component/Animator/Animator";
 import { AnimatorState } from "laya/d3/component/Animator/AnimatorState";
 import { Camera } from "laya/d3/core/Camera";
-import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { Stage } from "laya/display/Stage";
@@ -16,10 +15,10 @@ import { Button } from "laya/ui/Button";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
 import Client from "../../Client";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { CustomAnimatorStateScript } from "../common/CustomAnimatorStateScript";
+import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
 
 /**
  * ...
@@ -28,9 +27,9 @@ import { CustomAnimatorStateScript } from "../common/CustomAnimatorStateScript";
 export class AnimatorDemo {
 
 	/**实例类型*/
-	private btype:any = "AnimatorDemo";
+	private btype: any = "AnimatorDemo";
 	/**场景内按钮类型*/
-	private stype:any = 0;
+	private stype: any = 0;
 	private _scene: Scene3D;
 	private _animator: Animator;
 	private _changeActionButton: Button;
@@ -48,17 +47,17 @@ export class AnimatorDemo {
 		//初始化引擎
 		Laya.init(0, 0).then(() => {
 
-		//适配模式
-		Laya.stage.scaleMode = Stage.SCALE_FULL;
-		Laya.stage.screenMode = Stage.SCREEN_NONE;
+			//适配模式
+			Laya.stage.scaleMode = Stage.SCALE_FULL;
+			Laya.stage.screenMode = Stage.SCREEN_NONE;
 
-		//开启统计信息
-		Stat.show();
+			//开启统计信息
+			Stat.show();
 
-		//预加载所有资源
-		var resource: any[] = ["res/threeDimen/skinModel/BoneLinkScene/R_kl_H_001.lh", "res/threeDimen/skinModel/BoneLinkScene/R_kl_S_009.lh", "res/threeDimen/skinModel/BoneLinkScene/PangZi.lh"];
+			//预加载所有资源
+			var resource: any[] = ["res/threeDimen/skinModel/BoneLinkScene/R_kl_H_001.lh", "res/threeDimen/skinModel/BoneLinkScene/R_kl_S_009.lh", "res/threeDimen/skinModel/BoneLinkScene/PangZi.lh"];
 
-		Laya.loader.load(resource, Handler.create(this, this.onLoadFinish));
+			Laya.loader.load(resource, Handler.create(this, this.onLoadFinish));
 		});
 	}
 
@@ -72,12 +71,13 @@ export class AnimatorDemo {
 		camera.transform.translate(this._translate);
 		camera.transform.rotate(this._rotation, true, false);
 		camera.addComponent(CameraMoveScript);
-
-		var directionLight: DirectionLight = (<DirectionLight>this._scene.addChild(new DirectionLight()));
+		let directlightSprite = new Sprite3D();
+		let dircom = directlightSprite.addComponent(DirectionLightCom);
+		this._scene.addChild(directlightSprite);
 		//设置平行光的方向
-		var mat: Matrix4x4 = directionLight.transform.worldMatrix;
+		var mat: Matrix4x4 = directlightSprite.transform.worldMatrix;
 		mat.setForward(this._forward);
-		directionLight.transform.worldMatrix = mat;
+		directlightSprite.transform.worldMatrix = mat;
 
 
 		//初始化角色精灵
@@ -181,7 +181,7 @@ export class AnimatorDemo {
 
 	private loadUI(): void {
 
-		Laya.loader.load(["res/threeDimen/ui/button.png"], Handler.create(this, function (): void {
+		Laya.loader.load(["res/threeDimen/ui/button.png"], Handler.create(this, () => {
 
 			this._changeActionButton = (<Button>Laya.stage.addChild(new Button("res/threeDimen/ui/button.png", "播放动画")));
 			this._changeActionButton.size(160, 40);
@@ -206,8 +206,7 @@ export class AnimatorDemo {
 		}));
 	}
 
-	stypeFun0(label:string = "播放动画")
-	{
+	stypeFun0(label: string = "播放动画") {
 		this._PlayStopIndex++;
 		if (this._changeActionButton.label === "暂停动画") {
 			this._changeActionButton.label = "播放动画";
@@ -220,11 +219,10 @@ export class AnimatorDemo {
 			this._animator.speed = 1.0;
 		}
 		label = this._changeActionButton.label;
-		Client.instance.send({type:"next",btype:this.btype,stype:0,value:label});
+		Client.instance.send({ type: "next", btype: this.btype, stype: 0, value: label });
 	}
 
-	stypeFun1(curStateIndex:any =0)
-	{
+	stypeFun1(curStateIndex: any = 0) {
 		this._curStateIndex++;
 		if (this._curStateIndex % 6 == 0) {
 			this._changeActionButton.label = "暂停动画";
@@ -270,11 +268,8 @@ export class AnimatorDemo {
 			this._animator.speed = 1.0;
 		}
 		curStateIndex = this._curStateIndex;
-		Client.instance.send({type:"next",btype:this.btype,stype:1,value:curStateIndex});
+		Client.instance.send({ type: "next", btype: this.btype, stype: 1, value: curStateIndex });
 	}
-
-
-
 
 	private onFrame(): void {
 		if (this._animator.speed > 0.0) {

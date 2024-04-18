@@ -129,24 +129,12 @@ export class btPhysicsManager implements IPhysicsManager {
     /** @internal */
     private static _btTempVector31: number;
     /** @internal */
-    private static _btTempQuaternion0: number;
-    /** @internal */
-    private static _btTempQuaternion1: number;
-    /** @internal */
-    private static _btTempTransform0: number;
-    /** @internal */
-    private static _btTempTransform1: number;
-    /** @internal */
     private static _tempVector30: Vector3;
 
     static init(): void {
         let bt = btPhysicsCreateUtil._bt;
         btPhysicsManager._btTempVector30 = bt.btVector3_create(0, 0, 0);
         btPhysicsManager._btTempVector31 = bt.btVector3_create(0, 0, 0);
-        btPhysicsManager._btTempQuaternion0 = bt.btQuaternion_create(0, 0, 0, 1);
-        btPhysicsManager._btTempQuaternion1 = bt.btQuaternion_create(0, 0, 0, 1);
-        btPhysicsManager._btTempTransform0 = bt.btTransform_create();
-        btPhysicsManager._btTempTransform1 = bt.btTransform_create();
         btPhysicsManager._tempVector30 = new Vector3();
     }
 
@@ -318,7 +306,8 @@ export class btPhysicsManager implements IPhysicsManager {
     /**
      * @internal
      */
-    private _updatePhysicsTransformFromRender(): void {
+     //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_Physics_UpdateNode)
+    private _updatePhysicsTransformToRender(): void {
         var elements: any = this._physicsUpdateList.elements;
         for (var i = 0, n = this._physicsUpdateList.length; i < n; i++) {
             var physicCollider: btCollider = elements[i];
@@ -464,6 +453,7 @@ export class btPhysicsManager implements IPhysicsManager {
      * 这个只是给对象发送事件，不会挨个组件调用碰撞函数
      * 组件要响应碰撞的话，要通过监听事件
      */
+    //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_PhysicsEvent)
     dispatchCollideEvent(): void {
         let loopCount = this._updateCount;
         for (let i = 0, n = this._currentFrameCollisions.length; i < n; i++) {
@@ -643,9 +633,9 @@ export class btPhysicsManager implements IPhysicsManager {
         this._bt.btCollisionWorld_removeConstraint(this._btDiscreteDynamicsWorld, joint._btJoint);
         delete this._currentConstraint[joint._id];
     }
-
+ //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_Physics_Simulation)
     update(elapsedTime: number): void {
-        this._updatePhysicsTransformFromRender();
+        this._updatePhysicsTransformToRender();
         btCollider._addUpdateList = false;//物理模拟器会触发_updateTransformComponent函数,不加入更新队列
         //simulate physics
         this._simulate(elapsedTime);

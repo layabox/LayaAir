@@ -1,4 +1,4 @@
-import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";
+import { ShaderDefine } from "../../../RenderDriver/RenderModuleData/Design/ShaderDefine";
 import { VertexMesh } from "../../../RenderEngine/RenderShader/VertexMesh";
 import { MeshSprite3DShaderDeclaration } from "../../core/MeshSprite3DShaderDeclaration";
 import { Mesh } from "./Mesh";

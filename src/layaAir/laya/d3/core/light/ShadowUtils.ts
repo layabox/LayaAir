@@ -1,14 +1,13 @@
 import { BoundFrustum, FrustumCorner } from "../../math/BoundFrustum";
 import { BoundSphere } from "../../math/BoundSphere";
 import { Plane } from "../../math/Plane";
-import { ShadowSliceData, ShadowSpotData } from "../../shadowMap/ShadowSliceData";
+import { ShadowSliceData } from "../../shadowMap/ShadowSliceData";
 import { Utils3D } from "../../utils/Utils3D";
 import { ShadowCascadesMode } from "./ShadowCascadesMode";
 import { ShadowMode } from "./ShadowMode";
 import { Light, LightType } from "./Light";
 import { SpotLightCom } from "./SpotLightCom";
 import { Sprite3D } from "../Sprite3D";
-import { DirectionLightCom } from "./DirectionLightCom";
 import { FilterMode } from "../../../RenderEngine/RenderEnum/FilterMode";
 import { WrapMode } from "../../../RenderEngine/RenderEnum/WrapMode";
 import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
@@ -151,8 +150,8 @@ export class ShadowUtils {
 
         // depth and normal bias scale is in shadowmap texel size in world space
         var texelSize: number = frustumSize / shadowResolution;
-        var depthBias: number = -light._shadowDepthBias * texelSize;
-        var normalBias: number = -light._shadowNormalBias * texelSize;
+        var depthBias: number = -light.shadowDepthBias * texelSize;
+        var normalBias: number = -light.shadowNormalBias * texelSize;
 
         if (light.shadowMode == ShadowMode.SoftHigh) {
             // TODO: depth and normal bias assume sample is no more than 1 texel away from shadowmap
@@ -394,36 +393,36 @@ export class ShadowUtils {
         Utils3D._mulMatrixArray(ShadowUtils._shadowMapScaleOffsetMatrix.elements, viewProjectMatrix.elements, 0, shadowMatrices, cascadeIndex * 16);
     }
 
-    /** 
-    * @internal
-    */
-    static getSpotLightShadowData(shadowSpotData: ShadowSpotData, spotLight: SpotLightCom, resolution: number, shadowParams: Vector4, shadowSpotMatrices: Matrix4x4, shadowMapSize: Vector4) {
-        var out: Vector3 = shadowSpotData.position = (spotLight.owner as Sprite3D).transform.position;
-        shadowSpotData.resolution = resolution;
-        shadowMapSize.setValue(1.0 / resolution, 1.0 / resolution, resolution, resolution);
-        shadowSpotData.offsetX = 0;
-        shadowSpotData.offsetY = 0;
+    // /** 
+    // * @internal
+    // */
+    // static getSpotLightShadowData(shadowSpotData: ShadowSpotData, spotLight: SpotLightCom, resolution: number, shadowParams: Vector4, shadowSpotMatrices: Matrix4x4, shadowMapSize: Vector4) {
+    //     var out: Vector3 = shadowSpotData.position = (spotLight.owner as Sprite3D).transform.position;
+    //     shadowSpotData.resolution = resolution;
+    //     shadowMapSize.setValue(1.0 / resolution, 1.0 / resolution, resolution, resolution);
+    //     shadowSpotData.offsetX = 0;
+    //     shadowSpotData.offsetY = 0;
 
-        var spotWorldMatrix: Matrix4x4 = spotLight.lightWorldMatrix;
-        var viewMatrix: Matrix4x4 = shadowSpotData.viewMatrix;
-        var projectMatrix: Matrix4x4 = shadowSpotData.projectionMatrix;
-        var viewProjectMatrix: Matrix4x4 = shadowSpotData.viewProjectMatrix;
-        var BoundFrustum: BoundFrustum = shadowSpotData.cameraCullInfo.boundFrustum;
-        spotWorldMatrix.invert(viewMatrix);
-        Matrix4x4.createPerspective(3.1416 * spotLight.spotAngle / 180.0, 1, 0.1, spotLight.range, projectMatrix);
-        shadowParams.y = spotLight.shadowStrength;
-        Matrix4x4.multiply(projectMatrix, viewMatrix, viewProjectMatrix);
-        BoundFrustum.matrix = viewProjectMatrix;
-        viewProjectMatrix.cloneTo(shadowSpotMatrices);
-        shadowSpotData.cameraCullInfo.position = out;
-    }
+    //     var spotWorldMatrix: Matrix4x4 = spotLight.lightWorldMatrix;
+    //     var viewMatrix: Matrix4x4 = shadowSpotData.viewMatrix;
+    //     var projectMatrix: Matrix4x4 = shadowSpotData.projectionMatrix;
+    //     var viewProjectMatrix: Matrix4x4 = shadowSpotData.viewProjectMatrix;
+    //     var BoundFrustum: BoundFrustum = shadowSpotData.cameraCullInfo.boundFrustum;
+    //     spotWorldMatrix.invert(viewMatrix);
+    //     Matrix4x4.createPerspective(3.1416 * spotLight.spotAngle / 180.0, 1, 0.1, spotLight.range, projectMatrix);
+    //     shadowParams.y = spotLight.shadowStrength;
+    //     Matrix4x4.multiply(projectMatrix, viewMatrix, viewProjectMatrix);
+    //     BoundFrustum.matrix = viewProjectMatrix;
+    //     viewProjectMatrix.cloneTo(shadowSpotMatrices);
+    //     shadowSpotData.cameraCullInfo.position = out;
+    // }
 
     /**
      * @internal
      */
-    static prepareShadowReceiverShaderValues(light: DirectionLightCom, shadowMapWidth: number, shadowMapHeight: number, shadowSliceDatas: ShadowSliceData[], cascadeCount: number, shadowMapSize: Vector4, shadowParams: Vector4, shadowMatrices: Float32Array, splitBoundSpheres: Float32Array): void {
+    static prepareShadowReceiverShaderValues(shadowStrength: number, shadowMapWidth: number, shadowMapHeight: number, shadowSliceDatas: ShadowSliceData[], cascadeCount: number, shadowMapSize: Vector4, shadowParams: Vector4, shadowMatrices: Float32Array, splitBoundSpheres: Float32Array): void {
         shadowMapSize.setValue(1.0 / shadowMapWidth, 1.0 / shadowMapHeight, shadowMapWidth, shadowMapHeight);
-        shadowParams.setValue(light._shadowStrength, 0.0, 0.0, 0.0);
+        shadowParams.setValue(shadowStrength, 0.0, 0.0, 0.0);
         if (cascadeCount > 1) {
             const matrixFloatCount: number = 16;
             for (var i: number = cascadeCount * matrixFloatCount, n: number = 4 * matrixFloatCount; i < n; i++)//the last matrix is always ZERO

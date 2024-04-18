@@ -3,44 +3,40 @@
  */
 export class SpriteConst {
     /** @private */
-    static ALPHA: number = 0x01;
+    static ALPHA = 0x01;
     /** @private */
-    static TRANSFORM: number = 0x02;
+    static TRANSFORM = 0x02;
     /** @private */
-    static BLEND: number = 0x04;
+    static BLEND = 0x04;
     /** @private */
-    static CANVAS: number = 0x08;
+    static CANVAS = 0x08;
     /** @private */
-    static FILTERS: number = 0x10;
+    static FILTERS = 0x10;
     /** @private */
-    static MASK: number = 0x20;
+    static MASK = 0x20;
     /** @private */
-    static CLIP: number = 0x40;
+    static CLIP = 0x40;
     /** @private */
-    static STYLE: number = 0x80;
+    static TEXTURE = 0x80;
     /** @private */
-    static TEXTURE: number = 0x100;
+    static GRAPHICS = 0x100;
     /** @private */
-    static GRAPHICS: number = 0x200;
+    static LAYAGL3D = 0x200;
     /** @private */
-    static LAYAGL3D: number = 0x400;
+    static CUSTOM = 0x400;
     /** @private */
-    static CUSTOM: number = 0x800;
+    static HITAREA = 0x800;
     /** @private */
-    static ONECHILD: number = 0x1000;
-    /** @private */
-    static HITAREA: number = 0x2000;
-    /** @private */
-    static CHILDS: number = 0x4000;
+    static CHILDS = 0x1000;
 
     /** @private */
-    static REPAINT_NONE: number = 0;
+    static REPAINT_NONE = 0;
     /** @private */
-    static REPAINT_NODE: number = 0x01;
+    static REPAINT_NODE = 0x01;
     /** @private */
-    static REPAINT_CACHE: number = 0x02;
+    static REPAINT_CACHE = 0x02;
     /** @private */
-    static REPAINT_ALL: number = 0x03;
+    static REPAINT_ALL = 0x03;
 }
 
 

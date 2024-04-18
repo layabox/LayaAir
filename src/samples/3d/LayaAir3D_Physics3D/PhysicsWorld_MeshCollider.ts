@@ -1,6 +1,5 @@
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
-import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
@@ -23,6 +22,8 @@ import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
+import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
+import { Sprite3D } from "laya/d3/core/Sprite3D";
 
 export class PhysicsWorld_MeshCollider {
 
@@ -44,12 +45,14 @@ export class PhysicsWorld_MeshCollider {
 			camera.addComponent(CameraMoveScript);
 
 			//方向光
-			var directionLight: DirectionLight = (<DirectionLight>this.scene.addChild(new DirectionLight()));
+			let directlightSprite = new Sprite3D();
+			let dircom = directlightSprite.addComponent(DirectionLightCom);
+			this.scene.addChild(directlightSprite);
 			//设置平行光的方向
-			var mat: Matrix4x4 = directionLight.transform.worldMatrix;
+			var mat: Matrix4x4 = directlightSprite.transform.worldMatrix;
 			mat.setForward(new Vector3(0.0, -0.8, -1.0));
-			directionLight.transform.worldMatrix = mat;
-			directionLight.color = new Color(1, 1, 1, 1);
+			directlightSprite.transform.worldMatrix = mat;
+			dircom.color = new Color(1, 1, 1, 1);
 			Laya.loader.load(["res/threeDimen/staticModel/lizard/Assets/Lizard/lizard-lizard_geo.lm", "res/threeDimen/staticModel/lizard/Assets/Lizard/lizard_diff.png", "res/threeDimen/staticModel/lizard/Assets/Lizard/lizard_norm.png"], Handler.create(this, this.complete));
 		});
 	}
@@ -122,7 +125,7 @@ export class PhysicsWorld_MeshCollider {
 		var sZ: number = Math.random() * 0.75 + 0.25;
 		var box: MeshSprite3D = (<MeshSprite3D>this.scene.addChild(new MeshSprite3D(PrimitiveMesh.createBox(sX, sY, sZ))));
 		box.meshRenderer.material = new BlinnPhongMaterial();
-		Laya.loader.load("res/threeDimen/Physics/rocks.jpg").then((res)=>{
+		Laya.loader.load("res/threeDimen/Physics/rocks.jpg").then((res) => {
 			(box.meshRenderer.material as BlinnPhongMaterial).albedoTexture = res as Texture2D;
 		});
 		var transform: Transform3D = box.transform;
@@ -143,7 +146,7 @@ export class PhysicsWorld_MeshCollider {
 		var radius: number = Math.random() * 0.2 + 0.2;
 		var sphere: MeshSprite3D = (<MeshSprite3D>this.scene.addChild(new MeshSprite3D(PrimitiveMesh.createSphere(radius))));
 		sphere.meshRenderer.material = new BlinnPhongMaterial();
-		Laya.loader.load("res/threeDimen/Physics/plywood.jpg").then((res)=>{
+		Laya.loader.load("res/threeDimen/Physics/plywood.jpg").then((res) => {
 			(sphere.meshRenderer.material as BlinnPhongMaterial).albedoTexture = res as Texture2D;
 		});
 		var pos: Vector3 = sphere.transform.position;
@@ -161,7 +164,7 @@ export class PhysicsWorld_MeshCollider {
 		var height: number = Math.random() * 0.5 + 0.8;
 		var capsule: MeshSprite3D = (<MeshSprite3D>this.scene.addChild(new MeshSprite3D(PrimitiveMesh.createCapsule(raidius, height))));
 		capsule.meshRenderer.material = new BlinnPhongMaterial();
-		Laya.loader.load("res/threeDimen/Physics/wood.jpg").then((res)=>{
+		Laya.loader.load("res/threeDimen/Physics/wood.jpg").then((res) => {
 			(capsule.meshRenderer.material as BlinnPhongMaterial).albedoTexture = res as Texture2D;
 		});
 		var transform: Transform3D = capsule.transform;

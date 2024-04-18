@@ -1,4 +1,4 @@
-import { Context } from "../../resource/Context";
+import { Context } from "../../renders/Context";
 import { FontInfo } from "../../utils/FontInfo";
 import { Pool } from "../../utils/Pool";
 import { WordText } from "../../utils/WordText";

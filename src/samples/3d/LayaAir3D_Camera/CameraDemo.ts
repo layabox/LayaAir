@@ -1,6 +1,5 @@
 import { Laya } from "Laya";
 import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
-import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
 import { Material } from "laya/resource/Material";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
@@ -18,9 +17,9 @@ import { Button } from "laya/ui/Button";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
 import Client from "../../Client";
 import { CameraMoveScript } from "../common/CameraMoveScript";
+import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
 
 
 /**
@@ -75,11 +74,13 @@ export class CameraDemo {
 		this.camera.addComponent(CameraMoveScript);
 		scene.addChild(this.camera);
 
-		//添加平行光
-		var directionLight: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));
+		let directlightSprite = new Sprite3D();
+		let dircom = directlightSprite.addComponent(DirectionLightCom);
+		scene.addChild(directlightSprite);
+		
 		//设置平行光颜色
-		directionLight.color.setValue(1, 1, 1, 1);
-		directionLight.transform.rotate(this._rotation2);
+		dircom.color.setValue(1, 1, 1, 1);
+		directlightSprite.transform.rotate(this._rotation2);
 
 		var sprite: Sprite3D = new Sprite3D;
 		scene.addChild(sprite);
@@ -150,7 +151,7 @@ export class CameraDemo {
 				//使用加载天空盒材质
 				var skyboxMaterial: Material = (<Material>Loader.getRes("res/threeDimen/skyBox/skyBox2/skyBox2.lmat"));
 				//获取相机的天空渲染器
-				var skyRenderer: SkyRenderer = this.camera.skyRenderer;
+				var skyRenderer: SkyRenderer = this.camera.scene.skyRenderer;
 				//设置相机的天空渲染器的mesh
 				skyRenderer.mesh = SkyBox.instance;
 				//设置相机的天空渲染器的material

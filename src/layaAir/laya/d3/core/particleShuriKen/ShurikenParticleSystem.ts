@@ -12,7 +12,6 @@ import { Gradient } from "../Gradient";
 import { IClone } from "../../../utils/IClone";
 import { RenderContext3D } from "../render/RenderContext3D";
 import { Scene3D } from "../scene/Scene3D";
-import { Transform3D } from "../Transform3D";
 import { Burst } from "./module/Burst";
 import { ColorOverLifetime } from "./module/ColorOverLifetime";
 import { Emission } from "./module/Emission";
@@ -39,7 +38,6 @@ import { VertexShuriKenParticle } from "../../graphics/Vertex/VertexShuriKenPart
 import { Sprite3D } from "../Sprite3D";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode";
-import { ShaderData } from "../../../RenderEngine/RenderShader/ShaderData";
 import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
 import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
@@ -52,6 +50,7 @@ import { VertexElement } from "../../../renders/VertexElement";
 import { BufferState } from "../../../webgl/utils/BufferState";
 import { VertexMesh } from "../../../RenderEngine/RenderShader/VertexMesh";
 import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
+import { ShaderData } from "../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 
 
 /**
@@ -362,9 +361,9 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
     set shape(value: BaseShape) {
         if (this._shape !== value) {
             if (value && value.enable)
-                this._ownerRender._shaderValues.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SHAPE);
+                this._ownerRender._baseRenderNode.shaderData.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SHAPE);
             else
-                this._ownerRender._shaderValues.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SHAPE);
+                this._ownerRender._baseRenderNode.shaderData.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SHAPE);
             this._shape = value;
         }
     }
@@ -541,7 +540,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
     }
 
     set velocityOverLifetime(value: VelocityOverLifetime) {
-        var shaDat: ShaderData = this._ownerRender._shaderValues;
+        var shaDat: ShaderData = this._ownerRender._baseRenderNode.shaderData;
 
         shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_VELOCITYOVERLIFETIMECONSTANT);
         shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_VELOCITYOVERLIFETIMECURVE);
@@ -596,7 +595,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
     }
 
     set colorOverLifetime(value: ColorOverLifetime) {
-        var shaDat: ShaderData = this._ownerRender._shaderValues;
+        var shaDat: ShaderData = this._ownerRender._baseRenderNode.shaderData;
 
         shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_COLOROVERLIFETIME);
         shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_RANDOMCOLOROVERLIFETIME);
@@ -702,7 +701,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
     }
 
     set sizeOverLifetime(value: SizeOverLifetime) {
-        var shaDat: ShaderData = this._ownerRender._shaderValues;
+        var shaDat: ShaderData = this._ownerRender._baseRenderNode.shaderData;
 
         shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SIZEOVERLIFETIMECURVE);
         shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SIZEOVERLIFETIMECURVESEPERATE);
@@ -764,7 +763,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
     }
 
     set rotationOverLifetime(value: RotationOverLifetime) {
-        var shaDat: ShaderData = this._ownerRender._shaderValues;
+        var shaDat: ShaderData = this._ownerRender._baseRenderNode.shaderData;
 
         shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIME);
         shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMESEPERATE);
@@ -854,7 +853,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
     }
 
     set textureSheetAnimation(value: TextureSheetAnimation) {
-        var shaDat: ShaderData = this._ownerRender._shaderValues;
+        var shaDat: ShaderData = this._ownerRender._baseRenderNode.shaderData;
 
         shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_TEXTURESHEETANIMATIONCURVE);
         shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_TEXTURESHEETANIMATIONRANDOMCURVE);
@@ -1578,7 +1577,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
                     // }
 
                     this._indexStride = mesh._indexBuffer.indexCount;
-                    var indexDatas: Uint16Array = mesh._indexBuffer.getData();
+                    var indexDatas: Uint16Array = mesh._indexBuffer.getData() as Uint16Array;
                     var indexCount: number = this._bufferMaxParticles * this._indexStride;
                     this._indexBuffer = Laya3DRender.renderOBJCreate.createIndexBuffer3D(IndexFormat.UInt16, indexCount, BufferUsage.Static, false);
                     indices = new Uint16Array(indexCount);
@@ -1735,7 +1734,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
         if (nextFreeParticle === this._firstRetiredElement)
             return false;
 
-        var transform: Transform3D = this._owner.transform;
+        var transform = this._owner.transform;
         ShurikenParticleData.create(this, this._ownerRender);
 
         var particleAge: number = this._currentTime - time;

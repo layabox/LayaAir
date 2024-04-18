@@ -1,6 +1,5 @@
 import { Laya } from "Laya";
 import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
-import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { Stage } from "laya/display/Stage";
@@ -11,6 +10,7 @@ import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { Transform3D } from "laya/d3/core/Transform3D";
 import { Vector3 } from "laya/maths/Vector3";
+import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
 
 export class Scene2DPlayer3D {
 
@@ -46,8 +46,9 @@ export class Scene2DPlayer3D {
 			camera.clearFlag = CameraClearFlags.SolidColor;
 			//正交投影垂直矩阵尺寸
 			camera.orthographicVerticalSize = 10;
-
-			scene.addChild(new DirectionLight());
+			let directlightSprite = new Sprite3D();
+			let dircom = directlightSprite.addComponent(DirectionLightCom);
+			scene.addChild(directlightSprite);
 
 			Sprite3D.load("res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh", Handler.create(this, function (layaMonkey: Sprite3D): void {
 				scene.addChild(layaMonkey);

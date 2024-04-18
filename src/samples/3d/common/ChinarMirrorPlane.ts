@@ -9,6 +9,8 @@ import { Matrix4x4 } from "laya/maths/Matrix4x4";
 import { Vector3 } from "laya/maths/Vector3";
 import { Vector4 } from "laya/maths/Vector4";
 import { RenderTexture } from "laya/resource/RenderTexture";
+import { MeshRenderer } from "laya/d3/core/MeshRenderer";
+import { Utils3D } from "laya/d3/utils/Utils3D";
 
 export class ChinarMirrorPlane extends Script {
 
@@ -59,7 +61,7 @@ export class ChinarMirrorPlane extends Script {
     set mirrorPlane(value: MeshSprite3D) {
         this._mirrorPlane = value;
         var material: UnlitMaterial = new UnlitMaterial();
-        value.meshRenderer.sharedMaterial = material;
+        value.getComponent(MeshRenderer).sharedMaterial = material;
         material.albedoTexture = this.renderTexture;
         material.tilingOffset = new Vector4(-1, 1, 0, 0);
     }
@@ -182,6 +184,8 @@ export class ChinarMirrorPlane extends Script {
 
         this.mirrorCamera.projectionMatrix = this.p;
         this.rm.invert(ChinarMirrorPlane.tempMat);
+        // Utils3D.uint8ArrayToArrayBuffer(this.renderTexture);
+
         this.mirrorCamera.transform.worldMatrix = ChinarMirrorPlane.tempMat;
         if (!this.estimateViewFrustum) return;
 

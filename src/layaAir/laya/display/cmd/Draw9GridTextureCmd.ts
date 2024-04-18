@@ -1,4 +1,4 @@
-import { Context } from "../../resource/Context"
+import { Context } from "../../renders/Context"
 import { Texture } from "../../resource/Texture"
 import { ClassUtils } from "../../utils/ClassUtils";
 import { ColorUtils } from "../../utils/ColorUtils";

@@ -6,7 +6,6 @@ import { Stage } from "laya/display/Stage";
 import { Text } from "laya/display/Text";
 import { Event } from "laya/events/Event";
 import { Handler } from "laya/utils/Handler";
-import { Laya3D } from "Laya3D";
 import { Browser } from "laya/utils/Browser";
 import { Script } from "laya/components/Script";
 import { AmbientMode } from "laya/d3/core/scene/AmbientMode";
@@ -48,7 +47,6 @@ export class CerberusModelShow {
 		Laya.init(0, 0).then(() => {
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
-
 			Scene3D.load("res/threeDimen/scene/LayaScene_CerberusScene/Conventional/CerberusScene.ls", Handler.create(this, function (scene: Scene3D): void {
 				Laya.stage.addChild(scene);
 				scene.ambientMode = AmbientMode.SphericalHarmonics;

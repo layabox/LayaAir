@@ -1,6 +1,5 @@
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
-import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
 import { Material } from "laya/resource/Material";
 import { PBRStandardMaterial } from "laya/d3/core/material/PBRStandardMaterial";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
@@ -8,15 +7,14 @@ import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Stage } from "laya/display/Stage";
 import { Event } from "laya/events/Event";
 import { Loader } from "laya/net/Loader";
-import { Texture2D } from "laya/resource/Texture2D";
 import { Button } from "laya/ui/Button";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Utils } from "laya/utils/Utils";
-import { Laya3D } from "Laya3D";
 import Client from "../../Client";
 import { CameraMoveScript } from "../common/CameraMoveScript";
+import { Scene } from "laya/display/Scene";
+import { MeshRenderer } from "laya/d3/core/MeshRenderer";
 
 /**
  * ...
@@ -24,9 +22,6 @@ import { CameraMoveScript } from "../common/CameraMoveScript";
  */
 export class MaterialDemo {
 	private sphere: MeshSprite3D;
-	private pbrStandardMaterial: PBRStandardMaterial;
-	private pbrTexture: Texture2D;
-	private billinMaterial: BlinnPhongMaterial;
 	private changeActionButton: Button;
 	private index: number = 0;
 
@@ -49,21 +44,25 @@ export class MaterialDemo {
 	}
 
 	onPreLoadFinish() {
-		//初始化3D场景
-		var scene: Scene3D = (<Scene3D>Laya.stage.addChild(Loader.createNodes("res/threeDimen/scene/ChangeMaterialDemo/Conventional/scene.ls")));
-		//获取相机
-		var camera: Camera = (<Camera>scene.getChildByName("Main Camera"));
-		//为相机添加视角控制组件(脚本)
-		camera.addComponent(CameraMoveScript);
-		//获取球型精灵
-		this.sphere = (<MeshSprite3D>scene.getChildByName("Sphere"));
-		//加载UI
-		this.loadUI();
+		Scene.open("res/threeDimen/scene/ChangeMaterialDemo/Conventional/scene.ls", true, null, Handler.create(this, (sce: Scene) => {
+			//初始化3D场景
+			var scene: Scene3D = sce.scene3D;
+			//获取相机
+			var camera: Camera = (<Camera>scene.getChildByName("Main Camera"));
+			//为相机添加视角控制组件(脚本)
+			camera.addComponent(CameraMoveScript);
+			//获取球型精灵
+			this.sphere = (<MeshSprite3D>scene.getChildByName("Sphere"));
+			//加载UI
+			this.loadUI();
+		}));
+
+
 	}
 
 	private loadUI(): void {
 
-		Laya.loader.load(["res/threeDimen/ui/button.png"], Handler.create(this, function (): void {
+		Laya.loader.load(["res/threeDimen/ui/button.png"], Handler.create(this, () => {
 
 			this.changeActionButton = (<Button>Laya.stage.addChild(new Button("res/threeDimen/ui/button.png", "切换材质")));
 			this.changeActionButton.size(160, 40);
@@ -87,12 +86,12 @@ export class MaterialDemo {
 				//为PBRStandard材质设置漫反射贴图
 				pbrStandardMaterial.albedoTexture = pbrTexture;
 				//切换至PBRStandard材质
-				this.sphere.meshRenderer.material = pbrStandardMaterial;
+				this.sphere.getComponent(MeshRenderer).material = pbrStandardMaterial;
 			});
 		} else {
-			Material.load("res/threeDimen/scene/ChangeMaterialDemo/Conventional/Assets/Materials/layabox.lmat", Handler.create(this, function (mat) {
+			Material.load("res/threeDimen/scene/ChangeMaterialDemo/Conventional/Assets/Materials/layabox.lmat", Handler.create(this, (mat) => {
 				//切换至BlinnPhong材质
-				this.sphere.meshRenderer.material = mat;
+				this.sphere.getComponent(MeshRenderer).material = mat;
 			}));
 		}
 		index = this.index;

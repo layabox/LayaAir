@@ -3,14 +3,13 @@
  * 静态常量集合
  */
 export class Const {
-    static ENUM_TEXTALIGN_DEFAULT: number = 0;
-    static ENUM_TEXTALIGN_CENTER: number = 1;
-    static ENUM_TEXTALIGN_RIGHT: number = 2;
+    static ENUM_TEXTALIGN_DEFAULT = 0;
+    static ENUM_TEXTALIGN_CENTER = 1;
+    static ENUM_TEXTALIGN_RIGHT = 2;
 
-    static BYTES_PE: number = 4;
-    static BYTES_PIDX: number = 2;
+    static INDEX_BYTES = 2;
 
-    static MAX_CLIP_SIZE: number = 99999999;
+    static MAX_CLIP_SIZE = 99999999;
 }
 
 /**

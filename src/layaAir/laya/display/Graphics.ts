@@ -27,7 +27,7 @@ import { TranslateCmd } from "./cmd/TranslateCmd"
 import { Matrix } from "../maths/Matrix"
 import { Point } from "../maths/Point"
 import { Rectangle } from "../maths/Rectangle"
-import { Context } from "../resource/Context"
+import { Context } from "../renders/Context"
 import { Texture } from "../resource/Texture"
 import { Utils } from "../utils/Utils"
 import { VectorGraphManager } from "../utils/VectorGraphManager"
@@ -35,12 +35,13 @@ import { ILaya } from "../../ILaya";
 import { WordText } from "../utils/WordText";
 import { ColorUtils } from "../utils/ColorUtils";
 import type { Material } from "../resource/Material";
-import { CommandUniformMap } from "../RenderEngine/CommandUniformMap";
-import { ShaderDataType } from "../RenderEngine/RenderShader/ShaderData";
 import { Value2D } from "../webgl/shader/d2/value/Value2D";
 import { DrawEllipseCmd } from "./cmd/DrawEllipseCmd";
 import { DrawRoundRectCmd } from "./cmd/DrawRoundRectCmd";
 import { LayaGL } from "../layagl/LayaGL";
+import { ShaderDataType } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { DrawGeoCmd } from "./cmd/DrawGeoCmd";
+import { IRenderGeometryElement } from "../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
 
 /**
  * <code>Graphics</code> 类用于创建绘图显示对象。Graphics可以同时绘制多个位图或者矢量图，还可以结合save，restore，transform，scale，rotate，translate，alpha等指令对绘图效果进行变化。
@@ -56,7 +57,7 @@ export class Graphics {
      * @param uniformtype 
      */
     static add2DGlobalUniformData(propertyID: number, propertyKey: string, uniformtype: ShaderDataType) {
-        let sceneUniformMap: CommandUniformMap = LayaGL.renderOBJCreate.createGlobalUniformMap("Sprite2DGlobal");
+        let sceneUniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap("Sprite2DGlobal");
         sceneUniformMap.addShaderUniform(propertyID, propertyKey, uniformtype);
     }
 
@@ -302,6 +303,15 @@ export class Graphics {
         if (!texture) return null;
         return this.addCmd(DrawTexturesCmd.create(texture, pos, colors));
     }
+    /**
+     * 
+     * @param geo 
+     * @param material 
+     * @returns 
+     */
+    drawGeo(geo: IRenderGeometryElement, material:Material){
+        return this.addCmd(DrawGeoCmd.create(geo, material));
+    }
 
     /**
      * 绘制一组三角形
@@ -310,7 +320,7 @@ export class Graphics {
      * @param y			Y轴偏移量。
      * @param vertices  顶点数组。
      * @param indices	顶点索引。
-     * @param uvData	UV数据。
+     * @param uvData	UV数据。注意这里的uv是直接使用的，如果texture是图集中的资源，这里的uv也是图集中的，即不需要转换直接用。
      * @param matrix	缩放矩阵。
      * @param alpha		alpha
      * @param color		颜色变换

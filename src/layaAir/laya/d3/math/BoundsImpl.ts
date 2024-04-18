@@ -103,8 +103,9 @@ export class BoundsImpl implements IClone {
     setCenter(value: Vector3): void {
         if (value !== this._center)
             value.cloneTo(this._center);
-        this._setUpdateFlag(BoundsImpl._UPDATE_MIN | BoundsImpl._UPDATE_MAX, true);
-        this._setUpdateFlag(BoundsImpl._UPDATE_CENTER, false);
+        this._getMin(this._center, this._extent, this._boundBox.min);
+        this._getMax(this._center, this._extent, this._boundBox.max);
+        this._setUpdateFlag(BoundsImpl._UPDATE_CENTER | BoundsImpl._UPDATE_MIN | BoundsImpl._UPDATE_MAX, false);
     }
 
     /**
@@ -126,8 +127,9 @@ export class BoundsImpl implements IClone {
     setExtent(value: Vector3): void {
         if (value !== this._extent)
             value.cloneTo(this._extent);
-        this._setUpdateFlag(BoundsImpl._UPDATE_MIN | BoundsImpl._UPDATE_MAX, true);
-        this._setUpdateFlag(BoundsImpl._UPDATE_EXTENT, false);
+        this._getMin(this._center, this._extent, this._boundBox.min);
+        this._getMax(this._center, this._extent, this._boundBox.max);
+        this._setUpdateFlag(BoundsImpl._UPDATE_CENTER | BoundsImpl._UPDATE_MIN | BoundsImpl._UPDATE_MAX, false);
     }
 
     /**
@@ -150,6 +152,7 @@ export class BoundsImpl implements IClone {
     constructor(min?: Vector3, max?: Vector3) {
         min && min.cloneTo(this._boundBox.min);
         max && max.cloneTo(this._boundBox.max);
+        this._setUpdateFlag(BoundsImpl._UPDATE_MIN | BoundsImpl._UPDATE_MAX, false);
         this._setUpdateFlag(BoundsImpl._UPDATE_CENTER | BoundsImpl._UPDATE_EXTENT, true);
     }
 

@@ -1,40 +1,69 @@
 import { Command } from "./Command";
-import { RenderContext3D } from "../RenderContext3D";
-import { Camera } from "../../Camera";
 import { RenderTexture } from "../../../../resource/RenderTexture";
+import { CommandBuffer } from "./CommandBuffer";
+import { Color } from "../../../../maths/Color";
+import { Laya3DRender } from "../../../RenderObjs/Laya3DRender";
+import { SetRenderTargetCMD } from "../../../../RenderDriver/DriverDesign/3DRenderPass/IRendderCMD";
+import { RenderClearFlag } from "../../../../RenderEngine/RenderEnum/RenderClearFlag";
 
 /**
  * @internal
- * <code>SetRenderTargetCMD</code> 类用于创建设置渲染目标指令。
+ * <code>SetRTCMD</code> 类用于创建设置渲染目标指令。
  */
-export class SetRenderTargetCMD extends Command {
+export class SetRTCMD extends Command {
 	/**@internal */
 	private static _pool: any[] = [];
-
-	/**@internal */
-	private _renderTexture: RenderTexture = null;
 
 	/**
 	 * @internal
 	 */
-	static create(renderTexture: RenderTexture): SetRenderTargetCMD {
-		var cmd: SetRenderTargetCMD;
-		cmd = SetRenderTargetCMD._pool.length > 0 ? SetRenderTargetCMD._pool.pop() : new SetRenderTargetCMD();
-		cmd._renderTexture = renderTexture;
+	static create(renderTexture: RenderTexture, clearColor: boolean, clearDepth: boolean, clearStencil: boolean, backgroundColor: Color, depth: number = 1, stencil: number = 0, commandBuffer: CommandBuffer): SetRTCMD {
+		var cmd: SetRTCMD;
+		cmd = SetRTCMD._pool.length > 0 ? SetRTCMD._pool.pop() : new SetRTCMD();
+		cmd.renderTexture = renderTexture;
+		let clearflag = 0;
+		if (clearColor) {
+			clearflag |= RenderClearFlag.Color;
+			cmd._setRenderTargetCMD.clearColorValue = backgroundColor;
+		}
+		if (clearDepth) {
+			clearflag |= RenderClearFlag.Depth;
+			cmd._setRenderTargetCMD.clearDepthValue = depth;
+		}
+		if (stencil) {
+			clearflag |= RenderClearFlag.Stencil;
+			cmd._setRenderTargetCMD.clearStencilValue = stencil;
+		}
+		cmd._setRenderTargetCMD.clearFlag = clearflag;
 		return cmd;
 	}
 
+	/**@internal */
+	private _renderTexture: RenderTexture = null;
+
+	/**@internal */
+	_setRenderTargetCMD: SetRenderTargetCMD;
+
+	public get renderTexture(): RenderTexture {
+		return this._renderTexture;
+	}
+	public set renderTexture(value: RenderTexture) {
+		this._renderTexture = value;
+		this._setRenderTargetCMD.rt = value._renderTarget;
+	}
+
+	constructor() {
+		super();
+		this._setRenderTargetCMD = Laya3DRender.Render3DPassFactory.createSetRenderTargetCMD();
+	}
+
 	/**
-	 * @inheritDoc
 	 * @override
+	 * @internal
+	 * @returns 
 	 */
-	run(): void {
-		//如果已经有绑定的帧buffer  需要先解绑
-		(RenderTexture.currentActive) && (RenderTexture.currentActive._end());
-		RenderContext3D._instance.destTarget = this._renderTexture;
-		RenderContext3D._instance.changeScissor(0, 0, this._renderTexture.width, this._renderTexture.height);
-		RenderContext3D._instance.changeViewport(0, 0, this._renderTexture.width, this._renderTexture.height);
-		RenderContext3D._instance._contextOBJ.applyContext(Camera._updateMark);
+	getRenderCMD(): SetRenderTargetCMD {
+		return this._setRenderTargetCMD;
 	}
 
 	/**
@@ -42,7 +71,7 @@ export class SetRenderTargetCMD extends Command {
 	 * @override
 	 */
 	recover(): void {
-		SetRenderTargetCMD._pool.push(this);
+		SetRTCMD._pool.push(this);
 		this._renderTexture = null;
 	}
 }

@@ -1,4 +1,4 @@
-import { Context } from "../../resource/Context"
+import { Context } from "../../renders/Context"
 import { Texture } from "../../resource/Texture"
 import { ColorUtils } from "../../utils/ColorUtils";
 import { Pool } from "../../utils/Pool"

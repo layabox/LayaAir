@@ -1,6 +1,6 @@
+import { ShaderDataType } from "../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { ShaderDefine } from "../../../RenderDriver/RenderModuleData/Design/ShaderDefine";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
-import { ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
-import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";
 import { LayaGL } from "../../../layagl/LayaGL";
 
 /**
@@ -279,7 +279,7 @@ export class ShuriKenParticle3DShaderDeclaration {
 
 
 
-		let uniformMap = LayaGL.renderOBJCreate.createGlobalUniformMap("ShurikenSprite3D");
+		let uniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap("ShurikenSprite3D");
 		//TODO
 		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.WORLDPOSITION, 'u_WorldPosition',ShaderDataType.Vector3),
 		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.WORLDROTATION, 'u_WorldRotation',ShaderDataType.Vector4);

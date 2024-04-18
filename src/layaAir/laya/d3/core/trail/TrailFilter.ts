@@ -4,7 +4,6 @@ import { GeometryElement } from "../GeometryElement";
 import { GradientMode } from "../GradientMode";
 import { BaseRender } from "../render/BaseRender";
 import { RenderContext3D } from "../render/RenderContext3D";
-import { RenderElement } from "../render/RenderElement";
 import { TrailGeometry } from "./TrailGeometry";
 import { TrailMaterial } from "./TrailMaterial";
 import { TrailRenderer } from "./TrailRenderer";
@@ -14,9 +13,10 @@ import { TrailAlignment } from "./TrailAlignment";
 import { TrailTextureMode } from "../TrailTextureMode";
 import { Color } from "../../../maths/Color";
 import { Vector3 } from "../../../maths/Vector3";
-import { ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
 import { Gradient } from "../Gradient";
 import { LayaGL } from "../../../layagl/LayaGL";
+import { RenderElement } from "../render/RenderElement";
+import { ShaderDataType } from "../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 
 
 /**
@@ -37,7 +37,7 @@ export class TrailFilter {
 		TrailFilter.WIDTHCURVE = Shader3D.propertyNameToID("u_WidthCurve");
 		TrailFilter.WIDTHCURVEKEYLENGTH = Shader3D.propertyNameToID("u_WidthCurveKeyLength");
 
-		const spriteParms = LayaGL.renderOBJCreate.createGlobalUniformMap("TrailRender");
+		const spriteParms = LayaGL.renderDeviceFactory.createGlobalUniformMap("TrailRender");
 		spriteParms.addShaderUniform(TrailFilter.CURTIME, "u_CurTime", ShaderDataType.Float);
 		spriteParms.addShaderUniform(TrailFilter.LIFETIME, "u_LifeTime", ShaderDataType.Float);
 		spriteParms.addShaderUniform(TrailFilter.WIDTHCURVE, "u_WidthCurve", ShaderDataType.Buffer);
@@ -84,7 +84,7 @@ export class TrailFilter {
 	 */
 	set time(value: number) {
 		this._time = value;
-		this._ownerRender._shaderValues.setNumber(TrailFilter.LIFETIME, value);
+		this._ownerRender._baseRenderNode.shaderData.setNumber(TrailFilter.LIFETIME, value);
 	}
 
 	/**
@@ -141,8 +141,8 @@ export class TrailFilter {
 			widthCurveFloatArray[index++] = value[i].outTangent;
 			widthCurveFloatArray[index++] = value[i].value;
 		}
-		this._ownerRender._shaderValues.setBuffer(TrailFilter.WIDTHCURVE, widthCurveFloatArray);
-		this._ownerRender._shaderValues.setInt(TrailFilter.WIDTHCURVEKEYLENGTH, value.length);
+		this._ownerRender._baseRenderNode.shaderData.setBuffer(TrailFilter.WIDTHCURVE, widthCurveFloatArray);
+		this._ownerRender._baseRenderNode.shaderData.setInt(TrailFilter.WIDTHCURVEKEYLENGTH, value.length);
 	}
 
 	/**
@@ -198,6 +198,7 @@ export class TrailFilter {
 		element.setTransform((this._ownerRender.owner as Sprite3D)._transform);
 		element.render = render;
 		element.material = material;
+		//element.renderSubShader = element.material.shader.getSubShaderAt(0);
 		this._trialGeometry = new TrailGeometry(this);
 		element.setGeometry(this._trialGeometry);
 		elements.push(element);
@@ -213,7 +214,7 @@ export class TrailFilter {
 			return;
 		this._curtime += scene.timer._delta / 1000;
 		//设置颜色
-		render._shaderValues.setNumber(TrailFilter.CURTIME, this._curtime);
+		render._baseRenderNode.shaderData.setNumber(TrailFilter.CURTIME, this._curtime);
 		//现在的位置记录
 		var curPos: Vector3 = (this._ownerRender.owner as Sprite3D).transform.position;
 		var element: TrailGeometry = (<TrailGeometry>render._renderElements[0]._geometry);

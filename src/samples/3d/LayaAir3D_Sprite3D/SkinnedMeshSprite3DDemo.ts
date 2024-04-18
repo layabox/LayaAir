@@ -1,6 +1,5 @@
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
-import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { Stage } from "laya/display/Stage";
@@ -9,8 +8,8 @@ import { Vector3 } from "laya/maths/Vector3";
 import { Loader } from "laya/net/Loader";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
+import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
 
 export class SkinnedMeshSprite3DDemo {
 	private scene: Scene3D;
@@ -22,7 +21,6 @@ export class SkinnedMeshSprite3DDemo {
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
 			//显示性能面板
 			Stat.show();
-
 			//创建场景
 			this.scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 
@@ -33,9 +31,11 @@ export class SkinnedMeshSprite3DDemo {
 			camera.addComponent(CameraMoveScript);
 
 			//添加光照
-			var directionLight: DirectionLight = (<DirectionLight>this.scene.addChild(new DirectionLight()));
-			directionLight.color = new Color(1, 1, 1, 1);
-			directionLight.transform.rotate(new Vector3(-3.14 / 3, 0, 0));
+			let directlightSprite = new Sprite3D();
+			let dircom = directlightSprite.addComponent(DirectionLightCom);
+			this.scene.addChild(directlightSprite);
+			dircom.color = new Color(1, 1, 1, 1);
+			directlightSprite.transform.rotate(new Vector3(-3.14 / 3, 0, 0));
 
 			//预加载资源
 			Laya.loader.load("res/threeDimen/skinModel/dude/dude.lh", Handler.create(this, this.onComplete));

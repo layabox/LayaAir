@@ -1,5 +1,5 @@
 import { Rectangle } from "../../maths/Rectangle";
-import { Context } from "../../resource/Context";
+import { Context } from "../../renders/Context";
 import { ClassUtils } from "../../utils/ClassUtils";
 import { Pool } from "../../utils/Pool";
 

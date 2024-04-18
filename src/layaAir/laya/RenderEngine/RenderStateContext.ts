@@ -1,44 +1,43 @@
+import { WebGLEngine } from "../RenderDriver/WebGLDriver/RenderDevice/WebGLEngine";
 import { BlendEquationSeparate } from "../RenderEngine/RenderEnum/BlendEquationSeparate";
 import { BlendFactor } from "../RenderEngine/RenderEnum/BlendFactor";
 import { CompareFunction } from "../RenderEngine/RenderEnum/CompareFunction";
 import { StencilOperation } from "../RenderEngine/RenderEnum/StencilOperation";
-import { RenderStateCommand } from "../RenderEngine/RenderStateCommand";
 import { LayaGL } from "../layagl/LayaGL";
-import { WebGLEngine } from "./RenderEngine/WebGLEngine/WebGLEngine";
 /**
  * @private
  */
 export class RenderStateContext {
     /**@internal */
     static mainContext: any;
-    /**@internal */
-    static DepthTestCMD: RenderStateCommand;
-    /**@internal */
-    static DepthMaskCMD: RenderStateCommand;
-    /**@internal */
-    static DepthFuncCMD: RenderStateCommand;
-    /**@internal */
-    static StencilTestCMD: RenderStateCommand;
-    /**@internal */
-    static StencilMaskCMD: RenderStateCommand;
-    /**@internal */
-    static StencilFuncCMD: RenderStateCommand;
-    /**@internal */
-    static stencilOpCMD: RenderStateCommand;
-    /**@internal */
-    static BlendCMD: RenderStateCommand;
-    /**@internal */
-    static BlendEquationCMD: RenderStateCommand;
-    /**@internal */
-    static BlendEquationSeparateCMD: RenderStateCommand;
-    /**@internal */
-    static BlendFuncCMD: RenderStateCommand;
-    /**@internal */
-    static BlendFuncSeperateCMD: RenderStateCommand;
-    /**@internal */
-    static CullFaceCMD: RenderStateCommand;
-    /**@internal */
-    static FrontFaceCMD: RenderStateCommand;
+    // /**@internal */
+    // static DepthTestCMD: RenderStateCommand;
+    // /**@internal */
+    // static DepthMaskCMD: RenderStateCommand;
+    // /**@internal */
+    // static DepthFuncCMD: RenderStateCommand;
+    // /**@internal */
+    // static StencilTestCMD: RenderStateCommand;
+    // /**@internal */
+    // static StencilMaskCMD: RenderStateCommand;
+    // /**@internal */
+    // static StencilFuncCMD: RenderStateCommand;
+    // /**@internal */
+    // static stencilOpCMD: RenderStateCommand;
+    // /**@internal */
+    // static BlendCMD: RenderStateCommand;
+    // /**@internal */
+    // static BlendEquationCMD: RenderStateCommand;
+    // /**@internal */
+    // static BlendEquationSeparateCMD: RenderStateCommand;
+    // /**@internal */
+    // static BlendFuncCMD: RenderStateCommand;
+    // /**@internal */
+    // static BlendFuncSeperateCMD: RenderStateCommand;
+    // /**@internal */
+    // static CullFaceCMD: RenderStateCommand;
+    // /**@internal */
+    // static FrontFaceCMD: RenderStateCommand;
     /**@internal */
     static stencilFuncArray = new Array<number>(2);
     /**@internal */
@@ -54,20 +53,20 @@ export class RenderStateContext {
      * @internal
      */
     static __init__() {
-        RenderStateContext.DepthTestCMD = LayaGL.renderEngine.createRenderStateComand();
-        RenderStateContext.DepthMaskCMD = LayaGL.renderEngine.createRenderStateComand();
-        RenderStateContext.DepthFuncCMD = LayaGL.renderEngine.createRenderStateComand();
-        RenderStateContext.StencilTestCMD = LayaGL.renderEngine.createRenderStateComand();
-        RenderStateContext.StencilMaskCMD = LayaGL.renderEngine.createRenderStateComand();
-        RenderStateContext.StencilFuncCMD = LayaGL.renderEngine.createRenderStateComand();
-        RenderStateContext.stencilOpCMD = LayaGL.renderEngine.createRenderStateComand();
-        RenderStateContext.BlendCMD = LayaGL.renderEngine.createRenderStateComand();
-        RenderStateContext.BlendEquationCMD = LayaGL.renderEngine.createRenderStateComand();
-        RenderStateContext.BlendEquationSeparateCMD = LayaGL.renderEngine.createRenderStateComand();
-        RenderStateContext.BlendFuncCMD = LayaGL.renderEngine.createRenderStateComand();
-        RenderStateContext.BlendFuncSeperateCMD = LayaGL.renderEngine.createRenderStateComand();
-        RenderStateContext.CullFaceCMD = LayaGL.renderEngine.createRenderStateComand();
-        RenderStateContext.FrontFaceCMD = LayaGL.renderEngine.createRenderStateComand();
+        // RenderStateContext.DepthTestCMD = LayaGL.renderEngine.createRenderStateComand();
+        // RenderStateContext.DepthMaskCMD = LayaGL.renderEngine.createRenderStateComand();
+        // RenderStateContext.DepthFuncCMD = LayaGL.renderEngine.createRenderStateComand();
+        // RenderStateContext.StencilTestCMD = LayaGL.renderEngine.createRenderStateComand();
+        // RenderStateContext.StencilMaskCMD = LayaGL.renderEngine.createRenderStateComand();
+        // RenderStateContext.StencilFuncCMD = LayaGL.renderEngine.createRenderStateComand();
+        // RenderStateContext.stencilOpCMD = LayaGL.renderEngine.createRenderStateComand();
+        // RenderStateContext.BlendCMD = LayaGL.renderEngine.createRenderStateComand();
+        // RenderStateContext.BlendEquationCMD = LayaGL.renderEngine.createRenderStateComand();
+        // RenderStateContext.BlendEquationSeparateCMD = LayaGL.renderEngine.createRenderStateComand();
+        // RenderStateContext.BlendFuncCMD = LayaGL.renderEngine.createRenderStateComand();
+        // RenderStateContext.BlendFuncSeperateCMD = LayaGL.renderEngine.createRenderStateComand();
+        // RenderStateContext.CullFaceCMD = LayaGL.renderEngine.createRenderStateComand();
+        // RenderStateContext.FrontFaceCMD = LayaGL.renderEngine.createRenderStateComand();
     }
     /**
      * @internal

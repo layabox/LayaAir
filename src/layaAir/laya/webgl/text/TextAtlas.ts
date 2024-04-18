@@ -13,7 +13,7 @@ export class TextAtlas {
     private atlasgrid: AtlasGrid;
     //private protectDist: number = 1;
     texture: TextTexture|null = null;
-    charMaps: any = {};		// 保存文字信息的字典
+    charMaps: {[key:string]:CharRenderInfo} = {};		// 保存文字信息的字典
     static atlasGridW: number = 16;
 
     constructor() {

@@ -4,13 +4,13 @@ import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Stage } from "laya/display/Stage";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { ChinarMirrorPlane } from "../common/ChinarMirrorPlane";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { UnlitMaterial } from "laya/d3/core/material/UnlitMaterial";
 import { VideoTexture } from "laya/media/VideoTexture";
 import { Event } from "laya/events/Event";
+import { MeshRenderer } from "laya/d3/core/MeshRenderer";
 
 export class VideoPlayIn3DWorld {
     private videoPlane: MeshSprite3D;
@@ -51,7 +51,7 @@ export class VideoPlayIn3DWorld {
     
             let mat = new UnlitMaterial();
             mat.albedoTexture = videoTexture;
-            this.videoPlane.meshRenderer.sharedMaterial = mat;
+            this.videoPlane.getComponent(MeshRenderer).sharedMaterial = mat;
             this.isoneVideo = true;
         }
         

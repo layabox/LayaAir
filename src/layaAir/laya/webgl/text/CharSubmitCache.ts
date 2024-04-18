@@ -1,11 +1,11 @@
 import { ColorFilter } from "../../filters/ColorFilter"
 import { Matrix } from "../../maths/Matrix"
-import { Context } from "../../resource/Context"
+import { Context } from "../../renders/Context"
 import { Texture } from "../../resource/Texture"
 import { RenderSpriteData, Value2D } from "../shader/d2/value/Value2D"
-import { SubmitTexture } from "../submit/SubmitTexture"
 import { MeshQuadTexture } from "../utils/MeshQuadTexture"
 import { RenderInfo } from "../../renders/RenderInfo";
+import { SubmitBase } from "../submit/SubmitBase"
 /**
  * ...
  * @author laoxie
@@ -75,31 +75,29 @@ export class CharSubmitCache {
     }
 
     submit(ctx: Context): void {
-        var n: number = this._ndata;
+        var n = this._ndata;
         if (!n)
             return;
 
-        var _mesh: MeshQuadTexture = ctx._mesh;
+        var _mesh: MeshQuadTexture = (ctx as any)._mesh;
 
         var colorFiler: ColorFilter = ctx._colorFiler;
         ctx._colorFiler = this._colorFiler;
-        var submit: SubmitTexture = SubmitTexture.create(ctx, _mesh, Value2D.create(RenderSpriteData.Texture2D));
-        ctx._submits[ctx._submits._length++] = ctx._curSubmit = submit;
+        var submit: SubmitBase = SubmitBase.create(ctx, _mesh, Value2D.create(RenderSpriteData.Texture2D));
+        //ctx._submits[ctx._submits._length++] = ctx._curSubmit = submit;
         submit.shaderValue.textureHost = this._tex;
         submit._key.other = this._imgId;
         ctx._colorFiler = colorFiler;
-        ctx._copyClipInfo(submit, this._clipMatrix);
+        //ctx._copyClipInfo(submit.shaderValue, this._clipMatrix);      TODO
         submit.clipInfoID = this._clipid;
 
-        for (var i: number = 0; i < n; i += 3) {
+        for (var i = 0; i < n; i += 3) {
             _mesh.addQuad(this._data[i], this._data[i + 1], this._data[i + 2], true);
             CharSubmitCache.__posPool[CharSubmitCache.__nPosPool++] = this._data[i];
         }
 
         n /= 3;
         submit._numEle += n * 6;
-        _mesh.indexNum += n * 6;
-        _mesh.vertNum += n * 4;
         ctx._drawCount += n;
         this._ndata = 0;
 

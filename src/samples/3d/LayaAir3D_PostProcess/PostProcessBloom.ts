@@ -9,26 +9,23 @@ import { Button } from "laya/ui/Button";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
 import Client from "../../Client";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { BloomEffect } from "laya/d3/core/render/PostEffect/BloomEffect"
 import { Color } from "laya/maths/Color";
-import { URL } from "laya/net/URL";
 
 export class PostProcessBloom {
 	camera: Camera = null;
 
 	/**实例类型*/
-	private btype:any = "PostProcessBloom";
+	private btype: any = "PostProcessBloom";
 	/**场景内按钮类型*/
-	private stype:any = 0;
-	private button:Button;
+	private stype: any = 0;
+	private button: Button;
 	/**
 	 *@private
 	 */
 	constructor() {
-		
 		//初始化引擎
 		Laya.init(0, 0).then(() => {
 			Stat.show();
@@ -84,17 +81,17 @@ export class PostProcessBloom {
 		}));
 	}
 
-	stypeFun0(label:string = "关闭HDR"): void {
+	stypeFun0(label: string = "关闭HDR"): void {
 		var enableHDR: boolean = this.camera.enableHDR;
 		if (enableHDR) {
 			this.button.label = "开启HDR";
-		} else{
+		} else {
 			this.button.label = "关闭HDR";
 		}
 		this.camera.enableHDR = !enableHDR;
 
 		label = this.button.label;
-		Client.instance.send({type:"next",btype:this.btype,stype:0,value:label});
-	}	
+		Client.instance.send({ type: "next", btype: this.btype, stype: 0, value: label });
+	}
 }
 

@@ -2,11 +2,7 @@ import { Config } from "../../Config";
 import { Config3D } from "../../Config3D";
 import { ILaya } from "../../ILaya";
 import { BufferUsage } from "../RenderEngine/RenderEnum/BufferTargetType";
-import { DefineDatas } from "../RenderEngine/RenderShader/DefineDatas";
-import { RenderState } from "../RenderEngine/RenderShader/RenderState";
 import { Shader3D } from "../RenderEngine/RenderShader/Shader3D";
-import { ShaderData, ShaderDataType, ShaderDataItem, ShaderDataDefaultValue } from "../RenderEngine/RenderShader/ShaderData";
-import { ShaderDefine } from "../RenderEngine/RenderShader/ShaderDefine";
 import { UniformBufferObject } from "../RenderEngine/UniformBufferObject";
 import { LayaGL } from "../layagl/LayaGL";
 import { Color } from "../maths/Color";
@@ -21,6 +17,11 @@ import { IClone } from "../utils/IClone";
 import { BaseTexture } from "./BaseTexture";
 import { Resource } from "./Resource";
 import { Event } from "../events/Event";
+import { ShaderDefine } from "../RenderDriver/RenderModuleData/Design/ShaderDefine";
+import { ShaderData, ShaderDataDefaultValue, ShaderDataItem, ShaderDataType } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { RenderState } from "../RenderDriver/RenderModuleData/Design/RenderState";
+import { IDefineDatas } from "../RenderDriver/RenderModuleData/Design/IDefineDatas";
+
 
 
 export enum MaterialRenderMode {
@@ -378,7 +379,10 @@ export class Material extends Resource implements IClone {
      * 获得材质宏
      */
     get MaterialDefine(): Array<string> {
-        return Shader3D._getNamesByDefineData(this._shaderValues._defineDatas);
+        let shaderDefineArray = new Array<string>();
+        let defineData = this._shaderValues.getDefineData();
+        Shader3D._getNamesByDefineData(defineData, shaderDefineArray);
+        return shaderDefineArray;
     }
 
     /**
@@ -456,7 +460,7 @@ export class Material extends Resource implements IClone {
      */
     constructor() {
         super();
-        this._shaderValues = LayaGL.renderOBJCreate.createShaderData(this);
+        this._shaderValues = LayaGL.renderDeviceFactory.createShaderData(this);
         this.renderQueue = Material.RENDERQUEUE_OPAQUE;
         this._matRenderNode = 0;
         this.alphaTest = false;
@@ -508,16 +512,7 @@ export class Material extends Resource implements IClone {
      * @returns 
      */
     private _releaseUBOData() {
-        if (!this._shaderValues.uniformBufferDatas) {
-            return;
-        }
-        for (let value of this._shaderValues.uniformBufferDatas.values()) {
-            value.ubo._updateDataInfo.destroy();
-            value.ubo.destroy();
-            value.ubo._updateDataInfo = null;
-        }
-        this._shaderValues.uniformBufferDatas.clear();
-        this._shaderValues.uniformBuffersMap.clear();
+        this._shaderValues._releaseUBOData();
     }
 
     /**
@@ -940,14 +935,11 @@ export class Material extends Resource implements IClone {
     setTextureByIndex(uniformIndex: number, texture: BaseTexture) {
         this.shaderData.setTexture(uniformIndex, texture);
         if (texture && !texture._texture)//贴图为加载完，需要重设
-            texture.once(Event.READY, this, this.reSetTexture);
+            texture.once(Event.READY, this, this.reSetTexture, [uniformIndex, texture]);
     }
 
-    private reSetTexture(texture: BaseTexture) {
-        let index = this.shaderData.getSourceIndex(texture);
-        if (index != -1) {
-            this.setTextureByIndex(index, texture);
-        }
+    private reSetTexture(uniformIndex: number, texture: BaseTexture) {
+        this.setTextureByIndex(uniformIndex, texture);
     }
 
     /**
@@ -1082,32 +1074,9 @@ export class Material extends Resource implements IClone {
     }
 
     //--------------------------------------------兼容-------------------------------------------------
-    /**
-     * 设置属性值
-     * @deprecated
-     * @param name 属性名 
-     * @param value 数值
-     */
-    setShaderPropertyValue(name: string, value: any) {
-        let propertyID = Shader3D.propertyNameToID(name);
-        this.shaderData.setValueData(propertyID, value);
-    }
 
-    /**
-     * 获取属性值
-     * @deprecated
-     * @param name 属性名
-     */
-    getShaderPropertyValue(name: string): any {
-        return this.shaderData.getValueData(Shader3D.propertyNameToID(name));
-    }
-
-    /**
-     * 获取宏数据
-     * @internal
-     */
-    get _defineDatas(): DefineDatas {
-        return this._shaderValues._defineDatas;
+    get _defineDatas(): IDefineDatas {
+        return this._shaderValues.getDefineData();
     }
 
     /**

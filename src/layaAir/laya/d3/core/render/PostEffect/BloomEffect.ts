@@ -13,7 +13,6 @@ import ColorsGLSL from "../../../shader/files/postProcess/Colors.glsl";
 import { FilterMode } from "../../../../RenderEngine/RenderEnum/FilterMode";
 import { RenderTargetFormat } from "../../../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
-import { ShaderDataType, ShaderData } from "../../../../RenderEngine/RenderShader/ShaderData";
 import { Texture2D } from "../../../../resource/Texture2D";
 import { PostProcess } from "../../../component/PostProcess";
 import { Viewport } from "../../../math/Viewport";
@@ -24,7 +23,8 @@ import { BaseTexture } from "../../../../resource/BaseTexture";
 import { Color } from "../../../../maths/Color";
 import { Vector4 } from "../../../../maths/Vector4";
 import { RenderTexture } from "../../../../resource/RenderTexture";
-import { RenderState } from "../../../../RenderEngine/RenderShader/RenderState";
+import { RenderState } from "../../../../RenderDriver/RenderModuleData/Design/RenderState";
+import { ShaderDataType, ShaderData } from "../../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { SubShader } from "../../../../RenderEngine/RenderShader/SubShader";
 import { VertexMesh } from "../../../../RenderEngine/RenderShader/VertexMesh";
 import { LayaGL } from "../../../../layagl/LayaGL";
@@ -157,8 +157,9 @@ export class BloomEffect extends PostProcessEffect {
 			'u_Bloom_DirtTex': ShaderDataType.Texture2D,
 			'u_BloomTex_TexelSize': ShaderDataType.Vector4,
 			'u_Bloom_DirtTileOffset': ShaderDataType.Vector4,
-			'u_Bloom_Settings': ShaderDataType.Vector3,
-			'u_Bloom_Color': ShaderDataType.Vector3,
+			'u_Bloom_Settings': ShaderDataType.Vector4,
+			'u_Bloom_Color': ShaderDataType.Color,
+			
 		};
 		let shader = Shader3D.add("PostProcessComposite");
 
@@ -187,7 +188,7 @@ export class BloomEffect extends PostProcessEffect {
 	/**@internal */
 	private _shader: Shader3D = null;
 	/**@internal */
-	private _shaderData: ShaderData = LayaGL.renderOBJCreate.createShaderData(null);
+	private _shaderData: ShaderData = LayaGL.renderDeviceFactory.createShaderData(null);
 	/**@internal */
 	private _linearColor: Color = new Color();
 	/**@internal */
@@ -521,7 +522,7 @@ export class BloomEffect extends PostProcessEffect {
 
 		compositeShaderData.setVector(PostProcess.SHADERVALUE_BLOOM_DIRTTILEOFFSET, dirtTileOffset);
 		compositeShaderData.setVector(PostProcess.SHADERVALUE_BLOOM_SETTINGS, shaderSettings);
-		compositeShaderData.setVector(PostProcess.SHADERVALUE_BLOOM_COLOR, new Vector4(linearColor.r, linearColor.g, linearColor.b, linearColor.a));//TODO:需要Color支持
+		compositeShaderData.setColor(PostProcess.SHADERVALUE_BLOOM_COLOR, linearColor);//TODO:需要Color支持
 		compositeShaderData.setTexture(PostProcess.SHADERVALUE_BLOOM_DIRTTEX, usedirtTexture);
 		compositeShaderData.setTexture(PostProcess.SHADERVALUE_BLOOMTEX, lastUpTexture);
 		compositeShaderData.setVector(PostProcess.SHADERVALUE_BLOOMTEX_TEXELSIZE, this._bloomTextureTexelSize);

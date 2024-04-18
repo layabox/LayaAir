@@ -1,33 +1,17 @@
 import { Plane } from "../math/Plane";
-import { ICameraCullInfo } from "../../RenderEngine/RenderInterface/RenderPipelineInterface/ICameraCullInfo";
-import { IShadowCullInfo } from "../../RenderEngine/RenderInterface/RenderPipelineInterface/IShadowCullInfo";
 import { Bounds } from "../math/Bounds";
-import { ContainmentType } from "../math/ContainmentType";
-import { CollisionUtils } from "../math/CollisionUtils";
 import { Vector3 } from "../../maths/Vector3";
-import { Laya3DRender } from "../RenderObjs/Laya3DRender";
 
 /**
  * @internal
  * <code>FrustumCulling</code> 类用于裁剪。
  */
 export class FrustumCulling {
-	/**@internal */
-	static _cameraCullInfo: ICameraCullInfo;
-	/**@internal */
-	static _shadowCullInfo: IShadowCullInfo;
+
 	/**@internal */
 	private static _tempV30: Vector3 = new Vector3();
 	/**@internal */
 	private static _tempV31: Vector3 = new Vector3();
-
-	/**
-	 * @internal
-	 */
-	static __init__(): void {
-		FrustumCulling._cameraCullInfo = Laya3DRender.renderOBJCreate.createCameraCullInfo();
-		FrustumCulling._shadowCullInfo = Laya3DRender.renderOBJCreate.createShadowCullInfo();
-	}
 
 	// /**
 	//  * @internal
@@ -51,7 +35,7 @@ export class FrustumCulling {
 	 * @param cullInfo 
 	 * @returns 
 	 */
-	static cullingRenderBounds(bounds: Bounds, cullInfo: IShadowCullInfo): boolean {
+	static cullingRenderBounds(bounds: Bounds, cullInfo: any): boolean {
 		var cullPlaneCount: number = cullInfo.cullPlaneCount;
 		var cullPlanes: Plane[] = cullInfo.cullPlanes;
 
@@ -79,51 +63,51 @@ export class FrustumCulling {
 		return pass;
 	}
 
-	/**
-	 * caculate Bounds by ShadowCullInfo
-	 * @param bounds 
-	 * @param cullInfo 
-	 * @returns 
-	 */
-	static cullingRenderBoundsState(bounds: Bounds, cullInfo: IShadowCullInfo): ContainmentType {
-		var p: Vector3 = FrustumCulling._tempV30, n: Vector3 = FrustumCulling._tempV31;
-		var boxMin: Vector3 = bounds.min;
-		var boxMax: Vector3 = bounds.max;
-		var result: number = ContainmentType.Contains;
-		for (var i = 0, nn = cullInfo.cullPlaneCount; i < nn; i++) {
-			var plane: Plane = cullInfo.cullPlanes[i];
-			var planeNor: Vector3 = plane.normal;
+	// /**
+	//  * caculate Bounds by ShadowCullInfo
+	//  * @param bounds 
+	//  * @param cullInfo 
+	//  * @returns 
+	//  */
+	// static cullingRenderBoundsState(bounds: Bounds, cullInfo: ShadowCullInfo): ContainmentType {
+	// 	var p: Vector3 = FrustumCulling._tempV30, n: Vector3 = FrustumCulling._tempV31;
+	// 	var boxMin: Vector3 = bounds.min;
+	// 	var boxMax: Vector3 = bounds.max;
+	// 	var result: number = ContainmentType.Contains;
+	// 	for (var i = 0, nn = cullInfo.cullPlaneCount; i < nn; i++) {
+	// 		var plane: Plane = cullInfo.cullPlanes[i];
+	// 		var planeNor: Vector3 = plane.normal;
 
-			if (planeNor.x >= 0) {
-				p.x = boxMax.x;
-				n.x = boxMin.x;
-			} else {
-				p.x = boxMin.x;
-				n.x = boxMax.x;
-			}
-			if (planeNor.y >= 0) {
-				p.y = boxMax.y;
-				n.y = boxMin.y;
-			} else {
-				p.y = boxMin.y;
-				n.y = boxMax.y;
-			}
-			if (planeNor.z >= 0) {
-				p.z = boxMax.z;
-				n.z = boxMin.z;
-			} else {
-				p.z = boxMin.z;
-				n.z = boxMax.z;
-			}
+	// 		if (planeNor.x >= 0) {
+	// 			p.x = boxMax.x;
+	// 			n.x = boxMin.x;
+	// 		} else {
+	// 			p.x = boxMin.x;
+	// 			n.x = boxMax.x;
+	// 		}
+	// 		if (planeNor.y >= 0) {
+	// 			p.y = boxMax.y;
+	// 			n.y = boxMin.y;
+	// 		} else {
+	// 			p.y = boxMin.y;
+	// 			n.y = boxMax.y;
+	// 		}
+	// 		if (planeNor.z >= 0) {
+	// 			p.z = boxMax.z;
+	// 			n.z = boxMin.z;
+	// 		} else {
+	// 			p.z = boxMin.z;
+	// 			n.z = boxMax.z;
+	// 		}
 
-			if (CollisionUtils.intersectsPlaneAndPoint(plane, p) === Plane.PlaneIntersectionType_Back)
-				return ContainmentType.Disjoint;
+	// 		if (CollisionUtils.intersectsPlaneAndPoint(plane, p) === Plane.PlaneIntersectionType_Back)
+	// 			return ContainmentType.Disjoint;
 
-			if (CollisionUtils.intersectsPlaneAndPoint(plane, n) === Plane.PlaneIntersectionType_Back)
-				result = ContainmentType.Intersects;
-		}
-		return result;
-	}
+	// 		if (CollisionUtils.intersectsPlaneAndPoint(plane, n) === Plane.PlaneIntersectionType_Back)
+	// 			result = ContainmentType.Intersects;
+	// 	}
+	// 	return result;
+	// }
 
 
 }

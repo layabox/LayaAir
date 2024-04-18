@@ -2,9 +2,11 @@ import { Node } from "../../display/Node";
 import { Sprite3D } from "./Sprite3D";
 import { BaseRender } from "./render/BaseRender";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
-import { ShaderDefine } from "../../RenderEngine/RenderShader/ShaderDefine";
-import { ShaderDataType } from "../../RenderEngine/RenderShader/ShaderData";
+
 import { LayaGL } from "../../layagl/LayaGL";
+import { ShaderDefine } from "../../RenderDriver/RenderModuleData/Design/ShaderDefine";
+import { ShaderDataType } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
+
 
 /**
  * @deprecated
@@ -157,7 +159,7 @@ export class RenderableSprite3D extends Sprite3D {
 		RenderableSprite3D.IBLTEX = Shader3D.propertyNameToID("u_IBLTex");
 		RenderableSprite3D.IBLROUGHNESSLEVEL = Shader3D.propertyNameToID("u_IBLRoughnessLevel");
 
-		const commandUniform = LayaGL.renderOBJCreate.createGlobalUniformMap("Sprite3D");
+		const commandUniform = LayaGL.renderDeviceFactory.createGlobalUniformMap("Sprite3D");
 
 		/// morph target
 

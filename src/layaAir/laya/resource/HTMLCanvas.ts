@@ -1,6 +1,6 @@
 import { Texture } from "./Texture";
 import { Texture2D } from "./Texture2D";
-import { Context } from "./Context";
+import { Context } from "../renders/Context";
 import { Browser } from "../utils/Browser";
 import { RenderTexture2D } from "./RenderTexture2D";
 import { Resource } from "./Resource";

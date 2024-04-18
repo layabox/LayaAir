@@ -2,22 +2,23 @@ import { Node } from "../../display/Node";
 import { Event } from "../../events/Event";
 import { Loader } from "../../net/Loader";
 import { Config3D } from "../../../Config3D";
-import { IRenderEngine } from "../../RenderEngine/RenderInterface/IRenderEngine";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
-import { ShaderData, ShaderDataType } from "../../RenderEngine/RenderShader/ShaderData";
-import { ShaderDefine } from "../../RenderEngine/RenderShader/ShaderDefine";
 import { UniformBufferParamsType, UnifromBufferData } from "../../RenderEngine/UniformBufferData";
 import { Scene3D } from "./scene/Scene3D";
-import { Sprite3D, StaticFlag } from "./Sprite3D";
+import { Sprite3D } from "./Sprite3D";
 import { UniformBufferObject } from "../../RenderEngine/UniformBufferObject";
 import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
-import { CommandUniformMap } from "../../RenderEngine/CommandUniformMap";
 import { ILaya } from "../../../ILaya";
 import { Color } from "../../maths/Color";
 import { Matrix4x4 } from "../../maths/Matrix4x4";
 import { Vector3 } from "../../maths/Vector3";
 import { SkyRenderer } from "../resource/models/SkyRenderer";
 import { LayaGL } from "../../layagl/LayaGL";
+import { ShaderDataType, ShaderData } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { ShaderDefine } from "../../RenderDriver/RenderModuleData/Design/ShaderDefine";
+import { IRenderEngine } from "../../RenderDriver/DriverDesign/RenderDevice/IRenderEngine";
+import { CommandUniformMap } from "../../RenderDriver/DriverDesign/RenderDevice/CommandUniformMap";
+import { SkyRenderElement } from "./render/SkyRenderElement";
 
 /**
  * <code>BaseCamera</code> 类用于创建摄像机的父类。
@@ -88,7 +89,7 @@ export class BaseCamera extends Sprite3D {
         BaseCamera.SHADERDEFINE_DEPTHNORMALS = Shader3D.getDefineByName("DEPTHNORMALSMAP");
         BaseCamera.SHADERDEFINE_ORTHOGRAPHIC = Shader3D.getDefineByName("CAMERAORTHOGRAPHIC");
         BaseCamera.SHADERDEFINE_FXAA = Shader3D.getDefineByName("FXAA");
-        let camerauniformMap = BaseCamera.cameraUniformMap = LayaGL.renderOBJCreate.createGlobalUniformMap("BaseCamera");
+        let camerauniformMap = BaseCamera.cameraUniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap("BaseCamera");
 
         BaseCamera.CAMERAPOS = Shader3D.propertyNameToID("u_CameraPos");
         BaseCamera.VIEWMATRIX = Shader3D.propertyNameToID("u_View");
@@ -152,7 +153,7 @@ export class BaseCamera extends Sprite3D {
             camerauniformMap.addShaderUniform(BaseCamera.CAMERAPOS, "u_CameraPos", ShaderDataType.Vector3);
             camerauniformMap.addShaderUniform(BaseCamera.VIEWMATRIX, "u_View", ShaderDataType.Matrix4x4);
             camerauniformMap.addShaderUniform(BaseCamera.PROJECTMATRIX, "u_Projection", ShaderDataType.Matrix4x4);
-            camerauniformMap.addShaderUniform(BaseCamera.VIEWPROJECTMATRIX, "u_ViewProjection", ShaderDataType.Vector4);
+            camerauniformMap.addShaderUniform(BaseCamera.VIEWPROJECTMATRIX, "u_ViewProjection", ShaderDataType.Matrix4x4);
             camerauniformMap.addShaderUniform(BaseCamera.CAMERADIRECTION, "u_CameraDirection", ShaderDataType.Vector3);
             camerauniformMap.addShaderUniform(BaseCamera.CAMERAUP, "u_CameraUp", ShaderDataType.Vector3);
             camerauniformMap.addShaderUniform(BaseCamera.VIEWPORT, "u_Viewport", ShaderDataType.Vector4);
@@ -213,11 +214,12 @@ export class BaseCamera extends Sprite3D {
     /**@internal 相机最远处的开合高度*/
     private _yrange: number;
     /** 视野。*/
-    private _fieldOfView: number;
+    protected _fieldOfView: number;
     /** 正交投影的垂直尺寸。*/
     private _orthographicVerticalSize: number;
-    /** skyRender */
-    private _skyRenderer: SkyRenderer = new SkyRenderer();
+
+    private _skyRenderElement: SkyRenderElement;
+
     /** 前向量*/
     _forward: Vector3 = new Vector3();
     /** up向量 */
@@ -256,8 +258,8 @@ export class BaseCamera extends Sprite3D {
     /**
      * 天空渲染器。
      */
-    get skyRenderer(): SkyRenderer {
-        return this._skyRenderer;
+    get skyRenderElement(): SkyRenderElement {
+        return this._skyRenderElement;
     }
 
     /**
@@ -290,7 +292,6 @@ export class BaseCamera extends Sprite3D {
     set nearPlane(value: number) {
         this._nearPlane = value;
         this._calculateProjectionMatrix();
-
     }
 
     /**
@@ -362,7 +363,7 @@ export class BaseCamera extends Sprite3D {
      */
     constructor(nearPlane: number = 0.3, farPlane: number = 1000) {
         super();
-        this._shaderValues = LayaGL.renderOBJCreate.createShaderData(null);
+        this._shaderValues = LayaGL.renderDeviceFactory.createShaderData(null);
 
         this._linearClearColor = new Color();
         this.clearColor = new Color(100 / 255, 149 / 255, 237 / 255, 255 / 255);
@@ -391,6 +392,8 @@ export class BaseCamera extends Sprite3D {
             this._shaderValues._addCheckUBO(UniformBufferObject.UBONAME_CAMERA, this._cameraUniformUBO, this._cameraUniformData);
             this._shaderValues.setUniformBuffer(BaseCamera.CAMERAUNIFORMBLOCK, this._cameraUniformUBO);
         }
+
+        this._skyRenderElement = new SkyRenderElement();
     }
 
     private _caculateMaxLocalYRange() {
@@ -471,7 +474,7 @@ export class BaseCamera extends Sprite3D {
      * @param	shader 着色器。
      * @param   replacementTag 着色器替换标记。
      */
-    render(shader: Shader3D = null, replacementTag: string = null): void {
+    render(scene: Scene3D): void {
     }
 
     /**
@@ -546,10 +549,6 @@ export class BaseCamera extends Sprite3D {
 
         var color: any[] = data.clearColor;
         this.clearColor = new Color(color[0], color[1], color[2], color[3]);
-        var skyboxMaterial: any = data.skyboxMaterial;
-        if (skyboxMaterial) {
-            this._skyRenderer.material = Loader.getRes(skyboxMaterial.path);
-        }
     }
 
     /**
@@ -561,8 +560,8 @@ export class BaseCamera extends Sprite3D {
     destroy(destroyChild: boolean = true): void {
         //postProcess = null;
         //AmbientLight = null;
-        this._skyRenderer.destroy();
-        this._skyRenderer = null;
+        this._skyRenderElement.destroy();
+        this._skyRenderElement = null;
 
         ILaya.stage.off(Event.RESIZE, this, this._onScreenSizeChanged);
         super.destroy(destroyChild);

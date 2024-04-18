@@ -9,6 +9,7 @@ import { Quaternion } from "../../maths/Quaternion";
 import { EColliderCapable } from "../../Physics3D/physicsEnum/EColliderCapable";
 import { EPhysicsCapable } from "../../Physics3D/physicsEnum/EPhycisCapable";
 import { Event } from "../../events/Event";
+import { Stat } from "../../utils/Stat";
 
 /**
  * <code>Rigidbody3D</code> 类用于创建刚体碰撞器。

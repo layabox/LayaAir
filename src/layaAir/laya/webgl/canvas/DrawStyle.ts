@@ -8,9 +8,9 @@ export class DrawStyle {
 
     _color: ColorUtils;
 
-    static create(value: any): DrawStyle {
+    static create(value: ColorUtils|string): DrawStyle {
         if (value) {
-            var color: ColorUtils = (value instanceof ColorUtils) ? ((<ColorUtils>value)) : ColorUtils.create(value);
+            var color = (value instanceof ColorUtils) ? value : ColorUtils.create(value);
             return color._drawStyle || (color._drawStyle = new DrawStyle(value));
         }
         return DrawStyle.DEFAULT;

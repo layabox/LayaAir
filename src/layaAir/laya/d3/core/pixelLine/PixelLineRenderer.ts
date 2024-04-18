@@ -2,9 +2,11 @@ import { Component } from "../../../components/Component";
 import { Color } from "../../../maths/Color";
 import { Matrix4x4 } from "../../../maths/Matrix4x4";
 import { Vector3 } from "../../../maths/Vector3";
-import { Vector4 } from "../../../maths/Vector4";
-import { ShaderData } from "../../../RenderEngine/RenderShader/ShaderData";
+import { IMeshRenderNode } from "../../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
+
 import { Material } from "../../../resource/Material";
+import { Bounds } from "../../math/Bounds";
+import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 import { MeshSprite3DShaderDeclaration } from "../MeshSprite3DShaderDeclaration";
 import { BaseRender } from "../render/BaseRender";
 import { RenderContext3D } from "../render/RenderContext3D";
@@ -39,7 +41,14 @@ export class PixelLineRenderer extends BaseRender {
         super();
         this._projectionViewWorldMatrix = new Matrix4x4();
         this._pixelLineFilter = new PixelLineFilter(this, 20);
-        this._shaderValues.addDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_COLOR);
+        this._baseRenderNode.shaderData.addDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_COLOR);
+        this.geometryBounds = this._pixelLineFilter._bounds;
+    }
+
+    get bounds(): Bounds {
+        var lineFilter: PixelLineFilter = this._pixelLineFilter;
+        lineFilter._reCalculateBound();
+        return super.bounds;
     }
 
     private _lines: PixelLineData[] = [];
@@ -113,16 +122,29 @@ export class PixelLineRenderer extends BaseRender {
         this._setUnBelongScene();
     }
 
-    /**
-     * @inheritDoc
-     * @override
-     * @internal
-     */
-    protected _calculateBoundingBox(): void {
-        var worldMat: Matrix4x4 = (this.owner as Sprite3D).transform.worldMatrix;
-        var lineFilter: PixelLineFilter = this._pixelLineFilter;
-        lineFilter._reCalculateBound();
-        lineFilter._bounds._tranform(worldMat, this._bounds);
+    protected _createBaseRenderNode(): IMeshRenderNode {
+        return Laya3DRender.Render3DModuleDataFactory.createMeshRenderNode();
+    }
+
+    // /**
+    //  * @inheritDoc
+    //  * @override
+    //  * @internal
+    //  */
+    // _calculateBoundingBox(): void {
+    //     var lineFilter: PixelLineFilter = this._pixelLineFilter;
+    //     lineFilter._reCalculateBound();
+    //     this.geometryBounds = lineFilter._bounds;
+
+    //     //
+    //     this.geometryBounds._tranform(this._transform.worldMatrix, this._baseRenderNode.bounds);
+    // }
+
+    renderUpdate(context: RenderContext3D): void {
+        this._renderElements.forEach(element => {
+            element._renderElementOBJ.isRender = element._geometry._prepareRender(context);
+            element._geometry._updateRenderParams(context);
+        })
     }
 
     /**
@@ -131,17 +153,17 @@ export class PixelLineRenderer extends BaseRender {
      * @internal
      */
     _renderUpdateWithCamera(context: RenderContext3D, transform: Transform3D): void {//TODO:整理_renderUpdate
-        var projectionView: Matrix4x4 = context.projectionViewMatrix;
-        var sv: ShaderData = this._shaderValues;
-        if (transform) {
-            var worldMat: Matrix4x4 = transform.worldMatrix;
-            sv.setMatrix4x4(Sprite3D.WORLDMATRIX, worldMat);
-            this._worldParams.x = transform.getFrontFaceValue();
-            sv.setVector(Sprite3D.WORLDINVERTFRONT, this._worldParams);
-        } else {
-            sv.setMatrix4x4(Sprite3D.WORLDMATRIX, Matrix4x4.DEFAULT);
-            sv.setVector(Sprite3D.WORLDINVERTFRONT, Vector4.UnitX);
-        }
+        // var projectionView: Matrix4x4 = context.projectionViewMatrix;
+        // var sv: ShaderData = this._shaderValues;
+        // if (transform) {
+        //     var worldMat: Matrix4x4 = transform.worldMatrix;
+        //     sv.setMatrix4x4(Sprite3D.WORLDMATRIX, worldMat);
+        //     this._worldParams.x = transform.getFrontFaceValue();
+        //     sv.setVector(Sprite3D.WORLDINVERTFRONT, this._worldParams);
+        // } else {
+        //     sv.setMatrix4x4(Sprite3D.WORLDMATRIX, Matrix4x4.DEFAULT);
+        //     sv.setVector(Sprite3D.WORLDINVERTFRONT, Vector4.UnitX);
+        // }
     }
 
     /**
@@ -157,6 +179,8 @@ export class PixelLineRenderer extends BaseRender {
         renderElement.setGeometry(this._pixelLineFilter);
         renderElement.render = this;
         renderElement.material = material;
+        //renderElement.renderSubShader = renderElement.material.shader.getSubShaderAt(0);//TODO
+        this._setRenderElements();
     }
 
     /**
@@ -181,10 +205,13 @@ export class PixelLineRenderer extends BaseRender {
      * @param	endColor	   结束点颜色
      */
     addLine(startPosition: Vector3, endPosition: Vector3, startColor: Color, endColor: Color): void {
-        if (this._pixelLineFilter._lineCount !== this._pixelLineFilter._maxLineCount)
+        if (this._pixelLineFilter._lineCount !== this._pixelLineFilter._maxLineCount) {
             this._pixelLineFilter._updateLineData(this._pixelLineFilter._lineCount++, startPosition, endPosition, startColor, endColor);
-        else
+        }
+        else {
             throw "PixelLineSprite3D: lineCount has equal with maxLineCount.";
+        }
+
         if (this._isRenderActive && !this._isInRenders && this._pixelLineFilter._lineCount > 0) {
             this.owner.scene && this.owner.scene._addRenderObject(this);
             this._isInRenders = true;
@@ -201,9 +228,11 @@ export class PixelLineRenderer extends BaseRender {
         var addCount: number = lines.length;
         if (lineCount + addCount > this._pixelLineFilter._maxLineCount) {
             throw "PixelLineSprite3D: lineCount plus lines count must less than maxLineCount.";
-        } else {
+        }
+        else {
             this._pixelLineFilter._updateLineDatas(lineCount, lines);
             this._pixelLineFilter._lineCount += addCount;
+            this.boundsChange = true;
         }
         if (this._isRenderActive && !this._isInRenders && this._pixelLineFilter._lineCount > 0) {
             this.owner.scene && this.owner.scene._addRenderObject(this);

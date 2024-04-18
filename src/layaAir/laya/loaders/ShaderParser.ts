@@ -1,5 +1,4 @@
 import { Shader3D, IShaderObjStructor, IShaderpassStructor } from "../RenderEngine/RenderShader/Shader3D";
-import { ShaderDataType } from "../RenderEngine/RenderShader/ShaderData";
 import { ParseJSON } from "../utils/ParseJSON";
 import { Color } from "../maths/Color";
 import { Matrix3x3 } from "../maths/Matrix3x3";
@@ -9,6 +8,7 @@ import { Vector3 } from "../maths/Vector3";
 import { Vector4 } from "../maths/Vector4";
 import { Texture2D } from "../resource/Texture2D";
 import { TextureCube } from "../resource/TextureCube";
+import { ShaderDataType } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 
 
 const CGBlock: string[] = ["GLSL Start", "GLSL End"];

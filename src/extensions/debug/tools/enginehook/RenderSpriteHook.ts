@@ -1,7 +1,7 @@
 import { CacheAnalyser } from "../CacheAnalyser"
 import { Sprite } from "laya/display/Sprite"
+import { Context } from "laya/renders/Context";
 import { RenderSprite } from "laya/renders/RenderSprite"
-import { Context } from "laya/resource/Context"
 import { Browser } from "laya/utils/Browser"
 
 	/**

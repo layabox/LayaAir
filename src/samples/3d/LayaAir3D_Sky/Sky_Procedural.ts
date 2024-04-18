@@ -1,16 +1,16 @@
 import { Laya } from "Laya";
 import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
-import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { SkyProceduralMaterial } from "laya/d3/core/material/SkyProceduralMaterial";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { SkyDome } from "laya/d3/resource/models/SkyDome";
 import { SkyRenderer } from "laya/d3/resource/models/SkyRenderer";
 import { Stage } from "laya/display/Stage";
 import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Matrix4x4 } from "laya/maths/Matrix4x4";
 import { Vector3 } from "laya/maths/Vector3";
+import { Sprite3D } from "laya/d3/core/Sprite3D";
+import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
 
 export class Sky_Procedural {
 
@@ -19,7 +19,6 @@ export class Sky_Procedural {
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
 			Stat.show();
-
 			//初始化3D场景
 			var scene: Scene3D = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 
@@ -37,16 +36,18 @@ export class Sky_Procedural {
 			camera.clearFlag = CameraClearFlags.Sky;
 
 			//初始化平行光
-			var directionLight: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));
+			let directlightSprite = new Sprite3D();
+			let dircom = directlightSprite.addComponent(DirectionLightCom);
+			scene.addChild(directlightSprite);
 			//设置平行光的方向
-			var mat: Matrix4x4 = directionLight.transform.worldMatrix;
-			mat.setForward(new Vector3(0,-1,0));
-			directionLight.transform.worldMatrix = mat;
+			var mat: Matrix4x4 = directlightSprite.transform.worldMatrix;
+			mat.setForward(new Vector3(0, -1, 0));
+			directlightSprite.transform.worldMatrix = mat;
 			var rotation: Vector3 = new Vector3(-0.01, 0, 0);
 
 			//旋转平行光,模拟太阳轨迹
 			Laya.timer.frameLoop(1, this, function (): void {
-				directionLight.transform.rotate(rotation);
+				directlightSprite.transform.rotate(rotation);
 			});
 		});
 	}

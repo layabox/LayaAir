@@ -20,18 +20,19 @@ export class ScreenQuad extends GeometryElement {
 	private static _vertexDeclaration: VertexDeclaration;
 	/** @internal */
 	private static _vertices: Float32Array = new Float32Array([
-		1, 1, 1, 1, 
+		1, 1, 1, 1,
 		1, -1, 1, 0,
 		-1, 1, 0, 1,
 		-1, -1, 0, 0]);//the rule of OpenGL
 	/** @internal */
 	private static _verticesInvertUV: Float32Array = new Float32Array([
-		1, 1, 1, 0, 
+		1, 1, 1, 0,
 		1, -1, 1, 1,
-		-1, 1, 0, 0, 
+		-1, 1, 0, 0,
 		-1, -1, 0, 1]);
 	/**@internal */
 	static instance: ScreenQuad;
+	static InvertInstance: ScreenQuad;
 
 	/**
 	 * @internal
@@ -39,12 +40,15 @@ export class ScreenQuad extends GeometryElement {
 	static __init__(): void {
 		ScreenQuad._vertexDeclaration = new VertexDeclaration(16, [new VertexElement(0, VertexElementFormat.Vector4, ScreenQuad.SCREENQUAD_POSITION_UV)]);
 		ScreenQuad.instance = new ScreenQuad();
+		ScreenQuad.instance.invertY = true;
+		ScreenQuad.InvertInstance = new ScreenQuad();
+		ScreenQuad.InvertInstance.invertY = false;
 	}
 
 	/** @internal */
 	private _vertexBuffer: VertexBuffer3D;
 	/** @internal */
-	private _bufferState: BufferState = new BufferState();
+	protected _bufferState: BufferState = new BufferState();
 	/** @internal */
 	private _vertexBufferInvertUV: VertexBuffer3D;
 	/** @internal */

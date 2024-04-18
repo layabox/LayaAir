@@ -7,22 +7,20 @@ import { Stage } from "laya/display/Stage";
 import { Texture2D } from "laya/resource/Texture2D";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { UnlitMaterial } from "laya/d3/core/material/UnlitMaterial";
 import { Browser } from "laya/utils/Browser";
 import { Color } from "laya/maths/Color";
 import { Vector3 } from "laya/maths/Vector3";
 
-export class GPUCompression_ETC2{
+export class GPUCompression_ETC2 {
 
-    private mat:UnlitMaterial;
-    constructor() {
+	private mat: UnlitMaterial;
+	constructor() {
 		Laya.init(0, 0).then(() => {
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
 			Stat.show();
-
 			var scene: Scene3D = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 
 			var camera: Camera = (<Camera>scene.addChild(new Camera(0, 0.1, 100)));
@@ -35,7 +33,7 @@ export class GPUCompression_ETC2{
 			this.mat = new UnlitMaterial();
 			scene.addChild(meshSprite);
 			meshSprite.meshRenderer.sharedMaterial = this.mat;
-			if(!Browser.onAndroid){
+			if (!Browser.onAndroid) {
 				console.log("只有安卓支持ETC");
 				return;
 			}
@@ -47,5 +45,5 @@ export class GPUCompression_ETC2{
 		});
 
 
-    }
+	}
 }

@@ -1,39 +1,27 @@
 import { Config3D } from "../../Config3D";
 import { LayaGL } from "../layagl/LayaGL";
+import { InternalRenderTarget } from "../RenderDriver/DriverDesign/RenderDevice/InternalRenderTarget";
+import { IRenderTarget } from "../RenderDriver/DriverDesign/RenderDevice/IRenderTarget";
 import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
 import { TextureDimension } from "../RenderEngine/RenderEnum/TextureDimension";
 import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
-import { InternalRenderTarget } from "../RenderEngine/RenderInterface/InternalRenderTarget";
-import { IRenderTarget } from "../RenderEngine/RenderInterface/IRenderTarget";
 import { BaseTexture } from "./BaseTexture";
 
+/**
+ * 深度贴图模式
+ */
+export enum DepthTextureMode {
+    /**不生成深度贴图 */
+    None = 0,
+    /**生成深度贴图 */
+    Depth = 1,
+    /**生成深度+法线贴图 */
+    DepthNormals = 2,
+    /**是否应渲染运动矢量  TODO*/
+    DepthAndDepthNormals = 3,
+    MotionVectors = 4,
+}
 export class RenderTexture extends BaseTexture implements IRenderTarget {
-
-    /**
-     * todo 记录当前 绑定 rt  位置不放在这里
-     * @internal
-     */
-    protected static _currentActive: RenderTexture = null;
-
-    /**
-     * 当前绑定的渲染纹理
-     */
-    static get currentActive(): RenderTexture {
-        return RenderTexture._currentActive;
-    }
-
-    /**
-     * 配置渲染实例
-     * @internal
-     */
-    protected static _configInstance: any = {};
-    /**
-     * 配置渲染上下文环境实例
-     * @param value 
-     */
-    static configRenderContextInstance(value: any) {
-        RenderTexture._configInstance = value;
-    }
 
     private static _pool: RenderTexture[] = [];
     private static _poolMemory: number = 0;
@@ -265,7 +253,9 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
 
         // rt 格式 宽高可能不支持
         this._generateMipmap = this._renderTarget._generateMipmap;
-        this._texture = this._renderTarget._textures[0];
+        if (this._renderTarget._texturesResolve)
+            this._texture = this._renderTarget._texturesResolve[0];
+        else this._texture = this._renderTarget._textures[0];
 
         this.generateDepthTexture = this._generateDepthTexture;
     }
@@ -290,29 +280,21 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
         this._createRenderTarget();
     }
 
-    /**
-     * 开始绑定
-     * @internal
-     */
-    _start() {
-        RenderTexture._configInstance.invertY = this._isCameraTarget;
-        if (RenderTexture._currentActive != this) {
-            RenderTexture._currentActive && RenderTexture._currentActive._end();
-            RenderTexture._currentActive = this;
-            LayaGL.textureContext.bindRenderTarget(this._renderTarget);
-        }
-    }
+    // _start() {
+    //     RenderTexture._configInstance.invertY = this._isCameraTarget;
+    //     if (RenderTexture._currentActive != this) {
+    //         RenderTexture._currentActive && RenderTexture._currentActive._end();
+    //         RenderTexture._currentActive = this;
+    //         LayaGL.textureContext.bindRenderTarget(this._renderTarget);
+    //     }
+    // }
 
-    /**
-     * 解除绑定
-     * @internal
-     */
-    _end() {
-        RenderTexture._currentActive = null;
+    // _end() {
+    //     RenderTexture._currentActive = null;
 
-        LayaGL.textureContext.unbindRenderTarget(this._renderTarget);
-        (this._isCameraTarget) && (RenderTexture._configInstance.invertY = false);
-    }
+    //     LayaGL.textureContext.unbindRenderTarget(this._renderTarget);
+    //     (this._isCameraTarget) && (RenderTexture._configInstance.invertY = false);
+    // }
 
     /**
      * 获取渲染纹理的像素数据
@@ -334,9 +316,9 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
      */
     protected _disposeResource(): void {
 
-        if (RenderTexture._currentActive == this) {
-            this._end();
-        }
+        // if (RenderTexture._currentActive == this) {
+        //     this._end();
+        // }
 
         this._renderTarget.dispose();
         this._renderTarget = null;

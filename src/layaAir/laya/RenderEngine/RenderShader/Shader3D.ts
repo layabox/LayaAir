@@ -1,7 +1,7 @@
+import { IDefineDatas } from "../../RenderDriver/RenderModuleData/Design/IDefineDatas";
+import { ShaderDefine } from "../../RenderDriver/RenderModuleData/Design/ShaderDefine";
 import { LayaGL } from "../../layagl/LayaGL";
 import { ShaderCompile } from "../../webgl/utils/ShaderCompile";
-import { DefineDatas } from "./DefineDatas";
-import { ShaderDefine } from "./ShaderDefine";
 import { ShaderPass } from "./ShaderPass";
 import { SubShader } from "./SubShader";
 
@@ -30,9 +30,9 @@ export interface IShaderpassStructor {
  * <code>Shader3D</code> 类用于创建Shader3D。
  */
 export class Shader3D {
-    static _configDefineValues = new DefineDatas();
+    static _configDefineValues: IDefineDatas;
     /**@internal */
-    private static _compileDefineDatas: DefineDatas = new DefineDatas();
+    private static _compileDefineDatas: IDefineDatas;
     /**渲染状态_剔除。*/
     static CULL: number;
     /**渲染状态_混合。*/
@@ -91,39 +91,23 @@ export class Shader3D {
     static _propertyNameMap: any = {};
     /**@internal */
     private static _propertyNameCounter: number = 0;
-    /**@internal */
-    private static _defineCounter: number = 0;
-    // todo  这个 map 和 get 函数转移到 ShaderDefine 里面
-    /**@internal */
-    private static _defineMap: { [key: string]: ShaderDefine } = {};
+
     /**@internal */
     static _preCompileShader: { [key: string]: Shader3D } = {};
     /**@internal */
-    static _maskMap: Array<{ [key: number]: string }> = [];
+    static _debugShaderVariantInfo:any;
     /**是否开启调试模式。 */
     static debugMode: boolean = false;
 
     static init() {
+        Shader3D._configDefineValues = LayaGL.unitRenderModuleDataFactory.createDefineDatas();
     }
 
     /**
      * @internal
      */
-    static _getNamesByDefineData(defineData: DefineDatas, out?: Array<string>): Array<string> {
-        out = out || [];
-        var maskMap: Array<{ [key: number]: string }> = Shader3D._maskMap;
-        var mask: Array<number> = defineData._mask;
-        for (var i: number = 0, n: number = defineData._length; i < n; i++) {
-            var subMaskMap: { [key: number]: string } = maskMap[i];
-            var subMask: number = mask[i];
-            for (var j: number = 0; j < 32; j++) {
-                var d: number = 1 << j;
-                if (subMask > 0 && d > subMask)//如果31位存在subMask为负数,避免break
-                    break;
-                if (subMask & d)
-                    out.push(subMaskMap[d]);
-            }
-        }
+    static _getNamesByDefineData(defineData: IDefineDatas, out: Array<string>) {
+        LayaGL.renderEngine.getNamesByDefineData(defineData, out);
         return out;
     }
 
@@ -132,22 +116,7 @@ export class Shader3D {
      * @param name 
      */
     static getDefineByName(name: string): ShaderDefine {
-        var define: ShaderDefine = Shader3D._defineMap[name];
-        if (!define) {
-            var maskMap = Shader3D._maskMap;
-            var counter: number = Shader3D._defineCounter;
-            var index: number = Math.floor(counter / 32);
-            var value: number = 1 << counter % 32;
-            define = new ShaderDefine(index, value);
-            Shader3D._defineMap[name] = define;
-            if (index == maskMap.length) {
-                maskMap.length++;
-                maskMap[index] = {};
-            }
-            maskMap[index][value] = name;
-            Shader3D._defineCounter++;
-        }
-        return define;
+        return LayaGL.renderEngine.getDefineByName(name);
     }
 
     /**
@@ -187,7 +156,7 @@ export class Shader3D {
                 var pass: ShaderPass = subShader._passes[passIndex];
                 pass.nodeCommonMap = nodeCommonMap;
                 if (pass) {
-                    var compileDefineDatas: DefineDatas = Shader3D._compileDefineDatas;
+                    var compileDefineDatas = Shader3D._compileDefineDatas;
                     Shader3D._configDefineValues.cloneTo(compileDefineDatas);
                     for (let n of defineNames)
                         compileDefineDatas.add(Shader3D.getDefineByName(n));
@@ -281,6 +250,7 @@ export class Shader3D {
     addSubShader(subShader: SubShader): void {
         this._subShaders.push(subShader);
         subShader._owner = this;
+        subShader.moduleData.enableInstance = this._enableInstancing;
     }
 
     /**

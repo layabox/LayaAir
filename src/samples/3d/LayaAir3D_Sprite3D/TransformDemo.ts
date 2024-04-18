@@ -1,6 +1,5 @@
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
-import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
@@ -11,8 +10,8 @@ import { Vector3 } from "laya/maths/Vector3";
 import { Loader } from "laya/net/Loader";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
+import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
 
 /**
  * ...
@@ -21,7 +20,6 @@ import { CameraMoveScript } from "../common/CameraMoveScript";
 export class TransformDemo {
 
 	private _scene: Scene3D;
-	private tmpVector: Vector3 = new Vector3(0, 0, 0);
 	private _position: Vector3 = new Vector3(0, 0, 0);
 	private _position1: Vector3 = new Vector3(0, 0, 0);
 	private _rotate: Vector3 = new Vector3(0, 1, 0);
@@ -46,7 +44,6 @@ export class TransformDemo {
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
 			//显示性能面板
 			Stat.show();
-
 			//创建场景
 			this._scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 
@@ -57,9 +54,12 @@ export class TransformDemo {
 			camera.addComponent(CameraMoveScript);
 
 			//添加光照
-			var directionLight: DirectionLight = (<DirectionLight>this._scene.addChild(new DirectionLight()));
-			directionLight.color = new Color(1, 1, 1, 1);
-			directionLight.transform.rotate(new Vector3(-3.14 / 3, 0, 0));
+			let directlightSprite = new Sprite3D();
+			let dircom = directlightSprite.addComponent(DirectionLightCom);
+			this._scene.addChild(directlightSprite);
+
+			dircom.color = new Color(1, 1, 1, 1);
+			directlightSprite.transform.rotate(new Vector3(-3.14 / 3, 0, 0));
 
 			//批量预加载资源
 			Laya.loader.load(["res/threeDimen/staticModel/grid/plane.lh", "res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh"], Handler.create(this, this.onComplete));

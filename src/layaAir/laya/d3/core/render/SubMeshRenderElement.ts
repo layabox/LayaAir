@@ -1,10 +1,10 @@
-import { RenderElement } from "./RenderElement";
 import { Event } from "../../../events/Event";
 import { SubMesh } from "../../resource/models/SubMesh";
 import { GeometryElement } from "../GeometryElement";
 import { Transform3D } from "../Transform3D";
 import { SingletonList } from "../../../utils/SingletonList";
 import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
+import { RenderElement } from "./RenderElement";
 
 
 /**
@@ -39,7 +39,7 @@ export class SubMeshRenderElement extends RenderElement {
 	constructor() {
 		super();
 		this._dynamicWorldPositionNormalNeedUpdate = true;
-		this._canBatch = true;
+		this._renderElementOBJ.canDynamicBatch = true;
 	}
 
 	/**
@@ -70,7 +70,7 @@ export class SubMeshRenderElement extends RenderElement {
 	setGeometry(geometry: GeometryElement): void {
 		if (this._geometry !== geometry) {
 			this._geometry = geometry;
-			this._renderElementOBJ._geometry = geometry._geometryElementOBj;
+			this._renderElementOBJ.geometry = geometry._geometryElementOBj;
 		}
 	}
 
@@ -79,10 +79,10 @@ export class SubMeshRenderElement extends RenderElement {
 	 * @override
 	 */
 	destroy(): void {
-		if(!this._renderElementOBJ)return;
+		if (!this._renderElementOBJ) return;
 		(this.transform) && this.transform.off(Event.TRANSFORM_CHANGED, this, this._onWorldMatrixChanged);
 		super.destroy();
-		this.staticBatch = null;
+		//this.staticBatch = null;
 		this.instanceSubMesh = null;
 		this.staticBatchElementList && this.staticBatchElementList.destroy();
 		this.instanceBatchElementList && this.instanceBatchElementList.destroy();

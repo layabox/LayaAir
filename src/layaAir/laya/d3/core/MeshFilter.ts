@@ -1,5 +1,5 @@
+import { ShaderDefine } from "../../RenderDriver/RenderModuleData/Design/ShaderDefine";
 import { Component } from "../../components/Component";
-import { ShaderDefine } from "../../RenderEngine/RenderShader/ShaderDefine";
 import { Mesh } from "../resource/models/Mesh";
 import { MeshRenderer } from "./MeshRenderer";
 

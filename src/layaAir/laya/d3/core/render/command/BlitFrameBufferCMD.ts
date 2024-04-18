@@ -4,16 +4,15 @@ import { RenderContext3D } from "../RenderContext3D";
 import { ScreenQuad } from "../ScreenQuad";
 import { Command } from "./Command";
 import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
-import { ShaderData } from "../../../../RenderEngine/RenderShader/ShaderData";
 import { RenderElement } from "../RenderElement";
-import { Transform3D } from "../../Transform3D";
-import { Camera } from "../../Camera";
+import { ShaderData } from "../../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { LayaGL } from "../../../../layagl/LayaGL";
 import { Vector4 } from "../../../../maths/Vector4";
 import { RenderTexture } from "../../../../resource/RenderTexture";
-import { ShaderPass } from "../../../../RenderEngine/RenderShader/ShaderPass";
-import { SubShader } from "../../../../RenderEngine/RenderShader/SubShader";
-import { LayaGL } from "../../../../layagl/LayaGL";
 import { Laya3DRender } from "../../../RenderObjs/Laya3DRender";
+import { Camera } from "../../Camera";
+import { Transform3D } from "../../Transform3D";
+
 
 
 /**
@@ -29,7 +28,7 @@ export class BlitFrameBufferCMD {
 
 	/** @internal */
 	static __init__(): void {
-		BlitFrameBufferCMD.shaderdata = LayaGL.renderOBJCreate.createShaderData(null);
+		BlitFrameBufferCMD.shaderdata = LayaGL.renderDeviceFactory.createShaderData(null);
 	}
 
 	/**
@@ -78,17 +77,19 @@ export class BlitFrameBufferCMD {
 	private _renderElement: RenderElement;
 	/**@internal */
 	private _transform3D: Transform3D;
+
 	constructor() {
-		this._transform3D = Laya3DRender.renderOBJCreate.createTransform(null);
+		this._transform3D = Laya3DRender.Render3DModuleDataFactory.createTransform(null);
 		this._renderElement = new RenderElement();
 		this._renderElement.setTransform(this._transform3D);
 		this._renderElement.setGeometry(ScreenQuad.instance);
+		this._renderElement._renderElementOBJ.isRender = true;
 		this._texture_size = new Vector4();
 	}
 
 	set shaderData(value: ShaderData) {
 		this._shaderData = value || BlitFrameBufferCMD.shaderdata;
-		this._renderElement._renderElementOBJ._materialShaderData = this._shaderData;
+		this._renderElement._renderElementOBJ.materialShaderData = this._shaderData;
 	}
 
 	setshader(shader: Shader3D, subShader: number, shaderData: ShaderData) {
@@ -107,43 +108,27 @@ export class BlitFrameBufferCMD {
 			return;
 		var source = this._source;
 		var dest = this._dest;
-		var shader: Shader3D = this._shader;
 		var shaderData: ShaderData = this._shaderData;
 		var viewport = this._viewPort;
-
 		let vph = RenderContext3D.clientHeight - viewport.y - viewport.height;
-
-		// LayaGL.renderEngine.viewport(viewport.x, vph, viewport.width, viewport.height);
-		// LayaGL.renderEngine.scissor(viewport.x, vph, viewport.width, viewport.height);
 		let context = RenderContext3D._instance;
 		context.changeViewport(viewport.x, vph, viewport.width, viewport.height);
 		context.changeScissor(viewport.x, vph, viewport.width, viewport.height);
-
 		shaderData.setTexture(Command.SCREENTEXTURE_ID, source);
 		shaderData.setVector(Command.SCREENTEXTUREOFFSETSCALE_ID, this._offsetScale || BlitFrameBufferCMD._defaultOffsetScale);
 		source && (shaderData.setVector(Command.MAINTEXTURE_TEXELSIZE_ID, this._texture_size));
-		//this._sourceTexelSize.setValue(1.0 / source.width, 1.0 / source.height, source.width, source.height);
-		(RenderTexture.currentActive) && (RenderTexture.currentActive._end());
 
 		if (dest) {
-			dest._start();
 			shaderData.removeDefine(RenderContext3D.GammaCorrect);
 		}
 		else {
 			shaderData.addDefine(RenderContext3D.GammaCorrect);
 		}
-		var subShader: SubShader = shader.getSubShaderAt(this._subShader);
-		var passes: ShaderPass[] = subShader._passes;
-		ScreenQuad.instance.invertY = false;
-
+		this._renderElement.setGeometry(ScreenQuad.InvertInstance); 
 		context.destTarget = dest;
-		context._contextOBJ.applyContext(Camera._updateMark);
-		context.drawRenderElement(this._renderElement);
-		//RenderContext3D._instance.invertY ? ScreenQuad.instance.renderInvertUV() : ScreenQuad.instance.render();
-
-
+		context._contextOBJ.cameraUpdateMask = Camera._updateMark;
+		context.drawRenderElement(this._renderElement._renderElementOBJ);
 	}
-
 	/**
 	 * @inheritDoc
 	 * @override

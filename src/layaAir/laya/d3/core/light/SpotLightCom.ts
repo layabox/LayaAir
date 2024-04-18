@@ -3,38 +3,51 @@ import { Light, LightType } from "./Light";
 import { Component } from "../../../components/Component";
 import { Vector3 } from "../../../maths/Vector3";
 
+import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
+import { ISpotLightData } from "../../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
+
 /**
  * <code>SpotLight</code> 类用于创建聚光。
  */
 export class SpotLightCom extends Light {
-	/** @internal */
-	private _spotAngle: number;
-	/** @internal */
-	private _range: number;
+	 
+	declare _dataModule: ISpotLightData;
 
 	/** @internal */
-	public _direction: Vector3;
+	private _direction: Vector3;
+
+	/**
+	 * 直射光方向
+	 */
+	set direction(value: Vector3) {
+		value.cloneTo(this.direction);
+		this._dataModule.setDirection(this._direction);
+	};
+
+	get direction(): Vector3 {
+		return this._direction;
+	}
 
 	/**
 	  * 聚光灯的锥形角度。
 	  */
 	get spotAngle(): number {
-		return this._spotAngle;
+		return this._dataModule.spotAngle;
 	}
 
 	set spotAngle(value: number) {
-		this._spotAngle = Math.max(Math.min(value, 179), 0);
+		this._dataModule.spotAngle = Math.max(Math.min(value, 179), 0);
 	}
 
 	/**
 	 * 聚光的范围。
 	 */
 	get range(): number {
-		return this._range;
+		return this._dataModule.spotRange;
 	}
 
 	set range(value: number) {
-		this._range = value;
+		this._dataModule.spotRange = value;
 	}
 
 	/**
@@ -42,10 +55,14 @@ export class SpotLightCom extends Light {
 	 */
 	constructor() {
 		super();
-		this._spotAngle = 30.0;
-		this._range = 10.0;
+		this.spotAngle = 30.0;
+		this.range = 10.0;
 		this._direction = new Vector3();
 		this._lightType = LightType.Spot;
+	}
+
+	protected _creatModuleData() {
+		this._dataModule = Laya3DRender.Render3DModuleDataFactory.createSpotLight();
 	}
 
 	/**

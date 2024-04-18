@@ -1,9 +1,7 @@
 
 import { Laya } from "Laya";
-import { Laya3D } from "Laya3D";
 import { Stat } from "laya/utils/Stat";
 import { Camera } from "laya/d3/core/Camera";
-import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { PixelLineSprite3D } from "laya/d3/core/pixelLine/PixelLineSprite3D";
@@ -31,6 +29,7 @@ import { Color } from "laya/maths/Color";
 import { Matrix4x4 } from "laya/maths/Matrix4x4";
 import { Vector3 } from "laya/maths/Vector3";
 import { Vector4 } from "laya/maths/Vector4";
+import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
 
 export class PhysicsWorld_RayShapeCast {
 	//声明一些使用到的全局变量
@@ -78,12 +77,14 @@ export class PhysicsWorld_RayShapeCast {
 			camera.addComponent(CameraMoveScript);
 
 			//添加平行光
-			var directionLight: DirectionLight = (<DirectionLight>this.scene.addChild(new DirectionLight()));
-			directionLight.color = new Color(1, 1, 1, 1);
+			let directlightSprite = new Sprite3D();
+			let dircom = directlightSprite.addComponent(DirectionLightCom);
+			this.scene.addChild(directlightSprite);
+			dircom.color = new Color(1, 1, 1, 1);
 			//设置平行光的方向
-			var mat: Matrix4x4 = directionLight.transform.worldMatrix;
+			var mat: Matrix4x4 = directlightSprite.transform.worldMatrix;
 			mat.setForward(new Vector3(-1.0, -1.0, 1.0));
-			directionLight.transform.worldMatrix = mat;
+			directlightSprite.transform.worldMatrix = mat;
 
 			//添加地面
 			var plane: MeshSprite3D = (<MeshSprite3D>this.scene.addChild(new MeshSprite3D(PrimitiveMesh.createPlane(20, 20, 10, 10))));

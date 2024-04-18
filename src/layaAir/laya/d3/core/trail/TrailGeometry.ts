@@ -436,13 +436,10 @@ export class TrailGeometry extends GeometryElement {
 	 * @override
 	 */
 	_updateRenderParams(state: RenderContext3D): void {
-		//this._bufferState.bind();
 		this.clearRenderParams();
 		var start: number = this._activeIndex * 2;
 		var count: number = this._endIndex * 2 - start;
 		this.setDrawArrayParams(start, count);
-		// LayaGL.renderDrawConatext.drawArrays(MeshTopology.TriangleStrip,start,count);
-		// Stat.trianglesFaces += count - 2;
 	}
 
 	/**
@@ -457,7 +454,7 @@ export class TrailGeometry extends GeometryElement {
 		this._vertexBuffer1.destroy();
 		this._vertexBuffer2.destroy();
 
-		this.bufferState = null;
+		this._bufferState = null;
 		this._vertices1 = null;
 		this._vertexBuffer1 = null;
 		this._vertices2 = null;

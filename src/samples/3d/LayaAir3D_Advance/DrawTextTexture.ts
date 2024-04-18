@@ -9,11 +9,11 @@ import { Stage } from "laya/display/Stage";
 import { Color } from "laya/maths/Color";
 import { Vector3 } from "laya/maths/Vector3";
 import { TextureFormat } from "laya/RenderEngine/RenderEnum/TextureFormat";
-import { RenderState } from "laya/RenderEngine/RenderShader/RenderState";
 import { Texture2D } from "laya/resource/Texture2D";
 import { Browser } from "laya/utils/Browser";
 import { Stat } from "laya/utils/Stat";
 import { CameraMoveScript } from "../common/CameraMoveScript";
+import { RenderState } from "laya/RenderDriver/RenderModuleData/Design/RenderState";
 
 
 export class DrawTextTexture {
@@ -27,7 +27,6 @@ export class DrawTextTexture {
             Laya.stage.scaleMode = Stage.SCALE_FULL;
             Laya.stage.screenMode = Stage.SCREEN_NONE;
             Stat.show();
-
             var scene: Scene3D = (<Scene3D>Laya.stage.addChild(new Scene3D()));
             var camera: Camera = (<Camera>scene.addChild(new Camera(0, 0.1, 100)));
             camera.transform.translate(new Vector3(0, 0, 15));

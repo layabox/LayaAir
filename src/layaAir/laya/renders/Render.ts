@@ -1,14 +1,12 @@
-import { ILaya } from "./../../ILaya";
-import { Config } from "./../../Config";
-import { Context } from "../resource/Context";
+import { LayaEnv } from "../../LayaEnv";
+import { IRenderEngine } from "../RenderDriver/DriverDesign/RenderDevice/IRenderEngine";
 import { HTMLCanvas } from "../resource/HTMLCanvas";
 import { BlendMode } from "../webgl/canvas/BlendMode";
 import { Shader2D } from "../webgl/shader/d2/Shader2D";
 import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
-import { SubmitBase } from "../webgl/submit/SubmitBase";
-import { IRenderEngine } from "../RenderEngine/RenderInterface/IRenderEngine";
-import { LayaEnv } from "../../LayaEnv";
-import { VertexElementFormat } from "./VertexElementFormat";
+import { Config } from "./../../Config";
+import { ILaya } from "./../../ILaya";
+import { Context } from "./Context";
 
 /**
  * <code>Render</code> 是渲染管理类。它是一个单例，可以使用 Laya.render 访问。
@@ -110,6 +108,9 @@ export class Render {
     private _timeId: number = 0;
 
     /**@private */
+    /**
+     * @performanceTool  func count 
+     */
     private _onVisibilitychange(): void {
         if (!ILaya.stage.isVisibility) {
             this._timeId = window.setInterval(this._enterFrame, 1000);
@@ -132,12 +133,9 @@ export class Render {
 
         canvas.size(w, h);	//在ctx之后调用。
         ShaderDefines2D.__init__();
-        VertexElementFormat.__init__();
         Context.__init__();
-        SubmitBase.__init__();
 
-        var ctx: Context = new Context();
-        Context._rendercontex = ctx;
+        var ctx = new Context();
         ctx.isMain = true;
         Render._context = ctx;
         canvas._setContext(ctx);

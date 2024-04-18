@@ -2,7 +2,6 @@ import { Laya } from "Laya";
 import { Animator } from "laya/d3/component/Animator/Animator";
 import { AnimatorState } from "laya/d3/component/Animator/AnimatorState";
 import { Camera } from "laya/d3/core/Camera";
-import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { Stage } from "laya/display/Stage";
@@ -16,9 +15,9 @@ import { Button } from "laya/ui/Button";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
 import Client from "../../Client";
 import { CameraMoveScript } from "../common/CameraMoveScript";
+import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
 
 /**
  * ...
@@ -46,9 +45,9 @@ export class BoneLinkSprite3D {
 	private curStateIndex: number = 0;
 
 	/**实例类型*/
-	private btype:any = "BoneLinkSprite3D";
+	private btype: any = "BoneLinkSprite3D";
 	/**场景内按钮类型*/
-	private stype:any = 0;
+	private stype: any = 0;
 
 	constructor() {
 		//初始化引擎
@@ -66,7 +65,7 @@ export class BoneLinkSprite3D {
 				"res/threeDimen/skinModel/BoneLinkScene/PangZi.lh"];
 
 			Laya.loader.load(resource, Handler.create(this, this.onLoadFinish));
-		});	
+		});
 	}
 
 	private onLoadFinish(): void {
@@ -80,11 +79,15 @@ export class BoneLinkSprite3D {
 		camera.transform.rotate(this._rotation2, true, false);
 		camera.addComponent(CameraMoveScript);
 
-		var directionLight: DirectionLight = (<DirectionLight>this.scene.addChild(new DirectionLight()));
+		let directlightSprite = new Sprite3D();
+		let dircom = directlightSprite.addComponent(DirectionLightCom);
+		this.scene.addChild(directlightSprite);
+
+
 		//设置平行光的方向
-		var mat: Matrix4x4 = directionLight.transform.worldMatrix;
+		var mat: Matrix4x4 = directlightSprite.transform.worldMatrix;
 		mat.setForward(this._forward);
-		directionLight.transform.worldMatrix = mat;
+		directlightSprite.transform.worldMatrix = mat;
 
 		//初始化角色精灵
 		this.role = (<Sprite3D>this.scene.addChild(new Sprite3D()));
@@ -165,7 +168,7 @@ export class BoneLinkSprite3D {
 		}));
 	}
 
-	stypeFun0(label:string = "乘骑坐骑"): void {
+	stypeFun0(label: string = "乘骑坐骑"): void {
 
 		this.curStateIndex++;
 		if (this.curStateIndex % 3 == 1) {
@@ -220,7 +223,7 @@ export class BoneLinkSprite3D {
 		}
 
 		label = this.changeActionButton.label
-		Client.instance.send({type:"next",btype:this.btype,stype:0,value:label});
+		Client.instance.send({ type: "next", btype: this.btype, stype: 0, value: label });
 	}
 }
 

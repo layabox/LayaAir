@@ -4,8 +4,6 @@ import { FilterMode } from "../../../../RenderEngine/RenderEnum/FilterMode";
 import { RenderTargetFormat } from "../../../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { WrapMode } from "../../../../RenderEngine/RenderEnum/WrapMode";
 import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
-import { ShaderData, ShaderDataType } from "../../../../RenderEngine/RenderShader/ShaderData";
-import { ShaderDefine } from "../../../../RenderEngine/RenderShader/ShaderDefine";
 import { SubShader } from "../../../../RenderEngine/RenderShader/SubShader";
 import { VertexMesh } from "../../../../RenderEngine/RenderShader/VertexMesh";
 import { RenderTexture } from "../../../../resource/RenderTexture";
@@ -15,12 +13,14 @@ import { PostProcessEffect } from "../PostProcessEffect";
 import { PostProcessRenderContext } from "../PostProcessRenderContext";
 import BlitVS from "../../../../d3/shader/postprocess/BlitScreen.vs";
 import BlitLUTShader from "../../../../d3/shader/postprocess/BlitLUTScreen.fs";
-import { RenderState } from "../../../../RenderEngine/RenderShader/RenderState";
 import { Texture2D } from "../../../../resource/Texture2D";
-import { RenderContext3D } from "../RenderContext3D";
 import { Color } from "../../../../maths/Color";
 import { PostProcess } from "../../../component/PostProcess";
 import { LayaGL } from "../../../../layagl/LayaGL";
+import { ShaderDefine } from "../../../../RenderDriver/RenderModuleData/Design/ShaderDefine";
+import { ShaderData, ShaderDataType } from "../../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { RenderState } from "../../../../RenderDriver/RenderModuleData/Design/RenderState";
+
 
 export enum ToneMappingType {
 	None,
@@ -76,7 +76,6 @@ export class ColorGradEffect extends PostProcessEffect {
 
 	private _needBuildLUT: boolean = false;
 
-	private _lutCommond: CommandBuffer;
 	/**@internal */
 	_lutTex: RenderTexture;
 	private _lutBuilderMat = new Material();
@@ -518,9 +517,8 @@ export class ColorGradEffect extends PostProcessEffect {
 		this._needBuildLUT = true;
 		this._toneMapping = ToneMappingType.None;
 		this._blitlutParams = new Vector4();
-		this._lutShaderData = LayaGL.renderOBJCreate.createShaderData(null);
+		this._lutShaderData = LayaGL.renderDeviceFactory.createShaderData(null);
 		this.lutSize = 32;
-		this._lutCommond = new CommandBuffer();
 		this._lutBuilderMat = new Material();
 	}
 
@@ -621,12 +619,9 @@ export class ColorGradEffect extends PostProcessEffect {
 		} else {
 			this._lutBuilderMat.removeDefine(ColorGradEffect.SHADERDEFINE_ACES);
 		}
-		this._lutCommond.blitScreenQuadByMaterial(Texture2D.whiteTexture, this._lutTex, null, this._lutBuilderMat);
-		this._lutCommond.context = RenderContext3D._instance;
-		this._lutCommond._apply();
-		this._lutCommond.clear();
+		this._postProcess._context.command.blitScreenQuadByMaterial(Texture2D.whiteTexture, this._lutTex, null, this._lutBuilderMat);
 	}
-
+	private _postProcess:PostProcess
 	/**
 	 * 添加到后期处理栈时,会调用
 	 */
@@ -636,6 +631,7 @@ export class ColorGradEffect extends PostProcessEffect {
 		this._LUTShader = Shader3D.find("blitLUTShader");
 		postprocess._enableColorGrad = true;
 		postprocess._ColorGradEffect = this;
+		this._postProcess = postprocess;
 		// this._shader = Shader3D.find("PostProcessBloom");
 		// this._pyramid = new Array(BloomEffect.MAXPYRAMIDSIZE * 2);
 	}
