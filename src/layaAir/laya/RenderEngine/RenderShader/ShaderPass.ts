@@ -15,9 +15,6 @@ import { IShaderInstance } from "../../RenderDriver/DriverDesign/RenderDevice/IS
  * <code>ShaderPass</code> 类用于实现ShaderPass。
  */
 export class ShaderPass extends ShaderCompileDefineBase {
-
-    /** @internal */
-    private static _defineStrings: Array<string> = [];
     /** @internal */
     private static _debugDefineStrings: string[] = [];
     /** @internal */
@@ -80,10 +77,10 @@ export class ShaderPass extends ShaderCompileDefineBase {
         shaderProcessInfo.defineString = defines;
         shader = LayaGL.renderDeviceFactory.createShaderInstance(shaderProcessInfo, shaderpass);
 
-        }
+        
 
         if (Shader3D.debugMode)
-            ShaderVariantCollection.active.add(this, defines);
+            ShaderVariantCollection.active.add(this as any, defines);
 
         return shader;
     }

@@ -1,6 +1,7 @@
 import { IDefineDatas } from "../../RenderDriver/RenderModuleData/Design/IDefineDatas";
 import { Shader3D } from "./Shader3D";
 import { ShaderPass } from "./ShaderPass";
+import { SubShader } from "./SubShader";
 
 /**
  * 着色器变种。
@@ -121,6 +122,13 @@ export class ShaderVariant {
         var dest: ShaderVariant = new ShaderVariant(this._shader, this._subShaderIndex, this._passIndex, this._defineNames.slice());
         return dest;
     }
+}
+
+export interface IShaderVariant {
+    subShaderIndex: number;
+    passIndex: number;
+    defines: string[];
+    nodeCommonMap: string[];
 }
 
 /**
