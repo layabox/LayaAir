@@ -2160,7 +2160,7 @@ export class Context {
 		var alpha: number = Math.acos(nOdx * ndx + nOdy * ndy);
 		var halfAng: number = Math.PI / 2 - alpha;
 
-		len1 = r / Math.tan(halfAng);
+		len1 = r * Math.tan(halfAng);
 		var ptx1: number = len1 * ndx + x1;
 		var pty1: number = len1 * ndy + y1;
 
