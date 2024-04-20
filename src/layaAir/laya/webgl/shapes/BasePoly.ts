@@ -1,6 +1,6 @@
 import { Vector2 } from "../../maths/Vector2";
 // 引入角度阈值，用于判断是否为尖角
-const minAngle = 10 * Math.PI / 180; // 10度的弧度值
+const minAngle = 15 * Math.PI / 180; // 15度的弧度值
 export class BasePoly {
 
     private static tempData: any[] = new Array(256);
@@ -88,8 +88,11 @@ export class BasePoly {
             indices.push(indexBase + 0, indexBase + 1, indexBase + 3, indexBase + 3, indexBase + 2, indexBase + 0);
             indexBase += 2;
             // 夹角小于阈值,视为尖角,使用线段的中点作为拐角处的顶点
-            if (!this._setMiddleVertexs(p1x, p1y, p2x, p2y, p3x, p3y, w, result, this.vec2)) {
+            if (!this._setMiddleVertexs(p1x, p1y, p2x, p2y, p3x, p3y, w, result, this.vec2, indices, indexBase)) {
                 indexBase += 2;
+            }
+            else {
+                indexBase += 4;
             }
         }
 
@@ -102,8 +105,11 @@ export class BasePoly {
         if (p2x == points[0] && p2y == points[1]) {
             p3x = points[2];
             p3y = points[3];
-            if (!this._setMiddleVertexs(p1x, p1y, p2x, p2y, p3x, p3y, w, result, this.vec2)) {
+            if (!this._setMiddleVertexs(p1x, p1y, p2x, p2y, p3x, p3y, w, result, this.vec2, indices, indexBase)) {
                 indexBase += 2;
+            }
+            else {
+                indexBase += 4;
             }
             let len = result.length;
             result[startIndex] = result[len - 4];
@@ -119,7 +125,7 @@ export class BasePoly {
         return result;
     }
 
-    private static _setMiddleVertexs(x1: number, y1: number, x2: number, y2: number, x3: number, y3: number, w: number, vertexs: number[], out: Vector2) {
+    private static _setMiddleVertexs(x1: number, y1: number, x2: number, y2: number, x3: number, y3: number, w: number, vertexs: number[], out: Vector2, indices: number[], indexBase: number) {
         this.getNormal(x1, y1, x2, y2, w, out);
         let perpx = out.x;
         let perpy = out.y;
@@ -129,6 +135,7 @@ export class BasePoly {
         if (this._checkMinAngle(x1, y1, x2, y2, x3, y3)) {
             vertexs.push(x2 - perpx, y2 - perpy, x2 + perpx, y2 + perpy);
             vertexs.push(x2 - perp2x, y2 - perp2y, x2 + perp2x, y2 + perp2y);
+            indices.push(indexBase + 0, indexBase + 1, indexBase + 3, indexBase + 3, indexBase + 2, indexBase + 0);
             return false;
         }
 
@@ -147,7 +154,20 @@ export class BasePoly {
         }
         let px = (b1 * c2 - b2 * c1) / denom;
         let py = (a2 * c1 - a1 * c2) / denom;
-        vertexs.push(px, py, x2 - (px - x2), y2 - (py - y2));
+
+        vertexs.push(x2 - perpx, y2 - perpy, x2 + perpx, y2 + perpy);
+        if (denom > 0) {
+            vertexs.push(px, py, x2, y2);
+            indices.push(indexBase + 0, indexBase + 2, indexBase + 4);
+            indices.push(indexBase + 4, indexBase + 3, indexBase + 0);
+        }
+        else {
+            vertexs.push(x2 - (px - x2), y2 - (py - y2), x2, y2);
+            indices.push(indexBase + 1, indexBase + 2, indexBase + 5);
+            indices.push(indexBase + 5, indexBase + 3, indexBase + 1);
+        }
+        vertexs.push(x2 - perp2x, y2 - perp2y, x2 + perp2x, y2 + perp2y);
+        //vertexs.push(px, py, x2 - (px - x2), y2 - (py - y2));
         return true;
     }
 
