@@ -124,6 +124,7 @@ export class Scene extends Sprite {
 
     /**
     * 根据IDE内的节点id，获得节点实例
+    * @param id 节点ID
     */
     getNodeByID(id: number): any {
         if (this._idMap) return this._idMap[id];
@@ -143,9 +144,11 @@ export class Scene extends Sprite {
         this.onOpened(param);
     }
 
-    /**场景打开完成后，调用此方法（如果有弹出动画，则在动画完成后执行）*/
+    /**
+     * 场景打开完成后，调用此方法（如果有弹出动画，则在动画完成后执行）
+     * @param param 参数
+     */
     onOpened(param: any): void {
-        //trace("onOpened");
     }
 
     /**
@@ -177,6 +180,7 @@ export class Scene extends Sprite {
 
     /**
      * 场景销毁
+     * @param destroyChild 是否删除节点
      * @inheritDoc 
      * @override
      */

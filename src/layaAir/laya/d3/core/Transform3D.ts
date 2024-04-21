@@ -828,6 +828,7 @@ export class Transform3D extends EventDispatcher {
 
 	//----------------------------------------Discard-------------------------------------------------
 	/**
+	 * 世界坐标系缩放。
 	 * @deprecated
 	 */
 	get scale(): Vector3 {
@@ -856,7 +857,6 @@ export class Transform3D extends EventDispatcher {
 	 * 转化成局部坐标
 	 * @param pos 世界坐标
 	 * @param out 输出的局部坐标
-	 * 
 	*/
 	globalToLocal(pos: Vector3, out: Vector3): void {
 		this.worldMatrix.invert(Transform3D._tempMatrix0);
@@ -867,7 +867,6 @@ export class Transform3D extends EventDispatcher {
 	 * 转化成局部向量 
 	 * @param pos
 	 * @param out
-	 * 
 	 */
 	toLocalNormal(pos: Vector3, out: Vector3): void {
 		this.worldMatrix.invert(Transform3D._tempMatrix0);
@@ -880,19 +879,7 @@ export class Transform3D extends EventDispatcher {
 	 * @param dir 朝向方向
 	 */
 	toDir(forward: Vector3, dir: Vector3) {
-		//TODO 判断一样么
-		var wmat: Matrix4x4 = this.worldMatrix;
-		//var newForward:Vector3 = new Vector3();
-		//var newRot:Quaternion = new Quaternion();
-
-		//Vector3.TransformNormal(forward,wmat,newForward);
-		//Vector3.normalize(newForward,newForward);
-		//rotationTo(newRot,newForward,dir);
 		this.rotationTo(this.rotation, forward, dir);
-		//Quaternion.multiply(rotation,newRot,rotation)
-		//DEBUG
-		//Quaternion.createFromAxisAngle(new Vector3(0,1,0),75*Math.PI/180,newRot)
-		//DEBUG
 		this.rotation = this.rotation;
 	}
 	/**@internal */

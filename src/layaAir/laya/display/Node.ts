@@ -35,7 +35,9 @@ const ARRAY_EMPTY: any[] = [];
  *  <code>Node</code> 类是可放在显示列表中的所有对象的基类。该显示列表管理 Laya 运行时中显示的所有对象。使用 Node 类排列显示列表中的显示对象。Node 对象可以有子显示对象。
  */
 export class Node extends EventDispatcher {
+    /**@internal */
     static EVENT_SET_ACTIVESCENE: string = "ActiveScene";
+    /**@internal */
     static EVENT_SET_IN_ACTIVESCENE: string = "InActiveScene";
     /**@private */
     private _bits: number = 0;

@@ -105,7 +105,7 @@ export class BaseRender extends Component {
      * 更改顶点宏定义
      * @param oldMesh 旧Mesh 
      * @param mesh 新Mesh
-     * @param defineDatas 数据  
+     * @param defineDatas 宏数据  
      */
     static changeVertexDefine(oldMesh: Mesh, mesh: Mesh, defineDatas: ShaderData) {
 
@@ -252,7 +252,6 @@ export class BaseRender extends Component {
     /**
      * 设置GeometryBounds，
      * 如果设置了此bounds，渲染包围盒会根据geometryBounds和transform来更新，native层会下沉
-     * @internal
      */
     set geometryBounds(value: Bounds) {
         this._baseRenderNode.baseGeometryBounds = value;
@@ -750,6 +749,7 @@ export class BaseRender extends Component {
     }
 
     /**
+     * @internal
      * @override
      * @param dest 
      */
@@ -765,6 +765,8 @@ export class BaseRender extends Component {
 
     /**
     * 设置渲染flag,每一位都代表不同的淘汰原因，1表示lod淘汰
+    * @param flag 标记，可以查RenderBitFlag相关，也可以自定义标签位
+    * @param pass 设置标签值
     */
     setRenderbitFlag(flag: number, pass: boolean) {
         if (pass)

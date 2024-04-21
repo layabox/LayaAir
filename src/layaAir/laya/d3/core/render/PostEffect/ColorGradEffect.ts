@@ -21,7 +21,6 @@ import { ShaderDefine } from "../../../../RenderDriver/RenderModuleData/Design/S
 import { ShaderData, ShaderDataType } from "../../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { RenderState } from "../../../../RenderDriver/RenderModuleData/Design/RenderState";
 
-
 export enum ToneMappingType {
 	None,
 	ACES
@@ -31,15 +30,27 @@ export enum ToneMappingType {
  * <code>ColorGradEffect</code> 类用于创建调色Effect
  */
 export class ColorGradEffect extends PostProcessEffect {
+	/**
+	 * @internal
+	 * ACES宏
+	 */
 	static SHADERDEFINE_ACES: ShaderDefine;
+	/**
+	 * @internal
+	 * 自定义LUT宏
+	 */
 	static SHADERDEFINE_CUSTOMLUT: ShaderDefine;
-
+	/**@internal */
 	static SHADERVALUE_LUT: number;
+	/**@internal */
 	static SHADERVALUE_LUTPARAMS: number;
+	/**@internal */
 	static SHADERVALUE_CUSTOMLUT: number;
+	/**@internal */
 	static SHADERVALUE_CUSTOMLUTPARAMS: number;
 
 	/**
+	 * @internal
 	 * bloom resource init
 	 */
 	static init() {
@@ -209,6 +220,7 @@ export class ColorGradEffect extends PostProcessEffect {
 
 	/**
 	 * shadows, midtones, highlights 
+	 * 暗处，中亮，高亮调节
 	 */
 	public get enableSMH(): boolean {
 		return this._enableSMH;
@@ -401,6 +413,7 @@ export class ColorGradEffect extends PostProcessEffect {
 
 	/**
 	 * balance
+	 * 白平衡开启
 	 */
 	public get enableBalance() {
 		return this._enableBalance;
@@ -440,6 +453,7 @@ export class ColorGradEffect extends PostProcessEffect {
 
 	/**
 	 * Color Adjustments
+	 * 开启颜色调整
 	 */
 	public get enableColorAdjust() {
 		return this._enableColorAdjust;
@@ -621,9 +635,11 @@ export class ColorGradEffect extends PostProcessEffect {
 		}
 		this._postProcess._context.command.blitScreenQuadByMaterial(Texture2D.whiteTexture, this._lutTex, null, this._lutBuilderMat);
 	}
-	private _postProcess:PostProcess
+	private _postProcess: PostProcess
+
 	/**
 	 * 添加到后期处理栈时,会调用
+	 * @param 后期处理节点
 	 */
 	effectInit(postprocess: PostProcess) {
 		super.effectInit(postprocess);
@@ -638,6 +654,7 @@ export class ColorGradEffect extends PostProcessEffect {
 
 	/**
 	 * 释放Effect
+	 * @param postprocess 后期处理节点
 	 */
 	release(postprocess: PostProcess) {
 		super.release(postprocess);

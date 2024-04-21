@@ -56,21 +56,26 @@ export class Laya {
     static timer: Timer = null;
     /** 加载管理器的引用。*/
     static loader: Loader = null;
-
     /**@private Render 类的引用。*/
     static render: Render;
-
     private static _inited = false;
     private static _initCallbacks: Array<() => void | Promise<void>> = [];
     private static _beforeInitCallbacks: Array<(stageConfig: IStageConfig) => void | Promise<void>> = [];
     private static _afterInitCallbacks: Array<() => void | Promise<void>> = [];
-
+    /**@internal */
+    private static _evcode: string = "eva" + "l";
+    private static isNativeRender_enable: boolean = false;
     /**
-     * 初始化引擎。使用引擎需要先初始化引擎。
+     * 初始化引擎。使用引擎需要先初始化引擎。/Initialize the engine. 
+     * @param   stageConfig 初始化引擎的舞台设置/Stage settings used to initialize the engine
      */
     static init(stageConfig?: IStageConfig): Promise<void>;
+
     /**
-     * 初始化引擎。使用引擎需要先初始化引擎。
+     * @en Initialize the engine. To use the engine, you need to initialize it first.
+     * @param width design width.The width of the initialized game window
+     * @param height  design height.The height of the initialized game window
+     * @zh 初始化引擎。使用引擎需要先初始化引擎。
      * @param	width 初始化的游戏窗口宽度，又称设计宽度。
      * @param	height 初始化的游戏窗口高度，又称设计高度。
      */
@@ -175,9 +180,13 @@ export class Laya {
         style.background = "#000000";
     }
 
+    /**
+     * 初始化2D
+     * @param stageConfig 用于初始化2D的设置
+     */
     static initRender2D(stageConfig: IStageConfig) {
         stage = ((<any>window)).stage = ILaya.stage = Laya.stage = new Stage();
-        
+
         VertexElementFormat.__init__();
         Shader3D.init();
         MeshQuadTexture.__int__();
@@ -230,8 +239,8 @@ export class Laya {
     }
 
     /**
-     * 表示是否捕获全局错误并弹出提示。默认为false。
-     * 适用于移动设备等不方便调试的时候，设置为true后，如有未知错误，可以弹窗抛出详细错误堆栈。
+     * 弹出错误信息，适用于移动设备等不方便调试的时候，
+     * @param value 表示是否捕获全局错误并弹出提示。设置为true后，如有未知错误，可以弹窗抛出详细错误堆栈,默认为false。
      */
     static alertGlobalError(value: boolean) {
         var erralert: number = 0;
@@ -244,8 +253,6 @@ export class Laya {
             Browser.window.onerror = null;
         }
     }
-    /**@internal */
-    private static _evcode: string = "eva" + "l";
 
     /**@internal */
     static _runScript(script: string): any {
@@ -269,47 +276,11 @@ export class Laya {
         }
     }
 
-    private static isNativeRender_enable: boolean = false;
-
-    /**@private */
     private static enableNative(): void {
         if (Laya.isNativeRender_enable)
             return;
         Laya.isNativeRender_enable = true;
-        // RenderState2D.width = Browser.window.innerWidth;
-        // RenderState2D.height = Browser.window.innerHeight;
 
-        // Stage.clear = function (color: string): void {
-        //     Context.set2DRenderConfig();//渲染2D前要还原2D状态,否则可能受3D影响
-        //     var c: any[] = ColorUtils.create(color).arrColor;
-
-        //    // LayaGL.renderEngine.clearRenderTexture(RenderClearFlag.Color | RenderClearFlag.Depth, new Color(c[0], c[1], c[2], c[3]), 1, 0);
-        //     // if (c) gl.clearColor(c[0], c[1], c[2], c[3]);
-        //     // gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
-        //     RenderState2D.clear();
-        // }
-
-        // Sprite.drawToCanvas = function (sprite: Sprite, _renderType: number, canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number): any {
-        //     offsetX -= sprite.x;
-        //     offsetY -= sprite.y;
-        //     offsetX |= 0;
-        //     offsetY |= 0;
-        //     canvasWidth |= 0;
-        //     canvasHeight |= 0;
-
-        //     var canv: HTMLCanvas = new HTMLCanvas(false);
-        //     var ctx  = canv.getContext('2d') as Context;
-        //     canv.size(canvasWidth, canvasHeight);
-
-        //     ctx.asBitmap = true;
-        //     ctx._targets.start();
-        //     RenderSprite.renders[_renderType]._fun(sprite, ctx, offsetX, offsetY);
-        //     ctx.flush();
-        //     ctx._targets.end();
-        //     ctx._targets.restore();
-        //     return canv;
-        // }
-        //RenderTexture2D.prototype._uv = RenderTexture2D.flipyuv;
         Object["defineProperty"](RenderTexture2D.prototype, "uv", {
             "get": function (): any {
                 return this._uv;
@@ -332,8 +303,9 @@ export class Laya {
             return this._texture;
         }
     }
+
     /**
-     * 引擎各个模块，例如物理，寻路等，如果有初始化逻辑可以在这里注册初始化函数。开发者一般不直接使用。
+     * 新增初始化函数，引擎各个模块，例如物理，寻路等，如果有初始化逻辑可以在这里注册初始化函数。开发者一般不直接使用。
      * @param callback 模块的初始化函数
      */
     static addInitCallback(callback: () => void | Promise<void>) {
@@ -342,7 +314,7 @@ export class Laya {
 
     /**
      * 在引擎初始化前执行自定义逻辑。此时Stage尚未创建，因为可以修改stageConfig实现动态舞台配置。
-     * @param callback 
+     * @param callback 模块的初始化函数
      */
     static addBeforeInitCallback(callback: (stageConfig: IStageConfig) => void | Promise<void>): void {
         Laya._beforeInitCallbacks.push(callback);
@@ -350,7 +322,7 @@ export class Laya {
 
     /**
      * 在引擎初始化后执行自定义逻辑
-     * @param callback 
+     * @param callback 模块的初始化函数
      */
     static addAfterInitCallback(callback: () => void | Promise<void>): void {
         Laya._afterInitCallbacks.push(callback);

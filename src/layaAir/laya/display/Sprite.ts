@@ -103,7 +103,7 @@ export class Sprite extends Node {
     _style: SpriteStyle = SpriteStyle.EMPTY;
     /**@internal */
     _cacheStyle: CacheStyle = CacheStyle.EMPTY;
-    private _filters:Filter[]=null;
+    private _filters: Filter[] = null;
     /**@internal */
     _boundStyle: BoundsStyle | null = null;
     /**@internal */
@@ -143,6 +143,7 @@ export class Sprite extends Node {
 
     /**
      * 销毁精灵
+     * @param destroyChild 是否删除子节点
      * @inheritDoc 
      * @override
      */
@@ -219,9 +220,9 @@ export class Sprite extends Node {
         this._getCacheStyle().userSetCache = value;
 
         if (this.mask && value === 'normal') return;
-        if(value=='bitmap'||value=='normal'){
+        if (value == 'bitmap' || value == 'normal') {
             this._renderType |= SpriteConst.CANVAS;
-        }else{
+        } else {
             this._renderType &= ~SpriteConst.CANVAS;
         }
         //this._checkCanvasEnable();
@@ -799,8 +800,8 @@ export class Sprite extends Node {
     }
 
     /**
-     * <p>对象的矩阵信息。通过设置矩阵可以实现节点旋转，缩放，位移效果。</p>
-     * <p>矩阵更多信息请参考 <code>Matrix</code></p>
+     * @en The matrix information of the object. By setting the matrix, node rotation, scaling, and displacement effects can be achieved.
+     * @zh 对象的矩阵信息。通过设置矩阵可以实现节点旋转，缩放，位移效果。
      */
     get transform(): Matrix {
         return this._tfChanged ? this._adjustTransform() : this._transform;
@@ -982,7 +983,9 @@ export class Sprite extends Node {
         this._setAlpha(value);
     }
 
-    /**表示是否可见，默认为true。如果设置不可见，节点将不被渲染。*/
+    /**
+     * 表示是否可见，默认为true。如果设置不可见，节点将不被渲染。
+     */
     get visible(): boolean {
         return this.get_visible();
     }
@@ -1236,10 +1239,11 @@ export class Sprite extends Node {
 
     /**
      * 绘制到一个Texture对象
-     * @param canvasWidth 
-     * @param canvasHeight 
-     * @param offsetX 
-     * @param offsetY 
+     * @param canvasWidth 画布宽度
+     * @param canvasHeight 画布高度
+     * @param offsetX 绘制的 X 轴偏移量。
+     * @param offsetY 绘制的 Y 轴偏移量。
+     * @param rt 渲染目标
      */
     drawToTexture(canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt: RenderTexture2D | null = null): Texture | RenderTexture2D {
         let res = Sprite.drawToTexture(this, canvasWidth, canvasHeight, offsetX, offsetY, rt);
@@ -1248,8 +1252,8 @@ export class Sprite extends Node {
 
     /**
      * 把当前对象渲染到指定的贴图上。贴图由外部指定，避免每次都创建。
-     * @param offx 
-     * @param offy 
+     * @param offx 绘制的 X 轴偏移量。
+     * @param offy 绘制的 Y 轴偏移量。
      * @param tex 输出渲染结果
      */
     drawToTexture3D(offx: number, offy: number, tex: Texture2D) {
@@ -1262,10 +1266,10 @@ export class Sprite extends Node {
      * 绘制到画布。
      */
     static drawToCanvas(sprite: Sprite, canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number): HTMLCanvas {
-        if(arguments.length>5){
+        if (arguments.length > 5) {
             throw 'drawToCanvas 接口参数不对'
         }
-        let rt = Sprite.drawToTexture(sprite,canvasWidth,canvasHeight,offsetX, offsetY) as RenderTexture2D;
+        let rt = Sprite.drawToTexture(sprite, canvasWidth, canvasHeight, offsetX, offsetY) as RenderTexture2D;
         var dt = rt.getData(0, 0, canvasWidth, canvasHeight) as Uint8Array;
         var imgdata = new ImageData(canvasWidth, canvasHeight);;	//创建空的imagedata。因为下面要翻转，所以不直接设置内容
         //翻转getData的结果。
@@ -1286,7 +1290,7 @@ export class Sprite extends Node {
         var ctx2d = <CanvasRenderingContext2D>(canv.getContext('2d') as any);
         ctx2d.putImageData(imgdata, 0, 0);
         rt.destroy();
-        return canv;        
+        return canv;
         // offsetX -= sprite.x;
         // offsetY -= sprite.y;
         // offsetX |= 0;
@@ -1335,15 +1339,15 @@ export class Sprite extends Node {
      * 
      */
     static drawToTexture(sprite: Sprite, canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt: RenderTexture2D | null = null): Texture | RenderTexture2D {
-        let renderout = rt || new RenderTexture2D(canvasWidth,canvasHeight,RenderTargetFormat.R8G8B8A8);
+        let renderout = rt || new RenderTexture2D(canvasWidth, canvasHeight, RenderTargetFormat.R8G8B8A8);
         let ctx = new Context();
-        if(rt){
-            ctx.size(rt.width,rt.height);
-        }else{
-            ctx.size(canvasWidth,canvasHeight)
+        if (rt) {
+            ctx.size(rt.width, rt.height);
+        } else {
+            ctx.size(canvasWidth, canvasHeight)
         }
         ctx.render2D = ctx.render2D.clone(renderout);
-        let outrt = RenderSprite.RenderToRenderTexture(sprite,ctx,offsetX,offsetY,renderout);
+        let outrt = RenderSprite.RenderToRenderTexture(sprite, ctx, offsetX, offsetY, renderout);
         // if(!rt){
         //     //这是原来的规则，如果没有提供rt就返回texture，否则就返回rt
         //     var rtex: Texture = new Texture(outrt,Texture.INV_UV);
@@ -1617,14 +1621,17 @@ export class Sprite extends Node {
         return new Sprite().loadImage(url);
     }
 
-    /**cacheAs后，设置自己和父对象缓存失效。*/
+    /**
+     * 重新绘制,cacheAs后，设置自己和父对象缓存失效。
+     * @param type 重新绘制类型
+     */
     repaint(type: number = SpriteConst.REPAINT_CACHE): void {
         if (!(this._repaint & type)) {
             this._repaint |= type;
             this.parentRepaint(type);
         }
-        if(this._cacheStyle){
-            this._cacheStyle.renderTexture=null;//TODO 重用
+        if (this._cacheStyle) {
+            this._cacheStyle.renderTexture = null;//TODO 重用
         }
         if (this._cacheStyle && this._cacheStyle.maskParent) {
             this._cacheStyle.maskParent.repaint(type);
@@ -1656,7 +1663,11 @@ export class Sprite extends Node {
         this.repaint(SpriteConst.REPAINT_ALL);
     }
 
-    /**cacheAs时，设置所有父对象缓存失效。 */
+    /**
+     * @override
+     * 重新绘制父节点,cacheAs时，设置所有父对象缓存失效。
+     * @param type 重新绘制类型
+     */
     parentRepaint(type: number = SpriteConst.REPAINT_CACHE): void {
         var p: Sprite = <Sprite>this._parent;
         if (p && !(p._repaint & type)) {
@@ -1771,7 +1782,10 @@ export class Sprite extends Node {
         return rect.contains(x, y);
     }
 
-    /**获得相对于本对象上的鼠标坐标信息。*/
+    /**
+     * 获得相对于本对象上的鼠标坐标信息。
+     * @returns 屏幕点信息
+     */
     getMousePoint(): Point {
         return this.globalToLocal(Point.TEMP.setTo(ILaya.stage.mouseX, ILaya.stage.mouseY));
     }
@@ -1877,6 +1891,9 @@ export class Sprite extends Node {
         return this._getBit(NodeFlags.DRAWCALL_OPTIMIZE);
     }
 
+    /**
+     * @internal
+     */
     onAfterDeserialize() {
         super.onAfterDeserialize();
 
@@ -1977,13 +1994,6 @@ export class Sprite extends Node {
             this._setGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Matrix, false);
         }
         return this._globalMatrix;
-    }
-
-    /**
-     * 自定义材质
-     */
-    CustomMaterial() {
-
     }
 
     /**

@@ -319,6 +319,8 @@ export class Sprite3D extends Node {
     }
 
     /**
+     * 删除
+     * @param destroyChild 是否删除子节点
      * @inheritDoc
      * @override
      */

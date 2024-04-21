@@ -47,7 +47,7 @@ export class PostProcessEffect {
 	 * @override
 	 * @returns 
 	 */
-	getCameraDepthTextureModeFlag() {
+	getCameraDepthTextureModeFlag?() {
 		return 0;
 	}
 
@@ -56,7 +56,7 @@ export class PostProcessEffect {
 	 * @inheritDoc
 	 * @override
 	 */
-	effectInit(postprocess: PostProcess) {
+	effectInit?(postprocess: PostProcess) {
 		return;
 	}
 
@@ -65,15 +65,14 @@ export class PostProcessEffect {
 	 * @inheritDoc
 	 * @override
 	 */
-	release(postprocess: PostProcess) {
+	release?(postprocess: PostProcess) {
 
 	}
 
 	/**
 	 * 渲染
-	 * @internal
 	 */
-	render(context: PostProcessRenderContext): void {
+	render?(context: PostProcessRenderContext): void {
 
 	}
 }

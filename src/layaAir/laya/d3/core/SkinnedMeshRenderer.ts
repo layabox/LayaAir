@@ -121,9 +121,6 @@ export class SkinnedMeshRenderer extends MeshRenderer {
         this._baseRenderNode.renderNodeType = BaseRenderType.SkinnedMeshRender;
     }
 
-    // protected
-
-
     /**
      * override it
      * @returns 
@@ -132,7 +129,9 @@ export class SkinnedMeshRenderer extends MeshRenderer {
         return Laya3DRender.Render3DModuleDataFactory.createBaseRenderNode();
     }
 
-
+    /**
+     * @internal
+     */
     protected _computeSkinnedData(): void {
         if (this._cacheMesh) {
             var bindPoses: Matrix4x4[] = this._cacheMesh._inverseBindPoses;
@@ -254,7 +253,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 
     /**
      * @internal
-     * @param scene 
+     * @param scene 场景类
      */
     _setBelongScene(scene: Scene3D): void {
         super._setBelongScene(scene);

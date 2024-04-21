@@ -203,6 +203,7 @@ export class AnimatorControllerLayer implements IClone {
 
     /**
      * 获取动画状态。
+     * @param name 动画状态机名称
      * @return 动画状态。
      */
     getAnimatorState(name: string): AnimatorState | null {

@@ -116,6 +116,7 @@ export class Animation extends AnimationBase {
 
     /**
      * 销毁 
+     * @param 是否销毁子节点
      * @inheritDoc
      * @override
      */

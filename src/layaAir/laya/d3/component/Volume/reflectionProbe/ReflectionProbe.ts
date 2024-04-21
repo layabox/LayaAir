@@ -34,6 +34,7 @@ export class ReflectionProbe extends Volume {
 	}
 
 	//因为纹理数量问题 暂不支持探针混合
+	/**@internal */
 	static TEMPVECTOR3: Vector3 = new Vector3();
 	/** 默认解码数据 */
 	static defaultTextureHDRDecodeValues: Vector4 = new Vector4(1.0, 1.0, 0.0, 0.0);

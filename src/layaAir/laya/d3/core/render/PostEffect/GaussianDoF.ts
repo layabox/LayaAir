@@ -231,6 +231,7 @@ export class GaussianDoF extends PostProcessEffect {
     }
 
     /**
+    * @internal
     * @override
     * @param context 
     */

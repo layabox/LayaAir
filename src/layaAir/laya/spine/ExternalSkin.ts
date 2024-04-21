@@ -5,13 +5,16 @@ import { SpineSkeleton } from "./SpineSkeleton";
 import { SpineTemplet } from "./SpineTemplet";
 
 export class ExternalSkin {
-    /**@internal @protected */
+    /**@internal*/
     protected _source: string;
-    /**@internal @protected */
+    /**@internal*/
     protected _templet: SpineTemplet;
-    /**@internal @protected */
+    /**@internal*/
     protected _items: ExternalSkinItem[];
-    /**目标spine */
+
+    /**
+     * 目标Spine
+     */
     target: SpineSkeleton;
 
     /**
@@ -72,8 +75,8 @@ export class ExternalSkin {
     }
 
     /**
-     * 替换外部i皮肤spine
      * @internal
+     * 替换外部i皮肤spine
      * @returns 
      */
     flush() {

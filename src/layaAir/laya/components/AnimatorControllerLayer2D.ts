@@ -108,6 +108,7 @@ export class AnimatorControllerLayer2D implements IClone {
 
     /**
      * 默认状态名称
+     * @param str 默认状态名称
      */
     set defaultStateName(str: string) {
         this._defaultState = this.getStateByName(str);

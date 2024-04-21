@@ -66,30 +66,30 @@ export class Volume extends Component {
         return this._bounds;
     }
 
+    /**
+     * 体积组件自身包围盒最大点
+     */
     get boundsMax(): Vector3 {
         return this._primitiveBounds.getMax();
     }
 
-    /**
-     * primitive包围盒max
-     */
     set boundsMax(value: Vector3) {
         this._primitiveBounds.setMax(value);
         this._reCaculateBoundBox();
     }
 
     /**
-     * primitiveBoxMax
+     * 体积组件自身包围盒最小点
      */
-    set boundsMin(value: Vector3) {
-        this._primitiveBounds.setMin(value);
-        this._reCaculateBoundBox();
-    }
-
     get boundsMin(): Vector3 {
         return this._primitiveBounds.getMin();
     }
 
+    set boundsMin(value: Vector3) {
+        this._primitiveBounds.setMin(value);
+        this._reCaculateBoundBox();
+    }
+    
     /**
      * 探针位置
      */

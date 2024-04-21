@@ -6,6 +6,7 @@ import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
  * 光照贴图。
  */
 export class Lightmap {
+    /**@internal */
     static ApplyLightmapEvent: string = "ApplyLightmap";
 
     /**@internal */

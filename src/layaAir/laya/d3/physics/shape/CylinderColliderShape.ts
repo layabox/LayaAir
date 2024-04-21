@@ -91,6 +91,7 @@ export class CylinderColliderShape extends Physics3DColliderShape {
 
 	/**
 	 * 克隆
+	 * @param destObject  克隆目标
 	 * @inheritDoc
 	 * @override
 	 * @returns 克隆的ConeColliderShape实例

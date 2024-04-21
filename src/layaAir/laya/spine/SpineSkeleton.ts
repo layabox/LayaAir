@@ -36,21 +36,21 @@ export class SpineSkeleton extends Sprite {
     /**状态-播放中 */
     static readonly PLAYING: number = 2;
 
-    /**@internal @protected */
+    /**@internal*/
     protected _source: string;
-    /**@internal @protected */
+    /**@internal*/
     protected _templet: SpineTemplet;
-    /**@internal @protected */
+    /**@internal*/
     protected _timeKeeper: spine.TimeKeeper;
-    /**@internal @protected */
+    /**@internal*/
     protected _skeleton: spine.Skeleton;
-    /**@internal @protected */
+    /**@internal*/
     protected _state: spine.AnimationState;
-    /**@internal @protected */
+    /**@internal*/
     protected _stateData: spine.AnimationStateData;
-    /**@internal @protected */
+    /**@internal*/
     protected _currentPlayTime: number = 0;
-    /**@internal @protected */
+    /**@internal*/
     protected _renerer: SpineSkeletonRenderer;
 
     /** @internal */
@@ -178,6 +178,7 @@ export class SpineSkeleton extends Sprite {
 
     /**
      * 设置动画模板的引用
+     * @param value 引用的模板
      */
     set templet(value: SpineTemplet) {
         this.init(value);
@@ -388,7 +389,7 @@ export class SpineSkeleton extends Sprite {
 
     /**
      * 通过名字得到插槽的引用
-     * @param slotName 
+     * @param slotName 查找的插槽名字
      */
     getSlotByName(slotName: string) {
         return this._skeleton.findSlot(slotName)
@@ -510,6 +511,7 @@ export class SpineSkeleton extends Sprite {
 
     /**
      * 销毁当前动画
+     * @param destroyChild 是否销毁子节点
      * @override
      */
     destroy(destroyChild: boolean = true): void {
@@ -537,9 +539,9 @@ export class SpineSkeleton extends Sprite {
 
     /**
      * 设置当动画被改变时，存储混合(交叉淡出)的持续时间
-     * @param fromNameOrIndex 
-     * @param toNameOrIndex 
-     * @param duration
+     * @param fromNameOrIndex 源动画的名字或索引
+     * @param toNameOrIndex 目标动画的名字或索引
+     * @param duration 动画过度持续时间
      */
     setMix(fromNameOrIndex: any, toNameOrIndex: any, duration: number) {
         duration /= 1000;
@@ -555,9 +557,8 @@ export class SpineSkeleton extends Sprite {
     }
 
     /**
-     * 获取骨骼信息(spine.Bone)
-     * 注意: 获取到的是spine运行时的骨骼信息(spine.Bone)，不适用引擎的方法
-     * @param boneName 
+     * 获取骨骼信息(spine.Bone) 注意: 获取到的是spine运行时的骨骼信息(spine.Bone)，不适用引擎的方法
+     * @param boneName 骨骼名称
      */
     getBoneByName(boneName: string) {
         return this._skeleton.findBone(boneName);
@@ -572,8 +573,8 @@ export class SpineSkeleton extends Sprite {
 
     /**
      * 替换插槽皮肤
-     * @param slotName 
-     * @param attachmentName 
+     * @param slotName 插槽名称
+     * @param attachmentName 附件名称
      */
     setSlotAttachment(slotName: string, attachmentName: string) {
         this._skeleton.setAttachment(slotName, attachmentName);

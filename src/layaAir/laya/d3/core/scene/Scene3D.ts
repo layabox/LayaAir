@@ -13,7 +13,7 @@ import { SkyRenderer } from "../../resource/models/SkyRenderer";
 import { TextureCube } from "../../../resource/TextureCube";
 import { Utils3D } from "../../utils/Utils3D";
 import { BaseCamera } from "../BaseCamera";
-import { Camera, CameraClearFlags } from "../Camera";
+import { Camera } from "../Camera";
 import { AlternateLightQueue, LightQueue } from "../light/LightQueue";
 import { RenderContext3D } from "../render/RenderContext3D";
 import { Lightmap } from "./Lightmap";
@@ -75,13 +75,6 @@ export class Scene3D extends Sprite {
     static _shadowCasterPass: ShadowCasterPass;
     /**@internal */
     static physicsSettings: PhysicsSettings = new PhysicsSettings();
-    /** reflection mode */
-    static REFLECTIONMODE_SKYBOX: number = 0;
-    static REFLECTIONMODE_CUSTOM: number = 1;
-    /** RenderQueue mode */
-    static SCENERENDERFLAG_RENDERQPAQUE = 0;
-    static SCENERENDERFLAG_SKYBOX = 1;
-    static SCENERENDERFLAG_RENDERTRANSPARENT = 2;
     /**Scene3D UniformMap */
     static sceneUniformMap: CommandUniformMap;
     /** Scene UniformPropertyID */
@@ -109,7 +102,7 @@ export class Scene3D extends Sprite {
     static GIRotate: number;
     /** @internal */
     static sceneID: number;
-
+    /**@internal */
     static SceneUBOData: UnifromBufferData;
     /**@internal scene uniform block */
     static SCENEUNIFORMBLOCK: number;
@@ -1088,7 +1081,8 @@ export class Scene3D extends Sprite {
         }
     }
 
-    private _cullInfoCamera: Camera
+    private _cullInfoCamera: Camera;
+
     /**
      * 获取cullCamera
      */
@@ -1152,9 +1146,11 @@ export class Scene3D extends Sprite {
     }
 
     /**
+     * 
      * @inheritDoc
      * @override
      * 删除资源
+     * @param destroyChild 是否删除子节点
      */
     destroy(destroyChild: boolean = true): void {
         if (this._destroyed)
@@ -1194,7 +1190,7 @@ export class Scene3D extends Sprite {
 
     /**
      * 获得某个组件的管理器
-     * @param type
+     * @param type 组件管理类
      */
     getComponentElementManager(type: string) {
         return this.componentElementMap.get(type);
@@ -1294,6 +1290,7 @@ export class Scene3D extends Sprite {
 
     /**
      * @deprecated
+     * 雾效范围
      */
     get fogRange(): number {
         return this._fogParams.y - this.fogParams.x;

@@ -11,8 +11,9 @@ export class Prefab extends Resource {
     public readonly version: number;
 
     /**
+     * @internal
+     * @protected 
      * 依赖内容
-     * @protected
      */
     protected _deps: Array<Resource>;
 
@@ -79,8 +80,9 @@ export class Prefab extends Resource {
     }
 
     /**
-     * 销毁资源
+     * @internal
      * @protected
+     * 销毁资源
      */
     protected _disposeResource(): void {
         for (let res of this._deps) {
@@ -91,6 +93,9 @@ export class Prefab extends Resource {
         }
     }
 
+    /**
+     * 
+     */
     public get obsolute(): boolean {
         return this._obsolute;
     }

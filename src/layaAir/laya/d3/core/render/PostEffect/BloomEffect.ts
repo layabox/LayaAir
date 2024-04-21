@@ -143,6 +143,7 @@ export class BloomEffect extends PostProcessEffect {
 	}
 
 	/**
+	 * @internal
 	 * shader初始化
 	 */
 	static CompositeInit() {
@@ -159,7 +160,7 @@ export class BloomEffect extends PostProcessEffect {
 			'u_Bloom_DirtTileOffset': ShaderDataType.Vector4,
 			'u_Bloom_Settings': ShaderDataType.Vector4,
 			'u_Bloom_Color': ShaderDataType.Color,
-			
+
 		};
 		let shader = Shader3D.add("PostProcessComposite");
 
@@ -174,6 +175,7 @@ export class BloomEffect extends PostProcessEffect {
 	}
 
 	/**
+	 * @internal
 	 * 初始化宏定义
 	 */
 	static __initDefine__() {
@@ -390,6 +392,7 @@ export class BloomEffect extends PostProcessEffect {
 
 	/**
 	 * 添加到后期处理栈时,会调用
+	 * @param postprocess 后期处理组件
 	 */
 	effectInit(postprocess: PostProcess) {
 		super.effectInit(postprocess);
@@ -409,6 +412,7 @@ export class BloomEffect extends PostProcessEffect {
 
 	/**
 	 * 释放Effect
+	 * @param postprocess 后期处理组件
 	 */
 	release(postprocess: PostProcess) {
 		super.release(postprocess);

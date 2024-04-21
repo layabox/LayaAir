@@ -81,8 +81,8 @@ export class Stage extends Sprite {
     /**应用保持设计比例不变，全屏显示全部内容(类似showall，但showall非全屏，会有黑边)，根据屏幕长宽比，自动选择使用SCALE_FIXED_WIDTH或SCALE_FIXED_HEIGHT*/
     static SCALE_FIXED_AUTO: string = "fixedauto";
 
-    static SCALE_FIXED_AUTO_LAYAME: string = "fixedauto_layame";
-    static SCALE_FIXED_AUTO_LAYAVERSE: string = "fixedauto_layaverse";
+    // static SCALE_FIXED_AUTO_LAYAME: string = "fixedauto_layame";
+    // static SCALE_FIXED_AUTO_LAYAVERSE: string = "fixedauto_layaverse";
 
     /**画布水平居左对齐。*/
     static ALIGN_LEFT: string = "left";
@@ -161,7 +161,7 @@ export class Stage extends Sprite {
     /**@private */
     private _isVisibility: boolean;
     /**@internal webgl Color*/
-    _wgColor = new Color(0,0,0,0);// number[] | null = [0, 0, 0, 1];
+    _wgColor = new Color(0, 0, 0, 0);// number[] | null = [0, 0, 0, 1];
     /**@internal */
     _scene3Ds: Scene3D[] = [];
 
@@ -187,7 +187,7 @@ export class Stage extends Sprite {
         this._isVisibility = true;
 
         //this.drawCallOptimize=true;
-        this.useRetinalCanvas =LayaEnv.isConch?true:Config.useRetinalCanvas;
+        this.useRetinalCanvas = LayaEnv.isConch ? true : Config.useRetinalCanvas;
 
         var window: any = Browser.window;
         //var _me = this;	
@@ -271,42 +271,58 @@ export class Stage extends Sprite {
         return (Browser.onMobile && InputManager.isTextInputting);
     }
 
-    /**@inheritDoc @override*/
+    /**
+     * @internal
+     * @override
+     * @param value 数值
+     */
     set_width(value: number) {
         this.designWidth = value;
         super.set_width(value);
         this.updateCanvasSize(true);
     }
+
     /**
-     * @inheritDoc 
+     * @internal
      * @override
+     * @param value 数值
      */
     get_width(): number {
         this.needUpdateCanvasSize();
         return super.get_width();
     }
 
-    /**@inheritDoc @override */
+    /**
+     * @override
+     * @internal
+     */
     set_height(value: number) {
         this.designHeight = value;
         super.set_height(value);
         this.updateCanvasSize(true);
     }
 
-    /** @override*/
+    /**
+     * @override
+     * @internal
+     */
     get_height(): number {
         this.needUpdateCanvasSize();
         return super.get_height();
     }
 
-    /**@override*/
-    set transform(value: Matrix) {
-        super.set_transform(value);
-    }
-    /**@inheritDoc @override*/
+    /**
+     * @override
+     * @en The matrix information of the object. By setting the matrix, node rotation, scaling, and displacement effects can be achieved.
+     * @zh 对象的矩阵信息。通过设置矩阵可以实现节点旋转，缩放，位移效果。
+     */
     get transform(): Matrix {
         if (this._tfChanged) this._adjustTransform();
         return (this._transform = this._transform || this._createTransform());
+    }
+
+    set transform(value: Matrix) {
+        super.set_transform(value);
     }
 
     /**
@@ -324,6 +340,11 @@ export class Stage extends Sprite {
     }
 
     private _needUpdateCanvasSize: boolean = false;
+
+    /**
+     * 更新canvas大小
+     * @param delay 是否立即执行改动，如果是true，将延迟执行
+     */
     updateCanvasSize(delay?: boolean): void {
         if (delay) {
             if (!this._needUpdateCanvasSize) {
@@ -336,6 +357,9 @@ export class Stage extends Sprite {
         }
     }
 
+    /**
+     * 同步最终canvas大小
+     */
     needUpdateCanvasSize() {
         if (this._needUpdateCanvasSize)
             this.updateCanvasSize();
@@ -422,29 +446,29 @@ export class Stage extends Sprite {
                     this._width = canvasWidth = Math.round(screenWidth / scaleY);
                 }
                 break;
-            case Stage.SCALE_FIXED_AUTO_LAYAME:
-                if (screenWidth < screenHeight) {
-                    scaleY = scaleX;
-                    this._height = canvasHeight = Math.round(screenHeight / scaleX);
-                } else {
-                    scaleX = screenHeight / this.designWidth;
-                    scaleY = scaleX;
-                    this._width = canvasWidth = Math.round(screenWidth / scaleX);
-                    this._height = canvasHeight = Math.round(screenHeight / scaleY);
-                }
-                break;
-            case Stage.SCALE_FIXED_AUTO_LAYAVERSE:
-                if (screenWidth > screenHeight) {
-                    scaleX = scaleY;
-                    this._width = canvasWidth = Math.round(screenWidth / scaleY);
-                }
-                else {
-                    scaleX = screenWidth / this.designHeight;
-                    scaleY = scaleX;
-                    this._width = canvasWidth = Math.round(screenWidth / scaleX);
-                    this._height = canvasHeight = Math.round(screenHeight / scaleY);
-                }
-                break;
+            // case Stage.SCALE_FIXED_AUTO_LAYAME:
+            //     if (screenWidth < screenHeight) {
+            //         scaleY = scaleX;
+            //         this._height = canvasHeight = Math.round(screenHeight / scaleX);
+            //     } else {
+            //         scaleX = screenHeight / this.designWidth;
+            //         scaleY = scaleX;
+            //         this._width = canvasWidth = Math.round(screenWidth / scaleX);
+            //         this._height = canvasHeight = Math.round(screenHeight / scaleY);
+            //     }
+            //     break;
+            // case Stage.SCALE_FIXED_AUTO_LAYAVERSE:
+            //     if (screenWidth > screenHeight) {
+            //         scaleX = scaleY;
+            //         this._width = canvasWidth = Math.round(screenWidth / scaleY);
+            //     }
+            //     else {
+            //         scaleX = screenWidth / this.designHeight;
+            //         scaleY = scaleX;
+            //         this._width = canvasWidth = Math.round(screenWidth / scaleX);
+            //         this._height = canvasHeight = Math.round(screenHeight / scaleY);
+            //     }
+            //     break;
         }
 
         if (this.useRetinalCanvas) {
@@ -528,17 +552,17 @@ export class Stage extends Sprite {
 
     /**
      * 屏幕旋转用layaverse 需要
-     * @param screenWidth 
-     * @param screenHeight 
-     * @param _screenMode 
+     * @param screenWidth 屏幕宽度
+     * @param screenHeight 屏幕高度
+     * @param _screenMode 屏幕模式 "none"为默认值，horizontal为横屏，vertical为竖屏
      * @returns 
      */
-    setScreenSizeForScene(screenWidth: number, screenHeight: number, _screenMode: string) {
+    setScreenSizeForScene(screenWidth: number, screenHeight: number, screenMode: string) {
         //计算是否旋转
         var rotation: boolean = false;
-        if (/**this.*/_screenMode !== Stage.SCREEN_NONE) {
+        if (/**this.*/screenMode !== Stage.SCREEN_NONE) {
             var screenType: string = screenWidth / screenHeight < 1 ? Stage.SCREEN_VERTICAL : Stage.SCREEN_HORIZONTAL;
-            rotation = screenType !== /**this.*/_screenMode;
+            rotation = screenType !== /**this.*/screenMode;
             if (rotation) {
                 //宽高互换
                 var temp: number = screenHeight;
@@ -690,9 +714,9 @@ export class Stage extends Sprite {
 
     set bgColor(value: string) {
         this._bgColor = value;
-        if (value){
-            let colorArr =  ColorUtils.create(value).arrColor;
-            this._wgColor.setValue(colorArr[0],colorArr[1],colorArr[2],colorArr[3]);
+        if (value) {
+            let colorArr = ColorUtils.create(value).arrColor;
+            this._wgColor.setValue(colorArr[0], colorArr[1], colorArr[2], colorArr[3]);
         }
         else
             this._wgColor = null;
@@ -723,18 +747,25 @@ export class Stage extends Sprite {
         return Math.round(InputManager.mouseY / this.clientScaleY);
     }
 
-    /**@inheritDoc @override*/
+    /**
+     * 获得屏幕上的鼠标坐标信息
+     * @returns 屏幕点信息
+     */
     getMousePoint(): Point {
         return Point.TEMP.setTo(this.mouseX, this.mouseY);
     }
 
-    /**当前视窗由缩放模式导致的 X 轴缩放系数。*/
+    /**
+     * 当前视窗由缩放模式导致的 X 轴缩放系数。
+     */
     get clientScaleX(): number {
         this.needUpdateCanvasSize();
         return this._transform ? this._transform.getScaleX() : 1;
     }
 
-    /**当前视窗由缩放模式导致的 Y 轴缩放系数。*/
+    /**
+     * 当前视窗由缩放模式导致的 Y 轴缩放系数。
+     */
     get clientScaleY(): number {
         this.needUpdateCanvasSize();
         return this._transform ? this._transform.getScaleY() : 1;
@@ -756,12 +787,20 @@ export class Stage extends Sprite {
         this._screenMode = value;
     }
 
-    /**@inheritDoc @override*/
+    /**
+     * @override
+     * 重新绘制
+     * @param type 重新绘制类型
+     */
     repaint(type: number = SpriteConst.REPAINT_CACHE): void {
         this._repaint |= type;
     }
 
-    /**@inheritDoc @override*/
+    /**
+     * @override
+     * 重新绘制父节点
+     * @param type 重新绘制类型
+     */
     parentRepaint(type: number = SpriteConst.REPAINT_CACHE): void {
     }
 
@@ -786,13 +825,21 @@ export class Stage extends Sprite {
         return Browser.now() - this._frameStartTime;
     }
 
-    /**@inheritDoc @override*/
+    /**
+     * @override
+     * 表示是否可见，默认为true。如果设置不可见，节点将不被渲染。
+     */
+    get visible() {
+        return super.visible;
+    }
+
     set visible(value: boolean) {
         if (this.visible !== value) {
             super.set_visible(value);
             Stage._setVisibleStyle(value);
         }
     }
+
 
     /**
      * @internal
@@ -805,35 +852,13 @@ export class Stage extends Sprite {
     }
 
     /**
-     * @inheritDoc 
-     * @override
+     * 渲染舞台上的所有显示对象
+     * @param context2D 渲染的上下文
+     * @param x 横轴坐标
+     * @param y 纵轴坐标
+     * @returns 
      */
-    get visible() {
-        return super.visible;
-    }
-
-    /** @private */
-    // static clear: Function = function (value: string): void {
-    //     //修改需要同步到上面的native实现中
-    //     Context.set2DRenderConfig();//渲染2D前要还原2D状态,否则可能受3D影响
-    //     //RenderState2D.worldScissorTest && LayaGL.renderEngine.scissorTest(false);
-    //     var ctx: Context = Render.context;
-    //     //兼容浏览器
-    //     var c: any[] = Config.preserveDrawingBuffer ? ColorUtils.create(value).arrColor : ILaya.stage._wgColor;
-    //     if (c)
-    //         ctx.clearBG(c[0], c[1], c[2], c[3]);
-    //     else
-    //         ctx.clearBG(0, 0, 0, 0);
-    //     RenderState2D.clear();
-    // };
-
-    /**@inheritDoc @override*/
     render(context2D: Context, x: number, y: number): void {
-        // if (LayaEnv.isConch) {
-        //     this.renderToNative(context2D, x, y);
-        //     return;
-        // }
-
         let delta: number = ILaya.timer._delta / 1000;
         if (this._frameRate === Stage.FRAME_SLEEP) {
             var now: number = Browser.now();
@@ -870,14 +895,14 @@ export class Stage extends Sprite {
         RenderInfo.loopCount = Stat.loopCount;
 
         if (this.renderingEnabled) {
-            
+
             for (let i = 0, n = this._scene3Ds.length; i < n; i++)//更新3D场景,必须提出来,否则在脚本中移除节点会导致BUG
                 (<any>this._scene3Ds[i])._update(delta);
             this._runComponents();
             this._componentDriver.callPreRender();
-            
+
             //仅仅是clear
-            context2D.render2D.renderStart(!Config.preserveDrawingBuffer,this._wgColor);
+            context2D.render2D.renderStart(!Config.preserveDrawingBuffer, this._wgColor);
             //context2D.render2D.renderEnd();
 
             //Stage.clear(this._bgColor);
@@ -886,7 +911,7 @@ export class Stage extends Sprite {
                 (<any>this._scene3Ds[i]).renderSubmit();
             //再渲染2d
             //PERF_BEGIN(PerformanceDefine.T_UIRender);
-            Stat.draw2D=0;
+            Stat.draw2D = 0;
             context2D.startRender();
             super.render(context2D, x, y);
             Stat.render(context2D, x, y);

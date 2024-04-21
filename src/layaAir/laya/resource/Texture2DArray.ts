@@ -25,7 +25,9 @@ export class Texture2DArray extends BaseTexture {
             this._defaultTexture.setPixelsData(new Uint8Array([255, 255, 255, 255]), false, false);
         }
     }
-
+    /**
+     * 纹理层数
+     */
     depth: number;
 
     constructor(width: number, height: number, depth: number, format: TextureFormat, mipmap: boolean = true, canRead: boolean, sRGB: boolean = false) {

@@ -75,7 +75,7 @@ export class Component {
 
     /**
      * 是否存在隐藏标志
-     * @param flag 
+     * @param flag 标签
      * @returns 
      */
     hasHideFlag(flag: number): boolean {
@@ -136,7 +136,7 @@ export class Component {
     /**
      * 设置所属Node节点
      * @internal
-     * @param node 
+     * @param node 节点
      */
     _setOwner(node: Node) {
         if (this._status != 0) {
@@ -249,6 +249,9 @@ export class Component {
         }
     }
 
+    /**
+     * @internal
+     */
     protected setupScript() {
     }
 

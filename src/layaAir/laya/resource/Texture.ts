@@ -425,6 +425,7 @@ export class Texture extends Resource {
 
     /**
      * 通过url强制恢复bitmap。
+     * @param 回调函数
      */
     recoverBitmap(callback?: () => void): void {
         var url = this._bitmap.url;

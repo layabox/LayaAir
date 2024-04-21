@@ -39,7 +39,7 @@ export class AnimatorTransition2D {
 
     /**
      * 增加一个条件
-     * @param condition 
+     * @param condition 状态转换条件
      */
     addCondition(condition: AnimatorStateCondition): void {
         if (this.conditions.indexOf(condition) == -1) {
@@ -49,7 +49,7 @@ export class AnimatorTransition2D {
 
     /**
      * 删除一个条件
-     * @param condition 
+     * @param condition 状态转换条件
      */
     removeCondition(condition: AnimatorStateCondition): void {
         let index = this.conditions.indexOf(condition);
@@ -60,8 +60,10 @@ export class AnimatorTransition2D {
 
     /**
     * 是否启用过渡
-    * @param normalizeTime 
-    * @param paramsMap 
+    * @param normalizeTime 归一化时间
+    * @param paramsMap 条件组
+    * @param isReplay 是否重复播放
+    * @returns
     */
     check(normalizeTime: number, paramsMap: Record<string, Animation2DParm>, isReplay: boolean): boolean {
         if (this.mute) {

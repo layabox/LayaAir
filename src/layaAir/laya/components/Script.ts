@@ -25,6 +25,7 @@ export class Script extends Component {
     }
 
     /**
+     * @internal
      * 设置脚本
      * @internal
      */
@@ -60,33 +61,46 @@ export class Script extends Component {
         owner.event(Event._Add_Script);
     }
 
+
     /**
      * 3D物理触发器事件与2D物理碰撞事件，开始碰撞时执行
+     * @param other 碰撞机
+     * @param self 自身碰撞机
+     * @param contact 
      */
     onTriggerEnter?(other: PhysicsColliderComponent | ColliderBase, self?: ColliderBase, contact?: any): void;
 
     /**
      * 3D物理触发器事件与2D物理碰撞事件，持续碰撞时执行
+     * @param other 碰撞机
+     * @param self 自身碰撞机
+     * @param contact 
      */
     onTriggerStay?(other: PhysicsColliderComponent | ColliderBase, self?: ColliderBase, contact?: any): void;
 
     /**
      * 3D物理触发器事件与2D物理碰撞事件，结束碰撞时执行
+     * @param other 碰撞机
+     * @param self 自身碰撞机
+     * @param contact 
      */
     onTriggerExit?(other: PhysicsColliderComponent | ColliderBase, self?: ColliderBase, contact?: any): void;
 
     /**
      * 3D物理碰撞器事件（不适用2D），开始碰撞时执行
+     * @param collision 碰撞机
      */
     onCollisionEnter?(collision: Collision): void;
 
     /**
      * 3D物理碰撞器事件（不适用2D），持续碰撞时执行
+     * @param collision 碰撞机
      */
     onCollisionStay?(collision: Collision): void;
 
     /**
-     *3D物理碰撞器事件（不适用2D），结束碰撞时执行
+     * 3D物理碰撞器事件（不适用2D），结束碰撞时执行
+     * @param collision 碰撞机
      */
     onCollisionExit?(collision: Collision): void;
 
@@ -97,76 +111,91 @@ export class Script extends Component {
 
     /**
      * 鼠标按下时执行
+     * @param 鼠标事件
      */
     onMouseDown?(evt: Event): void;
 
     /**
      * 鼠标抬起时执行
+     * @param 鼠标事件
      */
     onMouseUp?(evt: Event): void;
 
     /**
      * 鼠标右键或中键按下时执行
+     * @param 鼠标事件
      */
     onRightMouseDown?(evt: Event): void;
 
     /**
      * 鼠标右键或中键抬起时执行
+     * @param 鼠标事件
      */
     onRightMouseUp?(evt: Event): void;
 
     /**
      * 鼠标在节点上移动时执行
+     * @param 鼠标事件
      */
     onMouseMove?(evt: Event): void;
 
     /**
      * 鼠标进入节点时执行
+     * @param 鼠标事件
      */
     onMouseOver?(evt: Event): void;
 
     /**
      * 鼠标离开节点时执行
+     * @param 鼠标事件
      */
     onMouseOut?(evt: Event): void;
 
     /**
      * 鼠标按住一个物体后，拖拽时执行
+     * @param 鼠标事件
      */
     onMouseDrag?(evt: Event): void;
 
     /**
      * 鼠标按住一个物体，拖拽一定距离，释放鼠标按键后执行
+     * @param 鼠标事件
      */
     onMouseDragEnd?(evt: Event): void;
 
     /**
      * 鼠标点击时执行
+     * @param 鼠标事件
      */
     onMouseClick?(evt: Event): void;
 
     /**
      * 鼠标双击时执行
+     * @param 鼠标事件
      */
     onMouseDoubleClick?(evt: Event): void;
 
     /**
      * 鼠标右键点击时执行
+     * @param 鼠标事件
      */
     onMouseRightClick?(evt: Event): void;
 
     /**
      * 键盘按下时执行
+     * @param 鼠标事件
      */
     onKeyDown?(evt: Event): void;
 
     /**
      * 键盘产生一个字符时执行
+     * @param 鼠标事件
      */
     onKeyPress?(evt: Event): void;
 
     /**
      * 键盘抬起时执行
+     * @param 鼠标事件
      */
     onKeyUp?(evt: Event): void;
 }

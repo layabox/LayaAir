@@ -23,9 +23,13 @@ import { ShaderDataType } from "../../../RenderDriver/DriverDesign/RenderDevice/
  * <code>TrailFilter</code> 类用于创建拖尾过滤器。
  */
 export class TrailFilter {
+	/**@internal */
 	static CURTIME: number;
+	/**@internal */
 	static LIFETIME: number;
+	/**@internal */
 	static WIDTHCURVE: number;
+	/**@internal */
 	static WIDTHCURVEKEYLENGTH: number;
 
 	/**

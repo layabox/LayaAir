@@ -1533,6 +1533,7 @@ export class Animator extends Component {
 
     /**
      * 添加控制器层。
+     * @param controllderLayer 动画控制层
      */
     addControllerLayer(controllderLayer: AnimatorControllerLayer): void {
         this._controllerLayers.push(controllderLayer);
@@ -1545,6 +1546,7 @@ export class Animator extends Component {
 
     /**
      * 获取控制器层。
+     * @param 层索引
      */
     getControllerLayer(layerInex: number = 0): AnimatorControllerLayer {
         return this._controllerLayers[layerInex];
@@ -1729,8 +1731,8 @@ export class Animator extends Component {
     }
 
     /**
-     * set params value
-     * @param name 
+     * 启用触发条件
+     * @param name 触发条件的名字或者索引
      */
     setParamsTrigger(name: number): void;
     setParamsTrigger(name: string): void;
@@ -1744,8 +1746,9 @@ export class Animator extends Component {
     }
 
     /**
-     * set params value
-     * @param name 
+     * 设置值条件属性值
+     * @param name 属性的名字或者索引
+     * @param value 属性值
      */
     setParamsNumber(name: number, value: number): void;
     setParamsNumber(name: string, value: number): void;
@@ -1759,8 +1762,9 @@ export class Animator extends Component {
     }
 
     /**
-     * set params value
-     * @param name 
+     * 设置布尔条件属性值
+     * @param name 属性的名字或者索引
+     * @param value 属性值
      */
     setParamsBool(name: number, value: boolean): void;
     setParamsBool(name: string, value: boolean): void;
@@ -1774,7 +1778,7 @@ export class Animator extends Component {
     }
 
     /**
-     * get params value
+     * 得到条件属性值
      * @param name 
      */
     getParamsvalue(name: number): number | boolean;

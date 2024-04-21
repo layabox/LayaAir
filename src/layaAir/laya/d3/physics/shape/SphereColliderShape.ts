@@ -54,7 +54,10 @@ export class SphereColliderShape extends Physics3DColliderShape {
 		return dest;
 	}
 
-	/**@internal 克隆到目标对象*/
+	/**
+	 * @internal 
+	 * 克隆到目标对象
+	 */
 	cloneTo(destObject: SphereColliderShape): void {
 		super.cloneTo(destObject);
 		destObject.radius = this.radius

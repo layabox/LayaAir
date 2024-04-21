@@ -12,20 +12,21 @@ const tempVec1 = new Vector3();
 export class BatchRender extends BaseRender {
     /**@internal */
     protected _checkLOD: boolean;
-    /**@internal @protected */
+    /**@internal */
     protected _lodCount: number;
-    /**@internal @protected */
+    /**@internal */
     protected _lodRateArray: number[];
-    /**@internal @protected*/
+    /**@internal*/
     protected _batchList: SingletonList<BaseRender>;
-    /**@internal @protected*/
+    /**@internal*/
     protected _batchbit: RenderBitFlag;
-    /**@internal @protected*/
+    /**@internal*/
     protected _RenderBitFlag: RenderBitFlag;
-    /**@internal @protected*/
+    /**@internal*/
     protected _lodInstanceRenderElement: { [key: number]: InstanceRenderElement[] } = {};
-    /**@internal @protected*/
+    /**@internal*/
     protected _lodsize: number;
+    /**@internal*/
     private _cacheLod: number;
 
     /**
@@ -130,7 +131,7 @@ export class BatchRender extends BaseRender {
     }
 
     /**
-     * 渲染前
+     * 渲染前调用
      */
     onPreRender() {
         if (!this.checkLOD || !this._lodRateArray || this._lodRateArray.length < 1) {
@@ -179,7 +180,7 @@ export class BatchRender extends BaseRender {
 
     /**
      * 合批队列传入
-     * @param renderNodes 
+     * @param renderNodes 渲染节点队列
      */
     addList(renderNode: BaseRender[]) {
         for (var i = 0, n = renderNode.length; i < n; i++) {

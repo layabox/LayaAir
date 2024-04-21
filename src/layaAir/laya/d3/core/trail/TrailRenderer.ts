@@ -20,7 +20,7 @@ export class TrailRenderer extends BaseRender {
     /**@internal */
     _trailFilter: TrailFilter;
 
-    /**@internal @protected */
+    /**@internal */
     protected _projectionViewWorldMatrix: Matrix4x4 = new Matrix4x4();
 
     /**
@@ -166,6 +166,10 @@ export class TrailRenderer extends BaseRender {
         (this.owner as Sprite3D)._transform.position.cloneTo(this._trailFilter._lastPosition);//激活时需要重置上次位置
     }
 
+    /**
+     * 渲染更新
+     * @param context 3D渲染上下文 
+     */
     renderUpdate(context: RenderContext3D) {
         this._calculateBoundingBox();
 

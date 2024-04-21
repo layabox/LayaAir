@@ -107,8 +107,8 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
 
 
     /**
-     * 是否在对象池中
      * @internal
+     * 是否在对象池中
      */
     _inPool: boolean = false;
 
@@ -167,6 +167,7 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
      * @internal
      */
     _generateMipmap: boolean;
+    
     /**
      * 颜色格式
      */
@@ -280,22 +281,6 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
         this._createRenderTarget();
     }
 
-    // _start() {
-    //     RenderTexture._configInstance.invertY = this._isCameraTarget;
-    //     if (RenderTexture._currentActive != this) {
-    //         RenderTexture._currentActive && RenderTexture._currentActive._end();
-    //         RenderTexture._currentActive = this;
-    //         LayaGL.textureContext.bindRenderTarget(this._renderTarget);
-    //     }
-    // }
-
-    // _end() {
-    //     RenderTexture._currentActive = null;
-
-    //     LayaGL.textureContext.unbindRenderTarget(this._renderTarget);
-    //     (this._isCameraTarget) && (RenderTexture._configInstance.invertY = false);
-    // }
-
     /**
      * 获取渲染纹理的像素数据
      * @param xOffset x偏移值
@@ -315,11 +300,6 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
      * @internal
      */
     protected _disposeResource(): void {
-
-        // if (RenderTexture._currentActive == this) {
-        //     this._end();
-        // }
-
         this._renderTarget.dispose();
         this._renderTarget = null;
         this._depthStencilTexture?.destroy();

@@ -377,6 +377,7 @@ export class Text extends Sprite {
 
     /**
      * 销毁文本
+     * @param destroyChild 是否销毁子节点
      * @inheritDoc 
      * @override
     */
@@ -400,6 +401,7 @@ export class Text extends Sprite {
 
     /**
      * 获取滚动可视视窗
+     * @param realSize	（可选）使用图片的真实大小，默认为false
      * @inheritDoc
      * @override
      */
@@ -467,7 +469,9 @@ export class Text extends Sprite {
         return this._textHeight;
     }
 
-    /** 当前文本的内容字符串。*/
+    /** 
+     * 当前文本的内容字符串。
+     */
     get text(): string {
         return this._text;
     }
@@ -488,7 +492,10 @@ export class Text extends Sprite {
         }
     }
 
-    /** @deprecated **/
+    /**
+     * @deprecated 
+     * @param text 文本
+     */
     changeText(text: string): void {
         this.text = text;
     }
@@ -797,7 +804,9 @@ export class Text extends Sprite {
         }
     }
 
-    /**是否显示下划线。*/
+    /**
+     * 是否显示下划线。
+     */
     get underline(): boolean {
         return this._textStyle.underline;
     }
@@ -809,7 +818,9 @@ export class Text extends Sprite {
         }
     }
 
-    /**下划线的颜色，为null则使用字体颜色。*/
+    /**
+     * 下划线的颜色，为null则使用字体颜色。
+     */
     get underlineColor(): string {
         return this._textStyle.underlineColor;
     }
@@ -825,16 +836,21 @@ export class Text extends Sprite {
         return this._singleCharRender;
     }
 
-    /** 设置是否单个字符渲染，如果Textd的内容一直改变，例如是一个增加的数字，就设置这个，防止无效占用缓存 */
+    /** 
+     * 设置是否单个字符渲染，如果Textd的内容一直改变，例如是一个增加的数字，就设置这个，防止无效占用缓存 
+     */
     set singleCharRender(value: boolean) {
         this._singleCharRender = value;
     }
 
+    /** 
+     * 设置是否富文本，支持html语法 
+     */
     get html(): boolean {
         return this._html;
     }
 
-    /** 设置是否富文本，支持html语法 */
+
     set html(value: boolean) {
         if (this._html != value) {
             this._html = value;
@@ -842,11 +858,14 @@ export class Text extends Sprite {
         }
     }
 
+    /** 
+     * 设置是否使用UBB语法解析文本 
+     */
     get ubb(): boolean {
         return this._ubb;
     }
 
-    /** 设置是否使用UBB语法解析文本 */
+
     set ubb(value: boolean) {
         if (this._ubb != value) {
             this._ubb = value;
@@ -858,7 +877,9 @@ export class Text extends Sprite {
         return this._maxWidth;
     }
 
-    /** 设置当文本达到最大允许的宽度时，自定换行，设置为0则此限制不生效。*/
+    /** 
+     * 设置当文本达到最大允许的宽度时，自定换行，设置为0则此限制不生效。
+     */
     set maxWidth(value: number) {
         if (this._maxWidth != value) {
             this._maxWidth = value;

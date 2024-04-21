@@ -81,18 +81,19 @@ export class Camera extends BaseCamera {
     /**@internal */
     static _contextScissorPortCatch: Vector4 = new Vector4(0, 0, 0, 0);
 
-
     /**
      * @internal
      * 更新标志位
      */
+    static get _updateMark(): number {
+        return RenderContext3D._instance._contextOBJ.cameraUpdateMask;
+    }
+
     static set _updateMark(value: number) {
         RenderContext3D._instance._contextOBJ.cameraUpdateMask = value;
     }
 
-    static get _updateMark(): number {
-        return RenderContext3D._instance._contextOBJ.cameraUpdateMask;
-    }
+
 
     /** @internal 深度贴图管线*/
     static depthPass: DepthPass;
@@ -135,7 +136,8 @@ export class Camera extends BaseCamera {
 
     /**
      * get PixelTexture
-     * @param texture 
+     * 获得纹理的像素
+     * @param texture 纹理
      * @returns 
      */
     static getTexturePixel(texture: Texture2D): ArrayBufferView {
@@ -178,11 +180,11 @@ export class Camera extends BaseCamera {
 
     /**
      * 根据场景中相机的位置绘制场景内容并返回
-     * @param position 
-     * @param scene 
-     * @param renderCubeSize 
-     * @param format 
-     * @returns bake front left right up down
+     * @param position 位置
+     * @param scene 场景
+     * @param renderCubeSize 立方体纹理像素大小 
+     * @param format 颜色格式
+     * @returns 输出纹理像素顺序bake front left right up down
      */
     static drawTextureCubePixelByScene(camera: Camera, scene: Scene3D, renderCubeSize: number, format: TextureFormat, cullingMask: number): ArrayBufferView[] {
         let rtFormat = RenderTargetFormat.R8G8B8;
@@ -1111,6 +1113,7 @@ export class Camera extends BaseCamera {
 
 
     /**
+     * 创建非透明通道纹理
      * @internal
      * @param currentTarget 当前绑定的渲染纹理 
      * @param renderContext 渲染上下文
@@ -1132,15 +1135,12 @@ export class Camera extends BaseCamera {
 
             this._shaderValues.setVector(BaseCamera.OPAQUETEXTUREPARAMS, opaqueTexParams);
         }
-        // var blit: BlitScreenQuadCMD = BlitScreenQuadCMD.create(currentTarget, this._opaqueTexture);
-        // blit.setContext(renderContext);
-        // blit.run();
-        // blit.recover();
     }
 
 
     /**
      * @override
+     * 渲染
      * @param shader 着色器
      * @param replacementTag 替换标记。
      */
@@ -1284,6 +1284,8 @@ export class Camera extends BaseCamera {
     }
 
     /**
+     * 删除Camera节点
+     * @param destroyChild 是否删除子节点
      * @inheritDoc
      * @override
      */

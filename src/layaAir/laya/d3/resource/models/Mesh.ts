@@ -43,23 +43,15 @@ export class skinnedMatrixCache {
  * <code>Mesh</code> 类用于创建文件网格数据模板。
  */
 export class Mesh extends Resource implements IClone {
-
+    /**@internal */
     static MESH_INSTANCEBUFFER_TYPE_NORMAL: number = 0;
-
+    /**@internal */
     static MESH_INSTANCEBUFFER_TYPE_SIMPLEANIMATOR: number = 1;
 
     /** @internal */
     private _tempVector30: Vector3 = new Vector3()
     /** @internal */
     private _tempVector31: Vector3 = new Vector3();
-    // /** @internal */
-    // private _tempVector32: Vector3 = new Vector3();
-    // /** @internal */
-    // private static _nativeTempVector30: number;
-    // /** @internal */
-    // private static _nativeTempVector31: number;
-    // /** @internal */
-    // private static _nativeTempVector32: number;
     /**@internal */
     _convexMesh: any;
     /**@interanl */
@@ -70,12 +62,6 @@ export class Mesh extends Resource implements IClone {
       * @internal
       */
     static __init__(): void {
-        // var physics3D: any = Physics3D._bullet;
-        // if (physics3D) {
-        //     Mesh._nativeTempVector30 = physics3D.btVector3_create(0, 0, 0);
-        //     Mesh._nativeTempVector31 = physics3D.btVector3_create(0, 0, 0);
-        //     Mesh._nativeTempVector32 = physics3D.btVector3_create(0, 0, 0);
-        // }
     }
 
 

@@ -222,6 +222,7 @@ export class ScalableAO extends PostProcessEffect {
     }
 
     /**
+     * @internal
      * @override
      */
     getCameraDepthTextureModeFlag() {
@@ -229,6 +230,7 @@ export class ScalableAO extends PostProcessEffect {
     }
 
     /**
+     * @internal
      * @override
      * @param context 
      */

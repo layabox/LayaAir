@@ -148,6 +148,8 @@ export class CompoundColliderShape extends Physics3DColliderShape {
 	}
 
 	/**
+	 * 将数据克隆到目标节点
+	 * @param 目标节点
 	 * @inheritDoc
 	 * @override
 	 */

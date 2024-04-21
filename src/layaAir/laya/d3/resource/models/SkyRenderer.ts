@@ -17,13 +17,20 @@ import { SkyDome } from "./SkyDome";
  * <code>SkyRenderer</code> 类用于实现天空渲染器。
  */
 export class SkyRenderer {
-
+    /**@internal */
     static SUNLIGHTDIRECTION: number;
+    /**@internal */
     static SUNLIGHTDIRCOLOR: number;
+    /**@internal */
     static SKYVIEWMATRIX: number;
+    /**@internal */
     static SKYPROJECTIONMATRIX: number;
+    /**@internal */
     static SKYPROJECTIONVIEWMATRIX: number;
 
+    /**
+     * @internal
+     */
     static __init__() {
         SkyRenderer.SUNLIGHTDIRECTION = Shader3D.propertyNameToID("u_SunLight_direction");
         SkyRenderer.SUNLIGHTDIRCOLOR = Shader3D.propertyNameToID("u_SunLight_color");
@@ -86,12 +93,12 @@ export class SkyRenderer {
         }
     }
 
-    //@internal
+    /** @internal */
     private get meshType(): "box" | "dome" | "" {
         return this.mesh == SkyBox.instance ? "box" : (this.mesh == SkyDome.instance ? "dome" : "");
     }
 
-    //@internal
+    /** @internal */
     private set meshType(value: "box" | "dome" | "") {
         if (value == "dome")
             this.mesh = SkyDome.instance;
@@ -117,12 +124,17 @@ export class SkyRenderer {
         return this._material && this._mesh ? true : false;
     }
 
+    /** @internal */
     renderUpdate(context: RenderContext3D) {
         let geomettry = this.mesh;
         this._renderGeometry = geomettry._prepareRender(context);
         geomettry._updateRenderParams(context);
     }
 
+    /**
+     * 设置天空盒渲染元素
+     * @param skyRenderElement 
+     */
     setRenderElement(skyRenderElement: SkyRenderElement) {
         if (this._cacheRenderElement != skyRenderElement) {
             skyRenderElement.setGeometry(this.mesh);

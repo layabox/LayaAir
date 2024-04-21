@@ -503,9 +503,9 @@ export class Animator2D extends Component {
 
     /**
      * 跳转到指定时间并停止播放动画
-     * @param name 
-     * @param layerIndex 
-     * @param normalizedTime 
+     * @param name 动画名称
+     * @param layerIndex 层索引
+     * @param normalizedTime 归一化播放动画时间
      * @returns 
      */
     gotoAndStop(name: string, layerIndex: number, normalizedTime: number) {
@@ -676,6 +676,7 @@ export class Animator2D extends Component {
 
     /**
      * 添加控制器层。
+     * @param 动画层
      */
     addControllerLayer(controllderLayer: AnimatorControllerLayer2D): void {
         this._controllerLayers.push(controllderLayer);
@@ -758,7 +759,7 @@ export class Animator2D extends Component {
 
     /**
      * 默认状态机
-     * @param layerIndex 
+     * @param layerIndex 层索引
      * @returns 
      */
     getDefaultState(layerIndex = 0) {

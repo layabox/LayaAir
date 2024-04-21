@@ -154,7 +154,7 @@ export class Material extends Resource implements IClone {
 
     /**
      * 开启 或 关闭 shader 宏定义
-     * @param define 
+     * @param define 宏
      * @param value true: addDefine, false: removeDefine
      */
     setDefine(define: ShaderDefine, value: boolean) {
@@ -518,6 +518,7 @@ export class Material extends Resource implements IClone {
     /**
      * 销毁资源
      * @protected
+     * @internal
      * @inheritDoc
      * @override
      */
@@ -909,7 +910,7 @@ export class Material extends Resource implements IClone {
 
     /**
      * 获取 matrix3x3
-     * @param name 
+     * @param name 属性名称
      * @returns 
      */
     getMatrix3x3(name: string): Matrix3x3 {
@@ -919,8 +920,8 @@ export class Material extends Resource implements IClone {
 
     /**
      * 设置 matrix3x3
-     * @param name 
-     * @param value 
+     * @param name 属性名称
+     * @param value 值
      */
     setMatrix3x3(name: string, value: Matrix3x3) {
         let index = Shader3D.propertyNameToID(name);
@@ -930,7 +931,7 @@ export class Material extends Resource implements IClone {
     /**
      * 设置纹理
      * @param uniformIndex 属性索引
-     * @param texture 
+     * @param texture 纹理
      */
     setTextureByIndex(uniformIndex: number, texture: BaseTexture) {
         this.shaderData.setTexture(uniformIndex, texture);
@@ -954,7 +955,7 @@ export class Material extends Resource implements IClone {
     /**
      * 设置纹理
      * @param name 属性名称
-     * @param texture 
+     * @param texture 纹理
      */
     setTexture(name: string, texture: BaseTexture) {
         let uniformIndex = Shader3D.propertyNameToID(name);
@@ -1075,6 +1076,9 @@ export class Material extends Resource implements IClone {
 
     //--------------------------------------------兼容-------------------------------------------------
 
+    /**
+     * 材质宏
+     */
     get _defineDatas(): IDefineDatas {
         return this._shaderValues.getDefineData();
     }

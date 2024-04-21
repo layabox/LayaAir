@@ -324,7 +324,9 @@ export class Timer {
         this.scale = 1;
     }
 
-
+    /**
+     * 删除始终，同时清理时钟上面所有事件
+     */
     destroy() {
         for (var i = 0, n = this._handlers.length; i < n; i++) {
             var handler = this._handlers[i];

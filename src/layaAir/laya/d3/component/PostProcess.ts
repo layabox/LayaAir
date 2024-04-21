@@ -230,6 +230,7 @@ export class PostProcess {
 
     /**
      * 添加后期处理效果。
+     * @param effect 后期处理效果
      */
     addEffect(effect: PostProcessEffect): void {
         if (effect.singleton && this.getEffect((effect as any).constructor)) {
@@ -248,7 +249,7 @@ export class PostProcess {
 
     /**
      * 根据类型获得后期处理实例
-     * @param classReg 
+     * @param classReg 注册的后期处理类型
      * @returns 
      */
     getEffect(classReg: any): any {
@@ -264,6 +265,7 @@ export class PostProcess {
 
     /**
      * 移除后期处理效果。
+     * @param effect 后期处理效果
      */
     removeEffect(effect: PostProcessEffect): void {
         var index: number = this._effects.indexOf(effect);

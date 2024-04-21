@@ -330,7 +330,7 @@ export class Rigidbody3D extends PhysicsColliderComponent {
 
     /**
      * 应用扭转冲量。
-     * @param	torqueImpulse
+     * @param	torqueImpulse 冲量值
      */
     applyTorqueImpulse(torqueImpulse: Vector3): void {
         if (this._collider && this.collider.getCapable(EColliderCapable.RigidBody_ApplyTorqueImpulse)) {
@@ -377,10 +377,10 @@ export class Rigidbody3D extends PhysicsColliderComponent {
     /**
      * @deprecated
      * 应用作用力
-     * @param fx 
-     * @param fy 
-     * @param fz 
-     * @param localOffset 
+     * @param fx x轴方向的力
+     * @param fy y轴方向的力
+     * @param fz z轴方向的力
+     * @param localOffset 受力点距离质点的偏移
      */
     applyForceXYZ(fx: number, fy: number, fz: number, localOffset: Vector3 = null): void {
         Utils3D._tempV0.set(fx, fy, fz);

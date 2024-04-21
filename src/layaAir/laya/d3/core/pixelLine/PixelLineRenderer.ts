@@ -126,44 +126,12 @@ export class PixelLineRenderer extends BaseRender {
         return Laya3DRender.Render3DModuleDataFactory.createMeshRenderNode();
     }
 
-    // /**
-    //  * @inheritDoc
-    //  * @override
-    //  * @internal
-    //  */
-    // _calculateBoundingBox(): void {
-    //     var lineFilter: PixelLineFilter = this._pixelLineFilter;
-    //     lineFilter._reCalculateBound();
-    //     this.geometryBounds = lineFilter._bounds;
-
-    //     //
-    //     this.geometryBounds._tranform(this._transform.worldMatrix, this._baseRenderNode.bounds);
-    // }
 
     renderUpdate(context: RenderContext3D): void {
         this._renderElements.forEach(element => {
             element._renderElementOBJ.isRender = element._geometry._prepareRender(context);
             element._geometry._updateRenderParams(context);
         })
-    }
-
-    /**
-     * @inheritDoc
-     * @override
-     * @internal
-     */
-    _renderUpdateWithCamera(context: RenderContext3D, transform: Transform3D): void {//TODO:整理_renderUpdate
-        // var projectionView: Matrix4x4 = context.projectionViewMatrix;
-        // var sv: ShaderData = this._shaderValues;
-        // if (transform) {
-        //     var worldMat: Matrix4x4 = transform.worldMatrix;
-        //     sv.setMatrix4x4(Sprite3D.WORLDMATRIX, worldMat);
-        //     this._worldParams.x = transform.getFrontFaceValue();
-        //     sv.setVector(Sprite3D.WORLDINVERTFRONT, this._worldParams);
-        // } else {
-        //     sv.setMatrix4x4(Sprite3D.WORLDMATRIX, Matrix4x4.DEFAULT);
-        //     sv.setVector(Sprite3D.WORLDINVERTFRONT, Vector4.UnitX);
-        // }
     }
 
     /**

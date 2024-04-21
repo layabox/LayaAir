@@ -22,7 +22,7 @@ export class BitmapFont extends Resource {
     fontSize: number = 12;
     /**表示是否根据实际使用的字体大小缩放位图字体大小。*/
     autoScaleSize: boolean = false;
-    /**字体颜色 */
+    /**是否是字体 */
     tint: boolean = true;
     /**最大宽度 */
     maxWidth: number = 0;
@@ -122,6 +122,7 @@ export class BitmapFont extends Resource {
     /**
      * 获取指定文本内容的宽度。
      * @param	text 文本内容。
+     * @param   fontSize 字体大小
      * @return  宽度。
      */
     getTextWidth(text: string, fontSize?: number): number {

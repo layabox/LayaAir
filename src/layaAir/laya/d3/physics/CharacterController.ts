@@ -54,6 +54,9 @@ export class CharacterController extends PhysicsColliderComponent {
         }
     }
 
+    /**
+     * 帧循环
+     */
     onUpdate(): void {
         if (this._collider && this._collider.getCapable(ECharacterCapable.Character_SimulateGravity)) {
             // physX need to simulate character Gravity.

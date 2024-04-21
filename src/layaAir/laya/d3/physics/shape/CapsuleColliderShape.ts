@@ -99,6 +99,7 @@ export class CapsuleColliderShape extends Physics3DColliderShape {
 
 	/**
 	 * 克隆数据到目标
+	 * @param destObject 克隆目标
 	 * @inheritDoc
 	 * @override
 	 */

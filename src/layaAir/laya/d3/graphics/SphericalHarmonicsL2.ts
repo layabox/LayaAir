@@ -58,7 +58,7 @@ export class SphericalHarmonicsL2 {
 
     /**
      * 克隆
-     * @param dest 
+     * @param dest 克隆目标数据
      */
     cloneTo(dest: SphericalHarmonicsL2): void {
         if (this === dest)
