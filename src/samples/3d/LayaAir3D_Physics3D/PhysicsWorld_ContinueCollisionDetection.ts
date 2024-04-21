@@ -87,7 +87,6 @@ export class PhysicsWorld_ContinueCollisionDetection {
 		rigidBody.gravity = new Vector3(0, -98.0, 0);
 		rigidBody.colliderShape = sphereShape;
 		rigidBody.mass = 10;
-		rigidBody.ccdMotionThreshold = 0.0001;
 	}
 
 }

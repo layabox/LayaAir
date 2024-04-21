@@ -80,7 +80,7 @@ export class ShaderPass extends ShaderCompileDefineBase {
         
 
         if (Shader3D.debugMode)
-            ShaderVariantCollection.active.add(this as any, defines);
+            ShaderVariantCollection.active.add(shaderpass, defines);
 
         return shader;
     }
