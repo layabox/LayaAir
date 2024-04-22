@@ -5,7 +5,7 @@ import { IPointLightData } from "../../Design/3D/I3DRenderModuleData";
 import { I3DRenderModuleFactory } from "../../Design/3D/I3DRenderModuleFactory";
 import { NativeBounds } from "./NativeBounds";
 import { NativeTransform3D } from "./NativeTransform3D";
-import { RTCameraNodeData, RTSceneNodeData, RTShaderPass, RTSubShader } from "./RT3DRenderModuleData";
+import { RTCameraNodeData, RTSceneNodeData } from "./RT3DRenderModuleData";
 import { RTBaseRenderNode } from "./RTBaseRenderNode";
 import { RTDirectLight } from "./RTDirectLight";
 import { RTLightmapData } from "./RTLightmap";
@@ -46,12 +46,7 @@ export class RT3DRenderModuleFactory implements I3DRenderModuleFactory {
     createSceneModuleData(): RTSceneNodeData {
         return new RTSceneNodeData();
     }
-    createSubShader(): RTSubShader {
-        return new RTSubShader();
-    }
-    createShaderPass(pass: ShaderPass): RTShaderPass {
-        return new RTShaderPass(pass);
-    }
+
     createBaseRenderNode(): RTBaseRenderNode {
         return new RTBaseRenderNode();
     }

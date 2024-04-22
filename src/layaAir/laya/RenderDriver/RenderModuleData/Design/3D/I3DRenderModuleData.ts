@@ -204,22 +204,3 @@ export interface ISceneNodeData {
 
 
 
-//shader
-export interface ISubshaderData {
-    addShaderPass(pass: IShaderPassData): void;
-    enableInstance:boolean;
-    destroy(): void;
-}
-
-
-export interface IShaderPassData {
-    is2D: boolean;
-    pipelineMode: string;
-    statefirst: boolean;
-    validDefine: IDefineDatas;
-    renderState: RenderState;
-    setCacheShader(defines: IDefineDatas, shaderInstance: IShaderInstance): void;
-    getCacheShader(defines: IDefineDatas): IShaderInstance;
-    destroy(): void;
-}
-

@@ -978,34 +978,11 @@ export class Stage extends Sprite {
     }
 
     get frameRate(): string {
-        if (!LayaEnv.isConch) {
-            return this._frameRate;
-        } else {
-            return ((<any>this))._frameRateNative;
-        }
+        return this._frameRate;
     }
 
     set frameRate(value: string) {
-        if (!LayaEnv.isConch) {
-            this._frameRate = value;
-        } else {
-            var c: any = ((<any>window)).conch;
-            switch (value) {
-                case Stage.FRAME_FAST:
-                    c.config.setLimitFPS(60);
-                    break;
-                case Stage.FRAME_MOUSE:
-                    c.config.setMouseFrame(2000);
-                    break;
-                case Stage.FRAME_SLOW:
-                    c.config.setSlowFrame(true);
-                    break;
-                case Stage.FRAME_SLEEP:
-                    c.config.setLimitFPS(1);
-                    break;
-            }
-            ((<any>this))._frameRateNative = value;
-        }
+        this._frameRate = value;
     }
 
     /**@private */

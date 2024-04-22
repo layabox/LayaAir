@@ -1,6 +1,6 @@
 import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
 import { IRenderElement2D } from "../../DriverDesign/2DRenderPass/IRenderElement2D";
-import { RTSubShader } from "../../RenderModuleData/RuntimeModuleData/3D/RT3DRenderModuleData";
+import { RTSubShader } from "../../RenderModuleData/RuntimeModuleData/RTSubShader";
 import { GLESRenderElement3D } from "../3DRenderPass/GLESRenderElement3D";
 import { GLESRenderGeometryElement } from "../RenderDevice/GLESRenderGeometryElement";
 import { GLESShaderData } from "../RenderDevice/GLESShaderData";

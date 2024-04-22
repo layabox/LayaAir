@@ -1,14 +1,23 @@
+import { ShaderPass } from "../../../RenderEngine/RenderShader/ShaderPass";
+import { IShaderPassData } from "../Design/IShaderPassData";
 import { IUnitRenderModuleDataFactory } from "../Design/IUnitRenderModuleDataFactory";
 import { RenderState } from "../Design/RenderState";
-import { ShaderDefine } from "../Design/ShaderDefine";
 import { WebDefineDatas } from "./WebDefineDatas";
+import { WebShaderPass } from "./WebShaderPass";
+import { WebSubShader } from "./WebSubShader";
 
 export class WebUnitRenderModuleDataFactory implements IUnitRenderModuleDataFactory {
-    
+    createSubShader(): WebSubShader {
+        return new WebSubShader();
+    }
+    createShaderPass(pass: ShaderPass): IShaderPassData {
+        return new WebShaderPass(pass);
+    }
+
     createRenderState(): RenderState {
         return new RenderState();
     }
-    
+
     createDefineDatas(): WebDefineDatas {
         return new WebDefineDatas();
     }
