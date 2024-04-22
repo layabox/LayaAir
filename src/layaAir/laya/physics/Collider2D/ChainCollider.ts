@@ -69,15 +69,18 @@ export class ChainCollider extends ColliderBase {
     }
 
     /**
-    * @override
-    */
+     * @internal
+     * @override
+     */
     protected _setShapeData(shape: any): void {
         var len: number = this._datas.length;
         if (len % 2 == 1) throw "ChainCollider datas lenth must a multiplier of 2";
         Physics2D.I._factory.set_ChainShape_data(shape, this.pivotoffx, this.pivotoffy, this._datas, this._loop, this.scaleX, this.scaleY);
     }
 
-
+    /**
+     * 被添加到节点后调用，和Awake不同的是即使节点未激活onAdded也会调用。
+     */
     onAdded() {
         super.onAdded();
         let sp = this.owner as Sprite;

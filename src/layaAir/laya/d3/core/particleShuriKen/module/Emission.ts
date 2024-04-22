@@ -36,6 +36,9 @@ export class Emission implements IClone {
 		return this._emissionRate;
 	}
 
+	/**
+	 * 粒子基于距离的发射速率（个/米）
+	 */
 	get emissionRateOverDistance(): number {
 		return this._emissionRateOverDistance;
 	}

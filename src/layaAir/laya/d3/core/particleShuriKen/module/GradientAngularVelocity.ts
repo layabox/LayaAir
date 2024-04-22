@@ -116,6 +116,8 @@ export class GradientAngularVelocity implements IClone {
 	 * @param	gradientYMax  最大Y轴渐变角速度。
 	 * @param	gradientZMin  最小Z轴渐变角速度。
 	 * @param	gradientZMax  最大Z轴渐变角速度。
+	 * @param	gradientWMin  预留数据
+	 * @param	gradientWMax  预留数据
 	 * @return  渐变角速度。
 	 */
 	static createByRandomTwoGradientSeparate(gradientXMin: GradientDataNumber, gradientXMax: GradientDataNumber, gradientYMin: GradientDataNumber, gradientYMax: GradientDataNumber, gradientZMin: GradientDataNumber, gradientZMax: GradientDataNumber, gradientWMin: GradientDataNumber, gradientWMax: GradientDataNumber): GradientAngularVelocity {

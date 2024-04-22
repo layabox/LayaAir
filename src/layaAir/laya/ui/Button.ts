@@ -558,6 +558,8 @@ export class Button extends UIComponent implements ISelect {
     }
 
     /**
+     * 销毁
+     * @param destroyChild 是否删除子节点
      * @inheritDoc 
      * @override
      */

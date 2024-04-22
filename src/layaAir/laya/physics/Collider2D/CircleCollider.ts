@@ -27,7 +27,10 @@ export class CircleCollider extends ColliderBase {
         this._physicShape = PhysicsShape.CircleShape;
     }
 
-    /**@internal 设置碰撞体数据*/
+    /**
+     * @internal 设置碰撞体数据
+     * @param shape 
+     */
     protected _setShapeData(shape: any): void {
         var scale: number = Math.max(Math.abs(this.scaleX), Math.abs(this.scaleY));
         let radius = this.radius;

@@ -52,6 +52,7 @@ export class EdgeCollider extends ColliderBase {
     }
 
     /**
+     * @internal
      * @override
      */
     protected _setShapeData(shape: any): void {

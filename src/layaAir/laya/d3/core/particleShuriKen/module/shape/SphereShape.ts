@@ -53,6 +53,13 @@ export class SphereShape extends BaseShape {
 	 * @param	direction 粒子方向。
 	 * @override
 	 */
+	/**
+	 *  用于生成粒子初始位置和方向。
+	 * @param position 粒子位置
+	 * @param direction 粒子方向
+	 * @param rand 随机数
+	 * @param randomSeeds 随机数种子队列 
+	 */
 	generatePositionAndDirection(position: Vector3, direction: Vector3, rand: Rand = null, randomSeeds: Uint32Array = null): void {
 		if (rand) {
 			rand.seed = randomSeeds[16];
@@ -84,6 +91,8 @@ export class SphereShape extends BaseShape {
 	}
 
 	/**
+	 * 克隆
+	 * @param destObject 克隆目标
 	 * @override
 	 */
 	cloneTo(destObject: any): void {

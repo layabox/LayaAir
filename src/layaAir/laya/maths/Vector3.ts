@@ -8,18 +8,28 @@ import { Quaternion } from "./Quaternion";
  * <code>Vector3</code> 类用于创建三维向量。
  */
 export class Vector3 implements IClone {
-    /**@internal	*/
+    /**@internal*/
     static _tempVector4 = new Vector4();
+    /**@internal*/
     static _tempVector3 = new Vector3();
 
+    /**零值 */
     static readonly ZERO: Readonly<Vector3> = new Vector3(0.0, 0.0, 0.0);
+    /**壹值 */
     static readonly ONE: Readonly<Vector3> = new Vector3(1.0, 1.0, 1.0);
+    /**负X轴 */
     static readonly NegativeUnitX: Readonly<Vector3> = new Vector3(-1, 0, 0);
+    /**正X轴 */
     static readonly UnitX: Readonly<Vector3> = new Vector3(1, 0, 0);
+    /**正Y轴 */
     static readonly UnitY: Readonly<Vector3> = new Vector3(0, 1, 0);
+    /**正Z轴 */
     static readonly UnitZ: Readonly<Vector3> = new Vector3(0, 0, 1);
+    /**负Z值 */
     static readonly ForwardRH: Readonly<Vector3> = new Vector3(0, 0, -1);
+    /**正Z值 */
     static readonly ForwardLH: Readonly<Vector3> = new Vector3(0, 0, 1);
+    /**正Y值 */
     static readonly Up: Readonly<Vector3> = new Vector3(0, 1, 0);
 
     /**
@@ -342,8 +352,8 @@ export class Vector3 implements IClone {
     }
 
     /**
-     * 求四维向量是否相等
-     * @param value 
+     * 判断四维向量是否相等
+     * @param value 对比值
      * @returns 
      */
     equal(value: Vector3) {
@@ -426,7 +436,7 @@ export class Vector3 implements IClone {
     /**
      * 向量相减
      * @param b 被减向量
-     * @param out 
+     * @param out 输出向量
      * @returns 
      */
     vsub(b: Vector3, out: Vector3) {
@@ -439,7 +449,7 @@ export class Vector3 implements IClone {
     /**
      * 向量相加
      * @param b 加向量
-     * @param out 
+     * @param out 输出向量
      * @returns 
      */
     vadd(b: Vector3, out: Vector3) {
@@ -452,7 +462,7 @@ export class Vector3 implements IClone {
     /**
      * 缩放向量
      * @param s 缩放值
-     * @param out
+     * @param out 输出向量
      * @returns 返回缩放向量
      */
     scale(s: number, out: Vector3) {
@@ -480,7 +490,7 @@ export class Vector3 implements IClone {
 
     /**
      * 向量点乘
-     * @param b 
+     * @param b 点乘向量
      * @returns 
      */
     dot(b: Vector3): number {
@@ -489,8 +499,8 @@ export class Vector3 implements IClone {
 
     /**
      * 向量叉乘
-     * @param b 
-     * @param o 
+     * @param b 叉乘向量
+     * @param o 输出向量
      * @returns 
      */
     cross(b: Vector3, o: Vector3): Vector3 {

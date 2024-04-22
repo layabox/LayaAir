@@ -166,8 +166,8 @@ export class Vector4 implements IClone {
     }
 
     /**
-     * 求四维向量是否相等
-     * @param value 
+     * 判断四维向量是否相等
+     * @param value 对比值
      * @returns 
      */
     equal(value: Vector4) {
@@ -365,24 +365,5 @@ export class Vector4 implements IClone {
         out.z = Math.max(a.z, b.z);
         out.w = Math.max(a.w, b.w);
     }
-
-    forNativeElement(nativeElements: Float32Array = null): void {
-        if (nativeElements) {
-            (<any>this).elements = nativeElements;
-            (<any>this).elements[0] = this.x;
-            (<any>this).elements[1] = this.y;
-            (<any>this).elements[2] = this.z;
-            (<any>this).elements[3] = this.w;
-        }
-        else {
-            (<any>this).elements = new Float32Array([this.x, this.y, this.z, this.w]);
-        }
-        Vector2.rewriteNumProperty(this, "x", 0);
-        Vector2.rewriteNumProperty(this, "y", 1);
-        Vector2.rewriteNumProperty(this, "z", 2);
-        Vector2.rewriteNumProperty(this, "w", 3);
-
-    }
-
 }
 

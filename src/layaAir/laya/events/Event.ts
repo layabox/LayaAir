@@ -153,7 +153,7 @@ export class Event {
     static JOINT_BREAK = "jointbreak";
 
     /**@internal */
-    static _Add_Script= "addscript";
+    static _Add_Script = "addscript";
     /**
      * 检测指定事件类型是否是鼠标事件。
      * @param	type 事件的类型。
@@ -256,10 +256,16 @@ export class Event {
         return this.nativeEvent?.metaKey;
     }
 
+    /**
+     * 事件名称
+     */
     get key(): string {
         return (<KeyboardEvent>this.nativeEvent).key;
     }
 
+    /**
+     * 事件名称索引
+     */
     get keyCode(): number {
         return (<KeyboardEvent>this.nativeEvent).keyCode;
     }

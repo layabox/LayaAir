@@ -48,6 +48,9 @@ export class ShurikenParticleRenderer extends BaseRender {
     /**拉伸广告牌模式长度缩放。*/
     stretchedBillboardLengthScale: number = 2;
 
+    /**
+     * 粒子管理系统
+     */
     get particleSystem(): ShurikenParticleSystem {
         return this._particleSystem;
     }
@@ -132,11 +135,16 @@ export class ShurikenParticleRenderer extends BaseRender {
         this._baseRenderNode.renderNodeType = BaseRenderType.ParticleRender
     }
 
+    /**
+     * @override
+     */
     protected _getcommonUniformMap(): Array<string> {
         return ["Sprite3D", "ShurikenSprite3D"];
     }
 
-
+    /**
+    * @override
+    */
     protected _onAdded(): void {
         super._onAdded();
         if (!LayaGL.renderEngine.getCapable(RenderCapable.DrawElement_Instance)) {
@@ -154,6 +162,9 @@ export class ShurikenParticleRenderer extends BaseRender {
         this._setRenderElements();
     }
 
+    /**
+    * @override
+    */
     protected _onEnable(): void {
         super._onEnable();
 
@@ -161,6 +172,9 @@ export class ShurikenParticleRenderer extends BaseRender {
         (this._particleSystem.playOnAwake && LayaEnv.isPlaying) && (this._particleSystem.play());
     }
 
+    /**
+    * @override
+    */
     protected _onDisable(): void {
         super._onDisable();
         Stat.particleRenderNode--;
@@ -298,7 +312,7 @@ export class ShurikenParticleRenderer extends BaseRender {
     }
 
     /**
-     * @inheritDoc
+     * 包围盒,只读,不允许修改其值。
      * @override
      */
     get bounds(): Bounds {

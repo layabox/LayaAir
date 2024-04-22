@@ -154,6 +154,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
     protected _totalDelayTime: number = 0;
     /** @internal 上次发射到当前的移动总距离，每次根据距离发射粒子后清空 */
     protected _emissionDistance: number = 0;
+    /**@internal */
     protected _emissionLastPosition: Vector3 = new Vector3();
     /**@internal */
     protected _burstsIndex: number = 0;
@@ -1705,6 +1706,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 
     /**
      * 发射一个粒子。
+     * @param 发射持续时间
      */
     emit(time: number): boolean {
         var position: Vector3 = ShurikenParticleSystem._tempPosition;
@@ -1723,7 +1725,13 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
         return this.addParticle(position, direction, time);//TODO:提前判断优化
     }
 
-    //增加一个粒子
+    /**
+     * 增加一个粒子
+     * @param position 位置
+     * @param direction 方向
+     * @param time 时间
+     * @returns 
+     */
     addParticle(position: Vector3, direction: Vector3, time: number): boolean {//TODO:还需优化
         Vector3.normalize(direction, direction);
         //下一个粒子
@@ -1979,6 +1987,9 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
         return true;
     }
 
+    /**
+     * @internal
+     */
     addNewParticlesToVertexBuffer(): void {
         var start: number;
         var byteStride: number = this._vertexStride * this._floatCountPerVertex * 4;

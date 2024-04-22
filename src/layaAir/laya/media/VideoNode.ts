@@ -385,6 +385,7 @@ export class VideoNode extends Sprite {
 
     /**
      * 销毁内部事件绑定。
+     * @param detroyChildren    是否删除子节点
      * @override
      */
     destroy(detroyChildren: boolean = true): void {

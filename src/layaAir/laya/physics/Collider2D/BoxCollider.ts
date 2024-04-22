@@ -45,7 +45,12 @@ export class BoxCollider extends ColliderBase {
         this._physicShape = PhysicsShape.BoxShape;
     }
 
-    /**@override */
+    /** */
+    /**
+     * @internal
+     * @override
+     * @param shape 
+     */
     protected _setShapeData(shape: any): void {
         let helfW: number = this._width * 0.5;
         let helfH: number = this._height * 0.5;

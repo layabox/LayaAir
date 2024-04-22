@@ -23,8 +23,8 @@ export class Bounds implements IClone {
 
     /**
      * 包围盒是否包含点
-     * @param box 
-     * @param point 
+     * @param box 包围盒
+     * @param point 检测点
      * @returns 
      */
     static containPoint(box: Bounds, point: Vector3): boolean {
@@ -252,7 +252,7 @@ export class Bounds implements IClone {
     }
 
     /**
-     * TODO
+     * 获取包围盒
      * @param box 
      */
     getBoundBox(box: BoundBox): void {

@@ -31,11 +31,17 @@ export class InputManager {
     static mouseY: number = 0;
     /** 当前是否正在输入文字 */
     static isTextInputting = false;
+    /**当前是否是iOS的WKWebView平台 */
     static isiOSWKwebView: boolean = false;
+    /**@internal */
     protected _stage: Stage;
+    /**@internal */
     protected _mouseTouch: TouchInfo;
+    /**@internal */
     protected _touches: TouchInfo[];
+    /**@internal */
     protected _touchPool: TouchInfo[];
+    /**@internal */
     protected _touchTarget: Node;
 
     //用于IDE处理
@@ -60,6 +66,11 @@ export class InputManager {
         return _inst;
     }
 
+    /**
+     * 获得触摸位置
+     * @param touchId 触摸点ID 
+     * @returns 
+     */
     static getTouchPos(touchId?: number): Readonly<Point> {
         if (touchId == null)
             return _inst._touches[0]?.pos || Point.EMPTY;
@@ -79,6 +90,10 @@ export class InputManager {
         return _inst._touches.length;
     }
 
+    /**
+     * 取消点击
+     * @param touchId 取消的触摸事件ID 
+     */
     static cancelClick(touchId?: number): void {
         let touch = touchId == null ? _inst._touches[0] : _inst.getTouch(touchId);
         if (touch)
@@ -172,6 +187,11 @@ export class InputManager {
         }, true);
     }
 
+    /**
+     * 处理鼠标事件
+     * @param ev 鼠标事件
+     * @param type 事件类型
+     */
     handleMouse(ev: MouseEvent | WheelEvent, type: number) {
         this._eventType = type;
         this._nativeEvent = ev;
@@ -279,6 +299,11 @@ export class InputManager {
         }
     }
 
+    /**
+     * 处理触屏事件
+     * @param ev 触屏事件
+     * @param type 事件类型
+     */
     handleTouch(ev: TouchEvent, type: number) {
         this._eventType = type;
         this._nativeEvent = ev;
@@ -413,6 +438,10 @@ export class InputManager {
         }
     }
 
+    /**
+     * 处理按键事件
+     * @param ev 案件事件
+     */
     handleKeys(ev: KeyboardEvent): void {
         let type = ev.type;
         let keyCode = ev.keyCode;
@@ -442,6 +471,12 @@ export class InputManager {
         this._keyEvent.nativeEvent = null;
     }
 
+    /**
+     * 获取位置点下的节点
+     * @param x x位置值
+     * @param y y位置值
+     * @returns 
+     */
     getNodeUnderPoint(x: number, y: number): Node {
         let target: Node = this.getSpriteUnderPoint(this._stage, x, y);
         if (!target)
@@ -451,9 +486,10 @@ export class InputManager {
 
     /**
      * 获取指定坐标下的sprite。x/y值是sp的本地坐标
-     * @param sp
-     * @param x
-     * @param y
+     * @param sp 相对Sprite
+     * @param x 相对Sp的X值
+     * @param y 相对Sp的Y值
+     * @returns
      */
     getSpriteUnderPoint(sp: Sprite, x: number, y: number): Sprite {
         //如果有裁剪，则先判断是否在裁剪范围内
@@ -502,6 +538,14 @@ export class InputManager {
         return null;
     }
 
+    /**
+     * 点击测试
+     * @param sp 相对Sprite
+     * @param x 相对Sprite的X位置
+     * @param y 相对Sprite的Y位置
+     * @param editing 是否是编辑状态
+     * @returns 
+     */
     hitTest(sp: Sprite, x: number, y: number, editing?: boolean): boolean {
         let isHit: boolean = false;
         if (sp.scrollRect) {

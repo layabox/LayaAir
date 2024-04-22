@@ -205,10 +205,11 @@ export class Gradient implements IClone {
 
 	/**
 	 * 通过插值获取RGB颜色。
-	 * @param  lerpFactor 插值因子。
-	 * @param  out 颜色结果。
-	 * @param  开始查找索引。
-	 * @return 结果索引。
+	 * @param lerpFactor 插值因子。
+	 * @param out 颜色结果。
+	 * @param startSearchIndex 开始查找索引。
+	 * @param reverseSearch 反向插值。
+	 * @returns 
 	 */
 	evaluateColorRGB(lerpFactor: number, out: Color, startSearchIndex: number = 0, reverseSearch: boolean = false): number {
 		lerpFactor = Math.min(Math.max(lerpFactor, 0.0), 1.0);
@@ -312,7 +313,8 @@ export class Gradient implements IClone {
 	 * 通过插值获取透明值。
 	 * @param  lerpFactor 插值因子。
 	 * @param  out 颜色结果。
-	 * @param  开始查找索引。
+	 * @param  startSearchIndex 开始查找索引。
+	 * @param  reverseSearch 是否反向插值
 	 * @return 结果索引 。
 	 */
 	evaluateColorAlpha(lerpFactor: number, outColor: Color, startSearchIndex: number = 0, reverseSearch: boolean = false): number {
