@@ -37,30 +37,44 @@ const packsDef = [{
         './layaAir/laya/events/**/*.*',
         './layaAir/laya/filters/**/*.*',
         './layaAir/laya/layagl/**/*.*',
-        './layaAir/laya/loaders/**/*.*',
-        './layaAir/laya/maths/**/*.*',
-        './layaAir/laya/media/**/*.*',
-        './layaAir/laya/net/**/*.*',
 
-        // './layaAir/laya/RenderEngine/**/*.*',
-        './layaAir/laya/RenderEngine/RenderEngine/NativeGLEngine/**/*.*',
-        './layaAir/laya/RenderEngine/RenderEngine/WebGLEngine/**/*.*',
-        // './layaAir/laya/RenderEngine/RenderEngine/WebGPUEngine/**/*.*',
+        './layaAir/laya/RenderDriver/DriverDesign/RenderDevice/**/*.*',
+        './layaAir/laya/RenderDriver/DriverDesign/2DRenderPass/**/*.*',
+
         './layaAir/laya/RenderEngine/RenderEnum/**/*.*',
         './layaAir/laya/RenderEngine/RenderInterface/**/*.*',
         './layaAir/laya/RenderEngine/RenderShader/**/*.*',
         './layaAir/laya/RenderEngine/*.*',
 
-            './layaAir/laya/renders/**/*.*',
-            './layaAir/laya/resource/**/*.*',
-            './layaAir/laya/system/**/*.*',
-            './layaAir/laya/utils/**/*.*',
-            './layaAir/laya/tools/**/*.*',
-            './layaAir/laya/html/**/*.*',
-            './layaAir/laya/webgl/**/*.*',
-            './layaAir/Config3D.ts',
+        './layaAir/laya/RenderDriver/RenderModuleData/Design/IDefineDatas.ts',
+        './layaAir/laya/RenderDriver/RenderModuleData/Design/IUnitRenderModuleDataFactory.ts',
+        './layaAir/laya/RenderDriver/RenderModuleData/Design/RenderState.ts',
+        './layaAir/laya/RenderDriver/RenderModuleData/Design/ShaderDefine.ts',
 
+        './layaAir/laya/RenderDriver/RenderModuleData/RuntimeModuleData/RTDefineDatas.ts',
+        './layaAir/laya/RenderDriver/RenderModuleData/RuntimeModuleData/RTRenderState.ts',
+        './layaAir/laya/RenderDriver/RenderModuleData/RuntimeModuleData/RTShaderDefine.ts',
+        './layaAir/laya/RenderDriver/RenderModuleData/RuntimeModuleData/RTShaderPass.ts',
+        './layaAir/laya/RenderDriver/RenderModuleData/RuntimeModuleData/RTSubShader.ts',
+        './layaAir/laya/RenderDriver/RenderModuleData/RuntimeModuleData/RTUintRenderModuleDataFactory.ts',
 
+        './layaAir/laya/RenderDriver/RenderModuleData/WebModuleData/WebDefineDatas.ts',
+        './layaAir/laya/RenderDriver/RenderModuleData/WebModuleData/WebShaderPass.ts',
+        './layaAir/laya/RenderDriver/RenderModuleData/WebModuleData/WebSubShader.ts',
+        './layaAir/laya/RenderDriver/RenderModuleData/WebModuleData/WebUnitRenderModuleDataFactory.ts',
+
+        './layaAir/laya/loaders/**/*.*',
+        './layaAir/laya/maths/**/*.*',
+        './layaAir/laya/media/**/*.*',
+        './layaAir/laya/net/**/*.*',
+
+        './layaAir/laya/renders/**/*.*',
+        './layaAir/laya/resource/**/*.*',
+        './layaAir/laya/system/**/*.*',
+        './layaAir/laya/utils/**/*.*',
+        './layaAir/laya/tools/**/*.*',
+        './layaAir/laya/html/**/*.*',
+        './layaAir/Config3D.ts',
     ],
 },
 {
@@ -83,7 +97,13 @@ const packsDef = [{
         './layaAir/laya/d3/MouseTouch.ts',
         './layaAir/laya/d3/Touch.ts',
         './layaAir/laya/d3/ModuleDef.ts',
-        //'./layaAir/laya/d3/RenderObjs/**/*.*',
+
+        './layaAir/laya/RenderDriver/DriverDesign/RenderDevice/**/*.*',
+        './layaAir/laya/RenderDriver/DriverDesign/3DRenderPass/**/*.*',
+        './layaAir/laya/RenderDriver/RenderModuleData/Design/**/*.*',
+        './layaAir/laya/RenderDriver/RenderModuleData/RuntimeModuleData/**/*.*',
+        './layaAir/laya/RenderDriver/RenderModuleData/WebModuleData/**/*.*',
+
         './layaAir/laya/d3/RenderObjs/NativeOBJ/*.*',
         './layaAir/laya/d3/RenderObjs/RenderObj/*.*',
         './layaAir/laya/d3/RenderObjs/IRenderEngine3DOBJFactory.ts',
@@ -100,6 +120,58 @@ const packsDef = [{
         './layaAir/laya/d3/physics/ContactPoint.ts',
     ],
 },
+
+{
+    'libName': "opengl_2D",
+    'input': [
+        './layaAir/laya/RenderDriver/OpenGLESDriver/RenderDevice/**/*.*',
+        './layaAir/laya/RenderDriver/OpenGLESDriver/2DRenderPass/**/*.*',
+        './layaAir/laya/RenderDriver/RenderModuleData/RuntimeModuleData/RTShaderPass.ts',
+    ],
+},
+
+{
+    'libName': "opengl_3D",
+    'input': [
+        './layaAir/laya/RenderDriver/OpenGLESDriver/3DRenderPass/**/*.*',
+        './layaAir/laya/RenderDriver/RenderModuleData/RuntimeModuleData/RTShaderPass.ts',
+    ],
+},
+
+{
+    'libName': "webgl_2D",
+    'input': [
+        './layaAir/laya/RenderDriver/WebGLDriver/RenderDevice/**/*.*',
+        './layaAir/laya/RenderDriver/WebGLDriver/2DRenderPass/**/*.*',
+        './layaAir/laya/RenderDriver/RenderModuleData/WebModuleData/WebGLShaderData.ts',
+    ],
+},
+
+{
+    'libName': "webgl_3D",
+    'input': [
+        './layaAir/laya/RenderDriver/WebGLDriver/3DRenderPass/**/*.*',
+        './layaAir/laya/RenderDriver/RenderModuleData/WebModuleData/WebGLShaderData.ts',
+    ],
+},
+
+{
+    'libName': "webgpu_2D",
+    'input': [
+        './layaAir/laya/RenderDriver/WebGPUDriver/RenderDevice/**/*.*',
+        './layaAir/laya/RenderDriver/WebGPUDriver/ShaderCompile/**/*.*',
+        './layaAir/laya/RenderDriver/WebGPUDriver/2DRenderPass/**/*.*',
+    ],
+},
+
+{
+    'libName': "webgpu_3D",
+    'input': [
+        './layaAir/laya/RenderDriver/WebGPUDriver/ShaderCompile/**/*.*',
+        './layaAir/laya/RenderDriver/WebGPUDriver/3DRenderPass/**/*.*',
+    ],
+},
+
 {
     'libName': "physics3D",
     'input': [
@@ -875,7 +947,7 @@ gulp.task('compileSamples', async (cb) => {
             globals: {
                 'Laya': 'Laya'
             },
-            sourcemap: false,
+            sourcemap: sourcemap,
             banner: 'window.Laya=window.Laya||{};\n',
         });
     });
@@ -920,7 +992,7 @@ gulp.task('compileSamples', async (cb) => {
             file: './bin/rollUp/laya.js',
             format: 'iife',
             name: 'Laya',
-            sourcemap: false,
+            sourcemap: sourcemap,
             //banner: 'window.Laya=window.Laya||{};\n',
         });
     }).catch(err => {

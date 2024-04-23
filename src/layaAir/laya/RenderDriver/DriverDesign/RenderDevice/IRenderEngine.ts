@@ -1,9 +1,11 @@
 
+import { BufferTargetType, BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
 import { RenderParams } from "../../../RenderEngine/RenderEnum/RenderParams";
 import { GPUEngineStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
 import { IDefineDatas } from "../../RenderModuleData/Design/IDefineDatas";
 import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
+import { GLBuffer } from "../../WebGLDriver/RenderDevice/WebGLEngine/GLBuffer";
 import { IRenderEngineFactory } from "./IRenderEngineFactory";
 import { ITextureContext } from "./ITextureContext";
 import { InternalTexture } from "./InternalTexture";
@@ -38,4 +40,6 @@ export interface IRenderEngine {
     clearStatisticsInfo(): void;
     /**@internal */
     getStatisticsInfo(info: GPUEngineStatisticsInfo): number;
+    getUBOPointer?(name: string): number;   // TODO
+    createBuffer?(targetType: BufferTargetType, bufferUsageType: BufferUsage): GLBuffer;    // TODO
 }
