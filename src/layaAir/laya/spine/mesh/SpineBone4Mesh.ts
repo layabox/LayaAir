@@ -1,10 +1,12 @@
 import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
 import { Material } from "../../resource/Material";
-import { SlotExtend } from "../SlotExtend";
+
 import { SpineFastMaterialShaderInit } from "../material/SpineFastMaterialShaderInit";
+import { ISlotExtend } from "../slot/ISlotExtend";
+import { ISpineMesh } from "./ISpineMesh";
 import { SpineMeshBase } from "./SpineMeshBase";
 
-export class SpinBone4Mesh extends SpineMeshBase {
+export class SpinBone4Mesh extends SpineMeshBase implements ISpineMesh {
     get vertexDeclarition(): VertexDeclaration {
         return SpineFastMaterialShaderInit.vertexDeclaration;
     }
@@ -15,7 +17,7 @@ export class SpinBone4Mesh extends SpineMeshBase {
         this.vertexArray = new Float32Array(SpineMeshBase.maxVertex * SpinBone4Mesh.vertexSize);
         this.indexArray = new Uint16Array(SpineMeshBase.maxVertex * 3);
     }
-    appendSlot(slot: SlotExtend, getBoneId: (boneIndex: number) => number) {
+    appendSlot(slot: ISlotExtend, getBoneId: (boneIndex: number) => number) {
         let vertexArray = this.vertexArray;
         let indexArray = this.indexArray;
         let offset = this.verticesLength;

@@ -79,12 +79,11 @@ export abstract class SpineMeshBase {
     }
 
 
-    _cloneTo(target:SpineMeshBase){
+    _cloneTo(target: SpineMeshBase) {
         target.verticesLength = this.verticesLength;
         target.indicesLength = this.indicesLength;
         target.vertexArray = new Float32Array(this.vertexArray);
         target.indexArray = new Uint16Array(this.indexArray);
-
     }
 
 }

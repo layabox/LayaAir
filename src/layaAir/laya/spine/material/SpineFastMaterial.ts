@@ -4,19 +4,30 @@ import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { LayaGL } from "laya/layagl/LayaGL";
 import { Material } from "laya/resource/Material";
 import { SpineMaterialBase } from "./SpineMaterialBase";
+import { Vector3 } from "../../maths/Vector3";
 
 export class SpineFastMaterial extends SpineMaterialBase {
     static BONEMAT: number;
 
     static NMatrix: number;
 
+    static boneBlock:number;
+
+    static Test:number;
+
     static __initDefine__(): void {
         SpineFastMaterial.BONEMAT = Shader3D.propertyNameToID("u_sBone");
 
         SpineFastMaterial.NMatrix = Shader3D.propertyNameToID("u_NMatrix");
 
-        const commandUniform = LayaGL.renderDeviceFactory.createGlobalUniformMap("Sprite2D");
-        commandUniform.addShaderUniform(SpineFastMaterial.BONEMAT, "u_sBone", ShaderDataType.Buffer);
+        // SpineFastMaterial.boneBlock=Shader3D.propertyNameToID("boneBlock");
+
+        // SpineFastMaterial.Test=Shader3D.propertyNameToID("u_test");
+
+        // const commandUniform = LayaGL.renderDeviceFactory.createGlobalUniformMap("Sprite2D");
+        // //commandUniform.addShaderUniform(SpineFastMaterial.BONEMAT, "u_sBone", ShaderDataType.Buffer);
+        // commandUniform.addShaderUniform(SpineFastMaterial.BONEMAT, "u_sBone[200]", ShaderDataType.Buffer, "boneBlock");
+        // commandUniform.addShaderUniform(SpineFastMaterial.BONEMAT, "u_test", ShaderDataType.Float, "boneBlock");
     }
 
     constructor() {

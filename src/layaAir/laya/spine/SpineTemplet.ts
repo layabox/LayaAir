@@ -11,6 +11,9 @@ import { Vector2 } from "../maths/Vector2";
 import { Laya } from "../../Laya";
 import { SpineOptimize } from "./SpineOptimize";
 import { SpineFastMaterial } from "./material/SpineFastMaterial";
+import { ERenderType } from "./SpineSkeleton";
+import { SpineRBMaterial } from "./material/SpineRBMaterial";
+import { SpineMaterialBase } from "./material/SpineMaterialBase";
 
 /**
  * Spine动画模板基类
@@ -20,25 +23,44 @@ export class SpineTemplet extends Resource {
 
     public skeletonData: spine.SkeletonData;
 
-    private materialMap: Map<string, SpineMaterial>;
-
-    private materialFastMap: Map<string, SpineFastMaterial>;
+    private materialMap: Map<string, SpineMaterialBase>;
 
     private _textures: Record<string, SpineTexture>;
     private _basePath: string;
     private _ns: any;
+    private _renderType: ERenderType;
     public needSlot:boolean;
 
     slotManger:SpineOptimize;
+
+    materialConstructor: new () => SpineMaterialBase;
     
 
     constructor() {
         super();
-
         this._textures = {};
         this.materialMap = new Map();
-        this.materialFastMap = new Map();
         this.slotManger=new SpineOptimize();
+        this.renderType = ERenderType.normal;
+    }
+
+    get renderType():ERenderType{
+        return this._renderType;
+    }
+
+    set renderType(type:ERenderType){
+        this.slotManger.setType(type);
+        switch (type) {
+            case ERenderType.boneGPU:
+                this.materialConstructor=SpineFastMaterial;
+                break;
+            case ERenderType.normal:
+                this.materialConstructor=SpineMaterial;
+                break;
+            case ERenderType.rigidBody:
+                this.materialConstructor=SpineRBMaterial;
+                break;
+        }
     }
 
     get mainTexture(): Texture {
@@ -65,23 +87,23 @@ export class SpineTemplet extends Resource {
         return this._basePath;
     }
 
-    getFastMaterial(texture: Texture,blendMode: number): Material {
-        let key = texture.id + "_" + blendMode;
-        let mat = this.materialFastMap.get(key);
-        if (!mat) {
-            mat = new SpineFastMaterial();
-            mat.texture = texture;
-            mat.blendMode = blendMode;
-            this.materialFastMap.set(key, mat);
-        }
-        return mat;
-    }
+    // getFastMaterial(texture: Texture,blendMode: number): Material {
+    //     let key = texture.id + "_" + blendMode;
+    //     let mat = this.materialFastMap.get(key);
+    //     if (!mat) {
+    //         mat = new SpineFastMaterial();
+    //         mat.texture = texture;
+    //         mat.blendMode = blendMode;
+    //         this.materialFastMap.set(key, mat);
+    //     }
+    //     return mat;
+    // }
 
-    getMaterial(texture: Texture, blendMode: number): Material {
+    getMaterial(texture: Texture, blendMode: number): SpineMaterialBase {
         let key = texture.id + "_" + blendMode;
         let mat = this.materialMap.get(key);
         if (!mat) {
-            mat = new SpineMaterial();
+            mat = new this.materialConstructor();
             mat.texture = texture;
             mat.blendMode = blendMode;
             //mat.setVector2("u_size",new Vector2(Laya.stage.width,Laya.stage.height));

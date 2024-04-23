@@ -3,13 +3,13 @@ varying vec4 vColor;
 uniform vec2 u_size;
 #define SHADER_NAME TextureFastSpineVS2D
 #define MAX_VERTEX_COUNT 
-uniform vec3 u_sBone[256];
-uniform vec3 u_NMatrix[2];
+// uniform vec3 u_sBone[256];
+// uniform vec3 u_NMatrix[2];
 
 vec4 getPos(float fboneId,float weight,vec2 pos){
     int boneId=int(fboneId);
-    vec3 up= u_sBone[boneId*2];
-    vec3 down=u_sBone[boneId*2+1];
+    vec4 up= u_sBone[boneId*2];
+    vec4 down=u_sBone[boneId*2+1];
     float x = pos.x*up.x + pos.y*up.y +up.z ;
     float y = pos.x*down.x + pos.y*down.y +down.z;
     pos.x=x*weight;
@@ -31,7 +31,7 @@ void main() {
     pos.y=y;
     vec4 postion = vec4((pos.x/u_size.x-0.5)*2.0,(pos.y/u_size.y+0.5)*2.0 ,0.,1.0);
 
-  
+
 
     gl_Position = postion;
 }

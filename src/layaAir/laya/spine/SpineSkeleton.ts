@@ -217,19 +217,6 @@ export class SpineSkeleton extends Sprite {
 
     spineItem:ISpineRender;
 
-    private _initSpineRender():void{
-        switch(this.renderType){
-            case ERenderType.boneGPU:    
-                this.spineItem=new SpineBoneGPURender();
-                break;
-            case ERenderType.normal:
-                this.spineItem=new SpineNormalRender();
-                break;    
-        
-        }
-        this.spineItem.init(this._skeleton,this._templet,this.graphics);
-    }
-
     /**
      * @internal
      * @protected
@@ -251,10 +238,10 @@ export class SpineSkeleton extends Sprite {
         this._stateData = new templet.ns.AnimationStateData(this._skeleton.data);
         // 动画状态类
         this._state = new templet.ns.AnimationState(this._stateData);
-        //this._renerer = new SpineSkeletonRenderer(templet, false);
+        this._renerer = new SpineSkeletonRenderer(templet, false);
         this._timeKeeper = new templet.ns.TimeKeeper();
         //let sMesh=this._templet.slotManger.init(this._skeleton.drawOrder, this._templet,this._templet.mainTexture);
-        this._initSpineRender();
+        this.spineItem= this._templet.slotManger._initSpineRender(this._skeleton,this._templet,this.graphics);
         let skinIndex = this._templet.getSkinIndexByName(this._skinName);
         if (skinIndex != -1)
             this.showSkinByIndex(skinIndex);
@@ -376,6 +363,9 @@ export class SpineSkeleton extends Sprite {
         // 计算骨骼的世界SRT(world SRT)
         this._skeleton.updateWorldTransform();
         this.spineItem.render();
+
+        // this.graphics.clear();
+        // this._renerer.drawOld(this._skeleton, this.graphics, -1, -1);
     }
 
     private _flushExtSkin() {
@@ -600,4 +590,5 @@ export class SpineSkeleton extends Sprite {
 export enum ERenderType {
     normal = 0,
     boneGPU = 1,
+    rigidBody = 2,
 }

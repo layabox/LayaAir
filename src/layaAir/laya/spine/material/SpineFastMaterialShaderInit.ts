@@ -32,36 +32,20 @@ export class SpineFastMaterialShaderInit {
         'a_pos4': [11, ShaderDataType.Vector2],
         "a_weight4": [12, ShaderDataType.Float],
         "a_BoneId4": [13, ShaderDataType.Float],
-
     }
-
-    // public static readonly textureSpineAttribute: { [name: string]: [number, ShaderDataType] } = {
-    //     'a_buf': [0, ShaderDataType.Buffer],
-    //     'a_color': [6, ShaderDataType.Vector4],
-    //     'a_texcoord': [7, ShaderDataType.Vector2],
-
-    // }
 
 
     static init() {
+
+        let uniformMap = {
+            "u_sBone[200]": ShaderDataType.Vector4,
+            "u_NMatrix[2]": ShaderDataType.Vector3
+        };
         //textureSpineShader
         SpineFastMaterialShaderInit.textureSpineShader = Shader3D.add("Sprite2DTextureFastSpine", false, false);
-        let subShader = new SubShader(SpineFastMaterialShaderInit.textureSpineAttribute, {}, {});
+        let subShader = new SubShader(SpineFastMaterialShaderInit.textureSpineAttribute, uniformMap, {});
         SpineFastMaterialShaderInit.textureSpineShader.addSubShader(subShader);
         subShader.addShaderPass(textureFastSpine_vs, textureSpine_ps);
-
-        //VertexDeclaration
-
-        // this.VertexDeclaration = new VertexDeclaration(56, [
-        //     new VertexElement(0, VertexElementFormat.Vector2, 0),
-        //     new VertexElement(8, VertexElementFormat.Single, 1),
-        //     new VertexElement(12, VertexElementFormat.Single, 2),
-        //     new VertexElement(16, VertexElementFormat.Vector2, 3),
-        //     new VertexElement(24, VertexElementFormat.Single, 4),
-        //     new VertexElement(28, VertexElementFormat.Single, 5),
-        //     new VertexElement(32, VertexElementFormat.Vector4, 6),
-        //     new VertexElement(48, VertexElementFormat.Vector2, 7),
-        // ])
 
         SpineFastMaterialShaderInit.vertexDeclaration = new VertexDeclaration(88, [
             new VertexElement(0, VertexElementFormat.Vector2, 0),

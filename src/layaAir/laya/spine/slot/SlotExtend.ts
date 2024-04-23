@@ -1,20 +1,10 @@
-import { Texture } from "../resource/Texture";
-import { SpineTexture } from "./SpineTexture";
+import { SpineTexture } from "../SpineTexture";
+import { SlotExtendBase } from "./SlotExtendBase";
+
 
 const QUAD_TRIANGLES = [0, 1, 2, 2, 3, 0];
-export class SlotExtend {
-    bone: spine.Bone;
-    boneIndex: number;
-    vertexArray: Float32Array;
-    indexArray: Array<number>;
-    uvs: spine.ArrayLike<number>;
-    stride: number;
-    texture: Texture;
-    constructor() {
-
-    }
-
-    attchment: spine.Attachment;
+export class SlotExtend extends SlotExtendBase {
+    
     init(slot: spine.Slot, vside: number) {
         this.bone = slot.bone;
         this.boneIndex = slot.bone.skeleton.bones.indexOf(slot.bone);

@@ -1,27 +1,73 @@
 import { Graphics } from "../display/Graphics";
+import { Material } from "../resource/Material";
 import { Texture } from "../resource/Texture";
-import { SlotExtend } from "./SlotExtend";
+import { ISlotExtend } from "./slot/ISlotExtend";
+import { SlotExtend } from "./slot/SlotExtend";
+import { SlotExtendRG } from "./slot/SlotExtendRG";
+import { ERenderType } from "./SpineSkeleton";
 import { SpineSkeletonRenderer } from "./SpineSkeletonRenderer";
 import { SpineTemplet } from "./SpineTemplet";
+import { ISpineMesh } from "./mesh/ISpineMesh";
 import { SpinBone4Mesh } from "./mesh/SpineBone4Mesh";
+import { SpineRigidBodyMesh } from "./mesh/SpineRigidBodyMesh";
+
 
 
 export class SpineOptimize {
-    slots: SlotExtend[] = [];
+    slots: ISlotExtend[] = [];
     bones: spine.Bone[];
     mapIndex: Map<number, number>;
-    slotMap: { [key: number]: SlotExtend } = {};
+    slotMap: { [key: number]: ISlotExtend } = {};
     isInit: boolean = false;
 
-    mesh: SpinBone4Mesh;
+    mesh: ISpineMesh;
+    private _type: ERenderType;
+
+    _meshConstructor: new (material: Material) => ISpineMesh;
+
+    _slotConstructor: new () => ISlotExtend;
     constructor() {
         this.mapIndex = new Map();
+        this._type = ERenderType.normal;
+    }
+
+    setType(type: ERenderType) {
+        this._type = type;
+        switch (type) {
+            case ERenderType.rigidBody:
+                this._meshConstructor = SpineRigidBodyMesh;
+                this._slotConstructor = SlotExtendRG;
+                break;
+            case ERenderType.boneGPU:
+                this._meshConstructor = SpinBone4Mesh;
+                this._slotConstructor = SlotExtend
+                break;
+            default:
+                break;
+        }
+    }
+
+    _initSpineRender(skeleton: spine.Skeleton, templet: SpineTemplet, graphics: Graphics) {
+        let spineItem: ISpineRender;
+        switch (this._type) {
+            case ERenderType.boneGPU:
+                spineItem = new SpineBoneGPURender();
+                break;
+            case ERenderType.normal:
+                spineItem = new SpineNormalRender();
+                break;
+            case ERenderType.rigidBody:
+                spineItem = new SpineRigidBodyRender();
+                break;
+        }
+        spineItem.init(skeleton, templet, graphics);
+        return spineItem;
     }
 
 
     init(slots: spine.Slot[], templet: SpineTemplet, mainTex: Texture) {
         if (this.isInit) return this.mesh.clone();
-        this.mesh = new SpinBone4Mesh(templet.getFastMaterial(mainTex, 0));
+        this.mesh = new this._meshConstructor(templet.getMaterial(mainTex, 0));
         let declare = this.mesh.vertexDeclarition;
         let boneMaxId = 0;
         this.bones = slots[0].bone.skeleton.bones;
@@ -52,7 +98,7 @@ export class SpineOptimize {
             let slotMap = this.slotMap;
             let slotex = slotMap[slot.data.index];
             if (!slotex) {
-                slotex = new SlotExtend();
+                slotex = new this._slotConstructor();
                 if (!slotex.init(slot, vside)) {
                     return null;
                 }
@@ -66,14 +112,23 @@ export class SpineOptimize {
 
     update(bones: spine.Bone[], boneMat: Float32Array) {
         this.mapIndex.forEach((value, key) => {
-            let offset = value * 6;
+            let offset = value * 8;
             let bone = bones[key];
             boneMat[offset] = bone.a;
             boneMat[offset + 1] = bone.b;
             boneMat[offset + 2] = bone.worldX;
-            boneMat[offset + 3] = bone.c;
-            boneMat[offset + 4] = bone.d;
-            boneMat[offset + 5] = bone.worldY;
+            boneMat[offset + 3] = 0;
+            boneMat[offset + 4] = bone.c;
+            boneMat[offset + 5] = bone.d;
+            boneMat[offset + 6] = bone.worldY;
+            boneMat[offset + 7] = 0;
+
+            // boneMat[offset] = 0.1;
+            // boneMat[offset + 1] =0;
+            // boneMat[offset + 2] = 100;
+            // boneMat[offset + 3] = 0.1;
+            // boneMat[offset + 4] = 0;
+            // boneMat[offset + 5] = 100;
         });
     }
 }
@@ -86,11 +141,11 @@ export interface ISpineRender {
 export class SpineBoneGPURender implements ISpineRender {
     bones: spine.Bone[];
     graphics: Graphics;
-    mesh: SpinBone4Mesh;
-    boneMat: Float32Array = new Float32Array(256 * 3);
+    mesh: ISpineMesh;
+    boneMat: Float32Array = new Float32Array(200 * 4);
     slotManger: SpineOptimize;
 
-    init(skeleton: spine.Skeleton, templet: SpineTemplet, graphics: Graphics){
+    init(skeleton: spine.Skeleton, templet: SpineTemplet, graphics: Graphics) {
         this.graphics = graphics;
         this.slotManger = templet.slotManger;
         this.mesh = this.slotManger.init(skeleton.slots, templet, templet.mainTexture);
@@ -109,7 +164,7 @@ export class SpineBoneGPURender implements ISpineRender {
 }
 
 export class SpineNormalRender implements ISpineRender {
-   
+
     graphics: Graphics;
     _renerer: SpineSkeletonRenderer;
     _skeleton: spine.Skeleton;
@@ -117,11 +172,36 @@ export class SpineNormalRender implements ISpineRender {
         this.graphics = graphics;
         this._renerer = new SpineSkeletonRenderer(templet, false);
         this._skeleton = skeleton;
-    
+
     }
 
     render() {
         this.graphics.clear();
         this._renerer.draw(this._skeleton, this.graphics, -1, -1);
+    }
+}
+
+export class SpineRigidBodyRender implements ISpineRender {
+    bones: spine.Bone[];
+    graphics: Graphics;
+    mesh: ISpineMesh;
+    boneMat: Float32Array = new Float32Array(200 * 4);
+    slotManger: SpineOptimize;
+
+    init(skeleton: spine.Skeleton, templet: SpineTemplet, graphics: Graphics) {
+        this.graphics = graphics;
+        this.slotManger = templet.slotManger;
+        this.mesh = this.slotManger.init(skeleton.slots, templet, templet.mainTexture);
+        this.bones = skeleton.bones;
+    }
+
+    render() {
+        let mesh = this.mesh;
+        let boneMat = this.boneMat;
+        this.slotManger.update(this.bones, boneMat);
+        (mesh.material as any).boneMat = boneMat;
+        if (this.graphics.cmds.length == 0) {
+            mesh.draw(this.graphics);
+        }
     }
 }
