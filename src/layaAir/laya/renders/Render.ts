@@ -69,7 +69,7 @@ export class Render {
         }
 
         this.initRender(Render._mainCanvas, width, height);
-        window.requestAnimationFrame(loop);
+        requestAnimationFrame(loop);
         let me = this;
         let lastFrmTm = performance.now();
         let fps = Config.FPS;
@@ -101,7 +101,7 @@ export class Render {
                 Render._customRequestAnimationFrame(Render._loopFunction);
             }
             else
-                window.requestAnimationFrame(loop);
+                requestAnimationFrame(loop);
         }
         ILaya.stage.on("visibilitychange", this, this._onVisibilitychange);
     }
