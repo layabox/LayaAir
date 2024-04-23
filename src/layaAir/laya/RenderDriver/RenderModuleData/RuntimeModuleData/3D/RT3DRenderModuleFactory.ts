@@ -1,4 +1,6 @@
+import { Laya } from "../../../../../Laya";
 import { ShaderPass } from "../../../../RenderEngine/RenderShader/ShaderPass";
+import { Laya3DRender } from "../../../../d3/RenderObjs/Laya3DRender";
 import { Sprite3D } from "../../../../d3/core/Sprite3D";
 import { Vector3 } from "../../../../maths/Vector3";
 import { IPointLightData } from "../../Design/3D/I3DRenderModuleData";
@@ -55,3 +57,8 @@ export class RT3DRenderModuleFactory implements I3DRenderModuleFactory {
     }
 
 }
+
+Laya.addBeforeInitCallback(() => {
+    if (!Laya3DRender.Render3DModuleDataFactory)
+        Laya3DRender.Render3DModuleDataFactory = new RT3DRenderModuleFactory();
+})

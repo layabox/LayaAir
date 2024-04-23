@@ -1,4 +1,6 @@
+import { Laya } from "../../../../Laya";
 import { ShaderPass } from "../../../RenderEngine/RenderShader/ShaderPass";
+import { LayaGL } from "../../../layagl/LayaGL";
 import { IShaderPassData } from "../Design/IShaderPassData";
 import { IUnitRenderModuleDataFactory } from "../Design/IUnitRenderModuleDataFactory";
 import { RenderState } from "../Design/RenderState";
@@ -22,3 +24,8 @@ export class WebUnitRenderModuleDataFactory implements IUnitRenderModuleDataFact
         return new WebDefineDatas();
     }
 }
+
+Laya.addBeforeInitCallback(() => {
+    if (!LayaGL.unitRenderModuleDataFactory)
+        LayaGL.unitRenderModuleDataFactory = new WebUnitRenderModuleDataFactory();
+})

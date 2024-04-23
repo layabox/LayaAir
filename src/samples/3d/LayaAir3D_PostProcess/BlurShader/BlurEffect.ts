@@ -1,7 +1,6 @@
 import { PostProcessEffect } from "laya/d3/core/render/PostProcessEffect";
 import { PostProcessRenderContext } from "laya/d3/core/render/PostProcessRenderContext";
 import { CommandBuffer } from "laya/d3/core/render/command/CommandBuffer";
-import { Viewport } from "laya/d3/math/Viewport";
 import BlurVS from "./Blur.vs";
 import BlurHorizentalFS from "./BlurHorizontal.fs";
 import BlurVerticalFS from "./BlurVertical.fs";
@@ -22,6 +21,7 @@ import { SubShader } from "laya/RenderEngine/RenderShader/SubShader";
 import { VertexMesh } from "laya/RenderEngine/RenderShader/VertexMesh";
 import { LayaGL } from "laya/layagl/LayaGL";
 import { ShaderDataType, ShaderData } from "laya/RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { Viewport } from "laya/maths/Viewport";
 
 export class BlurEffect extends PostProcessEffect {
 

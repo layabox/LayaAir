@@ -1,6 +1,9 @@
+import { Laya } from "../../../../../Laya";
+import { Laya3DRender } from "../../../../d3/RenderObjs/Laya3DRender";
 import { Sprite3D } from "../../../../d3/core/Sprite3D";
 import { Transform3D } from "../../../../d3/core/Transform3D";
 import { BoundsImpl } from "../../../../d3/math/BoundsImpl";
+import { LayaGL } from "../../../../layagl/LayaGL";
 import { Vector3 } from "../../../../maths/Vector3";
 import { IPointLightData } from "../../Design/3D/I3DRenderModuleData";
 import { I3DRenderModuleFactory } from "../../Design/3D/I3DRenderModuleFactory";
@@ -68,3 +71,9 @@ export class Web3DRenderModuleFactory implements I3DRenderModuleFactory {
   }
 
 }
+
+
+Laya.addBeforeInitCallback(() => {
+  if (!Laya3DRender.Render3DModuleDataFactory)
+      Laya3DRender.Render3DModuleDataFactory = new Web3DRenderModuleFactory();
+})

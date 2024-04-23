@@ -1,3 +1,5 @@
+import { Laya } from "../../../../Laya";
+import { LayaGL } from "../../../layagl/LayaGL";
 import { I2DRenderPassFactory } from "../../DriverDesign/2DRenderPass/I2DRenderPassFactory";
 import { IRenderContext2D } from "../../DriverDesign/2DRenderPass/IRenderContext2D";
 import { IRenderElement2D } from "../../DriverDesign/2DRenderPass/IRenderElement2D";
@@ -13,3 +15,9 @@ export class WebGLRender2DProcess implements I2DRenderPassFactory {
     }
 
 }
+
+Laya.addBeforeInitCallback(() => {
+    if (!LayaGL.render2DRenderPassFactory)
+        LayaGL.render2DRenderPassFactory = new WebGLRender2DProcess();
+});
+

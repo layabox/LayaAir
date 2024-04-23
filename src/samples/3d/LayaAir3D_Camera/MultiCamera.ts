@@ -4,7 +4,6 @@ import { Material } from "laya/resource/Material";
 import { SkyBoxMaterial } from "laya/d3/core/material/SkyBoxMaterial";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
-import { Viewport } from "laya/d3/math/Viewport";
 import { SkyBox } from "laya/d3/resource/models/SkyBox";
 import { SkyRenderer } from "laya/d3/resource/models/SkyRenderer";
 import { Stage } from "laya/display/Stage";
@@ -14,6 +13,7 @@ import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
+import { Viewport } from "laya/maths/Viewport";
 
 /**
  * ...

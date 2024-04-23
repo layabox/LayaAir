@@ -19,6 +19,8 @@ import { Resource } from "../../../resource/Resource";
 import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
 import { GLESShaderData } from "./GLESShaderData";
 import { GLESCommandUniformMap } from "./GLESCommandUniformMap";
+import { Laya } from "../../../../Laya";
+import { LayaGL } from "../../../layagl/LayaGL";
 
 export class GLESRenderDeviceFactory implements IRenderDeviceFactory {
     createShaderData(ownerResource: Resource): ShaderData {
@@ -53,3 +55,9 @@ export class GLESRenderDeviceFactory implements IRenderDeviceFactory {
     }
 
 }
+
+
+Laya.addBeforeInitCallback(() => {
+    if (!LayaGL.renderDeviceFactory)
+        LayaGL.renderDeviceFactory = new GLESRenderDeviceFactory();
+})

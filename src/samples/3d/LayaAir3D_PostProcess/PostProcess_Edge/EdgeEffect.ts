@@ -3,7 +3,6 @@ import { PostProcessRenderContext } from "laya/d3/core/render/PostProcessRenderC
 import EdgeEffectVS from "./shader/EdgeEffectVS.vs";
 import EdgeEffectFS from "./shader/EdgeEffectFS.fs";
 import { CommandBuffer } from "laya/d3/core/render/command/CommandBuffer";
-import { Viewport } from "laya/d3/math/Viewport";
 import { Camera } from "laya/d3/core/Camera";
 import { FilterMode } from "laya/RenderEngine/RenderEnum/FilterMode";
 import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFormat";
@@ -17,6 +16,7 @@ import { Vector3 } from "laya/maths/Vector3";
 import { Vector4 } from "laya/maths/Vector4";
 import { RenderTexture, DepthTextureMode } from "laya/resource/RenderTexture";
 import { ShaderData, ShaderDataType } from "laya/RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { Viewport } from "laya/maths/Viewport";
 
 export enum EdgeMode {
     ColorEdge = 0,

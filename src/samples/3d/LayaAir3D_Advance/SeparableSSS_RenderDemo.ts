@@ -6,7 +6,6 @@ import { UnlitMaterial } from "laya/d3/core/material/UnlitMaterial";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { CommandBuffer } from "laya/d3/core/render/command/CommandBuffer";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
-import { Viewport } from "laya/d3/math/Viewport";
 import { Mesh } from "laya/d3/resource/models/Mesh";
 import { Stage } from "laya/display/Stage";
 import { Loader } from "laya/net/Loader";
@@ -29,6 +28,7 @@ import { Vector4 } from "laya/maths/Vector4";
 import { DepthTextureMode, RenderTexture } from "laya/resource/RenderTexture";
 import { Scene } from "laya/display/Scene";
 import { MeshFilter } from "laya/d3/core/MeshFilter";
+import { Viewport } from "laya/maths/Viewport";
 
 export class SeparableSSS_RenderDemo {
     scene: Scene3D;

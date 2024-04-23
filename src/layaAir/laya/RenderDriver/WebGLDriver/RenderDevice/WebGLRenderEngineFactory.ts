@@ -1,5 +1,6 @@
 
 import { Config } from "../../../../Config";
+import { Laya } from "../../../../Laya";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { UniformBufferObject } from "../../../RenderEngine/UniformBufferObject";
@@ -64,3 +65,8 @@ export class WebGLRenderEngineFactory implements IRenderEngineFactory {
     }
 }
 
+
+Laya.addBeforeInitCallback(() => {
+    if (!LayaGL.renderOBJCreate)
+        LayaGL.renderOBJCreate = new WebGLRenderEngineFactory();
+});

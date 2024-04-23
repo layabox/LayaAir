@@ -1,3 +1,5 @@
+import { Laya } from "../../../../Laya";
+import { Laya3DRender } from "../../../d3/RenderObjs/Laya3DRender";
 import { SceneRenderManagerOBJ } from "../../../d3/core/scene/SceneRenderManagerOBJ";
 import { I3DRenderPassFactory } from "../../DriverDesign/3DRenderPass/I3DRenderPassFactory";
 import { WebGLRender3DProcess } from "./WebGLRender3DProcess";
@@ -47,3 +49,9 @@ export class WebGL3DRenderPassFactory implements I3DRenderPassFactory {
         return new WebGLRender3DProcess();
     }
 }
+
+
+Laya.addBeforeInitCallback(() => {
+    if (!Laya3DRender.Render3DPassFactory)
+        Laya3DRender.Render3DPassFactory = new WebGL3DRenderPassFactory();
+});

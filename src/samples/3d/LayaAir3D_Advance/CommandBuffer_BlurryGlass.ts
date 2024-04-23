@@ -5,7 +5,6 @@ import { Stage } from "laya/display/Stage";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { CommandBuffer } from "laya/d3/core/render/command/CommandBuffer";
-import { Viewport } from "laya/d3/math/Viewport";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { PBRStandardMaterial } from "laya/d3/core/material/PBRStandardMaterial";
 import { BlurEffect } from "../LayaAir3D_PostProcess/BlurShader/BlurEffect";
@@ -19,6 +18,7 @@ import { RenderTexture } from "laya/resource/RenderTexture";
 import { LayaGL } from "laya/layagl/LayaGL";
 import { MeshRenderer } from "laya/d3/core/MeshRenderer";
 import { ShaderData } from "laya/RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { Viewport } from "laya/maths/Viewport";
 
 export class CommandBuffer_BlurryGlass {
 	mat: GlassWithoutGrabMaterial;

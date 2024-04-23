@@ -1,8 +1,10 @@
+import { Laya } from "../../../../Laya";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
 import { Laya3DRender } from "../../../d3/RenderObjs/Laya3DRender";
 import { IndexBuffer3D } from "../../../d3/graphics/IndexBuffer3D";
 import { VertexBuffer3D } from "../../../d3/graphics/VertexBuffer3D";
+import { LayaGL } from "../../../layagl/LayaGL";
 import { IRenderEngine3DOBJFactory } from "./IRenderEngine3DOBJFactory";
 
 /**
@@ -33,4 +35,8 @@ export class LengencyRenderEngine3DFactory implements IRenderEngine3DOBJFactory 
         return new IndexBuffer3D(indexType, indexCount, bufferUsage, canRead);
     }
 }
-Laya3DRender.renderOBJCreate = new LengencyRenderEngine3DFactory();
+
+Laya.addBeforeInitCallback(() => {
+    if (!LayaGL.renderOBJCreate)
+        Laya3DRender.renderOBJCreate = new LengencyRenderEngine3DFactory();
+})
