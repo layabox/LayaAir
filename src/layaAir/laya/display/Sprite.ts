@@ -103,7 +103,7 @@ export class Sprite extends Node {
     _style: SpriteStyle = SpriteStyle.EMPTY;
     /**@internal */
     _cacheStyle: CacheStyle = CacheStyle.EMPTY;
-    private _filters: Filter[] = null;
+    private _filterArr: Filter[] = null;
     /**@internal */
     _boundStyle: BoundsStyle | null = null;
     /**@internal */
@@ -1347,7 +1347,9 @@ export class Sprite extends Node {
             ctx.size(canvasWidth, canvasHeight)
         }
         ctx.render2D = ctx.render2D.clone(renderout);
+        ctx._drawingToTexture = true;
         let outrt = RenderSprite.RenderToRenderTexture(sprite, ctx, offsetX, offsetY, renderout);
+        ctx._drawingToTexture = false;
         // if(!rt){
         //     //这是原来的规则，如果没有提供rt就返回texture，否则就返回rt
         //     var rtex: Texture = new Texture(outrt,Texture.INV_UV);
@@ -1418,12 +1420,12 @@ export class Sprite extends Node {
 
     /**滤镜集合。可以设置多个滤镜组合。*/
     get filters(): Filter[] {
-        return this._filters;
+        return this._filterArr;
     }
 
     set filters(value: Filter[]) {
         value && value.length === 0 && (value = null);
-        this._filters = value ? value.slice() : null;
+        this._filterArr = value ? value.slice() : null;
         if (value)
             this._renderType |= SpriteConst.FILTERS;
         else
