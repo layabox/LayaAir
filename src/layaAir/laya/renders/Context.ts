@@ -64,6 +64,9 @@ export class Context {
     /**@internal */
     private _canvas: HTMLCanvas;
 
+    /**@internal */
+    _drawingToTexture : boolean;
+
     private static _MAXVERTNUM = 65535;
 
     static MAXCLIPRECT: Rectangle = null;
