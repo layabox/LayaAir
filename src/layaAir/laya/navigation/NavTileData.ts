@@ -145,7 +145,7 @@ export class NavTileData {
     /**@internal load*/
     _res: TextResource;
     /**@internal load*/
-    _boundBox: Bounds = new Bounds();
+    _boundBox: Bounds;
     constructor(res: TextResource) {
         this._boundBox = new Bounds(new Vector3(), new Vector3());
         this._res = res;
