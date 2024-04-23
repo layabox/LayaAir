@@ -3,7 +3,6 @@ import { SubUniformBufferData } from "./SubUniformBufferData";
 import { UniformBufferBase } from "./UniformBufferBase";
 import { UnifromBufferData } from "./UniformBufferData";
 import { LayaGL } from "../layagl/LayaGL";
-import { WebGLEngine } from "../RenderDriver/WebGLDriver/RenderDevice/WebGLEngine";
 import { GLBuffer } from "../RenderDriver/WebGLDriver/RenderDevice/WebGLEngine/GLBuffer";
 /**
  * 类封装WebGL2UniformBufferObect
@@ -26,7 +25,7 @@ export class UniformBufferObject {
      */
     static create(name: string, bufferUsage: number, bytelength: number, isSingle: boolean = false) {
         if (!UniformBufferObject._Map.get(name)) {
-            UniformBufferObject._Map.set(name, new UniformBufferBase(name, WebGLEngine.instance.getUBOPointer(name), isSingle));
+            UniformBufferObject._Map.set(name, new UniformBufferBase(name, LayaGL.renderEngine.getUBOPointer(name), isSingle));
         }
         let bufferBase = UniformBufferObject._Map.get(name);
         if (bufferBase._singgle && bufferBase._mapArray.length > 0) {
@@ -80,7 +79,7 @@ export class UniformBufferObject {
         this.byteLength = byteLength;
         this._name = name;
         this._isSingle = isSingle;
-        this._glBuffer = WebGLEngine.instance.createBuffer(BufferTargetType.UNIFORM_BUFFER, bufferUsage);
+        this._glBuffer = LayaGL.renderEngine.createBuffer(BufferTargetType.UNIFORM_BUFFER, bufferUsage);
         this.bind();
         if (this._isSingle)
             this._bindUniformBufferBase();
@@ -117,7 +116,7 @@ export class UniformBufferObject {
         }
         //create new
         this.byteLength = bytelength;
-        this._glBuffer = WebGLEngine.instance.createBuffer(this.bufferType, this.bufferUsage);
+        this._glBuffer = LayaGL.renderEngine.createBuffer(this.bufferType, this.bufferUsage);
         if (this._isSingle)
             this._bindUniformBufferBase();
         this._glBuffer.setDataLength(this.byteLength);
