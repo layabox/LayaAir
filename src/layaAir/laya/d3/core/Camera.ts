@@ -6,7 +6,6 @@ import { PostProcess } from "../component/PostProcess";
 import { DepthPass } from "../depthMap/DepthPass";
 import { BoundFrustum } from "../math/BoundFrustum";
 import { Ray } from "../math/Ray";
-import { Viewport } from "../math/Viewport";
 import { Picker } from "../utils/Picker";
 import { BaseCamera } from "./BaseCamera";
 import { CommandBuffer } from "./render/command/CommandBuffer";
@@ -33,6 +32,7 @@ import { IRender3DProcess } from "../../RenderDriver/DriverDesign/3DRenderPass/I
 import { ICameraNodeData } from "../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
 import { Transform3D } from "./Transform3D";
 import { Cluster } from "../graphics/renderPath/Cluster";
+import { Viewport } from "../../maths/Viewport";
 
 /**
  * 相机清除标记。

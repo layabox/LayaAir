@@ -6,7 +6,6 @@ import AmbientOcclusion from "../../../shader/files/postProcess/ScalableAO/Ambie
 import { RenderTargetFormat } from "../../../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { WrapMode } from "../../../../RenderEngine/RenderEnum/WrapMode";
 import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
-import { Viewport } from "../../../math/Viewport";
 import { Camera } from "../../Camera";
 import { CommandBuffer } from "../command/CommandBuffer";
 import { PostProcessEffect } from "../PostProcessEffect";
@@ -236,7 +235,7 @@ export class ScalableAO extends PostProcessEffect {
      */
     render(context: PostProcessRenderContext): void {
         let cmd: CommandBuffer = context.command;
-        let viewport: Viewport = context.camera.viewport;
+        let viewport = context.camera.viewport;
         let camera: Camera = context.camera;
 
         // camera rendermode

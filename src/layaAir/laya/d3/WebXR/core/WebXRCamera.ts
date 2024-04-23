@@ -1,16 +1,11 @@
-import { Config3D } from "../../../../Config3D";
-import { ILaya3D } from "../../../../ILaya3D";
-import { Camera, CameraEventFlags } from "../../core/Camera";
+import { Camera } from "../../core/Camera";
 import { RenderContext3D } from "../../core/render/RenderContext3D";
 import { Scene3D } from "../../core/scene/Scene3D";
-import { Cluster } from "../../graphics/renderPath/Cluster";
-import { Viewport } from "../../math/Viewport";
 import { WebXRCameraManager } from "./WebXRCameraManager";
-import { WebXRRenderTexture } from "./WebXRRenderTexture";
 import { RenderStateContext } from "../../../RenderEngine/RenderStateContext";
-import { WebXRExperienceHelper } from "./WebXRExperienceHelper";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { RenderTexture } from "../../../resource/RenderTexture";
+import { Viewport } from "../../../maths/Viewport";
 
 
 /**

@@ -7,7 +7,6 @@ import { Handler } from "../../../utils/Handler";
 import { Timer } from "../../../utils/Timer";
 import { SubmitKey } from "../../../webgl/submit/SubmitKey";
 import { Cluster } from "../../graphics/renderPath/Cluster";
-import { Viewport } from "../../math/Viewport";
 import { PhysicsSettings } from "../../physics/PhysicsSettings";
 import { SkyRenderer } from "../../resource/models/SkyRenderer";
 import { TextureCube } from "../../../resource/TextureCube";
@@ -56,6 +55,7 @@ import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 import { CommandUniformMap } from "../../../RenderDriver/DriverDesign/RenderDevice/CommandUniformMap";
 import { RenderTexture2D } from "../../../resource/RenderTexture2D";
 import { BaseRender } from "../render/BaseRender";
+import { Viewport } from "../../../maths/Viewport";
 
 export enum FogMode {
     Linear = 0, //Linear

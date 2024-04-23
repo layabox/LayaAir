@@ -1,7 +1,6 @@
 import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
 import { BaseTexture } from "../../../../resource/BaseTexture";
 import { Stat } from "../../../../utils/Stat";
-import { Viewport } from "../../../math/Viewport";
 import { RenderContext3D } from "../RenderContext3D";
 import { RenderElement } from "../RenderElement";
 import { ScreenQuad } from "../ScreenQuad";
@@ -13,6 +12,7 @@ import { Laya3DRender } from "../../../RenderObjs/Laya3DRender";
 import { ShaderData } from "../../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { Transform3D } from "../../Transform3D";
 import { BlitQuadCMDData } from "../../../../RenderDriver/DriverDesign/3DRenderPass/IRendderCMD";
+import { Viewport } from "../../../../maths/Viewport";
 
 export class BlitScreenQuadCMD extends Command {
 	/**@internal */
