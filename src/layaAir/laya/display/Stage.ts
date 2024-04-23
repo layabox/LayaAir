@@ -190,7 +190,7 @@ export class Stage extends Sprite {
         this.useRetinalCanvas =LayaEnv.isConch?true:Config.useRetinalCanvas;
 
         var window: any = Browser.window;
-        //var _me = this;	
+        //var _me = this;
 
         window.addEventListener("focus", () => {
             this._isFocused = true;
@@ -278,7 +278,7 @@ export class Stage extends Sprite {
         this.updateCanvasSize(true);
     }
     /**
-     * @inheritDoc 
+     * @inheritDoc
      * @override
      */
     get_width(): number {
@@ -515,7 +515,7 @@ export class Stage extends Sprite {
     /**
      * @internal
      * 适配淘宝小游戏
-     * @param mainCanv 
+     * @param mainCanv
      */
     static _setStageStyle(mainCanv: HTMLCanvas, canvasWidth: number, canvasHeight: number, mat: Matrix) {
         var canvasStyle: any = mainCanv.source.style;
@@ -528,10 +528,10 @@ export class Stage extends Sprite {
 
     /**
      * 屏幕旋转用layaverse 需要
-     * @param screenWidth 
-     * @param screenHeight 
-     * @param _screenMode 
-     * @returns 
+     * @param screenWidth
+     * @param screenHeight
+     * @param _screenMode
+     * @returns
      */
     setScreenSizeForScene(screenWidth: number, screenHeight: number, _screenMode: string) {
         //计算是否旋转
@@ -703,7 +703,7 @@ export class Stage extends Sprite {
     /**
      * @internal
      * 适配淘宝小游戏
-     * @param value 
+     * @param value
      */
     static _setStyleBgColor(value: string) {
         if (value) {
@@ -797,7 +797,7 @@ export class Stage extends Sprite {
     /**
      * @internal
      * 适配淘宝小游戏
-     * @param value 
+     * @param value
      */
     static _setVisibleStyle(value: boolean) {
         var style: any = Render._mainCanvas.source.style;
@@ -805,7 +805,7 @@ export class Stage extends Sprite {
     }
 
     /**
-     * @inheritDoc 
+     * @inheritDoc
      * @override
      */
     get visible() {
@@ -870,12 +870,12 @@ export class Stage extends Sprite {
         RenderInfo.loopCount = Stat.loopCount;
 
         if (this.renderingEnabled) {
-            
+
             for (let i = 0, n = this._scene3Ds.length; i < n; i++)//更新3D场景,必须提出来,否则在脚本中移除节点会导致BUG
                 (<any>this._scene3Ds[i])._update(delta);
             this._runComponents();
             this._componentDriver.callPreRender();
-            
+
             //仅仅是clear
             context2D.render2D.renderStart(!Config.preserveDrawingBuffer,this._wgColor);
             //context2D.render2D.renderEnd();
@@ -885,13 +885,7 @@ export class Stage extends Sprite {
             for (let i = 0, n = this._scene3Ds.length; i < n; i++)//更新3D场景,必须提出来,否则在脚本中移除节点会导致BUG
                 (<any>this._scene3Ds[i]).renderSubmit();
             //再渲染2d
-            //PERF_BEGIN(PerformanceDefine.T_UIRender);
-            Stat.draw2D=0;
-            context2D.startRender();
-            super.render(context2D, x, y);
-            Stat.render(context2D, x, y);
-            context2D.endRender();
-            //PERF_END(PerformanceDefine.T_UIRender);
+            this._render2d(context2D, x, y);
 
             this._componentDriver.callPostRender();
 
@@ -901,6 +895,21 @@ export class Stage extends Sprite {
             this._runComponents();
 
         this._updateTimers();
+    }
+
+    /**
+     * @override
+     * @param context2D
+     * @param x
+     * @param y
+     * @perfTag PerformanceDefine.T_UIRender
+     */
+    private _render2d(context2D: Context, x: number, y: number) {
+        Stat.draw2D = 0;
+        context2D.startRender();
+        super.render(context2D, x, y);
+        Stat.render(context2D, x, y);
+        context2D.endRender();
     }
 
     private _runComponents() {

@@ -155,10 +155,10 @@ export class WebGLForwardAddClusterRP {
 
     /**
      * 渲染深度Pass
-     * @param context 
-     * @param list 
+     * @param context
+     * @param list
+     * @perfTag PerformanceDefine.T_Render_CameraOtherDest
      */
-    //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_Render_CameraOtherDest)
     private _renderDepthPass(context: WebGLRenderContext3D): void {
         context.pipelineMode = this.depthPipelineMode;
         var viewport = this._viewPort;
@@ -186,7 +186,11 @@ export class WebGLForwardAddClusterRP {
     }
 
 
-    //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_Render_TransparentRender)
+    /**
+     * @param context
+     * @private
+     * @perfTag PerformanceDefine.T_Render_TransparentRender
+     */
     private _transparentListRender(context: WebGLRenderContext3D) {
         this.transparent.renderQueue(context);
     }
@@ -194,9 +198,9 @@ export class WebGLForwardAddClusterRP {
     /**
      * 渲染非透明物体Pass
      * @param context 
-     * @param list 
+     * @param list
+     * @perfTag PerformanceDefine.T_Render_OpaqueRender
      */
-    //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_Render_OpaqueRender)
     private _opaqueListRender(context: WebGLRenderContext3D) {
         this.opaqueList.renderQueue(context);
     }
@@ -204,9 +208,9 @@ export class WebGLForwardAddClusterRP {
     /**
      * 渲染法线深度Pass
      * @param context 
-     * @param list 
+     * @param list
+     * @perfTag PerformanceDefine.T_Render_CameraOtherDest
      */
-    //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_Render_CameraOtherDest)
     private _renderDepthNormalPass(context: WebGLRenderContext3D): void {
         context.pipelineMode = this.depthNormalPipelineMode;
         //传入shader该传的值
@@ -221,7 +225,9 @@ export class WebGLForwardAddClusterRP {
 
     }
 
-    //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_Render_CameraOtherDest)
+    /**
+     * @perfTag PerformanceDefine.T_Render_CameraOtherDest
+     */
     private opaqueTexturePass() {
         //TODO
         // var blit: BlitScreenQuadCMD = BlitScreenQuadCMD.create(currentTarget, this._opaqueTexture);
@@ -252,7 +258,12 @@ export class WebGLForwardAddClusterRP {
         this.transparent && this._transparentListRender(context);
     }
 
-    //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_Render_CameraEventCMD)
+    /**
+     * @param cmds
+     * @param context
+     * @private
+     * @perfTag PerformanceDefine.T_Render_CameraEventCMD
+     */
     private _rendercmd(cmds: Array<CommandBuffer>, context: WebGLRenderContext3D) {
         if (!cmds || cmds.length == 0)
             return;

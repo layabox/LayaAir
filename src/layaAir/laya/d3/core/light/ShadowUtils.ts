@@ -420,9 +420,8 @@ export class ShadowUtils {
     /**
      * @internal
      */
-    static prepareShadowReceiverShaderValues(shadowStrength: number, shadowMapWidth: number, shadowMapHeight: number, shadowSliceDatas: ShadowSliceData[], cascadeCount: number, shadowMapSize: Vector4, shadowParams: Vector4, shadowMatrices: Float32Array, splitBoundSpheres: Float32Array): void {
+    static prepareShadowReceiverShaderValues(shadowMapWidth: number, shadowMapHeight: number, shadowSliceDatas: ShadowSliceData[], cascadeCount: number, shadowMapSize: Vector4, shadowMatrices: Float32Array, splitBoundSpheres: Float32Array): void {
         shadowMapSize.setValue(1.0 / shadowMapWidth, 1.0 / shadowMapHeight, shadowMapWidth, shadowMapHeight);
-        shadowParams.setValue(shadowStrength, 0.0, 0.0, 0.0);
         if (cascadeCount > 1) {
             const matrixFloatCount: number = 16;
             for (var i: number = cascadeCount * matrixFloatCount, n: number = 4 * matrixFloatCount; i < n; i++)//the last matrix is always ZERO

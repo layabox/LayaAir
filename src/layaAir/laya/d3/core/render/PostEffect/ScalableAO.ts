@@ -95,7 +95,7 @@ export class ScalableAO extends PostProcessEffect {
             'u_MainTex_TexelSize': ShaderDataType.Vector4,
             'u_Delty': ShaderDataType.Vector2,
             'u_PlugTime': ShaderDataType.Vector4,
-            'u_AOParams': ShaderDataType.Vector4,
+            'u_AOParams': ShaderDataType.Vector3,
             'u_BlurVector': ShaderDataType.Vector2,
             'u_AOColor': ShaderDataType.Color,
             'u_compositionAoTexture': ShaderDataType.Texture2D

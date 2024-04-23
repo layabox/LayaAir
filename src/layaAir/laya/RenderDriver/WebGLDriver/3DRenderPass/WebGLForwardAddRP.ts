@@ -1,4 +1,5 @@
 import { CommandBuffer } from "../../../d3/core/render/command/CommandBuffer";
+import { Vector4 } from "../../../maths/Vector4";
 import { WebGLDirectLightShadowRP } from "./WebGLDirectLightShadowRP";
 import { WebGLForwardAddClusterRP } from "./WebGLForwardAddClusterRP";
 import { WebGLSpotLightShadowRP } from "./WebGLSpotLightShadowRP";
@@ -8,6 +9,7 @@ export class WebGLForwardAddRP {
     constructor() {
         this.directLightShadowPass = new WebGLDirectLightShadowRP();
         this.spotLightShadowPass = new WebGLSpotLightShadowRP();
+        this.shadowParams = new Vector4();
         this.renderpass = new WebGLForwardAddClusterRP();
     }
 
@@ -42,6 +44,8 @@ export class WebGLForwardAddRP {
 
     /**enable spot */
     enableSpotLightShadowPass: boolean = false;
+
+    shadowParams: Vector4;
 
     /**Render end commanbuffer */
     /**@internal */

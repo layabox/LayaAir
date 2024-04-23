@@ -333,10 +333,6 @@ export class ShaderData implements IClone {
         throw new Error("Method not implemented.");
     }
 
-    getSourceIndex(value: any): number {
-        throw new Error("Method not implemented.");
-    }
-
     /**
      * 
      * @param index 

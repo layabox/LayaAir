@@ -74,7 +74,7 @@ export class EdgeEffect extends PostProcessEffect {
             "u_DepthTex": ShaderDataType.Texture2D,
             "u_DepthNormalTex": ShaderDataType.Texture2D,
             "u_DepthBufferParams": ShaderDataType.Vector4,
-            "u_EdgeColor": ShaderDataType.Color,
+            "u_EdgeColor": ShaderDataType.Vector3,
             "u_ColorHold": ShaderDataType.Float,
             "u_Depthhold": ShaderDataType.Float,
             "u_NormalHold": ShaderDataType.Float,
@@ -85,6 +85,7 @@ export class EdgeEffect extends PostProcessEffect {
         let pass: ShaderPass = subShader.addShaderPass(EdgeEffectVS, EdgeEffectFS);
         pass.renderState.depthWrite = false;
     }
+    
     constructor() {
         super();
         if (!EdgeEffect._isShaderInit) {
