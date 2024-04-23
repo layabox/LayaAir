@@ -10,7 +10,8 @@ import { NavigationManager } from "../NavigationManager";
 import { NavMeshSurface } from "./NavMeshSurface";
 
 const tempVec3 = new Vector3();
-const tempBound = new Bounds(new Vector3(), new Vector3())
+var tempBound: Bounds;
+
 export class NavMeshModifierVolume extends Component {
     /**@internal */
     _transfrom: Matrix4x4 = new Matrix4x4();
@@ -87,6 +88,8 @@ export class NavMeshModifierVolume extends Component {
      * @internal
      */
     _onWorldMatNeedChange() {
+        if (!tempBound)
+            tempBound = new Bounds(new Vector3(), new Vector3());
         Vector3.scale(this._size, 0.5, tempVec3);
         Matrix4x4.createAffineTransformation(this._center, Quaternion.DEFAULT, tempVec3, this._transfrom);
         Matrix4x4.multiply((<Sprite3D>this.owner).transform.worldMatrix, this._transfrom, this._transfrom);
