@@ -3,6 +3,7 @@ import { IRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass"
 import { NativeTransform3D } from "../../RenderModuleData/RuntimeModuleData/3D/NativeTransform3D";
 import { RTBaseRenderNode } from "../../RenderModuleData/RuntimeModuleData/3D/RTBaseRenderNode";
 import { RTDefineDatas } from "../../RenderModuleData/RuntimeModuleData/RTDefineDatas";
+import { RTShaderPass } from "../../RenderModuleData/RuntimeModuleData/RTShaderPass";
 import { RTSubShader } from "../../RenderModuleData/RuntimeModuleData/RTSubShader";
 import { GLESRenderGeometryElement } from "../RenderDevice/GLESRenderGeometryElement";
 import { GLESShaderData } from "../RenderDevice/GLESShaderData";
@@ -18,6 +19,7 @@ export class GLESRenderElement3D implements IRenderElement3D {
     static getCompileDefine(): RTDefineDatas {
         if (!GLESRenderElement3D._compileDefine) {
             GLESRenderElement3D._compileDefine = new RTDefineDatas();
+            RTShaderPass._globalCompileDefine =  GLESRenderElement3D._compileDefine;
         }
         return GLESRenderElement3D._compileDefine;
     }

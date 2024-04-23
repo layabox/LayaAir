@@ -1,6 +1,5 @@
 import { ShaderPass } from "../../../RenderEngine/RenderShader/ShaderPass";
 import { IShaderInstance } from "../../DriverDesign/RenderDevice/IShaderInstance";
-import { GLESRenderElement3D } from "../../OpenGLESDriver/3DRenderPass/GLESRenderElement3D";
 import { GLESShaderInstance } from "../../OpenGLESDriver/RenderDevice/GLESShaderInstance";
 import { IDefineDatas } from "../Design/IDefineDatas";
 import { IShaderPassData } from "../Design/IShaderPassData";
@@ -12,6 +11,7 @@ export class RTShaderPass implements IShaderPassData {
     private _validDefine: RTDefineDatas = new RTDefineDatas();
     private _createShaderInstanceFun: any;
     _nativeObj: any;
+    static _globalCompileDefine:RTDefineDatas;
     is2D: boolean = false;
     private _pass: ShaderPass;
     constructor(pass: ShaderPass) {
@@ -50,7 +50,7 @@ export class RTShaderPass implements IShaderPassData {
         this._nativeObj.setValidDefine(value._nativeObj);
     }
     nativeCreateShaderInstance() {
-        var shaderIns = this._pass.withCompile(GLESRenderElement3D.getCompileDefine(), this._nativeObj.is2D) as GLESShaderInstance;
+        var shaderIns = this._pass.withCompile(RTShaderPass._globalCompileDefine, this._nativeObj.is2D) as GLESShaderInstance;
         return shaderIns._nativeObj;
     }
     destroy(): void {
