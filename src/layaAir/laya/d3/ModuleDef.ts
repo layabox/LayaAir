@@ -55,7 +55,6 @@ import { TrailRenderer } from "./core/trail/TrailRenderer";
 import { Transform3D } from "./core/Transform3D";
 import { SphericalHarmonicsL2 } from "./graphics/SphericalHarmonicsL2";
 import { BoundBox } from "./math/BoundBox";
-import { Viewport } from "./math/Viewport";
 import { Mesh } from "./resource/models/Mesh";
 import { SkyRenderer } from "./resource/models/SkyRenderer";
 import { TextureCube } from "../resource/TextureCube";
@@ -93,6 +92,7 @@ import "./loaders/HierarchyParserV2";
 import "./loaders/AvatarMaskLoader";
 import "./loaders/GLSLLoader";
 import "./loaders/AnimationControllerLoader";
+import { Viewport } from "../maths/Viewport";
 
 let c = ClassUtils.regClass;
 c("Sprite3D", Sprite3D);

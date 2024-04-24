@@ -37,7 +37,8 @@ const packsDef = [{
         './layaAir/laya/events/**/*.*',
         './layaAir/laya/filters/**/*.*',
         './layaAir/laya/layagl/**/*.*',
-
+        './layaAir/laya/webgl/**/*.*',
+        
         './layaAir/laya/RenderDriver/DriverDesign/RenderDevice/**/*.*',
         './layaAir/laya/RenderDriver/DriverDesign/2DRenderPass/**/*.*',
 
@@ -50,18 +51,6 @@ const packsDef = [{
         './layaAir/laya/RenderDriver/RenderModuleData/Design/IUnitRenderModuleDataFactory.ts',
         './layaAir/laya/RenderDriver/RenderModuleData/Design/RenderState.ts',
         './layaAir/laya/RenderDriver/RenderModuleData/Design/ShaderDefine.ts',
-
-        './layaAir/laya/RenderDriver/RenderModuleData/RuntimeModuleData/RTDefineDatas.ts',
-        './layaAir/laya/RenderDriver/RenderModuleData/RuntimeModuleData/RTRenderState.ts',
-        './layaAir/laya/RenderDriver/RenderModuleData/RuntimeModuleData/RTShaderDefine.ts',
-        './layaAir/laya/RenderDriver/RenderModuleData/RuntimeModuleData/RTShaderPass.ts',
-        './layaAir/laya/RenderDriver/RenderModuleData/RuntimeModuleData/RTSubShader.ts',
-        './layaAir/laya/RenderDriver/RenderModuleData/RuntimeModuleData/RTUintRenderModuleDataFactory.ts',
-
-        './layaAir/laya/RenderDriver/RenderModuleData/WebModuleData/WebDefineDatas.ts',
-        './layaAir/laya/RenderDriver/RenderModuleData/WebModuleData/WebShaderPass.ts',
-        './layaAir/laya/RenderDriver/RenderModuleData/WebModuleData/WebSubShader.ts',
-        './layaAir/laya/RenderDriver/RenderModuleData/WebModuleData/WebUnitRenderModuleDataFactory.ts',
 
         './layaAir/laya/loaders/**/*.*',
         './layaAir/laya/maths/**/*.*',
@@ -101,8 +90,6 @@ const packsDef = [{
         './layaAir/laya/RenderDriver/DriverDesign/RenderDevice/**/*.*',
         './layaAir/laya/RenderDriver/DriverDesign/3DRenderPass/**/*.*',
         './layaAir/laya/RenderDriver/RenderModuleData/Design/**/*.*',
-        './layaAir/laya/RenderDriver/RenderModuleData/RuntimeModuleData/**/*.*',
-        './layaAir/laya/RenderDriver/RenderModuleData/WebModuleData/**/*.*',
 
         './layaAir/laya/d3/RenderObjs/NativeOBJ/*.*',
         './layaAir/laya/d3/RenderObjs/RenderObj/*.*',
@@ -126,7 +113,7 @@ const packsDef = [{
     'input': [
         './layaAir/laya/RenderDriver/OpenGLESDriver/RenderDevice/**/*.*',
         './layaAir/laya/RenderDriver/OpenGLESDriver/2DRenderPass/**/*.*',
-        './layaAir/laya/RenderDriver/RenderModuleData/RuntimeModuleData/RTShaderPass.ts',
+        './layaAir/laya/RenderDriver/RenderModuleData/RuntimeModuleData/*.*',
     ],
 },
 
@@ -134,7 +121,7 @@ const packsDef = [{
     'libName': "opengl_3D",
     'input': [
         './layaAir/laya/RenderDriver/OpenGLESDriver/3DRenderPass/**/*.*',
-        './layaAir/laya/RenderDriver/RenderModuleData/RuntimeModuleData/RTShaderPass.ts',
+        './layaAir/laya/RenderDriver/RenderModuleData/RuntimeModuleData/3D/*.*',
     ],
 },
 
@@ -143,7 +130,7 @@ const packsDef = [{
     'input': [
         './layaAir/laya/RenderDriver/WebGLDriver/RenderDevice/**/*.*',
         './layaAir/laya/RenderDriver/WebGLDriver/2DRenderPass/**/*.*',
-        './layaAir/laya/RenderDriver/RenderModuleData/WebModuleData/WebGLShaderData.ts',
+        './layaAir/laya/RenderDriver/RenderModuleData/WebModuleData/*.*',
     ],
 },
 
@@ -151,7 +138,7 @@ const packsDef = [{
     'libName': "webgl_3D",
     'input': [
         './layaAir/laya/RenderDriver/WebGLDriver/3DRenderPass/**/*.*',
-        './layaAir/laya/RenderDriver/RenderModuleData/WebModuleData/WebGLShaderData.ts',
+        './layaAir/laya/RenderDriver/RenderModuleData/WebModuleData/3D/*.*',
     ],
 },
 
@@ -161,6 +148,7 @@ const packsDef = [{
         './layaAir/laya/RenderDriver/WebGPUDriver/RenderDevice/**/*.*',
         './layaAir/laya/RenderDriver/WebGPUDriver/ShaderCompile/**/*.*',
         './layaAir/laya/RenderDriver/WebGPUDriver/2DRenderPass/**/*.*',
+        './layaAir/laya/RenderDriver/RenderModuleData/WebModuleData/*.*',
     ],
 },
 
@@ -169,6 +157,7 @@ const packsDef = [{
     'input': [
         './layaAir/laya/RenderDriver/WebGPUDriver/ShaderCompile/**/*.*',
         './layaAir/laya/RenderDriver/WebGPUDriver/3DRenderPass/**/*.*',
+        './layaAir/laya/RenderDriver/RenderModuleData/WebModuleData/3D/*.*',
     ],
 },
 

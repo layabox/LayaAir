@@ -6,7 +6,6 @@ import { Stage } from "laya/display/Stage";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { UnlitMaterial } from "laya/d3/core/material/UnlitMaterial";
-import { Viewport } from "laya/d3/math/Viewport";
 import { Material } from "laya/resource/Material";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { ShuriKenParticle3D } from "laya/d3/core/particleShuriKen/ShuriKenParticle3D";
@@ -28,6 +27,7 @@ import { RenderTexture } from "laya/resource/RenderTexture";
 import { MeshRenderer } from "laya/d3/core/MeshRenderer";
 import { ShurikenParticleRenderer } from "laya/d3/core/particleShuriKen/ShurikenParticleRenderer";
 import { SkinnedMeshRenderer } from "laya/d3/core/SkinnedMeshRenderer";
+import { Viewport } from "laya/maths/Viewport";
 
 export class CommandBuffer_Outline {
 	private commandBuffer: CommandBuffer;

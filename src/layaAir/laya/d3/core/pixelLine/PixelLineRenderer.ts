@@ -12,7 +12,6 @@ import { BaseRender } from "../render/BaseRender";
 import { RenderContext3D } from "../render/RenderContext3D";
 import { RenderElement } from "../render/RenderElement";
 import { Sprite3D } from "../Sprite3D";
-import { Transform3D } from "../Transform3D";
 import { PixelLineData } from "./PixelLineData";
 import { PixelLineFilter } from "./PixelLineFilter";
 import { PixelLineMaterial } from "./PixelLineMaterial";
@@ -188,6 +187,30 @@ export class PixelLineRenderer extends BaseRender {
     }
 
     /**
+     * 增加一条线。
+     * @param	startPosition  初始点位置
+     * @param	endPosition	   结束点位置
+     * @param	startColor	   初始点颜色
+     * @param	endColor	   结束点颜色
+     * @param startNormal   初始点法线
+     * @param endNormal     结束点法线
+     */
+    addLineWithNormal(startPosition: Vector3, endPosition: Vector3, startColor: Color, endColor: Color, startNormal: Vector3, endNormal: Vector3) {
+        if (this._pixelLineFilter._lineCount !== this._pixelLineFilter._maxLineCount) {
+            this._pixelLineFilter._updateLineData(this._pixelLineFilter._lineCount++, startPosition, endPosition, startColor, endColor, startNormal, endNormal);
+        }
+        else {
+            throw "PixelLineSprite3D: lineCount has equal with maxLineCount.";
+        }
+
+        if (this._isRenderActive && !this._isInRenders && this._pixelLineFilter._lineCount > 0) {
+            this.owner.scene && this.owner.scene._addRenderObject(this);
+            this._isInRenders = true;
+        }
+        this._needUpdatelines = true;
+    }
+
+    /**
      * 添加多条线段。
      * @param	lines  线段数据
      */
@@ -242,6 +265,34 @@ export class PixelLineRenderer extends BaseRender {
                 endColor.cloneTo(pixeldata.endColor);
                 startPosition.cloneTo(pixeldata.startPosition);
                 endPosition.cloneTo(pixeldata.endPosition);
+            }
+        }
+
+        else
+            throw "PixelLineSprite3D: index must less than lineCount.";
+    }
+
+    /**
+     * 更新线
+     * @param	index  		   索引
+     * @param	startPosition  初始点位置
+     * @param	endPosition	   结束点位置
+     * @param	startColor	   初始点颜色
+     * @param	endColor	   结束点颜色
+     * @param startNormal   初始点法线
+     * @param endNormal     结束点法线
+     */
+    setLineWithNormal(index: number, startPosition: Vector3, endPosition: Vector3, startColor: Color, endColor: Color, startNormal: Vector3, endNormal: Vector3): void {
+        if (index < this._pixelLineFilter._lineCount) {
+            this._pixelLineFilter._updateLineData(index, startPosition, endPosition, startColor, endColor, startNormal, endNormal);
+            let pixeldata = this._lines[index];
+            if (pixeldata) {
+                startColor.cloneTo(pixeldata.startColor);
+                endColor.cloneTo(pixeldata.endColor);
+                startPosition.cloneTo(pixeldata.startPosition);
+                endPosition.cloneTo(pixeldata.endPosition);
+                startNormal && startNormal.cloneTo(pixeldata.startNormal);
+                endNormal && endNormal.cloneTo(pixeldata.endNormal);
             }
         }
 

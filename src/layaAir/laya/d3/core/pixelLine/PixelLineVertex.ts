@@ -17,9 +17,11 @@ export class PixelLineVertex {
 	 * @internal
 	 */
 	static __init__(): void {
-		PixelLineVertex._vertexDeclaration = new VertexDeclaration(28,
+		PixelLineVertex._vertexDeclaration = new VertexDeclaration(40,
 			[new VertexElement(0, VertexElementFormat.Vector3, VertexMesh.MESH_POSITION0),
-			new VertexElement(12, VertexElementFormat.Vector4, VertexMesh.MESH_COLOR0)]);
+			new VertexElement(12, VertexElementFormat.Vector4, VertexMesh.MESH_COLOR0),
+			new VertexElement(28, VertexElementFormat.Vector3, VertexMesh.MESH_NORMAL0)
+			]);
 	}
 
 	get vertexDeclaration(): VertexDeclaration {

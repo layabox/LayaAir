@@ -1,4 +1,6 @@
+import { Laya } from "../../../../Laya";
 import { ShaderPass } from "../../../RenderEngine/RenderShader/ShaderPass";
+import { LayaGL } from "../../../layagl/LayaGL";
 import { IUnitRenderModuleDataFactory } from "../Design/IUnitRenderModuleDataFactory";
 import { RTDefineDatas } from "./RTDefineDatas";
 import { RTRenderState } from "./RTRenderState";
@@ -19,3 +21,9 @@ export class RTUintRenderModuleDataFactory implements IUnitRenderModuleDataFacto
       return new RTDefineDatas();
    }
 }
+
+
+Laya.addBeforeInitCallback(() => {
+   if (!LayaGL.unitRenderModuleDataFactory)
+      LayaGL.unitRenderModuleDataFactory = new RTUintRenderModuleDataFactory();
+})

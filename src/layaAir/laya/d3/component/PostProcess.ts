@@ -3,7 +3,6 @@ import { Camera } from "../core/Camera"
 import { CommandBuffer } from "../core/render/command/CommandBuffer"
 import { PostProcessEffect } from "../core/render/PostProcessEffect"
 import { PostProcessRenderContext } from "../core/render/PostProcessRenderContext"
-import { Viewport } from "../math/Viewport"
 import { RenderContext3D } from "../core/render/RenderContext3D"
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D"
 import { RenderTargetFormat } from "../../RenderEngine/RenderEnum/RenderTargetFormat"
@@ -13,6 +12,7 @@ import { LayaGL } from "../../layagl/LayaGL"
 import { ShaderDefine } from "../../RenderDriver/RenderModuleData/Design/ShaderDefine"
 import { ShaderData } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData"
 import { Vector4 } from "../../maths/Vector4"
+import { Viewport } from "../../maths/Viewport"
 
 /**
  * <code>PostProcess</code> 类用于创建后期处理组件。

@@ -13,6 +13,10 @@ export class PixelLineData {
 	startColor: Color = new Color();
 	/**线结束颜色 */
 	endColor: Color = new Color();
+	/**线开始法线 */
+	startNormal:Vector3 = new Vector3();
+	/**线结束法线 */
+	endNormal:Vector3 = new Vector3();
 
 	/**
 	 * 克隆。
@@ -23,6 +27,8 @@ export class PixelLineData {
 		this.endPosition.cloneTo(destObject.endPosition);
 		this.startColor.cloneTo(destObject.startColor);
 		this.endColor.cloneTo(destObject.endColor);
+		this.startNormal.cloneTo(destObject.startPosition);
+		this.endNormal.cloneTo(destObject.endPosition);
 	}
 }
 

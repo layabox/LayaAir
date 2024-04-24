@@ -1,7 +1,6 @@
 import { Camera, CameraClearFlags } from "../Camera";
 import { Sprite3D } from "../Sprite3D";
 import { Ray } from "../../math/Ray";
-import { Viewport } from "../../math/Viewport";
 import { HitResult } from "../../physics/HitResult";
 import { Config3D } from "../../../../Config3D";
 import { InputManager } from "../../../events/InputManager";
@@ -10,6 +9,7 @@ import { Scene3D } from "./Scene3D";
 import { Vector2 } from "../../../maths/Vector2";
 import { Vector3 } from "../../../maths/Vector3";
 import { Render } from "../../../renders/Render";
+import { Viewport } from "../../../maths/Viewport";
 
 const _vec2 = new Vector2();
 const _ray = new Ray(new Vector3(), new Vector3());

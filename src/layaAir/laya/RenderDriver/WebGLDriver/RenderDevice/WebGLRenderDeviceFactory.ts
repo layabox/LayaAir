@@ -23,6 +23,7 @@ import { WebGLCommandUniformMap } from "./WebGLCommandUniformMap";
 import { Resource } from "../../../resource/Resource";
 import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
 import { WebGLShaderData } from "../../RenderModuleData/WebModuleData/WebGLShaderData";
+import { Laya } from "../../../../Laya";
 
 export class WebGLRenderDeviceFactory implements IRenderDeviceFactory {
     createShaderData(ownerResource?: Resource): ShaderData {
@@ -105,3 +106,8 @@ export class WebGLRenderDeviceFactory implements IRenderDeviceFactory {
         }
     }
 }
+
+Laya.addBeforeInitCallback(() => {
+    if (!LayaGL.renderDeviceFactory)
+        LayaGL.renderDeviceFactory = new WebGLRenderDeviceFactory();
+})

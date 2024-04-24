@@ -2,10 +2,9 @@
 import { Matrix4x4 } from "../../maths/Matrix4x4";
 import { Vector2 } from "../../maths/Vector2";
 import { Vector3 } from "../../maths/Vector3";
+import { Viewport } from "../../maths/Viewport";
 import { Plane } from "../math/Plane"
 import { Ray } from "../math/Ray"
-
-import { Viewport } from "../math/Viewport"
 
 /**
  * <code>Picker</code> 类用于创建拾取。

@@ -1,5 +1,6 @@
-import { RenderState } from "laya/RenderDriver/RenderModuleData/Design/RenderState";
-import { Material } from "laya/resource/Material";
+
+import { RenderState } from "../../RenderDriver/RenderModuleData/Design/RenderState";
+import { Material } from "../../resource/Material";
 import { Texture } from "../../resource/Texture";
 
 export class SpineMaterial extends Material {
