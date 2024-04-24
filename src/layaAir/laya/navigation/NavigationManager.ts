@@ -133,27 +133,35 @@ export class NavigationManager implements IElementComponentManager {
         const agents = data.agents;
         if (agents) {
             for (var i = 0, n = agents.length; i < n; i++) {
-                let config = new RecastConfig();
-                config.agentName = agents[i].agentName;
-                config.cellSize = agents[i].cellSize;
-                config.cellHeight = agents[i].cellHeight;
-                config.agentMaxSlope = agents[i].agentMaxSlope;
-                config.agentHeight = agents[i].agentHeight;
-                config.agentRadius = agents[i].agentRadius;
-                config.agentMaxClimb = agents[i].agentMaxClimb;
-                config.tileSize = agents[i].tileSize;
-                this.regNavConfig(config);
+                let agent = agents[i];
+                let config = this.getNavConfig(agent.agentName);
+                if (!config) {
+                    config = new RecastConfig();
+                    config.agentName = agent.agentName;
+                    this.regNavConfig(config);
+                }
+                config.cellSize = agent.cellSize;
+                config.cellHeight = agent.cellHeight;
+                config.agentMaxSlope = agent.agentMaxSlope;
+                config.agentHeight = agent.agentHeight;
+                config.agentRadius = agent.agentRadius;
+                config.agentMaxClimb = agent.agentMaxClimb;
+                config.tileSize = agent.tileSize;
             }
         }
 
         const areas = data.areas;
         if (areas) {
             for (var i = 0, n = areas.length; i < n; i++) {
-                let area = new NavAreaFlag();
-                area.name = areas[i].name;
+                let area = this.getArea(areas[i].name);
+                if (!area) {
+                    area = new NavAreaFlag();
+                    area.name = areas[i].name;
+                    this.regArea(area)
+                }
                 area.index = areas[i].index;
                 area.cost = areas[i].cost;
-                this.regArea(area)
+
             }
 
             let flag = 0;
