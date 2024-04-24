@@ -17,6 +17,6 @@ export class SpineMaterial extends SpineMaterialBase {
         this.blend = RenderState.BLEND_ENABLE_ALL;
         this.blendSrc = RenderState.BLENDPARAM_ONE;
         this.blendDst = RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA;
-        this.depthTest = RenderState.DEPTHTEST_LESS;
+        this.depthTest = RenderState.DEPTHTEST_OFF;
     }
 }
