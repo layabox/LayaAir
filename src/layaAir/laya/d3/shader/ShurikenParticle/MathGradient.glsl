@@ -5,11 +5,12 @@ float getCurValueFromGradientFloat(in vec2 gradientNumbers[4], in float normaliz
 	{
 	    vec2 gradientNumber = gradientNumbers[i];
 	    float key = gradientNumber.x;
+		curValue = gradientNumber.y;
 	    if (key >= normalizedAge)
 		{
 		    vec2 lastGradientNumber = gradientNumbers[i - 1];
 		    float lastKey = lastGradientNumber.x;
-		    float age = (normalizedAge - lastKey) / (key - lastKey);
+		    float age = max((normalizedAge - lastKey), 0.0) / (key - lastKey);
 		    curValue = mix(lastGradientNumber.y, gradientNumber.y, age);
 		    break;
 		}
@@ -20,7 +21,9 @@ float getCurValueFromGradientFloat(in vec2 gradientNumbers[4], in float normaliz
 float getTotalValueFromGradientFloat(in vec2 gradientNumbers[4],
     in float normalizedAge)
 {
-    float totalValue = 0.0;
+	float keyTime = min(normalizedAge, gradientNumbers[0].x);
+    float totalValue = keyTime * gradientNumbers[0].y;
+	float lastSpeed = 0.;
     for (int i = 1; i < 4; i++)
 	{
 	    vec2 gradientNumber = gradientNumbers[i];
@@ -31,16 +34,21 @@ float getTotalValueFromGradientFloat(in vec2 gradientNumbers[4],
 	    if (key >= normalizedAge)
 		{
 		    float lastKey = lastGradientNumber.x;
-		    float age = (normalizedAge - lastKey) / (key - lastKey);
-		    totalValue += (lastValue + mix(lastValue, gradientNumber.y, age)) / 2.0 * a_ShapePositionStartLifeTime.w * (normalizedAge - lastKey);
-		    break;
+			float time =  max((normalizedAge - lastKey), 0.);
+			float age = time / (key-lastKey);
+			lastSpeed = mix(lastValue, gradientNumber.y,age);
+		    totalValue += (lastValue + mix(lastValue, gradientNumber.y, age)) / 2.0 * a_ShapePositionStartLifeTime.w * time;
+		    keyTime = normalizedAge;
+			break;
 		}
-	    else
+	    else if(key > keyTime)
 		{
 		    totalValue += (lastValue + gradientNumber.y) / 2.0 * a_ShapePositionStartLifeTime.w * (key - lastGradientNumber.x);
+			keyTime = key;
+			lastSpeed = gradientNumber.y;
 		}
 	}
-    return totalValue;
+    return totalValue + max(normalizedAge-keyTime, 0.) * lastSpeed * a_ShapePositionStartLifeTime.w;
 }
 
 vec4 getColorFromGradient(in vec2 gradientAlphas[COLORCOUNT],
@@ -87,11 +95,12 @@ float getFrameFromGradient(in vec2 gradientFrames[4], in float normalizedAge)
 	{
 	    vec2 gradientFrame = gradientFrames[i];
 	    float key = gradientFrame.x;
+		overTimeFrame = gradientFrame.y;
 	    if (key >= normalizedAge)
 		{
 		    vec2 lastGradientFrame = gradientFrames[i - 1];
 		    float lastKey = lastGradientFrame.x;
-		    float age = (normalizedAge - lastKey) / (key - lastKey);
+			float age = max((normalizedAge-lastKey), 0.)/(key-lastKey);
 		    overTimeFrame = mix(lastGradientFrame.y, gradientFrame.y, age);
 		    break;
 		}
