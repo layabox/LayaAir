@@ -52,13 +52,6 @@ const packsDef = [{
         './layaAir/laya/RenderDriver/RenderModuleData/Design/RenderState.ts',
         './layaAir/laya/RenderDriver/RenderModuleData/Design/ShaderDefine.ts',
 
-        './layaAir/laya/RenderDriver/RenderModuleData/RuntimeModuleData/RTDefineDatas.ts',
-        './layaAir/laya/RenderDriver/RenderModuleData/RuntimeModuleData/RTRenderState.ts',
-        './layaAir/laya/RenderDriver/RenderModuleData/RuntimeModuleData/RTShaderDefine.ts',
-        './layaAir/laya/RenderDriver/RenderModuleData/RuntimeModuleData/RTShaderPass.ts',
-        './layaAir/laya/RenderDriver/RenderModuleData/RuntimeModuleData/RTSubShader.ts',
-        './layaAir/laya/RenderDriver/RenderModuleData/RuntimeModuleData/RTUintRenderModuleDataFactory.ts',
-
         './layaAir/laya/loaders/**/*.*',
         './layaAir/laya/maths/**/*.*',
         './layaAir/laya/media/**/*.*',
