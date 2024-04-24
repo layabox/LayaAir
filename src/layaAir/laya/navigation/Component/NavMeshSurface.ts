@@ -181,7 +181,7 @@ export class NavMeshSurface extends Component {
     _onEnable(): void {
         //start Build Tile
         let manager: NavigationManager = (this.owner.scene as Scene3D).getComponentElementManager("navMesh") as NavigationManager;
-        this._navMesh = new NavMesh(manager.getNavConfig(this._agentType).clone(), this._boundBox, manager);
+        this._navMesh = new NavMesh(manager.getNavConfig(this._agentType), this._boundBox, manager);
         if (this._oriTiles) {
             this._navMesh.navTileGrid.refeachConfig(this._oriTiles);
             this._navMesh._navMeshInit()
