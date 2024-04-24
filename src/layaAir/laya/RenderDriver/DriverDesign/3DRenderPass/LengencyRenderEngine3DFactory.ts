@@ -37,6 +37,6 @@ export class LengencyRenderEngine3DFactory implements IRenderEngine3DOBJFactory 
 }
 
 Laya.addBeforeInitCallback(() => {
-    if (!LayaGL.renderOBJCreate)
+    if (!Laya3DRender.renderOBJCreate)
         Laya3DRender.renderOBJCreate = new LengencyRenderEngine3DFactory();
 })
