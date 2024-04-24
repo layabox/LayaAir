@@ -15,11 +15,11 @@ import { Matrix4x4 } from "../../../maths/Matrix4x4";
 import { Vector3 } from "../../../maths/Vector3";
 import { Vector4 } from "../../../maths/Vector4";
 import { Viewport } from "../../../maths/Viewport";
-import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
 import { WebBaseRenderNode } from "../../RenderModuleData/WebModuleData/3D/WebBaseRenderNode";
 import { WebDirectLight } from "../../RenderModuleData/WebModuleData/3D/WebDirectLight";
 import { WebCameraNodeData } from "../../RenderModuleData/WebModuleData/3D/WebModuleData";
 import { WebGLShaderData } from "../../RenderModuleData/WebModuleData/WebGLShaderData";
+import { WebGLInternalRT } from "../RenderDevice/WebGLInternalRT";
 import { WebGLRenderContext3D } from "./WebGLRenderContext3D";
 import { WebGLCullUtil } from "./WebGLRenderUtil/WebGLCullUtil";
 import { WebGLRenderListQueue } from "./WebGLRenderUtil/WebGLRenderListQueue";
@@ -41,7 +41,7 @@ export class WebGLDirectLightShadowRP {
 
     camera: WebCameraNodeData;
 
-    destTarget: InternalRenderTarget;
+    destTarget: WebGLInternalRT;
 
     private _shadowCasterCommanBuffer: CommandBuffer[];
     public get shadowCasterCommanBuffer(): CommandBuffer[] {
@@ -130,7 +130,7 @@ export class WebGLDirectLightShadowRP {
         this._frustumPlanes = new Array(new Plane(new Vector3(), 0), new Plane(new Vector3(), 0), new Plane(new Vector3(), 0), new Plane(new Vector3(), 0), new Plane(new Vector3(), 0), new Plane(new Vector3(), 0));
         this._shadowCullInfo = new ShadowCullInfo();
     }
-    
+
     //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_Render_ShadowPassMode)
     update(context: WebGLRenderContext3D): void {
         var splitDistance: number[] = this._cascadesSplitDistance;
@@ -154,7 +154,7 @@ export class WebGLDirectLightShadowRP {
         }
         ShadowUtils.prepareShadowReceiverShaderValues(this._light.shadowStrength, this._shadowMapWidth, this._shadowMapHeight, this._shadowSliceDatas, this._cascadeCount, this._shadowMapSize, this._shadowParams, shadowMatrices, boundSpheres);
     }
-    
+
     //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_Render_ShadowPassMode)
     render(context: WebGLRenderContext3D, list: WebBaseRenderNode[], count: number): void {
         var shaderValues: WebGLShaderData = context.sceneData;

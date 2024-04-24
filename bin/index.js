@@ -7,7 +7,7 @@
  */
 window.screenOrientation = "sensor_landscape";
 loadLib("spine-core-3.8.js")
-loadLib("box2d.js")
+loadLib("laya.Box2d.js")
 //loadLib("cannon.js")
 //-----libs-begin-----
 loadLib("astar.js")

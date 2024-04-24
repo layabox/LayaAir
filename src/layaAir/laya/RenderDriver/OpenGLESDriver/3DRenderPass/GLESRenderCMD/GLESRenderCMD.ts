@@ -16,10 +16,6 @@ import { GLESInternalTex } from "../../RenderDevice/GLESInternalTex";
 import { GLESShaderData } from "../../RenderDevice/GLESShaderData";
 import { GLESRenderElement3D } from "../GLESRenderElement3D";
 
-//new GLESDrawNodeCMDData
-//this._nativeObj.setBaseRenderNode(value._nativeObj);
-//this._nativeObj.setShaderData(value._nativeObj);
-//this._nativeObj.setSubShader((value.moduleData as any as RTSubShader)._nativeObj);
 export class GLESDrawNodeCMDData extends DrawNodeCMDData {
     type: RenderCMDType;
     protected _node: RTBaseRenderNode;
@@ -75,7 +71,6 @@ export class GLESDrawNodeCMDData extends DrawNodeCMDData {
 
 export class GLESBlitQuadCMDData extends BlitQuadCMDData {
     type: RenderCMDType;
-    private _sourceTexelSize: Vector4;
     protected _dest: GLESInternalRT;
     protected _viewport: Viewport;
     protected _source: GLESInternalTex;
@@ -91,7 +86,7 @@ export class GLESBlitQuadCMDData extends BlitQuadCMDData {
 
     set dest(value: GLESInternalRT) {
         this._dest = value;
-        this._nativeObj.setDest(value);
+        this._nativeObj.setDest(value._nativeObj);
     }
 
     get viewport(): Viewport {
@@ -118,9 +113,7 @@ export class GLESBlitQuadCMDData extends BlitQuadCMDData {
 
     set source(value: GLESInternalTex) {
         this._source = value;
-        this._nativeObj.setSource(value);
-        // this._sourceTexelSize.setValue(1.0 / this._source.width, 1.0 / this._source.height, this._source.width, this._source.height);
-        // this._nativeObj.setSourceTexelSize(this._sourceTexelSize);
+        this._nativeObj.setSource(value._nativeObj);
     }
 
     get offsetScale(): Vector4 {
@@ -146,7 +139,6 @@ export class GLESBlitQuadCMDData extends BlitQuadCMDData {
         this._viewport = new Viewport();
         this._scissor = new Vector4();
         this._offsetScale = new Vector4();
-        this._sourceTexelSize = new Vector4();
         this._nativeObj = new (window as any).conchGLESBlitQuadCMDData();
     }
 }
@@ -168,12 +160,12 @@ export class GLESDrawElementCMDData extends DrawElementCMDData {
         this._nativeObj.clearElement();
         if (value.length == 1) {
             this._nativeObj.addOneElement(value[0]._nativeObj);
-        }else{
+        } else {
             value.forEach(element => {
                 this._nativeObj.addOneElement(element._nativeObj);
             });
         }
-      
+
     }
 }
 
@@ -227,7 +219,7 @@ export class GLESSetRenderTargetCMD extends SetRenderTargetCMD {
 
     set rt(value: GLESInternalRT) {
         this._rt = value;
-        this._nativeObj.setRT(value);
+        this._nativeObj.setRT(value._nativeObj);
     }
 
     get clearFlag(): number {
@@ -352,7 +344,7 @@ export class GLESSetRenderData extends SetRenderDataCMD {
                 break;
             case ShaderDataType.Texture2D:
                 this._value = this.data_texture = value as BaseTexture;
-                this._nativeObj.setTexture2D((this.data_texture._texture as GLESInternalTex))
+                this._nativeObj.setTexture2D((this.data_texture._texture as GLESInternalTex)._nativeObj);
                 break;
             case ShaderDataType.Vector4:
                 !this.data_v4 && (this.data_v4 = new Vector4());
@@ -374,7 +366,7 @@ export class GLESSetRenderData extends SetRenderDataCMD {
                 break;
             case ShaderDataType.Buffer:
                 this._value = this.data_Buffer = value as Float32Array;
-                this._nativeObj.setBufferValue(this.data_Buffer.buffer,this.data_Buffer.byteLength);
+                this._nativeObj.setBufferValue(this.data_Buffer.buffer, this.data_Buffer.byteLength);
                 break;
             default:
                 //TODO  shaderDefine

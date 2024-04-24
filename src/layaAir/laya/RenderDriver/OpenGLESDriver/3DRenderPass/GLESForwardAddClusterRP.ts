@@ -6,9 +6,9 @@ import { Vector4 } from "../../../maths/Vector4";
 import { Viewport } from "../../../maths/Viewport";
 import { DepthTextureMode } from "../../../resource/RenderTexture";
 import { IRenderCMD } from "../../DriverDesign/3DRenderPass/IRendderCMD";
-import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
 import { RTCameraNodeData } from "../../RenderModuleData/RuntimeModuleData/3D/RT3DRenderModuleData";
 import { RTBaseRenderNode } from "../../RenderModuleData/RuntimeModuleData/3D/RTBaseRenderNode";
+import { GLESInternalRT } from "../RenderDevice/GLESInternalRT";
 
 
 
@@ -37,13 +37,13 @@ export class GLESForwardAddClusterRP {
     public set enableOpaqueTexture(value: boolean) {
         this._nativeObj._enableOpaqueTexture = value;
     }
-    private _destTarget: InternalRenderTarget;
-    public get destTarget(): InternalRenderTarget {
+    private _destTarget: GLESInternalRT;
+    public get destTarget(): GLESInternalRT {
         return this._destTarget;
     }
-    public set destTarget(value: InternalRenderTarget) {
+    public set destTarget(value: GLESInternalRT) {
         this._destTarget = value;
-        this._nativeObj.setDestTarget(value);
+        this._nativeObj.setDestTarget(value._nativeObj);
     }
     public get pipelineMode(): string {
         return this._nativeObj._pipelineMode;
@@ -51,13 +51,13 @@ export class GLESForwardAddClusterRP {
     public set pipelineMode(value: string) {
         this._nativeObj._pipelineMode = value;
     }
-    private _depthTarget: InternalRenderTarget;
-    public get depthTarget(): InternalRenderTarget {
+    private _depthTarget: GLESInternalRT;
+    public get depthTarget(): GLESInternalRT {
         return this._depthTarget;
     }
-    public set depthTarget(value: InternalRenderTarget) {
+    public set depthTarget(value: GLESInternalRT) {
         this._depthTarget = value;
-        this._nativeObj.setDepthTarget(value);
+        this._nativeObj.setDepthTarget(value._nativeObj);
     }
     public get depthPipelineMode(): string {
         return this._nativeObj._depthPipelineMode;
@@ -65,13 +65,13 @@ export class GLESForwardAddClusterRP {
     public set depthPipelineMode(value: string) {
         this._nativeObj._depthPipelineMode = value;
     }
-    private _depthNormalTarget: InternalRenderTarget;
-    public get depthNormalTarget(): InternalRenderTarget {
+    private _depthNormalTarget: GLESInternalRT;
+    public get depthNormalTarget(): GLESInternalRT {
         return this._depthNormalTarget;
     }
-    public set depthNormalTarget(value: InternalRenderTarget) {
+    public set depthNormalTarget(value: GLESInternalRT) {
         this._depthNormalTarget = value;
-        this._nativeObj.setDepthNormalTarget(value);
+        this._nativeObj.setDepthNormalTarget(value._nativeObj);
     }
     public get depthNormalPipelineMode(): string {
         return this._nativeObj._depthNormalPipelineMode;
@@ -93,13 +93,13 @@ export class GLESForwardAddClusterRP {
     public set depthTextureMode(value: DepthTextureMode) {
         this._nativeObj._depthTextureMode = value;
     }
-    private _opaqueTexture: InternalRenderTarget;
-    public get opaqueTexture(): InternalRenderTarget {
+    private _opaqueTexture: GLESInternalRT;
+    public get opaqueTexture(): GLESInternalRT {
         return this._opaqueTexture;
     }
-    public set opaqueTexture(value: InternalRenderTarget) {
+    public set opaqueTexture(value: GLESInternalRT) {
         this._opaqueTexture = value;
-        this._nativeObj.setOpaqueTexture(value);
+        this._nativeObj.setOpaqueTexture(value._nativeObj);
     }
     private _camera: RTCameraNodeData;
     public get camera(): RTCameraNodeData {

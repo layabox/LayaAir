@@ -1,6 +1,5 @@
 import { FilterMode } from "../../../RenderEngine/RenderEnum/FilterMode";
 import { TextureCompareMode } from "../../../RenderEngine/RenderEnum/TextureCompareMode";
-import { TextureDimension } from "../../../RenderEngine/RenderEnum/TextureDimension";
 import { WrapMode } from "../../../RenderEngine/RenderEnum/WrapMode";
 import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
 
@@ -9,7 +8,7 @@ export class GLESInternalTex implements InternalTexture {
     _nativeObj: any;
     //constructor(target: number, width: number, height: number, depth: number, dimension: TextureDimension, mipmap: boolean, useSRGBLoader: boolean, gammaCorrection: number) {
     //{
-   //     this._nativeObj = new (window as any).conchGLESInternalTex(target, width, height, depth, dimension, mipmap, useSRGBLoader, gammaCorrection);
+    //     this._nativeObj = new (window as any).conchGLESInternalTex(target, width, height, depth, dimension, mipmap, useSRGBLoader, gammaCorrection);
     //}
     constructor(nativeObj: any) {
         this._nativeObj = nativeObj;
@@ -69,35 +68,30 @@ export class GLESInternalTex implements InternalTexture {
         return this._nativeObj.mipmap;
     }
     public get isPotSize(): boolean {
-        return this._nativeObj.isPotSize;
+        return this._nativeObj.getIsPotSize();
     }
     public get useSRGBLoad(): boolean {
         return this._nativeObj.useSRGBLoad;
     }
     public get depth(): number {
-        return this._nativeObj.depth;
+        return this._nativeObj.getDepth();
     }
     public get gammaCorrection(): number {
         return this._nativeObj.gammaCorrection;
     }
     public get resource(): any {
-        return this._nativeObj.resource;
-    }
-    public get target(): number {
-        return this._nativeObj.target;
+        return null;
     }
     public get width(): number {
-        return this._nativeObj.getWidth;
+        return this._nativeObj.getWidth();
     }
     public get height(): number {
-        return this._nativeObj.getHeight;
+        return this._nativeObj.getHeight();
     }
     public get gpuMemory(): number {
-        return this._nativeObj.gpuMemory;
+        return this._nativeObj.getGPUMemory();
     }
-    public set gpuMemory(value: number) {
-        this._nativeObj = value;
-    }
+
     dispose(): void {
         this._nativeObj.dispose();
         this._nativeObj = null;

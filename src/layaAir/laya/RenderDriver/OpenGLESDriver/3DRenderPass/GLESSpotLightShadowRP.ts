@@ -1,12 +1,12 @@
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
 import { SpotLightCom } from "../../../d3/core/light/SpotLightCom";
-import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
 import { RTSpotLight } from "../../RenderModuleData/RuntimeModuleData/3D/RTSpotLight";
+import { GLESInternalRT } from "../RenderDevice/GLESInternalRT";
 
 
-export class GLESSpotLightShadowRP{
+export class GLESSpotLightShadowRP {
     private _light: SpotLightCom;
-    
+
     public get light(): SpotLightCom {
         return this._light;
     }
@@ -16,15 +16,15 @@ export class GLESSpotLightShadowRP{
         this._nativeObj.setLight((value._dataModule as RTSpotLight)._nativeObj);
     }
 
-    private _destTarget: InternalRenderTarget;
+    private _destTarget: GLESInternalRT;
 
-    public get destTarget(): InternalRenderTarget {
+    public get destTarget(): GLESInternalRT {
         return this._destTarget;
     }
-    
-    public set destTarget(value: InternalRenderTarget) {
+
+    public set destTarget(value: GLESInternalRT) {
         this._destTarget = value;
-        this._nativeObj.setRenderTarget(value, RenderClearFlag.Nothing);
+        this._nativeObj.setRenderTarget(value._nativeObj, RenderClearFlag.Nothing);
     }
     _nativeObj: any;
     constructor() {

@@ -1,7 +1,6 @@
 import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
 import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
-import { GLESEngine } from "./GLESEngine";
 import { GLESInternalTex } from "./GLESInternalTex";
 
 
@@ -9,9 +8,7 @@ export class GLESInternalRT implements InternalRenderTarget {
     _texturesRef: InternalTexture[];
     _depthTextureRef: InternalTexture;
     _nativeObj: any;
-    //constructor(engine:GLESEngine, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, isCube: boolean, generateMipmap: boolean, samples: number) {
-    //    this._nativeObj = new (window as any).conchGLESInternalRT(colorFormat, depthStencilFormat, isCube, generateMipmap, samples);
-    //}
+
     constructor(nativeObj: any) {
         this._nativeObj = nativeObj;
     }
@@ -57,13 +54,13 @@ export class GLESInternalRT implements InternalRenderTarget {
     set gpuMemory(value: number) {
         this._nativeObj._gpuMemory = value;
     }
-    get _textures():  InternalTexture[] {
+    get _textures(): InternalTexture[] {
         if (this._texturesRef) {
             return this._texturesRef;
         }
         else {
             this._texturesRef = [];
-            let textures:any = this._nativeObj._textures;
+            let textures: any = this._nativeObj.getTextures();
             textures.forEach((element: any) => {
                 this._texturesRef.push(new GLESInternalTex(element));
             });
@@ -75,7 +72,9 @@ export class GLESInternalRT implements InternalRenderTarget {
             return this._depthTextureRef;
         }
         else {
-            this._depthTextureRef = new GLESInternalTex(this._nativeObj._depthTexture);
+            var nativeObj = this._nativeObj.getDepthTexture();
+            if (nativeObj)
+                this._depthTextureRef = new GLESInternalTex(nativeObj);
             return this._depthTextureRef;
         }
     }

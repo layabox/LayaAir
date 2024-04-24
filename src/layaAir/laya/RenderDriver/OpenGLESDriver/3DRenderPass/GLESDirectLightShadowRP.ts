@@ -1,9 +1,8 @@
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
 import { CommandBuffer } from "../../../d3/core/render/command/CommandBuffer";
-import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
 import { RTCameraNodeData } from "../../RenderModuleData/RuntimeModuleData/3D/RT3DRenderModuleData";
 import { RTDirectLight } from "../../RenderModuleData/RuntimeModuleData/3D/RTDirectLight";
-import { WebCameraNodeData } from "../../RenderModuleData/WebModuleData/3D/WebModuleData";
+import { GLESInternalRT } from "../RenderDevice/GLESInternalRT";
 
 
 export class GLESDirectLightShadowRP {
@@ -23,13 +22,13 @@ export class GLESDirectLightShadowRP {
         this._camera = value;
         this._nativeObj.setCameraNodeData(value._nativeObj);
     }
-    private _destTarget: InternalRenderTarget;
-    public get destTarget(): InternalRenderTarget {
+    private _destTarget: GLESInternalRT;
+    public get destTarget(): GLESInternalRT {
         return this._destTarget;
     }
-    public set destTarget(value: InternalRenderTarget) {
+    public set destTarget(value: GLESInternalRT) {
         this._destTarget = value;
-        this._nativeObj.setRenderTarget(value, RenderClearFlag.Nothing);
+        this._nativeObj.setRenderTarget(value._nativeObj, RenderClearFlag.Nothing);
     }
     _nativeObj: any;
     constructor() {

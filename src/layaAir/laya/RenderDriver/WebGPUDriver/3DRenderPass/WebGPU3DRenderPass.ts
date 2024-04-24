@@ -106,7 +106,7 @@ export class WebGPU3DRenderPass implements IRender3DProcess {
                 this._renderPass.directLightShadowPass.camera = <WebCameraNodeData>camera._renderDataModule;
                 this._renderPass.directLightShadowPass.light = <WebDirectLight>mainDirectionLight._dataModule;
                 let directionShadowMap = ILaya3D.Scene3D._shadowCasterPass.getDirectLightShadowMap(mainDirectionLight);
-                this._renderPass.directLightShadowPass.destTarget = directionShadowMap._renderTarget;
+                this._renderPass.directLightShadowPass.destTarget = directionShadowMap._renderTarget as any;
                 camera.scene._shaderValues.setTexture(ShadowCasterPass.SHADOW_MAP, directionShadowMap);
             }
             // spot light shadow

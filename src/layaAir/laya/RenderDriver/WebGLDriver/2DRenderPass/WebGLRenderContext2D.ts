@@ -2,15 +2,15 @@ import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFla
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { Color } from "../../../maths/Color";
 import { IRenderContext2D } from "../../DriverDesign/2DRenderPass/IRenderContext2D";
-import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
 import { WebGLShaderData } from "../../RenderModuleData/WebModuleData/WebGLShaderData";
 import { WebGLEngine } from "../RenderDevice/WebGLEngine";
+import { WebGLInternalRT } from "../RenderDevice/WebGLInternalRT";
 import { WebGLRenderelement2D } from "./WebGLRenderElement2D";
 
 export class WebglRenderContext2D implements IRenderContext2D {
     private _clearColor: Color = new Color(0, 0, 0, 0);
-    _destRT: InternalRenderTarget;
+    _destRT: WebGLInternalRT;
     invertY: boolean = false;
     pipelineMode: string = "Forward";
     sceneData: WebGLShaderData;
@@ -22,13 +22,13 @@ export class WebglRenderContext2D implements IRenderContext2D {
     constructor() {
         this._globalConfigShaderData = Shader3D._configDefineValues;
     }
-    
+
     setOffscreenView(width: number, height: number): void {
         this._offscreenWidth = width;
         this._offscreenHeight = height;
     }
 
-    setRenderTarget(value: InternalRenderTarget, clear: boolean, clearColor: Color): void {
+    setRenderTarget(value: WebGLInternalRT, clear: boolean, clearColor: Color): void {
         this._destRT = value;
         clearColor.cloneTo(this._clearColor);
         if (this._destRT) {

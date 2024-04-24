@@ -1,9 +1,6 @@
 import { Texture2D } from "./Texture2D"
 import { BaseTexture } from "./BaseTexture"
-import { RenderState2D } from "../webgl/utils/RenderState2D"
 import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
-import { RenderClearFlag } from "../RenderEngine/RenderEnum/RenderClearFlag";
-import { NativeRenderTexture2D } from "./NativeRenderTexture2D";
 import { Color } from "../maths/Color";
 import { LayaGL } from "../layagl/LayaGL";
 import { InternalRenderTarget } from "../RenderDriver/DriverDesign/RenderDevice/InternalRenderTarget";
@@ -17,13 +14,9 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
     static _clearColor: Color = new Color(0, 0, 0, 0);
     static _clear: boolean = false;
     static _clearLinearColor: Color = new Color();
-    private _lastRT: RenderTexture2D;
-    private _lastWidth: number;
-    private _lastHeight: number;
 
     //为push,pop 用的。以后和上面只保留一份。
     //由于可能递归，所以不能简单的用save，restore
-    private static rtStack: any[] = [];//rt:RenderTexture，w:int，h:int
     /**
      * 默认uv
      */
@@ -166,96 +159,6 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
         this._texture.gammaCorrection = 2.2;
     }
 
-
-    // /**
-    //  * 保存当前的RT信息。
-    //  */
-    // static pushRT(): void {
-    //     RenderTexture2D.rtStack.push({ rt: RenderTexture2D._currentActive, w: RenderState2D.width, h: RenderState2D.height });
-    // }
-    // /**
-    //  * 恢复上次保存的RT信息
-    //  */
-    // static popRT(): void {
-    //     var top: any = RenderTexture2D.rtStack.pop();
-    //     if (top) {
-    //         if (RenderTexture2D._currentActive != top.rt) {
-    //             if (top.rt) {
-    //                 LayaGL.textureContext.bindRenderTarget(top.rt._renderTarget);
-    //                 RenderState2D.InvertY = top.rt._invertY;
-    //             } else {
-    //                 LayaGL.textureContext.bindoutScreenTarget();
-    //                 RenderState2D.InvertY = false;
-    //             }
-    //             RenderTexture2D._currentActive = top.rt;
-    //         }
-    //         //@ts-ignore
-    //         LayaGL.renderEngine.viewport(0, 0, top.w, top.h);
-    //         //@ts-ignore
-    //         LayaGL.renderEngine.scissor(0, 0, top.w, top.h);
-    //         RenderState2D.width = top.w;
-    //         RenderState2D.height = top.h;
-    //     }
-    // }
-    // /**
-    //  * 开始绑定。
-    //  */
-    // start(): void {
-    //     //(memorySize == 0) && recreateResource();
-    //     LayaGL.textureContext.bindRenderTarget(this._renderTarget);
-    //     this._lastRT = RenderTexture2D._currentActive;
-    //     RenderTexture2D._currentActive = this;
-    //     RenderState2D.InvertY = this._invertY;
-
-    //     //@ts-ignore
-    //     LayaGL.renderEngine.viewport(0, 0, this._width, this._height);//外部设置
-    //     //@ts-ignore
-    //     LayaGL.renderEngine.scissor(0, 0, this._width, this._height);//外部设置
-    //     this._lastWidth = RenderState2D.width;
-    //     this._lastHeight = RenderState2D.height;
-    //     RenderState2D.width = this._width;
-    //     RenderState2D.height = this._height;
-    //     ////}
-    // }
-
-    // /**
-    //  * 结束绑定。
-    //  */
-    // end(): void {
-    //     LayaGL.textureContext.unbindRenderTarget(this._renderTarget);
-    //     RenderTexture2D._currentActive = null;
-    //     RenderState2D.InvertY = false;
-    // }
-
-    // /**
-    //  * 恢复上一次的RenderTarge.由于使用自己保存的，所以如果被外面打断了的话，会出错。
-    //  */
-    // restore(): void {
-    //     if (this._lastRT != RenderTexture2D._currentActive) {
-
-    //         if (this._lastRT) {
-    //             LayaGL.textureContext.bindRenderTarget(this._lastRT._renderTarget);
-    //             RenderState2D.InvertY = this._lastRT._invertY;
-    //         }
-    //         else {
-    //             LayaGL.textureContext.unbindRenderTarget(this._renderTarget);
-    //             RenderState2D.InvertY = false;
-    //         }
-
-    //         RenderTexture2D._currentActive = this._lastRT;
-    //     }
-    //     // this._readyed = true;
-    //     //if (_type == TYPE2D)//待调整
-    //     //{
-    //     //@ts-ignore
-    //     LayaGL.renderEngine.viewport(0, 0, this._lastWidth, this._lastHeight);
-    //     //@ts-ignore
-    //     LayaGL.renderEngine.scissor(0, 0, this._lastWidth, this._lastHeight);
-    //     RenderState2D.width = this._lastWidth;
-    //     RenderState2D.height = this._lastHeight;
-    //     //} else 
-    //     //	gl.viewport(0, 0, Laya.stage.width, Laya.stage.height);
-    // }
     /**
      * 清理RT
      * @param r 
@@ -300,11 +203,3 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
     }
 
 }
-
-// native
-if ((window as any).conch && !(window as any).conchConfig.conchWebGL) {
-    //@ts-ignore
-    //lvtodo RenderTexture2D = NativeRenderTexture2D;
-}
-
-

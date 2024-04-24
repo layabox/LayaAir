@@ -15,6 +15,7 @@ import { IRender3DProcess } from "../../DriverDesign/3DRenderPass/I3DRenderPass"
 import { RTCameraNodeData } from "../../RenderModuleData/RuntimeModuleData/3D/RT3DRenderModuleData";
 import { RTBaseRenderNode } from "../../RenderModuleData/RuntimeModuleData/3D/RTBaseRenderNode";
 import { RTDirectLight } from "../../RenderModuleData/RuntimeModuleData/3D/RTDirectLight";
+import { GLESInternalRT } from "../RenderDevice/GLESInternalRT";
 import { GLESForwardAddRP } from "./GLESForwardAddRP";
 import { GLESRenderContext3D } from "./GLESRenderContext3D";
 const viewport = new Viewport(0, 0, 0, 0);
@@ -31,7 +32,7 @@ export class GLESRender3DProcess implements IRender3DProcess {
         let renderpass = this.renderpass.renderpass;
 
         let renderRT = camera._getRenderTexture();
-      
+
 
         // clear
         let clearConst = 0;
@@ -66,7 +67,7 @@ export class GLESRender3DProcess implements IRender3DProcess {
 
         renderpass.camera = <RTCameraNodeData>camera._renderDataModule;
 
-        renderpass.destTarget = renderRT._renderTarget;
+        renderpass.destTarget = renderRT._renderTarget as GLESInternalRT;
         renderpass.clearFlag = clearConst;
         renderpass.clearColor = clearValue;
 
@@ -118,7 +119,7 @@ export class GLESRender3DProcess implements IRender3DProcess {
                 this.renderpass.directLightShadowPass.camera = <RTCameraNodeData>camera._renderDataModule;
                 this.renderpass.directLightShadowPass.light = <RTDirectLight>mainDirectionLight._dataModule;
                 let directionShadowMap = Scene3D._shadowCasterPass.getDirectLightShadowMap(mainDirectionLight);
-                this.renderpass.directLightShadowPass.destTarget = directionShadowMap._renderTarget;
+                this.renderpass.directLightShadowPass.destTarget = directionShadowMap._renderTarget as GLESInternalRT;
 
                 camera.scene._shaderValues.setTexture(ShadowCasterPass.SHADOW_MAP, directionShadowMap);
             }
@@ -136,7 +137,7 @@ export class GLESRender3DProcess implements IRender3DProcess {
             if (needSpotShadow) {
                 this.renderpass.spotLightShadowPass.light = mainSpotLight;
                 let spotShadowMap = Scene3D._shadowCasterPass.getSpotLightShadowPassData(mainSpotLight);
-                this.renderpass.spotLightShadowPass.destTarget = spotShadowMap._renderTarget;
+                this.renderpass.spotLightShadowPass.destTarget = spotShadowMap._renderTarget as GLESInternalRT;
 
                 camera.scene._shaderValues.setTexture(ShadowCasterPass.SHADOW_SPOTMAP, spotShadowMap);
             }
@@ -169,13 +170,13 @@ export class GLESRender3DProcess implements IRender3DProcess {
             }
             else {
                 Camera.depthPass.getTarget(camera, DepthTextureMode.Depth, camera.depthTextureFormat);
-                this.renderpass.renderpass.depthTarget = (<RenderTexture>camera.depthTexture)._renderTarget;
+                this.renderpass.renderpass.depthTarget = (<RenderTexture>camera.depthTexture)._renderTarget as GLESInternalRT;
                 camera._shaderValues.setTexture(DepthPass.DEPTHTEXTURE, camera.depthTexture);
             }
         }
         if ((depthMode & DepthTextureMode.DepthNormals) != 0) {
             Camera.depthPass.getTarget(camera, DepthTextureMode.DepthNormals, camera.depthTextureFormat);
-            this.renderpass.renderpass.depthNormalTarget = (<RenderTexture>camera.depthNormalTexture)._renderTarget;
+            this.renderpass.renderpass.depthNormalTarget = (<RenderTexture>camera.depthNormalTexture)._renderTarget as GLESInternalRT;
             camera._shaderValues.setTexture(DepthPass.DEPTHNORMALSTEXTURE, camera.depthNormalTexture);
         }
 

@@ -17,6 +17,7 @@ import { IRender3DProcess } from "../../DriverDesign/3DRenderPass/I3DRenderPass"
 import { WebBaseRenderNode } from "../../RenderModuleData/WebModuleData/3D/WebBaseRenderNode";
 import { WebDirectLight } from "../../RenderModuleData/WebModuleData/3D/WebDirectLight";
 import { WebCameraNodeData } from "../../RenderModuleData/WebModuleData/3D/WebModuleData";
+import { WebGLInternalRT } from "../RenderDevice/WebGLInternalRT";
 import { WebGLForwardAddRP } from "./WebGLForwardAddRP";
 import { WebGLRenderContext3D } from "./WebGLRenderContext3D";
 
@@ -115,7 +116,7 @@ export class WebGLRender3DProcess implements IRender3DProcess {
                 this.renderpass.directLightShadowPass.camera = <WebCameraNodeData>camera._renderDataModule;
                 this.renderpass.directLightShadowPass.light = <WebDirectLight>mainDirectionLight._dataModule;
                 let directionShadowMap = ILaya3D.Scene3D._shadowCasterPass.getDirectLightShadowMap(mainDirectionLight);
-                this.renderpass.directLightShadowPass.destTarget = directionShadowMap._renderTarget;
+                this.renderpass.directLightShadowPass.destTarget = directionShadowMap._renderTarget as WebGLInternalRT;
 
                 camera.scene._shaderValues.setTexture(ShadowCasterPass.SHADOW_MAP, directionShadowMap);
             }

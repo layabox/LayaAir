@@ -6,8 +6,8 @@ import { Viewport } from "../../../maths/Viewport";
 import { SingletonList } from "../../../utils/SingletonList";
 import { IRenderContext3D, IRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { IRenderCMD } from "../../DriverDesign/3DRenderPass/IRendderCMD";
-import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
 import { RTCameraNodeData, RTSceneNodeData } from "../../RenderModuleData/RuntimeModuleData/3D/RT3DRenderModuleData";
+import { GLESInternalRT } from "../RenderDevice/GLESInternalRT";
 import { GLESShaderData } from "../RenderDevice/GLESShaderData";
 
 
@@ -86,8 +86,8 @@ export class GLESRenderContext3D implements IRenderContext3D {
         this._nativeObj.setGlobalConfigShaderData((Shader3D._configDefineValues as any)._nativeObj);
         this.cameraUpdateMask = 0;
     }
-    setRenderTarget(value: InternalRenderTarget, clearFlag: RenderClearFlag): void {
-        this._nativeObj.setRenderTarget(value, clearFlag);
+    setRenderTarget(value: GLESInternalRT, clearFlag: RenderClearFlag): void {
+        this._nativeObj.setRenderTarget(value._nativeObj, clearFlag);
     }
     setViewPort(value: Viewport): void {
         this._nativeObj.setViewport(value);
