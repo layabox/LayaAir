@@ -1,7 +1,7 @@
 
 var Recast = (() => {
   var _scriptDir = typeof document !== 'undefined' && document.currentScript ? document.currentScript.src : undefined;
-  if (typeof __filename !== 'undefined') _scriptDir = _scriptDir || __filename;
+  if (typeof __filename !== 'undefined') _scriptDir ||= __filename;
   return (
 function(moduleArg = {}) {
 
@@ -20,8 +20,8 @@ function(moduleArg = {}) {
 // before the code. Then that object will be used in the code, and you
 // can continue to use Module afterwards as well.
 var Module = moduleArg;
-
  let process = undefined;
+
 // Set up the promise that indicates the Module is initialized
 var readyPromiseResolve, readyPromiseReject;
 Module['ready'] = new Promise((resolve, reject) => {
@@ -125,8 +125,6 @@ readAsync = (filename, onload, onerror, binary = true) => {
     process.exitCode = status;
     throw toThrow;
   };
-
-  Module['inspect'] = () => '[Emscripten Module object]';
 
 } else
 
@@ -385,14 +383,14 @@ function getUniqueRunDependency(id) {
 function addRunDependency(id) {
   runDependencies++;
 
-  Module['monitorRunDependencies']?.(runDependencies);
+if( Module['monitorRunDependencies'])Module['monitorRunDependencies'](runDependencies);
 
 }
 
 function removeRunDependency(id) {
   runDependencies--;
 
-  Module['monitorRunDependencies']?.(runDependencies);
+  if(Module['monitorRunDependencies'])Module['monitorRunDependencies'](runDependencies);
 
   if (runDependencies == 0) {
     if (runDependencyWatcher !== null) {
@@ -409,7 +407,7 @@ function removeRunDependency(id) {
 
 /** @param {string|number=} what */
 function abort(what) {
-  Module['onAbort']?.(what);
+  if(Module['onAbort'])Module['onAbort'](what);
 
   what = 'Aborted(' + what + ')';
   // TODO(sbc): Should we remove printing and leave it up to whoever
@@ -688,65 +686,67 @@ var tempI64;
     }
   }
 
-  /** @constructor */
-  function ExceptionInfo(excPtr) {
-      this.excPtr = excPtr;
-      this.ptr = excPtr - 24;
+  class ExceptionInfo {
+      // excPtr - Thrown object pointer to wrap. Metadata pointer is calculated from it.
+      constructor(excPtr) {
+        this.excPtr = excPtr;
+        this.ptr = excPtr - 24;
+      }
   
-      this.set_type = function(type) {
+      set_type(type) {
         HEAPU32[(((this.ptr)+(4))>>2)] = type;
-      };
+      }
   
-      this.get_type = function() {
+      get_type() {
         return HEAPU32[(((this.ptr)+(4))>>2)];
-      };
+      }
   
-      this.set_destructor = function(destructor) {
+      set_destructor(destructor) {
         HEAPU32[(((this.ptr)+(8))>>2)] = destructor;
-      };
+      }
   
-      this.get_destructor = function() {
+      get_destructor() {
         return HEAPU32[(((this.ptr)+(8))>>2)];
-      };
+      }
   
-      this.set_caught = function(caught) {
+      set_caught(caught) {
         caught = caught ? 1 : 0;
         HEAP8[(((this.ptr)+(12))>>0)] = caught;
-      };
+      }
   
-      this.get_caught = function() {
+      get_caught() {
         return HEAP8[(((this.ptr)+(12))>>0)] != 0;
-      };
+      }
   
-      this.set_rethrown = function(rethrown) {
+      set_rethrown(rethrown) {
         rethrown = rethrown ? 1 : 0;
         HEAP8[(((this.ptr)+(13))>>0)] = rethrown;
-      };
+      }
   
-      this.get_rethrown = function() {
+      get_rethrown() {
         return HEAP8[(((this.ptr)+(13))>>0)] != 0;
-      };
+      }
   
       // Initialize native structure fields. Should be called once after allocated.
-      this.init = function(type, destructor) {
+      init(type, destructor) {
         this.set_adjusted_ptr(0);
         this.set_type(type);
         this.set_destructor(destructor);
       }
   
-      this.set_adjusted_ptr = function(adjustedPtr) {
+      set_adjusted_ptr(adjustedPtr) {
         HEAPU32[(((this.ptr)+(16))>>2)] = adjustedPtr;
-      };
+      }
   
-      this.get_adjusted_ptr = function() {
+      get_adjusted_ptr() {
         return HEAPU32[(((this.ptr)+(16))>>2)];
-      };
+      }
   
       // Get pointer which is expected to be received by catch clause in C++ code. It may be adjusted
       // when the pointer is casted to some of the exception object base classes (e.g. when virtual
       // inheritance is used). When a pointer is thrown this method should return the thrown pointer
       // itself.
-      this.get_exception_ptr = function() {
+      get_exception_ptr() {
         // Work around a fastcomp bug, this code is still included for some reason in a build without
         // exceptions support.
         var isPointer = ___cxa_is_pointer_type(this.get_type());
@@ -756,7 +756,7 @@ var tempI64;
         var adjusted = this.get_adjusted_ptr();
         if (adjusted !== 0) return adjusted;
         return this.excPtr;
-      };
+      }
     }
   
   var exceptionLast = 0;
@@ -1599,11 +1599,6 @@ var tempI64;
         },
         'argPackAdvance': GenericWireTypeSize,
         'readValueFromPointer': readPointer,
-        'deleteObject'(handle) {
-          if (handle !== null) {
-            handle['delete']();
-          }
-        },
         'fromWireType': RegisteredPointer_fromWireType,
       });
     };
@@ -2257,32 +2252,32 @@ var tempI64;
       });
     };
 
-  function handleAllocatorInit() {
-      Object.assign(HandleAllocator.prototype, /** @lends {HandleAllocator.prototype} */ {
-        get(id) {
-          return this.allocated[id];
-        },
-        has(id) {
-          return this.allocated[id] !== undefined;
-        },
-        allocate(handle) {
-          var id = this.freelist.pop() || this.allocated.length;
-          this.allocated[id] = handle;
-          return id;
-        },
-        free(id) {
-          // Set the slot to `undefined` rather than using `delete` here since
-          // apparently arrays with holes in them can be less efficient.
-          this.allocated[id] = undefined;
-          this.freelist.push(id);
-        }
-      });
-    }
-  /** @constructor */
-  function HandleAllocator() {
-      // Reserve slot 0 so that 0 is always an invalid handle
-      this.allocated = [undefined];
-      this.freelist = [];
+  
+  class HandleAllocator {
+      constructor() {
+        // TODO(sbc): Use class fields once we allow/enable es2022 in
+        // JavaScript input to acorn and closure.
+        // Reserve slot 0 so that 0 is always an invalid handle
+        this.allocated = [undefined];
+        this.freelist = [];
+      }
+      get(id) {
+        return this.allocated[id];
+      };
+      has(id) {
+        return this.allocated[id] !== undefined;
+      };
+      allocate(handle) {
+        var id = this.freelist.pop() || this.allocated.length;
+        this.allocated[id] = handle;
+        return id;
+      };
+      free(id) {
+        // Set the slot to `undefined` rather than using `delete` here since
+        // apparently arrays with holes in them can be less efficient.
+        this.allocated[id] = undefined;
+        this.freelist.push(id);
+      };
     }
   var emval_handles = new HandleAllocator();;
   var __emval_decref = (handle) => {
@@ -2312,7 +2307,7 @@ var tempI64;
         {value: true},
         {value: false},
       );
-      emval_handles.reserved = emval_handles.allocated.length
+      Object.assign(emval_handles, /** @lends {emval_handles} */ { reserved: emval_handles.allocated.length }),
       Module['count_emval_handles'] = count_emval_handles;
     };
   var Emval = {
@@ -2336,25 +2331,22 @@ var tempI64;
   };
   
   
+  var EmValType = {
+      name: 'emscripten::val',
+      'fromWireType': (handle) => {
+        var rv = Emval.toValue(handle);
+        __emval_decref(handle);
+        return rv;
+      },
+      'toWireType': (destructors, value) => Emval.toHandle(value),
+      'argPackAdvance': GenericWireTypeSize,
+      'readValueFromPointer': simpleReadValueFromPointer,
+      destructorFunction: null, // This type does not need a destructor
   
-  var __embind_register_emval = (rawType, name) => {
-      name = readLatin1String(name);
-      registerType(rawType, {
-        name,
-        'fromWireType': (handle) => {
-          var rv = Emval.toValue(handle);
-          __emval_decref(handle);
-          return rv;
-        },
-        'toWireType': (destructors, value) => Emval.toHandle(value),
-        'argPackAdvance': GenericWireTypeSize,
-        'readValueFromPointer': simpleReadValueFromPointer,
-        destructorFunction: null, // This type does not need a destructor
-  
-        // TODO: do we need a deleteObject here?  write a test where
-        // emval is passed into JS via an interface
-      });
+      // TODO: do we need a deleteObject here?  write a test where
+      // emval is passed into JS via an interface
     };
+  var __embind_register_emval = (rawType) => registerType(rawType, EmValType);
 
   
   var enumReadValueFromPointer = (name, width, signed) => {
@@ -2790,7 +2782,7 @@ var tempI64;
             length = value.length;
           }
   
-          // assumes 4-byte alignment
+          // assumes POINTER_SIZE alignment
           var base = _malloc(4 + length + 1);
           var ptr = base + 4;
           HEAPU32[((base)>>2)] = length;
@@ -2992,10 +2984,10 @@ var tempI64;
             throwBindingError(`Cannot pass non-string to C++ string type ${name}`);
           }
   
-          // assumes 4-byte alignment
+          // assumes POINTER_SIZE alignment
           var length = lengthBytesUTF(value);
           var ptr = _malloc(4 + length + charSize);
-          HEAPU32[ptr >> 2] = length >> shift;
+          HEAPU32[((ptr)>>2)] = length >> shift;
   
           encodeString(value, ptr + 4, length + charSize);
   
@@ -3191,12 +3183,6 @@ var tempI64;
       var invoker = kind === /* CONSTRUCTOR */ 1 ? 'new func' : 'func.call';
       functionBody +=
         `  var rv = ${invoker}(${argsList.join(", ")});\n`;
-      for (var i = 0; i < argCount; ++i) {
-        if (types[i]['deleteObject']) {
-          functionBody +=
-            `  argType${i}.deleteObject(arg${i});\n`;
-        }
-      }
       if (!retType.isVoid) {
         params.push("emval_returnValue");
         args.push(emval_returnValue);
@@ -3392,7 +3378,6 @@ init_ClassHandle();
 init_embind();;
 init_RegisteredPointer();
 UnboundTypeError = Module['UnboundTypeError'] = extendError(Error, 'UnboundTypeError');;
-handleAllocatorInit();
 init_emval();;
 var wasmImports = {
   /** @export */
@@ -3479,7 +3464,6 @@ var ___wasm_call_ctors = () => (___wasm_call_ctors = wasmExports['__wasm_call_ct
 var _malloc = Module['_malloc'] = (a0) => (_malloc = Module['_malloc'] = wasmExports['malloc'])(a0);
 var _free = Module['_free'] = (a0) => (_free = Module['_free'] = wasmExports['free'])(a0);
 var ___getTypeName = (a0) => (___getTypeName = wasmExports['__getTypeName'])(a0);
-var ___errno_location = () => (___errno_location = wasmExports['__errno_location'])();
 var stackSave = () => (stackSave = wasmExports['stackSave'])();
 var stackRestore = (a0) => (stackRestore = wasmExports['stackRestore'])(a0);
 var stackAlloc = (a0) => (stackAlloc = wasmExports['stackAlloc'])(a0);
@@ -3562,7 +3546,6 @@ run();
 }
 );
 })();
-;
 if (typeof exports === 'object' && typeof module === 'object')
   module.exports = Recast;
 else if (typeof define === 'function' && define['amd'])
