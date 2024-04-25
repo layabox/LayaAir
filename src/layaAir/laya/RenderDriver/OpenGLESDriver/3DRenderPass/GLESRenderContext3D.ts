@@ -87,7 +87,7 @@ export class GLESRenderContext3D implements IRenderContext3D {
         this.cameraUpdateMask = 0;
     }
     setRenderTarget(value: GLESInternalRT, clearFlag: RenderClearFlag): void {
-        this._nativeObj.setRenderTarget(value._nativeObj, clearFlag);
+        this._nativeObj.setRenderTarget(value?value._nativeObj:null, clearFlag);
     }
     setViewPort(value: Viewport): void {
         this._nativeObj.setViewport(value);
