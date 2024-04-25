@@ -70,14 +70,15 @@ export class Config {
      * 是否打印Webgl指令，同时定位webgl报错
      */
     static printWebglOrder: boolean = false;
-    
+
     /**在IOS下，一些字体会找不到，引擎提供了字体映射功能，比如默认会把 "黑体" 映射为 "黑体-简"，更多映射，可以自己添加*/
     static fontFamilyMap: any = { "报隶": "报隶-简", "黑体": "黑体-简", "楷体": "楷体-简", "兰亭黑": "兰亭黑-简", "隶变": "隶变-简", "凌慧体": "凌慧体-简", "翩翩体": "翩翩体-简", "苹方": "苹方-简", "手札体": "手札体-简", "宋体": "宋体-简", "娃娃体": "娃娃体-简", "魏碑": "魏碑-简", "行楷": "行楷-简", "雅痞": "雅痞-简", "圆体": "圆体-简" };
 
     /**tempConfig Fixed number of frames */
     static fixedFrames: boolean = true;
-	/*资源引用参数为0是否立即删除资源，如果不立即删除请调用DestrotyUnUse*/
+    /*资源引用参数为0是否立即删除资源，如果不立即删除请调用DestrotyUnUse*/
     static destroyResourceImmediatelyDefault = true;
-
+    /**@internal */
+    static _enableWindowRAFFunction: boolean = true;
 }
 
