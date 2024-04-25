@@ -5,6 +5,7 @@ export class BasePoly {
 
     private static tempData: any[] = new Array(256);
     private static vec2: Vector2;
+    private static tempIndexs: any[] = new Array(4);
 
     private static _checkMinAngle(p1x: number, p1y: number, p2x: number, p2y: number, p3x: number, p3y: number): boolean {
         // 计算相邻线段的方向向量
@@ -107,19 +108,19 @@ export class BasePoly {
         if (p2x == points[0] && p2y == points[1]) {
             p3x = points[2];
             p3y = points[3];
-            // let len = result.length;
-            // result[startIndex] = result[len - 4];
-            // result[startIndex + 1] = result[len - 3];
-            // result[startIndex + 2] = result[len - 2];
-            // result[startIndex + 3] = result[len - 1];
-            let last=result.length/2;
-            indexBase+=4;
-            this._setMiddleVertexs(p1x, p1y, p2x, p2y, p3x, p3y, w, result, this.vec2, indices, indexBase,[last-2,last-1,0,1]);
+            let last = result.length / 2;
+            indexBase += 4;
+            let tempData = BasePoly.tempData;
+            tempData[0] = last - 2;
+            tempData[1] = last - 1;
+            tempData[2] = 0;
+            tempData[3] = 1;
+            this._setMiddleVertexs(p1x, p1y, p2x, p2y, p3x, p3y, w, result, this.vec2, indices, indexBase, tempData);
         }
         return result;
     }
 
-    private static _setMiddleVertexs(x1: number, y1: number, x2: number, y2: number, x3: number, y3: number, w: number, vertexs: number[], out: Vector2, indices: number[], indexBase: number,now:number[]=null) {
+    private static _setMiddleVertexs(x1: number, y1: number, x2: number, y2: number, x3: number, y3: number, w: number, vertexs: number[], out: Vector2, indices: number[], indexBase: number, edgeIndexArray: number[] = null) {
         this.getNormal(x1, y1, x2, y2, w, out);
         let perpx = out.x;
         let perpy = out.y;
@@ -127,13 +128,13 @@ export class BasePoly {
         let perp2x = out.x;
         let perp2y = out.y;
         if (this._checkMinAngle(x1, y1, x2, y2, x3, y3)) {
-            if(!now){
+            if (!edgeIndexArray) {
                 vertexs.push(x2 - perpx, y2 - perpy, x2 + perpx, y2 + perpy);
                 vertexs.push(x2 - perp2x, y2 - perp2y, x2 + perp2x, y2 + perp2y);
                 indices.push(indexBase + 0, indexBase + 1, indexBase + 3, indexBase + 3, indexBase + 2, indexBase + 0);
             }
-            else{
-                indices.push(now[0], now[1], now[3], now[3], now[2], now[0]);
+            else {
+                indices.push(edgeIndexArray[0], edgeIndexArray[1], edgeIndexArray[3], edgeIndexArray[3], edgeIndexArray[2], edgeIndexArray[0]);
             }
             return false;
         }
@@ -153,7 +154,7 @@ export class BasePoly {
         }
         let px = (b1 * c2 - b2 * c1) / denom;
         let py = (a2 * c1 - a1 * c2) / denom;
-        if(!now){
+        if (!edgeIndexArray) {
             vertexs.push(x2 - perpx, y2 - perpy, x2 + perpx, y2 + perpy);
             if (denom > 0) {
                 vertexs.push(px, py, x2, y2);
@@ -167,16 +168,16 @@ export class BasePoly {
             }
             vertexs.push(x2 - perp2x, y2 - perp2y, x2 + perp2x, y2 + perp2y);
         }
-        else{
-            if(denom>0){
+        else {
+            if (denom > 0) {
                 vertexs.push(px, py, x2, y2);
-                indices.push(now[0],indexBase+0, now[2]);
-                indices.push(now[2],indexBase+1, now[0]);
+                indices.push(edgeIndexArray[0], indexBase + 0, edgeIndexArray[2]);
+                indices.push(edgeIndexArray[2], indexBase + 1, edgeIndexArray[0]);
             }
-            else{
+            else {
                 vertexs.push(x2 - (px - x2), y2 - (py - y2), x2, y2);
-                indices.push(now[1],indexBase+0, now[3]);
-                indices.push(now[3],indexBase+1, now[1]);
+                indices.push(edgeIndexArray[1], indexBase + 0, edgeIndexArray[3]);
+                indices.push(edgeIndexArray[3], indexBase + 1, edgeIndexArray[1]);
             }
         }
         //vertexs.push(px, py, x2 - (px - x2), y2 - (py - y2));
