@@ -232,7 +232,7 @@ export class Component {
 
         if (this.owner)
             this.owner._destroyComponent(this);
-        else if(!this.destroyed)
+        else if (!this.destroyed)
             this._destroy(true);
     }
 
@@ -241,12 +241,15 @@ export class Component {
      */
     _destroy(second?: boolean): void {
         if (second) {
-            this._onDestroy();
-            this.onDestroy();
-            if (this.onReset) {
-                this.onReset();
-                this._resetComp();
-                Pool.recoverByClass(this);
+            if (LayaEnv.isPlaying || this.runInEditor) {
+                this._onDestroy();
+                this.onDestroy();
+
+                if (this.onReset) {
+                    this.onReset();
+                    this._resetComp();
+                    Pool.recoverByClass(this);
+                }
             }
             return;
         }
@@ -254,8 +257,10 @@ export class Component {
         this._setActive(false);
         this._status = 4;
 
-        let driver = (this.owner._is3D && this.owner._scene)?._componentDriver || ILaya.stage._componentDriver;
-        driver._toDestroys.add(this);
+        if (LayaEnv.isPlaying || this.runInEditor) {
+            let driver = (this.owner._is3D && this.owner._scene)?._componentDriver || ILaya.stage._componentDriver;
+            driver._toDestroys.add(this);
+        }
     }
 
     /**
