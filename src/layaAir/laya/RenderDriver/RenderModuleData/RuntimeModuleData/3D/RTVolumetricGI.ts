@@ -17,7 +17,7 @@ export class RTVolumetricGI implements IVolumetricGIData {
     }
     public set irradiance(value: InternalTexture) {
         this._irradiance = value;
-        this._nativeObj.setIrradiance(value);
+        this._nativeObj.setIrradiance((value as any)._nativeObj);
     }
     private _distance: InternalTexture;
     public get distance(): InternalTexture {
@@ -25,7 +25,7 @@ export class RTVolumetricGI implements IVolumetricGIData {
     }
     public set distance(value: InternalTexture) {
         this._distance = value;
-        this._nativeObj.setDistance(value);
+        this._nativeObj.setDistance((value as any)._nativeObj);
     }
     private _bound: Bounds;
     public get bound(): Bounds {

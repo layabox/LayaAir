@@ -12,6 +12,7 @@ import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture
 import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
 import { RTDefineDatas } from "../../RenderModuleData/RuntimeModuleData/RTDefineDatas";
 import { RTShaderDefine } from "../../RenderModuleData/RuntimeModuleData/RTShaderDefine";
+import { GLESInternalTex } from "./GLESInternalTex";
 
 export class GLESShaderData extends ShaderData {
     nativeObjID: number;
@@ -345,7 +346,7 @@ export class GLESShaderData extends ShaderData {
         //维护Reference
         this._textureData[index] = value;
         if (value) {
-            this._setInternalTexture(index, value._texture);
+            this._setInternalTexture(index, (value._texture as GLESInternalTex)._nativeObj);
         }
         lastValue && lastValue._removeReference();
         value && value._addReference();

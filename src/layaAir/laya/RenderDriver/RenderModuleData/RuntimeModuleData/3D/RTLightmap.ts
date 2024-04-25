@@ -2,10 +2,10 @@ import { InternalTexture } from "../../../DriverDesign/RenderDevice/InternalText
 import { ILightMapData } from "../../Design/3D/I3DRenderModuleData";
 
 export class RTLightmapData implements ILightMapData {
-     /**@internal */
-     _lightmapColor: InternalTexture;
-     /**@internal */
-     _lightmapDirection: InternalTexture;
+    /**@internal */
+    _lightmapColor: InternalTexture;
+    /**@internal */
+    _lightmapDirection: InternalTexture;
     _nativeObj: any;
 
     constructor() {
@@ -16,14 +16,14 @@ export class RTLightmapData implements ILightMapData {
     }
     public set lightmapColor(value: InternalTexture) {
         this._lightmapColor = value;
-        this._nativeObj.setLightmapColor(value);
+        this._nativeObj.setLightmapColor((value as any)._nativeObj);
     }
     public get lightmapDirection(): InternalTexture {
         return this._lightmapDirection;
     }
     public set lightmapDirection(value: InternalTexture) {
         this._lightmapDirection = value;
-        this._nativeObj.setLightmapDirection(value);
+        this._nativeObj.setLightmapDirection((value as any)._nativeObj);
     }
     destroy(): void {
         this._nativeObj.destroy();

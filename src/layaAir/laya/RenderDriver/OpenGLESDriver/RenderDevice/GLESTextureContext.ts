@@ -60,7 +60,7 @@ export class GLESTextureContext implements ITextureContext {
             return;
         }
         //TODO
-        throw new Error("setTextureSubImageData Method not implemented.");
+        throw "native not need this function"
     }
 
     setTexture3DImageData(texture: GLESInternalTex, source: HTMLImageElement[] | HTMLCanvasElement[] | ImageBitmap[], depth: number, premultiplyAlpha: boolean, invertY: boolean): void {

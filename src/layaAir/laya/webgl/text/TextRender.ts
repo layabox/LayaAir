@@ -682,22 +682,4 @@ export class TextRender extends EventDispatcher{
         ILaya.stage.addChild(sp);
         return sp;
     }
-
-    /////// native ///////
-    // filltext_native(ctx: Context, data: string | WordText, x: number, y: number, fontStr: string, color: string, strokeColor: string, lineWidth: number, textAlign: string): void {
-    //     if (data && data.length <= 0) return;
-
-    //     var font = FontInfo.parse(fontStr);
-
-    //     var nTextAlign = 0;
-    //     switch (textAlign) {
-    //         case 'center':
-    //             nTextAlign = Const.ENUM_TEXTALIGN_CENTER;
-    //             break;
-    //         case 'right':
-    //             nTextAlign = Const.ENUM_TEXTALIGN_RIGHT;
-    //             break;
-    //     }
-    //     return this._fast_filltext(ctx, data, x, y, font, color, strokeColor, lineWidth, nTextAlign);
-    // }
 }
