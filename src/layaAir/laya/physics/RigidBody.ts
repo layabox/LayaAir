@@ -160,8 +160,9 @@ export class RigidBody extends Component {
             var pos = Vector2.TempVector2;
             factory.get_RigidBody_Position(this.body, pos);
             var sp: Sprite = (<Sprite>this.owner);
-            sp.setGlobalPos(pos.x, pos.y);
             sp.globalRotation = Utils.toAngle(factory.get_RigidBody_Angle(this.body));
+            sp.setGlobalPos(pos.x, pos.y);
+            
         }
     }
 
@@ -401,8 +402,8 @@ export class RigidBody extends Component {
      * @param x (单位： 像素)
      * @param y (单位： 像素)
     */
-    GetWorldPoint(x: number, y: number) {
-        return (<Sprite>this.owner).getGlobalMatrix().transformPoint(Point.TEMP.setTo(x, y))
+    getWorldPoint(x: number, y: number):Point{
+        return (<Sprite>this.owner)._getGlobalCacheLocalToGlobal(x,y);
     }
 
     /** 
@@ -410,8 +411,8 @@ export class RigidBody extends Component {
      * @param x (单位： 像素)
      * @param y (单位： 像素)
     */
-    GetLocalPoint(x: number, y: number) {
-        return (<Sprite>this.owner).getGlobalMatrix().invertTransformPoint(Point.TEMP.setTo(x, y))
+    getLocalPoint(x: number, y: number):Point{
+        return (<Sprite>this.owner)._getGlobalCacheGlobalToLocal(x,y);
     }
 
 }

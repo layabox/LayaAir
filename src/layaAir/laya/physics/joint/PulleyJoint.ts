@@ -39,13 +39,13 @@ export class PulleyJoint extends JointBase {
             var def: physics2D_PulleyJointDef = PulleyJoint._temp || (PulleyJoint._temp = new physics2D_PulleyJointDef);
             def.bodyA = this.otherBody.getBody();
             def.bodyB = this.selfBody.getBody();
-            var posA: Point = this.otherBody.GetWorldPoint(this.otherAnchor[0], this.otherAnchor[1]);
+            var posA: Point = this.otherBody.getWorldPoint(this.otherAnchor[0], this.otherAnchor[1]);
             def.localAnchorA.setValue(posA.x, posA.y);
-            var posB: Point = this.selfBody.GetWorldPoint(this.selfAnchor[0], this.selfAnchor[1]);
+            var posB: Point = this.selfBody.getWorldPoint(this.selfAnchor[0], this.selfAnchor[1]);
             def.localAnchorB.setValue(posB.x, posB.y);
-            var groundA: Point = this.otherBody.GetWorldPoint(this.otherGroundPoint[0], this.otherGroundPoint[1]);
+            var groundA: Point = this.otherBody.getWorldPoint(this.otherGroundPoint[0], this.otherGroundPoint[1]);
             def.groundAnchorA.setValue(groundA.x, groundA.y);
-            var groundB: Point = this.selfBody.GetWorldPoint(this.selfGroundPoint[0], this.selfGroundPoint[1]);
+            var groundB: Point = this.selfBody.getWorldPoint(this.selfGroundPoint[0], this.selfGroundPoint[1]);
             def.groundAnchorB.setValue(groundB.x, groundB.y);
             def.ratio = this.ratio;
             def.collideConnected = this.collideConnected;
