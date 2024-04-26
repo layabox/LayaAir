@@ -1,6 +1,10 @@
 import { Vector2 } from "../../maths/Vector2";
 // 引入角度阈值，用于判断是否为尖角
 const minAngle = 15 * Math.PI / 180; // 15度的弧度值
+/**
+ * 精度
+ */
+const precision = 1e-13;
 export class BasePoly {
 
     private static tempData: any[] = new Array(256);
@@ -60,8 +64,14 @@ export class BasePoly {
             }
         }
         //如果终点和起点没有重合，且要求loop的情况的处理
-        if (loop && Math.abs(p[0] - points[newlen - 2]) + Math.abs(p[1] - points[newlen - 1]) > 0) {
-            points[newlen++] = p[0]; points[newlen++] = p[1];
+        let delta=Math.abs(p[0] - points[newlen - 2]) + Math.abs(p[1] - points[newlen - 1]);
+        if (loop && delta > 0) {
+            if(delta>precision){
+                points[newlen++] = p[0]; points[newlen++] = p[1];
+            }
+            else{
+                points[newlen-2] = p[0]; points[newlen-1] = p[1];
+            }
         }
 
         var result: any[] = outVertex;
