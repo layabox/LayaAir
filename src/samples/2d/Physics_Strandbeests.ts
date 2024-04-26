@@ -55,7 +55,6 @@ export class Physics_Strandbeests {
     }
 
     Construct() {
-        debugger;
         // Ground
         let ground = new Sprite();
         ground.name = "ground"
@@ -65,7 +64,9 @@ export class Physics_Strandbeests {
         ground.addComponentInstance(rigidbody);
         let chainCollider: ChainCollider = new ChainCollider();
         chainCollider.datas = [50, 200, 50, 570, 1050, 570, 1050, 200];
+
         ground.addComponentInstance(chainCollider);
+
         // Balls
         for (let i = 1; i <= 32; i++) {
             let small = new Sprite();

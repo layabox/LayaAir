@@ -160,8 +160,9 @@ export class RigidBody extends Component {
             var pos = Vector2.TempVector2;
             factory.get_RigidBody_Position(this.body, pos);
             var sp: Sprite = (<Sprite>this.owner);
-            sp.setGlobalPos(pos.x, pos.y);
             sp.globalRotation = Utils.toAngle(factory.get_RigidBody_Angle(this.body));
+            sp.setGlobalPos(pos.x, pos.y);
+            
         }
     }
 
