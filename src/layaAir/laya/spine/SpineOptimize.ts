@@ -20,6 +20,8 @@ export class SpineOptimize {
     slotMap: { [key: number]: ISlotExtend } = {};
     isInit: boolean = false;
 
+    animationType: Map<string, ERenderType>;
+
     mesh: ISpineMesh;
     private _type: ERenderType;
 
@@ -29,6 +31,17 @@ export class SpineOptimize {
     constructor() {
         this.mapIndex = new Map();
         this._type = ERenderType.normal;
+        this.animationType = new Map();
+    }
+
+    static checkOptimizable(animation: spine.Animation): boolean {
+        for (let i = 0, n = animation.timelines.length; i < n; i++) {
+            let timeline = animation.timelines[i];
+            if (timeline instanceof spine.AttachmentTimeline || timeline instanceof spine.DrawOrderTimeline) {
+                return false;
+            }
+        }
+        return true;
     }
 
     setType(type: ERenderType) {
@@ -45,6 +58,14 @@ export class SpineOptimize {
             default:
                 break;
         }
+    }
+
+    getRenderType(animationName: string) {
+        let type = this.animationType.get(animationName);
+        if (type == undefined) {
+            type = ERenderType.normal;
+        }
+        return type;
     }
 
     _initSpineRender(skeleton: spine.Skeleton, templet: SpineTemplet, graphics: Graphics) {
@@ -106,6 +127,9 @@ export class SpineOptimize {
                 this.slots.push(slotex);
             }
             return slotex;
+        }
+        else if (attachment) {
+            debugger;
         }
         return null;
     }

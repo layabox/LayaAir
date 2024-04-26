@@ -1,7 +1,8 @@
-import { RenderState } from "laya/RenderDriver/RenderModuleData/Design/RenderState";
-import { Material } from "laya/resource/Material";
+import { RenderState } from "../../RenderDriver/RenderModuleData/Design/RenderState";
+import { Material } from "../../resource/Material";
 import { SpineMaterialBase } from "./SpineMaterialBase";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
+
 
 export class SpineRBMaterial extends SpineMaterialBase {
     static BONEMAT: number;

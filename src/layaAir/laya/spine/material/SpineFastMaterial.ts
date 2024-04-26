@@ -1,10 +1,8 @@
-import { ShaderDataType } from "laya/RenderDriver/DriverDesign/RenderDevice/ShaderData";
-import { RenderState } from "laya/RenderDriver/RenderModuleData/Design/RenderState";
-import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
-import { LayaGL } from "laya/layagl/LayaGL";
-import { Material } from "laya/resource/Material";
+import { RenderState } from "../../RenderDriver/RenderModuleData/Design/RenderState";
+import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
+import { Material } from "../../resource/Material";
 import { SpineMaterialBase } from "./SpineMaterialBase";
-import { Vector3 } from "../../maths/Vector3";
+
 
 export class SpineFastMaterial extends SpineMaterialBase {
     static BONEMAT: number;

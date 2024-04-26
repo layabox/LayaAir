@@ -1,14 +1,18 @@
 import textureSpine_vs from '../files/textureRBSpine.vs.glsl';
 import textureSpine_ps from '../files/textureSpine.ps.glsl';
-import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
-import { ShaderDataType } from "laya/RenderDriver/DriverDesign/RenderDevice/ShaderData";
-import { SubShader } from "laya/RenderEngine/RenderShader/SubShader";
-import { VertexDeclaration } from 'laya/RenderEngine/VertexDeclaration';
-import { VertexElementFormat } from 'laya/renders/VertexElementFormat';
-import { VertexElement } from 'laya/renders/VertexElement';
+import { Shader3D } from '../../RenderEngine/RenderShader/Shader3D';
+import { ShaderDataType } from '../../RenderDriver/DriverDesign/RenderDevice/ShaderData';
+import { SubShader } from '../../RenderEngine/RenderShader/SubShader';
+import { VertexDeclaration } from '../../RenderEngine/VertexDeclaration';
+import { VertexElementFormat } from '../../renders/VertexElementFormat';
+import { VertexElement } from '../../renders/VertexElement';
 import { Laya } from '../../../Laya';
 import { SpineRBMaterial } from './SpineRBMaterial';
-import { VertexMesh } from '../../RenderEngine/RenderShader/VertexMesh';
+
+
+
+
+
 
 export class SpineRBMaterialShaderInit {
     static textureSpineShader: Shader3D;
