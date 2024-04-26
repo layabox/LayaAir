@@ -401,8 +401,8 @@ export class RigidBody extends Component {
      * @param x (单位： 像素)
      * @param y (单位： 像素)
     */
-    GetWorldPoint(x: number, y: number) {
-        return (<Sprite>this.owner).getGlobalMatrix().transformPoint(Point.TEMP.setTo(x, y))
+    getWorldPoint(x: number, y: number):Point{
+        return (<Sprite>this.owner)._getGlobalCacheLocalToGlobal(x,y);
     }
 
     /** 
@@ -410,8 +410,8 @@ export class RigidBody extends Component {
      * @param x (单位： 像素)
      * @param y (单位： 像素)
     */
-    GetLocalPoint(x: number, y: number) {
-        return (<Sprite>this.owner).getGlobalMatrix().invertTransformPoint(Point.TEMP.setTo(x, y))
+    getLocalPoint(x: number, y: number):Point{
+        return (<Sprite>this.owner)._getGlobalCacheGlobalToLocal(x,y);
     }
 
 }

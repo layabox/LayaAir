@@ -1903,7 +1903,6 @@ export class Sprite extends Node {
             this.x = point.x;
             this.y = point.y;
         } else {
-
             let point = (<Sprite>this.parent).getGlobalMatrix().invertTransformPoint(Point.TEMP.setTo(globalx, globaly));
             this._setX(point.x);
             this._setY(point.y);
@@ -2074,6 +2073,30 @@ export class Sprite extends Node {
         return (this._globalDeltaFlages & type) != 0;
     }
 
+    /**
+     * @internal 
+     */
+    _getGlobalCacheLocalToGlobal(x:number,y:number):Point{
+        if (this._cacheGlobal) {
+            return this.getGlobalMatrix().transformPoint(Point.TEMP.setTo(this.pivotX+x, this.pivotY+y));
+        } else {
+            return this.localToGlobal(Point.TEMP.setTo(x, y), false, null);
+        }
+    }
+
+    /**
+     * @internal 
+     */
+    _getGlobalCacheGlobalToLocal(x:number,y:number):Point{
+        if (this._cacheGlobal) {
+            let point = this.getGlobalMatrix().invertTransformPoint(Point.TEMP.setTo(x, y));
+            point.x -= this.pivotX;
+            point.y -= this.pivotY;
+            return point;
+        } else {
+            return this.globalToLocal(Point.TEMP.setTo(x, y), false, null);
+        }
+    }
     /**
      * @internal 
      */

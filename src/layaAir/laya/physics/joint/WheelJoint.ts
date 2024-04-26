@@ -55,7 +55,7 @@ export class WheelJoint extends JointBase {
             if (!this.selfBody) throw "selfBody can not be empty";
 
             var def: physics2D_WheelJointDef = WheelJoint._temp || (WheelJoint._temp = new physics2D_WheelJointDef());
-            var anchorPos: Point = this.selfBody.GetWorldPoint(this.anchor[0], this.anchor[1]);
+            var anchorPos: Point = this.selfBody.getWorldPoint(this.anchor[0], this.anchor[1]);
             def.anchor.setValue(anchorPos.x, anchorPos.y);
             let radian = Utils.toRadian(this.angle);
             def.axis.setValue(Math.cos(radian), Math.sin(radian));

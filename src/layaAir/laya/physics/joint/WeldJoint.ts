@@ -32,7 +32,7 @@ export class WeldJoint extends JointBase {
             if (!this.selfBody) throw "selfBody can not be empty";
 
             var def: physics2D_WeldJointDef = WeldJoint._temp || (WeldJoint._temp = new physics2D_WeldJointDef());
-            var anchorPos: Point = this.selfBody.GetWorldPoint(this.anchor[0], this.anchor[1]);
+            var anchorPos: Point = this.selfBody.getWorldPoint(this.anchor[0], this.anchor[1]);
             def.bodyA = this.otherBody.getBody();
             def.bodyB = this.selfBody.getBody();
             def.anchor.setValue(anchorPos.x, anchorPos.y);
