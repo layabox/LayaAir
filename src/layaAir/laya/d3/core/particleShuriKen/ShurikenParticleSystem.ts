@@ -761,8 +761,8 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
                         }
                         else {
                             shaDat.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SIZEOVERLIFETIMERANDOMCURVES);
-                            size.gradient._formatData();
                             size.gradientMin._formatData();
+                            size.gradientMax._formatData();
                             shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.SOLSIZEGRADIENT, size.gradientMin._elements);
                             shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.SOLSizeGradientMax, size.gradientMax._elements);
                         }
