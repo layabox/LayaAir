@@ -81,6 +81,9 @@ export class Browser {
     /** 全局离线画布上绘图的环境（非主画布）。 */
     static context: CanvasRenderingContext2D;
 
+    /** 小游戏平台服务对象 */
+    static miniGameContext: any;
+
     /** @private */
     private static _window: any;
     /** @private */
@@ -126,125 +129,71 @@ export class Browser {
         let u: string = Browser.userAgent = win.navigator.userAgent;
         let maxTouchPoints: number = win.navigator.maxTouchPoints || 0;
         let platform: string = win.navigator.platform;
+        let miniGame: [string, string, string];
 
+        //微信小游戏
         if (!!(window as any).conch && "conchUseWXAdapter" in Browser.window) {
-            (window as any).wxMiniGame(Laya, Laya);
-            Laya["MiniAdpter"].enable();
+            miniGame = ["wxMiniGame", "MiniAdpter", "wx"];
         }
         //阿里小游戏
         if ("my" in Browser.window) {
             if (u.indexOf('TB/') > -1 || u.indexOf('Taobao/') > -1 || u.indexOf('TM/') > -1) {
-                //这里需要手动初始化阿里适配库
-                (window as any).tbMiniGame(Laya, Laya);
-                if (!Laya["TBMiniAdapter"]) {
-                    console.error("请先添加淘宝适配库");
-                } else {
-                    Laya["TBMiniAdapter"].enable();
-                }
+                miniGame = ["tbMiniGame", "TBMiniAdapter", "my"];
             } else if (u.indexOf('AlipayMiniGame') > -1) {
-                //这里需要手动初始化阿里适配库
-                (window as any).aliPayMiniGame(Laya, Laya);
-                if (!Laya["ALIMiniAdapter"]) {
-                    console.error("请先添加阿里小游戏适配库");
-                } else {
-                    Laya["ALIMiniAdapter"].enable();
-                }
+                miniGame = ["aliPayMiniGame", "ALIMiniAdapter", "my"];
             }
         }
 
         if (((u.indexOf('OPPO') == -1 && u.indexOf("MiniGame") > -1) || u.indexOf('runtime') != -1 || (u.indexOf('miniprogram') != -1 && (window as any).isWXMiMi)) && "wx" in Browser.window) {
             if ("tt" in Browser.window) {
                 //抖音小游戏
-                (window as any).ttMiniGame(Laya, Laya);
-                if (!Laya["TTMiniAdapter"]) {
-                    //TODO
-                    console.error("请引入抖音小游戏的适配库，详细教程：https://layaair.com/3.x/doc/released/miniGame/byteDance/readme.html");
-                } else {
-                    Laya["TTMiniAdapter"].enable();
-                }
+                miniGame = ["ttMiniGame", "TTMiniAdapter", "tt"];
             } else if ("bl" in Browser.window) {
                 //手机B站小游戏
-                (window as any).biliMiniGame(Laya, Laya);
-                if (!Laya["BLMiniAdapter"]) {
-                    console.error("请引入bilibili小游戏的适配库");
-                } else {
-                    Laya["BLMiniAdapter"].enable();
-                }
+                miniGame = ["biliMiniGame", "BLMiniAdapter", null];
             }
             else if ("qq" in Browser.window) {
                 //手机QQ小游戏
-                (window as any).qqMiniGame(Laya, Laya);
-                if (!Laya["QQMiniAdapter"]) {
-                    console.error("请引入手机QQ小游戏的适配库");
-                } else {
-                    Laya["QQMiniAdapter"].enable();
-                }
+                miniGame = ["qqMiniGame", "QQMiniAdapter", null];
             }
             else {
                 //微信小游戏
-                (window as any).wxMiniGame(Laya, Laya);
-                if (!Laya["MiniAdpter"]) {
-                    console.error("请先添加小游戏适配库,详细教程：https://layaair.com/3.x/doc/released/miniGame/wechat/readme.html");
-                    //TODO 教程要改
-                } else {
-                    Laya["MiniAdpter"].enable();
-                }
+                miniGame = ["wxMiniGame", "MiniAdpter", "wx"];
             }
         }
         //华为快游戏
         if ("hbs" in Browser.window) {
-            (window as any).hwMiniGame(Laya, Laya);
-            if (!Laya["HWMiniAdapter"]) {
-                console.error("请先添加小游戏适配库!");
-                //TODO 教程要改
-            } else {
-                Laya["HWMiniAdapter"].enable();
-            }
+            miniGame = ["hwMiniGame", "HWMiniAdapter", null];
         }
 
         //百度小游戏
         if (u.indexOf("SwanGame") > -1) {
-            (window as any).bdMiniGame(Laya, Laya);
-            if (!Laya["BMiniAdapter"]) {
-                console.error("请先添加百度小游戏适配库");
-                //TODO 教程要改
-            } else {
-                Laya["BMiniAdapter"].enable();
-            }
+            miniGame = ["bdMiniGame", "BMiniAdapter", null];
         }
 
         //小米小游戏
         if (u.indexOf('QuickGame') > -1) {
-            (window as any).miMiniGame(Laya, Laya);
-            if (!Laya["KGMiniAdapter"]) {
-                console.error("请先添加小米小游戏适配库,详细教程：https://layaair.com/3.x/doc/released/miniGame/xiaomi/readme.html");
-            } else {
-                Laya["KGMiniAdapter"].enable();
-            }
+            miniGame = ["miMiniGame", "KGMiniAdapter", "qg"];
         }
 
         //OPPO小游戏
         if (u.indexOf('OPPO') > -1 && u.indexOf('MiniGame') > -1) {
-            (window as any).qgMiniGame(Laya, Laya);
-            if (!Laya["QGMiniAdapter"]) {
-                console.error("请先添加OPPO小游戏适配库,详细教程：https://layaair.com/3.x/doc/released/miniGame/OPPO/readme.html");
-            } else {
-                //temp oppo 需要修改交换链的功能
-                Config.fixedFrames = false;
-                Laya["QGMiniAdapter"].enable();
-            }
+            miniGame = ["qgMiniGame", "QGMiniAdapter", "qg"];
+            //temp oppo 需要修改交换链的功能
+            Config.fixedFrames = false;
         }
 
         //VIVO小游戏
         if (u.indexOf('VVGame') > -1) {
-            (window as any).vvMiniGame(Laya, Laya);
-            if (!Laya["VVMiniAdapter"]) {
-                console.error("请先添加VIVO小游戏适配库,详细教程：https://layaair.com/3.x/doc/released/miniGame/vivo/readme.html");
-            } else {
-                //temp oppo 需要修改交换链的功能
-                Config.fixedFrames = false;
-                Laya["VVMiniAdapter"].enable();
-            }
+            miniGame = ["vvMiniGame", "VVMiniAdapter", "qg"];
+            //temp oppo 需要修改交换链的功能
+            Config.fixedFrames = false;
+        }
+
+        if (miniGame != null) {
+            Browser.window[miniGame[0]](Laya, Laya);
+            Laya[miniGame[1]].enable();
+            Browser.miniGameContext = Browser.window[miniGame[2]];
         }
 
         //新增trace的支持
@@ -489,6 +438,20 @@ export class Browser {
     // Safari横屏工具栏偏移
     static getSafariToolbarOffset() {
         return (Browser.window.__innerHeight || Browser.document.body.clientHeight || Browser.document.documentElement.clientHeight) - Browser.window.innerHeight;
+    }
+
+    static loadLib(src: string) {
+        return new Promise<void>((resolve, reject) => {
+            let script = Browser.document.createElement('script');
+            script.onload = function () {
+                resolve();
+            };
+            script.onerror = function () {
+                reject(`load ${src} failed`);
+            };
+            script.src = src;
+            Browser.document.body.appendChild(script);
+        });
     }
 }
 
