@@ -214,7 +214,12 @@ export class WebGLRender3DProcess implements IRender3DProcess {
 
     }
 
-    //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_Render_CameraEventCMD)
+    /**
+     * @param cmds
+     * @param context
+     * @private
+     * @perfTag PerformanceDefine.T_Render_CameraEventCMD
+     */
     private _rendercmd(cmds: CommandBuffer[], context: WebGLRenderContext3D) {
         if (!cmds || cmds.length == 0)
             return;
@@ -223,7 +228,12 @@ export class WebGLRender3DProcess implements IRender3DProcess {
         });
     }
     
-    //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_Render_PostProcess)
+    /**
+     * @param postprocessCMD
+     * @param context
+     * @private
+     * @perfTag PerformanceDefine.T_Render_PostProcess
+     */
     private _renderPostProcess(postprocessCMD: CommandBuffer, context: WebGLRenderContext3D) {
         context.runCMDList(postprocessCMD._renderCMDs);
     }

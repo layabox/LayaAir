@@ -305,8 +305,8 @@ export class btPhysicsManager implements IPhysicsManager {
 
     /**
      * @internal
+     * @perfTag PerformanceDefine.T_Physics_UpdateNode
      */
-     //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_Physics_UpdateNode)
     private _updatePhysicsTransformToRender(): void {
         var elements: any = this._physicsUpdateList.elements;
         for (var i = 0, n = this._physicsUpdateList.length; i < n; i++) {
@@ -452,8 +452,8 @@ export class btPhysicsManager implements IPhysicsManager {
     /**
      * 这个只是给对象发送事件，不会挨个组件调用碰撞函数
      * 组件要响应碰撞的话，要通过监听事件
+     * @perfTag PerformanceDefine.T_PhysicsEvent
      */
-    //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_PhysicsEvent)
     dispatchCollideEvent(): void {
         let loopCount = this._updateCount;
         for (let i = 0, n = this._currentFrameCollisions.length; i < n; i++) {
@@ -633,7 +633,11 @@ export class btPhysicsManager implements IPhysicsManager {
         this._bt.btCollisionWorld_removeConstraint(this._btDiscreteDynamicsWorld, joint._btJoint);
         delete this._currentConstraint[joint._id];
     }
- //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_Physics_Simulation)
+
+    /**
+     * @param elapsedTime
+     * @perfTag PerformanceDefine.T_Physics_Simulation
+     */
     update(elapsedTime: number): void {
         this._updatePhysicsTransformToRender();
         btCollider._addUpdateList = false;//物理模拟器会触发_updateTransformComponent函数,不加入更新队列
