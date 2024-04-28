@@ -286,7 +286,10 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 
     }
 
-    //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_SkinBoneUpdate)
+    /**
+     * @param context
+     * @perfTag PerformanceDefine.T_SkinBoneUpdate
+     */
     renderUpdate(context: RenderContext3D): void {
         super.renderUpdate(context);
         this._computeSkinnedData();
