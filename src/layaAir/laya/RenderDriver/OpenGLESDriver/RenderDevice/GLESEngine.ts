@@ -7,11 +7,20 @@ import { ITextureContext } from "../../DriverDesign/RenderDevice/ITextureContext
 import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
 import { IDefineDatas } from "../../RenderModuleData/Design/IDefineDatas";
 import { RTShaderDefine } from "../../RenderModuleData/RuntimeModuleData/RTShaderDefine";
-import { WebGLMode } from "../../WebGLDriver/RenderDevice/WebGLEngine/GLEnum/WebGLMode";
 import { WebGLConfig } from "../../WebGLDriver/RenderDevice/WebGLEngine/WebGLConfig";
 import { GLESTextureContext } from "./GLESTextureContext";
 
-
+/**
+ * WebGL mode.
+ */
+export enum GLESMode {
+  /** Auto, use WebGL2.0 if support, or will fallback to WebGL1.0. */
+  Auto = 0,
+  /** WebGL2.0. */
+  WebGL2 = 1,
+  /** WebGL1.0, */
+  WebGL1 = 2
+}
 /**
  * @private 封装Webgl
  */
@@ -21,7 +30,7 @@ export class GLESEngine implements IRenderEngine {
   _renderOBJCreateContext: IRenderEngineFactory;
   _nativeObj: any;
   private _GLTextureContext: GLESTextureContext;
-  constructor(config: WebGLConfig, webglMode: WebGLMode = WebGLMode.Auto) {
+  constructor(config: WebGLConfig, webglMode: GLESMode = GLESMode.Auto) {
     this._nativeObj = new (window as any).conchGLESEngine(config, webglMode);
   }
   public get _enableStatistics(): boolean {
