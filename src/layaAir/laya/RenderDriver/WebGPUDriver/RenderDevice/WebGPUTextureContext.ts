@@ -341,7 +341,7 @@ export class WebGPUTextureContext implements ITextureContext {
             depthOrArrayLayers: layerCount,
         };
         const canCopy = !isCompressTexture;
-        let usage = GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT;
+        let usage = GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST;
         const mipLevelCount = generateMipmap ? Math.max(Math.ceil(Math.log2(width)) + 1, Math.ceil(Math.log2(height)) + 1) : 1;
         if (canCopy)
             usage |= GPUTextureUsage.COPY_DST;
@@ -661,8 +661,64 @@ export class WebGPUTextureContext implements ITextureContext {
     setTextureDDSData(texture: InternalTexture, ddsInfo: DDSTextureInfo): void {
         throw new Error("Method not implemented.");
     }
-    setTextureKTXData(texture: InternalTexture, ktxInfo: KTXTextureInfo): void {
-        throw new Error("Method not implemented.");
+
+    setTextureKTXData(texture: WebGPUInternalTex, ktxInfo: KTXTextureInfo): void {
+        const device = WebGPURenderEngine._instance.getDevice();
+
+        let premultipliedAlpha = false;
+        let invertY = false;
+
+        let width = texture.width;
+        let height = texture.height;
+        let mipmapCount = ktxInfo.mipmapCount;
+
+        texture.maxMipmapLevel = mipmapCount - 1;
+
+        let source = ktxInfo.source;
+        let compressed = ktxInfo.compress;
+
+        let mipmapWidth = width;
+        let mipmapHeight = height;
+        let dataOffset = ktxInfo.headerOffset + ktxInfo.bytesOfKeyValueData;
+        let memory;
+
+        for (let index = 0; index < mipmapCount; index++) {
+
+            let imageSize = new Int32Array(source, dataOffset, 1)[0];
+
+            dataOffset += 4;
+
+            const block = this._getBlockInformationFromFormat(texture._webGPUFormat);
+            const bytesPerRow = Math.ceil(mipmapWidth / block.width) * block.length;
+
+            const size = {
+                width: Math.ceil(mipmapWidth / block.width) * block.width,
+                height: Math.ceil(mipmapHeight / block.height) * block.height,
+            };
+
+            const imageCopy: GPUImageCopyTextureTagged = {
+                texture: texture.resource,
+                mipLevel: index,
+                premultipliedAlpha: premultipliedAlpha
+            }
+
+            let sourceData = new Uint8Array(source, dataOffset, imageSize);
+
+            const dataLayout: GPUImageDataLayout = {
+                offset: 0,
+                bytesPerRow: bytesPerRow,
+                rowsPerImage: mipmapHeight
+            }
+
+            device.queue.writeTexture(imageCopy, sourceData, dataLayout, size);
+
+            dataOffset += imageSize;
+            dataOffset += 3 - ((imageSize + 3) % 4);
+
+            mipmapWidth = Math.max(1, mipmapWidth * 0.5);
+            mipmapHeight = Math.max(1, mipmapHeight * 0.5);
+        }
+
     }
     setTextureHDRData(texture: WebGPUInternalTex, hdrInfo: HDRTextureInfo): void {
         const hdrPixelData = hdrInfo.readScanLine();
@@ -776,6 +832,7 @@ export class WebGPUTextureContext implements ITextureContext {
         const pixelByteSize = this._getGPURenderTexturePixelByteSize(colorFormat);
         const gpuColorFormat = this._getGPURenderTargetFormat(colorFormat, sRGB);
         const gpuColorDescriptor = this._getGPUTextureDescriptor(TextureDimension.Tex2D, width, height, gpuColorFormat, 1, generateMipmap, multiSamples, false);
+        gpuColorDescriptor.usage = GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT;
         const gpuColorTexture = this._engine.getDevice().createTexture(gpuColorDescriptor);
         const internalRT = new WebGPUInternalRT(colorFormat, depthStencilFormat, false, generateMipmap, multiSamples);
         internalRT._textures.push(new WebGPUInternalTex(width, height, 1, TextureDimension.Tex2D, generateMipmap, multiSamples, false, 1));
@@ -784,6 +841,7 @@ export class WebGPUTextureContext implements ITextureContext {
         WebGPUGlobal.action(internalRT._textures[0], 'allocMemory | texture', (width * height * multiSamples * pixelByteSize * (generateMipmap ? 1.33333 : 1)) | 0);
         if (multiSamples > 1) {
             const gpuColorDescriptor = this._getGPUTextureDescriptor(TextureDimension.Tex2D, width, height, gpuColorFormat, 1, generateMipmap, 1, false);
+            gpuColorDescriptor.usage = GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT;
             const gpuColorTexture = this._engine.getDevice().createTexture(gpuColorDescriptor);
             internalRT._texturesResolve.push(new WebGPUInternalTex(width, height, 1, TextureDimension.Tex2D, generateMipmap, 1, false, 1));
             internalRT._texturesResolve[0].resource = gpuColorTexture;
@@ -795,6 +853,7 @@ export class WebGPUTextureContext implements ITextureContext {
             const pixelByteSize = this._getGPURenderTexturePixelByteSize(depthStencilFormat);
             const gpuDepthFormat = this._getGPURenderTargetFormat(depthStencilFormat, false);
             const gpuDepthDescriptor = this._getGPUTextureDescriptor(TextureDimension.Tex2D, width, height, gpuDepthFormat, 1, generateMipmap, multiSamples, false);
+            gpuDepthDescriptor.usage = GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT;
             const gpuDepthTexture = this._engine.getDevice().createTexture(gpuDepthDescriptor);
             internalRT._depthTexture = new WebGPUInternalTex(width, height, 1, TextureDimension.Tex2D, false, multiSamples, false, 1);
             internalRT._depthTexture.resource = gpuDepthTexture;
