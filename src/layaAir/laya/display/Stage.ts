@@ -910,13 +910,7 @@ export class Stage extends Sprite {
             for (let i = 0, n = this._scene3Ds.length; i < n; i++)//更新3D场景,必须提出来,否则在脚本中移除节点会导致BUG
                 (<any>this._scene3Ds[i]).renderSubmit();
             //再渲染2d
-            //PERF_BEGIN(PerformanceDefine.T_UIRender);
-            Stat.draw2D = 0;
-            context2D.startRender();
-            super.render(context2D, x, y);
-            Stat.render(context2D, x, y);
-            context2D.endRender();
-            //PERF_END(PerformanceDefine.T_UIRender);
+            this._render2d(context2D, x, y);
 
             this._componentDriver.callPostRender();
 
@@ -926,6 +920,21 @@ export class Stage extends Sprite {
             this._runComponents();
 
         this._updateTimers();
+    }
+
+    /**
+     * @override
+     * @param context2D
+     * @param x
+     * @param y
+     * @perfTag PerformanceDefine.T_UIRender
+     */
+    private _render2d(context2D: Context, x: number, y: number) {
+        Stat.draw2D = 0;
+        context2D.startRender();
+        super.render(context2D, x, y);
+        Stat.render(context2D, x, y);
+        context2D.endRender();
     }
 
     private _runComponents() {

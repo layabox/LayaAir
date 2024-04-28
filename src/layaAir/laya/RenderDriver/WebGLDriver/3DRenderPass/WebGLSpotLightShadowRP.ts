@@ -122,8 +122,8 @@ export class WebGLSpotLightShadowRP {
 
     /**
     * 更新阴影数据
+    * @perfTag PerformanceDefine.T_Render_ShadowPassMode
     */
-    //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_Render_ShadowPassMode)
     update(context: WebGLRenderContext3D): void {
         var shadowSpotData: ShadowSpotData = this._shadowSpotData;
         this._getSpotLightShadowData(shadowSpotData, this._shadowResolution, this._shadowParams, this._shadowSpotMatrices, this._shadowSpotMapSize);
@@ -132,9 +132,9 @@ export class WebGLSpotLightShadowRP {
     /**
      * render
      * @param context 
-     * @param list 
+     * @param list
+     * @perfTag PerformanceDefine.T_Render_ShadowPassMode
      */
-    //@(<any>window).PERF_STAT((<any>window).PerformanceDefine.T_Render_ShadowPassMode)
     render(context: WebGLRenderContext3D, list: WebBaseRenderNode[], count: number): void {
 
         let originCameraData = context.cameraData;
