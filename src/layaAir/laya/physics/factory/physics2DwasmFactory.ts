@@ -1189,8 +1189,8 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
     get_rigidBody_WorldPoint(body: any, x: number, y: number): IV2 {
         let data = body.GetWorldPoint(this.createPhyFromLayaVec2(x, y))
         return {
-            x:this.phyToLayaValue(data.x),
-            y:this.phyToLayaValue(data.y)
+            x: this.phyToLayaValue(data.x),
+            y: this.phyToLayaValue(data.y)
         };
     }
 
@@ -1203,8 +1203,8 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
         let data = body.GetLocalPoint(this.createPhyFromLayaVec2(x, y))
 
         return {
-            x:this.phyToLayaValue(data.x),
-            y:this.phyToLayaValue(data.y)
+            x: this.phyToLayaValue(data.x),
+            y: this.phyToLayaValue(data.y)
         };
     }
 
