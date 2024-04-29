@@ -312,7 +312,9 @@ export class Value2D {
             this.filters = null;
             this.ref = 1;
             this.clipOff.x = 0;
-            this.clipOff = this.clipOff
+            this.clipOff = this.clipOff;
+            this.texture = null;
+            this.textureHost = null;
         }
     }
 

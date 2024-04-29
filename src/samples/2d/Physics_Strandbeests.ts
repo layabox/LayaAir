@@ -64,7 +64,9 @@ export class Physics_Strandbeests {
         ground.addComponentInstance(rigidbody);
         let chainCollider: ChainCollider = new ChainCollider();
         chainCollider.datas = [50, 200, 50, 570, 1050, 570, 1050, 200];
+
         ground.addComponentInstance(chainCollider);
+
         // Balls
         for (let i = 1; i <= 32; i++) {
             let small = new Sprite();
@@ -109,7 +111,7 @@ export class Physics_Strandbeests {
 
 
 
-        // 转动关节
+        // // 转动关节
         let motorJoint: RevoluteJoint = this.motorJoint = new RevoluteJoint();
         motorJoint.otherBody = chassisBody;
         motorJoint.collideConnected = false;
@@ -130,10 +132,10 @@ export class Physics_Strandbeests {
     }
 
     private getDistance(body: RigidBody, p: number[], body1: RigidBody, p1: number[]) {
-        let g1 = body.GetWorldPoint(p[0], p[1]);
+        let g1 = body.getWorldPoint(p[0], p[1]);
         let x = g1.x;
         let y = g1.y;
-        g1 = body1.GetWorldPoint(p1[0], p1[1]);
+        g1 = body1.getWorldPoint(p1[0], p1[1]);
         return Math.sqrt(Math.pow(g1.x - x, 2) + Math.pow(g1.y - y, 2))
     }
 

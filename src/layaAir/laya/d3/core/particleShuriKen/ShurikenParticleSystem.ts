@@ -562,6 +562,9 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
                         break;
                     case 1:
                         shaDat.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_VELOCITYOVERLIFETIMECURVE);
+                        velocity.gradientX._formatData();
+                        velocity.gradientY._formatData();
+                        velocity.gradientZ._formatData();
                         shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.VOLVELOCITYGRADIENTX, velocity.gradientX._elements);
                         shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.VOLVELOCITYGRADIENTY, velocity.gradientY._elements);
                         shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.VOLVELOCITYGRADIENTZ, velocity.gradientZ._elements);
@@ -572,6 +575,12 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
                         shaDat.setVector3(ShuriKenParticle3DShaderDeclaration.VOLVELOCITYCONSTMAX, velocity.constantMax);
                         break;
                     case 3:
+                        velocity.gradientXMin._formatData();
+                        velocity.gradientYMin._formatData();
+                        velocity.gradientZMin._formatData();
+                        velocity.gradientXMax._formatData();
+                        velocity.gradientYMax._formatData();
+                        velocity.gradientZMax._formatData();
                         shaDat.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_VELOCITYOVERLIFETIMERANDOMCURVE);
                         shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.VOLVELOCITYGRADIENTX, velocity.gradientXMin._elements);
                         shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.VOLVELOCITYGRADIENTXMAX, velocity.gradientXMax._elements);
@@ -721,20 +730,28 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
                         if (sizeSeparate) {
                             shaDat.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SIZEOVERLIFETIMECURVESEPERATE);
 
+                            size.gradientX._formatData();
+                            size.gradientY._formatData();
+                            size.gradientZ._formatData();
                             shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.SOLSIZEGRADIENTX, size.gradientX._elements);
                             shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.SOLSIZEGRADIENTY, size.gradientY._elements);
                             shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.SOLSizeGradientZ, size.gradientZ._elements);
                         }
                         else {
                             shaDat.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SIZEOVERLIFETIMECURVE);
-
+                            size.gradient._formatData();
                             shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.SOLSIZEGRADIENT, size.gradient._elements);
                         }
                         break;
                     case 2:
                         if (sizeSeparate) {
                             shaDat.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SIZEOVERLIFETIMERANDOMCURVESSEPERATE);
-
+                            size.gradientXMin._formatData();
+                            size.gradientXMax._formatData();
+                            size.gradientYMin._formatData();
+                            size.gradientYMax._formatData();
+                            size.gradientZMin._formatData();
+                            size.gradientZMax._formatData();
                             shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.SOLSIZEGRADIENTX, size.gradientXMin._elements);
                             shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.SOLSIZEGRADIENTXMAX, size.gradientXMax._elements);
                             shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.SOLSIZEGRADIENTY, size.gradientYMin._elements);
@@ -744,7 +761,8 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
                         }
                         else {
                             shaDat.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SIZEOVERLIFETIMERANDOMCURVES);
-
+                            size.gradientMin._formatData();
+                            size.gradientMax._formatData();
                             shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.SOLSIZEGRADIENT, size.gradientMin._elements);
                             shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.SOLSizeGradientMax, size.gradientMax._elements);
                         }
@@ -803,11 +821,15 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
                     case 1:
                         shaDat.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMECURVE);
                         if (rotationSeparate) {
+                            rotation.gradientX._formatData();
+                            rotation.gradientY._formatData();
+                            rotation.gradientZ._formatData();
                             shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTX, rotation.gradientX._elements);
                             shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTY, rotation.gradientY._elements);
                             shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTZ, rotation.gradientZ._elements);
                         }
                         else {
+                            rotation.gradient._formatData();
                             shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENT, rotation.gradient._elements);
                         }
                         break;
@@ -825,6 +847,12 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
                     case 3:
                         shaDat.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMERANDOMCURVES);
                         if (rotationSeparate) {
+                            rotation.gradientXMin._formatData();
+                            rotation.gradientXMax._formatData();
+                            rotation.gradientYMin._formatData();
+                            rotation.gradientYMax._formatData();
+                            rotation.gradientZMin._formatData();
+                            rotation.gradientZMax._formatData();
                             shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTX, rotation.gradientXMin._elements);
                             shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTXMAX, rotation.gradientXMax._elements);
                             shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTY, rotation.gradientYMin._elements);
@@ -835,6 +863,8 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
                             //shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTWMAX, rotation.gradientWMax._elements);
                         }
                         else {
+                            rotation.gradientMin._formatData();
+                            rotation.gradientMax._formatData();
                             shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENT, rotation.gradientMin._elements);
                             shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTMAX, rotation.gradientMax._elements);
                         }
@@ -875,7 +905,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
                         _uvLengthE.x = 1.0 / title.x;
                         _uvLengthE.y = 1.0 / title.y;
                         shaDat.setVector2(ShuriKenParticle3DShaderDeclaration.TEXTURESHEETANIMATIONSUBUVLENGTH, this._uvLength);
-
+                        frameOverTime.frameOverTimeData._formatData();
                         shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.TEXTURESHEETANIMATIONGRADIENTUVS, frameOverTime.frameOverTimeData._elements);
                         break;
                     case 3:
@@ -887,7 +917,8 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
                         _uvLengthE.x = 1.0 / title.x;
                         _uvLengthE.y = 1.0 / title.y;
                         shaDat.setVector2(ShuriKenParticle3DShaderDeclaration.TEXTURESHEETANIMATIONSUBUVLENGTH, this._uvLength);
-
+                        frameOverTime.frameOverTimeDataMin._formatData();
+                        frameOverTime.frameOverTimeDataMax._formatData();
                         shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.TEXTURESHEETANIMATIONGRADIENTUVS, frameOverTime.frameOverTimeDataMin._elements);
                         shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.TEXTURESHEETANIMATIONGRADIENTMAXUVS, frameOverTime.frameOverTimeDataMax._elements);
                         break;
