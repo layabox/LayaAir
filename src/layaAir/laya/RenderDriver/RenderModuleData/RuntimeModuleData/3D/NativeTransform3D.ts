@@ -1,10 +1,11 @@
-import { NativeMemory } from "../../../../RenderEngine/RenderEngine/NativeGLEngine/CommonMemory/NativeMemory";
+
 import { Sprite3D } from "../../../../d3/core/Sprite3D";
 import { Transform3D } from "../../../../d3/core/Transform3D";
 import { EventDispatcher } from "../../../../events/EventDispatcher";
 import { Matrix4x4 } from "../../../../maths/Matrix4x4";
 import { Quaternion } from "../../../../maths/Quaternion";
 import { Vector3 } from "../../../../maths/Vector3";
+import { NativeMemory } from "../NativeMemory";
 
 /**
  * <code>Transform3D</code> 类用于实现3D变换。
