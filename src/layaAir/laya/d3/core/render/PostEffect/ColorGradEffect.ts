@@ -54,7 +54,7 @@ export class ColorGradEffect extends PostProcessEffect {
 			"u_MainTex_TexelSize": ShaderDataType.Vector4, //x:width,y:height,z:1/width,w:1/height
 		};
 		let shader = Shader3D.add("blitLUTShader");
-		shader._ShaderType = ShaderFeatureType.PosProcess;
+		shader.shaderType = ShaderFeatureType.PostProcess;
 		let subShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
 		let pass = subShader.addShaderPass(BlitVS, BlitLUTShader);

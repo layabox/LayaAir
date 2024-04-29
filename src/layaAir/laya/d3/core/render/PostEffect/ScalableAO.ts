@@ -104,20 +104,20 @@ export class ScalableAO extends PostProcessEffect {
 
         }
         let shader: Shader3D = Shader3D.add("ScalableAO");
-        shader._ShaderType = ShaderFeatureType.PosProcess;
+        shader.shaderType = ShaderFeatureType.PostProcess;
         let subShader: SubShader = new SubShader(attributeMap, uniformMap);
         shader.addSubShader(subShader);
         subShader.addShaderPass(BlitScreenVS, FragAO);
         //BlurShader
         shader = Shader3D.add("AOBlurHorizontal");
-        shader._ShaderType = ShaderFeatureType.PosProcess;
+        shader.shaderType = ShaderFeatureType.PostProcess;
         subShader = new SubShader(attributeMap, uniformMap);
         shader.addSubShader(subShader);
         subShader.addShaderPass(BlitScreenVS, AoBlurHorizontal);
 
         //Composition
         shader = Shader3D.add("AOComposition");
-        shader._ShaderType = ShaderFeatureType.PosProcess;
+        shader.shaderType = ShaderFeatureType.PostProcess;
         subShader = new SubShader(attributeMap, uniformMap);
         shader.addSubShader(subShader);
         subShader.addShaderPass(BlitScreenVS, AOComposition);

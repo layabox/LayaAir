@@ -51,7 +51,7 @@ export class ParticleShuriKenShaderInit{
         let shader = Shader3D.add("PARTICLESHURIKEN", false, false);
         let subShader = new SubShader(attributeMap, uniformMap, defaultValue);
         shader.addSubShader(subShader);
-        shader._ShaderType = ShaderFeatureType.DEFAULT;
+        shader.shaderType = ShaderFeatureType.DEFAULT;
         let forwardPass = subShader.addShaderPass(ShurikenVS, ShurikenFS);
 
     }

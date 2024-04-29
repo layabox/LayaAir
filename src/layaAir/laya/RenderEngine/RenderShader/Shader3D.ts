@@ -32,7 +32,7 @@ export enum ShaderFeatureType {
     DEFAULT,
     D3,
     D2,
-    PosProcess,
+    PostProcess,
     Sky
 }
 
@@ -276,7 +276,7 @@ export class Shader3D {
     /**@internal */
     _subShaders: SubShader[] = [];
 
-    _ShaderType: ShaderFeatureType;
+    shaderType: ShaderFeatureType;
     /**
      * 名字。
      */

@@ -87,7 +87,7 @@ export class GaussianDoF extends PostProcessEffect {
             "u_BlurCoCTex": ShaderDataType.Texture2D,
         };
         let shader: Shader3D = Shader3D.add("GaussianDoF");
-        shader._ShaderType = ShaderFeatureType.PosProcess;
+        shader.shaderType = ShaderFeatureType.PostProcess;
         /**
          * CoC pass
          * 根据 FarStart 与 FarEnd， 将深度值映射到 0 - 1

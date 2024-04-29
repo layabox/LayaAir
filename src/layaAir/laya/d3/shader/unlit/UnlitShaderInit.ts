@@ -29,7 +29,7 @@ export class UnlitShaderInit {
         }
 
         let shader = Shader3D.add("Unlit", true, false);
-        shader._ShaderType = ShaderFeatureType.D3;
+        shader.shaderType = ShaderFeatureType.D3;
         let subShader = new SubShader(SubShader.DefaultAttributeMap, uniformMap, defaultValue);
         shader.addSubShader(subShader);
         let forwardPass = subShader.addShaderPass(UnlitVS, UnlitFS);

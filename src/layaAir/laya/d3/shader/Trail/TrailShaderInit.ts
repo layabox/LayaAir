@@ -29,7 +29,7 @@ export class TrailShaderInit {
         };
 
         let shader = Shader3D.add("Trail", false, false);
-        shader._ShaderType = ShaderFeatureType.DEFAULT;
+        shader.shaderType = ShaderFeatureType.DEFAULT;
         let subShader = new SubShader(attributeMap, uniformMap, defaultValue);
         shader.addSubShader(subShader);
         let forwardPass = subShader.addShaderPass(TrailVS, TrailFS);

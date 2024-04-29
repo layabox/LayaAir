@@ -30,7 +30,7 @@ export class SkyBoxShaderInit {
         };
 
         let shader = Shader3D.add("SkyBox");
-        shader._ShaderType = ShaderFeatureType.Sky;
+        shader.shaderType = ShaderFeatureType.Sky;
         let subShader = new SubShader(attributeMap, uniformMap, defaultValue);
         shader.addSubShader(subShader);
         let pass = subShader.addShaderPass(SkyboxVS, SkyboxFS);

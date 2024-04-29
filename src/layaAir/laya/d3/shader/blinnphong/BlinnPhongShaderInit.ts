@@ -47,7 +47,7 @@ export class BlinnPhongShaderInit {
         };
 
         let shader = Shader3D.add("BLINNPHONG", true, true);
-        shader._ShaderType = ShaderFeatureType.D3;
+        shader.shaderType = ShaderFeatureType.D3;
         let subShader = new SubShader(SubShader.DefaultAttributeMap, uniformMap, defaultValue);
         shader.addSubShader(subShader);
         let shadingPass = subShader.addShaderPass(BlinnPhongVS, BlinnPhongFS);

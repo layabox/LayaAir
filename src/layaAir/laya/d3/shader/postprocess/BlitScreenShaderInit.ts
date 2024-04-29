@@ -33,7 +33,7 @@ export class BlitScreenShaderInit {
         };
 
         let shader = Shader3D.add("BlitScreen");
-        shader._ShaderType = ShaderFeatureType.PosProcess;
+        shader.shaderType = ShaderFeatureType.PostProcess;
         let subShader = new SubShader(attributeMap, uniformMap);
         shader.addSubShader(subShader);
         let blitPass = subShader.addShaderPass(BlitVS, BlitFS);
@@ -45,7 +45,7 @@ export class BlitScreenShaderInit {
         blitState.blend = RenderState.BLEND_DISABLE;
 
         let transparentShader = Shader3D.add("BlitScreen_Transparnet");
-        shader._ShaderType = ShaderFeatureType.PosProcess;
+        shader.shaderType = ShaderFeatureType.PostProcess;
         let transparentSubShader = new SubShader(attributeMap, uniformMap);
         transparentShader.addSubShader(transparentSubShader);
         let blitPassTrans = transparentSubShader.addShaderPass(BlitVS, BlitFS);
@@ -75,7 +75,7 @@ export class BlitScreenShaderInit {
         };
 
         let shader = Shader3D.add("LUTBuilder");
-        shader._ShaderType = ShaderFeatureType.PosProcess;
+        shader.shaderType = ShaderFeatureType.PostProcess;
         let subShader = new SubShader(attributeMap, uniformMap);
         shader.addSubShader(subShader);
         let pass = subShader.addShaderPass(BlitVS, LUTBuilderFS);

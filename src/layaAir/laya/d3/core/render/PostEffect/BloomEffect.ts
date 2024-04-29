@@ -84,7 +84,7 @@ export class BloomEffect extends PostProcessEffect {
 			"u_SampleScale": ShaderDataType.Float,
 		};
 		var shader = Shader3D.add("PostProcessBloom");
-		shader._ShaderType = ShaderFeatureType.PosProcess;
+		shader.shaderType = ShaderFeatureType.PostProcess;
 		//subShader0
 		var subShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
@@ -160,7 +160,7 @@ export class BloomEffect extends PostProcessEffect {
 			'u_Bloom_Color': ShaderDataType.Vector3,
 		};
 		let shader = Shader3D.add("PostProcessComposite");
-
+		shader.shaderType = ShaderFeatureType.PostProcess;
 		let subShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
 		let shaderPass = subShader.addShaderPass(CompositeVS, CompositePS);

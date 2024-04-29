@@ -32,7 +32,7 @@ export class SkyProceduralShaderInit {
             "u_Exposure": 1.3,
         };
         let shader = Shader3D.add("SkyProcedural");
-        shader._ShaderType = ShaderFeatureType.Sky;
+        shader.shaderType = ShaderFeatureType.Sky;
         let subShader = new SubShader(attributeMap, uniformMap, defaultValue);
         shader.addSubShader(subShader);
         let pass = subShader.addShaderPass(SkyProceduralVS, SkyProceduralFS);

@@ -275,7 +275,7 @@ export class glTFShader {
         }
 
         shader = Shader3D.add("glTFPBR", true, true);
-        shader._ShaderType = ShaderFeatureType.D3;
+        shader.shaderType = ShaderFeatureType.D3;
         let subShader = new SubShader(SubShader.DefaultAttributeMap, uniformMap, defaultValue);
         shader.addSubShader(subShader);
 
