@@ -12,7 +12,7 @@ import StdLibGLSL from "../../../shader/files/postProcess/StdLib.glsl";
 import ColorsGLSL from "../../../shader/files/postProcess/Colors.glsl";
 import { FilterMode } from "../../../../RenderEngine/RenderEnum/FilterMode";
 import { RenderTargetFormat } from "../../../../RenderEngine/RenderEnum/RenderTargetFormat";
-import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
+import { Shader3D, ShaderFeatureType } from "../../../../RenderEngine/RenderShader/Shader3D";
 import { Texture2D } from "../../../../resource/Texture2D";
 import { PostProcess } from "../../../component/PostProcess";
 import { CommandBuffer } from "../command/CommandBuffer";
@@ -83,6 +83,7 @@ export class BloomEffect extends PostProcessEffect {
 			"u_SampleScale": ShaderDataType.Float,
 		};
 		var shader = Shader3D.add("PostProcessBloom");
+		shader.shaderType = ShaderFeatureType.PostProcess;
 		//subShader0
 		var subShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
@@ -163,7 +164,7 @@ export class BloomEffect extends PostProcessEffect {
 
 		};
 		let shader = Shader3D.add("PostProcessComposite");
-
+		shader.shaderType = ShaderFeatureType.PostProcess;
 		let subShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
 		let shaderPass = subShader.addShaderPass(CompositeVS, CompositePS);

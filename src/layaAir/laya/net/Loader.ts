@@ -926,35 +926,27 @@ export class Loader extends EventDispatcher {
                 remoteUrl += "/";
             let tmpPath: string = path + "/";
             URL.basePaths[tmpPath] = remoteUrl;
-            return this._loadSubFileConfig(path, progress);
+            return this._loadSubFileConfig(path, null, progress);
         } else {
             if (LayaEnv.isPreview)
                 return Promise.resolve();
-            let plat: any = null;
-            if (ILaya.Browser.onMiniGame) {
-                // wechat
-                plat = ILaya.Browser.window.wx;
-            } else if (ILaya.Browser.onTTMiniGame) {
-                // bytedance
-                plat = ILaya.Browser.window.tt;
-            } else if (ILaya.Browser.onKGMiniGame || ILaya.Browser.onVVMiniGame || ILaya.Browser.onQGMiniGame) {
-                // mi/vivo/oppo
-                plat = ILaya.Browser.window.qg;
-            } else if (ILaya.Browser.onAlipayMiniGame || ILaya.Browser.onTBMiniGame) {
-                // alipay
-                plat = ILaya.Browser.window.my;
-            } else {
-                return this._loadSubFileConfig(path, progress);
-            }
 
-            return this._loadMiniPackage(plat, path, progress).then(() =>
-                this._loadSubFileConfig(path, progress)
-            );
+            let mini = ILaya.Browser.miniGameContext;
+
+            if (mini == null) {
+                return this._loadSubFileConfig(path, null, progress);
+            }
+            else {
+                return this._loadMiniPackage(mini, path, progress).then(() =>
+                    this._loadSubFileConfig(path, mini, progress)
+                );
+            }
         }
     }
 
-
     private _loadMiniPackage(mini: any, packName: string, progress?: ProgressCallback): Promise<any> {
+        if (mini.subPkgNameSeperator)
+            packName = packName.replace(/\//g, mini.subPkgNameSeperator);
         if (!(packName.length > 0)) return Promise.resolve();
         return new Promise((resolve: (value: any) => void, reject: (reason?: any) => void) => {
             let loadTask: any = mini.loadSubpackage({
@@ -963,7 +955,7 @@ export class Loader extends EventDispatcher {
                     resolve(res);
                 },
                 fail: (res: any) => {
-                    resolve(res);
+                    reject(res);
                 }
             });
 
@@ -973,8 +965,9 @@ export class Loader extends EventDispatcher {
         })
     }
 
-
-    private _loadSubFileConfig(path: string, onProgress: ProgressCallback): Promise<any> {
+    private _loadSubFileConfig(path: string, mini: any, onProgress: ProgressCallback): Promise<any> {
+        if (mini && mini.subPkgPathSeperator)
+            path = path.replace(/\//g, mini.subPkgPathSeperator);
         if (path.length > 0)
             path += "/";
 
@@ -1056,6 +1049,11 @@ export class Loader extends EventDispatcher {
                         break;
                 }
             }
+
+            if (!mini && fileConfig.entry)
+                return ILaya.Browser.loadLib(path + fileConfig.entry);
+            else
+                return Promise.resolve();
         });
     }
 }

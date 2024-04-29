@@ -1,4 +1,4 @@
-import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
+import { Shader3D, ShaderFeatureType } from "../../../RenderEngine/RenderShader/Shader3D";
 
 import PBRStandardVS from "./pbrStandard.vs";
 import PBRStandardFS from "./pbrStandard.fs";
@@ -72,6 +72,7 @@ export class PBRStandardShaderInit {
         };
 
         let shader = Shader3D.add("PBR", true, true);
+        shader.shaderType = ShaderFeatureType.D3;
         shader._surportVolumetricGI = true;
         let subShader = new SubShader(SubShader.DefaultAttributeMap, uniformMap, defaultValue);
         shader.addSubShader(subShader);

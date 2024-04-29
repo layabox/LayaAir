@@ -20,6 +20,19 @@ export class GradientDataInt implements IClone {
 		this._elements = new Float32Array(8);
 	}
 
+
+	/**
+	 * @internal
+	 * 格式化数据；保证数据的最大值为1
+	 */
+	_formatData() {
+		if (this._currentLength == 8) return;
+		if (this._elements[this._currentLength - 2] !== 1) {
+			this._elements[this._currentLength] = 1;
+			this._elements[this._currentLength + 1] = this._elements[this._currentLength - 1];
+		}
+	}
+
 	/**
 	 * 增加整形渐变。
 	 * @param	key 生命周期，范围为0到1。

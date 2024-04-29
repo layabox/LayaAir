@@ -5,7 +5,7 @@ import AOComposition from "../../../shader/files/postProcess/ScalableAO/AOCompos
 import AmbientOcclusion from "../../../shader/files/postProcess/ScalableAO/AmbientOcclusion.glsl";
 import { RenderTargetFormat } from "../../../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { WrapMode } from "../../../../RenderEngine/RenderEnum/WrapMode";
-import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
+import { Shader3D, ShaderFeatureType } from "../../../../RenderEngine/RenderShader/Shader3D";
 import { Camera } from "../../Camera";
 import { CommandBuffer } from "../command/CommandBuffer";
 import { PostProcessEffect } from "../PostProcessEffect";
@@ -101,6 +101,7 @@ export class ScalableAO extends PostProcessEffect {
 
         }
         let shader: Shader3D = Shader3D.add("ScalableAO");
+        shader.shaderType = ShaderFeatureType.PostProcess;
         let subShader: SubShader = new SubShader(attributeMap, uniformMap);
         shader.addSubShader(subShader);
         let aoPass = subShader.addShaderPass(BlitScreenVS, FragAO);
@@ -108,6 +109,7 @@ export class ScalableAO extends PostProcessEffect {
         aoPass.renderState.cull = RenderState.CULL_NONE;
         //BlurShader
         shader = Shader3D.add("AOBlurHorizontal");
+        shader.shaderType = ShaderFeatureType.PostProcess;
         subShader = new SubShader(attributeMap, uniformMap);
         shader.addSubShader(subShader);
         let blurPass = subShader.addShaderPass(BlitScreenVS, AoBlurHorizontal);
@@ -116,6 +118,7 @@ export class ScalableAO extends PostProcessEffect {
 
         //Composition
         shader = Shader3D.add("AOComposition");
+        shader.shaderType = ShaderFeatureType.PostProcess;
         subShader = new SubShader(attributeMap, uniformMap);
         shader.addSubShader(subShader);
         let compositionPass = subShader.addShaderPass(BlitScreenVS, AOComposition);
