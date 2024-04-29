@@ -11,7 +11,7 @@ import Sprite2DFrag from './NewShader/Sprite2DFrag.glsl';
 import Sprite2DVertex from './NewShader/Sprite2DVertex.glsl';
 import Sprite2DShaderInfo from './NewShader/Sprite2DShaderInfo.glsl';
 
-import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
+import { Shader3D, ShaderFeatureType } from "../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderCompile } from "../../utils/ShaderCompile";
 import { ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
 import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
@@ -72,12 +72,14 @@ export class Shader2D {
 
         //textureShader
         Shader2D.textureShader = Shader3D.add("Sprite2DTexture", false, false);
+        Shader2D.textureShader._ShaderType = ShaderFeatureType.D2;
         let subShader = new SubShader(Shader2D.textureAttribute, {}, {});
         Shader2D.textureShader.addSubShader(subShader);
         subShader.addShaderPass(texture_vs, texture_ps);
 
         //primitiveShader
         Shader2D.primitiveShader = Shader3D.add("Sprite2DPrimitive", false, false);
+        Shader2D.primitiveShader._ShaderType = ShaderFeatureType.D2;
         subShader = new SubShader(Shader2D.primitiveAttribute, {}, {});
         Shader2D.primitiveShader.addSubShader(subShader);
         subShader.addShaderPass(prime_vs, prime_ps);

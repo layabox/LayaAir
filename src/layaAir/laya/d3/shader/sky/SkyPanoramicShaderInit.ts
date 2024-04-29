@@ -1,4 +1,4 @@
-import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
+import { Shader3D, ShaderFeatureType } from "../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
 import SkyPanoramicVS from "./SkyPanoramic.vs";
 import SkyPanoramicFS from "./SkyPanoramic.fs";
@@ -30,6 +30,7 @@ export class SkyPanoramicShaderInit {
             'u_Texture': Texture2D.grayTexture,
         };
         let shader = Shader3D.add("SkyPanoramic");
+        shader._ShaderType = ShaderFeatureType.Sky;
         let subShader = new SubShader(attributeMap, uniformMap, defaultValue);
         shader.addSubShader(subShader);
         let pass = subShader.addShaderPass(SkyPanoramicVS, SkyPanoramicFS);

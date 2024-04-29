@@ -13,7 +13,7 @@ import StdLibGLSL from "../../../shader/files/postProcess/StdLib.glsl";
 import ColorsGLSL from "../../../shader/files/postProcess/Colors.glsl";
 import { FilterMode } from "../../../../RenderEngine/RenderEnum/FilterMode";
 import { RenderTargetFormat } from "../../../../RenderEngine/RenderEnum/RenderTargetFormat";
-import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
+import { Shader3D, ShaderFeatureType } from "../../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderDataType, ShaderData } from "../../../../RenderEngine/RenderShader/ShaderData";
 import { Texture2D } from "../../../../resource/Texture2D";
 import { PostProcess } from "../../../component/PostProcess";
@@ -84,6 +84,7 @@ export class BloomEffect extends PostProcessEffect {
 			"u_SampleScale": ShaderDataType.Float,
 		};
 		var shader = Shader3D.add("PostProcessBloom");
+		shader._ShaderType = ShaderFeatureType.PosProcess;
 		//subShader0
 		var subShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);

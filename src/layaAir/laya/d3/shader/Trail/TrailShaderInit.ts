@@ -1,4 +1,4 @@
-import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D"
+import { Shader3D, ShaderFeatureType } from "../../../RenderEngine/RenderShader/Shader3D"
 import { ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData"
 import { VertexTrail } from "../../core/trail/VertexTrail";
 import TrailVS from "./Trail.vs";
@@ -29,6 +29,7 @@ export class TrailShaderInit {
         };
 
         let shader = Shader3D.add("Trail", false, false);
+        shader._ShaderType = ShaderFeatureType.DEFAULT;
         let subShader = new SubShader(attributeMap, uniformMap, defaultValue);
         shader.addSubShader(subShader);
         let forwardPass = subShader.addShaderPass(TrailVS, TrailFS);

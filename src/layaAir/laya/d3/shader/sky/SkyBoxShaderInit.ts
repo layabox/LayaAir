@@ -1,4 +1,4 @@
-import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
+import { Shader3D, ShaderFeatureType } from "../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
 import SkyboxVS from "./SkyBox.vs";
 import SkyboxFS from "./SkyBox.fs";
@@ -30,6 +30,7 @@ export class SkyBoxShaderInit {
         };
 
         let shader = Shader3D.add("SkyBox");
+        shader._ShaderType = ShaderFeatureType.Sky;
         let subShader = new SubShader(attributeMap, uniformMap, defaultValue);
         shader.addSubShader(subShader);
         let pass = subShader.addShaderPass(SkyboxVS, SkyboxFS);

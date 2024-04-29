@@ -29,6 +29,7 @@ export class LensFlareShaderInit {
             "u_aspectRatio": 1
         }
         let shader = Shader3D.add("LensFlare", true, false);
+        shader._ShaderType = ShaderFeatureType.PosProcess;
         let subshader = new SubShader(attribute, uniformMap, defaultValue)
         shader.addSubShader(subshader);
         subshader.addShaderPass(LensFlareVS, LensFlareFS);

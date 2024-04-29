@@ -10,7 +10,7 @@ import { PostProcessEffect } from "../../../core/render/PostProcessEffect";
 import { PostProcessRenderContext } from "../../../core/render/PostProcessRenderContext";
 import { FilterMode } from "../../../../RenderEngine/RenderEnum/FilterMode";
 import { RenderTargetFormat } from "../../../../RenderEngine/RenderEnum/RenderTargetFormat";
-import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
+import { Shader3D, ShaderFeatureType } from "../../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderData, ShaderDataType } from "../../../../RenderEngine/RenderShader/ShaderData";
 import { ShaderDefine } from "../../../../RenderEngine/RenderShader/ShaderDefine";
 import { DepthTextureMode } from "../../../depthMap/DepthPass";
@@ -87,7 +87,7 @@ export class GaussianDoF extends PostProcessEffect {
             "u_BlurCoCTex": ShaderDataType.Texture2D,
         };
         let shader: Shader3D = Shader3D.add("GaussianDoF");
-
+        shader._ShaderType = ShaderFeatureType.PosProcess;
         /**
          * CoC pass
          * 根据 FarStart 与 FarEnd， 将深度值映射到 0 - 1

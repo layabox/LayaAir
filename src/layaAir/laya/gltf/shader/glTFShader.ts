@@ -1,4 +1,4 @@
-import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
+import { Shader3D, ShaderFeatureType } from "../../RenderEngine/RenderShader/Shader3D";
 import { ShaderDataType } from "../../RenderEngine/RenderShader/ShaderData";
 import { ShaderDefine } from "../../RenderEngine/RenderShader/ShaderDefine";
 import { SubShader } from "../../RenderEngine/RenderShader/SubShader";
@@ -275,6 +275,7 @@ export class glTFShader {
         }
 
         shader = Shader3D.add("glTFPBR", true, true);
+        shader._ShaderType = ShaderFeatureType.D3;
         let subShader = new SubShader(SubShader.DefaultAttributeMap, uniformMap, defaultValue);
         shader.addSubShader(subShader);
 
