@@ -1,7 +1,7 @@
 
 import LensFlareVS from "../../../../shader/files/postProcess/LensFlare/LensFlare.vs";
 import LensFlareFS from "../../../../shader/files/postProcess/LensFlare/LensFlare.fs";
-import { Shader3D } from "../../../../../RenderEngine/RenderShader/Shader3D";
+import { Shader3D, ShaderFeatureType } from "../../../../../RenderEngine/RenderShader/Shader3D";
 import { SubShader } from "../../../../../RenderEngine/RenderShader/SubShader";
 import { Color } from "../../../../../maths/Color";
 import { LensFlareElementGeomtry } from "./LensFlareGeometry";
@@ -30,6 +30,7 @@ export class LensFlareShaderInit {
             "u_aspectRatio": 1
         }
         let shader = Shader3D.add("LensFlare", true, false);
+        shader.shaderType = ShaderFeatureType.PostProcess;
         let subshader = new SubShader(attribute, uniformMap, defaultValue)
         shader.addSubShader(subshader);
         let pass = subshader.addShaderPass(LensFlareVS, LensFlareFS);

@@ -1,4 +1,4 @@
-import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
+import { Shader3D, ShaderFeatureType } from "../../RenderEngine/RenderShader/Shader3D";
 import { SubShader } from "../../RenderEngine/RenderShader/SubShader";
 import { Vector3 } from "../../maths/Vector3";
 import { Vector4 } from "../../maths/Vector4";
@@ -274,6 +274,7 @@ export class glTFShader {
         }
 
         shader = Shader3D.add("glTFPBR", true, true);
+        shader.shaderType = ShaderFeatureType.D3;
         let subShader = new SubShader(SubShader.DefaultAttributeMap, uniformMap, defaultValue);
         shader.addSubShader(subShader);
 

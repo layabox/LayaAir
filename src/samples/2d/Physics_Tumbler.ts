@@ -27,7 +27,10 @@ export class Physics_Tumbler {
             Laya.stage.alignH = Stage.ALIGN_CENTER;
             Laya.stage.scaleMode = Stage.SCALE_FIXED_AUTO;
             Laya.stage.bgColor = "#232628";
+
+            
             Physics2D.I.start();
+            Physics2D.I.drawJoint = false;
             this.createBox();
             this.eventListener();
         });
@@ -39,11 +42,10 @@ export class Physics_Tumbler {
             posx = Laya.stage.width / 2,
             posy = Laya.stage.height / 2;
 
+        let off = -width / 2  - height ;
         let box = new Sprite();
         box.size(width + height * 2, width + height * 2);
         box.pos(posx, posy);
-        box.anchorX = 0.5;
-        box.anchorY = 0.5;
         this.Main.box2D.addChild(box);
         let boxBody: RigidBody = box.addComponent(RigidBody);
 
@@ -53,27 +55,32 @@ export class Physics_Tumbler {
         let box4Shape: BoxCollider = box.addComponent(BoxCollider);
         box1Shape.width = width + height * 2;
         box1Shape.height = height;
-        box1Shape.x = 0;
-        box1Shape.y = 0;
+        box1Shape.x = off;
+        box1Shape.y = off;
         box2Shape.width = width + height * 2;
         box2Shape.height = height;
-        box2Shape.x = 0;
-        box2Shape.y = width + height;
+        box2Shape.x = off;
+        box2Shape.y = width + height+off;
         box3Shape.width = height;
         box3Shape.height = width + height * 2;
+        box3Shape.x = off;
+        box3Shape.y = off;
         box4Shape.width = height;
         box4Shape.height = width + height * 2;
-        box4Shape.x = width + height;
-        box4Shape.y = 0;
+        box4Shape.x = width + height+off;
+        box4Shape.y = off;
 
         let revoluteJoint = new RevoluteJoint();
         revoluteJoint.motorSpeed = 0.05 * Math.PI;
         revoluteJoint.maxMotorTorque = 1e8;
         revoluteJoint.enableMotor = true;
         box.addComponentInstance(revoluteJoint);
+
+
     }
 
     addMiniBox() {
+       
         if (this.count >= this.totalBox) {
             return;
         }
@@ -99,7 +106,7 @@ export class Physics_Tumbler {
         Laya.stage.on(Event.DOUBLE_CLICK, this, () => {
             this.totalBox += 100;
         });
-        Laya.timer.frameLoop(1, this, this.addMiniBox);
+         Laya.timer.frameLoop(1, this, this.addMiniBox);
     }
 
     dispose() {
