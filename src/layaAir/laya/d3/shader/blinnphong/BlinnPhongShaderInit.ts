@@ -1,4 +1,4 @@
-import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
+import { Shader3D, ShaderFeatureType } from "../../../RenderEngine/RenderShader/Shader3D";
 import BlinnPhongCommonGLSL from "./BlinnPhongCommon.glsl";
 import BlinnPhongVertexGLSL from "./BlinnPhongVertex.glsl";
 import BlinnPhongFragGLSL from "./BlinnPhongFrag.glsl";
@@ -47,6 +47,7 @@ export class BlinnPhongShaderInit {
         };
 
         let shader = Shader3D.add("BLINNPHONG", true, true);
+        shader.shaderType = ShaderFeatureType.D3;
         let subShader = new SubShader(SubShader.DefaultAttributeMap, uniformMap, defaultValue);
         shader.addSubShader(subShader);
         let shadingPass = subShader.addShaderPass(BlinnPhongVS, BlinnPhongFS);

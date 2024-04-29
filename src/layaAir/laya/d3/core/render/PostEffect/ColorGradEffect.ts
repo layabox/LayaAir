@@ -3,7 +3,7 @@ import { Vector4 } from "../../../../maths/Vector4";
 import { FilterMode } from "../../../../RenderEngine/RenderEnum/FilterMode";
 import { RenderTargetFormat } from "../../../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { WrapMode } from "../../../../RenderEngine/RenderEnum/WrapMode";
-import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
+import { Shader3D, ShaderFeatureType } from "../../../../RenderEngine/RenderShader/Shader3D";
 import { SubShader } from "../../../../RenderEngine/RenderShader/SubShader";
 import { VertexMesh } from "../../../../RenderEngine/RenderShader/VertexMesh";
 import { RenderTexture } from "../../../../resource/RenderTexture";
@@ -65,6 +65,7 @@ export class ColorGradEffect extends PostProcessEffect {
 			"u_MainTex_TexelSize": ShaderDataType.Vector4, //x:width,y:height,z:1/width,w:1/height
 		};
 		let shader = Shader3D.add("blitLUTShader");
+		shader.shaderType = ShaderFeatureType.PostProcess;
 		let subShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
 		let pass = subShader.addShaderPass(BlitVS, BlitLUTShader);
