@@ -64,7 +64,9 @@ export class Physics_Strandbeests {
         ground.addComponentInstance(rigidbody);
         let chainCollider: ChainCollider = new ChainCollider();
         chainCollider.datas = [50, 200, 50, 570, 1050, 570, 1050, 200];
+
         ground.addComponentInstance(chainCollider);
+
         // Balls
         for (let i = 1; i <= 32; i++) {
             let small = new Sprite();
@@ -105,7 +107,9 @@ export class Physics_Strandbeests {
         wheelCollider.radius = 16 * this.scale;
 
 
-        // 转动关节
+
+
+        // // 转动关节
         let motorJoint: RevoluteJoint = this.motorJoint = new RevoluteJoint();
         motorJoint.otherBody = chassisBody;
         motorJoint.collideConnected = false;
