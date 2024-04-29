@@ -33,7 +33,8 @@ export enum ShaderFeatureType {
     D3,
     D2,
     PostProcess,
-    Sky
+    Sky,
+    Effect
 }
 
 /**
