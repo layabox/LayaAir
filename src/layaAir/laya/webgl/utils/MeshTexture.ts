@@ -8,17 +8,17 @@ import { Mesh2D } from "./Mesh2D";
  * 与MeshQuadTexture基本相同。不过index不是固定的
  */
 export class MeshTexture extends Mesh2D {
-    static const_stride = 24;
+    static const_stride = 48;
     static VertexDeclarition: VertexDeclaration = null;
-    private _vbUin32Array: Uint32Array;
+    //private _vbUin32Array: Uint32Array;
     private _vbFloat32Array: Float32Array;
     private _ibU16Array:Uint16Array;
 
     static __init__(): void {
-        MeshTexture.VertexDeclarition = new VertexDeclaration(24, [
+        MeshTexture.VertexDeclarition = new VertexDeclaration(48, [
             new VertexElement(0, VertexElementFormat.Vector4, 0),//pos,uv
-            new VertexElement(16, VertexElementFormat.Byte4, 1),//color,alpha
-            new VertexElement(20, VertexElementFormat.Byte4, 2),//
+            new VertexElement(16, VertexElementFormat.Vector4, 1),//color,alpha
+            new VertexElement(32, VertexElementFormat.Vector4, 2),//
         ])
     }
 
@@ -27,7 +27,7 @@ export class MeshTexture extends Mesh2D {
     }
 
 	protected onVBRealloc(buff: ArrayBuffer): void {
-		this._vbUin32Array = new Uint32Array(buff);
+		//this._vbUin32Array = new Uint32Array(buff);
 		this._vbFloat32Array = new Float32Array(buff);
 	}    
     protected onIBRealloc(buff: ArrayBuffer): void {
@@ -50,7 +50,7 @@ export class MeshTexture extends Mesh2D {
         var startpos= this._vertNum*MeshTexture.const_stride;//vb的起点。			
         var f32pos= startpos >> 2;
         var vbdata = this._vbFloat32Array;
-        var vbu32Arr = this._vbUin32Array;
+        //var vbu32Arr = this._vbUin32Array;
         var ci= 0;
         var m00= matrix.a;
         var m01= matrix.b;
@@ -70,15 +70,23 @@ export class MeshTexture extends Mesh2D {
             uvu=uvrect[2];
             uvv=uvrect[3];
         }
+        let r = ((rgba>>>16)&0xff)/255.0;
+        let g = ((rgba>>>8)&0xff)/255.0;
+        let b = (rgba&0xff)/255.0;
+        let a = (rgba>>>24)/255.0;
         for (i = 0; i < vertsz; i++) {
             var x= vertices[ci], y= vertices[ci + 1];
             vbdata[f32pos] = x * m00 + y * m10 + tx;
             vbdata[f32pos + 1] = x * m01 + y * m11 + ty;
             vbdata[f32pos + 2] = uvminx + uvs[ci]*uvu;
             vbdata[f32pos + 3] = uvminy + uvs[ci + 1]*uvv;
-            vbu32Arr[f32pos + 4] = rgba;
-            vbu32Arr[f32pos + 5] = 0xff;
-            f32pos += 6;
+
+            vbdata[f32pos + 4] = r;
+            vbdata[f32pos + 5] = g;
+            vbdata[f32pos + 6] = b;
+            vbdata[f32pos + 7] = a;
+            vbdata[f32pos+8] = 0xff;
+            f32pos += 12;
             ci += 2;
         }
 
