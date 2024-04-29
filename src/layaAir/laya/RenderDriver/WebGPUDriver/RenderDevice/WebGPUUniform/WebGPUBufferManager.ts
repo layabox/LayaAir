@@ -44,14 +44,13 @@ export class WebGPUBufferManager {
      * @param name 
      * @param sliceSize 
      * @param sliceNum 
-     * @param single 
      */
-    addBuffer(name: string, sliceSize: number, sliceNum: number, single: boolean = false) {
+    addBuffer(name: string, sliceSize: number, sliceNum: number) {
         if (this.namedBuffers.has(name)) {
             console.warn(`namedBuffer with name: ${name} already exist!`);
             return false;
         }
-        const bc = new WebGPUBufferCluster(this.device, name, sliceSize, sliceNum, single);
+        const bc = new WebGPUBufferCluster(this.device, name, sliceSize, sliceNum);
         bc.setRenderContext(this.renderContext);
         this.namedBuffers.set(name, bc);
         return true;

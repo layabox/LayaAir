@@ -160,7 +160,28 @@ export class WebGPUInternalTex implements InternalTexture {
     }
 
     getTextureView(): GPUTextureView {
-        return this.resource.createView();
+        let dimension: GPUTextureViewDimension;
+        switch (this.dimension) {
+            case TextureDimension.Tex2D:
+                dimension = '2d';
+                break;
+            case TextureDimension.Tex3D:
+                dimension = '3d';
+                break;
+            case TextureDimension.Cube:
+                dimension = 'cube';
+                break;
+            case TextureDimension.Texture2DArray:
+                dimension = '2d-array';
+                break;
+            case TextureDimension.CubeArray:
+                dimension = 'cube-array';
+                break;
+            default:
+                dimension = '2d';
+                break;
+        }
+        return this.resource.createView({ dimension, format: this._webGPUFormat });
     }
 
     dispose(): void {

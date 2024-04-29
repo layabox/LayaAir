@@ -10,6 +10,9 @@ uniform mat4 u_SkyProjectionViewMat;
 vec4 remapSkyPositionZ(in vec4 position)
 {
     position.z = position.w;
+    #ifdef WEBGPU_COMPATIBLE //兼容WGSL
+    position.y = -position.y;
+    #endif
     return position;
 }
 

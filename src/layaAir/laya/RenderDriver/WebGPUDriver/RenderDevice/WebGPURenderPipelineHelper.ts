@@ -10,17 +10,6 @@ import { WebGPURenderEngine } from "./WebGPURenderEngine";
 import { WebGPURenderGeometry } from "./WebGPURenderGeometry";
 import { WebGPUShaderInstance } from "./WebGPUShaderInstance";
 
-// enum WebGPUCullMode {
-//     None = "none",
-//     Front = "front",
-//     Back = "back"
-// }
-
-// enum WebGPUFrontFace {
-//     CCW = "ccw",
-//     CW = "cw"
-// }
-
 export interface WebGPUBlendStateCache {
     state: GPUBlendState,
     key: number,
@@ -209,7 +198,7 @@ export class WebGPUDepthStencilState {
         return {
             format: stateFormat,
             depthCompare: stateDepthCompare,
-            depthWriteEnabled: depthWriteEnabled
+            depthWriteEnabled,
         };
     }
 }
@@ -304,17 +293,16 @@ export class WebGPURenderPipeline {
      * @param entries 
      */
     static getRenderPipeline(info: IRenderPipelineInfo, shaderInstance: WebGPUShaderInstance, renderTarget: WebGPUInternalRT, entries: any) {
-        const map = shaderInstance.renderPipelineMap;
+        const renderPipelineMap = shaderInstance.renderPipelineMap;
         const primitiveState = WebGPUPrimitiveState.getGPUPrimitiveState(info.geometry.mode, info.frontFace, info.cullMode);
         const bufferState = info.geometry.bufferState;
         const depthStencilId = info.depthStencilState ? info.depthStencilState.key : -1;
         const strId = `${shaderInstance._id}_${primitiveState.key}_${info.blendState.key}_${depthStencilId}_${renderTarget.formatId}_${bufferState.id}_${bufferState.updateBufferLayoutFlag}`;
-        let renderPipeline = map.get(strId);
+        let renderPipeline = renderPipelineMap.get(strId);
         if (!renderPipeline) {
             renderPipeline = this._createRenderPipeline
-                (info.blendState.state, info.depthStencilState?.state, primitiveState.state, bufferState.vertexState, shaderInstance, renderTarget, entries);
-            map.set(strId, renderPipeline);
-            console.log('renderPipeline key =', strId);
+                (info.blendState.state, info.depthStencilState?.state, primitiveState.state, bufferState.vertexState, shaderInstance, renderTarget, entries, strId);
+            renderPipelineMap.set(strId, renderPipeline);
         }
         return renderPipeline;
     }
@@ -328,38 +316,58 @@ export class WebGPURenderPipeline {
      * @param shaderInstance 
      * @param renderTarget 
      * @param entries 
+     * @param strId 
      */
     private static _createRenderPipeline(blendState: GPUBlendState, depthState: GPUDepthStencilState,
         primitiveState: GPUPrimitiveState, vertexBuffers: GPUVertexBufferLayout[],
-        shaderInstance: WebGPUShaderInstance, renderTarget: WebGPUInternalRT, entries: any) {
+        shaderInstance: WebGPUShaderInstance, renderTarget: WebGPUInternalRT, entries: any, strId: string) {
         const device = WebGPURenderEngine._instance.getDevice();
         const descriptor = shaderInstance.renderPipelineDescriptor;
         descriptor.label = 'render_' + this.idCounter;
         descriptor.vertex.buffers = vertexBuffers;
         //descriptor.vertex.constants TODO
         const textureNum = renderTarget._textures.length;
-        if (renderTarget._colorStates.length === textureNum) {
-            for (let i = renderTarget._colorStates.length - 1; i > -1; i--)
-                renderTarget._colorStates[i].blend = blendState;
+        if (renderTarget._textures[0]._webGPUFormat === 'depth16unorm') {
+            renderTarget._colorStates.length = 0;
+            renderTarget._colorStates[0] = {
+                format: renderTarget._depthTexture._webGPUFormat,
+                blend: blendState,
+                writeMask: GPUColorWrite.ALL,
+            };
         } else {
-            renderTarget._colorStates.length = textureNum;
-            for (let i = 0; i < textureNum; i++) {
-                renderTarget._colorStates[i] = {
-                    format: renderTarget._textures[i]._webGPUFormat,
-                    blend: blendState,
-                    writeMask: GPUColorWrite.ALL,
-                };
+            if (renderTarget._colorStates.length === textureNum) {
+                for (let i = renderTarget._colorStates.length - 1; i > -1; i--) {
+                    renderTarget._colorStates[i].format = renderTarget._textures[i]._webGPUFormat;
+                    renderTarget._colorStates[i].blend = blendState;
+                }
+            } else {
+                renderTarget._colorStates.length = textureNum;
+                for (let i = 0; i < textureNum; i++) {
+                    renderTarget._colorStates[i] = {
+                        format: renderTarget._textures[i]._webGPUFormat,
+                        blend: blendState,
+                        writeMask: GPUColorWrite.ALL,
+                    };
+                }
             }
         }
         descriptor.fragment.targets = renderTarget._colorStates;
         descriptor.primitive = primitiveState;
-        if (depthState)
-            descriptor.depthStencil = depthState;
-        else delete descriptor.depthStencil;
+        if (renderTarget._textures[0]._webGPUFormat === 'depth16unorm') {
+            descriptor.depthStencil = {
+                format: renderTarget._textures[0]._webGPUFormat,
+                depthWriteEnabled: true,
+                depthCompare: 'less'
+            };
+        } else {
+            if (depthState)
+                descriptor.depthStencil = depthState;
+            else delete descriptor.depthStencil;
+        }
         descriptor.layout = shaderInstance.createPipelineLayout(device, 'pipelineLayout_' + this.idCounter, entries);
         descriptor.multisample.count = renderTarget._samples;
         const renderPipeline = device.createRenderPipeline(descriptor);
-        console.log('create renderPipeline_' + this.idCounter, descriptor, renderTarget._samples);
+        console.log('create renderPipeline_' + this.idCounter, strId, descriptor, renderTarget._samples);
         this.idCounter++;
         return renderPipeline;
     }

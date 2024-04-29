@@ -86,10 +86,14 @@ export class WebGPURenderCommandEncoder {
         const { bufferState, indexFormat, drawType, instanceCount, _drawArrayInfo, _drawElementInfo } = geometry;
         const { _vertexBuffers: vertexBuffers, _bindedIndexBuffer: indexBuffer } = bufferState;
 
+        let format: GPUIndexFormat = 'uint16';
+        let indexByte = 2; //index的字节数
+
         if (setBuffer) {
             vertexBuffers.forEach((vb, i) => this.setVertexBuffer(i, vb.source._source, 0, vb.source._size));
             if (indexBuffer) {
-                const format = (indexFormat === IndexFormat.UInt16) ? "uint16" : "uint32";
+                format = (indexFormat === IndexFormat.UInt16) ? 'uint16' : 'uint32';
+                indexByte = (indexFormat === IndexFormat.UInt16) ? 2 : 4;
                 this.setIndexBuffer(indexBuffer.source._source, format, indexBuffer.source._size, 0);
             }
         }
@@ -100,13 +104,61 @@ export class WebGPURenderCommandEncoder {
                 _drawArrayInfo.forEach(({ count, start }) => this._encoder.draw(count, 1, start, 0));
                 break;
             case DrawType.DrawElement:
-                _drawElementInfo.forEach(({ elementCount, elementStart }) => this._encoder.drawIndexed(elementCount, 1, elementStart, 0));
+                _drawElementInfo.forEach(({ elementCount, elementStart }) => this._encoder.drawIndexed(elementCount, 1, elementStart / indexByte, 0));
                 break;
             case DrawType.DrawArrayInstance:
                 _drawArrayInfo.forEach(({ count, start }) => this._encoder.draw(count, instanceCount, start, 0));
                 break;
             case DrawType.DrawElementInstance:
-                _drawElementInfo.forEach(({ elementCount, elementStart }) => this._encoder.drawIndexed(elementCount, instanceCount, elementStart, 0));
+                _drawElementInfo.forEach(({ elementCount, elementStart }) => this._encoder.drawIndexed(elementCount, instanceCount, elementStart / indexByte, 0));
+                break;
+        }
+    }
+
+    /**
+     * 上传几何数据
+     * @param geometry 
+     * @param part 
+     * @param setBuffer 
+     */
+    applyGeometryPart(geometry: WebGPURenderGeometry, part: number, setBuffer: boolean = true): void {
+        //解构geometry中的属性，减少代码重复
+        const { bufferState, indexFormat, drawType, instanceCount, _drawArrayInfo, _drawElementInfo } = geometry;
+        const { _vertexBuffers: vertexBuffers, _bindedIndexBuffer: indexBuffer } = bufferState;
+
+        let format: GPUIndexFormat = 'uint16';
+        let indexByte = 2; //index的字节数
+        if (setBuffer) {
+            vertexBuffers.forEach((vb, i) => this.setVertexBuffer(i, vb.source._source, 0, vb.source._size));
+            if (indexBuffer) {
+                format = (indexFormat === IndexFormat.UInt16) ? 'uint16' : 'uint32';
+                indexByte = (indexFormat === IndexFormat.UInt16) ? 2 : 4;
+                this.setIndexBuffer(indexBuffer.source._source, format, indexBuffer.source._size, 0);
+            }
+        }
+
+        //根据不同的数据类型绘制
+        let count = 0, start = 0;
+        switch (drawType) {
+            case DrawType.DrawArray:
+                count = _drawArrayInfo[part].count;
+                start = _drawArrayInfo[part].start;
+                this._encoder.draw(count, 1, start, 0);
+                break;
+            case DrawType.DrawElement:
+                count = _drawElementInfo[part].elementCount;
+                start = _drawElementInfo[part].elementStart;
+                this._encoder.drawIndexed(count, 1, start / indexByte, 0);
+                break;
+            case DrawType.DrawArrayInstance:
+                count = _drawArrayInfo[part].count;
+                start = _drawArrayInfo[part].start;
+                this._encoder.draw(count, instanceCount, start, 0);
+                break;
+            case DrawType.DrawElementInstance:
+                count = _drawElementInfo[part].elementCount;
+                start = _drawElementInfo[part].elementStart;
+                this._encoder.drawIndexed(count, instanceCount, start / indexByte, 0);
                 break;
         }
     }

@@ -45,17 +45,16 @@ export class WebGPUUniformBlockInfo {
      * @param count 
      */
     addUniform(name: string, type: string, offset: number, align: number, size: number, element: number, count: number) {
-        this.items.push(
-            {
-                propertyId: Shader3D.propertyNameToID(name),
-                name,
-                type,
-                size,
-                align,
-                offset,
-                element,
-                count
-            });
+        this.items.push({
+            propertyId: Shader3D.propertyNameToID(name),
+            name,
+            type,
+            size,
+            align,
+            offset,
+            element,
+            count
+        });
     }
 
     /**

@@ -42,7 +42,7 @@ vec3 BlinnPhongLighting(const in Surface surface, const in PixelParams pixel)
 	{
 	    if (i >= DirectionCount) break;
 	    DirectionLight directionLight = getDirectionLight(i, positionWS);
-	    // if (directionLight.lightMode == LightMode_Mix)
+	    // if (directionLight.lightMode == LightMode_Mix) //兼容WGSL
 		// {
 		//     continue;
 		// }
@@ -60,7 +60,7 @@ vec3 BlinnPhongLighting(const in Surface surface, const in PixelParams pixel)
     #ifdef POINTLIGHT
     for (int i = 0; i < CalculateLightCount; i++)
 	{
-	    if (i >= clusterInfo.x) break;
+	    //if (i >= clusterInfo.x) break; //兼容WGSL
 	    PointLight pointLight = getPointLight(i, clusterInfo, positionWS);
 	    // if (pointLight.lightMode == LightMode_Mix)
 		// {
@@ -68,7 +68,8 @@ vec3 BlinnPhongLighting(const in Surface surface, const in PixelParams pixel)
 		// }
         if (pointLight.lightMode != LightMode_Mix) {
 	        Light light = getLight(pointLight, normalWS, positionWS);
-	        lightColor += BlinnPhongLighting(surface, light, info) * light.attenuation;
+            if (i < clusterInfo.x)
+	            lightColor += BlinnPhongLighting(surface, light, info) * light.attenuation;
         }
 	}
     #endif // POINTLIGHT
@@ -76,7 +77,7 @@ vec3 BlinnPhongLighting(const in Surface surface, const in PixelParams pixel)
     #ifdef SPOTLIGHT
     for (int i = 0; i < CalculateLightCount; i++)
 	{
-	    if (i >= clusterInfo.y)	break;
+	    //if (i >= clusterInfo.y) break; //兼容WGSL
 	    SpotLight spotLight = getSpotLight(i, clusterInfo, positionWS);
 	    // if (spotLight.lightMode == LightMode_Mix)
 		// {
@@ -84,7 +85,8 @@ vec3 BlinnPhongLighting(const in Surface surface, const in PixelParams pixel)
 		// }
         if (spotLight.lightMode != LightMode_Mix) {
 	        Light light = getLight(spotLight, normalWS, positionWS);
-	        lightColor += BlinnPhongLighting(surface, light, info) * light.attenuation;
+            if (i < clusterInfo.y)
+	            lightColor += BlinnPhongLighting(surface, light, info) * light.attenuation;
         }
 	}
     #endif // SPOTLIGHT

@@ -1,3 +1,4 @@
+import { TextureFormat } from "../../../RenderEngine/RenderEnum/TextureFormat";
 import { Color } from "../../../maths/Color";
 import { Matrix3x3 } from "../../../maths/Matrix3x3";
 import { Matrix4x4 } from "../../../maths/Matrix4x4";
@@ -6,41 +7,63 @@ import { Vector3 } from "../../../maths/Vector3";
 import { Vector4 } from "../../../maths/Vector4";
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { Resource } from "../../../resource/Resource";
+import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
 import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
 import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
+import { WebGPURenderBundle } from "./WebGPUBundle/WebGPURenderBundle";
 import { WebGPUBindingInfoType, WebGPUUniformPropertyBindingInfo } from "./WebGPUCodeGenerator";
 import { WebGPUInternalTex } from "./WebGPUInternalTex";
-import { WebGPUUniformBuffer } from "./WebGPUUniform/WebGPUUniformBuffer";
 import { WebGPURenderCommandEncoder } from "./WebGPURenderCommandEncoder";
 import { WebGPURenderEngine } from "./WebGPURenderEngine";
 import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
-import { TextureFormat } from "../../../RenderEngine/RenderEnum/TextureFormat";
-import { WebGPURenderBundle } from "./WebGPUBundle/WebGPURenderBundle";
+import { WebGPUTextureFormat } from "./WebGPUTextureContext";
+import { WebGPUUniformBuffer } from "./WebGPUUniform/WebGPUUniformBuffer";
 
+/**
+ * 着色器数据
+ */
 export class WebGPUShaderData extends ShaderData {
     /**@internal */
-    _defineDatas: WebDefineDatas;
+    _defineDatas: WebDefineDatas; //宏定义对象
     /**@internal */
-    _data: any = null;
+    _data: any; //数据对象
     /**@internal */
-    _name: string;
+    _name: string; //名称，便于调试
     /**@internal */
-    protected _gammaColorMap: Map<number, Color>;
+    protected _gammaColorMap: Map<number, Color>; //颜色矫正数据
 
-    private _infoId: number;
-    private _uniformBuffer: WebGPUUniformBuffer;
-    private _bindGroupMap: Map<string, [GPUBindGroup, GPUBindGroupLayoutEntry[]]>;
-    private _bindGroup: GPUBindGroup;
+    private _infoId: number; //WebGPUUniformPropertyBindingInfo数据的唯一标识
+    private _uniformBuffer: WebGPUUniformBuffer; //Uniform缓冲区（负责上传数据到GPU）
+    private _bindGroupMap: Map<string, [GPUBindGroup, GPUBindGroupLayoutEntry[]]>; //缓存的BindGroup
+    private _bindGroup: GPUBindGroup; //缓存的BindGroup（非共享模式的着色器数据只可能有一个绑定组）
     private _bindGroupLayoutEntries: GPUBindGroupLayoutEntry[];
     bindGroupIsNew: boolean = false; //是否新建了bindGroup
 
-    private static _bindGroupCounter: number = 0;
+    coShaderData: WebGPUShaderData[]; //伴随ShaderData，用于骨骼动画
 
-    isShare: boolean = true; //是否共享模式，该ShaderData数据是否会被多个节点共享
-    isStatic: boolean = false; //是否静态，静态的节点会使用静态的大Buffer，减少上传次数
+    private _isShare: boolean = true; //是否共享模式，该ShaderData数据是否会被多个节点共享
+    get isShare(): boolean {
+        return this._isShare;
+    }
+    set isShare(value: boolean) {
+        this._isShare = value;
+        if (this.coShaderData)
+            for (let i = this.coShaderData.length - 1; i > -1; i--)
+                this.coShaderData[i].isShare = value;
+    }
+    private _isStatic: boolean = false; //是否静态，静态的节点会使用静态的大Buffer，减少上传次数
+    get isStatic(): boolean {
+        return this._isStatic;
+    }
+    set isStatic(value: boolean) {
+        this._isStatic = value;
+        if (this.coShaderData)
+            for (let i = this.coShaderData.length - 1; i > -1; i--)
+                this.coShaderData[i].isStatic = value;
+    }
     changeMark: number = 0; //变化标记，用于标记预编译设置是否变化，如变化，值+1
-    
+
     globalId: number;
     objectName: string = 'WebGPUShaderData';
 
@@ -51,7 +74,7 @@ export class WebGPUShaderData extends ShaderData {
         this._bindGroupMap = new Map();
         this._defineDatas = new WebDefineDatas();
 
-        //this.globalId = WebGPUGlobal.getId(this);
+        this.globalId = WebGPUGlobal.getId(this);
     }
 
     /**
@@ -83,11 +106,13 @@ export class WebGPUShaderData extends ShaderData {
      * 将数据更新到UniformBuffer中
      */
     private _updateUniformData() {
-        for (const idStr in this._data) {
-            const id = Number(idStr);
-            const value = this._data[idStr];
-            this._uniformBuffer.setUniformData(id, value);
+        for (const id in this._data) {
+            const value = this._data[id];
+            this._uniformBuffer.setUniformData(Number(id), value);
         }
+        if (this.coShaderData)
+            for (let i = this.coShaderData.length - 1; i > -1; i--)
+                this.coShaderData[i]._updateUniformData();
     }
 
     /**
@@ -97,6 +122,79 @@ export class WebGPUShaderData extends ShaderData {
         this._bindGroupMap.clear();
         this._bindGroup = null;
         this._bindGroupLayoutEntries = null;
+        if (this.coShaderData)
+            for (let i = this.coShaderData.length - 1; i > -1; i--)
+                this.coShaderData[i].clearBindGroup();
+    }
+
+    /**
+     * 创建绑定组项
+     * @param info 
+     */
+    createBindGroupLayoutEntry(info: WebGPUUniformPropertyBindingInfo[]) {
+        const bindGroupLayoutEntries = [];
+        let internalTex: WebGPUInternalTex;
+        for (const item of info) {
+            switch (item.type) {
+                case WebGPUBindingInfoType.buffer:
+                    if (item.uniform) {
+                        bindGroupLayoutEntries.push({
+                            binding: item.binding,
+                            visibility: item.visibility,
+                            buffer: item.buffer,
+                        });
+                    }
+                    break;
+                case WebGPUBindingInfoType.texture:
+                    if (item.texture) {
+                        const texture = this.getTexture(item.propertyId);
+                        if (!texture) return null;
+                        else {
+                            if (texture instanceof WebGPUInternalTex)
+                                internalTex = texture;
+                            else internalTex = texture._texture as WebGPUInternalTex;
+                            if (internalTex._webGPUFormat === WebGPUTextureFormat.depth16unorm)
+                                item.texture.sampleType = 'unfilterable-float';
+                            else
+                                if (texture.format === TextureFormat.R32G32B32A32)
+                                    item.texture.sampleType = 'unfilterable-float';
+                                else item.texture.sampleType = 'float';
+                            bindGroupLayoutEntries.push({
+                                binding: item.binding,
+                                visibility: item.visibility,
+                                texture: item.texture,
+                            });
+                        }
+                    }
+                    break;
+                case WebGPUBindingInfoType.sampler:
+                    if (item.sampler) {
+                        const texture = this.getTexture(item.propertyId);
+                        if (!texture) return null;
+                        else {
+                            if (texture instanceof WebGPUInternalTex)
+                                internalTex = texture;
+                            else internalTex = texture._texture as WebGPUInternalTex;
+                            // if (internalTex.compareMode > 0)
+                            //     item.sampler.type = 'comparison';
+                            // else 
+                            if (internalTex._webGPUFormat === WebGPUTextureFormat.depth16unorm)
+                                item.sampler.type = 'non-filtering';
+                            else
+                                if (texture.format === TextureFormat.R32G32B32A32)
+                                    item.sampler.type = 'non-filtering';
+                                else item.sampler.type = 'filtering';
+                            bindGroupLayoutEntries.push({
+                                binding: item.binding,
+                                visibility: item.visibility,
+                                sampler: item.sampler,
+                            });
+                        }
+                    }
+                    break;
+            }
+        }
+        return bindGroupLayoutEntries;
     }
 
     /**
@@ -105,9 +203,10 @@ export class WebGPUShaderData extends ShaderData {
      * @param name 
      * @param info 
      * @param command 
+     * @param bundle 
      */
     bindGroup(groupId: number, name: string, info: WebGPUUniformPropertyBindingInfo[],
-        command: WebGPURenderCommandEncoder, bundle: WebGPURenderBundle) {
+        command: WebGPURenderCommandEncoder, bundle?: WebGPURenderBundle) {
         const device = WebGPURenderEngine._instance.getDevice();
 
         //同一个ShaderData可能需要不同的bindGroup，因为某些ShaderData是共享的（比如Scene3D和Camera）
@@ -143,6 +242,7 @@ export class WebGPUShaderData extends ShaderData {
         if (!bindGroup) {
             bindGroupLayoutEntries = [];
             const bindGroupEntries = [];
+            let internalTex: WebGPUInternalTex;
             for (const item of info) {
                 switch (item.type) {
                     case WebGPUBindingInfoType.buffer:
@@ -161,9 +261,16 @@ export class WebGPUShaderData extends ShaderData {
                             const texture = this.getTexture(item.propertyId);
                             if (!texture) return null;
                             else {
-                                if (texture.format === TextureFormat.R32G32B32A32)
+                                if (texture instanceof WebGPUInternalTex)
+                                    internalTex = texture;
+                                else internalTex = texture._texture as WebGPUInternalTex;
+                                if (internalTex._webGPUFormat === WebGPUTextureFormat.depth16unorm)
                                     item.texture.sampleType = 'unfilterable-float';
-                                else item.texture.sampleType = 'float';
+                                else {
+                                    if (internalTex._webGPUFormat === WebGPUTextureFormat.rgba32float)
+                                        item.texture.sampleType = 'unfilterable-float';
+                                    else item.texture.sampleType = 'float';
+                                }
                                 bindGroupLayoutEntries.push({
                                     binding: item.binding,
                                     visibility: item.visibility,
@@ -171,7 +278,7 @@ export class WebGPUShaderData extends ShaderData {
                                 });
                                 bindGroupEntries.push({
                                     binding: item.binding,
-                                    resource: (texture._texture as WebGPUInternalTex).getTextureView(),
+                                    resource: internalTex.getTextureView(),
                                 });
                             }
                         }
@@ -181,9 +288,20 @@ export class WebGPUShaderData extends ShaderData {
                             const texture = this.getTexture(item.propertyId);
                             if (!texture) return null;
                             else {
-                                if (texture.format === TextureFormat.R32G32B32A32)
+                                if (texture instanceof WebGPUInternalTex)
+                                    internalTex = texture;
+                                else internalTex = texture._texture as WebGPUInternalTex;
+                                // if (internalTex.compareMode > 0)
+                                //     item.sampler.type = 'comparison';
+                                // else
+                                if (internalTex._webGPUFormat === WebGPUTextureFormat.depth16unorm)
                                     item.sampler.type = 'non-filtering';
-                                else item.sampler.type = 'filtering';
+                                else {
+                                    if (internalTex._webGPUFormat === WebGPUTextureFormat.rgba32float)
+                                        item.sampler.type = 'non-filtering';
+                                    else item.sampler.type = 'filtering';
+                                }
+                                //console.log(internalTex._webGPUFormat, item.sampler.type);
                                 bindGroupLayoutEntries.push({
                                     binding: item.binding,
                                     visibility: item.visibility,
@@ -191,7 +309,7 @@ export class WebGPUShaderData extends ShaderData {
                                 });
                                 bindGroupEntries.push({
                                     binding: item.binding,
-                                    resource: (texture._texture as WebGPUInternalTex).sampler.source,
+                                    resource: internalTex.sampler.source,
                                 });
                             }
                         }
@@ -206,6 +324,7 @@ export class WebGPUShaderData extends ShaderData {
                 layout: device.createBindGroupLayout(bindGroupLayoutDesc),
                 entries: bindGroupEntries,
             });
+
             //缓存绑定组
             if (this.isShare)
                 this._bindGroupMap.set(key, [bindGroup, bindGroupLayoutEntries]);
@@ -218,14 +337,10 @@ export class WebGPUShaderData extends ShaderData {
         } else this.bindGroupIsNew = false;
 
         //将绑定组附加到命令
-        if (command) {
+        if (command)
             command.setBindGroup(groupId, bindGroup);
-            //console.log('bind command');
-        }
-        if (bundle) {
+        if (bundle)
             bundle.setBindGroup(groupId, bindGroup);
-            //console.log('bind bundle');
-        }
         //返回绑定组结构（用于建立pipeline）
         return bindGroupLayoutEntries;
     }
@@ -234,129 +349,160 @@ export class WebGPUShaderData extends ShaderData {
      * 上传数据
      */
     uploadUniform() {
-        this._uniformBuffer.upload();
+        if (this._uniformBuffer)
+            this._uniformBuffer.upload();
+        if (this.coShaderData)
+            for (let i = this.coShaderData.length - 1; i > -1; i--)
+                this.coShaderData[i].uploadUniform();
     }
 
+    /**
+     * 获取数据对象
+     */
     getData() {
         return this._data;
     }
 
+    /**
+     * 获取宏定义数据
+     */
     getDefineData() {
         return this._defineDatas;
     }
 
     /**
-     * 增加Shader宏定义。
-     * @param value 宏定义。
+     * 增加Shader宏定义
+     * @param value 宏定义
      */
-    addDefine(define: ShaderDefine): void {
+    addDefine(define: ShaderDefine) {
         this._defineDatas.add(define);
+        if (this.coShaderData)
+            for (let i = this.coShaderData.length - 1; i > -1; i--)
+                this.coShaderData[i].addDefine(define);
     }
-    addDefines(define: WebDefineDatas): void {
+    addDefines(define: WebDefineDatas) {
         this._defineDatas.addDefineDatas(define);
+        if (this.coShaderData)
+            for (let i = this.coShaderData.length - 1; i > -1; i--)
+                this.coShaderData[i].addDefines(define);
     }
 
     /**
-     * 移除Shader宏定义。
-     * @param value 宏定义。
+     * 移除Shader宏定义
+     * @param value 宏定义
      */
-    removeDefine(define: ShaderDefine): void {
+    removeDefine(define: ShaderDefine) {
         this._defineDatas.remove(define);
+        if (this.coShaderData)
+            for (let i = this.coShaderData.length - 1; i > -1; i--)
+                this.coShaderData[i].removeDefine(define);
     }
 
     /**
-     * 是否包含Shader宏定义。
-     * @param value 宏定义。
+     * 是否包含Shader宏定义
+     * @param value 宏定义
      */
-    hasDefine(define: ShaderDefine): boolean {
+    hasDefine(define: ShaderDefine) {
         return this._defineDatas.has(define);
     }
 
     /**
-     * 清空宏定义。
+     * 清空宏定义
      */
-    clearDefine(): void {
+    clearDefine() {
         this._defineDatas.clear();
+        if (this.coShaderData)
+            for (let i = this.coShaderData.length - 1; i > -1; i--)
+                this.coShaderData[i].clearDefine();
     }
 
     /**
-     * 获取布尔。
-     * @param index shader索引。
-     * @return 布尔。
+     * 获取布尔
+     * @param index shader索引
+     * @return 布尔
      */
     getBool(index: number): boolean {
         return this._data[index];
     }
 
     /**
-     * 设置布尔。
-     * @param index shader索引。
-     * @param value 布尔。
+     * 设置布尔
+     * @param index shader索引
+     * @param value 布尔
      */
-    setBool(index: number, value: boolean): void {
+    setBool(index: number, value: boolean) {
         if (this._data[index] === value) return;
         this._data[index] = value;
         if (this._uniformBuffer)
             this._uniformBuffer.setBool(index, value);
+        if (this.coShaderData)
+            for (let i = this.coShaderData.length - 1; i > -1; i--)
+                this.coShaderData[i].setBool(index, value);
     }
 
     /**
-     * 获取整形。
-     * @param index shader索引。
-     * @return 整形。
+     * 获取整型
+     * @param index shader索引
+     * @return 整型
      */
     getInt(index: number): number {
         return this._data[index];
     }
 
     /**
-     * 设置整型。
-     * @param index shader索引。
-     * @param value 整形。
+     * 设置整型
+     * @param index shader索引
+     * @param value 整型
      */
-    setInt(index: number, value: number): void {
+    setInt(index: number, value: number) {
         if (this._data[index] === value) return;
         this._data[index] = value;
         if (this._uniformBuffer)
             this._uniformBuffer.setInt(index, value);
+        if (this.coShaderData)
+            for (let i = this.coShaderData.length - 1; i > -1; i--)
+                this.coShaderData[i].setInt(index, value);
     }
 
     /**
-     * 获取浮点。
-     * @param	index shader索引。
-     * @return	浮点。
+     * 获取浮点
+     * @param index shader索引
+     * @return 浮点
      */
     getNumber(index: number): number {
         return this._data[index];
     }
 
     /**
-     * 设置浮点。
-     * @param index shader索引。
-     * @param value 浮点。
+     * 设置浮点
+     * @param index shader索引
+     * @param value 浮点
      */
-    setNumber(index: number, value: number): void {
+    setNumber(index: number, value: number) {
         if (this._data[index] === value) return;
         this._data[index] = value;
         if (this._uniformBuffer)
             this._uniformBuffer.setFloat(index, value);
+        if (this.coShaderData)
+            for (let i = this.coShaderData.length - 1; i > -1; i--)
+                this.coShaderData[i].setNumber(index, value);
     }
 
     /**
-     * 获取Vector2向量。
-     * @param index shader索引。
-     * @return Vector2向量。
+     * 获取Vector2向量
+     * @param index shader索引
+     * @return Vector2向量
      */
     getVector2(index: number): Vector2 {
         return this._data[index];
     }
 
     /**
-     * 设置Vector2向量。
-     * @param index shader索引。
-     * @param value Vector2向量。
+     * 设置Vector2向量
+     * @param index shader索引
+     * @param value Vector2向量
      */
-    setVector2(index: number, value: Vector2): void {
+    setVector2(index: number, value: Vector2) {
         const v2 = this._data[index];
         if (v2) {
             if (Vector2.equals(v2, value)) return;
@@ -364,23 +510,26 @@ export class WebGPUShaderData extends ShaderData {
         } else this._data[index] = value.clone();
         if (this._uniformBuffer)
             this._uniformBuffer.setVector2(index, value);
+        if (this.coShaderData)
+            for (let i = this.coShaderData.length - 1; i > -1; i--)
+                this.coShaderData[i].setVector2(index, value);
     }
 
     /**
-     * 获取Vector3向量。
-     * @param index shader索引。
-     * @return Vector3向量。
+     * 获取Vector3向量
+     * @param index shader索引
+     * @return Vector3向量
      */
     getVector3(index: number): Vector3 {
         return this._data[index];
     }
 
     /**
-     * 设置Vector3向量。
-     * @param index shader索引。
-     * @param value Vector3向量。
+     * 设置Vector3向量
+     * @param index shader索引
+     * @param value Vector3向量
      */
-    setVector3(index: number, value: Vector3): void {
+    setVector3(index: number, value: Vector3) {
         const v3 = this._data[index];
         if (v3) {
             if (Vector3.equals(v3, value)) return;
@@ -388,23 +537,26 @@ export class WebGPUShaderData extends ShaderData {
         } else this._data[index] = value.clone();
         if (this._uniformBuffer)
             this._uniformBuffer.setVector3(index, value);
+        if (this.coShaderData)
+            for (let i = this.coShaderData.length - 1; i > -1; i--)
+                this.coShaderData[i].setVector3(index, value);
     }
 
     /**
-     * 获取向量。
-     * @param index shader索引。
-     * @return 向量。
+     * 获取向量
+     * @param index shader索引
+     * @return 向量
      */
     getVector(index: number): Vector4 {
         return this._data[index];
     }
 
     /**
-     * 设置向量。
-     * @param index shader索引。
-     * @param value 向量。
+     * 设置向量
+     * @param index shader索引
+     * @param value 向量
      */
-    setVector(index: number, value: Vector4): void {
+    setVector(index: number, value: Vector4) {
         const v4 = this._data[index]
         if (v4) {
             if (Vector4.equals(v4, value)) return;
@@ -412,6 +564,9 @@ export class WebGPUShaderData extends ShaderData {
         } else this._data[index] = value.clone();
         if (this._uniformBuffer)
             this._uniformBuffer.setVector4(index, value);
+        if (this.coShaderData)
+            for (let i = this.coShaderData.length - 1; i > -1; i--)
+                this.coShaderData[i].setVector(index, value);
     }
 
     /**
@@ -419,7 +574,7 @@ export class WebGPUShaderData extends ShaderData {
      * @param index 索引
      * @returns 颜色
      */
-    getColor(index: number): Color {
+    getColor(index: number) {
         return this._gammaColorMap.get(index);
     }
 
@@ -428,7 +583,7 @@ export class WebGPUShaderData extends ShaderData {
      * @param index 索引
      * @param value 颜色值
      */
-    setColor(index: number, value: Color): void {
+    setColor(index: number, value: Color) {
         if (!value) return;
         if (this._data[index]) {
             const gammaColor = this._gammaColorMap.get(index);
@@ -454,6 +609,9 @@ export class WebGPUShaderData extends ShaderData {
             if (this._uniformBuffer)
                 this._uniformBuffer.setVector4(index, linearColor);
         }
+        if (this.coShaderData)
+            for (let i = this.coShaderData.length - 1; i > -1; i--)
+                this.coShaderData[i].setColor(index, value);
     }
 
     /**
@@ -466,34 +624,37 @@ export class WebGPUShaderData extends ShaderData {
     }
 
     /**
-     * 设置矩阵。
+     * 设置矩阵
      * @param index 
      * @param value 
      */
-    setMatrix3x3(index: number, value: Matrix3x3): void {
+    setMatrix3x3(index: number, value: Matrix3x3) {
         const mat = this._data[index] as Matrix3x3;
-        if (mat) {
+        if (mat)
             value.cloneTo(this._data[index]);
-        } else this._data[index] = value.clone();
+        else this._data[index] = value.clone();
         if (this._uniformBuffer)
             this._uniformBuffer.setMatrix3x3(index, value);
+        if (this.coShaderData)
+            for (let i = this.coShaderData.length - 1; i > -1; i--)
+                this.coShaderData[i].setMatrix3x3(index, value);
     }
 
     /**
-     * 获取矩阵。
-     * @param index shader索引。
-     * @return 矩阵。
+     * 获取矩阵
+     * @param index shader索引
+     * @return 矩阵
      */
     getMatrix4x4(index: number): Matrix4x4 {
         return this._data[index];
     }
 
     /**
-     * 设置矩阵。
-     * @param index shader索引。
-     * @param value 矩阵。
+     * 设置矩阵
+     * @param index shader索引
+     * @param value 矩阵
      */
-    setMatrix4x4(index: number, value: Matrix4x4): void {
+    setMatrix4x4(index: number, value: Matrix4x4) {
         const mat = this._data[index] as Matrix4x4;
         if (mat) {
             if (mat.equalsOtherMatrix(value)) return;
@@ -501,11 +662,14 @@ export class WebGPUShaderData extends ShaderData {
         } else this._data[index] = value.clone();
         if (this._uniformBuffer)
             this._uniformBuffer.setMatrix4x4(index, value);
+        if (this.coShaderData)
+            for (let i = this.coShaderData.length - 1; i > -1; i--)
+                this.coShaderData[i].setMatrix4x4(index, value);
     }
 
     /**
-     * 获取Buffer。
-     * @param index shader索引。
+     * 获取Buffer
+     * @param index shader索引
      * @return
      */
     getBuffer(index: number): Float32Array {
@@ -513,82 +677,152 @@ export class WebGPUShaderData extends ShaderData {
     }
 
     /**
-     * 设置Buffer。
-     * @param index shader索引。
-     * @param value buffer数据。
+     * 设置Buffer
+     * @param index shader索引
+     * @param value buffer数据
      */
-    setBuffer(index: number, value: Float32Array): void {
+    setBuffer(index: number, value: Float32Array) {
         this._data[index] = value;
-        this._uniformBuffer.setBuffer(index, value);
+        if (this._uniformBuffer)
+            this._uniformBuffer.setBuffer(index, value);
+        if (this.coShaderData)
+            for (let i = this.coShaderData.length - 1; i > -1; i--)
+                this.coShaderData[i].setBuffer(index, value);
     }
 
     /**
-     * 设置纹理。
-     * @param index shader索引。
-     * @param value 纹理。
+     * 设置纹理
+     * @param index shader索引
+     * @param value 纹理
      */
-    setTexture(index: number, value: BaseTexture): void {
+    setTexture(index: number, value: BaseTexture) {
         const lastValue: BaseTexture = this._data[index];
         if (lastValue === value) return;
         if (value) {
             const shaderDefine = WebGPURenderEngine._instance._texGammaDefine[index];
-            if (shaderDefine && value && value.gammaCorrection > 1)
-                this.addDefine(shaderDefine);
-            else if (shaderDefine) this.removeDefine(shaderDefine);
+            if (shaderDefine) {
+                if (value.gammaCorrection > 1)
+                    this.addDefine(shaderDefine);
+                else this.removeDefine(shaderDefine);
+            }
+            // if (shaderDefine) {
+            //     if (value.gammaCorrection > 1) {
+            //         if (!this.hasDefine(shaderDefine)) {
+            //             this.addDefine(shaderDefine);
+            //             this.changeMark++;
+            //         }
+            //     } else {
+            //         if (this.hasDefine(shaderDefine)) {
+            //             this.removeDefine(shaderDefine);
+            //             this.changeMark++;
+            //         }
+            //     }
+            // }
         }
-        //维护Reference
+        //if ((!lastValue && value) || (lastValue && !value))
+        this.changeMark++;
         this._data[index] = value;
         lastValue && lastValue._removeReference();
         value && value._addReference();
         this.clearBindGroup(); //清理绑定组（重建绑定）
-        this.changeMark++;
+        if (this.coShaderData)
+            for (let i = this.coShaderData.length - 1; i > -1; i--)
+                this.coShaderData[i].setTexture(index, value);
     }
 
-    // /**@internal */
-    // _setInternalTexture(index: number, value: InternalTexture) {
-    //     if (value) {
-    //         const shaderDefine = WebGPURenderEngine._instance._texGammaDefine[index];
-    //         if (shaderDefine && value && value.gammaCorrection > 1)
-    //             this.addDefine(shaderDefine);
-    //         else if (shaderDefine) this.removeDefine(shaderDefine);
-    //     }
-    //     this._data[index] = value;
-    //     this.clearBindGroup();
-    // }
+    /**
+     * 设置内部纹理
+     * @param index shader索引
+     * @param value 纹理
+     */
+    _setInternalTexture(index: number, value: InternalTexture) {
+        const lastValue: InternalTexture = this._data[index];
+        if (lastValue === value) return;
+        if (value) {
+            const shaderDefine = WebGPURenderEngine._instance._texGammaDefine[index];
+            if (shaderDefine) {
+                if (value.gammaCorrection > 1)
+                    this.addDefine(shaderDefine);
+                else this.removeDefine(shaderDefine);
+            }
+            // if (shaderDefine) {
+            //     if (value.gammaCorrection > 1) {
+            //         if (!this.hasDefine(shaderDefine)) {
+            //             this.addDefine(shaderDefine);
+            //             this.changeMark++;
+            //         }
+            //     } else {
+            //         if (this.hasDefine(shaderDefine)) {
+            //             this.removeDefine(shaderDefine);
+            //             this.changeMark++;
+            //         }
+            //     }
+            // }
+        }
+        //if ((!lastValue && value) || (lastValue && !value))
+        this.changeMark++;
+        this._data[index] = value;
+        this.clearBindGroup(); //清理绑定组（重建绑定）
+        if (this.coShaderData)
+            for (let i = this.coShaderData.length - 1; i > -1; i--)
+                this.coShaderData[i]._setInternalTexture(index, value);
+    }
 
     /**
-     * 获取纹理。
-     * @param index shader索引。
-     * @return 纹理。
+     * 获取纹理
+     * @param index shader索引
+     * @return 纹理
      */
     getTexture(index: number): BaseTexture {
         return this._data[index];
     }
 
-    getSourceIndex(value: any): number {
+    getSourceIndex(value: any) {
         for (const i in this._data)
             if (this._data[i] === value)
                 return Number(i);
         return -1;
     }
 
-    cloneTo(dest: WebGPUShaderData): void {
-        //TODO
+    /**
+     * 克隆
+     * @param dest 
+     */
+    cloneTo(dest: WebGPUShaderData) {
+        dest._data = {};
+        for (const id in this._data) {
+            dest._data[id] = this._data[id];
+            if (dest._uniformBuffer)
+                dest._uniformBuffer.setUniformData(Number(id), this._data[id]);
+        }
+        dest._defineDatas.clear();
+        this._defineDatas.cloneTo(dest._defineDatas);
+
+        dest._gammaColorMap.clear();
+        this._gammaColorMap.forEach((value, key) => { dest._gammaColorMap.set(key, value); });
+
+        dest._infoId = this._infoId;
+        dest._isShare = this._isShare;
+        dest._isStatic = this._isStatic;
+        dest.changeMark = this.changeMark;
     }
 
     /**
-     * 克隆。
-     * @return 克隆副本。
+     * 克隆
      */
-    clone(): any {
-        const dest: WebGPUShaderData = new WebGPUShaderData();
+    clone() {
+        const dest = new WebGPUShaderData();
         this.cloneTo(dest);
         return dest;
     }
 
-    destroy(): void {
+    _releaseUBOData() { }
+
+    /**
+     * 销毁
+     */
+    destroy() {
         WebGPUGlobal.releaseId(this);
-        super.destroy();
         this.clearBindGroup();
     }
 }

@@ -50,7 +50,10 @@ export class WebGPURenderGeometry implements IRenderGeometryElement {
     /**@internal */
     drawType: DrawType;
 
-    private _id: number;
+    d2VertexDone: boolean = false;
+    skinIndicesDone: boolean = false;
+
+    _id: number;
     static _idCounter: number = 0;
 
     get instanceCount(): number {
@@ -101,7 +104,7 @@ export class WebGPURenderGeometry implements IRenderGeometryElement {
         this._drawElementInfo.push({
             elementStart: offset,
             elementCount: count
-        })
+        });
     }
 
     setInstanceRenderOffset(offset: number, instanceCount: number) {

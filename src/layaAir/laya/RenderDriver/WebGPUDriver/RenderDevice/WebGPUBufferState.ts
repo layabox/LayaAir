@@ -21,7 +21,7 @@ export class WebGPUBufferState implements IBufferState {
     objectName: string = 'WebGPUBufferState';
 
     applyState(vertexBuffers: WebGPUVertexBuffer[], indexBuffer: WebGPUIndexBuffer): void {
-        this._vertexBuffers = vertexBuffers.slice();
+        this._vertexBuffers = vertexBuffers.slice(); //因为vertexBuffers是共享的，必须slice
         this._bindedIndexBuffer = indexBuffer;
         this._getVertexBufferLayoutArray();
         this.updateBufferLayoutFlag++;

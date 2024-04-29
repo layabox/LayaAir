@@ -1,3 +1,4 @@
+//兼容WGSL
 #if !defined(pbrFrag_lib)
     #define pbrFrag_lib
 
@@ -78,8 +79,7 @@ vec3 PBRLighting(const in Surface surface, const in PixelInfo info)
     #ifdef DIRECTIONLIGHT
     for (int i = 0; i < CalculateLightCount; i++)
 	{
-	    if (i >= DirectionCount)
-		break;
+	    if (i >= DirectionCount) break;
 	    DirectionLight directionLight = getDirectionLight(i, info.positionWS);
 	    // if (directionLight.lightMode == LightMode_Mix)
 		// {
@@ -99,8 +99,7 @@ vec3 PBRLighting(const in Surface surface, const in PixelInfo info)
     #ifdef POINTLIGHT
     for (int i = 0; i < CalculateLightCount; i++)
 	{
-	    if (i >= clusterInfo.x)
-		break;
+	    //if (i >= clusterInfo.x) break;
 	    PointLight pointLight = getPointLight(i, clusterInfo, info.positionWS);
 	    // if (pointLight.lightMode == LightMode_Mix)
 		// {
@@ -108,7 +107,8 @@ vec3 PBRLighting(const in Surface surface, const in PixelInfo info)
 		// }
         if (pointLight.lightMode != LightMode_Mix) {
 	        Light light = getLight(pointLight, info.normalWS, info.positionWS);
-	        lightColor += PBRLighting(surface, info, light) * light.attenuation;
+            if (i < clusterInfo.x)
+	            lightColor += PBRLighting(surface, info, light) * light.attenuation;
         }
 	}
     #endif // POINTLIGHT
@@ -116,8 +116,7 @@ vec3 PBRLighting(const in Surface surface, const in PixelInfo info)
     #ifdef SPOTLIGHT
     for (int i = 0; i < CalculateLightCount; i++)
 	{
-	    if (i >= clusterInfo.y)
-		break;
+	    //if (i >= clusterInfo.y) break;
 	    SpotLight spotLight = getSpotLight(i, clusterInfo, info.positionWS);
 	    // if (spotLight.lightMode == LightMode_Mix)
 		// {
@@ -125,7 +124,8 @@ vec3 PBRLighting(const in Surface surface, const in PixelInfo info)
 		// }
         if (spotLight.lightMode != LightMode_Mix) {
 	        Light light = getLight(spotLight, info.normalWS, info.positionWS);
-	        lightColor += PBRLighting(surface, info, light) * light.attenuation;
+            if (i < clusterInfo.y)
+	            lightColor += PBRLighting(surface, info, light) * light.attenuation;
         }
 	}
     #endif // SPOTLIGHT

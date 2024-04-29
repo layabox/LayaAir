@@ -97,5 +97,14 @@ export class ShaderPass extends ShaderCompileDefineBase {
         this.moduleData.setCacheShader(compileDefine, shader);
         return shader;
     }
-}
 
+    /**
+     * 获取uniform信息
+     * @param compileDefine 
+     */
+    getUniform(compileDefine: IDefineDatas) { //兼容WGSL
+        const defineString = ShaderPass._defineStrings;
+        Shader3D._getNamesByDefineData(compileDefine, defineString); //@ts-ignore
+        return LayaGL.renderDeviceFactory.getUniform(defineString, this._owner._uniformMap, this._VS, this._PS);
+    }
+}

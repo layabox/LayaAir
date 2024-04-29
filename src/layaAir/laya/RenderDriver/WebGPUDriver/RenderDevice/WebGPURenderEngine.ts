@@ -63,6 +63,7 @@ export class WebGPURenderEngine implements IRenderEngine {
     _context: GPUCanvasContext;
     _config: WebGPUConfig;
 
+    screenResized: boolean = false;
     _screenRT: WebGPUInternalRT; //屏幕渲染目标（绑定Canvas）
 
     private _adapter: GPUAdapter;
@@ -162,8 +163,8 @@ export class WebGPURenderEngine implements IRenderEngine {
 
         this.gpuBufferMgr = new WebGPUBufferManager(device);
         if (WebGPUGlobal.useBigBuffer) {
-            this.gpuBufferMgr.addBuffer('scene3D', 2 * 1024, 1, true);
-            this.gpuBufferMgr.addBuffer('camera', 2 * 1024, 1, true);
+            this.gpuBufferMgr.addBuffer('scene3D', 2 * 1024, 1);
+            this.gpuBufferMgr.addBuffer('camera', 2 * 1024, 1);
             this.gpuBufferMgr.addBuffer('material', 16 * 1024, 1);
             this.gpuBufferMgr.addBuffer('sprite3D', 64 * 1024, 2);
             this.gpuBufferMgr.addBuffer('sprite3D_static', 64 * 1024, 4);
@@ -360,5 +361,6 @@ export class WebGPURenderEngine implements IRenderEngine {
             this._textureContext.createRenderTargetInternal
                 (this._canvas.width, this._canvas.height, RenderTargetFormat.R8G8B8A8,
                     RenderTargetFormat.None, false, false, this._config.msaa ? 4 : 1) as WebGPUInternalRT;
+        this.screenResized = true;
     }
 }

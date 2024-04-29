@@ -13,6 +13,9 @@ export class WebGPUContext {
     static lastBundleGeometry: WebGPURenderGeometry = null;
     static lastCommandGeometry: WebGPURenderGeometry = null;
 
+    /**
+     * 开始渲染（清空历史数据）
+     */
     static startRender() {
         this.lastBundle = null;
         this.lastCommand = null;
@@ -22,16 +25,27 @@ export class WebGPUContext {
         this.lastCommandGeometry = null;
     }
 
+    /**
+     * 清空上次打包数据
+     */
     static clearLastBundle() {
         this.lastBundlePipeline = null;
         this.lastBundleGeometry = null;
     }
 
+    /**
+     * 清空上次命令数据
+     */
     static clearLastCommand() {
         this.lastCommandPipeline = null;
         this.lastCommandGeometry = null;
     }
 
+    /**
+     * 设置打包管线
+     * @param bundle 
+     * @param pipeline 
+     */
     static setBundlePipeline(bundle: WebGPURenderBundle, pipeline: GPURenderPipeline) {
         if (this.lastBundle !== bundle || this.lastBundlePipeline !== pipeline) {
             bundle.setPipeline(pipeline);
@@ -42,6 +56,11 @@ export class WebGPUContext {
         }
     }
 
+    /**
+     * 设置命令管线
+     * @param command 
+     * @param pipeline 
+     */
     static setCommandPipeline(command: WebGPURenderCommandEncoder, pipeline: GPURenderPipeline) {
         if (this.lastCommand !== command || this.lastCommandPipeline !== pipeline) {
             command.setPipeline(pipeline);
@@ -52,6 +71,11 @@ export class WebGPUContext {
         }
     }
 
+    /**
+     * 设置打包几何数据
+     * @param bundle 
+     * @param geometry 
+     */
     static applyBundleGeometry(bundle: WebGPURenderBundle, geometry: WebGPURenderGeometry) {
         if (this.lastBundle !== bundle || this.lastBundleGeometry !== geometry) {
             bundle.applyGeometry(geometry, true);
@@ -62,6 +86,27 @@ export class WebGPUContext {
         } else bundle.applyGeometry(geometry, false);
     }
 
+    /**
+     * 设置打包几何数据（部分）
+     * @param bundle 
+     * @param geometry 
+     * @param part 
+     */
+    static applyBundleGeometryPart(bundle: WebGPURenderBundle, geometry: WebGPURenderGeometry, part: number) {
+        if (this.lastBundle !== bundle || this.lastBundleGeometry !== geometry) {
+            bundle.applyGeometryPart(geometry, part, true);
+            if (this.lastBundle !== bundle)
+                this.clearLastBundle();
+            this.lastBundle = bundle;
+            this.lastBundleGeometry = geometry;
+        } else bundle.applyGeometryPart(geometry, part, false);
+    }
+
+    /**
+     * 设置命令几何数据
+     * @param command 
+     * @param geometry 
+     */
     static applyCommandGeometry(command: WebGPURenderCommandEncoder, geometry: WebGPURenderGeometry) {
         if (this.lastCommand !== command || this.lastCommandGeometry !== geometry) {
             command.applyGeometry(geometry, true);
@@ -70,5 +115,21 @@ export class WebGPUContext {
             this.lastCommand = command;
             this.lastCommandGeometry = geometry;
         } else command.applyGeometry(geometry, false);
+    }
+
+    /**
+     * 设置命令几何数据（部分）
+     * @param command 
+     * @param geometry 
+     * @param part 
+     */
+    static applyCommandGeometryPart(command: WebGPURenderCommandEncoder, geometry: WebGPURenderGeometry, part: number) {
+        if (this.lastCommand !== command || this.lastCommandGeometry !== geometry) {
+            command.applyGeometryPart(geometry, part, true);
+            if (this.lastCommand !== command)
+                this.clearLastCommand();
+            this.lastCommand = command;
+            this.lastCommandGeometry = geometry;
+        } else command.applyGeometryPart(geometry, part, false);
     }
 }

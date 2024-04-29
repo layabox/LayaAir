@@ -27,7 +27,7 @@ export class WebGPUBufferBlock {
         this.destroyed = false;
 
         this.objectName = 'WebGPUBufferBlock | ' + buffer.name;
-        //this.globalId = WebGPUGlobal.getId(this);
+        this.globalId = WebGPUGlobal.getId(this);
         //WebGPUGlobal.action(this, 'getMemory', alignedSize);
     }
 
