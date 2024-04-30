@@ -50,7 +50,11 @@ export class RTReflectionProb implements IReflectionProbeData {
     }
     public set reflectionTexture(value: InternalTexture) {
         this._reflectionTexture = value;
-        this._nativeObj.setReflectionTexture(value);
+        if (!value) {
+            this._nativeObj.setReflectionTexture(null);
+            return;
+        }
+        this._nativeObj.setReflectionTexture((value as any)._nativeObj);
     }
     private _iblTex: InternalTexture;
     public get iblTex(): InternalTexture {
@@ -58,7 +62,11 @@ export class RTReflectionProb implements IReflectionProbeData {
     }
     public set iblTex(value: InternalTexture) {
         this._iblTex = value;
-        this._nativeObj.setIblTex(value);
+        if (!value) {
+            this._nativeObj.setIblTex(null);
+            return;
+        }
+        this._nativeObj.setIblTex((value as any)._nativeObj);
     }
     public get updateMark(): number {
         return this._nativeObj._updateMark;
