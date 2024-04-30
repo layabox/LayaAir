@@ -39,7 +39,10 @@ export class GLESEngine implements IRenderEngine {
   public set _enableStatistics(value: boolean) {
     this._nativeObj.enableStatistics = value;
   }
-  resizeOffScreen(width: number, height: number): void { }
+
+  resizeOffScreen(width: number, height: number): void { 
+    this._nativeObj.resizeOffScreen(width,height);
+  }
 
   getDefineByName(name: string): RTShaderDefine {
     let nativeRet: any = this._nativeObj.getDefineByName(name);
