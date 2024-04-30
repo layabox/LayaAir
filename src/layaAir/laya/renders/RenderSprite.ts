@@ -321,7 +321,6 @@ export class RenderSprite {
             return true;    //重绘
         }
         return false;
-        context.material = null;
     }
 
     /**@internal */
