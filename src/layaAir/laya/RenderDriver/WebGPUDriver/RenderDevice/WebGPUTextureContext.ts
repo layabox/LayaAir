@@ -333,6 +333,62 @@ export class WebGPUTextureContext implements ITextureContext {
         }
     }
 
+    public getFormatPixelsParams(format: TextureFormat) {
+
+        let formatParams: { channels: number, bytesPerPixel: number, dataTypedCons: any, typedSize: number } = {
+            channels: 0,
+            bytesPerPixel: 0,
+            dataTypedCons: Uint8Array,
+            typedSize: 1
+        }
+        switch (format) {
+            case TextureFormat.R8G8B8A8:
+                formatParams.channels = 4;
+                formatParams.bytesPerPixel = 4;
+                formatParams.dataTypedCons = Uint8Array
+                formatParams.typedSize = 1;
+                return formatParams;
+            case TextureFormat.R8G8B8:
+                formatParams.channels = 3;
+                formatParams.bytesPerPixel = 3;
+                formatParams.dataTypedCons = Uint8Array
+                formatParams.typedSize = 1;
+                return formatParams;
+            case TextureFormat.R5G6B5:
+                formatParams.channels = 3;
+                formatParams.bytesPerPixel = 2;
+                formatParams.dataTypedCons = Uint16Array
+                formatParams.typedSize = 2;
+                return formatParams;
+            case TextureFormat.R16G16B16:
+                formatParams.channels = 3;
+                formatParams.bytesPerPixel = 6;
+                formatParams.dataTypedCons = Uint16Array
+                formatParams.typedSize = 2;
+                return formatParams;
+            case TextureFormat.R16G16B16A16:
+                formatParams.channels = 4;
+                formatParams.bytesPerPixel = 8;
+                formatParams.dataTypedCons = Uint16Array
+                formatParams.typedSize = 2;
+                return formatParams;
+            case TextureFormat.R32G32B32:
+                formatParams.channels = 3;
+                formatParams.bytesPerPixel = 12;
+                formatParams.dataTypedCons = Float32Array
+                formatParams.typedSize = 4;
+                return formatParams;
+            case TextureFormat.R32G32B32A32:
+                formatParams.channels = 4;
+                formatParams.bytesPerPixel = 16;
+                formatParams.dataTypedCons = Float32Array
+                formatParams.typedSize = 4;
+                return formatParams;
+            default:
+                return formatParams;
+        }
+    }
+
     private _getGPUTextureDescriptor(dimension: TextureDimension, width: number, height: number,
         gpuFormat: WebGPUTextureFormat, layerCount: number, generateMipmap: boolean, multiSamples: number, isCompressTexture: boolean): GPUTextureDescriptor {
         const textureSize = {
@@ -344,7 +400,8 @@ export class WebGPUTextureContext implements ITextureContext {
         let usage = GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST;
         const mipLevelCount = generateMipmap ? Math.max(Math.ceil(Math.log2(width)) + 1, Math.ceil(Math.log2(height)) + 1) : 1;
         if (canCopy)
-            usage |= GPUTextureUsage.COPY_DST;
+            usage |= GPUTextureUsage.RENDER_ATTACHMENT;
+
         let dimensionType: WebGPUTextureDimension;
         switch (dimension) {
             case TextureDimension.Tex2D:
@@ -818,8 +875,79 @@ export class WebGPUTextureContext implements ITextureContext {
     setCubeDDSData(texture: InternalTexture, ddsInfo: DDSTextureInfo): void {
         throw new Error("Method not implemented.");
     }
-    setCubeKTXData(texture: InternalTexture, ktxInfo: KTXTextureInfo): void {
-        throw new Error("Method not implemented.");
+    setCubeKTXData(texture: WebGPUInternalTex, ktxInfo: KTXTextureInfo): void {
+
+        const device = WebGPURenderEngine._instance.getDevice();
+
+        let premultipliedAlpha = false;
+        let invertY = false;
+
+        texture.maxMipmapLevel = ktxInfo.mipmapCount - 1;
+
+        let width = texture.width;
+        let height = texture.height;
+
+        let mipmapWidth = width;
+        let mipmapHeight = height;
+        let dataOffset = ktxInfo.headerOffset + ktxInfo.bytesOfKeyValueData;
+
+        let source = ktxInfo.source;
+        let compressed = ktxInfo.compress;
+
+        for (let index = 0; index < ktxInfo.mipmapCount; index++) {
+
+            let imageSize = new Int32Array(source, dataOffset, 1)[0];
+
+            dataOffset += 4;
+
+            for (let face = 0; face < 6; face++) {
+
+                const block = this._getBlockInformationFromFormat(texture._webGPUFormat);
+                const bytesPerRow = Math.ceil(mipmapWidth / block.width) * block.length;
+
+                const size = {
+                    width: Math.ceil(mipmapWidth / block.width) * block.width,
+                    height: Math.ceil(mipmapHeight / block.height) * block.height,
+                    depthOrArrayLayers: 1
+                };
+
+                const imageCopy: GPUImageCopyTextureTagged = {
+                    texture: texture.resource,
+                    mipLevel: index,
+                    premultipliedAlpha: premultipliedAlpha,
+                    origin: {
+                        x: 0,
+                        y: 0,
+                        z: face
+                    }
+                }
+
+                const dataLayout: GPUImageDataLayout = {
+                    offset: 0,
+                    bytesPerRow: bytesPerRow,
+                    rowsPerImage: mipmapHeight
+                }
+
+                if (compressed) {
+                    let sourceData = new Uint8Array(source, dataOffset, imageSize);
+                    device.queue.writeTexture(imageCopy, sourceData, dataLayout, size);
+                }
+                else {
+                    let pixelParams = this.getFormatPixelsParams(ktxInfo.format);
+                    let typedSize = imageSize / pixelParams.typedSize;
+                    let sourceData = new pixelParams.dataTypedCons(source, dataOffset, typedSize);
+
+                    device.queue.writeTexture(imageCopy, sourceData, dataLayout, size);
+                }
+
+                dataOffset += imageSize;
+                dataOffset += 3 - ((imageSize + 3) % 4);
+            }
+
+            mipmapWidth = Math.max(1, mipmapWidth * 0.5);
+            mipmapHeight = Math.max(1, mipmapHeight * 0.5);
+        }
+
     }
     setTextureCompareMode(texture: InternalTexture, compareMode: TextureCompareMode): TextureCompareMode {
         throw new Error("Method not implemented.");
