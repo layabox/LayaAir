@@ -1198,6 +1198,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		cameraCullInfo.cullingMask = camera.cullingMask;
 		cameraCullInfo.boundFrustum = camera.boundFrustum;
 		cameraCullInfo.useOcclusionCulling = camera.useOcclusionCulling;
+		cameraCullInfo.orthographic = camera.orthographic;
 		FrustumCulling.renderObjectCulling(cameraCullInfo, this, context, shader, replacementTag, false);
 	}
 
