@@ -1045,8 +1045,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
 
         let formatParams = this.getFormatPixelsParams(ddsInfo.format);
         let channelsByte = formatParams.bytesPerPixel / formatParams.channels;
-
-        let dataTypeConstur = ddsInfo.format == TextureFormat.R32G32B32A32 ? Float32Array : Uint16Array;
+        let dataTypeConstur = formatParams.dataTypedCons;
         let memory = 0;
         if (!ddsInfo.compressed) {
             for (let face = 0; face < 6; face++) {
