@@ -725,20 +725,21 @@ export class WebGPUTextureContext implements ITextureContext {
         let blockBytes = ddsInfo.blockBytes;
         let mipmapCount = ddsInfo.mipmapCount;
 
+        let compressed = ddsInfo.compressed;
+
         let width = texture.width;
         let height = texture.height;
 
         texture.maxMipmapLevel = mipmapCount - 1;
 
+        let formatParams = this.getFormatPixelsParams(ddsInfo.format);
+        let channelsByte = formatParams.bytesPerPixel / formatParams.channels;
+        let dataTypeConstur = formatParams.dataTypedCons;
+
         let mipmapWidth = width;
         let mipmapHeight = height;
 
         for (let index = 0; index < mipmapCount; index++) {
-
-            // todo  size 计算 方式
-            let dataLength = (((Math.max(4, mipmapWidth) / 4) * Math.max(4, mipmapHeight)) / 4) * blockBytes;
-
-            let sourceData = new Uint8Array(source, dataOffset, dataLength);
 
             const block = this._getBlockInformationFromFormat(texture._webGPUFormat);
             const bytesPerRow = Math.ceil(mipmapWidth / block.width) * block.length;
@@ -759,10 +760,24 @@ export class WebGPUTextureContext implements ITextureContext {
                 rowsPerImage: mipmapHeight
             }
 
-            device.queue.writeTexture(imageCopy, sourceData, dataLayout, size);
+            if (compressed) {
+                // todo  size 计算 方式
+                let dataLength = (((Math.max(4, mipmapWidth) / 4) * Math.max(4, mipmapHeight)) / 4) * blockBytes;
 
+                let sourceData = new Uint8Array(source, dataOffset, dataLength);
+                device.queue.writeTexture(imageCopy, sourceData, dataLayout, size);
 
-            dataOffset += bpp ? (mipmapWidth * mipmapHeight * (bpp / 8)) : dataLength;
+                dataOffset += bpp ? (mipmapWidth * mipmapHeight * (bpp / 8)) : dataLength;
+            }
+            else {
+                let dataLength = mipmapWidth * mipmapHeight * formatParams.channels;
+
+                let sourceData = new dataTypeConstur(source, dataOffset, dataLength);
+                device.queue.writeTexture(imageCopy, sourceData, dataLayout, size);
+
+                dataOffset += dataLength * channelsByte;
+            }
+
             mipmapWidth = Math.max(1, mipmapWidth * 0.5);
             mipmapHeight = Math.max(1, mipmapHeight * 0.5);
         }
@@ -1136,6 +1151,7 @@ export class WebGPUTextureContext implements ITextureContext {
     }
 
     initVideoTextureData(texture: WebGPUInternalTex): void {
+        // empty
     }
 
     async updateVideoTexture(texture: InternalTexture, video: HTMLVideoElement, premultiplyAlpha: boolean, invertY: boolean): Promise<void> {

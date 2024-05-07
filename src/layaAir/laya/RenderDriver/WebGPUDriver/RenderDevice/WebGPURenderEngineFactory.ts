@@ -28,6 +28,7 @@ export class WebGPURenderEngineFactory implements IRenderEngineFactory {
             "texture-compression-astc",
             "texture-compression-bc",
             "texture-compression-etc2",
+            "float32-filterable"
         ];
         const engine = new WebGPURenderEngine(gpuConfig, canvas._source);
         LayaGL.renderEngine = engine;
