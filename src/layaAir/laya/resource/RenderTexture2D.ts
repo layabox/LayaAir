@@ -3,7 +3,6 @@ import { BaseTexture } from "./BaseTexture"
 import { RenderState2D } from "../webgl/utils/RenderState2D"
 import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
 import { RenderClearFlag } from "../RenderEngine/RenderEnum/RenderClearFlag";
-import { NativeRenderTexture2D } from "./NativeRenderTexture2D";
 import { Color } from "../maths/Color";
 import { LayaGL } from "../layagl/LayaGL";
 import { InternalRenderTarget } from "../RenderDriver/DriverDesign/RenderDevice/InternalRenderTarget";
@@ -300,11 +299,4 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
     }
 
 }
-
-// native
-if ((window as any).conch && !(window as any).conchConfig.conchWebGL) {
-    //@ts-ignore
-    //lvtodo RenderTexture2D = NativeRenderTexture2D;
-}
-
 
