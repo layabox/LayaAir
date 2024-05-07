@@ -2,12 +2,18 @@ import { RenderState } from "../../RenderDriver/RenderModuleData/Design/RenderSt
 import { Material } from "../../resource/Material";
 import { SpineMaterialBase } from "./SpineMaterialBase";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
+import { IOptimizeMaterial } from "./IOptimizeMaterial";
+import { Vector4 } from "../../maths/Vector4";
 
 
-export class SpineRBMaterial extends SpineMaterialBase {
+export class SpineRBMaterial extends SpineMaterialBase implements IOptimizeMaterial {
     static BONEMAT: number;
+    static Color: number;
+    static NMatrix: number;
     static __initDefine__(): void {
         SpineRBMaterial.BONEMAT = Shader3D.propertyNameToID("u_sBone");
+        SpineRBMaterial.NMatrix = Shader3D.propertyNameToID("u_NMatrix");
+        SpineRBMaterial.Color = Shader3D.propertyNameToID("u_color");
     }
 
     constructor() {
@@ -30,5 +36,22 @@ export class SpineRBMaterial extends SpineMaterialBase {
 
     set boneMat(value: Float32Array) {
         this._shaderValues.setBuffer(SpineRBMaterial.BONEMAT, value);
+    }
+
+    get color() {
+        return this._shaderValues.getVector(SpineRBMaterial.Color);
+    }
+
+    set color(value: Vector4) {
+        this._shaderValues.setVector(SpineRBMaterial.Color, value);
+    }
+
+
+    get nMatrix(): Float32Array {
+        return this._shaderValues.getBuffer(SpineRBMaterial.NMatrix);
+    }
+
+    set nMatrix(value: Float32Array) {
+        this._shaderValues.setBuffer(SpineRBMaterial.NMatrix, value);
     }
 }

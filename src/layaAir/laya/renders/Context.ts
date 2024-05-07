@@ -1244,6 +1244,25 @@ export class Context {
         this._render2D.drawMesh(geo, material);
     }
 
+    drawGeos(geo: IRenderGeometryElement,elements:[Material,number,number][], x: number, y: number) {
+        let mat = this._curMat;
+        let buffer = this._matBuffer;
+        buffer[0] = mat.a;
+        buffer[1] = mat.b;
+        buffer[2] = mat.tx + mat.a * x + mat.c * y;
+        buffer[3] = mat.c;
+        buffer[4] = mat.d;
+        buffer[5] = mat.ty + mat.b * x + mat.d * y;
+        for(let i = 0,n = elements.length;i < n;i++){
+            let material = elements[i][0];
+            material.setBuffer("u_NMatrix", buffer);
+            material.setVector2("u_size",new Vector2(this._width,this._height));//TODO LAOGUO
+            geo.clearRenderParams();
+            geo.setDrawElemenParams(elements[i][1],elements[i][2]);
+            this._render2D.drawMesh(geo, material);
+        }
+    }
+
     drawTriangles(tex: Texture,
         x: number, y: number,
         vertices: Float32Array,

@@ -6,10 +6,11 @@ import { SoundManager } from "../media/SoundManager";
 import { Loader } from "../net/Loader";
 import { Handler } from "../utils/Handler";
 import { ExternalSkin } from "./ExternalSkin";
-import { ISpineRender, SpineBoneGPURender, SpineNormalRender } from "./SpineOptimize";
+
 import { SpineSkeletonRenderer } from "./SpineSkeletonRenderer";
 import { SpineTemplet } from "./SpineTemplet";
-import { SpinBone4Mesh } from "./mesh/SpineBone4Mesh";
+import { ISpineOptimizeRender } from "./optimize/interface/ISpineOptimizeRender";
+
 
 /**动画开始播放调度
  * @eventType Event.PLAYED
@@ -79,8 +80,6 @@ export class SpineSkeleton extends Sprite {
     private _loop: boolean = true;
 
     private _externalSkins: ExternalSkin[];
-
-    renderType:ERenderType=ERenderType.normal;
 
     constructor() {
         super();
@@ -215,7 +214,7 @@ export class SpineSkeleton extends Sprite {
         return SpineSkeleton.PLAYING;
     }
 
-    spineItem:ISpineRender;
+    spineItem: ISpineOptimizeRender;
 
     /**
      * @internal
@@ -241,7 +240,7 @@ export class SpineSkeleton extends Sprite {
         this._renerer = new SpineSkeletonRenderer(templet, false);
         this._timeKeeper = new templet.ns.TimeKeeper();
         //let sMesh=this._templet.slotManger.init(this._skeleton.drawOrder, this._templet,this._templet.mainTexture);
-        this.spineItem= this._templet.slotManger._initSpineRender(this._skeleton,this._templet,this.graphics);
+        this.spineItem = this._templet.slotManger._initSpineRender(this._skeleton, this._templet, this.graphics);
         let skinIndex = this._templet.getSkinIndexByName(this._skinName);
         if (skinIndex != -1)
             this.showSkinByIndex(skinIndex);
@@ -323,6 +322,7 @@ export class SpineSkeleton extends Sprite {
 
         if (force || this._pause || this._currAniName != animationName) {
             this._currAniName = animationName;
+            this.spineItem.play(animationName);
             // 设置执行哪个动画
             this._state.setAnimation(this.trackIndex, animationName, loop);
             // 设置起始和结束时间
@@ -362,7 +362,7 @@ export class SpineSkeleton extends Sprite {
         }
         // 计算骨骼的世界SRT(world SRT)
         this._skeleton.updateWorldTransform();
-        this.spineItem.render();
+        this.spineItem.render(this._currentPlayTime);
 
         // this.graphics.clear();
         // this._renerer.drawOld(this._skeleton, this.graphics, -1, -1);

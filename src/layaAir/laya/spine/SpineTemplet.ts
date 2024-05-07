@@ -6,14 +6,12 @@ import { ILoadURL } from "../net/Loader";
 import { SpineTexture } from "./SpineTexture";
 import { IBatchProgress } from "../net/BatchProgress";
 import { SpineMaterial } from "./material/SpineMaterial";
-import { Material } from "../resource/Material";
-import { Vector2 } from "../maths/Vector2";
-import { Laya } from "../../Laya";
-import { SpineOptimize } from "./SpineOptimize";
 import { SpineFastMaterial } from "./material/SpineFastMaterial";
 import { ERenderType } from "./SpineSkeleton";
 import { SpineRBMaterial } from "./material/SpineRBMaterial";
 import { SpineMaterialBase } from "./material/SpineMaterialBase";
+import { SketonOptimise } from "./optimize/SketonOptimise";
+
 
 /**
  * Spine动画模板基类
@@ -31,7 +29,7 @@ export class SpineTemplet extends Resource {
     private _renderType: ERenderType;
     public needSlot:boolean;
 
-    slotManger:SpineOptimize;
+    slotManger:SketonOptimise;
 
     materialConstructor: new () => SpineMaterialBase;
     
@@ -40,8 +38,8 @@ export class SpineTemplet extends Resource {
         super();
         this._textures = {};
         this.materialMap = new Map();
-        this.slotManger=new SpineOptimize();
-        this.renderType = ERenderType.normal;
+        this.slotManger=new SketonOptimise();
+        //this.renderType = ERenderType.boneGPU;
     }
 
     get renderType():ERenderType{
@@ -49,7 +47,7 @@ export class SpineTemplet extends Resource {
     }
 
     set renderType(type:ERenderType){
-        this.slotManger.setType(type);
+        //this.slotManger.setType(type);
         switch (type) {
             case ERenderType.boneGPU:
                 this.materialConstructor=SpineFastMaterial;
@@ -136,6 +134,8 @@ export class SpineTemplet extends Resource {
                 let skeletonJson = new this._ns.SkeletonJson(atlasLoader);
                 this.skeletonData = skeletonJson.readSkeletonData(desc);
             }
+            this.slotManger.checkMainAttach(this.skeletonData);
+            this.renderType=this.slotManger.type;
         });
     }
 

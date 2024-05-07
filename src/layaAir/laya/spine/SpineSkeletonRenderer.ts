@@ -352,7 +352,7 @@ export class SpineSkeletonRenderer {
                 region.computeWorldVertices(boneOrSlot as any, renderable.vertices, 0, clippedVertexSize);
                 triangles = QUAD_TRIANGLES;
                 uvs = region.uvs;
-                texture = <SpineTexture>(region.region as any).texture;
+                texture = <SpineTexture>(region.region as any).page.texture;
                 attachmentColor = region.color;
                 // graphics.drawTexture(texture.realTexture,0,0,100,100,null,1,"#ffffff","normal",uvs as any)
 
@@ -368,7 +368,7 @@ export class SpineSkeletonRenderer {
                 }
                 mesh.computeWorldVertices(slot, 0, mesh.worldVerticesLength, renderable.vertices, 0, clippedVertexSize);
                 triangles = mesh.triangles;
-                texture = <SpineTexture>(mesh.region as any).texture;
+                texture = <SpineTexture>(mesh.region as any).page.texture;
                 uvs = mesh.uvs;
                 attachmentColor = mesh.color;
             } else if (attachment instanceof spine.ClippingAttachment) {

@@ -41,6 +41,7 @@ export class SpineFastMaterialShaderInit {
 
         let uniformMap = {
             "u_sBone[200]": ShaderDataType.Vector4,
+            "u_color":ShaderDataType.Vector4,
             "u_NMatrix[2]": ShaderDataType.Vector3
         };
         //textureSpineShader

@@ -42,6 +42,7 @@ import { LayaGL } from "../layagl/LayaGL";
 import { ShaderDataType } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { DrawGeoCmd } from "./cmd/DrawGeoCmd";
 import { IRenderGeometryElement } from "../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
+import { DrawGeosCmd } from "./cmd/DrawGeosCmd";
 
 /**
  * <code>Graphics</code> 类用于创建绘图显示对象。Graphics可以同时绘制多个位图或者矢量图，还可以结合save，restore，transform，scale，rotate，translate，alpha等指令对绘图效果进行变化。
@@ -312,6 +313,11 @@ export class Graphics {
     drawGeo(geo: IRenderGeometryElement, material:Material){
         return this.addCmd(DrawGeoCmd.create(geo, material));
     }
+
+    drawGeos(geo: IRenderGeometryElement,  elements:[Material,number,number][]){
+        return this.addCmd(DrawGeosCmd.create(geo, elements));
+    }
+
 
     /**
      * 绘制一组三角形
