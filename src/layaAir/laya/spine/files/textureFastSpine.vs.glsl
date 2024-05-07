@@ -20,7 +20,7 @@ vec4 getPos(float fboneId,float weight,vec2 pos){
 
 void main() {
     vUv = a_texcoord;
-    vColor = a_color;
+    vColor = a_color*u_color;
     vec4 pos=getPos(a_BoneId,a_weight,a_pos)+getPos(a_BoneId2,a_weight2,a_pos2)+getPos(a_BoneId3,a_weight3,a_pos3)+getPos(a_BoneId4,a_weight4,a_pos4);
    // pos=getPos(boneId,a_weight, + getMat(boneId2)*pos2*a_weight2+getMat(boneId3)*pos3*a_weight3;
       vec3 up =u_NMatrix[0];
