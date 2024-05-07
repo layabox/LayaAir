@@ -2,7 +2,6 @@ import { ShaderDataType } from "../../../RenderDriver/DriverDesign/RenderDevice/
 import { IBaseRenderNode } from "../../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { LayaGL } from "../../../layagl/LayaGL";
-import { Matrix4x4 } from "../../../maths/Matrix4x4";
 import { Material } from "../../../resource/Material";
 import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 import { GeometryElement } from "../../core/GeometryElement";

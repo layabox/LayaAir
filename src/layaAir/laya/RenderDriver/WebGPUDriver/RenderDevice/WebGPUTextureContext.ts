@@ -711,10 +711,6 @@ export class WebGPUTextureContext implements ITextureContext {
                 genMipmap(device, texture.resource);
         }
     }
-
-    initVideoTextureData(texture: InternalTexture): void {
-        throw new Error("Method not implemented.");
-    }
     setTextureDDSData(texture: InternalTexture, ddsInfo: DDSTextureInfo): void {
         throw new Error("Method not implemented.");
     }
@@ -1011,8 +1007,30 @@ export class WebGPUTextureContext implements ITextureContext {
     readRenderTargetPixelData(renderTarget: InternalRenderTarget, xOffset: number, yOffset: number, width: number, height: number, out: ArrayBufferView): ArrayBufferView {
         throw new Error("Method not implemented.");
     }
-    updateVideoTexture(texture: InternalTexture, video: HTMLVideoElement, premultiplyAlpha: boolean, invertY: boolean): void {
-        throw new Error("Method not implemented.");
+
+    initVideoTextureData(texture: WebGPUInternalTex): void {
+    }
+
+    async updateVideoTexture(texture: InternalTexture, video: HTMLVideoElement, premultiplyAlpha: boolean, invertY: boolean): Promise<void> {
+        if (!video) {
+            return;
+        }
+        const imageBitmapSource = await createImageBitmap(video);
+        const image: GPUImageCopyExternalImage = { source: imageBitmapSource as ImageBitmap, flipY: invertY, origin: [0, 0] };
+
+        const textureCopyView: GPUImageCopyTextureTagged = {
+            texture: texture.resource,
+            origin: {
+                x: 0,
+                y: 0,
+            },
+            mipLevel: 0,
+            premultipliedAlpha: premultiplyAlpha,
+            colorSpace: texture.useSRGBLoad ? "srgb" : undefined,
+        };
+        const copySize: GPUExtent3DStrict = { width: video.videoWidth, height: video.videoHeight };
+        const device = WebGPURenderEngine._instance.getDevice();
+        device.queue.copyExternalImageToTexture(image, textureCopyView, copySize);
     }
     getRenderTextureData(internalTex: InternalRenderTarget, x: number, y: number, width: number, height: number): ArrayBufferView {
         throw new Error("Method not implemented.");
