@@ -3,9 +3,11 @@
 varying vec2 v_Texcoord0;
 vec4 remapPositionZ(vec4 position)
 {
-    position.z = position.z * 2.0 - position.w;
     #ifdef WEBGPU_COMPATIBLE //兼容WGSL
     position.y = -position.y;
+    #else
+    position.z = position.z * 2.0 - position.w;
+    #endif
     return position;
 }
 void main()

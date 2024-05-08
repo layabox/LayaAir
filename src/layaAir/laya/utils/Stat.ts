@@ -176,29 +176,29 @@ export class Stat {
     public static phyiscs_EventCount:number
 
     //Toggle
-    /**@internal 开启关闭阴影 */
+    /** 开启关闭阴影 */
     public static enableShadow: boolean = true;
-    /**@internal 开启关闭多光源 */
+    /** 开启关闭多光源 */
     public static enableMulLight: boolean = true;
-    /**@internal 开启关闭光源 */
+    /** 开启关闭光源 */
     public static enableLight: boolean = true;
-    /**@internal 开启关闭CMD */
+    /** 开启关闭CMD */
     public static enableCameraCMD: boolean = true;
-    /**@internal 开启关闭后期处理 */
+    /** 开启关闭后期处理 */
     public static enablePostprocess: boolean = true;
-    /**@internal 开启关闭skin渲染 */
+    /** 开启关闭skin渲染 */
     public static enableSkin: boolean = true;
-    /**@internal 开启关闭透明渲染 */
+    /** 开启关闭透明渲染 */
     public static enableTransparent: boolean = true;
-    /**@internal 开启关闭粒子 */
+    /** 开启关闭粒子 */
     public static enableParticle: boolean = true;
-    /**@internal 开启关闭动画更新 */
+    /** 开启关闭动画更新 */
     public static enableAnimatorUpdate: boolean = true;
-    /**@internal 开启关闭物理更新*/
+    /** 开启关闭物理更新*/
     public static enablePhysicsUpdate: boolean = true;
-    /**@internal 开启关闭msaa */
+    /** 开启关闭msaa */
     public static enablemsaa: boolean = true;
-    /**@internal 开启关闭非透明物体渲染 */
+    /** 开启关闭非透明物体渲染 */
     public static enableOpaque: boolean = true;
 
     static _statUI: IStatUI;

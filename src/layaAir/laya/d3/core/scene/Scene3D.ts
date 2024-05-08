@@ -1018,6 +1018,8 @@ export class Scene3D extends Sprite {
             shaderValues.setTexture(Scene3D.CLUSTERBUFFER, Cluster.instance._clusterTexture);
         }
         else {
+            if(!Scene3D.LIGHTDIRECTION)//需要更新一下
+                Scene3D.legacyLightingValueInit();
             if (this._directionLights._length > 0 && Stat.enableLight) {
                 var dirLight: DirectionLightCom = this._directionLights._elements[0];
                 this._mainDirectionLight = dirLight;

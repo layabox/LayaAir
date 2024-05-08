@@ -1,4 +1,4 @@
-import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
+import { Shader3D, ShaderFeatureType } from "../../../RenderEngine/RenderShader/Shader3D";
 import { VertexShuriKenParticle } from "../../graphics/Vertex/VertexShuriKenParticle";
 import ShurikenVS from "./particleShuriKen.vs";
 import ShurikenFS from "./particleShuriKen.fs";
@@ -51,6 +51,7 @@ export class ParticleShuriKenShaderInit{
         let shader = Shader3D.add("PARTICLESHURIKEN", false, false);
         let subShader = new SubShader(attributeMap, uniformMap, defaultValue);
         shader.addSubShader(subShader);
+        shader.shaderType = ShaderFeatureType.Effect;
         let forwardPass = subShader.addShaderPass(ShurikenVS, ShurikenFS);
 
     }

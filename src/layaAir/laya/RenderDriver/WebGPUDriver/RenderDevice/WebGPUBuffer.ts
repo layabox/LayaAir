@@ -27,7 +27,6 @@ export class WebGPUBuffer {
 
     private _isCreate: boolean = false;
     private _mappedAtCreation = false;
-    //private _canSetData: boolean = true;
 
     globalId: number;
     objectName: string = 'WebGPUBuffer';
@@ -45,7 +44,6 @@ export class WebGPUBuffer {
      * @param length 
      */
     setDataLength(length: number): void {
-        //if (this._isCreate) return;
         const size = roundUp(length, 4);
         if (!this._isCreate || this._size != size) {
             this._size = size;
@@ -54,8 +52,6 @@ export class WebGPUBuffer {
     }
 
     private _create() {
-        //console.log('WebGPUBuffer create =', this._size, this.globalId);
-        //if (this._isCreate) return;
         this._source = WebGPURenderEngine._instance.getDevice().createBuffer({
             size: this._size,
             usage: this._usage,
@@ -66,36 +62,32 @@ export class WebGPUBuffer {
     }
 
     setData(srcData: ArrayBuffer | ArrayBufferView, srcOffset: number) {
-        //if (!this._canSetData) return;
         let size = 0, offset = 0;
         if ((srcData as ArrayBufferView).buffer) { //@ts-ignore
             offset = srcData.byteOffset;
-            size = roundDown(srcData.byteLength - offset, 4); //这里需要进一步处理，目前是截断到4字节对齐，可能会导致数据不完整
+            size = roundDown(srcData.byteLength, 4); //这里需要进一步处理，目前是截断到4字节对齐，可能会导致数据不完整
             srcData = (srcData as ArrayBufferView).buffer;
         } else {
             offset = srcOffset;
             size = roundDown(srcData.byteLength - offset, 4); //这里需要进一步处理，目前是截断到4字节对齐，可能会导致数据不完整
         }
         WebGPURenderEngine._instance.getDevice().queue.writeBuffer(this._source, 0, srcData, offset, size);
-        //this._canSetData = false;
     }
 
     setDataEx(srcData: ArrayBuffer | ArrayBufferView, srcOffset: number, byteLength: number, dstOffset: number = 0) {
-        //if (!this._canSetData) return;
         // if ((srcData as ArrayBufferView).buffer)
         //     srcData = (srcData as ArrayBufferView).buffer;
         // const size = roundDown(byteLength, 4); //这里需要进一步处理，目前是截断到4字节对齐，可能会导致数据不完整
         let size = 0, offset = 0;
         if ((srcData as ArrayBufferView).buffer) { //@ts-ignore
             offset = srcData.byteOffset;
-            size = roundDown(srcData.byteLength - offset, 4); //这里需要进一步处理，目前是截断到4字节对齐，可能会导致数据不完整
+            size = roundDown(srcData.byteLength, 4); //这里需要进一步处理，目前是截断到4字节对齐，可能会导致数据不完整
             srcData = (srcData as ArrayBufferView).buffer;
         } else {
             offset = srcOffset;
-            size = roundDown(byteLength - offset, 4); //这里需要进一步处理，目前是截断到4字节对齐，可能会导致数据不完整
+            size = roundDown(byteLength, 4); //这里需要进一步处理，目前是截断到4字节对齐，可能会导致数据不完整
         }
         WebGPURenderEngine._instance.getDevice().queue.writeBuffer(this._source, dstOffset, srcData, offset, size);
-        //this._canSetData = false;
     }
 
     readDataFromBuffer() {

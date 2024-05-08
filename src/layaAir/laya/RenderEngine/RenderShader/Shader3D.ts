@@ -26,6 +26,16 @@ export interface IShaderpassStructor {
     renderState?: Record<string, string | boolean | number | string[]>
 
 }
+
+export enum ShaderFeatureType {
+    DEFAULT,
+    D3,
+    D2,
+    PostProcess,
+    Sky,
+    Effect
+}
+
 /**
  * <code>Shader3D</code> 类用于创建Shader3D。
  */
@@ -227,6 +237,7 @@ export class Shader3D {
     /**@internal */
     _subShaders: SubShader[] = [];
 
+    shaderType: ShaderFeatureType;
     /**
      * 名字。
      */

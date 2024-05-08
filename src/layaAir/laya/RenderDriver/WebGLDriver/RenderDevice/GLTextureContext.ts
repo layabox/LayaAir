@@ -1413,7 +1413,6 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     }
 
-
     readRenderTargetPixelData(renderTarget: WebGLInternalRT, xOffset: number, yOffset: number, width: number, height: number, out: ArrayBufferView): ArrayBufferView {
 
         let gl = renderTarget._gl;
@@ -1448,6 +1447,10 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         }
         this.unbindRenderTarget(renderTarget);
         return out;
+    }
+
+    readRenderTargetPixelDataAsync(renderTarget: WebGLInternalRT, xOffset: number, yOffset: number, width: number, height: number, out: ArrayBufferView): Promise<ArrayBufferView> { //兼容WGSL
+        return Promise.resolve(this.readRenderTargetPixelData(renderTarget, xOffset, yOffset, width, height, out));
     }
 
     updateVideoTexture(texture: WebGLInternalTex, video: HTMLVideoElement, premultiplyAlpha: boolean, invertY: boolean): void {

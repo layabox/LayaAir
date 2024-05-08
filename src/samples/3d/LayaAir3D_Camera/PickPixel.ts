@@ -49,14 +49,14 @@ export class PickPixel {
 		});
 	}
 
-	private onMouseDown(): void {
+	private async onMouseDown() {
 		this._sp.graphics.clear();
 		this._sp.x = Laya.stage.mouseX;
 		this._sp.y = Laya.stage.mouseY;
 		var posX: number = Laya.stage.mouseX / Laya.stage.clientScaleX;
 		var posY: number = Laya.stage.mouseY / Laya.stage.clientScaleY;
 		var out: Uint8Array = new Uint8Array(4);
-		this.renderTargetCamera.renderTarget.getData(posX, posY, 1, 1, out);
+		await this.renderTargetCamera.renderTarget.getDataAsync(posX, posY, 1, 1, out);
 		this.text.text = out[0] + " " + out[1] + " " + out[2] + " " + out[3];
 		let r = out[0].toString(16);
 		let g = out[1].toString(16);

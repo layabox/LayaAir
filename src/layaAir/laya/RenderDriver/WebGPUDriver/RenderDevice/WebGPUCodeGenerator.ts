@@ -2,7 +2,9 @@ import { Config3D } from "../../../../Config3D";
 import { RenderParams } from "../../../RenderEngine/RenderEnum/RenderParams";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { UniformMapType } from "../../../RenderEngine/RenderShader/SubShader";
+import { RenderableSprite3D } from "../../../d3/core/RenderableSprite3D";
 import { SkinnedMeshSprite3D } from "../../../d3/core/SkinnedMeshSprite3D";
+import { Sprite3D } from "../../../d3/core/Sprite3D";
 import { Graphics } from "../../../display/Graphics";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { ShaderNode } from "../../../webgl/utils/ShaderNode";
@@ -14,6 +16,7 @@ import { WebGPU_GLSLProcess } from "./GLSLProcess/WebGPU_GLSLProcess";
 import { NagaWASM } from "./Naga/NagaWASM2";
 import { WebGPUCommandUniformMap } from "./WebGPUCommandUniformMap";
 import { NameAndType, NameBooleanMap, NameNumberMap, NameStringMap, roundUp } from "./WebGPUCommon";
+import { WebGPUShaderData } from "./WebGPUShaderData";
 import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
 import { WebGPUUniformBlockInfo } from "./WebGPUUniform/WebGPUUniformBlockInfo";
 
@@ -87,7 +90,13 @@ export class WebGPUCodeGenerator {
         console.log("naga inited");
         if (next) next();
 
-        Graphics.add2DGlobalUniformData(Shader3D.propertyNameToID('u_GrapicDummy'), 'u_GrapicDummy', ShaderDataType.Vector4);
+        Graphics.add2DGlobalUniformData(Shader3D.propertyNameToID('u_GraphicDummy'), 'u_GraphicDummy', ShaderDataType.Vector4);
+        const camerauniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap("WebGPUSprite3DtoCamera");
+        camerauniformMap.addShaderUniform(Sprite3D.WORLDINVERTFRONT, "u_WroldInvertFront", ShaderDataType.Vector4);
+        camerauniformMap.addShaderUniform(RenderableSprite3D.AMBIENTCOLOR, "u_AmbientColor", ShaderDataType.Vector4);
+		camerauniformMap.addShaderUniform(RenderableSprite3D.AMBIENTINTENSITY, "u_AmbientIntensity", ShaderDataType.Float);
+		camerauniformMap.addShaderUniform(RenderableSprite3D.REFLECTIONINTENSITY, "u_ReflectionIntensity", ShaderDataType.Float);
+        WebGPUShaderData.__init__();
     }
 
     /**
@@ -259,6 +268,7 @@ export class WebGPUCodeGenerator {
         const shurikenSprite3DUniformMap = globalUniformMap("ShurikenSprite3D") as WebGPUCommandUniformMap;
         const trailRenderUniformMap = globalUniformMap("TrailRender") as WebGPUCommandUniformMap;
         const skyRendererUniformMap = globalUniformMap("SkyRenderer") as WebGPUCommandUniformMap;
+        const sprite3DtoCameraMap = globalUniformMap("WebGPUSprite3DtoCamera") as WebGPUCommandUniformMap;
         const scene3DUniforms: NameAndType[] = [];
         const cameraUniforms: NameAndType[] = [];
         const sprite3DUniforms: NameAndType[] = [];
@@ -284,6 +294,10 @@ export class WebGPUCodeGenerator {
                     scene3DUniforms.push({ name, type, set: 0 });
             }
             else if (cameraUniformMap.hasPtrID(id)) {
+                if (!_have(cameraUniforms, name))
+                    cameraUniforms.push({ name, type, set: 1 });
+            }
+            else if (sprite3DtoCameraMap.hasPtrID(id)) {
                 if (!_have(cameraUniforms, name))
                     cameraUniforms.push({ name, type, set: 1 });
             }
@@ -836,8 +850,8 @@ mat4 inverse(mat4 m)
                     textureUniforms_fs.push(textureUniforms[i]);
         }
 
-        const textureGLSL_vs = this._textureString(textureUniforms_vs, uniformInfo, GPUShaderStage.VERTEX);
-        const textureGLSL_fs = this._textureString(textureUniforms_fs, uniformInfo, GPUShaderStage.FRAGMENT);
+        const textureGLSL_vs = this._textureString(textureUniforms_vs, uniformInfo, GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT);
+        const textureGLSL_fs = this._textureString(textureUniforms_fs, uniformInfo, GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT);
 
         const textureNames_vs: string[] = [];
         const textureNames_fs: string[] = [];
@@ -850,6 +864,7 @@ mat4 inverse(mat4 m)
             `#version 450 core
 precision highp float;
 precision highp int;
+#define textureCubeLodEXT textureCube
 ${attributeGLSL}
 ${varyingGLSL_vs}
 ${uniformGLSL}
@@ -860,6 +875,7 @@ ${aWorldMat}
             `#version 450 core
 precision highp float;
 precision highp int;
+#define textureCubeLodEXT textureCube
 layout(location = 0) out vec4 gl_FragColor;
 ${varyingGLSL_fs}
 ${uniformGLSL}

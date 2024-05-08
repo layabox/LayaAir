@@ -32,7 +32,7 @@ uniform vec3 u_IblSH[9];
 uniform samplerCube u_IBLTex;
 uniform float u_IBLRoughnessLevel;
 
-	#define IBL_ROUGHNESS_LEVEL u_IBLRoughnessLevel
+//#define IBL_ROUGHNESS_LEVEL u_IBLRoughnessLevel //兼容WGSL
 
 // todo 格式
 vec3 diffuseIrradiance(in vec3 normalWS)
@@ -66,7 +66,7 @@ vec3 diffuseIrradiance(in vec3 normalWS, in vec3 positionWS, in vec3 viewDir)
 
 vec3 specularRadiance(in vec3 r, in float perceptualRoughness)
 {
-    float lod = IBL_ROUGHNESS_LEVEL * perceptualRoughness * (2.0 - perceptualRoughness);
+    float lod = u_IBLRoughnessLevel * perceptualRoughness * (2.0 - perceptualRoughness); //兼容WGSL
 
     // todo 临时转换
     vec3 reflectDir = r * vec3(-1.0, 1.0, 1.0);
@@ -75,7 +75,8 @@ vec3 specularRadiance(in vec3 r, in float perceptualRoughness)
     reflectDir = rotateByYAixs(reflectDir);
 
     // todo float 编码 ?
-    vec4 reflectSampler = textureCubeLodEXT(u_IBLTex, reflectDir, lod);
+    //vec4 reflectSampler = textureCubeLodEXT(u_IBLTex, reflectDir, lod);
+    vec4 reflectSampler = textureCube(u_IBLTex, reflectDir, lod); //兼容WGSL
 
 	#ifdef IBL_RGBD
     return decodeRGBD(reflectSampler) * u_ReflectionIntensity;

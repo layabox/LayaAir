@@ -31,7 +31,7 @@ void main()
     vec2 delta = vec2(u_MainTex_TexelSize.x * 2.0 * u_Delty.x, u_Delty.y * u_MainTex_TexelSize.y * 2.0);
     vec2 uv = v_Texcoord0;
 
-#if defined(BLUR_HIGH_QUALITY)
+// #if defined(BLUR_HIGH_QUALITY) //兼容WGSL
 
     // High quality 7-tap Gaussian with adaptive sampling
     vec2 uvtran = uv;
@@ -72,44 +72,44 @@ void main()
 
     s /= w0 + w1a + w1b + w2a + w2b + w3a + w3b;
 
-#else
+// #else
 
-    // Fater 5-tap Gaussian with linear sampling
-    vec4 p0 = texture2D(u_MainTex, sampler_MainTex, i.texcoordStereo);
-    vec4 p1a = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, UnityStereoTransformScreenSpaceTex(i.texcoord - delta * 1.3846153846));
-    vec4 p1b = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, UnityStereoTransformScreenSpaceTex(i.texcoord + delta * 1.3846153846));
-    vec4 p2a = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, UnityStereoTransformScreenSpaceTex(i.texcoord - delta * 3.2307692308));
-    vec4 p2b = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, UnityStereoTransformScreenSpaceTex(i.texcoord + delta * 3.2307692308));
+//     // Fater 5-tap Gaussian with linear sampling
+//     vec4 p0 = texture2D(u_MainTex, sampler_MainTex, i.texcoordStereo);
+//     vec4 p1a = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, UnityStereoTransformScreenSpaceTex(i.texcoord - delta * 1.3846153846));
+//     vec4 p1b = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, UnityStereoTransformScreenSpaceTex(i.texcoord + delta * 1.3846153846));
+//     vec4 p2a = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, UnityStereoTransformScreenSpaceTex(i.texcoord - delta * 3.2307692308));
+//     vec4 p2b = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, UnityStereoTransformScreenSpaceTex(i.texcoord + delta * 3.2307692308));
 
-    vec2 uvtran = uv;
-    vec4 p0 = texture2D(u_MainTex, uv);
-    uvtran = uv - delta * 1.3846153846;
-    vec4 p1a = texture2D(u_MainTex, uvtran);
-    uvtran = uv + delta * 1.3846153846;
-    vec4 p1b = texture2D(u_MainTex, uvtran);
-    uvtran = uv - delta * 3.2307692308;
-    vec4 p2a = texture2D(u_MainTex, uvtran);
-    uvtran = uv + delta * 3.2307692308;
-    vec4 p2b = texture2D(u_MainTex, uvtran);
+//     vec2 uvtran = uv;
+//     vec4 p0 = texture2D(u_MainTex, uv);
+//     uvtran = uv - delta * 1.3846153846;
+//     vec4 p1a = texture2D(u_MainTex, uvtran);
+//     uvtran = uv + delta * 1.3846153846;
+//     vec4 p1b = texture2D(u_MainTex, uvtran);
+//     uvtran = uv - delta * 3.2307692308;
+//     vec4 p2a = texture2D(u_MainTex, uvtran);
+//     uvtran = uv + delta * 3.2307692308;
+//     vec4 p2b = texture2D(u_MainTex, uvtran);
 
-    vec3 n0 = GetPackedNormal(p0);
+//     vec3 n0 = GetPackedNormal(p0);
 
-    float w0 = 0.2270270270;
-    float w1a = CompareNormal(n0, GetPackedNormal(p1a)) * 0.3162162162;
-    float w1b = CompareNormal(n0, GetPackedNormal(p1b)) * 0.3162162162;
-    float w2a = CompareNormal(n0, GetPackedNormal(p2a)) * 0.0702702703;
-    float w2b = CompareNormal(n0, GetPackedNormal(p2b)) * 0.0702702703;
+//     float w0 = 0.2270270270;
+//     float w1a = CompareNormal(n0, GetPackedNormal(p1a)) * 0.3162162162;
+//     float w1b = CompareNormal(n0, GetPackedNormal(p1b)) * 0.3162162162;
+//     float w2a = CompareNormal(n0, GetPackedNormal(p2a)) * 0.0702702703;
+//     float w2b = CompareNormal(n0, GetPackedNormal(p2b)) * 0.0702702703;
 
-    float s;
-    s = GetPackedAO(p0) * w0;
-    s += GetPackedAO(p1a) * w1a;
-    s += GetPackedAO(p1b) * w1b;
-    s += GetPackedAO(p2a) * w2a;
-    s += GetPackedAO(p2b) * w2b;
+//     float s;
+//     s = GetPackedAO(p0) * w0;
+//     s += GetPackedAO(p1a) * w1a;
+//     s += GetPackedAO(p1b) * w1b;
+//     s += GetPackedAO(p2a) * w2a;
+//     s += GetPackedAO(p2b) * w2b;
 
-    s /= w0 + w1a + w1b + w2a + w2b;
+//     s /= w0 + w1a + w1b + w2a + w2b;
 
-#endif
+// #endif
 
     gl_FragColor = PackAONormal(s, n0);
 }

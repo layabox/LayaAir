@@ -8,7 +8,6 @@ import { IRenderElement2D } from "../../DriverDesign/2DRenderPass/IRenderElement
 import { RenderState } from "../../RenderModuleData/Design/RenderState";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
 import { WebGPUContext } from "../3DRenderPass/WebGPUContext";
-import { WebGPUBuffer } from "../RenderDevice/WebGPUBuffer";
 import { WebGPUUniformMapType } from "../RenderDevice/WebGPUCodeGenerator";
 import { NameNumberMap } from "../RenderDevice/WebGPUCommon";
 import { WebGPUInternalRT } from "../RenderDevice/WebGPUInternalRT";
@@ -50,6 +49,7 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
 
     //着色器数据状态，如果状态改变了，说明需要重建资源，否则直接使用缓存
     protected _shaderDataState: { [key: string]: number[] } = {};
+    protected _shaderDataObject: { [key: string]: number[] } = {};
 
     bundleId: number; //用于bundle管理（被bundle管理器识别）
     needClearBundle: boolean = false; //是否需要清除bundle（bindGroup，pipeline等改变都需要清除指令缓存）
@@ -367,11 +367,18 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
     protected _isShaderDataChange(context: WebGPURenderContext2D) {
         let change = false;
         let shaderDataState = this._shaderDataState[context.pipelineMode];
+        let shaderDataObject = this._shaderDataObject[context.pipelineMode];
         if (!shaderDataState)
             shaderDataState = this._shaderDataState[context.pipelineMode] = [];
+        if (!shaderDataObject)
+            shaderDataObject = this._shaderDataObject[context.pipelineMode] = [];
         if (this._sceneData) {
             if (shaderDataState[0] != this._sceneData.changeMark) {
                 shaderDataState[0] = this._sceneData.changeMark;
+                change = true;
+            }
+            if (shaderDataObject[0] != this._sceneData.globalId) {
+                shaderDataObject[0] = this._sceneData.globalId;
                 change = true;
             }
         }
@@ -380,10 +387,18 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
                 shaderDataState[1] = this._cameraData.changeMark;
                 change = true;
             }
+            if (shaderDataObject[1] != this._cameraData.globalId) {
+                shaderDataObject[1] = this._cameraData.globalId;
+                change = true;
+            }
         }
         if (this.value2DShaderData) {
             if (shaderDataState[2] != this.value2DShaderData.changeMark) {
                 shaderDataState[2] = this.value2DShaderData.changeMark;
+                change = true;
+            }
+            if (shaderDataObject[2] != this.value2DShaderData.globalId) {
+                shaderDataObject[2] = this.value2DShaderData.globalId;
                 change = true;
             }
         }
@@ -392,11 +407,13 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
                 shaderDataState[3] = this.materialShaderData.changeMark;
                 change = true;
             }
+            if (shaderDataObject[3] != this.materialShaderData.globalId) {
+                shaderDataObject[3] = this.materialShaderData.globalId;
+                change = true;
+            }
         }
-        //return change;
-        return true;
+        return change;
     }
-
 
     /**
      * 创建绑定组布局
@@ -491,94 +508,6 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
     }
 
     /**
-     * 转换数据格式
-     */
-    private _changeDataFormat() {
-        const bufferState = this.geometry.bufferState;
-        for (let i = 0; i < bufferState._vertexBuffers.length; i++) {
-            const vb = bufferState._vertexBuffers[i];
-            const vs = bufferState.vertexState[i];
-            let attrOld = [], attrNew = [];
-            const attributes = vs.attributes as [];
-            const attrLen = attributes.length;
-            for (let j = 0; j < attrLen; j++) {
-                const attr = attributes[j] as GPUVertexAttribute;
-                attrOld.push({
-                    offset: attr.offset,
-                    format: attr.format,
-                });
-            }
-            for (let j = 0; j < attrLen; j++) {
-                const attr = attributes[j] as GPUVertexAttribute;
-                if (attr.format === 'uint8x4') {
-                    attr.format = 'float32x4';
-                    for (let k = 0; k < attrLen; k++) {
-                        const attr2 = attributes[k] as GPUVertexAttribute;
-                        if (attr2.offset > attr.offset)
-                            attr2.offset += 12;
-                        attrNew.push({
-                            offset: attr2.offset,
-                            format: attr2.format,
-                        });
-                    }
-                    bufferState.updateBufferLayoutFlag++;
-                    const strideOld = vs.arrayStride;
-                    const vertexCount = vb.buffer.byteLength / vs.arrayStride;
-                    vs.arrayStride += 12;
-                    const strideNew = vs.arrayStride;
-                    const buffer = vb.buffer;
-                    vb.buffer = new ArrayBuffer(vs.arrayStride * vertexCount);
-                    const src_ui8 = new Uint8Array(buffer);
-                    const src_f32 = new Float32Array(buffer);
-                    const dst_ui8 = new Uint8Array(vb.buffer);
-                    const dst_f32 = new Float32Array(vb.buffer);
-                    let src_ui8_off1 = 0;
-                    let src_f32_off1 = 0;
-                    let dst_ui8_off1 = 0;
-                    let dst_f32_off1 = 0;
-                    let src_ui8_off2 = 0;
-                    let src_f32_off2 = 0;
-                    let dst_ui8_off2 = 0;
-                    let dst_f32_off2 = 0;
-                    //拷贝数据（按照新的数据布局）
-                    for (let k = 0; k < vertexCount; k++) {
-                        src_ui8_off1 = k * strideOld;
-                        src_f32_off1 = k * strideOld / 4;
-                        dst_ui8_off1 = k * strideNew;
-                        dst_f32_off1 = k * strideNew / 4;
-                        for (let l = 0; l < attrLen; l++) {
-                            if (attrOld[l].format === 'uint8x4') {
-                                if (l === j) {
-                                    src_ui8_off2 = src_ui8_off1 + attrOld[l].offset;
-                                    dst_f32_off2 = dst_f32_off1 + attrNew[l].offset / 4;
-                                    for (let m = 0; m < 4; m++)
-                                        dst_f32[dst_f32_off2 + m] = src_ui8[src_ui8_off2 + m];
-                                } else {
-                                    src_ui8_off2 = src_ui8_off1 + attrOld[l].offset;
-                                    dst_ui8_off2 = dst_ui8_off1 + attrNew[l].offset;
-                                    for (let m = 0; m < 4; m++)
-                                        dst_ui8[dst_ui8_off2 + m] = src_ui8[src_ui8_off2 + m];
-                                }
-                            } else {
-                                src_f32_off2 = src_f32_off1 + attrOld[l].offset / 4;
-                                dst_f32_off2 = dst_f32_off1 + attrNew[l].offset / 4;
-                                for (let m = 0; m < 4; m++)
-                                    dst_f32[dst_f32_off2 + m] = src_f32[src_f32_off2 + m];
-                            }
-                        }
-                    }
-                    vb.source = new WebGPUBuffer(vb.source._usage, vs.arrayStride * vertexCount);
-                    vb.source.setData(vb.buffer, 0);
-                    attrOld = attrNew;
-                    attrNew = [];
-                }
-            }
-            vb.buffer = null;
-            //console.log('data =', vb.source._size, this.geometry.globalId, vb.source.globalId);
-        }
-    }
-
-    /**
      * 准备渲染
      * @param context 
      * @returns 
@@ -621,10 +550,6 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
      * @param command 
      */
     render(context: WebGPURenderContext2D, command: WebGPURenderCommandEncoder) {
-        if (!this.geometry.d2VertexDone) {
-            this._changeDataFormat(); //转换数据格式
-            this.geometry.d2VertexDone = true;
-        }
         //如果command是null，则只上传shaderData数据，不执行bindGroup操作
         let stateKey;
         for (let i = 0; i < this._passNum; i++) {
@@ -647,9 +572,6 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
                     this._bindGroup(shaderInstance, command); //绑定资源组
                 this._uploadUniform(); //上传uniform数据
                 this._uploadGeometry(command); //上传几何数据
-                //console.log(this.geometry.bufferState._vertexBuffers[0].source._size, this.geometry.globalId, this.geometry.bufferState._vertexBuffers[0].source.globalId);
-                //console.log('frameCount =', Laya.timer.currFrame);
-                debugger
             }
         }
         this._stateKeyCounter++;

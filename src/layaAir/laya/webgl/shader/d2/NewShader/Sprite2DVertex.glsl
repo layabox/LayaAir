@@ -30,7 +30,7 @@ varying vec4 v_color;
             //clipdir是带缩放的方向，由于上面clippos是在缩放后的空间计算的，所以需要把方向先normalize一下
             info.cliped =vec2( dot(clippos,u_clipMatDir.xy)/clipw/clipw, dot(clippos,u_clipMatDir.zw)/cliph/cliph);
         }
-        info.color = a_attribColor/255.;
+        info.color = a_attribColor;
     }
 
     void getPosition(inout vec4 pos){
@@ -60,11 +60,11 @@ varying vec4 v_color;
        	//texcoordAlpha
         info.texcoordAlpha.xy = a_posuv.zw;
         //color
-        info.color = a_attribColor/255.0;
+        info.color = a_attribColor;
         info.color.a*=u_VertAlpha;
 	    info.color.xyz*= info.color.w;//反正后面也要预乘
         //useTex
-        info.useTex = a_attribFlags.r/255.0;
+        info.useTex = a_attribFlags.r;
 
         //clip
     	float clipw = length(u_clipMatDir.xy);

@@ -296,6 +296,20 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
     }
 
     /**
+     * 获取渲染纹理的像素数据
+     * @param xOffset x偏移值
+     * @param yOffset y偏移值
+     * @param width 宽度
+     * @param height 高度
+     * @param out 输出
+     * @returns 二进制数据
+     */
+    async getDataAsync(xOffset: number, yOffset: number, width: number, height: number, out: Uint8Array | Float32Array) { //兼容WGSL
+        await LayaGL.textureContext.readRenderTargetPixelDataAsync(this._renderTarget, xOffset, yOffset, width, height, out);
+        return out;
+    }
+
+    /**
      * 销毁资源
      * @internal
      */

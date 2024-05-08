@@ -5,6 +5,7 @@ import { DrawNodeCMDData, BlitQuadCMDData, DrawElementCMDData, SetViewportCMD, S
 import { ISceneRenderManager } from "../../DriverDesign/3DRenderPass/ISceneRenderManager";
 import { WebGPU3DRenderPass } from "./WebGPU3DRenderPass";
 import { WebGPUBlitQuadCMDData } from "./WebGPURenderCMD/WebGPUBlitQuadCMDData";
+import { WebGPUDrawNodeCMDData } from "./WebGPURenderCMD/WebGPUDrawNodeCMDData";
 import { WebGPUSetRenderData } from "./WebGPURenderCMD/WebGPUSetRenderData";
 import { WebGPUSetRenderTargetCMD } from "./WebGPURenderCMD/WebGPUSetRenderTargetCMD";
 import { WebGPURenderContext3D } from "./WebGPURenderContext3D";
@@ -34,7 +35,7 @@ export class WebGPU3DRenderPassFactory implements I3DRenderPassFactory {
         return new SceneRenderManagerOBJ();
     }
     createDrawNodeCMDData(): DrawNodeCMDData {
-        return null;//TODO
+        return new WebGPUDrawNodeCMDData();
     }
     createBlitQuadCMDData(): BlitQuadCMDData {
         return new WebGPUBlitQuadCMDData();

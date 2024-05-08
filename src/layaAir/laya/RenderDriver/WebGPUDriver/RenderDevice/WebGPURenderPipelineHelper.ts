@@ -154,13 +154,13 @@ export class WebGPUDepthStencilState {
                 stateFormat = "depth24plus-stencil8";
                 break;
             case RenderTargetFormat.DEPTH_32:
-                stateFormat = "depth32float"
+                stateFormat = "depth32float";
                 break;
             case RenderTargetFormat.STENCIL_8:
-                stateFormat = "stencil8"
+                stateFormat = "stencil8";
                 break;
             case RenderTargetFormat.DEPTHSTENCIL_24_Plus:
-                stateFormat = "depth24plus"
+                stateFormat = "depth24plus";
                 break;
             default:
                 stateFormat = "depth24plus-stencil8";
@@ -234,22 +234,22 @@ export class WebGPUPrimitiveState {
         const state: GPUPrimitiveState = {};
         switch (topology) {
             case MeshTopology.Points:
-                state.topology = "point-list"
+                state.topology = "point-list";
                 break;
             case MeshTopology.Lines:
-                state.topology = "line-list"
+                state.topology = "line-list";
                 break;
             case MeshTopology.LineStrip:
-                state.topology = "line-strip"
+                state.topology = "line-strip";
                 break;
             case MeshTopology.Triangles:
-                state.topology = "triangle-list"
+                state.topology = "triangle-list";
                 break;
             case MeshTopology.TriangleStrip:
                 state.topology = "triangle-strip";
                 break;
             default:
-                state.topology = "triangle-list"
+                state.topology = "triangle-list";
                 break;
         }
         switch (cullMode) {
@@ -357,7 +357,7 @@ export class WebGPURenderPipeline {
             descriptor.depthStencil = {
                 format: renderTarget._textures[0]._webGPUFormat,
                 depthWriteEnabled: true,
-                depthCompare: 'less'
+                depthCompare: 'less',
             };
         } else {
             if (depthState)

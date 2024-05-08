@@ -311,6 +311,7 @@ export class WebGPURenderContext3D implements IRenderContext3D {
             this._needStart = false;
         }
 
+        //如果使用全局上下文，先清除上下文缓存
         if (WebGPUGlobal.useGlobalContext)
             WebGPUContext.startRender();
 
@@ -375,6 +376,8 @@ export class WebGPURenderContext3D implements IRenderContext3D {
         if (viewPortAndScissor) {
             if (this._viewPort) {
                 this._viewPort.y = this._viewPort.y | 0; //不设零会报错
+                this._viewPort.width = this._viewPort.width | 0;
+                this._viewPort.height = this._viewPort.height | 0;
                 this.renderCommand.setViewport(this._viewPort.x, this._viewPort.y, this._viewPort.width, this._viewPort.height, 0, 1);
             }
             if (this._scissor) {

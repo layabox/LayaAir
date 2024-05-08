@@ -91,7 +91,7 @@ export class RenderTargetCamera {
 		renderTargetCamera.transform.position = new Vector3(-28.8, 8, -60);
 		renderTargetCamera.transform.rotate(new Vector3(0, 180, 0), true, false);
 		//选择渲染目标为纹理
-		renderTargetCamera.renderTarget = RenderTexture.createFromPool(512, 512, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.DEPTH_16, false, 1);
+		renderTargetCamera.renderTarget = RenderTexture.createFromPool(512, 512, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.DEPTH_16, false, 1, false, true); //兼容WGSL
 		//渲染顺序
 		renderTargetCamera.renderingOrder = -1;
 		//清除标记

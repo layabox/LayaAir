@@ -169,6 +169,7 @@ class Texture2DLoader implements IResourceLoader {
 
     private move(obsoluteInst: BaseTexture, tex: BaseTexture) {
         obsoluteInst._texture = tex._texture;
+        (<any>obsoluteInst)._format = tex.format;
         obsoluteInst.width = tex.width;
         obsoluteInst.height = tex.height;
         obsoluteInst.obsolute = false;

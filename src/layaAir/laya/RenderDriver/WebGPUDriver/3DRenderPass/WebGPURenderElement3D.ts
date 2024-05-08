@@ -152,7 +152,10 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
         if (this._isShaderDataChange(context)) {
             this._compileShader(context);
             compile = true;
-        } else this._cameraData?.createUniformBuffer(this._shaderInstance[0].uniformInfo[1], true);
+        } else {
+            this._sceneData?.createUniformBuffer(this._shaderInstance[0].uniformInfo[0], true);
+            this._cameraData?.createUniformBuffer(this._shaderInstance[0].uniformInfo[1], true);
+        }
 
         //是否反转面片
         this._invertFrontFace = this._getInvertFront();
@@ -178,7 +181,8 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
         //编译着色器，创建uniform缓冲区
         if (this.renderShaderData)
             compileDefine.addDefineDatas(this.renderShaderData.getDefineData());
-        compileDefine.addDefineDatas(this.materialShaderData._defineDatas);
+        if (this.materialShaderData)
+            compileDefine.addDefineDatas(this.materialShaderData._defineDatas);
 
         //查找着色器对象缓存
         for (let i = 0; i < this._passNum; i++) {
@@ -197,13 +201,13 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
                 this._sceneData?.createUniformBuffer(shaderInstance.uniformInfo[0], true);
                 this._cameraData?.createUniformBuffer(shaderInstance.uniformInfo[1], true);
                 this.renderShaderData?.createUniformBuffer(shaderInstance.uniformInfo[2]);
-                this.materialShaderData.createUniformBuffer(shaderInstance.uniformInfo[3]);
+                this.materialShaderData?.createUniformBuffer(shaderInstance.uniformInfo[3]);
             }
         }
 
         //重编译着色器后，清理绑定组缓存
         this.renderShaderData?.clearBindGroup();
-        this.materialShaderData.clearBindGroup();
+        this.materialShaderData?.clearBindGroup();
 
         //强制stateKey重新计算
         this._stateKeyCounter = 0;
@@ -216,9 +220,11 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
      * @param context 
      */
     protected _calcStateKey(shaderInstance: WebGPUShaderInstance, dest: WebGPUInternalRT, context: WebGPURenderContext3D) {
-        this._getBlendState(shaderInstance);
-        this._getDepthStencilState(shaderInstance, dest);
-        this._getCullFrontMode(this.materialShaderData, shaderInstance, this._invertFrontFace, context.invertY);
+        if (this.materialShaderData) {
+            this._getBlendState(shaderInstance);
+            this._getDepthStencilState(shaderInstance, dest);
+            this._getCullFrontMode(this.materialShaderData, shaderInstance, this._invertFrontFace, context.invertY);
+        }
         const primitiveState = WebGPUPrimitiveState.getGPUPrimitiveState(this.geometry.mode, this.frontFace, this.cullMode);
         const bufferState = this.geometry.bufferState;
         const depthStencilId = this.depthStencilState ? this.depthStencilState.id : -1;
@@ -233,9 +239,11 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
      * @param entries 
      */
     protected _getWebGPURenderPipeline(shaderInstance: WebGPUShaderInstance, dest: WebGPUInternalRT, context: WebGPURenderContext3D, entries: any) {
-        this._getBlendState(shaderInstance);
-        this._getDepthStencilState(shaderInstance, dest);
-        this._getCullFrontMode(this.materialShaderData, shaderInstance, this._invertFrontFace, context.invertY);
+        if (this.materialShaderData) {
+            this._getBlendState(shaderInstance);
+            this._getDepthStencilState(shaderInstance, dest);
+            this._getCullFrontMode(this.materialShaderData, shaderInstance, this._invertFrontFace, context.invertY);
+        }
         return WebGPURenderPipeline.getRenderPipeline(this, shaderInstance, dest, entries);
     }
 

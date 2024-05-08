@@ -198,6 +198,7 @@ export class WebGPURenderEngine implements IRenderEngine {
     resizeOffScreen(width: number, height: number): void {
         const w = width | 0;
         const h = height | 0;
+        if (w === 0 || h === 0) return;
         if (!this._screenRT
             || this._screenRT._textures[0].width !== w
             || this._screenRT._textures[0].height !== h) {

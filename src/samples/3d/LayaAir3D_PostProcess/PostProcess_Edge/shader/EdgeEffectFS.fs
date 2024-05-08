@@ -127,6 +127,9 @@ void main() {
     vec3 fillColor = u_EdgeColor.xyz;
 
     #ifdef SOURCE
+        #ifdef WEBGPU_COMPATIBLE //兼容WGSL
+            uv.y = 1.0 - uv.y;
+        #endif
         fillColor = texture2D(u_MainTex, uv).rgb;
     #endif
 

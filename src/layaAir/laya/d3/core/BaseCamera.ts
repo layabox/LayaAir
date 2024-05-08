@@ -167,10 +167,10 @@ export class BaseCamera extends Sprite3D {
         camerauniformMap.addShaderUniform(BaseCamera.DEPTHZBUFFERPARAMS, "u_ZBufferParams", ShaderDataType.Vector4);
 
         //兼容WGSL
-        camerauniformMap.addShaderUniform(Sprite3D.WORLDINVERTFRONT, "u_WroldInvertFront", ShaderDataType.Vector4);
-        camerauniformMap.addShaderUniform(RenderableSprite3D.AMBIENTCOLOR, "u_AmbientColor", ShaderDataType.Vector4);
-		camerauniformMap.addShaderUniform(RenderableSprite3D.AMBIENTINTENSITY, "u_AmbientIntensity", ShaderDataType.Float);
-		camerauniformMap.addShaderUniform(RenderableSprite3D.REFLECTIONINTENSITY, "u_ReflectionIntensity", ShaderDataType.Float);
+        //camerauniformMap.addShaderUniform(Sprite3D.WORLDINVERTFRONT, "u_WroldInvertFront", ShaderDataType.Vector4);
+        //camerauniformMap.addShaderUniform(RenderableSprite3D.AMBIENTCOLOR, "u_AmbientColor", ShaderDataType.Vector4);
+		//camerauniformMap.addShaderUniform(RenderableSprite3D.AMBIENTINTENSITY, "u_AmbientIntensity", ShaderDataType.Float);
+		//camerauniformMap.addShaderUniform(RenderableSprite3D.REFLECTIONINTENSITY, "u_ReflectionIntensity", ShaderDataType.Float);
     }
 
     /**

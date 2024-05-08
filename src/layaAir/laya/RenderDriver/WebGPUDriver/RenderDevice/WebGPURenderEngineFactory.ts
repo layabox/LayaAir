@@ -23,6 +23,10 @@ export class WebGPURenderEngineFactory implements IRenderEngineFactory {
                 gpuConfig.powerPreference = Config.powerPreference;
                 break;
         }
+        // todo add required features
+        gpuConfig.deviceDescriptor.requiredFeatures = [
+            "texture-compression-astc",
+        ];
         const engine = new WebGPURenderEngine(gpuConfig, canvas._source);
         LayaGL.renderEngine = engine;
         await engine.initRenderEngine();

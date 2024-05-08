@@ -1,10 +1,15 @@
 import { Vector2 } from "../../maths/Vector2";
 // 引入角度阈值，用于判断是否为尖角
-const minAngle = 10 * Math.PI / 180; // 10度的弧度值
+const minAngle = 15 * Math.PI / 180; // 15度的弧度值
+/**
+ * 精度
+ */
+const precision = 1e-13;
 export class BasePoly {
 
     private static tempData: any[] = new Array(256);
     private static vec2: Vector2;
+    private static tempIndexs: any[] = new Array(4);
 
     private static _checkMinAngle(p1x: number, p1y: number, p2x: number, p2y: number, p3x: number, p3y: number): boolean {
         // 计算相邻线段的方向向量
@@ -40,6 +45,7 @@ export class BasePoly {
     static createLine2(p: any[], indices: any[], lineWidth: number, indexBase: number, outVertex: any[], loop: boolean): any[] {
 
         if (p.length < 4) return null;
+	let offset = indexBase;
         var points: any[] = BasePoly.tempData.length > (p.length + 2) ? BasePoly.tempData : new Array(p.length + 2);	//可能有loop，所以+2
         points[0] = p[0]; points[1] = p[1];
         /*
@@ -58,8 +64,14 @@ export class BasePoly {
             }
         }
         //如果终点和起点没有重合，且要求loop的情况的处理
-        if (loop && Math.abs(p[0] - points[newlen - 2]) + Math.abs(p[1] - points[newlen - 1]) > 0) {
-            points[newlen++] = p[0]; points[newlen++] = p[1];
+        let delta=Math.abs(p[0] - points[newlen - 2]) + Math.abs(p[1] - points[newlen - 1]);
+        if (loop && delta > 0) {
+            if(delta>precision){
+                points[newlen++] = p[0]; points[newlen++] = p[1];
+            }
+            else{
+                points[newlen-2] = p[0]; points[newlen-1] = p[1];
+            }
         }
 
         var result: any[] = outVertex;
@@ -72,7 +84,7 @@ export class BasePoly {
         p1y = points[1];
         p2x = points[2];
         p2y = points[3];
-        let startIndex = result.length;
+        // let startIndex = result.length;
 
         this.vec2 = this.getNormal(p1x, p1y, p2x, p2y, w, this.vec2);
         result.push(p1x - this.vec2.x, p1y - this.vec2.y, p1x + this.vec2.x, p1y + this.vec2.y);
@@ -88,9 +100,7 @@ export class BasePoly {
             indices.push(indexBase + 0, indexBase + 1, indexBase + 3, indexBase + 3, indexBase + 2, indexBase + 0);
             indexBase += 2;
             // 夹角小于阈值,视为尖角,使用线段的中点作为拐角处的顶点
-            if (!this._setMiddleVertexs(p1x, p1y, p2x, p2y, p3x, p3y, w, result, this.vec2)) {
-                indexBase += 2;
-            }
+            indexBase += this._setMiddleVertexs(p1x, p1y, p2x, p2y, p3x, p3y, w, result, this.vec2, indices, indexBase);
         }
 
         p1x = points[newlen - 4];
@@ -98,28 +108,25 @@ export class BasePoly {
         p2x = points[newlen - 2];
         p2y = points[newlen - 1];
 
-
+        this.vec2 = this.getNormal(p1x, p1y, p2x, p2y, w, this.vec2);
+        result.push(p2x - this.vec2.x, p2y - this.vec2.y, p2x + this.vec2.x, p2y + this.vec2.y);
+        indices.push(indexBase + 0, indexBase + 1, indexBase + 3, indexBase + 3, indexBase + 2, indexBase + 0);
         if (p2x == points[0] && p2y == points[1]) {
             p3x = points[2];
             p3y = points[3];
-            if (!this._setMiddleVertexs(p1x, p1y, p2x, p2y, p3x, p3y, w, result, this.vec2)) {
-                indexBase += 2;
-            }
-            let len = result.length;
-            result[startIndex] = result[len - 4];
-            result[startIndex + 1] = result[len - 3];
-            result[startIndex + 2] = result[len - 2];
-            result[startIndex + 3] = result[len - 1];
-
-        } else {
-            this.vec2 = this.getNormal(p1x, p1y, p2x, p2y, w, this.vec2);
-            result.push(p2x - this.vec2.x, p2y - this.vec2.y, p2x + this.vec2.x, p2y + this.vec2.y);
+            let last = result.length / 2;
+            indexBase += 4;
+            let tempIndexs = BasePoly.tempIndexs;
+            tempIndexs[0] = offset + last - 2;
+            tempIndexs[1] = offset + last - 1;
+            tempIndexs[2] = offset;
+            tempIndexs[3] = offset + 1;
+            this._setMiddleVertexs(p1x, p1y, p2x, p2y, p3x, p3y, w, result, this.vec2, indices, indexBase, tempIndexs);
         }
-        indices.push(indexBase + 0, indexBase + 1, indexBase + 3, indexBase + 3, indexBase + 2, indexBase + 0);
         return result;
     }
 
-    private static _setMiddleVertexs(x1: number, y1: number, x2: number, y2: number, x3: number, y3: number, w: number, vertexs: number[], out: Vector2) {
+    private static _setMiddleVertexs(x1: number, y1: number, x2: number, y2: number, x3: number, y3: number, w: number, vertexs: number[], out: Vector2, indices: number[], indexBase: number, edgeIndexArray: number[] = null): number {
         this.getNormal(x1, y1, x2, y2, w, out);
         let perpx = out.x;
         let perpy = out.y;
@@ -127,9 +134,15 @@ export class BasePoly {
         let perp2x = out.x;
         let perp2y = out.y;
         if (this._checkMinAngle(x1, y1, x2, y2, x3, y3)) {
-            vertexs.push(x2 - perpx, y2 - perpy, x2 + perpx, y2 + perpy);
-            vertexs.push(x2 - perp2x, y2 - perp2y, x2 + perp2x, y2 + perp2y);
-            return false;
+            if (!edgeIndexArray) {
+                vertexs.push(x2 - perpx, y2 - perpy, x2 + perpx, y2 + perpy);
+                vertexs.push(x2 - perp2x, y2 - perp2y, x2 + perp2x, y2 + perp2y);
+                indices.push(indexBase + 0, indexBase + 1, indexBase + 3, indexBase + 3, indexBase + 2, indexBase + 0);
+            }
+            else {
+                indices.push(edgeIndexArray[0], edgeIndexArray[1], edgeIndexArray[3], edgeIndexArray[3], edgeIndexArray[2], edgeIndexArray[0]);
+            }
+            return 2;
         }
 
         let a1 = (-perpy + y1) - (-perpy + y2);
@@ -143,12 +156,38 @@ export class BasePoly {
         if (Math.abs(denom) < 0.1) {
             denom += 10.1;
             vertexs.push(x2 - perpx, y2 - perpy, x2 + perpx, y2 + perpy);
-            return true;
+            return 0;
         }
         let px = (b1 * c2 - b2 * c1) / denom;
         let py = (a2 * c1 - a1 * c2) / denom;
-        vertexs.push(px, py, x2 - (px - x2), y2 - (py - y2));
-        return true;
+        if (!edgeIndexArray) {
+            vertexs.push(x2 - perpx, y2 - perpy, x2 + perpx, y2 + perpy);
+            if (denom > 0) {
+                vertexs.push(px, py, x2, y2);
+                indices.push(indexBase + 0, indexBase + 2, indexBase + 4);
+                indices.push(indexBase + 4, indexBase + 3, indexBase + 0);
+            }
+            else {
+                vertexs.push(x2 - (px - x2), y2 - (py - y2), x2, y2);
+                indices.push(indexBase + 1, indexBase + 2, indexBase + 5);
+                indices.push(indexBase + 5, indexBase + 3, indexBase + 1);
+            }
+            vertexs.push(x2 - perp2x, y2 - perp2y, x2 + perp2x, y2 + perp2y);
+        }
+        else {
+            if (denom > 0) {
+                vertexs.push(px, py, x2, y2);
+                indices.push(edgeIndexArray[0], indexBase + 0, edgeIndexArray[2]);
+                indices.push(edgeIndexArray[2], indexBase + 1, edgeIndexArray[0]);
+            }
+            else {
+                vertexs.push(x2 - (px - x2), y2 - (py - y2), x2, y2);
+                indices.push(edgeIndexArray[1], indexBase + 0, edgeIndexArray[3]);
+                indices.push(edgeIndexArray[3], indexBase + 1, edgeIndexArray[1]);
+            }
+        }
+        //vertexs.push(px, py, x2 - (px - x2), y2 - (py - y2));
+        return 4;
     }
 
     static getNormal(x1: number, y1: number, x2: number, y2: number, w: number, out?: Vector2) {
