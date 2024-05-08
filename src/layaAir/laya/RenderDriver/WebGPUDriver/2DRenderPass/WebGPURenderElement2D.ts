@@ -35,7 +35,7 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
     frontFace: FrontFace;
 
     protected _stateKey: string[] = []; //用于判断渲染状态是否改变
-    protected _stateKeyCounter: number = 0; //用于控制stateKey计算频率
+    //protected _stateKeyCounter: number = 0; //用于控制stateKey计算频率
     protected _shaderInstances: WebGPUShaderInstance[] = []; //着色器缓存
     protected _pipelineCache: GPURenderPipeline[] = []; //渲染管线缓存
 
@@ -43,9 +43,6 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
     protected _passIndex: number[] = []; //当前渲染通道索引
     protected _shaderPass: ShaderPass[] = []; //当前渲染通道
     protected _shaderInstance: WebGPUShaderInstance[] = []; //当前着色器实例
-
-    //是否启用GPU资源缓存机制
-    useCache: boolean = WebGPUGlobal.useCache;
 
     //着色器数据状态，如果状态改变了，说明需要重建资源，否则直接使用缓存
     protected _shaderDataState: { [key: string]: number[] } = {};
@@ -132,7 +129,7 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
         this.materialShaderData?.clearBindGroup();
 
         //强制stateKey重新计算
-        this._stateKeyCounter = 0;
+        //this._stateKeyCounter = 0;
     }
 
     /**
@@ -501,7 +498,7 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
                     WebGPUContext.setCommandPipeline(command, pipeline);
                 else command.setPipeline(pipeline);
             }
-            if (this.useCache) {
+            if (WebGPUGlobal.useCache) {
                 this._pipelineCache[sn] = pipeline;
                 this._stateKey[sn] = stateKey;
             }
@@ -559,8 +556,8 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
             const index = this._passIndex[i];
             const shaderInstance = this._shaderInstance[i];
             if (shaderInstance && shaderInstance.complete) {
-                if (this.useCache) { //启用缓存机制
-                    if (this.materialShaderData && this._stateKeyCounter % 10 == 0)
+                if (WebGPUGlobal.useCache) { //启用缓存机制
+                    if (this.materialShaderData)
                         stateKey = this._calcStateKey(shaderInstance, context.destRT, context);
                     else stateKey = this._stateKey[index];
                     if (stateKey != this._stateKey[index] || !this._pipelineCache[index]) //缓存未命中
@@ -577,12 +574,16 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
                 this._uploadGeometry(command); //上传几何数据
             }
         }
-        this._stateKeyCounter++;
+        //this._stateKeyCounter++;
     }
 
     /**
      * 销毁
      */
-    destroy(): void {
+    destroy() {
+        WebGPUGlobal.releaseId(this);
+        this._shaderInstances.length = 0;
+        this._pipelineCache.length = 0;
+        this._stateKey.length = 0;
     }
 }

@@ -340,7 +340,7 @@ export class Camera extends BaseCamera {
     /**@internal */
     _internalCommandBuffer: CommandBuffer = new CommandBuffer();
     /**@internal @protected 深度贴图模式 */
-    protected _depthTextureFormat: RenderTargetFormat = RenderTargetFormat.DEPTH_16;
+    protected _depthTextureFormat: RenderTargetFormat = RenderTargetFormat.DEPTHSTENCIL_24_8; //兼容WGSL
     /** 深度贴图*/
     private _depthTexture: BaseTexture;
     /** 深度法线贴图*/
