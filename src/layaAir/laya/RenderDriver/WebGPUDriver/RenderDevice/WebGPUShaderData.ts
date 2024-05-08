@@ -17,6 +17,8 @@ import { WebGPURenderEngine } from "./WebGPURenderEngine";
 import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
 import { TextureFormat } from "../../../RenderEngine/RenderEnum/TextureFormat";
 import { WebGPURenderBundle } from "./WebGPUBundle/WebGPURenderBundle";
+import { LayaGL } from "../../../layagl/LayaGL";
+import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
 
 export class WebGPUShaderData extends ShaderData {
     /**@internal */
@@ -40,7 +42,7 @@ export class WebGPUShaderData extends ShaderData {
     isShare: boolean = true; //是否共享模式，该ShaderData数据是否会被多个节点共享
     isStatic: boolean = false; //是否静态，静态的节点会使用静态的大Buffer，减少上传次数
     changeMark: number = 0; //变化标记，用于标记预编译设置是否变化，如变化，值+1
-    
+
     globalId: number;
     objectName: string = 'WebGPUShaderData';
 
@@ -161,9 +163,16 @@ export class WebGPUShaderData extends ShaderData {
                             const texture = this.getTexture(item.propertyId);
                             if (!texture) return null;
                             else {
-                                if (texture.format === TextureFormat.R32G32B32A32)
+                                //  todo different samplerType
+                                // eg: uint, sint
+                                let supportFloatLinearFiltering = LayaGL.renderEngine.getCapable(RenderCapable.Texture_FloatLinearFiltering);
+                                if (!supportFloatLinearFiltering && texture.format === TextureFormat.R32G32B32A32) {
                                     item.texture.sampleType = 'unfilterable-float';
-                                else item.texture.sampleType = 'float';
+                                }
+                                else {
+                                    item.texture.sampleType = 'float';
+                                }
+
                                 bindGroupLayoutEntries.push({
                                     binding: item.binding,
                                     visibility: item.visibility,
@@ -181,9 +190,14 @@ export class WebGPUShaderData extends ShaderData {
                             const texture = this.getTexture(item.propertyId);
                             if (!texture) return null;
                             else {
-                                if (texture.format === TextureFormat.R32G32B32A32)
+                                let supportFloatLinearFiltering = LayaGL.renderEngine.getCapable(RenderCapable.Texture_FloatLinearFiltering);
+                                if (!supportFloatLinearFiltering && texture.format === TextureFormat.R32G32B32A32) {
                                     item.sampler.type = 'non-filtering';
-                                else item.sampler.type = 'filtering';
+                                }
+                                else {
+                                    item.sampler.type = 'filtering';
+                                }
+
                                 bindGroupLayoutEntries.push({
                                     binding: item.binding,
                                     visibility: item.visibility,

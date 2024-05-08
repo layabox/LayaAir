@@ -127,6 +127,7 @@ export class WebGPURenderEngine implements IRenderEngine {
      * @param deviceDescriptor 
      */
     private _getGPUdevice(deviceDescriptor: GPUDeviceDescriptor): Promise<GPUDevice> {
+        this._supportCapatable = new WebGPUCapable(deviceDescriptor);
         return this._adapter.requestDevice(deviceDescriptor);
     }
 
@@ -244,7 +245,6 @@ export class WebGPURenderEngine implements IRenderEngine {
         this._initContext();
 
         this._textureContext = new WebGPUTextureContext(this);
-        this._supportCapatable = new WebGPUCapable();
         this.createScreenRT();
 
         // limit TODO

@@ -752,6 +752,8 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         let blockBytes = ddsInfo.blockBytes;
         let mipmapCount = ddsInfo.mipmapCount;
 
+        let compressed = ddsInfo.compressed;
+
         texture.maxMipmapLevel = mipmapCount - 1;
 
         let fourSize = width % 4 == 0 && height % 4 == 0;
@@ -763,18 +765,30 @@ export class GLTextureContext extends GLObject implements ITextureContext {
 
         this._engine._bindTexture(texture.target, texture.resource);
 
+        let formatParams = this.getFormatPixelsParams(ddsInfo.format);
+        let channelsByte = formatParams.bytesPerPixel / formatParams.channels;
+        let dataTypeConstur = formatParams.dataTypedCons;
+
         let mipmapWidth = width;
         let mipmapHeight = height;
         let memory = 0;
         for (let index = 0; index < mipmapCount; index++) {
+            if (compressed) {
+                // todo  size 计算 方式
+                let dataLength = (((Math.max(4, mipmapWidth) / 4) * Math.max(4, mipmapHeight)) / 4) * blockBytes;
+                let sourceData = new Uint8Array(source, dataOffset, dataLength);
+                gl.compressedTexImage2D(target, index, internalFormat, mipmapWidth, mipmapHeight, 0, sourceData);
+                memory += sourceData.length;
+                dataOffset += bpp ? (mipmapWidth * mipmapHeight * (bpp / 8)) : dataLength;
+            }
+            else {
+                let dataLength = mipmapWidth * mipmapHeight * formatParams.channels;
+                let sourceData = new dataTypeConstur(source, dataOffset, dataLength);
 
-            // todo  size 计算 方式
-            let dataLength = (((Math.max(4, mipmapWidth) / 4) * Math.max(4, mipmapHeight)) / 4) * blockBytes;
-            let sourceData = new Uint8Array(source, dataOffset, dataLength);
+                gl.texImage2D(target, index, internalFormat, mipmapWidth, mipmapHeight, 0, format, type, sourceData);
 
-            gl.compressedTexImage2D(target, index, internalFormat, mipmapWidth, mipmapHeight, 0, sourceData);
-            memory += sourceData.length;
-            dataOffset += bpp ? (mipmapWidth * mipmapHeight * (bpp / 8)) : dataLength;
+                dataOffset += dataLength * channelsByte;
+            }
 
             mipmapWidth *= 0.5;
             mipmapHeight *= 0.5;
@@ -1045,8 +1059,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
 
         let formatParams = this.getFormatPixelsParams(ddsInfo.format);
         let channelsByte = formatParams.bytesPerPixel / formatParams.channels;
-
-        let dataTypeConstur = ddsInfo.format == TextureFormat.R32G32B32A32 ? Float32Array : Uint16Array;
+        let dataTypeConstur = formatParams.dataTypedCons;
         let memory = 0;
         if (!ddsInfo.compressed) {
             for (let face = 0; face < 6; face++) {
