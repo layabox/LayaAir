@@ -52,9 +52,9 @@ export class MeshVG extends Mesh2D {
         for (var i = 0; i < sz; i++) {
             vbdata[f32pos++] = points[ci]; vbdata[f32pos++] = points[ci + 1]; ci += 2;
             //vbu32Arr[f32pos++] = rgba;
-            vbdata[f32pos++]=r;        //r
+            vbdata[f32pos++]=b;        //r
             vbdata[f32pos++]=g;
-            vbdata[f32pos++]=b;
+            vbdata[f32pos++]=r;
             vbdata[f32pos++]=a;  //alpha
         }
 

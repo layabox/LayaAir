@@ -149,7 +149,7 @@ export class WebGLEngine implements IRenderEngine {
     }
 
     resizeOffScreen(width: number, height: number): void {
-
+        //这里不需要，为了其他渲染底层预留
     }
     addTexGammaDefine(key: number, value: ShaderDefine): void {
         WebGLEngine._texGammaDefine[key] = value;

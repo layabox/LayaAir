@@ -7,7 +7,6 @@ import { Mesh2D } from "../utils/Mesh2D"
 import { MeshQuadTexture } from "../utils/MeshQuadTexture"
 import { MeshTexture } from "../utils/MeshTexture"
 import { MeshVG } from "../utils/MeshVG"
-import { NativeWebGLCacheAsNormalCanvas } from "./NativeWebGLCacheAsNormalCanvas"
 
 /**
  * 对象 cacheas normal的时候，本质上只是想把submit缓存起来，以后直接执行
@@ -162,9 +161,4 @@ export class WebGLCacheAsNormalCanvas {
     releaseMem(): void {
 
     }
-}
-// native
-if ((window as any).conch && !(window as any).conchConfig.conchWebGL) {
-	//@ts-ignore
-	//lvtodo WebGLCacheAsNormalCanvas = NativeWebGLCacheAsNormalCanvas;
 }

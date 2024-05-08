@@ -1,9 +1,10 @@
-import { NativeMemory } from "../../../../RenderEngine/RenderEngine/NativeGLEngine/CommonMemory/NativeMemory";
+
 import { BoundBox } from "../../../../d3/math/BoundBox";
 import { Bounds } from "../../../../d3/math/Bounds";
 import { Matrix4x4 } from "../../../../maths/Matrix4x4";
 import { Vector3 } from "../../../../maths/Vector3";
 import { IClone } from "../../../../utils/IClone";
+import { NativeMemory } from "../NativeMemory";
 
 
 

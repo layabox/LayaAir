@@ -35,7 +35,7 @@ export class CacheStyle {
     }
 
     onInvisible(){
-        console.log('TODO cache invisibl')       
+        //console.log('TODO cache invisibl')       
     }
 
     /**

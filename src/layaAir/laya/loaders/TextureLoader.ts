@@ -15,6 +15,7 @@ import { RenderTexture } from "../resource/RenderTexture";
 import { VideoTexture } from "../media/VideoTexture";
 import { LayaEnv } from "../../LayaEnv";
 import { LayaGL } from "../layagl/LayaGL";
+import { DDSTextureInfo } from "../RenderEngine/DDSTextureInfo";
 
 var internalResources: Record<string, Texture2D>;
 
@@ -88,7 +89,23 @@ class Texture2DLoader implements IResourceLoader {
                 let tex: BaseTexture;
                 switch (compress) {
                     case "dds":
-                        tex = Texture2D._parseDDS(data, propertyParams, constructParams);
+                        let ddsInfo = DDSTextureInfo.getDDSTextureInfo(data);
+                        if (ddsInfo.isCube) {
+                            //这里在core模块，不能直接引用d3里的TextureCube
+                            let cls = ClassUtils.getClass("TextureCube");
+                            if (cls) {
+                                let srgb = constructParams ? !!constructParams[5] : false;
+                                let tc = new cls(ddsInfo.width, ddsInfo.format, ddsInfo.mipmapCount > 1, srgb);
+                                tc.setDDSData(ddsInfo);
+                                tex = tc;
+                            }
+                            else {
+                                return null;
+                            }
+                        }
+                        else {
+                            tex = Texture2D._parseDDS(data, propertyParams, constructParams);
+                        }
                         break;
 
                     case "ktx":

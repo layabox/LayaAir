@@ -4,11 +4,11 @@ export class WebGPUCapable {
     /**@internal */
     private _capabilityMap: Map<RenderCapable, boolean>;
 
-    constructor() {
-        this.initCapable();
+    constructor(descriptor: GPUDeviceDescriptor) {
+        this.initCapable(descriptor);
     }
 
-    initCapable() {
+    initCapable(descriptor: GPUDeviceDescriptor) {
         this._capabilityMap = new Map();
         //Index Uint32
         this._capabilityMap.set(RenderCapable.Element_Index_Uint32, true);
@@ -24,16 +24,42 @@ export class WebGPUCapable {
         this._capabilityMap.set(RenderCapable.Vertex_VAO, true);
         this._capabilityMap.set(RenderCapable.DrawElement_Instance, false); //先关闭instance
         this._capabilityMap.set(RenderCapable.Shader_TextureLod, true);
-        this._capabilityMap.set(RenderCapable.COMPRESS_TEXTURE_S3TC, true);
-        this._capabilityMap.set(RenderCapable.COMPRESS_TEXTURE_S3TC_SRGB, true);
-        this._capabilityMap.set(RenderCapable.COMPRESS_TEXTURE_PVRTC, true);
-        this._capabilityMap.set(RenderCapable.COMPRESS_TEXTURE_ETC1, true);
-        this._capabilityMap.set(RenderCapable.COMPRESS_TEXTURE_ETC, true);
-        this._capabilityMap.set(RenderCapable.COMPRESS_TEXTURE_ASTC, true);
+
+        this._capabilityMap.set(RenderCapable.COMPRESS_TEXTURE_S3TC, false);
+        this._capabilityMap.set(RenderCapable.COMPRESS_TEXTURE_S3TC_SRGB, false);
+        this._capabilityMap.set(RenderCapable.COMPRESS_TEXTURE_PVRTC, false);
+        this._capabilityMap.set(RenderCapable.COMPRESS_TEXTURE_ETC1, false);
+        this._capabilityMap.set(RenderCapable.COMPRESS_TEXTURE_ETC, false);
+        this._capabilityMap.set(RenderCapable.COMPRESS_TEXTURE_ASTC, false);
         this._capabilityMap.set(RenderCapable.Texture_SRGB, true);
         this._capabilityMap.set(RenderCapable.MSAA, true);
         this._capabilityMap.set(RenderCapable.UnifromBufferObject, false);
-        this._capabilityMap.set(RenderCapable.Texture3D, false);
+        this._capabilityMap.set(RenderCapable.Texture3D, true);
+        this._capabilityMap.set(RenderCapable.Texture_HalfFloatLinearFiltering, true);
+
+        let features = descriptor.requiredFeatures;
+
+        for (const iterator of features) {
+            switch (iterator) {
+                case "texture-compression-astc":
+                    this._capabilityMap.set(RenderCapable.COMPRESS_TEXTURE_ASTC, true);
+                    break;
+                case "texture-compression-bc":
+                    this._capabilityMap.set(RenderCapable.COMPRESS_TEXTURE_S3TC, true);
+                    this._capabilityMap.set(RenderCapable.COMPRESS_TEXTURE_S3TC_SRGB, true);
+                    break;
+                case "texture-compression-etc2":
+                    this._capabilityMap.set(RenderCapable.COMPRESS_TEXTURE_ETC1, true);
+                    this._capabilityMap.set(RenderCapable.COMPRESS_TEXTURE_ETC, true);
+                    break;
+                case "float32-filterable":
+                    this._capabilityMap.set(RenderCapable.Texture_FloatLinearFiltering, true);
+                    break;
+                default:
+                    break;
+            }
+        }
+
     }
 
     getCapable(type: RenderCapable) {

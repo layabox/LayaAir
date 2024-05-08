@@ -81,9 +81,9 @@ export class MeshTexture extends Mesh2D {
             vbdata[f32pos + 2] = uvminx + uvs[ci]*uvu;
             vbdata[f32pos + 3] = uvminy + uvs[ci + 1]*uvv;
 
-            vbdata[f32pos + 4] = r;
+            vbdata[f32pos + 4] = b;
             vbdata[f32pos + 5] = g;
-            vbdata[f32pos + 6] = b;
+            vbdata[f32pos + 6] = r;
             vbdata[f32pos + 7] = a;
             vbdata[f32pos+8] = 0xff;
             f32pos += 12;

@@ -78,19 +78,19 @@ export class MeshQuadTexture extends Mesh2D {
 		var cpos = this._curVBPos;
 		var useTexVal = useTex ? 1 : 0;
 		vbdata[cpos++] = pos[0]; vbdata[cpos++] = pos[1]; vbdata[cpos++] = uv[0]; vbdata[cpos++] = uv[1]; 
-		vbdata[cpos++] = r; vbdata[cpos++] = g; vbdata[cpos++] = b; vbdata[cpos++] = a; 
+		vbdata[cpos++] = b; vbdata[cpos++] = g; vbdata[cpos++] = r; vbdata[cpos++] = a; 
 		vbdata[cpos++] = useTexVal; cpos+=3;
 
 		vbdata[cpos++] = pos[2]; vbdata[cpos++] = pos[3]; vbdata[cpos++] = uv[2]; vbdata[cpos++] = uv[3]; 
-		vbdata[cpos++] = r; vbdata[cpos++] = g; vbdata[cpos++] = b; vbdata[cpos++] = a; 
+		vbdata[cpos++] = b; vbdata[cpos++] = g; vbdata[cpos++] = r; vbdata[cpos++] = a; 
 		vbdata[cpos++] = useTexVal; cpos+=3;
 		
 		vbdata[cpos++] = pos[4]; vbdata[cpos++] = pos[5]; vbdata[cpos++] = uv[4]; vbdata[cpos++] = uv[5]; 
-		vbdata[cpos++] = r; vbdata[cpos++] = g; vbdata[cpos++] = b; vbdata[cpos++] = a; 
+		vbdata[cpos++] = b; vbdata[cpos++] = g; vbdata[cpos++] = r; vbdata[cpos++] = a; 
 		vbdata[cpos++] = useTexVal; cpos+=3;
 
 		vbdata[cpos++] = pos[6]; vbdata[cpos++] = pos[7]; vbdata[cpos++] = uv[6]; vbdata[cpos++] = uv[7]; 
-		vbdata[cpos++] = r; vbdata[cpos++] = g; vbdata[cpos++] = b; vbdata[cpos++] = a; 
+		vbdata[cpos++] = b; vbdata[cpos++] = g; vbdata[cpos++] = r; vbdata[cpos++] = a; 
 		vbdata[cpos++] = useTexVal; cpos+=3;
 		
 		this._curVBPos = cpos;

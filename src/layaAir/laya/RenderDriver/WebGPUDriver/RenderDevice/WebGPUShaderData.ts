@@ -22,6 +22,8 @@ import { WebGPURenderEngine } from "./WebGPURenderEngine";
 import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
 import { WebGPUTextureFormat } from "./WebGPUTextureContext";
 import { WebGPUUniformBuffer } from "./WebGPUUniform/WebGPUUniformBuffer";
+import { LayaGL } from "../../../layagl/LayaGL";
+import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
 
 /**
  * 着色器数据
@@ -302,9 +304,16 @@ export class WebGPUShaderData extends ShaderData {
                             if (internalTex._webGPUFormat === WebGPUTextureFormat.depth16unorm)
                                 item.texture.sampleType = 'unfilterable-float';
                             else {
-                                if (internalTex._webGPUFormat === WebGPUTextureFormat.rgba32float)
+                                //  todo different samplerType
+                                // eg: uint, sint
+                                let supportFloatLinearFiltering = LayaGL.renderEngine.getCapable(RenderCapable.Texture_FloatLinearFiltering);
+                                if (!supportFloatLinearFiltering && texture.format === TextureFormat.R32G32B32A32) {
                                     item.texture.sampleType = 'unfilterable-float';
-                                else item.texture.sampleType = 'float';
+                                }
+                                else {
+                                    item.texture.sampleType = 'float';
+                                }
+
                             }
                             bindGroupLayoutEntries.push({
                                 binding: item.binding,
@@ -335,11 +344,14 @@ export class WebGPUShaderData extends ShaderData {
                                 internalTex.filterMode = FilterMode.Point;
                             }
                             else {
-                                if (internalTex._webGPUFormat === WebGPUTextureFormat.rgba32float) {
+                                let supportFloatLinearFiltering = LayaGL.renderEngine.getCapable(RenderCapable.Texture_FloatLinearFiltering);
+                                if (!supportFloatLinearFiltering && texture.format === TextureFormat.R32G32B32A32) {
                                     item.sampler.type = 'non-filtering';
-                                    internalTex.filterMode = FilterMode.Point;
                                 }
-                                else item.sampler.type = 'filtering';
+                                else {
+                                    item.sampler.type = 'filtering';
+                                }
+
                             }
                             bindGroupLayoutEntries.push({
                                 binding: item.binding,

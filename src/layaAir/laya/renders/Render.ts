@@ -1,3 +1,4 @@
+import { Laya } from "../../Laya";
 import { LayaEnv } from "../../LayaEnv";
 import { IRenderEngine } from "../RenderDriver/DriverDesign/RenderDevice/IRenderEngine";
 import { HTMLCanvas } from "../resource/HTMLCanvas";
@@ -46,6 +47,19 @@ export class Render {
     }
     static get customRenderEngine() {
         return Render._customEngine;
+    }
+
+    // static clearResources(){
+    //     Laya.timer.frameOnce(2, this, () => {
+
+    //         EngineUtils.gc();
+    //     })
+    // }
+
+    static gc() {
+        if (LayaEnv.isConch) {
+            (window as any).gc({ type: 'major', execution: 'async' });
+        }
     }
 
 
@@ -111,6 +125,7 @@ export class Render {
             }
         }
         ILaya.stage.on("visibilitychange", this, this._onVisibilitychange);
+        LayaEnv.isConch && Laya.timer.frameOnce(2, null, Render.gc);
     }
 
     /**@private */
