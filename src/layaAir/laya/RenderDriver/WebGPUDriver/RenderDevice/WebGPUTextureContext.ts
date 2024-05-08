@@ -941,9 +941,9 @@ export class WebGPUTextureContext implements ITextureContext {
         if (texture.mipmap && generateMipmap)
             genMipmap(WebGPURenderEngine._instance.getDevice(), texture.resource);
     }
-    setCubeDDSData(texture: InternalTexture, ddsInfo: DDSTextureInfo): void {
-        throw new Error("Method not implemented.");
-    }
+    // setCubeDDSData(texture: InternalTexture, ddsInfo: DDSTextureInfo): void {
+    //     throw new Error("Method not implemented.");
+    // }
     setCubeKTXData(texture: InternalTexture, ktxInfo: KTXTextureInfo): void {
         const device = WebGPURenderEngine._instance.getDevice();
 
@@ -1093,80 +1093,80 @@ export class WebGPUTextureContext implements ITextureContext {
 
         }
     }
-    setCubeKTXData(texture: WebGPUInternalTex, ktxInfo: KTXTextureInfo): void {
+    // setCubeKTXData(texture: WebGPUInternalTex, ktxInfo: KTXTextureInfo): void {
 
-        const device = WebGPURenderEngine._instance.getDevice();
+    //     const device = WebGPURenderEngine._instance.getDevice();
 
-        let premultipliedAlpha = false;
-        let invertY = false;
+    //     let premultipliedAlpha = false;
+    //     let invertY = false;
 
-        texture.maxMipmapLevel = ktxInfo.mipmapCount - 1;
+    //     texture.maxMipmapLevel = ktxInfo.mipmapCount - 1;
 
-        let width = texture.width;
-        let height = texture.height;
+    //     let width = texture.width;
+    //     let height = texture.height;
 
-        let mipmapWidth = width;
-        let mipmapHeight = height;
-        let dataOffset = ktxInfo.headerOffset + ktxInfo.bytesOfKeyValueData;
+    //     let mipmapWidth = width;
+    //     let mipmapHeight = height;
+    //     let dataOffset = ktxInfo.headerOffset + ktxInfo.bytesOfKeyValueData;
 
-        let source = ktxInfo.source;
-        let compressed = ktxInfo.compress;
+    //     let source = ktxInfo.source;
+    //     let compressed = ktxInfo.compress;
 
-        for (let index = 0; index < ktxInfo.mipmapCount; index++) {
+    //     for (let index = 0; index < ktxInfo.mipmapCount; index++) {
 
-            let imageSize = new Int32Array(source, dataOffset, 1)[0];
+    //         let imageSize = new Int32Array(source, dataOffset, 1)[0];
 
-            dataOffset += 4;
+    //         dataOffset += 4;
 
-            for (let face = 0; face < 6; face++) {
+    //         for (let face = 0; face < 6; face++) {
 
-                const block = this._getBlockInformationFromFormat(texture._webGPUFormat);
-                const bytesPerRow = Math.ceil(mipmapWidth / block.width) * block.length;
+    //             const block = this._getBlockInformationFromFormat(texture._webGPUFormat);
+    //             const bytesPerRow = Math.ceil(mipmapWidth / block.width) * block.length;
 
-                const size = {
-                    width: Math.ceil(mipmapWidth / block.width) * block.width,
-                    height: Math.ceil(mipmapHeight / block.height) * block.height,
-                    depthOrArrayLayers: 1
-                };
+    //             const size = {
+    //                 width: Math.ceil(mipmapWidth / block.width) * block.width,
+    //                 height: Math.ceil(mipmapHeight / block.height) * block.height,
+    //                 depthOrArrayLayers: 1
+    //             };
 
-                const imageCopy: GPUImageCopyTextureTagged = {
-                    texture: texture.resource,
-                    mipLevel: index,
-                    premultipliedAlpha: premultipliedAlpha,
-                    origin: {
-                        x: 0,
-                        y: 0,
-                        z: face
-                    }
-                }
+    //             const imageCopy: GPUImageCopyTextureTagged = {
+    //                 texture: texture.resource,
+    //                 mipLevel: index,
+    //                 premultipliedAlpha: premultipliedAlpha,
+    //                 origin: {
+    //                     x: 0,
+    //                     y: 0,
+    //                     z: face
+    //                 }
+    //             }
 
-                const dataLayout: GPUImageDataLayout = {
-                    offset: 0,
-                    bytesPerRow: bytesPerRow,
-                    rowsPerImage: mipmapHeight
-                }
+    //             const dataLayout: GPUImageDataLayout = {
+    //                 offset: 0,
+    //                 bytesPerRow: bytesPerRow,
+    //                 rowsPerImage: mipmapHeight
+    //             }
 
-                if (compressed) {
-                    let sourceData = new Uint8Array(source, dataOffset, imageSize);
-                    device.queue.writeTexture(imageCopy, sourceData, dataLayout, size);
-                }
-                else {
-                    let pixelParams = this.getFormatPixelsParams(ktxInfo.format);
-                    let typedSize = imageSize / pixelParams.typedSize;
-                    let sourceData = new pixelParams.dataTypedCons(source, dataOffset, typedSize);
+    //             if (compressed) {
+    //                 let sourceData = new Uint8Array(source, dataOffset, imageSize);
+    //                 device.queue.writeTexture(imageCopy, sourceData, dataLayout, size);
+    //             }
+    //             else {
+    //                 let pixelParams = this.getFormatPixelsParams(ktxInfo.format);
+    //                 let typedSize = imageSize / pixelParams.typedSize;
+    //                 let sourceData = new pixelParams.dataTypedCons(source, dataOffset, typedSize);
 
-                    device.queue.writeTexture(imageCopy, sourceData, dataLayout, size);
-                }
+    //                 device.queue.writeTexture(imageCopy, sourceData, dataLayout, size);
+    //             }
 
-                dataOffset += imageSize;
-                dataOffset += 3 - ((imageSize + 3) % 4);
-            }
+    //             dataOffset += imageSize;
+    //             dataOffset += 3 - ((imageSize + 3) % 4);
+    //         }
 
-            mipmapWidth = Math.max(1, mipmapWidth * 0.5);
-            mipmapHeight = Math.max(1, mipmapHeight * 0.5);
-        }
+    //         mipmapWidth = Math.max(1, mipmapWidth * 0.5);
+    //         mipmapHeight = Math.max(1, mipmapHeight * 0.5);
+    //     }
 
-    }
+    // }
     setTextureCompareMode(texture: InternalTexture, compareMode: TextureCompareMode): TextureCompareMode {
         //throw new Error("Method not implemented.");
         switch (compareMode) {
@@ -1260,6 +1260,88 @@ export class WebGPUTextureContext implements ITextureContext {
     }
     readRenderTargetPixelData(renderTarget: InternalRenderTarget, xOffset: number, yOffset: number, width: number, height: number, out: ArrayBufferView): ArrayBufferView {
         throw new Error("Method not implemented.");
+    }
+    async readRenderTargetPixelDataAsync(renderTarget: InternalRenderTarget, xOffset: number, yOffset: number, width: number, height: number, out: ArrayBufferView): Promise<ArrayBufferView> {
+        const texture = renderTarget._textures[0].resource as GPUTexture;
+        const device = this._engine.getDevice();
+        switch (renderTarget.colorFormat) {
+            case RenderTargetFormat.R8G8B8:
+                {
+                    //第一步：创建用于读取的缓冲区
+                    const bytesPerRow = Math.ceil(width * 3 / 256) * 256; //RGB, 每个像素3字节，256字节对齐
+                    const bufferSize = bytesPerRow * height;
+                    const buffer = device.createBuffer({
+                        size: bufferSize,
+                        usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
+                    });
+                    //第二步：编码复制命令，将贴图数据复制到缓冲区
+                    const commandEncoder = device.createCommandEncoder();
+                    commandEncoder.copyTextureToBuffer(
+                        { texture, origin: { x: xOffset, y: yOffset } },
+                        { buffer, bytesPerRow },
+                        { width, height, depthOrArrayLayers: 1 });
+                    const commands = commandEncoder.finish();
+                    device.queue.submit([commands]);
+                    //第三步：映射缓冲区并读取数据
+                    const outView = new Uint8Array(out.buffer);
+                    await buffer.mapAsync(GPUMapMode.READ);
+                    const arrayBuffer = buffer.getMappedRange();
+                    const data = new Uint8Array(arrayBuffer);
+                    for (let j = 0; j < height; j++) {
+                        for (let i = 0; i < width; i++) {
+                            outView[j * width + i * 3 + 0] = data[j * bytesPerRow + i * 3 + 0];
+                            outView[j * width + i * 3 + 1] = data[j * bytesPerRow + i * 3 + 1];
+                            outView[j * width + i * 3 + 2] = data[j * bytesPerRow + i * 3 + 2];
+                        }
+                    }
+                    buffer.unmap();
+                    buffer.destroy();
+                    return Promise.resolve(out);
+                }
+            case RenderTargetFormat.R8G8B8A8:
+                {
+                    //第一步：创建用于读取的缓冲区
+                    const bytesPerRow = Math.ceil(width * 4 / 256) * 256; //RGBA, 每个像素4字节，256字节对齐
+                    const bufferSize = bytesPerRow * height;
+                    const buffer = device.createBuffer({
+                        size: bufferSize,
+                        usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
+                    });
+                    //第二步：编码复制命令，将贴图数据复制到缓冲区
+                    const commandEncoder = device.createCommandEncoder();
+                    commandEncoder.copyTextureToBuffer(
+                        { texture, origin: { x: xOffset, y: yOffset } },
+                        { buffer, bytesPerRow },
+                        { width, height, depthOrArrayLayers: 1 });
+                    const commands = commandEncoder.finish();
+                    device.queue.submit([commands]);
+                    //第三步：映射缓冲区并读取数据
+                    const outView = new Uint8Array(out.buffer);
+                    await buffer.mapAsync(GPUMapMode.READ);
+                    const arrayBuffer = buffer.getMappedRange();
+                    const data = new Uint8Array(arrayBuffer);
+                    for (let j = 0; j < height; j++) {
+                        for (let i = 0; i < width; i++) {
+                            outView[j * width + i * 4 + 0] = data[j * bytesPerRow + i * 4 + 0];
+                            outView[j * width + i * 4 + 1] = data[j * bytesPerRow + i * 4 + 1];
+                            outView[j * width + i * 4 + 2] = data[j * bytesPerRow + i * 4 + 2];
+                            outView[j * width + i * 4 + 3] = data[j * bytesPerRow + i * 4 + 3];
+                        }
+                    }
+                    buffer.unmap();
+                    buffer.destroy();
+                    return Promise.resolve(out);
+                }
+            case RenderTargetFormat.R16G16B16:
+                break;
+            case RenderTargetFormat.R16G16B16A16:
+                break;
+            case RenderTargetFormat.R32G32B32:
+                break;
+            case RenderTargetFormat.R32G32B32A32:
+                break;
+        }
+        return Promise.resolve(out);
     }
 
     initVideoTextureData(texture: WebGPUInternalTex): void {

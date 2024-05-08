@@ -180,9 +180,13 @@ export class WebGPUShaderData extends ShaderData {
                         if (internalTex._webGPUFormat === WebGPUTextureFormat.depth16unorm)
                             item.texture.sampleType = 'unfilterable-float';
                         else {
-                            if (texture.format === TextureFormat.R32G32B32A32)
+                            const supportFloatLinearFiltering = LayaGL.renderEngine.getCapable(RenderCapable.Texture_FloatLinearFiltering);
+                            if (!supportFloatLinearFiltering && texture.format === TextureFormat.R32G32B32A32)
                                 item.texture.sampleType = 'unfilterable-float';
                             else item.texture.sampleType = 'float';
+                            // if (texture.format === TextureFormat.R32G32B32A32)
+                            //     item.texture.sampleType = 'unfilterable-float';
+                            // else item.texture.sampleType = 'float';
                         }
                         bindGroupLayoutEntries.push({
                             binding: item.binding,
@@ -209,11 +213,14 @@ export class WebGPUShaderData extends ShaderData {
                             internalTex.filterMode = FilterMode.Point;
                         }
                         else {
-                            if (internalTex._webGPUFormat === WebGPUTextureFormat.rgba32float) {
+                            const supportFloatLinearFiltering = LayaGL.renderEngine.getCapable(RenderCapable.Texture_FloatLinearFiltering);
+                            if (!supportFloatLinearFiltering && texture.format === TextureFormat.R32G32B32A32)
                                 item.sampler.type = 'non-filtering';
-                                internalTex.filterMode = FilterMode.Point;
-                            }
                             else item.sampler.type = 'filtering';
+                            // if (internalTex._webGPUFormat === WebGPUTextureFormat.rgba32float) {
+                            //     item.sampler.type = 'non-filtering';
+                            //     internalTex.filterMode = FilterMode.Point;
+                            // } else item.sampler.type = 'filtering';
                         }
                         bindGroupLayoutEntries.push({
                             binding: item.binding,
@@ -304,16 +311,15 @@ export class WebGPUShaderData extends ShaderData {
                             if (internalTex._webGPUFormat === WebGPUTextureFormat.depth16unorm)
                                 item.texture.sampleType = 'unfilterable-float';
                             else {
-                                //  todo different samplerType
+                                // todo different samplerType
                                 // eg: uint, sint
-                                let supportFloatLinearFiltering = LayaGL.renderEngine.getCapable(RenderCapable.Texture_FloatLinearFiltering);
-                                if (!supportFloatLinearFiltering && texture.format === TextureFormat.R32G32B32A32) {
+                                const supportFloatLinearFiltering = LayaGL.renderEngine.getCapable(RenderCapable.Texture_FloatLinearFiltering);
+                                if (!supportFloatLinearFiltering && texture.format === TextureFormat.R32G32B32A32)
                                     item.texture.sampleType = 'unfilterable-float';
-                                }
-                                else {
-                                    item.texture.sampleType = 'float';
-                                }
-
+                                else item.texture.sampleType = 'float';
+                                // if (internalTex._webGPUFormat === WebGPUTextureFormat.rgba32float)
+                                //     item.texture.sampleType = 'unfilterable-float';
+                                // else item.texture.sampleType = 'float';
                             }
                             bindGroupLayoutEntries.push({
                                 binding: item.binding,
@@ -344,14 +350,14 @@ export class WebGPUShaderData extends ShaderData {
                                 internalTex.filterMode = FilterMode.Point;
                             }
                             else {
-                                let supportFloatLinearFiltering = LayaGL.renderEngine.getCapable(RenderCapable.Texture_FloatLinearFiltering);
-                                if (!supportFloatLinearFiltering && texture.format === TextureFormat.R32G32B32A32) {
+                                const supportFloatLinearFiltering = LayaGL.renderEngine.getCapable(RenderCapable.Texture_FloatLinearFiltering);
+                                if (!supportFloatLinearFiltering && texture.format === TextureFormat.R32G32B32A32)
                                     item.sampler.type = 'non-filtering';
-                                }
-                                else {
-                                    item.sampler.type = 'filtering';
-                                }
-
+                                else item.sampler.type = 'filtering';
+                                // if (internalTex._webGPUFormat === WebGPUTextureFormat.rgba32float) {
+                                //     item.sampler.type = 'non-filtering';
+                                //     internalTex.filterMode = FilterMode.Point;
+                                // } else item.sampler.type = 'filtering';
                             }
                             bindGroupLayoutEntries.push({
                                 binding: item.binding,
