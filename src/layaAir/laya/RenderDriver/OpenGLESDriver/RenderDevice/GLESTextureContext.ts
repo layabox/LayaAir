@@ -77,7 +77,7 @@ export class GLESTextureContext implements ITextureContext {
 
     setTextureHDRData(texture: GLESInternalTex, hdrInfo: HDRTextureInfo): void {
         let sourceData = hdrInfo.readScanLine();
-        this.setTexturePixelsData(texture._nativeObj, sourceData, false, false);
+        this.setTexturePixelsData(texture, sourceData, false, false);
     }
     
     setTextureDDSData(texture: GLESInternalTex, ddsInfo: DDSTextureInfo) {

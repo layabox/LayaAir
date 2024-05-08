@@ -80,7 +80,7 @@ export class GLESInternalTex implements InternalTexture {
         return this._nativeObj.gammaCorrection;
     }
     public get resource(): any {
-        return null;
+        return this._nativeObj;
     }
     public get width(): number {
         return this._nativeObj.getWidth();

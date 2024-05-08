@@ -40,8 +40,8 @@ export class GLESEngine implements IRenderEngine {
     this._nativeObj.enableStatistics = value;
   }
 
-  resizeOffScreen(width: number, height: number): void { 
-    this._nativeObj.resizeOffScreen(width,height);
+  resizeOffScreen(width: number, height: number): void {
+    this._nativeObj.resizeOffScreen(width, height);
   }
 
   getDefineByName(name: string): RTShaderDefine {
@@ -83,7 +83,7 @@ export class GLESEngine implements IRenderEngine {
     throw new Error("Method not implemented.");
   }
   clearStatisticsInfo(): void {
-    //this._nativeObj.clearStatisticsInfo();
+    this._nativeObj.clearStatisticsInfo();
   }
   getStatisticsInfo(info: GPUEngineStatisticsInfo): number {
     return this._nativeObj.getStatisticsInfo(info);

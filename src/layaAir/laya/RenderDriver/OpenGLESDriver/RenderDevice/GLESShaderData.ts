@@ -41,9 +41,10 @@ export class GLESShaderData extends ShaderData {
     //     throw new Error("Method not implemented.");//TODO
     // }
 
-    // _releaseUBOData() {
-    //     throw new Error("Method not implemented.");//TODO
-    // }
+    _releaseUBOData() {
+        //throw new Error("Method not implemented.");//TODO
+        //TODO GLES Temply dont surpport UBO
+    }
 
     /**
     * 
@@ -171,7 +172,7 @@ export class GLESShaderData extends ShaderData {
             return value;
         }
         else {
-            let  _tempVector2: Vector2 = new Vector2()
+            let _tempVector2: Vector2 = new Vector2()
             _tempVector2.x = value.x;
             _tempVector2.y = value.y;
             return _tempVector2;
@@ -260,7 +261,7 @@ export class GLESShaderData extends ShaderData {
      */
     setColor(index: number, value: Color): void {
         if (!value)
-			return;
+            return;
         this._nativeObj.setColor(index, value);
     }
 
@@ -333,7 +334,7 @@ export class GLESShaderData extends ShaderData {
      */
     setBuffer(index: number, value: Float32Array): void {
         this._bufferData[index] = value;
-        this._nativeObj.setBuffer(index,value);
+        this._nativeObj.setBuffer(index, value);
     }
 
     /**
@@ -368,19 +369,19 @@ export class GLESShaderData extends ShaderData {
 
 
     cloneTo(destObject: GLESShaderData): void {
-       this._nativeObj.cloneTo(destObject._nativeObj);
-       var dest: GLESShaderData = <GLESShaderData>destObject;
-       var destData: any = dest._textureData;
-       for (var k in this._textureData) {//TODO:需要优化,杜绝is判断，慢
-           var value: any = this._textureData[k];
-           if (value != null) {
-               if (value instanceof BaseTexture) {
-                   destData[k] = value;
-                   value._addReference();
-               }
-           }
-       }
-       //todo buffer _addReference
+        this._nativeObj.cloneTo(destObject._nativeObj);
+        var dest: GLESShaderData = <GLESShaderData>destObject;
+        var destData: any = dest._textureData;
+        for (var k in this._textureData) {//TODO:需要优化,杜绝is判断，慢
+            var value: any = this._textureData[k];
+            if (value != null) {
+                if (value instanceof BaseTexture) {
+                    destData[k] = value;
+                    value._addReference();
+                }
+            }
+        }
+        //todo buffer _addReference
     }
     /**
      * 克隆。
@@ -392,7 +393,6 @@ export class GLESShaderData extends ShaderData {
         return dest;
     }
     destroy(): void {
-        super.destroy();
         this._nativeObj.destroy();
         this._nativeObj = null;
     }
