@@ -10,6 +10,8 @@ import { IVBChange } from "./interface/IVBChange";
 export class AnimationRender {
     static EMPTY: IVBChange[];
     static tempIbCreate: IBCreator = new IBCreator();
+    mutiRenderAble: boolean;
+    isNormalRender: boolean;
     name: string;
     ibs: [Uint16Array, MultiRenderData][];
     mainibRender: [Uint16Array, MultiRenderData];
@@ -139,11 +141,16 @@ export class AnimationRender {
             // }
         }
         tempArray.sort();
+        let mutiRenderAble = false;
         if (tempArray.length == 0) {
             //没有修改IB的情况
             this.vb = mainvb;
             this.ibs.push([this.mainIb.realIb, this.mainIb.outRenderData]);
             //this.mainIb = mainib;
+            if (this.mainIb.outRenderData.renderData.length > 1) {
+                mutiRenderAble = true;
+            }
+
         }
         else {
             this.vb = this.vb || mainvb.clone();
@@ -152,7 +159,9 @@ export class AnimationRender {
                 let frame = tempArray[i];
                 let arr = tempMap.get(frame);
                 for (let j = 0, m = arr.length; j < m; j++) {
-                    arr[j].change(this.vb, slotAttachMap);
+                   if(!arr[j].change(this.vb, slotAttachMap)){
+                        this.isNormalRender = true; 
+                   }
                 }
             }
             if (n == 1 && tempArray[0] == 0) {
@@ -160,26 +169,31 @@ export class AnimationRender {
                 //this.vb=mainvb.clone();
             }
             //debugger;
-        }
-        this.frameNumber = tempArray.length;
 
-        let tAttachMap = attachMap.slice();
-        let order;
-        for (let j = 0, m = tempArray.length; j < m; j++) {
-            // debugger;
-            let iChanges = tempMap.get(tempArray[j]);
-            for (let k = 0, l = iChanges.length; k < l; k++) {
-                let ichange = iChanges[k];
-                let newOrder = ichange.changeOrder(tAttachMap);
-                if (newOrder) {
-                    order = newOrder;
+            let tAttachMap = attachMap.slice();
+            let order;
+            for (let j = 0, m = tempArray.length; j < m; j++) {
+                // debugger;
+                let iChanges = tempMap.get(tempArray[j]);
+                for (let k = 0, l = iChanges.length; k < l; k++) {
+                    let ichange = iChanges[k];
+                    let newOrder = ichange.changeOrder(tAttachMap);
+                    if (newOrder) {
+                        order = newOrder;
+                    }
+                }
+                let ib = AnimationRender.tempIbCreate;
+                this.vb.createIB(tAttachMap, ib, order);
+                let temp = new Uint16Array(ib.ib.buffer, 0, ib.ibLength);
+                let ibnew = new Uint16Array(temp);
+                let outRenderData = ib.outRenderData;
+                this.ibs[j] = [ibnew, outRenderData];
+                if (outRenderData.renderData.length > 1) {
+                    mutiRenderAble = true;
                 }
             }
-            let ib = AnimationRender.tempIbCreate;
-            this.vb.createIB(tAttachMap, ib, order);
-            let temp = new Uint16Array(ib.ib.buffer, 0, ib.ibLength);
-            let ibnew = new Uint16Array(temp);
-            this.ibs[j] = [ibnew, ib.outRenderData];
         }
+        this.mutiRenderAble = mutiRenderAble;
+        this.frameNumber = tempArray.length;
     }
 }

@@ -21,6 +21,7 @@ export class ChangeRGBA implements IVBChange {
             let vertexSize = SpinBone4Mesh.vertexSize;
             let offset = this.sizeMap.get(slot.attachment.name) * vertexSize;
             let vbData = vb.vb;
+            //slot.attachment.color
             //@ts-ignore
             let n = slot.attachment.uvs.length / 2;
             for (let i = 0; i < n; i++) {

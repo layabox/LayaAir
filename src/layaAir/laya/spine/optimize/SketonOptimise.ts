@@ -1,11 +1,6 @@
-import { Laya } from "../../../Laya";
 import { Graphics } from "../../display/Graphics";
-import { Material } from "../../resource/Material";
 import { ERenderType } from "../SpineSkeleton";
 import { SpineTemplet } from "../SpineTemplet";
-import { ISpineMesh } from "../mesh/ISpineMesh";
-import { SpinBone4Mesh } from "../mesh/SpineBone4Mesh";
-import { SpineRigidBodyMesh } from "../mesh/SpineRigidBodyMesh";
 import { AnimationRender } from "./AnimationRender";
 import { AttachmentParse } from "./AttachmentParse";
 import { IBCreator } from "./IBCreator";
@@ -13,11 +8,10 @@ import { MultiRenderData } from "./MultiRenderData";
 import { SlotUtils } from "./SlotUtils";
 import { SpineNormalRender } from "./SpineNormalRender";
 import { SpineOptimizeRender } from "./SpineOptimizeRender";
-import { VBCreator } from "./VBCreator";
+import { VBBoneCreator, VBCreator, VBRigBodyCreator } from "./VBCreator";
 import { ISpineOptimizeRender } from "./interface/ISpineOptimizeRender";
 
 export class SketonOptimise {
-    static meshMap: Map<ERenderType, new (material: Material) => ISpineMesh>;
     sketon: spine.Skeleton;
 
     blendModeMap: Map<number, number>;
@@ -29,13 +23,9 @@ export class SketonOptimise {
     mainAttachMentOrder: AttachmentParse[];
     animators: AnimationRender[];
 
-    type: ERenderType;
+    hasNormalRender: boolean;
 
-    static __init__() {
-        SketonOptimise.meshMap = new Map();
-        SketonOptimise.meshMap.set(ERenderType.boneGPU, SpinBone4Mesh);
-        SketonOptimise.meshMap.set(ERenderType.rigidBody, SpineRigidBodyMesh);
-    }
+    type: ERenderType;
 
     constructor() {
         this.slotAttachMap = new Map();
@@ -59,7 +49,6 @@ export class SketonOptimise {
     checkMainAttach(skeletonData: spine.SkeletonData) {
         // this.type = ERenderType.normal;
         // return;
-
         this.sketon = new spine.Skeleton(skeletonData);
         let slots = this.sketon.slots;
         let type: ERenderType = ERenderType.rigidBody;
@@ -74,11 +63,18 @@ export class SketonOptimise {
             }
         }
         this.type = type;
-        if (type == ERenderType.normal) {
-            return;
-        }
-        this.mainVB = new VBCreator();
         this.attachMentParse();
+        switch (this.type) {
+            case ERenderType.normal:
+                return;
+            case ERenderType.boneGPU:
+                this.mainVB = new VBBoneCreator();
+                break;
+            case ERenderType.rigidBody:
+                this.mainVB = new VBRigBodyCreator();
+                break;
+        }
+        //this.mainVB = new VBCreator();
         this.init(slots);
     }
 
@@ -136,18 +132,10 @@ export class SketonOptimise {
             let animator = new AnimationRender();
             animator.check(animation, this.mainVB, this.mainIB, this.slotAttachMap, mainAttachMentOrder);
             animator.mainibRender = mainibRender;
+            if (animator.isNormalRender) {
+                this.hasNormalRender = true;
+            }
             this.animators.push(animator);
         }
     }
-
-    update() {
-        //this.renderer.update()
-    }
-
-    initAninator() {
-        //this.renderer.update()
-    }
 }
-
-
-Laya.addAfterInitCallback(SketonOptimise.__init__);

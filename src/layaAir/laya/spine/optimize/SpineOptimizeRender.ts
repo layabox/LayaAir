@@ -11,17 +11,20 @@ import { Vector4 } from "../../maths/Vector4";
 import { Material } from "../../resource/Material";
 import { Texture } from "../../resource/Texture";
 import { ERenderType } from "../SpineSkeleton";
+import { SpineSkeletonRenderer } from "../SpineSkeletonRenderer";
 import { SpineTemplet } from "../SpineTemplet";
 import { IOptimizeMaterial } from "../material/IOptimizeMaterial";
 import { SpineFastMaterial } from "../material/SpineFastMaterial";
 import { SpineFastMaterialShaderInit } from "../material/SpineFastMaterialShaderInit";
 import { SpineRBMaterial } from "../material/SpineRBMaterial";
+import { SpineRBMaterialShaderInit } from "../material/SpineRBMaterialShaderInit";
 import { AnimationRenderProxy } from "./AnimationRenderProxy";
 import { MultiRenderData } from "./MultiRenderData";
 import { SketonOptimise } from "./SketonOptimise";
+import { ISpineOptimizeRender } from "./interface/ISpineOptimizeRender";
 import { IVBIBUpdate } from "./interface/IVBIBUpdate";
 
-export class SpineOptimizeRender implements IVBIBUpdate {
+export class SpineOptimizeRender implements IVBIBUpdate, ISpineOptimizeRender {
     animatorMap: Map<string, AnimationRenderProxy>;
     currentAnimation: AnimationRenderProxy;
     bones: spine.Bone[];
@@ -53,12 +56,17 @@ export class SpineOptimizeRender implements IVBIBUpdate {
 
     currentMaterials: Set<IOptimizeMaterial>;
 
-    private initRender() {
+    _renerer: SpineSkeletonRenderer;
+    _skeleton: spine.Skeleton;
+
+    private hasNormalRender: boolean;
+
+    private initRender(type: ERenderType) {
         let geo = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
         let mesh = LayaGL.renderDeviceFactory.createBufferState();
         geo.bufferState = mesh;
         let vb = LayaGL.renderDeviceFactory.createVertexBuffer(BufferUsage.Dynamic);
-        vb.vertexDeclaration = SpineFastMaterialShaderInit.vertexDeclaration;
+        vb.vertexDeclaration = type == ERenderType.boneGPU ? SpineFastMaterialShaderInit.vertexDeclaration : SpineRBMaterialShaderInit.vertexDeclaration;
         let ib = LayaGL.renderDeviceFactory.createIndexBuffer(BufferUsage.Dynamic);
         mesh.applyState([vb], ib)
         geo.indexFormat = IndexFormat.UInt16;
@@ -105,14 +113,15 @@ export class SpineOptimizeRender implements IVBIBUpdate {
     }
 
     constructor(spineOptimize: SketonOptimise) {
+        this.hasNormalRender = spineOptimize.hasNormalRender;
         this.materialMap = new Map();
         this.animatorMap = new Map();
         this.elements = [];
         this.currentMaterials = new Set();
-        if (spineOptimize.type = ERenderType.boneGPU) {
+        if (spineOptimize.type == ERenderType.boneGPU) {
             this.materialConstructor = SpineFastMaterial;
         }
-        else if (spineOptimize.type = ERenderType.rigidBody) {
+        else if (spineOptimize.type == ERenderType.rigidBody) {
             this.materialConstructor = SpineRBMaterial;
         }
         else {
@@ -123,7 +132,7 @@ export class SpineOptimizeRender implements IVBIBUpdate {
             let animator = animators[i];
             this.animatorMap.set(animator.name, new AnimationRenderProxy(animator));
         }
-        this.initRender();
+        this.initRender(spineOptimize.type);
     }
 
     getMaterial(texture: Texture, blendMode: number): IOptimizeMaterial {
@@ -141,12 +150,21 @@ export class SpineOptimizeRender implements IVBIBUpdate {
     }
 
     init(skeleton: spine.Skeleton, templet: SpineTemplet, graphics: Graphics) {
+        this._skeleton = skeleton;
         this.bones = skeleton.bones;
         this.slots = skeleton.slots;
         this.graphics = graphics;
         let scolor = skeleton.color;
         this.spineColor = new Vector4(scolor.r, scolor.g, scolor.b, scolor.a);
         this.material = this.getMaterial(templet.mainTexture, 0);
+        if (this.hasNormalRender) {
+            this._renerer = new SpineSkeletonRenderer(templet, false);
+        }
+    }
+
+    private _clear() {
+        this.graphics.clear();
+        this._isRender = false;
     }
 
     play(animationName: string) {
@@ -156,24 +174,55 @@ export class SpineOptimizeRender implements IVBIBUpdate {
         if (old) {
             old.reset();
         }
+
+        if (currentAnimation.isNormalRender) {
+            this.render = this.renderNormal;
+            return;
+        }
+        if (old && old.isNormalRender) {
+            this._clear();
+        }
         if (old != currentAnimation) {
             this.updateVB(currentAnimation.vb.vb, currentAnimation.vb.vbLength);
         }
         //currentAnimation.
-    }
-
-    render(curTime: number) {
+        // old.animator.mutiRenderAble
+        let mutiRenderAble = currentAnimation.mutiRenderAble;
+        if (this._isRender) {
+            if (mutiRenderAble != old.mutiRenderAble) {
+                this._clear();
+            }
+        }
         if (!this._isRender) {
-            this.graphics.drawGeo(this.geo, this.material);
+            if (mutiRenderAble) {
+                this.graphics.drawGeos(this.geo, this.elements);
+                this.render = this.renderMulti;
+            }
+            else {
+                this.graphics.drawGeo(this.geo, this.material);
+                this.render = this.renderOne;
+            }
             //this.graphics.drawGeos(this.geo, this.elements);
             this._isRender = true;
         }
-        //debugger;
+    }
+
+    renderMulti(curTime: number) {
         this.currentAnimation.render(this.bones, this.slots, this.boneMat, this, curTime);
-        // this.currentMaterials.forEach((value) => {
-        //     value.boneMat = this.boneMat;
-        // }
-        // );
+        this.currentMaterials.forEach((value) => {
+            value.boneMat = this.boneMat;
+        });
+    }
+
+    render: (time: number) => void;
+
+    renderOne(curTime: number) {
+        this.currentAnimation.render(this.bones, this.slots, this.boneMat, this, curTime);
         this.material.boneMat = this.boneMat;
+    }
+
+    renderNormal(curTime: number) {
+        this.graphics.clear();
+        this._renerer.draw(this._skeleton, this.graphics, -1, -1);
     }
 }

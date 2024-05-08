@@ -16,6 +16,7 @@ export class ChangeSlot implements IChange {
             vb.appendVB(attachmentParse);
         }
         this.attachmentParse = attachmentParse;
+        return !this.attachmentParse.isclip;
     }
 
     changeOrder(attachMap: AttachmentParse[]): number[] | null {

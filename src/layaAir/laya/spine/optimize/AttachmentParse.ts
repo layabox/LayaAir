@@ -14,6 +14,7 @@ export class AttachmentParse {
     stride: number;
     boneIndex: number;
     texture: Texture;
+    isclip: boolean;
 
     init(attachment: spine.Attachment, boneIndex: number, slotId: number, deform: number[], slot: spine.Slot) {
         this.slotId = slotId;
@@ -103,6 +104,10 @@ export class AttachmentParse {
                     }
                 }
             }
+        }
+        else if(attachment instanceof spine.ClippingAttachment){
+            this.attachment = null;
+            this.isclip = true;
         }
         else {
             //debugger;

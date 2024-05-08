@@ -14,6 +14,14 @@ export class AnimationRenderProxy {
         this.reset();
     }
 
+    get isNormalRender(){
+        return this.animator.isNormalRender;
+    }
+
+    get mutiRenderAble(){
+        return this.animator.mutiRenderAble;
+    }
+
     reset() {
         this.currentTime = -1;
         this.currentFrameIndex = -2;

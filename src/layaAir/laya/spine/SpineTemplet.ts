@@ -26,39 +26,16 @@ export class SpineTemplet extends Resource {
     private _textures: Record<string, SpineTexture>;
     private _basePath: string;
     private _ns: any;
-    private _renderType: ERenderType;
     public needSlot:boolean;
 
-    slotManger:SketonOptimise;
-
-    materialConstructor: new () => SpineMaterialBase;
+    sketonOptimise:SketonOptimise;
     
 
     constructor() {
         super();
         this._textures = {};
         this.materialMap = new Map();
-        this.slotManger=new SketonOptimise();
-        //this.renderType = ERenderType.boneGPU;
-    }
-
-    get renderType():ERenderType{
-        return this._renderType;
-    }
-
-    set renderType(type:ERenderType){
-        //this.slotManger.setType(type);
-        switch (type) {
-            case ERenderType.boneGPU:
-                this.materialConstructor=SpineFastMaterial;
-                break;
-            case ERenderType.normal:
-                this.materialConstructor=SpineMaterial;
-                break;
-            case ERenderType.rigidBody:
-                this.materialConstructor=SpineRBMaterial;
-                break;
-        }
+        this.sketonOptimise=new SketonOptimise();
     }
 
     get mainTexture(): Texture {
@@ -85,23 +62,11 @@ export class SpineTemplet extends Resource {
         return this._basePath;
     }
 
-    // getFastMaterial(texture: Texture,blendMode: number): Material {
-    //     let key = texture.id + "_" + blendMode;
-    //     let mat = this.materialFastMap.get(key);
-    //     if (!mat) {
-    //         mat = new SpineFastMaterial();
-    //         mat.texture = texture;
-    //         mat.blendMode = blendMode;
-    //         this.materialFastMap.set(key, mat);
-    //     }
-    //     return mat;
-    // }
-
-    getMaterial(texture: Texture, blendMode: number): SpineMaterialBase {
+    getMaterial(texture: Texture, blendMode: number): SpineMaterial {
         let key = texture.id + "_" + blendMode;
         let mat = this.materialMap.get(key);
         if (!mat) {
-            mat = new this.materialConstructor();
+            mat = new SpineMaterial();
             mat.texture = texture;
             mat.blendMode = blendMode;
             //mat.setVector2("u_size",new Vector2(Laya.stage.width,Laya.stage.height));
@@ -134,8 +99,7 @@ export class SpineTemplet extends Resource {
                 let skeletonJson = new this._ns.SkeletonJson(atlasLoader);
                 this.skeletonData = skeletonJson.readSkeletonData(desc);
             }
-            this.slotManger.checkMainAttach(this.skeletonData);
-            this.renderType=this.slotManger.type;
+            this.sketonOptimise.checkMainAttach(this.skeletonData);
         });
     }
 

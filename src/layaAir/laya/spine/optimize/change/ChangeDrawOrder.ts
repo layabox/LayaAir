@@ -11,7 +11,8 @@ export class ChangeDrawOrder implements IChange {
         return this.order;
         //throw new Error("Method not implemented.");
     }
-    change(vb: VBCreator, slotAttachMap: Map<number, Map<string, AttachmentParse>>): void {
+    change(vb: VBCreator, slotAttachMap: Map<number, Map<string, AttachmentParse>>): boolean {
         //throw new Error("Method not implemented.");
+        return true;
     }
 }
