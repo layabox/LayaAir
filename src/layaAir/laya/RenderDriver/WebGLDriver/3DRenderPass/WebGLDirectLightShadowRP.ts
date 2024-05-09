@@ -155,7 +155,7 @@ export class WebGLDirectLightShadowRP {
             if (this._cascadeCount > 1)
                 ShadowUtils.applySliceTransform(sliceData, this._shadowMapWidth, this._shadowMapHeight, i, shadowMatrices);
         }
-        ShadowUtils.prepareShadowReceiverShaderValues(this._light.shadowStrength, this._shadowMapWidth, this._shadowMapHeight, this._shadowSliceDatas, this._cascadeCount, this._shadowMapSize, this._shadowParams, shadowMatrices, boundSpheres);
+        ShadowUtils.prepareShadowReceiverShaderValues(this._shadowMapWidth, this._shadowMapHeight, this._shadowSliceDatas, this._cascadeCount, this._shadowMapSize, shadowMatrices, boundSpheres);
     }
 
     /**

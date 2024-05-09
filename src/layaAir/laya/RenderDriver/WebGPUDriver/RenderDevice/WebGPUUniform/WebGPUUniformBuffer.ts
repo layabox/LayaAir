@@ -75,7 +75,7 @@ export class WebGPUUniformBuffer {
 
         this.user = user;
         this.gpuBuffer = gpuBuffer;
-        //this.globalId = WebGPUGlobal.getId(this);
+        this.globalId = WebGPUGlobal.getId(this);
     }
 
     /**
@@ -173,12 +173,13 @@ export class WebGPUUniformBuffer {
                         item.view[3] = data.w;
                     }
                     else {
-                        for (let i = 0, len = Math.min(item.count, data.length); i < len; i++) {
-                            item.view[i * 4 + 0] = data[i].x;
-                            item.view[i * 4 + 1] = data[i].y;
-                            item.view[i * 4 + 2] = data[i].z;
-                            item.view[i * 4 + 3] = data[i].w;
-                        }
+                        // for (let i = 0, len = Math.min(item.count, data.length); i < len; i++) {
+                        //     item.view[i * 4 + 0] = data[i].x;
+                        //     item.view[i * 4 + 1] = data[i].y;
+                        //     item.view[i * 4 + 2] = data[i].z;
+                        //     item.view[i * 4 + 3] = data[i].w;
+                        // }
+                        item.view.set(data);
                     }
                     break;
                 case 'mat3':
@@ -203,8 +204,9 @@ export class WebGPUUniformBuffer {
                     if (item.count === 1)
                         item.view.set(data.elements);
                     else {
-                        for (let i = 0, len = Math.min(item.count, data.length); i < len; i++)
-                            item.view.set(data[i].elements, i * 16);
+                        //for (let i = 0, len = Math.min(item.count, data.length); i < len; i++)
+                        //    item.view.set(data[i].elements, i * 16);
+                        item.view.set(data);
                     }
                     break;
                 case 'buffer':

@@ -22,7 +22,7 @@ export class WebGPUCapable {
         this._capabilityMap.set(RenderCapable.RenderTextureFormat_Depth, true);
         this._capabilityMap.set(RenderCapable.RenderTextureFormat_ShadowMap, true);
         this._capabilityMap.set(RenderCapable.Vertex_VAO, true);
-        this._capabilityMap.set(RenderCapable.DrawElement_Instance, true);
+        this._capabilityMap.set(RenderCapable.DrawElement_Instance, false); //先关闭instance
         this._capabilityMap.set(RenderCapable.Shader_TextureLod, true);
 
         this._capabilityMap.set(RenderCapable.COMPRESS_TEXTURE_S3TC, false);

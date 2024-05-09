@@ -19,7 +19,6 @@ export class WebGPUBufferCluster {
     buffer: GPUBuffer; //GPU内存
     free: OffsetAndSize[]; //空闲块
     used: WebGPUBufferBlock[] = []; //占用块
-    single: boolean = false; //是否只分配一个块
     expand: number; //每次扩展数量
 
     renderContext: any; //渲染上下文
@@ -30,12 +29,11 @@ export class WebGPUBufferCluster {
     globalId: number; //全局id
     objectName: string; //本对象名称
 
-    constructor(device: GPUDevice, name: string, sliceSize: number, sliceNum: number, single: boolean = false) {
+    constructor(device: GPUDevice, name: string, sliceSize: number, sliceNum: number) {
         this.device = device;
         this.name = name;
         this.sliceSize = sliceSize;
         this.sliceNum = sliceNum;
-        this.single = single;
 
         this.totalSize = sliceSize * sliceNum;
         this.expand = 1; // 默认每次扩展数量
@@ -72,8 +70,6 @@ export class WebGPUBufferCluster {
         //根据需求尺寸获取一个空闲块，获取的空闲块要求按照256字节对齐
         let bb: WebGPUBufferBlock;
         const alignedSize = roundUp(size, 256);
-        if (this.single && this.used.length > 0)
-            return this.used[0];
 
         const block = this._findOrCreateFreeBlock(alignedSize);
         if (block) {

@@ -148,6 +148,7 @@ export class ShaderVariantCollection {
         let subShaderIndex = shader._subShaders.indexOf(shaderPass._owner);
         let passIndex = shaderPass._owner._passes.indexOf(shaderPass);
         let nodeCommonMap = shaderPass.nodeCommonMap;
+        if (!nodeCommonMap) return; //兼容WGSL
         defines = defines.filter((v) => !Shader3D._configDefineValues.has(Shader3D.getDefineByName(v)));
 
         let col = this.items[shader._name];

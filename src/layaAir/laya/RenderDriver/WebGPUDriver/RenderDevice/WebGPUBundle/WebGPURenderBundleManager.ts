@@ -8,13 +8,13 @@ import { WebGPURenderBundle } from "./WebGPURenderBundle";
 export class WebGPURenderBundleManager {
     elementsMaxPerBundleStatic: number = 100; //每个Bundle最大元素数量（静态节点）
     elementsMaxPerBundleDynamic: number = 30; //每个Bundle最大元素数量（动态节点）
-    bundles: WebGPURenderBundle[] = []; //所有bundle
-    private _elementsMap: Map<number, WebGPURenderBundle> = new Map(); //包含的渲染节点id集合
-    private _renderBundles: GPURenderBundle[] = []; //渲染命令缓存对象
+    bundles: WebGPURenderBundle[] = []; //所有渲染指令缓存对象
+    private _elementsMap: Map<number, WebGPURenderBundle> = new Map(); //所有渲染节点id集合
+    private _renderBundles: GPURenderBundle[] = []; //提交的渲染命令缓存对象
     private _needUpdateRenderBundles: boolean = false; //是否需要更新渲染命令缓存对象
 
     /**
-     * 渲染所有bundle
+     * 提交缓存渲染命令
      * @param passEncoder 
      */
     renderBundles(passEncoder: GPURenderPassEncoder) {
@@ -30,7 +30,7 @@ export class WebGPURenderBundleManager {
     }
 
     /**
-     * 渲染元素是否在bundle中
+     * 渲染元素是否在缓存中
      * @param elementId 
      */
     has(elementId: number) {
@@ -39,22 +39,22 @@ export class WebGPURenderBundleManager {
             bundle.addShot(); //命中
             return true;
         }
-        return false;
+        return false; //未命中
     }
 
     /**
-     * 根据渲染元素id查找bundle
+     * 根据渲染元素id查找渲染缓存对象
      * @param elementId 
      */
     getBundle(elementId: number) {
         for (let i = this.bundles.length - 1; i > -1; i--)
             if (this.bundles[i].hasElement(elementId))
                 return this.bundles[i]; //命中
-        return null;
+        return null; //未命中
     }
 
     /**
-     * 通过渲染元素组创建bundle
+     * 通过渲染元素组创建渲染缓存对象
      * @param context 
      * @param elements 
      * @param shotRateSet 
@@ -72,31 +72,31 @@ export class WebGPURenderBundleManager {
     }
 
     /**
-     * 移除bundle
+     * 移除渲染缓存对象
      * @param bundle 
      */
     removeBundle(bundle: WebGPURenderBundle) {
-        const idx = this.bundles.indexOf(bundle);
-        if (idx !== -1) {
-            this.bundles[idx].removeMyIds(this._elementsMap);
-            this.bundles.splice(idx, 1);
-            this._needUpdateRenderBundles = true;
-            //console.log('removeBundle =', idx);
+        if (bundle) {
+            const idx = this.bundles.indexOf(bundle);
+            if (idx !== -1) {
+                this.bundles[idx].removeMyIds(this._elementsMap);
+                this.bundles.splice(idx, 1);
+                this._needUpdateRenderBundles = true;
+                //console.log('removeBundle =', idx);
+            }
         }
     }
 
     /**
-     * 通过指定元素id移除bundle
+     * 通过指定元素id移除渲染缓存对象
      * @param elementId 
      */
     removeBundleByElement(elementId: number) {
-        const bundle = this.getBundle(elementId);
-        if (bundle)
-            this.removeBundle(bundle);
+        this.removeBundle(this.getBundle(elementId));
     }
 
     /**
-     * 清除所有bundle
+     * 清除所有渲染缓存对象
      */
     clearBundle() {
         this.bundles.forEach(bundle => bundle.destroy());
@@ -106,14 +106,14 @@ export class WebGPURenderBundleManager {
     }
 
     /**
-     * 清除所有bundle的命中率
+     * 清除所有渲染缓存对象的命中计数
      */
     clearShot() {
         this.bundles.forEach(bundle => bundle.clearShotNum());
     }
 
     /**
-     * 移除命中率低的bundle
+     * 移除命中率低的渲染缓存对象
      */
     removeLowShotBundle() {
         let remove = false;

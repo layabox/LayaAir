@@ -11,11 +11,8 @@ import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
 export class WebGPUShaderInstance implements IShaderInstance {
     static idCounter: number = 0;
     _id: number = WebGPUShaderInstance.idCounter++;
-    /**@internal */
     _shaderPass: ShaderPass;
-    /**@internal */
     private _vsShader: GPUShaderModule;
-    /**@internal */
     private _fsShader: GPUShaderModule;
 
     destroyed: boolean = false;
@@ -32,20 +29,23 @@ export class WebGPUShaderInstance implements IShaderInstance {
     globalId: number;
     objectName: string = 'WebGPUShaderInstance';
 
-    /**
-     * 创建一个 <code>WebGPUShaderInstance</code> 实例
-     */
     constructor(name: string) {
         this.name = name;
         this.globalId = WebGPUGlobal.getId(this);
     }
 
+    /**
+     * 创建ShaderInstance
+     * @param shaderProcessInfo 
+     * @param shaderPass 
+     */
     _create(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderPass): void {
         const engine = WebGPURenderEngine._instance;
         const device = engine.getDevice();
         const shaderObj = WebGPUCodeGenerator.shaderLanguageProcess(
-            shaderProcessInfo.defineString, shaderProcessInfo.attributeMap,
-            shaderProcessInfo.uniformMap, shaderProcessInfo.vs, shaderProcessInfo.ps);
+            shaderProcessInfo.defineString, shaderProcessInfo.attributeMap, //@ts-ignore
+            shaderPass.uniformMap, shaderPass.arrayMap, shaderProcessInfo.vs, shaderProcessInfo.ps,
+            shaderProcessInfo.is2D);
 
         this.uniformInfo = shaderObj.uniformInfo;
         this.uniformInfo.forEach(item => {
@@ -56,7 +56,6 @@ export class WebGPUShaderInstance implements IShaderInstance {
 
         this._vsShader = device.createShaderModule({ code: shaderObj.vs });
         this._fsShader = device.createShaderModule({ code: shaderObj.fs });
-
         this._shaderPass = shaderPass;
 
         //设置颜色目标模式
@@ -107,7 +106,8 @@ export class WebGPUShaderInstance implements IShaderInstance {
         };
 
         this.complete = true; //@ts-ignore
-        console.log('create ShaderInstance:', this._id, shaderPass._owner._owner.name);
+        const dimension = shaderProcessInfo.is2D ? '2d' : '3d';
+        console.log('create ' + dimension + ' shaderInstance_' + this._id, shaderPass._owner._owner.name);
     }
 
     /**
@@ -169,6 +169,9 @@ export class WebGPUShaderInstance implements IShaderInstance {
         return device.createPipelineLayout({ label: name, bindGroupLayouts });
     }
 
+    /**
+     * 销毁
+     */
     _disposeResource(): void {
         if (!this.destroyed) {
             WebGPUGlobal.releaseId(this);

@@ -117,6 +117,10 @@ export class WebGLEngine implements IRenderEngine {
     //Gl Draw
     private _GLRenderDrawContext: GLRenderDrawContext;
 
+    _remapZ: boolean = true;
+    _screenInvertY: boolean = false;
+    _lodTextureSample: boolean = true;
+
     //GLRenderState
     _GLRenderState: GLRenderState;
     // todo  这个 map 和 get 函数转移到 ShaderDefine 里面

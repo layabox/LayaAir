@@ -1,3 +1,4 @@
+import { WebGPUShaderDefine } from "./WebGPUShaderDefine";
 import { WebGPUShaderToken } from "./WebGPUShaderToken";
 // 对于in和out需要特殊检测解析处理
 // in,
@@ -86,10 +87,17 @@ export class WebGPUShaderCompileCode {
 
     private static _varUniform: Record<string, string>;
 
+    /**宏替换参数 */
+    private static _define: Map<string, string> = new Map();
+
     static compile(code: string) {
         let ret = new WebGPUShaderToken();
         code = code.replace(_clearCR, "");//CRLF风格需要先去掉“\r",否则切分字符会出错导致宏定义编译错误等
         code = this.removeAnnotation(code).trim();//移除代码中的所有注释(TODO可能之后要对注释也进行分析，并不需要移除！)
+
+        this._define.clear();
+        WebGPUShaderDefine.findNumberDefine(code, this._define);
+
         this._compileToTree(ret, code);
         this._parameterNode = null;
         this._parentNode = null;
@@ -490,11 +498,20 @@ export class WebGPUShaderCompileCode {
                         }
                         if (null != obj) {
                             try {
-                                let num = Number(this._parameterNode.childs[0].type);
+                                // let num = Number(this._parameterNode.childs[0].type);
+                                // if (!isNaN(num) && obj[owner.name]) {
+                                //     if (null == obj[owner.name].length) {
+                                //         obj[owner.name].length = [];
+                                //     }
+                                //     obj[owner.name].length.push(num);
+                                // }
+                                let str = this._parameterNode.childs[0].type; //不一定是数字
+                                if (this._define.has(str)) //如果是宏的话，先进行宏替换
+                                    str = this._define.get(str);
+                                const num = Number(str);
                                 if (!isNaN(num) && obj[owner.name]) {
-                                    if (null == obj[owner.name].length) {
+                                    if (null == obj[owner.name].length)
                                         obj[owner.name].length = [];
-                                    }
                                     obj[owner.name].length.push(num);
                                 }
                             } catch (err) { }

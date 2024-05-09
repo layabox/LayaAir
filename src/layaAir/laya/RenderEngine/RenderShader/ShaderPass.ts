@@ -98,4 +98,3 @@ export class ShaderPass extends ShaderCompileDefineBase {
         return shader;
     }
 }
-

@@ -19,6 +19,7 @@ import { ShaderDefine } from "../../RenderDriver/RenderModuleData/Design/ShaderD
 import { IRenderEngine } from "../../RenderDriver/DriverDesign/RenderDevice/IRenderEngine";
 import { CommandUniformMap } from "../../RenderDriver/DriverDesign/RenderDevice/CommandUniformMap";
 import { SkyRenderElement } from "./render/SkyRenderElement";
+import { RenderableSprite3D } from "./RenderableSprite3D";
 
 /**
  * <code>BaseCamera</code> 类用于创建摄像机的父类。

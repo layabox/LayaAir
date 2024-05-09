@@ -2,33 +2,65 @@ import { Config3D } from "../../../../Config3D";
 import { RenderParams } from "../../../RenderEngine/RenderEnum/RenderParams";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { UniformMapType } from "../../../RenderEngine/RenderShader/SubShader";
+import { RenderableSprite3D } from "../../../d3/core/RenderableSprite3D";
+import { SkinnedMeshSprite3D } from "../../../d3/core/SkinnedMeshSprite3D";
+import { Sprite3D } from "../../../d3/core/Sprite3D";
+import { Graphics } from "../../../display/Graphics";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { ShaderNode } from "../../../webgl/utils/ShaderNode";
 import { ShaderDataType } from "../../DriverDesign/RenderDevice/ShaderData";
-import { WebGLCommandUniformMap } from "../../WebGLDriver/RenderDevice/WebGLCommandUniformMap";
 import { TypeOutData } from "../ShaderCompile/WebGPUShaderCompileCode";
 import { WebGPUShaderCompileDef } from "../ShaderCompile/WebGPUShaderCompileDef";
 import { WebGPUShaderCompileUtil } from "../ShaderCompile/WebGPUShaderCompileUtil";
-import { NagaWASM } from "./Naga/NagaWASM";
-import { NameAndType, NameNumberMap, NameStringMap, roundUp } from "./WebGPUCommon";
+import { WebGPU_GLSLProcess } from "./GLSLProcess/WebGPU_GLSLProcess";
+import { NagaWASM } from "./Naga/NagaWASM2";
+import { WebGPUCommandUniformMap } from "./WebGPUCommandUniformMap";
+import { NameAndType, NameBooleanMap, NameNumberMap, NameStringMap, roundUp } from "./WebGPUCommon";
+import { WebGPUShaderData } from "./WebGPUShaderData";
 import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
 import { WebGPUUniformBlockInfo } from "./WebGPUUniform/WebGPUUniformBlockInfo";
 
-export enum WebGPUBindingInfoType {
-    buffer,
-    texture,
-    sampler,
+/**
+ * attribute列表
+ */
+type WebGPUAttributeMapType = {
+    [key: string]: [ //主键，attribute名称
+        number, //attribute位置绑定
+        ShaderDataType, //attribute类型
+    ]
 };
 
+/**
+ * uniform列表
+ */
+export type WebGPUUniformMapType = {
+    [key: string]: { //主键，uniform纯名称（不带数组表示）
+        name: string; //uniform名称（带数组表示）
+        type: ShaderDataType; //uniform类型
+    }
+};
+
+/**
+ * 绑定类型（uniformBlock，texture或sampler）
+ */
+export enum WebGPUBindingInfoType {
+    buffer, //uniformBlock
+    texture, //texture
+    sampler, //sampler
+};
+
+/**
+ * uniform详细内容（可能是uniformBlock，texture或sampler）
+ */
 export interface WebGPUUniformPropertyBindingInfo {
-    id: number;
-    set: number;
-    binding: number;
-    name: string;
-    propertyId: number;
-    visibility: GPUShaderStageFlags;
-    type: WebGPUBindingInfoType;
-    uniform?: WebGPUUniformBlockInfo;
+    id: number; //唯一编码
+    set: number; //分组编号
+    binding: number; //绑定编号
+    name: string; //名称
+    propertyId: number; //uniform内容的id
+    visibility: GPUShaderStageFlags; //GPU中的可见性
+    type: WebGPUBindingInfoType; //绑定类型
+    uniform?: WebGPUUniformBlockInfo; //uniform详细内容
     buffer?: GPUBufferBindingLayout;
     texture?: GPUTextureBindingLayout;
     sampler?: GPUSamplerBindingLayout;
@@ -57,27 +89,35 @@ export class WebGPUCodeGenerator {
         this.inited = true;
         console.log("naga inited");
         if (next) next();
+
+        Graphics.add2DGlobalUniformData(Shader3D.propertyNameToID('u_GraphicDummy'), 'u_GraphicDummy', ShaderDataType.Vector4);
+        const camerauniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap("WebGPUSprite3DtoCamera");
+        camerauniformMap.addShaderUniform(Sprite3D.WORLDINVERTFRONT, "u_WroldInvertFront", ShaderDataType.Vector4);
+        camerauniformMap.addShaderUniform(RenderableSprite3D.AMBIENTCOLOR, "u_AmbientColor", ShaderDataType.Vector4);
+		camerauniformMap.addShaderUniform(RenderableSprite3D.AMBIENTINTENSITY, "u_AmbientIntensity", ShaderDataType.Float);
+		camerauniformMap.addShaderUniform(RenderableSprite3D.REFLECTIONINTENSITY, "u_ReflectionIntensity", ShaderDataType.Float);
+        WebGPUShaderData.__init__();
     }
 
     /**
      * 生成attribute字符串
      * @param attributeMap 
      */
-    static attributeString(attributeMap: { [name: string]: [number, ShaderDataType] }) {
+    private static _attributeString(attributeMap: WebGPUAttributeMapType) {
         let res = '';
         for (const key in attributeMap) {
-            let loc = attributeMap[key][0];
-            const type = this.getAttributeT2S(attributeMap[key][1]);
-            if (type === "mat3") {
-                res = `${res}layout(location = ${loc++}) in vec3 ${key}_0;\n`;
-                res = `${res}layout(location = ${loc++}) in vec3 ${key}_1;\n`;
-                res = `${res}layout(location = ${loc++}) in vec3 ${key}_2;\n`;
-            } else if (type === "mat4") {
-                res = `${res}layout(location = ${loc++}) in vec4 ${key}_0;\n`;
-                res = `${res}layout(location = ${loc++}) in vec4 ${key}_1;\n`;
-                res = `${res}layout(location = ${loc++}) in vec4 ${key}_2;\n`;
-                res = `${res}layout(location = ${loc++}) in vec4 ${key}_3;\n`;
-            } else res = `${res}layout(location = ${loc}) in ${type} ${key};\n`;
+            let location = attributeMap[key][0];
+            const type = this._getAttributeT2S(attributeMap[key][1]);
+            if (type === 'mat3') { //mat3分解成3个vec3
+                res = `${res}layout(location = ${location++}) in vec3 ${key}_0;\n`;
+                res = `${res}layout(location = ${location++}) in vec3 ${key}_1;\n`;
+                res = `${res}layout(location = ${location++}) in vec3 ${key}_2;\n`;
+            } else if (type === 'mat4') { //mat4分解成4个vec4
+                res = `${res}layout(location = ${location++}) in vec4 ${key}_0;\n`;
+                res = `${res}layout(location = ${location++}) in vec4 ${key}_1;\n`;
+                res = `${res}layout(location = ${location++}) in vec4 ${key}_2;\n`;
+                res = `${res}layout(location = ${location++}) in vec4 ${key}_3;\n`;
+            } else res = `${res}layout(location = ${location}) in ${type} ${key};\n`;
         }
         return res;
     }
@@ -85,9 +125,9 @@ export class WebGPUCodeGenerator {
     /**
      * 生成varying字符串
      * @param varyingMap 
-     * @param io "in" or "out"
+     * @param io 'in' or 'out'
      */
-    static varyingString(varyingMap: NameStringMap, io: string = "out") {
+    private static _varyingString(varyingMap: NameStringMap, io: string = 'out') {
         let res = '';
         let count = 0;
         for (const key in varyingMap) {
@@ -100,21 +140,17 @@ export class WebGPUCodeGenerator {
     /**
      * 生成uniform字符串
      * @param uniformMap 
-     * @param arrayMap 
+     * @param arrayMap 数组uniform映射表（表示哪些uniform是数组，长度是多少）
      */
-    static uniformString(uniformMap: UniformMapType, arrayMap: NameNumberMap) {
-        const scene3DUniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap("Scene3D") as WebGLCommandUniformMap;
-        const cameraUniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap("BaseCamera") as WebGLCommandUniformMap;
-        const sprite3DUniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap("Sprite3D") as WebGLCommandUniformMap;
-        const simpleSkinnedMeshUniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap("SimpleSkinnedMesh") as WebGLCommandUniformMap;
-        const shurikenSprite3DUniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap("ShurikenSprite3D") as WebGLCommandUniformMap;
-        const trailRenderUniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap("TrailRender") as WebGLCommandUniformMap;
-        const skyRendererUniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap("SkyRenderer") as WebGLCommandUniformMap;
-        let scene3DUniforms: NameAndType[] = [];
-        let cameraUniforms: NameAndType[] = [];
-        let sprite3DUniforms: NameAndType[] = [];
-        let materialUniforms: NameAndType[] = [];
-        let textureUniforms: NameAndType[] = [];
+    private static _uniformString2D(uniformMap: WebGPUUniformMapType, arrayMap: NameNumberMap) {
+        const globalUniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap;
+        const cameraUniformMap = globalUniformMap("BaseCamera") as WebGPUCommandUniformMap;
+        const scene2DUniformMap = globalUniformMap("Sprite2DGlobal") as WebGPUCommandUniformMap;
+        const sprite2DUniformMap = globalUniformMap("Sprite2D") as WebGPUCommandUniformMap;
+        const scene2DUniforms: NameAndType[] = [];
+        const sprite2DUniforms: NameAndType[] = [];
+        const materialUniforms: NameAndType[] = [];
+        const textureUniforms: NameAndType[] = [];
 
         const uniformInfo: WebGPUUniformPropertyBindingInfo[] = [];
 
@@ -126,13 +162,142 @@ export class WebGPUCodeGenerator {
         }
 
         const regex = /\[(.*?)\]/g;
-        const _catalog = (name: string, type: string) => {
-            const id = Shader3D.propertyNameToID(name.replace(regex, '_'));
+        const _catalog = (key: string, name: string, type: string) => {
+            const id = Shader3D.propertyNameToID(key.replace(regex, '_')); //.更换成_（变量名中不能包含'.'）
+            if (scene2DUniformMap.hasPtrID(id)) {
+                if (!_have(scene2DUniforms, name))
+                    scene2DUniforms.push({ name, type, set: 0 });
+            }
+            else if (sprite2DUniformMap.hasPtrID(id)) {
+                if (!_have(sprite2DUniforms, name))
+                    sprite2DUniforms.push({ name, type, set: 2 });
+            }
+            else if (type === "sampler2D" || type === "samplerCube") {
+                if (!_have(textureUniforms, name))
+                    textureUniforms.push({ name, type, set: 3 });
+            }
+            else if (!_have(materialUniforms, name))
+                materialUniforms.push({ name, type, set: 3 });
+        }
+
+        for (const key in uniformMap) {
+            const dataType = this._getAttributeT2S(<ShaderDataType>uniformMap[key].type);
+            _catalog(key, uniformMap[key].name, dataType);
+        }
+
+        if (sprite2DUniforms.length === 0) //没有uniform，则添加默认的u_WorldMat，避免为空
+            sprite2DUniforms.push({ name: 'u_WorldMat', type: 'mat4', set: 2 });
+        if (materialUniforms.length === 0) //没有uniform，则添加默认的u_AlbedoColor，避免为空
+            materialUniforms.push({ name: 'u_AlbedoColor', type: 'vec4', set: 3 });
+
+        let uniformGLSL = '';
+        const typeNum = 10;
+        const visibility = GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT;
+        const _procUniforms = (set: number, binding: number,
+            name: string, uniformMap?: WebGPUCommandUniformMap, uniforms?: NameAndType[]) => {
+            const sortedUniforms: NameAndType[][] = [];
+            for (let i = 0; i < typeNum; i++)
+                sortedUniforms[i] = [];
+            uniformGLSL = `${uniformGLSL}layout(set = ${set}, binding = ${binding}) uniform ${name} {\n`;
+            if (uniforms) {
+                for (let i = 0, len = uniforms.length; i < len; i++) {
+                    const nameStr = uniforms[i].name;
+                    const typeStr = uniforms[i].type;
+                    if (typeStr === 'sampler2D' || typeStr === 'samplerCube')
+                        textureUniforms.push({ name: nameStr, type: typeStr, set });
+                    else sortedUniforms[this._getAttributeS2N(typeStr)].push({ name: nameStr, type: typeStr, set });
+                }
+            } else if (uniformMap) {
+                const data = uniformMap._idata;
+                for (const key in data) {
+                    let nameStr: string;
+                    if (data[key].arrayLength > 0) { //数组
+                        nameStr = `${data[key].propertyName}[${data[key].arrayLength}]`;
+                        arrayMap[nameStr] = data[key].arrayLength;
+                    } else nameStr = data[key].propertyName;
+                    const typeStr = this._getAttributeT2S(data[key].uniformtype);
+                    if (data[key].propertyName.indexOf('.') !== -1) continue;
+                    if (typeStr === '') continue;
+                    else if (typeStr === 'sampler2D' || typeStr === 'samplerCube')
+                        textureUniforms.push({ name: nameStr, type: typeStr, set });
+                    else sortedUniforms[this._getAttributeS2N(typeStr)].push({ name: nameStr, type: typeStr, set });
+                }
+            }
+            for (let i = 1; i < typeNum; i++)
+                sortedUniforms[0].push(...sortedUniforms[i]);
+            for (let i = 0, len = sortedUniforms[0].length; i < len; i++)
+                uniformGLSL = `${uniformGLSL}    ${sortedUniforms[0][i].type} ${sortedUniforms[0][i].name};\n`;
+            uniformGLSL = `${uniformGLSL}};\n\n`;
+            uniformInfo.push({
+                id: WebGPUGlobal.getUniformInfoId(),
+                set,
+                binding,
+                visibility,
+                type: WebGPUBindingInfoType.buffer,
+                name,
+                propertyId: Shader3D.propertyNameToID(name),
+                uniform: this._genUniformBlockInfo(name, sortedUniforms[0], arrayMap),
+                buffer: { type: 'uniform', hasDynamicOffset: false, minBindingSize: 0 },
+            } as WebGPUUniformPropertyBindingInfo);
+            return sortedUniforms[0];
+        };
+
+        _procUniforms(0, 0, 'scene3D', scene2DUniformMap);
+        _procUniforms(1, 0, 'camera', cameraUniformMap);
+        _procUniforms(2, 0, 'sprite3D', null, sprite2DUniforms);
+        _procUniforms(3, 0, 'material', null, materialUniforms);
+
+        return {
+            uniformGLSL,
+            uniformInfo,
+            textureUniforms,
+        };
+    }
+
+    /**
+     * 生成uniform字符串
+     * @param uniformMap 
+     * @param arrayMap 数组uniform映射表（表示哪些uniform是数组，长度是多少）
+     */
+    private static _uniformString3D(uniformMap: WebGPUUniformMapType, arrayMap: NameNumberMap) {
+        const globalUniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap;
+        const scene3DUniformMap = globalUniformMap("Scene3D") as WebGPUCommandUniformMap;
+        const cameraUniformMap = globalUniformMap("BaseCamera") as WebGPUCommandUniformMap;
+        const sprite3DUniformMap = globalUniformMap("Sprite3D") as WebGPUCommandUniformMap;
+        const simpleSkinnedMeshUniformMap = globalUniformMap("SimpleSkinnedMesh") as WebGPUCommandUniformMap;
+        const shurikenSprite3DUniformMap = globalUniformMap("ShurikenSprite3D") as WebGPUCommandUniformMap;
+        const trailRenderUniformMap = globalUniformMap("TrailRender") as WebGPUCommandUniformMap;
+        const skyRendererUniformMap = globalUniformMap("SkyRenderer") as WebGPUCommandUniformMap;
+        const sprite3DtoCameraMap = globalUniformMap("WebGPUSprite3DtoCamera") as WebGPUCommandUniformMap;
+        const scene3DUniforms: NameAndType[] = [];
+        const cameraUniforms: NameAndType[] = [];
+        const sprite3DUniforms: NameAndType[] = [];
+        const materialUniforms: NameAndType[] = [];
+        const textureUniforms: NameAndType[] = [];
+
+        //将u_Bones归类到sprite3D，否则会归类到material（material是共享的，无法单独处理骨骼）
+        sprite3DUniformMap.addShaderUniform(SkinnedMeshSprite3D.BONES, 'u_Bones', ShaderDataType.Matrix4x4);
+        const uniformInfo: WebGPUUniformPropertyBindingInfo[] = [];
+
+        const _have = (group: NameAndType[], name: string) => {
+            for (let i = group.length - 1; i > -1; i--)
+                if (group[i].name === name)
+                    return true;
+            return false;
+        }
+
+        const regex = /\[(.*?)\]/g;
+        const _catalog = (key: string, name: string, type: string) => {
+            const id = Shader3D.propertyNameToID(key.replace(regex, '_')); //.更换成_（变量名中不能包含'.'）
             if (scene3DUniformMap.hasPtrID(id)) {
                 if (!_have(scene3DUniforms, name))
                     scene3DUniforms.push({ name, type, set: 0 });
             }
             else if (cameraUniformMap.hasPtrID(id)) {
+                if (!_have(cameraUniforms, name))
+                    cameraUniforms.push({ name, type, set: 1 });
+            }
+            else if (sprite3DtoCameraMap.hasPtrID(id)) {
                 if (!_have(cameraUniforms, name))
                     cameraUniforms.push({ name, type, set: 1 });
             }
@@ -164,30 +329,21 @@ export class WebGPUCodeGenerator {
                 materialUniforms.push({ name, type, set: 3 });
         }
 
-        if (sprite3DUniforms.length === 0)
-            sprite3DUniforms.push({ name: 'u_WorldMat', type: 'mat4', set: 2 });
-        if (materialUniforms.length === 0)
-            materialUniforms.push({ name: 'u_AlbedoColor', type: 'vec4', set: 3 });
-
         for (const key in uniformMap) {
-            if (typeof uniformMap[key] === "object") { //block
-                const blockUniforms = <{ [name: string]: ShaderDataType }>uniformMap[key];
-                for (const uniformName in blockUniforms) {
-                    const dataType = this.getAttributeT2S(blockUniforms[uniformName]);
-                    _catalog(uniformName, dataType);
-                }
-            }
-            else { //uniform
-                const dataType = this.getAttributeT2S(<ShaderDataType>uniformMap[key]);
-                _catalog(key, dataType);
-            }
+            const dataType = this._getAttributeT2S(<ShaderDataType>uniformMap[key].type);
+            _catalog(key, uniformMap[key].name, dataType);
         }
+
+        if (sprite3DUniforms.length === 0) //没有uniform，则添加默认的u_WorldMat，避免为空
+            sprite3DUniforms.push({ name: 'u_WorldMat', type: 'mat4', set: 2 });
+        if (materialUniforms.length === 0) //没有uniform，则添加默认的u_AlbedoColor，避免为空
+            materialUniforms.push({ name: 'u_AlbedoColor', type: 'vec4', set: 3 });
 
         let uniformGLSL = '';
         const typeNum = 10;
         const visibility = GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT;
         const _procUniforms = (set: number, binding: number,
-            name: string, uniformMap?: WebGLCommandUniformMap, uniforms?: NameAndType[]) => {
+            name: string, uniformMap?: WebGPUCommandUniformMap, uniforms?: NameAndType[]) => {
             const sortedUniforms: NameAndType[][] = [];
             for (let i = 0; i < typeNum; i++)
                 sortedUniforms[i] = [];
@@ -198,18 +354,22 @@ export class WebGPUCodeGenerator {
                     const typeStr = uniforms[i].type;
                     if (typeStr === 'sampler2D' || typeStr === 'samplerCube')
                         textureUniforms.push({ name: nameStr, type: typeStr, set });
-                    sortedUniforms[this.getAttributeS2N(typeStr)].push({ name: nameStr, type: typeStr, set });
+                    else sortedUniforms[this._getAttributeS2N(typeStr)].push({ name: nameStr, type: typeStr, set });
                 }
             } else if (uniformMap) {
                 const data = uniformMap._idata;
                 for (const key in data) {
-                    const nameStr = data[key].propertyName;
-                    const typeStr = this.getAttributeT2S(data[key].uniformtype);
+                    let nameStr: string;
+                    if (data[key].arrayLength > 0) { //数组
+                        nameStr = `${data[key].propertyName}[${data[key].arrayLength}]`;
+                        arrayMap[nameStr] = data[key].arrayLength;
+                    } else nameStr = data[key].propertyName;
+                    const typeStr = this._getAttributeT2S(data[key].uniformtype);
                     if (data[key].propertyName.indexOf('.') !== -1) continue;
                     if (typeStr === '') continue;
                     else if (typeStr === 'sampler2D' || typeStr === 'samplerCube')
                         textureUniforms.push({ name: nameStr, type: typeStr, set });
-                    else sortedUniforms[this.getAttributeS2N(typeStr)].push({ name: nameStr, type: typeStr, set });
+                    else sortedUniforms[this._getAttributeS2N(typeStr)].push({ name: nameStr, type: typeStr, set });
                 }
             }
             for (let i = 1; i < typeNum; i++)
@@ -231,10 +391,10 @@ export class WebGPUCodeGenerator {
             return sortedUniforms[0];
         };
 
-        scene3DUniforms = _procUniforms(0, 0, "scene3D", scene3DUniformMap);
-        cameraUniforms = _procUniforms(1, 0, "camera", cameraUniformMap);
-        sprite3DUniforms = _procUniforms(2, 0, "sprite3D", undefined, sprite3DUniforms);
-        materialUniforms = _procUniforms(3, 0, "material", undefined, materialUniforms);
+        _procUniforms(0, 0, 'scene3D', scene3DUniformMap);
+        _procUniforms(1, 0, 'camera', cameraUniformMap);
+        _procUniforms(2, 0, 'sprite3D', null, sprite3DUniforms);
+        _procUniforms(3, 0, 'material', null, materialUniforms);
 
         return {
             uniformGLSL,
@@ -249,13 +409,13 @@ export class WebGPUCodeGenerator {
      * @param uniformInfo 
      * @param visibility 
      */
-    static textureString(textureUniforms: NameAndType[], uniformInfo: WebGPUUniformPropertyBindingInfo[], visibility: GPUShaderStageFlags) {
+    private static _textureString(textureUniforms: NameAndType[], uniformInfo: WebGPUUniformPropertyBindingInfo[], visibility: GPUShaderStageFlags) {
         let res = '';
         let binding = [1, 1, 1, 1];
         if (textureUniforms.length > 0) {
             for (let i = 0, len = textureUniforms.length; i < len; i++) {
                 const tu = textureUniforms[i];
-                if (tu.type === "sampler2D") {
+                if (tu.type === 'sampler2D') {
                     res = `${res}layout(set = ${tu.set}, binding = ${binding[tu.set]++}) uniform sampler ${tu.name}Sampler;\n`;
                     res = `${res}layout(set = ${tu.set}, binding = ${binding[tu.set]++}) uniform texture2D ${tu.name}Texture;\n`;
                     res = `${res}#define ${tu.name} sampler2D(${tu.name}Texture, ${tu.name}Sampler)\n\n`;
@@ -280,7 +440,7 @@ export class WebGPUCodeGenerator {
                         texture: { sampleType: 'float', viewDimension: '2d', multisampled: false },
                     } as WebGPUUniformPropertyBindingInfo);
                 }
-                if (tu.type === "samplerCube") {
+                if (tu.type === 'samplerCube') {
                     res = `${res}layout(set = ${tu.set}, binding = ${binding[tu.set]++}) uniform sampler ${tu.name}Sampler;\n`;
                     res = `${res}layout(set = ${tu.set}, binding = ${binding[tu.set]++}) uniform textureCube ${tu.name}Texture;\n`;
                     res = `${res}#define ${tu.name} samplerCube(${tu.name}Texture, ${tu.name}Sampler)\n\n`;
@@ -312,9 +472,10 @@ export class WebGPUCodeGenerator {
 
     /**
      * 去除naga转译报错的代码
+     * @param code 
      */
-    static changeUnfitCode(code: string) {
-        const regex1 = /const\s+(?:in|highp|mediump|lowp)\s*/g;
+    private static _changeUnfitCode(code: string) {
+        const regex1 = /const\s+(?:in|highp|mediump|lowp)\s+/g;
         code = code.replace(regex1, 'in ');
         const regex2 = /(?:texture2D|textureCube)\s*\(\s*/g;
         return code.replace(regex2, 'texture(');
@@ -323,22 +484,15 @@ export class WebGPUCodeGenerator {
     /**
      * 生成a_WorldMat拼合代码
      */
-    static genAWorldMat() {
-        const code =
-            `#define a_WorldMat mat4(a_WorldMat_0, a_WorldMat_1, a_WorldMat_2, a_WorldMat_3)
-        `;
-        return `${code}`;
+    private static _genAWorldMat() {
+        return '#define a_WorldMat mat4(a_WorldMat_0, a_WorldMat_1, a_WorldMat_2, a_WorldMat_3)';
     }
 
     /**
      * 生成inverse函数（因为WGSL缺乏内置的inverse函数）
      */
-    static genInverseFunc() {
-        const func =
-            `mat2 inverse(mat2 m)
-{
-    return mat2(m[1][1], -m[0][1], -m[1][0], m[0][0]) / (m[0][0] * m[1][1] - m[0][1] * m[1][0]);
-}
+    private static _genInverseFunc() {
+        const func = `
 mat3 inverse(mat3 m)
 {
     float a00 = m[0][0], a01 = m[0][1], a02 = m[0][2];
@@ -490,31 +644,31 @@ mat4 inverse(mat4 m)
      * 转译Attribute类型（Type到String）
      * @param type 
      */
-    static getAttributeT2S(type: ShaderDataType) {
+    private static _getAttributeT2S(type: ShaderDataType) {
         switch (type) {
             case ShaderDataType.Int:
-                return "int";
+                return 'int';
             case ShaderDataType.Bool:
-                return "bool";
+                return 'bool';
             case ShaderDataType.Float:
-                return "float";
+                return 'float';
             case ShaderDataType.Vector2:
-                return "vec2";
+                return 'vec2';
             case ShaderDataType.Vector3:
-                return "vec3";
+                return 'vec3';
             case ShaderDataType.Vector4:
             case ShaderDataType.Color:
-                return "vec4";
+                return 'vec4';
             case ShaderDataType.Matrix3x3:
-                return "mat3";
+                return 'mat3';
             case ShaderDataType.Matrix4x4:
-                return "mat4";
+                return 'mat4';
             case ShaderDataType.Texture2D:
-                return "sampler2D";
+                return 'sampler2D';
             case ShaderDataType.TextureCube:
-                return "samplerCube";
+                return 'samplerCube';
             default:
-                return "";
+                return '';
         }
     }
 
@@ -522,30 +676,30 @@ mat4 inverse(mat4 m)
      * 转译Attribute类型（String到Type）
      * @param name 
      */
-    static getAttributeS2T(name: string) {
+    private static _getAttributeS2T(name: string) {
         switch (name) {
-            case "int":
+            case 'int':
                 return ShaderDataType.Int;
-            case "bool":
+            case 'bool':
                 return ShaderDataType.Bool;
-            case "float":
+            case 'float':
                 return ShaderDataType.Float;
-            case "vec2":
+            case 'vec2':
                 return ShaderDataType.Vector2;
-            case "vec3":
+            case 'vec3':
                 return ShaderDataType.Vector3;
-            case "vec4":
+            case 'vec4':
                 return ShaderDataType.Vector4;
-            case "mat3":
+            case 'mat3':
                 return ShaderDataType.Matrix3x3;
-            case "mat4":
+            case 'mat4':
                 return ShaderDataType.Matrix4x4;
-            case "sampler2D":
+            case 'sampler2D':
                 return ShaderDataType.Texture2D;
-            case "samplerCube":
+            case 'samplerCube':
                 return ShaderDataType.TextureCube;
             default:
-                return "";
+                return '';
         }
     }
 
@@ -553,23 +707,23 @@ mat4 inverse(mat4 m)
      * 转译Attribute类型（String到Number），用于分组
      * @param name 
      */
-    static getAttributeS2N(name: string) {
+    private static _getAttributeS2N(name: string) {
         switch (name) {
-            case "mat4":
+            case 'mat4':
                 return 0;
-            case "mat3":
+            case 'mat3':
                 return 1;
-            case "vec4":
+            case 'vec4':
                 return 2;
-            case "vec3":
+            case 'vec3':
                 return 3;
-            case "vec2":
+            case 'vec2':
                 return 4;
-            case "float":
+            case 'float':
                 return 5;
-            case "bool":
+            case 'bool':
                 return 6;
-            case "int":
+            case 'int':
                 return 7;
             default:
                 return 8;
@@ -583,109 +737,85 @@ mat4 inverse(mat4 m)
      * @param uniformMap 
      * @param VS 
      * @param FS 
+     * @param is2D 
      */
     static shaderLanguageProcess(defineString: string[],
-        attributeMap: { [name: string]: [number, ShaderDataType] },
-        uniformMap: UniformMapType, VS: ShaderNode, FS: ShaderNode) {
+        attributeMap: WebGPUAttributeMapType, uniformMap: WebGPUUniformMapType,
+        arrayMap: NameNumberMap, VS: ShaderNode, FS: ShaderNode, is2D: boolean) {
 
-        if (defineString.indexOf('UPDOWN_NDC_Y') === -1)
-            defineString.push('UPDOWN_NDC_Y');
+        //if (defineString.indexOf('WEBGPU_COMPATIBLE') === -1)
+        //    defineString.push('WEBGPU_COMPATIBLE');
 
-        const arrayMap: NameNumberMap = {}; //uniform中的数组
+        const defMap: any = {};
         const varyingMap: NameStringMap = {};
         const varyingMapVS: NameStringMap = {};
         const varyingMapFS: NameStringMap = {};
-
         const clusterSlices = Config3D.lightClusterCount;
-        const defMap: any = {};
 
-        let defineStr: string = "";
-        defineStr += "#define MAX_LIGHT_COUNT " + Config3D.maxLightCount + "\n";
-        defineStr += "#define MAX_LIGHT_COUNT_PER_CLUSTER " + Config3D._maxAreaLightCountPerClusterAverage + "\n";
-        defineStr += "#define CLUSTER_X_COUNT " + clusterSlices.x + "\n";
-        defineStr += "#define CLUSTER_Y_COUNT " + clusterSlices.y + "\n";
-        defineStr += "#define CLUSTER_Z_COUNT " + clusterSlices.z + "\n";
-        defineStr += "#define MORPH_MAX_COUNT " + Config3D.maxMorphTargetCount + "\n";
-        defineStr += "#define SHADER_CAPAILITY_LEVEL " + LayaGL.renderEngine.getParams(RenderParams.SHADER_CAPAILITY_LEVEL) + "\n";
+        let defineStr: string = '';
+        defineStr += '#define MAX_LIGHT_COUNT ' + Config3D.maxLightCount + '\n';
+        defineStr += '#define MAX_LIGHT_COUNT_PER_CLUSTER ' + Config3D._maxAreaLightCountPerClusterAverage + '\n';
+        defineStr += '#define CLUSTER_X_COUNT ' + clusterSlices.x + '\n';
+        defineStr += '#define CLUSTER_Y_COUNT ' + clusterSlices.y + '\n';
+        defineStr += '#define CLUSTER_Z_COUNT ' + clusterSlices.z + '\n';
+        defineStr += '#define MORPH_MAX_COUNT ' + Config3D.maxMorphTargetCount + '\n';
+        defineStr += '#define SHADER_CAPAILITY_LEVEL ' + LayaGL.renderEngine.getParams(RenderParams.SHADER_CAPAILITY_LEVEL) + '\n';
 
         for (let i = 0, len = defineString.length; i < len; i++) {
             const def = defineString[i];
-            defineStr += "#define " + def + "\n";
+            defineStr += '#define ' + def + '\n';
             defMap[def] = true;
         }
 
         const vs = VS.toscript(defMap, []);
         if (vs[0].indexOf('#version') === 0)
             vs.shift();
-
         const fs = FS.toscript(defMap, []);
         if (fs[0].indexOf('#version') === 0)
             fs.shift();
 
-        let vsOut = "", fsOut = "";
+        let vsOut = '', fsOut = '';
         let vsNeedInverseFunc = false;
         let fsNeedInverseFunc = false;
         const vsTod: TypeOutData = {};
         const fsTod: TypeOutData = {};
-        //提取uniform和varying参数
+        //提取VertexShader的varying参数
         {
             const defs: Set<string> = new Set();
-            const ret = WebGPUShaderCompileDef.compile(vs.join('\n'), defs);
+            const token = WebGPUShaderCompileDef.compile(vs.join('\n'), defs);
             if (!defs.has('Math_lib'))
                 vsNeedInverseFunc = true;
-            const defMap: { [name: string]: boolean } = {};
+            const defMap: NameBooleanMap = {};
             defineString.forEach(def => { defMap[def] = true; });
             defMap['GL_FRAGMENT_PRECISION_HIGH'] = true;
-            vsOut = WebGPUShaderCompileUtil.toScript(ret, defMap, vsTod);
+            vsOut = WebGPUShaderCompileUtil.toScript(token, defMap, vsTod);
             if (vsOut.indexOf('inverse') === -1)
                 vsNeedInverseFunc = false;
-            if (vsTod.uniform)
-                for (const key in vsTod.uniform) {
-                    if (!uniformMap[key]) {
-                        if (vsTod.uniform[key].length && vsTod.uniform[key].length[0] > 0) {
-                            uniformMap[`${key}[${vsTod.uniform[key].length[0]}]`]
-                                = this.getAttributeS2T(vsTod.uniform[key].type) as ShaderDataType;
-                            arrayMap[`${key}[${vsTod.uniform[key].length[0]}]`] = vsTod.uniform[key].length[0];
-                        }
-                        else uniformMap[key] = this.getAttributeS2T(vsTod.uniform[key].type) as ShaderDataType;
-                    }
-                }
-            if (vsTod.varying)
+            if (vsTod.varying) //提取varying
                 for (const key in vsTod.varying)
                     if (!varyingMapVS[key])
                         varyingMapVS[key] = vsTod.varying[key].type;
             if (vsTod.variable) {
-                const attributeMap2: { [name: string]: [number, ShaderDataType] } = {};
+                const attributeUsed: WebGPUAttributeMapType = {};
                 for (const k in attributeMap)
-                    if (vsTod.variable.has(k))
-                        attributeMap2[k] = attributeMap[k];
-                attributeMap = attributeMap2;
+                    if (vsTod.variable.has(k)) //提取被使用的attribute
+                        attributeUsed[k] = attributeMap[k];
+                attributeMap = attributeUsed;
             }
         }
+        //提取FragmentShader的varying参数
         {
             const defs: Set<string> = new Set();
-            const fsOrg = fs.join('\n');
-            const ret = WebGPUShaderCompileDef.compile(fsOrg, defs);
+            const token = WebGPUShaderCompileDef.compile(fs.join('\n'), defs);
             if (!defs.has('Math_lib'))
                 fsNeedInverseFunc = true;
-            const defMap: { [name: string]: boolean } = {};
+            const defMap: NameBooleanMap = {};
             defineString.forEach(def => { defMap[def] = true; });
             defMap['GL_FRAGMENT_PRECISION_HIGH'] = true;
-            fsOut = WebGPUShaderCompileUtil.toScript(ret, defMap, fsTod);
+            fsOut = WebGPUShaderCompileUtil.toScript(token, defMap, fsTod);
             if (fsOut.indexOf('inverse') === -1)
                 fsNeedInverseFunc = false;
-            if (fsTod.uniform)
-                for (const key in fsTod.uniform) {
-                    if (!uniformMap[key]) {
-                        if (fsTod.uniform[key].length && fsTod.uniform[key].length[0] > 0) {
-                            uniformMap[`${key}[${fsTod.uniform[key].length[0]}]`]
-                                = this.getAttributeS2T(fsTod.uniform[key].type) as ShaderDataType;
-                            arrayMap[`${key}[${fsTod.uniform[key].length[0]}]`] = fsTod.uniform[key].length[0];
-                        }
-                        else uniformMap[key] = this.getAttributeS2T(fsTod.uniform[key].type) as ShaderDataType;
-                    }
-                }
-            if (fsTod.varying)
+            if (fsTod.varying) //提取varying
                 for (const key in fsTod.varying)
                     if (!varyingMapFS[key])
                         varyingMapFS[key] = fsTod.varying[key].type;
@@ -693,72 +823,79 @@ mat4 inverse(mat4 m)
 
         //匹配Varying参数
         for (const key in varyingMapVS)
-            if (varyingMapFS[key])
-                varyingMap[key] = varyingMapVS[key];
+            //if (varyingMapFS[key]) //不剔除没有实际使用的varying参数，增加兼容性
+            varyingMap[key] = varyingMapVS[key];
 
         //生成各类GLSL4.5代码
-        const attributeGLSL = this.attributeString(attributeMap);
-        const varyingGLSL_vs = this.varyingString(varyingMap, 'out');
-        const varyingGLSL_fs = this.varyingString(varyingMap, 'in');
+        const attributeGLSL = this._attributeString(attributeMap);
+        const varyingGLSL_vs = this._varyingString(varyingMap, 'out');
+        const varyingGLSL_fs = this._varyingString(varyingMap, 'in');
         const {
             uniformGLSL,
             uniformInfo,
-            textureUniforms } = this.uniformString(uniformMap, arrayMap);
-        const inverseFunc = this.genInverseFunc();
-        const aWorldMat = this.genAWorldMat();
+            textureUniforms } = is2D ? this._uniformString2D(uniformMap, arrayMap) : this._uniformString3D(uniformMap, arrayMap);
+        const inverseFunc = this._genInverseFunc();
+        const aWorldMat = this._genAWorldMat();
 
         const textureUniforms_vs: NameAndType[] = [];
         const textureUniforms_fs: NameAndType[] = [];
-        if (vsTod.variable) {
+        if (vsTod.variable) { //提取被vs使用的texture
             for (let i = 0, len = textureUniforms.length; i < len; i++)
                 if (vsTod.variable.has(textureUniforms[i].name))
                     textureUniforms_vs.push(textureUniforms[i]);
         }
-        if (fsTod.variable) {
+        if (fsTod.variable) { //提取被fs使用的texture
             for (let i = 0, len = textureUniforms.length; i < len; i++)
                 if (fsTod.variable.has(textureUniforms[i].name))
                     textureUniforms_fs.push(textureUniforms[i]);
         }
 
-        const textureGLSL_vs = this.textureString(textureUniforms_vs, uniformInfo, GPUShaderStage.VERTEX);
-        const textureGLSL_fs = this.textureString(textureUniforms_fs, uniformInfo, GPUShaderStage.FRAGMENT);
+        const textureGLSL_vs = this._textureString(textureUniforms_vs, uniformInfo, GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT);
+        const textureGLSL_fs = this._textureString(textureUniforms_fs, uniformInfo, GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT);
+
+        const textureNames_vs: string[] = [];
+        const textureNames_fs: string[] = [];
+        for (let i = 0, len = textureUniforms_vs.length; i < len; i++)
+            textureNames_vs.push(textureUniforms_vs[i].name);
+        for (let i = 0, len = textureUniforms_fs.length; i < len; i++)
+            textureNames_fs.push(textureUniforms_fs[i].name);
 
         const vertexHead =
             `#version 450 core
-#if defined(GL_FRAGMENT_PRECISION_HIGH)
-    precision highp float;
-    precision highp int;
-#else
-    precision mediump float;
-    precision mediump int;
-#endif
+precision highp float;
+precision highp int;
 ${attributeGLSL}
 ${varyingGLSL_vs}
 ${uniformGLSL}
-${textureGLSL_vs}${aWorldMat}
+${textureGLSL_vs}
+${aWorldMat}
 `;
         const fragmentHead =
             `#version 450 core
-#if defined(GL_FRAGMENT_PRECISION_HIGH)
-    precision highp float;
-    precision highp int;
-#else
-    precision mediump float;
-    precision mediump int;
-#endif
+precision highp float;
+precision highp int;
 layout(location = 0) out vec4 gl_FragColor;
 ${varyingGLSL_fs}
 ${uniformGLSL}
 ${textureGLSL_fs}
 `;
+        //预处理GLSL代码
+        let vsBody = defineStr + (vsNeedInverseFunc ? inverseFunc : '') + vsOut;
+        let fsBody = defineStr + (fsNeedInverseFunc ? inverseFunc : '') + fsOut;
+        if (this.forNaga) {
+            vsBody = this._changeUnfitCode(vsBody);
+            fsBody = this._changeUnfitCode(fsBody);
+        }
+        const procVS = new WebGPU_GLSLProcess();
+        const procFS = new WebGPU_GLSLProcess();
+        procVS.process(vsBody, textureNames_vs);
+        procFS.process(fsBody, textureNames_fs);
+        //console.log(procVS);
+        //console.log(procFS);
 
         //合并成完整的GLSL4.5代码
-        let dstVS = vertexHead + defineStr + (vsNeedInverseFunc ? inverseFunc : '') + vsOut;
-        let dstFS = fragmentHead + defineStr + (fsNeedInverseFunc ? inverseFunc : '') + fsOut;
-        if (this.forNaga) {
-            dstVS = this.changeUnfitCode(dstVS);
-            dstFS = this.changeUnfitCode(dstFS);
-        }
+        let dstVS = vertexHead + procVS.glslCode;
+        let dstFS = fragmentHead + procFS.glslCode;
         //console.log(dstVS);
         //console.log(dstFS);
 
@@ -769,5 +906,92 @@ ${textureGLSL_fs}
         //console.log(wgsl_fs);
 
         return { vs: wgsl_vs, fs: wgsl_fs, uniformInfo };
+    }
+
+    /**
+     * 收集Uniform信息
+     * @param defineString 
+     * @param uniformMap 
+     * @param VS 
+     * @param FS 
+     */
+    static collectUniform(defineString: string[], uniformMap: UniformMapType, VS: ShaderNode, FS: ShaderNode) {
+        //添加兼容WGSL的定义
+        //if (defineString.indexOf('WEBGPU_COMPATIBLE') === -1)
+        //    defineString.push('WEBGPU_COMPATIBLE');
+
+        //将uniformMap转换为uniformMapEx
+        const uniformMapEx: WebGPUUniformMapType = {};
+        for (const key in uniformMap) {
+            if (typeof uniformMap[key] === 'object') {
+                const blockUniform = <{ [name: string]: ShaderDataType }>uniformMap[key];
+                for (const uniformName in blockUniform) {
+                    const dataType = blockUniform[uniformName];
+                    uniformMapEx[uniformName] = { name: uniformName, type: dataType };
+                }
+            } else uniformMapEx[key] = { name: key, type: uniformMap[key] as ShaderDataType };
+        }
+
+        const defMap: NameBooleanMap = {};
+        for (let i = defineString.length - 1; i > -1; i--)
+            defMap[defineString[i]] = true;
+
+        let keyWithArray: string;
+        const vs = VS.toscript(defMap, []);
+        const fs = FS.toscript(defMap, []);
+        const vsTod: TypeOutData = {};
+        const fsTod: TypeOutData = {};
+        const arrayMap: NameNumberMap = {}; //uniform中的数组
+        //提取VertexShader的uniform参数
+        {
+            const token = WebGPUShaderCompileDef.compile(vs.join('\n'));
+            const defMap: NameBooleanMap = {};
+            defineString.forEach(def => { defMap[def] = true; });
+            defMap['GL_FRAGMENT_PRECISION_HIGH'] = true;
+            WebGPUShaderCompileUtil.toScript(token, defMap, vsTod);
+            if (vsTod.uniform) {
+                for (const key in vsTod.uniform) {
+                    if (!uniformMapEx[key]) {
+                        if (vsTod.uniform[key].length && vsTod.uniform[key].length[0]) {
+                            keyWithArray = `${key}[${vsTod.uniform[key].length[0]}]`;
+                            uniformMapEx[key] = {
+                                name: keyWithArray,
+                                type: this._getAttributeS2T(vsTod.uniform[key].type) as ShaderDataType
+                            };
+                            arrayMap[keyWithArray] = vsTod.uniform[key].length[0];
+                        } else uniformMapEx[key] = {
+                            name: key,
+                            type: this._getAttributeS2T(vsTod.uniform[key].type) as ShaderDataType
+                        }
+                    }
+                }
+            }
+        }
+        //提取FragmentShader的uniform参数
+        {
+            const token = WebGPUShaderCompileDef.compile(fs.join('\n'));
+            const defMap: NameBooleanMap = {};
+            defineString.forEach(def => { defMap[def] = true; });
+            defMap['GL_FRAGMENT_PRECISION_HIGH'] = true;
+            WebGPUShaderCompileUtil.toScript(token, defMap, fsTod);
+            if (fsTod.uniform) {
+                for (const key in fsTod.uniform) {
+                    if (!uniformMapEx[key]) {
+                        if (fsTod.uniform[key].length && fsTod.uniform[key].length[0]) {
+                            keyWithArray = `${key}[${fsTod.uniform[key].length[0]}]`;
+                            uniformMapEx[key] = {
+                                name: keyWithArray,
+                                type: this._getAttributeS2T(fsTod.uniform[key].type) as ShaderDataType
+                            };
+                            arrayMap[keyWithArray] = fsTod.uniform[key].length[0];
+                        } else uniformMapEx[key] = {
+                            name: key,
+                            type: this._getAttributeS2T(fsTod.uniform[key].type) as ShaderDataType
+                        }
+                    }
+                }
+            }
+        }
+        return { uniform: uniformMapEx, arr: arrayMap };
     }
 }

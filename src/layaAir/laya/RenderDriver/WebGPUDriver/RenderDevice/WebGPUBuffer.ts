@@ -1,3 +1,4 @@
+import { roundDown, roundUp } from "./WebGPUCommon";
 import { WebGPURenderEngine } from "./WebGPURenderEngine";
 import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
 
@@ -31,27 +32,26 @@ export class WebGPUBuffer {
     objectName: string = 'WebGPUBuffer';
 
     constructor(usage: GPUBufferUsageFlags, byteSize: number = 0, mappedAtCreation: boolean = false) {
-        this._size = byteSize;
+        this._size = roundUp(byteSize, 4);
         this._usage = usage;
         this._mappedAtCreation = mappedAtCreation;
+        this.globalId = WebGPUGlobal.getId(this);
         if (this._size > 0)
             this._create();
-        this.globalId = WebGPUGlobal.getId(this);
     }
 
     /**
      * @param length 
      */
     setDataLength(length: number): void {
-        this._size = length;
-        this._create();
+        const size = roundUp(length, 4);
+        if (!this._isCreate || this._size != size) {
+            this._size = size;
+            this._create();
+        }
     }
 
     private _create() {
-        if (this._isCreate) {
-            console.error("Buffer is Created");
-            return;
-        }
         this._source = WebGPURenderEngine._instance.getDevice().createBuffer({
             size: this._size,
             usage: this._usage,
@@ -61,34 +61,35 @@ export class WebGPUBuffer {
         WebGPUGlobal.action(this, 'allocMemory | buffer', this._size);
     }
 
-    private _alignedLength(bytelength: number) {
-        return (bytelength + 3) & ~3;// 4 bytes alignments (because of the upload which requires this)
-    }
-
-    private _memorychange(bytelength: number) {
-        // this._engine._addStatisticsInfo(RenderStatisticsInfoMemory, bytelength);
-        // this._engine._addStatisticsInfo(RenderStatisticsInfo.GPUMemory, bytelength);
-    }
-
-    setData(srcData: ArrayBuffer | ArrayBufferView, offset: number) {
-        if ((srcData as ArrayBufferView).buffer)
+    setData(srcData: ArrayBuffer | ArrayBufferView, srcOffset: number) {
+        let size = 0, offset = 0;
+        if ((srcData as ArrayBufferView).buffer) { //@ts-ignore
+            offset = srcData.byteOffset;
+            size = roundDown(srcData.byteLength, 4); //这里需要进一步处理，目前是截断到4字节对齐，可能会导致数据不完整
             srcData = (srcData as ArrayBufferView).buffer;
-        WebGPURenderEngine._instance.getDevice().queue.writeBuffer(this._source, 0, srcData, offset, srcData.byteLength);
+        } else {
+            offset = srcOffset;
+            size = roundDown(srcData.byteLength - offset, 4); //这里需要进一步处理，目前是截断到4字节对齐，可能会导致数据不完整
+        }
+        WebGPURenderEngine._instance.getDevice().queue.writeBuffer(this._source, 0, srcData, offset, size);
     }
 
-    setDataEx(srcData: ArrayBuffer | ArrayBufferView, offset: number, bytelength: number, dstOffset: number = 0) {
-        if ((srcData as ArrayBufferView).buffer)
+    setDataEx(srcData: ArrayBuffer | ArrayBufferView, srcOffset: number, byteLength: number, dstOffset: number = 0) {
+        // if ((srcData as ArrayBufferView).buffer)
+        //     srcData = (srcData as ArrayBufferView).buffer;
+        // const size = roundDown(byteLength, 4); //这里需要进一步处理，目前是截断到4字节对齐，可能会导致数据不完整
+        let size = 0, offset = 0;
+        if ((srcData as ArrayBufferView).buffer) { //@ts-ignore
+            offset = srcData.byteOffset;
+            size = roundDown(srcData.byteLength, 4); //这里需要进一步处理，目前是截断到4字节对齐，可能会导致数据不完整
             srcData = (srcData as ArrayBufferView).buffer;
-        WebGPURenderEngine._instance.getDevice().queue.writeBuffer(this._source, dstOffset, srcData, offset, bytelength);
+        } else {
+            offset = srcOffset;
+            size = roundDown(byteLength, 4); //这里需要进一步处理，目前是截断到4字节对齐，可能会导致数据不完整
+        }
+        WebGPURenderEngine._instance.getDevice().queue.writeBuffer(this._source, dstOffset, srcData, offset, size);
     }
 
-    setSubDataEx(srcData: ArrayBuffer | ArrayBufferView, offset: number, bytelength: number, dstOffset: number = 0) {
-        if ((srcData as ArrayBufferView).buffer)
-            srcData = (srcData as ArrayBufferView).buffer;
-        WebGPURenderEngine._instance.getDevice().queue.writeBuffer(this._source, dstOffset, srcData, offset, bytelength);
-    }
-
-    //TODO
     readDataFromBuffer() {
         //TODO
         //mapAsync

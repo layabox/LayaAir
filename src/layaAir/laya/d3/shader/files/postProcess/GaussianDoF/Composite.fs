@@ -6,15 +6,17 @@ varying vec2 v_Texcoord0;
 
 void main()
 {
-
-    vec3 baseColor = texture2D(u_MainTex, v_Texcoord0).rgb;
+    vec2 uv = v_Texcoord0;
+    #ifdef BLITSCREEN_INVERTY
+    uv.y = 1.0 - uv.y;
+    vec3 baseColor = texture2D(u_MainTex, uv).rgb;
 #ifdef Gamma_u_MainTex
     baseColor = gammaToLinear(baseColor);
 #endif // Gamma_u_MainTex
 
-    vec4 samplevalue = texture2D(u_BlurCoCTex, v_Texcoord0);
+    vec4 samplevalue = texture2D(u_BlurCoCTex, uv);
     vec3 farColor = samplevalue.rgb;
-    float coc = texture2D(u_FullCoCTex, v_Texcoord0).r;
+    float coc = texture2D(u_FullCoCTex, uv).r;
 
     vec3 dstColor = vec3(0.0);
     float dstAlpha = 1.0;
