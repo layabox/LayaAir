@@ -1,4 +1,3 @@
-import { SpinBone4Mesh } from "../mesh/SpineBone4Mesh";
 import { SpineMeshBase } from "../mesh/SpineMeshBase";
 import { AttachmentParse } from "./AttachmentParse";
 import { IBCreator } from "./IBCreator";
@@ -14,17 +13,17 @@ export abstract class VBCreator implements IGetBone {
 
     private boneMaxId: number = 0;
     constructor() {
-       this.init();
+        this.init();
     }
 
-    init(){
+    init() {
         this.mapIndex = new Map();
         this.slotVBMap = new Map();
         this.vb = new Float32Array(SpineMeshBase.maxVertex * this.vertexSize);
         this.vbLength = 0;
     }
 
-    abstract get vertexSize():number;
+    abstract get vertexSize(): number;
 
     abstract appendVertexArray(attachmentParse: AttachmentParse, vertexArray: Float32Array, offset: number, boneGet: IGetBone): number;
 
@@ -147,7 +146,7 @@ export abstract class VBCreator implements IGetBone {
     }
 }
 
-export class VBBoneCreator extends VBCreator{
+export class VBBoneCreator extends VBCreator {
     _create(): VBCreator {
         return new VBBoneCreator();
     }
@@ -157,7 +156,7 @@ export class VBBoneCreator extends VBCreator{
     get vertexSize(): number {
         return 22;
     }
-    
+
     appendVertexArray(attachmentParse: AttachmentParse, vertexArray: Float32Array, offset: number, boneGet: IGetBone) {
         if (!attachmentParse.attachment) return offset;
         let vside = this.vertexSize;
@@ -218,7 +217,7 @@ export class VBBoneCreator extends VBCreator{
 
 }
 
-export class VBRigBodyCreator extends VBCreator{
+export class VBRigBodyCreator extends VBCreator {
     _create(): VBCreator {
         return new VBRigBodyCreator();
     }
@@ -231,7 +230,7 @@ export class VBRigBodyCreator extends VBCreator{
         let color = attachmentParse.color;
         let vside = this.vertexSize;
         if (attachmentParse.stride == 2) {
-            let boneid =boneGet.getBoneId(attachmentParse.boneIndex);
+            let boneid = boneGet.getBoneId(attachmentParse.boneIndex);
             for (let j = 0, n = slotVertex.length; j < n; j += attachmentParse.stride) {
                 vertexArray[offset + 0] = slotVertex[j];
                 vertexArray[offset + 1] = slotVertex[j + 1];

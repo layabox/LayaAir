@@ -8,6 +8,7 @@ export class SpineNormalRender implements ISpineOptimizeRender {
     graphics: Graphics;
     _renerer: SpineSkeletonRenderer;
     _skeleton: spine.Skeleton;
+
     init(skeleton: spine.Skeleton, templet: SpineTemplet, graphics: Graphics): void {
         this.graphics = graphics;
         this._renerer = new SpineSkeletonRenderer(templet, false);
@@ -16,6 +17,9 @@ export class SpineNormalRender implements ISpineOptimizeRender {
 
     play(animationName: string): void {
 
+    }
+    setSkinIndex(index: number): void {
+        //throw new Error("Method not implemented.");
     }
 
     render(time: number) {

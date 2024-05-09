@@ -1,6 +1,6 @@
 import { Texture } from "../../resource/Texture";
 import { SpineTexture } from "../SpineTexture";
-import { SpinBone4Mesh } from "../mesh/SpineBone4Mesh";
+import { SpineOptimizeConst } from "./SpineOptimizeConst";
 
 const QUAD_TRIANGLES = [0, 1, 2, 2, 3, 0];
 export class AttachmentParse {
@@ -15,13 +15,15 @@ export class AttachmentParse {
     boneIndex: number;
     texture: Texture;
     isclip: boolean;
+    sourceData: spine.Attachment;
 
-    init(attachment: spine.Attachment, boneIndex: number, slotId: number, deform: number[], slot: spine.Slot) {
+    init(attachment: spine.Attachment, boneIndex: number, slotId: number, deform: number[], slot: spine.SlotData) {
         this.slotId = slotId;
+        this.sourceData = attachment;
         this.attachment = attachment.name;
         this.boneIndex = boneIndex;
         let slotColor = slot.color;
-        this.blendMode = slot.data.blendMode;
+        this.blendMode = slot.blendMode;
         let color = this.color = new spine.Color();
         let attchmentColor: spine.Color;
         if (attachment instanceof spine.RegionAttachment) {
@@ -36,7 +38,7 @@ export class AttachmentParse {
         }
         else if (attachment instanceof spine.MeshAttachment) {
             attchmentColor = attachment.color;
-            let vside = SpinBone4Mesh.vertexSize;
+            let vside =  SpineOptimizeConst.BONEVERTEX;
             //return false;
             let mesh = attachment as spine.MeshAttachment;
             this.texture = (<SpineTexture>(mesh.region as any).page.texture).realTexture;
@@ -105,7 +107,7 @@ export class AttachmentParse {
                 }
             }
         }
-        else if(attachment instanceof spine.ClippingAttachment){
+        else if (attachment instanceof spine.ClippingAttachment) {
             this.attachment = null;
             this.isclip = true;
         }

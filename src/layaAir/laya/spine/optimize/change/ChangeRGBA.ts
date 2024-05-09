@@ -1,4 +1,3 @@
-import { SpinBone4Mesh } from "../../mesh/SpineBone4Mesh";
 import { VBCreator } from "../VBCreator";
 import { IVBChange } from "../interface/IVBChange";
 
@@ -6,19 +5,24 @@ export class ChangeRGBA implements IVBChange {
     slotId: number;
     sizeMap: Map<string, number>;
 
-    initChange(slotId: number, vb: VBCreator) {
+    constructor(slotId: number) {
         this.slotId = slotId;
-        this.sizeMap = vb.slotVBMap.get(slotId)
+    }
+
+    initChange(vb: VBCreator): boolean {
+        this.sizeMap = vb.slotVBMap.get(this.slotId);
+        return !!this.sizeMap;
     }
 
     updateVB(vb: VBCreator, slots: spine.Slot[]) {
+        // if (!this.sizeMap) {
+        //     return;
+        //     //this.sizeMap = vb.slotVBMap.get(this.slotId);
+        // }
         let slot = slots[this.slotId];
         let color = slot.color;
-        if (!this.sizeMap) {
-            this.sizeMap = vb.slotVBMap.get(this.slotId);
-        }
         if (slot.attachment) {
-            let vertexSize = SpinBone4Mesh.vertexSize;
+            let vertexSize = vb.vertexSize;
             let offset = this.sizeMap.get(slot.attachment.name) * vertexSize;
             let vbData = vb.vb;
             //slot.attachment.color
@@ -31,5 +35,9 @@ export class ChangeRGBA implements IVBChange {
                 vbData[offset + i * vertexSize + 5] = color.a;
             }
         }
+    }
+
+    clone(): IVBChange {
+        return new ChangeRGBA(this.slotId);
     }
 }

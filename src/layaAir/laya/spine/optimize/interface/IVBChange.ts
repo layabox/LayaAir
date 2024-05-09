@@ -1,6 +1,7 @@
 import { VBCreator } from "../VBCreator";
 
 export interface IVBChange {
-    initChange(slotId: number, vb: VBCreator): void;
-    updateVB(vb: VBCreator, slots: spine.Slot[]): void
+    initChange(vb: VBCreator): boolean;
+    updateVB(vb: VBCreator, slots: spine.Slot[]): void;
+    clone(): IVBChange;
 }

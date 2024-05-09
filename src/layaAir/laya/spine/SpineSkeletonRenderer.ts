@@ -302,7 +302,7 @@ export class SpineSkeletonRenderer {
     draw(skeleton: spine.Skeleton, graphics: Graphics, slotRangeStart: number = -1, slotRangeEnd: number = -1) {
         let clipper = this.clipper;
         this.clearBatch();
-        let premultipliedAlpha = this.premultipliedAlpha;
+        let premultipliedAlpha = true;//this.premultipliedAlpha;
         let twoColorTint = this.twoColorTint;
         let blendMode: spine.BlendMode | null = null;
 
@@ -438,7 +438,9 @@ export class SpineSkeletonRenderer {
                         mesh = this.nextBatch(mesh.material);
                         mesh.clear();
                     }
-                    mesh.appendVertices(renderable.vertices, renderable.numFloats, triangles, triangles.length, finalColor, uvs);
+                    if(finalColor.a!=0){
+                        mesh.appendVertices(renderable.vertices, renderable.numFloats, triangles, triangles.length, finalColor, uvs);
+                    }
                 }
             }
             clipper.clipEndWithSlot(slot);

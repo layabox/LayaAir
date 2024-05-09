@@ -15,6 +15,9 @@ export class ChangeSlot implements IChange {
         if (attachmentParse) {
             vb.appendVB(attachmentParse);
         }
+        else{
+            attachmentParse = map.get(null);
+        }
         this.attachmentParse = attachmentParse;
         return !this.attachmentParse.isclip;
     }

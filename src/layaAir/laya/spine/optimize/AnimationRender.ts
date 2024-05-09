@@ -1,40 +1,33 @@
 import { AttachmentParse } from "./AttachmentParse";
 import { IBCreator } from "./IBCreator";
 import { MultiRenderData } from "./MultiRenderData";
+import { IBRenderData } from "./SketonOptimise";
 import { VBCreator } from "./VBCreator";
 import { ChangeDrawOrder } from "./change/ChangeDrawOrder";
+import { ChangeRGBA } from "./change/ChangeRGBA";
 import { ChangeSlot } from "./change/ChangeSlot";
 import { IChange } from "./interface/IChange";
 import { IVBChange } from "./interface/IVBChange";
 
 export class AnimationRender {
-    static EMPTY: IVBChange[];
     static tempIbCreate: IBCreator = new IBCreator();
-    mutiRenderAble: boolean;
-    isNormalRender: boolean;
     name: string;
-    ibs: [Uint16Array, MultiRenderData][];
-    mainibRender: [Uint16Array, MultiRenderData];
-    vb: VBCreator;
-    mainIb: IBCreator;
     changeIB: Map<number, IChange[]>;
     changeVB: IVBChange[];
     frames: number[];
     frameNumber: number;
+    skinDataArray: SkinAniRenderData[];
 
     checkVBChange: (slots: spine.Slot[]) => boolean;
     constructor() {
         this.changeIB = new Map();
         this.frames = [];
-        this.ibs = [];
-        this.changeVB = AnimationRender.EMPTY;
-        this.checkVBChange = this.checkVBChangeEmpty;
+        this.skinDataArray = [];
     }
 
     private checkChangeVB() {
-        if (this.changeVB == AnimationRender.EMPTY) {
+        if (!this.changeVB) {
             this.changeVB = [];
-            this.checkVBChange = this.checkVBChangeS;
         }
     }
 
@@ -64,26 +57,18 @@ export class AnimationRender {
     }
 
     checkVBChangeS(slots: spine.Slot[]): boolean {
-        for (let i = 0, n = this.changeVB.length; i < n; i++) {
-            this.changeVB[i].updateVB(this.vb, slots);
-        }
+        // for (let i = 0, n = this.changeVB.length; i < n; i++) {
+        //     this.changeVB[i].updateVB(this.vb, slots);
+        // }
         return true;
     }
 
-    getIB(frameIndex: number) {
-        //return this.mainIb.realIb;
-        if (frameIndex == -1) {
-            return this.mainibRender;
-        }
-        return this.ibs[frameIndex];
-    }
-
-    check(animation: spine.Animation, mainvb: VBCreator, mainib: IBCreator, slotAttachMap: Map<number, Map<string, AttachmentParse>>, attachMap: AttachmentParse[]) {
+    check(animation: spine.Animation) {
         this.name = animation.name;
         let timeline = animation.timelines;
         let tempMap = this.changeIB;
         let tempArray = this.frames;
-        this.mainIb = mainib;
+        //this.mainIb = mainib;
         tempMap.clear();
         tempArray.length = 0;
         for (let i = 0, n = timeline.length; i < n; i++) {
@@ -124,15 +109,32 @@ export class AnimationRender {
                     arr.unshift(change);
                 }
             }
-            // else if (time instanceof spine.RGBATimeline) {
-            //     this.checkChangeVB();
-            //     let rgba = time as spine.RGBATimeline;
-            //     let changeRGBA = new ChangeRGBA();
-            //     this.vb = this.vb || mainvb.clone();
-            //     changeRGBA.initChange(rgba.slotIndex, this.vb);
-            //     this.changeVB.push(changeRGBA);
-            //     // debugger;
-            // }
+            //@ts-ignore
+            else if (time instanceof (spine.ColorTimeline || spine.RGBATimeline)) {
+                let rgba = time as spine.RGBATimeline;
+                let frames = rgba.frames;
+                let slotIndex = rgba.slotIndex;
+                if (frames.length == 5 && frames[0] == 0 && frames[4] == 0) {
+                    let change = new ChangeSlot();
+                    change.slotId = slotIndex;
+                    change.attachment = null;
+                    let arr = tempMap.get(0);
+                    if (!arr) {
+                        tempArray.push(0);
+                        arr = [];
+                        tempMap.set(0, arr);
+                    }
+                    arr.push(change);
+                }
+                else {
+                    this.checkChangeVB();
+                    let changeRGBA = new ChangeRGBA(slotIndex);
+                    //this.vb = this.vb || mainvb.clone();
+                    //changeRGBA.initChange(slotIndex, this.vb);
+                    this.changeVB.push(changeRGBA);
+                }
+                // debugger;
+            }
             // else if (time instanceof spine.AlphaTimeline) {
             //     debugger;
             // }
@@ -141,27 +143,90 @@ export class AnimationRender {
             // }
         }
         tempArray.sort();
+        this.frameNumber = tempArray.length;
+    }
+
+    createSkinData(mainVB: VBCreator, mainIB: IBCreator, slotAttachMap: Map<number, Map<string, AttachmentParse>>, attachMap: AttachmentParse[]) {
+        let skinData = new SkinAniRenderData();
+        let tempMap = this.changeIB;
+        let tempArray = this.frames;
+        skinData.init(tempMap, mainVB, mainIB, tempArray, slotAttachMap, attachMap, this.changeVB);
+        this.skinDataArray.push(skinData);
+        return skinData;
+    }
+
+}
+
+export class SkinAniRenderData {
+    name:string;
+    ibs: IBRenderData[];
+    mainibRender: IBRenderData;
+    vb: VBCreator;
+    mainIB: IBCreator;
+    mutiRenderAble: boolean;
+    isNormalRender: boolean;
+    checkVBChange: (slots: spine.Slot[]) => boolean;
+    changeVB: IVBChange[];
+
+    constructor() {
+        this.ibs = [];
+        this.checkVBChange = this.checkVBChangeEmpty;
+    }
+
+
+    checkVBChangeEmpty(slots: spine.Slot[]): boolean {
+        return false;
+    }
+
+    checkVBChangeS(slots: spine.Slot[]): boolean {
+        for (let i = 0, n = this.changeVB.length; i < n; i++) {
+            this.changeVB[i].updateVB(this.vb, slots);
+        }
+        return true;
+    }
+
+
+
+    getIB(frameIndex: number) {
+        //return this.mainIb.realIb;
+        if (frameIndex == -1) {
+            return this.mainibRender;
+        }
+        return this.ibs[frameIndex];
+    }
+
+    init(tempMap: Map<number, IChange[]>, mainVB: VBCreator, mainIB: IBCreator, tempArray: number[], slotAttachMap: Map<number, Map<string, AttachmentParse>>, attachMap: AttachmentParse[], changeVB: IVBChange[]) {
+        if (changeVB) {
+            this.checkVBChange = this.checkVBChangeS;
+            let myChangeVB: IVBChange[] = this.changeVB = [];
+            for (let i = 0, n = changeVB.length; i < n; i++) {
+                let changeVBItem = changeVB[i].clone();
+                if(changeVB[i].initChange(mainVB)){
+                    myChangeVB.push(changeVBItem);
+                }
+            }
+        }
+        this.mainIB = mainIB;
         let mutiRenderAble = false;
         if (tempArray.length == 0) {
             //没有修改IB的情况
-            this.vb = mainvb;
-            this.ibs.push([this.mainIb.realIb, this.mainIb.outRenderData]);
+            this.vb = mainVB;
+            this.ibs.push(this.mainIB);
             //this.mainIb = mainib;
-            if (this.mainIb.outRenderData.renderData.length > 1) {
+            if (this.mainIB.outRenderData.renderData.length > 1) {
                 mutiRenderAble = true;
             }
-
         }
         else {
-            this.vb = this.vb || mainvb.clone();
+            this.vb = this.vb || mainVB.clone();
             let n = tempArray.length;
             for (let i = 0, n = tempArray.length; i < n; i++) {
                 let frame = tempArray[i];
                 let arr = tempMap.get(frame);
                 for (let j = 0, m = arr.length; j < m; j++) {
-                   if(!arr[j].change(this.vb, slotAttachMap)){
-                        this.isNormalRender = true; 
-                   }
+                    if (!arr[j].change(this.vb, slotAttachMap)) {
+                        this.isNormalRender = true;
+                    }
                 }
             }
             if (n == 1 && tempArray[0] == 0) {
@@ -187,13 +252,12 @@ export class AnimationRender {
                 let temp = new Uint16Array(ib.ib.buffer, 0, ib.ibLength);
                 let ibnew = new Uint16Array(temp);
                 let outRenderData = ib.outRenderData;
-                this.ibs[j] = [ibnew, outRenderData];
+                this.ibs[j] = { realIb: ibnew, outRenderData: outRenderData };
                 if (outRenderData.renderData.length > 1) {
                     mutiRenderAble = true;
                 }
             }
         }
         this.mutiRenderAble = mutiRenderAble;
-        this.frameNumber = tempArray.length;
     }
 }

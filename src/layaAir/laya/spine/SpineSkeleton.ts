@@ -422,6 +422,7 @@ export class SpineSkeleton extends Sprite {
      * @param	skinIndex	皮肤索引
      */
     showSkinByIndex(skinIndex: number): void {
+        this.spineItem.setSkinIndex(skinIndex);
         let newSkine = this._skeleton.data.skins[skinIndex];
         this._skeleton.setSkin(newSkine);
         this._skeleton.setSlotsToSetupPose();
