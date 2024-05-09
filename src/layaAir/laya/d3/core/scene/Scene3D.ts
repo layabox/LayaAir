@@ -735,7 +735,7 @@ export class Scene3D extends Sprite {
         this._componentDriver = new ComponentDriver();
         this._timer = ILaya.timer;
         this._sceneModuleData = Laya3DRender.Render3DModuleDataFactory.createSceneModuleData();
-        if (LayaEnv.isConch && !(window as any).conchConfig.conchWebGL) {
+        if (LayaEnv.isConch && (window as any).conchConfig.getGraphicsAPI() != 2) {
             this._nativeObj = new (window as any).conchSubmitScene3D(this.renderSubmit.bind(this));
         }
         if (Laya3D.enablePhysics)
