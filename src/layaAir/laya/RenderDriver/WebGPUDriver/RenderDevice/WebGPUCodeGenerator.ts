@@ -13,7 +13,7 @@ import { TypeOutData } from "../ShaderCompile/WebGPUShaderCompileCode";
 import { WebGPUShaderCompileDef } from "../ShaderCompile/WebGPUShaderCompileDef";
 import { WebGPUShaderCompileUtil } from "../ShaderCompile/WebGPUShaderCompileUtil";
 import { WebGPU_GLSLProcess } from "./GLSLProcess/WebGPU_GLSLProcess";
-import { NagaWASM } from "./Naga/NagaWASM2";
+import { NagaWASM } from "./Naga/NagaWASM";
 import { WebGPUCommandUniformMap } from "./WebGPUCommandUniformMap";
 import { NameAndType, NameBooleanMap, NameNumberMap, NameStringMap, roundUp } from "./WebGPUCommon";
 import { WebGPUShaderData } from "./WebGPUShaderData";
