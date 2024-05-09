@@ -7,11 +7,14 @@ type RenderData = {
 }
 
 export class MultiRenderData {
+    static ID:number = 0;
+    id:number;
     renderData: RenderData[];
 
     currentData: RenderData;
     constructor() {
         this.renderData = [];
+        this.id = MultiRenderData.ID++;
     }
     addData(texture: Texture, blendMode: number, offset: number, length: number) {
         this.currentData = { texture, blendMode, offset, length }

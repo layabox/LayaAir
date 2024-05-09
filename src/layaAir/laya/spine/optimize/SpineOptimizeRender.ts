@@ -38,7 +38,7 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
 
     _skinIndex: number = 0;
 
-    _curAnimationName:string;
+    _curAnimationName: string;
 
     /**
      * Material
@@ -53,11 +53,7 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
 
     spineColor: Vector4;
 
-    _renerer: SpineSkeletonRenderer;
     _skeleton: spine.Skeleton;
-
-    //abstract get vertexDeclarition(): VertexDeclaration;
-
 
 
     constructor(spineOptimize: SketonOptimise) {
@@ -101,7 +97,7 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
         this.slots = skeleton.slots;
         this.graphics = graphics;
         let scolor = skeleton.color;
-        this.spineColor = new Vector4(scolor.r, scolor.g, scolor.b, scolor.a);
+        this.spineColor = new Vector4(scolor.r * scolor.a, scolor.g * scolor.a, scolor.b * scolor.a, scolor.a);
         this.skinRenderArray.forEach((value) => {
             value.init(skeleton, templet, graphics);
         });
@@ -112,7 +108,6 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
         this.currentRender = this.skinRenderArray[index];
         if (this.currentAnimation) {
             this._clear();
-            this.boneMat.fill(0);
             this.play(this._curAnimationName);
         }
     }
@@ -123,11 +118,11 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
     }
 
     play(animationName: string) {
-        this._curAnimationName=animationName;
+        this._curAnimationName = animationName;
         let currentRender = this.currentRender;
 
         let old = this.currentAnimation;
-        let oldSkinData=old?old.currentSKin:null;
+        let oldSkinData = old ? old.currentSKin : null;
         let currentAnimation = this.currentAnimation = this.animatorMap.get(animationName);
         currentAnimation.skinIndex = this._skinIndex;
         let currentSKin = currentAnimation.currentSKin;
@@ -170,9 +165,10 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
     renderMulti(curTime: number) {
         let currentRender = this.currentRender;
         this.currentAnimation.render(this.bones, this.slots, this.boneMat, currentRender, curTime);
-        currentRender.currentMaterials.forEach((value) => {
-            value.boneMat = this.boneMat;
-        });
+        let currentMaterials = currentRender.currentMaterials;
+        for (let i = 0, n = currentMaterials.length; i < n; i++) {
+            currentMaterials[i].boneMat = this.boneMat;
+        }
     }
 
     render: (time: number) => void;
@@ -189,7 +185,7 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
     }
 }
 class SkinRender implements IVBIBUpdate {
-
+    static EMPTY: IOptimizeMaterial[] = [];
     owner: SpineOptimizeRender;
     name: string;
     /**
@@ -208,13 +204,16 @@ class SkinRender implements IVBIBUpdate {
     */
     material: IOptimizeMaterial;
 
-    currentMaterials: Set<IOptimizeMaterial>;
+    elementsMap: Map<number, ElementCreator>;
+
+    currentMaterials: IOptimizeMaterial[];
     constructor(owner: SpineOptimizeRender, skinAttach: SkinAttach) {
         this.owner = owner;
         this.name = skinAttach.name;
         this.elements = [];
         this.hasNormalRender = skinAttach.hasNormalRender;
-        this.currentMaterials = new Set();
+        this.elementsMap = new Map();
+        this.currentMaterials = SkinRender.EMPTY;
         if (skinAttach.type == ERenderType.boneGPU) {
             this.materialConstructor = SpineFastMaterial;
         }
@@ -267,15 +266,14 @@ class SkinRender implements IVBIBUpdate {
         ib._setIndexData(new Uint16Array(indexArray.buffer, 0, iblen / 2), 0)
         this.geo.clearRenderParams();
         this.geo.setDrawElemenParams(iblen / 2, 0);
-        let renderData = mutiRenderData.renderData;
-        let elements = this.elements;
-        elements.length = renderData.length;
-        this.currentMaterials.clear();
-        for (let i = 0, n = renderData.length; i < n; i++) {
-            let data = renderData[i];
-            let mat = this.getMaterial(data.texture, data.blendMode);
-            this.currentMaterials.add(mat);
-            elements[i] = [mat, data.length, data.offset * 2];
+        if (mutiRenderData) {
+            let elementsCreator = this.elementsMap.get(mutiRenderData.id);
+            if (!elementsCreator) {
+                elementsCreator = new ElementCreator(mutiRenderData, this);
+                this.elementsMap.set(mutiRenderData.id, elementsCreator);
+            }
+            elementsCreator.cloneTo(this.elements);
+            this.currentMaterials = elementsCreator.currentMaterials;
         }
         //mutiRenderData.renderData.
     }
@@ -288,6 +286,33 @@ class SkinRender implements IVBIBUpdate {
 
     render(time: number) {
 
+    }
+}
+
+class ElementCreator {
+    elements: [Material, number, number][];
+    currentMaterials: IOptimizeMaterial[];
+
+    constructor(mutiRenderData: MultiRenderData, skinData: SkinRender) {
+        let elements: [Material, number, number][] = this.elements = [];
+        let currentMaterials: IOptimizeMaterial[] = this.currentMaterials = [];
+        let renderData = mutiRenderData.renderData;
+        for (let i = 0, n = renderData.length; i < n; i++) {
+            let data = renderData[i];
+            let mat = skinData.getMaterial(data.texture, data.blendMode);
+            if (currentMaterials.indexOf(mat) == -1) {
+                this.currentMaterials.push(mat);
+            }
+            elements[i] = [mat, data.length, data.offset * 2];
+        }
+    }
+
+    cloneTo(source: [Material, number, number][]) {
+        let target = this.elements;
+        for (let i = 0, n = target.length; i < n; i++) {
+            source[i] = target[i];
+        }
+        source.length = target.length;
     }
 }
 

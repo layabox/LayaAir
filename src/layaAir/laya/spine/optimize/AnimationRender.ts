@@ -17,8 +17,6 @@ export class AnimationRender {
     frames: number[];
     frameNumber: number;
     skinDataArray: SkinAniRenderData[];
-
-    checkVBChange: (slots: spine.Slot[]) => boolean;
     constructor() {
         this.changeIB = new Map();
         this.frames = [];
@@ -50,17 +48,6 @@ export class AnimationRender {
             }
         }
         return frameIndex;
-    }
-
-    checkVBChangeEmpty(slots: spine.Slot[]): boolean {
-        return false;
-    }
-
-    checkVBChangeS(slots: spine.Slot[]): boolean {
-        // for (let i = 0, n = this.changeVB.length; i < n; i++) {
-        //     this.changeVB[i].updateVB(this.vb, slots);
-        // }
-        return true;
     }
 
     check(animation: spine.Animation) {
@@ -158,7 +145,7 @@ export class AnimationRender {
 }
 
 export class SkinAniRenderData {
-    name:string;
+    name: string;
     ibs: IBRenderData[];
     mainibRender: IBRenderData;
     vb: VBCreator;
@@ -179,10 +166,13 @@ export class SkinAniRenderData {
     }
 
     checkVBChangeS(slots: spine.Slot[]): boolean {
+        let result=false;
         for (let i = 0, n = this.changeVB.length; i < n; i++) {
-            this.changeVB[i].updateVB(this.vb, slots);
+            if(this.changeVB[i].updateVB(this.vb, slots)){
+                result=true;
+            }
         }
-        return true;
+        return result;
     }
 
 
@@ -196,16 +186,7 @@ export class SkinAniRenderData {
     }
 
     init(tempMap: Map<number, IChange[]>, mainVB: VBCreator, mainIB: IBCreator, tempArray: number[], slotAttachMap: Map<number, Map<string, AttachmentParse>>, attachMap: AttachmentParse[], changeVB: IVBChange[]) {
-        if (changeVB) {
-            this.checkVBChange = this.checkVBChangeS;
-            let myChangeVB: IVBChange[] = this.changeVB = [];
-            for (let i = 0, n = changeVB.length; i < n; i++) {
-                let changeVBItem = changeVB[i].clone();
-                if(changeVB[i].initChange(mainVB)){
-                    myChangeVB.push(changeVBItem);
-                }
-            }
-        }
+   
         this.mainIB = mainIB;
         let mutiRenderAble = false;
         if (tempArray.length == 0) {
@@ -259,5 +240,16 @@ export class SkinAniRenderData {
             }
         }
         this.mutiRenderAble = mutiRenderAble;
+
+        if (changeVB) {
+            this.checkVBChange = this.checkVBChangeS;
+            let myChangeVB: IVBChange[] = this.changeVB = [];
+            for (let i = 0, n = changeVB.length; i < n; i++) {
+                let changeVBItem = changeVB[i].clone();
+                if (changeVBItem.initChange(mainVB)) {
+                    myChangeVB.push(changeVBItem);
+                }
+            }
+        }
     }
 }

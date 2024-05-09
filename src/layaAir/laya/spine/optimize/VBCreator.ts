@@ -9,7 +9,7 @@ export abstract class VBCreator implements IGetBone {
     mapIndex: Map<number, number>;
     vb: Float32Array;
     vbLength: number;
-    slotVBMap: Map<number, Map<string, number>>;
+    slotVBMap: Map<number, Map<string, TAttamentPos>>;
 
     private boneMaxId: number = 0;
     constructor() {
@@ -57,7 +57,7 @@ export abstract class VBCreator implements IGetBone {
             this.slotVBMap.set(attach.slotId, map);
         }
         offset = this.vbLength / this.vertexSize;
-        map.set(attach.attachment, offset);
+        map.set(attach.attachment, { offset: offset, attachment: attach });
         this.vbLength = this.appendVertexArray(attach, this.vb, this.vbLength, this);
         return offset;
     }
@@ -101,8 +101,8 @@ export abstract class VBCreator implements IGetBone {
                     }
                     outRenderData.addData(attach.texture, attach.blendMode, offset, 0);
                 }
-                let size = slotVBMap.get(attach.slotId).get(attach.attachment);
-                offset = SlotUtils.appendIndexArray(attach, ib, size, offset);
+                let attachPos = slotVBMap.get(attach.slotId).get(attach.attachment);
+                offset = SlotUtils.appendIndexArray(attach, ib, attachPos.offset, offset);
             }
         }
         if (texture) {
@@ -249,4 +249,9 @@ export class VBRigBodyCreator extends VBCreator {
         }
         return offset;
     }
+}
+
+export type TAttamentPos = {
+    offset: number;
+    attachment: AttachmentParse;
 }

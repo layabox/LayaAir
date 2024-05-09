@@ -7,6 +7,7 @@ export class AttachmentParse {
     slotId: number;
     attachment: string;
     color: spine.Color;
+    attachmentColor:spine.Color;
     blendMode: number;
     vertexArray: Float32Array;
     indexArray: Array<number>;
@@ -16,6 +17,7 @@ export class AttachmentParse {
     texture: Texture;
     isclip: boolean;
     sourceData: spine.Attachment;
+    vertexCount: number;
 
     init(attachment: spine.Attachment, boneIndex: number, slotId: number, deform: number[], slot: spine.SlotData) {
         this.slotId = slotId;
@@ -115,13 +117,22 @@ export class AttachmentParse {
             //debugger;
             this.attachment = null;
         }
+        if(this.uvs){
+            this.vertexCount=this.uvs.length/2;
+        }
         if (attchmentColor) {
+            if(attchmentColor.a!=1||attchmentColor.r!=1||attchmentColor.g!=1&&attchmentColor.b!=1){
+                this.attachmentColor=attchmentColor;
+            }
             color.r = slotColor.r * attchmentColor.r;
             color.g = slotColor.g * attchmentColor.g;
             color.b = slotColor.b * attchmentColor.b;
-            color.a = slotColor.a * attchmentColor.a;
+            let a=color.a = slotColor.a * attchmentColor.a;
+            //预乘
+            color.r*=a;
+            color.g*=a;
+            color.b*=a;
         }
-
         return true;
     }
 }

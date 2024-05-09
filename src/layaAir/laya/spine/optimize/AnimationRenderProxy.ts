@@ -1,5 +1,4 @@
 import { AnimationRender, SkinAniRenderData } from "./AnimationRender";
-import { VBCreator } from "./VBCreator";
 import { IVBIBUpdate } from "./interface/IVBIBUpdate";
 
 export class AnimationRenderProxy {
@@ -18,12 +17,8 @@ export class AnimationRenderProxy {
         this.currentSKin = this.animator.skinDataArray[value];
     }
 
-    get isNormalRender() {
-        return this.currentSKin.isNormalRender;
-    }
-
-    get mutiRenderAble() {
-        return this.currentSKin.mutiRenderAble;
+    get name(){
+        return this.animator.name;
     }
 
     reset() {
@@ -43,7 +38,7 @@ export class AnimationRenderProxy {
         if (nowFrame != beforeFrame) {
             //TODO
             let ib = currentSKin.getIB(nowFrame);
-            updator.updateIB(ib.realIb, ib.realIb.length, ib.outRenderData);
+            updator.updateIB(ib.realIb, ib.realIb.length, currentSKin.mutiRenderAble?ib.outRenderData:null);
             this.currentTime = curTime;
             this.currentFrameIndex = nowFrame;
         }
