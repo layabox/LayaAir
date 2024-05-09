@@ -24,7 +24,9 @@ export class WebGPURenderPassHelper {
     static setColorAttachments(desc: GPURenderPassDescriptor, rt: WebGPUInternalRT, clear: boolean, clearColor: Color = Color.BLACK) {
         desc.colorAttachments = [];
         const colorArray = desc.colorAttachments as GPURenderPassColorAttachment[];
-        if (rt._textures[0]._webGPUFormat === 'depth16unorm') {
+        if (rt._textures[0]._webGPUFormat === 'depth16unorm'
+            || rt._textures[0]._webGPUFormat === 'depth24plus-stencil8'
+            || rt._textures[0]._webGPUFormat === 'depth32float') {
             colorArray[0] = {
                 view: rt._depthTexture.getTextureView(),
                 loadOp: clear ? 'clear' : 'load',
@@ -66,7 +68,9 @@ export class WebGPURenderPassHelper {
     }
 
     static setDepthAttachments(desc: GPURenderPassDescriptor, rt: WebGPUInternalRT, clear: boolean, clearDepthValue: number = 1, clearStencilValue = 0) {
-        if (rt._textures[0]._webGPUFormat === 'depth16unorm') {
+        if (rt._textures[0]._webGPUFormat === 'depth16unorm'
+            || rt._textures[0]._webGPUFormat === 'depth24plus-stencil8'
+            || rt._textures[0]._webGPUFormat === 'depth32float') {
             const depthStencil: GPURenderPassDepthStencilAttachment
                 = desc.depthStencilAttachment = { view: rt._textures[0].getTextureView() };
             depthStencil.depthClearValue = clearDepthValue;

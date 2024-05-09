@@ -327,7 +327,9 @@ export class WebGPURenderPipeline {
         descriptor.vertex.buffers = vertexBuffers;
         //descriptor.vertex.constants TODO
         const textureNum = renderTarget._textures.length;
-        if (renderTarget._textures[0]._webGPUFormat === 'depth16unorm') {
+        if (renderTarget._textures[0]._webGPUFormat === 'depth16unorm'
+            || renderTarget._textures[0]._webGPUFormat === 'depth24plus-stencil8'
+            || renderTarget._textures[0]._webGPUFormat === 'depth32float') {
             renderTarget._colorStates.length = 0;
             renderTarget._colorStates[0] = {
                 format: renderTarget._depthTexture._webGPUFormat,
@@ -353,7 +355,9 @@ export class WebGPURenderPipeline {
         }
         descriptor.fragment.targets = renderTarget._colorStates;
         descriptor.primitive = primitiveState;
-        if (renderTarget._textures[0]._webGPUFormat === 'depth16unorm') {
+        if (renderTarget._textures[0]._webGPUFormat === 'depth16unorm'
+            || renderTarget._textures[0]._webGPUFormat === 'depth24plus-stencil8'
+            || renderTarget._textures[0]._webGPUFormat === 'depth32float') {
             descriptor.depthStencil = {
                 format: renderTarget._textures[0]._webGPUFormat,
                 depthWriteEnabled: true,

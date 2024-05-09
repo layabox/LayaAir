@@ -1,6 +1,5 @@
-import { IClone } from "../../../../utils/IClone";
+import { IClone } from "../../../../utils/IClone"
 
-//兼容WGSL
 /**
  * <code>GradientDataNumber</code> 类用于创建浮点渐变。
  */
@@ -11,14 +10,14 @@ export class GradientDataNumber implements IClone {
 
 	/**渐变浮点数量。*/
 	get gradientCount(): number {
-		return this._currentLength / 4;
+		return this._currentLength / 2;
 	}
 
 	/**
 	 * 创建一个 <code>GradientDataNumber</code> 实例。
 	 */
 	constructor() {
-		this._elements = new Float32Array(16);
+		this._elements = new Float32Array(8);
 	}
 
 	/**
@@ -39,17 +38,17 @@ export class GradientDataNumber implements IClone {
 	 * @param	value 浮点值。
 	 */
 	add(key: number, value: number): void {
-		if (this._currentLength < 16) {
-			if ((this._currentLength === 12) && ((key !== 1))) {
+		if (this._currentLength < 8) {
+
+			if ((this._currentLength === 6) && ((key !== 1))) {
 				key = 1;
-				console.log("GradientDataNumber warning: the fourth key is forced set to 1");
+				console.log("GradientDataNumber warning:the forth key is  be force set to 1.");
 			}
+
 			this._elements[this._currentLength++] = key;
 			this._elements[this._currentLength++] = value;
-            this._elements[this._currentLength++] = 0;
-            this._elements[this._currentLength++] = 0;
 		} else {
-			console.log("GradientDataNumber warning: data count must be not bigger than 4");
+			console.log("GradientDataNumber warning:data count must lessEqual than 4");
 		}
 	}
 
@@ -59,7 +58,7 @@ export class GradientDataNumber implements IClone {
 	 * @return	value 键。
 	 */
 	getKeyByIndex(index: number): number {
-		return this._elements[index * 4];
+		return this._elements[index * 2];
 	}
 
 	/**
@@ -68,7 +67,7 @@ export class GradientDataNumber implements IClone {
 	 * @return	value 值。
 	 */
 	getValueByIndex(index: number): number {
-		return this._elements[index * 4 + 1];
+		return this._elements[index * 2 + 1];
 	}
 
 	/**
@@ -77,10 +76,10 @@ export class GradientDataNumber implements IClone {
 	getAverageValue(): number {
 		var total: number = 0;
 		var count: number = 0;
-		for (var i: number = 0, n: number = this._currentLength - 4; i < n; i += 4) {
+		for (var i: number = 0, n: number = this._currentLength - 2; i < n; i += 2) {
 			var subValue: number = this._elements[i + 1];
-			subValue += this._elements[i + 4 + 1];
-			subValue = subValue * (this._elements[i + 4] - this._elements[i]);
+			subValue += this._elements[i + 3];
+			subValue = subValue * (this._elements[i + 2] - this._elements[i]);
 			total += subValue;
 			count++;
 		}
@@ -108,4 +107,7 @@ export class GradientDataNumber implements IClone {
 		this.cloneTo(destGradientDataNumber);
 		return destGradientDataNumber;
 	}
+
 }
+
+

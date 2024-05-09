@@ -75,8 +75,11 @@ vec3 specularRadiance(in vec3 r, in float perceptualRoughness)
     reflectDir = rotateByYAixs(reflectDir);
 
     // todo float 编码 ?
-    //vec4 reflectSampler = textureCubeLodEXT(u_IBLTex, reflectDir, lod);
+    #ifdef LOD_TEXTURE_SAMPLE
+    vec4 reflectSampler = textureCubeLodEXT(u_IBLTex, reflectDir, lod);
+    #else
     vec4 reflectSampler = textureCube(u_IBLTex, reflectDir, lod); //兼容WGSL
+    #endif
 
 	#ifdef IBL_RGBD
     return decodeRGBD(reflectSampler) * u_ReflectionIntensity;

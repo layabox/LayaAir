@@ -282,6 +282,7 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
     }
 
     /**
+     * @deprecated 请使用getDataAsync函数代替
      * 获取渲染纹理的像素数据
      * @param xOffset x偏移值
      * @param yOffset y偏移值
@@ -304,9 +305,8 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
      * @param out 输出
      * @returns 二进制数据
      */
-    async getDataAsync(xOffset: number, yOffset: number, width: number, height: number, out: Uint8Array | Float32Array) { //兼容WGSL
-        await LayaGL.textureContext.readRenderTargetPixelDataAsync(this._renderTarget, xOffset, yOffset, width, height, out);
-        return out;
+    getDataAsync(xOffset: number, yOffset: number, width: number, height: number, out: Uint8Array | Float32Array) { //兼容WGSL
+        return LayaGL.textureContext.readRenderTargetPixelDataAsync(this._renderTarget, xOffset, yOffset, width, height, out);
     }
 
     /**

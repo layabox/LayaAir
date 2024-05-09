@@ -150,6 +150,16 @@ export class GLESTextureContext implements ITextureContext {
         this._native.setupRendertargetTextureAttachment(renderTarget._nativeObj, texture._nativeObj);
     }
 
+    /**
+     * @deprecated 请使用readRenderTargetPixelDataAsync函数代替
+     * @param renderTarget 
+     * @param xOffset 
+     * @param yOffset 
+     * @param width 
+     * @param height 
+     * @param out 
+     * @returns 
+     */
     readRenderTargetPixelData(renderTarget: GLESInternalRT, xOffset: number, yOffset: number, width: number, height: number, out: ArrayBufferView): ArrayBufferView {
         return this._native.readRenderTargetPixelData(renderTarget._nativeObj, xOffset, yOffset, width, height, out);
     }

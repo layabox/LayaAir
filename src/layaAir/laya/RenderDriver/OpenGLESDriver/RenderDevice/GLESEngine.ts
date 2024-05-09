@@ -1,3 +1,4 @@
+import { BufferTargetType, BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
 import { RenderParams } from "../../../RenderEngine/RenderEnum/RenderParams";
 import { GPUEngineStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
@@ -7,6 +8,7 @@ import { ITextureContext } from "../../DriverDesign/RenderDevice/ITextureContext
 import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
 import { IDefineDatas } from "../../RenderModuleData/Design/IDefineDatas";
 import { RTShaderDefine } from "../../RenderModuleData/RuntimeModuleData/RTShaderDefine";
+import { GLBuffer } from "../../WebGLDriver/RenderDevice/WebGLEngine/GLBuffer";
 import { WebGLConfig } from "../../WebGLDriver/RenderDevice/WebGLEngine/WebGLConfig";
 import { GLESTextureContext } from "./GLESTextureContext";
 
@@ -33,6 +35,15 @@ export class GLESEngine implements IRenderEngine {
   constructor(config: WebGLConfig, webglMode: GLESMode = GLESMode.Auto) {
     this._nativeObj = new (window as any).conchGLESEngine(config, webglMode);
   }
+    _remapZ: boolean = true;
+    _screenInvertY: boolean = false;
+    _lodTextureSample: boolean = true;
+    getUBOPointer?(name: string): number {
+        throw new Error("Method not implemented.");
+    }
+    createBuffer?(targetType: BufferTargetType, bufferUsageType: BufferUsage): GLBuffer {
+        throw new Error("Method not implemented.");
+    }
   public get _enableStatistics(): boolean {
     return this._nativeObj.enableStatistics;
   }

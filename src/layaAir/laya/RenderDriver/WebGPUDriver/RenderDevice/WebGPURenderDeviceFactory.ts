@@ -24,9 +24,6 @@ import { WebGPUShaderInstance } from "./WebGPUShaderInstance";
 import { WebGPUVertexBuffer } from "./WebGPUVertexBuffer";
 
 export class WebGPURenderDeviceFactory implements IRenderDeviceFactory {
-    getUniform(defineString: string[], uniformMap: UniformMapType, vs: ShaderNode, fs: ShaderNode) {
-        return WebGPUCodeGenerator.collectUniform(defineString, uniformMap, vs, fs);
-    }
     createShaderInstance(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderCompileDefineBase): IShaderInstance {
         //@ts-ignore
         const shaderIns = new WebGPUShaderInstance(shaderPass._owner._owner.name);

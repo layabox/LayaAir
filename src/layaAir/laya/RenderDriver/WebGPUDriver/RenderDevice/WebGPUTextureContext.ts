@@ -565,7 +565,8 @@ export class WebGPUTextureContext implements ITextureContext {
             case WebGPUTextureFormat.depth24plus:
                 throw "No fixed size for Depth24Plus format!";
             case WebGPUTextureFormat.depth24plus_stencil8:
-                throw "No fixed size for Depth24PlusStencil8 format!";
+                return { width: 1, height: 1, length: 4 };
+                //throw "No fixed size for Depth24PlusStencil8 format!";
             case WebGPUTextureFormat.depth32float:
                 return { width: 1, height: 1, length: 4 };
             // case GPUTextureFormat.Depth24UnormStencil8:
@@ -714,7 +715,6 @@ export class WebGPUTextureContext implements ITextureContext {
     }
 
     setTextureDDSData(texture: WebGPUInternalTex, ddsInfo: DDSTextureInfo): void {
-
         const device = WebGPURenderEngine._instance.getDevice();
 
         let premultiplyAlpha = false;
@@ -782,7 +782,6 @@ export class WebGPUTextureContext implements ITextureContext {
             mipmapWidth = Math.max(1, mipmapWidth * 0.5);
             mipmapHeight = Math.max(1, mipmapHeight * 0.5);
         }
-
     }
 
     setTextureKTXData(texture: WebGPUInternalTex, ktxInfo: KTXTextureInfo): void {
@@ -941,9 +940,7 @@ export class WebGPUTextureContext implements ITextureContext {
         if (texture.mipmap && generateMipmap)
             genMipmap(WebGPURenderEngine._instance.getDevice(), texture.resource);
     }
-    // setCubeDDSData(texture: InternalTexture, ddsInfo: DDSTextureInfo): void {
-    //     throw new Error("Method not implemented.");
-    // }
+
     setCubeKTXData(texture: InternalTexture, ktxInfo: KTXTextureInfo): void {
         const device = WebGPURenderEngine._instance.getDevice();
 
@@ -962,7 +959,6 @@ export class WebGPUTextureContext implements ITextureContext {
         let source = ktxInfo.source;
         let compressed = ktxInfo.compress;
 
-        //for (let index = 0; index < 1; index++) {
         const imageSize = new Int32Array(source, dataOffset, 1)[0];
         dataOffset += 4;
 
@@ -1012,7 +1008,6 @@ export class WebGPUTextureContext implements ITextureContext {
 
         mipmapWidth = Math.max(1, mipmapWidth * 0.5);
         mipmapHeight = Math.max(1, mipmapHeight * 0.5);
-        //}
 
         if (texture.maxMipmapLevel > 1)
             genMipmap(WebGPURenderEngine._instance.getDevice(), texture.resource);
@@ -1035,7 +1030,6 @@ export class WebGPUTextureContext implements ITextureContext {
         let height = texture.height;
 
         texture.maxMipmapLevel = mipmapCount - 1;
-
 
         let formatParams = this.getFormatPixelsParams(ddsInfo.format);
         let channelsByte = formatParams.bytesPerPixel / formatParams.channels;
@@ -1090,83 +1084,9 @@ export class WebGPUTextureContext implements ITextureContext {
                 mipmapWidth = Math.max(1, mipmapWidth * 0.5);
                 mipmapHeight = Math.max(1, mipmapHeight * 0.5);
             }
-
         }
     }
-    // setCubeKTXData(texture: WebGPUInternalTex, ktxInfo: KTXTextureInfo): void {
 
-    //     const device = WebGPURenderEngine._instance.getDevice();
-
-    //     let premultipliedAlpha = false;
-    //     let invertY = false;
-
-    //     texture.maxMipmapLevel = ktxInfo.mipmapCount - 1;
-
-    //     let width = texture.width;
-    //     let height = texture.height;
-
-    //     let mipmapWidth = width;
-    //     let mipmapHeight = height;
-    //     let dataOffset = ktxInfo.headerOffset + ktxInfo.bytesOfKeyValueData;
-
-    //     let source = ktxInfo.source;
-    //     let compressed = ktxInfo.compress;
-
-    //     for (let index = 0; index < ktxInfo.mipmapCount; index++) {
-
-    //         let imageSize = new Int32Array(source, dataOffset, 1)[0];
-
-    //         dataOffset += 4;
-
-    //         for (let face = 0; face < 6; face++) {
-
-    //             const block = this._getBlockInformationFromFormat(texture._webGPUFormat);
-    //             const bytesPerRow = Math.ceil(mipmapWidth / block.width) * block.length;
-
-    //             const size = {
-    //                 width: Math.ceil(mipmapWidth / block.width) * block.width,
-    //                 height: Math.ceil(mipmapHeight / block.height) * block.height,
-    //                 depthOrArrayLayers: 1
-    //             };
-
-    //             const imageCopy: GPUImageCopyTextureTagged = {
-    //                 texture: texture.resource,
-    //                 mipLevel: index,
-    //                 premultipliedAlpha: premultipliedAlpha,
-    //                 origin: {
-    //                     x: 0,
-    //                     y: 0,
-    //                     z: face
-    //                 }
-    //             }
-
-    //             const dataLayout: GPUImageDataLayout = {
-    //                 offset: 0,
-    //                 bytesPerRow: bytesPerRow,
-    //                 rowsPerImage: mipmapHeight
-    //             }
-
-    //             if (compressed) {
-    //                 let sourceData = new Uint8Array(source, dataOffset, imageSize);
-    //                 device.queue.writeTexture(imageCopy, sourceData, dataLayout, size);
-    //             }
-    //             else {
-    //                 let pixelParams = this.getFormatPixelsParams(ktxInfo.format);
-    //                 let typedSize = imageSize / pixelParams.typedSize;
-    //                 let sourceData = new pixelParams.dataTypedCons(source, dataOffset, typedSize);
-
-    //                 device.queue.writeTexture(imageCopy, sourceData, dataLayout, size);
-    //             }
-
-    //             dataOffset += imageSize;
-    //             dataOffset += 3 - ((imageSize + 3) % 4);
-    //         }
-
-    //         mipmapWidth = Math.max(1, mipmapWidth * 0.5);
-    //         mipmapHeight = Math.max(1, mipmapHeight * 0.5);
-    //     }
-
-    // }
     setTextureCompareMode(texture: InternalTexture, compareMode: TextureCompareMode): TextureCompareMode {
         //throw new Error("Method not implemented.");
         switch (compareMode) {
@@ -1219,7 +1139,7 @@ export class WebGPUTextureContext implements ITextureContext {
 
         if (colorFormat === RenderTargetFormat.DEPTH_16
             || colorFormat === RenderTargetFormat.DEPTH_32
-            || colorFormat === RenderTargetFormat.DEPTHSTENCIL_24_Plus) {
+            || colorFormat === RenderTargetFormat.DEPTHSTENCIL_24_8) {
             depthStencilFormat = RenderTargetFormat.R8G8B8A8;
             const array = new Uint16Array(width * height);
             for (let j = 0; j < height; j++)
@@ -1258,6 +1178,15 @@ export class WebGPUTextureContext implements ITextureContext {
     unbindRenderTarget(renderTarget: InternalRenderTarget): void {
         throw new Error("Method not implemented.");
     }
+    /**
+     * @deprecated 请使用readRenderTargetPixelDataAsync函数代替
+     * @param renderTarget 
+     * @param xOffset 
+     * @param yOffset 
+     * @param width 
+     * @param height 
+     * @param out 
+     */
     readRenderTargetPixelData(renderTarget: InternalRenderTarget, xOffset: number, yOffset: number, width: number, height: number, out: ArrayBufferView): ArrayBufferView {
         throw new Error("Method not implemented.");
     }
@@ -1289,9 +1218,9 @@ export class WebGPUTextureContext implements ITextureContext {
                     const data = new Uint8Array(arrayBuffer);
                     for (let j = 0; j < height; j++) {
                         for (let i = 0; i < width; i++) {
-                            outView[j * width + i * 3 + 0] = data[j * bytesPerRow + i * 3 + 0];
-                            outView[j * width + i * 3 + 1] = data[j * bytesPerRow + i * 3 + 1];
-                            outView[j * width + i * 3 + 2] = data[j * bytesPerRow + i * 3 + 2];
+                            outView[j * width * 3 + i * 3 + 0] = data[j * bytesPerRow + i * 3 + 2]; //bgr
+                            outView[j * width * 3 + i * 3 + 1] = data[j * bytesPerRow + i * 3 + 1];
+                            outView[j * width * 3 + i * 3 + 2] = data[j * bytesPerRow + i * 3 + 0];
                         }
                     }
                     buffer.unmap();
@@ -1322,10 +1251,10 @@ export class WebGPUTextureContext implements ITextureContext {
                     const data = new Uint8Array(arrayBuffer);
                     for (let j = 0; j < height; j++) {
                         for (let i = 0; i < width; i++) {
-                            outView[j * width + i * 4 + 0] = data[j * bytesPerRow + i * 4 + 0];
-                            outView[j * width + i * 4 + 1] = data[j * bytesPerRow + i * 4 + 1];
-                            outView[j * width + i * 4 + 2] = data[j * bytesPerRow + i * 4 + 2];
-                            outView[j * width + i * 4 + 3] = data[j * bytesPerRow + i * 4 + 3];
+                            outView[j * width * 4 + i * 4 + 0] = data[j * bytesPerRow + i * 4 + 2]; //bgra
+                            outView[j * width * 4 + i * 4 + 1] = data[j * bytesPerRow + i * 4 + 1];
+                            outView[j * width * 4 + i * 4 + 2] = data[j * bytesPerRow + i * 4 + 0];
+                            outView[j * width * 4 + i * 4 + 3] = data[j * bytesPerRow + i * 4 + 3];
                         }
                     }
                     buffer.unmap();

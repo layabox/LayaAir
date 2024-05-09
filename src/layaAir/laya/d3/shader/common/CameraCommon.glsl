@@ -45,9 +45,11 @@ vec3 getViewDirection(in vec3 positionWS)
 // 根据投影剧专重映射深度
 vec4 remapPositionZ(vec4 position)
 {
-    #ifdef WEBGPU_COMPATIBLE //兼容WGSL
+    #ifdef BLITSCREEN_INVERTY
     position.y = -position.y;
-    #else
+    #endif
+
+    #ifdef REMAP_Z
     position.z = position.z * 2.0 - position.w;
     #endif
     return position;

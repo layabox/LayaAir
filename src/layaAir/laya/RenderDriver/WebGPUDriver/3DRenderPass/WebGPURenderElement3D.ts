@@ -5,15 +5,17 @@ import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
 import { RenderableSprite3D } from "../../../d3/core/RenderableSprite3D";
 import { Sprite3D } from "../../../d3/core/Sprite3D";
 import { Transform3D } from "../../../d3/core/Transform3D";
+import { LayaGL } from "../../../layagl/LayaGL";
 import { IRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { RenderState } from "../../RenderModuleData/Design/RenderState";
 import { WebBaseRenderNode } from "../../RenderModuleData/WebModuleData/3D/WebBaseRenderNode";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
 import { WebGPURenderBundle } from "../RenderDevice/WebGPUBundle/WebGPURenderBundle";
-import { WebGPUUniformMapType } from "../RenderDevice/WebGPUCodeGenerator";
+import { WebGPUCodeGenerator, WebGPUUniformMapType } from "../RenderDevice/WebGPUCodeGenerator";
 import { NameNumberMap } from "../RenderDevice/WebGPUCommon";
 import { WebGPUInternalRT } from "../RenderDevice/WebGPUInternalRT";
 import { WebGPURenderCommandEncoder } from "../RenderDevice/WebGPURenderCommandEncoder";
+import { WebGPURenderDeviceFactory } from "../RenderDevice/WebGPURenderDeviceFactory";
 import { WebGPURenderGeometry } from "../RenderDevice/WebGPURenderGeometry";
 import {
     IRenderPipelineInfo,
@@ -35,6 +37,7 @@ import { WebGPURenderContext3D } from "./WebGPURenderContext3D";
  */
 export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineInfo {
     static _compileDefine: WebDefineDatas = new WebDefineDatas();
+    static _defineStrings: Array<string> = [];
 
     protected _sceneData: WebGPUShaderData;
     protected _cameraData: WebGPUShaderData;
@@ -92,6 +95,17 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
     }
 
     /**
+     * 获取渲染通道的uniform
+     * @param shaderpass 
+     * @param defineData 
+     */
+    private _getShaderPassUniform(shaderpass: ShaderPass, defineData: WebDefineDatas) {
+        const defineString = WebGPURenderElement3D._defineStrings;
+        Shader3D._getNamesByDefineData(defineData, defineString);
+        return WebGPUCodeGenerator.collectUniform(defineString, shaderpass._owner._uniformMap, shaderpass._VS, shaderpass._PS);
+    }
+
+    /**
      * 收集uniform
      * @param compileDefine 
      */
@@ -100,7 +114,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
         const arrayMap: NameNumberMap = {};
         const passes = this.subShader._passes;
         for (let i = passes.length - 1; i > -1; i--) {
-            const { uniform, arr } = passes[i].getUniform(compileDefine);
+            const { uniform, arr } = this._getShaderPassUniform(passes[i], compileDefine);
             for (const key in uniform)
                 uniformMap[key] = uniform[key];
             for (const key in arr)

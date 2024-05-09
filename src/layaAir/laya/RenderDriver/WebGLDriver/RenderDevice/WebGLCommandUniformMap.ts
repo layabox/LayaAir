@@ -25,7 +25,7 @@ export class WebGLCommandUniformMap extends CommandUniformMap {
     }
 
     /**
-     * 增加一个Uniform参数
+     * 增加一个Uniform参数，如果Uniform属性是Array，请使用addShaderUniformArray
      * @internal
      * @param propertyID 
      * @param propertyKey 
@@ -41,6 +41,8 @@ export class WebGLCommandUniformMap extends CommandUniformMap {
      * @param propertyName 
      */
     addShaderUniformArray(propertyID: number, propertyName: string, uniformtype: ShaderDataType, arrayLength: number, block: string = ""): void {
+        if (uniformtype !== ShaderDataType.Matrix4x4 && uniformtype !== ShaderDataType.Vector4)
+            throw ('because of align rule, the engine does not support other types as arrays.');
         this._idata[propertyID] = { uniformtype, propertyName, arrayLength, block, blockProperty: null };
     } //兼容WGSL
 

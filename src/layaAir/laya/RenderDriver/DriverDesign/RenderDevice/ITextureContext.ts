@@ -62,6 +62,15 @@ export interface ITextureContext {
     bindoutScreenTarget(): void;
     unbindRenderTarget(renderTarget: InternalRenderTarget): void;
 
+    /**
+     * @deprecated 请使用readRenderTargetPixelDataAsync函数代替
+     * @param renderTarget 
+     * @param xOffset 
+     * @param yOffset 
+     * @param width 
+     * @param height 
+     * @param out 
+     */
     readRenderTargetPixelData(renderTarget: InternalRenderTarget, xOffset: number, yOffset: number, width: number, height: number, out: ArrayBufferView): ArrayBufferView;
     readRenderTargetPixelDataAsync(renderTarget: InternalRenderTarget, xOffset: number, yOffset: number, width: number, height: number, out: ArrayBufferView): Promise<ArrayBufferView>; //兼容WGSL
 

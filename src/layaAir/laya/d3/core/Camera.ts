@@ -135,6 +135,7 @@ export class Camera extends BaseCamera {
     }
 
     /**
+     * @deprecated 请使用getTexturePixelAsync函数代替
      * get PixelTexture
      * 获得纹理的像素
      * @param texture 纹理
@@ -176,6 +177,50 @@ export class Camera extends BaseCamera {
         rt.getData(0, 0, texture.width, texture.height, pixelData);
         rt.destroy();//删除
         return pixelData;
+    }
+
+    /**
+     * get PixelTexture
+     * 获得纹理的像素
+     * @param texture 纹理
+     * @returns 
+     */
+    static getTexturePixelAsync(texture: Texture2D): Promise<ArrayBufferView> {
+        let coverFilter = texture.filterMode;
+        texture.filterMode = FilterMode.Point;
+        let rtFormat = RenderTargetFormat.R8G8B8;
+        let pixelData;
+        let size = texture.width * texture.height;
+        switch (texture.format) {
+            case TextureFormat.R32G32B32A32:
+            case TextureFormat.R16G16B16A16:
+                rtFormat = RenderTargetFormat.R32G32B32A32;
+                pixelData = new Float32Array(size * 4);
+                break;
+            case TextureFormat.R32G32B32:
+            case TextureFormat.R16G16B16:
+                rtFormat = RenderTargetFormat.R32G32B32;
+                pixelData = new Float32Array(size * 3);
+                break;
+            case TextureFormat.R5G6B5:
+            case TextureFormat.R8G8B8:
+                rtFormat = RenderTargetFormat.R8G8B8;
+                pixelData = new Uint8Array(size * 3);
+                break;
+            default:
+                rtFormat = RenderTargetFormat.R8G8B8A8;
+                pixelData = new Uint8Array(size * 4);
+                break;
+        }
+        let rt = RenderTexture.createFromPool(texture.width, texture.height, rtFormat, RenderTargetFormat.None, false, 0, false);
+        let cmd = new CommandBuffer();
+        cmd.blitScreenQuad(texture, rt);
+        cmd.context = RenderContext3D._instance;
+        cmd._applyOne();
+        texture.filterMode = coverFilter;
+        const pd = rt.getDataAsync(0, 0, texture.width, texture.height, pixelData);
+        rt.destroy();//删除
+        return pd;
     }
 
     /**
@@ -340,7 +385,7 @@ export class Camera extends BaseCamera {
     /**@internal */
     _internalCommandBuffer: CommandBuffer = new CommandBuffer();
     /**@internal @protected 深度贴图模式 */
-    protected _depthTextureFormat: RenderTargetFormat = RenderTargetFormat.DEPTHSTENCIL_24_8; //兼容WGSL
+    protected _depthTextureFormat: RenderTargetFormat = RenderTargetFormat.DEPTH_32; //兼容WGSL
     /** 深度贴图*/
     private _depthTexture: BaseTexture;
     /** 深度法线贴图*/

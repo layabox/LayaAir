@@ -1426,6 +1426,16 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     }
 
+    /**
+     * @deprecated 请使用readRenderTargetPixelDataAsync函数代替
+     * @param renderTarget 
+     * @param xOffset 
+     * @param yOffset 
+     * @param width 
+     * @param height 
+     * @param out 
+     * @returns 
+     */
     readRenderTargetPixelData(renderTarget: WebGLInternalRT, xOffset: number, yOffset: number, width: number, height: number, out: ArrayBufferView): ArrayBufferView {
 
         let gl = renderTarget._gl;

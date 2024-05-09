@@ -14,6 +14,8 @@ import { WebGPURenderEngineFactory } from "./WebGPURenderEngineFactory";
 import { WebGPUTextureContext, WebGPUTextureFormat } from "./WebGPUTextureContext";
 import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
 import { GPUEngineStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
+import { BufferTargetType, BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
+import { GLBuffer } from "../../WebGLDriver/RenderDevice/WebGLEngine/GLBuffer";
 
 export class WebGPUConfig {
     /**
@@ -66,6 +68,10 @@ export class WebGPURenderEngine implements IRenderEngine {
     screenResized: boolean = false;
     _screenRT: WebGPUInternalRT; //屏幕渲染目标（绑定Canvas）
 
+    _remapZ: boolean = false;
+    _screenInvertY: boolean = true;
+    _lodTextureSample: boolean = false;
+
     private _adapter: GPUAdapter;
     private _device: GPUDevice;
     private _supportCapatable: WebGPUCapable;
@@ -90,6 +96,13 @@ export class WebGPURenderEngine implements IRenderEngine {
         else console.error("WebGPU is not supported by your browser");
 
         this.globalId = WebGPUGlobal.getId(this);
+    }
+
+    getUBOPointer?(name: string): number {
+        throw new Error("Method not implemented.");
+    }
+    createBuffer?(targetType: BufferTargetType, bufferUsageType: BufferUsage): GLBuffer {
+        throw new Error("Method not implemented.");
     }
     _enableStatistics: boolean;
 

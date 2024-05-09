@@ -1,4 +1,3 @@
-//兼容WGSL
 #define SHADER_NAME ParticleVS
 
 #include "Camera.glsl";
@@ -155,27 +154,17 @@ vec3 computeParticlePosition(in vec3 startVelocity, in vec3 lifeVelocity, in flo
 vec4 computeParticleColor(in vec4 color, in float normalizedAge)
 {
 #ifdef COLOROVERLIFETIME
-    // vec4 ca[4] = u_ColorOverLifeGradientAlphas;
-    // vec4 cb[4] = u_ColorOverLifeGradientColors;
-    // color *= getColorFromGradient(ca, cb,
-	// normalizedAge, u_ColorOverLifeGradientRanges);
-    color *= getColorFromGradient(u_ColorOverLifeGradientAlphas, u_ColorOverLifeGradientColors,
+    color *= getColorFromGradient(u_ColorOverLifeGradientAlphas,
+	u_ColorOverLifeGradientColors,
 	normalizedAge, u_ColorOverLifeGradientRanges);
 #endif
 
 #ifdef RANDOMCOLOROVERLIFETIME
-    // vec4 ra[4] = u_ColorOverLifeGradientAlphas;
-    // vec4 rb[4] = u_ColorOverLifeGradientColors;
-    // vec4 rc[4] = u_MaxColorOverLifeGradientAlphas;
-    // vec4 rd[4] = u_MaxColorOverLifeGradientColors;
-    // color *= mix(getColorFromGradient(ra, rb,
-	// 	     normalizedAge, u_ColorOverLifeGradientRanges),
-	// getColorFromGradient(rc, rd,
-	//     normalizedAge, u_MaxColorOverLifeGradientRanges),
-	// a_Random0.y);
-    color *= mix(getColorFromGradient(u_ColorOverLifeGradientAlphas, u_ColorOverLifeGradientColors,
+    color *= mix(getColorFromGradient(u_ColorOverLifeGradientAlphas,
+		     u_ColorOverLifeGradientColors,
 		     normalizedAge, u_ColorOverLifeGradientRanges),
-	getColorFromGradient(u_MaxColorOverLifeGradientAlphas, u_MaxColorOverLifeGradientColors,
+	getColorFromGradient(u_MaxColorOverLifeGradientAlphas,
+	    u_MaxColorOverLifeGradientColors,
 	    normalizedAge, u_MaxColorOverLifeGradientRanges),
 	a_Random0.y);
 #endif
@@ -186,16 +175,9 @@ vec4 computeParticleColor(in vec4 color, in float normalizedAge)
 vec2 computeParticleSizeBillbard(in vec2 size, in float normalizedAge)
 {
 #ifdef SIZEOVERLIFETIMECURVE
-    // vec4 sol[4] = u_SOLSizeGradient;
-    // size *= getCurValueFromGradientFloat(sol, normalizedAge);
     size *= getCurValueFromGradientFloat(u_SOLSizeGradient, normalizedAge);
 #endif
 #ifdef SIZEOVERLIFETIMERANDOMCURVES
-    // vec4 sol2[4] = u_SOLSizeGradient;
-    // vec4 solMax2[4] = u_SOLSizeGradientMax;
-    // size *= mix(getCurValueFromGradientFloat(sol2, normalizedAge),
-	// getCurValueFromGradientFloat(solMax2, normalizedAge),
-	// a_Random0.z);
     size *= mix(getCurValueFromGradientFloat(u_SOLSizeGradient, normalizedAge),
 	getCurValueFromGradientFloat(u_SOLSizeGradientMax, normalizedAge),
 	a_Random0.z);
@@ -419,7 +401,7 @@ void main()
 	    vec3 upVector = normalize(cross(sideVector, u_CameraDirection));
 	    corner *= computeParticleSizeBillbard(a_StartSize.xy, normalizedAge);
     #if defined(ROTATIONOVERLIFETIME) || defined(ROTATIONOVERLIFETIMESEPERATE)
-	    if (u_ThreeDStartRotation != 0) //兼容WGSL
+	    if (u_ThreeDStartRotation)
 		{
 		    vec3 rotation = vec3(
 			a_StartRotation0.xy,
@@ -436,7 +418,7 @@ void main()
 		    center += u_SizeScale.xzy * (corner.x * sideVector + corner.y * upVector);
 		}
     #else
-	    if (u_ThreeDStartRotation != 0) //兼容WGSL
+	    if (u_ThreeDStartRotation)
 		{
 		    center += u_SizeScale.xzy * rotationByEuler(corner.x * sideVector + corner.y * upVector, a_StartRotation0);
 		}
@@ -512,7 +494,7 @@ void main()
 #ifdef RENDERMODE_MESH
 	    vec3 size = computeParticleSizeMesh(a_StartSize, normalizedAge);
     #if defined(ROTATIONOVERLIFETIME) || defined(ROTATIONOVERLIFETIMESEPERATE)
-	    if (u_ThreeDStartRotation != 0) //兼容WGSL
+	    if (u_ThreeDStartRotation)
 		{
 		    vec3 rotation = vec3(
 			a_StartRotation0.xy,
@@ -562,7 +544,7 @@ void main()
 	#endif
 		}
     #else
-	    if (u_ThreeDStartRotation != 0) //兼容WGSL
+	    if (u_ThreeDStartRotation)
 		{
 		    center += rotationByQuaternions(
 			u_SizeScale * rotationByEuler(a_MeshPosition * size, a_StartRotation0),

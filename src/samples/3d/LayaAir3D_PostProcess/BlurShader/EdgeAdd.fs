@@ -4,7 +4,7 @@ varying vec2 v_Texcoord0;
 void main()
 {
     vec2 uv = v_Texcoord0;
-    #ifdef WEBGPU_COMPATIBLE
+    #ifdef BLITSCREEN_INVERTY
     uv.y = 1.0 - uv.y;
     #endif
     vec4 mainColor = texture2D(u_MainTex,uv);

@@ -743,8 +743,8 @@ mat4 inverse(mat4 m)
         attributeMap: WebGPUAttributeMapType, uniformMap: WebGPUUniformMapType,
         arrayMap: NameNumberMap, VS: ShaderNode, FS: ShaderNode, is2D: boolean) {
 
-        if (defineString.indexOf('WEBGPU_COMPATIBLE') === -1)
-            defineString.push('WEBGPU_COMPATIBLE');
+        //if (defineString.indexOf('WEBGPU_COMPATIBLE') === -1)
+        //    defineString.push('WEBGPU_COMPATIBLE');
 
         const defMap: any = {};
         const varyingMap: NameStringMap = {};
@@ -864,7 +864,6 @@ mat4 inverse(mat4 m)
             `#version 450 core
 precision highp float;
 precision highp int;
-#define textureCubeLodEXT textureCube
 ${attributeGLSL}
 ${varyingGLSL_vs}
 ${uniformGLSL}
@@ -875,7 +874,6 @@ ${aWorldMat}
             `#version 450 core
 precision highp float;
 precision highp int;
-#define textureCubeLodEXT textureCube
 layout(location = 0) out vec4 gl_FragColor;
 ${varyingGLSL_fs}
 ${uniformGLSL}
@@ -919,8 +917,8 @@ ${textureGLSL_fs}
      */
     static collectUniform(defineString: string[], uniformMap: UniformMapType, VS: ShaderNode, FS: ShaderNode) {
         //添加兼容WGSL的定义
-        if (defineString.indexOf('WEBGPU_COMPATIBLE') === -1)
-            defineString.push('WEBGPU_COMPATIBLE');
+        //if (defineString.indexOf('WEBGPU_COMPATIBLE') === -1)
+        //    defineString.push('WEBGPU_COMPATIBLE');
 
         //将uniformMap转换为uniformMapEx
         const uniformMapEx: WebGPUUniformMapType = {};
