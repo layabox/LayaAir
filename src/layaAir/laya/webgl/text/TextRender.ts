@@ -120,6 +120,7 @@ export class TextRender extends EventDispatcher{
             }else{
                 fontsz = this._fontMeasure.getFontSizeInfo(font,TextRender.standardFontSize);
             }
+            this.fontSizeInfo[font]=fontsz;
         }
         return fontsz;
     }
