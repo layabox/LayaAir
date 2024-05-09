@@ -105,6 +105,7 @@ export class StatUI implements IStatUI {
         });
 
         let leftText = new Text();
+        leftText.singleCharRender=true;
         leftText.pos(5, 5);
         leftText.color = "#ffffff";
         leftText.fontSize = fontSize;
@@ -116,6 +117,7 @@ export class StatUI implements IStatUI {
         leftText.text = strArray.join("\n");
 
         this._txt = new Text();
+        this._txt.singleCharRender=true;
         this._txt.pos(leftText.textWidth + 10, 5);
         this._txt.color = "#ffffff";
         this._txt.fontSize = fontSize;
