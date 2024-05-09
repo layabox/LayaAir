@@ -218,6 +218,7 @@ export class SkinAniRenderData {
 
             let tAttachMap = attachMap.slice();
             let order;
+            this.vb.initBoneMat();
             for (let j = 0, m = tempArray.length; j < m; j++) {
                 // debugger;
                 let iChanges = tempMap.get(tempArray[j]);

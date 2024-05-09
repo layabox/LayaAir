@@ -11,6 +11,8 @@ export abstract class VBCreator implements IGetBone {
     vbLength: number;
     slotVBMap: Map<number, Map<string, TAttamentPos>>;
 
+    boneMat: Float32Array;
+
     private boneMaxId: number = 0;
     constructor() {
         this.init();
@@ -41,6 +43,10 @@ export abstract class VBCreator implements IGetBone {
             this.boneMaxId++;
         }
         return id;
+    }
+
+    initBoneMat() {
+        this.boneMat = new Float32Array(8 * this.mapIndex.size);
     }
 
     appendVB(attach: AttachmentParse) {
@@ -112,7 +118,8 @@ export abstract class VBCreator implements IGetBone {
         ibCreator.ibLength = offset;
     }
 
-    updateBone(bones: spine.Bone[], boneMat: Float32Array) {
+    updateBone(bones: spine.Bone[]) {
+        let boneMat: Float32Array = this.boneMat;
         this.mapIndex.forEach((value, key) => {
             let offset = value * 8;
             let bone = bones[key];

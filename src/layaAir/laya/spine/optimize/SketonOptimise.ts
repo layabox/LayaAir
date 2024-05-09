@@ -6,6 +6,7 @@ import { AttachmentParse } from "./AttachmentParse";
 import { IBCreator } from "./IBCreator";
 import { MultiRenderData } from "./MultiRenderData";
 import { SlotUtils } from "./SlotUtils";
+import { SpineNormalRender } from "./SpineNormalRender";
 import { SpineOptimizeRender } from "./SpineOptimizeRender";
 import { VBBoneCreator, VBCreator, VBRigBodyCreator } from "./VBCreator";
 import { ISpineOptimizeRender } from "./interface/ISpineOptimizeRender";
@@ -63,14 +64,20 @@ export class SketonOptimise {
     attachMentParse(skeletonData: spine.SkeletonData) {
         let skins = skeletonData.skins;
         let slots = skeletonData.slots;
+        let defaultSkinAttach;
         for (let i = 0, n = skins.length; i < n; i++) {
             let skin = skins[i];
             let skinAttach = new SkinAttach();
             skinAttach.name = skin.name;
+            if (i != 0) {
+                skinAttach.copyFrom(defaultSkinAttach);
+            }
             skinAttach.attachMentParse(skin, skeletonData.slots);
             this.skinAttachArray.push(skinAttach);
             skinAttach.checkMainAttach(slots);
-            skinAttach.init(slots);
+            if (i == 0) {
+                defaultSkinAttach = skinAttach;
+            }
         }
     }
 
@@ -133,8 +140,14 @@ export class SkinAttach {
         this.slotAttachMap = new Map();
         this.mainIB = new IBCreator();
         this.mainAttachMentOrder = [];
-
     }
+
+    copyFrom(other: SkinAttach) {
+        other.slotAttachMap.forEach((value, key) => {
+            this.slotAttachMap.set(key, new Map(value));
+        });
+    }
+
     checkMainAttach(slots: spine.SlotData[]) {
         let type: ERenderType = ERenderType.rigidBody;
         for (let i = 0, n = slots.length; i < n; i++) {
@@ -151,7 +164,8 @@ export class SkinAttach {
         this.type = type;
         switch (this.type) {
             case ERenderType.normal:
-                return;
+                this.mainVB = new VBBoneCreator();
+                break;
             case ERenderType.boneGPU:
                 this.mainVB = new VBBoneCreator();
                 break;
@@ -159,6 +173,7 @@ export class SkinAttach {
                 this.mainVB = new VBRigBodyCreator();
                 break;
         }
+        this.init(slots);
     }
 
     attachMentParse(skinData: spine.Skin, slots: spine.SlotData[]) {
@@ -181,14 +196,14 @@ export class SkinAttach {
                     map.set(key, parse);
                 }
             }
-
-            let nullAttachment = new AttachmentParse();
-            nullAttachment.slotId = i;
-            nullAttachment.color = slot.color;
-            nullAttachment.boneIndex = boneIndex;
-            nullAttachment.attachment = null;
-            map.set(nullAttachment.attachment, nullAttachment);
-            //nullAttachment.
+            if (!map.get(null)) {
+                let nullAttachment = new AttachmentParse();
+                nullAttachment.slotId = i;
+                nullAttachment.color = slot.color;
+                nullAttachment.boneIndex = boneIndex;
+                nullAttachment.attachment = null;
+                map.set(nullAttachment.attachment, nullAttachment);
+            }
         }
     }
 
@@ -211,6 +226,7 @@ export class SkinAttach {
                 mainAttachMentOrder.push(attach);
             }
         });
+        this.mainVB.initBoneMat();
         this.mainVB.createIB(mainAttachMentOrder, this.mainIB);
     }
 

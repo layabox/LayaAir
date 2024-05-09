@@ -81,7 +81,7 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
             let mesh = LayaGL.renderDeviceFactory.createBufferState();
             geo.bufferState = mesh;
             let vb = LayaGL.renderDeviceFactory.createVertexBuffer(BufferUsage.Dynamic);
-            vb.vertexDeclaration = type == ERenderType.boneGPU ? SpineFastMaterialShaderInit.vertexDeclaration : SpineRBMaterialShaderInit.vertexDeclaration;
+            vb.vertexDeclaration = type == ERenderType.rigidBody ? SpineRBMaterialShaderInit.vertexDeclaration : SpineFastMaterialShaderInit.vertexDeclaration;
             let ib = LayaGL.renderDeviceFactory.createIndexBuffer(BufferUsage.Dynamic);
             mesh.applyState([vb], ib)
             geo.indexFormat = IndexFormat.UInt16;
@@ -164,10 +164,10 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
 
     renderMulti(curTime: number) {
         let currentRender = this.currentRender;
-        this.currentAnimation.render(this.bones, this.slots, this.boneMat, currentRender, curTime);
+        let boneMat = this.currentAnimation.render(this.bones, this.slots, currentRender, curTime);
         let currentMaterials = currentRender.currentMaterials;
         for (let i = 0, n = currentMaterials.length; i < n; i++) {
-            currentMaterials[i].boneMat = this.boneMat;
+            currentMaterials[i].boneMat = boneMat;
         }
     }
 
@@ -175,8 +175,8 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
 
     renderOne(curTime: number) {
         let currentRender = this.currentRender;
-        this.currentAnimation.render(this.bones, this.slots, this.boneMat, currentRender, curTime);
-        currentRender.material.boneMat = this.boneMat;
+        let boneMat = this.currentAnimation.render(this.bones, this.slots, currentRender, curTime);
+        currentRender.material.boneMat = boneMat;
     }
 
     renderNormal(curTime: number) {
@@ -221,7 +221,7 @@ class SkinRender implements IVBIBUpdate {
             this.materialConstructor = SpineRBMaterial;
         }
         else {
-            console.error("unkown error");
+            this.materialConstructor = SpineFastMaterial;
         }
         let geoResult = owner.initRender(skinAttach.type);
         this.geo = geoResult.geo;
