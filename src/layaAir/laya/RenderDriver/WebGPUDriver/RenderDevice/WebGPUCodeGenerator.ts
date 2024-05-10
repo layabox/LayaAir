@@ -891,7 +891,7 @@ ${textureGLSL_fs}
 
         //转译成WGSL代码
         const wgsl_vs = this.naga.compileGLSL2WGSL(dstVS, 'vertex');
-        let wgsl_fs = this.naga.compileGLSL2WGSL(dstFS, 'fragment');
+        const wgsl_fs = this.naga.compileGLSL2WGSL(dstFS, 'fragment');
         //console.log(wgsl_vs);
         //console.log(wgsl_fs);
 
