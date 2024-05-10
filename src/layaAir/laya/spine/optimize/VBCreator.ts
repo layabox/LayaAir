@@ -7,6 +7,7 @@ import { IGetBone } from "./interface/IGetBone";
 
 export abstract class VBCreator implements IGetBone {
     mapIndex: Map<number, number>;
+    boneArray: number[];
     vb: Float32Array;
     vbLength: number;
     slotVBMap: Map<number, Map<string, TAttamentPos>>;
@@ -21,6 +22,7 @@ export abstract class VBCreator implements IGetBone {
     init(autoNew: boolean) {
         this.mapIndex = new Map();
         this.slotVBMap = new Map();
+        this.boneArray = [];
         if (autoNew) {
             this.vb = new Float32Array(SpineMeshBase.maxVertex * this.vertexSize);
         }
@@ -42,6 +44,7 @@ export abstract class VBCreator implements IGetBone {
         if (id == undefined) {
             id = this.boneMaxId;
             this.mapIndex.set(boneIndex, id);
+            this.boneArray.push(id, boneIndex);
             this.boneMaxId++;
         }
         return id;
@@ -122,9 +125,10 @@ export abstract class VBCreator implements IGetBone {
 
     updateBone(bones: spine.Bone[]) {
         let boneMat: Float32Array = this.boneMat;
-        this.mapIndex.forEach((value, key) => {
-            let offset = value * 8;
-            let bone = bones[key];
+        let boneArray = this.boneArray;
+        for (let i = 0, n = boneArray.length; i < n; i += 2) {
+            let offset = boneArray[i] * 8;
+            let bone = bones[boneArray[i + 1]];
             boneMat[offset] = bone.a;
             boneMat[offset + 1] = bone.b;
             boneMat[offset + 2] = bone.worldX;
@@ -133,7 +137,7 @@ export abstract class VBCreator implements IGetBone {
             boneMat[offset + 5] = bone.d;
             boneMat[offset + 6] = bone.worldY;
             boneMat[offset + 7] = 0;
-        });
+        }
     }
 
     _cloneTo(target: VBCreator) {
@@ -141,6 +145,7 @@ export abstract class VBCreator implements IGetBone {
         target.vbLength = this.vbLength;
         target.mapIndex = new Map(this.mapIndex);
         target.boneMaxId = this.boneMaxId;
+        target.boneArray = this.boneArray.slice();
         this.slotVBMap.forEach((value, key) => {
             target.slotVBMap.set(key, new Map(value));
         });
