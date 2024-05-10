@@ -18,7 +18,7 @@ export class GLESRenderContext3D implements IRenderContext3D {
     }
     public set globalShaderData(value: GLESShaderData) {
         this._globalShaderData = value;
-        this._nativeObj.setGlobalShaderData(value._nativeObj);
+        this._nativeObj.setGlobalShaderData(value ? value._nativeObj : null);
     }
     private _sceneData: GLESShaderData;
     public get sceneData(): GLESShaderData {
@@ -26,7 +26,7 @@ export class GLESRenderContext3D implements IRenderContext3D {
     }
     public set sceneData(value: GLESShaderData) {
         this._sceneData = value;
-        this._nativeObj.setSceneData(value._nativeObj);
+        this._nativeObj.setSceneData(value ? value._nativeObj : null);
     }
     private _sceneModuleData: RTSceneNodeData;
     public get sceneModuleData(): RTSceneNodeData {
@@ -34,7 +34,7 @@ export class GLESRenderContext3D implements IRenderContext3D {
     }
     public set sceneModuleData(value: RTSceneNodeData) {
         this._sceneModuleData = value;
-        this._nativeObj.setSceneNodeData(value._nativeObj);
+        this._nativeObj.setSceneNodeData(value ? value._nativeObj : null);
     }
     private _cameraModuleData: RTCameraNodeData;
     public get cameraModuleData(): RTCameraNodeData {
@@ -42,7 +42,7 @@ export class GLESRenderContext3D implements IRenderContext3D {
     }
     public set cameraModuleData(value: RTCameraNodeData) {
         this._cameraModuleData = value;
-        this._nativeObj.setCameraNodeData(value._nativeObj);
+        this._nativeObj.setCameraNodeData(value ? value._nativeObj : null);
     }
     private _cameraData: GLESShaderData;
     public get cameraData(): GLESShaderData {
@@ -50,7 +50,7 @@ export class GLESRenderContext3D implements IRenderContext3D {
     }
     public set cameraData(value: GLESShaderData) {
         this._cameraData = value;
-        this._nativeObj.setCameraData(value._nativeObj);
+        this._nativeObj.setCameraData(value ? value._nativeObj : null);
     }
     public get sceneUpdataMask(): number {
         return this._nativeObj._sceneUpdataMask;
@@ -87,7 +87,7 @@ export class GLESRenderContext3D implements IRenderContext3D {
         this.cameraUpdateMask = 0;
     }
     setRenderTarget(value: GLESInternalRT, clearFlag: RenderClearFlag): void {
-        this._nativeObj.setRenderTarget(value?value._nativeObj:null, clearFlag);
+        this._nativeObj.setRenderTarget(value ? value._nativeObj : null, clearFlag);
     }
     setViewPort(value: Viewport): void {
         this._nativeObj.setViewport(value);

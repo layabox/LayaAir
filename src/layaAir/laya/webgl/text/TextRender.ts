@@ -113,15 +113,15 @@ export class TextRender extends EventDispatcher{
 
     private getFontSizeInfo(font:string){
         var finfo = this.fontSizeInfo[font];
-        let fontsz=0;
         if (!finfo ){
             if(TextRender.isWan1Wan){
-                fontsz = this._wan1wansz(font,TextRender.standardFontSize)
+                finfo = this._wan1wansz(font,TextRender.standardFontSize)
             }else{
-                fontsz = this._fontMeasure.getFontSizeInfo(font,TextRender.standardFontSize);
+                finfo = this._fontMeasure.getFontSizeInfo(font,TextRender.standardFontSize);
             }
+            this.fontSizeInfo[font]=finfo;
         }
-        return fontsz;
+        return finfo;
     }
 
     /**

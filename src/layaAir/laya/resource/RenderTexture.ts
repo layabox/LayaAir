@@ -133,6 +133,11 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
     }
     public set generateDepthTexture(value: boolean) {
 
+        if (this.depthStencilFormat == RenderTargetFormat.None) {
+            this._generateDepthTexture = false;
+            return;
+        }
+
         // todo  重复 设置
         if (value && !this._depthStencilTexture) {
             // todo  base texture format 移出构造函数
@@ -140,10 +145,7 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
             // @ts-ignore
             this._depthStencilTexture._dimension = TextureDimension.Tex2D;
 
-
-            this._depthStencilTexture._texture = LayaGL.textureContext.createRenderTextureInternal(TextureDimension.Tex2D, this.width, this.height, this.depthStencilFormat, false, false);
-
-            LayaGL.textureContext.setupRendertargetTextureAttachment(this._renderTarget, this._depthStencilTexture._texture);
+            this._depthStencilTexture._texture = LayaGL.textureContext.createRenderTargetDepthTexture(this._renderTarget, TextureDimension.Tex2D, this.width, this.height);
 
         }
 
@@ -167,7 +169,7 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
      * @internal
      */
     _generateMipmap: boolean;
-    
+
     /**
      * 颜色格式
      */

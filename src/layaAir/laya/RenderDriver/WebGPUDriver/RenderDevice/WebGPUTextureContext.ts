@@ -566,7 +566,7 @@ export class WebGPUTextureContext implements ITextureContext {
                 throw "No fixed size for Depth24Plus format!";
             case WebGPUTextureFormat.depth24plus_stencil8:
                 return { width: 1, height: 1, length: 4 };
-                //throw "No fixed size for Depth24PlusStencil8 format!";
+            //throw "No fixed size for Depth24PlusStencil8 format!";
             case WebGPUTextureFormat.depth32float:
                 return { width: 1, height: 1, length: 4 };
             // case GPUTextureFormat.Depth24UnormStencil8:
@@ -1113,7 +1113,19 @@ export class WebGPUTextureContext implements ITextureContext {
         return compareMode;
     }
     createRenderTextureInternal(dimension: TextureDimension, width: number, height: number, format: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean): InternalTexture {
-        throw new Error("Method not implemented.");
+        // todo
+        let multiSamples = 1;
+
+        let gpuColorFormat = this._getGPURenderTargetFormat(format, sRGB);
+
+        const gpuColorDescriptor = this._getGPUTextureDescriptor(dimension, width, height, gpuColorFormat, 1, generateMipmap, multiSamples, false);
+        const gpuColorTexture = this._engine.getDevice().createTexture(gpuColorDescriptor);
+
+        let texture = new WebGPUInternalTex(width, height, 1, dimension, generateMipmap, multiSamples, false, 1);
+        texture.resource = gpuColorTexture;
+        texture._webGPUFormat = gpuColorFormat;
+
+        return texture;
     }
     createRenderTargetInternal(width: number, height: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): InternalRenderTarget {
         generateMipmap = false; //渲染目标不需要mipmap
@@ -1163,10 +1175,12 @@ export class WebGPUTextureContext implements ITextureContext {
         WebGPURenderPassHelper.setDepthAttachments(internalRT._renderPassDescriptor, internalRT, true);
         return internalRT;
     }
-    createRenderTargetCubeInternal(size: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): InternalRenderTarget {
-        throw new Error("Method not implemented.");
+
+    createRenderTargetDepthTexture(renderTarget: WebGPUInternalRT, dimension: TextureDimension, width: number, height: number): WebGPUInternalTex {
+        return renderTarget._depthTexture;
     }
-    setupRendertargetTextureAttachment(renderTarget: InternalRenderTarget, texture: InternalTexture): void {
+
+    createRenderTargetCubeInternal(size: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): InternalRenderTarget {
         throw new Error("Method not implemented.");
     }
     bindRenderTarget(renderTarget: InternalRenderTarget, faceIndex?: number): void {
