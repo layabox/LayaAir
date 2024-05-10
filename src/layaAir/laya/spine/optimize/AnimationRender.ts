@@ -166,10 +166,10 @@ export class SkinAniRenderData {
     }
 
     checkVBChangeS(slots: spine.Slot[]): boolean {
-        let result=false;
+        let result = false;
         for (let i = 0, n = this.changeVB.length; i < n; i++) {
-            if(this.changeVB[i].updateVB(this.vb, slots)){
-                result=true;
+            if (this.changeVB[i].updateVB(this.vb, slots)) {
+                result = true;
             }
         }
         return result;
@@ -186,12 +186,25 @@ export class SkinAniRenderData {
     }
 
     init(tempMap: Map<number, IChange[]>, mainVB: VBCreator, mainIB: IBCreator, tempArray: number[], slotAttachMap: Map<number, Map<string, AttachmentParse>>, attachMap: AttachmentParse[], changeVB: IVBChange[]) {
-   
         this.mainIB = mainIB;
         let mutiRenderAble = false;
+        if (changeVB) {
+            this.vb = mainVB.clone();
+            this.checkVBChange = this.checkVBChangeS;
+            let myChangeVB: IVBChange[] = this.changeVB = [];
+            for (let i = 0, n = changeVB.length; i < n; i++) {
+                let changeVBItem = changeVB[i].clone();
+                if (changeVBItem.initChange(mainVB)) {
+                    myChangeVB.push(changeVBItem);
+                }
+            }
+        }
         if (tempArray.length == 0) {
             //没有修改IB的情况
-            this.vb = mainVB;
+            if(this.vb){
+                this.vb.initBoneMat();
+            }
+            this.vb = this.vb || mainVB;
             this.ibs.push(this.mainIB);
             //this.mainIb = mainib;
             if (this.mainIB.outRenderData.renderData.length > 1) {
@@ -242,15 +255,6 @@ export class SkinAniRenderData {
         }
         this.mutiRenderAble = mutiRenderAble;
 
-        if (changeVB) {
-            this.checkVBChange = this.checkVBChangeS;
-            let myChangeVB: IVBChange[] = this.changeVB = [];
-            for (let i = 0, n = changeVB.length; i < n; i++) {
-                let changeVBItem = changeVB[i].clone();
-                if (changeVBItem.initChange(mainVB)) {
-                    myChangeVB.push(changeVBItem);
-                }
-            }
-        }
+
     }
 }

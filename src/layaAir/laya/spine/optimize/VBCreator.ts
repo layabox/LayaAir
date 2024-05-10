@@ -14,14 +14,16 @@ export abstract class VBCreator implements IGetBone {
     boneMat: Float32Array;
 
     private boneMaxId: number = 0;
-    constructor() {
-        this.init();
+    constructor(autoNew: boolean = true) {
+        this.init(autoNew);
     }
 
-    init() {
+    init(autoNew: boolean) {
         this.mapIndex = new Map();
         this.slotVBMap = new Map();
-        this.vb = new Float32Array(SpineMeshBase.maxVertex * this.vertexSize);
+        if (autoNew) {
+            this.vb = new Float32Array(SpineMeshBase.maxVertex * this.vertexSize);
+        }
         this.vbLength = 0;
     }
 
@@ -155,11 +157,9 @@ export abstract class VBCreator implements IGetBone {
 
 export class VBBoneCreator extends VBCreator {
     _create(): VBCreator {
-        return new VBBoneCreator();
+        return new VBBoneCreator(false);
     }
-    constructor() {
-        super();
-    }
+
     get vertexSize(): number {
         return 22;
     }
@@ -226,7 +226,7 @@ export class VBBoneCreator extends VBCreator {
 
 export class VBRigBodyCreator extends VBCreator {
     _create(): VBCreator {
-        return new VBRigBodyCreator();
+        return new VBRigBodyCreator(false);
     }
     get vertexSize(): number {
         return 9;
