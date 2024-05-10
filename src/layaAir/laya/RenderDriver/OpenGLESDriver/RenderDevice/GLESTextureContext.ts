@@ -6,6 +6,7 @@ import { TextureCompareMode } from "../../../RenderEngine/RenderEnum/TextureComp
 import { TextureDimension } from "../../../RenderEngine/RenderEnum/TextureDimension";
 import { TextureFormat } from "../../../RenderEngine/RenderEnum/TextureFormat";
 import { ITextureContext } from "../../DriverDesign/RenderDevice/ITextureContext";
+import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
 import { GLESInternalRT } from "./GLESInternalRT";
 import { GLESInternalTex } from "./GLESInternalTex";
 
@@ -79,7 +80,7 @@ export class GLESTextureContext implements ITextureContext {
         let sourceData = hdrInfo.readScanLine();
         this.setTexturePixelsData(texture, sourceData, false, false);
     }
-    
+
     setTextureDDSData(texture: GLESInternalTex, ddsInfo: DDSTextureInfo) {
         this._native.setTextureDDSData(texture._nativeObj, ddsInfo);
     }
@@ -130,10 +131,6 @@ export class GLESTextureContext implements ITextureContext {
         this._native.unbindRenderTarget(renderTarget._nativeObj);
     }
 
-    createRenderTextureInternal(dimension: TextureDimension, width: number, height: number, format: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean): GLESInternalTex {
-        return new GLESInternalTex(this._native.createRenderTextureInternal(dimension, width, height, format, generateMipmap, sRGB));
-    }
-
     createRenderTargetInternal(width: number, height: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): GLESInternalRT {
         return new GLESInternalRT(this._native.createRenderTargetInternal(width, height, colorFormat, depthStencilFormat ? depthStencilFormat : RenderTargetFormat.None, generateMipmap, sRGB, multiSamples));
     }
@@ -146,8 +143,8 @@ export class GLESTextureContext implements ITextureContext {
         return new GLESInternalTex(this._native.createRenderTextureCubeInternal(dimension, size, format, generateMipmap, sRGB));
     }
 
-    setupRendertargetTextureAttachment(renderTarget: GLESInternalRT, texture: GLESInternalTex) {
-        this._native.setupRendertargetTextureAttachment(renderTarget._nativeObj, texture._nativeObj);
+    createRenderTargetDepthTexture(): InternalTexture {
+        throw new Error("Method not implemented.");
     }
 
     /**

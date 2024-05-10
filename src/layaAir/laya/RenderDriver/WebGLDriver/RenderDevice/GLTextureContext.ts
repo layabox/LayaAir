@@ -1244,46 +1244,6 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         this.currentActiveRT = null;
     }
 
-    createRenderTextureInternal(dimension: TextureDimension, width: number, height: number, format: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean): WebGLInternalTex {
-        let useSRGBExt = false;
-
-        generateMipmap = generateMipmap && this.supportGenerateMipmap(format);
-
-        let gammaCorrection = 1.0;
-        // if (!useSRGBExt && sRGB) {
-        //     // todo 
-        //     // gammaCorrection = 2.2;
-        // }
-
-        // let dimension = TextureDimension.Tex2D;
-        let target = this.getTarget(dimension);
-        let internalTex = new WebGLInternalTex(this._engine, target, width, height, 1, dimension, generateMipmap, useSRGBExt, gammaCorrection);
-
-        let glParam = this.glRenderTextureParam(format, useSRGBExt);
-
-        internalTex.internalFormat = glParam.internalFormat;
-        internalTex.format = glParam.format;
-        internalTex.type = glParam.type;
-
-        let internalFormat = internalTex.internalFormat;
-        let glFormat = internalTex.format;
-        let type = internalTex.type;
-
-        let gl = internalTex._gl;
-
-        this._engine._bindTexture(internalTex.target, internalTex.resource);
-
-        gl.texImage2D(target, 0, internalFormat, width, height, 0, glFormat, type, null);
-        //internalTex.gpuMemory = this.getGLtexMemory(internalTex);
-        this._engine._bindTexture(internalTex.target, null);
-
-        if (format == RenderTargetFormat.DEPTH_16 || format == RenderTargetFormat.DEPTH_32 || format == RenderTargetFormat.DEPTHSTENCIL_24_8) {
-            internalTex.filterMode = FilterMode.Point;
-        }
-
-        return internalTex;
-    }
-
     createRenderTextureCubeInternal(dimension: TextureDimension, size: number, format: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean): WebGLInternalTex {
         let useSRGBExt = false;
 
@@ -1407,23 +1367,78 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         return renderbuffer;
     }
 
-    // todo  color 0, 1, 2, 3 ?
-    setupRendertargetTextureAttachment(renderTarget: WebGLInternalRT, texture: WebGLInternalTex) {
+    createRenderTextureInternal(dimension: TextureDimension, width: number, height: number, format: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean): WebGLInternalTex {
+        let useSRGBExt = false;
+
+        generateMipmap = generateMipmap && this.supportGenerateMipmap(format);
+
+        let gammaCorrection = 1.0;
+        // if (!useSRGBExt && sRGB) {
+        //     // todo 
+        //     // gammaCorrection = 2.2;
+        // }
+
+        // let dimension = TextureDimension.Tex2D;
+        let target = this.getTarget(dimension);
+        let internalTex = new WebGLInternalTex(this._engine, target, width, height, 1, dimension, generateMipmap, useSRGBExt, gammaCorrection);
+
+        let glParam = this.glRenderTextureParam(format, useSRGBExt);
+
+        internalTex.internalFormat = glParam.internalFormat;
+        internalTex.format = glParam.format;
+        internalTex.type = glParam.type;
+
+        let internalFormat = internalTex.internalFormat;
+        let glFormat = internalTex.format;
+        let type = internalTex.type;
+
+        let gl = internalTex._gl;
+
+        this._engine._bindTexture(internalTex.target, internalTex.resource);
+
+        gl.texImage2D(target, 0, internalFormat, width, height, 0, glFormat, type, null);
+        //internalTex.gpuMemory = this.getGLtexMemory(internalTex);
+        this._engine._bindTexture(internalTex.target, null);
+
+        if (format == RenderTargetFormat.DEPTH_16 || format == RenderTargetFormat.DEPTH_32 || format == RenderTargetFormat.DEPTHSTENCIL_24_8) {
+            internalTex.filterMode = FilterMode.Point;
+        }
+
+        return internalTex;
+    }
+
+    createRenderTargetDepthTexture(renderTarget: WebGLInternalRT, dimension: TextureDimension, width: number, height: number): WebGLInternalTex {
         let gl = renderTarget._gl;
 
-        renderTarget._depthTexture = texture;
+        if (renderTarget.depthStencilFormat == RenderTargetFormat.None) {
+            return null;
+        }
 
+        // delete depth buffer
         let depthbuffer = renderTarget._depthbuffer;
         depthbuffer && gl.deleteRenderbuffer(depthbuffer);
         renderTarget._depthbuffer = null;
-        let attachment = this.glRenderTargetAttachment(renderTarget.depthStencilFormat);
 
+        // create depth texture
+        let format = renderTarget.depthStencilFormat;
+        let mipmap = renderTarget._generateMipmap;
+        let sRGB = renderTarget.isSRGB;
+
+        // delete old tex
+        if (renderTarget._depthTexture) {
+            gl.deleteTexture(renderTarget._depthTexture);
+        }
+        let texture = this.createRenderTextureInternal(dimension, width, height, format, mipmap, sRGB);
+        renderTarget._depthTexture = texture;
+
+        // set attachment
+        let attachment = this.glRenderTargetAttachment(renderTarget.depthStencilFormat);
         let framebuffer = renderTarget._framebuffer;
         gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
-
         gl.framebufferTexture2D(gl.FRAMEBUFFER, attachment, gl.TEXTURE_2D, texture.resource, 0);
-
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+        return texture;
     }
 
     /**

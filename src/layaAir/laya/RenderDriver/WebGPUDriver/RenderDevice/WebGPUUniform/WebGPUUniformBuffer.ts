@@ -93,8 +93,9 @@ export class WebGPUUniformBuffer {
         };
         this.needUpload = true;
         this.items.forEach(item => {
-            item.view = new (WebGPUUniformBuffer._typeArray(item.type))
-                (this.bufferBlock.buffer.data, item.view.byteOffset, this._typeElements(item.type) * item.count);
+            let tac = WebGPUUniformBuffer._typeArray(item.type);
+            item.view = new (tac)
+                (this.bufferBlock.buffer.data, item.view.byteOffset, item.size / tac.BYTES_PER_ELEMENT);
         });
         if (this.user)
             this.user.clearBindGroup();
@@ -129,91 +130,50 @@ export class WebGPUUniformBuffer {
         const item = this.items.get(id);
         if (item) {
             this.needUpload = true;
-            switch (item.type) {
-                case 'int':
-                case 'float':
-                    if (item.count === 1)
+            // todo
+            // is array
+            if (item.count == 1) {
+                switch (item.type) {
+                    case 'int':
+                    case 'float':
                         item.view[0] = data;
-                    else {
-                        for (let i = 0, len = Math.min(item.count, data.length); i < len; i++)
-                            item.view[i] = data[i];
-                    }
-                    break;
-                case 'vec2':
-                    if (item.count === 1) {
+                        break;
+                    case 'vec2':
                         item.view[0] = data.x;
                         item.view[1] = data.y;
-                    }
-                    else {
-                        for (let i = 0, len = Math.min(item.count, data.length); i < len; i++) {
-                            item.view[i * 2 + 0] = data[i].x;
-                            item.view[i * 2 + 1] = data[i].y;
-                        }
-                    }
-                    break;
-                case 'vec3':
-                    if (item.count === 1) {
+                        break;
+                    case 'vec3':
                         item.view[0] = data.x;
                         item.view[1] = data.y;
                         item.view[2] = data.z;
-                    }
-                    else {
-                        for (let i = 0, len = Math.min(item.count, data.length); i < len; i++) {
-                            item.view[i * 4 + 0] = data[i].x;
-                            item.view[i * 4 + 1] = data[i].y;
-                            item.view[i * 4 + 2] = data[i].z;
-                        }
-                    }
-                    break;
-                case 'vec4':
-                    if (item.count === 1) {
+                        break;
+                    case 'vec4':
                         item.view[0] = data.x;
                         item.view[1] = data.y;
                         item.view[2] = data.z;
                         item.view[3] = data.w;
-                    }
-                    else {
-                        // for (let i = 0, len = Math.min(item.count, data.length); i < len; i++) {
-                        //     item.view[i * 4 + 0] = data[i].x;
-                        //     item.view[i * 4 + 1] = data[i].y;
-                        //     item.view[i * 4 + 2] = data[i].z;
-                        //     item.view[i * 4 + 3] = data[i].w;
-                        // }
-                        item.view.set(data);
-                    }
-                    break;
-                case 'mat3':
-                    if (item.count === 1) {
+                        break;
+                    case 'mat3':
                         for (let i = 0; i < 3; i++) {
                             item.view[i * 4 + 0] = data.elements[i * 3 + 0];
                             item.view[i * 4 + 1] = data.elements[i * 3 + 1];
                             item.view[i * 4 + 2] = data.elements[i * 3 + 2];
                         }
-                    }
-                    else {
-                        for (let j = 0, len = Math.min(item.count, data.length); j < len; j++) {
-                            for (let i = 0; i < 3; i++) {
-                                item.view[j * 16 + i * 4 + 0] = data[j].elements[i * 3 + 0];
-                                item.view[j * 16 + i * 4 + 1] = data[j].elements[i * 3 + 1];
-                                item.view[j * 16 + i * 4 + 2] = data[j].elements[i * 3 + 2];
-                            }
-                        }
-                    }
-                    break;
-                case 'mat4':
-                    if (item.count === 1)
+                        break;
+                    case 'mat4':
                         item.view.set(data.elements);
-                    else {
-                        //for (let i = 0, len = Math.min(item.count, data.length); i < len; i++)
-                        //    item.view.set(data[i].elements, i * 16);
-                        item.view.set(data);
-                    }
-                    break;
-                case 'buffer':
-                    item.view.set(data);
-                    break;
-                default:
-                    break;
+                        break;
+                    default:
+                        break;
+                }
+            }
+            else {
+                // array
+                let arraySize = item.count * item.elements;
+                let alignElements = item.size / item.count / item.view.BYTES_PER_ELEMENT;
+                for (let i = 0, j = 0; i < arraySize; i += item.elements, j += alignElements) {
+                    item.view.set(data.subarray(i, i + item.elements), j);
+                }
             }
         }
     }
@@ -464,11 +424,7 @@ export class WebGPUUniformBuffer {
      * @param data 
      */
     setBuffer(id: number, data: Float32Array) {
-        const item = this.items.get(id);
-        if (item) {
-            item.view.set(data);
-            this.needUpload = true;
-        }
+        this.setUniformData(id, data);
     }
 
     /**
@@ -548,8 +504,8 @@ export class WebGPUUniformBuffer {
     private _getUniformItem(name: string, tac: TypedArrayConstructor, type: string, offset: number, align: number, size: number, elements: number, count: number) {
         let view: TypedArray;
         if (WebGPUGlobal.useBigBuffer)
-            view = new tac(this.bufferBlock.buffer.data, this.bufferBlock.offset + offset, this._typeElements(type) * count);
-        else view = new tac(this.bufferAlone.data, offset, this._typeElements(type) * count);
+            view = new tac(this.bufferBlock.buffer.data, this.bufferBlock.offset + offset, size / tac.BYTES_PER_ELEMENT);
+        else view = new tac(this.bufferAlone.data, offset, size / tac.BYTES_PER_ELEMENT);
         return { name, view, type, align, size, elements, count };
     }
 

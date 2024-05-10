@@ -2,9 +2,7 @@ import { Config3D } from "../../../../Config3D";
 import { RenderParams } from "../../../RenderEngine/RenderEnum/RenderParams";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { UniformMapType } from "../../../RenderEngine/RenderShader/SubShader";
-import { RenderableSprite3D } from "../../../d3/core/RenderableSprite3D";
 import { SkinnedMeshSprite3D } from "../../../d3/core/SkinnedMeshSprite3D";
-import { Sprite3D } from "../../../d3/core/Sprite3D";
 import { Graphics } from "../../../display/Graphics";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { ShaderNode } from "../../../webgl/utils/ShaderNode";
@@ -91,11 +89,6 @@ export class WebGPUCodeGenerator {
         if (next) next();
 
         Graphics.add2DGlobalUniformData(Shader3D.propertyNameToID('u_GraphicDummy'), 'u_GraphicDummy', ShaderDataType.Vector4);
-        const camerauniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap("WebGPUSprite3DtoCamera");
-        camerauniformMap.addShaderUniform(Sprite3D.WORLDINVERTFRONT, "u_WroldInvertFront", ShaderDataType.Vector4);
-        camerauniformMap.addShaderUniform(RenderableSprite3D.AMBIENTCOLOR, "u_AmbientColor", ShaderDataType.Vector4);
-		camerauniformMap.addShaderUniform(RenderableSprite3D.AMBIENTINTENSITY, "u_AmbientIntensity", ShaderDataType.Float);
-		camerauniformMap.addShaderUniform(RenderableSprite3D.REFLECTIONINTENSITY, "u_ReflectionIntensity", ShaderDataType.Float);
         WebGPUShaderData.__init__();
     }
 
@@ -268,7 +261,7 @@ export class WebGPUCodeGenerator {
         const shurikenSprite3DUniformMap = globalUniformMap("ShurikenSprite3D") as WebGPUCommandUniformMap;
         const trailRenderUniformMap = globalUniformMap("TrailRender") as WebGPUCommandUniformMap;
         const skyRendererUniformMap = globalUniformMap("SkyRenderer") as WebGPUCommandUniformMap;
-        const sprite3DtoCameraMap = globalUniformMap("WebGPUSprite3DtoCamera") as WebGPUCommandUniformMap;
+        //const sprite3DtoCameraMap = globalUniformMap("WebGPUSprite3DtoCamera") as WebGPUCommandUniformMap;
         const scene3DUniforms: NameAndType[] = [];
         const cameraUniforms: NameAndType[] = [];
         const sprite3DUniforms: NameAndType[] = [];
@@ -297,10 +290,10 @@ export class WebGPUCodeGenerator {
                 if (!_have(cameraUniforms, name))
                     cameraUniforms.push({ name, type, set: 1 });
             }
-            else if (sprite3DtoCameraMap.hasPtrID(id)) {
-                if (!_have(cameraUniforms, name))
-                    cameraUniforms.push({ name, type, set: 1 });
-            }
+            //else if (sprite3DtoCameraMap.hasPtrID(id)) {
+            //    if (!_have(cameraUniforms, name))
+            //        cameraUniforms.push({ name, type, set: 1 });
+            //}
             else if (sprite3DUniformMap.hasPtrID(id)) {
                 if (!_have(sprite3DUniforms, name))
                     sprite3DUniforms.push({ name, type, set: 2 });
@@ -743,9 +736,6 @@ mat4 inverse(mat4 m)
         attributeMap: WebGPUAttributeMapType, uniformMap: WebGPUUniformMapType,
         arrayMap: NameNumberMap, VS: ShaderNode, FS: ShaderNode, is2D: boolean) {
 
-        //if (defineString.indexOf('WEBGPU_COMPATIBLE') === -1)
-        //    defineString.push('WEBGPU_COMPATIBLE');
-
         const defMap: any = {};
         const varyingMap: NameStringMap = {};
         const varyingMapVS: NameStringMap = {};
@@ -901,7 +891,7 @@ ${textureGLSL_fs}
 
         //转译成WGSL代码
         const wgsl_vs = this.naga.compileGLSL2WGSL(dstVS, 'vertex');
-        const wgsl_fs = this.naga.compileGLSL2WGSL(dstFS, 'fragment');
+        let wgsl_fs = this.naga.compileGLSL2WGSL(dstFS, 'fragment');
         //console.log(wgsl_vs);
         //console.log(wgsl_fs);
 
@@ -916,10 +906,6 @@ ${textureGLSL_fs}
      * @param FS 
      */
     static collectUniform(defineString: string[], uniformMap: UniformMapType, VS: ShaderNode, FS: ShaderNode) {
-        //添加兼容WGSL的定义
-        //if (defineString.indexOf('WEBGPU_COMPATIBLE') === -1)
-        //    defineString.push('WEBGPU_COMPATIBLE');
-
         //将uniformMap转换为uniformMapEx
         const uniformMapEx: WebGPUUniformMapType = {};
         for (const key in uniformMap) {

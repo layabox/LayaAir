@@ -36,6 +36,8 @@ export class WebGPUCapable {
         this._capabilityMap.set(RenderCapable.UnifromBufferObject, false);
         this._capabilityMap.set(RenderCapable.Texture3D, true);
         this._capabilityMap.set(RenderCapable.Texture_HalfFloatLinearFiltering, true);
+        this._capabilityMap.set(RenderCapable.RenderTextureFormat_R32G32B32A32, true);
+        this._capabilityMap.set(RenderCapable.RenderTextureFormat_R16G16B16A16, true);
 
         let features = descriptor.requiredFeatures;
 

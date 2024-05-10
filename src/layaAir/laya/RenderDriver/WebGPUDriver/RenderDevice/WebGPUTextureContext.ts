@@ -566,7 +566,7 @@ export class WebGPUTextureContext implements ITextureContext {
                 throw "No fixed size for Depth24Plus format!";
             case WebGPUTextureFormat.depth24plus_stencil8:
                 return { width: 1, height: 1, length: 4 };
-                //throw "No fixed size for Depth24PlusStencil8 format!";
+            //throw "No fixed size for Depth24PlusStencil8 format!";
             case WebGPUTextureFormat.depth32float:
                 return { width: 1, height: 1, length: 4 };
             // case GPUTextureFormat.Depth24UnormStencil8:
@@ -941,7 +941,7 @@ export class WebGPUTextureContext implements ITextureContext {
             genMipmap(WebGPURenderEngine._instance.getDevice(), texture.resource);
     }
 
-    setCubeKTXData(texture: InternalTexture, ktxInfo: KTXTextureInfo): void {
+    setCubeKTXData(texture: WebGPUInternalTex, ktxInfo: KTXTextureInfo): void {
         const device = WebGPURenderEngine._instance.getDevice();
 
         let premultipliedAlpha = false;
@@ -959,58 +959,60 @@ export class WebGPUTextureContext implements ITextureContext {
         let source = ktxInfo.source;
         let compressed = ktxInfo.compress;
 
-        const imageSize = new Int32Array(source, dataOffset, 1)[0];
-        dataOffset += 4;
+        for (let index = 0; index < ktxInfo.mipmapCount; index++) {
 
-        for (let face = 0; face < 6; face++) {
-            //@ts-ignore
-            const block = this._getBlockInformationFromFormat(texture._webGPUFormat);
-            const bytesPerRow = Math.ceil(mipmapWidth / block.width) * block.length;
+            let imageSize = new Int32Array(source, dataOffset, 1)[0];
 
-            const size = {
-                width: Math.ceil(mipmapWidth / block.width) * block.width,
-                height: Math.ceil(mipmapHeight / block.height) * block.height,
-                depthOrArrayLayers: 1
-            };
+            dataOffset += 4;
 
-            const imageCopy: GPUImageCopyTextureTagged = {
-                texture: texture.resource,
-                mipLevel: 0,
-                premultipliedAlpha: premultipliedAlpha,
-                origin: {
-                    x: 0,
-                    y: 0,
-                    z: face
+            for (let face = 0; face < 6; face++) {
+
+                const block = this._getBlockInformationFromFormat(texture._webGPUFormat);
+                const bytesPerRow = Math.ceil(mipmapWidth / block.width) * block.length;
+
+                const size = {
+                    width: Math.ceil(mipmapWidth / block.width) * block.width,
+                    height: Math.ceil(mipmapHeight / block.height) * block.height,
+                    depthOrArrayLayers: 1
+                };
+
+                const imageCopy: GPUImageCopyTextureTagged = {
+                    texture: texture.resource,
+                    mipLevel: index,
+                    premultipliedAlpha: premultipliedAlpha,
+                    origin: {
+                        x: 0,
+                        y: 0,
+                        z: face
+                    }
                 }
+
+                const dataLayout: GPUImageDataLayout = {
+                    offset: 0,
+                    bytesPerRow: bytesPerRow,
+                    rowsPerImage: mipmapHeight
+                }
+
+                if (compressed) {
+                    let sourceData = new Uint8Array(source, dataOffset, imageSize);
+                    device.queue.writeTexture(imageCopy, sourceData, dataLayout, size);
+                }
+                else {
+                    let pixelParams = this.getFormatPixelsParams(ktxInfo.format);
+                    let typedSize = imageSize / pixelParams.typedSize;
+                    let sourceData = new pixelParams.dataTypedCons(source, dataOffset, typedSize);
+
+                    device.queue.writeTexture(imageCopy, sourceData, dataLayout, size);
+                }
+
+                dataOffset += imageSize;
+                dataOffset += 3 - ((imageSize + 3) % 4);
             }
 
-            const dataLayout: GPUImageDataLayout = {
-                offset: 0,
-                bytesPerRow: bytesPerRow,
-                rowsPerImage: mipmapHeight
-            }
-
-            if (compressed) {
-                let sourceData = new Uint8Array(source, dataOffset, imageSize);
-                device.queue.writeTexture(imageCopy, sourceData, dataLayout, size);
-            }
-            else {
-                let pixelParams = this.getFormatPixelsParams(ktxInfo.format);
-                let typedSize = imageSize / pixelParams.typedSize;
-                let sourceData = new pixelParams.dataTypedCons(source, dataOffset, typedSize);
-
-                device.queue.writeTexture(imageCopy, sourceData, dataLayout, size);
-            }
-
-            dataOffset += imageSize;
-            dataOffset += 3 - ((imageSize + 3) % 4);
+            mipmapWidth = Math.max(1, mipmapWidth * 0.5);
+            mipmapHeight = Math.max(1, mipmapHeight * 0.5);
         }
 
-        mipmapWidth = Math.max(1, mipmapWidth * 0.5);
-        mipmapHeight = Math.max(1, mipmapHeight * 0.5);
-
-        if (texture.maxMipmapLevel > 1)
-            genMipmap(WebGPURenderEngine._instance.getDevice(), texture.resource);
     }
     setCubeDDSData(texture: WebGPUInternalTex, ddsInfo: DDSTextureInfo): void {
         const device = WebGPURenderEngine._instance.getDevice();
@@ -1036,7 +1038,6 @@ export class WebGPUTextureContext implements ITextureContext {
         let dataTypeConstur = formatParams.dataTypedCons;
 
         for (let face = 0; face < 6; face++) {
-
             let mipmapWidth = width;
             let mipmapHeight = height;
             for (let index = 0; index < mipmapCount; index++) {
@@ -1113,7 +1114,19 @@ export class WebGPUTextureContext implements ITextureContext {
         return compareMode;
     }
     createRenderTextureInternal(dimension: TextureDimension, width: number, height: number, format: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean): InternalTexture {
-        throw new Error("Method not implemented.");
+        // todo
+        let multiSamples = 1;
+
+        let gpuColorFormat = this._getGPURenderTargetFormat(format, sRGB);
+
+        const gpuColorDescriptor = this._getGPUTextureDescriptor(dimension, width, height, gpuColorFormat, 1, generateMipmap, multiSamples, false);
+        const gpuColorTexture = this._engine.getDevice().createTexture(gpuColorDescriptor);
+
+        let texture = new WebGPUInternalTex(width, height, 1, dimension, generateMipmap, multiSamples, false, 1);
+        texture.resource = gpuColorTexture;
+        texture._webGPUFormat = gpuColorFormat;
+
+        return texture;
     }
     createRenderTargetInternal(width: number, height: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): InternalRenderTarget {
         generateMipmap = false; //渲染目标不需要mipmap
@@ -1163,10 +1176,12 @@ export class WebGPUTextureContext implements ITextureContext {
         WebGPURenderPassHelper.setDepthAttachments(internalRT._renderPassDescriptor, internalRT, true);
         return internalRT;
     }
-    createRenderTargetCubeInternal(size: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): InternalRenderTarget {
-        throw new Error("Method not implemented.");
+
+    createRenderTargetDepthTexture(renderTarget: WebGPUInternalRT, dimension: TextureDimension, width: number, height: number): WebGPUInternalTex {
+        return renderTarget._depthTexture;
     }
-    setupRendertargetTextureAttachment(renderTarget: InternalRenderTarget, texture: InternalTexture): void {
+
+    createRenderTargetCubeInternal(size: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): InternalRenderTarget {
         throw new Error("Method not implemented.");
     }
     bindRenderTarget(renderTarget: InternalRenderTarget, faceIndex?: number): void {

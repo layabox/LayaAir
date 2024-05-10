@@ -50,13 +50,11 @@ export interface ITextureContext {
 
     setTextureCompareMode(texture: InternalTexture, compareMode: TextureCompareMode): TextureCompareMode;
 
-    createRenderTextureInternal(dimension: TextureDimension, width: number, height: number, format: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean): InternalTexture;
-
     createRenderTargetInternal(width: number, height: number, format: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): InternalRenderTarget;
 
     createRenderTargetCubeInternal(size: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): InternalRenderTarget;
 
-    setupRendertargetTextureAttachment(renderTarget: InternalRenderTarget, texture: InternalTexture): void;
+    createRenderTargetDepthTexture(renderTarget: InternalRenderTarget, dimension: TextureDimension, width: number, height: number): InternalTexture;
 
     bindRenderTarget(renderTarget: InternalRenderTarget, faceIndex?: number): void;
     bindoutScreenTarget(): void;
