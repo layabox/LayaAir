@@ -1,6 +1,7 @@
 import { RenderableSprite3D } from "../../../d3/core/RenderableSprite3D";
 import { SkinnedMeshSprite3D } from "../../../d3/core/SkinnedMeshSprite3D";
 import { Sprite3D } from "../../../d3/core/Sprite3D";
+import { ISkinRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { WebGPUBuffer } from "../RenderDevice/WebGPUBuffer";
 import { WebGPURenderBundle } from "../RenderDevice/WebGPUBundle/WebGPURenderBundle";
 import { WebGPURenderCommandEncoder } from "../RenderDevice/WebGPURenderCommandEncoder";
@@ -14,7 +15,7 @@ import { WebGPURenderElement3D } from "./WebGPURenderElement3D";
 /**
  * 带骨骼的基本渲染单元
  */
-export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D {
+export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D implements ISkinRenderElement3D {
     skinnedData: Float32Array[];
     renderShaderDatas: WebGPUShaderData[];
 
@@ -202,7 +203,7 @@ export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D {
                 if (this.renderShaderData.getVector(Sprite3D.WORLDINVERTFRONT))
                     this._cameraData.setVector(Sprite3D.WORLDINVERTFRONT, this.renderShaderData.getVector(Sprite3D.WORLDINVERTFRONT));
             }
-
+            
             let stateKey;
             for (let i = 0; i < this._passNum; i++) {
                 const index = this._passIndex[i];

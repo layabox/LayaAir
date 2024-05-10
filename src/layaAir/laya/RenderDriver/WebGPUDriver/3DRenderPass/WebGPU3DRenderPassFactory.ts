@@ -1,5 +1,5 @@
 import { SceneRenderManagerOBJ } from "../../../d3/core/scene/SceneRenderManagerOBJ";
-import { IRender3DProcess, IRenderContext3D, IRenderElement3D, ISkyRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
+import { IRender3DProcess, IRenderContext3D, IRenderElement3D, ISkinRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { I3DRenderPassFactory } from "../../DriverDesign/3DRenderPass/I3DRenderPassFactory";
 import { DrawNodeCMDData, BlitQuadCMDData, DrawElementCMDData, SetViewportCMD, SetRenderTargetCMD, SetRenderDataCMD, SetShaderDefineCMD } from "../../DriverDesign/3DRenderPass/IRendderCMD";
 import { ISceneRenderManager } from "../../DriverDesign/3DRenderPass/ISceneRenderManager";
@@ -25,12 +25,10 @@ export class WebGPU3DRenderPassFactory implements I3DRenderPassFactory {
     createRenderElement3D(): IRenderElement3D {
         return new WebGPURenderElement3D();
     }
-    createSkinRenderElement(): IRenderElement3D {
+    createSkinRenderElement(): ISkinRenderElement3D {
         return new WebGPUSkinRenderElement3D();
     }
-    createSkyRenderElement(): ISkyRenderElement3D {
-        return null;//TODO
-    }
+
     createSceneRenderManager(): ISceneRenderManager {
         return new SceneRenderManagerOBJ();
     }

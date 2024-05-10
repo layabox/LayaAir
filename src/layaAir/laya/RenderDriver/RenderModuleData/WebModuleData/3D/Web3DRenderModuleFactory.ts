@@ -5,7 +5,7 @@ import { Transform3D } from "../../../../d3/core/Transform3D";
 import { BoundsImpl } from "../../../../d3/math/BoundsImpl";
 import { LayaGL } from "../../../../layagl/LayaGL";
 import { Vector3 } from "../../../../maths/Vector3";
-import { IPointLightData } from "../../Design/3D/I3DRenderModuleData";
+import { IPointLightData, ISkinRenderNode } from "../../Design/3D/I3DRenderModuleData";
 import { I3DRenderModuleFactory } from "../../Design/3D/I3DRenderModuleFactory";
 import { WebBaseRenderNode } from "./WebBaseRenderNode";
 import { WebDirectLight } from "./WebDirectLight";
@@ -14,12 +14,12 @@ import { WebMeshRenderNode } from "./WebMeshRenderNode";
 import { WebCameraNodeData, WebSceneNodeData } from "./WebModuleData";
 import { WebPointLight } from "./WebPointLight";
 import { WebReflectionProbe } from "./WebReflectionProb";
+import { WebSkinRenderNode } from "./WebSkinRenderNode";
 import { WebSpotLight } from "./WebSpotLight";
 import { WebVolumetricGI } from "./WebVolumetricGI";
 
 export class Web3DRenderModuleFactory implements I3DRenderModuleFactory {
   
-
   createTransform(owner: Sprite3D): Transform3D {
     return new Transform3D(owner);
   }
@@ -68,6 +68,10 @@ export class Web3DRenderModuleFactory implements I3DRenderModuleFactory {
 
   createMeshRenderNode(): WebMeshRenderNode {
     return new WebMeshRenderNode();
+  }
+
+  createSkinRenderNode(): ISkinRenderNode {
+    return new WebSkinRenderNode();
   }
 
 }

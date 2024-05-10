@@ -1,12 +1,13 @@
 
 import { SkinnedMeshSprite3D } from "../../../d3/core/SkinnedMeshSprite3D";
+import { ISkinRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { WebGLEngine } from "../RenderDevice/WebGLEngine";
 import { WebGLRenderGeometryElement } from "../RenderDevice/WebGLRenderGeometryElement";
 import { WebGLShaderInstance } from "../RenderDevice/WebGLShaderInstance";
 import { WebGLRenderElement3D } from "./WebGLRenderElement3D";
 
 
-export class WebGLSkinRenderElement3D extends WebGLRenderElement3D {
+export class WebGLSkinRenderElement3D extends WebGLRenderElement3D implements ISkinRenderElement3D {
 
     skinnedData: Float32Array[];
 

@@ -8,10 +8,7 @@ import { Vector2 } from "../../maths/Vector2";
 import { Vector4 } from "../../maths/Vector4";
 import { IRenderContext3D } from "../../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
 import { BaseRenderType } from "../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
-import { RenderContext3D } from "./render/RenderContext3D";
 import { Sprite3D } from "./Sprite3D";
-import { Matrix4x4 } from "../../maths/Matrix4x4";
-import { MeshRenderer } from "./MeshRenderer";
 
 export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
     /**@internal 解决循环引用 */

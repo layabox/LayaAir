@@ -117,7 +117,7 @@ export class SimpleSkinnedMeshSprite3D extends RenderableSprite3D {
             let bonesData: any[] = data.bones;
             for (let i = 0, n = bonesData.length; i < n; i++)
                 render.bones.push(spriteMap[bonesData[i]]);
-
+            render.bones =  render.bones;
             render._bonesNums = data.bonesNums ? data.bonesNums : render.bones.length;
         }
         // else {//[兼容代码]
