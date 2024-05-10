@@ -143,8 +143,8 @@ export class GLESTextureContext implements ITextureContext {
         return new GLESInternalTex(this._native.createRenderTextureCubeInternal(dimension, size, format, generateMipmap, sRGB));
     }
 
-    createRenderTargetDepthTexture(): InternalTexture {
-        throw new Error("Method not implemented.");
+    createRenderTargetDepthTexture(renderTarget: GLESInternalRT, dimension: TextureDimension, width: number, height: number): GLESInternalTex {
+        return new GLESInternalTex(this._native.createRenderTargetDepthTexture(renderTarget._nativeObj, dimension, width, height));
     }
 
     /**

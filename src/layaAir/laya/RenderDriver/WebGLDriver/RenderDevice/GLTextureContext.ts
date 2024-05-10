@@ -1367,7 +1367,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         return renderbuffer;
     }
 
-    createRenderTextureInternal(dimension: TextureDimension, width: number, height: number, format: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean): WebGLInternalTex {
+    protected createRenderTextureInternal(dimension: TextureDimension, width: number, height: number, format: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean): WebGLInternalTex {
         let useSRGBExt = false;
 
         generateMipmap = generateMipmap && this.supportGenerateMipmap(format);
