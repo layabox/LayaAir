@@ -941,7 +941,7 @@ export class WebGPUTextureContext implements ITextureContext {
             genMipmap(WebGPURenderEngine._instance.getDevice(), texture.resource);
     }
 
-    setCubeKTXData(texture: InternalTexture, ktxInfo: KTXTextureInfo): void {
+    setCubeKTXData(texture: WebGPUInternalTex, ktxInfo: KTXTextureInfo): void {
         const device = WebGPURenderEngine._instance.getDevice();
 
         let premultipliedAlpha = false;
@@ -959,58 +959,60 @@ export class WebGPUTextureContext implements ITextureContext {
         let source = ktxInfo.source;
         let compressed = ktxInfo.compress;
 
-        const imageSize = new Int32Array(source, dataOffset, 1)[0];
-        dataOffset += 4;
+        for (let index = 0; index < ktxInfo.mipmapCount; index++) {
 
-        for (let face = 0; face < 6; face++) {
-            //@ts-ignore
-            const block = this._getBlockInformationFromFormat(texture._webGPUFormat);
-            const bytesPerRow = Math.ceil(mipmapWidth / block.width) * block.length;
+            let imageSize = new Int32Array(source, dataOffset, 1)[0];
 
-            const size = {
-                width: Math.ceil(mipmapWidth / block.width) * block.width,
-                height: Math.ceil(mipmapHeight / block.height) * block.height,
-                depthOrArrayLayers: 1
-            };
+            dataOffset += 4;
 
-            const imageCopy: GPUImageCopyTextureTagged = {
-                texture: texture.resource,
-                mipLevel: 0,
-                premultipliedAlpha: premultipliedAlpha,
-                origin: {
-                    x: 0,
-                    y: 0,
-                    z: face
+            for (let face = 0; face < 6; face++) {
+
+                const block = this._getBlockInformationFromFormat(texture._webGPUFormat);
+                const bytesPerRow = Math.ceil(mipmapWidth / block.width) * block.length;
+
+                const size = {
+                    width: Math.ceil(mipmapWidth / block.width) * block.width,
+                    height: Math.ceil(mipmapHeight / block.height) * block.height,
+                    depthOrArrayLayers: 1
+                };
+
+                const imageCopy: GPUImageCopyTextureTagged = {
+                    texture: texture.resource,
+                    mipLevel: index,
+                    premultipliedAlpha: premultipliedAlpha,
+                    origin: {
+                        x: 0,
+                        y: 0,
+                        z: face
+                    }
                 }
+
+                const dataLayout: GPUImageDataLayout = {
+                    offset: 0,
+                    bytesPerRow: bytesPerRow,
+                    rowsPerImage: mipmapHeight
+                }
+
+                if (compressed) {
+                    let sourceData = new Uint8Array(source, dataOffset, imageSize);
+                    device.queue.writeTexture(imageCopy, sourceData, dataLayout, size);
+                }
+                else {
+                    let pixelParams = this.getFormatPixelsParams(ktxInfo.format);
+                    let typedSize = imageSize / pixelParams.typedSize;
+                    let sourceData = new pixelParams.dataTypedCons(source, dataOffset, typedSize);
+
+                    device.queue.writeTexture(imageCopy, sourceData, dataLayout, size);
+                }
+
+                dataOffset += imageSize;
+                dataOffset += 3 - ((imageSize + 3) % 4);
             }
 
-            const dataLayout: GPUImageDataLayout = {
-                offset: 0,
-                bytesPerRow: bytesPerRow,
-                rowsPerImage: mipmapHeight
-            }
-
-            if (compressed) {
-                let sourceData = new Uint8Array(source, dataOffset, imageSize);
-                device.queue.writeTexture(imageCopy, sourceData, dataLayout, size);
-            }
-            else {
-                let pixelParams = this.getFormatPixelsParams(ktxInfo.format);
-                let typedSize = imageSize / pixelParams.typedSize;
-                let sourceData = new pixelParams.dataTypedCons(source, dataOffset, typedSize);
-
-                device.queue.writeTexture(imageCopy, sourceData, dataLayout, size);
-            }
-
-            dataOffset += imageSize;
-            dataOffset += 3 - ((imageSize + 3) % 4);
+            mipmapWidth = Math.max(1, mipmapWidth * 0.5);
+            mipmapHeight = Math.max(1, mipmapHeight * 0.5);
         }
 
-        mipmapWidth = Math.max(1, mipmapWidth * 0.5);
-        mipmapHeight = Math.max(1, mipmapHeight * 0.5);
-
-        if (texture.maxMipmapLevel > 1)
-            genMipmap(WebGPURenderEngine._instance.getDevice(), texture.resource);
     }
     setCubeDDSData(texture: WebGPUInternalTex, ddsInfo: DDSTextureInfo): void {
         const device = WebGPURenderEngine._instance.getDevice();
@@ -1036,7 +1038,6 @@ export class WebGPUTextureContext implements ITextureContext {
         let dataTypeConstur = formatParams.dataTypedCons;
 
         for (let face = 0; face < 6; face++) {
-
             let mipmapWidth = width;
             let mipmapHeight = height;
             for (let index = 0; index < mipmapCount; index++) {
