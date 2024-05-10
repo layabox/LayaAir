@@ -38,7 +38,6 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
     frontFace: FrontFace;
 
     protected _stateKey: string[] = []; //用于判断渲染状态是否改变
-    //protected _stateKeyCounter: number = 0; //用于控制stateKey计算频率
     protected _shaderInstances: WebGPUShaderInstance[] = []; //着色器缓存
     protected _pipelineCache: GPURenderPipeline[] = []; //渲染管线缓存
 
@@ -588,7 +587,6 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
                 this._uploadGeometry(command); //上传几何数据
             }
         }
-        //this._stateKeyCounter++;
     }
 
     /**

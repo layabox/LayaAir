@@ -58,7 +58,6 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
     private _invertFrontFace: boolean;
 
     protected _stateKey: string[] = []; //用于判断渲染状态是否改变
-    //protected _stateKeyCounter: number = 0; //用于控制stateKey计算频率
     protected _shaderInstances: WebGPUShaderInstance[] = []; //着色器缓存
     protected _pipelineCache: GPURenderPipeline[] = []; //渲染管线缓存
 
@@ -219,9 +218,6 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
         //重编译着色器后，清理绑定组缓存
         this.renderShaderData?.clearBindGroup();
         this.materialShaderData?.clearBindGroup();
-
-        //强制stateKey重新计算
-        //this._stateKeyCounter = 0;
     }
 
     /**
@@ -611,17 +607,16 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
     _render(context: WebGPURenderContext3D, command: WebGPURenderCommandEncoder, bundle: WebGPURenderBundle) {
         //如果command和bundle都是null，则只上传shaderData数据，不执行bindGroup操作
         if (this.isRender) {
-            if (this._cameraData && this.renderShaderData) {
-                if (this.renderShaderData.getColor(RenderableSprite3D.AMBIENTCOLOR))
-                    this._cameraData.setColor(RenderableSprite3D.AMBIENTCOLOR, this.renderShaderData.getColor(RenderableSprite3D.AMBIENTCOLOR));
-                if (this.renderShaderData.getNumber(RenderableSprite3D.AMBIENTINTENSITY))
-                    this._cameraData.setNumber(RenderableSprite3D.AMBIENTINTENSITY, this.renderShaderData.getNumber(RenderableSprite3D.AMBIENTINTENSITY));
-                if (this.renderShaderData.getNumber(RenderableSprite3D.REFLECTIONINTENSITY))
-                    this._cameraData.setNumber(RenderableSprite3D.REFLECTIONINTENSITY, this.renderShaderData.getNumber(RenderableSprite3D.REFLECTIONINTENSITY));
-                if (this.renderShaderData.getVector(Sprite3D.WORLDINVERTFRONT))
-                    this._cameraData.setVector(Sprite3D.WORLDINVERTFRONT, this.renderShaderData.getVector(Sprite3D.WORLDINVERTFRONT));
-            }
-
+            // if (this._cameraData && this.renderShaderData) {
+            //     if (this.renderShaderData.getColor(RenderableSprite3D.AMBIENTCOLOR))
+            //         this._cameraData.setColor(RenderableSprite3D.AMBIENTCOLOR, this.renderShaderData.getColor(RenderableSprite3D.AMBIENTCOLOR));
+            //     if (this.renderShaderData.getNumber(RenderableSprite3D.AMBIENTINTENSITY))
+            //         this._cameraData.setNumber(RenderableSprite3D.AMBIENTINTENSITY, this.renderShaderData.getNumber(RenderableSprite3D.AMBIENTINTENSITY));
+            //     if (this.renderShaderData.getNumber(RenderableSprite3D.REFLECTIONINTENSITY))
+            //         this._cameraData.setNumber(RenderableSprite3D.REFLECTIONINTENSITY, this.renderShaderData.getNumber(RenderableSprite3D.REFLECTIONINTENSITY));
+            //     if (this.renderShaderData.getVector(Sprite3D.WORLDINVERTFRONT))
+            //         this._cameraData.setVector(Sprite3D.WORLDINVERTFRONT, this.renderShaderData.getVector(Sprite3D.WORLDINVERTFRONT));
+            // }
             let stateKey;
             for (let i = 0; i < this._passNum; i++) {
                 const index = this._passIndex[i];
@@ -652,7 +647,6 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
                     this._uploadGeometry(command, bundle); //上传几何数据
                 }
             }
-            //this._stateKeyCounter++;
         }
     }
 
