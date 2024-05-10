@@ -143,8 +143,7 @@ export class WebGPUUniformBuffer {
                     if (item.count === 1) {
                         item.view[0] = data.x;
                         item.view[1] = data.y;
-                    }
-                    else {
+                    } else {
                         for (let i = 0, len = Math.min(item.count, data.length); i < len; i++) {
                             item.view[i * 2 + 0] = data[i].x;
                             item.view[i * 2 + 1] = data[i].y;
@@ -156,8 +155,7 @@ export class WebGPUUniformBuffer {
                         item.view[0] = data.x;
                         item.view[1] = data.y;
                         item.view[2] = data.z;
-                    }
-                    else {
+                    } else {
                         for (let i = 0, len = Math.min(item.count, data.length); i < len; i++) {
                             item.view[i * 4 + 0] = data[i].x;
                             item.view[i * 4 + 1] = data[i].y;
@@ -171,16 +169,7 @@ export class WebGPUUniformBuffer {
                         item.view[1] = data.y;
                         item.view[2] = data.z;
                         item.view[3] = data.w;
-                    }
-                    else {
-                        // for (let i = 0, len = Math.min(item.count, data.length); i < len; i++) {
-                        //     item.view[i * 4 + 0] = data[i].x;
-                        //     item.view[i * 4 + 1] = data[i].y;
-                        //     item.view[i * 4 + 2] = data[i].z;
-                        //     item.view[i * 4 + 3] = data[i].w;
-                        // }
-                        item.view.set(data);
-                    }
+                    } else item.view.set(data);
                     break;
                 case 'mat3':
                     if (item.count === 1) {
@@ -189,8 +178,7 @@ export class WebGPUUniformBuffer {
                             item.view[i * 4 + 1] = data.elements[i * 3 + 1];
                             item.view[i * 4 + 2] = data.elements[i * 3 + 2];
                         }
-                    }
-                    else {
+                    } else {
                         for (let j = 0, len = Math.min(item.count, data.length); j < len; j++) {
                             for (let i = 0; i < 3; i++) {
                                 item.view[j * 16 + i * 4 + 0] = data[j].elements[i * 3 + 0];
@@ -203,11 +191,7 @@ export class WebGPUUniformBuffer {
                 case 'mat4':
                     if (item.count === 1)
                         item.view.set(data.elements);
-                    else {
-                        //for (let i = 0, len = Math.min(item.count, data.length); i < len; i++)
-                        //    item.view.set(data[i].elements, i * 16);
-                        item.view.set(data);
-                    }
+                    else item.view.set(data);
                     break;
                 case 'buffer':
                     item.view.set(data);
@@ -550,6 +534,8 @@ export class WebGPUUniformBuffer {
         if (WebGPUGlobal.useBigBuffer)
             view = new tac(this.bufferBlock.buffer.data, this.bufferBlock.offset + offset, this._typeElements(type) * count);
         else view = new tac(this.bufferAlone.data, offset, this._typeElements(type) * count);
+        if (count > 1) //特殊处理
+            type = 'buffer';
         return { name, view, type, align, size, elements, count };
     }
 
