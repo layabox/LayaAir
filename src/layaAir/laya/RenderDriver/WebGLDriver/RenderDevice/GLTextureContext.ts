@@ -784,7 +784,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
             else {
                 let dataLength = mipmapWidth * mipmapHeight * formatParams.channels;
                 let sourceData = new dataTypeConstur(source, dataOffset, dataLength);
-
+                memory += sourceData.length;
                 gl.texImage2D(target, index, internalFormat, mipmapWidth, mipmapHeight, 0, format, type, sourceData);
 
                 dataOffset += dataLength * channelsByte;
