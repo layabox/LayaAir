@@ -237,7 +237,7 @@ export class SpineSkeleton extends Sprite {
         this._stateData = new templet.ns.AnimationStateData(this._skeleton.data);
         // 动画状态类
         this._state = new templet.ns.AnimationState(this._stateData);
-        this._renerer = new SpineSkeletonRenderer(templet, false);
+        //this._renerer = new SpineSkeletonRenderer(templet, false);
         this._timeKeeper = new templet.ns.TimeKeeper();
         //let sMesh=this._templet.slotManger.init(this._skeleton.drawOrder, this._templet,this._templet.mainTexture);
         this.spineItem = this._templet.sketonOptimise._initSpineRender(this._skeleton, this._templet, this.graphics);
@@ -508,7 +508,7 @@ export class SpineSkeleton extends Sprite {
         this._skeleton = null;
         this._state.clearListeners();
         this._state = null;
-        this._renerer = null;
+        //this._renerer = null;
         this._currAniName = null;
         this._pause = true;
         this.timer.clear(this, this._update);

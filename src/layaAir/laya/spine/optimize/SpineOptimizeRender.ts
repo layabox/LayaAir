@@ -55,8 +55,12 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
 
     _skeleton: spine.Skeleton;
 
+    renderProxy: IRender;
+    renderProxyMap: Map<ERenderProxyType, IRender>;
+
 
     constructor(spineOptimize: SketonOptimise) {
+        this.renderProxyMap = new Map();
         this.geoMap = new Map();
         this.materialMap = new Map();
         this.animatorMap = new Map();
@@ -101,6 +105,17 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
         this.skinRenderArray.forEach((value) => {
             value.init(skeleton, templet, graphics);
         });
+
+        let renderone = new RenderOne(this.bones, this.slots);
+        let rendermulti = new RenderMulti(this.bones, this.slots);
+        let rendernormal = new RenderNormal(skeleton, graphics);
+        this.renderProxyMap.set(ERenderProxyType.RenderNormal, rendernormal);
+        this.renderProxyMap.set(ERenderProxyType.RenderOne, renderone);
+        this.renderProxyMap.set(ERenderProxyType.RenderMulti, rendermulti);
+    }
+
+    set renderProxytype(value: ERenderProxyType) {
+        this.renderProxy = this.renderProxyMap.get(value);
     }
 
     setSkinIndex(index: number) {
@@ -131,59 +146,125 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
         }
 
         if (currentSKin.isNormalRender) {
-            this.render = this.renderNormal;
-            return;
+            this.renderProxytype = ERenderProxyType.RenderNormal;
         }
-        if (old && oldSkinData.isNormalRender) {
-            this._clear();
-        }
-        if (oldSkinData != currentSKin) {
-            currentRender.updateVB(currentSKin.vb.vb, currentSKin.vb.vbLength);
-        }
-        //currentAnimation.
-        // old.animator.mutiRenderAble
-        let mutiRenderAble = currentSKin.mutiRenderAble;
-        if (this._isRender) {
-            if (mutiRenderAble != oldSkinData.mutiRenderAble) {
+        else {
+            if (old && oldSkinData.isNormalRender) {
                 this._clear();
             }
-        }
-        if (!this._isRender) {
-            if (mutiRenderAble) {
-                this.graphics.drawGeos(currentRender.geo, currentRender.elements);
-                this.render = this.renderMulti;
+            if (oldSkinData != currentSKin) {
+                currentRender.updateVB(currentSKin.vb.vb, currentSKin.vb.vbLength);
             }
-            else {
-                this.graphics.drawGeo(currentRender.geo, currentRender.material);
-                this.render = this.renderOne;
+            //currentAnimation.
+            // old.animator.mutiRenderAble
+            let mutiRenderAble = currentSKin.mutiRenderAble;
+            if (this._isRender) {
+                if (mutiRenderAble != oldSkinData.mutiRenderAble) {
+                    this._clear();
+                }
             }
-            //this.graphics.drawGeos(this.geo, this.elements);
-            this._isRender = true;
+            if (!this._isRender) {
+                if (mutiRenderAble) {
+                    this.graphics.drawGeos(currentRender.geo, currentRender.elements);
+                    this.renderProxytype = ERenderProxyType.RenderMulti;
+                }
+                else {
+                    this.graphics.drawGeo(currentRender.geo, currentRender.material);
+                    this.renderProxytype = ERenderProxyType.RenderOne;
+                }
+                //this.graphics.drawGeos(this.geo, this.elements);
+                this._isRender = true;
+            }
         }
+        this.renderProxy.change(currentRender, currentAnimation);
     }
 
-    renderMulti(curTime: number) {
-        let currentRender = this.currentRender;
-        let boneMat = this.currentAnimation.render(this.bones, this.slots, currentRender, curTime);
-        let currentMaterials = currentRender.currentMaterials;
+    render(time: number): void {
+        this.renderProxy.render(time);
+    }
+}
+enum ERenderProxyType {
+    RenderNormal,
+    RenderOne,
+    RenderMulti
+}
+interface IRender {
+    change(skinRender: SkinRender, currentAnimation: AnimationRenderProxy): void;
+    render(curTime: number): void;
+}
+class RenderOne implements IRender {
+    bones: spine.Bone[];
+    slots: spine.Slot[];
+
+    skinRender: SkinRender;
+    currentAnimation: AnimationRenderProxy;
+    material: IOptimizeMaterial;
+
+    constructor(bones: spine.Bone[], slots: spine.Slot[]) {
+        this.bones = bones;
+        this.slots = slots;
+    }
+    change(currentRender: SkinRender, currentAnimation: AnimationRenderProxy) {
+        this.skinRender = currentRender;
+        this.currentAnimation = currentAnimation;
+        this.material = currentRender.material;
+    }
+
+    render(curTime: number) {
+        let boneMat = this.currentAnimation.render(this.bones, this.slots, this.skinRender, curTime);
+        this.material.boneMat = boneMat;
+    }
+}
+
+class RenderMulti implements IRender {
+    bones: spine.Bone[];
+    slots: spine.Slot[];
+
+    skinRender: SkinRender;
+    currentAnimation: AnimationRenderProxy;
+
+    constructor(bones: spine.Bone[], slots: spine.Slot[]) {
+        this.bones = bones;
+        this.slots = slots;
+    }
+
+    change(skinRender: SkinRender, currentAnimation: AnimationRenderProxy) {
+        this.skinRender = skinRender;
+        this.currentAnimation = currentAnimation;
+    }
+
+    render(curTime: number) {
+        let skinRender = this.skinRender;
+        let boneMat = this.currentAnimation.render(this.bones, this.slots, skinRender, curTime);
+        let currentMaterials = skinRender.currentMaterials;
         for (let i = 0, n = currentMaterials.length; i < n; i++) {
             currentMaterials[i].boneMat = boneMat;
         }
     }
-
-    render: (time: number) => void;
-
-    renderOne(curTime: number) {
-        let currentRender = this.currentRender;
-        let boneMat = this.currentAnimation.render(this.bones, this.slots, currentRender, curTime);
-        currentRender.material.boneMat = boneMat;
-    }
-
-    renderNormal(curTime: number) {
-        this.graphics.clear();
-        this.currentRender._renerer.draw(this._skeleton, this.graphics, -1, -1);
-    }
 }
+
+class RenderNormal implements IRender {
+    graphics: Graphics;
+    _renerer: SpineSkeletonRenderer;
+    _skeleton: spine.Skeleton;
+
+    constructor(skeleton: spine.Skeleton, graphics: Graphics) {
+        this.graphics = graphics;
+        this._skeleton = skeleton;
+    }
+
+    change(currentRender: SkinRender, currentAnimation: AnimationRenderProxy) {
+        this._renerer = currentRender._renerer;
+    }
+
+    render(curTime: number) {
+        this.graphics.clear();
+        this._renerer.draw(this._skeleton, this.graphics, -1, -1);
+    }
+
+}
+
+
 class SkinRender implements IVBIBUpdate {
     static EMPTY: IOptimizeMaterial[] = [];
     owner: SpineOptimizeRender;
