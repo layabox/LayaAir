@@ -1,6 +1,7 @@
+import { ISkinRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { GLESRenderElement3D } from "./GLESRenderElement3D";
 
-export class GLESSkinRenderElement3D extends GLESRenderElement3D {
+export class GLESSkinRenderElement3D extends GLESRenderElement3D implements ISkinRenderElement3D {
 
     _skinnedData: Float32Array[];
 

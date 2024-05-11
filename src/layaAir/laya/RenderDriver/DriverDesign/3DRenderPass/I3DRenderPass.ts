@@ -52,7 +52,6 @@ export interface IRenderElement3D {
     destroy(): void;
 }
 
-export interface ISkyRenderElement3D extends IRenderElement3D {
-    skyViewMatrix: Matrix4x4;
-    skyProjectionMatrix: Matrix4x4;
+export interface ISkinRenderElement3D{
+    skinnedData:Float32Array[];
 }

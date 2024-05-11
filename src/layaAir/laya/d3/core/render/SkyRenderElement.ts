@@ -1,4 +1,4 @@
-import { IRenderElement3D, ISkyRenderElement3D } from "../../../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
+import { IRenderElement3D } from "../../../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
 import { Matrix4x4 } from "../../../maths/Matrix4x4";
 import { Vector3 } from "../../../maths/Vector3";
 import { SkyRenderer } from "../../resource/models/SkyRenderer";

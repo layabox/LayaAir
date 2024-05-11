@@ -1,6 +1,6 @@
 import { Event } from "../../events/Event";
 import { Stat } from "../../utils/Stat";
-import { Mesh, skinnedMatrixCache } from "../resource/models/Mesh";
+import { Mesh } from "../resource/models/Mesh";
 import { SubMesh } from "../resource/models/SubMesh";
 import { Utils3D } from "../utils/Utils3D";
 import { MeshRenderer } from "./MeshRenderer";
@@ -12,14 +12,12 @@ import { Material } from "../../resource/Material";
 import { BlinnPhongMaterial } from "./material/BlinnPhongMaterial";
 import { Scene3D } from "./scene/Scene3D";
 import { Bounds } from "../math/Bounds";
-import { Matrix4x4 } from "../../maths/Matrix4x4";
 import { Vector3 } from "../../maths/Vector3";
 import { BoundFrustum } from "../math/BoundFrustum";
 import { Laya3DRender } from "../RenderObjs/Laya3DRender";
 import { Vector4 } from "../../maths/Vector4";
 import { Transform3D } from "./Transform3D";
-import { BaseRenderType, IBaseRenderNode } from "../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
-import { IRenderContext3D } from "../../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
+import { BaseRenderType, IBaseRenderNode, ISkinRenderNode } from "../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
 import { RenderElement } from "./render/RenderElement";
 /**
  * <code>SkinMeshRenderer</code> 类用于蒙皮渲染器。
@@ -32,7 +30,17 @@ export class SkinnedMeshRenderer extends MeshRenderer {
     protected _cacheMesh: Mesh;
 
     /**@internal */
-    _bones: Sprite3D[] = [];
+    private __bones: Sprite3D[] = [];
+    
+    /**@internal 不可删  IDE数据在这里*/
+    public get _bones(): Sprite3D[] {
+        return this.__bones;
+    }
+    /**@internal */
+    public set _bones(value: Sprite3D[]) {
+        this.__bones = value;
+        this._baseRenderNode.setBones(value);
+    }
 
     /**@internal */
     _renderElements: SkinRenderElement[];
@@ -42,20 +50,14 @@ export class SkinnedMeshRenderer extends MeshRenderer {
     private _skinnedDataLoopMarks: Uint32Array;
     /**@internal */
     protected _localBounds: Bounds;
-    // /**@internal */
-    // protected _cacheAnimator: Animator;
     /**@internal */
     protected _cacheRootBone: Sprite3D;
 
     /**@internal */
-    protected _inverseBindPosesBufferForNative: Float32Array = null;
+    protected _worldParams = new Vector4();
 
     /**@internal */
-    protected _skinnedMatrixCachesBufferForNative: Int32Array = null;
-    /**@internal */
-    protected _bonesTransformForNative: Transform3D[] = null;
-    /**@internal */
-    protected _worldParams = new Vector4();
+    _baseRenderNode:ISkinRenderNode;
 
     /**
      * 局部边界。
@@ -94,6 +96,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 
             this._cacheRootBone = value;
 
+
             this._onWorldMatNeedChange(Transform3D.TRANSFORM_WORLDPOSITION | Transform3D.TRANSFORM_WORLDQUATERNION | Transform3D.TRANSFORM_WORLDSCALE);
 
             let count = this._renderElements.length;
@@ -101,6 +104,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
                 var renderElement: SkinRenderElement = this._renderElements[i];
                 renderElement.setTransform(value.transform);
             }
+            this._baseRenderNode.setRootBoneTransfom(this._cacheRootBone);
         }
     }
 
@@ -109,6 +113,10 @@ export class SkinnedMeshRenderer extends MeshRenderer {
      */
     get bones(): Sprite3D[] {
         return this._bones;
+    }
+
+    set bones(value: Sprite3D[]) {
+        this._bones = value;
     }
 
     /**
@@ -126,47 +134,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
      * @returns 
      */
     protected _createBaseRenderNode(): IBaseRenderNode {
-        return Laya3DRender.Render3DModuleDataFactory.createBaseRenderNode();
-    }
-
-    /**
-     * @internal
-     */
-    protected _computeSkinnedData(): void {
-        if (this._cacheMesh) {
-            var bindPoses: Matrix4x4[] = this._cacheMesh._inverseBindPoses;
-            var pathMarks: skinnedMatrixCache[] = this._cacheMesh._skinnedMatrixCaches;
-            for (var i: number = 0, n: number = this._cacheMesh.subMeshCount; i < n; i++) {
-                var subMeshBoneIndices: Uint16Array[] = ((<SubMesh>this._cacheMesh.getSubMesh(i)))._boneIndicesList;
-                var subData: Float32Array[] = this._skinnedData[i];
-                for (var j: number = 0, m: number = subMeshBoneIndices.length; j < m; j++) {
-                    var boneIndices: Uint16Array = subMeshBoneIndices[j];
-                    this._computeSubSkinnedData(bindPoses, boneIndices, subData[j], pathMarks);
-                }
-            }
-        }
-    }
-
-    /**
-     * @internal
-     */
-    private _computeSubSkinnedData(bindPoses: Matrix4x4[], boneIndices: Uint16Array, data: Float32Array, matrixCaches: skinnedMatrixCache[]): void {
-        for (let k: number = 0, q: number = boneIndices.length; k < q; k++) {
-            let index: number = boneIndices[k];
-            if (this._skinnedDataLoopMarks[index] === Stat.loopCount) {
-                let c: skinnedMatrixCache = matrixCaches[index];
-                let preData: Float32Array = this._skinnedData[c.subMeshIndex][c.batchIndex];
-                let srcIndex: number = c.batchBoneIndex * 16;
-                let dstIndex: number = k * 16;
-                for (let d: number = 0; d < 16; d++)
-                    data[dstIndex + d] = preData[srcIndex + d];
-            } else {
-                let bone = this._bones[index];
-                if (bone)
-                    Utils3D._mulMatrixArray(bone.transform.worldMatrix.elements, bindPoses[index].elements, 0, data, k * 16);
-                this._skinnedDataLoopMarks[index] = Stat.loopCount;
-            }
-        }
+        return Laya3DRender.Render3DModuleDataFactory.createSkinRenderNode();
     }
 
     /**
@@ -197,6 +165,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
             this._changeVertexDefine(mesh);
             this._changeMorphData(mesh);
             this._mesh = mesh;
+            this._baseRenderNode.setCacheMesh(mesh);
             var count: number = mesh.subMeshCount;
             this._renderElements.length = count;
             for (var i: number = 0; i < count; i++) {
@@ -239,7 +208,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 
         var subMeshCount: number = value.subMeshCount;
         this._skinnedData = [];
-        this._skinnedDataLoopMarks = new Uint32Array(value._inverseBindPoses.length);
+      
         for (var i: number = 0; i < subMeshCount; i++) {
             var subBoneIndices: Uint16Array[] = ((<SubMesh>value.getSubMesh(i)))._boneIndicesList;
             var subCount: number = subBoneIndices.length;
@@ -248,6 +217,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
                 subData[j] = new Float32Array(subBoneIndices[j].length * 16);
             this._renderElements[i].setSkinData(subData);
         }
+        this._baseRenderNode.setSkinnedData(this._skinnedData);
         this._setRenderElements();
     }
 
@@ -257,6 +227,8 @@ export class SkinnedMeshRenderer extends MeshRenderer {
      */
     _setBelongScene(scene: Scene3D): void {
         super._setBelongScene(scene);
+        this._baseRenderNode.setOwnerTransform(this.owner);
+      
         Stat.skinRenderNode++;
         Stat.meshRenderNode--;
     }
@@ -269,22 +241,22 @@ export class SkinnedMeshRenderer extends MeshRenderer {
         Stat.skinRenderNode--;
     }
 
-    _renderUpdate(context3D: IRenderContext3D): void {
-        let mat = this.owner.transform.worldMatrix;
-        let worldParams = this._worldParams;
-        worldParams.x = this.owner.transform.getFrontFaceValue();
-        if (this._cacheRootBone) {
-            mat = Matrix4x4.DEFAULT;
-            worldParams.x = 1;
-        }
-        this._baseRenderNode._applyLightProb();
-        this._baseRenderNode._applyReflection();
-        let shaderData = this._baseRenderNode.shaderData;
+    // _renderUpdate(context3D: IRenderContext3D): void {
+    //     let mat = this.owner.transform.worldMatrix;
+    //     let worldParams = this._worldParams;
+    //     worldParams.x = this.owner.transform.getFrontFaceValue();
+    //     if (this._cacheRootBone) {
+    //         mat = Matrix4x4.DEFAULT;
+    //         worldParams.x = 1;
+    //     }
+    //     this._baseRenderNode._applyLightProb();
+    //     this._baseRenderNode._applyReflection();
+    //     let shaderData = this._baseRenderNode.shaderData;
 
-        shaderData.setMatrix4x4(Sprite3D.WORLDMATRIX, mat);
-        shaderData.setVector(Sprite3D.WORLDINVERTFRONT, worldParams);
+    //     shaderData.setMatrix4x4(Sprite3D.WORLDMATRIX, mat);
+    //     shaderData.setVector(Sprite3D.WORLDINVERTFRONT, worldParams);
 
-    }
+    // }
 
     /**
      * @param context
@@ -292,7 +264,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
      */
     renderUpdate(context: RenderContext3D): void {
         super.renderUpdate(context);
-        this._computeSkinnedData();
+        this._baseRenderNode.computeSkinnedData();
     }
 
     /**
@@ -300,11 +272,6 @@ export class SkinnedMeshRenderer extends MeshRenderer {
      * @param dest 
      */
     _cloneTo(dest: SkinnedMeshRenderer): void {
-
-        dest._inverseBindPosesBufferForNative = null;
-        dest._skinnedMatrixCachesBufferForNative = null;
-        dest._bonesTransformForNative = null;
-
         //get common parent
         let getCommomParent = (rootNode: Sprite3D, rootCheckNode: Sprite3D): Sprite3D => {
             let nodeArray: Sprite3D[] = [];

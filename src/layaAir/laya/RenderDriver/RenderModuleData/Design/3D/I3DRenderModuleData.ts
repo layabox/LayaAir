@@ -14,7 +14,9 @@ import { InternalTexture } from "../../../DriverDesign/RenderDevice/InternalText
 import { IDefineDatas } from "../IDefineDatas";
 import { RenderState } from "../RenderState";
 import { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
-export enum BaseRenderType{
+import { Sprite3D } from "../../../../d3/core/Sprite3D";
+import { Mesh } from "../../../../d3/resource/models/Mesh";
+export enum BaseRenderType {
     BaseRender = 0,
     MeshRender = 1,
     ParticleRender = 2,
@@ -92,6 +94,15 @@ export interface IBaseRenderNode {
 
 export interface IMeshRenderNode extends IBaseRenderNode {
 
+}
+
+export interface ISkinRenderNode extends IBaseRenderNode {
+    computeSkinnedData(): void;
+    setRootBoneTransfom(value: Sprite3D): void;
+    setOwnerTransform(value: Sprite3D): void;
+    setCacheMesh(cacheMesh: Mesh): void;
+    setBones(value: Sprite3D[]): void;
+    setSkinnedData(value: any[]): void;
 }
 
 //Light

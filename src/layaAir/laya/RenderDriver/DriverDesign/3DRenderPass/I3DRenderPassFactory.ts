@@ -1,4 +1,4 @@
-import { IRender3DProcess, IRenderContext3D, IRenderElement3D, ISkyRenderElement3D } from "./I3DRenderPass";
+import { IRender3DProcess, IRenderContext3D, IRenderElement3D, ISkinRenderElement3D } from "./I3DRenderPass";
 import { DrawNodeCMDData, BlitQuadCMDData, DrawElementCMDData, SetViewportCMD, SetRenderTargetCMD, SetRenderDataCMD, SetShaderDefineCMD } from "./IRendderCMD";
 import { ISceneRenderManager } from "./ISceneRenderManager";
 
@@ -9,7 +9,7 @@ export interface I3DRenderPassFactory {
 
     createRenderElement3D(): IRenderElement3D;
 
-    createSkinRenderElement(): IRenderElement3D;//TODO
+    createSkinRenderElement(): ISkinRenderElement3D;//TODO
 
     createSceneRenderManager(): ISceneRenderManager;
 

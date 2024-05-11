@@ -2,7 +2,7 @@ import { ShaderPass } from "../../../../RenderEngine/RenderShader/ShaderPass";
 import { Sprite3D } from "../../../../d3/core/Sprite3D";
 import { Transform3D } from "../../../../d3/core/Transform3D";
 import { Vector3 } from "../../../../maths/Vector3";
-import { IVolumetricGIData, IReflectionProbeData, ILightMapData, IDirectLightData, ISpotLightData, ICameraNodeData, ISceneNodeData, IBaseRenderNode, IMeshRenderNode, IPointLightData } from "./I3DRenderModuleData";
+import { IVolumetricGIData, IReflectionProbeData, ILightMapData, IDirectLightData, ISpotLightData, ICameraNodeData, ISceneNodeData, IBaseRenderNode, IMeshRenderNode, IPointLightData, ISkinRenderNode } from "./I3DRenderModuleData";
 
 export interface I3DRenderModuleFactory {
     createTransform(owner: Sprite3D): Transform3D;
@@ -28,4 +28,6 @@ export interface I3DRenderModuleFactory {
     createBaseRenderNode(): IBaseRenderNode;
 
     createMeshRenderNode(): IMeshRenderNode;
+
+    createSkinRenderNode(): ISkinRenderNode;
 }
