@@ -317,6 +317,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
             let ceckNode = bones[i];
             destBone[i] = cloneHierachFun(this.owner as Sprite3D, ceckNode, dest.owner as Sprite3D);
         }
+        dest.bones = dest.bones;
         //bounds
         var lbb: Bounds = this.localBounds;
         (lbb) && (lbb.cloneTo(dest.localBounds));

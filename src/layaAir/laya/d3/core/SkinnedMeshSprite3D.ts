@@ -108,6 +108,8 @@ export class SkinnedMeshSprite3D extends RenderableSprite3D {
             var n: number;
             for (i = 0, n = bonesData.length; i < n; i++)
                 (render as SkinnedMeshRenderer).bones.push(spriteMap[bonesData[i]]);
+            
+            render.bones = render.bones;
         }
     }
 
