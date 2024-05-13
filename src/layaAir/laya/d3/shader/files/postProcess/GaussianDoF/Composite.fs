@@ -7,8 +7,9 @@ varying vec2 v_Texcoord0;
 void main()
 {
     vec2 uv = v_Texcoord0;
-    #ifdef BLITSCREEN_INVERTY
+#ifdef BLITSCREEN_INVERTY
     uv.y = 1.0 - uv.y;
+#endif
     vec3 baseColor = texture2D(u_MainTex, uv).rgb;
 #ifdef Gamma_u_MainTex
     baseColor = gammaToLinear(baseColor);

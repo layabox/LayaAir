@@ -1,7 +1,7 @@
 #define SHADER_NAME SeparableSSSGasFS
 const int StepRange = 3;
 const int SamplerNum = 17;
-uniform vec4 u_kernel[SamplerNum];
+uniform vec4 u_kernel[17]; //兼容WGSL
 
 //uv
 varying vec2 v_Texcoord0;

@@ -36,16 +36,30 @@ export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D implements 
         super._compileShader(context);
         const n = this.skinnedData ? this.skinnedData.length : 0;
         if (n > 0) { //创建蒙皮分组材质数据
-            this.renderShaderDatas = [];
-            for (let i = 0; i < n; i++) {
-                this.renderShaderDatas[i] = new WebGPUShaderData();
-                this.renderShaderDatas[i].createUniformBuffer(this._shaderInstance[0].uniformInfo[2]);
-                this.renderShaderData.cloneTo(this.renderShaderDatas[i]);
+            if (!this.renderShaderDatas || this.renderShaderDatas.length != n) {
+                if (this.renderShaderDatas)
+                    this._destroyRenderShaderDatas();
+                if (!this.renderShaderDatas)
+                    this.renderShaderDatas = [];
+                for (let i = 0; i < n; i++) {
+                    this.renderShaderDatas[i] = new WebGPUShaderData();
+                    this.renderShaderDatas[i].createUniformBuffer(this._shaderInstance[0].uniformInfo[2]);
+                    this.renderShaderData.cloneTo(this.renderShaderDatas[i]);
+                }
+                if (!this.renderShaderData.coShaderData)
+                    this.renderShaderData.coShaderData = [];
+                this.renderShaderData.coShaderData.push(...this.renderShaderDatas); //共享材质数据
             }
-            if (!this.renderShaderData.coShaderData)
-                this.renderShaderData.coShaderData = [];
-            this.renderShaderData.coShaderData.push(...this.renderShaderDatas); //共享材质数据
         }
+    }
+
+    /**
+     * 销毁renderShaderDatas数据
+     */
+    private _destroyRenderShaderDatas() {
+        for (let i = this.renderShaderDatas.length - 1; i > -1; i--)
+            this.renderShaderDatas[i].destroy();
+        this.renderShaderDatas.length = 0;
     }
 
     /**
@@ -193,7 +207,6 @@ export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D implements 
         }
         //如果command和bundle都是null，则只上传shaderData数据，不执行bindGroup操作
         if (this.isRender && this.skinnedData) {
-
             let stateKey;
             for (let i = 0; i < this._passNum; i++) {
                 const index = this._passIndex[i];

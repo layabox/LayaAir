@@ -29,7 +29,7 @@ export abstract class Render2D {
     constructor(out: RenderTexture2D = null) {
         this._renderTexture = out;
     }
-    setRenderTarget(rt:RenderTexture2D){};//临时
+    setRenderTarget(rt: RenderTexture2D) { };//临时
     abstract clone(out: RenderTexture2D): Render2D;
     //可以随时设置rt
     // set out(out: RenderTexture2D) {
@@ -39,12 +39,12 @@ export abstract class Render2D {
         return this._renderTexture;
     }
     //output:RenderTexture2D;
-    abstract renderStart(clear:boolean,clearColor:Color): void;
+    abstract renderStart(clear: boolean, clearColor: Color): void;
     // 有vb是外部提供的，因此，顶点描述也要由外部提供
     //abstract setVertexDecl(decl:VertexDeclaration):void;
     //shaderdata放到mtl中。之所以传内存buffer是为了给后面合并subdata机会，以便提高效率
     abstract draw(mesh: IMesh2D, vboff: number, vblen: number, iboff: number, iblen: number, mtl: Value2D): void;
-    abstract drawMesh(mesh:IRenderGeometryElement,mtl:Material):void;
+    abstract drawMesh(mesh: IRenderGeometryElement, mtl: Material): void;
 
     abstract renderEnd(): void;
 }
@@ -73,9 +73,9 @@ export class Render2DSimple extends Render2D {
         let geo = this.geo = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
         let mesh = LayaGL.renderDeviceFactory.createBufferState();
         geo.bufferState = mesh;
-        let vb =LayaGL.renderDeviceFactory.createVertexBuffer( BufferUsage.Dynamic);
+        let vb = LayaGL.renderDeviceFactory.createVertexBuffer(BufferUsage.Dynamic);
         vb.vertexDeclaration = this._tex_vert_decl;
-        let ib =LayaGL.renderDeviceFactory.createIndexBuffer( BufferUsage.Dynamic);
+        let ib = LayaGL.renderDeviceFactory.createIndexBuffer(BufferUsage.Dynamic);
         mesh.applyState([vb], ib)
         geo.indexFormat = IndexFormat.UInt16;
     }
@@ -87,7 +87,7 @@ export class Render2DSimple extends Render2D {
         }
     }
 
-    renderStart(clear:boolean,clearColor:Color): void {
+    renderStart(clear: boolean, clearColor: Color): void {
         //分层
         // if (this._renderTexture) {
         //     this._renderTexture.start();
@@ -105,11 +105,11 @@ export class Render2DSimple extends Render2D {
     }
 
     //临时。恢复rt用，以后要做到没有rt的嵌套
-    override setRenderTarget(rt:RenderTexture2D){
+    override setRenderTarget(rt: RenderTexture2D) {
         Render2DSimple.rendercontext2D.setRenderTarget(rt?._renderTarget, false, RenderTexture2D._clearColor);
     }
 
-    drawMesh(geo:IRenderGeometryElement,mtl:Material){
+    drawMesh(geo: IRenderGeometryElement, mtl: Material) {
         Stat.draw2D++;
         //Material??
         this._renderElement.geometry = geo;
@@ -139,6 +139,8 @@ export class Render2DSimple extends Render2D {
         let mat: Material;
         this._renderElement.geometry = geo;
         //this._renderElement.material = mtl;
+        if (this._renderElement.materialShaderData)
+            this._renderElement.materialShaderData.destroy(); //兼容WGSL
         this._renderElement.value2DShaderData = mtl.shaderData;
         if (mat)//有Material Shader是Material的shader  没有是默认的Shader
         {

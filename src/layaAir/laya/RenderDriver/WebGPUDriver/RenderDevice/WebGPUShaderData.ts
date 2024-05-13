@@ -868,6 +868,14 @@ export class WebGPUShaderData extends ShaderData {
      */
     destroy() {
         WebGPUGlobal.releaseId(this);
-        this.clearBindGroup();
+        this._gammaColorMap.clear();
+        this._bindGroupMap.clear();
+        this._bindGroup = null;
+        this._bindGroupLayoutEntries = null;
+        if (this._uniformBuffer)
+            this._uniformBuffer.destroy();
+        if (this.coShaderData)
+            for (let i = this.coShaderData.length - 1; i > -1; i--)
+                this.coShaderData[i].destroy();
     }
 }
