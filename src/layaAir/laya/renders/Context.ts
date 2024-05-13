@@ -180,6 +180,7 @@ export class Context {
     private _clearColor = new Color(0,0,0,0);
     private _clear=false;
 
+    private _shaderValueNeedRelease:Value2D[]=[];
     //temp
     //batchManager:RenderBatchManager2D=null;
 
@@ -1014,6 +1015,12 @@ export class Context {
             );
         }
         mesh.clearMesh();
+        //不能直接release，有的会缓存，例如cacheas normal，或者底层是异步之类的，所以先收集再释放
+        //shaderValue.release();
+        if(!shaderValue._needRelease){
+            shaderValue._needRelease=true;
+            this._shaderValueNeedRelease.push(shaderValue);
+        }
     }
 
     /**
@@ -1415,6 +1422,12 @@ export class Context {
     }
 
     startRender() {
+        for (let sv of this._shaderValueNeedRelease) {
+            sv.release();
+            sv._needRelease = false;
+        }
+        this._shaderValueNeedRelease.length=0;
+
         this._render2D.renderStart(this._clear, this._clearColor);
         this.clear();
     }

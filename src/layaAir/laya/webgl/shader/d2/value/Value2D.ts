@@ -33,6 +33,8 @@ export class Value2D {
 
     private _color: Vector4;
     private _colorAdd: Vector4;
+    //释放的时候用来去重的，
+    _needRelease=false;
 
     shaderData: ShaderData;
 
@@ -48,11 +50,18 @@ export class Value2D {
     texture: any;
     private _textureHost: Texture | BaseTexture
     //给cacheas = normal用
-    localClipMatrix = new Matrix();
+    localClipMatrix:Matrix;
 
     constructor(mainID: RenderSpriteData) {
-        this.shaderData = LayaGL.renderDeviceFactory.createShaderData(null);
         this.mainID = mainID;
+        Value2D.prototype.initialize.call(this);
+    }
+
+    //为了方便复用
+    protected initialize(){
+        this.localClipMatrix = new Matrix();
+        let mainID = this.mainID;
+        this.shaderData = LayaGL.renderDeviceFactory.createShaderData(null);
         if (this.mainID == RenderSpriteData.Texture2D) {
             this.shaderData.addDefine(ShaderDefines2D.TEXTURESHADER);
         }
@@ -86,6 +95,10 @@ export class Value2D {
         this.shaderData.setNumber(ShaderDefines2D.UNIFORM_VERTALPHA,1.0);
     }
 
+    reinit(){
+        this.initialize();
+    }
+
     public static _initone(type: number, classT: any): void {
         Value2D._compileDefine = LayaGL.unitRenderModuleDataFactory.createDefineDatas();
         Value2D._typeClass[type] = classT;
@@ -101,8 +114,11 @@ export class Value2D {
      */
     static create(mainType: RenderSpriteData): Value2D {
         var types: any = Value2D._cache[mainType] ? Value2D._cache[mainType] : [];
-        if (types._length)
-            return types[--types._length];
+        if (types._length){
+            let sv = types[--types._length];
+            sv.reinit();
+            return sv;
+        }
         else
             return new Value2D._typeClass[mainType]();
     }
@@ -258,6 +274,7 @@ export class Value2D {
     }
 
     clear(): void {
+        this.shaderData.destroy();
     }
 
     //
