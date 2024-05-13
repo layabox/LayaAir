@@ -2,10 +2,7 @@ import { CullMode, FrontFace } from "../../../RenderEngine/RenderEnum/CullMode";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderPass } from "../../../RenderEngine/RenderShader/ShaderPass";
 import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
-import { RenderableSprite3D } from "../../../d3/core/RenderableSprite3D";
-import { Sprite3D } from "../../../d3/core/Sprite3D";
 import { Transform3D } from "../../../d3/core/Transform3D";
-import { LayaGL } from "../../../layagl/LayaGL";
 import { IRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { RenderState } from "../../RenderModuleData/Design/RenderState";
 import { WebBaseRenderNode } from "../../RenderModuleData/WebModuleData/3D/WebBaseRenderNode";
@@ -15,7 +12,6 @@ import { WebGPUCodeGenerator, WebGPUUniformMapType } from "../RenderDevice/WebGP
 import { NameNumberMap } from "../RenderDevice/WebGPUCommon";
 import { WebGPUInternalRT } from "../RenderDevice/WebGPUInternalRT";
 import { WebGPURenderCommandEncoder } from "../RenderDevice/WebGPURenderCommandEncoder";
-import { WebGPURenderDeviceFactory } from "../RenderDevice/WebGPURenderDeviceFactory";
 import { WebGPURenderGeometry } from "../RenderDevice/WebGPURenderGeometry";
 import {
     IRenderPipelineInfo,
