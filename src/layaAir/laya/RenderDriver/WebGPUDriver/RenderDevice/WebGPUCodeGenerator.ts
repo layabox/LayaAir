@@ -891,7 +891,9 @@ ${textureGLSL_fs}
 
         //转译成WGSL代码
         const wgsl_vs = this.naga.compileGLSL2WGSL(dstVS, 'vertex');
-        const wgsl_fs = this.naga.compileGLSL2WGSL(dstFS, 'fragment');
+        let wgsl_fs = this.naga.compileGLSL2WGSL(dstFS, 'fragment');
+        const regex = /textureSampleBias/g; //替换textureSampleBias为textureSampleLevel
+        wgsl_fs = wgsl_fs.replace(regex, 'textureSampleLevel');
         //console.log(wgsl_vs);
         //console.log(wgsl_fs);
 

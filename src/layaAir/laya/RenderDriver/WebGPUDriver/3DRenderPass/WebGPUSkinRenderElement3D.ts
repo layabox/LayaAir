@@ -193,7 +193,6 @@ export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D implements 
         }
         //如果command和bundle都是null，则只上传shaderData数据，不执行bindGroup操作
         if (this.isRender && this.skinnedData) {
-
             let stateKey;
             for (let i = 0; i < this._passNum; i++) {
                 const index = this._passIndex[i];

@@ -607,16 +607,6 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
     _render(context: WebGPURenderContext3D, command: WebGPURenderCommandEncoder, bundle: WebGPURenderBundle) {
         //如果command和bundle都是null，则只上传shaderData数据，不执行bindGroup操作
         if (this.isRender) {
-            // if (this._cameraData && this.renderShaderData) {
-            //     if (this.renderShaderData.getColor(RenderableSprite3D.AMBIENTCOLOR))
-            //         this._cameraData.setColor(RenderableSprite3D.AMBIENTCOLOR, this.renderShaderData.getColor(RenderableSprite3D.AMBIENTCOLOR));
-            //     if (this.renderShaderData.getNumber(RenderableSprite3D.AMBIENTINTENSITY))
-            //         this._cameraData.setNumber(RenderableSprite3D.AMBIENTINTENSITY, this.renderShaderData.getNumber(RenderableSprite3D.AMBIENTINTENSITY));
-            //     if (this.renderShaderData.getNumber(RenderableSprite3D.REFLECTIONINTENSITY))
-            //         this._cameraData.setNumber(RenderableSprite3D.REFLECTIONINTENSITY, this.renderShaderData.getNumber(RenderableSprite3D.REFLECTIONINTENSITY));
-            //     if (this.renderShaderData.getVector(Sprite3D.WORLDINVERTFRONT))
-            //         this._cameraData.setVector(Sprite3D.WORLDINVERTFRONT, this.renderShaderData.getVector(Sprite3D.WORLDINVERTFRONT));
-            // }
             let stateKey;
             for (let i = 0; i < this._passNum; i++) {
                 const index = this._passIndex[i];
