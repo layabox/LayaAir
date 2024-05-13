@@ -1122,7 +1122,7 @@ export class WebGPUTextureContext implements ITextureContext {
         const gpuColorDescriptor = this._getGPUTextureDescriptor(dimension, width, height, gpuColorFormat, 1, generateMipmap, multiSamples, false);
         const gpuColorTexture = this._engine.getDevice().createTexture(gpuColorDescriptor);
 
-        let texture = new WebGPUInternalTex(width, height, 1, dimension, generateMipmap, multiSamples, false, 1);
+        let texture = new WebGPUInternalTex(width, height, 1, dimension, generateMipmap, multiSamples, false, sRGB ? 1 : 2.2);
         texture.resource = gpuColorTexture;
         texture._webGPUFormat = gpuColorFormat;
 

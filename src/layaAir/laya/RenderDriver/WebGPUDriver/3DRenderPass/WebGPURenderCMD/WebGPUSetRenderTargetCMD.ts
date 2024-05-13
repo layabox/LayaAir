@@ -1,9 +1,15 @@
 import { RenderClearFlag } from "../../../../RenderEngine/RenderEnum/RenderClearFlag";
 import { Color } from "../../../../maths/Color";
+import { Vector4 } from "../../../../maths/Vector4";
+import { Viewport } from "../../../../maths/Viewport";
 import { RenderCMDType, SetRenderTargetCMD } from "../../../DriverDesign/3DRenderPass/IRendderCMD";
 import { InternalRenderTarget } from "../../../DriverDesign/RenderDevice/InternalRenderTarget";
 import { WebGPUInternalRT } from "../../RenderDevice/WebGPUInternalRT";
 import { WebGPURenderContext3D } from "../WebGPURenderContext3D";
+
+
+const viewport = new Viewport();
+const scissor = new Vector4();
 
 export class WebGPUSetRenderTargetCMD extends SetRenderTargetCMD {
     type: RenderCMDType;
@@ -61,5 +67,12 @@ export class WebGPUSetRenderTargetCMD extends SetRenderTargetCMD {
     apply(context: WebGPURenderContext3D): void {
         context.setRenderTarget(this.rt, RenderClearFlag.Nothing);
         context.setClearData(this.clearFlag, this.clearColorValue, this.clearDepthValue, this.clearStencilValue);
+
+        if (this.rt) {
+            viewport.set(0, 0, this.rt._textures[0].width, this.rt._textures[0].height);
+            scissor.setValue(0, 0, this.rt._textures[0].width, this.rt._textures[0].height);
+            context.setViewPort(viewport);
+            context.setScissor(scissor);
+        }
     }
 }

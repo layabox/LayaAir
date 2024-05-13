@@ -1,9 +1,7 @@
-import { Laya } from "../../../../Laya";
 import { CullMode, FrontFace } from "../../../RenderEngine/RenderEnum/CullMode";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderPass } from "../../../RenderEngine/RenderShader/ShaderPass";
 import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
-import { LayaGL } from "../../../layagl/LayaGL";
 import { ShaderDefines2D } from "../../../webgl/shader/d2/ShaderDefines2D";
 import { IRenderElement2D } from "../../DriverDesign/2DRenderPass/IRenderElement2D";
 import { RenderState } from "../../RenderModuleData/Design/RenderState";
@@ -13,7 +11,6 @@ import { WebGPUCodeGenerator, WebGPUUniformMapType } from "../RenderDevice/WebGP
 import { NameNumberMap } from "../RenderDevice/WebGPUCommon";
 import { WebGPUInternalRT } from "../RenderDevice/WebGPUInternalRT";
 import { WebGPURenderCommandEncoder } from "../RenderDevice/WebGPURenderCommandEncoder";
-import { WebGPURenderDeviceFactory } from "../RenderDevice/WebGPURenderDeviceFactory";
 import { WebGPURenderGeometry } from "../RenderDevice/WebGPURenderGeometry";
 import { IRenderPipelineInfo, WebGPUBlendState, WebGPUBlendStateCache, WebGPUDepthStencilState, WebGPUDepthStencilStateCache, WebGPUPrimitiveState, WebGPURenderPipeline } from "../RenderDevice/WebGPURenderPipelineHelper";
 import { WebGPUShaderData } from "../RenderDevice/WebGPUShaderData";
@@ -59,7 +56,11 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
     staticChange: boolean = false;
 
     globalId: number;
-    objectName: string = 'WebGPURenderElement3D';
+    objectName: string = 'WebGPURenderElement2D';
+
+    constructor() {
+        this.globalId = WebGPUGlobal.getId(this);
+    }
 
     /**
      * 获取渲染通道的uniform
