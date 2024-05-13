@@ -2021,6 +2021,7 @@ export class glTFResource extends Prefab {
             skin.skeleton = skin.joints[0];
         }
         skinnedMeshRenderer.rootBone = this._nodes[skin.skeleton];
+        skinnedMeshRenderer.bones = skinnedMeshRenderer.bones;
 
         this.calSkinnedSpriteLocalBounds(skinned);
     }
