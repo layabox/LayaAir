@@ -157,7 +157,7 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
     protected _calcStateKey(shaderInstance: WebGPUShaderInstance, dest: WebGPUInternalRT, context: WebGPURenderContext2D) {
         this._getBlendState(shaderInstance);
         this._getDepthStencilState(shaderInstance, dest);
-        this._getCullFrontMode(this.materialShaderData, shaderInstance, false, context.invertY);
+        this._getCullFrontMode(this.value2DShaderData, shaderInstance, false, context.invertY);
         const primitiveState = WebGPUPrimitiveState.getGPUPrimitiveState(this.geometry.mode, this.frontFace, this.cullMode);
         const bufferState = this.geometry.bufferState;
         const depthStencilId = this.depthStencilState ? this.depthStencilState.id : -1;
@@ -174,7 +174,7 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
     protected _getWebGPURenderPipeline(shaderInstance: WebGPUShaderInstance, dest: WebGPUInternalRT, context: WebGPURenderContext2D, entries: any) {
         this._getBlendState(shaderInstance);
         this._getDepthStencilState(shaderInstance, dest);
-        this._getCullFrontMode(this.materialShaderData, shaderInstance, false, context.invertY);
+        this._getCullFrontMode(this.value2DShaderData, shaderInstance, false, context.invertY);
         return WebGPURenderPipeline.getRenderPipeline(this, shaderInstance, dest, entries);
     }
 
@@ -184,8 +184,8 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
      */
     private _getBlendState(shaderInstance: WebGPUShaderInstance) {
         if ((shaderInstance._shaderPass as ShaderPass).statefirst)
-            this.blendState = this._getRenderStateBlendByShader(this.materialShaderData, shaderInstance);
-        else this.blendState = this._getRenderStateBlendByMaterial(this.materialShaderData);
+            this.blendState = this._getRenderStateBlendByShader(this.value2DShaderData, shaderInstance);
+        else this.blendState = this._getRenderStateBlendByMaterial(this.value2DShaderData);
     }
 
     private _getRenderStateBlendByShader(shaderData: WebGPUShaderData, shaderInstance: WebGPUShaderInstance) {
@@ -227,9 +227,6 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
 
     private _getRenderStateBlendByMaterial(shaderData: WebGPUShaderData) {
         const data = shaderData.getData();
-        shaderData.setInt(Shader3D.BLEND, RenderState.BLEND_ENABLE_ALL);
-        shaderData.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_SRC_ALPHA);
-        shaderData.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA);
         const blend = data[Shader3D.BLEND] ?? RenderState.Default.blend;
         let blendState: any;
         switch (blend) {
@@ -281,8 +278,8 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
     private _getDepthStencilState(shaderInstance: WebGPUShaderInstance, dest: WebGPUInternalRT): void {
         if (dest._depthTexture) {
             if ((shaderInstance._shaderPass as ShaderPass).statefirst)
-                this.depthStencilState = this._getRenderStateDepthByShader(this.materialShaderData, shaderInstance, dest);
-            else this.depthStencilState = this._getRenderStateDepthByMaterial(this.materialShaderData, dest);
+                this.depthStencilState = this._getRenderStateDepthByShader(this.value2DShaderData, shaderInstance, dest);
+            else this.depthStencilState = this._getRenderStateDepthByMaterial(this.value2DShaderData, dest);
         } else this.depthStencilState = null;
     }
 
