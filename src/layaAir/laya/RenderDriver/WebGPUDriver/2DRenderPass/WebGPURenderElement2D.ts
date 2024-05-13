@@ -19,6 +19,8 @@ import { WebGPUGlobal } from "../RenderDevice/WebGPUStatis/WebGPUGlobal";
 import { WebGPURenderContext2D } from "./WebGPURenderContext2D";
 
 export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineInfo {
+    static _value2DShaderData: WebGPUShaderData = new WebGPUShaderData();
+    static _materialShaderData: WebGPUShaderData = new WebGPUShaderData();
     static _compileDefine: WebDefineDatas = new WebDefineDatas();
     static _defineStrings: Array<string> = [];
 
@@ -544,9 +546,11 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
         this._sceneData = context.sceneData;
         this._cameraData = context.cameraData;
         if (!this.value2DShaderData)
-            this.value2DShaderData = new WebGPUShaderData();
+            //this.value2DShaderData = new WebGPUShaderData();
+            this.value2DShaderData = WebGPURenderElement2D._value2DShaderData;
         if (!this.materialShaderData)
-            this.materialShaderData = new WebGPUShaderData();
+            //this.materialShaderData = new WebGPUShaderData();
+            this.materialShaderData = WebGPURenderElement2D._materialShaderData;
 
         //编译着色器（只在数据发生变化的时候才重新编译）
         let compile = false;

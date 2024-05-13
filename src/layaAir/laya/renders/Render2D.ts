@@ -139,8 +139,6 @@ export class Render2DSimple extends Render2D {
         let mat: Material;
         this._renderElement.geometry = geo;
         //this._renderElement.material = mtl;
-        if (this._renderElement.materialShaderData)
-            this._renderElement.materialShaderData.destroy(); //兼容WGSL
         this._renderElement.value2DShaderData = mtl.shaderData;
         if (mat)//有Material Shader是Material的shader  没有是默认的Shader
         {
