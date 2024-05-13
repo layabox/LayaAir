@@ -860,9 +860,6 @@ export class Context {
             //tex2d.wrapModeV = BaseTexture.WRAPMODE_REPEAT;
             //var rgba:int = mixRGBandAlpha(0xffffffff);
             //rgba = _mixRGBandAlpha(rgba, alpha);	这个函数有问题，不能连续调用，输出作为输入
-            var rgba = this._mixRGBandAlpha(color, this._alpha);
-
-            (this._mesh as MeshQuadTexture).addQuad(this._transedPoints, uv, rgba, true);
 
             var sv = Value2D.create(RenderSpriteData.Texture2D) as TextureSV;
             //这个优化先不要了，因为没太弄明白wrapmode的设置，总是不起作用。
@@ -871,10 +868,13 @@ export class Context {
             var arry = texuvRect.concat();
             Vector4.tempVec4.setValue(arry[0], arry[1], arry[2], arry[3]);
             sv.u_TexRange = Vector4.tempVec4;
-            submit = this._curSubmit = SubmitBase.create(this, this._mesh, sv);
+            submit = this._curSubmit = SubmitBase.create(this, this._mesh, sv);            
             this.fillShaderValue(sv);
             submit.clipInfoID = this._clipInfoID;
             submit.shaderValue.textureHost = texture;
+            var rgba = this._mixRGBandAlpha(color, this._alpha);
+            (this._mesh as MeshQuadTexture).addQuad(this._transedPoints, uv, rgba, true);
+
             this._curSubmit._numEle += 6;
         }
         this.breakNextMerge();	//暂不合并
