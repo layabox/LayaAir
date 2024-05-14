@@ -30,8 +30,8 @@ export class SkinnedMeshRenderer extends MeshRenderer {
     protected _cacheMesh: Mesh;
 
     /**@internal */
-    private __bones: Sprite3D[] = [];
-    
+    protected __bones: Sprite3D[] = [];
+
     /**@internal 不可删  IDE数据在这里*/
     public get _bones(): Sprite3D[] {
         return this.__bones;
@@ -39,11 +39,11 @@ export class SkinnedMeshRenderer extends MeshRenderer {
     /**@internal */
     public set _bones(value: Sprite3D[]) {
         this.__bones = value;
-        this._baseRenderNode.setBones(value);
+        this._isISkinRenderNode() && this._baseRenderNode.setBones(value);
     }
 
     /**@internal */
-    _renderElements: SkinRenderElement[];
+    _renderElements: RenderElement[];
     /** @internal */
     _skinnedData: any[];
     /** @internal */
@@ -57,7 +57,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
     protected _worldParams = new Vector4();
 
     /**@internal */
-    _baseRenderNode:ISkinRenderNode;
+    _baseRenderNode: ISkinRenderNode;
 
     /**
      * 局部边界。
@@ -101,10 +101,10 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 
             let count = this._renderElements.length;
             for (var i: number = 0; i < count; i++) {
-                var renderElement: SkinRenderElement = this._renderElements[i];
+                var renderElement = this._renderElements[i] as SkinRenderElement;
                 renderElement.setTransform(value.transform);
             }
-            this._baseRenderNode.setRootBoneTransfom(this._cacheRootBone);
+            this._isISkinRenderNode() && this._baseRenderNode.setRootBoneTransfom(this._cacheRootBone);
         }
     }
 
@@ -157,6 +157,11 @@ export class SkinnedMeshRenderer extends MeshRenderer {
         let renderelement = new SkinRenderElement();
         return renderelement;
     }
+
+    private _isISkinRenderNode() {
+        return this._baseRenderNode.setCacheMesh;
+    }
+
     /**
      * @internal
      */
@@ -165,7 +170,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
             this._changeVertexDefine(mesh);
             this._changeMorphData(mesh);
             this._mesh = mesh;
-            this._baseRenderNode.setCacheMesh(mesh);
+            this._isISkinRenderNode() && this._baseRenderNode.setCacheMesh(mesh);
             var count: number = mesh.subMeshCount;
             this._renderElements.length = count;
             for (var i: number = 0; i < count; i++) {
@@ -191,9 +196,6 @@ export class SkinnedMeshRenderer extends MeshRenderer {
             this._changeMorphData(null);
         }
         this.boundsChange = true;
-        // if (this._octreeNode && this._indexInOctreeMotionList === -1) {
-        // 	this._octreeNode.getManagerNode().addMotionObject(this);
-        // }
     }
     /**
     *@inheritDoc
@@ -208,16 +210,16 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 
         var subMeshCount: number = value.subMeshCount;
         this._skinnedData = [];
-      
+
         for (var i: number = 0; i < subMeshCount; i++) {
             var subBoneIndices: Uint16Array[] = ((<SubMesh>value.getSubMesh(i)))._boneIndicesList;
             var subCount: number = subBoneIndices.length;
             var subData: Float32Array[] = this._skinnedData[i] = [];
             for (var j: number = 0; j < subCount; j++)
                 subData[j] = new Float32Array(subBoneIndices[j].length * 16);
-            this._renderElements[i].setSkinData(subData);
+            (this._renderElements[i] as SkinRenderElement).setSkinData(subData);
         }
-        this._baseRenderNode.setSkinnedData(this._skinnedData);
+        this._isISkinRenderNode() && this._baseRenderNode.setSkinnedData(this._skinnedData);
         this._setRenderElements();
     }
 
@@ -227,8 +229,8 @@ export class SkinnedMeshRenderer extends MeshRenderer {
      */
     _setBelongScene(scene: Scene3D): void {
         super._setBelongScene(scene);
-        this._baseRenderNode.setOwnerTransform(this.owner);
-      
+        this._isISkinRenderNode() && this._baseRenderNode.setOwnerTransform(this.owner);
+
         Stat.skinRenderNode++;
         Stat.meshRenderNode--;
     }
@@ -241,30 +243,13 @@ export class SkinnedMeshRenderer extends MeshRenderer {
         Stat.skinRenderNode--;
     }
 
-    // _renderUpdate(context3D: IRenderContext3D): void {
-    //     let mat = this.owner.transform.worldMatrix;
-    //     let worldParams = this._worldParams;
-    //     worldParams.x = this.owner.transform.getFrontFaceValue();
-    //     if (this._cacheRootBone) {
-    //         mat = Matrix4x4.DEFAULT;
-    //         worldParams.x = 1;
-    //     }
-    //     this._baseRenderNode._applyLightProb();
-    //     this._baseRenderNode._applyReflection();
-    //     let shaderData = this._baseRenderNode.shaderData;
-
-    //     shaderData.setMatrix4x4(Sprite3D.WORLDMATRIX, mat);
-    //     shaderData.setVector(Sprite3D.WORLDINVERTFRONT, worldParams);
-
-    // }
-
     /**
      * @param context
      * @perfTag PerformanceDefine.T_SkinBoneUpdate
      */
     renderUpdate(context: RenderContext3D): void {
         super.renderUpdate(context);
-        this._baseRenderNode.computeSkinnedData();
+        this._isISkinRenderNode() && this._baseRenderNode.computeSkinnedData();
     }
 
     /**
