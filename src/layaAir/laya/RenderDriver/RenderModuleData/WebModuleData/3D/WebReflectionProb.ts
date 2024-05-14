@@ -112,6 +112,9 @@ export class WebReflectionProbe implements IReflectionProbeData {
             };
             this.iblTexRGBD ? data.addDefine(Sprite3DRenderDeclaration.SHADERDEFINE_IBL_RGBD) : data.removeDefine(Sprite3DRenderDeclaration.SHADERDEFINE_IBL_RGBD);
             this._ambientSH && data.setBuffer(RenderableSprite3D.AMBIENTSH, this._ambientSH);
+        } else {
+            data.removeDefine(Sprite3DRenderDeclaration.SHADERDEFINE_GI_LEGACYIBL);
+            data.removeDefine(Sprite3DRenderDeclaration.SHADERDEFINE_GI_IBL);
         }
         data.setNumber(RenderableSprite3D.AMBIENTINTENSITY, this.ambientIntensity);
         data.setNumber(RenderableSprite3D.REFLECTIONINTENSITY, this.reflectionIntensity);
