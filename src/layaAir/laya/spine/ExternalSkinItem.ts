@@ -1,9 +1,9 @@
 export class ExternalSkinItem {
-    /**@internal */
+    /**@internal @protected */
     protected _skin: string;
-    /**@internal */
+    /**@internal @protected */
     protected _slot: string;
-    /**@internal */
+    /**@internal @protected */
     protected _attachment: string;
 
     /**

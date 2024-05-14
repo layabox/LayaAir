@@ -6,8 +6,11 @@ import { SoundManager } from "../media/SoundManager";
 import { Loader } from "../net/Loader";
 import { Handler } from "../utils/Handler";
 import { ExternalSkin } from "./ExternalSkin";
+
 import { SpineSkeletonRenderer } from "./SpineSkeletonRenderer";
 import { SpineTemplet } from "./SpineTemplet";
+import { ISpineOptimizeRender } from "./optimize/interface/ISpineOptimizeRender";
+
 
 /**动画开始播放调度
  * @eventType Event.PLAYED
@@ -36,21 +39,21 @@ export class SpineSkeleton extends Sprite {
     /**状态-播放中 */
     static readonly PLAYING: number = 2;
 
-    /**@internal*/
+    /**@internal @protected */
     protected _source: string;
-    /**@internal*/
+    /**@internal @protected */
     protected _templet: SpineTemplet;
-    /**@internal*/
+    /**@internal @protected */
     protected _timeKeeper: spine.TimeKeeper;
-    /**@internal*/
+    /**@internal @protected */
     protected _skeleton: spine.Skeleton;
-    /**@internal*/
+    /**@internal @protected */
     protected _state: spine.AnimationState;
-    /**@internal*/
+    /**@internal @protected */
     protected _stateData: spine.AnimationStateData;
-    /**@internal*/
+    /**@internal @protected */
     protected _currentPlayTime: number = 0;
-    /**@internal*/
+    /**@internal @protected */
     protected _renerer: SpineSkeletonRenderer;
 
     /** @internal */
@@ -178,7 +181,6 @@ export class SpineSkeleton extends Sprite {
 
     /**
      * 设置动画模板的引用
-     * @param value 引用的模板
      */
     set templet(value: SpineTemplet) {
         this.init(value);
@@ -212,6 +214,8 @@ export class SpineSkeleton extends Sprite {
         return SpineSkeleton.PLAYING;
     }
 
+    spineItem: ISpineOptimizeRender;
+
     /**
      * @internal
      * @protected
@@ -233,9 +237,10 @@ export class SpineSkeleton extends Sprite {
         this._stateData = new templet.ns.AnimationStateData(this._skeleton.data);
         // 动画状态类
         this._state = new templet.ns.AnimationState(this._stateData);
-        this._renerer = new SpineSkeletonRenderer(templet, false);
+        //this._renerer = new SpineSkeletonRenderer(templet, false);
         this._timeKeeper = new templet.ns.TimeKeeper();
-
+        //let sMesh=this._templet.slotManger.init(this._skeleton.drawOrder, this._templet,this._templet.mainTexture);
+        this.spineItem = this._templet.sketonOptimise._initSpineRender(this._skeleton, this._templet, this.graphics);
         let skinIndex = this._templet.getSkinIndexByName(this._skinName);
         if (skinIndex != -1)
             this.showSkinByIndex(skinIndex);
@@ -317,6 +322,7 @@ export class SpineSkeleton extends Sprite {
 
         if (force || this._pause || this._currAniName != animationName) {
             this._currAniName = animationName;
+            this.spineItem.play(animationName);
             // 设置执行哪个动画
             this._state.setAnimation(this.trackIndex, animationName, loop);
             // 设置起始和结束时间
@@ -356,10 +362,10 @@ export class SpineSkeleton extends Sprite {
         }
         // 计算骨骼的世界SRT(world SRT)
         this._skeleton.updateWorldTransform();
+        this.spineItem.render(this._currentPlayTime);
 
-        this.graphics.clear();
-        this._renerer.draw(this._skeleton, this.graphics, -1, -1);
-        //this._renerer.drawOld(this._skeleton, this.graphics, -1, -1);
+        // this.graphics.clear();
+        // this._renerer.drawOld(this._skeleton, this.graphics, -1, -1);
     }
 
     private _flushExtSkin() {
@@ -389,7 +395,7 @@ export class SpineSkeleton extends Sprite {
 
     /**
      * 通过名字得到插槽的引用
-     * @param slotName 查找的插槽名字
+     * @param slotName 
      */
     getSlotByName(slotName: string) {
         return this._skeleton.findSlot(slotName)
@@ -416,6 +422,7 @@ export class SpineSkeleton extends Sprite {
      * @param	skinIndex	皮肤索引
      */
     showSkinByIndex(skinIndex: number): void {
+        this.spineItem.setSkinIndex(skinIndex);
         let newSkine = this._skeleton.data.skins[skinIndex];
         this._skeleton.setSkin(newSkine);
         this._skeleton.setSlotsToSetupPose();
@@ -501,7 +508,7 @@ export class SpineSkeleton extends Sprite {
         this._skeleton = null;
         this._state.clearListeners();
         this._state = null;
-        this._renerer = null;
+        //this._renerer = null;
         this._currAniName = null;
         this._pause = true;
         this.timer.clear(this, this._update);
@@ -511,7 +518,6 @@ export class SpineSkeleton extends Sprite {
 
     /**
      * 销毁当前动画
-     * @param destroyChild 是否销毁子节点
      * @override
      */
     destroy(destroyChild: boolean = true): void {
@@ -539,9 +545,9 @@ export class SpineSkeleton extends Sprite {
 
     /**
      * 设置当动画被改变时，存储混合(交叉淡出)的持续时间
-     * @param fromNameOrIndex 源动画的名字或索引
-     * @param toNameOrIndex 目标动画的名字或索引
-     * @param duration 动画过度持续时间
+     * @param fromNameOrIndex 
+     * @param toNameOrIndex 
+     * @param duration
      */
     setMix(fromNameOrIndex: any, toNameOrIndex: any, duration: number) {
         duration /= 1000;
@@ -557,8 +563,9 @@ export class SpineSkeleton extends Sprite {
     }
 
     /**
-     * 获取骨骼信息(spine.Bone) 注意: 获取到的是spine运行时的骨骼信息(spine.Bone)，不适用引擎的方法
-     * @param boneName 骨骼名称
+     * 获取骨骼信息(spine.Bone)
+     * 注意: 获取到的是spine运行时的骨骼信息(spine.Bone)，不适用引擎的方法
+     * @param boneName 
      */
     getBoneByName(boneName: string) {
         return this._skeleton.findBone(boneName);
@@ -573,10 +580,16 @@ export class SpineSkeleton extends Sprite {
 
     /**
      * 替换插槽皮肤
-     * @param slotName 插槽名称
-     * @param attachmentName 附件名称
+     * @param slotName 
+     * @param attachmentName 
      */
     setSlotAttachment(slotName: string, attachmentName: string) {
         this._skeleton.setAttachment(slotName, attachmentName);
     }
+}
+
+export enum ERenderType {
+    normal = 0,
+    boneGPU = 1,
+    rigidBody = 2,
 }
