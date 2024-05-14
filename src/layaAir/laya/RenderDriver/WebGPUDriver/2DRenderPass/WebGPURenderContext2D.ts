@@ -103,5 +103,6 @@ export class WebGPURenderContext2D implements IRenderContext2D {
             = WebGPURenderPassHelper.getDescriptor(this.destRT, this._needClearColor ? RenderClearFlag.Color : RenderClearFlag.Nothing, this._clearColor);
         this.renderCommand.startRender(renderPassDesc);
         this.renderCommand.setViewport(this._viewport.x, this._viewport.y, this._viewport.width, this._viewport.height, 0, 1);
+        this._needClearColor = false;
     }
 }

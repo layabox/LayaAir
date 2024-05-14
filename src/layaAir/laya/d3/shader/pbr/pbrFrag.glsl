@@ -99,7 +99,9 @@ vec3 PBRLighting(const in Surface surface, const in PixelInfo info)
     #ifdef POINTLIGHT
     for (int i = 0; i < CalculateLightCount; i++)
 	{
-	    //if (i >= clusterInfo.x) break;
+        #ifdef BREAK_TEXTURE_SAMPLE
+	    if (i >= clusterInfo.x) break; //兼容WGSL
+        #endif
 	    PointLight pointLight = getPointLight(i, clusterInfo, info.positionWS);
 	    // if (pointLight.lightMode == LightMode_Mix)
 		// {
@@ -107,7 +109,9 @@ vec3 PBRLighting(const in Surface surface, const in PixelInfo info)
 		// }
         if (pointLight.lightMode != LightMode_Mix) {
 	        Light light = getLight(pointLight, info.normalWS, info.positionWS);
+            #ifndef BREAK_TEXTURE_SAMPLE
             if (i < clusterInfo.x)
+            #endif
 	            lightColor += PBRLighting(surface, info, light) * light.attenuation;
         }
 	}
@@ -116,7 +120,9 @@ vec3 PBRLighting(const in Surface surface, const in PixelInfo info)
     #ifdef SPOTLIGHT
     for (int i = 0; i < CalculateLightCount; i++)
 	{
-	    //if (i >= clusterInfo.y) break;
+        #ifdef BREAK_TEXTURE_SAMPLE
+	    if (i >= clusterInfo.y) break; //兼容WGSL
+        #endif
 	    SpotLight spotLight = getSpotLight(i, clusterInfo, info.positionWS);
 	    // if (spotLight.lightMode == LightMode_Mix)
 		// {
@@ -124,7 +130,9 @@ vec3 PBRLighting(const in Surface surface, const in PixelInfo info)
 		// }
         if (spotLight.lightMode != LightMode_Mix) {
 	        Light light = getLight(spotLight, info.normalWS, info.positionWS);
+            #ifndef BREAK_TEXTURE_SAMPLE
             if (i < clusterInfo.y)
+            #endif
 	            lightColor += PBRLighting(surface, info, light) * light.attenuation;
         }
 	}
