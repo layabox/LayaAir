@@ -38,6 +38,8 @@ export class GLESEngine implements IRenderEngine {
     _remapZ: boolean = true;
     _screenInvertY: boolean = false;
     _lodTextureSample: boolean = true;
+    _breakTextureSample: boolean = true;
+
     getUBOPointer?(name: string): number {
         throw new Error("Method not implemented.");
     }

@@ -22,6 +22,7 @@ export interface IRenderEngine {
     _remapZ:boolean;
     _screenInvertY: boolean;
     _lodTextureSample: boolean;
+    _breakTextureSample: boolean;
 
     initRenderEngine(canvas: any): void;
     copySubFrameBuffertoTex(texture: InternalTexture, level: number, xoffset: number, yoffset: number, x: number, y: number, width: number, height: number): void;

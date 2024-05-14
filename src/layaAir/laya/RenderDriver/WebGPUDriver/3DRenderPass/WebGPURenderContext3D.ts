@@ -373,6 +373,7 @@ export class WebGPURenderContext3D implements IRenderContext3D {
         const renderPassDesc: GPURenderPassDescriptor
             = WebGPURenderPassHelper.getDescriptor(this.destRT, this._clearFlag, this._clearColor, this._clearDepth, this._clearStencil);
         this.renderCommand.startRender(renderPassDesc);
+        this._clearFlag = RenderClearFlag.Nothing;
         if (viewPortAndScissor) {
             if (this._viewPort) {
                 this._viewPort.y = this._viewPort.y | 0; //不设零会报错
