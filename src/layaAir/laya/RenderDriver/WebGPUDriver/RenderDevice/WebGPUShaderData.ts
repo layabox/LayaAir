@@ -29,6 +29,7 @@ import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
  * 着色器数据
  */
 export class WebGPUShaderData extends ShaderData {
+    private static _bindGroupCounter: number = 0;
     private static _dummyTexture2D: Texture2D; //替代贴图（2D）
     private static _dummyTextureCube: TextureCube; //替代贴图（Cube）
     /**@internal */
@@ -145,6 +146,7 @@ export class WebGPUShaderData extends ShaderData {
         if (this.coShaderData)
             for (let i = this.coShaderData.length - 1; i > -1; i--)
                 this.coShaderData[i].clearBindGroup();
+        //console.log('clear bindGroup =', this.globalId);
     }
 
     /**

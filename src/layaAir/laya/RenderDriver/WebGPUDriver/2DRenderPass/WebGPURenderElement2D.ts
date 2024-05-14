@@ -143,9 +143,6 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
         //重编译着色器后，清理绑定组缓存
         this.value2DShaderData?.clearBindGroup();
         this.materialShaderData?.clearBindGroup();
-
-        //强制stateKey重新计算
-        //this._stateKeyCounter = 0;
     }
 
     /**
@@ -543,10 +540,8 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
         this._sceneData = context.sceneData;
         this._cameraData = context.cameraData;
         if (!this.value2DShaderData)
-            //this.value2DShaderData = new WebGPUShaderData();
             this.value2DShaderData = WebGPURenderElement2D._value2DShaderData;
         if (!this.materialShaderData)
-            //this.materialShaderData = new WebGPUShaderData();
             this.materialShaderData = WebGPURenderElement2D._materialShaderData;
 
         //编译着色器（只在数据发生变化的时候才重新编译）
