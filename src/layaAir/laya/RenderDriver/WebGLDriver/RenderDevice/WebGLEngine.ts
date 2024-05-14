@@ -120,6 +120,7 @@ export class WebGLEngine implements IRenderEngine {
     _remapZ: boolean = true;
     _screenInvertY: boolean = false;
     _lodTextureSample: boolean = true;
+    _breakTextureSample: boolean = true;
 
     //GLRenderState
     _GLRenderState: GLRenderState;

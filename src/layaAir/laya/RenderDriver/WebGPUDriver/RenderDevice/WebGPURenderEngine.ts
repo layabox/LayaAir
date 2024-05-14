@@ -71,6 +71,7 @@ export class WebGPURenderEngine implements IRenderEngine {
     _remapZ: boolean = false;
     _screenInvertY: boolean = true;
     _lodTextureSample: boolean = false;
+    _breakTextureSample: boolean = false;
 
     private _adapter: GPUAdapter;
     private _device: GPUDevice;

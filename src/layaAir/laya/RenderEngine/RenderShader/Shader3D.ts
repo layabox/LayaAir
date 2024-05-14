@@ -103,6 +103,8 @@ export class Shader3D {
     static SHADERDEFINE_REMAP_POSITIONZ: ShaderDefine;
     /**@internal 是否支持指定LOD的贴图采样 */
     static SHADERDEFINE_LOD_TEXTURE_SAMPLE: ShaderDefine;
+    /**@internal 是否支持动态中断贴图采样 */
+    static SHADERDEFINE_BREAK_TEXTURE_SAMPLE: ShaderDefine;
 
     /**@internal */
     static _propertyNameMap: any = {};
@@ -121,12 +123,15 @@ export class Shader3D {
         Shader3D.SHADERDEFINE_BLITSCREEN_INVERTY = Shader3D.getDefineByName("BLITSCREEN_INVERTY");
         Shader3D.SHADERDEFINE_REMAP_POSITIONZ = Shader3D.getDefineByName("REMAP_Z");
         Shader3D.SHADERDEFINE_LOD_TEXTURE_SAMPLE = Shader3D.getDefineByName("LOD_TEXTURE_SAMPLE");
+        Shader3D.SHADERDEFINE_BREAK_TEXTURE_SAMPLE = Shader3D.getDefineByName("BREAK_TEXTURE_SAMPLE");
         if (LayaGL.renderEngine._remapZ)
             Shader3D._configDefineValues.add(Shader3D.SHADERDEFINE_REMAP_POSITIONZ);
         if (LayaGL.renderEngine._screenInvertY)
             Shader3D._configDefineValues.add(Shader3D.SHADERDEFINE_BLITSCREEN_INVERTY);
         if (LayaGL.renderEngine._lodTextureSample)
             Shader3D._configDefineValues.add(Shader3D.SHADERDEFINE_LOD_TEXTURE_SAMPLE);
+        if (LayaGL.renderEngine._breakTextureSample)
+            Shader3D._configDefineValues.add(Shader3D.SHADERDEFINE_BREAK_TEXTURE_SAMPLE);
     }
 
     /**
