@@ -357,6 +357,13 @@ export class SpineAdapter {
 
         let trackEntryProto = spine.TrackEntry.prototype;
 
+        Object.defineProperty(trackEntryProto, "loop", {
+            get: function () {
+                return this.getLoop();
+            }
+        });
+
+
         Object.defineProperty(trackEntryProto, "animationLast", {
             get: function () {
                 return this.getAnimationLast();
