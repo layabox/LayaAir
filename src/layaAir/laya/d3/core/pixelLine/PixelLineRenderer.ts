@@ -7,6 +7,7 @@ import { IMeshRenderNode } from "../../../RenderDriver/RenderModuleData/Design/3
 import { Material } from "../../../resource/Material";
 import { Bounds } from "../../math/Bounds";
 import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
+import { UnlitMaterial } from "../material/UnlitMaterial";
 import { MeshSprite3DShaderDeclaration } from "../MeshSprite3DShaderDeclaration";
 import { BaseRender } from "../render/BaseRender";
 import { RenderContext3D } from "../render/RenderContext3D";
@@ -127,9 +128,14 @@ export class PixelLineRenderer extends BaseRender {
 
 
     renderUpdate(context: RenderContext3D): void {
-        this._renderElements.forEach(element => {
+        this._renderElements.forEach((element, index) => {
             element._renderElementOBJ.isRender = element._geometry._prepareRender(context);
             element._geometry._updateRenderParams(context);
+
+            let material = this.sharedMaterial ?? UnlitMaterial.defaultMaterial;
+            material = this.sharedMaterials[index] ?? material;
+            element.material = material;
+            element._renderElementOBJ.materialRenderQueue = material.renderQueue;
         })
     }
 
