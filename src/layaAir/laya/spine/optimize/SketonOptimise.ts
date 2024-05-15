@@ -6,13 +6,17 @@ import { AttachmentParse } from "./AttachmentParse";
 import { IBCreator } from "./IBCreator";
 import { MultiRenderData } from "./MultiRenderData";
 import { SlotUtils } from "./SlotUtils";
-import { SpineNormalRender } from "./SpineNormalRender";
 import { SpineOptimizeRender } from "./SpineOptimizeRender";
 import { VBBoneCreator, VBCreator, VBRigBodyCreator } from "./VBCreator";
+import { IPreRender } from "./interface/IPreRender";
 import { ISpineOptimizeRender } from "./interface/ISpineOptimizeRender";
 
-export class SketonOptimise {
+export class SketonOptimise implements IPreRender {
+    canCache: boolean;
     sketon: spine.Skeleton;
+    _stateData: spine.AnimationStateData;
+    _state: spine.AnimationState;
+
     blendModeMap: Map<number, number>;
 
     animators: AnimationRender[];
@@ -30,8 +34,9 @@ export class SketonOptimise {
 
     _initSpineRender(skeleton: spine.Skeleton, templet: SpineTemplet, graphics: Graphics): ISpineOptimizeRender {
         let sp: ISpineOptimizeRender;
+        //SpineNormalRender;
         // if (this.type == ERenderType.normal) {
-        //     sp = new SpineNormalRender();
+        //sp = new SpineNormalRender();
         // }
         // else {
         sp = new SpineOptimizeRender(this);
@@ -40,10 +45,34 @@ export class SketonOptimise {
         return sp;
     }
 
+    _updateState(delta: number) {
+        this._state.update(delta);
+        let trackEntry = this._state.getCurrent(0);
+        this._state.apply(this.sketon);
+        this.sketon.updateWorldTransform();
+        return this.sketon.bones;
+    }
+
+    _play(animationName: string) {
+        // 设置执行哪个动画
+        let trackEntry = this._state.setAnimation(0, animationName, true);
+        // 设置起始和结束时间
+        trackEntry.animationStart = 0;
+        //trackEntry.animationEnd = end;
+        //@ts-ignore
+        let animationDuration = trackEntry.animation.duration;
+        //this._duration = animationDuration;
+        return animationDuration;
+    }
+
     checkMainAttach(skeletonData: spine.SkeletonData) {
         // this.type = ERenderType.normal;
         // return;
         this.sketon = new spine.Skeleton(skeletonData);
+        //@ts-ignore
+        this._stateData = new spine.AnimationStateData(this.sketon.data);
+        // 动画状态类
+        this._state = new spine.AnimationState(this._stateData);
         this.attachMentParse(skeletonData);
         this.initAnimation(skeletonData.animations);
         // this.type = type;
@@ -72,7 +101,7 @@ export class SketonOptimise {
             if (i != 0) {
                 skinAttach.copyFrom(defaultSkinAttach);
             }
-            skinAttach.attachMentParse(skin, skeletonData.slots);
+            skinAttach.attachMentParse(skin, slots);
             this.skinAttachArray.push(skinAttach);
             skinAttach.checkMainAttach(slots);
             if (i == 0) {
@@ -85,7 +114,7 @@ export class SketonOptimise {
         for (let i = 0, n = animations.length; i < n; i++) {
             let animation = animations[i];
             let animator = new AnimationRender();
-            animator.check(animation);
+            animator.check(animation, this);
             this.animators.push(animator);
             this.skinAttachArray.forEach((value: SkinAttach) => {
                 value.initAnimator(animator);

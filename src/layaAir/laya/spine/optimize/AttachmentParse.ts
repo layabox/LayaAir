@@ -1,3 +1,4 @@
+import { Color } from "../../maths/Color";
 import { Texture } from "../../resource/Texture";
 import { SpineTexture } from "../SpineTexture";
 import { SpineOptimizeConst } from "./SpineOptimizeConst";
@@ -6,15 +7,15 @@ const QUAD_TRIANGLES = [0, 1, 2, 2, 3, 0];
 export class AttachmentParse {
     slotId: number;
     attachment: string;
-    color: spine.Color;
-    attachmentColor:spine.Color;
+    color: TColor;
+    attachmentColor:TColor;
     blendMode: number;
     vertexArray: Float32Array;
     indexArray: Array<number>;
     uvs: spine.ArrayLike<number>;
     stride: number;
     boneIndex: number;
-    texture: Texture;
+    textureName: string;
     isclip: boolean;
     sourceData: spine.Attachment;
     vertexCount: number;
@@ -26,7 +27,7 @@ export class AttachmentParse {
         this.boneIndex = boneIndex;
         let slotColor = slot.color;
         this.blendMode = slot.blendMode;
-        let color = this.color = new spine.Color();
+        let color = this.color = new Color();
         let attchmentColor: spine.Color;
         if (attachment instanceof spine.RegionAttachment) {
             attchmentColor = attachment.color;
@@ -36,15 +37,15 @@ export class AttachmentParse {
             this.indexArray = QUAD_TRIANGLES;
             this.uvs = region.uvs;
             //region.region.
-            this.texture = (<SpineTexture>(region.region as any).page.texture).realTexture;
+            this.textureName = (region.region as any).page.name;
         }
         else if (attachment instanceof spine.MeshAttachment) {
             attchmentColor = attachment.color;
             let vside =  SpineOptimizeConst.BONEVERTEX;
             //return false;
             let mesh = attachment as spine.MeshAttachment;
-            this.texture = (<SpineTexture>(mesh.region as any).page.texture).realTexture;
-            if (!mesh.bones) {
+            this.textureName = (mesh.region as any).page.name;
+            if (!mesh.bones||mesh.bones.length==0) {
                 if (deform && deform.length > 1) {
                     //debugger;
                     this.vertexArray = new Float32Array(deform);
@@ -135,4 +136,11 @@ export class AttachmentParse {
         }
         return true;
     }
+}
+
+type TColor={
+    r:number;
+    g:number;
+    b:number;
+    a:number;
 }

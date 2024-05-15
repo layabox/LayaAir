@@ -93,10 +93,10 @@ export class SpineTemplet extends Resource {
         return parseAtlas.call(this, atlasText, progress).then((atlas: any) => {
             let atlasLoader = new this._ns.AtlasAttachmentLoader(atlas);
             if (desc instanceof ArrayBuffer) {
-                let skeletonBinary = new this._ns.SkeletonBinary(atlasLoader);
+                let skeletonBinary = new this._ns.SkeletonBinary(atlasLoader,false);
                 this.skeletonData = skeletonBinary.readSkeletonData(new Uint8Array(desc));
             } else {
-                let skeletonJson = new this._ns.SkeletonJson(atlasLoader);
+                let skeletonJson = new this._ns.SkeletonJson(atlasLoader,false);
                 this.skeletonData = skeletonJson.readSkeletonData(desc);
             }
             this.sketonOptimise.checkMainAttach(this.skeletonData);
@@ -152,7 +152,8 @@ export class SpineTemplet extends Resource {
      * @return
      */
     getAniNameByIndex(index: number): string {
-        let tAni: any = this.skeletonData.animations[index];
+        //@ts-ignore
+        let tAni = this.skeletonData.getAnimationByIndex(index);
         if (tAni) return tAni.name;
         return null;
     }
@@ -163,15 +164,8 @@ export class SpineTemplet extends Resource {
      * @return
      */
     getSkinIndexByName(skinName: string): number {
-        let skins = this.skeletonData.skins;
-        let tSkinData: spine.Skin;
-        for (let i: number = 0, n: number = skins.length; i < n; i++) {
-            tSkinData = skins[i];
-            if (tSkinData.name == skinName) {
-                return i;
-            }
-        }
-        return -1;
+        //@ts-ignore
+        return this.skeletonData.getSkinIndexByName(skinName);
     }
 
     /**

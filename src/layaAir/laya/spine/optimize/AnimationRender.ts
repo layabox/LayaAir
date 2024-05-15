@@ -1,14 +1,14 @@
 import { AttachmentParse } from "./AttachmentParse";
 import { IBCreator } from "./IBCreator";
-import { MultiRenderData } from "./MultiRenderData";
 import { IBRenderData } from "./SketonOptimise";
 import { VBCreator } from "./VBCreator";
 import { ChangeDrawOrder } from "./change/ChangeDrawOrder";
 import { ChangeRGBA } from "./change/ChangeRGBA";
 import { ChangeSlot } from "./change/ChangeSlot";
 import { IChange } from "./interface/IChange";
+import { IPreRender } from "./interface/IPreRender";
 import { IVBChange } from "./interface/IVBChange";
-
+const step = 1 / 30;
 export class AnimationRender {
     static tempIbCreate: IBCreator = new IBCreator();
     name: string;
@@ -17,10 +17,28 @@ export class AnimationRender {
     frames: number[];
     frameNumber: number;
     skinDataArray: SkinAniRenderData[];
+    boneFrames: Float32Array[][];
+    isCache:boolean;
+
+
+    static getFloat32Array(bone: spine.Bone) {
+        let rs = new Float32Array(8);
+        rs[0] = bone.a;
+        rs[1] = bone.b;
+        rs[2] = bone.worldX;
+        rs[3] = 0;
+        rs[4] = bone.c;
+        rs[5] = bone.d;
+        rs[6] = bone.worldY;
+        rs[7] = 0;
+        return rs;
+    }
+
     constructor() {
         this.changeIB = new Map();
         this.frames = [];
         this.skinDataArray = [];
+        this.boneFrames = [];
     }
 
     private checkChangeVB() {
@@ -50,14 +68,31 @@ export class AnimationRender {
         return frameIndex;
     }
 
-    check(animation: spine.Animation) {
+    cacheBones(preRender: IPreRender) {
+        let duration = preRender._play(this.name);
+        let totalFrame = Math.round(duration / step);
+        for (let i = 0; i < totalFrame; i++) {
+            let bones = preRender._updateState(step);
+            let frame: Float32Array[] = [];
+            this.boneFrames.push(frame);
+            for (let j = 0; j < bones.length; j++) {
+                let bone = bones[j];
+                let rs = AnimationRender.getFloat32Array(bone);
+                frame.push(rs);
+            }
+        }
+    }
+
+    check(animation: spine.Animation, preRender: IPreRender) {
         this.name = animation.name;
+     
         let timeline = animation.timelines;
         let tempMap = this.changeIB;
         let tempArray = this.frames;
         //this.mainIb = mainib;
         tempMap.clear();
         tempArray.length = 0;
+        let hasClip: boolean;
         for (let i = 0, n = timeline.length; i < n; i++) {
             let time = timeline[i];
             if (time instanceof spine.AttachmentTimeline) {
@@ -122,6 +157,16 @@ export class AnimationRender {
                 }
                 // debugger;
             }
+            else if (time instanceof spine.ClippingAttachment) {
+                hasClip = true;
+            }
+            else if(time instanceof spine.EventTimeline){
+                if(preRender.canCache){
+                    let eventTime=time as spine.EventTimeline;
+                    eventTime.frames;
+                    eventTime.events;
+                }
+            }
             // else if (time instanceof spine.AlphaTimeline) {
             //     debugger;
             // }
@@ -130,7 +175,41 @@ export class AnimationRender {
             // }
         }
         tempArray.sort();
+        if (!hasClip) {
+            if (preRender.canCache) {
+                this.cacheBones(preRender);
+                this.isCache=true;
+            }
+            this._modifyTimeLine(timeline, preRender.canCache);
+        }
         this.frameNumber = tempArray.length;
+    }
+
+    private _modifyTimeLine(timelines: Array<spine.Timeline>, canCache: boolean) {
+        for (let i = 0, n = timelines.length; i < n; i++) {
+            let timeLine = timelines[i];
+            //@ts-ignore
+            if (timeLine.slotIndex != undefined) {
+                timelines.splice(i, 1);
+                i--;
+                n--;
+            }
+            //@ts-ignore
+            // else if(timeLine.boneIndex != undefined&&(timeLine instanceof spine.RotateTimeline)){
+            //     timelines.splice(i, 1);
+            //     i--;
+            //     n--;
+            // }
+
+            // if (canCache) {
+            //     //@ts-ignore
+            //     if (timeLine.boneIndex != undefined) {
+            //         timelines.splice(i, 1);
+            //         i--;
+            //         n--;
+            //     }
+            // }
+        }
     }
 
     createSkinData(mainVB: VBCreator, mainIB: IBCreator, slotAttachMap: Map<number, Map<string, AttachmentParse>>, attachMap: AttachmentParse[]) {
@@ -138,10 +217,10 @@ export class AnimationRender {
         let tempMap = this.changeIB;
         let tempArray = this.frames;
         skinData.init(tempMap, mainVB, mainIB, tempArray, slotAttachMap, attachMap, this.changeVB);
+        skinData.updateBoneMat=this.isCache?skinData.updateBoneMatCache:skinData.updateBoneMatByBone;
         this.skinDataArray.push(skinData);
         return skinData;
     }
-
 }
 
 export class SkinAniRenderData {
@@ -153,6 +232,7 @@ export class SkinAniRenderData {
     mutiRenderAble: boolean;
     isNormalRender: boolean;
     checkVBChange: (slots: spine.Slot[]) => boolean;
+    updateBoneMat:(delta: number, boneFrames: Float32Array[][],bones:spine.Bone[])=> void;
     changeVB: IVBChange[];
 
     constructor() {
@@ -185,6 +265,14 @@ export class SkinAniRenderData {
         return this.ibs[frameIndex];
     }
 
+    updateBoneMatCache(delta: number, boneFrames: Float32Array[][],bones:spine.Bone[]): void {
+        this.vb.updateBoneCache(boneFrames, delta / step);
+    }
+
+    updateBoneMatByBone(delta: number, boneFrames: Float32Array[][],bones:spine.Bone[]): void {
+        this.vb.updateBone(bones);
+    }
+
     init(tempMap: Map<number, IChange[]>, mainVB: VBCreator, mainIB: IBCreator, tempArray: number[], slotAttachMap: Map<number, Map<string, AttachmentParse>>, attachMap: AttachmentParse[], changeVB: IVBChange[]) {
         this.mainIB = mainIB;
         let mutiRenderAble = false;
@@ -201,7 +289,7 @@ export class SkinAniRenderData {
         }
         if (tempArray.length == 0) {
             //没有修改IB的情况
-            if(this.vb){
+            if (this.vb) {
                 this.vb.initBoneMat();
             }
             this.vb = this.vb || mainVB;

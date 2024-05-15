@@ -3,6 +3,7 @@ import { Loader } from "../net/Loader";
 import { ExternalSkinItem } from "./ExternalSkinItem";
 import { SpineSkeleton } from "./SpineSkeleton";
 import { SpineTemplet } from "./SpineTemplet";
+import { ISpineSkeleton } from "./interface/ISpineSkeleton";
 
 export class ExternalSkin {
     /**@internal @protected */
@@ -12,7 +13,7 @@ export class ExternalSkin {
     /**@internal @protected */
     protected _items: ExternalSkinItem[];
     /**目标spine */
-    target: SpineSkeleton;
+    target: ISpineSkeleton;
 
     /**
      * 外部皮肤spine的源

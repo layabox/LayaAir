@@ -1,17 +1,18 @@
 import { Graphics } from "../../display/Graphics";
-import { SpineSkeletonRenderer } from "../SpineSkeletonRenderer";
+import { SpineAdapter } from "../SpineAdapter";
 import { SpineTemplet } from "../SpineTemplet";
+import { ISpineRender } from "../interface/ISpineRender";
 import { ISpineOptimizeRender } from "./interface/ISpineOptimizeRender";
 
 export class SpineNormalRender implements ISpineOptimizeRender {
 
     graphics: Graphics;
-    _renerer: SpineSkeletonRenderer;
+    _renerer: ISpineRender;
     _skeleton: spine.Skeleton;
 
     init(skeleton: spine.Skeleton, templet: SpineTemplet, graphics: Graphics): void {
         this.graphics = graphics;
-        this._renerer = new SpineSkeletonRenderer(templet, false);
+        this._renerer = SpineAdapter.createNormalRender(templet, false);
         this._skeleton = skeleton;
     }
 
