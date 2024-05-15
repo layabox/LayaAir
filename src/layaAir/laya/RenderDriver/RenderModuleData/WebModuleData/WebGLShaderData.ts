@@ -10,7 +10,7 @@ import { BaseTexture } from "../../../resource/BaseTexture";
 import { Resource } from "../../../resource/Resource";
 import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
 import { WebGLEngine } from "../../WebGLDriver/RenderDevice/WebGLEngine";
-import { ShaderData, uboParams} from "../../DriverDesign/RenderDevice/ShaderData";
+import { ShaderData, uboParams } from "../../DriverDesign/RenderDevice/ShaderData";
 import { ShaderDefine } from "../Design/ShaderDefine";
 import { WebDefineDatas } from "./WebDefineDatas";
 

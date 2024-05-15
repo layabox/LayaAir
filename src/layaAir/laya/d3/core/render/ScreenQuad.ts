@@ -2,6 +2,7 @@ import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType"
 import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType"
 import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode"
 import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration"
+import { LayaGL } from "../../../layagl/LayaGL"
 import { VertexElement } from "../../../renders/VertexElement"
 import { VertexElementFormat } from "../../../renders/VertexElementFormat"
 import { BufferState } from "../../../webgl/utils/BufferState"
@@ -70,12 +71,15 @@ export class ScreenQuad extends GeometryElement {
 		this._vertexBufferInvertUV.vertexDeclaration = ScreenQuad._vertexDeclaration;
 		this._vertexBufferInvertUV.setData(ScreenQuad._verticesInvertUV.buffer);
 		this._bufferStateInvertUV.applyState([this._vertexBufferInvertUV], null);
+
+		this.invertY = false;
 	}
 
 	/**
 	 * set BufferState
 	 */
 	set invertY(value: boolean) {
+		value = LayaGL.renderEngine._screenInvertY ? !value : value;
 		this.bufferState = value ? this._bufferStateInvertUV : this._bufferState;
 	}
 

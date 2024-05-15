@@ -429,21 +429,21 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
             case RenderState.CULL_NONE:
                 this.cullMode = CullMode.Off;
                 if (isTarget !== invertFront)
-                    this.frontFace = FrontFace.CCW;
-                else this.frontFace = FrontFace.CW;
+                    this.frontFace = FrontFace.CW;
+                else this.frontFace = FrontFace.CCW;
                 break;
             case RenderState.CULL_FRONT:
                 this.cullMode = CullMode.Front;
                 if (isTarget !== invertFront)
-                    this.frontFace = FrontFace.CCW;
-                else this.frontFace = FrontFace.CW;
+                    this.frontFace = FrontFace.CW;
+                else this.frontFace = FrontFace.CCW;
                 break;
             case RenderState.CULL_BACK:
             default:
                 this.cullMode = CullMode.Back;
                 if (isTarget !== invertFront)
-                    this.frontFace = FrontFace.CCW;
-                else this.frontFace = FrontFace.CW;
+                    this.frontFace = FrontFace.CW;
+                else this.frontFace = FrontFace.CCW;
                 break;
         }
     }

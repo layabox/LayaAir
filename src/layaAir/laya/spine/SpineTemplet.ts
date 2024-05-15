@@ -6,9 +6,12 @@ import { ILoadURL } from "../net/Loader";
 import { SpineTexture } from "./SpineTexture";
 import { IBatchProgress } from "../net/BatchProgress";
 import { SpineMaterial } from "./material/SpineMaterial";
-import { Material } from "../resource/Material";
-import { Vector2 } from "../maths/Vector2";
-import { Laya } from "../../Laya";
+import { SpineFastMaterial } from "./material/SpineFastMaterial";
+import { ERenderType } from "./SpineSkeleton";
+import { SpineRBMaterial } from "./material/SpineRBMaterial";
+import { SpineMaterialBase } from "./material/SpineMaterialBase";
+import { SketonOptimise } from "./optimize/SketonOptimise";
+
 
 /**
  * Spine动画模板基类
@@ -18,20 +21,38 @@ export class SpineTemplet extends Resource {
 
     public skeletonData: spine.SkeletonData;
 
-    private materialMap: Map<string, SpineMaterial>;
+    private materialMap: Map<string, SpineMaterialBase>;
 
     private _textures: Record<string, SpineTexture>;
     private _basePath: string;
     private _ns: any;
     public needSlot:boolean;
+
+    sketonOptimise:SketonOptimise;
     
 
     constructor() {
         super();
-
         this._textures = {};
         this.materialMap = new Map();
+        this.sketonOptimise=new SketonOptimise();
     }
+
+    get mainTexture(): Texture {
+        let i=0;
+        let tex:Texture;
+        for(let k in this._textures){
+            tex= this._textures[k].realTexture;
+            if(tex){
+                i++;
+                if(i>1){
+                    return null;
+                }
+            }
+        }
+        return tex;
+    }
+
 
     get ns(): typeof spine {
         return this._ns;
@@ -41,7 +62,7 @@ export class SpineTemplet extends Resource {
         return this._basePath;
     }
 
-    getMaterial(texture: Texture, blendMode: number): Material {
+    getMaterial(texture: Texture, blendMode: number): SpineMaterial {
         let key = texture.id + "_" + blendMode;
         let mat = this.materialMap.get(key);
         if (!mat) {
@@ -78,6 +99,7 @@ export class SpineTemplet extends Resource {
                 let skeletonJson = new this._ns.SkeletonJson(atlasLoader);
                 this.skeletonData = skeletonJson.readSkeletonData(desc);
             }
+            this.sketonOptimise.checkMainAttach(this.skeletonData);
         });
     }
 

@@ -3,7 +3,7 @@ import { Matrix } from "../maths/Matrix";
 import { SpineTexture } from "./SpineTexture";
 import { SpineTemplet } from "./SpineTemplet";
 import { Material } from "../resource/Material";
-import { SpineVirtualMesh } from "./SpineVirtualMesh";
+import { SpineVirtualMesh } from "./mesh/SpineVirtualMesh";
 
 
 interface Renderable {
@@ -302,7 +302,7 @@ export class SpineSkeletonRenderer {
     draw(skeleton: spine.Skeleton, graphics: Graphics, slotRangeStart: number = -1, slotRangeEnd: number = -1) {
         let clipper = this.clipper;
         this.clearBatch();
-        let premultipliedAlpha = this.premultipliedAlpha;
+        let premultipliedAlpha = true;//this.premultipliedAlpha;
         let twoColorTint = this.twoColorTint;
         let blendMode: spine.BlendMode | null = null;
 
@@ -352,7 +352,7 @@ export class SpineSkeletonRenderer {
                 region.computeWorldVertices(boneOrSlot as any, renderable.vertices, 0, clippedVertexSize);
                 triangles = QUAD_TRIANGLES;
                 uvs = region.uvs;
-                texture = <SpineTexture>(region.region as any).texture;
+                texture = <SpineTexture>(region.region as any).page.texture;
                 attachmentColor = region.color;
                 // graphics.drawTexture(texture.realTexture,0,0,100,100,null,1,"#ffffff","normal",uvs as any)
 
@@ -368,7 +368,7 @@ export class SpineSkeletonRenderer {
                 }
                 mesh.computeWorldVertices(slot, 0, mesh.worldVerticesLength, renderable.vertices, 0, clippedVertexSize);
                 triangles = mesh.triangles;
-                texture = <SpineTexture>(mesh.region as any).texture;
+                texture = <SpineTexture>(mesh.region as any).page.texture;
                 uvs = mesh.uvs;
                 attachmentColor = mesh.color;
             } else if (attachment instanceof spine.ClippingAttachment) {
@@ -438,7 +438,9 @@ export class SpineSkeletonRenderer {
                         mesh = this.nextBatch(mesh.material);
                         mesh.clear();
                     }
-                    mesh.appendVertices(renderable.vertices, renderable.numFloats, triangles, triangles.length, finalColor, uvs);
+                    if(finalColor.a!=0){
+                        mesh.appendVertices(renderable.vertices, renderable.numFloats, triangles, triangles.length, finalColor, uvs);
+                    }
                 }
             }
             clipper.clipEndWithSlot(slot);

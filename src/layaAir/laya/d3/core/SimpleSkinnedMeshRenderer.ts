@@ -7,8 +7,11 @@ import { Texture2D } from "../../resource/Texture2D";
 import { Vector2 } from "../../maths/Vector2";
 import { Vector4 } from "../../maths/Vector4";
 import { IRenderContext3D } from "../../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
-import { BaseRenderType } from "../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
+import { BaseRenderType, IBaseRenderNode } from "../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
 import { Sprite3D } from "./Sprite3D";
+import { Laya3DRender } from "../RenderObjs/Laya3DRender";
+import { RenderContext3D } from "./render/RenderContext3D";
+import { RenderElement } from "./render/RenderElement";
 
 export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
     /**@internal 解决循环引用 */
@@ -82,12 +85,30 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
      * @protected
      * @returns 
      */
+    protected _createBaseRenderNode(): IBaseRenderNode {
+        return Laya3DRender.Render3DModuleDataFactory.createBaseRenderNode();
+    }
+
+    /**
+     * @internal
+     * @protected
+     * @returns 
+     */
     protected _getcommonUniformMap(): string[] {
         return ["Sprite3D", "SimpleSkinnedMesh"];
     }
 
     protected _computeSkinnedData(): void {
         this._computeAnimatorParamsData();
+    }
+
+    /**
+  * @param context
+  * @perfTag PerformanceDefine.T_SkinBoneUpdate
+  */
+    renderUpdate(context: RenderContext3D): void {
+        super.renderUpdate(context);
+        this._computeSkinnedData();
     }
 
     /**
