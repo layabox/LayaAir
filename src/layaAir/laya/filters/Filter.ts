@@ -71,7 +71,7 @@ export abstract class Filter implements IFilter {
             return;
         }
 
-        let cache = sprite._cacheStyle;
+        let cache = sprite._getCacheStyle();
         // 先把节点渲染到一个贴图上
         //if(RenderSprite.RenderToCacheTexture(sprite,context,x,y)){
         if (this._renderNextToCacheRT(sprite, context)) {

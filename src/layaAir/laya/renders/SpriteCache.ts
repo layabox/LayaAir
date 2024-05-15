@@ -386,7 +386,7 @@ export class SpriteCache{
 
     static renderCacheAsNormal(context:Context|DefferTouchResContext,sprite:Sprite,next:RenderSprite,x:number,y:number){
         let rebuild=false;
-        var cache = sprite._cacheStyle.cacheInfo.page;
+        var cache = sprite._getCacheStyle().cacheInfo.page;
         if (!cache || sprite._needRepaint() || ILaya.stage.isGlobalRepaint()) {
             if(sprite.alpha<=1e-6){
                 sprite.alpha = 0.001;//TODO 透明的不画了

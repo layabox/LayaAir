@@ -85,7 +85,6 @@ export class Value2D {
         }
 
         //
-        this._defaultShader = Shader3D.find("2D");
         this.shaderData.setBool(Shader3D.DEPTH_WRITE, false);
         this.shaderData.setInt(Shader3D.DEPTH_TEST, RenderState.DEPTHTEST_OFF);
         this.shaderData.setInt(Shader3D.BLEND, RenderState.BLEND_ENABLE_ALL);

@@ -284,7 +284,7 @@ export class RenderSprite {
      * @returns 
      */
     _renderNextToCacheRT(sprite:Sprite,context:Context){
-        var _cacheStyle = sprite._cacheStyle;
+        var _cacheStyle = sprite._getCacheStyle();
         if (sprite._needRepaint() || !_cacheStyle.renderTexture || ILaya.stage.isGlobalRepaint()) {
             if(_cacheStyle.renderTexture){
                 _cacheStyle.renderTexture.destroy();//TODO 优化， 如果大小相同，可以重复利用
@@ -359,7 +359,7 @@ export class RenderSprite {
     static RenderToRenderTexture(sprite:Sprite,context:Context|null, x:number, y:number, renderTexture:RenderTexture2D=null){
         //如果需要构造RenderTexture
         // 先计算需要的texuture的大小。
-        let scaleInfo = sprite._cacheStyle._calculateCacheRect(sprite, "bitmap"/*sprite._cacheStyle.cacheAs*/, 0, 0);
+        let scaleInfo = sprite._getCacheStyle()._calculateCacheRect(sprite, "bitmap"/*sprite._cacheStyle.cacheAs*/, 0, 0);
         let tRec = sprite._cacheStyle.cacheRect;
         let ctx = new Context();
         context && ctx.copyState(context);
@@ -392,7 +392,7 @@ export class RenderSprite {
      * @returns 
      */
     static RenderToCacheTexture(sprite:Sprite,context:Context|null, x:number, y:number){
-        var _cacheStyle = sprite._cacheStyle;
+        var _cacheStyle = sprite._getCacheStyle();
         if (sprite._needRepaint() || !_cacheStyle.renderTexture || ILaya.stage.isGlobalRepaint()) {
             if(_cacheStyle.renderTexture){
                 _cacheStyle.renderTexture.destroy();//TODO 优化， 如果大小相同，可以重复利用

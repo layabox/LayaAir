@@ -73,7 +73,7 @@ export class CacheStyle {
     * 没看懂传入x,y有什么用
     */
     _calculateCacheRect(sprite: Sprite, tCacheType: string, x: number, y: number): Point {
-        var _cacheStyle = sprite._cacheStyle;
+        var _cacheStyle = sprite._getCacheStyle();
         if (!_cacheStyle.cacheRect)
             _cacheStyle.cacheRect = Rectangle.create();
         var tRec: Rectangle;

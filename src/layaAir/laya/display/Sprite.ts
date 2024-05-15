@@ -212,7 +212,7 @@ export class Sprite extends Node {
      * webgl下命令缓存模式缺点：只会减少节点遍历及命令组织，不会减少drawcall数，性能中等。优点：没有额外内存开销，无需renderTarget支持。
      */
     get cacheAs(): string {
-        return this._cacheStyle.userSetCache;
+        return this._getCacheStyle().userSetCache;
     }
 
     set cacheAs(value: string) {
@@ -256,7 +256,7 @@ export class Sprite extends Node {
      * @deprecated
      */
     get staticCache(): boolean {
-        return this._cacheStyle.staticCache;
+        return this._getCacheStyle().staticCache;
     }
 
     /**@deprecated */
@@ -306,7 +306,7 @@ export class Sprite extends Node {
             }
             //_setTranformChange();
             this.parentRepaint(SpriteConst.REPAINT_CACHE);
-            var p: Sprite = this._cacheStyle.maskParent;
+            var p: Sprite = this._getCacheStyle().maskParent;
             if (p) {
                 p.repaint(SpriteConst.REPAINT_CACHE);
             }
@@ -329,7 +329,7 @@ export class Sprite extends Node {
             }
             //_setTranformChange();
             this.parentRepaint(SpriteConst.REPAINT_CACHE);
-            var p: Sprite = this._cacheStyle.maskParent;
+            var p: Sprite = this._getCacheStyle().maskParent;
             if (p) {
                 p.repaint(SpriteConst.REPAINT_CACHE);
             }
@@ -1632,6 +1632,7 @@ export class Sprite extends Node {
             this._repaint |= type;
             this.parentRepaint(type);
         }
+        this._getCacheStyle();
         if (this._cacheStyle) {
             this._cacheStyle.renderTexture = null;//TODO 重用
         }
@@ -1764,7 +1765,8 @@ export class Sprite extends Node {
      * @override
     */
     _setDisplay(value: boolean): void {
-        if (!value && this._cacheStyle) {
+        this._getCacheStyle();
+        if (!value) {
             this._cacheStyle.onInvisible();
         }
         super._setDisplay(value);
