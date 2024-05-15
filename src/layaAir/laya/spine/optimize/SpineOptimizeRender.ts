@@ -10,9 +10,12 @@ import { LayaGL } from "../../layagl/LayaGL";
 import { Vector4 } from "../../maths/Vector4";
 import { Material } from "../../resource/Material";
 import { Texture } from "../../resource/Texture";
+import { SpineAdapter } from "../SpineAdapter";
 import { ERenderType } from "../SpineSkeleton";
 import { SpineSkeletonRenderer } from "../SpineSkeletonRenderer";
 import { SpineTemplet } from "../SpineTemplet";
+import { SpineWasmRender } from "../SpineWasmRender";
+import { ISpineRender } from "../interface/ISpineRender";
 import { IOptimizeMaterial } from "../material/IOptimizeMaterial";
 import { SpineFastMaterial } from "../material/SpineFastMaterial";
 import { SpineFastMaterialShaderInit } from "../material/SpineFastMaterialShaderInit";
@@ -245,7 +248,7 @@ class RenderMulti implements IRender {
 
 class RenderNormal implements IRender {
     graphics: Graphics;
-    _renerer: SpineSkeletonRenderer;
+    _renerer: ISpineRender;
     _skeleton: spine.Skeleton;
 
     constructor(skeleton: spine.Skeleton, graphics: Graphics) {
@@ -279,13 +282,15 @@ class SkinRender implements IVBIBUpdate {
     materialConstructor: new () => IOptimizeMaterial;
     elements: [Material, number, number][];
     private hasNormalRender: boolean;
-    _renerer: SpineSkeletonRenderer;
+    _renerer: ISpineRender;
     /**
     * Material
     */
     material: IOptimizeMaterial;
 
     elementsMap: Map<number, ElementCreator>;
+
+    templet: SpineTemplet;
 
     currentMaterials: IOptimizeMaterial[];
     constructor(owner: SpineOptimizeRender, skinAttach: SkinAttach) {
@@ -324,6 +329,11 @@ class SkinRender implements IVBIBUpdate {
         return mat;
     }
 
+    getMaterialByName(name: string, blendMode: number): IOptimizeMaterial {
+        let texture = this.templet.getTexture(name).realTexture;
+        return this.getMaterial(texture, blendMode);
+    }
+
     /**
      * 添加到渲染队列
      * @param graphics 
@@ -359,8 +369,9 @@ class SkinRender implements IVBIBUpdate {
         //mutiRenderData.renderData.
     }
     init(skeleton: spine.Skeleton, templet: SpineTemplet, graphics: Graphics) {
+        this.templet = templet;
         if (this.hasNormalRender) {
-            this._renerer = new SpineSkeletonRenderer(templet, false);
+            this._renerer = SpineAdapter.createNormalRender(templet, false);
         }
         this.material = this.getMaterial(templet.mainTexture, 0);
     }
@@ -380,7 +391,7 @@ class ElementCreator {
         let renderData = mutiRenderData.renderData;
         for (let i = 0, n = renderData.length; i < n; i++) {
             let data = renderData[i];
-            let mat = skinData.getMaterial(data.texture, data.blendMode);
+            let mat = skinData.getMaterialByName(data.textureName, data.blendMode);
             if (currentMaterials.indexOf(mat) == -1) {
                 this.currentMaterials.push(mat);
             }

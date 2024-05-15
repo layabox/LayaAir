@@ -62,9 +62,9 @@ export abstract class SpineMeshBase {
         let iblen = this.indicesLength * 2;
 
         vb.setDataLength(vblen);
-        vb.setData(this.vertexArray.buffer, 0, 0, vblen)
-        ib._setIndexDataLength(iblen)
-        ib._setIndexData(new Uint16Array(this.indexArray.buffer, 0, iblen / 2), 0)
+        vb.setData(this.vertexArray.buffer, 0, this.vertexArray.byteOffset, vblen)
+        ib._setIndexDataLength(iblen);
+        ib._setIndexData(new Uint16Array(this.indexArray.buffer, this.indexArray.byteOffset, iblen / 2), 0)
         this.geo.clearRenderParams();
         this.geo.setDrawElemenParams(iblen / 2, 0);
         graphics.drawGeo(this.geo, this.material);

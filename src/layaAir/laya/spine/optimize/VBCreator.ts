@@ -98,8 +98,8 @@ export abstract class VBCreator implements IGetBone {
             let attach = getAttach(drawOrder[i]);
             if (attach.attachment) {
                 let needAdd = false;
-                if (texture != attach.texture) {
-                    texture = attach.texture;
+                if (texture != attach.textureName) {
+                    texture = attach.textureName;
                     needAdd = true;
                 }
                 if (blend != attach.blendMode) {
@@ -110,7 +110,7 @@ export abstract class VBCreator implements IGetBone {
                     if (outRenderData.currentData) {
                         outRenderData.endData(offset);
                     }
-                    outRenderData.addData(attach.texture, attach.blendMode, offset, 0);
+                    outRenderData.addData(attach.textureName, attach.blendMode, offset, 0);
                 }
                 let attachPos = slotVBMap.get(attach.slotId).get(attach.attachment);
                 offset = SlotUtils.appendIndexArray(attach, ib, attachPos.offset, offset);
@@ -137,6 +137,41 @@ export abstract class VBCreator implements IGetBone {
             boneMat[offset + 5] = bone.d;
             boneMat[offset + 6] = bone.worldY;
             boneMat[offset + 7] = 0;
+        }
+    }
+
+    updateBoneCache(boneFrames: Float32Array[][], frames: number) {
+        let boneMat: Float32Array = this.boneMat;
+        let boneArray = this.boneArray;
+        let floor = Math.floor(frames);
+        let detal;
+        if (floor == boneFrames.length - 1) { detal = 0; }
+        else {
+            detal = frames - floor;
+        }
+        let boneFrames1 = boneFrames[floor];
+        let boneFrames2 = boneFrames[floor + 1];
+        if (detal > 0.0001) {
+            for (let i = 0, n = boneArray.length; i < n; i += 2) {
+                let offset = boneArray[i] * 8;
+                let boneFloatArray = boneFrames1[boneArray[i + 1]];
+                let boneFloatArray2 = boneFrames2[boneArray[i + 1]];
+                boneMat[offset] = boneFloatArray[0] + (boneFloatArray2[0] - boneFloatArray[0]) * detal;
+                boneMat[offset + 1] = boneFloatArray[1] + (boneFloatArray2[1] - boneFloatArray[1]) * detal;
+                boneMat[offset + 2] = boneFloatArray[2] + (boneFloatArray2[2] - boneFloatArray[2]) * detal;
+                boneMat[offset + 3] = 0
+                boneMat[offset + 4] = boneFloatArray[4] + (boneFloatArray2[4] - boneFloatArray[4]) * detal;
+                boneMat[offset + 5] = boneFloatArray[5] + (boneFloatArray2[5] - boneFloatArray[5]) * detal;
+                boneMat[offset + 6] = boneFloatArray[6] + (boneFloatArray2[6] - boneFloatArray[6]) * detal;
+                boneMat[offset + 7] = 0;
+            }
+        }
+        else {
+            for (let i = 0, n = boneArray.length; i < n; i += 2) {
+                let offset = boneArray[i] * 8;
+                let bone = boneFrames1[boneArray[i + 1]];
+                boneMat.set(bone, offset);
+            }
         }
     }
 

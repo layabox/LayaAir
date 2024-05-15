@@ -1,14 +1,17 @@
 import { ILaya } from "../../ILaya";
+import { timer } from "../../Laya";
 import { LayaEnv } from "../../LayaEnv";
 import { Sprite } from "../display/Sprite";
 import { Event } from "../events/Event";
 import { SoundManager } from "../media/SoundManager";
 import { Loader } from "../net/Loader";
 import { Handler } from "../utils/Handler";
+import { Timer } from "../utils/Timer";
 import { ExternalSkin } from "./ExternalSkin";
 
 import { SpineSkeletonRenderer } from "./SpineSkeletonRenderer";
 import { SpineTemplet } from "./SpineTemplet";
+import { ISpineSkeleton } from "./interface/ISpineSkeleton";
 import { ISpineOptimizeRender } from "./optimize/interface/ISpineOptimizeRender";
 
 
@@ -31,7 +34,7 @@ import { ISpineOptimizeRender } from "./optimize/interface/ISpineOptimizeRender"
 /**
  * spine动画由<code>SpineTemplet</code>，<code>SpineSkeletonRender</code>，<code>SpineSkeleton</code>三部分组成。
  */
-export class SpineSkeleton extends Sprite {
+export class SpineSkeleton extends Sprite implements ISpineSkeleton {
     /**状态-停止 */
     static readonly STOPPED: number = 0;
     /**状态-暂停 */
@@ -44,7 +47,7 @@ export class SpineSkeleton extends Sprite {
     /**@internal @protected */
     protected _templet: SpineTemplet;
     /**@internal @protected */
-    protected _timeKeeper: spine.TimeKeeper;
+    protected _timeKeeper: TimeKeeper;
     /**@internal @protected */
     protected _skeleton: spine.Skeleton;
     /**@internal @protected */
@@ -238,7 +241,7 @@ export class SpineSkeleton extends Sprite {
         // 动画状态类
         this._state = new templet.ns.AnimationState(this._stateData);
         //this._renerer = new SpineSkeletonRenderer(templet, false);
-        this._timeKeeper = new templet.ns.TimeKeeper();
+        this._timeKeeper = new TimeKeeper(this.timer);
         //let sMesh=this._templet.slotManger.init(this._skeleton.drawOrder, this._templet,this._templet.mainTexture);
         this.spineItem = this._templet.sketonOptimise._initSpineRender(this._skeleton, this._templet, this.graphics);
         let skinIndex = this._templet.getSkinIndexByName(this._skinName);
@@ -324,9 +327,9 @@ export class SpineSkeleton extends Sprite {
             this._currAniName = animationName;
             this.spineItem.play(animationName);
             // 设置执行哪个动画
-            this._state.setAnimation(this.trackIndex, animationName, loop);
+            let trackEntry = this._state.setAnimation(this.trackIndex, animationName, loop);
             // 设置起始和结束时间
-            let trackEntry = this._state.getCurrent(this.trackIndex);
+            //let trackEntry = this._state.getCurrent(this.trackIndex);
             trackEntry.animationStart = start;
             if (!!end && end < trackEntry.animationEnd)
                 trackEntry.animationEnd = end;
@@ -382,7 +385,9 @@ export class SpineSkeleton extends Sprite {
      * @return 当前动画的数量
      */
     getAnimNum(): number {
-        return this._templet.skeletonData.animations.length;
+       // return this._templet.skeletonData.animations.length;
+        //@ts-ignore
+        return this._templet.skeletonData.getAnimationsSize();
     }
 
     /**
@@ -423,8 +428,10 @@ export class SpineSkeleton extends Sprite {
      */
     showSkinByIndex(skinIndex: number): void {
         this.spineItem.setSkinIndex(skinIndex);
-        let newSkine = this._skeleton.data.skins[skinIndex];
-        this._skeleton.setSkin(newSkine);
+        // let newSkine = this._skeleton.data.skins[skinIndex];
+        // this._skeleton.setSkin(newSkine);
+        //@ts-ignore
+        this._skeleton.showSkinByIndex(skinIndex);
         this._skeleton.setSlotsToSetupPose();
     }
 
@@ -592,4 +599,26 @@ export enum ERenderType {
     normal = 0,
     boneGPU = 1,
     rigidBody = 2,
+}
+
+class TimeKeeper {
+    maxDelta: number;
+    framesPerSecond: number;
+    delta: number;
+    totalTime: number;
+    lastTime: number;
+    frameCount: number;
+    frameTime: number;
+
+    timer: Timer;
+
+    constructor(timer:Timer) {
+        this.maxDelta = 0.064;
+        this.timer = timer;
+    }
+    update() {
+        this.delta =this.timer.delta/1000;
+        if (this.delta > this.maxDelta)
+            this.delta = this.maxDelta;
+    }
 }

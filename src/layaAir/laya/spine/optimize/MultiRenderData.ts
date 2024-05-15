@@ -1,6 +1,6 @@
-import { Texture } from "../../resource/Texture";
+import { Texture as string } from "../../resource/Texture";
 type RenderData = {
-    texture: Texture;
+    textureName: string;
     blendMode: number;
     offset: number;
     length: number;
@@ -16,8 +16,8 @@ export class MultiRenderData {
         this.renderData = [];
         this.id = MultiRenderData.ID++;
     }
-    addData(texture: Texture, blendMode: number, offset: number, length: number) {
-        this.currentData = { texture, blendMode, offset, length }
+    addData(textureName: string, blendMode: number, offset: number, length: number) {
+        this.currentData = { textureName: textureName, blendMode, offset, length }
         this.renderData.push(this.currentData);
     }
 

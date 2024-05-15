@@ -4,6 +4,7 @@ import { SpineTexture } from "./SpineTexture";
 import { SpineTemplet } from "./SpineTemplet";
 import { Material } from "../resource/Material";
 import { SpineVirtualMesh } from "./mesh/SpineVirtualMesh";
+import { ISpineRender } from "./interface/ISpineRender";
 
 
 interface Renderable {
@@ -14,7 +15,7 @@ interface Renderable {
 
 const QUAD_TRIANGLES = [0, 1, 2, 2, 3, 0];
 
-export class SpineSkeletonRenderer {
+export class SpineSkeletonRenderer implements ISpineRender {
     premultipliedAlpha: boolean;
     vertexEffect: spine.VertexEffect = null;
     templet: SpineTemplet;

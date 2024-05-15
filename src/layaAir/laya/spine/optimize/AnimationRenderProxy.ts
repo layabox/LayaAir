@@ -42,7 +42,8 @@ export class AnimationRenderProxy {
             this.currentTime = curTime;
             this.currentFrameIndex = nowFrame;
         }
-        vb.updateBone(bones);
+        currentSKin.updateBoneMat(curTime,this.animator.boneFrames,bones);
+        //vb.updateBone(bones);
         return vb.boneMat;
     }
 }
