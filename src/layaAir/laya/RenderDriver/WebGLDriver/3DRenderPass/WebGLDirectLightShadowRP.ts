@@ -74,8 +74,6 @@ export class WebGLDirectLightShadowRP {
     /** @internal */
     private _shadowMapSize: Vector4 = new Vector4();
     /** @internal */
-    private _shadowParams: Vector4 = new Vector4();
-    /** @internal */
     private _shadowBias: Vector4 = new Vector4();
     /** @internal */
     private _cascadeCount: number = 0;
@@ -105,7 +103,7 @@ export class WebGLDirectLightShadowRP {
         //设置分辨率
         var atlasResolution = this._light.shadowResolution;
         var cascadesMode = this.shadowCastMode = this._light.shadowCascadesMode;
-        this._shadowParams.setValue(this._light.shadowStrength, 0, 0, 0);
+
         if (cascadesMode == ShadowCascadesMode.NoCascades) {
             this._cascadeCount = 1;
             this._shadowTileResolution = atlasResolution;
@@ -119,6 +117,10 @@ export class WebGLDirectLightShadowRP {
             this._shadowMapWidth = shadowTileResolution * 2;
             this._shadowMapHeight = cascadesMode == ShadowCascadesMode.TwoCascades ? shadowTileResolution : shadowTileResolution * 2;
         }
+    }
+
+    get light(): WebDirectLight {
+        return this._light;
     }
 
     constructor() {
@@ -249,7 +251,6 @@ export class WebGLDirectLightShadowRP {
         }
         scene.setBuffer(ShadowCasterPass.SHADOW_MATRICES, this._shadowMatrices);
         scene.setVector(ShadowCasterPass.SHADOW_MAP_SIZE, this._shadowMapSize);
-        scene.setVector(ShadowCasterPass.SHADOW_PARAMS, this._shadowParams);
         scene.setBuffer(ShadowCasterPass.SHADOW_SPLIT_SPHERES, this._splitBoundSpheres);
     }
 
