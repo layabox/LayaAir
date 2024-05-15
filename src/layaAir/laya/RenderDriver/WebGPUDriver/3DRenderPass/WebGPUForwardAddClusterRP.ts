@@ -14,7 +14,7 @@ export class WebGPUForwardAddClusterRP extends ForwardAddClusterRP {
      */
     protected _mainPass(context: IRenderContext3D): void {
         context.pipelineMode = this.pipelineMode; //@ts-ignore
-        this.clearFlag = RenderClearFlag.Color | RenderClearFlag.Depth | RenderClearFlag.Stencil;
+        //this.clearFlag = RenderClearFlag.Color | RenderClearFlag.Depth | RenderClearFlag.Stencil;
         context.setClearData(this.clearFlag, this.clearColor, 1, 0);
         context.setRenderTarget(this.destTarget, this.clearFlag);
         (context as WebGPURenderContext3D).clearRenderTarget();
@@ -29,9 +29,10 @@ export class WebGPUForwardAddClusterRP extends ForwardAddClusterRP {
             const skyRenderElement = this.skyRenderNode.renderelements[0] as IRenderElement3D;
             if (skyRenderElement.subShader) {
                 context.drawRenderElementOne(skyRenderElement);
-                this.clearFlag = RenderClearFlag.Depth | RenderClearFlag.Stencil;
-            } else this.clearFlag = RenderClearFlag.Color | RenderClearFlag.Depth | RenderClearFlag.Stencil;
-        } else this.clearFlag = RenderClearFlag.Color | RenderClearFlag.Depth | RenderClearFlag.Stencil;
+                //this.clearFlag = RenderClearFlag.Depth | RenderClearFlag.Stencil;
+            } //else this.clearFlag = RenderClearFlag.Depth | RenderClearFlag.Stencil;
+        } //else this.clearFlag = RenderClearFlag.Depth | RenderClearFlag.Stencil;
+        this.clearFlag = RenderClearFlag.Depth | RenderClearFlag.Stencil;
 
         context.setClearData(this.clearFlag, this.clearColor, 1, 0);
         if (this.enableOpaque) {
