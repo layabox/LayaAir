@@ -943,6 +943,7 @@ export class Scene3D extends Sprite {
             }
             else {
                 shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT);
+                this._mainDirectionLight = null;
             }
 
             var poiCount: number = Stat.enableLight ? this._pointLights._length : 0;
@@ -973,6 +974,7 @@ export class Scene3D extends Sprite {
             }
             else {
                 shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_POINTLIGHT);
+                this._mainPointLight = null;
             }
 
             var spoCount: number = Stat.enableLight ? this._spotLights._length : 0;
@@ -1010,6 +1012,7 @@ export class Scene3D extends Sprite {
             }
             else {
                 shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SPOTLIGHT);
+                this._mainSpotLight = null;
             }
 
             (curCount > 0) && (ligTex.setSubPixelsData(0, 0, pixelWidth, curCount, ligPix, 0, false, false, false));
