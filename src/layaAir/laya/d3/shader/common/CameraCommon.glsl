@@ -42,7 +42,7 @@ vec3 getViewDirection(in vec3 positionWS)
     return normalize(u_CameraPos - positionWS);
 }
 
-// 根据投影剧专重映射深度
+// 根据投影矩阵重映射深度
 vec4 remapPositionZ(vec4 position)
 {
     #ifdef BLITSCREEN_INVERTY

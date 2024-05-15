@@ -126,7 +126,7 @@ export class Shader3D {
         Shader3D.SHADERDEFINE_BREAK_TEXTURE_SAMPLE = Shader3D.getDefineByName("BREAK_TEXTURE_SAMPLE");
         if (LayaGL.renderEngine._remapZ)
             Shader3D._configDefineValues.add(Shader3D.SHADERDEFINE_REMAP_POSITIONZ);
-        if (LayaGL.renderEngine._screenInvertY)
+        if (LayaGL.renderEngine._screenInvertY && false)
             Shader3D._configDefineValues.add(Shader3D.SHADERDEFINE_BLITSCREEN_INVERTY);
         if (LayaGL.renderEngine._lodTextureSample)
             Shader3D._configDefineValues.add(Shader3D.SHADERDEFINE_LOD_TEXTURE_SAMPLE);
