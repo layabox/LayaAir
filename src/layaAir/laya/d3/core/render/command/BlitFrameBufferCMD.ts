@@ -109,11 +109,18 @@ export class BlitFrameBufferCMD {
 		var source = this._source;
 		var dest = this._dest;
 		var shaderData: ShaderData = this._shaderData;
+		let context = RenderContext3D._instance;
+
 		var viewport = this._viewPort;
 		let vph = RenderContext3D.clientHeight - viewport.y - viewport.height;
-		let context = RenderContext3D._instance;
-		context.changeViewport(viewport.x, vph, viewport.width, viewport.height);
-		context.changeScissor(viewport.x, vph, viewport.width, viewport.height);
+		if (LayaGL.renderEngine._screenInvertY) {
+			context.changeViewport(viewport.x, viewport.y, viewport.width, viewport.height);
+			context.changeScissor(viewport.x, viewport.y, viewport.width, viewport.height);
+		}
+		else {
+			context.changeViewport(viewport.x, vph, viewport.width, viewport.height);
+			context.changeScissor(viewport.x, vph, viewport.width, viewport.height);
+		}
 		shaderData.setTexture(Command.SCREENTEXTURE_ID, source);
 		shaderData.setVector(Command.SCREENTEXTUREOFFSETSCALE_ID, this._offsetScale || BlitFrameBufferCMD._defaultOffsetScale);
 		source && (shaderData.setVector(Command.MAINTEXTURE_TEXELSIZE_ID, this._texture_size));
@@ -124,7 +131,7 @@ export class BlitFrameBufferCMD {
 		else {
 			shaderData.addDefine(RenderContext3D.GammaCorrect);
 		}
-		this._renderElement.setGeometry(ScreenQuad.InvertInstance); 
+		this._renderElement.setGeometry(ScreenQuad.InvertInstance);
 		context.destTarget = dest;
 		context._contextOBJ.cameraUpdateMask = Camera._updateMark;
 		context.drawRenderElement(this._renderElement._renderElementOBJ);
