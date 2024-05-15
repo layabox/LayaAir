@@ -261,7 +261,6 @@ export class WebGPUCodeGenerator {
         const shurikenSprite3DUniformMap = globalUniformMap("ShurikenSprite3D") as WebGPUCommandUniformMap;
         const trailRenderUniformMap = globalUniformMap("TrailRender") as WebGPUCommandUniformMap;
         const skyRendererUniformMap = globalUniformMap("SkyRenderer") as WebGPUCommandUniformMap;
-        //const sprite3DtoCameraMap = globalUniformMap("WebGPUSprite3DtoCamera") as WebGPUCommandUniformMap;
         const scene3DUniforms: NameAndType[] = [];
         const cameraUniforms: NameAndType[] = [];
         const sprite3DUniforms: NameAndType[] = [];
@@ -290,10 +289,6 @@ export class WebGPUCodeGenerator {
                 if (!_have(cameraUniforms, name))
                     cameraUniforms.push({ name, type, set: 1 });
             }
-            //else if (sprite3DtoCameraMap.hasPtrID(id)) {
-            //    if (!_have(cameraUniforms, name))
-            //        cameraUniforms.push({ name, type, set: 1 });
-            //}
             else if (sprite3DUniformMap.hasPtrID(id)) {
                 if (!_have(sprite3DUniforms, name))
                     sprite3DUniforms.push({ name, type, set: 2 });

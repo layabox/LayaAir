@@ -109,6 +109,7 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
         if (returnGamma)
             compileDefine.add(ShaderDefines2D.GAMMASPACE);
         else compileDefine.remove(ShaderDefines2D.GAMMASPACE);
+        compileDefine.add(ShaderDefines2D.GAMMASPACE); //?
         if (context.invertY)
             compileDefine.add(ShaderDefines2D.INVERTY);
         else compileDefine.remove(ShaderDefines2D.INVERTY);
