@@ -407,6 +407,7 @@ export class WebGPUShaderData extends ShaderData {
             command.setBindGroup(groupId, bindGroup);
         if (bundle)
             bundle.setBindGroup(groupId, bindGroup);
+
         //返回绑定组结构（用于建立pipeline）
         return bindGroupLayoutEntries;
     }

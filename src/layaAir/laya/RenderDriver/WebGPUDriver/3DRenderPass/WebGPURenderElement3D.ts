@@ -33,7 +33,6 @@ import { WebGPURenderContext3D } from "./WebGPURenderContext3D";
  */
 export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineInfo {
     static _renderShaderData: WebGPUShaderData = new WebGPUShaderData();
-    static _materialShaderData: WebGPUShaderData = new WebGPUShaderData();
     static _compileDefine: WebDefineDatas = new WebDefineDatas();
     static _defineStrings: Array<string> = [];
 
@@ -141,8 +140,10 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
         //设定当前渲染数据
         this._sceneData = context.sceneData;
         this._cameraData = context.cameraData;
-        if (!this.renderShaderData)
+        if (!this.renderShaderData) {
             this.renderShaderData = WebGPURenderElement3D._renderShaderData;
+            this.renderShaderData.destroy();
+        }
         if (this.transform?.owner?.isStatic) {
             if (this.isStatic !== true)
                 this.staticChange = true;

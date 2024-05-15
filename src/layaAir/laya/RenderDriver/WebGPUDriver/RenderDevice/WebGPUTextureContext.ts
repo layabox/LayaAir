@@ -1,6 +1,7 @@
 import { DDSTextureInfo } from "../../../RenderEngine/DDSTextureInfo";
 import { HDRTextureInfo } from "../../../RenderEngine/HDRTextureInfo";
 import { KTXTextureInfo } from "../../../RenderEngine/KTXTextureInfo";
+import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
 import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { TextureCompareMode } from "../../../RenderEngine/RenderEnum/TextureCompareMode";
 import { TextureDimension } from "../../../RenderEngine/RenderEnum/TextureDimension";
@@ -1122,21 +1123,69 @@ export class WebGPUTextureContext implements ITextureContext {
         const gpuColorDescriptor = this._getGPUTextureDescriptor(dimension, width, height, gpuColorFormat, 1, generateMipmap, multiSamples, false);
         const gpuColorTexture = this._engine.getDevice().createTexture(gpuColorDescriptor);
 
-        let texture = new WebGPUInternalTex(width, height, 1, dimension, generateMipmap, multiSamples, false, sRGB ? 1 : 2.2);
+        let texture = new WebGPUInternalTex(width, height, 1, dimension, generateMipmap, multiSamples, false, 1);
         texture.resource = gpuColorTexture;
         texture._webGPUFormat = gpuColorFormat;
 
         return texture;
     }
+    /**
+     * 判断 纹理格式 本身是否是 SRGB格式
+     * @param format 
+     * @returns 
+     */
+    isSRGBFormat(format: TextureFormat | RenderTargetFormat) {
+        switch (format) {
+            case TextureFormat.ETC2SRGB:
+            case TextureFormat.ETC2SRGB_Alpha8:
+            case TextureFormat.ASTC4x4SRGB:
+            case TextureFormat.ASTC6x6SRGB:
+            case TextureFormat.ASTC8x8SRGB:
+            case TextureFormat.ASTC10x10SRGB:
+            case TextureFormat.ASTC12x12SRGB:
+                return true;
+            default:
+                return false;
+        }
+    }
+    supportSRGB(format: TextureFormat | RenderTargetFormat, mipmap: boolean): boolean {
+        switch (format) {
+            case TextureFormat.R8G8B8:
+                return this._engine.getCapable(RenderCapable.Texture_SRGB) && !mipmap;
+            case TextureFormat.R8G8B8A8:
+                return this._engine.getCapable(RenderCapable.Texture_SRGB);
+            case TextureFormat.DXT1:
+            case TextureFormat.DXT3:
+            case TextureFormat.DXT5:
+                // todo  验证 srgb format 和 mipmap webgl1 兼容问题
+                return this._engine.getCapable(RenderCapable.COMPRESS_TEXTURE_S3TC_SRGB) && !mipmap;
+            default:
+                return false;
+        }
+    }
+    supportGenerateMipmap(format: TextureFormat | RenderTargetFormat) {
+        switch (format) {
+            case RenderTargetFormat.DEPTH_16:
+            case RenderTargetFormat.DEPTHSTENCIL_24_8:
+            case RenderTargetFormat.DEPTH_32:
+            case RenderTargetFormat.STENCIL_8:
+                return false;
+            default:
+                return true;
+        }
+    }
     createRenderTargetInternal(width: number, height: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): InternalRenderTarget {
-        generateMipmap = false; //渲染目标不需要mipmap
+        generateMipmap = generateMipmap && this.supportGenerateMipmap(colorFormat);
+        const useSRGBExt = this.isSRGBFormat(colorFormat) || (sRGB && this.supportSRGB(colorFormat, generateMipmap));
+        const gammaCorrection = 1.0;
+        //generateMipmap = false; //渲染目标不需要mipmap
         const pixelByteSize = this._getGPURenderTexturePixelByteSize(colorFormat);
         const gpuColorFormat = this._getGPURenderTargetFormat(colorFormat, sRGB);
         const gpuColorDescriptor = this._getGPUTextureDescriptor(TextureDimension.Tex2D, width, height, gpuColorFormat, 1, generateMipmap, multiSamples, false);
         gpuColorDescriptor.usage = GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.COPY_SRC | GPUTextureUsage.COPY_DST;
         const gpuColorTexture = this._engine.getDevice().createTexture(gpuColorDescriptor);
         const internalRT = new WebGPUInternalRT(colorFormat, depthStencilFormat, false, generateMipmap, multiSamples);
-        internalRT._textures.push(new WebGPUInternalTex(width, height, 1, TextureDimension.Tex2D, generateMipmap, multiSamples, false, 1));
+        internalRT._textures.push(new WebGPUInternalTex(width, height, 1, TextureDimension.Tex2D, generateMipmap, multiSamples, useSRGBExt, gammaCorrection));
         internalRT._textures[0].resource = gpuColorTexture;
         internalRT._textures[0]._webGPUFormat = gpuColorFormat;
         WebGPUGlobal.action(internalRT._textures[0], 'allocMemory | texture', (width * height * multiSamples * pixelByteSize * (generateMipmap ? 1.33333 : 1)) | 0);
@@ -1144,7 +1193,7 @@ export class WebGPUTextureContext implements ITextureContext {
             const gpuColorDescriptor = this._getGPUTextureDescriptor(TextureDimension.Tex2D, width, height, gpuColorFormat, 1, generateMipmap, 1, false);
             gpuColorDescriptor.usage = GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.COPY_SRC | GPUTextureUsage.COPY_DST;
             const gpuColorTexture = this._engine.getDevice().createTexture(gpuColorDescriptor);
-            internalRT._texturesResolve.push(new WebGPUInternalTex(width, height, 1, TextureDimension.Tex2D, generateMipmap, 1, false, 1));
+            internalRT._texturesResolve.push(new WebGPUInternalTex(width, height, 1, TextureDimension.Tex2D, generateMipmap, 1, useSRGBExt, gammaCorrection));
             internalRT._texturesResolve[0].resource = gpuColorTexture;
             internalRT._texturesResolve[0]._webGPUFormat = gpuColorFormat;
             WebGPUGlobal.action(internalRT._texturesResolve[0], 'allocMemory | texture', (width * height * pixelByteSize * (generateMipmap ? 1.33333 : 1)) | 0);
