@@ -1,9 +1,11 @@
 import { Config } from "../../../../Config";
+import { Laya } from "../../../../Laya";
 import { BufferTargetType, BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
 import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode";
 import { ShaderPass } from "../../../RenderEngine/RenderShader/ShaderPass";
 import { UniformMapType } from "../../../RenderEngine/RenderShader/SubShader";
+import { LayaGL } from "../../../layagl/LayaGL";
 import { Resource } from "../../../resource/Resource";
 import { ShaderProcessInfo, ShaderCompileDefineBase } from "../../../webgl/utils/ShaderCompileDefineBase";
 import { ShaderNode } from "../../../webgl/utils/ShaderNode";
@@ -58,3 +60,8 @@ export class WebGPURenderDeviceFactory implements IRenderDeviceFactory {
         return new WebGPUShaderData(ownerResource);
     }
 }
+
+Laya.addBeforeInitCallback(() => {
+    if (!LayaGL.renderDeviceFactory)
+        LayaGL.renderDeviceFactory = new WebGPURenderDeviceFactory();
+})

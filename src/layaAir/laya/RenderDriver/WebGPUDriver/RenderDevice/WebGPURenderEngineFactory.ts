@@ -1,4 +1,5 @@
 import { Config } from "../../../../Config";
+import { Laya } from "../../../../Laya";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { UniformBufferObject } from "../../../RenderEngine/UniformBufferObject";
 import { LayaGL } from "../../../layagl/LayaGL";
@@ -37,3 +38,8 @@ export class WebGPURenderEngineFactory implements IRenderEngineFactory {
         await WebGPUCodeGenerator.init();
     }
 }
+
+Laya.addBeforeInitCallback(() => {
+    if (!LayaGL.renderOBJCreate)
+        LayaGL.renderOBJCreate = new WebGPURenderEngineFactory();
+});

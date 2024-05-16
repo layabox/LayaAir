@@ -1,18 +1,17 @@
-//@ts-ignore
-import initSync, { glsl_compile } from "./naga_wasm";
 
 export class NagaWASM {
     /**
      * 初始化wasm库
      */
     async init() {
-        await initSync('./naga/naga_wasm_bg.wasm');
+        await (window as any).naga.initSync.call();
+        
     }
 
     /**
      * 将GLSL4.5转译成WGSL
      */
     compileGLSL2WGSL(code: string, type: string) {
-        return glsl_compile(code, type);
+        return  (window as any).naga.glsl_compile(code, type);
     }
 }
