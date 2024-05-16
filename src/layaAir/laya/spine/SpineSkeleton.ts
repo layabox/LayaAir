@@ -243,7 +243,7 @@ export class SpineSkeleton extends Sprite implements ISpineSkeleton {
         //this._renerer = new SpineSkeletonRenderer(templet, false);
         this._timeKeeper = new TimeKeeper(this.timer);
         //let sMesh=this._templet.slotManger.init(this._skeleton.drawOrder, this._templet,this._templet.mainTexture);
-        this.spineItem = this._templet.sketonOptimise._initSpineRender(this._skeleton, this._templet, this.graphics);
+        this.spineItem = this._templet.sketonOptimise._initSpineRender(this._skeleton, this._templet, this.graphics,this._state);
         let skinIndex = this._templet.getSkinIndexByName(this._skinName);
         if (skinIndex != -1)
             this.showSkinByIndex(skinIndex);
@@ -349,16 +349,14 @@ export class SpineSkeleton extends Sprite implements ISpineSkeleton {
 
     private _update(): void {
         this._timeKeeper.update();
+        let state = this._state;
         let delta = this._timeKeeper.delta * this._playbackRate;
-        let trackEntry = this._state.getCurrent(this.trackIndex);
         // 在游戏循环中，update被调用，这样AnimationState就可以跟踪时间
-        this._state.update(delta);
+        state.update(delta);
         // 使用当前动画和事件设置骨架
-        this._state.apply(this._skeleton);
-
-        let animationLast = trackEntry.animationLast;
-        this._currentPlayTime = Math.max(0, animationLast);
-
+        state.apply(this._skeleton);
+        //@ts-ignore
+        this._currentPlayTime =state.getCurrentPlayTime(this.trackIndex);        
         // spine在state.apply中发送事件，开发者可能会在事件中进行destory等操作，导致无法继续执行
         if (!this._state || !this._skeleton) {
             return;

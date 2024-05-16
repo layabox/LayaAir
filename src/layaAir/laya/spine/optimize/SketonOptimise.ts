@@ -12,7 +12,7 @@ import { IPreRender } from "./interface/IPreRender";
 import { ISpineOptimizeRender } from "./interface/ISpineOptimizeRender";
 
 export class SketonOptimise implements IPreRender {
-    canCache: boolean;
+    canCache: boolean=true;
     sketon: spine.Skeleton;
     _stateData: spine.AnimationStateData;
     _state: spine.AnimationState;
@@ -32,7 +32,7 @@ export class SketonOptimise implements IPreRender {
         this.animators = [];
     }
 
-    _initSpineRender(skeleton: spine.Skeleton, templet: SpineTemplet, graphics: Graphics): ISpineOptimizeRender {
+    _initSpineRender(skeleton: spine.Skeleton, templet: SpineTemplet, graphics: Graphics,state:spine.AnimationState): ISpineOptimizeRender {
         let sp: ISpineOptimizeRender;
         //SpineNormalRender;
         // if (this.type == ERenderType.normal) {
@@ -41,7 +41,7 @@ export class SketonOptimise implements IPreRender {
         // else {
         sp = new SpineOptimizeRender(this);
         // }
-        sp.init(skeleton, templet, graphics);
+        sp.init(skeleton, templet, graphics,state);
         return sp;
     }
 

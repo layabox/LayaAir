@@ -10,7 +10,7 @@ export class SpineNormalRender implements ISpineOptimizeRender {
     _renerer: ISpineRender;
     _skeleton: spine.Skeleton;
 
-    init(skeleton: spine.Skeleton, templet: SpineTemplet, graphics: Graphics): void {
+    init(skeleton: spine.Skeleton, templet: SpineTemplet, graphics: Graphics,state:spine.AnimationState): void {
         this.graphics = graphics;
         this._renerer = SpineAdapter.createNormalRender(templet, false);
         this._skeleton = skeleton;
