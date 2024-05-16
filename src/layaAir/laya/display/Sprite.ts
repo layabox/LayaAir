@@ -142,8 +142,6 @@ export class Sprite extends Node {
     _skinBaseUrl: string;
 
     /**
-     * 销毁精灵
-     * @param destroyChild 是否删除子节点
      * @inheritDoc 
      * @override
      */
@@ -1946,7 +1944,6 @@ export class Sprite extends Node {
     /**@internal */
     private _globalMatrix: Matrix;
 
-    /**@internal */
     get cacheGlobal(): boolean {
         return this._cacheGlobal;
     }
@@ -2019,7 +2016,7 @@ export class Sprite extends Node {
      * @internal
      */
     setGlobalPos(globalx: number, globaly: number) {
-        if (!this._getGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Matrix) && globalx == this.globalPosX && globaly == this.globalPosY) {
+        if (globalx == this.globalPosX && globaly == this.globalPosY) {
             return;
         }
         if (!this._cacheGlobal) {
@@ -2055,7 +2052,7 @@ export class Sprite extends Node {
             if (this._getGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Matrix | Sprite.Sprite_GlobalDeltaFlage_Position_X)) {
                 this._setGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Position_X, false);
                 let mat = (<Sprite>this.parent).getGlobalMatrix();
-                let point = this.toParentPoint(Point.TEMP.setTo(0, 0));
+                let point = this.toParentPoint(Point.TEMP.setTo(this.pivotX, this.pivotY));
                 point = mat.transformPoint(point);
                 this._globalPosx = point.x;
                 this._setGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Matrix, true);
@@ -2078,7 +2075,7 @@ export class Sprite extends Node {
             if (this._getGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Matrix | Sprite.Sprite_GlobalDeltaFlage_Position_Y)) {
                 this._setGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Position_Y, false);
                 let mat = (<Sprite>this.parent).getGlobalMatrix();
-                let point = this.toParentPoint(Point.TEMP.setTo(0, 0));
+                let point = this.toParentPoint(Point.TEMP.setTo(this.pivotX, this.pivotY));
                 point = mat.transformPoint(point);
                 this._globalPosy = point.y;
                 this._setGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Matrix, true);
@@ -2118,7 +2115,7 @@ export class Sprite extends Node {
 
     /**@internal */
     set globalRotation(value: number) {
-        if (!this._getGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Matrix) && value == this.globalRotation) {
+        if (value == this.globalRotation) {
             return;
         }
         //set local
@@ -2200,13 +2197,13 @@ export class Sprite extends Node {
         return (this._globalDeltaFlages & type) != 0;
     }
 
-    
+
     /**
      * @internal 
      */
-    _getGlobalCacheLocalToGlobal(x:number,y:number):Point{
+    _getGlobalCacheLocalToGlobal(x: number, y: number): Point {
         if (this._cacheGlobal) {
-            return this.getGlobalMatrix().transformPoint(Point.TEMP.setTo(this.pivotX+x, this.pivotY+y));
+            return this.getGlobalMatrix().transformPoint(Point.TEMP.setTo(this.pivotX + x, this.pivotY + y));
         } else {
             return this.localToGlobal(Point.TEMP.setTo(x, y), false, null);
         }
@@ -2215,7 +2212,7 @@ export class Sprite extends Node {
     /**
      * @internal 
      */
-    _getGlobalCacheGlobalToLocal(x:number,y:number):Point{
+    _getGlobalCacheGlobalToLocal(x: number, y: number): Point {
         if (this._cacheGlobal) {
             let point = this.getGlobalMatrix().invertTransformPoint(Point.TEMP.setTo(x, y));
             point.x -= this.pivotX;
