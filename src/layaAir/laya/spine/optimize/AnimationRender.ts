@@ -72,7 +72,7 @@ export class AnimationRender {
 
     cacheBones(preRender: IPreRender) {
         let duration = preRender._play(this.name);
-        let totalFrame = Math.round(duration / step);
+        let totalFrame = Math.round(duration / step)||1;
         for (let i = 0; i < totalFrame; i++) {
             let bones = preRender._updateState(step);
             let frame: Float32Array[] = [];
@@ -188,36 +188,8 @@ export class AnimationRender {
                 this.cacheBones(preRender);
                 this.isCache = true;
             }
-            this._modifyTimeLine(timeline, preRender.canCache);
         }
         this.frameNumber = tempArray.length;
-    }
-
-    private _modifyTimeLine(timelines: Array<spine.Timeline>, canCache: boolean) {
-        for (let i = 0, n = timelines.length; i < n; i++) {
-            let timeLine = timelines[i];
-            //@ts-ignore
-            if (timeLine.slotIndex != undefined) {
-                timelines.splice(i, 1);
-                i--;
-                n--;
-            }
-            //@ts-ignore
-            // else if(timeLine.boneIndex != undefined&&(timeLine instanceof spine.RotateTimeline)){
-            //     timelines.splice(i, 1);
-            //     i--;
-            //     n--;
-            // }
-
-            // if (canCache) {
-            //     //@ts-ignore
-            //     if (timeLine.boneIndex != undefined) {
-            //         timelines.splice(i, 1);
-            //         i--;
-            //         n--;
-            //     }
-            // }
-        }
     }
 
     createSkinData(mainVB: VBCreator, mainIB: IBCreator, slotAttachMap: Map<number, Map<string, AttachmentParse>>, attachMap: AttachmentParse[]) {
@@ -280,13 +252,40 @@ export class SkinAniRenderData {
     updateBoneMatCacheEvent(delta: number, animation: AnimationRender, bones: spine.Bone[], state: spine.AnimationState): void {
         let f = delta / step;
         this.vb.updateBoneCache(animation.boneFrames, f);
-        let events = animation.eventsFrames[f | 0];
-        if (events) {
-            for (let i = 0, n = events.length; i < n; i++) {
-                //@ts-ignore
-                state.dispatchEvent(null, "event", events[i]);//TODO enty
+        let currFrame = Math.round(f);
+        //@ts-ignore
+        let curentTrack: spine.TrackEntry = state.currentTrack;
+        //@ts-ignore
+        let lastEventFrame = curentTrack.lastEventFrame;
+        if (lastEventFrame == currFrame) {
+            return;
+        }
+        if (lastEventFrame > currFrame || lastEventFrame == undefined) {
+            lastEventFrame = -1;
+        }
+
+        if (currFrame - lastEventFrame <= 1) {
+            let events = animation.eventsFrames[currFrame];
+            if (events) {
+                for (let i = 0, n = events.length; i < n; i++) {
+                    //@ts-ignore
+                    state.dispatchEvent(null, "event", events[i]);//TODO enty
+                }
             }
         }
+        else {
+            for (let i = lastEventFrame + 1; i <= currFrame; i++) {
+                let events = animation.eventsFrames[i];
+                if (events) {
+                    for (let j = 0, m = events.length; j < m; j++) {
+                        //@ts-ignore
+                        state.dispatchEvent(null, "event", events[j]);//TODO enty
+                    }
+                }
+            }
+        }
+        //@ts-ignore
+        curentTrack.lastEventFrame = currFrame;
     }
 
     updateBoneMatByBone(delta: number, animation: AnimationRender, bones: spine.Bone[], state: spine.AnimationState): void {

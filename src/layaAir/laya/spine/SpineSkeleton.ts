@@ -243,7 +243,7 @@ export class SpineSkeleton extends Sprite implements ISpineSkeleton {
         //this._renerer = new SpineSkeletonRenderer(templet, false);
         this._timeKeeper = new TimeKeeper(this.timer);
         //let sMesh=this._templet.slotManger.init(this._skeleton.drawOrder, this._templet,this._templet.mainTexture);
-        this.spineItem = this._templet.sketonOptimise._initSpineRender(this._skeleton, this._templet, this.graphics,this._state);
+        this.spineItem = this._templet.sketonOptimise._initSpineRender(this._skeleton, this._templet, this.graphics, this._state);
         let skinIndex = this._templet.getSkinIndexByName(this._skinName);
         if (skinIndex != -1)
             this.showSkinByIndex(skinIndex);
@@ -356,7 +356,7 @@ export class SpineSkeleton extends Sprite implements ISpineSkeleton {
         // 使用当前动画和事件设置骨架
         state.apply(this._skeleton);
         //@ts-ignore
-        this._currentPlayTime =state.getCurrentPlayTime(this.trackIndex);        
+        this._currentPlayTime = state.getCurrentPlayTime(this.trackIndex);
         // spine在state.apply中发送事件，开发者可能会在事件中进行destory等操作，导致无法继续执行
         if (!this._state || !this._skeleton) {
             return;
@@ -383,7 +383,7 @@ export class SpineSkeleton extends Sprite implements ISpineSkeleton {
      * @return 当前动画的数量
      */
     getAnimNum(): number {
-       // return this._templet.skeletonData.animations.length;
+        // return this._templet.skeletonData.animations.length;
         //@ts-ignore
         return this._templet.skeletonData.getAnimationsSize();
     }
@@ -610,12 +610,12 @@ class TimeKeeper {
 
     timer: Timer;
 
-    constructor(timer:Timer) {
+    constructor(timer: Timer) {
         this.maxDelta = 0.064;
         this.timer = timer;
     }
     update() {
-        this.delta =this.timer.delta/1000;
+        this.delta = this.timer.delta / 1000;
         if (this.delta > this.maxDelta)
             this.delta = this.maxDelta;
     }

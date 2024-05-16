@@ -51,7 +51,8 @@ export class SpineAdapter {
         }
         //@ts-ignore
         stateProto.getCurrentPlayTimeOld = function (trackIndex: number) {
-            return Math.max(0, this.getCurrent(trackIndex).animationLast);
+            //@ts-ignore
+            return Math.max(0, this.getCurrentOld(trackIndex).animationLast);
         }
         //@ts-ignore
         stateProto.getCurrentPlayTime = stateProto.getCurrentPlayTimeOld;
@@ -61,12 +62,11 @@ export class SpineAdapter {
             //trackEntry.setAnimationLast(trackEntry.getAnimationTime());
             let animationStart = entry.animationStart, animationEnd = entry.animationEnd;
             let duration = animationEnd - animationStart;
-            entry.trackLast=entry.nextTrackLast;
+            entry.trackLast = entry.nextTrackLast;
             let trackLastWrapped = entry.trackLast % duration;
             let animationTime = entry.getAnimationTime();
             //entry.setAnimationLast(animationTime);
-            entry.nextAnimationLast=  animationTime;
-            entry.nextTrackLast = entry.trackTime;
+
             let complete = false;
             if (entry.loop)
                 complete = duration == 0 || trackLastWrapped > entry.trackTime % duration;
@@ -75,9 +75,13 @@ export class SpineAdapter {
             if (complete) {
                 //@ts-ignore
                 this.dispatchEvent(entry, "complete", null);
+                return 0;
+               // animationTime = 0;
             }
-
-            return animationTime;
+            entry.nextAnimationLast = animationTime;
+            entry.nextTrackLast = entry.trackTime;
+            let animationLast = entry.animationLast;
+            return Math.max(animationLast,0);
         }
 
 
@@ -126,6 +130,17 @@ export class SpineAdapter {
             skeletonProto.showSkinByIndex = function (index: number) {
                 this.setSkin(this.data.skins[index]);
             }
+            let stateProto = spine.AnimationState.prototype;
+            //@ts-ignore
+            stateProto.getCurrentOld = stateProto.getCurrent;
+
+            stateProto.getCurrent = function (trackIndex: number) {
+                //@ts-ignore
+                let result = this.getCurrentOld(trackIndex);
+                //@ts-ignore
+                this.currentTrack = result;
+                return result;
+            }
         }
     }
 
@@ -142,27 +157,27 @@ export class SpineAdapter {
             }));
         }
         //@ts-ignore
-        stateProto.getCurrentOld=stateProto.getCurrent;
+        stateProto.getCurrentOld = stateProto.getCurrent;
 
-        stateProto.getCurrent= function (trackIndex: number) {
+        stateProto.getCurrent = function (trackIndex: number) {
+            let result;
             //@ts-ignore
             let __tracks = this.__tracks;
-            if(!__tracks){
-                 //@ts-ignore
-                __tracks=this.__tracks=[];
-                 //@ts-ignore
-                let data=this.getCurrentOld(trackIndex);
-                __tracks[trackIndex]=data;
+            if (!__tracks) {
+                //@ts-ignore
+                __tracks = this.__tracks = [];
+                //@ts-ignore
+                result = this.getCurrentOld(trackIndex);
+                __tracks[trackIndex] = result;
             }
-            if(__tracks[trackIndex]){
-                return __tracks[trackIndex];
+            if (!result) {
+                //@ts-ignore
+                result = this.getCurrentOld(trackIndex);
+                __tracks[trackIndex] = result;
             }
-            else{
-                 //@ts-ignore
-                let data=this.getCurrentOld(trackIndex);
-                __tracks[trackIndex]=data;
-                return data;
-            }
+            //@ts-ignore
+            this.currentTrack = result;
+            return result;
         }
 
         spine.TextureAtlas = TextureAtlas as any;
