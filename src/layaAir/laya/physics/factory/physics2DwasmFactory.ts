@@ -44,8 +44,6 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
     /**@internal 米转换像素的转换比率*/
     _Re_PIXEL_RATIO: number;
 
-    /**@internal  */
-    _tempVec2: any;
 
     /**@internal  */
     protected _tempDistanceJointDef: any;
@@ -955,12 +953,14 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      */
     set_ChainShape_data(shape: any, x: number, y: number, arr: number[], loop: boolean, scaleX: number, scaleY: number) {
         let len = arr.length;
+        shape.Clear();
         var ptr_wrapped = this.createVec2Pointer(arr, x, y, scaleX, scaleY);
         if (loop) {
             shape.CreateLoop(ptr_wrapped, len >> 1);
         } else {
             shape.CreateChain(ptr_wrapped, len >> 1);
         }
+        this._box2d._free(ptr_wrapped.ptr);
     }
 
     /** 
@@ -1025,7 +1025,9 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
     * @param arr 
     */
     set_PolygonShape_data(shape: any, x: number, y: number, arr: number[], scaleX: number, scaleY: number) {
-        shape.Set(this.createVec2Pointer(arr, x, y, scaleX, scaleY), arr.length / 2);
+        let ptr_wrapped = this.createVec2Pointer(arr, x, y, scaleX, scaleY);
+        shape.Set(ptr_wrapped, arr.length / 2);
+        this._box2d._free(ptr_wrapped.ptr);
     }
 
     /**
@@ -1190,10 +1192,10 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      */
     get_rigidBody_WorldPoint(body: any, x: number, y: number): IV2 {
         let data = body.GetWorldPoint(this.createPhyFromLayaVec2(x, y))
-        let point: IV2 = { x: 0, y: 0 }
-        point.x = this.phyToLayaValue(data.x);
-        point.y = this.phyToLayaValue(data.y);
-        return point;
+        return {
+            x: this.phyToLayaValue(data.x),
+            y: this.phyToLayaValue(data.y)
+        };
     }
 
     /** 
@@ -1203,10 +1205,11 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      */
     get_rigidBody_LocalPoint(body: any, x: number, y: number): IV2 {
         let data = body.GetLocalPoint(this.createPhyFromLayaVec2(x, y))
-        let point: IV2 = { x: 0, y: 0 }
-        point.x = this.phyToLayaValue(data.x);
-        point.y = this.phyToLayaValue(data.y);
-        return point;
+
+        return {
+            x: this.phyToLayaValue(data.x),
+            y: this.phyToLayaValue(data.y)
+        };
     }
 
     /** 
@@ -1227,7 +1230,9 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      * @param force 
      */
     rigidBody_applyForceToCenter(body: any, force: IV2) {
-        body.ApplyForceToCenter(force);
+        this._tempVe21.x = force.x;
+        this._tempVe21.y = force.y;
+        body.ApplyForceToCenter(this._tempVe21);
     }
 
 
@@ -1237,14 +1242,20 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      * @param position 
      */
     rigidbody_ApplyLinearImpulse(body: any, impulse: IV2, position: IV2) {
-        body.ApplyLinearImpulse(impulse, position);
+        this._tempVe21.x = impulse.x;
+        this._tempVe21.y = impulse.y;
+        this._tempVe22.x = this.layaToPhyValue(position.x);
+        this._tempVe22.y = this.layaToPhyValue(position.y);
+        body.ApplyLinearImpulse(this._tempVe21, this._tempVe22);
     }
 
     /** 
      * @param body 
      */
     rigidbody_ApplyLinearImpulseToCenter(body: any, impulse: IV2) {
-        body.ApplyLinearImpulseToCenter(impulse);
+        this._tempVe21.x = impulse.x;
+        this._tempVe21.y = impulse.y;
+        body.ApplyLinearImpulseToCenter(this._tempVe21);
     }
 
 
@@ -1261,7 +1272,9 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      * @param	velocity
      */
     set_rigidbody_Velocity(body: any, velocity: IV2): void {
-        body.SetLinearVelocity(velocity);
+        this._tempVe21.x = velocity.x;
+        this._tempVe21.y = velocity.y;
+        body.SetLinearVelocity(this._tempVe21);
     }
 
     /**
@@ -1391,7 +1404,9 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      * @param value 
      */
     set_rigidBody_linearVelocity(body: any, value: IV2) {
-        body.SetLinearVelocity(new this.box2d.b2Vec2(value.x, value.y));
+        this._tempVe21.x = value.x;
+        this._tempVe21.y = value.y;
+        body.SetLinearVelocity(this._tempVe21);
     }
 
     /** 
@@ -1582,7 +1597,7 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
             this.box2d.HEAPF32[buffer + offset >> 2] = this.layaToPhyValue(points[i]);
             offset += 4;
         }
-        return this.box2d.wrapPointer(buffer, this.box2d.b2Vec2);
+        return buffer;
     }
 
     /**@internal */

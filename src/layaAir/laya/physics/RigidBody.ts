@@ -251,8 +251,8 @@ export class RigidBody extends Component {
      */
     _updatePhysicsAttribute(): void {
         var factory = Physics2D.I._factory;
-        let point = this.getWorldPoint(0, 0);
-        factory.set_RigibBody_Transform(this._body, point.x, point.y, Utils.toRadian((<Sprite>this.owner).globalRotation));
+        var sp: Sprite = (<Sprite>this.owner);
+        factory.set_RigibBody_Transform(this._body, sp.globalPosX, sp.globalPosY, Utils.toRadian((<Sprite>this.owner).globalRotation));
         var comps: any[] = this.owner.getComponents(ColliderBase);
         if (comps) {
             for (var i: number = 0, n: number = comps.length; i < n; i++) {
@@ -378,8 +378,8 @@ export class RigidBody extends Component {
     setAngle(value: any): void {
         if (!this._body) this._onAwake();
         var factory = Physics2D.I._factory;
-        const p = this.getWorldPoint(0, 0);
-        factory.set_RigibBody_Transform(this._body, p.x, p.y, value);
+        var sp: Sprite = (<Sprite>this.owner);
+        factory.set_RigibBody_Transform(this._body, sp.globalPosX, sp.globalPosY, value);
         factory.set_rigidbody_Awake(this._body, true);
     }
 
@@ -391,19 +391,17 @@ export class RigidBody extends Component {
     /**
      * 获得质心的相对节点0,0点的位置偏移
      */
-    getCenter(): any {
+    getCenter(): IV2 {
         if (!this._body) this._onAwake();
-        var p: IV2 = Physics2D.I._factory.get_rigidBody_Center(this._body);
-        return p;
+        return Physics2D.I._factory.get_rigidBody_Center(this._body);
     }
 
     /**
      * 获得质心的世界坐标，相对于Physics2D.I.worldRoot节点
      */
-    getWorldCenter(): any {
+    getWorldCenter(): IV2 {
         if (!this._body) this._onAwake();
-        var p: IV2 = Physics2D.I._factory.get_rigidBody_WorldCenter(this._body);
-        return p;
+        return Physics2D.I._factory.get_rigidBody_WorldCenter(this._body);
     }
 
     /** 
@@ -411,8 +409,8 @@ export class RigidBody extends Component {
      * @param x (单位： 像素)
      * @param y (单位： 像素)
     */
-    getWorldPoint(x: number, y: number) {
-        return (<Sprite>this.owner).getGlobalMatrix().transformPoint(Point.TEMP.setTo(x, y))
+    getWorldPoint(x: number, y: number): Point {
+        return (<Sprite>this.owner)._getGlobalCacheLocalToGlobal(x, y);
     }
 
     /** 
@@ -420,7 +418,7 @@ export class RigidBody extends Component {
      * @param x (单位： 像素)
      * @param y (单位： 像素)
     */
-    getLocalPoint(x: number, y: number) {
-        return (<Sprite>this.owner).getGlobalMatrix().invertTransformPoint(Point.TEMP.setTo(x, y))
+    getLocalPoint(x: number, y: number): Point {
+        return (<Sprite>this.owner)._getGlobalCacheGlobalToLocal(x, y);
     }
 }
