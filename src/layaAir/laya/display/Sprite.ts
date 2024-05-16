@@ -142,6 +142,8 @@ export class Sprite extends Node {
     _skinBaseUrl: string;
 
     /**
+     * 销毁精灵
+     * @param destroyChild 是否删除子节点
      * @inheritDoc 
      * @override
      */
@@ -1944,6 +1946,7 @@ export class Sprite extends Node {
     /**@internal */
     private _globalMatrix: Matrix;
 
+    /**@internal */
     get cacheGlobal(): boolean {
         return this._cacheGlobal;
     }
