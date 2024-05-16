@@ -1893,7 +1893,7 @@ export class Sprite extends Node {
      * @internal
      */
     setGlobalPos(globalx: number, globaly: number) {
-        if (!this._getGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Matrix) && globalx == this.globalPosX && globaly == this.globalPosY) {
+        if (globalx == this.globalPosX && globaly == this.globalPosY) {
             return;
         }
         if (!this._cacheGlobal) {
@@ -1992,7 +1992,7 @@ export class Sprite extends Node {
 
     /**@internal */
     set globalRotation(value: number) {
-        if (!this._getGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Matrix) && value == this.globalRotation) {
+        if (value == this.globalRotation) {
             return;
         }
         //set local
