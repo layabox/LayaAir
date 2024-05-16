@@ -7,7 +7,6 @@ import { ShadowCascadesMode } from "./ShadowCascadesMode";
 import { ShadowMode } from "./ShadowMode";
 import { Light, LightType } from "./Light";
 import { SpotLightCom } from "./SpotLightCom";
-import { Sprite3D } from "../Sprite3D";
 import { FilterMode } from "../../../RenderEngine/RenderEnum/FilterMode";
 import { WrapMode } from "../../../RenderEngine/RenderEnum/WrapMode";
 import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
@@ -50,6 +49,14 @@ export class ShadowUtils {
     private static _shadowMapScaleOffsetMatrix: Matrix4x4 = new Matrix4x4(
         0.5, 0.0, 0.0, 0.0,
         0.0, 0.5, 0.0, 0.0,
+        0.0, 0.0, 1.0, 0.0,
+        0.5, 0.5, 0.0, 1.0,
+    );
+
+    /** @internal */
+    private static _shadowMapInvertScaleOffsetMatrix = new Matrix4x4(
+        0.5, 0.0, 0.0, 0.0,
+        0.0, -0.5, 0.0, 0.0,
         0.0, 0.0, 1.0, 0.0,
         0.5, 0.5, 0.0, 1.0,
     );
@@ -388,9 +395,13 @@ export class ShadowUtils {
         Vector3.scale(lightForward, radius + nearPlane, origin);
         Vector3.subtract(center, origin, origin);
         Matrix4x4.createLookAt(origin, center, lightUp, viewMatrix);
-        Matrix4x4.createOrthoOffCenter(- borderRadius, borderRadius, - borderRadius, borderRadius, 0.0, radius * 2.0 + nearPlane, projectMatrix);
+        Matrix4x4.createOrthoOffCenter(-borderRadius, borderRadius, -borderRadius, borderRadius, 0.0, radius * 2.0 + nearPlane, projectMatrix);
         Matrix4x4.multiply(projectMatrix, viewMatrix, viewProjectMatrix);
-        Utils3D._mulMatrixArray(ShadowUtils._shadowMapScaleOffsetMatrix.elements, viewProjectMatrix.elements, 0, shadowMatrices, cascadeIndex * 16);
+        let offsetMat = ShadowUtils._shadowMapScaleOffsetMatrix.elements;
+        if (LayaGL.renderEngine._screenInvertY) {
+            offsetMat = ShadowUtils._shadowMapInvertScaleOffsetMatrix.elements;
+        }
+        Utils3D._mulMatrixArray(offsetMat, viewProjectMatrix.elements, 0, shadowMatrices, cascadeIndex * 16);
     }
 
     // /** 
