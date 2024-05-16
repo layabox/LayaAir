@@ -953,12 +953,14 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      */
     set_ChainShape_data(shape: any, x: number, y: number, arr: number[], loop: boolean, scaleX: number, scaleY: number) {
         let len = arr.length;
+        shape.Clear();
         var ptr_wrapped = this.createVec2Pointer(arr, x, y, scaleX, scaleY);
         if (loop) {
             shape.CreateLoop(ptr_wrapped, len >> 1);
         } else {
             shape.CreateChain(ptr_wrapped, len >> 1);
         }
+        this._box2d._free(ptr_wrapped.ptr);
     }
 
     /** 
@@ -1023,7 +1025,9 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
     * @param arr 
     */
     set_PolygonShape_data(shape: any, x: number, y: number, arr: number[], scaleX: number, scaleY: number) {
-        shape.Set(this.createVec2Pointer(arr, x, y, scaleX, scaleY), arr.length / 2);
+        let ptr_wrapped = this.createVec2Pointer(arr, x, y, scaleX, scaleY);
+        shape.Set(ptr_wrapped, arr.length / 2);
+        this._box2d._free(ptr_wrapped.ptr);
     }
 
     /**
@@ -1593,7 +1597,7 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
             this.box2d.HEAPF32[buffer + offset >> 2] = this.layaToPhyValue(points[i]);
             offset += 4;
         }
-        return this.box2d.wrapPointer(buffer, this.box2d.b2Vec2);
+        return buffer;
     }
 
     /**@internal */
