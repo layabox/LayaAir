@@ -61,6 +61,9 @@ export class ShadowSpotData {
  * 聚光灯阴影渲染流程
  */
 export class WebGPUSpotLightShadowRP {
+
+    protected static _invertYScaleMatrix: Matrix4x4 = new Matrix4x4(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+
     destTarget: InternalRenderTarget;
     /**@internal */
     shadowCasterCommanBuffer: CommandBuffer[];
@@ -268,6 +271,9 @@ export class WebGPUSpotLightShadowRP {
                 sceneData.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT_SOFT_SHADOW_LOW);
                 break;
         }
+
+        Matrix4x4.multiply(WebGPUSpotLightShadowRP._invertYScaleMatrix, this._shadowSpotMatrices, this._shadowSpotMatrices);
+
         sceneData.setMatrix4x4(ShadowCasterPass.SHADOW_SPOTMATRICES, this._shadowSpotMatrices);
         sceneData.setVector(ShadowCasterPass.SHADOW_SPOTMAP_SIZE, this._shadowSpotMapSize);
     }

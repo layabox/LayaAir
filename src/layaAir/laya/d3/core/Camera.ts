@@ -967,7 +967,9 @@ export class Camera extends BaseCamera {
         super._prepareCameraToRender();
         var vp: Viewport = this.viewport;
         this._viewportParams.setValue(vp.x, vp.y, vp.width, vp.height);
-        this._projectionParams.setValue(this._nearPlane, this._farPlane, RenderContext3D._instance.invertY ? -1 : 1, 1 / this.farPlane);
+        let invertY = LayaGL.renderEngine._screenInvertY ? !RenderContext3D._instance.invertY : RenderContext3D._instance.invertY;
+        // let invertY = RenderContext3D._instance.invertY;
+        this._projectionParams.setValue(this._nearPlane, this._farPlane, invertY ? -1 : 1, 1 / this.farPlane);
         this._shaderValues.setVector(BaseCamera.VIEWPORT, this._viewportParams);
         this._shaderValues.setVector(BaseCamera.PROJECTION_PARAMS, this._projectionParams);
     }
