@@ -24,7 +24,7 @@ export class SpineAdapter {
                 SpineAdapter._spine = spine;
                 window.spine = spine;
                 SpineAdapter.initClass();
-                SpineAdapter.bindBuffer(10922 * 22, 10922 * 3);
+                SpineAdapter.bindBuffer(10922 * 12, 10922 * 3);
                 SpineAdapter.allAdpat();
                 return Promise.resolve();
             });
