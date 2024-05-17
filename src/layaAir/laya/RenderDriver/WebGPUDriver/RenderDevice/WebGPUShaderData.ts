@@ -780,7 +780,7 @@ export class WebGPUShaderData extends ShaderData {
                 else this.removeDefine(shaderDefine);
             }
         }
-        if ((!lastValue && value) || (lastValue && !value))
+        if ((!lastValue && value) || (lastValue && !value) || lastValue != value)
             this.changeMark++;
         this._data[index] = value;
         lastValue && lastValue._removeReference();
@@ -807,7 +807,7 @@ export class WebGPUShaderData extends ShaderData {
                 else this.removeDefine(shaderDefine);
             }
         }
-        if ((!lastValue && value) || (lastValue && !value))
+        if ((!lastValue && value) || (lastValue && !value) || lastValue != value)
             this.changeMark++;
         this._data[index] = value;
         this.clearBindGroup(); //清理绑定组（重建绑定）
