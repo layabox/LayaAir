@@ -217,11 +217,16 @@ export class UI3D extends BaseRender {
         this._shellSprite._setBit(NodeFlags.ACTIVE_INHIERARCHY, true);
         this._shellSprite._parent = ILaya.stage;
         this._baseRenderNode.shaderData.addDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_UV0);
+
+        this._matrix = new Matrix4x4();
+        this._scale = new Vector3(1.0, 1.0, 1.0);
+    }
+
+    private _creatDefaultMat() {
+        if (this._ui3DMat) return;
         this._ui3DMat = new UnlitMaterial();
         this._ui3DMat.materialRenderMode = MaterialRenderMode.RENDERMODE_OPAQUE;
         this._ui3DMat.cull = RenderState.CULL_BACK;
-        this._matrix = new Matrix4x4();
-        this._scale = new Vector3(1.0, 1.0, 1.0);
     }
 
     /**
@@ -229,6 +234,10 @@ export class UI3D extends BaseRender {
      */
     private _addRenderElement() {
         var elements: RenderElement[] = this._renderElements;
+        if (!this.sharedMaterial) {
+            this._creatDefaultMat();
+            this.sharedMaterial = this._ui3DMat;
+        }
         this._setMaterialTexture();
         var material: Material = (<Material>this.sharedMaterial);
         var element: RenderElement = new RenderElement();
@@ -338,22 +347,27 @@ export class UI3D extends BaseRender {
         return Vector3.distance(rayOri, (this.owner as Sprite3D).transform.position);
     }
 
-    // /**
-    //  * @inheritDoc
-    //  * @override
-    //  * @internal
-    //  */
+    /**
+     * @inheritDoc
+     * @override
+     * @internal
+     */
     _renderUpdate(context: IRenderContext3D): void {
         let shaderData = this._baseRenderNode.shaderData;
-        
+
         shaderData.setMatrix4x4(Sprite3D.WORLDMATRIX, this._matrix);
-        
+
         let transform = this.owner.transform;
         let worldParams = this._worldParams;
         worldParams.x = transform.getFrontFaceValue();
         shaderData.setVector(Sprite3D.WORLDINVERTFRONT, worldParams);
     }
 
+    /**
+     * @internal
+     * @override
+     * @param context 
+     */
     renderUpdate(context: RenderContext3D): void {
         this._renderElements.forEach(element => {
             let geometry = element._geometry;
@@ -377,12 +391,14 @@ export class UI3D extends BaseRender {
      * 设置材质纹理
      */
     _setMaterialTexture() {
-        if (!this.sharedMaterial)
-            this.sharedMaterial = this._ui3DMat;
-        if (!this.sharedMaterial.hasDefine(UnlitMaterial.SHADERDEFINE_ALBEDOTEXTURE)) {
+        if (this._rendertexure2D) {
             this.sharedMaterial.addDefine(UnlitMaterial.SHADERDEFINE_ALBEDOTEXTURE);
+            this.sharedMaterial.setTexture(this._bindPropertyName, this._rendertexure2D);
+        } else {
+            this.sharedMaterial.removeDefine(UnlitMaterial.SHADERDEFINE_ALBEDOTEXTURE)
         }
-        this.sharedMaterial.setTexture(this._bindPropertyName, this._rendertexure2D);
+
+
     }
 
     /**

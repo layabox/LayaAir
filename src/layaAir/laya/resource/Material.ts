@@ -102,7 +102,16 @@ export class Material extends Resource implements IClone {
     /** @internal */
     _shaderValues: ShaderData | null;//TODO:剥离贴图ShaderValue
     /** 所属渲染队列. */
-    renderQueue: number;
+    private _renderQueue: number;
+    public get renderQueue(): number {
+        return this._renderQueue;
+    }
+    public set renderQueue(value: number) {
+        this._renderQueue = value;
+        this.ownerELement && (this.ownerELement.material = this);//更新RenderElementRenderQueue
+    }
+
+    ownerELement: any;
 
     /**
      * 着色器数据。
@@ -568,6 +577,7 @@ export class Material extends Resource implements IClone {
         let defaultValue = subShader._uniformDefaultValue;
         let typeMap = subShader._uniformTypeMap;
         this.applyUniformDefaultValue(typeMap, defaultValue);
+        this.ownerELement && (this.ownerELement.material = this);//更新RenderElementRenderQueue
     }
 
     /**
