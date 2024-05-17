@@ -31,7 +31,6 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
     animatorMap: Map<string, AnimationRenderProxy>;
     currentAnimation: AnimationRenderProxy;
     bones: spine.Bone[];
-    boneMat: Float32Array = new Float32Array(200 * 4);
     graphics: Graphics;
     slots: spine.Slot[];
 
@@ -57,6 +56,8 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
     spineColor: Vector4;
 
     _skeleton: spine.Skeleton;
+
+    _state: spine.AnimationState;
 
     renderProxy: IRender;
     renderProxyMap: Map<ERenderProxyType, IRender>;
@@ -98,7 +99,7 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
         return geoResult;
     }
 
-    init(skeleton: spine.Skeleton, templet: SpineTemplet, graphics: Graphics) {
+    init(skeleton: spine.Skeleton, templet: SpineTemplet, graphics: Graphics, state: spine.AnimationState) {
         this._skeleton = skeleton;
         this.bones = skeleton.bones;
         this.slots = skeleton.slots;
@@ -108,7 +109,11 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
         this.skinRenderArray.forEach((value) => {
             value.init(skeleton, templet, graphics);
         });
+        this._state = state;
 
+        this.animatorMap.forEach((value, key) => {
+            value.state = state;
+        });
         let renderone = new RenderOne(this.bones, this.slots);
         let rendermulti = new RenderMulti(this.bones, this.slots);
         let rendernormal = new RenderNormal(skeleton, graphics);
@@ -119,6 +124,24 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
 
     set renderProxytype(value: ERenderProxyType) {
         this.renderProxy = this.renderProxyMap.get(value);
+    }
+
+    beginCache() {
+        //@ts-ignore
+        this._state.apply = this._state.applyCache;
+        //@ts-ignore
+        this._state.getCurrentPlayTime = this._state.getCurrentPlayTimeByCache;
+        //@ts-ignore
+        this._skeleton.updateWorldTransform = this._skeleton.updateWorldTransformCache;
+    }
+
+    endCache() {
+        //@ts-ignore
+        this._state.apply = this._state.oldApply;
+        //@ts-ignore
+        this._state.getCurrentPlayTime = this._state.getCurrentPlayTimeOld;
+        //@ts-ignore
+        this._skeleton.updateWorldTransform = this._skeleton.oldUpdateWorldTransform;
     }
 
     setSkinIndex(index: number) {
@@ -180,6 +203,12 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
             }
         }
         this.renderProxy.change(currentRender, currentAnimation);
+        if (currentAnimation.animator.isCache && !currentSKin.isNormalRender) {
+            this.beginCache();
+        }
+        else {
+            this.endCache();
+        }
     }
 
     render(time: number): void {

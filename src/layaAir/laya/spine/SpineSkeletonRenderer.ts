@@ -22,7 +22,7 @@ export class SpineSkeletonRenderer implements ISpineRender {
 
     private tempColor = new window.spine.Color();
     private tempColor2 = new window.spine.Color();
-    private vertices: ArrayLike<number>;
+    private static vertices: ArrayLike<number>;
     private vertexSize = 2 + 2 + 4;
     private twoColorTint = false;
     private renderable: Renderable;
@@ -60,7 +60,9 @@ export class SpineSkeletonRenderer implements ISpineRender {
         if (twoColorTint)
             this.vertexSize += 4;
         this.templet = templet;
-        this.vertices = templet.ns.Utils.newFloatArray(this.vertexSize * 1024);
+        if(SpineSkeletonRenderer.vertices==null){
+            SpineSkeletonRenderer.vertices = templet.ns.Utils.newFloatArray(12 * 1024);
+        }
         this.renderable = { vertices: null, numVertices: 0, numFloats: 0 };
         this.clipper = new templet.ns.SkeletonClipping();
     }
@@ -85,6 +87,7 @@ export class SpineSkeletonRenderer implements ISpineRender {
         let vertexSize = twoColorTint ? 12 : 8;
         let inRange = false;
         let needSlot = this.templet.needSlot;
+        let staticVetices = SpineSkeletonRenderer.vertices;
         if (slotRangeStart == -1) inRange = true;
         for (let i = 0, n = drawOrder.length; i < n; i++) {
             let clippedVertexSize = clipper.isClipping() ? 2 : vertexSize;
@@ -108,7 +111,7 @@ export class SpineSkeletonRenderer implements ISpineRender {
             let texture: SpineTexture;
             if (attachment instanceof this.templet.ns.RegionAttachment) {
                 let region = <spine.RegionAttachment>attachment;
-                renderable.vertices = this.vertices;
+                renderable.vertices = staticVetices;
                 renderable.numVertices = 4;
                 renderable.numFloats = clippedVertexSize << 2;
                 region.computeWorldVertices(needSlot ? slot as any : slot.bone, renderable.vertices, 0, clippedVertexSize);
@@ -123,11 +126,11 @@ export class SpineSkeletonRenderer implements ISpineRender {
                 attachmentColor = region.color;
             } else if (attachment instanceof this.templet.ns.MeshAttachment) {
                 let mesh = <spine.MeshAttachment>attachment;
-                renderable.vertices = this.vertices;
+                renderable.vertices = staticVetices;
                 renderable.numVertices = (mesh.worldVerticesLength >> 1);
                 renderable.numFloats = renderable.numVertices * clippedVertexSize;
                 if (renderable.numFloats > renderable.vertices.length) {
-                    renderable.vertices = this.vertices = this.templet.ns.Utils.newFloatArray(renderable.numFloats);
+                    renderable.vertices = staticVetices = this.templet.ns.Utils.newFloatArray(renderable.numFloats);
                 }
                 mesh.computeWorldVertices(slot, 0, mesh.worldVerticesLength, renderable.vertices, 0, clippedVertexSize);
                 triangles = mesh.triangles;
@@ -320,6 +323,7 @@ export class SpineSkeletonRenderer implements ISpineRender {
         //mesh.clear();
         let spineTex;
         let needSlot = this.templet.needSlot;
+        let staticVetices = SpineSkeletonRenderer.vertices;
         for (let i = 0, n = drawOrder.length; i < n; i++) {
             let clippedVertexSize = clipper.isClipping() ? 2 : vertexSize;
             let slot = drawOrder[i];
@@ -347,7 +351,7 @@ export class SpineSkeletonRenderer implements ISpineRender {
             if (attachment instanceof spine.RegionAttachment) {
                 // continue;
                 let region = <spine.RegionAttachment>attachment;
-                renderable.vertices = this.vertices;
+                renderable.vertices = staticVetices;
                 renderable.numVertices = 4;
                 renderable.numFloats = clippedVertexSize << 2;
                 region.computeWorldVertices(boneOrSlot as any, renderable.vertices, 0, clippedVertexSize);
@@ -361,11 +365,11 @@ export class SpineSkeletonRenderer implements ISpineRender {
                 //continue;
                 //debugger;
                 let mesh = <spine.MeshAttachment>attachment;
-                renderable.vertices = this.vertices;
+                renderable.vertices = staticVetices;
                 renderable.numVertices = (mesh.worldVerticesLength >> 1);
                 renderable.numFloats = renderable.numVertices * clippedVertexSize;
                 if (renderable.numFloats > renderable.vertices.length) {
-                    renderable.vertices = this.vertices = spine.Utils.newFloatArray(renderable.numFloats);
+                    renderable.vertices = staticVetices = spine.Utils.newFloatArray(renderable.numFloats);
                 }
                 mesh.computeWorldVertices(slot, 0, mesh.worldVerticesLength, renderable.vertices, 0, clippedVertexSize);
                 triangles = mesh.triangles;

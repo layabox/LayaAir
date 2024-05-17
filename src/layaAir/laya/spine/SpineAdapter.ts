@@ -24,22 +24,94 @@ export class SpineAdapter {
                 SpineAdapter._spine = spine;
                 window.spine = spine;
                 SpineAdapter.initClass();
-                SpineAdapter.bindBuffer(1024 * 8 * 4, 10922 * 3);
+                SpineAdapter.bindBuffer(10922 * 12, 10922 * 3);
+                SpineAdapter.allAdpat();
                 return Promise.resolve();
             });
         }
-        else {
+        else if (window.spine) {
             SpineAdapter.isWasm = false;
             SpineAdapter.adaptJS();
+            SpineAdapter.allAdpat();
         }
     }
 
-    static createNormalRender(templet:SpineTemplet,twoColorTint:boolean){
+    static createNormalRender(templet: SpineTemplet, twoColorTint: boolean) {
         return SpineAdapter.isWasm ? new SpineWasmRender(templet, twoColorTint) : new SpineSkeletonRenderer(templet, twoColorTint);
+    }
+
+    static allAdpat() {
+
+        let stateProto = spine.AnimationState.prototype;
+        //@ts-ignore
+        stateProto.oldApply = stateProto.apply;
+        //@ts-ignore
+        stateProto.applyCache = function (skeleton: spine.Skeleton) {
+            //this.setAnimationLast(this.animationLast);
+        }
+        //@ts-ignore
+        stateProto.getCurrentPlayTimeOld = function (trackIndex: number) {
+            //@ts-ignore
+            return Math.max(0, this.getCurrentOld(trackIndex).animationLast);
+        }
+        //@ts-ignore
+        stateProto.getCurrentPlayTime = stateProto.getCurrentPlayTimeOld;
+        //@ts-ignore
+        stateProto.getCurrentPlayTimeByCache = function (trackIndex: number) {
+            let entry = this.getCurrent(trackIndex);
+            //trackEntry.setAnimationLast(trackEntry.getAnimationTime());
+            let animationStart = entry.animationStart, animationEnd = entry.animationEnd;
+            let duration = animationEnd - animationStart;
+            entry.trackLast = entry.nextTrackLast;
+            let trackLastWrapped = entry.trackLast % duration;
+            let animationTime = entry.getAnimationTime();
+            //entry.setAnimationLast(animationTime);
+
+            let complete = false;
+            if (entry.loop)
+                complete = duration == 0 || trackLastWrapped > entry.trackTime % duration;
+            else
+                complete = animationTime >= animationEnd && entry.animationLast < animationEnd;
+            if (complete) {
+                //@ts-ignore
+                this.dispatchEvent(entry, "complete", null);
+                entry.nextAnimationLast = -1;
+                entry.nextTrackLast = -1;
+                return 0;
+               // animationTime = 0;
+            }
+            entry.nextAnimationLast = animationTime;
+            entry.nextTrackLast = entry.trackTime;
+            let animationLast = entry.animationLast;
+            return Math.max(animationLast,0);
+        }
+
+
+
+        let skeletonProto = spine.Skeleton.prototype;
+        //@ts-ignore
+        skeletonProto.oldUpdateWorldTransform = skeletonProto.updateWorldTransform;
+        //@ts-ignore
+        skeletonProto.updateWorldTransformCache = function () {
+
+        }
+        //@ts-ignore
+        spine.AnimationState.prototype.dispatchEvent = function (entry: any, type: string, event: any) {
+            //@ts-ignore
+            this.eventsObject[type](entry, event);
+        }
     }
 
     static adaptJS() {
         if (spine) {
+            //@ts-ignore 
+            spine.AnimationState.prototype.oldAddListener = spine.AnimationState.prototype.addListener;
+            spine.AnimationState.prototype.addListener = function (data: any) {
+                //@ts-ignore 
+                this.eventsObject = data;
+                //@ts-ignore 
+                this.oldAddListener(data);
+            };
             let sketonDataProto = spine.SkeletonData.prototype;
             //@ts-ignore
             sketonDataProto.getAnimationsSize = function () { return this.animations.length };
@@ -60,19 +132,56 @@ export class SpineAdapter {
             skeletonProto.showSkinByIndex = function (index: number) {
                 this.setSkin(this.data.skins[index]);
             }
+            let stateProto = spine.AnimationState.prototype;
+            //@ts-ignore
+            stateProto.getCurrentOld = stateProto.getCurrent;
+
+            stateProto.getCurrent = function (trackIndex: number) {
+                //@ts-ignore
+                let result = this.getCurrentOld(trackIndex);
+                //@ts-ignore
+                this.currentTrack = result;
+                return result;
+            }
         }
     }
 
     static initClass() {
-        spine.AnimationState.prototype.addListener = function (data: any) {
+        let stateProto = spine.AnimationState.prototype;
+        stateProto.addListener = function (data: any) {
+            //@ts-ignore 
+            this.eventsObject = data;
             //@ts-ignore   
             this.setListener(SpineAdapter._spine.AnimationStateListenerObject.implement({
                 callback: (state: any, type: any, entry: any, event: any) => {
-                    data[SpineAdapter.stateMap[type.value]](entry,event);
+                    data[SpineAdapter.stateMap[type.value]](entry, event);
                 }
             }));
-            
         }
+        //@ts-ignore
+        stateProto.getCurrentOld = stateProto.getCurrent;
+
+        stateProto.getCurrent = function (trackIndex: number) {
+            let result;
+            //@ts-ignore
+            let __tracks = this.__tracks;
+            if (!__tracks) {
+                //@ts-ignore
+                __tracks = this.__tracks = [];
+                //@ts-ignore
+                result = this.getCurrentOld(trackIndex);
+                __tracks[trackIndex] = result;
+            }
+            if (!result) {
+                //@ts-ignore
+                result = this.getCurrentOld(trackIndex);
+                __tracks[trackIndex] = result;
+            }
+            //@ts-ignore
+            this.currentTrack = result;
+            return result;
+        }
+
         spine.TextureAtlas = TextureAtlas as any;
         Object.defineProperty(spine.Skin.prototype, "attachments", {
             get: function () {
@@ -220,7 +329,7 @@ export class SpineAdapter {
 
         Object.defineProperty(regionAttachMentProto, "offset", {
             get: function () {
-                let from=this.getOffset();
+                let from = this.getOffset();
                 return from;
             }
         });
@@ -270,7 +379,7 @@ export class SpineAdapter {
         });
         Object.defineProperty(meshAttachmentProto, "vertices", {
             get: function () {
-                let from=this.getVertices();
+                let from = this.getVertices();
                 return from;
             }
         });
@@ -363,13 +472,26 @@ export class SpineAdapter {
             }
         });
 
+        Object.defineProperty(trackEntryProto, "animationStart", {
+            get: function () {
+                return this.getAnimationStart();
+            },
+            set: function (value) {
+            }
+        });
+
+        Object.defineProperty(trackEntryProto, "animationEnd", {
+            get: function () {
+                return this.getAnimationEnd();
+            }
+        });
 
         Object.defineProperty(trackEntryProto, "animationLast", {
             get: function () {
                 return this.getAnimationLast();
             }
         });
-        
+
         Object.defineProperty(trackEntryProto, "nextAnimationLast", {
             get: function () {
                 return this.getAnimationLast();
@@ -440,6 +562,24 @@ export class SpineAdapter {
         });
 
         let eventProto = spine.Event.prototype;
+
+        Object.defineProperty(eventProto, "volume", {
+            get: function () {
+                return this.getVolume();
+            }
+        });
+
+        Object.defineProperty(eventProto, "balance", {
+            get: function () {
+                return this.getBalance();
+            }
+        });
+
+        Object.defineProperty(eventProto, "time", {
+            get: function () {
+                return this.getTime();
+            }
+        });
         Object.defineProperty(eventProto, "data", {
             get: function () {
                 return this.getData();
@@ -465,7 +605,7 @@ export class SpineAdapter {
         });
 
 
-        let eventDataProto=spine.EventData.prototype;
+        let eventDataProto = spine.EventData.prototype;
         Object.defineProperty(eventDataProto, "name", {
             get: function () {
                 return this.getName();
