@@ -6,12 +6,14 @@ import { AttachmentParse } from "./AttachmentParse";
 import { IBCreator } from "./IBCreator";
 import { MultiRenderData } from "./MultiRenderData";
 import { SlotUtils } from "./SlotUtils";
+import { SpineNormalRender } from "./SpineNormalRender";
 import { SpineOptimizeRender } from "./SpineOptimizeRender";
 import { VBBoneCreator, VBCreator, VBRigBodyCreator } from "./VBCreator";
 import { IPreRender } from "./interface/IPreRender";
 import { ISpineOptimizeRender } from "./interface/ISpineOptimizeRender";
 
 export class SketonOptimise implements IPreRender {
+    static normalRenderSwitch: boolean = false;
     static cacheSwitch: boolean = false;
     canCache: boolean;
     sketon: spine.Skeleton;
@@ -36,13 +38,12 @@ export class SketonOptimise implements IPreRender {
 
     _initSpineRender(skeleton: spine.Skeleton, templet: SpineTemplet, graphics: Graphics, state: spine.AnimationState): ISpineOptimizeRender {
         let sp: ISpineOptimizeRender;
-        //SpineNormalRender;
-        // if (this.type == ERenderType.normal) {
-        //sp = new SpineNormalRender();
-        // }
-        // else {
-        sp = new SpineOptimizeRender(this);
-        // }
+        if (SketonOptimise.normalRenderSwitch) {
+            sp = new SpineNormalRender();
+        }
+        else {
+            sp = new SpineOptimizeRender(this);
+        }
         sp.init(skeleton, templet, graphics, state);
         return sp;
     }

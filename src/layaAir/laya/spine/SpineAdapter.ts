@@ -75,6 +75,8 @@ export class SpineAdapter {
             if (complete) {
                 //@ts-ignore
                 this.dispatchEvent(entry, "complete", null);
+                entry.nextAnimationLast = -1;
+                entry.nextTrackLast = -1;
                 return 0;
                // animationTime = 0;
             }

@@ -31,7 +31,6 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
     animatorMap: Map<string, AnimationRenderProxy>;
     currentAnimation: AnimationRenderProxy;
     bones: spine.Bone[];
-    boneMat: Float32Array = new Float32Array(200 * 4);
     graphics: Graphics;
     slots: spine.Slot[];
 
