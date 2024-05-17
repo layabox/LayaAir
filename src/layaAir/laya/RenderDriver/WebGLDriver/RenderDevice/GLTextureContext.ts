@@ -272,7 +272,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
             case RenderTargetFormat.DEPTHSTENCIL_24_8:
                 return { internalFormat: gl.DEPTH_STENCIL, attachment: gl.DEPTH_STENCIL_ATTACHMENT };
             case RenderTargetFormat.DEPTH_32:
-                return { internalFormat: gl.DEPTH_STENCIL, attachment: gl.DEPTH_ATTACHMENT };
+                return { internalFormat: gl.DEPTH_STENCIL, attachment: gl.DEPTH_STENCIL_ATTACHMENT };
             case RenderTargetFormat.STENCIL_8:
                 return { internalFormat: gl.STENCIL_INDEX8, attachment: gl.STENCIL_ATTACHMENT };
             default:

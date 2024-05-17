@@ -161,6 +161,8 @@ export class SkyRenderer {
         this._renderData.destroy();
         this._cacheRenderElement = null;
         // this._renderElement.destroy();
+        // skyRenderElement 由 camera 设置, camera 负责 destroy
+        this._baseRenderNode.setRenderelements([]);
         this._baseRenderNode.destroy();
     }
 
