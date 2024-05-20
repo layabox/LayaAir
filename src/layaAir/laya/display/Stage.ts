@@ -859,7 +859,6 @@ export class Stage extends Sprite {
      * @returns 
      */
     render(context2D: Context, x: number, y: number): void {
-        let delta: number = ILaya.timer._delta / 1000;
         if (this._frameRate === Stage.FRAME_SLEEP) {
             var now: number = Browser.now();
             if (now - this._frameStartTime < 1000)
@@ -897,7 +896,7 @@ export class Stage extends Sprite {
         if (this.renderingEnabled) {
 
             for (let i = 0, n = this._scene3Ds.length; i < n; i++)//更新3D场景,必须提出来,否则在脚本中移除节点会导致BUG
-                (<any>this._scene3Ds[i])._update(delta);
+                (<any>this._scene3Ds[i])._update();
             this._runComponents();
             this._componentDriver.callPreRender();
 

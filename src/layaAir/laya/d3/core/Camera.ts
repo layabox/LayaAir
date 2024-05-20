@@ -109,8 +109,8 @@ export class Camera extends BaseCamera {
         if (!renderTexture) return null;
         Scene3D._updateMark++;
 
-        scene.sceneRenderableManager.renderUpdate();
-        scene.skyRenderer.renderUpdate(RenderContext3D._instance);
+        if(!scene.parent)
+            scene._update();
 
         //@ts-ignore
         scene._prepareSceneToRender();
