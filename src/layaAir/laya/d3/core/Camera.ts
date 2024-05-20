@@ -109,6 +109,10 @@ export class Camera extends BaseCamera {
     static drawRenderTextureByScene(camera: Camera, scene: Scene3D, renderTexture: RenderTexture, shader: Shader3D = null, replaceFlag: string = null): RenderTexture {
         if (!renderTexture) return null;
         Scene3D._updateMark++;
+
+        if (!scene.parent)
+            scene._update();
+
         //@ts-ignore
         scene._prepareSceneToRender();
         scene._setCullCamera(camera);
