@@ -74,7 +74,12 @@ export class WebGPU3DRenderPass implements IRender3DProcess {
         renderPass.clearFlag = clearConst;
         renderPass.clearColor = clearValue;
 
-        camera.viewport.cloneTo(viewport);
+        if (camera._needInternalRenderTexture()) {
+            viewport.set(0, 0, renderRT.width, renderRT.height);
+        }
+        else {
+            camera.viewport.cloneTo(viewport);
+        }
         renderPass.setViewPort(viewport);
         const scissor = Vector4.tempVec4;
         scissor.setValue(viewport.x, viewport.y, viewport.width, viewport.height);

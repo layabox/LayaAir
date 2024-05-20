@@ -938,7 +938,27 @@ export class Camera extends BaseCamera {
      * @internal
      */
     _needInternalRenderTexture(): boolean {
-        return this._needBuiltInRenderTexture;//condition of internal RT
+        let needInternalRT = this.enableBuiltInRenderTexture;
+        if (this.renderTarget) {
+            if (this.msaa) {
+                needInternalRT = needInternalRT || !(this.renderTarget.samples > 1);
+            }
+            if (this.enableHDR) {
+                switch (this.renderTarget.format) {
+                    case TextureFormat.R16G16B16A16:
+                    case TextureFormat.R16G16B16:
+                    case TextureFormat.R32G32B32A32:
+                    case TextureFormat.R32G32B32:
+                        needInternalRT = true;
+                        break;
+                    default:
+                        break;
+                }
+            }
+            needInternalRT = needInternalRT || this.enableHDR;
+        }
+
+        return needInternalRT;//condition of internal RT
     }
 
     /**
@@ -1115,7 +1135,7 @@ export class Camera extends BaseCamera {
                     this._renderEngine.copySubFrameBuffertoTex(grabTexture._texture, 0, 0, 0, viewport.x, RenderContext3D.clientHeight - (viewport.y + viewport.height), viewport.width, viewport.height);
                     this._internalCommandBuffer.clear();
                     this._internalCommandBuffer.blitScreenQuad(grabTexture, this._internalRenderTexture);
-                    this._internalCommandBuffer._applyOne();
+                    this._internalCommandBuffer._apply(true);
                     RenderTexture.recoverToPool(grabTexture);
                 }
             }
@@ -1341,7 +1361,7 @@ export class Camera extends BaseCamera {
      * @override
      */
     destroy(destroyChild: boolean = true): void {
-        this._needInternalRenderTexture() && this._internalRenderTexture && (!this._internalRenderTexture._inPool) && RenderTexture.recoverToPool(this._internalRenderTexture);
+        this._internalRenderTexture && (!this._internalRenderTexture._inPool) && RenderTexture.recoverToPool(this._internalRenderTexture);
         this._offScreenRenderTexture = null;
         this.transform.off(Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
         ILaya.stage.off(Event.RESIZE, this, this._onScreenSizeChanged);

@@ -136,10 +136,6 @@ export class Scene3D extends Sprite {
     /** @internal */
     static SPOTLIGHTMODE: number;
     //------------------legacy lighting-------------------------------
-    /** @internal*/
-    static _blitTransRT: RenderTexture;
-    /**@internal */
-    static _blitOffset: Vector4 = new Vector4();
     /**@internal */
     static mainCavansViewPort: Viewport = new Viewport(0, 0, 1, 1);
     /**场景组件管理表 */
@@ -1021,7 +1017,7 @@ export class Scene3D extends Sprite {
             shaderValues.setTexture(Scene3D.CLUSTERBUFFER, Cluster.instance._clusterTexture);
         }
         else {
-            if(!Scene3D.LIGHTDIRECTION)//需要更新一下
+            if (!Scene3D.LIGHTDIRECTION)//需要更新一下
                 Scene3D.legacyLightingValueInit();
             if (this._directionLights._length > 0 && Stat.enableLight) {
                 var dirLight: DirectionLightCom = this._directionLights._elements[0];
@@ -1228,22 +1224,27 @@ export class Scene3D extends Sprite {
         Scene3D._updateMark++;
         for (i = 0, n = this._cameraPool.length, n1 = n - 1; i < n; i++) {
             var camera: Camera = (<Camera>this._cameraPool[i]);
-            if (camera.renderTarget)
-                (camera.enableBuiltInRenderTexture = false);//TODO:可能会有性能问题
-            else
-                camera.enableBuiltInRenderTexture = true;
+            if (camera.enableRender && camera.activeInHierarchy) {
 
-            camera.enableRender && camera.activeInHierarchy && camera.render(this);
-            Scene3D._blitTransRT = null;
+                if (camera.renderTarget) {
+                    camera.enableBuiltInRenderTexture = false;
+                }
+                else {
+                    camera.enableBuiltInRenderTexture = true;
+                }
 
-            if (camera.enableRender && !camera.renderTarget) {
-                (Scene3D._blitTransRT = camera._internalRenderTexture);
-                var canvasWidth: number = camera._getCanvasWidth(), canvasHeight: number = camera._getCanvasHeight();
-                Scene3D._blitOffset.setValue(camera.viewport.x / canvasWidth, camera.viewport.y / canvasHeight, camera.viewport.width / canvasWidth, camera.viewport.height / canvasHeight);
-                this.blitMainCanvans(Scene3D._blitTransRT, camera.normalizedViewport, camera);
-            }
-            if (!camera._cacheDepth) {
-                camera.enableRender && camera._needInternalRenderTexture() && (!camera._internalRenderTexture._inPool) && RenderTexture.recoverToPool(camera._internalRenderTexture);
+                camera.render(this);
+
+                if (camera.renderTarget) {
+                    this.blitMainCanvans(camera.renderTarget, camera.normalizedViewport, camera);
+                }
+                else {
+                    this.blitMainCanvans(camera._internalRenderTexture, camera.normalizedViewport, camera);
+                }
+
+                if (!camera._cacheDepth) {
+                    camera._needInternalRenderTexture() && (!camera._internalRenderTexture._inPool) && RenderTexture.recoverToPool(camera._internalRenderTexture);
+                }
             }
         }
         Context.set2DRenderConfig();//还原2D配置

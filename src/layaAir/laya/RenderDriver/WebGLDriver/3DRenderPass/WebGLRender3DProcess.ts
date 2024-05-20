@@ -70,7 +70,13 @@ export class WebGLRender3DProcess implements IRender3DProcess {
         renderpass.clearFlag = clearConst;
         renderpass.clearColor = clearValue;
 
-        camera.viewport.cloneTo(viewport);
+        if (camera._needInternalRenderTexture()) {
+            viewport.set(0, 0, renderRT.width, renderRT.height);
+        }
+        else {
+            camera.viewport.cloneTo(viewport);
+        }
+
         renderpass.setViewPort(viewport);
         let scissor = Vector4.tempVec4;
         scissor.setValue(viewport.x, viewport.y, viewport.width, viewport.height);

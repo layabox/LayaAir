@@ -169,7 +169,7 @@ export class PostProcess {
         this._init(camera);
         var camera = this._context!.camera;
         var viewport: Viewport = camera!.viewport;
-        var isTargetRenderTexture = !!camera._offScreenRenderTexture;
+        var isTargetRenderTexture = !camera.enableBuiltInRenderTexture && !!camera._offScreenRenderTexture;
         var cameraTarget: RenderTexture = isTargetRenderTexture ? RenderTexture.createFromPool(camera._offScreenRenderTexture.width, camera._offScreenRenderTexture.height, camera._getRenderTextureFormat(), RenderTargetFormat.None, false, 1, false, true) : camera._internalRenderTexture;
         var screenTexture: RenderTexture = RenderTexture.createFromPool(cameraTarget.width, cameraTarget.height, camera._getRenderTextureFormat(), RenderTargetFormat.None, false, 1, false, true);
         var Indirect: RenderTexture[] = [RenderTexture.createFromPool(cameraTarget.width, cameraTarget.height, camera._getRenderTextureFormat(), RenderTargetFormat.None, false, 1, false, true), RenderTexture.createFromPool(cameraTarget.width, cameraTarget.height, camera._getRenderTextureFormat(), RenderTargetFormat.None, false, 1, false, true)];
