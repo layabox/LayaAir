@@ -1235,10 +1235,7 @@ export class Scene3D extends Sprite {
 
                 camera.render(this);
 
-                if (camera.renderTarget) {
-                    this.blitMainCanvans(camera.renderTarget, camera.normalizedViewport, camera);
-                }
-                else {
+                if (!camera._offScreenRenderTexture) {
                     this.blitMainCanvans(camera._internalRenderTexture, camera.normalizedViewport, camera);
                 }
 

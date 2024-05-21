@@ -169,8 +169,8 @@ export class PostProcess {
         this._init(camera);
         var camera = this._context!.camera;
         var viewport: Viewport = camera!.viewport;
-        var isTargetRenderTexture = !camera.enableBuiltInRenderTexture && !!camera._offScreenRenderTexture;
-        var cameraTarget: RenderTexture = isTargetRenderTexture ? RenderTexture.createFromPool(camera._offScreenRenderTexture.width, camera._offScreenRenderTexture.height, camera._getRenderTextureFormat(), RenderTargetFormat.None, false, 1, false, true) : camera._internalRenderTexture;
+        var internalRT = camera._needInternalRenderTexture();
+        var cameraTarget: RenderTexture = !internalRT ? RenderTexture.createFromPool(camera._offScreenRenderTexture.width, camera._offScreenRenderTexture.height, camera._getRenderTextureFormat(), RenderTargetFormat.None, false, 1, false, true) : camera._internalRenderTexture;
         var screenTexture: RenderTexture = RenderTexture.createFromPool(cameraTarget.width, cameraTarget.height, camera._getRenderTextureFormat(), RenderTargetFormat.None, false, 1, false, true);
         var Indirect: RenderTexture[] = [RenderTexture.createFromPool(cameraTarget.width, cameraTarget.height, camera._getRenderTextureFormat(), RenderTargetFormat.None, false, 1, false, true), RenderTexture.createFromPool(cameraTarget.width, cameraTarget.height, camera._getRenderTextureFormat(), RenderTargetFormat.None, false, 1, false, true)];
         //var screenTexture: RenderTexture = cameraTarget;
@@ -179,12 +179,20 @@ export class PostProcess {
         this._context!.indirectTarget = screenTexture;
         this._context!.destination = this._effects.length == 2 ? Indirect[0] : cameraTarget;
         this._context!.compositeShaderData!.clearDefine();
-        if (isTargetRenderTexture) {
-            let offsetScale = Vector4.tempVec4;
-            offsetScale.setValue(0, 1, 1, -1);
+
+        if (internalRT) {
+            let invertY = camera._offScreenRenderTexture;
+            if (invertY) {
+                let offsetScale = Vector4.tempVec4;
+                offsetScale.setValue(0, 1, 1, -1);
+                this._context.command.blitScreenTriangle(camera._internalRenderTexture, screenTexture, offsetScale);
+            }
+            else {
+                this._context.command.blitScreenTriangle(camera._internalRenderTexture, screenTexture);
+            }
+        }
+        else {
             this._context.command.blitScreenTriangle(camera._offScreenRenderTexture, screenTexture);
-        } else {
-            this._context.command.blitScreenTriangle(camera._internalRenderTexture, screenTexture);
         }
 
         this._context!.compositeShaderData!.setTexture(PostProcess.SHADERVALUE_AUTOEXPOSURETEX, Texture2D.whiteTexture);//TODO:
@@ -208,17 +216,22 @@ export class PostProcess {
 
         this._compositeShaderData.addDefine(PostProcess.SHADERDEFINE_FINALPASS);
 
-        var offScreenTex: RenderTexture = camera!._offScreenRenderTexture;
-        var dest = offScreenTex ? offScreenTex : null;//TODO:如果不画到RenderTarget上,最后一次为null直接画到屏幕上
-        this._context!.destination = dest;
-        var canvasWidth: number = camera!._getCanvasWidth(), canvasHeight: number = camera!._getCanvasHeight();
-        if (dest) {
-            camera!._screenOffsetScale.setValue(viewport.x / canvasWidth, (canvasHeight - viewport.y - viewport.height) / canvasHeight, viewport.width / canvasWidth, viewport.height / canvasHeight);
-            this._context!.command!.blitScreenTriangle(cameraTarget, dest, camera!._screenOffsetScale, null, this._compositeShaderData, 0);
+        if (camera._offScreenRenderTexture) {
+            if (internalRT) {
+                this._context!.destination = camera._offScreenRenderTexture;
+                var canvasWidth: number = camera!._getCanvasWidth(), canvasHeight: number = camera!._getCanvasHeight();
+                if (LayaGL.renderEngine._screenInvertY) {
+                    camera!._screenOffsetScale.setValue(viewport.x / canvasWidth, 1.0 - (canvasHeight - viewport.y - viewport.height) / canvasHeight, viewport.width / canvasWidth, -viewport.height / canvasHeight);
+                }
+                else {
+                    camera!._screenOffsetScale.setValue(viewport.x / canvasWidth, (canvasHeight - viewport.y - viewport.height) / canvasHeight, viewport.width / canvasWidth, viewport.height / canvasHeight);
+                }
+                this._context!.command!.blitScreenTriangle(cameraTarget, camera._offScreenRenderTexture, camera!._screenOffsetScale, null, this._compositeShaderData, 0);
+            }
         }
 
         //释放临时纹理
-        if (isTargetRenderTexture) RenderTexture.recoverToPool(cameraTarget);
+        if (internalRT) RenderTexture.recoverToPool(cameraTarget);
         RenderTexture.recoverToPool(screenTexture);
         RenderTexture.recoverToPool(Indirect[0]);
         RenderTexture.recoverToPool(Indirect[1]);

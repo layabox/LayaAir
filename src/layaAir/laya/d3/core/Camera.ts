@@ -949,13 +949,18 @@ export class Camera extends BaseCamera {
                     case TextureFormat.R16G16B16:
                     case TextureFormat.R32G32B32A32:
                     case TextureFormat.R32G32B32:
-                        needInternalRT = true;
                         break;
                     default:
+                        needInternalRT = true;
                         break;
                 }
             }
-            needInternalRT = needInternalRT || this.enableHDR;
+            if (this.postProcess && this.postProcess.enable) {
+                needInternalRT = true;
+            }
+            if (this.normalizedViewport.width != 1 || this.normalizedViewport.height != 1 || this.normalizedViewport.x != 0 || this.normalizedViewport.y != 0) {
+                needInternalRT = true;
+            }
         }
 
         return needInternalRT;//condition of internal RT

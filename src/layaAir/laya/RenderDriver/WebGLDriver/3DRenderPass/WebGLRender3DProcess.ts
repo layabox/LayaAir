@@ -23,6 +23,7 @@ import { WebGLForwardAddRP } from "./WebGLForwardAddRP";
 import { WebGLRenderContext3D } from "./WebGLRenderContext3D";
 
 const viewport = new Viewport(0, 0, 0, 0);
+const offsetScale = new Vector4();
 
 export class WebGLRender3DProcess implements IRender3DProcess {
 
@@ -70,7 +71,9 @@ export class WebGLRender3DProcess implements IRender3DProcess {
         renderpass.clearFlag = clearConst;
         renderpass.clearColor = clearValue;
 
-        if (camera._needInternalRenderTexture()) {
+        let needInternalRT = camera._needInternalRenderTexture();
+
+        if (needInternalRT) {
             viewport.set(0, 0, renderRT.width, renderRT.height);
         }
         else {
@@ -148,6 +151,15 @@ export class WebGLRender3DProcess implements IRender3DProcess {
         } else {
             this.renderpass.enablePostProcess = false;
         }
+
+        this.renderpass.finalize.clear();
+        if (!this.renderpass.enablePostProcess && needInternalRT && camera._offScreenRenderTexture) {
+            let dst = camera._offScreenRenderTexture;
+
+            offsetScale.setValue(camera.normalizedViewport.x, 1.0 - camera.normalizedViewport.y, renderRT.width / dst.width, -renderRT.height / dst.height);
+            this.renderpass.finalize.blitScreenQuad(renderRT, camera._offScreenRenderTexture, offsetScale);
+        }
+
     }
 
     renderDepth(camera: Camera) {
@@ -229,6 +241,8 @@ export class WebGLRender3DProcess implements IRender3DProcess {
         }
         renderpass._afterAllRenderCMDS && this._rendercmd(renderpass._afterAllRenderCMDS, context);
 
+        renderpass.finalize._apply(false);
+        context.runCMDList(renderpass.finalize._renderCMDs);
     }
 
     /**
@@ -244,7 +258,7 @@ export class WebGLRender3DProcess implements IRender3DProcess {
             context.runCMDList(value._renderCMDs);
         });
     }
-    
+
     /**
      * @param postprocessCMD
      * @param context
