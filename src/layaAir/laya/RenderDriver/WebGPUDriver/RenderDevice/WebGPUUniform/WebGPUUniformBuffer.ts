@@ -478,8 +478,10 @@ export class WebGPUUniformBuffer {
 
     destroy() {
         WebGPUGlobal.releaseId(this);
-        if (WebGPUGlobal.useBigBuffer)
+        if (WebGPUGlobal.useBigBuffer) {
             this.gpuBuffer.freeBlock(this.name, this.bufferBlock);
+            this.bufferBlock.destroy();
+        }
         else this.bufferAlone.destroy();
     }
 

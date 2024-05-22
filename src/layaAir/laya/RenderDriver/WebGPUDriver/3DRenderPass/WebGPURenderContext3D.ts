@@ -231,7 +231,7 @@ export class WebGPURenderContext3D implements IRenderContext3D {
      * @param list 
      */
     drawRenderElementList(list: SingletonList<WebGPURenderElement3D>): number {
-        let len = list.length;
+        const len = list.length;
         if (len === 0) return 0; //没有需要渲染的对象
         this._setScreenRT(); //如果没有渲染目标，则将屏幕作为渲染目标
         if (this._needStart) {

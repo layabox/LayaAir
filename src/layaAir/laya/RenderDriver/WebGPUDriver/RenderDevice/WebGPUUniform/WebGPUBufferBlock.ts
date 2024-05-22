@@ -38,7 +38,7 @@ export class WebGPUBufferBlock {
 
     destroy() {
         if (!this.destroyed) {
-            WebGPUGlobal.action(this, 'returnMemory | uniform', this.alignedSize);
+            //WebGPUGlobal.action(this, 'returnMemory | uniform', this.alignedSize);
             WebGPUGlobal.releaseId(this);
             this.destroyed = true;
         }
