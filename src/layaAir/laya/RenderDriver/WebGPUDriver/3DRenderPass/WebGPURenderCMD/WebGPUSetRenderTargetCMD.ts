@@ -3,10 +3,8 @@ import { Color } from "../../../../maths/Color";
 import { Vector4 } from "../../../../maths/Vector4";
 import { Viewport } from "../../../../maths/Viewport";
 import { RenderCMDType, SetRenderTargetCMD } from "../../../DriverDesign/3DRenderPass/IRendderCMD";
-import { InternalRenderTarget } from "../../../DriverDesign/RenderDevice/InternalRenderTarget";
 import { WebGPUInternalRT } from "../../RenderDevice/WebGPUInternalRT";
 import { WebGPURenderContext3D } from "../WebGPURenderContext3D";
-
 
 const viewport = new Viewport();
 const scissor = new Vector4();

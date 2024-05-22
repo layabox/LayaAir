@@ -46,9 +46,8 @@ export class WebGPUShaderData extends ShaderData {
     private _bindGroupMap: Map<string, [GPUBindGroup, GPUBindGroupLayoutEntry[]]>; //缓存的BindGroup
     private _bindGroup: GPUBindGroup; //缓存的BindGroup（非共享模式的着色器数据只可能有一个绑定组）
     private _bindGroupLayoutEntries: GPUBindGroupLayoutEntry[];
-    bindGroupIsNew: boolean = false; //是否新建了bindGroup
 
-    coShaderData: WebGPUShaderData[]; //伴随ShaderData，用于骨骼动画
+    coShaderData: WebGPUShaderData[]; //伴随ShaderData（用于骨骼动画）
 
     private _isShare: boolean = true; //是否共享模式，该ShaderData数据是否会被多个节点共享
     get isShare(): boolean {
@@ -74,6 +73,7 @@ export class WebGPUShaderData extends ShaderData {
 
     globalId: number;
     objectName: string = 'WebGPUShaderData';
+    static objectCount: number = 0; //对象计数器
 
     static __init__() {
         if (!this._dummyTexture2D) { //创建2D空白贴图（替代丢失的贴图）
@@ -96,6 +96,7 @@ export class WebGPUShaderData extends ShaderData {
         this._defineDatas = new WebDefineDatas();
 
         this.globalId = WebGPUGlobal.getId(this);
+        WebGPUShaderData.objectCount++;
     }
 
     /**
@@ -127,10 +128,8 @@ export class WebGPUShaderData extends ShaderData {
      * 将数据更新到UniformBuffer中
      */
     private _updateUniformData() {
-        for (const id in this._data) {
-            const value = this._data[id];
-            this._uniformBuffer.setUniformData(Number(id), value);
-        }
+        for (const id in this._data)
+            this._uniformBuffer.setUniformData(Number(id), this._data[id]);
         if (this.coShaderData)
             for (let i = this.coShaderData.length - 1; i > -1; i--)
                 this.coShaderData[i]._updateUniformData();
@@ -146,7 +145,6 @@ export class WebGPUShaderData extends ShaderData {
         if (this.coShaderData)
             for (let i = this.coShaderData.length - 1; i > -1; i--)
                 this.coShaderData[i].clearBindGroup();
-        //console.log('clear bindGroup =', this.globalId);
     }
 
     /**
@@ -253,18 +251,18 @@ export class WebGPUShaderData extends ShaderData {
         const device = WebGPURenderEngine._instance.getDevice();
 
         //同一个ShaderData可能需要不同的bindGroup，因为某些ShaderData是共享的（比如Scene3D和Camera）
-        //具体原因是bindGroup中还包含了texture和sampler，不同的RendlerElement共享了同一个ShaderData，
+        //具体原因是bindGroup中还包含了texture和sampler，不同的RenderElement共享了同一个ShaderData，
         //但是他们的texture和sampler是有可能不同的，比如使用了UnlitMaterial和BlinnPhongMaterial的渲染节点共享了
-        //同一个Scene3D的ShaderData（对应bindGroup0），但UnlitMaterial不使用灯光，从而不使用u_lightButter，
+        //同一个Scene3D的ShaderData（对应bindGroup0），但UnlitMaterial不使用灯光，从而不使用u_lightBuffer，
         //但BlinnPhongMaterial使用灯光，使用u_lightBuffer贴图，因此这两个渲染节点的bindGroup0是不同的，
-        //不同的bindGroup可以通过info中propertyId区分开来。
+        //不同的bindGroup可以通过info中propertyId区分出来。
 
         let key;
         let bindGroup;
         let bindGroupLayoutEntries;
 
         //构建key，查找缓存bindGroup
-        if (this.isShare) { //只有共享的ShaderData才可能会需要不同的bindGroup
+        if (this.isShare) { //只有共享的ShaderData才可能需要不同的bindGroup
             key = name + '_' + this._infoId + ' | ';
             for (let i = info.length - 1; i > -1; i--)
                 key += info[i].propertyId + '_';
@@ -281,7 +279,7 @@ export class WebGPUShaderData extends ShaderData {
             bindGroupLayoutEntries = this._bindGroupLayoutEntries;
         }
 
-        //如果没有缓存, 则创建一个BindGroup
+        //如果没有从缓存中找到, 则创建一个bindGroup
         if (!bindGroup) {
             bindGroupLayoutEntries = [];
             const bindGroupEntries = [];
@@ -398,15 +396,12 @@ export class WebGPUShaderData extends ShaderData {
                 this._bindGroup = bindGroup;
                 this._bindGroupLayoutEntries = bindGroupLayoutEntries;
             }
-            this.bindGroupIsNew = true;
             //console.log('create bindGroup_' + WebGPUShaderData._bindGroupCounter++, key, bindGroupLayoutDesc, bindGroupEntries);
-        } else this.bindGroupIsNew = false;
+        }
 
         //将绑定组附加到命令
-        if (command)
-            command.setBindGroup(groupId, bindGroup);
-        if (bundle)
-            bundle.setBindGroup(groupId, bindGroup);
+        command?.setBindGroup(groupId, bindGroup);
+        bundle?.setBindGroup(groupId, bindGroup);
 
         //返回绑定组结构（用于建立pipeline）
         return bindGroupLayoutEntries;
@@ -416,8 +411,7 @@ export class WebGPUShaderData extends ShaderData {
      * 上传数据
      */
     uploadUniform() {
-        if (this._uniformBuffer)
-            this._uniformBuffer.upload();
+        this._uniformBuffer?.upload();
         if (this.coShaderData)
             for (let i = this.coShaderData.length - 1; i > -1; i--)
                 this.coShaderData[i].uploadUniform();
@@ -771,24 +765,24 @@ export class WebGPUShaderData extends ShaderData {
      */
     setTexture(index: number, value: BaseTexture) {
         const lastValue = this._data[index];
-        if (lastValue == value) return; //null or undefined
-        if (value) {
-            const shaderDefine = WebGPURenderEngine._instance._texGammaDefine[index];
-            if (shaderDefine) {
-                if (value.gammaCorrection > 1)
-                    this.addDefine(shaderDefine);
-                else this.removeDefine(shaderDefine);
+        if (lastValue != value) {
+            if (value) {
+                const shaderDefine = WebGPURenderEngine._instance._texGammaDefine[index];
+                if (shaderDefine) {
+                    if (value.gammaCorrection > 1)
+                        this.addDefine(shaderDefine);
+                    else this.removeDefine(shaderDefine);
+                }
             }
-        }
-        if ((!lastValue && value) || (lastValue && !value) || lastValue != value)
             this.changeMark++;
-        this._data[index] = value;
-        lastValue && lastValue._removeReference();
-        value && value._addReference();
-        this.clearBindGroup(); //清理绑定组（重建绑定）
-        if (this.coShaderData)
-            for (let i = this.coShaderData.length - 1; i > -1; i--)
-                this.coShaderData[i].setTexture(index, value);
+            this._data[index] = value;
+            lastValue && lastValue._removeReference();
+            value && value._addReference();
+            this.clearBindGroup(); //清理绑定组（重建绑定）
+            if (this.coShaderData)
+                for (let i = this.coShaderData.length - 1; i > -1; i--)
+                    this.coShaderData[i].setTexture(index, value);
+        }
     }
 
     /**
@@ -798,22 +792,22 @@ export class WebGPUShaderData extends ShaderData {
      */
     _setInternalTexture(index: number, value: InternalTexture) {
         const lastValue = this._data[index];
-        if (lastValue == value) return;
-        if (value) {
-            const shaderDefine = WebGPURenderEngine._instance._texGammaDefine[index];
-            if (shaderDefine) {
-                if (value.gammaCorrection > 1)
-                    this.addDefine(shaderDefine);
-                else this.removeDefine(shaderDefine);
+        if (lastValue != value) {
+            if (value) {
+                const shaderDefine = WebGPURenderEngine._instance._texGammaDefine[index];
+                if (shaderDefine) {
+                    if (value.gammaCorrection > 1)
+                        this.addDefine(shaderDefine);
+                    else this.removeDefine(shaderDefine);
+                }
             }
-        }
-        if ((!lastValue && value) || (lastValue && !value) || lastValue != value)
             this.changeMark++;
-        this._data[index] = value;
-        this.clearBindGroup(); //清理绑定组（重建绑定）
-        if (this.coShaderData)
-            for (let i = this.coShaderData.length - 1; i > -1; i--)
-                this.coShaderData[i]._setInternalTexture(index, value);
+            this._data[index] = value;
+            this.clearBindGroup(); //清理绑定组（重建绑定）
+            if (this.coShaderData)
+                for (let i = this.coShaderData.length - 1; i > -1; i--)
+                    this.coShaderData[i]._setInternalTexture(index, value);
+        }
     }
 
     /**
@@ -871,6 +865,7 @@ export class WebGPUShaderData extends ShaderData {
      */
     destroy() {
         WebGPUGlobal.releaseId(this);
+        WebGPUShaderData.objectCount--;
         this._gammaColorMap.clear();
         this._bindGroupMap.clear();
         this._bindGroup = null;

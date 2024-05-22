@@ -33,7 +33,7 @@ export class WebGPUConfig {
     /**
      * canvans alpha mode
      */
-    alphaMode: GPUCanvasAlphaMode = "premultiplied";
+    alphaMode: GPUCanvasAlphaMode = 'premultiplied';
     /**
      * attach canvans usage
      */
@@ -41,7 +41,7 @@ export class WebGPUConfig {
     /**
      * color space
      */
-    colorSpace? = "srgb" /* default="srgb" */;
+    colorSpace? = 'srgb' /* default="srgb" */;
     /**
      * depth and stencil
      */
@@ -94,16 +94,16 @@ export class WebGPURenderEngine implements IRenderEngine {
         this._canvas = canvas;
         if (navigator.gpu)
             WebGPURenderEngine._instance = this;
-        else console.error("WebGPU is not supported by your browser");
+        else console.error('WebGPU is not supported by your browser');
 
         this.globalId = WebGPUGlobal.getId(this);
     }
 
     getUBOPointer?(name: string): number {
-        throw new Error("Method not implemented.");
+        throw new Error('Method not implemented.');
     }
     createBuffer?(targetType: BufferTargetType, bufferUsageType: BufferUsage): GLBuffer {
-        throw new Error("Method not implemented.");
+        throw new Error('Method not implemented.');
     }
     _enableStatistics: boolean;
 
@@ -120,7 +120,7 @@ export class WebGPURenderEngine implements IRenderEngine {
      */
     private _initAdapter(adapter: GPUAdapter) {
         if (!adapter) {
-            throw "Could not retrieve a WebGPU adapter (adapter is null).";
+            throw 'Could not retrieve a WebGPU adapter (adapter is null).';
         } else {
             this._adapter = adapter;
             const deviceDescriptor = this._config.deviceDescriptor;
@@ -151,8 +151,8 @@ export class WebGPURenderEngine implements IRenderEngine {
      * @param event 
      */
     private _unCapturedErrorCall(event: Event) {
-        console.warn("WebGPU unCaptured error: " + (event as GPUUncapturedErrorEvent).error);
-        console.warn("WebGPU unCaptured error message: " + (event as GPUUncapturedErrorEvent).error.message);
+        console.warn('WebGPU unCaptured error: ' + (event as GPUUncapturedErrorEvent).error);
+        console.warn('WebGPU unCaptured error message: ' + (event as GPUUncapturedErrorEvent).error.message);
     }
 
     /**
@@ -160,7 +160,7 @@ export class WebGPURenderEngine implements IRenderEngine {
      * @param info 
      */
     private _deviceLostCall(info: GPUDeviceLostInfo) {
-        console.error("WebGPU context lost" + info);
+        console.error('WebGPU context lost' + info);
     }
 
     /**
@@ -173,7 +173,7 @@ export class WebGPURenderEngine implements IRenderEngine {
         this._device.features.forEach(element => {
             this._deviceEnabledExtensions.push(element as GPUFeatureName);
         });
-        this._device.addEventListener("uncapturederror", this._unCapturedErrorCall);
+        this._device.addEventListener('uncapturederror', this._unCapturedErrorCall);
         this._device.lost.then(this._deviceLostCall);
 
         this.gpuBufferMgr = new WebGPUBufferManager(device);
@@ -201,7 +201,7 @@ export class WebGPURenderEngine implements IRenderEngine {
             },
                 (e) => {
                     console.log(e);
-                    throw "could not get WebGPU device";
+                    throw 'Could not get WebGPU device';
                 })
     }
 
@@ -217,7 +217,7 @@ export class WebGPURenderEngine implements IRenderEngine {
         if (!this._screenRT
             || this._screenRT._textures[0].width !== w
             || this._screenRT._textures[0].height !== h) {
-            console.log("canvas resize =", w, h);
+            console.log('canvas resize =', w, h);
             this.createScreenRT();
         }
     }
@@ -237,11 +237,11 @@ export class WebGPURenderEngine implements IRenderEngine {
      * 设置WebGPU画图上下文
      */
     private _initContext() {
-        this._context = this._canvas.getContext("webgpu") as GPUCanvasContext;
+        this._context = this._canvas.getContext('webgpu') as GPUCanvasContext;
         if (!this._context)
-            throw "Could not get context";
-        const perferredFormat = navigator.gpu.getPreferredCanvasFormat();
-        console.log('perferredFormat =', perferredFormat);
+            throw 'Could not get context';
+        const preferredFormat = navigator.gpu.getPreferredCanvasFormat();
+        console.log('preferredFormat =', preferredFormat);
         const format = this._config.swapChainFormat || WebGPUTextureFormat.bgra8unorm;
         const usage = this._config.usage ?? GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.COPY_SRC;
         this._context.configure({
@@ -268,7 +268,7 @@ export class WebGPURenderEngine implements IRenderEngine {
     }
 
     copySubFrameBuffertoTex(texture: InternalTexture, level: number, xoffset: number, yoffset: number, x: number, y: number, width: number, height: number): void {
-        throw new Error("Method not implemented.");
+        throw new Error('Method not implemented.');
     }
 
     /**@internal */

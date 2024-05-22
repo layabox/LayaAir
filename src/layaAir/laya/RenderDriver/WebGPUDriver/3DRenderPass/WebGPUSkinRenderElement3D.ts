@@ -1,6 +1,4 @@
-import { RenderableSprite3D } from "../../../d3/core/RenderableSprite3D";
 import { SkinnedMeshSprite3D } from "../../../d3/core/SkinnedMeshSprite3D";
-import { Sprite3D } from "../../../d3/core/Sprite3D";
 import { ISkinRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { WebGPUBuffer } from "../RenderDevice/WebGPUBuffer";
 import { WebGPURenderBundle } from "../RenderDevice/WebGPUBundle/WebGPURenderBundle";
