@@ -4,6 +4,8 @@ import { SpineMeshBase } from "./SpineMeshBase";
 
 export class SpineVirtualMesh extends SpineMeshBase{
     static vertexSize: number = 8;
+    static vertexArray: Float32Array;
+    static indexArray: Uint16Array;
     /**
      * Create a visual mesh
      * @param geo Geometry
@@ -11,8 +13,12 @@ export class SpineVirtualMesh extends SpineMeshBase{
      */
     constructor(material: Material) {
         super(material);
-        this.vertexArray = new Float32Array(SpineMeshBase.maxVertex * SpineVirtualMesh.vertexSize);
-        this.indexArray = new Uint16Array(SpineMeshBase.maxVertex * 3);
+        if(SpineVirtualMesh.vertexArray==null){
+            SpineVirtualMesh.vertexArray = new Float32Array(SpineMeshBase.maxVertex * SpineVirtualMesh.vertexSize);
+            SpineVirtualMesh.indexArray = new Uint16Array(SpineMeshBase.maxVertex * 3);
+        }
+        this.vertexArray = SpineVirtualMesh.vertexArray;
+        this.indexArray = SpineVirtualMesh.indexArray;
     }
     /**
      * 剪裁后的顶点和索引 

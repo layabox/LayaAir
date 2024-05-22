@@ -314,7 +314,7 @@ export class BaseRender extends Component {
             this._sharedMaterials[0] = value;
             this._materialsInstance[0] = false;
             this._changeMaterialReference(lastValue, value);
-            this._renderElements[0].material = value;
+            this._renderElements[0] &&(this._renderElements[0].material = value);
         }
         this._isSupportRenderFeature();
     }

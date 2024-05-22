@@ -2,7 +2,7 @@ import { RenderState } from "../../RenderDriver/RenderModuleData/Design/RenderSt
 import { Material } from "../../resource/Material";
 import { Texture } from "../../resource/Texture";
 
-export class SpineMaterialBase extends Material{
+export class SpineMaterialBase extends Material {
     private _blendMode: number = 0;
     set blendMode(value: number) {
         //return;
@@ -29,8 +29,8 @@ export class SpineMaterialBase extends Material{
         return this._blendMode;
     }
 
-    set texture(value:Texture){
-        this.setTexture("u_spriteTexture", value as any);
+    set texture(value: Texture) {
+        this.setTexture("u_spriteTexture", value.bitmap);
     }
 
     cloneTo(destObject: any): void {
@@ -38,5 +38,5 @@ export class SpineMaterialBase extends Material{
         var destBaseMaterial: SpineMaterialBase = (<SpineMaterialBase>destObject);
         destBaseMaterial._blendMode = this._blendMode;
     }
- 
+
 }

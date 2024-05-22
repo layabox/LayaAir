@@ -2,6 +2,7 @@ import { AnimationRender, SkinAniRenderData } from "./AnimationRender";
 import { IVBIBUpdate } from "./interface/IVBIBUpdate";
 
 export class AnimationRenderProxy {
+    state:spine.AnimationState;
     currentTime: number;
     currentFrameIndex: number;
     animator: AnimationRender;
@@ -42,7 +43,7 @@ export class AnimationRenderProxy {
             this.currentTime = curTime;
             this.currentFrameIndex = nowFrame;
         }
-        currentSKin.updateBoneMat(curTime,this.animator.boneFrames,bones);
+        currentSKin.updateBoneMat(curTime,this.animator,bones,this.state);
         //vb.updateBone(bones);
         return vb.boneMat;
     }

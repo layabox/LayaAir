@@ -33,14 +33,15 @@ void DecodeDepthNormal(vec4 enc, out float depth)
 
 void main()
 {
+    vec2 uv = v_Texcoord0;
 
 #ifdef CAMERA_NORMALDEPTH
-    vec4 depthNormal = texture2D(u_CameraDepthNormalTexture, v_Texcoord0);
+    vec4 depthNormal = texture2D(u_CameraDepthNormalTexture, uv);
     float depth = 0.0;
     DecodeDepthNormal(depthNormal, depth);
     depth = ((1.0 / depth) - u_ZBufferParams.y) * (1.0 / u_ZBufferParams.x);
 #else
-    float depth = texture2D(u_CameraDepthTexture, v_Texcoord0).x;
+    float depth = texture2D(u_CameraDepthTexture, uv).x;
 #endif
 
     depth = LinearEyeDepth(depth, u_ZBufferParams);

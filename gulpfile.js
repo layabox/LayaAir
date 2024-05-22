@@ -155,6 +155,7 @@ const packsDef = [{
 {
     'libName': "webgpu_3D",
     'input': [
+        './layaAir/laya/RenderDriver/DriverCommon/**/*.*',
         './layaAir/laya/RenderDriver/WebGPUDriver/ShaderCompile/**/*.*',
         './layaAir/laya/RenderDriver/WebGPUDriver/3DRenderPass/**/*.*',
         './layaAir/laya/RenderDriver/RenderModuleData/WebModuleData/3D/*.*',
@@ -479,6 +480,7 @@ gulp.task("copyJsLibs", async () => {
         './src/layaAir/jsLibs/laya.Box2D.wasm.wasm',
         './src/layaAir/jsLibs/recast-navigation.wasm',
         './src/layaAir/jsLibs/spine.wasm_3.8.wasm',
+        './src/layaAir/jsLibs/naga_wasm_bg.wasm',
       
         '!./src/layaAir/jsLibs/{laya.Box2D.js,cannon.js,bullet.js,physx.release.js,laya.Box2D.wasm.js,bullet.wasm.js,physx.wasm.js,recast-navigation.js}'
     ])

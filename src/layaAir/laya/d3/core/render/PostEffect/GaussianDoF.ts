@@ -57,6 +57,9 @@ export class GaussianDoF extends PostProcessEffect {
     /**@internal */
     static SHADERDEFINE_DEPTHNORMALTEXTURE: ShaderDefine;
 
+    /**@internal */
+    static PROJECTIONPARAM: number;
+
     /**
      * GaussianDOF resource init
      */
@@ -70,6 +73,7 @@ export class GaussianDoF extends PostProcessEffect {
         GaussianDoF.DOWNSAMPLESCALE = Shader3D.propertyNameToID("u_DownSampleScale");
         GaussianDoF.BLURCOCTEXTURE = Shader3D.propertyNameToID("u_BlurCoCTex");
         GaussianDoF.SHADERDEFINE_DEPTHNORMALTEXTURE = Shader3D.getDefineByName("CAMERA_NORMALDEPTH");
+        GaussianDoF.PROJECTIONPARAM = Shader3D.propertyNameToID("u_ProjectionParam");
 
         let attributeMap: any = {
             'a_PositionTexcoord': [VertexMesh.MESH_POSITION0, ShaderDataType.Vector4],
@@ -80,6 +84,7 @@ export class GaussianDoF extends PostProcessEffect {
             "u_MainTex_TexelSize": ShaderDataType.Vector4,
             "u_OffsetScale": ShaderDataType.Vector4,
             "u_ZBufferParams": ShaderDataType.Vector4,
+            "u_ProjectionParam": ShaderDataType.Vector4,
             "u_CoCParams": ShaderDataType.Vector3,
             "u_FullCoCTex": ShaderDataType.Texture2D,
             "u_SourceSize": ShaderDataType.Vector4,
@@ -149,6 +154,8 @@ export class GaussianDoF extends PostProcessEffect {
     /**@internal */
     private _zBufferParams: Vector4;
 
+    private _projectionParams: Vector4;
+
     /**@internal */
     private _sourceSize: Vector4;
 
@@ -164,6 +171,7 @@ export class GaussianDoF extends PostProcessEffect {
         this._shaderData = LayaGL.renderDeviceFactory.createShaderData(null);
         this._shaderData.setVector3(GaussianDoF.COCPARAMS, new Vector3(10, 30, 1));
         this._zBufferParams = new Vector4();
+        this._projectionParams = new Vector4();
         this._sourceSize = new Vector4();
         this._dowmSampleScale = new Vector4();
     }
@@ -219,6 +227,9 @@ export class GaussianDoF extends PostProcessEffect {
         let near = camera.nearPlane;
         this._zBufferParams.setValue(1.0 - far / near, far / near, (near - far) / (near * far), 1 / near);
         this._shaderData.setVector(GaussianDoF.ZBUFFERPARAMS, this._zBufferParams);
+        let invertY = !!camera._offScreenRenderTexture;
+        this._projectionParams.setValue(near, far, invertY ? -1 : 1, 1 / far);
+        this._shaderData.setVector(GaussianDoF.PROJECTIONPARAM, this._projectionParams);
     }
 
 

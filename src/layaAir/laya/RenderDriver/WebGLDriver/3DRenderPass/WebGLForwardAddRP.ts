@@ -11,6 +11,7 @@ export class WebGLForwardAddRP {
         this.spotLightShadowPass = new WebGLSpotLightShadowRP();
         this.shadowParams = new Vector4();
         this.renderpass = new WebGLForwardAddClusterRP();
+        this.finalize = new CommandBuffer();
     }
 
     setBeforeImageEffect(value: CommandBuffer[]): void {
@@ -58,4 +59,6 @@ export class WebGLForwardAddRP {
     postProcess: CommandBuffer;
     /**main pass */
     renderpass: WebGLForwardAddClusterRP;
+
+    finalize: CommandBuffer;
 }

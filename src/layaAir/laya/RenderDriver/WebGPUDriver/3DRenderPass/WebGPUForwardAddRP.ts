@@ -33,11 +33,14 @@ export class WebGPUForwardAddRP {
 
     shadowParams: Vector4;
 
+    finalize: CommandBuffer;
+
     constructor() {
         this.directLightShadowPass = new WebGPUDirectLightShadowRP();
         this.spotLightShadowPass = new WebGPUSpotLightShadowRP();
         this.renderPass = new WebGPUForwardAddClusterRP();
         this.shadowParams = new Vector4();
+        this.finalize = new CommandBuffer();
     }
 
     /**

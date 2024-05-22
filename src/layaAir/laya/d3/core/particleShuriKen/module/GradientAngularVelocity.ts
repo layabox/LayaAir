@@ -147,9 +147,9 @@ export class GradientAngularVelocity implements IClone {
 	}
 	public set _constantSeparate(value: Vector3) {
 		this.__constantSeparate = value.clone();
-		this._constantXMinGradientDdata = GradientDataNumber.createConstantData(value.x);
-		this._constantYMinGradientDdata = GradientDataNumber.createConstantData(value.y);
-		this._constantZMinGradientDdata = GradientDataNumber.createConstantData(value.z);
+		this._constantXGradientDdata = GradientDataNumber.createConstantData(value.x);
+		this._constantYGradientDdata = GradientDataNumber.createConstantData(value.y);
+		this._constantZGradientDdata = GradientDataNumber.createConstantData(value.z);
 
 	}
 
@@ -161,7 +161,8 @@ export class GradientAngularVelocity implements IClone {
 	private _gradientW: GradientDataNumber = null;
 
 	
-
+	/**@internal */
+	_constantGradientDdata: GradientDataNumber = null;
 	/**@internal */
 	_constantMinGradientDdata: GradientDataNumber = null;
 	/**@internal */
@@ -181,7 +182,7 @@ export class GradientAngularVelocity implements IClone {
 	 */
 	public set _constant(value: number) {
 		this.__constant = value;
-		this._constantMinGradientDdata = GradientDataNumber.createConstantData(value);
+		this._constantGradientDdata = GradientDataNumber.createConstantData(value);
 	}
 
 	/**
@@ -216,6 +217,13 @@ export class GradientAngularVelocity implements IClone {
 
 	private __constantMinSeparate: Vector3 = null;
 	private __constantMaxSeparate: Vector3 = null;
+	//@internal
+	_constantXGradientDdata: GradientDataNumber = null;
+	//@internal
+	_constantYGradientDdata: GradientDataNumber = null;
+	//@internal
+	_constantZGradientDdata: GradientDataNumber = null;
+
 	//@internal
 	_constantXMinGradientDdata: GradientDataNumber = null;
 	//@internal
