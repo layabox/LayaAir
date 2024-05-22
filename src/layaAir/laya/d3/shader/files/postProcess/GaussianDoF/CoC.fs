@@ -34,7 +34,6 @@ void DecodeDepthNormal(vec4 enc, out float depth)
 void main()
 {
     vec2 uv = v_Texcoord0;
-    uv.y = 0.5 * ((1.0 + u_ProjectionParam.z) * uv.y + (1.0 - u_ProjectionParam.z) * (1.0 - uv.y));
 
 #ifdef CAMERA_NORMALDEPTH
     vec4 depthNormal = texture2D(u_CameraDepthNormalTexture, uv);

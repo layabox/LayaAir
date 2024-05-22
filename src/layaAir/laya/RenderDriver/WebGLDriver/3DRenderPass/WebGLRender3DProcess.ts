@@ -143,7 +143,7 @@ export class WebGLRender3DProcess implements IRender3DProcess {
             camera.scene._shaderValues.setVector(ShadowCasterPass.SHADOW_PARAMS, this.renderpass.shadowParams);
         }
 
-        if (Stat.enablePostprocess && camera.postProcess && camera.postProcess.enable) {
+        if (Stat.enablePostprocess && camera.postProcess && camera.postProcess.enable && camera.postProcess.effects.length > 0) {
             this.renderpass.enablePostProcess = Stat.enablePostprocess;
             this.renderpass.postProcess = camera.postProcess._context.command;
             camera.postProcess._render(camera);

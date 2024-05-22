@@ -955,7 +955,7 @@ export class Camera extends BaseCamera {
                         break;
                 }
             }
-            if (this.postProcess && this.postProcess.enable) {
+            if (this.postProcess && this.postProcess.enable && this.postProcess.effects.length > 0) {
                 needInternalRT = true;
             }
             if (this.normalizedViewport.width != 1 || this.normalizedViewport.height != 1 || this.normalizedViewport.x != 0 || this.normalizedViewport.y != 0) {

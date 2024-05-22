@@ -181,15 +181,7 @@ export class PostProcess {
         this._context!.compositeShaderData!.clearDefine();
 
         if (internalRT) {
-            let invertY = camera._offScreenRenderTexture;
-            if (invertY) {
-                let offsetScale = Vector4.tempVec4;
-                offsetScale.setValue(0, 1, 1, -1);
-                this._context.command.blitScreenTriangle(camera._internalRenderTexture, screenTexture, offsetScale);
-            }
-            else {
-                this._context.command.blitScreenTriangle(camera._internalRenderTexture, screenTexture);
-            }
+            this._context.command.blitScreenTriangle(camera._internalRenderTexture, screenTexture);
         }
         else {
             this._context.command.blitScreenTriangle(camera._offScreenRenderTexture, screenTexture);
@@ -221,10 +213,10 @@ export class PostProcess {
                 this._context!.destination = camera._offScreenRenderTexture;
                 var canvasWidth: number = camera!._getCanvasWidth(), canvasHeight: number = camera!._getCanvasHeight();
                 if (LayaGL.renderEngine._screenInvertY) {
-                    camera!._screenOffsetScale.setValue(viewport.x / canvasWidth, 1.0 - (canvasHeight - viewport.y - viewport.height) / canvasHeight, viewport.width / canvasWidth, -viewport.height / canvasHeight);
+                    camera!._screenOffsetScale.setValue(viewport.x / canvasWidth, viewport.y / canvasHeight, viewport.width / canvasWidth, viewport.height / canvasHeight);
                 }
                 else {
-                    camera!._screenOffsetScale.setValue(viewport.x / canvasWidth, (canvasHeight - viewport.y - viewport.height) / canvasHeight, viewport.width / canvasWidth, viewport.height / canvasHeight);
+                    camera!._screenOffsetScale.setValue(viewport.x / canvasWidth, 1.0 - viewport.y / canvasHeight, viewport.width / canvasWidth, -viewport.height / canvasHeight);
                 }
                 this._context!.command!.blitScreenTriangle(cameraTarget, camera._offScreenRenderTexture, camera!._screenOffsetScale, null, this._compositeShaderData, 0);
             }

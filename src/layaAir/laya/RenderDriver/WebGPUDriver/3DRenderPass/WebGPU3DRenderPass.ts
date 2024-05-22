@@ -137,12 +137,14 @@ export class WebGPU3DRenderPass implements IRender3DProcess {
             camera.scene._shaderValues.setVector(ShadowCasterPass.SHADOW_PARAMS, shadowParams);
         }
 
-        if (Stat.enablePostprocess && camera.postProcess && camera.postProcess.enable) {
+        if (Stat.enablePostprocess && camera.postProcess && camera.postProcess.enable && camera.postProcess.effects.length > 0) {
             this._renderPass.enablePostProcess = Stat.enablePostprocess;
             this._renderPass.postProcess = camera.postProcess._context.command;
             camera.postProcess._render(camera);
             this._renderPass.postProcess._apply(false);
-        } else this._renderPass.enablePostProcess = false;
+        }
+        else
+            this._renderPass.enablePostProcess = false;
 
         this._renderPass.finalize.clear();
         if (!this._renderPass.enablePostProcess && needInternalRT && camera._offScreenRenderTexture) {
