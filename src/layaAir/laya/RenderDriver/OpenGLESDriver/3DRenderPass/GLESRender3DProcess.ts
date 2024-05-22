@@ -19,7 +19,8 @@ import { GLESInternalRT } from "../RenderDevice/GLESInternalRT";
 import { GLESForwardAddRP } from "./GLESForwardAddRP";
 import { GLESRenderContext3D } from "./GLESRenderContext3D";
 const viewport = new Viewport(0, 0, 0, 0);
-
+const offsetScale = new Vector4();
+const shadowParams = new Vector4();
 export class GLESRender3DProcess implements IRender3DProcess {
     private _nativeObj: any;
     private _tempList: any = [];
@@ -71,7 +72,14 @@ export class GLESRender3DProcess implements IRender3DProcess {
         renderpass.clearFlag = clearConst;
         renderpass.clearColor = clearValue;
 
-        viewport.set(0, 0, renderRT.width, renderRT.height);
+        let needInternalRT = camera._needInternalRenderTexture();
+
+        if (needInternalRT) {
+            viewport.set(0, 0, renderRT.width, renderRT.height);
+        }
+        else {
+            camera.viewport.cloneTo(viewport);
+        }
 
         renderpass.setViewPort(viewport);
         let scissor = Vector4.tempVec4;
@@ -102,17 +110,12 @@ export class GLESRender3DProcess implements IRender3DProcess {
 
         let enableShadow = Scene3D._updateMark % camera.scene._ShadowMapupdateFrequency == 0 && Stat.enableShadow;
         this.renderpass.shadowCastPass = enableShadow;
-
+        shadowParams.setValue(0, 0, 0, 0);
         if (enableShadow) {
             // direction light shadow
             let mainDirectionLight = camera.scene._mainDirectionLight;
             let needDirectionShadow = mainDirectionLight && mainDirectionLight.shadowMode != ShadowMode.None;
-            if (needDirectionShadow) {
-                camera.scene._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW);
-            }
-            else {
-                camera.scene._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW);
-            }
+
 
             this.renderpass.enableDirectLightShadow = needDirectionShadow;
             if (needDirectionShadow) {
@@ -120,28 +123,22 @@ export class GLESRender3DProcess implements IRender3DProcess {
                 this.renderpass.directLightShadowPass.light = <RTDirectLight>mainDirectionLight._dataModule;
                 let directionShadowMap = Scene3D._shadowCasterPass.getDirectLightShadowMap(mainDirectionLight);
                 this.renderpass.directLightShadowPass.destTarget = directionShadowMap._renderTarget as GLESInternalRT;
-
+                shadowParams.x = this.renderpass.directLightShadowPass.light.shadowStrength;
                 camera.scene._shaderValues.setTexture(ShadowCasterPass.SHADOW_MAP, directionShadowMap);
             }
 
             // spot light shadow
             let mainSpotLight = camera.scene._mainSpotLight;
             let needSpotShadow = mainSpotLight && mainSpotLight.shadowMode != ShadowMode.None;
-            if (needSpotShadow) {
-                camera.scene._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT);
-            }
-            else {
-                camera.scene._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT);
-            }
             this.renderpass.enableSpotLightShadowPass = needSpotShadow;
             if (needSpotShadow) {
                 this.renderpass.spotLightShadowPass.light = mainSpotLight;
                 let spotShadowMap = Scene3D._shadowCasterPass.getSpotLightShadowPassData(mainSpotLight);
                 this.renderpass.spotLightShadowPass.destTarget = spotShadowMap._renderTarget as GLESInternalRT;
-
+                shadowParams.y = this.renderpass.spotLightShadowPass.light.shadowStrength;
                 camera.scene._shaderValues.setTexture(ShadowCasterPass.SHADOW_SPOTMAP, spotShadowMap);
             }
-
+            camera.scene._shaderValues.setVector(ShadowCasterPass.SHADOW_PARAMS, shadowParams);
             if (Stat.enablePostprocess && camera.postProcess && camera.postProcess.enable) {
                 this.renderpass.enablePostProcess = camera.postProcess.enable;
                 camera.postProcess._render(camera);
@@ -149,6 +146,16 @@ export class GLESRender3DProcess implements IRender3DProcess {
             } else {
                 this.renderpass.enablePostProcess = false;
             }
+
+            this.renderpass.finalize.clear();
+            if (!this.renderpass.enablePostProcess && needInternalRT && camera._offScreenRenderTexture) {
+                let dst = camera._offScreenRenderTexture;
+
+                offsetScale.setValue(camera.normalizedViewport.x, 1.0 - camera.normalizedViewport.y, renderRT.width / dst.width, -renderRT.height / dst.height);
+                this.renderpass.finalize.blitScreenQuad(renderRT, camera._offScreenRenderTexture, offsetScale);
+            }
+            this.renderpass.finalize = this.renderpass.finalize;//update
+
         }
     }
 
