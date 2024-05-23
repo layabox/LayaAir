@@ -34,7 +34,7 @@ export class Value2D {
     private _color: Vector4;
     private _colorAdd: Vector4;
     //释放的时候用来去重的，
-    _needRelease=false;
+    _needRelease = false;
 
     shaderData: ShaderData;
 
@@ -50,18 +50,31 @@ export class Value2D {
     texture: any;
     private _textureHost: Texture | BaseTexture
     //给cacheas = normal用
-    localClipMatrix:Matrix;
+    localClipMatrix: Matrix;
 
     constructor(mainID: RenderSpriteData) {
         this.mainID = mainID;
         Value2D.prototype.initialize.call(this);
     }
 
+    private _init2DRenderState() {
+        this.shaderData.setInt(Shader3D.BLEND, RenderState.BLEND_ENABLE_ALL);
+        //WebGLContext.setBlendEquation(gl, gl.FUNC_ADD);
+        // this.shaderData.
+        this.shaderData.setInt(Shader3D.BLEND_SRC,RenderState.BLENDPARAM_ONE);
+        //WebGLContext.setBlendFunc(gl, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+        this.shaderData.setInt(Shader3D.BLEND_DST,RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA);
+        //WebGLContext.setDepthTest(gl, false);
+        this.shaderData.setInt(Shader3D.DEPTH_TEST,RenderState.DEPTHTEST_OFF);
+        this.shaderData.setInt(Shader3D.CULL,RenderState.CULL_NONE);
+    }
+
     //为了方便复用
-    protected initialize(){
+    protected initialize() {
         this.localClipMatrix = new Matrix();
         let mainID = this.mainID;
         this.shaderData = LayaGL.renderDeviceFactory.createShaderData(null);
+        this._init2DRenderState();
         if (this.mainID == RenderSpriteData.Texture2D) {
             this.shaderData.addDefine(ShaderDefines2D.TEXTURESHADER);
         }
@@ -70,6 +83,7 @@ export class Value2D {
         }
         this.textureHost = null;
         this.texture = null;
+
         //this.fillStyle = null;
         //this.color = null;
         //this.strokeStyle = null;
@@ -91,10 +105,10 @@ export class Value2D {
         this.shaderData.setInt(Shader3D.BLEND_EQUATION, RenderState.BLENDEQUATION_ADD);
         this.shaderData.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ONE);
         this.shaderData.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA);
-        this.shaderData.setNumber(ShaderDefines2D.UNIFORM_VERTALPHA,1.0);
+        this.shaderData.setNumber(ShaderDefines2D.UNIFORM_VERTALPHA, 1.0);
     }
 
-    reinit(){
+    reinit() {
         this.initialize();
     }
 
@@ -113,7 +127,7 @@ export class Value2D {
      */
     static create(mainType: RenderSpriteData): Value2D {
         var types: any = Value2D._cache[mainType] ? Value2D._cache[mainType] : [];
-        if (types._length){
+        if (types._length) {
             let sv = types[--types._length];
             sv.reinit();
             return sv;
@@ -131,11 +145,11 @@ export class Value2D {
         return this.shaderData.getVector2(ShaderDefines2D.UNIFORM_SIZE);
     }
 
-    set vertAlpha(value:number){
-        this.shaderData.setNumber(ShaderDefines2D.UNIFORM_VERTALPHA,value);
+    set vertAlpha(value: number) {
+        this.shaderData.setNumber(ShaderDefines2D.UNIFORM_VERTALPHA, value);
     }
 
-    get vertAlpha(){
+    get vertAlpha() {
         return this.shaderData.getNumber(ShaderDefines2D.UNIFORM_VERTALPHA);
     }
 
@@ -308,6 +322,6 @@ export class Value2D {
 }
 
 
-export class Value2DManager{
-    
+export class Value2DManager {
+
 }

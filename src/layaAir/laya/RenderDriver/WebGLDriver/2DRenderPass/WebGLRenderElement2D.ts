@@ -85,6 +85,7 @@ export class WebGLRenderelement2D implements IRenderElement2D {
         this.materialShaderData && shader.uploadUniforms(shader._materialUniformParamsMap, this.materialShaderData, true);
         //blend
         shader.uploadRenderStateBlendDepth(this.value2DShaderData);
+        shader.uploadRenderStateFrontFace(this.value2DShaderData, false, context.invertY);
         WebGLEngine.instance.getDrawContext().drawGeometryElement(this.geometry)
     }
     destroy(): void {
