@@ -4,12 +4,12 @@ import { SlotExtendBase } from "./SlotExtendBase";
 
 const QUAD_TRIANGLES = [0, 1, 2, 2, 3, 0];
 export class SlotExtend extends SlotExtendBase {
-    
+
     init(slot: spine.Slot, vside: number) {
         this.bone = slot.bone;
         this.boneIndex = slot.bone.skeleton.bones.indexOf(slot.bone);
         let attachment = this.attchment = slot.getAttachment();
-        if (attachment instanceof spine.RegionAttachment) {
+        if (attachment instanceof window.spine.RegionAttachment) {
             let region = attachment as spine.RegionAttachment;
             this.vertexArray = region.offset as Float32Array;
             this.stride = 2;

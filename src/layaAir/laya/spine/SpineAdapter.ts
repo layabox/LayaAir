@@ -42,7 +42,7 @@ export class SpineAdapter {
 
     static allAdpat() {
 
-        let stateProto = spine.AnimationState.prototype;
+        let stateProto = window.spine.AnimationState.prototype;
         //@ts-ignore
         stateProto.oldApply = stateProto.apply;
         //@ts-ignore
@@ -78,17 +78,17 @@ export class SpineAdapter {
                 entry.nextAnimationLast = -1;
                 entry.nextTrackLast = -1;
                 return 0;
-               // animationTime = 0;
+                // animationTime = 0;
             }
             entry.nextAnimationLast = animationTime;
             entry.nextTrackLast = entry.trackTime;
             let animationLast = entry.animationLast;
-            return Math.max(animationLast,0);
+            return Math.max(animationLast, 0);
         }
 
 
 
-        let skeletonProto = spine.Skeleton.prototype;
+        let skeletonProto = window.spine.Skeleton.prototype;
         //@ts-ignore
         skeletonProto.oldUpdateWorldTransform = skeletonProto.updateWorldTransform;
         //@ts-ignore
@@ -96,23 +96,23 @@ export class SpineAdapter {
 
         }
         //@ts-ignore
-        spine.AnimationState.prototype.dispatchEvent = function (entry: any, type: string, event: any) {
+        window.spine.AnimationState.prototype.dispatchEvent = function (entry: any, type: string, event: any) {
             //@ts-ignore
             this.eventsObject[type](entry, event);
         }
     }
 
     static adaptJS() {
-        if (spine) {
+        if (window.spine) {
             //@ts-ignore 
-            spine.AnimationState.prototype.oldAddListener = spine.AnimationState.prototype.addListener;
-            spine.AnimationState.prototype.addListener = function (data: any) {
+            window.spine.AnimationState.prototype.oldAddListener = window.spine.AnimationState.prototype.addListener;
+            window.spine.AnimationState.prototype.addListener = function (data: any) {
                 //@ts-ignore 
                 this.eventsObject = data;
                 //@ts-ignore 
                 this.oldAddListener(data);
             };
-            let sketonDataProto = spine.SkeletonData.prototype;
+            let sketonDataProto = window.spine.SkeletonData.prototype;
             //@ts-ignore
             sketonDataProto.getAnimationsSize = function () { return this.animations.length };
             //@ts-ignore
@@ -127,12 +127,12 @@ export class SpineAdapter {
                 }
                 return -1;
             }
-            let skeletonProto = spine.Skeleton.prototype;
+            let skeletonProto = window.spine.Skeleton.prototype;
             //@ts-ignore
             skeletonProto.showSkinByIndex = function (index: number) {
                 this.setSkin(this.data.skins[index]);
             }
-            let stateProto = spine.AnimationState.prototype;
+            let stateProto = window.spine.AnimationState.prototype;
             //@ts-ignore
             stateProto.getCurrentOld = stateProto.getCurrent;
 
@@ -147,7 +147,7 @@ export class SpineAdapter {
     }
 
     static initClass() {
-        let stateProto = spine.AnimationState.prototype;
+        let stateProto = window.spine.AnimationState.prototype;
         stateProto.addListener = function (data: any) {
             //@ts-ignore 
             this.eventsObject = data;
@@ -182,14 +182,14 @@ export class SpineAdapter {
             return result;
         }
 
-        spine.TextureAtlas = TextureAtlas as any;
-        Object.defineProperty(spine.Skin.prototype, "attachments", {
+        window.spine.TextureAtlas = TextureAtlas as any;
+        Object.defineProperty(window.spine.Skin.prototype, "attachments", {
             get: function () {
                 return this.getAttachments();
             }
         });
 
-        let skeletonProto = spine.Skeleton.prototype;
+        let skeletonProto = window.spine.Skeleton.prototype;
 
         Object.defineProperty(skeletonProto, "slots", {
             get: function () {
@@ -215,7 +215,7 @@ export class SpineAdapter {
             }
         });
 
-        let skeletonDataProto = spine.SkeletonData.prototype;
+        let skeletonDataProto = window.spine.SkeletonData.prototype;
 
         Object.defineProperty(skeletonDataProto, "name", {
             get: function () {
@@ -235,7 +235,7 @@ export class SpineAdapter {
             }
         });
 
-        let animationProto = spine.Animation.prototype;
+        let animationProto = window.spine.Animation.prototype;
         Object.defineProperty(animationProto, "name", {
             get: function () {
                 return this.getName();
@@ -263,13 +263,13 @@ export class SpineAdapter {
 
 
 
-        Object.defineProperty(spine.Skin.prototype, "name", {
+        Object.defineProperty(window.spine.Skin.prototype, "name", {
             get: function () {
                 return this.getName();
             }
         });
 
-        let slotDataProto = spine.SlotData.prototype;
+        let slotDataProto = window.spine.SlotData.prototype;
 
         Object.defineProperty(slotDataProto, "boneData", {
             get: function () {
@@ -301,20 +301,20 @@ export class SpineAdapter {
             }
         });
 
-        // Object.defineProperty( spine.SlotData.prototype, "blendMode", {
+        // Object.defineProperty( window.spine.SlotData.prototype, "blendMode", {
         //     get: function () {
         //         return this.getBlendMode();
         //     }
         // });
 
 
-        Object.defineProperty(spine.BoneData.prototype, "index", {
+        Object.defineProperty(window.spine.BoneData.prototype, "index", {
             get: function () {
                 return this.getIndex();
             }
         });
 
-        let regionAttachMentProto = spine.RegionAttachment.prototype;
+        let regionAttachMentProto = window.spine.RegionAttachment.prototype;
         Object.defineProperty(regionAttachMentProto, "color", {
             get: function () {
                 return this.getColor();
@@ -352,14 +352,14 @@ export class SpineAdapter {
             }
         });
         //@ts-ignore
-        Object.defineProperty(spine.AtlasPage.prototype, "name", {
+        Object.defineProperty(window.spine.AtlasPage.prototype, "name", {
             get: function () {
                 return this.getName();
             }
         });
 
 
-        let meshAttachmentProto = spine.MeshAttachment.prototype;
+        let meshAttachmentProto = window.spine.MeshAttachment.prototype;
 
         Object.defineProperty(meshAttachmentProto, "bones", {
             get: function () {
@@ -406,7 +406,7 @@ export class SpineAdapter {
                 return this.getName();
             }
         });
-        let eventTimelineProto = spine.EventTimeline.prototype;
+        let eventTimelineProto = window.spine.EventTimeline.prototype;
         Object.defineProperty(eventTimelineProto, "frames", {
             get: function () {
                 return this.getFrames();
@@ -419,7 +419,7 @@ export class SpineAdapter {
             }
         });
 
-        let attachmentTimelineProto = spine.AttachmentTimeline.prototype;
+        let attachmentTimelineProto = window.spine.AttachmentTimeline.prototype;
         Object.defineProperty(attachmentTimelineProto, "frames", {
             get: function () {
                 return this.getFrames();
@@ -438,7 +438,7 @@ export class SpineAdapter {
             }
         });
 
-        let drawOrderTimelineProto = spine.DrawOrderTimeline.prototype;
+        let drawOrderTimelineProto = window.spine.DrawOrderTimeline.prototype;
         Object.defineProperty(drawOrderTimelineProto, "frames", {
             get: function () {
                 return this.getFrames();
@@ -451,7 +451,7 @@ export class SpineAdapter {
             }
         });
         //@ts-ignore
-        let colorTimelineProto = spine.ColorTimeline.prototype;
+        let colorTimelineProto = window.spine.ColorTimeline.prototype;
         Object.defineProperty(colorTimelineProto, "frames", {
             get: function () {
                 return this.getFrames();
@@ -464,7 +464,7 @@ export class SpineAdapter {
             }
         });
 
-        let trackEntryProto = spine.TrackEntry.prototype;
+        let trackEntryProto = window.spine.TrackEntry.prototype;
 
         Object.defineProperty(trackEntryProto, "loop", {
             get: function () {
@@ -523,7 +523,7 @@ export class SpineAdapter {
             }
         });
 
-        let boneProto = spine.Bone.prototype;
+        let boneProto = window.spine.Bone.prototype;
 
         Object.defineProperty(boneProto, "a", {
             get: function () {
@@ -561,7 +561,7 @@ export class SpineAdapter {
             }
         });
 
-        let eventProto = spine.Event.prototype;
+        let eventProto = window.spine.Event.prototype;
 
         Object.defineProperty(eventProto, "volume", {
             get: function () {
@@ -605,7 +605,7 @@ export class SpineAdapter {
         });
 
 
-        let eventDataProto = spine.EventData.prototype;
+        let eventDataProto = window.spine.EventData.prototype;
         Object.defineProperty(eventDataProto, "name", {
             get: function () {
                 return this.getName();
