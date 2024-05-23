@@ -60,7 +60,7 @@ export class SpineSkeletonRenderer implements ISpineRender {
         if (twoColorTint)
             this.vertexSize += 4;
         this.templet = templet;
-        if(SpineSkeletonRenderer.vertices==null){
+        if (SpineSkeletonRenderer.vertices == null) {
             SpineSkeletonRenderer.vertices = templet.ns.Utils.newFloatArray(12 * 1024);
         }
         this.renderable = { vertices: null, numVertices: 0, numFloats: 0 };
@@ -348,7 +348,7 @@ export class SpineSkeletonRenderer implements ISpineRender {
 
             let attachment = slot.getAttachment();
             let texture: SpineTexture;
-            if (attachment instanceof spine.RegionAttachment) {
+            if (attachment instanceof window.spine.RegionAttachment) {
                 // continue;
                 let region = <spine.RegionAttachment>attachment;
                 renderable.vertices = staticVetices;
@@ -361,7 +361,7 @@ export class SpineSkeletonRenderer implements ISpineRender {
                 attachmentColor = region.color;
                 // graphics.drawTexture(texture.realTexture,0,0,100,100,null,1,"#ffffff","normal",uvs as any)
 
-            } else if (attachment instanceof spine.MeshAttachment) {
+            } else if (attachment instanceof window.spine.MeshAttachment) {
                 //continue;
                 //debugger;
                 let mesh = <spine.MeshAttachment>attachment;
@@ -369,14 +369,14 @@ export class SpineSkeletonRenderer implements ISpineRender {
                 renderable.numVertices = (mesh.worldVerticesLength >> 1);
                 renderable.numFloats = renderable.numVertices * clippedVertexSize;
                 if (renderable.numFloats > renderable.vertices.length) {
-                    renderable.vertices = staticVetices = spine.Utils.newFloatArray(renderable.numFloats);
+                    renderable.vertices = staticVetices = window.spine.Utils.newFloatArray(renderable.numFloats);
                 }
                 mesh.computeWorldVertices(slot, 0, mesh.worldVerticesLength, renderable.vertices, 0, clippedVertexSize);
                 triangles = mesh.triangles;
                 texture = <SpineTexture>(mesh.region as any).page.texture;
                 uvs = mesh.uvs;
                 attachmentColor = mesh.color;
-            } else if (attachment instanceof spine.ClippingAttachment) {
+            } else if (attachment instanceof window.spine.ClippingAttachment) {
                 let clip = <spine.ClippingAttachment>(attachment);
                 clipper.clipStart(slot, clip);
                 continue;
@@ -443,7 +443,7 @@ export class SpineSkeletonRenderer implements ISpineRender {
                         mesh = this.nextBatch(mesh.material);
                         mesh.clear();
                     }
-                    if(finalColor.a!=0){
+                    if (finalColor.a != 0) {
                         mesh.appendVertices(renderable.vertices, renderable.numFloats, triangles, triangles.length, finalColor, uvs);
                     }
                 }
