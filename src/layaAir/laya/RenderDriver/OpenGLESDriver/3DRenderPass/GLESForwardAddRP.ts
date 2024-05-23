@@ -71,7 +71,7 @@ export class GLESForwardAddRP {
     /**@internal */
     private _finalize: CommandBuffer = new CommandBuffer();
     public get finalize(): CommandBuffer {
-        return this.finalize;
+        return this._finalize;
     }
     public set finalize(value: CommandBuffer) {
         this._finalize = value;
