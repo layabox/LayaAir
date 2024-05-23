@@ -71,11 +71,11 @@ export class SketonOptimise implements IPreRender {
     checkMainAttach(skeletonData: spine.SkeletonData) {
         // this.type = ERenderType.normal;
         // return;
-        this.sketon = new spine.Skeleton(skeletonData);
+        this.sketon = new window.spine.Skeleton(skeletonData);
         //@ts-ignore
-        this._stateData = new spine.AnimationStateData(this.sketon.data);
+        this._stateData = new window.spine.AnimationStateData(this.sketon.data);
         // 动画状态类
-        this._state = new spine.AnimationState(this._stateData);
+        this._state = new window.spine.AnimationState(this._stateData);
         this.attachMentParse(skeletonData);
         this.initAnimation(skeletonData.animations);
         // this.type = type;

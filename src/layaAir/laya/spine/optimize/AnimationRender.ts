@@ -72,7 +72,7 @@ export class AnimationRender {
 
     cacheBones(preRender: IPreRender) {
         let duration = preRender._play(this.name);
-        let totalFrame = Math.round(duration / step)||1;
+        let totalFrame = Math.round(duration / step) || 1;
         for (let i = 0; i < totalFrame; i++) {
             let bones = preRender._updateState(step);
             let frame: Float32Array[] = [];
@@ -97,7 +97,7 @@ export class AnimationRender {
         let hasClip: boolean;
         for (let i = 0, n = timeline.length; i < n; i++) {
             let time = timeline[i];
-            if (time instanceof spine.AttachmentTimeline) {
+            if (time instanceof window.spine.AttachmentTimeline) {
                 let attachment = time as spine.AttachmentTimeline;
                 let frames = attachment.frames;
                 let attachmentNames = attachment.attachmentNames;
@@ -116,7 +116,7 @@ export class AnimationRender {
                     arr.push(change);
                 }
             }
-            else if (time instanceof spine.DrawOrderTimeline) {
+            else if (time instanceof window.spine.DrawOrderTimeline) {
                 let drawOrder = time as spine.DrawOrderTimeline;
                 let frames = drawOrder.frames;
                 let orders = time.drawOrders;
@@ -134,7 +134,7 @@ export class AnimationRender {
                 }
             }
             //@ts-ignore
-            else if (time instanceof (spine.ColorTimeline || spine.RGBATimeline)) {
+            else if (time instanceof (window.spine.ColorTimeline || window.spine.RGBATimeline)) {
                 let rgba = time as spine.RGBATimeline;
                 let frames = rgba.frames;
                 let slotIndex = rgba.slotIndex;
@@ -159,10 +159,10 @@ export class AnimationRender {
                 }
                 // debugger;
             }
-            else if (time instanceof spine.ClippingAttachment) {
+            else if (time instanceof window.spine.ClippingAttachment) {
                 hasClip = true;
             }
-            else if (time instanceof spine.EventTimeline) {
+            else if (time instanceof window.spine.EventTimeline) {
                 if (preRender.canCache) {
                     let eventTime = time as spine.EventTimeline;
                     let frames = eventTime.frames;
@@ -175,10 +175,10 @@ export class AnimationRender {
                     }
                 }
             }
-            // else if (time instanceof spine.AlphaTimeline) {
+            // else if (time instanceof window.spine.AlphaTimeline) {
             //     debugger;
             // }
-            // else if (time instanceof spine.RGBTimeline) {
+            // else if (time instanceof window.spine.RGBTimeline) {
             //     debugger;
             // }
         }
