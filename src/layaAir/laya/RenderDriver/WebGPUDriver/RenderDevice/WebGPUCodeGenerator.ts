@@ -892,7 +892,7 @@ ${textureGLSL_fs}
         //console.log(wgsl_vs);
         //console.log(wgsl_fs);
 
-        return { vs: wgsl_vs, fs: wgsl_fs, uniformInfo };
+        return { glsl_vs: dstVS, glsl_fs: dstFS, vs: wgsl_vs, fs: wgsl_fs, uniformInfo };
     }
 
     /**

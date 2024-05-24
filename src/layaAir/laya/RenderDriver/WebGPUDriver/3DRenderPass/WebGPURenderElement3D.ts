@@ -53,6 +53,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
     cullMode: CullMode;
     frontFace: FrontFace;
     private _invertFrontFace: boolean;
+    private _stencilParam: { [key: string]: any } = {}; //模板参数
 
     protected _stateKey: string[] = []; //用于判断渲染状态是否改变
     protected _shaderInstances: WebGPUShaderInstance[] = []; //着色器缓存
@@ -228,11 +229,9 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
      * @param context 
      */
     protected _calcStateKey(shaderInstance: WebGPUShaderInstance, dest: WebGPUInternalRT, context: WebGPURenderContext3D) {
-        if (this.materialShaderData) {
-            this._getBlendState(shaderInstance);
-            this._getDepthStencilState(shaderInstance, dest);
-            this._getCullFrontMode(this.materialShaderData, shaderInstance, this._invertFrontFace, context.invertY);
-        }
+        this._getBlendState(shaderInstance);
+        this._getDepthStencilState(shaderInstance, dest);
+        this._getCullFrontMode(this.materialShaderData, shaderInstance, this._invertFrontFace, context.invertY);
         const primitiveState = WebGPUPrimitiveState.getGPUPrimitiveState(this.geometry.mode, this.frontFace, this.cullMode);
         const bufferState = this.geometry.bufferState;
         const depthStencilId = this.depthStencilState ? this.depthStencilState.id : -1;
@@ -365,59 +364,49 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
         const renderState = (<ShaderPass>shaderInstance._shaderPass).renderState;
         const depthWrite = (renderState.depthWrite ?? data[Shader3D.DEPTH_WRITE]) ?? RenderState.Default.depthWrite;
         const depthTest = (renderState.depthTest ?? data[Shader3D.DEPTH_TEST]) ?? RenderState.Default.depthTest;
-        return WebGPUDepthStencilState.getDepthStencilState(dest.depthStencilFormat, depthWrite, depthTest);
+
         //Stencil
-        // var stencilWrite: any = (renderState.stencilWrite ?? datas[Shader3D.STENCIL_WRITE]) ?? RenderState.Default.stencilWrite;
-        // var stencilWrite: any = (renderState.stencilWrite ?? datas[Shader3D.STENCIL_WRITE]) ?? RenderState.Default.stencilWrite;
-        // var stencilTest: any = (renderState.stencilTest ?? datas[Shader3D.STENCIL_TEST]) ?? RenderState.Default.stencilTest;
-        // RenderStateContext.setStencilMask(stencilWrite);
-        // if (stencilWrite) {
-        // 	var stencilOp: any = (renderState.stencilOp ?? datas[Shader3D.STENCIL_Op]) ?? RenderState.Default.stencilOp;
-        // 	RenderStateContext.setstencilOp(stencilOp.x, stencilOp.y, stencilOp.z);
-        // }
-        // if (stencilTest == RenderState.STENCILTEST_OFF) {
-        // 	RenderStateContext.setStencilTest(false);
-        // } else {
-        // 	var stencilRef: any = (renderState.stencilRef ?? datas[Shader3D.STENCIL_Ref]) ?? RenderState.Default.stencilRef;
-        // 	RenderStateContext.setStencilTest(true);
-        // 	RenderStateContext.setStencilFunc(stencilTest, stencilRef);
-        // }
+        const stencilParam: { [key: string]: any } = {};
+        const stencilTest = (renderState.stencilTest ?? data[Shader3D.STENCIL_TEST]) ?? RenderState.Default.stencilTest;
+        if (stencilTest === RenderState.STENCILTEST_OFF)
+            stencilParam['enable'] = false;
+        else {
+            const stencilRef = (renderState.stencilRef ?? data[Shader3D.STENCIL_Ref]) ?? RenderState.Default.stencilRef;
+            const stencilWrite = (renderState.stencilWrite ?? data[Shader3D.STENCIL_WRITE]) ?? RenderState.Default.stencilWrite;
+            const stencilOp = stencilWrite ?? (renderState.stencilOp ?? data[Shader3D.STENCIL_Op]) ?? RenderState.Default.stencilOp;
+            stencilParam['enable'] = true;
+            stencilParam['test'] = stencilTest;
+            stencilParam['ref'] = stencilRef;
+            stencilParam['write'] = stencilWrite;
+            stencilParam['op'] = stencilOp;
+        }
+
+        return WebGPUDepthStencilState.getDepthStencilState(dest.depthStencilFormat, depthWrite, depthTest, stencilParam);
     }
 
     private _getRenderStateDepthByMaterial(shaderData: WebGPUShaderData, dest: WebGPUInternalRT) {
         const data = shaderData.getData();
         const depthWrite = data[Shader3D.DEPTH_WRITE] ?? RenderState.Default.depthWrite;
         const depthTest = data[Shader3D.DEPTH_TEST] ?? RenderState.Default.depthTest;
-        return WebGPUDepthStencilState.getDepthStencilState(dest.depthStencilFormat, depthWrite, depthTest);
-        // if (depthTest === RenderState.DEPTHTEST_OFF) {
-        // 	RenderStateContext.setDepthTest(false);
-        // }
-        // else {
-        // 	RenderStateContext.setDepthTest(true);
-        // 	RenderStateContext.setDepthFunc(depthTest);
-        // }
 
-        // //Stencil
-        // var stencilWrite = datas[Shader3D.STENCIL_WRITE];
-        // stencilWrite = stencilWrite ?? RenderState.Default.stencilWrite;
-        // RenderStateContext.setStencilMask(stencilWrite);
-        // if (stencilWrite) {
-        // 	var stencilOp = datas[Shader3D.STENCIL_Op];
-        // 	stencilOp = stencilOp ?? RenderState.Default.stencilOp;
-        // 	RenderStateContext.setstencilOp(stencilOp.x, stencilOp.y, stencilOp.z);
-        // }
+        //Stencil
+        //const stencilParam: { [key: string]: any } = {};
+        const stencilParam = this._stencilParam;
+        const stencilTest = data[Shader3D.STENCIL_TEST] ?? RenderState.Default.stencilTest;
+        if (stencilTest === RenderState.STENCILTEST_OFF)
+            stencilParam['enable'] = false;
+        else {
+            const stencilRef = data[Shader3D.STENCIL_Ref] ?? RenderState.Default.stencilRef;
+            const stencilWrite = data[Shader3D.STENCIL_WRITE] ?? RenderState.Default.stencilWrite;
+            const stencilOp = stencilWrite ? (data[Shader3D.STENCIL_Op] ?? RenderState.Default.stencilOp) : RenderState.Default.stencilOp;
+            stencilParam['enable'] = true;
+            stencilParam['test'] = stencilTest;
+            stencilParam['ref'] = stencilRef;
+            stencilParam['write'] = stencilWrite;
+            stencilParam['op'] = stencilOp;
+        }
 
-        // var stencilTest = datas[Shader3D.STENCIL_TEST];
-        // stencilTest = stencilTest ?? RenderState.Default.stencilTest;
-        // if (stencilTest === RenderState.STENCILTEST_OFF) {
-        // 	RenderStateContext.setStencilTest(false);
-        // }
-        // else {
-        // 	var stencilRef = datas[Shader3D.STENCIL_Ref];
-        // 	stencilRef = stencilRef ?? RenderState.Default.stencilRef;
-        // 	RenderStateContext.setStencilTest(true);
-        // 	RenderStateContext.setStencilFunc(stencilTest, stencilRef);
-        // }
+        return WebGPUDepthStencilState.getDepthStencilState(dest.depthStencilFormat, depthWrite, depthTest, stencilParam);
     }
 
     private _getCullFrontMode(shaderData: WebGPUShaderData, shaderInstance: WebGPUShaderInstance, isTarget: boolean, invertFront: boolean) {
@@ -537,6 +526,15 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
     }
 
     /**
+     * 上传模板参考值
+     * @param command 
+     */
+    protected _uploadStencilReference(command: WebGPURenderCommandEncoder) {
+        if (this._stencilParam['enable'] && command)
+            command.setStencilReference(this._stencilParam['ref']);
+    }
+
+    /**
      * 上传几何数据
      * @param command 
      * @param bundle 
@@ -632,8 +630,10 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
                             }
                         }
                     } else this._createPipeline(index, context, shaderInstance, command, bundle); //不启用缓存机制
-                    if (command || bundle)
+                    if (command || bundle) {
                         this._bindGroup(shaderInstance, command, bundle); //绑定资源组
+                        this._uploadStencilReference(command); //上传模板参考值，bundle不支持
+                    }
                     this._uploadUniform(); //上传uniform数据
                     this._uploadGeometry(command, bundle); //上传几何数据
                 }
