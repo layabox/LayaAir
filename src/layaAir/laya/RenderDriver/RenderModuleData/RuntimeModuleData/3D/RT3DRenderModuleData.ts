@@ -44,7 +44,7 @@ export class RTCameraNodeData implements ICameraNodeData {
     }
 
     setProjectionViewMatrix(value: Matrix4x4): void {
-        value && this._nativeObj.setProjectionViewMatrix(value.elements);
+        value && this._nativeObj.setProjectionViewMatrix(value);
     }
 }
 

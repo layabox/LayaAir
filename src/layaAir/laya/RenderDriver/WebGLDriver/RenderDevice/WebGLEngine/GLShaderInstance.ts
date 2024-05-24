@@ -58,6 +58,12 @@ export class GLShaderInstance extends GLObject {
         WebGLEngine.instance._addStatisticsInfo(GPUEngineStatisticsInfo.C_ShaderCompile, 1);
         let preTime = performance.now();
         const gl: WebGLRenderingContext = this._gl;
+
+        if ((this._gl as any).lost) {
+            console.log("lost webgl context");
+            return;
+        }
+
         this._program = gl.createProgram();
         this._vshader = this._createShader(gl, this._vs, gl.VERTEX_SHADER);
         this._pshader = this._createShader(gl, this._ps, gl.FRAGMENT_SHADER);

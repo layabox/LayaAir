@@ -281,6 +281,7 @@ export class WebGLEngine implements IRenderEngine {
     webglContextLost(e: any) {
         console.log("lost webgl context");
         Laya.stage.event("GraphicContextLost", e);
+        (this._context as any).lost = true;
     }
 
     private _initBindBufferMap() {

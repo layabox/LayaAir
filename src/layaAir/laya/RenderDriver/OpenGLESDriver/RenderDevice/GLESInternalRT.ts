@@ -31,28 +31,28 @@ export class GLESInternalRT implements InternalRenderTarget {
         this._nativeObj._generateMipmap = value;
     }
     get colorFormat(): RenderTargetFormat {
-        return this._nativeObj._colorFormat;
+        return this._nativeObj.colorFormat;
     }
     set colorFormat(value: RenderTargetFormat) {
-        this._nativeObj._colorFormat = value;
+        this._nativeObj.colorFormat = value;
     }
     get depthStencilFormat(): RenderTargetFormat {
-        return this._nativeObj._depthStencilFormat;
+        return this._nativeObj.depthStencilFormat;
     }
     set depthStencilFormat(value: RenderTargetFormat) {
-        this._nativeObj._depthStencilFormat = value;
+        this._nativeObj.depthStencilFormat = value;
     }
     get isSRGB(): boolean {
-        return this._nativeObj._isSRGB;
+        return this._nativeObj.isSRGB;
     }
     set isSRGB(value: boolean) {
-        this._nativeObj._isSRGB = value;
+        this._nativeObj.isSRGB = value;
     }
     get gpuMemory(): number {
-        return this._nativeObj._gpuMemory;
+        return this._nativeObj.gpuMemory;
     }
     set gpuMemory(value: number) {
-        this._nativeObj._gpuMemory = value;
+        this._nativeObj.gpuMemory = value;
     }
     get _textures(): InternalTexture[] {
         if (this._texturesRef) {

@@ -5,10 +5,10 @@ export class SlotUtils {
     static checkAttachment(attachment: spine.Attachment) {
         //let attachment = slot.getAttachment();
         if (attachment == null) return ERenderType.rigidBody;
-        if (attachment instanceof spine.RegionAttachment) {
+        if (attachment instanceof window.spine.RegionAttachment) {
             return ERenderType.rigidBody;
         }
-        else if (attachment instanceof spine.MeshAttachment) {
+        else if (attachment instanceof window.spine.MeshAttachment) {
             //return false;
             let mesh = attachment as spine.MeshAttachment;
             if (!mesh.bones) {

@@ -8,7 +8,7 @@ export class AttachmentParse {
     slotId: number;
     attachment: string;
     color: TColor;
-    attachmentColor:TColor;
+    attachmentColor: TColor;
     blendMode: number;
     vertexArray: Float32Array;
     indexArray: Array<number>;
@@ -29,7 +29,7 @@ export class AttachmentParse {
         this.blendMode = slot.blendMode;
         let color = this.color = new Color();
         let attchmentColor: spine.Color;
-        if (attachment instanceof spine.RegionAttachment) {
+        if (attachment instanceof window.spine.RegionAttachment) {
             attchmentColor = attachment.color;
             let region = attachment as spine.RegionAttachment;
             this.vertexArray = region.offset as Float32Array;
@@ -39,13 +39,13 @@ export class AttachmentParse {
             //region.region.
             this.textureName = (region.region as any).page.name;
         }
-        else if (attachment instanceof spine.MeshAttachment) {
+        else if (attachment instanceof window.spine.MeshAttachment) {
             attchmentColor = attachment.color;
-            let vside =  SpineOptimizeConst.BONEVERTEX;
+            let vside = SpineOptimizeConst.BONEVERTEX;
             //return false;
             let mesh = attachment as spine.MeshAttachment;
             this.textureName = (mesh.region as any).page.name;
-            if (!mesh.bones||mesh.bones.length==0) {
+            if (!mesh.bones || mesh.bones.length == 0) {
                 if (deform && deform.length > 1) {
                     //debugger;
                     this.vertexArray = new Float32Array(deform);
@@ -110,7 +110,7 @@ export class AttachmentParse {
                 }
             }
         }
-        else if (attachment instanceof spine.ClippingAttachment) {
+        else if (attachment instanceof window.spine.ClippingAttachment) {
             this.attachment = null;
             this.isclip = true;
         }
@@ -118,29 +118,29 @@ export class AttachmentParse {
             //debugger;
             this.attachment = null;
         }
-        if(this.uvs){
-            this.vertexCount=this.uvs.length/2;
+        if (this.uvs) {
+            this.vertexCount = this.uvs.length / 2;
         }
         if (attchmentColor) {
-            if(attchmentColor.a!=1||attchmentColor.r!=1||attchmentColor.g!=1&&attchmentColor.b!=1){
-                this.attachmentColor=attchmentColor;
+            if (attchmentColor.a != 1 || attchmentColor.r != 1 || attchmentColor.g != 1 && attchmentColor.b != 1) {
+                this.attachmentColor = attchmentColor;
             }
             color.r = slotColor.r * attchmentColor.r;
             color.g = slotColor.g * attchmentColor.g;
             color.b = slotColor.b * attchmentColor.b;
-            let a=color.a = slotColor.a * attchmentColor.a;
+            let a = color.a = slotColor.a * attchmentColor.a;
             //预乘
-            color.r*=a;
-            color.g*=a;
-            color.b*=a;
+            color.r *= a;
+            color.g *= a;
+            color.b *= a;
         }
         return true;
     }
 }
 
-type TColor={
-    r:number;
-    g:number;
-    b:number;
-    a:number;
+type TColor = {
+    r: number;
+    g: number;
+    b: number;
+    a: number;
 }

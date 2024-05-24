@@ -103,6 +103,6 @@ export abstract class Filter implements IFilter {
             y + cache.renderTexOffy,
             cache.renderTexture.width,
             cache.renderTexture.height,
-            Matrix.TEMP.identity(), 1.0, RenderTexture2D.defuv);
+            null, 1.0, RenderTexture2D.defuv);
     }
 }

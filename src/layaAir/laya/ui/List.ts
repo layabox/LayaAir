@@ -670,6 +670,11 @@ export class List extends Box {
                 this.addCell(cell);
             }
         }
+
+        if (arr && arr.length > 0) {
+            for (let e of arr)
+                e.destroy();
+        }
     }
 
     /**@internal */

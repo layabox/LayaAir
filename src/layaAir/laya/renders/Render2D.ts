@@ -100,13 +100,20 @@ export class Render2DSimple extends Render2D {
             Render2DSimple.rendercontext2D.invertY = false;
             Render2DSimple.rendercontext2D.setOffscreenView(RenderState2D.width, RenderState2D.height);
             Render2DSimple.rendercontext2D.setRenderTarget(null, clear, clearColor);
+            RenderTexture2D._clear = false;
         }
-        RenderTexture2D._clear = false;
+
     }
 
     //临时。恢复rt用，以后要做到没有rt的嵌套
     override setRenderTarget(rt: RenderTexture2D) {
-        Render2DSimple.rendercontext2D.setRenderTarget(rt?._renderTarget, false, RenderTexture2D._clearColor);
+        if (rt) {
+            Render2DSimple.rendercontext2D.setRenderTarget(rt._renderTarget, rt._rtclear, rt._rtclearColor);
+            rt._rtclear = false;
+        } else {
+            Render2DSimple.rendercontext2D.setRenderTarget(rt?._renderTarget, false, RenderTexture2D._clearColor);
+        }
+
     }
 
     drawMesh(geo: IRenderGeometryElement, mtl: Material) {

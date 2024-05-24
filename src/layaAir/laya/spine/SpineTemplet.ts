@@ -26,26 +26,26 @@ export class SpineTemplet extends Resource {
     private _textures: Record<string, SpineTexture>;
     private _basePath: string;
     private _ns: any;
-    public needSlot:boolean;
+    public needSlot: boolean;
 
-    sketonOptimise:SketonOptimise;
-    
+    sketonOptimise: SketonOptimise;
+
 
     constructor() {
         super();
         this._textures = {};
         this.materialMap = new Map();
-        this.sketonOptimise=new SketonOptimise();
+        this.sketonOptimise = new SketonOptimise();
     }
 
     get mainTexture(): Texture {
-        let i=0;
-        let tex:Texture;
-        for(let k in this._textures){
-            tex= this._textures[k].realTexture;
-            if(tex){
+        let i = 0;
+        let tex: Texture;
+        for (let k in this._textures) {
+            tex = this._textures[k].realTexture;
+            if (tex) {
                 i++;
-                if(i>1){
+                if (i > 1) {
                     return null;
                 }
             }
@@ -87,16 +87,16 @@ export class SpineTemplet extends Resource {
             parseAtlas = this.parseAtlas4;
         else
             parseAtlas = this.parseAtlas3;
-        if(version=="4.1"){
-            this.needSlot=true;
+        if (version == "4.1") {
+            this.needSlot = true;
         }
         return parseAtlas.call(this, atlasText, progress).then((atlas: any) => {
             let atlasLoader = new this._ns.AtlasAttachmentLoader(atlas);
             if (desc instanceof ArrayBuffer) {
-                let skeletonBinary = new this._ns.SkeletonBinary(atlasLoader,false);
+                let skeletonBinary = new this._ns.SkeletonBinary(atlasLoader, false);
                 this.skeletonData = skeletonBinary.readSkeletonData(new Uint8Array(desc));
             } else {
-                let skeletonJson = new this._ns.SkeletonJson(atlasLoader,false);
+                let skeletonJson = new this._ns.SkeletonJson(atlasLoader, false);
                 this.skeletonData = skeletonJson.readSkeletonData(desc);
             }
             this.sketonOptimise.checkMainAttach(this.skeletonData);

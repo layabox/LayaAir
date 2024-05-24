@@ -66,7 +66,17 @@ export class GLESForwardAddRP {
         this._postProcess = value;
         value._apply(false);
         this._nativeObj.setPostProcess(this._getRenderCMDArray(value._renderCMDs));
+    }
 
+    /**@internal */
+    private _finalize: CommandBuffer = new CommandBuffer();
+    public get finalize(): CommandBuffer {
+        return this._finalize;
+    }
+    public set finalize(value: CommandBuffer) {
+        this._finalize = value;
+        value._apply(false);
+        this._nativeObj.setfinalize(this._getRenderCMDArray(value._renderCMDs));
     }
 
     _nativeObj: any;
