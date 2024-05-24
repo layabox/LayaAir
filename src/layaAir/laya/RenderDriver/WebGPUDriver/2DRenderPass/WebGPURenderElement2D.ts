@@ -41,6 +41,7 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
     protected _pipelineCache: GPURenderPipeline[] = []; //渲染管线缓存
 
     protected _passNum = 0; //当前渲染通道数量
+    protected _passName: string; //当前渲染名称
     protected _passIndex: number[] = []; //当前渲染通道索引
     protected _shaderPass: ShaderPass[] = []; //当前渲染通道
     protected _shaderInstance: WebGPUShaderInstance[] = []; //当前着色器实例
@@ -226,6 +227,9 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
     private _getRenderStateBlendByMaterial(shaderData: WebGPUShaderData) {
         const data = shaderData.getData();
         const blend = data[Shader3D.BLEND] ?? RenderState.Default.blend;
+        //shaderData.setInt(Shader3D.BLEND, RenderState.BLEND_ENABLE_ALL);
+        //shaderData.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_SRC_ALPHA);
+        //shaderData.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA);
         let blendState: any;
         switch (blend) {
             case RenderState.BLEND_DISABLE:
@@ -536,6 +540,7 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
             }
         }
         if (this._passNum === 0) return false;
+        this._passName = context.pipelineMode;
 
         //设定当前渲染数据
         this._sceneData = context.sceneData;

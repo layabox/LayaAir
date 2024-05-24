@@ -375,7 +375,7 @@ export class MeshRenderer extends BaseRender {
                 }
                 renderElement.setGeometry(mesh.getSubMesh(i));
             }
-
+            this.boundsChange = true;
         } else if (!mesh) {
             this._renderElements.forEach
             this._renderElements.forEach(element => {
@@ -386,9 +386,22 @@ export class MeshRenderer extends BaseRender {
             this._mesh = null;
             this._changeVertexDefine(null);
             this._changeMorphData(null);
+            this.boundsChange = false;
         }
-        this.boundsChange = true;
+
         this._setRenderElements();
+    }
+
+
+    /**
+     * @internal
+     * BaseRender motion
+     */
+    protected _onWorldMatNeedChange(flag: number): void {
+        super._onWorldMatNeedChange(flag);
+        if (!this._mesh) {
+            this.boundsChange = false;
+        }
     }
 
     renderUpdate(context: RenderContext3D): void {

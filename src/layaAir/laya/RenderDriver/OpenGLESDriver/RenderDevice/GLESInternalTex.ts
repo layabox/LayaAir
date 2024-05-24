@@ -76,9 +76,15 @@ export class GLESInternalTex implements InternalTexture {
     public get depth(): number {
         return this._nativeObj.getDepth();
     }
+    
     public get gammaCorrection(): number {
         return this._nativeObj.gammaCorrection;
     }
+
+    public set gammaCorrection(value:number){
+        this._nativeObj.gammaCorrection = value;
+    }
+
     public get resource(): any {
         return this._nativeObj;
     }

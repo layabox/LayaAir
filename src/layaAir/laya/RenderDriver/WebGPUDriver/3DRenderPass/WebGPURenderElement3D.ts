@@ -59,6 +59,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
     protected _pipelineCache: GPURenderPipeline[] = []; //渲染管线缓存
 
     protected _passNum = 0; //当前渲染通道数量
+    protected _passName: string; //当前渲染名称
     protected _passIndex: number[] = []; //当前渲染通道索引
     protected _shaderPass: ShaderPass[] = []; //当前渲染通道
     protected _shaderInstance: WebGPUShaderInstance[] = []; //当前着色器实例
@@ -136,6 +137,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
             }
         }
         if (this._passNum === 0) return false;
+        this._passName = context.pipelineMode;
 
         //设定当前渲染数据
         this._sceneData = context.sceneData;
@@ -573,7 +575,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
      */
     protected _createPipeline(sn: number, context: WebGPURenderContext3D, shaderInstance: WebGPUShaderInstance,
         command: WebGPURenderCommandEncoder, bundle: WebGPURenderBundle, stateKey?: string) {
-        this.renderShaderData.isShare = false;
+        //this.renderShaderData.isShare = false;
         //this.materialShaderData.isShare = false; //修改阴影问题
         const bindGroupLayout = this._createBindGroupLayout(shaderInstance);
         if (bindGroupLayout) {

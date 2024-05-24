@@ -8,7 +8,7 @@ export class SlotExtendRG extends SlotExtendBase {
         this.bone = slot.bone;
         this.boneIndex = slot.bone.skeleton.bones.indexOf(slot.bone);
         let attachment = this.attchment = slot.getAttachment();
-        if (attachment instanceof spine.RegionAttachment) {
+        if (attachment instanceof window.spine.RegionAttachment) {
             let region = attachment as spine.RegionAttachment;
             this.vertexArray = region.offset as Float32Array;
             this.stride = 2;

@@ -24,7 +24,7 @@ import { WebGPUForwardAddRP } from "./WebGPUForwardAddRP";
 import { WebGPURenderContext3D } from "./WebGPURenderContext3D";
 
 const viewport = new Viewport(0, 0, 0, 0);
-
+const offsetScale = new Vector4();
 export class WebGPU3DRenderPass implements IRender3DProcess {
     private _renderPass: WebGPUForwardAddRP;
 
@@ -74,7 +74,13 @@ export class WebGPU3DRenderPass implements IRender3DProcess {
         renderPass.clearFlag = clearConst;
         renderPass.clearColor = clearValue;
 
-        viewport.set(0, 0, renderRT.width, renderRT.height);
+        let needInternalRT = camera._needInternalRenderTexture();
+        if (needInternalRT) {
+            viewport.set(0, 0, renderRT.width, renderRT.height);
+        }
+        else {
+            camera.viewport.cloneTo(viewport);
+        }
         renderPass.setViewPort(viewport);
         const scissor = Vector4.tempVec4;
         scissor.setValue(viewport.x, viewport.y, viewport.width, viewport.height);
@@ -131,12 +137,23 @@ export class WebGPU3DRenderPass implements IRender3DProcess {
             camera.scene._shaderValues.setVector(ShadowCasterPass.SHADOW_PARAMS, shadowParams);
         }
 
-        if (Stat.enablePostprocess && camera.postProcess && camera.postProcess.enable) {
+        if (Stat.enablePostprocess && camera.postProcess && camera.postProcess.enable && camera.postProcess.effects.length > 0) {
             this._renderPass.enablePostProcess = Stat.enablePostprocess;
             this._renderPass.postProcess = camera.postProcess._context.command;
             camera.postProcess._render(camera);
             this._renderPass.postProcess._apply(false);
-        } else this._renderPass.enablePostProcess = false;
+        }
+        else
+            this._renderPass.enablePostProcess = false;
+
+        this._renderPass.finalize.clear();
+        if (!this._renderPass.enablePostProcess && needInternalRT && camera._offScreenRenderTexture) {
+            let dst = camera._offScreenRenderTexture;
+
+            offsetScale.setValue(camera.normalizedViewport.x, 1.0 - camera.normalizedViewport.y, renderRT.width / dst.width, -renderRT.height / dst.height);
+            offsetScale.setValue(camera.normalizedViewport.x, camera.normalizedViewport.y, renderRT.width / dst.width, renderRT.height / dst.height);
+            this._renderPass.finalize.blitScreenQuad(renderRT, camera._offScreenRenderTexture, offsetScale);
+        }
     }
 
     /**
@@ -205,6 +222,9 @@ export class WebGPU3DRenderPass implements IRender3DProcess {
             this._renderPostProcess(renderPass.postProcess, context);
 
         renderPass._afterAllRenderCMDS && this._renderCmd(renderPass._afterAllRenderCMDS, context);
+
+        renderPass.finalize._apply(false);
+        context.runCMDList(renderPass.finalize._renderCMDs);
     }
 
     /**

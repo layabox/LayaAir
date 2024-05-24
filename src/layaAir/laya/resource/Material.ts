@@ -590,7 +590,10 @@ export class Material extends Resource implements IClone {
                 this.setShaderData(key, type, value);
             }
             else {
-                this.setShaderData(key, type, ShaderDataDefaultValue(type));
+                let value = ShaderDataDefaultValue(type);
+                if (value) {
+                    this.setShaderData(key, type, value);
+                }
             }
         });
     }
