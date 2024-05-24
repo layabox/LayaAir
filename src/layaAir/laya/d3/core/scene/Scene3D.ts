@@ -1227,10 +1227,10 @@ export class Scene3D extends Sprite {
             if (camera.enableRender && camera.activeInHierarchy) {
 
                 if (camera.renderTarget) {
-                    camera.enableBuiltInRenderTexture = false;
+                    camera.enableBuiltInRenderTexture ||= false;
                 }
                 else {
-                    camera.enableBuiltInRenderTexture = true;
+                    camera.enableBuiltInRenderTexture ||= true;
                 }
 
                 camera.render(this);
