@@ -189,13 +189,15 @@ export class SkinnedMeshRenderer extends MeshRenderer {
                 }
                 renderElement.setGeometry(mesh.getSubMesh(i));
             }
+            this.boundsChange = true;
         } else if (!mesh) {
             this._renderElements.length = 0;
             this._mesh = null;
             this._changeVertexDefine(null);
             this._changeMorphData(null);
+            this.boundsChange = false;
         }
-        this.boundsChange = true;
+      
     }
     /**
     *@inheritDoc
