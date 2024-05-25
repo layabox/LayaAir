@@ -64,4 +64,4 @@ export class WebGPURenderDeviceFactory implements IRenderDeviceFactory {
 Laya.addBeforeInitCallback(() => {
     if (!LayaGL.renderDeviceFactory)
         LayaGL.renderDeviceFactory = new WebGPURenderDeviceFactory();
-})
+});
