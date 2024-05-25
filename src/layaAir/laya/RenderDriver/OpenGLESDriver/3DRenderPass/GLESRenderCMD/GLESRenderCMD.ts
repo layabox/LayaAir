@@ -86,7 +86,7 @@ export class GLESBlitQuadCMDData extends BlitQuadCMDData {
 
     set dest(value: GLESInternalRT) {
         this._dest = value;
-        this._nativeObj.setDest(value._nativeObj);
+        this._nativeObj.setDest(value ? value._nativeObj : null);
     }
 
     get viewport(): Viewport {
