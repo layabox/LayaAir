@@ -59,7 +59,7 @@ export class GLShaderInstance extends GLObject {
         let preTime = performance.now();
         const gl: WebGLRenderingContext = this._gl;
 
-        if ((this._gl as any).lost) {
+        if (WebGLEngine.instance.lost) {
             console.log("lost webgl context");
             return;
         }
