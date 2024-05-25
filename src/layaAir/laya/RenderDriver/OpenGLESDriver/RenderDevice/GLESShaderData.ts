@@ -344,6 +344,8 @@ export class GLESShaderData extends ShaderData {
      */
     setTexture(index: number, value: BaseTexture): void {
         var lastValue: BaseTexture = this._textureData[index];
+
+        if (value && (value as any).bitmap) value = (value as any).bitmap;
         //维护Reference
         this._textureData[index] = value;
         if (value) {
