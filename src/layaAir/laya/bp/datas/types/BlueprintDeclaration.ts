@@ -57,9 +57,9 @@ export type TBPDeclaration = {
 
 export type TBPDeclarationMerber = {
     /** 枚举名称 */
-    name:string;
+    name: string;
     /** 枚举值 */
-    value:number | string;
+    value: number | string;
     /** 显示名称，没有默认使用name */
     caption?: string;
     /** 分组 */
@@ -161,7 +161,7 @@ export type TBPDeclarationParam = {
     /** 参数名称 */
     name: string;
     /** 参数类型 */
-    type: string;
+    type: string | (new () => any);
     /** 是否为可选项 */
     optional?: boolean;
     /** 是否为...方法 */
