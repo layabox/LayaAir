@@ -366,7 +366,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
         const depthTest = (renderState.depthTest ?? data[Shader3D.DEPTH_TEST]) ?? RenderState.Default.depthTest;
 
         //Stencil
-        const stencilParam: { [key: string]: any } = {};
+        const stencilParam = this._stencilParam;
         const stencilTest = (renderState.stencilTest ?? data[Shader3D.STENCIL_TEST]) ?? RenderState.Default.stencilTest;
         if (stencilTest === RenderState.STENCILTEST_OFF)
             stencilParam['enable'] = false;
@@ -375,9 +375,9 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
             const stencilWrite = (renderState.stencilWrite ?? data[Shader3D.STENCIL_WRITE]) ?? RenderState.Default.stencilWrite;
             const stencilOp = stencilWrite ?? (renderState.stencilOp ?? data[Shader3D.STENCIL_Op]) ?? RenderState.Default.stencilOp;
             stencilParam['enable'] = true;
+            stencilParam['write'] = stencilWrite;
             stencilParam['test'] = stencilTest;
             stencilParam['ref'] = stencilRef;
-            stencilParam['write'] = stencilWrite;
             stencilParam['op'] = stencilOp;
         }
 
@@ -390,7 +390,6 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
         const depthTest = data[Shader3D.DEPTH_TEST] ?? RenderState.Default.depthTest;
 
         //Stencil
-        //const stencilParam: { [key: string]: any } = {};
         const stencilParam = this._stencilParam;
         const stencilTest = data[Shader3D.STENCIL_TEST] ?? RenderState.Default.stencilTest;
         if (stencilTest === RenderState.STENCILTEST_OFF)
@@ -400,9 +399,9 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
             const stencilWrite = data[Shader3D.STENCIL_WRITE] ?? RenderState.Default.stencilWrite;
             const stencilOp = stencilWrite ? (data[Shader3D.STENCIL_Op] ?? RenderState.Default.stencilOp) : RenderState.Default.stencilOp;
             stencilParam['enable'] = true;
+            stencilParam['write'] = stencilWrite;
             stencilParam['test'] = stencilTest;
             stencilParam['ref'] = stencilRef;
-            stencilParam['write'] = stencilWrite;
             stencilParam['op'] = stencilOp;
         }
 
