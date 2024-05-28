@@ -200,7 +200,9 @@ export class Texture2D extends BaseTexture {
 
         let ddsInfo = DDSTextureInfo.getDDSTextureInfo(data);
 
-        let texture = new Texture2D(ddsInfo.width, ddsInfo.height, ddsInfo.format, ddsInfo.mipmapCount > 1, false, false);
+        let sRGB = constructParams[5];
+
+        let texture = new Texture2D(ddsInfo.width, ddsInfo.height, ddsInfo.format, ddsInfo.mipmapCount > 1, false, sRGB);
 
         texture.setDDSData(ddsInfo);
         if (propertyParams)
