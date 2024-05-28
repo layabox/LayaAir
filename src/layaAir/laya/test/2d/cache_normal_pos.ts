@@ -8,8 +8,9 @@ import { Stage } from "../../display/Stage";
 import { Sprite } from "../../display/Sprite";
 import { TextRender } from "../../webgl/text/TextRender";
 
-//HierarchyLoader和MaterialLoader等是通过前面的import完成的
-
+/**
+ * 设置cachenormal之后，移动位置不会重构cache信息
+ */
 let packurl = 'sample-resource/2d'
 async function test(){
     //初始化引擎
@@ -25,15 +26,23 @@ async function test(){
     //sp.graphics.drawTexture(tex,100,300,null,null,null);
     Laya.stage.addChild(sp);
 
-    //建立一个sprite，每张贴图的字都用一个，然后想法gc，应该渲染正确
+    let curx=0;
+    let cury=200;
     let sp1 = new Sprite();
-    //sp1.graphics.fillText('天日寒',0,0,'32px Arial','red',"left");
-    sp1.graphics.drawTexture(tex,0,0,null,null,null);
-    sp1.pos(100,420);
+    sp1.graphics.drawTexture(tex,0,0,100,100,null);
+    sp1.pos(curx,cury);
     sp1.cacheAs='normal'
     Laya.stage.addChild(sp1);
+    let sp2 = new Sprite();
+    sp2.graphics.drawPoly(0,0,[0,0,100,0,100,100],'red','black')
+    sp2.pos(20,20);
+    sp1.addChild(sp2);
+
 
     function renderloop(){
+        sp1.pos(curx,cury);
+        curx+=1;
+        if(curx>600)curx=0;
         requestAnimationFrame(renderloop);
     }
     requestAnimationFrame(renderloop)

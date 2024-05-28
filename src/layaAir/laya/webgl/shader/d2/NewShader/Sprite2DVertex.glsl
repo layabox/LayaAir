@@ -16,6 +16,8 @@ varying vec4 v_color;
     // attribute vec4 a_attribColor;
 
     void getVertexInfo(inout vertexInfo info){
+        info.color = a_attribColor;
+        info.color.a*=u_VertAlpha;
         float clipw = length(u_clipMatDir.xy);
         float cliph = length(u_clipMatDir.zw);
         #ifdef WORLDMAT
@@ -30,7 +32,6 @@ varying vec4 v_color;
             //clipdir是带缩放的方向，由于上面clippos是在缩放后的空间计算的，所以需要把方向先normalize一下
             info.cliped =vec2( dot(clippos,u_clipMatDir.xy)/clipw/clipw, dot(clippos,u_clipMatDir.zw)/cliph/cliph);
         }
-        info.color = a_attribColor;
     }
 
     void getPosition(inout vec4 pos){
