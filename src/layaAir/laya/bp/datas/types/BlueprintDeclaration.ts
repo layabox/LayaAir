@@ -161,7 +161,7 @@ export type TBPDeclarationParam = {
     /** 参数名称 */
     name: string;
     /** 参数类型 */
-    type: string | (new () => any);
+    type: string | Function;
     /** 是否为可选项 */
     optional?: boolean;
     /** 是否为...方法 */
