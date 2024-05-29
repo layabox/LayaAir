@@ -45,7 +45,7 @@ export class BlueprintDecorator{
         }
 
         if (options.extends) {
-            declare.extends = [options.extends];
+            declare.extends = options.extends;
         }
 
         if (options.canInherited) {

@@ -167,7 +167,7 @@ export class BlueprintImpl extends Resource {
             props: [],
             funcs: [],
             events: [],
-            extends: [this.data.extends],
+            extends: this.data.extends,
         }
 
         for (const key in map) {

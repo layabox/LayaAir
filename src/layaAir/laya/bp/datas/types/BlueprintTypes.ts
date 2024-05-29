@@ -221,7 +221,7 @@ export interface TBPNode {
     autoReg?: boolean;
 }
 
-export type TypeParameter = string | [TypeParameter] | ["Record", TypeParameter] | ["Map", TypeParameter];
+export type TypeParameter = string | Function | [TypeParameter] | ["Record", TypeParameter] | ["Map", TypeParameter];
 
 export type TypeExtendsData = Record<string, Record<string,
     {
