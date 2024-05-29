@@ -105,6 +105,10 @@ export interface ISkinRenderNode extends IBaseRenderNode {
     setSkinnedData(value: any[]): void;
 }
 
+export interface ISimpleSkinRenderNode extends IBaseRenderNode {
+    setSimpleAnimatorParams(value: Vector4): void;
+}
+
 //Light
 export interface IDirectLightData {
     transform: Transform3D;

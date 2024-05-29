@@ -210,6 +210,9 @@ export class BaseRender extends Component {
         this._baseRenderNode.sortingFudge = value;
     }
 
+    get sortingFudge() {
+        return this._baseRenderNode.sortingFudge;
+    }
     /**
      * 获取渲染节点的渲染禁用位
      */

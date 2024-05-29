@@ -10,6 +10,7 @@ import { RTBaseRenderNode } from "./RTBaseRenderNode";
  */
 export class RTSkinRenderNode extends RTBaseRenderNode implements ISkinRenderNode {
 
+    private boneNums: number = 0;
     //create runtime Node
     protected _getNativeObj() {
         this._nativeObj = new (window as any).conchRTSkinRenderNode();
@@ -20,7 +21,7 @@ export class RTSkinRenderNode extends RTBaseRenderNode implements ISkinRenderNod
     }
 
     computeSkinnedData(): void {
-        this._nativeObj.computeSkinnedData(Stat.loopCount);
+        (this.boneNums != 0) && this._nativeObj.computeSkinnedData(Stat.loopCount);
     }
 
     setRootBoneTransfom(value: Sprite3D): void {
@@ -41,7 +42,9 @@ export class RTSkinRenderNode extends RTBaseRenderNode implements ISkinRenderNod
         //this._cacheMesh._skinnedMatrixCaches
         this._nativeObj.resizeMatrixCache(cacheMesh._skinnedMatrixCaches.length);
         for (var i = 0, n = cacheMesh._skinnedMatrixCaches.length; i < n; i++) {
-            let cache: skinnedMatrixCache = cacheMesh._skinnedMatrixCaches[i]
+            let cache: skinnedMatrixCache = cacheMesh._skinnedMatrixCaches[i];
+            if (!cache)
+                continue;
             this._nativeObj.setMatrixCacheByIndex(i, cache.batchBoneIndex, cache.batchIndex, cache.subMeshIndex);
         }
 
@@ -57,7 +60,11 @@ export class RTSkinRenderNode extends RTBaseRenderNode implements ISkinRenderNod
     setBones(value: Sprite3D[]): void {
         this._nativeObj.clearBoneTransform();
         for (var i = 0, n = value.length; i < n; i++) {
-            this._nativeObj.addBoneTransform((value[i].transform as NativeTransform3D)._nativeObj);
+            if (value[i]) {
+                this._nativeObj.addBoneTransform((value[i].transform as NativeTransform3D)._nativeObj);
+                this.boneNums++;
+            }
+
         }
 
     }

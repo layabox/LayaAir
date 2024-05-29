@@ -45,6 +45,11 @@ export class WebGLEngine implements IRenderEngine {
 
     _context: WebGLRenderingContext | WebGL2RenderingContext;
 
+    private _lost: boolean = false;
+    public get lost(): boolean {
+        return this._lost;
+    }
+
     private _config: WebGLConfig;
 
     private _isWebGL2: boolean;
@@ -281,7 +286,7 @@ export class WebGLEngine implements IRenderEngine {
     webglContextLost(e: any) {
         console.log("lost webgl context");
         Laya.stage.event("GraphicContextLost", e);
-        (this._context as any).lost = true;
+        this._lost = true
     }
 
     private _initBindBufferMap() {

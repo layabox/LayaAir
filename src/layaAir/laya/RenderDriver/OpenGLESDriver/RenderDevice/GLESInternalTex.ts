@@ -14,19 +14,19 @@ export class GLESInternalTex implements InternalTexture {
         this._nativeObj = nativeObj;
     }
     public get wrapU(): WrapMode {
-        return this._nativeObj.warpU;
+        return this._nativeObj.wrapU;
     }
     public set wrapU(value: WrapMode) {
-        this._nativeObj.warpU = value;
+        this._nativeObj.wrapU = value;
     }
     public get wrapV(): WrapMode {
-        return this._nativeObj.warpV;
+        return this._nativeObj.wrapV;
     }
     public set wrapV(value: WrapMode) {
-        this._nativeObj.warpV = value;
+        this._nativeObj.wrapV = value;
     }
     public get wrapW(): WrapMode {
-        return this._nativeObj.warpW;
+        return this._nativeObj.wrapW;
     }
     public set wrapW(value: WrapMode) {
         this._nativeObj.wrapW = value;

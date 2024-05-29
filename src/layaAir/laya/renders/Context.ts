@@ -1241,6 +1241,7 @@ export class Context {
     }
 
     drawGeo(geo: IRenderGeometryElement, material: Material, x: number, y: number) {
+        this.drawLeftData();
         let mat = this._curMat;
         let buffer = this._matBuffer;
         buffer[0] = mat.a;
@@ -1255,6 +1256,7 @@ export class Context {
     }
 
     drawGeos(geo: IRenderGeometryElement,elements:[Material,number,number][], x: number, y: number) {
+        this.drawLeftData();
         let mat = this._curMat;
         let buffer = this._matBuffer;
         buffer[0] = mat.a;
