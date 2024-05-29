@@ -218,34 +218,27 @@ export class BlueprintData {
         arr.push(obj);
     }
 
-    private _createExtData(data: Record<string, TBPDeclaration>, ext: string, cls: any, exts?: string) {
+    private _createExtData(data: Record<string, TBPDeclaration>, ext: string, cls: any) {
         let co = this.constData[ext];
         if (null != co) return co;
         let o = data[ext];
         if (null == o) {
-            if (null == exts || 0 == exts.length) {
-                this.constData[ext] = { data: {} };
-            } else {
-                let retExts = exts.slice();
-                let ret = this._createExtData(data, exts, cls, exts);
+            let eo = extendsData[ext];
+            if (null != eo && null != eo.extends) {
+                let ret = this._createExtData(data, eo.extends, cls);
                 co = { data: Object.create(ret.data) };
-                co.extends = retExts;
-
+                co.extends = eo.extends;
                 this.constData[ext] = co;
+            } else {
+                this.constData[ext] = { data: {} };
             }
             return this.constData[ext];
         }
-
-        if (null == exts && null != o.extends) {
-            exts = o.extends.slice();
-        }
-
-        //let exts = o.extends;
-        if (exts && 0 < exts.length) {
-            let ret = this._createExtData(data, exts, cls, exts);
+        let exts = o.extends;
+        if (exts) {
+            let ret = this._createExtData(data, exts, cls);
             co = { data: Object.create(ret.data) };
-            //co = Object.create();
-            co.extends = o.extends;
+            co.extends = exts;
             this._createConstData(o, co, ext, cls);
         } else {
             co = { data: {} };
@@ -254,6 +247,39 @@ export class BlueprintData {
         if (o.name != ext) co.caption = o.name;
         if (null != o.caption) co.caption = o.caption;
         this.constData[ext] = co;
+
+        // if (null == o) {
+        //     if (null == exts || 0 == exts.length) {
+        //         this.constData[ext] = { data: {} };
+        //     } else {
+        //         let retExts = exts.slice();
+        //         let ret = this._createExtData(data, exts.shift(), cls, exts);
+        //         co = { data: Object.create(ret.data) };
+        //         co.extends = retExts;
+
+        //         this.constData[ext] = co;
+        //     }
+        //     return this.constData[ext];
+        // }
+
+        // if (null == exts && null != o.extends) {
+        //     exts = o.extends.slice();
+        // }
+
+        // //let exts = o.extends;
+        // if (exts && 0 < exts.length) {
+        //     let ret = this._createExtData(data, exts.shift(), cls, exts);
+        //     co = { data: Object.create(ret.data) };
+        //     //co = Object.create();
+        //     co.extends = o.extends;
+        //     this._createConstData(o, co, ext, cls);
+        // } else {
+        //     co = { data: {} };
+        //     this._createConstData(o, co, ext, cls);
+        // }
+        // if (o.name != ext) co.caption = o.name;
+        // if (null != o.caption) co.caption = o.caption;
+        // this.constData[ext] = co;
         return co;
     }
     private _createConstData(o: TBPDeclaration, cdata: BPConstNode, ext: string, cls: any) {
