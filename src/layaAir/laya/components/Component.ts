@@ -32,13 +32,16 @@ export class Component {
      * @internal
      * 是否单例，即同一个节点只能添加此类型的脚本一次
      */
-    _singleton?: boolean = true;
+    _singleton: boolean;
+
     /**
+     *  @internal
      * 是否可以在IDE环境中运行
      */
     runInEditor: boolean;
 
     /**
+     * @internal
      * 脚本路径
      */
     scriptPath: string;
@@ -64,11 +67,15 @@ export class Component {
      */
     constructor() {
         this._id = Utils.getGID();
+        this._singleton = Object.getPrototypeOf(this)._$singleton ?? true;
 
         this._initialize();
     }
 
-    //@internal
+    /**
+     * @internal
+     * used in IDE
+     * */
     _initialize(): void {
         this._extra = {};
     }

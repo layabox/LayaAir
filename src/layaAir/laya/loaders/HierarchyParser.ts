@@ -274,18 +274,23 @@ export class HierarchyParser {
 
             for (let compData of components) {
                 let comp: Component;
+                let typeOrId = compData._$override;
                 if (compData._$override) {
-                    let cls: any = ClassUtils.getClass(compData._$override);
+                    let cls = ClassUtils.getClass(typeOrId);
                     if (cls)
                         comp = node.getComponent(cls);
+                    else
+                        comp = node.components.find(comp => (<any>comp._extra).storeId == typeOrId);
                 }
                 else {
                     let cls: any = ClassUtils.getClass(compData._$type);
                     if (cls) {
-                        comp = node.getComponent(cls);
+                        if (!compData._$id)
+                            comp = node.getComponent(cls);
                         if (!comp) {
                             try {
                                 comp = node.addComponent(cls);
+                                (<any>comp._extra).storeId = compData._$id;
                             }
                             catch (err: any) {
                                 errors.push(err);
