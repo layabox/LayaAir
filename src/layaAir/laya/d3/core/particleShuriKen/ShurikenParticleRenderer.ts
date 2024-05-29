@@ -261,6 +261,12 @@ export class ShurikenParticleRenderer extends BaseRender {
                 throw new Error("ShurikenParticleMaterial: SimulationSpace value is invalid.");
         }
 
+        if(particleSystem.shape&&particleSystem.shape.enable){
+            sv.setBool(ShuriKenParticle3DShaderDeclaration.SHAPE, true)
+        }else{
+            sv.setBool(ShuriKenParticle3DShaderDeclaration.SHAPE, false)
+        }
+
         switch (particleSystem.scaleMode) {
             case 0:
                 var scale: Vector3 = transform.getWorldLossyScale();

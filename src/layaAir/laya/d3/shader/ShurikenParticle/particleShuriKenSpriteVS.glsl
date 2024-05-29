@@ -5,6 +5,7 @@ uniform vec2 u_DragConstanct;
 uniform vec3 u_WorldPosition;
 uniform vec4 u_WorldRotation;
 uniform bool u_ThreeDStartRotation;
+uniform bool u_Shape;
 uniform int u_ScalingMode;
 uniform vec3 u_PositionScale;
 uniform vec3 u_SizeScale;
