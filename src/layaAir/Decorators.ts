@@ -156,11 +156,14 @@ export interface FPropertyDescriptor {
     /** 显示位置。语法：before xxx/after xxx/first/last。 */
     position: string;
 
+    /** 增加缩进，单位是层级，不是像素。 */
+    addIndent?: number;
+
+    /** 子属性默认折叠状态 */
+    collapsed?: boolean;
+
     /** 表示属性是私有属性。私有属性不会显示在Inspector里，但会序列化保存。 */
     "private": boolean;
-
-    /** 增加缩进，单位是层级，不是像素。 */
-    addIndent: number;
 
     /** 表示属性是否允许多选情况下编辑。默认true。 */
     allowMultipleObjects: boolean;
@@ -226,9 +229,18 @@ export function regClass(assetId?: string): any {
 export function classInfo(info?: Partial<FTypeDescriptor>): any { return dummy; }
 
 /**
- * 设置组件可以在编辑器环境中执行完整声明周期。
+ * 设置组件可以在编辑器环境中执行完整生命周期。
+ * @param constructor
  */
 export function runInEditor(constructor: Function): void { }
+
+/**
+ * 设置组件可以添加多个实例到同一个节点上。
+ * @param constructor 
+ */
+export function allowMultiple(constructor: Function): void {
+    constructor.prototype._$singleton = false;
+}
 
 /**
  * 使用这个装饰器，可以使属性显示在编辑器属性设置面板上，并且能序列化保存。
