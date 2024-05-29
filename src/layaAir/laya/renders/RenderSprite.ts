@@ -30,7 +30,7 @@ const INIT = 0x11111;
  */
 export class RenderSprite {
     /** @private*/
-    static cacheNormalEnable=true;
+    static cacheNormalEnable = true;
     /** @private */
     static renders: RenderSprite[] = [];
     /** @private */
@@ -38,7 +38,7 @@ export class RenderSprite {
     /** @internal */
     _next: RenderSprite;
     /** @internal */
-    _fun: (sp:Sprite, ctx:Context, x:number, y:number)=>void;
+    _fun: (sp: Sprite, ctx: Context, x: number, y: number) => void;
 
     /** @internal */
     static __init__(): void {
@@ -283,28 +283,28 @@ export class RenderSprite {
      * @param context 
      * @returns 
      */
-    _renderNextToCacheRT(sprite:Sprite,context:Context){
+    _renderNextToCacheRT(sprite: Sprite, context: Context) {
         var _cacheStyle = sprite._getCacheStyle();
         if (sprite._needRepaint() || !_cacheStyle.renderTexture || ILaya.stage.isGlobalRepaint()) {
-            if(_cacheStyle.renderTexture){
+            if (_cacheStyle.renderTexture) {
                 _cacheStyle.renderTexture.destroy();//TODO 优化， 如果大小相同，可以重复利用
             }
             //如果需要构造RenderTexture
             // 先计算需要的texuture的大小。
             let scaleInfo = sprite._cacheStyle._calculateCacheRect(sprite, "bitmap"/*sprite._cacheStyle.cacheAs*/, 0, 0);
             let tRec = _cacheStyle.cacheRect;
-            if(tRec.width<=0||tRec.height<=0)
+            if (tRec.width <= 0 || tRec.height <= 0)
                 return false;
             //计算cache画布的大小
             Stat.canvasBitmap++;
 
             let w = tRec.width * scaleInfo.x;  //,
             let h = tRec.height * scaleInfo.y;
-            let rt = new RenderTexture2D(w,h,RenderTargetFormat.R8G8B8A8);
+            let rt = new RenderTexture2D(w, h, RenderTargetFormat.R8G8B8A8);
             let ctx = new Context();
             ctx.copyState(context);
-            ctx.size(w,h);
-            ctx.render2D=new Render2DSimple(rt);
+            ctx.size(w, h);
+            ctx.render2D = new Render2DSimple(rt);
             ctx.startRender();
             /*
                 由于tRec与rt的原点并不重合：
@@ -313,7 +313,7 @@ export class RenderSprite {
                 所以为了rt能正确的包含节点的渲染效果，应该偏移一下节点再渲染，具体就是取节点在rt坐标系下的值
                 当使用这个rt的时候，要反向偏移，即偏移rt在节点坐标系下的值
             */
-            this._next._fun(sprite,ctx,-tRec.x, -tRec.y);
+            this._next._fun(sprite, ctx, -tRec.x, -tRec.y);
             ctx.endRender();
             //临时，恢复
             ctx.render2D.setRenderTarget(context.render2D.out);
@@ -328,35 +328,35 @@ export class RenderSprite {
         var _cacheStyle = sprite._cacheStyle;
         var _next = this._next;
 
-        if ( _cacheStyle.mask && _cacheStyle.mask._getBit(NodeFlags.DISABLE_VISIBILITY)) {
+        if (_cacheStyle.mask && _cacheStyle.mask._getBit(NodeFlags.DISABLE_VISIBILITY)) {
             //虽然有mask但是mask不可见，则不走这个流程。
             _next._fun(sprite, context, x, y);
             return;
         }
 
         let isbmp = sprite.cacheAs === 'bitmap';
-        if(isbmp){
+        if (isbmp) {
             //temp
             context.drawLeftData();
-            this._renderNextToCacheRT(sprite,context);
+            this._renderNextToCacheRT(sprite, context);
             // RenderSprite.RenderToCacheTexture(sprite,context,x,y)
             var tRec = _cacheStyle.cacheRect;
             context.material = sprite.graphics.material;
             let rt = _cacheStyle.renderTexture;
-            rt && context._drawRenderTexture(rt,x+tRec.x , y+tRec.y , rt.width, rt.height,null,1,[0,1, 1,1, 1,0, 0,0]);
+            rt && context._drawRenderTexture(rt, x + tRec.x, y + tRec.y, rt.width, rt.height, null, 1, [0, 1, 1, 1, 1, 0, 0, 0]);
             context.material = null;
-        }else{
-            if(!RenderSprite.cacheNormalEnable){
+        } else {
+            if (!RenderSprite.cacheNormalEnable) {
                 _next._fun(sprite, context, x, y);
                 return;
-            }else{
+            } else {
                 context.drawLeftData();
-                SpriteCache.renderCacheAsNormal(context,sprite,this._next,x,y);
+                SpriteCache.renderCacheAsNormal(context, sprite, this._next, x, y);
             }
         }
     }
 
-    static RenderToRenderTexture(sprite:Sprite,context:Context|null, x:number, y:number, renderTexture:RenderTexture2D=null){
+    static RenderToRenderTexture(sprite: Sprite, context: Context | null, x: number, y: number, renderTexture: RenderTexture2D = null) {
         //如果需要构造RenderTexture
         // 先计算需要的texuture的大小。
         let scaleInfo = sprite._getCacheStyle()._calculateCacheRect(sprite, "bitmap"/*sprite._cacheStyle.cacheAs*/, 0, 0);
@@ -364,20 +364,22 @@ export class RenderSprite {
         let ctx = new Context();
         context && ctx.copyState(context);
         let rt = renderTexture;
-        if(rt){
-            ctx.size(rt.width,rt.height);
-        }else{
+        if (rt) {
+            ctx.size(rt.width, rt.height);
+            ctx.clearBG(RenderTexture2D._clearColor.r, RenderTexture2D._clearColor.g, RenderTexture2D._clearColor.b, RenderTexture2D._clearColor.a);
+        } else {
             //计算cache画布的大小
             let w = tRec.width * scaleInfo.x;
             let h = tRec.height * scaleInfo.y;
-            rt = new RenderTexture2D(w,h,RenderTargetFormat.R8G8B8A8);            
-            ctx.size(w,h);
+            rt = new RenderTexture2D(w, h, RenderTargetFormat.R8G8B8A8);
+            ctx.size(w, h);
+            ctx.clearBG(0, 0, 0, 0);
         }
-        ctx.render2D= ctx.render2D.clone(rt);
-        ctx.clearBG(0,0,0,0);
+        ctx.render2D = ctx.render2D.clone(rt);
+
         ctx.startRender();
         //把位置移到0，所以要-sprite.xy, 考虑图集空白，所以要-tRec.xy,因为tRec.xy是sprite空间的，所以转到贴图空间是取反
-        sprite.render(ctx,x-sprite.x-tRec.x,y-sprite.y-tRec.y);
+        sprite.render(ctx, x - sprite.x - tRec.x, y - sprite.y - tRec.y);
         ctx.endRender();
         //临时，恢复
         context && ctx.render2D.setRenderTarget(context.render2D.out);
@@ -391,13 +393,13 @@ export class RenderSprite {
      * @param y 
      * @returns 
      */
-    static RenderToCacheTexture(sprite:Sprite,context:Context|null, x:number, y:number){
+    static RenderToCacheTexture(sprite: Sprite, context: Context | null, x: number, y: number) {
         var _cacheStyle = sprite._getCacheStyle();
         if (sprite._needRepaint() || !_cacheStyle.renderTexture || ILaya.stage.isGlobalRepaint()) {
-            if(_cacheStyle.renderTexture){
+            if (_cacheStyle.renderTexture) {
                 _cacheStyle.renderTexture.destroy();//TODO 优化， 如果大小相同，可以重复利用
             }
-            _cacheStyle.renderTexture = RenderSprite.RenderToRenderTexture(sprite,context,x,y);
+            _cacheStyle.renderTexture = RenderSprite.RenderToRenderTexture(sprite, context, x, y);
             return true;    //重绘
         }
         return false;
@@ -454,7 +456,7 @@ export class RenderSprite {
             rtx = x1; rty = y1;
             let rt = new RenderTexture2D(width1, height1, RenderTargetFormat.R8G8B8A8);
             let ctx1 = new Context();
-            ctx1.clearBG(0,0,0,0);
+            ctx1.clearBG(0, 0, 0, 0);
             ctx1.size(width1, height1);
             ctx1.render2D = new Render2DSimple(rt);
             ctx1.startRender();

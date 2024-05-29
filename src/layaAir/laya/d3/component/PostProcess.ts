@@ -89,7 +89,7 @@ export class PostProcess {
     _enableColorGrad: boolean = false;
 
     /**@internal */
-    _context: PostProcessRenderContext | null = null;
+    _context: PostProcessRenderContext;
 
     /**
      * 重新计算CameraFlag
@@ -158,8 +158,8 @@ export class PostProcess {
      *@internal
      */
     _init(camera: Camera): void {
-        this._context!.camera = camera;
-        this._context!.command!._camera = camera;
+        this._context.camera = camera;
+        this._context.command!._camera = camera;
     }
 
     /**
@@ -167,42 +167,45 @@ export class PostProcess {
      */
     _render(camera: Camera): void {
         this._init(camera);
-        var camera = this._context!.camera;
-        var viewport: Viewport = camera!.viewport;
+
+        let context = this._context;
+
+        var camera = context.camera;
+        var viewport: Viewport = camera.viewport;
         var internalRT = camera._needInternalRenderTexture();
         var cameraTarget: RenderTexture = !internalRT ? RenderTexture.createFromPool(camera._offScreenRenderTexture.width, camera._offScreenRenderTexture.height, camera._getRenderTextureFormat(), RenderTargetFormat.None, false, 1, false, true) : camera._internalRenderTexture;
         var screenTexture: RenderTexture = RenderTexture.createFromPool(cameraTarget.width, cameraTarget.height, camera._getRenderTextureFormat(), RenderTargetFormat.None, false, 1, false, true);
         var Indirect: RenderTexture[] = [RenderTexture.createFromPool(cameraTarget.width, cameraTarget.height, camera._getRenderTextureFormat(), RenderTargetFormat.None, false, 1, false, true), RenderTexture.createFromPool(cameraTarget.width, cameraTarget.height, camera._getRenderTextureFormat(), RenderTargetFormat.None, false, 1, false, true)];
         //var screenTexture: RenderTexture = cameraTarget;
-        this._context!.command!.clear();
-        this._context!.source = screenTexture;
-        this._context!.indirectTarget = screenTexture;
-        this._context!.destination = this._effects.length == 2 ? Indirect[0] : cameraTarget;
-        this._context!.compositeShaderData!.clearDefine();
+        context.command!.clear();
+        context.source = screenTexture;
+        context.indirectTarget = screenTexture;
+        context.destination = this._effects.length == 2 ? Indirect[0] : cameraTarget;
+        context.compositeShaderData!.clearDefine();
 
         if (internalRT) {
-            this._context.command.blitScreenTriangle(camera._internalRenderTexture, screenTexture);
+            context.command.blitScreenTriangle(camera._internalRenderTexture, screenTexture);
         }
         else {
-            this._context.command.blitScreenTriangle(camera._offScreenRenderTexture, screenTexture);
+            context.command.blitScreenTriangle(camera._offScreenRenderTexture, screenTexture);
         }
 
-        this._context!.compositeShaderData!.setTexture(PostProcess.SHADERVALUE_AUTOEXPOSURETEX, Texture2D.whiteTexture);//TODO:
+        context.compositeShaderData!.setTexture(PostProcess.SHADERVALUE_AUTOEXPOSURETEX, Texture2D.whiteTexture);//TODO:
         if (this._enableColorGrad) {
             this._ColorGradEffect._buildLUT();
         }
         for (var i: number = 0, n: number = this._effects.length; i < n; i++) {
             if (this._effects[i].active) {
-                this._effects[i].render(this._context!);
+                this._effects[i].render(context);
                 if (i == n - 2) {//last effect:destination RenderTexture is CameraTarget
-                    this._context.indirectTarget = this._context.destination;
-                    this._context.destination = cameraTarget;
+                    context.indirectTarget = context.destination;
+                    context.destination = cameraTarget;
                 } else {
-                    this._context.indirectTarget = this._context.destination;
-                    this._context.destination = Indirect[(i + 1) % 2];
+                    context.indirectTarget = context.destination;
+                    context.destination = Indirect[(i + 1) % 2];
                 }
             } else if (i == n - 1) {//兼容最后一个Effect Active为false
-                this._context.command.blitScreenTriangle(this._context.indirectTarget, cameraTarget);
+                context.command.blitScreenTriangle(context.indirectTarget, cameraTarget);
             }
         }
 
@@ -210,15 +213,15 @@ export class PostProcess {
 
         if (camera._offScreenRenderTexture) {
             if (internalRT) {
-                this._context!.destination = camera._offScreenRenderTexture;
-                var canvasWidth: number = camera!._getCanvasWidth(), canvasHeight: number = camera!._getCanvasHeight();
+                context.destination = camera._offScreenRenderTexture;
+                var canvasWidth: number = camera._getCanvasWidth(), canvasHeight: number = camera._getCanvasHeight();
                 if (LayaGL.renderEngine._screenInvertY) {
-                    camera!._screenOffsetScale.setValue(viewport.x / canvasWidth, viewport.y / canvasHeight, viewport.width / canvasWidth, viewport.height / canvasHeight);
+                    camera._screenOffsetScale.setValue(viewport.x / canvasWidth, viewport.y / canvasHeight, viewport.width / canvasWidth, viewport.height / canvasHeight);
                 }
                 else {
-                    camera!._screenOffsetScale.setValue(viewport.x / canvasWidth, 1.0 - viewport.y / canvasHeight, viewport.width / canvasWidth, -viewport.height / canvasHeight);
+                    camera._screenOffsetScale.setValue(viewport.x / canvasWidth, 1.0 - viewport.y / canvasHeight, viewport.width / canvasWidth, -viewport.height / canvasHeight);
                 }
-                this._context!.command!.blitScreenTriangle(cameraTarget, camera._offScreenRenderTexture, camera!._screenOffsetScale, null, this._compositeShaderData, 0);
+                context.command!.blitScreenTriangle(cameraTarget, camera._offScreenRenderTexture, camera._screenOffsetScale, null, this._compositeShaderData, 0);
             }
         }
 
@@ -227,7 +230,7 @@ export class PostProcess {
         RenderTexture.recoverToPool(screenTexture);
         RenderTexture.recoverToPool(Indirect[0]);
         RenderTexture.recoverToPool(Indirect[1]);
-        var tempRenderTextures: RenderTexture[] = this._context!.deferredReleaseTextures;
+        var tempRenderTextures: RenderTexture[] = context.deferredReleaseTextures;
         for (i = 0, n = tempRenderTextures.length; i < n; i++)
             RenderTexture.recoverToPool(tempRenderTextures[i]);
         tempRenderTextures.length = 0;
@@ -296,7 +299,7 @@ export class PostProcess {
      * @internal
      */
     _applyPostProcessCommandBuffers(): void {
-        this._context!.command!._apply();
+        this._context.command!._apply();
     }
 }
 

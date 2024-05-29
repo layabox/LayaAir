@@ -14,7 +14,7 @@ export class SpineMaterial extends SpineMaterialBase {
         this.renderQueue = Material.RENDERQUEUE_TRANSPARENT;
         this.alphaTest = false;
         this.depthWrite = false;
-        this.cull = RenderState.CULL_BACK;
+        this.cull = RenderState.CULL_NONE;
         this.blend = RenderState.BLEND_ENABLE_ALL;
         this.blendSrc = RenderState.BLENDPARAM_ONE;
         this.blendDst = RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA;

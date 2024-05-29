@@ -36,12 +36,6 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
     private _depthStencilFormat: number;
     /** @private */
     private _colorFormat: RenderTargetFormat;
-    
-    /**@intenral */
-    _rtclearColor: Color = new Color(0, 0, 0, 0);
-    
-    /**@intenral */
-    _rtclear: boolean = false;
 
     /**@internal */
     _mgrKey: number = 0;	//给WebGLRTMgr用的
@@ -173,11 +167,11 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
      * @param a 
      */
     clear(r: number = 0.0, g: number = 0.0, b: number = 0.0, a: number = 1.0): void {
-        this._rtclearColor.r = r;
-        this._rtclearColor.g = g;
-        this._rtclearColor.b = b;
-        this._rtclearColor.a = a;
-        this._rtclear = true;
+        RenderTexture2D._clearColor.r = r;
+        RenderTexture2D._clearColor.g = g;
+        RenderTexture2D._clearColor.b = b;
+        RenderTexture2D._clearColor.a = a;
+        RenderTexture2D._clear = true;
     }
 
     /**
