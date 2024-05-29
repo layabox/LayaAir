@@ -141,7 +141,7 @@ export interface TBPConnType {
 }
 
 export interface BPConstNode {
-    extends?: string[],
+    extends?: string,
     // funs?: Record<string, TBPCNode>,
     // props?: Record<string, TBPVarProperty>,
     // events?: Record<string, TBPEventProperty>,

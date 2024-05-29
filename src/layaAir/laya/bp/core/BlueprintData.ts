@@ -218,7 +218,7 @@ export class BlueprintData {
         arr.push(obj);
     }
 
-    private _createExtData(data: Record<string, TBPDeclaration>, ext: string, cls: any, exts?: string[]) {
+    private _createExtData(data: Record<string, TBPDeclaration>, ext: string, cls: any, exts?: string) {
         let co = this.constData[ext];
         if (null != co) return co;
         let o = data[ext];
@@ -227,7 +227,7 @@ export class BlueprintData {
                 this.constData[ext] = { data: {} };
             } else {
                 let retExts = exts.slice();
-                let ret = this._createExtData(data, exts.shift(), cls, exts);
+                let ret = this._createExtData(data, exts, cls, exts);
                 co = { data: Object.create(ret.data) };
                 co.extends = retExts;
 
@@ -242,7 +242,7 @@ export class BlueprintData {
 
         //let exts = o.extends;
         if (exts && 0 < exts.length) {
-            let ret = this._createExtData(data, exts.shift(), cls, exts);
+            let ret = this._createExtData(data, exts, cls, exts);
             co = { data: Object.create(ret.data) };
             //co = Object.create();
             co.extends = o.extends;
