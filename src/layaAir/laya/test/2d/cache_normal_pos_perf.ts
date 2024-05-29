@@ -91,13 +91,26 @@ async function test(){
     */
 
     let roles:testRole[] = [];
-    for(let i=0; i<100; i++){
+    for(let i=0; i<1; i++){
         let r = new testRole();
         await r.init();
         roles.push(r);
         Laya.stage.addChild(r);
     }
 
+    (window as any).rebuid=async (n:number)=>{
+        roles.forEach(r=>{
+            r.removeSelf();
+        });
+
+        for(let i=0; i<n; i++){
+            let r = new testRole();
+            await r.init();
+            roles.push(r);
+            Laya.stage.addChild(r);
+        }
+    
+    }
 
     function renderloop(){
         roles.forEach(r=>{

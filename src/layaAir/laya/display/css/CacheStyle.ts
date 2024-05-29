@@ -86,8 +86,8 @@ export class CacheStyle {
             tRec.x = tRec.x - sprite.pivotX;
             tRec.y = tRec.y - sprite.pivotY;
             //关于xy这里有些迷惑，这里看来是表示相对于sprite原点的位置。
-            tRec.x = tRec.x ;//- extend;
-            tRec.y = tRec.y ;//- extend;
+            //tRec.x = tRec.x ;//- extend;
+            //tRec.y = tRec.y ;//- extend;
             tRec.x = Math.floor(tRec.x + x) - x;
             tRec.y = Math.floor(tRec.y + y) - y;
             tRec.width = Math.floor(tRec.width);
