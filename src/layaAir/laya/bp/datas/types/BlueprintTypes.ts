@@ -100,7 +100,7 @@ export interface TBPCOutput {
     /** 插槽名称 */
     name?: string,
     /** 插槽允许的输出连接类型，输入字符串表示仅能连接该类型，数组表示可连接数组内类型*/
-    type: TypeParameter | ((nodeId: number, index: number) => TypeParameter),
+    type: TypeParameter | ((nodeId: number, index: number) => TypeParameter) | Function,
     /**output简介提示，UI上显示使用，鼠标挪动到UI上会出现该提示信息 */
     alt?: string,
 }
@@ -112,7 +112,7 @@ export interface TBPCInput {
     name?: string,
     id?: string | number,
     /** 插槽允许的连接类型，输入字符串表示仅能连接该类型，数组表示可连接数组类型*/
-    type: TypeParameter | ((nodeId: number, id: number, index: number) => TypeParameter),
+    type: TypeParameter | ((nodeId: number, id: number, index: number) => TypeParameter) | Function,
     /** 默认值*/
     value?: any,
     /**input简介提示，UI上显示使用，鼠标挪动到UI上会出现该提示信息 */
