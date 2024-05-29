@@ -8,3 +8,4 @@ node_modules
 build
 .history
 package-lock.json
+.rpt2_cache

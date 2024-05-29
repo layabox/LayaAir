@@ -87,7 +87,7 @@ export class DDSTextureInfo {
         let isRGB = (header[DDS_HEADER_PF_FLAGS] & DDPF_RGB) === DDPF_RGB;
         let isLuminance = (header[DDS_HEADER_PF_FLAGS] & DDPF_LUMINANCE) === DDPF_LUMINANCE;
         let isCube = (header[DDS_HEADER_PF_CAPS2] & DDSCAPS2_CUBEMAP) === DDSCAPS2_CUBEMAP;
-        let isCompressed = (fourCC === FOURCC_DXT1 || fourCC === FOURCC_DXT3 || fourCC === FOURCC_DXT5);
+        let isCompressed = (fourCC === FOURCC_DXT1 || fourCC === FOURCC_DXT3 || fourCC === FOURCC_DXT5 || fourCC === FOURCC_DXT4);
 
         let layaTexFormat = TextureFormat.DXT1;
         let dataOffset = header[DDS_HEADER_SIZE] + 4;
