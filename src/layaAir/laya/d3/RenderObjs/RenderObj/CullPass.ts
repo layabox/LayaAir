@@ -3,7 +3,7 @@ import { ICameraCullInfo } from "../../../RenderEngine/RenderInterface/RenderPip
 import { ICullPass } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/ICullPass";
 import { ISceneRenderManager } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/ISceneRenderManager";
 import { IShadowCullInfo } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IShadowCullInfo";
-import { SingletonList } from "../../../utils/SingletonList";
+import { FastSinglelist } from "../../../utils/SingletonList";
 import { Stat } from "../../../utils/Stat";
 import { BaseRender } from "../../core/render/BaseRender";
 import { RenderContext3D } from "../../core/render/RenderContext3D";
@@ -12,9 +12,9 @@ import { BoundFrustum } from "../../math/BoundFrustum";
 
 
 export class CullPassBase implements ICullPass {
-    protected _cullList: SingletonList<BaseRender> = new SingletonList();
+    protected _cullList: FastSinglelist<BaseRender> = new FastSinglelist();
 
-    get cullList(): SingletonList<BaseRender> {
+    get cullList(): FastSinglelist<BaseRender> {
         return this._cullList;
     }
 

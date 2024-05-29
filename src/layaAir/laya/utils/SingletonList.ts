@@ -79,3 +79,14 @@ export class SingletonList<T> {
 }
 
 
+export class FastSinglelist<T> extends SingletonList<T> {
+
+    /**
+     * @internal
+     */
+    add(element: T): void {
+        this._add(element);
+        this.length ++;
+    }
+  
+  }

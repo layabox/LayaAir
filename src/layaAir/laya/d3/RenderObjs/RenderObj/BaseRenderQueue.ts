@@ -1,7 +1,7 @@
 import { IRenderContext3D } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderContext3D";
 import { IRenderQueue } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderQueue";
 import { ISortPass } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/ISortPass";
-import { SingletonList } from "../../../utils/SingletonList";
+import { FastSinglelist, SingletonList } from "../../../utils/SingletonList";
 import { BufferState } from "../../../webgl/utils/BufferState";
 import { Camera } from "../../core/Camera";
 import { RenderContext3D } from "../../core/render/RenderContext3D";
@@ -12,7 +12,7 @@ export class BaseRenderQueue implements IRenderQueue {
     /** @interanl */
     _isTransparent: boolean = false;
     /** @internal */
-    elements: SingletonList<RenderElement> = new SingletonList<RenderElement>();
+    elements: FastSinglelist<RenderElement> = new FastSinglelist<RenderElement>();
     /**sort function*/
     _sortPass: ISortPass;
     /** context*/

@@ -5,7 +5,7 @@ import { IRenderContext3D } from "../../../RenderEngine/RenderInterface/RenderPi
 import { DefineDatas } from "../../../RenderEngine/RenderShader/DefineDatas";
 import { ShaderInstance } from "../../../RenderEngine/RenderShader/ShaderInstance";
 import { ShaderPass } from "../../../RenderEngine/RenderShader/ShaderPass";
-import { SingletonList } from "../../../utils/SingletonList";
+import { FastSinglelist } from "../../../utils/SingletonList";
 import { MeshInstanceGeometry } from "../../graphics/MeshInstanceGeometry";
 import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 import { InstanceRenderElementOBJ } from "../../RenderObjs/RenderObj/InstanceRenderElementOBJ";
@@ -33,7 +33,7 @@ export class InstanceRenderElement extends RenderElement {
         return elemet;
     }
     /**@internal */
-    _instanceBatchElementList: SingletonList<RenderElement>
+    _instanceBatchElementList: FastSinglelist<RenderElement>
     /**@internal */
     _isInPool: boolean;
     /**
@@ -51,7 +51,7 @@ export class InstanceRenderElement extends RenderElement {
     constructor() {
         super();
         this.setGeometry(new MeshInstanceGeometry(null));
-        this._instanceBatchElementList = new SingletonList();
+        this._instanceBatchElementList = new FastSinglelist();
         this._isUpdataData = true;
         this._invertFrontFace = false;
     }

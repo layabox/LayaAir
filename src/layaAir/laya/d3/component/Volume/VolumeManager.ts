@@ -1,4 +1,4 @@
-import { SingletonList } from "../../../utils/SingletonList";
+import { FastSinglelist, SingletonList } from "../../../utils/SingletonList";
 import { BaseRender } from "../../core/render/BaseRender";
 import { Bounds } from "../../math/Bounds";
 import { IVolumeManager } from "./IVolumeManager";
@@ -20,9 +20,9 @@ export class VolumeManager implements IVolumeManager {
     //注册特殊的Volume管理类
     //static regVolumeManager: { [key: number]: any } = {};
     /** @internal 需要跟新反射探针的渲染队列 */
-    private _motionObjects: SingletonList<BaseRender> = new SingletonList<BaseRender>();
+    private _motionObjects: FastSinglelist<BaseRender> = new FastSinglelist<BaseRender>();
     /** @internal volume list */
-    private _volumeList: SingletonList<Volume> = new SingletonList<Volume>();
+    private _volumeList: FastSinglelist<Volume> = new FastSinglelist<Volume>();
 
     /** @internal */
     _needUpdateAllRender: boolean = false;
