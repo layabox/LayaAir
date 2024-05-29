@@ -1239,9 +1239,11 @@ export class Scene3D extends Sprite {
                     this.blitMainCanvans(camera._internalRenderTexture, camera.normalizedViewport, camera);
                 }
 
-                if (!camera._cacheDepth) {
-                    camera._needInternalRenderTexture() && (!camera._internalRenderTexture._inPool) && RenderTexture.recoverToPool(camera._internalRenderTexture);
-                }
+                // if (!camera._cacheDepth) {
+                //     camera._needInternalRenderTexture() && (!camera._internalRenderTexture._inPool) && RenderTexture.recoverToPool(camera._internalRenderTexture);
+                // }
+
+                camera._aftRenderMainPass();
             }
         }
         Context.set2DRenderConfig();//还原2D配置

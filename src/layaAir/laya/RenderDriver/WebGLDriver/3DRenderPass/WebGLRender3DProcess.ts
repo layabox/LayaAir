@@ -143,6 +143,14 @@ export class WebGLRender3DProcess implements IRender3DProcess {
             camera.scene._shaderValues.setVector(ShadowCasterPass.SHADOW_PARAMS, this.renderpass.shadowParams);
         }
 
+        renderpass.blitOpaqueBuffer.clear();
+        let needBlitOpaque = camera.opaquePass;
+        renderpass.enableOpaqueTexture = needBlitOpaque;
+        if (needBlitOpaque) {
+            renderpass.opaqueTexture = camera._opaqueTexture._renderTarget;
+            renderpass.blitOpaqueBuffer.blitScreenQuad(renderRT, camera._opaqueTexture);
+        }
+
         if (Stat.enablePostprocess && camera.postProcess && camera.postProcess.enable && camera.postProcess.effects.length > 0) {
             this.renderpass.enablePostProcess = Stat.enablePostprocess;
             this.renderpass.postProcess = camera.postProcess._context.command;

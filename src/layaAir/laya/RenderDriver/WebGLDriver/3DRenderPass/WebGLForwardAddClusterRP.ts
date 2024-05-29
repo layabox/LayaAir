@@ -5,16 +5,16 @@ import { DepthPass } from "../../../d3/depthMap/DepthPass";
 import { CameraCullInfo } from "../../../d3/shadowMap/ShadowSliceData";
 import { Color } from "../../../maths/Color";
 import { Vector4 } from "../../../maths/Vector4";
+import { Viewport } from "../../../maths/Viewport";
 import { DepthTextureMode } from "../../../resource/RenderTexture";
+import { PipelineMode } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
 import { WebBaseRenderNode } from "../../RenderModuleData/WebModuleData/3D/WebBaseRenderNode";
 import { WebCameraNodeData } from "../../RenderModuleData/WebModuleData/3D/WebModuleData";
 import { WebGLRenderContext3D } from "./WebGLRenderContext3D";
+import { WebGLRenderElement3D } from "./WebGLRenderElement3D";
 import { WebGLCullUtil } from "./WebGLRenderUtil/WebGLCullUtil";
 import { WebGLRenderListQueue } from "./WebGLRenderUtil/WebGLRenderListQueue";
-import { PipelineMode } from "../../DriverDesign/3DRenderPass/I3DRenderPass"
-import { WebGLRenderElement3D } from "./WebGLRenderElement3D";
-import { Viewport } from "../../../maths/Viewport";
 export class WebGLForwardAddClusterRP {
 
     /** @internal*/
@@ -56,7 +56,17 @@ export class WebGLForwardAddClusterRP {
     depthTextureMode: DepthTextureMode;
 
     opaqueTexture: InternalRenderTarget;
-    enableOpaqueTexture: boolean;
+
+    blitOpaqueBuffer: CommandBuffer = new CommandBuffer();
+
+    private _enableOpaqueTexture: boolean;
+
+    public get enableOpaqueTexture(): boolean {
+        return this._enableOpaqueTexture;
+    }
+    public set enableOpaqueTexture(value: boolean) {
+        this._enableOpaqueTexture = value;
+    }
 
     clearColor: Color;
     clearFlag: number;
@@ -228,12 +238,10 @@ export class WebGLForwardAddClusterRP {
     /**
      * @perfTag PerformanceDefine.T_Render_CameraOtherDest
      */
-    private opaqueTexturePass() {
-        //TODO
-        // var blit: BlitScreenQuadCMD = BlitScreenQuadCMD.create(currentTarget, this._opaqueTexture);
-        // blit.setContext(renderContext);
-        // blit.run();
-        // blit.recover();
+    private opaqueTexturePass(context: WebGLRenderContext3D) {
+        let commanbuffer = this.blitOpaqueBuffer;
+        commanbuffer._apply(false);
+        context.runCMDList(commanbuffer._renderCMDs);
     }
 
     private _mainPass(context: WebGLRenderContext3D): void {
@@ -251,8 +259,9 @@ export class WebGLForwardAddClusterRP {
         }
 
         if (this.enableOpaque) {
-            this.opaqueTexturePass();
+            this.opaqueTexturePass(context);
         }
+
         this._rendercmd(this.beforeTransparentCmds, context);
         this._recoverRenderContext3D(context);
         this.transparent && this._transparentListRender(context);

@@ -130,8 +130,8 @@ export class Camera extends BaseCamera {
         camera.renderTarget = recoverTexture;
         scene.recaculateCullCamera();
         scene._componentDriver.callPostRender();
-        if (camera._internalRenderTexture)
-            (!camera._internalRenderTexture._inPool) && RenderTexture.recoverToPool(camera._internalRenderTexture);
+
+        camera._aftRenderMainPass();
 
         camera._scene = originScene;
 
@@ -395,8 +395,8 @@ export class Camera extends BaseCamera {
     /** 深度法线贴图*/
     private _depthNormalsTexture: RenderTexture;
 
-    /** 非透明物体贴图 */
-    private _opaqueTexture: RenderTexture;
+    /** @internal 非透明物体贴图 */
+    _opaqueTexture: RenderTexture;
     /** 是否开启非透明物体通道 */
     private _opaquePass: boolean;
 
@@ -720,6 +720,8 @@ export class Camera extends BaseCamera {
     get opaquePass() {
         return this._opaquePass;
     }
+
+    opaqueTextureSize: number = 512;
 
     /**
      * 深度贴图格式
@@ -1174,9 +1176,8 @@ export class Camera extends BaseCamera {
 
     /**
      * @internal
-     * @param needShadowPass 
      */
-    _aftRenderMainPass(needShadowPass: Boolean) {
+    _aftRenderMainPass() {
         // if (needShadowPass)
         //     ILaya3D.Scene3D._shadowCasterPass.cleanUp();
         if (this._cacheDepth && this._internalRenderTexture) {
@@ -1184,21 +1185,24 @@ export class Camera extends BaseCamera {
                 this._cacheDepthTexture._inPool ? 0 : RenderTexture.recoverToPool(this._cacheDepthTexture);
             this._cacheDepthTexture = this._internalRenderTexture;
         }
-        Camera.depthPass.cleanUp();
+        else {
+            this._internalRenderTexture && RenderTexture.recoverToPool(this._internalRenderTexture);
+        }
+
+        // Camera.depthPass.cleanUp();
     }
 
 
     /**
      * 创建非透明通道纹理
      * @internal
-     * @param currentTarget 当前绑定的渲染纹理 
-     * @param renderContext 渲染上下文
      */
-    _createOpaqueTexture(currentTarget: RenderTexture, renderContext: RenderContext3D) {
+    _createOpaqueTexture() {
         if (!this._opaqueTexture) {
             let tex = this._getRenderTexture();
             // this._opaqueTexture = RenderTexture.createFromPool(tex.width, tex.height, tex.colorFormat, RenderTargetFormat.None, false, 1, false, true);
-            this._opaqueTexture = RenderTexture.createFromPool(1024, 1024, tex.colorFormat, RenderTargetFormat.None, true, 1, false, true);
+            let size = this.opaqueTextureSize;
+            this._opaqueTexture = RenderTexture.createFromPool(size, size, tex.colorFormat, RenderTargetFormat.None, true, 1, false, true);
             this._opaqueTexture.filterMode = FilterMode.Bilinear;
             this._opaqueTexture.wrapModeU = WrapMode.Clamp;
             this._opaqueTexture.wrapModeV = WrapMode.Clamp;
@@ -1244,6 +1248,10 @@ export class Camera extends BaseCamera {
         }
         else {
             this._internalRenderTexture = null;
+        }
+
+        if (this.opaquePass && !this._opaqueTexture) {
+            this._createOpaqueTexture();
         }
 
         context.invertY = false;
@@ -1366,12 +1374,15 @@ export class Camera extends BaseCamera {
      * @override
      */
     destroy(destroyChild: boolean = true): void {
+        this._shaderValues.destroy();
         this._internalRenderTexture && (!this._internalRenderTexture._inPool) && RenderTexture.recoverToPool(this._internalRenderTexture);
         this._offScreenRenderTexture = null;
+        if (this._opaqueTexture) {
+            RenderTexture.recoverToPool(this._opaqueTexture);
+        }
         this.transform.off(Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
         ILaya.stage.off(Event.RESIZE, this, this._onScreenSizeChanged);
         this._cameraEventCommandBuffer = {};
-        this._shaderValues.destroy();
         if (RenderContext3D._instance.camera == this) {
             RenderContext3D._instance.cameraShaderValue = null;
             RenderContext3D._instance.camera = null;
