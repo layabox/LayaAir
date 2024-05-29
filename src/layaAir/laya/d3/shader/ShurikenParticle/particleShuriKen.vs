@@ -408,7 +408,11 @@ void main()
 						}
 						else
 						{
-							center += u_SizeScale.xzy * (rotationByQuaternions(rotationByAxis(a_MeshPosition * size, vec3(0.0, -1.0, 0.0), angle), worldRotation));
+							vec3 axis = mix(vec3(0.0, 0.0, -1.0), vec3(0.0, -1.0, 0.0), float(u_Shape));
+							if (u_SimulationSpace == 0)
+								center += rotationByAxis(u_SizeScale * a_MeshPosition * size,axis,angle); //已验证
+							else if (u_SimulationSpace == 1)
+								center += rotationByQuaternions(u_SizeScale * rotationByAxis(a_MeshPosition * size, axis, angle),worldRotation); //已验证
 						}
 							
 				#endif
@@ -446,11 +450,12 @@ void main()
 			}
 		    else
 			{
+				vec3 axis = mix(vec3(0.0, 0.0, -1.0), vec3(0.0, -1.0, 0.0), float(u_Shape));
 				if (u_SimulationSpace == 0)
-					center += u_SizeScale * rotationByAxis(a_MeshPosition * size, vec3(0.0, -1.0, 0.0), a_StartRotation0.x);
+					center += u_SizeScale * rotationByAxis(a_MeshPosition * size, axis, a_StartRotation0.x);
 				else if (u_SimulationSpace == 1)
 					center += rotationByQuaternions(
-					u_SizeScale * rotationByAxis(a_MeshPosition * size, vec3(0.0, -1.0, 0.0), a_StartRotation0.x),
+					u_SizeScale * rotationByAxis(a_MeshPosition * size, axis, a_StartRotation0.x),
 					worldRotation);
 			}
 		}
