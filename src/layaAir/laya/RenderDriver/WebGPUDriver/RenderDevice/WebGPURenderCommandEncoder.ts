@@ -23,7 +23,6 @@ export class WebGPURenderCommandEncoder {
     startRender(renderPassDesc: GPURenderPassDescriptor): void {
         this._commandEncoder = this._device.createCommandEncoder();
         this._encoder = this._commandEncoder.beginRenderPass(renderPassDesc);
-        //console.log('startRender', renderPassDesc);
     }
 
     setPipeline(pipeline: GPURenderPipeline): void {

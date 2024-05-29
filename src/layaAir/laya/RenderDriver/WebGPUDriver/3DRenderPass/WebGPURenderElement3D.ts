@@ -55,9 +55,10 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
     private _invertFrontFace: boolean;
     private _stencilParam: { [key: string]: any } = {}; //模板参数
 
-    protected _stateKey: string[] = []; //用于判断渲染状态是否改变
+    protected _stateKey: string; //当前渲染状态
+    protected _pipeline: GPURenderPipeline; //当前渲染管线
     protected _shaderInstances: WebGPUShaderInstance[] = []; //着色器缓存
-    protected _pipelineCache: GPURenderPipeline[] = []; //渲染管线缓存
+    protected static _pipelineCacheMap: Map<string, GPURenderPipeline>; //渲染管线缓存
 
     protected _passNum = 0; //当前渲染通道数量
     protected _passName: string; //当前渲染名称
@@ -82,6 +83,9 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
     constructor() {
         this.globalId = WebGPUGlobal.getId(this);
         this.bundleId = WebGPURenderElement3D.bundleIdCounter++;
+
+        if (!WebGPURenderElement3D._pipelineCacheMap)
+            WebGPURenderElement3D._pipelineCacheMap = new Map();
     }
 
     /**
@@ -371,9 +375,9 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
         if (stencilTest === RenderState.STENCILTEST_OFF)
             stencilParam['enable'] = false;
         else {
-            const stencilRef = (renderState.stencilRef ?? data[Shader3D.STENCIL_Ref]) ?? RenderState.Default.stencilRef;
-            const stencilWrite = (renderState.stencilWrite ?? data[Shader3D.STENCIL_WRITE]) ?? RenderState.Default.stencilWrite;
-            const stencilOp = stencilWrite ?? (renderState.stencilOp ?? data[Shader3D.STENCIL_Op]) ?? RenderState.Default.stencilOp;
+            const stencilRef = renderState.stencilRef ?? data[Shader3D.STENCIL_Ref] ?? RenderState.Default.stencilRef;
+            const stencilWrite = renderState.stencilWrite ?? data[Shader3D.STENCIL_WRITE] ?? RenderState.Default.stencilWrite;
+            const stencilOp = stencilWrite ? (renderState.stencilOp ?? data[Shader3D.STENCIL_Op] ?? RenderState.Default.stencilOp) : RenderState.Default.stencilOp;
             stencilParam['enable'] = true;
             stencilParam['write'] = stencilWrite;
             stencilParam['test'] = stencilTest;
@@ -549,16 +553,6 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
                 WebGPUContext.applyBundleGeometryPart(bundle, this.geometry, 0);
             else bundle.applyGeometryPart(this.geometry, 0);
         }
-        // if (command) {
-        //     if (WebGPUGlobal.useGlobalContext)
-        //         WebGPUContext.applyCommandGeometry(command, this.geometry);
-        //     else command.applyGeometry(this.geometry);
-        // }
-        // if (bundle) {
-        //     if (WebGPUGlobal.useGlobalContext)
-        //         WebGPUContext.applyBundleGeometry(bundle, this.geometry);
-        //     else bundle.applyGeometry(this.geometry);
-        // }
     }
 
     /**
@@ -587,10 +581,10 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
                     WebGPUContext.setBundlePipeline(bundle, pipeline);
                 else bundle.setPipeline(pipeline);
             }
-            if (WebGPUGlobal.useCache) {
-                this._pipelineCache[sn] = pipeline;
-                this._stateKey[sn] = stateKey;
-            }
+            if (WebGPUGlobal.useCache)
+                WebGPURenderElement3D._pipelineCacheMap.set(stateKey, pipeline);
+            this._stateKey = stateKey;
+            this._pipeline = pipeline;
             return true;
         }
         return false;
@@ -611,21 +605,26 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
                 const shaderInstance = this._shaderInstance[i];
                 if (shaderInstance && shaderInstance.complete) {
                     if (WebGPUGlobal.useCache) { //启用缓存机制
-                        if (this.materialShaderData)
-                            stateKey = this._calcStateKey(shaderInstance, context.destRT, context);
-                        else stateKey = this._stateKey[index];
-                        if (stateKey != this._stateKey[index] || !this._pipelineCache[index]) //缓存未命中
+                        let pipeline: GPURenderPipeline;
+                        stateKey = this._calcStateKey(shaderInstance, context.destRT, context);
+                        if (this._stateKey !== stateKey) {
+                            this._stateKey = stateKey;
+                            pipeline = this._pipeline = WebGPURenderElement3D._pipelineCacheMap.get(stateKey);
+                        } else pipeline = this._pipeline;
+                        if (!pipeline) {
                             this._createPipeline(index, context, shaderInstance, command, bundle, stateKey); //新建渲染管线
+                            pipeline = this._pipeline;
+                        }
                         else { //缓存命中
                             if (command) {
                                 if (WebGPUGlobal.useGlobalContext)
-                                    WebGPUContext.setCommandPipeline(command, this._pipelineCache[index]);
-                                else command.setPipeline(this._pipelineCache[index]);
+                                    WebGPUContext.setCommandPipeline(command, pipeline);
+                                else command.setPipeline(pipeline);
                             }
                             if (bundle) {
                                 if (WebGPUGlobal.useGlobalContext)
-                                    WebGPUContext.setBundlePipeline(bundle, this._pipelineCache[index]);
-                                else bundle.setPipeline(this._pipelineCache[index]);
+                                    WebGPUContext.setBundlePipeline(bundle, pipeline);
+                                else bundle.setPipeline(pipeline);
                             }
                         }
                     } else this._createPipeline(index, context, shaderInstance, command, bundle); //不启用缓存机制
@@ -646,7 +645,5 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
     destroy() {
         WebGPUGlobal.releaseId(this);
         this._shaderInstances.length = 0;
-        this._pipelineCache.length = 0;
-        this._stateKey.length = 0;
     }
 }
