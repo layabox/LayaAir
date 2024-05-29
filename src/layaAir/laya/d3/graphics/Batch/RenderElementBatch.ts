@@ -1,5 +1,5 @@
 import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
-import { SingletonList } from "../../../utils/SingletonList";
+import { FastSinglelist } from "../../../utils/SingletonList";
 import { RenderElement } from "../../core/render/RenderElement";
 import { SubMeshInstanceBatch } from "../SubMeshInstanceBatch";
 import { InstanceBatchManager } from "./InstanceBatchManager";
@@ -12,11 +12,11 @@ import { LayaGL } from "../../../layagl/LayaGL";
 export class RenderElementBatch {
     static instance: RenderElementBatch;
     private _instanceBatchManager: InstanceBatchManager;
-    private _recoverList: SingletonList<InstanceRenderElement>;
+    private _recoverList: FastSinglelist<InstanceRenderElement>;
     constructor() {
         RenderElementBatch.instance = this;
         this._instanceBatchManager = InstanceBatchManager.instance;
-        this._recoverList = new SingletonList();
+        this._recoverList = new FastSinglelist();
     }
 
     /**
@@ -35,7 +35,7 @@ export class RenderElementBatch {
      * BatchData
      * @param elements 
      */
-    batch(elements: SingletonList<RenderElement>) {
+    batch(elements: FastSinglelist<RenderElement>) {
         let len = elements.length;
         elements.length = 0;
         this._instanceBatchManager.updateCountMark++;//每个批次是一个新的标签，保证更新不重复
@@ -60,7 +60,7 @@ export class RenderElementBatch {
                         var insBatchIndex: number = insBatchMarks.indexInList;
                         var insOriElement: RenderElement = elementArray[insBatchIndex];
                         if (insBatchMarks.batched) {
-                            var instanceelements: SingletonList<RenderElement> = (insOriElement as InstanceRenderElement)._instanceBatchElementList;
+                            var instanceelements: FastSinglelist<RenderElement> = (insOriElement as InstanceRenderElement)._instanceBatchElementList;
                             if (instanceelements.length === SubMeshInstanceBatch.maxInstanceCount) {
                                 insBatchMarks.updateMark = insManager.updateCountMark;
                                 insBatchMarks.indexInList = elements.length;
