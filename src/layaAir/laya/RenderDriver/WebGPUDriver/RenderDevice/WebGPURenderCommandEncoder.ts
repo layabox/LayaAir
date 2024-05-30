@@ -23,7 +23,6 @@ export class WebGPURenderCommandEncoder {
     startRender(renderPassDesc: GPURenderPassDescriptor): void {
         this._commandEncoder = this._device.createCommandEncoder();
         this._encoder = this._commandEncoder.beginRenderPass(renderPassDesc);
-        //console.log('startRender', renderPassDesc);
     }
 
     setPipeline(pipeline: GPURenderPipeline): void {
@@ -62,13 +61,15 @@ export class WebGPURenderCommandEncoder {
         this._encoder.setScissorRect(x, y, width, height);
     }
 
+    setStencilReference(ref: number) {
+        this._encoder.setStencilReference(ref);
+    }
+
     end() {
         this._encoder.end();
-        //console.log('endEncode');
     }
 
     finish() {
-        //console.log('finishRender');
         return this._commandEncoder.finish();
     }
 

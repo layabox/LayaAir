@@ -1,3 +1,4 @@
+import { Laya } from "../../../../../Laya";
 import { DrawType } from "../../../../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../../../../RenderEngine/RenderEnum/IndexFormat";
 import { WebGPURenderContext3D } from "../../3DRenderPass/WebGPURenderContext3D";
@@ -20,6 +21,7 @@ export class WebGPURenderBundle {
     private _shotCount: number = 0; //检查命中率的次数
     private _shotRateSet: number = 0.7; //命中率设置
     renderBundle: GPURenderBundle; //渲染命令缓存对象
+    renderTimeStamp: number; //被渲染时的时间戳
 
     id: number; //缓存对象id
     static idCounter: number = 0; //缓存对象id计数器
@@ -44,6 +46,7 @@ export class WebGPURenderBundle {
         this._elements.add(element.bundleId);
         element._render(context, null, this);
         this._shotNum++;
+        this.renderTimeStamp = Laya.timer.currTimer;
     }
 
     /**

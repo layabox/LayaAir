@@ -7,9 +7,12 @@ import { DrawNodeCMDData, BlitQuadCMDData, DrawElementCMDData, SetViewportCMD, S
 import { ISceneRenderManager } from "../../DriverDesign/3DRenderPass/ISceneRenderManager";
 import { WebGPU3DRenderPass } from "./WebGPU3DRenderPass";
 import { WebGPUBlitQuadCMDData } from "./WebGPURenderCMD/WebGPUBlitQuadCMDData";
+import { WebGPUDrawElementCMDData } from "./WebGPURenderCMD/WebGPUDrawElementCMDData";
 import { WebGPUDrawNodeCMDData } from "./WebGPURenderCMD/WebGPUDrawNodeCMDData";
 import { WebGPUSetRenderData } from "./WebGPURenderCMD/WebGPUSetRenderData";
 import { WebGPUSetRenderTargetCMD } from "./WebGPURenderCMD/WebGPUSetRenderTargetCMD";
+import { WebGPUSetShaderDefine } from "./WebGPURenderCMD/WebGPUSetShaderDefine";
+import { WebGPUSetViewportCMD } from "./WebGPURenderCMD/WebGPUSetViewportCMD";
 import { WebGPURenderContext3D } from "./WebGPURenderContext3D";
 import { WebGPURenderElement3D } from "./WebGPURenderElement3D";
 import { WebGPUSkinRenderElement3D } from "./WebGPUSkinRenderElement3D";
@@ -30,7 +33,6 @@ export class WebGPU3DRenderPassFactory implements I3DRenderPassFactory {
     createSkinRenderElement(): ISkinRenderElement3D {
         return new WebGPUSkinRenderElement3D();
     }
-
     createSceneRenderManager(): ISceneRenderManager {
         return new SceneRenderManagerOBJ();
     }
@@ -41,10 +43,10 @@ export class WebGPU3DRenderPassFactory implements I3DRenderPassFactory {
         return new WebGPUBlitQuadCMDData();
     }
     createDrawElementCMDData(): DrawElementCMDData {
-        return null;//TODO
+        return new WebGPUDrawElementCMDData();
     }
     createSetViewportCMD(): SetViewportCMD {
-        return null;//TODO
+        return new WebGPUSetViewportCMD();
     }
     createSetRenderTargetCMD(): SetRenderTargetCMD {
         return new WebGPUSetRenderTargetCMD();
@@ -53,10 +55,9 @@ export class WebGPU3DRenderPassFactory implements I3DRenderPassFactory {
         return new WebGPUSetRenderData();
     }
     createSetShaderDefineCMD(): SetShaderDefineCMD {
-        return null;//TODO
+        return new WebGPUSetShaderDefine();
     }
 }
-
 
 Laya.addBeforeInitCallback(() => {
     if (!Laya3DRender.Render3DPassFactory)

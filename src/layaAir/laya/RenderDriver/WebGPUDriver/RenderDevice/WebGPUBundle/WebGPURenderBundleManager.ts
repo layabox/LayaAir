@@ -1,3 +1,4 @@
+import { Laya } from "../../../../../Laya";
 import { WebGPURenderContext3D } from "../../3DRenderPass/WebGPURenderContext3D";
 import { WebGPURenderElement3D } from "../../3DRenderPass/WebGPURenderElement3D";
 import { WebGPURenderBundle } from "./WebGPURenderBundle";
@@ -9,6 +10,7 @@ export class WebGPURenderBundleManager {
     elementsMaxPerBundleStatic: number = 100; //每个Bundle最大元素数量（静态节点）
     elementsMaxPerBundleDynamic: number = 30; //每个Bundle最大元素数量（动态节点）
     bundles: WebGPURenderBundle[] = []; //所有渲染指令缓存对象
+    renderTimeStamp: number; //被渲染时的时间戳
     private _elementsMap: Map<number, WebGPURenderBundle> = new Map(); //所有渲染节点id集合
     private _renderBundles: GPURenderBundle[] = []; //提交的渲染命令缓存对象
     private _needUpdateRenderBundles: boolean = false; //是否需要更新渲染命令缓存对象
@@ -26,7 +28,8 @@ export class WebGPURenderBundleManager {
             this._needUpdateRenderBundles = false;
         }
         passEncoder.executeBundles(rbs);
-        //console.log('renderBundle =', rbs.length);
+        this.renderTimeStamp = Laya.timer.currTimer;
+        //console.log('renderBundle =', rbs.length, this.renderTimeStamp);
     }
 
     /**
