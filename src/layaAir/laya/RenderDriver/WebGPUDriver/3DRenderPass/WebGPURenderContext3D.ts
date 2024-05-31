@@ -59,6 +59,7 @@ export class WebGPURenderContext3D implements IRenderContext3D {
     private _needStart: boolean = true;
 
     device: GPUDevice; //GPU设备
+    bundleHit: number = 0; //命中Bundle
     needRemoveBundle: number[] = []; //需要清除绘图指令缓存的渲染节点
     bundleManagerSets: Map<string, WebGPURenderBundleManagerSet> = new Map(); //绘图指令缓存组
 
@@ -292,7 +293,7 @@ export class WebGPURenderContext3D implements IRenderContext3D {
             for (let i = 0; i < len; i++) {
                 element = elements[i];
                 if (!bundleManager.has(element.bundleId)) { //如果该渲染节点没有在绘图指令缓存中
-                    if (createBundleCount < 500) { //本帧是否允许创建绘图指令缓存（每帧只允许创建500个指令缓存，避免卡顿）
+                    if (createBundleCount < 300) { //本帧是否允许创建绘图指令缓存（每帧只允许创建300个指令缓存，避免卡顿）
                         if (element.isStatic) {
                             if (elementsToBundleStatic.indexOf(element) === -1)
                                 elementsToBundleStatic.push(element); //放入创建绘图指令缓存队列
@@ -312,8 +313,17 @@ export class WebGPURenderContext3D implements IRenderContext3D {
                         }
                     }
                     element._render(this, this.renderCommand, null); //因为还没有在绘图指令缓存中，先直接渲染
-                } else element._render(this, null, null); //将该节点的shaderData数据上传到GPU
+                } else {
+                    this.bundleHit++;
+                    element._render(this, null, null); //将该节点的shaderData数据上传到GPU
+                }
             }
+            if (elementsToBundleStatic.length >= elementsMaxPerBundleStatic / 2)
+                bundleManager.createBundle(this, elementsToBundleStatic, 0.7);
+            if (elementsToBundleDynamic.length >= elementsMaxPerBundleDynamic / 2)
+                bundleManager.createBundle(this, elementsToBundleDynamic, 1);
+            elementsToBundleStatic.length = 0;
+            elementsToBundleDynamic.length = 0;
             bundleManager.renderBundles(this.renderCommand._encoder); //渲染所有绘图指令缓存
         } else { //不启用绘图指令缓存模式，直接绘制
             for (let i = 0; i < len; i++)
