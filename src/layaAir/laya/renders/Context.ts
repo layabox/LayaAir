@@ -1001,6 +1001,7 @@ export class Context {
         
         this._drawMesh(mesh, 0, mesh.vertexNum, submit._startIdx, mesh.indexNum, submit.shaderValue);
         this.stopMerge=false;
+        this._drawCount++;
     }
 
     //TODO 目前是为了方便，从设计上这样是不是不太好
@@ -1082,7 +1083,7 @@ export class Context {
             return true;
         }
 
-        this._drawCount++;
+        //this._drawCount++;
 
         var sameKey = (imgid >= 0 && preKey.submitType === SubmitBase.KEY_DRAWTEXTURE && preKey.other === imgid) &&
             !this.isStopMerge(this._curSubmit) &&
@@ -1295,7 +1296,7 @@ export class Context {
             oldcomp = this.globalCompositeOperation;
             this.globalCompositeOperation = blendMode;
         }
-        this._drawCount++;
+        //this._drawCount++;
 
         // 为了提高效率，把一些变量放到这里
         var tmpMat = this._tmpMatrix;
@@ -1834,24 +1835,12 @@ export class Context {
         }
     }
 
-    arc(cx: number, cy: number, rx: number, ry: number, startAngle: number, endAngle: number, counterclockwise = false, b = true, minNum = 10): void {
-        /* TODO 缓存还没想好
-        if (mId != -1) {
-            var tShape:IShape = VectorGraphManager.getInstance().shapeDic[this.mId];
-            if (tShape) {
-                if (mHaveKey && !tShape.needUpdate(_curMat))
-                    return;
-            }
-            cx = 0;
-            cy = 0;
-        }
-        */
-        var a = 0, da = 0, hda = 0, kappa = 0;
-        var dx = 0, dy = 0, x = 0, y = 0, tanx = 0, tany = 0;
-        var i: number, ndivs: number, nvals: number;
-
+    arc(cx: number, cy: number, rx: number, ry: number, startAngle: number, endAngle: number, counterclockwise = false, b = true, minNum = 20): void {
         // Clamp angles
-        da = endAngle - startAngle;
+        if(startAngle>endAngle){
+            [startAngle,endAngle]=[endAngle,startAngle];
+        }
+        let da = endAngle - startAngle;
         if (!counterclockwise) {
             if (Math.abs(da) >= Math.PI * 2) {
                 da = Math.PI * 2;
@@ -1873,36 +1862,27 @@ export class Context {
         var sy = this.getMatScaleY();
         var sr = rx * (sx > sy ? sx : sy);
         var cl = 2 * Math.PI * sr;
-        ndivs = (Math.max(cl / minNum, minNum)) | 0;
+        let ndivs = (Math.max(cl / 5, minNum)) | 0;
+        let stepAng = Math.PI*2/ndivs;
 
-        hda = (da / ndivs) / 2.0;
-        kappa = Math.abs(4 / 3 * (1 - Math.cos(hda)) / Math.sin(hda));
-        if (counterclockwise)
-            kappa = -kappa;
+        var tPath = this._getPath();
 
-        nvals = 0;
-        var tPath: Path = this._getPath();
-        for (i = 0; i <= ndivs; i++) {
-            a = startAngle + da * (i / ndivs);
-            dx = Math.cos(a);
-            dy = Math.sin(a);
-            x = cx + dx * rx;
-            y = cy + dy * ry;
-            if (x != this._path._lastOriX || y != this._path._lastOriY) {
-                //var _tx1:Number = x, _ty1:Number = y;
-                //x = _curMat.a * _tx1 + _curMat.c * _ty1 + _curMat.tx;
-                //y = _curMat.b * _tx1 + _curMat.d * _ty1 + _curMat.ty;
-                tPath.addPoint(x, y);
-            }
-        }
-        dx = Math.cos(endAngle);
-        dy = Math.sin(endAngle);
-        x = cx + dx * rx;
-        y = cy + dy * ry;
+        let x = cx + Math.cos(startAngle) * rx;
+        let y = cy + Math.sin(startAngle) * ry;
         if (x != this._path._lastOriX || y != this._path._lastOriY) {
-            //var _x2:Number = x, _y2:Number = y;
-            //x = _curMat.a * _x2 + _curMat.c * _y2 + _curMat.tx;
-            //y = _curMat.b * _x2 + _curMat.d * _y2 + _curMat.ty;
+            tPath.addPoint(x, y);
+        }
+        //增加关键支撑点，这些点要在固定位置
+        let curAng = Math.ceil(startAngle/stepAng)*stepAng;
+        while(endAngle-curAng>=stepAng){
+            x = cx + Math.cos(curAng) * rx;
+            y = cy + Math.sin(curAng) * ry;
+            tPath.addPoint(x, y);
+            curAng+=stepAng;
+        }
+        x = cx + Math.cos(endAngle) * rx;
+        y = cy + Math.sin(endAngle) * ry;
+        if (x != this._path._lastOriX || y != this._path._lastOriY) {
             tPath.addPoint(x, y);
         }
     }

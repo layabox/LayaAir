@@ -79,16 +79,18 @@ export class CharSubmitCache {
         if (!n)
             return;
 
-        var _mesh: MeshQuadTexture = (ctx as any)._mesh;
-
-        var colorFiler: ColorFilter = ctx._colorFiler;
-        ctx._colorFiler = this._colorFiler;
-        var submit: SubmitBase = SubmitBase.create(ctx, _mesh, Value2D.create(RenderSpriteData.Texture2D));
-        //ctx._submits[ctx._submits._length++] = ctx._curSubmit = submit;
-        submit.shaderValue.textureHost = this._tex;
+        ctx.drawLeftData();
+        let shaderValue = Value2D.create(RenderSpriteData.Texture2D);
+        //@ts-ignore
+        ctx.fillShaderValue(shaderValue);
+        shaderValue.textureHost = this._tex;
+        //@ts-ignore
+        let _mesh = ctx._mesh = ctx._meshQuatTex
+        //@ts-ignore
+        let submit = ctx._curSubmit = SubmitBase.create(ctx, _mesh, shaderValue);
         submit._key.other = this._imgId;
-        ctx._colorFiler = colorFiler;
-        //ctx._copyClipInfo(submit.shaderValue, this._clipMatrix);      TODO
+        submit._colorFiler = this._colorFiler;
+        ctx._copyClipInfo(submit.shaderValue);
         submit.clipInfoID = this._clipid;
 
         for (var i = 0; i < n; i += 3) {
@@ -96,13 +98,11 @@ export class CharSubmitCache {
             CharSubmitCache.__posPool[CharSubmitCache.__nPosPool++] = this._data[i];
         }
 
-        n /= 3;
-        submit._numEle += n * 6;
-        ctx._drawCount += n;
         this._ndata = 0;
 
         if (RenderInfo.loopCount % 100 == 0)
             this._data.length = 0;
+        ctx.drawLeftData();
     }
 
 }
