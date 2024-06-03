@@ -96,8 +96,8 @@ export class TextureSV extends Value2D {
     /**
      * @override
      */
-    clear(): void {
-        this.shaderData.getDefineData().clear();
-        this.shaderData.destroy();
-    }
+    // clear(): void {
+    //     this.shaderData.getDefineData().clear();
+    //     this.shaderData.destroy();
+    // }
 }

@@ -51,7 +51,7 @@ export class Value2D {
     //为了方便复用
     protected initialize() {
         let mainID = this.mainID;
-        this.shaderData = LayaGL.renderDeviceFactory.createShaderData(null);
+        this.shaderData = this.shaderData || LayaGL.renderDeviceFactory.createShaderData(null);
         if (this.mainID == RenderSpriteData.Texture2D) {
             this.shaderData.addDefine(ShaderDefines2D.TEXTURESHADER);
         }
@@ -258,7 +258,10 @@ export class Value2D {
     }
 
     clear(): void {
-        this.shaderData.destroy();
+        if(this.shaderData){
+            this.shaderData.clearDefine();
+            //this.shaderData.destroy();
+        }
     }
 
     //
