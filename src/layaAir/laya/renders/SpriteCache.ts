@@ -26,11 +26,15 @@ export class RenderObject2D implements IMesh2D{
     iboff: number;
     iblen: number;
     mtl: Value2D;
+    //本地裁剪，给cacheas = normal用，用来组合出一个世界裁剪
+    localClipMatrix: Matrix;
+
     dynaResourcesNeedTouch:any[];
     vertexDeclarition: VertexDeclaration;
     vbBuffer: ArrayBuffer;
     ibBuffer: ArrayBuffer;
     constructor(mesh:IMesh2D,vboff:number,vblen:number,iboff:number,iblen:number,mtl:Value2D){
+        this.localClipMatrix = new Matrix();
         this.vertexDeclarition = mesh.vertexDeclarition;
         this.vbBuffer = new ArrayBuffer(vblen);
         this.ibBuffer = new ArrayBuffer(iblen);
@@ -227,8 +231,6 @@ export class CachePage{
     meshes:RenderObject2D[]=null;
     defferTouchRes:IAutoExpiringResource[]=null;
     defferTouchResRand:IAutoExpiringResource[]=null;
-    //这个缓存的所有的clip的合并结果。这个合并结果是page内的，从全屏开始，这样才能渲染的时候正确与外面的取交集
-    localClipMatrix:Matrix;
    
     //挂载其他cacheas normal的sprite。实际的缓存数据保存在sprite身上，这里保存sprite比较方便。
     children:Sprite[]=null;
@@ -292,10 +294,15 @@ export class CachePage{
             //应用cliprect
             //TODO 在没有改变的情况下不用每次都做
             // 把当前的clip转成世界空间，与context的合并
-            let clipMat = curMtl.localClipMatrix;
-            Matrix.mul(clipMat, worldMat,tmpMat1);  //注意是worldMat而不是context.curMat
-            //合并
-            mergeClipMatrix(context.clipInfo,tmpMat1,tmpMat1)
+            let clipMat = renderinfo.localClipMatrix;
+            if(clipMat.a==Const.MAX_CLIP_SIZE&&clipMat.d==Const.MAX_CLIP_SIZE){
+                //如果lcoal没有限制则直接使用parent的clip设置。
+                context.clipInfo.copyTo(tmpMat1);
+            }else{
+                Matrix.mul(clipMat, worldMat,tmpMat1);  //注意是worldMat而不是context.curMat
+                //合并。注意，如果context.clipInfo与local的clip方向不一致，效果就不对，这个目前的视线没有方法解决这个问题。
+                mergeClipMatrix(context.clipInfo,tmpMat1,tmpMat1)
+            }
             let clipDir = curMtl.clipMatDir;
             let clipPos = curMtl.clipMatPos;
             clipDir.x=tmpMat1.a; clipDir.y=tmpMat1.b; 
