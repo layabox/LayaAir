@@ -157,7 +157,7 @@ export class CharRender_Canvas extends ICharRender {
 		//ctx.restore();
 		if (rect) {
 			if (rect[2] <= 0)//<=0表示原点的x偏移，例如原点在2，则这里就是-2， 这时候测量的宽度是从原点开始的，所以要加上偏移。否则会有右边被裁剪的情况
-				rect[2] = (-rect[2]+Math.ceil((cri.width + lineWidth * 2)) * this.lastScaleX);
+				rect[2] = Math.ceil(-rect[2] + (cri.width + lineWidth * 2) * this.lastScaleX);
 			//if (rect[2] == -1) rect[2] = Math.ceil((cri.width + lineWidth * 2) * this.lastScaleX); // 这个没有考虑左右margin
 			if (rect[2] <= 0) rect[2] = 1;	// 有的字体在处理不存在文字的时候，测量宽度为0，会导致getImageData出错
 		}
@@ -191,11 +191,11 @@ export class CharRender_Canvas extends ICharRender {
 		//if (canvas.width != (w + 1) || canvas.height != (h + 1)) {
 		CharRender_Canvas.canvas.width = Math.min(w + 1, this.maxTexW);
 		CharRender_Canvas.canvas.height = Math.min(h + 1, this.maxTexH);
-		ctx.font = font;
 		//}
 		ctx.clearRect(0, 0, w + 1 + lineWidth, h + 1 + lineWidth);
 		ctx.setTransform(1, 0, 0, 1, 0, 0);	// 强制清理缩放
 		ctx.save();
+		ctx.font = font;
 		if (this.scaleFontSize) {
 			//这里的缩放会导致与上面的缩放同时起作用。所以上面保护
 			ctx.scale(this.lastScaleX, this.lastScaleY);
