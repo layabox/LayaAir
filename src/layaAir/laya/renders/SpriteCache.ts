@@ -1,10 +1,17 @@
 import { ILaya } from "../../ILaya";
 import { Const } from "../Const";
+import { IRenderElement2D } from "../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
+import { IRenderGeometryElement } from "../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
 import { RenderState } from "../RenderDriver/RenderModuleData/Design/RenderState";
+import { BufferUsage } from "../RenderEngine/RenderEnum/BufferTargetType";
+import { DrawType } from "../RenderEngine/RenderEnum/DrawType";
+import { IndexFormat } from "../RenderEngine/RenderEnum/IndexFormat";
+import { MeshTopology } from "../RenderEngine/RenderEnum/RenderPologyMode";
 import { Shader3D } from "../RenderEngine/RenderShader/Shader3D";
 import { VertexDeclaration } from "../RenderEngine/VertexDeclaration";
 import { Sprite } from "../display/Sprite";
 import { SpriteConst } from "../display/SpriteConst";
+import { LayaGL } from "../layagl/LayaGL";
 import { Matrix } from "../maths/Matrix";
 import { Matrix4x4 } from "../maths/Matrix4x4";
 import { Rectangle } from "../maths/Rectangle";
@@ -15,7 +22,7 @@ import { Value2D } from "../webgl/shader/d2/value/Value2D";
 import { TextTexture } from "../webgl/text/TextTexture";
 import { Context } from "./Context";
 import { DefferTouchResContext } from "./DefferTouchResContext";
-import { IMesh2D, Render2D } from "./Render2D";
+import { IMesh2D, Render2D} from "./Render2D";
 import { RenderSprite } from "./RenderSprite";
 import { RenderToCache } from "./RenderToCache";
 import { IAutoExpiringResource } from "./ResNeedTouch";
@@ -33,6 +40,10 @@ export class RenderObject2D implements IMesh2D{
     vertexDeclarition: VertexDeclaration;
     vbBuffer: ArrayBuffer;
     ibBuffer: ArrayBuffer;
+
+    geo: IRenderGeometryElement;
+    _renderElement: IRenderElement2D;
+
     constructor(mesh:IMesh2D,vboff:number,vblen:number,iboff:number,iblen:number,mtl:Value2D){
         this.localClipMatrix = new Matrix();
         this.vertexDeclarition = mesh.vertexDeclarition;
@@ -46,6 +57,29 @@ export class RenderObject2D implements IMesh2D{
         this.iboff=0;
         this.iblen=iblen;        
     }
+
+    toNativeMesh(){
+        let renderDevice = LayaGL.renderDeviceFactory;
+        let geo = this.geo = renderDevice.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
+        let mesh = geo.bufferState = renderDevice.createBufferState();
+        let vb = renderDevice.createVertexBuffer(BufferUsage.Dynamic);
+        vb.vertexDeclaration = this.vertexDeclarition;
+        let ib = renderDevice.createIndexBuffer(BufferUsage.Dynamic);
+        mesh.applyState([vb], ib)
+        geo.indexFormat = IndexFormat.UInt16;
+        vb.setDataLength(this.vblen);
+        vb.setData(this.vbBuffer, this.vboff, 0, this.vblen)
+        ib._setIndexDataLength(this.iblen)
+        ib._setIndexData(new Uint16Array(this.ibBuffer, this.iboff, this.iblen / 2), 0)
+        geo.clearRenderParams();
+        geo.setDrawElemenParams(this.iblen / 2, 0);
+
+        this._renderElement = LayaGL.render2DRenderPassFactory.createRenderElement2D();
+        this._renderElement.geometry = geo;
+        this._renderElement.value2DShaderData = this.mtl.shaderData;
+        this._renderElement.subShader = this.mtl._defaultShader.getSubShaderAt(0);
+        this._renderElement.materialShaderData = null;
+    }    
 }
 
 export class Cache_Info{
@@ -89,7 +123,7 @@ function mergeClipMatrix(a:Matrix, b:Matrix,out:Matrix){
     return out;
 }
 
-class RenderPageContex{
+class RenderPageContext{
     //简化的context，只是
     curMatrix:Matrix;
     alpha=1;
@@ -242,7 +276,7 @@ export class CachePage{
      * @param context 
      * @param isRoot  如果为true的话，则可以直接使用当前矩阵。优化用。
      */
-    render(sprite:Sprite,context:RenderPageContex,isRoot:boolean){
+    render(sprite:Sprite,context:RenderPageContext,isRoot:boolean){
         let spriteTrans = sprite.transform;
         let curMat = context.curMatrix;
         if(isRoot){
@@ -314,7 +348,8 @@ export class CachePage{
             curMtl.mmat = wMat4;
             curMtl.vertAlpha = context.alpha;
             context._applyBlend(curMtl);
-            render.draw(renderinfo,renderinfo.vboff,renderinfo.vblen, renderinfo.iboff, renderinfo.iblen, curMtl);
+            //render.draw(renderinfo,renderinfo.vboff,renderinfo.vblen, renderinfo.iboff, renderinfo.iblen, curMtl);
+            render.drawElement(renderinfo._renderElement);
         })
 
         //touch资源
@@ -478,7 +513,7 @@ export class SpriteCache{
 
         if(!(context instanceof DefferTouchResContext)){
             //根cache则开始渲染
-            let ctx = new RenderPageContex(context,x,y);
+            let ctx = new RenderPageContext(context,x,y);
             // 此时的ctx.curMatrix是sprite节点所在的世界矩阵
             //先给ctx计算正确的矩阵，即sprite的parent的世界矩阵，直接修改结果到ctx.curMatrix
             //SpriteCache.curMatSubSpriteMat(sprite,ctx.curMatrix, ctx.curMatrix);
