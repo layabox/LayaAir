@@ -1,12 +1,12 @@
 import { Rectangle } from "../../maths/Rectangle";
-import { Context } from "../../renders/Context"
+import { Context, IGraphicCMD } from "../../renders/Context"
 import { ClassUtils } from "../../utils/ClassUtils";
 import { Pool } from "../../utils/Pool"
 
 /**
  * 绘制圆形
  */
-export class DrawCircleCmd {
+export class DrawCircleCmd implements IGraphicCMD {
     /**CMD标识符 */
     static ID: string = "DrawCircle";
 

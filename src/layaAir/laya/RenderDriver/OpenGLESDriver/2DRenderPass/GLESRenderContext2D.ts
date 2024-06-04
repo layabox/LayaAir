@@ -1,6 +1,8 @@
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { Color } from "../../../maths/Color";
+import { SingletonList } from "../../../utils/SingletonList";
 import { IRenderContext2D } from "../../DriverDesign/2DRenderPass/IRenderContext2D";
+import { IRenderElement2D } from "../../DriverDesign/2DRenderPass/IRenderElement2D";
 import { GLESInternalRT } from "../RenderDevice/GLESInternalRT";
 import { GLESREnderElement2D } from "./GLESRenderElement2D";
 
@@ -25,8 +27,12 @@ export class GLESREnderContext2D implements IRenderContext2D {
         this._nativeObj.setGlobalConfigShaderData((Shader3D._configDefineValues as any)._nativeObj);
         this._nativeObj.pipelineMode = "Forward";
     }
+    drawRenderElementList(list: SingletonList<IRenderElement2D>): number {
+        //TODO
+        return 0;
+    }
     setRenderTarget(value: GLESInternalRT, clear: boolean, clearColor: Color): void {
-        this._nativeObj.setRenderTarget(value?value._nativeObj:null, clear, clearColor);
+        this._nativeObj.setRenderTarget(value ? value._nativeObj : null, clear, clearColor);
     }
     setOffscreenView(width: number, height: number): void {
         this._nativeObj.setOffscreenView(width, height);

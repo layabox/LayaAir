@@ -38,7 +38,7 @@ export class GLESREnderElement2D implements IRenderElement2D {
         return this._value2DShaderData;
     }
 
-   
+
     public get subShader(): SubShader {
         return this._subShader;
     }
@@ -56,6 +56,7 @@ export class GLESREnderElement2D implements IRenderElement2D {
     constructor() {
         this.init();
     }
+    renderStateIsBySprite: boolean = true;//TODO
 
     destroy(): void {
         this._nativeObj.destroy();

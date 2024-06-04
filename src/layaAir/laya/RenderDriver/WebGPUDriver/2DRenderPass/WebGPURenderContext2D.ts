@@ -2,7 +2,9 @@ import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFla
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { Color } from "../../../maths/Color";
 import { Viewport } from "../../../maths/Viewport";
+import { SingletonList } from "../../../utils/SingletonList";
 import { IRenderContext2D } from "../../DriverDesign/2DRenderPass/IRenderContext2D";
+import { IRenderElement2D } from "../../DriverDesign/2DRenderPass/IRenderElement2D";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
 import { WebGPUContext } from "../3DRenderPass/WebGPUContext";
 import { WebGPUInternalRT } from "../RenderDevice/WebGPUInternalRT";
@@ -37,6 +39,10 @@ export class WebGPURenderContext2D implements IRenderContext2D {
         this._globalConfigShaderData = Shader3D._configDefineValues;
         this._clearColor = new Color();
         this._viewport = new Viewport();
+    }
+    drawRenderElementList(list: SingletonList<IRenderElement2D>): number {
+        //TODO
+        return 0;
     }
 
     setOffscreenView(width: number, height: number): void {

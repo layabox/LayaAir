@@ -11,6 +11,7 @@ import { WebGLShaderInstance } from "../RenderDevice/WebGLShaderInstance";
 import { WebglRenderContext2D } from "./WebGLRenderContext2D";
 
 export class WebGLRenderelement2D implements IRenderElement2D {
+    renderStateIsBySprite: boolean = true;
 
 
     /** @internal */
@@ -84,8 +85,14 @@ export class WebGLRenderelement2D implements IRenderElement2D {
         context.sceneData && shader.uploadUniforms(shader._sceneUniformParamsMap, context.sceneData, true);
         this.materialShaderData && shader.uploadUniforms(shader._materialUniformParamsMap, this.materialShaderData, true);
         //blend
-        shader.uploadRenderStateBlendDepth(this.value2DShaderData);
-        shader.uploadRenderStateFrontFace(this.value2DShaderData, false, context.invertY);
+        if (this.renderStateIsBySprite || !this.materialShaderData) {
+            shader.uploadRenderStateBlendDepth(this.value2DShaderData);
+            shader.uploadRenderStateFrontFace(this.value2DShaderData, false, context.invertY);
+        } else {
+            shader.uploadRenderStateBlendDepth(this.materialShaderData);
+            shader.uploadRenderStateFrontFace(this.materialShaderData, false, context.invertY);
+        }
+
         WebGLEngine.instance.getDrawContext().drawGeometryElement(this.geometry)
     }
     destroy(): void {

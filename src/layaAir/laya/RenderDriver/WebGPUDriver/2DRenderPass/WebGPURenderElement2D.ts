@@ -64,6 +64,7 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
     constructor() {
         this.globalId = WebGPUGlobal.getId(this);
     }
+    renderStateIsBySprite: boolean = true;
 
     /**
      * 获取渲染通道的uniform

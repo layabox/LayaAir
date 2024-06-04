@@ -1,10 +1,10 @@
-import { Context } from "../../renders/Context"
+import { Context, IGraphicCMD } from "../../renders/Context"
 import { Pool } from "../../utils/Pool"
 
 /**
  * 透明命令
  */
-export class AlphaCmd {
+export class AlphaCmd implements IGraphicCMD{
     static ID: string = "Alpha";
 
     /**

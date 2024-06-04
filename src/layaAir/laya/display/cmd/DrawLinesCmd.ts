@@ -1,11 +1,11 @@
-import { Context } from "../../renders/Context"
+import { Context, IGraphicCMD } from "../../renders/Context"
 import { ClassUtils } from "../../utils/ClassUtils";
 import { Pool } from "../../utils/Pool"
 
 /**
  * 绘制连续曲线
  */
-export class DrawLinesCmd {
+export class DrawLinesCmd implements IGraphicCMD {
     /**绘制连续曲线的标识符 */
     static ID: string = "DrawLines";
 
