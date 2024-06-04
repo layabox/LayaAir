@@ -18,7 +18,7 @@ import { LayaGL } from "../layagl/LayaGL";
 
 var internalResources: Record<string, Texture2D>;
 
-class Texture2DLoader implements IResourceLoader {
+export class Texture2DLoader implements IResourceLoader {
     constructor() {
         if (!internalResources) {
             internalResources = {
@@ -167,7 +167,7 @@ class Texture2DLoader implements IResourceLoader {
         }
     }
 
-    private move(obsoluteInst: BaseTexture, tex: BaseTexture) {
+    protected move(obsoluteInst: BaseTexture, tex: BaseTexture) {
         obsoluteInst._texture = tex._texture;
         (<any>obsoluteInst)._format = tex.format;
         obsoluteInst.width = tex.width;
@@ -178,7 +178,7 @@ class Texture2DLoader implements IResourceLoader {
     }
 }
 
-class RenderTextureLoader implements IResourceLoader {
+export class RenderTextureLoader implements IResourceLoader {
     load(task: ILoadTask) {
         return task.loader.fetch(task.url, "json", task.progress.createCallback(), task.options).then(data => {
             if (!data)
@@ -207,7 +207,7 @@ class RenderTextureLoader implements IResourceLoader {
 }
 
 
-class VideoTextureLoader implements IResourceLoader {
+export class VideoTextureLoader implements IResourceLoader {
     load(task: ILoadTask) {
         let inst = <VideoTexture>task.obsoluteInst || new VideoTexture();
         inst.source = task.url;
@@ -218,7 +218,7 @@ class VideoTextureLoader implements IResourceLoader {
 const propertyParams2d: TexturePropertyParams = { premultiplyAlpha: true };
 const constructParams2d: TextureConstructParams = [null, null, TextureFormat.R8G8B8A8, false, false, true];
 
-class TextureLoader implements IResourceLoader {
+export class TextureLoader implements IResourceLoader {
     wrapTex2D(task: ILoadTask, tex2D: Texture2D) {
         if (!tex2D)
             return null;

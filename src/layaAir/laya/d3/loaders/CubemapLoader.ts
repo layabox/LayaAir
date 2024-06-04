@@ -13,7 +13,7 @@ import { TextureCube } from "../../resource/TextureCube";
 
 var internalResources: Record<string, TextureCube>;
 
-class CubemapLoader implements IResourceLoader {
+export class CubemapLoader implements IResourceLoader {
     constructor() {
         if (!internalResources) {
             internalResources = {
@@ -141,6 +141,7 @@ class CubemapLoader implements IResourceLoader {
 
     private move(obsoluteInst: TextureCube, tex: TextureCube) {
         obsoluteInst._texture = tex._texture;
+        (<any>obsoluteInst)._format = tex.format;
         obsoluteInst.width = tex.width;
         obsoluteInst.height = tex.height;
         obsoluteInst.obsolute = false;
