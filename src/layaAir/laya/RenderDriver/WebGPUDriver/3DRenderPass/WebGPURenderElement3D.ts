@@ -53,10 +53,12 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
     cullMode: CullMode;
     frontFace: FrontFace;
     private _invertFrontFace: boolean;
+    private _stencilParam: { [key: string]: any } = {}; //模板参数
 
-    protected _stateKey: string[] = []; //用于判断渲染状态是否改变
+    protected _stateKey: string; //当前渲染状态
+    protected _pipeline: GPURenderPipeline; //当前渲染管线
     protected _shaderInstances: WebGPUShaderInstance[] = []; //着色器缓存
-    protected _pipelineCache: GPURenderPipeline[] = []; //渲染管线缓存
+    protected static _pipelineCacheMap: Map<string, GPURenderPipeline>; //渲染管线缓存
 
     protected _passNum = 0; //当前渲染通道数量
     protected _passName: string; //当前渲染名称
@@ -81,6 +83,9 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
     constructor() {
         this.globalId = WebGPUGlobal.getId(this);
         this.bundleId = WebGPURenderElement3D.bundleIdCounter++;
+
+        if (!WebGPURenderElement3D._pipelineCacheMap)
+            WebGPURenderElement3D._pipelineCacheMap = new Map();
     }
 
     /**
@@ -228,11 +233,9 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
      * @param context 
      */
     protected _calcStateKey(shaderInstance: WebGPUShaderInstance, dest: WebGPUInternalRT, context: WebGPURenderContext3D) {
-        if (this.materialShaderData) {
-            this._getBlendState(shaderInstance);
-            this._getDepthStencilState(shaderInstance, dest);
-            this._getCullFrontMode(this.materialShaderData, shaderInstance, this._invertFrontFace, context.invertY);
-        }
+        this._getBlendState(shaderInstance);
+        this._getDepthStencilState(shaderInstance, dest);
+        this._getCullFrontMode(this.materialShaderData, shaderInstance, this._invertFrontFace, context.invertY);
         const primitiveState = WebGPUPrimitiveState.getGPUPrimitiveState(this.geometry.mode, this.frontFace, this.cullMode);
         const bufferState = this.geometry.bufferState;
         const depthStencilId = this.depthStencilState ? this.depthStencilState.id : -1;
@@ -365,59 +368,48 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
         const renderState = (<ShaderPass>shaderInstance._shaderPass).renderState;
         const depthWrite = (renderState.depthWrite ?? data[Shader3D.DEPTH_WRITE]) ?? RenderState.Default.depthWrite;
         const depthTest = (renderState.depthTest ?? data[Shader3D.DEPTH_TEST]) ?? RenderState.Default.depthTest;
-        return WebGPUDepthStencilState.getDepthStencilState(dest.depthStencilFormat, depthWrite, depthTest);
+
         //Stencil
-        // var stencilWrite: any = (renderState.stencilWrite ?? datas[Shader3D.STENCIL_WRITE]) ?? RenderState.Default.stencilWrite;
-        // var stencilWrite: any = (renderState.stencilWrite ?? datas[Shader3D.STENCIL_WRITE]) ?? RenderState.Default.stencilWrite;
-        // var stencilTest: any = (renderState.stencilTest ?? datas[Shader3D.STENCIL_TEST]) ?? RenderState.Default.stencilTest;
-        // RenderStateContext.setStencilMask(stencilWrite);
-        // if (stencilWrite) {
-        // 	var stencilOp: any = (renderState.stencilOp ?? datas[Shader3D.STENCIL_Op]) ?? RenderState.Default.stencilOp;
-        // 	RenderStateContext.setstencilOp(stencilOp.x, stencilOp.y, stencilOp.z);
-        // }
-        // if (stencilTest == RenderState.STENCILTEST_OFF) {
-        // 	RenderStateContext.setStencilTest(false);
-        // } else {
-        // 	var stencilRef: any = (renderState.stencilRef ?? datas[Shader3D.STENCIL_Ref]) ?? RenderState.Default.stencilRef;
-        // 	RenderStateContext.setStencilTest(true);
-        // 	RenderStateContext.setStencilFunc(stencilTest, stencilRef);
-        // }
+        const stencilParam = this._stencilParam;
+        const stencilTest = (renderState.stencilTest ?? data[Shader3D.STENCIL_TEST]) ?? RenderState.Default.stencilTest;
+        if (stencilTest === RenderState.STENCILTEST_OFF)
+            stencilParam['enable'] = false;
+        else {
+            const stencilRef = renderState.stencilRef ?? data[Shader3D.STENCIL_Ref] ?? RenderState.Default.stencilRef;
+            const stencilWrite = renderState.stencilWrite ?? data[Shader3D.STENCIL_WRITE] ?? RenderState.Default.stencilWrite;
+            const stencilOp = stencilWrite ? (renderState.stencilOp ?? data[Shader3D.STENCIL_Op] ?? RenderState.Default.stencilOp) : RenderState.Default.stencilOp;
+            stencilParam['enable'] = true;
+            stencilParam['write'] = stencilWrite;
+            stencilParam['test'] = stencilTest;
+            stencilParam['ref'] = stencilRef;
+            stencilParam['op'] = stencilOp;
+        }
+
+        return WebGPUDepthStencilState.getDepthStencilState(dest.depthStencilFormat, depthWrite, depthTest, stencilParam);
     }
 
     private _getRenderStateDepthByMaterial(shaderData: WebGPUShaderData, dest: WebGPUInternalRT) {
         const data = shaderData.getData();
         const depthWrite = data[Shader3D.DEPTH_WRITE] ?? RenderState.Default.depthWrite;
         const depthTest = data[Shader3D.DEPTH_TEST] ?? RenderState.Default.depthTest;
-        return WebGPUDepthStencilState.getDepthStencilState(dest.depthStencilFormat, depthWrite, depthTest);
-        // if (depthTest === RenderState.DEPTHTEST_OFF) {
-        // 	RenderStateContext.setDepthTest(false);
-        // }
-        // else {
-        // 	RenderStateContext.setDepthTest(true);
-        // 	RenderStateContext.setDepthFunc(depthTest);
-        // }
 
-        // //Stencil
-        // var stencilWrite = datas[Shader3D.STENCIL_WRITE];
-        // stencilWrite = stencilWrite ?? RenderState.Default.stencilWrite;
-        // RenderStateContext.setStencilMask(stencilWrite);
-        // if (stencilWrite) {
-        // 	var stencilOp = datas[Shader3D.STENCIL_Op];
-        // 	stencilOp = stencilOp ?? RenderState.Default.stencilOp;
-        // 	RenderStateContext.setstencilOp(stencilOp.x, stencilOp.y, stencilOp.z);
-        // }
+        //Stencil
+        const stencilParam = this._stencilParam;
+        const stencilTest = data[Shader3D.STENCIL_TEST] ?? RenderState.Default.stencilTest;
+        if (stencilTest === RenderState.STENCILTEST_OFF)
+            stencilParam['enable'] = false;
+        else {
+            const stencilRef = data[Shader3D.STENCIL_Ref] ?? RenderState.Default.stencilRef;
+            const stencilWrite = data[Shader3D.STENCIL_WRITE] ?? RenderState.Default.stencilWrite;
+            const stencilOp = stencilWrite ? (data[Shader3D.STENCIL_Op] ?? RenderState.Default.stencilOp) : RenderState.Default.stencilOp;
+            stencilParam['enable'] = true;
+            stencilParam['write'] = stencilWrite;
+            stencilParam['test'] = stencilTest;
+            stencilParam['ref'] = stencilRef;
+            stencilParam['op'] = stencilOp;
+        }
 
-        // var stencilTest = datas[Shader3D.STENCIL_TEST];
-        // stencilTest = stencilTest ?? RenderState.Default.stencilTest;
-        // if (stencilTest === RenderState.STENCILTEST_OFF) {
-        // 	RenderStateContext.setStencilTest(false);
-        // }
-        // else {
-        // 	var stencilRef = datas[Shader3D.STENCIL_Ref];
-        // 	stencilRef = stencilRef ?? RenderState.Default.stencilRef;
-        // 	RenderStateContext.setStencilTest(true);
-        // 	RenderStateContext.setStencilFunc(stencilTest, stencilRef);
-        // }
+        return WebGPUDepthStencilState.getDepthStencilState(dest.depthStencilFormat, depthWrite, depthTest, stencilParam);
     }
 
     private _getCullFrontMode(shaderData: WebGPUShaderData, shaderInstance: WebGPUShaderInstance, isTarget: boolean, invertFront: boolean) {
@@ -537,6 +529,15 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
     }
 
     /**
+     * 上传模板参考值
+     * @param command 
+     */
+    protected _uploadStencilReference(command: WebGPURenderCommandEncoder) {
+        if (this._stencilParam['enable'] && command)
+            command.setStencilReference(this._stencilParam['ref']);
+    }
+
+    /**
      * 上传几何数据
      * @param command 
      * @param bundle 
@@ -552,16 +553,6 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
                 WebGPUContext.applyBundleGeometryPart(bundle, this.geometry, 0);
             else bundle.applyGeometryPart(this.geometry, 0);
         }
-        // if (command) {
-        //     if (WebGPUGlobal.useGlobalContext)
-        //         WebGPUContext.applyCommandGeometry(command, this.geometry);
-        //     else command.applyGeometry(this.geometry);
-        // }
-        // if (bundle) {
-        //     if (WebGPUGlobal.useGlobalContext)
-        //         WebGPUContext.applyBundleGeometry(bundle, this.geometry);
-        //     else bundle.applyGeometry(this.geometry);
-        // }
     }
 
     /**
@@ -590,10 +581,10 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
                     WebGPUContext.setBundlePipeline(bundle, pipeline);
                 else bundle.setPipeline(pipeline);
             }
-            if (WebGPUGlobal.useCache) {
-                this._pipelineCache[sn] = pipeline;
-                this._stateKey[sn] = stateKey;
-            }
+            if (WebGPUGlobal.useCache)
+                WebGPURenderElement3D._pipelineCacheMap.set(stateKey, pipeline);
+            this._stateKey = stateKey;
+            this._pipeline = pipeline;
             return true;
         }
         return false;
@@ -614,26 +605,33 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
                 const shaderInstance = this._shaderInstance[i];
                 if (shaderInstance && shaderInstance.complete) {
                     if (WebGPUGlobal.useCache) { //启用缓存机制
-                        if (this.materialShaderData)
-                            stateKey = this._calcStateKey(shaderInstance, context.destRT, context);
-                        else stateKey = this._stateKey[index];
-                        if (stateKey != this._stateKey[index] || !this._pipelineCache[index]) //缓存未命中
+                        let pipeline: GPURenderPipeline;
+                        stateKey = this._calcStateKey(shaderInstance, context.destRT, context);
+                        if (this._stateKey !== stateKey) {
+                            this._stateKey = stateKey;
+                            pipeline = this._pipeline = WebGPURenderElement3D._pipelineCacheMap.get(stateKey);
+                        } else pipeline = this._pipeline;
+                        if (!pipeline) {
                             this._createPipeline(index, context, shaderInstance, command, bundle, stateKey); //新建渲染管线
+                            pipeline = this._pipeline;
+                        }
                         else { //缓存命中
                             if (command) {
                                 if (WebGPUGlobal.useGlobalContext)
-                                    WebGPUContext.setCommandPipeline(command, this._pipelineCache[index]);
-                                else command.setPipeline(this._pipelineCache[index]);
+                                    WebGPUContext.setCommandPipeline(command, pipeline);
+                                else command.setPipeline(pipeline);
                             }
                             if (bundle) {
                                 if (WebGPUGlobal.useGlobalContext)
-                                    WebGPUContext.setBundlePipeline(bundle, this._pipelineCache[index]);
-                                else bundle.setPipeline(this._pipelineCache[index]);
+                                    WebGPUContext.setBundlePipeline(bundle, pipeline);
+                                else bundle.setPipeline(pipeline);
                             }
                         }
                     } else this._createPipeline(index, context, shaderInstance, command, bundle); //不启用缓存机制
-                    if (command || bundle)
+                    if (command || bundle) {
                         this._bindGroup(shaderInstance, command, bundle); //绑定资源组
+                        this._uploadStencilReference(command); //上传模板参考值，bundle不支持
+                    }
                     this._uploadUniform(); //上传uniform数据
                     this._uploadGeometry(command, bundle); //上传几何数据
                 }
@@ -647,7 +645,5 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
     destroy() {
         WebGPUGlobal.releaseId(this);
         this._shaderInstances.length = 0;
-        this._pipelineCache.length = 0;
-        this._stateKey.length = 0;
     }
 }

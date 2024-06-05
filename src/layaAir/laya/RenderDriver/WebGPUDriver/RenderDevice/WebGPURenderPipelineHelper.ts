@@ -5,6 +5,8 @@ import { CompareFunction } from "../../../RenderEngine/RenderEnum/CompareFunctio
 import { CullMode, FrontFace } from "../../../RenderEngine/RenderEnum/CullMode";
 import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode";
 import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
+import { StencilOperation } from "../../../RenderEngine/RenderEnum/StencilOperation";
+import { RenderState } from "../../RenderModuleData/Design/RenderState";
 import { WebGPUInternalRT } from "./WebGPUInternalRT";
 import { WebGPURenderEngine } from "./WebGPURenderEngine";
 import { WebGPURenderGeometry } from "./WebGPURenderGeometry";
@@ -126,6 +128,10 @@ export class WebGPUDepthStencilState {
     private static _pointer_DepthWriteEnable: number = 0;
     private static _pointer_DepthCompare: number = 4;
     private static _pointer_DepthFormat: number = 8;
+    private static _pointer_StencilTest: number = 12
+    private static _pointer_StencilOp1: number = 16;
+    private static _pointer_StencilOp2: number = 20;
+    private static _pointer_StencilOp3: number = 24;
     private static _cache: { [key: number]: WebGPUDepthStencilStateCache } = {};
 
     static getDepthStencilState(format: RenderTargetFormat, depthWriteEnabled: boolean, depthCompare: CompareFunction, stencilParam: any = null, depthBiasParam: any = null): WebGPUDepthStencilStateCache {
@@ -137,10 +143,17 @@ export class WebGPUDepthStencilState {
     }
 
     private static _getDepthStencilCacheID(format: RenderTargetFormat, depthWriteEnabled: boolean, depthCompare: CompareFunction, stencilParam: any = null, depthBiasParam: any = null) {
+        if (stencilParam['enable'])
+            return (Number(depthWriteEnabled) << this._pointer_DepthWriteEnable) +
+                (depthCompare << this._pointer_DepthCompare) +
+                (format << this._pointer_DepthFormat) +
+                (stencilParam['test'] << this._pointer_StencilTest) +
+                (stencilParam['op'].x << this._pointer_StencilOp1) +
+                (stencilParam['op'].y << this._pointer_StencilOp2) +
+                (stencilParam['op'].z << this._pointer_StencilOp3);
         return (Number(depthWriteEnabled) << this._pointer_DepthWriteEnable) +
             (depthCompare << this._pointer_DepthCompare) +
             (format << this._pointer_DepthFormat);
-        //TODO stencil depthbias
     }
 
     private static _createDepthStencilState(format: RenderTargetFormat, depthWriteEnabled: boolean, depthCompare: CompareFunction, stencilParam: any = null, depthBiasParam: any = null): GPUDepthStencilState {
@@ -195,11 +208,131 @@ export class WebGPUDepthStencilState {
                 stateDepthCompare = "less";
                 break;
         }
-        return {
+        const state: GPUDepthStencilState = {
             format: stateFormat,
             depthCompare: stateDepthCompare,
             depthWriteEnabled,
         };
+        if (stencilParam['enable']) {
+            let stateStencilCompare: GPUCompareFunction;
+            let stateFailOp: GPUStencilOperation;
+            let stateDepthFailOp: GPUStencilOperation;
+            let statePassOp: GPUStencilOperation;
+            switch (stencilParam['test']) {
+                case RenderState.STENCILTEST_NEVER:
+                    stateStencilCompare = 'never';
+                    break;
+                case RenderState.STENCILTEST_LESS:
+                    stateStencilCompare = 'less';
+                    break;
+                case RenderState.STENCILTEST_EQUAL:
+                    stateStencilCompare = 'equal';
+                    break;
+                case RenderState.STENCILTEST_GREATER:
+                    stateStencilCompare = 'greater';
+                    break;
+                case RenderState.STENCILTEST_NOTEQUAL:
+                    stateStencilCompare = 'not-equal';
+                    break;
+                case RenderState.STENCILTEST_GEQUAL:
+                    stateStencilCompare = 'greater-equal';
+                    break;
+                case RenderState.STENCILTEST_ALWAYS:
+                    stateStencilCompare = 'always';
+                    break;
+                default:
+                    stateStencilCompare = 'less';
+                    break;
+            }
+            switch (stencilParam['op'].x) {
+                case StencilOperation.Keep:
+                    stateFailOp = 'keep';
+                    break;
+                case StencilOperation.Zero:
+                    stateFailOp = 'zero';
+                    break;
+                case StencilOperation.Invert:
+                    stateFailOp = 'invert';
+                    break;
+                case StencilOperation.Replace:
+                    stateFailOp = 'replace';
+                    break;
+                case StencilOperation.IncrementSaturate:
+                    stateFailOp = 'increment-clamp';
+                    break;
+                case StencilOperation.DecrementSaturate:
+                    stateFailOp = 'decrement-clamp';
+                    break;
+                case StencilOperation.IncrementWrap:
+                    stateFailOp = 'increment-wrap';
+                    break;
+                case StencilOperation.DecrementWrap:
+                    stateFailOp = 'decrement-wrap';
+                    break;
+            }
+            switch (stencilParam['op'].y) {
+                case StencilOperation.Keep:
+                    stateDepthFailOp = 'keep';
+                    break;
+                case StencilOperation.Zero:
+                    stateDepthFailOp = 'zero';
+                    break;
+                case StencilOperation.Invert:
+                    stateDepthFailOp = 'invert';
+                    break;
+                case StencilOperation.Replace:
+                    stateDepthFailOp = 'replace';
+                    break;
+                case StencilOperation.IncrementSaturate:
+                    stateDepthFailOp = 'increment-clamp';
+                    break;
+                case StencilOperation.DecrementSaturate:
+                    stateDepthFailOp = 'decrement-clamp';
+                    break;
+                case StencilOperation.IncrementWrap:
+                    stateDepthFailOp = 'increment-wrap';
+                    break;
+                case StencilOperation.DecrementWrap:
+                    stateDepthFailOp = 'decrement-wrap';
+                    break;
+            }
+            switch (stencilParam['op'].z) {
+                case StencilOperation.Keep:
+                    statePassOp = 'keep';
+                    break;
+                case StencilOperation.Zero:
+                    statePassOp = 'zero';
+                    break;
+                case StencilOperation.Invert:
+                    statePassOp = 'invert';
+                    break;
+                case StencilOperation.Replace:
+                    statePassOp = 'replace';
+                    break;
+                case StencilOperation.IncrementSaturate:
+                    statePassOp = 'increment-clamp';
+                    break;
+                case StencilOperation.DecrementSaturate:
+                    statePassOp = 'decrement-clamp';
+                    break;
+                case StencilOperation.IncrementWrap:
+                    statePassOp = 'increment-wrap';
+                    break;
+                case StencilOperation.DecrementWrap:
+                    statePassOp = 'decrement-wrap';
+                    break;
+            }
+            state.stencilFront = {
+                compare: stateStencilCompare,
+                failOp: stateFailOp,
+                depthFailOp: stateDepthFailOp,
+                passOp: statePassOp
+            };
+            state.stencilReadMask = 0xff;
+            if (stencilParam['write'])
+                state.stencilWriteMask = 0xff;
+        }
+        return state;
     }
 }
 
@@ -322,7 +455,7 @@ export class WebGPURenderPipeline {
         primitiveState: GPUPrimitiveState, vertexBuffers: GPUVertexBufferLayout[],
         shaderInstance: WebGPUShaderInstance, renderTarget: WebGPUInternalRT, entries: any, strId: string) {
         const device = WebGPURenderEngine._instance.getDevice();
-        const descriptor = shaderInstance.renderPipelineDescriptor;
+        const descriptor = shaderInstance.getRenderPipelineDescriptor(); //获取渲染管线描述符模板
         descriptor.label = 'render_' + this.idCounter;
         descriptor.vertex.buffers = vertexBuffers;
         //descriptor.vertex.constants TODO
