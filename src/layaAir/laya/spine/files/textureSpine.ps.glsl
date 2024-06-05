@@ -1,5 +1,5 @@
 #define SHADER_NAME SpineNormalFS2D
-uniform sampler2D u_spriteTexture;
+uniform sampler2D u_spineTexture;
 varying vec2 vUv;
 varying vec4 vColor;
 

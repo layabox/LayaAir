@@ -1,6 +1,8 @@
 
+import { BaseRenderNode2D } from "../NodeRender2D/BaseRenderNode2D";
 import { Graphics } from "../display/Graphics";
 import { Material } from "../resource/Material";
+import { Spine2DRenderNode } from "./Spine2DRenderNode";
 import { SpineAdapter } from "./SpineAdapter";
 import { SpineTemplet } from "./SpineTemplet";
 import { ISpineRender } from "./interface/ISpineRender";
@@ -37,13 +39,13 @@ export class SpineWasmRender implements ISpineRender {
         vmesh.material = material;
         return vmesh;
     }
-    draw(skeleton: spine.Skeleton, graphics: Graphics, slotRangeStart = -1, slotRangeEnd = -1) {
+    draw(skeleton: spine.Skeleton, renderNode: Spine2DRenderNode, slotRangeStart?: number, slotRangeEnd?: number): void {
         this.nextBatchIndex = 0;
         SpineAdapter.drawSkeleton((vbLen: number, ibLen: number, texturePath: string, blendMode: any) => {
             let texture = this.templet.getTexture(texturePath);
-            let mat = this.templet.getMaterial(texture.realTexture, blendMode.value);
+            let mat = this.templet.getMaterial(texture.realTexture, blendMode.value, renderNode);
             let mesh = this.nextBatch(mat);
-            mesh.drawNew(graphics, SpineAdapter._vbArray, vbLen, SpineAdapter._ibArray, ibLen);
+            mesh.drawNew(SpineAdapter._vbArray, vbLen, SpineAdapter._ibArray, ibLen);
         }, skeleton, false, slotRangeStart, slotRangeEnd);
 
     }

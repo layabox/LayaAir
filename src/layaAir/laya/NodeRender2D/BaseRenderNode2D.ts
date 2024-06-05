@@ -50,6 +50,7 @@ export class BaseRenderNode2D extends Component {
 
     _drawBaseRenderNodeCMD: DrawBaseRenderNodeCMD;
 
+    
     /**
      * 唯一ID
      */

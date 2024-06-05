@@ -11,6 +11,9 @@ import { ERenderType } from "./SpineSkeleton";
 import { SpineRBMaterial } from "./material/SpineRBMaterial";
 import { SpineMaterialBase } from "./material/SpineMaterialBase";
 import { SketonOptimise } from "./optimize/SketonOptimise";
+import { Spine2DRenderNode } from "./Spine2DRenderNode";
+import { Material } from "../resource/Material";
+import { SpineShaderInit } from "./material/SpineShaderInit";
 
 
 /**
@@ -62,18 +65,23 @@ export class SpineTemplet extends Resource {
         return this._basePath;
     }
 
-    getMaterial(texture: Texture, blendMode: number): SpineMaterial {
-        let key = texture.id + "_" + blendMode;
-        let mat = this.materialMap.get(key);
-        if (!mat) {
-            mat = new SpineMaterial();
-            mat.texture = texture;
-            mat.blendMode = blendMode;
-            //mat.setVector2("u_size",new Vector2(Laya.stage.width,Laya.stage.height));
-            this.materialMap.set(key, mat);
+    getMaterial(texture: Texture, blendMode: number, renderNode: Spine2DRenderNode): Material {
+        let mat: Material;
+        if (renderNode._materials.length <= renderNode._renderElements.length) {
+            //默认给一个新的Mateiral
+            mat = new Material();
+            SpineShaderInit.initSpineMaterial(mat);
+            mat.setShaderName("SpineStandard");
+            
+            //renderNode._materials.push(mat);
+        } else {
+            mat = renderNode._materials[renderNode._renderElements.length];
         }
+        SpineShaderInit.SetSpineBlendMode(blendMode, mat);
+        mat.setTextureByIndex(SpineShaderInit.SpineTexture, texture.bitmap);
         return mat;
     }
+
 
     getTexture(name: string): SpineTexture {
         return this._textures[name];

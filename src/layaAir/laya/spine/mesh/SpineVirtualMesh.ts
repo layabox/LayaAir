@@ -2,7 +2,7 @@ import { Material } from "../../resource/Material";
 import { SpineMaterialShaderInit } from "../material/SpineMaterialShaderInit";
 import { SpineMeshBase } from "./SpineMeshBase";
 
-export class SpineVirtualMesh extends SpineMeshBase{
+export class SpineVirtualMesh extends SpineMeshBase {
     static vertexSize: number = 8;
     static vertexArray: Float32Array;
     static indexArray: Uint16Array;
@@ -13,7 +13,7 @@ export class SpineVirtualMesh extends SpineMeshBase{
      */
     constructor(material: Material) {
         super(material);
-        if(SpineVirtualMesh.vertexArray==null){
+        if (SpineVirtualMesh.vertexArray == null) {
             SpineVirtualMesh.vertexArray = new Float32Array(SpineMeshBase.maxVertex * SpineVirtualMesh.vertexSize);
             SpineVirtualMesh.indexArray = new Uint16Array(SpineMeshBase.maxVertex * 3);
         }
@@ -34,8 +34,15 @@ export class SpineVirtualMesh extends SpineMeshBase{
 
         let before = this.verticesLength;
         let vlen = before;
-        for (let j = 0; j < verticesLength; vlen++, j++) {
-            vertexBuffer[vlen] = vertices[j];
+        for (let j = 0; j < verticesLength; vlen+=8, j+=8) {
+            vertexBuffer[vlen] = vertices[j+6];
+            vertexBuffer[vlen+1] = vertices[j+7];
+            vertexBuffer[vlen+2] = vertices[j+2];
+            vertexBuffer[vlen+3] = vertices[j+3];
+            vertexBuffer[vlen+4] = vertices[j+4];
+            vertexBuffer[vlen+5] = vertices[j+5];
+            vertexBuffer[vlen+6] = vertices[j];
+            vertexBuffer[vlen+7] = vertices[j+1];
         }
 
         this.verticesLength = before + verticesLength;
@@ -74,14 +81,23 @@ export class SpineVirtualMesh extends SpineMeshBase{
 
         for (let u = 0, v = 0, n = verticesLength; v < n; v += vertexSize, u += 2) {
             let size = before + v;
-            vertexBuffer[size] = vertices[v];
-            vertexBuffer[size + 1] = vertices[v + 1];
+            // vertexBuffer[size] =  vertices[v];
+            // vertexBuffer[size + 1] = vertices[v + 1];
+            // vertexBuffer[size + 2] = finalColor.r;
+            // vertexBuffer[size + 3] = finalColor.g;
+            // vertexBuffer[size + 4] = finalColor.b;
+            // vertexBuffer[size + 5] = finalColor.a;
+            // vertexBuffer[size + 6] = uvs[u];
+            // vertexBuffer[size + 7] = uvs[u + 1];
+
+            vertexBuffer[size] = uvs[u];
+            vertexBuffer[size + 1] = uvs[u + 1];
             vertexBuffer[size + 2] = finalColor.r;
             vertexBuffer[size + 3] = finalColor.g;
             vertexBuffer[size + 4] = finalColor.b;
             vertexBuffer[size + 5] = finalColor.a;
-            vertexBuffer[size + 6] = uvs[u];
-            vertexBuffer[size + 7] = uvs[u + 1];
+            vertexBuffer[size + 6] = vertices[v];
+            vertexBuffer[size + 7] = vertices[v + 1];
         }
 
         this.verticesLength = before + verticesLength;

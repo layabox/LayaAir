@@ -1,5 +1,5 @@
-import { Graphics } from "../../display/Graphics";
+import { Spine2DRenderNode } from "../Spine2DRenderNode";
 
-export interface ISpineRender{
-    draw(skeleton: spine.Skeleton, graphics: Graphics, slotRangeStart?:number, slotRangeEnd?:number):void;
+export interface ISpineRender {
+    draw(skeleton: spine.Skeleton,renderNode:Spine2DRenderNode, slotRangeStart?: number, slotRangeEnd?: number): void;
 }
