@@ -11,6 +11,7 @@ import { Shader3D } from "../RenderEngine/RenderShader/Shader3D";
 import { VertexDeclaration } from "../RenderEngine/VertexDeclaration";
 import { Sprite } from "../display/Sprite";
 import { SpriteConst } from "../display/SpriteConst";
+import { Event } from "../events/Event";
 import { LayaGL } from "../layagl/LayaGL";
 import { Matrix } from "../maths/Matrix";
 import { Matrix4x4 } from "../maths/Matrix4x4";
@@ -42,7 +43,7 @@ export class RenderObject2D implements IMesh2D{
     ibBuffer: ArrayBuffer;
 
     geo: IRenderGeometryElement;
-    _renderElement: IRenderElement2D;
+    renderElement: IRenderElement2D;
 
     constructor(mesh:IMesh2D,vboff:number,vblen:number,iboff:number,iblen:number,mtl:Value2D){
         this.localClipMatrix = new Matrix();
@@ -74,12 +75,25 @@ export class RenderObject2D implements IMesh2D{
         geo.clearRenderParams();
         geo.setDrawElemenParams(this.iblen / 2, 0);
 
-        this._renderElement = LayaGL.render2DRenderPassFactory.createRenderElement2D();
-        this._renderElement.geometry = geo;
-        this._renderElement.value2DShaderData = this.mtl.shaderData;
-        this._renderElement.subShader = this.mtl._defaultShader.getSubShaderAt(0);
-        this._renderElement.materialShaderData = null;
+        this.renderElement = LayaGL.render2DRenderPassFactory.createRenderElement2D();
+        this.renderElement.geometry = geo;
+        this.renderElement.value2DShaderData = this.mtl.shaderData;
+        this.renderElement.subShader = this.mtl._defaultShader.getSubShaderAt(0);
+        this.renderElement.materialShaderData = null;
     }    
+
+    destroyGPUResource(){
+        this.renderElement&&this.renderElement.destroy();
+        let geo = this.geo;
+        if(geo){
+            geo.bufferState._vertexBuffers[0].destroy();
+            geo.bufferState._bindedIndexBuffer.destroy();
+            geo.bufferState.destroy();
+            geo.bufferState
+            geo.destroy();
+            this.geo=null; 
+        }
+    }
 }
 
 export class Cache_Info{
@@ -94,6 +108,10 @@ export class Cache_Info{
     contextID:number;   //当这sprite是挂点的时候，这个表示更新挂点信息的id
     //clipRect:Rectangle;
     clipMatrix:Matrix;
+    reset(){
+        this.page && this.page.reset();
+        this.page = null;
+    }
 }
 
 //计算两个裁剪用matrix的交集
@@ -269,6 +287,17 @@ export class CachePage{
     //挂载其他cacheas normal的sprite。实际的缓存数据保存在sprite身上，这里保存sprite比较方便。
     children:Sprite[]=null;
 
+    reset(){
+        this.clearGPUObject();
+    }
+
+    private clearGPUObject(){
+        if(this.meshes){
+            this.meshes.forEach(m=>{
+                m.destroyGPUResource();
+            })
+        }
+    }
     /**
      * 根据sprite的相对矩阵（相对于parent）画出缓存的mesh
      * 为了位置能正确，需要context中提供的矩阵是sprite的parent的世界矩阵
@@ -349,7 +378,7 @@ export class CachePage{
             curMtl.vertAlpha = context.alpha;
             context._applyBlend(curMtl);
             //render.draw(renderinfo,renderinfo.vboff,renderinfo.vblen, renderinfo.iboff, renderinfo.iblen, curMtl);
-            render.drawElement(renderinfo._renderElement);
+            render.drawElement(renderinfo.renderElement);
         })
 
         //touch资源
@@ -509,6 +538,11 @@ export class SpriteCache{
             cache.meshes = renderer.renderResult;
             cache.defferTouchRes = ctx.mustTouchRes;
             cache.defferTouchResRand = ctx.randomTouchRes;
+            sprite.once(Event.REMOVED,()=>{
+                cache = sprite._cacheStyle.cacheInfo.page;
+                cache.reset();
+            })
+
         }
 
         if(!(context instanceof DefferTouchResContext)){
