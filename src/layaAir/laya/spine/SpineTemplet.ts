@@ -5,11 +5,6 @@ import { URL } from "../net/URL";
 import { ILoadURL } from "../net/Loader";
 import { SpineTexture } from "./SpineTexture";
 import { IBatchProgress } from "../net/BatchProgress";
-import { SpineMaterial } from "./material/SpineMaterial";
-import { SpineFastMaterial } from "./material/SpineFastMaterial";
-import { ERenderType } from "./SpineSkeleton";
-import { SpineRBMaterial } from "./material/SpineRBMaterial";
-import { SpineMaterialBase } from "./material/SpineMaterialBase";
 import { SketonOptimise } from "./optimize/SketonOptimise";
 import { Spine2DRenderNode } from "./Spine2DRenderNode";
 import { Material } from "../resource/Material";
@@ -24,7 +19,7 @@ export class SpineTemplet extends Resource {
 
     public skeletonData: spine.SkeletonData;
 
-    private materialMap: Map<string, SpineMaterialBase>;
+    private materialMap: Map<string, Material>;
 
     private _textures: Record<string, SpineTexture>;
     private _basePath: string;
@@ -72,7 +67,7 @@ export class SpineTemplet extends Resource {
             mat = new Material();
             SpineShaderInit.initSpineMaterial(mat);
             mat.setShaderName("SpineStandard");
-            
+
             //renderNode._materials.push(mat);
         } else {
             mat = renderNode._materials[renderNode._renderElements.length];

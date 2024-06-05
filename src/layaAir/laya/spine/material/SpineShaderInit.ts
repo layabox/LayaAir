@@ -10,7 +10,17 @@ import { Laya } from "../../../Laya";
 import { ShaderDefine } from "../../RenderDriver/RenderModuleData/Design/ShaderDefine";
 import { Material } from "../../resource/Material";
 import { RenderState } from "../../RenderDriver/RenderModuleData/Design/RenderState";
+import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
+import { VertexElement } from "../../renders/VertexElement";
+import { VertexElementFormat } from "../../renders/VertexElementFormat";
 export class SpineShaderInit {
+
+    static SpineFastVertexDeclaration: VertexDeclaration;
+
+    static SpineNormalVertexDeclaration: VertexDeclaration;
+
+    static SpineRBVertexDeclaration: VertexDeclaration;
+
     static SetSpineBlendMode(value: number, mat: Material) {
         switch (value) {
             case 1: //light 
@@ -99,6 +109,40 @@ export class SpineShaderInit {
         let subShader = new SubShader(SpineShaderInit.textureSpineAttribute, uniformMap, {});
         shader.addSubShader(subShader);
         let shadingPass = subShader.addShaderPass(spineStandardVS, spineStandardFS);
+
+
+        SpineShaderInit.SpineFastVertexDeclaration = new VertexDeclaration(88, [
+            new VertexElement(0, VertexElementFormat.Vector2, 0),
+            new VertexElement(8, VertexElementFormat.Vector4, 1),
+            new VertexElement(24, VertexElementFormat.Vector2, 2),
+            new VertexElement(32, VertexElementFormat.Single, 3),
+            new VertexElement(36, VertexElementFormat.Single, 4),
+            new VertexElement(40, VertexElementFormat.Vector2, 5),
+            new VertexElement(48, VertexElementFormat.Single, 6),
+            new VertexElement(52, VertexElementFormat.Single, 7),
+            new VertexElement(56, VertexElementFormat.Vector2, 8),
+            new VertexElement(64, VertexElementFormat.Single, 9),
+            new VertexElement(68, VertexElementFormat.Single, 10),
+
+            new VertexElement(72, VertexElementFormat.Vector2, 11),
+            new VertexElement(80, VertexElementFormat.Single, 12),
+            new VertexElement(84, VertexElementFormat.Single, 13),
+
+        ]);
+
+        SpineShaderInit.SpineNormalVertexDeclaration = new VertexDeclaration(32, [
+            new VertexElement(0, VertexElementFormat.Vector2, 0),
+            new VertexElement(8, VertexElementFormat.Vector4, 1),
+            new VertexElement(24, VertexElementFormat.Vector2, 2)
+        ])
+
+        SpineShaderInit.SpineRBVertexDeclaration = new VertexDeclaration(36, [
+            new VertexElement(0, VertexElementFormat.Vector2, 0),
+            new VertexElement(8, VertexElementFormat.Vector4, 1),
+            new VertexElement(24, VertexElementFormat.Vector2, 2),
+            new VertexElement(32, VertexElementFormat.Single, 3)
+        ])
+
 
     }
 }

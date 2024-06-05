@@ -3,7 +3,7 @@ import { IRenderElement2D } from "../../RenderDriver/DriverDesign/2DRenderPass/I
 import { Graphics } from "../../display/Graphics";
 import { LayaGL } from "../../layagl/LayaGL";
 import { Material } from "../../resource/Material";
-import { SpineMaterialShaderInit } from "../material/SpineMaterialShaderInit";
+import { SpineShaderInit } from "../material/SpineShaderInit";
 import { SpineMeshBase } from "./SpineMeshBase";
 
 export class SpineWasmVirturalMesh extends SpineMeshBase {
@@ -24,6 +24,6 @@ export class SpineWasmVirturalMesh extends SpineMeshBase {
         this.draw();
     }
     get vertexDeclarition() {
-        return SpineMaterialShaderInit.vertexDeclaration;
+        return SpineShaderInit.SpineNormalVertexDeclaration;
     }
 }

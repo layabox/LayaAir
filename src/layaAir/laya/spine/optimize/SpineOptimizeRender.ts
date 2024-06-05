@@ -15,8 +15,7 @@ import { SpineAdapter } from "../SpineAdapter";
 import { ERenderType } from "../SpineSkeleton";
 import { SpineTemplet } from "../SpineTemplet";
 import { ISpineRender } from "../interface/ISpineRender";
-import { SpineFastMaterialShaderInit } from "../material/SpineFastMaterialShaderInit";
-import { SpineRBMaterialShaderInit } from "../material/SpineRBMaterialShaderInit";
+
 import { SpineShaderInit } from "../material/SpineShaderInit";
 import { AnimationRenderProxy } from "./AnimationRenderProxy";
 import { MultiRenderData } from "./MultiRenderData";
@@ -87,7 +86,7 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
             let mesh = LayaGL.renderDeviceFactory.createBufferState();
             geo.bufferState = mesh;
             let vb = LayaGL.renderDeviceFactory.createVertexBuffer(BufferUsage.Dynamic);
-            vb.vertexDeclaration = type == ERenderType.rigidBody ? SpineRBMaterialShaderInit.vertexDeclaration : SpineFastMaterialShaderInit.vertexDeclaration;
+            vb.vertexDeclaration = type == ERenderType.rigidBody ? SpineShaderInit.SpineRBVertexDeclaration : SpineShaderInit.SpineFastVertexDeclaration;
             let ib = LayaGL.renderDeviceFactory.createIndexBuffer(BufferUsage.Dynamic);
             mesh.applyState([vb], ib)
             geo.indexFormat = IndexFormat.UInt16;
