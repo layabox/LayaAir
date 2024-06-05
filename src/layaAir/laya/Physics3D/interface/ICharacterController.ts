@@ -25,6 +25,11 @@ export interface ICharacterController extends ICollider {
   setPosition(value: Vector3): void;
 
   /**
+   * get current position of characterController
+   */
+  getPosition?(): Vector3;
+
+  /**
    * The step height.
    * @param offset The new step offset for the controller.
    */
@@ -79,4 +84,10 @@ export interface ICharacterController extends ICollider {
    * 设置推开的力
    */
   setPushForce?(value: number): void;
+
+  /**
+   * 设置起跳速度
+   * @param value 
+   */
+  setJumpSpeed?(value: number): void;
 }
