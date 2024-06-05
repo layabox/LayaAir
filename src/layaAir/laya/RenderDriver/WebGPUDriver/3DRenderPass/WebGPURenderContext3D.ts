@@ -9,6 +9,7 @@ import { IRenderCMD } from "../../DriverDesign/3DRenderPass/IRendderCMD";
 import { WebCameraNodeData, WebSceneNodeData } from "../../RenderModuleData/WebModuleData/3D/WebModuleData";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
 import { WebGPURenderBundleManager } from "../RenderDevice/WebGPUBundle/WebGPURenderBundleManager";
+import { WebGPURenderBundleManagerSet } from "../RenderDevice/WebGPUBundle/WebGPURenderBundleManagerSet";
 import { WebGPUInternalRT } from "../RenderDevice/WebGPUInternalRT";
 import { WebGPURenderCommandEncoder } from "../RenderDevice/WebGPURenderCommandEncoder";
 import { WebGPURenderEngine } from "../RenderDevice/WebGPURenderEngine";
@@ -58,10 +59,9 @@ export class WebGPURenderContext3D implements IRenderContext3D {
     private _needStart: boolean = true;
 
     device: GPUDevice; //GPU设备
-    bundleManager: WebGPURenderBundleManager = new WebGPURenderBundleManager(); //绘图指令缓存管理器
-    elementsToBundleStatic: WebGPURenderElement3D[] = []; //需要创建绘图指令缓存的渲染节点（静态节点）
-    elementsToBundleDynamic: WebGPURenderElement3D[] = []; //需要创建绘图指令缓存的渲染节点（动态节点）
+    bundleHit: number = 0; //命中Bundle
     needRemoveBundle: number[] = []; //需要清除绘图指令缓存的渲染节点
+    bundleManagerSets: Map<string, WebGPURenderBundleManagerSet> = new Map(); //绘图指令缓存组
 
     destRT: WebGPUInternalRT; //渲染目标
     blitFrameCount: number = 0; //渲染到屏幕时的帧序号
@@ -222,8 +222,15 @@ export class WebGPURenderContext3D implements IRenderContext3D {
      * 得到GPUBuffer改变的通知
      */
     notifyGPUBufferChange() {
-        if (this.bundleManager)
-            this.bundleManager.clearBundle();
+        this.bundleManagerSets.forEach(bms => bms.clearBundle());
+        this.bundleManagerSets.clear();
+    }
+
+    /**
+     * 获取指令缓存组的key
+     */
+    getBundleManagerKey() {
+        return this.cameraData.globalId + '_' + this.destRT.globalId;
     }
 
     /**
@@ -243,8 +250,24 @@ export class WebGPURenderContext3D implements IRenderContext3D {
         if (WebGPUGlobal.useGlobalContext)
             WebGPUContext.startRender();
 
+        //确定使用哪个绘图指令缓存
+        let bundleManager: WebGPURenderBundleManager;
+        let elementsToBundleStatic: WebGPURenderElement3D[];
+        let elementsToBundleDynamic: WebGPURenderElement3D[];
+        if (WebGPUGlobal.useBundle) {
+            const bundleKey = this.getBundleManagerKey();
+            let rbms = this.bundleManagerSets.get(bundleKey);
+            if (!rbms) {
+                rbms = new WebGPURenderBundleManagerSet();
+                this.bundleManagerSets.set(bundleKey, rbms);
+            }
+            bundleManager = rbms.bundleManager;
+            elementsToBundleStatic = rbms.elementsToBundleStatic;
+            elementsToBundleDynamic = rbms.elementsToBundleDynamic;
+        }
+
         let compile = false;
-        let canCreateBundle = true;
+        let createBundleCount = 0;
         const elements = list.elements;
         let element: WebGPURenderElement3D;
         for (let i = 0; i < len; i++) {
@@ -253,7 +276,7 @@ export class WebGPURenderContext3D implements IRenderContext3D {
             if (WebGPUGlobal.useBundle) { //如果着色器重新编译，则清除相应的绘图指令缓存
                 if (compile || element.staticChange) {
                     element.staticChange = false;
-                    this.bundleManager.removeBundleByElement(element.bundleId);
+                    bundleManager.removeBundleByElement(element.bundleId);
                 }
             }
         }
@@ -261,36 +284,47 @@ export class WebGPURenderContext3D implements IRenderContext3D {
         if (WebGPUGlobal.useBundle) { //启用绘图指令缓存模式
             const needRemoveBundle = this.needRemoveBundle;
             for (let i = 0, n = needRemoveBundle.length; i < n; i++) //如果有需要清除的绘图指令缓存，先清除
-                this.bundleManager.removeBundleByElement(needRemoveBundle[i]);
+                bundleManager.removeBundleByElement(needRemoveBundle[i]);
             needRemoveBundle.length = 0;
-            this.bundleManager.removeLowShotBundle(); //清除低命中率的绘图指令缓存
-            this.bundleManager.clearShot();
+            bundleManager.removeLowShotBundle(); //清除低命中率的绘图指令缓存
+            bundleManager.clearShot();
+            const elementsMaxPerBundleStatic = bundleManager.elementsMaxPerBundleStatic;
+            const elementsMaxPerBundleDynamic = bundleManager.elementsMaxPerBundleDynamic;
             for (let i = 0; i < len; i++) {
                 element = elements[i];
-                if (!this.bundleManager.has(element.bundleId)) { //如果该渲染节点没有在绘图指令缓存中
-                    if (canCreateBundle) { //本帧是否允许创建绘图指令缓存（每帧只允许创建一个指令缓存，避免卡顿）
+                if (!bundleManager.has(element.bundleId)) { //如果该渲染节点没有在绘图指令缓存中
+                    if (createBundleCount < 300) { //本帧是否允许创建绘图指令缓存（每帧只允许创建300个指令缓存，避免卡顿）
                         if (element.isStatic) {
-                            if (this.elementsToBundleStatic.indexOf(element) === -1)
-                                this.elementsToBundleStatic.push(element); //放入创建绘图指令缓存队列
-                            if (this.elementsToBundleStatic.length >= this.bundleManager.elementsMaxPerBundleStatic) {
-                                this.bundleManager.createBundle(this, this.elementsToBundleStatic, 0.7); //如果队列中的数量达到最大值，则创建批量绘图指令缓存
-                                this.elementsToBundleStatic.length = 0;
-                                canCreateBundle = false;
+                            if (elementsToBundleStatic.indexOf(element) === -1)
+                                elementsToBundleStatic.push(element); //放入创建绘图指令缓存队列
+                            if (elementsToBundleStatic.length >= elementsMaxPerBundleStatic) {
+                                bundleManager.createBundle(this, elementsToBundleStatic, 0.7); //如果队列中的数量达到最大值，则创建批量绘图指令缓存
+                                createBundleCount += elementsToBundleStatic.length;
+                                elementsToBundleStatic.length = 0;
                             }
                         } else {
-                            if (this.elementsToBundleDynamic.indexOf(element) === -1)
-                                this.elementsToBundleDynamic.push(element); //放入创建绘图指令缓存队列
-                            if (this.elementsToBundleDynamic.length >= this.bundleManager.elementsMaxPerBundleDynamic) {
-                                this.bundleManager.createBundle(this, this.elementsToBundleDynamic, 1); //如果队列中的数量达到最大值，则创建批量绘图指令缓存
-                                this.elementsToBundleDynamic.length = 0;
-                                canCreateBundle = false;
+                            if (elementsToBundleDynamic.indexOf(element) === -1)
+                                elementsToBundleDynamic.push(element); //放入创建绘图指令缓存队列
+                            if (elementsToBundleDynamic.length >= elementsMaxPerBundleDynamic) {
+                                bundleManager.createBundle(this, elementsToBundleDynamic, 1); //如果队列中的数量达到最大值，则创建批量绘图指令缓存
+                                createBundleCount += elementsToBundleDynamic.length;
+                                elementsToBundleDynamic.length = 0;
                             }
                         }
                     }
                     element._render(this, this.renderCommand, null); //因为还没有在绘图指令缓存中，先直接渲染
-                } else element._render(this, null, null); //将该节点的shaderData数据上传到GPU
+                } else {
+                    this.bundleHit++;
+                    element._render(this, null, null); //将该节点的shaderData数据上传到GPU
+                }
             }
-            this.bundleManager.renderBundles(this.renderCommand._encoder); //渲染所有绘图指令缓存
+            if (elementsToBundleStatic.length >= elementsMaxPerBundleStatic / 2)
+                bundleManager.createBundle(this, elementsToBundleStatic, 0.7);
+            if (elementsToBundleDynamic.length >= elementsMaxPerBundleDynamic / 2)
+                bundleManager.createBundle(this, elementsToBundleDynamic, 1);
+            elementsToBundleStatic.length = 0;
+            elementsToBundleDynamic.length = 0;
+            bundleManager.renderBundles(this.renderCommand._encoder); //渲染所有绘图指令缓存
         } else { //不启用绘图指令缓存模式，直接绘制
             for (let i = 0; i < len; i++)
                 elements[i]._render(this, this.renderCommand, null);
@@ -376,7 +410,7 @@ export class WebGPURenderContext3D implements IRenderContext3D {
         this._clearFlag = RenderClearFlag.Nothing;
         if (viewPortAndScissor) {
             if (this._viewPort) {
-                this._viewPort.y = this._viewPort.y | 0; //不设零会报错
+                this._viewPort.y = this._viewPort.y | 0; //有时候会传进来小数
                 this._viewPort.width = this._viewPort.width | 0;
                 this._viewPort.height = this._viewPort.height | 0;
                 this.renderCommand.setViewport(this._viewPort.x, this._viewPort.y, this._viewPort.width, this._viewPort.height, 0, 1);
@@ -406,9 +440,7 @@ export class WebGPURenderContext3D implements IRenderContext3D {
      */
     destroy() {
         WebGPUGlobal.releaseId(this);
-        this.bundleManager.destroy();
-        this.elementsToBundleStatic.length = 0;
-        this.elementsToBundleDynamic.length = 0;
+        this.notifyGPUBufferChange();
         this.needRemoveBundle.length = 0;
         this.renderCommand.destroy();
         this.destRT = null;

@@ -1,3 +1,4 @@
+import { Laya } from "../../../../../Laya";
 import { DrawType } from "../../../../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../../../../RenderEngine/RenderEnum/IndexFormat";
 import { WebGPURenderContext3D } from "../../3DRenderPass/WebGPURenderContext3D";
@@ -19,7 +20,9 @@ export class WebGPURenderBundle {
     private _shotNum: number = 0; //命中渲染节点数量
     private _shotCount: number = 0; //检查命中率的次数
     private _shotRateSet: number = 0.7; //命中率设置
+    private _shotEstimate: number = 0; //命中率评估次数
     renderBundle: GPURenderBundle; //渲染命令缓存对象
+    renderTimeStamp: number; //被渲染时的时间戳
 
     id: number; //缓存对象id
     static idCounter: number = 0; //缓存对象id计数器
@@ -44,6 +47,7 @@ export class WebGPURenderBundle {
         this._elements.add(element.bundleId);
         element._render(context, null, this);
         this._shotNum++;
+        this.renderTimeStamp = Laya.timer.currTimer;
     }
 
     /**
@@ -91,16 +95,30 @@ export class WebGPURenderBundle {
      * 判断是否是低命中率
      */
     isLowShotRate() {
-        const shotRate = this._elements.size > 0 ? this._shotNum / this._elements.size : 0;
+        const shotRate = this._elements.size > 0 ? this._shotNum / this._elements.size : 1;
         if (shotRate === 1) { //100%命中
-            this._shotCount = 0; //计数清零
+            this._shotEstimate = 0;
+            this._shotCount = 0;
             return false;
         }
-        if (this._shotCount++ > 10) { //每10帧清除一次缓存
+        if (this._shotRateSet === 1) { //对于动态节点，立即判断为true
+            this._shotEstimate = 0;
             this._shotCount = 0;
             return true;
         }
-        return shotRate < this._shotRateSet;
+        if (shotRate < this._shotRateSet) {
+            if (this._shotEstimate++ > 10) { //对于静态节点，评估次数大于10，判断为true
+                this._shotEstimate = 0;
+                this._shotCount = 0;
+                return true;
+            }
+        }
+        if (this._shotCount++ > 500) { //每500帧强制清除一次缓存
+            this._shotEstimate = 0;
+            this._shotCount = 0;
+            return true;
+        }
+        return false;
     }
 
     /**

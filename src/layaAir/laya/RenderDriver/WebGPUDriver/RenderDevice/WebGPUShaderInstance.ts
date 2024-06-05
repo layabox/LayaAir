@@ -20,7 +20,6 @@ export class WebGPUShaderInstance implements IShaderInstance {
     name: string;
     complete: boolean = false;
 
-    renderPipelineDescriptor: GPURenderPipelineDescriptor;
     renderPipelineMap: Map<string, any> = new Map();
 
     uniformInfo: WebGPUUniformPropertyBindingInfo[];
@@ -35,29 +34,9 @@ export class WebGPUShaderInstance implements IShaderInstance {
     }
 
     /**
-     * 创建ShaderInstance
-     * @param shaderProcessInfo 
-     * @param shaderPass 
+     * 获取渲染管线描述
      */
-    _create(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderPass): void {
-        const engine = WebGPURenderEngine._instance;
-        const device = engine.getDevice();
-        const shaderObj = WebGPUCodeGenerator.shaderLanguageProcess(
-            shaderProcessInfo.defineString, shaderProcessInfo.attributeMap, //@ts-ignore
-            shaderPass.uniformMap, shaderPass.arrayMap, shaderProcessInfo.vs, shaderProcessInfo.ps,
-            shaderProcessInfo.is2D);
-
-        this.uniformInfo = shaderObj.uniformInfo;
-        this.uniformInfo.forEach(item => {
-            if (!this.uniformSetMap[item.set])
-                this.uniformSetMap[item.set] = new Array<WebGPUUniformPropertyBindingInfo>();
-            this.uniformSetMap[item.set].push(item);
-        });
-
-        this._vsShader = device.createShaderModule({ code: shaderObj.vs });
-        this._fsShader = device.createShaderModule({ code: shaderObj.fs });
-        this._shaderPass = shaderPass;
-
+    getRenderPipelineDescriptor() {
         //设置颜色目标模式
         const colorTargetState: GPUColorTargetState = {
             format: 'bgra8unorm',
@@ -77,7 +56,7 @@ export class WebGPUShaderInstance implements IShaderInstance {
         };
 
         //设置渲染管线描述
-        this.renderPipelineDescriptor = {
+        const renderPipelineDescriptor: GPURenderPipelineDescriptor = {
             label: 'render',
             layout: 'auto',
             vertex: {
@@ -105,9 +84,37 @@ export class WebGPUShaderInstance implements IShaderInstance {
             },
         };
 
-        this.complete = true; //@ts-ignore
+        return renderPipelineDescriptor;
+    }
+
+    /**
+     * 创建ShaderInstance
+     * @param shaderProcessInfo 
+     * @param shaderPass 
+     */
+    _create(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderPass): void {
+        const engine = WebGPURenderEngine._instance;
+        const device = engine.getDevice();
+        const shaderObj = WebGPUCodeGenerator.shaderLanguageProcess(
+            shaderProcessInfo.defineString, shaderProcessInfo.attributeMap, //@ts-ignore
+            shaderPass.uniformMap, shaderPass.arrayMap, shaderProcessInfo.vs, shaderProcessInfo.ps,
+            shaderProcessInfo.is2D);
+
+        this.uniformInfo = shaderObj.uniformInfo;
+        this.uniformInfo.forEach(item => {
+            if (!this.uniformSetMap[item.set])
+                this.uniformSetMap[item.set] = new Array<WebGPUUniformPropertyBindingInfo>();
+            this.uniformSetMap[item.set].push(item);
+        });
+
+        this._shaderPass = shaderPass;
+        this._vsShader = device.createShaderModule({ code: shaderObj.vs });
+        this._fsShader = device.createShaderModule({ code: shaderObj.fs });
+
+        this.complete = true;
         const dimension = shaderProcessInfo.is2D ? '2d' : '3d';
-        console.log('create ' + dimension + ' shaderInstance_' + this._id, shaderPass._owner._owner.name);
+        console.log('create ' + dimension + ' shaderInstance_' + this._id,
+            shaderPass._owner._owner.name, this._shaderPass, this.uniformSetMap, { vs: shaderObj.glsl_vs }, { fs: shaderObj.glsl_fs });
     }
 
     /**
