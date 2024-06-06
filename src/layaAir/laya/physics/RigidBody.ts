@@ -140,6 +140,9 @@ export class RigidBody extends Component {
 
     set angularVelocity(value: number) {
         this._angularVelocity = value;
+        if(this._type == "static"){
+            return;
+        }
         if (this._body) Physics2D.I._factory.set_rigidBody_angularVelocity(this.body, value);
     }
 
@@ -168,6 +171,9 @@ export class RigidBody extends Component {
             value = { x: value[0], y: value[1] };
         }
         this._linearVelocity = value;
+        if(this._type == "static"){
+            return;
+        }
         if (this._body) Physics2D.I._factory.set_rigidBody_linearVelocity(this._body, value);
     }
 
@@ -191,17 +197,23 @@ export class RigidBody extends Component {
         defRigidBodyDef.angle = Utils.toRadian(sp.globalRotation);
         defRigidBodyDef.allowSleep = this._allowSleep;
         defRigidBodyDef.angularDamping = this._angularDamping;
-        defRigidBodyDef.angularVelocity = this._angularVelocity;
+      
         defRigidBodyDef.bullet = this._bullet;
         defRigidBodyDef.fixedRotation = !this._allowRotation;
         defRigidBodyDef.gravityScale = this._gravityScale;
         defRigidBodyDef.linearDamping = this._linearDamping;
         defRigidBodyDef.group = this.group;
         var obj: any = this._linearVelocity;
-        if (obj && obj.x != 0 || obj.y != 0) {
-            defRigidBodyDef.linearVelocity.setValue(obj.x, obj.y);
-        }
         defRigidBodyDef.type = this._type;
+        if(this._type == "static"){
+            defRigidBodyDef.angularVelocity = 0;
+            defRigidBodyDef.linearVelocity.setValue(0,0);
+        }else{
+            defRigidBodyDef.angularVelocity = this._angularVelocity;
+            if (obj && obj.x != 0 || obj.y != 0) {
+                defRigidBodyDef.linearVelocity.setValue(obj.x, obj.y);
+            }
+        }
 
         this._body = factory.rigidBodyDef_Create(defRigidBodyDef);
         this._needrefeshShape();
