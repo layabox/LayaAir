@@ -49,6 +49,8 @@ export class MaterialLoader implements IResourceLoader {
 
         let options: ILoadOptions = Object.assign({}, task.options);
         options.initiator = task;
+        delete options.cache;
+        delete options.ignoreCache;
         return task.loader.load(urls, options, task.progress.createCallback()).then(() => {
             let mat = MaterialParser.parse(data);
 
