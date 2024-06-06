@@ -296,7 +296,8 @@ export class Loader extends EventDispatcher {
             return promise;
     }
 
-    private _load1(url: string, type: string, options: ILoadOptions, onProgress: ProgressCallback): Promise<any> {
+    /** @internal */
+    _load1(url: string, type: string, options: ILoadOptions, onProgress: ProgressCallback): Promise<any> {
         if (LayaEnv.isPreview) {
             if (url.startsWith("res://")) {
                 let uuid = url.substring(6);
@@ -304,7 +305,7 @@ export class Loader extends EventDispatcher {
                     if (url2)
                         return this._load2(url2, uuid, type, options, onProgress);
                     else {
-                        !options.silent && Loader.warnFailed(url);
+                        !options.silent && Loader.warnFailed(url, undefined, options.initiator?.url);
                         return Promise.resolve(null);
                     }
                 });
@@ -319,10 +320,11 @@ export class Loader extends EventDispatcher {
             return this._load2(url, null, type, options, onProgress);
     }
 
-    private _load2(url: string, uuid: string, type: string, options: ILoadOptions, onProgress: ProgressCallback): Promise<any> {
+    /** @internal */
+    _load2(url: string, uuid: string, type: string, options: ILoadOptions, onProgress: ProgressCallback): Promise<any> {
         let { ext, typeId, main, loaderType } = Loader.getURLInfo(url, type);
         if (!loaderType) {
-            !options.silent && Loader.warnFailed(url);
+            !options.silent && Loader.warnFailed(url, undefined, options.initiator?.url);
             return Promise.resolve(null);
         }
         let formattedUrl = URL.formatURL(url);
@@ -402,7 +404,7 @@ export class Loader extends EventDispatcher {
             promise = assetLoader.load(task);
         }
         catch (err: any) {
-            !options.silent && Loader.warnFailed(url, err);
+            !options.silent && Loader.warnFailed(url, err, options.initiator?.url);
 
             promise = Promise.resolve(null);
         }
@@ -421,7 +423,7 @@ export class Loader extends EventDispatcher {
             task.onComplete.invoke(content);
             return content;
         }).catch(error => {
-            !options.silent && Loader.warnFailed(url, error);
+            !options.silent && Loader.warnFailed(url, error, options.initiator?.url);
 
             if (task.options.cache !== false)
                 Loader._cacheRes(formattedUrl, null, typeId, main);
@@ -465,11 +467,14 @@ export class Loader extends EventDispatcher {
             task.silent = true;
 
         return AssetDb.inst.resolveURL(url).then(url => {
-            return new Promise((resolve) => {
-                task.url = URL.formatURL(url);
-                task.onComplete = resolve;
-                this.queueToDownload(task);
-            });
+            if (url)
+                return new Promise((resolve) => {
+                    task.url = URL.formatURL(url);
+                    task.onComplete = resolve;
+                    this.queueToDownload(task);
+                });
+            else
+                return null;
         });
     }
 
@@ -571,7 +576,7 @@ export class Loader extends EventDispatcher {
         }
     }
 
-    private static getURLInfo(url: string, type?: string): URLInfo {
+    public static getURLInfo(url: string, type?: string): URLInfo {
         //先根据扩展名获得注册信息A
         let ext = url.startsWith("data:") ? "png" : Utils.getFileExtension(url);
         let extEntry: Array<TypeMapEntry>;
@@ -620,8 +625,11 @@ export class Loader extends EventDispatcher {
         return { ext, main, typeId, loaderType };
     }
 
-    private static warnFailed(url: string, err?: any) {
-        this.warn(`Failed to load '${url}'`, err);
+    public static warnFailed(url: string, err?: any, initiatorUrl?: string) {
+        if (initiatorUrl)
+            this.warn(`Failed to load '${url}' (in '${initiatorUrl}')`, err);
+        else
+            this.warn(`Failed to load '${url}'`, err);
     }
 
     public static warn(msg: string, err?: any) {
@@ -642,7 +650,8 @@ export class Loader extends EventDispatcher {
         return ret || null;
     }
 
-    private static _getRes(url: string, type?: string): any {
+    /** @internal */
+    static _getRes(url: string, type?: string): any {
         let resArr = Loader.loadedMap[url];
         if (!resArr)
             return undefined;
@@ -715,10 +724,8 @@ export class Loader extends EventDispatcher {
             Loader._cacheRes(url, data, urlInfo.typeId, urlInfo.main);
     }
 
-    /**
-     * @private
-     */
-    private static _cacheRes(url: string, data: any, typeId: number, main: boolean) {
+    /** @internal */
+    static _cacheRes(url: string, data: any, typeId: number, main: boolean) {
         let entry: Array<any> = Loader.loadedMap[url];
         if (main) {
             if (entry) {
@@ -766,9 +773,9 @@ export class Loader extends EventDispatcher {
     }
 
     /**
-     * @private
+     * @internal
      */
-    private static _clearRes(url: string, checkObj?: any) {
+    static _clearRes(url: string, checkObj?: any) {
         let entry = Loader.loadedMap[url];
         if (!entry)
             return;

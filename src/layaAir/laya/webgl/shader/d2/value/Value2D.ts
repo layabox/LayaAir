@@ -1,22 +1,18 @@
-import { Texture } from "../../../../resource/Texture"
-import { ShaderDefines2D } from "../ShaderDefines2D"
-import { RenderState2D } from "../../../utils/RenderState2D"
-import { RenderTexture2D } from "../../../../resource/RenderTexture2D"
 import { Const } from "../../../../Const"
-import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D"
-import { Material } from "../../../../resource/Material"
-import { Vector2 } from "../../../../maths/Vector2"
-import { Matrix4x4 } from "../../../../maths/Matrix4x4"
-import { Vector4 } from "../../../../maths/Vector4"
-import { LayaGL } from "../../../../layagl/LayaGL"
 import { ShaderData } from "../../../../RenderDriver/DriverDesign/RenderDevice/ShaderData"
 import { IDefineDatas } from "../../../../RenderDriver/RenderModuleData/Design/IDefineDatas"
-import { WebGLShaderInstance } from "../../../../RenderDriver/WebGLDriver/RenderDevice/WebGLShaderInstance"
 import { RenderState } from "../../../../RenderDriver/RenderModuleData/Design/RenderState"
+import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D"
 import { ColorFilter } from "../../../../filters/ColorFilter"
-import { BaseTexture } from "../../../../resource/BaseTexture"
-import { Rectangle } from "../../../../maths/Rectangle"
+import { LayaGL } from "../../../../layagl/LayaGL"
 import { Matrix } from "../../../../maths/Matrix"
+import { Matrix4x4 } from "../../../../maths/Matrix4x4"
+import { Vector2 } from "../../../../maths/Vector2"
+import { Vector4 } from "../../../../maths/Vector4"
+import { BaseTexture } from "../../../../resource/BaseTexture"
+import { Material } from "../../../../resource/Material"
+import { Texture } from "../../../../resource/Texture"
+import { ShaderDefines2D } from "../ShaderDefines2D"
 
 export enum RenderSpriteData {
     Zero,
@@ -31,8 +27,6 @@ export class Value2D {
     protected static _typeClass: any = [];
     static _compileDefine: IDefineDatas;
 
-    private _color: Vector4;
-    private _colorAdd: Vector4;
     //释放的时候用来去重的，
     _needRelease = false;
 
@@ -42,39 +36,22 @@ export class Value2D {
 
     private mainID = RenderSpriteData.Zero;
     private ref = 1;
-    private _inClassCache: any;
 
     private _cacheID = 0;
 
     filters: any[];
-    texture: any;
     private _textureHost: Texture | BaseTexture
-    //给cacheas = normal用
-    localClipMatrix: Matrix;
 
     constructor(mainID: RenderSpriteData) {
         this.mainID = mainID;
+        //这个prototype是为了防止调用到子的initialize
         Value2D.prototype.initialize.call(this);
-    }
-
-    private _init2DRenderState() {
-        this.shaderData.setInt(Shader3D.BLEND, RenderState.BLEND_ENABLE_ALL);
-        //WebGLContext.setBlendEquation(gl, gl.FUNC_ADD);
-        // this.shaderData.
-        this.shaderData.setInt(Shader3D.BLEND_SRC,RenderState.BLENDPARAM_ONE);
-        //WebGLContext.setBlendFunc(gl, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-        this.shaderData.setInt(Shader3D.BLEND_DST,RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA);
-        //WebGLContext.setDepthTest(gl, false);
-        this.shaderData.setInt(Shader3D.DEPTH_TEST,RenderState.DEPTHTEST_OFF);
-        this.shaderData.setInt(Shader3D.CULL,RenderState.CULL_NONE);
     }
 
     //为了方便复用
     protected initialize() {
-        this.localClipMatrix = new Matrix();
         let mainID = this.mainID;
-        this.shaderData = LayaGL.renderDeviceFactory.createShaderData(null);
-        this._init2DRenderState();
+        this.shaderData = this.shaderData || LayaGL.renderDeviceFactory.createShaderData(null);
         if (this.mainID == RenderSpriteData.Texture2D) {
             this.shaderData.addDefine(ShaderDefines2D.TEXTURESHADER);
         }
@@ -82,20 +59,14 @@ export class Value2D {
             this.shaderData.addDefine(ShaderDefines2D.PRIMITIVESHADER);
         }
         this.textureHost = null;
-        this.texture = null;
-
-        //this.fillStyle = null;
-        //this.color = null;
-        //this.strokeStyle = null;
-        //this.colorAdd = null;
 
         this.clipMatDir = new Vector4(Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_CLIP_SIZE);;
         this.clipMatPos = new Vector2();
         this._cacheID = mainID;
-        this._inClassCache = Value2D._cache[this._cacheID];
-        if (mainID > 0 && !this._inClassCache) {
-            this._inClassCache = Value2D._cache[this._cacheID] = [];
-            this._inClassCache._length = 0;
+        let cache = Value2D._cache[this._cacheID];
+        if (mainID > 0 && !cache) {
+            cache = Value2D._cache[this._cacheID] = [];
+            cache._length = 0;
         }
 
         //
@@ -106,6 +77,7 @@ export class Value2D {
         this.shaderData.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ONE);
         this.shaderData.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA);
         this.shaderData.setNumber(ShaderDefines2D.UNIFORM_VERTALPHA, 1.0);
+        this.shaderData.setInt(Shader3D.CULL,RenderState.CULL_NONE);
     }
 
     reinit() {
@@ -200,7 +172,6 @@ export class Value2D {
         this.shaderData.setTexture(ShaderDefines2D.UNIFORM_SPRITETEXTURE, tex);
 
     }
-    //public var fillStyle:DrawStyle;			//TODO 这个有什么用？
 
     set color(value: Vector4) {
         value && this.shaderData.setVector(ShaderDefines2D.UNIFORM_COLOR, value);
@@ -287,7 +258,10 @@ export class Value2D {
     }
 
     clear(): void {
-        this.shaderData.destroy();
+        if(this.shaderData){
+            this.shaderData.clearDefine();
+            //this.shaderData.destroy();
+        }
     }
 
     //
@@ -313,7 +287,8 @@ export class Value2D {
 
     release(): void {
         if ((--this.ref) < 1) {
-            this._inClassCache && (this._inClassCache[this._inClassCache._length++] = this);
+            let cache = Value2D._cache[this._cacheID];
+            cache && (cache[cache._length++] = this);
             this.clear();
             this.filters = null;
             this.ref = 1;

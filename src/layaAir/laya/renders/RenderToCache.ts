@@ -1,3 +1,4 @@
+import { IRenderElement2D } from "../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
 import { IRenderGeometryElement } from "../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
 import { VertexDeclaration } from "../RenderEngine/VertexDeclaration";
 import { Material } from "../resource/Material";
@@ -43,12 +44,21 @@ export class RenderToCache extends Render2D {
     draw(mesh2d: IMesh2D, vboff: number, vblen: number, iboff: number, iblen: number, mtl: Value2D): void {
         this.setVertexDecl(mesh2d.vertexDeclarition);
         let submesh = new RenderObject2D(mesh2d,vboff,vblen,iboff,iblen,mtl);
+        let clipPos = mtl.clipMatPos;
+        let clipDir = mtl.clipMatDir;
+        let clipMat = submesh.localClipMatrix;
+        clipMat.a = clipDir.x; clipMat.b = clipDir.y; clipMat.c = clipDir.z; clipMat.d = clipDir.w;
+        clipMat.tx = clipPos.x; clipMat.ty = clipPos.y;
         mtl.shaderData.addDefine(ShaderDefines2D.WORLDMAT);
+        submesh.toNativeMesh();
         this.renderResult.push(submesh);
     }
 
     drawMesh(mesh: IRenderGeometryElement, mtl: Material): void {
         throw "not implement"
+    }
+    drawElement(ele: IRenderElement2D): void {
+        throw new Error("Method not implemented.");
     }
     renderEnd(): void {
     }

@@ -291,22 +291,6 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
         const depthWrite = (renderState.depthWrite ?? data[Shader3D.DEPTH_WRITE]) ?? RenderState.Default.depthWrite;
         const depthTest = (renderState.depthTest ?? data[Shader3D.DEPTH_TEST]) ?? RenderState.Default.depthTest;
         return WebGPUDepthStencilState.getDepthStencilState(dest.depthStencilFormat, depthWrite, depthTest);
-        //Stencil
-        // var stencilWrite: any = (renderState.stencilWrite ?? datas[Shader3D.STENCIL_WRITE]) ?? RenderState.Default.stencilWrite;
-        // var stencilWrite: any = (renderState.stencilWrite ?? datas[Shader3D.STENCIL_WRITE]) ?? RenderState.Default.stencilWrite;
-        // var stencilTest: any = (renderState.stencilTest ?? datas[Shader3D.STENCIL_TEST]) ?? RenderState.Default.stencilTest;
-        // RenderStateContext.setStencilMask(stencilWrite);
-        // if (stencilWrite) {
-        // 	var stencilOp: any = (renderState.stencilOp ?? datas[Shader3D.STENCIL_Op]) ?? RenderState.Default.stencilOp;
-        // 	RenderStateContext.setstencilOp(stencilOp.x, stencilOp.y, stencilOp.z);
-        // }
-        // if (stencilTest == RenderState.STENCILTEST_OFF) {
-        // 	RenderStateContext.setStencilTest(false);
-        // } else {
-        // 	var stencilRef: any = (renderState.stencilRef ?? datas[Shader3D.STENCIL_Ref]) ?? RenderState.Default.stencilRef;
-        // 	RenderStateContext.setStencilTest(true);
-        // 	RenderStateContext.setStencilFunc(stencilTest, stencilRef);
-        // }
     }
 
     private _getRenderStateDepthByMaterial(shaderData: WebGPUShaderData, dest: WebGPUInternalRT) {
@@ -314,35 +298,6 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
         const depthWrite = data[Shader3D.DEPTH_WRITE] ?? RenderState.Default.depthWrite;
         const depthTest = data[Shader3D.DEPTH_TEST] ?? RenderState.Default.depthTest;
         return WebGPUDepthStencilState.getDepthStencilState(dest.depthStencilFormat, depthWrite, depthTest);
-        // if (depthTest === RenderState.DEPTHTEST_OFF) {
-        // 	RenderStateContext.setDepthTest(false);
-        // }
-        // else {
-        // 	RenderStateContext.setDepthTest(true);
-        // 	RenderStateContext.setDepthFunc(depthTest);
-        // }
-
-        // //Stencil
-        // var stencilWrite = datas[Shader3D.STENCIL_WRITE];
-        // stencilWrite = stencilWrite ?? RenderState.Default.stencilWrite;
-        // RenderStateContext.setStencilMask(stencilWrite);
-        // if (stencilWrite) {
-        // 	var stencilOp = datas[Shader3D.STENCIL_Op];
-        // 	stencilOp = stencilOp ?? RenderState.Default.stencilOp;
-        // 	RenderStateContext.setstencilOp(stencilOp.x, stencilOp.y, stencilOp.z);
-        // }
-
-        // var stencilTest = datas[Shader3D.STENCIL_TEST];
-        // stencilTest = stencilTest ?? RenderState.Default.stencilTest;
-        // if (stencilTest === RenderState.STENCILTEST_OFF) {
-        // 	RenderStateContext.setStencilTest(false);
-        // }
-        // else {
-        // 	var stencilRef = datas[Shader3D.STENCIL_Ref];
-        // 	stencilRef = stencilRef ?? RenderState.Default.stencilRef;
-        // 	RenderStateContext.setStencilTest(true);
-        // 	RenderStateContext.setStencilFunc(stencilTest, stencilRef);
-        // }
     }
 
     private _getCullFrontMode(shaderData: WebGPUShaderData, shaderInstance: WebGPUShaderInstance, isTarget: boolean, invertFront: boolean) {

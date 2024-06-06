@@ -102,6 +102,7 @@ async function test(){
         roles.forEach(r=>{
             r.removeSelf();
         });
+        roles.length=0;
 
         for(let i=0; i<n; i++){
             let r = new testRole();

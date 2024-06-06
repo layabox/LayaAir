@@ -45,6 +45,7 @@ export abstract class Render2D {
     //shaderdata放到mtl中。之所以传内存buffer是为了给后面合并subdata机会，以便提高效率
     abstract draw(mesh: IMesh2D, vboff: number, vblen: number, iboff: number, iblen: number, mtl: Value2D): void;
     abstract drawMesh(mesh: IRenderGeometryElement, mtl: Material): void;
+    abstract drawElement(ele:IRenderElement2D):void;
 
     abstract renderEnd(): void;
 }
@@ -119,6 +120,10 @@ export class Render2DSimple extends Render2D {
         this._renderElement.materialShaderData = mtl.shaderData;
         //blendState TODO
         Render2DSimple.rendercontext2D.drawRenderElementOne(this._renderElement);
+    }
+
+    drawElement(ele:IRenderElement2D){
+        Render2DSimple.rendercontext2D.drawRenderElementOne(ele);
     }
 
     draw(mesh2d: IMesh2D, vboff: number, vblen: number, iboff: number, iblen: number, mtl: Value2D): void {

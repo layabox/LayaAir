@@ -58,6 +58,10 @@ export class WebGLBufferState implements IBufferState {
     }
 
     destroy(): void {
+        if (WebGLBufferState._curBindedBufferState == this) {
+            this._glVertexState.unbindVertexArray();
+            WebGLBufferState._curBindedBufferState = null;
+        }        
         this._glVertexState.destroy();
         this._vertexBuffers = null;
         this._bindedIndexBuffer = null;

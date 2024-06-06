@@ -937,7 +937,6 @@ export class Context {
     /**@internal */
     _copyClipInfo(shaderValue: Value2D): void {
         let clipInfo = this._globalClipMatrix;
-        this._globalClipMatrix.copyTo(shaderValue.localClipMatrix);
         var cm = shaderValue.clipMatDir;
         cm.x = clipInfo.a; cm.y = clipInfo.b; cm.z = clipInfo.c; cm.w = clipInfo.d;
         shaderValue.clipMatDir = cm;

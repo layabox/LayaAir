@@ -1251,17 +1251,6 @@ export class Sprite extends Node {
     }
 
     /**
-     * 把当前对象渲染到指定的贴图上。贴图由外部指定，避免每次都创建。
-     * @param offx 绘制的 X 轴偏移量。
-     * @param offy 绘制的 Y 轴偏移量。
-     * @param tex 输出渲染结果
-     */
-    drawToTexture3D(offx: number, offy: number, tex: Texture2D) {
-        throw 'not implement'
-    }
-
-
-    /**
      * @private
      * 绘制到画布。
      */

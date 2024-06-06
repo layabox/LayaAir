@@ -56,6 +56,7 @@ export class CacheStyle {
         this.maskParent = null;
         if (this.cacheRect) this.cacheRect.recover();
         this.cacheRect = null;
+        this.cacheInfo.reset();
         return this
     }
 

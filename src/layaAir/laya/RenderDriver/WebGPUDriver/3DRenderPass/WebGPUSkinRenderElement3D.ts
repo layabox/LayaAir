@@ -208,21 +208,26 @@ export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D implements 
                 const shaderInstance = this._shaderInstance[i];
                 if (shaderInstance && shaderInstance.complete) {
                     if (WebGPUGlobal.useCache) { //启用缓存机制
-                        if (this.materialShaderData)
-                            stateKey = this._calcStateKey(shaderInstance, context.destRT, context);
-                        else stateKey = this._stateKey[index];
-                        if (stateKey != this._stateKey[index] || !this._pipelineCache[index]) //缓存未命中
+                        let pipeline: GPURenderPipeline;
+                        stateKey = this._calcStateKey(shaderInstance, context.destRT, context);
+                        if (this._stateKey !== stateKey) {
+                            this._stateKey = stateKey;
+                            pipeline = this._pipeline = WebGPURenderElement3D._pipelineCacheMap.get(stateKey);
+                        } else pipeline = this._pipeline;
+                        if (!pipeline) {
                             this._createPipeline(index, context, shaderInstance, command, bundle, stateKey); //新建渲染管线
+                            pipeline = this._pipeline;
+                        }
                         else { //缓存命中
                             if (command) {
                                 if (WebGPUGlobal.useGlobalContext)
-                                    WebGPUContext.setCommandPipeline(command, this._pipelineCache[index]);
-                                else command.setPipeline(this._pipelineCache[index]);
+                                    WebGPUContext.setCommandPipeline(command, pipeline);
+                                else command.setPipeline(pipeline);
                             }
                             if (bundle) {
                                 if (WebGPUGlobal.useGlobalContext)
-                                    WebGPUContext.setBundlePipeline(bundle, this._pipelineCache[index]);
-                                else bundle.setPipeline(this._pipelineCache[index]);
+                                    WebGPUContext.setBundlePipeline(bundle, pipeline);
+                                else bundle.setPipeline(pipeline);
                             }
                         }
                     } else this._createPipeline(index, context, shaderInstance, command, bundle); //不启用缓存机制

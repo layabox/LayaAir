@@ -167,6 +167,10 @@ export class SerializeUtil {
                 return Loader.TEXTURECUBE;
             case "Prefab":
                 return Loader.HIERARCHY;
+            case "Material":
+                return Loader.MATERIAL;
+            case "Mesh":
+                return Loader.MESH;
             default:
                 return null;
         }

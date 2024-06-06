@@ -7,6 +7,10 @@ import { RenderSprite } from "../../renders/RenderSprite";
 
 //HierarchyLoader和MaterialLoader等是通过前面的import完成的
 //RenderSprite.cacheNormalEnable = false;
+/**
+ * 这里面的裁剪目前有问题，但是暂时不好解决
+ * 就是画cache的结果的时候，需要合并裁剪，但是如果cache的本地裁剪与父裁剪不在一个空间，例如cache有旋转，则目前的机制无法正确处理
+ */
 async function test(){
     //初始化引擎
     await Laya.init(0,0);
