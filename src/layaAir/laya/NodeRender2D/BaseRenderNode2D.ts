@@ -184,4 +184,10 @@ export class BaseRenderNode2D extends Component {
         this.owner = null;
     }
 
+    clear(): void {
+        this._renderElements.length = 0;
+    
+    }
+
+
 }

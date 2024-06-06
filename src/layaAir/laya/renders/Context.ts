@@ -1485,7 +1485,11 @@ export class Context {
     }
 
     endRender() {
+
         this.flush();
+        if (!this._render2DManager._renderEnd) {
+            this._render2DManager.render(Render2DSimple.rendercontext2D);
+        }
         this._render2D.renderEnd();
         this._curSubmit = SubmitBase.RENDERBASE;
     }

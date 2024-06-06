@@ -19,6 +19,9 @@ import { MeshTopology } from "../RenderEngine/RenderEnum/RenderPologyMode";
 import { Context } from "../renders/Context";
 import { SpineShaderInit } from "./material/SpineShaderInit";
 import { Vector2 } from "../maths/Vector2";
+import { IRenderGeometryElement } from "../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
+import { Material } from "../resource/Material";
+import { IndexFormat } from "../RenderEngine/RenderEnum/IndexFormat";
 
 
 /**动画开始播放调度
@@ -54,7 +57,10 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
     }
 
     static recoverRenderElement2D(value: IRenderElement2D) {
-        this._pool.push(value);
+        if (!(value as any).canotPool) {
+            this._pool.push(value);
+        }
+
     }
 
 
@@ -675,6 +681,60 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
      */
     setSlotAttachment(slotName: string, attachmentName: string) {
         this._skeleton.setAttachment(slotName, attachmentName);
+    }
+
+    clear(): void {
+        this._renderElements.forEach(element => {
+            Spine2DRenderNode.recoverRenderElement2D(element);
+        });
+        super.clear();
+    }
+
+    drawGeos(geo: IRenderGeometryElement, elements: [Material, number, number][]) {
+        for (var i = 0, n = elements.length; i < n; i++) {
+            let element = Spine2DRenderNode.createRenderElement2D();
+            element.geometry.bufferState = geo.bufferState;
+            element.geometry.indexFormat = IndexFormat.UInt16;
+            element.geometry.clearRenderParams();
+            element.geometry.setDrawElemenParams(elements[i][1], elements[i][2]);
+            let material = elements[i][0];
+            this._renderElements.push(element);
+            if (this._materials[0] != null) {
+                let rendernodeMaterial = this._materials[i];
+                rendernodeMaterial.setTextureByIndex(SpineShaderInit.SpineTexture, material.getTextureByIndex(SpineShaderInit.SpineTexture));
+                rendernodeMaterial.blendSrc = material.blendSrc;
+                rendernodeMaterial.blendDst = material.blendDst;
+                material = rendernodeMaterial;
+            }
+            element.materialShaderData = material.shaderData;
+            element.subShader = material._shader.getSubShaderAt(0);
+            element.value2DShaderData = this._spriteShaderData;
+        }
+    }
+    updateElements(geo: IRenderGeometryElement, elements: [Material, number, number][]) {
+        this.clear();
+        this.drawGeos(geo, elements);
+    }
+
+    drawGeo(geo: IRenderGeometryElement, material: Material) {
+        if (this._renderElements.length > 0) {
+            debugger
+        }
+        let element = Spine2DRenderNode.createRenderElement2D();
+        element.geometry = geo;
+        // geo.clearRenderParams();
+        // geo.setDrawElemenParams(geo.bufferState._bindedIndexBuffer.indexCount, 0);
+        this._renderElements.push(element);
+        if (this._materials[0] != null) {
+            let rendernodeMaterial = this._materials[0];
+            rendernodeMaterial.setTextureByIndex(SpineShaderInit.SpineTexture, material.getTextureByIndex(SpineShaderInit.SpineTexture));
+            rendernodeMaterial.blendSrc = material.blendSrc;
+            rendernodeMaterial.blendDst = material.blendDst;
+            material = rendernodeMaterial;
+        }
+        element.materialShaderData = material.shaderData;
+        element.subShader = material._shader.getSubShaderAt(0);
+        element.value2DShaderData = this._spriteShaderData;
     }
 }
 
