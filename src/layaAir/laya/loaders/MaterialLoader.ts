@@ -1,11 +1,11 @@
-import { IResourceLoader, ILoadTask, ILoadURL, Loader } from "../net/Loader";
+import { IResourceLoader, ILoadTask, ILoadURL, Loader, ILoadOptions } from "../net/Loader";
 import { URL } from "../net/URL";
 import { Shader3D } from "../RenderEngine/RenderShader/Shader3D";
 import { AssetDb } from "../resource/AssetDb";
 import { Material } from "../resource/Material";
 import { MaterialParser } from "./MaterialParser";
 
-class MaterialLoader implements IResourceLoader {
+export class MaterialLoader implements IResourceLoader {
     load(task: ILoadTask) {
         return task.loader.fetch(task.url, "json", task.progress.createCallback(0.3), task.options).then(data => {
             if (!data)
@@ -47,7 +47,11 @@ class MaterialLoader implements IResourceLoader {
             return Promise.resolve(mat);
         }
 
-        return task.loader.load(urls, task.options, task.progress.createCallback()).then(() => {
+        let options: ILoadOptions = Object.assign({}, task.options);
+        options.initiator = task;
+        delete options.cache;
+        delete options.ignoreCache;
+        return task.loader.load(urls, options, task.progress.createCallback()).then(() => {
             let mat = MaterialParser.parse(data);
 
             let obsoluteInst = <Material>task.obsoluteInst;
