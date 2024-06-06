@@ -42,7 +42,7 @@ export class BVHRenderBox<T> extends BVHSpatialBox<T>{
                 for (let i = 0; i < this._cellList.length; i++) { //逐个判断逻辑对象包围盒是否和视锥有交集
                     var canPass: boolean;
                     let render = this._cellList[i]
-                    canPass = (Math.pow(2, render.renderNode.layer) & cullMask) != 0 && render._enabled && (render.renderbitFlag == 0);
+                    canPass = ((1 << render.renderNode.layer) & cullMask) != 0 && render._enabled && (render.renderbitFlag == 0);
                     canPass = canPass && ((render.renderNode.staticMask & staticMask) != 0);
                     if (canPass) {
                         Stat.frustumCulling++;

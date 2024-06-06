@@ -1179,7 +1179,7 @@ export class Scene3D extends Sprite implements ISubmit {
         let element = list.elements;
         for (let i: number = 0; i < list.length; i++) {
             let render = element[i];
-            render.distanceForSort = Vector3.distance(render.bounds.getCenter(), cameraPos);//TODO:合并计算浪费,或者合并后取平均值
+            render.distanceForSort = Vector3.distanceSquared(render.bounds.getCenter(), cameraPos);//TODO:合并计算浪费,或者合并后取平均值
             var elements: RenderElement[] = render._renderElements;
             for (var j: number = 0, m: number = elements.length; j < m; j++)
                 elements[j]._update(this, context, context.customShader, context.replaceTag);
@@ -1199,7 +1199,7 @@ export class Scene3D extends Sprite implements ISubmit {
         let element = list.elements;
         for (let i: number = 0; i < list.length; i++) {
             let render = element[i];
-            render.distanceForSort = Vector3.distance(render.bounds.getCenter(), position);//TODO:合并计算浪费,或者合并后取平均值
+            render.distanceForSort = Vector3.distanceSquared(render.bounds.getCenter(), position);//TODO:合并计算浪费,或者合并后取平均值
             var elements: RenderElement[] = render._renderElements;
             for (var j: number = 0, m: number = elements.length; j < m; j++)
                 elements[j]._update(this, context, null, null);
@@ -1218,7 +1218,7 @@ export class Scene3D extends Sprite implements ISubmit {
         let element = list.elements;
         for (var i: number = 0, n: number = list.length; i < n; i++) {
             var render = element[i];
-            render.distanceForSort = Vector3.distance(render.bounds.getCenter(), cameraCullInfo.position);
+            render.distanceForSort = Vector3.distanceSquared(render.bounds.getCenter(), cameraCullInfo.position);
             var elements: RenderElement[] = render._renderElements;
             for (var j: number = 0, m: number = elements.length; j < m; j++)
                 elements[j]._update(this, context, null, null);
