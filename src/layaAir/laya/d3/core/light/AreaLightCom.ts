@@ -37,6 +37,21 @@ export class AreaLightCom extends Light {
         this._power = 100;
     }
 
+    protected _creatModuleData() {
+        this._dataModule = {
+            transform:null,
+            range:0,
+            shadowResolution:1,
+            shadowDistance:1,
+            shadowMode:null,
+            shadowStrength:1,
+            shadowDepthBias:1,
+            shadowNormalBias:1,
+            shadowNearPlane:1
+        }
+	}
+
+
     /**
       * 灯光烘培类型。
       */
