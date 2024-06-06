@@ -4,7 +4,7 @@ import { LayaGL } from "../../../layagl/LayaGL";
 import { Color } from "../../../maths/Color";
 import { Vector4 } from "../../../maths/Vector4";
 import { Viewport } from "../../../maths/Viewport";
-import { SingletonList } from "../../../utils/SingletonList";
+import { FastSinglelist } from "../../../utils/SingletonList";
 import { IRenderContext3D, PipelineMode } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { IRenderCMD } from "../../DriverDesign/3DRenderPass/IRendderCMD";
 import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
@@ -176,7 +176,7 @@ export class WebGLRenderContext3D implements IRenderContext3D {
         return 0;
     }
 
-    drawRenderElementList(list: SingletonList<WebGLRenderElement3D>): number {
+    drawRenderElementList(list: FastSinglelist<WebGLRenderElement3D>): number {
         if (this._needStart) {
             this._bindRenderTarget();
             this._start();

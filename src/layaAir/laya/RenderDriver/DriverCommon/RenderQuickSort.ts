@@ -1,11 +1,11 @@
-import { SingletonList } from "../../utils/SingletonList";
+import { FastSinglelist } from "../../utils/SingletonList";
 import { IRenderElement3D } from "../DriverDesign/3DRenderPass/I3DRenderPass";
 
 /**
  * 渲染节点快速排序
  */
 export class RenderQuickSort {
-    private elementArray: SingletonList<IRenderElement3D>;
+    private elementArray: FastSinglelist<IRenderElement3D>;
     private isTransparent: boolean;
 
     /**
@@ -15,7 +15,7 @@ export class RenderQuickSort {
      * @param left 
      * @param right 
      */
-    sort(elements: SingletonList<IRenderElement3D>, isTransparent: boolean, left: number, right: number): void {
+    sort(elements: FastSinglelist<IRenderElement3D>, isTransparent: boolean, left: number, right: number): void {
         this.elementArray = elements;
         this.isTransparent = isTransparent;
         this._quickSort(left, right);

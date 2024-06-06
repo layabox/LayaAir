@@ -29,6 +29,7 @@ import { SpriteUtils } from "../utils/SpriteUtils";
 import { IHitArea } from "../utils/IHitArea";
 import type { Material } from "../resource/Material";
 import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
+import { BaseRenderNode2D } from "../NodeRender2D/BaseRenderNode2D";
 
 /**在显示对象上按下后调度。
  * @eventType Event.MOUSE_DOWN
@@ -109,6 +110,16 @@ export class Sprite extends Node {
     /**@internal */
     _graphics: Graphics | null = null;
 
+    _renderNode:BaseRenderNode2D = null;
+
+    set renderNode2D(value:BaseRenderNode2D){
+        if (value) {
+            this._renderType |= SpriteConst.RENDERNODE2D;
+            this._renderNode = value;
+        } else {
+            this._renderType &= ~SpriteConst.RENDERNODE2D;
+        }
+    }
     /**
      * @internal
      */

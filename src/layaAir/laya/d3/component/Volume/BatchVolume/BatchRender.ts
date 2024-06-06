@@ -1,5 +1,5 @@
 import { Vector3 } from "../../../../maths/Vector3";
-import { SingletonList } from "../../../../utils/SingletonList";
+import { FastSinglelist, SingletonList } from "../../../../utils/SingletonList";
 import { Camera } from "../../../core/Camera";
 import { BaseRender, RenderBitFlag } from "../../../core/render/BaseRender";
 import { InstanceRenderElement } from "../../../core/render/InstanceRenderElement";
@@ -17,7 +17,7 @@ export class BatchRender extends BaseRender {
     /**@internal */
     protected _lodRateArray: number[];
     /**@internal*/
-    protected _batchList: SingletonList<BaseRender>;
+    protected _batchList: FastSinglelist<BaseRender>;
     /**@internal*/
     protected _batchbit: RenderBitFlag;
     /**@internal*/
@@ -139,7 +139,7 @@ export class BatchRender extends BaseRender {
         } else {
             let checkCamera = (this.owner.scene as Scene3D).cullInfoCamera as Camera;
             let maxYDistance = checkCamera.maxlocalYDistance;
-            Vector3.subtract(this._bounds.getCenter(), checkCamera.transform.position, tempVec);
+            Vector3.subtract(this._bounds._imp.getCenter(), checkCamera.transform.position, tempVec);
             //大于farplane,或者不在视锥内.不做lod操作
             let length = tempVec.length();
             let rateYDistance = length / checkCamera.farPlane * maxYDistance;

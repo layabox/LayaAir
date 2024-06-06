@@ -21,7 +21,7 @@ export class SpriteConst {
     /** @private */
     static GRAPHICS = 0x100;
     /** @private */
-    static LAYAGL3D = 0x200;
+    static RENDERNODE2D = 0x200;
     /** @private */
     static CUSTOM = 0x400;
     /** @private */

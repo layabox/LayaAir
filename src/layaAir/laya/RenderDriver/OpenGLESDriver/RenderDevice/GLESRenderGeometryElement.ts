@@ -2,7 +2,7 @@ import { IRenderGeometryElement } from "../../DriverDesign/RenderDevice/IRenderG
 import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
 import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode";
-import { SingletonList } from "../../../utils/SingletonList";
+import { FastSinglelist } from "../../../utils/SingletonList";
 import { IBufferState } from "../../DriverDesign/RenderDevice/IBufferState";
 
 
@@ -12,7 +12,7 @@ export class GLESRenderGeometryElement implements IRenderGeometryElement {
   private _bufferState: IBufferState;
 
   /**@internal */
-  drawParams: SingletonList<number>;
+  drawParams: FastSinglelist<number>;
 
   _nativeObj: any;
 
@@ -20,7 +20,7 @@ export class GLESRenderGeometryElement implements IRenderGeometryElement {
   constructor(mode: MeshTopology, drawType: DrawType) {
     this._nativeObj = new (window as any).conchGLESRenderGeometryElement();
     this.mode = mode;
-    this.drawParams = new SingletonList();
+    this.drawParams = new FastSinglelist();
     this.drawType = drawType;
   }
 

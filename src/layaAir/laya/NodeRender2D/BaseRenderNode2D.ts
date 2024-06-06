@@ -36,12 +36,12 @@ export class BaseRenderNode2D extends Component {
     /**
      * 渲染类型
      */
-    _renderType: number;
+    _renderType: BaseRender2DType = BaseRender2DType.baseRenderNode;
 
     /**
      * 帧循环标记
      */
-    _renderUpdateMask: number;
+    _renderUpdateMask: number = 0;
 
     /**
      * sprite ShaderData,可以为null
@@ -50,7 +50,7 @@ export class BaseRenderNode2D extends Component {
 
     _drawBaseRenderNodeCMD: DrawBaseRenderNodeCMD;
 
-    
+
     /**
      * 唯一ID
      */
@@ -157,7 +157,7 @@ export class BaseRenderNode2D extends Component {
     protected _onEnable(): void {
         super._onEnable();
         if (this.owner) {
-            (this.owner as Sprite).graphics.addCmd(this._drawBaseRenderNodeCMD);
+            (this.owner as Sprite).renderNode2D = this;;
         }
     }
 
@@ -167,7 +167,7 @@ export class BaseRenderNode2D extends Component {
      */
     protected _onDisable(): void {
         if (this.owner) {
-            (this.owner as Sprite).graphics.removeCmd(this._drawBaseRenderNodeCMD);
+            (this.owner as Sprite).renderNode2D = null;
         }
     }
 
@@ -186,7 +186,7 @@ export class BaseRenderNode2D extends Component {
 
     clear(): void {
         this._renderElements.length = 0;
-    
+
     }
 
 

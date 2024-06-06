@@ -3,18 +3,18 @@ import { WebGLInstanceRenderElement3D } from "../../../RenderDriver/WebGLDriver/
 import { WebGLRenderElement3D } from "../../../RenderDriver/WebGLDriver/3DRenderPass/WebGLRenderElement3D";
 import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
 import { LayaGL } from "../../../layagl/LayaGL";
-import { SingletonList } from "../../../utils/SingletonList";
+import { FastSinglelist, SingletonList } from "../../../utils/SingletonList";
 import { BatchMark } from "../../core/render/BatchMark";
 
 export class WebGLInstanceRenderBatch {
 
-    private _revocerList: SingletonList<WebGLInstanceRenderElement3D>;
+    private _revocerList: FastSinglelist<WebGLInstanceRenderElement3D>;
 
     private _batchQpaqueMarks: any[] = [];
     private _updateCountMark: number = 0;
 
     constructor() {
-        this._revocerList = new SingletonList();
+        this._revocerList = new FastSinglelist();
     }
 
     getBathMark(element: WebGLRenderElement3D) {
@@ -29,7 +29,7 @@ export class WebGLInstanceRenderBatch {
         let geometryFlag = geometry._id;
         let materialFlag = element.materialId;
 
-        let renderId = (materialFlag << 17) + (geometryFlag << 2) + (invertFrontFaceFlag << 1) + (receiveShadowFlag);
+        let renderId = (materialFlag << 17) | (geometryFlag << 2) | (invertFrontFaceFlag << 1) | (receiveShadowFlag);
 
         // let geoMatID 
 
@@ -37,7 +37,7 @@ export class WebGLInstanceRenderBatch {
         let lightmapFlag = renderNode.lightmapIndex + 1;
         let lightProbeFlag = (renderNode.volumetricGI ? renderNode.volumetricGI._id : -1) + 1;
 
-        let giId = (reflectFlag << 10) + (lightmapFlag << 20) + lightProbeFlag;
+        let giId = (reflectFlag << 10) | (lightmapFlag << 20) | lightProbeFlag;
 
         let data = this._batchQpaqueMarks[renderId] || (this._batchQpaqueMarks[renderId] = {});
         return data[giId] || (data[giId] = new BatchMark());

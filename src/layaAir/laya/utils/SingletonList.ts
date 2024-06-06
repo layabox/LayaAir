@@ -38,9 +38,9 @@ export class SingletonList<T> {
         this.length++;
     }
 
-    indexof(element:T){
+    indexof(element: T) {
         let index = this.elements.indexOf(element);
-        if(index!=-1&&index<this.length)
+        if (index != -1 && index < this.length)
             return index;
         return -1;
     }
@@ -61,7 +61,7 @@ export class SingletonList<T> {
     /**
      * @internal
      */
-    clear(){
+    clear() {
         this.elements = [];
         this.length = 0;
     }
@@ -69,13 +69,25 @@ export class SingletonList<T> {
     /**
      * @internal
      */
-    clean(){
+    clean() {
         this.elements.length = this.length;
     }
 
     destroy() {
         this.elements = null;
     }
+}
+
+export class FastSinglelist<T> extends SingletonList<T> {
+
+    /**
+     * @internal
+     */
+    add(element: T): void {
+        this._add(element);
+        this.length++;
+    }
+
 }
 
 

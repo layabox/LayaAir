@@ -39,8 +39,8 @@ export class FrustumCulling {
 		var cullPlaneCount: number = cullInfo.cullPlaneCount;
 		var cullPlanes: Plane[] = cullInfo.cullPlanes;
 
-		var min: Vector3 = bounds.getMin();
-		var max: Vector3 = bounds.getMax();
+		var min: Vector3 = bounds._imp.getMin();
+		var max: Vector3 = bounds._imp.getMax();
 		var minX: number = min.x;
 		var minY: number = min.y;
 		var minZ: number = min.z;
