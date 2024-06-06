@@ -63,6 +63,8 @@ export abstract class SpineMeshBase {
         this.ib = ib;
         //set renderelement2D
         this.element = LayaGL.render2DRenderPassFactory.createRenderElement2D();
+        //@ts-ignore
+        this.element.canotPool=true;
         this.element.geometry = geo;
         this.element.renderStateIsBySprite = false;
 

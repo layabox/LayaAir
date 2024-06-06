@@ -7,7 +7,6 @@ import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
 import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
 import { LayaGL } from "../../layagl/LayaGL";
 import { Color } from "../../maths/Color";
-import { Vector4 } from "../../maths/Vector4";
 import { Material } from "../../resource/Material";
 import { Texture } from "../../resource/Texture";
 import { Spine2DRenderNode } from "../Spine2DRenderNode";
@@ -170,16 +169,11 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
     }
 
     private _clear() {
-        this._nodeOwner._renderElements.forEach(element => {
-            Spine2DRenderNode.recoverRenderElement2D(element);
-
-        });
-        this._nodeOwner._renderElements.length = 0;
+        this._nodeOwner.clear();
         this._isRender = false;
     }
 
     play(animationName: string) {
-        this._clear();
         this._curAnimationName = animationName;
         let currentRender = this.currentRender;
 
@@ -227,16 +221,13 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
             }
             if (!this._isRender) {
                 if (mutiRenderAble) {
-                    //this.graphics.drawGeos(currentRender.geo, currentRender.elements);
-                    //this._createRenderElementsToBaseRenderNode(currentRender.geo, currentRender.elements, this._nodeOwner);
+                    //this._nodeOwner.drawGeos(currentRender.geo, currentRender.elements);
                     this.renderProxytype = ERenderProxyType.RenderMulti;
                 }
                 else {
-                    //this.graphics.drawGeo(currentRender.geo, currentRender.material);
-                    //this._createOneRenderElementsToBaseRenderNode(currentRender.geo, currentRender.currentMaterials[0], this._nodeOwner);
+                    this._nodeOwner.drawGeo(currentRender.geo, currentRender.material);
                     this.renderProxytype = ERenderProxyType.RenderOne;
                 }
-                //this.graphics.drawGeos(this.geo, this.elements);
                 this._isRender = true;
             }
         }
@@ -247,50 +238,6 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
         else {
             this.endCache();
         }
-    }
-
-    /**@internal */
-    _createRenderElementsToBaseRenderNode(geo: IRenderGeometryElement, dataelements: [Material, number, number][], renderNode: Spine2DRenderNode) {
-        this._clear();
-        for (var i = 0, n = dataelements.length; i < n; i++) {
-            let element = Spine2DRenderNode.createRenderElement2D();
-            element.geometry.bufferState = geo.bufferState;
-            element.geometry.indexFormat = IndexFormat.UInt16;
-            element.geometry.clearRenderParams();
-            element.geometry.setDrawElemenParams(dataelements[i][1], dataelements[i][2]);
-            let material = dataelements[i][0];
-            renderNode._renderElements.push(element);
-            if (renderNode._materials[0] != null) {
-                let rendernodeMaterial = renderNode._materials[i];
-                rendernodeMaterial.setTextureByIndex(SpineShaderInit.SpineTexture, material.getTextureByIndex(SpineShaderInit.SpineTexture));
-                rendernodeMaterial.blendSrc = material.blendSrc;
-                rendernodeMaterial.blendDst = material.blendDst;
-                material = rendernodeMaterial;
-            }
-            element.materialShaderData = material.shaderData;
-            element.subShader = material._shader.getSubShaderAt(0);
-            element.value2DShaderData = renderNode._spriteShaderData;
-        }
-    }
-
-    /**@internal */
-    _createOneRenderElementsToBaseRenderNode(geo: IRenderGeometryElement, material: Material, renderNode: Spine2DRenderNode) {
-        this._clear();
-        let element = Spine2DRenderNode.createRenderElement2D();
-        element.geometry = geo;
-        // geo.clearRenderParams();
-        // geo.setDrawElemenParams(geo.bufferState._bindedIndexBuffer.indexCount, 0);
-        renderNode._renderElements.push(element);
-        if (renderNode._materials[0] != null) {
-            let rendernodeMaterial = renderNode._materials[0];
-            rendernodeMaterial.setTextureByIndex(SpineShaderInit.SpineTexture, material.getTextureByIndex(SpineShaderInit.SpineTexture));
-            rendernodeMaterial.blendSrc = material.blendSrc;
-            rendernodeMaterial.blendDst = material.blendDst;
-            material = rendernodeMaterial;
-        }
-        element.materialShaderData = material.shaderData;
-        element.subShader = material._shader.getSubShaderAt(0);
-        element.value2DShaderData = renderNode._spriteShaderData;
     }
 
     render(time: number): void {
@@ -375,6 +322,7 @@ class RenderNormal implements IRender {
     }
 
     render(curTime: number) {
+        this._renderNode.clear();
         this._renerer.draw(this._skeleton, this._renderNode, -1, -1);
     }
 
@@ -471,9 +419,7 @@ class SkinRender implements IVBIBUpdate {
             }
             elementsCreator.cloneTo(this.elements);
             this.currentMaterials = elementsCreator.currentMaterials;
-            this.owner._createRenderElementsToBaseRenderNode(this.geo, this.elements, this.owner._nodeOwner);
-        } else {
-            this.owner._createOneRenderElementsToBaseRenderNode(this.geo, this.material, this.owner._nodeOwner);
+            this.owner._nodeOwner.updateElements(this.geo,this.elements);
         }
     }
     init(skeleton: spine.Skeleton, templet: SpineTemplet, renderNode: Spine2DRenderNode) {

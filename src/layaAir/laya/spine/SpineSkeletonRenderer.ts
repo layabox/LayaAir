@@ -315,8 +315,6 @@ export class SpineSkeletonRenderer implements ISpineRender {
         let twoColorTint = this.twoColorTint;
         let blendMode: spine.BlendMode | null = null;
 
-        renderNode._renderElements.length = 0;//TODO
-
         let renderable: Renderable = this.renderable;
         let uvs: ArrayLike<number>;
         let triangles: Array<number>;
