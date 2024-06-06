@@ -14,15 +14,7 @@ export class SpineWasmVirturalMesh extends SpineMeshBase {
         this._renderElement2D = LayaGL.render2DRenderPassFactory.createRenderElement2D();
         this._renderElement2D.geometry = this.geo;
     }
-
-    drawNew(vertices: Float32Array, vblength: number, indices: Uint16Array, iblength: number) {
-        this.vertexArray = vertices;
-        this.indexArray = indices;
-        this.verticesLength = vblength;
-        this.indicesLength = iblength;
-
-        this.draw();
-    }
+    
     get vertexDeclarition() {
         return SpineShaderInit.SpineNormalVertexDeclaration;
     }

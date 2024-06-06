@@ -1,7 +1,7 @@
 import { Laya } from "../../Laya";
-import { SpineSkeletonRenderer } from "./SpineSkeletonRenderer";
+import { SpineSkeletonRenderer } from "./normal/SpineSkeletonRenderer";
 import { SpineTemplet } from "./SpineTemplet";
-import { SpineWasmRender } from "./SpineWasmRender";
+import { SpineWasmRender } from "./normal/SpineWasmRender";
 export class SpineAdapter {
     static _vbArray: Float32Array;
     static _ibArray: Uint16Array;
@@ -171,6 +171,8 @@ export class SpineAdapter {
                 //@ts-ignore
                 result = this.getCurrentOld(trackIndex);
                 __tracks[trackIndex] = result;
+            } else {
+                result = __tracks[trackIndex];
             }
             if (!result) {
                 //@ts-ignore

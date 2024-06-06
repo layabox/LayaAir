@@ -7,7 +7,7 @@ import { Loader } from "../net/Loader";
 import { Handler } from "../utils/Handler";
 import { Timer } from "../utils/Timer";
 import { ExternalSkin } from "./ExternalSkin";
-import { SpineSkeletonRenderer } from "./SpineSkeletonRenderer";
+import { SpineSkeletonRenderer } from "./normal/SpineSkeletonRenderer";
 import { SpineTemplet } from "./SpineTemplet";
 import { ISpineSkeleton } from "./interface/ISpineSkeleton";
 import { ISpineOptimizeRender } from "./optimize/interface/ISpineOptimizeRender";

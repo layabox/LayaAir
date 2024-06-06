@@ -91,6 +91,15 @@ export abstract class SpineMeshBase {
         //graphics.drawGeo(this.geo, this.material);
     }
 
+    drawByData(vertices: Float32Array, vblength: number, indices: Uint16Array, iblength: number) {
+        this.vertexArray = vertices;
+        this.indexArray = indices;
+        this.verticesLength = vblength;
+        this.indicesLength = iblength;
+
+        this.draw();
+    }
+
     /**
      * 清空
      */
