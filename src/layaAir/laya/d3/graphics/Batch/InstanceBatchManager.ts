@@ -48,8 +48,8 @@ export class InstanceBatchManager {
     getInstanceBatchOpaquaMark(element: RenderElement): BatchMark {
         //transID
         let invertFrontFace = element._transform && element._transform._isFrontFaceInvert ? 1 : 0;
-        let receiveShadow = element._baseRender._receiveShadow;
-        let matID_geometry = (element._material._id << 17) + (element._geometry._id << 2) | (invertFrontFace << 1) | receiveShadow;
+        let receiveShadow = element._baseRender._receiveShadow ? 1 : 0;
+        let matID_geometry = (element._material._id << 17) + (element._geometry._id << 2) | (invertFrontFace << 1) | (receiveShadow);
         //gi id
         let reflectid = (element._baseRender._probReflection ? element._baseRender._probReflection._reflectionProbeID : -1) + 1;
         let lightmapid = (element._baseRender.lightmapIndex) + 1;
