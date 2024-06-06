@@ -33,59 +33,10 @@ import { ISpineOptimizeRender } from "./optimize/interface/ISpineOptimizeRender"
  */
 /*[Event(name = "label", type = "laya.events.Event.LABEL", desc = "自定义事件")]*/
 /**
- * @deprecated 请使用Sprite+Spine2DRenderNode
+ * @deprecated 请使用Sprite+Spine2DRenderNode组件
  * spine动画由<code>SpineTemplet</code>，<code>SpineSkeletonRender</code>，<code>SpineSkeleton</code>三部分组成。
  */
 export class SpineSkeleton extends Sprite implements ISpineSkeleton {
-    /**状态-停止 */
-    static readonly STOPPED: number = 0;
-    /**状态-暂停 */
-    static readonly PAUSED: number = 1;
-    /**状态-播放中 */
-    static readonly PLAYING: number = 2;
-
-    /**@internal @protected */
-    protected _source: string;
-    /**@internal @protected */
-    protected _templet: SpineTemplet;
-    /**@internal @protected */
-    protected _timeKeeper: TimeKeeper;
-    /**@internal @protected */
-    protected _skeleton: spine.Skeleton;
-    /**@internal @protected */
-    protected _state: spine.AnimationState;
-    /**@internal @protected */
-    protected _stateData: spine.AnimationStateData;
-    /**@internal @protected */
-    protected _currentPlayTime: number = 0;
-    /**@internal @protected */
-    protected _renerer: SpineSkeletonRenderer;
-
-    /** @internal */
-    private _pause: boolean = true;
-    /** @internal */
-    private _currAniName: string = null;
-    /** @internal 动画播放的起始时间位置*/
-    private _playStart: number;
-    /** @internal 动画播放的结束时间位置*/
-    private _playEnd: number;
-    /** @internal 动画的总时间*/
-    private _duration: number;
-    /** 播放速率*/
-    private _playbackRate: number = 1.0;
-    /** @internal */
-    private _playAudio: boolean = true;
-    /** @internal */
-    private _soundChannelArr: any[] = [];
-    // 播放轨道索引
-    private trackIndex: number = 0;
-
-    private _skinName: string = "default";
-    private _animationName: string = "";
-    private _loop: boolean = true;
-
-    private _externalSkins: ExternalSkin[];
-
     private _spineComponent: Spine2DRenderNode;
 
     constructor() {

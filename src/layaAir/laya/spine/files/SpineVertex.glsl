@@ -25,12 +25,15 @@ varying vec4 vColor;
 
 vec4 getSpinePos(){
     #ifdef SPINE_FAST
-        return getBonePos(a_BoneId,a_weight,a_pos)+getBonePos(a_BoneId2,a_weight2,a_pos2)+getBonePos(a_BoneId3,a_weight3,a_pos3)+getBonePos(a_BoneId4,a_weight4,a_pos4);
+        return getBonePos(a_BoneId,a_weight,a_pos)
+        +getBonePos(a_PosWeightBoneID_2.w,a_PosWeightBoneID_2.z,a_PosWeightBoneID_2.xy)
+        +getBonePos(a_PosWeightBoneID_3.w,a_PosWeightBoneID_3.z,a_PosWeightBoneID_3.xy)
+        +getBonePos(a_PosWeightBoneID_4.w,a_PosWeightBoneID_4.z,a_PosWeightBoneID_4.xy);
      
     #endif
 
     #ifdef SPINE_RB
-        return getBonePos(a_boneId,1.0,a_pos);
+        return getBonePos(a_BoneId,1.0,a_pos);
         //return vec4(pos,0.,1.);
     #endif
     //spine Texture

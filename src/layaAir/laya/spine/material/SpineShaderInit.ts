@@ -72,16 +72,10 @@ export class SpineShaderInit {
         'a_pos': [2, ShaderDataType.Vector2],
         "a_weight": [3, ShaderDataType.Float],
         "a_BoneId": [4, ShaderDataType.Float],
-        'a_pos2': [5, ShaderDataType.Vector2],
-        "a_weight2": [6, ShaderDataType.Float],
-        "a_BoneId2": [7, ShaderDataType.Float],
-        'a_pos3': [8, ShaderDataType.Vector2],
-        "a_weight3": [9, ShaderDataType.Float],
-        "a_BoneId3": [10, ShaderDataType.Float],
 
-        'a_pos4': [11, ShaderDataType.Vector2],
-        "a_weight4": [12, ShaderDataType.Float],
-        "a_BoneId4": [13, ShaderDataType.Float],
+        'a_PosWeightBoneID_2': [5, ShaderDataType.Vector4],
+        'a_PosWeightBoneID_3': [6, ShaderDataType.Vector4],
+        'a_PosWeightBoneID_4': [7, ShaderDataType.Vector4],
     }
 
 
@@ -117,17 +111,9 @@ export class SpineShaderInit {
             new VertexElement(24, VertexElementFormat.Vector2, 2),
             new VertexElement(32, VertexElementFormat.Single, 3),
             new VertexElement(36, VertexElementFormat.Single, 4),
-            new VertexElement(40, VertexElementFormat.Vector2, 5),
-            new VertexElement(48, VertexElementFormat.Single, 6),
-            new VertexElement(52, VertexElementFormat.Single, 7),
-            new VertexElement(56, VertexElementFormat.Vector2, 8),
-            new VertexElement(64, VertexElementFormat.Single, 9),
-            new VertexElement(68, VertexElementFormat.Single, 10),
-
-            new VertexElement(72, VertexElementFormat.Vector2, 11),
-            new VertexElement(80, VertexElementFormat.Single, 12),
-            new VertexElement(84, VertexElementFormat.Single, 13),
-
+            new VertexElement(40, VertexElementFormat.Vector4, 5),
+            new VertexElement(56, VertexElementFormat.Vector4, 6),
+            new VertexElement(72, VertexElementFormat.Vector4, 7)
         ]);
 
         SpineShaderInit.SpineNormalVertexDeclaration = new VertexDeclaration(32, [
@@ -140,7 +126,7 @@ export class SpineShaderInit {
             new VertexElement(0, VertexElementFormat.Vector2, 0),
             new VertexElement(8, VertexElementFormat.Vector4, 1),
             new VertexElement(24, VertexElementFormat.Vector2, 2),
-            new VertexElement(32, VertexElementFormat.Single, 3)
+            new VertexElement(32, VertexElementFormat.Single, 4)
         ])
 
 
