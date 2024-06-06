@@ -197,10 +197,11 @@ export class RenderManager2D {
             this._lastbatch2DInfo.batchFun = RenderManager2D._batchMapManager[renderNodeType];
             this._lastbatch2DInfo.indexStart = 0;
             this._lastbatch2DInfo.elementLenth = elementLength;
+            this._lastRenderNodeType = renderNodeType
             return;
         }
-        if (this._lastRenderNodeType == renderNodeType && this._lastbatch2DInfo.batchFun) {
-            this._lastbatch2DInfo.batch = true;
+        if (this._lastRenderNodeType == renderNodeType) {
+            this._lastbatch2DInfo.batch = !!(this._lastbatch2DInfo.batchFun);
             this._lastbatch2DInfo.elementLenth += elementLength;
         } else {
             this._batchInfoList.add(this._lastbatch2DInfo);
