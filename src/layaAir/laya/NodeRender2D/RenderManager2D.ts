@@ -1,13 +1,13 @@
 import { IRenderContext2D } from "../RenderDriver/DriverDesign/2DRenderPass/IRenderContext2D";
 import { IRenderElement2D } from "../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
 import { Render2DSimple } from "../renders/Render2D";
-import { SingletonList } from "../utils/SingletonList";
+import { FastSinglelist } from "../utils/SingletonList";
 import { Stat } from "../utils/Stat";
 import { BaseRenderNode2D } from "./BaseRenderNode2D";
 
 export interface IBatch2DRender {
     /**合批范围，合批的RenderElement2D直接add进list中 */
-    batchRenderElement(list: SingletonList<IRenderElement2D>, start: number, length: number): void;
+    batchRenderElement(list: FastSinglelist<IRenderElement2D>, start: number, length: number): void;
 }
 export class Batch2DInfo {
     batchFun: IBatch2DRender = null;
@@ -55,15 +55,15 @@ export class RenderManager2D {
     /**
      * @internal
      */
-    _list: SingletonList<BaseRenderNode2D>;
+    _list: FastSinglelist<BaseRenderNode2D>;
 
     /**
      * @internal
      */
-    _renderElementList: SingletonList<IRenderElement2D>;
+    _renderElementList: FastSinglelist<IRenderElement2D>;
 
 
-    _batchInfoList: SingletonList<Batch2DInfo>;
+    _batchInfoList: FastSinglelist<Batch2DInfo>;
 
     /**
      * 渲染结束标签
@@ -73,18 +73,18 @@ export class RenderManager2D {
     /**
     * RenderList
     */
-    get list(): SingletonList<BaseRenderNode2D> {
+    get list(): FastSinglelist<BaseRenderNode2D> {
         return this._list;
     }
 
-    set list(value: SingletonList<BaseRenderNode2D>) {
+    set list(value: FastSinglelist<BaseRenderNode2D>) {
         this._list = value;
     }
 
     constructor() {
-        this.list = new SingletonList<BaseRenderNode2D>();
-        this._renderElementList = new SingletonList<IRenderElement2D>();
-        this._batchInfoList = new SingletonList<Batch2DInfo>();
+        this.list = new FastSinglelist<BaseRenderNode2D>();
+        this._renderElementList = new FastSinglelist<IRenderElement2D>();
+        this._batchInfoList = new FastSinglelist<Batch2DInfo>();
         this._lastbatch2DInfo = Batch2DInfo.create();
     }
 

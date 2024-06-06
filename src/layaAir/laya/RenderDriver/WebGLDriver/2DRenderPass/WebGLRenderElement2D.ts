@@ -1,6 +1,6 @@
 import { ShaderPass } from "../../../RenderEngine/RenderShader/ShaderPass";
 import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
-import { SingletonList } from "../../../utils/SingletonList";
+import { FastSinglelist } from "../../../utils/SingletonList";
 import { ShaderDefines2D } from "../../../webgl/shader/d2/ShaderDefines2D";
 import { IRenderElement2D } from "../../DriverDesign/2DRenderPass/IRenderElement2D";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
@@ -16,7 +16,7 @@ export class WebGLRenderelement2D implements IRenderElement2D {
 
     /** @internal */
     static _compileDefine: WebDefineDatas = new WebDefineDatas();
-    protected _shaderInstances: SingletonList<WebGLShaderInstance> = new SingletonList<WebGLShaderInstance>();
+    protected _shaderInstances: FastSinglelist<WebGLShaderInstance> = new FastSinglelist<WebGLShaderInstance>();
     geometry: WebGLRenderGeometryElement;
     materialShaderData: WebGLShaderData;
     value2DShaderData: WebGLShaderData;

@@ -1,14 +1,14 @@
 import { IBaseRenderNode } from "../../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
 import { BaseRender } from "../../../d3/core/render/BaseRender";
-import { SingletonList } from "../../../utils/SingletonList";
+import { FastSinglelist } from "../../../utils/SingletonList";
 
 /**
  * 可替换的SceneManager
  */
 export interface ISceneRenderManager {
 
-    list: SingletonList<BaseRender>;
-    baseRenderList:SingletonList<IBaseRenderNode>
+    list: FastSinglelist<BaseRender>;
+    baseRenderList:FastSinglelist<IBaseRenderNode>
 
     /**
      * add one BaseRender

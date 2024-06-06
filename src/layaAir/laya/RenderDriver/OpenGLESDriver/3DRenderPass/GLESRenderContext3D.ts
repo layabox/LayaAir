@@ -3,7 +3,7 @@ import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { Color } from "../../../maths/Color";
 import { Vector4 } from "../../../maths/Vector4";
 import { Viewport } from "../../../maths/Viewport";
-import { SingletonList } from "../../../utils/SingletonList";
+import { FastSinglelist, SingletonList } from "../../../utils/SingletonList";
 import { IRenderContext3D, IRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { IRenderCMD } from "../../DriverDesign/3DRenderPass/IRendderCMD";
 import { RTCameraNodeData, RTSceneNodeData } from "../../RenderModuleData/RuntimeModuleData/3D/RT3DRenderModuleData";
@@ -98,7 +98,7 @@ export class GLESRenderContext3D implements IRenderContext3D {
     setClearData(clearFlag: number, color: Color, depth: number, stencil: number): number {
         return this._nativeObj.setClearData(clearFlag, color, depth, stencil);
     }
-    drawRenderElementList(list: SingletonList<IRenderElement3D>): number {
+    drawRenderElementList(list: FastSinglelist<IRenderElement3D>): number {
         return this._nativeObj.drawRenderElementList(list.elements, list.length);
     }
     drawRenderElementOne(node: IRenderElement3D): number {
