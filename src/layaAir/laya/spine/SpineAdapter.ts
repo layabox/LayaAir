@@ -160,6 +160,18 @@ export class SpineAdapter {
         }
         //@ts-ignore
         stateProto.getCurrentOld = stateProto.getCurrent;
+        //@ts-ignore
+        stateProto.setAnimationOld = stateProto.setAnimation;
+
+        stateProto.setAnimation = function (trackIndex: number, animationName: string, loop: boolean) {
+             //@ts-ignore
+            if(this.__tracks){
+                 //@ts-ignore
+                this.__tracks.length = 0;
+            }
+            //@ts-ignore
+            return this.setAnimationOld(trackIndex, animationName, loop);
+        }
 
         stateProto.getCurrent = function (trackIndex: number) {
             let result;
@@ -171,7 +183,8 @@ export class SpineAdapter {
                 //@ts-ignore
                 result = this.getCurrentOld(trackIndex);
                 __tracks[trackIndex] = result;
-            } else {
+            }
+            else {
                 result = __tracks[trackIndex];
             }
             if (!result) {
