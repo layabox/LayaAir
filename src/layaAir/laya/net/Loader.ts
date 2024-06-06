@@ -361,8 +361,11 @@ export class Loader extends EventDispatcher {
         let task = this._loadings.get(loadingKey);
         if (task) {
             //fix recursive dependency
-            if (options.initiator === task) {
-                return Promise.resolve();
+            let p = options.initiator;
+            while (p) {
+                if (p === task)
+                    return Promise.resolve();
+                p = p.options.initiator;
             }
             if (onProgress)
                 task.onProgress.add(onProgress);
