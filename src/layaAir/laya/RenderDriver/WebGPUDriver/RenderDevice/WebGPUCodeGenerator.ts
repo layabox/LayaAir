@@ -267,7 +267,7 @@ export class WebGPUCodeGenerator {
         const materialUniforms: NameAndType[] = [];
         const textureUniforms: NameAndType[] = [];
 
-        //将u_Bones归类到sprite3D，否则会归类到material（material是共享的，无法单独处理骨骼）
+        //将u_Bones归类到sprite3D，避免归类到material（因为material是渲染节点共享的，无法单独处理骨骼数据）
         sprite3DUniformMap.addShaderUniform(SkinnedMeshSprite3D.BONES, 'u_Bones', ShaderDataType.Matrix4x4);
         const uniformInfo: WebGPUUniformPropertyBindingInfo[] = [];
 
@@ -322,13 +322,21 @@ export class WebGPUCodeGenerator {
             _catalog(key, uniformMap[key].name, dataType);
         }
 
-        if (sprite3DUniforms.length === 0) //没有uniform，则添加默认的u_WorldMat，避免为空
+        //查找是否有u_WorldMat，如果没有，则添加u_WorldMat，这是为了和instance模式兼容
+        let haveWorldMat = false;
+        for (let i = sprite3DUniforms.length - 1; i > -1; i--) {
+            if (sprite3DUniforms[i].name === 'u_WorldMat') {
+                haveWorldMat = true;
+                break;
+            }
+        }
+        if (!haveWorldMat) //instance模式不使用u_WorldMat，但为了uniformBlock一致，仍然加入u_WorldMat
             sprite3DUniforms.push({ name: 'u_WorldMat', type: 'mat4', set: 2 });
-        if (materialUniforms.length === 0) //没有uniform，则添加默认的u_AlbedoColor，避免为空
+        if (materialUniforms.length === 0) //没有uniform，则添加默认的u_AlbedoColor，避免成员为空
             materialUniforms.push({ name: 'u_AlbedoColor', type: 'vec4', set: 3 });
 
         let uniformGLSL = '';
-        const typeNum = 10;
+        const typeNum = 10; //type类型数量不超过10个
         const visibility = GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT;
         const _procUniforms = (set: number, binding: number,
             name: string, uniformMap?: WebGPUCommandUniformMap, uniforms?: NameAndType[]) => {
@@ -360,6 +368,7 @@ export class WebGPUCodeGenerator {
                     else sortedUniforms[this._getAttributeS2N(typeStr)].push({ name: nameStr, type: typeStr, set });
                 }
             }
+            //按照type顺序组织uniform（尽可能减少padding）
             for (let i = 1; i < typeNum; i++)
                 sortedUniforms[0].push(...sortedUniforms[i]);
             for (let i = 0, len = sortedUniforms[0].length; i < len; i++)
@@ -379,15 +388,18 @@ export class WebGPUCodeGenerator {
             return sortedUniforms[0];
         };
 
+        //uniform分成4组，groupId=0~3，binding=0
+        //scene3D和camera组的成员是固定的（由uniformMap决定）
+        //sprite3D和material的成员按实际用到的（由uniforms决定）
         _procUniforms(0, 0, 'scene3D', scene3DUniformMap);
         _procUniforms(1, 0, 'camera', cameraUniformMap);
         _procUniforms(2, 0, 'sprite3D', null, sprite3DUniforms);
         _procUniforms(3, 0, 'material', null, materialUniforms);
 
         return {
-            uniformGLSL,
-            uniformInfo,
-            textureUniforms,
+            uniformGLSL, //uniform字符串（GLSL代码）
+            uniformInfo, //uniform信息（用于生成layout）
+            textureUniforms, //贴图信息（用于生成layout）
         };
     }
 
