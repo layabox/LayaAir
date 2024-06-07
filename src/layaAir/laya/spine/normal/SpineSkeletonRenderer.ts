@@ -1,11 +1,13 @@
-import { Graphics } from "../display/Graphics";
-import { Matrix } from "../maths/Matrix";
-import { SpineTexture } from "./SpineTexture";
-import { SpineTemplet } from "./SpineTemplet";
-import { Material } from "../resource/Material";
-import { SpineVirtualMesh } from "./mesh/SpineVirtualMesh";
-import { ISpineRender } from "./interface/ISpineRender";
-import { Spine2DRenderNode } from "./Spine2DRenderNode";
+import { Graphics } from "../../display/Graphics";
+import { Matrix } from "../../maths/Matrix";
+import { SpineTexture } from "../SpineTexture";
+import { SpineTemplet } from "../SpineTemplet";
+import { Material } from "../../resource/Material";
+import { SpineVirtualMesh } from "../mesh/SpineVirtualMesh";
+import { ISpineRender } from "../interface/ISpineRender";
+import { Spine2DRenderNode } from "../Spine2DRenderNode";
+import { SpineNormalRenderBase } from "./SpineNormalRenderBase";
+import { SpineMeshBase } from "../mesh/SpineMeshBase";
 
 
 interface Renderable {
@@ -16,7 +18,7 @@ interface Renderable {
 
 const QUAD_TRIANGLES = [0, 1, 2, 2, 3, 0];
 
-export class SpineSkeletonRenderer implements ISpineRender {
+export class SpineSkeletonRenderer extends SpineNormalRenderBase implements ISpineRender {
     premultipliedAlpha: boolean;
     vertexEffect: spine.VertexEffect = null;
     templet: SpineTemplet;
@@ -28,38 +30,19 @@ export class SpineSkeletonRenderer implements ISpineRender {
     private twoColorTint = false;
     private renderable: Renderable;
     private clipper: spine.SkeletonClipping;
-    vmeshs: SpineVirtualMesh[] = [];
 
-    private nextBatchIndex: number = 0;
+    // private temp = new window.spine.Vector2();
+    // private temp2 = new window.spine.Vector2();
+    // private temp3 = new window.spine.Color();
+    // private temp4 = new window.spine.Color();
 
-    private temp = new window.spine.Vector2();
-    private temp2 = new window.spine.Vector2();
-    private temp3 = new window.spine.Color();
-    private temp4 = new window.spine.Color();
-
-    clearBatch() {
-        for (var i = 0; i < this.vmeshs.length; i++) {
-            this.vmeshs[i].clear();
-        }
-        this.nextBatchIndex = 0;
-    }
-
-    nextBatch(material: Material, spineRenderNode: Spine2DRenderNode) {
-        if (this.vmeshs.length == this.nextBatchIndex) {
-            let vmesh = new SpineVirtualMesh(material);
-            this.vmeshs.push(vmesh);
-            spineRenderNode._renderElements[this.nextBatchIndex++] = vmesh.element;
-            vmesh.element.value2DShaderData = spineRenderNode._spriteShaderData;
-            return vmesh;
-        }
-        let vmesh = this.vmeshs[this.nextBatchIndex];
-        spineRenderNode._renderElements[this.nextBatchIndex++] = vmesh.element;
-        vmesh.material = material;
-
-        return vmesh;
+    
+    createMesh(material: Material): SpineMeshBase{
+        return new SpineVirtualMesh(material);
     }
 
     constructor(templet: SpineTemplet, twoColorTint: boolean = true) {
+        super();
         this.twoColorTint = twoColorTint;
         if (twoColorTint)
             this.vertexSize += 4;
@@ -430,7 +413,7 @@ export class SpineSkeletonRenderer implements ISpineRender {
                 if (needNewMat) {
                     mesh && mesh.draw();
                     let mat = this.templet.getMaterial(texture.realTexture, blendMode, renderNode);
-                    mesh = this.nextBatch(mat, renderNode);
+                    mesh = this.nextBatch(mat, renderNode) as SpineVirtualMesh;
                     mesh.clear();
                 }
 
@@ -438,14 +421,14 @@ export class SpineSkeletonRenderer implements ISpineRender {
                     clipper.clipTriangles(renderable.vertices, renderable.numFloats, triangles, triangles.length, uvs, finalColor, darkColor, twoColorTint);
                     if (!mesh.canAppend(clipper.clippedVertices.length, clipper.clippedTriangles.length)) {
                         mesh.draw();
-                        mesh = this.nextBatch(mesh.material, renderNode);
+                        mesh = this.nextBatch(mesh.material, renderNode) as SpineVirtualMesh;
                         mesh.clear();
                     }
                     mesh.appendVerticesClip(clipper.clippedVertices, clipper.clippedTriangles);
                 } else {
                     if (!mesh.canAppend(renderable.numFloats, triangles.length)) {
                         mesh.draw();
-                        mesh = this.nextBatch(mesh.material, renderNode);
+                        mesh = this.nextBatch(mesh.material, renderNode) as SpineVirtualMesh;
                         mesh.clear();
                     }
                     if (finalColor.a != 0) {
