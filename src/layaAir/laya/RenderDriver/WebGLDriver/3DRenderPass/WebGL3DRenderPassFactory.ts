@@ -8,6 +8,7 @@ import { WebGLRenderContext3D } from "./WebGLRenderContext3D";
 import { WebGLRenderElement3D } from "./WebGLRenderElement3D";
 import { WebGLSkinRenderElement3D } from "./WebGLSkinRenderElement3D";
 
+
 export class WebGL3DRenderPassFactory implements I3DRenderPassFactory {
     createSetRenderDataCMD(): WebGLSetRenderData {
         return new WebGLSetRenderData();
@@ -33,6 +34,7 @@ export class WebGL3DRenderPassFactory implements I3DRenderPassFactory {
     createSceneRenderManager(): SceneRenderManagerOBJ {
         return new SceneRenderManagerOBJ();
     }
+
     createSkinRenderElement(): WebGLSkinRenderElement3D {
         return new WebGLSkinRenderElement3D();
     }
@@ -42,10 +44,12 @@ export class WebGL3DRenderPassFactory implements I3DRenderPassFactory {
     createRenderElement3D(): WebGLRenderElement3D {
         return new WebGLRenderElement3D();
     }
+
     createRender3DProcess(): WebGLRender3DProcess {
         return new WebGLRender3DProcess();
     }
 }
+
 
 Laya.addBeforeInitCallback(() => {
     if (!Laya3DRender.Render3DPassFactory)

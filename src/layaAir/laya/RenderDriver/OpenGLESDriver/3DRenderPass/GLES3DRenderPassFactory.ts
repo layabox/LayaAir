@@ -80,6 +80,7 @@ export class GLES3DRenderPassFactory implements I3DRenderPassFactory {
         return new GLESForwardAddClusterRP();
     }
 
+
     createRenderElement3D(): GLESRenderElement3D {
         return new GLESRenderElement3D();
     }
