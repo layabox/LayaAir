@@ -9,11 +9,11 @@ export class Plane {
 	static PlaneIntersectionType_Front: number = 1;
 	static PlaneIntersectionType_Intersecting: number = 2;
 	
-	/**@internal 平面的向量*/
-	_normal: Vector3;
+	/** 平面的向量*/
+	normal: Vector3;
 	
-	/**@internal 平面到坐标系原点的距离*/
-	_distance: number;
+	/** 平面到坐标系原点的距离*/
+	distance: number;
 
 	/**
 	 * 创建一个 <code>Plane</code> 实例。
@@ -21,32 +21,10 @@ export class Plane {
 	 * @param	d  平面到原点的距离
 	 */
 	constructor(normal: Vector3 = new Vector3, d: number = 0) {
-		this._normal = normal;
-		this._distance = d;//this.distance = d;
+		this.normal = normal;
+		this.distance = d;//this.distance = d;
 	}
-
-	/**
-	 * 平面法线
-	 */
-	set normal(value: Vector3) {
-		value.cloneTo(this._normal);
-	}
-
-	get normal() {
-		return this._normal;
-	}
-
-	/**
-	 * 平面距离
-	 */
-	set distance(value: number) {
-		this._distance = value;
-	}
-
-	get distance(): number {
-		return this._distance;
-	}
-
+	
 	/**
 	 * 通过三个点创建一个平面。
 	 * @param	point0 第零个点

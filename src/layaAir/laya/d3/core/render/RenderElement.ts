@@ -225,11 +225,8 @@ export class RenderElement {
             this._convertSubShader(customShader, replacementTag, subshaderIndex);
             if (!this.renderSubShader)
                 return;
-            var renderQueue = scene._getRenderQueue(this.material.renderQueue);
-            if (renderQueue._isTransparent)
-                renderQueue.addRenderElement(this);
-            else
-                renderQueue.addRenderElement(this);
+            let renderQueue = scene._getRenderQueue(this.material.renderQueue);
+            renderQueue.addRenderElement(this);
         }
     }
 

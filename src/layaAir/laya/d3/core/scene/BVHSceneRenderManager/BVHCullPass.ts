@@ -41,7 +41,7 @@ export class BVHCullPass extends CullPassBase {
         for (var i: number = 0, n: number = renderList.length; i < n; i++) {
             var render = renders[i];
             var canPass: boolean;
-            canPass = (Math.pow(2, render.renderNode.layer) & cullMask) != 0 && render._enabled && (render.renderbitFlag == 0);
+            canPass = ((1 << render.renderNode.layer) & cullMask) != 0 && render._enabled && (render.renderbitFlag == 0);
             canPass = canPass && ((render.renderNode.staticMask & staticMask) != 0);
             if (canPass) {
                 Stat.frustumCulling++;
