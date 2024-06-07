@@ -1,4 +1,4 @@
-import { SingletonList } from "../../../utils/SingletonList";
+import { FastSinglelist } from "../../../utils/SingletonList";
 import { BaseRender } from "../../core/render/BaseRender";
 import { Volume } from "./Volume";
 
@@ -16,9 +16,9 @@ export interface IVolumeManager {
     /* @internal*/
     _updateRenderObject(baseRender: BaseRender): void;
     /* @internal*/
-    handleMotionlist(motionObjects: SingletonList<BaseRender>): void;
+    handleMotionlist(motionObjects: FastSinglelist<BaseRender>): void;
     /* @internal*/
-    reCaculateAllRenderObjects(baseRenders: SingletonList<BaseRender>): void;
+    reCaculateAllRenderObjects(baseRenders: FastSinglelist<BaseRender>): void;
     /* @internal*/
     destroy(): void;
 }

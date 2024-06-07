@@ -1,4 +1,6 @@
+import { IRenderElement2D } from "../../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
 import { Graphics } from "../../display/Graphics";
+import { Spine2DRenderNode } from "../Spine2DRenderNode";
 import { ERenderType } from "../SpineSkeleton";
 import { SpineTemplet } from "../SpineTemplet";
 import { AnimationRender } from "./AnimationRender";
@@ -36,7 +38,7 @@ export class SketonOptimise implements IPreRender {
         this.canCache = SketonOptimise.cacheSwitch;
     }
 
-    _initSpineRender(skeleton: spine.Skeleton, templet: SpineTemplet, graphics: Graphics, state: spine.AnimationState): ISpineOptimizeRender {
+    _initSpineRender(skeleton: spine.Skeleton, templet: SpineTemplet, renderNode:Spine2DRenderNode, state: spine.AnimationState): ISpineOptimizeRender {
         let sp: ISpineOptimizeRender;
         if (SketonOptimise.normalRenderSwitch) {
             sp = new SpineNormalRender();
@@ -44,9 +46,10 @@ export class SketonOptimise implements IPreRender {
         else {
             sp = new SpineOptimizeRender(this);
         }
-        sp.init(skeleton, templet, graphics, state);
+        sp.init(skeleton, templet, renderNode, state);
         return sp;
     }
+
 
     _updateState(delta: number) {
         this._state.update(delta);

@@ -2,23 +2,9 @@ import { IRenderGeometryElement } from "../../DriverDesign/RenderDevice/IRenderG
 import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
 import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode";
-import { SingletonList } from "../../../utils/SingletonList";
+import { FastSinglelist } from "../../../utils/SingletonList";
 import { WebGLBufferState } from "./WebGLBufferState";
 import { WebGLEngine } from "./WebGLEngine";
-
-export class FastSinglelist<T> extends SingletonList<T> {
-
-    /**
-      * @internal
-      */
-    add(element: T): void {
-        if (this.length === this.elements.length)
-            this.elements.push(element);
-        else
-            this.elements[this.length] = element;
-    }
-
-}
 
 export class WebGLRenderGeometryElement implements IRenderGeometryElement {
 
@@ -78,7 +64,7 @@ export class WebGLRenderGeometryElement implements IRenderGeometryElement {
     /**@internal */
     constructor(mode: MeshTopology, drawType: DrawType) {
         this.mode = mode;
-        this.drawParams = new SingletonList();
+        this.drawParams = new FastSinglelist();
         this.drawType = drawType;
     }
 

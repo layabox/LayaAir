@@ -1,6 +1,7 @@
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { Color } from "../../../maths/Color";
+import { FastSinglelist } from "../../../utils/SingletonList";
 import { IRenderContext2D } from "../../DriverDesign/2DRenderPass/IRenderContext2D";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
 import { WebGLShaderData } from "../../RenderModuleData/WebModuleData/WebGLShaderData";
@@ -21,6 +22,17 @@ export class WebglRenderContext2D implements IRenderContext2D {
 
     constructor() {
         this._globalConfigShaderData = Shader3D._configDefineValues;
+    }
+    drawRenderElementList(list: FastSinglelist<WebGLRenderelement2D>): number {
+        for (var i: number = 0, n: number = list.length; i < n; i++) {
+            let element = list.elements[i];
+            element._prepare(this);//render
+        }
+        for (var i: number = 0, n: number = list.length; i < n; i++) {
+            let element = list.elements[i];
+            element._render(this);//render
+        }
+        return 0;
     }
 
     setOffscreenView(width: number, height: number): void {

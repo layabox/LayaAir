@@ -5,11 +5,11 @@ import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
 import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
 import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
 import { LayaGL } from "../../layagl/LayaGL";
-import { Context } from "../../renders/Context"
+import { Context, IGraphicCMD } from "../../renders/Context"
 import { Material } from "../../resource/Material";
 import { Pool } from "../../utils/Pool"
 
-export class DrawGeoCmd {
+export class DrawGeoCmd implements IGraphicCMD {
     static ID: string = "DrawGeoCmd";
 
     geo: IRenderGeometryElement;

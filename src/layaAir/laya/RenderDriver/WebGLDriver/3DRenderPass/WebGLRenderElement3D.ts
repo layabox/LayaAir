@@ -2,7 +2,7 @@
 import { ShaderPass } from "../../../RenderEngine/RenderShader/ShaderPass";
 import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
 import { Transform3D } from "../../../d3/core/Transform3D";
-import { SingletonList } from "../../../utils/SingletonList";
+import { FastSinglelist } from "../../../utils/SingletonList";
 import { IRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { WebBaseRenderNode } from "../../RenderModuleData/WebModuleData/3D/WebBaseRenderNode";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
@@ -16,7 +16,7 @@ export class WebGLRenderElement3D implements IRenderElement3D {
     /** @internal */
     static _compileDefine: WebDefineDatas = new WebDefineDatas();
 
-    protected _shaderInstances: SingletonList<WebGLShaderInstance>;
+    protected _shaderInstances: FastSinglelist<WebGLShaderInstance>;
 
     geometry: WebGLRenderGeometryElement;
 
@@ -41,7 +41,7 @@ export class WebGLRenderElement3D implements IRenderElement3D {
     protected _invertFront: boolean;
 
     constructor() {
-        this._shaderInstances = new SingletonList();
+        this._shaderInstances = new FastSinglelist();
     }
 
     _addShaderInstance(shader: WebGLShaderInstance) {

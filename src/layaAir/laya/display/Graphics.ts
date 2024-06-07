@@ -27,7 +27,7 @@ import { TranslateCmd } from "./cmd/TranslateCmd"
 import { Matrix } from "../maths/Matrix"
 import { Point } from "../maths/Point"
 import { Rectangle } from "../maths/Rectangle"
-import { Context } from "../renders/Context"
+import { Context, IGraphicCMD } from "../renders/Context"
 import { Texture } from "../resource/Texture"
 import { Utils } from "../utils/Utils"
 import { VectorGraphManager } from "../utils/VectorGraphManager"
@@ -43,6 +43,7 @@ import { ShaderDataType } from "../RenderDriver/DriverDesign/RenderDevice/Shader
 import { DrawGeoCmd } from "./cmd/DrawGeoCmd";
 import { IRenderGeometryElement } from "../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
 import { DrawGeosCmd } from "./cmd/DrawGeosCmd";
+import { BaseRenderNode2D } from "../NodeRender2D/BaseRenderNode2D";
 /**
  * <code>Graphics</code> 类用于创建绘图显示对象。Graphics可以同时绘制多个位图或者矢量图，还可以结合save，restore，transform，scale，rotate，translate，alpha等指令对绘图效果进行变化。
  * Graphics以命令流方式存储，可以通过cmds属性访问所有命令流。Graphics是比Sprite更轻量级的对象，合理使用能提高应用性能(比如把大量的节点绘图改为一个节点的Graphics命令集合，能减少大量节点创建消耗)。
@@ -73,7 +74,7 @@ export class Graphics {
     /**@internal */
     _render: (sprite: Sprite, context: Context, x: number, y: number) => void = this._renderEmpty;
     /**@private */
-    private _cmds: any[] = [];
+    private _cmds: IGraphicCMD[] = [];
     /**@private */
     protected _vectorgraphArray: any[] | null = null;
     /**@private */

@@ -55,7 +55,7 @@ export class QuickTestTool {
         QuickTestTool._typeToNameDic[SpriteConst.FILTERS] = "FILTERS";
         QuickTestTool._typeToNameDic[SpriteConst.MASK] = "MASK";
         QuickTestTool._typeToNameDic[SpriteConst.CLIP] = "CLIP";
-        QuickTestTool._typeToNameDic[SpriteConst.LAYAGL3D] = "LAYAGL3D";
+       // QuickTestTool._typeToNameDic[SpriteConst.LAYAGL3D] = "LAYAGL3D";
     }
     _renderType: number;
     _repaint: number;

@@ -1,4 +1,6 @@
-import { Graphics } from "../../display/Graphics";
+import { BaseRenderNode2D } from "../../NodeRender2D/BaseRenderNode2D";
+import { IRenderElement2D } from "../../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
+import { Spine2DRenderNode } from "../Spine2DRenderNode";
 import { SpineAdapter } from "../SpineAdapter";
 import { SpineTemplet } from "../SpineTemplet";
 import { ISpineRender } from "../interface/ISpineRender";
@@ -6,14 +8,14 @@ import { ISpineOptimizeRender } from "./interface/ISpineOptimizeRender";
 
 export class SpineNormalRender implements ISpineOptimizeRender {
 
-    graphics: Graphics;
+    _owner: Spine2DRenderNode;
     _renerer: ISpineRender;
     _skeleton: spine.Skeleton;
 
-    init(skeleton: spine.Skeleton, templet: SpineTemplet, graphics: Graphics,state:spine.AnimationState): void {
-        this.graphics = graphics;
+    init(skeleton: spine.Skeleton, templet: SpineTemplet, renderNode: Spine2DRenderNode, state: spine.AnimationState): void {
         this._renerer = SpineAdapter.createNormalRender(templet, false);
         this._skeleton = skeleton;
+        this._owner = renderNode;
     }
 
     play(animationName: string): void {
@@ -24,7 +26,6 @@ export class SpineNormalRender implements ISpineOptimizeRender {
     }
 
     render(time: number) {
-        this.graphics.clear();
-        this._renerer.draw(this._skeleton, this.graphics, -1, -1);
+        this._renerer.draw(this._skeleton, this._owner, -1, -1);
     }
 }

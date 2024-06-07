@@ -19,14 +19,14 @@ export class WebGLCullUtil {
         for (var i: number = 0, n: number = count; i < n; i++) {
             var render = renders[i];
             var canPass: boolean;
-            canPass = (Math.pow(2, render.layer) & cullMask) != 0 && (render.renderbitFlag == 0);
+            canPass = ((1<< render.layer) & cullMask) != 0 && (render.renderbitFlag == 0);
             canPass = canPass && ((render.staticMask & staticMask) != 0);
             if (canPass) {
                 Stat.frustumCulling++;
                 //needRender 方案有问题 会造成native和js的差异
                 if (!cameraCullInfo.useOcclusionCulling || render._needRender(boundFrustum))//NEEDRENDER TS OR NATIVE
                 {
-                    render.distanceForSort = Vector3.distance(render.bounds.getCenter(), cameraCullInfo.position);
+                    render.distanceForSort = Vector3.distanceSquared(render.bounds._imp.getCenter(), cameraCullInfo.position);
                     render._renderUpdatePre(context);//TS OR Native
                     let elments = render.renderelements as WebGLRenderElement3D[];
                     if (elments.length == 1) {//js 优化
@@ -56,7 +56,7 @@ export class WebGLCullUtil {
                 Stat.frustumCulling++;
                 let pass = FrustumCulling.cullingRenderBounds(render.bounds, shadowCullInfo);
                 if (pass) {
-                    render.distanceForSort = Vector3.distance(render.bounds.getCenter(), shadowCullInfo.position);//TODO:合并计算浪费,或者合并后取平均值
+                    render.distanceForSort = Vector3.distanceSquared(render.bounds._imp.getCenter(), shadowCullInfo.position);//TODO:合并计算浪费,或者合并后取平均值
                     render._renderUpdatePre(context);//TS OR Native
                     var elements = render.renderelements as WebGLRenderElement3D[];
                     for (var j: number = 0, m: number = elements.length; j < m; j++) {
@@ -81,7 +81,7 @@ export class WebGLCullUtil {
             render._renderUpdatePre(context);//TS OR Native
             if (canPass) {
                 Stat.frustumCulling++;
-                render.distanceForSort = Vector3.distance(render.bounds.getCenter(), cameraCullInfo.position);
+                render.distanceForSort = Vector3.distance(render.bounds._imp.getCenter(), cameraCullInfo.position);
                 if (render._needRender(boundFrustum)) {
                     let elements = render.renderelements as WebGLRenderElement3D[];
                     for (var j: number = 0, m: number = elements.length; j < m; j++) {

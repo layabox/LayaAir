@@ -279,8 +279,8 @@ export class VBRigBodyCreator extends VBCreator {
         if (attachmentParse.stride == 2) {
             let boneid = boneGet.getBoneId(attachmentParse.boneIndex);
             for (let j = 0, n = slotVertex.length; j < n; j += attachmentParse.stride) {
-                vertexArray[offset + 0] = slotVertex[j];
-                vertexArray[offset + 1] = slotVertex[j + 1];
+                vertexArray[offset + 6] = slotVertex[j];
+                vertexArray[offset + 7] = slotVertex[j + 1];
                 ///////////color
                 vertexArray[offset + 2] = color.r;
                 vertexArray[offset + 3] = color.g;
@@ -288,8 +288,8 @@ export class VBRigBodyCreator extends VBCreator {
                 vertexArray[offset + 5] = color.a;
 
                 ///////////uv
-                vertexArray[offset + 6] = uvs[j];
-                vertexArray[offset + 7] = uvs[j + 1];
+                vertexArray[offset +0] = uvs[j];
+                vertexArray[offset +1] = uvs[j + 1];
                 vertexArray[offset + 8] = boneid;
                 offset += vside;
             }

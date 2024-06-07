@@ -1,6 +1,6 @@
 import { ShaderPass } from "../../../RenderEngine/RenderShader/ShaderPass";
 import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
-import { SingletonList } from "../../../utils/SingletonList";
+import { FastSinglelist } from "../../../utils/SingletonList";
 import { ShaderDefines2D } from "../../../webgl/shader/d2/ShaderDefines2D";
 import { IRenderElement2D } from "../../DriverDesign/2DRenderPass/IRenderElement2D";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
@@ -11,11 +11,12 @@ import { WebGLShaderInstance } from "../RenderDevice/WebGLShaderInstance";
 import { WebglRenderContext2D } from "./WebGLRenderContext2D";
 
 export class WebGLRenderelement2D implements IRenderElement2D {
+    renderStateIsBySprite: boolean = true;
 
 
     /** @internal */
     static _compileDefine: WebDefineDatas = new WebDefineDatas();
-    protected _shaderInstances: SingletonList<WebGLShaderInstance> = new SingletonList<WebGLShaderInstance>();
+    protected _shaderInstances: FastSinglelist<WebGLShaderInstance> = new FastSinglelist<WebGLShaderInstance>();
     geometry: WebGLRenderGeometryElement;
     materialShaderData: WebGLShaderData;
     value2DShaderData: WebGLShaderData;
@@ -84,8 +85,14 @@ export class WebGLRenderelement2D implements IRenderElement2D {
         context.sceneData && shader.uploadUniforms(shader._sceneUniformParamsMap, context.sceneData, true);
         this.materialShaderData && shader.uploadUniforms(shader._materialUniformParamsMap, this.materialShaderData, true);
         //blend
-        shader.uploadRenderStateBlendDepth(this.value2DShaderData);
-        shader.uploadRenderStateFrontFace(this.value2DShaderData, false, context.invertY);
+        if (this.renderStateIsBySprite || !this.materialShaderData) {
+            shader.uploadRenderStateBlendDepth(this.value2DShaderData);
+            shader.uploadRenderStateFrontFace(this.value2DShaderData, false, context.invertY);
+        } else {
+            shader.uploadRenderStateBlendDepth(this.materialShaderData);
+            shader.uploadRenderStateFrontFace(this.materialShaderData, false, context.invertY);
+        }
+
         WebGLEngine.instance.getDrawContext().drawGeometryElement(this.geometry)
     }
     destroy(): void {

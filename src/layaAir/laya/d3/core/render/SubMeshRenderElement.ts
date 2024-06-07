@@ -2,7 +2,7 @@ import { Event } from "../../../events/Event";
 import { SubMesh } from "../../resource/models/SubMesh";
 import { GeometryElement } from "../GeometryElement";
 import { Transform3D } from "../Transform3D";
-import { SingletonList } from "../../../utils/SingletonList";
+import { FastSinglelist, SingletonList } from "../../../utils/SingletonList";
 import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
 import { RenderElement } from "./RenderElement";
 
@@ -20,15 +20,15 @@ export class SubMeshRenderElement extends RenderElement {
 	/** @internal */
 	staticBatchIndexEnd: number;
 	/** @internal */
-	staticBatchElementList: SingletonList<SubMeshRenderElement>;
+	staticBatchElementList: FastSinglelist<SubMeshRenderElement>;
 
 	/** @internal */
 	instanceSubMesh: SubMesh;
 	/** @internal */
-	instanceBatchElementList: SingletonList<SubMeshRenderElement>;
+	instanceBatchElementList: FastSinglelist<SubMeshRenderElement>;
 
 	/** @internal */
-	vertexBatchElementList: SingletonList<SubMeshRenderElement>;
+	vertexBatchElementList: FastSinglelist<SubMeshRenderElement>;
 	/** @internal */
 	vertexBatchVertexDeclaration: VertexDeclaration;
 

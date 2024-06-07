@@ -1,12 +1,12 @@
 import { Bezier } from "../../maths/Bezier";
-import { Context } from "../../renders/Context"
+import { Context, IGraphicCMD } from "../../renders/Context"
 import { ClassUtils } from "../../utils/ClassUtils";
 import { Pool } from "../../utils/Pool"
 
 /**
  * 绘制曲线
  */
-export class DrawCurvesCmd {
+export class DrawCurvesCmd implements IGraphicCMD {
     static ID: string = "DrawCurves";
 
     /**

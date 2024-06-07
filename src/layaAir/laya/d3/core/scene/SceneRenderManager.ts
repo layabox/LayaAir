@@ -65,10 +65,10 @@ export class SceneRenderManager {
         this._sceneManagerOBJ.updateMotionObjects();
     }
 
-    renderUpdate():void{
+    renderUpdate(): void {
         var context: RenderContext3D = RenderContext3D._instance;
         let lists = this._sceneManagerOBJ.list.elements;
-        for(let i = 0,n = this.list.length;i<n;i++){
+        for (let i = 0, n = this.list.length; i < n; i++) {
             lists[i].renderUpdate(context);
         }
     }

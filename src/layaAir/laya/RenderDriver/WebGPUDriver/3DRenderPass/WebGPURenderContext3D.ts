@@ -3,7 +3,7 @@ import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFla
 import { Color } from "../../../maths/Color";
 import { Vector4 } from "../../../maths/Vector4";
 import { Viewport } from "../../../maths/Viewport";
-import { SingletonList } from "../../../utils/SingletonList";
+import { FastSinglelist } from "../../../utils/SingletonList";
 import { IRenderContext3D, PipelineMode } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { IRenderCMD } from "../../DriverDesign/3DRenderPass/IRendderCMD";
 import { WebCameraNodeData, WebSceneNodeData } from "../../RenderModuleData/WebModuleData/3D/WebModuleData";
@@ -237,7 +237,7 @@ export class WebGPURenderContext3D implements IRenderContext3D {
      * 渲染一组节点
      * @param list 
      */
-    drawRenderElementList(list: SingletonList<WebGPURenderElement3D>): number {
+    drawRenderElementList(list: FastSinglelist<WebGPURenderElement3D>): number {
         const len = list.length;
         if (len === 0) return 0; //没有需要渲染的对象
         this._setScreenRT(); //如果没有渲染目标，则将屏幕作为渲染目标
