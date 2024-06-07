@@ -1,4 +1,4 @@
-import { SingletonList } from "../../utils/SingletonList";
+import { FastSinglelist } from "../../utils/SingletonList";
 import { IRenderContext3D, IRenderElement3D } from "../DriverDesign/3DRenderPass/I3DRenderPass";
 import { InstanceRenderBatch } from "./InstanceRenderBatch";
 import { RenderQuickSort } from "./RenderQuickSort";
@@ -7,7 +7,7 @@ import { RenderQuickSort } from "./RenderQuickSort";
  * 渲染节点队列
  */
 export class RenderListQueue {
-    private _elements: SingletonList<IRenderElement3D> = new SingletonList<IRenderElement3D>();
+    private _elements: FastSinglelist<IRenderElement3D> = new FastSinglelist<IRenderElement3D>();
     get elements() { return this._elements; }
     private _quickSort: RenderQuickSort;
     private _isTransparent: boolean;

@@ -4,7 +4,7 @@ import { VertexMesh } from "../../../RenderEngine/RenderShader/VertexMesh";
 import { MeshSprite3DShaderDeclaration } from "../../../d3/core/MeshSprite3DShaderDeclaration";
 import { RenderableSprite3D } from "../../../d3/core/RenderableSprite3D";
 import { SimpleSkinnedMeshRenderer } from "../../../d3/core/SimpleSkinnedMeshRenderer";
-import { SingletonList } from "../../../utils/SingletonList";
+import { FastSinglelist } from "../../../utils/SingletonList";
 import { BaseRenderType } from "../../RenderModuleData/Design/3D/I3DRenderModuleData";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
 import { WebGLBufferState } from "../RenderDevice/WebGLBufferState";
@@ -96,7 +96,7 @@ export class WebGLInstanceRenderElement3D extends WebGLRenderElement3D {
         return element;
     }
 
-    _instanceElementList: SingletonList<WebGLRenderElement3D>;
+    _instanceElementList: FastSinglelist<WebGLRenderElement3D>;
 
     private _vertexBuffers: Array<WebGLVertexBuffer> = [];
     private _updateData: Array<Float32Array> = [];
@@ -111,7 +111,7 @@ export class WebGLInstanceRenderElement3D extends WebGLRenderElement3D {
 
     constructor() {
         super();
-        this._instanceElementList = new SingletonList();
+        this._instanceElementList = new FastSinglelist();
         this.drawCount = 0;
         this.updateNums = 0;
         this.isRender = true;

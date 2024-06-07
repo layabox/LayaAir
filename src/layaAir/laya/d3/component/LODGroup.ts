@@ -258,7 +258,7 @@ export class LODGroup extends Component {
         }
         this._visialIndex = -1;
 
-      
+
         this._applyVisibleRate(1);
     }
     /**
@@ -412,7 +412,7 @@ export class LODGroup extends Component {
                     Bounds.merge(this._bounds, element.bounds, this._bounds);
             });
         }
-        this._lodPosition = this._bounds.getCenter();
+        this._lodPosition = this._bounds._imp.getCenter();
         let extend = this._bounds.getExtent();
         this._size = 2 * Math.max(extend.x, extend.y, extend.z);
         this._needcaculateBounds = false;

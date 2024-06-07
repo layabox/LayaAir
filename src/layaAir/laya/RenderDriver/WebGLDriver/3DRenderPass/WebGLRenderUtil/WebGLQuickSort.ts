@@ -1,9 +1,9 @@
-import { SingletonList } from "../../../../utils/SingletonList";
+import { FastSinglelist } from "../../../../utils/SingletonList";
 import { WebGLRenderElement3D } from "../WebGLRenderElement3D";
 
 
 export class WebGLQuickSort {
-	private elementArray: SingletonList<WebGLRenderElement3D>;
+	private elementArray: FastSinglelist<WebGLRenderElement3D>;
 	private isTransparent: boolean;
 
 	/**
@@ -13,7 +13,7 @@ export class WebGLQuickSort {
 	 * @param left 
 	 * @param right 
 	 */
-	sort(elements: SingletonList<WebGLRenderElement3D>, isTransparent: boolean, left: number, right: number): void {
+	sort(elements: FastSinglelist<WebGLRenderElement3D>, isTransparent: boolean, left: number, right: number): void {
 		this.elementArray = elements;
 		this.isTransparent = isTransparent;
 		this._quickSort(left, right);

@@ -4,7 +4,7 @@ import { Camera } from "../../../d3/core/Camera";
 import { Transform3D } from "../../../d3/core/Transform3D";
 import { Color } from "../../../maths/Color";
 import { Vector4 } from "../../../maths/Vector4";
-import { SingletonList } from "../../../utils/SingletonList";
+import { FastSinglelist } from "../../../utils/SingletonList";
 import { ICameraNodeData, IBaseRenderNode, ISceneNodeData } from "../../RenderModuleData/Design/3D/I3DRenderModuleData";
 import { ShaderData } from "../RenderDevice/ShaderData";
 import { IRenderGeometryElement } from "../RenderDevice/IRenderGeometryElement";
@@ -32,7 +32,7 @@ export interface IRenderContext3D {
     setViewPort(value: Viewport): void;
     setScissor(value: Vector4): void;
     setClearData(clearFlag: number, clolor: Color, depth: number, stencil: number): number;
-    drawRenderElementList(list: SingletonList<IRenderElement3D>): number;
+    drawRenderElementList(list: FastSinglelist<IRenderElement3D>): number;
     drawRenderElementOne(node: IRenderElement3D): number;
     runOneCMD(cmd: IRenderCMD): void
     runCMDList(cmds: IRenderCMD[]): void;

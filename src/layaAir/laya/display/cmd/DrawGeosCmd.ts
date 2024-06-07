@@ -1,21 +1,21 @@
 import { IRenderGeometryElement } from "../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
-import { Context } from "../../renders/Context"
+import { Context, IGraphicCMD } from "../../renders/Context"
 import { Material } from "../../resource/Material";
 import { Pool } from "../../utils/Pool"
 
-export class DrawGeosCmd {
+export class DrawGeosCmd implements IGraphicCMD {
     static ID: string = "DrawGeoCmd";
     geo: IRenderGeometryElement;
-    elements:[Material,number,number][];
+    elements: [Material, number, number][];
 
     /**@private */
-    static create(geo: IRenderGeometryElement, elements:[Material,number,number][]): DrawGeosCmd {
+    static create(geo: IRenderGeometryElement, elements: [Material, number, number][]): DrawGeosCmd {
         var cmd: DrawGeosCmd = Pool.getItemByClass("DrawGeosCmd", DrawGeosCmd);
         cmd.init(geo, elements);
         return cmd;
     }
 
-    init(geo: IRenderGeometryElement, elements:[Material,number,number][]): void {
+    init(geo: IRenderGeometryElement, elements: [Material, number, number][]): void {
         this.elements = elements;
         this.geo = geo;
     }

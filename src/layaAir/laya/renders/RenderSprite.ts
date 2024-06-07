@@ -118,10 +118,29 @@ export class RenderSprite {
             case SpriteConst.HITAREA:
                 this._fun = this._hitarea;
                 return;
+            case SpriteConst.RENDERNODE2D:
+                this._fun = this._renderNode2D;
+                break;
             case INIT:
                 this._fun = RenderSprite._initRenderFun;
                 return;
         }
+    }
+
+    _renderNode2D(sprite: Sprite, context: Context, x: number, y: number): void {
+
+        if (sprite._renderNode.addCMDCall)
+            sprite._renderNode.addCMDCall(context, x, y);
+        if (context._render2DManager._renderEnd) {
+            context.drawLeftData();//强制渲染之前的遗留
+            context._render2DManager._renderEnd = false;
+            context._render2DManager.addRenderObject(sprite._renderNode);
+        }else{
+            context._render2DManager.addRenderObject(sprite._renderNode);
+        }
+        
+        if (this._next != RenderSprite.NORENDER)
+            this._next._fun(sprite, context, x, y);
     }
 
     /**@internal */

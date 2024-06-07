@@ -1,18 +1,21 @@
 
+import { IRenderElement2D } from "../../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
 import { Graphics } from "../../display/Graphics";
-import { SpineMaterialShaderInit } from "../material/SpineMaterialShaderInit";
+import { LayaGL } from "../../layagl/LayaGL";
+import { Material } from "../../resource/Material";
+import { SpineShaderInit } from "../material/SpineShaderInit";
 import { SpineMeshBase } from "./SpineMeshBase";
 
 export class SpineWasmVirturalMesh extends SpineMeshBase {
 
-    drawNew(graphics: Graphics, vertices: Float32Array, vblength: number, indices: Uint16Array, iblength: number) {
-        this.vertexArray = vertices;
-        this.indexArray = indices;
-        this.verticesLength = vblength;
-        this.indicesLength = iblength;
-        this.draw(graphics);
+    private _renderElement2D: IRenderElement2D;
+    constructor(material: Material) {
+        super(material);
+        this._renderElement2D = LayaGL.render2DRenderPassFactory.createRenderElement2D();
+        this._renderElement2D.geometry = this.geo;
     }
+    
     get vertexDeclarition() {
-        return SpineMaterialShaderInit.vertexDeclaration;
+        return SpineShaderInit.SpineNormalVertexDeclaration;
     }
 }

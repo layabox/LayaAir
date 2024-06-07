@@ -28,8 +28,8 @@ export class Bounds implements IClone {
      * @returns 
      */
     static containPoint(box: Bounds, point: Vector3): boolean {
-        let max = box.getMax();
-        let min = box.getMin();
+        let max = box._imp.getMax();
+        let min = box._imp.getMin();
         if (point.x > max.x || point.x < min.x) return false;
         if (point.y > max.y || point.y < min.y) return false;
         if (point.z > max.z || point.z < min.z) return false;

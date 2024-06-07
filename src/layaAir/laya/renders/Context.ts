@@ -1,6 +1,7 @@
 import { ILaya } from "../../ILaya";
 import { Laya } from "../../Laya";
 import { Const } from "../Const";
+import { RenderManager2D } from "../NodeRender2D/RenderManager2D";
 import { IRenderGeometryElement } from "../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
 import { RenderState } from "../RenderDriver/RenderModuleData/Design/RenderState";
 import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
@@ -55,6 +56,27 @@ import { IAutoExpiringResource } from "./ResNeedTouch";
 
 const defaultClipMatrix = new Matrix(Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_CLIP_SIZE, 0, 0);
 
+export interface IGraphicCMD {
+    run(context: Context, gx: number, gy: number): void;
+    recover(): void;//如有回收，实现这个函数
+    get cmdID(): string;
+    //other
+    percent?: boolean;
+    pivotX?: number;
+    pivotY?: number;
+    scaleX?: number;
+    scaleY?: number;
+    angle?: number;
+    tx?: number;
+    ty?: number;
+    matrix?: Matrix;
+    x?: number;
+    y?: number;
+    width?: number;
+    height?: number;
+    points?: any;
+}
+
 /**
  * @private
  */
@@ -65,7 +87,7 @@ export class Context {
     private _canvas: HTMLCanvas;
 
     /**@internal */
-    _drawingToTexture : boolean;
+    _drawingToTexture: boolean;
 
     private static _MAXVERTNUM = 65535;
 
@@ -177,17 +199,21 @@ export class Context {
 
     private _render2D: Render2D = null;
 
-    private _clearColor = new Color(0,0,0,0);
-    private _clear=false;
+    private _clearColor = new Color(0, 0, 0, 0);
+    private _clear = false;
 
-    private _shaderValueNeedRelease:Value2D[]=[];
+    private _shaderValueNeedRelease: Value2D[] = [];
+
+
+
+    _render2DManager: RenderManager2D;
     //temp
     //batchManager:RenderBatchManager2D=null;
 
     static __init__(): void {
         Context.MAXCLIPRECT = new Rectangle(0, 0, Const.MAX_CLIP_SIZE, Const.MAX_CLIP_SIZE);
         ContextParams.DEFAULT = new ContextParams();
-        if(!Context._textRender){
+        if (!Context._textRender) {
             let textRender = Context._textRender = new TextRender();
             textRender.fontMeasure = new MeasureFont(textRender.charRender);
         }
@@ -214,6 +240,8 @@ export class Context {
         this._save = [SaveMark.Create(this)];
         this._save.length = 10;
         this.clear();
+
+        this._render2DManager = new RenderManager2D();
     }
 
     //从ctx继承渲染参数
@@ -280,7 +308,7 @@ export class Context {
      * 添加需要touch的资源
      * @param res 
      */
-    touchRes(res:IAutoExpiringResource){
+    touchRes(res: IAutoExpiringResource) {
         res.touch();
     }
 
@@ -510,13 +538,13 @@ export class Context {
 
     clearBG(r: number, g: number, b: number, a: number): void {
         // var gl: WebGLRenderingContext = RenderStateContext.mainContext;
-        if(r==null || r==undefined){
-            this._clear=false;
-        }else{
-            this._clearColor.setValue(r,g,b,a);
-            this._clear=true;
+        if (r == null || r == undefined) {
+            this._clear = false;
+        } else {
+            this._clearColor.setValue(r, g, b, a);
+            this._clear = true;
         }
-     //   LayaGL.renderEngine.clearRenderTexture(RenderClearFlag.Color, this.clearColor, 1, 0);
+        //   LayaGL.renderEngine.clearRenderTexture(RenderClearFlag.Color, this.clearColor, 1, 0);
     }
 
     /**
@@ -585,17 +613,17 @@ export class Context {
         if (w === 0 && h === 0) this._releaseMem();
     }
 
-    get width(){
+    get width() {
         return this._width;
     }
-    set width(w:number){
-        this.size(w,this._height);
+    set width(w: number) {
+        this.size(w, this._height);
     }
-    get height(){
+    get height() {
         return this._height;
     }
-    set height(h:number){
-        this.size(this._width,h);
+    set height(h: number) {
+        this.size(this._width, h);
     }
 
     /**
@@ -869,7 +897,7 @@ export class Context {
             var arry = texuvRect.concat();
             Vector4.tempVec4.setValue(arry[0], arry[1], arry[2], arry[3]);
             sv.u_TexRange = Vector4.tempVec4;
-            submit = this._curSubmit = SubmitBase.create(this, this._mesh, sv);            
+            submit = this._curSubmit = SubmitBase.create(this, this._mesh, sv);
             this.fillShaderValue(sv);
             submit.clipInfoID = this._clipInfoID;
             submit.shaderValue.textureHost = texture;
@@ -997,9 +1025,9 @@ export class Context {
             Vector4.tempVec4.setValue(ft._alpha[0], ft._alpha[1], ft._alpha[2], ft._alpha[3]);
             shaderdata.setVector(ShaderDefines2D.UNIFORM_COLORALPHA, Vector4.tempVec4);
         }
-        
+
         this._drawMesh(mesh, 0, mesh.vertexNum, submit._startIdx, mesh.indexNum, submit.shaderValue);
-        this.stopMerge=false;
+        this.stopMerge = false;
         this._drawCount++;
     }
 
@@ -1007,6 +1035,9 @@ export class Context {
     private _drawMesh(mesh: Mesh2D, vboff: number, vertNum: number, iboff: number, indexNum: number, shaderValue: Value2D) {
         if (mesh.indexNum) {
             let render2D = this._render2D;
+            if (!this._render2DManager._renderEnd) {
+                this._render2DManager.render(Render2DSimple.rendercontext2D);
+            }
             render2D.draw(
                 mesh,
                 vboff, vertNum * mesh.vertexDeclarition.vertexStride,
@@ -1017,8 +1048,8 @@ export class Context {
         mesh.clearMesh();
         //不能直接release，有的会缓存，例如cacheas normal，或者底层是异步之类的，所以先收集再释放
         //shaderValue.release();
-        if(!shaderValue._needRelease){
-            shaderValue._needRelease=true;
+        if (!shaderValue._needRelease) {
+            shaderValue._needRelease = true;
             this._shaderValueNeedRelease.push(shaderValue);
         }
     }
@@ -1251,11 +1282,11 @@ export class Context {
         buffer[4] = mat.d;
         buffer[5] = mat.ty + mat.b * x + mat.d * y;
         material.setBuffer("u_NMatrix", buffer);
-        material.setVector2("u_size",new Vector2(this._width,this._height));//TODO LAOGUO
+        material.setVector2("u_size", new Vector2(this._width, this._height));//TODO LAOGUO
         this._render2D.drawMesh(geo, material);
     }
 
-    drawGeos(geo: IRenderGeometryElement,elements:[Material,number,number][], x: number, y: number) {
+    drawGeos(geo: IRenderGeometryElement, elements: [Material, number, number][], x: number, y: number) {
         this.drawLeftData();
         let mat = this._curMat;
         let buffer = this._matBuffer;
@@ -1265,12 +1296,12 @@ export class Context {
         buffer[3] = mat.c;
         buffer[4] = mat.d;
         buffer[5] = mat.ty + mat.b * x + mat.d * y;
-        for(let i = 0,n = elements.length;i < n;i++){
+        for (let i = 0, n = elements.length; i < n; i++) {
             let material = elements[i][0];
             material.setBuffer("u_NMatrix", buffer);
-            material.setVector2("u_size",new Vector2(this._width,this._height));//TODO LAOGUO
+            material.setVector2("u_size", new Vector2(this._width, this._height));//TODO LAOGUO
             geo.clearRenderParams();
-            geo.setDrawElemenParams(elements[i][1],elements[i][2]);
+            geo.setDrawElemenParams(elements[i][1], elements[i][2]);
             this._render2D.drawMesh(geo, material);
         }
     }
@@ -1280,10 +1311,10 @@ export class Context {
         vertices: Float32Array,
         uvs: Float32Array,
         indices: Uint16Array,
-        matrix: Matrix, alpha: number|null, blendMode: string, colorNum = 0xffffffff): void {
+        matrix: Matrix, alpha: number | null, blendMode: string, colorNum = 0xffffffff): void {
 
-        if(alpha==null) alpha=1.0;
-        
+        if (alpha == null) alpha = 1.0;
+
         if (!tex._getSource()) { //source内调用tex.active();
             if (this.sprite) {
                 ILaya.systemTimer.callLater(this, this._repaintSprite);
@@ -1315,7 +1346,7 @@ export class Context {
         //rgba = _mixRGBandAlpha(rgba, alpha);	这个函数有问题，不能连续调用，输出作为输入
         if (!sameKey) {
             //添加一个新的submit
-            var submit = this._curSubmit = SubmitBase.create(this, this._mesh, 
+            var submit = this._curSubmit = SubmitBase.create(this, this._mesh,
                 Value2D.create(RenderSpriteData.Texture2D));
             submit.shaderValue.textureHost = tex;
             this.fillShaderValue(submit.shaderValue);
@@ -1334,10 +1365,10 @@ export class Context {
             }
             Matrix.mul(tmpMat, this._curMat, tmpMat);
             //由于2d动画部分的uvs是绝对的（例如图集的话就是相对图集的）所以最后不传uvrect了。
-            (this._mesh as MeshTexture).addData(vertices, uvs, indices, tmpMat || this._curMat, rgba,null);
+            (this._mesh as MeshTexture).addData(vertices, uvs, indices, tmpMat || this._curMat, rgba, null);
         } else {
             // 这种情况是drawtexture转成的drawTriangle，直接使用matrix就行，传入的xy都是0
-            (this._mesh as MeshTexture).addData(vertices, uvs, indices, matrix, rgba,null);
+            (this._mesh as MeshTexture).addData(vertices, uvs, indices, matrix, rgba, null);
         }
         this._curSubmit._numEle += indices.length;
 
@@ -1447,14 +1478,18 @@ export class Context {
             sv.release();
             sv._needRelease = false;
         }
-        this._shaderValueNeedRelease.length=0;
+        this._shaderValueNeedRelease.length = 0;
 
         this._render2D.renderStart(this._clear, this._clearColor);
         this.clear();
     }
 
     endRender() {
+
         this.flush();
+        if (!this._render2DManager._renderEnd) {
+            this._render2DManager.render(Render2DSimple.rendercontext2D);
+        }
         this._render2D.renderEnd();
         this._curSubmit = SubmitBase.RENDERBASE;
     }

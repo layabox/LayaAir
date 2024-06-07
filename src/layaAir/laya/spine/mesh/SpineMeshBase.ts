@@ -1,3 +1,4 @@
+import { IRenderElement2D } from "../../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
 import { IIndexBuffer } from "../../RenderDriver/DriverDesign/RenderDevice/IIndexBuffer";
 import { IRenderGeometryElement } from "../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
 import { IVertexBuffer } from "../../RenderDriver/DriverDesign/RenderDevice/IVertexBuffer";
@@ -12,6 +13,7 @@ import { Material } from "../../resource/Material";
 
 export abstract class SpineMeshBase {
     static maxVertex: number = 10922;//64*1024/3/2  indexbuffer 64K限制
+    element: IRenderElement2D;
     /**
      * Geometry
      */
@@ -19,7 +21,17 @@ export abstract class SpineMeshBase {
     /**
      * Material
      */
-    material: Material;
+    private _material: Material;
+
+    get material() {
+        return this._material;
+    }
+
+    set material(value: Material) {
+        this._material = value;
+        this.element.materialShaderData = this._material._shaderValues;
+        this.element.subShader = this._material._shader.getSubShaderAt(0);
+    }
 
     protected vb: IVertexBuffer;
     protected ib: IIndexBuffer;
@@ -32,8 +44,9 @@ export abstract class SpineMeshBase {
     protected indicesLength: number = 0;
 
     constructor(material: Material) {
-        this.material = material;
+
         this.init();
+        this.material = material;
     }
 
     init() {
@@ -48,6 +61,13 @@ export abstract class SpineMeshBase {
         this.geo = geo;
         this.vb = vb;
         this.ib = ib;
+        //set renderelement2D
+        this.element = LayaGL.render2DRenderPassFactory.createRenderElement2D();
+        //@ts-ignore
+        this.element.canotPool=true;
+        this.element.geometry = geo;
+        this.element.renderStateIsBySprite = false;
+
     }
     abstract get vertexDeclarition(): VertexDeclaration;
 
@@ -55,7 +75,7 @@ export abstract class SpineMeshBase {
      * 添加到渲染队列
      * @param graphics 
      */
-    draw(graphics: Graphics) {
+    draw() {
         let vb = this.vb;
         let ib = this.ib;
         let vblen = this.verticesLength * 4;
@@ -67,7 +87,17 @@ export abstract class SpineMeshBase {
         ib._setIndexData(new Uint16Array(this.indexArray.buffer, this.indexArray.byteOffset, iblen / 2), 0)
         this.geo.clearRenderParams();
         this.geo.setDrawElemenParams(iblen / 2, 0);
-        graphics.drawGeo(this.geo, this.material);
+        this.element.geometry = this.geo;
+        //graphics.drawGeo(this.geo, this.material);
+    }
+
+    drawByData(vertices: Float32Array, vblength: number, indices: Uint16Array, iblength: number) {
+        this.vertexArray = vertices;
+        this.indexArray = indices;
+        this.verticesLength = vblength;
+        this.indicesLength = iblength;
+
+        this.draw();
     }
 
     /**

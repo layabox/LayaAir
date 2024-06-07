@@ -29,13 +29,13 @@ export class RenderCullUtil {
         let canPass: boolean;
         for (let i = 0; i < count; i++) {
             render = list[i];
-            canPass = (Math.pow(2, render.layer) & cullMask) != 0 && (render.renderbitFlag == 0);
+            canPass = ((1 << render.layer) & cullMask) != 0 && (render.renderbitFlag == 0);
             canPass = canPass && ((render.staticMask & staticMask) != 0);
             if (canPass) {
                 Stat.frustumCulling++;
                 //needRender方案有问题, 会造成native和js的差异
                 if (!cameraCullInfo.useOcclusionCulling || render._needRender(boundFrustum)) {
-                    render.distanceForSort = Vector3.distance(render.bounds.getCenter(), cameraCullInfo.position);
+                    render.distanceForSort = Vector3.distanceSquared(render.bounds._imp.getCenter(), cameraCullInfo.position);
                     render._renderUpdatePre(context);
                     let element: IRenderElement3D;
                     const elements = render.renderelements as IRenderElement3D[];
@@ -66,7 +66,7 @@ export class RenderCullUtil {
             if (render.shadowCullPass()) {
                 Stat.frustumCulling++;
                 if (FrustumCulling.cullingRenderBounds(render.bounds, shadowCullInfo)) {
-                    render.distanceForSort = Vector3.distance(render.bounds.getCenter(), shadowCullInfo.position); //TODO:合并计算浪费,或者合并后取平均值
+                    render.distanceForSort = Vector3.distanceSquared(render.bounds._imp.getCenter(), shadowCullInfo.position); //TODO:合并计算浪费,或者合并后取平均值
                     render._renderUpdatePre(context);
                     let element: IRenderElement3D;
                     const elements = render.renderelements as IRenderElement3D[];
@@ -97,7 +97,7 @@ export class RenderCullUtil {
             render._renderUpdatePre(context);
             if (render.shadowCullPass()) {
                 Stat.frustumCulling++;
-                render.distanceForSort = Vector3.distance(render.bounds.getCenter(), cameraCullInfo.position);
+                render.distanceForSort = Vector3.distanceSquared(render.bounds._imp.getCenter(), cameraCullInfo.position);
                 if (render._needRender(boundFrustum)) {
                     let element: IRenderElement3D;
                     const elements = render.renderelements as IRenderElement3D[];

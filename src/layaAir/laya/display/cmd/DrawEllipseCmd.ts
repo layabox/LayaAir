@@ -1,9 +1,9 @@
 import { Rectangle } from "../../maths/Rectangle";
-import { Context } from "../../renders/Context";
+import { Context, IGraphicCMD } from "../../renders/Context";
 import { ClassUtils } from "../../utils/ClassUtils";
 import { Pool } from "../../utils/Pool";
 
-export class DrawEllipseCmd {
+export class DrawEllipseCmd implements IGraphicCMD {
     /**绘制椭圆CMD的标识符 */
     static ID: string = "DrawEllipse";
     /**

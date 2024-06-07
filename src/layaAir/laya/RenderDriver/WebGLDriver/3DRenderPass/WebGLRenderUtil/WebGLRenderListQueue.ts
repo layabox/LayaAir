@@ -1,12 +1,12 @@
 import { WebGLInstanceRenderBatch } from "../../../../d3/graphics/Batch/WebGLInstanceRenderBatch";
-import { SingletonList } from "../../../../utils/SingletonList";
+import { FastSinglelist } from "../../../../utils/SingletonList";
 import { WebGLRenderContext3D } from "../WebGLRenderContext3D";
 import { WebGLRenderElement3D } from "../WebGLRenderElement3D";
 import { WebGLQuickSort } from "./WebGLQuickSort";
 
 export class WebGLRenderListQueue {
     /** @internal */
-    _elements: SingletonList<WebGLRenderElement3D> = new SingletonList<WebGLRenderElement3D>();
+    _elements: FastSinglelist<WebGLRenderElement3D> = new FastSinglelist<WebGLRenderElement3D>();
     private quickSort: WebGLQuickSort;
     private _isTransparent: boolean;
 

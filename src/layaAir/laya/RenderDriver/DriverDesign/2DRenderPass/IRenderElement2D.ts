@@ -7,5 +7,6 @@ export interface IRenderElement2D {
     materialShaderData: ShaderData;
     value2DShaderData: ShaderData;
     subShader: SubShader;
+    renderStateIsBySprite: boolean;//渲染节点的renderState根据哪个ShaderData来
     destroy(): void;
 }
