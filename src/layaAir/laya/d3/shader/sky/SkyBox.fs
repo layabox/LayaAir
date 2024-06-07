@@ -14,7 +14,7 @@ void main()
     cubeSampler = gammaToLinear(cubeSampler);
 #endif // Gamma_u_CubeTexture
 
-    vec3 color = cubeSampler.rgb * u_TintColor.rgb * u_Exposure * c_ColorSpace.rgb;
+    vec3 color = cubeSampler.rgb * u_TintColor.rgb * pow(u_Exposure, 2.2) * c_ColorSpace.rgb;
 
     gl_FragColor = vec4(color, 1.0);
 

@@ -30,7 +30,7 @@ void main()
 #endif // Gamma_u_Texture
     mediump vec3 c = tex.xyz;
     c = c * u_TintColor.rgb * c_ColorSpace.rgb;
-    c *= u_Exposure;
+    c *= pow(u_Exposure, 2.2);
     gl_FragColor = vec4(c, 1.0);
 
     gl_FragColor = outputTransform(gl_FragColor);
