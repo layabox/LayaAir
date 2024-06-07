@@ -139,6 +139,17 @@ export class GLESRender3DProcess implements IRender3DProcess {
                 camera.scene._shaderValues.setTexture(ShadowCasterPass.SHADOW_SPOTMAP, spotShadowMap);
             }
             camera.scene._shaderValues.setVector(ShadowCasterPass.SHADOW_PARAMS, shadowParams);
+
+            let needBlitOpaque = camera.opaquePass;
+            renderpass.enableOpaqueTexture = needBlitOpaque;
+            if (needBlitOpaque) {
+                let rt = camera._opaqueTexture;
+                renderpass.opaquePassCommandBuffer.clear();
+                renderpass.opaquePassCommandBuffer.blitScreenQuad(renderRT, rt);
+                renderpass.opaquePassCommandBuffer = renderpass.opaquePassCommandBuffer;
+            }
+
+
             if (Stat.enablePostprocess && camera.postProcess && camera.postProcess.enable && camera.postProcess.effects.length > 0) {
                 this.renderpass.enablePostProcess = camera.postProcess.enable;
                 camera.postProcess._render(camera);

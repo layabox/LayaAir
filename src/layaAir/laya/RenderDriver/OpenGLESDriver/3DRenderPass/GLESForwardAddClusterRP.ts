@@ -19,6 +19,7 @@ export class GLESForwardAddClusterRP {
     public set enableOpaque(value: boolean) {
         this._nativeObj._enableOpaque = value;
     }
+
     public get enableCMD(): boolean {
         return this._nativeObj._enableCMD;
     }
@@ -149,6 +150,21 @@ export class GLESForwardAddClusterRP {
         });
         return nativeobCMDs;
     }
+
+    /**
+    * @internal
+    * OpaqueTexture CommandBuffer
+    */
+    private _opaquePassCommandBuffer = new CommandBuffer();
+    public get opaquePassCommandBuffer(): CommandBuffer {
+        return this._opaquePassCommandBuffer;
+    }
+    public set opaquePassCommandBuffer(value: CommandBuffer) {
+        this._opaquePassCommandBuffer = value;
+        value._apply(false);
+        this._nativeObj.setOpaqueCMD(this._getRenderCMDArray(value._renderCMDs));
+    }
+
 
     setBeforeForwardCmds(value: CommandBuffer[]): void {
         if (value && value.length > 0) {

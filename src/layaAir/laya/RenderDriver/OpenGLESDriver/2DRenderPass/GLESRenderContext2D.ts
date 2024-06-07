@@ -27,9 +27,14 @@ export class GLESREnderContext2D implements IRenderContext2D {
         this._nativeObj.setGlobalConfigShaderData((Shader3D._configDefineValues as any)._nativeObj);
         this._nativeObj.pipelineMode = "Forward";
     }
-    drawRenderElementList(list: FastSinglelist<IRenderElement2D>): number {
-        //TODO
-        return 0;
+    private _tempList: any = [];
+    drawRenderElementList(list: FastSinglelist<GLESREnderElement2D>): number {
+        this._tempList.length = 0;
+        let listelement = list.elements;
+        listelement.forEach((element) => {
+            this._tempList.push(element._nativeObj);
+        });
+        return this._nativeObj.drawRenderElementList(list.elements, list.length);
     }
     setRenderTarget(value: GLESInternalRT, clear: boolean, clearColor: Color): void {
         this._nativeObj.setRenderTarget(value ? value._nativeObj : null, clear, clearColor);
