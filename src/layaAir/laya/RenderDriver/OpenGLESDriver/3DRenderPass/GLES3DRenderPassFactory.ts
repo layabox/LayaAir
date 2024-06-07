@@ -1,6 +1,7 @@
 import { Laya } from "../../../../Laya";
 import { Laya3DRender } from "../../../d3/RenderObjs/Laya3DRender";
 import { SceneRenderManagerOBJ } from "../../../d3/core/scene/SceneRenderManagerOBJ";
+import { IInstanceRenderElement3D } from "../../DriverCommon/IInstanceRenderElement3D";
 import { IRender3DProcess, IRenderContext3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { I3DRenderPassFactory } from "../../DriverDesign/3DRenderPass/I3DRenderPassFactory";
 import { DrawNodeCMDData, BlitQuadCMDData, DrawElementCMDData, SetViewportCMD, SetRenderTargetCMD, SetRenderDataCMD, SetShaderDefineCMD } from "../../DriverDesign/3DRenderPass/IRendderCMD";
@@ -80,9 +81,18 @@ export class GLES3DRenderPassFactory implements I3DRenderPassFactory {
         return new GLESForwardAddClusterRP();
     }
 
-
     createRenderElement3D(): GLESRenderElement3D {
         return new GLESRenderElement3D();
+    }
+
+    getMaxInstanceCount(): number {
+        throw('to be implemented');
+    }
+    recoverInstanceRenderElement3D(element: IInstanceRenderElement3D): void {
+        throw('to be implemented');
+    }
+    createInstanceRenderElement3D(): IInstanceRenderElement3D {
+        throw('to be implemented');
     }
 }
 

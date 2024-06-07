@@ -1,5 +1,6 @@
 import { Config3D } from "../../../Config3D";
 import { BatchMark } from "../../d3/core/render/BatchMark";
+import { Laya3DRender } from "../../d3/RenderObjs/Laya3DRender";
 import { LayaGL } from "../../layagl/LayaGL";
 import { RenderCapable } from "../../RenderEngine/RenderEnum/RenderCapable";
 import { SingletonList } from "../../utils/SingletonList";
@@ -20,93 +21,97 @@ export class InstanceRenderBatch {
     }
 
     getBatchMark(element: IRenderElement3D) {
-        let renderNode = element.owner;
-        let geometry = element.geometry;
+        const renderNode = element.owner;
+        const geometry = element.geometry;
 
-        let invertFrontFace = element.transform ? element.transform._isFrontFaceInvert : false;
+        const invertFrontFace = element.transform ? element.transform._isFrontFaceInvert : false;
+        const invertFrontFaceFlag = invertFrontFace ? 1 : 0;
+        const receiveShadowFlag = renderNode.receiveShadow ? 1 : 0;
+        //@ts-ignore
+        const geometryFlag = geometry._id;
+        const materialFlag = element.materialId;
 
-        let invertFrontFaceFlag = invertFrontFace ? 1 : 0;
-        let receiveShadowFlag = renderNode.receiveShadow ? 1 : 0;
-        //let geometryFlag = geometry._id;
-        let geometryFlag = 0;
-        let materialFlag = element.materialId;
+        const renderId = (materialFlag << 17) + (geometryFlag << 2) + (invertFrontFaceFlag << 1) + (receiveShadowFlag);
+        const reflectFlag = (renderNode.probeReflection ? renderNode.probeReflection._id : -1) + 1;
+        const lightmapFlag = renderNode.lightmapIndex + 1;
+        const lightProbeFlag = (renderNode.volumetricGI ? renderNode.volumetricGI._id : -1) + 1;
+        const giId = (reflectFlag << 10) + (lightmapFlag << 20) + lightProbeFlag;
 
-        let renderId = (materialFlag << 17) + (geometryFlag << 2) + (invertFrontFaceFlag << 1) + (receiveShadowFlag);
-
-        let reflectFlag = (renderNode.probeReflection ? renderNode.probeReflection._id : -1) + 1;
-        let lightmapFlag = renderNode.lightmapIndex + 1;
-        let lightProbeFlag = (renderNode.volumetricGI ? renderNode.volumetricGI._id : -1) + 1;
-
-        let giId = (reflectFlag << 10) + (lightmapFlag << 20) + lightProbeFlag;
-
-        let data = this._batchOpaqueMarks[renderId] || (this._batchOpaqueMarks[renderId] = {});
+        const data = this._batchOpaqueMarks[renderId] || (this._batchOpaqueMarks[renderId] = {});
         return data[giId] || (data[giId] = new BatchMark());
     }
 
     batch(elements: SingletonList<IRenderElement3D>) {
-        // if (!Config3D.enableDynamicBatch || !LayaGL.renderEngine.getCapable(RenderCapable.DrawElement_Instance))
-        //     return;
-        // this.recoverData();
-        // let elementCount = elements.length;
-        // let elementArray = elements.elements;
+        if (!Config3D.enableDynamicBatch
+            || !LayaGL.renderEngine.getCapable(RenderCapable.DrawElement_Instance))
+            return;
+        this.recoverData();
+        const elementCount = elements.length;
+        const elementArray = elements.elements;
+        const maxInstanceCount = Laya3DRender.Render3DPassFactory.getMaxInstanceCount();
 
-        // elements.length = 0;
-        // this._updateCountMark++;
+        elements.length = 0;
+        this._updateCountMark++;
 
-        // for (let i = 0; i < elementCount; i++) {
-        //     let element = elementArray[i];
-        //     if (element.canDynamicBatch && element.subShader._owner._enableInstancing) {
-        //         // shader 支持 Instance
-        //         let instanceMark = this.getBatchMark(element);
-        //         if (this._updateCountMark == instanceMark.updateMark) {
-        //             let instanceIndex = instanceMark.indexInList;
-        //             if (instanceMark.batched) {
-        //                 let originElement = <WebGLInstanceRenderElement3D>elementArray[instanceIndex];
-        //                 let instanceElements = originElement._instanceElementList;
-        //                 // 达到 最大 instance 数量 放弃合并 // todo
-        //                 if (instanceElements.length == WebGLInstanceRenderElement3D.MaxInstanceCount) {
-        //                     instanceMark.indexInList = elements.length;
-        //                     instanceMark.batched = false;
-        //                     elements.add(element);
-        //                 } else {
-        //                     // 加入合并队列
-        //                     instanceElements.add(element);
-        //                 }
-        //             } else {
-        //                 let originElement = elementArray[instanceIndex];
-        //                 // 替换 renderElement
-        //                 let instanceRenderElement = WebGLInstanceRenderElement3D.create();
-        //                 this.recoverList.add(instanceRenderElement);
-        //                 instanceRenderElement.subShader = element.subShader;
-        //                 instanceRenderElement.materialShaderData = element.materialShaderData;
-        //                 instanceRenderElement.materialRenderQueue = element.materialRenderQueue;
-        //                 instanceRenderElement.renderShaderData = element.renderShaderData;
-        //                 instanceRenderElement.owner = element.owner;
-        //                 instanceRenderElement.setGeometry(element.geometry);
+        for (let i = 0; i < elementCount; i++) {
+            const element = elementArray[i];
+            if (element.canDynamicBatch && element.subShader._owner._enableInstancing) {
+                // shader 支持 instance
+                const instanceMark = this.getBatchMark(element);
+                if (this._updateCountMark == instanceMark.updateMark) {
+                    const instanceIndex = instanceMark.indexInList;
+                    if (instanceMark.batched) {
+                        const originElement = <IInstanceRenderElement3D>elementArray[instanceIndex];
+                        const instanceElements = originElement._instanceElementList;
+                        // 达到 最大 instance 数量 放弃合并 // todo
+                        if (instanceElements.length === maxInstanceCount) {
+                            instanceMark.indexInList = elements.length;
+                            instanceMark.batched = false;
+                            elements.add(element);
+                        } else {
+                            // 加入合并队列
+                            instanceElements.add(element);
+                        }
+                    } else {
+                        const originElement = elementArray[instanceIndex];
+                        // 替换 renderElement
+                        const instanceRenderElement = Laya3DRender.Render3DPassFactory.createInstanceRenderElement3D();
+                        this.recoverList.add(instanceRenderElement);
+                        instanceRenderElement.subShader = element.subShader;
+                        instanceRenderElement.materialShaderData = element.materialShaderData;
+                        instanceRenderElement.materialRenderQueue = element.materialRenderQueue;
+                        instanceRenderElement.renderShaderData = element.renderShaderData;
+                        instanceRenderElement.owner = element.owner;
+                        instanceRenderElement.setGeometry(element.geometry);
 
-        //                 let list = instanceRenderElement._instanceElementList;
-        //                 list.length = 0;
-        //                 list.add(originElement);
-        //                 list.add(element);
-        //                 elementArray[instanceIndex] = instanceRenderElement;
-        //                 instanceMark.batched = true;
-        //                 instanceRenderElement._invertFrontFace = element.transform ? element.transform._isFrontFaceInvert : false;
-        //             }
-        //         } else {
-        //             instanceMark.updateMark = this._updateCountMark;
-        //             instanceMark.indexInList = elements.length;
-        //             instanceMark.batched = false;
-        //             elements.add(element);
-        //         }
-        //     } else {
-        //         // can not Instance
-        //         elements.add(element);
-        //     }
-        // }
+                        const list = instanceRenderElement._instanceElementList;
+                        list.length = 0;
+                        list.add(originElement);
+                        list.add(element);
+                        elementArray[instanceIndex] = instanceRenderElement;
+                        instanceMark.batched = true; //@ts-ignore
+                        instanceRenderElement._invertFrontFace = element.transform ? element.transform._isFrontFaceInvert : false;
+                    }
+                } else {
+                    instanceMark.updateMark = this._updateCountMark;
+                    instanceMark.indexInList = elements.length;
+                    instanceMark.batched = false;
+                    elements.add(element);
+                }
+            } else {
+                // can not instance
+                elements.add(element);
+            }
+        }
+    }
+
+    clearRenderData() {
+        for (let i = 0, n = this.recoverList.length; i < n; i++)
+            this.recoverList.elements[i].clearRenderData();
     }
 
     recoverData() {
-        // for (let i = 0, n = this.recoverList.length; i < n; i++)
-        //     this.recoverList.elements[i].recover();
+        for (let i = 0, n = this.recoverList.length; i < n; i++)
+            this.recoverList.elements[i].recover();
     }
 }

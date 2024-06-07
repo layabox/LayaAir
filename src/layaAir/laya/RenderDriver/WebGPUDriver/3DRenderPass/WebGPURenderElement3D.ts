@@ -52,8 +52,8 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
     depthStencilState: WebGPUDepthStencilStateCache;
     cullMode: CullMode;
     frontFace: FrontFace;
-    private _invertFrontFace: boolean;
-    private _stencilParam: { [key: string]: any } = {}; //模板参数
+    protected _invertFrontFace: boolean;
+    protected _stencilParam: { [key: string]: any } = {}; //模板参数
 
     protected _stateKey: string; //当前渲染状态
     protected _pipeline: GPURenderPipeline; //当前渲染管线
@@ -124,6 +124,14 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
         }
         return { uniformMap, arrayMap };
     }
+
+    // _addShaderInstance(shader: WebGPUShaderInstance) {
+    //     this._shaderInstances.push(shader);
+    // }
+
+    // _clearShaderInstance() {
+    //     this._shaderInstances.length = 0;
+    // }
 
     /**
      * 渲染前更新

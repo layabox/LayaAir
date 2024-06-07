@@ -115,6 +115,15 @@ export class WebGPURenderGeometry implements IRenderGeometryElement {
         this._drawArrayInfo.length = 0;
     }
 
+    cloneTo(obj: WebGPURenderGeometry) {
+        obj.mode = this.mode;
+        obj.drawType = this.drawType;
+        obj.indexFormat = this.indexFormat;
+        obj.instanceCount = this.instanceCount;
+        obj._drawArrayInfo = this._drawArrayInfo.slice();
+        obj._drawElementInfo = this._drawElementInfo.slice();
+    }
+
     destroy(): void {
         WebGPUGlobal.releaseId(this);
     }
