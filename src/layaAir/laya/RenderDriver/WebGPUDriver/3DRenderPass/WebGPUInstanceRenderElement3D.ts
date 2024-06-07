@@ -1,12 +1,10 @@
 import { BufferTargetType, BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
 import { VertexMesh } from "../../../RenderEngine/RenderShader/VertexMesh";
-import { Laya3DRender } from "../../../d3/RenderObjs/Laya3DRender";
 import { MeshSprite3DShaderDeclaration } from "../../../d3/core/MeshSprite3DShaderDeclaration";
 import { RenderableSprite3D } from "../../../d3/core/RenderableSprite3D";
 import { SimpleSkinnedMeshRenderer } from "../../../d3/core/SimpleSkinnedMeshRenderer";
 import { SingletonList } from "../../../utils/SingletonList";
-import { IInstanceRenderElement3D } from "../../DriverCommon/IInstanceRenderElement3D";
 import { IRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { BaseRenderType } from "../../RenderModuleData/Design/3D/I3DRenderModuleData";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
@@ -27,7 +25,7 @@ export interface WebGPUInstanceStateInfo {
     simpleAnimatorVB?: WebGPUVertexBuffer;
 }
 
-export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D implements IInstanceRenderElement3D {
+export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D {
     private static _instanceBufferStateMap: Map<number, WebGPUInstanceStateInfo[]> = new Map();
 
     static getInstanceBufferState(geometry: WebGPURenderGeometry, renderType: number, spriteDefine: WebDefineDatas) {
