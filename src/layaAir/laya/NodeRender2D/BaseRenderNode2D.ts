@@ -7,7 +7,7 @@ import { LayaGL } from "../layagl/LayaGL";
 import { Vector4 } from "../maths/Vector4";
 import { Context } from "../renders/Context";
 import { Material } from "../resource/Material";
-import { DrawBaseRenderNodeCMD } from "./DrawBaseRenderNodeCMD";
+
 export enum BaseRender2DType {
     baseRenderNode = 0,
     spine = 1,
@@ -48,7 +48,6 @@ export class BaseRenderNode2D extends Component {
      */
     _spriteShaderData: ShaderData;
 
-    _drawBaseRenderNodeCMD: DrawBaseRenderNodeCMD;
 
 
     /**
@@ -123,7 +122,6 @@ export class BaseRenderNode2D extends Component {
         super();
         this._renderid = BaseRenderNode2D._uniqueIDCounter++;
         this._spriteShaderData = LayaGL.renderDeviceFactory.createShaderData(null);
-        this._drawBaseRenderNodeCMD = new DrawBaseRenderNodeCMD(this);
         this._renderType = BaseRender2DType.baseRenderNode;
         this._ordingMode = Render2DOrderMode.elementIndex;
         this._layer = 1;

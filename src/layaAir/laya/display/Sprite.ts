@@ -109,17 +109,10 @@ export class Sprite extends Node {
     _boundStyle: BoundsStyle | null = null;
     /**@internal */
     _graphics: Graphics | null = null;
+    /**@internal */
+    _renderNode: BaseRenderNode2D = null;
 
-    _renderNode:BaseRenderNode2D = null;
 
-    set renderNode2D(value:BaseRenderNode2D){
-        if (value) {
-            this._renderType |= SpriteConst.RENDERNODE2D;
-            this._renderNode = value;
-        } else {
-            this._renderType &= ~SpriteConst.RENDERNODE2D;
-        }
-    }
     /**
      * @internal
      */
@@ -274,6 +267,22 @@ export class Sprite extends Node {
     set staticCache(value: boolean) {
         this._getCacheStyle().staticCache = value;
         if (!value) this.reCache();
+    }
+
+    /**
+     * 精灵的渲染组件节点
+     */
+    set renderNode2D(value: BaseRenderNode2D) {
+        if (value) {
+            this._renderType |= SpriteConst.RENDERNODE2D;
+            this._renderNode = value;
+        } else {
+            this._renderType &= ~SpriteConst.RENDERNODE2D;
+        }
+    }
+
+    get renderNode2D() {
+        return this._renderNode;
     }
 
     /**在设置cacheAs的情况下，调用此方法会重新刷新缓存。
