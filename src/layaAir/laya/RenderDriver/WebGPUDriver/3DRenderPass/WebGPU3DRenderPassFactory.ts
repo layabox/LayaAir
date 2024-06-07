@@ -23,7 +23,6 @@ import { WebGPUSkinRenderElement3D } from "./WebGPUSkinRenderElement3D";
  * WebGPU渲染工厂类
  */
 export class WebGPU3DRenderPassFactory implements I3DRenderPassFactory {
-    private _pool_instanceRenderElement3D: IInstanceRenderElement3D[] = [];
     createRender3DProcess(): IRender3DProcess {
         return new WebGPU3DRenderPass();
     }
@@ -32,15 +31,6 @@ export class WebGPU3DRenderPassFactory implements I3DRenderPassFactory {
     }
     createRenderElement3D(): IRenderElement3D {
         return new WebGPURenderElement3D();
-    }
-    getMaxInstanceCount(): number {
-        return 1024;
-    }
-    recoverInstanceRenderElement3D(element: IInstanceRenderElement3D): void {
-        this._pool_instanceRenderElement3D.push(element);
-    }
-    createInstanceRenderElement3D(): IInstanceRenderElement3D {
-        return this._pool_instanceRenderElement3D.pop() ?? new WebGPUInstanceRenderElement3D();
     }
     createSkinRenderElement(): ISkinRenderElement3D {
         return new WebGPUSkinRenderElement3D();

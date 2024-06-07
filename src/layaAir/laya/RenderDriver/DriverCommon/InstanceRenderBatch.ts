@@ -1,17 +1,17 @@
 import { Config3D } from "../../../Config3D";
 import { BatchMark } from "../../d3/core/render/BatchMark";
-import { Laya3DRender } from "../../d3/RenderObjs/Laya3DRender";
 import { LayaGL } from "../../layagl/LayaGL";
 import { RenderCapable } from "../../RenderEngine/RenderEnum/RenderCapable";
 import { SingletonList } from "../../utils/SingletonList";
 import { IRenderElement3D } from "../DriverDesign/3DRenderPass/I3DRenderPass";
-import { IInstanceRenderElement3D } from "./IInstanceRenderElement3D";
+import { WebGPUInstanceRenderElement3D } from "../WebGPUDriver/3DRenderPass/WebGPUInstanceRenderElement3D";
+import { WebGPURenderElement3D } from "../WebGPUDriver/3DRenderPass/WebGPURenderElement3D";
 
 /**
  * 动态合批通用类
  */
 export class InstanceRenderBatch {
-    private recoverList: SingletonList<IInstanceRenderElement3D>;
+    private recoverList: SingletonList<WebGPUInstanceRenderElement3D>;
 
     private _batchOpaqueMarks: any[] = [];
     private _updateCountMark: number = 0;
@@ -48,20 +48,20 @@ export class InstanceRenderBatch {
         this.recoverData();
         const elementCount = elements.length;
         const elementArray = elements.elements;
-        const maxInstanceCount = Laya3DRender.Render3DPassFactory.getMaxInstanceCount();
+        const maxInstanceCount = WebGPUInstanceRenderElement3D.MaxInstanceCount;
 
         elements.length = 0;
         this._updateCountMark++;
 
         for (let i = 0; i < elementCount; i++) {
-            const element = elementArray[i];
+            const element = elementArray[i] as WebGPURenderElement3D;
             if (element.canDynamicBatch && element.subShader._owner._enableInstancing) {
                 // shader 支持 instance
                 const instanceMark = this.getBatchMark(element);
                 if (this._updateCountMark == instanceMark.updateMark) {
                     const instanceIndex = instanceMark.indexInList;
                     if (instanceMark.batched) {
-                        const originElement = <IInstanceRenderElement3D>elementArray[instanceIndex];
+                        const originElement = <WebGPUInstanceRenderElement3D>elementArray[instanceIndex];
                         const instanceElements = originElement._instanceElementList;
                         // 达到 最大 instance 数量 放弃合并 // todo
                         if (instanceElements.length === maxInstanceCount) {
@@ -75,7 +75,7 @@ export class InstanceRenderBatch {
                     } else {
                         const originElement = elementArray[instanceIndex];
                         // 替换 renderElement
-                        const instanceRenderElement = Laya3DRender.Render3DPassFactory.createInstanceRenderElement3D();
+                        const instanceRenderElement = WebGPUInstanceRenderElement3D.create();
                         this.recoverList.add(instanceRenderElement);
                         instanceRenderElement.subShader = element.subShader;
                         instanceRenderElement.materialShaderData = element.materialShaderData;
