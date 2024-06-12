@@ -10,25 +10,7 @@ import { glTFShader } from "../shader/glTFShader";
 
 const ExtensionName = "KHR_materials_iridescence";
 
-declare module "../glTFInterface" {
-
-    export interface glTFMaterialIridescence {
-        /** The iridescence intensity factor. default: 0.0 */
-        iridescenceFactor: number;
-        /** The iridescence intensity texture. */
-        iridescenceTexture: glTFTextureInfo;
-        /** The index of refraction of the dielectric thin-film layer. default: 1.3 */
-        iridescenceIor: number;
-        /** The minimum thickness of the thin-film layer given in nanometers. default: 100.0 */
-        iridescenceThicknessMinimum: number;
-        /** The maximum thickness of the thin-film layer given in nanometers. default: 400.0 */
-        iridescenceThicknessMaximum: number;
-        /** The thickness texture of the thin-film layer. */
-        iridescenceThicknessTexture: glTFTextureInfo;
-    }
-
-}
-
+/** @internal */
 export class KHR_materials_iridescence implements glTFExtension {
     readonly name: string = ExtensionName;
 

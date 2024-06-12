@@ -10,17 +10,7 @@ import { glTFShader } from "../shader/glTFShader";
 
 const ExtensionName = "KHR_materials_transmission";
 
-declare module "../glTFInterface" {
-
-    export interface glTFMaterialTransmission {
-        /** The base percentage of light that is transmitted through the surface. default: 0 */
-        transmissionFactor: number;
-        /** A texture that defines the transmission percentage of the surface, stored in the R channel. */
-        transmissionTexture: glTFTextureInfo;
-    }
-
-}
-
+/** @internal */
 export class KHR_materials_transmission implements glTFExtension {
     readonly name: string = ExtensionName;
 

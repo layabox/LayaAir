@@ -11,21 +11,7 @@ import { PBRShaderLib } from "../../d3/shader/pbr/PBRShaderLib";
 
 const ExtensionName = "KHR_materials_volume";
 
-declare module "../glTFInterface" {
-
-    export interface glTFMaterialVolume {
-        /** The thickness of the volume beneath the surface. default: 0.0 */
-        thicknessFactor: number;
-        /** A texture that defines the thickness, stored in the G channel. */
-        thicknessTexture: glTFTextureInfo;
-        /** Density of the medium given as the average distance that light travels in the medium before interacting with a particle. default: +Infinity */
-        attenuationDistance: number;
-        /** The color that white light turns into due to absorption when reaching the attenuation distance. default: [1, 1, 1] */
-        attenuationColor: number[];
-    }
-
-}
-
+/** @internal */
 export class KHR_materials_volume implements glTFExtension {
     readonly name: string = ExtensionName;
 
