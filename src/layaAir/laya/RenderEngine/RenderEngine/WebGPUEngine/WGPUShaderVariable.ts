@@ -1,6 +1,6 @@
-import { ShaderDataType } from "../../RenderShader/ShaderData";
+import { UniformProperty } from "../../CommandUniformMap";
 import { ShaderVariable } from "../../RenderShader/ShaderVariable";
-type UniformProperty = { id: number, propertyName: string, uniformtype?: ShaderDataType }
+
 export class WGPUShaderVariable extends ShaderVariable {
     /**@internal */
     groupLayout: GPUBindGroupLayout;

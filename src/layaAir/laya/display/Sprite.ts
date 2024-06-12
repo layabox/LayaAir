@@ -19,7 +19,7 @@ import { SpriteStyle } from "./css/SpriteStyle";
 import { Graphics } from "./Graphics";
 import { Node } from "./Node";
 import { SpriteConst } from "./SpriteConst";
-// import { Stage } from "./Stage";
+import { type Stage } from "./Stage";
 import { RenderTexture2D } from "../resource/RenderTexture2D";
 import { Event } from "../events/Event";
 import { Dragging } from "../utils/Dragging";
@@ -1555,7 +1555,7 @@ export class Sprite extends Node {
     }
 
     /**对舞台 <code>stage</code> 的引用。*/
-    get stage() {
+    get stage(): Stage {
         return ILaya.stage;
     }
 

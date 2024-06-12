@@ -16,8 +16,8 @@ export enum btColliderType {
 }
 
 export class btCollider implements ICollider {
-    /**@internal */
     component: PhysicsColliderComponent;
+
     static _colliderID: number = 0;
     static _addUpdateList: boolean = true;
 

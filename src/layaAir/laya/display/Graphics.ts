@@ -37,7 +37,6 @@ import { ColorUtils } from "../utils/ColorUtils";
 import type { Material } from "../resource/Material";
 import { CommandUniformMap } from "../RenderEngine/CommandUniformMap";
 import { ShaderDataType } from "../RenderEngine/RenderShader/ShaderData";
-import { Value2D } from "../webgl/shader/d2/value/Value2D";
 import { DrawEllipseCmd } from "./cmd/DrawEllipseCmd";
 import { DrawRoundRectCmd } from "./cmd/DrawRoundRectCmd";
 import { LayaGL } from "../layagl/LayaGL";
@@ -58,13 +57,6 @@ export class Graphics {
     static add2DGlobalUniformData(propertyID: number, propertyKey: string, uniformtype: ShaderDataType) {
         let sceneUniformMap: CommandUniformMap = LayaGL.renderOBJCreate.createGlobalUniformMap("Sprite2DGlobal");
         sceneUniformMap.addShaderUniform(propertyID, propertyKey, uniformtype);
-    }
-
-    /**
-     * get global shaderData
-     */
-    static get globalShaderData() {
-        return Value2D.globalShaderData;
     }
 
     /**@internal */

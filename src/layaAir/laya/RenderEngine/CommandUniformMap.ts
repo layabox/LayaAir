@@ -1,10 +1,17 @@
 import { ShaderDataType } from "./RenderShader/ShaderData";
 
-type UniformProperty = { id: number, propertyName: string, uniformtype?: ShaderDataType }
+export type UniformProperty = { id: number, propertyName: string, uniformtype?: ShaderDataType }
+export type UniformData = {
+	block?: Object,
+	propertyName: string,
+	uniformtype?: ShaderDataType,
+	blockProperty?: UniformProperty[]
+};
+
 export class CommandUniformMap {
 
 	/**@internal */
-	_idata: { [key: number]: { block?: Object, propertyName: string, uniformtype?: ShaderDataType, blockProperty?: UniformProperty[] } } = {};
+	_idata: Record<number, UniformData> = {};
 	_stateName: string;
 
 	constructor(stateName: string) {
@@ -15,7 +22,7 @@ export class CommandUniformMap {
 		return !!(this._idata[propertyID] != null);
 	}
 
-	getMap() {
+	getMap(): Record<number, UniformData> {
 		return this._idata;
 	}
 

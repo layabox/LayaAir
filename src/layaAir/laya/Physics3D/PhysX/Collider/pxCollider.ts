@@ -39,14 +39,11 @@ export class pxCollider implements ICollider {
         translation: Vector3;
         rotation: Quaternion;
     } = { translation: new Vector3(), rotation: new Quaternion() };
-
-    /**@internal */
     owner: Sprite3D;
 
     /**@internal */
     componentEnable: boolean;
 
-    /**@internal */
     component: PhysicsColliderComponent;
 
     /**actor */

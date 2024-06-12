@@ -1,13 +1,9 @@
-import { render } from "../../../../../Laya";
 import { SingletonList } from "../../../../utils/SingletonList";
 import { BaseRender } from "../../../core/render/BaseRender";
 import { Sprite3DRenderDeclaration } from "../../../core/render/Sprite3DRenderDeclaration";
 import { IVolumeManager } from "../IVolumeManager";
 import { VolumetricGI } from "./VolumetricGI";
 
-/**
- * @internal
- */
 export class VolumetricGIManager implements IVolumeManager {
     _needUpdateAllRender: boolean;
 
