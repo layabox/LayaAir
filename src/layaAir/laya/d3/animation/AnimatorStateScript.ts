@@ -1,7 +1,4 @@
-import { Animator2D } from "../../components/Animator2D";
-import { AnimatorState2D } from "../../components/AnimatorState2D";
 import { Animator } from "../component/Animator/Animator"
-import { AnimatorPlayState } from "../component/Animator/AnimatorPlayState";
 import { AnimatorState } from "../component/Animator/AnimatorState";
 
 interface AnimatorPlayScriptInfo {
