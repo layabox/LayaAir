@@ -5,9 +5,9 @@ import { AnimatorPlayState } from "../component/Animator/AnimatorPlayState";
 import { AnimatorState } from "../component/Animator/AnimatorState";
 
 interface AnimatorPlayScriptInfo {
-	animator: Animator | Animator2D;
+	animator: Animator;
 	layerindex: number;
-	playState: AnimatorState | AnimatorState2D;
+	playState: AnimatorState;
 }
 /**
  * <code>AnimatorStateScript</code> 类用于动画状态脚本的父类,该类为抽象类,不允许实例。
@@ -18,7 +18,7 @@ export class AnimatorStateScript {
 	playStateInfo: AnimatorPlayScriptInfo = { animator: null, layerindex: -1, playState: null };
 
 	/**@internal */
-	setPlayScriptInfo(animator: Animator | Animator2D, layerindex: number, playstate: AnimatorState | AnimatorState2D) {
+	setPlayScriptInfo(animator: Animator, layerindex: number, playstate: AnimatorState) {
 		this.playStateInfo.animator = animator;
 		this.playStateInfo.layerindex = layerindex;
 		this.playStateInfo.playState = playstate;
