@@ -1,25 +1,25 @@
-import { ERenderType } from "../SpineSkeleton";
+import { ESpineRenderType } from "../SpineSkeleton";
 import { AttachmentParse } from "./AttachmentParse";
 
 export class SlotUtils {
     static checkAttachment(attachment: spine.Attachment) {
         //let attachment = slot.getAttachment();
-        if (attachment == null) return ERenderType.rigidBody;
+        if (attachment == null) return ESpineRenderType.rigidBody;
         if (attachment instanceof window.spine.RegionAttachment) {
-            return ERenderType.rigidBody;
+            return ESpineRenderType.rigidBody;
         }
         else if (attachment instanceof window.spine.MeshAttachment) {
             //return false;
             let mesh = attachment as spine.MeshAttachment;
             if (!mesh.bones) {
-                return ERenderType.rigidBody
+                return ESpineRenderType.rigidBody
             }
             else {
-                return ERenderType.boneGPU;
+                return ESpineRenderType.boneGPU;
             }
         }
         else {
-            return ERenderType.normal;
+            return ESpineRenderType.normal;
         }
     }
 

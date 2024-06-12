@@ -11,7 +11,7 @@ import { Material } from "../../resource/Material";
 import { Texture } from "../../resource/Texture";
 import { Spine2DRenderNode } from "../Spine2DRenderNode";
 import { SpineAdapter } from "../SpineAdapter";
-import { ERenderType } from "../SpineSkeleton";
+import { ESpineRenderType } from "../SpineSkeleton";
 import { SpineTemplet } from "../SpineTemplet";
 import { ISpineRender } from "../interface/ISpineRender";
 
@@ -45,7 +45,7 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
 
     static materialMap: Map<string, Material> = new Map();
 
-    geoMap: Map<ERenderType, TGeo>;
+    geoMap: Map<ESpineRenderType, TGeo>;
 
     private _isRender: boolean;
 
@@ -78,14 +78,14 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
         this.currentRender = this.skinRenderArray[this._skinIndex];//default
     }
 
-    initRender(type: ERenderType) {
+    initRender(type: ESpineRenderType) {
         let geoResult = this.geoMap.get(type);
         if (!geoResult) {
             let geo = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
             let mesh = LayaGL.renderDeviceFactory.createBufferState();
             geo.bufferState = mesh;
             let vb = LayaGL.renderDeviceFactory.createVertexBuffer(BufferUsage.Dynamic);
-            vb.vertexDeclaration = type == ERenderType.rigidBody ? SpineShaderInit.SpineRBVertexDeclaration : SpineShaderInit.SpineFastVertexDeclaration;
+            vb.vertexDeclaration = type == ESpineRenderType.rigidBody ? SpineShaderInit.SpineRBVertexDeclaration : SpineShaderInit.SpineFastVertexDeclaration;
             let ib = LayaGL.renderDeviceFactory.createIndexBuffer(BufferUsage.Dynamic);
             mesh.applyState([vb], ib)
             geo.indexFormat = IndexFormat.UInt16;
@@ -149,15 +149,15 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
         this._skinIndex = index;
         this.currentRender = this.skinRenderArray[index];
         switch (this.currentRender.skinAttachType) {
-            case ERenderType.boneGPU:
+            case ESpineRenderType.boneGPU:
                 this._nodeOwner._spriteShaderData.addDefine(SpineShaderInit.SPINE_FAST);
                 this._nodeOwner._spriteShaderData.removeDefine(SpineShaderInit.SPINE_RB);
                 break;
-            case ERenderType.rigidBody:
+            case ESpineRenderType.rigidBody:
                 this._nodeOwner._spriteShaderData.addDefine(SpineShaderInit.SPINE_RB);
                 this._nodeOwner._spriteShaderData.removeDefine(SpineShaderInit.SPINE_FAST);
                 break;
-            case ERenderType.normal:
+            case ESpineRenderType.normal:
                 this._nodeOwner._spriteShaderData.removeDefine(SpineShaderInit.SPINE_FAST);
                 this._nodeOwner._spriteShaderData.removeDefine(SpineShaderInit.SPINE_RB);
                 break;
@@ -192,15 +192,15 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
         }
         else {
             switch (this.currentRender.skinAttachType) {
-                case ERenderType.boneGPU:
+                case ESpineRenderType.boneGPU:
                     this._nodeOwner._spriteShaderData.addDefine(SpineShaderInit.SPINE_FAST);
                     this._nodeOwner._spriteShaderData.removeDefine(SpineShaderInit.SPINE_RB);
                     break;
-                case ERenderType.rigidBody:
+                case ESpineRenderType.rigidBody:
                     this._nodeOwner._spriteShaderData.addDefine(SpineShaderInit.SPINE_RB);
                     this._nodeOwner._spriteShaderData.removeDefine(SpineShaderInit.SPINE_FAST);
                     break;
-                case ERenderType.normal:
+                case ESpineRenderType.normal:
                     this._nodeOwner._spriteShaderData.removeDefine(SpineShaderInit.SPINE_FAST);
                     this._nodeOwner._spriteShaderData.removeDefine(SpineShaderInit.SPINE_RB);
                     break;
@@ -348,7 +348,7 @@ class SkinRender implements IVBIBUpdate {
 
     templet: SpineTemplet;
 
-    skinAttachType: ERenderType;
+    skinAttachType: ESpineRenderType;
     material: Material;
     currentMaterials: Material[] = [];
     constructor(owner: SpineOptimizeRender, skinAttach: SkinAttach) {

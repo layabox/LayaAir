@@ -294,7 +294,7 @@ export class SpineSkeleton extends Sprite implements ISpineSkeleton {
     }
 }
 
-export enum ERenderType {
+export enum ESpineRenderType {
     normal = 0,
     boneGPU = 1,
     rigidBody = 2,

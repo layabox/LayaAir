@@ -1,7 +1,7 @@
 import { IRenderElement2D } from "../../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
 import { Graphics } from "../../display/Graphics";
 import { Spine2DRenderNode } from "../Spine2DRenderNode";
-import { ERenderType } from "../SpineSkeleton";
+import { ESpineRenderType } from "../SpineSkeleton";
 import { SpineTemplet } from "../SpineTemplet";
 import { AnimationRender } from "./AnimationRender";
 import { AttachmentParse } from "./AttachmentParse";
@@ -169,7 +169,7 @@ export class SkinAttach {
     mainVB: VBCreator;
     mainIB: IBCreator;
     hasNormalRender: boolean;
-    type: ERenderType;
+    type: ESpineRenderType;
 
     constructor() {
         this.slotAttachMap = new Map();
@@ -184,27 +184,27 @@ export class SkinAttach {
     }
 
     checkMainAttach(slots: spine.SlotData[]) {
-        let type: ERenderType = ERenderType.rigidBody;
+        let type: ESpineRenderType = ESpineRenderType.rigidBody;
         for (let i = 0, n = slots.length; i < n; i++) {
             let slot = slots[i];
             let attachment = this.slotAttachMap.get(slot.index).get(slot.attachmentName);
             let tempType = SlotUtils.checkAttachment(attachment ? attachment.sourceData : null);
             if (tempType < type) {
                 type = tempType;
-                if (type == ERenderType.normal) {
+                if (type == ESpineRenderType.normal) {
                     break;
                 }
             }
         }
         this.type = type;
         switch (this.type) {
-            case ERenderType.normal:
+            case ESpineRenderType.normal:
                 this.mainVB = new VBBoneCreator();
                 break;
-            case ERenderType.boneGPU:
+            case ESpineRenderType.boneGPU:
                 this.mainVB = new VBBoneCreator();
                 break;
-            case ERenderType.rigidBody:
+            case ESpineRenderType.rigidBody:
                 this.mainVB = new VBRigBodyCreator();
                 break;
         }

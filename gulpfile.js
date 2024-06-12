@@ -56,6 +56,7 @@ const packsDef = [{
         './layaAir/laya/maths/**/*.*',
         './layaAir/laya/media/**/*.*',
         './layaAir/laya/net/**/*.*',
+        './layaAir/laya/NodeRender2D/**/*.*',
 
         './layaAir/laya/renders/**/*.*',
         './layaAir/laya/resource/**/*.*',
