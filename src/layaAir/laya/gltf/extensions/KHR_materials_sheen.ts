@@ -12,22 +12,7 @@ import { glTFShader } from "../shader/glTFShader";
 
 const ExtensionName = "KHR_materials_sheen";
 
-declare module "../glTFInterface" {
-
-    export interface glTFMaterialSheen {
-        /** The sheen color in linear space. default: [0, 0, 0] */
-        sheenColorFactor: number[];
-        /** The sheen color (RGB) in sRGB transfer function. */
-        sheenColorTexture: glTFTextureInfo;
-        /** The sheen roughness. default: 0.0 */
-        sheenRoughnessFactor: number;
-        /** The sheen roughness (Alpha) texture. */
-        sheenRoughnessTexture: glTFTextureInfo;
-    }
-
-}
-
-
+/** @internal */
 export class KHR_materials_sheen implements glTFExtension {
     readonly name: string = ExtensionName;
 
