@@ -2,7 +2,7 @@ import { Animator2D } from "./Animator2D";
 import { AnimatorState2D } from "./AnimatorState2D";
 
 
-interface AnimatorPlayScriptInfo {
+interface AnimatorPlay2DScriptInfo {
     animator: Animator2D;
     layerindex: number;
     playState: AnimatorState2D;
@@ -13,7 +13,7 @@ interface AnimatorPlayScriptInfo {
 export class AnimatorState2DScript {
 
     /**@internal */
-    playStateInfo: AnimatorPlayScriptInfo = { animator: null, layerindex: -1, playState: null };
+    playStateInfo: AnimatorPlay2DScriptInfo = { animator: null, layerindex: -1, playState: null };
 
     /**@internal */
     setPlayScriptInfo(animator: Animator2D, layerindex: number, playstate: AnimatorState2D) {
