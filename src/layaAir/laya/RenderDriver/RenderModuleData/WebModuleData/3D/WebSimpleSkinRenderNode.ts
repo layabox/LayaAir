@@ -1,4 +1,4 @@
-import { SimpleSkinnedMeshRenderer } from "../../../../d3/core/SimpleSkinnedMeshRenderer";
+import { SimpleSkinnedMeshSprite3D } from "../../../../d3/core/SimpleSkinnedMeshSprite3D";
 import { Sprite3D } from "../../../../d3/core/Sprite3D";
 import { Vector4 } from "../../../../maths/Vector4";
 import { IRenderContext3D } from "../../../DriverDesign/3DRenderPass/I3DRenderPass";
@@ -16,19 +16,19 @@ export class WebSimpleSkinRenderNode extends WebBaseRenderNode implements ISimpl
 
     setSimpleAnimatorParams(value:Vector4){
         value.cloneTo(this._simpleAnimatorParams);  
-        this.shaderData.setVector(SimpleSkinnedMeshRenderer.SIMPLE_SIMPLEANIMATORPARAMS, this._simpleAnimatorParams);
+        this.shaderData.setVector(SimpleSkinnedMeshSprite3D.SIMPLE_SIMPLEANIMATORPARAMS, this._simpleAnimatorParams);
     }
 
     _renderUpdate(context3D: IRenderContext3D): void {
         let shaderData = this.shaderData;
         //let 
-        let worldMat =     this.transform.worldMatrix;
+        let worldMat = this.transform.worldMatrix;
         let worldParams = this._worldParams;
         worldParams.x = this.transform.getFrontFaceValue();
         shaderData.setMatrix4x4(Sprite3D.WORLDMATRIX, worldMat);
         shaderData.setVector(Sprite3D.WORLDINVERTFRONT, worldParams);
         this._applyLightProb();
         this._applyReflection();
-        shaderData.setVector(SimpleSkinnedMeshRenderer.SIMPLE_SIMPLEANIMATORPARAMS, this._simpleAnimatorParams);
+        shaderData.setVector(SimpleSkinnedMeshSprite3D.SIMPLE_SIMPLEANIMATORPARAMS, this._simpleAnimatorParams);
     }
 }

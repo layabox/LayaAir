@@ -137,7 +137,6 @@ export class Laya3D {
         SubMeshInstanceBatch.__init__();
         ShaderInit3D.__init__();
         ShuriKenParticle3DShaderDeclaration.__init__();
-        SimpleSkinnedMeshSprite3D.__init__();
         PBRMaterial.__init__();
         PBRStandardMaterial.__init__();
         SkyPanoramicMaterial.__init__();
