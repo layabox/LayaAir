@@ -99,7 +99,7 @@ export class GlowFilter extends Filter {
             this._rectMesh,
             0, 4 * this._rectMesh.vertexDeclarition.vertexStride,
             0, 12,
-            this.shaderDataCopy1);
+            this.shaderDataCopy1,null);
         render2d.renderEnd();
 
         if (!this.texture || this.texture.destroyed || this.texture.width != outTexWidth || this.texture.height != outTexHeight) {
@@ -132,7 +132,7 @@ export class GlowFilter extends Filter {
             this._rectMesh,
             0, 4 * this._rectMesh.vertexDeclarition.vertexStride,
             0, 12,
-            shadersv);
+            shadersv,null);
         //覆盖一下原始图片
         let shadercpy = this.shaderDataCopy;
         shadercpy.size = new Vector2(outTexWidth, outTexHeight);
@@ -142,7 +142,7 @@ export class GlowFilter extends Filter {
             this._rectMesh,
             0, 4 * this._rectMesh.vertexDeclarition.vertexStride,
             0, 12,
-            shadercpy);
+            shadercpy,null);
 
         render2d.renderEnd();
     }

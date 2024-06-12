@@ -190,9 +190,9 @@ export class RenderSprite {
                 if (width > 0 && height > 0) {
                     let px = x - sprite.pivotX + tex.offsetX * wRate;
                     let py = y - sprite.pivotY + tex.offsetY * hRate;
-                    context.material = sprite.graphics.material;
+                    context._material = sprite.graphics.material;
                     context.drawTexture(tex, px, py, width, height, 0xffffffff);
-                    context.material = null;
+                    context._material = null;
                 }
             }
         }
@@ -360,10 +360,10 @@ export class RenderSprite {
             this._renderNextToCacheRT(sprite, context);
             // RenderSprite.RenderToCacheTexture(sprite,context,x,y)
             var tRec = _cacheStyle.cacheRect;
-            context.material = sprite.graphics.material;
+            context._material = sprite.graphics.material;
             let rt = _cacheStyle.renderTexture;
             rt && context._drawRenderTexture(rt, x + tRec.x, y + tRec.y, rt.width, rt.height, null, 1, [0, 1, 1, 1, 1, 0, 0, 0]);
-            context.material = null;
+            context._material = null;
         } else {
             if (!RenderSprite.cacheNormalEnable) {
                 _next._fun(sprite, context, x, y);

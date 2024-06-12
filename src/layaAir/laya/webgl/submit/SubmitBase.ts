@@ -53,7 +53,7 @@ export class SubmitBase {
         var blendType = context._nBlendType;
         o._key.blendShader = blendType;
         o.shaderValue = sv;
-        o.material = context.material;
+        o.material = context._material;
         //sv.setValue(context._shader2D);
         o._colorFiler = context._colorFiler;
         return o;

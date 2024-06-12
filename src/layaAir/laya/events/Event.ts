@@ -310,7 +310,7 @@ export class Event {
     * @en Triggered when 3D Static changes.
     * @zh 3D Static改变时触发。
     */
-    static STATIC_MASK = "staticMask";
+    static staticMask = "staticMask";
 
     /**
      * @en For 2D physics collision or 3D physics trigger start.
@@ -350,7 +350,7 @@ export class Event {
     static JOINT_BREAK = "jointbreak";
 
     /** @internal */
-    static _ADD_SCRIPT = "addscript";
+    static _Add_Script = "addscript";
     /**
      * @en Checks whether the specified event type is a mouse event.
      * @param type The type of the event.
