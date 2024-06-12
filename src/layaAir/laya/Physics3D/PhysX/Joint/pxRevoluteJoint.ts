@@ -66,7 +66,6 @@ export class pxRevoluteJoint extends pxJoint implements IHingeJoint {
         this._enableLimit && this._pxJoint && this._pxJoint.setHardLimit(this._lowerLimit, this._uperLimit, this._contactDistance);
     }
 
-    /**@internal */
     setLowerLimit(lowerLimit: number): void {
         if (this._lowerLimit == lowerLimit)
             return;
@@ -74,7 +73,6 @@ export class pxRevoluteJoint extends pxJoint implements IHingeJoint {
         this._setLimit();
     }
 
-    /**@internal */
     setUpLimit(value: number): void {
         if (this._uperLimit == value || !this._enableLimit)
             return;
@@ -82,7 +80,6 @@ export class pxRevoluteJoint extends pxJoint implements IHingeJoint {
         this._setLimit();
     }
 
-    /**@internal */
     setBounceness(value: number): void {
         if (this._bouncenciness == value)
             return;
@@ -90,7 +87,6 @@ export class pxRevoluteJoint extends pxJoint implements IHingeJoint {
         this._setLimit();
     }
 
-    /**@internal */
     setBouncenMinVelocity(value: number): void {
         if (this._bouncenMinVelocity == value)
             return;
@@ -98,7 +94,6 @@ export class pxRevoluteJoint extends pxJoint implements IHingeJoint {
         this._setLimit();
     }
 
-    /**@internal */
     setContactDistance(value: number): void {
         if (this._contactDistance == value)
             return
@@ -106,7 +101,6 @@ export class pxRevoluteJoint extends pxJoint implements IHingeJoint {
         this._setLimit();
     }
 
-    /**@internal */
     enableLimit(value: boolean) {
         this._enableLimit = value
         this._setRevoluteJointFlag(PxRevoluteJointFlag.eLIMIT_ENABLED, value);
@@ -114,17 +108,14 @@ export class pxRevoluteJoint extends pxJoint implements IHingeJoint {
             this._setLimit();
     }
 
-    /**@internal */
     enableDrive(value: boolean) {
         this._setRevoluteJointFlag(PxRevoluteJointFlag.eDRIVE_ENABLED, value);
     }
 
-    /**@internal */
     enableFreeSpin(value: boolean) {
         this._setRevoluteJointFlag(PxRevoluteJointFlag.eDRIVE_FREESPIN, value);
     }
 
-    /**@internal */
     setAxis(value: Vector3): void {
         const xAxis = pxRevoluteJoint._xAxis;
         const axisRotationQuaternion = this._axisRotationQuaternion;
@@ -136,12 +127,10 @@ export class pxRevoluteJoint extends pxJoint implements IHingeJoint {
         this._setLocalPose(0, this._localPos);
     }
 
-    /**@internal */
     getAngle(): number {
         return this._pxJoint.getAngle();
     }
 
-    /**@internal */
     getVelocity(): Readonly<Vector3> {
         const velocity = this._velocity;
         const getVel = this._pxJoint.getVelocity();
@@ -149,12 +138,10 @@ export class pxRevoluteJoint extends pxJoint implements IHingeJoint {
         return velocity;
     }
 
-    /**@internal */
     setDriveVelocity(velocity: number): void {
         this._pxJoint && this._pxJoint.setDriveVelocity(velocity, true);
     }
 
-    /**@internal */
     setDriveForceLimit(limit: number): void {
         this._pxJoint && this._pxJoint.setDriveForceLimit(limit);
     }

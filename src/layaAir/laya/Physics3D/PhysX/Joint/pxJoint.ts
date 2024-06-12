@@ -94,19 +94,16 @@ export class pxJoint implements IJoint {
         this._angularForce = new Vector3();
     }
 
-    /**@internal */
     isEnable(value: boolean): void {
         this._pxJoint && this._pxJoint.setConstraintFlag(PxConstraintFlag.eDISABLE_CONSTRAINT, !value);
     }
 
     //actor0 & actor1 whether collision enable
-    /**@internal */
     isCollision(value: boolean): void {
         this._pxJoint && this._pxJoint.setConstraintFlag(PxConstraintFlag.eCOLLISION_ENABLED, value);
     }
 
     //Disabling preprocessing helps to stabilize impossible-to-fulfil configurations.
-    /**@internal */
     isPreprocessiong(value: boolean): void {
         this._pxJoint && this._pxJoint.setConstraintFlag(PxConstraintFlag.eDISABLE_PREPROCESSING, value);
     }
@@ -116,7 +113,6 @@ export class pxJoint implements IJoint {
 
     }
 
-    /**@internal */
     setOwner(value: Sprite3D): void {
         this.owner = value;
         pxJoint._ActorPool.set(this._id, this);
@@ -132,7 +128,6 @@ export class pxJoint implements IJoint {
         }
     }
 
-    /**@internal */
     setCollider(owner: pxCollider): void {
         if (owner == this._collider)
             return;
@@ -140,7 +135,6 @@ export class pxJoint implements IJoint {
         this._setActor();
     }
 
-    /**@internal */
     setConnectedCollider(owner: pxCollider): void {
         if (owner == this._connectCollider)
             return;
@@ -153,70 +147,58 @@ export class pxJoint implements IJoint {
         this._pxJoint && this._pxJoint.setLocalPose(actor, position, Quaternion.DEFAULT);
     }
 
-    /**@internal */
     setLocalPos(value: Vector3): void {
         value && value.cloneTo(this._localPos);
         this._pxJoint && this._setLocalPose(0, this._localPos);
     }
 
-    /**@internal */
     setConnectLocalPos(value: Vector3): void {
         value && value.cloneTo(this._connectlocalPos);
         this._setLocalPose(1, this._connectlocalPos);
     }
 
-    /**@internal */
     setConnectedMassScale(value: number): void {
         this._pxJoint && this._pxJoint.setInvMassScale0(1 / value);
     }
 
-    /**@internal */
     setConnectedInertiaScale(value: number): void {
         this._pxJoint && this._pxJoint.setInvInertiaScale0(1 / value);
     }
 
-    /**@internal */
     setMassScale(value: number): void {
         this._pxJoint && this._pxJoint.setInvMassScale1(1 / value);
     }
 
-    /**@internal */
     setInertiaScale(value: number): void {
         this._pxJoint && this._pxJoint.setInvInertiaScale1(1 / value);
     }
 
-    /**@internal */
     setBreakForce(value: number): void {
         this._breakForce = value;
         this._pxJoint && this._pxJoint.setBreakForce(this._breakForce, this._breakTorque);
     }
 
-    /**@internal */
     setBreakTorque(value: number): void {
         this._breakTorque = value;
         this._pxJoint && this._pxJoint.setBreakForce(this._breakForce, this._breakTorque);
     }
 
-    /**@internal */
     getlinearForce(): Vector3 {
         const v3 = this._pxJoint.getlinearForce();
         this._linearForce.set(v3.x, v3.y, v3.z);
         return this._linearForce;
     }
 
-    /**@internal */
     getAngularForce(): Vector3 {
         const v3 = this._pxJoint.getAngularForce();
         this._linearForce.set(v3.x, v3.y, v3.z);
         return this._linearForce;
     }
 
-    /**@internal */
     isValid(): boolean {
         return this._pxJoint.isValid()
     }
 
-    /**@internal */
     release() {
         if (this._pxJoint) {
             this._pxJoint.release();

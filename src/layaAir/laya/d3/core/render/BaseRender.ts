@@ -216,9 +216,6 @@ export class BaseRender extends Component implements IBoundsCell {
         return this._rendernode.boundsChange;
     }
 
-    /**
-     * @internal
-     */
     shadowCullPass(): boolean {
         return this.castShadow && this._enabled && (this.renderbitFlag == 0);
     }
