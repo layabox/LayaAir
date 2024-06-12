@@ -7,8 +7,11 @@ import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
 import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
 import { LayaGL } from "../../layagl/LayaGL";
 import { Color } from "../../maths/Color";
+import { Vector2 } from "../../maths/Vector2";
+import { Vector4 } from "../../maths/Vector4";
 import { Material } from "../../resource/Material";
 import { Texture } from "../../resource/Texture";
+import { Texture2D } from "../../resource/Texture2D";
 import { Spine2DRenderNode } from "../Spine2DRenderNode";
 import { SpineAdapter } from "../SpineAdapter";
 import { ERenderType } from "../SpineSkeleton";
@@ -326,6 +329,96 @@ class RenderNormal implements IRender {
         this._renerer.draw(this._skeleton, this._renderNode, -1, -1);
     }
 
+}
+
+class RenderSimple implements IRender {
+    /** @internal */
+    _simpleAnimatorParams: Vector4;
+    /** @internal */
+    private _simpleAnimatorTextureSize: number;
+    /** @internal */
+    private _simpleAnimatorTexture: Texture2D;
+    /** @internal  x simpleAnimation offset,y simpleFrameOffset*/
+    private _simpleAnimatorOffset: Vector2;
+    /** @internal */
+    _bonesNums:number
+    /**
+     * 设置动画帧贴图
+     */
+    get simpleAnimatorTexture(): Texture2D {
+        return this._simpleAnimatorTexture;
+    }
+
+    /**
+     * @internal
+     */
+    set simpleAnimatorTexture(value: Texture2D) {
+        if (this._simpleAnimatorTexture) {
+            this._simpleAnimatorTexture._removeReference();
+        }
+        this._simpleAnimatorTexture = value;
+        this._simpleAnimatorTextureSize = value.width;
+        this._renderNode._spriteShaderData.setTexture(SpineShaderInit.SIMPLE_SIMPLEANIMATORTEXTURE, value);
+        value._addReference();
+        this._renderNode._spriteShaderData.setNumber(SpineShaderInit.SIMPLE_SIMPLEANIMATORTEXTURESIZE, this._simpleAnimatorTextureSize);
+    }
+
+    /**
+     * @internal
+     * 设置动画帧数参数
+     */
+    get simpleAnimatorOffset(): Vector2 {
+        return this._simpleAnimatorOffset;
+    }
+
+    /**
+     * @internal
+     */
+    set simpleAnimatorOffset(value: Vector2) {
+        value.cloneTo(this._simpleAnimatorOffset);
+    }
+
+
+    _renderNode: Spine2DRenderNode;
+    skinRender: SkinRender;
+    currentAnimation: AnimationRenderProxy;
+
+    constructor(renderNode: Spine2DRenderNode) {
+        this._simpleAnimatorParams = new Vector4();
+        // this.bones = bones;
+        // this.slots = slots;
+        this._renderNode = renderNode;
+    }
+
+    change(currentRender: SkinRender, currentAnimation: AnimationRenderProxy) {
+        this.skinRender = currentRender;
+        this.currentAnimation = currentAnimation;
+    }
+
+    /**
+     * @internal
+     */
+    _computeAnimatorParamsData(){
+        this._simpleAnimatorParams.x = this._simpleAnimatorOffset.x;
+        this._simpleAnimatorParams.y = Math.round(this._simpleAnimatorOffset.y) * this._bonesNums * 4;
+    }
+
+    /**
+     * 自定义数据
+     * @param value1 自定义数据1
+     * @param value2 自定义数据1
+     */
+    setCustomData(value1: number, value2: number = 0) {
+        this._simpleAnimatorParams.z = value1;
+        this._simpleAnimatorParams.w = value2;
+    }
+
+    render(curTime: number) {
+        this._computeAnimatorParamsData();
+        // let boneMat = this.currentAnimation.render(this.bones, this.slots, this.skinRender, curTime);//TODO bone
+        // this.material.boneMat = boneMat;
+        this._renderNode._spriteShaderData.setVector(SpineShaderInit.SIMPLE_SIMPLEANIMATORPARAMS,this._simpleAnimatorParams);
+    }
 }
 
 

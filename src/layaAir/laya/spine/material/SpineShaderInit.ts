@@ -57,11 +57,20 @@ export class SpineShaderInit {
 
     static Size: number;
 
+    /**@internal  */
+    static SIMPLE_SIMPLEANIMATORTEXTURE: number;
+    /**@internal */
+    static SIMPLE_SIMPLEANIMATORPARAMS: number;
+    /**@internal */
+    static SIMPLE_SIMPLEANIMATORTEXTURESIZE: number;
+
     static SpineTexture: number;
 
     static SPINE_FAST: ShaderDefine;
 
     static SPINE_RB: ShaderDefine;
+
+    static SPINE_SIMPLE:ShaderDefine;
 
     /**
     * TextureSV Mesh Descript
@@ -89,6 +98,13 @@ export class SpineShaderInit {
         SpineShaderInit.SpineTexture = Shader3D.propertyNameToID("u_spineTexture");
         SpineShaderInit.SPINE_FAST = Shader3D.getDefineByName("SPINE_FAST");
         SpineShaderInit.SPINE_RB = Shader3D.getDefineByName("SPINE_RB");
+        
+        SpineShaderInit.SIMPLE_SIMPLEANIMATORPARAMS = Shader3D.propertyNameToID("u_SimpleAnimatorParams");
+        SpineShaderInit.SIMPLE_SIMPLEANIMATORTEXTURE = Shader3D.propertyNameToID("u_SimpleAnimatorTexture");
+        SpineShaderInit.SIMPLE_SIMPLEANIMATORTEXTURESIZE = Shader3D.propertyNameToID("u_SimpleAnimatorTextureSize");
+
+        SpineShaderInit.SPINE_SIMPLE = Shader3D.getDefineByName("SPINE_SIMPLE");
+
         const commandUniform = LayaGL.renderDeviceFactory.createGlobalUniformMap("Sprite2D");
         commandUniform.addShaderUniform(SpineShaderInit.BONEMAT, "u_sBone", ShaderDataType.Buffer);
         commandUniform.addShaderUniform(SpineShaderInit.NMatrix, "u_NMatrix", ShaderDataType.Buffer);
