@@ -515,6 +515,12 @@ gulp.task('genDts', () => {
             nosort: false
         });
         for (let file of files) {
+            let file2 = file.replace(/\\/g, '/');
+            if (file2.indexOf("laya/RenderEngine/RenderEngine/") != -1
+                || file2.indexOf("laya/d3/RenderObjs/WebGPUOBJ/") != -1
+                || file2.indexOf("laya/d3/RenderObjs/NativeOBJ/") != -1)
+                continue;
+
             let inNamespace = !file.endsWith("Laya.d.ts") && !file.endsWith("Laya3D.d.ts");
             let code = fs.readFileSync(file, "utf-8");
             let declarationFile = ts.createSourceFile(file, code, ts.ScriptTarget.Latest, true);

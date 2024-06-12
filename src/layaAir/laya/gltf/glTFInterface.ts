@@ -613,3 +613,131 @@ export interface glTF extends glTFNodeProperty {
     /** An array of textures */
     textures?: glTFTexture[];
 }
+
+/**
+ * @internal
+ */
+export interface glTFMaterialAnisotropy {
+    /** The anisotropy strength. When anisotropyTexture is present, this value is multiplied by the blue channel. default: 0.0 */
+    anisotropyStrength: number;
+    /** The rotation of the anisotropy in tangent, bitangent space, measured in radians counter-clockwise from the tangent. When anisotropyTexture is present, anisotropyRotation provides additional rotation to the vectors in the texture. default: 0.0 */
+    anisotropyRotation: number;
+    /** The anisotropy texture. Red and green channels represent the anisotropy direction in [-1, 1] tangent, bitangent space, to be rotated by anisotropyRotation. The blue channel contains strength as [0, 1] to be multiplied by anisotropyStrength. */
+    anisotropyTexture: glTFTextureInfo;
+}
+
+/**
+ * @internal
+ */
+export interface glTFMaterialClearCoat {
+    /** The clearcoat layer intensity. default: 0.0*/
+    clearcoatFactor?: number;
+    /** The base color texture */
+    clearcoatTexture?: glTFTextureInfo;
+    /** The clearcoat layer roughness.  default: 0.0*/
+    clearcoatRoughnessFactor?: number;
+    /** The clearcoat layer roughness texture.*/
+    clearcoatRoughnessTexture?: glTFTextureInfo;
+    /** The clearcoat normal map texture. */
+    clearcoatNormalTexture?: glTFMaterialNormalTextureInfo;
+}
+
+/**
+ * @internal
+ */
+export interface glTFMaterialEmissionStrength {
+    /** The strength adjustment to be multiplied with the material's emissive value. default: 1.0 */
+    emissiveStrength: number;
+}
+
+/**
+ * @internal
+ */
+export interface glTFMaterialIOR {
+    /** The index of refraction. default: 1.5 */
+    ior: number;
+}
+
+/**
+ * @internal
+ */
+export interface glTFMaterialIridescence {
+    /** The iridescence intensity factor. default: 0.0 */
+    iridescenceFactor: number;
+    /** The iridescence intensity texture. */
+    iridescenceTexture: glTFTextureInfo;
+    /** The index of refraction of the dielectric thin-film layer. default: 1.3 */
+    iridescenceIor: number;
+    /** The minimum thickness of the thin-film layer given in nanometers. default: 100.0 */
+    iridescenceThicknessMinimum: number;
+    /** The maximum thickness of the thin-film layer given in nanometers. default: 400.0 */
+    iridescenceThicknessMaximum: number;
+    /** The thickness texture of the thin-film layer. */
+    iridescenceThicknessTexture: glTFTextureInfo;
+}
+
+/**
+ * @internal
+ */
+export interface glTFMaterialSheen {
+    /** The sheen color in linear space. default: [0, 0, 0] */
+    sheenColorFactor: number[];
+    /** The sheen color (RGB) in sRGB transfer function. */
+    sheenColorTexture: glTFTextureInfo;
+    /** The sheen roughness. default: 0.0 */
+    sheenRoughnessFactor: number;
+    /** The sheen roughness (Alpha) texture. */
+    sheenRoughnessTexture: glTFTextureInfo;
+}
+
+/**
+ * @internal
+ */
+export interface glTFMaterialSpecular {
+    /** The strength of the specular reflection. default: 1.0 */
+    specularFactor: number;
+    /** A texture that defines the strength of the specular reflection, stored in the alpha (A) channel. This will be multiplied by specularFactor. */
+    specularTexture: glTFTextureInfo;
+    /** The F0 color of the specular reflection (linear RGB). default: [1.0, 1.0, 1.0] */
+    specularColorFactor: number[];
+    /** A texture that defines the F0 color of the specular reflection, stored in the RGB channels and encoded in sRGB. This texture will be multiplied by specularColorFactor. */
+    specularColorTexture: glTFTextureInfo;
+}
+
+/**
+ * @internal
+ */
+export interface glTFMaterialTransmission {
+    /** The base percentage of light that is transmitted through the surface. default: 0 */
+    transmissionFactor: number;
+    /** A texture that defines the transmission percentage of the surface, stored in the R channel. */
+    transmissionTexture: glTFTextureInfo;
+}
+
+/**
+ * @internal
+ */
+export interface glTFMaterialVolume {
+    /** The thickness of the volume beneath the surface. default: 0.0 */
+    thicknessFactor: number;
+    /** A texture that defines the thickness, stored in the G channel. */
+    thicknessTexture: glTFTextureInfo;
+    /** Density of the medium given as the average distance that light travels in the medium before interacting with a particle. default: +Infinity */
+    attenuationDistance: number;
+    /** The color that white light turns into due to absorption when reaching the attenuation distance. default: [1, 1, 1] */
+    attenuationColor: number[];
+}
+
+/**
+ * @internal
+ */
+export interface glTFTextureTransform {
+    /** The offset of the UV coordinate origin as a factor of the texture dimensions. default: [0, 0] */
+    offset: number[];
+    /** Rotate the UVs by this many radians counter-clockwise around the origin. This is equivalent to a similar rotation of the image clockwise. default: 0.0 */
+    rotation: number;
+    /** The scale factor applied to the components of the UV coordinates. default: [1, 1] */
+    scale: number[];
+    /** Overrides the textureInfo texCoord value if supplied, and if this extension is supported. */
+    texCoord: number;
+}

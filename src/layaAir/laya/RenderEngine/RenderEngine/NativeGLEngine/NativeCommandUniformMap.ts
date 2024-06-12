@@ -1,18 +1,18 @@
-import { CommandUniformMap } from "../../../RenderEngine/CommandUniformMap";
+import { CommandUniformMap, UniformData } from "../../../RenderEngine/CommandUniformMap";
 
 export class NativeCommandUniformMap extends CommandUniformMap {
 
 	private _nativeObj: any;
 
-    constructor(_nativeObj: any, stateName: string){
-        super(stateName);
+	constructor(_nativeObj: any, stateName: string) {
+		super(stateName);
 		this._nativeObj = _nativeObj;
-    }
-    hasPtrID(propertyID: number): boolean {
+	}
+	hasPtrID(propertyID: number): boolean {
 		return this._nativeObj.hasPtrID(propertyID);
 	}
 
-	getMap() {
+	getMap(): Record<number, UniformData> {
 		return this._idata;
 	}
 
@@ -24,6 +24,6 @@ export class NativeCommandUniformMap extends CommandUniformMap {
 	 */
 	addShaderUniform(propertyID: number, propertyKey: string): void {
 		//this._idata[propertyID] = propertyKey;
-        this._nativeObj.addShaderUniform(propertyID, propertyKey);
+		this._nativeObj.addShaderUniform(propertyID, propertyKey);
 	}
 }
