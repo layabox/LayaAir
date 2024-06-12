@@ -11,23 +11,6 @@ import { glTFExtension } from "./glTFExtension";
 
 const ExtensionName = "KHR_materials_clearcoat";
 
-declare module "../glTFInterface" {
-
-    export interface glTFMaterialClearCoat {
-        /** The clearcoat layer intensity. default: 0.0*/
-        clearcoatFactor?: number;
-        /** The base color texture */
-        clearcoatTexture?: glTFTextureInfo;
-        /** The clearcoat layer roughness.  default: 0.0*/
-        clearcoatRoughnessFactor?: number;
-        /** The clearcoat layer roughness texture.*/
-        clearcoatRoughnessTexture?: glTFTextureInfo;
-        /** The clearcoat normal map texture. */
-        clearcoatNormalTexture?: glTFMaterialNormalTextureInfo;
-    }
-
-}
-
 /**
  * @internal
  * https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_materials_clearcoat

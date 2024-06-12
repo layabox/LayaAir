@@ -7,15 +7,7 @@ import { glTFExtension } from "./glTFExtension";
 
 const ExtensionName = "KHR_materials_ior";
 
-declare module "../glTFInterface" {
-
-    export interface glTFMaterialIOR {
-        /** The index of refraction. default: 1.5 */
-        ior: number;
-    }
-
-}
-
+/** @internal */
 export class KHR_materials_ior implements glTFExtension {
 
     readonly name: string = ExtensionName;

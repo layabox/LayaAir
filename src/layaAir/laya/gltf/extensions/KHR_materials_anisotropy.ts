@@ -11,19 +11,7 @@ import { glTFShader } from "../shader/glTFShader";
 
 const ExtensionName = "KHR_materials_anisotropy";
 
-declare module "../glTFInterface" {
-
-    export interface glTFMaterialAnisotropy {
-        /** The anisotropy strength. When anisotropyTexture is present, this value is multiplied by the blue channel. default: 0.0 */
-        anisotropyStrength: number;
-        /** The rotation of the anisotropy in tangent, bitangent space, measured in radians counter-clockwise from the tangent. When anisotropyTexture is present, anisotropyRotation provides additional rotation to the vectors in the texture. default: 0.0 */
-        anisotropyRotation: number;
-        /** The anisotropy texture. Red and green channels represent the anisotropy direction in [-1, 1] tangent, bitangent space, to be rotated by anisotropyRotation. The blue channel contains strength as [0, 1] to be multiplied by anisotropyStrength. */
-        anisotropyTexture: glTFTextureInfo;
-    }
-
-}
-
+/** @internal */
 export class KHR_materials_anisotropy implements glTFExtension {
     readonly name: string = ExtensionName;
 
