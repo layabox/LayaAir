@@ -123,8 +123,7 @@ export abstract class VBCreator implements IGetBone {
         ibCreator.ibLength = offset;
     }
 
-    updateBone(bones: spine.Bone[]) {
-        let boneMat: Float32Array = this.boneMat;
+    updateBone(bones: spine.Bone[],boneMat:Float32Array) {
         let boneArray = this.boneArray;
         for (let i = 0, n = boneArray.length; i < n; i += 2) {
             let offset = boneArray[i] * 8;
@@ -140,8 +139,7 @@ export abstract class VBCreator implements IGetBone {
         }
     }
 
-    updateBoneCache(boneFrames: Float32Array[][], frames: number) {
-        let boneMat: Float32Array = this.boneMat;
+    updateBoneCache(boneFrames: Float32Array[][], frames: number,boneMat:Float32Array) {
         let boneArray = this.boneArray;
         let floor = Math.floor(frames);
         let detal;
