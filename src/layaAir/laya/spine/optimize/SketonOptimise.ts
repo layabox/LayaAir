@@ -15,7 +15,7 @@ import { IPreRender } from "./interface/IPreRender";
 import { ISpineOptimizeRender } from "./interface/ISpineOptimizeRender";
 
 export class SketonOptimise implements IPreRender {
-    static normalRenderSwitch: boolean = false;
+    static normalRenderSwitch: boolean = true;
     static cacheSwitch: boolean = false;
     canCache: boolean;
     sketon: spine.Skeleton;
@@ -30,6 +30,7 @@ export class SketonOptimise implements IPreRender {
 
     defaultSkinAttach: SkinAttach;
 
+    maxBoneNumber: number;
 
     constructor() {
         this.blendModeMap = new Map();
@@ -38,7 +39,7 @@ export class SketonOptimise implements IPreRender {
         this.canCache = SketonOptimise.cacheSwitch;
     }
 
-    _initSpineRender(skeleton: spine.Skeleton, templet: SpineTemplet, renderNode:Spine2DRenderNode, state: spine.AnimationState): ISpineOptimizeRender {
+    _initSpineRender(skeleton: spine.Skeleton, templet: SpineTemplet, renderNode: Spine2DRenderNode, state: spine.AnimationState): ISpineOptimizeRender {
         let sp: ISpineOptimizeRender;
         if (SketonOptimise.normalRenderSwitch) {
             sp = new SpineNormalRender();
@@ -117,6 +118,7 @@ export class SketonOptimise implements IPreRender {
     }
 
     initAnimation(animations: spine.Animation[]) {
+        let maxBoneNumber = 0;
         for (let i = 0, n = animations.length; i < n; i++) {
             let animation = animations[i];
             let animator = new AnimationRender();
@@ -124,8 +126,13 @@ export class SketonOptimise implements IPreRender {
             this.animators.push(animator);
             this.skinAttachArray.forEach((value: SkinAttach) => {
                 value.initAnimator(animator);
+                let boneNumber = value.mainVB.mapIndex.size;
+                if (boneNumber > maxBoneNumber) {
+                    maxBoneNumber = boneNumber;
+                }
             });
         }
+        this.maxBoneNumber = maxBoneNumber;
     }
 
     init(slots: spine.Slot[]) {

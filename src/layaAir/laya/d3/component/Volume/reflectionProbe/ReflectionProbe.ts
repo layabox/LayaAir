@@ -173,8 +173,8 @@ export class ReflectionProbe extends Volume {
 		return this._ambientColor;
 	}
 	public set ambientColor(value: Color) {
-		if (!value || value.equal(this._ambientColor))
-			return
+		// if (!value || value.equal(this._ambientColor))
+		// 	return
 		value.cloneTo(this._ambientColor);
 		this._dataModule.setAmbientColor(this._ambientColor);
 		if (this.ambientMode == AmbientMode.SolidColor)
