@@ -87,6 +87,7 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
         let render =new RenderSimple(this.bones, this.slots,this._nodeOwner);
         render.simpleAnimatorTexture=texture;
         render._bonesNums=obj.bonesNums;
+        render.aniOffsetMap=obj.aniOffsetMap;
         this.renderProxyMap.set(ERenderProxyType.RenderOne, render);
         //throw new Error("Method not implemented.");
     }
@@ -353,7 +354,8 @@ class RenderSimple implements IRender {
     /** @internal  x simpleAnimation offset,y simpleFrameOffset*/
     private _simpleAnimatorOffset: Vector2;
     /** @internal */
-    _bonesNums:number
+    _bonesNums:number;
+    aniOffsetMap:Record<string,number>;
     /**
      * 设置动画帧贴图
      */
@@ -409,6 +411,7 @@ class RenderSimple implements IRender {
         this.currentAnimation = currentAnimation;
         this._renderNode._spriteShaderData.addDefine(SpineShaderInit.SPINE_SIMPLE);
         this.currentAnimation.render(this.bones, this.slots, this.skinRender, 0,new Float32Array(1000));
+        this._simpleAnimatorOffset.x = this.aniOffsetMap[currentAnimation.name];
     }
 
     /**
@@ -430,7 +433,6 @@ class RenderSimple implements IRender {
     }
 
     render(curTime: number,boneMat:Float32Array) {
-        this._simpleAnimatorOffset.x = 0;
         this._simpleAnimatorOffset.y = curTime/this.step;
         this._computeAnimatorParamsData();
         // let boneMat = this.currentAnimation.render(this.bones, this.slots, this.skinRender, curTime);//TODO bone
