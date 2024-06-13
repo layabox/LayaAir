@@ -1,12 +1,12 @@
 #if !defined(SpineVertex_lib)
     #define SpineVertex_lib
 
-#ifdef SIMPLEBONE
+#ifdef SPINE_SIMPLE
     uniform vec4 u_SimpleAnimatorParams;
     uniform sampler2D u_SimpleAnimatorTexture;
     uniform float u_SimpleAnimatorTextureSize;
 
-    vec3 loadBakedMatMatrix(float FramePos, float boneIndices, float offset)
+    mat3 loadBakedMatMatrix(float FramePos, float boneIndices, float offset)
     {
         vec2 uv;
         float PixelPos = FramePos + boneIndices * 4.0;

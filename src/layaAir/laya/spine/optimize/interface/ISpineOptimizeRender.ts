@@ -1,6 +1,7 @@
 import { BaseRenderNode2D } from "../../../NodeRender2D/BaseRenderNode2D";
 import { IRenderElement2D } from "../../../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
 import { Graphics } from "../../../display/Graphics";
+import { Texture2D } from "../../../resource/Texture2D";
 import { SpineTemplet } from "../../SpineTemplet";
 
 export interface ISpineOptimizeRender {
@@ -8,4 +9,5 @@ export interface ISpineOptimizeRender {
     play(animationName: string): void;
     render(time: number): void;
     setSkinIndex(index: number): void;
+    initBake(texture:Texture2D,obj:any):void;
 }

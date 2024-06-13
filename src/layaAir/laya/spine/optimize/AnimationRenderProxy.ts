@@ -27,7 +27,7 @@ export class AnimationRenderProxy {
         this.currentFrameIndex = -2;
     }
 
-    render(bones: spine.Bone[], slots: spine.Slot[], updator: IVBIBUpdate, curTime: number) {
+    render(bones: spine.Bone[], slots: spine.Slot[], updator: IVBIBUpdate, curTime: number,boneMat:Float32Array) {
         //debugger;
         let beforeFrame = this.currentFrameIndex;
         let nowFrame = this.animator.getFrameIndex(curTime, beforeFrame);
@@ -43,8 +43,6 @@ export class AnimationRenderProxy {
             this.currentTime = curTime;
             this.currentFrameIndex = nowFrame;
         }
-        currentSKin.updateBoneMat(curTime,this.animator,bones,this.state);
-        //vb.updateBone(bones);
-        return vb.boneMat;
+        currentSKin.updateBoneMat(curTime,this.animator,bones,this.state,boneMat);
     }
 }
