@@ -64,10 +64,13 @@ export class RenderElement {
      * set RenderElement Material/Shaderdata
      */
     set material(value: Material) {
-        // todo debug 临时
         if (value) {
             this._material = value;
             this._renderElementOBJ._materialShaderData = value.shaderData;
+        }
+        else {
+            this._material = null;
+            this._renderElementOBJ._materialShaderData = null;
         }
     }
 
@@ -176,7 +179,7 @@ export class RenderElement {
                 pass.nodeCommonMap = null;
             }
 
-            comDef.addDefineDatas(this._renderElementOBJ._materialShaderData._defineDatas);
+            this._renderElementOBJ._materialShaderData && comDef.addDefineDatas(this._renderElementOBJ._materialShaderData._defineDatas);
             var shaderIns: ShaderInstance = pass.withCompile(comDef);
             this._renderElementOBJ._addShaderInstance(shaderIns);
         }
@@ -221,13 +224,12 @@ export class RenderElement {
      * @internal
      */
     _update(scene: any, context: RenderContext3D, customShader: Shader3D, replacementTag: string, subshaderIndex: number = 0): void {
-        if (this.material) {//材质可能为空
-            this._convertSubShader(customShader, replacementTag, subshaderIndex);
-            if (!this.renderSubShader)
-                return;
-            let renderQueue = scene._getRenderQueue(this.material.renderQueue);
-            renderQueue.addRenderElement(this);
+        this.material && this._convertSubShader(customShader, replacementTag, subshaderIndex);
+        if (!this.renderSubShader || !this._renderElementOBJ._materialShaderData) {
+            return;
         }
+        let renderQueue = scene._getRenderQueue(this.material.renderQueue);
+        renderQueue.addRenderElement(this);
     }
 
     /**

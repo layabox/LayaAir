@@ -378,8 +378,6 @@ export class BaseRender extends Component implements IBoundsCell {
 
         if (value) {
             var count: number = value.length;
-            materialsInstance.length = count;
-            sharedMats.length = count;
             for (i = 0; i < count; i++) {
                 lastMat = sharedMats[i];
                 var mat: Material = value[i];
@@ -393,7 +391,16 @@ export class BaseRender extends Component implements IBoundsCell {
                 }
                 sharedMats[i] = mat;
             }
-        } else {
+
+            for (i = count, n = sharedMats.length; i < n; i++) {
+                let renderElement = this._renderElements[i];
+                renderElement && (renderElement.material = null);
+            }
+
+            materialsInstance.length = count;
+            sharedMats.length = count;
+        }
+        else {
             throw new Error("BaseRender: shadredMaterials value can't be null.");
         }
         this._isSupportRenderFeature();
@@ -596,7 +603,7 @@ export class BaseRender extends Component implements IBoundsCell {
      */
     private _changeMaterialReference(lastValue: Material, value: Material): void {
         (lastValue) && (lastValue._removeReference());
-        value._addReference();//TODO:value可以为空
+        value && value._addReference();
     }
 
     /**

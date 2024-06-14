@@ -163,14 +163,14 @@ export class RenderContext3D {
 
     /**
      * 渲染一个
-     * @param renderelemt 
+     * @param element 
      */
-    drawRenderElement(renderelemt: RenderElement): void {
-        renderelemt.material && renderelemt._convertSubShader(this.customShader, this.replaceTag);
-        if (!renderelemt.renderSubShader)
+    drawRenderElement(element: RenderElement): void {
+        element.material && element._convertSubShader(this.customShader, this.replaceTag);
+        if (!element.renderSubShader || !element._renderElementOBJ._materialShaderData)
             return;
-        renderelemt._renderUpdatePre(this);
-        this._contextOBJ.drawRenderElement(renderelemt._renderElementOBJ);
+        element._renderUpdatePre(this);
+        this._contextOBJ.drawRenderElement(element._renderElementOBJ);
     }
     /**
      * 创建一个 <code>RenderContext3D</code> 实例。
