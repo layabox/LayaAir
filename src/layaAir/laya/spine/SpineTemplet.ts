@@ -5,6 +5,7 @@ import { URL } from "../net/URL";
 import { ILoadURL } from "../net/Loader";
 import { SpineTexture } from "./SpineTexture";
 import { IBatchProgress } from "../net/BatchProgress";
+import { Laya } from "../../Laya";
 
 /**
  * Spine动画模板基类
@@ -134,7 +135,11 @@ export class SpineTemplet extends Resource {
      */
     protected _disposeResource(): void {
         for (let k in this._textures) {
-            this._textures[k].realTexture?._removeReference();
+            let tex=this._textures[k].realTexture;
+            if(tex){
+                tex._removeReference();
+                Laya.loader.clearRes(tex.url);
+            }
         }
     }
 }
