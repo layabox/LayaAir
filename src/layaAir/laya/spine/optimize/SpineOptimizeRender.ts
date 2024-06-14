@@ -46,8 +46,6 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
     //  */
     // material: IOptimizeMaterial;
 
-    static materialMap: Map<string, Material> = new Map();
-
     geoMap: Map<ESpineRenderType, TGeo>;
 
     private _isRender: boolean;
@@ -463,7 +461,7 @@ class SkinRender implements IVBIBUpdate {
 
     getMaterial(texture: Texture, blendMode: number): Material {
         let key = texture.id + "_" + blendMode;
-        let mat = SpineOptimizeRender.materialMap.get(key);
+        let mat = SpineTemplet.materialMap.get(key);
         if (!mat) {
             mat = new Material();
             mat.setShaderName("SpineStandard");
@@ -473,7 +471,8 @@ class SkinRender implements IVBIBUpdate {
             SpineShaderInit.SetSpineBlendMode(blendMode, mat);
             //mat.color = this.owner.spineColor;
             //mat.setVector2("u_size",new Vector2(Laya.stage.width,Laya.stage.height));
-            SpineOptimizeRender.materialMap.set(key, mat);
+            mat._addReference();
+            SpineTemplet.materialMap.set(key, mat);
         }
         return mat;
     }

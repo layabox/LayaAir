@@ -30,7 +30,7 @@
 #endif
 
 #if defined(SPINE_FAST) || defined(SPINE_RB)
-    uniform vec4 u_sBone[256];
+    uniform vec4 u_sBone[200];
     vec4 getBonePos(float fboneId,float weight,vec2 pos){
         int boneId=int(fboneId);
         vec4 up= u_sBone[boneId*2];

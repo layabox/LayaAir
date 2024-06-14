@@ -19,7 +19,7 @@ export class SpineTemplet extends Resource {
 
     public skeletonData: spine.SkeletonData;
 
-    private materialMap: Map<string, Material>;
+    static materialMap: Map<string, Material> = new Map();
 
     private _textures: Record<string, SpineTexture>;
     private _basePath: string;
@@ -32,7 +32,6 @@ export class SpineTemplet extends Resource {
     constructor() {
         super();
         this._textures = {};
-        this.materialMap = new Map();
         this.sketonOptimise = new SketonOptimise();
     }
 
@@ -177,7 +176,19 @@ export class SpineTemplet extends Resource {
      */
     protected _disposeResource(): void {
         for (let k in this._textures) {
-            this._textures[k].realTexture?._removeReference();
+            let tex = this._textures[k].realTexture;
+            if(tex){
+                tex._removeReference();
+                for(let i = 0; i < 4; i++){
+                    let mat = SpineTemplet.materialMap.get(tex.id+"_"+i);
+                    if(mat){
+                        mat._removeReference();
+                    }
+                }
+            }
         }
+
+
+        
     }
 }
