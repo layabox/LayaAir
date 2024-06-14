@@ -2,6 +2,7 @@ import { DDSTextureInfo } from "../../../RenderEngine/DDSTextureInfo";
 import { HDRTextureInfo } from "../../../RenderEngine/HDRTextureInfo";
 import { KTXTextureInfo } from "../../../RenderEngine/KTXTextureInfo";
 import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
+import { GPUEngineStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
 import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { TextureCompareMode } from "../../../RenderEngine/RenderEnum/TextureCompareMode";
 import { TextureDimension } from "../../../RenderEngine/RenderEnum/TextureDimension";
@@ -462,7 +463,8 @@ export class WebGPUTextureContext implements ITextureContext {
         const internalTex = new WebGPUInternalTex(width, height, 1, dimension, generateMipmap, 1, false, 1);
         internalTex.resource = gpuTexture;
         internalTex._webGPUFormat = gpuTextureFormat;
-        WebGPUGlobal.action(internalTex, 'allocMemory | texture', (width * height * pixelByteSize * (generateMipmap ? 1.33333 : 1)) | 0);
+        internalTex.gpuMemory = (width * height * pixelByteSize * (generateMipmap ? 1.33333 : 1)) | 0;
+        WebGPUGlobal.action(internalTex, 'allocMemory | texture', internalTex.gpuMemory);
 
         return internalTex;
     }
@@ -1123,9 +1125,13 @@ export class WebGPUTextureContext implements ITextureContext {
         const gpuColorDescriptor = this._getGPUTextureDescriptor(dimension, width, height, gpuColorFormat, 1, generateMipmap, multiSamples, false);
         const gpuColorTexture = this._engine.getDevice().createTexture(gpuColorDescriptor);
 
+        const pixelByteSize = this._getGPURenderTexturePixelByteSize(format);
         let texture = new WebGPUInternalTex(width, height, 1, dimension, generateMipmap, multiSamples, false, 1);
         texture.resource = gpuColorTexture;
         texture._webGPUFormat = gpuColorFormat;
+        texture.statisAsRenderTexture();
+        texture.gpuMemory = (width * height * pixelByteSize * (generateMipmap ? 1.33333 : 1)) | 0;
+        WebGPUGlobal.action(texture, 'allocMemory | texture', texture.gpuMemory);
 
         return texture;
     }
@@ -1188,7 +1194,9 @@ export class WebGPUTextureContext implements ITextureContext {
         internalRT._textures.push(new WebGPUInternalTex(width, height, 1, TextureDimension.Tex2D, generateMipmap, multiSamples, useSRGBExt, gammaCorrection));
         internalRT._textures[0].resource = gpuColorTexture;
         internalRT._textures[0]._webGPUFormat = gpuColorFormat;
-        WebGPUGlobal.action(internalRT._textures[0], 'allocMemory | texture', (width * height * multiSamples * pixelByteSize * (generateMipmap ? 1.33333 : 1)) | 0);
+        internalRT._textures[0].statisAsRenderTexture();
+        internalRT._textures[0].gpuMemory = (width * height * multiSamples * pixelByteSize * (generateMipmap ? 1.33333 : 1)) | 0;
+        WebGPUGlobal.action(internalRT._textures[0], 'allocMemory | texture', internalRT._textures[0].gpuMemory);
         if (multiSamples > 1) {
             const gpuColorDescriptor = this._getGPUTextureDescriptor(TextureDimension.Tex2D, width, height, gpuColorFormat, 1, generateMipmap, 1, false);
             gpuColorDescriptor.usage = GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.COPY_SRC | GPUTextureUsage.COPY_DST;
@@ -1196,7 +1204,9 @@ export class WebGPUTextureContext implements ITextureContext {
             internalRT._texturesResolve.push(new WebGPUInternalTex(width, height, 1, TextureDimension.Tex2D, generateMipmap, 1, useSRGBExt, gammaCorrection));
             internalRT._texturesResolve[0].resource = gpuColorTexture;
             internalRT._texturesResolve[0]._webGPUFormat = gpuColorFormat;
-            WebGPUGlobal.action(internalRT._texturesResolve[0], 'allocMemory | texture', (width * height * pixelByteSize * (generateMipmap ? 1.33333 : 1)) | 0);
+            internalRT._texturesResolve[0].statisAsRenderTexture();
+            internalRT._texturesResolve[0].gpuMemory = (width * height * pixelByteSize * (generateMipmap ? 1.33333 : 1)) | 0;
+            WebGPUGlobal.action(internalRT._texturesResolve[0], 'allocMemory | texture', internalRT._texturesResolve[0].gpuMemory);
         }
 
         if (colorFormat === RenderTargetFormat.DEPTH_16
@@ -1218,7 +1228,9 @@ export class WebGPUTextureContext implements ITextureContext {
             internalRT._depthTexture = new WebGPUInternalTex(width, height, 1, TextureDimension.Tex2D, false, multiSamples, false, 1);
             internalRT._depthTexture.resource = gpuDepthTexture;
             internalRT._depthTexture._webGPUFormat = gpuDepthFormat;
-            WebGPUGlobal.action(internalRT._depthTexture, 'allocMemory | texture_depth', width * height * multiSamples * pixelByteSize);
+            internalRT._depthTexture.statisAsRenderTexture();
+            internalRT._depthTexture.gpuMemory = width * height * multiSamples * pixelByteSize;
+            WebGPUGlobal.action(internalRT._depthTexture, 'allocMemory | texture_depth', internalRT._depthTexture.gpuMemory);
         }
 
         WebGPURenderPassHelper.setColorAttachments(internalRT._renderPassDescriptor, internalRT, true);

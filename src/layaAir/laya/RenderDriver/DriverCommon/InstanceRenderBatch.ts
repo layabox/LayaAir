@@ -8,17 +8,12 @@ import { WebGPUInstanceRenderElement3D } from "../WebGPUDriver/3DRenderPass/WebG
 import { WebGPURenderElement3D } from "../WebGPUDriver/3DRenderPass/WebGPURenderElement3D";
 
 /**
- * 动态合批通用类
+ * 动态合批通用类（目前由WebGPU专用）
  */
 export class InstanceRenderBatch {
-    private recoverList: SingletonList<WebGPUInstanceRenderElement3D>;
-
+    private recoverList: WebGPUInstanceRenderElement3D[] = [];
     private _batchOpaqueMarks: any[] = [];
     private _updateCountMark: number = 0;
-
-    constructor() {
-        this.recoverList = new SingletonList();
-    }
 
     getBatchMark(element: IRenderElement3D) {
         const renderNode = element.owner;
@@ -76,7 +71,7 @@ export class InstanceRenderBatch {
                         const originElement = elementArray[instanceIndex];
                         // 替换 renderElement
                         const instanceRenderElement = WebGPUInstanceRenderElement3D.create();
-                        this.recoverList.add(instanceRenderElement);
+                        this.recoverList.push(instanceRenderElement);
                         instanceRenderElement.subShader = element.subShader;
                         instanceRenderElement.materialShaderData = element.materialShaderData;
                         instanceRenderElement.materialRenderQueue = element.materialRenderQueue;
@@ -106,12 +101,13 @@ export class InstanceRenderBatch {
     }
 
     clearRenderData() {
-        for (let i = 0, n = this.recoverList.length; i < n; i++)
-            this.recoverList.elements[i].clearRenderData();
+        for (let i = this.recoverList.length - 1; i > -1; i--)
+            this.recoverList[i].clearRenderData();
     }
 
     recoverData() {
-        for (let i = 0, n = this.recoverList.length; i < n; i++)
-            this.recoverList.elements[i].recover();
+        for (let i = this.recoverList.length - 1; i > -1; i--)
+            this.recoverList[i].recover();
+        this.recoverList.length = 0;
     }
 }

@@ -1,4 +1,6 @@
+import { GPUEngineStatisticsInfo } from "../../../../RenderEngine/RenderEnum/RenderStatInfo";
 import { OffsetAndSize, roundUp } from "../WebGPUCommon";
+import { WebGPURenderEngine } from "../WebGPURenderEngine";
 import { WebGPUGlobal } from "../WebGPUStatis/WebGPUGlobal";
 import { WebGPUStatis } from "../WebGPUStatis/WebGPUStatis";
 import { WebGPUBufferBlock } from "./WebGPUBufferBlock";
@@ -50,6 +52,9 @@ export class WebGPUBufferCluster {
 
         //初始化，整个buffer最初可用
         this.free = [{ offset: 0, size: this.totalSize }];
+
+        WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.M_GPUMemory, this.totalSize);
+        WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.M_GPUBuffer, this.totalSize);
     }
 
     /**
@@ -144,6 +149,8 @@ export class WebGPUBufferCluster {
         //记录上传次数，字节数
         WebGPUStatis.addUploadNum(count);
         WebGPUStatis.addUploadBytes(bytes);
+
+        WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.C_UniformBufferUploadCount, count);
     }
 
     /**
@@ -219,6 +226,9 @@ export class WebGPUBufferCluster {
         });
         this.buffer = newBuffer;
 
+        WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.M_GPUMemory, expandSize);
+        WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.M_GPUBuffer, expandSize);
+
         //旧的GPUBuffer失去引用时会自动销毁
         //this.buffer.destroy();
 
@@ -270,5 +280,8 @@ export class WebGPUBufferCluster {
         this.buffer.destroy();
         WebGPUGlobal.action(this, 'releaseMemory | uniform', this.totalSize);
         WebGPUGlobal.releaseId(this);
+
+        WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.M_GPUMemory, -this.totalSize);
+        WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.M_GPUBuffer, -this.totalSize);
     }
 }
