@@ -1061,7 +1061,7 @@ export class Loader extends EventDispatcher {
             }
 
             if (!mini && fileConfig.entry)
-                return ILaya.Browser.loadLib(path + fileConfig.entry);
+                return ILaya.Browser.loadLib(URL.formatURL(path + fileConfig.entry));
             else
                 return Promise.resolve();
         });
