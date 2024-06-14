@@ -6,8 +6,10 @@ import { DrawTextureCmd } from "../display/cmd/DrawTextureCmd";
 import { LayaEnv } from "../../LayaEnv";
 
 /**
- * <code>AutoBitmap</code> 类是用于表示位图图像或绘制图形的显示对象。
- * <p>封装了位置，宽高及九宫格的处理，供UI组件使用。</p>
+ * @en The `AutoBitmap` class is a display object that represents bitmap images or graphics.
+ * It encapsulates the handling of position, width, height, and nine-patch for UI components.
+ * @zh `AutoBitmap` 类是用于表示位图图像或绘制图形的显示对象。
+ * 封装了位置，宽高及九宫格的处理，供UI组件使用。
  */
 export class AutoBitmap extends Graphics {
     /**@internal 宽度*/
@@ -16,7 +18,7 @@ export class AutoBitmap extends Graphics {
     private _height: number = null;
     /**@internal 源数据*/
     private _source: Texture;
-    /**@internal 网格数据*/
+    /**@internal 纹理的九宫格数据 */
     private _sizeGrid: number[];
     /**@internal */
     protected _isChanged: boolean;
@@ -33,7 +35,14 @@ export class AutoBitmap extends Graphics {
     uv: number[] = null;
 
     /**
-     * 网格数据
+     * @en The size grid of the texture.
+     * The size grid is a 3x3 division of the texture, allowing it to be scaled without distorting the corners and edges. 
+     * The array contains five values representing the top, right, bottom, and left margins, and whether to repeat the fill (0: no repeat, 1: repeat). 
+     * The values are separated by commas. For example: "6,6,6,6,1".
+     * @zh 纹理的九宫格数据。
+     * 九宫格是一种将纹理分成3x3格的方式，使得纹理缩放时保持角和边缘不失真。
+     * 数组包含五个值，分别代表上边距、右边距、下边距、左边距以及是否重复填充（0：不重复填充，1：重复填充）。
+     * 值以逗号分隔。例如："6,6,6,6,1"。
      */
     get sizeGrid(): number[] {
         return this._sizeGrid;
@@ -45,7 +54,8 @@ export class AutoBitmap extends Graphics {
     }
 
     /**
-     * 表示显示对象的宽度，以像素为单位。
+     * @en The width of the display object, in pixels.
+     * @zh 表示显示对象的宽度，以像素为单位。
      */
     get width(): number {
         if (this._width != null) return this._width;
@@ -61,7 +71,8 @@ export class AutoBitmap extends Graphics {
     }
 
     /**
-     * 表示显示对象的高度，以像素为单位。
+     * @en The height of the display object, in pixels.
+     * @zh 表示显示对象的高度，以像素为单位。
      */
     get height(): number {
         if (this._height != null) return this._height;
@@ -77,7 +88,8 @@ export class AutoBitmap extends Graphics {
     }
 
     /**
-     * 对象的纹理资源。
+     * @en The texture resource of the object.
+     * @zh 对象的纹理资源。
      */
     get source(): Texture {
         return this._source;
@@ -98,7 +110,8 @@ export class AutoBitmap extends Graphics {
     }
 
     /**
-     * 颜色
+     * @en The color of the object.
+     * @zh 对象的颜色。
      */
     get color() {
         return this._color;
@@ -111,7 +124,11 @@ export class AutoBitmap extends Graphics {
         }
     }
 
-    /** @internal */
+    /**
+     * @internal
+     * @en Mark the object as changed.
+     * @zh 标记对象为已更改状态。
+     */
     protected _setChanged(): void {
         if (!this._isChanged) {
             this._isChanged = true;
@@ -121,7 +138,8 @@ export class AutoBitmap extends Graphics {
 
     /**
      * @internal
-     * 修改纹理资源。
+     * @en Change the texture resource.
+     * @zh 修改纹理资源。
      */
     protected changeSource(): void {
         this._isChanged = false;
@@ -182,6 +200,8 @@ export class AutoBitmap extends Graphics {
 
     /**@inheritDoc 
      * @override
+     * @en Destroy the object.
+     * @zh 销毁对象。
      */
     destroy(): void {
         super.destroy();
@@ -194,6 +214,12 @@ export class AutoBitmap extends Graphics {
 
     /**
      * @internal
+     * @en Set the state of the object.
+     * @param index The state index.
+     * @param numStates The total number of states.
+     * @zh 设置对象的状态。
+     * @param index 状态索引。
+     * @param numStates 状态的总数。
      */
     setState(index: number, numStates: number) {
         this._stateIndex = index;

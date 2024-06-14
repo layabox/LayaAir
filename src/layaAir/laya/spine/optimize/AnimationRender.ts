@@ -212,7 +212,7 @@ export class SkinAniRenderData {
     mutiRenderAble: boolean;
     isNormalRender: boolean;
     checkVBChange: (slots: spine.Slot[]) => boolean;
-    updateBoneMat: (delta: number, animation: AnimationRender, bones: spine.Bone[], state: spine.AnimationState) => void;
+    updateBoneMat: (delta: number, animation: AnimationRender, bones: spine.Bone[], state: spine.AnimationState,boneMat:Float32Array) => void;
     changeVB: IVBChange[];
 
     constructor() {
@@ -245,13 +245,13 @@ export class SkinAniRenderData {
         return this.ibs[frameIndex];
     }
 
-    updateBoneMatCache(delta: number, animation: AnimationRender, bones: spine.Bone[], state: spine.AnimationState): void {
-        this.vb.updateBoneCache(animation.boneFrames, delta / step);
+    updateBoneMatCache(delta: number, animation: AnimationRender, bones: spine.Bone[], state: spine.AnimationState,boneMat:Float32Array): void {
+        this.vb.updateBoneCache(animation.boneFrames, delta / step,boneMat);
     }
 
-    updateBoneMatCacheEvent(delta: number, animation: AnimationRender, bones: spine.Bone[], state: spine.AnimationState): void {
+    updateBoneMatCacheEvent(delta: number, animation: AnimationRender, bones: spine.Bone[], state: spine.AnimationState,boneMat:Float32Array): void {
         let f = delta / step;
-        this.vb.updateBoneCache(animation.boneFrames, f);
+        this.vb.updateBoneCache(animation.boneFrames, f,boneMat);
         let currFrame = Math.round(f);
         //@ts-ignore
         let curentTrack: spine.TrackEntry = state.currentTrack;
@@ -288,8 +288,8 @@ export class SkinAniRenderData {
         curentTrack.lastEventFrame = currFrame;
     }
 
-    updateBoneMatByBone(delta: number, animation: AnimationRender, bones: spine.Bone[], state: spine.AnimationState): void {
-        this.vb.updateBone(bones);
+    updateBoneMatByBone(delta: number, animation: AnimationRender, bones: spine.Bone[], state: spine.AnimationState,boneMat:Float32Array): void {
+        this.vb.updateBone(bones,boneMat);
     }
 
     init(tempMap: Map<number, IChange[]>, mainVB: VBCreator, mainIB: IBCreator, tempArray: number[], slotAttachMap: Map<number, Map<string, AttachmentParse>>, attachMap: AttachmentParse[], changeVB: IVBChange[]) {

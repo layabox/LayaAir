@@ -1,17 +1,24 @@
 import { UIComponent } from "./UIComponent";
 
 /**
- * <code>Box</code> 类是一个控件容器类。
+ * @en The `Box` class is the base class for UI containers.
+ * Other container components will inherit from this class.
+ * @zh `Box` 类是 UI 容器的基类。
+ * 其他的容器组件都会继承于该类。
  */
 export class Box extends UIComponent {
 
-    /**@internal */
+    /**
+     * @internal
+     * @en The background color.
+     * @zh 背景颜色。
+     */
     private _bgColor: string;
 
     /**
-     * @inheritDoc 
-     * @override
-     */
+    * @inheritDoc 
+    * @override
+    */
     set_dataSource(value: any) {
         this._dataSource = value;
         for (let name in value) {
@@ -23,7 +30,10 @@ export class Box extends UIComponent {
         }
     }
 
-    /**背景颜色*/
+    /**
+    * @en background color
+    * @zh 容器的背景颜色
+    */
     get bgColor(): string {
         return this._bgColor;
     }

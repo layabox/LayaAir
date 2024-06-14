@@ -3,7 +3,7 @@ import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
 import { VertexMesh } from "../../../RenderEngine/RenderShader/VertexMesh";
 import { MeshSprite3DShaderDeclaration } from "../../../d3/core/MeshSprite3DShaderDeclaration";
 import { RenderableSprite3D } from "../../../d3/core/RenderableSprite3D";
-import { SimpleSkinnedMeshRenderer } from "../../../d3/core/SimpleSkinnedMeshRenderer";
+import { SimpleSkinnedMeshSprite3D } from "../../../d3/core/SimpleSkinnedMeshSprite3D";
 import { FastSinglelist } from "../../../utils/SingletonList";
 import { BaseRenderType } from "../../RenderModuleData/Design/3D/I3DRenderModuleData";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
@@ -205,7 +205,7 @@ export class WebGLInstanceRenderElement3D extends WebGLRenderElement3D {
                 //simpleAnimationData
                 var simpleAnimatorData: Float32Array = this.getUpdateData(1, 4 * WebGLInstanceRenderElement3D.MaxInstanceCount);
                 for (var i: number = 0; i < count; i++) {
-                    var simpleAnimatorParams = elements[i].renderShaderData.getVector(SimpleSkinnedMeshRenderer.SIMPLE_SIMPLEANIMATORPARAMS);
+                    var simpleAnimatorParams = elements[i].renderShaderData.getVector(SimpleSkinnedMeshSprite3D.SIMPLE_SIMPLEANIMATORPARAMS);
                     var offset: number = i * 4;
                     simpleAnimatorData[offset] = simpleAnimatorParams.x;
                     simpleAnimatorData[offset + 1] = simpleAnimatorParams.y;

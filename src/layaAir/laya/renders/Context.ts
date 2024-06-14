@@ -95,7 +95,8 @@ export class Context {
 
     private _alpha = 1.0;
 
-    private _material: Material = null;
+    /**@internal */
+    _material: Material = null;
 
     /**@internal */
     private _fillStyle = DrawStyle.DEFAULT;
@@ -266,14 +267,6 @@ export class Context {
 
     get render2D() {
         return this._render2D;
-    }
-
-    set material(value: Material) {
-        this._material = value;
-    }
-
-    get material() {
-        return this._material;
     }
 
 
@@ -784,7 +777,7 @@ export class Context {
                 submit._key.submitType === SubmitBase.KEY_DRAWTEXTURE &&
                 submit._key.blendShader === this._nBlendType &&
                 !this.isStopMerge(submit)) &&
-            this._curSubmit.material == this.material
+            this._curSubmit.material == this._material
 
         if (!sameKey) {
             this._drawToRender2D(this._curSubmit);
@@ -1026,13 +1019,13 @@ export class Context {
             shaderdata.setVector(ShaderDefines2D.UNIFORM_COLORALPHA, Vector4.tempVec4);
         }
 
-        this._drawMesh(mesh, 0, mesh.vertexNum, submit._startIdx, mesh.indexNum, submit.shaderValue);
+        this._drawMesh(mesh, 0, mesh.vertexNum, submit._startIdx, mesh.indexNum, submit.shaderValue,submit.material);
         this.stopMerge = false;
         this._drawCount++;
     }
 
     //TODO 目前是为了方便，从设计上这样是不是不太好
-    private _drawMesh(mesh: Mesh2D, vboff: number, vertNum: number, iboff: number, indexNum: number, shaderValue: Value2D) {
+    private _drawMesh(mesh: Mesh2D, vboff: number, vertNum: number, iboff: number, indexNum: number, shaderValue: Value2D,customMaterial:Material) {
         if (mesh.indexNum) {
             let render2D = this._render2D;
             if (!this._render2DManager._renderEnd) {
@@ -1042,7 +1035,8 @@ export class Context {
                 mesh,
                 vboff, vertNum * mesh.vertexDeclarition.vertexStride,
                 iboff, indexNum * 2,
-                shaderValue
+                shaderValue,
+                customMaterial
             );
         }
         mesh.clearMesh();
@@ -1118,7 +1112,7 @@ export class Context {
         var sameKey = (imgid >= 0 && preKey.submitType === SubmitBase.KEY_DRAWTEXTURE && preKey.other === imgid) &&
             !this.isStopMerge(this._curSubmit) &&
             this._mesh.vertexNum + 4 < Context._MAXVERTNUM &&
-            this._curSubmit.material == this.material
+            this._curSubmit.material == this._material
 
         if (!sameKey) {
             this._drawToRender2D(this._curSubmit);
@@ -1336,7 +1330,7 @@ export class Context {
             preKey.other === webGLImg.id &&
             preKey.blendShader == this._nBlendType &&
             this._mesh.vertexNum + vertices.length / 2 < Context._MAXVERTNUM &&
-            this._curSubmit.material == this.material;
+            this._curSubmit.material == this._material;
 
         if (!sameKey) {
             this._drawToRender2D(this._curSubmit);
@@ -1548,7 +1542,7 @@ export class Context {
         var submit = this._curSubmit;
         var sameKey = (submit._key.submitType === SubmitBase.KEY_VG && submit._key.blendShader === this._nBlendType) &&
             !this.isStopMerge(submit) &&
-            this._curSubmit.material == this.material;
+            this._curSubmit.material == this._material;
 
         if (!sameKey) {
             this._drawToRender2D(submit);
@@ -1650,7 +1644,7 @@ export class Context {
         var submit = this._curSubmit;
         var sameKey = (submit._key.submitType === SubmitBase.KEY_VG && submit._key.blendShader === this._nBlendType) &&
             !this.isStopMerge(submit) &&
-            this._curSubmit.material == this.material
+            this._curSubmit.material == this._material
 
         if (!sameKey) {
             this._drawToRender2D(this._curSubmit);

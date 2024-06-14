@@ -281,7 +281,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
 
     onAwake(): void {
         if (this._skeleton) {
-            this.spineItem = this._templet.sketonOptimise._initSpineRender(this._skeleton, this._templet, this, this._state);
+            //this.spineItem = this._templet.sketonOptimise._initSpineRender(this._skeleton, this._templet, this, this._state);
             if (LayaEnv.isPlaying && this._animationName)
                 this.play(this._animationName, this._loop, true);
         }
@@ -332,6 +332,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
             },
             complete: (entry: any) => {
                 // console.log("complete:", entry);
+                this.event(Event.END);
                 if (entry.loop) { // 如果多次播放,发送complete事件
                     this.event(Event.COMPLETE);
                 } else { // 如果只播放一次，就发送stop事件

@@ -10,28 +10,13 @@ import { Vector2 } from "../../maths/Vector2";
 
 const ExtensionName = "KHR_texture_transform";
 
-declare module "../glTFInterface" {
-
-    export interface glTFTextureTransform {
-        /** The offset of the UV coordinate origin as a factor of the texture dimensions. default: [0, 0] */
-        offset: number[];
-        /** Rotate the UVs by this many radians counter-clockwise around the origin. This is equivalent to a similar rotation of the image clockwise. default: 0.0 */
-        rotation: number;
-        /** The scale factor applied to the components of the UV coordinates. default: [1, 1] */
-        scale: number[];
-        /** Overrides the textureInfo texCoord value if supplied, and if this extension is supported. */
-        texCoord: number;
-    }
-
-}
-
 const translation = new Matrix3x3();
 const rotation = new Matrix3x3();
 
 const offset = new Vector2;
 const scale = new Vector2;
 
-// todo
+/** @internal */
 export class KHR_texture_transform implements glTFExtension {
 
     readonly name: string = ExtensionName;

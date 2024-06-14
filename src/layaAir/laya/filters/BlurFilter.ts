@@ -66,7 +66,7 @@ export class BlurFilter extends Filter {
             this._rectMesh,
             0,4*this._rectMesh.vertexDeclarition.vertexStride,
             0,12,
-            shadersv);
+            shadersv,null);
         render2d.renderEnd();
     }
 }

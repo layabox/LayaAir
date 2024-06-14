@@ -5,7 +5,6 @@ import { Stat } from "../../utils/Stat";
 import { Prefab } from "../../resource/HierarchyResource";
 import { ILaya } from "../../../ILaya";
 import { NodeFlags } from "../../Const";
-import { Event } from "../../events/Event";
 import { Matrix4x4 } from "../../maths/Matrix4x4";
 import { Quaternion } from "../../maths/Quaternion";
 import { Vector3 } from "../../maths/Vector3";
@@ -15,7 +14,7 @@ import { Laya3DRender } from "../RenderObjs/Laya3DRender";
 import { ShaderDataType } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { Transform3D } from "./Transform3D";
 import { CommandUniformMap } from "../../RenderDriver/DriverDesign/RenderDevice/CommandUniformMap";
-
+import { Event } from "../../events/Event";
 /**
  * @internal
  */

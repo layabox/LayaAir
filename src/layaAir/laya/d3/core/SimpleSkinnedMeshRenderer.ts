@@ -12,14 +12,15 @@ import { Sprite3D } from "./Sprite3D";
 import { Laya3DRender } from "../RenderObjs/Laya3DRender";
 import { RenderContext3D } from "./render/RenderContext3D";
 import { RenderElement } from "./render/RenderElement";
+import { SimpleSkinnedMeshSprite3D } from "./SimpleSkinnedMeshSprite3D";
 
 export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
-    /**@internal 解决循环引用 */
-    static SIMPLE_SIMPLEANIMATORTEXTURE: number;
-    /**@internal 解决循环引用*/
-    static SIMPLE_SIMPLEANIMATORPARAMS: number;
-    /**@internal 解决循环引用*/
-    static SIMPLE_SIMPLEANIMATORTEXTURESIZE: number;
+    // /**@internal 解决循环引用 */
+    // static SIMPLE_SIMPLEANIMATORTEXTURE: number;
+    // /**@internal 解决循环引用*/
+    // static SIMPLE_SIMPLEANIMATORPARAMS: number;
+    // /**@internal 解决循环引用*/
+    // static SIMPLE_SIMPLEANIMATORTEXTURESIZE: number;
 
     /**@internal */
     private _simpleAnimatorTexture: Texture2D;
@@ -51,9 +52,9 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
     set simpleAnimatorTexture(value: Texture2D) {
         this._simpleAnimatorTexture = value;
         this._simpleAnimatorTextureSize = value.width;
-        this._baseRenderNode.shaderData.setTexture(SimpleSkinnedMeshRenderer.SIMPLE_SIMPLEANIMATORTEXTURE, value);
+        this._baseRenderNode.shaderData.setTexture(SimpleSkinnedMeshSprite3D.SIMPLE_SIMPLEANIMATORTEXTURE, value);
         value._addReference();
-        this._baseRenderNode.shaderData.setNumber(SimpleSkinnedMeshRenderer.SIMPLE_SIMPLEANIMATORTEXTURESIZE, this._simpleAnimatorTextureSize);
+        this._baseRenderNode.shaderData.setNumber(SimpleSkinnedMeshSprite3D.SIMPLE_SIMPLEANIMATORTEXTURESIZE, this._simpleAnimatorTextureSize);
     }
 
     /**
@@ -86,7 +87,7 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
         this._baseRenderNode.shaderData.addDefine(SkinnedMeshSprite3DShaderDeclaration.SHADERDEFINE_SIMPLEBONE);
         this._baseRenderNode.shaderData.addDefine(SkinnedMeshSprite3DShaderDeclaration.SHADERDEFINE_BONE);
         this._baseRenderNode.renderNodeType = BaseRenderType.SimpleSkinRender;
-        this._baseRenderNode.shaderData.setVector(SimpleSkinnedMeshRenderer.SIMPLE_SIMPLEANIMATORPARAMS, new Vector4());
+        this._baseRenderNode.shaderData.setVector(SimpleSkinnedMeshSprite3D.SIMPLE_SIMPLEANIMATORPARAMS, new Vector4());
     }
 
     /**

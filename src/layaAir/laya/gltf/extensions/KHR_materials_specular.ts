@@ -11,21 +11,7 @@ import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 
 const ExtensionName = "KHR_materials_specular";
 
-declare module "../glTFInterface" {
-
-    export interface glTFMaterialSpecular {
-        /** The strength of the specular reflection. default: 1.0 */
-        specularFactor: number;
-        /** A texture that defines the strength of the specular reflection, stored in the alpha (A) channel. This will be multiplied by specularFactor. */
-        specularTexture: glTFTextureInfo;
-        /** The F0 color of the specular reflection (linear RGB). default: [1.0, 1.0, 1.0] */
-        specularColorFactor: number[];
-        /** A texture that defines the F0 color of the specular reflection, stored in the RGB channels and encoded in sRGB. This texture will be multiplied by specularColorFactor. */
-        specularColorTexture: glTFTextureInfo;
-    }
-
-}
-
+/** @internal */
 export class KHR_materials_specular implements glTFExtension {
     readonly name: string = ExtensionName;
 

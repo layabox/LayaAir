@@ -78,6 +78,8 @@ export class GLESForwardAddRP {
         value._apply(false);
         this._nativeObj.setfinalize(this._getRenderCMDArray(value._renderCMDs));
     }
+  
+   
 
     _nativeObj: any;
 

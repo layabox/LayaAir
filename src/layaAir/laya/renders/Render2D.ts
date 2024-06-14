@@ -43,9 +43,9 @@ export abstract class Render2D {
     // 有vb是外部提供的，因此，顶点描述也要由外部提供
     //abstract setVertexDecl(decl:VertexDeclaration):void;
     //shaderdata放到mtl中。之所以传内存buffer是为了给后面合并subdata机会，以便提高效率
-    abstract draw(mesh: IMesh2D, vboff: number, vblen: number, iboff: number, iblen: number, mtl: Value2D): void;
+    abstract draw(mesh: IMesh2D, vboff: number, vblen: number, iboff: number, iblen: number, mtl: Value2D, customMaterial: Material): void;
     abstract drawMesh(mesh: IRenderGeometryElement, mtl: Material): void;
-    abstract drawElement(ele:IRenderElement2D):void;
+    abstract drawElement(ele: IRenderElement2D): void;
 
     abstract renderEnd(): void;
 }
@@ -122,11 +122,11 @@ export class Render2DSimple extends Render2D {
         Render2DSimple.rendercontext2D.drawRenderElementOne(this._renderElement);
     }
 
-    drawElement(ele:IRenderElement2D){
+    drawElement(ele: IRenderElement2D) {
         Render2DSimple.rendercontext2D.drawRenderElementOne(ele);
     }
 
-    draw(mesh2d: IMesh2D, vboff: number, vblen: number, iboff: number, iblen: number, mtl: Value2D): void {
+    draw(mesh2d: IMesh2D, vboff: number, vblen: number, iboff: number, iblen: number, mtl: Value2D, customMaterial: Material): void {
         Stat.draw2D++;
         this.setVertexDecl(mesh2d.vertexDeclarition);
         let geo = this.geo;
@@ -141,7 +141,7 @@ export class Render2DSimple extends Render2D {
         geo.setDrawElemenParams(iblen / 2, 0);
 
         //Material??
-        let mat: Material;
+        let mat: Material = customMaterial;
         this._renderElement.geometry = geo;
         //this._renderElement.material = mtl;
         this._renderElement.value2DShaderData = mtl.shaderData;

@@ -7,8 +7,10 @@ import { FastSinglelist, SingletonList } from "../../../utils/SingletonList";
 import { IRenderContext3D, IRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { IRenderCMD } from "../../DriverDesign/3DRenderPass/IRendderCMD";
 import { RTCameraNodeData, RTSceneNodeData } from "../../RenderModuleData/RuntimeModuleData/3D/RT3DRenderModuleData";
+import { GLESREnderElement2D } from "../2DRenderPass/GLESRenderElement2D";
 import { GLESInternalRT } from "../RenderDevice/GLESInternalRT";
 import { GLESShaderData } from "../RenderDevice/GLESShaderData";
+import { GLESRenderElement3D } from "./GLESRenderElement3D";
 
 
 export class GLESRenderContext3D implements IRenderContext3D {
@@ -98,8 +100,14 @@ export class GLESRenderContext3D implements IRenderContext3D {
     setClearData(clearFlag: number, color: Color, depth: number, stencil: number): number {
         return this._nativeObj.setClearData(clearFlag, color, depth, stencil);
     }
-    drawRenderElementList(list: FastSinglelist<IRenderElement3D>): number {
-        return this._nativeObj.drawRenderElementList(list.elements, list.length);
+    private _tempList: any = [];
+    drawRenderElementList(list: FastSinglelist<GLESRenderElement3D>): number {
+        this._tempList.length = 0;
+        let listelement = list.elements;
+        listelement.forEach((element) => {
+            this._tempList.push(element._nativeObj);
+        });
+        return this._nativeObj.drawRenderElementList(this._tempList, list.length);
     }
     drawRenderElementOne(node: IRenderElement3D): number {
         return this._nativeObj.drawRenderElementOne((node as any)._nativeObj);

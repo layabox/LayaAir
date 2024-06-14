@@ -1,7 +1,7 @@
 import { IRenderElement2D } from "../../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
 import { Graphics } from "../../display/Graphics";
 import { Spine2DRenderNode } from "../Spine2DRenderNode";
-import { ERenderType } from "../SpineSkeleton";
+import { ESpineRenderType } from "../SpineSkeleton";
 import { SpineTemplet } from "../SpineTemplet";
 import { AnimationRender } from "./AnimationRender";
 import { AttachmentParse } from "./AttachmentParse";
@@ -15,7 +15,7 @@ import { IPreRender } from "./interface/IPreRender";
 import { ISpineOptimizeRender } from "./interface/ISpineOptimizeRender";
 
 export class SketonOptimise implements IPreRender {
-    static normalRenderSwitch: boolean = false;
+    static normalRenderSwitch: boolean = true;
     static cacheSwitch: boolean = false;
     canCache: boolean;
     sketon: spine.Skeleton;
@@ -30,6 +30,7 @@ export class SketonOptimise implements IPreRender {
 
     defaultSkinAttach: SkinAttach;
 
+    maxBoneNumber: number;
 
     constructor() {
         this.blendModeMap = new Map();
@@ -38,7 +39,7 @@ export class SketonOptimise implements IPreRender {
         this.canCache = SketonOptimise.cacheSwitch;
     }
 
-    _initSpineRender(skeleton: spine.Skeleton, templet: SpineTemplet, renderNode:Spine2DRenderNode, state: spine.AnimationState): ISpineOptimizeRender {
+    _initSpineRender(skeleton: spine.Skeleton, templet: SpineTemplet, renderNode: Spine2DRenderNode, state: spine.AnimationState): ISpineOptimizeRender {
         let sp: ISpineOptimizeRender;
         if (SketonOptimise.normalRenderSwitch) {
             sp = new SpineNormalRender();
@@ -117,6 +118,7 @@ export class SketonOptimise implements IPreRender {
     }
 
     initAnimation(animations: spine.Animation[]) {
+        let maxBoneNumber = 0;
         for (let i = 0, n = animations.length; i < n; i++) {
             let animation = animations[i];
             let animator = new AnimationRender();
@@ -124,8 +126,13 @@ export class SketonOptimise implements IPreRender {
             this.animators.push(animator);
             this.skinAttachArray.forEach((value: SkinAttach) => {
                 value.initAnimator(animator);
+                let boneNumber = value.mainVB.mapIndex.size;
+                if (boneNumber > maxBoneNumber) {
+                    maxBoneNumber = boneNumber;
+                }
             });
         }
+        this.maxBoneNumber = maxBoneNumber;
     }
 
     init(slots: spine.Slot[]) {
@@ -169,7 +176,7 @@ export class SkinAttach {
     mainVB: VBCreator;
     mainIB: IBCreator;
     hasNormalRender: boolean;
-    type: ERenderType;
+    type: ESpineRenderType;
 
     constructor() {
         this.slotAttachMap = new Map();
@@ -184,27 +191,27 @@ export class SkinAttach {
     }
 
     checkMainAttach(slots: spine.SlotData[]) {
-        let type: ERenderType = ERenderType.rigidBody;
+        let type: ESpineRenderType = ESpineRenderType.rigidBody;
         for (let i = 0, n = slots.length; i < n; i++) {
             let slot = slots[i];
             let attachment = this.slotAttachMap.get(slot.index).get(slot.attachmentName);
             let tempType = SlotUtils.checkAttachment(attachment ? attachment.sourceData : null);
             if (tempType < type) {
                 type = tempType;
-                if (type == ERenderType.normal) {
+                if (type == ESpineRenderType.normal) {
                     break;
                 }
             }
         }
         this.type = type;
         switch (this.type) {
-            case ERenderType.normal:
+            case ESpineRenderType.normal:
                 this.mainVB = new VBBoneCreator();
                 break;
-            case ERenderType.boneGPU:
+            case ESpineRenderType.boneGPU:
                 this.mainVB = new VBBoneCreator();
                 break;
-            case ERenderType.rigidBody:
+            case ESpineRenderType.rigidBody:
                 this.mainVB = new VBRigBodyCreator();
                 break;
         }

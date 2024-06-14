@@ -8,6 +8,7 @@ export class ComponentDriver {
 
     private _toStarts: Set<Component> = new Set();
     readonly _toDestroys: Set<Component> = new Set();
+
     /**
      * @internal
      * 调用组件Onstart
@@ -21,7 +22,7 @@ export class ComponentDriver {
                     ele.onStart();
                 }
                 catch (err: any) {
-                    console.log(err);
+                    this.onError(err);
                 }
             }
         }
@@ -38,7 +39,7 @@ export class ComponentDriver {
                     ele.onUpdate();
                 }
                 catch (err: any) {
-                    console.log(err);
+                    this.onError(err);
                 }
             }
         }
@@ -55,7 +56,7 @@ export class ComponentDriver {
                     ele.onLateUpdate();
                 }
                 catch (err: any) {
-                    console.log(err);
+                    this.onError(err);
                 }
             }
         }
@@ -72,7 +73,7 @@ export class ComponentDriver {
                     ele.onPreRender();
                 }
                 catch (err: any) {
-                    console.log(err);
+                    this.onError(err);
                 }
             }
         }
@@ -89,7 +90,7 @@ export class ComponentDriver {
                     ele.onPostRender();
                 }
                 catch (err: any) {
-                    console.log(err);
+                    this.onError(err);
                 }
             }
         }
@@ -105,7 +106,7 @@ export class ComponentDriver {
                 ele._destroy(true);
             }
             catch (err: any) {
-                console.log(err);
+                this.onError(err);
             }
         }
         this._toDestroys.clear();
@@ -163,5 +164,13 @@ export class ComponentDriver {
      */
     destroy() {
         //TODO:
+    }
+
+    /**
+     * 
+     * @param err 错误
+     */
+    onError(err: any) {
+        console.error(err);
     }
 }
