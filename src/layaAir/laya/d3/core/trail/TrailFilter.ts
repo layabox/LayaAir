@@ -188,15 +188,16 @@ export class TrailFilter {
 	addRenderElement(): void {
 		var render: TrailRenderer = (<TrailRenderer>this._ownerRender);
 		var elements: RenderElement[] = render._renderElements;
-		var material: TrailMaterial = (<TrailMaterial>render.sharedMaterials[0]);
-		(material) || (material = TrailMaterial.defaultMaterial);
+
 		var element: RenderElement = new RenderElement();
 		element.setTransform((this._ownerRender.owner as Sprite3D)._transform);
 		element.render = render;
-		element.material = material;
 		this._trialGeometry = new TrailGeometry(this);
 		element.setGeometry(this._trialGeometry);
 		elements.push(element);
+
+		render.sharedMaterial = render.sharedMaterial || TrailMaterial.defaultMaterial;
+		element.material = render.sharedMaterial;
 	}
 
 	/**

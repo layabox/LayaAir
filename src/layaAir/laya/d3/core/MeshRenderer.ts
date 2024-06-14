@@ -314,17 +314,21 @@ export class MeshRenderer extends BaseRender {
             this.geometryBounds = mesh.bounds;
             var count: number = mesh.subMeshCount;
             this._renderElements.length = count;
+            let materials = this.sharedMaterials;
+            materials.length = count;
             for (var i: number = 0; i < count; i++) {
                 var renderElement: RenderElement = this._renderElements[i];
                 if (!renderElement) {
-                    var material: Material = this.sharedMaterials[i];
                     renderElement = this._renderElements[i] = this._renderElements[i] ? this._renderElements[i] : this._createRenderElement();
                     this.owner && renderElement.setTransform((this.owner as Sprite3D)._transform);
                     renderElement.render = this;
-                    renderElement.material = material ? material : BlinnPhongMaterial.defaultMaterial;//确保有材质,由默认材质代替。
+
+                    materials[i] = materials[i] || BlinnPhongMaterial.defaultMaterial;
                 }
                 renderElement.setGeometry(mesh.getSubMesh(i));
             }
+
+            this.sharedMaterials = materials;
 
         } else if (!mesh) {
             this._renderElements.forEach

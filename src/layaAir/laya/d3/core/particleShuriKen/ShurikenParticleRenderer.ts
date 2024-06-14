@@ -146,7 +146,8 @@ export class ShurikenParticleRenderer extends BaseRender {
         element.setTransform((this.owner as Sprite3D)._transform);
         element.render = this;
         element.setGeometry(this._particleSystem);
-        element.material = ShurikenParticleMaterial.defaultMaterial;
+
+        this.sharedMaterial = this.sharedMaterial || ShurikenParticleMaterial.defaultMaterial;
     }
 
     protected _onEnable(): void {

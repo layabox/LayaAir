@@ -180,6 +180,10 @@ export class Laya3D {
         BlitFrameBufferCMD.__init__();
         BlinnPhongMaterial.defaultMaterial = new BlinnPhongMaterial();
         BlinnPhongMaterial.defaultMaterial.lock = true;
+        ShurikenParticleMaterial.defaultMaterial = new ShurikenParticleMaterial();
+        ShurikenParticleMaterial.defaultMaterial.lock = true;
+        TrailMaterial.defaultMaterial = new TrailMaterial();
+        TrailMaterial.defaultMaterial.lock = true;
         Texture2D.__init__();
         TextureCube.__init__();
         Texture2DArray.__init__();
