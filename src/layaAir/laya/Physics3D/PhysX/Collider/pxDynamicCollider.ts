@@ -156,8 +156,20 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
         this._pxActor.setLinearVelocity(value, true);
     }
 
+    getLinearVelocity(): Vector3 {
+        let velocity = this._pxActor.getLinearVelocity();
+        pxDynamicCollider._tempTranslation.set(velocity.x, velocity.y, velocity.z);
+        return pxDynamicCollider._tempTranslation;
+    }
+
     setAngularVelocity(value: Vector3): void {
         this._pxActor.setAngularVelocity(value, true);
+    }
+
+    getAngularVelocity(): Vector3 {
+        let angVelocity = this._pxActor.getAngularVelocity();
+        pxDynamicCollider._tempTranslation.set(angVelocity.x, angVelocity.y, angVelocity.z);
+        return pxDynamicCollider._tempTranslation;
     }
 
     setMass(value: number): void {

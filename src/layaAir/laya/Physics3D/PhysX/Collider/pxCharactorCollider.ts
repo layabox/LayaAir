@@ -213,6 +213,12 @@ export class pxCharactorCollider extends pxCollider implements ICharacterControl
         this._pxController && this._pxController.setPosition(value);
     }
 
+    getPosition(): Vector3 {
+        const v3 = this._pxController.getPosition();
+        pxCharactorCollider.tempV3.set(v3.x, v3.y, v3.z);
+        return pxCharactorCollider.tempV3;
+    }
+
     setShapelocalOffset(value: Vector3) {
         this._localOffset = value;
     }
