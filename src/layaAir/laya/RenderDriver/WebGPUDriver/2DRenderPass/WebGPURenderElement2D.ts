@@ -228,9 +228,9 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
     private _getRenderStateBlendByMaterial(shaderData: WebGPUShaderData) {
         const data = shaderData.getData();
         const blend = data[Shader3D.BLEND] ?? RenderState.Default.blend;
-        //shaderData.setInt(Shader3D.BLEND, RenderState.BLEND_ENABLE_ALL);
-        //shaderData.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_SRC_ALPHA);
-        //shaderData.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA);
+        shaderData.setInt(Shader3D.BLEND, RenderState.BLEND_ENABLE_ALL);
+        shaderData.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_SRC_ALPHA);
+        shaderData.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA);
         let blendState: any;
         switch (blend) {
             case RenderState.BLEND_DISABLE:

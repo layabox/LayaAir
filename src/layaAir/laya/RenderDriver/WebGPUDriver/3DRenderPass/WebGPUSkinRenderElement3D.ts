@@ -90,16 +90,18 @@ export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D implements 
      * @param sn 
      */
     protected _uploadGeometryEx(command: WebGPURenderCommandEncoder, bundle: WebGPURenderBundle, sn: number) {
+        let triangles = 0;
         if (command) {
             if (WebGPUGlobal.useGlobalContext)
-                WebGPUContext.applyCommandGeometryPart(command, this.geometry, sn);
-            else command.applyGeometryPart(this.geometry, sn);
+                triangles += WebGPUContext.applyCommandGeometryPart(command, this.geometry, sn);
+            else triangles += command.applyGeometryPart(this.geometry, sn);
         }
         if (bundle) {
             if (WebGPUGlobal.useGlobalContext)
-                WebGPUContext.applyBundleGeometryPart(bundle, this.geometry, sn);
-            else bundle.applyGeometryPart(this.geometry, sn);
+                triangles += WebGPUContext.applyBundleGeometryPart(bundle, this.geometry, sn);
+            else triangles += bundle.applyGeometryPart(this.geometry, sn);
         }
+        return triangles;
     }
 
     /**
@@ -196,6 +198,7 @@ export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D implements 
      * @param bundle 
      */
     _render(context: WebGPURenderContext3D, command: WebGPURenderCommandEncoder, bundle: WebGPURenderBundle) {
+        let triangles = 0;
         if (!this.geometry.skinIndicesDone) {
             this._changeDataFormat(); //转换数据格式
             this.geometry.skinIndicesDone = true;
@@ -235,18 +238,19 @@ export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D implements 
                         if (command || bundle)
                             this._bindGroup(shaderInstance, command, bundle); //绑定资源组
                         this._uploadUniform(); //上传uniform数据
-                        this._uploadGeometry(command, bundle); //上传几何数据
+                        triangles += this._uploadGeometry(command, bundle); //上传几何数据
                     } else {
                         for (let j = 0, len = this.skinnedData.length; j < len; j++) {
                             this.renderShaderDatas[j]?.setBuffer(SkinnedMeshSprite3D.BONES, this.skinnedData[j]);
                             if (command || bundle)
                                 this._bindGroupEx(shaderInstance, command, bundle, j); //绑定资源组
                             this._uploadUniformEx(j); //上传uniform数据
-                            this._uploadGeometryEx(command, bundle, j); //上传几何数据
+                            triangles += this._uploadGeometryEx(command, bundle, j); //上传几何数据
                         }
                     }
                 }
             }
         }
+        return triangles;
     }
 }

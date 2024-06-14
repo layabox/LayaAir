@@ -551,16 +551,18 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
      * @param bundle 
      */
     protected _uploadGeometry(command: WebGPURenderCommandEncoder, bundle: WebGPURenderBundle) {
+        let triangles = 0;
         if (command) {
             if (WebGPUGlobal.useGlobalContext)
-                WebGPUContext.applyCommandGeometryPart(command, this.geometry, 0);
-            else command.applyGeometryPart(this.geometry, 0);
+                triangles += WebGPUContext.applyCommandGeometryPart(command, this.geometry, 0);
+            else triangles += command.applyGeometryPart(this.geometry, 0);
         }
         if (bundle) {
             if (WebGPUGlobal.useGlobalContext)
-                WebGPUContext.applyBundleGeometryPart(bundle, this.geometry, 0);
-            else bundle.applyGeometryPart(this.geometry, 0);
+                triangles += WebGPUContext.applyBundleGeometryPart(bundle, this.geometry, 0);
+            else triangles += bundle.applyGeometryPart(this.geometry, 0);
         }
+        return triangles;
     }
 
     /**
@@ -606,6 +608,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
      */
     _render(context: WebGPURenderContext3D, command: WebGPURenderCommandEncoder, bundle: WebGPURenderBundle) {
         //如果command和bundle都是null，则只上传shaderData数据，不执行bindGroup操作
+        let triangles = 0;
         if (this.isRender) {
             let stateKey;
             for (let i = 0; i < this._passNum; i++) {
@@ -641,10 +644,11 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
                         this._uploadStencilReference(command); //上传模板参考值，bundle不支持
                     }
                     this._uploadUniform(); //上传uniform数据
-                    this._uploadGeometry(command, bundle); //上传几何数据
+                    triangles += this._uploadGeometry(command, bundle); //上传几何数据
                 }
             }
         }
+        return triangles;
     }
 
     /**

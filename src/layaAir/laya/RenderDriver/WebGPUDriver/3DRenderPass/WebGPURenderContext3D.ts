@@ -1,5 +1,6 @@
 import { Laya } from "../../../../Laya";
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
+import { GPUEngineStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
 import { Color } from "../../../maths/Color";
 import { Vector4 } from "../../../maths/Vector4";
 import { Viewport } from "../../../maths/Viewport";
@@ -433,6 +434,8 @@ export class WebGPURenderContext3D implements IRenderContext3D {
         this.device.queue.submit([this.renderCommand.finish()]);
         this._needStart = true;
         WebGPUStatis.addSubmit(); //统计提交次数
+
+        WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.C_DrawCallCount, 1);
     }
 
     /**

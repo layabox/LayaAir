@@ -1,9 +1,11 @@
 import { Laya } from "../../../../../Laya";
 import { DrawType } from "../../../../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../../../../RenderEngine/RenderEnum/IndexFormat";
+import { GPUEngineStatisticsInfo } from "../../../../RenderEngine/RenderEnum/RenderStatInfo";
 import { WebGPURenderContext3D } from "../../3DRenderPass/WebGPURenderContext3D";
 import { WebGPURenderElement3D } from "../../3DRenderPass/WebGPURenderElement3D";
 import { WebGPUInternalRT } from "../WebGPUInternalRT";
+import { WebGPURenderEngine } from "../WebGPURenderEngine";
 import { WebGPURenderGeometry } from "../WebGPURenderGeometry";
 import { WebGPURenderPassHelper } from "../WebGPURenderPassHelper";
 
@@ -15,6 +17,7 @@ import { WebGPURenderPassHelper } from "../WebGPURenderPassHelper";
  * 对于动态节点，要求命中率为100%，对于静态节点，要求命中率可低于100%（比如70%）
  */
 export class WebGPURenderBundle {
+    private _engine: WebGPURenderEngine;
     private _encoder: GPURenderBundleEncoder; //渲染命令编码器
     private _elements: Set<number>; //包含渲染节点id集合
     private _shotNum: number = 0; //命中渲染节点数量
@@ -22,7 +25,8 @@ export class WebGPURenderBundle {
     private _shotRateSet: number = 0.7; //命中率设置
     private _shotEstimate: number = 0; //命中率评估次数
     renderBundle: GPURenderBundle; //渲染命令缓存对象
-    renderTimeStamp: number; //被渲染时的时间戳
+    renderTimeStamp: number = 0; //渲染时间戳
+    renderTriangles: number = 0; //渲染三角形数量
 
     id: number; //缓存对象id
     static idCounter: number = 0; //缓存对象id计数器
@@ -34,6 +38,7 @@ export class WebGPURenderBundle {
             = WebGPURenderPassHelper.getBundleDescriptor(dest);
         this.id = WebGPURenderBundle.idCounter++;
         desc.label = `BundleEncoder_${this.id}`;
+        this._engine = WebGPURenderEngine._instance;
         this._encoder = device.createRenderBundleEncoder(desc);
         this._shotRateSet = shotRateSet;
     }
@@ -45,7 +50,7 @@ export class WebGPURenderBundle {
      */
     render(context: WebGPURenderContext3D, element: WebGPURenderElement3D) {
         this._elements.add(element.bundleId);
-        element._render(context, null, this);
+        this.renderTriangles += element._render(context, null, this);
         this._shotNum++;
         this.renderTimeStamp = Laya.timer.currTimer;
     }
@@ -166,7 +171,7 @@ export class WebGPURenderBundle {
      * @param geometry 
      * @param setBuffer 
      */
-    applyGeometry(geometry: WebGPURenderGeometry, setBuffer: boolean = true): void {
+    applyGeometry(geometry: WebGPURenderGeometry, setBuffer: boolean = true) {
         //解构geometry中的属性，减少代码重复
         const { bufferState, indexFormat, drawType, instanceCount, _drawArrayInfo, _drawElementInfo } = geometry;
         const { _vertexBuffers: vertexBuffers, _bindedIndexBuffer: indexBuffer } = bufferState;
@@ -179,21 +184,40 @@ export class WebGPURenderBundle {
             }
         }
 
+        //绘制的三角形数量
+        let triangles = 0;
+
         //根据不同的数据类型绘制
         switch (drawType) {
             case DrawType.DrawArray:
-                _drawArrayInfo.forEach(({ count, start }) => this._encoder.draw(count, 1, start, 0));
+                _drawArrayInfo.forEach(({ count, start }) => {
+                    triangles += count - 2;
+                    this._encoder.draw(count, 1, start, 0);
+                });
                 break;
             case DrawType.DrawElement:
-                _drawElementInfo.forEach(({ elementCount, elementStart }) => this._encoder.drawIndexed(elementCount, 1, elementStart, 0));
+                _drawElementInfo.forEach(({ elementCount, elementStart }) => {
+                    triangles += elementCount / 3;
+                    this._encoder.drawIndexed(elementCount, 1, elementStart, 0);
+                });
                 break;
             case DrawType.DrawArrayInstance:
-                _drawArrayInfo.forEach(({ count, start }) => this._encoder.draw(count, instanceCount, start, 0));
+                _drawArrayInfo.forEach(({ count, start }) => {
+                    triangles += (count - 2) * instanceCount;
+                    this._encoder.draw(count, instanceCount, start, 0);
+                    this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.C_Instancing_DrawCallCount, 1);
+                });
                 break;
             case DrawType.DrawElementInstance:
-                _drawElementInfo.forEach(({ elementCount, elementStart }) => this._encoder.drawIndexed(elementCount, instanceCount, elementStart, 0));
+                _drawElementInfo.forEach(({ elementCount, elementStart }) => {
+                    triangles += elementCount / 3 * instanceCount;
+                    this._encoder.drawIndexed(elementCount, instanceCount, elementStart, 0);
+                    this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.C_Instancing_DrawCallCount, 1);
+                });
                 break;
         }
+        this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.C_TriangleCount, triangles);
+        return triangles;
     }
 
     /**
@@ -202,7 +226,7 @@ export class WebGPURenderBundle {
      * @param part 
      * @param setBuffer 
      */
-    applyGeometryPart(geometry: WebGPURenderGeometry, part: number, setBuffer: boolean = true): void {
+    applyGeometryPart(geometry: WebGPURenderGeometry, part: number, setBuffer: boolean = true) {
         //解构geometry中的属性，减少代码重复
         const { bufferState, indexFormat, drawType, instanceCount, _drawArrayInfo, _drawElementInfo } = geometry;
         const { _vertexBuffers: vertexBuffers, _bindedIndexBuffer: indexBuffer } = bufferState;
@@ -219,30 +243,41 @@ export class WebGPURenderBundle {
             }
         }
 
+        //绘制的三角形数量
+        let triangles = 0;
+
         //根据不同的数据类型绘制
         let count = 0, start = 0;
         switch (drawType) {
             case DrawType.DrawArray:
                 count = _drawArrayInfo[part].count;
                 start = _drawArrayInfo[part].start;
+                triangles = count - 2;
                 this._encoder.draw(count, 1, start, 0);
                 break;
             case DrawType.DrawElement:
                 count = _drawElementInfo[part].elementCount;
                 start = _drawElementInfo[part].elementStart;
+                triangles = count / 3;
                 this._encoder.drawIndexed(count, 1, start / indexByte, 0);
                 break;
             case DrawType.DrawArrayInstance:
                 count = _drawArrayInfo[part].count;
                 start = _drawArrayInfo[part].start;
+                triangles = (count - 2) * instanceCount;
                 this._encoder.draw(count, instanceCount, start, 0);
+                this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.C_Instancing_DrawCallCount, 1);
                 break;
             case DrawType.DrawElementInstance:
                 count = _drawElementInfo[part].elementCount;
                 start = _drawElementInfo[part].elementStart;
+                triangles += count / 3 * instanceCount;
                 this._encoder.drawIndexed(count, instanceCount, start / indexByte, 0);
+                this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.C_Instancing_DrawCallCount, 1);
                 break;
         }
+        this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.C_TriangleCount, triangles);
+        return triangles;
     }
 
     /**

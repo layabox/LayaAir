@@ -1,6 +1,8 @@
 import { Laya } from "../../../../../Laya";
+import { GPUEngineStatisticsInfo } from "../../../../RenderEngine/RenderEnum/RenderStatInfo";
 import { WebGPURenderContext3D } from "../../3DRenderPass/WebGPURenderContext3D";
 import { WebGPURenderElement3D } from "../../3DRenderPass/WebGPURenderElement3D";
+import { WebGPURenderEngine } from "../WebGPURenderEngine";
 import { WebGPURenderBundle } from "./WebGPURenderBundle";
 
 /**
@@ -11,6 +13,7 @@ export class WebGPURenderBundleManager {
     elementsMaxPerBundleDynamic: number = 30; //每个Bundle最大元素数量（动态节点）
     bundles: WebGPURenderBundle[] = []; //所有渲染指令缓存对象
     renderTimeStamp: number; //被渲染时的时间戳
+    private _triangles: number = 0; //渲染三角形数量
     private _elementsMap: Map<number, WebGPURenderBundle> = new Map(); //所有渲染节点id集合
     private _renderBundles: GPURenderBundle[] = []; //提交的渲染命令缓存对象
     private _needUpdateRenderBundles: boolean = false; //是否需要更新渲染命令缓存对象
@@ -23,13 +26,17 @@ export class WebGPURenderBundleManager {
         const rbs = this._renderBundles;
         if (this._needUpdateRenderBundles) {
             rbs.length = 0;
-            for (let i = 0, len = this.bundles.length; i < len; i++)
+            this._triangles = 0;
+            for (let i = 0, len = this.bundles.length; i < len; i++) {
                 rbs.push(this.bundles[i].renderBundle);
+                this._triangles += this.bundles[i].renderTriangles;
+            }
             this._needUpdateRenderBundles = false;
         }
         passEncoder.executeBundles(rbs);
         this.renderTimeStamp = Laya.timer.currTimer;
-        //console.log('renderBundle =', rbs.length, this.renderTimeStamp);
+        //console.log('renderBundle =', rbs.length, this.renderTimeStamp, this._triangles);
+        WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.C_TriangleCount, this._triangles);
     }
 
     /**
