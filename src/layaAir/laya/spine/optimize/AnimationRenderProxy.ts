@@ -26,9 +26,7 @@ export class AnimationRenderProxy {
         this.currentTime = -1;
         this.currentFrameIndex = -2;
     }
-
-    render(bones: spine.Bone[], slots: spine.Slot[], updator: IVBIBUpdate, curTime: number,boneMat:Float32Array) {
-        //debugger;
+    renderWithOutMat(slots: spine.Slot[], updator: IVBIBUpdate, curTime: number){
         let beforeFrame = this.currentFrameIndex;
         let nowFrame = this.animator.getFrameIndex(curTime, beforeFrame);
         let currentSKin = this.currentSKin;
@@ -43,6 +41,11 @@ export class AnimationRenderProxy {
             this.currentTime = curTime;
             this.currentFrameIndex = nowFrame;
         }
-        currentSKin.updateBoneMat(curTime,this.animator,bones,this.state,boneMat);
+    }
+
+    render(bones: spine.Bone[], slots: spine.Slot[], updator: IVBIBUpdate, curTime: number,boneMat:Float32Array) {
+        //debugger;
+        this.renderWithOutMat(slots,updator,curTime);
+        this.currentSKin.updateBoneMat(curTime,this.animator,bones,this.state,boneMat);
     }
 }
