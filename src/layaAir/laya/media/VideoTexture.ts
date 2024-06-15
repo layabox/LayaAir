@@ -83,7 +83,7 @@ export class VideoTexture extends BaseTexture {
             ele.setAttribute('playsinline', 'true');
             ele.setAttribute('x5-playsinline', 'true');
             ele.setAttribute('webkit-playsinline', 'true');
-            ele.autoplay = true;
+            //ele.autoplay = true;
         }
 
         ele.addEventListener("loadedmetadata", () => {
