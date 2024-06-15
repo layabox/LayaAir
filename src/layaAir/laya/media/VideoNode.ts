@@ -26,7 +26,7 @@ export class VideoNode extends Sprite {
 
         this.texture = this._internalTex = new Texture();
 
-        if (LayaEnv.isPlaying && ILaya.Browser.onMobile) {
+        if (LayaEnv.isPlaying && ILaya.Browser.onMobile&& !LayaEnv.isConch) {
             let func = () => {
                 ILaya.Browser.document.removeEventListener("touchend", func);
 
