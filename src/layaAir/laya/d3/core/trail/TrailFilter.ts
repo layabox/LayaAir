@@ -196,8 +196,7 @@ export class TrailFilter {
 		element.setGeometry(this._trialGeometry);
 		elements.push(element);
 
-		render.sharedMaterial = render.sharedMaterial || TrailMaterial.defaultMaterial;
-		element.material = render.sharedMaterial;
+		render.sharedMaterial = render.sharedMaterial;
 	}
 
 	/**

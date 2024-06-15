@@ -147,7 +147,7 @@ export class ShurikenParticleRenderer extends BaseRender {
         element.render = this;
         element.setGeometry(this._particleSystem);
 
-        this.sharedMaterial = this.sharedMaterial || ShurikenParticleMaterial.defaultMaterial;
+        this.sharedMaterial = this.sharedMaterial;
     }
 
     protected _onEnable(): void {

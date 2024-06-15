@@ -401,7 +401,7 @@ export class BaseRender extends Component implements IBoundsCell {
             sharedMats.length = count;
         }
         else {
-            throw new Error("BaseRender: shadredMaterials value can't be null.");
+            this._sharedMaterials = [];
         }
         this._isSupportRenderFeature();
     }

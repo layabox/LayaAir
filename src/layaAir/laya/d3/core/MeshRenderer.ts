@@ -322,8 +322,6 @@ export class MeshRenderer extends BaseRender {
                     renderElement = this._renderElements[i] = this._renderElements[i] ? this._renderElements[i] : this._createRenderElement();
                     this.owner && renderElement.setTransform((this.owner as Sprite3D)._transform);
                     renderElement.render = this;
-
-                    materials[i] = materials[i] || BlinnPhongMaterial.defaultMaterial;
                 }
                 renderElement.setGeometry(mesh.getSubMesh(i));
             }
@@ -339,58 +337,6 @@ export class MeshRenderer extends BaseRender {
             this._mesh = null;
             this._changeVertexDefine(null);
             this._changeMorphData(null);
-        }
-        this.boundsChange = true;
-        // if (this._octreeNode && this._indexInOctreeMotionList === -1) {
-        // 	this._octreeNode.getManagerNode().addMotionObject(this);
-        // }
-    }
-
-
-    /**
-     * @internal
-     * 开启多材质 多element模式
-     */
-    updateMulPassRender(): void {
-        const filter = this.owner.getComponent(MeshFilter);
-        if (!filter)
-            return;
-        const mesh = filter.sharedMesh;
-        if (mesh) {
-            var subCount: number = mesh.subMeshCount;
-            var matCount = this._sharedMaterials.length;
-            if (subCount > matCount) {
-                let count = subCount
-                this._renderElements.length = count;
-                for (var i: number = 0; i < count; i++) {
-                    var renderElement: RenderElement = this._renderElements[i];
-                    if (!renderElement) {
-                        var material: Material = this.sharedMaterials[i];
-                        renderElement = this._renderElements[i] = this._renderElements[i] ? this._renderElements[i] : this._createRenderElement();
-                        renderElement.setTransform((this.owner as Sprite3D)._transform);
-                        renderElement.render = this;
-                        renderElement.material = material ? material : BlinnPhongMaterial.defaultMaterial;//确保有材质,由默认材质代替。
-                    }
-                    renderElement.setGeometry(mesh.getSubMesh(i));
-                }
-            } else {
-                let count = matCount;
-                this._renderElements.length = count;
-                for (var i: number = 0; i < count; i++) {
-                    var renderElement: RenderElement = this._renderElements[i];
-                    if (!renderElement) {
-                        var material: Material = this.sharedMaterials[i];
-                        renderElement = this._renderElements[i] = this._renderElements[i] ? this._renderElements[i] : this._createRenderElement();
-                        renderElement.setTransform((this.owner as Sprite3D)._transform);
-                        renderElement.render = this;
-                        renderElement.material = material ? material : BlinnPhongMaterial.defaultMaterial;//确保有材质,由默认材质代替。
-                    }
-                }
-                renderElement.setGeometry(mesh.getSubMesh(count % subCount));
-            }
-
-        } else {
-            this._renderElements.length = 0;
         }
         this.boundsChange = true;
         // if (this._octreeNode && this._indexInOctreeMotionList === -1) {

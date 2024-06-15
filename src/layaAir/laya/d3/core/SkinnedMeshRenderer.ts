@@ -224,6 +224,8 @@ export class SkinnedMeshRenderer extends MeshRenderer {
             this._mesh = mesh;
             var count: number = mesh.subMeshCount;
             this._renderElements.length = count;
+            let materials = this.sharedMaterials;
+            materials.length = count;
             for (var i: number = 0; i < count; i++) {
                 var renderElement: SkinRenderElement = this._renderElements[i];
                 if (!renderElement) {
@@ -235,10 +237,10 @@ export class SkinnedMeshRenderer extends MeshRenderer {
                         renderElement.setTransform((this.owner as Sprite3D)._transform);
                     }
                     renderElement.render = this;
-                    renderElement.material = material ? material : BlinnPhongMaterial.defaultMaterial;//确保有材质,由默认材质代替。
                 }
                 renderElement.setGeometry(mesh.getSubMesh(i));
             }
+            this.sharedMaterials = materials;
         } else if (!mesh) {
             this._renderElements.length = 0;
             this._mesh = null;
