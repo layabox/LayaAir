@@ -349,14 +349,17 @@ export class BaseRender extends Component implements IBoundsCell {
     }
 
     set sharedMaterial(value: Material) {
-        var lastValue: Material = this._sharedMaterials[0];
-        if (lastValue !== value) {
-            this._sharedMaterials[0] = value;
+
+        let lastMat = this._sharedMaterials[0];
+        this._changeMaterialReference(lastMat, value);
+        this._sharedMaterials[0] = value;
+
+        let element = this._renderElements[0];
+        if (element && element.material !== value) {
             this._materialsInstance[0] = false;
-            this._changeMaterialReference(lastValue, value);
-            var renderElement: RenderElement = this._renderElements[0];
-            (renderElement) && (renderElement.material = value);
+            element.material = value;
         }
+
         this._isSupportRenderFeature();
     }
 
@@ -371,28 +374,25 @@ export class BaseRender extends Component implements IBoundsCell {
         var materialsInstance: boolean[] = this._materialsInstance;
         var sharedMats: Material[] = this._sharedMaterials;
 
-        for (var i: number = 0, n: number = sharedMats.length; i < n; i++) {
-            var lastMat: Material = sharedMats[i];
-            (lastMat) && (lastMat._removeReference());
-        }
-
         if (value) {
-            var count: number = value.length;
-            for (i = 0; i < count; i++) {
-                lastMat = sharedMats[i];
-                var mat: Material = value[i];
-                if (lastMat !== mat) {
-                    materialsInstance[i] = false;
-                    var renderElement: RenderElement = this._renderElements[i];
-                    (renderElement) && (renderElement.material = mat);
-                }
-                if (mat) {
-                    mat._addReference();
-                }
+            let count = value.length;
+            for (let i = 0; i < count; i++) {
+                let mat = value[i];
+                let lastMat = sharedMats[i];
+                this._changeMaterialReference(lastMat, mat);
                 sharedMats[i] = mat;
+
+                let element = this._renderElements[i];
+                if (element && element.material !== mat) {
+                    materialsInstance[i] = false;
+                    element.material = mat;
+                }
             }
 
-            for (i = count, n = sharedMats.length; i < n; i++) {
+            for (let i = count, n = sharedMats.length; i < n; i++) {
+                let mat = sharedMats[i];
+                mat && mat._removeReference();
+
                 let renderElement = this._renderElements[i];
                 renderElement && (renderElement.material = null);
             }
@@ -401,6 +401,11 @@ export class BaseRender extends Component implements IBoundsCell {
             sharedMats.length = count;
         }
         else {
+            for (var i = 0, n = sharedMats.length; i < n; i++) {
+                let lastMat = sharedMats[i];
+                (lastMat) && (lastMat._removeReference());
+            }
+
             this._sharedMaterials = [];
         }
         this._isSupportRenderFeature();

@@ -229,7 +229,6 @@ export class SkinnedMeshRenderer extends MeshRenderer {
             for (var i: number = 0; i < count; i++) {
                 var renderElement: SkinRenderElement = this._renderElements[i];
                 if (!renderElement) {
-                    var material: Material = this.sharedMaterials[i];
                     renderElement = this._renderElements[i] = this._renderElements[i] ? this._renderElements[i] : this._createRenderElement();
                     if (this._cacheRootBone) {
                         renderElement.setTransform(this._cacheRootBone._transform);
@@ -237,6 +236,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
                         renderElement.setTransform((this.owner as Sprite3D)._transform);
                     }
                     renderElement.render = this;
+                    materials[i] = materials[i] || BlinnPhongMaterial.defaultMaterial;
                 }
                 renderElement.setGeometry(mesh.getSubMesh(i));
             }

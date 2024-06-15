@@ -323,6 +323,7 @@ export class MeshRenderer extends BaseRender {
                     this.owner && renderElement.setTransform((this.owner as Sprite3D)._transform);
                     renderElement.render = this;
                 }
+                materials[i] = materials[i] || BlinnPhongMaterial.defaultMaterial;
                 renderElement.setGeometry(mesh.getSubMesh(i));
             }
 
