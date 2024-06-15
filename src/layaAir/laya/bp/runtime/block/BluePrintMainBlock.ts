@@ -77,7 +77,7 @@ export class BluePrintMainBlock extends BluePrintComplexBlock {
         const caller = args.shift();
 
         const funcContext: IRunAble = caller[BlueprintFactory.contextSymbol];
-        originFunc && originFunc.call(caller, args);
+        originFunc && originFunc.apply(caller, args);
         (caller[BlueprintFactory.bpSymbol] as BlueprintRuntime).run(funcContext, this.eventMap.get(eventName), args, null);
     }
 
