@@ -36,8 +36,8 @@ export class BlurFilter extends Filter {
     }
 
     set strength(v: number) {
-        this._strength = v;
-        var sigma = this.strength / 3.0;//3σ以外影响很小。即当σ=1的时候，半径为3;
+        this._strength = Math.max(Math.abs(v),2);//<2的话，函数太细太高不适合下面的方法
+        var sigma = this._strength / 3.0;//3σ以外影响很小。即当σ=1的时候，半径为3;
         var sigma2 = sigma * sigma;
         let v1 = this._shaderV1 = new Vector4(this.strength, sigma2,
             2.0 * sigma2,
@@ -46,21 +46,19 @@ export class BlurFilter extends Filter {
         //由于目前shader中写死了blur宽度是9，相当于希望3σ是4，可是实际使用的时候经常会strength超过4，
         //这时候blur范围内的积分<1会导致变暗变透明，所以需要计算实际积分值进行放大
         //使用公式计算误差较大，直接累加把
-        if (this.strength > 4) {
-            let s = 0;
-            let key = Math.floor(this.strength * 10);
-            if (_definiteIntegralMap[key] != undefined) {
-                s = _definiteIntegralMap[key];
-            }else{
-                for (let y = -4; y <= 4; ++y) {
-                    for (let x = -4; x <= 4; ++x) {
-                        s += v1.w * Math.exp(-(x * x + y * y) / v1.z);
-                    }
+        let s = 0;
+        let key = Math.floor(this.strength * 10);
+        if (_definiteIntegralMap[key] != undefined) {
+            s = _definiteIntegralMap[key];
+        }else{
+            for (let y = -4; y <= 4; ++y) {
+                for (let x = -4; x <= 4; ++x) {
+                    s += v1.w * Math.exp(-(x * x + y * y) / v1.z);
                 }
-                _definiteIntegralMap[key] = s;
             }
-            v1.w /= s;
+            _definiteIntegralMap[key] = s;
         }
+        v1.w /= s;
     }
 
     render(srctexture: RenderTexture2D, width: number, height: number): void {
