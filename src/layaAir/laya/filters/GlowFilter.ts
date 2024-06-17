@@ -14,10 +14,8 @@ import { Filter } from "./Filter";
  */
 export class GlowFilter extends Filter {
 
-    /**数据的存储，顺序R,G,B,A,blurWidth,offX,offY;*/
-    private _elements = new Float32Array(9);
     /**@internal */
-    _sv_blurInfo1: number[] = new Array(4);	//给shader用
+    _sv_blurInfo1: number[] = new Array(4);	//x,blurWidth,offx,offy
     /**@internal */
     _sv_blurInfo2 = [0, 0, 1, 0];
     /**滤镜的颜色*/
@@ -33,6 +31,7 @@ export class GlowFilter extends Filter {
     private shaderDataCopy: TextureSV;
     private textureExtend: RenderTexture2D;    //扩展边界用
     private shaderDataCopy1: TextureSV;
+    private _flipY = false;
 
     /**
      * 创建发光滤镜
@@ -48,20 +47,36 @@ export class GlowFilter extends Filter {
         this.blur = Math.min(blur, 20);
         this.offX = offX;
         this.offY = offY;
-        this._sv_blurInfo1[0] = this._sv_blurInfo1[1] = this.blur; this._sv_blurInfo1[2] = offX; this._sv_blurInfo1[3] = -offY;
-        //this._glRender = new GlowFilterGLRender();
+        this._sv_blurInfo1[1] = this.blur;
         this.shaderDataBlur = new TextureSV();
+        this.shaderDataBlur.u_blurInfo1 = new Vector4();
+        this.shaderDataBlur.u_blurInfo2 = new Vector4();
+        this.shaderDataBlur.color = new Vector4();
+        this.shaderDataBlur.size = new Vector2();
+        this.shaderDataBlur.blurInfo = new Vector2();
         this.shaderDataCopy = new TextureSV();
+        this.shaderDataCopy.size = new Vector2();
         this.shaderDataCopy1 = new TextureSV();
     }
 
-    private _fillQuad(x: number, y: number, w: number, h: number, uvrect = [0, 0, 1, 1]) {
+    private _fillQuad(x: number, y: number, w: number, h: number, flipY=false) {
+        let uvrect:number[];
+        if (flipY) {
+            uvrect = [0, 1, 1, 0];
+        } else {
+            uvrect = [0, 0, 1, 1];
+        }
         let rectVB = this._rectMeshVB;
         let stridef32 = this._rectMesh.vertexDeclarition.vertexStride / 4;
         rectVB[0] = x; rectVB[1] = y; rectVB[2] = uvrect[0]; rectVB[3] = uvrect[1];
         rectVB[stridef32] = x + w; rectVB[stridef32 + 1] = y; rectVB[stridef32 + 2] = uvrect[2]; rectVB[stridef32 + 3] = uvrect[1];
         rectVB[stridef32 * 2] = x + w; rectVB[stridef32 * 2 + 1] = y + h; rectVB[stridef32 * 2 + 2] = uvrect[2]; rectVB[stridef32 * 2 + 3] = uvrect[3];
         rectVB[stridef32 * 3] = y; rectVB[stridef32 * 3 + 1] = y + h; rectVB[stridef32 * 3 + 2] = uvrect[0]; rectVB[stridef32 * 3 + 3] = uvrect[3];
+    }
+
+    override useFlipY(b: boolean) {
+        super.useFlipY(b);
+        this._flipY = b;
     }
 
     /**
@@ -80,7 +95,6 @@ export class GlowFilter extends Filter {
         this.width = outTexWidth;
         this.height = outTexHeight;
 
-
         //先把贴图画到扩展后的贴图上，这样可以避免处理边界问题。后面直接拿着扩展后的贴图处理就行了
         if (!this.textureExtend || this.textureExtend.destroyed || this.textureExtend.width != outTexWidth ||
             this.textureExtend.height != outTexHeight) {
@@ -94,7 +108,7 @@ export class GlowFilter extends Filter {
         render2d.renderStart(true, new Color(0, 0, 0, 0));
         this.shaderDataCopy1.size = new Vector2(outTexWidth, outTexHeight);
         this.shaderDataCopy1.textureHost = srctexture;
-        this._fillQuad(marginLeft, marginTop, srctexture.width, srctexture.height);
+        this._fillQuad(marginLeft, marginTop, srctexture.width, srctexture.height,this._flipY);
         render2d.draw(
             this._rectMesh,
             0, 4 * this._rectMesh.vertexDeclarition.vertexStride,
@@ -102,6 +116,7 @@ export class GlowFilter extends Filter {
             this.shaderDataCopy1,null);
         render2d.renderEnd();
 
+        //下面要画模糊的部分
         if (!this.texture || this.texture.destroyed || this.texture.width != outTexWidth || this.texture.height != outTexHeight) {
             if (this.texture)
                 this.texture.destroy();
@@ -109,35 +124,34 @@ export class GlowFilter extends Filter {
         }
 
         render2d = render2d.clone(this.texture)
-        //render2d.out = this.texture;
         render2d.renderStart(true, new Color(0, 0, 0, 0));
-        //修改mesh
-        this._fillQuad(0, 0, outTexWidth, outTexHeight, [0, 1, 1, 0]);    //翻转y
+        //翻转的解释：不管上面的this._flipY的值，这里都要翻转，this._flipY表示源rt是否要翻转，跟这里没有关系
+        //这里是指是否要翻转 this.textureExtend，所以必须是true
+        this._fillQuad(0, 0, outTexWidth, outTexHeight, true);    //翻转y
 
         //srctexture.wrapModeU = WrapMode.Clamp;
         //srctexture.wrapModeV = WrapMode.Clamp;
 
-        //shaderdata
         let shadersv = this.shaderDataBlur;
         shadersv.shaderData.addDefine(ShaderDefines2D.FILTERGLOW);
-        shadersv.size = new Vector2(outTexWidth, outTexHeight);
+        shadersv.size.setValue(outTexWidth, outTexHeight);
         shadersv.textureHost = this.textureExtend;
-        shadersv.blurInfo = new Vector2(outTexWidth, outTexHeight);
-        shadersv.u_blurInfo1 = new Vector4(this._sv_blurInfo1[0], this._sv_blurInfo1[1], this._sv_blurInfo1[2], this._sv_blurInfo1[3])
-        shadersv.u_blurInfo2 = new Vector4(srctexture.width, srctexture.height, this._sv_blurInfo2[2], this._sv_blurInfo2[3]);
+        shadersv.blurInfo.setValue(outTexWidth, outTexHeight);
+        shadersv.u_blurInfo1.setValue(this._sv_blurInfo1[0], this._sv_blurInfo1[1], this._sv_blurInfo1[2], this._sv_blurInfo1[3])
+        shadersv.u_blurInfo2.setValue(srctexture.width, srctexture.height, this._sv_blurInfo2[2], this._sv_blurInfo2[3]);
         let color = this.getColor();
-        shadersv.color = new Vector4(color[0], color[1], color[2], color[3]);
+        shadersv.color.setValue(color[0], color[1], color[2], color[3]);
         //模糊的底
         render2d.draw(
             this._rectMesh,
             0, 4 * this._rectMesh.vertexDeclarition.vertexStride,
             0, 12,
             shadersv,null);
-        //覆盖一下原始图片
+        //最后覆盖一下原始图片
         let shadercpy = this.shaderDataCopy;
-        shadercpy.size = new Vector2(outTexWidth, outTexHeight);
+        shadercpy.size.setValue(outTexWidth, outTexHeight);
         shadercpy.textureHost = srctexture;
-        this._fillQuad(marginLeft, marginTop, srctexture.width, srctexture.height);
+        this._fillQuad(marginLeft, marginTop, srctexture.width, srctexture.height,this._flipY);
         render2d.draw(
             this._rectMesh,
             0, 4 * this._rectMesh.vertexDeclarition.vertexStride,
@@ -154,23 +168,21 @@ export class GlowFilter extends Filter {
 
     /**@private Y偏移值*/
     get offY(): number {
-        return this._elements[6];
+        return this._sv_blurInfo1[3];
     }
 
     /**@private */
     set offY(value: number) {
-        this._elements[6] = value;
-        this._sv_blurInfo1[3] = -value;
+        this._sv_blurInfo1[3] = value;
     }
 
     /**@private X偏移值*/
     get offX(): number {
-        return this._elements[5];
+        return this._sv_blurInfo1[2];
     }
 
     /**@private */
     set offX(value: number) {
-        this._elements[5] = value;
         this._sv_blurInfo1[2] = value;
     }
 
@@ -191,12 +203,11 @@ export class GlowFilter extends Filter {
 
     /**@private 模糊值*/
     get blur(): number {
-        return this._elements[4];
+        return this._sv_blurInfo1[1];
     }
 
     /**@private */
     set blur(value: number) {
-        this._elements[4] = value;
         this._sv_blurInfo1[0] = this._sv_blurInfo1[1] = value;
     }
 

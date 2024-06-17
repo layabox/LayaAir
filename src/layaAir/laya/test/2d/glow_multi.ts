@@ -5,6 +5,7 @@ import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { Stage } from "../../display/Stage";
 import { Sprite } from "../../display/Sprite";
 import { BlurFilter } from "../../filters/BlurFilter";
+import { GlowFilter } from "../../filters/GlowFilter";
 
 //HierarchyLoader和MaterialLoader等是通过前面的import完成的
 
@@ -22,7 +23,7 @@ async function test(){
     sp.pos(100,100);
     sp.graphics.drawRect(20,20,10,10,'white');
     sp.graphics.drawRect(40,40,100,100,'white');
-    sp.filters=[new BlurFilter(10),new BlurFilter(10)];
+    sp.filters=[new GlowFilter('#ff00ff',1,-10,-10),new BlurFilter(10),new GlowFilter('#ff00ff',1,-10,-10),new GlowFilter('#ff00ff',1,-10,-10)];
     Laya.stage.addChild(sp);
 
     let ss = new Sprite();
