@@ -132,13 +132,25 @@ export class SketonOptimise implements IPreRender {
                 value.initAnimator(animator);
             });
             animator.skinDataArray.forEach((skinData) => {
-                let boneNumber = skinData.vb.boneArray.length/2;
+                let boneNumber = skinData.vb.boneArray.length / 2;
                 if (boneNumber > maxBoneNumber) {
                     maxBoneNumber = boneNumber;
                 }
             });
         }
         this.maxBoneNumber = maxBoneNumber;
+    }
+
+    cacheBone() {
+        if(!SketonOptimise.cacheSwitch){
+            for (let i = 0, n = this.animators.length; i < n; i++) {
+                let animator = this.animators[i];
+                if(animator.boneFrames.length==0){
+                    animator.cacheBones(this);
+                }
+                //animator.cacheBone();
+            }
+        }
     }
 
     init(slots: spine.Slot[]) {
@@ -297,4 +309,5 @@ export type TSpineBakeData = {
     bonesNums: number;
     aniOffsetMap: { [key: string]: number };
     texture2d?: Texture2D;
+    simpPath?:string;
 }
