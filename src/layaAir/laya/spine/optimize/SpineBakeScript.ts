@@ -2,6 +2,7 @@ import { Laya } from "../../../Laya";
 import { TextureFormat } from "../../RenderEngine/RenderEnum/TextureFormat";
 import { Script } from "../../components/Script";
 import { Loader } from "../../net/Loader";
+import { ClassUtils } from "../../utils/ClassUtils";
 import { SpineOptimizeRender } from "./SpineOptimizeRender";
 import { ISpineOptimizeRender } from "./interface/ISpineOptimizeRender";
 
@@ -25,3 +26,5 @@ export class SpineBakeScript extends Script {
     }
     // width: number, height: number, format: TextureFormat, mipmap: boolean = true, canRead: boolean, sRGB: boolean = false, premultiplyAlpha: boolean = false
 }
+
+ClassUtils.regClass("SpineBakeScript", SpineBakeScript);
