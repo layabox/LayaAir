@@ -1,17 +1,18 @@
-import { BaseRenderNode2D } from "../../NodeRender2D/BaseRenderNode2D";
-import { IRenderElement2D } from "../../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
 import { Color } from "../../maths/Color";
-import { Texture2D } from "../../resource/Texture2D";
 import { Spine2DRenderNode } from "../Spine2DRenderNode";
 import { SpineAdapter } from "../SpineAdapter";
 import { SpineTemplet } from "../SpineTemplet";
 import { ISpineRender } from "../interface/ISpineRender";
 import { SpineShaderInit } from "../material/SpineShaderInit";
+import { TSpineBakeData } from "./SketonOptimise";
 import { ISpineOptimizeRender } from "./interface/ISpineOptimizeRender";
 
 export class SpineNormalRender implements ISpineOptimizeRender {
-    initBake(texture: Texture2D, obj: any): void {
-        throw new Error("Method not implemented.");
+    destroy(): void {
+        //throw new Error("Method not implemented.");
+    }
+    initBake(obj: TSpineBakeData): void {
+        //throw new Error("Method not implemented.");
     }
 
     _owner: Spine2DRenderNode;
@@ -35,6 +36,7 @@ export class SpineNormalRender implements ISpineOptimizeRender {
     }
 
     render(time: number) {
+        this._owner.clear();
         this._renerer.draw(this._skeleton, this._owner, -1, -1);
     }
 }

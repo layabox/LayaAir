@@ -692,6 +692,10 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
         super.clear();
     }
 
+    onDestroy(): void {
+        this.spineItem.destroy()
+    }
+
     drawGeos(geo: IRenderGeometryElement, elements: [Material, number, number][]) {
         for (var i = 0, n = elements.length; i < n; i++) {
             let element = Spine2DRenderNode.createRenderElement2D();

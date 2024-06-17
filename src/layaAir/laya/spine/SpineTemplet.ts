@@ -177,18 +177,20 @@ export class SpineTemplet extends Resource {
     protected _disposeResource(): void {
         for (let k in this._textures) {
             let tex = this._textures[k].realTexture;
-            if(tex){
+            if (tex) {
                 tex._removeReference();
-                for(let i = 0; i < 4; i++){
-                    let mat = SpineTemplet.materialMap.get(tex.id+"_"+i);
-                    if(mat){
+                for (let i = 0; i < 4; i++) {
+                    let key = tex.id + "_" + i;
+                    let mat = SpineTemplet.materialMap.get(key);
+                    if (mat) {
                         mat._removeReference();
+                        SpineTemplet.materialMap.delete(key);
                     }
                 }
             }
         }
 
 
-        
+
     }
 }

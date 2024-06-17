@@ -1,5 +1,7 @@
 import { IRenderElement2D } from "../../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
+import { TextureFormat } from "../../RenderEngine/RenderEnum/TextureFormat";
 import { Graphics } from "../../display/Graphics";
+import { Texture2D } from "../../resource/Texture2D";
 import { Spine2DRenderNode } from "../Spine2DRenderNode";
 import { ESpineRenderType } from "../SpineSkeleton";
 import { SpineTemplet } from "../SpineTemplet";
@@ -31,6 +33,8 @@ export class SketonOptimise implements IPreRender {
     defaultSkinAttach: SkinAttach;
 
     maxBoneNumber: number;
+
+    bakeData: TSpineBakeData;
 
     constructor() {
         this.blendModeMap = new Map();
@@ -126,7 +130,9 @@ export class SketonOptimise implements IPreRender {
             this.animators.push(animator);
             this.skinAttachArray.forEach((value: SkinAttach) => {
                 value.initAnimator(animator);
-                let boneNumber = value.mainVB.mapIndex.size;
+            });
+            animator.skinDataArray.forEach((skinData) => {
+                let boneNumber = skinData.vb.boneArray.length/2;
                 if (boneNumber > maxBoneNumber) {
                     maxBoneNumber = boneNumber;
                 }
@@ -285,4 +291,10 @@ export class SkinAttach {
 export type IBRenderData = {
     realIb: Uint16Array;
     outRenderData: MultiRenderData;
+}
+
+export type TSpineBakeData = {
+    bonesNums: number;
+    aniOffsetMap: { [key: string]: number };
+    texture2d?: Texture2D;
 }
