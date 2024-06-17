@@ -15,12 +15,13 @@ export class SpineBakeScript extends Script {
                 256, 256, TextureFormat.R32G32B32A32, false, false, false, false
             ]
         });
-        spine.initBake(texture, {
+        spine.initBake({
             bonesNums: 60,
             aniOffsetMap: {
                 "idle": 0,
                 "skill": 179 * 60 * 2
-            }
+            },
+            texture2d: texture
         });
     }
     // width: number, height: number, format: TextureFormat, mipmap: boolean = true, canRead: boolean, sRGB: boolean = false, premultiplyAlpha: boolean = false
