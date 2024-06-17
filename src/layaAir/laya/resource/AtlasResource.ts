@@ -23,6 +23,22 @@ export class AtlasResource extends Resource {
         this.lock = true;
     }
 
+    // get referenceCount(): number {
+    //     let count = 0;
+    //      this.textures.forEach((tex) => {
+    //          count += tex.referenceCount;
+    //     })
+    //     return count;
+    // }
+
+    // _removeReference(count: number = 1): void {
+    //     //this._referenceCount -= count;
+    //     //如果_removeReference发生在destroy中，可能是在collect或者处理内嵌资源的释放
+    //     if (this.referenceCount <= 0 && !this.lock && this.destroyedImmediately) {
+    //         this.destroy();
+    //     }
+    // }
+
     /**
      * @internal
      */

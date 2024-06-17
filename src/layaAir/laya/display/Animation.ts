@@ -105,6 +105,11 @@ export class Animation extends AnimationBase {
 
     private _autoPlay = false;
 
+    /**
+     * 当前正在使用的atlas资源
+     */
+    curAtlas: AtlasResource;
+
 
     /**
      * 创建一个新的 <code>Animation</code> 实例。
@@ -123,6 +128,13 @@ export class Animation extends AnimationBase {
     destroy(destroyChild: boolean = true): void {
         this.stop();
         super.destroy(destroyChild);
+        if (this.curAtlas) {
+            this.curAtlas._removeReference();
+            if (this.curAtlas.referenceCount == 0) {
+                this.curAtlas.destroy();
+            }
+        }
+        this.curAtlas = null;
         this._frames = null;
         this._labels = null;
     }
@@ -291,6 +303,7 @@ export class Animation extends AnimationBase {
         return this;
     }
 
+
     /**
      * <p>根据指定的动画模版初始化当前动画序列帧。选择动画模版的过程如下：1. 动画模版缓存池中key为cacheName的动画模版；2. 如果不存在，则加载指定的图集并创建动画模版。</p>
      * <p>注意：只有指定不为空的cacheName，才能将创建好的动画模版以此为key缓存到动画模版缓存池，否则不进行缓存。</p>
@@ -304,7 +317,12 @@ export class Animation extends AnimationBase {
     loadAtlas(url: string, loaded: Handler = null, cacheName: string = ""): Animation {
         this._url = "";
         if (!this._setFramesFromCache(cacheName)) {
-            let onLoaded = (loadUrl: string) => {
+            let onLoaded = (loadUrl: string, data: AtlasResource) => {
+                if (this.curAtlas != data) {
+                    this.curAtlas?._removeReference();
+                    this.curAtlas = data;
+                    data._addReference();
+                }
                 if (url === loadUrl) {
                     this.frames = Animation.framesMap[cacheName] ? Animation.framesMap[cacheName] : Animation.createFrames(url, cacheName);
                     if (!this._isPlaying && this._autoPlay)
@@ -312,7 +330,8 @@ export class Animation extends AnimationBase {
                     if (loaded) loaded.run();
                 }
             }
-            if (Loader.getAtlas(url)) onLoaded(url);
+            let atlas: AtlasResource = Loader.getAtlas(url);
+            if (atlas) onLoaded(url, atlas);
             else ILaya.loader.load(url, Handler.create(null, onLoaded, [url]), null, Loader.ATLAS);
         }
         return this;
