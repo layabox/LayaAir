@@ -73,8 +73,8 @@ export class AnimationRender {
     cacheBones(preRender: IPreRender) {
         let duration = preRender._play(this.name);
         let totalFrame = Math.round(duration / step) || 1;
-        for (let i = 0; i < totalFrame; i++) {
-            let bones = preRender._updateState(step);
+        for (let i = 0; i <= totalFrame; i++) {
+            let bones = preRender._updateState(i==0?0:step);
             let frame: Float32Array[] = [];
             this.boneFrames.push(frame);
             for (let j = 0; j < bones.length; j++) {
