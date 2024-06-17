@@ -17,7 +17,7 @@ import { IPreRender } from "./interface/IPreRender";
 import { ISpineOptimizeRender } from "./interface/ISpineOptimizeRender";
 
 export class SketonOptimise implements IPreRender {
-    static normalRenderSwitch: boolean = true;
+    static normalRenderSwitch: boolean = false;
     static cacheSwitch: boolean = false;
     canCache: boolean;
     sketon: spine.Skeleton;
