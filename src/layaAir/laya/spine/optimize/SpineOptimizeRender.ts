@@ -410,6 +410,9 @@ class RenderBake implements IRender {
         this.currentAnimation = currentAnimation;
         this._renderNode._spriteShaderData.addDefine(SpineShaderInit.SPINE_SIMPLE);
         this._simpleAnimatorOffset.x = this.aniOffsetMap[currentAnimation.name];
+        if(currentAnimation.currentSKin.canInstance){
+            //TODO ADD
+        }
     }
 
     /**
