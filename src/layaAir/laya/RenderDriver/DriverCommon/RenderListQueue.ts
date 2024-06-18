@@ -24,7 +24,7 @@ export class RenderListQueue {
      * @param renderelement 
      */
     addRenderElement(renderelement: IRenderElement3D) {
-        this._elements.add(renderelement);
+        renderelement.materialShaderData && this._elements.add(renderelement);
     }
 
     /**

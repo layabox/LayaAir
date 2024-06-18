@@ -19,7 +19,7 @@ export class WebGLRenderListQueue {
     }
 
     addRenderElement(renderelement: WebGLRenderElement3D) {
-        this._elements.add(renderelement);
+        renderelement.materialShaderData && this._elements.add(renderelement);
     }
 
     _batchQueue() {

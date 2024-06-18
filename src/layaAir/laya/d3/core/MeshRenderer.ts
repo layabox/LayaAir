@@ -363,18 +363,19 @@ export class MeshRenderer extends BaseRender {
                 this.geometryBounds = mesh.bounds;
             var count: number = mesh.subMeshCount;
             this._renderElements.length = count;
+            let materials = this.sharedMaterials;
+            materials.length = count;
             for (var i: number = 0; i < count; i++) {
                 var renderElement: RenderElement = this._renderElements[i];
                 if (!renderElement) {
-                    var material: Material = this.sharedMaterials[i];
                     renderElement = this._renderElements[i] = this._renderElements[i] ? this._renderElements[i] : this._createRenderElement();
                     this.owner && renderElement.setTransform((this.owner as Sprite3D)._transform);
                     renderElement.render = this;
-                    renderElement.material = material ? material : BlinnPhongMaterial.defaultMaterial;//确保有材质,由默认材质代替。
-                    //renderElement.renderSubShader = renderElement.material.shader.getSubShaderAt(0);//TODO
                 }
+                materials[i] = materials[i] || BlinnPhongMaterial.defaultMaterial;
                 renderElement.setGeometry(mesh.getSubMesh(i));
             }
+            this.sharedMaterials = materials;
             this.boundsChange = true;
         } else if (!mesh) {
             this._renderElements.forEach
@@ -413,68 +414,17 @@ export class MeshRenderer extends BaseRender {
         if (this._renderElements.length == 1) {
             this._renderElements[0]._renderElementOBJ.isRender = this._renderElements[0]._geometry._prepareRender(context);
             this._renderElements[0]._geometry._updateRenderParams(context);
-            let mat = this.sharedMaterial ?? BlinnPhongMaterial.defaultMaterial;
-            this._renderElements[0]._renderElementOBJ.materialRenderQueue = mat.renderQueue;
-            this._renderElements[0].material = this.sharedMaterial;
-        } else {
+            let material = this.sharedMaterial;
+            this._renderElements[0].material = material;
+        }
+        else {
             for (var i = 0, n = this._renderElements.length; i < n; i++) {
                 this._renderElements[i]._renderElementOBJ.isRender = this._renderElements[i]._geometry._prepareRender(context);
                 this._renderElements[i]._geometry._updateRenderParams(context);
-                let material = this.sharedMaterial ?? BlinnPhongMaterial.defaultMaterial;
-                material = this.sharedMaterials[i] ?? material;
+                let material = this.sharedMaterials[i];
                 this._renderElements[i].material = material;
-                this._renderElements[i]._renderElementOBJ.materialRenderQueue = material.renderQueue;
             }
         }
-    }
-
-    /**
-     * @internal
-     * 开启多材质 多element模式
-     */
-    updateMulPassRender(): void {
-        const filter = this.owner.getComponent(MeshFilter);
-        if (!filter)
-            return;
-        const mesh = filter.sharedMesh;
-        if (mesh) {
-            var subCount: number = mesh.subMeshCount;
-            var matCount = this._sharedMaterials.length;
-            if (subCount > matCount) {
-                let count = subCount
-                this._renderElements.length = count;
-                for (var i: number = 0; i < count; i++) {
-                    var renderElement: RenderElement = this._renderElements[i];
-                    if (!renderElement) {
-                        var material: Material = this.sharedMaterials[i];
-                        renderElement = this._renderElements[i] = this._renderElements[i] ? this._renderElements[i] : this._createRenderElement();
-                        renderElement.setTransform((this.owner as Sprite3D)._transform);
-                        renderElement.render = this;
-                        renderElement.material = material ? material : BlinnPhongMaterial.defaultMaterial;//确保有材质,由默认材质代替。
-                    }
-                    renderElement.setGeometry(mesh.getSubMesh(i));
-                }
-            } else {
-                let count = matCount;
-                this._renderElements.length = count;
-                for (var i: number = 0; i < count; i++) {
-                    var renderElement: RenderElement = this._renderElements[i];
-                    if (!renderElement) {
-                        var material: Material = this.sharedMaterials[i];
-                        renderElement = this._renderElements[i] = this._renderElements[i] ? this._renderElements[i] : this._createRenderElement();
-                        renderElement.setTransform((this.owner as Sprite3D)._transform);
-                        renderElement.render = this;
-                        renderElement.material = material ? material : BlinnPhongMaterial.defaultMaterial;//确保有材质,由默认材质代替。
-                    }
-                }
-                renderElement.setGeometry(mesh.getSubMesh(count % subCount));
-            }
-
-        } else {
-            this._renderElements.length = 0;
-        }
-        this.boundsChange = true;
-        this._setRenderElements();
     }
 
     /**
