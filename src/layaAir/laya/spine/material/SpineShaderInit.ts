@@ -93,9 +93,9 @@ export class SpineShaderInit {
         'a_PosWeightBoneID_3': [6, ShaderDataType.Vector4],
         'a_PosWeightBoneID_4': [7, ShaderDataType.Vector4],
 
-        'a_NMatrix[0]': [8, ShaderDataType.Vector3],
-        'a_NMatrix[1]': [9, ShaderDataType.Vector3],
-        'a_SimpleTextureParams': [10, ShaderDataType.Vector4]
+        // 'a_NMatrix[0]': [8, ShaderDataType.Vector3],
+        // 'a_NMatrix[1]': [9, ShaderDataType.Vector3],
+        // 'a_SimpleTextureParams': [10, ShaderDataType.Vector4]
     }
 
 
