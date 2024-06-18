@@ -25,13 +25,32 @@ export abstract class Filter implements IFilter {
     protected height = 0;
     protected texture: RenderTexture2D;  //TODO 创建 优化
     protected _render2D: Render2D;
+
+    //当前使用的
     protected _rectMesh: MeshQuadTexture;
     protected _rectMeshVB: Float32Array;
 
+    //uv坐标正常的版本
+    private _rectMeshNormY:MeshQuadTexture;
+    private _rectMeshVBNormY:Float32Array;
+    //uv坐标翻转的版本
+    private _rectMeshInvY:MeshQuadTexture;
+    private _rectMeshVBInvY:Float32Array;
+
     constructor() {
-        let rect = this._rectMesh = new MeshQuadTexture();
-        rect.addQuad([0, 0, 1, 0, 1, 1, 0, 1], [0, 0, 1, 0, 1, 1, 0, 1], 0xffffffff, true)
-        this._rectMeshVB = new Float32Array(rect.vbBuffer);
+        let rect1 = this._rectMeshNormY = new MeshQuadTexture();
+        rect1.addQuad([0, 0, 1, 0, 1, 1, 0, 1], [0, 0, 1, 0, 1, 1, 0, 1], 0xffffffff, true)
+        this._rectMeshVBNormY = new Float32Array(rect1.vbBuffer);
+
+        let rectInvY = this._rectMeshInvY = new MeshQuadTexture();
+        rectInvY.addQuad([0, 0, 1, 0, 1, 1, 0, 1], [0, 1, 1, 1, 1, 0, 0, 0], 0xffffffff, true)
+        this._rectMeshVBInvY = new Float32Array(rectInvY.vbBuffer);
+        this.useFlipY(false);
+    }
+
+    useFlipY(b: boolean) {
+        this._rectMesh = b ? this._rectMeshInvY : this._rectMeshNormY;
+        this._rectMeshVB = b ? this._rectMeshVBInvY : this._rectMeshVBNormY;
     }
 
     set render2D(r: Render2D) {
@@ -74,6 +93,8 @@ export abstract class Filter implements IFilter {
         let cache = sprite._getCacheStyle();
         // 先把节点渲染到一个贴图上
         //if(RenderSprite.RenderToCacheTexture(sprite,context,x,y)){
+        //多个滤镜off会累加，例如blur一次导致偏移50，两次就是100
+        let rtOffX = 0, rtOffY = 0;
         if (this._renderNextToCacheRT(sprite, context)) {
             let src = cache.renderTexture;
             let dst = src;
@@ -85,17 +106,20 @@ export abstract class Filter implements IFilter {
                 src = dst;
                 var filter = filters[i];
                 filter._render2D = context.render2D;
+                filter.useFlipY(i!=0);
                 filter.render(src, width, height);
                 width = filter.width;
                 height = filter.height;
                 dst = filter.texture;
+                rtOffX += filter.left;
+                rtOffY += filter.top;
             }
             context.render2D.setRenderTarget(lastRT);
             //context.render2D.out=lastRT;
             // 把最终结果保存到cache
             cache.renderTexture = dst;
-            cache.renderTexOffx = filters[len - 1].top;
-            cache.renderTexOffy = filters[len - 1].left;
+            cache.renderTexOffx = rtOffX;
+            cache.renderTexOffy = rtOffY;
         }
         //直接使用缓存的
         cache.renderTexture && context._drawRenderTexture(cache.renderTexture,

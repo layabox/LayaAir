@@ -26,10 +26,20 @@ export interface IDynamicCollider extends ICollider {
     setLinearVelocity(value: Vector3): void;
 
     /**
+     * get the linear velocity of the actor.
+     */
+    getLinearVelocity(): Vector3;
+
+    /**
      * Sets the angular velocity of the actor.
      * @param value - New angular velocity of actor.
      */
     setAngularVelocity(value: Vector3): void;
+
+    /**
+     * get the angular velocity of the actor.
+     */
+    getAngularVelocity(): Vector3;
 
     /**
      *  Sets the mass of a dynamic actor.

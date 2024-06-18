@@ -447,6 +447,7 @@ export class UI3D extends BaseRender {
         super._onEnable();
         (this.owner.scene as Scene3D)._UI3DManager.add(this);
         (this.owner as Sprite3D).transform.on(Event.TRANSFORM_CHANGED, this, this._transByRotate);//如果为合并BaseRender,owner可能为空
+        this._transByRotate();
     }
 
     /**

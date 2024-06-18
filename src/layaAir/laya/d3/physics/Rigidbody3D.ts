@@ -146,7 +146,11 @@ export class Rigidbody3D extends PhysicsColliderComponent {
      * 线速度
      */
     get linearVelocity(): Vector3 {
-        return this._linearVelocity;
+        if (this._collider && this.collider.getCapable(EColliderCapable.RigidBody_LinearVelocity)) {
+            return this._collider.getLinearVelocity();
+        } else {
+            return this._linearVelocity;
+        }
     }
 
     set linearVelocity(value: Vector3) {
@@ -174,7 +178,11 @@ export class Rigidbody3D extends PhysicsColliderComponent {
      * 角速度。
      */
     get angularVelocity(): Vector3 {
-        return this._angularVelocity;
+        if (this._collider && this.collider.getCapable(EColliderCapable.RigidBody_AngularVelocity)) {
+            return this._collider.getAngularVelocity();
+        } else {
+            return this._angularVelocity;
+        }
     }
 
     set angularVelocity(value: Vector3) {
