@@ -30,7 +30,7 @@ export class SetRTCMD extends Command {
 			clearflag |= RenderClearFlag.Depth;
 			cmd._setRenderTargetCMD.clearDepthValue = depth;
 		}
-		if (stencil) {
+		if (clearStencil) {
 			clearflag |= RenderClearFlag.Stencil;
 			cmd._setRenderTargetCMD.clearStencilValue = stencil;
 		}
