@@ -40,15 +40,16 @@ vec3 BlinnPhongLighting(const in Surface surface, const in PixelParams pixel)
     #ifdef DIRECTIONLIGHT
     for (int i = 0; i < CalculateLightCount; i++)
 	{
-	    if (i >= DirectionCount)
-		break;
+	    if (i >= DirectionCount) break;
 	    DirectionLight directionLight = getDirectionLight(i, positionWS);
-	    if (directionLight.lightMode == LightMode_Mix)
-		{
-		    continue;
-		}
-	    Light light = getLight(directionLight);
-	    lightColor += BlinnPhongLighting(surface, light, info) * light.attenuation;
+	    // if (directionLight.lightMode == LightMode_Mix) //兼容WGSL
+		// {
+		//     continue;
+		// }
+        if (directionLight.lightMode != LightMode_Mix) {
+	        Light light = getLight(directionLight);
+	        lightColor += BlinnPhongLighting(surface, light, info) * light.attenuation;
+        }
 	}
     #endif // DIRECTIONLIGHT
 
@@ -59,30 +60,42 @@ vec3 BlinnPhongLighting(const in Surface surface, const in PixelParams pixel)
     #ifdef POINTLIGHT
     for (int i = 0; i < CalculateLightCount; i++)
 	{
-	    if (i >= clusterInfo.x)
-		break;
+        #ifdef BREAK_TEXTURE_SAMPLE
+	    if (i >= clusterInfo.x) break; //兼容WGSL
+        #endif
 	    PointLight pointLight = getPointLight(i, clusterInfo, positionWS);
-	    if (pointLight.lightMode == LightMode_Mix)
-		{
-		    continue;
-		}
-	    Light light = getLight(pointLight, normalWS, positionWS);
-	    lightColor += BlinnPhongLighting(surface, light, info) * light.attenuation;
+	    // if (pointLight.lightMode == LightMode_Mix)
+		// {
+		//     continue;
+		// }
+        if (pointLight.lightMode != LightMode_Mix) {
+	        Light light = getLight(pointLight, normalWS, positionWS);
+            #ifndef BREAK_TEXTURE_SAMPLE
+            if (i < clusterInfo.x)
+            #endif
+	            lightColor += BlinnPhongLighting(surface, light, info) * light.attenuation;
+        }
 	}
     #endif // POINTLIGHT
 
     #ifdef SPOTLIGHT
     for (int i = 0; i < CalculateLightCount; i++)
 	{
-	    if (i >= clusterInfo.y)
-		break;
+        #ifdef BREAK_TEXTURE_SAMPLE
+	    if (i >= clusterInfo.y) break; //兼容WGSL
+        #endif
 	    SpotLight spotLight = getSpotLight(i, clusterInfo, positionWS);
-	    if (spotLight.lightMode == LightMode_Mix)
-		{
-		    continue;
-		}
-	    Light light = getLight(spotLight, normalWS, positionWS);
-	    lightColor += BlinnPhongLighting(surface, light, info) * light.attenuation;
+	    // if (spotLight.lightMode == LightMode_Mix)
+		// {
+		//     continue;
+		// }
+        if (spotLight.lightMode != LightMode_Mix) {
+	        Light light = getLight(spotLight, normalWS, positionWS);
+            #ifndef BREAK_TEXTURE_SAMPLE
+            if (i < clusterInfo.y)
+            #endif
+	            lightColor += BlinnPhongLighting(surface, light, info) * light.attenuation;
+        }
 	}
     #endif // SPOTLIGHT
 

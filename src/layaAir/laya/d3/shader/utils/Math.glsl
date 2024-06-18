@@ -228,11 +228,11 @@ vec3 rotationByEuler(in vec3 vector, in vec3 rot)
 vec3 rotationByAxis(in vec3 vector, in vec3 axis, in float angle)
 {
     float halfAngle = angle * 0.5;
-    float sin = sin(halfAngle);
+    float sinf = sin(halfAngle);
 
-    float quaX = axis.x * sin;
-    float quaY = axis.y * sin;
-    float quaZ = axis.z * sin;
+    float quaX = axis.x * sinf;
+    float quaY = axis.y * sinf;
+    float quaZ = axis.z * sinf;
     float quaW = cos(halfAngle);
 
     // vec4 q=vec4(quaX,quaY,quaZ,quaW);

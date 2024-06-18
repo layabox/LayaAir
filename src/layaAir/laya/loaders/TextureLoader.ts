@@ -15,10 +15,11 @@ import { RenderTexture } from "../resource/RenderTexture";
 import { VideoTexture } from "../media/VideoTexture";
 import { LayaEnv } from "../../LayaEnv";
 import { LayaGL } from "../layagl/LayaGL";
+import { DDSTextureInfo } from "../RenderEngine/DDSTextureInfo";
 
 var internalResources: Record<string, Texture2D>;
 
-class Texture2DLoader implements IResourceLoader {
+export class Texture2DLoader implements IResourceLoader {
     constructor() {
         if (!internalResources) {
             internalResources = {
@@ -88,7 +89,23 @@ class Texture2DLoader implements IResourceLoader {
                 let tex: BaseTexture;
                 switch (compress) {
                     case "dds":
-                        tex = Texture2D._parseDDS(data, propertyParams, constructParams);
+                        let ddsInfo = DDSTextureInfo.getDDSTextureInfo(data);
+                        if (ddsInfo.isCube) {
+                            //这里在core模块，不能直接引用d3里的TextureCube
+                            let cls = ClassUtils.getClass("TextureCube");
+                            if (cls) {
+                                let srgb = constructParams ? !!constructParams[5] : false;
+                                let tc = new cls(ddsInfo.width, ddsInfo.format, ddsInfo.mipmapCount > 1, srgb);
+                                tc.setDDSData(ddsInfo);
+                                tex = tc;
+                            }
+                            else {
+                                return null;
+                            }
+                        }
+                        else {
+                            tex = Texture2D._parseDDS(data, propertyParams, constructParams);
+                        }
                         break;
 
                     case "ktx":
@@ -167,8 +184,9 @@ class Texture2DLoader implements IResourceLoader {
         }
     }
 
-    private move(obsoluteInst: BaseTexture, tex: BaseTexture) {
+    protected move(obsoluteInst: BaseTexture, tex: BaseTexture) {
         obsoluteInst._texture = tex._texture;
+        (<any>obsoluteInst)._format = tex.format;
         obsoluteInst.width = tex.width;
         obsoluteInst.height = tex.height;
         obsoluteInst.obsolute = false;
@@ -177,7 +195,7 @@ class Texture2DLoader implements IResourceLoader {
     }
 }
 
-class RenderTextureLoader implements IResourceLoader {
+export class RenderTextureLoader implements IResourceLoader {
     load(task: ILoadTask) {
         return task.loader.fetch(task.url, "json", task.progress.createCallback(), task.options).then(data => {
             if (!data)
@@ -206,7 +224,7 @@ class RenderTextureLoader implements IResourceLoader {
 }
 
 
-class VideoTextureLoader implements IResourceLoader {
+export class VideoTextureLoader implements IResourceLoader {
     load(task: ILoadTask) {
         let inst = <VideoTexture>task.obsoluteInst || new VideoTexture();
         inst.source = task.url;
@@ -217,7 +235,7 @@ class VideoTextureLoader implements IResourceLoader {
 const propertyParams2d: TexturePropertyParams = { premultiplyAlpha: true };
 const constructParams2d: TextureConstructParams = [null, null, TextureFormat.R8G8B8A8, false, false, true];
 
-class TextureLoader implements IResourceLoader {
+export class TextureLoader implements IResourceLoader {
     wrapTex2D(task: ILoadTask, tex2D: Texture2D) {
         if (!tex2D)
             return null;

@@ -1,9 +1,10 @@
 import { Rectangle } from "../../maths/Rectangle";
-import { Context } from "../../resource/Context";
+import { Context } from "../../renders/Context";
 import { ClassUtils } from "../../utils/ClassUtils";
 import { Pool } from "../../utils/Pool";
 
 export class DrawRoundRectCmd {
+    /**绘制圆角矩形的标识符 */
     static ID: string = "DrawRoundRect";
     /**
      * 圆点X 轴位置。
@@ -56,7 +57,7 @@ export class DrawRoundRectCmd {
     percent: boolean;
 
 
-    /**@private */
+    /**@private 创建绘制圆角矩形CMD*/
     static create(x: number, y: number, width: number, height: number, lt: number, rt: number, lb: number, rb: number, fillColor: any, lineColor: any, lineWidth: number, percent?: boolean): DrawRoundRectCmd {
         var cmd = Pool.getItemByClass("DrawRoundRectCmd", DrawRoundRectCmd);
         cmd.x = x;
@@ -73,6 +74,7 @@ export class DrawRoundRectCmd {
         cmd.percent = percent;
         return cmd;
     }
+    
     /**
      * 回收到对象池
      */
@@ -81,7 +83,8 @@ export class DrawRoundRectCmd {
         this.lineColor = null;
         Pool.recover("DrawRoundRectCmd", this);
     }
-    /**@private */
+
+    /**@private 执行绘制圆角矩形CMD*/
     run(context: Context, gx: number, gy: number): void {
         let offset = (this.lineWidth >= 1 && this.lineColor) ? this.lineWidth / 2 : 0;
         let lineOffset = this.lineColor ? this.lineWidth : 0;
@@ -94,10 +97,17 @@ export class DrawRoundRectCmd {
             context._drawRoundRect(this.x + offset + gx, this.y + offset + gy, this.width - lineOffset, this.height - lineOffset, this.lt, this.rt, this.lb, this.rb, this.fillColor, this.lineColor, this.lineWidth);
         }
     }
-    /**@private */
+
+    /**@private 获取绘制圆角矩形CMD的标识符*/
     get cmdID(): string {
         return DrawRoundRectCmd.ID;
     }
+
+    /**
+     * 获取包围盒的顶点数据
+     * @param sp 绘制cmd的精灵
+     * @returns 
+     */
     getBoundPoints(sp?: { width: number, height?: number }): number[] {
         return Rectangle._getBoundPointS(this.x, this.y, this.width, this.height, this.percent ? sp : null);
     }

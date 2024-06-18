@@ -2,7 +2,7 @@ import { Sprite } from "../display/Sprite"
 import { SpriteConst } from "../display/SpriteConst"
 import { Stage } from "../display/Stage"
 import { RenderSprite } from "../renders/RenderSprite"
-import { Context } from "../resource/Context"
+import { Context } from "../renders/Context"
 import { ILaya } from "../../ILaya";
 /**
  * ...
@@ -47,7 +47,6 @@ export class QuickTestTool {
         QuickTestTool._typeToNameDic[SpriteConst.TRANSFORM] = "TRANSFORM";
         QuickTestTool._typeToNameDic[SpriteConst.TEXTURE] = "TEXTURE";
         QuickTestTool._typeToNameDic[SpriteConst.GRAPHICS] = "GRAPHICS";
-        QuickTestTool._typeToNameDic[SpriteConst.ONECHILD] = "ONECHILD";
         QuickTestTool._typeToNameDic[SpriteConst.CHILDS] = "CHILDS";
         QuickTestTool._typeToNameDic[SpriteConst.TRANSFORM | SpriteConst.ALPHA] = "TRANSFORM|ALPHA";
 
@@ -56,7 +55,7 @@ export class QuickTestTool {
         QuickTestTool._typeToNameDic[SpriteConst.FILTERS] = "FILTERS";
         QuickTestTool._typeToNameDic[SpriteConst.MASK] = "MASK";
         QuickTestTool._typeToNameDic[SpriteConst.CLIP] = "CLIP";
-        QuickTestTool._typeToNameDic[SpriteConst.LAYAGL3D] = "LAYAGL3D";
+       // QuickTestTool._typeToNameDic[SpriteConst.LAYAGL3D] = "LAYAGL3D";
     }
     _renderType: number;
     _repaint: number;
@@ -80,6 +79,7 @@ export class QuickTestTool {
         //{
         //debugger;
         //}
+        //@ts-ignore
         RenderSprite.renders[this._renderType]._fun(this, context, x + this._x, y + this._y);
         this._repaint = 0;
     }

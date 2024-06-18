@@ -4,13 +4,27 @@ import { AnimatorState2D } from "./AnimatorState2D";
 import { AnimatorStateCondition } from "./AnimatorStateCondition";
 
 export class AnimatorTransition2D {
+    /**禁用 */
     mute: boolean;
-    exitTime: number;//退出时间
-    exitByTime: boolean;//是否设置生效时间
-    transstartoffset: number;//归一化的时间的下一个state播放位置
-    transduration: number;//归一化过度时间 TODO 0-1
-    conditions: AnimatorStateCondition[];//
+
+    /**退出时间 */
+    exitTime: number;
+
+    /**是否设置生效时间 */
+    exitByTime: boolean;
+
+    /**归一化的时间的下一个state播放位置 */
+    transstartoffset: number;
+
+    /**归一化过度时间 TODO 0-1 */
+    transduration: number;
+
+    /**过渡条件 */
+    conditions: AnimatorStateCondition[];
+
+    /**目标状态 */
     destState: AnimatorState2D;
+
     /**
      * 创建一个新的Animatortransition2D
      */
@@ -25,9 +39,9 @@ export class AnimatorTransition2D {
 
     /**
      * 增加一个条件
-     * @param condition 
+     * @param condition 状态转换条件
      */
-     addCondition(condition: AnimatorStateCondition): void {
+    addCondition(condition: AnimatorStateCondition): void {
         if (this.conditions.indexOf(condition) == -1) {
             this.conditions.push(condition);
         }
@@ -35,7 +49,7 @@ export class AnimatorTransition2D {
 
     /**
      * 删除一个条件
-     * @param condition 
+     * @param condition 状态转换条件
      */
     removeCondition(condition: AnimatorStateCondition): void {
         let index = this.conditions.indexOf(condition);
@@ -46,8 +60,10 @@ export class AnimatorTransition2D {
 
     /**
     * 是否启用过渡
-    * @param normalizeTime 
-    * @param paramsMap 
+    * @param normalizeTime 归一化时间
+    * @param paramsMap 条件组
+    * @param isReplay 是否重复播放
+    * @returns
     */
     check(normalizeTime: number, paramsMap: Record<string, Animation2DParm>, isReplay: boolean): boolean {
         if (this.mute) {

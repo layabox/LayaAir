@@ -26,15 +26,15 @@ export class VBox extends LayoutBox {
     public isSortItem: boolean = false;
 
     /**
-     * @override
+     * @internal
      */
     _setWidth(value: number) {
         super._setWidth(value);
         this.callLater(this.changeItems);
     }
 
-
     /** 
+     * @internal
      * @inheritDoc	
      * @override
     */
@@ -46,6 +46,7 @@ export class VBox extends LayoutBox {
         for (let i = 0, n = this.numChildren; i < n; i++) {
             let item = (<UIComponent>this.getChildAt(i));
             if (item) {
+                item.y = 0;
                 items.push(item);
                 maxWidth = this._isWidthSet ? this._width : Math.max(maxWidth, item.width * item.scaleX);
             }

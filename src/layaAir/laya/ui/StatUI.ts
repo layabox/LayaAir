@@ -11,14 +11,117 @@ import { IStatUI, StatToggleUIParams, StatUIParams } from "../utils/IStatUI";
 import { Stat } from "../utils/Stat";
 
 export class StatUI implements IStatUI {
+
+    /**@internal */
     private _txt: Text;
+    /**@internal */
     private _sp: Sprite;
+    /**@internal */
     private _view: Array<StatUIParams>;
+    /**@internal */
     private _toggleView: Array<StatToggleUIParams>;
+    /**@internal */
     private _toggleSprite: Sprite;
+    /**@internal */
     private _checkBoxArray: Array<CheckBox>;
+    /**@internal */
     private _show = false;
+    /**@internal */
     private _showToggle = false;
+
+    /**@internal */
+    private createUI(): void {
+        let sp: Sprite = this._sp = new Sprite();
+        sp.scale(Math.max(Laya.stage.clientScaleX, 1), Math.max(Laya.stage.clientScaleY, 1));
+        Laya.stage.on(Event.RESIZE, this, () => {
+            this._sp.scale(Math.max(Laya.stage.clientScaleX, 1), Math.max(Laya.stage.clientScaleY, 1));
+        });
+
+        let leftText = new Text();
+        leftText.singleCharRender=true;
+        leftText.pos(5, 5);
+        leftText.color = "#ffffff";
+        leftText.fontSize = fontSize;
+        sp.addChild(leftText);
+
+        strArray.length = 0;
+        for (let one of this._view)
+            strArray.push(one.title);
+        leftText.text = strArray.join("\n");
+
+        this._txt = new Text();
+        this._txt.singleCharRender=true;
+        this._txt.pos(leftText.textWidth + 10, 5);
+        this._txt.color = "#ffffff";
+        this._txt.fontSize = fontSize;
+        sp.addChild(this._txt);
+
+        sp.size(leftText.textWidth + 100, leftText.textHeight + 10);
+        sp.graphics.clear();
+        sp.graphics.alpha(0.5);
+        sp.graphics.drawRect(0, 0, sp.width, sp.height, "#999999");
+        sp.graphics.alpha(2);
+    }
+
+    /**@internal */
+    private createToggleUI(): void {
+        if (!checkBoxTex) {
+            let pixels = new Uint8Array(9);
+            pixels[0] = 255;
+            pixels[1] = 255;
+            pixels[2] = 255;
+            pixels[3] = 255;
+            pixels[4] = 255;
+            pixels[5] = 128;
+            pixels[6] = 128;
+            pixels[7] = 128;
+            pixels[8] = 0;
+            checkBoxTex = new Texture2D(1, 3, TextureFormat.R8G8B8, false, false);
+            checkBoxTex.setPixelsData(pixels, false, false);
+            checkBoxTex.lock = true;//锁住资源防止被资源管理释放
+            checkBoxTex.name = "StatUICheckBox";
+            Loader.cacheRes(checkBoxTex.name, checkBoxTex, Loader.TEXTURE2D);
+        }
+
+        let sp = this._toggleSprite = new Sprite();
+        sp.zOrder = 1000000;
+        let leftText = new Text();
+        leftText.pos(5, 5);
+        leftText.color = "#ffffff";
+        leftText.fontSize = fontSize;
+        sp.addChild(leftText);
+
+        leftText.text = Text._testWord;
+        let h = leftText.textHeight + leftText.leading;
+
+        strArray.length = 0;
+        for (let one of this._toggleView)
+            strArray.push(one.title);
+        leftText.text = strArray.join("\n");
+
+        let toggles = new Sprite();
+        toggles.pos(leftText.textWidth + 15, 5);
+        sp.addChild(toggles);
+
+        this._checkBoxArray = [];
+        for (let i = 0; i < this._toggleView.length; i++) {
+            let one = this._toggleView[i];
+
+            let cb = new CheckBox(checkBoxTex.name);
+            cb.selected = (Stat as any)[one.value];
+            cb.scale(12, 12);
+            cb.pos(0, i * h + 2);
+            cb.size(12, 12);
+            toggles.addChild(cb);
+            this._checkBoxArray.push(cb);
+        }
+
+        sp.size(leftText.textWidth + 40, leftText.textHeight + 10);
+        sp.graphics.clear();
+        sp.graphics.alpha(0.5);
+        sp.graphics.drawRect(0, 0, sp.width, sp.height, "#999999");
+        sp.graphics.alpha(2);
+    }
 
     /**
      * @override
@@ -95,96 +198,6 @@ export class StatUI implements IStatUI {
                 (Stat as any)[one.value] = this._checkBoxArray[i].selected;
             }
         }
-    }
-
-    private createUI(): void {
-        let sp: Sprite = this._sp = new Sprite();
-        sp.scale(Math.max(Laya.stage.clientScaleX, 1), Math.max(Laya.stage.clientScaleY, 1));
-        Laya.stage.on(Event.RESIZE, this, () => {
-            this._sp.scale(Math.max(Laya.stage.clientScaleX, 1), Math.max(Laya.stage.clientScaleY, 1));
-        });
-
-        let leftText = new Text();
-        leftText.pos(5, 5);
-        leftText.color = "#ffffff";
-        leftText.fontSize = fontSize;
-        sp.addChild(leftText);
-
-        strArray.length = 0;
-        for (let one of this._view)
-            strArray.push(one.title);
-        leftText.text = strArray.join("\n");
-
-        this._txt = new Text();
-        this._txt.pos(leftText.textWidth + 10, 5);
-        this._txt.color = "#ffffff";
-        this._txt.fontSize = fontSize;
-        sp.addChild(this._txt);
-
-        sp.size(leftText.textWidth + 100, leftText.textHeight + 10);
-        sp.graphics.clear();
-        sp.graphics.alpha(0.5);
-        sp.graphics.drawRect(0, 0, sp.width, sp.height, "#999999");
-        sp.graphics.alpha(2);
-    }
-
-    private createToggleUI(): void {
-        if (!checkBoxTex) {
-            let pixels = new Uint8Array(9);
-            pixels[0] = 255;
-            pixels[1] = 255;
-            pixels[2] = 255;
-            pixels[3] = 255;
-            pixels[4] = 255;
-            pixels[5] = 128;
-            pixels[6] = 128;
-            pixels[7] = 128;
-            pixels[8] = 0;
-            checkBoxTex = new Texture2D(1, 3, TextureFormat.R8G8B8, false, false);
-            checkBoxTex.setPixelsData(pixels, false, false);
-            checkBoxTex.lock = true;//锁住资源防止被资源管理释放
-            checkBoxTex.name = "StatUICheckBox";
-            Loader.cacheRes(checkBoxTex.name, checkBoxTex, Loader.TEXTURE2D);
-        }
-
-        let sp = this._toggleSprite = new Sprite();
-        sp.zOrder = 1000000;
-        let leftText = new Text();
-        leftText.pos(5, 5);
-        leftText.color = "#ffffff";
-        leftText.fontSize = fontSize;
-        sp.addChild(leftText);
-
-        leftText.text = Text._testWord;
-        let h = leftText.textHeight + leftText.leading;
-
-        strArray.length = 0;
-        for (let one of this._toggleView)
-            strArray.push(one.title);
-        leftText.text = strArray.join("\n");
-
-        let toggles = new Sprite();
-        toggles.pos(leftText.textWidth + 15, 5);
-        sp.addChild(toggles);
-
-        this._checkBoxArray = [];
-        for (let i = 0; i < this._toggleView.length; i++) {
-            let one = this._toggleView[i];
-
-            let cb = new CheckBox(checkBoxTex.name);
-            cb.selected = (Stat as any)[one.value];
-            cb.scale(12, 12);
-            cb.pos(0, i * h + 2);
-            cb.size(12, 12);
-            toggles.addChild(cb);
-            this._checkBoxArray.push(cb);
-        }
-
-        sp.size(leftText.textWidth + 40, leftText.textHeight + 10);
-        sp.graphics.clear();
-        sp.graphics.alpha(0.5);
-        sp.graphics.drawRect(0, 0, sp.width, sp.height, "#999999");
-        sp.graphics.alpha(2);
     }
 
     render(ctx: any, x: number, y: number) {

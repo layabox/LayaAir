@@ -7,12 +7,10 @@ import { Mesh, skinnedMatrixCache } from "../d3/resource/models/Mesh";
 import { URL } from "../net/URL";
 import { Texture2D, TextureConstructParams, TexturePropertyParams } from "../resource/Texture2D";
 import * as glTF from "./glTFInterface";
-
 import { ILaya } from "../../ILaya";
 import { BufferUsage } from "../RenderEngine/RenderEnum/BufferTargetType";
 import { HDREncodeFormat } from "../RenderEngine/RenderEnum/HDREncodeFormat";
 import { IndexFormat } from "../RenderEngine/RenderEnum/IndexFormat";
-import { RenderState } from "../RenderEngine/RenderShader/RenderState";
 import { VertexMesh } from "../RenderEngine/RenderShader/VertexMesh";
 import { VertexDeclaration } from "../RenderEngine/VertexDeclaration";
 import { Animator } from "../d3/component/Animator/Animator";
@@ -20,10 +18,8 @@ import { AnimatorControllerLayer } from "../d3/component/Animator/AnimatorContro
 import { AnimatorState } from "../d3/component/Animator/AnimatorState";
 import { FloatKeyframe } from "../d3/core/FloatKeyframe";
 import { MeshFilter } from "../d3/core/MeshFilter";
-import { MeshSprite3D } from "../d3/core/MeshSprite3D";
 import { QuaternionKeyframe } from "../d3/core/QuaternionKeyframe";
 import { SkinnedMeshRenderer } from "../d3/core/SkinnedMeshRenderer";
-import { SkinnedMeshSprite3D } from "../d3/core/SkinnedMeshSprite3D";
 import { Sprite3D } from "../d3/core/Sprite3D";
 import { Vector3Keyframe } from "../d3/core/Vector3Keyframe";
 import { IndexBuffer3D } from "../d3/graphics/IndexBuffer3D";
@@ -46,8 +42,10 @@ import { glTFShader } from "./shader/glTFShader";
 import { PBRShaderLib } from "../d3/shader/pbr/PBRShaderLib";
 import { Laya } from "../../Laya";
 import { WrapMode } from "../RenderEngine/RenderEnum/WrapMode";
-import { ShaderDefine } from "../RenderEngine/RenderShader/ShaderDefine";
 import { Laya3DRender } from "../d3/RenderObjs/Laya3DRender";
+import { RenderState } from "../RenderDriver/RenderModuleData/Design/RenderState";
+import { ShaderDefine } from "../RenderDriver/RenderModuleData/Design/ShaderDefine";
+import { MeshRenderer } from "../d3/core/MeshRenderer";
 
 const maxSubBoneCount = 24;
 
@@ -996,7 +994,7 @@ export class glTFResource extends Prefab {
 
         glTFNodes.forEach((glTFNode: glTF.glTFNode, index: number) => {
             let sprite: Sprite3D = this._nodes[index];
-            if (sprite instanceof SkinnedMeshSprite3D) {
+            if (glTFNode.skin != null) {
                 this.fixSkinnedSprite(glTFNode, sprite);
             }
         });
@@ -1057,17 +1055,19 @@ export class glTFResource extends Prefab {
      * 创建 MeshSprite3D 对象
      * @param glTFNode 
      */
-    private createMeshSprite3D(glTFNode: glTF.glTFNode): MeshSprite3D {
+    private createMeshSprite3D(glTFNode: glTF.glTFNode): Sprite3D {
         let glTFMesh: glTF.glTFMesh = this._data.meshes[glTFNode.mesh];
         let mesh = this._meshes[glTFNode.mesh];
         let materials: Material[] = this.pickMeshMaterials(glTFMesh);
-        let sprite: MeshSprite3D = new MeshSprite3D(mesh, glTFNode.name);
-        sprite.meshRenderer.sharedMaterials = materials;
-        sprite.meshRenderer.receiveShadow = true;
-        sprite.meshRenderer.castShadow = true;
+        let sprite = new Sprite3D(glTFNode.name);
+        let filter = sprite.addComponent(MeshFilter);
+        let render = sprite.addComponent(MeshRenderer);
+        filter.sharedMesh = mesh;
+        render.sharedMaterials = materials;
+        render.receiveShadow = true;
+        render.castShadow = true;
 
         if (glTFMesh.weights) {
-            let render = sprite.meshRenderer;
             glTFMesh.weights.forEach((weight, index) => {
                 let target = mesh.morphTargetData.getMorphChannelbyIndex(index);
                 render.setMorphChannelWeight(target.name, weight);
@@ -1081,17 +1081,19 @@ export class glTFResource extends Prefab {
      * 创建 MeshSprite3D 对象
      * @param glTFNode 
      */
-    private createSkinnedMeshSprite3D(glTFNode: glTF.glTFNode): SkinnedMeshSprite3D {
+    private createSkinnedMeshSprite3D(glTFNode: glTF.glTFNode): Sprite3D {
         let glTFMesh: glTF.glTFMesh = this._data.meshes[glTFNode.mesh];
         let mesh: Mesh = this._meshes[glTFNode.mesh + "_" + glTFNode.skin];
         let materials: Material[] = this.pickMeshMaterials(glTFMesh);
-        let sprite: SkinnedMeshSprite3D = new SkinnedMeshSprite3D(mesh, glTFNode.name);
-        sprite.skinnedMeshRenderer.sharedMaterials = materials;
-        sprite.skinnedMeshRenderer.receiveShadow = true;
-        sprite.skinnedMeshRenderer.castShadow = true;
+        let sprite = new Sprite3D(glTFNode.name);
+        let filter = sprite.addComponent(MeshFilter);
+        let render = sprite.addComponent(SkinnedMeshRenderer);
+        filter.sharedMesh = mesh;
+        render.sharedMaterials = materials;
+        render.receiveShadow = true;
+        render.castShadow = true;
 
         if (glTFMesh.weights) {
-            let render = sprite.skinnedMeshRenderer;
             glTFMesh.weights.forEach((weight, index) => {
                 let target = mesh.morphTargetData.getMorphChannelbyIndex(index);
                 render.setMorphChannelWeight(target.name, weight);
@@ -1904,9 +1906,9 @@ export class glTFResource extends Prefab {
      * 计算 SkinnedMeshSprite3D local bounds
      * @param skinned 
      */
-    private calSkinnedSpriteLocalBounds(skinned: SkinnedMeshSprite3D): void {
-        let render: SkinnedMeshRenderer = skinned.skinnedMeshRenderer;
-        let mesh: Mesh = skinned.meshFilter.sharedMesh;
+    private calSkinnedSpriteLocalBounds(skinned: Sprite3D): void {
+        let render: SkinnedMeshRenderer = skinned.getComponent(SkinnedMeshRenderer);
+        let mesh: Mesh = skinned.getComponent(MeshFilter).sharedMesh;
         let rootBone: Sprite3D = render.rootBone;
 
         let oriRootMatrix: Matrix4x4 = rootBone.transform.worldMatrix;
@@ -2008,9 +2010,9 @@ export class glTFResource extends Prefab {
      * @param glTFNode 
      * @param skinned 
      */
-    private fixSkinnedSprite(glTFNode: glTF.glTFNode, skinned: SkinnedMeshSprite3D): void {
+    private fixSkinnedSprite(glTFNode: glTF.glTFNode, skinned: Sprite3D): void {
         let skin: glTF.glTFSkin = this._data.skins[glTFNode.skin];
-        let skinnedMeshRenderer: SkinnedMeshRenderer = skinned.skinnedMeshRenderer;
+        let skinnedMeshRenderer: SkinnedMeshRenderer = skinned.getComponent(SkinnedMeshRenderer);
         skin.joints.forEach(nodeIndex => {
             let bone: Sprite3D = this._nodes[nodeIndex];
             skinnedMeshRenderer.bones.push(bone);
@@ -2019,6 +2021,7 @@ export class glTFResource extends Prefab {
             skin.skeleton = skin.joints[0];
         }
         skinnedMeshRenderer.rootBone = this._nodes[skin.skeleton];
+        skinnedMeshRenderer.bones = skinnedMeshRenderer.bones;
 
         this.calSkinnedSpriteLocalBounds(skinned);
     }

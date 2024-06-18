@@ -2,11 +2,7 @@ import { Config } from "../../Config";
 import { Config3D } from "../../Config3D";
 import { ILaya } from "../../ILaya";
 import { BufferUsage } from "../RenderEngine/RenderEnum/BufferTargetType";
-import { DefineDatas } from "../RenderEngine/RenderShader/DefineDatas";
-import { RenderState } from "../RenderEngine/RenderShader/RenderState";
 import { Shader3D } from "../RenderEngine/RenderShader/Shader3D";
-import { ShaderData, ShaderDataType, ShaderDataItem, ShaderDataDefaultValue } from "../RenderEngine/RenderShader/ShaderData";
-import { ShaderDefine } from "../RenderEngine/RenderShader/ShaderDefine";
 import { UniformBufferObject } from "../RenderEngine/UniformBufferObject";
 import { LayaGL } from "../layagl/LayaGL";
 import { Color } from "../maths/Color";
@@ -21,6 +17,11 @@ import { IClone } from "../utils/IClone";
 import { BaseTexture } from "./BaseTexture";
 import { Resource } from "./Resource";
 import { Event } from "../events/Event";
+import { ShaderDefine } from "../RenderDriver/RenderModuleData/Design/ShaderDefine";
+import { ShaderData, ShaderDataDefaultValue, ShaderDataItem, ShaderDataType } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { RenderState } from "../RenderDriver/RenderModuleData/Design/RenderState";
+import { IDefineDatas } from "../RenderDriver/RenderModuleData/Design/IDefineDatas";
+
 
 
 export enum MaterialRenderMode {
@@ -54,7 +55,9 @@ export class Material extends Resource implements IClone {
 
     /**材质级着色器宏定义,透明测试。*/
     static SHADERDEFINE_ALPHATEST: ShaderDefine;
+    /**材质级着色器宏定义,主贴图。*/
     static SHADERDEFINE_MAINTEXTURE: ShaderDefine;
+    /**材质级着色器宏定义,叠加雾效。*/
     static SHADERDEFINE_ADDTIVEFOG: ShaderDefine;
     /**
      * 加载材质。
@@ -96,10 +99,19 @@ export class Material extends Resource implements IClone {
     private _matRenderNode: MaterialRenderMode;
     /** @internal */
     _shader: Shader3D;
-    /** @private */
+    /** @internal */
     _shaderValues: ShaderData | null;//TODO:剥离贴图ShaderValue
     /** 所属渲染队列. */
-    renderQueue: number;
+    private _renderQueue: number;
+    public get renderQueue(): number {
+        return this._renderQueue;
+    }
+    public set renderQueue(value: number) {
+        this._renderQueue = value;
+        this.ownerELement && (this.ownerELement.material = this);//更新RenderElementRenderQueue
+    }
+
+    ownerELement: any;
 
     /**
      * 着色器数据。
@@ -151,7 +163,7 @@ export class Material extends Resource implements IClone {
 
     /**
      * 开启 或 关闭 shader 宏定义
-     * @param define 
+     * @param define 宏
      * @param value true: addDefine, false: removeDefine
      */
     setDefine(define: ShaderDefine, value: boolean) {
@@ -231,7 +243,7 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 混合目标 alpha
+     * 混合源 alpha
      */
     public get blendSrcAlpha(): number {
         return this._shaderValues.getInt(Shader3D.BLEND_SRC_ALPHA);
@@ -253,6 +265,9 @@ export class Material extends Resource implements IClone {
         this._shaderValues.setInt(Shader3D.BLEND_SRC_RGB, value);
     }
 
+    /**
+     * 混合目标 RGB
+     */
     public get blendDstRGB(): number {
         return this._shaderValues.getInt(Shader3D.BLEND_DST_RGB);
     }
@@ -374,7 +389,7 @@ export class Material extends Resource implements IClone {
      */
     get MaterialDefine(): Array<string> {
         let shaderDefineArray = new Array<string>();
-        let defineData = this._shaderValues._defineDatas;
+        let defineData = this._shaderValues.getDefineData();
         Shader3D._getNamesByDefineData(defineData, shaderDefineArray);
         return shaderDefineArray;
     }
@@ -454,8 +469,9 @@ export class Material extends Resource implements IClone {
      */
     constructor() {
         super();
-        this._shaderValues = LayaGL.renderOBJCreate.createShaderData(this);
+        this._shaderValues = LayaGL.renderDeviceFactory.createShaderData(this);
         this.renderQueue = Material.RENDERQUEUE_OPAQUE;
+        this._matRenderNode = 0;
         this.alphaTest = false;
         this.cull = RenderState.CULL_BACK;
         this.blend = RenderState.BLEND_DISABLE;
@@ -505,19 +521,13 @@ export class Material extends Resource implements IClone {
      * @returns 
      */
     private _releaseUBOData() {
-        if (!this._shaderValues.uniformBufferDatas) {
-            return;
-        }
-        for (let value of this._shaderValues.uniformBufferDatas.values()) {
-            value.ubo._updateDataInfo.destroy();
-            value.ubo.destroy();
-            value.ubo._updateDataInfo = null;
-        }
-        this._shaderValues.uniformBufferDatas.clear();
-        this._shaderValues.uniformBuffersMap.clear();
+        this._shaderValues._releaseUBOData();
     }
 
     /**
+     * 销毁资源
+     * @protected
+     * @internal
      * @inheritDoc
      * @override
      */
@@ -527,6 +537,9 @@ export class Material extends Resource implements IClone {
         this._shaderValues = null;
     }
 
+    /**
+     * 获取材质的shader
+     */
     get shader() {
         return this._shader;
     }
@@ -564,6 +577,7 @@ export class Material extends Resource implements IClone {
         let defaultValue = subShader._uniformDefaultValue;
         let typeMap = subShader._uniformTypeMap;
         this.applyUniformDefaultValue(typeMap, defaultValue);
+        this.ownerELement && (this.ownerELement.material = this);//更新RenderElementRenderQueue
     }
 
     /**
@@ -576,13 +590,16 @@ export class Material extends Resource implements IClone {
                 this.setShaderData(key, type, value);
             }
             else {
-                this.setShaderData(key, type, ShaderDataDefaultValue(type));
+                let value = ShaderDataDefaultValue(type);
+                if (value) {
+                    this.setShaderData(key, type, value);
+                }
             }
         });
     }
 
     /**
-     * 获得bool属性值
+     * 通过索引获得bool属性值
      * @param uniformIndex 属性索引
      * @returns 
      */
@@ -592,7 +609,7 @@ export class Material extends Resource implements IClone {
 
 
     /**
-     * 设置bool值
+     * 通过索引设置bool值
      * @param uniformIndex 属性索引
      * @param value 值
      */
@@ -601,7 +618,7 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 活得bool值
+     * 获得bool值
      * @param name 属性名称
      * @returns 
      */
@@ -621,7 +638,7 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 获得Float值
+     * 通过索引获得Float值
      * @param uniformIndex 属性索引
      * @returns 
      */
@@ -630,7 +647,7 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 设置Float值
+     * 通过索引设置Float值
      * @param uniformIndex 属性索引
      * @param value 值
      */
@@ -659,7 +676,7 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 获得Int值
+     * 通过索引获得Int值
      * @param uniformIndex 属性索引
      * @returns 
      */
@@ -668,7 +685,7 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 设置Int值
+     * 通过索引设置Int值
      * @param uniformIndex 属性索引
      * @param value 值
      */
@@ -697,7 +714,7 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 获得Vector2
+     * 通过索引获得Vector2
      * @param uniformIndex 属性索引
      * @returns 
      */
@@ -706,7 +723,7 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 设置Vector2
+     * 通过索引设置Vector2
      * @param uniformIndex 属性索引
      * @param value 值
      */
@@ -735,7 +752,7 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 获得Vector3
+     * 通过索引获得Vector3
      * @param uniformIndex 属性索引
      * @returns 
      */
@@ -744,7 +761,7 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 设置Vector3
+     * 通过索引设置Vector3
      * @param uniformIndex 属性索引
      * @param value 值
      */
@@ -773,7 +790,7 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 获得Vector4
+     * 通过索引设置Vector4
      * @param uniformIndex 属性索引
      * @param value 值
      */
@@ -782,7 +799,7 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 设置Vector4
+     * 通过索引获取Vector4
      * @param uniformIndex 属性索引
      * @returns 
      */
@@ -811,7 +828,7 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 获得Color
+     * 通过索引获得Color
      * @param uniformIndex 属性索引
      * @returns 
      */
@@ -820,7 +837,7 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 设置Color
+     * 通过索引设置Color
      * @param uniformIndex 属性索引
      * @param value 值
      */
@@ -858,7 +875,7 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 设置Matrix4x4
+     * 通过索引设置Matrix4x4
      * @param uniformIndex 属性索引
      * @param value 值
      */
@@ -887,8 +904,8 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 获取 matrix3x3
-     * @param index 
+     * 通过索引获取 matrix3x3
+     * @param index 索引 
      * @returns 
      */
     getMatrix3x3ByIndex(index: number) {
@@ -896,9 +913,9 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 设置 matrix3x3
-     * @param index 
-     * @param value 
+     * 通过索引设置 matrix3x3
+     * @param index 索引
+     * @param value 值
      */
     setMatrix3x3ByIndex(index: number, value: Matrix3x3) {
         this.shaderData.setMatrix3x3(index, value);
@@ -906,7 +923,7 @@ export class Material extends Resource implements IClone {
 
     /**
      * 获取 matrix3x3
-     * @param name 
+     * @param name 属性名称
      * @returns 
      */
     getMatrix3x3(name: string): Matrix3x3 {
@@ -916,8 +933,8 @@ export class Material extends Resource implements IClone {
 
     /**
      * 设置 matrix3x3
-     * @param name 
-     * @param value 
+     * @param name 属性名称
+     * @param value 值
      */
     setMatrix3x3(name: string, value: Matrix3x3) {
         let index = Shader3D.propertyNameToID(name);
@@ -927,19 +944,16 @@ export class Material extends Resource implements IClone {
     /**
      * 设置纹理
      * @param uniformIndex 属性索引
-     * @param texture 
+     * @param texture 纹理
      */
     setTextureByIndex(uniformIndex: number, texture: BaseTexture) {
         this.shaderData.setTexture(uniformIndex, texture);
         if (texture && !texture._texture)//贴图为加载完，需要重设
-            texture.once(Event.READY, this, this.reSetTexture);
+            texture.once(Event.READY, this, this.reSetTexture, [uniformIndex, texture]);
     }
 
-    private reSetTexture(texture: BaseTexture) {
-        let index = this.shaderData.getSourceIndex(texture);
-        if (index != -1) {
-            this.setTextureByIndex(index, texture);
-        }
+    private reSetTexture(uniformIndex: number, texture: BaseTexture) {
+        this.setTextureByIndex(uniformIndex, texture);
     }
 
     /**
@@ -954,7 +968,7 @@ export class Material extends Resource implements IClone {
     /**
      * 设置纹理
      * @param name 属性名称
-     * @param texture 
+     * @param texture 纹理
      */
     setTexture(name: string, texture: BaseTexture) {
         let uniformIndex = Shader3D.propertyNameToID(name);
@@ -1074,32 +1088,17 @@ export class Material extends Resource implements IClone {
     }
 
     //--------------------------------------------兼容-------------------------------------------------
+
     /**
-     * 设置属性值
-     * @deprecated
-     * @param name 
-     * @param value 
+     * 材质宏
      */
-    setShaderPropertyValue(name: string, value: any) {
-        let propertyID = Shader3D.propertyNameToID(name);
-        this.shaderData.setValueData(propertyID, value);
+    get _defineDatas(): IDefineDatas {
+        return this._shaderValues.getDefineData();
     }
 
     /**
-     * 获取属性值
-     * @deprecated
-     * @param name 
-     */
-    getShaderPropertyValue(name: string): any {
-        return this.shaderData.getValueData(Shader3D.propertyNameToID(name));
-    }
-
-    get _defineDatas(): DefineDatas {
-        return this._shaderValues._defineDatas;
-    }
-
-    /**
-     * override it
+     * 兼容老的解析结束事件
+     * @override
      */
     oldparseEndEvent() {
         //TODO

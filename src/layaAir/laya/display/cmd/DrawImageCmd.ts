@@ -1,4 +1,4 @@
-import { Context } from "../../resource/Context"
+import { Context, IGraphicCMD } from "../../renders/Context"
 import { Texture } from "../../resource/Texture"
 import { ColorUtils } from "../../utils/ColorUtils";
 import { Pool } from "../../utils/Pool"
@@ -6,7 +6,7 @@ import { Pool } from "../../utils/Pool"
 /**
  * 绘制图片
  */
-export class DrawImageCmd {
+export class DrawImageCmd implements IGraphicCMD {
     static ID: string = "DrawImage";
 
     /**

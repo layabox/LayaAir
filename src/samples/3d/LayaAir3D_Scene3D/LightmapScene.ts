@@ -5,7 +5,6 @@ import { Stage } from "laya/display/Stage";
 import { Vector3 } from "laya/maths/Vector3";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Color } from "laya/maths/Color";
 

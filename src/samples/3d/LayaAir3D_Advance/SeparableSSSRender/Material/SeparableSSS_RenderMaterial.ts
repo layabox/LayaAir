@@ -2,11 +2,12 @@ import { Material } from "laya/resource/Material";
 import SSSSRenderVS from "./../shader/SeparableSSS_Render.vs";
 import SSSSRenderFS from "./../shader/SeparableSSS_Render.fs";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
-import { ShaderDataType } from "laya/RenderEngine/RenderShader/ShaderData";
-import { RenderState } from "laya/RenderEngine/RenderShader/RenderState";
+import { RenderState } from "laya/RenderDriver/RenderModuleData/Design/RenderState";
 import { SubShader } from "laya/RenderEngine/RenderShader/SubShader";
 import { VertexMesh } from "laya/RenderEngine/RenderShader/VertexMesh";
 import { Vector4 } from "laya/maths/Vector4";
+import { ShaderDataType } from "laya/RenderDriver/DriverDesign/RenderDevice/ShaderData";
+
 
 export class SeparableSSSRenderMaterial extends Material {
 
@@ -41,7 +42,7 @@ export class SeparableSSSRenderMaterial extends Material {
         super();
         this.setShaderName("SeparableRender");
         this.renderModeSet();
-        this._shaderValues.setVector(SeparableSSSRenderMaterial.TILINGOFFSET, new Vector4(1, 1, 0, 0));
+        this.shaderData.setVector(SeparableSSSRenderMaterial.TILINGOFFSET, new Vector4(1, 1, 0, 0));
     }
 
     //渲染模式

@@ -1,26 +1,26 @@
 import { Event } from "../../events/Event";
 import { SkinnedMeshRenderer } from "./SkinnedMeshRenderer";
-import { RenderContext3D } from "./render/RenderContext3D";
-import { Transform3D } from "./Transform3D";
 import { SubMeshRenderElement } from "./render/SubMeshRenderElement";
-import { Sprite3D } from "./Sprite3D";
-import { RenderElement } from "./render/RenderElement";
 import { SkinnedMeshSprite3DShaderDeclaration } from "./SkinnedMeshSprite3DShaderDeclaration";
 import { Mesh } from "../resource/models/Mesh";
 import { Texture2D } from "../../resource/Texture2D";
-import { Component } from "../../components/Component";
-import { ShaderDataType } from "../../RenderEngine/RenderShader/ShaderData";
-import { Matrix4x4 } from "../../maths/Matrix4x4";
 import { Vector2 } from "../../maths/Vector2";
 import { Vector4 } from "../../maths/Vector4";
+import { IRenderContext3D } from "../../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
+import { BaseRenderType, IBaseRenderNode, ISimpleSkinRenderNode } from "../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
+import { Sprite3D } from "./Sprite3D";
+import { Laya3DRender } from "../RenderObjs/Laya3DRender";
+import { RenderContext3D } from "./render/RenderContext3D";
+import { RenderElement } from "./render/RenderElement";
+import { SimpleSkinnedMeshSprite3D } from "./SimpleSkinnedMeshSprite3D";
 
 export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
-    /**@internal 解决循环引用 */
-    static SIMPLE_SIMPLEANIMATORTEXTURE: number;
-    /**@internal 解决循环引用*/
-    static SIMPLE_SIMPLEANIMATORPARAMS: number;
-    /**@internal 解决循环引用*/
-    static SIMPLE_SIMPLEANIMATORTEXTURESIZE: number;
+    // /**@internal 解决循环引用 */
+    // static SIMPLE_SIMPLEANIMATORTEXTURE: number;
+    // /**@internal 解决循环引用*/
+    // static SIMPLE_SIMPLEANIMATORPARAMS: number;
+    // /**@internal 解决循环引用*/
+    // static SIMPLE_SIMPLEANIMATORTEXTURESIZE: number;
 
     /**@internal */
     private _simpleAnimatorTexture: Texture2D;
@@ -32,6 +32,11 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
     private _simpleAnimatorOffset: Vector2;
     /**@internal */
     _bonesNums: number;
+
+    /**@internal */
+    _baseRenderNode: IBaseRenderNode;
+    //解决编译bug TODO
+    private _ownerSimpleRenderNode: ISimpleSkinRenderNode;
 
     /**
      * @internal
@@ -47,9 +52,9 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
     set simpleAnimatorTexture(value: Texture2D) {
         this._simpleAnimatorTexture = value;
         this._simpleAnimatorTextureSize = value.width;
-        this._shaderValues.setTexture(SimpleSkinnedMeshRenderer.SIMPLE_SIMPLEANIMATORTEXTURE, value);
+        this._baseRenderNode.shaderData.setTexture(SimpleSkinnedMeshSprite3D.SIMPLE_SIMPLEANIMATORTEXTURE, value);
         value._addReference();
-        this._shaderValues.setNumber(SimpleSkinnedMeshRenderer.SIMPLE_SIMPLEANIMATORTEXTURESIZE, this._simpleAnimatorTextureSize);
+        this._baseRenderNode.shaderData.setNumber(SimpleSkinnedMeshSprite3D.SIMPLE_SIMPLEANIMATORTEXTURESIZE, this._simpleAnimatorTextureSize);
     }
 
     /**
@@ -68,6 +73,10 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
     }
 
 
+    protected _isISkinRenderNode():any{
+        return null;
+    }
+
     /**
      * 创建一个 <code>SkinnedMeshRender</code> 实例。
      */
@@ -75,12 +84,43 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
         super();
         this._simpleAnimatorParams = new Vector4();
         this._simpleAnimatorOffset = new Vector2();
-        this._shaderValues.addDefine(SkinnedMeshSprite3DShaderDeclaration.SHADERDEFINE_SIMPLEBONE);
-        this._shaderValues.addDefine(SkinnedMeshSprite3DShaderDeclaration.SHADERDEFINE_BONE);
+        this._baseRenderNode.shaderData.addDefine(SkinnedMeshSprite3DShaderDeclaration.SHADERDEFINE_SIMPLEBONE);
+        this._baseRenderNode.shaderData.addDefine(SkinnedMeshSprite3DShaderDeclaration.SHADERDEFINE_BONE);
+        this._baseRenderNode.renderNodeType = BaseRenderType.SimpleSkinRender;
+        this._baseRenderNode.shaderData.setVector(SimpleSkinnedMeshSprite3D.SIMPLE_SIMPLEANIMATORPARAMS, new Vector4());
     }
 
+    /**
+     * @internal
+     * @protected
+     * @returns 
+     */
+    protected _createBaseRenderNode(): IBaseRenderNode {
+        this._ownerSimpleRenderNode = Laya3DRender.Render3DModuleDataFactory.createSimpleSkinRenderNode();
+        return this._ownerSimpleRenderNode;
+    }
+
+    /**
+     * @internal
+     * @protected
+     * @returns 
+     */
     protected _getcommonUniformMap(): string[] {
         return ["Sprite3D", "SimpleSkinnedMesh"];
+    }
+
+    protected _computeSkinnedData(): void {
+        this._computeAnimatorParamsData();
+    }
+
+    /**
+  * @param context
+  * @perfTag PerformanceDefine.T_SkinBoneUpdate
+  */
+    renderUpdate(context: RenderContext3D): void {
+        super.renderUpdate(context);
+        this._computeSkinnedData();
+        this._baseRenderNode.transform = this.rootBone ? this.rootBone.transform : this.owner.transform;
     }
 
     /**
@@ -90,7 +130,8 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
      */
     _createRenderElement() {
         let renderelement = new SubMeshRenderElement();
-        return renderelement as any;
+        return renderelement;
+
     }
 
     /**
@@ -100,7 +141,20 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
         if (this._cacheMesh) {
             this._simpleAnimatorParams.x = this._simpleAnimatorOffset.x;
             this._simpleAnimatorParams.y = Math.round(this._simpleAnimatorOffset.y) * this._bonesNums * 4;
+
+            this._ownerSimpleRenderNode.setSimpleAnimatorParams(this._simpleAnimatorParams);
         }
+    }
+
+    /**
+     * 自定义数据
+     * @param value1 自定义数据1
+     * @param value2 自定义数据1
+     */
+    setCustomData(value1: number, value2: number = 0) {
+        this._simpleAnimatorParams.z = value1;
+        this._simpleAnimatorParams.w = value2;
+        this._ownerSimpleRenderNode.setSimpleAnimatorParams(this._simpleAnimatorParams);
     }
 
     /**
@@ -113,44 +167,38 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
         if (!value)
             return;
         this._cacheMesh = (<Mesh>value);
+        this._setRenderElements();
 
     }
-    /**
-     * @inheritDoc
-     * @override
-     * @internal
-     */
-    _renderUpdate(context: RenderContext3D, transform: Transform3D): void {
-        var element: SubMeshRenderElement = <SubMeshRenderElement>context.renderElement;
+    // /**
+    //  * @inheritDoc
+    //  * @override
+    //  * @internal
+    //  */
+    // _renderUpdate(context: IRenderContext3D): void {
 
-        if (this.rootBone) {
-            var worldMat: Matrix4x4 = (this.rootBone as Sprite3D).transform.worldMatrix;
-            if (this._subUniformBufferData) {
-                let oriMat = this._shaderValues.getMatrix4x4(Sprite3D.WORLDMATRIX);
-                this._subUniformBufferData._needUpdate = oriMat ? !oriMat.equalsOtherMatrix(worldMat) : true;
-            }
-            this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, worldMat);
-            this._worldParams.x = (this.rootBone as Sprite3D).transform.getFrontFaceValue();
-            this._setShaderValue(Sprite3D.WORLDINVERTFRONT, ShaderDataType.Vector4, this._worldParams);
-        } else {
-            this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, transform.worldMatrix);
-            this._worldParams.x = transform.getFrontFaceValue();
-            this._setShaderValue(Sprite3D.WORLDINVERTFRONT, ShaderDataType.Vector4, this._worldParams);
-        }
-        this._computeAnimatorParamsData();
-        this._shaderValues.setVector(SimpleSkinnedMeshRenderer.SIMPLE_SIMPLEANIMATORPARAMS, this._simpleAnimatorParams);
+    //     let shaderData = this._baseRenderNode.shaderData;
 
-    }
+    //     let transform = this.rootBone ? this.rootBone.transform : this.owner.transform;
+    //     let worldMat = transform.worldMatrix;
+    //     let worldParams = this._worldParams;
+
+    //     worldParams.x = this.owner.transform.getFrontFaceValue();
+    //     shaderData.setMatrix4x4(Sprite3D.WORLDMATRIX, worldMat);
+    //     shaderData.setVector(Sprite3D.WORLDINVERTFRONT, worldParams);
+
+    //     this._baseRenderNode._applyLightProb();
+    //     this._baseRenderNode._applyReflection();
+
+    //     shaderData.setVector(SimpleSkinnedMeshRenderer.SIMPLE_SIMPLEANIMATORPARAMS, this._simpleAnimatorParams);
+    // }
 
     /**
-     * @inheritDoc
-     * @override
      * @internal
+     * 克隆到目标
+     * @param dest 目标 
      */
-    _renderUpdateWithCamera(context: RenderContext3D, transform: Transform3D): void {
-    }
-
-    _cloneTo(dest: Component): void {
+    _cloneTo(dest: SimpleSkinnedMeshRenderer): void {
         let render = dest as SimpleSkinnedMeshRenderer;
         render.simpleAnimatorOffset = this.simpleAnimatorOffset;
         render.simpleAnimatorTexture = this.simpleAnimatorTexture;
@@ -159,6 +207,8 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
     }
 
     /**
+     * @internal
+     * @protected
      * 删除节点
      */
     protected _onDestroy() {

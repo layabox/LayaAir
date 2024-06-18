@@ -13,6 +13,7 @@ export class Vector2 implements IClone {
     static readonly ZERO: Readonly<Vector2> = new Vector2(0.0, 0.0);
     /**一向量,禁止修改*/
     static readonly ONE: Readonly<Vector2> = new Vector2(1.0, 1.0);
+    /**临时Vector2 */
     static TempVector2 = new Vector2();
     /**X轴坐标*/
     x: number;
@@ -140,31 +141,6 @@ export class Vector2 implements IClone {
         var destVector2: Vector2 = new Vector2();
         this.cloneTo(destVector2);
         return destVector2;
-    }
-
-    forNativeElement(nativeElements: Float32Array | null = null): void//[NATIVE_TS]
-    {
-        if (nativeElements) {
-            (<any>this).elements = nativeElements;
-            (<any>this).elements[0] = this.x;
-            (<any>this).elements[1] = this.y;
-        }
-        else {
-            (<any>this).elements = new Float32Array([this.x, this.y]);
-        }
-        Vector2.rewriteNumProperty(this, "x", 0);
-        Vector2.rewriteNumProperty(this, "y", 1);
-    }
-
-    static rewriteNumProperty(proto: any, name: string, index: number): void {
-        Object["defineProperty"](proto, name, {
-            "get": function (): any {
-                return this.elements[index];
-            },
-            "set": function (v: any): void {
-                this.elements[index] = v;
-            }
-        });
     }
 
 }

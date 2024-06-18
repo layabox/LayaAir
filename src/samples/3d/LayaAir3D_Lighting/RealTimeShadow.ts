@@ -1,6 +1,5 @@
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
-import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { ShadowCascadesMode } from "laya/d3/core/light/ShadowCascadesMode";
 import { ShadowMode } from "laya/d3/core/light/ShadowMode";
 import { PBRStandardMaterial } from "laya/d3/core/material/PBRStandardMaterial";
@@ -17,7 +16,6 @@ import { Loader } from "laya/net/Loader";
 import { Button } from "laya/ui/Button";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
-import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Stat } from "laya/utils/Stat";
 import Client from "../../Client";
@@ -25,6 +23,8 @@ import { SkinnedMeshRenderer } from "laya/d3/core/SkinnedMeshRenderer";
 import { Script } from "laya/components/Script";
 import { Color } from "laya/maths/Color";
 import { Vector3 } from "laya/maths/Vector3";
+import { MeshRenderer } from "laya/d3/core/MeshRenderer";
+import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
 
 /**
  * Light rotation script.
@@ -37,7 +37,7 @@ class RotationScript extends Script {
 
 	onUpdate(): void {
 		if (this.rotation)
-			(<DirectionLight>this.owner).transform.rotate(this.autoRotateSpeed, false);
+			(this.owner as Sprite3D).transform.rotate(this.autoRotateSpeed, false);
 	}
 }
 
@@ -47,9 +47,9 @@ class RotationScript extends Script {
 export class RealTimeShadow {
 
 	/**实例类型*/
-	private btype:any = "RealTimeShadow";
-	private rotationButton:Button;
-	private rotationScript:RotationScript;
+	private btype: any = "RealTimeShadow";
+	private rotationButton: Button;
+	private rotationScript: RotationScript;
 	constructor() {
 		//Init engine.
 		Laya.init(0, 0).then(() => {
@@ -66,35 +66,36 @@ export class RealTimeShadow {
 
 	private onComplete(): void {
 		var scene: Scene3D = <Scene3D>Laya.stage.addChild(new Scene3D());
-		
+
 		var camera: Camera = <Camera>(scene.addChild(new Camera(0, 0.1, 100)));
 		camera.transform.translate(new Vector3(0, 1.2, 1.6));
 		camera.transform.rotate(new Vector3(-35, 0, 0), true, false);
 		camera.addComponent(CameraMoveScript);
 
-		var directionLight: DirectionLight = new DirectionLight();
+		var directionLight: Sprite3D = new Sprite3D();
+		var directionLightCom: DirectionLightCom = directionLight.addComponent(DirectionLightCom);
 		scene.addChild(directionLight);
-		directionLight.color = new Color(0.85, 0.85, 0.8, 1);
+		directionLightCom.color = new Color(0.85, 0.85, 0.8, 1);
 		directionLight.transform.rotate(new Vector3(-Math.PI / 3, 0, 0));
 
 		// Use soft shadow.
-		directionLight.shadowMode = ShadowMode.SoftLow;
+		directionLightCom.shadowMode = ShadowMode.SoftLow;
 		// Set shadow max distance from camera.
-		directionLight.shadowDistance = 3;
+		directionLightCom.shadowDistance = 3;
 		// Set shadow resolution.
-		directionLight.shadowResolution = 1024;
+		directionLightCom.shadowResolution = 1024;
 		// Set shadow cascade mode.
-		directionLight.shadowCascadesMode = ShadowCascadesMode.NoCascades;
+		directionLightCom.shadowCascadesMode = ShadowCascadesMode.NoCascades;
 		// Set shadow normal bias.
-		directionLight.shadowNormalBias = 4;
+		directionLightCom.shadowNormalBias = 4;
 
 		// Add rotation script to light.
 		this.rotationScript = directionLight.addComponent(RotationScript);
 
 		// A plane receive shadow.
 		var grid: Sprite3D = <Sprite3D>scene.addChild(Loader.createNodes("res/threeDimen/staticModel/grid/plane.lh"));
-		(<MeshSprite3D>grid.getChildAt(0)).meshRenderer.receiveShadow = true;
-		
+		(<MeshSprite3D>grid.getChildAt(0)).getComponent(MeshRenderer).receiveShadow = true;
+
 		// A monkey cast shadow.
 		var layaMonkey: Sprite3D = <Sprite3D>scene.addChild(Loader.createNodes("res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh"));
 		layaMonkey.transform.localScale = new Vector3(2, 2, 2);
@@ -102,12 +103,12 @@ export class RealTimeShadow {
 
 		// A sphere cast/receive shadow.
 		var sphereSprite: MeshSprite3D = this.addPBRSphere(PrimitiveMesh.createSphere(0.1), new Vector3(0, 0.2, 0.5), scene);
-		sphereSprite.meshRenderer.castShadow = true;
+		sphereSprite.getComponent(MeshRenderer).castShadow = true;
 
 		// Add Light controll UI.
 		this.loadUI();
 	}
-	
+
 	/**
 	 * Add one with smoothness and metallic sphere.
 	 */
@@ -116,7 +117,7 @@ export class RealTimeShadow {
 		mat.smoothness = 0.2;
 
 		var meshSprite: MeshSprite3D = new MeshSprite3D(sphereMesh);
-		meshSprite.meshRenderer.sharedMaterial = mat;
+		meshSprite.getComponent(MeshRenderer).sharedMaterial = mat;
 		var transform: Transform3D = meshSprite.transform;
 		transform.localPosition = position;
 		scene.addChild(meshSprite);
@@ -138,7 +139,7 @@ export class RealTimeShadow {
 		}));
 	}
 
-	stypeFun0(label:string = "Stop Rotation"): void {
+	stypeFun0(label: string = "Stop Rotation"): void {
 		if (this.rotationScript.rotation) {
 			this.rotationButton.label = "Start Rotation";
 			this.rotationScript.rotation = false;
@@ -147,6 +148,6 @@ export class RealTimeShadow {
 			this.rotationScript.rotation = true;
 		}
 		label = this.rotationButton.label;
-		Client.instance.send({type:"next",btype:this.btype,stype:0,value:label});	
+		Client.instance.send({ type: "next", btype: this.btype, stype: 0, value: label });
 	}
 }

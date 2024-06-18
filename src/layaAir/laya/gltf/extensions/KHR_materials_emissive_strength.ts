@@ -8,16 +8,7 @@ import { glTFResource } from "../glTFResource";
 import { PBRStandardMaterial } from "../../d3/core/material/PBRStandardMaterial";
 
 const ExtensionName = "KHR_materials_emissive_strength";
-
-declare module "../glTFInterface" {
-
-    export interface glTFMaterialEmissionStrength {
-        /** The strength adjustment to be multiplied with the material's emissive value. default: 1.0 */
-        emissiveStrength: number;
-    }
-
-}
-
+/** @internal */
 export class KHR_materials_emissive_strength implements glTFExtension {
     readonly name: string = ExtensionName;
 

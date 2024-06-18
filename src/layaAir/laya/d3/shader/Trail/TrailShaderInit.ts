@@ -1,11 +1,11 @@
-import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D"
-import { ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData"
+import { Shader3D, ShaderFeatureType } from "../../../RenderEngine/RenderShader/Shader3D"
 import { VertexTrail } from "../../core/trail/VertexTrail";
 import TrailVS from "./Trail.vs";
 import TrailFS from "./Trail.fs";
 import { Color } from "../../../maths/Color";
 import { Vector4 } from "../../../maths/Vector4";
 import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
+import { ShaderDataType } from "../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 export class TrailShaderInit {
     static init() {
         let attributeMap: { [name: string]: [number, ShaderDataType] } = {
@@ -29,6 +29,7 @@ export class TrailShaderInit {
         };
 
         let shader = Shader3D.add("Trail", false, false);
+        shader.shaderType = ShaderFeatureType.Effect;
         let subShader = new SubShader(attributeMap, uniformMap, defaultValue);
         shader.addSubShader(subShader);
         let forwardPass = subShader.addShaderPass(TrailVS, TrailFS);

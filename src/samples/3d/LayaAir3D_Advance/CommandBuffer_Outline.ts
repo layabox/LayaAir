@@ -5,9 +5,7 @@ import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Stage } from "laya/display/Stage";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
 import { UnlitMaterial } from "laya/d3/core/material/UnlitMaterial";
-import { Viewport } from "laya/d3/math/Viewport";
 import { Material } from "laya/resource/Material";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { ShuriKenParticle3D } from "laya/d3/core/particleShuriKen/ShuriKenParticle3D";
@@ -26,6 +24,10 @@ import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { Color } from "laya/maths/Color";
 import { Vector4 } from "laya/maths/Vector4";
 import { RenderTexture } from "laya/resource/RenderTexture";
+import { MeshRenderer } from "laya/d3/core/MeshRenderer";
+import { ShurikenParticleRenderer } from "laya/d3/core/particleShuriKen/ShurikenParticleRenderer";
+import { SkinnedMeshRenderer } from "laya/d3/core/SkinnedMeshRenderer";
+import { Viewport } from "laya/maths/Viewport";
 
 export class CommandBuffer_Outline {
 	private commandBuffer: CommandBuffer;
@@ -62,11 +64,11 @@ export class CommandBuffer_Outline {
 
 				var renders: BaseRender[] = [];
 				var materials: Material[] = [];
-				renders.push((scene.getChildByName("Cube") as MeshSprite3D).meshRenderer);
+				renders.push((scene.getChildByName("Cube") as MeshSprite3D).getComponent(MeshRenderer));
 				materials.push(unlitMaterial);
-				renders.push((scene.getChildByName("Particle") as ShuriKenParticle3D).particleRenderer);
+				renders.push((scene.getChildByName("Particle") as ShuriKenParticle3D).getComponent(ShurikenParticleRenderer));
 				materials.push(shurikenMaterial);
-				renders.push((scene.getChildByName("LayaMonkey").getChildByName("LayaMonkey") as SkinnedMeshSprite3D).skinnedMeshRenderer);
+				renders.push((scene.getChildByName("LayaMonkey").getChildByName("LayaMonkey") as SkinnedMeshSprite3D).getComponent(SkinnedMeshRenderer));
 				materials.push(unlitMaterial);
 
 				//创建commandBuffer
@@ -90,13 +92,11 @@ export class CommandBuffer_Outline {
 		var viewPort: Viewport = camera.viewport;
 		var renderTexture = RenderTexture.createFromPool(viewPort.width, viewPort.height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None, false, 1);
 		//将RenderTexture设置为渲染目标
-		buf.setRenderTarget(renderTexture);
-		//清楚渲染目标的颜色为黑色，不清理深度
-		buf.clearRenderTarget(true, false, new Color(0, 0, 0, 0));
+		buf.setRenderTarget(renderTexture, true, false);
 
 		//将传入的Render渲染到纹理上
 		for (var i = 0, n = renders.length; i < n; i++) {
-			buf.drawRender(renders[i], materials[i], 0);
+			buf.drawRender(renders[i], materials[i]);
 		}
 		//创建新的RenderTexture
 		var subRendertexture = RenderTexture.createFromPool(viewPort.width, viewPort.height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None, false, 1);
@@ -128,12 +128,12 @@ export class CommandBuffer_Outline {
 		//vertical blur   使用blurMaterial材质的2SubShader
 		buf.blitScreenQuadByMaterial(blurTexture, downRenderTexture, null, blurMaterial, 2);
 		//在命令流里面插入设置图片命令流，在调用的时候会设置blurMaterial的图片数据
-		buf.setShaderDataTexture(blurMaterial._shaderValues, BlurMaterial.SHADERVALUE_SOURCETEXTURE0, downRenderTexture);
-		buf.setShaderDataTexture(blurMaterial._shaderValues, BlurMaterial.ShADERVALUE_SOURCETEXTURE1, subRendertexture);
+		buf.setShaderDataTexture(blurMaterial.shaderData, BlurMaterial.SHADERVALUE_SOURCETEXTURE0, downRenderTexture);
+		buf.setShaderDataTexture(blurMaterial.shaderData, BlurMaterial.ShADERVALUE_SOURCETEXTURE1, subRendertexture);
 		//caculate edge计算边缘图片
 		buf.blitScreenQuadByMaterial(blurTexture, renderTexture, null, blurMaterial, 3);
 		//重新传入图片
-		buf.setShaderDataTexture(blurMaterial._shaderValues, BlurMaterial.SHADERVALUE_SOURCETEXTURE0, renderTexture);
+		buf.setShaderDataTexture(blurMaterial.shaderData, BlurMaterial.SHADERVALUE_SOURCETEXTURE0, renderTexture);
 		//将camera渲染结果复制到subRendertexture，使用blurMaterial的4通道shader
 		buf.blitScreenQuadByMaterial(null, subRendertexture, null, blurMaterial, 4);
 		//将subRenderTexture重新赋值到camera的渲染结果上面

@@ -6,7 +6,6 @@ import { Sprite3D } from "../core/Sprite3D";
 import { Bounds } from "../math/Bounds";
 import { Event } from "../../events/Event";
 import { Utils3D } from "../utils/Utils3D";
-import { IBoundsCell } from "../math/IBoundsCell";
 import { Vector3 } from "../../maths/Vector3";
 
 const tempVec = new Vector3();
@@ -150,7 +149,7 @@ export class LODInfo {
 /**
  * <code>SpotLight</code> 类用于构建LOD组件
  */
-export class LODGroup extends Component implements IBoundsCell {
+export class LODGroup extends Component {
 
     /**
      * 是否需要重新计算_lodBoundsRadius，和_bounds
@@ -202,6 +201,11 @@ export class LODGroup extends Component implements IBoundsCell {
         this._lodPosition = new Vector3();
         this.runInEditor = true;
     }
+
+    /**
+     * 阴影裁剪pass
+     * @returns 
+     */
     shadowCullPass(): boolean {
         return false;
     }
@@ -229,6 +233,9 @@ export class LODGroup extends Component implements IBoundsCell {
         this._lodCount = this._lods.length;
     }
 
+    /**
+     * lod节点比例
+     */
     get nowRate() {
         return this._nowRate;
     }
@@ -251,7 +258,7 @@ export class LODGroup extends Component implements IBoundsCell {
         }
         this._visialIndex = -1;
 
-      
+
         this._applyVisibleRate(1);
     }
     /**
@@ -405,7 +412,7 @@ export class LODGroup extends Component implements IBoundsCell {
                     Bounds.merge(this._bounds, element.bounds, this._bounds);
             });
         }
-        this._lodPosition = this._bounds.getCenter();
+        this._lodPosition = this._bounds._imp.getCenter();
         let extend = this._bounds.getExtent();
         this._size = 2 * Math.max(extend.x, extend.y, extend.z);
         this._needcaculateBounds = false;

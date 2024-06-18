@@ -40,7 +40,7 @@ export class AnimatorControllerLayer2D implements IClone {
 
     /**@internal */
     _destCrossClipNodeIndices: number[] = [];
-    
+
     /**@internal */
     _enterTransition: AnimatorTransition2D;
 
@@ -108,6 +108,7 @@ export class AnimatorControllerLayer2D implements IClone {
 
     /**
      * 默认状态名称
+     * @param str 默认状态名称
      */
     set defaultStateName(str: string) {
         this._defaultState = this.getStateByName(str);
@@ -250,14 +251,15 @@ export class AnimatorControllerLayer2D implements IClone {
     }
 
     /**
-         * 克隆。
-         * @return	 克隆副本。
-         */
+     * 克隆。
+     * @return 克隆副本。
+     */
     clone() {
         var dest: AnimatorControllerLayer2D = new AnimatorControllerLayer2D(this.name);
         this.cloneTo(dest);
         return dest;
     }
+
     /**
      * 克隆。
      * @param	destObject 克隆源。
@@ -265,8 +267,6 @@ export class AnimatorControllerLayer2D implements IClone {
     cloneTo(destObject: any): void {
         var dest: AnimatorControllerLayer2D = (<AnimatorControllerLayer2D>destObject);
         dest.name = this.name;
-
-
     }
 
     /**

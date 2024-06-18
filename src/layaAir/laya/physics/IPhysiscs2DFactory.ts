@@ -163,7 +163,7 @@ export interface IPhysiscs2DFactory {
     /** 
      * @internal
      */
-    sendEvent(type: number, contact: any): void;
+    sendEvent(type: string, contact: any): void;
 
     /** 
      * @internal

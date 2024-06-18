@@ -40,12 +40,14 @@ export interface ILoadOptions {
     priority?: number;
     group?: string;
     cache?: boolean;
+    ignoreCache?: boolean;
     noRetry?: boolean;
     silent?: boolean;
     useWorkerLoader?: boolean;
     constructParams?: TextureConstructParams;
     propertyParams?: TexturePropertyParams;
     blob?: ArrayBuffer;
+    initiator?: ILoadTask;
     [key: string]: any;
 }
 
@@ -107,8 +109,7 @@ export class Loader extends EventDispatcher {
     static TEXTURE2D = "TEXTURE2D"; //这里是为了兼容，实际应该是BaseTexture
     /**TextureCube资源。*/
     static TEXTURECUBE = "TEXTURE2D"; //兼容处理，现在TEXTURE2D类型可以载入Texture或者TextureCube
-    /**TEXTURE2DARRAY资源。*/
-    static TEXTURE2DARRAY = "TEXTURE2D"; //兼容处理，现在TEXTURE2D类型可以载入Texture或者TEXTURE2DARRAY
+    static TEXTURE2DARRAY = "TEXTURE2D";
     /**AnimationClip资源。*/
     static ANIMATIONCLIP = "ANIMATIONCLIP";
     /**Terrain资源。*/
@@ -222,7 +223,7 @@ export class Loader extends EventDispatcher {
      * @param priority	(default = 0)加载的优先级，数字越大优先级越高，优先级高的优先加载。
      * @param cache		是否缓存。
      * @param group		分组，方便对资源进行管理。
-     * @param ignoreCache	参数已废弃。
+     * @param ignoreCache	是否忽略缓存。
      * @param useWorkerLoader(default = false)是否使用worker加载（只针对IMAGE类型和ATLAS类型，并且浏览器支持的情况下生效）
      * @return Promise对象
      */
@@ -242,12 +243,14 @@ export class Loader extends EventDispatcher {
             options = arg1;
         }
 
-        if (priority != null || cache != null || group != null || useWorkerLoader != null) {
+        if (priority != null || cache != null || ignoreCache != null || group != null || useWorkerLoader != null) {
             if (options === dummyOptions)
-                options = { priority, cache, group, useWorkerLoader };
+                options = { priority, cache, ignoreCache, group, useWorkerLoader };
             else
-                options = Object.assign(options, { priority, cache, group, useWorkerLoader });
+                options = Object.assign(options, { priority, cache, ignoreCache, group, useWorkerLoader });
         }
+        if (options.cache === false)
+            options.ignoreCache = true;
 
         let onProgress: ProgressCallback;
         if (arg2 instanceof Handler)
@@ -293,7 +296,8 @@ export class Loader extends EventDispatcher {
             return promise;
     }
 
-    private _load1(url: string, type: string, options: ILoadOptions, onProgress: ProgressCallback): Promise<any> {
+    /** @internal */
+    _load1(url: string, type: string, options: ILoadOptions, onProgress: ProgressCallback): Promise<any> {
         if (LayaEnv.isPreview) {
             if (url.startsWith("res://")) {
                 let uuid = url.substring(6);
@@ -301,7 +305,7 @@ export class Loader extends EventDispatcher {
                     if (url2)
                         return this._load2(url2, uuid, type, options, onProgress);
                     else {
-                        !options.silent && Loader.warnFailed(url);
+                        !options.silent && Loader.warnFailed(url, undefined, options.initiator?.url);
                         return Promise.resolve(null);
                     }
                 });
@@ -316,10 +320,11 @@ export class Loader extends EventDispatcher {
             return this._load2(url, null, type, options, onProgress);
     }
 
-    private _load2(url: string, uuid: string, type: string, options: ILoadOptions, onProgress: ProgressCallback): Promise<any> {
+    /** @internal */
+    _load2(url: string, uuid: string, type: string, options: ILoadOptions, onProgress: ProgressCallback): Promise<any> {
         let { ext, typeId, main, loaderType } = Loader.getURLInfo(url, type);
         if (!loaderType) {
-            !options.silent && Loader.warnFailed(url);
+            !options.silent && Loader.warnFailed(url, undefined, options.initiator?.url);
             return Promise.resolve(null);
         }
         let formattedUrl = URL.formatURL(url);
@@ -332,7 +337,7 @@ export class Loader extends EventDispatcher {
         }
 
         let obsoluteRes: Resource;
-        if (options.cache == null || options.cache) {
+        if (!options.ignoreCache) {
             let cacheRes = Loader._getRes(formattedUrl, type);
             if (cacheRes !== undefined) {
                 if (cacheRes == null)
@@ -355,6 +360,13 @@ export class Loader extends EventDispatcher {
             loadingKey += "@" + typeId;
         let task = this._loadings.get(loadingKey);
         if (task) {
+            //fix recursive dependency
+            let p = options.initiator;
+            while (p) {
+                if (p === task)
+                    return Promise.resolve();
+                p = p.options.initiator;
+            }
             if (onProgress)
                 task.onProgress.add(onProgress);
             return new Promise((resolve) => task.onComplete.add(resolve));
@@ -395,7 +407,7 @@ export class Loader extends EventDispatcher {
             promise = assetLoader.load(task);
         }
         catch (err: any) {
-            !options.silent && Loader.warnFailed(url, err);
+            !options.silent && Loader.warnFailed(url, err, options.initiator?.url);
 
             promise = Promise.resolve(null);
         }
@@ -405,7 +417,7 @@ export class Loader extends EventDispatcher {
                 content._setCreateURL(url, uuid);
             }
 
-            if (task.options.cache == null || task.options.cache)
+            if (task.options.cache !== false)
                 Loader._cacheRes(formattedUrl, content, typeId, main);
 
             task.progress.update(-1, 1);
@@ -414,9 +426,9 @@ export class Loader extends EventDispatcher {
             task.onComplete.invoke(content);
             return content;
         }).catch(error => {
-            !options.silent && Loader.warnFailed(url, error);
+            !options.silent && Loader.warnFailed(url, error, options.initiator?.url);
 
-            if (task.options.cache == null || task.options.cache)
+            if (task.options.cache !== false)
                 Loader._cacheRes(formattedUrl, null, typeId, main);
 
             task.onComplete.invoke(null);
@@ -458,11 +470,14 @@ export class Loader extends EventDispatcher {
             task.silent = true;
 
         return AssetDb.inst.resolveURL(url).then(url => {
-            return new Promise((resolve) => {
-                task.url = URL.formatURL(url);
-                task.onComplete = resolve;
-                this.queueToDownload(task);
-            });
+            if (url)
+                return new Promise((resolve) => {
+                    task.url = URL.formatURL(url);
+                    task.onComplete = resolve;
+                    this.queueToDownload(task);
+                });
+            else
+                return null;
         });
     }
 
@@ -564,7 +579,7 @@ export class Loader extends EventDispatcher {
         }
     }
 
-    private static getURLInfo(url: string, type?: string): URLInfo {
+    public static getURLInfo(url: string, type?: string): URLInfo {
         //先根据扩展名获得注册信息A
         let ext = url.startsWith("data:") ? "png" : Utils.getFileExtension(url);
         let extEntry: Array<TypeMapEntry>;
@@ -577,10 +592,9 @@ export class Loader extends EventDispatcher {
 
         if (type) { //指定了类型
             let typeEntry = Loader.typeMap[type];
-            if (!typeEntry) {
-                Loader.warn(`not recognize type: '${type}'`);
+            if (!typeEntry)
                 return NullURLInfo;
-            }
+
             typeId = typeEntry.typeId;
 
             let i: number = 0;
@@ -602,10 +616,8 @@ export class Loader extends EventDispatcher {
             }
         }
         else {
-            if (!extEntry) {
-                Loader.warn(`not recognize the resource suffix: '${url}'`);
+            if (!extEntry)
                 return NullURLInfo;
-            }
 
             //没有自定类型，则认为是主资源
             main = true;
@@ -616,15 +628,18 @@ export class Loader extends EventDispatcher {
         return { ext, main, typeId, loaderType };
     }
 
-    private static warnFailed(url: string, err?: any) {
-        this.warn(`Failed to load ${url}`, err);
+    public static warnFailed(url: string, err?: any, initiatorUrl?: string) {
+        if (initiatorUrl)
+            this.warn(`Failed to load '${url}' (in '${initiatorUrl}')`, err);
+        else
+            this.warn(`Failed to load '${url}'`, err);
     }
 
     public static warn(msg: string, err?: any) {
-        let errMsg = err ? (err.stack ? err.stack : err) : "";
-        if (errMsg)
-            errMsg = ": " + errMsg;
-        console.warn(msg + errMsg);
+        if (err)
+            console.warn(msg, err);
+        else
+            console.warn(msg);
     }
 
     /**
@@ -638,7 +653,8 @@ export class Loader extends EventDispatcher {
         return ret || null;
     }
 
-    private static _getRes(url: string, type?: string): any {
+    /** @internal */
+    static _getRes(url: string, type?: string): any {
         let resArr = Loader.loadedMap[url];
         if (!resArr)
             return undefined;
@@ -711,10 +727,8 @@ export class Loader extends EventDispatcher {
             Loader._cacheRes(url, data, urlInfo.typeId, urlInfo.main);
     }
 
-    /**
-     * @private
-     */
-    private static _cacheRes(url: string, data: any, typeId: number, main: boolean) {
+    /** @internal */
+    static _cacheRes(url: string, data: any, typeId: number, main: boolean) {
         let entry: Array<any> = Loader.loadedMap[url];
         if (main) {
             if (entry) {
@@ -762,9 +776,9 @@ export class Loader extends EventDispatcher {
     }
 
     /**
-     * @private
+     * @internal
      */
-    private static _clearRes(url: string, checkObj?: any) {
+    static _clearRes(url: string, checkObj?: any) {
         let entry = Loader.loadedMap[url];
         if (!entry)
             return;
@@ -922,35 +936,27 @@ export class Loader extends EventDispatcher {
                 remoteUrl += "/";
             let tmpPath: string = path + "/";
             URL.basePaths[tmpPath] = remoteUrl;
-            return this._loadSubFileConfig(path, progress);
+            return this._loadSubFileConfig(path, null, progress);
         } else {
             if (LayaEnv.isPreview)
                 return Promise.resolve();
-            let plat: any = null;
-            if (ILaya.Browser.onMiniGame) {
-                // wechat
-                plat = ILaya.Browser.window.wx;
-            } else if (ILaya.Browser.onTTMiniGame) {
-                // bytedance
-                plat = ILaya.Browser.window.tt;
-            } else if (ILaya.Browser.onKGMiniGame || ILaya.Browser.onVVMiniGame || ILaya.Browser.onQGMiniGame) {
-                // mi/vivo/oppo
-                plat = ILaya.Browser.window.qg;
-            } else if (ILaya.Browser.onAlipayMiniGame) {
-                // alipay
-                plat = ILaya.Browser.window.my;
-            } else {
-                return this._loadSubFileConfig(path, progress);
-            }
 
-            return this._loadMiniPackage(plat, path, progress).then(() =>
-                this._loadSubFileConfig(path, progress)
-            );
+            let mini = ILaya.Browser.miniGameContext;
+
+            if (mini == null) {
+                return this._loadSubFileConfig(path, null, progress);
+            }
+            else {
+                return this._loadMiniPackage(mini, path, progress).then(() =>
+                    this._loadSubFileConfig(path, mini, progress)
+                );
+            }
         }
     }
 
-
     private _loadMiniPackage(mini: any, packName: string, progress?: ProgressCallback): Promise<any> {
+        if (mini.subPkgNameSeperator)
+            packName = packName.replace(/\//g, mini.subPkgNameSeperator);
         if (!(packName.length > 0)) return Promise.resolve();
         return new Promise((resolve: (value: any) => void, reject: (reason?: any) => void) => {
             let loadTask: any = mini.loadSubpackage({
@@ -959,18 +965,19 @@ export class Loader extends EventDispatcher {
                     resolve(res);
                 },
                 fail: (res: any) => {
-                    resolve(res);
+                    reject(res);
                 }
             });
 
-            loadTask.onProgressUpdate((res: any) => {
+            loadTask.onProgressUpdate && loadTask.onProgressUpdate((res: any) => {
                 progress && progress(res);
             });
         })
     }
 
-
-    private _loadSubFileConfig(path: string, onProgress: ProgressCallback): Promise<any> {
+    private _loadSubFileConfig(path: string, mini: any, onProgress: ProgressCallback): Promise<any> {
+        if (mini && mini.subPkgPathSeperator)
+            path = path.replace(/\//g, mini.subPkgPathSeperator);
         if (path.length > 0)
             path += "/";
 
@@ -1052,6 +1059,11 @@ export class Loader extends EventDispatcher {
                         break;
                 }
             }
+
+            if (!mini && fileConfig.entry)
+                return ILaya.Browser.loadLib(URL.formatURL(path + fileConfig.entry));
+            else
+                return Promise.resolve();
         });
     }
 }

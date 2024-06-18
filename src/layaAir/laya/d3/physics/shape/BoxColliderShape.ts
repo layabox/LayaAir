@@ -27,7 +27,10 @@ export class BoxColliderShape extends Physics3DColliderShape {
 		this._shape.setSize(this._size);
 	}
 
-
+	/**
+	 * @internal
+	 * @protected
+	 */
 	protected _createShape() {
 		if (Laya3D.PhysicsCreateUtil.getPhysicsCapable(EPhysicsCapable.Physics_BoxColliderShape))
 			this._shape = Laya3D.PhysicsCreateUtil.createBoxColliderShape();
@@ -37,6 +40,7 @@ export class BoxColliderShape extends Physics3DColliderShape {
 	}
 
 	/**
+	 * 盒子尺寸
 	 * Box size
 	 */
 	get size(): Vector3 {
@@ -51,6 +55,7 @@ export class BoxColliderShape extends Physics3DColliderShape {
 	}
 
 	/**
+	 * 克隆
 	 * @inheritDoc
 	 * @override
 	 */
@@ -60,6 +65,10 @@ export class BoxColliderShape extends Physics3DColliderShape {
 		return dest;
 	}
 
+	/**
+	 * 克隆数据到目标
+	 * @param destObject 目标对象 
+	 */
 	cloneTo(destObject: any): void {
 		super.cloneTo(destObject);
 		destObject.size = this.size;

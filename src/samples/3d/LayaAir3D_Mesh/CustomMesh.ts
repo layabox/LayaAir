@@ -1,6 +1,5 @@
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
-import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { PixelLineSprite3D } from "laya/d3/core/pixelLine/PixelLineSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
@@ -15,10 +14,10 @@ import { Button } from "laya/ui/Button";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
 import Client from "../../Client";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Tool } from "../common/Tool";
+import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
 
 
 /**
@@ -31,17 +30,16 @@ export class CustomMesh {
 	private lineSprite3D: Sprite3D;
 
 	/**实例类型*/
-	private btype:any = "CustomMesh";
+	private btype: any = "CustomMesh";
 	/**场景内按钮类型*/
-	private stype:any = 0;
-	private changeActionButton:Button;
+	private stype: any = 0;
+	private changeActionButton: Button;
 
 	constructor() {
 		Laya.init(0, 0).then(() => {
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
 			Stat.show();
-
 			var scene: Scene3D = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 
 			var camera: Camera = (<Camera>scene.addChild(new Camera(0, 0.1, 100)));
@@ -50,7 +48,10 @@ export class CustomMesh {
 			camera.addComponent(CameraMoveScript);
 			camera.clearColor = new Color(0.2, 0.2, 0.2, 1.0);
 
-			var directionLight: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));
+			let directionLight = new Sprite3D();
+			let dircom = directionLight.addComponent(DirectionLightCom);
+			scene.addChild(directionLight);
+
 			//设置平行光的方向
 			var mat: Matrix4x4 = directionLight.transform.worldMatrix;
 			mat.setForward(new Vector3(-1.0, -1.0, -1.0));
@@ -123,7 +124,7 @@ export class CustomMesh {
 		}));
 	}
 
-	stypeFun0(label:string = "正常模式"): void {
+	stypeFun0(label: string = "正常模式"): void {
 		if (++this.curStateIndex % 2 == 1) {
 			this.sprite3D.active = false;
 			this.lineSprite3D.active = true;
@@ -134,7 +135,7 @@ export class CustomMesh {
 			this.changeActionButton.label = "正常模式";
 		}
 		label = this.changeActionButton.label;
-		Client.instance.send({type:"next",btype:this.btype,stype:0,value:label});	
+		Client.instance.send({ type: "next", btype: this.btype, stype: 0, value: label });
 	}
 }
 

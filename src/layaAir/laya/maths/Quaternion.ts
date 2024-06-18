@@ -5,10 +5,15 @@ import { MathUtils3D } from "./MathUtils3D";
 import { Vector2 } from "./Vector2";
 import { IClone } from "../utils/IClone";
 
+/**@internal */
 const TEMPVector30 = new Vector3();
+/**@internal */
 const TEMPVector31 = new Vector3();
+/**@internal */
 const TEMPVector32 = new Vector3();
+/**@internal */
 const TEMPVector33 = new Vector3();
+/**@internal */
 const _tempMatrix3x3 = new Matrix3x3();
 
 /**
@@ -299,6 +304,7 @@ export class Quaternion implements IClone {
      * @param	x X值。
      * @param	y Y值。
      * @param	z Z值。
+     * @param   w W值
      */
     setValue(x: number, y: number, z: number, w: number): void {
         this.x = x; this.y = y; this.z = z; this.w = w;
@@ -309,6 +315,7 @@ export class Quaternion implements IClone {
      * @param	x X值。
      * @param	y Y值。
      * @param	z Z值。
+     * @param   w W值
      * @return 返回四元数
      */
     set(x: number, y: number, z: number, w: number) {
@@ -508,6 +515,11 @@ export class Quaternion implements IClone {
         return dest;
     }
 
+    /**
+     * 判断四元数是否相同
+     * @param b 对比四元数
+     * @returns 
+     */
     equals(b: Quaternion): boolean {
         return MathUtils3D.nearEqual(this.x, b.x) && MathUtils3D.nearEqual(this.y, b.y) && MathUtils3D.nearEqual(this.z, b.z) && MathUtils3D.nearEqual(this.w, b.w);
     }
@@ -629,24 +641,5 @@ export class Quaternion implements IClone {
             out.z = 0.5 * sqrt;
             out.w = (m12 - m21) * half;
         }
-    }
-
-    forNativeElement(nativeElements: Float32Array = null): void//[NATIVE_TS]
-    {
-
-        if (nativeElements) {
-            (<any>this).elements = nativeElements;
-            (<any>this).elements[0] = this.x;
-            (<any>this).elements[1] = this.y;
-            (<any>this).elements[2] = this.z;
-            (<any>this).elements[3] = this.w;
-        }
-        else {
-            (<any>this).elements = new Float32Array([this.x, this.y, this.z, this.w]);
-        }
-        Vector2.rewriteNumProperty(this, "x", 0);
-        Vector2.rewriteNumProperty(this, "y", 1);
-        Vector2.rewriteNumProperty(this, "z", 2);
-        Vector2.rewriteNumProperty(this, "w", 3);
     }
 }

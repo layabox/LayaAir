@@ -1,3 +1,4 @@
+
 import { Event } from "../../events/Event";
 import { EventDispatcher } from "../../events/EventDispatcher";
 import { MathUtils3D } from "../../maths/MathUtils3D";
@@ -75,7 +76,9 @@ export class Transform3D extends EventDispatcher {
 	_children: Transform3D[] | null = null;
 	/**@internal 如果为true 表示自身相对于父节点并无任何改变，将通过这个参数忽略计算*/
 	protected _isDefaultMatrix: boolean = false;
+	/**@internal @protected */
 	protected _faceInvert: boolean = false;
+	/**@internal @protected */
 	protected _frontFaceValue: number = 1;
 
 	/** @internal */
@@ -106,6 +109,10 @@ export class Transform3D extends EventDispatcher {
 		return this._faceInvert;
 	}
 
+	/**
+	 * 获取是否前向顺时针面
+	 * @returns 
+	 */
 	getFrontFaceValue(): number {
 		if (this._getTransformFlag(Transform3D.TRANSFORM_WORLDSCALE)) {
 			let value = this._isFrontFaceInvert;
@@ -766,12 +773,12 @@ export class Transform3D extends EventDispatcher {
 
 	/**
 	 * 对象朝向目标
-	 * @param target 
-	 * @param up 
-	 * @param isLocal 
+	 * @param target 朝向目标位置
+	 * @param up 向上向量
+	 * @param isLocal 是否局部空间
 	 */
 	objLookat(target: Vector3, up: Vector3, isLocal: boolean = false): void {
-
+		this.lookAt(target, up, isLocal, false);
 	}
 
 
@@ -825,6 +832,7 @@ export class Transform3D extends EventDispatcher {
 
 	//----------------------------------------Discard-------------------------------------------------
 	/**
+	 * 世界坐标系缩放。
 	 * @deprecated
 	 */
 	get scale(): Vector3 {
@@ -840,49 +848,45 @@ export class Transform3D extends EventDispatcher {
 		this.setWorldLossyScale(value);
 	}
 
+	/**
+	 * 局部转换位全局向量
+	 * @param value 局部向量
+	 * @param out 输出的全局向量
+	 */
 	localToGlobal(value: Vector3, out: Vector3): void {
 		Vector3.transformV3ToV3(value, this.worldMatrix, out);
 	}
 
 	/**
-	 *转化成局部坐标
-		* @param pos
-		* @param out
-		* 
-		*/
+	 * 转化成局部坐标
+	 * @param pos 世界坐标
+	 * @param out 输出的局部坐标
+	*/
 	globalToLocal(pos: Vector3, out: Vector3): void {
 		this.worldMatrix.invert(Transform3D._tempMatrix0);
 		Vector3.transformV3ToV3(pos, Transform3D._tempMatrix0, out);
 	}
 
 	/**
-	 *转化成局部向量 
+	 * 转化成局部向量 
 	 * @param pos
 	 * @param out
-	 * 
 	 */
 	toLocalNormal(pos: Vector3, out: Vector3): void {
 		this.worldMatrix.invert(Transform3D._tempMatrix0);
 		Vector3.TransformNormal(pos, Transform3D._tempMatrix0, out);
 	}
 
+	/**
+	 * 朝向指定方向
+	 * @param forward 前向向量 
+	 * @param dir 朝向方向
+	 */
 	toDir(forward: Vector3, dir: Vector3) {
-		//TODO 判断一样么
-		var wmat: Matrix4x4 = this.worldMatrix;
-		//var newForward:Vector3 = new Vector3();
-		//var newRot:Quaternion = new Quaternion();
-
-		//Vector3.TransformNormal(forward,wmat,newForward);
-		//Vector3.normalize(newForward,newForward);
-		//rotationTo(newRot,newForward,dir);
 		this.rotationTo(this.rotation, forward, dir);
-		//Quaternion.multiply(rotation,newRot,rotation)
-		//DEBUG
-		//Quaternion.createFromAxisAngle(new Vector3(0,1,0),75*Math.PI/180,newRot)
-		//DEBUG
 		this.rotation = this.rotation;
 	}
-
+	/**@internal */
 	static tmpVec3: Vector3 = new Vector3();
 	/**
 	 * 这是一个 glmatrix中的函数

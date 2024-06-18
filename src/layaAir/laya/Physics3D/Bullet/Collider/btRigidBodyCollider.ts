@@ -20,6 +20,8 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
     /** @internal */
     private static _btTempVector31: number;
     /** @internal */
+    private static _RBtempVector30: Vector3;
+    /** @internal */
     private static _btVector3Zero: number;
     /**@internal */
     private static _btTransform0: number;
@@ -41,6 +43,7 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
         let bt = btPhysicsCreateUtil._bt;
         btRigidBodyCollider._btTempVector30 = bt.btVector3_create(0, 0, 0);
         btRigidBodyCollider._btTempVector31 = bt.btVector3_create(0, 0, 0);
+        btRigidBodyCollider._RBtempVector30 = new Vector3(0, 0, 0);
         btRigidBodyCollider._btVector3Zero = bt.btVector3_create(0, 0, 0);
         btRigidBodyCollider._btInertia = bt.btVector3_create(0, 0, 0);
         btRigidBodyCollider._btImpulse = bt.btVector3_create(0, 0, 0);
@@ -107,6 +110,7 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
         this._rigidBodyCapableMap.set(EColliderCapable.Collider_BounceCombine, false);
         this._rigidBodyCapableMap.set(EColliderCapable.Collider_FrictionCombine, false);
         this._rigidBodyCapableMap.set(EColliderCapable.Collider_EventFilter, false);
+        this._rigidBodyCapableMap.set(EColliderCapable.Collider_CollisionDetectionMode, false);
 
         this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_AllowSleep, false);
         this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_Gravity, true);
@@ -213,6 +217,7 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
         this.setMass(this._mass);
         this.setConstraints(this._linearFactor, this._angularFactor);
         this.setLinearDamping(this._linearDamping);
+        this.setLinearVelocity(this._linearVelocity);
         this.setAngularDamping(this._angularDamping);
         this.setIsKinematic(this._isKinematic);
         this.setInertiaTensor(this._gravity);
@@ -258,6 +263,13 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
         }
     }
 
+    getLinearVelocity(): Vector3 {
+        let bt = btPhysicsCreateUtil._bt;
+        let velocity = bt.btRigidBody_getLinearVelocity(this._btCollider);
+        btRigidBodyCollider._RBtempVector30.setValue(bt.btVector3_x(velocity), bt.btVector3_y(velocity), bt.btVector3_z(velocity));
+        return btRigidBodyCollider._RBtempVector30;
+    }
+
     /**
      * 设置睡眠刚体线速度阈值
      * @param value 
@@ -276,6 +288,13 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
             (this.isSleeping()) && (this.wakeUp());//可能会因睡眠导致设置角速度无效
             bt.btRigidBody_setAngularVelocity(this._btCollider, btValue);
         }
+    }
+
+    getAngularVelocity(): Vector3 {
+        let bt = btPhysicsCreateUtil._bt;
+        let angVelocity = bt.btRigidBody_getAngularVelocity(this._btCollider);
+        btRigidBodyCollider._RBtempVector30.setValue(bt.btVector3_x(angVelocity), bt.btVector3_y(angVelocity), bt.btVector3_z(angVelocity));
+        return btRigidBodyCollider._RBtempVector30;
     }
 
     setMass(value: number): void {

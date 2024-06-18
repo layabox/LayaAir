@@ -1,16 +1,16 @@
 import { Material } from "laya/resource/Material";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
-import { ShaderDataType } from "laya/RenderEngine/RenderShader/ShaderData";
 import { BaseTexture } from "laya/resource/BaseTexture";
 import SeprableSSSFS from "../shader/SeparableSSS_GasBlur.fs";
 import SeprableSSSVS from "../shader/SeparableSSS_GasBlur.vs";
-import { RenderState } from "laya/RenderEngine/RenderShader/RenderState";
 import { SubShader } from "laya/RenderEngine/RenderShader/SubShader";
 import { VertexMesh } from "laya/RenderEngine/RenderShader/VertexMesh";
 import { MathUtils3D } from "laya/maths/MathUtils3D";
 import { Vector2 } from "laya/maths/Vector2";
 import { Vector3 } from "laya/maths/Vector3";
 import { Vector4 } from "laya/maths/Vector4";
+import { RenderState } from "laya/RenderDriver/RenderModuleData/Design/RenderState";
+import { ShaderDataType } from "laya/RenderDriver/DriverDesign/RenderDevice/ShaderData";
 
 export class SeparableSSS_BlitMaterial extends Material {
 
@@ -132,7 +132,7 @@ export class SeparableSSS_BlitMaterial extends Material {
 	//camera的view角度
 	set cameraFiledOfView(value: number) {
 		let distanceToProject = 1.0 / Math.tan(0.5 * value * MathUtils3D.Deg2Rad);
-		this._shaderValues.setNumber(SeparableSSS_BlitMaterial.SHADERVALUE_DISTANCETOPROJECTIONWINDOW, distanceToProject);
+		this.shaderData.setNumber(SeparableSSS_BlitMaterial.SHADERVALUE_DISTANCETOPROJECTIONWINDOW, distanceToProject);
 	}
 
 	/**

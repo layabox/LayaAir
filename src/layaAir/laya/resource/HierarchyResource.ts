@@ -1,14 +1,26 @@
 import { LayaEnv } from "../../LayaEnv";
 import { Node } from "../display/Node";
-import { Scene } from "../display/Scene";
 import { LegacyUIParser } from "../loaders/LegacyUIParser";
 import { Resource } from "./Resource";
 
 export class Prefab extends Resource {
+    /**
+     * 资源版本
+     * @readonly
+     */
     public readonly version: number;
+
+    /**
+     * @internal
+     * @protected 
+     * 依赖内容
+     */
     protected _deps: Array<Resource>;
 
-    /**@private */
+    /**
+     * @internal
+     * 兼容2.0
+     */
     json: any; //兼容2.0
 
     constructor(version?: number) {
@@ -20,6 +32,8 @@ export class Prefab extends Resource {
 
     /**
      * 创建实例
+     * @param options 类型
+     * @param errors 错误内容
      */
     create(options?: Record<string, any>, errors?: Array<any>): Node {
         if (this.json) //兼容2.0
@@ -28,10 +42,17 @@ export class Prefab extends Resource {
             return null;
     }
 
+    /**
+     * 获取依赖内容
+     */
     get deps(): ReadonlyArray<Resource> {
         return this._deps;
     }
 
+    /**
+     * 增加一个依赖内容
+     * @param res 依赖内容
+     */
     addDep(res: Resource) {
         if (res instanceof Resource) {
             res._addReference();
@@ -42,6 +63,10 @@ export class Prefab extends Resource {
         }
     }
 
+    /**
+     * 增加多个依赖内容
+     * @param resArr 依赖内容
+     */
     addDeps(resArr: Array<Resource>) {
         for (let res of resArr) {
             if (res instanceof Resource) {
@@ -54,6 +79,11 @@ export class Prefab extends Resource {
         }
     }
 
+    /**
+     * @internal
+     * @protected
+     * 销毁资源
+     */
     protected _disposeResource(): void {
         for (let res of this._deps) {
             res._removeReference();
@@ -63,6 +93,9 @@ export class Prefab extends Resource {
         }
     }
 
+    /**
+     * 
+     */
     public get obsolute(): boolean {
         return this._obsolute;
     }

@@ -63,6 +63,8 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
         this._dynamicCapableMap.set(EColliderCapable.Collider_BounceCombine, true);
         this._dynamicCapableMap.set(EColliderCapable.Collider_FrictionCombine, true);
         this._dynamicCapableMap.set(EColliderCapable.Collider_EventFilter, true);
+        this._dynamicCapableMap.set(EColliderCapable.Collider_CollisionDetectionMode, true);
+
         this._dynamicCapableMap.set(EColliderCapable.RigidBody_AllowSleep, true);
         this._dynamicCapableMap.set(EColliderCapable.RigidBody_Gravity, true);
         this._dynamicCapableMap.set(EColliderCapable.RigidBody_LinearDamp, true);
@@ -102,7 +104,7 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
     }
 
     protected _initCollider() {
-        this._pxActor = pxPhysicsCreateUtil._pxPhysics.createRigidDynamic(this._transformTo(new Vector3(), new Quaternion())); 
+        this._pxActor = pxPhysicsCreateUtil._pxPhysics.createRigidDynamic(this._transformTo(new Vector3(), new Quaternion()));
     }
 
     protected _initColliderShapeByCollider() {
@@ -154,8 +156,20 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
         this._pxActor.setLinearVelocity(value, true);
     }
 
+    getLinearVelocity(): Vector3 {
+        let velocity = this._pxActor.getLinearVelocity();
+        pxDynamicCollider._tempTranslation.set(velocity.x, velocity.y, velocity.z);
+        return pxDynamicCollider._tempTranslation;
+    }
+
     setAngularVelocity(value: Vector3): void {
         this._pxActor.setAngularVelocity(value, true);
+    }
+
+    getAngularVelocity(): Vector3 {
+        let angVelocity = this._pxActor.getAngularVelocity();
+        pxDynamicCollider._tempTranslation.set(angVelocity.x, angVelocity.y, angVelocity.z);
+        return pxDynamicCollider._tempTranslation;
     }
 
     setMass(value: number): void {

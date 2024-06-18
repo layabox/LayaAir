@@ -37,13 +37,13 @@ export class RenderTextureCube extends RenderTexture {
         this._texture = this._renderTarget._textures[0];
     }
 
-    _start() {
-        RenderTexture._configInstance.invertY = this._isCameraTarget;
-        if (RenderTexture._currentActive != this) {
-            RenderTexture._currentActive && RenderTexture._currentActive._end();
-            RenderTexture._currentActive = this;
-            LayaGL.textureContext.bindRenderTarget(this._renderTarget, this.faceIndex);
-        }
-    }
+    // _start() {
+    //     RenderTexture._configInstance.invertY = this._isCameraTarget;
+    //     if (RenderTexture._currentActive != this) {
+    //         RenderTexture._currentActive && RenderTexture._currentActive._end();
+    //         RenderTexture._currentActive = this;
+    //         LayaGL.textureContext.bindRenderTarget(this._renderTarget, this.faceIndex);
+    //     }
+    // }
 
 }

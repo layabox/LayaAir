@@ -29,7 +29,7 @@ export class AnimatorStateCondition {
 
     /**
      * 通过ID获得唯一名称。
-     * @param id 
+     * @param id 条件ID
      * @returns 
      */
     static conditionIDToName(id: number): string {
@@ -88,7 +88,7 @@ export class AnimatorStateCondition {
 
     /**
      * 检查状态是否触发
-     * @param value 
+     * @param value 数值或bool
      * @returns 
      */
     checkState(value: number | boolean): boolean {
@@ -142,7 +142,7 @@ export class AnimatorStateNumberCondition extends AnimatorStateCondition {
 
     /**
      * 检查状态是否触发
-     * @param value 
+     * @param value 数值
      * @returns 
      */
     checkState(value: number): boolean {
@@ -182,7 +182,7 @@ export class AnimatorStateBoolCondition extends AnimatorStateCondition {
 
     /**
      * 检查状态是否触发
-     * @param value 
+     * @param value bool
      * @returns 
      */
     checkState(value: boolean): boolean {
@@ -202,7 +202,7 @@ export class AnimatorStateTriggerCondition extends AnimatorStateCondition {
 
     /**
      * 检查状态是否触发,tigger 如果是true,就算条件达成
-     * @param value 
+     * @param value bool
      * @returns 
      */
     checkState(value: boolean): boolean {

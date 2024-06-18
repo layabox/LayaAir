@@ -1,14 +1,10 @@
-import { Matrix4x4 } from "../../../maths/Matrix4x4";
-import { Vector4 } from "../../../maths/Vector4";
-import { ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
-import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";
+import { IRenderContext3D } from "../../../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
+import { ShaderDefine } from "../../../RenderDriver/RenderModuleData/Design/ShaderDefine";
 import { VertexMesh } from "../../../RenderEngine/RenderShader/VertexMesh";
 import { MeshFilter } from "../../core/MeshFilter";
 import { MeshSprite3DShaderDeclaration } from "../../core/MeshSprite3DShaderDeclaration";
 import { BaseRender, RenderBitFlag } from "../../core/render/BaseRender";
 import { RenderContext3D } from "../../core/render/RenderContext3D";
-import { Sprite3D } from "../../core/Sprite3D";
-import { Transform3D } from "../../core/Transform3D";
 import { BoundFrustum } from "../../math/BoundFrustum";
 import { StaticBatchMesh } from "./StaticBatchMesh";
 import { StaticBatchMeshRenderElement } from "./StaticBatchMeshRenderElement";
@@ -45,7 +41,7 @@ export class StaticBatchMeshRender extends BaseRender {
         this._staticMesh = staticMesh;
         this.geometryBounds = staticMesh.bounds;
         let meshDefines = MeshFilter._meshVerticeDefine;
-        let defineDatas = this._shaderValues;
+        let defineDatas = this._baseRenderNode.shaderData;
         this._getMeshDefine(staticMesh, meshDefines);
 
         for (const meshDef of meshDefines) {
@@ -86,12 +82,12 @@ export class StaticBatchMeshRender extends BaseRender {
         // this._bounds.setExtent(Vector3.ONE);
     }
 
-    _renderUpdate(context: RenderContext3D, transform: Transform3D): void {
-        this._applyLightMapParams();
-        // todo 若有根节点, 在这里更新 worldmatrix
-        this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, Matrix4x4.DEFAULT);
-        this._worldParams.x = 1.0;
-        this._setShaderValue(Sprite3D.WORLDINVERTFRONT, ShaderDataType.Vector4, this._worldParams);//TODO
+    _renderUpdate(context: IRenderContext3D): void {
+        // this._applyLightMapParams();
+        // // todo 若有根节点, 在这里更新 worldmatrix
+        // this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, Matrix4x4.DEFAULT);
+        // this._worldParams.x = 1.0;
+        // this._setShaderValue(Sprite3D.WORLDINVERTFRONT, ShaderDataType.Vector4, this._worldParams);//TODO
     }
 
     _getMeshDefine(mesh: StaticBatchMesh, out: Array<ShaderDefine>) {

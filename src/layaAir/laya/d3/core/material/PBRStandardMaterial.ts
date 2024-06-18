@@ -1,7 +1,7 @@
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { PBRMaterial } from "./PBRMaterial";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
-import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";
+import { ShaderDefine } from "../../../RenderDriver/RenderModuleData/Design/ShaderDefine";
 
 /**
  * 金属度PBR材质光滑度数据源。

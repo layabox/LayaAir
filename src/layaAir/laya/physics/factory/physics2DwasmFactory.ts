@@ -44,8 +44,6 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
     /**@internal 米转换像素的转换比率*/
     _Re_PIXEL_RATIO: number;
 
-    /**@internal  */
-    _tempVec2: any;
 
     /**@internal  */
     protected _tempDistanceJointDef: any;
@@ -82,6 +80,8 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
     protected _tempCircleShape: any;
     /**@internal  */
     protected _tempEdgeShape: any;
+    /**@internal  */
+    protected _tempWorldManifold: any;
 
 
 
@@ -294,6 +294,7 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
         this._tempRevoluteJointDef = new this.box2d.b2RevoluteJointDef();
         this._tempMotorJointDef = new this.box2d.b2MotorJointDef();
         this._tempPrismaticJointDef = new this.box2d.b2PrismaticJointDef();
+        this._tempWorldManifold = new this.box2d.b2WorldManifold();
 
         this.world.SetDestructionListener(this.getDestructionListener());
         this.world.SetContactListener(this.getContactListener());
@@ -371,6 +372,11 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
             this._tempPrismaticJointDef = null;
         }
 
+        if (this._tempWorldManifold) {
+            this.destory(this._tempWorldManifold);
+            this._tempWorldManifold = null;
+        }
+
         if (this._world) {
             this.box2d.destroy(this._world)
             this._world.destroyed = true;
@@ -400,7 +406,7 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      * @param type 
      * @param contact 
      */
-    sendEvent(type: number, contact: any): void {
+    sendEvent(type: string, contact: any): void {
         if (contact.GetFixtureA() == null || contact.GetFixtureB() == null) {
             return;
         }
@@ -416,41 +422,21 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
         let ownerB: any = colliderB.owner;
         let __this = this;
         contact.getHitInfo = function (): any {
-            var manifold: any = new this.box2d.b2WorldManifold();
+            var manifold: any = __this._tempWorldManifold;
             this.GetWorldManifold(manifold);
             //第一点？
-            let p: any = manifold.points[0];
+            let p: any = manifold.points;
             p.x = __this.phyToLayaValue(p.x);
             p.y = __this.phyToLayaValue(p.y);
             return manifold;
         }
         if (ownerA) {
             var args: any[] = [colliderB, colliderA, contact];
-            if (type === 0) {
-                ownerA.event("triggerenter", args);
-                if (!ownerA["_triggered"]) {
-                    ownerA["_triggered"] = true;
-                } else {
-                    ownerA.event("triggerstay", args);
-                }
-            } else {
-                ownerA["_triggered"] = false;
-                ownerA.event("triggerexit", args);
-            }
+            ownerA.event(type, args);
         }
         if (ownerB) {
             args = [colliderA, colliderB, contact];
-            if (type === 0) {
-                ownerB.event("triggerenter", args);
-                if (!ownerB["_triggered"]) {
-                    ownerB["_triggered"] = true;
-                } else {
-                    ownerB.event("triggerstay", args);
-                }
-            } else {
-                ownerB["_triggered"] = false;
-                ownerB.event("triggerexit", args);
-            }
+            ownerB.event(type, args);
         }
     }
 
@@ -474,6 +460,7 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
             jsDraw.DrawSolidCircle = this.DrawSolidCircle.bind(this);
             jsDraw.DrawTransform = this.DrawTransform.bind(this);
             jsDraw.DrawPoint = this.DrawPoint.bind(this);
+            jsDraw.DrawAABB = this.DrawAABB.bind(this);
         }
 
         this.world.SetDebugDraw(this._jsDraw);
@@ -720,8 +707,8 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      */
     set_DistanceJointStiffnessDamping(joint: any, steffness: number, damping: number) {
         let out: any = {};
-        let bodyA = joint.bodyA;
-        let bodyB = joint.bodyB;
+        let bodyA = joint.GetBodyA();
+        let bodyB = joint.GetBodyB();
         this.box2d.b2LinearStiffness(out, steffness, damping, bodyA, bodyB);
         joint.SetStiffness(out.stiffness);
         joint.SetDamping(out.damping);
@@ -966,12 +953,14 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      */
     set_ChainShape_data(shape: any, x: number, y: number, arr: number[], loop: boolean, scaleX: number, scaleY: number) {
         let len = arr.length;
+        shape.Clear();
         var ptr_wrapped = this.createVec2Pointer(arr, x, y, scaleX, scaleY);
         if (loop) {
             shape.CreateLoop(ptr_wrapped, len >> 1);
         } else {
             shape.CreateChain(ptr_wrapped, len >> 1);
         }
+        this._box2d._free(ptr_wrapped.ptr);
     }
 
     /** 
@@ -1036,7 +1025,9 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
     * @param arr 
     */
     set_PolygonShape_data(shape: any, x: number, y: number, arr: number[], scaleX: number, scaleY: number) {
-        shape.Set(this.createVec2Pointer(arr, x, y, scaleX, scaleY), arr.length / 2);
+        let ptr_wrapped = this.createVec2Pointer(arr, x, y, scaleX, scaleY);
+        shape.Set(ptr_wrapped, arr.length / 2);
+        this._box2d._free(ptr_wrapped.ptr);
     }
 
     /**
@@ -1201,10 +1192,10 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      */
     get_rigidBody_WorldPoint(body: any, x: number, y: number): IV2 {
         let data = body.GetWorldPoint(this.createPhyFromLayaVec2(x, y))
-        let point: IV2 = { x: 0, y: 0 }
-        point.x = this.phyToLayaValue(data.x);
-        point.y = this.phyToLayaValue(data.y);
-        return point;
+        return {
+            x: this.phyToLayaValue(data.x),
+            y: this.phyToLayaValue(data.y)
+        };
     }
 
     /** 
@@ -1214,10 +1205,11 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      */
     get_rigidBody_LocalPoint(body: any, x: number, y: number): IV2 {
         let data = body.GetLocalPoint(this.createPhyFromLayaVec2(x, y))
-        let point: IV2 = { x: 0, y: 0 }
-        point.x = this.phyToLayaValue(data.x);
-        point.y = this.phyToLayaValue(data.y);
-        return point;
+
+        return {
+            x: this.phyToLayaValue(data.x),
+            y: this.phyToLayaValue(data.y)
+        };
     }
 
     /** 
@@ -1238,7 +1230,9 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      * @param force 
      */
     rigidBody_applyForceToCenter(body: any, force: IV2) {
-        body.ApplyForceToCenter(force);
+        this._tempVe21.x = force.x;
+        this._tempVe21.y = force.y;
+        body.ApplyForceToCenter(this._tempVe21);
     }
 
 
@@ -1248,14 +1242,20 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      * @param position 
      */
     rigidbody_ApplyLinearImpulse(body: any, impulse: IV2, position: IV2) {
-        body.ApplyLinearImpulse(impulse, position);
+        this._tempVe21.x = impulse.x;
+        this._tempVe21.y = impulse.y;
+        this._tempVe22.x = this.layaToPhyValue(position.x);
+        this._tempVe22.y = this.layaToPhyValue(position.y);
+        body.ApplyLinearImpulse(this._tempVe21, this._tempVe22);
     }
 
     /** 
      * @param body 
      */
     rigidbody_ApplyLinearImpulseToCenter(body: any, impulse: IV2) {
-        body.ApplyLinearImpulseToCenter(impulse);
+        this._tempVe21.x = impulse.x;
+        this._tempVe21.y = impulse.y;
+        body.ApplyLinearImpulseToCenter(this._tempVe21);
     }
 
 
@@ -1272,7 +1272,9 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      * @param	velocity
      */
     set_rigidbody_Velocity(body: any, velocity: IV2): void {
-        body.SetLinearVelocity(velocity);
+        this._tempVe21.x = velocity.x;
+        this._tempVe21.y = velocity.y;
+        body.SetLinearVelocity(this._tempVe21);
     }
 
     /**
@@ -1402,7 +1404,9 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      * @param value 
      */
     set_rigidBody_linearVelocity(body: any, value: IV2) {
-        body.SetLinearVelocity(new this.box2d.b2Vec2(value.x, value.y));
+        this._tempVe21.x = value.x;
+        this._tempVe21.y = value.y;
+        body.SetLinearVelocity(this._tempVe21);
     }
 
     /** 
@@ -1499,8 +1503,9 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
     DrawTransform(xf: any): void {
         xf = this.box2d.wrapPointer(xf, this.box2d.b2Transform);
         this._debugDraw.PushTransform(xf.p.x, xf.p.y, xf.q.GetAngle());
-        this._debugDraw.mG.drawLine(0, 0, 1, 0, this._debugDraw.Red, this._debugDraw.lineWidth);
-        this._debugDraw.mG.drawLine(0, 0, 0, 1, this._debugDraw.Green, this._debugDraw.lineWidth);
+        const length = 1 / Browser.pixelRatio;
+        this._debugDraw.mG.drawLine(0, 0, length, 0, this._debugDraw.Red, this._debugDraw.lineWidth);
+        this._debugDraw.mG.drawLine(0, 0, 0, length, this._debugDraw.Green, this._debugDraw.lineWidth);
         this._debugDraw.PopTransform();
     }
 
@@ -1510,7 +1515,6 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
         size *= this._debugDraw.camera.m_zoom;
         size /= this._debugDraw.camera.m_extent;
         var hsize: any = size / 2;
-
         this._debugDraw.mG.drawRect(p.x - hsize, p.y - hsize, size, size, this.makeStyleString(color, 1), null);
     }
 
@@ -1525,13 +1529,19 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
     }
 
     /**@internal */
-    DrawAABB(aabb: any, color: any): void {
-        var x: number = aabb.lowerBound.x;
-        var y: number = aabb.lowerBound.y;
-        var w: number = aabb.upperBound.x - aabb.lowerBound.x;
-        var h: number = aabb.upperBound.y - aabb.lowerBound.y;
-
-        this._debugDraw.mG.drawRect(x, y, w, h, null, this.makeStyleString(color, 1), this._debugDraw.lineWidth);
+    DrawAABB(min: any, max: any, color: any): void {
+        min = this.box2d.wrapPointer(min, this.box2d.b2Vec2);
+        max = this.box2d.wrapPointer(max, this.box2d.b2Vec2);
+        var cx: number = (max.x + min.x) * 0.5;
+        var cy: number = (max.y + min.y) * 0.5;
+        var hw: number = (max.x - min.x) * 0.5;
+        var hh: number = (max.y - min.y) * 0.5;
+        const cs: string = this.makeStyleString(color, 1);
+        const linew: number = this._debugDraw.lineWidth;
+        this._debugDraw.mG.drawLine(cx - hw, cy - hh, cx + hw, cy - hh, cs, linew);
+        this._debugDraw.mG.drawLine(cx - hw, cy + hh, cx + hw, cy + hh, cs, linew);
+        this._debugDraw.mG.drawLine(cx - hw, cy - hh, cx - hw, cy + hh, cs, linew);
+        this._debugDraw.mG.drawLine(cx + hw, cy - hh, cx + hw, cy + hh, cs, linew);
     }
 
     /**@internal */
@@ -1540,15 +1550,15 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
         let _this = this;
         var listner = new this.box2d.JSContactListener();
         listner.BeginContact = function (contact: any): void {
-            Physics2D.I._eventList.push(0, box2d.wrapPointer(contact, box2d.b2Contact));
+            Physics2D.I._eventList.push("triggerenter", box2d.wrapPointer(contact, box2d.b2Contact));
         }
 
         listner.EndContact = function (contact: any): void {
-            Physics2D.I._eventList.push(1, box2d.wrapPointer(contact, box2d.b2Contact));
+            Physics2D.I._eventList.push("triggerexit", box2d.wrapPointer(contact, box2d.b2Contact));
         }
 
         listner.PreSolve = function (contact: any, oldManifold: any): void {
-            //console.log("PreSolve", contact);
+            Physics2D.I._eventList.push("triggerstay", box2d.wrapPointer(contact, box2d.b2Contact));
         }
 
         listner.PostSolve = function (contact: any, impulse: any): void {
@@ -1586,7 +1596,7 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
             this.box2d.HEAPF32[buffer + offset >> 2] = this.layaToPhyValue(points[i]);
             offset += 4;
         }
-        return this.box2d.wrapPointer(buffer, this.box2d.b2Vec2);
+        return buffer;
     }
 
     /**@internal */
@@ -1604,6 +1614,11 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
 
     /**@internal */
     b2LinearStiffness(def: any, frequencyHertz: number, dampingRatio: number, bodyA: any, bodyB: any) {
+        if (bodyA == undefined || bodyB == undefined) {
+            def.stiffness = 0;
+            def.damping = 0;
+            return;
+        }
         const massA = bodyA.GetMass();
         const massB = bodyB.GetMass();
         let mass;

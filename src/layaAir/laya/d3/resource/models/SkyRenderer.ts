@@ -1,15 +1,14 @@
-import { LayaGL } from "../../../layagl/LayaGL";
-import { Matrix4x4 } from "../../../maths/Matrix4x4";
-import { Vector3 } from "../../../maths/Vector3";
+import { ShaderDataType } from "../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { IBaseRenderNode } from "../../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
-import { ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
-import { Camera } from "../../core/Camera";
-import { GeometryElement } from "../../core/GeometryElement";
+import { LayaGL } from "../../../layagl/LayaGL";
 import { Material } from "../../../resource/Material";
+import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
+import { GeometryElement } from "../../core/GeometryElement";
+import { Transform3D } from "../../core/Transform3D";
 import { BaseRender } from "../../core/render/BaseRender";
 import { RenderContext3D } from "../../core/render/RenderContext3D";
-import { RenderElement } from "../../core/render/RenderElement";
-import { Scene3D } from "../../core/scene/Scene3D";
+import { SkyRenderElement } from "../../core/render/SkyRenderElement";
 import { SkyBox } from "./SkyBox";
 import { SkyDome } from "./SkyDome";
 
@@ -17,28 +16,47 @@ import { SkyDome } from "./SkyDome";
  * <code>SkyRenderer</code> 类用于实现天空渲染器。
  */
 export class SkyRenderer {
-    /** @internal */
-    private static _tempMatrix0: Matrix4x4 = new Matrix4x4();
-    /** @internal */
-    private static _tempMatrix1: Matrix4x4 = new Matrix4x4();
+    /**@internal */
+    static SUNLIGHTDIRECTION: number;
+    /**@internal */
+    static SUNLIGHTDIRCOLOR: number;
+    /**@internal */
+    static SKYVIEWMATRIX: number;
+    /**@internal */
+    static SKYPROJECTIONMATRIX: number;
+    /**@internal */
+    static SKYPROJECTIONVIEWMATRIX: number;
+
+    /**
+     * @internal
+     */
+    static __init__() {
+        SkyRenderer.SUNLIGHTDIRECTION = Shader3D.propertyNameToID("u_SunLight_direction");
+        SkyRenderer.SUNLIGHTDIRCOLOR = Shader3D.propertyNameToID("u_SunLight_color");
+        SkyRenderer.SKYVIEWMATRIX = Shader3D.propertyNameToID("u_SkyViewMat");
+        SkyRenderer.SKYPROJECTIONMATRIX = Shader3D.propertyNameToID("u_SkyProjectionMat");
+        SkyRenderer.SKYPROJECTIONVIEWMATRIX = Shader3D.propertyNameToID("u_SkyProjectionViewMat");
+        const commandUniform = LayaGL.renderDeviceFactory.createGlobalUniformMap("SkyRenderer");
+        commandUniform.addShaderUniform(SkyRenderer.SUNLIGHTDIRECTION, "u_SunLight_direction", ShaderDataType.Vector3);
+        commandUniform.addShaderUniform(SkyRenderer.SUNLIGHTDIRCOLOR, "u_SunLight_color", ShaderDataType.Color);
+        commandUniform.addShaderUniform(SkyRenderer.SKYVIEWMATRIX, "u_SkyViewMat", ShaderDataType.Matrix4x4);
+        commandUniform.addShaderUniform(SkyRenderer.SKYPROJECTIONMATRIX, "u_SkyProjectionMat", ShaderDataType.Matrix4x4);
+        commandUniform.addShaderUniform(SkyRenderer.SKYPROJECTIONVIEWMATRIX, "u_SkyProjectionViewMat", ShaderDataType.Matrix4x4);
+    }
 
     /** @internal */
     private _material: Material;
     /** @internal */
     private _mesh: GeometryElement;
-    /**@internal */
-    private _renderElement: RenderElement;
+
+    /** @internal */
+    _baseRenderNode: IBaseRenderNode;
 
     private _renderData: BaseRender;
-    static SUNLIGHTDIRECTION: number;
-    static SUNLIGHTDIRCOLOR: number;
-    static __init__() {
-        SkyRenderer.SUNLIGHTDIRECTION = Shader3D.propertyNameToID("u_SunLight_direction");
-        SkyRenderer.SUNLIGHTDIRCOLOR = Shader3D.propertyNameToID("u_SunLight_color");
-        const commandUniform = LayaGL.renderOBJCreate.createGlobalUniformMap("Sprite3D");
-        commandUniform.addShaderUniform(SkyRenderer.SUNLIGHTDIRECTION, "u_SunLight_direction", ShaderDataType.Vector3);
-        commandUniform.addShaderUniform(SkyRenderer.SUNLIGHTDIRCOLOR, "u_SunLight_color", ShaderDataType.Color);
-    }
+
+    private _renderGeometry: boolean;
+
+    private _cacheRenderElement: SkyRenderElement;
 
     /**
      * 材质。
@@ -51,13 +69,12 @@ export class SkyRenderer {
         if (this._material !== value) {
             (this._material) && (this._material._removeReference());
             this._material = value;
-            this._renderElement.material = value;
+            this._cacheRenderElement && (this._cacheRenderElement.material = value);
             if (value) {
                 value._addReference();
-                this._renderElement.renderSubShader = this._material._shader.getSubShaderAt(0);
+                //this._renderElement.renderSubShader = this._material._shader.getSubShaderAt(0);
+                //this._baseRenderNode.setOneMaterial(0, value);
             }
-            else
-                this._renderElement.renderSubShader = null;
         }
     }
 
@@ -69,19 +86,18 @@ export class SkyRenderer {
     }
 
     set mesh(value: GeometryElement) {
-
         if (this._mesh !== value) {
             this._mesh = value;
-            this._renderElement.setGeometry(this._mesh);
+            this._cacheRenderElement && this._cacheRenderElement.setGeometry(this.mesh);
         }
     }
 
-    //@internal
+    /** @internal */
     private get meshType(): "box" | "dome" | "" {
         return this.mesh == SkyBox.instance ? "box" : (this.mesh == SkyDome.instance ? "dome" : "");
     }
 
-    //@internal
+    /** @internal */
     private set meshType(value: "box" | "dome" | "") {
         if (value == "dome")
             this.mesh = SkyDome.instance;
@@ -93,10 +109,10 @@ export class SkyRenderer {
      * 创建一个新的 <code>SkyRenderer</code> 实例。
      */
     constructor() {
-        this._renderElement = new RenderElement();
         this.mesh = SkyDome.instance;
         this._renderData = new BaseRender();
-        this._renderElement.render = this._renderData;
+        this._baseRenderNode = Laya3DRender.Render3DModuleDataFactory.createBaseRenderNode();
+        this._baseRenderNode.transform = new Transform3D(null);
     }
 
     /**
@@ -107,66 +123,29 @@ export class SkyRenderer {
         return this._material && this._mesh ? true : false;
     }
 
+    /** @internal */
+    renderUpdate(context: RenderContext3D) {
+        let geomettry = this.mesh;
+        this._renderGeometry = geomettry._prepareRender(context);
+        geomettry._updateRenderParams(context);
+    }
+
     /**
-     * @internal
+     * 设置天空盒渲染元素
+     * @param skyRenderElement 
      */
-    _render(context: RenderContext3D): void {
-        if (this._material && this._mesh) {
-            var camera = context.camera;
-            var scene: Scene3D = context.scene;
-            var projectionMatrix: Matrix4x4 = SkyRenderer._tempMatrix1;
-            this._renderData._shaderValues.setColor(SkyRenderer.SUNLIGHTDIRCOLOR, scene._sunColor);
-            this._renderData._shaderValues.setVector3(SkyRenderer.SUNLIGHTDIRECTION, scene._sundir);
-            //无穷投影矩阵算法,DirectX右手坐标系推导
-            //http://terathon.com/gdc07_lengyel.pdf
-
-            //xScale  0     0                          0
-            //0     yScale  0                          0
-            //0       0    	-zfar /(zfar-znear)        -1.0
-            //0       0     -znear*zfar /(zfar-znear)  0
-
-            //xScale  0     0       0        mul   [x,y,z,0] =[xScale*x,yScale*y,-z,-z]
-            //0     yScale  0       0		
-            //0       0    	-1      -1.0	
-            //0       0     -0      0
-
-            //[xScale*x,yScale*y,-z,-z]=>[-xScale*x/z,-yScale*y/z,1]
-
-            //xScale  0     0       0      
-            //0     yScale  0       0		
-            //0       0    	-1+e    -1.0	
-            //0       0     -0  0
-            var viewMatrix: Matrix4x4 = SkyRenderer._tempMatrix0;
-
-            camera.viewMatrix.cloneTo(viewMatrix);//视图矩阵逆矩阵的转置矩阵，移除平移和缩放
-            viewMatrix.setTranslationVector(Vector3.ZERO);
-            if (!camera.orthographic) {
-                camera.projectionMatrix.cloneTo(projectionMatrix);
-
-                var epsilon: number = 1e-6;
-                var yScale: number = 1.0 / Math.tan(3.1416 * camera.fieldOfView / 180 * 0.5);
-                projectionMatrix.elements[0] = yScale / camera.aspectRatio;
-                projectionMatrix.elements[5] = yScale;
-                projectionMatrix.elements[10] = epsilon - 1.0;
-                projectionMatrix.elements[11] = -1.0;
-                projectionMatrix.elements[14] = -0;//znear无穷小
-
-            } else {
-
-                var halfWidth: number = 0.2;
-                var halfHeight: number = halfWidth;
-                Matrix4x4.createOrthoOffCenter(-halfWidth, halfWidth, -halfHeight, halfHeight, camera.nearPlane, camera.farPlane, projectionMatrix);
-            }
-            if ((camera as any).isWebXR) {
-                camera._applyViewProject(context, viewMatrix, camera.projectionMatrix);//TODO:优化 不应设置给Camera直接提交
-            } else {
-                camera._applyViewProject(context, viewMatrix, projectionMatrix);//TODO:优化 不应设置给Camera直接提交
-            }
-
-
-            context._contextOBJ.applyContext(Camera._updateMark);
-            context.drawRenderElement(this._renderElement);
-            camera._applyViewProject(context, camera.viewMatrix, camera.projectionMatrix);
+    setRenderElement(skyRenderElement: SkyRenderElement) {
+        if (this._cacheRenderElement != skyRenderElement) {
+            skyRenderElement.setGeometry(this.mesh);
+            skyRenderElement.material = this._material;
+            skyRenderElement.render = this._renderData;
+            skyRenderElement._renderElementOBJ.isRender = this._renderGeometry;
+            this._baseRenderNode.setRenderelements([skyRenderElement._renderElementOBJ]);
+            this._baseRenderNode.setCommonUniformMap([
+                "Sprite3D",
+                "SkyRenderer"
+            ]);
+            this._cacheRenderElement = skyRenderElement;
         }
     }
 
@@ -180,9 +159,11 @@ export class SkyRenderer {
             this._material = null;
         }
         this._renderData.destroy();
-        this._renderElement.destroy();
-
-
+        this._cacheRenderElement = null;
+        // this._renderElement.destroy();
+        // skyRenderElement 由 camera 设置, camera 负责 destroy
+        this._baseRenderNode.setRenderelements([]);
+        this._baseRenderNode.destroy();
     }
 
 }

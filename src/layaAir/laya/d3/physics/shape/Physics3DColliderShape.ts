@@ -13,8 +13,8 @@ export class Physics3DColliderShape implements IClone {
 	static SHAPEORIENTATION_UPY: number = 1;
 	/** 形状方向_Z轴正向 */
 	static SHAPEORIENTATION_UPZ: number = 2;
-	
-	
+
+	/**@internal */
 	_shape: IColliderShape;
 
 	/**@internal */
@@ -39,6 +39,10 @@ export class Physics3DColliderShape implements IClone {
 		this._createShape();
 	}
 
+	/**
+	 * @internal
+	 * @protected
+	 */
 	protected _createShape() {
 		throw "override it";
 	}

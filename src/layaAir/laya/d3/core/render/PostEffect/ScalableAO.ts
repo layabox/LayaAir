@@ -1,5 +1,3 @@
-
-
 import BlitScreenVS from "../../../shader/postprocess/BlitScreen.vs";
 import FragAO from "../../../shader/files/postProcess/ScalableAO/FragAO.fs";
 import AoBlurHorizontal from "../../../shader/files/postProcess/ScalableAO/AoBlurHorizontal.fs";
@@ -7,29 +5,28 @@ import AOComposition from "../../../shader/files/postProcess/ScalableAO/AOCompos
 import AmbientOcclusion from "../../../shader/files/postProcess/ScalableAO/AmbientOcclusion.glsl";
 import { RenderTargetFormat } from "../../../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { WrapMode } from "../../../../RenderEngine/RenderEnum/WrapMode";
-import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
-import { ShaderDataType, ShaderData } from "../../../../RenderEngine/RenderShader/ShaderData";
-import { DepthTextureMode } from "../../../depthMap/DepthPass";
-import { Viewport } from "../../../math/Viewport";
+import { Shader3D, ShaderFeatureType } from "../../../../RenderEngine/RenderShader/Shader3D";
 import { Camera } from "../../Camera";
 import { CommandBuffer } from "../command/CommandBuffer";
 import { PostProcessEffect } from "../PostProcessEffect";
 import { PostProcessRenderContext } from "../PostProcessRenderContext";
 import { BaseCamera } from "../../BaseCamera";
-import { ShaderDefine } from "../../../../RenderEngine/RenderShader/ShaderDefine";
 import { Color } from "../../../../maths/Color";
 import { Vector2 } from "../../../../maths/Vector2";
 import { Vector3 } from "../../../../maths/Vector3";
 import { Vector4 } from "../../../../maths/Vector4";
-import { RenderTexture } from "../../../../resource/RenderTexture";
+import { DepthTextureMode, RenderTexture } from "../../../../resource/RenderTexture";
 import { SubShader } from "../../../../RenderEngine/RenderShader/SubShader";
 import { VertexMesh } from "../../../../RenderEngine/RenderShader/VertexMesh";
 import { LayaGL } from "../../../../layagl/LayaGL";
+import { ShaderDataType, ShaderData } from "../../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { ShaderDefine } from "../../../../RenderDriver/RenderModuleData/Design/ShaderDefine";
+import { RenderState } from "../../../../RenderDriver/RenderModuleData/Design/RenderState";
 
 /**
  * AO质量
  */
-export enum AOQUALITY{
+export enum AOQUALITY {
     /**高 */
     High,
     /**中 */
@@ -83,9 +80,9 @@ export class ScalableAO extends PostProcessEffect {
 
         ScalableAO.AOParams = Shader3D.propertyNameToID('u_AOParams');
         ScalableAO.SourceTex = Shader3D.propertyNameToID('u_SourceTex');
-        ScalableAO.SHADERDEFINE_AOHigh =Shader3D.getDefineByName("AO_High");
-        ScalableAO.SHADERDEFINE_AOMEDIUM =Shader3D.getDefineByName("AO_MEDIUM");
-        ScalableAO.SHADERDEFINE_LOWEST =Shader3D.getDefineByName("AO_LOWEST");
+        ScalableAO.SHADERDEFINE_AOHigh = Shader3D.getDefineByName("AO_High");
+        ScalableAO.SHADERDEFINE_AOMEDIUM = Shader3D.getDefineByName("AO_MEDIUM");
+        ScalableAO.SHADERDEFINE_LOWEST = Shader3D.getDefineByName("AO_LOWEST");
         Shader3D.addInclude("AmbientOcclusion.glsl", AmbientOcclusion);
         //scalableAoShader
         let attributeMap: any = {
@@ -97,27 +94,36 @@ export class ScalableAO extends PostProcessEffect {
             'u_MainTex_TexelSize': ShaderDataType.Vector4,
             'u_Delty': ShaderDataType.Vector2,
             'u_PlugTime': ShaderDataType.Vector4,
-            'u_AOParams': ShaderDataType.Vector4,
+            'u_AOParams': ShaderDataType.Vector3,
             'u_BlurVector': ShaderDataType.Vector2,
             'u_AOColor': ShaderDataType.Color,
             'u_compositionAoTexture': ShaderDataType.Texture2D
 
         }
         let shader: Shader3D = Shader3D.add("ScalableAO");
+        shader.shaderType = ShaderFeatureType.PostProcess;
         let subShader: SubShader = new SubShader(attributeMap, uniformMap);
         shader.addSubShader(subShader);
-        subShader.addShaderPass(BlitScreenVS, FragAO);
+        let aoPass = subShader.addShaderPass(BlitScreenVS, FragAO);
+        aoPass.statefirst = true;
+        aoPass.renderState.cull = RenderState.CULL_NONE;
         //BlurShader
         shader = Shader3D.add("AOBlurHorizontal");
+        shader.shaderType = ShaderFeatureType.PostProcess;
         subShader = new SubShader(attributeMap, uniformMap);
         shader.addSubShader(subShader);
-        subShader.addShaderPass(BlitScreenVS, AoBlurHorizontal);
+        let blurPass = subShader.addShaderPass(BlitScreenVS, AoBlurHorizontal);
+        blurPass.statefirst = true;
+        blurPass.renderState.cull = RenderState.CULL_NONE;
 
         //Composition
         shader = Shader3D.add("AOComposition");
+        shader.shaderType = ShaderFeatureType.PostProcess;
         subShader = new SubShader(attributeMap, uniformMap);
         shader.addSubShader(subShader);
-        subShader.addShaderPass(BlitScreenVS, AOComposition);
+        let compositionPass = subShader.addShaderPass(BlitScreenVS, AOComposition);
+        compositionPass.statefirst = true;
+        compositionPass.renderState.cull = RenderState.CULL_NONE;
     }
 
     /*@internal scalable AO shader*/
@@ -135,7 +141,7 @@ export class ScalableAO extends PostProcessEffect {
     /**@internal */
     private _aoParams: Vector3 = new Vector3();
 
-    private _aoQuality:AOQUALITY = AOQUALITY.MEDIUM;
+    private _aoQuality: AOQUALITY = AOQUALITY.MEDIUM;
 
     /**
      * 实例化一个AO效果类
@@ -143,7 +149,7 @@ export class ScalableAO extends PostProcessEffect {
     constructor() {
         super();
         this._shader = Shader3D.find("ScalableAO");
-        this._shaderData = LayaGL.renderOBJCreate.createShaderData(null);
+        this._shaderData = LayaGL.renderDeviceFactory.createShaderData(null);
         this._aoParams = new Vector3(0.12, 0.15, 1);
         this._shaderData.setVector3(ScalableAO.AOParams, this._aoParams);
         this._shaderData.setVector(BaseCamera.DEPTHZBUFFERPARAMS, new Vector4());
@@ -192,13 +198,13 @@ export class ScalableAO extends PostProcessEffect {
     /**
      * ao质量
      */
-    get aoQuality(){
+    get aoQuality() {
         return this._aoQuality;
     }
 
-    set aoQuality(value:AOQUALITY){
+    set aoQuality(value: AOQUALITY) {
         this._aoQuality = value;
-        switch(value){
+        switch (value) {
             case AOQUALITY.High:
                 this._shaderData.addDefine(ScalableAO.SHADERDEFINE_AOHigh);
                 this._shaderData.removeDefine(ScalableAO.SHADERDEFINE_AOMEDIUM);
@@ -216,8 +222,9 @@ export class ScalableAO extends PostProcessEffect {
                 break;
         }
     }
-    
+
     /**
+     * @internal
      * @override
      */
     getCameraDepthTextureModeFlag() {
@@ -225,12 +232,13 @@ export class ScalableAO extends PostProcessEffect {
     }
 
     /**
+     * @internal
      * @override
      * @param context 
      */
     render(context: PostProcessRenderContext): void {
         let cmd: CommandBuffer = context.command;
-        let viewport: Viewport = context.camera.viewport;
+        let viewport = context.camera.viewport;
         let camera: Camera = context.camera;
 
         // camera rendermode
@@ -259,7 +267,7 @@ export class ScalableAO extends PostProcessEffect {
         let shaderData: ShaderData = this._shaderData;
         //depthTexture;
         //depthNormalTexture;
-        cmd.blitScreenTriangle(null, finalTex, null, shader, shaderData, 0);
+        cmd.blitScreenTriangle(context.source, finalTex, null, shader, shaderData, 0);
         //context.source = finalTex;
         let blurTex: RenderTexture = RenderTexture.createFromPool(width, height, textureFormat, depthFormat, false, 1);
         //blur horizontal

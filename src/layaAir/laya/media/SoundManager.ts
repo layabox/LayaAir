@@ -279,6 +279,11 @@ export class SoundManager {
         return SoundManager._musicMuted;
     }
 
+
+    
+    /**
+     * 背景音乐是否使用Audio标签播放。
+     */
     static get useAudioMusic(): boolean {
         return SoundManager._useAudioMusic;
     }

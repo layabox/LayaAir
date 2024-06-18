@@ -1,44 +1,33 @@
 import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
 import { VertexElement } from "../../renders/VertexElement";
 import { VertexElementFormat } from "../../renders/VertexElementFormat";
-import { Context } from "../../resource/Context";
 import { Mesh2D } from "./Mesh2D";
 
 /**
  * 用来画矢量的mesh。顶点格式固定为 x,y,rgba
  */
 export class MeshVG extends Mesh2D {
-    static const_stride: number = 12;// 36;
-    private static _fixattriInfo: any[];
-    private static _POOL: any[] = [];
+    static const_stride = 24;// 36;
     static vertexDeclaration: VertexDeclaration = null;
+	//private _vbUin32Array:Uint32Array=null;
+	private _vbFloat32Array:Float32Array=null;
 
     static __init__(): void {
-        MeshVG._fixattriInfo = [5126/*gl.FLOAT*/, 2, 0,	//x,y
-            5121/*gl.UNSIGNED_BYTE*/, 4, 8];
+        MeshVG.vertexDeclaration = new VertexDeclaration(24, [
+            new VertexElement(0, VertexElementFormat.Vector2, 0),//xy
+            new VertexElement(8, VertexElementFormat.Vector4, 1), //color
+        ]);
     }
 
     constructor() {
         super(MeshVG.const_stride, 4, 4);	//x,y,rgba
-        this.canReuse = true;
-        this.setAttributes(MeshVG._fixattriInfo);
-        if (!MeshVG.vertexDeclaration)
-            MeshVG.vertexDeclaration = new VertexDeclaration(12, [
-                new VertexElement(0, VertexElementFormat.Vector2, 0),
-                new VertexElement(8, VertexElementFormat.Byte4, 1),
-            ]);
-        this._vb.vertexDeclaration = MeshVG.vertexDeclaration;
     }
 
-    static getAMesh(mainctx: boolean): MeshVG {
-        //console.log('getmeshvg');
-        var ret: MeshVG;
-        if (MeshVG._POOL.length) {
-            ret = MeshVG._POOL.pop();
-        } else
-            ret = new MeshVG();
-        mainctx && ret._vb.buffer2D._resizeBuffer(64 * 1024 * MeshVG.const_stride, false);
-        return ret;
+	protected onVBRealloc(buff: ArrayBuffer): void {
+		//this._vbUin32Array = new Uint32Array(buff);
+		this._vbFloat32Array = new Float32Array(buff);
+	}  
+    protected onIBRealloc(buff: ArrayBuffer): void {
     }
 
     /**
@@ -47,55 +36,41 @@ export class MeshVG extends Mesh2D {
      * @param	rgba	rgba颜色
      * @param	ib		index数组。
      */
-    addVertAndIBToMesh(ctx: Context, points: any[], rgba: number, ib: any[]): void {
-        var startpos: number = this._vb.buffer2D.needSize(points.length / 2 * MeshVG.const_stride);//vb的起点。
-        var f32pos: number = startpos >> 2;
-        var vbdata: Float32Array = this._vb._floatArray32 || this._vb.getFloat32Array();
-        var vbu32Arr: Uint32Array = this._vb._uint32Array;
-        var ci: number = 0;
+    addVertAndIBToMesh(points: number[], rgba: number, ib: any[]): void {
+        var startpos = this._vertNum*MeshVG.const_stride;
+        this.expVBSize(points.length/2*MeshVG.const_stride);
+        var f32pos = startpos >> 2;
+        var vbdata = this._vbFloat32Array;
+        //var vbu32Arr = this._vbUin32Array
+        var ci = 0;
         //vb
-        //var clipinfo:Array = ctx.getTransedClipInfo();
-        var sz: number = points.length / 2;
-        for (var i: number = 0; i < sz; i++) {
+        let r = ((rgba>>>16)&0xff)/255.0;
+        let g = ((rgba>>>8)&0xff)/255.0;
+        let b = (rgba&0xff)/255.0;
+        let a = (rgba>>>24)/255.0;
+        var sz = points.length / 2;
+        for (var i = 0; i < sz; i++) {
             vbdata[f32pos++] = points[ci]; vbdata[f32pos++] = points[ci + 1]; ci += 2;
-            vbu32Arr[f32pos++] = rgba;
-            /*
-            //裁剪信息。
-            vbdata[f32pos++] = clipinfo[2] ; vbdata[f32pos++] = clipinfo[3]; vbdata[f32pos++] = clipinfo[4]; vbdata[f32pos++] = clipinfo[5];//cliprect的方向
-            vbdata[f32pos++] = clipinfo[0]; vbdata[f32pos++] = clipinfo[1]; //cliprect的位置
-            */
+            //vbu32Arr[f32pos++] = rgba;
+            vbdata[f32pos++]=b;        //r
+            vbdata[f32pos++]=g;
+            vbdata[f32pos++]=r;
+            vbdata[f32pos++]=a;  //alpha
         }
-        this._vb.buffer2D.setNeedUpload();
 
         //ib
         //TODO 现在这种添加数据的方法效率非常低。而且会引起大量的gc
-        this._ib.buffer2D.append(new Uint16Array(ib));
-        this._ib.buffer2D.setNeedUpload();
+        this.expIBSize(ib.length*2);
+        //append index
+        (new Uint16Array(this._IBBuff,this._indexNum*2,ib.length)).set(new Uint16Array(ib))
 
-        this.vertNum += sz;
-        this.indexNum += ib.length;
+        this._vertNum += sz;
+        this._indexNum += ib.length;
     }
 
-    /**
-     * 把本对象放到回收池中，以便getMesh能用。
-     * @override
-     */
-    releaseMesh(): void {
-        this._vb.buffer2D.setByteLength(0);
-        this._ib.buffer2D.setByteLength(0);
-        this.vertNum = 0;
-        this.indexNum = 0;
-        //_applied = false;
-        MeshVG._POOL.push(this);
-    }
-    /**
-     * @override
-     */
-    destroy(): void {
-        this._ib.destroy();
-        this._vb.destroy();
-        this._ib.disposeResource();
-        this._vb.deleteBuffer();
-    }
+	get vertexDeclarition(){
+		return MeshVG.vertexDeclaration;
+	}
+
 }
 

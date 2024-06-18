@@ -262,6 +262,7 @@ export class GradientSize implements IClone {
 
 	/**
 	 * 获取最大尺寸。
+	 * @param	meshMode 是否是网格模式
 	 */
 	getMaxSizeInGradient(meshMode: boolean = false): number {
 		var i: number, n: number;

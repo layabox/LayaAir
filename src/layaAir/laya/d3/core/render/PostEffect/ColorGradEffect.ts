@@ -3,9 +3,7 @@ import { Vector4 } from "../../../../maths/Vector4";
 import { FilterMode } from "../../../../RenderEngine/RenderEnum/FilterMode";
 import { RenderTargetFormat } from "../../../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { WrapMode } from "../../../../RenderEngine/RenderEnum/WrapMode";
-import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
-import { ShaderData, ShaderDataType } from "../../../../RenderEngine/RenderShader/ShaderData";
-import { ShaderDefine } from "../../../../RenderEngine/RenderShader/ShaderDefine";
+import { Shader3D, ShaderFeatureType } from "../../../../RenderEngine/RenderShader/Shader3D";
 import { SubShader } from "../../../../RenderEngine/RenderShader/SubShader";
 import { VertexMesh } from "../../../../RenderEngine/RenderShader/VertexMesh";
 import { RenderTexture } from "../../../../resource/RenderTexture";
@@ -15,12 +13,13 @@ import { PostProcessEffect } from "../PostProcessEffect";
 import { PostProcessRenderContext } from "../PostProcessRenderContext";
 import BlitVS from "../../../../d3/shader/postprocess/BlitScreen.vs";
 import BlitLUTShader from "../../../../d3/shader/postprocess/BlitLUTScreen.fs";
-import { RenderState } from "../../../../RenderEngine/RenderShader/RenderState";
 import { Texture2D } from "../../../../resource/Texture2D";
-import { RenderContext3D } from "../RenderContext3D";
 import { Color } from "../../../../maths/Color";
 import { PostProcess } from "../../../component/PostProcess";
 import { LayaGL } from "../../../../layagl/LayaGL";
+import { ShaderDefine } from "../../../../RenderDriver/RenderModuleData/Design/ShaderDefine";
+import { ShaderData, ShaderDataType } from "../../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { RenderState } from "../../../../RenderDriver/RenderModuleData/Design/RenderState";
 
 export enum ToneMappingType {
 	None,
@@ -31,15 +30,27 @@ export enum ToneMappingType {
  * <code>ColorGradEffect</code> 类用于创建调色Effect
  */
 export class ColorGradEffect extends PostProcessEffect {
+	/**
+	 * @internal
+	 * ACES宏
+	 */
 	static SHADERDEFINE_ACES: ShaderDefine;
+	/**
+	 * @internal
+	 * 自定义LUT宏
+	 */
 	static SHADERDEFINE_CUSTOMLUT: ShaderDefine;
-
+	/**@internal */
 	static SHADERVALUE_LUT: number;
+	/**@internal */
 	static SHADERVALUE_LUTPARAMS: number;
+	/**@internal */
 	static SHADERVALUE_CUSTOMLUT: number;
+	/**@internal */
 	static SHADERVALUE_CUSTOMLUTPARAMS: number;
 
 	/**
+	 * @internal
 	 * bloom resource init
 	 */
 	static init() {
@@ -54,6 +65,7 @@ export class ColorGradEffect extends PostProcessEffect {
 			"u_MainTex_TexelSize": ShaderDataType.Vector4, //x:width,y:height,z:1/width,w:1/height
 		};
 		let shader = Shader3D.add("blitLUTShader");
+		shader.shaderType = ShaderFeatureType.PostProcess;
 		let subShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
 		let pass = subShader.addShaderPass(BlitVS, BlitLUTShader);
@@ -76,7 +88,7 @@ export class ColorGradEffect extends PostProcessEffect {
 
 	private _needBuildLUT: boolean = false;
 
-	private _lutCommond: CommandBuffer;
+	/**@internal */
 	_lutTex: RenderTexture;
 	private _lutBuilderMat = new Material();
 
@@ -158,7 +170,6 @@ export class ColorGradEffect extends PostProcessEffect {
 		this._toneMapping = value;
 	}
 
-	// split toning
 	/**
 	 * 是否开启Split Tone
 	 */
@@ -208,7 +219,10 @@ export class ColorGradEffect extends PostProcessEffect {
 		this._splitBalance = value;
 	}
 
-	// shadows, midtones, highlights
+	/**
+	 * shadows, midtones, highlights 
+	 * 暗处，中亮，高亮调节
+	 */
 	public get enableSMH(): boolean {
 		return this._enableSMH;
 	}
@@ -308,7 +322,9 @@ export class ColorGradEffect extends PostProcessEffect {
 	}
 
 
-	//lift gamma gain
+	/**
+	 * lift gamma gain
+	 */
 	public get enableLiftGammaGain() {
 		return this._enableLiftGammaGain;
 	}
@@ -396,7 +412,10 @@ export class ColorGradEffect extends PostProcessEffect {
 		this._balance.set(w1.x / w2.x, w1.y / w2.y, w1.z / w2.z);
 	}
 
-	//balance
+	/**
+	 * balance
+	 * 白平衡开启
+	 */
 	public get enableBalance() {
 		return this._enableBalance;
 	}
@@ -433,7 +452,10 @@ export class ColorGradEffect extends PostProcessEffect {
 		this._ColorBalanceToLMSCoeffs(this._temperature, this._tint);
 	}
 
-	//Color Adjustments
+	/**
+	 * Color Adjustments
+	 * 开启颜色调整
+	 */
 	public get enableColorAdjust() {
 		return this._enableColorAdjust;
 	}
@@ -510,9 +532,8 @@ export class ColorGradEffect extends PostProcessEffect {
 		this._needBuildLUT = true;
 		this._toneMapping = ToneMappingType.None;
 		this._blitlutParams = new Vector4();
-		this._lutShaderData = LayaGL.renderOBJCreate.createShaderData(null);
+		this._lutShaderData = LayaGL.renderDeviceFactory.createShaderData(null);
 		this.lutSize = 32;
-		this._lutCommond = new CommandBuffer();
 		this._lutBuilderMat = new Material();
 	}
 
@@ -613,14 +634,13 @@ export class ColorGradEffect extends PostProcessEffect {
 		} else {
 			this._lutBuilderMat.removeDefine(ColorGradEffect.SHADERDEFINE_ACES);
 		}
-		this._lutCommond.blitScreenQuadByMaterial(Texture2D.whiteTexture, this._lutTex, null, this._lutBuilderMat);
-		this._lutCommond.context = RenderContext3D._instance;
-		this._lutCommond._apply();
-		this._lutCommond.clear();
+		this._postProcess._context.command.blitScreenQuadByMaterial(Texture2D.whiteTexture, this._lutTex, null, this._lutBuilderMat);
 	}
+	private _postProcess: PostProcess
 
 	/**
 	 * 添加到后期处理栈时,会调用
+	 * @param 后期处理节点
 	 */
 	effectInit(postprocess: PostProcess) {
 		super.effectInit(postprocess);
@@ -628,12 +648,14 @@ export class ColorGradEffect extends PostProcessEffect {
 		this._LUTShader = Shader3D.find("blitLUTShader");
 		postprocess._enableColorGrad = true;
 		postprocess._ColorGradEffect = this;
+		this._postProcess = postprocess;
 		// this._shader = Shader3D.find("PostProcessBloom");
 		// this._pyramid = new Array(BloomEffect.MAXPYRAMIDSIZE * 2);
 	}
 
 	/**
 	 * 释放Effect
+	 * @param postprocess 后期处理节点
 	 */
 	release(postprocess: PostProcess) {
 		super.release(postprocess);

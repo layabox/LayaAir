@@ -10,8 +10,8 @@ import { SkinnedMeshSprite3DShaderDeclaration } from "./SkinnedMeshSprite3DShade
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { Vector3 } from "../../maths/Vector3";
 import { Vector4 } from "../../maths/Vector4";
-import { ShaderDataType } from "../../RenderEngine/RenderShader/ShaderData";
 import { LayaGL } from "../../layagl/LayaGL";
+import { ShaderDataType } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 
 /**
  * <code>SkinnedMeshSprite3D</code> 类用于绑点骨骼节点精灵。
@@ -28,7 +28,7 @@ export class SkinnedMeshSprite3D extends RenderableSprite3D {
     static __init__(): void {
         SkinnedMeshSprite3DShaderDeclaration.SHADERDEFINE_BONE = Shader3D.getDefineByName("BONE");
         SkinnedMeshSprite3DShaderDeclaration.SHADERDEFINE_SIMPLEBONE = Shader3D.getDefineByName("SIMPLEBONE");
-        const commandUniform = LayaGL.renderOBJCreate.createGlobalUniformMap("Custom");
+        const commandUniform = LayaGL.renderDeviceFactory.createGlobalUniformMap("Custom");
         SkinnedMeshSprite3D.BONES = Shader3D.propertyNameToID("u_Bones");
         commandUniform.addShaderUniform(SkinnedMeshSprite3D.BONES, "u_Bones", ShaderDataType.Buffer);
     }
@@ -108,6 +108,8 @@ export class SkinnedMeshSprite3D extends RenderableSprite3D {
             var n: number;
             for (i = 0, n = bonesData.length; i < n; i++)
                 (render as SkinnedMeshRenderer).bones.push(spriteMap[bonesData[i]]);
+            
+            render.bones = render.bones;
         }
     }
 

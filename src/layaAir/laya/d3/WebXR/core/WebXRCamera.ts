@@ -1,16 +1,11 @@
-import { Config3D } from "../../../../Config3D";
-import { ILaya3D } from "../../../../ILaya3D";
-import { Camera, CameraEventFlags } from "../../core/Camera";
+import { Camera } from "../../core/Camera";
 import { RenderContext3D } from "../../core/render/RenderContext3D";
 import { Scene3D } from "../../core/scene/Scene3D";
-import { Cluster } from "../../graphics/renderPath/Cluster";
-import { Viewport } from "../../math/Viewport";
 import { WebXRCameraManager } from "./WebXRCameraManager";
-import { WebXRRenderTexture } from "./WebXRRenderTexture";
 import { RenderStateContext } from "../../../RenderEngine/RenderStateContext";
-import { WebXRExperienceHelper } from "./WebXRExperienceHelper";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { RenderTexture } from "../../../resource/RenderTexture";
+import { Viewport } from "../../../maths/Viewport";
 
 
 /**
@@ -102,7 +97,7 @@ export class WebXRCamera extends Camera {
 	 * @param shader 
 	 * @param replacementTag 
 	 */
-	render(shader: Shader3D = null, replacementTag: string = null): void {
+	render(): void {
 		if (!this.activeInHierarchy) //custom render should protected with activeInHierarchy=true
 			return;
 
@@ -111,12 +106,12 @@ export class WebXRCamera extends Camera {
 		var context: RenderContext3D = RenderContext3D._instance;
 		var scene: Scene3D = context.scene = <Scene3D>this._scene;
 		context.pipelineMode = context.configPipeLineMode;
-		context.replaceTag = replacementTag;
-		context.customShader = shader;
-		var needShadowCasterPass: boolean = this._renderShadowMap(scene, context);
-		this._preRenderMainPass(context, scene, needInternalRT, viewport);
-		this._renderMainPass(context, viewport, scene, shader, replacementTag, needInternalRT);
-		this._aftRenderMainPass(needShadowCasterPass);
+		// context.replaceTag = replacementTag;
+		// context.customShader = shader;
+		// //var needShadowCasterPass: boolean = this._renderShadowMap(scene, context);
+		// this._preRenderMainPass(context, scene, needInternalRT, viewport);
+		// this._renderMainPass(context, viewport, scene, shader, replacementTag, needInternalRT);
+		// this._aftRenderMainPass(needShadowCasterPass);
 	}
 
 	/**
@@ -130,40 +125,40 @@ export class WebXRCamera extends Camera {
  * @param needInternalRT 是否需要内部RT
  */
 	_renderMainPass(context: RenderContext3D, viewport: Viewport, scene: Scene3D, shader: Shader3D, replacementTag: string, needInternalRT: boolean) {
-		var gl: WebGLRenderingContext = WebXRExperienceHelper.glInstance;
-		var renderTex: RenderTexture = this._internalRenderTexture;
+		// var gl: WebGLRenderingContext = WebXRExperienceHelper.glInstance;
+		// var renderTex: RenderTexture = this._internalRenderTexture;
 
-		context.viewport = viewport;
-		this._prepareCameraToRender();
-		var multiLighting: boolean = Config3D._multiLighting;
-		(multiLighting) && (Cluster.instance.update(this, <Scene3D>(scene)));
-		scene._preCulling(context, this);
+		// context.viewport = viewport;
+		// this._prepareCameraToRender();
+		// var multiLighting: boolean = Config3D._multiLighting;
+		// (multiLighting) && (Cluster.instance.update(this, <Scene3D>(scene)));
+		// scene._preCulling(context, this);
 
-		if (renderTex && renderTex._isCameraTarget)//保证反转Y状态正确
-			context.invertY = true;
-		this._applyViewProject(context, this.viewMatrix, this._projectionMatrix);
-		if (this.depthTextureMode != 0) {
-			//TODO:是否可以不多次
-			this._renderDepthMode(context);
-		}
-		(renderTex) && (renderTex._start());
-		if ((renderTex as any).frameLoop != Scene3D._updateMark) {
-			(renderTex as any).frameLoop = Scene3D._updateMark;
-			//scene._clear(gl, context);
-			this.clear(gl);
-		}
-		this._restoreView(gl);
-		this._prepareCameraToRender();
+		// if (renderTex && renderTex._isCameraTarget)//保证反转Y状态正确
+		// 	context.invertY = true;
+		// this._applyViewProject(context, this.viewMatrix, this._projectionMatrix);
+		// if (this.depthTextureMode != 0) {
+		// 	//TODO:是否可以不多次
+		// 	this._renderDepthMode(context);
+		// }
+		// (renderTex) && (renderTex._start());
+		// if ((renderTex as any).frameLoop != Scene3D._updateMark) {
+		// 	(renderTex as any).frameLoop = Scene3D._updateMark;
+		// 	//scene._clear(gl, context);
+		// 	this.clear(gl);
+		// }
+		// this._restoreView(gl);
+		// this._prepareCameraToRender();
 
-		this._applyCommandBuffer(CameraEventFlags.BeforeForwardOpaque, context);
-		scene._renderScene(context, ILaya3D.Scene3D.SCENERENDERFLAG_RENDERQPAQUE);
-		this._applyCommandBuffer(CameraEventFlags.BeforeSkyBox, context);
-		scene._renderScene(context, ILaya3D.Scene3D.SCENERENDERFLAG_SKYBOX);
-		this._applyCommandBuffer(CameraEventFlags.BeforeTransparent, context);
-		scene._renderScene(context, ILaya3D.Scene3D.SCENERENDERFLAG_RENDERTRANSPARENT);
-		scene._componentDriver.callPostRender();//TODO:duo相机是否重复
-		this._applyCommandBuffer(CameraEventFlags.BeforeImageEffect, context);
-		(renderTex) && (renderTex._end());
+		// this._applyCommandBuffer(CameraEventFlags.BeforeForwardOpaque, context);
+		// scene._renderScene(context, ILaya3D.Scene3D.SCENERENDERFLAG_RENDERQPAQUE);
+		// this._applyCommandBuffer(CameraEventFlags.BeforeSkyBox, context);
+		// scene._renderScene(context, ILaya3D.Scene3D.SCENERENDERFLAG_SKYBOX);
+		// this._applyCommandBuffer(CameraEventFlags.BeforeTransparent, context);
+		// scene._renderScene(context, ILaya3D.Scene3D.SCENERENDERFLAG_RENDERTRANSPARENT);
+		// scene._componentDriver.callPostRender();//TODO:duo相机是否重复
+		// this._applyCommandBuffer(CameraEventFlags.BeforeImageEffect, context);
+		// (renderTex) && (renderTex._end());
 		//PostProcess TODO
 		// if (needInternalRT) {
 		// 	if (this._postProcess && this._postProcess.enable) {
@@ -186,7 +181,7 @@ export class WebXRCamera extends Camera {
 		// } else {
 		// 	RenderTexture.bindCanvasRender = null;
 		// }
-		this._applyCommandBuffer(CameraEventFlags.AfterEveryThing, context);
+		//this._applyCommandBuffer(CameraEventFlags.AfterEveryThing, context);
 	}
 
 	/**

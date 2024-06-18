@@ -6,6 +6,8 @@ import { Component } from "../../../components/Component";
 import { Color } from "../../../maths/Color";
 import { Matrix4x4 } from "../../../maths/Matrix4x4";
 import { Vector3 } from "../../../maths/Vector3";
+import { IDirectLightData, IPointLightData, ISpotLightData } from "../../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
+
 
 
 export enum LightType {
@@ -25,28 +27,17 @@ export enum LightMode {
  * <code>LightSprite</code> 类用于创建灯光的父类。
  */
 export class Light extends Component {
-
+    /**@internal 下沉数据集合 */
+    protected _dataModule: IDirectLightData | ISpotLightData | IPointLightData;
     /** @internal */
     protected _shadowMode: ShadowMode = ShadowMode.None;
 
     /** @internal */
-    _isAlternate: boolean = false;
+    private _isAlternate: boolean = false;
     /** @internal */
     _intensityColor: Vector3;
     /** @internal */
     _intensity: number;
-    /** @internal */
-    _shadowResolution: number = 2048;
-    /** @internal */
-    _shadowDistance: number = 50.0;
-    /** @internal */
-    _shadowDepthBias: number = 1.0;
-    /** @internal */
-    _shadowNormalBias: number = 1.0;
-    /** @internal */
-    _shadowNearPlane: number = 0.1;
-    /** @internal */
-    _shadowStrength: number = 1.0;
     /** @internal */
     _lightmapBakedType: LightMode;
     /** @internal */
@@ -72,77 +63,77 @@ export class Light extends Component {
      * 阴影模式。
      */
     get shadowMode(): ShadowMode {
-        return this._shadowMode;
+        return this._dataModule.shadowMode;
     }
 
     set shadowMode(value: ShadowMode) {
-        this._shadowMode = value
+        this._dataModule.shadowMode = value
     }
 
     /**
      * 最大阴影距离。
      */
     get shadowDistance(): number {
-        return this._shadowDistance;
+        return this._dataModule.shadowDistance;
     }
 
     set shadowDistance(value: number) {
-        this._shadowDistance = value;
+        this._dataModule.shadowDistance = value;
     }
 
     /**
      * 阴影贴图分辨率。
      */
     get shadowResolution(): number {
-        return this._shadowResolution;
+        return this._dataModule.shadowResolution;
     }
 
     set shadowResolution(value: number) {
-        this._shadowResolution = value;
+        this._dataModule.shadowResolution = value;
     }
 
     /**
      * 阴影深度偏差。
      */
     get shadowDepthBias(): number {
-        return this._shadowDepthBias;
+        return this._dataModule.shadowDepthBias;
     }
 
     set shadowDepthBias(value: number) {
-        this._shadowDepthBias = value;
+        this._dataModule.shadowDepthBias = value;
     }
 
     /**
      * 阴影法线偏差。
      */
     get shadowNormalBias(): number {
-        return this._shadowNormalBias;
+        return this._dataModule.shadowNormalBias;
     }
 
     set shadowNormalBias(value: number) {
-        this._shadowNormalBias = value;
+        this._dataModule.shadowNormalBias = value;
     }
 
     /**
      * 阴影强度。
      */
     get shadowStrength(): number {
-        return this._shadowStrength;
+        return this._dataModule.shadowStrength;
     }
 
     set shadowStrength(value: number) {
-        this._shadowStrength = value;
+        this._dataModule.shadowStrength = value;
     }
 
     /**
      * 阴影视锥的近裁面。
      */
     get shadowNearPlane(): number {
-        return this._shadowNearPlane;
+        return this._dataModule.shadowNearPlane;
     }
 
     set shadowNearPlane(value: number) {
-        this._shadowNearPlane = value;
+        this._dataModule.shadowNearPlane = value;
     }
 
     /**
@@ -166,6 +157,9 @@ export class Light extends Component {
         }
     }
 
+    /**
+     * 获取灯光世界矩阵
+     */
     get lightWorldMatrix(): Matrix4x4 {
         var position = (this.owner as Sprite3D).transform.position;
         var quaterian = (this.owner as Sprite3D).transform.rotation;
@@ -173,21 +167,49 @@ export class Light extends Component {
         return this._lightWoldMatrix;
     }
 
+    /**
+     * 获取灯光类型
+     */
     get lightType() {
         return this._lightType;
     }
+
+
+
 
     /**
      * 创建一个 <code>LightSprite</code> 实例。
      */
     constructor() {
         super();
-
+        this._creatModuleData();
         this.runInEditor = true;
         this._intensity = 1.0;
         this._intensityColor = new Vector3();
         this.color = new Color(1.0, 1.0, 1.0, 1.0);
         this._lightmapBakedType = LightMode.realTime;
+        this.shadowResolution = 2048;
+        this.shadowDistance = 50.0;
+        this.shadowDepthBias = 1.0;
+        this.shadowNormalBias = 1.0;
+        this.shadowNearPlane = 0.1;
+        this.shadowStrength = 1.0;
+        this.shadowMode = ShadowMode.None;
+    }
+
+    protected _creatModuleData() {
+        //overrid it
+    }
+
+    /**@internal */
+    _setOwner(node: Sprite3D): void {
+        super._setOwner(node);
+        this._dataModule.transform = (this.owner as Sprite3D).transform;
+    }
+
+    /**@internal */
+    _getRenderDataModule() {
+        return this._dataModule;
     }
 
     /**
@@ -269,14 +291,26 @@ export class Light extends Component {
     protected _removeFromLightQueue(): void {
     }
 
+    /**
+     * @internal
+     * @protected
+     */
     protected _onEnable(): void {
         (this.lightmapBakedType !== LightMode.bakeOnly) && (this._addToScene());
     }
 
+    /**
+     * @internal
+     * @protected
+     */
     protected _onDisable(): void {
         (this.lightmapBakedType !== LightMode.bakeOnly) && (this._removeFromScene());
     }
 
+    /**
+     * @internal
+     * @protected
+     */
     protected _onDestroy() {
     }
 

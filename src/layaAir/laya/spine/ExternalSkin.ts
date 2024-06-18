@@ -3,13 +3,21 @@ import { Loader } from "../net/Loader";
 import { ExternalSkinItem } from "./ExternalSkinItem";
 import { SpineSkeleton } from "./SpineSkeleton";
 import { SpineTemplet } from "./SpineTemplet";
+import { ISpineSkeleton } from "./interface/ISpineSkeleton";
 
 export class ExternalSkin {
+    /**@internal @protected */
     protected _source: string;
+    /**@internal @protected */
     protected _templet: SpineTemplet;
+    /**@internal @protected */
     protected _items: ExternalSkinItem[];
-    target: SpineSkeleton;
+    /**目标spine */
+    target: ISpineSkeleton;
 
+    /**
+     * 外部皮肤spine的源
+     */
     get source(): string {
         return this._source;
     }
@@ -28,6 +36,9 @@ export class ExternalSkin {
             this.templet = null;
     }
 
+    /**
+     * 要设置的外部皮肤的内容
+     */
     set items(value: ExternalSkinItem[]) {
         this._items = value;
     }
@@ -46,6 +57,13 @@ export class ExternalSkin {
     set templet(value: SpineTemplet) {
         this.init(value);
     }
+
+    /**
+     * @internal
+     * 初始化
+     * @param templet 动画模板引用 
+     * @returns 
+     */
     protected init(templet: SpineTemplet): void {
         this._templet = templet;
         if (!this._templet) {
@@ -53,6 +71,12 @@ export class ExternalSkin {
         }
         this.flush();
     }
+
+    /**
+     * 替换外部i皮肤spine
+     * @internal
+     * @returns 
+     */
     flush() {
         if (this.target && this.target.templet && this._items && this._templet && this._templet.skeletonData) {
             if (null == (this.target.templet as any)._textures) return;

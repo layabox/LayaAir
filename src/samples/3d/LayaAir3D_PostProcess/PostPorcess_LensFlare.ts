@@ -1,6 +1,5 @@
 import { Laya } from "Laya";
 import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
-import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { SkyProceduralMaterial } from "laya/d3/core/material/SkyProceduralMaterial";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { SkyDome } from "laya/d3/resource/models/SkyDome";
@@ -44,11 +43,13 @@ export class PostProcess_LensFlare {
             camera.clearFlag = CameraClearFlags.Sky;
 
             //初始化平行光
-            var directionLight: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));
+            let directlightSprite = new Sprite3D();
+			let dircom = directlightSprite.addComponent(DirectionLightCom);
+			scene.addChild(directlightSprite);
             //设置平行光的方向
-            var mat: Matrix4x4 = directionLight.transform.worldMatrix;
+            var mat: Matrix4x4 = directlightSprite.transform.worldMatrix;
             mat.setForward(new Vector3(1, -1, 0));
-            directionLight.transform.worldMatrix = mat;
+            directlightSprite.transform.worldMatrix = mat;
 
             camera.transform.rotationEuler = new Vector3(34.9, 107.24, 0);
             camera.transform.position = new Vector3(4.92, -0.74, -3.6);
@@ -68,7 +69,7 @@ export class PostProcess_LensFlare {
                 let postprocess = camera.postProcess = new PostProcess();
                 let lensFlare = new LensFlareEffect();
                 postprocess.addEffect(lensFlare);
-                lensFlare.bindLight = directionLight.getComponent(DirectionLightCom);
+                lensFlare.bindLight = directlightSprite.getComponent(DirectionLightCom);
 
                 let lensElement = new LensFlareElement();
                 lensElement.texture = tex1;

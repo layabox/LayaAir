@@ -1,9 +1,8 @@
+import { IDefineDatas } from "../../RenderDriver/RenderModuleData/Design/IDefineDatas";
+import { ShaderDefine } from "../../RenderDriver/RenderModuleData/Design/ShaderDefine";
 import { LayaGL } from "../../layagl/LayaGL";
 import { ShaderCompile } from "../../webgl/utils/ShaderCompile";
-import { DefineDatas } from "./DefineDatas";
-import { ShaderDefine } from "./ShaderDefine";
 import { ShaderPass } from "./ShaderPass";
-import { ShaderVariant, ShaderVariantCollection } from "./ShaderVariantCollection";
 import { SubShader } from "./SubShader";
 
 export interface IShaderObjStructor {
@@ -27,13 +26,23 @@ export interface IShaderpassStructor {
     renderState?: Record<string, string | boolean | number | string[]>
 
 }
+
+export enum ShaderFeatureType {
+    DEFAULT,
+    D3,
+    D2,
+    PostProcess,
+    Sky,
+    Effect
+}
+
 /**
  * <code>Shader3D</code> 类用于创建Shader3D。
  */
 export class Shader3D {
-    static _configDefineValues = new DefineDatas();
+    static _configDefineValues: IDefineDatas;
     /**@internal */
-    private static _compileDefineDatas: DefineDatas = new DefineDatas();
+    private static _compileDefineDatas: IDefineDatas;
     /**渲染状态_剔除。*/
     static CULL: number;
     /**渲染状态_混合。*/
@@ -88,49 +97,49 @@ export class Shader3D {
     static SHADERDEFINE_FLOATTEXTURE: ShaderDefine;
     /**@internal */
     static SHADERDEFINE_FLOATTEXTURE_FIL_LINEAR: ShaderDefine;
+    /**@internal WebGPU等平台坐标系Y翻转 */
+    static SHADERDEFINE_BLITSCREEN_INVERTY: ShaderDefine;
+    /**@internal opengl webgl 需要重新映射深度值 */
+    static SHADERDEFINE_REMAP_POSITIONZ: ShaderDefine;
+    /**@internal 是否支持指定LOD的贴图采样 */
+    static SHADERDEFINE_LOD_TEXTURE_SAMPLE: ShaderDefine;
+    /**@internal 是否支持动态中断贴图采样 */
+    static SHADERDEFINE_BREAK_TEXTURE_SAMPLE: ShaderDefine;
+
     /**@internal */
     static _propertyNameMap: any = {};
     /**@internal */
     private static _propertyNameCounter: number = 0;
-    /**@internal */
-    private static _defineCounter: number = 0;
-    // todo  这个 map 和 get 函数转移到 ShaderDefine 里面
-    /**@internal */
-    private static _defineMap: { [key: string]: ShaderDefine } = {};
+
     /**@internal */
     static _preCompileShader: { [key: string]: Shader3D } = {};
     /**@internal */
-    static _maskMap: Array<{ [key: number]: string }> = [];
-    /**@internal */
-    static _debugShaderVariantInfo: ShaderVariant;
+    static _debugShaderVariantInfo: any;
     /**是否开启调试模式。 */
     static debugMode: boolean = false;
-    /**调试着色器变种集合。 */
-    static debugShaderVariantCollection: ShaderVariantCollection;
-
 
     static init() {
-        Shader3D.debugShaderVariantCollection = new ShaderVariantCollection();
+        Shader3D._configDefineValues = LayaGL.unitRenderModuleDataFactory.createDefineDatas();
+        Shader3D.SHADERDEFINE_BLITSCREEN_INVERTY = Shader3D.getDefineByName("BLITSCREEN_INVERTY");
+        Shader3D.SHADERDEFINE_REMAP_POSITIONZ = Shader3D.getDefineByName("REMAP_Z");
+        Shader3D.SHADERDEFINE_LOD_TEXTURE_SAMPLE = Shader3D.getDefineByName("LOD_TEXTURE_SAMPLE");
+        Shader3D.SHADERDEFINE_BREAK_TEXTURE_SAMPLE = Shader3D.getDefineByName("BREAK_TEXTURE_SAMPLE");
+        if (LayaGL.renderEngine._remapZ)
+            Shader3D._configDefineValues.add(Shader3D.SHADERDEFINE_REMAP_POSITIONZ);
+        if (LayaGL.renderEngine._screenInvertY && false)
+            Shader3D._configDefineValues.add(Shader3D.SHADERDEFINE_BLITSCREEN_INVERTY);
+        if (LayaGL.renderEngine._lodTextureSample)
+            Shader3D._configDefineValues.add(Shader3D.SHADERDEFINE_LOD_TEXTURE_SAMPLE);
+        if (LayaGL.renderEngine._breakTextureSample)
+            Shader3D._configDefineValues.add(Shader3D.SHADERDEFINE_BREAK_TEXTURE_SAMPLE);
     }
 
     /**
      * @internal
      */
-    static _getNamesByDefineData(defineData: DefineDatas, out: Array<string>): void {
-        var maskMap: Array<{ [key: number]: string }> = Shader3D._maskMap;
-        var mask: Array<number> = defineData._mask;
-        out.length = 0;
-        for (var i: number = 0, n: number = defineData._length; i < n; i++) {
-            var subMaskMap: { [key: number]: string } = maskMap[i];
-            var subMask: number = mask[i];
-            for (var j: number = 0; j < 32; j++) {
-                var d: number = 1 << j;
-                if (subMask > 0 && d > subMask)//如果31位存在subMask为负数,避免break
-                    break;
-                if (subMask & d)
-                    out.push(subMaskMap[d]);
-            }
-        }
+    static _getNamesByDefineData(defineData: IDefineDatas, out: Array<string>) {
+        LayaGL.renderEngine.getNamesByDefineData(defineData, out);
+        return out;
     }
 
     /**
@@ -138,22 +147,7 @@ export class Shader3D {
      * @param name 
      */
     static getDefineByName(name: string): ShaderDefine {
-        var define: ShaderDefine = Shader3D._defineMap[name];
-        if (!define) {
-            var maskMap = Shader3D._maskMap;
-            var counter: number = Shader3D._defineCounter;
-            var index: number = Math.floor(counter / 32);
-            var value: number = 1 << counter % 32;
-            define = new ShaderDefine(index, value);
-            Shader3D._defineMap[name] = define;
-            if (index == maskMap.length) {
-                maskMap.length++;
-                maskMap[index] = {};
-            }
-            maskMap[index][value] = name;
-            Shader3D._defineCounter++;
-        }
-        return define;
+        return LayaGL.renderEngine.getDefineByName(name);
     }
 
     /**
@@ -185,7 +179,7 @@ export class Shader3D {
      * @param   passIndex  通道索引。
      * @param	defineNames 宏定义名字集合。
      */
-    static compileShaderByDefineNames(shaderName: string, subShaderIndex: number, passIndex: number, defineNames: string[], nodeCommonMap: string[]): void {
+    static compileShaderByDefineNames(shaderName: string, subShaderIndex: number, passIndex: number, defineNames: string[], nodeCommonMap: string[]): boolean {
         var shader: Shader3D = Shader3D.find(shaderName);
         if (shader) {
             var subShader: SubShader = shader.getSubShaderAt(subShaderIndex);
@@ -193,20 +187,17 @@ export class Shader3D {
                 var pass: ShaderPass = subShader._passes[passIndex];
                 pass.nodeCommonMap = nodeCommonMap;
                 if (pass) {
-                    var compileDefineDatas: DefineDatas = Shader3D._compileDefineDatas;
+                    var compileDefineDatas = Shader3D._compileDefineDatas;
                     Shader3D._configDefineValues.cloneTo(compileDefineDatas);
-                    for (var i: number = 0, n: number = defineNames.length; i < n; i++)
-                        compileDefineDatas.add(Shader3D.getDefineByName(defineNames[i]));
+                    for (let n of defineNames)
+                        compileDefineDatas.add(Shader3D.getDefineByName(n));
                     pass.withCompile(compileDefineDatas);
-                } else {
-                    console.warn("Shader3D: unknown passIndex.");
+                    return true;
                 }
-            } else {
-                console.warn("Shader3D: unknown subShaderIndex.");
             }
-        } else {
-            console.warn("Shader3D: unknown shader name.");
         }
+
+        return false;
     }
 
     /**
@@ -263,10 +254,11 @@ export class Shader3D {
     /**@internal */
     _supportReflectionProbe: boolean = false;
     /**@internal */
-    _surportVolumetricGI:boolean = false;
+    _surportVolumetricGI: boolean = false;
     /**@internal */
     _subShaders: SubShader[] = [];
 
+    shaderType: ShaderFeatureType;
     /**
      * 名字。
      */
@@ -290,6 +282,7 @@ export class Shader3D {
     addSubShader(subShader: SubShader): void {
         this._subShaders.push(subShader);
         subShader._owner = this;
+        subShader.moduleData.enableInstance = this._enableInstancing;
     }
 
     /**

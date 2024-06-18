@@ -119,69 +119,36 @@ import { URL } from "../net/URL";
  *
  */
 export class Clip extends UIComponent {
-    /**@private */
+    /**@internal */
     protected _sources: Texture[];
-    /**@private */
+    /**@internal */
     protected _skin: string;
-    /**@private */
+    /**@internal */
     protected _clipX: number = 1;
-    /**@private */
+    /**@internal */
     protected _clipY: number = 1;
-    /**@private */
+    /**@internal */
     protected _clipWidth: number = 0;
-    /**@private */
+    /**@internal */
     protected _clipHeight: number = 0;
-    /**@private */
+    /**@internal */
     protected _autoPlay: boolean;
-    /**@private */
+    /**@internal */
     protected _interval: number = 50;
-    /**@private */
+    /**@internal */
     protected _complete: Handler;
-    /**@private */
+    /**@internal */
     protected _isPlaying: boolean;
-    /**@private */
+    /**@internal */
     protected _index: number = 0;
-    /**@private */
+    /**@internal */
     protected _clipChanged: boolean;
-    /**@private */
+    /**@internal */
     protected _group: string;
-    /**@private */
+    /**@internal */
     protected _toIndex: number = -1;
-
+    /**@internal */
     declare _graphics: AutoBitmap;
-
-    /**
-     * 创建一个新的 <code>Clip</code> 示例。
-     * @param url 资源类库名或者地址
-     * @param clipX x方向分割个数
-     * @param clipY y方向分割个数
-     */
-    constructor(url: string = null, clipX: number = 1, clipY: number = 1) {
-        super();
-
-        this._sources = [];
-        this._clipX = clipX;
-        this._clipY = clipY;
-        this.skin = url;
-    }
-
-    /**
-     * @inheritDoc
-     * @override 
-     */
-    protected createChildren(): void {
-        this.setGraphics(new AutoBitmap(), true);
-    }
-
-    /**@private	 @override*/
-    protected _onDisplay(e?: boolean): void {
-        if (this._isPlaying) {
-            if (this._getBit(NodeFlags.DISPLAYED_INSTAGE)) this.play();
-            else this.stop();
-        } else if (this._autoPlay) {
-            this.play();
-        }
-    }
 
     /**
      * @copy laya.ui.Image#skin
@@ -195,30 +162,6 @@ export class Clip extends UIComponent {
             return;
 
         this._setSkin(value);
-    }
-
-    _setSkin(url: string): Promise<void> {
-        this._skin = url;
-        if (url) {
-            if (this._skinBaseUrl)
-                url = URL.formatURL(url, this._skinBaseUrl);
-            if (!Loader.getRes(url))
-                return ILaya.loader.load(url, Loader.IMAGE).then(() => this._skinLoaded());
-            else {
-                this._skinLoaded();
-                return Promise.resolve();
-            }
-        }
-        else {
-            this._graphics.source = null;
-            return Promise.resolve();
-        }
-    }
-
-    protected _skinLoaded(): void {
-        this._setClipChanged();
-        this._sizeChanged();
-        this.event(Event.LOADED);
     }
 
     /**X轴（横向）切片数量。*/
@@ -266,51 +209,6 @@ export class Clip extends UIComponent {
     }
 
     /**
-     * @private
-     * 改变切片的资源、切片的大小。
-     */
-    protected changeClip(): void {
-        this._clipChanged = false;
-        if (!this._skin || this._destroyed) return;
-
-        let url = this._skinBaseUrl ? URL.formatURL(this._skin, this._skinBaseUrl) : this._skin;
-
-        let img: any = Loader.getRes(url);
-        if (img) {
-            this.loadComplete(this._skin, img);
-        } else {
-            ILaya.loader.load(url, Handler.create(this, this.loadComplete, [this._skin]), null, Loader.IMAGE);
-        }
-    }
-
-    /**
-     * @private
-     * 加载切片图片资源完成函数。
-     * @param url 资源地址。
-     * @param img 纹理。
-     */
-    protected loadComplete(url: string, img: Texture): void {
-        if (url !== this._skin)
-            return;
-
-        this._sources.length = 0;
-        if (img) {
-            var w: number = this._clipWidth || Math.ceil(img.sourceWidth / this._clipX);
-            var h: number = this._clipHeight || Math.ceil(img.sourceHeight / this._clipY);
-
-            for (let i = 0; i < this._clipY; i++) {
-                for (let j = 0; j < this._clipX; j++) {
-                    this._sources.push(img.getCachedClip(w * j, h * i, w, h));
-                }
-            }
-        }
-
-        this.index = this._index;
-        this.event(Event.LOADED);
-        this.onCompResize();
-    }
-
-    /**
      * 源数据。
      */
     get sources(): Texture[] {
@@ -333,42 +231,6 @@ export class Clip extends UIComponent {
     set group(value: string) {
         if (value && this._skin) Loader.setGroup(this._skin, value);
         this._group = value;
-    }
-
-    /**
-     * @inheritDoc 
-     * @override
-     */
-    _setWidth(value: number) {
-        super._setWidth(value);
-        this._graphics.width = value;
-    }
-
-    /**
-     * @inheritDoc 
-     * @override
-     */
-    _setHeight(value: number) {
-        super._setHeight(value);
-        this._graphics.height = value;
-    }
-
-    /**
-     * @inheritDoc 
-     * @override
-     */
-    protected measureWidth(): number {
-        this.runCallLater(this.changeClip);
-        return this._graphics.width;
-    }
-
-    /**
-     * @inheritDoc 
-     * @override
-     */
-    protected measureHeight(): number {
-        this.runCallLater(this.changeClip);
-        return this._graphics.height;
     }
 
     /**
@@ -451,6 +313,177 @@ export class Clip extends UIComponent {
     }
 
     /**
+     * 创建一个新的 <code>Clip</code> 示例。
+     * @param url 资源类库名或者地址
+     * @param clipX x方向分割个数
+     * @param clipY y方向分割个数
+     */
+    constructor(url: string = null, clipX: number = 1, clipY: number = 1) {
+        super();
+
+        this._sources = [];
+        this._clipX = clipX;
+        this._clipY = clipY;
+        this.skin = url;
+    }
+
+    /**@internal	 @override*/
+    protected _onDisplay(e?: boolean): void {
+        if (this._isPlaying) {
+            if (this._getBit(NodeFlags.DISPLAYED_INSTAGE)) this.play();
+            else this.stop();
+        } else if (this._autoPlay) {
+            this.play();
+        }
+    }
+
+    /**@internal */
+    _setSkin(url: string): Promise<void> {
+        this._skin = url;
+        if (url) {
+            if (this._skinBaseUrl)
+                url = URL.formatURL(url, this._skinBaseUrl);
+            if (!Loader.getRes(url))
+                return ILaya.loader.load(url, Loader.IMAGE).then(() => this._skinLoaded());
+            else {
+                this._skinLoaded();
+                return Promise.resolve();
+            }
+        }
+        else {
+            this._graphics.source = null;
+            return Promise.resolve();
+        }
+    }
+
+    /**@internal */
+    protected _skinLoaded(): void {
+        if (this._destroyed)
+            return;
+
+        this._setClipChanged();
+        this._sizeChanged();
+        this.event(Event.LOADED);
+    }
+
+    /**@internal */
+    protected _setClipChanged(): void {
+        if (!this._clipChanged) {
+            this._clipChanged = true;
+            this.callLater(this.changeClip);
+        }
+    }
+
+    /**
+     * @internal
+     * @inheritDoc 
+     * @override
+     */
+    _setWidth(value: number) {
+        super._setWidth(value);
+        this._graphics.width = value;
+    }
+
+    /**
+     * @internal
+     * @inheritDoc 
+     * @override
+     */
+    _setHeight(value: number) {
+        super._setHeight(value);
+        this._graphics.height = value;
+    }
+
+    /**
+     * @internal
+     */
+    protected _loop(): void {
+        if (this._visible) {
+            this._index++;
+            if (this._toIndex > -1 && this._index >= this._toIndex)
+                this.stop();
+            else if (this._index >= this._sources.length)
+                this._index = 0;
+            this.index = this._index;
+        }
+    }
+
+    /**
+     * @internal
+     * @inheritDoc
+     * @override 
+     */
+    protected createChildren(): void {
+        this.setGraphics(new AutoBitmap(), true);
+    }
+
+    /**
+     * @internal
+     * 改变切片的资源、切片的大小。
+     */
+    protected changeClip(): void {
+        this._clipChanged = false;
+        if (!this._skin || this._destroyed) return;
+
+        let url = this._skinBaseUrl ? URL.formatURL(this._skin, this._skinBaseUrl) : this._skin;
+
+        let img: any = Loader.getRes(url);
+        if (img) {
+            this.loadComplete(this._skin, img);
+        } else {
+            ILaya.loader.load(url, Handler.create(this, this.loadComplete, [this._skin]), null, Loader.IMAGE);
+        }
+    }
+
+    /**
+     * @internal
+     * 加载切片图片资源完成函数。
+     * @param url 资源地址。
+     * @param img 纹理。
+     */
+    protected loadComplete(url: string, img: Texture): void {
+        if (url !== this._skin)
+            return;
+
+        this._sources.length = 0;
+        if (img) {
+            var w: number = this._clipWidth || Math.ceil(img.sourceWidth / this._clipX);
+            var h: number = this._clipHeight || Math.ceil(img.sourceHeight / this._clipY);
+
+            for (let i = 0; i < this._clipY; i++) {
+                for (let j = 0; j < this._clipX; j++) {
+                    this._sources.push(img.getCachedClip(w * j, h * i, w, h));
+                }
+            }
+        }
+
+        this.index = this._index;
+        this.event(Event.LOADED);
+        this.onCompResize();
+    }
+
+    /**
+     * @internal
+     * @inheritDoc 
+     * @override
+     */
+    protected measureWidth(): number {
+        this.runCallLater(this.changeClip);
+        return this._graphics.width;
+    }
+
+    /**
+     * @internal
+     * @inheritDoc 
+     * @override
+     */
+    protected measureHeight(): number {
+        this.runCallLater(this.changeClip);
+        return this._graphics.height;
+    }
+
+
+    /**
      * 播放切片动画。
      * @param	from	开始索引
      * @param	to		结束索引，-1为不限制
@@ -468,19 +501,6 @@ export class Clip extends UIComponent {
         this.on(Event.UNDISPLAY, this, this._onDisplay);
     }
 
-    /**
-     * @private
-     */
-    protected _loop(): void {
-        if (this._visible) {
-            this._index++;
-            if (this._toIndex > -1 && this._index >= this._toIndex)
-                this.stop();
-            else if (this._index >= this._sources.length)
-                this._index = 0;
-            this.index = this._index;
-        }
-    }
 
     /**
      * 停止切片动画。
@@ -503,11 +523,4 @@ export class Clip extends UIComponent {
             super.set_dataSource(value);
     }
 
-    /**@private */
-    protected _setClipChanged(): void {
-        if (!this._clipChanged) {
-            this._clipChanged = true;
-            this.callLater(this.changeClip);
-        }
-    }
 }

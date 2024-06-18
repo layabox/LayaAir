@@ -6,9 +6,9 @@ import { PostProcessRenderContext } from "./PostProcessRenderContext";
 export class PostProcessEffect {
 
 	/**@internal */
-	protected _active:boolean;
+	protected _active: boolean;
 	/**@internal */
-	protected _singleton:boolean;
+	protected _singleton: boolean;
 
 	/**
 	 * 创建一个 <code>PostProcessEffect</code> 实例。
@@ -19,24 +19,25 @@ export class PostProcessEffect {
 	}
 
 	/**
+	 * 是否只能添加一个
 	 * @internal
 	 */
-	set singleton(value:boolean){
+	set singleton(value: boolean) {
 		this._singleton = value;
 	}
 
-	get singleton(){
+	get singleton() {
 		return this._singleton;
 	}
 
 	/**
 	 * 是否开启
 	 */
-	get active(){
+	get active() {
 		return this._active;
 	}
 
-	set active(value:boolean){
+	set active(value: boolean) {
 		this._active = value;
 	}
 
@@ -46,7 +47,7 @@ export class PostProcessEffect {
 	 * @override
 	 * @returns 
 	 */
-	getCameraDepthTextureModeFlag() {
+	getCameraDepthTextureModeFlag?() {
 		return 0;
 	}
 
@@ -55,7 +56,7 @@ export class PostProcessEffect {
 	 * @inheritDoc
 	 * @override
 	 */
-	effectInit(postprocess:PostProcess) {
+	effectInit?(postprocess: PostProcess) {
 		return;
 	}
 
@@ -64,15 +65,14 @@ export class PostProcessEffect {
 	 * @inheritDoc
 	 * @override
 	 */
-	release(postprocess:PostProcess){
-		
+	release?(postprocess: PostProcess) {
+
 	}
 
 	/**
 	 * 渲染
-	 * @internal
 	 */
-	render(context: PostProcessRenderContext): void {
+	render?(context: PostProcessRenderContext): void {
 
 	}
 }

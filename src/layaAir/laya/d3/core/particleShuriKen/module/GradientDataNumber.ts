@@ -4,10 +4,28 @@ import { IClone } from "../../../../utils/IClone"
  * <code>GradientDataNumber</code> 类用于创建浮点渐变。
  */
 export class GradientDataNumber implements IClone {
+	/**
+	 * @internal
+	 * 创建一个常数渐变曲线数据
+	 * @param constantValue 
+	 * @returns 
+	 */
+	static createConstantData(constantValue: number) {
+		let gradientData = new GradientDataNumber();
+		gradientData.add(0, constantValue);
+		gradientData.add(1, constantValue);
+		return gradientData;
+	}
+
 	private _currentLength: number = 0;
+
 	/**@internal 开发者禁止修改。*/
 	_elements: Float32Array;
 
+	/**@internal 曲线编辑范围*/
+	_curveMin: number;
+	/**@internal 曲线编辑范围*/
+	_curveMax: number;
 	/**渐变浮点数量。*/
 	get gradientCount(): number {
 		return this._currentLength / 2;
@@ -18,6 +36,18 @@ export class GradientDataNumber implements IClone {
 	 */
 	constructor() {
 		this._elements = new Float32Array(8);
+	}
+
+	/**
+	 * @internal
+	 * 格式化数据；保证数据的最大值为1
+	 */
+	_formatData() {
+		if (this._currentLength == 8) return;
+		if (this._elements[this._currentLength - 2] !== 1) {
+			this._elements[this._currentLength] = 1;
+			this._elements[this._currentLength + 1] = this._elements[this._currentLength - 1];
+		}
 	}
 
 	/**

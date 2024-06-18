@@ -360,7 +360,7 @@ export class BoundFrustum implements IClone {
 	 * @param box 包围盒。
 	 * @returns boolean 是否相交
 	 */
-	intersects(box: BoundBox|Bounds): boolean {
+	intersects(box: BoundBox | Bounds): boolean {
 		var min: Vector3 = box.min;
 		var max: Vector3 = box.max;
 		var minX: number = min.x;
@@ -403,7 +403,7 @@ export class BoundFrustum implements IClone {
 	 * @param  box  包围盒。
 	 * @returns 包涵:1,相交:2,不相交:0
 	 */
-	containsBoundBox(box: BoundBox|Bounds): number {
+	containsBoundBox(box: BoundBox | Bounds): number {
 		var p: Vector3 = BoundFrustum._tempV30, n: Vector3 = BoundFrustum._tempV31;
 		var boxMin: Vector3 = box.min;
 		var boxMax: Vector3 = box.max;

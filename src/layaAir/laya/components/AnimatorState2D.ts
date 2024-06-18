@@ -1,9 +1,10 @@
-import { AnimatorStateScript } from "../d3/animation/AnimatorStateScript";
+
 import { EventDispatcher } from "../events/EventDispatcher";
 import { IClone } from "../utils/IClone";
 import { Animation2DParm } from "./Animation2DParm";
 import { AnimationClip2D } from "./AnimationClip2D";
 import { Animator2D } from "./Animator2D";
+import { AnimatorState2DScript } from "./AnimatorState2DScript";
 import { AnimatorTransition2D } from "./AnimatorTransition2D";
 
 /**
@@ -31,7 +32,7 @@ export class AnimatorState2D extends EventDispatcher implements IClone {
     /**@internal */
     _currentFrameIndices: Int16Array | null = null;
 
-    /**play on awake start offset*/
+    /**启动时播放偏移 play on awake start offset*/
     cycleOffset: number = 0;
 
     /**
@@ -71,7 +72,7 @@ export class AnimatorState2D extends EventDispatcher implements IClone {
     soloTransitions: AnimatorTransition2D[] = [];
 
     /**@internal */
-    _scripts: AnimatorStateScript[] | null = null;
+    _scripts: AnimatorState2DScript[] | null = null;
 
     /**@internal */
     _realtimeDatas: Array<number | string | boolean> = [];
@@ -216,8 +217,8 @@ export class AnimatorState2D extends EventDispatcher implements IClone {
      * @param	type  组件类型。
      * @return 脚本。
      */
-    addScript(type: typeof AnimatorStateScript): AnimatorStateScript {
-        var script: AnimatorStateScript = new type();
+    addScript(type: typeof AnimatorState2DScript): AnimatorState2DScript {
+        var script: AnimatorState2DScript = new type();
         this._scripts = this._scripts || [];
         this._scripts.push(script);
         return script;
@@ -228,10 +229,10 @@ export class AnimatorState2D extends EventDispatcher implements IClone {
      * @param	type  组件类型。
      * @return 脚本。
      */
-    getScript(type: typeof AnimatorStateScript): AnimatorStateScript | null {
+    getScript(type: typeof AnimatorState2DScript): AnimatorState2DScript | null {
         if (this._scripts) {
             for (var i: number = 0, n: number = this._scripts.length; i < n; i++) {
-                var script: AnimatorStateScript = this._scripts[i];
+                var script: AnimatorState2DScript = this._scripts[i];
                 if (script instanceof type)
                     return script;
             }
@@ -244,11 +245,11 @@ export class AnimatorState2D extends EventDispatcher implements IClone {
      * @param	type  组件类型。
      * @return 脚本集合。
      */
-    getScripts(type: typeof AnimatorStateScript): AnimatorStateScript[] | null {
-        var coms: AnimatorStateScript[] | null = null;
+    getScripts(type: typeof AnimatorState2DScript): AnimatorState2DScript[] | null {
+        var coms: AnimatorState2DScript[] | null = null;
         if (this._scripts) {
             for (var i: number = 0, n: number = this._scripts.length; i < n; i++) {
-                var script: AnimatorStateScript = this._scripts[i];
+                var script: AnimatorState2DScript = this._scripts[i];
                 if (script instanceof type) {
                     coms = coms || [];
                     coms.push(script);

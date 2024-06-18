@@ -23,6 +23,9 @@ export class LightSprite extends Sprite3D {
 		this._light.color = value;
 	}
 
+	/**
+	 * 灯光烘焙模式
+	 */
 	get mode(): LightMode {
 		return this._light.lightmapBakedType;
 	}
@@ -130,6 +133,9 @@ export class LightSprite extends Sprite3D {
 		this._light.lightmapBakedType = value;
 	}
 
+	/**
+	 * 获取灯光世界矩阵
+	 */
 	get lightWorldMatrix(): Matrix4x4 {
 		return this._light.lightWorldMatrix;
 	}

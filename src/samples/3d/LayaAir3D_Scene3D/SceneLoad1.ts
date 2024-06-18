@@ -6,7 +6,6 @@ import { Color } from "laya/maths/Color";
 import { Vector3 } from "laya/maths/Vector3";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { URL } from "laya/net/URL";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 
@@ -34,9 +33,6 @@ export class SceneLoad1 {
 				camera.clearColor = new Color(0, 0, 0.6, 1);
 				//加入摄像机移动控制脚本
 				camera.addComponent(CameraMoveScript);
-
-				//设置灯光环境色
-				//scene.ambientColor = new Vector3(2.5, 0, 0);
 			}));
 		});
 	}

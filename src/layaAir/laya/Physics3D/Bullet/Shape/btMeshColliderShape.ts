@@ -92,7 +92,7 @@ export class btMeshColliderShape extends btColliderShape implements IMeshCollide
 		let posArray = new Array<Vector3>();
 		value.getPositions(posArray);
 
-		var indices: Uint16Array = value._indexBuffer.getData();//TODO:API修改问题
+		var indices: Uint16Array = value._indexBuffer.getData() as Uint16Array;//TODO:API修改问题
 		for (var i: number = 0, n: number = indices.length; i < n; i += 3) {
 			var position0: Vector3 = posArray[indices[i]];
 			var position1: Vector3 = posArray[indices[i + 1]];

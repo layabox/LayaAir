@@ -40,6 +40,9 @@ import { AssetDb } from "../resource/AssetDb";
  * @see laya.ui.HScrollBar
  */
 export class ScrollBar extends UIComponent {
+    /** 设置全局的滚动速度变化曲线函数 */
+    public static easeFunction = Ease.sineOut;
+
     /**滚动衰减系数*/
     rollRatio: number = 0.97;
     /**滚动变化时回调，回传value参数。*/
@@ -313,7 +316,7 @@ export class ScrollBar extends UIComponent {
      * @param max 滚动条最大位置值。
      * @param value 滚动条当前位置值。
      */
-    setScroll(min: number, max: number, value: number): void {
+    setScroll(min: number, max: number, value?: number): void {
         this.runCallLater(this._sizeChanged);
         this.slider.setSlider(min, max, value);
         //_upButton.disabled = max <= 0;
@@ -647,13 +650,17 @@ export class ScrollBar extends UIComponent {
 
         if (this._isElastic) {
             if (this._value < this.min) {
-                this.event("dragTopLimit");
+                if (this.min - this._value >= this.topMoveLimit) {
+                    this.event("dragTopLimit");
+                }
                 var moveValue: number = (this.stopMoveLimit && this.stopMoveLimit()) ? (this.min - this.topMoveLimit) : this.min;
-                Tween.to(this, { value: moveValue }, this.elasticBackTime, Ease.sineOut, Handler.create(this, this.elasticOver));
+                Tween.to(this, { value: moveValue }, this.elasticBackTime, ScrollBar.easeFunction, Handler.create(this, this.elasticOver));
             } else if (this._value > this.max) {
-                this.event("dragBottomLimit");
+                if (this._value - this.max >= this.bottomMoveLimit) {
+                    this.event("dragBottomLimit");
+                }
                 var moveValue: number = (this.stopMoveLimit && this.stopMoveLimit()) ? (this.max + this.bottomMoveLimit) : this.max;
-                Tween.to(this, { value: moveValue }, this.elasticBackTime, Ease.sineOut, Handler.create(this, this.elasticOver));
+                Tween.to(this, { value: moveValue }, this.elasticBackTime, ScrollBar.easeFunction, Handler.create(this, this.elasticOver));
             }
         } else {
             if (!this._offsets) return;
@@ -713,9 +720,9 @@ export class ScrollBar extends UIComponent {
             ILaya.timer.clear(this, this.tweenMove);
             if (this._isElastic) {
                 if (this._value < this.min) {
-                    Tween.to(this, { value: this.min }, this.elasticBackTime, Ease.sineOut, Handler.create(this, this.elasticOver));
+                    Tween.to(this, { value: this.min }, this.elasticBackTime, ScrollBar.easeFunction, Handler.create(this, this.elasticOver));
                 } else if (this._value > this.max) {
-                    Tween.to(this, { value: this.max }, this.elasticBackTime, Ease.sineOut, Handler.create(this, this.elasticOver));
+                    Tween.to(this, { value: this.max }, this.elasticBackTime, ScrollBar.easeFunction, Handler.create(this, this.elasticOver));
                 } else {
                     this.elasticOver();
                 }
@@ -758,6 +765,6 @@ export class ScrollBar extends UIComponent {
     }
 
     private _backToNormal(value: number) {
-        Tween.to(this, { value: value }, this.elasticBackTime, Ease.sineOut, Handler.create(this, this.elasticOver));
+        Tween.to(this, { value: value }, this.elasticBackTime, ScrollBar.easeFunction, Handler.create(this, this.elasticOver));
     }
 }

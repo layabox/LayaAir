@@ -1,6 +1,5 @@
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
-import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { PixelLineSprite3D } from "laya/d3/core/pixelLine/PixelLineSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
@@ -16,12 +15,12 @@ import { Button } from "laya/ui/Button";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
 import Client from "../../Client";
 import { Tool } from "../common/Tool";
-
+import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
 /**
  * ...
+ * 
  * @author
  */
 export class MeshLoad {
@@ -31,10 +30,10 @@ export class MeshLoad {
 	private rotation: Vector3 = new Vector3(0, 0.01, 0);
 
 	/**实例类型*/
-	private btype:any = "MeshLoad";
+	private btype: any = "MeshLoad";
 	/**场景内按钮类型*/
-	private stype:any = 0;
-	private changeActionButton:Button;
+	private stype: any = 0;
+	private changeActionButton: Button;
 
 	constructor() {
 
@@ -44,7 +43,6 @@ export class MeshLoad {
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
 			//显示性能面板
 			Stat.show();
-
 			//创建场景
 			var scene: Scene3D = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 
@@ -54,8 +52,12 @@ export class MeshLoad {
 			camera.transform.rotate(new Vector3(-15, 0, 0), true, false);
 
 			//添加平行光
-			var directionLight: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));
-			directionLight.color = new Color(0.6, 0.6, 0.6, 1);
+			let directionLight = new Sprite3D();
+			let dircom = directionLight.addComponent(DirectionLightCom);
+			scene.addChild(directionLight);
+
+
+			dircom.color = new Color(0.6, 0.6, 0.6, 1);
 
 			//创建精灵
 			this.sprite3D = (<Sprite3D>scene.addChild(new Sprite3D()));
@@ -106,7 +108,7 @@ export class MeshLoad {
 		}));
 	}
 
-	stypeFun0(label:string = "正常模式"): void {
+	stypeFun0(label: string = "正常模式"): void {
 		if (++this.curStateIndex % 2 == 1) {
 			this.sprite3D.active = false;
 			this.lineSprite3D.active = true;
@@ -117,7 +119,7 @@ export class MeshLoad {
 			this.changeActionButton.label = "正常模式";
 		}
 		label = this.changeActionButton.label;
-		Client.instance.send({type:"next",btype:this.btype,stype:0,value:label});	
+		Client.instance.send({ type: "next", btype: this.btype, stype: 0, value: label });
 	}
 }
 

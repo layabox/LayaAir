@@ -6,7 +6,6 @@ import { Point } from "../maths/Point"
 import { Rectangle } from "../maths/Rectangle"
 import { WordText } from "../utils/WordText"
 import { ILaya } from "../../ILaya";
-import { LayaEnv } from "../../LayaEnv";
 import { Config } from "../../Config";
 import { Utils } from "../utils/Utils";
 import { DrawRectCmd } from "./cmd/DrawRectCmd";
@@ -131,36 +130,85 @@ export class Text extends Sprite {
 
     /**@internal 预测长度的文字，用来提升计算效率，不同语言找一个最大的字符即可*/
     static _testWord: string = "游";
+    /**
+     * @internal
+     */
     static _passwordChar = "●";
 
-    /**@private 位图字体字典。*/
+    /**
+     * @internal
+     * @private 
+     * 位图字体字典。
+     */
     private static _bitmapFonts: Record<string, BitmapFont> = {};
 
     /** 标记此文本是否忽略语言包 */
     ignoreLang: boolean;
 
-    /**表示文本内容字符串。*/
-    protected _text: string;
-    protected _overflow: string = Text.VISIBLE;
-    protected _singleCharRender: boolean = false;	// 拆分渲染
-    protected _textStyle: TextStyle;
-    protected _prompt: string = '';
-    /**输入提示符颜色。*/
-    protected _promptColor: string;
     /**
+     * @internal
+     * @protected
+     * 表示文本内容字符串。
+     */
+    protected _text: string;
+
+    /**
+     * @internal
+     * @protected
+     */
+    protected _overflow: string = Text.VISIBLE;
+
+    /**
+     * 拆分渲染
+     * @internal
+     * @protected
+     */
+    protected _singleCharRender: boolean = false;
+
+    /**
+     * @internal
+     * @protected
+     */
+    protected _textStyle: TextStyle;
+
+    /**
+     * @internal
+     * @protected
+     */
+    protected _prompt: string = '';
+
+    /**
+     * @internal
+     * @protected
+     * 输入提示符颜色。
+     */
+    protected _promptColor: string;
+
+    /**
+     * @internal
+     * @protected
      * 文本背景颜色，以字符串表示。
      */
     protected _bgColor: string;
+
     /**
+     * @internal
+     * @protected
      * 文本边框背景颜色，以字符串表示。
      */
     protected _borderColor: string;
+
     /**
+     * @internal
+     * @protected
      * <p>默认边距信息</p>
      * <p>[上边距，右边距，下边距，左边距]（边距以像素为单位）</p>
      */
     protected _padding: number[];
+
     /**
+     * @internal
+     * @protected
      * <p>表示使用此文本格式的文本字段是否自动换行。</p>
      * 如果 wordWrap 的值为 true，则该文本字段自动换行；如果值为 false，则该文本字段不自动换行。
      * @default false。
@@ -168,38 +216,123 @@ export class Text extends Sprite {
     protected _wordWrap: boolean;
 
     /**
+     * @internal
+     * @protected
      * <p>指定文本字段是否是密码文本字段。</p>
      * 如果此属性的值为 true，则文本字段被视为密码文本字段，并使用星号而不是实际字符来隐藏输入的字符。如果为 false，则不会将文本字段视为密码文本字段。
      */
     protected _asPassword: boolean;
 
+    /**
+     * @internal
+     * @protected
+     */
     protected _htmlParseOptions: HtmlParseOptions;
 
+    /**
+     * @internal
+     * @protected
+     */
     protected _templateVars: Record<string, string>;
 
-    /**表示文本内容是否发生改变。*/
+    /**
+     * @internal
+     * @protected
+     * 表示文本内容是否发生改变。
+     */
     protected _isChanged: boolean;
-    /**表示文本的宽度，以像素为单位。*/
+
+    /**
+     * @internal
+     * @protected
+     * 表示文本的宽度，以像素为单位。
+     */
     protected _textWidth: number = 0;
-    /**表示文本的高度，以像素为单位。*/
+
+    /**
+     * @internal
+     * @protected
+     * 表示文本的高度，以像素为单位。
+     */
     protected _textHeight: number = 0;
+
+    /**
+     * @internal
+     * @protected
+     */
     protected _realFont: string;
+
+    /**
+     * @internal
+     * @protected
+     */
     protected _bitmapFont: BitmapFont;
+
+    /**
+     * @internal
+     * @protected
+     */
     protected _scrollPos: Point | null;
+
+    /**
+     * @internal
+     * @protected
+     */
     protected _bgDrawCmd: DrawRectCmd;
+
+    /**
+     * @internal
+     * @protected
+     */
     protected _html: boolean;
+
+    /**
+     * @internal
+     * @protected
+     */
     protected _ubb: boolean;
+
+    /**
+     * @internal
+     * @protected
+     */
     protected _lines: Array<ITextLine>;
+
+    /**
+     * @internal
+     * @protected
+     */
     protected _elements: Array<HtmlElement>;
+
+    /**
+     * @internal
+     * @protected
+     */
     protected _objContainer: Sprite;
+
+    /**
+     * @internal
+     * @protected
+     */
     protected _maxWidth: number;
+
+    /**
+     * @internal
+     * @protected
+     */
     protected _hideText: boolean;
 
     private _updatingLayout: boolean;
     private _fontSizeScale: number;
 
-    /**是否将字符串中的\n,\t转换为实际功能的字符 */
+    /**
+     * @internal
+     * 是否将字符串中的\n,\t转换为实际功能的字符
+     */
     _parseEscapeChars: boolean;
+    /**
+     * @internal
+     */
     _onPostLayout: () => void;
 
     /**
@@ -243,6 +376,8 @@ export class Text extends Sprite {
     }
 
     /**
+     * 销毁文本
+     * @param destroyChild 是否销毁子节点
      * @inheritDoc 
      * @override
     */
@@ -265,6 +400,8 @@ export class Text extends Sprite {
     }
 
     /**
+     * 获取滚动可视视窗
+     * @param realSize	（可选）使用图片的真实大小，默认为false
      * @inheritDoc
      * @override
      */
@@ -275,6 +412,7 @@ export class Text extends Sprite {
     }
 
     /**
+     * @internal
      * @inheritDoc
      * @override
      */
@@ -283,6 +421,7 @@ export class Text extends Sprite {
         return this.textWidth;
     }
     /**
+     * @internal
      * @override
      */
     _setWidth(value: number) {
@@ -294,6 +433,7 @@ export class Text extends Sprite {
     }
 
     /**
+     * @internal
      * @inheritDoc
      * @override
      */
@@ -302,6 +442,7 @@ export class Text extends Sprite {
         return this.textHeight;
     }
     /**
+     * @internal
      * @override
      */
     _setHeight(value: number) {
@@ -328,7 +469,9 @@ export class Text extends Sprite {
         return this._textHeight;
     }
 
-    /** 当前文本的内容字符串。*/
+    /** 
+     * 当前文本的内容字符串。
+     */
     get text(): string {
         return this._text;
     }
@@ -349,7 +492,10 @@ export class Text extends Sprite {
         }
     }
 
-    /** @deprecated **/
+    /**
+     * @deprecated 
+     * @param text 文本
+     */
     changeText(text: string): void {
         this.text = text;
     }
@@ -380,17 +526,28 @@ export class Text extends Sprite {
         }
         else if (value && (Utils.getFileExtension(value) || value.startsWith("res://"))) {
             let t = value;
-            ILaya.loader.load(value).then(fontObj => {
-                if (!fontObj || this._realFont != t)
-                    return;
+            let fontObj = ILaya.loader.getRes(value);
+            if (!fontObj || fontObj.obsolute) {
+                ILaya.loader.load(value).then(fontObj => {
+                    if (!fontObj || this._realFont != t)
+                        return;
 
+                    if (fontObj instanceof BitmapFont)
+                        this._bitmapFont = fontObj;
+                    else
+                        this._realFont = fontObj.family;
+                    if (this._text)
+                        this.markChanged();
+                });
+            }
+            else {
                 if (fontObj instanceof BitmapFont)
                     this._bitmapFont = fontObj;
                 else
                     this._realFont = fontObj.family;
                 if (this._text)
                     this.markChanged();
-            });
+            }
         }
         else {
             this._realFont = (ILaya.Browser.onIPhone ? (Config.fontFamilyMap[value] || value) : value);
@@ -426,6 +583,9 @@ export class Text extends Sprite {
         this.set_color(value);
     }
 
+    /**
+     * @internal
+     */
     set_color(value: string): void {
         if (this._textStyle.color != value) {
             this._textStyle.color = value;
@@ -501,6 +661,20 @@ export class Text extends Sprite {
     set valign(value: string) {
         if (this._textStyle.valign != value) {
             this._textStyle.valign = value;
+            this.markChanged();
+        }
+    }
+
+    /**
+     * 图文混排时图片和文字的对齐方式。可选值是top,middle,bottom
+     */
+    get alignItems(): string {
+        return this._textStyle.alignItems;
+    }
+
+    set alignItems(value: string) {
+        if (this._textStyle.alignItems != value) {
+            this._textStyle.alignItems = value;
             this.markChanged();
         }
     }
@@ -630,7 +804,9 @@ export class Text extends Sprite {
         }
     }
 
-    /**是否显示下划线。*/
+    /**
+     * 是否显示下划线。
+     */
     get underline(): boolean {
         return this._textStyle.underline;
     }
@@ -642,7 +818,9 @@ export class Text extends Sprite {
         }
     }
 
-    /**下划线的颜色，为null则使用字体颜色。*/
+    /**
+     * 下划线的颜色，为null则使用字体颜色。
+     */
     get underlineColor(): string {
         return this._textStyle.underlineColor;
     }
@@ -658,16 +836,21 @@ export class Text extends Sprite {
         return this._singleCharRender;
     }
 
-    /** 设置是否单个字符渲染，如果Textd的内容一直改变，例如是一个增加的数字，就设置这个，防止无效占用缓存 */
+    /** 
+     * 设置是否单个字符渲染，如果Textd的内容一直改变，例如是一个增加的数字，就设置这个，防止无效占用缓存 
+     */
     set singleCharRender(value: boolean) {
         this._singleCharRender = value;
     }
 
+    /** 
+     * 设置是否富文本，支持html语法 
+     */
     get html(): boolean {
         return this._html;
     }
 
-    /** 设置是否富文本，支持html语法 */
+
     set html(value: boolean) {
         if (this._html != value) {
             this._html = value;
@@ -675,11 +858,14 @@ export class Text extends Sprite {
         }
     }
 
+    /** 
+     * 设置是否使用UBB语法解析文本 
+     */
     get ubb(): boolean {
         return this._ubb;
     }
 
-    /** 设置是否使用UBB语法解析文本 */
+
     set ubb(value: boolean) {
         if (this._ubb != value) {
             this._ubb = value;
@@ -691,7 +877,9 @@ export class Text extends Sprite {
         return this._maxWidth;
     }
 
-    /** 设置当文本达到最大允许的宽度时，自定换行，设置为0则此限制不生效。*/
+    /** 
+     * 设置当文本达到最大允许的宽度时，自定换行，设置为0则此限制不生效。
+     */
     set maxWidth(value: number) {
         if (this._maxWidth != value) {
             this._maxWidth = value;
@@ -699,6 +887,9 @@ export class Text extends Sprite {
         }
     }
 
+    /**
+     * 富文本HTML模式选项
+     */
     get htmlParseOptions(): HtmlParseOptions {
         return this._htmlParseOptions;
     }
@@ -707,6 +898,13 @@ export class Text extends Sprite {
         this._htmlParseOptions = value;
     }
 
+    /**
+     * 解析模板
+     * @internal
+     * @protected
+     * @param template 模板内容 
+     * @returns 
+     */
     protected parseTemplate(template: string): string {
         let pos1: number = 0, pos2: number, pos3: number;
         let tag: string;
@@ -756,6 +954,9 @@ export class Text extends Sprite {
         return result;
     }
 
+    /**
+     * 文本模板
+     */
     public get templateVars(): Record<string, any> {
         return this._templateVars;
     }
@@ -773,6 +974,12 @@ export class Text extends Sprite {
         this.markChanged();
     }
 
+    /**
+     * 设置模板值
+     * @param name 模板名 
+     * @param value 值
+     * @returns 
+     */
     public setVar(name: string, value: any): Text {
         if (!this._templateVars)
             this._templateVars = {};
@@ -852,7 +1059,8 @@ export class Text extends Sprite {
     }
 
     /**
-     * @private
+     * @internal
+     * @protected
      */
     protected markChanged() {
         if (!this._isChanged) {
@@ -861,14 +1069,23 @@ export class Text extends Sprite {
         }
     }
 
+    /**
+     * 排版文本
+     */
     typeset() {
         this._isChanged && ILaya.systemTimer.runCallLater(this, this._typeset);
     }
 
+    /**
+     * 延迟刷新排版
+     */
     refreshLayout() {
         ILaya.systemTimer.callLater(this, this.doLayout);
     }
 
+    /**
+     * 获取对象容器
+     */
     get objContainer(): Sprite {
         if (!this._objContainer) {
             this._objContainer = new Sprite();
@@ -879,6 +1096,8 @@ export class Text extends Sprite {
     }
 
     /**
+     * @internal
+     * @protected
      * <p>排版文本。</p>
      * <p>进行宽高计算，渲染、重绘文本。</p>
      */
@@ -946,7 +1165,8 @@ export class Text extends Sprite {
     }
 
     /**
-     * @private
+     * @internal
+     * @protected
      * 分析文本换行。
      */
     protected doLayout(): void {
@@ -971,6 +1191,7 @@ export class Text extends Sprite {
         }
         let rectHeight = this._isHeightSet ? (this._height - padding[0] - padding[2]) : Number.MAX_VALUE;
         let bfont = this._bitmapFont;
+        let alignItems = this._textStyle.alignItems == "middle" ? 1 : (this._textStyle.alignItems == "bottom" ? 2 : 0);
 
         let lineX: number, lineY: number;
         let curLine: ITextLine;
@@ -997,7 +1218,7 @@ export class Text extends Sprite {
 
                 ILaya.Browser.context.font = ctxFont;
                 let mr: any = ILaya.Browser.context.measureText(Text._testWord);
-                
+
                 if (mr) {
                     charWidth = mr.width;
                     charHeight = Math.ceil(mr.height || fontSize);
@@ -1078,7 +1299,12 @@ export class Text extends Sprite {
             //调整元素y位置
             cmd = curLine.cmd;
             while (cmd) {
-                cmd.y = Math.floor((lineHeight - cmd.height) * 0.5);
+                if (alignItems == 1)
+                    cmd.y = Math.floor((lineHeight - cmd.height) * 0.5);
+                else if (alignItems == 2)
+                    cmd.y = Math.floor((lineHeight - cmd.height));
+                else
+                    cmd.y = 0;
                 cmd = cmd.next;
             }
 
@@ -1435,11 +1661,10 @@ export class Text extends Sprite {
     }
 
     /**
-    * @private
-    * 渲染文字。
-    * @param	begin 开始渲染的行索引。
-    * @param	visibleLineCount 渲染的行数。
-    */
+     * @internal
+     * @protected
+     * 渲染文字。
+     */
     protected renderText(): void {
         let graphics = this.graphics;
         graphics.clear(true);
@@ -1539,6 +1764,11 @@ export class Text extends Sprite {
             graphics.restore();
     }
 
+    /**
+     * 绘制背景
+     * @internal
+     * @protected
+     */
     protected drawBg() {
         let cmd = this._bgDrawCmd;
         if (this._bgColor || this._borderColor) {
@@ -1613,12 +1843,12 @@ function testEmoji(str: string) {
     if (null == str) return false;
     return emojiTest.test(str);
 }
-function isEnglishChar(unicode:number):boolean {
+function isEnglishChar(unicode: number): boolean {
     return (unicode >= 65 && unicode <= 90) ||  // A-Z
-           (unicode >= 97 && unicode <= 122) || // a-z
-           unicode === 39; // 单引号
-  }
-  
+        (unicode >= 97 && unicode <= 122) || // a-z
+        unicode === 39; // 单引号
+}
+
 
 const wordBoundaryTest = /(?:[^\s\!-\/])+$/;
 const normalizeCR = /\r\n/g;

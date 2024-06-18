@@ -1,4 +1,3 @@
-import { render } from "../../../../../Laya";
 import { SingletonList } from "../../../../utils/SingletonList";
 import { BaseRender } from "../../../core/render/BaseRender";
 import { Sprite3DRenderDeclaration } from "../../../core/render/Sprite3DRenderDeclaration";
@@ -18,7 +17,7 @@ export class VolumetricGIManager implements IVolumeManager {
     }
 
     removeVolumetricGI(renderer: BaseRender) {
-        let shaderData = renderer._shaderValues;
+        let shaderData = renderer._baseRenderNode.shaderData;
         shaderData.removeDefine(Sprite3DRenderDeclaration.SHADERDEFINE_VOLUMETRICGI);
         renderer.lightProb = null;
     }

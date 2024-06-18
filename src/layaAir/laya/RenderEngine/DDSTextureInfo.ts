@@ -4,6 +4,7 @@ import { LayaGL } from "../layagl/LayaGL";
 
 const FOURCC_DXT1: number = 827611204;
 const FOURCC_DXT3 = 861165636;
+const FOURCC_DXT4 = 877942852;
 const FOURCC_DXT5: number = 894720068;
 const FOURCC_DX10 = 808540228;
 const DDPF_FOURCC: number = 0x4;
@@ -86,7 +87,7 @@ export class DDSTextureInfo {
         let isRGB = (header[DDS_HEADER_PF_FLAGS] & DDPF_RGB) === DDPF_RGB;
         let isLuminance = (header[DDS_HEADER_PF_FLAGS] & DDPF_LUMINANCE) === DDPF_LUMINANCE;
         let isCube = (header[DDS_HEADER_PF_CAPS2] & DDSCAPS2_CUBEMAP) === DDSCAPS2_CUBEMAP;
-        let isCompressed = (fourCC === FOURCC_DXT1 || fourCC === FOURCC_DXT3 || fourCC === FOURCC_DXT5);
+        let isCompressed = (fourCC === FOURCC_DXT1 || fourCC === FOURCC_DXT3 || fourCC === FOURCC_DXT5 || fourCC === FOURCC_DXT4);
 
         let layaTexFormat = TextureFormat.DXT1;
         let dataOffset = header[DDS_HEADER_SIZE] + 4;
@@ -101,6 +102,7 @@ export class DDSTextureInfo {
                 layaTexFormat = TextureFormat.DXT3;
                 blockBytes = 16;
                 break;
+            case FOURCC_DXT4:
             case FOURCC_DXT5:
                 layaTexFormat = TextureFormat.DXT5;
                 blockBytes = 16;

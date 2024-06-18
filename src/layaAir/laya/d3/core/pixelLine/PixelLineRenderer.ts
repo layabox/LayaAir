@@ -2,15 +2,17 @@ import { Component } from "../../../components/Component";
 import { Color } from "../../../maths/Color";
 import { Matrix4x4 } from "../../../maths/Matrix4x4";
 import { Vector3 } from "../../../maths/Vector3";
-import { Vector4 } from "../../../maths/Vector4";
-import { ShaderData } from "../../../RenderEngine/RenderShader/ShaderData";
+import { IMeshRenderNode } from "../../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
+
 import { Material } from "../../../resource/Material";
+import { Bounds } from "../../math/Bounds";
+import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
+import { UnlitMaterial } from "../material/UnlitMaterial";
 import { MeshSprite3DShaderDeclaration } from "../MeshSprite3DShaderDeclaration";
 import { BaseRender } from "../render/BaseRender";
 import { RenderContext3D } from "../render/RenderContext3D";
 import { RenderElement } from "../render/RenderElement";
 import { Sprite3D } from "../Sprite3D";
-import { Transform3D } from "../Transform3D";
 import { PixelLineData } from "./PixelLineData";
 import { PixelLineFilter } from "./PixelLineFilter";
 import { PixelLineMaterial } from "./PixelLineMaterial";
@@ -39,11 +41,21 @@ export class PixelLineRenderer extends BaseRender {
         super();
         this._projectionViewWorldMatrix = new Matrix4x4();
         this._pixelLineFilter = new PixelLineFilter(this, 20);
-        this._shaderValues.addDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_COLOR);
+        this._baseRenderNode.shaderData.addDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_COLOR);
+        this.geometryBounds = this._pixelLineFilter._bounds;
+    }
+
+    get bounds(): Bounds {
+        var lineFilter: PixelLineFilter = this._pixelLineFilter;
+        lineFilter._reCalculateBound();
+        return super.bounds;
     }
 
     private _lines: PixelLineData[] = [];
 
+    /**
+     * 线段数据
+     */
     get pixelLinesDatas() {
         if (this._needUpdatelines) {
             this._updateLineDatas();
@@ -75,11 +87,19 @@ export class PixelLineRenderer extends BaseRender {
         return this._pixelLineFilter._lineCount;
     }
 
+    /**
+     * @internal
+     * @protected
+     */
     protected _onAdded(): void {
         super._onAdded();
         this._changeRenderObjects(0, PixelLineMaterial.defaultMaterial);
     }
 
+    /**
+     * @internal
+     * @protected
+     */
     protected _onEnable(): void {
         this._isRenderActive = true;
         if (this._pixelLineFilter._lineCount != 0) {
@@ -89,6 +109,10 @@ export class PixelLineRenderer extends BaseRender {
         this._setBelongScene(this.owner.scene);
     }
 
+    /**
+     * @internal
+     * @protected
+     */
     protected _onDisable(): void {
         if (this._pixelLineFilter && this._pixelLineFilter._lineCount != 0 && this._isRenderActive) {
             this.owner.scene._removeRenderObject(this);
@@ -98,38 +122,25 @@ export class PixelLineRenderer extends BaseRender {
         this._setUnBelongScene();
     }
 
-    /**
-     * @inheritDoc
-     * @override
-     * @internal
-     */
-    protected _calculateBoundingBox(): void {
-        var worldMat: Matrix4x4 = (this.owner as Sprite3D).transform.worldMatrix;
-        var lineFilter: PixelLineFilter = this._pixelLineFilter;
-        lineFilter._reCalculateBound();
-        lineFilter._bounds._tranform(worldMat, this._bounds);
+    protected _createBaseRenderNode(): IMeshRenderNode {
+        return Laya3DRender.Render3DModuleDataFactory.createMeshRenderNode();
+    }
+
+
+    renderUpdate(context: RenderContext3D): void {
+        this._renderElements.forEach((element, index) => {
+            element._renderElementOBJ.isRender = element._geometry._prepareRender(context);
+            element._geometry._updateRenderParams(context);
+
+            let material = this.sharedMaterial ?? UnlitMaterial.defaultMaterial;
+            material = this.sharedMaterials[index] ?? material;
+            element.material = material;
+            element._renderElementOBJ.materialRenderQueue = material.renderQueue;
+        })
     }
 
     /**
-     * @inheritDoc
-     * @override
      * @internal
-     */
-    _renderUpdateWithCamera(context: RenderContext3D, transform: Transform3D): void {//TODO:整理_renderUpdate
-        var projectionView: Matrix4x4 = context.projectionViewMatrix;
-        var sv: ShaderData = this._shaderValues;
-        if (transform) {
-            var worldMat: Matrix4x4 = transform.worldMatrix;
-            sv.setMatrix4x4(Sprite3D.WORLDMATRIX, worldMat);
-            this._worldParams.x = transform.getFrontFaceValue();
-            sv.setVector(Sprite3D.WORLDINVERTFRONT, this._worldParams);
-        } else {
-            sv.setMatrix4x4(Sprite3D.WORLDMATRIX, Matrix4x4.DEFAULT);
-            sv.setVector(Sprite3D.WORLDINVERTFRONT, Vector4.UnitX);
-        }
-    }
-
-    /**
      * @inheritDoc
      */
     _changeRenderObjects(index: number, material: Material): void {
@@ -141,6 +152,8 @@ export class PixelLineRenderer extends BaseRender {
         renderElement.setGeometry(this._pixelLineFilter);
         renderElement.render = this;
         renderElement.material = material;
+        //renderElement.renderSubShader = renderElement.material.shader.getSubShaderAt(0);//TODO
+        this._setRenderElements();
     }
 
     /**
@@ -165,10 +178,37 @@ export class PixelLineRenderer extends BaseRender {
      * @param	endColor	   结束点颜色
      */
     addLine(startPosition: Vector3, endPosition: Vector3, startColor: Color, endColor: Color): void {
-        if (this._pixelLineFilter._lineCount !== this._pixelLineFilter._maxLineCount)
+        if (this._pixelLineFilter._lineCount !== this._pixelLineFilter._maxLineCount) {
             this._pixelLineFilter._updateLineData(this._pixelLineFilter._lineCount++, startPosition, endPosition, startColor, endColor);
-        else
+        }
+        else {
             throw "PixelLineSprite3D: lineCount has equal with maxLineCount.";
+        }
+
+        if (this._isRenderActive && !this._isInRenders && this._pixelLineFilter._lineCount > 0) {
+            this.owner.scene && this.owner.scene._addRenderObject(this);
+            this._isInRenders = true;
+        }
+        this._needUpdatelines = true;
+    }
+
+    /**
+     * 增加一条线。
+     * @param	startPosition  初始点位置
+     * @param	endPosition	   结束点位置
+     * @param	startColor	   初始点颜色
+     * @param	endColor	   结束点颜色
+     * @param startNormal   初始点法线
+     * @param endNormal     结束点法线
+     */
+    addLineWithNormal(startPosition: Vector3, endPosition: Vector3, startColor: Color, endColor: Color, startNormal: Vector3, endNormal: Vector3) {
+        if (this._pixelLineFilter._lineCount !== this._pixelLineFilter._maxLineCount) {
+            this._pixelLineFilter._updateLineData(this._pixelLineFilter._lineCount++, startPosition, endPosition, startColor, endColor, startNormal, endNormal);
+        }
+        else {
+            throw "PixelLineSprite3D: lineCount has equal with maxLineCount.";
+        }
+
         if (this._isRenderActive && !this._isInRenders && this._pixelLineFilter._lineCount > 0) {
             this.owner.scene && this.owner.scene._addRenderObject(this);
             this._isInRenders = true;
@@ -185,9 +225,11 @@ export class PixelLineRenderer extends BaseRender {
         var addCount: number = lines.length;
         if (lineCount + addCount > this._pixelLineFilter._maxLineCount) {
             throw "PixelLineSprite3D: lineCount plus lines count must less than maxLineCount.";
-        } else {
+        }
+        else {
             this._pixelLineFilter._updateLineDatas(lineCount, lines);
             this._pixelLineFilter._lineCount += addCount;
+            this.boundsChange = true;
         }
         if (this._isRenderActive && !this._isInRenders && this._pixelLineFilter._lineCount > 0) {
             this.owner.scene && this.owner.scene._addRenderObject(this);
@@ -237,6 +279,34 @@ export class PixelLineRenderer extends BaseRender {
     }
 
     /**
+     * 更新线
+     * @param	index  		   索引
+     * @param	startPosition  初始点位置
+     * @param	endPosition	   结束点位置
+     * @param	startColor	   初始点颜色
+     * @param	endColor	   结束点颜色
+     * @param startNormal   初始点法线
+     * @param endNormal     结束点法线
+     */
+    setLineWithNormal(index: number, startPosition: Vector3, endPosition: Vector3, startColor: Color, endColor: Color, startNormal: Vector3, endNormal: Vector3): void {
+        if (index < this._pixelLineFilter._lineCount) {
+            this._pixelLineFilter._updateLineData(index, startPosition, endPosition, startColor, endColor, startNormal, endNormal);
+            let pixeldata = this._lines[index];
+            if (pixeldata) {
+                startColor.cloneTo(pixeldata.startColor);
+                endColor.cloneTo(pixeldata.endColor);
+                startPosition.cloneTo(pixeldata.startPosition);
+                endPosition.cloneTo(pixeldata.endPosition);
+                startNormal && startNormal.cloneTo(pixeldata.startNormal);
+                endNormal && endNormal.cloneTo(pixeldata.endNormal);
+            }
+        }
+
+        else
+            throw "PixelLineSprite3D: index must less than lineCount.";
+    }
+
+    /**
      * 获取线段数据
      * @param out 线段数据。
      */
@@ -272,6 +342,10 @@ export class PixelLineRenderer extends BaseRender {
         }
     }
 
+    /**
+     * @internal
+     * @protected
+     */
     protected _onDestroy() {
         this._pixelLineFilter.destroy();
         this._pixelLineFilter = null;
@@ -279,6 +353,7 @@ export class PixelLineRenderer extends BaseRender {
     }
 
     /**
+     * @internal
      * @override
      * @param dest 
      */

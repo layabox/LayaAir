@@ -1,4 +1,3 @@
-
 import { Color } from "../../maths/Color";
 import { Vector3 } from "../../maths/Vector3";
 import { TextureCubeFace } from "../../resource/TextureCube";
@@ -59,7 +58,7 @@ export class SphericalHarmonicsL2 {
 
     /**
      * 克隆
-     * @param dest 
+     * @param dest 克隆目标数据
      */
     cloneTo(dest: SphericalHarmonicsL2): void {
         if (this === dest)

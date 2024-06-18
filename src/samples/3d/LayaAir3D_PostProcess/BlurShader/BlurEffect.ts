@@ -1,7 +1,6 @@
 import { PostProcessEffect } from "laya/d3/core/render/PostProcessEffect";
 import { PostProcessRenderContext } from "laya/d3/core/render/PostProcessRenderContext";
 import { CommandBuffer } from "laya/d3/core/render/command/CommandBuffer";
-import { Viewport } from "laya/d3/math/Viewport";
 import BlurVS from "./Blur.vs";
 import BlurHorizentalFS from "./BlurHorizontal.fs";
 import BlurVerticalFS from "./BlurVertical.fs";
@@ -14,14 +13,16 @@ import { BaseTexture } from "laya/resource/BaseTexture";
 import { FilterMode } from "laya/RenderEngine/RenderEnum/FilterMode";
 import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFormat";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
-import { ShaderData, ShaderDataType } from "laya/RenderEngine/RenderShader/ShaderData";
 import { Vector4 } from "laya/maths/Vector4";
 import { RenderTexture } from "laya/resource/RenderTexture";
-import { RenderState } from "laya/RenderEngine/RenderShader/RenderState";
+import { RenderState } from "laya/RenderDriver/RenderModuleData/Design/RenderState";
 import { ShaderPass } from "laya/RenderEngine/RenderShader/ShaderPass";
 import { SubShader } from "laya/RenderEngine/RenderShader/SubShader";
 import { VertexMesh } from "laya/RenderEngine/RenderShader/VertexMesh";
 import { LayaGL } from "laya/layagl/LayaGL";
+import { ShaderDataType, ShaderData } from "laya/RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { Viewport } from "laya/maths/Viewport";
+
 export class BlurEffect extends PostProcessEffect {
 
     static BLUR_TYPE_GaussianBlur: number = 0;
@@ -98,7 +99,7 @@ export class BlurEffect extends PostProcessEffect {
     /**@internal */
     private _shader: Shader3D = null;
     /**@internal */
-    private _shaderData: ShaderData = LayaGL.renderOBJCreate.createShaderData(null);
+    private _shaderData: ShaderData = LayaGL.renderDeviceFactory.createShaderData(null);
     /**@internal */
     private _downSampleNum: number = 1;
     /**@internal */
@@ -143,7 +144,7 @@ export class BlurEffect extends PostProcessEffect {
      * @param value 
      */
     set blurSpreadSize(value: number) {
-        this._blurSpreadSize = Math.min(10, Math.max(value, 1.0));
+        this._blurSpreadSize = Math.min(10.0, Math.max(value, 1.0));
     }
 
     /**
@@ -228,7 +229,7 @@ export class BlurMaterial extends Material {
         super();
         BlurMaterial.__init__();
         this.setShaderName("blurEffect");
-        this.setIntByIndex(BlurMaterial.SHADERVALUE_DOWNSAMPLEVALUE, offset);
+        this.setFloatByIndex(BlurMaterial.SHADERVALUE_DOWNSAMPLEVALUE, offset);
         this.setVector4ByIndex(BlurMaterial.SHADERVALUE_TEXELSIZE, texelSize);
     }
 

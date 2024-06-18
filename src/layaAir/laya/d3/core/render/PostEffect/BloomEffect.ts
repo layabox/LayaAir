@@ -1,4 +1,3 @@
-
 import BloomVS from "../../../shader/files/postProcess/Bloom/Bloom.vs";
 import BloomDownsample13PS from "../../../shader/files/postProcess/Bloom/BloomDownsample13.fs";
 import BloomDownsample4PS from "../../../shader/files/postProcess/Bloom/BloomDownsample4.fs";
@@ -13,11 +12,9 @@ import StdLibGLSL from "../../../shader/files/postProcess/StdLib.glsl";
 import ColorsGLSL from "../../../shader/files/postProcess/Colors.glsl";
 import { FilterMode } from "../../../../RenderEngine/RenderEnum/FilterMode";
 import { RenderTargetFormat } from "../../../../RenderEngine/RenderEnum/RenderTargetFormat";
-import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
-import { ShaderDataType, ShaderData } from "../../../../RenderEngine/RenderShader/ShaderData";
+import { Shader3D, ShaderFeatureType } from "../../../../RenderEngine/RenderShader/Shader3D";
 import { Texture2D } from "../../../../resource/Texture2D";
 import { PostProcess } from "../../../component/PostProcess";
-import { Viewport } from "../../../math/Viewport";
 import { CommandBuffer } from "../command/CommandBuffer";
 import { PostProcessEffect } from "../PostProcessEffect";
 import { PostProcessRenderContext } from "../PostProcessRenderContext";
@@ -25,10 +22,12 @@ import { BaseTexture } from "../../../../resource/BaseTexture";
 import { Color } from "../../../../maths/Color";
 import { Vector4 } from "../../../../maths/Vector4";
 import { RenderTexture } from "../../../../resource/RenderTexture";
-import { RenderState } from "../../../../RenderEngine/RenderShader/RenderState";
+import { RenderState } from "../../../../RenderDriver/RenderModuleData/Design/RenderState";
+import { ShaderDataType, ShaderData } from "../../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { SubShader } from "../../../../RenderEngine/RenderShader/SubShader";
 import { VertexMesh } from "../../../../RenderEngine/RenderShader/VertexMesh";
 import { LayaGL } from "../../../../layagl/LayaGL";
+import { Viewport } from "../../../../maths/Viewport";
 
 /**
  * <code>BloomEffect</code> 类用于创建泛光效果。
@@ -84,6 +83,7 @@ export class BloomEffect extends PostProcessEffect {
 			"u_SampleScale": ShaderDataType.Float,
 		};
 		var shader = Shader3D.add("PostProcessBloom");
+		shader.shaderType = ShaderFeatureType.PostProcess;
 		//subShader0
 		var subShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
@@ -143,6 +143,10 @@ export class BloomEffect extends PostProcessEffect {
 		BloomEffect.__initDefine__();
 	}
 
+	/**
+	 * @internal
+	 * shader初始化
+	 */
 	static CompositeInit() {
 		//PostProcessComposite
 		let attributeMap: any = {
@@ -155,11 +159,12 @@ export class BloomEffect extends PostProcessEffect {
 			'u_Bloom_DirtTex': ShaderDataType.Texture2D,
 			'u_BloomTex_TexelSize': ShaderDataType.Vector4,
 			'u_Bloom_DirtTileOffset': ShaderDataType.Vector4,
-			'u_Bloom_Settings': ShaderDataType.Vector3,
-			'u_Bloom_Color': ShaderDataType.Vector3,
+			'u_Bloom_Settings': ShaderDataType.Vector4,
+			'u_Bloom_Color': ShaderDataType.Color,
+
 		};
 		let shader = Shader3D.add("PostProcessComposite");
-
+		shader.shaderType = ShaderFeatureType.PostProcess;
 		let subShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
 		let shaderPass = subShader.addShaderPass(CompositeVS, CompositePS);
@@ -170,6 +175,10 @@ export class BloomEffect extends PostProcessEffect {
 		renderState.blend = RenderState.BLEND_DISABLE;
 	}
 
+	/**
+	 * @internal
+	 * 初始化宏定义
+	 */
 	static __initDefine__() {
 		BloomEffect.SHADERVALUE_MAINTEX = Shader3D.propertyNameToID("u_MainTex");
 		BloomEffect.SHADERVALUE_AUTOEXPOSURETEX = Shader3D.propertyNameToID("u_AutoExposureTex");
@@ -182,7 +191,7 @@ export class BloomEffect extends PostProcessEffect {
 	/**@internal */
 	private _shader: Shader3D = null;
 	/**@internal */
-	private _shaderData: ShaderData = LayaGL.renderOBJCreate.createShaderData(null);
+	private _shaderData: ShaderData = LayaGL.renderDeviceFactory.createShaderData(null);
 	/**@internal */
 	private _linearColor: Color = new Color();
 	/**@internal */
@@ -384,6 +393,7 @@ export class BloomEffect extends PostProcessEffect {
 
 	/**
 	 * 添加到后期处理栈时,会调用
+	 * @param postprocess 后期处理组件
 	 */
 	effectInit(postprocess: PostProcess) {
 		super.effectInit(postprocess);
@@ -403,6 +413,7 @@ export class BloomEffect extends PostProcessEffect {
 
 	/**
 	 * 释放Effect
+	 * @param postprocess 后期处理组件
 	 */
 	release(postprocess: PostProcess) {
 		super.release(postprocess);
@@ -516,7 +527,7 @@ export class BloomEffect extends PostProcessEffect {
 
 		compositeShaderData.setVector(PostProcess.SHADERVALUE_BLOOM_DIRTTILEOFFSET, dirtTileOffset);
 		compositeShaderData.setVector(PostProcess.SHADERVALUE_BLOOM_SETTINGS, shaderSettings);
-		compositeShaderData.setVector(PostProcess.SHADERVALUE_BLOOM_COLOR, new Vector4(linearColor.r, linearColor.g, linearColor.b, linearColor.a));//TODO:需要Color支持
+		compositeShaderData.setColor(PostProcess.SHADERVALUE_BLOOM_COLOR, linearColor);//TODO:需要Color支持
 		compositeShaderData.setTexture(PostProcess.SHADERVALUE_BLOOM_DIRTTEX, usedirtTexture);
 		compositeShaderData.setTexture(PostProcess.SHADERVALUE_BLOOMTEX, lastUpTexture);
 		compositeShaderData.setVector(PostProcess.SHADERVALUE_BLOOMTEX_TEXELSIZE, this._bloomTextureTexelSize);

@@ -1,12 +1,12 @@
-import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
-import { ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
+import { Shader3D, ShaderFeatureType } from "../../../RenderEngine/RenderShader/Shader3D";
 import SkyProceduralVS from "./SkyProceduralShader.vs";
 import SkyProceduralFS from "./SkyProceduralShader.fs";
 import { Color } from "../../../maths/Color";
-import { RenderState } from "../../../RenderEngine/RenderShader/RenderState";
 import { AttributeMapType, SubShader } from "../../../RenderEngine/RenderShader/SubShader";
 import { VertexMesh } from "../../../RenderEngine/RenderShader/VertexMesh";
 import { CullMode } from "../../../RenderEngine/RenderEnum/CullMode";
+import { RenderState } from "../../../RenderDriver/RenderModuleData/Design/RenderState";
+import { ShaderDataType } from "../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 
 export class SkyProceduralShaderInit {
     static init() {
@@ -32,7 +32,7 @@ export class SkyProceduralShaderInit {
             "u_Exposure": 1.3,
         };
         let shader = Shader3D.add("SkyProcedural");
-        
+        shader.shaderType = ShaderFeatureType.Sky;
         let subShader = new SubShader(attributeMap, uniformMap, defaultValue);
         shader.addSubShader(subShader);
         let pass = subShader.addShaderPass(SkyProceduralVS, SkyProceduralFS);

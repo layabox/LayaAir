@@ -154,7 +154,7 @@ export class AnimatorTransition {
 
     /**
      * 增加一个条件
-     * @param condition 
+     * @param condition 条件
      */
     addCondition(condition: AnimatorStateCondition): void {
         if (this._conditions.indexOf(condition) == -1) {
@@ -164,7 +164,7 @@ export class AnimatorTransition {
 
     /**
      * 删除一个条件
-     * @param condition 
+     * @param condition 条件
      */
     removeCondition(condition: AnimatorStateCondition): void {
         let index = this._conditions.indexOf(condition);
@@ -175,8 +175,8 @@ export class AnimatorTransition {
 
     /**
      * 是否启用过渡
-     * @param normalizeTime 
-     * @param paramsMap 
+     * @param normalizeTime 归一化时间
+     * @param paramsMap 条件组
      */
     check(normalizeTime: number, paramsMap: { [key: number]: number | boolean }): boolean {
         if (this._mute) {

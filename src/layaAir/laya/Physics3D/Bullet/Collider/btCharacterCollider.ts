@@ -13,6 +13,8 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
 
     /** @internal */
     private static _btTempVector30: number;
+    /** @internal */
+    private static _btTempVector31: Vector3;
     /**@internal */
     _btKinematicCharacter: number = null;
     /** @internal */
@@ -23,6 +25,8 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
     private _maxSlope = 90.0;	// 45度容易在地形上卡住
     /**@internal */
     private _fallSpeed = 55.0;
+    /**@internal */
+    private _jumpSpeed = 10.0;
     /** @internal */
     private _gravity = new Vector3(0, -9.8 * 3, 0);
 
@@ -38,6 +42,7 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
     static __init__(): void {
         let bt = btPhysicsCreateUtil._bt;
         btCharacterCollider._btTempVector30 = bt.btVector3_create(0, 0, 0);
+        btCharacterCollider._btTempVector31 = new Vector3(0, 0, 0);
         btCharacterCollider.initCapable();
     }
 
@@ -52,11 +57,11 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
         var ghostObject: number = bt.btPairCachingGhostObject_create();
         bt.btCollisionObject_setUserIndex(ghostObject, this._id);
         bt.btCollisionObject_setCollisionFlags(ghostObject, btPhysicsManager.COLLISIONFLAGS_CHARACTER_OBJECT);
+        bt.btCollisionObject_setContactProcessingThreshold(ghostObject, 0);
         this._btCollider = ghostObject;
     }
     setShapelocalOffset(value: Vector3): void {
-        // bullet no shapeoffset,need set collidershape
-        // throw new Error("Method not implemented.");
+        this._btColliderShape && (this._btColliderShape as btCapsuleColliderShape).setOffset(value);
     }
     setSkinWidth?(width: number): void {
         // bullet no skinwidth
@@ -64,7 +69,14 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
     }
     setPosition(value: Vector3): void {
         // bullet no direct setposition
-        // throw new Error("Method not implemented.");
+        var bt = btPhysicsCreateUtil._bt;
+        bt.btKinematicCharacterController_setCurrentPosition(this._btKinematicCharacter, value.x, value.y, value.z);
+    }
+    getPosition(): Vector3 {
+        var bt = btPhysicsCreateUtil._bt;
+        let pPos = bt.btKinematicCharacterController_getCurrentPosition(this._btKinematicCharacter);
+        btCharacterCollider._btTempVector31.setValue(bt.btVector3_x(pPos), bt.btVector3_y(pPos), bt.btVector3_z(pPos))
+        return btCharacterCollider._btTempVector31;
     }
     setRadius?(value: number): void {
         this._btColliderShape && (this._btColliderShape as btCapsuleColliderShape).setRadius(value);
@@ -116,7 +128,7 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
         this._characterCapableMap.set(ECharacterCapable.Character_PushForce, true);
         this._characterCapableMap.set(ECharacterCapable.Character_Radius, true);
         this._characterCapableMap.set(ECharacterCapable.Character_Height, true);
-        this._characterCapableMap.set(ECharacterCapable.Character_offset, false);
+        this._characterCapableMap.set(ECharacterCapable.Character_offset, true);
         this._characterCapableMap.set(ECharacterCapable.Character_Skin, false);
         this._characterCapableMap.set(ECharacterCapable.Character_minDistance, false);
         this._characterCapableMap.set(ECharacterCapable.Character_EventFilter, false);
@@ -143,6 +155,7 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
         //bt.btKinematicCharacterController_setUseGhostSweepTest(this._btKinematicCharacter, false);
         this.setfallSpeed(this._fallSpeed);
         this.setSlopeLimit(this._maxSlope);
+        this.setJumpSpeed(this._jumpSpeed);
         this.setGravity(this._gravity);
         bt.btKinematicCharacterController_setJumpAxis(this._btKinematicCharacter, 0, 1, 0);
         this.setPushForce(this._pushForce);
@@ -167,6 +180,12 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
             btPhysicsManager._convertToBulletVec3(velocity, btVelocity);
             bt.btKinematicCharacterController_jump(this._btKinematicCharacter, btVelocity);
         }
+    }
+
+    setJumpSpeed(value: number): void {
+        this._jumpSpeed = value;
+        var bt = btPhysicsCreateUtil._bt;
+        bt.btKinematicCharacterController_setJumpSpeed(this._btKinematicCharacter, value);
     }
 
     setStepOffset(offset: number): void {

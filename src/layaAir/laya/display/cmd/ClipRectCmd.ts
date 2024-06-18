@@ -1,10 +1,10 @@
-import { Context } from "../../resource/Context"
+import { Context, IGraphicCMD } from "../../renders/Context"
 import { Pool } from "../../utils/Pool"
 
 /**
  * 裁剪命令
  */
-export class ClipRectCmd {
+export class ClipRectCmd  implements IGraphicCMD{
     static ID: string = "ClipRect";
 
 

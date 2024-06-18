@@ -10,8 +10,8 @@ import { Texture2D } from "../../resource/Texture2D";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { Vector3 } from "../../maths/Vector3";
 import { Vector4 } from "../../maths/Vector4";
-import { ShaderDataType } from "../../RenderEngine/RenderShader/ShaderData";
 import { LayaGL } from "../../layagl/LayaGL";
+import { ShaderDataType } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 
 
 
@@ -30,15 +30,12 @@ export class SimpleSkinnedMeshSprite3D extends RenderableSprite3D {
      * @internal
      */
     static __init__(): void {
-        SimpleSkinnedMeshRenderer.SIMPLE_SIMPLEANIMATORPARAMS = SimpleSkinnedMeshSprite3D.SIMPLE_SIMPLEANIMATORPARAMS;
-        SimpleSkinnedMeshRenderer.SIMPLE_SIMPLEANIMATORTEXTURE = SimpleSkinnedMeshSprite3D.SIMPLE_SIMPLEANIMATORTEXTURE;
-        SimpleSkinnedMeshRenderer.SIMPLE_SIMPLEANIMATORTEXTURESIZE = SimpleSkinnedMeshSprite3D.SIMPLE_SIMPLEANIMATORTEXTURESIZE;
-
+        
         SimpleSkinnedMeshSprite3D.SIMPLE_SIMPLEANIMATORTEXTURE = Shader3D.propertyNameToID("u_SimpleAnimatorTexture");
         SimpleSkinnedMeshSprite3D.SIMPLE_SIMPLEANIMATORPARAMS = Shader3D.propertyNameToID("u_SimpleAnimatorParams");
         SimpleSkinnedMeshSprite3D.SIMPLE_SIMPLEANIMATORTEXTURESIZE = Shader3D.propertyNameToID("u_SimpleAnimatorTextureSize");
-
-        const commandUniform = LayaGL.renderOBJCreate.createGlobalUniformMap("SimpleSkinnedMesh");
+        
+        const commandUniform = LayaGL.renderDeviceFactory.createGlobalUniformMap("SimpleSkinnedMesh");
         commandUniform.addShaderUniform(SimpleSkinnedMeshSprite3D.SIMPLE_SIMPLEANIMATORTEXTURE, "u_SimpleAnimatorTexture", ShaderDataType.Texture2D);
         commandUniform.addShaderUniform(SimpleSkinnedMeshSprite3D.SIMPLE_SIMPLEANIMATORPARAMS, "u_SimpleAnimatorParams", ShaderDataType.Vector4);
         commandUniform.addShaderUniform(SimpleSkinnedMeshSprite3D.SIMPLE_SIMPLEANIMATORTEXTURESIZE, "u_SimpleAnimatorTextureSize", ShaderDataType.Float);
@@ -117,7 +114,7 @@ export class SimpleSkinnedMeshSprite3D extends RenderableSprite3D {
             let bonesData: any[] = data.bones;
             for (let i = 0, n = bonesData.length; i < n; i++)
                 render.bones.push(spriteMap[bonesData[i]]);
-
+            render.bones =  render.bones;
             render._bonesNums = data.bonesNums ? data.bonesNums : render.bones.length;
         }
         // else {//[兼容代码]

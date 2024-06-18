@@ -1,4 +1,4 @@
-import { Context } from "../../../resource/Context";
+import { Context } from "../../../renders/Context";
 import { ISaveData } from "./ISaveData";
 import { SaveBase } from "./SaveBase";
 

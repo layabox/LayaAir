@@ -50,6 +50,8 @@ export class BaseShape implements IClone {
 	 * 用于生成粒子初始位置和方向。
 	 * @param	position 粒子位置。
 	 * @param	direction 粒子方向。
+	 * @param	rand 随机数
+	 * @param 	randomSeeds 随机种子
 	 */
 	generatePositionAndDirection(position: Vector3, direction: Vector3, rand: Rand = null, randomSeeds: Uint32Array = null): void {
 		throw new Error("BaseShape: must override it.");
@@ -105,7 +107,7 @@ export class BaseShape implements IClone {
 
 	/**
 	 * 克隆。
-	 * @param	destObject 克隆源。
+	 * @param	destObject 克隆目标。
 	 */
 	cloneTo(destObject: any): void {
 		var destShape: BaseShape = (<BaseShape>destObject);

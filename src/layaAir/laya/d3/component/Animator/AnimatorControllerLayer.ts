@@ -161,22 +161,34 @@ export class AnimatorControllerLayer implements IClone {
         }
     }
 
+    /**
+     * @internal
+     */
     _getReferenceCount(): number {
         return this._referenceCount;
     }
 
+    /**
+     * @internal
+     */
     _addReference(count: number = 1): void {
         for (var i: number = 0, n: number = this._states.length; i < n; i++)
             this._states[i]._addReference(count);
         this._referenceCount += count;
     }
 
+    /**
+     * @internal
+     */
     _removeReference(count: number = 1): void {
         for (var i: number = 0, n: number = this._states.length; i < n; i++)
             this._states[i]._removeReference(count);
         this._referenceCount -= count;
     }
 
+    /**
+     * @internal
+     */
     _clearReference(): void {
         this._removeReference(-this._referenceCount);
     }
@@ -191,6 +203,7 @@ export class AnimatorControllerLayer implements IClone {
 
     /**
      * 获取动画状态。
+     * @param name 动画状态机名称
      * @return 动画状态。
      */
     getAnimatorState(name: string): AnimatorState | null {

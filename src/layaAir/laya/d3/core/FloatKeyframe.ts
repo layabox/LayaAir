@@ -25,6 +25,7 @@ export class FloatKeyframe extends Keyframe {
 
 	/**
 	 * 克隆数据
+	 * @param destObject 拷贝数据结构
 	 * @inheritDoc
 	 * @override
 	 */
@@ -42,6 +43,10 @@ export class FloatKeyframe extends Keyframe {
 		destKeyFrame.weightedMode = this.weightedMode;
 	}
 
+	/**
+	 * 克隆
+	 * @returns 
+	 */
 	clone(): FloatKeyframe {
 		let f = new FloatKeyframe();
 		this.cloneTo(f);

@@ -1,6 +1,6 @@
+import { ShaderDataType } from "../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { ShaderDefine } from "../../../RenderDriver/RenderModuleData/Design/ShaderDefine";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
-import { ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
-import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";
 import { LayaGL } from "../../../layagl/LayaGL";
 
 export class ShaderDefines2D {
@@ -41,8 +41,8 @@ export class ShaderDefines2D {
     static UNIFORM_CLIPMATDIR: number;// uniform vec4 u_clipMatDir;
     static UNIFORM_CLIPMATPOS: number;// uniform vec2 u_clipMatPos;
     static UNIFORM_MMAT2: number;// uniform mat4 u_mmat2;
-    static UNIFORM_SIZE: number;// uniform vec2 u_size;
-    static UNIFORM_CLIPOFF: number;//uniform vec2 u_clipOff;	
+    static UNIFORM_SIZE:number;
+    static UNIFORM_VERTALPHA: number;//顶点alpha，给cacheas normal用;
     static UNIFORM_MVPMatrix: number;//uniform mat4 u_MvpMatrix;
 
     static UNIFORM_SPRITETEXTURE: number;// uniform sampler2D u_spriteTexture;
@@ -90,7 +90,7 @@ export class ShaderDefines2D {
         ShaderDefines2D.UNIFORM_CLIPMATPOS = Shader3D.propertyNameToID("u_clipMatPos");
         ShaderDefines2D.UNIFORM_MMAT2 = Shader3D.propertyNameToID("u_mmat2");
         ShaderDefines2D.UNIFORM_SIZE = Shader3D.propertyNameToID("u_size");
-        ShaderDefines2D.UNIFORM_CLIPOFF = Shader3D.propertyNameToID("u_clipOff");
+        ShaderDefines2D.UNIFORM_VERTALPHA = Shader3D.propertyNameToID("u_VertAlpha");
 
         ShaderDefines2D.UNIFORM_MVPMatrix = Shader3D.propertyNameToID("u_MvpMatrix");
         ShaderDefines2D.UNIFORM_SPRITETEXTURE = Shader3D.propertyNameToID("u_spriteTexture");
@@ -105,14 +105,14 @@ export class ShaderDefines2D {
         ShaderDefines2D.UNIFORM_COLORADD = Shader3D.propertyNameToID("u_colorAdd");
         ShaderDefines2D.UNIFORM_TEXRANGE = Shader3D.propertyNameToID("u_TexRange");
 
-        const commandUniform = LayaGL.renderOBJCreate.createGlobalUniformMap("Sprite2D");
+        const commandUniform = LayaGL.renderDeviceFactory.createGlobalUniformMap("Sprite2D");
 
         commandUniform.addShaderUniform(ShaderDefines2D.UNIFORM_MMAT, "u_mmat", ShaderDataType.Matrix4x4);
         commandUniform.addShaderUniform(ShaderDefines2D.UNIFORM_CLIPMATDIR, "u_clipMatDir", ShaderDataType.Vector4);
         commandUniform.addShaderUniform(ShaderDefines2D.UNIFORM_CLIPMATPOS, "u_clipMatPos", ShaderDataType.Vector2);
         commandUniform.addShaderUniform(ShaderDefines2D.UNIFORM_MMAT2, "u_mmat2", ShaderDataType.Matrix4x4);
         commandUniform.addShaderUniform(ShaderDefines2D.UNIFORM_SIZE, "u_size", ShaderDataType.Vector2);
-        commandUniform.addShaderUniform(ShaderDefines2D.UNIFORM_CLIPOFF, "u_clipOff", ShaderDataType.Vector2);
+        commandUniform.addShaderUniform(ShaderDefines2D.UNIFORM_VERTALPHA, "u_VertAlpha", ShaderDataType.Float);
         commandUniform.addShaderUniform(ShaderDefines2D.UNIFORM_MVPMatrix, "u_MvpMatrix", ShaderDataType.Matrix4x4);
         commandUniform.addShaderUniform(ShaderDefines2D.UNIFORM_SPRITETEXTURE, "u_spriteTexture", ShaderDataType.Texture2D);
         commandUniform.addShaderUniform(ShaderDefines2D.UNIFORM_STRENGTH_SIG2_2SIG2_GAUSS1, "u_strength_sig2_2sig2_gauss1", ShaderDataType.Vector4);

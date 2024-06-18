@@ -1,6 +1,7 @@
+import { ITextureContext } from "../RenderDriver/DriverDesign/RenderDevice/ITextureContext";
+import { RenderCapable } from "../RenderEngine/RenderEnum/RenderCapable";
 import { TextureDimension } from "../RenderEngine/RenderEnum/TextureDimension";
 import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
-import { ITexture3DContext } from "../RenderEngine/RenderInterface/ITextureContext";
 import { LayaGL } from "../layagl/LayaGL";
 import { BaseTexture } from "./BaseTexture";
 
@@ -9,6 +10,24 @@ import { BaseTexture } from "./BaseTexture";
  */
 export class Texture2DArray extends BaseTexture {
 
+    private static _defaultTexture: Texture2DArray;
+
+    static get defaultTexture() {
+        return this._defaultTexture;
+    }
+
+    /** @internal */
+    static __init__() {
+        if (LayaGL.renderEngine.getCapable(RenderCapable.Texture3D)) {
+            this._defaultTexture = new Texture2DArray(1, 1, 1, TextureFormat.R8G8B8A8, false, false, false);
+            this._defaultTexture.lock = true;
+
+            this._defaultTexture.setPixelsData(new Uint8Array([255, 255, 255, 255]), false, false);
+        }
+    }
+    /**
+     * 纹理层数
+     */
     depth: number;
 
     constructor(width: number, height: number, depth: number, format: TextureFormat, mipmap: boolean = true, canRead: boolean, sRGB: boolean = false) {
@@ -18,7 +37,7 @@ export class Texture2DArray extends BaseTexture {
 
         this.depth = depth;
 
-        let context = <ITexture3DContext>LayaGL.textureContext;
+        let context = <ITextureContext>LayaGL.textureContext;
 
         this._texture = context.createTexture3DInternal(this._dimension, width, height, depth, format, mipmap, sRGB, false);
 
@@ -33,7 +52,7 @@ export class Texture2DArray extends BaseTexture {
      */
     setImageData(sources: HTMLImageElement[] | HTMLCanvasElement[] | ImageBitmap[], premultiplyAlpha: boolean, invertY: boolean) {
         let texture = this._texture;
-        let context = <ITexture3DContext>LayaGL.textureContext;
+        let context = <ITextureContext>LayaGL.textureContext;
         context.setTexture3DImageData(texture, sources, this.depth, premultiplyAlpha, invertY);
     }
 
@@ -45,7 +64,7 @@ export class Texture2DArray extends BaseTexture {
      */
     setPixelsData(source: ArrayBufferView, premultiplyAlpha: boolean, invertY: boolean) {
         let texture = this._texture;
-        let context = <ITexture3DContext>LayaGL.textureContext;
+        let context = <ITextureContext>LayaGL.textureContext;
         context.setTexture3DPixelsData(texture, source, this.depth, premultiplyAlpha, invertY)
     }
 
@@ -65,7 +84,7 @@ export class Texture2DArray extends BaseTexture {
      */
     setSubPixelsData(xOffset: number, yOffset: number, zOffset: number, width: number, height: number, depth: number, pixels: ArrayBufferView, mipmapLevel: number, generateMipmap: boolean, premultiplyAlpha: boolean, invertY: boolean) {
         let texture = this._texture;
-        let context = <ITexture3DContext>LayaGL.textureContext;
+        let context = <ITextureContext>LayaGL.textureContext;
         context.setTexture3DSubPixelsData(texture, pixels, mipmapLevel, generateMipmap, xOffset, yOffset, zOffset, width, height, depth, premultiplyAlpha, invertY);
     }
 

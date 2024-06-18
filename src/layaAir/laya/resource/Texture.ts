@@ -5,6 +5,8 @@ import { Handler } from "../utils/Handler"
 import { ILaya } from "../../ILaya";
 import { BaseTexture } from "./BaseTexture";
 import { Resource } from "./Resource";
+import { RenderTexture2D } from "./RenderTexture2D";
+import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
 
 const _rect1 = new Rectangle();
 const _rect2 = new Rectangle();
@@ -15,7 +17,7 @@ const _rect2 = new Rectangle();
 export class Texture extends Resource {
     /**@private 默认 UV 信息。*/
     static readonly DEF_UV = new Float32Array([0, 0, 1.0, 0, 1.0, 1.0, 0, 1.0]);
-    /**@private */
+    /**@private 无 UV 信息*/
     static readonly NO_UV = new Float32Array([0, 0, 0, 0, 0, 0, 0, 0]);
     /**@private 反转 UV 信息。*/
     static readonly INV_UV = new Float32Array([0, 1, 1.0, 1, 1.0, 0.0, 0, 0.0]);
@@ -43,12 +45,21 @@ export class Texture extends Resource {
     url: string;
     /** UUID */
     uuid: string;
-    /** @private */
+    /**
+     * 缩放率 
+     * @private 
+     */
     scaleRate: number = 1;
 
-    /**九宫格*/
+    /**
+     * 九宫格
+     * @internal
+     */
     _sizeGrid?: Array<number>;
-    /**状态数量*/
+    /**
+     * 状态数量
+     * @internal
+     */
     _stateNum?: number;
 
     /**@internal */
@@ -126,7 +137,7 @@ export class Texture extends Resource {
         u2 - (1 - oriUV[4]) * inAltasUVWidth, v2 - (1 - oriUV[5]) * inAltasUVHeight,
         u1 + oriUV[6] * inAltasUVWidth, v2 - (1 - oriUV[7]) * inAltasUVHeight]);
 
-        var bitmapScale: number = ((<Texture>(bitmap as any))).scaleRate;
+        var bitmapScale: number = (<Texture>source).scaleRate;
         if (bitmapScale && bitmapScale != 1) {
             tex.sourceWidth /= bitmapScale;
             tex.sourceHeight /= bitmapScale;
@@ -365,7 +376,8 @@ export class Texture extends Resource {
         // 如果无法直接获取，只能先渲染出来
         var ctx = new ILaya.Context();
         ctx.size(width, height);
-        ctx.asBitmap = true;
+        let rt = new RenderTexture2D(width,height,RenderTargetFormat.R8G8B8A8);
+        ctx.render2D = ctx.render2D.clone(rt)
         var uv: number[] = null;
         if (x != 0 || y != 0 || width != tex2dw || height != tex2dh) {
             uv = (this._uv as number[]).slice();	// 复制一份uv
@@ -380,14 +392,12 @@ export class Texture extends Resource {
             stu + (rePosX + draww) * uk, stv + (rePosY + drawh) * vk,
             stu + rePosX * uk, stv + (rePosY + drawh) * vk];
         }
+        ctx.startRender();
         ctx._drawTextureM(this, marginL, marginT, draww, drawh, null, 1.0, uv, 0xffffffff);
-        //ctx.drawTexture(value, -x, -y, x + width, y + height);
-        ctx._targets.start();
-        ctx.flush();
-        ctx._targets.end();
-        ctx._targets.restore();
-        var dt: Uint8Array = ctx._targets.getData(0, 0, width, height) as Uint8Array;
+        ctx.endRender();
+        var dt: Uint8Array = rt.getData(0, 0, width, height) as Uint8Array;
         ctx.destroy();
+        rt.destroy();
         // 上下颠倒一下
         ret = new Uint8Array(width * height * 4);
         st = 0;
@@ -402,10 +412,10 @@ export class Texture extends Resource {
 
     /**
      * 获取Texture上的某个区域的像素点
-     * @param	x
-     * @param	y
-     * @param	width
-     * @param	height
+     * @param	x x
+     * @param	y y
+     * @param	width 宽度
+     * @param	height 高度
      * @return  返回像素点集合
      */
     getPixels(x: number, y: number, width: number, height: number): Uint8Array {
@@ -415,6 +425,7 @@ export class Texture extends Resource {
 
     /**
      * 通过url强制恢复bitmap。
+     * @param 回调函数
      */
     recoverBitmap(callback?: () => void): void {
         var url = this._bitmap.url;
@@ -435,13 +446,13 @@ export class Texture extends Resource {
         }
     }
 
+    /**
+     * 是否有效
+     */
     get valid(): boolean {
         return !this._destroyed && this._bitmap && !this._bitmap.destroyed;
     }
 
-    /**
-     * obsolute
-     */
     public get obsolute(): boolean {
         return this._obsolute || !this._bitmap || this._bitmap.destroyed || this._bitmap.obsolute;
     }
@@ -451,7 +462,8 @@ export class Texture extends Resource {
     }
 
     /**
-     * @private
+     * 销毁资源
+     * @internal
      */
     protected _disposeResource(): void {
         let bit = this._bitmap;

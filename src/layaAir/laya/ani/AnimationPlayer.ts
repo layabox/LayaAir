@@ -28,37 +28,37 @@ import { EventDispatcher } from "../events/EventDispatcher";
 export class AnimationPlayer extends EventDispatcher {
 	/**@internal */
 	private _destroyed: boolean;
-	/** @internal 数据模板*/
+	/**@internal 数据模板*/
 	private _templet: AnimationTemplet;
-	/** @internal 当前精确时间，不包括重播时间*/
+	/**@internal 当前精确时间，不包括重播时间*/
 	private _currentTime: number;
-	/** @internal 当前帧时间，不包括重播时间*/
+	/**@internal 当前帧时间，不包括重播时间*/
 	private _currentFrameTime: number;	// 这个是根据当前帧数反向计算的时间。
-	/** @internal 动画播放的起始时间位置*/
+	/**@internal 动画播放的起始时间位置*/
 	private _playStart: number;
-	/** @internal 动画播放的结束时间位置*/
+	/**@internal 动画播放的结束时间位置*/
 	private _playEnd: number;
-	/** @internal 动画播放一次的总时间*/
+	/**@internal 动画播放一次的总时间*/
 	private _playDuration: number;
-	/** @internal 动画播放总时间*/
+	/**@internal 动画播放总时间*/
 	private _overallDuration: number;
-	/** @internal 是否在一次动画结束时停止。 设置这个标志后就不会再发送complete事件了*/
+	/**@internal 是否在一次动画结束时停止。 设置这个标志后就不会再发送complete事件了*/
 	private _stopWhenCircleFinish: boolean;
 	/**@internal 已播放时间，包括重播时间*/
 	_elapsedPlaybackTime: number;
-	/** @internal 播放时帧数*/
+	/**@internal 播放时帧数*/
 	private _startUpdateLoopCount: number;
-	/** @internal 当前动画索引*/
+	/**@internal 当前动画索引*/
 	private _currentAnimationClipIndex: number;
-	/** @internal 当前帧数*/
+	/**@internal 当前帧数*/
 	private _currentKeyframeIndex: number;
-	/** @internal 是否暂停*/
+	/**@internal 是否暂停*/
 	private _paused: boolean;
-	/** @internal 默认帧率,必须大于0*/
+	/**@internal 默认帧率,必须大于0*/
 	private _cacheFrameRate: number;
-	/** @internal 帧率间隔时间*/
+	/**@internal 帧率间隔时间*/
 	private _cacheFrameRateInterval: number;
-	/** @internal 缓存播放速率*/
+	/**@internal 缓存播放速率*/
 	private _cachePlayRate: number;
 
 	/**是否缓存*/

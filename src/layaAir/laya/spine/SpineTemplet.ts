@@ -5,6 +5,11 @@ import { URL } from "../net/URL";
 import { ILoadURL } from "../net/Loader";
 import { SpineTexture } from "./SpineTexture";
 import { IBatchProgress } from "../net/BatchProgress";
+import { SketonOptimise } from "./optimize/SketonOptimise";
+import { Spine2DRenderNode } from "./Spine2DRenderNode";
+import { Material } from "../resource/Material";
+import { SpineShaderInit } from "./material/SpineShaderInit";
+
 
 /**
  * Spine动画模板基类
@@ -14,15 +19,37 @@ export class SpineTemplet extends Resource {
 
     public skeletonData: spine.SkeletonData;
 
+    static materialMap: Map<string, Material> = new Map();
+
     private _textures: Record<string, SpineTexture>;
     private _basePath: string;
     private _ns: any;
+    public needSlot: boolean;
+
+    sketonOptimise: SketonOptimise;
+
 
     constructor() {
         super();
-
         this._textures = {};
+        this.sketonOptimise = new SketonOptimise();
     }
+
+    get mainTexture(): Texture {
+        let i = 0;
+        let tex: Texture;
+        for (let k in this._textures) {
+            tex = this._textures[k].realTexture;
+            if (tex) {
+                i++;
+                if (i > 1) {
+                    return null;
+                }
+            }
+        }
+        return tex;
+    }
+
 
     get ns(): typeof spine {
         return this._ns;
@@ -31,6 +58,24 @@ export class SpineTemplet extends Resource {
     get basePath(): string {
         return this._basePath;
     }
+
+    getMaterial(texture: Texture, blendMode: number, renderNode: Spine2DRenderNode): Material {
+        let mat: Material;
+        if (renderNode._materials.length <= renderNode._renderElements.length) {
+            //默认给一个新的Mateiral
+            mat = new Material();
+            SpineShaderInit.initSpineMaterial(mat);
+            mat.setShaderName("SpineStandard");
+
+            //renderNode._materials.push(mat);
+        } else {
+            mat = renderNode._materials[renderNode._renderElements.length];
+        }
+        SpineShaderInit.SetSpineBlendMode(blendMode, mat);
+        mat.setTextureByIndex(SpineShaderInit.SpineTexture, texture.bitmap);
+        return mat;
+    }
+
 
     getTexture(name: string): SpineTexture {
         return this._textures[name];
@@ -44,21 +89,24 @@ export class SpineTemplet extends Resource {
             parseAtlas = this.parseAtlas4;
         else
             parseAtlas = this.parseAtlas3;
-
+        if (version == "4.1") {
+            this.needSlot = true;
+        }
         return parseAtlas.call(this, atlasText, progress).then((atlas: any) => {
             let atlasLoader = new this._ns.AtlasAttachmentLoader(atlas);
             if (desc instanceof ArrayBuffer) {
-                let skeletonBinary = new this._ns.SkeletonBinary(atlasLoader);
+                let skeletonBinary = new this._ns.SkeletonBinary(atlasLoader, false);
                 this.skeletonData = skeletonBinary.readSkeletonData(new Uint8Array(desc));
             } else {
-                let skeletonJson = new this._ns.SkeletonJson(atlasLoader);
+                let skeletonJson = new this._ns.SkeletonJson(atlasLoader, false);
                 this.skeletonData = skeletonJson.readSkeletonData(desc);
             }
+            this.sketonOptimise.checkMainAttach(this.skeletonData);
         });
     }
 
     private getRuntimeVersion(desc: string | ArrayBuffer): string {
-        this._ns = spine;
+        this._ns = window.spine;
         return SpineTemplet.RuntimeVersion;
     }
 
@@ -106,7 +154,8 @@ export class SpineTemplet extends Resource {
      * @return
      */
     getAniNameByIndex(index: number): string {
-        let tAni: any = this.skeletonData.animations[index];
+        //@ts-ignore
+        let tAni = this.skeletonData.getAnimationByIndex(index);
         if (tAni) return tAni.name;
         return null;
     }
@@ -117,15 +166,8 @@ export class SpineTemplet extends Resource {
      * @return
      */
     getSkinIndexByName(skinName: string): number {
-        let skins = this.skeletonData.skins;
-        let tSkinData: spine.Skin;
-        for (let i: number = 0, n: number = skins.length; i < n; i++) {
-            tSkinData = skins[i];
-            if (tSkinData.name == skinName) {
-                return i;
-            }
-        }
-        return -1;
+        //@ts-ignore
+        return this.skeletonData.getSkinIndexByName(skinName);
     }
 
     /**
@@ -134,7 +176,21 @@ export class SpineTemplet extends Resource {
      */
     protected _disposeResource(): void {
         for (let k in this._textures) {
-            this._textures[k].realTexture?._removeReference();
+            let tex = this._textures[k].realTexture;
+            if (tex) {
+                tex._removeReference();
+                for (let i = 0; i < 4; i++) {
+                    let key = tex.id + "_" + i;
+                    let mat = SpineTemplet.materialMap.get(key);
+                    if (mat) {
+                        mat._removeReference();
+                        SpineTemplet.materialMap.delete(key);
+                    }
+                }
+            }
         }
+
+
+
     }
 }

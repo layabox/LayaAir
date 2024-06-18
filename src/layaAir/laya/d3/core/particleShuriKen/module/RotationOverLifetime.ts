@@ -61,7 +61,15 @@ export class RotationOverLifetime implements IClone {
 				break;
 			case 3:
 				if (this._angularVelocity.separateAxes)
-					destAngularVelocity = GradientAngularVelocity.createByRandomTwoGradientSeparate(this._angularVelocity.gradientXMin.clone(), this._angularVelocity.gradientYMin.clone(), this._angularVelocity.gradientZMin.clone(), this._angularVelocity.gradientWMin.clone(), this._angularVelocity.gradientXMax.clone(), this._angularVelocity.gradientYMax.clone(), this._angularVelocity.gradientZMax.clone(), this._angularVelocity.gradientWMax.clone());
+					destAngularVelocity = GradientAngularVelocity.createByRandomTwoGradientSeparate(
+						this._angularVelocity.gradientXMin.clone(),
+						this._angularVelocity.gradientXMax.clone(),
+						this._angularVelocity.gradientYMin.clone(),
+						this._angularVelocity.gradientYMax.clone(),
+						this._angularVelocity.gradientZMin.clone(),
+						this._angularVelocity.gradientZMax.clone(),
+						this._angularVelocity.gradientWMin.clone(),
+						this._angularVelocity.gradientWMax.clone());
 				else
 					destAngularVelocity = GradientAngularVelocity.createByRandomTwoGradient(this._angularVelocity.gradientMin.clone(), this._angularVelocity.gradientMax.clone());
 				break;

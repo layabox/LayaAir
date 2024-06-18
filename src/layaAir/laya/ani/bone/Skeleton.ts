@@ -45,7 +45,7 @@ import { LayaEnv } from "../../../LayaEnv";
  * 骨骼动画由<code>Templet</code>，<code>AnimationPlayer</code>，<code>Skeleton</code>三部分组成。
  */
 export class Skeleton extends Sprite {
-
+    /**@internal */
     protected _source: string;
     /**@internal */
     protected _templet: Templet;//动画解析器
@@ -1171,8 +1171,9 @@ export class Skeleton extends Sprite {
     }
 
     /**
-     * 销毁当前动画
      * @override
+     * 销毁当前动画节点
+     * @param destroyChild 是否销毁子节点
      */
     destroy(destroyChild: boolean = true): void {
         super.destroy(destroyChild);

@@ -3,52 +3,56 @@
  */
 export class TextStyle {
     /**字体*/
-    font: string;
+    font="";
     /**字号*/
-    fontSize: number;
+    fontSize=12;
     /**文字颜色*/
-    color: string;
+    color = "#000000";
     /**是否为粗体*/
-    bold: boolean;
+    bold = false;
     /**
      * 表示使用此文本格式的文本是否为斜体。
-     * @default false
      */
-    italic: boolean;
+    italic = false;
 
     /**是否显示下划线*/
-    underline: boolean;
+    underline = false;
     /**下划线颜色*/
-    underlineColor: string;
+    underlineColor:string = null;
 
     /**
      * <p>表示使用此文本格式的文本段落的水平对齐方式。</p>
      * @default  "left"
      */
-    align: string;
+    align='left';
 
     /**
      * <p>表示使用此文本格式的文本段落的垂直对齐方式。</p>
      * @default  "top"
      */
-    valign: string;
+    valign='top';
+
+    /**
+     * 图文混排时图片和文字的对齐方式。可选值是top,middle,bottom
+     */
+    alignItems: string;
 
     /**
      * <p>垂直行间距（以像素为单位）</p>
      */
-    leading: number;
+    leading = 2;
 
     /**
      * <p>描边宽度（以像素为单位）。</p>
      * 默认值0，表示不描边。
      * @default 0
      */
-    stroke: number;
+    stroke = 0;
     /**
      * <p>描边颜色，以字符串表示。</p>
      * @default "#000000";
      */
-    strokeColor: string;
+    strokeColor = '#000000';
 
     strikethrough: boolean;
 
@@ -62,6 +66,7 @@ export class TextStyle {
         this.underlineColor = null;
         this.align = "left";
         this.valign = "top";
+        this.alignItems = "middle";
         this.leading = 2;
         this.stroke = 0;
         this.strokeColor = "#000000";

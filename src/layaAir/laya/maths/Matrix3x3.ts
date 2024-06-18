@@ -13,7 +13,9 @@ const _tempV32 = new Vector3();
  * <code>Matrix3x3</code> 类用于创建3x3矩阵。
  */
 export class Matrix3x3 implements IClone {
+    /**默认值 */
     static readonly DEFAULT: Readonly<Matrix3x3> = new Matrix3x3();
+    /**临时变量 */
     static Temp: Matrix3x3 = new Matrix3x3();
     /**
      * 通过四元数创建旋转矩阵。
@@ -173,7 +175,7 @@ export class Matrix3x3 implements IClone {
     }
     /**
      * 克隆
-     * @param destObject 
+     * @param destObject 克隆目标
      */
     cloneByArray(destObject: Float32Array) {
         this.elements.set(destObject);
@@ -415,12 +417,11 @@ export class Matrix3x3 implements IClone {
     }
 
     /**
-     * forward看向target
-     * forward在这里规定为z轴
-     * @param eye 
-     * @param target 目标
-     * @param up 
-     * @param out 
+     * forward看向target，forward在这里规定为z轴
+     * @param eye 起始点
+     * @param target 目标点
+     * @param up 向上轴
+     * @param out 输出矩阵
      */
     static forwardLookAt(eye: Vector3, target: Vector3, up: Vector3, out: Matrix3x3): void {
         var vx = _tempV31;

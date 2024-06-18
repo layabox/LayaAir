@@ -1,7 +1,6 @@
 import { Laya } from "Laya";
 import { Script } from "laya/components/Script";
 import { Camera } from "laya/d3/core/Camera";
-import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
 import { MeshFilter } from "laya/d3/core/MeshFilter";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
@@ -22,9 +21,9 @@ import { Vector3 } from "laya/maths/Vector3";
 import { Loader } from "laya/net/Loader";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Event } from "laya/events/Event";
+import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
 
 
 /**
@@ -50,7 +49,6 @@ export class MouseInteraction {
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
 			//显示性能面板
 			Stat.show();
-
 			//创建场景
 			this._scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 
@@ -61,8 +59,12 @@ export class MouseInteraction {
 			this._camera.addComponent(CameraMoveScript);
 
 			//添加光照
-			var directionLight: DirectionLight = (<DirectionLight>this._scene.addChild(new DirectionLight()));
-			directionLight.color = new Color(1, 1, 1, 1);
+			//添加平行光
+			let directionLight = new Sprite3D();
+			let dircom = directionLight.addComponent(DirectionLightCom);
+			this._scene.addChild(directionLight);
+			// var directionLight: DirectionLight = (<DirectionLight>this._scene.addChild(new DirectionLight()));
+			dircom.color = new Color(1, 1, 1, 1);
 			directionLight.transform.rotate(new Vector3(-3.14 / 3, 0, 0));
 
 			//批量预加载资源
@@ -109,7 +111,6 @@ export class MouseInteraction {
 		layaMonkey_clone2.transform.rotate(this.tmpVector, false, false);
 		//缩放
 		this.tmpVector.setValue(0.1, 0.1, 0.1);
-		var scale: Vector3 = new Vector3(0.1, 0.1, 0.1);
 		layaMonkey_clone3.transform.localScale = this.tmpVector;
 
 		//给模型添加碰撞组件
@@ -119,21 +120,25 @@ export class MouseInteraction {
 		//获取模型的mesh
 		meshShape.mesh = (<Mesh>staticLayaMonkey.meshFilter.sharedMesh);
 		//设置模型的碰撞形状
+		meshShape.convex = true;//设置为true,为凸包碰撞器
 		meshCollider.colliderShape = meshShape;
 
 		var meshCollider1: PhysicsCollider = layaMonkey_clone1.addComponent(PhysicsCollider);
 		var meshShape1: MeshColliderShape = new MeshColliderShape();
 		meshShape1.mesh = (<Mesh>layaMonkey_clone1.getComponent(MeshFilter).sharedMesh);
+		meshShape1.convex = true;//设置为true,为凸包碰撞器
 		meshCollider1.colliderShape = meshShape1;
 
 		var meshCollider2: PhysicsCollider = layaMonkey_clone2.addComponent(PhysicsCollider);
 		var meshShape2: MeshColliderShape = new MeshColliderShape();
 		meshShape2.mesh = (<Mesh>layaMonkey_clone2.getComponent(MeshFilter).sharedMesh);
+		meshShape2.convex = true;//设置为true,为凸包碰撞器
 		meshCollider2.colliderShape = meshShape2;
 
 		var meshCollider3: PhysicsCollider = layaMonkey_clone3.addComponent(PhysicsCollider);
 		var meshShape3: MeshColliderShape = new MeshColliderShape();
 		meshShape3.mesh = (<Mesh>layaMonkey_clone3.getComponent(MeshFilter).sharedMesh);
+		meshShape3.convex = true;//设置为true,为凸包碰撞器
 		meshCollider3.colliderShape = meshShape3;
 
 		//设置文本显示框位置
@@ -167,8 +172,8 @@ export class MouseInteraction {
 	}
 
 	private onMouseDown(): void {
-		this.posX = this.point.x = Laya.stage.mouseX;
-		this.posY = this.point.y = Laya.stage.mouseY;
+		this.posX = this.point.x = Laya.stage.mouseX * Laya.stage.clientScaleX;
+		this.posY = this.point.y = Laya.stage.mouseY * Laya.stage.clientScaleY;
 		//产生射线
 		this._camera.viewportPointToRay(this.point, this._ray);
 		//拿到射线碰撞的物体

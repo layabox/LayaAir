@@ -1,6 +1,5 @@
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
-import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
@@ -9,14 +8,14 @@ import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
 import { Stage } from "laya/display/Stage";
 import { HalfFloatUtils } from "laya/utils/HalfFloatUtils";
 import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
-import { Texture2D } from "laya/resource/Texture2D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { FilterMode } from "laya/RenderEngine/RenderEnum/FilterMode";
 import { TextureFormat } from "laya/RenderEngine/RenderEnum/TextureFormat";
 import { Color } from "laya/maths/Color";
 import { Matrix4x4 } from "laya/maths/Matrix4x4";
 import { Vector3 } from "laya/maths/Vector3";
+import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
+import { Texture2D } from "laya/resource/Texture2D";
 
 export class HalfFloatTexture {
     private sprite3D: Sprite3D;
@@ -33,11 +32,13 @@ export class HalfFloatTexture {
             camera.addComponent(CameraMoveScript);
             camera.clearColor = new Color(0.2, 0.2, 0.2, 1.0);
 
-            var directionLight: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));
+            let directlightSprite = new Sprite3D();
+            let dircom = directlightSprite.addComponent(DirectionLightCom);
+            scene.addChild(directlightSprite);
             //设置平行光的方向
-            var mat: Matrix4x4 = directionLight.transform.worldMatrix;
+            var mat: Matrix4x4 = directlightSprite.transform.worldMatrix;
             mat.setForward(new Vector3(-1.0, -1.0, -1.0));
-            directionLight.transform.worldMatrix = mat;
+            directlightSprite.transform.worldMatrix = mat;
 
             this.sprite3D = (<Sprite3D>scene.addChild(new Sprite3D()));
 

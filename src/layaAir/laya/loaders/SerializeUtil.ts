@@ -167,6 +167,10 @@ export class SerializeUtil {
                 return Loader.TEXTURECUBE;
             case "Prefab":
                 return Loader.HIERARCHY;
+            case "Material":
+                return Loader.MATERIAL;
+            case "Mesh":
+                return Loader.MESH;
             default:
                 return null;
         }
@@ -279,14 +283,14 @@ export class SerializeUtil {
                             if (!comps)
                                 toWrite._$comp = comps = [];
                             for (let comp of e._$comp) {
-                                let compType = comp._$type || comp._$override;
-                                let c = comps.find(c => c._$override == compType || c._$type == compType);
+                                let typeOrId = comp._$type || comp._$override;
+                                let c = comps.find(c => c._$override == typeOrId || c._$type == typeOrId || c._$id == typeOrId);
                                 if (!c) {
                                     c = {};
                                     if (comp._$type)
-                                        c._$type = compType;
+                                        c._$type = typeOrId;
                                     else
-                                        c._$override = compType;
+                                        c._$override = typeOrId;
                                     comps.push(c);
                                 }
                                 mergeData(c, comp);

@@ -1,5 +1,4 @@
 import { Shader3D, IShaderObjStructor, IShaderpassStructor } from "../RenderEngine/RenderShader/Shader3D";
-import { ShaderDataType } from "../RenderEngine/RenderShader/ShaderData";
 import { ParseJSON } from "../utils/ParseJSON";
 import { Color } from "../maths/Color";
 import { Matrix3x3 } from "../maths/Matrix3x3";
@@ -9,6 +8,7 @@ import { Vector3 } from "../maths/Vector3";
 import { Vector4 } from "../maths/Vector4";
 import { Texture2D } from "../resource/Texture2D";
 import { TextureCube } from "../resource/TextureCube";
+import { ShaderDataType } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 
 
 const CGBlock: string[] = ["GLSL Start", "GLSL End"];
@@ -26,6 +26,8 @@ const shaderDataOBJ: Record<string, ShaderDataType> = {
     "Matrix3x3": ShaderDataType.Matrix3x3,
     "Texture2D": ShaderDataType.Texture2D,
     "TextureCube": ShaderDataType.TextureCube,
+    "Texture2DArray": ShaderDataType.Texture2DArray,
+    "Texture3D": ShaderDataType.Texture3D,
 };
 
 //TODO 格式改变

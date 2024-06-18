@@ -1,4 +1,4 @@
-import { DefineDatas } from "./DefineDatas";
+import { IDefineDatas } from "../../RenderDriver/RenderModuleData/Design/IDefineDatas";
 import { Shader3D } from "./Shader3D";
 import { ShaderPass } from "./ShaderPass";
 import { SubShader } from "./SubShader";
@@ -68,7 +68,7 @@ export class ShaderVariant {
             if (subShader) {
                 var pass: ShaderPass = subShader._passes[passIndex];
                 if (pass) {
-                    var validDefine: DefineDatas = pass._validDefine;
+                    var validDefine: IDefineDatas = pass._validDefine;
                     for (var i: number = 0, n: number = defineNames.length; i < n; i++) {
                         var defname: string = defineNames[i];
                         if (!validDefine.has(Shader3D.getDefineByName(defname)))
@@ -124,98 +124,75 @@ export class ShaderVariant {
     }
 }
 
+export interface IShaderVariant {
+    subShaderIndex: number;
+    passIndex: number;
+    defines: string[];
+    nodeCommonMap: string[];
+}
+
 /**
  * 着色器变种集合。
  */
 export class ShaderVariantCollection {
-    /** @internal */
-    private _allCompiled: boolean = false;
-    /** @internal */
-    private _variants: ShaderVariant[] = [];
+    static active: ShaderVariantCollection = new ShaderVariantCollection();
 
-    /**
-     * 是否已经全部编译。
-     */
-    get allCompiled(): boolean {
-        return this._allCompiled;
+    items: Record<string, IShaderVariant[]>;
+
+    constructor(items?: Record<string, IShaderVariant[]>) {
+        this.items = items || {};
     }
 
-    /**
-     * 包含的变种数量。
-     */
-    get variantCount(): number {
-        return this._variants.length;
-    }
+    add(shaderPass: ShaderPass, defines: ReadonlyArray<string>) {
+        let shader = shaderPass._owner._owner;
+        let subShaderIndex = shader._subShaders.indexOf(shaderPass._owner);
+        let passIndex = shaderPass._owner._passes.indexOf(shaderPass);
+        let nodeCommonMap = shaderPass.nodeCommonMap;
+        if (!nodeCommonMap) return; //兼容WGSL
+        defines = defines.filter((v) => !Shader3D._configDefineValues.has(Shader3D.getDefineByName(v)));
 
-    /**
-     * 添加着色器变种。
-     * @param variant 着色器变种。
-     * @param 是否添加成功。
-     */
-    add(variant: ShaderVariant): boolean {
-        for (var i: number = 0, n: number = this._variants.length; i < n; i++) {
-            if (this._variants[i].equal(variant))
-                return false;
+        let col = this.items[shader._name];
+        if (!col) {
+            col = [];
+            this.items[shader._name] = col;
         }
-        this._variants.push(variant.clone());
-        this._allCompiled = false;
-        return true;
+
+        // Check if the variant already exists in the collection
+        if (col.some(v => {
+            return (
+                v.subShaderIndex === subShaderIndex &&
+                v.passIndex === passIndex &&
+                v.defines.length === defines.length &&
+                v.defines.every((name, index) => name === defines[index]) &&
+                v.nodeCommonMap.length === nodeCommonMap.length &&
+                v.nodeCommonMap.every((name, index) => name === nodeCommonMap[index])
+            );
+        }))
+            return;
+
+        // If the variant does not exist, add it to the collection
+        col.push({
+            subShaderIndex: subShaderIndex,
+            passIndex: passIndex,
+            defines: <any>defines,
+            nodeCommonMap: nodeCommonMap
+        });
+
+        console.debug(`Shader variant: ${shader._name}/${subShaderIndex}/${passIndex}/${defines.join(",")}/${nodeCommonMap ? nodeCommonMap.join(",") : ""}`);
     }
 
-    /**
-     * 移除着色器变种。
-     * @param variant 着色器变种。
-     * @return 是否移除成功。
-     */
-    remove(variant: ShaderVariant): boolean {
-        for (var i: number = 0, n: number = this._variants.length; i < n; i++) {
-            if (this._variants[i].equal(variant)) {
-                this._variants.splice(i, 1);
-                return true;
+    compileAll() {
+        let items = this.items;
+        for (let shaderName in items) {
+            let variants = items[shaderName];
+            for (let variant of variants) {
+                let suc = Shader3D.compileShaderByDefineNames(shaderName, variant.subShaderIndex, variant.passIndex, variant.defines, variant.nodeCommonMap);
+                let msg = `${shaderName}/${variant.subShaderIndex}/${variant.passIndex}/${variant.defines.join(",")}/${variant.nodeCommonMap ? variant.nodeCommonMap.join(",") : ""}`;
+                if (suc)
+                    console.debug("Warm up", msg);
+                else
+                    console.warn("Warm up failed!", msg);
             }
-        }
-        return false;
-    }
-
-    /**
-     * 是否包含着色器变种。
-     * @param variant 着色器变种。
-     */
-    contatins(variant: ShaderVariant): boolean {
-        for (var i: number = 0, n: number = this._variants.length; i < n; i++) {
-            if (this._variants[i].equal(variant))
-                return true;
-        }
-        return false;
-    }
-
-    /**
-     * 通过索引获取着色器变种。
-     * @param index 索引。
-     * @returns 着色器变种。
-     */
-    getByIndex(index: number): ShaderVariant {
-        return this._variants[index];
-    }
-
-    /**
-     * 清空。
-     */
-    clear(): void {
-        this._variants.length = 0;
-    }
-
-    /**
-     * 执行编译。
-     */
-    compile(): void {
-        if (!this._allCompiled) {
-            var variants: ShaderVariant[] = this._variants;
-            for (var i: number = 0, n: number = variants.length; i < n; i++) {
-                var variant: ShaderVariant = variants[i];
-                Shader3D.compileShaderByDefineNames(variant._shader._name, variant._subShaderIndex, variant._passIndex, variant._defineNames,[]);
-            }
-            this._allCompiled = true;
         }
     }
 }

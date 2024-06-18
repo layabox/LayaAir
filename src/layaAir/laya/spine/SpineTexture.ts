@@ -22,7 +22,7 @@ export class SpineTexture {
             return;
 
         let filterMode: number;
-        if (magFilter === spine.TextureFilter.Nearest)
+        if (magFilter === window.spine.TextureFilter.Nearest)
             filterMode = FilterMode.Point;
         else
             filterMode = FilterMode.Bilinear;
@@ -30,7 +30,7 @@ export class SpineTexture {
     }
 
     convertWrapMode(mode: spine.TextureWrap) {
-        return mode == spine.TextureWrap.ClampToEdge ? WrapMode.Clamp : (mode == spine.TextureWrap.MirroredRepeat ? WrapMode.Mirrored : WrapMode.Repeat);
+        return mode == window.spine.TextureWrap.ClampToEdge ? WrapMode.Clamp : (mode == window.spine.TextureWrap.MirroredRepeat ? WrapMode.Mirrored : WrapMode.Repeat);
     }
 
     setWraps(uWrap: spine.TextureWrap, vWrap: spine.TextureWrap) {

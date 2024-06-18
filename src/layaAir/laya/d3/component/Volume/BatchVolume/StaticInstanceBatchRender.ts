@@ -97,7 +97,7 @@ export class StaticInstanceBatchRender extends BatchRender {
             list.add(element);
             instanceelement._isUpdataData = true;
             (this._updateChangeElement.indexOf(instanceelement) == -1) && this._updateChangeElement.push(instanceelement);
-            element._batchElement = instanceelement;
+            //element._batchElement = instanceelement;
         }
     }
 
@@ -111,17 +111,17 @@ export class StaticInstanceBatchRender extends BatchRender {
         var insBatchMarks = this._batchManager.getInstanceBatchOpaquaMark(element);
         if (insBatchMarks.indexInList == -1)
             return;
-        let instanceelement: InstanceRenderElement = element._batchElement as InstanceRenderElement;
-        if (!instanceelement || this._renderElements.indexOf(instanceelement) == -1) {
-            return;
-        }
-        let list = instanceelement._instanceBatchElementList;
-        if (list.indexof(element) != -1) {
-            list.remove(element);
-            instanceelement._isUpdataData = true;
-            (this._updateChangeElement.indexOf(instanceelement) == -1) && this._updateChangeElement.push(instanceelement);
-            element._batchElement = null;
-        }
+        // let instanceelement: InstanceRenderElement = element._batchElement as InstanceRenderElement;
+        // if (!instanceelement || this._renderElements.indexOf(instanceelement) == -1) {
+        //     return;
+        // }
+        // let list = instanceelement._instanceBatchElementList;
+        // if (list.indexof(element) != -1) {
+        //     list.remove(element);
+        //     instanceelement._isUpdataData = true;
+        //     (this._updateChangeElement.indexOf(instanceelement) == -1) && this._updateChangeElement.push(instanceelement);
+        //     element._batchElement = null;
+        // }
     }
 
     /**
@@ -131,15 +131,15 @@ export class StaticInstanceBatchRender extends BatchRender {
      * @returns 
      */
     private _updateOneElement(element: RenderElement, render: BaseRender) {
-        let instanceelement: InstanceRenderElement = element._batchElement as InstanceRenderElement;
-        if (!instanceelement || this._renderElements.indexOf(instanceelement) == -1) {
-            return;
-        }
-        let list = instanceelement._instanceBatchElementList;
-        if (list.indexof(element) != -1) {
-            instanceelement._isUpdataData = true;
-            (this._updateChangeElement.indexOf(instanceelement) == -1) && this._updateChangeElement.push(instanceelement);
-        }
+        //let instanceelement: InstanceRenderElement = element._batchElement as InstanceRenderElement;
+        // if (!instanceelement || this._renderElements.indexOf(instanceelement) == -1) {
+        //     return;
+        // }
+        // let list = instanceelement._instanceBatchElementList;
+        // if (list.indexof(element) != -1) {
+        //     instanceelement._isUpdataData = true;
+        //     (this._updateChangeElement.indexOf(instanceelement) == -1) && this._updateChangeElement.push(instanceelement);
+        // }
     }
 
     /**
@@ -152,7 +152,7 @@ export class StaticInstanceBatchRender extends BatchRender {
     private _createInstanceElement(element: RenderElement, render: BaseRender, batchMark: BatchMark) {
         let instanceRenderElement = new InstanceRenderElement();
         instanceRenderElement.render = render;
-        instanceRenderElement.renderType = RenderElement.RENDERTYPE_INSTANCEBATCH;
+        //instanceRenderElement.renderType = RenderElement.RENDERTYPE_INSTANCEBATCH;
         //Geometry updaste
         (instanceRenderElement._geometry as MeshInstanceGeometry).subMesh = (element._geometry as SubMesh);
         instanceRenderElement.material = element.material;
@@ -172,6 +172,7 @@ export class StaticInstanceBatchRender extends BatchRender {
 
     /**
      * 是否满足batch条件
+     * @internal
      * @override
      * @param render 
      * @returns 
@@ -193,7 +194,7 @@ export class StaticInstanceBatchRender extends BatchRender {
      * @internal
      * 重新计算包围盒
      */
-    protected _calculateBoundingBox() {
+    _calculateBoundingBox() {
         let bound = this._bounds;
         for (let i = 0, n = this._batchList.length; i < n; i++) {
             if (i == 0) {
@@ -208,6 +209,8 @@ export class StaticInstanceBatchRender extends BatchRender {
     }
 
     /**
+     * @internal
+     * @protected
      * destroy
      */
     protected _onDestroy() {
@@ -292,7 +295,7 @@ export class StaticInstanceBatchRender extends BatchRender {
 
     /**
     * 合批队列传入
-    * @param renderNodes
+    * @param renderNodes 渲染队列
     */
     addList(renderNodes: BaseRender[]) {
         if (!this._batchList) {

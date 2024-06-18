@@ -57,15 +57,15 @@ export class SubMeshInstanceBatch extends GeometryElement {
 	 * @override
 	 */
 	_updateRenderParams(state: RenderContext3D): void {
-		var element: SubMeshRenderElement = (<SubMeshRenderElement>state.renderElement);
-		var subMesh: SubMesh = element.instanceSubMesh;
-		var count: number = element.instanceBatchElementList.length;
-		var indexCount: number = subMesh._indexCount;
-		//subMesh._mesh._instanceBufferState.bind();
-		this.clearRenderParams();
-		this.bufferState = subMesh._mesh._instanceBufferState;
-		this.instanceCount = count;
-		this.setDrawElemenParams(indexCount, subMesh._indexStart * 2);
+		// var element: SubMeshRenderElement = (<SubMeshRenderElement>state.renderElement);
+		// var subMesh: SubMesh = element.instanceSubMesh;
+		// var count: number = element.instanceBatchElementList.length;
+		// var indexCount: number = subMesh._indexCount;
+		// //subMesh._mesh._instanceBufferState.bind();
+		// this.clearRenderParams();
+		// this.bufferState = subMesh._mesh._instanceBufferState;
+		// this.instanceCount = count;
+		// this.setDrawElemenParams(indexCount, subMesh._indexStart * 2);
 		//LayaGL.renderDrawConatext.drawElementsInstanced(MeshTopology.Triangles, indexCount, IndexFormat.UInt16, subMesh._indexStart * 2, count);
 		//Stat.renderBatches++;
 		//Stat.savedRenderBatches += count - 1;

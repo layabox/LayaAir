@@ -15,6 +15,7 @@ import { EPhysicsCapable } from "../physicsEnum/EPhycisCapable";
 import { Physics3DUtils } from "../../d3/utils/Physics3DUtils";
 import { PhysicsUpdateList } from "../../d3/physics/PhysicsUpdateList";
 import { ICollider } from "../interface/ICollider";
+import { PhysicsColliderComponent } from "../../d3/physics/PhysicsColliderComponent";
 
 export class btPhysicsManager implements IPhysicsManager {
     /**默认碰撞组 */
@@ -128,24 +129,12 @@ export class btPhysicsManager implements IPhysicsManager {
     /** @internal */
     private static _btTempVector31: number;
     /** @internal */
-    private static _btTempQuaternion0: number;
-    /** @internal */
-    private static _btTempQuaternion1: number;
-    /** @internal */
-    private static _btTempTransform0: number;
-    /** @internal */
-    private static _btTempTransform1: number;
-    /** @internal */
     private static _tempVector30: Vector3;
 
     static init(): void {
         let bt = btPhysicsCreateUtil._bt;
         btPhysicsManager._btTempVector30 = bt.btVector3_create(0, 0, 0);
         btPhysicsManager._btTempVector31 = bt.btVector3_create(0, 0, 0);
-        btPhysicsManager._btTempQuaternion0 = bt.btQuaternion_create(0, 0, 0, 1);
-        btPhysicsManager._btTempQuaternion1 = bt.btQuaternion_create(0, 0, 0, 1);
-        btPhysicsManager._btTempTransform0 = bt.btTransform_create();
-        btPhysicsManager._btTempTransform1 = bt.btTransform_create();
         btPhysicsManager._tempVector30 = new Vector3();
     }
 
@@ -161,6 +150,12 @@ export class btPhysicsManager implements IPhysicsManager {
     public maxSubSteps = 1;
     /**物理模拟器帧的间隔时间:通过减少fixedTimeStep可增加模拟精度，默认是1.0 / 60.0。*/
     public fixedTimeStep = 1.0 / 60.0;
+    /**是否开启连续碰撞检测 */
+    public enableCCD: boolean = false;
+    /**连续碰撞检测阈值 */
+    public ccdThreshold: number = 0.0001;
+    /**连续碰撞检测球半径 */
+    public ccdSphereRadius: number = 0.0001;
     /**delta */
     public dt = 1 / 60;
     /**@internal */
@@ -226,6 +221,9 @@ export class btPhysicsManager implements IPhysicsManager {
         //Physcics World create
         this.maxSubSteps = physicsSettings.maxSubSteps;
         this.fixedTimeStep = physicsSettings.fixedTimeStep;
+        this.enableCCD = physicsSettings.enableCCD;
+        this.ccdThreshold = physicsSettings.ccdThreshold;
+        this.ccdSphereRadius = physicsSettings.ccdSphereRadius;
 
         this._btCollisionConfiguration = bt.btDefaultCollisionConfiguration_create();
         this._btDispatcher = bt.btCollisionDispatcher_create(this._btCollisionConfiguration);
@@ -307,12 +305,13 @@ export class btPhysicsManager implements IPhysicsManager {
 
     /**
      * @internal
+     * @perfTag PerformanceDefine.T_Physics_UpdateNode
      */
-    private _updatePhysicsTransformFromRender(): void {
+    private _updatePhysicsTransformToRender(): void {
         var elements: any = this._physicsUpdateList.elements;
         for (var i = 0, n = this._physicsUpdateList.length; i < n; i++) {
             var physicCollider: btCollider = elements[i];
-            physicCollider._derivePhysicsTransformation(false);
+            physicCollider._derivePhysicsTransformation(true);
             physicCollider.inPhysicUpdateListIndex = -1;//置空索引
         }
         this._physicsUpdateList.length = 0;//清空物理更新队列
@@ -453,14 +452,15 @@ export class btPhysicsManager implements IPhysicsManager {
     /**
      * 这个只是给对象发送事件，不会挨个组件调用碰撞函数
      * 组件要响应碰撞的话，要通过监听事件
+     * @perfTag PerformanceDefine.T_PhysicsEvent
      */
     dispatchCollideEvent(): void {
         let loopCount = this._updateCount;
         for (let i = 0, n = this._currentFrameCollisions.length; i < n; i++) {
             let curFrameCol = this._currentFrameCollisions[i];
-            let colliderA = curFrameCol._colliderA as btCollider;
-            let colliderB = curFrameCol._colliderB as btCollider;
-            if (colliderA._destroyed || colliderB._destroyed)//前一个循环可能会销毁后面循环的同一物理组件
+            let colliderA = curFrameCol._colliderA.component as PhysicsColliderComponent;
+            let colliderB = curFrameCol._colliderB.component as PhysicsColliderComponent;
+            if (colliderA.destroyed || colliderB.destroyed)//前一个循环可能会销毁后面循环的同一物理组件
                 continue;
             // TODO 下面是否正确。现在这个_enableProcessCollisions是kinematic的话，就是false，所以先改成&&
             //if(!colliderA._enableProcessCollisions && colliderB._enableProcessCollisions) return;	// 这个会导致角色和kinematic地板的碰撞不处理
@@ -491,9 +491,9 @@ export class btPhysicsManager implements IPhysicsManager {
 
         for (let i = 0, n = this._previousFrameCollisions.length; i < n; i++) {
             let preFrameCol = this._previousFrameCollisions[i];
-            let preColliderA = preFrameCol._colliderA as btCollider;
-            let preColliderB = preFrameCol._colliderB as btCollider;
-            if (preColliderA._destroyed || preColliderB._destroyed)
+            let preColliderA = preFrameCol._colliderA.component as PhysicsColliderComponent;
+            let preColliderB = preFrameCol._colliderB.component as PhysicsColliderComponent;
+            if (preColliderA.destroyed || preColliderB.destroyed)
                 continue;
             let ownerA = preColliderA.owner;
             let ownerB = preColliderB.owner;
@@ -634,8 +634,12 @@ export class btPhysicsManager implements IPhysicsManager {
         delete this._currentConstraint[joint._id];
     }
 
+    /**
+     * @param elapsedTime
+     * @perfTag PerformanceDefine.T_Physics_Simulation
+     */
     update(elapsedTime: number): void {
-        this._updatePhysicsTransformFromRender();
+        this._updatePhysicsTransformToRender();
         btCollider._addUpdateList = false;//物理模拟器会触发_updateTransformComponent函数,不加入更新队列
         //simulate physics
         this._simulate(elapsedTime);
@@ -790,14 +794,17 @@ export class btPhysicsManager implements IPhysicsManager {
      * @internal
      */
     private _addCharacter(character: btCharacterCollider): void {
-        if (!this._btDiscreteDynamicsWorld)
-            throw "Simulation:Cannot perform this action when the physics engine is set to CollisionsOnly";
-
-        this._bt.btCollisionWorld_addCollisionObject(this._btCollisionWorld, character._btCollider, character._collisionGroup, character._canCollideWith);
-        this._bt.btDynamicsWorld_addAction(this._btCollisionWorld, character._btKinematicCharacter);
-
         var characters: btCharacterCollider[] = this._characters;
-        characters.push(character);
+        let index = characters.indexOf(character)
+        if (index == -1) {
+            if (!this._btDiscreteDynamicsWorld)
+                throw "Simulation:Cannot perform this action when the physics engine is set to CollisionsOnly";
+            this._bt.btCollisionWorld_addCollisionObject(this._btCollisionWorld, character._btCollider, character._collisionGroup, character._canCollideWith);
+            this._bt.btDynamicsWorld_addAction(this._btCollisionWorld, character._btKinematicCharacter);
+            characters.push(character);
+        } else {
+            characters[index] = character;
+        }
     }
 
     /**

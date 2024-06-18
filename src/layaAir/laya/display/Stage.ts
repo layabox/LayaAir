@@ -10,7 +10,7 @@ import { Matrix } from "../maths/Matrix"
 import { Point } from "../maths/Point"
 import { Render } from "../renders/Render"
 import { RenderInfo } from "../renders/RenderInfo"
-import { Context } from "../resource/Context"
+import { Context } from "../renders/Context"
 import { HTMLCanvas } from "../resource/HTMLCanvas"
 import { Browser } from "../utils/Browser"
 import { CallLater } from "../utils/CallLater"
@@ -23,6 +23,9 @@ import { ILaya } from "../../ILaya";
 import { ComponentDriver } from "../components/ComponentDriver";
 import { LayaEnv } from "../../LayaEnv";
 import { LayaGL } from "../layagl/LayaGL";
+import { Scene3D } from "../d3/core/scene/Scene3D";
+import { Color } from "../maths/Color";
+import { PERF_BEGIN, PERF_END, PerformanceDefine } from "../tools/PerformanceTool";
 
 /**
  * stage大小经过重新调整时进行调度。
@@ -78,8 +81,8 @@ export class Stage extends Sprite {
     /**应用保持设计比例不变，全屏显示全部内容(类似showall，但showall非全屏，会有黑边)，根据屏幕长宽比，自动选择使用SCALE_FIXED_WIDTH或SCALE_FIXED_HEIGHT*/
     static SCALE_FIXED_AUTO: string = "fixedauto";
 
-    static SCALE_FIXED_AUTO_LAYAME: string = "fixedauto_layame";
-    static SCALE_FIXED_AUTO_LAYAVERSE: string = "fixedauto_layaverse";
+    // static SCALE_FIXED_AUTO_LAYAME: string = "fixedauto_layame";
+    // static SCALE_FIXED_AUTO_LAYAVERSE: string = "fixedauto_layaverse";
 
     /**画布水平居左对齐。*/
     static ALIGN_LEFT: string = "left";
@@ -142,7 +145,7 @@ export class Stage extends Sprite {
     /**@private */
     private _alignH: string = "left";
     /**@private */
-    private _bgColor: string = "black";
+    private _bgColor: string = "gray";
     /**@internal */
     _mouseMoveTime: number = 0;
     /**@private */
@@ -158,9 +161,9 @@ export class Stage extends Sprite {
     /**@private */
     private _isVisibility: boolean;
     /**@internal webgl Color*/
-    _wgColor: number[] | null = [0, 0, 0, 1];
+    _wgColor = new Color(0, 0, 0, 0);// number[] | null = [0, 0, 0, 1];
     /**@internal */
-    _scene3Ds: Node[] = [];
+    _scene3Ds: Scene3D[] = [];
 
     /**@private */
     private _globalRepaintSet: boolean = false;		// 设置全局重画标志。这个是给IDE用的。IDE的Image无法在onload的时候通知对应的sprite重画。
@@ -184,7 +187,7 @@ export class Stage extends Sprite {
         this._isVisibility = true;
 
         //this.drawCallOptimize=true;
-        this.useRetinalCanvas = Config.useRetinalCanvas;
+        this.useRetinalCanvas = LayaEnv.isConch ? true : Config.useRetinalCanvas;
 
         var window: any = Browser.window;
         //var _me = this;	
@@ -268,42 +271,58 @@ export class Stage extends Sprite {
         return (Browser.onMobile && InputManager.isTextInputting);
     }
 
-    /**@inheritDoc @override*/
+    /**
+     * @internal
+     * @override
+     * @param value 数值
+     */
     set_width(value: number) {
         this.designWidth = value;
         super.set_width(value);
         this.updateCanvasSize(true);
     }
+
     /**
-     * @inheritDoc 
+     * @internal
      * @override
+     * @param value 数值
      */
     get_width(): number {
         this.needUpdateCanvasSize();
         return super.get_width();
     }
 
-    /**@inheritDoc @override */
+    /**
+     * @override
+     * @internal
+     */
     set_height(value: number) {
         this.designHeight = value;
         super.set_height(value);
         this.updateCanvasSize(true);
     }
 
-    /** @override*/
+    /**
+     * @override
+     * @internal
+     */
     get_height(): number {
         this.needUpdateCanvasSize();
         return super.get_height();
     }
 
-    /**@override*/
-    set transform(value: Matrix) {
-        super.set_transform(value);
-    }
-    /**@inheritDoc @override*/
+    /**
+     * @override
+     * @en The matrix information of the object. By setting the matrix, node rotation, scaling, and displacement effects can be achieved.
+     * @zh 对象的矩阵信息。通过设置矩阵可以实现节点旋转，缩放，位移效果。
+     */
     get transform(): Matrix {
         if (this._tfChanged) this._adjustTransform();
         return (this._transform = this._transform || this._createTransform());
+    }
+
+    set transform(value: Matrix) {
+        super.set_transform(value);
     }
 
     /**
@@ -321,6 +340,11 @@ export class Stage extends Sprite {
     }
 
     private _needUpdateCanvasSize: boolean = false;
+
+    /**
+     * 更新canvas大小
+     * @param delay 是否立即执行改动，如果是true，将延迟执行
+     */
     updateCanvasSize(delay?: boolean): void {
         if (delay) {
             if (!this._needUpdateCanvasSize) {
@@ -333,6 +357,9 @@ export class Stage extends Sprite {
         }
     }
 
+    /**
+     * 同步最终canvas大小
+     */
     needUpdateCanvasSize() {
         if (this._needUpdateCanvasSize)
             this.updateCanvasSize();
@@ -361,7 +388,6 @@ export class Stage extends Sprite {
         this.canvasRotation = rotation;
 
         var canvas: HTMLCanvas = Render._mainCanvas;
-        var canvasStyle: any = canvas.source.style;
         var mat: Matrix = this._canvasTransform.identity();
         var scaleMode: string = this._scaleMode;
         var scaleX: number = screenWidth / this.designWidth;
@@ -420,29 +446,29 @@ export class Stage extends Sprite {
                     this._width = canvasWidth = Math.round(screenWidth / scaleY);
                 }
                 break;
-            case Stage.SCALE_FIXED_AUTO_LAYAME:
-                if (screenWidth < screenHeight) {
-                    scaleY = scaleX;
-                    this._height = canvasHeight = Math.round(screenHeight / scaleX);
-                } else {
-                    scaleX = screenHeight / this.designWidth;
-                    scaleY = scaleX;
-                    this._width = canvasWidth = Math.round(screenWidth / scaleX);
-                    this._height = canvasHeight = Math.round(screenHeight / scaleY);
-                }
-                break;
-            case Stage.SCALE_FIXED_AUTO_LAYAVERSE:
-                if (screenWidth > screenHeight) {
-                    scaleX = scaleY;
-                    this._width = canvasWidth = Math.round(screenWidth / scaleY);
-                }
-                else {
-                    scaleX = screenWidth / this.designHeight;
-                    scaleY = scaleX;
-                    this._width = canvasWidth = Math.round(screenWidth / scaleX);
-                    this._height = canvasHeight = Math.round(screenHeight / scaleY);
-                }
-                break;
+            // case Stage.SCALE_FIXED_AUTO_LAYAME:
+            //     if (screenWidth < screenHeight) {
+            //         scaleY = scaleX;
+            //         this._height = canvasHeight = Math.round(screenHeight / scaleX);
+            //     } else {
+            //         scaleX = screenHeight / this.designWidth;
+            //         scaleY = scaleX;
+            //         this._width = canvasWidth = Math.round(screenWidth / scaleX);
+            //         this._height = canvasHeight = Math.round(screenHeight / scaleY);
+            //     }
+            //     break;
+            // case Stage.SCALE_FIXED_AUTO_LAYAVERSE:
+            //     if (screenWidth > screenHeight) {
+            //         scaleX = scaleY;
+            //         this._width = canvasWidth = Math.round(screenWidth / scaleY);
+            //     }
+            //     else {
+            //         scaleX = screenWidth / this.designHeight;
+            //         scaleY = scaleX;
+            //         this._width = canvasWidth = Math.round(screenWidth / scaleX);
+            //         this._height = canvasHeight = Math.round(screenHeight / scaleY);
+            //     }
+            //     break;
         }
 
         if (this.useRetinalCanvas) {
@@ -501,13 +527,9 @@ export class Stage extends Sprite {
         mat.ty = this._formatData(mat.ty);
 
         super.set_transform(this.transform);
-        canvasStyle.transformOrigin = canvasStyle.webkitTransformOrigin = canvasStyle.msTransformOrigin = canvasStyle.mozTransformOrigin = canvasStyle.oTransformOrigin = "0px 0px 0px";
-        canvasStyle.transform = canvasStyle.webkitTransform = canvasStyle.msTransform = canvasStyle.mozTransform = canvasStyle.oTransform = "matrix(" + mat.toString() + ")";
-        canvasStyle.width = canvasWidth;
-        canvasStyle.height = canvasHeight;
+        Stage._setStageStyle(canvas, canvasWidth, canvasHeight, mat);
         //修正用户自行设置的偏移
         if (this._safariOffsetY) mat.translate(0, -this._safariOffsetY);
-        mat.translate(parseInt(canvasStyle.left) || 0, parseInt(canvasStyle.top) || 0);
         this.visible = true;
         this._repaint |= SpriteConst.REPAINT_CACHE;
 
@@ -515,18 +537,32 @@ export class Stage extends Sprite {
     }
 
     /**
+     * @internal
+     * 适配淘宝小游戏
+     * @param mainCanv 
+     */
+    static _setStageStyle(mainCanv: HTMLCanvas, canvasWidth: number, canvasHeight: number, mat: Matrix) {
+        var canvasStyle: any = mainCanv.source.style;
+        canvasStyle.transformOrigin = canvasStyle.webkitTransformOrigin = canvasStyle.msTransformOrigin = canvasStyle.mozTransformOrigin = canvasStyle.oTransformOrigin = "0px 0px 0px";
+        canvasStyle.transform = canvasStyle.webkitTransform = canvasStyle.msTransform = canvasStyle.mozTransform = canvasStyle.oTransform = "matrix(" + mat.toString() + ")";
+        canvasStyle.width = canvasWidth;
+        canvasStyle.height = canvasHeight;
+        mat.translate(parseInt(canvasStyle.left) || 0, parseInt(canvasStyle.top) || 0);
+    }
+
+    /**
      * 屏幕旋转用layaverse 需要
-     * @param screenWidth 
-     * @param screenHeight 
-     * @param _screenMode 
+     * @param screenWidth 屏幕宽度
+     * @param screenHeight 屏幕高度
+     * @param _screenMode 屏幕模式 "none"为默认值，horizontal为横屏，vertical为竖屏
      * @returns 
      */
-    setScreenSizeForScene(screenWidth: number, screenHeight: number, _screenMode: string) {
+    setScreenSizeForScene(screenWidth: number, screenHeight: number, screenMode: string) {
         //计算是否旋转
         var rotation: boolean = false;
-        if (/**this.*/_screenMode !== Stage.SCREEN_NONE) {
+        if (/**this.*/screenMode !== Stage.SCREEN_NONE) {
             var screenType: string = screenWidth / screenHeight < 1 ? Stage.SCREEN_VERTICAL : Stage.SCREEN_HORIZONTAL;
-            rotation = screenType !== /**this.*/_screenMode;
+            rotation = screenType !== /**this.*/screenMode;
             if (rotation) {
                 //宽高互换
                 var temp: number = screenHeight;
@@ -678,11 +714,22 @@ export class Stage extends Sprite {
 
     set bgColor(value: string) {
         this._bgColor = value;
-        if (value)
-            this._wgColor = ColorUtils.create(value).arrColor;
+        if (value) {
+            let colorArr = ColorUtils.create(value).arrColor;
+            this._wgColor.setValue(colorArr[0], colorArr[1], colorArr[2], colorArr[3]);
+        }
         else
             this._wgColor = null;
 
+        Stage._setStyleBgColor(value);
+    }
+
+    /**
+     * @internal
+     * 适配淘宝小游戏
+     * @param value 
+     */
+    static _setStyleBgColor(value: string) {
         if (value) {
             Render.canvas.style.background = value;
         } else {
@@ -700,18 +747,25 @@ export class Stage extends Sprite {
         return Math.round(InputManager.mouseY / this.clientScaleY);
     }
 
-    /**@inheritDoc @override*/
+    /**
+     * 获得屏幕上的鼠标坐标信息
+     * @returns 屏幕点信息
+     */
     getMousePoint(): Point {
         return Point.TEMP.setTo(this.mouseX, this.mouseY);
     }
 
-    /**当前视窗由缩放模式导致的 X 轴缩放系数。*/
+    /**
+     * 当前视窗由缩放模式导致的 X 轴缩放系数。
+     */
     get clientScaleX(): number {
         this.needUpdateCanvasSize();
         return this._transform ? this._transform.getScaleX() : 1;
     }
 
-    /**当前视窗由缩放模式导致的 Y 轴缩放系数。*/
+    /**
+     * 当前视窗由缩放模式导致的 Y 轴缩放系数。
+     */
     get clientScaleY(): number {
         this.needUpdateCanvasSize();
         return this._transform ? this._transform.getScaleY() : 1;
@@ -733,12 +787,20 @@ export class Stage extends Sprite {
         this._screenMode = value;
     }
 
-    /**@inheritDoc @override*/
+    /**
+     * @override
+     * 重新绘制
+     * @param type 重新绘制类型
+     */
     repaint(type: number = SpriteConst.REPAINT_CACHE): void {
         this._repaint |= type;
     }
 
-    /**@inheritDoc @override*/
+    /**
+     * @override
+     * 重新绘制父节点
+     * @param type 重新绘制类型
+     */
     parentRepaint(type: number = SpriteConst.REPAINT_CACHE): void {
     }
 
@@ -763,45 +825,40 @@ export class Stage extends Sprite {
         return Browser.now() - this._frameStartTime;
     }
 
-    /**@inheritDoc @override*/
-    set visible(value: boolean) {
-        if (this.visible !== value) {
-            super.set_visible(value);
-            var style: any = Render._mainCanvas.source.style;
-            style.visibility = value ? "visible" : "hidden";
-        }
-    }
     /**
-     * @inheritDoc 
      * @override
+     * 表示是否可见，默认为true。如果设置不可见，节点将不被渲染。
      */
     get visible() {
         return super.visible;
     }
 
-    /** @private */
-    static clear: Function = function (value: string): void {
-        //修改需要同步到上面的native实现中
-        Context.set2DRenderConfig();//渲染2D前要还原2D状态,否则可能受3D影响
-        RenderState2D.worldScissorTest && LayaGL.renderEngine.scissorTest(false);
-        var ctx: Context = Render.context;
-        //兼容浏览器
-        var c: any[] = (ctx._submits._length == 0 || Config.preserveDrawingBuffer) ? ColorUtils.create(value).arrColor : ILaya.stage._wgColor;
-        if (c)
-            ctx.clearBG(c[0], c[1], c[2], c[3]);
-        else
-            ctx.clearBG(0, 0, 0, 0);
-        RenderState2D.clear();
-    };
-
-    /**@inheritDoc @override*/
-    render(context: Context, x: number, y: number): void {
-        if (LayaEnv.isConch) {
-            this.renderToNative(context, x, y);
-            return;
+    set visible(value: boolean) {
+        if (this.visible !== value) {
+            super.set_visible(value);
+            Stage._setVisibleStyle(value);
         }
+    }
 
-        let delta: number = ILaya.timer._delta / 1000;
+
+    /**
+     * @internal
+     * 适配淘宝小游戏
+     * @param value 
+     */
+    static _setVisibleStyle(value: boolean) {
+        var style: any = Render._mainCanvas.source.style;
+        style.visibility = value ? "visible" : "hidden";
+    }
+
+    /**
+     * 渲染舞台上的所有显示对象
+     * @param context2D 渲染的上下文
+     * @param x 横轴坐标
+     * @param y 纵轴坐标
+     * @returns 
+     */
+    render(context2D: Context, x: number, y: number): void {
         if (this._frameRate === Stage.FRAME_SLEEP) {
             var now: number = Browser.now();
             if (now - this._frameStartTime < 1000)
@@ -837,21 +894,22 @@ export class Stage extends Sprite {
         RenderInfo.loopCount = Stat.loopCount;
 
         if (this.renderingEnabled) {
+
             for (let i = 0, n = this._scene3Ds.length; i < n; i++)//更新3D场景,必须提出来,否则在脚本中移除节点会导致BUG
-                (<any>this._scene3Ds[i])._update(delta);
+                (<any>this._scene3Ds[i])._update();
             this._runComponents();
-
-            context.clear();
-
             this._componentDriver.callPreRender();
 
-            super.render(context, x, y);
+            //仅仅是clear
+            context2D.render2D.renderStart(!Config.preserveDrawingBuffer, this._wgColor);
+            //context2D.render2D.renderEnd();
 
-            Stat.render(context, x, y);
-
-            Stage.clear(this._bgColor);
-
-            context.flush();
+            //Stage.clear(this._bgColor);
+            //先渲染3d
+            for (let i = 0, n = this._scene3Ds.length; i < n; i++)//更新3D场景,必须提出来,否则在脚本中移除节点会导致BUG
+                (<any>this._scene3Ds[i]).renderSubmit();
+            //再渲染2d
+            this._render2d(context2D, x, y);
 
             this._componentDriver.callPostRender();
 
@@ -863,50 +921,19 @@ export class Stage extends Sprite {
         this._updateTimers();
     }
 
-    renderToNative(context: Context, x: number, y: number): void {
-        this._renderCount++;
-
-        if (!this._visible) {
-            if (this._renderCount % 5 === 0) {
-                CallLater.I._update();
-                Stat.loopCount++;
-                RenderInfo.loopCount = Stat.loopCount;
-                this._runComponents();
-                this._updateTimers();
-            }
-            return;
-        }
-        this._frameStartTime = Browser.now();
-        //update
-        CallLater.I._update();
-        Stat.loopCount++;
-        RenderInfo.loopCount = Stat.loopCount;
-
-        //render
-        if (this.renderingEnabled) {
-            for (let i: number = 0, n: number = this._scene3Ds.length; i < n; i++)//更新3D场景,必须提出来,否则在脚本中移除节点会导致BUG
-                (<any>this._scene3Ds[i])._update();
-
-            this._runComponents();
-
-            this._componentDriver.callPreRender();
-
-            context.clear();
-            super.render(context, x, y);
-            Stat.render(context, x, y);
-
-            this._componentDriver.callPostRender();
-        }
-        else
-            this._runComponents();
-
-        //commit submit
-        if (this.renderingEnabled) {
-            Stage.clear(this._bgColor);
-            context.flush();
-            VectorGraphManager.instance && VectorGraphManager.getInstance().endDispose();
-        }
-        this._updateTimers();
+    /**
+     * @override
+     * @param context2D
+     * @param x
+     * @param y
+     * @perfTag PerformanceDefine.T_UIRender
+     */
+    private _render2d(context2D: Context, x: number, y: number) {
+        Stat.draw2D = 0;
+        context2D.startRender();
+        super.render(context2D, x, y);
+        Stat.render(context2D, x, y);
+        context2D.endRender();
     }
 
     private _runComponents() {
@@ -959,34 +986,11 @@ export class Stage extends Sprite {
     }
 
     get frameRate(): string {
-        if (!LayaEnv.isConch) {
-            return this._frameRate;
-        } else {
-            return ((<any>this))._frameRateNative;
-        }
+        return this._frameRate;
     }
 
     set frameRate(value: string) {
-        if (!LayaEnv.isConch) {
-            this._frameRate = value;
-        } else {
-            var c: any = ((<any>window)).conch;
-            switch (value) {
-                case Stage.FRAME_FAST:
-                    c.config.setLimitFPS(60);
-                    break;
-                case Stage.FRAME_MOUSE:
-                    c.config.setMouseFrame(2000);
-                    break;
-                case Stage.FRAME_SLOW:
-                    c.config.setSlowFrame(true);
-                    break;
-                case Stage.FRAME_SLEEP:
-                    c.config.setLimitFPS(1);
-                    break;
-            }
-            ((<any>this))._frameRateNative = value;
-        }
+        this._frameRate = value;
     }
 
     /**@private */

@@ -1,13 +1,16 @@
 import { ColorUtils } from "../../utils/ColorUtils"
 
 export class DrawStyle {
-    static DEFAULT: DrawStyle = new DrawStyle("#000000")
+    static DEFAULT: DrawStyle;
+    static _Defaultinit() {
+        DrawStyle.DEFAULT = new DrawStyle("#000000");
+    }
 
     _color: ColorUtils;
 
-    static create(value: any): DrawStyle {
+    static create(value: ColorUtils|string): DrawStyle {
         if (value) {
-            var color: ColorUtils = (value instanceof ColorUtils) ? ((<ColorUtils>value)) : ColorUtils.create(value);
+            var color = (value instanceof ColorUtils) ? value : ColorUtils.create(value);
             return color._drawStyle || (color._drawStyle = new DrawStyle(value));
         }
         return DrawStyle.DEFAULT;

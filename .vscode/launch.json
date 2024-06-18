@@ -7,7 +7,7 @@
         {
             "request": "launch",
             "name": "Gulp task",
-            "program": "${workspaceFolder}/node_modules/gulp/bin/gulp.js",
+            //"program": "${workspaceFolder}/node_modules/gulp/bin/gulp.js",
             "args": [
                 "LayaAirBuild"
             ],

@@ -6,7 +6,6 @@ import { UnlitMaterial } from "laya/d3/core/material/UnlitMaterial";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { CommandBuffer } from "laya/d3/core/render/command/CommandBuffer";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
-import { Viewport } from "laya/d3/math/Viewport";
 import { Mesh } from "laya/d3/resource/models/Mesh";
 import { Stage } from "laya/display/Stage";
 import { Loader } from "laya/net/Loader";
@@ -14,7 +13,6 @@ import { Button } from "laya/ui/Button";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { SeparableSSS_BlitMaterial } from "./SeparableSSSRender/Material/SeparableSSS_BlitMaterial";
 import { SeparableSSSRenderMaterial } from "./SeparableSSSRender/Material/SeparableSSS_RenderMaterial";
@@ -27,8 +25,10 @@ import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { Color } from "laya/maths/Color";
 import { Vector2 } from "laya/maths/Vector2";
 import { Vector4 } from "laya/maths/Vector4";
-import { RenderTexture } from "laya/resource/RenderTexture";
-import { DepthTextureMode } from "laya/d3/depthMap/DepthPass";
+import { DepthTextureMode, RenderTexture } from "laya/resource/RenderTexture";
+import { Scene } from "laya/display/Scene";
+import { MeshFilter } from "laya/d3/core/MeshFilter";
+import { Viewport } from "laya/maths/Viewport";
 
 export class SeparableSSS_RenderDemo {
     scene: Scene3D;
@@ -61,9 +61,10 @@ export class SeparableSSS_RenderDemo {
             Shader3D.debugMode = true;
             SeparableSSS_BlitMaterial.init();
             SeparableSSSRenderMaterial.init();
-
             this.sssssBlitMaterail = new SeparableSSS_BlitMaterial();
+            this.sssssBlitMaterail.lock = true;
             this.sssssRenderMaterial = new SeparableSSSRenderMaterial();
+            this.sssssRenderMaterial.lock = true;
             this.PreloadingRes();
         });
     }
@@ -77,36 +78,38 @@ export class SeparableSSS_RenderDemo {
     }
 
     onPreLoadFinish() {
-        this.scene = Loader.createNodes("res/threeDimen/LayaScene_separable-sss/Conventional/separable-sss.ls");
-        Laya.stage.addChild(this.scene);
-        //获取场景中的相机
-        this.mainCamera = (<Camera>this.scene.getChildByName("Main Camera"));
-        this.mainCamera.depthTextureMode = DepthTextureMode.Depth;
-        this.mainCamera.addComponent(CameraMoveScript);
+        Scene.open("res/threeDimen/LayaScene_separable-sss/Conventional/separable-sss.ls", true, Handler.create(this, (sce: Scene) => {
+            this.scene = sce.scene3D;
+            //获取场景中的相机
+            this.mainCamera = (<Camera>this.scene.getChildByName("Main Camera"));
+            this.mainCamera.depthTextureMode = DepthTextureMode.Depth;
+            this.mainCamera.addComponent(CameraMoveScript);
 
 
-        //打开depthTexture
-        this.blinnphongCharacter = Loader.createNodes("res/threeDimen/LayaScene_separable-sss/Conventional/HeadBlinnphong.lh");
-        this.characterBlinnphongMaterial = <BlinnPhongMaterial>this.blinnphongCharacter.getComponent(MeshRenderer).sharedMaterial.clone();
-        //增加Mesh节点
-        let buf = this.createCommandBuffer(this.mainCamera, this.blinnphongCharacter.meshFilter.sharedMesh);
-        this.mainCamera.addCommandBuffer(CameraEventFlags.BeforeForwardOpaque, buf);
-        this.sssssBlitMaterail.cameraFiledOfView = this.mainCamera.fieldOfView;
+            //打开depthTexture
+            this.blinnphongCharacter = Loader.createNodes("res/threeDimen/LayaScene_separable-sss/Conventional/HeadBlinnphong.lh");
+            this.characterBlinnphongMaterial = <BlinnPhongMaterial>this.blinnphongCharacter.getComponent(MeshRenderer).sharedMaterial.clone();
+            this.characterBlinnphongMaterial.lock = true;
+            //增加Mesh节点
+            let buf = this.createCommandBuffer(this.mainCamera, this.blinnphongCharacter.getComponent(MeshFilter).sharedMesh);
+            this.mainCamera.addCommandBuffer(CameraEventFlags.BeforeForwardOpaque, buf);
+            this.sssssBlitMaterail.cameraFiledOfView = this.mainCamera.fieldOfView;
 
-        //增加节点
-        this.SSSSSCharacter = <MeshSprite3D>this.blinnphongCharacter.clone();
-        this.SSSSSCharacter.getComponent(MeshRenderer).sharedMaterial = this.sssssRenderMaterial;
-        this.scene.addChild(this.SSSSSCharacter);
-        this.scene.addChild(this.blinnphongCharacter);
-        this.blinnphongCharacter.active = false;
+            //增加节点
+            this.SSSSSCharacter = <MeshSprite3D>this.blinnphongCharacter.clone();
+            this.SSSSSCharacter.getComponent(MeshRenderer).sharedMaterial = this.sssssRenderMaterial;
+            this.scene.addChild(this.SSSSSCharacter);
+            this.scene.addChild(this.blinnphongCharacter);
+            this.blinnphongCharacter.active = false;
 
-        this.loadUI();
+            this.loadUI();
+        }));
     }
 
     createCommandBuffer(camera: Camera, character: Mesh): CommandBuffer {
         //记录一下最开始的漫反射颜色和高光颜色
-        let oriColor = this.characterBlinnphongMaterial.albedoColor;
-        let oriSpec = this.characterBlinnphongMaterial.specularColor;
+        let oriColor = this.characterBlinnphongMaterial.getColor("u_DiffuseColor");
+        let oriSpec = this.characterBlinnphongMaterial.getColor("u_MaterialSpecular");
 
         let buf: CommandBuffer = new CommandBuffer();
         let viewPort: Viewport = camera.viewport;
@@ -115,15 +118,13 @@ export class SeparableSSS_RenderDemo {
         //在我们前向渲染管线中  多浪费了几次drawMesh的性能
         //深度贴图
         let depthTexture = RenderTexture.createFromPool(viewPort.width, viewPort.height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.DEPTH_16, false, 1, true, true);
-        buf.setRenderTarget(depthTexture);
-        buf.clearRenderTarget(true, true, new Color(0.5, 0.5, 0.5, 1.0));
+        buf.setRenderTarget(depthTexture, true, true);
         buf.drawMesh(character, this.blinnphongCharacter.transform.worldMatrix, this.characterBlinnphongMaterial, 0, 0);
         depthTexture = depthTexture.depthStencilTexture as RenderTexture;
         //将漫反射和高光分别画到两个RenderTexture
         //漫反射颜色
         let diffuseRenderTexture = RenderTexture.createFromPool(viewPort.width, viewPort.height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.DEPTH_16, false, 1, true, true);
-        buf.setRenderTarget(diffuseRenderTexture);
-        buf.clearRenderTarget(true, true, new Color(0.5, 0.5, 0.5, 1.0));
+        buf.setRenderTarget(diffuseRenderTexture, true, true);
         //@ts-ignore
         buf.setShaderDataColor(this.characterBlinnphongMaterial.shaderData, BlinnPhongMaterial.ALBEDOCOLOR, oriColor);
         //@ts-ignore
@@ -131,8 +132,7 @@ export class SeparableSSS_RenderDemo {
         buf.drawMesh(character, this.blinnphongCharacter.transform.worldMatrix, this.characterBlinnphongMaterial, 0, 0);
         // //高光颜色
         let specRrenderTexture = RenderTexture.createFromPool(viewPort.width, viewPort.height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.DEPTH_16, false, 1, true, true);
-        buf.setRenderTarget(specRrenderTexture);
-        buf.clearRenderTarget(true, true, new Color(1.0, 0.0, 0.0, 0.0));
+        buf.setRenderTarget(specRrenderTexture, true, true);
         //@ts-ignore
         buf.setShaderDataColor(this.characterBlinnphongMaterial.shaderData, BlinnPhongMaterial.MATERIALSPECULAR, oriSpec);
         // @ts-ignore
@@ -145,8 +145,6 @@ export class SeparableSSS_RenderDemo {
         buf.blitScreenQuadByMaterial(diffuseRenderTexture, blurRenderTexture, new Vector4(0, 0, 1.0, 1.0), this.sssssBlitMaterail, 0);
         buf.setShaderDataVector2(this.sssssBlitMaterail.shaderData, SeparableSSS_BlitMaterial.SHADERVALUE_BLURDIR, new Vector2(0.0, 10.0));
         buf.blitScreenQuadByMaterial(blurRenderTexture, diffuseRenderTexture, new Vector4(0.0, 0.0, 0.0, 0.0), this.sssssBlitMaterail, 0);
-
-        // buf.blitScreenQuad(diffuseRenderTexture, null);
 
         buf.setGlobalTexture(Shader3D.propertyNameToID("sssssDiffuseTexture"), diffuseRenderTexture);
         this.sssssRenderMaterial.shaderData.setTexture(Shader3D.propertyNameToID("sssssSpecularTexture"), specRrenderTexture);

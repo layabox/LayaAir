@@ -20,9 +20,7 @@ import { Scene3D } from "./laya/d3/core/scene/Scene3D";
 import { SkinnedMeshSprite3D } from "./laya/d3/core/SkinnedMeshSprite3D";
 import { Sprite3D } from "./laya/d3/core/Sprite3D";
 import { TrailMaterial } from "./laya/d3/core/trail/TrailMaterial";
-import { TrailSprite3D } from "./laya/d3/core/trail/TrailSprite3D";
 import { VertexTrail } from "./laya/d3/core/trail/VertexTrail";
-import { FrustumCulling } from "./laya/d3/graphics/FrustumCulling";
 import { SubMeshInstanceBatch } from "./laya/d3/graphics/SubMeshInstanceBatch";
 import { VertexPositionTerrain } from "./laya/d3/graphics/Vertex/VertexPositionTerrain";
 import { VertexPositionTexture0 } from "./laya/d3/graphics/Vertex/VertexPositionTexture0";
@@ -60,6 +58,8 @@ import { LensFlareEffect } from "./laya/d3/core/render/PostEffect/LensFlares/Len
 import { IPhysicsCreateUtil } from "./laya/Physics3D/interface/IPhysicsCreateUtil";
 import { LayaGL } from "./laya/layagl/LayaGL";
 import { Laya } from "./Laya";
+import { PixelLineMaterial } from "./laya/d3/core/pixelLine/PixelLineMaterial";
+import { Texture2DArray } from "./laya/resource/Texture2DArray";
 
 /**
  * <code>Laya3D</code> 类用于初始化3D设置。
@@ -137,7 +137,6 @@ export class Laya3D {
         SubMeshInstanceBatch.__init__();
         ShaderInit3D.__init__();
         ShuriKenParticle3DShaderDeclaration.__init__();
-        SimpleSkinnedMeshSprite3D.__init__();
         PBRMaterial.__init__();
         PBRStandardMaterial.__init__();
         SkyPanoramicMaterial.__init__();
@@ -157,7 +156,6 @@ export class Laya3D {
         SimpleSkinnedMeshSprite3D.__init__();
         TrailFilter.__init__();
         ShuriKenParticle3D.__init__();
-        TrailSprite3D.__init__();
         PostProcess.__init__();
         Scene3D.__init__();
         ShadowCasterPass.__init__();
@@ -168,7 +166,6 @@ export class Laya3D {
         Camera.__init__();
         ShadowUtils.init();
         RenderContext3D.__init__();
-        RenderTexture.configRenderContextInstance(RenderContext3D._instance);
         BlinnPhongMaterial.__initDefine__();
         SkyProceduralMaterial.__initDefine__();
         UnlitMaterial.__initDefine__();
@@ -179,12 +176,20 @@ export class Laya3D {
         BlitFrameBufferCMD.__init__();
         BlinnPhongMaterial.defaultMaterial = new BlinnPhongMaterial();
         BlinnPhongMaterial.defaultMaterial.lock = true;
+        UnlitMaterial.defaultMaterial = new UnlitMaterial();
+        UnlitMaterial.defaultMaterial.lock = true;
+        let pixelLineMaterial = new UnlitMaterial();
+        pixelLineMaterial.lock = true;
+        pixelLineMaterial.enableVertexColor = true;
+        PixelLineMaterial.defaultMaterial = pixelLineMaterial;
+        TrailMaterial.defaultMaterial = new TrailMaterial();
+        TrailMaterial.defaultMaterial.lock = true;
         Texture2D.__init__();
         TextureCube.__init__();
+        Texture2DArray.__init__();
         SkyBox.__init__();
         SkyDome.__init__();
         ScreenQuad.__init__();
-        FrustumCulling.__init__();
         HalfFloatUtils.__init__();
     }
 

@@ -33,7 +33,7 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
     private _floatCountPerParticleData: number;
 
     constructor(render: ShurikenParticleRenderer) {
-        super(render,MeshTopology.Triangles,DrawType.DrawElementInstance);
+        super(render, MeshTopology.Triangles, DrawType.DrawElementInstance);
     }
 
     /***
@@ -130,12 +130,12 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
                 this._timeIndex = particleDeclaration.getVertexElementByUsage(VertexShuriKenParticle.PARTICLE_DIRECTIONTIME)._offset / 4 + 3;
 
                 let indexCount = mesh.indexCount;
-                this._indexBuffer = Laya3DRender.renderOBJCreate.createIndexBuffer3D(mesh.indexFormat, indexCount, BufferUsage.Static,false);
+                this._indexBuffer = Laya3DRender.renderOBJCreate.createIndexBuffer3D(mesh.indexFormat, indexCount, BufferUsage.Static, false);
                 this._indexBuffer.setData(mesh._indexBuffer.getData());
 
                 let meshVertexCount = mesh.vertexCount;
                 let vbSize = meshDeclaration.vertexStride * meshVertexCount;
-                this._vertexBuffer = Laya3DRender.renderOBJCreate.createVertexBuffer3D(vbSize, BufferUsage.Static,false);
+                this._vertexBuffer = Laya3DRender.renderOBJCreate.createVertexBuffer3D(vbSize, BufferUsage.Static, false);
                 this._vertexBuffer.vertexDeclaration = meshDeclaration;
                 // 重排 mesh 顶点数据 ?
                 // 固定 vertexElement 类型。。。 
@@ -147,11 +147,11 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
                 let particleCount = this._bufferMaxParticles;
                 let particleVbSize = particleCount * particleDeclaration.vertexStride;
                 this._instanceVertex = new Float32Array(particleVbSize / 4);
-                this._instanceParticleVertexBuffer = Laya3DRender.renderOBJCreate.createVertexBuffer3D(particleVbSize, BufferUsage.Dynamic,false);
+                this._instanceParticleVertexBuffer = Laya3DRender.renderOBJCreate.createVertexBuffer3D(particleVbSize, BufferUsage.Dynamic, false);
                 this._instanceParticleVertexBuffer.vertexDeclaration = particleDeclaration;
                 this._instanceParticleVertexBuffer.setData(this._instanceVertex.buffer);
                 this._instanceParticleVertexBuffer.instanceBuffer = true;
-                this._bufferState.applyState([this._vertexBuffer,this._instanceParticleVertexBuffer],this._indexBuffer)
+                this._bufferState.applyState([this._vertexBuffer, this._instanceParticleVertexBuffer], this._indexBuffer)
             }
 
         }
@@ -167,17 +167,17 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
 
             let indexArray = VertexShurikenParticleBillboard.billboardIndexArray;
             let indexCount = indexArray.length;
-            this._indexBuffer = Laya3DRender.renderOBJCreate.createIndexBuffer3D(IndexFormat.UInt16, indexCount, BufferUsage.Static,false);
+            this._indexBuffer = Laya3DRender.renderOBJCreate.createIndexBuffer3D(IndexFormat.UInt16, indexCount, BufferUsage.Static, false);
             this._indexBuffer.setData(indexArray);
 
             let meshVBSize = this._meshIndexCount * billboardDeclaration.vertexStride;
-            this._vertexBuffer =Laya3DRender.renderOBJCreate.createVertexBuffer3D(meshVBSize,BufferUsage.Static,false);
+            this._vertexBuffer = Laya3DRender.renderOBJCreate.createVertexBuffer3D(meshVBSize, BufferUsage.Static, false);
             this._vertexBuffer.vertexDeclaration = billboardDeclaration;
             this._vertexBuffer.setData(VertexShurikenParticleBillboard.billboardVertexArray.buffer);
             let particleCount = this._bufferMaxParticles;
             let particleVbSize = particleCount * particleDeclaration.vertexStride;
             this._instanceVertex = new Float32Array(particleVbSize / 4);
-            this._instanceParticleVertexBuffer = Laya3DRender.renderOBJCreate.createVertexBuffer3D(particleVbSize, BufferUsage.Dynamic,false);
+            this._instanceParticleVertexBuffer = Laya3DRender.renderOBJCreate.createVertexBuffer3D(particleVbSize, BufferUsage.Dynamic, false);
             this._instanceParticleVertexBuffer.vertexDeclaration = particleDeclaration;
             this._instanceParticleVertexBuffer.setData(this._instanceVertex.buffer);
             this._instanceParticleVertexBuffer.instanceBuffer = true;
@@ -186,7 +186,7 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
             // this._instanceBufferState.applyVertexBuffer(this._vertexBuffer);
             // this._instanceBufferState.applyInstanceVertexBuffer(this._instanceParticleVertexBuffer);
             // this._instanceBufferState.unBind();
-            this._bufferState.applyState([this._vertexBuffer,this._instanceParticleVertexBuffer],this._indexBuffer);
+            this._bufferState.applyState([this._vertexBuffer, this._instanceParticleVertexBuffer], this._indexBuffer);
         }
 
         // let memorySize = this._instanceParticleVertexBuffer._byteLength + this._indexBuffer._byteLength + this._vertexBuffer._byteLength;
@@ -212,7 +212,7 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
                 this._firstActiveElement = 0;
             }
         }
-        
+
         if (this._firstActiveElement != firstActive) {
             let byteStride = this._floatCountPerParticleData * 4;
             if (this._firstActiveElement < this._firstFreeElement) {
@@ -485,6 +485,9 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
         return true;
     }
 
+    /**
+     * @internal
+     */
     addNewParticlesToVertexBuffer(): void {
         let byteStride = this._floatCountPerParticleData * 4;
         // instance buffer 绘制不能偏移, 每次 从 0 更新整个 buffer
@@ -511,18 +514,18 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
         this.clearRenderParams();
         if (this._firstActiveElement < this._firstFreeElement) {
             let indexCount = this._firstFreeElement - this._firstActiveElement;
-            this.setDrawElemenParams(this._meshIndexCount,0);
+            this.setDrawElemenParams(this._meshIndexCount, 0);
             this.instanceCount = indexCount;
-          //  LayaGL.renderDrawConatext.drawElementsInstanced(MeshTopology.Triangles, this._meshIndexCount, IndexFormat.UInt16, 0, indexCount);
-          //  Stat.trianglesFaces += this._meshIndexCount / 3 * indexCount;
-          //  Stat.renderBatches++;
+            //  LayaGL.renderDrawConatext.drawElementsInstanced(MeshTopology.Triangles, this._meshIndexCount, IndexFormat.UInt16, 0, indexCount);
+            //  Stat.trianglesFaces += this._meshIndexCount / 3 * indexCount;
+            //  Stat.renderBatches++;
         }
         else {
             let indexCount = this._bufferMaxParticles - this._firstActiveElement;
             if (this._firstFreeElement > 0) {
                 indexCount += this._firstFreeElement;
             }
-            this.setDrawElemenParams(this._meshIndexCount,0);
+            this.setDrawElemenParams(this._meshIndexCount, 0);
             this.instanceCount = indexCount;
             //LayaGL.renderEngine.getDrawContext().drawElementsInstanced(MeshTopology.Triangles, this._meshIndexCount, IndexFormat.UInt16, 0, indexCount);
             //Stat.trianglesFaces += this._meshIndexCount / 3 * indexCount;

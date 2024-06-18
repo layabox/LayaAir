@@ -7,7 +7,7 @@ import { Physics3DColliderShape } from "./Physics3DColliderShape";
  * <code>CapsuleColliderShape</code> 类用于创建胶囊形状碰撞器。
  */
 export class CapsuleColliderShape extends Physics3DColliderShape {
-
+	/**@internal */
 	_shape: ICapsuleColliderShape;
 
 	/**@internal */
@@ -75,6 +75,7 @@ export class CapsuleColliderShape extends Physics3DColliderShape {
 	}
 
 	/**
+	 * @internal
 	 * @override
 	 */
 	protected _createShape() {
@@ -86,6 +87,7 @@ export class CapsuleColliderShape extends Physics3DColliderShape {
 	}
 
 	/**
+	 * 克隆
 	 * @inheritDoc
 	 * @override
 	 */
@@ -96,6 +98,8 @@ export class CapsuleColliderShape extends Physics3DColliderShape {
 	}
 
 	/**
+	 * 克隆数据到目标
+	 * @param destObject 克隆目标
 	 * @inheritDoc
 	 * @override
 	 */

@@ -6,4 +6,11 @@ export enum CullMode {
     /** cut the back-face of the polygons. */
     Back = 2
   }
+
+  export enum FrontFace{
+    /** Clockwise front faces. */
+    CW = 0,
+    /** Counter-clockwise front faces. */
+    CCW = 1
+  }
   

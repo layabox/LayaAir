@@ -1,6 +1,5 @@
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
-import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { PixelLineSprite3D } from "laya/d3/core/pixelLine/PixelLineSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
@@ -11,9 +10,9 @@ import { Color } from "laya/maths/Color";
 import { Matrix4x4 } from "laya/maths/Matrix4x4";
 import { Vector3 } from "laya/maths/Vector3";
 import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Tool } from "../common/Tool";
+import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
 export class PixelLineSprite3DDemo {
 	private sprite3D: Sprite3D;
 	private lineSprite3D: Sprite3D;
@@ -23,7 +22,6 @@ export class PixelLineSprite3DDemo {
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
 			Stat.show();
-
 			var scene: Scene3D = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 
 			var camera: Camera = (<Camera>scene.addChild(new Camera(0, 0.1, 100)));
@@ -31,12 +29,14 @@ export class PixelLineSprite3DDemo {
 			camera.transform.rotate(new Vector3(-15, 0, 0), true, false);
 			camera.addComponent(CameraMoveScript);
 			camera.clearColor = new Color(0.2, 0.2, 0.2, 1.0);
-
-			var directionLight: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));
+			//初始化平行光
+			let directlightSprite = new Sprite3D();
+			let dircom = directlightSprite.addComponent(DirectionLightCom);
+			scene.addChild(directlightSprite);
 			//设置平行光的方向
-			var mat: Matrix4x4 = directionLight.transform.worldMatrix;
+			var mat: Matrix4x4 = directlightSprite.transform.worldMatrix;
 			mat.setForward(new Vector3(-1.0, -1.0, -1.0));
-			directionLight.transform.worldMatrix = mat;
+			directlightSprite.transform.worldMatrix = mat;
 
 			this.sprite3D = (<Sprite3D>scene.addChild(new Sprite3D()));
 			this.lineSprite3D = (<Sprite3D>scene.addChild(new Sprite3D()));

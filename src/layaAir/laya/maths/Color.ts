@@ -110,6 +110,11 @@ export class Color implements IClone {
         this.a = a;
     }
 
+    /**
+     * 判断颜色相等相等
+     * @param c 对比颜色 
+     * @returns 
+     */
     equal(c: Color): boolean {
         if (!c) return false;
         const toFIxed = (a: number, b: number) => {
@@ -153,6 +158,11 @@ export class Color implements IClone {
         destColor.a = this.a;
     }
 
+    /**
+     * 缩放颜色
+     * @param value 缩放值
+     * @returns 
+     */
     scale(value: number): Color {
         this.r = this.r * value;
         this.g = this.g * value;
@@ -160,6 +170,13 @@ export class Color implements IClone {
         return this;
     }
 
+    /**
+     * 设置颜色数值0-1
+     * @param r 颜色r通道
+     * @param g 颜色g通道
+     * @param b 颜色b通道
+     * @param a 颜色a通道
+     */
     setValue(r: number, g: number, b: number, a: number) {
         this.r = r;
         this.g = g;

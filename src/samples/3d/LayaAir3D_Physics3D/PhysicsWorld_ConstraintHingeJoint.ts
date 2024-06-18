@@ -1,15 +1,11 @@
 import { Laya } from "Laya";
-import { Laya3D } from "Laya3D";
 import { Handler } from "laya/utils/Handler";
 import { Stage } from "laya/display/Stage";
 import { Stat } from "laya/utils/Stat";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Camera } from "laya/d3/core/Camera";
-import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
-import { Transform3D } from "laya/d3/core/Transform3D";
 import { Rigidbody3D } from "laya/d3/physics/Rigidbody3D";
-import { FixedConstraint } from "laya/d3/physics/constraints/FixedConstraint";
 import { BoxColliderShape } from "laya/d3/physics/shape/BoxColliderShape";
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
@@ -17,18 +13,16 @@ import { Script } from "laya/components/Script";
 import { Color } from "laya/maths/Color";
 import { Matrix4x4 } from "laya/maths/Matrix4x4";
 import { Vector3 } from "laya/maths/Vector3";
-import { Event } from "laya/events/Event";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Texture2D } from "laya/resource/Texture2D";
 import { PhysicsCollider } from "laya/d3/physics/PhysicsCollider";
 import { Vector4 } from "laya/maths/Vector4";
 import { SphereColliderShape } from "laya/d3/physics/shape/SphereColliderShape";
-import { Physics3DUtils } from "laya/d3/utils/Physics3DUtils";
 import { InputManager } from "laya/events/InputManager";
-import { URL } from "laya/net/URL";
 import { HingeConstraint } from "laya/d3/physics/constraints/HingeConstraint";
 import { Keyboard } from "laya/events/Keyboard";
+import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
 
 export class PhysicsWorld_ConstraintHingeJoint {
 	private scene: Scene3D;
@@ -57,11 +51,13 @@ export class PhysicsWorld_ConstraintHingeJoint {
 			this.camera.transform.rotationEuler = new Vector3(-18.794161595881256, 1.2857172922735671, 3.5357225315533866e-9);
 			this.camSrc = this.camera.addComponent(CameraMoveScript);
 			//  this.camera.transform.rotate(new Vector3(-30, 45, 0), true, false);
-			var directionLight: DirectionLight = (<DirectionLight>this.scene.addChild(new DirectionLight()));
-			directionLight.color = new Color(1, 1, 1, 1);
-			var mat: Matrix4x4 = directionLight.transform.worldMatrix;
+			let directlightSprite = new Sprite3D();
+			let dircom = directlightSprite.addComponent(DirectionLightCom);
+			this.scene.addChild(directlightSprite);
+			dircom.color = new Color(1, 1, 1, 1);
+			var mat: Matrix4x4 = directlightSprite.transform.worldMatrix;
 			mat.setForward(new Vector3(-1.0, -1.0, 1.0));
-			directionLight.transform.worldMatrix = mat;
+			directlightSprite.transform.worldMatrix = mat;
 
 			//创建平面
 			this.plane = (<MeshSprite3D>this.scene.addChild(new MeshSprite3D(PrimitiveMesh.createPlane(20, 20, 10, 10))));

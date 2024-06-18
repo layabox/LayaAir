@@ -1,10 +1,10 @@
-import { SingletonList } from "../../../utils/SingletonList";
+import { FastSinglelist } from "../../../utils/SingletonList";
 import { Ray } from "../../math/Ray";
 import { UI3D } from "./UI3D";
 
 export class UI3DManager {
 
-    _UI3Dlist: SingletonList<UI3D> = new SingletonList<UI3D>();
+    _UI3Dlist: FastSinglelist<UI3D> = new FastSinglelist<UI3D>();
 
     constructor() {
     }

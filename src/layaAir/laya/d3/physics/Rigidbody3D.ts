@@ -9,6 +9,7 @@ import { Quaternion } from "../../maths/Quaternion";
 import { EColliderCapable } from "../../Physics3D/physicsEnum/EColliderCapable";
 import { EPhysicsCapable } from "../../Physics3D/physicsEnum/EPhycisCapable";
 import { Event } from "../../events/Event";
+import { Stat } from "../../utils/Stat";
 
 /**
  * <code>Rigidbody3D</code> 类用于创建刚体碰撞器。
@@ -40,6 +41,8 @@ export class Rigidbody3D extends PhysicsColliderComponent {
     private _sleepThreshold: number;
     /**@internal */
     private _trigger: boolean = false;
+    /**@internal */
+    private _collisionDetectionMode: number = 0;
 
     /**
      * @override
@@ -49,6 +52,7 @@ export class Rigidbody3D extends PhysicsColliderComponent {
         this._physicsManager = ((<Scene3D>this.owner._scene))._physicsManager;
         if (Laya3D.enablePhysics && this._physicsManager && Laya3D.PhysicsCreateUtil.getPhysicsCapable(EPhysicsCapable.Physics_DynamicCollider)) {
             this._collider = Laya3D.PhysicsCreateUtil.createDynamicCollider(this._physicsManager);
+            this._collider.component = this;
         } else {
             console.error("Rigidbody3D: cant enable Rigidbody3D");
         }
@@ -142,7 +146,11 @@ export class Rigidbody3D extends PhysicsColliderComponent {
      * 线速度
      */
     get linearVelocity(): Vector3 {
-        return this._linearVelocity;
+        if (this._collider && this.collider.getCapable(EColliderCapable.RigidBody_LinearVelocity)) {
+            return this._collider.getLinearVelocity();
+        } else {
+            return this._linearVelocity;
+        }
     }
 
     set linearVelocity(value: Vector3) {
@@ -170,7 +178,11 @@ export class Rigidbody3D extends PhysicsColliderComponent {
      * 角速度。
      */
     get angularVelocity(): Vector3 {
-        return this._angularVelocity;
+        if (this._collider && this.collider.getCapable(EColliderCapable.RigidBody_AngularVelocity)) {
+            return this._collider.getAngularVelocity();
+        } else {
+            return this._angularVelocity;
+        }
     }
 
     set angularVelocity(value: Vector3) {
@@ -203,6 +215,9 @@ export class Rigidbody3D extends PhysicsColliderComponent {
         }
     }
 
+    /**
+     * 直接设置物理旋转
+     */
     set orientation(q: Quaternion) {
         if (this._collider && this.collider.getCapable(EColliderCapable.RigidBody_WorldOrientation)) {
             this._collider.setWorldRotation(q);
@@ -222,21 +237,44 @@ export class Rigidbody3D extends PhysicsColliderComponent {
         }
     }
 
+    /**
+     * 碰撞检测模式
+     */
+    public get collisionDetectionMode(): number {
+        return this._collisionDetectionMode;
+    }
+    public set collisionDetectionMode(value: number) {
+        this._collisionDetectionMode = value;
+        if (this._collider && this._collider.getCapable(EColliderCapable.Collider_CollisionDetectionMode)) {
+            this._collider.setCollisionDetectionMode(value);
+        }
+    }
+
     constructor() {
         super();
     }
 
+    /**
+     * @internal
+     * @protected
+     */
     protected _onAdded(): void {
         super._onAdded();
         this.mass = this._mass;
         this.linearFactor = this._linearFactor;
         this.angularFactor = this._angularFactor;
         this.linearDamping = this._linearDamping;
+        this.linearVelocity = this._linearVelocity;
         this.angularDamping = this._angularDamping;
         this.gravity = this._gravity;
+        this.trigger = this._trigger;
         this.isKinematic = this._isKinematic;
     }
 
+    /**
+     * @internal
+     * @protected
+     */
     protected _onDestroy() {
         super._onDestroy();
         this._btLayaMotionState = null;
@@ -300,7 +338,7 @@ export class Rigidbody3D extends PhysicsColliderComponent {
 
     /**
      * 应用扭转冲量。
-     * @param	torqueImpulse
+     * @param	torqueImpulse 冲量值
      */
     applyTorqueImpulse(torqueImpulse: Vector3): void {
         if (this._collider && this.collider.getCapable(EColliderCapable.RigidBody_ApplyTorqueImpulse)) {
@@ -347,10 +385,10 @@ export class Rigidbody3D extends PhysicsColliderComponent {
     /**
      * @deprecated
      * 应用作用力
-     * @param fx 
-     * @param fy 
-     * @param fz 
-     * @param localOffset 
+     * @param fx x轴方向的力
+     * @param fy y轴方向的力
+     * @param fz z轴方向的力
+     * @param localOffset 受力点距离质点的偏移
      */
     applyForceXYZ(fx: number, fy: number, fz: number, localOffset: Vector3 = null): void {
         Utils3D._tempV0.set(fx, fy, fz);

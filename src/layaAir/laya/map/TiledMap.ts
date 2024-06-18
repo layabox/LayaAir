@@ -10,7 +10,7 @@ import { ILaya } from "../../ILaya";
 import { Texture } from "../resource/Texture";
 import { HTMLCanvas } from "../resource/HTMLCanvas";
 import { Point } from "../maths/Point";
-import { Context } from "../resource/Context";
+import { Context } from "../renders/Context";
 import { FilterMode } from "../RenderEngine/RenderEnum/FilterMode";
 
 /**

@@ -15,6 +15,7 @@ import ShadingFragGLSL from "./common/ShadingFrag.glsl";
 
 import SceneGLSL from "./common/SceneCommon.glsl";
 import CameraGLSL from "./common/CameraCommon.glsl";
+import SkyCommon from "./common/SkyCommon.glsl";
 import Sprite3DCommonGLSL from "./common/Sprite3DCommon.glsl";
 import Sprite3DVertexGLSL from "./common/Sprite3DVertex.glsl";
 import Sprite3DFragGLSL from "./common/Sprite3DFrag.glsl";
@@ -76,6 +77,9 @@ export class ShaderInit3D {
 		// camera
 		Shader3D.addInclude("Camera.glsl", CameraGLSL);
 
+		//sky
+		Shader3D.addInclude("SkyCommon.glsl", SkyCommon);
+
 		// sprite3D
 		Shader3D.addInclude("Sprite3DCommon.glsl", Sprite3DCommonGLSL);
 		Shader3D.addInclude("Sprite3DVertex.glsl", Sprite3DVertexGLSL);
@@ -127,6 +131,9 @@ export class ShaderInit3D {
 		Shader3D.SHADERDEFINE_ENUNIFORMBLOCK = Shader3D.getDefineByName("ENUNIFORMBLOCK");
 		Shader3D.SHADERDEFINE_FLOATTEXTURE = Shader3D.getDefineByName("FLOATTEXTURE");
 		Shader3D.SHADERDEFINE_FLOATTEXTURE_FIL_LINEAR = Shader3D.getDefineByName("FLOATTEXTURE_FIL_LINEAR");
+        Shader3D.SHADERDEFINE_BLITSCREEN_INVERTY = Shader3D.getDefineByName("BLITSCREEN_INVERTY");
+		Shader3D.SHADERDEFINE_REMAP_POSITIONZ = Shader3D.getDefineByName("REMAP_Z");
+        Shader3D.SHADERDEFINE_LOD_TEXTURE_SAMPLE = Shader3D.getDefineByName("LOD_TEXTURE_SAMPLE");
 	}
 }
 

@@ -123,52 +123,14 @@ export type LabelFitContent = "no" | "yes" | "height";
 export class Label extends UIComponent {
 
     /**
-     * @private
+     * @internal
      * 文本 <code>Text</code> 实例。
      */
     protected _tf: Text;
+    /**@internal */
     protected _fitContent: LabelFitContent;
     /** @internal */
     private _fitFlag: boolean;
-
-    /**
-     * 创建一个新的 <code>Label</code> 实例。
-     * @param text 文本内容字符串。
-     */
-    constructor(text?: string) {
-        super();
-        this._fitContent = "no";
-        if (text != null)
-            this.text = text;
-    }
-
-    /**
-     * @override
-     * @inheritDoc 
-    */
-    protected createChildren(): void {
-        this._tf = new Text();
-        this._tf.hideFlags = HideFlags.HideAndDontSave;
-        this._tf._parseEscapeChars = true;
-        this._tf._onPostLayout = () => this._onPostLayout();
-        this._tf.on(Event.CHANGE, () => {
-            this.event(Event.CHANGE);
-            if (!this._isWidthSet || !this._isHeightSet)
-                this.onCompResize();
-        });
-        this.addChild(this._tf);
-    }
-
-    protected _onPostLayout() {
-        if ((this._fitContent == "yes" || this._fitContent == "height") && (LayaEnv.isPlaying || this._tf.textWidth > 0 && this._tf.textHeight > 0)) {
-            this._fitFlag = true;
-            if (this._fitContent == "height")
-                this.height = this._tf.textHeight;
-            else
-                this.size(this._tf.textWidth, this._tf.textHeight);
-            this._fitFlag = false;
-        }
-    }
 
     /**
      * 当前文本内容字符串。
@@ -238,6 +200,17 @@ export class Label extends UIComponent {
 
     set valign(value: string) {
         this._tf.valign = value;
+    }
+
+    /**
+     * @copy laya.display.Text#alignItems
+     */
+    get alignItems(): string {
+        return this._tf.alignItems;
+    }
+
+    set alignItems(value: string) {
+        this._tf.alignItems = value;
     }
 
     /**
@@ -394,82 +367,6 @@ export class Label extends UIComponent {
     }
 
     /**
-     * @inheritDoc
-     * @override
-     */
-    protected measureWidth(): number {
-        return this._tf.width;
-    }
-
-    /**
-     * @inheritDoc
-     * @override
-     */
-    protected measureHeight(): number {
-        return this._tf.height;
-    }
-
-    /**
-     * @inheritDoc
-     * @override
-     */
-    get_width(): number {
-        if (this._isWidthSet || this._tf.text) return super.get_width();
-        return 0;
-    }
-
-    set_width(value: number): void {
-        if (this._fitContent == "yes" && !this._fitFlag)
-            return;
-        super.set_width(value);
-    }
-
-    /**
-     * @inheritDoc
-     * @override
-     */
-    _setWidth(value: number): void {
-        super._setWidth(value);
-        this._tf.width = value;
-    }
-
-    /**
-     * @inheritDoc
-     * @override
-     */
-    get_height(): number {
-        if (this._isHeightSet || this._tf.text) return super.get_height();
-        return 0;
-    }
-
-    set_height(value: number): void {
-        if ((this._fitContent == "yes" || this._fitContent == "height") && !this._fitFlag)
-            return;
-        super.set_height(value);
-    }
-
-    /**
-     * @inheritDoc
-     * @override
-     */
-    _setHeight(value: number) {
-        super._setHeight(value);
-        this._tf.height = value;
-    }
-
-    /**
-     * @inheritDoc 
-     * @override
-     */
-    set_dataSource(value: any) {
-        this._dataSource = value;
-        if (typeof (value) == 'number' || typeof (value) == 'string')
-            this.text = value + "";
-        else
-            super.set_dataSource(value);
-    }
-
-    /**
      * @copy laya.display.Text#overflow
      */
     get overflow(): string {
@@ -531,6 +428,126 @@ export class Label extends UIComponent {
 
     public set templateVars(value: Record<string, any> | boolean) {
         this._tf.templateVars = value;
+    }
+
+    /**
+     * 创建一个新的 <code>Label</code> 实例。
+     * @param text 文本内容字符串。
+     */
+    constructor(text?: string) {
+        super();
+        this._fitContent = "no";
+        if (text != null)
+            this.text = text;
+    }
+
+    /**@internal */
+    protected _onPostLayout() {
+        if ((this._fitContent == "yes" || this._fitContent == "height") && (LayaEnv.isPlaying || this._tf.textWidth > 0 && this._tf.textHeight > 0)) {
+            this._fitFlag = true;
+            if (this._fitContent == "height")
+                this.height = this._tf.textHeight;
+            else
+                this.size(this._tf.textWidth, this._tf.textHeight);
+            this._fitFlag = false;
+        }
+    }
+
+    /**
+     * @internal
+     * @inheritDoc
+     * @override
+     */
+    _setWidth(value: number): void {
+        super._setWidth(value);
+        this._tf.width = value;
+    }
+
+    /**
+     * @internal
+     * @inheritDoc
+     * @override
+     */
+    _setHeight(value: number) {
+        super._setHeight(value);
+        this._tf.height = value;
+    }
+
+    /**
+     * @override
+     * @inheritDoc 
+    */
+    protected createChildren(): void {
+        this._tf = new Text();
+        this._tf.hideFlags = HideFlags.HideAndDontSave;
+        this._tf._parseEscapeChars = true;
+        this._tf._onPostLayout = () => this._onPostLayout();
+        this._tf.on(Event.CHANGE, () => {
+            this.event(Event.CHANGE);
+            if (!this._isWidthSet || !this._isHeightSet)
+                this.onCompResize();
+        });
+        this.addChild(this._tf);
+    }
+
+    /**
+     * @internal
+     * @inheritDoc
+     * @override
+     */
+    protected measureWidth(): number {
+        return this._tf.width;
+    }
+
+    /**
+     * @internal
+     * @inheritDoc
+     * @override
+     */
+    protected measureHeight(): number {
+        return this._tf.height;
+    }
+
+    /**
+     * @inheritDoc
+     * @override
+     */
+    get_width(): number {
+        if (this._isWidthSet || this._tf.text) return super.get_width();
+        return 0;
+    }
+
+    set_width(value: number): void {
+        if (this._fitContent == "yes" && !this._fitFlag)
+            return;
+        super.set_width(value);
+    }
+
+    /**
+     * @inheritDoc
+     * @override
+     */
+    get_height(): number {
+        if (this._isHeightSet || this._tf.text) return super.get_height();
+        return 0;
+    }
+
+    set_height(value: number): void {
+        if ((this._fitContent == "yes" || this._fitContent == "height") && !this._fitFlag)
+            return;
+        super.set_height(value);
+    }
+
+    /**
+     * @inheritDoc 
+     * @override
+     */
+    set_dataSource(value: any) {
+        this._dataSource = value;
+        if (typeof (value) == 'number' || typeof (value) == 'string')
+            this.text = value + "";
+        else
+            super.set_dataSource(value);
     }
 
     public setVar(name: string, value: any): Label {

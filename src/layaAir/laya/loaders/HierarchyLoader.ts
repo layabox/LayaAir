@@ -1,4 +1,4 @@
-import { IResourceLoader, ILoadTask, Loader } from "../net/Loader";
+import { IResourceLoader, ILoadTask, Loader, ILoadOptions } from "../net/Loader";
 import { URL } from "../net/URL";
 import { AssetDb } from "../resource/AssetDb";
 import { Prefab } from "../resource/HierarchyResource";
@@ -35,7 +35,11 @@ export class HierarchyLoader implements IResourceLoader {
     private _load(api: IHierarchyParserAPI, task: ILoadTask, data: any, version: number): Promise<Prefab> {
         let basePath = URL.getPath(task.url);
         let links = api.collectResourceLinks(data, basePath);
-        return task.loader.load(links, null, task.progress.createCallback()).then((resArray: any[]) => {
+        let options: ILoadOptions = Object.assign({}, task.options);
+        options.initiator = task;
+        delete options.cache;
+        delete options.ignoreCache;
+        return task.loader.load(links, options, task.progress.createCallback()).then((resArray: any[]) => {
             let res = new PrefabImpl(api, data, version);
             res.addDeps(resArray);
             return res;

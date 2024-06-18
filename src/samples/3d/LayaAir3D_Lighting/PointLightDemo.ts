@@ -1,8 +1,5 @@
 import { Laya } from "Laya";
-import { Animator } from "laya/d3/component/Animator/Animator";
-import { AnimatorState } from "laya/d3/component/Animator/AnimatorState";
 import { Camera } from "laya/d3/core/Camera";
-import { PointLight } from "laya/d3/core/light/PointLight";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { Stage } from "laya/display/Stage";
@@ -11,8 +8,8 @@ import { Quaternion } from "laya/maths/Quaternion";
 import { Vector3 } from "laya/maths/Vector3";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
+import { PointLightCom } from "laya/d3/core/light/PointLightCom";
 
 /**
  * ...
@@ -30,7 +27,6 @@ export class PointLightDemo {
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
 			//显示性能面板
 			Stat.show();
-
 			//创建场景
 			var scene: Scene3D = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 			//设置场景环境光颜色
@@ -43,21 +39,24 @@ export class PointLightDemo {
 			camera.addComponent(CameraMoveScript);
 
 			//创建点光源
-			var pointLight: PointLight = (<PointLight>scene.addChild(new PointLight()));
+			let pointLight = new Sprite3D();
+			let pointCom = pointLight.addComponent(PointLightCom);
+			scene.addChild(pointLight);
 			//点光源的颜色
-			pointLight.color = new Color(1.0, 0.5, 0.0, 1);
-			pointLight.transform.position = new Vector3(0.4, 0.4, 0.0);
+			pointCom.color = new Color(1.0, 0.5, 0.0, 1);
 			//设置点光源的范围
-			pointLight.range = 3.0;
+			pointCom.range = 3.0;
+			pointLight.transform.position = new Vector3(0.4, 0.4, 0.0);
+
 
 			//加载地面
-			Sprite3D.load("res/threeDimen/staticModel/grid/plane.lh", Handler.create(this, function (sprite: Sprite3D): void {
+			Sprite3D.load("res/threeDimen/staticModel/grid/plane.lh", Handler.create(this, (sprite: Sprite3D) => {
 				var grid: Sprite3D = (<Sprite3D>scene.addChild(sprite));
 				//加载猴子精灵
-				Sprite3D.load("res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh", Handler.create(this, function (layaMonkey: Sprite3D): void {
+				Sprite3D.load("res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh", Handler.create(this, (layaMonkey: Sprite3D) => {
 					scene.addChild(layaMonkey);
 					//设置时钟定时执行
-					Laya.timer.frameLoop(1, this, function (): void {
+					Laya.timer.frameLoop(1, this, () => {
 						//从欧拉角生成四元数（顺序为Yaw、Pitch、Roll）
 						Quaternion.createFromYawPitchRoll(0.025, 0, 0, this._temp_quaternion);
 						//根据四元数旋转三维向量

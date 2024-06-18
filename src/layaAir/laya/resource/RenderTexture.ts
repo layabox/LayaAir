@@ -1,39 +1,41 @@
 import { Config3D } from "../../Config3D";
 import { LayaGL } from "../layagl/LayaGL";
+import { InternalRenderTarget } from "../RenderDriver/DriverDesign/RenderDevice/InternalRenderTarget";
+import { IRenderTarget } from "../RenderDriver/DriverDesign/RenderDevice/IRenderTarget";
 import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
 import { TextureDimension } from "../RenderEngine/RenderEnum/TextureDimension";
 import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
-import { InternalRenderTarget } from "../RenderEngine/RenderInterface/InternalRenderTarget";
-import { IRenderTarget } from "../RenderEngine/RenderInterface/IRenderTarget";
 import { BaseTexture } from "./BaseTexture";
 
+/**
+ * 深度贴图模式
+ */
+export enum DepthTextureMode {
+    /**不生成深度贴图 */
+    None = 0,
+    /**生成深度贴图 */
+    Depth = 1,
+    /**生成深度+法线贴图 */
+    DepthNormals = 2,
+    /**是否应渲染运动矢量  TODO*/
+    DepthAndDepthNormals = 3,
+    MotionVectors = 4,
+}
 export class RenderTexture extends BaseTexture implements IRenderTarget {
-
-    // todo 记录当前 绑定 rt  位置不放在这里
-    protected static _currentActive: RenderTexture = null;
-
-    static get currentActive(): RenderTexture {
-        return RenderTexture._currentActive;
-    }
-
-    protected static _configInstance: any = {};
-    static configRenderContextInstance(value: any) {
-        RenderTexture._configInstance = value;
-    }
 
     private static _pool: RenderTexture[] = [];
     private static _poolMemory: number = 0;
 
     /**
      * 创建一个RenderTexture
-     * @param width
-     * @param height
-     * @param colorFormat
-     * @param depthFormat
-     * @param mipmap 
-     * @param multiSamples 
-     * @param depthTexture 
-     * @param sRGB 
+     * @param width 宽度
+     * @param height 高度
+     * @param colorFormat 颜色格式
+     * @param depthFormat 深度格式
+     * @param mipmap 是否生成多级纹理
+     * @param multiSamples 多采样次数
+     * @param depthTexture 是否生成深度纹理
+     * @param sRGB 是否sRGB空间
      * @returns 
      */
     static createFromPool(width: number, height: number, colorFormat: RenderTargetFormat, depthFormat: RenderTargetFormat, mipmap: boolean = false, multiSamples: number = 1, depthTexture: boolean = false, sRGB: boolean = false) {
@@ -60,6 +62,11 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
         return rt;
     }
 
+    /**
+     * 回收渲染纹理到对象池
+     * @param rt 渲染纹理
+     * @returns 
+     */
     static recoverToPool(rt: RenderTexture): void {
         if (rt._inPool || rt.destroyed)
             return;
@@ -68,6 +75,10 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
         rt._inPool = true;
     }
 
+    /**
+     * 清空对象池
+     * @returns 
+     */
     static clearPool() {
         if (RenderTexture._poolMemory < Config3D.defaultCacheRTMemory) {
             return;
@@ -95,17 +106,37 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
     }
 
 
+    /**
+     * @internal
+     * 是否在对象池中
+     */
     _inPool: boolean = false;
 
+    /**
+     * 是否是相机目标纹理
+     * @internal
+     */
     _isCameraTarget: boolean = false;
 
+    /**
+     * 渲染纹理
+     * @internal
+     */
     _renderTarget: InternalRenderTarget;
 
     private _generateDepthTexture: boolean = false;
+    /**
+     * 是否生成深度纹理贴图
+     */
     public get generateDepthTexture(): boolean {
         return this._generateDepthTexture;
     }
     public set generateDepthTexture(value: boolean) {
+
+        if (this.depthStencilFormat == RenderTargetFormat.None) {
+            this._generateDepthTexture = false;
+            return;
+        }
 
         // todo  重复 设置
         if (value && !this._depthStencilTexture) {
@@ -114,46 +145,78 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
             // @ts-ignore
             this._depthStencilTexture._dimension = TextureDimension.Tex2D;
 
-
-            this._depthStencilTexture._texture = LayaGL.textureContext.createRenderTextureInternal(TextureDimension.Tex2D, this.width, this.height, this.depthStencilFormat, false, false);
-
-            LayaGL.textureContext.setupRendertargetTextureAttachment(this._renderTarget, this._depthStencilTexture._texture);
+            this._depthStencilTexture._texture = LayaGL.textureContext.createRenderTargetDepthTexture(this._renderTarget, TextureDimension.Tex2D, this.width, this.height);
 
         }
 
         this._generateDepthTexture = value;
     }
-
+    /**
+     * @internal
+     * 深度与模板剔除纹理贴图
+     */
     private _depthStencilTexture: BaseTexture;
 
+    /**
+     * 深度与模板剔除纹理贴图
+     */
     get depthStencilTexture(): BaseTexture {
         return this._depthStencilTexture;
     }
 
+    /**
+     * 是否生成多级纹理
+     * @internal
+     */
     _generateMipmap: boolean;
 
+    /**
+     * 颜色格式
+     */
     get colorFormat(): RenderTargetFormat {
         return this._renderTarget.colorFormat;
     }
-
+    /**
+     * 深度与模板剔除的格式
+     * @internal
+     */
     protected _depthStencilFormat: RenderTargetFormat;
+    /**
+     * 深度与模板剔除的格式
+     */
     get depthStencilFormat(): RenderTargetFormat {
         return this._renderTarget.depthStencilFormat;
     }
 
+    /**
+     * 多采样次数
+     * @internal
+     */
     protected _multiSamples: number;
+    /**
+     * 多采样次数
+     */
     public get multiSamples(): number {
         return this._renderTarget._samples;
     }
 
+    /**
+     * 是否是立方体贴图
+     */
     get isCube(): boolean {
         return this._renderTarget._isCube;
     }
 
+    /**
+     * 采样次数
+     */
     get samples(): number {
         return this._renderTarget._samples;
     }
 
+    /**
+     * 是否生成多级纹理
+     */
     get generateMipmap(): boolean {
         return this._renderTarget._generateMipmap;
     }
@@ -183,13 +246,19 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
         this._createRenderTarget();
     }
 
+    /**
+     * 创建渲染纹理
+     * @internal
+     */
     _createRenderTarget() {
         this._dimension = TextureDimension.Tex2D;
         this._renderTarget = LayaGL.textureContext.createRenderTargetInternal(this.width, this.height, <RenderTargetFormat><any>this._format, this._depthStencilFormat, this._generateMipmap, this._gammaSpace, this._multiSamples);
 
         // rt 格式 宽高可能不支持
         this._generateMipmap = this._renderTarget._generateMipmap;
-        this._texture = this._renderTarget._textures[0];
+        if (this._renderTarget._texturesResolve)
+            this._texture = this._renderTarget._texturesResolve[0];
+        else this._texture = this._renderTarget._textures[0];
 
         this.generateDepthTexture = this._generateDepthTexture;
     }
@@ -214,33 +283,39 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
         this._createRenderTarget();
     }
 
-    _start() {
-        RenderTexture._configInstance.invertY = this._isCameraTarget;
-        if (RenderTexture._currentActive != this) {
-            RenderTexture._currentActive && RenderTexture._currentActive._end();
-            RenderTexture._currentActive = this;
-            LayaGL.textureContext.bindRenderTarget(this._renderTarget);
-        }
-    }
-
-    _end() {
-        RenderTexture._currentActive = null;
-
-        LayaGL.textureContext.unbindRenderTarget(this._renderTarget);
-        (this._isCameraTarget) && (RenderTexture._configInstance.invertY = false);
-    }
-
+    /**
+     * @deprecated 请使用getDataAsync函数代替
+     * 获取渲染纹理的像素数据
+     * @param xOffset x偏移值
+     * @param yOffset y偏移值
+     * @param width 宽度
+     * @param height 高度
+     * @param out 输出
+     * @returns 二进制数据
+     */
     getData(xOffset: number, yOffset: number, width: number, height: number, out: Uint8Array | Float32Array): Uint8Array | Float32Array {
         LayaGL.textureContext.readRenderTargetPixelData(this._renderTarget, xOffset, yOffset, width, height, out);
         return out;
     }
 
+    /**
+     * 获取渲染纹理的像素数据
+     * @param xOffset x偏移值
+     * @param yOffset y偏移值
+     * @param width 宽度
+     * @param height 高度
+     * @param out 输出
+     * @returns 二进制数据
+     */
+    getDataAsync(xOffset: number, yOffset: number, width: number, height: number, out: Uint8Array | Float32Array) { //兼容WGSL
+        return LayaGL.textureContext.readRenderTargetPixelDataAsync(this._renderTarget, xOffset, yOffset, width, height, out);
+    }
+
+    /**
+     * 销毁资源
+     * @internal
+     */
     protected _disposeResource(): void {
-
-        if (RenderTexture._currentActive == this) {
-            this._end();
-        }
-
         this._renderTarget.dispose();
         this._renderTarget = null;
         this._depthStencilTexture?.destroy();

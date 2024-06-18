@@ -21,6 +21,7 @@ export class Matrix4x4 implements IClone {
 
     /**默认矩阵,禁止修改*/
     static readonly DEFAULT: Readonly<Matrix4x4> = new Matrix4x4();
+    /**默认值的逆矩阵，禁止修改 */
     static readonly DEFAULTINVERT: Readonly<Matrix4x4> = new Matrix4x4(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
     /**默认矩阵,禁止修改*/
     static readonly ZERO: Readonly<Matrix4x4> = new Matrix4x4(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
@@ -78,10 +79,10 @@ export class Matrix4x4 implements IClone {
 
     /**
      * 通过yaw pitch roll旋转创建旋转矩阵。
-     * @param	yaw
-     * @param	pitch
-     * @param	roll
-     * @param	result
+     * @param	yaw 这个角度表示物体围绕其垂直轴的旋转，即Y轴
+     * @param	pitch 这个角度表示物体围绕其横向轴的旋转，即X轴
+     * @param	roll 这个角度表示沿物体的前进方向轴的旋转，即Z轴
+     * @param	result 输出结果矩阵
      */
     static createRotationYawPitchRoll(yaw: number, pitch: number, roll: number, result: Matrix4x4): void {
         Quaternion.createFromYawPitchRoll(yaw, pitch, roll, Quaternion.TEMP);
@@ -467,9 +468,9 @@ export class Matrix4x4 implements IClone {
     }
 
     /**
-  * 四元数生成矩阵
-  * @param rotation 
-  */
+     * 四元数生成矩阵
+     * @param rotation 旋转四元数值
+     */
     setRotation(rotation: Quaternion): void {
         var rotationX: number = rotation.x;
         var rotationY: number = rotation.y;
@@ -501,7 +502,7 @@ export class Matrix4x4 implements IClone {
     
     /**
      * 位置
-     * @param position 
+     * @param position 坐标位置
      */
     setPosition(position: Vector3): void {
         var e: Float32Array = this.elements;
@@ -813,7 +814,7 @@ export class Matrix4x4 implements IClone {
 
     /**
      * 克隆
-     * @param destObject 
+     * @param destObject 克隆目标
      */
     cloneByArray(destObject: Float32Array) {
         this.elements.set(destObject);
@@ -829,6 +830,11 @@ export class Matrix4x4 implements IClone {
         return dest;
     }
 
+    /**
+     * 转换一个坐标位矩阵
+     * @param v3 坐标点 
+     * @param out 输出矩阵
+     */
     static translation(v3: Vector3, out: Matrix4x4): void {
         var oe: Float32Array = out.elements;
         oe[0] = oe[5] = oe[10] = oe[15] = 1;

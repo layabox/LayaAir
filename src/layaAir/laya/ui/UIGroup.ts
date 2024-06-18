@@ -22,169 +22,44 @@ import { URL } from "../net/URL";
  */
 export class UIGroup extends Box {
 
+    /**@internal */
+    protected _items: ISelect[];
+    /**@internal */
+    protected _selectedIndex: number = -1;
+    /**@internal */
+    protected _skin: string;
+    /**@internal */
+    protected _direction: string = "horizontal";
+    /**@internal */
+    protected _space: number = 0;
+    /**@internal */
+    protected _labels: string;
+    /**@internal */
+    protected _labelColors: string;
+    /**@internal */
+    private _labelFont: string;
+    /**@internal */
+    protected _labelStrokeColor: string;
+    /**@internal */
+    protected _strokeColors: string;
+    /**@internal */
+    protected _labelStroke: number;
+    /**@internal */
+    protected _labelSize: number;
+    /**@internal */
+    protected _labelBold: boolean;
+    /**@internal */
+    protected _labelPadding: string;
+    /**@internal */
+    protected _labelAlign: string;
+    /**@internal */
+    protected _stateNum: number;
+    /**@internal */
+    protected _labelChanged: boolean;
     /**
      * 改变 <code>Group</code> 的选择项时执行的处理器，(默认返回参数： 项索引（index:int）)。
      */
     selectHandler: Handler;
-
-    /**@private */
-    protected _items: ISelect[];
-    /**@private */
-    protected _selectedIndex: number = -1;
-    /**@private */
-    protected _skin: string;
-    /**@private */
-    protected _direction: string = "horizontal";
-    /**@private */
-    protected _space: number = 0;
-    /**@private */
-    protected _labels: string;
-    /**@private */
-    protected _labelColors: string;
-    /**@private */
-    private _labelFont: string;
-    /**@private */
-    protected _labelStrokeColor: string;
-    /**@private */
-    protected _strokeColors: string;
-    /**@private */
-    protected _labelStroke: number;
-    /**@private */
-    protected _labelSize: number;
-    /**@private */
-    protected _labelBold: boolean;
-    /**@private */
-    protected _labelPadding: string;
-    /**@private */
-    protected _labelAlign: string;
-    /**@private */
-    protected _stateNum: number;
-    /**@private */
-    protected _labelChanged: boolean;
-
-    /**
-     * 创建一个新的 <code>Group</code> 类实例。
-     * @param labels 标签集字符串。以逗号做分割，如"item0,item1,item2,item3,item4,item5"。
-     * @param skin 皮肤。
-     */
-    constructor(labels: string = null, skin: string = null) {
-        super();
-        this._items = [];
-        this.skin = skin;
-        this.labels = labels;
-    }
-    /**
-     * @override
-     */
-    protected preinitialize(): void {
-        this.mouseEnabled = true;
-    }
-
-    /**
-     * @inheritDoc 
-     * @override
-    */
-    destroy(destroyChild: boolean = true): void {
-        super.destroy(destroyChild);
-        this._items && (this._items.length = 0);
-        this._items = null;
-        this.selectHandler = null;
-    }
-
-    /**
-     * 添加一个项对象，返回此项对象的索引id。
-     *
-     * @param item 需要添加的项对象。
-     * @param autoLayout 是否自动布局，如果为true，会根据 <code>direction</code> 和 <code>space</code> 属性计算item的位置。
-     * @return
-     */
-    addItem(item: ISelect, autoLayout: boolean = true): number {
-        let display = (<Sprite>(item as any));
-        let index = this._items.length;
-        display.name = "item" + index;
-        this.addChild(display);
-        this.initItems();
-
-        if (autoLayout && index > 0) {
-            let preItem = (<Sprite>(this._items[index - 1] as any));
-            if (this._direction == "horizontal") {
-                display.x = preItem._x + preItem.width + this._space;
-            } else {
-                display.y = preItem._y + preItem.height + this._space;
-            }
-        } else {
-            if (autoLayout) {
-                display.x = 0;
-                display.y = 0;
-            }
-        }
-        return index;
-    }
-
-    /**
-     * 删除一个项对象。
-     * @param item 需要删除的项对象。
-     * @param autoLayout 是否自动布局，如果为true，会根据 <code>direction</code> 和 <code>space</code> 属性计算item的位置。
-     */
-    delItem(item: ISelect, autoLayout: boolean = true): void {
-        var index: number = this._items.indexOf(item);
-        if (index != -1) {
-            let display: Sprite = (<Sprite>(item as any));
-            this.removeChild(display);
-            for (let i = index + 1, n = this._items.length; i < n; i++) {
-                let child = (<Sprite>(this._items[i] as any));
-                child.name = "item" + (i - 1);
-                if (autoLayout) {
-                    if (this._direction == "horizontal") {
-                        child.x -= display.width + this._space;
-                    } else {
-                        child.y -= display.height + this._space;
-                    }
-                }
-            }
-            this.initItems();
-            if (this._selectedIndex > -1) {
-                let newIndex = this._selectedIndex < this._items.length ? this._selectedIndex : (this._selectedIndex - 1);
-                this._selectedIndex = -1;
-                this.selectedIndex = newIndex;
-            }
-        }
-    }
-
-    onAfterDeserialize() {
-        super.onAfterDeserialize();
-        if (!this._labels)
-            this.initItems();
-    }
-
-    /**@internal 2.0解析会调用 */
-    _afterInited(): void {
-        this.initItems();
-    }
-
-    /**
-     * 初始化项对象们。
-     */
-    initItems(): void {
-        this._items.length = 0;
-        for (let i = 0; i < 10000; i++) {
-            let item = <ISelect>this.getChildByName("item" + i);
-            if (item == null)
-                break;
-            this._items.push(item);
-            item.selected = (i === this._selectedIndex);
-            item.clickHandler = Handler.create(this, this.itemClick, [i], false);
-        }
-    }
-
-    /**
-     * @private
-     * 项对象的点击事件侦听处理函数。
-     * @param index 项索引。
-     */
-    protected itemClick(index: number): void {
-        this.selectedIndex = index;
-    }
 
     /**
      * 表示当前选择的项索引。默认值为-1。
@@ -204,16 +79,6 @@ export class UIGroup extends Box {
     }
 
     /**
-     * @private
-     * 通过对象的索引设置项对象的 <code>selected</code> 属性值。
-     * @param index 需要设置的项对象的索引。
-     * @param selected 表示项对象的选中状态。
-     */
-    protected setSelect(index: number, selected: boolean): void {
-        if (this._items && index > -1 && index < this._items.length) this._items[index].selected = selected;
-    }
-
-    /**
      * @copy laya.ui.Image#skin
      */
     get skin(): string {
@@ -227,29 +92,6 @@ export class UIGroup extends Box {
             return;
 
         this._setSkin(value);
-    }
-
-    _setSkin(url: string): Promise<void> {
-        this._skin = url;
-        if (url) {
-            if (this._skinBaseUrl)
-                url = URL.formatURL(url, this._skinBaseUrl);
-            if (Loader.getRes(url)) {
-                this._skinLoaded();
-                return Promise.resolve();
-            }
-            else
-                return ILaya.loader.load(url, Loader.IMAGE).then(tex => this._skinLoaded());
-        }
-        else {
-            this._skinLoaded();
-            return Promise.resolve();
-        }
-    }
-
-    protected _skinLoaded(): void {
-        this._setLabelChanged();
-        this.event(Event.LOADED);
     }
 
     /**
@@ -287,16 +129,6 @@ export class UIGroup extends Box {
             }
             this.initItems();
         }
-    }
-
-    /**
-     * @private
-     * 创建一个项显示对象。
-     * @param skin 项对象的皮肤。
-     * @param label 项对象标签。
-     */
-    protected createItem(skin: string, label: string): Sprite {
-        return null;
     }
 
     /**
@@ -462,7 +294,97 @@ export class UIGroup extends Box {
     }
 
     /**
-     * @private
+     * 项对象们的存放数组。
+     */
+    get items(): ISelect[] {
+        return this._items;
+    }
+
+    /**
+     * 获取或设置当前选择的项对象。
+     */
+    get selection(): ISelect {
+        return this._selectedIndex > -1 && this._selectedIndex < this._items.length ? this._items[this._selectedIndex] : null;
+    }
+
+    set selection(value: ISelect) {
+        this.selectedIndex = this._items.indexOf(value);
+    }
+
+    /**
+     * 创建一个新的 <code>Group</code> 类实例。
+     * @param labels 标签集字符串。以逗号做分割，如"item0,item1,item2,item3,item4,item5"。
+     * @param skin 皮肤。
+     */
+    constructor(labels: string = null, skin: string = null) {
+        super();
+        this._items = [];
+        this.skin = skin;
+        this.labels = labels;
+    }
+
+    /**@internal 2.0解析会调用 */
+    _afterInited(): void {
+        this.initItems();
+    }
+
+    /** @internal */
+    _setSkin(url: string): Promise<void> {
+        this._skin = url;
+        if (url) {
+            if (this._skinBaseUrl)
+                url = URL.formatURL(url, this._skinBaseUrl);
+            if (Loader.getRes(url)) {
+                this._skinLoaded();
+                return Promise.resolve();
+            }
+            else
+                return ILaya.loader.load(url, Loader.IMAGE).then(tex => this._skinLoaded());
+        }
+        else {
+            this._skinLoaded();
+            return Promise.resolve();
+        }
+    }
+
+    /** @internal */
+    protected _skinLoaded(): void {
+        if (this._destroyed)
+            return;
+
+        this._setLabelChanged();
+        this.event(Event.LOADED);
+    }
+
+    /**@internal */
+    protected _setLabelChanged(): void {
+        if (!this._labelChanged) {
+            this._labelChanged = true;
+            this.callLater(this.changeLabels);
+        }
+    }
+
+    /**
+     * @internal
+     * 项对象的点击事件侦听处理函数。
+     * @param index 项索引。
+     */
+    protected itemClick(index: number): void {
+        this.selectedIndex = index;
+    }
+
+    /**
+     * @internal
+     * 创建一个项显示对象。
+     * @param skin 项对象的皮肤。
+     * @param label 项对象标签。
+     */
+    protected createItem(skin: string, label: string): Sprite {
+        return null;
+    }
+
+    /**
+     * @internal
      * 更改项对象的属性值。
      */
     protected changeLabels(): void {
@@ -497,6 +419,7 @@ export class UIGroup extends Box {
     }
 
     /**
+     * @internal
      * @inheritDoc 
      * @override
     */
@@ -505,21 +428,112 @@ export class UIGroup extends Box {
     }
 
     /**
-     * 项对象们的存放数组。
+     * @internal
+     * 通过对象的索引设置项对象的 <code>selected</code> 属性值。
+     * @param index 需要设置的项对象的索引。
+     * @param selected 表示项对象的选中状态。
      */
-    get items(): ISelect[] {
-        return this._items;
+    protected setSelect(index: number, selected: boolean): void {
+        if (this._items && index > -1 && index < this._items.length) this._items[index].selected = selected;
     }
 
     /**
-     * 获取或设置当前选择的项对象。
+     * @internal
      */
-    get selection(): ISelect {
-        return this._selectedIndex > -1 && this._selectedIndex < this._items.length ? this._items[this._selectedIndex] : null;
+    protected preinitialize(): void {
+        this.mouseEnabled = true;
     }
 
-    set selection(value: ISelect) {
-        this.selectedIndex = this._items.indexOf(value);
+    /**
+     * @inheritDoc 
+     * @override
+    */
+    destroy(destroyChild: boolean = true): void {
+        super.destroy(destroyChild);
+        this._items && (this._items.length = 0);
+        this._items = null;
+        this.selectHandler = null;
+    }
+
+    /**
+     * 添加一个项对象，返回此项对象的索引id。
+     *
+     * @param item 需要添加的项对象。
+     * @param autoLayout 是否自动布局，如果为true，会根据 <code>direction</code> 和 <code>space</code> 属性计算item的位置。
+     * @return
+     */
+    addItem(item: ISelect, autoLayout: boolean = true): number {
+        let display = (<Sprite>(item as any));
+        let index = this._items.length;
+        display.name = "item" + index;
+        this.addChild(display);
+        this.initItems();
+
+        if (autoLayout && index > 0) {
+            let preItem = (<Sprite>(this._items[index - 1] as any));
+            if (this._direction == "horizontal") {
+                display.x = preItem._x + preItem.width + this._space;
+            } else {
+                display.y = preItem._y + preItem.height + this._space;
+            }
+        } else {
+            if (autoLayout) {
+                display.x = 0;
+                display.y = 0;
+            }
+        }
+        return index;
+    }
+
+    /**
+     * 删除一个项对象。
+     * @param item 需要删除的项对象。
+     * @param autoLayout 是否自动布局，如果为true，会根据 <code>direction</code> 和 <code>space</code> 属性计算item的位置。
+     */
+    delItem(item: ISelect, autoLayout: boolean = true): void {
+        var index: number = this._items.indexOf(item);
+        if (index != -1) {
+            let display: Sprite = (<Sprite>(item as any));
+            this.removeChild(display);
+            for (let i = index + 1, n = this._items.length; i < n; i++) {
+                let child = (<Sprite>(this._items[i] as any));
+                child.name = "item" + (i - 1);
+                if (autoLayout) {
+                    if (this._direction == "horizontal") {
+                        child.x -= display.width + this._space;
+                    } else {
+                        child.y -= display.height + this._space;
+                    }
+                }
+            }
+            this.initItems();
+            if (this._selectedIndex > -1) {
+                let newIndex = this._selectedIndex < this._items.length ? this._selectedIndex : (this._selectedIndex - 1);
+                this._selectedIndex = -1;
+                this.selectedIndex = newIndex;
+            }
+        }
+    }
+
+    onAfterDeserialize() {
+        super.onAfterDeserialize();
+        if (!this._labels)
+            this.initItems();
+    }
+
+    /**
+     * 初始化项对象们。
+     */
+    initItems(): void {
+        this._items.length = 0;
+        for (let i = 0; i < 10000; i++) {
+            let item = <ISelect>this.getChildByName("item" + i);
+            if (item == null)
+                break;
+            this._items.push(item);
+            item.selected = (i === this._selectedIndex);
+            item.clickHandler = Handler.create(this, this.itemClick, [i], false);
+        }
     }
 
     /**
@@ -534,13 +548,5 @@ export class UIGroup extends Box {
             this.labels = ((<any[]>value)).join(",");
         else
             super.set_dataSource(value);
-    }
-
-    /**@private */
-    protected _setLabelChanged(): void {
-        if (!this._labelChanged) {
-            this._labelChanged = true;
-            this.callLater(this.changeLabels);
-        }
     }
 }

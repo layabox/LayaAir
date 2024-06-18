@@ -1,5 +1,5 @@
 import { Vector3 } from "../../../../maths/Vector3";
-import { SingletonList } from "../../../../utils/SingletonList";
+import { FastSinglelist, SingletonList } from "../../../../utils/SingletonList";
 import { Camera } from "../../../core/Camera";
 import { BaseRender, RenderBitFlag } from "../../../core/render/BaseRender";
 import { InstanceRenderElement } from "../../../core/render/InstanceRenderElement";
@@ -12,13 +12,21 @@ const tempVec1 = new Vector3();
 export class BatchRender extends BaseRender {
     /**@internal */
     protected _checkLOD: boolean;
+    /**@internal */
     protected _lodCount: number;
+    /**@internal */
     protected _lodRateArray: number[];
-    protected _batchList: SingletonList<BaseRender>;
+    /**@internal*/
+    protected _batchList: FastSinglelist<BaseRender>;
+    /**@internal*/
     protected _batchbit: RenderBitFlag;
+    /**@internal*/
     protected _RenderBitFlag: RenderBitFlag;
+    /**@internal*/
     protected _lodInstanceRenderElement: { [key: number]: InstanceRenderElement[] } = {};
+    /**@internal*/
     protected _lodsize: number;
+    /**@internal*/
     private _cacheLod: number;
 
     /**
@@ -60,6 +68,8 @@ export class BatchRender extends BaseRender {
 
 
     /**
+     * @internal
+     * @protected
      * Overrid it
      *  是否满足batch条件
      */
@@ -70,6 +80,10 @@ export class BatchRender extends BaseRender {
         return false;
     }
 
+    /**
+     * @internal
+     * @protected
+     */
     protected _onEnable(): void {
         super._onEnable();
         if (this._batchList) {
@@ -79,6 +93,10 @@ export class BatchRender extends BaseRender {
         }
     }
 
+    /**
+     * @internal
+     * @protected
+     */
     protected _onDisable(): void {
         super._onDisable();
         if (this._batchList) {
@@ -89,6 +107,8 @@ export class BatchRender extends BaseRender {
     }
 
     /**
+     * @internal
+     * @protected
      * 根据lod的改变
      */
     protected _changeLOD(lod: number) {
@@ -96,11 +116,10 @@ export class BatchRender extends BaseRender {
             return;
         }
 
-        if(this._cacheLod == this.lodCullRateArray.length - 1)
-        {
+        if (this._cacheLod == this.lodCullRateArray.length - 1) {
             lod = -1;
         }
-        
+
         this._renderElements = this._lodInstanceRenderElement[lod];
         if (this._lodInstanceRenderElement[lod] && lod != -1) {
             this._renderElements || (this._renderElements = []);
@@ -111,13 +130,16 @@ export class BatchRender extends BaseRender {
 
     }
 
+    /**
+     * 渲染前调用
+     */
     onPreRender() {
         if (!this.checkLOD || !this._lodRateArray || this._lodRateArray.length < 1) {
             this._changeLOD(0);
         } else {
             let checkCamera = (this.owner.scene as Scene3D).cullInfoCamera as Camera;
             let maxYDistance = checkCamera.maxlocalYDistance;
-            Vector3.subtract(this._bounds.getCenter(), checkCamera.transform.position, tempVec);
+            Vector3.subtract(this._bounds._imp.getCenter(), checkCamera.transform.position, tempVec);
             //大于farplane,或者不在视锥内.不做lod操作
             let length = tempVec.length();
             let rateYDistance = length / checkCamera.farPlane * maxYDistance;
@@ -132,6 +154,7 @@ export class BatchRender extends BaseRender {
     }
 
     /**
+     * @internal
      * @param render 
      */
     _batchOneRender(render: BaseRender): boolean {
@@ -140,6 +163,7 @@ export class BatchRender extends BaseRender {
     }
 
     /**
+     * @internal
      * @param render 
      */
     _removeOneRender(render: BaseRender) {
@@ -147,6 +171,7 @@ export class BatchRender extends BaseRender {
     }
 
     /**
+     * @internal
      * @param render 
      */
     _updateOneRender(render: BaseRender) {
@@ -155,7 +180,7 @@ export class BatchRender extends BaseRender {
 
     /**
      * 合批队列传入
-     * @param renderNodes 
+     * @param renderNodes 渲染节点队列
      */
     addList(renderNode: BaseRender[]) {
         for (var i = 0, n = renderNode.length; i < n; i++) {
@@ -179,6 +204,7 @@ export class BatchRender extends BaseRender {
     }
 
     /**
+     * @internal
      * Restoring the Batch Render State
      */
     _restorRenderNode() {
@@ -187,6 +213,9 @@ export class BatchRender extends BaseRender {
         }
     }
 
+    /**
+     * @internal
+     */
     _clear() {
         this._restorRenderNode();
         this._renderElements = [];

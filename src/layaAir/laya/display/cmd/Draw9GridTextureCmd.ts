@@ -1,4 +1,4 @@
-import { Context } from "../../resource/Context"
+import { Context, IGraphicCMD } from "../../renders/Context"
 import { Texture } from "../../resource/Texture"
 import { ClassUtils } from "../../utils/ClassUtils";
 import { ColorUtils } from "../../utils/ColorUtils";
@@ -8,7 +8,7 @@ import { Pool } from "../../utils/Pool"
  * 绘制带九宫格信息的图片
  * @internal
  */
-export class Draw9GridTextureCmd {
+export class Draw9GridTextureCmd implements IGraphicCMD {
     static ID: string = "Draw9GridTexture";
 
     /**

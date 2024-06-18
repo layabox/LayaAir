@@ -3,21 +3,20 @@ import { PostProcessRenderContext } from "laya/d3/core/render/PostProcessRenderC
 import EdgeEffectVS from "./shader/EdgeEffectVS.vs";
 import EdgeEffectFS from "./shader/EdgeEffectFS.fs";
 import { CommandBuffer } from "laya/d3/core/render/command/CommandBuffer";
-import { Viewport } from "laya/d3/math/Viewport";
 import { Camera } from "laya/d3/core/Camera";
-import { DepthTextureMode } from "laya/d3/depthMap/DepthPass";
 import { FilterMode } from "laya/RenderEngine/RenderEnum/FilterMode";
 import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFormat";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
-import { ShaderData, ShaderDataType } from "laya/RenderEngine/RenderShader/ShaderData";
-import { ShaderDefine } from "laya/RenderEngine/RenderShader/ShaderDefine";
+import { LayaGL } from "laya/layagl/LayaGL";
+import { ShaderDefine } from "laya/RenderDriver/RenderModuleData/Design/ShaderDefine";
+import { ShaderPass } from "laya/RenderEngine/RenderShader/ShaderPass";
+import { SubShader } from "laya/RenderEngine/RenderShader/SubShader";
+import { VertexMesh } from "laya/RenderEngine/RenderShader/VertexMesh";
 import { Vector3 } from "laya/maths/Vector3";
 import { Vector4 } from "laya/maths/Vector4";
-import { RenderTexture } from "laya/resource/RenderTexture";
-import { SubShader } from "laya/RenderEngine/RenderShader/SubShader";
-import { ShaderPass } from "laya/RenderEngine/RenderShader/ShaderPass";
-import { VertexMesh } from "laya/RenderEngine/RenderShader/VertexMesh";
-import { LayaGL } from "laya/layagl/LayaGL";
+import { RenderTexture, DepthTextureMode } from "laya/resource/RenderTexture";
+import { ShaderData, ShaderDataType } from "laya/RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { Viewport } from "laya/maths/Viewport";
 
 export enum EdgeMode {
     ColorEdge = 0,
@@ -28,7 +27,7 @@ export enum EdgeMode {
 export class EdgeEffect extends PostProcessEffect {
     private _shader: Shader3D = null;
     private static _isShaderInit: boolean = false;
-    private _shaderData: ShaderData = LayaGL.renderOBJCreate.createShaderData(null);
+    private _shaderData: ShaderData = LayaGL.renderDeviceFactory.createShaderData(null);
     static DEPTHTEXTURE: number;
     static DEPTHNORMALTEXTURE: number;
     static DEPTHBUFFERPARAMS: number;
@@ -75,7 +74,7 @@ export class EdgeEffect extends PostProcessEffect {
             "u_DepthTex": ShaderDataType.Texture2D,
             "u_DepthNormalTex": ShaderDataType.Texture2D,
             "u_DepthBufferParams": ShaderDataType.Vector4,
-            "u_EdgeColor": ShaderDataType.Color,
+            "u_EdgeColor": ShaderDataType.Vector3,
             "u_ColorHold": ShaderDataType.Float,
             "u_Depthhold": ShaderDataType.Float,
             "u_NormalHold": ShaderDataType.Float,
@@ -86,6 +85,7 @@ export class EdgeEffect extends PostProcessEffect {
         let pass: ShaderPass = subShader.addShaderPass(EdgeEffectVS, EdgeEffectFS);
         pass.renderState.depthWrite = false;
     }
+    
     constructor() {
         super();
         if (!EdgeEffect._isShaderInit) {

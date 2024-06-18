@@ -83,7 +83,10 @@ import { Radio } from "./Radio"
  * }
  */
 export class RadioGroup extends UIGroup {
-    /**@inheritDoc 
+
+    /**
+     * @internal
+     * @inheritDoc 
      * @override
     */
     protected createItem(skin: string, label: string): Sprite {

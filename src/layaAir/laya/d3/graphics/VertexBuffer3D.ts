@@ -1,30 +1,42 @@
+import { IVertexBuffer } from "../../RenderDriver/DriverDesign/RenderDevice/IVertexBuffer";
 import { BufferTargetType, BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
-import { VertexBuffer } from "../../RenderEngine/VertexBuffer";
 import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
+import { LayaGL } from "../../layagl/LayaGL";
 
 
 /**
  * 请使用LayaGL.RenderOBJCreate.createIndexBuffer3D来创建
  * <code>VertexBuffer3D</code> 类用于创建顶点缓冲。
  */
-export class VertexBuffer3D extends VertexBuffer {
+export class VertexBuffer3D {
 
 	/** @internal */
-	protected _canRead: boolean;
-
-
+	private _canRead: boolean;
+	_byteLength: number;
+	/**@internal */
+	_deviceBuffer: IVertexBuffer;
+	_buffer: Float32Array | Uint16Array | Uint8Array | Uint32Array;
 	/** @internal */
 	_float32Reader: Float32Array | null = null;
-
+	
+	bufferUsage:BufferUsage;
 	/**
 	 * 获取顶点声明。
 	 */
 	get vertexDeclaration(): VertexDeclaration | null {
-		return this._vertexDeclaration;
+		return this._deviceBuffer.vertexDeclaration;
 	}
 
 	set vertexDeclaration(value: VertexDeclaration | null) {
-		this._vertexDeclaration = value;
+		this._deviceBuffer.vertexDeclaration = value;
+	}
+
+	get instanceBuffer(): boolean {
+		return this._deviceBuffer.instanceBuffer;
+	}
+
+	set instanceBuffer(value: boolean) {
+		this._deviceBuffer.instanceBuffer = value;
 	}
 
 	/**
@@ -41,24 +53,25 @@ export class VertexBuffer3D extends VertexBuffer {
 	 * @param	canRead 是否可读。
 	 */
 	constructor(byteLength: number, bufferUsage: BufferUsage, canRead: boolean = false) {
-		super(BufferTargetType.ARRAY_BUFFER, bufferUsage);
+		//super(BufferTargetType.ARRAY_BUFFER, bufferUsage);
+		this._deviceBuffer = LayaGL.renderDeviceFactory.createVertexBuffer(bufferUsage);
 		this._canRead = canRead;
 		this._byteLength = byteLength;
-		this.bind();
-		this._glBuffer.setDataLength(byteLength)
+		this._deviceBuffer.setDataLength(byteLength)
+		this.bufferUsage = bufferUsage;
 		if (this._canRead) {
 			this._buffer = new Uint8Array(byteLength);
 			this._float32Reader = new Float32Array(this._buffer.buffer);
 		}
 	}
 
-	/**
-	 * 剥离内存块存储。
-	 */
-	orphanStorage(): void {
-		this.bind();
-		this._glBuffer.setDataLength(this._byteLength);
-	}
+	// /**
+	//  * 剥离内存块存储。
+	//  */
+	// orphanStorage(): void {
+	// 	this.bind();
+	// 	this._glBuffer.setDataLength(this._byteLength);
+	// }
 
 	/**
 	 * 设置数据。
@@ -68,16 +81,14 @@ export class VertexBuffer3D extends VertexBuffer {
 	 * @param	dataCount 顶点数据的长度,以字节为单位。
 	 */
 	setData(buffer: ArrayBuffer, bufferOffset: number = 0, dataStartIndex: number = 0, dataCount: number = Number.MAX_SAFE_INTEGER): void {
-		this.bind();
+		this._deviceBuffer.setData(buffer, bufferOffset, dataStartIndex, dataCount);
 		var needSubData: boolean = dataStartIndex !== 0 || dataCount !== Number.MAX_SAFE_INTEGER;
 		if (needSubData) {
 			var subData: Uint8Array = new Uint8Array(buffer, dataStartIndex, dataCount);
-			this._glBuffer.setData(subData, bufferOffset);
 			if (this._canRead)
 				this._buffer.set(subData, bufferOffset);
 		}
 		else {
-			this._glBuffer.setData(buffer, bufferOffset);
 			if (this._canRead)
 				this._buffer.set(new Uint8Array(buffer), bufferOffset);
 		}
@@ -118,10 +129,9 @@ export class VertexBuffer3D extends VertexBuffer {
 	 * @override
 	 */
 	destroy(): void {
-		super.destroy();
+		this._deviceBuffer.destroy();
 		this._buffer = null;
 		this._float32Reader = null;
-		this._vertexDeclaration = null;
 		this._byteLength = 0;
 	}
 }

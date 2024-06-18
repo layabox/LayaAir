@@ -1,5 +1,5 @@
+import { ShaderDefine } from "../../../../../RenderDriver/RenderModuleData/Design/ShaderDefine";
 import { Shader3D } from "../../../../../RenderEngine/RenderShader/Shader3D";
-import { ShaderDefine } from "../../../../../RenderEngine/RenderShader/ShaderDefine";
 import { Color } from "../../../../../maths/Color";
 import { Vector2 } from "../../../../../maths/Vector2";
 import { Vector3 } from "../../../../../maths/Vector3";
@@ -67,10 +67,6 @@ export class LensFlareElement {
     private _blendMode: any;
     /**@internal */
     private _translationScale: Vector2 = new Vector2(1, 1);
-    //elemet TODO
-    //其他TODO
-
-
 
     /**
      * 是否激活
@@ -183,6 +179,9 @@ export class LensFlareData extends Resource {
         super(false);
     }
 
+    /**
+     * 光耀元素集合
+     */
     elements: LensFlareElement[] = [];
 }
 
@@ -332,12 +331,12 @@ export class LensFlareEffect extends PostProcessEffect {
 
     /**
      * 计算直射光中心点
-     * @param camera 
+     * @param camera 摄像机
      */
     caculateDirCenter(camera: Camera) {
         //center caculate start
         // lightDirection
-        (this._light as DirectionLightCom)._direction.cloneTo(this._tempV3);
+        (this._light as DirectionLightCom).direction.cloneTo(this._tempV3);
         // lightDir revert
         Vector3.scale(this._tempV3, -10, this._tempV3);
         // offset of light to camera
@@ -356,7 +355,7 @@ export class LensFlareEffect extends PostProcessEffect {
 
     /**
      * 计算点光
-     * @param camera 
+     * @param camera 相机
      */
     caculatePointCenter(camera: Camera) {
         //TODO
@@ -365,7 +364,7 @@ export class LensFlareEffect extends PostProcessEffect {
 
     /**
      * 计算spot光
-     * @param value 
+     * @param value 屏幕点
      */
     caculateSpotCenter(value: Vector2) {
         //TODO
@@ -374,13 +373,13 @@ export class LensFlareEffect extends PostProcessEffect {
 
     /**
      * 渲染流程
-     * @param context 
+     * @param context 后期处理渲染上下文
      * @returns 
      */
     render(context: PostProcessRenderContext) {
         var cmd: CommandBuffer = context.command;
         let source: RenderTexture = context.indirectTarget;
-        cmd.setRenderTarget(source);
+        cmd.setRenderTarget(source, false, false);
         if (!this._light)
             return;
         switch (this._light.lightType) {
@@ -401,6 +400,7 @@ export class LensFlareEffect extends PostProcessEffect {
 
     /**
    * 释放Effect
+   * @param postprocess 后期处理节点
    * @inheritDoc
    * @override
    */

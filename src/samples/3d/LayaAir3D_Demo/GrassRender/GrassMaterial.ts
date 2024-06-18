@@ -4,14 +4,15 @@ import { Material } from "laya/resource/Material";
 import { BaseTexture } from "laya/resource/BaseTexture";
 import { Loader } from "laya/net/Loader";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
-import { ShaderDataType } from "laya/RenderEngine/RenderShader/ShaderData";
 import { Vector2 } from "laya/maths/Vector2";
 import { Vector3 } from "laya/maths/Vector3";
 import { Vector4 } from "laya/maths/Vector4";
-import { RenderState } from "laya/RenderEngine/RenderShader/RenderState";
+import { RenderState } from "laya/RenderDriver/RenderModuleData/Design/RenderState";
 import { ShaderPass } from "laya/RenderEngine/RenderShader/ShaderPass";
 import { SubShader } from "laya/RenderEngine/RenderShader/SubShader";
 import { VertexMesh } from "laya/RenderEngine/RenderShader/VertexMesh";
+import { ShaderDataType } from "laya/RenderDriver/DriverDesign/RenderDevice/ShaderData";
+
 
 export class GrassMaterial extends Material {
     static hasInited: boolean = false;
@@ -130,44 +131,44 @@ export class GrassMaterial extends Material {
     }
 
     setWindA(windIntensity: number, windFrequency: number, windTiling: Vector2, windWrap: Vector2) {
-        this._shaderValues.setNumber(GrassMaterial.WINDAINTENSITY, windIntensity);
-        this._shaderValues.setNumber(GrassMaterial.WINDAFREQUECY, windFrequency);
-        this._shaderValues.setVector2(GrassMaterial.WINDATILING, windTiling);
-        this._shaderValues.setVector2(GrassMaterial.WINDAWRAP, windWrap);
+        this.shaderData.setNumber(GrassMaterial.WINDAINTENSITY, windIntensity);
+        this.shaderData.setNumber(GrassMaterial.WINDAFREQUECY, windFrequency);
+        this.shaderData.setVector2(GrassMaterial.WINDATILING, windTiling);
+        this.shaderData.setVector2(GrassMaterial.WINDAWRAP, windWrap);
     }
 
     setWindB(windIntensity: number, windFrequency: number, windTiling: Vector2, windWrap: Vector2) {
-        this._shaderValues.setNumber(GrassMaterial.WINDBINTENSITY, windIntensity);
-        this._shaderValues.setNumber(GrassMaterial.WINDBFREQUECY, windFrequency);
-        this._shaderValues.setVector2(GrassMaterial.WINDBTILING, windTiling);
-        this._shaderValues.setVector2(GrassMaterial.WINDBWRAP, windWrap);
+        this.shaderData.setNumber(GrassMaterial.WINDBINTENSITY, windIntensity);
+        this.shaderData.setNumber(GrassMaterial.WINDBFREQUECY, windFrequency);
+        this.shaderData.setVector2(GrassMaterial.WINDBTILING, windTiling);
+        this.shaderData.setVector2(GrassMaterial.WINDBWRAP, windWrap);
     }
 
     setWindC(windIntensity: number, windFrequency: number, windTiling: Vector2, windWrap: Vector2) {
-        this._shaderValues.setNumber(GrassMaterial.WINDCINTENSITY, windIntensity);
-        this._shaderValues.setNumber(GrassMaterial.WINDCFREQUECY, windFrequency);
-        this._shaderValues.setVector2(GrassMaterial.WINDCTILING, windTiling);
-        this._shaderValues.setVector2(GrassMaterial.WINDCWRAP, windWrap);
+        this.shaderData.setNumber(GrassMaterial.WINDCINTENSITY, windIntensity);
+        this.shaderData.setNumber(GrassMaterial.WINDCFREQUECY, windFrequency);
+        this.shaderData.setVector2(GrassMaterial.WINDCTILING, windTiling);
+        this.shaderData.setVector2(GrassMaterial.WINDCWRAP, windWrap);
     }
 
     set grassHight(value: number) {
-        this._shaderValues.setNumber(GrassMaterial.GRASSHEIGHT, value);
+        this.shaderData.setNumber(GrassMaterial.GRASSHEIGHT, value);
     }
 
     set grassWidth(value: number) {
-        this._shaderValues.setNumber(GrassMaterial.GRASSWIDTH, value);
+        this.shaderData.setNumber(GrassMaterial.GRASSWIDTH, value);
     }
 
     set grassGroundColor(value: Vector3) {
-        this._shaderValues.setVector3(GrassMaterial.GROUNDCOLOR, value);
+        this.shaderData.setVector3(GrassMaterial.GROUNDCOLOR, value);
     }
 
     set grassBoundSize(value: Vector4) {
-        this._shaderValues.setVector(GrassMaterial.GRASSBOUND, value);
+        this.shaderData.setVector(GrassMaterial.GRASSBOUND, value);
     }
 
     set albedoTexture(value: BaseTexture) {
-        this._shaderValues.setTexture(GrassMaterial.ALBEDOTEXTURE, value);
+        this.shaderData.setTexture(GrassMaterial.ALBEDOTEXTURE, value);
     }
 
 }

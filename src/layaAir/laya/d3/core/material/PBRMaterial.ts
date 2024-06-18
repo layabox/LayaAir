@@ -2,12 +2,12 @@ import { BaseTexture } from "../../../resource/BaseTexture";
 import { Material } from "../../../resource/Material";
 import { PBRRenderQuality } from "./PBRRenderQuality";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
-import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";
 import { Texture2D } from "../../../resource/Texture2D";
 import { Color } from "../../../maths/Color";
 import { Vector4 } from "../../../maths/Vector4";
-import { RenderState } from "../../../RenderEngine/RenderShader/RenderState";
 import { PBRShaderLib } from "../../shader/pbr/PBRShaderLib";
+import { ShaderDefine } from "../../../RenderDriver/RenderModuleData/Design/ShaderDefine";
+import { RenderState } from "../../../RenderDriver/RenderModuleData/Design/RenderState";
 
 /**
  * 渲染模式。
@@ -209,7 +209,7 @@ export class PBRMaterial extends Material {
         else
             this._shaderValues.removeDefine(PBRMaterial.SHADERDEFINE_ALBEDOTEXTURE);
 
-        this._shaderValues.setTexture(PBRMaterial.ALBEDOTEXTURE, value);
+        this.setTextureByIndex(PBRMaterial.ALBEDOTEXTURE, value);
     }
 
     /**
@@ -230,7 +230,7 @@ export class PBRMaterial extends Material {
         } else {
             this._shaderValues.removeDefine(PBRMaterial.SHADERDEFINE_NORMALTEXTURE);
         }
-        this._shaderValues.setTexture(PBRMaterial.NORMALTEXTURE, value);
+        this.setTextureByIndex(PBRMaterial.NORMALTEXTURE, value);
     }
 
     /**
@@ -256,7 +256,7 @@ export class PBRMaterial extends Material {
             this._shaderValues.addDefine(PBRMaterial.SHADERDEFINE_PARALLAXTEXTURE);
         else
             this._shaderValues.removeDefine(PBRMaterial.SHADERDEFINE_PARALLAXTEXTURE);
-        this._shaderValues.setTexture(PBRMaterial.PARALLAXTEXTURE, value);
+        this.setTextureByIndex(PBRMaterial.PARALLAXTEXTURE, value);
     }
 
     /**
@@ -283,7 +283,7 @@ export class PBRMaterial extends Material {
         else
             this._shaderValues.removeDefine(PBRMaterial.SHADERDEFINE_OCCLUSIONTEXTURE);
 
-        this._shaderValues.setTexture(PBRMaterial.OCCLUSIONTEXTURE, value);
+        this.setTextureByIndex(PBRMaterial.OCCLUSIONTEXTURE, value);
     }
 
     /**
@@ -369,7 +369,7 @@ export class PBRMaterial extends Material {
         else
             this._shaderValues.removeDefine(PBRMaterial.SHADERDEFINE_EMISSIONTEXTURE);
 
-        this._shaderValues.setTexture(PBRMaterial.EMISSIONTEXTURE, value);
+        this.setTextureByIndex(PBRMaterial.EMISSIONTEXTURE, value);
     }
 
     /**
@@ -402,7 +402,7 @@ export class PBRMaterial extends Material {
         else
             this._shaderValues.removeDefine(PBRMaterial.SHADERDEFINE_DETAILALBEDO);
 
-        this._shaderValues.setTexture(PBRMaterial.DETAILALBEDOTEXTURE, value);
+        this.setTextureByIndex(PBRMaterial.DETAILALBEDOTEXTURE, value);
     }
 
 
@@ -418,7 +418,7 @@ export class PBRMaterial extends Material {
             this._shaderValues.addDefine(PBRMaterial.SHADERDEFINE_DETAILNORMAL);
         else
             this._shaderValues.removeDefine(PBRMaterial.SHADERDEFINE_DETAILNORMAL);
-        this._shaderValues.setTexture(PBRMaterial.DETAILNORMALTEXTURE, value);
+        this.setTextureByIndex(PBRMaterial.DETAILNORMALTEXTURE, value);
     }
 
     /**
@@ -592,7 +592,7 @@ export class PBRMaterial extends Material {
         else {
             this.shaderData.removeDefine(PBRMaterial.SHADERDEFINE_CLEARCOATTEXTURE);
         }
-        this.shaderData.setTexture(PBRMaterial.CLEARCOATTEXTURE, value);
+        this.setTextureByIndex(PBRMaterial.CLEARCOATTEXTURE, value);
     }
 
     /**
@@ -618,7 +618,7 @@ export class PBRMaterial extends Material {
         else {
             this.shaderData.removeDefine(PBRMaterial.SHADERDEFINE_CLEARCOATROUGHNESSTEXTURE);
         }
-        this.shaderData.setTexture(PBRMaterial.CLEARCOATROUGHNESSTEXTURE, value);
+        this.setTextureByIndex(PBRMaterial.CLEARCOATROUGHNESSTEXTURE, value);
     }
 
     /**
@@ -634,7 +634,7 @@ export class PBRMaterial extends Material {
         else {
             this.shaderData.removeDefine(PBRShaderLib.DEFINE_CLEARCOAT_NORMAL);
         }
-        this.shaderData.setTexture(PBRMaterial.CLEARCOATNORMALTEXTURE, value);
+        this.setTextureByIndex(PBRMaterial.CLEARCOATNORMALTEXTURE, value);
     }
 
     constructor() {

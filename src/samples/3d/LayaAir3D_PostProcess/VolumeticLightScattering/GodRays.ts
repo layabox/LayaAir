@@ -1,27 +1,25 @@
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
-import { ShaderData, ShaderDataType } from "laya/RenderEngine/RenderShader/ShaderData";
 import { SubShader } from "laya/RenderEngine/RenderShader/SubShader";
 import { VertexMesh } from "laya/RenderEngine/RenderShader/VertexMesh";
 import { PostProcessEffect } from "laya/d3/core/render/PostProcessEffect";
 import { PostProcessRenderContext } from "laya/d3/core/render/PostProcessRenderContext";
 import { CommandBuffer } from "laya/d3/core/render/command/CommandBuffer";
-import { BaseTexture } from "laya/resource/BaseTexture";
 import { RenderTexture } from "laya/resource/RenderTexture";
 import BlitVS from "./FarBlitScreen.vs";
 import BlitFS from "./ScallerBlitFS.fs";
 import BlitOCFS from "./OcBlitFS.fs";
 import AddBlitFS from "./AddBlitFS.fs";
-import { RenderState } from "laya/RenderEngine/RenderShader/RenderState";
 import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFormat";
 import { Color } from "laya/maths/Color";
 import { Vector4 } from "laya/maths/Vector4";
 import { Texture2D } from "laya/resource/Texture2D";
 import { Camera } from "laya/d3/core/Camera";
-import { Matrix4x4 } from "laya/maths/Matrix4x4";
 import { Vector3 } from "laya/maths/Vector3";
 import { Vector2 } from "laya/maths/Vector2";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { LayaGL } from "laya/layagl/LayaGL";
+import { RenderState } from "laya/RenderDriver/RenderModuleData/Design/RenderState";
+import { ShaderDataType, ShaderData } from "laya/RenderDriver/DriverDesign/RenderDevice/ShaderData";
 
 export class GodRay extends PostProcessEffect {
     static init() {
@@ -59,7 +57,7 @@ export class GodRay extends PostProcessEffect {
             "u_MainTex_TexelSize": ShaderDataType.Vector4, //x:width,y:height,z:1/width,w:1/height
             "u_Center": ShaderDataType.Vector2,
             "u_AspecTratio": ShaderDataType.Float,
-            "u_sunSize":ShaderDataType.Float
+            "u_sunSize": ShaderDataType.Float
         };
         let shaderOc = Shader3D.add("OcShader");
         subShader = new SubShader(attributeMap, uniformMapOc);
@@ -112,11 +110,11 @@ export class GodRay extends PostProcessEffect {
     constructor() {
         super();
         this.active = true;
-        this._godRayData = LayaGL.renderOBJCreate.createShaderData(null);
+        this._godRayData = LayaGL.renderDeviceFactory.createShaderData(null);
         this._godRayShader = Shader3D.find("godRayScaller");
-        this._ocData = LayaGL.renderOBJCreate.createShaderData(null);
+        this._ocData = LayaGL.renderDeviceFactory.createShaderData(null);
         this._ocShader = Shader3D.find("OcShader");
-        this._addData = LayaGL.renderOBJCreate.createShaderData(null);
+        this._addData = LayaGL.renderDeviceFactory.createShaderData(null);
         this._addShader = Shader3D.find("AddShader");
         this.tempv2 = new Vector2();
         this.scatterColor = new Color(1.0, 1.0, 1.0, 1.0);
@@ -185,9 +183,8 @@ export class GodRay extends PostProcessEffect {
         let source: RenderTexture = context.camera._internalRenderTexture;
         this.getcenter(context.camera, context.camera.scene, source.width / source.height);
         //getOcTexture
-        let copyRT = RenderTexture.createFromPool(source.width, source.height, source.colorFormat, RenderTargetFormat.None, false, 1, false,true);
-        cmd.setRenderTarget(source);
-        cmd.clearRenderTarget(true, false, Color.BLACK);
+        let copyRT = RenderTexture.createFromPool(source.width, source.height, source.colorFormat, RenderTargetFormat.None, false, 1, false, true);
+        cmd.setRenderTarget(source,true, false, Color.BLACK);
         cmd.blitScreenQuad(Texture2D.whiteTexture, source, null, this._ocShader, this._ocData);
         //get scallerTexture
         cmd.blitScreenQuad(source, copyRT, null, this._godRayShader, this._godRayData);

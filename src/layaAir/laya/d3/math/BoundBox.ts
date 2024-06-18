@@ -63,7 +63,7 @@ export class BoundBox implements IClone {
 
 	/**
 	 * 获取中心点。
-	 * @param	out
+	 * @param	out 输出中心点
 	 */
 	getCenter(out: Vector3): void {
 		Vector3.add(this.min, this.max, out);
@@ -72,7 +72,7 @@ export class BoundBox implements IClone {
 
 	/**
 	 * 获取范围。
-	 * @param	out
+	 * @param	out 输出轴半径
 	 */
 	getExtent(out: Vector3): void {
 		Vector3.subtract(this.max, this.min, out);
@@ -81,7 +81,8 @@ export class BoundBox implements IClone {
 
 	/**
 	 * 设置中心点和范围。
-	 * @param	center
+	 * @param center 设置中心点
+	 * @param extent 轴半径
 	 */
 	setCenterAndExtent(center: Vector3, extent: Vector3): void {
 		Vector3.subtract(center, extent, this.min);
@@ -101,6 +102,9 @@ export class BoundBox implements IClone {
 		out.setCenterAndExtent(center, extent);
 	}
 
+	/**
+	 * 恢复默认值
+	 */
 	toDefault(): void {
 		this.min.toDefault();
 		this.max.toDefault();

@@ -1,7 +1,5 @@
 import { Sprite3D } from "../Sprite3D"
-import { Transform3D } from "../Transform3D"
 import { BaseRender } from "../render/BaseRender"
-import { RenderContext3D } from "../render/RenderContext3D"
 import { TrailFilter } from "./TrailFilter";
 import { FloatKeyframe } from "../FloatKeyframe";
 import { Gradient } from "../Gradient";
@@ -10,6 +8,10 @@ import { Bounds } from "../../math/Bounds";
 import { TrailTextureMode } from "../TrailTextureMode"
 import { TrailAlignment } from "./TrailAlignment"
 import { Matrix4x4 } from "../../../maths/Matrix4x4";
+import { RenderContext3D } from "../render/RenderContext3D";
+import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
+import { IBaseRenderNode } from "../../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
+import { TrailMaterial } from "./TrailMaterial";
 
 /**
  * <code>TrailRenderer</code> 类用于创建拖尾渲染器。
@@ -19,6 +21,7 @@ export class TrailRenderer extends BaseRender {
     /**@internal */
     _trailFilter: TrailFilter;
 
+    /**@internal */
     protected _projectionViewWorldMatrix: Matrix4x4 = new Matrix4x4();
 
     /**
@@ -26,17 +29,25 @@ export class TrailRenderer extends BaseRender {
      */
     constructor() {
         super();
-        this._supportOctree = false;
-
     }
 
-    protected _getcommonUniformMap():Array<string>{
-        return ["Sprite3D","TrailRender"];
+    protected _getcommonUniformMap(): Array<string> {
+        return ["Sprite3D", "TrailRender"];
     }
 
 
+    protected _createBaseRenderNode(): IBaseRenderNode {
+        return Laya3DRender.Render3DModuleDataFactory.createMeshRenderNode();
+    }
+
+    /**
+     * @internal
+     * @protected 
+     */
     protected _onAdded(): void {
+        super._onAdded();
         this._trailFilter = new TrailFilter(this);
+        this._setRenderElements();
     }
 
     /**
@@ -135,6 +146,9 @@ export class TrailRenderer extends BaseRender {
         this._trailFilter.textureMode = value;
     }
 
+    /**
+     * 拖尾轨迹准线
+     */
     get alignment(): TrailAlignment {
         return this._trailFilter.alignment;
     }
@@ -143,15 +157,36 @@ export class TrailRenderer extends BaseRender {
         this._trailFilter.alignment = value;
     }
 
+    /**
+     * @internal
+     * @protected
+     */
     protected _onEnable(): void {
         super._onEnable();
 
         (this.owner as Sprite3D)._transform.position.cloneTo(this._trailFilter._lastPosition);//激活时需要重置上次位置
     }
 
-    onUpdate(): void {
+    /**
+     * 渲染更新
+     * @param context 3D渲染上下文 
+     */
+    renderUpdate(context: RenderContext3D) {
         this._calculateBoundingBox();
+
+        this._renderElements.forEach((element, index) => {
+            let geometry = element._geometry;
+            element._renderElementOBJ.isRender = geometry._prepareRender(context);
+            geometry._updateRenderParams(context);
+
+            let material = this.sharedMaterial ?? TrailMaterial.defaultMaterial;
+            material = this.sharedMaterials[index] ?? material;
+            element.material = material;
+            element._renderElementOBJ.materialRenderQueue = material.renderQueue;
+        })
     }
+
+
 
     /**
      * 包围盒,只读,不允许修改其值。
@@ -165,21 +200,15 @@ export class TrailRenderer extends BaseRender {
      * @internal
      * @override
      */
-    protected _calculateBoundingBox(): void {
+    _calculateBoundingBox(): void {
         let context = RenderContext3D._instance;
         this.boundsChange = false;
         this._trailFilter._update(context);
     }
 
     /**
-     * @inheritDoc
-     * @internal
-     * @override
+     * 清除拖尾
      */
-    _renderUpdate(state: RenderContext3D, transform: Transform3D): void {
-        super._renderUpdate(state, transform);
-    }
-
     clear(): void {
         this._trailFilter.clear();
     }
@@ -192,6 +221,10 @@ export class TrailRenderer extends BaseRender {
         super._onDestroy();
     }
 
+    /**
+     * @internal
+     * @param dest 
+     */
     _cloneTo(dest: Component): void {
         super._cloneTo(dest);
         let render = dest as TrailRenderer;

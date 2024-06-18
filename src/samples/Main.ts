@@ -10,6 +10,22 @@ import { IndexView2D } from "./view/IndexView2D";
 import { IndexView3D } from "./view/IndexView3D";
 import { Texture } from "laya/resource/Texture";
 import Client from "./Client";
+import { LayaEnv } from "LayaEnv";
+import { LengencyRenderEngine3DFactory } from "laya/RenderDriver/DriverDesign/3DRenderPass/LengencyRenderEngine3DFactory";
+import { GLESRender2DProcess } from "laya/RenderDriver/OpenGLESDriver/2DRenderPass/GLESRender2DProcess";
+import { GLES3DRenderPassFactory } from "laya/RenderDriver/OpenGLESDriver/3DRenderPass/GLES3DRenderPassFactory";
+import { GLESRenderDeviceFactory } from "laya/RenderDriver/OpenGLESDriver/RenderDevice/GLESRenderDeviceFactory";
+import { GLESRenderEngineFactory } from "laya/RenderDriver/OpenGLESDriver/RenderDevice/GLESRenderEngineFactory";
+import { RT3DRenderModuleFactory } from "laya/RenderDriver/RenderModuleData/RuntimeModuleData/3D/RT3DRenderModuleFactory";
+import { RTUintRenderModuleDataFactory } from "laya/RenderDriver/RenderModuleData/RuntimeModuleData/RTUintRenderModuleDataFactory";
+import { Web3DRenderModuleFactory } from "laya/RenderDriver/RenderModuleData/WebModuleData/3D/Web3DRenderModuleFactory";
+import { WebUnitRenderModuleDataFactory } from "laya/RenderDriver/RenderModuleData/WebModuleData/WebUnitRenderModuleDataFactory";
+import { WebGLRender2DProcess } from "laya/RenderDriver/WebGLDriver/2DRenderPass/WebGLRender2DProcess";
+import { WebGL3DRenderPassFactory } from "laya/RenderDriver/WebGLDriver/3DRenderPass/WebGL3DRenderPassFactory";
+import { WebGLRenderDeviceFactory } from "laya/RenderDriver/WebGLDriver/RenderDevice/WebGLRenderDeviceFactory";
+import { WebGLRenderEngineFactory } from "laya/RenderDriver/WebGLDriver/RenderDevice/WebGLRenderEngineFactory";
+import { Laya3DRender } from "laya/d3/RenderObjs/Laya3DRender";
+import { LayaGL } from "laya/layagl/LayaGL";
 
 export class Main {
     private static _box3D: Sprite;
@@ -39,6 +55,23 @@ export class Main {
      * @param isReadNetWorkRes true从网络读取资源，false从本地目录读取资源(bin/res)。
      */
     constructor(is3D: boolean = true, isReadNetWorkRes: boolean = false) {
+        if(!LayaEnv.isConch || (LayaEnv.isConch && (window as any).conchConfig.getGraphicsAPI() == 2)){
+			LayaGL.unitRenderModuleDataFactory = new WebUnitRenderModuleDataFactory();
+			LayaGL.renderDeviceFactory = new WebGLRenderDeviceFactory();
+			Laya3DRender.renderOBJCreate = new LengencyRenderEngine3DFactory();
+			Laya3DRender.Render3DModuleDataFactory = new Web3DRenderModuleFactory();
+			Laya3DRender.Render3DPassFactory = new WebGL3DRenderPassFactory();
+			LayaGL.renderOBJCreate = new WebGLRenderEngineFactory();
+			LayaGL.render2DRenderPassFactory = new WebGLRender2DProcess()
+		}else{
+			LayaGL.unitRenderModuleDataFactory = new RTUintRenderModuleDataFactory();
+			LayaGL.renderDeviceFactory = new GLESRenderDeviceFactory();
+			Laya3DRender.renderOBJCreate = new LengencyRenderEngine3DFactory();
+			Laya3DRender.Render3DModuleDataFactory = new RT3DRenderModuleFactory();
+			Laya3DRender.Render3DPassFactory = new GLES3DRenderPassFactory();
+			LayaGL.renderOBJCreate = new GLESRenderEngineFactory();
+			LayaGL.render2DRenderPassFactory = new GLESRender2DProcess()
+		}
         Laya.init(this._is3D ? 0 : 1280, this._is3D ? 0 : 720).then(() => {
             if (!this._is3D) {
                 Laya.stage.scaleMode = Stage.SCALE_FIXED_AUTO;

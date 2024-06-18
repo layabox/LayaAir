@@ -4,8 +4,6 @@ import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Stage } from "laya/display/Stage";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
-import { PixelLineSprite3D } from "laya/d3/core/pixelLine/PixelLineSprite3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 
 export class ReflectionProbeDemo {

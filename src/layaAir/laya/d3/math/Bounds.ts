@@ -23,13 +23,13 @@ export class Bounds implements IClone {
 
     /**
      * 包围盒是否包含点
-     * @param box 
-     * @param point 
+     * @param box 包围盒
+     * @param point 检测点
      * @returns 
      */
     static containPoint(box: Bounds, point: Vector3): boolean {
-        let max = box.getMax();
-        let min = box.getMin();
+        let max = box._imp.getMax();
+        let min = box._imp.getMin();
         if (point.x > max.x || point.x < min.x) return false;
         if (point.y > max.y || point.y < min.y) return false;
         if (point.z > max.z || point.z < min.z) return false;
@@ -49,6 +49,9 @@ export class Bounds implements IClone {
     /**@internal	*/
     _imp: any;
 
+    /**
+     * 最小点
+     */
     get min() {
         return this.getMin();
     }
@@ -57,6 +60,9 @@ export class Bounds implements IClone {
         this.setMin(value);
     }
 
+    /**
+     * 最大点
+     */
     get max() {
         return this.getMax();
     }
@@ -135,40 +141,88 @@ export class Bounds implements IClone {
      * @param	max  max 最大坐标。
      */
     constructor(min?: Vector3, max?: Vector3) {
-        this._imp = Laya3DRender.renderOBJCreate.createBounds(min, max);
+        this._imp = Laya3DRender.Render3DModuleDataFactory.createBounds(min, max);
     }
 
+    /**
+     * 获得更新标志
+     * @internal
+     * @param type 类型 
+     * @return void
+     */
     protected _getUpdateFlag(type: number): boolean {
         return this._imp._getUpdateFlag(type);
     }
 
-
+    /**
+     * 设置更新标志
+     * @internal
+     * @param type 类型 
+     * @param value 值 
+     * @return void
+     */
     protected _setUpdateFlag(type: number, value: boolean): void {
         this._imp._setUpdateFlag(type, value);
     }
 
-
+    /**
+     * 获得包围盒中心值
+     * @internal
+     * @param min 最小值
+     * @param max 最大值
+     * @param out 返回值
+     * @return void
+     */
     protected _getCenter(min: Vector3, max: Vector3, out: Vector3): void {
         Vector3.add(min, max, out);
         Vector3.scale(out, 0.5, out);
     }
 
-
+    /**
+     * 获得包围盒范围
+     * @internal
+     * @param min 最小值
+     * @param max 最大值
+     * @param out 返回值
+     * @return void
+     */
     protected _getExtent(min: Vector3, max: Vector3, out: Vector3): void {
         Vector3.subtract(max, min, out);
         Vector3.scale(out, 0.5, out);
     }
 
-
+    /**
+     * 获得包围盒最小值
+     * @internal
+     * @param center 中心点
+     * @param extent 范围
+     * @param out 返回值
+     * @return void
+     */
     protected _getMin(center: Vector3, extent: Vector3, out: Vector3): void {
         Vector3.subtract(center, extent, out);
     }
 
-
+    /**
+     * 获得包围盒最大值
+     * @internal
+     * @param center 中心点
+     * @param extent 范围
+     * @param out 返回值
+     * @return void
+     */
     protected _getMax(center: Vector3, extent: Vector3, out: Vector3): void {
         Vector3.add(center, extent, out);
     }
 
+    /**
+    * 旋转范围
+    * @internal
+    * @param extent 范围
+    * @param rotation 旋转矩阵
+    * @param out 返回值
+    * @return void
+    */
     protected _rotateExtents(extents: Vector3, rotation: Matrix4x4, out: Vector3): void {
         var extentsX: number = extents.x;
         var extentsY: number = extents.y;
@@ -180,18 +234,25 @@ export class Bounds implements IClone {
     }
 
     /**
+     * 转换包围盒
      * @internal
+     * @param matrix 转换矩阵
+     * @param out 输出包围盒
      */
     _tranform(matrix: Matrix4x4, out: Bounds): void {
         this._imp._tranform(matrix, out._imp);
     }
 
+    /**
+     * 包围盒的8个顶点。
+     * @param  corners  返回顶点的输出队列。
+     */
     getCorners(corners: Vector3[]) {
         this._imp.getCorners(corners);
     }
 
     /**
-     * TODO
+     * 获取包围盒
      * @param box 
      */
     getBoundBox(box: BoundBox): void {
@@ -199,6 +260,8 @@ export class Bounds implements IClone {
     }
 
     /**
+     * 计算两个包围盒是否相交
+     * @param bounds 需要计算包围盒
      * @returns -1为不相交 不为0的时候返回值为相交体积
      */
     calculateBoundsintersection(bounds: Bounds): number {
@@ -225,6 +288,3 @@ export class Bounds implements IClone {
     }
 
 }
-
-const TEMP_VECTOR3_MAX0 = new Vector3();
-const TEMP_VECTOR3_MAX1 = new Vector3();

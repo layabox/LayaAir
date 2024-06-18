@@ -1,10 +1,7 @@
-import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
-import { ShaderDataType } from "../../RenderEngine/RenderShader/ShaderData";
-import { ShaderDefine } from "../../RenderEngine/RenderShader/ShaderDefine";
+import { Shader3D, ShaderFeatureType } from "../../RenderEngine/RenderShader/Shader3D";
 import { SubShader } from "../../RenderEngine/RenderShader/SubShader";
 import { Vector3 } from "../../maths/Vector3";
 import { Vector4 } from "../../maths/Vector4";
-import { Texture2D } from "../../resource/Texture2D";
 
 import glTFMetallicRoughnessGLSL from "./glTFMetallicRoughness.glsl";
 import glTFPBRVS from "./glTFPBR.vs";
@@ -14,6 +11,8 @@ import DephtFS from "./glTFPBRDepth.fs";
 import DepthNormalVS from "./glTFPBRDepthNormal.vs";
 import DepthNormalFS from "./glTFPBRDepthNormal.fs";
 import { Matrix3x3 } from "../../maths/Matrix3x3";
+import { ShaderDefine } from "../../RenderDriver/RenderModuleData/Design/ShaderDefine";
+import { ShaderDataType } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 
 /**
  * @internal
@@ -275,6 +274,7 @@ export class glTFShader {
         }
 
         shader = Shader3D.add("glTFPBR", true, true);
+        shader.shaderType = ShaderFeatureType.D3;
         let subShader = new SubShader(SubShader.DefaultAttributeMap, uniformMap, defaultValue);
         shader.addSubShader(subShader);
 

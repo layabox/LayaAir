@@ -1,11 +1,12 @@
-import { Context } from "../../resource/Context"
+import { Context, IGraphicCMD } from "../../renders/Context"
 import { ClassUtils } from "../../utils/ClassUtils";
 import { Pool } from "../../utils/Pool"
 
 /**
  * 绘制单条曲线
  */
-export class DrawLineCmd {
+export class DrawLineCmd implements IGraphicCMD {
+    /**绘制单条曲线标识符 */
     static ID: string = "DrawLine";
 
     /**
@@ -38,7 +39,7 @@ export class DrawLineCmd {
      */
     percent: boolean;
 
-    /**@private */
+    /**@private 创建绘制单条曲线CMD*/
     static create(fromX: number, fromY: number, toX: number, toY: number, lineColor: string, lineWidth: number): DrawLineCmd {
         var cmd: DrawLineCmd = Pool.getItemByClass("DrawLineCmd", DrawLineCmd);
         cmd.fromX = fromX;
@@ -57,7 +58,7 @@ export class DrawLineCmd {
         Pool.recover("DrawLineCmd", this);
     }
 
-    /**@private */
+    /**@private 执行绘制单条曲线cmd*/
     run(context: Context, gx: number, gy: number): void {
         let offset = (this.lineWidth < 1 || this.lineWidth % 2 === 0) ? 0 : 0.5;
         if (this.percent && context.sprite) {
@@ -69,11 +70,16 @@ export class DrawLineCmd {
             context._drawLine(gx, gy, this.fromX + offset, this.fromY + offset, this.toX + offset, this.toY + offset, this.lineColor, this.lineWidth, 0);
     }
 
-    /**@private */
+    /**@private 获取绘制单条曲线的标识符*/
     get cmdID(): string {
         return DrawLineCmd.ID;
     }
 
+    /**
+     * 获取包围盒顶点数据
+     * @param sp 绘制cmd的精灵 
+     * @returns 
+     */
     getBoundPoints(sp?: { width: number, height?: number }): number[] {
         _tempPoints.length = 0;
         let lineWidth: number;

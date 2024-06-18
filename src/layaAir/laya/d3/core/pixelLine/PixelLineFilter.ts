@@ -26,7 +26,7 @@ export class PixelLineFilter extends GeometryElement {
 	private static _type: number = GeometryElement._typeCounter++;
 
 	/** @internal */
-	private _floatCountPerVertices: number = 7;
+	private _floatCountPerVertices: number = 10;
 
 
 	/** @internal */
@@ -40,7 +40,7 @@ export class PixelLineFilter extends GeometryElement {
 	/** @internal */
 	private _floatBound: Float32Array = new Float32Array(6);
 	/** @internal */
-	private _calculateBound: boolean = false;
+	private _calculateBound: boolean = true;
 
 	/** @internal */
 	_ownerRender: PixelLineRenderer;
@@ -117,7 +117,7 @@ export class PixelLineFilter extends GeometryElement {
 	/**
 	 * @internal
 	 */
-	private _updateLineVertices(offset: number, startPosition: Vector3, endPosition: Vector3, startColor: Color, endColor: Color): void {
+	private _updateLineVertices(offset: number, startPosition: Vector3, endPosition: Vector3, startColor: Color, endColor: Color, startNormal: Vector3 = null, endNormal: Vector3 = null): void {
 		if (startPosition) {
 			this._vertices[offset + 0] = startPosition.x;
 			this._vertices[offset + 1] = startPosition.y;
@@ -131,18 +131,31 @@ export class PixelLineFilter extends GeometryElement {
 			this._vertices[offset + 6] = startColor.a;
 		}
 
+		if (startNormal) {
+			this._vertices[offset + 7] = startNormal.x;
+			this._vertices[offset + 8] = startNormal.y;
+			this._vertices[offset + 9] = startNormal.z;
+		}
+
 		if (endPosition) {
-			this._vertices[offset + 7] = endPosition.x;
-			this._vertices[offset + 8] = endPosition.y;
-			this._vertices[offset + 9] = endPosition.z;
+			this._vertices[offset + 10] = endPosition.x;
+			this._vertices[offset + 11] = endPosition.y;
+			this._vertices[offset + 12] = endPosition.z;
 		}
 
 		if (endColor) {
-			this._vertices[offset + 10] = endColor.r;
-			this._vertices[offset + 11] = endColor.g;
-			this._vertices[offset + 12] = endColor.b;
-			this._vertices[offset + 13] = endColor.a;
+			this._vertices[offset + 13] = endColor.r;
+			this._vertices[offset + 14] = endColor.g;
+			this._vertices[offset + 16] = endColor.b;
+			this._vertices[offset + 16] = endColor.a;
 		}
+
+		if (endNormal) {
+			this._vertices[offset + 17] = endNormal.x;
+			this._vertices[offset + 18] = endNormal.y;
+			this._vertices[offset + 19] = endNormal.z;
+		}
+
 		this._minUpdate = Math.min(this._minUpdate, offset);
 		this._maxUpdate = Math.max(this._maxUpdate, offset + this._floatCountPerVertices * 2);
 
@@ -220,9 +233,10 @@ export class PixelLineFilter extends GeometryElement {
 	/**
 	 * @internal
 	 */
-	_updateLineData(index: number, startPosition: Vector3, endPosition: Vector3, startColor: Color, endColor: Color): void {
+	_updateLineData(index: number, startPosition: Vector3, endPosition: Vector3, startColor: Color, endColor: Color, startNormal: Vector3 = null, endNormal: Vector3 = null): void {
 		var floatCount: number = this._floatCountPerVertices * 2;
-		this._updateLineVertices(index * floatCount, startPosition, endPosition, startColor, endColor);
+		this._updateLineVertices(index * floatCount, startPosition, endPosition, startColor, endColor, startNormal, endNormal);
+		this._calculateBound = true;
 	}
 
 	/**
@@ -233,8 +247,9 @@ export class PixelLineFilter extends GeometryElement {
 		var count: number = data.length;
 		for (var i: number = 0; i < count; i++) {
 			var line: PixelLineData = data[i];
-			this._updateLineVertices((index + i) * floatCount, line.startPosition, line.endPosition, line.startColor, line.endColor);
+			this._updateLineVertices((index + i) * floatCount, line.startPosition, line.endPosition, line.startColor, line.endColor, line.startNormal, line.endNormal);
 		}
+		this._calculateBound = data.length > 0;
 	}
 
 	/**
@@ -247,6 +262,9 @@ export class PixelLineFilter extends GeometryElement {
 		var endPosition: Vector3 = out.endPosition;
 		var endColor: Color = out.endColor;
 
+		var startNormal: Vector3 = out.startNormal;
+		var endNormal: Vector3 = out.endNormal;
+
 		var vertices: Float32Array = this._vertices;
 		var offset: number = index * this._floatCountPerVertices * 2;
 
@@ -257,14 +275,20 @@ export class PixelLineFilter extends GeometryElement {
 		startColor.g = vertices[offset + 4];
 		startColor.b = vertices[offset + 5];
 		startColor.a = vertices[offset + 6];
+		startNormal.x = vertices[offset + 7];
+		startNormal.y = vertices[offset + 8];
+		startNormal.z = vertices[offset + 9];
 
-		endPosition.x = vertices[offset + 7];
-		endPosition.y = vertices[offset + 8];
-		endPosition.z = vertices[offset + 9];
-		endColor.r = vertices[offset + 10];
-		endColor.g = vertices[offset + 11];
-		endColor.b = vertices[offset + 12];
-		endColor.a = vertices[offset + 13];
+		endPosition.x = vertices[offset + 10];
+		endPosition.y = vertices[offset + 11];
+		endPosition.z = vertices[offset + 12];
+		endColor.r = vertices[offset + 13];
+		endColor.g = vertices[offset + 14];
+		endColor.b = vertices[offset + 15];
+		endColor.a = vertices[offset + 16];
+		endNormal.x = vertices[offset + 17];
+		endNormal.y = vertices[offset + 18];
+		endNormal.z = vertices[offset + 19];
 	}
 
 	/**
@@ -290,8 +314,6 @@ export class PixelLineFilter extends GeometryElement {
 		}
 		if (this._lineCount > 0) {
 			this.setDrawArrayParams(0, this._lineCount * 2);
-			// LayaGL.renderDrawConatext.drawArrays(MeshTopology.Lines, 0, this._lineCount * 2);
-			// Stat.renderBatches++;
 		}
 	}
 
@@ -306,7 +328,7 @@ export class PixelLineFilter extends GeometryElement {
 		super.destroy();
 		this.bufferState.destroy();
 		this._vertexBuffer.destroy();
-		this.bufferState = null;
+		this._bufferState = null;
 		this._vertexBuffer = null;
 		this._vertices = null;
 	}

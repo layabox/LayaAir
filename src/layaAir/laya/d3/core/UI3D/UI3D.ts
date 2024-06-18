@@ -3,7 +3,6 @@ import { Matrix4x4 } from "../../../maths/Matrix4x4";
 import { Vector2 } from "../../../maths/Vector2";
 import { Vector3 } from "../../../maths/Vector3";
 import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
-import { ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { RenderTexture2D } from "../../../resource/RenderTexture2D";
 import { Plane } from "../../math/Plane";
@@ -11,11 +10,9 @@ import { Ray } from "../../math/Ray";
 import { Material, MaterialRenderMode } from "../../../resource/Material";
 import { MeshSprite3DShaderDeclaration } from "../MeshSprite3DShaderDeclaration";
 import { BaseRender } from "../render/BaseRender";
-import { RenderContext3D } from "../render/RenderContext3D";
 import { RenderElement } from "../render/RenderElement";
 import { Scene3D } from "../scene/Scene3D";
 import { Sprite3D } from "../Sprite3D";
-import { Transform3D } from "../Transform3D";
 import { UI3DGeometry } from "./UI3DGeometry";
 import { Event } from "../../../events/Event";
 import { UnlitMaterial } from "../material/UnlitMaterial";
@@ -23,13 +20,20 @@ import { Prefab } from "../../../resource/HierarchyResource";
 import { InputManager } from "../../../events/InputManager";
 import { NodeFlags } from "../../../Const";
 import { ILaya } from "../../../../ILaya";
-import { RenderState } from "../../../RenderEngine/RenderShader/RenderState";
+
+import { RenderContext3D } from "../render/RenderContext3D";
+import { Vector4 } from "../../../maths/Vector4";
 import { LayaEnv } from "../../../../LayaEnv";
+import { IRenderContext3D } from "../../../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
+import { RenderState } from "../../../RenderDriver/RenderModuleData/Design/RenderState";
 
 /**
  * <code>BaseCamera</code> 类用于创建摄像机的父类。
  */
 export class UI3D extends BaseRender {
+
+    declare owner: Sprite3D;
+
     /**@intrtnal */
     static TempMatrix = new Matrix4x4();
     /**@internal */
@@ -74,6 +78,8 @@ export class UI3D extends BaseRender {
     private _scale: Vector3;
     /**@internal */
     static _ray: Ray = new Ray(new Vector3(), new Vector3());
+
+    protected _worldParams: Vector4 = new Vector4();
 
     /**
      * 3D渲染的UI节点
@@ -210,12 +216,17 @@ export class UI3D extends BaseRender {
         this._shellSprite._setBit(NodeFlags.DISPLAYED_INSTAGE, true);
         this._shellSprite._setBit(NodeFlags.ACTIVE_INHIERARCHY, true);
         this._shellSprite._parent = ILaya.stage;
-        this._shaderValues.addDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_UV0);
+        this._baseRenderNode.shaderData.addDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_UV0);
+
+        this._matrix = new Matrix4x4();
+        this._scale = new Vector3(1.0, 1.0, 1.0);
+    }
+
+    private _creatDefaultMat() {
+        if (this._ui3DMat) return;
         this._ui3DMat = new UnlitMaterial();
         this._ui3DMat.materialRenderMode = MaterialRenderMode.RENDERMODE_OPAQUE;
         this._ui3DMat.cull = RenderState.CULL_BACK;
-        this._matrix = new Matrix4x4();
-        this._scale = new Vector3(1.0, 1.0, 1.0);
     }
 
     /**
@@ -223,15 +234,24 @@ export class UI3D extends BaseRender {
      */
     private _addRenderElement() {
         var elements: RenderElement[] = this._renderElements;
+        if (!this.sharedMaterial) {
+            this._creatDefaultMat();
+            this.sharedMaterial = this._ui3DMat;
+        }
         this._setMaterialTexture();
         var material: Material = (<Material>this.sharedMaterial);
         var element: RenderElement = new RenderElement();
         element.setTransform((this.owner as Sprite3D)._transform);
         element.render = this;
         element.material = material;
+        element.renderSubShader = element.material.shader.getSubShaderAt(0);
         this._geometry = new UI3DGeometry(this);
         element.setGeometry(this._geometry);
         elements.push(element);
+
+        this._setRenderElements();
+
+        this.geometryBounds = this._geometry.bounds;
     }
 
     /**
@@ -318,6 +338,7 @@ export class UI3D extends BaseRender {
     }
 
     /**
+     * @internal
      * get camera distance
      * @param rayOri 
      * @returns 
@@ -331,11 +352,28 @@ export class UI3D extends BaseRender {
      * @override
      * @internal
      */
-    _renderUpdate(context: RenderContext3D, transform: Transform3D): void {
-        this._applyReflection();
-        this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, this._matrix);
-        this._worldParams.x = transform.getFrontFaceValue();
-        this._setShaderValue(Sprite3D.WORLDINVERTFRONT, ShaderDataType.Vector4, this._worldParams);
+    _renderUpdate(context: IRenderContext3D): void {
+        let shaderData = this._baseRenderNode.shaderData;
+
+        shaderData.setMatrix4x4(Sprite3D.WORLDMATRIX, this._matrix);
+
+        let transform = this.owner.transform;
+        let worldParams = this._worldParams;
+        worldParams.x = transform.getFrontFaceValue();
+        shaderData.setVector(Sprite3D.WORLDINVERTFRONT, worldParams);
+    }
+
+    /**
+     * @internal
+     * @override
+     * @param context 
+     */
+    renderUpdate(context: RenderContext3D): void {
+        this._renderElements.forEach(element => {
+            let geometry = element._geometry;
+            element._renderElementOBJ.isRender = geometry._prepareRender(context);
+            geometry._updateRenderParams(context)
+        })
     }
 
     /** 
@@ -353,12 +391,14 @@ export class UI3D extends BaseRender {
      * 设置材质纹理
      */
     _setMaterialTexture() {
-        if (!this.sharedMaterial)
-            this.sharedMaterial = this._ui3DMat;
-        if (!this.sharedMaterial.hasDefine(UnlitMaterial.SHADERDEFINE_ALBEDOTEXTURE)) {
+        if (this._rendertexure2D) {
             this.sharedMaterial.addDefine(UnlitMaterial.SHADERDEFINE_ALBEDOTEXTURE);
+            this.sharedMaterial.setTexture(this._bindPropertyName, this._rendertexure2D);
+        } else {
+            this.sharedMaterial.removeDefine(UnlitMaterial.SHADERDEFINE_ALBEDOTEXTURE)
         }
-        this.sharedMaterial.setTexture(this._bindPropertyName, this._rendertexure2D);
+
+
     }
 
     /**
@@ -378,7 +418,7 @@ export class UI3D extends BaseRender {
      * @override
      * @internal
      */
-    protected _calculateBoundingBox(): void {
+    _calculateBoundingBox(): void {
         var worldMat: Matrix4x4 = this._transform.worldMatrix;
         this._geometry.bounds._tranform(worldMat, this._bounds);
     }
@@ -407,6 +447,7 @@ export class UI3D extends BaseRender {
         super._onEnable();
         (this.owner.scene as Scene3D)._UI3DManager.add(this);
         (this.owner as Sprite3D).transform.on(Event.TRANSFORM_CHANGED, this, this._transByRotate);//如果为合并BaseRender,owner可能为空
+        this._transByRotate();
     }
 
     /**

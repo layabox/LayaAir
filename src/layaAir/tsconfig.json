@@ -1,8 +1,9 @@
 {
     "compilerOptions": {
-        "target": "es6",
-        "module": "es6",
+        "target": "ES2017",
+        "module": "ES6",
         "outDir": "../../bin/tsc/layaAir",
+        "lib": ["es2019", "dom"], 
         "composite": true,
         "stripInternal": true,
         "removeComments": false,
@@ -16,6 +17,7 @@
         "skipLibCheck": true,
         "strict": true,
         "strictNullChecks": false,
+        "experimentalDecorators": true
         // "strict": true /* Enable all strict type-checking options. */,
         //"noUnusedLocals": true /* Report errors on unused locals. */,
         //"noUnusedParameters": true /* Report errors on unused parameters. */,

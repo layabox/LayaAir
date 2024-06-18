@@ -1,21 +1,20 @@
 import { Node } from "../../display/Node";
 import { Handler } from "../../utils/Handler";
-import { Transform3D } from "./Transform3D";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { Stat } from "../../utils/Stat";
 import { Prefab } from "../../resource/HierarchyResource";
 import { ILaya } from "../../../ILaya";
-import { CommandUniformMap } from "../../RenderEngine/CommandUniformMap";
 import { NodeFlags } from "../../Const";
-import { Event } from "../../events/Event";
 import { Matrix4x4 } from "../../maths/Matrix4x4";
 import { Quaternion } from "../../maths/Quaternion";
 import { Vector3 } from "../../maths/Vector3";
 import { Scene3D } from "./scene/Scene3D";
-import { ShaderDataType } from "../../RenderEngine/RenderShader/ShaderData";
 import { LayaGL } from "../../layagl/LayaGL";
 import { Laya3DRender } from "../RenderObjs/Laya3DRender";
-
+import { ShaderDataType } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { Transform3D } from "./Transform3D";
+import { CommandUniformMap } from "../../RenderDriver/DriverDesign/RenderDevice/CommandUniformMap";
+import { Event } from "../../events/Event";
 /**
  * @internal
  */
@@ -31,7 +30,8 @@ export enum StaticFlag {
 export class Sprite3D extends Node {
     /**@internal 着色器变量名，世界矩阵。*/
     static WORLDMATRIX: number;
-    static WORLDINVERTFRONT: number;//-1为翻转了反面，1为正常情况
+    /**-1为翻转了反面，1为正常情况 */
+    static WORLDINVERTFRONT: number;
     /**@internal */
     static sprite3DCommandUniformMap: CommandUniformMap;
     /**@internal */
@@ -43,9 +43,9 @@ export class Sprite3D extends Node {
     static __init__(): void {
         Sprite3D.WORLDMATRIX = Shader3D.propertyNameToID("u_WorldMat");
         Sprite3D.WORLDINVERTFRONT = Shader3D.propertyNameToID("u_WroldInvertFront");
-        Sprite3D.sprite3DCommandUniformMap = LayaGL.renderOBJCreate.createGlobalUniformMap("Sprite3D");
-        Sprite3D.sprite3DCommandUniformMap.addShaderUniform(Sprite3D.WORLDMATRIX, "u_WorldMat",ShaderDataType.Matrix4x4);
-        Sprite3D.sprite3DCommandUniformMap.addShaderUniform(Sprite3D.WORLDINVERTFRONT, "u_WroldInvertFront",ShaderDataType.Vector4);
+        Sprite3D.sprite3DCommandUniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap("Sprite3D");
+        Sprite3D.sprite3DCommandUniformMap.addShaderUniform(Sprite3D.WORLDMATRIX, "u_WorldMat", ShaderDataType.Matrix4x4);
+        Sprite3D.sprite3DCommandUniformMap.addShaderUniform(Sprite3D.WORLDINVERTFRONT, "u_WroldInvertFront", ShaderDataType.Vector4);
     }
 
     /**
@@ -141,6 +141,9 @@ export class Sprite3D extends Node {
         return this._transform;
     }
 
+    /**
+     * 获取精灵所属的场景
+     */
     get scene(): Scene3D {
         return <Scene3D>this._scene;
     }
@@ -154,14 +157,15 @@ export class Sprite3D extends Node {
         super();
         this._id = ++Sprite3D._uniqueIDCounter;
         this._is3D = true;
-        this._transform = Laya3DRender.renderOBJCreate.createTransform(this);
+        this._transform = Laya3DRender.Render3DModuleDataFactory.createTransform(this);
         this._isStatic = isStatic ? StaticFlag.StaticBatch : StaticFlag.Normal;
         this.layer = 0;
         this.name = name ? name : "New Sprite3D";
     }
 
     /**
-    * @private
+    * @internal
+    * @protected
     */
     protected _onActive(): void {
         super._onActive();
@@ -169,7 +173,8 @@ export class Sprite3D extends Node {
     }
 
     /**
-     * @private
+     * @internal
+     * @protected
      */
     protected _onInActive(): void {
         super._onInActive();
@@ -178,6 +183,7 @@ export class Sprite3D extends Node {
 
 
     /**
+     * @internal
      * @inheritDoc
      * @override
      */
@@ -192,6 +198,7 @@ export class Sprite3D extends Node {
     }
 
     /**
+     * @internal
      * @inheritDoc
      * @override
      */
@@ -201,6 +208,11 @@ export class Sprite3D extends Node {
             this.transform._setParent(null);
     }
 
+    /**
+     * @internal
+     * @protected
+     * @param type 
+     */
     protected onStartListeningToType(type: string) {
         super.onStartListeningToType(type);
         if (type.startsWith("collision"))
@@ -308,6 +320,8 @@ export class Sprite3D extends Node {
     }
 
     /**
+     * 删除
+     * @param destroyChild 是否删除子节点
      * @inheritDoc
      * @override
      */

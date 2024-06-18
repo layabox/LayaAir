@@ -2,7 +2,6 @@ import { BlendEquationSeparate } from "../RenderEngine/RenderEnum/BlendEquationS
 import { BlendFactor } from "../RenderEngine/RenderEnum/BlendFactor";
 import { CompareFunction } from "../RenderEngine/RenderEnum/CompareFunction";
 import { Shader3D } from "../RenderEngine/RenderShader/Shader3D";
-import { ShaderDefine } from "../RenderEngine/RenderShader/ShaderDefine";
 import { Color } from "../maths/Color";
 import { Matrix3x3 } from "../maths/Matrix3x3";
 import { Matrix4x4 } from "../maths/Matrix4x4";
@@ -13,6 +12,7 @@ import { Loader, ILoadURL } from "../net/Loader";
 import { Material } from "../resource/Material";
 import { ClassUtils } from "../utils/ClassUtils";
 import { URL } from "../net/URL";
+import { ShaderDefine } from "../RenderDriver/RenderModuleData/Design/ShaderDefine";
 
 export class MaterialParser {
 

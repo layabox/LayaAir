@@ -43,23 +43,15 @@ export class skinnedMatrixCache {
  * <code>Mesh</code> 类用于创建文件网格数据模板。
  */
 export class Mesh extends Resource implements IClone {
-
+    /**@internal */
     static MESH_INSTANCEBUFFER_TYPE_NORMAL: number = 0;
-
+    /**@internal */
     static MESH_INSTANCEBUFFER_TYPE_SIMPLEANIMATOR: number = 1;
 
     /** @internal */
     private _tempVector30: Vector3 = new Vector3()
     /** @internal */
     private _tempVector31: Vector3 = new Vector3();
-    // /** @internal */
-    // private _tempVector32: Vector3 = new Vector3();
-    // /** @internal */
-    // private static _nativeTempVector30: number;
-    // /** @internal */
-    // private static _nativeTempVector31: number;
-    // /** @internal */
-    // private static _nativeTempVector32: number;
     /**@internal */
     _convexMesh: any;
     /**@interanl */
@@ -70,12 +62,6 @@ export class Mesh extends Resource implements IClone {
       * @internal
       */
     static __init__(): void {
-        // var physics3D: any = Physics3D._bullet;
-        // if (physics3D) {
-        //     Mesh._nativeTempVector30 = physics3D.btVector3_create(0, 0, 0);
-        //     Mesh._nativeTempVector31 = physics3D.btVector3_create(0, 0, 0);
-        //     Mesh._nativeTempVector32 = physics3D.btVector3_create(0, 0, 0);
-        // }
     }
 
 
@@ -132,12 +118,11 @@ export class Mesh extends Resource implements IClone {
     _indexFormat: IndexFormat = IndexFormat.UInt16;
 
     /** @internal */
-    instanceWorldMatrixData: Float32Array;
-    /** @internal */
-    instanceSimpleAnimatorData: Float32Array;
-    /** @internal */
     instanceLightMapScaleOffsetData: Float32Array;
 
+    /**
+     * 变形目标数据
+     */
     morphTargetData: MorphTargetData;
 
     /** @internal */
@@ -162,6 +147,7 @@ export class Mesh extends Resource implements IClone {
 
     /**
      * 获取索引个数。
+     * @returns 索引个数
      */
     get indexCount(): number {
         return this._indexBuffer.indexCount;
@@ -169,6 +155,7 @@ export class Mesh extends Resource implements IClone {
 
     /**
      * SubMesh的个数。
+     * @returns SubMesh的个数
      */
     get subMeshCount(): number {
         return this._subMeshes.length;
@@ -176,11 +163,16 @@ export class Mesh extends Resource implements IClone {
 
     /**
      * 边界。
+     * @returns 边界
      */
     get bounds(): Bounds {
         return this._bounds;
     }
 
+    /**
+     * 设置边界
+     * @param 边界
+     */
     set bounds(value: Bounds) {
         if (this._bounds !== value)
             value.cloneTo(this._bounds);
@@ -188,6 +180,7 @@ export class Mesh extends Resource implements IClone {
 
     /**
      * 索引格式。
+     * @returns 索引格式
      */
     get indexFormat(): IndexFormat {
         return this._indexFormat;
@@ -196,6 +189,7 @@ export class Mesh extends Resource implements IClone {
 
     /**
      * 设置indexformat
+     * @param 索引格式
      */
     set indexFormat(value: IndexFormat) {
         this._indexFormat = value
@@ -362,6 +356,8 @@ export class Mesh extends Resource implements IClone {
     }
 
     /**
+     * 销毁资源
+     * @internal
      * @inheritDoc
      * @override
      */
@@ -376,8 +372,6 @@ export class Mesh extends Resource implements IClone {
         this._instanceWorldVertexBuffer && this._instanceWorldVertexBuffer.destroy();
         this._instanceSimpleAniVertexBuffer && this._instanceSimpleAniVertexBuffer.destroy();
         this._instanceLightMapVertexBuffer && this._instanceLightMapVertexBuffer.destroy();
-        this.instanceWorldMatrixData && (this.instanceWorldMatrixData = null);
-        this.instanceSimpleAnimatorData && (this.instanceSimpleAnimatorData = null);
         this.instanceLightMapScaleOffsetData && (this.instanceLightMapScaleOffsetData = null);
         this._setCPUMemory(0);
         this._setGPUMemory(0);
@@ -427,14 +421,12 @@ export class Mesh extends Resource implements IClone {
         instanceBuffer3D.vertexDeclaration = VertexMesh.instanceWorldMatrixDeclaration;
         instanceBuffer3D.instanceBuffer = true;
         vertexArray.push(instanceBuffer3D);
-        this.instanceWorldMatrixData = new Float32Array(InstanceRenderElement.maxInstanceCount * 16);
         switch (instanceBufferStateType) {
             case Mesh.MESH_INSTANCEBUFFER_TYPE_SIMPLEANIMATOR:
                 //new SimpleVertexBuffer3D
                 let instanceSimpleAnimatorBuffer = this._instanceSimpleAniVertexBuffer = Laya3DRender.renderOBJCreate.createVertexBuffer3D(InstanceRenderElement.maxInstanceCount * 4 * 4, BufferUsage.Dynamic, false);
                 instanceSimpleAnimatorBuffer.vertexDeclaration = VertexMesh.instanceSimpleAnimatorDeclaration;
                 instanceSimpleAnimatorBuffer.instanceBuffer = true;
-                this.instanceSimpleAnimatorData = new Float32Array(InstanceRenderElement.maxInstanceCount * 4);
                 vertexArray.push(instanceSimpleAnimatorBuffer);
                 break;
             case Mesh.MESH_INSTANCEBUFFER_TYPE_NORMAL:
@@ -450,45 +442,6 @@ export class Mesh extends Resource implements IClone {
         }
         instanceBufferState.applyState(vertexArray, this._indexBuffer);
     }
-
-    // /**
-    //  * @internal
-    //  */
-    // _getPhysicMesh(): any {
-    //     //if (!this._btTriangleMesh) {//TODO 去掉共享物理Mesh
-    //     var bt: any = Physics3D._bullet;
-    //     var triangleMesh: number = bt.btTriangleMesh_create();//TODO:独立抽象btTriangleMesh,增加内存复用
-    //     var nativePositio0: number = Mesh._nativeTempVector30;
-    //     var nativePositio1: number = Mesh._nativeTempVector31;
-    //     var nativePositio2: number = Mesh._nativeTempVector32;
-    //     var position0: Vector3 = this._tempVector30;
-    //     var position1: Vector3 = this._tempVector31;
-    //     var position2: Vector3 = this._tempVector32;
-
-    //     var vertexBuffer: VertexBuffer3D = this._vertexBuffer;
-    //     var positionElement: VertexElement = this._getPositionElement(vertexBuffer);
-    //     var verticesData: Float32Array = vertexBuffer.getFloat32Data();
-    //     var floatCount: number = vertexBuffer.vertexDeclaration.vertexStride / 4;
-    //     var posOffset: number = positionElement._offset / 4;
-
-    //     var indices: Uint16Array = this._indexBuffer.getData();//TODO:API修改问题
-    //     for (var i: number = 0, n: number = indices.length; i < n; i += 3) {
-    //         var p0Index: number = indices[i] * floatCount + posOffset;
-    //         var p1Index: number = indices[i + 1] * floatCount + posOffset;
-    //         var p2Index: number = indices[i + 2] * floatCount + posOffset;
-    //         position0.setValue(verticesData[p0Index], verticesData[p0Index + 1], verticesData[p0Index + 2]);
-    //         position1.setValue(verticesData[p1Index], verticesData[p1Index + 1], verticesData[p1Index + 2]);
-    //         position2.setValue(verticesData[p2Index], verticesData[p2Index + 1], verticesData[p2Index + 2]);
-
-    //         Utils3D._convertToBulletVec3(position0, nativePositio0);
-    //         Utils3D._convertToBulletVec3(position1, nativePositio1);
-    //         Utils3D._convertToBulletVec3(position2, nativePositio2);
-    //         bt.btTriangleMesh_addTriangle(triangleMesh, nativePositio0, nativePositio1, nativePositio2, false);
-    //     }
-    //     this._btTriangleMesh = triangleMesh;
-    //     //}
-    //     return this._btTriangleMesh;
-    // }
 
     /**
      * @internal
@@ -711,7 +664,7 @@ export class Mesh extends Resource implements IClone {
      * 获取顶点声明。
      */
     getVertexDeclaration(): VertexDeclaration {
-        return this._vertexBuffer._vertexDeclaration;
+        return this._vertexBuffer.vertexDeclaration;
     }
 
     /**
@@ -810,6 +763,7 @@ export class Mesh extends Resource implements IClone {
 
     /**
      * 获得Corve模型
+     * @returns Corve模型
      */
     getCorveMesh(): Mesh {
         if (this._convexMesh == null) {

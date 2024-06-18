@@ -1,8 +1,7 @@
 #define SHADER_NAME SkyProceduralVS
 
-#include "Camera.glsl";
+#include "SkyCommon.glsl";
 
-const float c_deg2ang = 3.141593 / 180.0;
 
 #define OUTER_RADIUS 1.025
 #define RAYLEIGH (mix(0.0, 0.0025, pow(u_AtmosphereThickness,2.5)))// Rayleigh constant Rayleigh为夜空光和极光亮度单位
@@ -31,18 +30,6 @@ const float samples = 2.0; // THIS IS UNROLLED MANUALLY, DON'T TOUCH
 // RGB wavelengths        .35 (.62=158), .43 (.68=174), .525 (.75=190)
 const vec3 c_DefaultScatteringWavelength = vec3(0.65, 0.57, 0.475);//默认散射波长
 const vec3 c_VariableRangeForScatteringWavelength = vec3(0.15, 0.15, 0.15);//散射播放的可变范围
-
-// uniform vec4 u_SkyTint;
-// uniform vec4 u_GroundTint;
-// uniform float u_Exposure;
-// uniform float u_AtmosphereThickness;
-vec4 skyRemapGLPositionZ(vec4 position){
-	position.z = position.w;
-	return position;
-}
-//sprite
-uniform vec3 u_SunLight_direction;
-uniform vec4 u_SunLight_color;
 
 varying vec3 v_GroundColor;
 varying vec3 v_SkyColor;
@@ -74,7 +61,7 @@ float scaleAngle(float inCos)
 
 
 void main(){
-    gl_Position = u_ViewProjection*a_Position;
+    gl_Position = u_SkyProjectionViewMat*a_Position;
 
     vec3 skyTintInGammaSpace = pow(u_SkyTint.xyz,vec3(0.45));//u_SkyTint.xyz;//支持非GAMMA空间后要调整
 	vec3 scatteringWavelength = mix(c_DefaultScatteringWavelength-c_VariableRangeForScatteringWavelength,c_DefaultScatteringWavelength+c_VariableRangeForScatteringWavelength,vec3(1.0) - skyTintInGammaSpace); // using Tint in sRGB+ gamma allows for more visually linear interpolation and to keep (0.5) at (128, gray in sRGB) point
@@ -195,5 +182,5 @@ void main(){
 	#elif defined(SUN_SIMPLE) 
 		v_SunColor = simpleSundiskIntensityFactor * clamp(cOut * sunScale,0.0,1.0) * u_SunLight_color.xyz / lightColorIntensity;
 	#endif
-	gl_Position=skyRemapGLPositionZ(gl_Position);
+	gl_Position= remapSkyPositionZ(gl_Position);
 }

@@ -2,6 +2,7 @@ import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType"
 import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType"
 import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode"
 import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration"
+import { LayaGL } from "../../../layagl/LayaGL"
 import { VertexElement } from "../../../renders/VertexElement"
 import { VertexElementFormat } from "../../../renders/VertexElementFormat"
 import { BufferState } from "../../../webgl/utils/BufferState"
@@ -20,18 +21,19 @@ export class ScreenQuad extends GeometryElement {
 	private static _vertexDeclaration: VertexDeclaration;
 	/** @internal */
 	private static _vertices: Float32Array = new Float32Array([
-		1, 1, 1, 1, 
+		1, 1, 1, 1,
 		1, -1, 1, 0,
 		-1, 1, 0, 1,
 		-1, -1, 0, 0]);//the rule of OpenGL
 	/** @internal */
 	private static _verticesInvertUV: Float32Array = new Float32Array([
-		1, 1, 1, 0, 
+		1, 1, 1, 0,
 		1, -1, 1, 1,
-		-1, 1, 0, 0, 
+		-1, 1, 0, 0,
 		-1, -1, 0, 1]);
 	/**@internal */
 	static instance: ScreenQuad;
+	static InvertInstance: ScreenQuad;
 
 	/**
 	 * @internal
@@ -39,12 +41,15 @@ export class ScreenQuad extends GeometryElement {
 	static __init__(): void {
 		ScreenQuad._vertexDeclaration = new VertexDeclaration(16, [new VertexElement(0, VertexElementFormat.Vector4, ScreenQuad.SCREENQUAD_POSITION_UV)]);
 		ScreenQuad.instance = new ScreenQuad();
+		ScreenQuad.instance.invertY = true;
+		ScreenQuad.InvertInstance = new ScreenQuad();
+		ScreenQuad.InvertInstance.invertY = false;
 	}
 
 	/** @internal */
 	private _vertexBuffer: VertexBuffer3D;
 	/** @internal */
-	private _bufferState: BufferState = new BufferState();
+	protected _bufferState: BufferState = new BufferState();
 	/** @internal */
 	private _vertexBufferInvertUV: VertexBuffer3D;
 	/** @internal */
@@ -66,12 +71,15 @@ export class ScreenQuad extends GeometryElement {
 		this._vertexBufferInvertUV.vertexDeclaration = ScreenQuad._vertexDeclaration;
 		this._vertexBufferInvertUV.setData(ScreenQuad._verticesInvertUV.buffer);
 		this._bufferStateInvertUV.applyState([this._vertexBufferInvertUV], null);
+
+		this.invertY = false;
 	}
 
 	/**
 	 * set BufferState
 	 */
 	set invertY(value: boolean) {
+		value = LayaGL.renderEngine._screenInvertY ? !value : value;
 		this.bufferState = value ? this._bufferStateInvertUV : this._bufferState;
 	}
 

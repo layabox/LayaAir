@@ -1,4 +1,4 @@
-import { Context } from "../../resource/Context";
+import { Context } from "../../renders/Context";
 import { FontInfo } from "../../utils/FontInfo";
 import { Pool } from "../../utils/Pool";
 import { WordText } from "../../utils/WordText";
@@ -11,6 +11,7 @@ import { Config } from "../../../Config";
  * 绘制文字
  */
 export class FillTextCmd {
+    /**绘制文字CMD的标识符 */
     static ID: string = "FillText";
 
     /**
@@ -31,25 +32,39 @@ export class FillTextCmd {
     private _align: number;
     private _fontObj: FontInfo;
 
-    
+    /**
+     * 文本内容
+     */
     set text(value: string) {
         this._text = value;
     }
     get text() {
         return this._text;
     }
+
+    /**
+     * 描边颜色
+     */
     set strokeColor(value: string) {
         this._strokeColor = value;
     }
     get strokeColor() {
         return this._strokeColor;
     }
+
+    /**
+     * 描边宽度
+     */
     set stroke(value: number) {
         this._stroke = value;
     }
     get stroke() {
         return this._stroke;
     }
+
+    /**
+     * 对齐方式
+     */
     set align(value: number) {
         this._align = value;
     }
@@ -57,7 +72,18 @@ export class FillTextCmd {
         return this._align;
     }
 
-
+    /**
+     * 创建绘制文本的CMD
+     * @param text 文本内容
+     * @param x x位置
+     * @param y y位置
+     * @param font 字体
+     * @param color 文本颜色
+     * @param align 对齐方式
+     * @param stroke 描边宽度
+     * @param strokeColor 描边颜色
+     * @returns 
+     */
     static create(text: string | WordText | null, x: number, y: number, font: string, color: string | null, align: string, stroke: number, strokeColor: string | null): FillTextCmd {
         var cmd: FillTextCmd = Pool.getItemByClass("FillTextCmd", FillTextCmd);
         cmd._text = null;
@@ -97,7 +123,7 @@ export class FillTextCmd {
         Pool.recover("FillTextCmd", this);
     }
 
-    /**@private */
+    /**@private 执行绘制文本CMD*/
     run(context: Context, gx: number, gy: number): void {
         if (ILaya.stage.isGlobalRepaint()) {
             this._wordText && this._wordText.cleanCache();
@@ -113,7 +139,7 @@ export class FillTextCmd {
         context._fast_filltext(this._wordText || this._text, this.x + gx, this.y + gy, this._fontObj, this._color, this._strokeColor, this._stroke, this._align);
     }
 
-    /**@private */
+    /**@private 获取绘制文本CMD的标识符*/
     get cmdID(): string {
         return FillTextCmd.ID;
     }

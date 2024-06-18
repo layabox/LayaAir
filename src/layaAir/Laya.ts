@@ -8,7 +8,7 @@ import { Loader } from "./laya/net/Loader";
 import { LocalStorage } from "./laya/net/LocalStorage";
 import { Render } from "./laya/renders/Render";
 import { RenderSprite } from "./laya/renders/RenderSprite";
-import { Context } from "./laya/resource/Context";
+import { Context } from "./laya/renders/Context";
 import { HTMLCanvas } from "./laya/resource/HTMLCanvas";
 import { RenderTexture2D } from "./laya/resource/RenderTexture2D";
 import { Texture } from "./laya/resource/Texture";
@@ -37,6 +37,8 @@ import { Config } from "./Config";
 import { Shader3D } from "./laya/RenderEngine/RenderShader/Shader3D";
 import { LayaGL } from "./laya/layagl/LayaGL";
 import { Material } from "./laya/resource/Material";
+import { VertexElementFormat } from "./laya/renders/VertexElementFormat";
+import { DrawStyle } from "./laya/webgl/canvas/DrawStyle";
 
 /**
  * <code>Laya</code> 是全局对象的引用入口集。
@@ -54,21 +56,26 @@ export class Laya {
     static timer: Timer = null;
     /** 加载管理器的引用。*/
     static loader: Loader = null;
-
     /**@private Render 类的引用。*/
     static render: Render;
-
     private static _inited = false;
     private static _initCallbacks: Array<() => void | Promise<void>> = [];
     private static _beforeInitCallbacks: Array<(stageConfig: IStageConfig) => void | Promise<void>> = [];
     private static _afterInitCallbacks: Array<() => void | Promise<void>> = [];
-
+    /**@internal */
+    private static _evcode: string = "eva" + "l";
+    private static isNativeRender_enable: boolean = false;
     /**
-     * 初始化引擎。使用引擎需要先初始化引擎。
+     * 初始化引擎。使用引擎需要先初始化引擎。/Initialize the engine. 
+     * @param   stageConfig 初始化引擎的舞台设置/Stage settings used to initialize the engine
      */
     static init(stageConfig?: IStageConfig): Promise<void>;
+
     /**
-     * 初始化引擎。使用引擎需要先初始化引擎。
+     * @en Initialize the engine. To use the engine, you need to initialize it first.
+     * @param width design width.The width of the initialized game window
+     * @param height  design height.The height of the initialized game window
+     * @zh 初始化引擎。使用引擎需要先初始化引擎。
      * @param	width 初始化的游戏窗口宽度，又称设计宽度。
      * @param	height 初始化的游戏窗口高度，又称设计高度。
      */
@@ -104,12 +111,8 @@ export class Laya {
         //这个其实在Render中感觉更合理，但是runtime要求第一个canvas是主画布，所以必须在下面的那个离线画布之前
         let mainCanv = Browser.mainCanvas = new HTMLCanvas(true);
         //Render._mainCanvas = mainCanv;
-        let style: any = mainCanv.source.style;
-        style.position = 'absolute';
-        style.top = style.left = "0px";
-        style.background = "#000000";
-
-        if (!Browser.onKGMiniGame && !Browser.onAlipayMiniGame) {
+        Laya._setStyleInfo(mainCanv);
+        if (!Browser.onKGMiniGame && !Browser.onAlipayMiniGame && !Browser.onTBMiniGame) {
             Browser.container.appendChild(mainCanv.source);//xiaosong add
         }
 
@@ -165,9 +168,26 @@ export class Laya {
         return p;
     }
 
+    /**
+     * @internal
+     * 适配淘宝小游戏
+     * @param mainCanv 
+     */
+    static _setStyleInfo(mainCanv: HTMLCanvas): void {
+        let style: any = mainCanv.source.style;
+        style.position = 'absolute';
+        style.top = style.left = "0px";
+        style.background = "#000000";
+    }
+
+    /**
+     * 初始化2D
+     * @param stageConfig 用于初始化2D的设置
+     */
     static initRender2D(stageConfig: IStageConfig) {
         stage = ((<any>window)).stage = ILaya.stage = Laya.stage = new Stage();
 
+        VertexElementFormat.__init__();
         Shader3D.init();
         MeshQuadTexture.__int__();
         MeshVG.__init__();
@@ -185,7 +205,7 @@ export class Laya {
         if (stageConfig.alignH)
             stage.alignH = stageConfig.alignH;
         if (Config.isAlpha)
-            stage.bgColor = null;
+            stage.bgColor = "#000000";
         else if (stageConfig.backgroundColor)
             stage.bgColor = stageConfig.backgroundColor;
 
@@ -197,6 +217,7 @@ export class Laya {
         MeshParticle2D.__init__();
         RenderSprite.__init__();
         Material.__initDefine__();
+        DrawStyle._Defaultinit();
         InputManager.__init__(stage, Render.canvas);
         if (!!(window as any).conch && "conchUseWXAdapter" in Browser.window) {
             Input.isAppUseNewInput = true;
@@ -218,8 +239,8 @@ export class Laya {
     }
 
     /**
-     * 表示是否捕获全局错误并弹出提示。默认为false。
-     * 适用于移动设备等不方便调试的时候，设置为true后，如有未知错误，可以弹窗抛出详细错误堆栈。
+     * 弹出错误信息，适用于移动设备等不方便调试的时候，
+     * @param value 表示是否捕获全局错误并弹出提示。设置为true后，如有未知错误，可以弹窗抛出详细错误堆栈,默认为false。
      */
     static alertGlobalError(value: boolean) {
         var erralert: number = 0;
@@ -232,8 +253,6 @@ export class Laya {
             Browser.window.onerror = null;
         }
     }
-    /**@internal */
-    private static _evcode: string = "eva" + "l";
 
     /**@internal */
     static _runScript(script: string): any {
@@ -257,47 +276,11 @@ export class Laya {
         }
     }
 
-    private static isNativeRender_enable: boolean = false;
-
-    /**@private */
     private static enableNative(): void {
         if (Laya.isNativeRender_enable)
             return;
         Laya.isNativeRender_enable = true;
-        RenderState2D.width = Browser.window.innerWidth;
-        RenderState2D.height = Browser.window.innerHeight;
 
-        Stage.clear = function (color: string): void {
-            Context.set2DRenderConfig();//渲染2D前要还原2D状态,否则可能受3D影响
-            var c: any[] = ColorUtils.create(color).arrColor;
-
-            LayaGL.renderEngine.clearRenderTexture(RenderClearFlag.Color | RenderClearFlag.Depth, new Color(c[0], c[1], c[2], c[3]), 1);
-            // if (c) gl.clearColor(c[0], c[1], c[2], c[3]);
-            // gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
-            RenderState2D.clear();
-        }
-
-        Sprite.drawToCanvas = function (sprite: Sprite, _renderType: number, canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number): any {
-            offsetX -= sprite.x;
-            offsetY -= sprite.y;
-            offsetX |= 0;
-            offsetY |= 0;
-            canvasWidth |= 0;
-            canvasHeight |= 0;
-
-            var canv: HTMLCanvas = new HTMLCanvas(false);
-            var ctx: Context = canv.getContext('2d') as Context;
-            canv.size(canvasWidth, canvasHeight);
-
-            ctx.asBitmap = true;
-            ctx._targets.start();
-            RenderSprite.renders[_renderType]._fun(sprite, ctx, offsetX, offsetY);
-            ctx.flush();
-            ctx._targets.end();
-            ctx._targets.restore();
-            return canv;
-        }
-        //RenderTexture2D.prototype._uv = RenderTexture2D.flipyuv;
         Object["defineProperty"](RenderTexture2D.prototype, "uv", {
             "get": function (): any {
                 return this._uv;
@@ -320,8 +303,9 @@ export class Laya {
             return this._texture;
         }
     }
+
     /**
-     * 引擎各个模块，例如物理，寻路等，如果有初始化逻辑可以在这里注册初始化函数。开发者一般不直接使用。
+     * 新增初始化函数，引擎各个模块，例如物理，寻路等，如果有初始化逻辑可以在这里注册初始化函数。开发者一般不直接使用。
      * @param callback 模块的初始化函数
      */
     static addInitCallback(callback: () => void | Promise<void>) {
@@ -330,7 +314,7 @@ export class Laya {
 
     /**
      * 在引擎初始化前执行自定义逻辑。此时Stage尚未创建，因为可以修改stageConfig实现动态舞台配置。
-     * @param callback 
+     * @param callback 模块的初始化函数
      */
     static addBeforeInitCallback(callback: (stageConfig: IStageConfig) => void | Promise<void>): void {
         Laya._beforeInitCallbacks.push(callback);
@@ -338,7 +322,7 @@ export class Laya {
 
     /**
      * 在引擎初始化后执行自定义逻辑
-     * @param callback 
+     * @param callback 模块的初始化函数
      */
     static addAfterInitCallback(callback: () => void | Promise<void>): void {
         Laya._afterInitCallbacks.push(callback);

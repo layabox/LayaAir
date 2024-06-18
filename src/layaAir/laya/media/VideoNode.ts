@@ -45,6 +45,9 @@ export class VideoNode extends Sprite {
         }
     }
 
+    /**
+     * 视频纹理
+     */
     get videoTexture(): VideoTexture {
         return this._videoTexture;
     }
@@ -67,6 +70,9 @@ export class VideoNode extends Sprite {
         }
     }
 
+    /**
+     * 视频源
+     */
     get source() {
         return this._videoTexture?.source;
     }
@@ -317,8 +323,9 @@ export class VideoNode extends Sprite {
     }
 
     /**
-    * @override
-    */
+     * @internal
+     * @override
+     */
     _setX(value: number): void {
         super._setX(value);
         if (this._videoTexture && LayaEnv.isConch) {
@@ -328,6 +335,7 @@ export class VideoNode extends Sprite {
     }
 
     /**
+     * @internal
      * @override
      */
     _setY(value: number): void {
@@ -339,6 +347,7 @@ export class VideoNode extends Sprite {
     }
 
     /**
+     * @internal
      * @override
      */
     set_width(value: number): void {
@@ -356,6 +365,7 @@ export class VideoNode extends Sprite {
     }
 
     /**
+     * @internal
      * @override
      */
     set_height(value: number) {
@@ -375,6 +385,7 @@ export class VideoNode extends Sprite {
 
     /**
      * 销毁内部事件绑定。
+     * @param detroyChildren    是否删除子节点
      * @override
      */
     destroy(detroyChildren: boolean = true): void {

@@ -15,16 +15,18 @@ export class BoundsImpl implements IClone {
     static _UPDATE_CENTER: number = 0x04;
     /**@internal */
     static _UPDATE_EXTENT: number = 0x08;
-
+    /**@internal	*/
     protected _updateFlag: number = 0;
-
     /**@internal	*/
     _center: Vector3 = new Vector3();
     /**@internal	*/
     _extent: Vector3 = new Vector3();
-    /***/
+    /**@internal	*/
     _boundBox: BoundBox = new BoundBox(new Vector3(), new Vector3());
 
+    /**
+     * 最小点
+     */
     get min() {
         return this.getMin();
     }
@@ -33,6 +35,9 @@ export class BoundsImpl implements IClone {
         this.setMin(value);
     }
 
+    /**
+     * 最大点
+     */
     get max() {
         return this.getMax();
     }
@@ -98,8 +103,9 @@ export class BoundsImpl implements IClone {
     setCenter(value: Vector3): void {
         if (value !== this._center)
             value.cloneTo(this._center);
-        this._setUpdateFlag(BoundsImpl._UPDATE_MIN | BoundsImpl._UPDATE_MAX, true);
-        this._setUpdateFlag(BoundsImpl._UPDATE_CENTER, false);
+        this._getMin(this._center, this._extent, this._boundBox.min);
+        this._getMax(this._center, this._extent, this._boundBox.max);
+        this._setUpdateFlag(BoundsImpl._UPDATE_CENTER | BoundsImpl._UPDATE_MIN | BoundsImpl._UPDATE_MAX, false);
     }
 
     /**
@@ -121,8 +127,9 @@ export class BoundsImpl implements IClone {
     setExtent(value: Vector3): void {
         if (value !== this._extent)
             value.cloneTo(this._extent);
-        this._setUpdateFlag(BoundsImpl._UPDATE_MIN | BoundsImpl._UPDATE_MAX, true);
-        this._setUpdateFlag(BoundsImpl._UPDATE_EXTENT, false);
+        this._getMin(this._center, this._extent, this._boundBox.min);
+        this._getMax(this._center, this._extent, this._boundBox.max);
+        this._setUpdateFlag(BoundsImpl._UPDATE_CENTER | BoundsImpl._UPDATE_MIN | BoundsImpl._UPDATE_MAX, false);
     }
 
     /**
@@ -145,14 +152,27 @@ export class BoundsImpl implements IClone {
     constructor(min?: Vector3, max?: Vector3) {
         min && min.cloneTo(this._boundBox.min);
         max && max.cloneTo(this._boundBox.max);
+        this._setUpdateFlag(BoundsImpl._UPDATE_MIN | BoundsImpl._UPDATE_MAX, false);
         this._setUpdateFlag(BoundsImpl._UPDATE_CENTER | BoundsImpl._UPDATE_EXTENT, true);
     }
 
+    /**
+     * 获得跟新标志
+     * @internal
+     * @param type 类型 
+     * @return void
+     */
     protected _getUpdateFlag(type: number): boolean {
         return (this._updateFlag & type) != 0;
     }
 
-
+    /**
+     * 设置跟新标志
+     * @internal
+     * @param type 类型 
+     * @param value 值 
+     * @return void
+     */
     protected _setUpdateFlag(type: number, value: boolean): void {
         if (value)
             this._updateFlag |= type;
@@ -160,28 +180,64 @@ export class BoundsImpl implements IClone {
             this._updateFlag &= ~type;
     }
 
-
+    /**
+     * 获得包围盒中心值
+     * @internal
+     * @param min 最小值
+     * @param max 最大值
+     * @param out 返回值
+     * @return void
+     */
     protected _getCenter(min: Vector3, max: Vector3, out: Vector3): void {
         Vector3.add(min, max, out);
         Vector3.scale(out, 0.5, out);
     }
 
-
+    /**
+     * 获得包围盒范围
+     * @internal
+     * @param min 最小值
+     * @param max 最大值
+     * @param out 返回值
+     * @return void
+     */
     protected _getExtent(min: Vector3, max: Vector3, out: Vector3): void {
         Vector3.subtract(max, min, out);
         Vector3.scale(out, 0.5, out);
     }
 
-
+    /**
+     * 获得包围盒最小值
+     * @internal
+     * @param center 中心点
+     * @param extent 范围
+     * @param out 返回值
+     * @return void
+     */
     protected _getMin(center: Vector3, extent: Vector3, out: Vector3): void {
         Vector3.subtract(center, extent, out);
     }
 
-
+    /**
+      * 获得包围盒最大值
+      * @internal
+      * @param center 中心点
+      * @param extent 范围
+      * @param out 返回值
+      * @return void
+      */
     protected _getMax(center: Vector3, extent: Vector3, out: Vector3): void {
         Vector3.add(center, extent, out);
     }
 
+    /**
+     * 旋转范围
+     * @internal
+     * @param extent 范围
+     * @param rotation 旋转矩阵
+     * @param out 返回值
+     * @return void
+     */
     protected _rotateExtents(extents: Vector3, rotation: Matrix4x4, out: Vector3): void {
         var extentsX: number = extents.x;
         var extentsY: number = extents.y;
@@ -193,7 +249,10 @@ export class BoundsImpl implements IClone {
     }
 
     /**
+     * 转换包围盒
      * @internal
+     * @param matrix 转换矩阵
+     * @param out 输出包围盒
      */
     _tranform(matrix: Matrix4x4, out: BoundsImpl): void {
         var outCen: Vector3 = out._center;
@@ -207,7 +266,9 @@ export class BoundsImpl implements IClone {
     }
 
     /**
+     * 获得实际的包围值
      * @internal
+     * @returns BoundBox
      */
     _getBoundBox(): BoundBox {
         if (this._updateFlag & BoundsImpl._UPDATE_MIN) {

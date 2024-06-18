@@ -7,6 +7,7 @@ import { btColliderShape } from "../Shape/btColliderShape";
 import { btPhysicsCreateUtil } from "../btPhysicsCreateUtil";
 import { btPhysicsManager } from "../btPhysicsManager";
 import { Sprite3D } from "../../../d3/core/Sprite3D";
+import { PhysicsColliderComponent } from "../../../d3/physics/PhysicsColliderComponent";
 
 export enum btColliderType {
     RigidbodyCollider,
@@ -15,6 +16,7 @@ export enum btColliderType {
 }
 
 export class btCollider implements ICollider {
+    component: PhysicsColliderComponent;
     static _colliderID: number = 0;
     static _addUpdateList: boolean = true;
 
@@ -89,6 +91,11 @@ export class btCollider implements ICollider {
     protected _friction = 0.5;
     /** @internal */
     protected _rollingFriction = 0.0;
+    /** @internal */
+    protected _ccdThreshold = 0.0;
+    /** @internal */
+    protected _ccdSwapSphereRadius = 0.0;
+
 
     /** @internal */
     protected _transformFlag = 2147483647 /*int.MAX_VALUE*/;
@@ -128,7 +135,7 @@ export class btCollider implements ICollider {
     }
 
     setCollisionGroup(value: number) {
-        if (value != this._collisionGroup) {
+        if (value != this._collisionGroup && this._btColliderShape) {
             this._collisionGroup = value;
             this._physicsManager.removeCollider(this);
             this._physicsManager.addCollider(this);
@@ -136,7 +143,7 @@ export class btCollider implements ICollider {
     }
 
     setCanCollideWith(value: number) {
-        if (value != this._canCollideWith) {
+        if (value != this._canCollideWith && this._btColliderShape) {
             this._canCollideWith = value;
             this._physicsManager.removeCollider(this);
             this._physicsManager.addCollider(this);
@@ -147,6 +154,8 @@ export class btCollider implements ICollider {
         this.setBounciness(this._restitution);
         this.setfriction(this._friction);
         this.setRollingFriction(this._friction);
+        this.setCcdMotionThreshold(this._physicsManager.ccdThreshold);
+        this.setCcdSweptSphereRadius(this._physicsManager.ccdSphereRadius);
     }
 
     protected getColliderType(): btColliderType {
@@ -171,7 +180,7 @@ export class btCollider implements ICollider {
 
     setColliderShape(shape: btColliderShape) {
         shape._btCollider = this;
-        if (shape == this._btColliderShape||shape._btShape == null)
+        if (shape == this._btColliderShape || shape._btShape == null)
             return;
         var lastColliderShape: btColliderShape = this._btColliderShape;
         this._btColliderShape = shape;
@@ -365,5 +374,21 @@ export class btCollider implements ICollider {
         let bt = btPhysicsCreateUtil._bt;
         this._rollingFriction = value;
         this._btCollider && bt.btCollisionObject_setRollingFriction(this._btCollider, value);
+    }
+
+    setCcdMotionThreshold(value: number): void {
+        if (this._physicsManager.enableCCD) {
+            let bt = btPhysicsCreateUtil._bt;
+            this._ccdThreshold = value;
+            this._btCollider && bt.btCollisionObject_setCcdMotionThreshold(this._btCollider, value);
+        }
+    }
+
+    setCcdSweptSphereRadius(value: number): void {
+        if (this._physicsManager.enableCCD) {
+            let bt = btPhysicsCreateUtil._bt;
+            this._ccdSwapSphereRadius = value;
+            this._btCollider && bt.btCollisionObject_setCcdSweptSphereRadius(this._btCollider, value);
+        }
     }
 }
