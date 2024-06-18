@@ -21,7 +21,7 @@ import { ISpineRender } from "../interface/ISpineRender";
 import { SpineShaderInit } from "../material/SpineShaderInit";
 import { AnimationRenderProxy } from "./AnimationRenderProxy";
 import { MultiRenderData } from "./MultiRenderData";
-import { SketonOptimise, SkinAttach } from "./SketonOptimise";
+import { SketonOptimise, SkinAttach, TSpineBakeData } from "./SketonOptimise";
 import { ISpineOptimizeRender } from "./interface/ISpineOptimizeRender";
 import { IVBIBUpdate } from "./interface/IVBIBUpdate";
 
@@ -46,8 +46,6 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
     //  */
     // material: IOptimizeMaterial;
 
-    static materialMap: Map<string, Material> = new Map();
-
     geoMap: Map<ESpineRenderType, TGeo>;
 
     private _isRender: boolean;
@@ -65,12 +63,16 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
 
     boneMat: Float32Array;
 
+    isBake: boolean;
+
+    bakeData: TSpineBakeData;
+
     constructor(spineOptimize: SketonOptimise) {
         this.renderProxyMap = new Map();
         this.geoMap = new Map();
         this.animatorMap = new Map();
         this.skinRenderArray = [];
-        this.boneMat=new Float32Array(spineOptimize.maxBoneNumber*8);
+        this.boneMat = new Float32Array(spineOptimize.maxBoneNumber * 8);
 
         spineOptimize.skinAttachArray.forEach((value) => {
             this.skinRenderArray.push(new SkinRender(this, value));
@@ -83,11 +85,19 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
         }
         this.currentRender = this.skinRenderArray[this._skinIndex];//default
     }
-    initBake(texture: Texture2D, obj: any): void {
-        let render =new RenderSimple(this.bones, this.slots,this._nodeOwner);
-        render.simpleAnimatorTexture=texture;
-        render._bonesNums=obj.bonesNums;
-        this.renderProxyMap.set(ERenderProxyType.RenderOne, render);
+    
+    destroy(): void {
+        //throw new Error("Method not implemented.");
+    }
+
+    initBake(obj: TSpineBakeData): void {
+        this.bakeData = obj;
+        let render = new RenderBake(this.bones, this.slots, this._nodeOwner);
+        render.simpleAnimatorTexture =obj.texture2d;
+        render._bonesNums = obj.bonesNums;
+        render.aniOffsetMap = obj.aniOffsetMap;
+        this.renderProxyMap.set(ERenderProxyType.RenderBake, render);
+        this.isBake = true;
         //throw new Error("Method not implemented.");
     }
 
@@ -124,15 +134,18 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
         this.animatorMap.forEach((value, key) => {
             value.state = state;
         });
-        let renderone = new RenderOne(this.bones, this.slots, this._nodeOwner);
-        let rendermulti = new RenderMulti(this.bones, this.slots, this._nodeOwner);
-        let rendernormal = new RenderNormal(skeleton, this._nodeOwner);
-        this.renderProxyMap.set(ERenderProxyType.RenderNormal, rendernormal);
-        this.renderProxyMap.set(ERenderProxyType.RenderOne, renderone);
-        this.renderProxyMap.set(ERenderProxyType.RenderMulti, rendermulti);
+        let renderOptimize = new RenderOptimize(this.bones, this.slots, this._nodeOwner);
+        let renderNormal = new RenderNormal(skeleton, this._nodeOwner);
+        this.renderProxyMap.set(ERenderProxyType.RenderNormal, renderNormal);
+        this.renderProxyMap.set(ERenderProxyType.RenderOptimize, renderOptimize);
     }
 
     set renderProxytype(value: ERenderProxyType) {
+        if (this.isBake && value == ERenderProxyType.RenderOptimize) {
+            if (this.bakeData.aniOffsetMap[this._curAnimationName] != undefined) {
+                value = ERenderProxyType.RenderBake;
+            }
+        }
         this.renderProxy = this.renderProxyMap.get(value);
         if (value == ERenderProxyType.RenderNormal) {
             this._nodeOwner._spriteShaderData.removeDefine(SpineShaderInit.SPINE_FAST);
@@ -189,6 +202,7 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
     play(animationName: string) {
         this._curAnimationName = animationName;
         let currentRender = this.currentRender;
+        let oldRenderProxy = this.renderProxy;
 
         let old = this.currentAnimation;
         let oldSkinData = old ? old.currentSKin : null;
@@ -235,17 +249,20 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
             if (!this._isRender) {
                 if (mutiRenderAble) {
                     //this._nodeOwner.drawGeos(currentRender.geo, currentRender.elements);
-                    this.renderProxytype = ERenderProxyType.RenderMulti;
+                    this.renderProxytype = ERenderProxyType.RenderOptimize;
                 }
                 else {
                     this._nodeOwner.drawGeo(currentRender.geo, currentRender.material);
-                    this.renderProxytype = ERenderProxyType.RenderOne;
+                    this.renderProxytype = ERenderProxyType.RenderOptimize;
                 }
                 this._isRender = true;
             }
         }
+        if(oldRenderProxy){
+            oldRenderProxy.leave();
+        }
         this.renderProxy.change(currentRender, currentAnimation);
-        if (currentAnimation.animator.isCache && !currentSKin.isNormalRender) {
+        if ((currentAnimation.animator.isCache || this.renderProxytype==ERenderProxyType.RenderBake) && !currentSKin.isNormalRender) {
             this.beginCache();
         }
         else {
@@ -254,19 +271,20 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
     }
 
     render(time: number): void {
-        this.renderProxy.render(time,this.boneMat);
+        this.renderProxy.render(time, this.boneMat);
     }
 }
 enum ERenderProxyType {
     RenderNormal,
-    RenderOne,
-    RenderMulti
+    RenderOptimize,
+    RenderBake
 }
 interface IRender {
     change(skinRender: SkinRender, currentAnimation: AnimationRenderProxy): void;
-    render(curTime: number,boneMat:Float32Array): void;
+    leave(): void;
+    render(curTime: number, boneMat: Float32Array): void;
 }
-class RenderOne implements IRender {
+class RenderOptimize implements IRender {
     bones: spine.Bone[];
     slots: spine.Slot[];
 
@@ -283,39 +301,13 @@ class RenderOne implements IRender {
         this.skinRender = currentRender;
         this.currentAnimation = currentAnimation;
     }
+    leave(): void{
 
-    render(curTime: number,boneMat:Float32Array) {
-        this.currentAnimation.render(this.bones, this.slots, this.skinRender, curTime,boneMat);//TODO bone
+    }
+
+    render(curTime: number, boneMat: Float32Array) {
+        this.currentAnimation.render(this.bones, this.slots, this.skinRender, curTime, boneMat);//TODO bone
         // this.material.boneMat = boneMat;
-        this._renderNode._spriteShaderData.setBuffer(SpineShaderInit.BONEMAT, boneMat);
-    }
-}
-
-class RenderMulti implements IRender {
-    bones: spine.Bone[];
-    slots: spine.Slot[];
-    _renderNode: Spine2DRenderNode;
-    skinRender: SkinRender;
-    currentAnimation: AnimationRenderProxy;
-
-    constructor(bones: spine.Bone[], slots: spine.Slot[], renderNode: Spine2DRenderNode) {
-        this.bones = bones;
-        this.slots = slots;
-        this._renderNode = renderNode;
-    }
-
-    change(skinRender: SkinRender, currentAnimation: AnimationRenderProxy) {
-        this.skinRender = skinRender;
-        this.currentAnimation = currentAnimation;
-    }
-
-    render(curTime: number,boneMat:Float32Array) {
-        let skinRender = this.skinRender;
-        this.currentAnimation.render(this.bones, this.slots, skinRender, curTime,boneMat);//TODO bone
-        // let currentMaterials = skinRender.currentMaterials;
-        // for (let i = 0, n = currentMaterials.length; i < n; i++) {
-        //     currentMaterials[i].boneMat = boneMat;
-        // }
         this._renderNode._spriteShaderData.setBuffer(SpineShaderInit.BONEMAT, boneMat);
     }
 }
@@ -330,18 +322,22 @@ class RenderNormal implements IRender {
         this._skeleton = skeleton;
     }
 
+    leave(): void{
+
+    }
+
     change(currentRender: SkinRender, currentAnimation: AnimationRenderProxy) {
         this._renerer = currentRender._renerer;
     }
 
-    render(curTime: number,boneMat:Float32Array) {
+    render(curTime: number, boneMat: Float32Array) {
         this._renderNode.clear();
         this._renerer.draw(this._skeleton, this._renderNode, -1, -1);
     }
 
 }
 
-class RenderSimple implements IRender {
+class RenderBake implements IRender {
     bones: spine.Bone[];
     slots: spine.Slot[];
     /** @internal */
@@ -353,7 +349,8 @@ class RenderSimple implements IRender {
     /** @internal  x simpleAnimation offset,y simpleFrameOffset*/
     private _simpleAnimatorOffset: Vector2;
     /** @internal */
-    _bonesNums:number
+    _bonesNums: number;
+    aniOffsetMap: Record<string, number>;
     /**
      * 设置动画帧贴图
      */
@@ -395,26 +392,30 @@ class RenderSimple implements IRender {
     skinRender: SkinRender;
     currentAnimation: AnimationRenderProxy;
     step = 1 / 60;
-    constructor(bones: spine.Bone[], slots: spine.Slot[],renderNode: Spine2DRenderNode) {
+    constructor(bones: spine.Bone[], slots: spine.Slot[], renderNode: Spine2DRenderNode) {
         this._simpleAnimatorParams = new Vector4();
-        // this.bones = bones;
-        // this.slots = slots;
+        this.bones = bones;
+        this.slots = slots;
         this._renderNode = renderNode;
         this._simpleAnimatorOffset = new Vector2();
 
+    }
+
+    leave() {
+        this._renderNode._spriteShaderData.removeDefine(SpineShaderInit.SPINE_SIMPLE);
     }
 
     change(currentRender: SkinRender, currentAnimation: AnimationRenderProxy) {
         this.skinRender = currentRender;
         this.currentAnimation = currentAnimation;
         this._renderNode._spriteShaderData.addDefine(SpineShaderInit.SPINE_SIMPLE);
-        this.currentAnimation.render(this.bones, this.slots, this.skinRender, 0,new Float32Array(1000));
+        this._simpleAnimatorOffset.x = this.aniOffsetMap[currentAnimation.name];
     }
 
     /**
      * @internal
      */
-    _computeAnimatorParamsData(){
+    _computeAnimatorParamsData() {
         this._simpleAnimatorParams.x = this._simpleAnimatorOffset.x;
         this._simpleAnimatorParams.y = Math.round(this._simpleAnimatorOffset.y) * this._bonesNums * 2;
     }
@@ -429,13 +430,13 @@ class RenderSimple implements IRender {
         this._simpleAnimatorParams.w = value2;
     }
 
-    render(curTime: number,boneMat:Float32Array) {
-        this._simpleAnimatorOffset.x = 0;
-        this._simpleAnimatorOffset.y = curTime/this.step;
+    render(curTime: number, boneMat: Float32Array) {
+        this.currentAnimation.renderWithOutMat(this.slots, this.skinRender, curTime);
+        this._simpleAnimatorOffset.y = curTime / this.step;
         this._computeAnimatorParamsData();
         // let boneMat = this.currentAnimation.render(this.bones, this.slots, this.skinRender, curTime);//TODO bone
         // this.material.boneMat = boneMat;
-        this._renderNode._spriteShaderData.setVector(SpineShaderInit.SIMPLE_SIMPLEANIMATORPARAMS,this._simpleAnimatorParams);
+        this._renderNode._spriteShaderData.setVector(SpineShaderInit.SIMPLE_SIMPLEANIMATORPARAMS, this._simpleAnimatorParams);
     }
 }
 
@@ -486,7 +487,7 @@ class SkinRender implements IVBIBUpdate {
 
     getMaterial(texture: Texture, blendMode: number): Material {
         let key = texture.id + "_" + blendMode;
-        let mat = SpineOptimizeRender.materialMap.get(key);
+        let mat = SpineTemplet.materialMap.get(key);
         if (!mat) {
             mat = new Material();
             mat.setShaderName("SpineStandard");
@@ -496,7 +497,8 @@ class SkinRender implements IVBIBUpdate {
             SpineShaderInit.SetSpineBlendMode(blendMode, mat);
             //mat.color = this.owner.spineColor;
             //mat.setVector2("u_size",new Vector2(Laya.stage.width,Laya.stage.height));
-            SpineOptimizeRender.materialMap.set(key, mat);
+            mat._addReference();
+            SpineTemplet.materialMap.set(key, mat);
         }
         return mat;
     }
@@ -530,7 +532,7 @@ class SkinRender implements IVBIBUpdate {
             }
             elementsCreator.cloneTo(this.elements);
             this.currentMaterials = elementsCreator.currentMaterials;
-            this.owner._nodeOwner.updateElements(this.geo,this.elements);
+            this.owner._nodeOwner.updateElements(this.geo, this.elements);
         }
     }
     init(skeleton: spine.Skeleton, templet: SpineTemplet, renderNode: Spine2DRenderNode) {

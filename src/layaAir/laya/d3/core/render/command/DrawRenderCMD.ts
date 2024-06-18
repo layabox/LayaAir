@@ -45,6 +45,10 @@ export class DrawRenderCMD extends Command {
             this._drawNodeCMDData.destShaderData = value.shaderData;
             this._drawNodeCMDData.destSubShader = value.shader.getSubShaderAt(0);
         }
+        else {
+            this._drawNodeCMDData.destShaderData = null;
+            this._drawNodeCMDData.destSubShader = null;
+        }
 
         this._material = value;
     }

@@ -66,9 +66,21 @@ export class WebGLDrawNodeCMDData extends DrawNodeCMDData {
     }
 
     apply(context: WebGLRenderContext3D): void {
-        this.node._renderUpdatePre(context);
-        if (this.subMeshIndex == -1) {
-            this.node.renderelements.forEach(element => {
+        if (this.destShaderData && this.destSubShader) {
+            this.node._renderUpdatePre(context);
+            if (this.subMeshIndex == -1) {
+                this.node.renderelements.forEach(element => {
+                    let oriSubShader = element.subShader;
+                    let oriMatShaderData = element.materialShaderData;
+                    element.subShader = this._destSubShader;
+                    element.materialShaderData = this._destShaderData;
+                    context.drawRenderElementOne(element as WebGLRenderElement3D);
+                    element.subShader = oriSubShader;
+                    element.materialShaderData = oriMatShaderData;
+                });
+            }
+            else {
+                let element = this.node.renderelements[this.subMeshIndex];
                 let oriSubShader = element.subShader;
                 let oriMatShaderData = element.materialShaderData;
                 element.subShader = this._destSubShader;
@@ -76,19 +88,8 @@ export class WebGLDrawNodeCMDData extends DrawNodeCMDData {
                 context.drawRenderElementOne(element as WebGLRenderElement3D);
                 element.subShader = oriSubShader;
                 element.materialShaderData = oriMatShaderData;
-            });
+            }
         }
-        else {
-            let element = this.node.renderelements[this.subMeshIndex];
-            let oriSubShader = element.subShader;
-            let oriMatShaderData = element.materialShaderData;
-            element.subShader = this._destSubShader;
-            element.materialShaderData = this._destShaderData;
-            context.drawRenderElementOne(element as WebGLRenderElement3D);
-            element.subShader = oriSubShader;
-            element.materialShaderData = oriMatShaderData;
-        }
-
     }
 }
 

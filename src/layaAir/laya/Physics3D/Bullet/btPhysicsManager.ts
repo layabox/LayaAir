@@ -794,14 +794,17 @@ export class btPhysicsManager implements IPhysicsManager {
      * @internal
      */
     private _addCharacter(character: btCharacterCollider): void {
-        if (!this._btDiscreteDynamicsWorld)
-            throw "Simulation:Cannot perform this action when the physics engine is set to CollisionsOnly";
-
-        this._bt.btCollisionWorld_addCollisionObject(this._btCollisionWorld, character._btCollider, character._collisionGroup, character._canCollideWith);
-        this._bt.btDynamicsWorld_addAction(this._btCollisionWorld, character._btKinematicCharacter);
-
         var characters: btCharacterCollider[] = this._characters;
-        characters.push(character);
+        let index = characters.indexOf(character)
+        if (index == -1) {
+            if (!this._btDiscreteDynamicsWorld)
+                throw "Simulation:Cannot perform this action when the physics engine is set to CollisionsOnly";
+            this._bt.btCollisionWorld_addCollisionObject(this._btCollisionWorld, character._btCollider, character._collisionGroup, character._canCollideWith);
+            this._bt.btDynamicsWorld_addAction(this._btCollisionWorld, character._btKinematicCharacter);
+            characters.push(character);
+        } else {
+            characters[index] = character;
+        }
     }
 
     /**

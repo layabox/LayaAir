@@ -6,44 +6,31 @@
     uniform sampler2D u_SimpleAnimatorTexture;
     uniform float u_SimpleAnimatorTextureSize;
 
-    mat3 loadBakedMatMatrix(float FramePos, float boneIndices, float offset)
-    {
-        vec2 uv;
-        float PixelPos = FramePos + boneIndices * 4.0;
+    vec4 getBonePosBake(float FramePos, float boneIndices , float weight , vec2 pos , float offset){
+        vec2 uv = vec2(0.0,0.0);
+        //float 2 * 4
+        float PixelPos = FramePos + boneIndices * 2.0;
         float halfOffset = offset * 0.5;
         float uvoffset = PixelPos / u_SimpleAnimatorTextureSize;
 
         uv.y = floor(uvoffset) * offset + halfOffset;
-        uv.x = mod(float(PixelPos), u_SimpleAnimatorTextureSize) * offset + halfOffset;
+        uv.x = mod(PixelPos, u_SimpleAnimatorTextureSize) * offset + halfOffset;
         
-        vec4 mat0row = texture2D(u_SimpleAnimatorTexture, uv);
+        vec4 up = texture2D(u_SimpleAnimatorTexture, uv);
         uv.x += offset;
-        vec4 mat1row = texture2D(u_SimpleAnimatorTexture, uv);
-        
-        mat3 m = mat3(
-            mat0row.x, mat0row.y, mat0row.z,
-            mat1row.x, mat1row.y, mat1row.z,
-            0.0, 0.0, 0.0,
-        );
-        return m;
-    }
-
-    vec4 getBonePosBake(float FramePos, float fboneId,float weight , vec2 pos , float offset){
-        int boneId=int(fboneId);
-
-        mat3 bakeMatrix = loadBakedMatMatrix(FramePos , fboneId , offset);
-        vec3 transVec3 = bakeMatrix * vec3( pos , 1.0 );
-        // float x = pos.x*up.x + pos.y*up.y +up.z ;
-        // float y = pos.x*down.x + pos.y*down.y +down.z;
-        pos.x=transVec3.x * weight;
-        pos.y=transVec3.y * weight;
-        
+        vec4 down = texture2D(u_SimpleAnimatorTexture, uv);
+        // vec4 up = vec4(1.0,1.0 ,1.0 ,0.0 );
+        // vec4 down = vec4( 1.0,1.0 ,1.0 ,0.0 );
+        float x = pos.x*up.x + pos.y*up.y +up.z;
+        float y = pos.x*down.x + pos.y*down.y +down.z;
+        pos.x=x*weight;
+        pos.y=y*weight;
         return vec4(pos,0.,1.0);
     }
 #endif
 
 #if defined(SPINE_FAST) || defined(SPINE_RB)
-    uniform vec4 u_sBone[256];
+    uniform vec4 u_sBone[200];
     vec4 getBonePos(float fboneId,float weight,vec2 pos){
         int boneId=int(fboneId);
         vec4 up= u_sBone[boneId*2];

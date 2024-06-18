@@ -38,6 +38,8 @@ export class CharacterController extends PhysicsColliderComponent {
     private _simGravity: Vector3 = new Vector3(0, -9.8 / 60, 0);
     /**@internal */
     private _pushForce: number = 1;
+    /**@internal */
+    private _jumpSpeed: number = 10.0;
     /**
      * @override
      * @internal
@@ -197,8 +199,12 @@ export class CharacterController extends PhysicsColliderComponent {
     /**
      * 角色位置
      */
-    get position() {
-        return null;
+    get position(): Vector3 {
+        if (this._collider && this.collider.getCapable(ECharacterCapable.Charcater_WorldPosition)) {
+            return this._collider.getPosition();
+        } else {
+            return null;
+        }
     }
 
     set position(v: Vector3) {
@@ -217,6 +223,19 @@ export class CharacterController extends PhysicsColliderComponent {
         this._pushForce = value;
         if (this._collider && this.collider.getCapable(ECharacterCapable.Character_PushForce)) {
             this._collider.setPushForce(value);
+        }
+    }
+
+    /**
+     * 起跳速度
+     */
+    public get jumpSpeed(): number {
+        return this._jumpSpeed;
+    }
+    public set jumpSpeed(value: number) {
+        this._jumpSpeed = value;
+        if (this._collider && this.collider.getCapable(ECharacterCapable.Charcater_Jump)) {
+            this._collider.setJumpSpeed(value);
         }
     }
 

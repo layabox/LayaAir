@@ -22,6 +22,7 @@ import { Vector2 } from "../maths/Vector2";
 import { IRenderGeometryElement } from "../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
 import { Material } from "../resource/Material";
 import { IndexFormat } from "../RenderEngine/RenderEnum/IndexFormat";
+import { ClassUtils } from "../utils/ClassUtils";
 
 
 /**动画开始播放调度
@@ -221,7 +222,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
             this.play(this._animationName, this._loop, true);
     }
 
-    set skin(value: string) {
+    set url(value: string) {
         if (this._skin != value) {
             this._skin = value;
             Laya.loader.load(value, Loader.SPINE).then((templet: SpineTemplet) => {
@@ -230,7 +231,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
         }
     }
 
-    get skin(): string {
+    get url(): string {
         return this._skin
     }
 
@@ -690,6 +691,10 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
         super.clear();
     }
 
+    onDestroy(): void {
+        this.spineItem.destroy()
+    }
+
     drawGeos(geo: IRenderGeometryElement, elements: [Material, number, number][]) {
         for (var i = 0, n = elements.length; i < n; i++) {
             let element = Spine2DRenderNode.createRenderElement2D();
@@ -765,3 +770,5 @@ class TimeKeeper {
             this.delta = this.maxDelta;
     }
 }
+
+ClassUtils.regClass("Spine2DRenderNode", Spine2DRenderNode);
