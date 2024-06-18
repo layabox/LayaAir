@@ -96,6 +96,11 @@ import "./loaders/ShaderLoader";
 import "./loaders/GLSLLoader";
 import "./loaders/AnimationControllerLoader";
 import { Viewport } from "../maths/Viewport";
+import { BoxColliderShape } from "./physics/shape/BoxColliderShape";
+import { CapsuleColliderShape } from "./physics/shape/CapsuleColliderShape";
+import { ConeColliderShape } from "./physics/shape/ConeColliderShape";
+import { CylinderColliderShape } from "./physics/shape/CylinderColliderShape";
+import { SphereColliderShape } from "./physics/shape/SphereColliderShape";
 
 
 let c = ClassUtils.regClass;
