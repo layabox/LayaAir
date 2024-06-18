@@ -1,6 +1,5 @@
 // import { TypeExtendsData } from "./types/BlueprintTypes";
 
-import { TBPDeclaration } from "../../bp/datas/types/BlueprintDeclaration"
 
 // export const extendsData: TypeExtendsData = {
 //     Node: {
@@ -35,8 +34,8 @@ import { TBPDeclaration } from "../../bp/datas/types/BlueprintDeclaration"
 /**
  * 开发者自定义相关
  */
-export const customBTData : Record<string , TBPDeclaration> = {
+export const customBTData : Record<string , any> = {
 }
 
-export const extendsBTData: Record<string, TBPDeclaration> = {
+export const extendsBTData: Record<string, any> = {
 }

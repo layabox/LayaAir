@@ -1,6 +1,8 @@
 import { Laya } from "../../../Laya";
 import { JsonBinRead } from "../../net/util/JsonBinRead";
+import { BPBridgeUtils } from "../../utils/BPBridgeUtils";
 import { BehaviorTreeFactory } from "../BehaviorTreeFactory";
+import { BehaviorTreeStaticFun } from "../BehaviorTreeStaticFun";
 import { BTConst } from "../core/BTConst";
 import { extendsBTData } from "../datas/BehaviorTreeExtends";
 
@@ -12,6 +14,8 @@ import { extendsBTData } from "../datas/BehaviorTreeExtends";
  */
 export class BehaviorTreeCreateUtil {
     static __init__(): Promise<void> {
+        BPBridgeUtils.instance.runBehaviorTree = BehaviorTreeStaticFun.runBehaviorTree;
+
         let strs = BTConst.configPath.split(".");
         let ext = strs[strs.length - 1];
         let isJson = ext == "json";

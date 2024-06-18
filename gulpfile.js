@@ -57,7 +57,7 @@ const packsDef = [{
             './layaAir/laya/html/**/*.*',
             './layaAir/laya/webgl/**/*.*',
             './layaAir/Config3D.ts',
-
+            "./layaAir/laya/bt/**/*.*"
 
         ],
     },
@@ -215,30 +215,30 @@ const packsDef = [{
         'input': [
             './extensions/performanceTool/**/*.*'
         ],
-    },
-    {
-        'libName': "bpcore",
-        'input': [
-            "./layaAir/laya/bp/core/**/*.*",
-            "./layaAir/laya/bp/datas/**/*.*",
-            "./layaAir/laya/bp/export/**/*.*",
-            "./layaAir/laya/bp/express/**/*.*",
-            "./layaAir/laya/bp/runtime/**/*.*",
-        ],
-    },
-    {
-        'libName': "visualcode",
-        'input': [
-            "./layaAir/laya/bp/adapter/**/*.*",
-            "./layaAir/laya/bt/**/*.*"
-        ],
-    },
-    {
-        'libName': "bpextension",
-        'input': [
-            "./layaAir/laya/bp/extensions/**/*.*",
-        ],
     }
+    // {
+    //     'libName': "bpcore",
+    //     'input': [
+    //         "./layaAir/laya/bp/core/**/*.*",
+    //         "./layaAir/laya/bp/datas/**/*.*",
+    //         "./layaAir/laya/bp/export/**/*.*",
+    //         "./layaAir/laya/bp/express/**/*.*",
+    //         "./layaAir/laya/bp/runtime/**/*.*",
+    //     ],
+    // },
+    // {
+    //     'libName': "visualcode",
+    //     'input': [
+    //         "./layaAir/laya/bp/adapter/**/*.*",
+    //         "./layaAir/laya/bt/**/*.*"
+    //     ],
+    // },
+    // {
+    //     'libName': "bpextension",
+    //     'input': [
+    //         "./layaAir/laya/bp/extensions/**/*.*",
+    //     ],
+    // }
 ];
 
 /*

@@ -1,4 +1,3 @@
-import { TBPDeclaration } from "../../bp/datas/types/BlueprintDeclaration";
 import { customBTData, extendsBTData } from "../datas/BehaviorTreeExtends";
 
 /**
@@ -13,11 +12,11 @@ export class BehaviorTreeUtil {
     * @param name 
     * @param data 
     */
-    static addCustomData(name: string, data: TBPDeclaration) {
+    static addCustomData(name: string, data: any) {
         customBTData[name] = data;
     }
 
-    static getDeclaration(name: string): TBPDeclaration {
+    static getDeclaration(name: string): any {
         return extendsBTData[name] ? extendsBTData[name] : customBTData[name];
     }
 }

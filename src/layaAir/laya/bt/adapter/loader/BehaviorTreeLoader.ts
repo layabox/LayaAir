@@ -1,7 +1,7 @@
-import { Dependence } from "../../../bp/adapter/loader/BlueprintLoader";
 import { HierarchyLoader } from "../../../loaders/HierarchyLoader";
 import { ILoadTask, IResourceLoader, Loader } from "../../../net/Loader";
 import { URL } from "../../../net/URL";
+import { Dependence } from "../../../utils/Dependence";
 import { BTConst } from "../../core/BTConst";
 import { BehaviorTreeImpl } from "../resource/BehaviorTreeImpl";
 

@@ -1,4 +1,4 @@
-import { BlueprintUtil } from "../bp/core/BlueprintUtil";
+import { BPBridgeUtils } from "../utils/BPBridgeUtils";
 import { BTCompositeSelector } from "./composites/BTCompositeSelector";
 import { BTCompositeSequence } from "./composites/BTCompositeSequence";
 import { BTSimpleParallel } from "./composites/BTSimpleParallel";
@@ -52,7 +52,7 @@ export class BehaviorTreeFactory {
         this.regBTClass(BTType.Wait, BTTaskWait);
         this.regBTClass(BTType.RunBehavior, BTTaskRunBehavior);
         this.regBTClass(BTType.FinishWithResult, BTTaskFinishWithResult);
-    }
+}
 
     static regBTClass(type: BTType, cls: new () => BTNode) {
         this._btMap.set(type, cls);
@@ -66,7 +66,7 @@ export class BehaviorTreeFactory {
     createNew(config: TBTNode) {
         let cls = BehaviorTreeFactory._btMap.get(config.cid);
         if (!cls) {
-            cls = BlueprintUtil.getClass(config.cid);
+            cls = BPBridgeUtils.instance.getClass(config.cid);
         }
         let result = new cls();
         result.nid = config.id;
