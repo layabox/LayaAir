@@ -68,6 +68,8 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
 
     bakeData: TSpineBakeData;
 
+    private _renderProxytype: ERenderProxyType;
+
     constructor(spineOptimize: SketonOptimise) {
         this.renderProxyMap = new Map();
         this.geoMap = new Map();
@@ -145,6 +147,10 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
         this.renderProxyMap.set(ERenderProxyType.RenderOptimize, renderOptimize);
     }
 
+    get renderProxytype():ERenderProxyType{
+        return this._renderProxytype;
+    }
+
     set renderProxytype(value: ERenderProxyType) {
         if (this.isBake && value == ERenderProxyType.RenderOptimize) {
             if (this.bakeData.aniOffsetMap[this._curAnimationName] != undefined) {
@@ -156,6 +162,7 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
             this._nodeOwner._spriteShaderData.removeDefine(SpineShaderInit.SPINE_FAST);
             this._nodeOwner._spriteShaderData.removeDefine(SpineShaderInit.SPINE_RB);
         }
+        this._renderProxytype = value;
     }
 
     beginCache() {
