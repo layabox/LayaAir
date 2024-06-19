@@ -381,7 +381,6 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
      * @param	playAudio	是否播放音频
      */
     play(nameOrIndex: any, loop: boolean, force: boolean = true, start: number = 0, end: number = 0, freshSkin: boolean = true, playAudio: boolean = true) {
-        console.log(nameOrIndex);
         this._playAudio = playAudio;
         start /= 1000;
         end /= 1000;

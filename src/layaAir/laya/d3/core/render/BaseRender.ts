@@ -312,13 +312,16 @@ export class BaseRender extends Component {
     }
 
     set sharedMaterial(value: Material) {
-        var lastValue: Material = this._sharedMaterials[0];
-        if (lastValue !== value) {
-            this._sharedMaterials[0] = value;
+        var lastValue = this._sharedMaterials[0];
+        this._changeMaterialReference(lastValue, value);
+        this._sharedMaterials[0] = value;
+
+        let element = this._renderElements[0];
+        if (element && element.material != value) {
             this._materialsInstance[0] = false;
-            this._changeMaterialReference(lastValue, value);
-            this._renderElements[0] &&(this._renderElements[0].material = value);
+            element.material = value;
         }
+
         this._isSupportRenderFeature();
     }
 
@@ -333,31 +336,39 @@ export class BaseRender extends Component {
         var materialsInstance: boolean[] = this._materialsInstance;
         var sharedMats: Material[] = this._sharedMaterials;
 
-        for (var i: number = 0, n: number = sharedMats.length; i < n; i++) {
-            var lastMat: Material = sharedMats[i];
-            (lastMat) && (lastMat._removeReference());
-        }
-
         if (value) {
-            var count: number = value.length;
+            let count = value.length;
+            for (let i = 0; i < count; i++) {
+                let mat = value[i];
+                let lastMat = sharedMats[i];
+                this._changeMaterialReference(lastMat, mat);
+                sharedMats[i] = mat;
+
+                let element = this._renderElements[i];
+                if (element && element.material != mat) {
+                    materialsInstance[i] = false;
+                    element.material = mat;
+                }
+            }
+
+            for (let i = count, n = sharedMats.length; i < n; i++) {
+                let mat = sharedMats[i];
+                mat && mat._removeReference();
+
+                let element = this._renderElements[i];
+                element && (element.material = null);
+            }
+
             materialsInstance.length = count;
             sharedMats.length = count;
-            for (i = 0; i < count; i++) {
-                lastMat = sharedMats[i];
-                var mat: Material = value[i];
-                if (lastMat !== mat) {
-                    materialsInstance[i] = false;
-                    if (this._renderElements[i]) {
-                        this._renderElements[i].material = mat;
-                    }
-                }
-                if (mat) {
-                    mat._addReference();
-                }
-                sharedMats[i] = mat;
+        }
+        else {
+            for (let i = 0, n = sharedMats.length; i < n; i++) {
+                let lastMat = sharedMats[i];
+                lastMat && lastMat._removeReference();
             }
-        } else {
-            throw new Error("BaseRender: shadredMaterials value can't be null.");
+
+            this._sharedMaterials = [];
         }
         this._isSupportRenderFeature();
     }
@@ -670,7 +681,7 @@ export class BaseRender extends Component {
      */
     private _changeMaterialReference(lastValue: Material, value: Material): void {
         (lastValue) && (lastValue._removeReference());
-        (value) && (value._addReference());//TODO:value可以为空
+        value && value._addReference();
     }
 
     /**

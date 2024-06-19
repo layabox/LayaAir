@@ -50,6 +50,13 @@ export class RenderElement {
             this._renderElementOBJ.materialId = value.id;
             value.ownerELement = this;
         }
+        else {
+            this._material = null;
+            this._renderElementOBJ.materialShaderData = null;
+            this._renderElementOBJ.materialRenderQueue = 0;
+            this._renderElementOBJ.subShader = this._subShader = null;
+            this._renderElementOBJ.materialId = -1;
+        }
     }
 
     /**@internal */
