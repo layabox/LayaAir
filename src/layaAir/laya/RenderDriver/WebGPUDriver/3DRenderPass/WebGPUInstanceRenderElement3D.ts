@@ -4,7 +4,7 @@ import { VertexMesh } from "../../../RenderEngine/RenderShader/VertexMesh";
 import { MeshSprite3DShaderDeclaration } from "../../../d3/core/MeshSprite3DShaderDeclaration";
 import { RenderableSprite3D } from "../../../d3/core/RenderableSprite3D";
 import { SimpleSkinnedMeshSprite3D } from "../../../d3/core/SimpleSkinnedMeshSprite3D";
-import { SingletonList } from "../../../utils/SingletonList";
+import { FastSinglelist, SingletonList } from "../../../utils/SingletonList";
 import { IRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { BaseRenderType } from "../../RenderModuleData/Design/3D/I3DRenderModuleData";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
@@ -80,38 +80,24 @@ export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D {
         return stateInfo;
     }
 
-    /**
-     * max instance count
-     */
     static MaxInstanceCount: number = 1024;
 
-    /**
-     * @internal
-     */
     private static _pool: WebGPUInstanceRenderElement3D[] = [];
     static create(): WebGPUInstanceRenderElement3D {
-        let element = this._pool.pop() || new WebGPUInstanceRenderElement3D();
-        return element;
+        return this._pool.pop() ?? new WebGPUInstanceRenderElement3D();
     }
 
-    /**
-     * pool of Buffer
-     * @internal
-     */
     private static _bufferPool: Map<number, Float32Array[]> = new Map();
-
     static _instanceBufferCreate(length: number): Float32Array {
         let array = this._bufferPool.get(length);
         if (!array) {
             this._bufferPool.set(length, []);
             array = this._bufferPool.get(length);
         }
-
-        const element = array.pop() || new Float32Array(length);
-        return element;
+        return array.pop() ?? new Float32Array(length);
     }
 
-    _instanceElementList: SingletonList<IRenderElement3D>;
+    _instanceElementList: FastSinglelist<IRenderElement3D>;
 
     private _vertexBuffers: Array<WebGPUVertexBuffer> = [];
     private _updateData: Array<Float32Array> = [];
@@ -274,7 +260,7 @@ export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D {
     protected _uploadGeometry(command: WebGPURenderCommandEncoder, bundle: WebGPURenderBundle) {
         for (let i = 0; i < this.updateNums; i++)
             this._vertexBuffers[i]?.setData(this._updateData[i].buffer, 0, 0, this.drawCount * this._updateDataNum[i] * 4);
-        super._uploadGeometry(command, bundle);
+        return super._uploadGeometry(command, bundle);
     }
 
     /**

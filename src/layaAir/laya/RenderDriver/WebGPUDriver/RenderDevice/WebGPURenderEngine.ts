@@ -14,8 +14,6 @@ import { WebGPURenderEngineFactory } from "./WebGPURenderEngineFactory";
 import { WebGPUTextureContext, WebGPUTextureFormat } from "./WebGPUTextureContext";
 import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
 import { GPUEngineStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
-import { BufferTargetType, BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
-import { GLBuffer } from "../../WebGLDriver/RenderDevice/WebGLEngine/GLBuffer";
 
 export class WebGPUConfig {
     /**
@@ -81,6 +79,8 @@ export class WebGPURenderEngine implements IRenderEngine {
     private _adapterSupportedExtensions: GPUFeatureName[];
     private _deviceEnabledExtensions: GPUFeatureName[];
 
+    private _GPUStatisticsInfo: Map<GPUEngineStatisticsInfo, number> = new Map();
+
     gpuBufferMgr: WebGPUBufferManager; //GPU大内存管理器
 
     globalId: number;
@@ -96,15 +96,16 @@ export class WebGPURenderEngine implements IRenderEngine {
             WebGPURenderEngine._instance = this;
         else console.error('WebGPU is not supported by your browser');
 
+        this._initStatisticsInfo();
         this.globalId = WebGPUGlobal.getId(this);
     }
 
-    getUBOPointer?(name: string): number {
-        throw new Error('Method not implemented.');
-    }
-    createBuffer?(targetType: BufferTargetType, bufferUsageType: BufferUsage): GLBuffer {
-        throw new Error('Method not implemented.');
-    }
+    // getUBOPointer?(name: string): number {
+    //     throw new Error('Method not implemented.');
+    // }
+    // createBuffer?(targetType: BufferTargetType, bufferUsageType: BufferUsage): GLBuffer {
+    //     throw new Error('Method not implemented.');
+    // }
     _enableStatistics: boolean;
 
     /**
@@ -359,13 +360,40 @@ export class WebGPURenderEngine implements IRenderEngine {
     scissor(x: number, y: number, width: number, height: number): void {
     }
 
-    //统计相关
-    clearStatisticsInfo(): void {
+    private _initStatisticsInfo() {
+        for (let i = 0; i < GPUEngineStatisticsInfo.Count; i++) {
+            this._GPUStatisticsInfo.set(i, 0);
+        }
     }
 
-    //统计相关
+    /**
+     * @internal
+     * @param info 
+     * @param value 
+     */
+    _addStatisticsInfo(info: GPUEngineStatisticsInfo, value: number) {
+        this._enableStatistics && this._GPUStatisticsInfo.set(info, this._GPUStatisticsInfo.get(info) + value);
+    }
+
+    /**
+     * 清除
+     * @internal
+     * @param info 
+     */
+    clearStatisticsInfo() {
+        if (this._enableStatistics) {
+            for (let i = 0; i < GPUEngineStatisticsInfo.FrameClearCount; i++) {
+                this._GPUStatisticsInfo.set(i, 0);
+            }
+        }
+    }
+
+    /**
+     * @internal
+     * @param info 
+     */
     getStatisticsInfo(info: GPUEngineStatisticsInfo): number {
-        return 0;
+        return this._GPUStatisticsInfo.get(info);
     }
 
     /**

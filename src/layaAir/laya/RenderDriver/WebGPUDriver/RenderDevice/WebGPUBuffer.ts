@@ -1,3 +1,4 @@
+import { GPUEngineStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
 import { roundDown, roundUp } from "./WebGPUCommon";
 import { WebGPURenderEngine } from "./WebGPURenderEngine";
 import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
@@ -46,6 +47,8 @@ export class WebGPUBuffer {
     setDataLength(length: number): void {
         const size = roundUp(length, 4);
         if (!this._isCreate || this._size != size) {
+            WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.M_GPUMemory, -this._size);
+            WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.M_GPUBuffer, -this._size);
             this._size = size;
             this._create();
         }
@@ -59,6 +62,8 @@ export class WebGPUBuffer {
         });
         this._isCreate = true;
         WebGPUGlobal.action(this, 'allocMemory | buffer', this._size);
+        WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.M_GPUMemory, this._size);
+        WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.M_GPUBuffer, this._size);
     }
 
     setData(srcData: ArrayBuffer | ArrayBufferView, srcOffset: number) {
@@ -99,6 +104,8 @@ export class WebGPUBuffer {
 
     release() {
         //好像需要延迟删除
+        WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.M_GPUMemory, -this._size);
+        WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.M_GPUBuffer, -this._size);
         WebGPUGlobal.releaseId(this);
         this._source.destroy();
     }
