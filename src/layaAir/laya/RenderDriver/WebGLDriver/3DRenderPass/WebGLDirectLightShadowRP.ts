@@ -8,29 +8,22 @@ import { Scene3DShaderDeclaration } from "../../../d3/core/scene/Scene3DShaderDe
 import { BoundSphere } from "../../../d3/math/BoundSphere";
 import { Plane } from "../../../d3/math/Plane";
 import { ShadowCasterPass } from "../../../d3/shadowMap/ShadowCasterPass";
-import { ShadowSliceData } from "../../../d3/shadowMap/ShadowSliceData";
+import { ShadowCullInfo, ShadowSliceData } from "../../../d3/shadowMap/ShadowSliceData";
 import { Color } from "../../../maths/Color";
 import { MathUtils3D } from "../../../maths/MathUtils3D";
 import { Matrix4x4 } from "../../../maths/Matrix4x4";
 import { Vector3 } from "../../../maths/Vector3";
 import { Vector4 } from "../../../maths/Vector4";
 import { Viewport } from "../../../maths/Viewport";
+import { RenderCullUtil } from "../../DriverCommon/RenderCullUtil";
+import { RenderListQueue } from "../../DriverCommon/RenderListQueue";
 import { WebBaseRenderNode } from "../../RenderModuleData/WebModuleData/3D/WebBaseRenderNode";
 import { WebDirectLight } from "../../RenderModuleData/WebModuleData/3D/WebDirectLight";
 import { WebCameraNodeData } from "../../RenderModuleData/WebModuleData/3D/WebModuleData";
 import { WebGLShaderData } from "../../RenderModuleData/WebModuleData/WebGLShaderData";
 import { WebGLInternalRT } from "../RenderDevice/WebGLInternalRT";
 import { WebGLRenderContext3D } from "./WebGLRenderContext3D";
-import { WebGLCullUtil } from "./WebGLRenderUtil/WebGLCullUtil";
-import { WebGLRenderListQueue } from "./WebGLRenderUtil/WebGLRenderListQueue";
 
-export class ShadowCullInfo {
-    position: Vector3;
-    cullPlanes: Plane[];
-    cullSphere: BoundSphere;
-    cullPlaneCount: number;
-    direction: Vector3;
-}
 
 export class WebGLDirectLightShadowRP {
     /** @internal 最大cascade*/
@@ -87,7 +80,7 @@ export class WebGLDirectLightShadowRP {
     private _shadowCullInfo: ShadowCullInfo;
 
     /**@internal */
-    private _renderQueue: WebGLRenderListQueue;
+    private _renderQueue: RenderListQueue;
 
     set light(value: WebDirectLight) {
         this._light = value;
@@ -128,7 +121,7 @@ export class WebGLDirectLightShadowRP {
         this._lightSide = new Vector3();
         this._lightForward = new Vector3();
         this._cascadesSplitDistance = new Array(WebGLDirectLightShadowRP._maxCascades + 1);
-        this._renderQueue = new WebGLRenderListQueue(false);
+        this._renderQueue = new RenderListQueue(false);
         this._frustumPlanes = new Array(new Plane(new Vector3(), 0), new Plane(new Vector3(), 0), new Plane(new Vector3(), 0), new Plane(new Vector3(), 0), new Plane(new Vector3(), 0), new Plane(new Vector3(), 0));
         this._shadowCullInfo = new ShadowCullInfo();
     }
@@ -187,7 +180,7 @@ export class WebGLDirectLightShadowRP {
             shadowCullInfo.cullSphere = sliceData.splitBoundSphere;
             shadowCullInfo.direction = this._lightForward;
             //cull
-            WebGLCullUtil.culldirectLightShadow(shadowCullInfo, list, count, this._renderQueue, context);
+            RenderCullUtil.cullDirectLightShadow(shadowCullInfo, list, count, this._renderQueue, context);
 
             context.cameraData = sliceData.cameraShaderValue as WebGLShaderData;
             context.cameraUpdateMask++;
@@ -197,7 +190,7 @@ export class WebGLDirectLightShadowRP {
             var offsetY: number = sliceData.offsetY;
 
 
-            if (this._renderQueue._elements.length > 0) {// if one cascade have anything to render.
+            if (this._renderQueue.elements.length > 0) {// if one cascade have anything to render.
                 Viewport._tempViewport.set(offsetX, offsetY, resolution, resolution);
                 Vector4.tempVec4.setValue(offsetX + 1, offsetY + 1, resolution - 2, resolution - 2);
                 context.setViewPort(Viewport._tempViewport);
