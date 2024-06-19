@@ -11,7 +11,8 @@ import { Material } from "../resource/Material";
 export enum BaseRender2DType {
     baseRenderNode = 0,
     spine = 1,
-    particle = 2
+    particle = 2,
+    spineSimple = 3
 }
 
 export enum Render2DOrderMode {

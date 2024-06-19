@@ -1,3 +1,4 @@
+import { BaseRender2DType, BaseRenderNode2D } from "../../NodeRender2D/BaseRenderNode2D";
 import { IIndexBuffer } from "../../RenderDriver/DriverDesign/RenderDevice/IIndexBuffer";
 import { IRenderGeometryElement } from "../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
 import { IVertexBuffer } from "../../RenderDriver/DriverDesign/RenderDevice/IVertexBuffer";
@@ -403,6 +404,8 @@ class RenderBake implements IRender {
 
     leave() {
         this._renderNode._spriteShaderData.removeDefine(SpineShaderInit.SPINE_SIMPLE);
+        //this._renderNode._spriteShaderData.removeDefine(SpineShaderInit.SPINE_GPU_INSTANCE);
+        //this._renderNode._renderType =BaseRender2DType.spine;
     }
 
     change(currentRender: SkinRender, currentAnimation: AnimationRenderProxy) {
@@ -410,6 +413,10 @@ class RenderBake implements IRender {
         this.currentAnimation = currentAnimation;
         this._renderNode._spriteShaderData.addDefine(SpineShaderInit.SPINE_SIMPLE);
         this._simpleAnimatorOffset.x = this.aniOffsetMap[currentAnimation.name];
+        // if(currentAnimation.currentSKin.canInstance){
+        //     this._renderNode._renderType=BaseRender2DType.spineSimple;
+        //     this._renderNode._spriteShaderData.addDefine(SpineShaderInit.SPINE_GPU_INSTANCE);
+        // }
     }
 
     /**
