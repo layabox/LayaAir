@@ -99,6 +99,10 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
         render.aniOffsetMap = obj.aniOffsetMap;
         this.renderProxyMap.set(ERenderProxyType.RenderBake, render);
         this.isBake = true;
+        if(this._curAnimationName){
+            this._clear();
+            this.play(this._curAnimationName);
+        }
         //throw new Error("Method not implemented.");
     }
 
