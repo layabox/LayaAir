@@ -2,7 +2,7 @@ import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
 import { VertexElement } from "../../renders/VertexElement";
 import { VertexElementFormat } from "../../renders/VertexElementFormat";
 import { Byte } from "../../utils/Byte";
-import { Mesh2D } from "./Mesh2D";
+import { Sprite2DGeometry } from "./Sprite2DGeometry";
 
 /**
  * 直接创建一个固定的ib。按照固定四边形的索引。
@@ -28,7 +28,7 @@ function createQuadIB(quadNum: number) {
 /**
  * drawImage，fillRect等会用到的简单的mesh。每次添加必然是一个四边形。
  */
-export class MeshQuadTexture extends Mesh2D {
+export class MeshQuadTexture extends Sprite2DGeometry {
 	static const_stride = 48;// 48;  24是不带clip的
 	private static _fixib: Uint16Array;
 	private static _maxIB = 16 * 1024;

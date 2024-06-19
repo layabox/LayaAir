@@ -23,12 +23,12 @@ import { Value2D } from "../webgl/shader/d2/value/Value2D";
 import { TextTexture } from "../webgl/text/TextTexture";
 import { Context } from "./Context";
 import { DefferTouchResContext } from "./DefferTouchResContext";
-import { IMesh2D, Render2D} from "./Render2D";
+import { ISprite2DGeometry, Render2D} from "./Render2D";
 import { RenderSprite } from "./RenderSprite";
 import { RenderToCache } from "./RenderToCache";
 import { IAutoExpiringResource } from "./ResNeedTouch";
 
-export class RenderObject2D implements IMesh2D{
+export class RenderObject2D implements ISprite2DGeometry{
     vboff: number;
     vblen: number;
     iboff: number;
@@ -45,7 +45,7 @@ export class RenderObject2D implements IMesh2D{
     geo: IRenderGeometryElement;
     renderElement: IRenderElement2D;
 
-    constructor(mesh:IMesh2D,vboff:number,vblen:number,iboff:number,iblen:number,mtl:Value2D){
+    constructor(mesh:ISprite2DGeometry,vboff:number,vblen:number,iboff:number,iblen:number,mtl:Value2D){
         this.localClipMatrix = new Matrix();
         this.vertexDeclarition = mesh.vertexDeclarition;
         this.vbBuffer = new ArrayBuffer(vblen);

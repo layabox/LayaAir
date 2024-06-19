@@ -46,11 +46,11 @@ import { SubmitKey } from "../webgl/submit/SubmitKey";
 import { CharSubmitCache } from "../webgl/text/CharSubmitCache";
 import { MeasureFont } from "../webgl/text/MeasureFont";
 import { TextRender } from "../webgl/text/TextRender";
-import { Mesh2D } from "../webgl/utils/Mesh2D";
 import { MeshQuadTexture } from "../webgl/utils/MeshQuadTexture";
 import { MeshTexture } from "../webgl/utils/MeshTexture";
 import { MeshVG } from "../webgl/utils/MeshVG";
 import { RenderState2D } from "../webgl/utils/RenderState2D";
+import { Sprite2DGeometry } from "../webgl/utils/Sprite2DGeometry";
 import { Render2D, Render2DSimple } from "./Render2D";
 import { IAutoExpiringResource } from "./ResNeedTouch";
 
@@ -130,7 +130,7 @@ export class Context {
     _submitKey = new SubmitKey();	//当前将要使用的设置。用来跟上一次的_curSubmit比较
 
     /**@internal */
-    private _mesh: Mesh2D;			//用Mesh2D代替_vb,_ib. 当前使用的mesh
+    private _mesh: Sprite2DGeometry;			//用Mesh2D代替_vb,_ib. 当前使用的mesh
     private _meshQuatTex = new MeshQuadTexture();
     private _meshVG = new MeshVG();
     private _meshTex = new MeshTexture();
@@ -1019,13 +1019,13 @@ export class Context {
             shaderdata.setVector(ShaderDefines2D.UNIFORM_COLORALPHA, Vector4.tempVec4);
         }
 
-        this._drawMesh(mesh, 0, mesh.vertexNum, submit._startIdx, mesh.indexNum, submit.shaderValue,submit.material);
+        this._drawMesh(mesh, 0, mesh.vertexNum, submit._startIdx, mesh.indexNum, submit.shaderValue, submit.material);
         this.stopMerge = false;
         this._drawCount++;
     }
 
     //TODO 目前是为了方便，从设计上这样是不是不太好
-    private _drawMesh(mesh: Mesh2D, vboff: number, vertNum: number, iboff: number, indexNum: number, shaderValue: Value2D,customMaterial:Material) {
+    private _drawMesh(mesh: Sprite2DGeometry, vboff: number, vertNum: number, iboff: number, indexNum: number, shaderValue: Value2D, customMaterial: Material) {
         if (mesh.indexNum) {
             let render2D = this._render2D;
             if (!this._render2DManager._renderEnd) {
@@ -1624,7 +1624,7 @@ export class Context {
         this._curSubmit._numEle += curEleNum;
     }
 
-    private addVGSubmit(mesh: Mesh2D): SubmitBase {
+    private addVGSubmit(mesh: Sprite2DGeometry): SubmitBase {
         //elenum设为0，后面再加
         var submit: SubmitBase = SubmitBase.create(this, mesh, Value2D.create(RenderSpriteData.Primitive));
         this.fillShaderValue(submit.shaderValue);
@@ -1865,8 +1865,8 @@ export class Context {
 
     arc(cx: number, cy: number, rx: number, ry: number, startAngle: number, endAngle: number, counterclockwise = false, b = true, minNum = 20): void {
         // Clamp angles
-        if(startAngle>endAngle){
-            [startAngle,endAngle]=[endAngle,startAngle];
+        if (startAngle > endAngle) {
+            [startAngle, endAngle] = [endAngle, startAngle];
         }
         let da = endAngle - startAngle;
         if (!counterclockwise) {
@@ -1891,7 +1891,7 @@ export class Context {
         var sr = rx * (sx > sy ? sx : sy);
         var cl = 2 * Math.PI * sr;
         let ndivs = (Math.max(cl / 5, minNum)) | 0;
-        let stepAng = Math.PI*2/ndivs;
+        let stepAng = Math.PI * 2 / ndivs;
 
         var tPath = this._getPath();
 
@@ -1901,12 +1901,12 @@ export class Context {
             tPath.addPoint(x, y);
         }
         //增加关键支撑点，这些点要在固定位置
-        let curAng = Math.ceil(startAngle/stepAng)*stepAng;
-        while(endAngle-curAng>=stepAng){
+        let curAng = Math.ceil(startAngle / stepAng) * stepAng;
+        while (endAngle - curAng >= stepAng) {
             x = cx + Math.cos(curAng) * rx;
             y = cy + Math.sin(curAng) * ry;
             tPath.addPoint(x, y);
-            curAng+=stepAng;
+            curAng += stepAng;
         }
         x = cx + Math.cos(endAngle) * rx;
         y = cy + Math.sin(endAngle) * ry;
