@@ -5,6 +5,7 @@ import { MeshSprite3DShaderDeclaration } from "../../../d3/core/MeshSprite3DShad
 import { RenderableSprite3D } from "../../../d3/core/RenderableSprite3D";
 import { SimpleSkinnedMeshSprite3D } from "../../../d3/core/SimpleSkinnedMeshSprite3D";
 import { FastSinglelist } from "../../../utils/SingletonList";
+import { IInstanceRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { BaseRenderType } from "../../RenderModuleData/Design/3D/I3DRenderModuleData";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
 import { WebGLBufferState } from "../RenderDevice/WebGLBufferState";
@@ -20,7 +21,7 @@ export interface WebGLInstanceStateInfo {
     lightmapScaleOffsetVB?: WebGLVertexBuffer;
     simpleAnimatorVB?: WebGLVertexBuffer;
 }
-export class WebGLInstanceRenderElement3D extends WebGLRenderElement3D {
+export class WebGLInstanceRenderElement3D extends WebGLRenderElement3D implements IInstanceRenderElement3D{
     /**
      * get Instance BufferState
      */
@@ -96,7 +97,7 @@ export class WebGLInstanceRenderElement3D extends WebGLRenderElement3D {
         return element;
     }
 
-    _instanceElementList: FastSinglelist<WebGLRenderElement3D>;
+    instanceElementList: FastSinglelist<WebGLRenderElement3D>;
 
     private _vertexBuffers: Array<WebGLVertexBuffer> = [];
     private _updateData: Array<Float32Array> = [];
@@ -111,7 +112,7 @@ export class WebGLInstanceRenderElement3D extends WebGLRenderElement3D {
 
     constructor() {
         super();
-        this._instanceElementList = new FastSinglelist();
+        this.instanceElementList = new FastSinglelist();
         this.drawCount = 0;
         this.updateNums = 0;
         this.isRender = true;
@@ -169,7 +170,7 @@ export class WebGLInstanceRenderElement3D extends WebGLRenderElement3D {
             case BaseRenderType.MeshRender:
                 var worldMatrixData: Float32Array = this.getUpdateData(0, 16 * WebGLInstanceRenderElement3D.MaxInstanceCount);
                 this.addUpdateBuffer(this._instanceStateInfo.worldInstanceVB, 16);
-                var insBatches = this._instanceElementList;
+                var insBatches = this.instanceElementList;
                 var elements: WebGLRenderElement3D[] = insBatches.elements;
                 var count: number = insBatches.length;
                 this.drawCount = count;
@@ -195,7 +196,7 @@ export class WebGLInstanceRenderElement3D extends WebGLRenderElement3D {
                 //worldMatrix
                 var worldMatrixData: Float32Array = this.getUpdateData(0, 16 * WebGLInstanceRenderElement3D.MaxInstanceCount);
                 this.addUpdateBuffer(this._instanceStateInfo.worldInstanceVB, 16);
-                var insBatches = this._instanceElementList;
+                var insBatches = this.instanceElementList;
                 var elements: WebGLRenderElement3D[] = insBatches.elements;
                 var count: number = insBatches.length;
                 this.drawCount = count;
@@ -263,7 +264,7 @@ export class WebGLInstanceRenderElement3D extends WebGLRenderElement3D {
      */
     recover() {
         WebGLInstanceRenderElement3D._pool.push(this);
-        this._instanceElementList.clear();
+        this.instanceElementList.clear();
     }
 
     destroy(): void {

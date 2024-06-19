@@ -1,11 +1,12 @@
 import { Laya } from "../../../../Laya";
 import { Laya3DRender } from "../../../d3/RenderObjs/Laya3DRender";
 import { SceneRenderManagerOBJ } from "../../../d3/core/scene/SceneRenderManagerOBJ";
-import { IRender3DProcess, IRenderContext3D, IRenderElement3D, ISkinRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
+import { IInstanceRenderElement3D, IRender3DProcess, IRenderContext3D, IRenderElement3D, ISkinRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { I3DRenderPassFactory } from "../../DriverDesign/3DRenderPass/I3DRenderPassFactory";
 import { DrawNodeCMDData, BlitQuadCMDData, DrawElementCMDData, SetViewportCMD, SetRenderTargetCMD, SetRenderDataCMD, SetShaderDefineCMD } from "../../DriverDesign/3DRenderPass/IRendderCMD";
 import { ISceneRenderManager } from "../../DriverDesign/3DRenderPass/ISceneRenderManager";
 import { WebGPU3DRenderPass } from "./WebGPU3DRenderPass";
+import { WebGPUInstanceRenderElement3D } from "./WebGPUInstanceRenderElement3D";
 import { WebGPUBlitQuadCMDData } from "./WebGPURenderCMD/WebGPUBlitQuadCMDData";
 import { WebGPUDrawElementCMDData } from "./WebGPURenderCMD/WebGPUDrawElementCMDData";
 import { WebGPUDrawNodeCMDData } from "./WebGPURenderCMD/WebGPUDrawNodeCMDData";
@@ -30,6 +31,11 @@ export class WebGPU3DRenderPassFactory implements I3DRenderPassFactory {
     createRenderElement3D(): IRenderElement3D {
         return new WebGPURenderElement3D();
     }
+
+    createInstanceRenderElement3D(): WebGPUInstanceRenderElement3D {
+        return WebGPUInstanceRenderElement3D.create();
+    }
+
     createSkinRenderElement(): ISkinRenderElement3D {
         return new WebGPUSkinRenderElement3D();
     }
