@@ -3,7 +3,7 @@ import { ColorFilter } from "../../filters/ColorFilter";
 import { Context } from "../../renders/Context";
 import { Material } from "../../resource/Material";
 import { Value2D } from "../shader/d2/value/Value2D";
-import { Mesh2D } from "../utils/Mesh2D";
+import { Sprite2DGeometry } from "../utils/Sprite2DGeometry";
 import { SubmitKey } from "./SubmitKey";
 
 export class SubmitBase {
@@ -17,15 +17,15 @@ export class SubmitBase {
     static ID = 1;
 
     clipInfoID = -1;	//用来比较clipinfo
-    blendType=-1;
+    blendType = -1;
     protected _id = 0;
     /**@internal */
     _renderType = 0;
     //渲染key，通过key判断是否是同一个
     /**@internal */
     _key = new SubmitKey();
-    _mesh:Mesh2D;
-    material:Material;
+    _mesh: Sprite2DGeometry;
+    material: Material;
 
     // 从VB中什么地方开始画，画到哪
     /**@internal */
@@ -33,7 +33,7 @@ export class SubmitBase {
     /**@internal */
     _numEle = 0;
 
-    _colorFiler:ColorFilter=null;
+    _colorFiler: ColorFilter = null;
     shaderValue: Value2D = null;
 
     constructor() {
@@ -43,7 +43,7 @@ export class SubmitBase {
     /*
        create方法只传对submit设置的值
      */
-    static create(context: Context, mesh: Mesh2D, sv: Value2D): SubmitBase {
+    static create(context: Context, mesh: Sprite2DGeometry, sv: Value2D): SubmitBase {
         var o = new SubmitBase();
         o._mesh = mesh;
         o._key.clear();

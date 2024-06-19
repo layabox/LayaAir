@@ -17,7 +17,7 @@ export class RenderListQueue {
     constructor(isTransParent: boolean) {
         this._isTransparent = isTransParent;
         this._quickSort = new RenderQuickSort();
-        this._batch = new InstanceRenderBatch();
+        this._batch = new InstanceRenderBatch(); 
     }
 
     /**

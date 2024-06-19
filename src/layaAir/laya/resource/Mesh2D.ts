@@ -8,8 +8,6 @@ import { BufferUsage } from "../RenderEngine/RenderEnum/BufferTargetType";
 import { IndexFormat } from "../RenderEngine/RenderEnum/IndexFormat";
 import { VertexMesh } from "../RenderEngine/RenderShader/VertexMesh";
 import { VertexDeclaration } from "../RenderEngine/VertexDeclaration";
-import { InstanceRenderElement } from "../d3/core/render/InstanceRenderElement";
-import { skinnedMatrixCache } from "../d3/resource/models/Mesh";
 import { LayaGL } from "../layagl/LayaGL";
 import { Loader } from "../net/Loader";
 import { Handler } from "../utils/Handler";
@@ -19,11 +17,13 @@ import { Resource } from "./Resource";
 /**
  * <code>Mesh</code> 类用于创建文件网格数据模板。
  */
-export class Mesh2D extends Resource{
+export class Mesh2D extends Resource {
     /**@internal */
     static MESH_INSTANCEBUFFER_TYPE_NORMAL: number = 0;
     /**@internal */
     static MESH_INSTANCEBUFFER_TYPE_SIMPLEANIMATOR: number = 1;
+
+    static MESH2D_INSTANCE_MAX_NUM = 1024;
 
     /**
       * @internal
@@ -70,7 +70,7 @@ export class Mesh2D extends Resource{
      * @readonly
      * 顶点数据
      */
-    get vertexBuffer():IVertexBuffer{
+    get vertexBuffer(): IVertexBuffer {
         return this._vertexBuffer;
     }
 
@@ -78,7 +78,7 @@ export class Mesh2D extends Resource{
      * @readonly
      * 顶点索引
      */
-    get indexBuffer():IIndexBuffer{
+    get indexBuffer(): IIndexBuffer {
         return this._indexBuffer;
     }
 
@@ -192,14 +192,14 @@ export class Mesh2D extends Resource{
         vertexArray.push(this._vertexBuffer);
         let instanceBuffer: IVertexBuffer = this._instanceWorldVertexBuffer = LayaGL.renderDeviceFactory.createVertexBuffer(BufferUsage.Dynamic);
         instanceBuffer.vertexDeclaration = VertexMesh.instanceWorldMatrixDeclaration;
-        instanceBuffer.setDataLength(InstanceRenderElement.maxInstanceCount * 6 * 4);
+        instanceBuffer.setDataLength(Mesh2D.MESH2D_INSTANCE_MAX_NUM * 6 * 4);
         instanceBuffer.instanceBuffer = true;
         vertexArray.push(instanceBuffer);
         switch (instanceBufferStateType) {
             case Mesh2D.MESH_INSTANCEBUFFER_TYPE_SIMPLEANIMATOR:
                 let instanceSimpleAnimatorBuffer = this._instanceSimpleAniVertexBuffer = LayaGL.renderDeviceFactory.createVertexBuffer(BufferUsage.Dynamic);
                 instanceSimpleAnimatorBuffer.vertexDeclaration = VertexMesh.instanceSimpleAnimatorDeclaration;
-                instanceSimpleAnimatorBuffer.setDataLength(InstanceRenderElement.maxInstanceCount * 4 * 4);
+                instanceSimpleAnimatorBuffer.setDataLength(Mesh2D.MESH2D_INSTANCE_MAX_NUM * 4 * 4);
                 instanceSimpleAnimatorBuffer.instanceBuffer = true;
                 vertexArray.push(instanceSimpleAnimatorBuffer);
                 break;
@@ -227,7 +227,7 @@ export class Mesh2D extends Resource{
     * @param vertices 顶点数据。
     */
     setVertices(vertices: ArrayBuffer): void {
-        this._vertexBuffer.setData(vertices , 0 , 0 , vertices.byteLength);
+        this._vertexBuffer.setData(vertices, 0, 0, vertices.byteLength);
     }
 
     /**
@@ -250,7 +250,7 @@ export class Mesh2D extends Resource{
             indexBuffer.indexCount = indexBuffer.indexCount;
             indexBuffer.indexType = format;
         }
-        indexBuffer._setIndexData(indices , 0);
+        indexBuffer._setIndexData(indices, 0);
         this.indexFormat = format;
     }
 }
