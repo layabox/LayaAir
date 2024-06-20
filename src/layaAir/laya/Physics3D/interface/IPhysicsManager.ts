@@ -17,6 +17,13 @@ export interface IPhysicsManager {
    */
   addCollider(collider: ICollider): void;
 
+
+  /**
+   * 是否启用
+   * @param value 
+   */
+  setActiveCollider(collider:ICollider,value: boolean): void;
+
   /**
    * Remove ICollider.
    * @param collider - StaticCollider or DynamicCollider.

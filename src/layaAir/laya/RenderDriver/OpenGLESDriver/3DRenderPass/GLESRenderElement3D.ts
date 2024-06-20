@@ -95,8 +95,8 @@ export class GLESRenderElement3D implements IRenderElement3D {
         return this._subShader;
     }
     public set subShader(value: SubShader) {
-        this._subShader = value;
-        this._nativeObj.setSubShader((value.moduleData as any as RTSubShader)._nativeObj);
+        this._subShader = value;       
+        if(value) this._nativeObj.setSubShader((value.moduleData as any as RTSubShader)._nativeObj);
     }
 
     get canDynamicBatch(): boolean {
