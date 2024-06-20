@@ -16,7 +16,6 @@ export class SpineBakeScript extends Script {
 
     constructor() {
         super();
-        this.hideFlags |= HideFlags.HideAndDontSave;
     }
 
     async attach(spine: ISpineOptimizeRender) {
