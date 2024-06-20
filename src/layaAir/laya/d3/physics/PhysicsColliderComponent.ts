@@ -303,6 +303,7 @@ export class PhysicsColliderComponent extends Component {
         //ILaya3D.Physics3D._bullet.btCollisionObject_setContactProcessingThreshold(this._btColliderObject, 0);
         this._collider && (this._collider.componentEnable = true);
         if (this._colliderShape) {
+            this._physicsManager.setActiveCollider(this.collider,true);
             this._physicsManager.addCollider(this._collider);
         }
     }
@@ -316,6 +317,7 @@ export class PhysicsColliderComponent extends Component {
         this._collider && (this._collider.componentEnable = false);
         if (this._colliderShape) {
             this._physicsManager.removeCollider(this._collider);
+            this._physicsManager.setActiveCollider(this.collider,false);
         }
         this._physicsManager = null;
     }

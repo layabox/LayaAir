@@ -121,6 +121,12 @@ export class pxPhysicsManager implements IPhysicsManager {
         }
         this.fixedTime = physicsSettings.fixedTimeStep;
     }
+    setActiveCollider(collider: ICollider, value: boolean): void {
+        collider.active = value;
+    }
+    enableDebugDrawer?(value: boolean): void {
+        throw new Error("Method not implemented.");
+    }
 
     setDataToMap(dataCallBack: any, eventType: string, isTrigger: boolean = false) {
         let curCollision = pxCollisionTool.getCollision(dataCallBack, isTrigger);
@@ -185,6 +191,9 @@ export class pxPhysicsManager implements IPhysicsManager {
     }
 
     addCollider(collider: ICollider): void {
+        if (!collider.active) {
+            return;
+        }
         let pxcollider = collider as pxCollider;
         //collider._derivePhysicsTransformation(true);
         switch (pxcollider._type) {
@@ -194,10 +203,10 @@ export class pxPhysicsManager implements IPhysicsManager {
                 break;
             case pxColliderType.RigidbodyCollider:
                 this._pxScene.addActor(pxcollider._pxActor, null);
-                if(!(collider as pxDynamicCollider).IsKinematic){
+                if (!(collider as pxDynamicCollider).IsKinematic) {
                     this._dynamicUpdateList.add(collider);
                     Stat.physics_dynamicRigidBodyCount++;
-                }else{
+                } else {
                     Stat.phyiscs_KinematicRigidBodyCount++;
                 }
                 break;
@@ -223,10 +232,10 @@ export class pxPhysicsManager implements IPhysicsManager {
                 if (collider.inPhysicUpdateListIndex !== -1)
                     !(collider as pxDynamicCollider).IsKinematic && this._dynamicUpdateList.remove(collider);
                 this._pxScene.removeActor(pxcollider._pxActor, true);
-                if(!(collider as pxDynamicCollider).IsKinematic){
+                if (!(collider as pxDynamicCollider).IsKinematic) {
                     this._dynamicUpdateList.add(collider);
                     Stat.physics_dynamicRigidBodyCount--;
-                }else{
+                } else {
                     Stat.phyiscs_KinematicRigidBodyCount--;
                 }
                 break;

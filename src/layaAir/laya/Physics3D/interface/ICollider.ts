@@ -4,6 +4,10 @@ import { PhysicsColliderComponent, PhysicsCombineMode } from "../../d3/physics/P
 
 export interface ICollider {
     owner: Node;
+    /**
+     * 是否可以启用，只有放入scene中且物理组件生效才会为true
+     */
+    active:boolean;
     inPhysicUpdateListIndex: number;
     /**
      * @internal

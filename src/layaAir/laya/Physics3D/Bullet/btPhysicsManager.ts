@@ -257,6 +257,12 @@ export class btPhysicsManager implements IPhysicsManager {
         bt.btGImpactCollisionAlgorithm_RegisterAlgorithm(this._btDispatcher);//注册算法
         this.initPhysicsCapable();  // 初始化物理能力
     }
+    setActiveCollider(collider: ICollider, value: boolean): void {
+        collider.active = value;
+    }
+    sphereQuery?(pos: Vector3, radius: number, result: ICollider[], collisionmask: number): void {
+        throw new Error("Method not implemented.");
+    }
 
     //TODO
     //  * @internal
@@ -581,7 +587,10 @@ export class btPhysicsManager implements IPhysicsManager {
 
 
     addCollider(collider: ICollider): void {
+
         let btcollider = collider as btCollider;
+        if (btcollider._isSimulate || !collider.active)
+            return;
         btcollider._derivePhysicsTransformation(true);
         switch (btcollider._type) {
             case btColliderType.StaticCollider:
@@ -596,7 +605,6 @@ export class btPhysicsManager implements IPhysicsManager {
                 break;
         }
         btcollider._isSimulate = true;
-
     }
 
     removeCollider(collider: ICollider): void {
@@ -616,6 +624,7 @@ export class btPhysicsManager implements IPhysicsManager {
                 break;
         }
         btcollider._isSimulate = false;
+        (btcollider as any).inScene = false;
     }
 
     addJoint(joint: btJoint) {
