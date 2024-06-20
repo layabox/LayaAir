@@ -11,7 +11,7 @@ import { ISpineOptimizeRender } from "./interface/ISpineOptimizeRender";
 
 export class SpineBakeScript extends Script {
     url: string;
-    private _bakeData: TSpineBakeData;
+    private _bakeData: string;
 
     constructor() {
         super();
@@ -57,14 +57,14 @@ export class SpineBakeScript extends Script {
         }
     }
 
-    public get bakeData(): any {
+    public get bakeData(): string {
         return this._bakeData;
     }
     public set bakeData(value: string) {
-        this._bakeData = value ? JSON.parse(value) : null;
+        this._bakeData = value;
 
         if (this._bakeData)
-            this.initBake(this._bakeData);
+            this.initBake(JSON.parse(this._bakeData));
     }
 }
 
