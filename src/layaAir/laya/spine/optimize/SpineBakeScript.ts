@@ -1,4 +1,5 @@
 import { Laya, init } from "../../../Laya";
+import { HideFlags } from "../../Const";
 import { TextureFormat } from "../../RenderEngine/RenderEnum/TextureFormat";
 import { Script } from "../../components/Script";
 import { Event } from "../../events/Event";
@@ -15,6 +16,7 @@ export class SpineBakeScript extends Script {
 
     constructor() {
         super();
+        this.hideFlags |= HideFlags.HideAndDontSave;
     }
 
     async attach(spine: ISpineOptimizeRender) {
