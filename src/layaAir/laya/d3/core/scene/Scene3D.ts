@@ -102,8 +102,7 @@ export class Scene3D extends Sprite {
     static GIRotate: number;
     /** @internal */
     static sceneID: number;
-    /**@internal */
-    static SceneUBOData: UnifromBufferData;
+
     /**@internal scene uniform block */
     static SCENEUNIFORMBLOCK: number;
     //------------------legacy lighting-------------------------------
@@ -265,18 +264,15 @@ export class Scene3D extends Sprite {
      * @returns
      */
     static createSceneUniformBlock(): UnifromBufferData {
-        if (!Scene3D.SceneUBOData) {
-            let uniformpara: Map<string, UniformBufferParamsType> = new Map<string, UniformBufferParamsType>();
-            uniformpara.set("u_Time", UniformBufferParamsType.Number);
-            uniformpara.set("u_FogParams", UniformBufferParamsType.Vector4);
-            uniformpara.set("u_FogColor", UniformBufferParamsType.Vector4);
-            let uniformMap = new Map<number, UniformBufferParamsType>();
-            uniformpara.forEach((value, key) => {
-                uniformMap.set(Shader3D.propertyNameToID(key), value);
-            });
-            Scene3D.SceneUBOData = new UnifromBufferData(uniformMap);
-        }
-        return Scene3D.SceneUBOData;
+        let uniformpara: Map<string, UniformBufferParamsType> = new Map<string, UniformBufferParamsType>();
+        uniformpara.set("u_Time", UniformBufferParamsType.Number);
+        uniformpara.set("u_FogParams", UniformBufferParamsType.Vector4);
+        uniformpara.set("u_FogColor", UniformBufferParamsType.Vector4);
+        let uniformMap = new Map<number, UniformBufferParamsType>();
+        uniformpara.forEach((value, key) => {
+            uniformMap.set(Shader3D.propertyNameToID(key), value);
+        });
+        return new UnifromBufferData(uniformMap);
     }
 
 
@@ -1164,8 +1160,10 @@ export class Scene3D extends Sprite {
         this._pointLights = null;
         this._spotLights = null;
         this._alternateLights = null;
-        this._shaderValues.destroy();
         (RenderContext3D._instance.scene == this) && (RenderContext3D._instance.scene = null);
+        this._shaderValues.destroy();
+        // todo
+        this._sceneUniformData.destroy();
         this._shaderValues = null;
         this.sceneRenderableManager.destroy();
         this._sceneRenderManager = null
@@ -1182,7 +1180,6 @@ export class Scene3D extends Sprite {
                 map.lightmapDirection && map.lightmapDirection._removeReference();
             }
         }
-        //this._sceneUniformData.destroy();
         this._lightmaps = null;
         this._volumeManager.destroy();
         this._componentDriver.callDestroy();
