@@ -56,7 +56,14 @@ export class GLESREnderElement2D implements IRenderElement2D {
     constructor() {
         this.init();
     }
-    renderStateIsBySprite: boolean = true;//TODO
+    private _renderStateIsBySprite: boolean = true;//TODO
+    public get renderStateIsBySprite(): boolean {
+        return this._renderStateIsBySprite;
+    }
+    public set renderStateIsBySprite(value: boolean) {
+        this._renderStateIsBySprite = value;
+        this._nativeObj.renderStateIsBySprite = value;
+    }
 
     destroy(): void {
         this._nativeObj.destroy();
