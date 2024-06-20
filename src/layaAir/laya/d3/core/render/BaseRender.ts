@@ -477,12 +477,13 @@ export class BaseRender extends Component {
         return this._lightProb;
     }
 
-    set lightProb(volumetricGI: VolumetricGI) {
+    set lightProbe(volumetricGI: VolumetricGI) {
         if (this._lightProb == volumetricGI) {
             return;
         }
         this._baseRenderNode.lightProbUpdateMark = -1;
         this._lightProb = volumetricGI;
+        this._baseRenderNode.volumetricGI = volumetricGI ? volumetricGI._dataModule : null;
         this._getIrradientMode();
     }
 
@@ -653,10 +654,10 @@ export class BaseRender extends Component {
     private _getIrradientMode() {
         if (this.lightmapIndex >= 0) {
             this._baseRenderNode.irradientMode = IrradianceMode.LightMap;
-        } else if (this.lightProb) {
+        } else if (this.lightProbe) {
             this._baseRenderNode.irradientMode = IrradianceMode.VolumetricGI;
         } else {
-
+            this._baseRenderNode.irradientMode = IrradianceMode.Common;
         }
     }
 
