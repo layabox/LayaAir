@@ -73,6 +73,7 @@ export class VolumetricGI extends Volume {
         this._irradiance && (this._irradiance._removeReference());
         value && (value._addReference());
         this._dataModule.irradiance = value._texture;
+        this._irradiance = value;
         this._dataModule.updateMark = ILaya3D.Scene3D._updateMark;
     }
 
@@ -90,6 +91,7 @@ export class VolumetricGI extends Volume {
         this._distance && (this._distance._removeReference());
         value && (value._addReference());
         this._dataModule.distance = value._texture;
+        this._distance = value;
         this._dataModule.updateMark = ILaya3D.Scene3D._updateMark;
     }
 
