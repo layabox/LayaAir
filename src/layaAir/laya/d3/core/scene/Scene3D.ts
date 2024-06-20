@@ -1163,7 +1163,10 @@ export class Scene3D extends Sprite {
         (RenderContext3D._instance.scene == this) && (RenderContext3D._instance.scene = null);
         this._shaderValues.destroy();
         // todo
-        this._sceneUniformData.destroy();
+        if (this._sceneUniformData) {
+            this._sceneUniformData.destroy();
+            this._sceneUniformData = null;
+        }
         this._shaderValues = null;
         this.sceneRenderableManager.destroy();
         this._sceneRenderManager = null
