@@ -1,4 +1,5 @@
 import { Laya, init } from "../../../Laya";
+import { HideFlags } from "../../Const";
 import { TextureFormat } from "../../RenderEngine/RenderEnum/TextureFormat";
 import { Script } from "../../components/Script";
 import { Event } from "../../events/Event";
@@ -11,10 +12,21 @@ import { ISpineOptimizeRender } from "./interface/ISpineOptimizeRender";
 
 export class SpineBakeScript extends Script {
     url: string;
-    private _bakeData: TSpineBakeData;
+    bakeData: string;
 
     constructor() {
         super();
+    }
+
+    onEnable(): void {
+        if (this.bakeData)
+            this.initBake(JSON.parse(this.bakeData));
+    }
+
+    onDisable(): void {
+        let spine = this.owner.getComponent(Spine2DRenderNode) as Spine2DRenderNode;
+        if (spine.spineItem)
+            spine.spineItem.initBake(null);
     }
 
     async attach(spine: ISpineOptimizeRender) {
@@ -55,16 +67,6 @@ export class SpineBakeScript extends Script {
                 spine.spineItem.initBake(data);
             });
         }
-    }
-
-    public get bakeData(): any {
-        return this._bakeData;
-    }
-    public set bakeData(value: string) {
-        this._bakeData = value ? JSON.parse(value) : null;
-
-        if (this._bakeData)
-            this.initBake(this._bakeData);
     }
 }
 

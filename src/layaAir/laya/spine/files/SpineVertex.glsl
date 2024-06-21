@@ -44,7 +44,11 @@
 #endif
 
 uniform vec2 u_size;
-uniform vec3 u_NMatrix[2];
+#ifdef GPU_INSTANCE
+    uniform vec3 a_NMatrix[2];
+#else
+    uniform vec3 u_NMatrix[2];
+#endif //GPU_INSTANCE
 uniform vec4 u_color;
 
 varying vec2 vUv;

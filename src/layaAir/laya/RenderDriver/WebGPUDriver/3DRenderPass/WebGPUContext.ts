@@ -77,13 +77,15 @@ export class WebGPUContext {
      * @param geometry 
      */
     static applyBundleGeometry(bundle: WebGPURenderBundle, geometry: WebGPURenderGeometry) {
+        let triangles = 0;
         if (this.lastBundle !== bundle || this.lastBundleGeometry !== geometry) {
-            bundle.applyGeometry(geometry, true);
+            triangles += bundle.applyGeometry(geometry, true);
             if (this.lastBundle !== bundle)
                 this.clearLastBundle();
             this.lastBundle = bundle;
             this.lastBundleGeometry = geometry;
-        } else bundle.applyGeometry(geometry, false);
+        } else triangles += bundle.applyGeometry(geometry, false);
+        return triangles;
     }
 
     /**
@@ -93,13 +95,15 @@ export class WebGPUContext {
      * @param part 
      */
     static applyBundleGeometryPart(bundle: WebGPURenderBundle, geometry: WebGPURenderGeometry, part: number) {
+        let triangles = 0;
         if (this.lastBundle !== bundle || this.lastBundleGeometry !== geometry) {
-            bundle.applyGeometryPart(geometry, part, true);
+            triangles += bundle.applyGeometryPart(geometry, part, true);
             if (this.lastBundle !== bundle)
                 this.clearLastBundle();
             this.lastBundle = bundle;
             this.lastBundleGeometry = geometry;
-        } else bundle.applyGeometryPart(geometry, part, false);
+        } else triangles += bundle.applyGeometryPart(geometry, part, false);
+        return triangles;
     }
 
     /**
@@ -108,13 +112,15 @@ export class WebGPUContext {
      * @param geometry 
      */
     static applyCommandGeometry(command: WebGPURenderCommandEncoder, geometry: WebGPURenderGeometry) {
+        let triangles = 0;
         if (this.lastCommand !== command || this.lastCommandGeometry !== geometry) {
-            command.applyGeometry(geometry, true);
+            triangles += command.applyGeometry(geometry, true);
             if (this.lastCommand !== command)
                 this.clearLastCommand();
             this.lastCommand = command;
             this.lastCommandGeometry = geometry;
-        } else command.applyGeometry(geometry, false);
+        } else triangles += command.applyGeometry(geometry, false);
+        return triangles;
     }
 
     /**
@@ -124,12 +130,14 @@ export class WebGPUContext {
      * @param part 
      */
     static applyCommandGeometryPart(command: WebGPURenderCommandEncoder, geometry: WebGPURenderGeometry, part: number) {
+        let triangles = 0;
         if (this.lastCommand !== command || this.lastCommandGeometry !== geometry) {
-            command.applyGeometryPart(geometry, part, true);
+            triangles += command.applyGeometryPart(geometry, part, true);
             if (this.lastCommand !== command)
                 this.clearLastCommand();
             this.lastCommand = command;
             this.lastCommandGeometry = geometry;
-        } else command.applyGeometryPart(geometry, part, false);
+        } else triangles += command.applyGeometryPart(geometry, part, false);
+        return triangles;
     }
 }

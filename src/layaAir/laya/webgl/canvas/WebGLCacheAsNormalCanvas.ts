@@ -3,7 +3,7 @@ import { Matrix } from "../../maths/Matrix"
 import { Context } from "../../renders/Context"
 import { SubmitBase } from "../submit/SubmitBase"
 import { CharRenderInfo } from "../text/CharRenderInfo"
-import { Mesh2D } from "../utils/Mesh2D"
+import { Sprite2DGeometry } from "../utils/Sprite2DGeometry"
 import { MeshQuadTexture } from "../utils/MeshQuadTexture"
 import { MeshTexture } from "../utils/MeshTexture"
 import { MeshVG } from "../utils/MeshVG"
@@ -14,31 +14,31 @@ import { MeshVG } from "../utils/MeshVG"
  * 否则包括clip等都非常难以处理
  */
 export class WebGLCacheAsNormalCanvas {
-    submitStartPos= 0;	// 对应的context的submit的开始的地方
-    submitEndPos= 0;
+    submitStartPos = 0;	// 对应的context的submit的开始的地方
+    submitEndPos = 0;
     context: Context;
     touches: CharRenderInfo[] = [];		//记录的文字信息。cacheas normal的话，文字要能正确touch
     submits: any[] = [];		// 从context中剪切的submit
-    sprite: Sprite|null = null;	// 对应的sprite对象
+    sprite: Sprite | null = null;	// 对应的sprite对象
 
     // submit需要关联稳定独立的mesh。所以这里要创建自己的mesh对象
     /**@internal */
     _mesh: MeshQuadTexture;			//用Mesh2D代替_vb,_ib. 当前使用的mesh
     private _pathMesh: MeshVG;			//矢量专用mesh。
     private _triangleMesh: MeshTexture;	//drawTriangles专用mesh。由于ib不固定，所以不能与_mesh通用
-    meshlist: Mesh2D[] = [];			//本context用到的mesh
+    meshlist: Sprite2DGeometry[] = [];			//本context用到的mesh
 
     // 原始context的原始值
-    private _oldMesh: MeshQuadTexture|null;
-    private _oldPathMesh: MeshVG|null;
-    private _oldTriMesh: MeshTexture|null;
+    private _oldMesh: MeshQuadTexture | null;
+    private _oldPathMesh: MeshVG | null;
+    private _oldTriMesh: MeshTexture | null;
     private _oldMeshList: any[];
 
     // cache的时候对应的clip
     private cachedClipInfo: Matrix = new Matrix();	// 用来判断是否需要把cache无效
     //private var oldMatrix:Matrix = null;				//本地画的时候完全不应用矩阵，所以需要先保存老的，以便恢复		这样会丢失缩放信息，导致文字模糊，所以不用这种方式了
-    private oldTx= 0;
-    private oldTy= 0;
+    private oldTx = 0;
+    private oldTy = 0;
     private static matI: Matrix = new Matrix();
 
     // 创建这个canvas的时候对应的矩阵的逆矩阵。因为要保留矩阵的缩放信息。所以采用逆矩阵的方法。
@@ -51,7 +51,7 @@ export class WebGLCacheAsNormalCanvas {
     }
 
     startRec(): void {
-		// let context = this.context;
+        // let context = this.context;
         // // 如果有文字优化，这里要先提交一下
         // if (context._charSubmitCache && context._charSubmitCache._enable) {
         //     context._charSubmitCache.enable(false, context);
@@ -103,7 +103,7 @@ export class WebGLCacheAsNormalCanvas {
     }
 
     endRec(): void {
-		// let context = this.context;
+        // let context = this.context;
         // // 如果有文字优化，这里要先提交一下
         // if (context._charSubmitCache && context._charSubmitCache._enable) {
         //     context._charSubmitCache.enable(false, context);
@@ -138,19 +138,19 @@ export class WebGLCacheAsNormalCanvas {
     isTextNeedRestore(): boolean {
         var textNeedRestore = false;
         var charRIs = this.touches;
-		if (charRIs) {
-			for (var ci= 0; ci < charRIs.length; ci++) {
-				if (charRIs[ci].deleted) {
-					textNeedRestore = true;
-					break;
-				}
-			}
-		}
+        if (charRIs) {
+            for (var ci = 0; ci < charRIs.length; ci++) {
+                if (charRIs[ci].deleted) {
+                    textNeedRestore = true;
+                    break;
+                }
+            }
+        }
         return textNeedRestore;
     }
     flushsubmit(): void {
         var curSubmit = SubmitBase.RENDERBASE;
-        this.submits.forEach((subm: SubmitBase)=>{
+        this.submits.forEach((subm: SubmitBase) => {
             if (subm == SubmitBase.RENDERBASE) return;
             //// ni SubmitBase.preRender = curSubmit;
             curSubmit = subm;

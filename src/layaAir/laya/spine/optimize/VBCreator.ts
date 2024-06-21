@@ -203,7 +203,10 @@ export class VBBoneCreator extends VBCreator {
     }
 
     appendVertexArray(attachmentParse: AttachmentParse, vertexArray: Float32Array, offset: number, boneGet: IGetBone) {
-        if (!attachmentParse.attachment) return offset;
+        if (!attachmentParse.attachment) {
+            boneGet.getBoneId(attachmentParse.boneIndex);
+            return offset;
+        }
         let vside = this.vertexSize;
         let slotVertex = attachmentParse.vertexArray;
         let uvs = attachmentParse.uvs;

@@ -40,6 +40,7 @@ const packsDef = [{
         './layaAir/laya/webgl/**/*.*',
         
         './layaAir/laya/RenderDriver/DriverDesign/RenderDevice/**/*.*',
+        
         './layaAir/laya/RenderDriver/DriverDesign/2DRenderPass/**/*.*',
 
         './layaAir/laya/RenderEngine/RenderEnum/**/*.*',
@@ -138,6 +139,7 @@ const packsDef = [{
 {
     'libName': "webgl_3D",
     'input': [
+        './layaAir/laya/RenderDriver/DriverCommon/**/*.*',
         './layaAir/laya/RenderDriver/WebGLDriver/3DRenderPass/**/*.*',
         './layaAir/laya/RenderDriver/RenderModuleData/WebModuleData/3D/*.*',
     ],

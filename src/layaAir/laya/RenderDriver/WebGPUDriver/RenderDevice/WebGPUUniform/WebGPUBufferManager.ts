@@ -1,3 +1,5 @@
+import { GPUEngineStatisticsInfo } from "../../../../RenderEngine/RenderEnum/RenderStatInfo";
+import { WebGPURenderEngine } from "../WebGPURenderEngine";
 import { WebGPUBufferBlock } from "./WebGPUBufferBlock";
 import { WebGPUBufferCluster } from "./WebGPUBufferCluster";
 import { WebGPUUniformBuffer } from "./WebGPUUniformBuffer";
@@ -32,6 +34,8 @@ export class WebGPUBufferManager {
      * @param name 
      */
     getBufferAlone(size: number, name?: string) {
+        WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.M_GPUMemory, size);
+        WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.M_GPUBuffer, size);
         return this.device.createBuffer({
             label: name,
             size: size,

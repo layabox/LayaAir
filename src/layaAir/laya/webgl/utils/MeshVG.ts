@@ -1,12 +1,12 @@
 import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
 import { VertexElement } from "../../renders/VertexElement";
 import { VertexElementFormat } from "../../renders/VertexElementFormat";
-import { Mesh2D } from "./Mesh2D";
+import { Sprite2DGeometry } from "./Sprite2DGeometry";
 
 /**
  * 用来画矢量的mesh。顶点格式固定为 x,y,rgba
  */
-export class MeshVG extends Mesh2D {
+export class MeshVG extends Sprite2DGeometry {
     static const_stride = 24;// 36;
     static vertexDeclaration: VertexDeclaration = null;
 	//private _vbUin32Array:Uint32Array=null;

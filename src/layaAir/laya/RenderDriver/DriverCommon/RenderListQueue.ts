@@ -11,12 +11,13 @@ export class RenderListQueue {
     get elements() { return this._elements; }
     private _quickSort: RenderQuickSort;
     private _isTransparent: boolean;
-    private _batch: InstanceRenderBatch;
+
+    _batch: InstanceRenderBatch;
 
     constructor(isTransParent: boolean) {
         this._isTransparent = isTransParent;
         this._quickSort = new RenderQuickSort();
-        this._batch = new InstanceRenderBatch();
+        this._batch = new InstanceRenderBatch(); 
     }
 
     /**

@@ -1,10 +1,10 @@
 import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
-import { IMesh2D } from "../../renders/Render2D";
+import { ISprite2DGeometry } from "../../renders/Render2D";
 
 /**
  * Mesh2d只是保存数据。描述attribute用的。本身没有webgl数据。
  */
-export abstract class Mesh2D implements IMesh2D{
+export abstract class Sprite2DGeometry implements ISprite2DGeometry{
     //顶点结构大小。每个mesh的顶点结构是固定的。
     protected _stride = 0;	
     //当前的顶点的个数。对外只读		

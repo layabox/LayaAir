@@ -21,6 +21,11 @@ export class SpineShaderInit {
 
     static SpineRBVertexDeclaration: VertexDeclaration;
 
+
+    static instanceNMatrixDeclaration:VertexDeclaration;
+    
+    static instanceSimpleAnimatorDeclaration:VertexDeclaration;
+
     static SetSpineBlendMode(value: number, mat: Material) {
         switch (value) {
             case 1: //light 
@@ -72,6 +77,8 @@ export class SpineShaderInit {
 
     static SPINE_SIMPLE:ShaderDefine;
 
+    static SPINE_GPU_INSTANCE:ShaderDefine;
+
     /**
     * TextureSV Mesh Descript
     */
@@ -85,6 +92,10 @@ export class SpineShaderInit {
         'a_PosWeightBoneID_2': [5, ShaderDataType.Vector4],
         'a_PosWeightBoneID_3': [6, ShaderDataType.Vector4],
         'a_PosWeightBoneID_4': [7, ShaderDataType.Vector4],
+
+        // 'a_NMatrix[0]': [8, ShaderDataType.Vector3],
+        // 'a_NMatrix[1]': [9, ShaderDataType.Vector3],
+        // 'a_SimpleTextureParams': [10, ShaderDataType.Vector4]
     }
 
 
@@ -102,8 +113,9 @@ export class SpineShaderInit {
         SpineShaderInit.SIMPLE_SIMPLEANIMATORPARAMS = Shader3D.propertyNameToID("u_SimpleAnimatorParams");
         SpineShaderInit.SIMPLE_SIMPLEANIMATORTEXTURE = Shader3D.propertyNameToID("u_SimpleAnimatorTexture");
         SpineShaderInit.SIMPLE_SIMPLEANIMATORTEXTURESIZE = Shader3D.propertyNameToID("u_SimpleAnimatorTextureSize");
-
+        
         SpineShaderInit.SPINE_SIMPLE = Shader3D.getDefineByName("SPINE_SIMPLE");
+        SpineShaderInit.SPINE_GPU_INSTANCE = Shader3D.getDefineByName("GPU_INSTANCE");
 
         const commandUniform = LayaGL.renderDeviceFactory.createGlobalUniformMap("Sprite2D");
         commandUniform.addShaderUniform(SpineShaderInit.BONEMAT, "u_sBone", ShaderDataType.Buffer);
@@ -150,7 +162,14 @@ export class SpineShaderInit {
             new VertexElement(32, VertexElementFormat.Single, 4)
         ])
 
+        SpineShaderInit.instanceNMatrixDeclaration = new VertexDeclaration(24 , [
+            new VertexElement(0, VertexElementFormat.Vector3, 8),
+            new VertexElement(12, VertexElementFormat.Vector3, 9),
+        ])
 
+        SpineShaderInit.instanceSimpleAnimatorDeclaration = new VertexDeclaration(16 , [
+            new VertexElement(0, VertexElementFormat.Vector4, 9),
+        ])
     }
 }
 

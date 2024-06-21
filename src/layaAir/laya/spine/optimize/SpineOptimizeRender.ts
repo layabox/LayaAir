@@ -1,3 +1,4 @@
+import { BaseRender2DType, BaseRenderNode2D } from "../../NodeRender2D/BaseRenderNode2D";
 import { IIndexBuffer } from "../../RenderDriver/DriverDesign/RenderDevice/IIndexBuffer";
 import { IRenderGeometryElement } from "../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
 import { IVertexBuffer } from "../../RenderDriver/DriverDesign/RenderDevice/IVertexBuffer";
@@ -67,6 +68,8 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
 
     bakeData: TSpineBakeData;
 
+    private _renderProxytype: ERenderProxyType;
+
     constructor(spineOptimize: SketonOptimise) {
         this.renderProxyMap = new Map();
         this.geoMap = new Map();
@@ -85,19 +88,25 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
         }
         this.currentRender = this.skinRenderArray[this._skinIndex];//default
     }
-    
+
     destroy(): void {
         //throw new Error("Method not implemented.");
     }
 
     initBake(obj: TSpineBakeData): void {
         this.bakeData = obj;
-        let render = new RenderBake(this.bones, this.slots, this._nodeOwner);
-        render.simpleAnimatorTexture =obj.texture2d;
-        render._bonesNums = obj.bonesNums;
-        render.aniOffsetMap = obj.aniOffsetMap;
-        this.renderProxyMap.set(ERenderProxyType.RenderBake, render);
-        this.isBake = true;
+        if (obj) {
+            let render = this.renderProxyMap.get(ERenderProxyType.RenderBake) as RenderBake || new RenderBake(this.bones, this.slots, this._nodeOwner);
+            render.simpleAnimatorTexture = obj.texture2d;
+            render._bonesNums = obj.bonesNums;
+            render.aniOffsetMap = obj.aniOffsetMap;
+            this.renderProxyMap.set(ERenderProxyType.RenderBake, render);
+        }
+        this.isBake = !!obj;
+        if (this._curAnimationName) {
+            this._clear();
+            this.play(this._curAnimationName);
+        }
         //throw new Error("Method not implemented.");
     }
 
@@ -140,6 +149,10 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
         this.renderProxyMap.set(ERenderProxyType.RenderOptimize, renderOptimize);
     }
 
+    get renderProxytype(): ERenderProxyType {
+        return this._renderProxytype;
+    }
+
     set renderProxytype(value: ERenderProxyType) {
         if (this.isBake && value == ERenderProxyType.RenderOptimize) {
             if (this.bakeData.aniOffsetMap[this._curAnimationName] != undefined) {
@@ -151,6 +164,7 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
             this._nodeOwner._spriteShaderData.removeDefine(SpineShaderInit.SPINE_FAST);
             this._nodeOwner._spriteShaderData.removeDefine(SpineShaderInit.SPINE_RB);
         }
+        this._renderProxytype = value;
     }
 
     beginCache() {
@@ -258,11 +272,11 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
                 this._isRender = true;
             }
         }
-        if(oldRenderProxy){
+        if (oldRenderProxy) {
             oldRenderProxy.leave();
         }
         this.renderProxy.change(currentRender, currentAnimation);
-        if ((currentAnimation.animator.isCache || this.renderProxytype==ERenderProxyType.RenderBake) && !currentSKin.isNormalRender) {
+        if ((currentAnimation.animator.isCache || this.renderProxytype == ERenderProxyType.RenderBake) && !currentSKin.isNormalRender) {
             this.beginCache();
         }
         else {
@@ -301,7 +315,7 @@ class RenderOptimize implements IRender {
         this.skinRender = currentRender;
         this.currentAnimation = currentAnimation;
     }
-    leave(): void{
+    leave(): void {
 
     }
 
@@ -322,7 +336,7 @@ class RenderNormal implements IRender {
         this._skeleton = skeleton;
     }
 
-    leave(): void{
+    leave(): void {
 
     }
 
@@ -403,6 +417,8 @@ class RenderBake implements IRender {
 
     leave() {
         this._renderNode._spriteShaderData.removeDefine(SpineShaderInit.SPINE_SIMPLE);
+        //this._renderNode._spriteShaderData.removeDefine(SpineShaderInit.SPINE_GPU_INSTANCE);
+        //this._renderNode._renderType =BaseRender2DType.spine;
     }
 
     change(currentRender: SkinRender, currentAnimation: AnimationRenderProxy) {
@@ -410,6 +426,10 @@ class RenderBake implements IRender {
         this.currentAnimation = currentAnimation;
         this._renderNode._spriteShaderData.addDefine(SpineShaderInit.SPINE_SIMPLE);
         this._simpleAnimatorOffset.x = this.aniOffsetMap[currentAnimation.name];
+        // if(currentAnimation.currentSKin.canInstance){
+        //     this._renderNode._renderType=BaseRender2DType.spineSimple;
+        //     this._renderNode._spriteShaderData.addDefine(SpineShaderInit.SPINE_GPU_INSTANCE);
+        // }
     }
 
     /**

@@ -7,14 +7,14 @@ import { Color } from "../../../maths/Color";
 import { Vector4 } from "../../../maths/Vector4";
 import { Viewport } from "../../../maths/Viewport";
 import { DepthTextureMode } from "../../../resource/RenderTexture";
+import { RenderCullUtil } from "../../DriverCommon/RenderCullUtil";
+import { RenderListQueue } from "../../DriverCommon/RenderListQueue";
 import { PipelineMode } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
 import { WebBaseRenderNode } from "../../RenderModuleData/WebModuleData/3D/WebBaseRenderNode";
 import { WebCameraNodeData } from "../../RenderModuleData/WebModuleData/3D/WebModuleData";
 import { WebGLRenderContext3D } from "./WebGLRenderContext3D";
 import { WebGLRenderElement3D } from "./WebGLRenderElement3D";
-import { WebGLCullUtil } from "./WebGLRenderUtil/WebGLCullUtil";
-import { WebGLRenderListQueue } from "./WebGLRenderUtil/WebGLRenderListQueue";
 export class WebGLForwardAddClusterRP {
 
     /** @internal*/
@@ -85,15 +85,15 @@ export class WebGLForwardAddClusterRP {
     }
 
 
-    private opaqueList: WebGLRenderListQueue;
-    private transparent: WebGLRenderListQueue;
+    private opaqueList: RenderListQueue;
+    private transparent: RenderListQueue;
 
     private _zBufferParams: Vector4;
     private _defaultNormalDepthColor;
 
     constructor() {
-        this.opaqueList = new WebGLRenderListQueue(false);
-        this.transparent = new WebGLRenderListQueue(true);
+        this.opaqueList = new RenderListQueue(false);
+        this.transparent = new RenderListQueue(true);
         this.cameraCullInfo = new CameraCullInfo();
         this._zBufferParams = new Vector4();
         this._scissor = new Vector4();
@@ -148,7 +148,7 @@ export class WebGLForwardAddClusterRP {
         context.cameraUpdateMask++
         this.opaqueList.clear();
         this.transparent.clear();
-        WebGLCullUtil.cullByCameraCullInfo(this.cameraCullInfo, list, count, this.opaqueList, this.transparent, context)
+        RenderCullUtil.cullByCameraCullInfo(this.cameraCullInfo, list, count, this.opaqueList, this.transparent, context)
 
         if ((this.depthTextureMode & DepthTextureMode.Depth) != 0) {
             this._renderDepthPass(context);

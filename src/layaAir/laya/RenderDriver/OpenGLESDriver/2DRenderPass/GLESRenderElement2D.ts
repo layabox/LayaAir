@@ -12,7 +12,7 @@ export class GLESREnderElement2D implements IRenderElement2D {
     private _subShader: SubShader;
     set geometry(data: GLESRenderGeometryElement) {
         this._geometry = data;
-        this._nativeObj.setGeometry((data as any)._nativeObj);
+        this._nativeObj.setGeometry(data ? (data as any)._nativeObj : null);
     }
 
     get geometry(): GLESRenderGeometryElement {
@@ -56,7 +56,14 @@ export class GLESREnderElement2D implements IRenderElement2D {
     constructor() {
         this.init();
     }
-    renderStateIsBySprite: boolean = true;//TODO
+    private _renderStateIsBySprite: boolean = true;//TODO
+    public get renderStateIsBySprite(): boolean {
+        return this._renderStateIsBySprite;
+    }
+    public set renderStateIsBySprite(value: boolean) {
+        this._renderStateIsBySprite = value;
+        this._nativeObj.renderStateIsBySprite = value;
+    }
 
     destroy(): void {
         this._nativeObj.destroy();

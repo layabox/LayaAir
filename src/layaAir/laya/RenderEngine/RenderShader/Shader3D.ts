@@ -132,6 +132,8 @@ export class Shader3D {
             Shader3D._configDefineValues.add(Shader3D.SHADERDEFINE_LOD_TEXTURE_SAMPLE);
         if (LayaGL.renderEngine._breakTextureSample)
             Shader3D._configDefineValues.add(Shader3D.SHADERDEFINE_BREAK_TEXTURE_SAMPLE);
+
+        Shader3D._compileDefineDatas = LayaGL.unitRenderModuleDataFactory.createDefineDatas();
     }
 
     /**
