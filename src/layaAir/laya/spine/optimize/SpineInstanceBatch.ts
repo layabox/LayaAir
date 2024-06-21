@@ -19,7 +19,7 @@ export class SpineInstanceBatch implements IBatch2DRender{
     /** @internal */
     static instance: SpineInstanceBatch;
 
-    _recoverList = new FastSinglelist();
+    _recoverList = new FastSinglelist<IRenderElement2D>();
 
     /**
      * 
@@ -157,6 +157,16 @@ export class SpineInstanceBatch implements IBatch2DRender{
         SpineInstanceElement2DTool._instanceBufferRecover(simpleAnimatorData);
     }
 
+
+    recover(): void {
+        let length = this._recoverList.length;
+        let recoverArray = this._recoverList.elements;
+        for (let i = 0; i < length; i++) {
+            let element = recoverArray[i];
+            element.value2DShaderData.removeDefine(SpineShaderInit.SPINE_GPU_INSTANCE);
+            SpineInstanceElement2DTool.recover(element);
+        }
+    }
 }
 
 Laya.addAfterInitCallback(function() {
@@ -223,6 +233,13 @@ export class SpineInstanceElement2DTool{
             element.geometry = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles,DrawType.DrawElementInstance);
         }
         return element;
+    }
+
+    static recover(element:IRenderElement2D){
+        element.value2DShaderData = null;
+        element.materialShaderData = null;
+        element.subShader = null;
+        this._pool.push(element);
     }
 
     /**

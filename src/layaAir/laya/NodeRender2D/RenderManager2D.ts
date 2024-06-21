@@ -8,7 +8,10 @@ import { BaseRenderNode2D } from "./BaseRenderNode2D";
 export interface IBatch2DRender {
     /**合批范围，合批的RenderElement2D直接add进list中 */
     batchRenderElement(list: FastSinglelist<IRenderElement2D>, start: number, length: number): void;
+
+    recover():void;
 }
+
 export class Batch2DInfo {
     batchFun: IBatch2DRender = null;
     batch: boolean = false;
@@ -111,7 +114,9 @@ export class RenderManager2D {
         this._list.clear();
         this._renderElementList.clear();
         for (var i = 0, n = this._batchInfoList.length; i < n; i++) {
-            Batch2DInfo.recover(this._batchInfoList.elements[i]);
+            let element = this._batchInfoList.elements[i];
+            element.batchFun.recover();
+            Batch2DInfo.recover(element);
         }
         this._batchInfoList.clear();
     }
