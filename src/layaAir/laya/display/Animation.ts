@@ -108,7 +108,7 @@ export class Animation extends AnimationBase {
     /**
      * 当前正在使用的atlas资源
      */
-    curAtlas: AtlasResource;
+    private _atlasCatch: AtlasResource[];
 
 
     /**
@@ -128,13 +128,15 @@ export class Animation extends AnimationBase {
     destroy(destroyChild: boolean = true): void {
         this.stop();
         super.destroy(destroyChild);
-        if (this.curAtlas) {
-            this.curAtlas._removeReference();
-            if (this.curAtlas.referenceCount == 0) {
-                this.curAtlas.destroy();
+        if (this._atlasCatch) {
+            for (let alias of this._atlasCatch) {
+                alias._removeReference();
+                if (0 == alias.referenceCount) {
+                    alias.destroy();
+                }
             }
         }
-        this.curAtlas = null;
+        this._atlasCatch = null;
         this._frames = null;
         this._labels = null;
     }
@@ -318,9 +320,9 @@ export class Animation extends AnimationBase {
         this._url = "";
         if (!this._setFramesFromCache(cacheName)) {
             let onLoaded = (loadUrl: string, data: AtlasResource) => {
-                if (this.curAtlas != data) {
-                    this.curAtlas?._removeReference();
-                    this.curAtlas = data;
+                if (null == this._atlasCatch) this._atlasCatch = [];
+                if (0 > this._atlasCatch.indexOf(data)) {
+                    this._atlasCatch.push(data);
                     data._addReference();
                 }
                 if (url === loadUrl) {
