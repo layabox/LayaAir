@@ -131,6 +131,9 @@ export class Animation extends AnimationBase {
         if (this._atlasCatch) {
             for (let alias of this._atlasCatch) {
                 alias._removeReference();
+                if (0 == alias.referenceCount) {
+                    alias.destroy();
+                }
             }
         }
         this._atlasCatch = null;

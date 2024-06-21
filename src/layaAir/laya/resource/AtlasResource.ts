@@ -20,7 +20,7 @@ export class AtlasResource extends Resource {
         this.dir = dir;
         this.textures = textures;
         this.frames = frames;
-        //this.lock = true;
+        this.lock = true;
     }
 
     // get referenceCount(): number {
