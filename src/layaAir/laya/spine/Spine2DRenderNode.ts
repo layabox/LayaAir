@@ -23,6 +23,8 @@ import { IRenderGeometryElement } from "../RenderDriver/DriverDesign/RenderDevic
 import { Material } from "../resource/Material";
 import { IndexFormat } from "../RenderEngine/RenderEnum/IndexFormat";
 import { ClassUtils } from "../utils/ClassUtils";
+import { SpineNormalRender } from "./optimize/SpineNormalRender";
+import { SketonOptimise } from "./optimize/SketonOptimise";
 
 
 /**动画开始播放调度
@@ -682,6 +684,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
      * @param attachmentName 
      */
     setSlotAttachment(slotName: string, attachmentName: string) {
+        this.changeNormal();
         this._skeleton.setAttachment(slotName, attachmentName);
     }
 
@@ -690,6 +693,16 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
             Spine2DRenderNode.recoverRenderElement2D(element);
         });
         super.clear();
+    }
+
+    changeNormal() {
+        if (!(this.spineItem instanceof SpineNormalRender)) {
+            this.spineItem.destroy();
+            let before = SketonOptimise.normalRenderSwitch;
+            SketonOptimise.normalRenderSwitch = true;
+            this.spineItem = this._templet.sketonOptimise._initSpineRender(this._skeleton, this._templet, this, this._state);
+            SketonOptimise.normalRenderSwitch = before;
+        }
     }
 
     onDestroy(): void {
@@ -723,9 +736,6 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
     }
 
     drawGeo(geo: IRenderGeometryElement, material: Material) {
-        if (this._renderElements.length > 0) {
-            debugger
-        }
         let element = Spine2DRenderNode.createRenderElement2D();
         element.geometry = geo;
         // geo.clearRenderParams();
