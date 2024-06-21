@@ -222,7 +222,13 @@ export class GLESShaderData extends ShaderData {
      * @return  向量。
      */
     getVector(index: number): Vector4 {
-        return this._nativeObj.getVector(index);
+        let value = this._nativeObj.getVector(index);
+        let _tempVector: Vector4 = new Vector4();
+        _tempVector.x = value.x;
+        _tempVector.y = value.y;
+        _tempVector.z = value.z;
+        _tempVector.w = value.w;
+        return _tempVector;
     }
 
     /**
