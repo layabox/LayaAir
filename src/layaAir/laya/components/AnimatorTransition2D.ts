@@ -26,6 +26,11 @@ export class AnimatorTransition2D {
     destState: AnimatorState2D;
 
     /**
+     * 当有多个条件的时候是否使用与操作
+     */
+    isAndOperEnabled: boolean;
+
+    /**
      * 创建一个新的Animatortransition2D
      */
     constructor() {
@@ -75,17 +80,38 @@ export class AnimatorTransition2D {
         if (null == this.conditions || 0 == this.conditions.length) {
             return true;
         }
-        for (var i = 0; i < this.conditions.length; i++) {
-            let con = this.conditions[i];
-
-            let out = con.checkState(paramsMap[con.name].value);
-            if (out) {
-                if (con.type == AniStateConditionType.Trigger) {
-                    paramsMap[con.name].value = false;
+        if (this.isAndOperEnabled) {
+            let triggerCatch: string[];
+            for (var i = 0; i < this.conditions.length; i++) {
+                let con = this.conditions[i];
+                let out = con.checkState(paramsMap[con.name].value);
+                if (!out) {
+                    return false;
                 }
-                return true;
+                if (con.type == AniStateConditionType.Trigger) {
+                    if (triggerCatch) triggerCatch = [];
+                    triggerCatch.push(con.name);
+                }
+            }
+            if (triggerCatch) {
+                for (let id of triggerCatch) {
+                    paramsMap[id].value = false;
+                }
+            }
+            return true;
+        } else {
+            for (var i = 0; i < this.conditions.length; i++) {
+                let con = this.conditions[i];
+                let out = con.checkState(paramsMap[con.name].value);
+                if (out) {
+                    if (con.type == AniStateConditionType.Trigger) {
+                        paramsMap[con.name].value = false;
+                    }
+                    return true;
+                }
             }
         }
+
         return false;
     }
 }
