@@ -21,26 +21,55 @@ export class SpineInstanceBatch implements IBatch2DRender{
 
     _recoverList = new FastSinglelist();
 
+    /**
+     * 
+     * @param left 
+     * @param right 
+     */
+    check(left:IRenderElement2D , right:IRenderElement2D):boolean{
+        if (left.materialShaderData != right.materialShaderData
+            || left.geometry.instanceCount
+            || right.geometry.instanceCount
+            || !left.value2DShaderData.hasDefine(SpineShaderInit.SPINE_GPU_INSTANCE)
+            || !right.value2DShaderData.hasDefine(SpineShaderInit.SPINE_GPU_INSTANCE)
+        )
+            return false
+
+        return true
+    }
+
     batchRenderElement(list: FastSinglelist<IRenderElement2D>, start: number, length: number): void {
         let elementArray = list.elements;
-        let lastElement:IRenderElement2D = null;
-        let batchLength = 0;
+        let batchStart = -1;
         for (let i = 0; i < length - 1; i++) {
             let index = start + i;
             let cElement = elementArray[index];
             let nElement = elementArray[index + 1];
             
-            cElement.materialShaderData
+            if(this.check(cElement , nElement)){
+                if (batchStart == -1 ) {
+                    batchStart = i;
+                }
+            }else{
+                if (batchStart != -1 ) {
+                    this.batch(list , batchStart , i - batchStart);
+                }
+
+                batchStart = 0;
+            }
         }
-        //
+
+        if (batchStart != -1 ) {
+            this.batch(list , batchStart , length - batchStart);
+        }
         
     }
 
-    updateBuffer(info:SpineInstanceInfo,nMatrixData:Float32Array , simpleAnimatorData : Float32Array , instanceCount:number){
+    updateBuffer(info:SpineInstanceInfo , nMatrixData:Float32Array , simpleAnimatorData : Float32Array , instanceCount:number){
         let nMatrixInstanceVB = info.nMatrixInstanceVB;
         let simpleAnimatorVB = info.simpleAnimatorVB;
         
-        nMatrixInstanceVB.setData(nMatrixData.buffer, 0, 0, instanceCount * 8 * 4);
+        nMatrixInstanceVB.setData(nMatrixData.buffer, 0, 0, instanceCount * 6 * 4);
 
         simpleAnimatorVB.setData(simpleAnimatorData.buffer, 0, 0, instanceCount * 4 * 4);
     }
@@ -53,7 +82,7 @@ export class SpineInstanceBatch implements IBatch2DRender{
         //  Simple Animator Params Length = 4;
         // let insBatches = this._instanceElementList;
 
-        let nMatrixData: Float32Array = SpineInstanceElement2DTool._instanceBufferCreate( 8 * SpineInstanceElement2DTool.MaxInstanceCount);
+        let nMatrixData: Float32Array = SpineInstanceElement2DTool._instanceBufferCreate( 6 * SpineInstanceElement2DTool.MaxInstanceCount);
         let simpleAnimatorData: Float32Array = SpineInstanceElement2DTool._instanceBufferCreate( 4 * SpineInstanceElement2DTool.MaxInstanceCount);
 
         let state:IBufferState , info:SpineInstanceInfo;
@@ -62,7 +91,9 @@ export class SpineInstanceBatch implements IBatch2DRender{
             let shaderData = element.value2DShaderData;;
             if (!instanceElement) {
                 instanceElement = SpineInstanceElement2DTool.create();
+                this._recoverList.add(instanceElement);
                 geometry = instanceElement.geometry;
+                geometry.instanceCount = 0;
                 let originGeo = element.geometry;
                 info = SpineInstanceElement2DTool.getInstanceInfo(originGeo);
                 state = info.state;
@@ -93,7 +124,7 @@ export class SpineInstanceBatch implements IBatch2DRender{
             }
 
             let nMatrixBuffer = shaderData.getBuffer(SpineShaderInit.NMatrix);
-            nMatrixData.set(nMatrixBuffer, i * 8);    
+            nMatrixData.set(nMatrixBuffer, i * 6);    
             //simpleAnimationData
             let simpleAnimatorParams = shaderData.getVector(SpineShaderInit.SIMPLE_SIMPLEANIMATORPARAMS);
             let offset: number = i * 4;
@@ -114,6 +145,7 @@ export class SpineInstanceBatch implements IBatch2DRender{
 
         if (instanceElement) {
             this.updateBuffer(info , nMatrixData , simpleAnimatorData , geometry.instanceCount);
+            list.add(instanceElement);
         }
     }
 

@@ -121,6 +121,7 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
             let ib = LayaGL.renderDeviceFactory.createIndexBuffer(BufferUsage.Dynamic);
             mesh.applyState([vb], ib)
             geo.indexFormat = IndexFormat.UInt16;
+            // geo.instanceCount = 
             geoResult = { geo, vb, ib };
             this.geoMap.set(type, geoResult);
         }
@@ -417,8 +418,8 @@ class RenderBake implements IRender {
 
     leave() {
         this._renderNode._spriteShaderData.removeDefine(SpineShaderInit.SPINE_SIMPLE);
-        //this._renderNode._spriteShaderData.removeDefine(SpineShaderInit.SPINE_GPU_INSTANCE);
-        //this._renderNode._renderType =BaseRender2DType.spine;
+        this._renderNode._spriteShaderData.removeDefine(SpineShaderInit.SPINE_GPU_INSTANCE);
+        this._renderNode._renderType =BaseRender2DType.spine;
     }
 
     change(currentRender: SkinRender, currentAnimation: AnimationRenderProxy) {
@@ -426,10 +427,10 @@ class RenderBake implements IRender {
         this.currentAnimation = currentAnimation;
         this._renderNode._spriteShaderData.addDefine(SpineShaderInit.SPINE_SIMPLE);
         this._simpleAnimatorOffset.x = this.aniOffsetMap[currentAnimation.name];
-        // if(currentAnimation.currentSKin.canInstance){
-        //     this._renderNode._renderType=BaseRender2DType.spineSimple;
-        //     this._renderNode._spriteShaderData.addDefine(SpineShaderInit.SPINE_GPU_INSTANCE);
-        // }
+        if(currentAnimation.currentSKin.canInstance){
+            this._renderNode._renderType = BaseRender2DType.spineSimple;
+            this._renderNode._spriteShaderData.addDefine(SpineShaderInit.SPINE_GPU_INSTANCE);
+        }
     }
 
     /**
@@ -541,9 +542,10 @@ class SkinRender implements IVBIBUpdate {
         let ib = this.ib;
         let iblen = ibLength * 2;
         ib._setIndexDataLength(iblen)
-        ib._setIndexData(new Uint16Array(indexArray.buffer, 0, iblen / 2), 0)
+        ib._setIndexData(new Uint16Array(indexArray.buffer, 0, iblen / 2), 0);
         this.geo.clearRenderParams();
         this.geo.setDrawElemenParams(iblen / 2, 0);
+        this.ib.indexCount = iblen / 2;
         if (mutiRenderData) {
             let elementsCreator = this.elementsMap.get(mutiRenderData.id);
             if (!elementsCreator) {
