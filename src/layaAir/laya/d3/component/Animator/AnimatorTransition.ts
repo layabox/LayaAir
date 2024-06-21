@@ -45,6 +45,11 @@ export class AnimatorTransition {
     private _destState: AnimatorState;
 
     /**
+     *  @internal
+     */
+    private _isAndOperEnabled: boolean;
+
+    /**
      * 创建一个新的Animatortransition
      */
     constructor() {
@@ -172,6 +177,15 @@ export class AnimatorTransition {
             this._conditions.splice(index, 0);
         }
     }
+    /**
+     * 当有多个条件的时候是否使用与操作
+     */
+    get isAndOperEnabled() {
+        return this._isAndOperEnabled;
+    }
+    set isAndOperEnabled(vlaue: boolean) {
+        this._isAndOperEnabled = vlaue;
+    }
 
     /**
      * 是否启用过渡
@@ -189,13 +203,34 @@ export class AnimatorTransition {
             if (this._exitByTime && normalizeTime < this._exitTime) {
                 return false;
             }
-            for (var i = 0; i < this._conditions.length; i++) {
-                let con = this._conditions[i];
-                let out = con.checkState(paramsMap[con.id]);
-                if (out) {
-                    if (con.type == AniStateConditionType.Trigger)
-                        paramsMap[con.id] = false;
-                    return true;
+            if (this._isAndOperEnabled) {
+                let triggerCatch: number[];
+                for (var i = 0; i < this._conditions.length; i++) {
+                    let con = this._conditions[i];
+                    let out = con.checkState(paramsMap[con.id]);
+                    if (!out) {
+                        return false;
+                    }
+                    if (con.type == AniStateConditionType.Trigger) {
+                        if (triggerCatch) triggerCatch = [];
+                        triggerCatch.push(con.id);
+                    }
+                }
+                if (triggerCatch) {
+                    for (let id of triggerCatch) {
+                        paramsMap[id] = false;
+                    }
+                }
+                return true;
+            } else {
+                for (var i = 0; i < this._conditions.length; i++) {
+                    let con = this._conditions[i];
+                    let out = con.checkState(paramsMap[con.id]);
+                    if (out) {
+                        if (con.type == AniStateConditionType.Trigger)
+                            paramsMap[con.id] = false;
+                        return true;
+                    }
                 }
             }
         }
