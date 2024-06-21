@@ -284,6 +284,9 @@ export class BaseRender extends Component {
         if (value != -1 && (scene.lightmaps[value])) {
             this._baseRenderNode.lightmap = scene.lightmaps[value]._dataModule;
         }
+        else {
+            this._baseRenderNode.lightmap = null;
+        }
         //this._scene && this._applyLightMapParams(); todo miner
         this._getIrradientMode();
     }
