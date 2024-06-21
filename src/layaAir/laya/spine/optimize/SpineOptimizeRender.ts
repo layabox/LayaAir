@@ -418,7 +418,7 @@ class RenderBake implements IRender {
 
     leave() {
         this._renderNode._spriteShaderData.removeDefine(SpineShaderInit.SPINE_SIMPLE);
-        this._renderNode._spriteShaderData.removeDefine(SpineShaderInit.SPINE_GPU_INSTANCE);
+        //this._renderNode._spriteShaderData.removeDefine(SpineShaderInit.SPINE_GPU_INSTANCE);
         this._renderNode._renderType =BaseRender2DType.spine;
     }
 
@@ -429,7 +429,7 @@ class RenderBake implements IRender {
         this._simpleAnimatorOffset.x = this.aniOffsetMap[currentAnimation.name];
         if(currentAnimation.currentSKin.canInstance){
             this._renderNode._renderType = BaseRender2DType.spineSimple;
-            this._renderNode._spriteShaderData.addDefine(SpineShaderInit.SPINE_GPU_INSTANCE);
+           // this._renderNode._spriteShaderData.addDefine(SpineShaderInit.SPINE_GPU_INSTANCE);
         }
     }
 

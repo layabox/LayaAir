@@ -30,8 +30,8 @@ export class SpineInstanceBatch implements IBatch2DRender{
         if (left.materialShaderData != right.materialShaderData
             || left.geometry.instanceCount
             || right.geometry.instanceCount
-            || !left.value2DShaderData.hasDefine(SpineShaderInit.SPINE_GPU_INSTANCE)
-            || !right.value2DShaderData.hasDefine(SpineShaderInit.SPINE_GPU_INSTANCE)
+            // || !left.value2DShaderData.hasDefine(SpineShaderInit.SPINE_GPU_INSTANCE)
+            // || !right.value2DShaderData.hasDefine(SpineShaderInit.SPINE_GPU_INSTANCE)
         )
             return false
 
@@ -123,6 +123,8 @@ export class SpineInstanceBatch implements IBatch2DRender{
                 instanceElement.materialShaderData = element.materialShaderData;
                 instanceElement.value2DShaderData = element.value2DShaderData;
                 instanceElement.renderStateIsBySprite = element.renderStateIsBySprite;
+
+                instanceElement.value2DShaderData.addDefine(SpineShaderInit.SPINE_GPU_INSTANCE)
             }
 
             let nMatrixBuffer = shaderData.getBuffer(SpineShaderInit.NMatrix);
