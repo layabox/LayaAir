@@ -1,14 +1,28 @@
-float getCurValueFromGradientFloat(in vec2 gradientNumbers[4], in float normalizedAge)
+vec2 getVec2ValueByIndexFromeVec4Array(in vec4 gradientNumbers[2],in int vec2Index){
+	int v4Index = int(floor(float(vec2Index)/2.0));
+	int offset =(vec2Index- v4Index*2)*2;
+	return vec2(gradientNumbers[v4Index][offset],gradientNumbers[v4Index][offset+1]);
+}
+
+vec2 getVec2ValueByIndexFromeVec4Array_COLORCOUNT(in vec4 gradientNumbers[COLORCOUNT_HALF],in int vec2Index){
+	int v4Index = int(floor(float(vec2Index)/2.0));
+	int offset =(vec2Index- v4Index*2)*2;
+	vec4 v4Value = gradientNumbers[v4Index];
+	return vec2(v4Value[offset],v4Value[offset+1]);
+}
+
+
+float getCurValueFromGradientFloat(in vec4 gradientNumbers[2], in float normalizedAge)
 {
     float curValue;
     for (int i = 1; i < 4; i++)
 	{
-	    vec2 gradientNumber = gradientNumbers[i];
+	    vec2 gradientNumber = getVec2ValueByIndexFromeVec4Array(gradientNumbers,i);
 	    float key = gradientNumber.x;
 		curValue = gradientNumber.y;
 	    if (key >= normalizedAge)
 		{
-		    vec2 lastGradientNumber = gradientNumbers[i - 1];
+		    vec2 lastGradientNumber = getVec2ValueByIndexFromeVec4Array(gradientNumbers,i - 1);
 		    float lastKey = lastGradientNumber.x;
 		    float age = max((normalizedAge - lastKey), 0.0) / (key - lastKey);
 		    curValue = mix(lastGradientNumber.y, gradientNumber.y, age);
@@ -18,17 +32,17 @@ float getCurValueFromGradientFloat(in vec2 gradientNumbers[4], in float normaliz
     return curValue;
 }
 
-float getTotalValueFromGradientFloat(in vec2 gradientNumbers[4],
+float getTotalValueFromGradientFloat(in vec4 gradientNumbers[2],
     in float normalizedAge)
 {
-	float keyTime = min(normalizedAge, gradientNumbers[0].x);
-    float totalValue = keyTime * gradientNumbers[0].y;
+	float keyTime = min(normalizedAge,getVec2ValueByIndexFromeVec4Array(gradientNumbers,0).x);
+    float totalValue = keyTime * getVec2ValueByIndexFromeVec4Array(gradientNumbers,0).y;
 	float lastSpeed = 0.;
     for (int i = 1; i < 4; i++)
 	{
-	    vec2 gradientNumber = gradientNumbers[i];
+	    vec2 gradientNumber = getVec2ValueByIndexFromeVec4Array(gradientNumbers,i);
 	    float key = gradientNumber.x;
-	    vec2 lastGradientNumber = gradientNumbers[i - 1];
+	    vec2 lastGradientNumber =getVec2ValueByIndexFromeVec4Array(gradientNumbers,i - 1);
 	    float lastValue = lastGradientNumber.y;
 
 	    if (key >= normalizedAge)
@@ -51,7 +65,7 @@ float getTotalValueFromGradientFloat(in vec2 gradientNumbers[4],
     return totalValue + max(normalizedAge-keyTime, 0.) * lastSpeed * a_ShapePositionStartLifeTime.w;
 }
 
-vec4 getColorFromGradient(in vec2 gradientAlphas[COLORCOUNT],
+vec4 getColorFromGradient(in vec4 gradientAlphas[COLORCOUNT_HALF],
     in vec4 gradientColors[COLORCOUNT],
     in float normalizedAge, in vec4 keyRanges)
 {
@@ -59,11 +73,11 @@ vec4 getColorFromGradient(in vec2 gradientAlphas[COLORCOUNT],
     vec4 overTimeColor;
     for (int i = 1; i < COLORCOUNT; i++)
 	{
-	    vec2 gradientAlpha = gradientAlphas[i];
+	    vec2 gradientAlpha = getVec2ValueByIndexFromeVec4Array_COLORCOUNT(gradientAlphas,i);
 	    float alphaKey = gradientAlpha.x;
 	    if (alphaKey >= alphaAge)
 		{
-		    vec2 lastGradientAlpha = gradientAlphas[i - 1];
+		    vec2 lastGradientAlpha =getVec2ValueByIndexFromeVec4Array_COLORCOUNT(gradientAlphas,i - 1);
 		    float lastAlphaKey = lastGradientAlpha.x;
 		    float age = clamp((alphaAge - lastAlphaKey) / (alphaKey - lastAlphaKey), 0.0, 1.0);
 		    overTimeColor.a = mix(lastGradientAlpha.y, gradientAlpha.y, age);
@@ -88,17 +102,17 @@ vec4 getColorFromGradient(in vec2 gradientAlphas[COLORCOUNT],
     return overTimeColor;
 }
 
-float getFrameFromGradient(in vec2 gradientFrames[4], in float normalizedAge)
+float getFrameFromGradient(in vec4 gradientFrames[2], in float normalizedAge)
 {
     float overTimeFrame;
     for (int i = 1; i < 4; i++)
 	{
-	    vec2 gradientFrame = gradientFrames[i];
+	    vec2 gradientFrame = getVec2ValueByIndexFromeVec4Array(gradientFrames,i);
 	    float key = gradientFrame.x;
 		overTimeFrame = gradientFrame.y;
 	    if (key >= normalizedAge)
 		{
-		    vec2 lastGradientFrame = gradientFrames[i - 1];
+		    vec2 lastGradientFrame = getVec2ValueByIndexFromeVec4Array(gradientFrames,i-1);
 		    float lastKey = lastGradientFrame.x;
 			float age = max((normalizedAge-lastKey), 0.)/(key-lastKey);
 		    overTimeFrame = mix(lastGradientFrame.y, gradientFrame.y, age);
