@@ -132,9 +132,11 @@ export class SketonOptimise implements IPreRender {
                 value.initAnimator(animator);
             });
             animator.skinDataArray.forEach((skinData) => {
-                let boneNumber = skinData.vb.boneArray.length / 2;
-                if (boneNumber > maxBoneNumber) {
-                    maxBoneNumber = boneNumber;
+                if(!skinData.isNormalRender){
+                    let boneNumber = skinData.vb.boneArray.length / 2;
+                    if (boneNumber > maxBoneNumber) {
+                        maxBoneNumber = boneNumber;
+                    }
                 }
             });
         }
