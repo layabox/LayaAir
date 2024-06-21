@@ -280,7 +280,10 @@ export class BaseRender extends Component {
      * @param value 
      */
     setLightmapIndex(value: number) {
-        (value != -1) && (this._baseRenderNode.lightmap = (this._scene as Scene3D).lightmaps[value]._dataModule);
+        let scene = <Scene3D>this._scene;
+        if (value != -1 && (scene.lightmaps[value])) {
+            this._baseRenderNode.lightmap = scene.lightmaps[value]._dataModule;
+        }
         //this._scene && this._applyLightMapParams(); todo miner
         this._getIrradientMode();
     }
