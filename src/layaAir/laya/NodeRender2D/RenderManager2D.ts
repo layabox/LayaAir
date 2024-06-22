@@ -115,7 +115,9 @@ export class RenderManager2D {
         this._renderElementList.clear();
         for (var i = 0, n = this._batchInfoList.length; i < n; i++) {
             let element = this._batchInfoList.elements[i];
-            element.batchFun.recover();
+            if (element.batch) {
+                element.batchFun.recover();
+            }
             Batch2DInfo.recover(element);
         }
         this._batchInfoList.clear();

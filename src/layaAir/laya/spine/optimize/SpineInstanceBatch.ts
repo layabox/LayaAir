@@ -166,6 +166,7 @@ export class SpineInstanceBatch implements IBatch2DRender{
             element.value2DShaderData.removeDefine(SpineShaderInit.SPINE_GPU_INSTANCE);
             SpineInstanceElement2DTool.recover(element);
         }
+        this._recoverList.length = 0;
     }
 }
 
@@ -239,6 +240,7 @@ export class SpineInstanceElement2DTool{
         element.value2DShaderData = null;
         element.materialShaderData = null;
         element.subShader = null;
+        element.geometry.clearRenderParams();
         this._pool.push(element);
     }
 
