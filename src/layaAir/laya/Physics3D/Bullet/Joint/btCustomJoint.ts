@@ -61,7 +61,7 @@ export class btCustomJoint extends btJoint implements ID6Joint {
         let bt = btPhysicsCreateUtil._bt;
         this._manager && this._manager.removeJoint(this);
         if (this._collider && this._connectCollider) {
-            this._btJoint = bt.btGeneric6DofSpring2Constraint_create((this._collider as btRigidBodyCollider)._btCollider, this._btTempVector30, (this._connectCollider as btRigidBodyCollider)._btCollider, this._btTempTrans1, 0);
+            this._btJoint = bt.btGeneric6DofSpring2Constraint_create((this._collider as btRigidBodyCollider)._btCollider, this._btTempTrans0, (this._connectCollider as btRigidBodyCollider)._btCollider, this._btTempTrans1, 0);
             this._btJointFeedBackObj = bt.btJointFeedback_create(this._btJoint);
             bt.btTypedConstraint_setJointFeedback(this._btJoint, this._btJointFeedBackObj);
             bt.btTypedConstraint_setEnabled(this._btJoint, true);
