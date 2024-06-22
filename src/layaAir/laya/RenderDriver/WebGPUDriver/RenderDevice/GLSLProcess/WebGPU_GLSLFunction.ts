@@ -172,6 +172,7 @@ export class WebGPU_GLSLFunction {
      */
     private _findFunctionCalls(glslCode: string) {
         //使用正则表达式匹配函数调用，同时捕获函数名和参数部分
+        //@ts-ignore
         const regex = /(\b\w+\b)\s*\(([^()]*\([^()]*\)[^()]*)*([^()]*)\)/gs;
         let matches: RegExpExecArray | null;
         while ((matches = regex.exec(glslCode)) !== null) {
