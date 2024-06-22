@@ -29,6 +29,9 @@ export class WebGPUBufferBlock {
         this.objectName = 'WebGPUBufferBlock | ' + buffer.name;
         this.globalId = WebGPUGlobal.getId(this);
         //WebGPUGlobal.action(this, 'getMemory', alignedSize);
+
+        if (size > buffer.sliceSize)
+            console.warn('WebGPUBufferBlock: blockSize should not bigger than sliceSize');
     }
 
     needUpload() {

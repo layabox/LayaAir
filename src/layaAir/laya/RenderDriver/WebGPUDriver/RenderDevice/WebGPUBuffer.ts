@@ -68,31 +68,70 @@ export class WebGPUBuffer {
 
     setData(srcData: ArrayBuffer | ArrayBufferView, srcOffset: number) {
         let size = 0, offset = 0;
-        if ((srcData as ArrayBufferView).buffer) { //@ts-ignore
-            offset = srcData.byteOffset;
-            size = roundDown(srcData.byteLength, 4); //这里需要进一步处理，目前是截断到4字节对齐，可能会导致数据不完整
-            srcData = (srcData as ArrayBufferView).buffer;
+        let buffer = (srcData as ArrayBufferView).buffer;
+        if (buffer) {
+            offset = (srcData as ArrayBufferView).byteOffset + srcOffset;
+            size = roundUp(srcData.byteLength, 4);
+            if (size > srcData.byteLength) {
+                const buffer2 = new ArrayBuffer(size);
+                new Uint8Array(buffer2).set(new Uint8Array(buffer, offset, srcData.byteLength));
+                buffer = buffer2;
+                offset = 0;
+            }
+            if (this._mappedAtCreation) {
+                new Uint8Array(this._source.getMappedRange(0, size)).set(new Uint8Array(buffer, offset, size));
+                this._mappedAtCreation = false;
+                this._source.unmap();
+            } else WebGPURenderEngine._instance.getDevice().queue.writeBuffer(this._source, 0, buffer, offset, size);
         } else {
             offset = srcOffset;
-            size = roundDown(srcData.byteLength - offset, 4); //这里需要进一步处理，目前是截断到4字节对齐，可能会导致数据不完整
+            size = roundUp(srcData.byteLength - offset, 4);
+            if (size > srcData.byteLength - offset) {
+                const buffer2 = new ArrayBuffer(size);
+                new Uint8Array(buffer2).set(new Uint8Array(srcData as ArrayBuffer, offset, srcData.byteLength - offset));
+                srcData = buffer2;
+                offset = 0;
+            }
+            if (this._mappedAtCreation) {
+                new Uint8Array(this._source.getMappedRange(0, size)).set(new Uint8Array(srcData as ArrayBuffer, offset, size));
+                this._mappedAtCreation = false;
+                this._source.unmap();
+            } else WebGPURenderEngine._instance.getDevice().queue.writeBuffer(this._source, 0, srcData, offset, size);
         }
-        WebGPURenderEngine._instance.getDevice().queue.writeBuffer(this._source, 0, srcData, offset, size);
     }
 
     setDataEx(srcData: ArrayBuffer | ArrayBufferView, srcOffset: number, byteLength: number, dstOffset: number = 0) {
-        // if ((srcData as ArrayBufferView).buffer)
-        //     srcData = (srcData as ArrayBufferView).buffer;
-        // const size = roundDown(byteLength, 4); //这里需要进一步处理，目前是截断到4字节对齐，可能会导致数据不完整
         let size = 0, offset = 0;
-        if ((srcData as ArrayBufferView).buffer) { //@ts-ignore
-            offset = srcData.byteOffset;
-            size = roundDown(srcData.byteLength, 4); //这里需要进一步处理，目前是截断到4字节对齐，可能会导致数据不完整
-            srcData = (srcData as ArrayBufferView).buffer;
+        let buffer = (srcData as ArrayBufferView).buffer;
+        if (buffer) {
+            offset = (srcData as ArrayBufferView).byteOffset + srcOffset;
+            size = roundUp(srcData.byteLength, 4);
+            if (size > srcData.byteLength) {
+                const buffer2 = new ArrayBuffer(size);
+                new Uint8Array(buffer2).set(new Uint8Array(buffer, offset, srcData.byteLength));
+                buffer = buffer2;
+                offset = 0;
+            }
+            if (this._mappedAtCreation) {
+                new Uint8Array(this._source.getMappedRange(dstOffset, size)).set(new Uint8Array(buffer, offset, size));
+                this._mappedAtCreation = false;
+                this._source.unmap();
+            } else WebGPURenderEngine._instance.getDevice().queue.writeBuffer(this._source, dstOffset, buffer, offset, size);
         } else {
             offset = srcOffset;
-            size = roundDown(byteLength, 4); //这里需要进一步处理，目前是截断到4字节对齐，可能会导致数据不完整
+            size = roundUp(byteLength, 4);
+            if (size > byteLength) {
+                const buffer2 = new ArrayBuffer(size);
+                new Uint8Array(buffer2).set(new Uint8Array(srcData as ArrayBuffer, offset, byteLength));
+                srcData = buffer2;
+                offset = 0;
+            }
+            if (this._mappedAtCreation) {
+                new Uint8Array(this._source.getMappedRange(dstOffset, size)).set(new Uint8Array(srcData as ArrayBuffer, offset, size));
+                this._mappedAtCreation = false;
+                this._source.unmap();
+            } else WebGPURenderEngine._instance.getDevice().queue.writeBuffer(this._source, dstOffset, srcData, offset, size);
         }
-        WebGPURenderEngine._instance.getDevice().queue.writeBuffer(this._source, dstOffset, srcData, offset, size);
     }
 
     readDataFromBuffer() {
@@ -100,6 +139,19 @@ export class WebGPUBuffer {
         //mapAsync
         //getMappedRange
         //gpuBuffer.unmap();
+        this._source.mapAsync(GPUMapMode.READ).then(() => {
+            const arrayBuffer = this._source.getMappedRange();
+            const data = new Uint8Array(arrayBuffer).slice();
+            this._source.unmap();
+        });
+    }
+
+    async readFromBuffer(buffer: GPUBuffer, size: number) {
+        await buffer.mapAsync(GPUMapMode.READ);
+        const arrayBuffer = buffer.getMappedRange();
+        const data = new Float32Array(arrayBuffer).slice(0, size / 4);  // size / 4 because Float32Array elements are 4 bytes.
+        buffer.unmap();
+        return data;
     }
 
     release() {

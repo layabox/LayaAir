@@ -126,7 +126,7 @@ export class RTBaseRenderNode implements IBaseRenderNode {
     }
     public set lightmap(value: RTLightmapData) {
         this._lightmap = value;
-        this._nativeObj.setLightmap(value._nativeObj);
+        this._nativeObj.setLightmap(value ? value._nativeObj : null);
     }
     private _probeReflection: RTReflectionProb;
     public get probeReflection(): RTReflectionProb {

@@ -4,12 +4,13 @@ import { VertexMesh } from "../../../RenderEngine/RenderShader/VertexMesh";
 import { MeshSprite3DShaderDeclaration } from "../../../d3/core/MeshSprite3DShaderDeclaration";
 import { RenderableSprite3D } from "../../../d3/core/RenderableSprite3D";
 import { SimpleSkinnedMeshSprite3D } from "../../../d3/core/SimpleSkinnedMeshSprite3D";
-import { FastSinglelist, SingletonList } from "../../../utils/SingletonList";
+import { SingletonList } from "../../../utils/SingletonList";
 import { IInstanceRenderElement3D, IRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { BaseRenderType } from "../../RenderModuleData/Design/3D/I3DRenderModuleData";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
 import { WebGPUBufferState } from "../RenderDevice/WebGPUBufferState";
 import { WebGPURenderBundle } from "../RenderDevice/WebGPUBundle/WebGPURenderBundle";
+import { WebGPUInternalRT } from "../RenderDevice/WebGPUInternalRT";
 import { WebGPURenderCommandEncoder } from "../RenderDevice/WebGPURenderCommandEncoder";
 import { WebGPURenderGeometry } from "../RenderDevice/WebGPURenderGeometry";
 import { WebGPUShaderInstance } from "../RenderDevice/WebGPUShaderInstance";
@@ -26,7 +27,7 @@ export interface WebGPUInstanceStateInfo {
 }
 
 export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D implements IInstanceRenderElement3D {
-    private static _instanceBufferStateMap: Map<number, WebGPUInstanceStateInfo[]> = new Map();
+    //private static _instanceBufferStateMap: Map<number, WebGPUInstanceStateInfo[]> = new Map();
 
     static getInstanceBufferState(geometry: WebGPURenderGeometry, renderType: number, spriteDefine: WebDefineDatas) {
         const _initStateInfo = (stateinfo: WebGPUInstanceStateInfo) => {
@@ -61,23 +62,23 @@ export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D impleme
             stateinfo.state.applyState(vertexArray, geometry.bufferState._bindedIndexBuffer);
         };
 
-        const stateInfos = this._instanceBufferStateMap.get(geometry._id);
-        if (!stateInfos) {
-            const stateInfo = { inUse: true, state: new WebGPUBufferState() };
-            _initStateInfo(stateInfo);
-            this._instanceBufferStateMap.set(geometry._id, [stateInfo]);
-            return stateInfo;
-        }
-        for (let i = stateInfos.length - 1; i > -1; i--) {
-            if (!stateInfos[i].inUse) {
-                stateInfos[i].inUse = true;
-                return stateInfos[i];
-            }
-        }
+        //const stateInfos = this._instanceBufferStateMap.get(geometry._id);
+        //if (!stateInfos) {
         const stateInfo = { inUse: true, state: new WebGPUBufferState() };
         _initStateInfo(stateInfo);
-        stateInfos.push(stateInfo);
+        //this._instanceBufferStateMap.set(geometry._id, [stateInfo]);
         return stateInfo;
+        //}
+        // for (let i = stateInfos.length - 1; i > -1; i--) {
+        //     if (!stateInfos[i].inUse) {
+        //         stateInfos[i].inUse = true;
+        //         return stateInfos[i];
+        //     }
+        // }
+        // const stateInfo = { inUse: true, state: new WebGPUBufferState() };
+        // _initStateInfo(stateInfo);
+        // stateInfos.push(stateInfo);
+        // return stateInfo;
     }
 
     static MaxInstanceCount: number = 1024;
@@ -97,7 +98,7 @@ export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D impleme
         return array.pop() ?? new Float32Array(length);
     }
 
-    instanceElementList: FastSinglelist<IRenderElement3D>;
+    instanceElementList: SingletonList<IRenderElement3D>;
 
     private _vertexBuffers: Array<WebGPUVertexBuffer> = [];
     private _updateData: Array<Float32Array> = [];
@@ -124,6 +125,20 @@ export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D impleme
     getUpdateData(index: number, length: number): Float32Array {
         this._updateData[index] = WebGPUInstanceRenderElement3D._instanceBufferCreate(length);
         return this._updateData[index];
+    }
+
+    /**
+     * 计算状态值
+     * @param shaderInstance 
+     * @param dest 
+     * @param context 
+     */
+    protected _calcStateKey(shaderInstance: WebGPUShaderInstance, dest: WebGPUInternalRT, context: WebGPURenderContext3D) {
+        let stateKey = '';
+        stateKey += dest.formatId + '_';
+        stateKey += shaderInstance._id + '_';
+        stateKey += this.materialShaderData.stateKey;
+        return stateKey;
     }
 
     /**
