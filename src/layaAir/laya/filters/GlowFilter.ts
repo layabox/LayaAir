@@ -134,24 +134,33 @@ export class GlowFilter extends Filter {
 
         let shadersv = this.shaderDataBlur;
         shadersv.shaderData.addDefine(ShaderDefines2D.FILTERGLOW);
-        shadersv.size.setValue(outTexWidth, outTexHeight);
+        let size = shadersv.size;
+        size.setValue(outTexWidth, outTexHeight); shadersv.size = size;
         shadersv.textureHost = this.textureExtend;
-        shadersv.blurInfo.setValue(outTexWidth, outTexHeight);
-        shadersv.u_blurInfo1.setValue(this._sv_blurInfo1[0], this._sv_blurInfo1[1], this._sv_blurInfo1[2], this._sv_blurInfo1[3])
-        shadersv.u_blurInfo2.setValue(srctexture.width, srctexture.height, this._sv_blurInfo2[2], this._sv_blurInfo2[3]);
+        let blurInfo = shadersv.blurInfo;
+        blurInfo.setValue(outTexWidth, outTexHeight); shadersv.blurInfo = blurInfo;
+        let u_blurInfo1 = shadersv.u_blurInfo1;
+        u_blurInfo1.setValue(this._sv_blurInfo1[0], this._sv_blurInfo1[1], this._sv_blurInfo1[2], this._sv_blurInfo1[3])
+        shadersv.u_blurInfo1 = u_blurInfo1;
+        let u_blurInfo2 = shadersv.u_blurInfo2;
+        u_blurInfo2.setValue(srctexture.width, srctexture.height, this._sv_blurInfo2[2], this._sv_blurInfo2[3]);
+        shadersv.u_blurInfo2 = u_blurInfo2;
         let color = this.getColor();
-        shadersv.color.setValue(color[0], color[1], color[2], color[3]);
+        let svColor = shadersv.color;
+        svColor.setValue(color[0], color[1], color[2], color[3]); shadersv.color = svColor;
         //模糊的底
         render2d.draw(
             this._rectMesh,
             0, 4 * this._rectMesh.vertexDeclarition.vertexStride,
             0, 12,
-            shadersv,null);
+            shadersv, null);
         //最后覆盖一下原始图片
         let shadercpy = this.shaderDataCopy;
-        shadercpy.size.setValue(outTexWidth, outTexHeight);
+        size = shadercpy.size;
+        size.setValue(outTexWidth, outTexHeight);
+        shadercpy.size = size;
         shadercpy.textureHost = srctexture;
-        this._fillQuad(marginLeft, marginTop, srctexture.width, srctexture.height,this._flipY);
+        this._fillQuad(marginLeft, marginTop, srctexture.width, srctexture.height, this._flipY);
         render2d.draw(
             this._rectMesh,
             0, 4 * this._rectMesh.vertexDeclarition.vertexStride,
