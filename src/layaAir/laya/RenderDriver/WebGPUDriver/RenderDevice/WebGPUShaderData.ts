@@ -24,6 +24,8 @@ import { WebGPUTextureFormat } from "./WebGPUTextureContext";
 import { WebGPUUniformBuffer } from "./WebGPUUniform/WebGPUUniformBuffer";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
+import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
+import { Material } from "../../../resource/Material";
 
 /**
  * 着色器数据
@@ -41,11 +43,15 @@ export class WebGPUShaderData extends ShaderData {
     /**@internal */
     protected _gammaColorMap: Map<number, Color>; //颜色矫正数据
 
+    stateKey: string = ''; //状态标识符
+    static _stateKeyMap: Set<number>;
+
     private _infoId: number; //WebGPUUniformPropertyBindingInfo数据的唯一标识
     private _uniformBuffer: WebGPUUniformBuffer; //Uniform缓冲区（负责上传数据到GPU）
     private _bindGroupMap: Map<string, [GPUBindGroup, GPUBindGroupLayoutEntry[]]>; //缓存的BindGroup
     private _bindGroup: GPUBindGroup; //缓存的BindGroup（非共享模式的着色器数据只可能有一个绑定组）
     private _bindGroupLayoutEntries: GPUBindGroupLayoutEntry[];
+    private _bindGroupKey: string = '';
 
     coShaderData: WebGPUShaderData[]; //伴随ShaderData（用于骨骼动画）
 
@@ -86,6 +92,18 @@ export class WebGPUShaderData extends ShaderData {
             this._dummyTextureCube = new TextureCube(1, TextureFormat.R8G8B8A8, false, true);
             this._dummyTextureCube.lock = true;
         }
+        Material.__initDefine__();
+        this._stateKeyMap = new Set();
+        this._stateKeyMap.add(Shader3D.BLEND);
+        this._stateKeyMap.add(Shader3D.BLEND_EQUATION);
+        this._stateKeyMap.add(Shader3D.BLEND_SRC);
+        this._stateKeyMap.add(Shader3D.BLEND_DST);
+        this._stateKeyMap.add(Shader3D.DEPTH_WRITE);
+        this._stateKeyMap.add(Shader3D.DEPTH_TEST);
+        this._stateKeyMap.add(Shader3D.STENCIL_TEST);
+        this._stateKeyMap.add(Shader3D.STENCIL_Op);
+        this._stateKeyMap.add(Shader3D.STENCIL_Ref);
+        this._stateKeyMap.add(Shader3D.STENCIL_WRITE);
     }
 
     constructor(ownerResource: Resource = null) {
@@ -140,6 +158,7 @@ export class WebGPUShaderData extends ShaderData {
      */
     clearBindGroup() {
         this._bindGroupMap.clear();
+        this._bindGroupKey = '';
         this._bindGroup = null;
         this._bindGroupLayoutEntries = null;
         if (this.coShaderData)
@@ -257,24 +276,29 @@ export class WebGPUShaderData extends ShaderData {
         //但BlinnPhongMaterial使用灯光，使用u_lightBuffer贴图，因此这两个渲染节点的bindGroup0是不同的，
         //不同的bindGroup可以通过info中propertyId区分出来。
 
-        let key;
+        let key = '';
         let bindGroup;
         let bindGroupLayoutEntries;
 
         //构建key，查找缓存bindGroup
         if (this.isShare) { //只有共享的ShaderData才可能需要不同的bindGroup
-            key = name + '_' + this._infoId + ' | ';
+            //key = name + '_' + this._infoId + ' | ';
             for (let i = info.length - 1; i > -1; i--)
                 key += info[i].propertyId + '_';
-            const bindInfo = this._bindGroupMap.get(key); //根据Key查找缓存
-            bindGroup = bindInfo ? bindInfo[0] : null;
-            bindGroupLayoutEntries = bindInfo ? bindInfo[1] : null;
-        } else {
-            if (!this._bindGroup) { //首次创建
-                key = name + '_' + this._infoId + ' | ';
-                for (let i = info.length - 1; i > -1; i--)
-                    key += info[i].propertyId + '_';
+            if (key === this._bindGroupKey) {
+                bindGroup = this._bindGroup;
+                bindGroupLayoutEntries = this._bindGroupLayoutEntries;
+            } else {
+                const bindInfo = this._bindGroupMap.get(key); //根据Key查找缓存
+                bindGroup = bindInfo ? bindInfo[0] : null;
+                bindGroupLayoutEntries = bindInfo ? bindInfo[1] : null;
             }
+        } else {
+            // if (!this._bindGroup) { //首次创建
+            //     key = name + '_' + this._infoId + ' | ';
+            //     for (let i = info.length - 1; i > -1; i--)
+            //         key += info[i].propertyId + '_';
+            // }
             bindGroup = this._bindGroup;
             bindGroupLayoutEntries = this._bindGroupLayoutEntries;
         }
@@ -390,9 +414,12 @@ export class WebGPUShaderData extends ShaderData {
             });
 
             //缓存绑定组
-            if (this.isShare)
+            if (this.isShare) {
                 this._bindGroupMap.set(key, [bindGroup, bindGroupLayoutEntries]);
-            else {
+                this._bindGroupKey = key;
+                this._bindGroup = bindGroup;
+                this._bindGroupLayoutEntries = bindGroupLayoutEntries;
+            } else {
                 this._bindGroup = bindGroup;
                 this._bindGroupLayoutEntries = bindGroupLayoutEntries;
             }
@@ -525,6 +552,26 @@ export class WebGPUShaderData extends ShaderData {
     setInt(index: number, value: number) {
         if (this._data[index] === value) return;
         this._data[index] = value;
+
+        //更新状态标识符
+        if (WebGPUShaderData._stateKeyMap.has(index)) {
+            this.stateKey = '';
+            this.stateKey += (this._data[Shader3D.BLEND] ?? 'x') + '_';
+            this.stateKey += (this._data[Shader3D.BLEND_EQUATION] ?? 'x') + '_';
+            this.stateKey += (this._data[Shader3D.BLEND_SRC] ?? 'x') + '_';
+            this.stateKey += (this._data[Shader3D.BLEND_DST] ?? 'x') + '_';
+            this.stateKey += (this._data[Shader3D.DEPTH_WRITE] ? 't' : 'f') + '_';
+            this.stateKey += (this._data[Shader3D.DEPTH_TEST] ?? 'x') + '_';
+            this.stateKey += (this._data[Shader3D.STENCIL_TEST] ?? 'x') + '_';
+            if (this._data[Shader3D.STENCIL_Op]) {
+                this.stateKey += this._data[Shader3D.STENCIL_Op].x + '_';
+                this.stateKey += this._data[Shader3D.STENCIL_Op].y + '_';
+                this.stateKey += this._data[Shader3D.STENCIL_Op].z + '_';
+            } else this.stateKey += 'x_x_x_';
+            this.stateKey += (this._data[Shader3D.STENCIL_Ref] ?? 'x') + '_';
+            this.stateKey += (this._data[Shader3D.STENCIL_WRITE] ? 't' : 'f') + '_';
+        }
+
         if (this._uniformBuffer)
             this._uniformBuffer.setInt(index, value);
         if (this.coShaderData)

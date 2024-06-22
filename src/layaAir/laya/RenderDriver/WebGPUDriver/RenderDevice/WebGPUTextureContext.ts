@@ -504,7 +504,6 @@ export class WebGPUTextureContext implements ITextureContext {
             mipLevel: 0,
             premultipliedAlpha: premultiplyAlpha,
             colorSpace: texture.useSRGBLoad ? "srgb" : undefined
-
         };
         const copySize: GPUExtent3DStrict = { width: source.width, height: source.height };
         WebGPURenderEngine._instance.getDevice().queue.copyExternalImageToTexture(image, textureCopyView, copySize);
