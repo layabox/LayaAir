@@ -68,10 +68,16 @@ export class WebGPUBuffer {
 
     setData(srcData: ArrayBuffer | ArrayBufferView, srcOffset: number) {
         let size = 0, offset = 0;
-        const buffer = (srcData as ArrayBufferView).buffer;
+        let buffer = (srcData as ArrayBufferView).buffer;
         if (buffer) {
             offset = (srcData as ArrayBufferView).byteOffset + srcOffset;
-            size = roundDown(srcData.byteLength, 4); //这里需要进一步处理，目前是截断到4字节对齐，可能会导致数据不完整
+            size = roundUp(srcData.byteLength, 4);
+            if (size > srcData.byteLength) {
+                const buffer2 = new ArrayBuffer(size);
+                new Uint8Array(buffer2).set(new Uint8Array(buffer, offset, srcData.byteLength));
+                buffer = buffer2;
+                offset = 0;
+            }
             if (this._mappedAtCreation) {
                 new Uint8Array(this._source.getMappedRange(0, size)).set(new Uint8Array(buffer, offset, size));
                 this._mappedAtCreation = false;
@@ -79,7 +85,13 @@ export class WebGPUBuffer {
             } else WebGPURenderEngine._instance.getDevice().queue.writeBuffer(this._source, 0, buffer, offset, size);
         } else {
             offset = srcOffset;
-            size = roundDown(srcData.byteLength - offset, 4); //这里需要进一步处理，目前是截断到4字节对齐，可能会导致数据不完整
+            size = roundUp(srcData.byteLength - offset, 4);
+            if (size > srcData.byteLength - offset) {
+                const buffer2 = new ArrayBuffer(size);
+                new Uint8Array(buffer2).set(new Uint8Array(srcData as ArrayBuffer, offset, srcData.byteLength - offset));
+                srcData = buffer2;
+                offset = 0;
+            }
             if (this._mappedAtCreation) {
                 new Uint8Array(this._source.getMappedRange(0, size)).set(new Uint8Array(srcData as ArrayBuffer, offset, size));
                 this._mappedAtCreation = false;
@@ -90,10 +102,16 @@ export class WebGPUBuffer {
 
     setDataEx(srcData: ArrayBuffer | ArrayBufferView, srcOffset: number, byteLength: number, dstOffset: number = 0) {
         let size = 0, offset = 0;
-        const buffer = (srcData as ArrayBufferView).buffer;
+        let buffer = (srcData as ArrayBufferView).buffer;
         if (buffer) {
             offset = (srcData as ArrayBufferView).byteOffset + srcOffset;
-            size = roundDown(srcData.byteLength, 4); //这里需要进一步处理，目前是截断到4字节对齐，可能会导致数据不完整
+            size = roundUp(srcData.byteLength, 4);
+            if (size > srcData.byteLength) {
+                const buffer2 = new ArrayBuffer(size);
+                new Uint8Array(buffer2).set(new Uint8Array(buffer, offset, srcData.byteLength));
+                buffer = buffer2;
+                offset = 0;
+            }
             if (this._mappedAtCreation) {
                 new Uint8Array(this._source.getMappedRange(dstOffset, size)).set(new Uint8Array(buffer, offset, size));
                 this._mappedAtCreation = false;
@@ -101,7 +119,13 @@ export class WebGPUBuffer {
             } else WebGPURenderEngine._instance.getDevice().queue.writeBuffer(this._source, dstOffset, buffer, offset, size);
         } else {
             offset = srcOffset;
-            size = roundDown(byteLength, 4); //这里需要进一步处理，目前是截断到4字节对齐，可能会导致数据不完整
+            size = roundUp(byteLength, 4);
+            if (size > byteLength) {
+                const buffer2 = new ArrayBuffer(size);
+                new Uint8Array(buffer2).set(new Uint8Array(srcData as ArrayBuffer, offset, byteLength));
+                srcData = buffer2;
+                offset = 0;
+            }
             if (this._mappedAtCreation) {
                 new Uint8Array(this._source.getMappedRange(dstOffset, size)).set(new Uint8Array(srcData as ArrayBuffer, offset, size));
                 this._mappedAtCreation = false;

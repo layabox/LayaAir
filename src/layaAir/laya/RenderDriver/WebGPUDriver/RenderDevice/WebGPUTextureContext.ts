@@ -445,22 +445,22 @@ export class WebGPUTextureContext implements ITextureContext {
             throw "error";
         }
         //TODO
-        // let useSRGBExt = this.isSRGBFormat(format) || (sRGB && this.supportSRGB(format, generateMipmap));
-        // if (premultipliedAlpha) {//预乘法和SRGB同时开启，会有颜色白边问题
-        //     useSRGBExt = false;
-        // }
-        // let gammaCorrection = 1.0;
-        // if (!useSRGBExt && sRGB) {
-        //     gammaCorrection = 2.2;
-        // }
+        let useSRGBExt = this.isSRGBFormat(format) || (sRGB && this.supportSRGB(format, generateMipmap));
+        if (premultipliedAlpha) {//预乘法和SRGB同时开启，会有颜色白边问题
+            useSRGBExt = false;
+        }
+        let gammaCorrection = 1.0;
+        if (!useSRGBExt && sRGB) {
+            gammaCorrection = 2.2;
+        }
 
         const pixelByteSize = this._getGPUTexturePixelByteSize(format);
-        const gpuTextureFormat = this._getGPUTextureFormat(format, sRGB);
+        const gpuTextureFormat = this._getGPUTextureFormat(format, useSRGBExt);
         const textureDescriptor = this._getGPUTextureDescriptor(dimension, width, height, gpuTextureFormat, layerCount, generateMipmap, 1, this.isCompressTexture(format));
         if (generateMipmap)
             textureDescriptor.mipLevelCount = 1 + Math.log2(Math.max(width, height)) | 0;
         const gpuTexture = this._engine.getDevice().createTexture(textureDescriptor);
-        const internalTex = new WebGPUInternalTex(width, height, 1, dimension, generateMipmap, 1, false, 1);
+        const internalTex = new WebGPUInternalTex(width, height, 1, dimension, generateMipmap, 1, useSRGBExt, gammaCorrection);
         internalTex.resource = gpuTexture;
         internalTex._webGPUFormat = gpuTextureFormat;
         internalTex.gpuMemory = (width * height * pixelByteSize * (generateMipmap ? 1.33333 : 1)) | 0;
