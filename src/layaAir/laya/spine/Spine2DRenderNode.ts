@@ -25,6 +25,7 @@ import { IndexFormat } from "../RenderEngine/RenderEnum/IndexFormat";
 import { ClassUtils } from "../utils/ClassUtils";
 import { SpineNormalRender } from "./optimize/SpineNormalRender";
 import { SketonOptimise } from "./optimize/SketonOptimise";
+import { Texture } from "../resource/Texture";
 
 
 /**动画开始播放调度
@@ -615,16 +616,6 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
             this._onAniSoundStoped(true);
     }
 
-    /**
-     * 销毁当前动画
-     * @override
-     */
-    destroy(): void {
-        super.destroy();
-        if (this._templet)
-            this.reset();
-    }
-
     // ------------------------------------新增加的接口----------------------------------------------------
     /**
      * 添加一个动画
@@ -705,7 +696,10 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
     }
 
     onDestroy(): void {
-        this.spineItem.destroy()
+        if(this._templet){
+            this.reset();
+        }
+        this.spineItem.destroy();
     }
 
     drawGeos(geo: IRenderGeometryElement, elements: [Material, number, number][]) {
@@ -750,6 +744,20 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
         element.materialShaderData = material.shaderData;
         element.subShader = material._shader.getSubShaderAt(0);
         element.value2DShaderData = this._spriteShaderData;
+    }
+
+    getMaterial(texture: Texture, blendMode: number): Material {
+        let mat: Material;
+        if (this._materials.length <= this._renderElements.length) {
+            //默认给一个新的Mateiral
+            mat = this.templet.getMaterial(texture,blendMode);
+            //renderNode._materials.push(mat);
+        } else {
+            mat = this._materials[this._renderElements.length];
+            SpineShaderInit.SetSpineBlendMode(blendMode, mat);
+            mat.setTextureByIndex(SpineShaderInit.SpineTexture, texture.bitmap);
+        }
+        return mat;
     }
 }
 

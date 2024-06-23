@@ -506,27 +506,9 @@ class SkinRender implements IVBIBUpdate {
         this.ib = geoResult.ib;
     }
 
-    getMaterial(texture: Texture, blendMode: number): Material {
-        let key = texture.id + "_" + blendMode;
-        let mat = SpineTemplet.materialMap.get(key);
-        if (!mat) {
-            mat = new Material();
-            mat.setShaderName("SpineStandard");
-            SpineShaderInit.initSpineMaterial(mat);
-            mat.setTextureByIndex(SpineShaderInit.SpineTexture, texture.bitmap);
-
-            SpineShaderInit.SetSpineBlendMode(blendMode, mat);
-            //mat.color = this.owner.spineColor;
-            //mat.setVector2("u_size",new Vector2(Laya.stage.width,Laya.stage.height));
-            mat._addReference();
-            SpineTemplet.materialMap.set(key, mat);
-        }
-        return mat;
-    }
-
     getMaterialByName(name: string, blendMode: number): Material {
         let texture = this.templet.getTexture(name).realTexture;
-        return this.getMaterial(texture, blendMode);
+        return this.templet.getMaterial(texture, blendMode);
     }
 
 
@@ -562,7 +544,7 @@ class SkinRender implements IVBIBUpdate {
         if (this.hasNormalRender) {
             this._renerer = SpineAdapter.createNormalRender(templet, false);
         }
-        this.material = this.getMaterial(templet.mainTexture, 0);
+        this.material = templet.getMaterial(templet.mainTexture, 0);
     }
 
     render(time: number) {
