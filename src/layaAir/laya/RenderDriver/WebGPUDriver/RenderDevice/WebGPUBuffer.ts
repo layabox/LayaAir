@@ -134,15 +134,26 @@ export class WebGPUBuffer {
         }
     }
 
-    readDataFromBuffer() {
+    readDataFromBuffer(): Promise<Uint8Array> {
         //TODO
         //mapAsync
         //getMappedRange
         //gpuBuffer.unmap();
-        this._source.mapAsync(GPUMapMode.READ).then(() => {
-            const arrayBuffer = this._source.getMappedRange();
-            const data = new Uint8Array(arrayBuffer).slice();
-            this._source.unmap();
+        return new Promise((resolve, reject) => {
+            //映射 GPUBuffer 以供读取
+            this._source.mapAsync(GPUMapMode.READ)
+                .then(() => {
+                    //成功映射后获取 ArrayBuffer
+                    const arrayBuffer = this._source.getMappedRange();
+                    const data = new Uint8Array(arrayBuffer).slice();
+                    this._source.unmap();
+                    //返回读取的数据
+                    resolve(data);
+                })
+                .catch(error => { //处理映射失败的情况
+                    this._source.unmap(); //确保即使出错也取消映射
+                    reject(error);
+                });
         });
     }
 
