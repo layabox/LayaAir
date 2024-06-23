@@ -13,7 +13,8 @@ import { Vector3 } from "laya/maths/Vector3";
 import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
 
 export class Scene2DPlayer3D {
-
+	private _pos: Vector3 = new Vector3(310, 500, 0);
+	private _translate: Vector3 = new Vector3(0, 0, 0);
 	/**
 	 * (pos.x pos.y) 屏幕位置
 	 *  pos.z 深度取值范围(-1,1);
@@ -50,7 +51,7 @@ export class Scene2DPlayer3D {
 			let dircom = directlightSprite.addComponent(DirectionLightCom);
 			scene.addChild(directlightSprite);
 
-			Sprite3D.load("res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh", Handler.create(this, function (layaMonkey: Sprite3D): void {
+			Sprite3D.load("res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh", Handler.create(this, (layaMonkey: Sprite3D) => {
 				scene.addChild(layaMonkey);
 				this._layaMonkey = layaMonkey;
 				var transform: Transform3D = layaMonkey.transform;

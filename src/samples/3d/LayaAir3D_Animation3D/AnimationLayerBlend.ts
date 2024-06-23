@@ -1,31 +1,30 @@
 import { Laya } from "Laya";
-import { Animator } from "laya/d3/component/Animator/Animator";
-import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Stage } from "laya/display/Stage";
-import { Event } from "laya/events/Event";
-import { Button } from "laya/ui/Button";
-import { Browser } from "laya/utils/Browser";
-import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
-import Client from "../../Client";
+import { Sprite3D } from "laya/d3/core/Sprite3D";
+import { Button } from "laya/ui/Button";
+import { Scene3D } from "laya/d3/core/scene/Scene3D";
+import { Camera } from "laya/d3/core/Camera";
+import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
+import { PrefabImpl } from "laya/resource/PrefabImpl";
+import { Handler } from "laya/utils/Handler";
+import { Browser } from "laya/utils/Browser";
+import { Event } from "laya/events/Event";
+import { Animator } from "laya/d3/component/Animator/Animator";
+import { Vector3 } from "laya/maths/Vector3";
+import { CameraMoveScript } from "../common/CameraMoveScript";
 
 export class AnimationLayerBlend {
-	private _motionCross: boolean = false;
-	private _blendType: number = 0;
-	private _motionIndex: number = 0;
-	private _motions: any[] = ["run", "run_2", "attack", "attack_1", "attack_2", "dead", "idle_2", "idle_3", "idle_4", "idle4", "reload", "replace", "replace_2", "stop"];
+	private transitionSp3Path: string = "res/danding/danding.lh";
+	private transitionSp3: Sprite3D;
+	private isTransition: boolean = false;
+	private animator: Animator;
 
-	private changeActionButton0:Button;
-	private changeActionButton1:Button;
-	private changeActionButton2:Button;
-	private animator:Animator;
+	private scene: Scene3D;
+	private btnTransition: Button;
+	private btnRun: Button;
+	private btnSkill: Button;
 
-	/**实例类型*/
-	private btype:any = "AnimationLayerBlend";
-	/**场景内按钮类型*/
-	private stype:any = 0;
-	isMaster: any;
 	constructor() {
 		//初始化引擎
 		Laya.init(0, 0).then(() => {
@@ -33,117 +32,87 @@ export class AnimationLayerBlend {
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
 			//显示性能面板
 			Stat.show();
-
-			//加载场景资源
-			Scene3D.load("res/threeDimen/scene/LayaScene_Sniper/Sniper.ls", Handler.create(this, this.sceneLoaded));
+			Laya.loader.load([this.transitionSp3Path]).then(() => {
+				this.initScene();
+			});
 		});
 	}
 
-	private sceneLoaded(scene: Scene3D): void {
-		Laya.stage.addChild(scene);
-		//获取精灵的动画组件
-		this.animator = scene.getChildAt(2).getComponent(Animator);
+	initScene(): void {
+		this.scene = new Scene3D();
+		Laya.stage.addChild(this.scene);
+		let camera = new Camera(0, 0.1, 100);
+		camera.addComponent(CameraMoveScript);
+		camera.transform.position = new Vector3(-2.4, 1.3, 3.2);
+		camera.transform.rotationEuler = new Vector3(-2.13, -6.0, 0.0);
+		this.scene.addChild(camera);
+		let dirLit = new Sprite3D();
+		let dirLitCom = dirLit.addComponent(DirectionLightCom);
+		this.scene.addChild(dirLit);
+
+		this.transitionSp3 = ((Laya.loader.getRes(this.transitionSp3Path) as PrefabImpl).create() as Sprite3D);
+		this.scene.addChild(this.transitionSp3);
+		this.animator = this.transitionSp3.getComponent(Animator);
 		this.loadUI();
 	}
 
-	private loadUI(): void {
-		Laya.loader.load(["res/threeDimen/ui/button.png"], Handler.create(this, function (): void {
-			this.changeActionButton0 = (<Button>Laya.stage.addChild(new Button("res/threeDimen/ui/button.png", "动画过渡:否")));
-			this.changeActionButton0.size(160, 30);
-			this.changeActionButton0.labelBold = true;
-			this.changeActionButton0.labelSize = 20;
-			this.changeActionButton0.sizeGrid = "4,4,4,4";
-			this.changeActionButton0.scale(Browser.pixelRatio, Browser.pixelRatio);
-			this.changeActionButton0.pos(100, 100);
-			this.changeActionButton0.on(Event.CLICK, this, this.stypeFun0);
+	loadUI(): void {
+		Laya.loader.load(["res/threeDimen/ui/button.png"], Handler.create(this, () => {
+			this.btnTransition = (<Button>Laya.stage.addChild(new Button("res/threeDimen/ui/button.png", "动画融合: 关")));
+			this.btnTransition.size(160, 40);
+			this.btnTransition.labelBold = true;
+			this.btnTransition.labelSize = 30;
+			this.btnTransition.sizeGrid = "4,4,4,4";
+			this.btnTransition.scale(Browser.pixelRatio, Browser.pixelRatio);
+			this.btnTransition.top = 150;
+			this.btnTransition.left = 250;
+			this.btnTransition.on(Event.CLICK, this, this.btnTransitionClick);
 
-			this.changeActionButton1 = (<Button>Laya.stage.addChild(new Button("res/threeDimen/ui/button.png", "混合模式:全身")));
-			this.changeActionButton1.size(160, 30);
-			this.changeActionButton1.labelBold = true;
-			this.changeActionButton1.labelSize = 20;
-			this.changeActionButton1.sizeGrid = "4,4,4,4";
-			this.changeActionButton1.scale(Browser.pixelRatio, Browser.pixelRatio);
-			this.changeActionButton1.pos(100, 160);
-			this.changeActionButton1.on(Event.CLICK, this, this.stypeFun1);
+			this.btnRun = (<Button>Laya.stage.addChild(new Button("res/threeDimen/ui/button.png", "播放Run动作")));
+			this.btnRun.size(200, 40);
+			this.btnRun.labelBold = true;
+			this.btnRun.labelSize = 30;
+			this.btnRun.sizeGrid = "4,4,4,4";
+			this.btnRun.scale(Browser.pixelRatio, Browser.pixelRatio);
+			this.btnRun.top = 250;
+			this.btnRun.left = 250;
+			this.btnRun.on(Event.CLICK, this, this.btnRunClick);
 
-			this.changeActionButton2 = (<Button>Laya.stage.addChild(new Button("res/threeDimen/ui/button.png", "切换动作:attack_2")));
-			this.changeActionButton2.size(260, 40);
-			this.changeActionButton2.labelBold = true;
-			this.changeActionButton2.labelSize = 30;
-			this.changeActionButton2.sizeGrid = "4,4,4,4";
-			this.changeActionButton2.scale(Browser.pixelRatio, Browser.pixelRatio);
-			this.changeActionButton2.pos(100, 220);
-			this.changeActionButton2.on(Event.CLICK, this, this.stypeFun2);
+			this.btnSkill = (<Button>Laya.stage.addChild(new Button("res/threeDimen/ui/button.png", "播放Skill动作")));
+			this.btnSkill.size(200, 40);
+			this.btnSkill.labelBold = true;
+			this.btnSkill.labelSize = 30;
+			this.btnSkill.sizeGrid = "4,4,4,4";
+			this.btnSkill.scale(Browser.pixelRatio, Browser.pixelRatio);
+			this.btnSkill.top = 350;
+			this.btnSkill.left = 250;
+			this.btnSkill.on(Event.CLICK, this, this.btnSkillClick);
 		}));
 	}
 
-	stypeFun0(label:string = "动画过渡:否") {
-		this._motionCross = !this._motionCross;
-		if (this._motionCross)
-			this.changeActionButton0.label = "动画过渡:是";
-		else
-		    this.changeActionButton0.label = "动画过渡:否";
-
-		label = this.changeActionButton0.label;
-		Client.instance.send({type:"next",btype:this.btype,stype:0,value:label});	
+	btnTransitionClick(): void {
+		if (this.isTransition) {
+			this.btnTransition.label = "动画融合: 关";
+		} else {
+			this.btnTransition.label = "动画融合: 开";
+		}
+		this.isTransition = !this.isTransition;
 	}
 
-	stypeFun1(label:string = "混合模式:全身") {
-		this._blendType++;
-		(this._blendType === 3) && (this._blendType = 0);
-		switch (this._blendType) {
-			case 0:
-				this.changeActionButton1.label = "混合模式:全身";
-				break;
-			case 1:
-				this.changeActionButton1.label = "混合模式:上身";
-				break;
-			case 2:
-				this.changeActionButton1.label = "混合模式:下身";
-				break;
+	btnRunClick(): void {
+		if (this.isTransition) {
+			this.animator.crossFade("Run", 0.5);
+		} else {
+			this.animator.play("Run");
 		}
-
-		label = this.changeActionButton1.label;
-		Client.instance.send({type:"next",btype:this.btype,stype:1,value:label});	
 	}
 
-	stypeFun2(label:string = "切换动作:attack_2") {
-		switch (this._blendType) {
-			case 0:
-				if (this._motionCross) {
-					//在当前动画状态和目标动画状态之间进行融合过渡播放
-					//第三个参数为layerIndex 层索引使用混合模式，混合了0层和1层的动画
-					this.animator.crossFade(this._motions[this._motionIndex], 0.2, 0);
-					this.animator.crossFade(this._motions[this._motionIndex], 0.2, 1);
-				} else {
-					//使用普通模式播放
-					this.animator.play(this._motions[this._motionIndex], 0);
-					this.animator.play(this._motions[this._motionIndex], 1);
-				}
-				break;
-			case 1:
-				if (this._motionCross)
-					//在当前动画状态和目标动画状态之间进行融合过渡播放
-					//第三个参数为layerIndex 层索引，没有使用混合模式，仅仅是使用0层的动画
-					this.animator.crossFade(this._motions[this._motionIndex], 0.2, 0);
-				else
-				this.animator.play(this._motions[this._motionIndex], 0);
-				break;
-			case 2:
-				if (this._motionCross)
-					//在当前动画状态和目标动画状态之间进行融合过渡播放
-					//第三个参数为layerIndex 层索引，没有使用混合模式，仅仅是使用1层的动画
-					this.animator.crossFade(this._motions[this._motionIndex], 0.2, 1);
-				else
-				this.animator.play(this._motions[this._motionIndex], 1);
-				break;
+	btnSkillClick(): void {
+		if (this.isTransition) {
+			this.animator.crossFade("Skill1", 0.5);
+		} else {
+			this.animator.play("Skill1");
 		}
-		this.changeActionButton2.label = "切换动作:" + this._motions[this._motionIndex];
-		this._motionIndex++;
-		(this._motionIndex === this._motions.length) && (this._motionIndex = 0);
-
-		label = this.changeActionButton2.label;
-		Client.instance.send({type:"next",btype:this.btype,stype:2,value:label});	
 	}
 }
 

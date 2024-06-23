@@ -6,19 +6,17 @@ import "laya/ui/ModuleDef";
 import "laya/ani/ModuleDef";
 import "laya/spine/ModuleDef";
 import "laya/gltf/glTFLoader";
+import "laya/navigation/ModuleDef";
 
 import { Resource } from "laya/resource/Resource";
 import { Main } from "./Main";
 import { LayaGL } from "laya/layagl/LayaGL";
-import { MeshLoad } from "./3d/LayaAir3D_Mesh/MeshLoad";
-import { SceneLoad1 } from "./3d/LayaAir3D_Scene3D/SceneLoad1";
-import {WebGLRenderEngineFactory} from "laya/RenderDriver/WebGLDriver/RenderDevice/WebGLRenderEngineFactory"
+import { WebGLRenderEngineFactory } from "laya/RenderDriver/WebGLDriver/RenderDevice/WebGLRenderEngineFactory";
 import { Laya3D } from "Laya3D";
 import { btPhysicsCreateUtil } from "laya/Physics3D/Bullet/btPhysicsCreateUtil";
 
-Resource.DEBUG = true; 
+Resource.DEBUG = true;
 LayaGL.renderOBJCreate = new WebGLRenderEngineFactory();
 //Physics2D.I._factory = new physics2DJSFactory();
- Laya3D.PhysicsCreateUtil = new btPhysicsCreateUtil();
-// new PhysicsWorld_BaseCollider();
-new Main();
+Laya3D.PhysicsCreateUtil = new btPhysicsCreateUtil();
+new Main(true, false);

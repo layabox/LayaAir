@@ -8,7 +8,6 @@ import { Stage } from "laya/display/Stage";
 import { Event } from "laya/events/Event";
 import { Color } from "laya/maths/Color";
 import { Matrix4x4 } from "laya/maths/Matrix4x4";
-import { Quaternion } from "laya/maths/Quaternion";
 import { Vector3 } from "laya/maths/Vector3";
 import { Loader } from "laya/net/Loader";
 import { Button } from "laya/ui/Button";
@@ -32,12 +31,7 @@ export class BoneLinkSprite3D {
 	private aniSprte3D1: Sprite3D;
 	private aniSprte3D2: Sprite3D;
 	private animator: Animator;
-	private dragonAnimator1: Animator;
-	private dragonAnimator2: Animator;
-	private _dragonScale: Vector3 = new Vector3(1.5, 1.5, 1.5);
-	private _rotation: Quaternion = new Quaternion(-0.5, -0.5, 0.5, -0.5);
-	private _position: Vector3 = new Vector3(-0.2, 0.0, 0.0);
-	private _scale: Vector3 = new Vector3(0.75, 0.75, 0.75);
+	private _dragonScale: Vector3 = new Vector3(0.1, 0.1, 0.1);
 	private _translate: Vector3 = new Vector3(0, 3, 5);
 	private _rotation2: Vector3 = new Vector3(-15, 0, 0);
 	private _forward: Vector3 = new Vector3(-1.0, -1.0, -1.0);
@@ -60,8 +54,8 @@ export class BoneLinkSprite3D {
 			Stat.show();
 
 			//预加载所有资源
-			var resource: any[] = ["res/threeDimen/skinModel/BoneLinkScene/R_kl_H_001.lh",
-				"res/threeDimen/skinModel/BoneLinkScene/R_kl_S_009.lh",
+			var resource: any[] = ["res/threeDimen/skinModel/BoneLinkScene/Assets/XunLongShi/Bary/Bary.lh",
+				"res/threeDimen/skinModel/BoneLinkScene/Assets/XunLongShi/Carn/Carn.lh",
 				"res/threeDimen/skinModel/BoneLinkScene/PangZi.lh"];
 
 			Laya.loader.load(resource, Handler.create(this, this.onLoadFinish));
@@ -122,31 +116,13 @@ export class BoneLinkSprite3D {
 		state2.clip.islooping = true;
 		this.animator.getControllerLayer(0).addState(state2);
 
-		this.dragon1 = Loader.createNodes("res/threeDimen/skinModel/BoneLinkScene/R_kl_H_001.lh");
+		this.dragon1 = Loader.createNodes("res/threeDimen/skinModel/BoneLinkScene/Assets/XunLongShi/Bary/Bary.lh");
 		this.dragon1.transform.localScale = this._dragonScale;
 		this.aniSprte3D1 = (<Sprite3D>this.dragon1.getChildAt(0));
-		this.dragonAnimator1 = (<Animator>this.aniSprte3D1.getComponent(Animator));
 
-		var state3: AnimatorState = new AnimatorState();
-		state3.name = "run";
-		state3.clipStart = 50 / 644;
-		state3.clipEnd = 65 / 644;
-		state3.clip = this.dragonAnimator1.getDefaultState().clip;
-		state3.clip.islooping = true;
-		this.dragonAnimator1.getControllerLayer(0).addState(state3);
-
-		this.dragon2 = Loader.createNodes("res/threeDimen/skinModel/BoneLinkScene/R_kl_S_009.lh");
+		this.dragon2 = Loader.createNodes("res/threeDimen/skinModel/BoneLinkScene/Assets/XunLongShi/Carn/Carn.lh");
 		this.dragon2.transform.localScale = this._dragonScale;
 		this.aniSprte3D2 = (<Sprite3D>this.dragon2.getChildAt(0));
-		this.dragonAnimator2 = (<Animator>this.aniSprte3D2.getComponent(Animator));
-
-		var state4: AnimatorState = new AnimatorState();
-		state4.name = "run";
-		state4.clipStart = 50 / 550;
-		state4.clipEnd = 65 / 550;
-		state4.clip = this.dragonAnimator2.getDefaultState().clip;
-		state4.clip.islooping = true;
-		this.dragonAnimator2.getControllerLayer(0).addState(state4);
 
 		this.loadUI();
 	}
@@ -154,7 +130,6 @@ export class BoneLinkSprite3D {
 	private loadUI(): void {
 
 		Laya.loader.load(["res/threeDimen/ui/button.png"], Handler.create(this, function (): void {
-
 			this.changeActionButton = (<Button>Laya.stage.addChild(new Button("res/threeDimen/ui/button.png", "乘骑坐骑")));
 			this.changeActionButton.size(160, 40);
 			this.changeActionButton.labelBold = true;
@@ -162,7 +137,6 @@ export class BoneLinkSprite3D {
 			this.changeActionButton.sizeGrid = "4,4,4,4";
 			this.changeActionButton.scale(Browser.pixelRatio, Browser.pixelRatio);
 			this.changeActionButton.pos(Laya.stage.width / 2 - this.changeActionButton.width * Browser.pixelRatio / 2, Laya.stage.height - 100 * Browser.pixelRatio);
-
 			this.changeActionButton.on(Event.CLICK, this, this.stypeFun0);
 
 		}));
@@ -172,58 +146,52 @@ export class BoneLinkSprite3D {
 
 		this.curStateIndex++;
 		if (this.curStateIndex % 3 == 1) {
-
 			this.changeActionButton.label = "切换坐骑";
 
-			this.scene.addChild(this.dragon1);
-			this.aniSprte3D1.addChild(this.role);
-
-			//关联精灵节点到Avatar节点
-			//this.dragonAnimator1.linkSprite3DToAvatarNode("point", this.role);
-
-			this.animator.play("ride");
-			this.dragonAnimator1.play("run");
-
-			this.pangzi.transform.localRotation = this._rotation;
-			this.pangzi.transform.localPosition = this._position;
-			this.pangzi.transform.localScale = this._scale;
-		}
-		else if (this.curStateIndex % 3 == 2) {
-
-			this.changeActionButton.label = "卸下坐骑";
-
-			//骨骼取消关联节点
-			//this.dragonAnimator1.unLinkSprite3DToAvatarNode(this.role);
-			this.aniSprte3D1.removeChild(this.role);
 			this.dragon1.removeSelf();
-
-			this.scene.addChild(this.dragon2);
-			this.aniSprte3D2.addChild(this.role);
-			//骨骼关联节点
-			//this.dragonAnimator2.linkSprite3DToAvatarNode("point", this.role);
-
-			this.animator.play("ride");
-			this.dragonAnimator2.play("run");
-
-			this.pangzi.transform.localRotation = this._rotation;
-			this.pangzi.transform.localPosition = this._position;
-			this.pangzi.transform.localScale = this._scale;
-		}
-		else {
-
-			this.changeActionButton.label = "乘骑坐骑";
-
-			//骨骼取消关联节点
-			//this.dragonAnimator2.unLinkSprite3DToAvatarNode(this.role);
-			this.aniSprte3D2.removeChild(this.role);
 			this.dragon2.removeSelf();
 
+			let linkNode = this.getAvatarNodeByNames(this.pangzi, "AvatarNode");
+			linkNode && linkNode.addChild(this.dragon1);
+			this.dragon1.transform.localPosition = new Vector3(-0.5, 0, 0);
+			this.dragon1.transform.localRotationEuler = new Vector3(0, -180, 100);
+			this.animator.play("ride");
+		}
+		else if (this.curStateIndex % 3 == 2) {
+			this.changeActionButton.label = "卸下坐骑";
+
+			this.dragon1.removeSelf();
+			this.dragon2.removeSelf();
+
+			let linkNode = this.getAvatarNodeByNames(this.pangzi, "AvatarNode");
+			linkNode && linkNode.addChild(this.dragon2);
+			this.dragon2.transform.localPosition = new Vector3(-0.7, 0, 0);
+			this.dragon2.transform.localRotationEuler = new Vector3(0, 180, 95);
+			this.animator.play("ride");
+		}
+		else {
+			this.changeActionButton.label = "乘骑坐骑";
+			this.dragon1.removeSelf();
+			this.dragon2.removeSelf();
 			this.scene.addChild(this.role);
 			this.animator.play("hello");
 		}
 
 		label = this.changeActionButton.label
 		Client.instance.send({ type: "next", btype: this.btype, stype: 0, value: label });
+	}
+
+	getAvatarNodeByNames(target: Sprite3D, name: string): Sprite3D {
+		for (let i: number = 0; i < target.numChildren; i++) {
+			let child: Sprite3D = target.getChildAt(i) as Sprite3D;
+			if (child.name == name) {
+				return child;
+			}
+			let res = this.getAvatarNodeByNames(child, name);
+			if (res) {
+				return res;
+			}
+		}
 	}
 }
 
