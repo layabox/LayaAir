@@ -92,6 +92,7 @@ import "./loaders/HierarchyParserV2";
 import "./loaders/AvatarMaskLoader";
 import "./loaders/GLSLLoader";
 import "./loaders/AnimationControllerLoader";
+import "./core/scene/Input3D";
 import { Viewport } from "../maths/Viewport";
 
 let c = ClassUtils.regClass;
