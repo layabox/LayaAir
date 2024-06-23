@@ -40,8 +40,25 @@ export class WebGPURenderContext2D implements IRenderContext2D {
         this._clearColor = new Color();
         this._viewport = new Viewport();
     }
-    drawRenderElementList(list: FastSinglelist<IRenderElement2D>): number {
-        //TODO
+
+    drawRenderElementList(list: FastSinglelist<WebGPURenderElement2D>): number {
+        const len = list.length;
+        if (len === 0) return 0; //没有需要渲染的对象
+
+        if (this._needStart) {
+            this._start();
+            this._needStart = false;
+        }
+
+        //如果使用全局上下文，先清除上下文缓存
+        if (WebGPUGlobal.useGlobalContext)
+            WebGPUContext.startRender();
+
+        for (let i = 0, n = list.length; i < n; i++) {
+            list.elements[i].prepare(this);
+            list.elements[i].render(this, this.renderCommand);
+        }
+        this._submit();
         return 0;
     }
 

@@ -7,6 +7,7 @@ import { IRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass"
 import { RenderState } from "../../RenderModuleData/Design/RenderState";
 import { WebBaseRenderNode } from "../../RenderModuleData/WebModuleData/3D/WebBaseRenderNode";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
+import { WebGPUBuffer } from "../RenderDevice/WebGPUBuffer";
 import { WebGPURenderBundle } from "../RenderDevice/WebGPUBundle/WebGPURenderBundle";
 import { WebGPUCodeGenerator, WebGPUUniformMapType } from "../RenderDevice/WebGPUCodeGenerator";
 import { NameNumberMap } from "../RenderDevice/WebGPUCommon";
@@ -125,14 +126,6 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
         return { uniformMap, arrayMap };
     }
 
-    // _addShaderInstance(shader: WebGPUShaderInstance) {
-    //     this._shaderInstances.push(shader);
-    // }
-
-    // _clearShaderInstance() {
-    //     this._shaderInstances.length = 0;
-    // }
-
     /**
      * 渲染前更新
      * @param context 
@@ -155,7 +148,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
         //设定当前渲染数据
         this._sceneData = context.sceneData;
         this._cameraData = context.cameraData;
-        if (!this.renderShaderData) {
+        if (this.renderShaderData === undefined) {
             this.renderShaderData = WebGPURenderElement3D._renderShaderData;
             this.renderShaderData.destroy();
         }
@@ -241,13 +234,21 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
      * @param context 
      */
     protected _calcStateKey(shaderInstance: WebGPUShaderInstance, dest: WebGPUInternalRT, context: WebGPURenderContext3D) {
-        this._getBlendState(shaderInstance);
-        this._getDepthStencilState(shaderInstance, dest);
-        this._getCullFrontMode(this.materialShaderData, shaderInstance, this._invertFrontFace, context.invertY);
-        const primitiveState = WebGPUPrimitiveState.getGPUPrimitiveState(this.geometry.mode, this.frontFace, this.cullMode);
-        const bufferState = this.geometry.bufferState;
-        const depthStencilId = this.depthStencilState ? this.depthStencilState.id : -1;
-        return `${shaderInstance._id}_${primitiveState.key}_${this.blendState.key}_${depthStencilId}_${dest.formatId}_${bufferState.id}_${bufferState.updateBufferLayoutFlag}`;
+        //this._getBlendState(shaderInstance);
+        //this._getDepthStencilState(shaderInstance, dest);
+        //this._getCullFrontMode(this.materialShaderData, shaderInstance, this._invertFrontFace, context.invertY);
+        //const primitiveState = WebGPUPrimitiveState.getGPUPrimitiveState(this.geometry.mode, this.frontFace, this.cullMode);
+        //const bufferState = this.geometry.bufferState;
+        //const depthStencilId = this.depthStencilState ? this.depthStencilState.id : -1;
+        //return `${shaderInstance._id}_${primitiveState.key}_${this.blendState.key}_${depthStencilId}_${dest.formatId}_${bufferState.id}_${bufferState.updateBufferLayoutFlag}`;
+        //return `${shaderInstance._id}_${this.materialShaderData._stateKey}_${dest.formatId}_${bufferState.id}_${bufferState.updateBufferLayoutFlag}`;
+        let stateKey = '';
+        stateKey += dest.formatId + '_';
+        stateKey += shaderInstance._id + '_';
+        stateKey += this.materialShaderData.stateKey;
+        stateKey += this.geometry.bufferState.id + '_';
+        stateKey += this.geometry.bufferState.updateBufferLayoutFlag + '_';
+        return stateKey;
     }
 
     /**
@@ -601,6 +602,107 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
     }
 
     /**
+     * 转换数据格式
+     */
+    protected _changeDataFormat() {
+        const bufferState = this.geometry.bufferState;
+        for (let i = 0; i < bufferState._vertexBuffers.length; i++) {
+            const vb = bufferState._vertexBuffers[i];
+            const vs = bufferState.vertexState[i];
+            if (!vb.buffer) continue;
+            let attrOld = [], attrNew = [];
+            const attributes = vs.attributes as [];
+            const attrLen = attributes.length;
+            for (let j = 0; j < attrLen; j++) {
+                const attr = attributes[j] as GPUVertexAttribute;
+                attrOld.push({
+                    offset: attr.offset,
+                    format: attr.format,
+                });
+            }
+            for (let j = 0; j < attrLen; j++) {
+                const attr = attributes[j] as GPUVertexAttribute;
+                if (attr.format === 'uint8x4') {
+                    attr.format = 'float32x4';
+
+                    // for(let k in vb.vertexDeclaration._shaderValues) {
+                    //     const sv = vb.vertexDeclaration._shaderValues[k];
+                    //     if (sv.elementOffset === attr.offset)
+                    //         sv.elementString = 'vector4';
+                    //     if (sv.elementOffset > attr.offset)
+                    //         sv.elementOffset += 12;
+                    //     sv.vertexStride += 12;
+                    // }
+                    // //@ts-ignore
+                    // vb.vertexDeclaration._vertexStride += 12;
+
+                    for (let k = 0; k < attrLen; k++) {
+                        const attr2 = attributes[k] as GPUVertexAttribute;
+                        if (attr2.offset > attr.offset)
+                            attr2.offset += 12;
+                        attrNew.push({
+                            offset: attr2.offset,
+                            format: attr2.format,
+                        });
+                    }
+                    bufferState.updateBufferLayoutFlag++;
+                    const strideOld = vs.arrayStride;
+                    const vertexCount = vb.buffer.byteLength / vs.arrayStride;
+                    vs.arrayStride += 12;
+
+                    const strideNew = vs.arrayStride;
+                    const buffer = vb.buffer;
+                    vb.buffer = new ArrayBuffer(vs.arrayStride * vertexCount);
+                    const src_ui8 = new Uint8Array(buffer);
+                    const src_f32 = new Float32Array(buffer);
+                    const dst_ui8 = new Uint8Array(vb.buffer);
+                    const dst_f32 = new Float32Array(vb.buffer);
+                    let src_ui8_off1 = 0;
+                    let src_f32_off1 = 0;
+                    let dst_ui8_off1 = 0;
+                    let dst_f32_off1 = 0;
+                    let src_ui8_off2 = 0;
+                    let src_f32_off2 = 0;
+                    let dst_ui8_off2 = 0;
+                    let dst_f32_off2 = 0;
+                    //拷贝数据（按照新的数据布局）
+                    for (let k = 0; k < vertexCount; k++) {
+                        src_ui8_off1 = k * strideOld;
+                        src_f32_off1 = k * strideOld / 4;
+                        dst_ui8_off1 = k * strideNew;
+                        dst_f32_off1 = k * strideNew / 4;
+                        for (let l = 0; l < attrLen; l++) {
+                            if (attrOld[l].format === 'uint8x4') {
+                                if (l === j) {
+                                    src_ui8_off2 = src_ui8_off1 + attrOld[l].offset;
+                                    dst_f32_off2 = dst_f32_off1 + attrNew[l].offset / 4;
+                                    for (let m = 0; m < 4; m++)
+                                        dst_f32[dst_f32_off2 + m] = src_ui8[src_ui8_off2 + m];
+                                } else {
+                                    src_ui8_off2 = src_ui8_off1 + attrOld[l].offset;
+                                    dst_ui8_off2 = dst_ui8_off1 + attrNew[l].offset;
+                                    for (let m = 0; m < 4; m++)
+                                        dst_ui8[dst_ui8_off2 + m] = src_ui8[src_ui8_off2 + m];
+                                }
+                            } else {
+                                src_f32_off2 = src_f32_off1 + attrOld[l].offset / 4;
+                                dst_f32_off2 = dst_f32_off1 + attrNew[l].offset / 4;
+                                for (let m = 0; m < 4; m++)
+                                    dst_f32[dst_f32_off2 + m] = src_f32[src_f32_off2 + m];
+                            }
+                        }
+                    }
+                    vb.source = new WebGPUBuffer(vb.source._usage, vs.arrayStride * vertexCount);
+                    vb.source.setData(vb.buffer, 0);
+                    attrOld = attrNew;
+                    attrNew = [];
+                }
+            }
+            vb.buffer = null;
+        }
+    }
+
+    /**
      * 渲染
      * @param context 
      * @param command 
@@ -609,6 +711,10 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
     _render(context: WebGPURenderContext3D, command: WebGPURenderCommandEncoder, bundle: WebGPURenderBundle) {
         //如果command和bundle都是null，则只上传shaderData数据，不执行bindGroup操作
         let triangles = 0;
+        if (!this.geometry.checkDataFormat) {
+            this._changeDataFormat(); //转换数据格式
+            this.geometry.checkDataFormat = true;
+        }
         if (this.isRender) {
             let stateKey;
             for (let i = 0; i < this._passNum; i++) {

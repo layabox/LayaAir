@@ -64,6 +64,7 @@ export class SubMesh extends GeometryElement {
 		this._boneIndicesList = [];
 		this._subIndexBufferStart = [];
 		this._subIndexBufferCount = [];
+		this.bufferState = mesh._bufferState;
 	}
 
 	/**
@@ -119,7 +120,7 @@ export class SubMesh extends GeometryElement {
 				break;
 		}
 		this.clearRenderParams();
-		this.bufferState = mesh._bufferState;
+		
 		if (this._boneIndicesList && this._boneIndicesList.length > 1) {
 			for (var i: number = 0, n: number = this._boneIndicesList.length; i < n; i++) {
 				this.setDrawElemenParams(this._subIndexBufferCount[i], this._subIndexBufferStart[i] * byteCount);

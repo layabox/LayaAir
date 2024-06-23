@@ -897,7 +897,22 @@ ${textureGLSL_fs}
         //console.log(dstFS);
 
         //转译成WGSL代码
-        const wgsl_vs = this.naga.compileGLSL2WGSL(dstVS, 'vertex');
+        let wgsl_vs = this.naga.compileGLSL2WGSL(dstVS, 'vertex'); {
+            const regex: RegExp = /let\s+([_a-zA-Z][_a-zA-Z0-9]*)\s*=\s*textureSample\(([^)]+)\);/g;
+            let match;
+            while ((match = regex.exec(wgsl_vs)) !== null) {
+                const variable: string = match[1];
+                const argumentss = match[2].split(',');
+
+                const code = `
+    let ${variable}_1 = textureDimensions(${argumentss[0]}, 0);
+    let ${variable}_2 = vec2<u32>(u32(f32(${variable}_1.x) * ${argumentss[2]}.x), u32(f32(${variable}_1.y) * ${argumentss[2]}.y));
+    let ${variable} = textureLoad(${argumentss[0]}, ${variable}_2, 0);`;
+
+                wgsl_vs = wgsl_vs.replace(match[0], code);
+            }
+        }
+
         let wgsl_fs = this.naga.compileGLSL2WGSL(dstFS, 'fragment');
         const regex = /textureSampleBias/g; //替换textureSampleBias为textureSampleLevel
         wgsl_fs = wgsl_fs.replace(regex, 'textureSampleLevel');

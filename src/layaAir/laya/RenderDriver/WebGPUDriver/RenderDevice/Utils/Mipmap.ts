@@ -1,3 +1,4 @@
+//https://github.com/greggman/webgpu-utils
 import { isTypedArray } from "../WebGPUCommon";
 
 function guessTextureBindingViewDimensionForTexture(texture: GPUTexture): GPUTextureViewDimension {

@@ -241,6 +241,7 @@ export class WebGPURenderContext3D implements IRenderContext3D {
     drawRenderElementList(list: FastSinglelist<WebGPURenderElement3D>): number {
         const len = list.length;
         if (len === 0) return 0; //没有需要渲染的对象
+        //let tttt = performance.now();
         this._setScreenRT(); //如果没有渲染目标，则将屏幕作为渲染目标
         if (this._needStart) {
             this._start(); //为录制渲染命令做准备
@@ -266,7 +267,9 @@ export class WebGPURenderContext3D implements IRenderContext3D {
             elementsToBundleStatic = rbms.elementsToBundleStatic;
             elementsToBundleDynamic = rbms.elementsToBundleDynamic;
         }
+        //console.log('preTime =', (performance.now() - tttt), len);
 
+        //tttt = performance.now();
         let compile = false;
         let createBundleCount = 0;
         const elements = list.elements;
@@ -281,7 +284,9 @@ export class WebGPURenderContext3D implements IRenderContext3D {
                 }
             }
         }
+        //console.log('updateTime =', (performance.now() - tttt), len);
 
+        //tttt = performance.now();
         if (WebGPUGlobal.useBundle) { //启用绘图指令缓存模式
             const needRemoveBundle = this.needRemoveBundle;
             for (let i = 0, n = needRemoveBundle.length; i < n; i++) //如果有需要清除的绘图指令缓存，先清除
@@ -332,6 +337,12 @@ export class WebGPURenderContext3D implements IRenderContext3D {
         }
         this._submit(); //提交渲染命令
         WebGPUStatis.addRenderElement(list.length); //统计渲染节点数量
+        //console.log('renderTime =', (performance.now() - tttt), len);
+
+        // tttt = performance.now();
+        // for (let i = 0; i < len; i++)
+        //     elements[i]._stateCheck(this);
+        // console.log('stateTime =', (performance.now() - tttt), len);
         return 0;
     }
 

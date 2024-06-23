@@ -5,11 +5,12 @@ import { MeshSprite3DShaderDeclaration } from "../../../d3/core/MeshSprite3DShad
 import { RenderableSprite3D } from "../../../d3/core/RenderableSprite3D";
 import { SimpleSkinnedMeshSprite3D } from "../../../d3/core/SimpleSkinnedMeshSprite3D";
 import { SingletonList } from "../../../utils/SingletonList";
-import { IRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
+import { IInstanceRenderElement3D, IRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { BaseRenderType } from "../../RenderModuleData/Design/3D/I3DRenderModuleData";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
 import { WebGPUBufferState } from "../RenderDevice/WebGPUBufferState";
 import { WebGPURenderBundle } from "../RenderDevice/WebGPUBundle/WebGPURenderBundle";
+import { WebGPUInternalRT } from "../RenderDevice/WebGPUInternalRT";
 import { WebGPURenderCommandEncoder } from "../RenderDevice/WebGPURenderCommandEncoder";
 import { WebGPURenderGeometry } from "../RenderDevice/WebGPURenderGeometry";
 import { WebGPUShaderInstance } from "../RenderDevice/WebGPUShaderInstance";
@@ -25,8 +26,8 @@ export interface WebGPUInstanceStateInfo {
     simpleAnimatorVB?: WebGPUVertexBuffer;
 }
 
-export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D {
-    private static _instanceBufferStateMap: Map<number, WebGPUInstanceStateInfo[]> = new Map();
+export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D implements IInstanceRenderElement3D {
+    //private static _instanceBufferStateMap: Map<number, WebGPUInstanceStateInfo[]> = new Map();
 
     static getInstanceBufferState(geometry: WebGPURenderGeometry, renderType: number, spriteDefine: WebDefineDatas) {
         const _initStateInfo = (stateinfo: WebGPUInstanceStateInfo) => {
@@ -61,57 +62,43 @@ export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D {
             stateinfo.state.applyState(vertexArray, geometry.bufferState._bindedIndexBuffer);
         };
 
-        const stateInfos = this._instanceBufferStateMap.get(geometry._id);
-        if (!stateInfos) {
-            const stateInfo = { inUse: true, state: new WebGPUBufferState() };
-            _initStateInfo(stateInfo);
-            this._instanceBufferStateMap.set(geometry._id, [stateInfo]);
-            return stateInfo;
-        }
-        for (let i = stateInfos.length - 1; i > -1; i--) {
-            if (!stateInfos[i].inUse) {
-                stateInfos[i].inUse = true;
-                return stateInfos[i];
-            }
-        }
+        //const stateInfos = this._instanceBufferStateMap.get(geometry._id);
+        //if (!stateInfos) {
         const stateInfo = { inUse: true, state: new WebGPUBufferState() };
         _initStateInfo(stateInfo);
-        stateInfos.push(stateInfo);
+        //this._instanceBufferStateMap.set(geometry._id, [stateInfo]);
         return stateInfo;
+        //}
+        // for (let i = stateInfos.length - 1; i > -1; i--) {
+        //     if (!stateInfos[i].inUse) {
+        //         stateInfos[i].inUse = true;
+        //         return stateInfos[i];
+        //     }
+        // }
+        // const stateInfo = { inUse: true, state: new WebGPUBufferState() };
+        // _initStateInfo(stateInfo);
+        // stateInfos.push(stateInfo);
+        // return stateInfo;
     }
 
-    /**
-     * max instance count
-     */
     static MaxInstanceCount: number = 1024;
 
-    /**
-     * @internal
-     */
     private static _pool: WebGPUInstanceRenderElement3D[] = [];
     static create(): WebGPUInstanceRenderElement3D {
-        let element = this._pool.pop() || new WebGPUInstanceRenderElement3D();
-        return element;
+        return this._pool.pop() ?? new WebGPUInstanceRenderElement3D();
     }
 
-    /**
-     * pool of Buffer
-     * @internal
-     */
     private static _bufferPool: Map<number, Float32Array[]> = new Map();
-
     static _instanceBufferCreate(length: number): Float32Array {
         let array = this._bufferPool.get(length);
         if (!array) {
             this._bufferPool.set(length, []);
             array = this._bufferPool.get(length);
         }
-
-        const element = array.pop() || new Float32Array(length);
-        return element;
+        return array.pop() ?? new Float32Array(length);
     }
 
-    _instanceElementList: SingletonList<IRenderElement3D>;
+    instanceElementList: SingletonList<IRenderElement3D>;
 
     private _vertexBuffers: Array<WebGPUVertexBuffer> = [];
     private _updateData: Array<Float32Array> = [];
@@ -123,7 +110,7 @@ export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D {
     constructor() {
         super();
         this.objectName = 'WebGPUInstanceRenderElement3D';
-        this._instanceElementList = new SingletonList();
+        this.instanceElementList = new SingletonList();
         this.drawCount = 0;
         this.updateNums = 0;
         this.isRender = true;
@@ -138,6 +125,20 @@ export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D {
     getUpdateData(index: number, length: number): Float32Array {
         this._updateData[index] = WebGPUInstanceRenderElement3D._instanceBufferCreate(length);
         return this._updateData[index];
+    }
+
+    /**
+     * 计算状态值
+     * @param shaderInstance 
+     * @param dest 
+     * @param context 
+     */
+    protected _calcStateKey(shaderInstance: WebGPUShaderInstance, dest: WebGPUInternalRT, context: WebGPURenderContext3D) {
+        let stateKey = '';
+        stateKey += dest.formatId + '_';
+        stateKey += shaderInstance._id + '_';
+        stateKey += this.materialShaderData.stateKey;
+        return stateKey;
     }
 
     /**
@@ -203,7 +204,7 @@ export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D {
                 {
                     const worldMatrixData = this.getUpdateData(0, 16 * WebGPUInstanceRenderElement3D.MaxInstanceCount);
                     this.addUpdateBuffer(this._instanceStateInfo.worldInstanceVB, 16);
-                    const insBatches = this._instanceElementList;
+                    const insBatches = this.instanceElementList;
                     const elements = insBatches.elements;
                     const count = insBatches.length;
                     this.drawCount = count;
@@ -230,7 +231,7 @@ export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D {
                 {
                     const worldMatrixData = this.getUpdateData(0, 16 * WebGPUInstanceRenderElement3D.MaxInstanceCount);
                     this.addUpdateBuffer(this._instanceStateInfo.worldInstanceVB, 16);
-                    const insBatches = this._instanceElementList;
+                    const insBatches = this.instanceElementList;
                     const elements = insBatches.elements;
                     const count = insBatches.length;
                     this.drawCount = count;
@@ -274,7 +275,7 @@ export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D {
     protected _uploadGeometry(command: WebGPURenderCommandEncoder, bundle: WebGPURenderBundle) {
         for (let i = 0; i < this.updateNums; i++)
             this._vertexBuffers[i]?.setData(this._updateData[i].buffer, 0, 0, this.drawCount * this._updateDataNum[i] * 4);
-        super._uploadGeometry(command, bundle);
+        return super._uploadGeometry(command, bundle);
     }
 
     /**
@@ -297,7 +298,7 @@ export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D {
     recover() {
         WebGPUInstanceRenderElement3D._pool.push(this);
         this._instanceStateInfo.inUse = false;
-        this._instanceElementList.clear();
+        this.instanceElementList.clear();
     }
 
     /**
