@@ -141,8 +141,8 @@ export class CameraRay {
 	}
 
 	private onMouseDown(): void {
-		this.posX = this.point.x = Laya.stage.mouseX * Laya.stage.clientScaleX;
-		this.posY = this.point.y = Laya.stage.mouseY * Laya.stage.clientScaleY;
+		this.posX = this.point.x = Laya.stage.mouseX;
+		this.posY = this.point.y = Laya.stage.mouseY;
 		//产生射线
 		this.camera.viewportPointToRay(this.point, this._ray);
 		//拿到射线碰撞的物体

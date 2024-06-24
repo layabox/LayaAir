@@ -121,6 +121,7 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
             let ib = LayaGL.renderDeviceFactory.createIndexBuffer(BufferUsage.Dynamic);
             mesh.applyState([vb], ib)
             geo.indexFormat = IndexFormat.UInt16;
+            // geo.instanceCount = 
             geoResult = { geo, vb, ib };
             this.geoMap.set(type, geoResult);
         }
@@ -418,7 +419,7 @@ class RenderBake implements IRender {
     leave() {
         this._renderNode._spriteShaderData.removeDefine(SpineShaderInit.SPINE_SIMPLE);
         //this._renderNode._spriteShaderData.removeDefine(SpineShaderInit.SPINE_GPU_INSTANCE);
-        //this._renderNode._renderType =BaseRender2DType.spine;
+        this._renderNode._renderType =BaseRender2DType.spine;
     }
 
     change(currentRender: SkinRender, currentAnimation: AnimationRenderProxy) {
@@ -426,10 +427,10 @@ class RenderBake implements IRender {
         this.currentAnimation = currentAnimation;
         this._renderNode._spriteShaderData.addDefine(SpineShaderInit.SPINE_SIMPLE);
         this._simpleAnimatorOffset.x = this.aniOffsetMap[currentAnimation.name];
-        // if(currentAnimation.currentSKin.canInstance){
-        //     this._renderNode._renderType=BaseRender2DType.spineSimple;
-        //     this._renderNode._spriteShaderData.addDefine(SpineShaderInit.SPINE_GPU_INSTANCE);
-        // }
+        if(currentAnimation.currentSKin.canInstance){
+            this._renderNode._renderType = BaseRender2DType.spineSimple;
+           // this._renderNode._spriteShaderData.addDefine(SpineShaderInit.SPINE_GPU_INSTANCE);
+        }
     }
 
     /**
@@ -505,27 +506,9 @@ class SkinRender implements IVBIBUpdate {
         this.ib = geoResult.ib;
     }
 
-    getMaterial(texture: Texture, blendMode: number): Material {
-        let key = texture.id + "_" + blendMode;
-        let mat = SpineTemplet.materialMap.get(key);
-        if (!mat) {
-            mat = new Material();
-            mat.setShaderName("SpineStandard");
-            SpineShaderInit.initSpineMaterial(mat);
-            mat.setTextureByIndex(SpineShaderInit.SpineTexture, texture.bitmap);
-
-            SpineShaderInit.SetSpineBlendMode(blendMode, mat);
-            //mat.color = this.owner.spineColor;
-            //mat.setVector2("u_size",new Vector2(Laya.stage.width,Laya.stage.height));
-            mat._addReference();
-            SpineTemplet.materialMap.set(key, mat);
-        }
-        return mat;
-    }
-
     getMaterialByName(name: string, blendMode: number): Material {
         let texture = this.templet.getTexture(name).realTexture;
-        return this.getMaterial(texture, blendMode);
+        return this.templet.getMaterial(texture, blendMode);
     }
 
 
@@ -541,9 +524,10 @@ class SkinRender implements IVBIBUpdate {
         let ib = this.ib;
         let iblen = ibLength * 2;
         ib._setIndexDataLength(iblen)
-        ib._setIndexData(new Uint16Array(indexArray.buffer, 0, iblen / 2), 0)
+        ib._setIndexData(new Uint16Array(indexArray.buffer, 0, iblen / 2), 0);
         this.geo.clearRenderParams();
         this.geo.setDrawElemenParams(iblen / 2, 0);
+        this.ib.indexCount = iblen / 2;
         if (mutiRenderData) {
             let elementsCreator = this.elementsMap.get(mutiRenderData.id);
             if (!elementsCreator) {
@@ -560,7 +544,7 @@ class SkinRender implements IVBIBUpdate {
         if (this.hasNormalRender) {
             this._renerer = SpineAdapter.createNormalRender(templet, false);
         }
-        this.material = this.getMaterial(templet.mainTexture, 0);
+        this.material = templet.getMaterial(templet.mainTexture, 0);
     }
 
     render(time: number) {

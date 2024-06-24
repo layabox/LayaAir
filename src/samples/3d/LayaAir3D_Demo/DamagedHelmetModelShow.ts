@@ -51,10 +51,10 @@ export class DamagedHelmetModelShow {
 		Laya.init(0, 0).then(() => {
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
-			Scene3D.load("res/threeDimen/scene/LayaScene_DamagedHelmetScene/Conventional/DamagedHelmetScene.ls", Handler.create(this, function (scene: Scene3D): void {
+			Scene3D.load("res/threeDimen/LayaScene_DamagedHelmetScene/Conventional/Assets/DamagedHelmetScene.ls", Handler.create(this, function (scene: Scene3D): void {
 				Laya.stage.addChild(scene);
 
-				var damagedHelmet: MeshSprite3D = <MeshSprite3D>scene.getChildAt(1).getChildAt(0);
+				var damagedHelmet: MeshSprite3D = <MeshSprite3D>scene.getChildAt(2).getChildAt(0);
 				var rotationScript: RotationScript = damagedHelmet.addComponent(RotationScript);
 				rotationScript.model = damagedHelmet;
 
