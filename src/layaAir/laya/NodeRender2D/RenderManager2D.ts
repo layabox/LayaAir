@@ -163,14 +163,13 @@ export class RenderManager2D {
                 renderNode.preRenderUpdate(context);
             let n = renderNode._renderElements.length;
             if (n == 1) {
-                this._renderElementList.add(renderNode._renderElements[0]);
                 this._batchStart(renderNode._renderType, 1);
-
+                this._renderElementList.add(renderNode._renderElements[0]);
             } else {
+                this._batchStart(renderNode._renderType, n);
                 for (var i = 0; i < n; i++) {
                     this._renderElementList.add(renderNode._renderElements[i]);
                 }
-                this._batchStart(renderNode._renderType, n);
             }
         }
     }
@@ -187,8 +186,8 @@ export class RenderManager2D {
             if (info.batch) {
                 info.batchFun.batchRenderElement(this._renderElementList, info.indexStart, info.elementLenth);
             } else {
-                for (var i = info.indexStart, n = info.elementLenth + info.indexStart; i < n; i++)
-                    this._renderElementList.add(this._renderElementList.elements[i]);
+                for (let j = info.indexStart, m = info.elementLenth + info.indexStart; j < m; j++)
+                    this._renderElementList.add(this._renderElementList.elements[j]);
             }
         }
     }
@@ -204,7 +203,7 @@ export class RenderManager2D {
             this._lastbatch2DInfo.batchFun = RenderManager2D._batchMapManager[renderNodeType];
             this._lastbatch2DInfo.indexStart = 0;
             this._lastbatch2DInfo.elementLenth = elementLength;
-            this._lastRenderNodeType = renderNodeType
+            this._lastRenderNodeType = renderNodeType;
             return;
         }
         if (this._lastRenderNodeType == renderNodeType) {
@@ -217,6 +216,7 @@ export class RenderManager2D {
             this._lastbatch2DInfo.batchFun = RenderManager2D._batchMapManager[renderNodeType];
             this._lastbatch2DInfo.indexStart = this._renderElementList.length;
             this._lastbatch2DInfo.elementLenth = elementLength;
+            this._lastRenderNodeType = renderNodeType;
         }
     }
 
