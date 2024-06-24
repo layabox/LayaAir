@@ -11,6 +11,7 @@ import { ITextureContext } from "../../DriverDesign/RenderDevice/ITextureContext
 import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
 import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
 import { genMipmap } from "./Utils/Mipmap";
+import { doPremultiplyAlpha } from "./Utils/PreMultiplyAlpha";
 import { WebGPUInternalRT } from "./WebGPUInternalRT";
 import { WebGPUInternalTex } from "./WebGPUInternalTex";
 import { WebGPURenderEngine } from "./WebGPURenderEngine";
@@ -19,7 +20,7 @@ import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
 
 const WebGPUCubeMap = [4, 5, 0, 1, 2, 3];
 
-enum WebGPUTextureDimension {
+export enum WebGPUTextureDimension {
     D1D = "1d",
     D2D = "2d",
     D3D = "3d"
@@ -339,7 +340,6 @@ export class WebGPUTextureContext implements ITextureContext {
     }
 
     public getFormatPixelsParams(format: TextureFormat) {
-
         let formatParams: { channels: number, bytesPerPixel: number, dataTypedCons: any, typedSize: number } = {
             channels: 0,
             bytesPerPixel: 0,
@@ -681,6 +681,11 @@ export class WebGPUTextureContext implements ITextureContext {
 
         const device = WebGPURenderEngine._instance.getDevice();
         device.queue.writeTexture(imageCopy, source.buffer, dataLayout, size);
+
+        //PremultiplyAlpha
+        if (premultiplyAlpha)
+            doPremultiplyAlpha(device, texture, 0, 0, texture.width, texture.height);
+
         //Generate mipmap
         if (texture.mipmap)
             genMipmap(device, texture.resource);
@@ -711,6 +716,11 @@ export class WebGPUTextureContext implements ITextureContext {
 
         const device = WebGPURenderEngine._instance.getDevice();
         device.queue.writeTexture(imageCopy, source.buffer, dataLayout, size);
+
+        //PremultiplyAlpha
+        if (premultiplyAlpha)
+            doPremultiplyAlpha(device, texture, xOffset, yOffset, width, height);
+
         //Generate mipmap
         if (generateMipmap)
             genMipmap(device, texture.resource);
@@ -868,6 +878,11 @@ export class WebGPUTextureContext implements ITextureContext {
                 WebGPURenderEngine._instance.getDevice().queue.copyExternalImageToTexture(image, textureCopyView, copySize);
             }
         }
+
+        //PremultiplyAlpha
+        if (premultiplyAlpha)
+            doPremultiplyAlpha(WebGPURenderEngine._instance.getDevice(), texture as WebGPUInternalTex, 0, 0, texture.width, texture.height);
+
         //Generate mipmap
         if (texture.mipmap)
             genMipmap(WebGPURenderEngine._instance.getDevice(), texture.resource);
@@ -904,6 +919,11 @@ export class WebGPUTextureContext implements ITextureContext {
                 WebGPURenderEngine._instance.getDevice().queue.writeTexture(imageCopy, sourceData.buffer, dataLayout, size);
             }
         }
+
+        //PremultiplyAlpha
+        if (premultiplyAlpha)
+            doPremultiplyAlpha(WebGPURenderEngine._instance.getDevice(), texture as WebGPUInternalTex, 0, 0, texture.width, texture.height);
+
         //Generate mipmap
         if (texture.mipmap)
             genMipmap(WebGPURenderEngine._instance.getDevice(), texture.resource);
@@ -939,6 +959,12 @@ export class WebGPUTextureContext implements ITextureContext {
                 WebGPURenderEngine._instance.getDevice().queue.writeTexture(imageCopy, sourceData.buffer, dataLayout, size);
             }
         }
+
+        //PremultiplyAlpha
+        if (premultiplyAlpha)
+            doPremultiplyAlpha(WebGPURenderEngine._instance.getDevice(), texture, xOffset, yOffset, width, height);
+
+        //Generate mipmap
         if (texture.mipmap && generateMipmap)
             genMipmap(WebGPURenderEngine._instance.getDevice(), texture.resource);
     }
