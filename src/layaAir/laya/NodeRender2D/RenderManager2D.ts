@@ -88,7 +88,6 @@ export class RenderManager2D {
         this.list = new FastSinglelist<BaseRenderNode2D>();
         this._renderElementList = new FastSinglelist<IRenderElement2D>();
         this._batchInfoList = new FastSinglelist<Batch2DInfo>();
-        this._lastbatch2DInfo = Batch2DInfo.create();
     }
 
     /**
@@ -199,6 +198,7 @@ export class RenderManager2D {
      */
     private _batchStart(renderNodeType: number, elementLength: number) {
         if (this._lastRenderNodeType == -1) {
+            this._lastbatch2DInfo = Batch2DInfo.create();
             //first renderNode
             this._lastbatch2DInfo.batch = false;
             this._lastbatch2DInfo.batchFun = RenderManager2D._batchMapManager[renderNodeType];
