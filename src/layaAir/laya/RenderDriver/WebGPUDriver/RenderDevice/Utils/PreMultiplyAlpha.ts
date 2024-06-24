@@ -10,17 +10,17 @@ function guessTextureBindingViewDimensionForTexture(texture: GPUTexture): GPUTex
             return '1d';
         case '3d':
             return '3d';
-        default: // to shut up TS
+        default:
         case '2d':
             return texture.depthOrArrayLayers > 1 ? '2d-array' : '2d';
     }
 }
 
 function getGPUTextureDescriptor(dimension: TextureDimension,
-    width: number, height: number, gpuFormat: WebGPUTextureFormat): GPUTextureDescriptor {
+    width: number, height: number, format: WebGPUTextureFormat): GPUTextureDescriptor {
     const textureSize = {
-        width: width,
-        height: height,
+        width,
+        height,
         depthOrArrayLayers: 1,
     };
     let usage = GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.COPY_SRC;
@@ -43,7 +43,7 @@ function getGPUTextureDescriptor(dimension: TextureDimension,
         mipLevelCount: 1,
         sampleCount: 1,
         dimension: dimensionType,
-        format: gpuFormat,
+        format,
         usage,
     }
     return textureDescriptor;
@@ -133,7 +133,7 @@ function getPremultiplyAlphaWGSL(textureBindingViewDimension: GPUTextureViewDime
           let xy1 = pos1[vertexIndex];
           let xy2 = pos2[vertexIndex];
           vsOutput.position = vec4f(xy1, 0.0, 1.0);
-          vsOutput.texcoord = xy2 * vec2f(0.5, 0.5) + vec2f(0.5);
+          vsOutput.texcoord = xy2 * vec2f(0.5) + vec2f(0.5);
           return vsOutput;
         }
 
@@ -157,15 +157,14 @@ function getPremultiplyAlphaWGSL(textureBindingViewDimension: GPUTextureViewDime
 const byDevice = new WeakMap();
 
 /**
- * Generates mip levels from level 0 to the last mip for an existing texture
- *
- * The texture must have been created with TEXTURE_BINDING and RENDER_ATTACHMENT
- * and been created with mip levels
+ * 对贴图中的像素做预乘处理
  *
  * @param device A GPUDevice
- * @param texture The texture to create mips for
- * @param textureBindingViewDimension This is only needed in compatibility mode
- *   and it is only needed when the texture is going to be used as a cube map.
+ * @param tex The texture to premultiply Alpha
+ * @param xOffset horizon offset
+ * @param yOffset vertical offset
+ * @param width 
+ * @param height 
  */
 export function doPremultiplyAlpha(device: GPUDevice, tex: WebGPUInternalTex,
     xOffset: number, yOffset: number, width: number, height: number) {
@@ -177,7 +176,7 @@ export function doPremultiplyAlpha(device: GPUDevice, tex: WebGPUInternalTex,
     const wx = width / tw * 2.0;
     const wy = height / th * 2.0;
     const textureDescriptor = getGPUTextureDescriptor(tex.dimension, width, height, tex._webGPUFormat);
-    const textureTemp = device.createTexture(textureDescriptor);
+    const textureTemp = device.createTexture(textureDescriptor); //创建一个临时贴图
     let perDeviceInfo = byDevice.get(device);
     if (!perDeviceInfo) {
         perDeviceInfo = {
@@ -220,7 +219,6 @@ export function doPremultiplyAlpha(device: GPUDevice, tex: WebGPUInternalTex,
     }
 
     const id = `${texture.format}.${textureBindingViewDimension}`;
-
     if (!pipelineByFormatAndView[id]) {
         pipelineByFormatAndView[id] = device.createRenderPipeline({
             label: `premultiplyAlpha pipeline for ${textureBindingViewDimension}`,
