@@ -338,6 +338,8 @@ export class WebGPURenderEngine implements IRenderEngine {
 
     /**获得各个参数 */
     getParams(params: RenderParams): number {
+        if (params === RenderParams.MAX_Texture_Size)
+            return 4096;
         return 0;
     }
 

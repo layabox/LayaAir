@@ -156,7 +156,7 @@ export class WebGPUTextureContext implements ITextureContext {
     needBitmap: boolean;
 
     createTexture3DInternal(dimension: TextureDimension, width: number, height: number, depth: number, format: TextureFormat, generateMipmap: boolean, sRGB: boolean, premultipliedAlpha: boolean): InternalTexture {
-        return null;
+        return this.createTextureInternal(dimension, width, height, format, generateMipmap, sRGB, premultipliedAlpha);
     }
     setTexture3DImageData(texture: InternalTexture, source: HTMLImageElement[] | HTMLCanvasElement[] | ImageBitmap[], depth: number, premultiplyAlpha: boolean, invertY: boolean): void {
         return null;

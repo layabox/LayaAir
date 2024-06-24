@@ -165,7 +165,7 @@ export class WebGPUCodeGenerator {
                 if (!_have(sprite2DUniforms, name))
                     sprite2DUniforms.push({ name, type, set: 2 });
             }
-            else if (type === "sampler2D" || type === "samplerCube") {
+            else if (type === 'sampler2D' || type === 'samplerCube' || type === 'sampler2DArray') {
                 if (!_have(textureUniforms, name))
                     textureUniforms.push({ name, type, set: 3 });
             }
@@ -196,7 +196,7 @@ export class WebGPUCodeGenerator {
                 for (let i = 0, len = uniforms.length; i < len; i++) {
                     const nameStr = uniforms[i].name;
                     const typeStr = uniforms[i].type;
-                    if (typeStr === 'sampler2D' || typeStr === 'samplerCube')
+                    if (typeStr === 'sampler2D' || typeStr === 'samplerCube' || typeStr === 'sampler2DArray')
                         textureUniforms.push({ name: nameStr, type: typeStr, set });
                     else sortedUniforms[this._getAttributeS2N(typeStr)].push({ name: nameStr, type: typeStr, set });
                 }
@@ -211,7 +211,7 @@ export class WebGPUCodeGenerator {
                     const typeStr = this._getAttributeT2S(data[key].uniformtype);
                     if (data[key].propertyName.indexOf('.') !== -1) continue;
                     if (typeStr === '') continue;
-                    else if (typeStr === 'sampler2D' || typeStr === 'samplerCube')
+                    else if (typeStr === 'sampler2D' || typeStr === 'samplerCube' || typeStr === 'sampler2DArray')
                         textureUniforms.push({ name: nameStr, type: typeStr, set });
                     else sortedUniforms[this._getAttributeS2N(typeStr)].push({ name: nameStr, type: typeStr, set });
                 }
@@ -309,7 +309,7 @@ export class WebGPUCodeGenerator {
                 if (!_have(sprite3DUniforms, name))
                     sprite3DUniforms.push({ name, type, set: 2 });
             }
-            else if (type === "sampler2D" || type === "samplerCube") {
+            else if (type === 'sampler2D' || type === 'samplerCube' || type === 'sampler2DArray') {
                 if (!_have(textureUniforms, name))
                     textureUniforms.push({ name, type, set: 3 });
             }
@@ -348,7 +348,7 @@ export class WebGPUCodeGenerator {
                 for (let i = 0, len = uniforms.length; i < len; i++) {
                     const nameStr = uniforms[i].name;
                     const typeStr = uniforms[i].type;
-                    if (typeStr === 'sampler2D' || typeStr === 'samplerCube')
+                    if (typeStr === 'sampler2D' || typeStr === 'samplerCube' || typeStr === 'sampler2DArray')
                         textureUniforms.push({ name: nameStr, type: typeStr, set });
                     else sortedUniforms[this._getAttributeS2N(typeStr)].push({ name: nameStr, type: typeStr, set });
                 }
@@ -363,7 +363,7 @@ export class WebGPUCodeGenerator {
                     const typeStr = this._getAttributeT2S(data[key].uniformtype);
                     if (data[key].propertyName.indexOf('.') !== -1) continue;
                     if (typeStr === '') continue;
-                    else if (typeStr === 'sampler2D' || typeStr === 'samplerCube')
+                    else if (typeStr === 'sampler2D' || typeStr === 'samplerCube' || typeStr === 'sampler2DArray')
                         textureUniforms.push({ name: nameStr, type: typeStr, set });
                     else sortedUniforms[this._getAttributeS2N(typeStr)].push({ name: nameStr, type: typeStr, set });
                 }
@@ -463,6 +463,31 @@ export class WebGPUCodeGenerator {
                         name: `${tu.name}Texture`,
                         propertyId: Shader3D.propertyNameToID(tu.name),
                         texture: { sampleType: 'float', viewDimension: 'cube', multisampled: false },
+                    } as WebGPUUniformPropertyBindingInfo);
+                }
+                if (tu.type === 'sampler2DArray') {
+                    res = `${res}layout(set = ${tu.set}, binding = ${binding[tu.set]++}) uniform sampler ${tu.name}Sampler;\n`;
+                    res = `${res}layout(set = ${tu.set}, binding = ${binding[tu.set]++}) uniform texture2DArray ${tu.name}Texture;\n`;
+                    res = `${res}#define ${tu.name} sampler2DArray(${tu.name}Texture, ${tu.name}Sampler)\n\n`;
+                    uniformInfo.push({
+                        id: WebGPUGlobal.getUniformInfoId(),
+                        set: tu.set,
+                        binding: binding[tu.set] - 2,
+                        visibility,
+                        type: WebGPUBindingInfoType.sampler,
+                        name: `${tu.name}Sampler`,
+                        propertyId: Shader3D.propertyNameToID(tu.name),
+                        sampler: { type: 'filtering' },
+                    } as WebGPUUniformPropertyBindingInfo);
+                    uniformInfo.push({
+                        id: WebGPUGlobal.getUniformInfoId(),
+                        set: tu.set,
+                        binding: binding[tu.set] - 1,
+                        visibility,
+                        type: WebGPUBindingInfoType.texture,
+                        name: `${tu.name}Texture`,
+                        propertyId: Shader3D.propertyNameToID(tu.name),
+                        texture: { sampleType: 'float', viewDimension: '2d', multisampled: false },
                     } as WebGPUUniformPropertyBindingInfo);
                 }
             }
@@ -667,6 +692,8 @@ mat4 inverse(mat4 m)
                 return 'sampler2D';
             case ShaderDataType.TextureCube:
                 return 'samplerCube';
+            case ShaderDataType.Texture2DArray:
+                return 'sampler2DArray';
             default:
                 return '';
         }
@@ -698,6 +725,8 @@ mat4 inverse(mat4 m)
                 return ShaderDataType.Texture2D;
             case 'samplerCube':
                 return ShaderDataType.TextureCube;
+            case 'sampler2DArray':
+                return ShaderDataType.Texture2DArray;
             default:
                 return '';
         }
@@ -748,6 +777,8 @@ mat4 inverse(mat4 m)
         const varyingMapVS: NameStringMap = {};
         const varyingMapFS: NameStringMap = {};
         const clusterSlices = Config3D.lightClusterCount;
+
+        //defineString.push('GRAPHICS_API_GLES3');
 
         let defineStr: string = '';
         defineStr += '#define MAX_LIGHT_COUNT ' + Config3D.maxLightCount + '\n';
@@ -893,8 +924,8 @@ ${textureGLSL_fs}
         //合并成完整的GLSL4.5代码
         let dstVS = vertexHead + procVS.glslCode;
         let dstFS = fragmentHead + procFS.glslCode;
-        //console.log(dstVS);
-        //console.log(dstFS);
+        console.log(dstVS);
+        console.log(dstFS);
 
         //转译成WGSL代码
         let wgsl_vs = this.naga.compileGLSL2WGSL(dstVS, 'vertex'); {
@@ -942,6 +973,8 @@ ${textureGLSL_fs}
             } else uniformMapEx[key] = { name: key, type: uniformMap[key] as ShaderDataType };
         }
 
+        //defineString.push('GRAPHICS_API_GLES3');
+
         const defMap: NameBooleanMap = {};
         for (let i = defineString.length - 1; i > -1; i--)
             defMap[defineString[i]] = true;
@@ -960,6 +993,7 @@ ${textureGLSL_fs}
             defMap['GL_FRAGMENT_PRECISION_HIGH'] = true;
             WebGPUShaderCompileUtil.toScript(token, defMap, vsTod);
             if (vsTod.uniform) {
+                console.log(vsTod.uniform);
                 for (const key in vsTod.uniform) {
                     if (!uniformMapEx[key]) {
                         if (vsTod.uniform[key].length && vsTod.uniform[key].length[0]) {
@@ -985,6 +1019,7 @@ ${textureGLSL_fs}
             defMap['GL_FRAGMENT_PRECISION_HIGH'] = true;
             WebGPUShaderCompileUtil.toScript(token, defMap, fsTod);
             if (fsTod.uniform) {
+                console.log(fsTod.uniform);
                 for (const key in fsTod.uniform) {
                     if (!uniformMapEx[key]) {
                         if (fsTod.uniform[key].length && fsTod.uniform[key].length[0]) {
