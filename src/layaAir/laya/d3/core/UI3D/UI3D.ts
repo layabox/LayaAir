@@ -26,6 +26,7 @@ import { Vector4 } from "../../../maths/Vector4";
 import { LayaEnv } from "../../../../LayaEnv";
 import { IRenderContext3D } from "../../../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
 import { RenderState } from "../../../RenderDriver/RenderModuleData/Design/RenderState";
+import { LayaGL } from "../../../layagl/LayaGL";
 
 /**
  * <code>BaseCamera</code> 类用于创建摄像机的父类。
@@ -260,14 +261,17 @@ export class UI3D extends BaseRender {
     private _resizeRT() {
         let width = this._size.x * this._resolutionRate;
         let height = this._size.y * this._resolutionRate;
+
+        let invertY = !LayaGL.renderEngine._screenInvertY;
+
         if (!this._rendertexure2D) {
             this._rendertexure2D = new RenderTexture2D(width, height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None);
-            this._rendertexure2D._invertY = true;
+            this._rendertexure2D._invertY = invertY;
         } else {
             if (this._rendertexure2D.width != width || this._rendertexure2D.height != height) {
                 this._rendertexure2D.destroy();
                 this._rendertexure2D = new RenderTexture2D(width, height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None);
-                this._rendertexure2D._invertY = true;
+                this._rendertexure2D._invertY = invertY;
                 this._setMaterialTexture();
             }
         }
