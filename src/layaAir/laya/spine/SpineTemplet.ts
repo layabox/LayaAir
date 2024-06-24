@@ -19,7 +19,7 @@ export class SpineTemplet extends Resource {
 
     public skeletonData: spine.SkeletonData;
 
-    static materialMap: Map<string, Material> = new Map();
+    materialMap: Map<string, Material> = new Map();
 
     private _textures: Record<string, SpineTexture>;
     private _basePath: string;
@@ -59,23 +59,23 @@ export class SpineTemplet extends Resource {
         return this._basePath;
     }
 
-    getMaterial(texture: Texture, blendMode: number, renderNode: Spine2DRenderNode): Material {
-        let mat: Material;
-        if (renderNode._materials.length <= renderNode._renderElements.length) {
-            //默认给一个新的Mateiral
+    getMaterial(texture: Texture, blendMode: number): Material {
+        let key = texture.id + "_" + blendMode;
+        let mat = this.materialMap.get(key);
+        if (!mat) {
             mat = new Material();
-            SpineShaderInit.initSpineMaterial(mat);
             mat.setShaderName("SpineStandard");
+            SpineShaderInit.initSpineMaterial(mat);
+            mat.setTextureByIndex(SpineShaderInit.SpineTexture, texture.bitmap);
 
-            //renderNode._materials.push(mat);
-        } else {
-            mat = renderNode._materials[renderNode._renderElements.length];
+            SpineShaderInit.SetSpineBlendMode(blendMode, mat);
+            //mat.color = this.owner.spineColor;
+            //mat.setVector2("u_size",new Vector2(Laya.stage.width,Laya.stage.height));
+            mat._addReference();
+            this.materialMap.set(key, mat);
         }
-        SpineShaderInit.SetSpineBlendMode(blendMode, mat);
-        mat.setTextureByIndex(SpineShaderInit.SpineTexture, texture.bitmap);
         return mat;
     }
-
 
     getTexture(name: string): SpineTexture {
         return this._textures[name];
@@ -179,18 +179,16 @@ export class SpineTemplet extends Resource {
             let tex = this._textures[k].realTexture;
             if (tex) {
                 tex._removeReference();
-                for (let i = 0; i < 4; i++) {
-                    let key = tex.id + "_" + i;
-                    let mat = SpineTemplet.materialMap.get(key);
-                    if (mat) {
-                        mat._removeReference();
-                        SpineTemplet.materialMap.delete(key);
-                    }
-                }
             }
         }
-
-
-
+        if (this._referenceCount <= 0) {
+            this.materialMap.forEach(value => {
+                value._removeReference();
+            })
+            this.materialMap.clear();
+        }
+        else {
+            console.error("SpineTemplet is using");
+        }
     }
 }

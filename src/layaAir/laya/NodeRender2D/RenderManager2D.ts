@@ -8,7 +8,10 @@ import { BaseRenderNode2D } from "./BaseRenderNode2D";
 export interface IBatch2DRender {
     /**合批范围，合批的RenderElement2D直接add进list中 */
     batchRenderElement(list: FastSinglelist<IRenderElement2D>, start: number, length: number): void;
+
+    recover():void;
 }
+
 export class Batch2DInfo {
     batchFun: IBatch2DRender = null;
     batch: boolean = false;
@@ -85,7 +88,6 @@ export class RenderManager2D {
         this.list = new FastSinglelist<BaseRenderNode2D>();
         this._renderElementList = new FastSinglelist<IRenderElement2D>();
         this._batchInfoList = new FastSinglelist<Batch2DInfo>();
-        this._lastbatch2DInfo = Batch2DInfo.create();
     }
 
     /**
@@ -111,7 +113,11 @@ export class RenderManager2D {
         this._list.clear();
         this._renderElementList.clear();
         for (var i = 0, n = this._batchInfoList.length; i < n; i++) {
-            Batch2DInfo.recover(this._batchInfoList.elements[i]);
+            let element = this._batchInfoList.elements[i];
+            if (element.batch) {
+                element.batchFun.recover();
+            }
+            Batch2DInfo.recover(element);
         }
         this._batchInfoList.clear();
     }
@@ -192,6 +198,7 @@ export class RenderManager2D {
      */
     private _batchStart(renderNodeType: number, elementLength: number) {
         if (this._lastRenderNodeType == -1) {
+            this._lastbatch2DInfo = Batch2DInfo.create();
             //first renderNode
             this._lastbatch2DInfo.batch = false;
             this._lastbatch2DInfo.batchFun = RenderManager2D._batchMapManager[renderNodeType];
