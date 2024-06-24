@@ -59,6 +59,7 @@ export class LensFlareCMD extends Command {
      */
     private _initMaterial() {
         this._materials = new Material();
+        this._materials.lock = true;
         this._materials.setShaderName("LensFlare");
         this._materials.materialRenderMode = MaterialRenderMode.RENDERMODE_ADDTIVE;
         this._materials.depthTest = RenderState.DEPTHTEST_ALWAYS;
@@ -66,7 +67,6 @@ export class LensFlareCMD extends Command {
         this._renderElement.material = this._materials;
         //this._renderElement.renderSubShader = this._materials.shader.getSubShaderAt(0);
         this._renderElement.subShaderIndex = 0;
-
     }
 
     /**@internal */
@@ -122,7 +122,7 @@ export class LensFlareCMD extends Command {
         var context = RenderContext3D._instance;
         this._materials.setFloat("u_aspectRatio", context.camera.viewport.height / context.camera.viewport.width);
         context.applyContext(Camera._updateMark);
-        //context.drawRenderElement(this._renderElement);
+        context.drawRenderElement(this._renderElement._renderElementOBJ);
         Stat.blitDrawCall++;
     }
 
@@ -137,6 +137,7 @@ export class LensFlareCMD extends Command {
      * @internal
      */
     destroy(): void {
-        //TODO
+        this._materials.lock = false;
+        this._materials.destroy();
     }
 }
