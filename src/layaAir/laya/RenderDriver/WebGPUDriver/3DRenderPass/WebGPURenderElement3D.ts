@@ -235,7 +235,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
      */
     protected _calcStateKey(shaderInstance: WebGPUShaderInstance, dest: WebGPUInternalRT, context: WebGPURenderContext3D) {
         //this._getBlendState(shaderInstance);
-        //this._getDepthStencilState(shaderInstance, dest);
+        this._getDepthStencilState(shaderInstance, dest); //更新Stencil信息
         //this._getCullFrontMode(this.materialShaderData, shaderInstance, this._invertFrontFace, context.invertY);
         //const primitiveState = WebGPUPrimitiveState.getGPUPrimitiveState(this.geometry.mode, this.frontFace, this.cullMode);
         //const bufferState = this.geometry.bufferState;
