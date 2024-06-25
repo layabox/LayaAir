@@ -44,8 +44,8 @@ export class PostProcess_LensFlare {
 
             //初始化平行光
             let directlightSprite = new Sprite3D();
-			let dircom = directlightSprite.addComponent(DirectionLightCom);
-			scene.addChild(directlightSprite);
+            let dircom = directlightSprite.addComponent(DirectionLightCom);
+            scene.addChild(directlightSprite);
             //设置平行光的方向
             var mat: Matrix4x4 = directlightSprite.transform.worldMatrix;
             mat.setForward(new Vector3(1, -1, 0));
@@ -54,17 +54,17 @@ export class PostProcess_LensFlare {
             camera.transform.rotationEuler = new Vector3(34.9, 107.24, 0);
             camera.transform.position = new Vector3(4.92, -0.74, -3.6);
             // 预加载使用的图片资源
-            Laya.loader.load(["res/threeDimen/skinModel/dude/dude.lh", "res/1.png", "res/2.png", "res/3.png", "res/7.png", "res/8.png", "res/9.png"], Handler.create(this, () => {
+            Laya.loader.load(["res/threeDimen/skinModel/dude/dude.lh", "res/lensFlare/1.png", "res/lensFlare/2.png", "res/lensFlare/3.png", "res/lensFlare/7.png", "res/lensFlare/8.png", "res/lensFlare/9.png"], Handler.create(this, () => {
                 //添加人物
                 var dude: Sprite3D = (<Sprite3D>scene.addChild(Loader.createNodes("res/threeDimen/skinModel/dude/dude.lh")));
                 dude.transform.rotate(new Vector3(0, 3.14, 0));
 
-                let tex1 = Laya.loader.getRes("res/1.png") as Texture2D;
-                let tex2 = Laya.loader.getRes("res/2.png") as Texture2D;
-                let tex3 = Laya.loader.getRes("res/3.png") as Texture2D;
-                let tex7 = Laya.loader.getRes("res/7.png") as Texture2D;
-                let tex8 = Laya.loader.getRes("res/8.png") as Texture2D;
-                let tex9 = Laya.loader.getRes("res/9.png") as Texture2D;
+                let tex1 = Laya.loader.getRes("res/lensFlare/1.png") as Texture2D;
+                let tex2 = Laya.loader.getRes("res/lensFlare/2.png") as Texture2D;
+                let tex3 = Laya.loader.getRes("res/lensFlare/3.png") as Texture2D;
+                let tex7 = Laya.loader.getRes("res/lensFlare/7.png") as Texture2D;
+                let tex8 = Laya.loader.getRes("res/lensFlare/8.png") as Texture2D;
+                let tex9 = Laya.loader.getRes("res/lensFlare/9.png") as Texture2D;
 
                 let postprocess = camera.postProcess = new PostProcess();
                 let lensFlare = new LensFlareEffect();

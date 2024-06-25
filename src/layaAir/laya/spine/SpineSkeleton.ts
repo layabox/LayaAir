@@ -1,3 +1,4 @@
+import { HideFlags } from "../Const";
 import { Sprite } from "../display/Sprite";
 import { Timer } from "../utils/Timer";
 import { ExternalSkin } from "./ExternalSkin";
@@ -32,6 +33,7 @@ export class SpineSkeleton extends Sprite {
     constructor() {
         super();
         this._spineComponent = this.addComponent(Spine2DRenderNode);
+        this._spineComponent.hideFlags |= HideFlags.HideAndDontSave;
     }
 
     /**

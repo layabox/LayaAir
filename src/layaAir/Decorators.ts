@@ -20,6 +20,10 @@ export interface FPropertyDescriptor {
      * 如果不提供type，表示只用于ui样式，没有实际对应数据，和不会序列化
      */
     type: FPropertyType;
+
+    /** 该属性在原型中的初始值。这个值也用于序列化时比较，如果相同则不序列化这个属性，所以必须保证这里设置的值就是类中变量的初始值。*/
+    default?: any;
+
     /** 标题。如果不提供，则使用name。 */
     caption: string;
     /** 提示文字 */
@@ -79,8 +83,6 @@ export interface FPropertyDescriptor {
     serializable: boolean;
     /** 属性在不参与序列化时，如果它的数据可能受其他可序列化的属性影响，在这里填写其他属性名称。这通常用于判断预制体属性是否覆盖。*/
     affectBy: string;
-    /** 默认值。这个值只在面板中使用，它指从界面上创建对象时赋予属性的初始值。*/
-    init: any;
 
     /** 是否多行文本输入 */
     multiline: boolean;
@@ -199,6 +201,8 @@ export interface FTypeDescriptor {
      * 默认为false。
      */
     structLike: boolean;
+    /** 初始值。这个值只在面板中使用，它指从界面上创建对象时赋予属性的初始值。*/
+    init: any;
     /** 属性列表 */
     properties: Array<Partial<FPropertyDescriptor>>;
     /** 编辑这个类实例的控件 */
