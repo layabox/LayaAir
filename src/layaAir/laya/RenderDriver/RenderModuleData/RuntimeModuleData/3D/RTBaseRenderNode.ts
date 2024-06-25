@@ -197,6 +197,9 @@ export class RTBaseRenderNode implements IBaseRenderNode {
     }
 
     _nativeObj: any;
+    /**@internal */
+    _defaultBaseGeometryBounds: Bounds;
+
     //create runtime Node
     protected _getNativeObj() {
         this._nativeObj = new (window as any).conchRTBaseRenderNode();
@@ -204,6 +207,8 @@ export class RTBaseRenderNode implements IBaseRenderNode {
 
     constructor() {
         this._getNativeObj();
+        this._defaultBaseGeometryBounds = new Bounds();
+        this.baseGeometryBounds = this._defaultBaseGeometryBounds;
         this.renderelements = [];
     }
 
