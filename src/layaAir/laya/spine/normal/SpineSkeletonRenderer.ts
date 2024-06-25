@@ -412,7 +412,7 @@ export class SpineSkeletonRenderer extends SpineNormalRenderBase implements ISpi
 
                 if (needNewMat) {
                     mesh && mesh.draw();
-                    let mat = this.templet.getMaterial(texture.realTexture, blendMode, renderNode);
+                    let mat = renderNode.getMaterial(texture.realTexture, blendMode);
                     mesh = this.nextBatch(mat, renderNode) as SpineVirtualMesh;
                     mesh.clear();
                 }

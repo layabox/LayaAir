@@ -19,28 +19,57 @@ export class SpineInstanceBatch implements IBatch2DRender{
     /** @internal */
     static instance: SpineInstanceBatch;
 
-    _recoverList = new FastSinglelist();
+    _recoverList = new FastSinglelist<IRenderElement2D>();
+
+    /**
+     * 
+     * @param left 
+     * @param right 
+     */
+    check(left:IRenderElement2D , right:IRenderElement2D):boolean{
+        if (left.materialShaderData != right.materialShaderData
+            || left.geometry.instanceCount
+            || right.geometry.instanceCount
+            // || !left.value2DShaderData.hasDefine(SpineShaderInit.SPINE_GPU_INSTANCE)
+            // || !right.value2DShaderData.hasDefine(SpineShaderInit.SPINE_GPU_INSTANCE)
+        )
+            return false
+
+        return true
+    }
 
     batchRenderElement(list: FastSinglelist<IRenderElement2D>, start: number, length: number): void {
         let elementArray = list.elements;
-        let lastElement:IRenderElement2D = null;
-        let batchLength = 0;
+        let batchStart = -1;
         for (let i = 0; i < length - 1; i++) {
             let index = start + i;
             let cElement = elementArray[index];
             let nElement = elementArray[index + 1];
             
-            cElement.materialShaderData
+            if(this.check(cElement , nElement)){
+                if (batchStart == -1 ) {
+                    batchStart = i;
+                }
+            }else{
+                if (batchStart != -1 ) {
+                    this.batch(list , batchStart + start , i - batchStart);
+                }
+
+                batchStart = 0;
+            }
         }
-        //
+
+        if (batchStart != -1 ) {
+            this.batch(list , batchStart + start , length - batchStart);
+        }
         
     }
 
-    updateBuffer(info:SpineInstanceInfo,nMatrixData:Float32Array , simpleAnimatorData : Float32Array , instanceCount:number){
+    updateBuffer(info:SpineInstanceInfo , nMatrixData:Float32Array , simpleAnimatorData : Float32Array , instanceCount:number){
         let nMatrixInstanceVB = info.nMatrixInstanceVB;
         let simpleAnimatorVB = info.simpleAnimatorVB;
         
-        nMatrixInstanceVB.setData(nMatrixData.buffer, 0, 0, instanceCount * 8 * 4);
+        nMatrixInstanceVB.setData(nMatrixData.buffer, 0, 0, instanceCount * 6 * 4);
 
         simpleAnimatorVB.setData(simpleAnimatorData.buffer, 0, 0, instanceCount * 4 * 4);
     }
@@ -53,16 +82,20 @@ export class SpineInstanceBatch implements IBatch2DRender{
         //  Simple Animator Params Length = 4;
         // let insBatches = this._instanceElementList;
 
-        let nMatrixData: Float32Array = SpineInstanceElement2DTool._instanceBufferCreate( 8 * SpineInstanceElement2DTool.MaxInstanceCount);
+        let nMatrixData: Float32Array = SpineInstanceElement2DTool._instanceBufferCreate( 6 * SpineInstanceElement2DTool.MaxInstanceCount);
         let simpleAnimatorData: Float32Array = SpineInstanceElement2DTool._instanceBufferCreate( 4 * SpineInstanceElement2DTool.MaxInstanceCount);
 
         let state:IBufferState , info:SpineInstanceInfo;
+
+        let instanceCount = 0;
         for (let i = 0; i < length; i++) {
             let element = elementArray[start + i];
             let shaderData = element.value2DShaderData;;
             if (!instanceElement) {
                 instanceElement = SpineInstanceElement2DTool.create();
+                this._recoverList.add(instanceElement);
                 geometry = instanceElement.geometry;
+                instanceCount = geometry.instanceCount = 0;
                 let originGeo = element.geometry;
                 info = SpineInstanceElement2DTool.getInstanceInfo(originGeo);
                 state = info.state;
@@ -90,19 +123,22 @@ export class SpineInstanceBatch implements IBatch2DRender{
                 instanceElement.materialShaderData = element.materialShaderData;
                 instanceElement.value2DShaderData = element.value2DShaderData;
                 instanceElement.renderStateIsBySprite = element.renderStateIsBySprite;
+
+                instanceElement.value2DShaderData.addDefine(SpineShaderInit.SPINE_GPU_INSTANCE)
             }
 
             let nMatrixBuffer = shaderData.getBuffer(SpineShaderInit.NMatrix);
-            nMatrixData.set(nMatrixBuffer, i * 8);    
+            nMatrixData.set(nMatrixBuffer, instanceCount * 6);    
             //simpleAnimationData
             let simpleAnimatorParams = shaderData.getVector(SpineShaderInit.SIMPLE_SIMPLEANIMATORPARAMS);
-            let offset: number = i * 4;
+            let offset: number = instanceCount * 4;
             simpleAnimatorData[offset] = simpleAnimatorParams.x;
             simpleAnimatorData[offset + 1] = simpleAnimatorParams.y;
             simpleAnimatorData[offset + 2] = simpleAnimatorParams.z;
             simpleAnimatorData[offset + 3] = simpleAnimatorParams.w;
 
-            geometry.instanceCount ++;
+            instanceCount ++;
+            geometry.instanceCount = instanceCount;
             if (geometry.instanceCount == SpineInstanceElement2DTool.MaxInstanceCount) {
                 this.updateBuffer(info , nMatrixData , simpleAnimatorData , geometry.instanceCount);
                 list.add(instanceElement);
@@ -114,9 +150,24 @@ export class SpineInstanceBatch implements IBatch2DRender{
 
         if (instanceElement) {
             this.updateBuffer(info , nMatrixData , simpleAnimatorData , geometry.instanceCount);
+            list.add(instanceElement);
         }
+
+        SpineInstanceElement2DTool._instanceBufferRecover(nMatrixData);
+        SpineInstanceElement2DTool._instanceBufferRecover(simpleAnimatorData);
     }
 
+
+    recover(): void {
+        let length = this._recoverList.length;
+        let recoverArray = this._recoverList.elements;
+        for (let i = 0; i < length; i++) {
+            let element = recoverArray[i];
+            element.value2DShaderData.removeDefine(SpineShaderInit.SPINE_GPU_INSTANCE);
+            SpineInstanceElement2DTool.recover(element);
+        }
+        this._recoverList.length = 0;
+    }
 }
 
 Laya.addAfterInitCallback(function() {
@@ -185,6 +236,14 @@ export class SpineInstanceElement2DTool{
         return element;
     }
 
+    static recover(element:IRenderElement2D){
+        element.value2DShaderData = null;
+        element.materialShaderData = null;
+        element.subShader = null;
+        element.geometry.clearRenderParams();
+        this._pool.push(element);
+    }
+
     /**
      * pool of Buffer
      * @internal
@@ -201,6 +260,14 @@ export class SpineInstanceElement2DTool{
         return element;
     }
 
+    static _instanceBufferRecover(float32:Float32Array){
+        let length = float32.length;
+        let array = SpineInstanceElement2DTool._bufferPool[length];
+        if (!array) {
+            array = SpineInstanceElement2DTool._bufferPool[length] = [];
+        }
+        array.push(float32);
+    }
     // geometry: IRenderGeometryElement;
     // materialShaderData: ShaderData;
     // value2DShaderData: ShaderData;

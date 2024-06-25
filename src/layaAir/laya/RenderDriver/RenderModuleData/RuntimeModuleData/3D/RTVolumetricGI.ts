@@ -17,7 +17,7 @@ export class RTVolumetricGI implements IVolumetricGIData {
     }
     public set irradiance(value: InternalTexture) {
         this._irradiance = value;
-        this._nativeObj.setIrradiance((value as any)._nativeObj);
+        this._nativeObj.setIrradiance(value ? (value as any)._nativeObj : null);
     }
     private _distance: InternalTexture;
     public get distance(): InternalTexture {
@@ -25,7 +25,7 @@ export class RTVolumetricGI implements IVolumetricGIData {
     }
     public set distance(value: InternalTexture) {
         this._distance = value;
-        this._nativeObj.setDistance((value as any)._nativeObj);
+        this._nativeObj.setDistance(value ? (value as any)._nativeObj : null);
     }
     private _bound: Bounds;
     public get bound(): Bounds {
@@ -33,7 +33,7 @@ export class RTVolumetricGI implements IVolumetricGIData {
     }
     public set bound(value: Bounds) {
         this._bound = value;
-       this._nativeObj.setBounds(value._imp._nativeObj);
+       this._nativeObj.setBounds(value ? value._imp._nativeObj : null);
     }
     public get intensity(): number {
         return this._nativeObj._intensity;
@@ -52,8 +52,13 @@ export class RTVolumetricGI implements IVolumetricGIData {
     /**@internal */
     _nativeObj: any;
 
+    /**@internal */
+    _defaultBounds: Bounds;
+
     constructor() {
         this._nativeObj = new (window as any).conchRTVolumetricGI();
+        this._defaultBounds = new Bounds();
+        this.bound = this._defaultBounds;
     }
 
     setParams(value: Vector4): void {

@@ -49,29 +49,31 @@ export class Main {
     static isWXAPP: boolean = false;
     private _isReadNetWorkRes: boolean = true;
     static isOpenSocket: boolean = false;
-
+    private _singleDemo: any;
     /**
      * @param is3D true为3d, false为2d
      * @param isReadNetWorkRes true从网络读取资源，false从本地目录读取资源(bin/res)。
+     * @param singleDemo  单个Demo入口
      */
-    constructor(is3D: boolean = true, isReadNetWorkRes: boolean = false) {
-        if(!LayaEnv.isConch || (LayaEnv.isConch && (window as any).conchConfig.getGraphicsAPI() == 2)){
-			LayaGL.unitRenderModuleDataFactory = new WebUnitRenderModuleDataFactory();
-			LayaGL.renderDeviceFactory = new WebGLRenderDeviceFactory();
-			Laya3DRender.renderOBJCreate = new LengencyRenderEngine3DFactory();
-			Laya3DRender.Render3DModuleDataFactory = new Web3DRenderModuleFactory();
-			Laya3DRender.Render3DPassFactory = new WebGL3DRenderPassFactory();
-			LayaGL.renderOBJCreate = new WebGLRenderEngineFactory();
-			LayaGL.render2DRenderPassFactory = new WebGLRender2DProcess()
-		}else{
-			LayaGL.unitRenderModuleDataFactory = new RTUintRenderModuleDataFactory();
-			LayaGL.renderDeviceFactory = new GLESRenderDeviceFactory();
-			Laya3DRender.renderOBJCreate = new LengencyRenderEngine3DFactory();
-			Laya3DRender.Render3DModuleDataFactory = new RT3DRenderModuleFactory();
-			Laya3DRender.Render3DPassFactory = new GLES3DRenderPassFactory();
-			LayaGL.renderOBJCreate = new GLESRenderEngineFactory();
-			LayaGL.render2DRenderPassFactory = new GLESRender2DProcess()
-		}
+    constructor(is3D: boolean = true, isReadNetWorkRes: boolean = false, singleDemo?: any) {
+        this._singleDemo = singleDemo;
+        if (!LayaEnv.isConch || (LayaEnv.isConch && (window as any).conchConfig.getGraphicsAPI() == 2)) {
+            LayaGL.unitRenderModuleDataFactory = new WebUnitRenderModuleDataFactory();
+            LayaGL.renderDeviceFactory = new WebGLRenderDeviceFactory();
+            Laya3DRender.renderOBJCreate = new LengencyRenderEngine3DFactory();
+            Laya3DRender.Render3DModuleDataFactory = new Web3DRenderModuleFactory();
+            Laya3DRender.Render3DPassFactory = new WebGL3DRenderPassFactory();
+            LayaGL.renderOBJCreate = new WebGLRenderEngineFactory();
+            LayaGL.render2DRenderPassFactory = new WebGLRender2DProcess()
+        } else {
+            LayaGL.unitRenderModuleDataFactory = new RTUintRenderModuleDataFactory();
+            LayaGL.renderDeviceFactory = new GLESRenderDeviceFactory();
+            Laya3DRender.renderOBJCreate = new LengencyRenderEngine3DFactory();
+            Laya3DRender.Render3DModuleDataFactory = new RT3DRenderModuleFactory();
+            Laya3DRender.Render3DPassFactory = new GLES3DRenderPassFactory();
+            LayaGL.renderOBJCreate = new GLESRenderEngineFactory();
+            LayaGL.render2DRenderPassFactory = new GLESRender2DProcess()
+        }
         Laya.init(this._is3D ? 0 : 1280, this._is3D ? 0 : 720).then(() => {
             if (!this._is3D) {
                 Laya.stage.scaleMode = Stage.SCALE_FIXED_AUTO;
@@ -120,18 +122,28 @@ export class Main {
             //Layaair1.0-2d
             Main.box2D = new Sprite();
             Laya.stage.addChild(Main.box2D);
-            Main._indexView = new IndexView2D(Main.box2D, Main);
+            if (this._singleDemo) {
+                new this._singleDemo(Main);
+                return;
+            } else {
+                Main._indexView = new IndexView2D(Main.box2D, Main);
+            }
         } else {
             //Layaair1.0-3d
             Main.box3D = new Sprite();
             Laya.stage.addChild(Main.box3D);
-            Main._indexView = new IndexView3D();
+            if (this._singleDemo) {
+                new this._singleDemo();
+                return;
+            } else {
+                Main._indexView = new IndexView3D();
+            }
         }
-
         Laya.stage.addChild(Main._indexView);
         Main._indexView.left = 10;
         Main._indexView.bottom = (window as any).viewtop || 50;
         Main._indexView.mouseEnabled = Main._indexView.mouseThrough = true;
         Main._indexView.switchFunc(0, 0);//切换到指定case
+
     }
 }
