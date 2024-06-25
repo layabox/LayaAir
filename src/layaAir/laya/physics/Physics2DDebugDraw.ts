@@ -1,4 +1,5 @@
 
+import { LayaEnv } from "../../LayaEnv";
 import { Graphics } from "../display/Graphics"
 import { Sprite } from "../display/Sprite"
 import { Vector2 } from "../maths/Vector2";
@@ -91,6 +92,7 @@ export class Physics2DDebugDraw extends Sprite {
      * @override
     */
     render(ctx: Context, x: number, y: number): void {
+        if(!LayaEnv.isPlaying) return;
         this._renderToGraphic();
         super.render(ctx, x, y);
     }
