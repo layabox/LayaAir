@@ -302,6 +302,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
      */
     protected init(templet: SpineTemplet): void {
         if (this._templet) {
+            this.clear();
             this.reset();
             //this.graphics.clear();
         }
