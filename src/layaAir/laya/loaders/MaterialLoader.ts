@@ -73,4 +73,4 @@ export class MaterialLoader implements IResourceLoader {
     }
 }
 
-Loader.registerLoader(["lmat"], MaterialLoader, Loader.MATERIAL);
+Loader.registerLoader(["lmat"], MaterialLoader, Loader.MATERIAL, true);
