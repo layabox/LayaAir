@@ -302,7 +302,7 @@ export class SkinAniRenderData {
             let myChangeVB: IVBChange[] = this.changeVB = [];
             for (let i = 0, n = changeVB.length; i < n; i++) {
                 let changeVBItem = changeVB[i].clone();
-                if (changeVBItem.initChange(mainVB)) {
+                if (changeVBItem.initChange(this.vb)) {
                     myChangeVB.push(changeVBItem);
                 }
             }
