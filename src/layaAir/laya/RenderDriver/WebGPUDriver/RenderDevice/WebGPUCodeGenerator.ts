@@ -922,8 +922,8 @@ ${textureGLSL_fs}
         //合并成完整的GLSL4.5代码
         let dstVS = vertexHead + procVS.glslCode;
         let dstFS = fragmentHead + procFS.glslCode;
-        console.log(dstVS);
-        console.log(dstFS);
+        //console.log(dstVS);
+        //console.log(dstFS);
 
         //转译成WGSL代码
         let wgsl_vs = this.naga.compileGLSL2WGSL(dstVS, 'vertex'); {
