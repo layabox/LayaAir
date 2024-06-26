@@ -29,9 +29,6 @@ export class LensFlareElement {
     /**@internal active*/
     private _active: boolean = true;
 
-    /**@internal type*/
-    private _type: string = "Image";
-
     /**@internal tintColor */
     private _tint: Color = new Color(1, 1, 1, 1);
 
@@ -324,7 +321,7 @@ export class LensFlareEffect extends PostProcessEffect {
                 cmdEle.scale = scale;
                 this._flareCMDS[i].applyElementData();
             }
-            cmd.addCustomCMD(this._flareCMDS[i]);
+            this._flareCMDS[i].run(cmd);
         }
         this._needUpdate = false;
     }

@@ -78,6 +78,7 @@ export class LensFlareElementGeomtry extends GeometryElement {
         //VAO
         this.bufferState = new BufferState();
         this.bufferState.applyState([this._vertexBuffer, this._instanceVertexBuffer], this._indexBuffer);
+        this._updateRenderParams(null);
     }
 
     /**

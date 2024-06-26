@@ -27,6 +27,8 @@ import { ShaderData, ShaderDataType } from "../../../../RenderDriver/DriverDesig
 import { ShaderDefine } from "../../../../RenderDriver/RenderModuleData/Design/ShaderDefine";
 import { SetRTCMD } from "./SetRenderTargetCMD";
 import { IRenderCMD } from "../../../../RenderDriver/DriverDesign/3DRenderPass/IRendderCMD";
+import { RenderElement } from "../RenderElement";
+import { DrawRenderElementCMD } from "./DrawRenderElemenetCMD";
 
 /**
  * <code>CommandBuffer</code> 类用于创建命令流。
@@ -379,6 +381,15 @@ export class CommandBuffer {
 		cmd.getRenderCMD && this._renderCMDs.push(cmd.getRenderCMD());
 	}
 
+	/**
+	 * 渲染一个RenderElement
+	 * @param renderElement 
+	 */
+	drawRenderElement(renderElement: RenderElement) {
+		let cmd = DrawRenderElementCMD.create(renderElement);
+		this._commands.push(cmd);
+		cmd.getRenderCMD && this._renderCMDs.push(cmd.getRenderCMD());
+	}
 
 	/**
 	 * 使用instance动态合批的方式渲染一个Mesh

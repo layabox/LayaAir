@@ -8,11 +8,11 @@ import { Camera } from "../../../Camera";
 import { Transform3D } from "../../../Transform3D";
 import { RenderContext3D } from "../../RenderContext3D";
 import { RenderElement } from "../../RenderElement";
-import { Command } from "../../command/Command";
+import { CommandBuffer } from "../../command/CommandBuffer";
 import { LensFlareElement, LensFlareEffect } from "./LensFlareEffect";
 import { LensFlareElementGeomtry } from "./LensFlareGeometry";
 
-export class LensFlareCMD extends Command {
+export class LensFlareCMD {
 
     /**@internal geoemtry */
     private _lensFlareGeometry: LensFlareElementGeomtry;
@@ -45,9 +45,9 @@ export class LensFlareCMD extends Command {
      * instance CMD
      */
     constructor() {
-        super();
         this._transform3D = Laya3DRender.Render3DModuleDataFactory.createTransform(null);
         this._renderElement = new RenderElement();
+        this._renderElement._renderElementOBJ.isRender = true;
         this._lensFlareGeometry = new LensFlareElementGeomtry();
         this._renderElement.setTransform(this._transform3D);
         this._renderElement.setGeometry(this._lensFlareGeometry);
@@ -118,12 +118,10 @@ export class LensFlareCMD extends Command {
      * @inheritDoc
      * @override
      */
-    run(): void {
+    run(cmd: CommandBuffer): void {
         var context = RenderContext3D._instance;
         this._materials.setFloat("u_aspectRatio", context.camera.viewport.height / context.camera.viewport.width);
-        context.applyContext(Camera._updateMark);
-        context.drawRenderElement(this._renderElement._renderElementOBJ);
-        Stat.blitDrawCall++;
+        cmd.drawRenderElement(this._renderElement);
     }
 
     /**
