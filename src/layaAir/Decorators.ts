@@ -1,3 +1,4 @@
+import { Loader } from "./laya/net/Loader";
 import { ClassUtils } from "./laya/utils/ClassUtils";
 
 export type FEnumDescriptor = {
@@ -251,3 +252,15 @@ export function allowMultiple(constructor: Function): void {
  * @param info 属性的类型，如: Number,"number",[Number],["Record", Number]等。或传递对象描述详细信息，例如{ type: "string", multiline: true }。
  */
 export function property(info: FPropertyType | Partial<FPropertyDescriptor>): any { return dummy; }
+
+/**
+ * 注册一种资源装载器。
+ * @param fileExtensions 扩展名
+ * @param type 类型标识。如果这种资源需要支持识别没有扩展名的情况，或者一个扩展名对应了多种资源类型的情况，那么指定type参数是个最优实践。
+ * @param hotReloadable 是否支持热重载
+ */
+export function regLoader(fileExtensions: string[], type?: string, hotReloadable?: boolean) {
+    return function (constructor: Function) {
+        Loader.registerLoader(fileExtensions, <any>constructor, type, hotReloadable);
+    };
+}
