@@ -14,9 +14,18 @@ export class WebGPURenderPassHelper {
         const desc = rt._renderBundleDescriptor;
         const colorFormats = desc.colorFormats as GPUTextureFormat[];
         colorFormats.length = rt._textures.length;
-        for (let i = 0, len = rt._textures.length; i < len; i++)
-            colorFormats[i] = rt._textures[i]._webGPUFormat;
-        desc.depthStencilFormat = rt._depthTexture ? rt._depthTexture._webGPUFormat : undefined;
+        for (let i = 0, len = rt._textures.length; i < len; i++) {
+            if (rt._textures[0]._webGPUFormat === 'depth16unorm'
+                || rt._textures[0]._webGPUFormat === 'depth24plus-stencil8'
+                || rt._textures[0]._webGPUFormat === 'depth32float') {
+                colorFormats[i] = rt._depthTexture._webGPUFormat;
+            } else colorFormats[i] = rt._textures[i]._webGPUFormat;
+        }
+        if (rt._textures[0]._webGPUFormat === 'depth16unorm'
+            || rt._textures[0]._webGPUFormat === 'depth24plus-stencil8'
+            || rt._textures[0]._webGPUFormat === 'depth32float') {
+            desc.depthStencilFormat = rt._textures[0]._webGPUFormat;
+        } else desc.depthStencilFormat = rt._depthTexture ? rt._depthTexture._webGPUFormat : undefined;
         desc.sampleCount = rt._samples;
         return desc;
     }

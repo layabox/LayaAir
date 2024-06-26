@@ -241,7 +241,6 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
         //const bufferState = this.geometry.bufferState;
         //const depthStencilId = this.depthStencilState ? this.depthStencilState.id : -1;
         //return `${shaderInstance._id}_${primitiveState.key}_${this.blendState.key}_${depthStencilId}_${dest.formatId}_${bufferState.id}_${bufferState.updateBufferLayoutFlag}`;
-        //return `${shaderInstance._id}_${this.materialShaderData._stateKey}_${dest.formatId}_${bufferState.id}_${bufferState.updateBufferLayoutFlag}`;
         let stateKey = '';
         stateKey += dest.formatId + '_';
         stateKey += shaderInstance._id + '_';
@@ -652,11 +651,11 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
 
                     const strideNew = vs.arrayStride;
                     const buffer = vb.buffer;
-                    vb.buffer = new ArrayBuffer(vs.arrayStride * vertexCount);
+                    const buffer2 = new ArrayBuffer(vs.arrayStride * vertexCount);
                     const src_ui8 = new Uint8Array(buffer);
                     const src_f32 = new Float32Array(buffer);
-                    const dst_ui8 = new Uint8Array(vb.buffer);
-                    const dst_f32 = new Float32Array(vb.buffer);
+                    const dst_ui8 = new Uint8Array(buffer2);
+                    const dst_f32 = new Float32Array(buffer2);
                     let src_ui8_off1 = 0;
                     let src_f32_off1 = 0;
                     let dst_ui8_off1 = 0;
@@ -693,12 +692,11 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
                         }
                     }
                     vb.source = new WebGPUBuffer(vb.source._usage, vs.arrayStride * vertexCount);
-                    vb.source.setData(vb.buffer, 0);
+                    vb.source.setData(buffer2, 0);
                     attrOld = attrNew;
                     attrNew = [];
                 }
             }
-            vb.buffer = null;
         }
     }
 
