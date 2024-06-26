@@ -53,8 +53,8 @@ export class PickPixel {
         this._sp.graphics.clear();
         this._sp.x = Laya.stage.mouseX;
         this._sp.y = Laya.stage.mouseY;
-        var posX: number = Laya.stage.mouseX / Laya.stage.clientScaleX;
-        var posY: number = Laya.stage.mouseY / Laya.stage.clientScaleY;
+        var posX: number = Laya.stage.mouseX;
+        var posY: number = Laya.stage.mouseY;
         var out = new Uint8Array(4);
         this.renderTargetCamera.renderTarget.getDataAsync(posX, posY, 1, 1, out).then((out: Uint8Array) => {
             this.text.text = out[0] + " " + out[1] + " " + out[2] + " " + out[3];

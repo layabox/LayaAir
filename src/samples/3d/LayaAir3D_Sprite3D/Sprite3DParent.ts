@@ -55,7 +55,7 @@ export class Sprite3DParent {
 			directlightSprite.transform.rotate(new Vector3(-3.14 / 3, 0, 0));
 
 			//预加载所有资源
-			var resource: any[] = ["res/threeDimen/skinModel/LayaMonkey2/LayaMonkey.lh", "res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh"];
+			var resource: any[] = ["res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh"];
 			Laya.loader.load(resource, Handler.create(this, this.onPreLoadFinish));
 		});
 	}
