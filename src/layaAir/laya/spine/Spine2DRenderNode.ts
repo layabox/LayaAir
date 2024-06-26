@@ -26,6 +26,7 @@ import { ClassUtils } from "../utils/ClassUtils";
 import { SpineNormalRender } from "./optimize/SpineNormalRender";
 import { SketonOptimise } from "./optimize/SketonOptimise";
 import { Texture } from "../resource/Texture";
+import { SpineEmptyRender } from "./optimize/SpineEmptyRender";
 
 
 /**动画开始播放调度
@@ -123,6 +124,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
         super();
         this._renderElements = [];
         this._materials = [];
+        this.spineItem = SpineEmptyRender.instance;
     }
 
     /**
@@ -696,7 +698,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
     }
 
     onDestroy(): void {
-        if(this._templet){
+        if (this._templet) {
             this.reset();
         }
         this.spineItem.destroy();
@@ -750,7 +752,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
         let mat: Material;
         if (this._materials.length <= this._renderElements.length) {
             //默认给一个新的Mateiral
-            mat = this.templet.getMaterial(texture,blendMode);
+            mat = this.templet.getMaterial(texture, blendMode);
             //renderNode._materials.push(mat);
         } else {
             mat = this._materials[this._renderElements.length];

@@ -2115,7 +2115,7 @@ export class Sprite extends Node {
         x = point.x;
         y = point.y;
         var rect: IHitArea = this._style.hitArea ? this._style.hitArea : (this._isWidthSet && this._isHeightSet) ? Rectangle.TEMP.setTo(0, 0, this._width, this._height) : this.getSelfBounds();
-        return rect.contains(x, y);
+        return rect.contains(x, y, this);
     }
 
     /**

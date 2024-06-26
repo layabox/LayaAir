@@ -52,7 +52,7 @@ export class SpineInstanceBatch implements IBatch2DRender{
                 }
             }else{
                 if (batchStart != -1 ) {
-                    this.batch(list , batchStart , i - batchStart);
+                    this.batch(list , batchStart + start , i - batchStart);
                 }
 
                 batchStart = 0;
@@ -60,7 +60,7 @@ export class SpineInstanceBatch implements IBatch2DRender{
         }
 
         if (batchStart != -1 ) {
-            this.batch(list , batchStart , length - batchStart);
+            this.batch(list , batchStart + start , length - batchStart);
         }
         
     }

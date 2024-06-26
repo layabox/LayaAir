@@ -187,6 +187,11 @@ export class VolumetricGI extends Volume {
         this._dataModule.updateMark = ILaya3D.Scene3D._updateMark;
     }
 
+    _reCaculateBoundBox(): void {
+        super._reCaculateBoundBox();
+        this.bounds.cloneTo(this._dataModule.bound);
+    }
+
     /**
      * @internal
      */

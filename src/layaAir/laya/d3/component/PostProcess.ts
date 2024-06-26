@@ -292,6 +292,7 @@ export class PostProcess {
         for (; i >= 0; i--) {
             this.removeEffect(this.effects[i]);
         }
+        this._effects.length = 0;
     }
 
     /**
