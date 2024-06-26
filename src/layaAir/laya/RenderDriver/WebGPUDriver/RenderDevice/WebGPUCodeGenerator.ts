@@ -778,8 +778,6 @@ mat4 inverse(mat4 m)
         const varyingMapFS: NameStringMap = {};
         const clusterSlices = Config3D.lightClusterCount;
 
-        //defineString.push('GRAPHICS_API_GLES3');
-
         let defineStr: string = '';
         defineStr += '#define MAX_LIGHT_COUNT ' + Config3D.maxLightCount + '\n';
         defineStr += '#define MAX_LIGHT_COUNT_PER_CLUSTER ' + Config3D._maxAreaLightCountPerClusterAverage + '\n';
@@ -973,8 +971,6 @@ ${textureGLSL_fs}
             } else uniformMapEx[key] = { name: key, type: uniformMap[key] as ShaderDataType };
         }
 
-        //defineString.push('GRAPHICS_API_GLES3');
-
         const defMap: NameBooleanMap = {};
         for (let i = defineString.length - 1; i > -1; i--)
             defMap[defineString[i]] = true;
@@ -993,7 +989,6 @@ ${textureGLSL_fs}
             defMap['GL_FRAGMENT_PRECISION_HIGH'] = true;
             WebGPUShaderCompileUtil.toScript(token, defMap, vsTod);
             if (vsTod.uniform) {
-                console.log(vsTod.uniform);
                 for (const key in vsTod.uniform) {
                     if (!uniformMapEx[key]) {
                         if (vsTod.uniform[key].length && vsTod.uniform[key].length[0]) {
@@ -1019,7 +1014,6 @@ ${textureGLSL_fs}
             defMap['GL_FRAGMENT_PRECISION_HIGH'] = true;
             WebGPUShaderCompileUtil.toScript(token, defMap, fsTod);
             if (fsTod.uniform) {
-                console.log(fsTod.uniform);
                 for (const key in fsTod.uniform) {
                     if (!uniformMapEx[key]) {
                         if (fsTod.uniform[key].length && fsTod.uniform[key].length[0]) {
