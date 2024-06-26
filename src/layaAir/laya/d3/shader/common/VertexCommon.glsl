@@ -42,7 +42,9 @@ vec4 getVertexPosition()
 
     #ifdef MORPHTARGETS
 	#ifdef MORPHTARGETS_POSITION
+    #ifdef GRAPHICS_API_GLES3
     position.xyz = positionMorph(position.xyz);
+    #endif // GRAPHICS_API_GLES3
 	#endif // MORPHTARGETS_POSITION
     #endif // MORPHTARGETS
 
@@ -54,7 +56,9 @@ vec3 getVertexNormal()
     vec3 normal = a_Normal.xyz;
     #ifdef MORPHTARGETS
 	#ifdef MORPHTARGETS_NORMAL
+    #ifdef GRAPHICS_API_GLES3
     normal.xyz = normalMorph(normal);
+    #endif // GRAPHICS_API_GLES3
 	#endif // MORPHTARGETS_NORMAL
     #endif // MORPHTARGETS
 
@@ -67,9 +71,11 @@ vec4 getVertexTangent()
     vec4 tangent = a_Tangent0;
 
 	#ifdef MORPHTARGETS
-	    #ifdef MORPHTARGETS_TANGENT
+	#ifdef MORPHTARGETS_TANGENT
+    #ifdef GRAPHICS_API_GLES3
     tangent = tangentMorph(tangent);
-	    #endif // MORPHTARGETS_TANGENT
+    #endif // GRAPHICS_API_GLES3
+	#endif // MORPHTARGETS_TANGENT
 	#endif // MORPHTARGETS
 
     return tangent;
