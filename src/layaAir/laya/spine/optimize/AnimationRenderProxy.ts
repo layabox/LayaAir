@@ -2,7 +2,7 @@ import { AnimationRender, SkinAniRenderData } from "./AnimationRender";
 import { IVBIBUpdate } from "./interface/IVBIBUpdate";
 
 export class AnimationRenderProxy {
-    state:spine.AnimationState;
+    state: spine.AnimationState;
     currentTime: number;
     currentFrameIndex: number;
     animator: AnimationRender;
@@ -18,7 +18,7 @@ export class AnimationRenderProxy {
         this.currentSKin = this.animator.skinDataArray[value];
     }
 
-    get name(){
+    get name() {
         return this.animator.name;
     }
 
@@ -26,7 +26,7 @@ export class AnimationRenderProxy {
         this.currentTime = -1;
         this.currentFrameIndex = -2;
     }
-    renderWithOutMat(slots: spine.Slot[], updator: IVBIBUpdate, curTime: number){
+    renderWithOutMat(slots: spine.Slot[], updator: IVBIBUpdate, curTime: number) {
         let beforeFrame = this.currentFrameIndex;
         let nowFrame = this.animator.getFrameIndex(curTime, beforeFrame);
         let currentSKin = this.currentSKin;
@@ -37,15 +37,15 @@ export class AnimationRenderProxy {
         if (nowFrame != beforeFrame) {
             //TODO
             let ib = currentSKin.getIB(nowFrame);
-            updator.updateIB(ib.realIb, ib.realIb.length, currentSKin.mutiRenderAble?ib.outRenderData:null);
+            updator.updateIB(ib.realIb, ib.realIb.length, ib.outRenderData, currentSKin.mutiRenderAble);
             this.currentTime = curTime;
             this.currentFrameIndex = nowFrame;
         }
     }
 
-    render(bones: spine.Bone[], slots: spine.Slot[], updator: IVBIBUpdate, curTime: number,boneMat:Float32Array) {
+    render(bones: spine.Bone[], slots: spine.Slot[], updator: IVBIBUpdate, curTime: number, boneMat: Float32Array) {
         //debugger;
-        this.renderWithOutMat(slots,updator,curTime);
-        this.currentSKin.updateBoneMat(curTime,this.animator,bones,this.state,boneMat);
+        this.renderWithOutMat(slots, updator, curTime);
+        this.currentSKin.updateBoneMat(curTime, this.animator, bones, this.state, boneMat);
     }
 }
