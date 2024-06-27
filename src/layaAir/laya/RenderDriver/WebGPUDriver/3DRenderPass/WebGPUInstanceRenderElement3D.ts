@@ -13,6 +13,7 @@ import { WebGPURenderBundle } from "../RenderDevice/WebGPUBundle/WebGPURenderBun
 import { WebGPUInternalRT } from "../RenderDevice/WebGPUInternalRT";
 import { WebGPURenderCommandEncoder } from "../RenderDevice/WebGPURenderCommandEncoder";
 import { WebGPURenderGeometry } from "../RenderDevice/WebGPURenderGeometry";
+import { WebGPUResourceRecover } from "../RenderDevice/WebGPUResourceRecover";
 import { WebGPUShaderInstance } from "../RenderDevice/WebGPUShaderInstance";
 import { WebGPUVertexBuffer } from "../RenderDevice/WebGPUVertexBuffer";
 import { WebGPURenderContext3D } from "./WebGPURenderContext3D";
@@ -27,8 +28,6 @@ export interface WebGPUInstanceStateInfo {
 }
 
 export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D implements IInstanceRenderElement3D {
-    //private static _instanceBufferStateMap: Map<number, WebGPUInstanceStateInfo[]> = new Map();
-
     static getInstanceBufferState(geometry: WebGPURenderGeometry, renderType: number, spriteDefine: WebDefineDatas) {
         const _initStateInfo = (stateinfo: WebGPUInstanceStateInfo) => {
             const oriBufferState = geometry.bufferState;
@@ -47,6 +46,7 @@ export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D impleme
                         instanceLightMapVertexBuffer.vertexDeclaration = VertexMesh.instanceLightMapScaleOffsetDeclaration;
                         instanceLightMapVertexBuffer.instanceBuffer = true;
                         vertexArray.push(instanceLightMapVertexBuffer);
+                        stateinfo.lightmapScaleOffsetVB?.destroy();
                         stateinfo.lightmapScaleOffsetVB = instanceLightMapVertexBuffer;
                     }
                     break;
@@ -62,23 +62,9 @@ export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D impleme
             stateinfo.state.applyState(vertexArray, geometry.bufferState._bindedIndexBuffer);
         };
 
-        //const stateInfos = this._instanceBufferStateMap.get(geometry._id);
-        //if (!stateInfos) {
         const stateInfo = { inUse: true, state: new WebGPUBufferState() };
         _initStateInfo(stateInfo);
-        //this._instanceBufferStateMap.set(geometry._id, [stateInfo]);
         return stateInfo;
-        //}
-        // for (let i = stateInfos.length - 1; i > -1; i--) {
-        //     if (!stateInfos[i].inUse) {
-        //         stateInfos[i].inUse = true;
-        //         return stateInfos[i];
-        //     }
-        // }
-        // const stateInfo = { inUse: true, state: new WebGPUBufferState() };
-        // _initStateInfo(stateInfo);
-        // stateInfos.push(stateInfo);
-        // return stateInfo;
     }
 
     static MaxInstanceCount: number = 1024;
@@ -293,11 +279,48 @@ export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D impleme
     }
 
     /**
+     * 清理单次渲染生成的数据（延迟回收内存）
+     */
+    clearRenderData2(resRecover: WebGPUResourceRecover): void {
+        this.drawCount = 0;
+        this.updateNums = 0;
+        this._vertexBuffers.length = 0;
+        this._updateData.forEach(data => {
+            WebGPUInstanceRenderElement3D._bufferPool.get(data.length).push(data);
+        });
+        this._updateData.length = 0;
+        this._updateDataNum.length = 0;
+        if (this._instanceStateInfo) {
+            if (this._instanceStateInfo.worldInstanceVB) {
+                this._instanceStateInfo.worldInstanceVB.destroy();
+                resRecover.needRecover(this._instanceStateInfo.worldInstanceVB.source);
+            }
+            if (this._instanceStateInfo.simpleAnimatorVB) {
+                this._instanceStateInfo.simpleAnimatorVB.destroy();
+                resRecover.needRecover(this._instanceStateInfo.simpleAnimatorVB.source);
+            }
+            if (this._instanceStateInfo.lightmapScaleOffsetVB) {
+                this._instanceStateInfo.lightmapScaleOffsetVB.destroy();
+                resRecover.needRecover(this._instanceStateInfo.lightmapScaleOffsetVB.source);
+            }
+            this._instanceStateInfo.worldInstanceVB = null;
+            this._instanceStateInfo.simpleAnimatorVB = null;
+            this._instanceStateInfo.lightmapScaleOffsetVB = null;
+        }
+    }
+
+    /**
      * 回收
      */
     recover() {
         WebGPUInstanceRenderElement3D._pool.push(this);
         this._instanceStateInfo.inUse = false;
+        this._instanceStateInfo.worldInstanceVB?.destroy();
+        this._instanceStateInfo.simpleAnimatorVB?.destroy();
+        this._instanceStateInfo.lightmapScaleOffsetVB?.destroy();
+        this._instanceStateInfo.worldInstanceVB = null;
+        this._instanceStateInfo.simpleAnimatorVB = null;
+        this._instanceStateInfo.lightmapScaleOffsetVB = null;
         this.instanceElementList.clear();
     }
 

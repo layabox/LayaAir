@@ -170,6 +170,6 @@ export class WebGPUBuffer {
         WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.M_GPUMemory, -this._size);
         WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.M_GPUBuffer, -this._size);
         WebGPUGlobal.releaseId(this);
-        this._source.destroy();
+        //this._source.destroy(); //WebGPU会自动删除
     }
 }
