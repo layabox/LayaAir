@@ -1,17 +1,17 @@
-import { Config3D } from "../../../Config3D";
-import { BatchMark } from "../../d3/core/render/BatchMark";
-import { Laya3DRender } from "../../d3/RenderObjs/Laya3DRender";
-import { LayaGL } from "../../layagl/LayaGL";
-import { RenderCapable } from "../../RenderEngine/RenderEnum/RenderCapable";
-import { FastSinglelist, SingletonList } from "../../utils/SingletonList";
-import { IRenderElement3D } from "../DriverDesign/3DRenderPass/I3DRenderPass";
-import { WebGPUInstanceRenderElement3D } from "../WebGPUDriver/3DRenderPass/WebGPUInstanceRenderElement3D";
-import { WebGPUResourceRecover } from "../WebGPUDriver/RenderDevice/WebGPUResourceRecover";
+import { Config3D } from "../../../../Config3D";
+import { BatchMark } from "../../../d3/core/render/BatchMark";
+import { Laya3DRender } from "../../../d3/RenderObjs/Laya3DRender";
+import { LayaGL } from "../../../layagl/LayaGL";
+import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
+import { FastSinglelist, SingletonList } from "../../../utils/SingletonList";
+import { IInstanceRenderBatch, IRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
+import { WebGPUInstanceRenderElement3D } from "./WebGPUInstanceRenderElement3D";
+import { WebGPUResourceRecover } from "../RenderDevice/WebGPUResourceRecover";
 
 /**
  * 动态合批通用类（目前由WebGPU专用）
  */
-export class InstanceRenderBatch {
+export class WebGPUInstanceRenderBatch implements IInstanceRenderBatch {
     static MaxInstanceCount: number = 1024;
 
     private recoverList: FastSinglelist<WebGPUInstanceRenderElement3D>;
@@ -55,7 +55,7 @@ export class InstanceRenderBatch {
 
         const elementCount = elements.length;
         const elementArray = elements.elements;
-        const maxInstanceCount = InstanceRenderBatch.MaxInstanceCount;
+        const maxInstanceCount = WebGPUInstanceRenderBatch.MaxInstanceCount;
 
         elements.length = 0;
         this._updateCountMark++;

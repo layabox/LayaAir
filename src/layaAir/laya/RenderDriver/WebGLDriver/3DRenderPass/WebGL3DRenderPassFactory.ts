@@ -1,8 +1,9 @@
 import { Laya } from "../../../../Laya";
 import { Laya3DRender } from "../../../d3/RenderObjs/Laya3DRender";
 import { SceneRenderManagerOBJ } from "../../../d3/core/scene/SceneRenderManagerOBJ";
-import { IInstanceRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
+import { IInstanceRenderBatch, IInstanceRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { I3DRenderPassFactory } from "../../DriverDesign/3DRenderPass/I3DRenderPassFactory";
+import { WebGLInstanceRenderBatch } from "./WebGLInstanceRenderBatch";
 import { WebGLInstanceRenderElement3D } from "./WebGLInstanceRenderElement3D";
 import { WebGLRender3DProcess } from "./WebGLRender3DProcess";
 import { WebGLBlitQuadCMDData, WebGLDrawElementCMDData, WebGLDrawNodeCMDData, WebGLSetRenderData, WebGLSetRenderTargetCMD, WebGLSetShaderDefine, WebGLSetViewportCMD } from "./WebGLRenderCMD/WebGLRenderCMD";
@@ -12,6 +13,9 @@ import { WebGLSkinRenderElement3D } from "./WebGLSkinRenderElement3D";
 
 
 export class WebGL3DRenderPassFactory implements I3DRenderPassFactory {
+    createInstanceBatch(): IInstanceRenderBatch {
+        return new WebGLInstanceRenderBatch();
+    }
     createSetRenderDataCMD(): WebGLSetRenderData {
         return new WebGLSetRenderData();
     }

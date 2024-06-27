@@ -1,7 +1,8 @@
 import { Laya } from "../../../../Laya";
 import { Laya3DRender } from "../../../d3/RenderObjs/Laya3DRender";
 import { SceneRenderManagerOBJ } from "../../../d3/core/scene/SceneRenderManagerOBJ";
-import { IInstanceRenderElement3D, IRender3DProcess, IRenderContext3D, IRenderElement3D, ISkinRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
+import { WebGPUInstanceRenderBatch } from "./WebGPUInstanceRenderBatch";
+import { IInstanceRenderBatch, IInstanceRenderElement3D, IRender3DProcess, IRenderContext3D, IRenderElement3D, ISkinRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { I3DRenderPassFactory } from "../../DriverDesign/3DRenderPass/I3DRenderPassFactory";
 import { DrawNodeCMDData, BlitQuadCMDData, DrawElementCMDData, SetViewportCMD, SetRenderTargetCMD, SetRenderDataCMD, SetShaderDefineCMD } from "../../DriverDesign/3DRenderPass/IRendderCMD";
 import { ISceneRenderManager } from "../../DriverDesign/3DRenderPass/ISceneRenderManager";
@@ -22,6 +23,9 @@ import { WebGPUSkinRenderElement3D } from "./WebGPUSkinRenderElement3D";
  * WebGPU渲染工厂类
  */
 export class WebGPU3DRenderPassFactory implements I3DRenderPassFactory {
+    createInstanceBatch(): IInstanceRenderBatch {
+        return new WebGPUInstanceRenderBatch();
+    }
     createRender3DProcess(): IRender3DProcess {
         return new WebGPU3DRenderPass();
     }

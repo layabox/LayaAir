@@ -52,6 +52,12 @@ export interface IRenderElement3D {
     destroy(): void;
 }
 
+export interface IInstanceRenderBatch {
+    batch(elements: SingletonList<IRenderElement3D>): void;
+    clearRenderData(): void;
+    recoverData(): void;
+}
+
 export interface IInstanceRenderElement3D extends IRenderElement3D {
     instanceElementList: SingletonList<IRenderElement3D>;
     setGeometry(geometry: IRenderGeometryElement): void;
