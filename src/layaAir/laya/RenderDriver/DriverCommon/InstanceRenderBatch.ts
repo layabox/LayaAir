@@ -4,21 +4,25 @@ import { Laya3DRender } from "../../d3/RenderObjs/Laya3DRender";
 import { LayaGL } from "../../layagl/LayaGL";
 import { RenderCapable } from "../../RenderEngine/RenderEnum/RenderCapable";
 import { FastSinglelist, SingletonList } from "../../utils/SingletonList";
-import { IInstanceRenderElement3D, IRenderElement3D } from "../DriverDesign/3DRenderPass/I3DRenderPass";
+import { IRenderElement3D } from "../DriverDesign/3DRenderPass/I3DRenderPass";
+import { WebGPUInstanceRenderElement3D } from "../WebGPUDriver/3DRenderPass/WebGPUInstanceRenderElement3D";
+import { WebGPUResourceRecover } from "../WebGPUDriver/RenderDevice/WebGPUResourceRecover";
 
 /**
  * 动态合批通用类（目前由WebGPU专用）
  */
 export class InstanceRenderBatch {
-
     static MaxInstanceCount: number = 1024;
 
-    private recoverList: FastSinglelist<IInstanceRenderElement3D>;
+    private recoverList: FastSinglelist<WebGPUInstanceRenderElement3D>;
     private _batchOpaqueMarks: any[] = [];
     private _updateCountMark: number = 0;
 
+    private _gpuRecover: WebGPUResourceRecover; //GPU内存回收器
+
     constructor() {
         this.recoverList = new FastSinglelist();
+        this._gpuRecover = new WebGPUResourceRecover();
     }
 
     getBatchMark(element: IRenderElement3D) {
@@ -47,6 +51,8 @@ export class InstanceRenderBatch {
             || !LayaGL.renderEngine.getCapable(RenderCapable.DrawElement_Instance))
             return;
 
+        this._gpuRecover.recover(); //回收上一帧的内存
+
         const elementCount = elements.length;
         const elementArray = elements.elements;
         const maxInstanceCount = InstanceRenderBatch.MaxInstanceCount;
@@ -62,7 +68,7 @@ export class InstanceRenderBatch {
                 if (this._updateCountMark == instanceMark.updateMark) {
                     const instanceIndex = instanceMark.indexInList;
                     if (instanceMark.batched) {
-                        const originElement = <IInstanceRenderElement3D>elementArray[instanceIndex];
+                        const originElement = <WebGPUInstanceRenderElement3D>elementArray[instanceIndex];
                         const instanceElements = originElement.instanceElementList;
                         // 达到 最大 instance 数量 放弃合并 // todo
                         if (instanceElements.length === maxInstanceCount) {
@@ -76,8 +82,8 @@ export class InstanceRenderBatch {
                     } else {
                         const originElement = elementArray[instanceIndex];
                         // 替换 renderElement
-                        const instanceRenderElement = Laya3DRender.Render3DPassFactory.createInstanceRenderElement3D()
-                        this.recoverList.add(instanceRenderElement);
+                        const instanceRenderElement = Laya3DRender.Render3DPassFactory.createInstanceRenderElement3D();
+                        this.recoverList.add(instanceRenderElement as WebGPUInstanceRenderElement3D);
                         instanceRenderElement.subShader = element.subShader;
                         instanceRenderElement.materialShaderData = element.materialShaderData;
                         instanceRenderElement.materialRenderQueue = element.materialRenderQueue;
@@ -109,7 +115,7 @@ export class InstanceRenderBatch {
     clearRenderData() {
         for (let i = this.recoverList.length - 1; i > -1; i--) {
             let element = this.recoverList.elements[i];
-            element.clearRenderData();
+            element.clearRenderData2(this._gpuRecover);
         }
     }
 

@@ -218,6 +218,8 @@ export class WebGPUDirectLightShadowRP {
         }
         this._applyRenderData(context.sceneData, context.cameraData);
 
+        this._renderQueue._batch.recoverData();
+
         context.restoreViewPortAndScissor();
         context.cameraData = originCameraData;
         context.cameraUpdateMask++;
