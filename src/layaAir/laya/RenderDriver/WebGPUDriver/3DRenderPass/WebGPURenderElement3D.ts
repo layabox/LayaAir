@@ -691,6 +691,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
                             }
                         }
                     }
+                    vb.source?.release();
                     vb.source = new WebGPUBuffer(vb.source._usage, vs.arrayStride * vertexCount);
                     vb.source.setData(buffer2, 0);
                     attrOld = attrNew;
