@@ -281,7 +281,7 @@ export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D impleme
     /**
      * 清理单次渲染生成的数据（延迟回收内存）
      */
-    clearRenderData2(resRecover: WebGPUResourceRecover): void {
+    clearRenderDataAndRecover(resRecover: WebGPUResourceRecover): void {
         this.drawCount = 0;
         this.updateNums = 0;
         this._vertexBuffers.length = 0;

@@ -115,7 +115,7 @@ export class InstanceRenderBatch {
     clearRenderData() {
         for (let i = this.recoverList.length - 1; i > -1; i--) {
             let element = this.recoverList.elements[i];
-            element.clearRenderData2(this._gpuRecover);
+            element.clearRenderDataAndRecover(this._gpuRecover);
         }
     }
 
