@@ -9,7 +9,6 @@ import { IChange } from "./interface/IChange";
 import { IPreRender } from "./interface/IPreRender";
 import { IVBChange } from "./interface/IVBChange";
 const step = 1 / 30;
-const delta = 1 / 60;
 export class AnimationRender {
     static tempIbCreate: IBCreator = new IBCreator();
     name: string;
@@ -56,21 +55,16 @@ export class AnimationRender {
         if (frameIndex < 0) {
             frameIndex = 0;
         }
-        else if (frameIndex == lastFrame && time < frames[lastFrame]) {
-            frameIndex = 0;
+        else if (frameIndex == lastFrame) {
+            if (time < frames[lastFrame]) {
+                frameIndex = 0;
+            }
         }
-        for (let i = frameIndex; i < this.frameNumber; i++) {
-            if (time < frames[i]) {
-                if (i == lastFrame && Math.abs(time - frames[i]) < delta) {
-                    frameIndex = i;
-                    break;
-                }
-                frameIndex = i - 1;
-                break;
-            }
-            if (i == lastFrame) {
-                frameIndex = i;
-            }
+        else if (time >= frames[frameIndex + 1]) {
+            frameIndex++;
+        }
+        else if (time < frames[frameIndex]) {
+            frameIndex = 0;
         }
         return frameIndex;
     }
