@@ -10,113 +10,19 @@ import { Handler } from "../utils/Handler"
 import { ILaya } from "../../ILaya";
 import { URL } from "../net/URL";
 
-/**
- * 图片加载完成后调度。
- * @eventType Event.LOADED
- */
-/*[Event(name = "loaded", type = "laya.events.Event")]*/
-/**
- * 当前帧发生变化后调度。
- * @eventType laya.events.Event
- */
-/*[Event(name = "change", type = "laya.events.Event")]*/
+
 
 /**
- * <p> <code>Clip</code> 类是位图切片动画。</p>
- * <p> <code>Clip</code> 可将一张图片，按横向分割数量 <code>clipX</code> 、竖向分割数量 <code>clipY</code> ，
- * 或横向分割每个切片的宽度 <code>clipWidth</code> 、竖向分割每个切片的高度 <code>clipHeight</code> ，
- * 从左向右，从上到下，分割组合为一个切片动画。</p>
+ * @en The `Clip` class is a bitmap slice animation.
+ * `Clip` can split an image into a slice animation by horizontal split count `clipX`, vertical split count `clipY`, 
+ * or horizontal split width `clipWidth`, vertical split height `clipHeight`, 
+ * from left to right, from top to bottom.
+ * The Image and Clip components are the only two components that support asynchronous loading, such as clip.skin = "abc/xxx.png". Other UI components do not support asynchronous loading.
+ * @zh `Clip` 类是位图切片动画。
+ * `Clip` 可将一张图片，按横向分割数量 `clipX` 、竖向分割数量 `clipY` ，
+ * 或横向分割每个切片的宽度 `clipWidth` 、竖向分割每个切片的高度 `clipHeight` ，
+ * 从左向右，从上到下，分割组合为一个切片动画。
  * Image和Clip组件是唯一支持异步加载的两个组件，比如clip.skin = "abc/xxx.png"，其他UI组件均不支持异步加载。
- *
- * @example <caption>以下示例代码，创建了一个 <code>Clip</code> 实例。</caption>
- * package
- *	{
- *		import laya.ui.Clip;
- *		public class Clip_Example
- *		{
- *			private var clip:Clip;
- *			public function Clip_Example()
- *			{
- *				Laya.init(640, 800);//设置游戏画布宽高。
- *				Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。
- *				onInit();
- *			}
- *			private function onInit():void
- *			{
- *				clip = new Clip("resource/ui/clip_num.png", 10, 1);//创建一个 Clip 类的实例对象 clip ,传入它的皮肤skin和横向分割数量、竖向分割数量。
- *				clip.autoPlay = true;//设置 clip 动画自动播放。
- *				clip.interval = 100;//设置 clip 动画的播放时间间隔。
- *				clip.x = 100;//设置 clip 对象的属性 x 的值，用于控制 clip 对象的显示位置。
- *				clip.y = 100;//设置 clip 对象的属性 y 的值，用于控制 clip 对象的显示位置。
- *				clip.on(Event.CLICK, this, onClick);//给 clip 添加点击事件函数侦听。
- *				Laya.stage.addChild(clip);//将此 clip 对象添加到显示列表。
- *			}
- *			private function onClick():void
- *			{
- *				trace("clip 的点击事件侦听处理函数。clip.total="+ clip.total);
- *				if (clip.isPlaying == true)
- *				{
- *					clip.stop();//停止动画。
- *				}else {
- *					clip.play();//播放动画。
- *				}
- *			}
- *		}
- *	}
- * @example
- * Laya.init(640, 800);//设置游戏画布宽高
- * Laya.stage.bgColor = "#efefef";//设置画布的背景颜色
- * var clip;
- * Laya.loader.load("resource/ui/clip_num.png",laya.utils.Handler.create(this,loadComplete));//加载资源
- * function loadComplete() {
- *     console.log("资源加载完成！");
- *     clip = new laya.ui.Clip("resource/ui/clip_num.png",10,1);//创建一个 Clip 类的实例对象 clip ,传入它的皮肤skin和横向分割数量、竖向分割数量。
- *     clip.autoPlay = true;//设置 clip 动画自动播放。
- *     clip.interval = 100;//设置 clip 动画的播放时间间隔。
- *     clip.x =100;//设置 clip 对象的属性 x 的值，用于控制 clip 对象的显示位置。
- *     clip.y =100;//设置 clip 对象的属性 y 的值，用于控制 clip 对象的显示位置。
- *     clip.on(Event.CLICK,this,onClick);//给 clip 添加点击事件函数侦听。
- *     Laya.stage.addChild(clip);//将此 clip 对象添加到显示列表。
- * }
- * function onClick()
- * {
- *     console.log("clip 的点击事件侦听处理函数。");
- *     if(clip.isPlaying == true)
- *     {
- *         clip.stop();
- *     }else {
- *         clip.play();
- *     }
- * }
- * @example
- * import Clip = laya.ui.Clip;
- * import Handler = laya.utils.Handler;
- * class Clip_Example {
- *     private clip: Clip;
- *     constructor() {
- *         Laya.init(640, 800);//设置游戏画布宽高。
- *         Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。
- *         this.onInit();
- *     }
- *     private onInit(): void {
- *         this.clip = new Clip("resource/ui/clip_num.png", 10, 1);//创建一个 Clip 类的实例对象 clip ,传入它的皮肤skin和横向分割数量、竖向分割数量。
- *         this.clip.autoPlay = true;//设置 clip 动画自动播放。
- *         this.clip.interval = 100;//设置 clip 动画的播放时间间隔。
- *         this.clip.x = 100;//设置 clip 对象的属性 x 的值，用于控制 clip 对象的显示位置。
- *         this.clip.y = 100;//设置 clip 对象的属性 y 的值，用于控制 clip 对象的显示位置。
- *         this.clip.on(laya.events.Event.CLICK, this, this.onClick);//给 clip 添加点击事件函数侦听。
- *         Laya.stage.addChild(this.clip);//将此 clip 对象添加到显示列表。
- *     }
- *     private onClick(): void {
- *         console.log("clip 的点击事件侦听处理函数。clip.total=" + this.clip.total);
- *         if (this.clip.isPlaying == true) {
- *             this.clip.stop();//停止动画。
- *         } else {
- *             this.clip.play();//播放动画。
- *         }
- *     }
- * }
- *
  */
 export class Clip extends UIComponent {
     /**@internal */
@@ -151,6 +57,8 @@ export class Clip extends UIComponent {
     declare _graphics: AutoBitmap;
 
     /**
+     * @en The address of the skin resource.
+     * @zh 皮肤资源地址
      * @copy laya.ui.Image#skin
      */
     get skin(): string {
@@ -164,7 +72,10 @@ export class Clip extends UIComponent {
         this._setSkin(value);
     }
 
-    /**X轴（横向）切片数量。*/
+    /**
+     * @en Number of slices on the X-axis (horizontal).
+     * @zh X轴（横向）切片数量。
+     */
     get clipX(): number {
         return this._clipX;
     }
@@ -174,7 +85,10 @@ export class Clip extends UIComponent {
         this._setClipChanged()
     }
 
-    /**Y轴(竖向)切片数量。*/
+    /**
+     * @en Number of slices on the Y-axis (vertical).
+     * @zh Y轴(竖向)切片数量。
+     */
     get clipY(): number {
         return this._clipY;
     }
@@ -185,7 +99,8 @@ export class Clip extends UIComponent {
     }
 
     /**
-     * 横向分割时每个切片的宽度，与 <code>clipX</code> 同时设置时优先级高于 <code>clipX</code> 。
+     * @en Width of each slice when dividing horizontally. Takes precedence over `clipX` when set together with `clipX`.
+     * @zh 横向分割时每个切片的宽度，与 `clipX` 同时设置时优先级高于 `clipX` 。
      */
     get clipWidth(): number {
         return this._clipWidth;
@@ -196,8 +111,9 @@ export class Clip extends UIComponent {
         this._setClipChanged()
     }
 
-    /**
-     * 竖向分割时每个切片的高度，与 <code>clipY</code> 同时设置时优先级高于 <code>clipY</code> 。
+     /**
+     * @en Height of each slice when dividing vertically. Takes precedence over `clipY` when set together with `clipY`.
+     * @zh 竖向分割时每个切片的高度，与 `clipY` 同时设置时优先级高于 `clipY` 。
      */
     get clipHeight(): number {
         return this._clipHeight;
@@ -209,7 +125,8 @@ export class Clip extends UIComponent {
     }
 
     /**
-     * 源数据。
+     * @en Source data.
+     * @zh 源数据。
      */
     get sources(): Texture[] {
         return this._sources;
@@ -221,8 +138,9 @@ export class Clip extends UIComponent {
         this.event(Event.LOADED);
     }
 
-    /**
-     * 资源分组。
+     /**
+     * @en Resource group.
+     * @zh 资源分组。
      */
     get group(): string {
         return this._group;
@@ -234,9 +152,14 @@ export class Clip extends UIComponent {
     }
 
     /**
-     * <p>当前实例的位图 <code>AutoImage</code> 实例的有效缩放网格数据。</p>
-     * <p>数据格式："上边距,右边距,下边距,左边距,是否重复填充(值为0：不重复填充，1：重复填充)"，以逗号分隔。
-     * <ul><li>例如："4,4,4,4,1"</li></ul></p>
+     * @en The size grid of the texture.
+     * The size grid is a 3x3 division of the texture, allowing it to be scaled without distorting the corners and edges. 
+     * The array contains five values representing the top, right, bottom, and left margins, and whether to repeat the fill (0: no repeat, 1: repeat). 
+     * The values are separated by commas. For example: "6,6,6,6,1".
+     * @zh 纹理的九宫格数据。
+     * 九宫格是一种将纹理分成3x3格的方式，使得纹理缩放时保持角和边缘不失真。
+     * 数组包含五个值，分别代表上边距、右边距、下边距、左边距以及是否重复填充（0：不重复填充，1：重复填充）。
+     * 值以逗号分隔。例如："6,6,6,6,1"。
      */
     get sizeGrid(): string {
         if (this._graphics.sizeGrid) return this._graphics.sizeGrid.join(",");
@@ -251,7 +174,8 @@ export class Clip extends UIComponent {
     }
 
     /**
-     * 当前帧索引。
+     * @en Current frame index.
+     * @zh 当前帧索引。
      */
     get index(): number {
         return this._index;
@@ -264,7 +188,8 @@ export class Clip extends UIComponent {
     }
 
     /**
-     * 切片动画的总帧数。
+     * @en Total frames of the slice animation.
+     * @zh 切片动画的总帧数。
      */
     get total(): number {
         this.runCallLater(this.changeClip);
@@ -272,8 +197,10 @@ export class Clip extends UIComponent {
     }
 
     /**
-     * 表示是否自动播放切片动画，若自动播放值为true,否则值为false;
-     * <p>可控制切片动画的播放、停止。</p>
+     * @en Indicates whether the slice animation is automatically played. If true, the slice animation is automatically played; otherwise, it is not.
+     * It can control the playback and stop of the slice animation.
+     * @zh 是否自动播放切片动画，若自动播放值为true,否则值为false。
+     * 可控制切片动画的播放、停止。
      */
     get autoPlay(): boolean {
         return this._autoPlay;
@@ -287,7 +214,8 @@ export class Clip extends UIComponent {
     }
 
     /**
-     * 表示切片动画播放间隔时间(以毫秒为单位)。
+     * @en Indicates the interval (in milliseconds) at which the slice animation is played.
+     * @zh 切片动画播放间隔时间（以毫秒为单位）。
      */
     get interval(): number {
         return this._interval;
@@ -301,8 +229,10 @@ export class Clip extends UIComponent {
     }
 
     /**
-     * 表示切片动画的当前播放状态。
-     * 如果切片动画正在播放中，则为true，否则为flash。
+     * @en Indicates the current playback state of the slice animation.
+     * If the slice animation is playing, the value is true; otherwise, it is false.
+     * @zh 切片动画的当前播放状态。
+     * 如果切片动画正在播放中，则为true，否则为false。
      */
     get isPlaying(): boolean {
         return this._isPlaying;
@@ -313,10 +243,14 @@ export class Clip extends UIComponent {
     }
 
     /**
-     * 创建一个新的 <code>Clip</code> 示例。
-     * @param url 资源类库名或者地址
-     * @param clipX x方向分割个数
-     * @param clipY y方向分割个数
+     * @en 'Clip' constructor.
+     * @param url Resource address.
+     * @param clipX Number of divisions in the X direction.
+     * @param clipY Number of divisions in the Y direction.
+     * @zh  `Clip` 构造函数。
+     * @param url 资源地址。
+     * @param clipX X方向分割数量。
+     * @param clipY Y方向分割数量。
      */
     constructor(url: string = null, clipX: number = 1, clipY: number = 1) {
         super();
@@ -419,7 +353,8 @@ export class Clip extends UIComponent {
 
     /**
      * @internal
-     * 改变切片的资源、切片的大小。
+     * @en Changes the resources and size of the slices.
+     * @zh 改变切片的资源、切片的大小。
      */
     protected changeClip(): void {
         this._clipChanged = false;
@@ -437,7 +372,10 @@ export class Clip extends UIComponent {
 
     /**
      * @internal
-     * 加载切片图片资源完成函数。
+     * @en Callback function when the sliced image resources are loaded.
+     * @param url Resource URL.
+     * @param img Texture.
+     * @zh 加载切片图片资源完成函数。
      * @param url 资源地址。
      * @param img 纹理。
      */
@@ -482,9 +420,11 @@ export class Clip extends UIComponent {
         return this._graphics.height;
     }
 
-
     /**
-     * 播放切片动画。
+     * @en Plays the slice animation.
+     * @param from Start index.
+     * @param to End index, -1 is not limited.
+     * @zh 播放切片动画。
      * @param	from	开始索引
      * @param	to		结束索引，-1为不限制
      */
@@ -503,7 +443,8 @@ export class Clip extends UIComponent {
 
 
     /**
-     * 停止切片动画。
+     * @en Stops the slice animation.
+     * @zh 停止切片动画。
      */
     stop(): void {
         this._isPlaying = false;
