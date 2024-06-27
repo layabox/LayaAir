@@ -289,7 +289,7 @@ void main()
 	    vec3 upVector = normalize(cross(sideVector, u_CameraDirection));
 	    corner *= computeParticleSizeBillbard(a_StartSize.xy, normalizedAge);
     #if defined(ROTATIONOVERLIFETIME) || defined(ROTATIONOVERLIFETIMESEPERATE)
-	    if (u_ThreeDStartRotation)
+	    if (u_ThreeDStartRotation!=0)
 		{
 		    vec3 rotation = vec3(
 			a_StartRotation0.xy,
@@ -306,7 +306,7 @@ void main()
 		    center += u_SizeScale.xzy * (corner.x * sideVector + corner.y * upVector);
 		}
     #else
-	    if (u_ThreeDStartRotation)
+	    if (u_ThreeDStartRotation!=0)
 		{
 		    center += u_SizeScale.xzy * rotationByEuler(corner.x * sideVector + corner.y * upVector, a_StartRotation0);
 		}
@@ -383,7 +383,7 @@ void main()
 #ifdef RENDERMODE_MESH
 	    vec3 size = computeParticleSizeMesh(a_StartSize, normalizedAge);
 		#if defined(ROTATIONOVERLIFETIME) || defined(ROTATIONOVERLIFETIMESEPERATE)
-			if (u_ThreeDStartRotation)
+			if (u_ThreeDStartRotation!=0)
 			{
 				vec3 rotation = vec3(
 				a_StartRotation0.xy,
@@ -427,7 +427,7 @@ void main()
 				#endif
 		}
     #else
-	    if (u_ThreeDStartRotation)
+	    if (u_ThreeDStartRotation!=0)
 		{
 		    center += rotationByQuaternions(
 			u_SizeScale * rotationByEuler(a_MeshPosition * size, a_StartRotation0),
