@@ -193,6 +193,7 @@ export class SkinAttach {
      */
     slotAttachMap: Map<number, Map<string, AttachmentParse>>;
     mainAttachMentOrder: AttachmentParse[];
+    isNormalRender: boolean;
     mainVB: VBCreator;
     mainIB: IBCreator;
     hasNormalRender: boolean;
@@ -281,6 +282,7 @@ export class SkinAttach {
                 else {
                     attach = this.slotAttachMap.get(index).get(null);
                 }
+                if(attach.isclip) this.isNormalRender=true;
                 mainAttachMentOrder.push(attach);
             }
             else {
@@ -294,6 +296,9 @@ export class SkinAttach {
 
     initAnimator(animator: AnimationRender) {
         let skinData = animator.createSkinData(this.mainVB, this.mainIB, this.slotAttachMap, this.mainAttachMentOrder);
+        if(this.isNormalRender){
+            skinData.isNormalRender = true;
+        }
         skinData.mainibRender = this.mainIB;
         skinData.name = this.name;
         if (skinData.isNormalRender) {

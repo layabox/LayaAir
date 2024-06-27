@@ -35,7 +35,7 @@ export class SpineTemplet extends Resource {
         this.sketonOptimise = new SketonOptimise();
     }
 
-    get mainTexture(): Texture {
+    get _mainTexture(): Texture {
         let i = 0;
         let tex: Texture;
         for (let k in this._textures) {
@@ -49,6 +49,9 @@ export class SpineTemplet extends Resource {
         }
         return tex;
     }
+    mainTexture: Texture;
+
+    mainBlendMode: number = 0;
 
 
     get ns(): typeof spine {
@@ -101,6 +104,8 @@ export class SpineTemplet extends Resource {
                 let skeletonJson = new this._ns.SkeletonJson(atlasLoader, false);
                 this.skeletonData = skeletonJson.readSkeletonData(desc);
             }
+            this.mainBlendMode = this.skeletonData.slots[0]?.blendMode || 0;
+            this.mainTexture = this._mainTexture;
             this.sketonOptimise.checkMainAttach(this.skeletonData);
         });
     }
