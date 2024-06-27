@@ -130,13 +130,13 @@ export class Stat {
     public static sprite3DCount: number = 0;//TODO
     /**@internal */
     public static drawCall: number = 0;
-    public static draw2D=0;
+    public static draw2D = 0;
     /**@internal */
     public static trianglesFaces: number = 0;
     /**@internal */
     public static renderNode: number = 0;
     /**@internal */
-    public static meshRenderNode:number = 0;
+    public static meshRenderNode: number = 0;
     /**@internal */
     public static skinRenderNode: number = 0;
     /**@internal */
@@ -168,12 +168,12 @@ export class Stat {
     /**@internal */
     public static uploadUniform: number = 0;
 
-    public static physics_dynamicRigidBodyCount:number;
-    public static physics_staticRigidBodyCount:number;
-    public static phyiscs_KinematicRigidBodyCount:number;
-    public static physics_CharacterControllerCount:number;
-    public static physics_jointCount:number;
-    public static phyiscs_EventCount:number
+    public static physics_dynamicRigidBodyCount: number;
+    public static physics_staticRigidBodyCount: number;
+    public static phyiscs_KinematicRigidBodyCount: number;
+    public static physics_CharacterControllerCount: number;
+    public static physics_jointCount: number;
+    public static phyiscs_EventCount: number
 
     //Toggle
     /** 开启关闭阴影 */
@@ -226,6 +226,7 @@ export class Stat {
         Stat._currentShowArray = views || Stat.AllShow;
         Stat._statUI.show(x, y, Stat._currentShowArray);
         ILaya.systemTimer.frameLoop(1, null, Stat.loop);
+        ILaya.timer.frameLoop(1, null, Stat.clear);
     }
 
     static showToggle(x?: number, y?: number, views?: Array<StatToggleUIParams>): void {
@@ -237,6 +238,7 @@ export class Stat {
         Stat._currentToggleArray = views;
         Stat._statUI.showToggle(x, y, views);
         ILaya.systemTimer.frameLoop(1, null, Stat.loop);
+        ILaya.timer.frameLoop(1, null, Stat.clear);
     }
 
     private static checkUI() {
@@ -262,7 +264,8 @@ export class Stat {
         Stat._show = false;
         Stat._currentShowArray = null;
         Stat._currentToggleArray = null;
-        ILaya.systemTimer.clear(null, Stat.loop);
+        ILaya.timer.clear(null, Stat.loop);
+        ILaya.timer.clear(null, Stat.clear);
         if (Stat._statUI)
             Stat._statUI.hide();
     }
@@ -285,7 +288,7 @@ export class Stat {
             let delay: string = Stat.FPS > 0 ? Math.floor(1000 / Stat.FPS).toString() : " ";
             Stat._fpsStr = Stat.FPS + (Stat.renderSlow ? " slow" : "") + " " + delay + "ms";
             Stat._statUI.update();
-            Stat.clear();
+            //Stat.clear();
         }
 
         Stat._count = 0;
