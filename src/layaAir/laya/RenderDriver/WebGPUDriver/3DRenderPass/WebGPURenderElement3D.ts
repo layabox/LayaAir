@@ -104,6 +104,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
      */
     private _getShaderPassUniform(shaderpass: ShaderPass, defineData: WebDefineDatas) {
         const defineString = WebGPURenderElement3D._defineStrings;
+        defineString.length = 0;
         Shader3D._getNamesByDefineData(defineData, defineString);
         return WebGPUCodeGenerator.collectUniform(defineString, shaderpass._owner._uniformMap, shaderpass._VS, shaderpass._PS);
     }
@@ -191,27 +192,25 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
         else if (context.globalConfigShaderData)
             context.globalConfigShaderData.cloneTo(compileDefine);
 
-        //添加相机数据定义
+        //添加宏定义数据
         if (this._cameraData)
             compileDefine.addDefineDatas(this._cameraData._defineDatas);
-
-        //编译着色器，创建uniform缓冲区
         if (this.renderShaderData)
-            compileDefine.addDefineDatas(this.renderShaderData.getDefineData());
+            compileDefine.addDefineDatas(this.renderShaderData._defineDatas);
         if (this.materialShaderData)
             compileDefine.addDefineDatas(this.materialShaderData._defineDatas);
 
         //查找着色器对象缓存
         for (let i = 0; i < this._passNum; i++) {
-            if (!this._shaderPass[i].moduleData.getCacheShader(compileDefine)) {
+            if (!this._shaderPass[i].moduleData.getCacheShader(compileDefine.clone())) {
                 const { uniformMap, arrayMap } = this._collectUniform(compileDefine); //@ts-ignore
                 this._shaderPass[i].uniformMap = uniformMap; //@ts-ignore
                 this._shaderPass[i].arrayMap = arrayMap;
             }
 
             //获取着色器实例，先查找缓存，如果没有则创建
-            const shaderInstance = this._shaderPass[i].withCompile(compileDefine) as WebGPUShaderInstance;
-            this._shaderInstance[i] = this._shaderInstances[this._passIndex[i]] = shaderInstance;
+            const shaderInstance = this._shaderPass[i].withCompile(compileDefine.clone()) as WebGPUShaderInstance;
+            this._shaderInstances[this._passIndex[i]] = shaderInstance;
 
             //创建uniform缓冲区
             if (i === 0) {

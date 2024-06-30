@@ -124,14 +124,14 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
 
         //查找着色器对象缓存
         for (let i = 0; i < this._passNum; i++) {
-            if (!this._shaderPass[i].moduleData.getCacheShader(compileDefine)) {
+            if (!this._shaderPass[i].moduleData.getCacheShader(compileDefine.clone())) {
                 const { uniformMap, arrayMap } = this._collectUniform(compileDefine); //@ts-ignore
                 this._shaderPass[i].uniformMap = uniformMap; //@ts-ignore
                 this._shaderPass[i].arrayMap = arrayMap;
             }
 
             //获取着色器实例，先查找缓存，如果没有则创建
-            const shaderInstance = this._shaderPass[i].withCompile(compileDefine, true) as WebGPUShaderInstance;
+            const shaderInstance = this._shaderPass[i].withCompile(compileDefine.clone(), true) as WebGPUShaderInstance;
             this._shaderInstance[i] = this._shaderInstances[this._passIndex[i]] = shaderInstance;
 
             //创建uniform缓冲区
