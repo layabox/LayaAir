@@ -37,6 +37,11 @@ export class SpineNormalRender implements ISpineOptimizeRender {
         //throw new Error("Method not implemented.");
     }
 
+    
+    changeSkeleton(skeleton:spine.Skeleton){
+        this._skeleton=skeleton;
+    }
+
     render(time: number) {
         this._owner.clear();
         this._renerer.draw(this._skeleton, this._owner, -1, -1);
