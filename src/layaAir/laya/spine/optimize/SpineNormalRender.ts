@@ -26,6 +26,8 @@ export class SpineNormalRender implements ISpineOptimizeRender {
         let scolor = skeleton.color;
         let color = new Color(scolor.r * scolor.a, scolor.g * scolor.a, scolor.b * scolor.a, scolor.a);
         renderNode._spriteShaderData.setColor(SpineShaderInit.Color, color);
+        renderNode._spriteShaderData.removeDefine(SpineShaderInit.SPINE_FAST);
+        renderNode._spriteShaderData.removeDefine(SpineShaderInit.SPINE_RB);
     }
 
     play(animationName: string): void {
