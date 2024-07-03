@@ -4,6 +4,9 @@ import { TSpineBakeData } from "./SketonOptimise";
 import { ISpineOptimizeRender } from "./interface/ISpineOptimizeRender";
 
 export class SpineEmptyRender implements ISpineOptimizeRender{
+    changeSkeleton(skeleton: spine.Skeleton): void {
+        //throw new Error("Method not implemented.");
+    }
     static instance:SpineEmptyRender=new SpineEmptyRender();
     init(skeleton: spine.Skeleton, templet: SpineTemplet, renderNode: BaseRenderNode2D, state: spine.AnimationState): void {
         //throw new Error("Method not implemented.");

@@ -128,6 +128,13 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
         return geoResult;
     }
 
+    changeSkeleton(skeleton:spine.Skeleton){
+        this._skeleton=skeleton;
+        this.bones = skeleton.bones;
+        this.slots = skeleton.slots;
+        (this.renderProxyMap.get(ERenderProxyType.RenderNormal) as RenderNormal)._skeleton=skeleton;
+    }
+
     init(skeleton: spine.Skeleton, templet: SpineTemplet, renderNode: Spine2DRenderNode, state: spine.AnimationState): void {
         this._skeleton = skeleton;
         this.bones = skeleton.bones;
