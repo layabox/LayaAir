@@ -6,18 +6,17 @@
     #include "Oct.glsl";
     #include "GridHelpers.glsl";
 
+uniform vec3 u_VolGIProbeCounts;
+uniform vec3 u_VolGIProbeStep;
+uniform vec3 u_VolGIProbeStartPosition;
+uniform vec4 u_VolGIProbeParams;
+
 struct VolumetricGI {
     vec3 probeCounts;
     vec3 probeStep;
     vec3 probeStartPosition;
-    // float irradianceTexels;
-    // float distanceTexels;
-    // float normalBias;
-    // float viewBias;
     vec4 probeParams; // x: irradianceTexels, y: distanceTexels, z: normalBias, w: viewBias
 };
-
-uniform VolumetricGI u_VolumetricGI;
 
 uniform sampler2D u_ProbeIrradiance;
 uniform sampler2D u_ProbeDistance;
@@ -38,19 +37,19 @@ vec2 porbeGridCoordToTextureGridCoord(in ivec3 porbeGridCoord,
 
 vec3 VolumetricGISurfaceBias(in vec3 surfaceNormal, in vec3 cameraDirection)
 {
-    return surfaceNormal * u_VolumetricGI.probeParams.z + cameraDirection * u_VolumetricGI.probeParams.w;
+    return surfaceNormal * u_VolGIProbeParams.z + cameraDirection * u_VolGIProbeParams.w;
 }
 
 vec3 VolumetricGIVolumeIrradiance(in vec3 worldPosition, in vec3 surfaceBias,
     in vec3 direction)
 {
     // direction *= vec3(-1.0, 1.0, 1.0);
-    ivec3 porbeCounts = ivec3(u_VolumetricGI.probeCounts);
-    vec3 probeStep = u_VolumetricGI.probeStep;
-    vec3 probeStartPosition = u_VolumetricGI.probeStartPosition;
+    ivec3 porbeCounts = ivec3(u_VolGIProbeCounts);
+    vec3 probeStep = u_VolGIProbeStep;
+    vec3 probeStartPosition = u_VolGIProbeStartPosition;
     vec2 volumeCounts = vec2(porbeCounts.x * porbeCounts.y, porbeCounts.z);
-    vec4 irradianceTexels = vec4(u_VolumetricGI.probeParams.x, u_VolumetricGI.probeParams.x, 1.0 / u_VolumetricGI.probeParams.x, 1.0 / u_VolumetricGI.probeParams.x);
-    vec4 distanceTexels = vec4(u_VolumetricGI.probeParams.y, u_VolumetricGI.probeParams.y, 1.0 / u_VolumetricGI.probeParams.y, 1.0 / u_VolumetricGI.probeParams.y);
+    vec4 irradianceTexels = vec4(u_VolGIProbeParams.x, u_VolGIProbeParams.x, 1.0 / u_VolGIProbeParams.x, 1.0 / u_VolGIProbeParams.x);
+    vec4 distanceTexels = vec4(u_VolGIProbeParams.y, u_VolGIProbeParams.y, 1.0 / u_VolGIProbeParams.y, 1.0 / u_VolGIProbeParams.y);
 
     ivec3 maxGridCoord = porbeCounts - ivec3(1);
 
