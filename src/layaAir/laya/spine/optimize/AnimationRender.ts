@@ -312,7 +312,7 @@ export class SkinAniRenderData {
                 this.vb.initBoneMat();
             }
             else {
-                //this.canInstance = true;
+                this.canInstance = true;
             }
             this.vb = this.vb || mainVB;
             this.ibs.push(this.mainIB);

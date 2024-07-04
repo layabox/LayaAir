@@ -22,7 +22,7 @@ export class SpineInstanceBatch implements IBatch2DRender{
     _recoverList = new FastSinglelist<IRenderElement2D>();
 
     /**
-     * 
+     * 检测Element能否合并
      * @param left 
      * @param right 
      */
@@ -38,6 +38,12 @@ export class SpineInstanceBatch implements IBatch2DRender{
         return true
     }
 
+    /**
+     * 合并批次
+     * @param list 
+     * @param start 
+     * @param length 
+     */
     batchRenderElement(list: FastSinglelist<IRenderElement2D>, start: number, length: number): void {
         let elementArray = list.elements;
         let batchStart = -1;
@@ -65,6 +71,13 @@ export class SpineInstanceBatch implements IBatch2DRender{
         
     }
 
+    /**
+     * 更新InstanceBuffer
+     * @param info 
+     * @param nMatrixData 
+     * @param simpleAnimatorData 
+     * @param instanceCount 
+     */
     updateBuffer(info:SpineInstanceInfo , nMatrixData:Float32Array , simpleAnimatorData : Float32Array , instanceCount:number){
         let nMatrixInstanceVB = info.nMatrixInstanceVB;
         let simpleAnimatorVB = info.simpleAnimatorVB;
@@ -74,13 +87,18 @@ export class SpineInstanceBatch implements IBatch2DRender{
         simpleAnimatorVB.setData(simpleAnimatorData.buffer, 0, 0, instanceCount * 4 * 4);
     }
 
+    /**
+     * 组织Instance数据
+     * @param list 
+     * @param start 
+     * @param length 
+     */
     batch(list: FastSinglelist<IRenderElement2D> ,  start: number, length: number ){
 
         let instanceElement:IRenderElement2D , geometry:IRenderGeometryElement;
         let elementArray: Array<IRenderElement2D> = list.elements;
-        //  nMatrix Length = 6 => 8;
+        //  nMatrix Length = 6 ;
         //  Simple Animator Params Length = 4;
-        // let insBatches = this._instanceElementList;
 
         let nMatrixData: Float32Array = SpineInstanceElement2DTool._instanceBufferCreate( 6 * SpineInstanceElement2DTool.MaxInstanceCount);
         let simpleAnimatorData: Float32Array = SpineInstanceElement2DTool._instanceBufferCreate( 4 * SpineInstanceElement2DTool.MaxInstanceCount);
@@ -157,7 +175,9 @@ export class SpineInstanceBatch implements IBatch2DRender{
         SpineInstanceElement2DTool._instanceBufferRecover(simpleAnimatorData);
     }
 
-
+    /**
+     * 回收 InstanceData
+     */
     recover(): void {
         let length = this._recoverList.length;
         let recoverArray = this._recoverList.elements;
@@ -268,78 +288,4 @@ export class SpineInstanceElement2DTool{
         }
         array.push(float32);
     }
-    // geometry: IRenderGeometryElement;
-    // materialShaderData: ShaderData;
-    // value2DShaderData: ShaderData;
-    // subShader: SubShader;
-    // renderStateIsBySprite: boolean;
-
-    // _instanceElementList: FastSinglelist<IRenderElement2D>;
-
-    // private _vertexBuffers: Array<IVertexBuffer> = [];
-
-    // private _updateData: Array<Float32Array> = [];
-
-    // private _updateDataNum: Array<number> = [];
-
-    // /** 绘制次数 */
-    // drawCount: number = 0;
-    // /** 更新数 */
-    // updateNums: number = 0;
-
-    // constructor(){
-    //     this._instanceElementList = new FastSinglelist;
-    // }
-
-    // recover(){
-    //     SpineInstanceElement2DTool._pool.push(this);
-    //     this._instanceElementList.clear();
-    // }
-
-    // destroy(): void {
-    //     this.geometry = null;
-    //     this.materialShaderData = null;
-    //     this.materialShaderData = null;
-    //     this.value2DShaderData = null;
-    //     this.subShader =  null;
-    // }
-    
-    // addUpdateBuffer(vb: IVertexBuffer, length: number) {
-    //     this._vertexBuffers[this.updateNums] = vb;
-    //     this._updateDataNum[this.updateNums] = length;
-    //     this.updateNums++;
-    // }
-
-    // getUpdateData(index: number, length: number): Float32Array {
-    //     let data = this._updateData[index] = SpineInstanceElement2DTool._instanceBufferCreate(length);
-    //     return data;
-    // }
-
-    // private _updateInstanceData() {
-        //  nMatrix Length = 6;
-        //  Simple Animator Params Length = 4;
-        // let insBatches = this._instanceElementList;
-        // let elements = insBatches.elements;
-        // let count: number = insBatches.length;
-        // this.drawCount = count;
-        // this.geometry.instanceCount = this.drawCount;
-        
-        // let nMatrixData: Float32Array = this.getUpdateData(0, 8 * SpineInstanceElement2D.MaxInstanceCount);
-        // this.addUpdateBuffer(this._instanceStateInfo.worldInstanceVB, 8);
-        // let simpleAnimatorData: Float32Array = this.getUpdateData(1, 4 * SpineInstanceElement2D.MaxInstanceCount);
-        // this.addUpdateBuffer(this._instanceStateInfo.simpleAnimatorVB, 4);
-        
-        // for (let i: number = 0; i < count; i++){
-        //     let shaderData = elements[i].value2DShaderData;;
-        //     let nMatrixBuffer = shaderData.getBuffer(SpineShaderInit.NMatrix);
-        //     nMatrixData.set(nMatrixBuffer, i * 8);    
-        //     //simpleAnimationData
-        //     let simpleAnimatorParams = shaderData.getVector(SpineShaderInit.SIMPLE_SIMPLEANIMATORPARAMS);
-        //     let offset: number = i * 4;
-        //     simpleAnimatorData[offset] = simpleAnimatorParams.x;
-        //     simpleAnimatorData[offset + 1] = simpleAnimatorParams.y;
-        //     simpleAnimatorData[offset + 2] = simpleAnimatorParams.z;
-        //     simpleAnimatorData[offset + 3] = simpleAnimatorParams.w;
-        // }
-    // }
 }
