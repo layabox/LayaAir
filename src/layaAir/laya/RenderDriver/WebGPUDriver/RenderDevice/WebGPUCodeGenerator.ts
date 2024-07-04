@@ -412,6 +412,9 @@ export class WebGPUCodeGenerator {
     private static _textureString(textureUniforms: NameAndType[], uniformInfo: WebGPUUniformPropertyBindingInfo[], visibility: GPUShaderStageFlags) {
         let res = '';
         let binding = [1, 1, 1, 1];
+        for (let i = uniformInfo.length - 1; i > -1; i--)
+            if (binding[uniformInfo[i].set] <= uniformInfo[i].binding)
+                binding[uniformInfo[i].set] = uniformInfo[i].binding + 1;
         if (textureUniforms.length > 0) {
             for (let i = 0, len = textureUniforms.length; i < len; i++) {
                 const tu = textureUniforms[i];
