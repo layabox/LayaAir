@@ -27,6 +27,7 @@ import { SpineNormalRender } from "./optimize/SpineNormalRender";
 import { SketonOptimise } from "./optimize/SketonOptimise";
 import { Texture } from "../resource/Texture";
 import { SpineEmptyRender } from "./optimize/SpineEmptyRender";
+import { Texture2D } from "../resource/Texture2D";
 
 
 /**动画开始播放调度
@@ -161,7 +162,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
      */
     resetExternalSkin() {
         if (this._skeleton) {
-            this._skeleton = new this._templet.ns.Skeleton(this._templet.skeletonData);
+            this._skeleton = new spine.Skeleton(this._templet.skeletonData);
             this.spineItem.changeSkeleton(this._skeleton);
             this._flushExtSkin();
         }
@@ -313,10 +314,10 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
             return;
 
         this._templet._addReference();
-        this._skeleton = new templet.ns.Skeleton(this._templet.skeletonData);
-        this._stateData = new templet.ns.AnimationStateData(this._skeleton.data);
+        this._skeleton = new spine.Skeleton(this._templet.skeletonData);
+        this._stateData = new spine.AnimationStateData(this._skeleton.data);
         // 动画状态类
-        this._state = new templet.ns.AnimationState(this._stateData);
+        this._state = new spine.AnimationState(this._stateData);
         //this._renerer = new SpineSkeletonRenderer(templet, false);
         this._timeKeeper = new TimeKeeper(Laya.timer);
         //let sMesh=this._templet.slotManger.init(this._skeleton.drawOrder, this._templet,this._templet.mainTexture);
@@ -750,7 +751,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
         element.value2DShaderData = this._spriteShaderData;
     }
 
-    getMaterial(texture: Texture, blendMode: number): Material {
+    getMaterial(texture: Texture2D, blendMode: number): Material {
         let mat: Material;
         if (this._materials.length <= this._renderElements.length) {
             //默认给一个新的Mateiral
@@ -759,7 +760,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
         } else {
             mat = this._materials[this._renderElements.length];
             SpineShaderInit.SetSpineBlendMode(blendMode, mat);
-            mat.setTextureByIndex(SpineShaderInit.SpineTexture, texture.bitmap);
+            mat.setTextureByIndex(SpineShaderInit.SpineTexture, texture);
         }
         return mat;
     }

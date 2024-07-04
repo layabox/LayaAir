@@ -514,8 +514,7 @@ class SkinRender implements IVBIBUpdate {
     }
 
     getMaterialByName(name: string, blendMode: number): Material {
-        let texture = this.templet.getTexture(name).realTexture;
-        return this.templet.getMaterial(texture, blendMode);
+        return this.templet.getMaterial(this.templet.getTexture(name), blendMode);
     }
 
 
