@@ -219,6 +219,7 @@ export class InputManager {
                 touch.begin();
                 this._touches[0] = touch;
                 touch.event.button = ev.button;
+                touch.downButton = ev.button;
 
                 if (InputManager.mouseEventsEnabled) {
                     this.handleFocus();
@@ -231,7 +232,7 @@ export class InputManager {
             }
         }
         else if (type == 1) {
-            if (touch.began) {
+            if (touch.began && ev.button == touch.downButton) {
                 touch.end();
                 this._touches.length = 0;
                 touch.event.button = ev.button;
@@ -592,6 +593,7 @@ class TouchInfo implements ITouchInfo {
     lastRollOver: Node;
     clickCancelled: boolean;
     moved: boolean;
+    downButton: number;
     readonly downTargets: Node[];
 
     private downPos: Point;
@@ -698,5 +700,6 @@ class TouchInfo implements ITouchInfo {
         this.downTargets.length = 0;
         this.lastRollOver = null;
         this.clickCancelled = false;
+        this.downButton = 0;
     }
 }
