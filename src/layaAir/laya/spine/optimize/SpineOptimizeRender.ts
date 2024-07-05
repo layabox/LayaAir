@@ -111,6 +111,8 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
     }
 
     initRender(type: ESpineRenderType) {
+        //buffers .pos .uv .color vbs ib
+
         let geoResult = this.geoMap.get(type);
         if (!geoResult) {
             let geo = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
@@ -119,7 +121,8 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
             let vb = LayaGL.renderDeviceFactory.createVertexBuffer(BufferUsage.Dynamic);
             vb.vertexDeclaration = type == ESpineRenderType.rigidBody ? SpineShaderInit.SpineRBVertexDeclaration : SpineShaderInit.SpineFastVertexDeclaration;
             let ib = LayaGL.renderDeviceFactory.createIndexBuffer(BufferUsage.Dynamic);
-            mesh.applyState([vb], ib)
+
+            mesh.applyState([vb], ib);
             geo.indexFormat = IndexFormat.UInt16;
             // geo.instanceCount = 
             geoResult = { geo, vb, ib };
@@ -539,6 +542,7 @@ class SkinRender implements IVBIBUpdate {
         }
         else {
             let currentData = mutiRenderData.currentData;
+            if(!currentData) return;
             let material=currentData.material;
             if (!material) {
                 material=currentData.material = this.getMaterialByName(currentData.textureName, currentData.blendMode);
