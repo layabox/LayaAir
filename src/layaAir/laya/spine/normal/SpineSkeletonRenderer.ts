@@ -48,10 +48,10 @@ export class SpineSkeletonRenderer extends SpineNormalRenderBase implements ISpi
             this.vertexSize += 4;
         this.templet = templet;
         if (SpineSkeletonRenderer.vertices == null) {
-            SpineSkeletonRenderer.vertices = templet.ns.Utils.newFloatArray(12 * 1024);
+            SpineSkeletonRenderer.vertices = spine.Utils.newFloatArray(12 * 1024);
         }
         this.renderable = { vertices: null, numVertices: 0, numFloats: 0 };
-        this.clipper = new templet.ns.SkeletonClipping();
+        this.clipper = new spine.SkeletonClipping();
     }
 
     // drawOld(skeleton: spine.Skeleton, graphics: Graphics, slotRangeStart: number = -1, slotRangeEnd: number = -1) {
