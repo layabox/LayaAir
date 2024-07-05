@@ -30,7 +30,8 @@ export enum ShaderDataType {
     TextureCube,
     Buffer,
     Matrix3x3,
-    Texture2DArray
+    Texture2DArray,
+    Texture2DShadow,
 }
 
 export type ShaderDataItem = number | boolean | Vector2 | Vector3 | Vector4 | Color | Matrix4x4 | BaseTexture | Float32Array | Matrix3x3;
