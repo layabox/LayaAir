@@ -48,13 +48,13 @@ export class WebGPUSampler {
     private static _cacheMap: { [key: number]: WebGPUSampler } = {};
 
     static getWebGPUSampler(params: WebGPUSamplerParams) {
-        let cacheKey = WebGPUSampler._getCatchSamplerKey(params);
+        let cacheKey = WebGPUSampler._getCacheSamplerKey(params);
         if (!this._cacheMap[cacheKey])
             this._cacheMap[cacheKey] = new WebGPUSampler(params);
         return this._cacheMap[cacheKey];
     }
 
-    private static _getCatchSamplerKey(params: WebGPUSamplerParams): number {
+    private static _getCacheSamplerKey(params: WebGPUSamplerParams): number {
         return (params.wrapU << WebGPUSampler.pointer_wrapU) +
             (params.warpV << WebGPUSampler.pointer_warpV) +
             (params.warpW << WebGPUSampler.pointer_warpW) +
@@ -84,10 +84,10 @@ export class WebGPUSampler {
     }
 
     private _getSamplerDescriptor(params: WebGPUSamplerParams) {
-        if (params.comparedMode > 0) {
-            params.filterMode = 0;
-            params.mipmapFilter = 0;
-        }
+        // if (params.comparedMode > 0) {
+        //     params.filterMode = 0;
+        //     params.mipmapFilter = 0;
+        // }
         if (params.anisoLevel > 1)
             params.mipmapFilter = FilterMode.Bilinear;
 
@@ -132,7 +132,6 @@ export class WebGPUSampler {
     }
 
     private _getGPUCompareFunction(comparedMode: TextureCompareMode): GPUCompareFunction {
-        return undefined; //暂时不支持compare模式
         switch (comparedMode) {
             case TextureCompareMode.ALWAYS:
                 return GPUCompareFunction.always;

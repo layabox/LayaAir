@@ -7,6 +7,7 @@ import { WebGPU_GLSLUniform } from "./WebGPU_GLSLUniform";
  * GLSL代码处理
  */
 export class WebGPU_GLSLProcess {
+    glInter: string[] = []; //GLSL内置变量
     globals: string[] = []; //全局变量
     macros: WebGPU_GLSLMacro[] = []; //宏定义
     structs: WebGPU_GLSLStruct[] = []; //结构体定义
@@ -14,6 +15,7 @@ export class WebGPU_GLSLProcess {
     functions: WebGPU_GLSLFunction[] = []; //函数定义
     textureNames: string[] = []; //所有的贴图名称
     glslCode: string = ''; //处理后的GLSL代码
+    haveVertexID: boolean = false; //是否包含g_VertexID
 
     /**
      * 处理GLSL代码
@@ -26,6 +28,7 @@ export class WebGPU_GLSLProcess {
         this._extractMacros(this.glslCode); //提取宏定义
         for (let i = 0; i < 3; i++)
             this._replaceMacros(this.glslCode); //执行宏替换（处理宏替换嵌套，最多执行3次）
+        this._extractInternals(this.glslCode); //提取内置变量
         this._extractFunctions(this.glslCode); //提取函数定义
         this._extractStructs(this.glslCode); //提取结构体定义
         this._extractGlobals(this.glslCode); //提取全局变量
@@ -37,7 +40,7 @@ export class WebGPU_GLSLProcess {
 
         this._outputGLSL(); //输出处理后的GLSL代码
     }
-
+ 
     /**
      * 添加uniform
      * @param uniform 
@@ -184,6 +187,26 @@ export class WebGPU_GLSLProcess {
         for (let i = 0, len = this.macros.length; i < len; i++)
             glslCode = this.macros[i].replaceMacros(glslCode);
         this.glslCode = glslCode;
+    }
+
+    /**
+     * 提取内置变量
+     * @param glslCode
+     */
+    private _extractInternals(glslCode: string) {
+        const regex = /\b(gl_VertexID|gl_FragColor|gl_Position)/g;
+
+        let match;
+        //查找内置变量
+        while ((match = regex.exec(glslCode)) !== null) {
+            const res = match[0].trim();
+            if (this.glInter.indexOf(res) === -1)
+                this.glInter.push(res);
+        }
+        if (this.glInter.indexOf('gl_VertexID') !== -1) {
+            this.globals.push('int gl_VertexID;');
+            this.haveVertexID = true;
+        }
     }
 
     /**

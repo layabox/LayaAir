@@ -197,11 +197,13 @@ export class WebGPUShaderData extends ShaderData {
                             texture = WebGPUShaderData._dummyTexture2D;
                             internalTex = texture._texture as WebGPUInternalTex;
                         }
-                        if (internalTex._webGPUFormat === WebGPUTextureFormat.depth16unorm
+                        if (internalTex.compareMode > 0)
+                            item.texture.sampleType = 'depth';
+                        else if (internalTex._webGPUFormat === WebGPUTextureFormat.depth16unorm
                             || internalTex._webGPUFormat === WebGPUTextureFormat.depth24plus_stencil8
-                            || internalTex._webGPUFormat === WebGPUTextureFormat.depth32float)
+                            || internalTex._webGPUFormat === WebGPUTextureFormat.depth32float) {
                             item.texture.sampleType = 'unfilterable-float';
-                        else {
+                        } else {
                             const supportFloatLinearFiltering = LayaGL.renderEngine.getCapable(RenderCapable.Texture_FloatLinearFiltering);
                             if (!supportFloatLinearFiltering && texture.format === TextureFormat.R32G32B32A32)
                                 item.texture.sampleType = 'unfilterable-float';
@@ -227,16 +229,13 @@ export class WebGPUShaderData extends ShaderData {
                             texture = WebGPUShaderData._dummyTexture2D;
                             internalTex = texture._texture as WebGPUInternalTex;
                         }
-                        // if (internalTex.compareMode > 0)
-                        //     item.sampler.type = 'comparison';
-                        // else 
-                        if (internalTex._webGPUFormat === WebGPUTextureFormat.depth16unorm
+                        if (internalTex.compareMode > 0)
+                            item.sampler.type = 'comparison';
+                        else if (internalTex._webGPUFormat === WebGPUTextureFormat.depth16unorm
                             || internalTex._webGPUFormat === WebGPUTextureFormat.depth24plus_stencil8
                             || internalTex._webGPUFormat === WebGPUTextureFormat.depth32float) {
                             item.sampler.type = 'non-filtering';
-                            //internalTex.filterMode = FilterMode.Point;
-                        }
-                        else {
+                        } else {
                             const supportFloatLinearFiltering = LayaGL.renderEngine.getCapable(RenderCapable.Texture_FloatLinearFiltering);
                             if (!supportFloatLinearFiltering && texture.format === TextureFormat.R32G32B32A32)
                                 item.sampler.type = 'non-filtering';
@@ -337,13 +336,13 @@ export class WebGPUShaderData extends ShaderData {
                                 texture = WebGPUShaderData._dummyTexture2D;
                                 internalTex = texture._texture as WebGPUInternalTex;
                             }
-                            if (internalTex._webGPUFormat === WebGPUTextureFormat.depth16unorm
+                            if (internalTex.compareMode > 0)
+                                item.texture.sampleType = 'depth';
+                            else if (internalTex._webGPUFormat === WebGPUTextureFormat.depth16unorm
                                 || internalTex._webGPUFormat === WebGPUTextureFormat.depth24plus_stencil8
-                                || internalTex._webGPUFormat === WebGPUTextureFormat.depth32float)
+                                || internalTex._webGPUFormat === WebGPUTextureFormat.depth32float) {
                                 item.texture.sampleType = 'unfilterable-float';
-                            else {
-                                // todo different samplerType
-                                // eg: uint, sint
+                            } else {
                                 const supportFloatLinearFiltering = LayaGL.renderEngine.getCapable(RenderCapable.Texture_FloatLinearFiltering);
                                 if (!supportFloatLinearFiltering && texture.format === TextureFormat.R32G32B32A32)
                                     item.texture.sampleType = 'unfilterable-float';
@@ -373,16 +372,13 @@ export class WebGPUShaderData extends ShaderData {
                                 texture = WebGPUShaderData._dummyTexture2D;
                                 internalTex = texture._texture as WebGPUInternalTex;
                             }
-                            // if (internalTex.compareMode > 0)
-                            //     item.sampler.type = 'comparison';
-                            // else
-                            if (internalTex._webGPUFormat === WebGPUTextureFormat.depth16unorm
+                            if (internalTex.compareMode > 0)
+                                item.sampler.type = 'comparison';
+                            else if (internalTex._webGPUFormat === WebGPUTextureFormat.depth16unorm
                                 || internalTex._webGPUFormat === WebGPUTextureFormat.depth24plus_stencil8
                                 || internalTex._webGPUFormat === WebGPUTextureFormat.depth32float) {
                                 item.sampler.type = 'non-filtering';
-                                //internalTex.filterMode = FilterMode.Point;
-                            }
-                            else {
+                            } else {
                                 const supportFloatLinearFiltering = LayaGL.renderEngine.getCapable(RenderCapable.Texture_FloatLinearFiltering);
                                 if (!supportFloatLinearFiltering && texture.format === TextureFormat.R32G32B32A32)
                                     item.sampler.type = 'non-filtering';

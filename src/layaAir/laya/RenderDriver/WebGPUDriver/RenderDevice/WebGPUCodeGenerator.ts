@@ -165,7 +165,7 @@ export class WebGPUCodeGenerator {
                 if (!_have(sprite2DUniforms, name))
                     sprite2DUniforms.push({ name, type, set: 2 });
             }
-            else if (type === 'sampler2D' || type === 'samplerCube' || type === 'sampler2DArray') {
+            else if (type === 'sampler2D' || type === 'samplerCube' || type === 'sampler2DArray' || type === 'sampler2DShadow') {
                 if (!_have(textureUniforms, name))
                     textureUniforms.push({ name, type, set: 3 });
             }
@@ -196,7 +196,7 @@ export class WebGPUCodeGenerator {
                 for (let i = 0, len = uniforms.length; i < len; i++) {
                     const nameStr = uniforms[i].name;
                     const typeStr = uniforms[i].type;
-                    if (typeStr === 'sampler2D' || typeStr === 'samplerCube' || typeStr === 'sampler2DArray')
+                    if (typeStr === 'sampler2D' || typeStr === 'samplerCube' || typeStr === 'sampler2DArray' || typeStr === 'sampler2DShadow')
                         textureUniforms.push({ name: nameStr, type: typeStr, set });
                     else sortedUniforms[this._getAttributeS2N(typeStr)].push({ name: nameStr, type: typeStr, set });
                 }
@@ -211,7 +211,7 @@ export class WebGPUCodeGenerator {
                     const typeStr = this._getAttributeT2S(data[key].uniformtype);
                     if (data[key].propertyName.indexOf('.') !== -1) continue;
                     if (typeStr === '') continue;
-                    else if (typeStr === 'sampler2D' || typeStr === 'samplerCube' || typeStr === 'sampler2DArray')
+                    else if (typeStr === 'sampler2D' || typeStr === 'samplerCube' || typeStr === 'sampler2DArray' || typeStr === 'sampler2DShadow')
                         textureUniforms.push({ name: nameStr, type: typeStr, set });
                     else sortedUniforms[this._getAttributeS2N(typeStr)].push({ name: nameStr, type: typeStr, set });
                 }
@@ -309,7 +309,7 @@ export class WebGPUCodeGenerator {
                 if (!_have(sprite3DUniforms, name))
                     sprite3DUniforms.push({ name, type, set: 2 });
             }
-            else if (type === 'sampler2D' || type === 'samplerCube' || type === 'sampler2DArray') {
+            else if (type === 'sampler2D' || type === 'samplerCube' || type === 'sampler2DArray' || type === 'sampler2DShadow') {
                 if (!_have(textureUniforms, name))
                     textureUniforms.push({ name, type, set: 3 });
             }
@@ -348,7 +348,7 @@ export class WebGPUCodeGenerator {
                 for (let i = 0, len = uniforms.length; i < len; i++) {
                     const nameStr = uniforms[i].name;
                     const typeStr = uniforms[i].type;
-                    if (typeStr === 'sampler2D' || typeStr === 'samplerCube' || typeStr === 'sampler2DArray')
+                    if (typeStr === 'sampler2D' || typeStr === 'samplerCube' || typeStr === 'sampler2DArray' || typeStr === 'sampler2DShadow')
                         textureUniforms.push({ name: nameStr, type: typeStr, set });
                     else sortedUniforms[this._getAttributeS2N(typeStr)].push({ name: nameStr, type: typeStr, set });
                 }
@@ -363,7 +363,7 @@ export class WebGPUCodeGenerator {
                     const typeStr = this._getAttributeT2S(data[key].uniformtype);
                     if (data[key].propertyName.indexOf('.') !== -1) continue;
                     if (typeStr === '') continue;
-                    else if (typeStr === 'sampler2D' || typeStr === 'samplerCube' || typeStr === 'sampler2DArray')
+                    else if (typeStr === 'sampler2D' || typeStr === 'samplerCube' || typeStr === 'sampler2DArray' || typeStr === 'sampler2DShadow')
                         textureUniforms.push({ name: nameStr, type: typeStr, set });
                     else sortedUniforms[this._getAttributeS2N(typeStr)].push({ name: nameStr, type: typeStr, set });
                 }
@@ -490,6 +490,31 @@ export class WebGPUCodeGenerator {
                         type: WebGPUBindingInfoType.texture,
                         name: `${tu.name}Texture`,
                         propertyId: Shader3D.propertyNameToID(tu.name),
+                        texture: { sampleType: 'float', viewDimension: '2d-array', multisampled: false },
+                    } as WebGPUUniformPropertyBindingInfo);
+                }
+                if (tu.type === 'sampler2DShadow') {
+                    res = `${res}layout(set = ${tu.set}, binding = ${binding[tu.set]++}) uniform samplerShadow ${tu.name}Sampler;\n`;
+                    res = `${res}layout(set = ${tu.set}, binding = ${binding[tu.set]++}) uniform texture2D ${tu.name}Texture;\n`;
+                    res = `${res}#define ${tu.name} sampler2DShadow(${tu.name}Texture, ${tu.name}Sampler)\n\n`;
+                    uniformInfo.push({
+                        id: WebGPUGlobal.getUniformInfoId(),
+                        set: tu.set,
+                        binding: binding[tu.set] - 2,
+                        visibility,
+                        type: WebGPUBindingInfoType.sampler,
+                        name: `${tu.name}Sampler`,
+                        propertyId: Shader3D.propertyNameToID(tu.name),
+                        sampler: { type: 'filtering' },
+                    } as WebGPUUniformPropertyBindingInfo);
+                    uniformInfo.push({
+                        id: WebGPUGlobal.getUniformInfoId(),
+                        set: tu.set,
+                        binding: binding[tu.set] - 1,
+                        visibility,
+                        type: WebGPUBindingInfoType.texture,
+                        name: `${tu.name}Texture`,
+                        propertyId: Shader3D.propertyNameToID(tu.name),
                         texture: { sampleType: 'float', viewDimension: '2d', multisampled: false },
                     } as WebGPUUniformPropertyBindingInfo);
                 }
@@ -521,34 +546,70 @@ export class WebGPUCodeGenerator {
      */
     private static _genInverseFunc() {
         const func = `
+mat2 inverse(mat2 m)
+{
+    return mat2(m[1][1], -m[0][1], -m[1][0], m[0][0]) / (m[0][0] * m[1][1] - m[0][1] * m[1][0]);
+}
 mat3 inverse(mat3 m)
 {
     float a00 = m[0][0], a01 = m[0][1], a02 = m[0][2];
     float a10 = m[1][0], a11 = m[1][1], a12 = m[1][2];
     float a20 = m[2][0], a21 = m[2][1], a22 = m[2][2];
+
     float b01 = a22 * a11 - a12 * a21;
-    float b11 = -a22 * a10 + a12 * a20;
+    float b11 = a12 * a20 - a22 * a10;
     float b21 = a21 * a10 - a11 * a20;
+
     float det = a00 * b01 + a01 * b11 + a02 * b21;
-    return mat3(b01, (-a22 * a01 + a02 * a21), (a12 * a01 - a02 * a11), b11, (a22 * a00 - a02 * a20),
-	       (-a12 * a00 + a02 * a10), b21, (-a21 * a00 + a01 * a20), (a11 * a00 - a01 * a10)) / det;
+
+    return mat3(
+           b01, (-a22 * a01 + a02 * a21), (a12 * a01 - a02 * a11), b11, (a22 * a00 - a02 * a20),
+	       (-a12 * a00 + a02 * a10), b21, (-a21 * a00 + a01 * a20), (a11 * a00 - a01 * a10))
+	/ det;
 }
 mat4 inverse(mat4 m)
 {
-    float a00 = m[0][0], a01 = m[0][1], a02 = m[0][2], a03 = m[0][3], a10 = m[1][0], a11 = m[1][1], a12 = m[1][2],
-	  a13 = m[1][3], a20 = m[2][0], a21 = m[2][1], a22 = m[2][2], a23 = m[2][3], a30 = m[3][0], a31 = m[3][1],
-	  a32 = m[3][2], a33 = m[3][3],
-	  b00 = a00 * a11 - a01 * a10, b01 = a00 * a12 - a02 * a10, b02 = a00 * a13 - a03 * a10,
-	  b03 = a01 * a12 - a02 * a11, b04 = a01 * a13 - a03 * a11, b05 = a02 * a13 - a03 * a12,
-	  b06 = a20 * a31 - a21 * a30, b07 = a20 * a32 - a22 * a30, b08 = a20 * a33 - a23 * a30,
-	  b09 = a21 * a32 - a22 * a31, b10 = a21 * a33 - a23 * a31, b11 = a22 * a33 - a23 * a32,
-	  det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
-    return mat4(a11 * b11 - a12 * b10 + a13 * b09, a02 * b10 - a01 * b11 - a03 * b09, a31 * b05 - a32 * b04 + a33 * b03,
+    float a00 = m[0][0], a01 = m[0][1], a02 = m[0][2], a03 = m[0][3];
+    float a10 = m[1][0], a11 = m[1][1], a12 = m[1][2], a13 = m[1][3];
+    float a20 = m[2][0], a21 = m[2][1], a22 = m[2][2], a23 = m[2][3];
+    float a30 = m[3][0], a31 = m[3][1], a32 = m[3][2], a33 = m[3][3];
+
+	float b00 = a00 * a11 - a01 * a10, b01 = a00 * a12 - a02 * a10, b02 = a00 * a13 - a03 * a10;
+	float b03 = a01 * a12 - a02 * a11, b04 = a01 * a13 - a03 * a11, b05 = a02 * a13 - a03 * a12;
+	float b06 = a20 * a31 - a21 * a30, b07 = a20 * a32 - a22 * a30, b08 = a20 * a33 - a23 * a30;
+	float b09 = a21 * a32 - a22 * a31, b10 = a21 * a33 - a23 * a31, b11 = a22 * a33 - a23 * a32;
+
+	float det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
+
+    return mat4(
+           a11 * b11 - a12 * b10 + a13 * b09, a02 * b10 - a01 * b11 - a03 * b09, a31 * b05 - a32 * b04 + a33 * b03,
 	       a22 * b04 - a21 * b05 - a23 * b03, a12 * b08 - a10 * b11 - a13 * b07, a00 * b11 - a02 * b08 + a03 * b07,
 	       a32 * b02 - a30 * b05 - a33 * b01, a20 * b05 - a22 * b02 + a23 * b01, a10 * b10 - a11 * b08 + a13 * b06,
 	       a01 * b08 - a00 * b10 - a03 * b06, a30 * b04 - a31 * b02 + a33 * b00, a21 * b02 - a20 * b04 - a23 * b00,
 	       a11 * b07 - a10 * b09 - a12 * b06, a00 * b09 - a01 * b07 + a02 * b06, a31 * b01 - a30 * b03 - a32 * b00,
-	       a20 * b03 - a21 * b01 + a22 * b00) / det;
+	       a20 * b03 - a21 * b01 + a22 * b00)
+	/ det;
+}
+mat2 transpose(mat2 m)
+{
+    return mat2(
+    m[0][0], m[1][0],
+	m[0][1], m[1][1]);
+}
+mat3 transpose(mat3 m)
+{
+    return mat3(
+    m[0][0], m[1][0], m[2][0],
+	m[0][1], m[1][1], m[2][1],
+	m[0][2], m[1][2], m[2][2]);
+}
+mat4 transpose(mat4 m)
+{
+    return mat4(
+    m[0][0], m[1][0], m[2][0], m[3][0],
+	m[0][1], m[1][1], m[2][1], m[3][1],
+	m[0][2], m[1][2], m[2][2], m[3][2],
+	m[0][3], m[1][3], m[2][3], m[3][3]);
 }`;
         return `${func}\n\n`;
     }
@@ -697,6 +758,8 @@ mat4 inverse(mat4 m)
                 return 'samplerCube';
             case ShaderDataType.Texture2DArray:
                 return 'sampler2DArray';
+            case ShaderDataType.Texture2DShadow:
+                return 'sampler2DShadow';
             default:
                 return '';
         }
@@ -730,6 +793,8 @@ mat4 inverse(mat4 m)
                 return ShaderDataType.TextureCube;
             case 'sampler2DArray':
                 return ShaderDataType.Texture2DArray;
+            case 'sampler2DShadow':
+                return ShaderDataType.Texture2DShadow;
             default:
                 return '';
         }
@@ -781,6 +846,8 @@ mat4 inverse(mat4 m)
         const varyingMapFS: NameStringMap = {};
         const clusterSlices = Config3D.lightClusterCount;
 
+        defineString.push('GRAPHICS_API_GLES3'); //默认支持GLES3
+
         let defineStr: string = '';
         defineStr += '#define MAX_LIGHT_COUNT ' + Config3D.maxLightCount + '\n';
         defineStr += '#define MAX_LIGHT_COUNT_PER_CLUSTER ' + Config3D._maxAreaLightCountPerClusterAverage + '\n';
@@ -804,22 +871,22 @@ mat4 inverse(mat4 m)
             fs.shift();
 
         let vsOut = '', fsOut = '';
-        let vsNeedInverseFunc = false;
-        let fsNeedInverseFunc = false;
+        let vsNeedInverseFunc = true;
+        let fsNeedInverseFunc = true;
         const vsTod: TypeOutData = {};
         const fsTod: TypeOutData = {};
         //提取VertexShader的varying参数
         {
             const defs: Set<string> = new Set();
             const token = WebGPUShaderCompileDef.compile(vs.join('\n'), defs);
-            if (!defs.has('Math_lib'))
-                vsNeedInverseFunc = true;
+            //if (!defs.has('Math_lib'))
+            //    vsNeedInverseFunc = true;
             const defMap: NameBooleanMap = {};
             defineString.forEach(def => { defMap[def] = true; });
             defMap['GL_FRAGMENT_PRECISION_HIGH'] = true;
             vsOut = WebGPUShaderCompileUtil.toScript(token, defMap, vsTod);
-            if (vsOut.indexOf('inverse') === -1)
-                vsNeedInverseFunc = false;
+            //if (vsOut.indexOf('inverse') === -1)
+            //    vsNeedInverseFunc = false;
             if (vsTod.varying) //提取varying
                 for (const key in vsTod.varying)
                     if (!varyingMapVS[key])
@@ -836,14 +903,14 @@ mat4 inverse(mat4 m)
         {
             const defs: Set<string> = new Set();
             const token = WebGPUShaderCompileDef.compile(fs.join('\n'), defs);
-            if (!defs.has('Math_lib'))
-                fsNeedInverseFunc = true;
+            //if (!defs.has('Math_lib'))
+            //    fsNeedInverseFunc = true;
             const defMap: NameBooleanMap = {};
             defineString.forEach(def => { defMap[def] = true; });
             defMap['GL_FRAGMENT_PRECISION_HIGH'] = true;
             fsOut = WebGPUShaderCompileUtil.toScript(token, defMap, fsTod);
-            if (fsOut.indexOf('inverse') === -1)
-                fsNeedInverseFunc = false;
+            //if (fsOut.indexOf('inverse') === -1)
+            //    fsNeedInverseFunc = false;
             if (fsTod.varying) //提取varying
                 for (const key in fsTod.varying)
                     if (!varyingMapFS[key])
@@ -929,25 +996,60 @@ ${textureGLSL_fs}
         //console.log(dstFS);
 
         //转译成WGSL代码
-        let wgsl_vs = this.naga.compileGLSL2WGSL(dstVS, 'vertex'); {
-            const regex: RegExp = /let\s+([_a-zA-Z][_a-zA-Z0-9]*)\s*=\s*textureSample\(([^)]+)\);/g;
+        let wgsl_vs = this.naga.compileGLSL2WGSL(dstVS, 'vertex');
+        let wgsl_fs = this.naga.compileGLSL2WGSL(dstFS, 'fragment');
+
+        //处理textureSample
+        {
+            const regex: RegExp = /let\s+([_a-zA-Z][_a-zA-Z0-9]*)\s*=\s*textureSample\(((?:[^()]|\((?:[^()]*|\([^()]*\))*\))*)\);/g;
             let match;
             while ((match = regex.exec(wgsl_vs)) !== null) {
                 const variable: string = match[1];
-                const argumentss = match[2].split(',');
+                const argss = match[2].split(',');
 
-                const code = `
-    let ${variable}_1 = textureDimensions(${argumentss[0]}, 0);
-    let ${variable}_2 = vec2<u32>(u32(f32(${variable}_1.x) * ${argumentss[2]}.x), u32(f32(${variable}_1.y) * ${argumentss[2]}.y));
-    let ${variable} = textureLoad(${argumentss[0]}, ${variable}_2, 0);`;
+                let code: string;
+                if (argss.length === 3) { //texture2D
+                    code = `
+    let ${variable}_1 = textureDimensions(${argss[0]}, 0);
+    let ${variable}_2 = ${argss[2]};
+    let ${variable}_3 = vec2<u32>(u32(f32(${variable}_1.x) * ${variable}_2.x), u32(f32(${variable}_1.y) * ${variable}_2.y));
+    let ${variable} = textureLoad(${argss[0]}, ${variable}_3, 0);`;
+                } else if (argss.length === 4) { //texture2DArray
+                    code = `
+    let ${variable}_1 = textureDimensions(${argss[0]}, 0);
+    let ${variable}_2 = ${argss[2]};
+    let ${variable}_3 = vec2<u32>(u32(f32(${variable}_1.x) * ${variable}_2.x), u32(f32(${variable}_1.y) * ${variable}_2.y));
+    let ${variable} = textureLoad(${argss[0]}, ${variable}_3, ${argss[3]}, 0);`;
+                }
 
                 wgsl_vs = wgsl_vs.replace(match[0], code);
             }
         }
 
-        let wgsl_fs = this.naga.compileGLSL2WGSL(dstFS, 'fragment');
-        const regex = /textureSampleBias/g; //替换textureSampleBias为textureSampleLevel
-        wgsl_fs = wgsl_fs.replace(regex, 'textureSampleLevel');
+        //处理g_VertexID
+        if (procVS.haveVertexID) {
+            const regex: RegExp = /fn\s+main\([^{}]*\{/g;
+            let match;
+            if ((match = regex.exec(wgsl_vs)) !== null) {
+                const str = match[0];
+                let code = '';
+                let add = false;
+                for (let i = 0; i < str.length; i++) {
+                    if (str[i] === '(' && !add) {
+                        add = true;
+                        code += str[i];
+                        code += '@builtin(vertex_index) vertexIndex : u32, ';
+                    } else if (str[i] === '{') {
+                        code += str[i];
+                        code += '\n    gl_VertexID = i32(vertexIndex);';
+                    } else code += str[i];
+                }
+                wgsl_vs = wgsl_vs.replace(match[0], code);
+            }
+        }
+
+        //const regex = /textureSampleBias/g; //替换textureSampleBias为textureSampleLevel
+        //wgsl_fs = wgsl_fs.replace(regex, 'textureSampleLevel');
         //console.log(wgsl_vs);
         //console.log(wgsl_fs);
 
@@ -973,6 +1075,8 @@ ${textureGLSL_fs}
                 }
             } else uniformMapEx[key] = { name: key, type: uniformMap[key] as ShaderDataType };
         }
+
+        defineString.push('GRAPHICS_API_GLES3'); //默认支持GLES3
 
         const defMap: NameBooleanMap = {};
         for (let i = defineString.length - 1; i > -1; i--)
@@ -1034,6 +1138,7 @@ ${textureGLSL_fs}
                 }
             }
         }
+
         return { uniform: uniformMapEx, arr: arrayMap };
     }
 }
