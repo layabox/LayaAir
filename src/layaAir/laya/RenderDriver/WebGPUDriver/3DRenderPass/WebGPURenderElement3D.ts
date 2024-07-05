@@ -128,23 +128,30 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
     }
 
     /**
-     * 渲染前更新
-     * @param context 
+     * 提取当前渲染通道
+     * @param pipelineMode 
      */
-    _preUpdatePre(context: WebGPURenderContext3D) {
-        //设定当前渲染通道
+    private _takeCurPass(pipelineMode: string) {
         this._passNum = 0;
+        this._passName = pipelineMode;
         const passes = this.subShader._passes;
         for (let i = 0, len = passes.length; i < len; i++) {
-            if (passes[i].pipelineMode === context.pipelineMode) {
+            if (passes[i].pipelineMode === pipelineMode) {
                 this._passIndex[this._passNum] = i;
                 this._shaderPass[this._passNum] = passes[i];
                 this._shaderInstance[this._passNum] = this._shaderInstances[i];
                 this._passNum++;
             }
         }
+    }
+
+    /**
+     * 渲染前更新
+     * @param context 
+     */
+    _preUpdatePre(context: WebGPURenderContext3D) {
+        this._takeCurPass(context.pipelineMode);
         if (this._passNum === 0) return false;
-        this._passName = context.pipelineMode;
 
         //设定当前渲染数据
         this._sceneData = context.sceneData;
@@ -224,6 +231,9 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
         //重编译着色器后，清理绑定组缓存
         this.renderShaderData?.clearBindGroup();
         this.materialShaderData?.clearBindGroup();
+
+        //提取当前渲染通道
+        this._takeCurPass(context.pipelineMode);
     }
 
     /**
