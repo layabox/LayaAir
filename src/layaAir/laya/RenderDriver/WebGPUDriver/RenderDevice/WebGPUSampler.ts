@@ -84,11 +84,7 @@ export class WebGPUSampler {
     }
 
     private _getSamplerDescriptor(params: WebGPUSamplerParams) {
-        // if (params.comparedMode > 0) {
-        //     params.filterMode = 0;
-        //     params.mipmapFilter = 0;
-        // }
-        if (params.anisoLevel > 1)
+        if (params.anisoLevel > 1 && params.mipmapFilter === FilterMode.Point)
             params.mipmapFilter = FilterMode.Bilinear;
 
         return {

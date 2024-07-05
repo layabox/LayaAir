@@ -209,6 +209,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
 
         //查找着色器对象缓存
         for (let i = 0; i < this._passNum; i++) {
+            const index = this._passIndex[i];
             if (!this._shaderPass[i].moduleData.getCacheShader(compileDefine.clone())) {
                 const { uniformMap, arrayMap } = this._collectUniform(compileDefine); //@ts-ignore
                 this._shaderPass[i].uniformMap = uniformMap; //@ts-ignore
@@ -217,7 +218,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
 
             //获取着色器实例，先查找缓存，如果没有则创建
             const shaderInstance = this._shaderPass[i].withCompile(compileDefine.clone()) as WebGPUShaderInstance;
-            this._shaderInstances[this._passIndex[i]] = shaderInstance;
+            this._shaderInstances[index] = shaderInstance;
 
             //创建uniform缓冲区
             if (i === 0) {

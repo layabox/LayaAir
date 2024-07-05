@@ -242,7 +242,7 @@ export class WebGPUBufferCluster {
         this.renderContext.notifyGPUBufferChange();
 
         WebGPUGlobal.action(this, 'expandMemory | uniform', expandSize);
-        //console.log("GPUBuffer expand, newSize =", this.totalSize / 1024 + 'KB,', this.name);
+        console.log("GPUBuffer expand, newSize =", this.totalSize / 1024 + 'KB,', this.name);
     }
 
     /**
