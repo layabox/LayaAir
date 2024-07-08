@@ -170,6 +170,7 @@ export class WebGPUTextureContext implements ITextureContext {
         const textureDescriptor = this._getGPUTextureDescriptor(dimension, width, height, gpuTextureFormat, depth, generateMipmap, 1, this.isCompressTexture(format));
         if (generateMipmap)
             textureDescriptor.mipLevelCount = 1 + Math.log2(Math.max(width, height)) | 0;
+        textureDescriptor.label = 'texture array';
         const gpuTexture = this._engine.getDevice().createTexture(textureDescriptor);
         const internalTex = new WebGPUInternalTex(width, height, depth, dimension, generateMipmap, 1, useSRGBExt, gammaCorrection);
         internalTex.resource = gpuTexture;
@@ -178,10 +179,30 @@ export class WebGPUTextureContext implements ITextureContext {
         WebGPUGlobal.action(internalTex, 'allocMemory | texture', internalTex.gpuMemory);
 
         return internalTex;
-        //return this.createTextureInternal(dimension, width, height, format, generateMipmap, sRGB, premultipliedAlpha);
     }
-    setTexture3DImageData(texture: InternalTexture, source: HTMLImageElement[] | HTMLCanvasElement[] | ImageBitmap[], depth: number, premultiplyAlpha: boolean, invertY: boolean): void {
-        return null;
+    async setTexture3DImageData(texture: InternalTexture, source: HTMLImageElement[] | HTMLCanvasElement[] | ImageBitmap[], depth: number, premultiplyAlpha: boolean, invertY: boolean) {
+        if (!source) return;
+        const device = WebGPURenderEngine._instance.getDevice();
+        for (let i = 0; i < depth; i++) {
+            const imageBitmapSource = await createImageBitmap(source[i]);
+            const image: GPUImageCopyExternalImage = { source: imageBitmapSource as ImageBitmap, flipY: invertY, origin: [0, 0] };
+
+            const textureCopyView: GPUImageCopyTextureTagged = {
+                texture: texture.resource,
+                origin: {
+                    x: 0,
+                    y: 0,
+                },
+                mipLevel: 0,
+                premultipliedAlpha: premultiplyAlpha,
+                colorSpace: texture.useSRGBLoad ? "srgb" : undefined,
+            };
+            const copySize: GPUExtent3DStrict = { width: source[i].width, height: source[i].height, depthOrArrayLayers: i };
+            device.queue.copyExternalImageToTexture(image, textureCopyView, copySize);
+        }
+        //Generate mipmap TODO
+        if (texture.mipmap)
+            genMipmap(device, texture.resource);
     }
     setTexture3DPixelsData(texture: WebGPUInternalTex, source: ArrayBufferView, depth: number, premultiplyAlpha: boolean, invertY: boolean): void {
         if (!source) return;
@@ -215,8 +236,41 @@ export class WebGPUTextureContext implements ITextureContext {
         if (texture.mipmap)
             genMipmap(device, texture.resource);
     }
-    setTexture3DSubPixelsData(texture: InternalTexture, source: ArrayBufferView, mipmapLevel: number, generateMipmap: boolean, xOffset: number, yOffset: number, zOffset: number, width: number, height: number, depth: number, premultiplyAlpha: boolean, invertY: boolean): void {
-        return null;
+    setTexture3DSubPixelsData(texture: WebGPUInternalTex, source: ArrayBufferView, mipmapLevel: number, generateMipmap: boolean, xOffset: number, yOffset: number, zOffset: number, width: number, height: number, depth: number, premultiplyAlpha: boolean, invertY: boolean): void {
+        if (!source) return;
+        const imageCopy: GPUImageCopyTextureTagged = {
+            texture: texture.resource,
+            mipLevel: mipmapLevel,
+            premultipliedAlpha: premultiplyAlpha,
+            origin: {
+                x: xOffset,
+                y: yOffset,
+                z: zOffset,
+            },
+        }
+        const block = this._getBlockInformationFromFormat(texture._webGPUFormat);
+        const bytesPerRow = Math.ceil(width / block.width) * block.length;
+        const dataLayout: GPUImageDataLayout = {
+            offset: 0,
+            bytesPerRow: bytesPerRow,
+            rowsPerImage: height
+        }
+        const size = {
+            width: Math.ceil(width / block.width) * block.width,
+            height: Math.ceil(height / block.height) * block.height,
+            depthOrArrayLayers: depth
+        }
+
+        const device = WebGPURenderEngine._instance.getDevice();
+        device.queue.writeTexture(imageCopy, source.buffer, dataLayout, size);
+
+        //PremultiplyAlpha
+        if (premultiplyAlpha)
+            doPremultiplyAlpha(device, texture, xOffset, yOffset, width, height);
+
+        //Generate mipmap
+        if (generateMipmap)
+            genMipmap(device, texture.resource);
     }
 
     private _getGPUTexturePixelByteSize(format: TextureFormat) {
@@ -495,7 +549,7 @@ export class WebGPUTextureContext implements ITextureContext {
         if (dimension === TextureDimension.Tex3D) {
             throw "error";
         }
-        //TODO
+
         let useSRGBExt = this.isSRGBFormat(format) || (sRGB && this.supportSRGB(format, generateMipmap));
         if (premultipliedAlpha) {//预乘法和SRGB同时开启，会有颜色白边问题
             useSRGBExt = false;
@@ -510,6 +564,7 @@ export class WebGPUTextureContext implements ITextureContext {
         const textureDescriptor = this._getGPUTextureDescriptor(dimension, width, height, gpuTextureFormat, layerCount, generateMipmap, 1, this.isCompressTexture(format));
         if (generateMipmap)
             textureDescriptor.mipLevelCount = 1 + Math.log2(Math.max(width, height)) | 0;
+        layerCount === 6 ? textureDescriptor.label = 'textureCube' : textureDescriptor.label = 'texture';
         const gpuTexture = this._engine.getDevice().createTexture(textureDescriptor);
         const internalTex = new WebGPUInternalTex(width, height, 1, dimension, generateMipmap, 1, useSRGBExt, gammaCorrection);
         internalTex.resource = gpuTexture;
@@ -712,10 +767,11 @@ export class WebGPUTextureContext implements ITextureContext {
 
     setTexturePixelsData(texture: WebGPUInternalTex, source: ArrayBufferView, premultiplyAlpha: boolean, invertY: boolean): void {
         if (!source) return;
+        if (texture._webGPUFormat === 'depth32float') debugger
         const imageCopy: GPUImageCopyTextureTagged = {
             texture: texture.resource,
             mipLevel: 0,
-            premultipliedAlpha: premultiplyAlpha
+            premultipliedAlpha: premultiplyAlpha,
         }
         const block = this._getBlockInformationFromFormat(texture._webGPUFormat);
         const bytesPerRow = Math.ceil(texture.width / block.width) * block.length;
@@ -1195,12 +1251,11 @@ export class WebGPUTextureContext implements ITextureContext {
     createRenderTextureInternal(dimension: TextureDimension, width: number, height: number, format: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean): InternalTexture {
         // todo
         let multiSamples = 1;
-
         let gpuColorFormat = this._getGPURenderTargetFormat(format, sRGB);
 
         const gpuColorDescriptor = this._getGPUTextureDescriptor(dimension, width, height, gpuColorFormat, 1, generateMipmap, multiSamples, false);
         const gpuColorTexture = this._engine.getDevice().createTexture(gpuColorDescriptor);
-
+        gpuColorDescriptor.label = 'renderTexture';
         const pixelByteSize = this._getGPURenderTexturePixelByteSize(format);
         let texture = new WebGPUInternalTex(width, height, 1, dimension, generateMipmap, multiSamples, false, 1);
         texture.resource = gpuColorTexture;
@@ -1265,6 +1320,7 @@ export class WebGPUTextureContext implements ITextureContext {
         const gpuColorFormat = this._getGPURenderTargetFormat(colorFormat, sRGB);
         const gpuColorDescriptor = this._getGPUTextureDescriptor(TextureDimension.Tex2D, width, height, gpuColorFormat, 1, generateMipmap, multiSamples, false);
         gpuColorDescriptor.usage = GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.COPY_SRC | GPUTextureUsage.COPY_DST;
+        gpuColorDescriptor.label = 'renderTarget color';
         const gpuColorTexture = this._engine.getDevice().createTexture(gpuColorDescriptor);
         const internalRT = new WebGPUInternalRT(colorFormat, depthStencilFormat, false, generateMipmap, multiSamples);
         internalRT._textures.push(new WebGPUInternalTex(width, height, 1, TextureDimension.Tex2D, generateMipmap, multiSamples, useSRGBExt, gammaCorrection));
@@ -1289,17 +1345,18 @@ export class WebGPUTextureContext implements ITextureContext {
             || colorFormat === RenderTargetFormat.DEPTH_32
             || colorFormat === RenderTargetFormat.DEPTHSTENCIL_24_8) {
             depthStencilFormat = RenderTargetFormat.R8G8B8A8;
-            const array = new Uint16Array(width * height);
-            for (let j = 0; j < height; j++)
-                for (let i = 0; i < width; i++)
-                    array[j * width + i] = 65535;
-            this.setTexturePixelsData(internalRT._textures[0], array, false, false);
+            //const array = new Uint16Array(width * height);
+            //for (let j = 0; j < height; j++)
+            //    for (let i = 0; i < width; i++)
+            //        array[j * width + i] = 65535;
+            //this.setTexturePixelsData(internalRT._textures[0], array, false, false);
         }
         if (depthStencilFormat !== RenderTargetFormat.None) {
             const pixelByteSize = this._getGPURenderTexturePixelByteSize(depthStencilFormat);
             const gpuDepthFormat = this._getGPURenderTargetFormat(depthStencilFormat, false);
             const gpuDepthDescriptor = this._getGPUTextureDescriptor(TextureDimension.Tex2D, width, height, gpuDepthFormat, 1, generateMipmap, multiSamples, false);
             gpuDepthDescriptor.usage = GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT;
+            gpuDepthDescriptor.label = 'renderTarget depth';
             const gpuDepthTexture = this._engine.getDevice().createTexture(gpuDepthDescriptor);
             internalRT._depthTexture = new WebGPUInternalTex(width, height, 1, TextureDimension.Tex2D, false, multiSamples, false, 1);
             internalRT._depthTexture.resource = gpuDepthTexture;
@@ -1425,14 +1482,10 @@ export class WebGPUTextureContext implements ITextureContext {
         return Promise.resolve(out);
     }
 
-    initVideoTextureData(texture: WebGPUInternalTex): void {
-        // empty
-    }
+    initVideoTextureData(texture: WebGPUInternalTex): void { }
 
     async updateVideoTexture(texture: InternalTexture, video: HTMLVideoElement, premultiplyAlpha: boolean, invertY: boolean): Promise<void> {
-        if (!video) {
-            return;
-        }
+        if (!video) return;
         const imageBitmapSource = await createImageBitmap(video);
         const image: GPUImageCopyExternalImage = { source: imageBitmapSource as ImageBitmap, flipY: invertY, origin: [0, 0] };
 

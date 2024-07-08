@@ -168,7 +168,7 @@ export function genMipmap(
     if (!module) {
         const code = getMipmapGenerationWGSL(textureBindingViewDimension);
         module = device.createShaderModule({
-            label: `mip level generation for ${textureBindingViewDimension}`,
+            label: `mipLevelGeneration for ${textureBindingViewDimension}`,
             code,
         });
         moduleByViewType[textureBindingViewDimension] = module;
@@ -191,7 +191,7 @@ export function genMipmap(
 
     if (!pipelineByFormatAndView[id]) {
         pipelineByFormatAndView[id] = device.createRenderPipeline({
-            label: `mip level generator pipeline for ${textureBindingViewDimension}`,
+            label: `mipLevelGenerator for ${textureBindingViewDimension}`,
             layout: 'auto',
             vertex: {
                 module,

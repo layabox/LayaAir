@@ -767,6 +767,13 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
     }
 
     /**
+     * 清除渲染管线缓存
+     */
+    static clearPipeline() {
+        this._pipelineCacheMap.clear();
+    }
+
+    /**
      * 销毁
      */
     destroy() {

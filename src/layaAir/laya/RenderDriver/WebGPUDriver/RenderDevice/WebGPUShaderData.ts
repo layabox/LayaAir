@@ -27,7 +27,6 @@ import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { Material } from "../../../resource/Material";
 import { Texture } from "../../../resource/Texture";
-import { WebGPUSampler } from "./WebGPUSampler";
 
 /**
  * 着色器数据
@@ -85,13 +84,14 @@ export class WebGPUShaderData extends ShaderData {
 
     static __init__() {
         if (!this._dummyTexture2D) { //创建2D空白贴图（替代丢失的贴图）
-            this._dummyTexture2D = new Texture2D(1, 1, TextureFormat.R8G8B8A8, false, true);
+            this._dummyTexture2D = new Texture2D(1, 1, TextureFormat.R8G8B8A8, false, true, false, false);
             const data = new Uint8Array([255, 255, 255, 255]);
             this._dummyTexture2D.setPixelsData(data, false, false);
             this._dummyTexture2D.lock = true;
+
         }
         if (!this._dummyTextureCube) { //创建Cube空白贴图（替代丢失的贴图）
-            this._dummyTextureCube = new TextureCube(1, TextureFormat.R8G8B8A8, false, true);
+            this._dummyTextureCube = new TextureCube(1, TextureFormat.R8G8B8A8, false, false, false);
             this._dummyTextureCube.lock = true;
         }
         Material.__initDefine__();
@@ -142,7 +142,7 @@ export class WebGPUShaderData extends ShaderData {
                 this._updateUniformData();
             }
         }
-    };
+    }
 
     /**
      * 将数据更新到UniformBuffer中
@@ -166,6 +166,7 @@ export class WebGPUShaderData extends ShaderData {
         if (this.coShaderData)
             for (let i = this.coShaderData.length - 1; i > -1; i--)
                 this.coShaderData[i].clearBindGroup();
+        //console.log('clearBindGroup =', this.globalId, this._infoId);
     }
 
     /**
@@ -232,14 +233,18 @@ export class WebGPUShaderData extends ShaderData {
                         else if (internalTex._webGPUFormat === WebGPUTextureFormat.depth16unorm
                             || internalTex._webGPUFormat === WebGPUTextureFormat.depth24plus_stencil8
                             || internalTex._webGPUFormat === WebGPUTextureFormat.depth32float) {
-                            item.sampler.type = 'non-filtering';
-                            internalTex.filterMode = FilterMode.Point;
+                            if (item.sampler.type !== 'non-filtering') {
+                                item.sampler.type = 'non-filtering';
+                                internalTex.filterMode = FilterMode.Point;
+                            }
                         } else {
                             const supportFloatLinearFiltering = LayaGL.renderEngine.getCapable(RenderCapable.Texture_FloatLinearFiltering);
                             if (!supportFloatLinearFiltering && texture.format === TextureFormat.R32G32B32A32) {
-                                item.sampler.type = 'non-filtering';
-                                internalTex.filterMode = FilterMode.Point;
-                            } else if (item.sampler.type === 'non-filtering') {
+                                if (item.sampler.type !== 'non-filtering') {
+                                    item.sampler.type = 'non-filtering';
+                                    internalTex.filterMode = FilterMode.Point;
+                                }
+                            } else if (item.sampler.type !== 'filtering') {
                                 item.sampler.type = 'filtering';
                                 internalTex.filterMode = FilterMode.Bilinear;
                             }
@@ -281,7 +286,6 @@ export class WebGPUShaderData extends ShaderData {
 
         //构建key，查找缓存bindGroup
         if (this.isShare) { //只有共享的ShaderData才可能需要不同的bindGroup
-            //key = name + '_' + this._infoId + ' | ';
             for (let i = info.length - 1; i > -1; i--)
                 key += info[i].propertyId + '_';
             if (key === this._bindGroupKey) {
@@ -293,11 +297,6 @@ export class WebGPUShaderData extends ShaderData {
                 bindGroupLayoutEntries = bindInfo ? bindInfo[1] : null;
             }
         } else {
-            // if (!this._bindGroup) { //首次创建
-            //     key = name + '_' + this._infoId + ' | ';
-            //     for (let i = info.length - 1; i > -1; i--)
-            //         key += info[i].propertyId + '_';
-            // }
             bindGroup = this._bindGroup;
             bindGroupLayoutEntries = this._bindGroupLayoutEntries;
         }
@@ -373,14 +372,18 @@ export class WebGPUShaderData extends ShaderData {
                             else if (internalTex._webGPUFormat === WebGPUTextureFormat.depth16unorm
                                 || internalTex._webGPUFormat === WebGPUTextureFormat.depth24plus_stencil8
                                 || internalTex._webGPUFormat === WebGPUTextureFormat.depth32float) {
-                                item.sampler.type = 'non-filtering';
-                                internalTex.filterMode = FilterMode.Point;
+                                if (item.sampler.type !== 'non-filtering') {
+                                    item.sampler.type = 'non-filtering';
+                                    internalTex.filterMode = FilterMode.Point;
+                                }
                             } else {
                                 const supportFloatLinearFiltering = LayaGL.renderEngine.getCapable(RenderCapable.Texture_FloatLinearFiltering);
                                 if (!supportFloatLinearFiltering && texture.format === TextureFormat.R32G32B32A32) {
-                                    item.sampler.type = 'non-filtering';
-                                    internalTex.filterMode = FilterMode.Point;
-                                } else if (item.sampler.type === 'non-filtering') {
+                                    if (item.sampler.type !== 'non-filtering') {
+                                        item.sampler.type = 'non-filtering';
+                                        internalTex.filterMode = FilterMode.Point;
+                                    }
+                                } else if (item.sampler.type !== 'filtering') {
                                     item.sampler.type = 'filtering';
                                     internalTex.filterMode = FilterMode.Bilinear;
                                 }
@@ -821,7 +824,7 @@ export class WebGPUShaderData extends ShaderData {
             this._data[index] = value;
             lastValue && lastValue._removeReference();
             value && value._addReference();
-            this.clearBindGroup(); //清理绑定组（重建绑定）
+            //this.clearBindGroup(); //清理绑定组（重建绑定）
             if (this.coShaderData)
                 for (let i = this.coShaderData.length - 1; i > -1; i--)
                     this.coShaderData[i].setTexture(index, value);
@@ -846,7 +849,7 @@ export class WebGPUShaderData extends ShaderData {
             }
             this.changeMark++;
             this._data[index] = value;
-            this.clearBindGroup(); //清理绑定组（重建绑定）
+            //this.clearBindGroup(); //清理绑定组（重建绑定）
             if (this.coShaderData)
                 for (let i = this.coShaderData.length - 1; i > -1; i--)
                     this.coShaderData[i]._setInternalTexture(index, value);
@@ -913,6 +916,13 @@ export class WebGPUShaderData extends ShaderData {
         this._bindGroupMap.clear();
         this._bindGroup = null;
         this._bindGroupLayoutEntries = null;
+        // for (const id in this._data) {
+        //     const data = this._data[id];
+        //     if (data instanceof Texture2D)
+        //         data._texture.dispose();
+        //     else if (data instanceof TextureCube)
+        //         data._texture.dispose();
+        // }
         if (this._uniformBuffer)
             this._uniformBuffer.destroy();
         if (this.coShaderData)

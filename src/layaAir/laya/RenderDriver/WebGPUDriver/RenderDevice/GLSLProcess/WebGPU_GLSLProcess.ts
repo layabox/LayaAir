@@ -7,7 +7,7 @@ import { WebGPU_GLSLUniform } from "./WebGPU_GLSLUniform";
  * GLSL代码处理
  */
 export class WebGPU_GLSLProcess {
-    glInter: string[] = []; //GLSL内置变量
+    glInter: string[] = []; //内置变量
     globals: string[] = []; //全局变量
     macros: WebGPU_GLSLMacro[] = []; //宏定义
     structs: WebGPU_GLSLStruct[] = []; //结构体定义
@@ -15,7 +15,7 @@ export class WebGPU_GLSLProcess {
     functions: WebGPU_GLSLFunction[] = []; //函数定义
     textureNames: string[] = []; //所有的贴图名称
     glslCode: string = ''; //处理后的GLSL代码
-    haveVertexID: boolean = false; //是否包含g_VertexID
+    haveVertexID: boolean = false; //是否包含gl_VertexID
 
     /**
      * 处理GLSL代码
@@ -27,14 +27,14 @@ export class WebGPU_GLSLProcess {
         this._removeComments(glslCode); //移除注释
         this._extractMacros(this.glslCode); //提取宏定义
         for (let i = 0; i < 3; i++)
-            this._replaceMacros(this.glslCode); //执行宏替换（处理宏替换嵌套，最多执行3次）
+            this._replaceMacros(this.glslCode); //执行宏替换（处理宏替换嵌套，执行3次）
         this._extractInternals(this.glslCode); //提取内置变量
         this._extractFunctions(this.glslCode); //提取函数定义
         this._extractStructs(this.glslCode); //提取结构体定义
         this._extractGlobals(this.glslCode); //提取全局变量
         this._findUsedFunctions(); //查找被使用的函数
 
-        //对函数进行处理，处理sampler类型的参数
+        //对函数进行处理，处理sampler类型的参数（参数一分为二）
         for (let i = 0; i < this.functions.length; i++)
             this.functions[i].processSampler(textureNames);
 
@@ -43,7 +43,7 @@ export class WebGPU_GLSLProcess {
  
     /**
      * 添加uniform
-     * @param uniform 
+     * @param uniform 包含uniform定义的代码
      */
     addUniform(uniform: string) {
         const regex = /layout\s*\(.*?\)\s*uniform\s+\w+\s*\{[\s\S]*?\};/gm;
