@@ -189,11 +189,11 @@ export class CharRender_Canvas extends ICharRender {
 		//if (canvas.width != (w + 1) || canvas.height != (h + 1)) {
 		CharRender_Canvas.canvas.width = Math.min(w + 1, this.maxTexW);
 		CharRender_Canvas.canvas.height = Math.min(h + 1, this.maxTexH);
-		ctx.font = font;
 		//}
 		ctx.clearRect(0, 0, w + 1 + lineWidth, h + 1 + lineWidth);
 		ctx.setTransform(1, 0, 0, 1, 0, 0);	// 强制清理缩放
 		ctx.save();
+		ctx.font = font;
 		if (this.scaleFontSize) {
 			//这里的缩放会导致与上面的缩放同时起作用。所以上面保护
 			ctx.scale(this.lastScaleX, this.lastScaleY);
