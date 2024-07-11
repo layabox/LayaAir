@@ -1,4 +1,5 @@
 import { DrawType } from "../../RenderEngine/RenderEnum/DrawType";
+import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
 import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
 import { GeometryElement } from "../core/GeometryElement";
 import { RenderContext3D } from "../core/render/RenderContext3D";
@@ -33,7 +34,19 @@ export class MeshInstanceGeometry extends GeometryElement {
      */
     _updateRenderParams(state: RenderContext3D): void {
         this.clearRenderParams();
-        this.setDrawElemenParams(this._subMesh.indexCount, this._subMesh._indexStart * 2);
+        let byteCount: number;
+        switch (this.indexFormat) {
+			case IndexFormat.UInt32:
+				byteCount = 4;
+				break;
+			case IndexFormat.UInt16:
+				byteCount = 2;
+				break;
+			case IndexFormat.UInt8:
+				byteCount = 1;
+				break;
+		}
+		this.setDrawElemenParams(this._subMesh.indexCount, this._subMesh._indexStart * byteCount);
     }
 
 }

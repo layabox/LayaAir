@@ -110,15 +110,27 @@ Light getLight(in SpotLight spotLight, in vec3 normalWS, in vec3 positionWS)
 	    #define DirectionCount	1
 
 	    #ifdef DIRECTIONLIGHT
-uniform DirectionLight u_DirectionLight;
+uniform vec3 u_DirLightColor;
+uniform vec3 u_DirLightDirection;
+uniform int u_DirLightMode;
 	    #endif // DIRECTIONLIGHT
 
 	    #ifdef POINTLIGHT
-uniform PointLight u_PointLight;
+// uniform PointLight u_PointLight;
+uniform vec3 u_PointLightColor;
+uniform vec3 u_PointLightPos;
+uniform float u_PointLightRange;
+uniform int u_PointLightMode;
 	    #endif // POINTLIGHT
 
 	    #ifdef SPOTLIGHT
-uniform SpotLight u_SpotLight;
+// uniform SpotLight u_SpotLight;
+uniform vec3 u_SpotLightPos;
+uniform vec3 u_SpotLightColor;
+uniform vec3 u_SpotLightDirection;
+uniform float u_SpotLightRange;
+uniform float u_SpotLightSpot;
+uniform int u_SpotLightMode;
 	    #endif // SPOTLIGHT
 
 	#else // LEGACYSINGLELIGHTING
@@ -169,10 +181,10 @@ DirectionLight getDirectionLight(in int index, in vec3 positionWS)
 {
     DirectionLight light;
 	    #ifdef LEGACYSINGLELIGHTING
-    light.color = u_DirectionLight.color;
-    light.direction = u_DirectionLight.direction;
+    light.color = u_DirLightColor;
+    light.direction = u_DirLightDirection;
     light.attenuation = 1.0;
-    light.lightMode = getAttenuationByMode(float(u_DirectionLight.lightMode));
+    light.lightMode = getAttenuationByMode(float(u_DirLightMode));
 	    #else // LEGACYSINGLELIGHTING
     float v = (float(index) + 0.5) / float(CalculateLightCount);
     vec4 p1 = texture2D(u_LightBuffer, vec2(0.125, v));
@@ -222,11 +234,11 @@ PointLight getPointLight(in int index, in ivec4 clusterInfo, in vec3 positionWS)
 
     PointLight light;
 	    #ifdef LEGACYSINGLELIGHTING
-    light.color = u_PointLight.color;
-    light.position = u_PointLight.position;
-    light.range = u_PointLight.range;
+    light.color = u_PointLightColor;
+    light.position = u_PointLightPos;
+    light.range = u_PointLightRange;
     light.attenuation = 1.0;
-    light.lightMode = getAttenuationByMode(float(u_PointLight.lightMode));
+    light.lightMode = getAttenuationByMode(float(u_PointLightMode));
 	    #else // LEGACYSINGLELIGHTING
     // todo  重复计算
     int indexOffset = clusterInfo.z * c_ClusterBufferFloatWidth + clusterInfo.w;
@@ -250,13 +262,13 @@ SpotLight getSpotLight(in int index, in ivec4 clusterInfo, in vec3 positionWS)
     SpotLight light;
 
 	    #ifdef LEGACYSINGLELIGHTING
-    light.color = u_SpotLight.color;
-    light.position = u_SpotLight.position;
-    light.range = u_SpotLight.range;
-    light.direction = u_SpotLight.direction;
-    light.spot = u_SpotLight.spot;
+    light.color = u_SpotLightColor;
+    light.position = u_SpotLightPos;
+    light.range = u_SpotLightRange;
+    light.direction = u_SpotLightDirection;
+    light.spot = u_SpotLightSpot;
     light.attenuation = 1.0;
-    light.lightMode = getAttenuationByMode(float(u_SpotLight.lightMode));
+    light.lightMode = getAttenuationByMode(float(u_SpotLightMode));
 	    #else // LEGACYSINGLELIGHTING
     // todo  重复计算
     int indexOffset = clusterInfo.z * c_ClusterBufferFloatWidth + clusterInfo.w;

@@ -26,6 +26,7 @@ import { LayaGL } from "../../../layagl/LayaGL";
 import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { Material } from "../../../resource/Material";
+import { Texture } from "../../../resource/Texture";
 
 /**
  * 着色器数据
@@ -233,7 +234,7 @@ export class WebGPUShaderData extends ShaderData {
                             || internalTex._webGPUFormat === WebGPUTextureFormat.depth24plus_stencil8
                             || internalTex._webGPUFormat === WebGPUTextureFormat.depth32float) {
                             item.sampler.type = 'non-filtering';
-                            internalTex.filterMode = FilterMode.Point;
+                            //internalTex.filterMode = FilterMode.Point;
                         }
                         else {
                             const supportFloatLinearFiltering = LayaGL.renderEngine.getCapable(RenderCapable.Texture_FloatLinearFiltering);
@@ -379,7 +380,7 @@ export class WebGPUShaderData extends ShaderData {
                                 || internalTex._webGPUFormat === WebGPUTextureFormat.depth24plus_stencil8
                                 || internalTex._webGPUFormat === WebGPUTextureFormat.depth32float) {
                                 item.sampler.type = 'non-filtering';
-                                internalTex.filterMode = FilterMode.Point;
+                                //internalTex.filterMode = FilterMode.Point;
                             }
                             else {
                                 const supportFloatLinearFiltering = LayaGL.renderEngine.getCapable(RenderCapable.Texture_FloatLinearFiltering);
@@ -811,6 +812,8 @@ export class WebGPUShaderData extends ShaderData {
      * @param value 纹理
      */
     setTexture(index: number, value: BaseTexture) {
+        if (value instanceof Texture)
+            value = (value as Texture).bitmap;
         const lastValue = this._data[index];
         if (lastValue != value) {
             if (value) {

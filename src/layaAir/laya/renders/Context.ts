@@ -595,10 +595,6 @@ export class Context {
             //如果是主画布，要记录窗口大小
             //如果不是 TODO
             if (this.isMain) {
-                //@ts-ignore
-                LayaGL.renderEngine.viewport(0, 0, w, h);
-                //@ts-ignore
-                LayaGL.renderEngine.scissor(0, 0, w, h);
                 RenderState2D.width = w;
                 RenderState2D.height = h;
             }

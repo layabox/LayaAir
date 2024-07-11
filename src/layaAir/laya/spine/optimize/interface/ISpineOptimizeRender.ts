@@ -8,5 +8,6 @@ export interface ISpineOptimizeRender {
     render(time: number): void;
     setSkinIndex(index: number): void;
     initBake(obj:TSpineBakeData):void;
+    changeSkeleton(skeleton:spine.Skeleton):void;
     destroy():void;
 }

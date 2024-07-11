@@ -1,19 +1,22 @@
 import { FilterMode } from "../RenderEngine/RenderEnum/FilterMode";
 import { WrapMode } from "../RenderEngine/RenderEnum/WrapMode";
-import { Texture } from "../resource/Texture";
 import { Texture2D } from "../resource/Texture2D";
 
+/**
+ * @ 3.8版本适配使用
+ */
 export class SpineTexture {
-    realTexture: Texture;
 
-    constructor(tex: Texture) {
+    realTexture: Texture2D;
+
+    constructor(tex: Texture2D) {
         this.realTexture = tex;
     }
 
     getImage(): Object {
         return {
-            width: (this.realTexture?.sourceWidth) ?? 16,
-            height: (this.realTexture?.sourceHeight) ?? 16,
+            width: (this.realTexture?.width) ?? 16,
+            height: (this.realTexture?.height) ?? 16,
         };
     }
 
@@ -26,19 +29,19 @@ export class SpineTexture {
             filterMode = FilterMode.Point;
         else
             filterMode = FilterMode.Bilinear;
-        (<Texture2D>this.realTexture.bitmap).filterMode = filterMode;
+
+        this.realTexture.filterMode = filterMode;
     }
 
     convertWrapMode(mode: spine.TextureWrap) {
-        return mode == window.spine.TextureWrap.ClampToEdge ? WrapMode.Clamp : (mode == window.spine.TextureWrap.MirroredRepeat ? WrapMode.Mirrored : WrapMode.Repeat);
+        return mode == spine.TextureWrap.ClampToEdge ? WrapMode.Clamp : (mode == spine.TextureWrap.MirroredRepeat ? WrapMode.Mirrored : WrapMode.Repeat);
     }
 
     setWraps(uWrap: spine.TextureWrap, vWrap: spine.TextureWrap) {
         if (!this.realTexture)
             return;
 
-        let tex2D = <Texture2D>this.realTexture.bitmap;
-        tex2D.wrapModeU = this.convertWrapMode(uWrap);
-        tex2D.wrapModeV = this.convertWrapMode(vWrap);
+        this.realTexture.wrapModeU = this.convertWrapMode(uWrap);
+        this.realTexture.wrapModeV = this.convertWrapMode(vWrap);
     }
 }

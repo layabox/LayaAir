@@ -117,8 +117,6 @@ export class Scene3D extends Sprite {
     /** @internal */
     static POINTLIGHTRANGE: number;
     /** @internal */
-    static POINTLIGHTATTENUATION: number;
-    /** @internal */
     static POINTLIGHTCOLOR: number;
     /** @internal */
     static POINTLIGHTMODE: number;
@@ -226,36 +224,34 @@ export class Scene3D extends Sprite {
      * legency ShaderData
      */
     static legacyLightingValueInit() {
-        Scene3D.LIGHTDIRECTION = Shader3D.propertyNameToID("u_DirectionLight.direction");
-        Scene3D.sceneUniformMap.addShaderUniform(Scene3D.LIGHTDIRECTION, "u_DirectionLight.direction", ShaderDataType.Vector3);
-        Scene3D.LIGHTDIRCOLOR = Shader3D.propertyNameToID("u_DirectionLight.color");
-        Scene3D.sceneUniformMap.addShaderUniform(Scene3D.LIGHTDIRCOLOR, "u_DirectionLight.color", ShaderDataType.Vector3);
-        Scene3D.LIGHTMODE = Shader3D.propertyNameToID("u_DirectionLight.lightMode");
-        Scene3D.sceneUniformMap.addShaderUniform(Scene3D.LIGHTMODE, "u_DirectionLight.lightMode", ShaderDataType.Int);
+        Scene3D.LIGHTDIRECTION = Shader3D.propertyNameToID("u_DirLightDirection");
+        Scene3D.sceneUniformMap.addShaderUniform(Scene3D.LIGHTDIRECTION, "u_DirLightDirection", ShaderDataType.Vector3);
+        Scene3D.LIGHTDIRCOLOR = Shader3D.propertyNameToID("u_DirLightColor");
+        Scene3D.sceneUniformMap.addShaderUniform(Scene3D.LIGHTDIRCOLOR, "u_DirLightColor", ShaderDataType.Vector3);
+        Scene3D.LIGHTMODE = Shader3D.propertyNameToID("u_DirLightMode");
+        Scene3D.sceneUniformMap.addShaderUniform(Scene3D.LIGHTMODE, "u_DirLightMode", ShaderDataType.Int);
 
-        Scene3D.POINTLIGHTPOS = Shader3D.propertyNameToID("u_PointLight.position");
-        Scene3D.sceneUniformMap.addShaderUniform(Scene3D.POINTLIGHTPOS, "u_PointLight.position", ShaderDataType.Vector3);
-        Scene3D.POINTLIGHTRANGE = Shader3D.propertyNameToID("u_PointLight.range");
-        Scene3D.sceneUniformMap.addShaderUniform(Scene3D.POINTLIGHTRANGE, "u_PointLight.range", ShaderDataType.Float);
-        Scene3D.POINTLIGHTATTENUATION = Shader3D.propertyNameToID("u_PointLight.attenuation");
-        Scene3D.sceneUniformMap.addShaderUniform(Scene3D.POINTLIGHTATTENUATION, "u_PointLight.attenuation", ShaderDataType.Float);
-        Scene3D.POINTLIGHTCOLOR = Shader3D.propertyNameToID("u_PointLight.color");
-        Scene3D.sceneUniformMap.addShaderUniform(Scene3D.POINTLIGHTCOLOR, "u_PointLight.color", ShaderDataType.Vector3);
-        Scene3D.POINTLIGHTMODE = Shader3D.propertyNameToID("u_PointLight.lightMode");
-        Scene3D.sceneUniformMap.addShaderUniform(Scene3D.POINTLIGHTMODE, "u_PointLight.lightMode", ShaderDataType.Int);
+        Scene3D.POINTLIGHTPOS = Shader3D.propertyNameToID("u_PointLightPos");
+        Scene3D.sceneUniformMap.addShaderUniform(Scene3D.POINTLIGHTPOS, "u_PointLightPos", ShaderDataType.Vector3);
+        Scene3D.POINTLIGHTRANGE = Shader3D.propertyNameToID("u_PointLightRange");
+        Scene3D.sceneUniformMap.addShaderUniform(Scene3D.POINTLIGHTRANGE, "u_PointLightRange", ShaderDataType.Float);
+        Scene3D.POINTLIGHTCOLOR = Shader3D.propertyNameToID("u_PointLightColor");
+        Scene3D.sceneUniformMap.addShaderUniform(Scene3D.POINTLIGHTCOLOR, "u_PointLightColor", ShaderDataType.Vector3);
+        Scene3D.POINTLIGHTMODE = Shader3D.propertyNameToID("u_PointLightMode");
+        Scene3D.sceneUniformMap.addShaderUniform(Scene3D.POINTLIGHTMODE, "u_PointLightMode", ShaderDataType.Int);
 
-        Scene3D.SPOTLIGHTPOS = Shader3D.propertyNameToID("u_SpotLight.position");
-        Scene3D.sceneUniformMap.addShaderUniform(Scene3D.SPOTLIGHTPOS, "u_SpotLight.position", ShaderDataType.Vector3);
-        Scene3D.SPOTLIGHTDIRECTION = Shader3D.propertyNameToID("u_SpotLight.direction");
-        Scene3D.sceneUniformMap.addShaderUniform(Scene3D.SPOTLIGHTDIRECTION, "u_SpotLight.direction", ShaderDataType.Vector3);
-        Scene3D.SPOTLIGHTSPOTANGLE = Shader3D.propertyNameToID("u_SpotLight.spot");
-        Scene3D.sceneUniformMap.addShaderUniform(Scene3D.SPOTLIGHTSPOTANGLE, "u_SpotLight.spot", ShaderDataType.Float);
-        Scene3D.SPOTLIGHTRANGE = Shader3D.propertyNameToID("u_SpotLight.range");
-        Scene3D.sceneUniformMap.addShaderUniform(Scene3D.SPOTLIGHTRANGE, "u_SpotLight.range", ShaderDataType.Float);
-        Scene3D.SPOTLIGHTCOLOR = Shader3D.propertyNameToID("u_SpotLight.color");
-        Scene3D.sceneUniformMap.addShaderUniform(Scene3D.SPOTLIGHTCOLOR, "u_SpotLight.color", ShaderDataType.Vector3);
-        Scene3D.SPOTLIGHTMODE = Shader3D.propertyNameToID("u_SpotLight.lightMode");
-        Scene3D.sceneUniformMap.addShaderUniform(Scene3D.SPOTLIGHTMODE, "u_SpotLight.lightMode", ShaderDataType.Int);
+        Scene3D.SPOTLIGHTPOS = Shader3D.propertyNameToID("u_SpotLightPos");
+        Scene3D.sceneUniformMap.addShaderUniform(Scene3D.SPOTLIGHTPOS, "u_SpotLightPos", ShaderDataType.Vector3);
+        Scene3D.SPOTLIGHTDIRECTION = Shader3D.propertyNameToID("u_SpotLightDirection");
+        Scene3D.sceneUniformMap.addShaderUniform(Scene3D.SPOTLIGHTDIRECTION, "u_SpotLightDirection", ShaderDataType.Vector3);
+        Scene3D.SPOTLIGHTSPOTANGLE = Shader3D.propertyNameToID("u_SpotLightSpot");
+        Scene3D.sceneUniformMap.addShaderUniform(Scene3D.SPOTLIGHTSPOTANGLE, "u_SpotLightSpot", ShaderDataType.Float);
+        Scene3D.SPOTLIGHTRANGE = Shader3D.propertyNameToID("u_SpotLightRange");
+        Scene3D.sceneUniformMap.addShaderUniform(Scene3D.SPOTLIGHTRANGE, "u_SpotLightRange", ShaderDataType.Float);
+        Scene3D.SPOTLIGHTCOLOR = Shader3D.propertyNameToID("u_SpotLightColor");
+        Scene3D.sceneUniformMap.addShaderUniform(Scene3D.SPOTLIGHTCOLOR, "u_SpotLightColor", ShaderDataType.Vector3);
+        Scene3D.SPOTLIGHTMODE = Shader3D.propertyNameToID("u_SpotLightMode");
+        Scene3D.sceneUniformMap.addShaderUniform(Scene3D.SPOTLIGHTMODE, "u_SpotLightMode", ShaderDataType.Int);
     }
 
     /**
