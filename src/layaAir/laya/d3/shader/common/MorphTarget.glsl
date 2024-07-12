@@ -23,8 +23,7 @@ uniform vec4 u_MorphAttrOffset;
 /// dynamic params
 //uniform float u_MorphActiveTargets[MORPH_MAX_COUNT];
 //uniform float u_MorphTargetWeights[MORPH_MAX_COUNT];
-uniform vec4 u_MorphActiveTargets[MORPH_MAX_COUNT]; //兼容WGSL
-uniform vec4 u_MorphTargetWeights[MORPH_MAX_COUNT];
+uniform vec4 u_MorphActiveTargets[MORPH_MAX_COUNT];
 uniform int u_MorphTargetActiveCount;
 
 	#define MORPH_ACTIVE_COUNT u_MorphTargetActiveCount
@@ -45,9 +44,10 @@ vec3 positionMorph(in vec3 position)
 
     for (int i = 0; i < MORPH_ACTIVE_COUNT; i++)
 	{
-	    float index = u_MorphActiveTargets[i].x; //兼容WGSL
+	    float index = u_MorphActiveTargets[i].x;
+		float weight = u_MorphActiveTargets[i].y;
 
-	    position += sampleMorphTargets(vertexID, index).xyz * u_MorphTargetWeights[i].x; //兼容WGSL
+	    position += sampleMorphTargets(vertexID, index).xyz * weight;
 	}
 
     return position;
@@ -58,9 +58,10 @@ vec3 normalMorph(in vec3 normal)
     int vertexID = gl_VertexID * int(Morph_AttributeNum) + int(Morph_NormalOffset);
     for (int i = 0; i < MORPH_ACTIVE_COUNT; i++)
 	{
-	    float index = u_MorphActiveTargets[i].x; //兼容WGSL
+	    float index = u_MorphActiveTargets[i].x;
+		float weight = u_MorphActiveTargets[i].y;
 
-	    normal += sampleMorphTargets(vertexID, index).xyz * u_MorphTargetWeights[i].x; //兼容WGSL
+	    normal += sampleMorphTargets(vertexID, index).xyz * weight;
 	}
 
     return normal;
@@ -71,11 +72,12 @@ vec4 tangentMorph(in vec4 tangent)
     int vertexID = gl_VertexID * int(Morph_AttributeNum) + int(Morph_TangentOffset);
     for (int i = 0; i < MORPH_ACTIVE_COUNT; i++)
 	{
-	    float index = u_MorphActiveTargets[i].x; //兼容WGSL
+	    float index = u_MorphActiveTargets[i].x;
+		float weight = u_MorphActiveTargets[i].y;
 
 	    vec4 sampleTangent = sampleMorphTargets(vertexID, index);
 
-	    tangent.xyz += sampleTangent.xyz * u_MorphTargetWeights[i].x * tangent.w * sampleTangent.w; //兼容WGSL
+	    tangent.xyz += sampleTangent.xyz * weight * tangent.w * sampleTangent.w;
 	}
 
     return tangent;
