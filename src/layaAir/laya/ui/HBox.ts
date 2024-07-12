@@ -2,23 +2,28 @@ import { LayoutBox } from "./LayoutBox";
 import { UIComponent } from "./UIComponent";
 
 /**
- * <code>HBox</code> 是一个水平布局容器类。
+ * @en The `HBox` class is a horizontal layout container.
+ * @zh `HBox` 是一个水平布局容器类。
  */
 export class HBox extends LayoutBox {
     /**
-     * 无对齐。
+     * @en No alignment.
+     * @zh 无对齐。
      */
     static NONE: string = "none";
     /**
-     * 居顶部对齐。
+     * @en Align to the top.
+     * @zh 居顶部对齐。
      */
     static TOP: string = "top";
     /**
-     * 居中对齐。
+     * @en Align to the center.
+     * @zh 居中对齐。
      */
     static MIDDLE: string = "middle";
     /**
-     * 居底部对齐。
+     * @en Align to the bottom.
+     * @zh 居底部对齐。
      */
     static BOTTOM: string = "bottom";
 

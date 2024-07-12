@@ -163,6 +163,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
     resetExternalSkin() {
         if (this._skeleton) {
             this._skeleton = new spine.Skeleton(this._templet.skeletonData);
+            this.spineItem.changeSkeleton(this._skeleton);
             this._flushExtSkin();
         }
     }
