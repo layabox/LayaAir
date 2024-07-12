@@ -40,18 +40,17 @@ export class WebGPU_GLSLProcess {
 
         this._outputGLSL(); //输出处理后的GLSL代码
     }
- 
-    /**
-     * 添加uniform
-     * @param uniform 包含uniform定义的代码
-     */
-    addUniform(uniform: string) {
-        const regex = /layout\s*\(.*?\)\s*uniform\s+\w+\s*\{[\s\S]*?\};/gm;
 
-        let match;
-        //查找uniform块
-        while ((match = regex.exec(uniform)) !== null)
-            this.uniforms.push(new WebGPU_GLSLUniform(match[0].trim()));
+    /**
+     * 获取Uniform信息
+     * @param glslCode 
+     */
+    getUniforms(glslCode: string) {
+        this._extractMacros(glslCode); //提取宏定义
+        for (let i = 0; i < 3; i++)
+            this._replaceMacros(this.glslCode); //执行宏替换（处理宏替换嵌套，执行3次）
+        this._extractUniforms(this.glslCode);
+        return this.uniforms;
     }
 
     /**
@@ -236,6 +235,21 @@ export class WebGPU_GLSLProcess {
         while ((match = regex.exec(glslCode)) !== null)
             this.structs.push(new WebGPU_GLSLStruct(match[0].trim()));
         //移除结构体定义
+        this.glslCode = glslCode.replace(regex, '');
+    }
+
+    /**
+     * 提取Uniform定义
+     * @param glslCode 
+     */
+    private _extractUniforms(glslCode: string) {
+        const regex = /\buniform\s+(lowp|mediump|highp)?\s+(\w+)\s+(\w+)\s*;/gm;
+
+        let match;
+        //查找Uniform定义
+        while ((match = regex.exec(glslCode)) !== null)
+            this.uniforms.push(new WebGPU_GLSLUniform(match[0].trim()));
+        //移除Uniform定义
         this.glslCode = glslCode.replace(regex, '');
     }
 

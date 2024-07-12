@@ -35,6 +35,7 @@ export type WebGPUUniformMapType = {
     [key: string]: { //主键，uniform纯名称（不带数组表示）
         name: string; //uniform名称（带数组表示）
         type: ShaderDataType; //uniform类型
+        shadow?: boolean; //是否阴影贴图类型
     }
 };
 
@@ -211,7 +212,7 @@ export class WebGPUCodeGenerator {
                     const typeStr = this._getAttributeT2S(data[key].uniformtype);
                     if (data[key].propertyName.indexOf('.') !== -1) continue;
                     if (typeStr === '') continue;
-                    else if (typeStr === 'sampler2D' || typeStr === 'samplerCube' || typeStr === 'sampler2DArray' || typeStr === 'sampler2DShadow')
+                    else if (typeStr === 'sampler2D' || typeStr === 'samplerCube' || typeStr === 'sampler2DArray')
                         textureUniforms.push({ name: nameStr, type: typeStr, set });
                     else sortedUniforms[this._getAttributeS2N(typeStr)].push({ name: nameStr, type: typeStr, set });
                 }
@@ -363,7 +364,7 @@ export class WebGPUCodeGenerator {
                     const typeStr = this._getAttributeT2S(data[key].uniformtype);
                     if (data[key].propertyName.indexOf('.') !== -1) continue;
                     if (typeStr === '') continue;
-                    else if (typeStr === 'sampler2D' || typeStr === 'samplerCube' || typeStr === 'sampler2DArray' || typeStr === 'sampler2DShadow')
+                    else if (typeStr === 'sampler2D' || typeStr === 'samplerCube' || typeStr === 'sampler2DArray')
                         textureUniforms.push({ name: nameStr, type: typeStr, set });
                     else sortedUniforms[this._getAttributeS2N(typeStr)].push({ name: nameStr, type: typeStr, set });
                 }
@@ -758,8 +759,6 @@ mat4 transpose(mat4 m)
                 return 'samplerCube';
             case ShaderDataType.Texture2DArray:
                 return 'sampler2DArray';
-            case ShaderDataType.Texture2DShadow:
-                return 'sampler2DShadow';
             default:
                 return '';
         }
@@ -794,7 +793,7 @@ mat4 transpose(mat4 m)
             case 'sampler2DArray':
                 return ShaderDataType.Texture2DArray;
             case 'sampler2DShadow':
-                return ShaderDataType.Texture2DShadow;
+                return ShaderDataType.Texture2D;
             default:
                 return '';
         }
@@ -936,14 +935,27 @@ mat4 transpose(mat4 m)
         const textureUniforms_vs: NameAndType[] = [];
         const textureUniforms_fs: NameAndType[] = [];
         if (vsTod.variable) { //提取被vs使用的texture
-            for (let i = 0, len = textureUniforms.length; i < len; i++)
-                if (vsTod.variable.has(textureUniforms[i].name))
+            for (let i = 0, len = textureUniforms.length; i < len; i++) {
+                const name = textureUniforms[i].name;
+                if (vsTod.variable.has(name)) {
                     textureUniforms_vs.push(textureUniforms[i]);
+                    if (uniformMap[name]
+                        && uniformMap[name].shadow) {
+                        textureUniforms[i].type = 'sampler2DShadow';
+                    }
+                }
+            }
         }
         if (fsTod.variable) { //提取被fs使用的texture
-            for (let i = 0, len = textureUniforms.length; i < len; i++)
-                if (fsTod.variable.has(textureUniforms[i].name))
+            for (let i = 0, len = textureUniforms.length; i < len; i++) {
+                if (fsTod.variable.has(textureUniforms[i].name)) {
                     textureUniforms_fs.push(textureUniforms[i]);
+                    if (uniformMap[textureUniforms[i].name]
+                        && uniformMap[textureUniforms[i].name].shadow) {
+                        textureUniforms[i].type = 'sampler2DShadow';
+                    }
+                }
+            }
         }
 
         const textureGLSL_vs = this._textureString(textureUniforms_vs, uniformInfo, GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT);
@@ -1083,6 +1095,7 @@ ${textureGLSL_fs}
             defMap[defineString[i]] = true;
 
         let keyWithArray: string;
+        let vsOut = '', fsOut = '';
         const vs = VS.toscript(defMap, []);
         const fs = FS.toscript(defMap, []);
         const vsTod: TypeOutData = {};
@@ -1094,7 +1107,7 @@ ${textureGLSL_fs}
             const defMap: NameBooleanMap = {};
             defineString.forEach(def => { defMap[def] = true; });
             defMap['GL_FRAGMENT_PRECISION_HIGH'] = true;
-            WebGPUShaderCompileUtil.toScript(token, defMap, vsTod);
+            vsOut = WebGPUShaderCompileUtil.toScript(token, defMap, vsTod);
             if (vsTod.uniform) {
                 for (const key in vsTod.uniform) {
                     if (!uniformMapEx[key]) {
@@ -1119,7 +1132,7 @@ ${textureGLSL_fs}
             const defMap: NameBooleanMap = {};
             defineString.forEach(def => { defMap[def] = true; });
             defMap['GL_FRAGMENT_PRECISION_HIGH'] = true;
-            WebGPUShaderCompileUtil.toScript(token, defMap, fsTod);
+            fsOut = WebGPUShaderCompileUtil.toScript(token, defMap, fsTod);
             if (fsTod.uniform) {
                 for (const key in fsTod.uniform) {
                     if (!uniformMapEx[key]) {
@@ -1139,6 +1152,35 @@ ${textureGLSL_fs}
             }
         }
 
+        //预处理GLSL代码，获取代码中定义的Uniform变量
+        const uniform_vs = new WebGPU_GLSLProcess().getUniforms(vsOut);
+        const uniform_fs = new WebGPU_GLSLProcess().getUniforms(fsOut);
+        for (let i = uniform_vs.length - 1; i > -1; i--) {
+            const name = uniform_vs[i].name;
+            const type = uniform_vs[i].fields.type;
+            if (uniformMapEx[name] && type === 'sampler2DShadow')
+                uniformMapEx[name].shadow = true;
+            else {
+                uniformMapEx[name] = {
+                    name,
+                    type: this._getAttributeS2T(type) as ShaderDataType,
+                    shadow: type === 'sampler2DShadow' ? true : undefined
+                }
+            }
+        }
+        for (let i = uniform_fs.length - 1; i > -1; i--) {
+            const name = uniform_fs[i].name;
+            const type = uniform_fs[i].fields.type;
+            if (uniformMapEx[name] && type === 'sampler2DShadow')
+                uniformMapEx[name].shadow = true;
+            else {
+                uniformMapEx[name] = {
+                    name,
+                    type: this._getAttributeS2T(type) as ShaderDataType,
+                    shadow: type === 'sampler2DShadow' ? true : undefined
+                }
+            }
+        }
         return { uniform: uniformMapEx, arr: arrayMap };
     }
 }
