@@ -8,7 +8,8 @@ import { LayaEnv } from "../../LayaEnv";
 import { Browser } from "../utils/Browser";
 
 /**
- * 微信开放数据展示组件，直接实例本组件，即可根据组件宽高，位置，以最优的方式显示开放域数据
+ * @en OpenDataContext component for displaying OpenData in WeChat mini-games. Instantiate this component directly to optimally display OpenData based on the component's width, height, and position.
+ * @zh 微信小游戏开放数据域显示组件，直接实例化本组件，即可根据组件宽高和位置，以最优的方式显示开放数据域数据。
  */
 export class OpenDataContextView extends UIComponent {
     private _fps: number = 30;
@@ -21,6 +22,10 @@ export class OpenDataContextView extends UIComponent {
         this.texture = tex;
     }
 
+    /**
+     * @en The frame rate.
+     * @zh 帧率。
+     */
     get fps() {
         return this._fps;
     }
@@ -70,7 +75,7 @@ export class OpenDataContextView extends UIComponent {
             if ((canvas as any).toTempFilePath) {
                 (<Texture2D>tex.bitmap).setImageData(canvas, true, false);
             }
-        }else
+        } else
             (<Texture2D>tex.bitmap).setImageData(canvas, true, false);
     }
 
@@ -94,7 +99,13 @@ export class OpenDataContextView extends UIComponent {
 
     /**
      * @override
+     * @en The x-coordinate of the component.
+     * @zh 组件的 x 坐标。
      */
+    get x() {
+        return super.x;
+    }
+
     set x(value: number) {
         super.x = value;
         this.callLater(this.updateViewPort);
@@ -102,25 +113,18 @@ export class OpenDataContextView extends UIComponent {
 
     /**
      * @override
+     * @en The y-coordinate of the component.
+     * @zh 组件的 y 坐标。
      */
-    get x() {
-        return super.x;
+    get y() {
+        return super.y;
     }
 
-    /**
-     * @override
-     */
     set y(value: number) {
         super.y = value;
         this.callLater(this.updateViewPort);
     }
 
-    /**
-     * @override
-     */
-    get y() {
-        return super.y;
-    }
 
     private updateViewPort(): void {
         let stage: Stage = ILaya.stage;
@@ -138,7 +142,12 @@ export class OpenDataContextView extends UIComponent {
         });
     }
 
-    /**向开放数据域发送消息*/
+    /**
+     * @en Send a message to the OpenData context.
+     * @param msg Message to send.
+     * @zh 向开放数据域发送消息。
+     * @param msg 要发送的消息。
+     */
     postMsg(msg: any): void {
         if ((window as any).wx && (window as any).wx.getOpenDataContext) {
             var openDataContext: any = (window as any).wx.getOpenDataContext();

@@ -3,8 +3,6 @@ import { ShadowMode } from "../../../../d3/core/light/ShadowMode";
 import { IPointLightData } from "../../Design/3D/I3DRenderModuleData";
 import { NativeTransform3D } from "./NativeTransform3D";
 
-const ConchRTPointLight = (<any>window).conchRTPointLight;
-
 export class RTPointLight implements IPointLightData {
 
     _nativeObj: any;
@@ -26,7 +24,7 @@ export class RTPointLight implements IPointLightData {
     }
 
     public get shadowResolution(): number {
-        return this._nativeObj.shadowResolution ;
+        return this._nativeObj.shadowResolution;
     }
     public set shadowResolution(value: number) {
         this._nativeObj.shadowResolution = value;
@@ -75,6 +73,6 @@ export class RTPointLight implements IPointLightData {
     }
 
     constructor() {
-        this._nativeObj = new ConchRTPointLight();
+        this._nativeObj = new new (window as any).conchRTPointLight();
     }
 }

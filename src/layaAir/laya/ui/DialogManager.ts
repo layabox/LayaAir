@@ -10,46 +10,78 @@ import { Handler } from "../utils/Handler"
 import { Tween } from "../utils/Tween"
 import { ILaya } from "../../ILaya";
 
-/**打开任意窗口后调度。
+/**
+ * @en Event dispatched when any dialog is opened.
+ * @zh 打开任意窗口后调度。
  * @eventType Event.OPEN
  */
 /*[Event(name = "open", type = "laya.events.Event")]*/
-/**关闭任意窗口后调度。
+
+/**
+ * @en Event dispatched when any dialog is closed.
+ * @zh 关闭任意对话框时调度的事件。
  * @eventType Event.CLOSE
  */
 /*[Event(name = "close", type = "laya.events.Event")]*/
 
 /**
- * <code>DialogManager</code> 对话框管理容器，所有的对话框都在该容器内，并且受管理器管理。
- * 任意对话框打开和关闭，都会出发管理类的open和close事件
- * 可以通过UIConfig设置弹出框背景透明度，模式窗口点击边缘是否关闭，点击窗口是否切换层次等
- * 通过设置对话框的zOrder属性，可以更改弹出的层次
+ * @en The `DialogManager` is a container for managing all dialog boxes, which are managed by the manager.
+ * Opening and closing any dialog will trigger the manager's open and close events.
+ * The background transparency of the popup, whether the modal window closes when the edge is clicked, and whether the layer changes when the window is clicked can be set in UIConfig.
+ * The layer of the popup can be changed by setting the dialog's zOrder property.
+ * @zh DialogManager 对话框管理容器，所有的对话框都在该容器内，并且受管理器管理。
+ * 任意对话框打开和关闭，都会触发管理类的 open 和 close 事件。
+ * 可以通过 UIConfig 设置弹出框背景透明度，模式窗口点击边缘是否关闭，点击窗口是否切换层次等。
+ * 通过设置对话框的 zOrder 属性，可以更改弹出的层次。
  */
 export class DialogManager extends Sprite {
-    /**遮罩层*/
+    /** 
+     * @en Mask layer
+     * @zh 遮罩层。 
+     */
     maskLayer: Sprite = new Sprite();
-    /**锁屏层*/
+    /** 
+     * @en Lock screen layer.
+     * @zh 锁屏层。 
+     */
     lockLayer: Sprite;
 
-    /**@private 全局默认弹出对话框效果，可以设置一个效果代替默认的弹出效果，如果不想有任何效果，可以赋值为null*/
+    /**
+     * @private
+     * @en The global default popup effect for dialogs. You can set an effect to replace the default popup effect.
+     * If you do not want any effect, you can assign it to null.
+     * @zh 全局默认弹出对话框效果，可以设置一个效果代替默认的弹出效果，如果不想有任何效果，可以赋值为 null。
+     */
     popupEffect = (dialog: Dialog) => {
         dialog.scale(1, 1);
         dialog._effectTween = Tween.from(dialog, { x: ILaya.stage.width / 2, y: ILaya.stage.height / 2, scaleX: 0, scaleY: 0 }, 300, Ease.backOut, Handler.create(this, this.doOpen, [dialog]), 0, false, false);
     }
 
-    /**@private 全局默认关闭对话框效果，可以设置一个效果代替默认的关闭效果，如果不想有任何效果，可以赋值为null*/
+    /**
+     * @private
+     * @en The global default close effect for dialogs. You can set an effect to replace the default close effect.
+     * If you do not want any effect, you can assign it to null.
+     * @zh 全局默认关闭对话框效果，可以设置一个效果代替默认的关闭效果，如果不想有任何效果，可以赋值为 null。
+     */
     closeEffect = (dialog: Dialog) => {
         dialog._effectTween = Tween.to(dialog, { x: ILaya.stage.width / 2, y: ILaya.stage.height / 2, scaleX: 0, scaleY: 0 }, 300, Ease.strongOut, Handler.create(this, this.doClose, [dialog]), 0, false, false);
     }
 
-    /**全局默认关闭对话框效果，可以设置一个效果代替默认的关闭效果，如果不想有任何效果，可以赋值为null*/
+    /** 
+     * @en Sets the global default opening effect for the dialog. You can specify an effect to replace the default opening effect.
+     * If you do not want any effect, it can be set to null.
+     * @zh 设置全局默认的对话框打开效果。可以指定一个效果来替代默认的打开效果，如果不想有任何效果，可以设置为 null。
+     */
     popupEffectHandler: Handler = new Handler(this, this.popupEffect);
-    /**全局默认弹出对话框效果，可以设置一个效果代替默认的弹出效果，如果不想有任何效果，可以赋值为null*/
+
+
+    /** 
+     * @en Sets the global default closing effect for the dialog. You can specify an effect to replace the default closing effect.
+     * If you do not want any effect, it can be set to null.
+     * @zh 设置全局默认的对话框关闭效果。可以指定一个效果来替代默认的关闭效果，如果不想有任何效果，可以设置为 null。
+     */
     closeEffectHandler: Handler = new Handler(this, this.closeEffect);
 
-    /**
-     * 创建一个新的 <code>DialogManager</code> 类实例。
-     */
     constructor() {
         super();
         this.mouseEnabled = this.maskLayer.mouseEnabled = true;
@@ -107,7 +139,11 @@ export class DialogManager extends Sprite {
         }
     }
 
-    /**@internal 发生层次改变后，重新检查遮罩层是否正确*/
+    /**
+     * @internal
+     * @en Checks and readjusts the mask layer after a change in the z-order of dialogs.
+     * @zh 发生层次改变后，重新检查遮罩层是否正确
+     */
     _checkMask(): void {
         if (this._destroyed) return;
         this.maskLayer.removeSelf();
@@ -121,7 +157,12 @@ export class DialogManager extends Sprite {
         }
     }
 
-    /**设置锁定界面，如果为空则什么都不显示*/
+    /**
+     * @en Sets the lock view. If no value is provided, the lock layer will be empty and won't display anything.
+     * @param value The UIComponent to display on the lock layer, or null for an empty lock layer.
+     * @zh 设置锁定界面，如果参数为空则什么都不显示。
+     * @param value 要在锁定层上显示的UI组件，空锁定层为null。
+     */
     setLockView(value: UIComponent): void {
         if (!this.lockLayer) {
             this.lockLayer = new Box();
@@ -136,10 +177,14 @@ export class DialogManager extends Sprite {
     }
 
     /**
-     * 显示对话框
-     * @param dialog 需要显示的对象框 <code>Dialog</code> 实例。
-     * @param closeOther 是否关闭其它对话框，若值为ture，则关闭其它的对话框。
-     * @param showEffect 是否显示弹出效果
+     * @en Opens a dialog.
+     * @param dialog The Dialog instance to be displayed.
+     * @param closeOther Whether to close other dialogs. If true, other dialogs will be closed.
+     * @param showEffect Whether to show the popup effect.
+     * @zh 显示对话框。
+     * @param dialog 需要显示的对话框 Dialog 实例。
+     * @param closeOther 是否关闭其他对话框。若为 true，则关闭其他对话框。
+     * @param showEffect 是否显示弹出效果。
      */
     open(dialog: Dialog, closeOther: boolean = false, showEffect: boolean = false): void {
         if (closeOther) this._closeAll();
@@ -153,15 +198,20 @@ export class DialogManager extends Sprite {
     }
 
     /**
-     * 执行打开对话框。
-     * @param dialog 需要关闭的对象框 <code>Dialog</code> 实例。
+     * @en Executes the opening of a dialog.
+     * @param dialog The Dialog instance that needs to be opened.
+     * @zh 执行打开对话框操作。
+     * @param dialog 需要打开的对话框 Dialog 实例。
      */
     doOpen(dialog: Dialog): void {
         dialog.onOpened(dialog._param);
     }
 
     /**
-     * 锁定所有层，显示加载条信息，防止双击
+     * @en Locks all layers, displays loading information, and prevents double-clicking.
+     * @param value If true, the lock layer is shown, otherwise it is hidden.
+     * @zh 锁定所有层，显示加载信息，防止双击。
+     * @param value 如果为true，则显示锁定层，否则隐藏锁定层。
      */
     lock(value: boolean): void {
         if (this.lockLayer) {
@@ -171,8 +221,10 @@ export class DialogManager extends Sprite {
     }
 
     /**
-     * 关闭对话框。
-     * @param dialog 需要关闭的对象框 <code>Dialog</code> 实例。
+     * @en Closes the dialog.
+     * @param dialog The Dialog instance that needs to be closed.
+     * @zh 关闭对话框。
+     * @param dialog 需要关闭的对话框 Dialog 实例。
      */
     close(dialog: Dialog): void {
         this._clearDialogEffect(dialog);
@@ -181,9 +233,12 @@ export class DialogManager extends Sprite {
         this.event(Event.CLOSE);
     }
 
+
     /**
-     * 执行关闭对话框。
-     * @param dialog 需要关闭的对象框 <code>Dialog</code> 实例。
+     * @en Executes the closing of a dialog.
+     * @param dialog The Dialog instance that needs to be closed.
+     * @zh 执行关闭对话框操作。
+     * @param dialog 需要关闭的对话框 Dialog 实例。
      */
     doClose(dialog: Dialog): void {
         dialog.removeSelf();
@@ -194,7 +249,8 @@ export class DialogManager extends Sprite {
     }
 
     /**
-     * 关闭所有的对话框。
+     * @en Closes all dialogs.
+     * @zh 关闭所有对话框。
      */
     closeAll(): void {
         this._closeAll();
@@ -202,9 +258,12 @@ export class DialogManager extends Sprite {
     }
 
     /**
-     * 根据组获取所有对话框
-     * @param	group 组名称
-     * @return	对话框数组
+     * @en Gets all dialogs by group name.
+     * @param group The name of the group.
+     * @returns An array of dialogs that belong to the specified group.
+     * @zh 根据组名获取所有对话框。
+     * @param group 组名。
+     * @returns 属于指定组的对话框数组。
      */
     getDialogsByGroup(group: string): any[] {
         var arr: any[] = [];
@@ -218,9 +277,12 @@ export class DialogManager extends Sprite {
     }
 
     /**
-     * 根据组关闭所有弹出框
-     * @param	group 需要关闭的组名称
-     * @return	需要关闭的对话框数组
+     * @en Closes all popups by group name.
+     * @param group The name of the group to close.
+     * @returns An array of dialogs that have been closed.
+     * @zh 根据组名关闭所有弹出框。
+     * @param group 需要关闭的组名。
+     * @returns 已关闭的对话框数组。
      */
     closeByGroup(group: string): any[] {
         var arr: any[] = [];

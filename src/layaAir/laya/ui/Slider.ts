@@ -14,52 +14,65 @@ import { AssetDb } from "../resource/AssetDb";
 import { SerializeUtil } from "../loaders/SerializeUtil";
 
 /**
- * 移动滑块位置时调度。
+ * @en Dispatched when the slider is moved.
+ * @zh 移动滑块位置时调度。
  * @eventType laya.events.Event
  */
 /*[Event(name = "change", type = "laya.events.Event")]*/
 
 /**
- * 移动滑块位置完成（用户鼠标抬起）后调度。
+ * @en Dispatched when the movement of the slider is completed (when the user releases the mouse).
+ * @zh 移动滑块位置完成（用户鼠标抬起）后调度。
  * @eventType @eventType laya.events.EventD
  *
  */
 /*[Event(name = "changed", type = "laya.events.Event")]*/
 
 /**
- * 使用 <code>Slider</code> 控件，用户可以通过在滑块轨道的终点之间移动滑块来选择值。
- * <p>滑块的当前值由滑块端点（对应于滑块的最小值和最大值）之间滑块的相对位置确定。</p>
- * <p>滑块允许最小值和最大值之间特定间隔内的值。滑块还可以使用数据提示显示其当前值。</p>
+ * @en The Slider control allows users to select a value by moving a slider between the end points of the track.
+ * The current value of the slider is determined by the relative position of the slider between the end points of the slider (corresponding to the minimum and maximum values of the slider).
+ * The slider allows values at specific intervals between the minimum and maximum values. The slider can also display its current value using a data tip.
+ * @zh 使用 Slider 控件，用户可以通过在滑块轨道的终点之间移动滑块来选择值。
+ * 滑块的当前值由滑块端点（对应于滑块的最小值和最大值）之间滑块的相对位置确定。
+ * 滑块允许最小值和最大值之间特定间隔内的值。滑块还可以使用数据提示显示其当前值。
  *
  * @see laya.ui.HSlider
  * @see laya.ui.VSlider
  */
 export class Slider extends UIComponent {
 
-    /** @private 获取对 <code>Slider</code> 组件所包含的 <code>Label</code> 组件的引用。*/
+    /** 
+     * @private
+     * @en Get a reference to the Label component contained within the Slider component.
+     * @zh 获取 Slider 组件所包含的 Label 组件的引用。
+     */
     static label: Label = null;// new Label(); 静态的可能还没有初始化
 
     /**
-     * 数据变化处理器。
-     * <p>默认回调参数为滑块位置属性 <code>value</code>属性值：Number 。</p>
+     * @en Data change handler.
+     * The default callback parameter is the slider position property value: Number.
+     * @zh 数据变化处理器。
+     * 默认回调参数为滑块位置属性 value 的属性值：Number。
      */
     changeHandler: Handler;
 
     /**
-     * 一个布尔值，指示是否为垂直滚动。如果值为true，则为垂直方向，否则为水平方向。
-     * <p>默认值为：true。</p>
      * @default true
+     * @en Whether it is vertical sliding. The default value is true, indicating vertical direction; false indicates horizontal direction.
+     * @zh 是否为垂直滑动。默认值为true，表示垂直方向，false为水平方向。
      */
     isVertical: boolean = true;
 
     /**
-     * 一个布尔值，指示是否显示标签。
      * @default true
+     * @en A Boolean value that indicates whether to display labels.
+     * @zh 是否显示标签。
      */
     showLabel: boolean = true;
 
     /**
-     * 一个布尔值，指示是否显示进度条。
+     * @en A Boolean value that indicates whether to display the progress bar.
+     * @zh 是否显示进度条。
      */
     protected _showProgress: boolean = false;
 
@@ -91,8 +104,10 @@ export class Slider extends UIComponent {
     protected _globalSacle: Point;
 
     /**
-     * 创建一个新的 <code>Slider</code> 类示例。
-     * @param skin 皮肤。
+     * @en construcor mehtod.
+     * @param skin The skin.
+     * @zh 构造方法
+     * @param skin 皮肤纹理。
      */
     constructor(skin: string = null) {
         super();
@@ -104,8 +119,8 @@ export class Slider extends UIComponent {
     }
 
     /**
-     *@inheritDoc
-     @override
+     * @inheritDoc
+     * @override
      */
     destroy(destroyChild: boolean = true): void {
         super.destroy(destroyChild);
@@ -147,7 +162,8 @@ export class Slider extends UIComponent {
 
     /**
      * @private
-     * 滑块的的 <code>Event.MOUSE_DOWN</code> 事件侦听处理函数。
+     * @en The event of the slider Event.MOUSE_DOWN listening and handling function.
+     * @zh 滑块的 Event.MOUSE_DOWN 事件侦听处理函数。
      */
     protected onBarMouseDown(e: Event): void {
         let stage = ILaya.stage;
@@ -166,7 +182,8 @@ export class Slider extends UIComponent {
 
     /**
      * @private
-     * 显示标签。
+     * @en Display labels.
+     * @zh 显示标签。
      */
     protected showValueText(): void {
         if (this.showLabel) {
@@ -185,7 +202,8 @@ export class Slider extends UIComponent {
 
     /**
      * @private
-     * 隐藏标签。
+     * @en Hide tags.
+     * @zh 隐藏标签。
      */
     protected hideValueText(): void {
         Slider.label && Slider.label.removeSelf();
@@ -246,6 +264,8 @@ export class Slider extends UIComponent {
     }
 
     /**
+     * @en The skin of the slider.
+     * @zh 滑块的皮肤纹理。
      * @copy laya.ui.Image#skin
      */
     get skin(): string {
@@ -261,6 +281,10 @@ export class Slider extends UIComponent {
         this._setSkin(value);
     }
 
+    /**
+     * @en A Boolean value that indicates whether to display the progress bar.
+     * @zh 是否显示进度条。
+     */
     get showProgress(): boolean {
         return this._showProgress;
     }
@@ -318,7 +342,8 @@ export class Slider extends UIComponent {
 
     /**
      * @private
-     * 设置滑块的位置信息。
+     * @en Set the position information of the slider.
+     * @zh 设置滑块的位置信息。
      */
     protected setBarPoint(): void {
         if (this.isVertical) this._bar.x = Math.round((this._bg.width - this._bar.width) * 0.5);
@@ -351,10 +376,15 @@ export class Slider extends UIComponent {
     }
 
     /**
-     * <p>当前实例的背景图（ <code>Image</code> ）和滑块按钮（ <code>Button</code> ）实例的有效缩放网格数据。</p>
-     * <p>数据格式："上边距,右边距,下边距,左边距,是否重复填充(值为0：不重复填充，1：重复填充)"，以逗号分隔。
-     * <ul><li>例如："4,4,4,4,1"</li></ul></p>
-     */
+      * @en The size grid of the texture.
+      * The size grid is a 3x3 division of the texture, allowing it to be scaled without distorting the corners and edges. 
+      * The array contains five values representing the top, right, bottom, and left margins, and whether to repeat the fill (0: no repeat, 1: repeat). 
+      * The values are separated by commas. For example: "6,6,6,6,1".
+      * @zh 纹理的九宫格数据。
+      * 九宫格是一种将纹理分成3x3格的方式，使得纹理缩放时保持角和边缘不失真。
+      * 数组包含五个值，分别代表上边距、右边距、下边距、左边距以及是否重复填充（0：不重复填充，1：重复填充）。
+      * 值以逗号分隔。例如："6,6,6,6,1"。
+      */
     get sizeGrid(): string {
         return this._bg.sizeGrid;
     }
@@ -366,9 +396,13 @@ export class Slider extends UIComponent {
     }
 
     /**
-     * 设置滑动条的信息。
+     * @en Set the information of the slider.
+     * @param min The minimum value of the slider.
+     * @param max The maximum value of the slider.
+     * @param value The current value of the slider.
+     * @zh 设置滑动条的信息。
      * @param min 滑块的最小值。
-     * @param max 滑块的最小值。
+     * @param max 滑块的最大值。
      * @param value 滑块的当前值。
      */
     setSlider(min: number, max: number, value?: number): void {
@@ -395,7 +429,8 @@ export class Slider extends UIComponent {
     }
 
     /**
-     * 滑动的刻度值，滑动数值为tick的整数倍。默认值为1。
+     * @en The minimum increment unit for each change in the slider tick value. The default value is 1.
+     * @zh 滑滑动条刻度值每次最小变动的单位。默认值为1
      */
     get tick(): number {
         return this._tick;
@@ -410,7 +445,8 @@ export class Slider extends UIComponent {
 
     /**
      * @private
-     * 改变滑块的位置值。
+     * @en Change the position value of the slider.
+     * @zh 改变滑块的位置值。
      */
     changeValue(): void {
         if (this.tick != 0) {
@@ -439,7 +475,8 @@ export class Slider extends UIComponent {
     }
 
     /**
-     * 获取或设置表示最高位置的数字。 默认值为100。
+     * @en The number indicating the highest position of slider. The default value is 100.
+     * @zh 滑动条最高位置的数字。默认值为 100。
      */
     get max(): number {
         return this._max;
@@ -453,7 +490,8 @@ export class Slider extends UIComponent {
     }
 
     /**
-     * 获取或设置表示最低位置的数字。 默认值为0。
+     * @en The number indicating the lowest position of slider. The default value is 0.
+     * @zh 滑动条最低位置的数字。默认值为 0。
      */
     get min(): number {
         return this._min;
@@ -467,7 +505,8 @@ export class Slider extends UIComponent {
     }
 
     /**
-     * 获取或设置表示当前滑块位置的数字。
+     * @en The number indicating the current slider position.
+     * @zh 滑动条当前滑块位置的数字。
      */
     get value(): number {
         return this._value;
@@ -485,7 +524,8 @@ export class Slider extends UIComponent {
     }
 
     /**
-     * 一个布尔值，指定是否允许通过点击滑动条改变 <code>Slider</code> 的 <code>value</code> 属性值。
+     * @en A Boolean value that specifies whether to allow changing the value property of the Slider by clicking the slider.
+     * @zh 是否允许通过点击滑动条改变 Slider 的 value 属性值。
      */
     get allowClickBack(): boolean {
         return this._allowClickBack;
@@ -501,7 +541,8 @@ export class Slider extends UIComponent {
 
     /**
      * @private
-     * 滑动条的 <code>Event.MOUSE_DOWN</code> 事件侦听处理函数。
+     * @en The Event.MOUSE_DOWN event handler of the slider.
+     * @zh 滑动条的 Event.MOUSE_DOWN 事件侦听处理函数。
      */
     protected onBgMouseDown(e: Event): void {
         var point: Point = this._bg.getMousePoint();
@@ -522,7 +563,8 @@ export class Slider extends UIComponent {
     }
 
     /**
-     * 表示滑块按钮的引用。
+     * @en The reference of the slider button.
+     * @zh 滑块按钮的引用。
      */
     get bar(): Button {
         return this._bar;

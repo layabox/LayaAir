@@ -10,27 +10,75 @@ import { VertexMesh } from "../RenderEngine/RenderShader/VertexMesh";
 import { VertexDeclaration } from "../RenderEngine/VertexDeclaration";
 import { LayaGL } from "../layagl/LayaGL";
 import { Loader } from "../net/Loader";
+import { VertexElement } from "../renders/VertexElement";
+import { VertexElementFormat } from "../renders/VertexElementFormat";
 import { Handler } from "../utils/Handler";
 import { Resource } from "./Resource";
 
+
+export class VertexMesh2D{
+    /**@internal */
+	private static _vertexDeclarationMap: any = {};
+    /**
+	 * 获取顶点声明。
+	 * @param vertexFlags 顶点声明标记字符,格式为:"POSITION,COLOR,UV,BLENDWEIGHT,BLENDINDICES"。
+	 * @return 顶点声明。
+	 */
+	static getVertexDeclaration(vertexFlags: string[], compatible: boolean = true): VertexDeclaration[] {
+        let verDecs:VertexDeclaration[] = []
+        for (let i = 0 , len = vertexFlags.length; i < len; i++) {
+            let vertexFlag = vertexFlags[i];
+            let verDec: VertexDeclaration = VertexMesh2D._vertexDeclarationMap[vertexFlag + (compatible ? "_0" : "_1")];//TODO:兼容模式
+            if (!verDec) {
+                var subFlags: any[] = vertexFlag.split(",");
+                var offset: number = 0;
+                var elements: any[] = [];
+                for (let j: number = 0, n: number = subFlags.length; j < n; j++) {
+                    var element: VertexElement;
+                    switch (subFlags[i]) {
+                        case "POSITION":
+                            element = new VertexElement(offset, VertexElementFormat.Vector3, VertexMesh.MESH_POSITION0);
+                            offset += 8;
+                            break;
+                        case "COLOR":
+                            element = new VertexElement(offset, VertexElementFormat.Vector4, VertexMesh.MESH_COLOR0);
+                            offset += 16;
+                            break;
+                        case "UV":
+                            element = new VertexElement(offset, VertexElementFormat.Vector2, VertexMesh.MESH_TEXTURECOORDINATE0);
+                            offset += 8;
+                            break;
+                        case "BLENDWEIGHT":
+                            element = new VertexElement(offset, VertexElementFormat.Vector4, VertexMesh.MESH_BLENDWEIGHT0);
+                            offset += 16;
+                            break;
+                        case "BLENDINDICES":
+                            if (compatible) {
+                                element = new VertexElement(offset, VertexElementFormat.Vector4, VertexMesh.MESH_BLENDINDICES0);//兼容
+                                offset += 16;
+                            } else {
+                                element = new VertexElement(offset, VertexElementFormat.Byte4, VertexMesh.MESH_BLENDINDICES0);
+                                offset += 4;
+                            }
+                            break;
+                        default:
+                            throw "VertexMesh: unknown vertex flag.";
+                    }
+                    elements.push(element);
+                }
+                verDec = new VertexDeclaration(offset, elements);
+                VertexMesh2D._vertexDeclarationMap[vertexFlag + (compatible ? "_0" : "_1")] = verDec;//TODO:兼容模式
+                verDecs.push(verDec);
+            }
+        }
+		return verDecs;
+	}
+}
 
 /**
  * <code>Mesh</code> 类用于创建文件网格数据模板。
  */
 export class Mesh2D extends Resource {
-    /**@internal */
-    static MESH_INSTANCEBUFFER_TYPE_NORMAL: number = 0;
-    /**@internal */
-    static MESH_INSTANCEBUFFER_TYPE_SIMPLEANIMATOR: number = 1;
-
-    static MESH2D_INSTANCE_MAX_NUM = 1024;
-
-    /**
-      * @internal
-      */
-    static __init__(): void {
-    }
-
     /**
      * 加载网格模板。
      * @param url 模板地址。
@@ -53,14 +101,10 @@ export class Mesh2D extends Resource {
     /** @internal */
     _subMeshes: IRenderGeometryElement[];
     /** @internal */
-    _vertexBuffer: IVertexBuffer = null;
+    _vertexBuffers: IVertexBuffer[] = null;
     /** @internal */
     _indexBuffer: IIndexBuffer = null;
 
-    // /** @internal */
-    // _boneNames: string[];
-    // /** @internal */
-    // _skinnedMatrixCaches: skinnedMatrixCache[] = [];
     /** @internal */
     _vertexCount: number = 0;
     /** @internal */
@@ -70,8 +114,8 @@ export class Mesh2D extends Resource {
      * @readonly
      * 顶点数据
      */
-    get vertexBuffer(): IVertexBuffer {
-        return this._vertexBuffer;
+    get vertexBuffers(): IVertexBuffer[] {
+        return this._vertexBuffers;
     }
 
     /**
@@ -143,9 +187,10 @@ export class Mesh2D extends Resource {
      * @override
      */
     protected _disposeResource(): void {
-        for (var i: number = 0, n: number = this._subMeshes.length; i < n; i++)
+        for (let i: number = 0, n: number = this._subMeshes.length; i < n; i++)
             this._subMeshes[i].destroy();
-        this._vertexBuffer && this._vertexBuffer.destroy();
+        for (let i = 0 , n = this._vertexBuffers.length; i < n; i++)
+            this._vertexBuffers[i].destroy();
         this._indexBuffer && this._indexBuffer.destroy();
         this._bufferState.destroy();
         this._instanceBufferState && this._instanceBufferState.destroy();
@@ -155,7 +200,7 @@ export class Mesh2D extends Resource {
         this._setGPUMemory(0);
         this._bufferState = null;
         this._instanceBufferState = null;
-        this._vertexBuffer = null;
+        this._vertexBuffers = null;
         this._indexBuffer = null;
         this._subMeshes = null;
         this._indexBuffer = null;
@@ -167,8 +212,6 @@ export class Mesh2D extends Resource {
      */
     _setSubMeshes(subMeshes: IRenderGeometryElement[]): void {
         this._subMeshes = subMeshes
-        // for (var i: number = 0, n: number = subMeshes.length; i < n; i++)
-        //     subMeshes[i]._indexInMesh = i;
     }
 
 
@@ -181,33 +224,6 @@ export class Mesh2D extends Resource {
     }
 
     /**
-     * @internal
-     */
-    _setInstanceBuffer() {
-        if (this._instanceBufferState)
-            return;
-        var instanceBufferState: IBufferState = this._instanceBufferState = LayaGL.renderDeviceFactory.createBufferState();
-        var instanceBufferStateType = this._instanceBufferStateType;
-        let vertexArray = [];
-        vertexArray.push(this._vertexBuffer);
-        let instanceBuffer: IVertexBuffer = this._instanceWorldVertexBuffer = LayaGL.renderDeviceFactory.createVertexBuffer(BufferUsage.Dynamic);
-        instanceBuffer.vertexDeclaration = VertexMesh.instanceWorldMatrixDeclaration;
-        instanceBuffer.setDataLength(Mesh2D.MESH2D_INSTANCE_MAX_NUM * 6 * 4);
-        instanceBuffer.instanceBuffer = true;
-        vertexArray.push(instanceBuffer);
-        switch (instanceBufferStateType) {
-            case Mesh2D.MESH_INSTANCEBUFFER_TYPE_SIMPLEANIMATOR:
-                let instanceSimpleAnimatorBuffer = this._instanceSimpleAniVertexBuffer = LayaGL.renderDeviceFactory.createVertexBuffer(BufferUsage.Dynamic);
-                instanceSimpleAnimatorBuffer.vertexDeclaration = VertexMesh.instanceSimpleAnimatorDeclaration;
-                instanceSimpleAnimatorBuffer.setDataLength(Mesh2D.MESH2D_INSTANCE_MAX_NUM * 4 * 4);
-                instanceSimpleAnimatorBuffer.instanceBuffer = true;
-                vertexArray.push(instanceSimpleAnimatorBuffer);
-                break;
-        }
-        instanceBufferState.applyState(vertexArray, this._indexBuffer);
-    }
-
-    /**
      * 根据获取子网格。
      * @param index 索引。
      */
@@ -216,18 +232,16 @@ export class Mesh2D extends Resource {
     }
 
     /**
-     * 获取顶点声明。
-     */
-    getVertexDeclaration(): VertexDeclaration {
-        return this._vertexBuffer.vertexDeclaration;
-    }
-
-    /**
     * 设置顶点数据。
     * @param vertices 顶点数据。
     */
-    setVertices(vertices: ArrayBuffer): void {
-        this._vertexBuffer.setData(vertices, 0, 0, vertices.byteLength);
+    setVertices(vertices: ArrayBuffer[]): void {
+        for (let i = 0 , len = vertices.length; i < len; i++) {
+            if (vertices[i] && this._vertexBuffers[i]) {
+                this._vertexBuffers[i].setData(vertices[i], 0, 0, vertices[i].byteLength);
+            }
+        }
+        
     }
 
     /**
