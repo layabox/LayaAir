@@ -61,15 +61,18 @@ export class WebGPUShaderCompileUtil {
     }
 
     static macrosToVariable(macros: WebGPU_GLSLMacro[]) {
+        const regex = /^([_a-zA-Z][_a-zA-Z0-9]*)$/;
         const variable = new Set<string>();
         for (let i = macros.length - 1; i > -1; i--) {
             let name = macros[i].replace;
             if (name) {
                 const ofs = name.indexOf('.');
-                if (0 <= ofs) {
+                if (ofs >= 0) {
                     name = name.substring(0, ofs).trim();
+                    if (name.match(regex))
+                        variable.add(name);
+                } else if (name.match(regex))
                     variable.add(name);
-                }
             }
         }
         return variable;
@@ -93,7 +96,8 @@ export class WebGPUShaderCompileUtil {
                 if (uniform) {
                     for (let k in uniform) {
                         if (variable.has(k) || mvariable.has(k)) {
-                            if (null == outData.uniform) outData.uniform = {};
+                            if (null == outData.uniform)
+                                outData.uniform = {};
                             outData.uniform[k] = uniform[k];
                         }
                     }
@@ -101,7 +105,8 @@ export class WebGPUShaderCompileUtil {
                 if (varying) {
                     for (let k in varying) {
                         if (variable.has(k) || mvariable.has(k)) {
-                            if (null == outData.varying) outData.varying = {};
+                            if (null == outData.varying)
+                                outData.varying = {};
                             outData.varying[k] = varying[k];
                         }
                     }
@@ -109,7 +114,8 @@ export class WebGPUShaderCompileUtil {
                 if (attribute) {
                     for (let k in attribute) {
                         if (variable.has(k) || mvariable.has(k)) {
-                            if (null == outData.attribute) outData.attribute = {};
+                            if (null == outData.attribute)
+                                outData.attribute = {};
                             outData.attribute[k] = attribute[k];
                         }
                     }
