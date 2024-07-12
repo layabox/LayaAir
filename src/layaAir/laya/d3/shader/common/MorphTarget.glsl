@@ -18,7 +18,7 @@ uniform vec4 u_MorphAttrOffset;
 	#define Morph_NormalOffset   u_MorphAttrOffset.y
 	#define Morph_TangentOffset  u_MorphAttrOffset.z
 
-#define MORPH_MAX_COUNT 32 //兼容WGSL
+//#define MORPH_MAX_COUNT 32 //兼容WGSL
 
 /// dynamic params
 //uniform float u_MorphActiveTargets[MORPH_MAX_COUNT];

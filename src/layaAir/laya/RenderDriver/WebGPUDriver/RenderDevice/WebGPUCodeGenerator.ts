@@ -878,14 +878,10 @@ mat4 transpose(mat4 m)
         {
             const defs: Set<string> = new Set();
             const token = WebGPUShaderCompileDef.compile(vs.join('\n'), defs);
-            //if (!defs.has('Math_lib'))
-            //    vsNeedInverseFunc = true;
             const defMap: NameBooleanMap = {};
             defineString.forEach(def => { defMap[def] = true; });
             defMap['GL_FRAGMENT_PRECISION_HIGH'] = true;
             vsOut = WebGPUShaderCompileUtil.toScript(token, defMap, vsTod);
-            //if (vsOut.indexOf('inverse') === -1)
-            //    vsNeedInverseFunc = false;
             if (vsTod.varying) //提取varying
                 for (const key in vsTod.varying)
                     if (!varyingMapVS[key])
@@ -902,14 +898,10 @@ mat4 transpose(mat4 m)
         {
             const defs: Set<string> = new Set();
             const token = WebGPUShaderCompileDef.compile(fs.join('\n'), defs);
-            //if (!defs.has('Math_lib'))
-            //    fsNeedInverseFunc = true;
             const defMap: NameBooleanMap = {};
             defineString.forEach(def => { defMap[def] = true; });
             defMap['GL_FRAGMENT_PRECISION_HIGH'] = true;
             fsOut = WebGPUShaderCompileUtil.toScript(token, defMap, fsTod);
-            //if (fsOut.indexOf('inverse') === -1)
-            //    fsNeedInverseFunc = false;
             if (fsTod.varying) //提取varying
                 for (const key in fsTod.varying)
                     if (!varyingMapFS[key])
@@ -1060,8 +1052,6 @@ ${textureGLSL_fs}
             }
         }
 
-        //const regex = /textureSampleBias/g; //替换textureSampleBias为textureSampleLevel
-        //wgsl_fs = wgsl_fs.replace(regex, 'textureSampleLevel');
         //console.log(wgsl_vs);
         //console.log(wgsl_fs);
 
@@ -1090,6 +1080,15 @@ ${textureGLSL_fs}
 
         defineString.push('GRAPHICS_API_GLES3'); //默认支持GLES3
 
+        let defineStr: string = '';
+        defineStr += '#define MAX_LIGHT_COUNT ' + Config3D.maxLightCount + '\n';
+        defineStr += '#define MAX_LIGHT_COUNT_PER_CLUSTER ' + Config3D._maxAreaLightCountPerClusterAverage + '\n';
+        defineStr += '#define CLUSTER_X_COUNT ' + Config3D.lightClusterCount.x + '\n';
+        defineStr += '#define CLUSTER_Y_COUNT ' + Config3D.lightClusterCount.y + '\n';
+        defineStr += '#define CLUSTER_Z_COUNT ' + Config3D.lightClusterCount.z + '\n';
+        defineStr += '#define MORPH_MAX_COUNT ' + Config3D.maxMorphTargetCount + '\n';
+        defineStr += '#define SHADER_CAPAILITY_LEVEL ' + LayaGL.renderEngine.getParams(RenderParams.SHADER_CAPAILITY_LEVEL) + '\n';
+
         const defMap: NameBooleanMap = {};
         for (let i = defineString.length - 1; i > -1; i--)
             defMap[defineString[i]] = true;
@@ -1103,7 +1102,7 @@ ${textureGLSL_fs}
         const arrayMap: NameNumberMap = {}; //uniform中的数组
         //提取VertexShader的uniform参数
         {
-            const token = WebGPUShaderCompileDef.compile(vs.join('\n'));
+            const token = WebGPUShaderCompileDef.compile(defineStr + vs.join('\n'));
             const defMap: NameBooleanMap = {};
             defineString.forEach(def => { defMap[def] = true; });
             defMap['GL_FRAGMENT_PRECISION_HIGH'] = true;
@@ -1128,7 +1127,7 @@ ${textureGLSL_fs}
         }
         //提取FragmentShader的uniform参数
         {
-            const token = WebGPUShaderCompileDef.compile(fs.join('\n'));
+            const token = WebGPUShaderCompileDef.compile(defineStr + fs.join('\n'));
             const defMap: NameBooleanMap = {};
             defineString.forEach(def => { defMap[def] = true; });
             defMap['GL_FRAGMENT_PRECISION_HIGH'] = true;
