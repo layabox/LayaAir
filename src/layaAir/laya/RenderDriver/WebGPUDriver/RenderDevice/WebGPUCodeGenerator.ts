@@ -1157,6 +1157,7 @@ ${textureGLSL_fs}
         for (let i = uniform_vs.length - 1; i > -1; i--) {
             const name = uniform_vs[i].name;
             const type = uniform_vs[i].fields.type;
+            const arrayLength = uniform_vs[i].fields.arrayLength;
             if (uniformMapEx[name] && type === 'sampler2DShadow')
                 uniformMapEx[name].shadow = true;
             else {
@@ -1166,10 +1167,13 @@ ${textureGLSL_fs}
                     shadow: type === 'sampler2DShadow' ? true : undefined
                 }
             }
+            if (arrayLength !== undefined)
+                arrayMap[`${name}[${arrayLength}]`] = arrayLength;
         }
         for (let i = uniform_fs.length - 1; i > -1; i--) {
             const name = uniform_fs[i].name;
             const type = uniform_fs[i].fields.type;
+            const arrayLength = uniform_fs[i].fields.arrayLength;
             if (uniformMapEx[name] && type === 'sampler2DShadow')
                 uniformMapEx[name].shadow = true;
             else {
@@ -1179,6 +1183,8 @@ ${textureGLSL_fs}
                     shadow: type === 'sampler2DShadow' ? true : undefined
                 }
             }
+            if (arrayLength !== undefined)
+                arrayMap[`${name}[${arrayLength}]`] = arrayLength;
         }
         return { uniform: uniformMapEx, arr: arrayMap };
     }
