@@ -317,16 +317,16 @@ export class Panel extends Box {
     }
 
     /**
-     * @en The type of scrolling.
-     * None: Does not display any scrollbars
-     * Horizontal: Displays only the horizontal scrollbar
-     * Vertical: Displays only the vertical scrollbar
-     * Both: Displays both horizontal and vertical scrollbars
-     * @zh 滚动条类型。
-     * None: 不显示任何滚动条
-     * Horizontal: 仅显示水平滚动条
-     * Vertical: 仅显示垂直滚动条
-     * Both: 同时显示水平和垂直滚动条
+     * @en Scroll bar type. The range of values is 0-3.
+     * ScrollType.None(0): Does not display any scrollbars
+     * ScrollType.Horizontal(1):Displays only the horizontal scrollbar
+     * ScrollType.Vertical(2): Displays only the vertical scrollbar
+     * ScrollType.Both(3):  Displays both horizontal and vertical scrollbars
+     * @zh 滚动条类型。取值范围0-3。
+     * ScrollType.None(0): 不显示任何滚动条
+     * ScrollType.Horizontal(1): 仅显示水平滚动条
+     * ScrollType.Vertical(2): 仅显示垂直滚动条
+     * ScrollType.Both(3): 同时显示水平和垂直滚动条
      */
     get scrollType() {
         return this._scrollType;
