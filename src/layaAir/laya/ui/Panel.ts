@@ -10,7 +10,8 @@ import { HideFlags } from "../Const";
 import { ScrollType } from "./Styles";
 
 /**
- * <code>Panel</code> 是一个面板容器类。
+ * @en Panel is a panel container class.
+ * @zh Panel 是一个面板容器类。
  */
 export class Panel extends Box {
     /**@private */
@@ -31,8 +32,8 @@ export class Panel extends Box {
     protected _hScrollBarSkin: string;
 
     /**
-     * 创建一个新的 <code>Panel</code> 类实例。
-     * <p>在 <code>Panel</code> 构造函数中设置属性width、height的值都为100。</p>
+     * @en In the `Panel` constructor, the default values of properties `width` and `height` are both 100.
+     * @zh 在 `Panel` 构造函数中，属性 `width` 和 `height` 的默认值均为 100。
      */
     constructor() {
         super();
@@ -41,7 +42,13 @@ export class Panel extends Box {
         //_content.optimizeScrollRect = true;
     }
 
-    /**@inheritDoc @override*/
+    /**
+     * @override
+     * @en Destroy this object.
+     * @param destroyChild Whether to destroy the child objects as well.
+     * @zh 销毁此对象。
+     * @param destroyChild 是否同时销毁子对象。
+     */
     destroy(destroyChild: boolean = true): void {
         super.destroy(destroyChild);
         this._content && this._content.destroy(destroyChild);
@@ -52,7 +59,11 @@ export class Panel extends Box {
         this._content = null;
     }
 
-    /**@inheritDoc @override*/
+    /**
+     * @override
+     * @en Destroy all child objects.
+     * @zh 销毁所有的子对象。
+     */
     destroyChildren(): void {
         this._content.destroyChildren();
     }
@@ -64,7 +75,15 @@ export class Panel extends Box {
         super.addChild(this._content);
     }
 
-    /**@inheritDoc @override*/
+    /**
+     * @override
+     * @en Add a child object.
+     * @param child The child object to add.
+     * @returns The added child object.
+     * @zh 添加一个节点子对象。
+     * @param child 要添加的子节点对象。
+     * @returns 添加的子节点对象。
+     */
     addChild<T extends Node>(child: T): T {
         child.on(Event.RESIZE, this, this.onResize);
         this._setScrollChanged();
@@ -72,21 +91,41 @@ export class Panel extends Box {
     }
 
     /**
-     * @private
-     * 子对象的 <code>Event.RESIZE</code> 事件侦听处理函数。
-     */
+    * @private
+    * @en Event handler for the child object's Event.RESIZE event.
+    * @zh 子对象的 Event.RESIZE 事件侦听处理函数。
+    */
+
     private onResize(): void {
         this._setScrollChanged();
     }
 
-    /**@inheritDoc @override*/
+    /**
+     * @override
+     * @en Add a child object at a specific index position.
+     * @param child The child object to add.
+     * @param index The index position to place the child at.
+     * @returns The child object that was added.
+     * @zh 在指定的索引位置添加一个子节点对象。
+     * @param child 要添加的子节点对象。
+     * @param index 子节点对象的索引位置。
+     * @returns 添加的子节点对象。
+     */
     addChildAt(child: Node, index: number): Node {
         child.on(Event.RESIZE, this, this.onResize);
         this._setScrollChanged();
         return this._content.addChildAt(child, index);
     }
 
-    /**@inheritDoc @override*/
+    /**
+     * @override
+     * @en Remove a child object.
+     * @param child The child object to remove.
+     * @returns The removed child object.
+     * @zh 移除一个子节点对象。
+     * @param child 要移除的子节点对象。
+     * @returns 移除的子节点对象。
+     */
     removeChild(child: Node): Node {
         child.off(Event.RESIZE, this, this.onResize);
         this._setScrollChanged();
@@ -102,36 +141,82 @@ export class Panel extends Box {
             return this._content.removeChild(child);
     }
 
-    /**@inheritDoc @override*/
+    /**
+     * @override
+     * @en Remove a child object at a specific index position.
+     * @param index The index position of the child object.
+     * @returns The removed child object.
+     * @zh 移除指定索引位置的子节点对象。
+     * @param index 子节点对象的索引位置。
+     * @returns 移除的子节点对象。
+     */
     removeChildAt(index: number): Node {
         this.getChildAt(index).off(Event.RESIZE, this, this.onResize);
         this._setScrollChanged();
         return this._content.removeChildAt(index);
     }
 
-    /**@inheritDoc @override*/
+    /**
+     * @override
+     * @en Remove a range of children from the object.
+     * @param beginIndex The beginning position.
+     * @param endIndex The ending position. The default value is 0x7fffffff.
+     * @returns The Panel object itself.
+     * @zh 移除指定范围的子节点对象。
+     * @param beginIndex 开始位置。
+     * @param endIndex 结束位置。默认值为 0x7fffffff。
+     * @returns 返回对象本身。
+     */
     removeChildren(beginIndex: number = 0, endIndex: number = 0x7fffffff): Node {
         this._content.removeChildren(beginIndex, endIndex);
         this._setScrollChanged();
         return this;
     }
 
-    /**@inheritDoc @override*/
+    /**
+     * @override
+     * @en Returns the child object at a specific index position.
+     * @param index The index position of the child object.
+     * @returns The child object at the specified index position.
+     * @zh 返回指定索引位置的子节点对象。
+     * @param index 子节点对象的索引位置。
+     * @returns 指定索引位置处的子节点对象。
+     */
     getChildAt(index: number): Node {
         return this._content.getChildAt(index);
     }
 
-    /**@inheritDoc @override*/
+    /**
+     * @override
+     * @en Returns a child object with a specific name.
+     * @param name The name of the child object.
+     * @returns The child object with the specified name.
+     * @zh 返回具有指定名称的子节点对象。
+     * @param name 子节点对象的名称。
+     * @returns 具有指定名称的子节点对象。
+     */
     getChildByName(name: string): Node {
         return this._content.getChildByName(name);
     }
 
-    /**@inheritDoc @override*/
+    /**
+     * @override
+     * @en Returns the index position of a specific child object.
+     * @param child The child object.
+     * @returns The index position of the child object.
+     * @zh 返回指定子节点对象的索引位置。
+     * @param child 子节点对象。
+     * @returns 子节点对象的索引位置。
+     */
     getChildIndex(child: Node): number {
         return this._content.getChildIndex(child);
     }
 
-    /**@inheritDoc @override*/
+    /**
+     * @override
+     * @en The number of child objects.
+     * @zh 子节点对象数量。
+     */
     get numChildren(): number {
         return this._content.numChildren;
     }
@@ -172,7 +257,8 @@ export class Panel extends Box {
 
     /**
      * @private
-     * 获取内容宽度（以像素为单位）。
+     * @en Get the width of the content area in pixels.
+     * @zh 获取内容区域宽度（以像素为单位）。
      */
     get contentWidth(): number {
         var max = 0;
@@ -185,7 +271,8 @@ export class Panel extends Box {
 
     /**
      * @private
-     * 获取内容高度（以像素为单位）。
+     * @en Get the height of the content area in pixels.
+     * @zh 获取内容区域高度（以像素为单位）。
      */
     get contentHeight(): number {
         let max = 0;
@@ -198,7 +285,10 @@ export class Panel extends Box {
 
     /**
      * @private
-     * 设置内容的宽度、高度（以像素为单位）。
+     * @en Sets the width and height of the content (in pixels).
+     * @param width The width.
+     * @param height The height.
+     * @zh 设置内容的宽度、高度（以像素为单位）。
      * @param width 宽度。
      * @param height 高度。
      */
@@ -226,7 +316,18 @@ export class Panel extends Box {
         this._setScrollChanged();
     }
 
-
+    /**
+     * @en The type of scrolling.
+     * None: Does not display any scrollbars
+     * Horizontal: Displays only the horizontal scrollbar
+     * Vertical: Displays only the vertical scrollbar
+     * Both: Displays both horizontal and vertical scrollbars
+     * @zh 滚动条类型。
+     * None: 不显示任何滚动条
+     * Horizontal: 仅显示水平滚动条
+     * Vertical: 仅显示垂直滚动条
+     * Both: 同时显示水平和垂直滚动条
+     */
     get scrollType() {
         return this._scrollType;
     }
@@ -307,7 +408,8 @@ export class Panel extends Box {
     }
 
     /**
-     * 垂直方向滚动条皮肤。
+     * @en The skin of the vertical scrollbar.
+     * @zh 垂直方向滚动条皮肤。
      */
     get vScrollBarSkin(): string {
         return this._vScrollBarSkin;
@@ -328,7 +430,8 @@ export class Panel extends Box {
     }
 
     /**
-     * 水平方向滚动条皮肤。
+     * @en The skin of the horizontal scrollbar.
+     * @zh 水平方向滚动条皮肤。
      */
     get hScrollBarSkin(): string {
         return this._hScrollBarSkin;
@@ -347,21 +450,24 @@ export class Panel extends Box {
     }
 
     /**
-     * 垂直方向滚动条对象。
+     * @en The vertical scrollbar object.
+     * @zh 垂直方向滚动条对象。
      */
     get vScrollBar(): ScrollBar {
         return this._vScrollBar;
     }
 
     /**
-     * 水平方向滚动条对象。
+     * @en The horizontal scrollbar object.
+     * @zh 水平方向滚动条对象。
      */
     get hScrollBar(): ScrollBar {
         return this._hScrollBar;
     }
 
     /**
-     * 获取内容容器对象。
+     * @en Get the content container object.
+     * @zh 获取内容容器对象。
      */
     get content(): Sprite {
         return this._content;
@@ -369,10 +475,12 @@ export class Panel extends Box {
 
     /**
      * @private
-     * 滚动条的<code><code>Event.MOUSE_DOWN</code>事件侦听处理函数。</code>事件侦听处理函数。
+     * @en Event.MOUSE_DOWN event handler for the scrollbar.
+     * @param scrollBar The scrollbar object.
+     * @zh 滚动条的 Event.MOUSE_DOWN 事件侦听处理函数。
      * @param scrollBar 滚动条对象。
-     * @param e Event 对象。
      */
+
     protected onScrollBarChange(scrollBar: ScrollBar): void {
         var rect = this._content._style.scrollRect;
         if (rect) {
@@ -383,7 +491,10 @@ export class Panel extends Box {
     }
 
     /**
-     * <p>滚动内容容器至设定的垂直、水平方向滚动条位置。</p>
+     * @en Scroll the content container to the specified position of the vertical and horizontal scrollbars.
+     * @param x The value of the `value` property of the horizontal scrollbar.
+     * @param y The value of the `value` property of the vertical scrollbar.
+     * @zh 滚动内容容器至设定的垂直、水平方向滚动条位置。
      * @param x 水平方向滚动条属性value值。滚动条位置数字。
      * @param y 垂直方向滚动条属性value值。滚动条位置数字。
      */
@@ -393,10 +504,19 @@ export class Panel extends Box {
     }
 
     /**
-     * 刷新滚动内容。
+     * @en Refresh the scroll content.
+     * @zh 刷新滚动内容。
      */
     refresh(): void {
         this.changeScroll();
+    }
+
+    /**
+     * @inheritDoc
+     * @override
+     */
+    get cacheAs() {
+        return super.cacheAs;
     }
 
     /**@inheritDoc @override*/
@@ -411,15 +531,11 @@ export class Panel extends Box {
             this._vScrollBar && this._vScrollBar.off(Event.START, this, this.onScrollStart);
         }
     }
-    /**
-     * @inheritDoc
-     * @override
-     */
-    get cacheAs() {
-        return super.cacheAs;
-    }
 
-    /**是否开启橡皮筋效果*/
+    /**
+     * @en Whether to enable the elastic effect.
+     * @zh 是否开启橡皮筋效果。
+     */
     get elasticEnabled(): boolean {
         return this._elasticEnabled;
     }
