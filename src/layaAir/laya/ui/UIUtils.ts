@@ -4,7 +4,8 @@ import { Utils } from "../utils/Utils"
 import { WeakObject } from "../utils/WeakObject"
 
 /**
- * <code>UIUtils</code> 是文本工具集。
+ * @en The `UIUtils` class is a collection of text utility functions.
+ * @zh `UIUtils` 是文本工具集。
  */
 export class UIUtils {
 
@@ -15,11 +16,16 @@ export class UIUtils {
     private static _funMap: WeakObject = null;//new WeakObject();
 
     /**
-     * 用字符串填充数组，并返回数组副本。
-     * @param	arr 源数组对象。
-     * @param	str 用逗号连接的字符串。如"p1,p2,p3,p4"。
-     * @param	type 如果值不为null，则填充的是新增值得类型。
-     * @return 填充后的数组。
+     * @en Fill an array with a string and return a copy of the array.
+     * @param arr The source array.
+     * @param str A string of comma-separated values, such as "p1,p2,p3,p4".
+     * @param type If the value is not null, it indicates the type of the newly added value.
+     * @returns The filled array.
+     * @zh 用字符串填充数组，并返回数组副本。
+     * @param arr 源数组对象。
+     * @param str 用逗号连接的字符串。如"p1,p2,p3,p4"。
+     * @param type 如果值不为null，则填充的是新增值得类型。
+     * @returns 填充后的数组。
      */
     static fillArray(arr: any[], str: string, type: typeof Number | typeof String = null): any[] {
         let temp = arr.concat();
@@ -35,7 +41,10 @@ export class UIUtils {
     }
 
     /**
-     * 转换uint类型颜色值为字符型颜色值。
+     * @en Convert a uint color value to a string color value.
+     * @param color The uint color value.
+     * @returns The string color value.
+     * @zh 转换 uint 类型颜色值为字符型颜色值。
      * @param color uint颜色值。
      * @return 字符型颜色值。
      */
@@ -44,11 +53,13 @@ export class UIUtils {
     }
 
     /**
-     * 给指定的目标显示对象添加或移除灰度滤镜。
-     * @param	target 目标显示对象。
-     * @param	isGray 如果值true，则添加灰度滤镜，否则移除灰度滤镜。
+     * @en Add or remove a grayscale filter to the specified target display object.
+     * @param target The target display object.
+     * @param isGray If true, add a grayscale filter, otherwise remove the grayscale filter.
+     * @zh 给指定的目标显示对象添加或移除灰度滤镜。
+     * @param target 目标显示对象。
+     * @param isGray 如果值true，则添加灰度滤镜，否则移除灰度滤镜。
      */
-    //TODO:coverage
     static gray(target: Sprite, isGray: boolean = true): void {
         let filters: any[] = target.filters || [];
         let i = filters.indexOf(UIUtils.grayFilter);
@@ -65,9 +76,14 @@ export class UIUtils {
     }
 
     /**
-     * @internal 根据字符串，返回函数表达式
+     * @internal
+     * @en Get the function expression based on the string.
+     * @param value The string value.
+     * @returns The function expression.
+     * @zh 根据字符串，返回函数表达式。
+     * @param value 字符串值。
+     * @return 函数表达式。
      */
-    //TODO:coverage
     static getBindFun(value: string): Function {
         if (!UIUtils._funMap) {
             UIUtils._funMap = new WeakObject();
