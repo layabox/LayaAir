@@ -128,23 +128,30 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
     }
 
     /**
-     * 渲染前更新
-     * @param context 
+     * 提取当前渲染通道
+     * @param pipelineMode 
      */
-    _preUpdatePre(context: WebGPURenderContext3D) {
-        //设定当前渲染通道
+    private _takeCurPass(pipelineMode: string) {
         this._passNum = 0;
+        this._passName = pipelineMode;
         const passes = this.subShader._passes;
         for (let i = 0, len = passes.length; i < len; i++) {
-            if (passes[i].pipelineMode === context.pipelineMode) {
+            if (passes[i].pipelineMode === pipelineMode) {
                 this._passIndex[this._passNum] = i;
                 this._shaderPass[this._passNum] = passes[i];
                 this._shaderInstance[this._passNum] = this._shaderInstances[i];
                 this._passNum++;
             }
         }
+    }
+
+    /**
+     * 渲染前更新
+     * @param context 
+     */
+    _preUpdatePre(context: WebGPURenderContext3D) {
+        this._takeCurPass(context.pipelineMode);
         if (this._passNum === 0) return false;
-        this._passName = context.pipelineMode;
 
         //设定当前渲染数据
         this._sceneData = context.sceneData;
@@ -202,6 +209,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
 
         //查找着色器对象缓存
         for (let i = 0; i < this._passNum; i++) {
+            const index = this._passIndex[i];
             if (!this._shaderPass[i].moduleData.getCacheShader(compileDefine.clone())) {
                 const { uniformMap, arrayMap } = this._collectUniform(compileDefine); //@ts-ignore
                 this._shaderPass[i].uniformMap = uniformMap; //@ts-ignore
@@ -210,7 +218,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
 
             //获取着色器实例，先查找缓存，如果没有则创建
             const shaderInstance = this._shaderPass[i].withCompile(compileDefine.clone()) as WebGPUShaderInstance;
-            this._shaderInstances[this._passIndex[i]] = shaderInstance;
+            this._shaderInstances[index] = shaderInstance;
 
             //创建uniform缓冲区
             if (i === 0) {
@@ -224,6 +232,9 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
         //重编译着色器后，清理绑定组缓存
         this.renderShaderData?.clearBindGroup();
         this.materialShaderData?.clearBindGroup();
+
+        //提取当前渲染通道
+        this._takeCurPass(context.pipelineMode);
     }
 
     /**
@@ -753,6 +764,13 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
             }
         }
         return triangles;
+    }
+
+    /**
+     * 清除渲染管线缓存
+     */
+    static clearPipeline() {
+        this._pipelineCacheMap.clear();
     }
 
     /**

@@ -154,13 +154,13 @@ export class WebGPUInternalTex implements InternalTexture {
         this.dimension = dimension;
         this.multiSamplers = multiSamples;
 
-        const isPot = (value: number): boolean => {
+        const _isPot = (value: number): boolean => {
             return (value & (value - 1)) === 0;
         }
 
-        this.isPotSize = isPot(width) && isPot(height);
+        this.isPotSize = _isPot(width) && _isPot(height);
         if (dimension === TextureDimension.Tex3D) {
-            this.isPotSize = this.isPotSize && isPot(this.depth);
+            this.isPotSize = this.isPotSize && _isPot(this.depth);
         }
 
         this.mipmap = mipmap && this.isPotSize;
@@ -226,9 +226,9 @@ export class WebGPUInternalTex implements InternalTexture {
                 break;
         }
 
-        let descriptor: GPUTextureViewDescriptor = {
+        const descriptor: GPUTextureViewDescriptor = {
             format: this._webGPUFormat,
-            dimension: dimension,
+            dimension,
             baseMipLevel: this.baseMipmapLevel,
             mipLevelCount: this.maxMipmapLevel - this.baseMipmapLevel + 1,
         }
@@ -249,6 +249,6 @@ export class WebGPUInternalTex implements InternalTexture {
         //TODO好像需要延迟删除
         this.gpuMemory = 0;
         WebGPUGlobal.releaseId(this);
-        this.resource.destroy();
+        this.resource.destroy(); //如果有报错，就需要采取延迟删除措施
     }
 }

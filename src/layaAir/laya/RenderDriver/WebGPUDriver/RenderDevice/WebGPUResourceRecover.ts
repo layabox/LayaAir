@@ -1,3 +1,4 @@
+import { Laya } from "../../../../Laya";
 import { WebGPUBuffer } from "./WebGPUBuffer";
 
 /**
@@ -6,20 +7,24 @@ import { WebGPUBuffer } from "./WebGPUBuffer";
 export class WebGPUResourceRecover {
     recoverList: WebGPUBuffer[] = []; //正在回收的队列
     readyToRecover: WebGPUBuffer[] = []; //需要回收的队列
+    frameCount: number; //当前帧
 
     needRecover(res: WebGPUBuffer) {
         this.readyToRecover.push(res);
+        this.frameCount = Laya.timer.currFrame;
     }
 
     recover() {
-        //交换队列
-        const temp = this.recoverList;
-        this.recoverList = this.readyToRecover;
-        this.readyToRecover = temp;
+        if (this.frameCount < Laya.timer.currFrame) {
+            //交换队列
+            const temp = this.recoverList;
+            this.recoverList = this.readyToRecover;
+            this.readyToRecover = temp;
 
-        //回收内存
-        for (let i = this.recoverList.length - 1; i > -1; i--)
-            this.recoverList[i]._source.destroy();
-        this.recoverList.length = 0;
+            //回收内存
+            for (let i = this.recoverList.length - 1; i > -1; i--)
+                this.recoverList[i]._source.destroy();
+            this.recoverList.length = 0;
+        }
     }
 }

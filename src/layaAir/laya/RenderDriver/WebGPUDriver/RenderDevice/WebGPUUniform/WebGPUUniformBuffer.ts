@@ -130,8 +130,6 @@ export class WebGPUUniformBuffer {
         const item = this.items.get(id);
         if (item) {
             this.needUpload = true;
-            // todo
-            // is array
             if (item.count == 1) {
                 switch (item.type) {
                     case 'int':
@@ -166,14 +164,11 @@ export class WebGPUUniformBuffer {
                     default:
                         break;
                 }
-            }
-            else {
-                // array
-                let arraySize = item.count * item.elements;
-                let alignElements = item.size / item.count / item.view.BYTES_PER_ELEMENT;
-                for (let i = 0, j = 0; i < arraySize; i += item.elements, j += alignElements) {
+            } else {
+                const arraySize = item.count * item.elements;
+                const alignElements = item.size / item.count / item.view.BYTES_PER_ELEMENT;
+                for (let i = 0, j = 0; i < arraySize; i += item.elements, j += alignElements)
                     item.view.set(data.subarray(i, i + item.elements), j);
-                }
             }
         }
     }

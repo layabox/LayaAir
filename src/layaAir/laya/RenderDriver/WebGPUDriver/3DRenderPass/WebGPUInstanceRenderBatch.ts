@@ -9,7 +9,7 @@ import { WebGPUInstanceRenderElement3D } from "./WebGPUInstanceRenderElement3D";
 import { WebGPUResourceRecover } from "../RenderDevice/WebGPUResourceRecover";
 
 /**
- * 动态合批通用类（目前由WebGPU专用）
+ * 动态合批
  */
 export class WebGPUInstanceRenderBatch implements IInstanceRenderBatch {
     static MaxInstanceCount: number = 1024;
