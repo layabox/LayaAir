@@ -4,8 +4,10 @@ import { PhysicsShape } from "./ColliderStructInfo";
 import { Sprite } from "../../display/Sprite";
 
 /**
- * 2D多边形碰撞体，暂时不支持凹多边形，如果是凹多边形，先手动拆分为多个凸多边形
- * 节点个数最多是b2_maxPolygonVertices，这数值默认是8，所以点的数量不建议超过8个，也不能小于3个
+ * @en 2D polygon collider. Concave polygons are currently not supported. If it is a concave polygon, manually split it into multiple convex polygons first.
+ * The maximum number of vertices is `b2_maxPolygonVertices`, which defaults to 8. So it is not recommended to exceed 8 points, and it cannot be less than 3.
+ * @zh 2D多边形碰撞体，暂时不支持凹多边形，如果是凹多边形，先手动拆分为多个凸多边形。
+ * 节点个数最多是 `b2_maxPolygonVertices`，这数值默认是8，所以点的数量不建议超过8个，也不能小于3个。
  */
 export class PolygonCollider extends ColliderBase {
 
@@ -39,7 +41,10 @@ export class PolygonCollider extends ColliderBase {
         this._needupdataShapeAttribute();
     }
 
-    /**顶点数据 x,y,x,y ...*/
+    /**
+     * @en Vertex data in the format: x,y,x,y ...
+     * @zh 顶点数据，格式：x,y,x,y ...
+     */
     get datas(): number[] {
         return this._datas;
     }

@@ -4,7 +4,8 @@ import { PhysicsShape } from "./ColliderStructInfo";
 
 
 /**
- * 2D矩形碰撞体
+ * @en 2D rectangular collision body
+ * @zh 2D矩形碰撞体
  */
 export class BoxCollider extends ColliderBase {
 
@@ -13,7 +14,10 @@ export class BoxCollider extends ColliderBase {
     /**@internal 矩形高度*/
     private _height: number = 100;
 
-    /**矩形宽度*/
+    /** 
+     * @en Rectangle width of collision body
+     * @zh 碰撞体矩形宽度
+     */
     get width(): number {
         return this._width;
     }
@@ -25,7 +29,10 @@ export class BoxCollider extends ColliderBase {
         this._needupdataShapeAttribute();
     }
 
-    /**矩形高度*/
+    /** 
+     * @en Rectangle height of collision body
+     * @zh 碰撞体矩形高度
+     */
     get height(): number {
         return this._height;
     }
@@ -38,14 +45,14 @@ export class BoxCollider extends ColliderBase {
     }
 
     /**
-    * 创建一个新的 <code>BoxCollider</code> 实例。
+    * @en Constructor method
+    * @zh 构造方法
     */
     constructor() {
         super();
         this._physicShape = PhysicsShape.BoxShape;
     }
 
-    /** */
     /**
      * @internal
      * @override

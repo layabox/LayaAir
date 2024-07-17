@@ -6,7 +6,8 @@ import { Sprite } from "../../display/Sprite";
 
 
 /**
- * 碰撞体基类
+ * @en Collider base class
+ * @zh 碰撞体基类
  */
 export class ColliderBase extends Component {
 
@@ -40,10 +41,16 @@ export class ColliderBase extends Component {
     /**@internal 相对节点的y轴偏移*/
     private _y: number = 0;
 
-    /**标签*/
+    /**
+     * @en label
+     * @zh 标签
+     */
     label: string;
 
-    /**刚体引用*/
+    /** 
+     * @en The reference to the rigidbody.
+     * @zh 刚体引用。
+     */
     rigidBody: RigidBody;
 
     /**
@@ -72,8 +79,10 @@ export class ColliderBase extends Component {
         return this._y - (<Sprite>this.owner).pivotY;
     }
 
-
-    /**相对节点的x轴偏移*/
+    /**
+     * @en The x-axis offset relative to the node.
+     * @zh 相对于节点的 x 轴偏移。
+     */
     get x(): number {
         return this._x;
     }
@@ -84,7 +93,10 @@ export class ColliderBase extends Component {
         this._needupdataShapeAttribute();
     }
 
-    /**相对节点的y轴偏移*/
+    /**
+     * @en The y-axis offset relative to the node.
+     * @zh 相对于节点的 y 轴偏移。
+     */
     get y(): number {
         return this._y;
     }
@@ -95,7 +107,10 @@ export class ColliderBase extends Component {
         this._needupdataShapeAttribute();
     }
 
-    /**是否是传感器，传感器能够触发碰撞事件，但不会产生碰撞反应*/
+    /**
+     * @en Whether the object is a sensor. A sensor can trigger collision events but does not produce collision responses.
+     * @zh 是否是传感器，传感器能够触发碰撞事件，但不会产生碰撞反应
+     */
     get isSensor(): boolean {
         return this._isSensor;
     }
@@ -106,7 +121,10 @@ export class ColliderBase extends Component {
         this._needupdataShapeAttribute();
     }
 
-    /**密度值，值可以为零或者是正数，建议使用相似的密度，这样做可以改善堆叠稳定性，默认值为10*/
+    /**
+     * @en The density value. The value can be zero or a positive number. It is recommended to use similar densities to improve stacking stability. The default value is 10.
+     * @zh 密度值。值可以为零或者是正数，建议使用相似的密度以改善堆叠稳定性。默认值为 10。
+     */
     get density(): number {
         return this._density;
     }
@@ -117,7 +135,10 @@ export class ColliderBase extends Component {
         this._needupdataShapeAttribute();
     }
 
-    /**摩擦力，取值范围0-1，值越大，摩擦越大，默认值为0.2*/
+    /**
+     * @en The friction coefficient. The value ranges from 0 to 1, the larger the value, the greater the friction. The default value is 0.2.
+     * @zh 摩擦力。取值范围0-1，值越大，摩擦越大。默认值为0.2。
+     */
     get friction(): number {
         return this._friction;
     }
@@ -128,7 +149,10 @@ export class ColliderBase extends Component {
         this._needupdataShapeAttribute();
     }
 
-    /**弹性系数，取值范围0-1，值越大，弹性越大，默认值为0*/
+    /**
+     * @en The restitution coefficient. The value ranges from 0 to 1, the larger the value, the greater the elasticity. The default value is 0.
+     * @zh 弹性系数。取值范围0-1，值越大，弹性越大。默认值为0。
+     */
     get restitution(): number {
         return this._restitution;
     }
@@ -140,7 +164,8 @@ export class ColliderBase extends Component {
     }
 
     /**
-     * 创建一个新的 <code>ColliderBase</code> 实例。
+     * @en constructor method
+     * @zh 构造方法
      */
     constructor() {
         super();
@@ -205,7 +230,8 @@ export class ColliderBase extends Component {
 
     /**
      * @internal
-     * 碰撞体参数发生变化后，刷新物理世界碰撞信息
+     * @en Refresh the physics world collision information after the collision body parameters change.
+     * @zh 碰撞体参数发生变化后，刷新物理世界碰撞信息
      */
     _refresh(): void {
         if (!this.enabled) {

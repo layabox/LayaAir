@@ -3,14 +3,18 @@ import { Physics2D } from "../Physics2D";
 import { PhysicsShape } from "./ColliderStructInfo";
 
 /**
- * 2D圆形碰撞体
+ * @en 2D CircleCollider
+ * @zh 2D圆形碰撞体
  */
 export class CircleCollider extends ColliderBase {
 
     /**@internal 圆形半径，必须为正数*/
     private _radius: number = 50;
 
-    /**圆形半径，必须为正数*/
+    /**
+     * @en Circular radius, must be a positive number
+     * @zh 圆形半径，必须为正数
+     */
     get radius(): number {
         return this._radius;
     }
