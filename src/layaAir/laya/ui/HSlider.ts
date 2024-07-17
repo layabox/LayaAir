@@ -6,8 +6,6 @@ import { Slider } from "./Slider";
  * @zh 使用 HSlider 控件，用户可以通过在滑块轨道的终点之间移动滑块来选择值。
  * HSlider 控件采用水平方向。滑块轨道从左向右扩展，而标签位于轨道的顶部或底部。
  */
-
-
 export class HSlider extends Slider {
 
     /**
