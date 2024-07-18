@@ -121,6 +121,15 @@ export class RTRenderState extends RenderState {
 		this._nativeObj.setStencilOp(value);
 	}
 
+	get stencilOp(): Vector3 {
+		let value = this._nativeObj.getStencilOp();
+		let _tempVector3: Vector3 = new Vector3();
+		_tempVector3.x = value.x;
+		_tempVector3.y = value.y;
+		_tempVector3.z = value.z;
+		return _tempVector3;
+	}
+
 	setNull(): void {
 		this._nativeObj.setNull();
 	}
@@ -131,7 +140,7 @@ export class RTRenderState extends RenderState {
 
 	constructor() {
 		super();
-		
+
 	}
 
 	cloneTo(dest: RTRenderState): void {
