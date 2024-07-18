@@ -42,7 +42,6 @@ export abstract class Render2D {
     //abstract setVertexDecl(decl:VertexDeclaration):void;
     //shaderdata放到mtl中。之所以传内存buffer是为了给后面合并subdata机会，以便提高效率
     abstract draw(mesh: ISprite2DGeometry, vboff: number, vblen: number, iboff: number, iblen: number, mtl: Value2D, customMaterial: Material): void;
-    abstract drawMesh(mesh: IRenderGeometryElement, mtl: Material): void;
     abstract drawElement(ele: IRenderElement2D): void;
 
     abstract renderEnd(): void;
@@ -108,18 +107,6 @@ export class Render2DSimple extends Render2D {
         Render2DSimple.rendercontext2D.setRenderTarget(rt?._renderTarget, false, RenderTexture2D._clearColor);
     }
 
-    drawMesh(geo: IRenderGeometryElement, mtl: Material) {
-        Stat.draw2D++;
-        //Material??
-        this._renderElement.geometry = geo;
-        //this._renderElement.material = mtl;
-        this._renderElement.value2DShaderData = mtl.shaderData;
-        this._renderElement.subShader = mtl._shader.getSubShaderAt(0);
-        this._renderElement.materialShaderData = mtl.shaderData;
-        //blendState TODO
-        Render2DSimple.rendercontext2D.drawRenderElementOne(this._renderElement);
-    }
-
     drawElement(ele: IRenderElement2D) {
         Render2DSimple.rendercontext2D.drawRenderElementOne(ele);
     }
@@ -132,8 +119,8 @@ export class Render2DSimple extends Render2D {
         let vb = mesh._vertexBuffers[0];
         let ib = mesh._bindedIndexBuffer;
         vb.setDataLength(vblen);
-        vb.setData(mesh2d.vbBuffer, vboff, 0, vblen)
-        ib._setIndexDataLength(iblen)
+        vb.setData(mesh2d.vbBuffer, vboff, 0, vblen);
+        ib._setIndexDataLength(iblen);
         ib._setIndexData(new Uint16Array(mesh2d.ibBuffer, iboff, iblen / 2), 0)
         geo.clearRenderParams();
         geo.setDrawElemenParams(iblen / 2, 0);
@@ -156,11 +143,7 @@ export class Render2DSimple extends Render2D {
     }
 
     renderEnd(): void {
-        //分层
-        // if (this._renderTexture) {
-        //     this._renderTexture.end();
-        //     this._renderTexture.restore();
-        // }
+       
     }
 
 }

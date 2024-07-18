@@ -40,10 +40,6 @@ import { DrawEllipseCmd } from "./cmd/DrawEllipseCmd";
 import { DrawRoundRectCmd } from "./cmd/DrawRoundRectCmd";
 import { LayaGL } from "../layagl/LayaGL";
 import { ShaderDataType } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
-import { DrawGeoCmd } from "./cmd/DrawGeoCmd";
-import { IRenderGeometryElement } from "../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
-import { DrawGeosCmd } from "./cmd/DrawGeosCmd";
-import { BaseRenderNode2D } from "../NodeRender2D/BaseRenderNode2D";
 /**
  * <code>Graphics</code> 类用于创建绘图显示对象。Graphics可以同时绘制多个位图或者矢量图，还可以结合save，restore，transform，scale，rotate，translate，alpha等指令对绘图效果进行变化。
  * Graphics以命令流方式存储，可以通过cmds属性访问所有命令流。Graphics是比Sprite更轻量级的对象，合理使用能提高应用性能(比如把大量的节点绘图改为一个节点的Graphics命令集合，能减少大量节点创建消耗)。
@@ -304,20 +300,6 @@ export class Graphics {
         if (!texture) return null;
         return this.addCmd(DrawTexturesCmd.create(texture, pos, colors));
     }
-    /**
-     * 
-     * @param geo 
-     * @param material 
-     * @returns 
-     */
-    drawGeo(geo: IRenderGeometryElement, material:Material){
-        return this.addCmd(DrawGeoCmd.create(geo, material));
-    }
-
-    drawGeos(geo: IRenderGeometryElement,  elements:[Material,number,number][]){
-        return this.addCmd(DrawGeosCmd.create(geo, elements));
-    }
-
 
     /**
      * 绘制一组三角形

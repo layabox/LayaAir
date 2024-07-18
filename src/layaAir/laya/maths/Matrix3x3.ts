@@ -69,6 +69,24 @@ export class Matrix3x3 implements IClone {
         e[8] = 1;
     }
 
+    static createMatreixFromValue(pos: Vector2, rotate: number, scale: Vector2 = Vector2.ONE, out: Matrix3x3) {
+        var e: Float32Array = out.elements;
+
+        var s: number = Math.sin(rotate), c: number = Math.cos(rotate);
+
+        e[0] = c * scale.x;
+        e[1] = s * scale.x;
+        e[2] = 0;
+
+        e[3] = -s * scale.y;
+        e[4] = c * scale.y;
+        e[5] = 0;
+
+        e[6] = pos.x;
+        e[7] = pos.y;
+        e[8] = 1;
+    }
+
     /**
      * 根据指定旋转生成3x3矩阵
      * @param	rad  旋转值

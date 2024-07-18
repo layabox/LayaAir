@@ -32,6 +32,7 @@ export class NoRenderElement2D implements IRenderElement2D{
 }
 
 export class NoRenderContext2D implements IRenderContext2D{
+    sceneData: ShaderData;
     invertY: boolean;
     pipelineMode: string;
     setRenderTarget(value: InternalRenderTarget, clear: boolean, clearColor: Color): void {

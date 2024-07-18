@@ -8,12 +8,18 @@ import { ILaya } from "../../ILaya";
 import { Prefab } from "../resource/HierarchyResource";
 import { LegacyUIParser } from "../loaders/LegacyUIParser";
 import { NodeFlags } from "../Const";
+import { Vector2 } from "../maths/Vector2";
+import { Context } from "../renders/Context";
+import { CommandUniformMap } from "../RenderDriver/DriverDesign/RenderDevice/CommandUniformMap";
+import { Scene2DSpecialManager } from "./Scene2DSpecial/Scene2DSpecialManager";
+import { Render2DSimple } from "../renders/Render2D";
 
 /**
  * 场景类，负责场景创建，加载，销毁等功能
  * 场景被从节点移除后，并不会被自动垃圾机制回收，如果想回收，请调用destroy接口，可以通过unDestroyedScenes属性查看还未被销毁的场景列表
  */
 export class Scene extends Sprite {
+    static scene2DUniformMap: CommandUniformMap;
     /**创建后，还未被销毁的场景列表，方便查看还未被销毁的场景列表，方便内存管理，本属性只读，请不要直接修改*/
     static readonly unDestroyedScenes: Set<Scene> = new Set();
     /**获取根节点*/
@@ -42,9 +48,11 @@ export class Scene extends Sprite {
     /**@private */
     private _viewCreated: boolean = false;
 
+    _specialManager: Scene2DSpecialManager;
+
     constructor(createChildren = true) {
         super();
-
+        this._specialManager = new Scene2DSpecialManager();
         this._timer = ILaya.timer;
         this._widget = Widget.EMPTY;
 
@@ -325,6 +333,29 @@ export class Scene extends Sprite {
             this._getWidget().centerY = value;
         }
     }
+
+    render(ctx: Context, x: number, y: number): void {
+        this._preRenderUpdate(ctx, x, y)
+        super.render(ctx, x, y);
+
+        this._recoverRenderSceneState(ctx);
+    }
+
+
+    _preRenderUpdate(ctx: Context, x: number, y: number) {
+        //更新2DScene场景数据    
+        this._specialManager._preRenderUpdate(ctx);
+        Render2DSimple.rendercontext2D.sceneData = this._specialManager._shaderData;
+    }
+
+    _recoverRenderSceneState(ctx: Context) {
+        //恢复2D场景数据状态
+        ctx.breakNextMerge();
+        //Render2DSimple.rendercontext2D.sceneData = null;
+    }
+
+
+
 
     /**
      * @internal

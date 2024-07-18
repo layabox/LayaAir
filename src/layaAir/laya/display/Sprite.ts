@@ -30,6 +30,7 @@ import { IHitArea } from "../utils/IHitArea";
 import type { Material } from "../resource/Material";
 import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
 import { BaseRenderNode2D } from "../NodeRender2D/BaseRenderNode2D";
+import { Vector2 } from "../maths/Vector2";
 
 /**
  * @en Sprite is a basic display list node for displaying graphical content. By default, Sprite does not accept mouse events. Through the graphics API, images or vector graphics can be drawn, supporting operations like rotation, scaling, translation, and more. Sprite also functions as a container class, allowing the addition of multiple child nodes.
@@ -2343,7 +2344,6 @@ export class Sprite extends Node {
     }
 
     /**
-     * @internal
      * @en Sets the global position of the node.
      * @param globalx The global X position.
      * @param globaly The global Y position.
@@ -2377,7 +2377,6 @@ export class Sprite extends Node {
     }
 
     /**
-     * @internal
      * @en Gets the X-axis position in global coordinates.
      * @zh 获取全局坐标中的 X 轴位置。
      */
@@ -2401,7 +2400,6 @@ export class Sprite extends Node {
     }
 
     /**
-     * @internal
      * @en Gets the Y-axis position in global coordinates.
      * @zh 获取全局坐标中的 Y 轴位置。
      */
@@ -2424,7 +2422,31 @@ export class Sprite extends Node {
     }
 
     /**
-     * @internal
+     * @en get the global position of the node.
+     * @zh 获取节点对象在全局坐标系中的位置。
+     * @param out 
+     */
+    getGlobalPos(out: Point) {
+        if (!this._cacheGlobal) {
+            this.localToGlobal(out.setTo(0, 0), false, null);
+        } else {
+            if (this._getGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Matrix | Sprite.Sprite_GlobalDeltaFlage_Position_Y | Sprite.Sprite_GlobalDeltaFlage_Position_X)) {
+                this._setGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Position_Y | Sprite.Sprite_GlobalDeltaFlage_Position_X, false);
+                let mat = (<Sprite>this.parent).getGlobalMatrix();
+                let point = this.toParentPoint(out.setTo(this.pivotX, this.pivotY));
+                point = mat.transformPoint(point);
+                this._globalPosy = point.y;
+                this._globalPosx = point.x;
+                this._setGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Matrix, true);
+                this._syncGlobalFlag(Sprite.Sprite_GlobalDeltaFlage_Matrix, true);
+            } else {
+                out.x = this._globalPosx;
+                out.y = this._globalPosy;
+            }
+        }
+    }
+
+    /**
      * @en global rotation value relative to the stage (this value includes the rotation of parent nodes).
      * @zh 相对于stage的全局旋转值（会叠加父亲节点的旋转值）。
      */

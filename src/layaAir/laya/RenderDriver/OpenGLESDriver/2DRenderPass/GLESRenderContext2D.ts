@@ -3,6 +3,7 @@ import { Color } from "../../../maths/Color";
 import { FastSinglelist } from "../../../utils/SingletonList";
 import { IRenderContext2D } from "../../DriverDesign/2DRenderPass/IRenderContext2D";
 import { IRenderElement2D } from "../../DriverDesign/2DRenderPass/IRenderElement2D";
+import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
 import { GLESInternalRT } from "../RenderDevice/GLESInternalRT";
 import { GLESREnderElement2D } from "./GLESRenderElement2D";
 
@@ -21,6 +22,7 @@ export class GLESREnderContext2D implements IRenderContext2D {
     }
 
     _nativeObj: any;
+    sceneData: ShaderData;
 
     constructor() {
         this._nativeObj = new (window as any).conchGLESRenderContext2D();

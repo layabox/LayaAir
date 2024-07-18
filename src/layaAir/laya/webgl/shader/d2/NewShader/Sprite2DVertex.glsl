@@ -4,6 +4,11 @@ uniform vec2 u_clipMatPos;// 这个是全局的，不用再应用矩阵了。
 uniform vec2 u_size;
 uniform float u_VertAlpha;
 varying vec2 v_cliped;
+
+#ifdef CAMERA2D
+ uniform mat3 u_view2D;
+#endif
+
 #ifdef WORLDMAT
     uniform mat4 u_mmat;
     vec4 transedPos;
@@ -39,8 +44,14 @@ varying vec4 v_color;
         #ifdef WORLDMAT
             pos = u_mmat*pos;
             transedPos=pos;
+  			#ifdef CAMERA2D
+            	pos.xy = (u_view2D *vec3(pos.x,pos.y,1.0)).xy+u_size/2.;
+        	#endif  
             pos = vec4((pos.x/u_size.x-0.5)*2.0,(0.5-pos.y/u_size.y)*2.0,pos.z,1.0);
         #else
+  			#ifdef CAMERA2D
+           	 pos.xy = (u_view2D *vec3(pos.x,pos.y,1.0)).xy+u_size/2.;
+       		#endif  
             pos = vec4((a_position.x/u_size.x-0.5)*2.0,(0.5-a_position.y/u_size.y)*2.0,a_position.z,1.0);
         #endif
     }
@@ -90,6 +101,12 @@ varying vec4 v_color;
             pos= u_mmat * pos;
             transedPos=pos;//vec4(pos.x,pos.y,0.0,1.0);
         #endif
+
+        #ifdef CAMERA2D
+            pos.xy = (u_view2D *vec3(pos.x,pos.y,1.0)).xy+u_size/2.;
+        #endif  
+        
+
         vec4 pos1 = vec4((pos.x/u_size.x-0.5)*2.0,(0.5-pos.y/u_size.y)*2.0,0.,1.0);
         #ifdef MVP3D
             glPosition = u_MvpMatrix * pos1;
