@@ -10,15 +10,19 @@ import { HideFlags } from "../Const";
 import { URL } from "../net/URL";
 
 /**
- * 当 <code>Group</code> 实例的 <code>selectedIndex</code> 属性发生变化时调度。
+ * @en Schedule when the selectedIndex property of a Group instance changes.
+ * @zh 当 Group 实例的 selectedIndex 属性发生变化时调度。
  * @eventType laya.events.Event
  */
 /*[Event(name = "change", type = "laya.events.Event")]*/
 
 /**
- * <code>Group</code> 是一个可以自动布局的项集合控件。
- * <p> <code>Group</code> 的默认项对象为 <code>Button</code> 类实例。
- * <code>Group</code> 是 <code>Tab</code> 和 <code>RadioGroup</code> 的基类。</p>
+ * @en UIGroup is an item collection control that can be automatically laid out. 
+ * The default item object for UIGroup is a Button class instance.
+ * UIGroup is the base class for Tab and RadioGroup.
+ * @zh UIGroup 是一个可以自动布局的项集合控件。
+ * UIGroup 的默认项对象为 Button 类实例。
+ * UIGroup是 Tab 和 RadioGroup 的基类。
  */
 export class UIGroup extends Box {
 
@@ -57,12 +61,14 @@ export class UIGroup extends Box {
     /**@internal */
     protected _labelChanged: boolean;
     /**
-     * 改变 <code>Group</code> 的选择项时执行的处理器，(默认返回参数： 项索引（index:int）)。
+     * @en The processor executed when changing the selection of the Group, (Default return parameter: item index (index: int)).
+     * @zh 改变 Group 的选择项时执行的处理器，(默认返回参数： 项索引（index:int）)。
      */
     selectHandler: Handler;
 
     /**
-     * 表示当前选择的项索引。默认值为-1。
+     * @en Indicates the index of the currently selected item. The default value is -1.
+     * @zh 表示当前选择的项索引。默认值为-1。
      */
     get selectedIndex(): number {
         return this._selectedIndex;
@@ -79,6 +85,8 @@ export class UIGroup extends Box {
     }
 
     /**
+     * @en The URL of the skin for the component.
+     * @zh 组件的皮肤URL。
      * @copy laya.ui.Image#skin
      */
     get skin(): string {
@@ -95,7 +103,8 @@ export class UIGroup extends Box {
     }
 
     /**
-     * 标签集合字符串。以逗号做分割，如"item0,item1,item2,item3,item4,item5"。
+     * @en The labels string, separated by commas, such as "item0,item1,item2,item3,item4,item5".
+     * @zh 标签集合字符串。以逗号做分割，如"item0,item1,item2,item3,item4,item5"。
      */
     get labels(): string {
         return this._labels;
@@ -132,6 +141,8 @@ export class UIGroup extends Box {
     }
 
     /**
+     * @en The label colors string for the component.
+     * @zh 组件的标签颜色字符串。
      * @copy laya.ui.Button#labelColors()
      */
     get labelColors(): string {
@@ -146,7 +157,9 @@ export class UIGroup extends Box {
     }
 
     /**
-     * <p>描边宽度（以像素为单位）。</p>
+     * @en The stroke width (in pixels) for the label.
+     * The default value is 0, indicating no stroke.
+     * @zh 描边宽度（以像素为单位）。
      * 默认值0，表示不描边。
      * @see laya.display.Text.stroke()
      */
@@ -162,7 +175,9 @@ export class UIGroup extends Box {
     }
 
     /**
-     * <p>描边颜色，以字符串表示。</p>
+     * @en The stroke color for the label, represented as a string.
+     * The default color is "#000000" (black).
+     * @zh 描边颜色，以字符串表示。
      * 默认值为 "#000000"（黑色）;
      * @see laya.display.Text.strokeColor()
      */
@@ -178,7 +193,8 @@ export class UIGroup extends Box {
     }
 
     /**
-     * <p>表示各个状态下的描边颜色。</p>
+     * @en The stroke colors in various states.
+     * @zh 各个状态下的描边颜色
      * @see laya.display.Text.strokeColor()
      */
     get strokeColors(): string {
@@ -193,7 +209,8 @@ export class UIGroup extends Box {
     }
 
     /**
-     * 表示按钮文本标签的字体大小。
+     * @en The font size of the button's text label.
+     * @zh 按钮文本标签的字体大小。
      */
     get labelSize(): number {
         return this._labelSize;
@@ -207,7 +224,8 @@ export class UIGroup extends Box {
     }
 
     /**
-     * 表示按钮的状态值，以数字表示，默认为3态。
+     * @en The number of states the button has, represented as a number. The default is 3 states.
+     * @zh 按钮的状态值，以数字表示，默认为3态。
      * @see laya.ui.Button#stateNum
      */
     get stateNum(): number {
@@ -222,7 +240,8 @@ export class UIGroup extends Box {
     }
 
     /**
-     * 表示按钮文本标签是否为粗体字。
+     * @en Whether the button's text label is bold.
+     * @zh 按钮文本标签是否为粗体字。
      */
     get labelBold(): boolean {
         return this._labelBold;
@@ -236,7 +255,8 @@ export class UIGroup extends Box {
     }
 
     /**
-     * 表示按钮文本标签的字体名称，以字符串形式表示。
+     * @en The font name of the button's text label, represented as a string.
+     * @zh 按钮文本标签的字体名称，以字符串形式表示。
      * @see laya.display.Text.font()
      */
     get labelFont(): string {
@@ -250,8 +270,10 @@ export class UIGroup extends Box {
         }
     }
     /**
-     * 表示按钮文本标签的边距。
-     * <p><b>格式：</b>"上边距,右边距,下边距,左边距"。</p>
+     * @en The padding of the button's text label.
+     * Format: "Top,Right,Bottom,Left".
+     * @zh 按钮文本标签的边距。
+     * 格式："上边距,右边距,下边距,左边距"。
      */
     get labelPadding(): string {
         return this._labelPadding;
@@ -265,12 +287,14 @@ export class UIGroup extends Box {
     }
 
     /**
-     * 布局方向。
-     * <p>默认值为"horizontal"。</p>
-     * <p><b>取值：</b>
-     * <li>"horizontal"：表示水平布局。</li>
-     * <li>"vertical"：表示垂直布局。</li>
-     * </p>
+     * @en The layout direction. The default value is "horizontal".
+     * Possible values: 
+     * "horizontal": Indicates a horizontal layout.
+     * "vertical": Indicates a vertical layout.
+     * @zh 布局方向。 默认值为"horizontal"。
+     * 取值：
+     * "horizontal"：表示水平布局。
+     * "vertical"：表示垂直布局。
      */
     get direction(): string {
         return this._direction;
@@ -282,7 +306,8 @@ export class UIGroup extends Box {
     }
 
     /**
-     * 项对象们之间的间隔（以像素为单位）。
+     * @en The space between items in pixels.
+     * @zh 项对象们之间的间隔（以像素为单位）。
      */
     get space(): number {
         return this._space;
@@ -294,14 +319,16 @@ export class UIGroup extends Box {
     }
 
     /**
-     * 项对象们的存放数组。
+     * @en The array where the item objects are stored.
+     * @zh 项对象们的存放数组。
      */
     get items(): ISelect[] {
         return this._items;
     }
 
     /**
-     * 获取或设置当前选择的项对象。
+     * @en The currently selected item object.
+     * @zh 当前选择的项对象。
      */
     get selection(): ISelect {
         return this._selectedIndex > -1 && this._selectedIndex < this._items.length ? this._items[this._selectedIndex] : null;
@@ -312,8 +339,11 @@ export class UIGroup extends Box {
     }
 
     /**
-     * 创建一个新的 <code>Group</code> 类实例。
-     * @param labels 标签集字符串。以逗号做分割，如"item0,item1,item2,item3,item4,item5"。
+     * @en Constructor method.
+     * @param labels A string of labels separated by commas, e.g., "item0,item1,item2,item3,item4,item5".
+     * @param skin The skin. 
+     * @zh 构造方法
+     * @param labels 标签集字符串，以逗号分隔，例如 "item0,item1,item2,item3,item4,item5"。
      * @param skin 皮肤。
      */
     constructor(labels: string = null, skin: string = null) {
@@ -323,7 +353,11 @@ export class UIGroup extends Box {
         this.labels = labels;
     }
 
-    /**@internal 2.0解析会调用 */
+    /**
+     * @internal 
+     * @en 2.0 parsing will call
+     * @zh 2.0解析会调用 
+     */
     _afterInited(): void {
         this.initItems();
     }
@@ -375,9 +409,12 @@ export class UIGroup extends Box {
 
     /**
      * @internal
-     * 创建一个项显示对象。
-     * @param skin 项对象的皮肤。
-     * @param label 项对象标签。
+     * @en Creates an item display object.
+     * @param skin The skin path for the item object.
+     * @param label The text label for the item object.
+     * @zh 创建一个项显示对象。
+     * @param skin 项对象的皮肤路径。
+     * @param label 项对象的文本标签。
      */
     protected createItem(skin: string, label: string): Sprite {
         return null;
@@ -429,10 +466,14 @@ export class UIGroup extends Box {
 
     /**
      * @internal
-     * 通过对象的索引设置项对象的 <code>selected</code> 属性值。
+     * @en Sets the `selected`property value of an item object by its index.
+     * @param index The index of the item object to be set.
+     * @param selected Indicates the selected state of the item object.
+     * @zh 通过对象的索引设置项对象的 `selected`属性值。
      * @param index 需要设置的项对象的索引。
      * @param selected 表示项对象的选中状态。
      */
+
     protected setSelect(index: number, selected: boolean): void {
         if (this._items && index > -1 && index < this._items.length) this._items[index].selected = selected;
     }
@@ -445,9 +486,12 @@ export class UIGroup extends Box {
     }
 
     /**
-     * @inheritDoc 
      * @override
-    */
+     * @en Destroys this instance.
+     * @param destroyChild Whether to destroy the child components.
+     * @zh 销毁此实例。
+     * @param destroyChild 是否销毁子组件。
+     */
     destroy(destroyChild: boolean = true): void {
         super.destroy(destroyChild);
         this._items && (this._items.length = 0);
@@ -456,11 +500,14 @@ export class UIGroup extends Box {
     }
 
     /**
-     * 添加一个项对象，返回此项对象的索引id。
-     *
+     * @en Adds an item object.
+     * @param item The item object to be added.
+     * @param autoLayout Whether to automatically layout the item. If true, the position of the item will be calculated based on the direction and space properties.
+     * @returns returns the index ID of this item object.
+     * @zh 添加一个项对象。
      * @param item 需要添加的项对象。
-     * @param autoLayout 是否自动布局，如果为true，会根据 <code>direction</code> 和 <code>space</code> 属性计算item的位置。
-     * @return
+     * @param autoLayout 是否自动布局，如果为true，会根据 direction 和 space 属性计算item的位置。
+     * @returns 返回添加的项对象的索引ID。
      */
     addItem(item: ISelect, autoLayout: boolean = true): number {
         let display = (<Sprite>(item as any));
@@ -486,9 +533,12 @@ export class UIGroup extends Box {
     }
 
     /**
-     * 删除一个项对象。
+     * @en Removes an item object.
+     * @param item The item object to be added.
+     * @param autoLayout Whether to automatically layout the item. If true, the position of the item will be calculated based on the direction and space properties. Default is true.
+     * @zh 删除一个项对象。
      * @param item 需要删除的项对象。
-     * @param autoLayout 是否自动布局，如果为true，会根据 <code>direction</code> 和 <code>space</code> 属性计算item的位置。
+     * @param autoLayout 是否自动布局，如果为true，会根据 direction 和 space 属性计算item的位置。
      */
     delItem(item: ISelect, autoLayout: boolean = true): void {
         var index: number = this._items.indexOf(item);
@@ -515,6 +565,10 @@ export class UIGroup extends Box {
         }
     }
 
+    /**
+     * @en This method is called after deserialization of this instance.
+     * @zh 反序列化后调用此方法。
+     */
     onAfterDeserialize() {
         super.onAfterDeserialize();
         if (!this._labels)
@@ -522,7 +576,8 @@ export class UIGroup extends Box {
     }
 
     /**
-     * 初始化项对象们。
+     * @en Initializes the item objects.
+     * @zh 初始化项对象们。
      */
     initItems(): void {
         this._items.length = 0;
@@ -537,8 +592,9 @@ export class UIGroup extends Box {
     }
 
     /**
-     * @inheritDoc 
      * @override
+     * @en Sets the data source for this component.
+     * @zh 设置此组件的数据源。
      */
     set_dataSource(value: any) {
         this._dataSource = value;

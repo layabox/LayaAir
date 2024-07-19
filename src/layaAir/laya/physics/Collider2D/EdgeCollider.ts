@@ -3,7 +3,8 @@ import { Physics2D } from "../Physics2D";
 import { PhysicsShape } from "./ColliderStructInfo";
 
 /**
- * 2D边框碰撞体
+ * @en 2D edge collider.
+ * @zh 2D边缘碰撞体。
  */
 export class EdgeCollider extends ColliderBase {
     /**
@@ -35,7 +36,10 @@ export class EdgeCollider extends ColliderBase {
         this._needupdataShapeAttribute();
     }
 
-    /**顶点数据 x,y,x,y ...*/
+    /**
+     * @en Vertex data in the format of x,y,x,y ...
+     * @zh 顶点数据，格式为 x,y,x,y ...
+     */
     get datas(): number[] {
         return this._datas;
     }

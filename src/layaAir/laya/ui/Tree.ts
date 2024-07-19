@@ -16,228 +16,21 @@ interface ITreeDataSource {
 }
 
 /**
- * 实例的 <code>selectedIndex</code> 属性发生变化时调度。
+ * @en Dispatched when the `selectedIndex` property of the instance changes.
+ * @zh 实例的 `selectedIndex` 属性发生变化时调度。
  * @eventType laya.events.Event
  */
 /*[Event(name = "change", type = "laya.events.Event")]*/
 /**
- * 节点打开关闭时触发。
+ * @en Dispatched when a node is opened or closed.
+ * @zh 节点打开关闭时触发。
  * @eventType laya.events.Event
  */
 /*[Event(name = "open", type = "laya.events.Event")]*/
 
 /**
- * <code>Tree</code> 控件使用户可以查看排列为可扩展树的层次结构数据。
- *
- * @example
- * package
- *	{
- *		import laya.ui.Tree;
- *		import laya.utils.Browser;
- *		import laya.utils.Handler;
-	
- *		public class Tree_Example
- *		{
-	
- *			public function Tree_Example()
- *			{
- *				Laya.init(640, 800);
- *				Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。
- *				Laya.loader.load(["resource/ui/vscroll.png", "resource/ui/vscroll$bar.png", "resource/ui/vscroll$down.png", "resource/ui/vscroll$up.png", "resource/ui/clip_selectBox.png", "resource/ui/clip_tree_folder.png", "resource/ui/clip_tree_arrow.png"], Handler.create(this, onLoadComplete));
- *			}
-	
- *			private function onLoadComplete():void
- *			{
- *				var xmlString:String;//创建一个xml字符串，用于存储树结构数据。
- *				xmlString = "&lt;root&gt;&lt;item label='box1'&gt;&lt;abc label='child1'/&gt;&lt;abc label='child2'/&gt;&lt;abc label='child3'/&gt;&lt;abc label='child4'/&gt;&lt;abc label='child5'/&gt;&lt;/item&gt;&lt;item label='box2'&gt;&lt;abc label='child1'/&gt;&lt;abc label='child2'/&gt;&lt;abc label='child3'/&gt;&lt;abc label='child4'/&gt;&lt;/item&gt;&lt;/root&gt;";
- *				var domParser:* = new Browser.window.DOMParser();//创建一个DOMParser实例domParser。
- *				var xml:* = domParser.parseFromString(xmlString, "text/xml");//解析xml字符。
-	
- *				var tree:Tree = new Tree();//创建一个 Tree 类的实例对象 tree 。
- *				tree.scrollBarSkin = "resource/ui/vscroll.png";//设置 tree 的皮肤。
- *				tree.itemRender = Item;//设置 tree 的项渲染器。
- *				tree.xml = xml;//设置 tree 的树结构数据。
- *				tree.x = 100;//设置 tree 对象的属性 x 的值，用于控制 tree 对象的显示位置。
- *				tree.y = 100;//设置 tree 对象的属性 y 的值，用于控制 tree 对象的显示位置。
- *				tree.width = 200;//设置 tree 的宽度。
- *				tree.height = 100;//设置 tree 的高度。
- *				Laya.stage.addChild(tree);//将 tree 添加到显示列表。
- *			}
- *		}
- *	}
-	
- * import laya.ui.Box;
- * import laya.ui.Clip;
- * import laya.ui.Label;
- *	class Item extends Box
- *	{
- *		public function Item()
- *		{
- *			this.name = "render";
- *			this.right = 0;
- *			this.left = 0;
-	
- *			var selectBox:Clip = new Clip("resource/ui/clip_selectBox.png", 1, 2);
- *			selectBox.name = "selectBox";
- *			selectBox.height = 24;
- *			selectBox.x = 13;
- *			selectBox.y = 0;
- *			selectBox.left = 12;
- *			addChild(selectBox);
-	
- *			var folder:Clip = new Clip("resource/ui/clip_tree_folder.png", 1, 3);
- *			folder.name = "folder";
- *			folder.x = 14;
- *			folder.y = 4;
- *			addChild(folder);
-	
- *			var label:Label = new Label("treeItem");
- *			label.name = "label";
- *			label.color = "#ffff00";
- *			label.width = 150;
- *			label.height = 22;
- *			label.x = 33;
- *			label.y = 1;
- *			label.left = 33;
- *			label.right = 0;
- *			addChild(label);
-	
- *			var arrow:Clip = new Clip("resource/ui/clip_tree_arrow.png", 1, 2);
- *			arrow.name = "arrow";
- *			arrow.x = 0;
- *			arrow.y = 5;
- *			addChild(arrow);
- *		}
- *	 }
- * @example
- * Laya.init(640, 800);//设置游戏画布宽高、渲染模式
- * Laya.stage.bgColor = "#efefef";//设置画布的背景颜色
- * var res = ["resource/ui/vscroll.png", "resource/ui/vscroll$bar.png", "resource/ui/vscroll$down.png", "resource/ui/vscroll$up.png", "resource/ui/clip_selectBox.png", "resource/ui/clip_tree_folder.png", "resource/ui/clip_tree_arrow.png"];
- * Laya.loader.load(res, new laya.utils.Handler(this, onLoadComplete));
- * function onLoadComplete() {
- *     var xmlString;//创建一个xml字符串，用于存储树结构数据。
- *     xmlString = "&lt;root&gt;&lt;item label='box1'&gt;&lt;abc label='child1'/&gt;&lt;abc label='child2'/&gt;&lt;abc label='child3'/&gt;&lt;abc label='child4'/&gt;&lt;abc label='child5'/&gt;&lt;/item&gt;&lt;item label='box2'&gt;&lt;abc label='child1'/&gt;&lt;abc label='child2'/&gt;&lt;abc label='child3'/&gt;&lt;abc label='child4'/&gt;&lt;/item&gt;&lt;/root&gt;";
- *     var domParser = new laya.utils.Browser.window.DOMParser();//创建一个DOMParser实例domParser。
- *     var xml = domParser.parseFromString(xmlString, "text/xml");//解析xml字符。
-	
- *     var tree = new laya.ui.Tree();//创建一个 Tree 类的实例对象 tree 。
- *     tree.scrollBarSkin = "resource/ui/vscroll.png";//设置 tree 的皮肤。
- *     tree.itemRender = mypackage.treeExample.Item;//设置 tree 的项渲染器。
- *     tree.xml = xml;//设置 tree 的树结构数据。
- *     tree.x = 100;//设置 tree 对象的属性 x 的值，用于控制 tree 对象的显示位置。
- *     tree.y = 100;//设置 tree 对象的属性 y 的值，用于控制 tree 对象的显示位置。
- *     tree.width = 200;//设置 tree 的宽度。
- *     tree.height = 100;//设置 tree 的高度。
- *     Laya.stage.addChild(tree);//将 tree 添加到显示列表。
- * }
- * (function (_super) {
- *     function Item() {
- *         Item.__super.call(this);//初始化父类。
- *         this.right = 0;
- *         this.left = 0;
-	
- *         var selectBox = new laya.ui.Clip("resource/ui/clip_selectBox.png", 1, 2);
- *         selectBox.name = "selectBox";//设置 selectBox 的name 为“selectBox”时，将被识别为树结构的项的背景。2帧：悬停时背景、选中时背景。
- *         selectBox.height = 24;
- *         selectBox.x = 13;
- *         selectBox.y = 0;
- *         selectBox.left = 12;
- *         this.addChild(selectBox);//需要使用this.访问父类的属性或方法。
-	
- *         var folder = new laya.ui.Clip("resource/ui/clip_tree_folder.png", 1, 3);
- *         folder.name = "folder";//设置 folder 的name 为“folder”时，将被识别为树结构的文件夹开启状态图表。2帧：折叠状态、打开状态。
- *         folder.x = 14;
- *         folder.y = 4;
- *         this.addChild(folder);
-	
- *         var label = new laya.ui.Label("treeItem");
- *         label.name = "label";//设置 label 的name 为“label”时，此值将用于树结构数据赋值。
- *         label.color = "#ffff00";
- *         label.width = 150;
- *         label.height = 22;
- *         label.x = 33;
- *         label.y = 1;
- *         label.left = 33;
- *         label.right = 0;
- *         this.addChild(label);
-	
- *         var arrow = new laya.ui.Clip("resource/ui/clip_tree_arrow.png", 1, 2);
- *         arrow.name = "arrow";//设置 arrow 的name 为“arrow”时，将被识别为树结构的文件夹开启状态图表。2帧：折叠状态、打开状态。
- *         arrow.x = 0;
- *         arrow.y = 5;
- *         this.addChild(arrow);
- *     };
- *     Laya.class(Item,"mypackage.treeExample.Item",_super);//注册类 Item 。
- * })(laya.ui.Box);
- * @example
- * import Tree = laya.ui.Tree;
- * import Browser = laya.utils.Browser;
- * import Handler = laya.utils.Handler;
- * class Tree_Example {
-	
- *     constructor() {
- *         Laya.init(640, 800);
- *         Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。
- *         Laya.loader.load(["resource/ui/vscroll.png", "resource/ui/vscroll$bar.png", "resource/ui/vscroll$down.png", "resource/ui/vscroll$up.png", "resource/ui/vscroll$up.png", "resource/ui/clip_selectBox.png", "resource/ui/clip_tree_folder * . * png", "resource/ui/clip_tree_arrow.png"], Handler.create(this, this.onLoadComplete));
- *     }
- *     private onLoadComplete(): void {
- *         var xmlString: String;//创建一个xml字符串，用于存储树结构数据。
- *         xmlString = "&lt;root&gt;&lt;item label='box1'&gt;&lt;abc label='child1'/&gt;&lt;abc label='child2'/&gt;&lt;abc label='child3'/&gt;&lt;abc label='child4'/&gt;&lt;abc label='child5'/&gt;&lt;/item&gt;&lt;item label='box2'&gt;&lt;abc  * label='child1'/&gt;&lt;abc label='child2'/&gt;&lt;abc label='child3'/&gt;&lt;abc label='child4'/&gt;&lt;/item&gt;&lt;/root&gt;";
- *         var domParser: any = new Browser.window.DOMParser();//创建一个DOMParser实例domParser。
- *         var xml: any = domParser.parseFromString(xmlString, "text/xml");//解析xml字符。
-	
- *         var tree: Tree = new Tree();//创建一个 Tree 类的实例对象 tree 。
- *         tree.scrollBarSkin = "resource/ui/vscroll.png";//设置 tree 的皮肤。
- *         tree.itemRender = Item;//设置 tree 的项渲染器。
- *         tree.xml = xml;//设置 tree 的树结构数据。
- *         tree.x = 100;//设置 tree 对象的属性 x 的值，用于控制 tree 对象的显示位置。
- *         tree.y = 100;//设置 tree 对象的属性 y 的值，用于控制 tree 对象的显示位置。
- *         tree.width = 200;//设置 tree 的宽度。
- *         tree.height = 100;//设置 tree 的高度。
- *         Laya.stage.addChild(tree);//将 tree 添加到显示列表。
- *     }
- * }
- * import Box = laya.ui.Box;
- * import Clip = laya.ui.Clip;
- * import Label = laya.ui.Label;
- * class Item extends Box {
- *     constructor() {
- *         super();
- *         this.name = "render";
- *         this.right = 0;
- *         this.left = 0;
- *         var selectBox: Clip = new Clip("resource/ui/clip_selectBox.png", 1, 2);
- *         selectBox.name = "selectBox";
- *         selectBox.height = 24;
- *         selectBox.x = 13;
- *         selectBox.y = 0;
- *         selectBox.left = 12;
- *         this.addChild(selectBox);
-	
- *         var folder: Clip = new Clip("resource/ui/clip_tree_folder.png", 1, 3);
- *         folder.name = "folder";
- *         folder.x = 14;
- *         folder.y = 4;
- *         this.addChild(folder);
-	
- *         var label: Label = new Label("treeItem");
- *         label.name = "label";
- *         label.color = "#ffff00";
- *         label.width = 150;
- *         label.height = 22;
- *         label.x = 33;
- *         label.y = 1;
- *         label.left = 33;
- *         label.right = 0;
- *         this.addChild(label);
-	
- *         var arrow: Clip = new Clip("resource/ui/clip_tree_arrow.png", 1, 2);
- *         arrow.name = "arrow";
- *         arrow.x = 0;
- *         arrow.y = 5;
- *         this.addChild(arrow);
- *     }
- * }
+ * @en The `Tree` UI component allows users to view hierarchical data arranged in an expandable tree format.
+ * @zh `Tree` UI组件使用户可以查看排列为可扩展树的层次结构数据。
  */
 export class Tree extends Box {
     /**@internal */
@@ -254,11 +47,12 @@ export class Tree extends Box {
     protected _keepStatus: boolean = true;
 
     /**
-     * 数据源发生变化后，是否保持之前打开状态，默认为true。
-     * <p><b>取值：</b>
-     * <li>true：保持之前打开状态。</li>
-     * <li>false：不保持之前打开状态。</li>
-     * </p>
+     * @en Determines whether to maintain the previous open state after the data source changes. The default value is true.
+     * - true: Maintain the previous open state.
+     * - false: Do not maintain the previous open state.
+     * @zh 数据源发生变化后，是否保持之前打开状态，默认为true。
+     * - true：保持之前打开状态。
+     * - false：不保持之前打开状态。
      */
     get keepStatus(): boolean {
         return this._keepStatus;
@@ -269,7 +63,8 @@ export class Tree extends Box {
     }
 
     /**
-     * 列表数据源，只包含当前可视节点数据。
+     * @en The list data source, including only the data of currently visible nodes.
+     * @zh 列表数据源，只包含当前可视节点数据。
      */
     get array(): any[] {
         return this._list.array;
@@ -284,26 +79,30 @@ export class Tree extends Box {
     }
 
     /**
-     * 数据源，全部节点数据。
+     * @en The data source containing all node data.
+     * @zh 数据源，全部节点数据。
      */
     get source(): any[] {
         return this._source;
     }
 
     /**
-     * 此对象包含的<code>List</code>实例对象。
+     * @en The `List` instance contained within this object.
+     * @zh 此对象包含的 `List` 实例对象。
      */
     get list(): List {
         return this._list;
     }
 
     /**
-     * 此对象包含的<code>List</code>实例的单元格渲染器。
-     * <p><b>取值：</b>
-     * <ol>
-     * <li>单元格类对象。</li>
-     * <li> UI 的 JSON 描述。</li>
-     * </ol></p>
+     * @en The cell renderer for the List instance contained in this object.
+     * Possible values:
+     * Cell class object.
+     * JSON description of the UI.
+     * @zh 此对象包含的List实例的单元格渲染器。
+     * 取值：
+     * 单元格类对象。
+     *  UI 的 JSON 描述。
      * @implements
      */
     get itemRender(): any {
@@ -315,7 +114,8 @@ export class Tree extends Box {
     }
 
     /**
-     * 滚动条皮肤。
+     * @en The skin of the scroll bar.
+     * @zh 滚动条皮肤。
      */
     get scrollBarSkin(): string {
         return this._list.vScrollBarSkin;
@@ -325,14 +125,17 @@ export class Tree extends Box {
         this._list.vScrollBarSkin = value;
     }
 
-    /**滚动条*/
+    /**
+     * @en The scroll bar.
+     * @zh 滚动条。
+     */
     get scrollBar(): ScrollBar {
         return this._list.scrollBar;
     }
 
     /**
-     * 单元格鼠标事件处理器。
-     * <p>默认返回参数（e:Event,index:int）。</p>
+     * @en Handler for cell mouse events. Default returns parameters (e:Event,index:int).
+     * @zh 单元格鼠标事件处理器。默认返回参数（e:Event,index:int）。
      */
     get mouseHandler(): Handler {
         return this._list.mouseHandler;
@@ -343,7 +146,8 @@ export class Tree extends Box {
     }
 
     /**
-     * <code>Tree</code> 实例的渲染处理器。
+     * @en The render handler for the `Tree` instance.
+     * @zh `Tree` 实例的渲染处理器。
      */
     get renderHandler(): Handler {
         return this._renderHandler;
@@ -354,7 +158,8 @@ export class Tree extends Box {
     }
 
     /**
-     * 左侧缩进距离（以像素为单位）。
+     * @en The left indentation distance in pixels.
+     * @zh 左侧缩进距离（以像素为单位）。
      */
     get spaceLeft(): number {
         return this._spaceLeft;
@@ -365,7 +170,8 @@ export class Tree extends Box {
     }
 
     /**
-     * 每一项之间的间隔距离（以像素为单位）。
+     * @en The space between each item in pixels.
+     * @zh 每一项之间的间隔距离（以像素为单位）。
      */
     get spaceBottom(): number {
         return this._list.spaceY;
@@ -376,7 +182,8 @@ export class Tree extends Box {
     }
 
     /**
-     * 表示当前选择的项索引。
+     * @en The index of the currently selected item.
+     * @zh 表示当前选择的项索引。
      */
     get selectedIndex(): number {
         return this._list.selectedIndex;
@@ -387,7 +194,8 @@ export class Tree extends Box {
     }
 
     /**
-     * 当前选中的项对象的数据源。
+     * @en The data source of the currently selected item.
+     * @zh 当前选中的项对象的数据源。
      */
     get selectedItem(): any {
         return this._list.selectedItem;
@@ -398,7 +206,8 @@ export class Tree extends Box {
     }
 
     /**
-     *  xml结构的数据源。
+     * @en The data source in XML structure.
+     * @zh XML 结构的数据源。
      */
     set xml(value: XML) {
         var arr: any[] = [];
@@ -408,7 +217,8 @@ export class Tree extends Box {
     }
 
     /**
-     * 表示选择的树节点项的<code>path</code>属性值。
+     * @en The value of the `path` property of the selected tree node item.
+     * @zh 表示选择的树节点项的 `path` 属性值。
      */
     get selectedPath(): string {
         if (this._list.selectedItem) {
@@ -418,8 +228,10 @@ export class Tree extends Box {
     }
 
     /**
-     * 创建一个新的 <code>Tree</code> 类实例。
-     * <p>在 <code>Tree</code> 构造函数中设置属性width、height的值都为200。</p>
+     * @en Constructor method.
+     * The `width` and `height` properties are both set to 200 in the `Tree` constructor.
+     * @zh 构造方法
+     * 在`Tree`构造函数中设置属性width、height的值都为200。
      */
     constructor() {
         super();
@@ -618,7 +430,10 @@ export class Tree extends Box {
     }
 
     /**
-     * 设置指定项索引的项对象的打开状态。
+     * @en Set the open state of an item object by index.
+     * @param index The item index.
+     * @param isOpen Whether the item is open.
+     * @zh 设置指定项索引的项对象的打开状态。
      * @param index 项索引。
      * @param isOpen 是否处于打开状态。
      */
@@ -629,7 +444,8 @@ export class Tree extends Box {
     }
 
     /**
-     * 刷新项列表。
+     * @en Refresh the list.
+     * @zh 刷新项列表。
      */
     fresh(): void {
         this._list.array = this.getArray();
@@ -639,6 +455,10 @@ export class Tree extends Box {
     /**
      * @inheritDoc 
      * @override
+     * @en Set the data source.
+     * @param value The data source.
+     * @zh 设置数据源。
+     * @param value The data source.
      */
     set_dataSource(value: any) {
         this._dataSource = value;
@@ -647,8 +467,10 @@ export class Tree extends Box {
     }
 
     /**
-     * 更新项列表，显示指定键名的数据项。
-     * @param	key 键名。
+     * @en Update the list to show items with the specified key name.
+     * @param key The key name.
+     * @zh 更新项列表，显示指定键名的数据项。
+     * @param key 键名。
      */
     filter(key: string): void {
         if (Boolean(key)) {
@@ -661,9 +483,12 @@ export class Tree extends Box {
     }
 
     /**
-     * @inheritDoc 
      * @override
-    */
+     * @en Destroy the object.
+     * @param destroyChild Whether to destroy the child objects as well.
+     * @zh 销毁对象。
+     * @param destroyChild 是否销毁子对象。
+     */
     destroy(destroyChild: boolean = true): void {
         super.destroy(destroyChild);
         this._list && this._list.destroy(destroyChild);

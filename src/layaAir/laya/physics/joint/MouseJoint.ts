@@ -8,7 +8,8 @@ import { ILaya } from "../../../ILaya";
 import { physics2D_MouseJointJointDef } from "./JointDefStructInfo";
 
 /**
- * 鼠标关节：鼠标关节用于通过鼠标来操控物体。它试图将物体拖向当前鼠标光标的位置。而在旋转方面就没有限制。
+ * @en Mouse joint: A physics constraint used to simulate the user dragging an object with the mouse. It typically allows a rigid body to follow the mouse cursor's movement while also being influenced by other physics effects such as collisions and gravity.
+ * @zh 鼠标关节:一种用来模拟用户用鼠标拖拽物体的物理约束。它通常会使得一个刚体可以跟随鼠标移动，但同时也能受到其他物理效果如碰撞、重力等的影响。
  */
 export class MouseJoint extends JointBase {
 
@@ -24,13 +25,22 @@ export class MouseJoint extends JointBase {
     /**@internal 刚体在回归到节点过程中受到的阻尼比，建议取值0~1*/
     private _dampingRatio: number = 0.7;
 
-    /**[首次设置有效]关节的自身刚体*/
+    /**
+     * @en The self rigid body of a joint, effective only on the first setting.
+     * @zh [首次设置有效]关节的自身刚体。
+     */
     selfBody: RigidBody;
 
-    /**[首次设置有效]关节的链接点，是相对于自身刚体的左上角位置偏移，如果不设置，则根据鼠标点击点作为连接点*/
+    /**
+     * @en The connection point of a joint is offset from the position of the upper left corner of its own rigid body. If not set, it is used as the connection point based on the mouse click point. Effective only on the first setting.
+     * @zh [首次设置有效]关节的链接点，是相对于自身刚体的左上角位置偏移，如果不设置，则根据鼠标点击点作为连接点。
+     */
     anchor: any[];
 
-    /**鼠标关节在拖曳刚体bodyB时施加的最大作用力*/
+    /**
+     * @en Used to limit the maximum force that the mouse joint can apply when attempting to move an object towards the mouse position, preventing excessive force that could lead to abnormal behavior or unnatural effects.
+     * @zh 用于限制鼠标关节试图将物体移向鼠标位置时所能施加的最大力量，避免力过大导致的异常行为或不自然的效果。
+     */
     get maxForce(): number {
         return this._maxForce;
     }
@@ -40,7 +50,10 @@ export class MouseJoint extends JointBase {
         if (this._joint) this._factory.set_MotorJoint_SetMaxForce(this._joint, value);
     }
 
-    /**弹簧系统的震动频率，可以视为弹簧的弹性系数，通常频率应该小于时间步长频率的一半*/
+    /**
+     * @en The vibration frequency of the spring system, which can be considered as the spring's elasticity coefficient. The frequency should typically be less than half the time step frequency.
+     * @zh 弹簧系统的振动频率，可以视为弹簧的弹性系数，通常频率应该小于时间步长频率的一半。
+     */
     get frequency(): number {
         return this._frequency;
     }
@@ -52,7 +65,10 @@ export class MouseJoint extends JointBase {
         }
     }
 
-    /**刚体在回归到节点过程中受到的阻尼比，建议取值0~1*/
+    /**
+     * @en The damping ratio of the body when returning to the anchor, with a recommended value between 0 and 1.
+     * @zh 刚体在回归到节点过程中受到的阻尼比，建议取值在 0 到 1 之间。
+     */
     get damping(): number {
         return this._dampingRatio;
     }

@@ -5,7 +5,8 @@ import { physics2D_WheelJointDef } from "./JointDefStructInfo";
 import { Utils } from "../../utils/Utils";
 
 /**
- * 轮子关节：围绕节点旋转，包含弹性属性，使得刚体在节点位置发生弹性偏移
+ * @en WheelJoint: Allows an object to rotate around a fixed axis relative to another object, while also providing spring-like resistance along the axis for bouncing back.
+ * @zh 轮子关节：允许一个物体在另一个物体上以固定的轴向转动，同时还能沿着轴向弹簧回弹。
  */
 export class WheelJoint extends JointBase {
 
@@ -37,27 +38,45 @@ export class WheelJoint extends JointBase {
     /**@internal 启用约束后，刚体移动范围的上限，是距离anchor的偏移量*/
     private _upperTranslation: number = 0;
 
-
-    /**[首次设置有效]关节的自身刚体*/
+    /**
+     * @en The rigid body that is locally attached to the joint. This setting is effective only on the first assignment.
+     * @zh [首次设置有效]与关节直接相连的自身刚体。
+     */
     selfBody: RigidBody;
 
-    /**[首次设置有效]关节的连接刚体*/
+    /**
+     * @en The connected rigid body. This setting is effective only on the first assignment.
+     * @zh [首次设置有效]与关节连接的另一个刚体。
+     */
     otherBody: RigidBody;
 
-    /**[首次设置有效]关节的链接点，是相对于自身刚体的左上角位置偏移*/
+    /**
+     * @en Link points of joints, it is offset from the position of the upper left corner of its own rigid body. This setting is effective only on the first assignment.
+     * @zh [首次设置有效]关节的链接点，是相对于自身刚体的左上角位置偏移。。
+     */
     anchor: any[] = [0, 0];
 
-    /**[首次设置有效]两个刚体是否可以发生碰撞，默认为false*/
+    /**
+     * @en Specifies whether the two connected rigid bodies can collide with each other. Default is false. This setting is effective only on the first assignment.
+     * @zh [首次设置有效]两个连接的刚体是否可以相互碰撞，默认为 false。
+     */
     collideConnected: boolean = false;
+
     /**
      * @deprecated
      * [首次设置有效]一个向量值，用于定义弹性运动方向，即轮子在哪个方向可以如弹簧一样压缩和伸展，比如1,0是沿X轴向右，0,1是沿Y轴向下*/
     _axis: any[] = [0, 1];
 
-    /**[首次设置有效]一个角度值，用于定义弹性运动方向，即轮子在哪个方向可以如弹簧一样压缩和伸展，比如0是沿X轴向右, 90是沿Y轴向下*/
+    /**
+     * @en An angle value that defines the direction of elastic motion, i.e., the direction in which the wheel can compress and extend like a spring. For example, 0 degrees is along the X-axis to the right, and 90 degrees is along the Y-axis downward. This setting is effective only on the first assignment.
+     * @zh [首次设置有效]一个角度值，用于定义弹性运动方向，即轮子在哪个方向可以如弹簧一样压缩和伸展，例如 0 度表示沿 X 轴正方向，90 度表示沿 Y 轴负方向。
+     */
     angle: number = 90;
 
-    /**弹簧系统的震动频率，可以视为弹簧的弹性系数，通常频率应该小于时间步长频率的一半*/
+    /**
+     * @en The vibration frequency of the spring system, which can be considered as the spring's elasticity coefficient.The frequency should typically be less than half the time step frequency.
+     * @zh 弹簧系统的振动频率，可以视为弹簧的弹性系数。通常频率应小于时间步长频率的一半。
+     */
     get frequency(): number {
         return this._frequency;
     }
@@ -69,7 +88,10 @@ export class WheelJoint extends JointBase {
         }
     }
 
-    /**刚体在回归到节点过程中受到的阻尼比，建议取值0~1*/
+    /**
+     * @en The damping ratio that the body experiences when returning to the anchor point, with a recommended value range of 0 to 1.
+     * @zh 刚体在回归到锚点过程中受到的阻尼比，建议取值范围为 0 到 1。
+     */
     get damping(): number {
         return this._dampingRatio;
     }
@@ -81,7 +103,10 @@ export class WheelJoint extends JointBase {
         }
     }
 
-    /**是否开启马达，开启马达可使目标刚体运动*/
+    /**
+     * @en Whether the motor is enabled to drive the rotation of the connected body.
+     * @zh 是否启用马达以驱动连接刚体的旋转。
+     */
     get enableMotor(): boolean {
         return this._enableMotor;
     }
@@ -91,7 +116,10 @@ export class WheelJoint extends JointBase {
         if (this._joint) this._factory.set_Joint_EnableMotor(this._joint, value);
     }
 
-    /**启用马达后，可以达到的最大旋转速度*/
+    /**
+     * @en The maximum rotational speed that can be achieved when the motor is enabled.
+     * @zh 启用马达后可以达到的最大旋转速度。
+     */
     get motorSpeed(): number {
         return this._motorSpeed;
     }
@@ -101,7 +129,10 @@ export class WheelJoint extends JointBase {
         if (this._joint) this._factory.set_Joint_SetMotorSpeed(this._joint, value);
     }
 
-    /**启用马达后，可以施加的最大扭距，如果最大扭矩太小，会导致不旋转*/
+    /**
+     * @en The maximum torque that can be applied when the motor is enabled. Insufficient torque may result in no rotation.
+     * @zh 启用马达后可以施加的最大扭距。如果最大扭矩太小，可能导致不旋转。
+     */
     get maxMotorTorque(): number {
         return this._maxMotorTorque;
     }
@@ -111,7 +142,10 @@ export class WheelJoint extends JointBase {
         if (this._joint) this._factory.set_Joint_SetMaxMotorTorque(this._joint, value);
     }
 
-    /**是否对刚体的移动范围加以约束*/
+    /**
+     * @en Whether the movement range of the connected body is limited.
+     * @zh 是否对连接刚体的移动范围加以约束。
+     */
     get enableLimit(): boolean {
         return this._enableLimit;
     }
@@ -121,7 +155,10 @@ export class WheelJoint extends JointBase {
         if (this._joint) this._factory.set_Joint_EnableLimit(this._joint, value);
     }
 
-    /**启用约束后，刚体移动范围的下限，是距离anchor的偏移量*/
+    /**
+     * @en The lower limit of the movement range when the limit is enabled, as an offset from the anchor.
+     * @zh 启用约束后，刚体移动范围的下限，是距离锚点的偏移量。
+     */
     get lowerTranslation(): number {
         return this._lowerTranslation;
     }
@@ -131,7 +168,10 @@ export class WheelJoint extends JointBase {
         if (this._joint) this._factory.set_Joint_SetLimits(this._joint, value, this._upperTranslation);
     }
 
-    /**启用约束后，刚体移动范围的上限，是距离anchor的偏移量*/
+    /**
+     * @en The upper limit of the movement range when the limit is enabled, as an offset from the anchor.
+     * @zh 启用约束后，刚体移动范围的上限，是距离锚点的偏移量。
+     */
     get upperTranslation(): number {
         return this._upperTranslation;
     }

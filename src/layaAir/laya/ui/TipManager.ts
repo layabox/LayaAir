@@ -8,12 +8,35 @@ import { UIEvent } from "./UIEvent"
 import { Handler } from "../utils/Handler"
 import { ILaya } from "../../ILaya";
 
-/**鼠标提示管理类*/
+/**
+ * @en Mouse Tip Management Class
+ * @zh 鼠标提示管理类
+ */
 export class TipManager extends UIComponent {
+    /**
+     * @en X-axis offset of the tooltip
+     * @zh 提示框X轴偏移量
+     */
     static offsetX: number = 10;
+    /**
+     * @en Y-axis offset of the tooltip
+     * @zh 提示框Y轴偏移量
+     */
     static offsetY: number = 15;
+    /**
+     * @en Text color of the tooltip
+     * @zh 提示文本颜色
+     */
     static tipTextColor: string = "#ffffff";
+    /**
+     * @en Background color of the tooltip
+     * @zh 提示框背景颜色
+     */
     static tipBackColor: string = "#111111";
+    /**
+     * @en Delay before showing the tooltip
+     * @zh 显示提示框前的延迟时间
+     */
     static tipDelay: number = 200;
     /** @internal */
     private _tipBox: UIComponent;
@@ -22,7 +45,10 @@ export class TipManager extends UIComponent {
     /** @internal */
     private _defaultTipHandler: Function;
 
-    /**默认鼠标提示函数*/
+    /**
+     * @en Default mouse prompt function
+     * @zh 默认鼠标提示函数
+     */
     get defaultTipHandler(): Function {
         return this._defaultTipHandler;
     }
@@ -123,7 +149,10 @@ export class TipManager extends UIComponent {
         ILaya.stage.addChild(this);
     }
 
-    /**关闭所有鼠标提示*/
+    /**
+     * @en Closes all tooltips and removes event listeners related to mouse actions.
+     * @zh 关闭所有鼠标提示并移除与鼠标动作相关的事件监听器。
+     */
     closeAll(): void {
         ILaya.timer.clear(this, this._showTip);
         ILaya.stage.off(Event.MOUSE_MOVE, this, this._onStageMouseMove);
@@ -132,8 +161,12 @@ export class TipManager extends UIComponent {
     }
 
     /**
-     * 显示显示对象类型的tip
+     * @en Displays a tooltip Sprite on the stage.
+     * @param tip The Sprite object to be displayed as a tooltip.
+     * @zh 显示对象提示条的显示。
+     * @param tip 要显示的提示条精灵对象。
      */
+
     showDislayTip(tip: Sprite): void {
         this.addChild(tip);
         this._showToStage(this);

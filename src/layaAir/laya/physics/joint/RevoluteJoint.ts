@@ -5,7 +5,8 @@ import { physics2D_RevoluteJointDef } from "./JointDefStructInfo";
 import { Utils } from "../../utils/Utils";
 
 /**
- * 旋转关节强制两个物体共享一个锚点，两个物体相对旋转
+ * @en Rotating joint forces two objects to share an anchor point, and the two objects rotate relative to each other
+ * @zh 旋转关节强制两个物体共享一个锚点，两个物体相对旋转
  */
 export class RevoluteJoint extends JointBase {
 
@@ -30,19 +31,34 @@ export class RevoluteJoint extends JointBase {
     /**@internal 启用约束后，刚体旋转范围的上限角度*/
     private _upperAngle: number = 0;
 
-    /**[首次设置有效]关节的自身刚体*/
+    /**
+     * @en The rigid body that is locally attached to the joint. This setting is effective only on the first assignment.
+     * @zh [首次设置有效]与关节直接相连的自身刚体。
+     */
     selfBody: RigidBody;
 
-    /**[首次设置有效]关节的连接刚体，可不设置*/
+    /**
+     * @en The connected rigid body. It can be optionally not set. This setting is effective only on the first assignment.
+     * @zh [首次设置有效]与关节连接的另一个刚体，可以不设置。
+     */
     otherBody: RigidBody;
 
-    /**[首次设置有效]关节的链接点，是相对于自身刚体的左上角位置偏移*/
+    /**
+     * @en Link points of joints, it is offset from the position of the upper left corner of its own rigid body. This setting is effective only on the first assignment.
+     * @zh [首次设置有效]关节的链接点，是相对于自身刚体的左上角位置偏移。
+     */
     anchor: any[] = [0, 0];
 
-    /**[首次设置有效]两个刚体是否可以发生碰撞，默认为false*/
+    /**
+     * @en Specifies whether the two connected rigid bodies can collide with each other. Default is false. This setting is effective only on the first assignment.
+     * @zh [首次设置有效]两个连接的刚体是否可以相互碰撞，默认为 false。
+     */
     collideConnected: boolean = false;
 
-    /**是否开启马达，开启马达可使目标刚体运动*/
+    /**
+     * @en Enables or disables the motor, which when enabled, drives the rotation of the target body.
+     * @zh 启用或禁用马达，启用后可以驱动目标刚体的旋转。
+     */
     get enableMotor(): boolean {
         return this._enableMotor;
     }
@@ -52,7 +68,10 @@ export class RevoluteJoint extends JointBase {
         if (this._joint) this._factory.set_Joint_EnableMotor(this._joint, value);
     }
 
-    /**启用马达后，可以达到的最大旋转速度*/
+    /**
+     * @en The maximum rotational speed that can be achieved when the motor is enabled.
+     * @zh 启用马达后可以达到的最大旋转速度。
+     */
     get motorSpeed(): number {
         return this._motorSpeed;
     }
@@ -62,7 +81,10 @@ export class RevoluteJoint extends JointBase {
         if (this._joint) this._factory.set_Joint_SetMotorSpeed(this._joint, value);
     }
 
-    /**启用马达后，可以施加的最大扭距，如果最大扭矩太小，会导致不旋转*/
+    /**
+     * @en The maximum torque that can be applied when the motor is enabled. Insufficient torque may result in no rotation.
+     * @zh 启用马达后可以施加的最大扭距。如果最大扭矩太小，可能导致不旋转。
+     */
     get maxMotorTorque(): number {
         return this._maxMotorTorque;
     }
@@ -72,7 +94,10 @@ export class RevoluteJoint extends JointBase {
         if (this._joint) this._factory.set_Joint_SetMaxMotorTorque(this._joint, value);
     }
 
-    /**是否对刚体的旋转范围加以约束*/
+    /**
+     * @en Whether to constrain the rotation range of the rigid body
+     * @zh 是否对刚体的旋转范围加以约束
+     */
     get enableLimit(): boolean {
         return this._enableLimit;
     }
@@ -82,7 +107,10 @@ export class RevoluteJoint extends JointBase {
         if (this._joint) this._factory.set_Joint_EnableLimit(this._joint, value);
     }
 
-    /**启用约束后，刚体旋转范围的下限角度*/
+    /**
+     * @en The lower limit angle of the rotation range when the limit is enabled.
+     * @zh 启用限制后，刚体旋转范围的下限角度。
+     */
     get lowerAngle(): number {
         return this._lowerAngle;
     }
@@ -92,7 +120,10 @@ export class RevoluteJoint extends JointBase {
         if (this._joint) this._factory.set_Joint_SetLimits(this._joint, Utils.toRadian(value), Utils.toRadian(this._upperAngle));
     }
 
-    /**启用约束后，刚体旋转范围的上限角度*/
+    /**
+     * @en The upper limit angle of the rotation range when the limit is enabled.
+     * @zh 启用限制后，刚体旋转范围的上限角度。
+     */
     get upperAngle(): number {
         return this._upperAngle;
     }

@@ -226,7 +226,6 @@ export class Stat {
         Stat._currentShowArray = views || Stat.AllShow;
         Stat._statUI.show(x, y, Stat._currentShowArray);
         ILaya.systemTimer.frameLoop(1, null, Stat.loop);
-        ILaya.timer.frameLoop(1, null, Stat.clear);
     }
 
     static showToggle(x?: number, y?: number, views?: Array<StatToggleUIParams>): void {
@@ -238,7 +237,6 @@ export class Stat {
         Stat._currentToggleArray = views;
         Stat._statUI.showToggle(x, y, views);
         ILaya.systemTimer.frameLoop(1, null, Stat.loop);
-        ILaya.timer.frameLoop(1, null, Stat.clear);
     }
 
     private static checkUI() {
@@ -264,8 +262,7 @@ export class Stat {
         Stat._show = false;
         Stat._currentShowArray = null;
         Stat._currentToggleArray = null;
-        ILaya.timer.clear(null, Stat.loop);
-        ILaya.timer.clear(null, Stat.clear);
+        ILaya.systemTimer.clear(null, Stat.loop);
         if (Stat._statUI)
             Stat._statUI.hide();
     }
@@ -288,7 +285,7 @@ export class Stat {
             let delay: string = Stat.FPS > 0 ? Math.floor(1000 / Stat.FPS).toString() : " ";
             Stat._fpsStr = Stat.FPS + (Stat.renderSlow ? " slow" : "") + " " + delay + "ms";
             Stat._statUI.update();
-            //Stat.clear();
+            Stat.clear();
         }
 
         Stat._count = 0;
@@ -302,7 +299,7 @@ export class Stat {
 
         Stat.gpuMemory = LayaGL.renderEngine.getStatisticsInfo(GPUEngineStatisticsInfo.M_GPUMemory);
         Stat.textureMemory = LayaGL.renderEngine.getStatisticsInfo(GPUEngineStatisticsInfo.M_ALLTexture);
-        Stat.renderTextureMemory = LayaGL.renderEngine.getStatisticsInfo(GPUEngineStatisticsInfo.RC_ALLRenderTexture);
+        Stat.renderTextureMemory = LayaGL.renderEngine.getStatisticsInfo(GPUEngineStatisticsInfo.M_ALLRenderTexture);
         Stat.bufferMemory = LayaGL.renderEngine.getStatisticsInfo(GPUEngineStatisticsInfo.M_GPUBuffer);
     }
 

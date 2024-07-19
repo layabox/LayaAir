@@ -4,7 +4,8 @@ import { RigidBody } from "../RigidBody"
 import { physics2D_WeldJointDef } from "./JointDefStructInfo";
 
 /**
- * 焊接关节：焊接关节的用途是使两个物体不能相对运动，受到关节的限制，两个刚体的相对位置和角度都保持不变，看上去像一个整体
+ * @en WeldJoint class, used to constrain two bodies together so they cannot move relative to each other. The relative position and angle between the two bodies are fixed, making them appear as a single rigid body.
+ * @zh 焊接关节：焊接关节的用途是使两个物体不能相对运动，受到关节的限制，两个刚体的相对位置和角度都保持不变，看上去像一个整体
  */
 export class WeldJoint extends JointBase {
 
@@ -17,19 +18,34 @@ export class WeldJoint extends JointBase {
     /**@internal 刚体在回归到节点过程中受到的阻尼比，建议取值0~1*/
     private _dampingRatio: number = 0.7;
 
-    /**[首次设置有效]关节的自身刚体*/
+    /**
+     * @en The rigid body that is locally attached to the joint. This setting is effective only on the first assignment.
+     * @zh [首次设置有效]与关节直接相连的自身刚体。
+     */
     selfBody: RigidBody;
 
-    /**[首次设置有效]关节的连接刚体*/
+    /**
+     * @en The connected rigid body. This setting is effective only on the first assignment.
+     * @zh [首次设置有效]与关节连接的另一个刚体。
+     */
     otherBody: RigidBody;
 
-    /**[首次设置有效]关节的链接点，是相对于自身刚体的左上角位置偏移*/
+    /**
+     * @en Link points of joints, it is offset from the position of the upper left corner of its own rigid body. This setting is effective only on the first assignment.
+     * @zh [首次设置有效]关节的链接点，是相对于自身刚体的左上角位置偏移。
+     */
     anchor: any[] = [0, 0];
 
-    /**[首次设置有效]两个刚体是否可以发生碰撞，默认为false*/
+    /**
+     * @en Specifies whether the two connected rigid bodies can collide with each other. Default is false. This setting is effective only on the first assignment.
+     * @zh [首次设置有效]两个连接的刚体是否可以相互碰撞，默认为 false。
+     */
     collideConnected: boolean = false;
 
-    /**弹簧系统的震动频率，可以视为弹簧的弹性系数，通常频率应该小于时间步长频率的一半*/
+    /**
+     * @en The vibration frequency of the spring system, which can be considered as the spring's elasticity coefficient.The frequency should typically be less than half the time step frequency.
+     * @zh 弹簧系统的振动频率，可以视为弹簧的弹性系数。通常频率应该小于时间步长频率的一半。
+     */
     get frequency(): number {
         return this._frequency;
     }
@@ -41,7 +57,10 @@ export class WeldJoint extends JointBase {
         }
     }
 
-    /**刚体在回归到节点过程中受到的阻尼比，建议取值0~1*/
+    /**
+     * @en The damping ratio of the body when returning to the anchor point, with a recommended value range of 0 to 1.
+     * @zh 刚体在回归到节点过程中受到的阻尼比，建议取值0~1。
+     */
     get damping(): number {
         return this._dampingRatio;
     }
