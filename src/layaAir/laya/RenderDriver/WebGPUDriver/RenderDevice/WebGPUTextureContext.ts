@@ -1288,14 +1288,14 @@ export class WebGPUTextureContext implements ITextureContext {
     supportSRGB(format: TextureFormat | RenderTargetFormat, mipmap: boolean): boolean {
         switch (format) {
             case TextureFormat.R8G8B8:
-                return this._engine.getCapable(RenderCapable.Texture_SRGB) && !mipmap;
+                return this._engine.getCapable(RenderCapable.Texture_SRGB);
             case TextureFormat.R8G8B8A8:
                 return this._engine.getCapable(RenderCapable.Texture_SRGB);
             case TextureFormat.DXT1:
             case TextureFormat.DXT3:
             case TextureFormat.DXT5:
                 // todo  验证 srgb format 和 mipmap webgl1 兼容问题
-                return this._engine.getCapable(RenderCapable.COMPRESS_TEXTURE_S3TC_SRGB) && !mipmap;
+                return this._engine.getCapable(RenderCapable.COMPRESS_TEXTURE_S3TC_SRGB);
             default:
                 return false;
         }
@@ -1315,7 +1315,6 @@ export class WebGPUTextureContext implements ITextureContext {
         generateMipmap = generateMipmap && this.supportGenerateMipmap(colorFormat);
         const useSRGBExt = this.isSRGBFormat(colorFormat) || (sRGB && this.supportSRGB(colorFormat, generateMipmap));
         const gammaCorrection = 1.0;
-        //generateMipmap = false; //渲染目标不需要mipmap
         const pixelByteSize = this._getGPURenderTexturePixelByteSize(colorFormat);
         const gpuColorFormat = this._getGPURenderTargetFormat(colorFormat, sRGB);
         const gpuColorDescriptor = this._getGPUTextureDescriptor(TextureDimension.Tex2D, width, height, gpuColorFormat, 1, generateMipmap, multiSamples, false);
@@ -1403,39 +1402,39 @@ export class WebGPUTextureContext implements ITextureContext {
         const texture = renderTarget._textures[0].resource as GPUTexture;
         const device = this._engine.getDevice();
         switch (renderTarget.colorFormat) {
-            case RenderTargetFormat.R8G8B8:
-                {
-                    //第一步：创建用于读取的缓冲区
-                    const bytesPerRow = Math.ceil(width * 3 / 256) * 256; //RGB, 每个像素3字节，256字节对齐
-                    const bufferSize = bytesPerRow * height;
-                    const buffer = device.createBuffer({
-                        size: bufferSize,
-                        usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
-                    });
-                    //第二步：编码复制命令，将贴图数据复制到缓冲区
-                    const commandEncoder = device.createCommandEncoder();
-                    commandEncoder.copyTextureToBuffer(
-                        { texture, origin: { x: xOffset, y: yOffset } },
-                        { buffer, bytesPerRow },
-                        { width, height, depthOrArrayLayers: 1 });
-                    const commands = commandEncoder.finish();
-                    device.queue.submit([commands]);
-                    //第三步：映射缓冲区并读取数据
-                    const outView = new Uint8Array(out.buffer);
-                    await buffer.mapAsync(GPUMapMode.READ);
-                    const arrayBuffer = buffer.getMappedRange();
-                    const data = new Uint8Array(arrayBuffer);
-                    for (let j = 0; j < height; j++) {
-                        for (let i = 0; i < width; i++) {
-                            outView[j * width * 3 + i * 3 + 0] = data[j * bytesPerRow + i * 3 + 2]; //bgr
-                            outView[j * width * 3 + i * 3 + 1] = data[j * bytesPerRow + i * 3 + 1];
-                            outView[j * width * 3 + i * 3 + 2] = data[j * bytesPerRow + i * 3 + 0];
-                        }
-                    }
-                    buffer.unmap();
-                    buffer.destroy();
-                    return Promise.resolve(out);
-                }
+            // case RenderTargetFormat.R8G8B8:
+            //     {
+            //         //第一步：创建用于读取的缓冲区
+            //         const bytesPerRow = Math.ceil(width * 3 / 256) * 256; //RGB, 每个像素3字节，256字节对齐
+            //         const bufferSize = bytesPerRow * height;
+            //         const buffer = device.createBuffer({
+            //             size: bufferSize,
+            //             usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
+            //         });
+            //         //第二步：编码复制命令，将贴图数据复制到缓冲区
+            //         const commandEncoder = device.createCommandEncoder();
+            //         commandEncoder.copyTextureToBuffer(
+            //             { texture, origin: { x: xOffset, y: yOffset } },
+            //             { buffer, bytesPerRow },
+            //             { width, height, depthOrArrayLayers: 1 });
+            //         const commands = commandEncoder.finish();
+            //         device.queue.submit([commands]);
+            //         //第三步：映射缓冲区并读取数据
+            //         const outView = new Uint8Array(out.buffer);
+            //         await buffer.mapAsync(GPUMapMode.READ);
+            //         const arrayBuffer = buffer.getMappedRange();
+            //         const data = new Uint8Array(arrayBuffer);
+            //         for (let j = 0; j < height; j++) {
+            //             for (let i = 0; i < width; i++) {
+            //                 outView[j * width * 3 + i * 3 + 0] = data[j * bytesPerRow + i * 3 + 2]; //bgr
+            //                 outView[j * width * 3 + i * 3 + 1] = data[j * bytesPerRow + i * 3 + 1];
+            //                 outView[j * width * 3 + i * 3 + 2] = data[j * bytesPerRow + i * 3 + 0];
+            //             }
+            //         }
+            //         buffer.unmap();
+            //         buffer.destroy();
+            //         return Promise.resolve(out);
+            //     }
             case RenderTargetFormat.R8G8B8A8:
                 {
                     //第一步：创建用于读取的缓冲区
@@ -1470,14 +1469,74 @@ export class WebGPUTextureContext implements ITextureContext {
                     buffer.destroy();
                     return Promise.resolve(out);
                 }
-            case RenderTargetFormat.R16G16B16:
-                break;
             case RenderTargetFormat.R16G16B16A16:
-                break;
-            case RenderTargetFormat.R32G32B32:
-                break;
+                {
+                    //第一步：创建用于读取的缓冲区
+                    const bytesPerRow = Math.ceil(width * 8 / 256) * 256; //RGBA, 每个像素4字节，256字节对齐
+                    const bufferSize = bytesPerRow * height;
+                    const buffer = device.createBuffer({
+                        size: bufferSize,
+                        usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
+                    });
+                    //第二步：编码复制命令，将贴图数据复制到缓冲区
+                    const commandEncoder = device.createCommandEncoder();
+                    commandEncoder.copyTextureToBuffer(
+                        { texture, origin: { x: xOffset, y: yOffset } },
+                        { buffer, bytesPerRow },
+                        { width, height, depthOrArrayLayers: 1 });
+                    const commands = commandEncoder.finish();
+                    device.queue.submit([commands]);
+                    //第三步：映射缓冲区并读取数据
+                    const outView = new Uint16Array(out.buffer);
+                    await buffer.mapAsync(GPUMapMode.READ);
+                    const arrayBuffer = buffer.getMappedRange();
+                    const data = new Uint16Array(arrayBuffer);
+                    for (let j = 0; j < height; j++) {
+                        for (let i = 0; i < width; i++) {
+                            outView[j * width * 4 + i * 4 + 0] = data[j * bytesPerRow + i * 4 + 2]; //bgra
+                            outView[j * width * 4 + i * 4 + 1] = data[j * bytesPerRow + i * 4 + 1];
+                            outView[j * width * 4 + i * 4 + 2] = data[j * bytesPerRow + i * 4 + 0];
+                            outView[j * width * 4 + i * 4 + 3] = data[j * bytesPerRow + i * 4 + 3];
+                        }
+                    }
+                    buffer.unmap();
+                    buffer.destroy();
+                    return Promise.resolve(out);
+                }
             case RenderTargetFormat.R32G32B32A32:
-                break;
+                {
+                    //第一步：创建用于读取的缓冲区
+                    const bytesPerRow = Math.ceil(width * 16 / 256) * 256; //RGBA, 每个像素4字节，256字节对齐
+                    const bufferSize = bytesPerRow * height;
+                    const buffer = device.createBuffer({
+                        size: bufferSize,
+                        usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
+                    });
+                    //第二步：编码复制命令，将贴图数据复制到缓冲区
+                    const commandEncoder = device.createCommandEncoder();
+                    commandEncoder.copyTextureToBuffer(
+                        { texture, origin: { x: xOffset, y: yOffset } },
+                        { buffer, bytesPerRow },
+                        { width, height, depthOrArrayLayers: 1 });
+                    const commands = commandEncoder.finish();
+                    device.queue.submit([commands]);
+                    //第三步：映射缓冲区并读取数据
+                    const outView = new Uint32Array(out.buffer);
+                    await buffer.mapAsync(GPUMapMode.READ);
+                    const arrayBuffer = buffer.getMappedRange();
+                    const data = new Uint32Array(arrayBuffer);
+                    for (let j = 0; j < height; j++) {
+                        for (let i = 0; i < width; i++) {
+                            outView[j * width * 4 + i * 4 + 0] = data[j * bytesPerRow + i * 4 + 2]; //bgra
+                            outView[j * width * 4 + i * 4 + 1] = data[j * bytesPerRow + i * 4 + 1];
+                            outView[j * width * 4 + i * 4 + 2] = data[j * bytesPerRow + i * 4 + 0];
+                            outView[j * width * 4 + i * 4 + 3] = data[j * bytesPerRow + i * 4 + 3];
+                        }
+                    }
+                    buffer.unmap();
+                    buffer.destroy();
+                    return Promise.resolve(out);
+                }
         }
         return Promise.resolve(out);
     }
@@ -1486,8 +1545,8 @@ export class WebGPUTextureContext implements ITextureContext {
 
     async updateVideoTexture(texture: InternalTexture, video: HTMLVideoElement, premultiplyAlpha: boolean, invertY: boolean): Promise<void> {
         if (!video) return;
-        const imageBitmapSource = await createImageBitmap(video);
-        const image: GPUImageCopyExternalImage = { source: imageBitmapSource as ImageBitmap, flipY: invertY, origin: [0, 0] };
+        //const imageBitmapSource = await createImageBitmap(video);
+        const image: GPUImageCopyExternalImage = { source: video, flipY: invertY, origin: [0, 0] };
 
         const textureCopyView: GPUImageCopyTextureTagged = {
             texture: texture.resource,
@@ -1503,7 +1562,30 @@ export class WebGPUTextureContext implements ITextureContext {
         const device = WebGPURenderEngine._instance.getDevice();
         device.queue.copyExternalImageToTexture(image, textureCopyView, copySize);
     }
+    /**
+     * @deprecated 请使用getRenderTextureDataAsync函数代替
+     * @param internalTex 
+     * @param x 
+     * @param y 
+     * @param width 
+     * @param height 
+     */
     getRenderTextureData(internalTex: InternalRenderTarget, x: number, y: number, width: number, height: number): ArrayBufferView {
         throw new Error("Method not implemented.");
+    }
+    getRenderTextureDataAsync(internalTex: InternalRenderTarget, x: number, y: number, width: number, height: number): Promise<ArrayBufferView> {
+        let bytesPerRow = 0;
+        switch (internalTex.colorFormat) {
+            case RenderTargetFormat.R8G8B8A8:
+                bytesPerRow = Math.ceil(width * 4 / 256) * 256; //每个像素4字节, 256字节对齐
+                break;
+            case RenderTargetFormat.R16G16B16A16:
+                bytesPerRow = Math.ceil(width * 8 / 256) * 256; //每个像素8字节, 256字节对齐
+                break;
+            case RenderTargetFormat.R32G32B32A32:
+                bytesPerRow = Math.ceil(width * 16 / 256) * 256; //每个像素16字节, 256字节对齐
+                break;
+        }
+        return this.readRenderTargetPixelDataAsync(internalTex, x, y, width, height, new Uint8Array(bytesPerRow * height));
     }
 }
