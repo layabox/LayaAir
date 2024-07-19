@@ -8,6 +8,7 @@ import { WebGPUUniformBuffer } from "./WebGPUUniformBuffer";
 export class WebGPUBufferBlock {
     sn: number; //序列号
     buffer: WebGPUBufferCluster; //大内存管理对象
+    index: number; //在大内存中的序号
     offset: number; //在大内存中的偏移
     size: number; //实际尺寸
     alignedSize: number; //256字节对齐后的尺寸
@@ -17,26 +18,23 @@ export class WebGPUBufferBlock {
     globalId: number; //全局id
     objectName: string; //本对象名称
 
-    constructor(sn: number, buffer: WebGPUBufferCluster, offset: number, size: number, alignedSize: number, user: WebGPUUniformBuffer) {
+    constructor(sn: number, buffer: WebGPUBufferCluster, index: number, size: number, alignedSize: number, user: WebGPUUniformBuffer) {
         this.sn = sn;
         this.buffer = buffer;
-        this.offset = offset;
+        this.index = index;
         this.size = size;
         this.alignedSize = alignedSize;
+        this.offset = alignedSize * index;
         this.user = user;
         this.destroyed = false;
 
         this.objectName = 'WebGPUBufferBlock | ' + buffer.name;
         this.globalId = WebGPUGlobal.getId(this);
         //WebGPUGlobal.action(this, 'getMemory', alignedSize);
-
-        if (size > buffer.sliceSize)
-            console.warn('WebGPUBufferBlock: blockSize should not bigger than sliceSize');
     }
 
     needUpload() {
-        this.buffer.needUpload[this.offset / this.buffer.sliceSize | 0] = true;
-        this.buffer.needUpload[(this.offset + this.size) / this.buffer.sliceSize | 0] = true;
+        this.buffer.needUpload[this.index] = true;
     }
 
     destroy() {

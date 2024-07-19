@@ -1,4 +1,5 @@
 import { GPUEngineStatisticsInfo } from "../../../../RenderEngine/RenderEnum/RenderStatInfo";
+import { roundUp } from "../WebGPUCommon";
 import { WebGPURenderEngine } from "../WebGPURenderEngine";
 import { WebGPUBufferBlock } from "./WebGPUBufferBlock";
 import { WebGPUBufferCluster } from "./WebGPUBufferCluster";
@@ -10,13 +11,18 @@ import { WebGPUUniformBuffer } from "./WebGPUUniformBuffer";
 export class WebGPUBufferManager {
     device: GPUDevice;
     renderContext: any;
-    namedBuffers: Map<string, WebGPUBufferCluster>;
+    sizedBuffers: Map<number, WebGPUBufferCluster>; //按尺寸分组
 
-    static snCounter: number = 0;
+    byteAlign: number = 256; //字节对齐
+    snCounter: number = 0; //序号计数器
+    uploadThreshold: number = 200; //判定为动态块的上传次数阈值
+
+    uploadNum: number = 0; //每帧上传次数
+    uploadByte: number = 0; //每帧上传字节数
 
     constructor(device: GPUDevice) {
         this.device = device;
-        this.namedBuffers = new Map();
+        this.sizedBuffers = new Map();
     }
 
     /**
@@ -25,7 +31,7 @@ export class WebGPUBufferManager {
      */
     setRenderContext(rc: any) {
         this.renderContext = rc;
-        this.namedBuffers.forEach(buf => buf.setRenderContext(rc));
+        this.sizedBuffers.forEach(buf => buf.setRenderContext(rc));
     }
 
     /**
@@ -34,99 +40,90 @@ export class WebGPUBufferManager {
      * @param name 
      */
     getBufferAlone(size: number, name?: string) {
-        WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.M_GPUMemory, size);
-        WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.M_GPUBuffer, size);
+        const alignedSize = roundUp(size, this.byteAlign);
+        WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.M_GPUMemory, alignedSize);
+        WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.M_GPUBuffer, alignedSize);
         return this.device.createBuffer({
             label: name,
-            size: size,
+            size: alignedSize,
             usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
         });
     }
 
     /**
      * 添加内存
-     * @param name 
-     * @param sliceSize 
-     * @param sliceNum 
+     * @param size 
+     * @param blockNum 
      */
-    addBuffer(name: string, sliceSize: number, sliceNum: number) {
-        if (this.namedBuffers.has(name)) {
-            console.warn(`namedBuffer with name: ${name} already exist!`);
-            return false;
+    private _addBuffer(size: number, blockNum: number = 1) {
+        const alignedSize = roundUp(size, this.byteAlign);
+        let buffer = this.sizedBuffers.get(alignedSize);
+        if (buffer) {
+            console.warn(`sizedBuffer with size: ${alignedSize} already exist!`);
+            return buffer;
         }
-        const bc = new WebGPUBufferCluster(this.device, name, sliceSize, sliceNum);
-        bc.setRenderContext(this.renderContext);
-        this.namedBuffers.set(name, bc);
-        return true;
+        buffer = new WebGPUBufferCluster(this.device, '', alignedSize, blockNum, this);
+        buffer.setRenderContext(this.renderContext);
+        this.sizedBuffers.set(alignedSize, buffer);
+        return buffer;
     }
 
     /**
      * 删除内存
-     * @param name 
+     * @param size 
      */
-    removeBuffer(name: string) {
-        this.namedBuffers.delete(name);
+    removeBuffer(size: number) {
+        const alignedSize = roundUp(size, this.byteAlign);
+        this.sizedBuffers.delete(alignedSize);
     }
 
     /**
      * 获取内存块
-     * @param name 
-     */
-    getBuffer(name: string) {
-        return this.namedBuffers.get(name)?.buffer;
-    }
-
-    /**
-     * 获取内存块
-     * @param name 
      * @param size 
      * @param user 
      */
-    getBlock(name: string, size: number, user: WebGPUUniformBuffer) {
-        const buffer = this.namedBuffers.get(name);
-        if (buffer)
-            return buffer.getBlock(size, user);
-        return null;
+    getBlock(size: number, user: WebGPUUniformBuffer) {
+        const alignedSize = roundUp(size, this.byteAlign);
+        let buffer = this.sizedBuffers.get(alignedSize);
+        if (!buffer)
+            buffer = this._addBuffer(alignedSize);
+        return buffer.getBlock(size, user);
     }
 
     /**
      * 释放内存块
-     * @param name 
+     * @param size 
      * @param bb 
      */
-    freeBlock(name: string, bb: WebGPUBufferBlock) {
-        const buffer = this.namedBuffers.get(name);
+    freeBlock(size: number, bb: WebGPUBufferBlock) {
+        const alignedSize = roundUp(size, this.byteAlign);
+        const buffer = this.sizedBuffers.get(alignedSize);
         if (buffer)
             return buffer.freeBlock(bb);
         return false;
     }
 
     /**
-     * 清理内存
-     * @param name 
-     */
-    clearBuffer(name: string) {
-        this.namedBuffers.delete(name);
-    }
-
-    /**
      * 上传数据
      */
     upload() {
-        this.namedBuffers.forEach(buf => buf.upload());
+        this.uploadNum = 0;
+        this.uploadByte = 0;
+        this.sizedBuffers.forEach(buf => { buf.upload(); buf.optimize(); });
+        //console.log('uploadNum = ' + this.uploadNum + ', uploadByte = ' + this.uploadByte);
     }
 
     /**
      * 清理所有内存
      */
     clear() {
-        this.namedBuffers.forEach(buf => buf.clear());
+        this.sizedBuffers.forEach(buf => buf.clear());
     }
 
     /**
      * 销毁
      */
     destroy() {
-        this.namedBuffers.clear();
+        this.sizedBuffers.clear();
     }
 }
