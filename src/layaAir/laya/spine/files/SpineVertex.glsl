@@ -97,6 +97,12 @@ vec4 getScreenPos(vec4 pos){
     #endif
     float x=up.x*pos.x+up.y*pos.y+up.z;
     float y=down.x*pos.x+down.y*pos.y-down.z;
+    
+    #ifdef CAMERA2D
+       vec2 posT= (u_view2D *vec3(x,y,1.0)).xy+u_size/2.;
+       x = posT.x;
+       y = posT.y;
+    #endif  
     return vec4((x/u_size.x-0.5)*2.0,(y/u_size.y+0.5)*2.0,pos.z,1.0);
 }
 
