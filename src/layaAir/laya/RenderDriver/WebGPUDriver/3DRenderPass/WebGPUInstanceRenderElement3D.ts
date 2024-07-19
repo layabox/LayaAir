@@ -13,58 +13,77 @@ import { WebGPURenderBundle } from "../RenderDevice/WebGPUBundle/WebGPURenderBun
 import { WebGPUInternalRT } from "../RenderDevice/WebGPUInternalRT";
 import { WebGPURenderCommandEncoder } from "../RenderDevice/WebGPURenderCommandEncoder";
 import { WebGPURenderGeometry } from "../RenderDevice/WebGPURenderGeometry";
-import { WebGPUResourceRecover } from "../RenderDevice/WebGPUResourceRecover";
 import { WebGPUShaderInstance } from "../RenderDevice/WebGPUShaderInstance";
 import { WebGPUVertexBuffer } from "../RenderDevice/WebGPUVertexBuffer";
 import { WebGPURenderContext3D } from "./WebGPURenderContext3D";
 import { WebGPURenderElement3D } from "./WebGPURenderElement3D";
 
 export interface WebGPUInstanceStateInfo {
-    inUse: boolean;
     state: WebGPUBufferState;
     worldInstanceVB?: WebGPUVertexBuffer;
-    lightmapScaleOffsetVB?: WebGPUVertexBuffer;
     simpleAnimatorVB?: WebGPUVertexBuffer;
+    lightmapScaleOffsetVB?: WebGPUVertexBuffer;
 }
 
 export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D implements IInstanceRenderElement3D {
-    static getInstanceBufferState(geometry: WebGPURenderGeometry, renderType: number, spriteDefine: WebDefineDatas) {
+    static getInstanceBufferState(stateinfo: WebGPUInstanceStateInfo, geometry: WebGPURenderGeometry, renderType: number, spriteDefine: WebDefineDatas) {
         const _initStateInfo = (stateinfo: WebGPUInstanceStateInfo) => {
             const oriBufferState = geometry.bufferState;
             const vertexArray = oriBufferState._vertexBuffers.slice();
-            const worldMatVertex = new WebGPUVertexBuffer(BufferTargetType.ARRAY_BUFFER, BufferUsage.Dynamic);
-            worldMatVertex.setDataLength(this.MaxInstanceCount * 16 * 4);
-            worldMatVertex.vertexDeclaration = VertexMesh.instanceWorldMatrixDeclaration;
-            worldMatVertex.instanceBuffer = true;
+            let worldMatVertex = stateinfo.worldInstanceVB;
+            const size = this.MaxInstanceCount * 16 * 4;
+            if (!worldMatVertex || worldMatVertex.source._size < size) {
+                if (worldMatVertex) {
+                    worldMatVertex.destroy();
+                    worldMatVertex.source._source.destroy();
+                }
+                stateinfo.worldInstanceVB = worldMatVertex = new WebGPUVertexBuffer(BufferTargetType.ARRAY_BUFFER, BufferUsage.Dynamic);
+                worldMatVertex.setDataLength(this.MaxInstanceCount * 16 * 4);
+                worldMatVertex.vertexDeclaration = VertexMesh.instanceWorldMatrixDeclaration;
+                worldMatVertex.instanceBuffer = true;
+            }
             vertexArray.push(worldMatVertex);
-            stateinfo.worldInstanceVB = worldMatVertex;
             switch (renderType) {
                 case BaseRenderType.MeshRender:
                     if (spriteDefine.has(MeshSprite3DShaderDeclaration.SHADERDEFINE_UV1)) {
-                        const instanceLightMapVertexBuffer = new WebGPUVertexBuffer(BufferTargetType.ARRAY_BUFFER, BufferUsage.Dynamic);
-                        instanceLightMapVertexBuffer.setDataLength(this.MaxInstanceCount * 4 * 4);
-                        instanceLightMapVertexBuffer.vertexDeclaration = VertexMesh.instanceLightMapScaleOffsetDeclaration;
-                        instanceLightMapVertexBuffer.instanceBuffer = true;
+                        let instanceLightMapVertexBuffer = stateinfo.lightmapScaleOffsetVB;
+                        const size = this.MaxInstanceCount * 4 * 4;
+                        if (!instanceLightMapVertexBuffer || instanceLightMapVertexBuffer.source._size < size) {
+                            if (instanceLightMapVertexBuffer) {
+                                instanceLightMapVertexBuffer.destroy();
+                                instanceLightMapVertexBuffer.source._source.destroy();
+                            }
+                            stateinfo.lightmapScaleOffsetVB = instanceLightMapVertexBuffer = new WebGPUVertexBuffer(BufferTargetType.ARRAY_BUFFER, BufferUsage.Dynamic);
+                            instanceLightMapVertexBuffer.setDataLength(this.MaxInstanceCount * 4 * 4);
+                            instanceLightMapVertexBuffer.vertexDeclaration = VertexMesh.instanceLightMapScaleOffsetDeclaration;
+                            instanceLightMapVertexBuffer.instanceBuffer = true;
+                        }
                         vertexArray.push(instanceLightMapVertexBuffer);
-                        stateinfo.lightmapScaleOffsetVB?.destroy();
-                        stateinfo.lightmapScaleOffsetVB = instanceLightMapVertexBuffer;
                     }
                     break;
                 case BaseRenderType.SimpleSkinRender:
-                    const instanceSimpleAnimatorBuffer = new WebGPUVertexBuffer(BufferTargetType.ARRAY_BUFFER, BufferUsage.Dynamic);
-                    instanceSimpleAnimatorBuffer.setDataLength(this.MaxInstanceCount * 4 * 4);
-                    instanceSimpleAnimatorBuffer.vertexDeclaration = VertexMesh.instanceSimpleAnimatorDeclaration;
-                    instanceSimpleAnimatorBuffer.instanceBuffer = true;
+                    let instanceSimpleAnimatorBuffer = stateinfo.simpleAnimatorVB;
+                    const size = this.MaxInstanceCount * 4 * 4;
+                    if (!instanceSimpleAnimatorBuffer || instanceSimpleAnimatorBuffer.source._size < size) {
+                        if (instanceSimpleAnimatorBuffer) {
+                            instanceSimpleAnimatorBuffer.destroy();
+                            instanceSimpleAnimatorBuffer.source._source.destroy();
+                        }
+                        stateinfo.simpleAnimatorVB = instanceSimpleAnimatorBuffer = new WebGPUVertexBuffer(BufferTargetType.ARRAY_BUFFER, BufferUsage.Dynamic);
+                        instanceSimpleAnimatorBuffer.setDataLength(this.MaxInstanceCount * 4 * 4);
+                        instanceSimpleAnimatorBuffer.vertexDeclaration = VertexMesh.instanceSimpleAnimatorDeclaration;
+                        instanceSimpleAnimatorBuffer.instanceBuffer = true;
+                    }
                     vertexArray.push(instanceSimpleAnimatorBuffer);
-                    stateinfo.simpleAnimatorVB = instanceSimpleAnimatorBuffer;
                     break;
             }
             stateinfo.state.applyState(vertexArray, geometry.bufferState._bindedIndexBuffer);
         };
 
-        const stateInfo = { inUse: true, state: new WebGPUBufferState() };
-        _initStateInfo(stateInfo);
-        return stateInfo;
+        if (!stateinfo)
+            stateinfo = { state: new WebGPUBufferState() };
+        _initStateInfo(stateinfo);
+        return stateinfo;
     }
 
     static MaxInstanceCount: number = 1024;
@@ -249,7 +268,7 @@ export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D impleme
             this.geometry = new WebGPURenderGeometry(geometry.mode, geometry.drawType);
         geometry.cloneTo(this.geometry);
         this.geometry.drawType = DrawType.DrawElementInstance;
-        this._instanceStateInfo = WebGPUInstanceRenderElement3D.getInstanceBufferState(geometry, this.owner.renderNodeType, this.renderShaderData._defineDatas);
+        this._instanceStateInfo = WebGPUInstanceRenderElement3D.getInstanceBufferState(this._instanceStateInfo, geometry, this.owner.renderNodeType, this.renderShaderData._defineDatas);
         this.geometry.bufferState = this._instanceStateInfo.state;
         this.geometry.checkDataFormat = this.geometry.bufferState.isNeedChangeFormat() ? false : true;
     }
@@ -279,50 +298,43 @@ export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D impleme
         this._updateDataNum.length = 0;
     }
 
-    /**
-     * 清理单次渲染生成的数据（延迟回收内存）
-     */
-    clearRenderDataAndRecover(resRecover: WebGPUResourceRecover): void {
-        this.drawCount = 0;
-        this.updateNums = 0;
-        this._vertexBuffers.length = 0;
-        this._updateData.forEach(data => {
-            WebGPUInstanceRenderElement3D._bufferPool.get(data.length).push(data);
-        });
-        this._updateData.length = 0;
-        this._updateDataNum.length = 0;
-        if (this._instanceStateInfo) {
-            if (this._instanceStateInfo.worldInstanceVB) {
-                this._instanceStateInfo.worldInstanceVB.destroy();
-                resRecover.needRecover(this._instanceStateInfo.worldInstanceVB.source);
-            }
-            if (this._instanceStateInfo.simpleAnimatorVB) {
-                this._instanceStateInfo.simpleAnimatorVB.destroy();
-                resRecover.needRecover(this._instanceStateInfo.simpleAnimatorVB.source);
-            }
-            if (this._instanceStateInfo.lightmapScaleOffsetVB) {
-                this._instanceStateInfo.lightmapScaleOffsetVB.destroy();
-                resRecover.needRecover(this._instanceStateInfo.lightmapScaleOffsetVB.source);
-            }
-            this._instanceStateInfo.worldInstanceVB = null;
-            this._instanceStateInfo.simpleAnimatorVB = null;
-            this._instanceStateInfo.lightmapScaleOffsetVB = null;
-        }
-    }
+    // /**
+    //  * 清理单次渲染生成的数据（延迟回收内存）
+    //  */
+    // clearRenderDataAndRecover(resRecover: WebGPUResourceRecover): void {
+    //     this.drawCount = 0;
+    //     this.updateNums = 0;
+    //     this._vertexBuffers.length = 0;
+    //     this._updateData.forEach(data => {
+    //         WebGPUInstanceRenderElement3D._bufferPool.get(data.length).push(data);
+    //     });
+    //     this._updateData.length = 0;
+    //     this._updateDataNum.length = 0;
+    //     if (this._instanceStateInfo) {
+    //         if (this._instanceStateInfo.worldInstanceVB) {
+    //             this._instanceStateInfo.worldInstanceVB.destroy();
+    //             resRecover.needRecover(this._instanceStateInfo.worldInstanceVB.source);
+    //         }
+    //         if (this._instanceStateInfo.simpleAnimatorVB) {
+    //             this._instanceStateInfo.simpleAnimatorVB.destroy();
+    //             resRecover.needRecover(this._instanceStateInfo.simpleAnimatorVB.source);
+    //         }
+    //         if (this._instanceStateInfo.lightmapScaleOffsetVB) {
+    //             this._instanceStateInfo.lightmapScaleOffsetVB.destroy();
+    //             resRecover.needRecover(this._instanceStateInfo.lightmapScaleOffsetVB.source);
+    //         }
+    //         this._instanceStateInfo.worldInstanceVB = null;
+    //         this._instanceStateInfo.simpleAnimatorVB = null;
+    //         this._instanceStateInfo.lightmapScaleOffsetVB = null;
+    //     }
+    // }
 
     /**
      * 回收
      */
     recover() {
-        WebGPUInstanceRenderElement3D._pool.push(this);
-        this._instanceStateInfo.inUse = false;
-        this._instanceStateInfo.worldInstanceVB?.destroy();
-        this._instanceStateInfo.simpleAnimatorVB?.destroy();
-        this._instanceStateInfo.lightmapScaleOffsetVB?.destroy();
-        this._instanceStateInfo.worldInstanceVB = null;
-        this._instanceStateInfo.simpleAnimatorVB = null;
-        this._instanceStateInfo.lightmapScaleOffsetVB = null;
         this.instanceElementList.clear();
+        WebGPUInstanceRenderElement3D._pool.push(this);
     }
 
     /**

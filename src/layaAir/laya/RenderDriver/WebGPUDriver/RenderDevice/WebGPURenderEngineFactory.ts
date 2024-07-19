@@ -26,10 +26,21 @@ export class WebGPURenderEngineFactory implements IRenderEngineFactory {
         }
         // todo add required features
         gpuConfig.deviceDescriptor.requiredFeatures = [
-            "texture-compression-astc",
+            // "texture-compression-astc",
+            // "texture-compression-bc",
+            // "texture-compression-etc2",
+            // "float32-filterable"
+            "depth-clip-control",
+            "depth32float-stencil8",
             "texture-compression-bc",
             "texture-compression-etc2",
-            "float32-filterable"
+            "texture-compression-astc",
+            "timestamp-query",
+            "indirect-first-instance",
+            "shader-f16",
+            "rg11b10ufloat-renderable",
+            "bgra8unorm-storage",
+            "float32-filterable",
         ];
         const engine = new WebGPURenderEngine(gpuConfig, canvas._source);
         LayaGL.renderEngine = engine;

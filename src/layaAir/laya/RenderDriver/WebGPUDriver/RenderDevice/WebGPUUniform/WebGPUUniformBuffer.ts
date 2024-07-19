@@ -1,14 +1,14 @@
+import { Matrix3x3 } from "../../../../maths/Matrix3x3";
+import { Matrix4x4 } from "../../../../maths/Matrix4x4";
 import { Vector2 } from "../../../../maths/Vector2";
 import { Vector3 } from "../../../../maths/Vector3";
 import { Vector4 } from "../../../../maths/Vector4";
-import { Matrix3x3 } from "../../../../maths/Matrix3x3";
-import { Matrix4x4 } from "../../../../maths/Matrix4x4";
+import { TypedArray, TypedArrayConstructor, roundUp } from "../WebGPUCommon";
 import { WebGPUShaderData } from "../WebGPUShaderData";
+import { WebGPUGlobal } from "../WebGPUStatis/WebGPUGlobal";
+import { WebGPUBufferAlone } from "./WebGPUBufferAlone";
 import { WebGPUBufferBlock } from "./WebGPUBufferBlock";
 import { WebGPUBufferManager } from "./WebGPUBufferManager";
-import { WebGPUGlobal } from "../WebGPUStatis/WebGPUGlobal";
-import { TypedArray, TypedArrayConstructor, roundUp } from "../WebGPUCommon";
-import { WebGPUBufferAlone } from "./WebGPUBufferAlone";
 
 type ItemType = {
     name: string, //名称
@@ -29,6 +29,7 @@ export class WebGPUUniformBuffer {
 
     set: number;
     binding: number;
+    size: number;
     bufferBlock: WebGPUBufferBlock;
     bufferAlone: WebGPUBufferAlone;
     gpuBuffer: WebGPUBufferManager;
@@ -41,7 +42,7 @@ export class WebGPUUniformBuffer {
     objectName: string = 'UniformBuffer';
 
     constructor(name: string, set: number, binding: number, size: number, gpuBuffer: WebGPUBufferManager, user: WebGPUShaderData) {
-        this.name = name + (user.isStatic ? '_static' : '');
+        this.name = name;
         this.strId = '';
         this.items = new Map();
         this.itemNum = 0;
@@ -49,9 +50,10 @@ export class WebGPUUniformBuffer {
 
         this.set = set;
         this.binding = binding;
+        this.size = size;
         if (WebGPUGlobal.useBigBuffer) {
-            this.bufferBlock = gpuBuffer.getBlock(this.name, size, this);
-            this._gpuBuffer = gpuBuffer.getBuffer(this.name);
+            this.bufferBlock = gpuBuffer.getBlock(size, this);
+            this._gpuBuffer = this.bufferBlock.buffer.buffer;
             this._gpuBindGroupEntry = {
                 binding,
                 resource: {
@@ -82,7 +84,9 @@ export class WebGPUUniformBuffer {
      * 通知GPUBuffer改变
      */
     notifyGPUBufferChange() {
-        this._gpuBuffer = this.gpuBuffer.getBuffer(this.name);
+        this._gpuBuffer = this.bufferBlock.buffer.buffer;
+        //@ts-ignore
+        const offset = this.bufferBlock.offset - this._gpuBindGroupEntry.resource.offset;
         this._gpuBindGroupEntry = {
             binding: this.binding,
             resource: {
@@ -91,14 +95,13 @@ export class WebGPUUniformBuffer {
                 size: this.bufferBlock.size,
             },
         };
-        this.needUpload = true;
         this.items.forEach(item => {
-            let tac = WebGPUUniformBuffer._typeArray(item.type);
-            item.view = new (tac)
-                (this.bufferBlock.buffer.data, item.view.byteOffset, item.size / tac.BYTES_PER_ELEMENT);
+            const tac = WebGPUUniformBuffer._typeArray(item.type);
+            item.view = new tac(this.bufferBlock.buffer.data, item.view.byteOffset + offset, item.size / tac.BYTES_PER_ELEMENT);
         });
         if (this.user)
             this.user.clearBindGroup();
+        this.needUpload = true;
     }
 
     /**
@@ -474,7 +477,7 @@ export class WebGPUUniformBuffer {
     destroy() {
         WebGPUGlobal.releaseId(this);
         if (WebGPUGlobal.useBigBuffer) {
-            this.gpuBuffer.freeBlock(this.name, this.bufferBlock);
+            this.gpuBuffer.freeBlock(this.size, this.bufferBlock);
             this.bufferBlock.destroy();
         }
         else this.bufferAlone.destroy();
