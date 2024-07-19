@@ -178,13 +178,13 @@ export class WebGPURenderEngine implements IRenderEngine {
         this._device.lost.then(this._deviceLostCall);
 
         this.gpuBufferMgr = new WebGPUBufferManager(device);
-        if (WebGPUGlobal.useBigBuffer) {
-            this.gpuBufferMgr.addBuffer('scene3D', 2 * 1024, 1);
-            this.gpuBufferMgr.addBuffer('camera', 2 * 1024, 1);
-            this.gpuBufferMgr.addBuffer('material', 16 * 1024, 1);
-            this.gpuBufferMgr.addBuffer('sprite3D', 64 * 1024, 2);
-            this.gpuBufferMgr.addBuffer('sprite3D_static', 64 * 1024, 4);
-        }
+        // if (WebGPUGlobal.useBigBuffer) {
+        //     this.gpuBufferMgr.addBuffer('scene3D', 2 * 1024, 1);
+        //     this.gpuBufferMgr.addBuffer('camera', 2 * 1024, 1);
+        //     this.gpuBufferMgr.addBuffer('material', 16 * 1024, 1);
+        //     this.gpuBufferMgr.addBuffer('sprite3D', 64 * 1024, 2);
+        //     this.gpuBufferMgr.addBuffer('sprite3D_static', 64 * 1024, 4);
+        // }
     }
 
     /**
@@ -338,8 +338,18 @@ export class WebGPURenderEngine implements IRenderEngine {
 
     /**获得各个参数 */
     getParams(params: RenderParams): number {
-        if (params === RenderParams.MAX_Texture_Size)
-            return 4096;
+        switch (params) {
+            case RenderParams.Max_Active_Texture_Count:
+                return this._device.limits.maxSampledTexturesPerShaderStage;
+            case RenderParams.Max_Uniform_Count:
+                return this._device.limits.maxUniformBuffersPerShaderStage;
+            case RenderParams.Max_AnisoLevel_Count:
+                return 16; //?
+            case RenderParams.MAX_Texture_Size:
+                return this._device.limits.maxTextureDimension2D;
+            case RenderParams.MAX_Texture_Image_Uint:
+                return 1024; //?
+        }
         return 0;
     }
 
@@ -354,12 +364,6 @@ export class WebGPURenderEngine implements IRenderEngine {
 
     getCreateRenderOBJContext(): WebGPURenderEngineFactory {
         return new WebGPURenderEngineFactory()
-    }
-
-    viewport(x: number, y: number, width: number, height: number): void {
-    }
-
-    scissor(x: number, y: number, width: number, height: number): void {
     }
 
     private _initStatisticsInfo() {

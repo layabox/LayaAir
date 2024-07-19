@@ -18,11 +18,11 @@ export class WebGPUInstanceRenderBatch implements IInstanceRenderBatch {
     private _batchOpaqueMarks: any[] = [];
     private _updateCountMark: number = 0;
 
-    private _gpuRecover: WebGPUResourceRecover; //GPU内存回收器
+    //private _gpuRecover: WebGPUResourceRecover; //GPU内存回收器
 
     constructor() {
         this.recoverList = new FastSinglelist();
-        this._gpuRecover = new WebGPUResourceRecover();
+        //this._gpuRecover = new WebGPUResourceRecover();
     }
 
     getBatchMark(element: IRenderElement3D) {
@@ -51,7 +51,7 @@ export class WebGPUInstanceRenderBatch implements IInstanceRenderBatch {
             || !LayaGL.renderEngine.getCapable(RenderCapable.DrawElement_Instance))
             return;
 
-        this._gpuRecover.recover(); //回收上一帧的内存
+        //this._gpuRecover.recover(); //回收上一帧的内存
 
         const elementCount = elements.length;
         const elementArray = elements.elements;
@@ -113,17 +113,15 @@ export class WebGPUInstanceRenderBatch implements IInstanceRenderBatch {
     }
 
     clearRenderData() {
-        for (let i = this.recoverList.length - 1; i > -1; i--) {
-            let element = this.recoverList.elements[i];
-            element.clearRenderDataAndRecover(this._gpuRecover);
-        }
+        // for (let i = this.recoverList.length - 1; i > -1; i--) {
+        //     let element = this.recoverList.elements[i];
+        //     element.clearRenderDataAndRecover(this._gpuRecover);
+        // }
     }
 
     recoverData() {
-        for (let i = this.recoverList.length - 1; i > -1; i--) {
-            let element = this.recoverList.elements[i];
-            element.recover();
-        }
+        for (let i = this.recoverList.length - 1; i > -1; i--)
+            this.recoverList.elements[i].recover();
         this.recoverList.length = 0;
     }
 }

@@ -88,15 +88,12 @@ export class WebGPURenderCommandEncoder {
         const { bufferState, indexFormat, drawType, instanceCount, _drawArrayInfo, _drawElementInfo } = geometry;
         const { _vertexBuffers: vertexBuffers, _bindedIndexBuffer: indexBuffer } = bufferState;
 
-        let format: GPUIndexFormat = 'uint16';
         let indexByte = 2; //index的字节数
-
         if (setBuffer) {
             vertexBuffers.forEach((vb, i) => this.setVertexBuffer(i, vb.source._source, 0, vb.source._size));
             if (indexBuffer) {
-                format = (indexFormat === IndexFormat.UInt16) ? 'uint16' : 'uint32';
-                indexByte = (indexFormat === IndexFormat.UInt16) ? 2 : 4;
-                this.setIndexBuffer(indexBuffer.source._source, format, indexBuffer.source._size, 0);
+                indexByte = geometry.gpuIndexByte;
+                this.setIndexBuffer(indexBuffer.source._source, geometry.gpuIndexFormat, indexBuffer.source._size, 0);
             }
         }
 
@@ -104,32 +101,41 @@ export class WebGPURenderCommandEncoder {
         let triangles = 0;
 
         //根据不同的数据类型绘制
+        let count = 0, start = 0;
         switch (drawType) {
             case DrawType.DrawArray:
-                _drawArrayInfo.forEach(({ count, start }) => {
+                for (let i = _drawArrayInfo.length - 1; i > -1; i--) {
+                    count = _drawArrayInfo[i].count;
+                    start = _drawArrayInfo[i].start;
                     triangles += count - 2;
                     this._encoder.draw(count, 1, start, 0);
-                });
+                }
                 break;
             case DrawType.DrawElement:
-                _drawElementInfo.forEach(({ elementCount, elementStart }) => {
-                    triangles += elementCount / 3;
-                    this._encoder.drawIndexed(elementCount, 1, elementStart / indexByte, 0);
-                });
+                for (let i = _drawElementInfo.length - 1; i > -1; i--) {
+                    count = _drawElementInfo[i].elementCount;
+                    start = _drawElementInfo[i].elementStart;
+                    triangles += count / 3;
+                    this._encoder.drawIndexed(count, 1, start / indexByte, 0);
+                }
                 break;
             case DrawType.DrawArrayInstance:
-                _drawArrayInfo.forEach(({ count, start }) => {
+                for (let i = _drawArrayInfo.length - 1; i > -1; i--) {
+                    count = _drawArrayInfo[i].count;
+                    start = _drawArrayInfo[i].start;
                     triangles += (count - 2) * instanceCount;
                     this._encoder.draw(count, instanceCount, start, 0);
                     this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.C_Instancing_DrawCallCount, 1);
-                });
+                }
                 break;
             case DrawType.DrawElementInstance:
-                _drawElementInfo.forEach(({ elementCount, elementStart }) => {
-                    triangles += elementCount / 3 * instanceCount;
-                    this._encoder.drawIndexed(elementCount, instanceCount, elementStart / indexByte, 0);
+                for (let i = _drawElementInfo.length - 1; i > -1; i--) {
+                    count = _drawElementInfo[i].elementCount;
+                    start = _drawElementInfo[i].elementStart;
+                    triangles += count / 3 * instanceCount;
+                    this._encoder.drawIndexed(count, instanceCount, start / indexByte, 0);
                     this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.C_Instancing_DrawCallCount, 1);
-                });
+                }
                 break;
         }
         this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.C_TriangleCount, triangles);
@@ -147,14 +153,12 @@ export class WebGPURenderCommandEncoder {
         const { bufferState, indexFormat, drawType, instanceCount, _drawArrayInfo, _drawElementInfo } = geometry;
         const { _vertexBuffers: vertexBuffers, _bindedIndexBuffer: indexBuffer } = bufferState;
 
-        let format: GPUIndexFormat = 'uint16';
         let indexByte = 2; //index的字节数
         if (setBuffer) {
             vertexBuffers.forEach((vb, i) => this.setVertexBuffer(i, vb.source._source, 0, vb.source._size));
             if (indexBuffer) {
-                format = (indexFormat === IndexFormat.UInt16) ? 'uint16' : 'uint32';
-                indexByte = (indexFormat === IndexFormat.UInt16) ? 2 : 4;
-                this.setIndexBuffer(indexBuffer.source._source, format, indexBuffer.source._size, 0);
+                indexByte = geometry.gpuIndexByte;
+                this.setIndexBuffer(indexBuffer.source._source, geometry.gpuIndexFormat, indexBuffer.source._size, 0);
             }
         }
 
