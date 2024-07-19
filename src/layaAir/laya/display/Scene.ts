@@ -334,6 +334,12 @@ export class Scene extends Sprite {
         }
     }
 
+    /**
+     * @internal
+     * @param ctx 
+     * @param x 
+     * @param y 
+     */
     render(ctx: Context, x: number, y: number): void {
         this._preRenderUpdate(ctx, x, y)
         super.render(ctx, x, y);
@@ -341,16 +347,26 @@ export class Scene extends Sprite {
         this._recoverRenderSceneState(ctx);
     }
 
-
+    /**
+     * @internal
+     * @param ctx 
+     * @param x 
+     * @param y 
+     */
     _preRenderUpdate(ctx: Context, x: number, y: number) {
         //更新2DScene场景数据    
         this._specialManager._preRenderUpdate(ctx);
         Render2DSimple.rendercontext2D.sceneData = this._specialManager._shaderData;
     }
 
+    /**
+     * @internal
+     * @param ctx 
+     */
     _recoverRenderSceneState(ctx: Context) {
         //恢复2D场景数据状态
-        ctx.breakNextMerge();
+        ctx.drawLeftData();
+        Render2DSimple.rendercontext2D.sceneData = null;
         //Render2DSimple.rendercontext2D.sceneData = null;
     }
 

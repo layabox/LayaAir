@@ -28,7 +28,7 @@ export class Scene2DSpecialManager {
 
     _preRenderUpdate(context:Context) {
         if (this._mainCamera) {
-            context.breakNextMerge();
+            context.drawLeftData();
             this._shaderData.setMatrix3x3(Camera2D.VIEW2D, this._mainCamera._getCameraTransform());
         }
     }
