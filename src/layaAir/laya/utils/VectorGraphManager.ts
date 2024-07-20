@@ -2,14 +2,32 @@ import { CacheManger } from "./CacheManger"
 
 /**
  * @private
- * TODO:
+ * @en VectorGraphManager class for managing vector graphics.
+ * @zh 用于管理矢量图形的 VectorGraphManager 类。
  */
 export class VectorGraphManager {
-    //TODO:
+    /**
+     * @en Singleton instance of VectorGraphManager.
+     * @zh VectorGraphManager 的单例实例。
+     */
     static instance: VectorGraphManager;
 
+    /**
+     * @en Dictionary to track the usage of shapes.
+     * @zh 用于跟踪形状使用情况的字典。
+     */
     useDic: any = {};
+
+    /**
+     * @en Dictionary to store shapes.
+     * @zh 用于存储形状的字典。
+     */
     shapeDic: any = {};
+
+    /**
+     * @en Dictionary to store shape lines.
+     * @zh 用于存储形状线条的字典。
+     */
     shapeLineDic: any = {};
 
     private _id: number = 0;
@@ -20,13 +38,21 @@ export class VectorGraphManager {
         CacheManger.regCacheByFunction(this.startDispose.bind(this), this.getCacheList.bind(this));
     }
 
+    /**
+     * @en Get the singleton instance of VectorGraphManager.
+     * @returns The singleton instance of VectorGraphManager.
+     * @zh 获取 VectorGraphManager 的单例实例。
+     * @returns VectorGraphManager 的单例实例。
+     */
     static getInstance(): VectorGraphManager {
         return VectorGraphManager.instance = VectorGraphManager.instance || new VectorGraphManager();
     }
 
     /**
-     * 得到个空闲的ID
-     * @return
+     * @en Get an available ID.
+     * @returns An available ID.
+     * @zh 获取一个可用的 ID。
+     * @returns 一个可用的 ID。
      */
     getId(): number {
         //if (_freeIdArray.length > 0) {
@@ -36,9 +62,12 @@ export class VectorGraphManager {
     }
 
     /**
-     * 添加一个图形到列表中
-     * @param	id
-     * @param	shape
+     * @en Add a shape to the list.
+     * @param id The ID of the shape.
+     * @param shape The shape object.
+     * @zh 将一个形状添加到列表中。
+     * @param id 形状的 ID。
+     * @param shape 形状对象。
      */
     addShape(id: number, shape: any): void {
         this.shapeDic[id] = shape;
@@ -48,9 +77,12 @@ export class VectorGraphManager {
     }
 
     /**
-     * 添加一个线图形到列表中
-     * @param	id
-     * @param	Line
+     * @en Add a line shape to the list.
+     * @param id The ID of the line shape.
+     * @param Line The line shape object.
+     * @zh 将一个线形状添加到列表中。
+     * @param id 线形状的 ID。
+     * @param Line 线形状对象。
      */
     addLine(id: number, Line: any): void {
         this.shapeLineDic[id] = Line;
@@ -60,8 +92,10 @@ export class VectorGraphManager {
     }
 
     /**
-     * 检测一个对象是否在使用中
-     * @param	id
+     * @en Check if an object is in use.
+     * @param id The ID of the object to check.
+     * @zh 检查一个对象是否正在使用中。
+     * @param id 要检查的对象的 ID。
      */
     getShape(id: number): void {
         if (this._checkKey) {
@@ -72,8 +106,10 @@ export class VectorGraphManager {
     }
 
     /**
-     * 删除一个图形对象
-     * @param	id
+     * @en Delete a shape object.
+     * @param id The ID of the shape to delete.
+     * @zh 删除一个形状对象。
+     * @param id 要删除的形状的 ID。
      */
     deleteShape(id: number): void {
         if (this.shapeDic[id]) {
@@ -91,8 +127,10 @@ export class VectorGraphManager {
     }
 
     /**
-     * 得到缓存列表
-     * @return
+     * @en Get the cache list.
+     * @returns An array of cached objects.
+     * @zh 获取缓存列表。
+     * @returns 缓存对象的数组。
      */
     getCacheList(): any[] {
         var str: any;
@@ -107,7 +145,8 @@ export class VectorGraphManager {
     }
 
     /**
-     * 开始清理状态，准备销毁
+     * @en Start the disposal process, preparing for destruction.
+     * @zh 开始清理过程，准备销毁。
      */
     startDispose(key: boolean): void {
         var str: any;
@@ -118,7 +157,8 @@ export class VectorGraphManager {
     }
 
     /**
-     * 确认销毁
+     * @en Confirm destruction.
+     * @zh 确认销毁。
      */
     endDispose(): void {
         if (this._checkKey) {

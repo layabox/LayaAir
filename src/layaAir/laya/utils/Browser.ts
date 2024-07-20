@@ -2,86 +2,222 @@ import { Config } from "../../Config";
 import { ILaya } from "../../ILaya";
 
 /**
- * <code>Browser</code> 是浏览器代理类。封装浏览器及原生 js 提供的一些功能。
+ * @en Browser is a browser proxy class. Encapsulate some of the features provided by the browser and native JavaScript.
+ * @zh Browser 是浏览器代理类。封装浏览器及原生 js 提供的一些功能。
  */
 export class Browser {
 
-    /** 浏览器代理信息。*/
+    /**
+     * @en Browser proxy information.
+     * @zh 浏览器代理信息。
+     */
     static userAgent: string;
-    /** 表示是否在移动设备，包括IOS和安卓等设备内。*/
+
+    /**
+     * @en Indicates whether the current environment is a mobile device, including iOS and Android devices.
+     * @zh 表示当前环境是否为移动设备，包括 iOS 和 Android 设备。
+     */
     static onMobile: boolean;
-    /** 表示是否在 IOS 设备内。*/
+
+    /**
+     * @en Indicates whether the current environment is within an iOS device.
+     * @zh 表示当前环境是否在 IOS 设备内。
+     */
     static onIOS: boolean;
-    /** 表示是否在 Mac 设备。*/
+
+    /**
+     * @en Indicates whether the current environment is a Mac device.
+     * @zh 表示当前环境是否为 Mac 设备。
+     */
     static onMac: boolean;
-    /** 表示是否在 IPhone 设备内。*/
+
+    /**
+     * @en Indicates whether the current environment is within an iPhone.
+     * @zh 表示当前环境是否在 iPhone 内。
+     */
     static onIPhone: boolean;
-    /** 表示是否在 IPad 设备内。*/
+
+    /**
+     * @en Indicates whether the current environment is within an iPad.
+     * @zh 表示当前环境是否在 iPad 内。
+     */
     static onIPad: boolean;
-    /** 表示是否在 Android 设备内。*/
+
+    /**
+     * @en Indicates whether the current environment is within an Android device.
+     * @zh 表示当前环境是否在 Android 设备内。
+     */
     static onAndroid: boolean;
-    /** 表示是否在 Windows Phone 设备内。*/
+
+    /**
+     * @en Indicates whether the current environment is within a Windows Phone device.
+     * @zh 表示当前环境是否在 Windows Phone 设备内。
+     */
     static onWP: boolean;
-    /** 表示是否在 QQ 浏览器内。*/
+
+    /**
+     * @en Indicates whether the current environment is within the QQ browser.
+     * @zh 表示当前环境是否在 QQ 浏览器内。
+     */
     static onQQBrowser: boolean;
-    /** 表示是否在移动端 QQ 或 QQ 浏览器内。*/
+
+    /**
+     * @en Indicates whether the current environment is within the mobile QQ or QQ browser.
+     * @zh 表示当前环境是否在移动 QQ 或 QQ 浏览器内。
+     */
     static onMQQBrowser: boolean;
-    /** 表示是否在 Safari 内。*/
+
+    /**
+     * @en Indicates whether the current environment is within Safari.
+     * @zh 表示当前环境是否在 Safari 内。
+     */
     static onSafari: boolean;
-    /** 表示是否在 Chrome 内 */
+
+    /**
+     * @en Indicates whether the current environment is within Chrome.
+     * @zh 表示当前环境是否在 Chrome 内。
+     */
     static onChrome: boolean;
-    /** 表示是否在 IE 浏览器内*/
+
+    /**
+     * @en Indicates whether the current environment is within the Internet Explorer browser.
+     * @zh 表示当前环境是否在 Internet Explorer 浏览器内。
+     */
     static onIE: boolean;
-    /** 表示是否在 微信 内*/
+
+    /**
+     * @en Indicates whether the current environment is within WeChat.
+     * @zh 表示当前环境是否在微信内。
+     */
     static onWeiXin: boolean;
-    /** 表示是否在 PC 端。*/
+
+    /**
+     * @en Indicates whether the current environment is a PC.
+     * @zh 表示当前环境是否为 PC。
+     */
     static onPC: boolean;
-    /** 微信小游戏 **/
+
+    /**
+     * @en Indicates whether the current environment is a WeChat mini-game.
+     * @zh 表示当前环境是否是微信小游戏。
+     */
     static onMiniGame: boolean;
-    /** 百度小游戏 **/
+
+    /**
+     * @en Indicates whether the current environment is a Baidu mini-game.
+     * @zh 表示当前环境是否是百度小游戏。
+     */
     static onBDMiniGame: boolean;
-    /** 小米戏小游戏 **/
+
+    /**
+     * @en Indicates whether the current environment is a Xiaomi mini-game.
+     * @zh 表示当前环境是否是小米小游戏。
+     */
     static onKGMiniGame: boolean;
-    /** OPPO小游戏 **/
+
+    /**
+     * @en Indicates whether the current environment is an OPPO mini-game.
+     * @zh 表示当前环境是否是 OPPO 小游戏。
+     */
     static onQGMiniGame: boolean;
-    /** VIVO小游戏 **/
+
+    /**
+     * @en Indicates whether the current environment is a VIVO mini-game.
+     * @zh 表示当前环境是否是 vivo 小游戏。
+     */
     static onVVMiniGame: boolean;
-    /** 阿里小游戏 **/
+
+    /**
+     * @en Indicates whether the current environment is an Alipay mini-game.
+     * @zh 表示当前环境是否是支付宝小游戏。
+     */
     static onAlipayMiniGame: boolean;
-    /***手机QQ小游戏 */
+
+    /**
+     * @en Indicates whether the current environment is a QQ mini-game on mobile.
+     * @zh 表示当前环境是否是手机 QQ 小游戏。
+     */
     static onQQMiniGame: boolean;
-    /*** BILIBILI小游戏 */
+
+    /**
+     * @en Indicates whether the current environment is a BILIBILI mini-game.
+     * @zh 表示当前环境是否是 BILIBILI 小游戏。
+     */
     static onBLMiniGame: boolean;
-    /** 抖音小游戏*/
+
+    /**
+     * @en Indicates whether the current environment is a TikTok (Douyin) mini-game.
+     * @zh 表示当前环境是否是抖音小游戏。
+     */
     static onTTMiniGame: boolean;
-    /** 华为快游戏 */
+
+    /**
+     * @en Indicates whether the current environment is a Huawei mini-game.
+     * @zh 表示当前环境是否是华为快游戏。
+     */
     static onHWMiniGame: boolean;
-    /** 淘宝小程序 */
+
+    /**
+     * @en Indicates whether the current environment is a Taobao mini-game.
+     * @zh 表示当前环境是否是淘宝小游戏。
+     */
     static onTBMiniGame: boolean;
-    /** @private */
-    static onFirefox: boolean;//TODO:求补充
-    /** Edge浏览器 */
+
+    /**
+     * @private
+     * @en Indicates whether the current environment is the Firefox browser.
+     * @zh 表示当前环境是否是 Firefox 浏览器。
+     */
+    static onFirefox: boolean;
+
+    /**
+     * @en Indicates whether the current environment is the Edge browser.
+     * @zh 表示当前环境是否是 Edge 浏览器。
+     */
     static onEdge: boolean;
-    /** @private */
+
+    /**
+     * @private
+     * @en Indicates whether the current environment is running on LayaAir Native Runtime.
+     * @zh 表示当前环境是否运行在 LayaAir Native Runtime。
+     */
     static onLayaRuntime: boolean;
 
-    /** 真实平台类型，onMobile等是通过UserAgent判断，可能具有欺骗性 **/
+    /**
+     * @en The actual platform type, OnMobile and others are determined through UserAgent, which may be faked.
+     * @zh 真实平台类型，onMobile等是通过UserAgent判断，可能具有欺骗性
+     */
     static platform: number;
     static PLATFORM_PC = 0;
     static PLATFORM_ANDROID = 1;
     static PLATFORM_IOS = 2;
 
-    /** 表示是否支持WebAudio*/
+    /**
+     * @en Indicates whether the environment supports WebAudio.
+     * @zh 表示环境是否支持 WebAudio。
+     */
     static supportWebAudio: boolean;
-    /** 表示是否支持LocalStorage*/
+    /**
+     * @en Indicates whether the environment supports LocalStorage.
+     * @zh 表示环境是否支持 LocalStorage。
+     */
     static supportLocalStorage: boolean;
 
-    /** 全局离线画布（非主画布）。主要用来测量字体、获取image数据。*/
+    /**
+     * @en The global offline canvas (not the main canvas), used primarily for measuring text and obtaining image data.
+     * @zh 全局离线画布（非主画布），主要用来测量文本和获取图像数据。
+     */
     static canvas: any;
-    /** 全局离线画布上绘图的环境（非主画布）。 */
+    /**
+     * @en The rendering context of the global offline canvas (not the main canvas).
+     * @zh 全局离线画布上绘图的环境（非主画布）。
+     */
     static context: CanvasRenderingContext2D;
 
-    /** 小游戏平台服务对象 */
+    /**
+     * @en The service object for mini-game platform services.
+     * @zh 小游戏平台服务对象。
+     */
     static miniGameContext: any;
 
     /** @private */
@@ -302,16 +438,22 @@ export class Browser {
         return win;
     }
     /**
-     * 获取是否为小游戏环境
+     * @en Gets whether it is a mini game environment
+     * @returns onMiniGame || onBDMiniGame || onQGMiniGame || onKGMiniGame || onVVMiniGame || onAlipayMiniGame || onQQMiniGame || onBLMiniGame || onTTMiniGame || onHWMiniGame || onTBMiniGame
+     * @zh 获取是否为小游戏环境
      * @returns onMiniGame || onBDMiniGame || onQGMiniGame || onKGMiniGame || onVVMiniGame || onAlipayMiniGame || onQQMiniGame || onBLMiniGame || onTTMiniGame || onHWMiniGame || onTBMiniGame
      */
     static get _isMiniGame(): boolean {
         return Browser.onMiniGame || Browser.onBDMiniGame || Browser.onQGMiniGame || Browser.onKGMiniGame || Browser.onVVMiniGame || Browser.onAlipayMiniGame || Browser.onQQMiniGame || Browser.onBLMiniGame || Browser.onTTMiniGame || Browser.onHWMiniGame || Browser.onTBMiniGame || (Browser.window && Browser.window.isWXMiMi);
     }
+
     /**
-     * 创建浏览器原生节点。
-     * @param	type 节点类型。
-     * @return	创建的节点对象的引用。
+     * @en Creates a native browser element of the specified type.
+     * @param type The type of node to create.
+     * @return A reference to the created node object.
+     * @zh 创建指定类型的浏览器原生节点。
+     * @param type 要创建的节点类型。
+     * @return 创建的节点对象的引用。
      */
     static createElement(type: string): any {
         Browser.__init__();
@@ -319,9 +461,12 @@ export class Browser {
     }
 
     /**
-     * 返回 Document 对象中拥有指定 id 的第一个对象的引用。
-     * @param	type 节点id。
-     * @return	节点对象。
+     * @en Returns a reference to the first object in the Document object with the specified id.
+     * @param id The id of the node.
+     * @return The node object.
+     * @zh 返回 Document 对象中拥有指定 id 的第一个对象的引用。
+     * @param type 节点的 id。
+     * @return 节点对象。
      */
     static getElementById(type: string): any {
         Browser.__init__();
@@ -329,23 +474,30 @@ export class Browser {
     }
 
     /**
-     * 移除指定的浏览器原生节点对象。
-     * @param	type 节点对象。
+     * @en Removes the specified native browser node object from the DOM.
+     * @param ele The node object to be removed.
+     * @zh 移除指定的浏览器原生节点对象。
+     * @param ele 要移除的节点对象。
      */
     static removeElement(ele: any): void {
         if (ele && ele.parentNode) ele.parentNode.removeChild(ele);
     }
 
     /**
-     * 获取浏览器当前时间戳，单位为毫秒。
+     * @en Gets the current timestamp in milliseconds since the epoch.
+     * @zh 获取浏览器当前时间戳，单位为毫秒。
      */
     static now(): number {
         return Date.now();
     }
 
     /**
-     * 浏览器窗口可视宽度。
-     * 通过分析浏览器信息获得。浏览器多个属性值优先级为：window.innerWidth(包含滚动条宽度) > document.body.clientWidth(不包含滚动条宽度)，如果前者为0或为空，则选择后者。
+     * @en The viewport width of the browser window.
+     * The method analyzes the browser information to determine the width, with a priority given to `window.innerWidth` (includes scrollbar width) > `document.body.clientWidth` (does not include scrollbar width).
+     * If the former is 0 or undefined, the latter is chosen.
+     * @zh 浏览器窗口的可视宽度。
+     * 通过分析浏览器信息获得。浏览器多个属性值优先级为：window.innerWidth(包含滚动条宽度) > document.body.clientWidth(不包含滚动条宽度)，
+     * 如果前者为 0 或未定义，则选择后者。
      */
     static get clientWidth(): number {
         Browser.__init__();
@@ -357,8 +509,12 @@ export class Browser {
     }
 
     /**
-     * 浏览器窗口可视高度。
-     * 通过分析浏览器信息获得。浏览器多个属性值优先级为：window.innerHeight(包含滚动条高度) > document.body.clientHeight(不包含滚动条高度) > document.documentElement.clientHeight(不包含滚动条高度)，如果前者为0或为空，则选择后者。
+     * @en The viewport height of the browser window.
+     * The method analyzes the browser information to determine the height, with a priority given to `window.innerHeight` (includes scrollbar height) > `document.body.clientHeight` (excluding scrollbar height) > `document.documentElement.clientHeight` (both do not include scrollbar height).
+     * If the former is 0 or undefined, it falls back to the latter.
+     * @zh 浏览器窗口的可视高度。
+     * 通过分析浏览器信息获得。浏览器多个属性值优先级为：window.innerHeight(包含滚动条高度) > document.body.clientHeight(不包含滚动条高度) > document.documentElement.clientHeight，
+     * 如果前者为 0 或未定义，则选择后者。
      */
     static get clientHeight(): number {
         Browser.__init__();
@@ -369,19 +525,28 @@ export class Browser {
         Browser._clientHeight = value;
     }
 
-    /** 浏览器窗口物理宽度。考虑了设备像素比。*/
+    /**
+     * @en The physical width of the browser window, taking into account the device pixel ratio.
+     * @zh 浏览器窗口的物理宽度，考虑了设备像素比。
+     */
     static get width(): number {
         Browser.__init__();
         return ((ILaya.stage && ILaya.stage.canvasRotation) ? Browser.clientHeight : Browser.clientWidth) * Browser.pixelRatio;
     }
 
-    /** 浏览器窗口物理高度。考虑了设备像素比。*/
+    /**
+     * @en The physical height of the browser window, taking into account the device pixel ratio.
+     * @zh 浏览器窗口的物理高度，考虑了设备像素比。
+     */
     static get height(): number {
         Browser.__init__();
         return ((ILaya.stage && ILaya.stage.canvasRotation) ? Browser.clientWidth : Browser.clientHeight) * Browser.pixelRatio;
     }
 
-    /** 获得设备像素比。*/
+    /**
+     * @en The device pixel ratio of the current environment.
+     * @zh 当前环境的设备像素比。
+     */
     static get pixelRatio(): number {
         if (Browser._pixelRatio < 0) {
             Browser.__init__();
@@ -394,7 +559,10 @@ export class Browser {
         return Browser._pixelRatio;
     }
 
-    /**画布容器，用来盛放画布的容器。方便对画布进行控制*/
+    /**
+     * @en The canvas container that holds the canvas element, facilitating control over the canvas.
+     * @zh 用来存放画布元素的容器，方便对画布进行控制。
+     */
     static get container(): any {
         if (!Browser._container) {
             Browser.__init__();
@@ -409,21 +577,30 @@ export class Browser {
         Browser._container = value;
     }
 
-    /**浏览器原生 window 对象的引用。*/
+    /**
+     * @en Reference to the browser native window object.
+     * @zh 浏览器原生 window 对象的引用。
+     */
     static get window(): any {
         return Browser._window || Browser.__init__();
     }
 
-    /**浏览器原生 document 对象的引用。*/
+    /**
+     * @en Reference to the browser native document object.
+     * @zh 浏览器原生 document 对象的引用。
+     */
     static get document(): any {
         Browser.__init__();
         return Browser._document;
     }
 
     /**
-     * 获得URL参数值
-     * @param	name 参数名称
-     * @return	参数值
+     * @en Gets the value of a URL parameter.
+     * @param name The name of the parameter.
+     * @return The value of the parameter.
+     * @zh 获取 URL 参数的值。
+     * @param name 参数的名称。
+     * @return 参数的值。
      */
     static getQueryString(name: string): string {
         if (Browser.onMiniGame) return null;
@@ -435,11 +612,18 @@ export class Browser {
         return null;
     }
 
-    // Safari横屏工具栏偏移
+    /**
+     * @en Safari landscape toolbar offset
+     * @zh Safari横屏工具栏偏移
+     */
     static getSafariToolbarOffset() {
         return (Browser.window.__innerHeight || Browser.document.body.clientHeight || Browser.document.documentElement.clientHeight) - Browser.window.innerHeight;
     }
 
+    /**
+     * @en Dynamically loads a JavaScript library from the specified source.
+     * @zh 从指定源动态加载 JavaScript 库。
+     */
     static loadLib(src: string) {
         return new Promise<void>((resolve, reject) => {
             let script = Browser.document.createElement('script');

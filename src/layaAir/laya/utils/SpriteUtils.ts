@@ -8,13 +8,20 @@ import { Utils } from "./Utils";
 export class SpriteUtils {
     /**
      * @private
-     * 根据传入的显示对象 <code>Sprite</code> 和此显示对象上的 两个点，返回此对象上的两个点在舞台坐标系上组成的最小的矩形区域对象。
-     * @param	sprite 显示对象 <code>Sprite</code>。
-     * @param	x0	点一的 X 轴坐标点。
-     * @param	y0	点一的 Y 轴坐标点。
-     * @param	x1	点二的 X 轴坐标点。
-     * @param	y1	点二的 Y 轴坐标点。
-     * @return 两个点在舞台坐标系组成的矩形对象 <code>Rectangle</code>。
+     * @en Returns the smallest rectangular area object composed of two points on the stage coordinate system for the given display object Sprite.
+     * @param sprite The display object Sprite.
+     * @param x0 The X-axis coordinate of the first point.
+     * @param y0 The Y-axis coordinate of the first point.
+     * @param x1 The X-axis coordinate of the second point.
+     * @param y1 The Y-axis coordinate of the second point.
+     * @return The rectangle object Rectangle composed of the two points on the stage coordinate system.
+     * @zh 根据传入的显示对象 Sprite 和此显示对象上的两个点，返回这两点在舞台坐标系上组成的最小矩形区域对象。
+     * @param sprite 显示对象 Sprite。
+     * @param x0 点一的 X 轴坐标。
+     * @param y0 点一的 Y 轴坐标。
+     * @param x1 点二的 X 轴坐标。
+     * @param y1 点二的 Y 轴坐标。
+     * @return 两个点在舞台坐标系组成的矩形对象 Rectangle。
      */
     static getGlobalRecByPoints(sprite: Sprite, x0: number, y0: number, x1: number, y1: number): Rectangle {
         var newLTPoint: Point;
@@ -30,21 +37,29 @@ export class SpriteUtils {
     }
 
     /**
-     * 计算传入的显示对象 <code>Sprite</code> 的全局坐标系的坐标和缩放值，返回 <code>Rectangle</code> 对象存放计算出的坐标X值、Y值、ScaleX值、ScaleY值。
-     * @param	sprite <code>Sprite</code> 对象。
-     * @return  矩形对象 <code>Rectangle</code>
+     * @en Calculates the global coordinates and scaling values of the specified Sprite display object, and returns a Rectangle object containing the calculated X and Y coordinates as well as the scaleX and scaleY values.
+     * @param sprite The Sprite object to calculate.
+     * @returns The Rectangle object with the calculated values.
+     * @zh 计算传入的显示对象 Sprite 在全局坐标系中的坐标和缩放值，返回一个 Rectangle 对象，存放计算出的坐标 X 值、Y 值、ScaleX 值和 ScaleY 值。
+     * @param	sprite Sprite 对象。
+     * @return  矩形对象 Rectangle。
      */
     static getGlobalPosAndScale(sprite: Sprite): Rectangle {
         return SpriteUtils.getGlobalRecByPoints(sprite, 0, 0, 1, 1);
     }
 
     /**
-    * 获取指定区域内相对于窗口左上角的transform。
-    * @param	coordinateSpace	坐标空间，不能是Stage引用
-    * @param	x				相对于coordinateSpace的x坐标
-    * @param	y				相对于coordinateSpace的y坐标
-    * @return
-    */
+     * @en Retrieves the transform of a specified area relative to the top-left corner of the window.
+     * @param coordinateSpace The coordinate space, must not be a Stage reference.
+     * @param x The x coordinate relative to the `coordinateSpace`.
+     * @param y The y coordinate relative to the `coordinateSpace`.
+     * @returns An object containing the transformed x, y coordinates, and scale factor.
+     * @zh 获取指定区域内相对于窗口左上角的transform。
+     * @param	coordinateSpace	坐标空间，不能是Stage引用
+     * @param	x				相对于coordinateSpace的x坐标
+     * @param	y				相对于coordinateSpace的y坐标
+     * @returns 包含转换后的x、y坐标以及缩放因子的对象
+     */
     static getTransformRelativeToWindow(coordinateSpace: Sprite, x: number, y: number): any {
         var stage = ILaya.stage;
 
@@ -120,7 +135,14 @@ export class SpriteUtils {
     }
 
     /**
-     * 使DOM元素使用舞台内的某块区域内。
+     * @en Make a DOM element fit within a specific area of the stage.
+     * @param dom The reference to the DOM element.
+     * @param coordinateSpace The coordinate space. It should not be a reference to Stage.
+     * @param x The x coordinate relative to the coordinateSpace.
+     * @param y The y coordinate relative to the coordinateSpace.
+     * @param width The width of the area.
+     * @param height The height of the area.
+     * @zh 使DOM元素适应舞台内指定区域。
      * @param	dom				DOM元素引用
      * @param	coordinateSpace	坐标空间，不能是Stage引用
      * @param	x				相对于coordinateSpace的x坐标
@@ -144,13 +166,18 @@ export class SpriteUtils {
         dom.style.left = transform.x + 'px';
         dom.style.top = transform.y + 'px';
     }
-
+    
 
     /**
      * @private
-     * 对传入的数组列表，根据子项的属性 Z 值进行重新排序。返回是否已重新排序的 Boolean 值。
-     * @param	array 子对象数组。
-     * @return	Boolean 值，表示是否已重新排序。
+     * @en Reorders the passed array of items based on the Z property of the child items.
+     * Returns a Boolean value indicating whether the array has been reordered.
+     * @param array The array of child objects.
+     * @return A Boolean value indicating if the array has been reordered.
+     * @zh 根据子项的 Z 属性值对传入的数组列表进行重新排序。
+     * 返回一个 Boolean 值，表示是否已重新排序。
+     * @param array 子对象数组。
+     * @return Boolean 值，表示是否已重新排序。
      */
     static updateOrder(array: any[]): boolean {
         if (!array || array.length < 2) return false;

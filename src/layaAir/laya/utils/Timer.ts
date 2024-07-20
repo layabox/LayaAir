@@ -2,7 +2,8 @@ import { CallLater } from "./CallLater";
 import { Utils } from "./Utils";
 
 /**
- * <code>Timer</code> 是时钟管理类。它是一个单例，不要手动实例化此类，应该通过 Laya.timer 访问。
+ * @en The `Timer` class is responsible for time management. It is a singleton and should not be instantiated manually. Access it via `Laya.timer`
+ * @zh Timer 是时钟管理类。它是一个单例，不要手动实例化此类，应该通过 Laya.timer 访问。
  */
 export class Timer {
     /**@private */
@@ -14,13 +15,26 @@ export class Timer {
     static _mid: number = 1;
 
 
-    /** 时针缩放。*/
+    /**
+     * @en Scale of the clock hand.
+     * @zh 时针的缩放比例。
+     */
     scale: number = 1;
-    /** 当前帧开始的时间。*/
+    /**
+     * @en The start time of the current frame.
+     * @zh 当前帧的开始时间。
+     */
     currTimer: number;
-    /** 当前的帧数。*/
+    /**
+     * @en The current frame count.
+     * @zh 当前的帧数。
+     */
     currFrame: number = 0;
-    /**@internal 两帧之间的时间间隔,单位毫秒。*/
+    /**
+     * @internal
+     * @en The time interval between two frames, in milliseconds.
+     * @zh 两帧之间的时间间隔，单位毫秒。
+     */
     _delta: number = 0;
     /**@internal */
     _lastTimer: number;
@@ -34,7 +48,8 @@ export class Timer {
     private _count: number = 0;
 
     /**
-     * 创建 <code>Timer</code> 类的一个实例。
+     * @en Constructor method
+     * @zh 构造方法
      */
     constructor(autoActive: boolean = true) {
         autoActive && Timer.gSysTimer && Timer.gSysTimer.frameLoop(1, this, this._update);
@@ -42,7 +57,10 @@ export class Timer {
         this._lastTimer = this._getNowData();
     }
 
-    /**两帧之间的时间间隔,单位毫秒。*/
+    /**
+     * @en The time interval between two frames, in milliseconds.
+     * @zh 两帧之间的时间间隔，单位毫秒。
+     */
     get delta(): number {
         return this._delta;
     }
@@ -50,7 +68,8 @@ export class Timer {
 
     /**
      * @internal
-     * 帧循环处理函数。
+     * @en The frame update handling function.
+     * @zh 帧循环处理函数。
      */
     _update(): void {
         if (this.scale <= 0) {
@@ -121,8 +140,10 @@ export class Timer {
 
     /**
      * @private
-     * get now time data
-     * @returns 
+     * @en get now time data.
+     * @returns reutrn time data.
+     * @zh 立即获取时间数据
+     * @returns 返回时间数据
      */
     public _getNowData(): number {
         return Date.now();
@@ -181,25 +202,38 @@ export class Timer {
     }
 
     /**
-     * 定时执行一次。
-     * @param	delay	延迟时间(单位为毫秒)。
-     * @param	caller	执行域(this)。
-     * @param	method	定时器回调函数。
-     * @param	args	回调参数。
-     * @param	coverBefore	是否覆盖之前的延迟执行，默认为 true 。
+     * Executes once after a delay.
+     * @param delay The delay time in milliseconds.
+     * @param caller The scope of the object (this).
+     * @param method The callback function to be executed by the timer.
+     * @param args The arguments to pass to the callback function.
+     * @param coverBefore Whether to overwrite previous delayed execution, default is true.
+     * @zh 定时执行一次。
+     * @param delay 延迟时间(单位为毫秒)。
+     * @param caller 执行域(this)。
+     * @param method 定时器回调函数。
+     * @param args 回调参数。
+     * @param coverBefore 是否覆盖之前的延迟执行，默认为 true 。
      */
     once(delay: number, caller: any, method: Function, args: any[] = null, coverBefore: boolean = true): void {
         this._create(false, false, delay, caller, method, args, coverBefore);
     }
 
     /**
-     * 定时重复执行。
-     * @param	delay	间隔时间(单位毫秒)。
-     * @param	caller	执行域(this)。
-     * @param	method	定时器回调函数。
-     * @param	args	回调参数。
-     * @param	coverBefore	是否覆盖之前的延迟执行，默认为 true 。
-     * @param	jumpFrame 时钟是否跳帧。基于时间的循环回调，单位时间间隔内，如能执行多次回调，出于性能考虑，引擎默认只执行一次，设置jumpFrame=true后，则回调会连续执行多次
+     * Repeatedly executes at intervals.
+     * @param delay The interval time in milliseconds.
+     * @param caller The scope of the object (this).
+     * @param method The callback function to be executed by the timer.
+     * @param args The arguments to pass to the callback function.
+     * @param coverBefore Whether to overwrite previous delayed execution, default is true.
+     * @param jumpFrame Whether to jump frames. For time-based callbacks, if multiple callbacks can be executed within a given time interval, the engine defaults to executing once for performance reasons. Setting `jumpFrame` to true will allow multiple executions in quick succession.
+     * @zh 定时重复执行。
+     * @param delay 间隔时间(单位毫秒)。
+     * @param caller 执行域(this)。
+     * @param method 定时器回调函数。
+     * @param args 回调参数。
+     * @param coverBefore 是否覆盖之前的延迟执行，默认为 true 。
+     * @param jumpFrame 时钟是否跳帧。基于时间的循环回调，单位时间间隔内，如能执行多次回调，出于性能考虑，引擎默认只执行一次，设置jumpFrame=true后，则回调会连续执行多次。
      */
     loop(delay: number, caller: any, method: Function, args: any[] = null, coverBefore: boolean = true, jumpFrame: boolean = false): void {
         var handler: TimerHandler = this._create(false, true, delay, caller, method, args, coverBefore);
@@ -207,38 +241,56 @@ export class Timer {
     }
 
     /**
-     * 定时执行一次(基于帧率)。
-     * @param	delay	延迟几帧(单位为帧)。
-     * @param	caller	执行域(this)。
-     * @param	method	定时器回调函数。
-     * @param	args	回调参数。
-     * @param	coverBefore	是否覆盖之前的延迟执行，默认为 true 。
+     * Executes once after a delay in frames.
+     * @param delay The delay time in frames.
+     * @param caller The scope of the object (this).
+     * @param method The callback function to be executed by the timer.
+     * @param args The arguments to pass to the callback function.
+     * @param coverBefore Whether to overwrite previous delayed execution, default is true.
+     * @zh 定时执行一次（基于帧率）。
+     * @param delay 延迟几帧（单位为帧）。
+     * @param caller 执行域（this）。
+     * @param method 定时器回调函数。
+     * @param args 回调参数。
+     * @param coverBefore 是否覆盖之前的延迟执行，默认为 true。
      */
     frameOnce(delay: number, caller: any, method: Function, args: any[] = null, coverBefore: boolean = true): void {
         this._create(true, false, delay, caller, method, args, coverBefore);
     }
 
     /**
-     * 定时重复执行(基于帧率)。
-     * @param	delay	间隔几帧(单位为帧)。
-     * @param	caller	执行域(this)。
-     * @param	method	定时器回调函数。
-     * @param	args	回调参数。
-     * @param	coverBefore	是否覆盖之前的延迟执行，默认为 true 。
+     * Repeatedly executes at frame intervals.
+     * @param delay The interval time in frames.
+     * @param caller The scope of the object (this).
+     * @param method The callback function to be executed by the timer.
+     * @param args The arguments to pass to the callback function.
+     * @param coverBefore Whether to overwrite previous delayed execution, default is true.
+     * @zh 定时重复执行（基于帧率）。
+     * @param delay 间隔几帧（单位为帧）。
+     * @param caller 执行域（this）。
+     * @param method 定时器回调函数。
+     * @param args 回调参数。
+     * @param coverBefore 是否覆盖之前的延迟执行，默认为 true。
      */
     frameLoop(delay: number, caller: any, method: Function, args: any[] = null, coverBefore: boolean = true): void {
         this._create(true, true, delay, caller, method, args, coverBefore);
     }
 
-    /** 返回统计信息。*/
+    /**
+     * @en Return statistical information
+     * @zh 返回统计信息
+     */
     toString(): string {
         return " handlers:" + this._handlers.length + " pool:" + Timer._pool.length;
     }
 
     /**
-     * 清理定时器。
-     * @param	caller 执行域(this)。
-     * @param	method 定时器回调函数。
+     * @en Cleaning the timer.
+     * @param caller The scope of the object (this).
+     * @param method Timer callback function.
+     * @zh 清理定时器。
+     * @param caller 执行域（this）。
+     * @param method 定时器回调函数。
      */
     clear(caller: any, method: Function): void {
         var handler: TimerHandler = this._getHandler(caller, method);
@@ -248,8 +300,10 @@ export class Timer {
     }
 
     /**
-     * 清理对象身上的所有定时器。
-     * @param	caller 执行域(this)。
+     * @en Clears all timers associated with the object.
+     * @param caller The scope of the object (this).
+     * @zh 清理对象身上的所有定时器。
+     * @param caller  执行域(this)。
      */
     clearAll(caller: any): void {
         if (!caller) return;
@@ -270,7 +324,11 @@ export class Timer {
     }
 
     /**
-     * 延迟执行。
+     * @en Delays the execution.
+     * @param caller The scope of the object (this).
+     * @param method The timer callback function. 
+     * @param args The callback arguments. Default is null.
+     * @zh 延迟执行。
      * @param	caller 执行域(this)。
      * @param	method 定时器回调函数。
      * @param	args 回调参数。
@@ -280,7 +338,10 @@ export class Timer {
     }
 
     /**
-     * 立即执行 callLater 。
+     * @en Immediately executes the callLater.
+     * @param caller The scope of the object (this).
+     * @param method The callback function for the timer.
+     * @zh 立即执行 callLater。
      * @param	caller 执行域(this)。
      * @param	method 定时器回调函数。
      */
@@ -289,7 +350,10 @@ export class Timer {
     }
 
     /**
-     * 取消执行 callLater 。
+     * @en Cancels the execution of callLater.
+     * @param caller The scope of the object (this).
+     * @param method The callback function for the timer.
+     * @zh 取消执行 callLater。
      * @param	caller 执行域(this)。
      * @param	method 定时器回调函数。
      */
@@ -298,9 +362,12 @@ export class Timer {
     }
 
     /**
-     * 立即提前执行定时器，执行之后从队列中删除
-     * @param	caller 执行域(this)。
-     * @param	method 定时器回调函数。
+     * @en Immediately advance the timer, execute it, and then remove it from the queue.
+     * @param caller The scope of the object (this).
+     * @param method Timer callback function.
+     * @zh 立即提前执行定时器，执行后从队列中删除。
+     * @param caller 执行域(this)。
+     * @param method 定时器回调函数。
      */
     runTimer(caller: any, method: Function): void {
         var handler: TimerHandler = this._getHandler(caller, method);
@@ -311,21 +378,24 @@ export class Timer {
     }
 
     /**
-     * 暂停时钟
+     * @en Pause the clock.
+     * @zh 暂停时钟。
      */
     pause(): void {
         this.scale = 0;
     }
 
     /**
-     * 恢复时钟
+     * @en Resume the clock.
+     * @zh 恢复时钟。
      */
     resume(): void {
         this.scale = 1;
     }
 
     /**
-     * 删除始终，同时清理时钟上面所有事件
+     * @en Destroy the timer, and clear all events on the timer.
+     * @zh 删除定时器，同时清理定时器上的所有事件。
      */
     destroy() {
         for (var i = 0, n = this._handlers.length; i < n; i++) {
@@ -342,22 +412,76 @@ export class Timer {
 
 /** @private */
 class TimerHandler {
+    /**
+     * @en The key of the timer handler.
+     * @zh 定时器处理程序的键。
+     */
     key: string;
+
+    /**
+     * @en Whether the timer should repeat.
+     * @zh 定时器是否应该重复。
+     */
     repeat: boolean;
+
+    /**
+     * @en The delay between executions in milliseconds.
+     * @zh 执行之间的延迟，以毫秒为单位。
+     */
     delay: number;
+
+    /**
+     * @en Whether to use frame-based timing.
+     * @zh 是否使用基于帧的计时。
+     */
     userFrame: boolean;
+
+    /**
+     * @en The execution time of the timer.
+     * @zh 定时器的执行时间。
+     */
     exeTime: number;
+
+    /**
+     * @en The caller object for the timer method.
+     * @zh 定时器方法的调用者对象。
+     */
     caller: any
+
+    /**
+     * @en The method to be executed by the timer.
+     * @zh 定时器要执行的方法。
+     */
     method: Function;
+
+    /**
+     * @en The arguments to be passed to the timer method.
+     * @zh 要传递给定时器方法的参数。
+     */
     args: any[];
+
+    /**
+     * @en Whether to jump frames.
+     * @zh 是否跳帧。
+     */
     jumpFrame: boolean;
 
+    /**
+     * @en Clear the timer handler by setting its properties to null.
+     * @zh 通过将其属性设置为 null 来清除定时器处理程序。
+     */
     clear(): void {
         this.caller = null;
         this.method = null;
         this.args = null;
     }
 
+    /**
+     * @en Run the timer handler method.
+     * @param withClear Whether to clear the handler after execution.
+     * @zh 运行定时器处理程序方法。
+     * @param withClear 是否在执行后清除处理程序。
+     */
     run(withClear: boolean): void {
         var caller: any = this.caller;
         if (caller && caller.destroyed) return this.clear();

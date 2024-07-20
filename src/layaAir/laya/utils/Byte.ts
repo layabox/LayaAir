@@ -1,21 +1,27 @@
 import { Matrix } from "../maths/Matrix"
 
 /**
- * <p> <code>Byte</code> 类提供用于优化读取、写入以及处理二进制数据的方法和属性。</p>
- * <p> <code>Byte</code> 类适用于需要在字节层访问数据的高级开发人员。</p>
+ * @en The Byte class provides methods and properties for optimizing the reading, writing, and handling of binary data. The Byte class is suitable for advanced developers who need to access data at the byte level.
+ * @zh Byte 类提供用于优化读取、写入以及处理二进制数据的方法和属性。Byte 类适用于需要在字节层访问数据的高级开发人员。
  */
 export class Byte {
 
     /**
-     * <p>主机字节序，是 CPU 存放数据的两种不同顺序，包括小端字节序和大端字节序。通过 <code>getSystemEndian</code> 可以获取当前系统的字节序。</p>
-     * <p> <code>BIG_ENDIAN</code> ：大端字节序，地址低位存储值的高位，地址高位存储值的低位。有时也称之为网络字节序。<br/>
-     * <code>LITTLE_ENDIAN</code> ：小端字节序，地址低位存储值的低位，地址高位存储值的高位。</p>
+     * @en Host byte order, which represents the two different sequences in which a CPU can store data: little-endian and big-endian. Use getSystemEndian to obtain the byte order of the current system.
+     * BIG_ENDIAN byte order: The lower address stores, the higher bits of the value, and the higher address stores the lower bits. It is sometimes referred to as network byte order.
+     * LITTLE_ENDIAN byte order: The lower address stores, the lower bits of the value, and the higher address stores the higher bits.
+     * @zh 主机字节序，是 CPU 存放数据的两种不同顺序：小端字节序和大端字节序。使用 getSystemEndian 获取当前系统的字节序。
+     * BIG_ENDIAN：大端字节序，地址低位存储值的高位，地址高位存储值的低位。有时也称之为网络字节序。
+     * LITTLE_ENDIAN： 小端字节序，地址低位存储值的低位，地址高位存储值的高位。
      */
     static BIG_ENDIAN: string = "bigEndian";
     /**
-     * <p>主机字节序，是 CPU 存放数据的两种不同顺序，包括小端字节序和大端字节序。通过 <code>getSystemEndian</code> 可以获取当前系统的字节序。</p>
-     * <p> <code>LITTLE_ENDIAN</code> ：小端字节序，地址低位存储值的低位，地址高位存储值的高位。<br/>
-     * <code>BIG_ENDIAN</code> ：大端字节序，地址低位存储值的高位，地址高位存储值的低位。有时也称之为网络字节序。</p>
+     * @en Host byte order, which represents the two different sequences in which a CPU can store data: little-endian and big-endian. Use getSystemEndian to obtain the byte order of the current system.
+     * LITTLE_ENDIAN byte order: The lower address stores the lower bits of the value, and the higher address stores the higher bits.
+     * BIG_ENDIAN byte order: The lower address stores the higher bits of the value, and the higher address stores the lower bits. It is sometimes referred to as network byte order.
+     * @zh 主机字节序，是 CPU 存放数据的两种不同顺序：小端字节序和大端字节序。使用 getSystemEndian 获取当前系统的字节序。
+     * LITTLE_ENDIAN ：小端字节序，地址低位存储值的低位，地址高位存储值的高位。
+     * BIG_ENDIAN：大端字节序，地址低位存储值的高位，地址高位存储值的低位。有时也称之为网络字节序。
      */
     static LITTLE_ENDIAN: string = "littleEndian";
     /**@private */
@@ -34,10 +40,15 @@ export class Byte {
     protected _length: number = 0;
 
     /**
-     * <p>获取当前主机的字节序。</p>
-     * <p>主机字节序，是 CPU 存放数据的两种不同顺序，包括小端字节序和大端字节序。</p>
-     * <p> <code>BIG_ENDIAN</code> ：大端字节序，地址低位存储值的高位，地址高位存储值的低位。有时也称之为网络字节序。<br/>
-     * <code>LITTLE_ENDIAN</code> ：小端字节序，地址低位存储值的低位，地址高位存储值的高位。</p>
+     * @en Get the byte order of the current host.
+     * The host byte order refers to the two different sequences in which a CPU stores data, which includes little-endian and big-endian.
+     * BIG_ENDIAN: Big-endian byte order, where the lower address stores the higher bits of the value, and the higher address stores the lower bits. It is sometimes also called network byte order.
+     * LITTLE_ENDIAN: Little-endian byte order, where the lower address stores the lower bits of the value, and the higher address stores the higher bits.
+     * @returns The byte order of the current system.
+     * @zh 获取当前主机的字节序。
+     * 主机字节序，是 CPU 存放数据的两种不同顺序，包括小端字节序和大端字节序。
+     * BIG_ENDIAN：大端字节序，地址低位存储值的高位，地址高位存储值的低位。有时也称之为网络字节序。
+     * LITTLE_ENDIAN：小端字节序，地址低位存储值的低位，地址高位存储值的高位。
      * @return 当前系统的字节序。
      */
     static getSystemEndian(): string {
@@ -48,10 +59,11 @@ export class Byte {
         }
         return Byte._sysEndian;
     }
-
     /**
-     * 创建一个 <code>Byte</code> 类的实例。
-     * @param	data	用于指定初始化的元素数目，或者用于初始化的TypedArray对象、ArrayBuffer对象。如果为 null ，则预分配一定的内存空间，当可用空间不足时，优先使用这部分内存，如果还不够，则重新分配所需内存。
+     * @en Constructor method.
+     * @param data Specifies the number of elements for initialization, or a TypedArray object or ArrayBuffer object for initialization. If null, allocate a certain amount of memory in advance. When available space is not enough, use this part of the memory first, and reallocate the required memory if it is still not enough.
+     * @zh 构造方法
+     * @param data 用于指定初始化的元素数目，或者用于初始化的TypedArray对象、ArrayBuffer对象。如果为 null ，则预分配一定的内存空间，当可用空间不足时，优先使用这部分内存，如果还不够，则重新分配所需内存。
      */
     constructor(data: any = null) {
         if (data) {
@@ -64,7 +76,8 @@ export class Byte {
     }
 
     /**
-     * 获取此对象的 ArrayBuffer 数据，数据只包含有效数据部分。
+     * @en The ArrayBuffer data of this object, which contains only the valid data part.
+     * @zh 此对象的 ArrayBuffer 数据，数据只包含有效数据部分。
      */
     get buffer(): ArrayBuffer {
         var rstBuffer: ArrayBuffer = this._d_.buffer;
@@ -73,10 +86,14 @@ export class Byte {
     }
 
     /**
-     * <p> <code>Byte</code> 实例的字节序。取值为：<code>BIG_ENDIAN</code> 或 <code>BIG_ENDIAN</code> 。</p>
-     * <p>主机字节序，是 CPU 存放数据的两种不同顺序，包括小端字节序和大端字节序。通过 <code>getSystemEndian</code> 可以获取当前系统的字节序。</p>
-     * <p> <code>BIG_ENDIAN</code> ：大端字节序，地址低位存储值的高位，地址高位存储值的低位。有时也称之为网络字节序。<br/>
-     *  <code>LITTLE_ENDIAN</code> ：小端字节序，地址低位存储值的低位，地址高位存储值的高位。</p>
+     * @en The byte order of the `Byte` instance. Possible values are `BIG_ENDIAN` or `LITTLE_ENDIAN`.
+     * The host byte order is one of two sequences used by the CPU to store data, which includes little-endian and big-endian byte orders.The current system's byte order can be obtained using `getSystemEndian`.
+     * `BIG_ENDIAN`: Big-endian byte order, where the lower memory address stores the higher-order bits of a number, and is sometimes referred to as network byte order.
+     * `LITTLE_ENDIAN`: Little-endian byte order, where the lower memory address stores the lower-order bits of a number.
+     * @zh `Byte` 实例的字节序。取值为 `BIG_ENDIAN` 或 `LITTLE_ENDIAN`。
+     * 主机字节序是 CPU 存放数据的两种不同顺序，包括小端字节序和大端字节序。可以通过 `getSystemEndian` 获取当前系统的字节序。
+     * BIG_ENDIAN ：大端字节序，地址低位存储值的高位，地址高位存储值的低位。有时也称之为网络字节序。
+     * LITTLE_ENDIAN ：小端字节序，地址低位存储值的低位，地址高位存储值的高位。
      */
     get endian(): string {
         return this._xd_ ? Byte.LITTLE_ENDIAN : Byte.BIG_ENDIAN;
@@ -87,9 +104,13 @@ export class Byte {
     }
 
     /**
-     * <p> <code>Byte</code> 对象的长度（以字节为单位）。</p>
-     * <p>如果将长度设置为大于当前长度的值，则用零填充字节数组的右侧；如果将长度设置为小于当前长度的值，将会截断该字节数组。</p>
-     * <p>如果要设置的长度大于当前已分配的内存空间的字节长度，则重新分配内存空间，大小为以下两者较大者：要设置的长度、当前已分配的长度的2倍，并将原有数据拷贝到新的内存空间中；如果要设置的长度小于当前已分配的内存空间的字节长度，也会重新分配内存空间，大小为要设置的长度，并将原有数据从头截断为要设置的长度存入新的内存空间中。</p>
+     * @private
+     * @en The length of the `Byte` object, measured in bytes.
+     * When setting the length to a value greater than the current length, the byte array is right-padded with zeros. If the length is set to a value less than the current length, the byte array is truncated.
+     * If the length to be set exceeds the current allocated memory space, the memory is reallocated to the larger of either the new length or twice the current allocated length, and the original data is copied to the new memory space. If the length to be set is less than the current allocated memory space, the memory is reallocated to the new length, and the original data is truncated from the beginning to fit the new length.
+     * @zh `Byte` 对象的长度（以字节为单位）。
+     * 如果将长度设置为大于当前长度的值，则用零填充字节数组的右侧；如果将长度设置为小于当前长度的值，将会截断该字节数组。
+     * 如果要设置的长度大于当前已分配的内存空间的字节长度，则重新分配内存空间，大小为以下两者较大者：要设置的长度、当前已分配的长度的2倍，并将原有数据拷贝到新的内存空间中；如果要设置的长度小于当前已分配的内存空间的字节长度，也会重新分配内存空间，大小为要设置的长度，并将原有数据从头截断为要设置的长度存入新的内存空间中。
      */
     set length(value: number) {
         if (this._allocated_ < value) this._resizeBuffer(this._allocated_ = Math.floor(Math.max(value, this._allocated_ * 2)));
@@ -118,8 +139,11 @@ export class Byte {
 
     /**
      * @private
-     * <p>常用于解析固定格式的字节流。</p>
-     * <p>先从字节流的当前字节偏移位置处读取一个 <code>Uint16</code> 值，然后以此值为长度，读取此长度的字符串。</p>
+     * @en Commonly used to parse a byte stream in a fixed format.
+     * First, read a `Uint16` value from the current byte offset of the byte stream, and then read a string of this length.
+     * @returns The read string.
+     * @zh 常用于解析固定格式的字节流。
+     * 先从字节流的当前字节偏移位置处读取一个 `Uint16` 值，然后以此值为长度，读取此长度的字符串。
      * @return 读取的字符串。
      */
     getString(): string {
@@ -127,9 +151,12 @@ export class Byte {
     }
 
     /**
-     * <p>常用于解析固定格式的字节流。</p>
-     * <p>先从字节流的当前字节偏移位置处读取一个 <code>Uint16</code> 值，然后以此值为长度，读取此长度的字符串。</p>
-     * @return 读取的字符串。
+     * @en Commonly used to parse a byte stream in a fixed format.
+     * First, read a `Uint16` value from the current byte offset of the byte stream, and then read a string of this length.
+     * @returns The read string.
+     * @zh 常用于解析固定格式的字节流。
+     * 先从字节流的当前字节偏移位置处读取一个 `Uint16` 值，然后以此值为长度，读取此长度的字符串。
+     * @return 读取的字符串
      */
     readString(): string {
         return this._rUTF(this.getUint16());
@@ -137,8 +164,13 @@ export class Byte {
 
     /**
      * @private
-     * <p>从字节流中 <code>start</code> 参数指定的位置开始，读取 <code>len</code> 参数指定的字节数的数据，用于创建一个 <code>Float32Array</code> 对象并返回此对象。</p>
-     * <p><b>注意：</b>返回的 Float32Array 对象，在 JavaScript 环境下，是原生的 HTML5 Float32Array 对象，对此对象的读取操作都是基于运行此程序的当前主机字节序，此顺序可能与实际数据的字节序不同，如果使用此对象进行读取，需要用户知晓实际数据的字节序和当前主机字节序，如果相同，可正常读取，否则需要用户对实际数据(Float32Array.buffer)包装一层 DataView ，使用 DataView 对象可按照指定的字节序进行读取。</p>
+     * @en Reads a number of bytes specified by the `len` parameter from the byte stream starting at the position indicated by the `start` parameter, and creates a `Float32Array` object from the data.
+     * Note: The returned `Float32Array` object is a native HTML5 `Float32Array` object in the JavaScript environment. Reading operations on this object are based on the current host byte order of the machine running the program. This order may differ from the actual byte order of the data. If you use this object for reading, you need to be aware of the actual data's byte order and the current host byte order. If they are the same, you can read normally; otherwise, you need to wrap the actual data (`Float32Array.buffer`) with a `DataView` object to read according to the specified byte order.
+     * @param start The starting position.
+     * @param len The number of bytes to read. If the length to be read exceeds the readable range, only the values within the readable range are returned.
+     * @returns The read `Float32Array` object.
+     * @zh 从字节流中 `start` 参数指定的位置开始，读取 `len` 参数指定的字节数的数据，用于创建一个 `Float32Array` 对象并返回此对象。
+     * 注意：返回的 Float32Array 对象，在 JavaScript 环境下，是原生的 HTML5 Float32Array 对象，对此对象的读取操作都是基于运行此程序的当前主机字节序，此顺序可能与实际数据的字节序不同，如果使用此对象进行读取，需要用户知晓实际数据的字节序和当前主机字节序，如果相同，可正常读取，否则需要用户对实际数据(Float32Array.buffer)包装一层 DataView ，使用 DataView 对象可按照指定的字节序进行读取。
      * @param	start	开始位置。
      * @param	len		需要读取的字节长度。如果要读取的长度超过可读取范围，则只返回可读范围内的值。
      * @return  读取的 Float32Array 对象。
@@ -148,7 +180,11 @@ export class Byte {
     }
 
     /**
-     * 从字节流中 <code>start</code> 参数指定的位置开始，读取 <code>len</code> 参数指定的字节数的数据，用于创建一个 <code>Float32Array</code> 对象并返回此对象。
+     * @en Reads a number of bytes specified by the `len` parameter from the byte stream starting at the position indicated by the `start` parameter, and creates a `Float32Array` object from the data.
+     * @param start The starting position.
+     * @param len The number of bytes to read. If the length to be read exceeds the readable range, only the values within the readable range are returned.
+     * @returns The read `Float32Array` object.
+     * @zh 从字节流中 `start` 参数指定的位置开始，读取 `len` 参数指定的字节数的数据，用于创建一个 `Float32Array` 对象并返回此对象。
      * @param	start	开始位置。
      * @param	len		需要读取的字节长度。如果要读取的长度超过可读取范围，则只返回可读范围内的值。
      * @return  读取的 Float32Array 对象。
@@ -163,7 +199,11 @@ export class Byte {
 
     /**
      * @private
-     * 从字节流中 <code>start</code> 参数指定的位置开始，读取 <code>len</code> 参数指定的字节数的数据，用于创建一个 <code>Uint8Array</code> 对象并返回此对象。
+     * @en Reads a number of bytes specified by the `len` parameter from the byte stream starting at the position indicated by the `start` parameter, and creates a `Uint8Array` object from the data.
+     * @param start The starting position.
+     * @param len The number of bytes to read. If the length to be read exceeds the readable range, only the values within the readable range are returned.
+     * @returns The read `Uint8Array` object.
+     * @zh 从字节流中 `start` 参数指定的位置开始，读取 `len` 参数指定的字节数的数据，用于创建一个 `Uint8Array` 对象并返回此对象。
      * @param	start	开始位置。
      * @param	len		需要读取的字节长度。如果要读取的长度超过可读取范围，则只返回可读范围内的值。
      * @return  读取的 Uint8Array 对象。
@@ -173,7 +213,11 @@ export class Byte {
     }
 
     /**
-     * 从字节流中 <code>start</code> 参数指定的位置开始，读取 <code>len</code> 参数指定的字节数的数据，用于创建一个 <code>Uint8Array</code> 对象并返回此对象。
+     * @en Reads a number of bytes specified by the `len` parameter from the byte stream starting at the position indicated by the `start` parameter, and creates a `Uint8Array` object from the data.
+     * @param start The starting position.
+     * @param len The number of bytes to read. If the length to be read exceeds the readable range, only the values within the readable range are returned.
+     * @returns The read `Uint8Array` object.
+     * @zh 从字节流中 `start` 参数指定的位置开始，读取 `len` 参数指定的字节数的数据，用于创建一个 `Uint8Array` 对象并返回此对象。
      * @param	start	开始位置。
      * @param	len		需要读取的字节长度。如果要读取的长度超过可读取范围，则只返回可读范围内的值。
      * @return  读取的 Uint8Array 对象。
@@ -188,8 +232,13 @@ export class Byte {
 
     /**
      * @private
-     * <p>从字节流中 <code>start</code> 参数指定的位置开始，读取 <code>len</code> 参数指定的字节数的数据，用于创建一个 <code>Int16Array</code> 对象并返回此对象。</p>
-     * <p><b>注意：</b>返回的 Int16Array 对象，在 JavaScript 环境下，是原生的 HTML5 Int16Array 对象，对此对象的读取操作都是基于运行此程序的当前主机字节序，此顺序可能与实际数据的字节序不同，如果使用此对象进行读取，需要用户知晓实际数据的字节序和当前主机字节序，如果相同，可正常读取，否则需要用户对实际数据(Int16Array.buffer)包装一层 DataView ，使用 DataView 对象可按照指定的字节序进行读取。</p>
+     * @en Reads a number of bytes specified by the `len` parameter from the byte stream starting at the position indicated by the `start` parameter, and creates an `Int16Array` object from the data.
+     * Note: The returned `Int16Array` object is a native HTML5 `Int16Array` object in the JavaScript environment. Reading operations on this object are based on the current host byte order. This order may differ from the actual byte order of the data. If you use this object for reading, you must be aware of the actual data's byte order and the current host byte order. If they match, you can read normally; otherwise, you need to wrap the actual data (`Int16Array.buffer`) with a `DataView` object to read according to the specified byte order.
+     * @param start The byte offset from the start of the stream to begin reading.
+     * @param len The number of bytes to read. Only values within the readable range are returned if the length exceeds the range.
+     * @returns The created `Int16Array` object.
+     * @zh 从字节流中 `start` 参数指定的位置开始，读取 `len` 参数指定的字节数的数据，用于创建一个 `Int16Array` 对象并返回此对象。
+     * 注意：返回的 `Int16Array` 对象是 JavaScript 环境下原生的 HTML5 `Int16Array` 对象，对此对象的读取操作都是基于运行此程序的当前主机字节序。此顺序可能与实际数据的字节序不同，如果使用此对象进行读取，需要用户知晓实际数据的字节序和当前主机字节序，如果相同，可正常读取，否则需要用户对实际数据 (`Int16Array.buffer`) 包装一层 `DataView` 对象，使用 `DataView` 对象可按照指定的字节序进行读取。
      * @param	start	开始读取的字节偏移量位置。
      * @param	len		需要读取的字节长度。如果要读取的长度超过可读取范围，则只返回可读范围内的值。
      * @return  读取的 Int16Array 对象。
@@ -199,7 +248,11 @@ export class Byte {
     }
 
     /**
-     * 从字节流中 <code>start</code> 参数指定的位置开始，读取 <code>len</code> 参数指定的字节数的数据，用于创建一个 <code>Int16Array</code> 对象并返回此对象。
+     * @en Reads a number of bytes specified by the `len` parameter from the byte stream starting at the position indicated by the `start` parameter, and creates an `Int16Array` object from the data.
+     * @param start The byte offset from the start of the stream to begin reading.
+     * @param len The number of bytes to read. Only values within the readable range are returned if the length exceeds the range.
+     * @returns The created `Int16Array` object.
+     * @zh 从字节流中 `start` 参数指定的位置开始，读取 `len` 参数指定的字节数的数据，用于创建一个 `Int16Array` 对象并返回此对象。
      * @param	start	开始读取的字节偏移量位置。
      * @param	len		需要读取的字节长度。如果要读取的长度超过可读取范围，则只返回可读范围内的值。
      * @return  读取的 Uint8Array 对象。
@@ -214,7 +267,9 @@ export class Byte {
 
     /**
      * @private
-     * 从字节流的当前字节偏移位置处读取一个 IEEE 754 单精度（32 位）浮点数。
+     * @en Reads a 32-bit floating-point number from the current position in the byte stream using IEEE 754 format.
+     * @returns The 32-bit floating-point number.
+     * @zh 从字节流的当前字节偏移位置处读取一个 IEEE 754 单精度（32 位）浮点数。
      * @return 单精度（32 位）浮点数。
      */
     getFloat32(): number {
@@ -222,7 +277,9 @@ export class Byte {
     }
 
     /**
-     * 从字节流的当前字节偏移位置处读取一个 IEEE 754 单精度（32 位）浮点数。
+     * @en Reads a 32-bit floating-point number from the current position in the byte stream using IEEE 754 format.
+     * @returns The 32-bit floating-point number.
+     * @zh 从字节流的当前字节偏移位置处读取一个 IEEE 754 单精度（32 位）浮点数。
      * @return 单精度（32 位）浮点数。
      */
     readFloat32(): number {
@@ -234,7 +291,9 @@ export class Byte {
 
     /**
      * @private
-     * 从字节流的当前字节偏移量位置处读取一个 IEEE 754 双精度（64 位）浮点数。
+     * @en Reads a 64-bit floating-point number from the current position in the byte stream using IEEE 754 format.
+     * @returns The 64-bit floating-point number.
+     * @zh 从字节流的当前字节偏移量位置处读取一个 IEEE 754 双精度（64 位）浮点数。
      * @return 双精度（64 位）浮点数。
      */
     getFloat64(): number {
@@ -242,7 +301,9 @@ export class Byte {
     }
 
     /**
-     * 从字节流的当前字节偏移量位置处读取一个 IEEE 754 双精度（64 位）浮点数。
+     * @en Reads a 64-bit floating-point number from the current position in the byte stream using IEEE 754 format.
+     * @returns The 64-bit floating-point number.
+     * @zh 从字节流的当前字节偏移量位置处读取一个 IEEE 754 双精度（64 位）浮点数。
      * @return 双精度（64 位）浮点数。
      */
     readFloat64(): number {
@@ -253,8 +314,10 @@ export class Byte {
     }
 
     /**
-     * 在字节流的当前字节偏移量位置处写入一个 IEEE 754 单精度（32 位）浮点数。
-     * @param	value	单精度（32 位）浮点数。
+     * @en Writes an IEEE 754 single-precision (32-bit) floating point number to the byte stream at the current position.
+     * @param value The single-precision (32-bit) floating point number to be written.
+     * @zh 在字节流的当前字节偏移量位置处写入一个 IEEE 754 单精度（32 位）浮点数。
+     * @param value 需要写入的单精度（32 位）浮点数。
      */
     writeFloat32(value: number): void {
         this._ensureWrite(this._pos_ + 4);
@@ -263,8 +326,10 @@ export class Byte {
     }
 
     /**
-     * 在字节流的当前字节偏移量位置处写入一个 IEEE 754 双精度（64 位）浮点数。
-     * @param	value	双精度（64 位）浮点数。
+     * @en Writes an IEEE 754 double-precision (64-bit) floating point number to the byte stream at the current position.
+     * @param value  The double-precision (64-bit) floating point number to be written.
+     * @zh 在字节流的当前字节偏移量位置处写入一个 IEEE 754 双精度（64 位）浮点数。
+     * @param value  需要写入的双精度（64 位）浮点数。
      */
     writeFloat64(value: number): void {
         this._ensureWrite(this._pos_ + 8);
@@ -274,16 +339,20 @@ export class Byte {
 
     /**
      * @private
-     * 从字节流的当前字节偏移量位置处读取一个 Int32 值。
-     * @return Int32 值。
+     * @en Reads an Int32 value from the current position in the byte stream.
+     * @returns The Int32 value that was read.
+     * @zh 从字节流的当前字节偏移量位置处读取一个 Int32 值。
+     * @returns  读取的 Int32 值。
      */
     getInt32(): number {
         return this.readInt32();
     }
 
     /**
-     * 从字节流的当前字节偏移量位置处读取一个 Int32 值。
-     * @return Int32 值。
+     * @en Reads an Int32 value from the current position in the byte stream.
+     * @returns The Int32 value that was read.
+     * @zh 从字节流的当前字节偏移量位置处读取一个 Int32 值。
+     * @returns 读取的 Int32 值。
      */
     readInt32(): number {
         if (this._pos_ + 4 > this._length) throw "getInt32 error - Out of bounds";
@@ -294,16 +363,20 @@ export class Byte {
 
     /**
      * @private
-     * 从字节流的当前字节偏移量位置处读取一个 Uint32 值。
-     * @return Uint32 值。
+     * @en Reads a Uint32 value from the current position in the byte stream.
+     * @returns The Uint32 value that was read.
+     * @zh 从字节流的当前字节偏移量位置处读取一个 Uint32 值。
+     * @returns 读取的 Uint32 值。
      */
     getUint32(): number {
         return this.readUint32();
     }
 
     /**
-     * 从字节流的当前字节偏移量位置处读取一个 Uint32 值。
-     * @return Uint32 值。
+     * @en Reads a Uint32 value from the current position in the byte stream.
+     * @returns The Uint32 value that was read.
+     * @zh 从字节流的当前字节偏移量位置处读取一个 Uint32 值。
+     * @returns 读取的 Uint32 值。
      */
     readUint32(): number {
         if (this._pos_ + 4 > this._length) throw "getUint32 error - Out of bounds";
@@ -313,8 +386,10 @@ export class Byte {
     }
 
     /**
-     * 在字节流的当前字节偏移量位置处写入指定的 Int32 值。
-     * @param	value	需要写入的 Int32 值。
+     * @en Writes the specified Int32 value to the byte stream at the current position.
+     * @param value The Int32 value to be written.
+     * @zh 在字节流的当前字节偏移量位置处写入指定的 Int32 值。
+     * @param value 需要写入的 Int32 值。
      */
     writeInt32(value: number): void {
         this._ensureWrite(this._pos_ + 4);
@@ -323,8 +398,10 @@ export class Byte {
     }
 
     /**
-     * 在字节流的当前字节偏移量位置处写入 Uint32 值。
-     * @param	value	需要写入的 Uint32 值。
+     * @en Writes the specified Uint32 value to the byte stream at the current position.
+     * @param value The Uint32 value to be written.
+     * @zh 在字节流的当前字节偏移量位置处写入 Uint32 值。
+     * @param value 需要写入的 Uint32 值。
      */
     writeUint32(value: number): void {
         this._ensureWrite(this._pos_ + 4);
@@ -334,16 +411,20 @@ export class Byte {
 
     /**
      * @private
-     * 从字节流的当前字节偏移量位置处读取一个 Int16 值。
-     * @return Int16 值。
+     * @en Reads an Int16 value from the current byte offset in the byte stream.
+     * @returns The Int16 value that was read.
+     * @zh 从字节流的当前字节偏移量位置处读取一个 Int16 值。
+     * @returns 读取的 Int16 值。
      */
     getInt16(): number {
         return this.readInt16();
     }
 
     /**
-     * 从字节流的当前字节偏移量位置处读取一个 Int16 值。
-     * @return Int16 值。
+     * @en Reads an Int16 value from the current byte offset in the byte stream.
+     * @returns The Int16 value that was read.
+     * @zh 从字节流的当前字节偏移量位置处读取一个 Int16 值。
+     * @returns 读取的 Int16 值。
      */
     readInt16(): number {
         if (this._pos_ + 2 > this._length) throw "getInt16 error - Out of bounds";
@@ -354,16 +435,20 @@ export class Byte {
 
     /**
      * @private
-     * 从字节流的当前字节偏移量位置处读取一个 Uint16 值。
-     * @return Uint16 值。
+     * @en Reads a Uint16 value from the current byte offset in the byte stream.
+     * @returns The Uint16 value that was read.
+     * @zh 从字节流的当前字节偏移量位置处读取一个 Uint16 值。
+     * @returns 读取的 Uint16 值。
      */
     getUint16(): number {
         return this.readUint16();
     }
 
     /**
-     * 从字节流的当前字节偏移量位置处读取一个 Uint16 值。
-     * @return Uint16 值。
+     * @en Reads a Uint16 value from the current byte offset in the byte stream.
+     * @returns The Uint16 value that was read.
+     * @zh 从字节流的当前字节偏移量位置处读取一个 Uint16 值。
+     * @returns 读取的 Uint16 值。
      */
     readUint16(): number {
         if (this._pos_ + 2 > this._length) throw "getUint16 error - Out of bounds";
@@ -373,8 +458,10 @@ export class Byte {
     }
 
     /**
-     * 在字节流的当前字节偏移量位置处写入指定的 Uint16 值。
-     * @param	value	需要写入的Uint16 值。
+     * @en Writes the specified Uint16 value to the byte stream at the current byte offset.
+     * @param value The Uint16 value to be written.
+     * @zh 在字节流的当前字节偏移量位置处写入指定的 Uint16 值。
+     * @param value 需要写入的 Uint16 值。
      */
     writeUint16(value: number): void {
         this._ensureWrite(this._pos_ + 2);
@@ -383,8 +470,10 @@ export class Byte {
     }
 
     /**
-     * 在字节流的当前字节偏移量位置处写入指定的 Int16 值。
-     * @param	value	需要写入的 Int16 值。
+     * @en Writes the specified Int16 value to the byte stream at the current byte offset.
+     * @param value The Int16 value to be written.
+     * @zh 在字节流的当前字节偏移量位置处写入指定的 Int16 值。
+     * @param value 需要写入的 Int16 值。
      */
     writeInt16(value: number): void {
         this._ensureWrite(this._pos_ + 2);
@@ -394,16 +483,20 @@ export class Byte {
 
     /**
      * @private
-     * 从字节流的当前字节偏移量位置处读取一个 Uint8 值。
-     * @return Uint8 值。
+     * @en Reads a Uint8 value from the current byte offset in the byte stream.
+     * @returns The Uint8 value that was read.
+     * @zh 从字节流的当前字节偏移量位置处读取一个 Uint8 值。
+     * @returns 读取的 Uint8 值。
      */
     getUint8(): number {
         return this.readUint8();
     }
 
     /**
-     * 从字节流的当前字节偏移量位置处读取一个 Uint8 值。
-     * @return Uint8 值。
+     * @en Reads a Uint8 value from the current byte offset in the byte stream.
+     * @returns The Uint8 value that was read.
+     * @zh 从字节流的当前字节偏移量位置处读取一个 Uint8 值。
+     * @returns 读取的 Uint8 值。
      */
     readUint8(): number {
         if (this._pos_ + 1 > this._length) throw "getUint8 error - Out of bounds";
@@ -411,8 +504,10 @@ export class Byte {
     }
 
     /**
-     * 在字节流的当前字节偏移量位置处写入指定的 Uint8 值。
-     * @param	value	需要写入的 Uint8 值。
+     * @en Writes the specified Uint8 value to the byte stream at the current byte offset.
+     * @param value The Uint8 value to be written.
+     * @zh 在字节流的当前字节偏移量位置处写入指定的 Uint8 值。
+     * @param value 需要写入的 Uint8 值。
      */
     writeUint8(value: number): void {
         this._ensureWrite(this._pos_ + 1);
@@ -422,9 +517,12 @@ export class Byte {
 
     /**
      * @internal
-     * 从字节流的指定字节偏移量位置处读取一个 Uint8 值。
-     * @param	pos	字节读取位置。
-     * @return Uint8 值。
+     * @en Reads a Uint8 value from the specified byte offset in the byte stream.
+     * @param pos The byte offset to read from.
+     * @returns The Uint8 value that was read.
+     * @zh 从字节流的指定字节偏移量位置处读取一个 Uint8 值。
+     * @param pos 字节读取位置。
+     * @returns 读取的 Uint8 值。
      */
     //TODO:coverage
     _getUInt8(pos: number): number {
@@ -433,9 +531,12 @@ export class Byte {
 
     /**
      * @internal
-     * 从字节流的指定字节偏移量位置处读取一个 Uint8 值。
-     * @param	pos	字节读取位置。
-     * @return Uint8 值。
+     * @en Reads a Uint8 value from the specified byte offset in the byte stream.
+     * @param pos The byte offset to read from.
+     * @returns The Uint8 value that was read.
+     * @zh 从字节流的指定字节偏移量位置处读取一个 Uint8 值。
+     * @param pos 字节读取位置。
+     * @returns 读取的 Uint8 值。
      */
     //TODO:coverage
     _readUInt8(pos: number): number {
@@ -444,9 +545,12 @@ export class Byte {
 
     /**
      * @internal
-     * 从字节流的指定字节偏移量位置处读取一个 Uint16 值。
-     * @param	pos	字节读取位置。
-     * @return Uint16 值。
+     * @en Reads a Uint16 value from the specified byte offset in the byte stream.
+     * @param pos The byte offset to read from.
+     * @returns The Uint16 value that was read.
+     * @zh 从字节流的指定字节偏移量位置处读取一个 Uint16 值。
+     * @param pos 字节读取位置。
+     * @returns 读取的 Uint16 值。
      */
     //TODO:coverage
     _getUint16(pos: number): number {
@@ -455,9 +559,12 @@ export class Byte {
 
     /**
      * @internal
-     * 从字节流的指定字节偏移量位置处读取一个 Uint16 值。
-     * @param	pos	字节读取位置。
-     * @return Uint16 值。
+     * @en Reads a Uint16 value from the specified byte offset in the byte stream.
+     * @param pos The byte offset to read from.
+     * @returns The Uint16 value that was read, taking into account the endianness.
+     * @zh 从字节流的指定字节偏移量位置处读取一个 Uint16 值，考虑字节序。
+     * @param pos 字节读取位置。
+     * @returns 读取的 Uint16 值。
      */
     //TODO:coverage
     _readUint16(pos: number): number {
@@ -466,8 +573,10 @@ export class Byte {
 
     /**
      * @internal
-     * 使用 getFloat32() 读取6个值，用于创建并返回一个 Matrix 对象。
-     * @return  Matrix 对象。
+     * @en Reads six values using getFloat32() and returns a Matrix object created from those values.
+     * @returns The Matrix object that was created.
+     * @zh 使用 getFloat32() 读取六个值，并创建返回一个 Matrix 对象。
+     * @returns 创建的 Matrix 对象。
      */
     //TODO:coverage
     _getMatrix(): Matrix {
@@ -476,8 +585,10 @@ export class Byte {
 
     /**
      * @internal
-     * 使用 getFloat32() 读取6个值，用于创建并返回一个 Matrix 对象。
-     * @return  Matrix 对象。
+     * @en Reads six values using getFloat32() and returns a Matrix object created from those values.
+     * @returns The Matrix object that was created.
+     * @zh 使用 getFloat32() 读取六个值，并创建返回一个 Matrix 对象。
+     * @returns 创建的 Matrix 对象。
      */
     //TODO:coverage
     _readMatrix(): Matrix {
@@ -535,9 +646,12 @@ export class Byte {
 
     /**
      * @private
-     * 读取 <code>len</code> 参数指定的长度的字符串。
-     * @param	len	要读取的字符串的长度。
-     * @return 指定长度的字符串。
+     * @en Reads a string of the specified length.
+     * @param len The length of the string to read.
+     * @returns The string of the specified length.
+     * @zh 读取指定长度的字符串。
+     * @param len 要读取的字符串的长度。
+     * @returns 指定长度的字符串。
      */
     //TODO:coverage
     getCustomString(len: number): string {
@@ -546,9 +660,12 @@ export class Byte {
 
     /**
      * @private
-     * 读取 <code>len</code> 参数指定的长度的字符串。
-     * @param	len	要读取的字符串的长度。
-     * @return 指定长度的字符串。
+     * @en Reads a string of the specified length.
+     * @param len The length of the string to read.
+     * @returns The string of the specified length.
+     * @zh 读取指定长度的字符串。
+     * @param len 要读取的字符串的长度。
+     * @returns 指定长度的字符串。
      */
     //TODO:coverage
     readCustomString(len: number): string {
@@ -577,7 +694,10 @@ export class Byte {
     }
 
     /**
-     * 移动或返回 Byte 对象的读写指针的当前位置（以字节为单位）。下一次调用读取方法时将在此位置开始读取，或者下一次调用写入方法时将在此位置开始写入。
+     * @en The current position of the Byte object's read/write pointer (in bytes).
+     * When reading, the next read operation will start at this position. When writing, the next write operation will start at this position.
+     * @zh Byte对象的读写指针的当前位置（以字节为单位）。
+     * 下一次调用读取方法时将在此位置开始读取，或者下一次调用写入方法时将在此位置开始写入。
      */
     get pos(): number {
         return this._pos_;
@@ -590,14 +710,16 @@ export class Byte {
     }
 
     /**
-     * 可从字节流的当前位置到末尾读取的数据的字节数。
+     * @en The number of bytes available to read from the current position to the end of the byte stream.
+     * @zh 从当前位置到字节流末尾可读取的数据的字节数。
      */
     get bytesAvailable(): number {
         return this._length - this._pos_;
     }
 
     /**
-     * 清除字节数组的内容，并将 length 和 pos 属性重置为 0。调用此方法将释放 Byte 实例占用的内存。
+     * @en Clears the content of the byte array and resets the length and pos properties to 0. Calling this method will release the memory occupied by the Byte instance.
+     * @zh 清除字节数组的内容，并将 length 和 pos 属性重置为 0。调用此方法将释放 Byte 实例占用的内存。
      */
     clear(): void {
         this._pos_ = 0;
@@ -606,8 +728,8 @@ export class Byte {
 
     /**
      * @internal
-     * 获取此对象的 ArrayBuffer 引用。
-     * @return
+     * @en Gets the ArrayBuffer reference of this object.
+     * @zh 获取此对象的 ArrayBuffer 引用。
      */
     __getBuffer(): ArrayBuffer {
         //this._d_.buffer.byteLength = this.length;
@@ -615,8 +737,11 @@ export class Byte {
     }
 
     /**
-     * <p>将 UTF-8 字符串写入字节流。类似于 writeUTF() 方法，但 writeUTFBytes() 不使用 16 位长度的字为字符串添加前缀。</p>
-     * <p>对应的读取方法为： getUTFBytes 。</p>
+     * @en Writes a UTF-8 string to the byte stream. Similar to the writeUTF() method, but writeUTFBytes() does not prefix the string with a 16-bit length word.
+     * The corresponding reading method is getUTFBytes.
+     * @param value The string to write.
+     * @zh 将 UTF-8 字符串写入字节流。类似于 writeUTF() 方法，但 writeUTFBytes() 不使用 16 位长度的字节为字符串添加前缀。
+     * 对应的读取方法为： getUTFBytes 。
      * @param value 要写入的字符串。
      */
     writeUTFBytes(value: string): void {
@@ -661,9 +786,12 @@ export class Byte {
     }
 
     /**
-     * <p>将 UTF-8 字符串写入字节流。先写入以字节表示的 UTF-8 字符串长度（作为 16 位整数），然后写入表示字符串字符的字节。</p>
-     * <p>对应的读取方法为： getUTFString 。</p>
-     * @param	value 要写入的字符串值。
+     * @en Writes a UTF-8 string to the byte stream. First, the length of the UTF-8 string in bytes is written (as a 16-bit integer), followed by the bytes representing the string characters.
+     * The corresponding reading method is getUTFString.
+     * @param value The string value to write.
+     * @zh 将 UTF-8 字符串写入字节流。先写入以字节表示的 UTF-8 字符串长度（作为 16 位整数），然后写入表示字符串字符的字节。
+     * 对应的读取方法为： getUTFString 。
+     * @param value 要写入的字符串值。
      */
     writeUTFString(value: string): void {
         var tPos: number = this.pos;
@@ -675,8 +803,10 @@ export class Byte {
     }
 
     /**
-     * <p>将 UTF-8 字符串写入字节流。先写入以字节表示的 UTF-8 字符串长度（作为 32 位整数），然后写入表示字符串字符的字节。</p>
-     * @param	value 要写入的字符串值。
+     * @en Writes a UTF-8 string to the byte stream. First, the length of the UTF-8 string in bytes is written (as a 32-bit integer), followed by the bytes representing the string characters.
+     * @param value The string value to write.
+     * @zh 将 UTF-8 字符串写入字节流。先写入以字节表示的 UTF-8 字符串长度（作为 32 位整数），然后写入表示字符串字符的字节。
+     * @param value 要写入的字符串值。
      */
     writeUTFString32(value: string): void {
         var tPos = this.pos;
@@ -687,11 +817,12 @@ export class Byte {
         this._d_.setUint32(tPos, dPos, this._xd_);
     }
 
-
     /**
      * @private
-     * 读取 UTF-8 字符串。
-     * @return 读取的字符串。
+     * @en Reads a UTF-8 string.
+     * @returns The read string.
+     * @zh 读取 UTF-8 字符串。
+     * @returns 读取的字符串。
      */
     readUTFString(): string {
         //var tPos:int = pos;
@@ -702,15 +833,20 @@ export class Byte {
 
     /**
      * @private
+     * @en Reads a UTF-8 string that was written with the writeUTFString32() method.
+     * @zh 读取由 writeUTFString32() 方法写入的 UTF-8 字符串。
      */
     readUTFString32(): string {
         return this.readUTFBytes(this.getUint32());
     }
 
     /**
-     * <p>从字节流中读取一个 UTF-8 字符串。假定字符串的前缀是一个无符号的短整型（以此字节表示要读取的长度）。</p>
-     * <p>对应的写入方法为： writeUTFString 。</p>
-     * @return 读取的字符串。
+     * @en Reads a UTF-8 string from the byte stream, assuming the string is prefixed with an unsigned short indicating the length to read.
+     * The corresponding writing method is writeUTFString.
+     * @returns The read string.
+     * @zh 从字节流中读取一个 UTF-8 字符串，假定字符串的前缀是一个无符号的短整型（以此字节表示要读取的长度）。
+     * 对应的写入方法为：writeUTFString。
+     * @returns 读取的字符串。
      */
     getUTFString(): string {
         return this.readUTFString();
@@ -718,9 +854,12 @@ export class Byte {
 
     /**
      * @private
-     * 读字符串，必须是 writeUTFBytes 方法写入的字符串。
-     * @param len	要读的buffer长度，默认将读取缓冲区全部数据。
-     * @return 读取的字符串。
+     * @en Reads a string that must have been written with the writeUTFBytes method.
+     * @param len The length of the buffer to read. If set to -1, all data in the buffer will be read.
+     * @returns The read string.
+     * @zh 读字符串，必须是 writeUTFBytes 方法写入的字符串。
+     * @param len 要读的buffer长度，默认将读取缓冲区全部数据。
+     * @returns 读取的字符串。
      */
     readUTFBytes(len: number = -1): string {
         if (len === 0) return "";
@@ -731,19 +870,24 @@ export class Byte {
     }
 
     /**
-     * <p>从字节流中读取一个由 length 参数指定的长度的 UTF-8 字节序列，并返回一个字符串。</p>
-     * <p>一般读取的是由 writeUTFBytes 方法写入的字符串。</p>
-     * @param len	要读的buffer长度，默认将读取缓冲区全部数据。
-     * @return 读取的字符串。
+     * @en Reads a UTF-8 byte sequence of a specified length from the byte stream and returns a string.
+     * Typically used to read strings written with the writeUTFBytes method.
+     * @param len The length of the buffer to read. If set to -1, all data in the buffer will be read.
+     * @returns The read string.
+     * @zh 从字节流中读取一个由 length 参数指定的长度的 UTF-8 字节序列，并返回一个字符串。
+     * 一般读取的是由 writeUTFBytes 方法写入的字符串。
+     * @param len 要读的buffer长度，默认将读取缓冲区全部数据。
+     * @returns 读取的字符串。
      */
     getUTFBytes(len: number = -1): string {
         return this.readUTFBytes(len);
     }
 
     /**
-     * <p>在字节流中写入一个字节。</p>
-     * <p>使用参数的低 8 位。忽略高 24 位。</p>
-     * @param	value
+     * @en Writes a byte to the byte stream. Only the lower 8 bits of the parameter are used. The higher 24 bits are ignored.
+     * @param value The byte to write (0-255).
+     * @zh 在字节流中写入一个字节。只使用参数的低 8 位。忽略高 24 位。
+     * @param value 要写入的字节（0-255）。
      */
     writeByte(value: number): void {
         this._ensureWrite(this._pos_ + 1);
@@ -752,9 +896,10 @@ export class Byte {
     }
 
     /**
-     * <p>从字节流中读取带符号的字节。</p>
-     * <p>返回值的范围是从 -128 到 127。</p>
-     * @return 介于 -128 和 127 之间的整数。
+     * @en Reads a signed byte from the byte stream. The return value is in the range of -128 to 127.
+     * @returns An integer between -128 and 127.
+     * @zh 从字节流中读取带符号的字节。返回值的范围是从 -128 到 127。
+     * @returns 介于 -128 和 127 之间的整数。
      */
     readByte(): number {
         if (this._pos_ + 1 > this._length) throw "readByte error - Out of bounds";
@@ -763,7 +908,8 @@ export class Byte {
 
     /**
      * @private
-     * 从字节流中读取带符号的字节。
+     * @en Reads a signed byte from the byte stream.
+     * @zh 从字节流中读取带符号的字节。
      */
     getByte(): number {
         return this.readByte();
@@ -771,8 +917,10 @@ export class Byte {
 
     /**
      * @internal
-     * <p>保证该字节流的可用长度不小于 <code>lengthToEnsure</code> 参数指定的值。</p>
-     * @param	lengthToEnsure	指定的长度。
+     * @en Ensures that the available length of this byte stream is at least the value specified by the lengthToEnsure parameter.
+     * @param lengthToEnsure The length to ensure is available in the byte stream.
+     * @zh 保证该字节流的可用长度不小于 lengthToEnsure 参数指定的值。
+     * @param lengthToEnsure 指定的字节流中应确保可用的最小长度。
      */
     _ensureWrite(lengthToEnsure: number): void {
         if (this._length < lengthToEnsure) this._length = lengthToEnsure;
@@ -780,12 +928,18 @@ export class Byte {
     }
 
     /**
-     * <p>将指定 arraybuffer 对象中的以 offset 为起始偏移量， length 为长度的字节序列写入字节流。</p>
-     * <p>如果省略 length 参数，则使用默认长度 0，该方法将从 offset 开始写入整个缓冲区；如果还省略了 offset 参数，则写入整个缓冲区。</p>
-     * <p>如果 offset 或 length 小于0，本函数将抛出异常。</p>
-     * @param	arraybuffer	需要写入的 Arraybuffer 对象。
-     * @param	offset		Arraybuffer 对象的索引的偏移量（以字节为单位）
-     * @param	length		从 Arraybuffer 对象写入到 Byte 对象的长度（以字节为单位）
+     * @en Writes a byte sequence from the specified arraybuffer object into the byte stream, starting at the offset and with the specified length.
+     * If the length parameter is omitted, the default length of 0 is used, and the method writes the entire buffer from the offset, if the offset is also omitted, the entire buffer is written.
+     * The function will throw an exception if the offset or length is less than 0.
+     * @param arraybuffer The ArrayBuffer object to write from.
+     * @param offset The offset index of the ArrayBuffer object (in bytes).
+     * @param length The length to write from the ArrayBuffer object into the Byte object (in bytes).
+     * @zh 将指定 arraybuffer 对象中的以 offset 为起始偏移量，length 为长度的字节序列写入字节流。
+     * 如果省略 length 参数，则使用默认长度 0，该方法将从 offset 开始写入整个缓冲区；如果还省略了 offset 参数，则写入整个缓冲区。
+     * 如果 offset 或 length 小于0，本函数将抛出异常。
+     * @param arraybuffer 需要写入的 Arraybuffer 对象。
+     * @param offset Arraybuffer 对象的索引的偏移量（以字节为单位）。
+     * @param length 从 Arraybuffer 对象写入到 Byte 对象的长度（以字节为单位）。
      */
     writeArrayBuffer(arraybuffer: any, offset: number = 0, length: number = 0): void {
         if (offset < 0 || length < 0) throw "writeArrayBuffer error - Out of bounds";
@@ -797,9 +951,10 @@ export class Byte {
     }
 
     /**
-     * 读取ArrayBuffer数据
-     * @param	length
-     * @return
+     * @en Reads an ArrayBuffer of the specified length from the byte stream.
+     * @param length The length of the ArrayBuffer to read.
+     * @zh 读取ArrayBuffer数据，长度由参数指定。
+     * @param length 要读取的ArrayBuffer的长度。
      */
     readArrayBuffer(length: number): ArrayBuffer {
         var rst: ArrayBuffer;

@@ -1,6 +1,7 @@
 /**
  * @private
- * <code>IClone</code> 资源克隆接口。
+ * @en IClone resource cloning interface.
+ * @zh IClone 资源克隆接口。
  */
 export interface IClone {
     clone(): any;
