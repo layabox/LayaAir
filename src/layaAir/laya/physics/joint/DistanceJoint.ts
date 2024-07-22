@@ -5,7 +5,8 @@ import { physics2D_DistancJointDef } from "./JointDefStructInfo";
 import { Sprite } from "../../display/Sprite";
 
 /**
- * 距离关节：两个物体上面各自有一点，两点之间的距离固定不变
+ * @en Distance Joint: A joint that maintains a fixed distance between two points on two bodies.
+ * @zh 距离关节描述了两个刚体锚点之间的距离，并且最终会保持着这个约束的距离。
  */
 export class DistanceJoint extends JointBase {
 
@@ -27,23 +28,41 @@ export class DistanceJoint extends JointBase {
     /**@internal 刚体在回归到节点过程中受到的阻尼比，建议取值0~1*/
     private _dampingRatio: number = 0;
 
-    /**[首次设置有效]关节的自身刚体*/
+    /**
+     * @en The joint's own rigid body, effective only on the first setting.
+     * @zh [首次设置有效]关节的自身刚体。
+     */
     selfBody: RigidBody;
 
-    /**[首次设置有效]关节的连接刚体，可不设置，默认为左上角空刚体*/
+    /**
+     * @en The joint's connected rigid body, which can be unspecified and defaults to an empty rigid body at the top left corner, effective only on the first setting.
+     * @zh [首次设置有效]关节的连接刚体，可不设置，默认为左上角空刚体。
+     */
     otherBody: RigidBody;
 
-    /**[首次设置有效]自身刚体链接点，是相对于自身刚体的左上角位置偏移*/
+    /**
+     * @en The self body's anchor point, which is the offset relative to the top left corner of the own rigid body, effective only on the first setting.
+     * @zh [首次设置有效]自身刚体链接点，是相对于自身刚体的左上角位置偏移。
+     */
     selfAnchor: any[] = [0, 0];
 
-    /**[首次设置有效]链接刚体链接点，是相对于otherBody的左上角位置偏移*/
+    /**
+     * @en The connected body's anchor point, which is the offset relative to the top left corner of the other body, effective only on the first setting.
+     * @zh [首次设置有效]链接刚体链接点，是相对于otherBody的左上角位置偏移。
+     */
     otherAnchor: any[] = [0, 0];
 
-    /**[首次设置有效]两个刚体是否可以发生碰撞，默认为false*/
+    /**
+     * @en Whether the two rigid bodies can collide with each other, default is false, effective only on the first setting.
+     * @zh [首次设置有效]两个刚体是否可以发生碰撞，默认为false。
+     */
     collideConnected: boolean = false;
 
 
-    /**约束的目标静止长度*/
+    /**
+     * @en The target rest length of the constraint.
+     * @zh 约束的目标静止长度。
+     */
     get length(): number {
         return this._length;
     }
@@ -53,7 +72,11 @@ export class DistanceJoint extends JointBase {
         if (this._joint) this._factory.set_DistanceJoint_length(this._joint, value);
     }
 
-    /**约束的最小长度*/
+    /**
+     * @en The minimum length of the constraint.
+     * @zh 约束的最小长度。
+     */
+
     get minLength(): number {
         return this._minLength;
     }
@@ -63,7 +86,10 @@ export class DistanceJoint extends JointBase {
         if (this._joint) this._factory.set_DistanceJoint_MinLength(this._joint, value);
     }
 
-    /**约束的最大长度*/
+    /**
+     * @en The maximum length of the constraint.
+     * @zh 约束的最大长度。
+     */
     get maxLength(): number {
         return this._maxLength;
     }
@@ -73,7 +99,10 @@ export class DistanceJoint extends JointBase {
         if (this._joint) this._factory.set_DistanceJoint_MaxLength(this._joint, value);
     }
 
-    /**弹簧系统的震动频率，可以视为弹簧的弹性系数，通常频率应该小于时间步长频率的一半*/
+    /**
+     * @en The vibration frequency of a spring system indicates how quickly it completes one oscillation cycle. A higher value signifies a higher frequency, meaning it completes one oscillation cycle in a shorter time. Consequently, the oscillation amplitude is relatively smaller, and the oscillation speed is faster. Conversely, a lower frequency results in a larger oscillation amplitude and slower oscillation speed.
+     * @zh 弹簧系统的振动频率，值越大表示振动频率越高，意味着在更短的时间内完成一个振动周期，所以，振动幅度相对较小，振动速度更快。反之，振动幅度相对较大，振动速度更慢。
+     */
     get frequency(): number {
         return this._frequency;
     }
@@ -85,7 +114,10 @@ export class DistanceJoint extends JointBase {
         }
     }
 
-    /**刚体在回归到节点过程中受到的阻尼比，建议取值0~1*/
+    /**
+     * @en The damping ratio of the body when returning to the node, which is recommended to be between 0 and 1.
+     * @zh 刚体在回归到节点过程中受到的阻尼比，建议取值在 0 到 1 之间。
+     */
     get damping(): number {
         return this._dampingRatio;
     }
@@ -97,7 +129,10 @@ export class DistanceJoint extends JointBase {
         }
     }
 
-    /**刚体当前长度*/
+    /**
+     * @en The current length of the joint.
+     * @zh 关节的当前长度。
+     */
     get jointLength(): number {
         if (this._joint) {
             return this._factory.phyToLayaValue(this.joint.GetLength())
@@ -149,6 +184,10 @@ export class DistanceJoint extends JointBase {
         }
     }
 
+    /**
+     * @en Called when the object is being destroyed. This method removes event listeners to prevent memory leaks.
+     * @zh 在对象被销毁时调用。此方法移除事件监听器以防止内存泄漏。
+     */
     onDestroy(): void {
         super.onDestroy();
         this.selfBody.owner.off("shapeChange", this._refeahJoint);

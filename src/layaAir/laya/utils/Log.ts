@@ -1,8 +1,10 @@
 import { Browser } from "./Browser";
 
 /**
- * <code>Log</code> 类用于在界面内显示日志记录信息。
- * 注意：在加速器内不可使用
+ * @en The `Log` class is used to display log information in the interface.
+ * Note: This cannot be used in the LayaAir Native Runtime.
+ * @zh `Log` 类用于在界面内显示日志记录信息。
+ * 注意：在LayaAir Native Runtime内不可使用
  */
 export class Log {
 
@@ -12,13 +14,20 @@ export class Log {
     private static _btn: any;
     /**@private */
     private static _count: number = 0;
-    /**最大打印数量，超过这个数量，则自动清理一次，默认为50次*/
+    /**
+     * @en Maximum number of log messages to display before auto-cleaning.
+     * @zh 最大打印数量，超过这个数量则自动清理一次，默认为50次。
+     */
     static maxCount: number = 50;
-    /**是否自动滚动到底部，默认为true*/
+    /**
+     * @en Whether to automatically scroll to the bottom of the log.
+     * @zh 是否自动滚动到日志底部，默认为true。
+     */
     static autoScrollToBottom: boolean = true;
 
     /**
-     * 激活Log系统，使用方法Laya.init(800,600,Laya.Log);
+     * @en Enables the Log system.
+     * @zh 启用Log系统
      */
     static enable(): void {
         if (!Log._logdiv) {
@@ -34,7 +43,10 @@ export class Log {
         }
     }
 
-    /**隐藏/显示日志面板*/
+    /**
+     * @en Hides or shows the log panel.
+     * @zh 隐藏或显示日志面板。
+     */
     static toggle(): void {
         var style: any = Log._logdiv.style;
         if (style.display === "") {
@@ -47,8 +59,10 @@ export class Log {
     }
 
     /**
-     * 增加日志内容。
-     * @param	value 需要增加的日志内容。
+     * @en Adds log content.
+     * @param value The log content to add.
+     * @zh 增加日志内容。
+     * @param value 需要增加的日志内容。
      */
     static print(value: string): void {
         if (Log._logdiv) {
@@ -67,7 +81,8 @@ export class Log {
     }
 
     /**
-     * 清理日志
+     * @en Clears the log.
+     * @zh 清理日志。
      */
     static clear(): void {
         Log._logdiv.innerText = "";

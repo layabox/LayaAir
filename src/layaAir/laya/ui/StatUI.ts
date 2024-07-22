@@ -125,9 +125,14 @@ export class StatUI implements IStatUI {
 
     /**
      * @override
-     * 显示性能统计信息。
-     * @param	x X轴显示位置。
-     * @param	y Y轴显示位置。
+     * @en Display the performance statistics.
+     * @param x The X-axis display position. 
+     * @param y The Y-axis display position.
+     * @param views The UI parameter array for displaying statistics.
+     * @zh 显示性能统计信息。
+     * @param x X轴显示位置。
+     * @param y Y轴显示位置。
+     * @param views 用于显示统计信息的UI参数数组。
      */
     show(x?: number, y?: number, views?: Array<StatUIParams>): void {
         x = x || 0;
@@ -142,6 +147,16 @@ export class StatUI implements IStatUI {
         this._sp.pos(x, y);
     }
 
+    /**
+     * @en Display the toggle UI for performance statistics.
+     * @param x The X-axis display position.
+     * @param y The Y-axis display position.
+     * @param views The toggle UI parameter array for displaying statistics.
+     * @zh 显示性能统计的切换UI。
+     * @param x X轴显示位置。
+     * @param y Y轴显示位置。
+     * @param views 用于显示统计信息的切换UI参数数组。
+     */
     showToggle(x?: number, y?: number, views?: Array<StatToggleUIParams>) {
         x = x || 0;
         y = y || 0;
@@ -158,9 +173,10 @@ export class StatUI implements IStatUI {
     }
 
     /**
-    * @override
-    * 隐藏性能统计信息。
-    */
+     * @override
+     * @en Hides performance statistics.
+     * @zh 隐藏性能统计信息。
+     */
     hide(): void {
         this._show = false;
         this._showToggle = false;
@@ -168,6 +184,10 @@ export class StatUI implements IStatUI {
             this._toggleSprite.removeSelf();
     }
 
+    /**
+     * @en Update the performance statistics.
+     * @zh 更新性能统计信息。
+     */
     update(): void {
         if (this._show) {
             strArray.length = 0;
@@ -200,6 +220,16 @@ export class StatUI implements IStatUI {
         }
     }
 
+    /**
+     * @en Render the performance statistics.
+     * @param ctx The rendering context.
+     * @param x The X-axis render position.
+     * @param y The Y-axis render position.
+     * @zh 渲染性能统计信息。
+     * @param ctx 渲染上下文。
+     * @param x X轴显示位置。
+     * @param y Y轴显示位置。
+     */
     render(ctx: any, x: number, y: number) {
         this._show && this._sp && this._sp.render(ctx, 0, 0);
     }

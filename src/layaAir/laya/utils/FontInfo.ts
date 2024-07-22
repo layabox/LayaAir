@@ -1,10 +1,16 @@
+/**
+ * @en Set the font format and parse the fontInfo.
+ * @zh 设置字体格式与解析字体模型。
+ */
 export class FontInfo {
 
     private static _cache: Record<string, FontInfo> = {};
 
     /**
-     * 解析字体模型
-     * @param font 
+     * @en Parses a font string into a FontInfo object.
+     * @param font The font string to parse.
+     * @zh 解析字体字符串为 FontInfo 对象。
+     * @param font 要解析的字体字符串
      */
     static parse(font: string): FontInfo {
         if (font === _lastFont) {
@@ -35,8 +41,10 @@ export class FontInfo {
     }
 
     /**
-     * 设置字体格式
-     * @param value 
+     * @en Sets the font format based on the given value string.
+     * @param value The font value string to set.
+     * @zh 根据给定的值字符串设置字体格式。
+     * @param value 要设置的字体值字符串。
      */
     setFont(value: string): void {
         this._font = value;

@@ -11,14 +11,18 @@ import { RigidBody } from "./RigidBody";
 import { Laya } from "../../Laya";
 
 /**
- * 2D物理引擎
+ * @en 2D Physics Engine
+ * @zh 2D物理引擎
  */
 export class Physics2D extends EventDispatcher {
 
     /**@internal */
     private static _I: Physics2D;
 
-    /**全局物理单例*/
+    /**
+     * @en Gets the global singleton instance of the Physics2D.
+     * @zh 获取全局的 Physics2D 单例。
+     */
     static get I(): Physics2D {
         return Physics2D._I || (Physics2D._I = new Physics2D());
     }
@@ -29,7 +33,11 @@ export class Physics2D extends EventDispatcher {
     /**@internal 根容器*/
     private _worldRoot: Sprite;
 
-    /**@internal 空的body节点，给一些不需要节点的关节使用*/
+    /**
+     * @internal
+     * @en An empty body node for joints that do not require a node.
+     * @zh 给不需要节点的关节使用的空的 body 节点。
+     */
     _emptyBody: any;
 
     /**@internal */
@@ -37,14 +45,23 @@ export class Physics2D extends EventDispatcher {
 
     _factory: IPhysiscs2DFactory;
 
-    /**@internal 需要同步实时跟新数据列表*/
+    /**
+     * @internal
+     * @en Need to synchronize and update the data list in real-time.
+     * @zh 需要同步实时更新数据列表。
+     */
     _rigiBodyList: SingletonList<RigidBody>;
 
-    /**@internal 需要同步物理数据的列表；使用后会及时释放*/
+    /**
+     * @internal
+     * @en List of bodies that need to synchronize physics data, which will be released in time.
+     * @zh 需要同步物理数据的列表，使用后及时释放。
+     */
     _updataattributeLists: SingletonList<RigidBody>;
 
     /**
-     * 设置物理绘制
+     * @en whether to enable 2D phyiscs debug draw.
+     * @zh 是否启用2D物理绘制
      */
     set enableDebugDraw(enable: boolean) {
         if (enable) {
@@ -55,7 +72,8 @@ export class Physics2D extends EventDispatcher {
     }
 
     /**
-     * 是否绘制Shape
+     * @en Whether to draw the shape.
+     * @zh 是否绘制物理对象的形状。
      */
     set drawShape(enable: boolean) {
         let flag = this._factory.drawFlags_shapeBit;
@@ -67,7 +85,8 @@ export class Physics2D extends EventDispatcher {
     }
 
     /**
-     * 是否绘制Joint
+     * @en Whether to draw the joints of physics objects.
+     * @zh 是否绘制物理对象的关节。
      */
     set drawJoint(enable: boolean) {
         let flag = this._factory.drawFlags_jointBit;
@@ -79,7 +98,8 @@ export class Physics2D extends EventDispatcher {
     }
 
     /**
-     * 是否绘制AABB
+     * @en Whether to draw the AABB of physics objects.
+     * @zh 是否绘制物理对象的包围盒。
      */
     set drawAABB(enable: boolean) {
         let flag = this._factory.drawFlags_aabbBit;
@@ -91,7 +111,8 @@ export class Physics2D extends EventDispatcher {
     }
 
     /**
-    * 是否绘制Pair
+    * @en Whether to draw the collision pairs of the physics object.
+    * @zh 是否绘制物理对象碰撞对。
     */
     set drawPair(enable: boolean) {
         let flag = this._factory.drawFlags_pairBit;
@@ -103,8 +124,9 @@ export class Physics2D extends EventDispatcher {
     }
 
     /**
-    * 是否绘制CenterOfMass
-    */
+     * @en Whether to draw the center of mass of physics objects.
+     * @zh  是否绘制物理对象的质心。
+     */
     set drawCenterOfMass(enable: boolean) {
         let flag = this._factory.drawFlags_centerOfMassBit;
         if (enable) {
@@ -114,9 +136,9 @@ export class Physics2D extends EventDispatcher {
         }
     }
 
-
     /**
-     * 设置是否允许休眠，休眠可以提高稳定性和性能，但通常会牺牲准确性
+     * @en Whether the engine is allowed to sleep. Allowing the engine to sleep can improve stability and performance, but it usually comes at the cost of accuracy.
+     * @zh 引擎是否允许休眠。允许引擎休眠可以提高稳定性和性能，但通常会牺牲准确性。
      */
     get allowSleeping(): boolean {
         return this._factory.allowSleeping;
@@ -127,9 +149,11 @@ export class Physics2D extends EventDispatcher {
     }
 
     /**
-    * 物理世界重力环境，默认值为{x:0,y:10}
-    * 如果修改y方向重力方向向上，可以直接设置gravity.y=-10;
-    */
+     * @en The gravity of the physics world. The default value is {x: 0, y: 9.8}.
+     * Modifying the y direction to make the gravity upward can be done by setting `gravity.y` to -9.8 directly.
+     * @zh 物理世界的重力环境。默认值为 {x: 0, y: 9.8}。
+     * 如果要修改y方向使重力方向向上，可以直接设置 `gravity.y` 为 -9.8。
+     */
     get gravity(): any {
         return this._factory.gravity;
     }
@@ -138,9 +162,14 @@ export class Physics2D extends EventDispatcher {
         this._factory.gravity = value;
     }
 
-    /**物理世界根容器，将根据此容器作为物理世界坐标世界，进行坐标变换，默认值为stage
-     * 设置特定容器后，就可整体位移物理对象，保持物理世界不变。
-     * 注意，仅会在 set worldRoot 时平移一次，其他情况请配合 updatePhysicsByWorldRoot 函数使用*/
+    /**
+     * @en The root container of the physics world. It serves as the coordinate system for the physics world and is used for coordinate transformations. The default value is the stage.
+     * Setting a specific container allows for the collective movement of physical objects while keeping the physics world unchanged.
+     * Note that translation will only occur once when setting `worldRoot`. For other situations, use it in conjunction with the `updatePhysicsByWorldRoot` function.
+     * @zh 物理世界的根容器，它作为物理世界的坐标系，用于坐标变换，默认值是舞台（stage）。
+     * 设置特定的容器后，可以整体移动物理对象，同时保持物理世界的坐标不变。
+     * 注意，只有在设置 `worldRoot` 时才会平移一次，在其他情况下，请配合使用 `updatePhysicsByWorldRoot` 函数。
+     */
     get worldRoot(): Sprite {
         return this._worldRoot || ILaya.stage;
     }
@@ -154,17 +183,26 @@ export class Physics2D extends EventDispatcher {
         }
     }
 
-    /* 获得刚体总数量*/
+    /**
+     * @en The total number of rigid bodies.
+     * @zh 刚体的总数量。
+     */
     get bodyCount(): number {
         return this._factory.bodyCount;
     }
 
-    /**获得碰撞总数量*/
+    /**
+     * @en The total number of contacts.
+     * @zh 碰撞的总数量。
+     */
     get contactCount(): number {
         return this._factory.contactCount;
     }
 
-    /**获得关节总数量*/
+    /**
+     * @en The total number of joints.
+     * @zh 关节的总数量。
+     */
     get jointCount(): number {
         return this._factory.jointCount;
     }
@@ -218,6 +256,10 @@ export class Physics2D extends EventDispatcher {
         }
     }
 
+    /**
+     * @en Enables the physics world. This method initializes the physics engine and starts the simulation.
+     * @zh 开启物理世界。此方法初始化物理引擎并启动模拟。
+     */
     enable(): Promise<void> {
         if (this._factory) {
             return this._factory.initialize().then(() => {
@@ -230,7 +272,8 @@ export class Physics2D extends EventDispatcher {
     }
 
     /**
-     * 开启物理世界
+     * @en Starts the physics world. This method is called after the physics engine is initialized.
+     * @zh 开启物理世界。此方法在物理引擎初始化后被调用。
      */
     start(): void {
         if (!this._enabled) {
@@ -262,8 +305,9 @@ export class Physics2D extends EventDispatcher {
     }
 
     /**
-    * 销毁当前物理世界
-    */
+     * @en Destroys the current physics world.
+     * @zh 销毁当前物理世界。
+     */
     destroyWorld() {
         this._enabled = false;
         this._factory.destroyWorld();
@@ -271,7 +315,8 @@ export class Physics2D extends EventDispatcher {
     }
 
     /**
-     * 停止物理世界
+     * @en Stops the physics world.
+     * @zh 停止物理世界。
      */
     stop(): void {
         this._rigiBodyList.clear();
@@ -308,7 +353,8 @@ export class Physics2D extends EventDispatcher {
     }
 
     /**
-     * 设定 worldRoot 后，手动触发物理世界更新
+     * @en Manually triggers an update of the physics world after setting the `worldRoot`.
+     * @zh 在设定 `worldRoot` 后，手动触发物理世界的更新。
      */
     updatePhysicsByWorldRoot() {
         if (!!this.worldRoot) {

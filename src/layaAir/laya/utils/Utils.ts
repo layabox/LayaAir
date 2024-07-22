@@ -3,12 +3,16 @@ const _pi: number = 180 / Math.PI;
 const _pi2: number = Math.PI / 180;
 
 /**
- * <code>Utils</code> 是工具类。
+ * @en Utils is a utility class.
+ * @zh Utils 是工具类。
  */
 export class Utils {
 
     /**
-     * 角度转弧度。
+     * @en Converts an angle to radians.
+     * @param angle The angle value.
+     * @returns The radian value.
+     * @zh 将角度转换为弧度。
      * @param	angle 角度值。
      * @return	返回弧度值。
      */
@@ -17,7 +21,10 @@ export class Utils {
     }
 
     /**
-     * 弧度转换为角度。
+     * @en Converts radians to an angle.
+     * @param radian The radian value.
+     * @returns The angle value in degrees.
+     * @zh 将弧度转换为角度。
      * @param	radian 弧度值。
      * @return	返回角度值。
      */
@@ -26,7 +33,10 @@ export class Utils {
     }
 
     /**
-     * 将传入的 uint 类型颜色值转换为字符串型颜色值。
+     * @en Converts an unsigned integer color value to a string representation.
+     * @param color The color value.
+     * @returns A string representation of the color value.
+     * @zh 将 uint 类型的颜色值转换为字符串型颜色值。
      * @param color 颜色值。
      * @return 字符串型颜色值。
      */
@@ -37,6 +47,14 @@ export class Utils {
         return "#" + str;
     }
 
+    /**
+     * @en Converts a string color value to a number color.
+     * @param value The string color value.
+     * @returns The color value as a number.
+     * @zh 将字符串型颜色值转换为数字型颜色值。
+     * @param value 字符串颜色值
+     * @returns 作为数字的颜色值
+     */
     static fromStringColor(value: string): number {
         if (!value)
             return 0;
@@ -73,14 +91,21 @@ export class Utils {
         }
     }
 
-    /**获取一个全局唯一ID。*/
+    /**
+     * @en Gets a globally unique ID.
+     * @zh 获取一个全局唯一ID。
+     */
     static getGID(): number {
         return _gid++;
     }
 
     /**
      * @private
-     * 清空source数组，复制array数组的值。
+     * @en Clears the source array and copies the values from the array parameter.
+     * @param source The array to be assigned values.
+     * @param array The new values to be copied into the source array.
+     * @returns The copied source array.
+     * @zh 清空 source 数组，并复制 array 数组的值。
      * @param	source 需要赋值的数组。
      * @param	array 新的数组值。
      * @return 	复制后的数据 source 。
@@ -98,7 +123,11 @@ export class Utils {
 
     /**
      * @private
-     * 批量移动点坐标。
+     * @en Batch translates point coordinates by the specified offsets.
+     * @param points The list of point coordinates.
+     * @param x The offset to translate along the x-axis.
+     * @param y The offset to translate along the y-axis.
+     * @zh 批量移动点坐标，按照指定的偏移量。
      * @param points 坐标列表。
      * @param x x轴偏移量。
      * @param y y轴偏移量。
@@ -112,7 +141,11 @@ export class Utils {
     }
 
     /**
-     * 解析一个字符串，并返回一个整数。和JS原生的parseInt不同：如果str为空或者非数字，原生返回NaN，这里返回0。
+     * @en Parses a string and returns an integer. Unlike the native JavaScript parseInt, if the string is empty or not a number, this method returns 0 instead of NaN.
+     * @param str The string to be parsed.
+     * @param radix The radix for parsing the number (between 2 and 36). Defaults to 0, which means decimal. The other values range from 2 to 36. If it starts with "0xX" or "0X", it will be based on 16. If the parameter is not within the above range, this method returns 0.
+     * @returns The parsed number.
+     * @zh 解析字符串并返回一个整数。与 JavaScript 原生的 parseInt 不同，如果字符串为空或非数字，这里返回 0 而不是 NaN。
      * @param	str		要被解析的字符串。
      * @param	radix	表示要解析的数字的基数。默认值为0，表示10进制，其他值介于 2 ~ 36 之间。如果它以 “0x” 或 “0X” 开头，将以 16 为基数。如果该参数不在上述范围内，则此方法返回 0。
      * @return	返回解析后的数字。
@@ -124,7 +157,8 @@ export class Utils {
     }
 
     /**
-     * 获得路径中的文件名（包含扩展名）
+     * @en Gets the base name of the file from the specified path, including the extension.
+     * @zh 从指定路径中获取文件名（包含扩展名）。
      */
     static getBaseName(path: string): string {
         let i = path.lastIndexOf("/");
@@ -137,7 +171,8 @@ export class Utils {
     }
 
     /**
-     * 获取文件名的扩展名，并转换为小写字母。例如"1.abc"将返回abc。
+     * @en Gets the file extension from the specified path and converts it to lowercase. For example, "1. abc" will return abc.
+     * @zh 从指定路径获取文件扩展名，并转换为小写字母。例如"1.abc"将返回abc。
      */
     static getFileExtension(path: string): string {
         let i = path.lastIndexOf(".");
@@ -162,7 +197,16 @@ export class Utils {
     }
 
     /**
-     * 更改文件名的扩展名。
+     * @en Changes the file extension of the specified path.
+     * @param path The file path.
+     * @param newExt The new file extension.
+     * @param excludeDot Whether to exclude the dot prefix in the new extension. Default is false.
+     * @returns The path with the new file extension.
+     * @zh 更改指定路径的文件扩展名。
+     * @param path 文件路径。
+     * @param newExt 新的文件扩展名。
+     * @param excludeDot 是否在新扩展中排除点前缀。默认值为false。
+     * @returns 具有新文件扩展名的路径。
      */
     static replaceFileExtension(path: string, newExt: string, excludeDot?: boolean): string {
         if (!path)

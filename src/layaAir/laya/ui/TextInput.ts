@@ -10,106 +10,33 @@ import { HideFlags } from "../Const";
 import { URL } from "../net/URL";
 
 /**
- * 输入文本后调度。
+ * @en Dispatched after the user inputs text.
+ * @zh 输入文本后调度。
  * @eventType Event.INPUT
  */
 /*[Event(name = "input", type = "laya.events.Event")]*/
 /**
- * 在输入框内敲回车键后调度。
+ * @en Dispatched after the user presses the enter key within the input box.
+ * @zh 在输入框内敲回车键后调度。
  * @eventType Event.ENTER
  */
 /*[Event(name = "enter", type = "laya.events.Event")]*/
 /**
- * 当获得输入焦点后调度。
+ * @en Dispatched when the input gains focus.
+ * @zh 当获得输入焦点后调度。
  * @eventType Event.FOCUS
  */
 /*[Event(name = "focus", type = "laya.events.Event")]*/
 /**
- * 当失去输入焦点后调度。
+ * @en Dispatched when the input loses focus.
+ * @zh 当失去输入焦点后调度。
  * @eventType Event.BLUR
  */
 /*[Event(name = "blur", type = "laya.events.Event")]*/
 
 /**
- * <code>TextInput</code> 类用于创建显示对象以显示和输入文本。
- *
- * @example <caption>以下示例代码，创建了一个 <code>TextInput</code> 实例。</caption>
- * package
- *	{
- *		import laya.display.Stage;
- *		import laya.ui.TextInput;
- *		import laya.utils.Handler;
- *		public class TextInput_Example
- *		{
- *			public function TextInput_Example()
- *			{
- *				Laya.init(640, 800);//设置游戏画布宽高、渲染模式。
- *				Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。
- *				Laya.loader.load(["resource/ui/input.png"], Handler.create(this, onLoadComplete));//加载资源。
- *			}
- *			private function onLoadComplete():void
- *			{
- *				var textInput:TextInput = new TextInput("这是一个TextInput实例。");//创建一个 TextInput 类的实例对象 textInput 。
- *				textInput.skin = "resource/ui/input.png";//设置 textInput 的皮肤。
- *				textInput.sizeGrid = "4,4,4,4";//设置 textInput 的网格信息。
- *				textInput.color = "#008fff";//设置 textInput 的文本颜色。
- *				textInput.font = "Arial";//设置 textInput 的文本字体。
- *				textInput.bold = true;//设置 textInput 的文本显示为粗体。
- *				textInput.fontSize = 30;//设置 textInput 的字体大小。
- *				textInput.wordWrap = true;//设置 textInput 的文本自动换行。
- *				textInput.x = 100;//设置 textInput 对象的属性 x 的值，用于控制 textInput 对象的显示位置。
- *				textInput.y = 100;//设置 textInput 对象的属性 y 的值，用于控制 textInput 对象的显示位置。
- *				textInput.width = 300;//设置 textInput 的宽度。
- *				textInput.height = 200;//设置 textInput 的高度。
- *				Laya.stage.addChild(textInput);//将 textInput 添加到显示列表。
- *			}
- *		}
- *	}
- * @example
- * Laya.init(640, 800);//设置游戏画布宽高
- * Laya.stage.bgColor = "#efefef";//设置画布的背景颜色
- * Laya.loader.load(["resource/ui/input.png"], laya.utils.Handler.create(this, onLoadComplete));//加载资源。
- * function onLoadComplete() {
- *     var textInput = new laya.ui.TextInput("这是一个TextInput实例。");//创建一个 TextInput 类的实例对象 textInput 。
- *     textInput.skin = "resource/ui/input.png";//设置 textInput 的皮肤。
- *     textInput.sizeGrid = "4,4,4,4";//设置 textInput 的网格信息。
- *     textInput.color = "#008fff";//设置 textInput 的文本颜色。
- *     textInput.font = "Arial";//设置 textInput 的文本字体。
- *     textInput.bold = true;//设置 textInput 的文本显示为粗体。
- *     textInput.fontSize = 30;//设置 textInput 的字体大小。
- *     textInput.wordWrap = true;//设置 textInput 的文本自动换行。
- *     textInput.x = 100;//设置 textInput 对象的属性 x 的值，用于控制 textInput 对象的显示位置。
- *     textInput.y = 100;//设置 textInput 对象的属性 y 的值，用于控制 textInput 对象的显示位置。
- *     textInput.width = 300;//设置 textInput 的宽度。
- *     textInput.height = 200;//设置 textInput 的高度。
- *     Laya.stage.addChild(textInput);//将 textInput 添加到显示列表。
- * }
- * @example
- * import Stage = laya.display.Stage;
- * import TextInput = laya.ui.TextInput;
- * import Handler = laya.utils.Handler;
- * class TextInput_Example {
- *     constructor() {
- *         Laya.init(640, 800);//设置游戏画布宽高、渲染模式。
- *         Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。
- *         Laya.loader.load(["resource/ui/input.png"], Handler.create(this, this.onLoadComplete));//加载资源。
- *     }
- *     private onLoadComplete(): void {
- *         var textInput: TextInput = new TextInput("这是一个TextInput实例。");//创建一个 TextInput 类的实例对象 textInput 。
- *         textInput.skin = "resource/ui/input.png";//设置 textInput 的皮肤。
- *         textInput.sizeGrid = "4,4,4,4";//设置 textInput 的网格信息。
- *         textInput.color = "#008fff";//设置 textInput 的文本颜色。
- *         textInput.font = "Arial";//设置 textInput 的文本字体。
- *         textInput.bold = true;//设置 textInput 的文本显示为粗体。
- *         textInput.fontSize = 30;//设置 textInput 的字体大小。
- *         textInput.wordWrap = true;//设置 textInput 的文本自动换行。
- *         textInput.x = 100;//设置 textInput 对象的属性 x 的值，用于控制 textInput 对象的显示位置。
- *         textInput.y = 100;//设置 textInput 对象的属性 y 的值，用于控制 textInput 对象的显示位置。
- *         textInput.width = 300;//设置 textInput 的宽度。
- *         textInput.height = 200;//设置 textInput 的高度。
- *         Laya.stage.addChild(textInput);//将 textInput 添加到显示列表。
- *     }
- * }
+ * @en The TextInput class is used to create an input text display object.
+ * @zh TextInput类用于创建输入文本显示对象。
  */
 export class TextInput extends Label {
     /** @internal */
@@ -120,6 +47,8 @@ export class TextInput extends Label {
     declare _tf: Input;
 
     /**
+     * @en The URL of the skin for the TextInput UIComponent.
+     * @zh TextInput组件的皮肤地址。
      * @copy laya.ui.Image#skin
      */
     get skin(): string {
@@ -136,10 +65,15 @@ export class TextInput extends Label {
     }
 
     /**
-     * <p>当前实例的背景图（ <code>AutoBitmap</code> ）实例的有效缩放网格数据。</p>
-     * <p>数据格式："上边距,右边距,下边距,左边距,是否重复填充(值为0：不重复填充，1：重复填充)"，以逗号分隔。
-     * <ul><li>例如："4,4,4,4,1"</li></ul></p>
-     */
+      * @en The size grid of the texture.
+      * The size grid is a 3x3 division of the texture, allowing it to be scaled without distorting the corners and edges. 
+      * The array contains five values representing the top, right, bottom, and left margins, and whether to repeat the fill (0: no repeat, 1: repeat). 
+      * The values are separated by commas. For example: "6,6,6,6,1".
+      * @zh 纹理的九宫格数据。
+      * 九宫格是一种将纹理分成3x3格的方式，使得纹理缩放时保持角和边缘不失真。
+      * 数组包含五个值，分别代表上边距、右边距、下边距、左边距以及是否重复填充（0：不重复填充，1：重复填充）。
+      * 值以逗号分隔。例如："6,6,6,6,1"。
+      */
     get sizeGrid(): string {
         return this._graphics && this._graphics.sizeGrid ? this._graphics.sizeGrid.join(",") : null;
     }
@@ -152,7 +86,9 @@ export class TextInput extends Label {
     }
 
     /**
-     * <p>指示当前是否是文本域。</p>
+     * @en Whether it is a text area.
+     * True means it is a text area, otherwise it is not.
+     * @zh 是否是文本域。
      * 值为true表示当前是文本域，否则不是文本域。
      */
     get multiline(): boolean {
@@ -164,17 +100,21 @@ export class TextInput extends Label {
     }
 
     /**
-     * 设置可编辑状态。
+     * @en whether it is editable.
+     * @zh 是否可编辑。
      */
-    set editable(value: boolean) {
-        this._tf.editable = value;
-    }
-
     get editable(): boolean {
         return this._tf.editable;
     }
 
-    /**限制输入的字符。*/
+    set editable(value: boolean) {
+        this._tf.editable = value;
+    }
+
+    /**
+     * @en The pattern that restricts the input.
+     * @zh 限制输入的字符。
+     */
     get restrict(): string {
         return this._tf.restrict;
     }
@@ -184,6 +124,8 @@ export class TextInput extends Label {
     }
 
     /**
+     * @en The prompt text of the input.
+     * @zh 输入框的提示文本。
      * @copy laya.display.Input#prompt
      */
     get prompt(): string {
@@ -195,6 +137,8 @@ export class TextInput extends Label {
     }
 
     /**
+     * @en The prompt color of the input.
+     * @zh 输入框的提示文字颜色。
      * @copy laya.display.Input#promptColor
      */
     get promptColor(): string {
@@ -206,6 +150,8 @@ export class TextInput extends Label {
     }
 
     /**
+     * @en The maximum number of characters allowed in the input.
+     * @zh 输入框允许的最大字符数。
      * @copy laya.display.Input#maxChars
      */
     get maxChars(): number {
@@ -217,6 +163,8 @@ export class TextInput extends Label {
     }
 
     /**
+     * @en The focus state of the input.
+     * @zh 输入框的焦点状态。
      * @copy laya.display.Input#focus
      */
     get focus(): boolean {
@@ -228,8 +176,25 @@ export class TextInput extends Label {
     }
 
     /**
+     * @en The type of the input box. Refer to the HTML5 input tag for types.
+     * Common types include:
+     * - text
+     * - password
+     * - email
+     * - number
+     * - date
+     * - time
+     * @zh 输入框的类型。可参照HTML5的input标签。
+     * 常用标签例如：
+     * - text
+     * - password
+     * - email
+     * - number
+     * - date
+     * - time
      * @copy laya.display.Input#type
      */
+
     get type(): string {
         return this._tf.type;
     }
@@ -239,7 +204,9 @@ export class TextInput extends Label {
     }
 
     /**
-     * 创建一个新的 <code>TextInput</code> 类实例。
+     * @en Constructor method
+     * @param text Text content.
+     * @zh 构造方法
      * @param text 文本内容。
      */
     constructor(text?: string) {
@@ -337,11 +304,22 @@ export class TextInput extends Label {
         this.height = 22;
     }
 
-    /**选中输入框内的文本。*/
+    /**
+     * @en Select the text in the input box
+     * @zh 选中输入框内的文本。
+     */
     select(): void {
         this._tf.select();
     }
 
+    /**
+     * @en Sets the start and end index of the selected text within the input field. 
+     * @param startIndex The index of the first selected character.
+     * @param endIndex The index of the character following the last selected character.
+     * @zh 在输入字段内设置选中文本的起始和结束索引。
+     * @param startIndex 选中文本的光标起始位置。
+     * @param endIndex 选中文本的光标结束位置。
+     */
     setSelection(startIndex: number, endIndex: number): void {
         this._tf.setSelection(startIndex, endIndex);
     }

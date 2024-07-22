@@ -1,132 +1,73 @@
 import { GPUEngineStatisticsInfo } from "../../../../RenderEngine/RenderEnum/RenderStatInfo";
+import { UniformBufferManager } from "../../../DriverDesign/RenderDevice/UniformBufferManager/UniformBufferManager";
 import { WebGPURenderEngine } from "../WebGPURenderEngine";
-import { WebGPUBufferBlock } from "./WebGPUBufferBlock";
-import { WebGPUBufferCluster } from "./WebGPUBufferCluster";
-import { WebGPUUniformBuffer } from "./WebGPUUniformBuffer";
+import { WebGPUGlobal } from "../WebGPUStatis/WebGPUGlobal";
+import { WebGPUStatis } from "../WebGPUStatis/WebGPUStatis";
 
 /**
- * GPU内存块管理
+ * Uniform内存块管理
  */
-export class WebGPUBufferManager {
-    device: GPUDevice;
-    renderContext: any;
-    namedBuffers: Map<string, WebGPUBufferCluster>;
+export class WebGPUBufferManager extends UniformBufferManager {
+    globalId: number; //全局id
+    objectName: string; //本对象名称
 
-    static snCounter: number = 0;
-
-    constructor(device: GPUDevice) {
-        this.device = device;
-        this.namedBuffers = new Map();
-    }
-
-    /**
-     * 设置渲染上下文
-     * @param rc 
-     */
-    setRenderContext(rc: any) {
-        this.renderContext = rc;
-        this.namedBuffers.forEach(buf => buf.setRenderContext(rc));
-    }
-
-    /**
-     * 获取单独的GPUBuffer
-     * @param size 
-     * @param name 
-     */
-    getBufferAlone(size: number, name?: string) {
-        WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.M_GPUMemory, size);
-        WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.M_GPUBuffer, size);
-        return this.device.createBuffer({
-            label: name,
-            size: size,
-            usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-        });
-    }
-
-    /**
-     * 添加内存
-     * @param name 
-     * @param sliceSize 
-     * @param sliceNum 
-     */
-    addBuffer(name: string, sliceSize: number, sliceNum: number) {
-        if (this.namedBuffers.has(name)) {
-            console.warn(`namedBuffer with name: ${name} already exist!`);
-            return false;
-        }
-        const bc = new WebGPUBufferCluster(this.device, name, sliceSize, sliceNum);
-        bc.setRenderContext(this.renderContext);
-        this.namedBuffers.set(name, bc);
-        return true;
-    }
-
-    /**
-     * 删除内存
-     * @param name 
-     */
-    removeBuffer(name: string) {
-        this.namedBuffers.delete(name);
-    }
-
-    /**
-     * 获取内存块
-     * @param name 
-     */
-    getBuffer(name: string) {
-        return this.namedBuffers.get(name)?.buffer;
-    }
-
-    /**
-     * 获取内存块
-     * @param name 
-     * @param size 
-     * @param user 
-     */
-    getBlock(name: string, size: number, user: WebGPUUniformBuffer) {
-        const buffer = this.namedBuffers.get(name);
-        if (buffer)
-            return buffer.getBlock(size, user);
-        return null;
-    }
-
-    /**
-     * 释放内存块
-     * @param name 
-     * @param bb 
-     */
-    freeBlock(name: string, bb: WebGPUBufferBlock) {
-        const buffer = this.namedBuffers.get(name);
-        if (buffer)
-            return buffer.freeBlock(bb);
-        return false;
-    }
-
-    /**
-     * 清理内存
-     * @param name 
-     */
-    clearBuffer(name: string) {
-        this.namedBuffers.delete(name);
-    }
-
-    /**
-     * 上传数据
-     */
-    upload() {
-        this.namedBuffers.forEach(buf => buf.upload());
-    }
-
-    /**
-     * 清理所有内存
-     */
-    clear() {
-        this.namedBuffers.forEach(buf => buf.clear());
+    constructor(useBigBuffer: boolean) {
+        super(useBigBuffer);
+        this.objectName = 'WebGPUBufferManager';
+        this.globalId = WebGPUGlobal.getId(this);
     }
 
     /**
      * 销毁
      */
     destroy() {
-        this.namedBuffers.clear();
+        if (super.destroy())
+            return true;
+        return false;
+    }
+
+    /**
+     * 创建GPU内存对象
+     * @param size 字节长度
+     * @param name 名称
+     */
+    createGPUBuffer(size: number, name?: string) {
+        return this.renderContext.device.createBuffer({
+            label: name,
+            size,
+            usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+        });
+    }
+    
+    /**
+     * 将数据写入GPU内存
+     * @param buffer GPU内存对象
+     * @param data CPU数据对象
+     * @param offset 数据在大内存中的偏移量（字节）
+     * @param size 写入的数据长度（字节）
+     */
+    writeBuffer(buffer: any, data: ArrayBuffer, offset: number, size: number) {
+        this.renderContext.device.queue.writeBuffer(buffer, offset, data, offset, size);
+    }
+
+    /**
+     * 统计GPU内存使用量
+     * @param bytes 字节
+     */
+    statisGPUMemory(bytes: number) {
+        WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.M_GPUMemory, bytes);
+        WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.M_GPUBuffer, bytes);
+        WebGPUGlobal.action(this, 'expandMemory | uniform', bytes);
+    }
+
+    /**
+     * 统计上传次数
+     * @param count 上传次数
+     * @param bytes 上传字节
+     */
+    statisUpload(count: number, bytes: number) {
+        WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.C_UniformBufferUploadCount, count);
+        WebGPUStatis.addUploadNum(count);
+        WebGPUStatis.addUploadBytes(bytes);
     }
 }
