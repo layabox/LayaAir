@@ -71,6 +71,8 @@ export class WebGPURenderEngine implements IRenderEngine {
     _lodTextureSample: boolean = false;
     _breakTextureSample: boolean = false;
 
+    _enableStatistics: boolean;
+
     private _adapter: GPUAdapter;
     private _device: GPUDevice;
     private _supportCapatable: WebGPUCapable;
@@ -96,17 +98,11 @@ export class WebGPURenderEngine implements IRenderEngine {
             WebGPURenderEngine._instance = this;
         else console.error('WebGPU is not supported by your browser');
 
+        this.gpuBufferMgr = new WebGPUBufferManager(WebGPUGlobal.useBigBuffer);
+
         this._initStatisticsInfo();
         this.globalId = WebGPUGlobal.getId(this);
     }
-
-    // getUBOPointer?(name: string): number {
-    //     throw new Error('Method not implemented.');
-    // }
-    // createBuffer?(targetType: BufferTargetType, bufferUsageType: BufferUsage): GLBuffer {
-    //     throw new Error('Method not implemented.');
-    // }
-    _enableStatistics: boolean;
 
     /**
      * 获取适配器
@@ -176,15 +172,6 @@ export class WebGPURenderEngine implements IRenderEngine {
         });
         this._device.addEventListener('uncapturederror', this._unCapturedErrorCall);
         this._device.lost.then(this._deviceLostCall);
-
-        this.gpuBufferMgr = new WebGPUBufferManager(device);
-        // if (WebGPUGlobal.useBigBuffer) {
-        //     this.gpuBufferMgr.addBuffer('scene3D', 2 * 1024, 1);
-        //     this.gpuBufferMgr.addBuffer('camera', 2 * 1024, 1);
-        //     this.gpuBufferMgr.addBuffer('material', 16 * 1024, 1);
-        //     this.gpuBufferMgr.addBuffer('sprite3D', 64 * 1024, 2);
-        //     this.gpuBufferMgr.addBuffer('sprite3D_static', 64 * 1024, 4);
-        // }
     }
 
     /**
@@ -228,6 +215,13 @@ export class WebGPURenderEngine implements IRenderEngine {
     }
 
     /**
+     * 开始新的一帧
+     */
+    startFrame() {
+        this.gpuBufferMgr.startFrame();
+    }
+
+    /**
      * 上传数据
      */
     upload() {
@@ -263,9 +257,6 @@ export class WebGPURenderEngine implements IRenderEngine {
 
         this._textureContext = new WebGPUTextureContext(this);
         this.createScreenRT();
-
-        // limit TODO
-        // this._adapter 得到Webgpu限制
     }
 
     copySubFrameBuffertoTex(texture: InternalTexture, level: number, xoffset: number, yoffset: number, x: number, y: number, width: number, height: number): void {
