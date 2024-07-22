@@ -158,7 +158,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
         this._cameraData = context.cameraData;
         if (this.renderShaderData === undefined) {
             this.renderShaderData = WebGPURenderElement3D._renderShaderData;
-            this.renderShaderData.destroy();
+            this.renderShaderData.clear();
         }
         if (this.transform?.owner?.isStatic) {
             if (this.isStatic !== true)

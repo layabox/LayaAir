@@ -1,37 +1,30 @@
-import { GPUEngineStatisticsInfo } from "../../../../RenderEngine/RenderEnum/RenderStatInfo";
-import { WebGPURenderEngine } from "../WebGPURenderEngine";
-import { WebGPUStatis } from "../WebGPUStatis/WebGPUStatis";
+import { UniformBufferAlone } from "../../../DriverDesign/RenderDevice/UniformBufferManager/UniformBufferAlone";
+import { WebGPUGlobal } from "../WebGPUStatis/WebGPUGlobal";
+import { WebGPUBufferManager } from "./WebGPUBufferManager";
 
 /**
- * 单独的GPUBuffer
+ * 单独的UniformBuffer
  */
-export class WebGPUBufferAlone {
-    queue: GPUQueue;
-    buffer: GPUBuffer;
-    data: ArrayBuffer;
-    size: number;
+export class WebGPUBufferAlone extends UniformBufferAlone {
+    globalId: number; //全局id
+    objectName: string; //本对象名称
 
-    constructor(buffer: GPUBuffer, size: number) {
-        this.queue = WebGPURenderEngine._instance.getDevice().queue;
-        this.data = new ArrayBuffer(size);
-        this.buffer = buffer;
-        this.size = size;
+    constructor(size: number, manager: WebGPUBufferManager) {
+        super(size, manager);
+        this.objectName = 'WebGPUBufferAlone';
+        this.globalId = WebGPUGlobal.getId(this);
+        WebGPUGlobal.action(this, 'allocMemory', this.alignedSize);
     }
 
-    upload() {
-        this.queue.writeBuffer(this.buffer, 0, this.data);
-        WebGPUStatis.addUploadNum(1);
-        WebGPUStatis.addUploadBytes(this.size);
-
-        WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.C_UniformBufferUploadCount, 1);
-    }
-
+    /**
+     * 销毁
+     */
     destroy() {
-        this.buffer.destroy();
-        this.queue = null;
-        this.data = null;
-
-        WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.M_GPUMemory, -this.size);
-        WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.M_GPUBuffer, -this.size);
+        if (super.destroy()) {
+            WebGPUGlobal.action(this, 'releaseMemory | uniform', this.alignedSize);
+            WebGPUGlobal.releaseId(this);
+            return true;
+        }
+        return false;
     }
 }

@@ -907,6 +907,19 @@ export class WebGPUShaderData extends ShaderData {
     _releaseUBOData() { }
 
     /**
+     * 清理
+     */
+    clear() {
+        this._gammaColorMap.clear();
+        this._bindGroupMap.clear();
+        this._bindGroup = null;
+        this._bindGroupLayoutEntries = null;
+        if (this.coShaderData)
+            for (let i = this.coShaderData.length - 1; i > -1; i--)
+                this.coShaderData[i].clear();
+    }
+
+    /**
      * 销毁
      */
     destroy() {
@@ -916,13 +929,6 @@ export class WebGPUShaderData extends ShaderData {
         this._bindGroupMap.clear();
         this._bindGroup = null;
         this._bindGroupLayoutEntries = null;
-        // for (const id in this._data) {
-        //     const data = this._data[id];
-        //     if (data instanceof Texture2D)
-        //         data._texture.dispose();
-        //     else if (data instanceof TextureCube)
-        //         data._texture.dispose();
-        // }
         if (this._uniformBuffer)
             this._uniformBuffer.destroy();
         if (this.coShaderData)

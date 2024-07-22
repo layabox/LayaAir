@@ -60,6 +60,7 @@ export class WebGPURenderContext3D implements IRenderContext3D {
     private _needStart: boolean = true;
 
     device: GPUDevice; //GPU设备
+    frameCount: number = 0; //帧计数
     bundleHit: number = 0; //命中Bundle
     needRemoveBundle: number[] = []; //需要清除绘图指令缓存的渲染节点
     bundleManagerSets: Map<string, WebGPURenderBundleManagerSet> = new Map(); //绘图指令缓存组
@@ -78,6 +79,7 @@ export class WebGPURenderContext3D implements IRenderContext3D {
 
     constructor() {
         this.globalId = WebGPUGlobal.getId(this);
+        this.device = WebGPURenderEngine._instance.getDevice();
         WebGPURenderEngine._instance.gpuBufferMgr.setRenderContext(this);
     }
 
@@ -339,10 +341,6 @@ export class WebGPURenderContext3D implements IRenderContext3D {
         WebGPUStatis.addRenderElement(list.length); //统计渲染节点数量
         //console.log('renderTime =', (performance.now() - tttt), len);
 
-        // tttt = performance.now();
-        // for (let i = 0; i < len; i++)
-        //     elements[i]._stateCheck(this);
-        // console.log('stateTime =', (performance.now() - tttt), len);
         return 0;
     }
 
@@ -415,7 +413,6 @@ export class WebGPURenderContext3D implements IRenderContext3D {
      * @param viewPortAndScissor 
      */
     private _start(viewPortAndScissor: boolean = true) {
-        this.device = WebGPURenderEngine._instance.getDevice();
         const renderPassDesc: GPURenderPassDescriptor
             = WebGPURenderPassHelper.getDescriptor(this.destRT, this._clearFlag, this._clearColor, this._clearDepth, this._clearStencil);
         this.renderCommand.startRender(renderPassDesc);
@@ -438,15 +435,19 @@ export class WebGPURenderContext3D implements IRenderContext3D {
      * 提交渲染命令
      */
     private _submit() {
-        if (this.blitScreen && WebGPURenderEngine._instance.screenResized) return; //屏幕尺寸改变，丢弃这一帧
+        const engine = WebGPURenderEngine._instance;
+        if (this.blitScreen && engine.screenResized) return; //屏幕尺寸改变，丢弃这一帧
         this.renderCommand.end();
-        if (WebGPUGlobal.useBigBuffer)
-            WebGPURenderEngine._instance.upload(); //上传所有Uniform数据
+        if (Laya.timer.currFrame != this.frameCount) {
+            this.frameCount = Laya.timer.currFrame;
+            engine.startFrame();
+        }
+        engine.upload(); //上传所有Uniform数据
         this.device.queue.submit([this.renderCommand.finish()]);
         this._needStart = true;
         WebGPUStatis.addSubmit(); //统计提交次数
 
-        WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.C_DrawCallCount, 1);
+        engine._addStatisticsInfo(GPUEngineStatisticsInfo.C_DrawCallCount, 1);
     }
 
     /**
