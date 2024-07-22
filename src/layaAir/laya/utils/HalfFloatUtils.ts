@@ -1,5 +1,6 @@
 /**
- * <code>HalfFloatUtils</code> 类用于创建HalfFloat工具。
+ * @en The HalfFloatUtils class is used to create the HalfFloat tool.
+ * @zh HalfFloatUtils 类用于创建HalfFloat工具。
  */
 export class HalfFloatUtils {
     /**@internal */
@@ -106,8 +107,10 @@ export class HalfFloatUtils {
     }
 
     /**
-     * round a number to a half float number bits.
-     * @param {number} num
+     * @en round a number to a half float number bits.
+     * @param num The number to round.
+     * @zh 将数字四舍五入到最接近的半浮点数。
+     * @param num 要舍入的数字。
      */
     static roundToFloat16Bits(num: number): number {
         HalfFloatUtils._floatView[0] = num;
@@ -117,8 +120,10 @@ export class HalfFloatUtils {
     }
 
     /**
-     * convert a half float number bits to a number.
-     * @param {number} float16bits - half float number bits
+     * @en Converts a half-precision floating-point number in bits to a JavaScript number.
+     * @param float16bits  half float number bits
+     * @zh 将半精度浮点数的位转换为 JavaScript 数字。
+     * @param float16bits 半精度浮点数
      */
     static convertToNumber(float16bits: number): number {
         var m: number = float16bits >> 10;

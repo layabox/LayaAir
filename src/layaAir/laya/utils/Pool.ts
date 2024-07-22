@@ -1,7 +1,10 @@
 /**
- * <p> <code>Pool</code> 是对象池类，用于对象的存储、重复使用。</p>
- * <p>合理使用对象池，可以有效减少对象创建的开销，避免频繁的垃圾回收，从而优化游戏流畅度。</p>
+ * @en The `Pool` class is an object pooling class used for storing and reusing objects.
+ * Reasonable use of the object pool can effectively reduce the overhead of object creation, avoid frequent garbage collection, and thus optimize the smoothness of the game.
+ * @zh `Pool` 是对象池类，用于对象的存储和复用。
+ * 合理使用对象池可以有效减少对象创建的开销，避免频繁的垃圾回收，从而优化游戏流畅度。
  */
+
 export class Pool {
     /**@private */
     private static _CLSID: number = 0;
@@ -11,16 +14,21 @@ export class Pool {
     private static _poolDic: any = {};
 
     /**
-     * 根据对象类型标识字符，获取对象池。
+     * @en Get the object pool based on the object type signature.
+     * @param sign The object type signature.
+     * @returns The object pool.
+     * @zh 根据对象类型标识字符获取对象池。
      * @param sign 对象类型标识字符。
-     * @return 对象池。
+     * @returns 对象池。
      */
     static getPoolBySign(sign: string): any[] {
         return Pool._poolDic[sign] || (Pool._poolDic[sign] = []);
     }
 
     /**
-     * 清除对象池的对象。
+     * @en Clear the objects in the object pool.
+     * @param sign The object type signature.
+     * @zh 清除对象池中的对象。
      * @param sign 对象类型标识字符。
      */
     static clearBySign(sign: string): void {
@@ -28,7 +36,10 @@ export class Pool {
     }
 
     /**
-     * 将对象放到对应类型标识的对象池中。
+     * @en Put the object into the object pool of the corresponding type signature.
+     * @param sign The object type signature.
+     * @param item The object.
+     * @zh 将对象放到对应类型标识的对象池中。
      * @param sign 对象类型标识字符。
      * @param item 对象。
      */
@@ -40,8 +51,10 @@ export class Pool {
     }
 
     /**
-     * 根据类名进行回收，如果类有类名才进行回收，没有则不回收
-     * @param	instance 类的具体实例
+     * @en Recover by class name if the class has one, if not, do not recover.
+     * @param instance The instance of the class.
+     * @zh 根据类名进行回收，如果类有类名才进行回收，没有则不回收。
+     * @param instance 类的具体实例。
      */
     static recoverByClass(instance: any): void {
         if (instance) {
@@ -63,19 +76,26 @@ export class Pool {
     }
 
     /**
-     * 根据类型创建对象
-     * @param	cls 类型
+     * @en Create an object by class.
+     * @param cls The class for creating the object.
+     * @zh 根据类创建对象。
+     * @param cls 用于创建对象的类。
      */
     static createByClass<T>(cls: new () => T): T {
         return Pool.getItemByClass(Pool._getClassSign(cls), cls);
     }
 
     /**
-     * <p>根据传入的对象类型标识字符，获取对象池中此类型标识的一个对象实例。</p>
-     * <p>当对象池中无此类型标识的对象时，则根据传入的类型，创建一个新的对象返回。</p>
+     * @en Get an object instance of a certain type from the object pool.
+     * If there is no object of this type in the pool, a new object will be created and returned.
+     * @param sign The object type signature.
+     * @param cls The class used to create the object of this type.
+     * @returns An object of the specified type.
+     * @zh 根据传入的对象类型标识字符，获取对象池中此类型标识的一个对象实例。
+     * 如果对象池中无此类型标识的对象时，则根据传入的类型，创建一个新的对象返回。
      * @param sign 对象类型标识字符。
      * @param cls 用于创建该类型对象的类。
-     * @return 此类型标识的一个对象。
+     * @returns 此类型标识的一个对象。
      */
     static getItemByClass<T>(sign: string, cls: new () => T): T {
         let rst: any;
@@ -89,12 +109,18 @@ export class Pool {
     }
 
     /**
-     * <p>根据传入的对象类型标识字符，获取对象池中此类型标识的一个对象实例。</p>
-     * <p>当对象池中无此类型标识的对象时，则使用传入的创建此类型对象的函数，新建一个对象返回。</p>
+     * @en Get an object instance of a certain type from the object pool using a creation function.
+     * If there is no object of this type in the pool, a new object will be created using the function and returned.
+     * @param sign The object type signature.
+     * @param createFun The function used to create the object of this type.
+     * @param caller The `this` context for the creation function.
+     * @returns An object of the specified type.
+     * @zh 根据传入的对象类型标识字符和创建函数，获取对象池中此类型标识的一个对象实例。
+     * 如果对象池中无此类型标识的对象时，则使用传入的创建此类型对象的函数，新建一个对象返回。
      * @param sign 对象类型标识字符。
      * @param createFun 用于创建该类型对象的方法。
-     * @param caller this对象
-     * @return 此类型标识的一个对象。
+     * @param caller this对象。
+     * @returns 此类型标识的一个对象。
      */
     static getItemByCreateFun(sign: string, createFun: Function, caller: any = null): any {
         var pool: any[] = Pool.getPoolBySign(sign);
@@ -104,9 +130,12 @@ export class Pool {
     }
 
     /**
-     * 根据传入的对象类型标识字符，获取对象池中已存储的此类型的一个对象，如果对象池中无此类型的对象，则返回 null 。
+     * @en Get an object from the object pool by the object type signature. If there is no object of this type in the pool, return null.
+     * @param sign The object type signature.
+     * @returns An object of the specified type or null if none is available.
+     * @zh 根据传入的对象类型标识字符，获取对象池中已存储的此类型的一个对象，如果对象池中无此类型的对象，则返回 null。
      * @param sign 对象类型标识字符。
-     * @return 对象池中此类型的一个对象，如果对象池中无此类型的对象，则返回 null 。
+     * @returns 对象池中此类型的一个对象，如果对象池中无此类型的对象，则返回 null。
      */
     static getItem(sign: string): any {
         var pool: any[] = Pool.getPoolBySign(sign);

@@ -4,23 +4,71 @@ import { SpriteConst } from "../display/SpriteConst"
 import { Context } from "../renders/Context"
 /**
  * @internal
+ * @en Performance Heads-Up Display (HUD) class.
+ * This class provides a visual representation of various performance metrics over time.
+ * @zh 性能的抬头显示器（HUD）类。
+ * 该类提供了各种性能指标随时间变化的可视化表示。
  */
 export class PerfHUD extends Sprite {
+    /** 
+    * @en Last recorded timestamp for performance data
+    * @zh 上次记录的性能数据时间戳
+    */
     private static _lastTm: number = 0;	//perf Data
+    /** 
+     * @en Function to get current time
+     * @zh 获取当前时间的函数
+     */
     private static _now: () => number = null;
+    /** 
+     * @en Array to store different performance data sets
+     * @zh 存储不同性能数据集的数组
+     */
     private datas: any[] = [];
+    /** 
+     * @en Number of data points to display
+     * @zh 要显示的数据点数量
+     */
     static DATANUM: number = 300;
 
+    /**
+     * @en An array to store x-axis data for the HUD display.
+     * @zh 存储 HUD 显示的 x 轴数据的数组。
+     */
     xdata: any[] = new Array(PerfHUD.DATANUM);
+    /**
+     * @en An array to store y-axis data for the HUD display.
+     * @zh 存储 HUD 显示的 y 轴数据的数组。
+     */
     ydata: any[] = new Array(PerfHUD.DATANUM);
 
+    /**
+     * @en The width of the HUD display area.
+     * @zh HUD 显示区域的宽度。
+     */
     hud_width: number = 800;
+    /**
+     * @en The height of the HUD display area.
+     * @zh HUD 显示区域的高度。
+     */
     hud_height: number = 200;
 
+    /**
+     * @en The minimum value for vertical scale of the HUD.
+     * @zh HUD 垂直尺度的最小值。
+     */
     gMinV: number = 0;
+    /**
+     * @en The maximum value for vertical scale of the HUD.
+     * @zh HUD 垂直尺度的最大值。
+     */
     gMaxV: number = 100;
 
     private textSpace: number = 40;	//留给刻度文字的
+    /**
+     * @en Static reference to a PerfHUD instance.
+     * @zh PerfHUD实例的静态引用。
+     */
     static inst: PerfHUD;
 
     private _now: Function;
@@ -41,48 +89,80 @@ export class PerfHUD extends Sprite {
         PerfHUD._now = performance ? performance.now.bind(performance) : Date.now;
     }
 
+    /** 
+     * @en Function to get current time
+     * @zh 获取当前时间的函数
+     */
     //TODO:coverage
     now(): number {
         return PerfHUD._now();
     }
 
+    /**
+     * @en Start the performance measurement.
+     * @zh 开始性能测量。
+     */
     //TODO:coverage
     start(): void {
         this.sttm = PerfHUD._now();
     }
 
+    /**
+     * @en End the performance measurement and update the value.
+     * @zh 结束性能测量并更新值。
+     */
     //TODO:coverage
     end(i: number): void {
         var dt: number = PerfHUD._now() - this.sttm;
         this.updateValue(i, dt);
     }
 
+    /**
+     * @en Configure the size of the HUD display area.
+     * @zh 配置 HUD 显示区域的大小。
+     */
     //TODO:coverage
     config(w: number, h: number): void {
         this.hud_width = w;
         this.hud_height = h;
     }
 
+    /**
+     * @en Add a new data definition to the HUD.
+     * @zh 添加一个新的数据定义到 HUD。
+     */
     //TODO:coverage
     addDataDef(id: number, color: number, name: string, scale: number): void {
         this.datas[id] = new PerfData(id, color, name, scale);
     }
 
+    /**
+     * @en Update the value of a specific data point.
+     * @zh 更新特定数据点的值。
+     */
     //TODO:coverage
     updateValue(id: number, v: number): void {
         this.datas[id].addData(v);
     }
 
+    /**
+     * @en Convert a value to its corresponding y-coordinate on the HUD.
+     * @zh 将值转换为其在 HUD 上对应的 y 坐标。
+     */
     //TODO:coverage
     v2y(v: number): number {
-        var bb: number = this._y + this.hud_height * (1 - (v - this.gMinV) / this.gMaxV);
+        // var bb: number = this._y + this.hud_height * (1 - (v - this.gMinV) / this.gMaxV);
         return this._y + this.hud_height * (1 - (v - this.gMinV) / this.gMaxV);
     }
 
+    /**
+     * @en Draw a horizontal line on the HUD with a label.
+     * @zh 在 HUD 上绘制带有标签的水平线。
+     */
     //TODO:coverage
     drawHLine(ctx: Context, v: number, color: string, text: string): void {
         var sx: number = this._x;
-        var ex: number = this._x + this.hud_width;
+        // var ex: number = this._x + this.hud_width;
         var sy: number = this.v2y(v);
         ctx.fillText(text, sx, sy - 6, null, 'green', null);
         sx += this.textSpace;
@@ -92,11 +172,15 @@ export class PerfHUD extends Sprite {
 
     //TODO:coverage
     /**
-     * 
-     * @param ctx 
-     * @param x 
-     * @param y 
      * @override
+     * @en Custom render method for the HUD.
+     * @param ctx The rendering context.
+     * @param x The x-coordinate of the HUD.
+     * @param y The y-coordinate of the HUD.
+     * @zh HUD 的自定义渲染方法。
+     * @param ctx 渲染上下文。
+     * @param x HUD 的 x 坐标。
+     * @param y HUD 的 y 坐标。
      */
     customRender(ctx: Context, x: number, y: number): void {
         var now: number = performance.now();;

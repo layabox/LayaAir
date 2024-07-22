@@ -1,12 +1,35 @@
+/**
+ * @en A utility class for Base64 encoding and decoding operations.
+ * @zh Base64 编码和解码操作的实用工具类。
+ */
 export class Base64Tool {
 
+    /**
+     * @en The character set used for Base64 encoding.
+     * @zh 用于 Base64 编码的字符集。
+     */
     static chars: string = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    /**
+     * @en Regular expression for validating Base64 encoded strings, including data URIs.
+     * @zh 用于验证 Base64 编码字符串（包括数据 URI）的正则表达式。
+     */
     static reg = /^\s*data:([a-z]+\/[a-z0-9-+.]+(;[a-z-]+=[a-z0-9-]+)?)?(;base64)?,([a-z0-9!$&',()*+;=\-._~:@\/?%\s]*?)\s*$/i;
+    /**
+     * @en Regular expression for matching the header of a data URI.
+     * @zh 用于匹配数据 URI 头部的正则表达式。
+     */
     static reghead = /^\s*data:([a-z]+\/[a-z0-9-+.]+(;[a-z-]+=[a-z0-9-]+)?)?(;base64)?,/i;
 
-    // Use a lookup table to find the index.
+    /**
+     * @en Use a lookup table to find the index.
+     * @zh 使用查找表查找索引。
+     */
     static lookup: Uint8Array = null;
 
+    /**
+     * @en Initializes the lookup table for Base64 decoding.
+     * @zh 初始化用于 Base64 解码的查找表。
+     */
     static init(): void {
         if (Base64Tool.lookup)
             return;
@@ -17,18 +40,20 @@ export class Base64Tool {
     }
 
     /**
-     * 判断字符串是否是 base64
-     * @param str 
+     * @en Determines if a string is a base64 encoded string.
+     * @param str The string to check.
+     * @zh 判断字符串是否是 base64 编码的字符串。
+     * @param str 需要检查的字符串。
      */
     static isBase64String(str: string): boolean {
         return Base64Tool.reg.test(str);
     }
 
     /**
-     * 编码ArrayBuffer 
-     * @param arraybuffer
-     * @return 
-     * 
+     * @en Encodes an ArrayBuffer to a base64 string.
+     * @param arraybuffer The ArrayBuffer to encode.
+     * @zh 对 ArrayBuffer 进行编码，返回 base64 字符串。
+     * @param arraybuffer 需要编码的 ArrayBuffer。
      */
     static encode(arraybuffer: ArrayBuffer): string {
         var bytes: Uint8Array = new Uint8Array(arraybuffer), i: number, len: number = bytes["length"], base64: string = "";
@@ -51,10 +76,10 @@ export class Base64Tool {
     }
 
     /**
-     * 解码成ArrayBuffer 
-     * @param base64
-     * @return 
-     * 
+     * @en Decodes a base64 string to an ArrayBuffer.
+     * @param base64 The base64 string to decode.
+     * @zh 对 base64 字符串进行解码，返回 ArrayBuffer。
+     * @param base64 需要解码的 base64 字符串。
      */
     static decode(base64: string): ArrayBuffer {
         Base64Tool.init();

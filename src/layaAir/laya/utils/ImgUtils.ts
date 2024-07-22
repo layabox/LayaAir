@@ -1,15 +1,20 @@
 import { Browser } from "./Browser";
 
 /**
-* 图片二进制处理类
-* @ author:xs
-* @ data: 2021-11-03 10:54
-*/
+ * @en Image binary processing class
+ * @zh 图片二进制处理类
+ */
 export class ImgUtils {
 
-    /**存储数据池*/
+    /**
+     * @en Storage data pool
+     * @zh 存储数据池
+     */
     static data: any = {};
-    /**是否保存使用的数据*/
+    /**
+     * @en Whether to save the used data
+     * @zh 是否保存使用的数据
+     */
     static isSavaData: boolean = false;
 
     /**
@@ -41,7 +46,8 @@ export class ImgUtils {
     }
 
     /**
-     * 是否支持数据预处理
+     * @en Checks if data preprocessing is supported.
+     * @zh 检查是否支持数据预处理。
      */
     static get isSupport(): boolean {
         if (Browser._isMiniGame) {
@@ -56,10 +62,14 @@ export class ImgUtils {
     }
 
     /**
-     * 通过二进制获取URL对象
-     * @param url 
-     * @param arrayBuffer 
-     * @returns 
+     * @en Gets a URL object from an ArrayBuffer.
+     * @param url The base URL string.
+     * @param arrayBuffer The ArrayBuffer to convert.
+     * @returns A new URL string representing the binary data.
+     * @zh 从 ArrayBuffer 获取 URL 对象。
+     * @param url 基础 URL 字符串。
+     * @param arrayBuffer 要转换的 ArrayBuffer。
+     * @returns 表示二进制数据的新 URL 字符串。
      */
     static arrayBufferToURL(url: string, arrayBuffer: ArrayBuffer) {
         if (!ImgUtils.isSupport) return url;
@@ -90,8 +100,10 @@ export class ImgUtils {
     }
 
     /**
-     * 销毁指定URL的二进制内存数据
-     * @param url 
+     * @en Destroys the binary memory data associated with a specified URL.
+     * @param url The URL to destroy the binary data for.
+     * @zh 销毁与指定 URL 相关联的二进制内存数据。
+     * @param url 要销毁二进制数据的 URL。
      */
     static destroy(url: string) {
         if (!ImgUtils.isSupport) return;

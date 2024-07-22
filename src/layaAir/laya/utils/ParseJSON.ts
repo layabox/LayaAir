@@ -1,3 +1,7 @@
+/**
+ * @en A utility class for parsing JSON strings.
+ * @zh 用于解析 JSON 字符串的实用工具类。
+ */
 export class ParseJSON {
     static parse(str: string) {
         return this.parseStart(str);

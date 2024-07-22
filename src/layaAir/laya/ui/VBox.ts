@@ -2,27 +2,35 @@ import { LayoutBox } from "./LayoutBox";
 import { UIComponent } from "./UIComponent";
 
 /**
-     * <code>VBox</code> 是一个垂直布局容器类。
-     */
+ * @en VBox is a vertical layout container class.
+ * @zh VBox 是一个垂直布局容器类。
+ */
 export class VBox extends LayoutBox {
     /**
-     * 无对齐。
+     * @en No alignment.
+     * @zh 无对齐。
      */
     static NONE: string = "none";
     /**
-     * 左对齐。
+     * @en Left aligned.
+     * @zh 左对齐。
      */
     static LEFT: string = "left";
     /**
-     * 居中对齐。
+     * @en Center alignment.
+     * @zh 居中对齐。
      */
     static CENTER: string = "center";
     /**
-     * 右对齐。
+     * @en Right aligned.
+     * @zh 右对齐。
      */
     static RIGHT: string = "right";
 
-    /** 兼容以前的changeItems逻辑，是否在发生变动时，使用 sortItem 排序所有item */
+    /** 
+     * @en Compatible with previous changeItems logic, whether to use sortItem to sort all items when changes occur.
+     * @zh 兼容以前的changeItems逻辑，是否在发生变动时，使用 sortItem 排序所有item。
+    */
     public isSortItem: boolean = false;
 
     /**

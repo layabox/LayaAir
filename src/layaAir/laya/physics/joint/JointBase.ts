@@ -6,7 +6,8 @@ import { Physics2D } from "../Physics2D"
 import { RigidBody } from "../RigidBody";
 
 /**
- * 关节基类
+ * @en Joint base class
+ * @zh 关节基类
  */
 export class JointBase extends Component {
 
@@ -16,7 +17,11 @@ export class JointBase extends Component {
     /**@internal */
     protected _factory: IPhysiscs2DFactory;
 
-    /**@readonly [只读]原生关节对象*/
+    /**
+     * @readonly
+     * @en [read-only] Native joint object.
+     * @zh [只读]原生关节对象。
+     */
     get joint(): any {
         if (!this._joint) this._createJoint();
         return this._joint;

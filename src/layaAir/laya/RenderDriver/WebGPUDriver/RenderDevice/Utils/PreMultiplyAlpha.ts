@@ -221,7 +221,7 @@ export function doPremultiplyAlpha(device: GPUDevice, tex: WebGPUInternalTex,
     const id = `${texture.format}.${textureBindingViewDimension}`;
     if (!pipelineByFormatAndView[id]) {
         pipelineByFormatAndView[id] = device.createRenderPipeline({
-            label: `premultiplyAlpha pipeline for ${textureBindingViewDimension}`,
+            label: `premultiplyAlpha for ${textureBindingViewDimension}`,
             layout: 'auto',
             vertex: {
                 module,

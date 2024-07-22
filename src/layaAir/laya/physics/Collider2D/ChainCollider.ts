@@ -4,7 +4,8 @@ import { PhysicsShape } from "./ColliderStructInfo";
 import { Sprite } from "../../display/Sprite";
 
 /**
- * 2D线形碰撞体
+ * @en 2D chain collider
+ * @zh 2D 链形碰撞体
  */
 export class ChainCollider extends ColliderBase {
 
@@ -23,7 +24,8 @@ export class ChainCollider extends ColliderBase {
 
     /**
     * @deprecated
-    * 用逗号隔开的点的集合，格式：x,y,x,y ...
+    * @en A collection of points separated by commas, format: x, y, x, y, ...
+    * @zh 用逗号隔开的点的集合，格式：x,y,x,y ...
     */
     get points(): string {
         return this._points;
@@ -41,7 +43,10 @@ export class ChainCollider extends ColliderBase {
         this._needupdataShapeAttribute();
     }
 
-    /**顶点数据 x,y,x,y ...*/
+    /**
+     * @en Vertex data x,y,x,y ...
+     * @zh 顶点数据 x,y,x,y ...
+     */
     get datas(): number[] {
         return this._datas;
     }
@@ -52,7 +57,10 @@ export class ChainCollider extends ColliderBase {
         this._needupdataShapeAttribute();
     }
 
-    /**是否是闭环，注意不要有自相交的链接形状，它可能不能正常工作*/
+    /**
+     * @en Whether it is a closed loop. Ensure there are no self-intersecting link shapes, as they may not function properly.
+     * @zh 是否是闭环，注意不要有自相交的链接形状，否则它可能不能正常工作
+     */
     get loop(): boolean {
         return this._loop;
     }
@@ -79,7 +87,8 @@ export class ChainCollider extends ColliderBase {
     }
 
     /**
-     * 被添加到节点后调用，和Awake不同的是即使节点未激活onAdded也会调用。
+     * @en Called after being added to the node, different from Awake, onAdded will be called even if the node is not active.
+     * @zh 被添加到节点后调用，和 Awake 不同的是即使节点未激活 onAdded 也会调用。
      */
     onAdded() {
         super.onAdded();

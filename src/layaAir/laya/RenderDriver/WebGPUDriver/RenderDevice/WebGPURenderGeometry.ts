@@ -52,6 +52,9 @@ export class WebGPURenderGeometry implements IRenderGeometryElement {
 
     checkDataFormat: boolean = false;
 
+    gpuIndexFormat: GPUIndexFormat = 'uint16';
+    gpuIndexByte: number = 2;
+
     _id: number;
     static _idCounter: number = 0;
 
@@ -74,6 +77,8 @@ export class WebGPURenderGeometry implements IRenderGeometryElement {
     }
     set indexFormat(value: IndexFormat) {
         this._indexFormat = value;
+        this.gpuIndexFormat = (value === IndexFormat.UInt16) ? 'uint16' : 'uint32';
+        this.gpuIndexByte = (value === IndexFormat.UInt16) ? 2 : 4;
     }
 
     globalId: number;

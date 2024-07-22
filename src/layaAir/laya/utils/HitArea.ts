@@ -10,7 +10,8 @@ const _rect: Rectangle = new Rectangle();
 const _ptPoint: Point = new Point();
 
 /**
- * 鼠标点击区域，可以设置绘制一系列矢量图作为点击区域和非点击区域（目前只支持圆形，矩形，多边形）
+ * @en The `HitArea` class represents a mouse click area that can be defined by a series of vector shapes for clickable and non-clickable regions (currently only supports circles, rectangles, and polygons).
+ * @zh `HitArea` 类表示一个鼠标点击区域，可以通过一系列矢量图形定义为可点击和非可点击区域（目前仅支持圆形、矩形和多边形）。
  */
 export class HitArea implements IHitArea {
     /**
@@ -24,11 +25,16 @@ export class HitArea implements IHitArea {
     _unHit: Graphics;
 
     /**
-     * 检测对象是否包含指定的点。
-     * @param	x	点的 X 轴坐标值（水平位置）。
-     * @param	y	点的 Y 轴坐标值（垂直位置）。
-     * @param   sp  ？？？？
-     * @return	如果包含指定的点，则值为 true；否则为 false。
+     * @en Checks whether the object contains a specified point.
+     * @param x The x-coordinate of the point (horizontal position).
+     * @param y The y-coordinate of the point (vertical position).
+     * @param sp The Sprite object that contains the point.
+     * @returns true if the object contains the specified point; otherwise false.
+     * @zh 检测对象是否包含指定的点。
+     * @param x 点的 X 轴坐标值（水平位置）。
+     * @param y 点的 Y 轴坐标值（垂直位置）。
+     * @param sp 包含该点的 Sprite 对象。
+     * @returns 如果包含指定的点，则值为 true；否则为 false。
      */
     contains(x: number, y: number, sp: Sprite): boolean {
         if (!HitArea._isHitGraphic(x, y, sp, this._hit))
@@ -38,7 +44,8 @@ export class HitArea implements IHitArea {
 
     /**
      * @internal
-     * 是否击中Graphic
+     * @en Has it hit Graphic
+     * @zh 是否击中Graphic
      */
     static _isHitGraphic(x: number, y: number, sp: Sprite, graphic: Graphics): boolean {
         if (!graphic) return false;
@@ -60,7 +67,8 @@ export class HitArea implements IHitArea {
 
     /**
      * @internal
-     * 是否击中绘图指令
+     * @en Determines whether a point is hit within a specific drawing command.
+     * @zh 是否击中绘图指令
      */
     static _isHitCmd(x: number, y: number, sp: Sprite, cmd: any): boolean {
         if (!cmd) return false;
@@ -99,7 +107,8 @@ export class HitArea implements IHitArea {
 
     /**
      * @internal
-     * 坐标是否在多边形内
+     * @en Determines whether a point is inside a polygon.
+     * @zh 坐标是否在多边形内
      */
     static _ptInPolygon(x: number, y: number, areaPoints: any[]): boolean {
         var p: Point = _ptPoint;
@@ -129,7 +138,8 @@ export class HitArea implements IHitArea {
     }
 
     /**
-     * 可点击区域，可以设置绘制一系列矢量图作为点击区域（目前只支持圆形，矩形，多边形）
+     * @en The Graphics object that defines the clickable area.(currently only supports circles, rectangles, and polygons).
+     * @zh 定义可点击区域的 Graphics 对象。（目前只支持圆形，矩形，多边形）
      */
     get hit(): Graphics {
         if (!this._hit) this._hit = new Graphics();
@@ -141,7 +151,8 @@ export class HitArea implements IHitArea {
     }
 
     /**
-     * 不可点击区域，可以设置绘制一系列矢量图作为非点击区域（目前只支持圆形，矩形，多边形）
+     * @en The Graphics object that defines the non-clickable area,(currently only supports circles, rectangles, and polygons).
+     * @zh 定义不可点击区域的 Graphics 对象。（目前只支持圆形，矩形，多边形）
      */
     get unHit(): Graphics {
         if (!this._unHit) this._unHit = new Graphics();
@@ -153,7 +164,8 @@ export class HitArea implements IHitArea {
     }
 
     /**
-     * 序列化后调动
+     * @en Called after deserialization.
+     * @zh 序列化后调用。
      */
     onAfterDeserialize() {
         if (LayaEnv.isPlaying) {
