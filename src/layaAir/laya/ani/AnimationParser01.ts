@@ -7,19 +7,24 @@ import { Byte } from "../utils/Byte";
 
 /**
  * @internal
+ * @en The `AnimationParser01` class is responsible for parsing animation data.
+ * @zh `AnimationParser01` 类用于解析动画数据。
  */
 export class AnimationParser01 {
 	/**
 	 * @private
+	 * @en Parses the animation data and populates the AnimationTemplet object.
+	 * This method reads various animation properties including bone structures, keyframes, and interpolation data.
+	 * @param templet The AnimationTemplet instance to populate with parsed data.
+	 * @param reader The Byte reader containing the animation data.
+	 * @zh 解析动画数据并填充 AnimationTemplet 对象。
+	 * 此方法读取各种动画属性，包括骨骼结构、关键帧和插值数据。
+	 * @param templet 要填充的 AnimationTemplet 对象。
+	 * @param reader 包含动画数据的 Byte 读取器。
 	 */
 	static parse(templet: AnimationTemplet, reader: Byte): void {
 		var data: ArrayBuffer = reader.__getBuffer();
 		var i: number, j: number, k: number, n: number, l: number, m: number, o: number;
-		//if (head != KeyframesAniTemplet.LAYA_ANIMATION_VISION)
-		//{
-		//trace("[Error] Version " + _aniVersion + " The engine is inconsistent, update to the version " + KeyframesAniTemplet.LAYA_ANIMATION_VISION + " please.");
-		//return;
-		//}
 		var aniClassName: string = reader.readUTFString();//字符串(动画播放器类名，缺省为ANI)
 		templet._aniClassName = aniClassName;
 		var strList: any[] = reader.readUTFString().split("\n");//字符串(\n分割 UTF8 )
@@ -126,24 +131,6 @@ export class AnimationParser01 {
 									keyFrame.interpolationData.push(reader.getFloat32());
 								}
 						}
-						//for (m = 0; m < interDataLength; m++) {
-						//var lerpData:int = read.getFloat32();//插值数据
-						//switch (lerpData) {
-						//case 254: //全线性插值
-						//keyFrame.interpolationData.length = keyframeDataCount;
-						//for (o = 0; o < keyframeDataCount; o++)
-						//keyFrame.interpolationData[o] = 0;
-						//break;
-						//case 255: //全不插值
-						//
-						//keyFrame.interpolationData.length = keyframeDataCount;
-						//for (o = 0; o < keyframeDataCount; o++)
-						//keyFrame.interpolationData[o] = 5;
-						//break;
-						//default: 
-						//keyFrame.interpolationData.push(lerpData);
-						//}
-						//}
 
 					}
 
