@@ -404,7 +404,6 @@ export class MeshRenderer extends BaseRender {
         if (!this._mesh) {
             return;
         }
-
         this._mesh.morphTargetData && this._applyMorphdata();
         if (this._renderElements.length == 1) {
             this._renderElements[0]._renderElementOBJ.isRender = this._renderElements[0]._geometry._prepareRender(context);

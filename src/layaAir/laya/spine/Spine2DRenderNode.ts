@@ -25,7 +25,6 @@ import { IndexFormat } from "../RenderEngine/RenderEnum/IndexFormat";
 import { ClassUtils } from "../utils/ClassUtils";
 import { SpineNormalRender } from "./optimize/SpineNormalRender";
 import { SketonOptimise } from "./optimize/SketonOptimise";
-import { Texture } from "../resource/Texture";
 import { SpineEmptyRender } from "./optimize/SpineEmptyRender";
 import { Texture2D } from "../resource/Texture2D";
 
@@ -66,7 +65,6 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
         if (!(value as any).canotPool) {
             this._pool.push(value);
         }
-
     }
 
 

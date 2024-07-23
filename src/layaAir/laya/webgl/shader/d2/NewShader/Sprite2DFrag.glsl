@@ -183,7 +183,24 @@ vec4 transspaceColor(vec4 color)
 #endif
 
 
+#ifdef BASERENDER2D
+    varying vec2 v_texcoord;
+    varying vec4 v_color;
+    uniform sampler2D u_BaseRender2DTexture;
+    uniform vec4 u_BaseRenderColor;
 
+
+    void setglColor(in vec4 color){
+        color.a *= v_color.w;
+        vec4 transColor = v_color;
+        #ifndef GAMMASPACE
+            transColor = gammaToLinear(v_color)*u_BaseRenderColor;
+        #endif
+        color.rgb *= transColor.rgb;
+        gl_FragColor = color;
+    }
+
+#endif
 void clip(){
     if(v_cliped.x<0.) discard;
     if(v_cliped.x>1.) discard;

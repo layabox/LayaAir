@@ -4,8 +4,10 @@ import { IBufferState } from "../RenderDriver/DriverDesign/RenderDevice/IBufferS
 import { IIndexBuffer } from "../RenderDriver/DriverDesign/RenderDevice/IIndexBuffer";
 import { IRenderGeometryElement } from "../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
 import { IVertexBuffer } from "../RenderDriver/DriverDesign/RenderDevice/IVertexBuffer";
+import { ShaderDefine } from "../RenderDriver/RenderModuleData/Design/ShaderDefine";
 import { BufferUsage } from "../RenderEngine/RenderEnum/BufferTargetType";
 import { IndexFormat } from "../RenderEngine/RenderEnum/IndexFormat";
+import { Shader3D } from "../RenderEngine/RenderShader/Shader3D";
 import { VertexMesh } from "../RenderEngine/RenderShader/VertexMesh";
 import { VertexDeclaration } from "../RenderEngine/VertexDeclaration";
 import { LayaGL } from "../layagl/LayaGL";
@@ -16,17 +18,17 @@ import { Handler } from "../utils/Handler";
 import { Resource } from "./Resource";
 
 
-export class VertexMesh2D{
+export class VertexMesh2D {
     /**@internal */
-	private static _vertexDeclarationMap: any = {};
+    private static _vertexDeclarationMap: any = {};
     /**
-	 * 获取顶点声明。
-	 * @param vertexFlags 顶点声明标记字符,格式为:"POSITION,COLOR,UV,BLENDWEIGHT,BLENDINDICES"。
-	 * @return 顶点声明。
-	 */
-	static getVertexDeclaration(vertexFlags: string[], compatible: boolean = true): VertexDeclaration[] {
-        let verDecs:VertexDeclaration[] = []
-        for (let i = 0 , len = vertexFlags.length; i < len; i++) {
+     * 获取顶点声明。
+     * @param vertexFlags 顶点声明标记字符,格式为:"POSITION,COLOR,UV,BLENDWEIGHT,BLENDINDICES"。
+     * @return 顶点声明。
+     */
+    static getVertexDeclaration(vertexFlags: string[], compatible: boolean = true): VertexDeclaration[] {
+        let verDecs: VertexDeclaration[] = []
+        for (let i = 0, len = vertexFlags.length; i < len; i++) {
             let vertexFlag = vertexFlags[i];
             let verDec: VertexDeclaration = VertexMesh2D._vertexDeclarationMap[vertexFlag + (compatible ? "_0" : "_1")];//TODO:兼容模式
             if (!verDec) {
@@ -71,8 +73,33 @@ export class VertexMesh2D{
                 verDecs.push(verDec);
             }
         }
-		return verDecs;
-	}
+        return verDecs;
+    }
+
+
+    /**
+    * 获得mesh的宏
+    * @param mesh Mesh
+    * @param out define
+    */
+    static getMeshDefine(mesh: Mesh2D, out: Array<ShaderDefine>) {
+        out.length = 0;
+        let vertexs = mesh._vertexBuffers;
+        for (var i = 0, n = vertexs.length; i < n; i++) {
+            let elements = vertexs[i].vertexDeclaration._vertexElements;
+            for (const element of elements) {
+                switch (element.elementUsage) {
+                    case VertexMesh.MESH_COLOR0:
+                        out.push(Shader3D.getDefineByName("COLOR"));
+                        break;
+                    case VertexMesh.MESH_TEXTURECOORDINATE0:
+                        out.push(Shader3D.getDefineByName("UV"));
+                        break;
+                }
+            }
+        }
+
+    }
 }
 
 /**
@@ -189,7 +216,7 @@ export class Mesh2D extends Resource {
     protected _disposeResource(): void {
         for (let i: number = 0, n: number = this._subMeshes.length; i < n; i++)
             this._subMeshes[i].destroy();
-        for (let i = 0 , n = this._vertexBuffers.length; i < n; i++)
+        for (let i = 0, n = this._vertexBuffers.length; i < n; i++)
             this._vertexBuffers[i].destroy();
         this._indexBuffer && this._indexBuffer.destroy();
         this._bufferState.destroy();
@@ -236,12 +263,12 @@ export class Mesh2D extends Resource {
     * @param vertices 顶点数据。
     */
     setVertices(vertices: ArrayBuffer[]): void {
-        for (let i = 0 , len = vertices.length; i < len; i++) {
+        for (let i = 0, len = vertices.length; i < len; i++) {
             if (vertices[i] && this._vertexBuffers[i]) {
                 this._vertexBuffers[i].setData(vertices[i], 0, 0, vertices[i].byteLength);
             }
         }
-        
+
     }
 
     /**

@@ -1,6 +1,7 @@
 import { Laya } from "../../Laya";
 import { LayaEnv } from "../../LayaEnv";
 import { Camera2D } from "../display/Scene2DSpecial/Camera2D";
+import { BaseRenderNode2D } from "../NodeRender2D/BaseRenderNode2D";
 import { IRenderEngine } from "../RenderDriver/DriverDesign/RenderDevice/IRenderEngine";
 import { HTMLCanvas } from "../resource/HTMLCanvas";
 import { BlendMode } from "../webgl/canvas/BlendMode";
@@ -169,6 +170,7 @@ export class Render {
         Shader2D.__init__();
         BlendMode._init_();
         Camera2D.shaderValueInit();
+        BaseRenderNode2D.initBaseRender2DCommandEncoder();
         return true;
     }
 

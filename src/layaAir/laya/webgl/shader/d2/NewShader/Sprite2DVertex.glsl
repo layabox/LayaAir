@@ -1,9 +1,4 @@
 #include "Sprite2DShaderInfo.glsl";
-uniform vec4 u_clipMatDir;
-uniform vec2 u_clipMatPos;// 这个是全局的，不用再应用矩阵了。
-uniform vec2 u_size;
-uniform float u_VertAlpha;
-varying vec2 v_cliped;
 
 #ifdef CAMERA2D
  uniform mat3 u_view2D;
@@ -13,10 +8,16 @@ varying vec2 v_cliped;
     uniform mat4 u_mmat;
     vec4 transedPos;
 #endif
-varying vec4 v_color;
 
 
-#if defined(PRIMITIVEMESH)
+
+#ifdef PRIMITIVEMESH
+    uniform vec4 u_clipMatDir;
+    uniform vec2 u_clipMatPos;// 这个是全局的，不用再应用矩阵了。
+    uniform vec2 u_size;
+    uniform float u_VertAlpha;
+    varying vec2 v_cliped;
+    varying vec4 v_color;
     // attribute vec4 a_position;
     // attribute vec4 a_attribColor;
 
@@ -55,8 +56,16 @@ varying vec4 v_color;
             pos = vec4((a_position.x/u_size.x-0.5)*2.0,(0.5-a_position.y/u_size.y)*2.0,a_position.z,1.0);
         #endif
     }
+#endif
 
-#elif defined(TEXTUREVS)
+
+#ifdef TEXTUREVS
+    uniform vec4 u_clipMatDir;
+    uniform vec2 u_clipMatPos;// 这个是全局的，不用再应用矩阵了。
+    uniform vec2 u_size;
+    uniform float u_VertAlpha;
+    varying vec2 v_cliped;
+    varying vec4 v_color;
 	//texture和fillrect使用的。
     // attribute vec4 a_posuv;
     // attribute vec4 a_attribColor;
@@ -119,4 +128,51 @@ varying vec4 v_color;
         #endif
     }
 
+#endif
+
+
+#ifdef BASERENDER2D
+    varying vec2 v_texcoord;
+    varying vec4 v_color;
+
+   uniform vec3 u_NMatrix_0;
+   uniform vec3 u_NMatrix_1;
+   uniform vec2 u_BaseRenderSize2D;
+
+    //attribute vec3 a_position
+    //attribute vec4 a_color
+    //attribute vec2 a_uv
+
+    struct vertexInfo {
+        vec4 color;
+        vec2 uv;
+        vec2 pos;
+    };
+
+    void getVertexInfo(inout vertexInfo info){
+         info.pos = a_position.xy
+         info.color = vec4(1.,1.,1.,1.);
+         #ifdef COLOR
+            info.color = a_color;
+         #endif
+         #ifdef uv
+            info.uv = a_uv;
+         #endif
+    }
+
+
+   void getPosition(inout vec4 pos){
+        pos = vec4(a_position.xy,0.,1.);
+        float x=u_NMatrix_0.x*pos.x+u_NMatrix_0.y*pos.y+u_NMatrix_0.z;
+        float y=u_NMatrix_1.x*pos.x+u_NMatrix_1.y*pos.y-u_NMatrix_1.z;
+        pos.xy = vec2(x,y);
+        #ifdef CAMERA2D
+            pos.xy = (u_view2D *vec3(pos.x,pos.y,1.0)).xy+u_BaseRenderSize2D/2.;
+        #endif   
+        pos= vec4((pos.x/u_BaseRenderSize2D.x-0.5)*2.0,(0.5-pos.y/u_BaseRenderSize2D.y)*2.0,0.,1.0);
+        glPosition = pos;
+        #ifdef INVERTY
+            glPosition.y = -glPosition.y;
+        #endif
+    }
 #endif

@@ -231,9 +231,7 @@ export class BaseRender extends Component {
         return this._baseRenderNode.boundsChange;
     }
 
-    /**
-     * 渲染数据
-     */
+
     /**
      * 获取渲染节点
      */
