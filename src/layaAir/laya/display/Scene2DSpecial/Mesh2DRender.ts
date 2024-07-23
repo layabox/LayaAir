@@ -3,6 +3,8 @@ import { Color } from "../../maths/Color";
 import { Vector2 } from "../../maths/Vector2";
 import { Vector3 } from "../../maths/Vector3";
 import { BaseRenderNode2D } from "../../NodeRender2D/BaseRenderNode2D";
+import { RenderState } from "../../RenderDriver/RenderModuleData/Design/RenderState";
+import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { Context } from "../../renders/Context";
 import { BaseTexture } from "../../resource/BaseTexture";
 import { Material } from "../../resource/Material";
@@ -21,7 +23,7 @@ export class Mesh2DRender extends BaseRenderNode2D {
     static mesh2DDefaultMaterial: Material;
 
     /**@internal */
-    private _sharedMesh: Mesh2D;
+    private _shareMesh: Mesh2D;
 
     /**@internal */
     private _baseRender2DTexture: BaseTexture;
@@ -35,14 +37,14 @@ export class Mesh2DRender extends BaseRenderNode2D {
      * @zh 2D 渲染网格
      */
     set shareMesh(value: Mesh2D) {
-        if (this._sharedMesh == value)
+        if (this._shareMesh == value)
             return;
         let meshArrayDefine = new Array();
-        if (this._sharedMesh) {
-            VertexMesh2D.getMeshDefine(this._sharedMesh, meshArrayDefine);
+        if (this._shareMesh) {
+            VertexMesh2D.getMeshDefine(this._shareMesh, meshArrayDefine);
             for (var i: number = 0, n: number = meshArrayDefine.length; i < n; i++)
                 this._spriteShaderData.removeDefine(meshArrayDefine[i]);
-            this._sharedMesh._removeReference()
+            this._shareMesh._removeReference()
         }
         meshArrayDefine.length = 0;
         if (value) {
@@ -51,11 +53,12 @@ export class Mesh2DRender extends BaseRenderNode2D {
                 this._spriteShaderData.addDefine(meshArrayDefine[i]);
             value._addReference();
         }
+        this._shareMesh = value;
         this._changeMesh();
     }
 
     get shareMesh(): Mesh2D {
-        return this._sharedMesh;
+        return this._shareMesh;
     }
 
     /**
@@ -120,9 +123,9 @@ export class Mesh2DRender extends BaseRenderNode2D {
      * @internal
      */
     private _changeMesh() {
-        let submeshNum = this._sharedMesh ? this._sharedMesh.subMeshCount : 0;
+        let submeshNum = this._shareMesh ? this._shareMesh.subMeshCount : 0;
         if (submeshNum > this._renderElements.length) {
-            for (var i = this._renderElements.length, n = submeshNum; i < n; i++) {
+            for (var i = this._renderElements.length, n = submeshNum; n < i; i--) {
                 let element = this._renderElements[i];
                 element.destroy();
             }
@@ -130,12 +133,13 @@ export class Mesh2DRender extends BaseRenderNode2D {
         }
         for (var i = 0, n = submeshNum; i < n; i++) {
             let element = this._renderElements[i];
-            if (element)
-                element = LayaGL.render2DRenderPassFactory.createRenderElement2D();
-            element.geometry = this._sharedMesh.getSubMesh(i);
+            if (!element)
+                element = this._renderElements[i] = LayaGL.render2DRenderPassFactory.createRenderElement2D();
+            element.geometry = this._shareMesh.getSubMesh(i);
             element.value2DShaderData = this._spriteShaderData;
             BaseRenderNode2D._setRenderElement2DMaterial(element, this._materials[i] ? this._materials[i] : Mesh2DRender.mesh2DDefaultMaterial);
             element.renderStateIsBySprite = false;
+            element.nodeCommonMap = this._getcommonUniformMap();
         }
     }
 
@@ -160,12 +164,26 @@ export class Mesh2DRender extends BaseRenderNode2D {
         this._spriteShaderData.setVector3(BaseRenderNode2D.NMATRIX_1, vec3);
         Vector2.TempVector2.setValue(context.width, context.height);
         this._spriteShaderData.setVector2(BaseRenderNode2D.BASERENDERSIZE, Vector2.TempVector2);
+        this._setRenderSize(context.width, context.height)
     }
 
     constructor() {
         super();
+        if (!Mesh2DRender.mesh2DDefaultMaterial) {
+            Mesh2DRender.mesh2DDefaultMaterial = new Material();
+            Mesh2DRender.mesh2DDefaultMaterial.setShaderName("baseRender2D");
+            Mesh2DRender.mesh2DDefaultMaterial.setBoolByIndex(Shader3D.DEPTH_WRITE, false);
+            Mesh2DRender.mesh2DDefaultMaterial.setIntByIndex(Shader3D.DEPTH_TEST, RenderState.DEPTHTEST_OFF);
+            Mesh2DRender.mesh2DDefaultMaterial.setIntByIndex(Shader3D.BLEND, RenderState.BLEND_ENABLE_ALL);
+            Mesh2DRender.mesh2DDefaultMaterial.setIntByIndex(Shader3D.BLEND_EQUATION, RenderState.BLENDEQUATION_ADD);
+            Mesh2DRender.mesh2DDefaultMaterial.setIntByIndex(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ONE);
+            Mesh2DRender.mesh2DDefaultMaterial.setIntByIndex(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA);
+            Mesh2DRender.mesh2DDefaultMaterial.setFloatByIndex(ShaderDefines2D.UNIFORM_VERTALPHA, 1.0);
+            Mesh2DRender.mesh2DDefaultMaterial.setIntByIndex(Shader3D.CULL, RenderState.CULL_NONE);
+        }
         this._renderElements = [];
         this._materials = [];
+        this._spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);
     }
 
 }

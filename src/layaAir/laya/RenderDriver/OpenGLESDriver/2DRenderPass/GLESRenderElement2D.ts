@@ -56,6 +56,14 @@ export class GLESREnderElement2D implements IRenderElement2D {
     constructor() {
         this.init();
     }
+    private _nodeCommonMap: string[];//TODO
+    public get nodeCommonMap(): string[] {
+        return this._nodeCommonMap;
+    }
+    public set nodeCommonMap(value: string[]) {
+        //TODO
+        this._nodeCommonMap = value;
+    }
     private _renderStateIsBySprite: boolean = true;//TODO
     public get renderStateIsBySprite(): boolean {
         return this._renderStateIsBySprite;

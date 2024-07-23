@@ -131,14 +131,14 @@ export class RenderSprite {
 
         if (sprite._renderNode.addCMDCall)
             sprite._renderNode.addCMDCall(context, x, y);
+        context.drawLeftData();//强制渲染之前的遗留
         if (context._render2DManager._renderEnd) {
-            context.drawLeftData();//强制渲染之前的遗留
-            context._render2DManager._renderEnd = false;
+            context._render2DManager._renderEnd = false;    
             context._render2DManager.addRenderObject(sprite._renderNode);
-        }else{
+        } else {
             context._render2DManager.addRenderObject(sprite._renderNode);
         }
-        
+
         if (this._next != RenderSprite.NORENDER)
             this._next._fun(sprite, context, x, y);
     }
@@ -434,7 +434,7 @@ export class RenderSprite {
     }
 
     //保存rect，避免被修改。例如 RenderSprite.RenderToCacheTexture 会修改cache的rect
-    private _spriteRect_TextureSpace=new Rectangle();
+    private _spriteRect_TextureSpace = new Rectangle();
     private _maskRect_TextureSpace = new Rectangle();
     _mask(sprite: Sprite, ctx: Context, x: number, y: number): void {
         let cache = sprite._getCacheStyle();
@@ -454,9 +454,9 @@ export class RenderSprite {
             if (spRect_TS.width <= 0 || spRect_TS.height <= 0)
                 return;
             //转到sprite的原始空间
-            spRect_TS.x+=sprite.pivotX;
-            spRect_TS.y+=sprite.pivotY;            
-            
+            spRect_TS.x += sprite.pivotX;
+            spRect_TS.y += sprite.pivotY;
+
             //这个时候获得的rect是包含pivot的。下面的mask按照规则是作为sprite的子来计算，但是，他的位置是相对于原始位置
             //而不是pivot，所以需要根据mask的pivot调整mask的rect的位置
 
@@ -467,8 +467,8 @@ export class RenderSprite {
             let maskRect_TS = this._maskRect_TextureSpace.copyFrom(maskcache.cacheRect);
             //maskRect是mask自己的,相对于自己的锚点，要转到sprite原始空间
             //把mask的xy应用一下，就是在sprite原始空间（t空间）的位置
-            maskRect_TS.x+=mask._x;
-            maskRect_TS.y+=mask._y;
+            maskRect_TS.x += mask._x;
+            maskRect_TS.y += mask._y;
 
             //计算cache画布的大小，就是两个rect的交集，这个交集作为渲染区域。t空间
             let x1 = Math.max(spRect_TS.x, maskRect_TS.x);
@@ -476,9 +476,9 @@ export class RenderSprite {
             let x2 = Math.min(spRect_TS.x + spRect_TS.width, maskRect_TS.x + maskRect_TS.width);
             let y2 = Math.min(spRect_TS.y + spRect_TS.height, maskRect_TS.y + maskRect_TS.height);
 
-            let width1 = x2 - x1; 
-            let height1 = y2 - y1; 
-            if (width1 <= 0||height1<=0) return;
+            let width1 = x2 - x1;
+            let height1 = y2 - y1;
+            if (width1 <= 0 || height1 <= 0) return;
 
             //先渲染mask，避免rt混乱的可能性。这里的ctx目前只是用来恢复rt的
             RenderSprite.RenderToCacheTexture(mask, ctx, 0, 0);
@@ -489,7 +489,7 @@ export class RenderSprite {
             ctx1.render2D = new Render2DSimple(rt);
             ctx1.startRender();
             //由于是t空间，需要抵消掉pivot的设置（_fun会应用pivot），-x1y1是为了对齐到裁剪的rt
-            this._next._fun(sprite, ctx1, sprite.pivotX-x1, sprite.pivotY-y1);
+            this._next._fun(sprite, ctx1, sprite.pivotX - x1, sprite.pivotY - y1);
             let maskRT = maskcache.renderTexture;
             ctx1.globalCompositeOperation = 'mask';
             ctx1._drawRenderTexture(maskRT,
@@ -503,8 +503,8 @@ export class RenderSprite {
             ctx1.render2D.setRenderTarget(ctx.render2D.out);
 
             cache.renderTexture = rt;
-            cache.cacheRect.x = x1-sprite.pivotX;   //x1是t空间的，要转回sprite空间，所以-pivot
-            cache.cacheRect.y = y1-sprite.pivotY;
+            cache.cacheRect.x = x1 - sprite.pivotX;   //x1是t空间的，要转回sprite空间，所以-pivot
+            cache.cacheRect.y = y1 - sprite.pivotY;
             cache.cacheRect.width = rt.width;
             cache.cacheRect.height = rt.height;
         }
@@ -512,7 +512,7 @@ export class RenderSprite {
         let tex = cache.renderTexture;
         let rect = cache.cacheRect;
         ctx._drawRenderTexture(tex,
-            x + rect.x, y + rect.y, tex.width, tex.height, null, 1, [0, 1, 1, 1, 1, 0, 0, 0])    
+            x + rect.x, y + rect.y, tex.width, tex.height, null, 1, [0, 1, 1, 1, 1, 0, 0, 0])
     }
 }
 

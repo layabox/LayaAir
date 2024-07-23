@@ -3,6 +3,8 @@ import prime_ps from './files/primitive.ps.glsl';
 import prime_vs from './files/primitive.vs.glsl';
 import texture_ps from './files/texture.ps.glsl';
 import texture_vs from './files/texture.vs.glsl';
+import baseRender2D_vs from './files/baseRender2D.vs';
+import baseRender2D_ps from './files/baseRender2D.fs';
 
 import Sprite2DFrag from './NewShader/Sprite2DFrag.glsl';
 import Sprite2DShaderInfo from './NewShader/Sprite2DShaderInfo.glsl';
@@ -10,7 +12,6 @@ import Sprite2DVertex from './NewShader/Sprite2DVertex.glsl';
 
 import { Shader3D, ShaderFeatureType } from "../../../RenderEngine/RenderShader/Shader3D";
 import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
-import { Material } from "../../../resource/Material";
 import { ShaderDataType } from "../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 
 export class Shader2D {
@@ -18,6 +19,8 @@ export class Shader2D {
     static textureShader: Shader3D;
     /**@internal */
     static primitiveShader: Shader3D;
+    /**@internal */
+    static render2DNodeShader: Shader3D;
 
     /**
      * @internal
@@ -42,6 +45,12 @@ export class Shader2D {
         'a_attribFlags': [2, ShaderDataType.Vector4]
     }
 
+    public static readonly Render2DNodeAttribute: { [name: string]: [number, ShaderDataType] } = {
+        'a_position': [0, ShaderDataType.Vector4],
+        'a_color': [1, ShaderDataType.Vector4],
+        'a_uv': [2, ShaderDataType.Vector2]
+    }
+
     /**
      * init 2D internal Shader
      */
@@ -63,6 +72,14 @@ export class Shader2D {
         subShader = new SubShader(Shader2D.primitiveAttribute, {}, {});
         Shader2D.primitiveShader.addSubShader(subShader);
         subShader.addShaderPass(prime_vs, prime_ps);
+
+        //meshspriteShader
+        Shader2D.render2DNodeShader = Shader3D.add("baseRender2D", false, false);
+        Shader2D.render2DNodeShader.shaderType = ShaderFeatureType.D2;
+        subShader = new SubShader(Shader2D.Render2DNodeAttribute, {}, {});
+        Shader2D.render2DNodeShader.addSubShader(subShader);
+        subShader.addShaderPass(baseRender2D_vs, baseRender2D_ps);
+
     }
 }
 

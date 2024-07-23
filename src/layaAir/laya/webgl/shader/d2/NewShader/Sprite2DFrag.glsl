@@ -38,6 +38,8 @@ vec4 transspaceColor(vec4 color)
      return color;
  }
 
+
+
 #if defined(PRIMITIVEMESH)
     varying vec4 v_color;
     varying vec2 v_cliped;
@@ -186,24 +188,27 @@ vec4 transspaceColor(vec4 color)
 #ifdef BASERENDER2D
     varying vec2 v_texcoord;
     varying vec4 v_color;
-    uniform sampler2D u_BaseRender2DTexture;
-    uniform vec4 u_BaseRenderColor;
+    uniform sampler2D u_baseRender2DTexture;
+    uniform vec4 u_baseRenderColor;
 
 
     void setglColor(in vec4 color){
         color.a *= v_color.w;
         vec4 transColor = v_color;
         #ifndef GAMMASPACE
-            transColor = gammaToLinear(v_color)*u_BaseRenderColor;
+            transColor = gammaToLinear(v_color)*u_baseRenderColor;
         #endif
         color.rgb *= transColor.rgb;
         gl_FragColor = color;
     }
 
 #endif
+
+#if defined(PRIMITIVEMESH)||defined(TEXTUREVS)
 void clip(){
     if(v_cliped.x<0.) discard;
     if(v_cliped.x>1.) discard;
     if(v_cliped.y<0.) discard;
     if(v_cliped.y>1.) discard;
 }
+#endif

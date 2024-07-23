@@ -15,7 +15,7 @@ import { LayaGL } from "../../layagl/LayaGL";
 import { FastSinglelist } from "../../utils/SingletonList";
 import { SpineShaderInit } from "../material/SpineShaderInit";
 
-export class SpineInstanceBatch implements IBatch2DRender{
+export class SpineInstanceBatch implements IBatch2DRender {
     /** @internal */
     static instance: SpineInstanceBatch;
 
@@ -26,7 +26,7 @@ export class SpineInstanceBatch implements IBatch2DRender{
      * @param left 
      * @param right 
      */
-    check(left:IRenderElement2D , right:IRenderElement2D):boolean{
+    check(left: IRenderElement2D, right: IRenderElement2D): boolean {
         if (left.materialShaderData != right.materialShaderData
             || left.geometry.instanceCount
             || right.geometry.instanceCount
@@ -51,24 +51,24 @@ export class SpineInstanceBatch implements IBatch2DRender{
             let index = start + i;
             let cElement = elementArray[index];
             let nElement = elementArray[index + 1];
-            
-            if(this.check(cElement , nElement)){
-                if (batchStart == -1 ) {
+
+            if (this.check(cElement, nElement)) {
+                if (batchStart == -1) {
                     batchStart = i;
                 }
-            }else{
-                if (batchStart != -1 ) {
-                    this.batch(list , batchStart + start , i - batchStart);
+            } else {
+                if (batchStart != -1) {
+                    this.batch(list, batchStart + start, i - batchStart);
                 }
 
                 batchStart = 0;
             }
         }
 
-        if (batchStart != -1 ) {
-            this.batch(list , batchStart + start , length - batchStart);
+        if (batchStart != -1) {
+            this.batch(list, batchStart + start, length - batchStart);
         }
-        
+
     }
 
     /**
@@ -78,10 +78,10 @@ export class SpineInstanceBatch implements IBatch2DRender{
      * @param simpleAnimatorData 
      * @param instanceCount 
      */
-    updateBuffer(info:SpineInstanceInfo , nMatrixData:Float32Array , simpleAnimatorData : Float32Array , instanceCount:number){
+    updateBuffer(info: SpineInstanceInfo, nMatrixData: Float32Array, simpleAnimatorData: Float32Array, instanceCount: number) {
         let nMatrixInstanceVB = info.nMatrixInstanceVB;
         let simpleAnimatorVB = info.simpleAnimatorVB;
-        
+
         nMatrixInstanceVB.setData(nMatrixData.buffer, 0, 0, instanceCount * 6 * 4);
 
         simpleAnimatorVB.setData(simpleAnimatorData.buffer, 0, 0, instanceCount * 4 * 4);
@@ -93,17 +93,17 @@ export class SpineInstanceBatch implements IBatch2DRender{
      * @param start 
      * @param length 
      */
-    batch(list: FastSinglelist<IRenderElement2D> ,  start: number, length: number ){
+    batch(list: FastSinglelist<IRenderElement2D>, start: number, length: number) {
 
-        let instanceElement:IRenderElement2D , geometry:IRenderGeometryElement;
+        let instanceElement: IRenderElement2D, geometry: IRenderGeometryElement;
         let elementArray: Array<IRenderElement2D> = list.elements;
         //  nMatrix Length = 6 ;
         //  Simple Animator Params Length = 4;
 
-        let nMatrixData: Float32Array = SpineInstanceElement2DTool._instanceBufferCreate( 6 * SpineInstanceElement2DTool.MaxInstanceCount);
-        let simpleAnimatorData: Float32Array = SpineInstanceElement2DTool._instanceBufferCreate( 4 * SpineInstanceElement2DTool.MaxInstanceCount);
+        let nMatrixData: Float32Array = SpineInstanceElement2DTool._instanceBufferCreate(6 * SpineInstanceElement2DTool.MaxInstanceCount);
+        let simpleAnimatorData: Float32Array = SpineInstanceElement2DTool._instanceBufferCreate(4 * SpineInstanceElement2DTool.MaxInstanceCount);
 
-        let state:IBufferState , info:SpineInstanceInfo;
+        let state: IBufferState, info: SpineInstanceInfo;
 
         let instanceCount = 0;
         for (let i = 0; i < length; i++) {
@@ -135,7 +135,7 @@ export class SpineInstanceBatch implements IBatch2DRender{
                 //         byteCount = 1;                        
                 //         break;
                 // }
-                geometry.setDrawElemenParams(indexCount , 0);
+                geometry.setDrawElemenParams(indexCount, 0);
 
                 instanceElement.subShader = element.subShader;
                 instanceElement.materialShaderData = element.materialShaderData;
@@ -146,7 +146,7 @@ export class SpineInstanceBatch implements IBatch2DRender{
             }
 
             let nMatrixBuffer = shaderData.getBuffer(SpineShaderInit.NMatrix);
-            nMatrixData.set(nMatrixBuffer, instanceCount * 6);    
+            nMatrixData.set(nMatrixBuffer, instanceCount * 6);
             //simpleAnimationData
             let simpleAnimatorParams = shaderData.getVector(SpineShaderInit.SIMPLE_SIMPLEANIMATORPARAMS);
             let offset: number = instanceCount * 4;
@@ -155,10 +155,10 @@ export class SpineInstanceBatch implements IBatch2DRender{
             simpleAnimatorData[offset + 2] = simpleAnimatorParams.z;
             simpleAnimatorData[offset + 3] = simpleAnimatorParams.w;
 
-            instanceCount ++;
+            instanceCount++;
             geometry.instanceCount = instanceCount;
             if (geometry.instanceCount == SpineInstanceElement2DTool.MaxInstanceCount) {
-                this.updateBuffer(info , nMatrixData , simpleAnimatorData , geometry.instanceCount);
+                this.updateBuffer(info, nMatrixData, simpleAnimatorData, geometry.instanceCount);
                 list.add(instanceElement);
                 instanceElement = null;
             }
@@ -167,7 +167,7 @@ export class SpineInstanceBatch implements IBatch2DRender{
         // geometry.instanceCount = length;
 
         if (instanceElement) {
-            this.updateBuffer(info , nMatrixData , simpleAnimatorData , geometry.instanceCount);
+            this.updateBuffer(info, nMatrixData, simpleAnimatorData, geometry.instanceCount);
             list.add(instanceElement);
         }
 
@@ -190,18 +190,18 @@ export class SpineInstanceBatch implements IBatch2DRender{
     }
 }
 
-Laya.addAfterInitCallback(function() {
+Laya.addAfterInitCallback(function () {
     SpineInstanceBatch.instance = new SpineInstanceBatch;
-    RenderManager2D.regisBatch(BaseRender2DType.spineSimple,SpineInstanceBatch.instance);
+    RenderManager2D.regisBatch(BaseRender2DType.spineSimple, SpineInstanceBatch.instance);
 })
 
 export interface SpineInstanceInfo {
     state: IBufferState;
-    nMatrixInstanceVB?:IVertexBuffer;
+    nMatrixInstanceVB?: IVertexBuffer;
     simpleAnimatorVB?: IVertexBuffer;
 }
 
-export class SpineInstanceElement2DTool{
+export class SpineInstanceElement2DTool {
 
     static MaxInstanceCount = 2048;
 
@@ -209,13 +209,13 @@ export class SpineInstanceElement2DTool{
      * get Instance BufferState
      */
     // private static _instanceBufferStateMap: IBufferState[] = [];
-    private static _instanceBufferInfoMap: Map<IRenderGeometryElement,SpineInstanceInfo>  = new Map;
+    private static _instanceBufferInfoMap: Map<IRenderGeometryElement, SpineInstanceInfo> = new Map;
 
-    static getInstanceInfo(geometry:IRenderGeometryElement):SpineInstanceInfo{
+    static getInstanceInfo(geometry: IRenderGeometryElement): SpineInstanceInfo {
         let info = SpineInstanceElement2DTool._instanceBufferInfoMap.get(geometry);
         if (!info) {
             let state = LayaGL.renderDeviceFactory.createBufferState();
-            info = {state};
+            info = { state };
 
             let oriBufferState = geometry.bufferState;
             let vertexArray = oriBufferState._vertexBuffers.slice();
@@ -227,16 +227,16 @@ export class SpineInstanceElement2DTool{
             vertexArray.push(nMatrixInstanceVB);
             info.nMatrixInstanceVB = nMatrixInstanceVB;
 
-            
+
             let simpleAnimatorVB = LayaGL.renderDeviceFactory.createVertexBuffer(BufferUsage.Dynamic);
             simpleAnimatorVB.setDataLength(SpineInstanceElement2DTool.MaxInstanceCount * 4 * 4)
             simpleAnimatorVB.vertexDeclaration = SpineShaderInit.instanceSimpleAnimatorDeclaration;
             simpleAnimatorVB.instanceBuffer = true;
             vertexArray.push(simpleAnimatorVB);
             info.simpleAnimatorVB = simpleAnimatorVB;
-            state.applyState(vertexArray,geometry.bufferState._bindedIndexBuffer);
+            state.applyState(vertexArray, geometry.bufferState._bindedIndexBuffer);
 
-            SpineInstanceElement2DTool._instanceBufferInfoMap.set(geometry,info);
+            SpineInstanceElement2DTool._instanceBufferInfoMap.set(geometry, info);
         }
 
         return info;
@@ -250,13 +250,14 @@ export class SpineInstanceElement2DTool{
 
     static create(): IRenderElement2D {
         let element = this._pool.pop() || LayaGL.render2DRenderPassFactory.createRenderElement2D();
+        element.nodeCommonMap = ["spine2D"];
         if (!element.geometry) {
-            element.geometry = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles,DrawType.DrawElementInstance);
+            element.geometry = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElementInstance);
         }
         return element;
     }
 
-    static recover(element:IRenderElement2D){
+    static recover(element: IRenderElement2D) {
         element.value2DShaderData = null;
         element.materialShaderData = null;
         element.subShader = null;
@@ -280,7 +281,7 @@ export class SpineInstanceElement2DTool{
         return element;
     }
 
-    static _instanceBufferRecover(float32:Float32Array){
+    static _instanceBufferRecover(float32: Float32Array) {
         let length = float32.length;
         let array = SpineInstanceElement2DTool._bufferPool[length];
         if (!array) {

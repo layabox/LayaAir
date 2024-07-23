@@ -6,7 +6,9 @@ import { IRenderGeometryElement } from "../RenderDriver/DriverDesign/RenderDevic
 import { IVertexBuffer } from "../RenderDriver/DriverDesign/RenderDevice/IVertexBuffer";
 import { ShaderDefine } from "../RenderDriver/RenderModuleData/Design/ShaderDefine";
 import { BufferUsage } from "../RenderEngine/RenderEnum/BufferTargetType";
+import { DrawType } from "../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../RenderEngine/RenderEnum/IndexFormat";
+import { MeshTopology } from "../RenderEngine/RenderEnum/RenderPologyMode";
 import { Shader3D } from "../RenderEngine/RenderShader/Shader3D";
 import { VertexMesh } from "../RenderEngine/RenderShader/VertexMesh";
 import { VertexDeclaration } from "../RenderEngine/VertexDeclaration";
@@ -37,10 +39,10 @@ export class VertexMesh2D {
                 var elements: any[] = [];
                 for (let j: number = 0, n: number = subFlags.length; j < n; j++) {
                     var element: VertexElement;
-                    switch (subFlags[i]) {
+                    switch (subFlags[j]) {
                         case "POSITION":
                             element = new VertexElement(offset, VertexElementFormat.Vector3, VertexMesh.MESH_POSITION0);
-                            offset += 8;
+                            offset += 12;
                             break;
                         case "COLOR":
                             element = new VertexElement(offset, VertexElementFormat.Vector4, VertexMesh.MESH_COLOR0);
@@ -106,6 +108,52 @@ export class VertexMesh2D {
  * <code>Mesh</code> 类用于创建文件网格数据模板。
  */
 export class Mesh2D extends Resource {
+
+    /**
+     * @en create a Mesh2D by data
+     * @param vbs vertexBuffers Array
+     * @param vbDeclaration vertex declaration info array
+     * @param ib index Buffer
+     * @param ibFormat index Buffer format
+     * @param submeshInfo subMesh render info，start for index offset，length for draw range。one mesh2D can Multisegmental rendering。
+     * @returns return a mesh2D，can use to Mesh2DRender
+     * @zh 创建一个Mesh2D
+     * @param vbs 顶点数组数据
+     * @param vbDeclaration 顶点描述数组
+     * @param ib 索引数据
+     * @param ibFormat 索引数据格式
+     * @param submeshInfo 子Mesh渲染信息，start标识从索引数据哪里开始，length指draw多少索引值的三角形，一个Mesh2D可以分成多端来渲染，方便赋入不同的材质
+     * @returns 返回一个mesh2D实例。可用于mesh2DRender组件渲染
+     */
+    static createMesh2DByPrimitive(vbs: Float32Array[], vbDeclaration: VertexDeclaration[], ib: Uint16Array | Uint32Array, ibFormat: IndexFormat, submeshInfo: { start: number, length: number }[]) {
+        let mesh2d = new Mesh2D();
+        let vbArray = [];
+        for (var i = 0, n = vbs.length; i < n; i++) {
+            let vbdata = vbs[i];
+            let vertex = LayaGL.renderDeviceFactory.createVertexBuffer(BufferUsage.Dynamic);
+            vertex.vertexDeclaration = vbDeclaration[i];
+            vertex.setDataLength(vbdata.buffer.byteLength);
+            vertex.setData(vbdata.buffer, 0, 0, vbdata.buffer.byteLength);
+            vbArray.push(vertex);
+        }
+        let indexBuffer = LayaGL.renderDeviceFactory.createIndexBuffer(BufferUsage.Dynamic);
+        indexBuffer._setIndexDataLength(ib.buffer.byteLength);
+        indexBuffer._setIndexData(ib, 0);
+        mesh2d._setBuffers(vbArray, indexBuffer);
+
+        let geometryArray = [];
+        for (var i = 0; i < submeshInfo.length; i++) {
+            let geometry = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
+            geometry.bufferState = mesh2d._bufferState;
+            geometry.setDrawElemenParams(submeshInfo[i].length, submeshInfo[i].start);
+            geometry.indexFormat = ibFormat;
+            geometryArray.push(geometry);
+        }
+        mesh2d._setSubMeshes(geometryArray);
+        return mesh2d;
+    }
+
+
     /**
      * 加载网格模板。
      * @param url 模板地址。
@@ -186,16 +234,16 @@ export class Mesh2D extends Resource {
     }
 
 
-    /**
-     * 设置indexformat
-     * @param 索引格式
-     */
-    set indexFormat(value: IndexFormat) {
-        this._indexFormat = value
-        this._subMeshes.forEach(element => {
-            element.indexFormat = value;
-        });
-    }
+    // /**
+    //  * 设置indexformat
+    //  * @param 索引格式
+    //  */
+    // set indexFormat(value: IndexFormat) {
+    //     this._indexFormat = value
+    //     this._subMeshes.forEach(element => {
+    //         element.indexFormat = value;
+    //     });
+    // }
 
     /**
      * 创建一个 <code>Mesh</code> 实例,禁止使用。
@@ -245,9 +293,11 @@ export class Mesh2D extends Resource {
     /**
      * @internal
      */
-    _setBuffer(vertexBuffer: IVertexBuffer, indexBuffer: IIndexBuffer): void {
+    _setBuffers(vertexBuffers: IVertexBuffer[], indexBuffer: IIndexBuffer): void {
         var bufferState: IBufferState = this._bufferState;
-        bufferState.applyState([vertexBuffer], indexBuffer);
+        this._vertexBuffers = vertexBuffers;
+        this._indexBuffer = indexBuffer;
+        bufferState.applyState(vertexBuffers, indexBuffer);
     }
 
     /**
@@ -259,8 +309,10 @@ export class Mesh2D extends Resource {
     }
 
     /**
-    * 设置顶点数据。
-    * @param vertices 顶点数据。
+    * @en Set vertex group data
+    * @param vertices set vertexs data
+    * @zh 设置顶点组数据。
+    * @param vertices 设置的顶点数据。
     */
     setVertices(vertices: ArrayBuffer[]): void {
         for (let i = 0, len = vertices.length; i < len; i++) {
@@ -268,11 +320,26 @@ export class Mesh2D extends Resource {
                 this._vertexBuffers[i].setData(vertices[i], 0, 0, vertices[i].byteLength);
             }
         }
-
     }
 
     /**
-     * 设置网格索引。
+     * @en Set a vertex buffer data
+     * @param data  buffer data
+     * @param index vertex array index
+     * @param bufferOffset  buffer data set offset
+     * @zh 设置某个顶点Buffer数据
+     * @param data 设置数据
+     * @param index 设置的顶点Buffer队列索引
+     * @param bufferOffset 设置Buffer数据的偏移
+     */
+    setVertexByIndex(data: ArrayBuffer, index: number, bufferOffset: number = 0) {
+        this._vertexBuffers[index].setData(data, bufferOffset, 0, data.byteLength);
+    }
+
+    /**
+     * @en set index buffer data
+     * @param indices index buffer data
+     * @zh 设置索引buffer数据。
      * @param indices 网格索引。
      */
     setIndices(indices: Uint8Array | Uint16Array | Uint32Array): void {
@@ -292,7 +359,6 @@ export class Mesh2D extends Resource {
             indexBuffer.indexType = format;
         }
         indexBuffer._setIndexData(indices, 0);
-        this.indexFormat = format;
     }
 }
 

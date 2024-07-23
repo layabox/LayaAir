@@ -61,17 +61,17 @@ export class BaseRenderNode2D extends Component {
     static initBaseRender2DCommandEncoder() {
         BaseRenderNode2D.NMATRIX_0 = Shader3D.propertyNameToID("u_NMatrix_0");
         BaseRenderNode2D.NMATRIX_1 = Shader3D.propertyNameToID("u_NMatrix_1");
-        BaseRenderNode2D.BASERENDER2DCOLOR = Shader3D.propertyNameToID("u_BaseRenderColor");
-        BaseRenderNode2D.BASERENDER2DTEXTURE = Shader3D.propertyNameToID("u_BaseRender2DTexture")
-        BaseRenderNode2D.BASERENDERSIZE = Shader3D.propertyNameToID("u_BaseRenderSize2D");
+        BaseRenderNode2D.BASERENDER2DCOLOR = Shader3D.propertyNameToID("u_baseRenderColor");
+        BaseRenderNode2D.BASERENDER2DTEXTURE = Shader3D.propertyNameToID("u_baseRender2DTexture")
+        BaseRenderNode2D.BASERENDERSIZE = Shader3D.propertyNameToID("u_baseRenderSize2D");
         BaseRenderNode2D.SHADERDEFINE_BASERENDER2D = Shader3D.getDefineByName("BASERENDER2D");
 
         const commandUniform = LayaGL.renderDeviceFactory.createGlobalUniformMap("BaseRender2D");
         commandUniform.addShaderUniform(BaseRenderNode2D.NMATRIX_0, "u_NMatrix_0", ShaderDataType.Vector3);
         commandUniform.addShaderUniform(BaseRenderNode2D.NMATRIX_1, "u_NMatrix_1", ShaderDataType.Vector3);
-        commandUniform.addShaderUniform(BaseRenderNode2D.BASERENDER2DCOLOR, "u_BaseRenderColor", ShaderDataType.Color);
-        commandUniform.addShaderUniform(BaseRenderNode2D.BASERENDER2DTEXTURE, "u_BaseRender2DTexture", ShaderDataType.Texture2D);
-        commandUniform.addShaderUniform(BaseRenderNode2D.BASERENDER2DTEXTURE, "u_BaseRenderSize2D", ShaderDataType.Texture2D);
+        commandUniform.addShaderUniform(BaseRenderNode2D.BASERENDER2DCOLOR, "u_baseRenderColor", ShaderDataType.Color);
+        commandUniform.addShaderUniform(BaseRenderNode2D.BASERENDER2DTEXTURE, "u_baseRender2DTexture", ShaderDataType.Texture2D);
+        commandUniform.addShaderUniform(BaseRenderNode2D.BASERENDERSIZE, "u_baseRenderSize2D", ShaderDataType.Vector2);
     }
 
     /**

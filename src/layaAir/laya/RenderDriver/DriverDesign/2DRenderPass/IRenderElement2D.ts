@@ -8,5 +8,6 @@ export interface IRenderElement2D {
     value2DShaderData: ShaderData;
     subShader: SubShader;
     renderStateIsBySprite: boolean;//渲染节点的renderState根据哪个ShaderData来
+    nodeCommonMap: Array<string>;
     destroy(): void;
 }

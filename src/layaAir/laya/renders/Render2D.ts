@@ -61,6 +61,7 @@ export class Render2DSimple extends Render2D {
             Render2DSimple.rendercontext2D = LayaGL.render2DRenderPassFactory.createRenderContext2D();
         }
         this._renderElement = LayaGL.render2DRenderPassFactory.createRenderElement2D();
+        this._renderElement.nodeCommonMap = ["Sprite2D"];
     }
 
     clone(out: RenderTexture2D): Render2D {
@@ -143,7 +144,7 @@ export class Render2DSimple extends Render2D {
     }
 
     renderEnd(): void {
-       
+
     }
 
 }

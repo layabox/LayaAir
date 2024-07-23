@@ -20,6 +20,7 @@ export class NoRender2DProcess implements I2DRenderPassFactory {
 }
 
 export class NoRenderElement2D implements IRenderElement2D{
+    nodeCommonMap: string[];
     geometry: IRenderGeometryElement;
     materialShaderData: ShaderData;
     value2DShaderData: ShaderData;

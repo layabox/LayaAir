@@ -114,7 +114,7 @@ export class WebGLShaderInstance implements IShaderInstance {
         this._materialUniformParamsMap = new CommandEncoder();
         this._sceneUniformParamsMap = new CommandEncoder();
         const scene2DParms = LayaGL.renderDeviceFactory.createGlobalUniformMap("scene2D") as WebGLCommandUniformMap;
-        const sprite2DParms = LayaGL.renderDeviceFactory.createGlobalUniformMap("Sprite2D") as WebGLCommandUniformMap;//分开，根据不同的Render
+        //const sprite2DParms = LayaGL.renderDeviceFactory.createGlobalUniformMap("Sprite2D") as WebGLCommandUniformMap;//分开，根据不同的Render
         const sceneParms = LayaGL.renderDeviceFactory.createGlobalUniformMap("Sprite2DGlobal") as WebGLCommandUniformMap;//分开，根据不同的Render
         let i, n;
         let data: ShaderVariable[] = this._renderShaderInstance.getUniformMap();
@@ -123,7 +123,7 @@ export class WebGLShaderInstance implements IShaderInstance {
             if (scene2DParms.hasPtrID(one.dataOffset)) {
                 this._sceneUniformParamsMap.addShaderUniform(one);
             }
-            else if (sprite2DParms.hasPtrID(one.dataOffset)) {
+            else if (this.hasSpritePtrID(one.dataOffset)) {
                 this._sprite2DUniformParamsMap.addShaderUniform(one);
             } else if (sceneParms.hasPtrID(one.dataOffset)) {
                 this._sceneUniformParamsMap.addShaderUniform(one);

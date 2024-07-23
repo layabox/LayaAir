@@ -13,8 +13,9 @@ export class SpineWasmVirturalMesh extends SpineMeshBase {
         super(material);
         this._renderElement2D = LayaGL.render2DRenderPassFactory.createRenderElement2D();
         this._renderElement2D.geometry = this.geo;
+        this._renderElement2D.nodeCommonMap = ["spine2D"];
     }
-    
+
     get vertexDeclarition() {
         return SpineShaderInit.SpineNormalVertexDeclaration;
     }

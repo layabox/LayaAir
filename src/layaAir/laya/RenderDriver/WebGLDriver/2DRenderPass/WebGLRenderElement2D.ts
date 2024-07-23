@@ -11,6 +11,7 @@ import { WebGLShaderInstance } from "../RenderDevice/WebGLShaderInstance";
 import { WebglRenderContext2D } from "./WebGLRenderContext2D";
 
 export class WebGLRenderelement2D implements IRenderElement2D {
+    nodeCommonMap: string[];
     renderStateIsBySprite: boolean = true;
 
 
@@ -54,6 +55,7 @@ export class WebGLRenderelement2D implements IRenderElement2D {
 
             if (this.value2DShaderData) {
                 comDef.addDefineDatas(this.value2DShaderData.getDefineData());
+                pass.nodeCommonMap = this.nodeCommonMap;
             }
             if (this.materialShaderData)
                 comDef.addDefineDatas(this.materialShaderData._defineDatas);

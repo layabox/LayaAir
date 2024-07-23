@@ -64,6 +64,7 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
     constructor() {
         this.globalId = WebGPUGlobal.getId(this);
     }
+    nodeCommonMap: string[];//TODO
     renderStateIsBySprite: boolean = true;
 
     /**

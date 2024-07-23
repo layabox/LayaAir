@@ -80,6 +80,7 @@ export class RenderObject2D implements ISprite2DGeometry{
         this.renderElement.value2DShaderData = this.mtl.shaderData;
         this.renderElement.subShader = this.mtl._defaultShader.getSubShaderAt(0);
         this.renderElement.materialShaderData = null;
+        this.renderElement.nodeCommonMap = ["Sprite2D"];
     }    
 
     destroyGPUResource(){

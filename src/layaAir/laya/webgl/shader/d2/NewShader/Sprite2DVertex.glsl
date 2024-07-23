@@ -137,7 +137,7 @@
 
    uniform vec3 u_NMatrix_0;
    uniform vec3 u_NMatrix_1;
-   uniform vec2 u_BaseRenderSize2D;
+   uniform vec2 u_baseRenderSize2D;
 
     //attribute vec3 a_position
     //attribute vec4 a_color
@@ -150,12 +150,12 @@
     };
 
     void getVertexInfo(inout vertexInfo info){
-         info.pos = a_position.xy
-         info.color = vec4(1.,1.,1.,1.);
+         info.pos = a_position.xy;
+         info.color = vec4(1.0,1.0,1.0,1.0);
          #ifdef COLOR
             info.color = a_color;
          #endif
-         #ifdef uv
+         #ifdef UV
             info.uv = a_uv;
          #endif
     }
@@ -167,12 +167,12 @@
         float y=u_NMatrix_1.x*pos.x+u_NMatrix_1.y*pos.y-u_NMatrix_1.z;
         pos.xy = vec2(x,y);
         #ifdef CAMERA2D
-            pos.xy = (u_view2D *vec3(pos.x,pos.y,1.0)).xy+u_BaseRenderSize2D/2.;
+            pos.xy = (u_view2D *vec3(pos.x,pos.y,1.0)).xy+u_baseRenderSize2D/2.;
         #endif   
-        pos= vec4((pos.x/u_BaseRenderSize2D.x-0.5)*2.0,(0.5-pos.y/u_BaseRenderSize2D.y)*2.0,0.,1.0);
-        glPosition = pos;
+        pos= vec4((pos.x/u_baseRenderSize2D.x-0.5)*2.0,(0.5-pos.y/u_baseRenderSize2D.y)*2.0,0.,1.0);
+
         #ifdef INVERTY
-            glPosition.y = -glPosition.y;
+            pos.y = -pos.y;
         #endif
     }
 #endif

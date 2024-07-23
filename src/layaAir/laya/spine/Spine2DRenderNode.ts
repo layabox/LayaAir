@@ -58,6 +58,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
         let element = LayaGL.render2DRenderPassFactory.createRenderElement2D();
         element.geometry = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
         element.renderStateIsBySprite = false;
+        element.nodeCommonMap = ["spine2D"]
         return element;
     }
 
