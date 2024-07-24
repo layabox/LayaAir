@@ -131,6 +131,11 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
                 this._shaderPass[i].arrayMap = arrayMap;
             }
 
+            //设置nodeCommonMap
+            if (this.value2DShaderData)
+                this._shaderPass[i].nodeCommonMap = this.nodeCommonMap;
+            else this._shaderPass[i].nodeCommonMap = null;
+
             //获取着色器实例，先查找缓存，如果没有则创建
             const shaderInstance = this._shaderPass[i].withCompile(compileDefine.clone(), true) as WebGPUShaderInstance;
             this._shaderInstance[i] = this._shaderInstances[this._passIndex[i]] = shaderInstance;

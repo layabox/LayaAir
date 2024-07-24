@@ -135,8 +135,9 @@ export class WebGPUCodeGenerator {
      * 生成uniform字符串
      * @param uniformMap 
      * @param arrayMap 数组uniform映射表（表示哪些uniform是数组，长度是多少）
+     * @param nodeCommonMap 
      */
-    private static _uniformString2D(uniformMap: WebGPUUniformMapType, arrayMap: NameNumberMap) {
+    private static _uniformString2D(uniformMap: WebGPUUniformMapType, arrayMap: NameNumberMap, nodeCommonMap: string[]) {
         const globalUniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap;
         const cameraUniformMap = globalUniformMap("BaseCamera") as WebGPUCommandUniformMap;
         const scene2DUniformMap = globalUniformMap("Sprite2DGlobal") as WebGPUCommandUniformMap;
@@ -145,6 +146,12 @@ export class WebGPUCodeGenerator {
         const sprite2DUniforms: NameAndType[] = [];
         const materialUniforms: NameAndType[] = [];
         const textureUniforms: NameAndType[] = [];
+
+        const sprite2DUniformMaps: WebGPUCommandUniformMap[] = [];
+        if (nodeCommonMap)
+            for (let i = 0; i < nodeCommonMap.length; i++)
+                if (nodeCommonMap[i] !== 'Sprite2D')
+                sprite2DUniformMaps.push(globalUniformMap(nodeCommonMap[i]) as WebGPUCommandUniformMap);
 
         const uniformInfo: WebGPUUniformPropertyBindingInfo[] = [];
 
@@ -165,6 +172,12 @@ export class WebGPUCodeGenerator {
             else if (sprite2DUniformMap.hasPtrID(id)) {
                 if (!_have(sprite2DUniforms, name))
                     sprite2DUniforms.push({ name, type, set: 2 });
+            }
+            else if (sprite2DUniformMaps.length > 0) {
+                for (let i = 0; i < sprite2DUniformMaps.length; i++)
+                    if (sprite2DUniformMaps[i].hasPtrID(id))
+                        if (!_have(sprite2DUniforms, name))
+                            sprite2DUniforms.push({ name, type, set: 2 });
             }
             else if (type === 'sampler2D' || type === 'samplerCube' || type === 'sampler2DArray' || type === 'sampler2DShadow') {
                 if (!_have(textureUniforms, name))
@@ -252,8 +265,9 @@ export class WebGPUCodeGenerator {
      * 生成uniform字符串
      * @param uniformMap 
      * @param arrayMap 数组uniform映射表（表示哪些uniform是数组，长度是多少）
+     * @param nodeCommonMap 
      */
-    private static _uniformString3D(uniformMap: WebGPUUniformMapType, arrayMap: NameNumberMap) {
+    private static _uniformString3D(uniformMap: WebGPUUniformMapType, arrayMap: NameNumberMap, nodeCommonMap: string[]) {
         const globalUniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap;
         const scene3DUniformMap = globalUniformMap("Scene3D") as WebGPUCommandUniformMap;
         const cameraUniformMap = globalUniformMap("BaseCamera") as WebGPUCommandUniformMap;
@@ -267,6 +281,12 @@ export class WebGPUCodeGenerator {
         const sprite3DUniforms: NameAndType[] = [];
         const materialUniforms: NameAndType[] = [];
         const textureUniforms: NameAndType[] = [];
+
+        // const sprite3DUniformMaps: WebGPUCommandUniformMap[] = [];
+        // if (nodeCommonMap)
+        //     for (let i = 0; i < nodeCommonMap.length; i++)
+        //         if (nodeCommonMap[i] !== 'Sprite3D')
+        //             sprite3DUniformMaps.push(globalUniformMap(nodeCommonMap[i]) as WebGPUCommandUniformMap);
 
         //将u_Bones归类到sprite3D，避免归类到material（因为material是渲染节点共享的，无法单独处理骨骼数据）
         sprite3DUniformMap.addShaderUniform(SkinnedMeshSprite3D.BONES, 'u_Bones', ShaderDataType.Matrix4x4);
@@ -294,6 +314,12 @@ export class WebGPUCodeGenerator {
                 if (!_have(sprite3DUniforms, name))
                     sprite3DUniforms.push({ name, type, set: 2 });
             }
+            // else if (sprite3DUniformMaps.length > 0) {
+            //     for (let i = 0; i < sprite3DUniformMaps.length; i++)
+            //         if (sprite3DUniformMaps[i].hasPtrID(id))
+            //             if (!_have(sprite3DUniforms, name))
+            //                 sprite3DUniforms.push({ name, type, set: 2 });
+            // }
             else if (simpleSkinnedMeshUniformMap.hasPtrID(id)) {
                 if (!_have(sprite3DUniforms, name))
                     sprite3DUniforms.push({ name, type, set: 2 });
@@ -837,7 +863,7 @@ mat4 transpose(mat4 m)
      */
     static shaderLanguageProcess(defineString: string[],
         attributeMap: WebGPUAttributeMapType, uniformMap: WebGPUUniformMapType,
-        arrayMap: NameNumberMap, VS: ShaderNode, FS: ShaderNode, is2D: boolean) {
+        arrayMap: NameNumberMap, nodeCommonMap: string[], VS: ShaderNode, FS: ShaderNode, is2D: boolean) {
 
         const defMap: any = {};
         const varyingMap: NameStringMap = {};
@@ -920,7 +946,9 @@ mat4 transpose(mat4 m)
         const {
             uniformGLSL,
             uniformInfo,
-            textureUniforms } = is2D ? this._uniformString2D(uniformMap, arrayMap) : this._uniformString3D(uniformMap, arrayMap);
+            textureUniforms } = is2D ?
+                this._uniformString2D(uniformMap, arrayMap, nodeCommonMap)
+                : this._uniformString3D(uniformMap, arrayMap, nodeCommonMap);
         const inverseFunc = this._genInverseFunc();
         const aWorldMat = this._genAWorldMat();
 

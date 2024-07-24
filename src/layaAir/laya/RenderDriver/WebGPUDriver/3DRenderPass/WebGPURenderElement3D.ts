@@ -131,7 +131,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
      * 提取当前渲染通道
      * @param pipelineMode 
      */
-    private _takeCurPass(pipelineMode: string) {
+    private _takeCurrentPass(pipelineMode: string) {
         this._passNum = 0;
         this._passName = pipelineMode;
         const passes = this.subShader._passes;
@@ -150,7 +150,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
      * @param context 
      */
     _preUpdatePre(context: WebGPURenderContext3D) {
-        this._takeCurPass(context.pipelineMode);
+        this._takeCurrentPass(context.pipelineMode);
         if (this._passNum === 0) return false;
 
         //设定当前渲染数据
@@ -216,6 +216,11 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
                 this._shaderPass[i].arrayMap = arrayMap;
             }
 
+            //设置nodeCommonMap
+            if (this.renderShaderData && this.owner)
+                this._shaderPass[i].nodeCommonMap = this.owner._commonUniformMap;
+            else this._shaderPass[i].nodeCommonMap = null;
+
             //获取着色器实例，先查找缓存，如果没有则创建
             const shaderInstance = this._shaderPass[i].withCompile(compileDefine.clone()) as WebGPUShaderInstance;
             this._shaderInstances[index] = shaderInstance;
@@ -234,7 +239,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
         this.materialShaderData?.clearBindGroup();
 
         //提取当前渲染通道
-        this._takeCurPass(context.pipelineMode);
+        this._takeCurrentPass(context.pipelineMode);
     }
 
     /**
