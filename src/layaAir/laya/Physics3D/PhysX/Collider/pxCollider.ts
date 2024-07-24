@@ -105,6 +105,13 @@ export class pxCollider implements ICollider {
         this._physicsManager = manager;
         this._id = pxCollider._pxActorID++;
     }
+    active: boolean;
+    setfriction?(value: number): void {
+        throw new Error("Method not implemented.");
+    }
+    setRollingFriction?(value: number): void {
+        throw new Error("Method not implemented.");
+    }
 
     protected setActorFlag(flag: pxActorFlag, value: boolean) {
         this._pxActor.setCustomFlag(flag, value);

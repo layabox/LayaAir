@@ -16,6 +16,9 @@ import { Physics3DUtils } from "../../d3/utils/Physics3DUtils";
 import { PhysicsUpdateList } from "../../d3/physics/PhysicsUpdateList";
 import { ICollider } from "../interface/ICollider";
 import { PhysicsColliderComponent } from "../../d3/physics/PhysicsColliderComponent";
+import { Quaternion } from "../../maths/Quaternion";
+import { IColliderShape } from "../interface/Shape/IColliderShape";
+import { btColliderShape } from "./Shape/btColliderShape";
 
 export class btPhysicsManager implements IPhysicsManager {
     /**默认碰撞组 */
@@ -269,36 +272,14 @@ export class btPhysicsManager implements IPhysicsManager {
         bt.btGImpactCollisionAlgorithm_RegisterAlgorithm(this._btDispatcher);//注册算法
         this.initPhysicsCapable();  // 初始化物理能力
     }
+    setActiveCollider(collider: ICollider, value: boolean): void {
+        collider.active = value;
+    }
+    sphereQuery?(pos: Vector3, radius: number, result: ICollider[], collisionmask: number): void {
+        throw new Error("Method not implemented.");
+    }
 
-    //TODO
-    //  * @internal
-    //  */
-    //  get speculativeContactRestitution(): boolean {
-    //     if (!this._btDiscreteDynamicsWorld)
-    //         throw "Simulation:Cannot Cannot perform this action when the physics engine is set to CollisionsOnly";
-    //     return ILaya3D.Physics3D._bullet.btDiscreteDynamicsWorld_getApplySpeculativeContactRestitution(this._btDiscreteDynamicsWorld);
-    // }
-
-    // /**
-    //  * @internal
-    //  */
-    // set speculativeContactRestitution(value: boolean) {
-    //     if (!this._btDiscreteDynamicsWorld)
-    //         throw "Simulation:Cannot Cannot perform this action when the physics engine is set to CollisionsOnly";
-    //     ILaya3D.Physics3D._bullet.btDiscreteDynamicsWorld_setApplySpeculativeContactRestitution(this._btDiscreteDynamicsWorld, value);
-    // }
-
-    //TODO
-    // /**
-    //  * 是否进行连续碰撞检测。
-    //  */
-    // get continuousCollisionDetection(): boolean {
-    //     return ILaya3D.Physics3D._bullet.btCollisionWorld_get_m_useContinuous(this._btDispatchInfo);
-    // }
-
-    // set continuousCollisionDetection(value: boolean) {
-    //     ILaya3D.Physics3D._bullet.btCollisionWorld_set_m_useContinuous(this._btDispatchInfo, value);
-    // }
+    
 
     /**
     * @internal
@@ -592,6 +573,8 @@ export class btPhysicsManager implements IPhysicsManager {
 
     addCollider(collider: ICollider): void {
         let btcollider = collider as btCollider;
+        if (btcollider._isSimulate || !collider.active)
+            return;
         btcollider._derivePhysicsTransformation(true);
         switch (btcollider._type) {
             case btColliderType.StaticCollider:
@@ -606,7 +589,6 @@ export class btPhysicsManager implements IPhysicsManager {
                 break;
         }
         btcollider._isSimulate = true;
-
     }
 
     removeCollider(collider: ICollider): void {
@@ -626,6 +608,7 @@ export class btPhysicsManager implements IPhysicsManager {
                 break;
         }
         btcollider._isSimulate = false;
+        (btcollider as any).inScene = false;
     }
 
     addJoint(joint: btJoint) {
@@ -751,6 +734,144 @@ export class btPhysicsManager implements IPhysicsManager {
                 var btNormal: number = bt.tVector3Array_at(btNormals, i);
                 var normal = hitResult.normal;
                 normal.x = bt.btVector3_x(btNormal);
+                normal.y = bt.btVector3_y(btNormal);
+                normal.z = bt.btVector3_z(btNormal);
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    shapeCast(shape: btColliderShape, fromPosition: Vector3, toPosition: Vector3, out: HitResult, fromRotation: Quaternion = null, toRotation: Quaternion = null, collisonGroup: number = Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER, collisionMask: number = Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER, allowedCcdPenetration: number = 0.0): boolean {
+        var bt: any = this._bt;
+        var convexResultCall: number = this._btClosestConvexResultCallback;
+        var convexPosFrom: number = btPhysicsManager._btTempVector30;
+        var convexPosTo: number = btPhysicsManager._btTempVector31;
+        var convexRotFrom: number = btPhysicsManager._btTempQuaternion0;
+        var convexRotTo: number = btPhysicsManager._btTempQuaternion1;
+        var convexTransform: number = btPhysicsManager._btTempTransform0;
+        var convexTransTo: number = btPhysicsManager._btTempTransform1;
+
+        var sweepShape: number = shape._btShape;
+
+        bt.btVector3_setValue(convexPosFrom, fromPosition.x, fromPosition.y, fromPosition.z);
+        bt.btVector3_setValue(convexPosTo, toPosition.x, toPosition.y, toPosition.z);
+        //convexResultCall.set_m_convexFromWorld(convexPosFrom);
+        //convexResultCall.set_m_convexToWorld(convexPosTo);
+        bt.ConvexResultCallback_set_m_collisionFilterGroup(convexResultCall, collisonGroup);
+        bt.ConvexResultCallback_set_m_collisionFilterMask(convexResultCall, collisionMask);
+
+        bt.btTransform_setOrigin(convexTransform, convexPosFrom);
+        bt.btTransform_setOrigin(convexTransTo, convexPosTo);
+
+        if (fromRotation) {
+            bt.btQuaternion_setValue(convexRotFrom, fromRotation.x, fromRotation.y, fromRotation.z, -fromRotation.w);
+            bt.btTransform_setRotation(convexTransform, convexRotFrom);
+        } else {
+            bt.btTransform_setRotation(convexTransform, this._btDefaultQuaternion);
+        }
+        if (toRotation) {
+            bt.btQuaternion_setValue(convexRotTo, toRotation.x, toRotation.y, toRotation.z, -toRotation.w);
+            bt.btTransform_setRotation(convexTransTo, convexRotTo);
+        } else {
+            bt.btTransform_setRotation(convexTransTo, this._btDefaultQuaternion);
+        }
+
+        bt.ClosestConvexResultCallback_set_m_hitCollisionObject(convexResultCall, null);//还原默认值
+        bt.ConvexResultCallback_set_m_closestHitFraction(convexResultCall, 1);//还原默认值
+        bt.btCollisionWorld_convexSweepTest(this._btCollisionWorld, sweepShape, convexTransform, convexTransTo, convexResultCall, allowedCcdPenetration);
+        if (bt.ConvexResultCallback_hasHit(convexResultCall)) {
+            if (out) {
+                out.succeeded = true;
+                out.collider = btCollider._physicObjectsMap[bt.btCollisionObject_getUserIndex(bt.ClosestConvexResultCallback_get_m_hitCollisionObject(convexResultCall))];
+                out.hitFraction = bt.ConvexResultCallback_get_m_closestHitFraction(convexResultCall);
+                var btPoint: number = bt.ClosestConvexResultCallback_get_m_hitPointWorld(convexResultCall);
+                var btNormal: number = bt.ClosestConvexResultCallback_get_m_hitNormalWorld(convexResultCall);
+                var point: Vector3 = out.point;
+                var normal: Vector3 = out.normal;
+                point.x = -bt.btVector3_x(btPoint);
+                point.y = bt.btVector3_y(btPoint);
+                point.z = bt.btVector3_z(btPoint);
+                normal.x = -bt.btVector3_x(btNormal);
+                normal.y = bt.btVector3_y(btNormal);
+                normal.z = bt.btVector3_z(btNormal);
+            }
+            return true;
+        } else {
+            if (out)
+                out.succeeded = false;
+            return false;
+        }
+    }
+
+
+    shapeCastAll(shape: btColliderShape, fromPosition: Vector3, toPosition: Vector3, out: HitResult[], fromRotation: Quaternion = null, toRotation: Quaternion = null, collisonGroup: number = Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER, collisionMask: number = Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER, allowedCcdPenetration: number = 0.0): boolean {
+        var bt: any = this._bt;
+        var convexResultCall: number = this._btAllConvexResultCallback;
+        var convexPosFrom: number = btPhysicsManager._btTempVector30;
+        var convexPosTo: number = btPhysicsManager._btTempVector31;
+        var convexRotFrom: number = btPhysicsManager._btTempQuaternion0;
+        var convexRotTo: number = btPhysicsManager._btTempQuaternion1;
+        var convexTransform: number = btPhysicsManager._btTempTransform0;
+        var convexTransTo: number = btPhysicsManager._btTempTransform1;
+
+        var sweepShape: number = shape._btShape;
+
+        out.length = 0;
+        bt.btVector3_setValue(convexPosFrom, fromPosition.x, fromPosition.y, fromPosition.z);
+        bt.btVector3_setValue(convexPosTo, toPosition.x, toPosition.y, toPosition.z);
+
+        //convexResultCall.set_m_convexFromWorld(convexPosFrom);
+        //convexResultCall.set_m_convexToWorld(convexPosTo);
+
+        bt.ConvexResultCallback_set_m_collisionFilterGroup(convexResultCall, collisonGroup);
+        bt.ConvexResultCallback_set_m_collisionFilterMask(convexResultCall, collisionMask);
+
+        bt.btTransform_setOrigin(convexTransform, convexPosFrom);
+        bt.btTransform_setOrigin(convexTransTo, convexPosTo);
+        if (fromRotation) {
+            bt.btQuaternion_setValue(convexRotFrom, fromRotation.x, fromRotation.y, fromRotation.z, -fromRotation.w);
+            bt.btTransform_setRotation(convexTransform, convexRotFrom);
+        } else {
+            bt.btTransform_setRotation(convexTransform, this._btDefaultQuaternion);
+        }
+        if (toRotation) {
+            bt.btQuaternion_setValue(convexRotTo, toRotation.x, toRotation.y, toRotation.z, -toRotation.w);
+            bt.btTransform_setRotation(convexTransTo, convexRotTo);
+        } else {
+            bt.btTransform_setRotation(convexTransTo, this._btDefaultQuaternion);
+        }
+
+        var collisionObjects: number = bt.AllConvexResultCallback_get_m_collisionObjects(convexResultCall);
+        var btPoints: number = bt.AllConvexResultCallback_get_m_hitPointWorld(convexResultCall);
+        var btNormals: number = bt.AllConvexResultCallback_get_m_hitNormalWorld(convexResultCall);
+        var btFractions: number = bt.AllConvexResultCallback_get_m_hitFractions(convexResultCall);
+
+        bt.tVector3Array_clear(btPoints);
+        bt.tVector3Array_clear(btNormals);
+        bt.tScalarArray_clear(btFractions);
+        bt.tBtCollisionObjectArray_clear(collisionObjects);//清空检测队列
+        bt.btCollisionWorld_convexSweepTest(this._btCollisionWorld, sweepShape, convexTransform, convexTransTo, convexResultCall, allowedCcdPenetration);
+        var count: number = bt.tBtCollisionObjectArray_size(collisionObjects);
+
+        if (count > 0) {
+            this._collisionsUtils.recoverAllHitResultsPool();
+
+            for (var i: number = 0; i < count; i++) {
+                var hitResult: HitResult = this._collisionsUtils.getHitResult();
+                out.push(hitResult);
+                hitResult.succeeded = true;
+                hitResult.collider = btCollider._physicObjectsMap[bt.btCollisionObject_getUserIndex(bt.tBtCollisionObjectArray_at(collisionObjects, i))];
+                hitResult.hitFraction = bt.tScalarArray_at(btFractions, i);
+                var btPoint: number = bt.tVector3Array_at(btPoints, i);
+                var point: Vector3 = hitResult.point;
+                point.x = -bt.btVector3_x(btPoint);
+                point.y = bt.btVector3_y(btPoint);
+                point.z = bt.btVector3_z(btPoint);
+                var btNormal: number = bt.tVector3Array_at(btNormals, i);
+                var normal: Vector3 = hitResult.normal;
+                normal.x = -bt.btVector3_x(btNormal);
                 normal.y = bt.btVector3_y(btNormal);
                 normal.z = bt.btVector3_z(btNormal);
             }

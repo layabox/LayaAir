@@ -17,6 +17,10 @@ export class Physics3DColliderShape implements IClone {
 	
 	_shape: IColliderShape;
 
+	get shape(): IColliderShape{
+		return this._shape;
+	}
+
 	/**@internal */
 	protected _localOffset: Vector3 = new Vector3(0, 0, 0);
 
