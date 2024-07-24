@@ -7,7 +7,7 @@ import { btColliderShape } from "../Shape/btColliderShape";
 import { btPhysicsCreateUtil } from "../btPhysicsCreateUtil";
 import { btPhysicsManager } from "../btPhysicsManager";
 import { Sprite3D } from "../../../d3/core/Sprite3D";
-import { PhysicsColliderComponent } from "../../../d3/physics/PhysicsColliderComponent";
+import { PhysicsColliderComponent, PhysicsCombineMode } from "../../../d3/physics/PhysicsColliderComponent";
 
 export enum btColliderType {
     RigidbodyCollider,
@@ -123,6 +123,22 @@ export class btCollider implements ICollider {
         this._enableProcessCollisions = false;
         btCollider._physicObjectsMap[this._id] = this;
         this._type = this.getColliderType();
+    }
+    active: boolean;
+    setDynamicFriction?(value: number): void {
+        throw new Error("Method not implemented.");
+    }
+    setStaticFriction?(value: number): void {
+        throw new Error("Method not implemented.");
+    }
+    setFrictionCombine?(value: PhysicsCombineMode): void {
+        throw new Error("Method not implemented.");
+    }
+    setBounceCombine?(value: PhysicsCombineMode): void {
+        throw new Error("Method not implemented.");
+    }
+    setEventFilter?(events: string[]): void {
+        throw new Error("Method not implemented.");
     }
 
     getCapable(value: number): boolean {

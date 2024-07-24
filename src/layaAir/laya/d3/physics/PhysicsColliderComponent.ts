@@ -124,6 +124,7 @@ export class PhysicsColliderComponent extends Component {
     }
 
     set dynamicFriction(value: number) {
+        this._dynamicFriction = value;
         if (this._collider && this._collider.getCapable(EColliderCapable.Collider_DynamicFriction)) {
             this._collider.setDynamicFriction(value);
         }
@@ -137,7 +138,7 @@ export class PhysicsColliderComponent extends Component {
     }
 
     set staticFriction(value: number) {
-        this._staticFriction = value
+        this._staticFriction = value;
         if (this._collider && this._collider.getCapable(EColliderCapable.Collider_StaticFriction)) {
             this._collider.setStaticFriction(value);
         }
@@ -197,12 +198,12 @@ export class PhysicsColliderComponent extends Component {
     }
 
     set collisionGroup(value: number) {
+        if (this._collisionGroup !== value) {
+            this._collisionGroup = value;
+        }
         if (this._collider && this._collider.getCapable(EColliderCapable.Collider_CollisionGroup)) {
-            if (this._collisionGroup !== value) {
-                this._collisionGroup = value;
-                if (this._colliderShape && this._enabled) {
-                    this._collider.setCollisionGroup(value);
-                }
+            if (this._colliderShape && this._enabled) {
+                this._collider.setCollisionGroup(value);
             }
         }
     }
@@ -215,12 +216,13 @@ export class PhysicsColliderComponent extends Component {
     }
 
     set canCollideWith(value: number) {
+        if (this._canCollideWith !== value) {
+            this._canCollideWith = value;
+        }
+
         if (this._collider && this._collider.getCapable(EColliderCapable.Collider_CollisionGroup)) {
-            if (this._canCollideWith !== value) {
-                this._canCollideWith = value;
-                if (this._colliderShape && this._enabled) {
-                    this._collider.setCanCollideWith(value);
-                }
+            if (this._colliderShape && this._enabled) {
+                this._collider.setCanCollideWith(value);
             }
         }
     }
@@ -251,6 +253,7 @@ export class PhysicsColliderComponent extends Component {
     initCollider() {
         this._initCollider();
         this._collider.setOwner(this.owner);
+        this._physicsManager.setActiveCollider(this.collider, this.enabled);
         if (this._colliderShape) this._collider.setColliderShape(this._colliderShape._shape);
         this.collisionGroup = this._collisionGroup;
         this.canCollideWith = this._canCollideWith;
@@ -285,6 +288,7 @@ export class PhysicsColliderComponent extends Component {
         //ILaya3D.Physics3D._bullet.btCollisionObject_setContactProcessingThreshold(this._btColliderObject, 0);
         this._collider && (this._collider.componentEnable = true);
         if (this._colliderShape) {
+            this._physicsManager.setActiveCollider(this.collider, true);
             this._physicsManager.addCollider(this._collider);
         }
     }
@@ -294,6 +298,7 @@ export class PhysicsColliderComponent extends Component {
         this._collider && (this._collider.componentEnable = false);
         if (this._colliderShape) {
             this._physicsManager.removeCollider(this._collider);
+            this._physicsManager.setActiveCollider(this.collider, false);
         }
         this._physicsManager = null;
     }
