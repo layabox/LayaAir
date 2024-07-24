@@ -832,6 +832,31 @@ export class Text extends Sprite {
         }
     }
 
+    get strikethrough(): boolean {
+        return this._textStyle.strikethrough;
+    }
+
+    set strikethrough(value: boolean) {
+        if (this._textStyle.strikethrough != value) {
+            this._textStyle.strikethrough = value;
+            this.markChanged();
+        }
+    }
+
+    /**
+     * 下划线的颜色，为null则使用字体颜色。
+     */
+    get strikethroughColor(): string {
+        return this._textStyle.strikethroughColor;
+    }
+
+    set strikethroughColor(value: string) {
+        if (this._textStyle.strikethroughColor != value) {
+            this._textStyle.strikethroughColor = value;
+            this.markChanged();
+        }
+    }    
+
     get singleCharRender(): boolean {
         return this._singleCharRender;
     }
@@ -1746,9 +1771,19 @@ export class Text extends Sprite {
                     }
                 }
 
-                if (!lineClipped && cmd.style.underline) {
-                    let thickness = Math.max(1, cmd.style.fontSize * this._fontSizeScale / 16);
-                    graphics.drawLine(x + cmd.x, y + line.height - thickness, x + cmd.x + cmd.width, y + line.height - thickness, cmd.style.underlineColor || cmd.style.color, thickness);
+                if (!lineClipped ) {
+                    if(cmd.style.underline){
+                        let thickness = Math.max(1, cmd.style.fontSize * this._fontSizeScale / 16);
+                        graphics.drawLine(x + cmd.x, y + line.height - thickness, x + cmd.x + cmd.width, y + line.height - thickness, cmd.style.underlineColor || cmd.style.color, thickness);
+                    }
+                    if(cmd.style.strikethrough){
+                        //画删除线
+                        let thickness = Math.max(1, cmd.style.fontSize * this._fontSizeScale / 16);
+                        let stx = x+cmd.x;
+                        let sty = (y+line.height/2 - thickness)|0;
+                        let ext = 4;
+                        graphics.drawLine(stx-ext, sty, stx + cmd.width+ext, sty, cmd.style.strikethroughColor || cmd.style.color, thickness);
+                    }
                 }
 
                 cmd = cmd.next;
