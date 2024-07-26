@@ -131,8 +131,13 @@ export class pxPhysicsManager implements IPhysicsManager {
         }
         this.fixedTime = physicsSettings.fixedTimeStep;
     }
-    setActiveCollider(collider: ICollider, value: boolean): void {
+    setActiveCollider(collider: pxCollider, value: boolean): void {
         collider.active = value;
+        if (value) {
+            collider._physicsManager = this;
+        } else {
+            collider._physicsManager = null;
+        }
     }
     enableDebugDrawer?(value: boolean): void {
         throw new Error("Method not implemented.");
