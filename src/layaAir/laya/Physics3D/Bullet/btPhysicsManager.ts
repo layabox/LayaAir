@@ -271,8 +271,13 @@ export class btPhysicsManager implements IPhysicsManager {
         bt.btGImpactCollisionAlgorithm_RegisterAlgorithm(this._btDispatcher);//注册算法
         this.initPhysicsCapable();  // 初始化物理能力
     }
-    setActiveCollider(collider: ICollider, value: boolean): void {
+    setActiveCollider(collider: btCollider, value: boolean): void {
         collider.active = value;
+        if (value) {
+            collider._physicsManager = this;
+        } else {
+            collider._physicsManager = null;
+        }
     }
     sphereQuery?(pos: Vector3, radius: number, result: ICollider[], collisionmask: number): void {
         throw new Error("Method not implemented.");
