@@ -1,6 +1,7 @@
 import { IRenderContext2D } from "../RenderDriver/DriverDesign/2DRenderPass/IRenderContext2D";
 import { IRenderElement2D } from "../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
 import { IRenderGeometryElement } from "../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
+import { InternalRenderTarget } from "../RenderDriver/DriverDesign/RenderDevice/InternalRenderTarget";
 import { BufferUsage } from "../RenderEngine/RenderEnum/BufferTargetType";
 import { DrawType } from "../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../RenderEngine/RenderEnum/IndexFormat";
@@ -20,6 +21,18 @@ export interface ISprite2DGeometry {
     ibBuffer: ArrayBuffer;
 }
 
+/**
+ * 记录上层的render2d的全局的底层渲染相关的状态
+ * 这个与IRenderContext2D有概念重合，但是IRenderContext2D是多个底层实现，不适合这里的需求
+ * 前提是这里记录的状态不会被3d等打断
+ */
+class Render2DGlobalState{
+    /**
+     * 由于render2d可能会有嵌套调用renderStart的情况，需要记录rendertexture
+     */
+    static curRT:RenderTexture2D = null;
+}
+
 export abstract class Render2D {
 
     protected _renderTexture: RenderTexture2D = null;
@@ -27,16 +40,7 @@ export abstract class Render2D {
     constructor(out: RenderTexture2D = null) {
         this._renderTexture = out;
     }
-    setRenderTarget(rt: RenderTexture2D) { };//临时
     abstract clone(out: RenderTexture2D): Render2D;
-    //可以随时设置rt
-    // set out(out: RenderTexture2D) {
-    //     this._renderTexture = out;
-    // }
-    get out() {
-        return this._renderTexture;
-    }
-    //output:RenderTexture2D;
     abstract renderStart(clear: boolean, clearColor: Color): void;
     // 有vb是外部提供的，因此，顶点描述也要由外部提供
     //abstract setVertexDecl(decl:VertexDeclaration):void;
@@ -55,6 +59,7 @@ export class Render2DSimple extends Render2D {
     private _tex_vert_decl: VertexDeclaration;
     private geo: IRenderGeometryElement;
     private _renderElement: IRenderElement2D;
+    private _lastRT:RenderTexture2D=null;
     constructor(out: RenderTexture2D = null) {
         super(out);
         if (!Render2DSimple.rendercontext2D) {
@@ -87,6 +92,7 @@ export class Render2DSimple extends Render2D {
     }
 
     renderStart(clear: boolean, clearColor: Color): void {
+        this._lastRT = Render2DGlobalState.curRT;
         //分层
         // if (this._renderTexture) {
         //     this._renderTexture.start();
@@ -95,17 +101,15 @@ export class Render2DSimple extends Render2D {
         if (this._renderTexture) {
             Render2DSimple.rendercontext2D.invertY = this._renderTexture._invertY;
             Render2DSimple.rendercontext2D.setRenderTarget(this._renderTexture._renderTarget, clear, clearColor);
+            Render2DGlobalState.curRT = this._renderTexture;
         } else {
             Render2DSimple.rendercontext2D.invertY = false;
             Render2DSimple.rendercontext2D.setOffscreenView(RenderState2D.width, RenderState2D.height);
-            Render2DSimple.rendercontext2D.setRenderTarget(null, clear, clearColor);
+            //如果没有设置，则是继续上一次的。但是可能这是第一次，没有上一次，希望是null
+            if(!Render2DGlobalState.curRT)
+                Render2DSimple.rendercontext2D.setRenderTarget(null, clear, clearColor);
         }
         RenderTexture2D._clear = false;
-    }
-
-    //临时。恢复rt用，以后要做到没有rt的嵌套
-    override setRenderTarget(rt: RenderTexture2D) {
-        Render2DSimple.rendercontext2D.setRenderTarget(rt?._renderTarget, false, RenderTexture2D._clearColor);
     }
 
     drawElement(ele: IRenderElement2D) {
@@ -144,7 +148,11 @@ export class Render2DSimple extends Render2D {
     }
 
     renderEnd(): void {
-
+        let lastRT:InternalRenderTarget = this._lastRT?this._lastRT._renderTarget:null;
+        //恢复rt，如果有实际可以恢复的，表示是被打断了，一定不希望clear，所以clear=false
+        Render2DSimple.rendercontext2D.setRenderTarget(lastRT, false, Color.BLACK);
+        Render2DGlobalState.curRT = this._lastRT;
+        this._lastRT = null;
     }
 
 }
