@@ -156,14 +156,12 @@ export class Mesh2DRender extends BaseRenderNode2D {
         let vec3 = Vector3._tempVector3;
         vec3.x = mat.a;
         vec3.y = mat.b;
-        vec3.z = mat.tx + mat.a * px + mat.c * py;
+        vec3.z = px+mat.tx;
         this._spriteShaderData.setVector3(BaseRenderNode2D.NMATRIX_0, vec3);
         vec3.x = mat.c;
         vec3.y = mat.d;
-        vec3.z = mat.ty + mat.b * px + mat.d * py;
+        vec3.z = py+mat.ty;
         this._spriteShaderData.setVector3(BaseRenderNode2D.NMATRIX_1, vec3);
-        Vector2.TempVector2.setValue(context.width, context.height);
-        this._spriteShaderData.setVector2(BaseRenderNode2D.BASERENDERSIZE, Vector2.TempVector2);
         this._setRenderSize(context.width, context.height)
     }
 
