@@ -160,11 +160,10 @@
          #endif
     }
 
-
-   void getPosition(inout vec4 pos){
+    void getPosition(inout vec4 pos){
         pos = vec4(a_position.xy,0.,1.);
-        float x=u_NMatrix_0.x*pos.x+u_NMatrix_0.y*pos.y+u_NMatrix_0.z;
-        float y=u_NMatrix_1.x*pos.x+u_NMatrix_1.y*pos.y-u_NMatrix_1.z;
+        float x=u_NMatrix_0.x*pos.x+u_NMatrix_1.x*pos.y+u_NMatrix_0.z;
+        float y=u_NMatrix_0.y*pos.x+u_NMatrix_1.y*pos.y+u_NMatrix_1.z;
         pos.xy = vec2(x,y);
         #ifdef CAMERA2D
             pos.xy = (u_view2D *vec3(pos.x,pos.y,1.0)).xy+u_baseRenderSize2D/2.;
