@@ -1,6 +1,7 @@
 import { IRenderContext2D } from "../RenderDriver/DriverDesign/2DRenderPass/IRenderContext2D";
 import { IRenderElement2D } from "../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
 import { IRenderGeometryElement } from "../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
+import { InternalRenderTarget } from "../RenderDriver/DriverDesign/RenderDevice/InternalRenderTarget";
 import { BufferUsage } from "../RenderEngine/RenderEnum/BufferTargetType";
 import { DrawType } from "../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../RenderEngine/RenderEnum/IndexFormat";
@@ -147,12 +148,11 @@ export class Render2DSimple extends Render2D {
     }
 
     renderEnd(): void {
-        if(this._lastRT){
-            //恢复rt，如果有实际可以恢复的，表示是被打断了，一定不希望clear，所以clear=false
-            Render2DSimple.rendercontext2D.setRenderTarget(this._lastRT._renderTarget, false, Color.BLACK);
-            Render2DGlobalState.curRT = this._lastRT;
-            this._lastRT = null;
-        }
+        let lastRT:InternalRenderTarget = this._lastRT?this._lastRT._renderTarget:null;
+        //恢复rt，如果有实际可以恢复的，表示是被打断了，一定不希望clear，所以clear=false
+        Render2DSimple.rendercontext2D.setRenderTarget(lastRT, false, Color.BLACK);
+        Render2DGlobalState.curRT = this._lastRT;
+        this._lastRT = null;
     }
 
 }
