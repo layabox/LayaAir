@@ -100,7 +100,6 @@ export abstract class Filter implements IFilter {
             let dst = src;
             let width = src.width;// cache.cacheRect.width;     不能用cacheRect,因为可能有空白，而src补充了这个空白
             let height = src.height; //cache.cacheRect.height;
-            let lastRT = context.render2D.out;
             // 针对这个贴图，依次应用filter
             for (let i = 0; i < len; i++) {
                 src = dst;
@@ -114,7 +113,6 @@ export abstract class Filter implements IFilter {
                 rtOffX += filter.left;
                 rtOffY += filter.top;
             }
-            context.render2D.setRenderTarget(lastRT);
             //context.render2D.out=lastRT;
             // 把最终结果保存到cache
             cache.renderTexture = dst;
