@@ -4,6 +4,8 @@ import { IVBChange } from "../interface/IVBChange";
 export class ChangeRGBA implements IVBChange {
     slotId: number;
     sizeMap: Map<string, TAttamentPos>;
+    startFrame: number;
+    endFrame: number;
 
     constructor(slotId: number) {
         this.slotId = slotId;
@@ -55,6 +57,9 @@ export class ChangeRGBA implements IVBChange {
     }
 
     clone(): IVBChange {
-        return new ChangeRGBA(this.slotId);
+        let out = new ChangeRGBA(this.slotId);
+        out.startFrame = this.startFrame;
+        out.endFrame = this.endFrame;
+        return out
     }
 }

@@ -56,11 +56,11 @@ export class SpineShaderInit {
 
     static BONEMAT: number;
 
-    static NMatrix: number;
+    // static NMatrix: number;
 
-    static Color: number;
+    // static Color: number;
 
-    static Size: number;
+    // static Size: number;
 
     /**@internal  */
     static SIMPLE_SIMPLEANIMATORTEXTURE: number;
@@ -75,6 +75,10 @@ export class SpineShaderInit {
 
     static SPINE_RB: ShaderDefine;
 
+    static SPINE_UV: ShaderDefine;
+
+    static SPINE_COLOR: ShaderDefine;
+
     static SPINE_SIMPLE:ShaderDefine;
 
     static SPINE_GPU_INSTANCE:ShaderDefine;
@@ -83,9 +87,9 @@ export class SpineShaderInit {
     * TextureSV Mesh Descript
     */
     public static readonly textureSpineAttribute: { [name: string]: [number, ShaderDataType] } = {
-        'a_texcoord': [0, ShaderDataType.Vector2],
+        'a_uv': [0, ShaderDataType.Vector2],
         'a_color': [1, ShaderDataType.Vector4],
-        'a_pos': [2, ShaderDataType.Vector2],
+        'a_position': [2, ShaderDataType.Vector2],
         "a_weight": [3, ShaderDataType.Float],
         "a_BoneId": [4, ShaderDataType.Float],
 
@@ -103,12 +107,14 @@ export class SpineShaderInit {
         Shader3D.addInclude("SpineVertex.glsl", spineVertex);
         Shader3D.addInclude("SpineFragment.glsl", spineFragment);
         SpineShaderInit.BONEMAT = Shader3D.propertyNameToID("u_sBone");
-        SpineShaderInit.NMatrix = Shader3D.propertyNameToID("u_NMatrix");
-        SpineShaderInit.Color = Shader3D.propertyNameToID("u_color");
-        SpineShaderInit.Size = Shader3D.propertyNameToID("u_size");
+        // SpineShaderInit.NMatrix = Shader3D.propertyNameToID("u_NMatrix");
+        // SpineShaderInit.Color = Shader3D.propertyNameToID("u_color");
+        // SpineShaderInit.Size = Shader3D.propertyNameToID("u_size");
         SpineShaderInit.SpineTexture = Shader3D.propertyNameToID("u_spineTexture");
         SpineShaderInit.SPINE_FAST = Shader3D.getDefineByName("SPINE_FAST");
         SpineShaderInit.SPINE_RB = Shader3D.getDefineByName("SPINE_RB");
+        SpineShaderInit.SPINE_UV = Shader3D.getDefineByName("COLOR");
+        SpineShaderInit.SPINE_COLOR = Shader3D.getDefineByName("UV");
         
         SpineShaderInit.SIMPLE_SIMPLEANIMATORPARAMS = Shader3D.propertyNameToID("u_SimpleAnimatorParams");
         SpineShaderInit.SIMPLE_SIMPLEANIMATORTEXTURE = Shader3D.propertyNameToID("u_SimpleAnimatorTexture");
@@ -116,24 +122,26 @@ export class SpineShaderInit {
         
         SpineShaderInit.SPINE_SIMPLE = Shader3D.getDefineByName("SPINE_SIMPLE");
         SpineShaderInit.SPINE_GPU_INSTANCE = Shader3D.getDefineByName("GPU_INSTANCE");
+        
 
-        const commandUniform = LayaGL.renderDeviceFactory.createGlobalUniformMap("Sprite2D");
+        const commandUniform = LayaGL.renderDeviceFactory.createGlobalUniformMap("Spine2D");
         commandUniform.addShaderUniform(SpineShaderInit.BONEMAT, "u_sBone", ShaderDataType.Buffer);
-        commandUniform.addShaderUniform(SpineShaderInit.NMatrix, "u_NMatrix", ShaderDataType.Buffer);
-        commandUniform.addShaderUniform(SpineShaderInit.Color, "u_color", ShaderDataType.Color);
-        commandUniform.addShaderUniform(SpineShaderInit.Size, "u_size", ShaderDataType.Vector2);
+        // commandUniform.addShaderUniform(SpineShaderInit.NMatrix, "u_NMatrix", ShaderDataType.Buffer);
+        // commandUniform.addShaderUniform(SpineShaderInit.Color, "u_color", ShaderDataType.Color);
+        // commandUniform.addShaderUniform(SpineShaderInit.Size, "u_size", ShaderDataType.Vector2);
         
         commandUniform.addShaderUniform(SpineShaderInit.SIMPLE_SIMPLEANIMATORPARAMS, "u_SimpleAnimatorParams", ShaderDataType.Vector4);
         commandUniform.addShaderUniform(SpineShaderInit.SIMPLE_SIMPLEANIMATORTEXTURE, "u_SimpleAnimatorTexture", ShaderDataType.Texture2D);
         commandUniform.addShaderUniform(SpineShaderInit.SIMPLE_SIMPLEANIMATORTEXTURESIZE, "u_SimpleAnimatorTextureSize", ShaderDataType.Float);
 
-        //commandUniform.addShaderUniform(SpineShaderInit.SpineTexture, "u_spineTexture", ShaderDataType.Texture2D);
+        // commandUniform.addShaderUniform(SpineShaderInit.SpineTexture, "u_spineTexture", ShaderDataType.Texture2D);
+
         let shader = Shader3D.add("SpineStandard", true, false);
         shader.shaderType = ShaderFeatureType.D2;
         let uniformMap = {
             "u_spineTexture": ShaderDataType.Texture2D
         }
-        let subShader = new SubShader(SpineShaderInit.textureSpineAttribute, uniformMap, {});
+        let subShader = new SubShader(SpineShaderInit.textureSpineAttribute , uniformMap);
         shader.addSubShader(subShader);
         let shadingPass = subShader.addShaderPass(spineStandardVS, spineStandardFS);
 

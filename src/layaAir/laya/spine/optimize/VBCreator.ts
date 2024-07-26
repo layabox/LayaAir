@@ -10,12 +10,15 @@ export abstract class VBCreator implements IGetBone {
     boneArray: number[];
     vb: Float32Array;
     vbLength: number;
+    maxVertexCount:number;
     slotVBMap: Map<number, Map<string, TAttamentPos>>;
 
     boneMat: Float32Array;
 
     private boneMaxId: number = 0;
-    constructor(autoNew: boolean = true) {
+
+    constructor( maxVertexCount :number , autoNew: boolean = true) {
+        this.maxVertexCount = maxVertexCount;
         this.init(autoNew);
     }
 
@@ -24,7 +27,7 @@ export abstract class VBCreator implements IGetBone {
         this.slotVBMap = new Map();
         this.boneArray = [];
         if (autoNew) {
-            this.vb = new Float32Array(SpineMeshBase.maxVertex * this.vertexSize);
+            this.vb = new Float32Array(this.maxVertexCount * this.vertexSize);
         }
         this.vbLength = 0;
     }
@@ -33,6 +36,7 @@ export abstract class VBCreator implements IGetBone {
 
     abstract appendVertexArray(attachmentParse: AttachmentParse, vertexArray: Float32Array, offset: number, boneGet: IGetBone): number;
 
+    abstract appendDeform(attachmentParse: AttachmentParse, deform: Array<number> , offset: number, out: Float32Array):void;
 
     appendAndCreateIB(attach: AttachmentParse) {
         //this.mesh.appendSlot(slot);
@@ -76,7 +80,6 @@ export abstract class VBCreator implements IGetBone {
     createIB(attachs: AttachmentParse[], ibCreator: IBCreator, order?: number[]) {
         let offset = 0;
         let slotVBMap = this.slotVBMap;
-        let ib = ibCreator.ib;
         let drawOrder;
         let getAttach: (value: any) => AttachmentParse;
         if (order) {
@@ -94,6 +97,8 @@ export abstract class VBCreator implements IGetBone {
         let outRenderData = new MultiRenderData();
         let texture;
         let blend;
+
+        let ib = ibCreator.ib;
         for (let i = 0, n = drawOrder.length; i < n; i++) {
             let attach = getAttach(drawOrder[i]);
             if (attach.attachment) {
@@ -184,18 +189,19 @@ export abstract class VBCreator implements IGetBone {
         });
     }
 
-    abstract _create(): VBCreator;
+    abstract _create(maxVertexCount:number): VBCreator;
 
     clone() {
-        let rs = this._create();
+        let rs = this._create(this.maxVertexCount);
         this._cloneTo(rs);
         return rs;
     }
 }
 
 export class VBBoneCreator extends VBCreator {
-    _create(): VBCreator {
-        return new VBBoneCreator(false);
+    
+    _create(maxVertexCount:number): VBCreator {
+        return new VBBoneCreator(maxVertexCount , false);
     }
 
     get vertexSize(): number {
@@ -263,15 +269,51 @@ export class VBBoneCreator extends VBCreator {
         return offset;
     }
 
+    appendDeform(attachmentParse: AttachmentParse, deform: Array<number> , offset: number , out: Float32Array ) {
+        if (!attachmentParse.attachment) {
+            return;
+        }
+        let vside = this.vertexSize;
+        let slotVertex = attachmentParse.vertexArray;
+    
+        if (attachmentParse.stride == 2) {
+            for (let j = 0, n = slotVertex.length; j < n; j += attachmentParse.stride) {
+                out[offset + 6] = deform[j];
+                out[offset + 7] = deform[j + 1];
+                offset += vside;
+            }
+        }
+        else {
+            let f = 0;
+            for (let j = 0, n = slotVertex.length ; j < n; j += attachmentParse.stride) {
+                let leftsize = vside - 6;
+                let ox = offset + 6;
+                for (let z = 0; z < leftsize / 4; z++) {
+                    let slotOffset = j + z * 4;
+                    if (slotVertex[slotOffset + 2]) {
+                        let offset = ox + z * 4;
+                        out[offset] = slotVertex[slotOffset] + deform[f];
+                        out[offset + 1] = slotVertex[slotOffset + 1] + deform[f + 1];
+                        f += 2;
+                    }
+                }
+                offset += vside;
+            }
+            // console.log(f , deform.length);
+        }
+    }
 }
 
 export class VBRigBodyCreator extends VBCreator {
-    _create(): VBCreator {
-        return new VBRigBodyCreator(false);
+    
+    _create(maxVertexCount : number ): VBCreator {
+        return new VBRigBodyCreator(maxVertexCount , false);
     }
+
     get vertexSize(): number {
         return 9;
     }
+
     appendVertexArray(attachmentParse: AttachmentParse, vertexArray: Float32Array, offset: number, boneGet: IGetBone) {
         let slotVertex = attachmentParse.vertexArray;
         let uvs = attachmentParse.uvs;
@@ -296,6 +338,22 @@ export class VBRigBodyCreator extends VBCreator {
             }
         }
         return offset;
+    }
+
+    appendDeform(attachmentParse: AttachmentParse, deform: Array<number> , offset: number, out: Float32Array): void {
+        if (!attachmentParse.attachment) {
+            return;
+        }
+        let vside = this.vertexSize;
+        let slotVertex = attachmentParse.vertexArray;
+    
+        if (attachmentParse.stride == 2) {
+            for (let j = 0, n = slotVertex.length; j < n; j += attachmentParse.stride) {
+                out[offset + 6] = deform[j];
+                out[offset + 7] = deform[j + 1];
+                offset += vside;
+            }
+        }
     }
 }
 
