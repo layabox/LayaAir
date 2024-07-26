@@ -308,10 +308,10 @@ export class SpineInstanceElement2DTool{
         // element.geometry.clearRenderParams();
     }
 
-    /**
-     * @internal
-     */
-    private static _pool: IRenderElement2D[] = [];
+    // /**
+    //  * @internal
+    //  */
+    // private static _pool: IRenderElement2D[] = [];
 
     // static create(): IRenderElement2D {
     //     let element = this._pool.pop() || LayaGL.render2DRenderPassFactory.createRenderElement2D();
