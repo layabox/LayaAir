@@ -10,13 +10,15 @@ export abstract class VBCreator implements IGetBone {
     boneArray: number[];
     vb: Float32Array;
     vbLength: number;
+    maxVertexCount:number;
     slotVBMap: Map<number, Map<string, TAttamentPos>>;
 
     boneMat: Float32Array;
 
     private boneMaxId: number = 0;
 
-    constructor(autoNew: boolean = true) {
+    constructor( maxVertexCount :number , autoNew: boolean = true) {
+        this.maxVertexCount = maxVertexCount;
         this.init(autoNew);
     }
 
@@ -25,7 +27,7 @@ export abstract class VBCreator implements IGetBone {
         this.slotVBMap = new Map();
         this.boneArray = [];
         if (autoNew) {
-            this.vb = new Float32Array(SpineMeshBase.maxVertex * this.vertexSize);
+            this.vb = new Float32Array(this.maxVertexCount * this.vertexSize);
         }
         this.vbLength = 0;
     }
@@ -187,10 +189,10 @@ export abstract class VBCreator implements IGetBone {
         });
     }
 
-    abstract _create(): VBCreator;
+    abstract _create(maxVertexCount:number): VBCreator;
 
     clone() {
-        let rs = this._create();
+        let rs = this._create(this.maxVertexCount);
         this._cloneTo(rs);
         return rs;
     }
@@ -198,8 +200,8 @@ export abstract class VBCreator implements IGetBone {
 
 export class VBBoneCreator extends VBCreator {
     
-    _create(): VBCreator {
-        return new VBBoneCreator(false);
+    _create(maxVertexCount:number): VBCreator {
+        return new VBBoneCreator(maxVertexCount , false);
     }
 
     get vertexSize(): number {
@@ -304,8 +306,8 @@ export class VBBoneCreator extends VBCreator {
 
 export class VBRigBodyCreator extends VBCreator {
     
-    _create(): VBCreator {
-        return new VBRigBodyCreator(false);
+    _create(maxVertexCount : number ): VBCreator {
+        return new VBRigBodyCreator(maxVertexCount , false);
     }
 
     get vertexSize(): number {

@@ -1,3 +1,4 @@
+import { BaseRenderNode2D } from "../../NodeRender2D/BaseRenderNode2D";
 import { Color } from "../../maths/Color";
 import { Spine2DRenderNode } from "../Spine2DRenderNode";
 import { SpineAdapter } from "../SpineAdapter";
@@ -25,7 +26,7 @@ export class SpineNormalRender implements ISpineOptimizeRender {
         this._owner = renderNode;
         let scolor = skeleton.color;
         let color = new Color(scolor.r * scolor.a, scolor.g * scolor.a, scolor.b * scolor.a, scolor.a);
-        renderNode._spriteShaderData.setColor(SpineShaderInit.Color, color);
+        renderNode._spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, color);
         renderNode._spriteShaderData.removeDefine(SpineShaderInit.SPINE_FAST);
         renderNode._spriteShaderData.removeDefine(SpineShaderInit.SPINE_RB);
     }

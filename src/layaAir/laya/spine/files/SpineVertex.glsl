@@ -47,12 +47,9 @@ uniform vec2 u_size;
 // #ifdef GPU_INSTANCE
 //     uniform vec3 a_NMatrix[2];
 // #else
-    uniform vec3 u_NMatrix[2];
+    // uniform vec3 u_NMatrix[2];
 // #endif //GPU_INSTANCE
 uniform vec4 u_color;
-
-varying vec2 vUv;
-varying vec4 vColor;
 
 vec4 getSpinePos(){
 
@@ -65,25 +62,25 @@ vec4 getSpinePos(){
 
         float offset = 1.0 / u_SimpleAnimatorTextureSize;
 
-        return getBonePosBake(currentPixelPos,a_BoneId,a_weight,a_pos,offset)
+        return getBonePosBake(currentPixelPos,a_BoneId,a_weight,a_position,offset)
         +getBonePosBake(currentPixelPos,a_PosWeightBoneID_2.w,a_PosWeightBoneID_2.z,a_PosWeightBoneID_2.xy,offset)
         +getBonePosBake(currentPixelPos,a_PosWeightBoneID_3.w,a_PosWeightBoneID_3.z,a_PosWeightBoneID_3.xy,offset)
         +getBonePosBake(currentPixelPos,a_PosWeightBoneID_4.w,a_PosWeightBoneID_4.z,a_PosWeightBoneID_4.xy,offset);
     #else
         #ifdef SPINE_FAST
-            return getBonePos(a_BoneId,a_weight,a_pos)
+            return getBonePos(a_BoneId,a_weight,a_position)
             +getBonePos(a_PosWeightBoneID_2.w,a_PosWeightBoneID_2.z,a_PosWeightBoneID_2.xy)
             +getBonePos(a_PosWeightBoneID_3.w,a_PosWeightBoneID_3.z,a_PosWeightBoneID_3.xy)
             +getBonePos(a_PosWeightBoneID_4.w,a_PosWeightBoneID_4.z,a_PosWeightBoneID_4.xy);
         #endif
         
         #ifdef SPINE_RB
-            return getBonePos(a_BoneId,1.0,a_pos);
+            return getBonePos(a_BoneId,1.0,a_position);
             //return vec4(pos,0.,1.);
         #endif
     #endif // SPINE_SIMPLE
     //spine Texture
-    return vec4(a_pos.x,a_pos.y,0.,1.);
+    return vec4(a_position.x,a_position.y,0.,1.);
 
 }
 
@@ -92,18 +89,18 @@ vec4 getScreenPos(vec4 pos){
         vec3 down =a_NMatrix_1;
         vec3 up =a_NMatrix_0;
     #else
-        vec3 down =u_NMatrix[1];
-        vec3 up =u_NMatrix[0];
+        vec3 down =u_NMatrix_1;
+        vec3 up =u_NMatrix_0;
     #endif
     float x=up.x*pos.x+up.y*pos.y+up.z;
     float y=down.x*pos.x+down.y*pos.y-down.z;
     
     #ifdef CAMERA2D
-       vec2 posT= (u_view2D *vec3(x,y,1.0)).xy+u_size/2.;
+       vec2 posT= (u_view2D *vec3(x,y,1.0)).xy+u_baseRenderSize2D/2.;
        x = posT.x;
        y = posT.y;
     #endif  
-    return vec4((x/u_size.x-0.5)*2.0,(y/u_size.y+0.5)*2.0,pos.z,1.0);
+    return vec4((x/u_baseRenderSize2D.x-0.5)*2.0,(y/u_baseRenderSize2D.y+0.5)*2.0,pos.z,1.0);
 }
 
 #endif // SpineVertex_lib

@@ -23,7 +23,7 @@ export class SlotUtils {
         }
     }
 
-    static appendIndexArray(attachmentParse: AttachmentParse, indexArray: Uint16Array, size: number, offset: number) {
+    static appendIndexArray(attachmentParse: AttachmentParse, indexArray: Uint16Array | Uint8Array | Uint32Array, size: number, offset: number) {
         if (!attachmentParse.attachment) return offset;
         let slotindexArray = attachmentParse.indexArray;
         for (let j = 0, n = slotindexArray.length; j < n; j++) {
