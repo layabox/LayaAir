@@ -1643,10 +1643,8 @@ export class Sprite extends Node {
         } else {
             ctx.size(canvasWidth, canvasHeight)
         }
-        ctx.render2D = ctx.render2D.clone(renderout);
-        ctx._drawingToTexture = true;
+        ctx.render2D = ctx.render2D.clone(null);//这个ctx只是提供大小，所以不要设置rt
         let outrt = RenderSprite.RenderToRenderTexture(sprite, ctx, offsetX, offsetY, renderout);
-        ctx._drawingToTexture = false;
         return outrt;
     }
 
