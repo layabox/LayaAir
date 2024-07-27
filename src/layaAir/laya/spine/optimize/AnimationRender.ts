@@ -2,6 +2,7 @@ import { AttachmentParse } from "./AttachmentParse";
 import { IBCreator } from "./IBCreator";
 import { IBRenderData } from "./SketonOptimise";
 import { VBCreator } from "./VBCreator";
+import { ChangeDeform } from "./change/ChangeDeform";
 import { ChangeDrawOrder } from "./change/ChangeDrawOrder";
 import { ChangeRGBA } from "./change/ChangeRGBA";
 import { ChangeSlot } from "./change/ChangeSlot";
@@ -52,12 +53,12 @@ export class AnimationRender {
     getFrameIndex(time: number, frameIndex: number) {
         let frames = this.frames;
         let lastFrame = this.frameNumber - 1;
-        if (frameIndex < 0) {
-            frameIndex = 0;
+        if (frameIndex < -1) {
+            frameIndex = -1;
         }
         else if (frameIndex == lastFrame) {
             if (time < frames[lastFrame]) {
-                frameIndex = 0;
+                frameIndex = -1;
             }
         }
         else if (time >= frames[frameIndex + 1]) {
@@ -173,6 +174,13 @@ export class AnimationRender {
                         arr.push(event);
                     }
                 }
+            }
+            else if (time instanceof spine.DeformTimeline) {
+                this.checkChangeVB();
+                let slotIndex = time.slotIndex;
+                let change = new ChangeDeform();
+                change.slotId = slotIndex;
+                this.changeVB.push(change);
             }
             // else if (time instanceof window.spine.AlphaTimeline) {
             //     debugger;
