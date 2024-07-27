@@ -1,5 +1,9 @@
 import { Component } from "./Component";
 
+/**
+ * @en Core classes for managing and driving the lifecycle of components
+ * @zh 用于管理和驱动组件生命周期的核心类
+ */
 export class ComponentDriver {
     private _onUpdates: Set<Component> = new Set();
     private _onLateUpdates: Set<Component> = new Set();
@@ -11,7 +15,8 @@ export class ComponentDriver {
 
     /**
      * @internal
-     * 调用组件Onstart
+     * @en Calling component Onstart
+     * @zh 调用组件Onstart
      */
     callStart() {
         for (let ele of this._toStarts) {
@@ -30,7 +35,8 @@ export class ComponentDriver {
     }
     /**
      * @internal
-     * 调用组件OnUpdate
+     * @en Calling component OnUpdate
+     * @zh 调用组件OnUpdate
      */
     callUpdate() {
         for (let ele of this._onUpdates) {
@@ -47,7 +53,8 @@ export class ComponentDriver {
 
     /**
      * @internal
-     * 调用组件LayeUpdate
+     * @en Calling component LayeUpdate
+     * @zh 调用组件LayeUpdate
      */
     callLateUpdate() {
         for (let ele of this._onLateUpdates) {
@@ -64,7 +71,8 @@ export class ComponentDriver {
 
     /**
      * @internal
-     * 调用组件onPreRender
+     * @en Calling component onPreRender
+     * @zh 调用组件onPreRender
      */
     callPreRender() {
         for (let ele of this._onPreRenders) {
@@ -81,7 +89,8 @@ export class ComponentDriver {
 
     /**
      * @internal
-     * 调用组件onPostRender
+     * @en Calling component onPostRender
+     * @zh 调用组件onPostRender
      */
     callPostRender() {
         for (let ele of this._onPostRenders) {
@@ -98,7 +107,8 @@ export class ComponentDriver {
 
     /**
      * @internal
-     * 调用销毁
+     * @en Calling destroy
+     * @zh 调用销毁
      */
     callDestroy(): void {
         for (let ele of this._toDestroys) {
@@ -114,8 +124,10 @@ export class ComponentDriver {
 
     /**
      * @internal
-     * 添加一个组件
-     * @param comp 组件
+     * @en Adds a component.
+     * @param comp The component to be added.
+     * @zh 添加一个组件。
+     * @param comp 要添加的组件。
      */
     add(comp: Component) {
         if (comp._status == 1) {
@@ -140,8 +152,10 @@ export class ComponentDriver {
 
     /**
      * @internal
-     * 移除一个组件
-     * @param comp 组件
+     * @en Removes a component.
+     * @param comp The component to be removed.
+     * @zh 移除一个组件。
+     * @param comp 要移除的组件。
      */
     remove(comp: Component) {
         if (comp._status == 2) //starting
@@ -167,8 +181,8 @@ export class ComponentDriver {
     }
 
     /**
-     * 
-     * @param err 错误
+     * @en Error handling.
+     * @zh 错误处理。
      */
     onError(err: any) {
         console.error(err);

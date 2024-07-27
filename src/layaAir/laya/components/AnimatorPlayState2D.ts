@@ -1,36 +1,63 @@
 import { AnimatorState2D } from "./AnimatorState2D";
 
+/**
+ * @en 2D Animator Play State.
+ * @zh 2D 动画播放状态。
+ */
 export class AnimatorPlayState2D {
 	_finish: boolean;
 	/**@internal */
 	_startPlayTime: number;
 	/**@internal */
 	_lastElapsedTime: number;
-	/**@internal 动画播放时间*/
+	/**
+	 * @internal 
+	 * @en Animation playback time
+	 * @zh 动画播放时间
+	 */
 	_elapsedTime: number;
-	/**@internal 播放的次数*/
+	/**
+	 * @internal 
+	 * @en Playback count
+	 * @zh 播放的次数
+	 */
 	_playNum: number;
 
-	/**播放总时间，不受speed为负数的影响 */
+	/**
+	 * @en Total play time, not affected by negative speed values.
+	 * @zh 总播放时间，不受速度为负数的影响。
+	 */
 	_playAllTime: number;
 
-	/**@internal 单词播放归一化时间 */
+	/**
+	 * @internal
+	 * @en Normalized time for a single playback.
+	 * @zh 单次播放的归一化时间。
+	 */
 	_normalizedPlayTime: number;
 	/**@internal */
 	_duration: number;
-	/**@internal 上次播放的时间，event事件使用*/
+	/**
+	 * @internal
+	 * @en The time of the last playback, used by event events.
+	 * @zh 上次播放的时间，用于event事件。
+	 */
 	_parentPlayTime: number;
 	/**@internal */
 	_lastIsFront: boolean;
 	/**@internal */
 	_currentState: AnimatorState2D | null = null;
 
-	/**是为正向播放 */
+	/**
+	 * @en Indicates if the playback is in forward direction.
+	 * @zh 表示播放是否为正向。
+	 */
 	_frontPlay = true;
 
 
 	/**
-	 * 当前动画的持续时间，以秒为单位。
+	 * @en The duration of the current animation, in seconds.
+	 * @zh 当前动画的持续时间，以秒为单位。
 	 */
 	get duration(): number {
 		return this._duration;
@@ -49,14 +76,16 @@ export class AnimatorPlayState2D {
 	// }
 
 	/**
-	 * 动画状态机。
+	 * @en Animation state machine
+	 * @zh 动画状态机。
 	 */
 	get animatorState(): AnimatorState2D {
 		return this._currentState!;
 	}
 
 	/**
-	 * 创建一个 <code>AnimatorPlayState</code> 实例。
+	 * @en Constructor method of AnimatorPlayState2D class.
+	 * @zh AnimatorPlayState2D类的构造方法
 	 */
 	constructor() {
 	}
