@@ -5,7 +5,8 @@ import { Utils } from "./Utils";
 import { ILaya } from "./../../ILaya";
 
 /**
- * <code>Tween</code>  是一个缓动类。使用此类能够实现对目标对象属性的渐变。
+ * @en The `Tween` class is an easing class. It is used to implement the interpolation of properties of a target object.
+ * @zh `Tween` 类是一个缓动类。使用此类能够实现对目标对象属性的渐变。
  */
 export class Tween {
     /**@private */
@@ -30,17 +31,37 @@ export class Tween {
     private _usedPool: boolean;
     /**@private */
     private _delayParam: any[];
-    /**@private 唯一标识，TimeLintLite用到*/
+    /**
+     * @private
+     * @en Unique identifier used by TimeLintLite.
+     * @zh 唯一标识，由 TimeLintLite 使用。
+     */
     gid: number = 0;
-    /**更新回调，缓动数值发生变化时，回调变化的值*/
+    /**
+     * @en Update callback, when the buffering value changes, the value of the callback changes
+     * @zh 更新回调，缓动数值发生变化时，回调变化的值。
+     */
     update: Handler;
-    /**重播次数，如果repeat=0，则表示无限循环播放*/
+    /**
+     * @en The number of times to replay the tween. If set to 0, it indicates an infinite loop.
+     * @zh 重播次数，如果设置为 0，则表示无限循环播放。
+     */
     repeat: number = 1;
     /**当前播放次数*/
     private _count: number = 0;
 
     /**
-     * 缓动对象的props属性到目标值。
+     * @en Tweens the object's properties to the target values.
+     * @param target The target object whose properties will be tweened.
+     * @param props The list of properties to change, e.g., {x:100, y:20, ease:Ease.backOut, complete:Handler.create(this,onComplete), update:new Handler(this,onUpdate)}.
+     * @param duration The time taken for the tween in milliseconds.
+     * @param ease The type of easing, defaults to linear motion.
+     * @param complete The callback function when the tween completes.
+     * @param delay The delay before the tween starts.
+     * @param coverBefore Whether to override the previous tween.
+     * @param autoRecover Whether to automatically recover after the tween ends, defaults to true.
+     * @returns Returns the Tween object.
+     * @zh 缓动对象的props属性到目标值。
      * @param	target 目标对象(即将更改属性值的对象)。
      * @param	props 变化的属性列表，比如{x:100,y:20,ease:Ease.backOut,complete:Handler.create(this,onComplete),update:new Handler(this,onComplete)}。
      * @param	duration 花费的时间，单位毫秒。
@@ -56,7 +77,17 @@ export class Tween {
     }
 
     /**
-     * 从props属性，缓动到当前状态。
+     * @en From the props attribute, tween to the current state.
+     * @param target The target object whose properties will be tweened.
+     * @param props The list of properties to change, e.g., {x:100, y:20, ease:Ease.backOut, complete:Handler.create(this,onComplete), update:new Handler(this,onUpdate)}.
+     * @param duration The time taken for the tween in milliseconds.
+     * @param ease The type of easing, defaults to linear motion.
+     * @param complete The callback function when the tween completes.
+     * @param delay The delay before the tween starts.
+     * @param coverBefore Whether to override the previous tween.
+     * @param autoRecover Whether to automatically recover after the tween ends, defaults to true.
+     * @returns Returns the Tween object.
+     * @zh 从props属性，缓动到当前状态。
      * @param	target 目标对象(即将更改属性值的对象)。
      * @param	props 变化的属性列表，比如{x:100,y:20,ease:Ease.backOut,complete:Handler.create(this,onComplete),update:new Handler(this,onComplete)}。
      * @param	duration 花费的时间，单位毫秒。
@@ -72,7 +103,16 @@ export class Tween {
     }
 
     /**
-     * 缓动对象的props属性到目标值。
+     * @en Tweens the props attribute of the object to the target value.
+     * @param target The target object whose properties will be tweened.
+     * @param props The list of properties to change, e.g., {x:100, y:20, ease:Ease.backOut, complete:Handler.create(this,onComplete), update:new Handler(this,onUpdate)}.
+     * @param duration The time taken for the tween in milliseconds.
+     * @param ease The type of easing, defaults to linear motion.
+     * @param complete The callback function when the tween completes.
+     * @param delay The delay before the tween starts.
+     * @param coverBefore Whether to override the previous tween.
+     * @returns Returns the Tween object.
+     * @zh 缓动对象的props属性到目标值。
      * @param	target 目标对象(即将更改属性值的对象)。
      * @param	props 变化的属性列表，比如{x:100,y:20,ease:Ease.backOut,complete:Handler.create(this,onComplete),update:new Handler(this,onComplete)}。
      * @param	duration 花费的时间，单位毫秒。
@@ -87,7 +127,16 @@ export class Tween {
     }
 
     /**
-     * 从props属性，缓动到当前状态。
+     * @en From the props attribute, slow down to the current state.
+     * @param target The target object (the object whose property values will be changed).
+     * @param props A list of changing properties, such as {x:100, y:20, ease:Ease.backOut, complete:Handler.create(this,onComplete), update:new Handler(this,onComplete)}.
+     * @param duration The time spent, in milliseconds.
+     * @param ease The easing type, default is uniform motion. Default value is null.
+     * @param complete The callback function at the end. Default value is null.
+     * @param delay The delay time before execution. Default value is 0.
+     * @param coverBefore Whether to cover the previous tween. Default value is false.
+     * @returns Returns a Tween object.
+     * @zh 从props属性，缓动到当前状态。
      * @param	target 目标对象(即将更改属性值的对象)。
      * @param	props 变化的属性列表，比如{x:100,y:20,ease:Ease.backOut,complete:Handler.create(this,onComplete),update:new Handler(this,onComplete)}。
      * @param	duration 花费的时间，单位毫秒。
@@ -189,14 +238,18 @@ export class Tween {
         if (this.update) this.update.run();
     }
 
-    /**设置当前执行比例**/
+    /**
+     * @en Set the current execution progress ratio.
+     * @zh 设置当前执行进度比例。
+     */
     set progress(v: number) {
         var uTime: number = v * this._duration;
         this._startTimer = Browser.now() - this._delay - uTime;
     }
 
     /**
-     * 立即结束缓动并到终点。
+     * @en Immediately complete the tween and reach the end point.
+     * @zh 立即结束缓动并到达终点。
      */
     complete(): void {
         if (!this._target) return;
@@ -227,7 +280,8 @@ export class Tween {
     }
 
     /**
-     * 暂停缓动，可以通过resume或restart重新开始。
+     * @en Pause the tween. It can be resumed using resume() or restart().
+     * @zh 暂停缓动。可以通过 resume() 或 restart() 重新开始。
      */
     pause(): void {
         ILaya.timer.clear(this, this._beginLoop);
@@ -242,16 +296,20 @@ export class Tween {
     }
 
     /**
-     * 设置开始时间。
-     * @param	startTime 开始时间。
+     * @en Set the start time of the tween.
+     * @param startTime The start time.
+     * @zh 设置缓动的开始时间。
+     * @param startTime 开始时间。
      */
     setStartTime(startTime: number): void {
         this._startTimer = startTime;
     }
 
     /**
-     * 清理指定目标对象上的所有缓动。
-     * @param	target 目标对象。
+     * @en Clear all tweens on the specified target object.
+     * @param target The target object.
+     * @zh 清理指定目标对象上的所有缓动。
+     * @param target 目标对象。
      */
     static clearAll(target: any): void {
         if (!target || !target.$_GID) return;
@@ -265,8 +323,10 @@ export class Tween {
     }
 
     /**
-     * 清理某个缓动。
-     * @param	tween 缓动对象。
+     * @en Clear a specific tween.
+     * @param tween The tween object to clear.
+     * @zh 清理某个特定的缓动。
+     * @param tween 要清理的缓动对象。
      */
     static clear(tween: Tween): void {
         tween.clear();
@@ -278,7 +338,8 @@ export class Tween {
     }
 
     /**
-     * 停止并清理当前缓动。
+     * @en Stop and clear the current tween.
+     * @zh 停止并清理当前缓动。
      */
     clear(): void {
         if (this._target) {
@@ -298,7 +359,7 @@ export class Tween {
         this._ease = null;
         this._props = null;
         this._delayParam = null;
-    this.repeat = 1;
+        this.repeat = 1;
 
         if (this._usedPool) {
             this.update = null;
@@ -306,7 +367,10 @@ export class Tween {
         }
     }
 
-    /** 回收到对象池。*/
+    /**
+     * @en Recycle to the object pool.
+     * @zh 回收到对象池。
+     */
     recover(): void {
         this._usedPool = true;
         this._clear();
@@ -325,7 +389,8 @@ export class Tween {
     }
 
     /**
-     * 重新开始暂停的缓动。
+     * @en Restart the paused tween.
+     * @zh 重新开始已暂停的缓动。
      */
     restart(): void {
         this.pause();
@@ -344,7 +409,8 @@ export class Tween {
     }
 
     /**
-     * 恢复暂停的缓动。
+     * @en Resume the paused tween.
+     * @zh 恢复已暂停的缓动。
      */
     resume(): void {
         if (this._usedTimer >= this._duration) return;

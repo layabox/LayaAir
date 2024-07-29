@@ -3,8 +3,14 @@ import { Utils } from "./Utils";
 
 /**
  * @private
+ * @en The CallLater class is responsible for managing delayed function calls.
+ * @zh CallLater 类用于管理延迟执行的函数调用。
  */
 export class CallLater {
+    /**
+     * @en Instance of CallLater.
+     * @zh CallLater的实例。
+     */
     static I = new CallLater();
     /**@private */
     private _pool: LaterHandler[] = [];
@@ -15,7 +21,8 @@ export class CallLater {
 
     /**
      * @internal
-     * 帧循环处理函数。
+     * @en Frame loop processing function.
+     * @zh 帧循环处理。
      */
     _update(): void {
         let laters = this._laters;
@@ -43,10 +50,14 @@ export class CallLater {
     }
 
     /**
-     * 延迟执行。
-     * @param	caller 执行域(this)。
-     * @param	method 定时器回调函数。
-     * @param	args 回调参数。
+     * @en Delay execution
+     * @param caller The execution context (this).
+     * @param method Timer callback function.
+     * @param args The arguments to be passed to the callback function.
+     * @zh 延迟执行。
+     * @param caller 执行域（this）。
+     * @param method 定时器回调函数。
+     * @param args 要传递给回调函数的参数。
      */
     callLater(caller: any, method: Function, args: any[] = null): void {
         if (this._getHandler(caller, method) == null) {
@@ -70,9 +81,12 @@ export class CallLater {
     }
 
     /**
-     * 立即执行 callLater 。
-     * @param	caller 执行域(this)。
-     * @param	method 定时器回调函数。
+     * @en Immediately execute a scheduled callLater.
+     * @param caller The execution context (this).
+     * @param method The callback function to be executed.
+     * @zh 立即执行 callLater。
+     * @param caller 执行域（this）。
+     * @param method 要执行的回调函数。
      */
     runCallLater(caller: any, method: Function): void {
         var handler = this._getHandler(caller, method);
@@ -83,6 +97,14 @@ export class CallLater {
         }
     }
 
+    /**
+     * @en Clear the specified callLater.
+     * @param caller The execution context (this).
+     * @param method The callback function to be cleared.
+     * @zh 清除指定的 callLater。
+     * @param caller 执行域（this）。
+     * @param method 要清除的回调函数。
+     */
     clear(caller: any, method: Function) {
         var handler = this._getHandler(caller, method);
         if (handler) {
@@ -94,6 +116,12 @@ export class CallLater {
         return false;
     }
 
+    /**
+     * @en Clear all scheduled callLater for a specific caller.
+     * @param caller The caller object to clear all scheduled calls for.
+     * @zh 清除指定执行域中的所有callLater。
+     * @param caller 执行域（this）。
+     */
     clearAll(caller: any) {
         if (!caller) return;
         for (var i = 0, n = this._laters.length; i < n; i++) {
@@ -116,12 +144,20 @@ class LaterHandler {
     method: Function;
     args: any[];
 
+    /**
+     * @en Clears the handler, setting the caller, method, and args to null.
+     * @zh 清除，将执行域、回调函数、参数均设置为 null。
+     */
     clear(): void {
         this.caller = null;
         this.method = null;
         this.args = null;
     }
 
+    /**
+     * @en Executes
+     * @zh 立即执行
+     */
     run(): void {
         var caller = this.caller;
         if (caller && caller.destroyed) return this.clear();

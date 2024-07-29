@@ -9,22 +9,27 @@ import { AnimatorStateCondition, AnimatorStateBoolCondition, AnimatorStateNumber
 import { AnimatorTransition2D } from "./AnimatorTransition2D";
 
 /**
- * <code>2D动画控制器<code/>
+ * @en 2D animation controller
+ * @zh 2D动画控制器
  */
 export class AnimatorController2D extends Resource {
     /**
      * @internal
+     * @en Data of the animator controller
+     * @zh 动画控制器的数据
      */
     data: TypeAnimatorControllerData;
 
     /**
      * @internal
+     * @en Array of clip IDs
+     * @zh 剪辑ID数组
      */
     clipsID: string[];
 
     /**
-     * 实例化2D动画控制器
-     * @param data 
+     * @en Constructor method of 2D animation controller
+     * @zh 2D动画控制器的构造方法
      */
     constructor(data: any) {
         super();

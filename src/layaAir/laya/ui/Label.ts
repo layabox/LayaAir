@@ -10,121 +10,23 @@ import { LayaEnv } from "../../LayaEnv";
 export type LabelFitContent = "no" | "yes" | "height";
 
 /**
- * 文本内容发生改变后调度。
+ * @en Scheduling after text content changes.
+ * @zh 文本内容发生改变后调度。
  * @eventType laya.events.Event
  */
 /*[Event(name = "change", type = "laya.events.Event")]*/
 
 /**
- * <p> <code>Label</code> 类用于创建显示对象以显示文本。</p>
- *
- * @example <caption>以下示例代码，创建了一个 <code>Label</code> 实例。</caption>
- * package
- *	{
- *		import laya.ui.Label;
- *		public class Label_Example
- *		{
- *			public function Label_Example()
- *			{
- *				Laya.init(640, 800);//设置游戏画布宽高、渲染模式。
- *				Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。
- *				onInit();
- *			}
- *			private function onInit():void
- *			{
- *				var label:Label = new Label();//创建一个 Label 类的实例对象 label 。
- *				label.font = "Arial";//设置 label 的字体。
- *				label.bold = true;//设置 label 显示为粗体。
- *				label.leading = 4;//设置 label 的行间距。
- *				label.wordWrap = true;//设置 label 自动换行。
- *				label.padding = "10,10,10,10";//设置 label 的边距。
- *				label.color = "#ff00ff";//设置 label 的颜色。
- *				label.text = "Hello everyone,我是一个可爱的文本！";//设置 label 的文本内容。
- *				label.x = 100;//设置 label 对象的属性 x 的值，用于控制 label 对象的显示位置。
- *				label.y = 100;//设置 label 对象的属性 y 的值，用于控制 label 对象的显示位置。
- *				label.width = 300;//设置 label 的宽度。
- *				label.height = 200;//设置 label 的高度。
- *				Laya.stage.addChild(label);//将 label 添加到显示列表。
- *				var passwordLabel:Label = new Label("请原谅我，我不想被人看到我心里话。");//创建一个 Label 类的实例对象 passwordLabel 。
- *				passwordLabel.asPassword = true;//设置 passwordLabel 的显示反式为密码显示。
- *				passwordLabel.x = 100;//设置 passwordLabel 对象的属性 x 的值，用于控制 passwordLabel 对象的显示位置。
- *				passwordLabel.y = 350;//设置 passwordLabel 对象的属性 y 的值，用于控制 passwordLabel 对象的显示位置。
- *				passwordLabel.width = 300;//设置 passwordLabel 的宽度。
- *				passwordLabel.color = "#000000";//设置 passwordLabel 的文本颜色。
- *				passwordLabel.bgColor = "#ccffff";//设置 passwordLabel 的背景颜色。
- *				passwordLabel.fontSize = 20;//设置 passwordLabel 的文本字体大小。
- *				Laya.stage.addChild(passwordLabel);//将 passwordLabel 添加到显示列表。
- *			}
- *		}
- *	}
- * @example
- * Laya.init(640, 800);//设置游戏画布宽高
- * Laya.stage.bgColor = "#efefef";//设置画布的背景颜色
- * onInit();
- * function onInit(){
- *     var label = new laya.ui.Label();//创建一个 Label 类的实例对象 label 。
- *     label.font = "Arial";//设置 label 的字体。
- *     label.bold = true;//设置 label 显示为粗体。
- *     label.leading = 4;//设置 label 的行间距。
- *     label.wordWrap = true;//设置 label 自动换行。
- *     label.padding = "10,10,10,10";//设置 label 的边距。
- *     label.color = "#ff00ff";//设置 label 的颜色。
- *     label.text = "Hello everyone,我是一个可爱的文本！";//设置 label 的文本内容。
- *     label.x = 100;//设置 label 对象的属性 x 的值，用于控制 label 对象的显示位置。
- *     label.y = 100;//设置 label 对象的属性 y 的值，用于控制 label 对象的显示位置。
- *     label.width = 300;//设置 label 的宽度。
- *     label.height = 200;//设置 label 的高度。
- *     Laya.stage.addChild(label);//将 label 添加到显示列表。
- *     var passwordLabel = new laya.ui.Label("请原谅我，我不想被人看到我心里话。");//创建一个 Label 类的实例对象 passwordLabel 。
- *     passwordLabel.asPassword = true;//设置 passwordLabel 的显示反式为密码显示。
- *     passwordLabel.x = 100;//设置 passwordLabel 对象的属性 x 的值，用于控制 passwordLabel 对象的显示位置。
- *     passwordLabel.y = 350;//设置 passwordLabel 对象的属性 y 的值，用于控制 passwordLabel 对象的显示位置。
- *     passwordLabel.width = 300;//设置 passwordLabel 的宽度。
- *     passwordLabel.color = "#000000";//设置 passwordLabel 的文本颜色。
- *     passwordLabel.bgColor = "#ccffff";//设置 passwordLabel 的背景颜色。
- *     passwordLabel.fontSize = 20;//设置 passwordLabel 的文本字体大小。
- *     Laya.stage.addChild(passwordLabel);//将 passwordLabel 添加到显示列表。
- * }
- * @example
- * import Label = laya.ui.Label;
- * class Label_Example {
- *     constructor() {
- *         Laya.init(640, 800);//设置游戏画布宽高。
- *         Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。
- *         this.onInit();
- *     }
- *     private onInit(): void {
- *         var label: Label = new Label();//创建一个 Label 类的实例对象 label 。
- *         label.font = "Arial";//设置 label 的字体。
- *         label.bold = true;//设置 label 显示为粗体。
- *         label.leading = 4;//设置 label 的行间距。
- *         label.wordWrap = true;//设置 label 自动换行。
- *         label.padding = "10,10,10,10";//设置 label 的边距。
- *         label.color = "#ff00ff";//设置 label 的颜色。
- *         label.text = "Hello everyone,我是一个可爱的文本！";//设置 label 的文本内容。
- *         label.x = 100;//设置 label 对象的属性 x 的值，用于控制 label 对象的显示位置。
- *         label.y = 100;//设置 label 对象的属性 y 的值，用于控制 label 对象的显示位置。
- *         label.width = 300;//设置 label 的宽度。
- *         label.height = 200;//设置 label 的高度。
- *         Laya.stage.addChild(label);//将 label 添加到显示列表。
- *         var passwordLabel: Label = new Label("请原谅我，我不想被人看到我心里话。");//创建一个 Label 类的实例对象 passwordLabel 。
- *         passwordLabel.asPassword = true;//设置 passwordLabel 的显示反式为密码显示。
- *         passwordLabel.x = 100;//设置 passwordLabel 对象的属性 x 的值，用于控制 passwordLabel 对象的显示位置。
- *         passwordLabel.y = 350;//设置 passwordLabel 对象的属性 y 的值，用于控制 passwordLabel 对象的显示位置。
- *         passwordLabel.width = 300;//设置 passwordLabel 的宽度。
- *         passwordLabel.color = "#000000";//设置 passwordLabel 的文本颜色。
- *         passwordLabel.bgColor = "#ccffff";//设置 passwordLabel 的背景颜色。
- *         passwordLabel.fontSize = 20;//设置 passwordLabel 的文本字体大小。
- *         Laya.stage.addChild(passwordLabel);//将 passwordLabel 添加到显示列表。
- *     }
- * }
+ * @en The Label class is used to create display objects to display text
+ * @zh Label 类用于创建显示对象以显示文本。
  * @see laya.display.Text
  */
 export class Label extends UIComponent {
 
     /**
      * @internal
-     * 文本 <code>Text</code> 实例。
+     * @en Text instance.
+     * @zh 文本 Text 实例。
      */
     protected _tf: Text;
     /**@internal */
@@ -133,7 +35,8 @@ export class Label extends UIComponent {
     private _fitFlag: boolean;
 
     /**
-     * 当前文本内容字符串。
+     * @en Current text content string.
+     * @zh 当前文本内容字符串。
      * @see laya.display.Text.text
      */
     get text(): string {
@@ -145,20 +48,22 @@ export class Label extends UIComponent {
     }
 
     /**
+     * @en Whether the text automatically wraps when it reaches the maximum width.
+     * @zh 文本是否在达到最大宽度时自动换行。
+     * 值为 true，则该文本字段自动换行；值为 false，则该文本字段不自动换行。
      * @copy laya.display.Text#wordWrap
      */
     get wordWrap(): boolean {
         return this._tf.wordWrap;
     }
 
-    /**
-     * @copy laya.display.Text#wordWrap
-     */
     set wordWrap(value: boolean) {
         this._tf.wordWrap = value;
     }
 
     /**
+     * @en Color of the text.
+     * @zh 文本颜色。
      * @copy laya.display.Text#color
      */
     get color(): string {
@@ -170,6 +75,8 @@ export class Label extends UIComponent {
     }
 
     /**
+     * @en Font of the text.
+     * @zh 文本字体。
      * @copy laya.display.Text#font
      */
     get font(): string {
@@ -181,6 +88,8 @@ export class Label extends UIComponent {
     }
 
     /**
+     * @en Horizontal alignment of the text within the label.
+     * @zh 文本的水平对齐方式。
      * @copy laya.display.Text#align
      */
     get align(): string {
@@ -192,6 +101,8 @@ export class Label extends UIComponent {
     }
 
     /**
+     * @en Vertical alignment of the text within the label.
+     * @zh 文本的垂直对齐方式。
      * @copy laya.display.Text#valign
      */
     get valign(): string {
@@ -203,6 +114,8 @@ export class Label extends UIComponent {
     }
 
     /**
+     * @en The alignment of images and text when mixed. The optional values are top, middle, and bottom.
+     * @zh 图文混排时图片和文字的对齐方式。可选值是top,middle,bottom
      * @copy laya.display.Text#alignItems
      */
     get alignItems(): string {
@@ -214,6 +127,8 @@ export class Label extends UIComponent {
     }
 
     /**
+     * @en Whether the text is bold.
+     * @zh 文本是否加粗。
      * @copy laya.display.Text#bold
      */
     get bold(): boolean {
@@ -225,6 +140,8 @@ export class Label extends UIComponent {
     }
 
     /**
+     * @en Whether the text is italic.
+     * @zh 文本是否斜体。
      * @copy laya.display.Text#italic
      */
     get italic(): boolean {
@@ -236,6 +153,8 @@ export class Label extends UIComponent {
     }
 
     /**
+     * @en Space between lines of text.
+     * @zh 文本行之间的间距（以像素为单位）
      * @copy laya.display.Text#leading
      */
     get leading(): number {
@@ -247,6 +166,8 @@ export class Label extends UIComponent {
     }
 
     /**
+     * @en Font size of the text.
+     * @zh 文本的字号大小。
      * @copy laya.display.Text#fontSize
      */
     get fontSize(): number {
@@ -258,8 +179,10 @@ export class Label extends UIComponent {
     }
 
     /**
-     * <p>边距信息</p>
-     * <p>"上边距，右边距，下边距 , 左边距（边距以像素为单位）"</p>
+     * @en The margins of the text label.
+     * Format: "top,right,bottom,left".
+     * @zh 文本标签的边距。
+     * 格式："上边距,右边距,下边距,左边距"（以像素为单位）。
      */
     get padding(): string {
         return this._tf.padding.join(",");
@@ -270,6 +193,8 @@ export class Label extends UIComponent {
     }
 
     /**
+     * @en Background color of the label.
+     * @zh 文本标签的背景颜色。
      * @copy laya.display.Text#bgColor
      */
     get bgColor(): string {
@@ -281,6 +206,8 @@ export class Label extends UIComponent {
     }
 
     /**
+     * @en Border color of the label.
+     * @zh 文本标签的边框颜色。
      * @copy laya.display.Text#borderColor
      */
     get borderColor(): string {
@@ -292,6 +219,8 @@ export class Label extends UIComponent {
     }
 
     /**
+     * @en Stroke width of the text stroke.
+     * @zh 文本描边的宽度（以像素为单位），默认值为0，表示不描边。
      * @copy laya.display.Text#stroke
      */
     get stroke(): number {
@@ -303,6 +232,8 @@ export class Label extends UIComponent {
     }
 
     /**
+     * @en Color of the text stroke.
+     * @zh 文本描边的颜色。
      * @copy laya.display.Text#strokeColor
      */
     get strokeColor(): string {
@@ -313,38 +244,54 @@ export class Label extends UIComponent {
         this._tf.strokeColor = value;
     }
 
+    /**
+     * @en Supporting html syntax.
+     * @zh 是否富文本，支持html语法
+     */
     get html(): boolean {
         return this._tf.html;
     }
 
-    /** 设置是否富文本，支持html语法 */
     set html(value: boolean) {
         this._tf.html = value;
     }
 
+    /**
+     * @en Whether to use UBB syntax to parse text.
+     * @zh 是否使用UBB语法解析文本。
+     */
     get ubb(): boolean {
         return this._tf.ubb;
     }
 
-    /** 设置是否使用UBB语法解析文本 */
     set ubb(value: boolean) {
         this._tf.ubb = value;
     }
 
+    /**
+     * @en The maximum width of the text box. If the text content exceeds this width, it will wrap automatically. Set to 0 to disable this limit.
+     * @zh 文本最大宽度，当文本达到最大宽度时，会自动换行，设置为0则此限制不生效。
+     */
     get maxWidth(): number {
         return this._tf.maxWidth;
     }
 
-    /** 设置当文本达到最大允许的宽度时，自定换行，设置为0则此限制不生效。*/
     set maxWidth(value: number) {
         this._tf.maxWidth = value;
     }
 
+    /**
+     * @en Sets whether the text content adapts to the container size.
+     * Possible values: "yes" (both text width and height adapt), "height" (only text height adapts), "no" (does not adapt).
+     * If a boolean value is provided, true corresponds to "yes" and false corresponds to "no".
+     * @zh 设置文本内容是否自适应容器大小
+     * 可选值："yes"（文本宽度和高度自适应）、"height"（仅文本高度自适应）、"no"（不自适应）
+     * 如果传入布尔值，则 true 对应 "yes"，false 对应 "no"
+     */
     get fitContent(): LabelFitContent {
         return this._fitContent;
     }
 
-    /** 设置文本框大小是否自动适应文本内容的大小。可取值为both或者height */
     set fitContent(value: LabelFitContent) {
         if (typeof (value) === "boolean")
             value = value ? "yes" : "no";
@@ -360,68 +307,115 @@ export class Label extends UIComponent {
     }
 
     /**
-     * 文本控件实体 <code>Text</code> 实例。
+     * @en An instance of the basic text object.
+     * @zh 基础文本对象（Text）的实例。
      */
     get textField(): Text {
         return this._tf;
     }
 
     /**
+     * @en The overflow property of the text, determining how overflow text is handled.
+     * Possible values: visible, hidden, scroll, shrink, ellipsis.
+     * visible: The text is not constrained by the text width and height, and all text is visible.
+     * hidden: Text beyond the width and height is cut off, providing the best performance.
+     * scroll: The part of the text that exceeds the width and height is hidden, and can be scrolled to view.
+     * shrink: The text automatically adjusts its size to fit within the width and height, always fully visible.
+     * ellipsis: When the text exceeds the width and height, the last few characters are replaced with an ellipsis, indicating that there is more content.
+     * @zh 文本的溢出属性，决定超出文本如何被处理。
+     * 值为: 可见 visible、隐藏 hidden、滚动 scroll、自动收缩 shrink、显示省略号 ellipsis。
+     * 作用：
+     * 可见，表示文本不受文本宽高约束全部可见；
+     * 隐藏，超过文本宽高就会被裁切掉，性能最好；
+     * 滚动，表示超出宽高的部分被隐藏，可以通过划动控制显示在宽高内区域；
+     * 自动收缩，表示文本会跟随宽高的大小而自动调整文本的大小，始终全部显示在文本宽高内；
+     * 显示省略号，表示当文本超出宽高后，未尾的几位字符会替换为省略号，表示当前文本还有未显示的内容。
      * @copy laya.display.Text#overflow
      */
+
     get overflow(): string {
         return this._tf.overflow;
     }
 
-    /**
-     * @copy laya.display.Text#overflow
-     */
     set overflow(value: string) {
         this._tf.overflow = value;
     }
 
     /**
+     * @en Text decoration style of the text, specifically whether it is underlined.
+     * @zh 文本是否显示下划线。
      * @copy laya.display.Text#underline
      */
     get underline(): boolean {
         return this._tf.underline;
     }
 
-    /**
-     * @copy laya.display.Text#underline
-     */
     set underline(value: boolean) {
         this._tf.underline = value;
     }
 
     /**
+     * @en Color of the text underline.
+     * @zh 文本下划线的颜色。
      * @copy laya.display.Text#underlineColor
      */
     get underlineColor(): string {
         return this._tf.underlineColor;
     }
 
-    /**
-     * @copy laya.display.Text#underlineColor
-     */
     set underlineColor(value: string) {
         this._tf.underlineColor = value;
     }
 
     /**
+     * @en Text decoration style of the text, specifically whether it is underlined.
+     * @zh 文本是否显示下划线。
+     * @copy laya.display.Text#underline
+     */
+    get strikethrough(): boolean {
+        return this._tf.strikethrough;
+    }
+
+    set strikethrough(value: boolean) {
+        this._tf.strikethrough = value;
+    }
+
+    /**
+     * @en Color of the text underline.
+     * @zh 文本下划线的颜色。
+     * @copy laya.display.Text#underlineColor
+     */
+    get strikethroughColor(): string {
+        return this._tf.strikethroughColor;
+    }
+
+    set strikethroughColor(value: string) {
+        this._tf.strikethroughColor = value;
+    }    
+
+    /**
+     * @en Whether the text ignores language localization.
+     * @zh 文本是否忽略语言本地化。
      * @copy laya.display.Text#ignoreLang
      */
     get ignoreLang(): boolean {
         return this._tf.ignoreLang;
     }
 
-    /**
-     * @copy laya.display.Text#ignoreLang
-     */
     set ignoreLang(value: boolean) {
         this._tf.ignoreLang = value;
     }
 
+    /**
+     * @en Text template variables.
+     * When set to true, templateVars is set to an empty object;
+     * When set to false, templateVars is set to null;
+     * When set to a value of type Record<string, any>, templateVars is set to the provided value.
+     * @zh 文本模板变量对象
+     * 为 true 时，将 templateVars 设置为空对象;
+     * 为 false 时，将 templateVars 设置为 null;
+     * 为 Record<string, any> 类型时，将 templateVars 设置为传入值（value）;
+     */
     public get templateVars(): Record<string, any> {
         return this._tf.templateVars;
     }
@@ -431,9 +425,21 @@ export class Label extends UIComponent {
     }
 
     /**
-     * 创建一个新的 <code>Label</code> 实例。
-     * @param text 文本内容字符串。
+     * @en Sets a template variable in the text field, used for dynamic text replacement.
+     * @param name The key name of the template variable to set.
+     * @param value The value corresponding to the key name of the template variable.
+     * @return This label instance.
+     * @zh 设置模板变量对象对应的键名与值，用于动态文本替换。
+     * @param name 要设置的模板变量对象的键名。
+     * @param value 模板变量对象键名对应的值。
+     * @return 当前标签实例。
      */
+    public setVar(name: string, value: any): Label {
+        this._tf.setVar(name, value);
+
+        return this;
+    }
+
     constructor(text?: string) {
         super();
         this._fitContent = "no";
@@ -517,6 +523,12 @@ export class Label extends UIComponent {
         return 0;
     }
 
+    /**
+     * @en Sets the width of the label.
+     * @param value The new width value.
+     * @zh 设置文本标签的宽度。
+     * @param value 新的宽度值。
+     */
     set_width(value: number): void {
         if (this._fitContent == "yes" && !this._fitFlag)
             return;
@@ -532,6 +544,12 @@ export class Label extends UIComponent {
         return 0;
     }
 
+    /**
+     * @en Sets the height of the label.
+     * @param value The new height value.
+     * @zh 设置文本标签的高度。
+     * @param value 新的高度值。
+     */
     set_height(value: number): void {
         if ((this._fitContent == "yes" || this._fitContent == "height") && !this._fitFlag)
             return;
@@ -550,9 +568,5 @@ export class Label extends UIComponent {
             super.set_dataSource(value);
     }
 
-    public setVar(name: string, value: any): Label {
-        this._tf.setVar(name, value);
 
-        return this;
-    }
 }

@@ -1,8 +1,8 @@
 export class LayaEnv {
-    static version: string = "3.2.0-beta.1";
+    static version: string = "3.2.0-beta.2";
     static isPlaying: boolean = true;
     static isPreview: boolean = false;
-    static isConch: boolean = (<any>window).conch != null;
+    static isConch: boolean = window ? ((<any>window).conch != null) : false;
 
     /** @deprecated Uses Laya.addBeforeInitCallback */
     static beforeInit: (stageConfig: IStageConfig) => void;

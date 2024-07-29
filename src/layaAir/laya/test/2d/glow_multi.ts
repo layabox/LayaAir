@@ -7,7 +7,9 @@ import { Sprite } from "../../display/Sprite";
 import { BlurFilter } from "../../filters/BlurFilter";
 import { GlowFilter } from "../../filters/GlowFilter";
 
-//HierarchyLoader和MaterialLoader等是通过前面的import完成的
+/**
+ * 多个glow的话，偏移要是对的，且不会出现上下颠倒的情况
+ */
 
 let packurl = 'sample-resource/2d'
 async function test(){

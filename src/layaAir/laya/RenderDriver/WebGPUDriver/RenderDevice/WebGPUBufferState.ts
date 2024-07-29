@@ -1,5 +1,6 @@
 import { VertexElementFormat } from "../../../renders/VertexElementFormat";
 import { IBufferState } from "../../DriverDesign/RenderDevice/IBufferState";
+import { WebGPUBuffer } from "./WebGPUBuffer";
 import { WebGPUIndexBuffer } from "./WebGPUIndexBuffer";
 import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
 import { WebGPUVertexBuffer } from "./WebGPUVertexBuffer";
@@ -19,6 +20,21 @@ export class WebGPUBufferState implements IBufferState {
 
     globalId: number;
     objectName: string = 'WebGPUBufferState';
+
+    /**
+     * 是否需要转换顶点数据格式
+     */
+    isNeedChangeFormat() {
+        for (let i = this._vertexBuffers.length - 1; i > -1; i--) {
+            const attributes = this.vertexState[i].attributes as GPUVertexAttribute[];
+            for (let j = attributes.length - 1; j > -1; j--) {
+                if (attributes[j].format === 'uint8x4') {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
     applyState(vertexBuffers: WebGPUVertexBuffer[], indexBuffer: WebGPUIndexBuffer): void {
         this._vertexBuffers = vertexBuffers.slice(); //因为vertexBuffers是共享的，必须slice

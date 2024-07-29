@@ -95,6 +95,7 @@ import "./loaders/AvatarMaskLoader";
 import "./loaders/ShaderLoader";
 import "./loaders/GLSLLoader";
 import "./loaders/AnimationControllerLoader";
+import "./core/scene/Input3D";
 import { Viewport } from "../maths/Viewport";
 import { BoxColliderShape } from "./physics/shape/BoxColliderShape";
 import { CapsuleColliderShape } from "./physics/shape/CapsuleColliderShape";

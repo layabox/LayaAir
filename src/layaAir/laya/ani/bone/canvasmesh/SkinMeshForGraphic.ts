@@ -4,28 +4,36 @@ import { Texture } from "../../../resource/Texture";
 
 
 /**
- * <code>Laya<code>
+ * @en Create SkinGraphic Mesh data.
+ * @zh 创建SkinGraphic网格数据
  */
 export class SkinMeshForGraphic extends MeshData {
 
     /**
-     * 创建SkinGraphic Mesh数据
+     * @en Constructor method. Create SkinGraphic Mesh data.
+     * @zh 构造方法，创建SkinGraphic网格数据
      */
     constructor() {
         super();
     }
 
     /**
-     * 矩阵
+     * @en Transform matrix
+     * @zh 变换矩阵
      */
     transform: Matrix | null;
 
     /**
-     * 创建Texture MeshData
+     * @en Create Texture MeshData
+     * @param texture Texture
+     * @param ps Index data
+     * @param verticles Vertex data
+     * @param uvs UV data
+     * @zh 创建纹理网格数据
      * @param texture 纹理
      * @param ps 索引数据
      * @param verticles 顶点数据
-     * @param uvs uv数据
+     * @param uvs UV数据
      */
     init2(texture: Texture, ps: any[], verticles: any[], uvs: any[]): void {
         if (this.transform) {

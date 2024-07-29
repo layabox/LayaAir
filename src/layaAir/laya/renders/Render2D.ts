@@ -1,13 +1,11 @@
 import { IRenderContext2D } from "../RenderDriver/DriverDesign/2DRenderPass/IRenderContext2D";
 import { IRenderElement2D } from "../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
 import { IRenderGeometryElement } from "../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
-import { BufferTargetType, BufferUsage } from "../RenderEngine/RenderEnum/BufferTargetType";
+import { BufferUsage } from "../RenderEngine/RenderEnum/BufferTargetType";
 import { DrawType } from "../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../RenderEngine/RenderEnum/IndexFormat";
 import { MeshTopology } from "../RenderEngine/RenderEnum/RenderPologyMode";
 import { VertexDeclaration } from "../RenderEngine/VertexDeclaration";
-import { GeometryElement } from "../d3/core/GeometryElement";
-import { Mesh } from "../d3/resource/models/Mesh";
 import { LayaGL } from "../layagl/LayaGL";
 import { Color } from "../maths/Color";
 import { Material } from "../resource/Material";
@@ -16,7 +14,7 @@ import { Stat } from "../utils/Stat";
 import { Value2D } from "../webgl/shader/d2/value/Value2D";
 import { RenderState2D } from "../webgl/utils/RenderState2D";
 
-export interface IMesh2D {
+export interface ISprite2DGeometry {
     readonly vertexDeclarition: VertexDeclaration;
     vbBuffer: ArrayBuffer;
     ibBuffer: ArrayBuffer;
@@ -43,7 +41,7 @@ export abstract class Render2D {
     // 有vb是外部提供的，因此，顶点描述也要由外部提供
     //abstract setVertexDecl(decl:VertexDeclaration):void;
     //shaderdata放到mtl中。之所以传内存buffer是为了给后面合并subdata机会，以便提高效率
-    abstract draw(mesh: IMesh2D, vboff: number, vblen: number, iboff: number, iblen: number, mtl: Value2D, customMaterial: Material): void;
+    abstract draw(mesh: ISprite2DGeometry, vboff: number, vblen: number, iboff: number, iblen: number, mtl: Value2D, customMaterial: Material): void;
     abstract drawMesh(mesh: IRenderGeometryElement, mtl: Material): void;
     abstract drawElement(ele: IRenderElement2D): void;
 
@@ -126,7 +124,7 @@ export class Render2DSimple extends Render2D {
         Render2DSimple.rendercontext2D.drawRenderElementOne(ele);
     }
 
-    draw(mesh2d: IMesh2D, vboff: number, vblen: number, iboff: number, iblen: number, mtl: Value2D, customMaterial: Material): void {
+    draw(mesh2d: ISprite2DGeometry, vboff: number, vblen: number, iboff: number, iblen: number, mtl: Value2D, customMaterial: Material): void {
         Stat.draw2D++;
         this.setVertexDecl(mesh2d.vertexDeclarition);
         let geo = this.geo;

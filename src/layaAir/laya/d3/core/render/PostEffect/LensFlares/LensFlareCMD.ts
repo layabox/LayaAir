@@ -8,11 +8,11 @@ import { Camera } from "../../../Camera";
 import { Transform3D } from "../../../Transform3D";
 import { RenderContext3D } from "../../RenderContext3D";
 import { RenderElement } from "../../RenderElement";
-import { Command } from "../../command/Command";
+import { CommandBuffer } from "../../command/CommandBuffer";
 import { LensFlareElement, LensFlareEffect } from "./LensFlareEffect";
 import { LensFlareElementGeomtry } from "./LensFlareGeometry";
 
-export class LensFlareCMD extends Command {
+export class LensFlareCMD {
 
     /**@internal geoemtry */
     private _lensFlareGeometry: LensFlareElementGeomtry;
@@ -45,9 +45,9 @@ export class LensFlareCMD extends Command {
      * instance CMD
      */
     constructor() {
-        super();
         this._transform3D = Laya3DRender.Render3DModuleDataFactory.createTransform(null);
         this._renderElement = new RenderElement();
+        this._renderElement._renderElementOBJ.isRender = true;
         this._lensFlareGeometry = new LensFlareElementGeomtry();
         this._renderElement.setTransform(this._transform3D);
         this._renderElement.setGeometry(this._lensFlareGeometry);
@@ -59,6 +59,7 @@ export class LensFlareCMD extends Command {
      */
     private _initMaterial() {
         this._materials = new Material();
+        this._materials.lock = true;
         this._materials.setShaderName("LensFlare");
         this._materials.materialRenderMode = MaterialRenderMode.RENDERMODE_ADDTIVE;
         this._materials.depthTest = RenderState.DEPTHTEST_ALWAYS;
@@ -66,7 +67,6 @@ export class LensFlareCMD extends Command {
         this._renderElement.material = this._materials;
         //this._renderElement.renderSubShader = this._materials.shader.getSubShaderAt(0);
         this._renderElement.subShaderIndex = 0;
-
     }
 
     /**@internal */
@@ -118,12 +118,10 @@ export class LensFlareCMD extends Command {
      * @inheritDoc
      * @override
      */
-    run(): void {
+    run(cmd: CommandBuffer): void {
         var context = RenderContext3D._instance;
         this._materials.setFloat("u_aspectRatio", context.camera.viewport.height / context.camera.viewport.width);
-        context.applyContext(Camera._updateMark);
-        //context.drawRenderElement(this._renderElement);
-        Stat.blitDrawCall++;
+        cmd.drawRenderElement(this._renderElement);
     }
 
     /**
@@ -137,6 +135,7 @@ export class LensFlareCMD extends Command {
      * @internal
      */
     destroy(): void {
-        //TODO
+        this._materials.lock = false;
+        this._materials.destroy();
     }
 }

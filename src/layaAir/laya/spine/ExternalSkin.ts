@@ -94,7 +94,7 @@ export class ExternalSkin {
                             let skin = skins[j];
                             let attachments = skin.attachments;
                             for (let j = attachments.length - 1; j >= 0; j--) {
-                                attachment = attachments[j][attachmentStr];
+                                attachment = attachments[j]?.[attachmentStr];
                                 if (attachment) {
                                     break;
                                 }
@@ -109,6 +109,7 @@ export class ExternalSkin {
                         if (slotObj) {
                             slotObj.setAttachment(attachment);
                         }
+                        this.target.changeNormal();
                     }
                 }
 

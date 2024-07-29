@@ -1,18 +1,9 @@
-import { ILaya } from "../../ILaya";
-import { timer } from "../../Laya";
-import { LayaEnv } from "../../LayaEnv";
+import { HideFlags } from "../Const";
 import { Sprite } from "../display/Sprite";
-import { Event } from "../events/Event";
-import { SoundManager } from "../media/SoundManager";
-import { Loader } from "../net/Loader";
-import { Handler } from "../utils/Handler";
 import { Timer } from "../utils/Timer";
 import { ExternalSkin } from "./ExternalSkin";
 import { Spine2DRenderNode } from "./Spine2DRenderNode";
-
-import { SpineSkeletonRenderer } from "./normal/SpineSkeletonRenderer";
 import { SpineTemplet } from "./SpineTemplet";
-import { ISpineSkeleton } from "./interface/ISpineSkeleton";
 import { ISpineOptimizeRender } from "./optimize/interface/ISpineOptimizeRender";
 
 
@@ -36,12 +27,13 @@ import { ISpineOptimizeRender } from "./optimize/interface/ISpineOptimizeRender"
  * @deprecated 请使用Sprite+Spine2DRenderNode组件
  * spine动画由<code>SpineTemplet</code>，<code>SpineSkeletonRender</code>，<code>SpineSkeleton</code>三部分组成。
  */
-export class SpineSkeleton extends Sprite implements ISpineSkeleton {
+export class SpineSkeleton extends Sprite {
     private _spineComponent: Spine2DRenderNode;
 
     constructor() {
         super();
         this._spineComponent = this.addComponent(Spine2DRenderNode);
+        this._spineComponent.hideFlags |= HideFlags.HideAndDontSave;
     }
 
     /**

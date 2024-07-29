@@ -29,8 +29,7 @@ export class SpineWasmRender extends SpineNormalRenderBase implements ISpineRend
     draw(skeleton: spine.Skeleton, renderNode: Spine2DRenderNode, slotRangeStart?: number, slotRangeEnd?: number): void {
         this.nextBatchIndex = 0;
         SpineAdapter.drawSkeleton((vbLen: number, ibLen: number, texturePath: string, blendMode: any) => {
-            let texture = this.templet.getTexture(texturePath);
-            let mat = this.templet.getMaterial(texture.realTexture, blendMode.value, renderNode);
+            let mat = renderNode.getMaterial(this.templet.getTexture(texturePath), blendMode.value);
             let mesh = this.nextBatch(mat,renderNode);
             mesh.drawByData(SpineAdapter._vbArray, vbLen, SpineAdapter._ibArray, ibLen);
         }, skeleton, false, slotRangeStart, slotRangeEnd);

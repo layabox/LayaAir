@@ -47,5 +47,20 @@ export class WebGPUInternalRT implements InternalRenderTarget {
 
     dispose(): void {
         WebGPUGlobal.releaseId(this);
+
+        if (this._textures) {
+            for (let i = this._textures.length - 1; i > -1; i--)
+                this._textures[i].dispose();
+            this._textures.length = 0;
+        }
+        if (this._texturesResolve) {
+            for (let i = this._texturesResolve.length - 1; i > -1; i--)
+                this._texturesResolve[i].dispose();
+            this._texturesResolve.length = 0;
+        }
+        if (this._depthTexture) {
+            this._depthTexture.dispose();
+            this._depthTexture = null;
+        }
     }
 }

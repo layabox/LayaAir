@@ -7,10 +7,16 @@ import { Matrix } from "../../maths/Matrix";
 
 /**
  * @internal
- * 路径作用器
- * 1，生成根据骨骼计算控制点
- * 2，根据控制点生成路径，并计算路径上的节点
- * 3，根据节点，重新调整骨骼位置
+ * @en The `PathConstraint` class is used to control the movement of bones based on a path.
+ * It performs the following operations:
+ * 1. Generates control points based on bone calculations
+ * 2. Generates the path and calculates the nodes on the path.
+ * 3. Adjusts the position of the bones based on the nodes.
+ * @zh `PathConstraint` 类是路径作用器，用于根据路径控制骨骼的移动。
+ * 它执行以下操作：
+ * 1. 生成根据骨骼计算控制点
+ * 2. 根据控制点生成路径，并计算路径上的节点。
+ * 3. 根据节点，重新调整骨骼的位置。
  */
 export class PathConstraint {
 
@@ -18,12 +24,40 @@ export class PathConstraint {
 	private static BEFORE: number = -2;
 	private static AFTER: number = -3;
 
+	/**
+	 * @en The target bone slot that the path constraint is applied to.
+	 * @zh 应用路径约束的目标骨骼插槽。
+	 */
 	target: BoneSlot;
+	/**
+	 * @en The path constraint data used to define the constraint.
+	 * @zh 用于定义约束的路径约束数据。
+	 */
 	data: PathConstraintData;
+	/**
+	 * @en An array of bones that will be influenced by the path constraint.
+	 * @zh 将受路径约束影响的骨骼数组。
+	 */
 	bones: Bone[];
+	/**
+	 * @en The position of the path constraint.
+	 * @zh 路径约束的位置。
+	 */
 	position: number;
+	/**
+	 * @en The spacing between bones when the path constraint is applied.
+	 * @zh 应用路径约束时骨骼之间的间隔。
+	 */
 	spacing: number;
+	/**
+	 * @en The amount of rotation mixing to apply to the bones.
+	 * @zh 应用于骨骼的旋转混合量。
+	 */
 	rotateMix: number;
+	/**
+	 * @en The amount of translation mixing to apply to the bones.
+	 * @zh 应用于骨骼的平移混合量。
+	 */
 	translateMix: number;
 
 	/**@internal */
@@ -49,10 +83,12 @@ export class PathConstraint {
 	}
 
 	/**
-	 * 计算骨骼在路径上的节点
-	 * @param	boneSlot
-	 * @param	boneMatrixArray
-	 * @param	graphics
+	 * @en Calculates the nodes of the skeleton on the path.
+	 * @param boneList An array of bones that the path constraint affects.
+	 * @param graphics The graphics context to use for path calculations.
+	 * @zh 计算骨骼在路径上的节点。
+	 * @param boneList 受路径约束影响的骨骼数组。
+	 * @param graphics 用于路径计算的 Graphics 实例。
 	 */
 	//TODO:coverage
 	apply(boneList: Bone[], graphics: Graphics): void {
@@ -177,13 +213,20 @@ export class PathConstraint {
 	/**@internal */
 	private static _tempMt: Matrix = new Matrix();
 	/**
-	 * 计算顶点的世界坐标
-	 * @param	boneSlot
-	 * @param	boneList
-	 * @param	start
-	 * @param	count
-	 * @param	worldVertices
-	 * @param	offset
+	 * @en Calculate the world coordinates of vertices.
+	 * @param boneSlot The bone slot to which the vertices belong.
+	 * @param boneList The list of bones that affect the vertices.
+	 * @param start The starting index of the vertices to calculate.
+	 * @param count The number of vertices to calculate.
+	 * @param worldVertices The array to store the calculated world coordinates.
+	 * @param offset The offset in the worldVertices array to start storing the results.
+	 * @zh 计算顶点的世界坐标。
+	 * @param boneSlot 顶点所属的骨骼插槽。
+	 * @param boneList 影响顶点的骨骼列表。
+	 * @param start 开始计算顶点的索引。
+	 * @param count 要计算的顶点数量。
+	 * @param worldVertices 用于存储计算结果的数组。
+	 * @param offset 数组中开始存储结果的偏移量。
 	 */
 	//TODO:coverage
 	computeWorldVertices2(boneSlot: BoneSlot, boneList: Bone[], start: number, count: number, worldVertices: number[], offset: number): void {

@@ -25,24 +25,33 @@ import { Templet } from "../../ani/bone/Templet";
 import { ILaya } from "../../../ILaya";
 import { LayaEnv } from "../../../LayaEnv";
 
-/**动画开始播放调度
+/**
+ * @en Animation start playback scheduling
+ * @zh 动画开始播放调度
  * @eventType Event.PLAYED
  * */
 /*[Event(name = "played", type = "laya.events.Event.PLAYED", desc = "动画开始播放调度")]*/
-/**动画停止播放调度
+/**
+ * @en Animation stop playback scheduling
+ * @zh 动画停止播放调度
  * @eventType Event.STOPPED
  * */
 /*[Event(name = "stopped", type = "laya.events.Event.STOPPED", desc = "动画停止播放调度")]*/
-/**动画暂停播放调度
+/**
+ * @en Animation resume playback scheduling
+ * @zh 动画暂停播放调度
  * @eventType Event.PAUSED
  * */
 /*[Event(name = "paused", type = "laya.events.Event.PAUSED", desc = "动画暂停播放调度")]*/
-/**自定义事件。
+/**
+ * @en Custom events.
+ * @zh 自定义事件。
  * @eventType Event.LABEL
  */
 /*[Event(name = "label", type = "laya.events.Event.LABEL", desc = "自定义事件")]*/
 /**
- * 骨骼动画由<code>Templet</code>，<code>AnimationPlayer</code>，<code>Skeleton</code>三部分组成。
+ * @en Skeleton animation consists of three parts: Template, AnimationPlayer, and Skeleton.
+ * @zh 骨骼动画由Templet，AnimationPlayer，Skeleton三部分组成。
  */
 export class Skeleton extends Sprite {
     /**@internal */
@@ -121,8 +130,9 @@ export class Skeleton extends Sprite {
     private _loop: boolean = true;
 
     /**
-     * 创建一个Skeleton对象
-
+     * @en Constructs method of Skeleton animation.
+     * @param aniMode - Animation mode, 0 for no costume changes support, 1 or 2 for costume changes support.
+     * @zh 骨骼动画的构造方法
      * @param	aniMode	动画模式，0不支持换装，1、2支持换装
      */
     constructor(aniMode: number = 0) {
@@ -132,17 +142,14 @@ export class Skeleton extends Sprite {
     }
 
     /**
-    * @private
-    * 得到帧索引
-    */
+     * @private
+     * @en The frame index.
+     * @zh 帧索引。
+     */
     get index(): number {
         return this._index;
     }
-
-    /**
-     * @private
-     * 设置帧索引
-     */
+    /** @private */
     set index(value: number) {
         if (this.player) {
             this._index = value;
@@ -160,7 +167,8 @@ export class Skeleton extends Sprite {
     }
 
     /**
-     * 得到总帧数据
+     * @en The total number of frames.
+     * @zh 总帧数。
      */
     get total(): number {
         if (this._templet && this._player) {
@@ -172,14 +180,16 @@ export class Skeleton extends Sprite {
     }
 
     /**
-     * 得到播放器的引用
+     * @en The reference to the animation player.
+     * @zh 动画播放器的引用。
      */
     get player(): AnimationPlayer {
         return this._player;
     }
 
     /**
-     * 皮肤名字
+     * @en The skin name.
+     * @zh 皮肤名称。
      */
     get skinName(): string {
         return this._skinName;
@@ -192,7 +202,8 @@ export class Skeleton extends Sprite {
     }
 
     /**
-     * 动画名字
+     * @en The animation name.
+     * @zh 动画名称。
      */
     get animationName(): string {
         return this._animationName;
@@ -205,7 +216,8 @@ export class Skeleton extends Sprite {
     }
 
     /**
-     * 是否循环
+     * @en Whether the animation is looped.
+     * @zh 动画是否循环播放。
      */
     get loop(): boolean {
         return this._loop;
@@ -218,8 +230,8 @@ export class Skeleton extends Sprite {
     }
 
     /**
-     * 得到动画模板的引用
-     * @return templet.
+     * @en The reference to the animation template.
+     * @zh 动画模板的引用。
      */
     get templet(): Templet {
         return this._templet;
@@ -230,16 +242,13 @@ export class Skeleton extends Sprite {
     }
 
     /**
-     * 得到动画地址
-     * @return templet.
+     * @en Animation address
+     * @zh 动画地址
      */
     get source(): string {
         return this._source;
     }
 
-    /**
-     * 设置动画地址
-     */
     set source(value: string) {
         this._source = value;
 
@@ -256,19 +265,14 @@ export class Skeleton extends Sprite {
     }
 
     /**
-     * 动画类型
-     * <table>
-     * 	<tr><th>模式</th><th>描述</th></tr>
-     * 	<tr>
-     * 		<td>0</td> <td>使用模板缓冲的数据，模板缓冲的数据，不允许修改（内存开销小，计算开销小，不支持换装）</td>
-     * 	</tr>
-     * 	<tr>
-     * 		<td>1</td> <td>使用动画自己的缓冲区，每个动画都会有自己的缓冲区，相当耗费内存	（内存开销大，计算开销小，支持换装）</td>
-     * 	</tr>
-     * 	<tr>
-     * 		<td>2</td> <td>使用动态方式，去实时去画（内存开销小，计算开销大，支持换装,不建议使用）</td>
-     * </tr>
-     * </table>
+     * @en Animation types with their descriptions.
+     * - Mode 0: Uses template buffer data which cannot be modified. (Low memory overhead, low computation overhead, does not support costume changes)
+     * - Mode 1: Uses the animation's own buffer. Each animation has its own buffer, which is quite memory-intensive. (High memory overhead, low computation overhead, supports costume changes)
+     * - Mode 2: Uses a dynamic approach for real-time drawing. (Low memory overhead, high computation overhead, supports costume changes, not recommended)
+     * @zh 动画类型及其描述。
+     * - 模式 0: 使用模板缓冲数据，不允许修改。（内存开销小，计算开销小，不支持换装）
+     * - 模式 1: 使用动画自己的缓冲区，每个动画都有自己的缓冲区，相当耗费内存。（内存开销大，计算开销小，支持换装）
+     * - 模式 2: 使用动态方式进行实时绘制。（内存开销小，计算开销大，支持换装，不建议使用）
      */
     get aniMode(): number {
         return this._aniMode;
@@ -352,9 +356,12 @@ export class Skeleton extends Sprite {
     }
 
     /**
-     * 通过加载直接创建动画
-     * @param	path		要加载的动画文件路径
-     * @param	complete	加载完成的回调函数
+     * @en Load and create an animation directly from a path.
+     * @param path The path of the animation file to load.
+     * @param complete The callback function when the loading is complete.
+     * @zh 通过路径直接加载并创建动画。
+     * @param path 要加载的动画文件路径。
+     * @param complete 加载完成后的回调函数。
      */
     load(path: string, complete?: Handler): void {
         ILaya.loader.load(path).then((templet: Templet) => {
@@ -857,7 +864,9 @@ export class Skeleton extends Sprite {
 
     /*******************************************定义接口*************************************************/
     /**
-     * 得到当前动画的数量
+     * @en Get the number of current animations.
+     * @return The number of current animations.
+     * @zh 获取当前动画的数量。
      * @return 当前动画的数量
      */
     getAnimNum(): number {
@@ -865,16 +874,21 @@ export class Skeleton extends Sprite {
     }
 
     /**
-     * 得到指定动画的名字
-     * @param	index	动画的索引
+     * @en Get the name of the animation by its index.
+     * @param index The index of the animation.
+     * @zh 通过索引获取动画的名称。
+     * @param index 动画的索引
      */
     getAniNameByIndex(index: number): string {
         return this._templet.getAniNameByIndex(index);
     }
 
     /**
-     * 通过名字得到插槽的引用
-     * @param	name	动画的名字
+     * @en Get the reference to a bone slot by its name.
+     * @param name The name of the bone slot.
+     * @return The reference to the bone slot.
+     * @zh 通过名称获取插槽的引用。
+     * @param name 动画的名字
      * @return 插槽的引用
      */
     getSlotByName(name: string): BoneSlot {
@@ -882,18 +896,24 @@ export class Skeleton extends Sprite {
     }
 
     /**
-     * 通过名字显示一套皮肤
-     * @param	name	皮肤的名字
-     * @param	freshSlotIndex	是否将插槽纹理重置到初始化状态
+     * @en Display a set of skins by name.
+     * @param name The name of the skin.
+     * @param freshSlotIndex Whether to reset the slot textures to the initial state, default is true.
+     * @zh 通过名称显示一套皮肤。
+     * @param name 皮肤的名字
+     * @param freshSlotIndex 是否将插槽纹理重置到初始状态，默认为true。
      */
     showSkinByName(name: string, freshSlotIndex: boolean = true): void {
         this.showSkinByIndex(this._templet.getSkinIndexByName(name), freshSlotIndex);
     }
 
     /**
-     * 通过索引显示一套皮肤
-     * @param	skinIndex	皮肤索引
-     * @param	freshSlotIndex	是否将插槽纹理重置到初始化状态
+     * @en Display a set of skins by index.
+     * @param skinIndex The index of the skin.
+     * @param freshSlotIndex Whether to reset the slot textures to the initial state, default is true.
+     * @zh 通过索引显示一套皮肤。
+     * @param skinIndex 皮肤索引
+     * @param freshSlotIndex 是否将插槽纹理重置到初始状态，默认为true。
      */
     showSkinByIndex(skinIndex: number, freshSlotIndex: boolean = true): void {
         for (let i = 0; i < this._boneSlotArray.length; i++) {
@@ -907,9 +927,12 @@ export class Skeleton extends Sprite {
     }
 
     /**
-     * 设置某插槽的皮肤
-     * @param	slotName	插槽名称
-     * @param	index	插糟皮肤的索引
+     * @en Set the skin for a specific slot by index.
+     * @param slotName The name of the slot.
+     * @param index The index of the slot's skin.
+     * @zh 通过索引设置某插槽的皮肤。
+     * @param slotName 插槽名称
+     * @param index 插槽的皮肤索引
      */
     showSlotSkinByIndex(slotName: string, index: number): void {
         if (this._aniMode == 0) return;
@@ -921,9 +944,12 @@ export class Skeleton extends Sprite {
     }
 
     /**
-     * 设置某插槽的皮肤
-     * @param	slotName	插槽名称
-     * @param	name	皮肤名称
+     * @en Set the skin for a specific slot by name.
+     * @param slotName The name of the slot.
+     * @param name The name of the skin.
+     * @zh 通过名称设置某插槽的皮肤。
+     * @param slotName 插槽名称
+     * @param name 皮肤名称
      */
     showSlotSkinByName(slotName: string, name: string): void {
         if (this._aniMode == 0) return;
@@ -935,10 +961,14 @@ export class Skeleton extends Sprite {
     }
 
     /**
-     * 替换插槽贴图名
-     * @param	slotName 插槽名称
-     * @param	oldName 要替换的贴图名
-     * @param	newName 替换后的贴图名
+     * @en Replace the texture name of a slot.
+     * @param slotName The name of the slot.
+     * @param oldName The old texture name that will be replaced.
+     * @param newName The new texture name to replace with.
+     * @zh 替换插槽的贴图名称。
+     * @param slotName 插槽名称
+     * @param oldName 要替换的贴图名
+     * @param newName 替换后的贴图名
      */
     replaceSlotSkinName(slotName: string, oldName: string, newName: string): void {
         if (this._aniMode == 0) return;
@@ -950,10 +980,14 @@ export class Skeleton extends Sprite {
     }
 
     /**
-     * 替换插槽的贴图索引
-     * @param	slotName 插槽名称
-     * @param	oldIndex 要替换的索引
-     * @param	newIndex 替换后的索引
+     * @en Replace the texture index of a slot.
+     * @param slotName The name of the slot.
+     * @param oldIndex The old texture index that will be replaced.
+     * @param newIndex The new texture index to replace with.
+     * @zh 替换插槽的贴图索引。
+     * @param slotName 插槽名称
+     * @param oldIndex 要替换的索引
+     * @param newIndex 替换后的索引
      */
     replaceSlotSkinByIndex(slotName: string, oldIndex: number, newIndex: number): void {
         if (this._aniMode == 0) return;
@@ -965,9 +999,12 @@ export class Skeleton extends Sprite {
     }
 
     /**
-     * 设置自定义皮肤
-     * @param	name		插糟的名字
-     * @param	texture		自定义的纹理
+     * @en Set custom skin for a slot.
+     * @param slotName The name of the slot.
+     * @param texture The custom texture to be applied.
+     * @zh 为指定的插槽设置自定义皮肤。
+     * @param name 插糟的名字
+     * @param texture 自定义的纹理
      */
     setSlotSkin(slotName: string, texture: Texture): void {
         if (this._aniMode == 0) return;
@@ -979,8 +1016,8 @@ export class Skeleton extends Sprite {
     }
 
     /**
-     * 换装的时候，需要清一下缓冲区
      * @internal
+     * 换装的时候，需要清一下缓冲区
      */
     private _clearCache(): void {
         if (this._aniMode == 1) {
@@ -997,15 +1034,22 @@ export class Skeleton extends Sprite {
     }
 
     /**
-     * 播放动画
-     *
-     * @param	nameOrIndex	动画名字或者索引
-     * @param	loop		是否循环播放
-     * @param	force		false,如果要播的动画跟上一个相同就不生效,true,强制生效
-     * @param	start		起始时间
-     * @param	end			结束时间
-     * @param	freshSkin	是否刷新皮肤数据
-     * @param	playAudio	是否播放音频
+     * @en Play an animation.
+     * @param nameOrIndex The name or index of the animation to play.
+     * @param loop Whether to loop the animation.
+     * @param force If false, the animation will not take effect if the same one is already playing. If true, it will force the animation to play.
+     * @param start The start time of the animation.
+     * @param end The end time of the animation.
+     * @param freshSkin Whether to refresh the skin data.
+     * @param playAudio Whether to play the animation's audio.
+     * @zh 播放动画。
+     * @param nameOrIndex 动画名字或者索引
+     * @param loop 是否循环播放
+     * @param force false,如果要播的动画跟上一个相同就不生效,true,强制生效
+     * @param start 起始时间
+     * @param end 结束时间
+     * @param freshSkin 是否刷新皮肤数据
+     * @param playAudio 是否播放音频
      */
     play(nameOrIndex: any, loop: boolean, force: boolean = true, start: number = 0, end: number = 0, freshSkin: boolean = true, playAudio: boolean = true): void {
         this._playAudio = playAudio;
@@ -1049,7 +1093,8 @@ export class Skeleton extends Sprite {
     }
 
     /**
-     * 停止动画
+     * @en Stop the animation.
+     * @zh 停止动画。
      */
     stop(): void {
         if (!this._pause) {
@@ -1065,8 +1110,10 @@ export class Skeleton extends Sprite {
     }
 
     /**
-     * 设置动画播放速率
-     * @param	value	1为标准速率
+     * @en Set the playback rate of the animation.
+     * @param value The playback rate, where 1 is the standard rate.
+     * @zh 设置动画的播放速率。
+     * @param value	1为标准速率
      */
     playbackRate(value: number): void {
         if (this._player) {
@@ -1075,7 +1122,8 @@ export class Skeleton extends Sprite {
     }
 
     /**
-     * 暂停动画的播放
+     * @en Pause the animation.
+     * @zh 暂停动画。
      */
     paused(): void {
         if (!this._pause) {
@@ -1097,7 +1145,8 @@ export class Skeleton extends Sprite {
     }
 
     /**
-     * 恢复动画的播放
+     * @en Resume playing the animation.
+     * @zh 恢复动画的播放。
      */
     resume(): void {
         this._indexControl = false;
@@ -1172,7 +1221,9 @@ export class Skeleton extends Sprite {
 
     /**
      * @override
-     * 销毁当前动画节点
+     * @en Destroy the current animation node.
+     * @param destroyChild Whether to destroy child nodes.
+     * @zh 销毁当前动画节点。
      * @param destroyChild 是否销毁子节点
      */
     destroy(destroyChild: boolean = true): void {

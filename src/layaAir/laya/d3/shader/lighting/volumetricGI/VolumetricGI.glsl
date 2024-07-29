@@ -6,18 +6,17 @@
     #include "Oct.glsl";
     #include "GridHelpers.glsl";
 
+uniform vec3 u_VolGIProbeCounts;
+uniform vec3 u_VolGIProbeStep;
+uniform vec3 u_VolGIProbeStartPosition;
+uniform vec4 u_VolGIProbeParams;
+
 struct VolumetricGI {
     vec3 probeCounts;
     vec3 probeStep;
     vec3 probeStartPosition;
-    // float irradianceTexels;
-    // float distanceTexels;
-    // float normalBias;
-    // float viewBias;
     vec4 probeParams; // x: irradianceTexels, y: distanceTexels, z: normalBias, w: viewBias
 };
-
-uniform VolumetricGI u_VolumetricGI;
 
 uniform sampler2D u_ProbeIrradiance;
 uniform sampler2D u_ProbeDistance;
@@ -28,7 +27,7 @@ vec2 porbeGridCoordToTextureGridCoord(in ivec3 porbeGridCoord,
 {
     int probeIndex = gridCoordToProbeIndex(porbeGridCoord, probeCounts);
     ivec2 index;
-    index.x = probeIndex % (probeCounts.x * probeCounts.y);
+    index.x = imod(probeIndex, (probeCounts.x * probeCounts.y));
     index.y = probeIndex / (probeCounts.x * probeCounts.y);
 
     vec2 textureGridCoord = vec2(index);
@@ -38,19 +37,19 @@ vec2 porbeGridCoordToTextureGridCoord(in ivec3 porbeGridCoord,
 
 vec3 VolumetricGISurfaceBias(in vec3 surfaceNormal, in vec3 cameraDirection)
 {
-    return surfaceNormal * u_VolumetricGI.probeParams.z + cameraDirection * u_VolumetricGI.probeParams.w;
+    return surfaceNormal * u_VolGIProbeParams.z + cameraDirection * u_VolGIProbeParams.w;
 }
 
 vec3 VolumetricGIVolumeIrradiance(in vec3 worldPosition, in vec3 surfaceBias,
     in vec3 direction)
 {
     // direction *= vec3(-1.0, 1.0, 1.0);
-    ivec3 porbeCounts = ivec3(u_VolumetricGI.probeCounts);
-    vec3 probeStep = u_VolumetricGI.probeStep;
-    vec3 probeStartPosition = u_VolumetricGI.probeStartPosition;
+    ivec3 porbeCounts = ivec3(u_VolGIProbeCounts);
+    vec3 probeStep = u_VolGIProbeStep;
+    vec3 probeStartPosition = u_VolGIProbeStartPosition;
     vec2 volumeCounts = vec2(porbeCounts.x * porbeCounts.y, porbeCounts.z);
-    vec4 irradianceTexels = vec4(u_VolumetricGI.probeParams.x, u_VolumetricGI.probeParams.x, 1.0 / u_VolumetricGI.probeParams.x, 1.0 / u_VolumetricGI.probeParams.x);
-    vec4 distanceTexels = vec4(u_VolumetricGI.probeParams.y, u_VolumetricGI.probeParams.y, 1.0 / u_VolumetricGI.probeParams.y, 1.0 / u_VolumetricGI.probeParams.y);
+    vec4 irradianceTexels = vec4(u_VolGIProbeParams.x, u_VolGIProbeParams.x, 1.0 / u_VolGIProbeParams.x, 1.0 / u_VolGIProbeParams.x);
+    vec4 distanceTexels = vec4(u_VolGIProbeParams.y, u_VolGIProbeParams.y, 1.0 / u_VolGIProbeParams.y, 1.0 / u_VolGIProbeParams.y);
 
     ivec3 maxGridCoord = porbeCounts - ivec3(1);
 
@@ -80,11 +79,12 @@ vec3 VolumetricGIVolumeIrradiance(in vec3 worldPosition, in vec3 surfaceBias,
 	    // Compute the offset to the adjacent probe in grid coordinates by sourcing
 	    // the offsets from the bits of the loop index: x = bit 0, y = bit 1, z =
 	    // bit 2
-	    ivec3 adjacentProbeOffset = ivec3(probeIndex, probeIndex >> 1, probeIndex >> 2) & ivec3(1, 1, 1);
+	    // ivec3 adjacentProbeOffset = ivec3(probeIndex, probeIndex >> 1, probeIndex >> 2) & ivec3(1, 1, 1);
+		ivec3 adjacentProbeOffset = ivec3(imod(probeIndex, 2), imod((probeIndex / 2), 2),imod( (probeIndex / 4), 2));
 
 	    // Get the 3D grid coordinates of the adjacent probe by adding the offset to
 	    // the base probe and clamping to the grid boundaries
-	    ivec3 adjacentProbeCoords = clamp(baseProbeCoords + adjacentProbeOffset, ivec3(0), maxGridCoord);
+	    ivec3 adjacentProbeCoords = ivec3(clamp(vec3(baseProbeCoords + adjacentProbeOffset), vec3(0), vec3(maxGridCoord)));
 
 	    // Get the adjacent probe's world position
 	    vec3 adjacentProbeWorldPosition = gridCoordToPosition(adjacentProbeCoords, probeStep, probeStartPosition);
@@ -174,7 +174,7 @@ vec3 VolumetricGIVolumeIrradiance(in vec3 worldPosition, in vec3 surfaceBias,
 	    return vec3(0.0);
 	}
 
-    irradiance *= (1.f / accumulatedWeights); // Normalize by the accumulated weights
+    irradiance *= (1.0 / accumulatedWeights); // Normalize by the accumulated weights
 
     irradiance = gammaToLinear(irradiance);
 

@@ -7,6 +7,8 @@ import { Byte } from "../utils/Byte";
 
 /**
  * @internal
+ * @en The `AnimationParser02` class is responsible for parsing animation data from a binary format into an `AnimationTemplet` object, which is then used for animation playback.
+ * @zh `AnimationParser02` 类负责将二进制格式的动画数据解析到 `AnimationTemplet` 对象中，然后用于动画播放。
  */
 export class AnimationParser02 {
 	/**@internal */
@@ -22,6 +24,8 @@ export class AnimationParser02 {
 
 	/**
 	 * @private
+	 * @en Reads the data offset and size from the binary reader.
+	 * @zh 从二进制读取器中读取数据偏移量和大小。
 	 */
 	private static READ_DATA(): void {
 		AnimationParser02._DATA.offset = AnimationParser02._reader.getUint32();
@@ -30,6 +34,8 @@ export class AnimationParser02 {
 
 	/**
 	 * @private
+	 * @en Reads block information including count, starts, and lengths.
+	 * @zh 读取数据块信息，包括数量、起始位置和长度。
 	 */
 	//TODO:coverage
 	private static READ_BLOCK(): void {
@@ -44,6 +50,8 @@ export class AnimationParser02 {
 
 	/**
 	 * @private
+	 * @en Reads and stores string data from the binary reader.
+	 * @zh 从二进制读取器中读取并存储字符串数据。
 	 */
 	//TODO:coverage
 	private static READ_STRINGS(): void {
@@ -60,6 +68,14 @@ export class AnimationParser02 {
 
 	/**
 	 * @private
+	 * @en Parses the animation data from the binary reader into the AnimationTemplet.
+	 * This method orchestrates the overall parsing process, including reading data blocks and strings.
+	 * @param templet The `AnimationTemplet` instance to populate with parsed data.
+	 * @param reader The `Byte` reader containing the animation data.
+	 * @zh 将二进制读取器中的动画数据解析到 AnimationTemplet 中。
+	 * 此方法协调整个解析过程，包括读取数据块和字符串。
+	 * @param templet 要填充解析数据的 `AnimationTemplet` 实例。
+	 * @param reader 包含动画数据的 `Byte` 读取器。
 	 */
 	//TODO:coverage
 	static parse(templet: AnimationTemplet, reader: Byte): void {
@@ -80,6 +96,12 @@ export class AnimationParser02 {
 		}
 	}
 
+	/**
+	 * @en Reads the animation data from the reader and initializes the animation content within the templet.
+	 * This method parses details such as keyframe width, interpolation methods, bone hierarchies, and keyframe data.
+	 * @zh 从读取器中读取动画数据，并在模板中初始化动画内容。
+	 * 此方法解析诸如关键帧宽度、插值方法、骨骼层次结构和关键帧数据等细节。
+	 */
 	//TODO:coverage
 	static READ_ANIMATIONS(): void {
 		var reader: Byte = AnimationParser02._reader;

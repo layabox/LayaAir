@@ -7,6 +7,7 @@ import { IRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass"
 import { RenderState } from "../../RenderModuleData/Design/RenderState";
 import { WebBaseRenderNode } from "../../RenderModuleData/WebModuleData/3D/WebBaseRenderNode";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
+import { WebGPUBuffer } from "../RenderDevice/WebGPUBuffer";
 import { WebGPURenderBundle } from "../RenderDevice/WebGPUBundle/WebGPURenderBundle";
 import { WebGPUCodeGenerator, WebGPUUniformMapType } from "../RenderDevice/WebGPUCodeGenerator";
 import { NameNumberMap } from "../RenderDevice/WebGPUCommon";
@@ -103,6 +104,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
      */
     private _getShaderPassUniform(shaderpass: ShaderPass, defineData: WebDefineDatas) {
         const defineString = WebGPURenderElement3D._defineStrings;
+        defineString.length = 0;
         Shader3D._getNamesByDefineData(defineData, defineString);
         return WebGPUCodeGenerator.collectUniform(defineString, shaderpass._owner._uniformMap, shaderpass._VS, shaderpass._PS);
     }
@@ -125,39 +127,38 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
         return { uniformMap, arrayMap };
     }
 
-    // _addShaderInstance(shader: WebGPUShaderInstance) {
-    //     this._shaderInstances.push(shader);
-    // }
-
-    // _clearShaderInstance() {
-    //     this._shaderInstances.length = 0;
-    // }
-
     /**
-     * 渲染前更新
-     * @param context 
+     * 提取当前渲染通道
+     * @param pipelineMode 
      */
-    _preUpdatePre(context: WebGPURenderContext3D) {
-        //设定当前渲染通道
+    private _takeCurPass(pipelineMode: string) {
         this._passNum = 0;
+        this._passName = pipelineMode;
         const passes = this.subShader._passes;
         for (let i = 0, len = passes.length; i < len; i++) {
-            if (passes[i].pipelineMode === context.pipelineMode) {
+            if (passes[i].pipelineMode === pipelineMode) {
                 this._passIndex[this._passNum] = i;
                 this._shaderPass[this._passNum] = passes[i];
                 this._shaderInstance[this._passNum] = this._shaderInstances[i];
                 this._passNum++;
             }
         }
+    }
+
+    /**
+     * 渲染前更新
+     * @param context 
+     */
+    _preUpdatePre(context: WebGPURenderContext3D) {
+        this._takeCurPass(context.pipelineMode);
         if (this._passNum === 0) return false;
-        this._passName = context.pipelineMode;
 
         //设定当前渲染数据
         this._sceneData = context.sceneData;
         this._cameraData = context.cameraData;
-        if (!this.renderShaderData) {
+        if (this.renderShaderData === undefined) {
             this.renderShaderData = WebGPURenderElement3D._renderShaderData;
-            this.renderShaderData.destroy();
+            this.renderShaderData.clear();
         }
         if (this.transform?.owner?.isStatic) {
             if (this.isStatic !== true)
@@ -198,27 +199,26 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
         else if (context.globalConfigShaderData)
             context.globalConfigShaderData.cloneTo(compileDefine);
 
-        //添加相机数据定义
+        //添加宏定义数据
         if (this._cameraData)
             compileDefine.addDefineDatas(this._cameraData._defineDatas);
-
-        //编译着色器，创建uniform缓冲区
         if (this.renderShaderData)
-            compileDefine.addDefineDatas(this.renderShaderData.getDefineData());
+            compileDefine.addDefineDatas(this.renderShaderData._defineDatas);
         if (this.materialShaderData)
             compileDefine.addDefineDatas(this.materialShaderData._defineDatas);
 
         //查找着色器对象缓存
         for (let i = 0; i < this._passNum; i++) {
-            if (!this._shaderPass[i].moduleData.getCacheShader(compileDefine)) {
+            const index = this._passIndex[i];
+            if (!this._shaderPass[i].moduleData.getCacheShader(compileDefine.clone())) {
                 const { uniformMap, arrayMap } = this._collectUniform(compileDefine); //@ts-ignore
                 this._shaderPass[i].uniformMap = uniformMap; //@ts-ignore
                 this._shaderPass[i].arrayMap = arrayMap;
             }
 
             //获取着色器实例，先查找缓存，如果没有则创建
-            const shaderInstance = this._shaderPass[i].withCompile(compileDefine) as WebGPUShaderInstance;
-            this._shaderInstance[i] = this._shaderInstances[this._passIndex[i]] = shaderInstance;
+            const shaderInstance = this._shaderPass[i].withCompile(compileDefine.clone()) as WebGPUShaderInstance;
+            this._shaderInstances[index] = shaderInstance;
 
             //创建uniform缓冲区
             if (i === 0) {
@@ -232,6 +232,9 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
         //重编译着色器后，清理绑定组缓存
         this.renderShaderData?.clearBindGroup();
         this.materialShaderData?.clearBindGroup();
+
+        //提取当前渲染通道
+        this._takeCurPass(context.pipelineMode);
     }
 
     /**
@@ -241,13 +244,20 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
      * @param context 
      */
     protected _calcStateKey(shaderInstance: WebGPUShaderInstance, dest: WebGPUInternalRT, context: WebGPURenderContext3D) {
-        this._getBlendState(shaderInstance);
-        this._getDepthStencilState(shaderInstance, dest);
-        this._getCullFrontMode(this.materialShaderData, shaderInstance, this._invertFrontFace, context.invertY);
-        const primitiveState = WebGPUPrimitiveState.getGPUPrimitiveState(this.geometry.mode, this.frontFace, this.cullMode);
-        const bufferState = this.geometry.bufferState;
-        const depthStencilId = this.depthStencilState ? this.depthStencilState.id : -1;
-        return `${shaderInstance._id}_${primitiveState.key}_${this.blendState.key}_${depthStencilId}_${dest.formatId}_${bufferState.id}_${bufferState.updateBufferLayoutFlag}`;
+        //this._getBlendState(shaderInstance);
+        this._getDepthStencilState(shaderInstance, dest); //更新Stencil信息
+        //this._getCullFrontMode(this.materialShaderData, shaderInstance, this._invertFrontFace, context.invertY);
+        //const primitiveState = WebGPUPrimitiveState.getGPUPrimitiveState(this.geometry.mode, this.frontFace, this.cullMode);
+        //const bufferState = this.geometry.bufferState;
+        //const depthStencilId = this.depthStencilState ? this.depthStencilState.id : -1;
+        //return `${shaderInstance._id}_${primitiveState.key}_${this.blendState.key}_${depthStencilId}_${dest.formatId}_${bufferState.id}_${bufferState.updateBufferLayoutFlag}`;
+        let stateKey = '';
+        stateKey += dest.formatId + '_';
+        stateKey += shaderInstance._id + '_';
+        stateKey += this.materialShaderData.stateKey;
+        stateKey += this.geometry.bufferState.id + '_';
+        stateKey += this.geometry.bufferState.updateBufferLayoutFlag + '_';
+        return stateKey;
     }
 
     /**
@@ -551,16 +561,18 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
      * @param bundle 
      */
     protected _uploadGeometry(command: WebGPURenderCommandEncoder, bundle: WebGPURenderBundle) {
+        let triangles = 0;
         if (command) {
             if (WebGPUGlobal.useGlobalContext)
-                WebGPUContext.applyCommandGeometryPart(command, this.geometry, 0);
-            else command.applyGeometryPart(this.geometry, 0);
+                triangles += WebGPUContext.applyCommandGeometryPart(command, this.geometry, 0);
+            else triangles += command.applyGeometryPart(this.geometry, 0);
         }
         if (bundle) {
             if (WebGPUGlobal.useGlobalContext)
-                WebGPUContext.applyBundleGeometryPart(bundle, this.geometry, 0);
-            else bundle.applyGeometryPart(this.geometry, 0);
+                triangles += WebGPUContext.applyBundleGeometryPart(bundle, this.geometry, 0);
+            else triangles += bundle.applyGeometryPart(this.geometry, 0);
         }
+        return triangles;
     }
 
     /**
@@ -599,6 +611,107 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
     }
 
     /**
+     * 转换数据格式
+     */
+    protected _changeDataFormat() {
+        const bufferState = this.geometry.bufferState;
+        for (let i = 0; i < bufferState._vertexBuffers.length; i++) {
+            const vb = bufferState._vertexBuffers[i];
+            const vs = bufferState.vertexState[i];
+            if (!vb.buffer) continue;
+            let attrOld = [], attrNew = [];
+            const attributes = vs.attributes as [];
+            const attrLen = attributes.length;
+            for (let j = 0; j < attrLen; j++) {
+                const attr = attributes[j] as GPUVertexAttribute;
+                attrOld.push({
+                    offset: attr.offset,
+                    format: attr.format,
+                });
+            }
+            for (let j = 0; j < attrLen; j++) {
+                const attr = attributes[j] as GPUVertexAttribute;
+                if (attr.format === 'uint8x4') {
+                    attr.format = 'float32x4';
+
+                    // for(let k in vb.vertexDeclaration._shaderValues) {
+                    //     const sv = vb.vertexDeclaration._shaderValues[k];
+                    //     if (sv.elementOffset === attr.offset)
+                    //         sv.elementString = 'vector4';
+                    //     if (sv.elementOffset > attr.offset)
+                    //         sv.elementOffset += 12;
+                    //     sv.vertexStride += 12;
+                    // }
+                    // //@ts-ignore
+                    // vb.vertexDeclaration._vertexStride += 12;
+
+                    for (let k = 0; k < attrLen; k++) {
+                        const attr2 = attributes[k] as GPUVertexAttribute;
+                        if (attr2.offset > attr.offset)
+                            attr2.offset += 12;
+                        attrNew.push({
+                            offset: attr2.offset,
+                            format: attr2.format,
+                        });
+                    }
+                    bufferState.updateBufferLayoutFlag++;
+                    const strideOld = vs.arrayStride;
+                    const vertexCount = vb.buffer.byteLength / vs.arrayStride;
+                    vs.arrayStride += 12;
+
+                    const strideNew = vs.arrayStride;
+                    const buffer = vb.buffer;
+                    const buffer2 = new ArrayBuffer(vs.arrayStride * vertexCount);
+                    const src_ui8 = new Uint8Array(buffer);
+                    const src_f32 = new Float32Array(buffer);
+                    const dst_ui8 = new Uint8Array(buffer2);
+                    const dst_f32 = new Float32Array(buffer2);
+                    let src_ui8_off1 = 0;
+                    let src_f32_off1 = 0;
+                    let dst_ui8_off1 = 0;
+                    let dst_f32_off1 = 0;
+                    let src_ui8_off2 = 0;
+                    let src_f32_off2 = 0;
+                    let dst_ui8_off2 = 0;
+                    let dst_f32_off2 = 0;
+                    //拷贝数据（按照新的数据布局）
+                    for (let k = 0; k < vertexCount; k++) {
+                        src_ui8_off1 = k * strideOld;
+                        src_f32_off1 = k * strideOld / 4;
+                        dst_ui8_off1 = k * strideNew;
+                        dst_f32_off1 = k * strideNew / 4;
+                        for (let l = 0; l < attrLen; l++) {
+                            if (attrOld[l].format === 'uint8x4') {
+                                if (l === j) {
+                                    src_ui8_off2 = src_ui8_off1 + attrOld[l].offset;
+                                    dst_f32_off2 = dst_f32_off1 + attrNew[l].offset / 4;
+                                    for (let m = 0; m < 4; m++)
+                                        dst_f32[dst_f32_off2 + m] = src_ui8[src_ui8_off2 + m];
+                                } else {
+                                    src_ui8_off2 = src_ui8_off1 + attrOld[l].offset;
+                                    dst_ui8_off2 = dst_ui8_off1 + attrNew[l].offset;
+                                    for (let m = 0; m < 4; m++)
+                                        dst_ui8[dst_ui8_off2 + m] = src_ui8[src_ui8_off2 + m];
+                                }
+                            } else {
+                                src_f32_off2 = src_f32_off1 + attrOld[l].offset / 4;
+                                dst_f32_off2 = dst_f32_off1 + attrNew[l].offset / 4;
+                                for (let m = 0; m < 4; m++)
+                                    dst_f32[dst_f32_off2 + m] = src_f32[src_f32_off2 + m];
+                            }
+                        }
+                    }
+                    vb.source?.release();
+                    vb.source = new WebGPUBuffer(vb.source._usage, vs.arrayStride * vertexCount);
+                    vb.source.setData(buffer2, 0);
+                    attrOld = attrNew;
+                    attrNew = [];
+                }
+            }
+        }
+    }
+
+    /**
      * 渲染
      * @param context 
      * @param command 
@@ -606,6 +719,11 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
      */
     _render(context: WebGPURenderContext3D, command: WebGPURenderCommandEncoder, bundle: WebGPURenderBundle) {
         //如果command和bundle都是null，则只上传shaderData数据，不执行bindGroup操作
+        let triangles = 0;
+        if (!this.geometry.checkDataFormat) {
+            this._changeDataFormat(); //转换数据格式
+            this.geometry.checkDataFormat = true;
+        }
         if (this.isRender) {
             let stateKey;
             for (let i = 0; i < this._passNum; i++) {
@@ -641,10 +759,18 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
                         this._uploadStencilReference(command); //上传模板参考值，bundle不支持
                     }
                     this._uploadUniform(); //上传uniform数据
-                    this._uploadGeometry(command, bundle); //上传几何数据
+                    triangles += this._uploadGeometry(command, bundle); //上传几何数据
                 }
             }
         }
+        return triangles;
+    }
+
+    /**
+     * 清除渲染管线缓存
+     */
+    static clearPipeline() {
+        this._pipelineCacheMap.clear();
     }
 
     /**

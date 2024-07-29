@@ -19,7 +19,7 @@ export class VolumetricGIManager implements IVolumeManager {
     removeVolumetricGI(renderer: BaseRender) {
         let shaderData = renderer._baseRenderNode.shaderData;
         shaderData.removeDefine(Sprite3DRenderDeclaration.SHADERDEFINE_VOLUMETRICGI);
-        renderer.lightProb = null;
+        renderer.lightProbe = null;
     }
 
     add(volume: VolumetricGI): void {
@@ -62,7 +62,7 @@ export class VolumetricGIManager implements IVolumeManager {
         }
 
         if (currentVolume) {
-            renderer.lightProb = currentVolume;
+            renderer.lightProbe = currentVolume;
         }
         else {
             this.removeVolumetricGI(renderer);

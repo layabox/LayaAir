@@ -5,7 +5,8 @@ import { PrismaticJoint } from "./PrismaticJoint";
 import { physics2D_GearJointDef } from "./JointDefStructInfo";
 
 /**
- * 齿轮关节：用来模拟两个齿轮间的约束关系，齿轮旋转时，产生的动量有两种输出方式，一种是齿轮本身的角速度，另一种是齿轮表面的线速度
+ * @en Gear joint: used to simulate the constraint relationship between two gears. When a gear rotates, the momentum generated has two output modes: one is the angular velocity of the gear itself, and the other is the linear velocity on the gear surface
+ * @zh 齿轮关节：用来模拟两个齿轮间的约束关系，齿轮旋转时，产生的动量有两种输出方式，一种是齿轮本身的角速度，另一种是齿轮表面的线速度
  */
 export class GearJoint extends JointBase {
 
@@ -15,16 +16,28 @@ export class GearJoint extends JointBase {
     /**@internal 两个齿轮角速度比例，默认1*/
     private _ratio: number = 1;
 
-    /**[首次设置有效]要绑定的第1个关节，类型可以是RevoluteJoint或者PrismaticJoint*/
+    /**
+     * @en The first joint to be connected, which can be a RevoluteJoint or a PrismaticJoint, effective only on the first setting.
+     * @zh [首次设置有效]要绑定的第一个关节，类型可以是旋转关节（RevoluteJoint）或者棱形关节（PrismaticJoint）。
+     */
     joint1: RevoluteJoint | PrismaticJoint;
 
-    /**[首次设置有效]要绑定的第2个关节，类型可以是RevoluteJoint或者PrismaticJoint*/
+    /**
+     * @en The second joint to be connected, which can be a RevoluteJoint or a PrismaticJoint, effective only on the first setting.
+     * @zh [首次设置有效]要绑定的第二个关节，类型可以是旋转关节（RevoluteJoint）或者棱形关节（PrismaticJoint）。
+     */
     joint2: RevoluteJoint | PrismaticJoint;
 
-    /**[首次设置有效]两个刚体是否可以发生碰撞，默认为false*/
+    /**
+     * @en Specifies whether the two connected bodies should collide with each other. Default is false, effective only on the first setting.
+     * @zh [首次设置有效]两个刚体是否可以发生碰撞，默认为 false。
+     */
     collideConnected: boolean = false;
 
-    /**两个齿轮角速度比例，默认1*/
+    /**
+     * @en The ratio of the angular velocities of the two gears.
+     * @zh 两个齿轮的角速度比例。
+     */
     get ratio(): number {
         return this._ratio;
     }

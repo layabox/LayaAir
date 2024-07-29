@@ -1,3 +1,4 @@
+import { IClone } from "../utils/IClone";
 import { Pool } from "../utils/Pool";
 import { Point } from "./Point";
 
@@ -5,7 +6,7 @@ import { Point } from "./Point";
  * <p><code>Rectangle</code> 对象是按其位置（由它左上角的点 (x, y) 确定）以及宽度和高度定义的区域。</p>
  * <p>Rectangle 类的 x、y、width 和 height 属性相互独立；更改一个属性的值不会影响其他属性。</p>
  */
-export class Rectangle {
+export class Rectangle implements IClone{
 
     /**@private 全局空的矩形区域x=0,y=0,width=0,height=0，不允许修改此对象内容*/
     static EMPTY: Rectangle = new Rectangle();
@@ -39,6 +40,7 @@ export class Rectangle {
         this.width = width;
         this.height = height;
     }
+   
 
     /** 此矩形右侧的 X 轴坐标。 x 和 width 属性的和。*/
     get right(): number {
@@ -164,20 +166,6 @@ export class Rectangle {
     }
 
     /**
-     * 返回一个 Rectangle 对象，其 x、y、width 和 height 属性的值与当前 Rectangle 对象的对应值相同。
-     * @param out	（可选）用于存储结果的矩形对象。如果为空，则创建一个新的。建议：尽量复用对象，减少对象创建消耗。。Rectangle.TEMP对象用于对象复用。
-     * @return Rectangle 对象，其 x、y、width 和 height 属性的值与当前 Rectangle 对象的对应值相同。
-     */
-    clone(out: Rectangle | null = null): Rectangle {
-        out || (out = new Rectangle());
-        out.x = this.x;
-        out.y = this.y;
-        out.width = this.width;
-        out.height = this.height;
-        return out;
-    }
-
-    /**
      * 当前 Rectangle 对象的水平位置 x 和垂直位置 y 以及高度 width 和宽度 height 以逗号连接成的字符串。
      */
     toString(): string {
@@ -271,5 +259,24 @@ export class Rectangle {
     isEmpty(): boolean {
         if (this.width <= 0 || this.height <= 0) return true;
         return false;
+    }
+
+    /**
+     * 返回一个 Rectangle 对象，其 x、y、width 和 height 属性的值与当前 Rectangle 对象的对应值相同。
+     * @param out	（可选）用于存储结果的矩形对象。如果为空，则创建一个新的。建议：尽量复用对象，减少对象创建消耗。。Rectangle.TEMP对象用于对象复用。
+     * @return Rectangle 对象，其 x、y、width 和 height 属性的值与当前 Rectangle 对象的对应值相同。
+     */
+    clone(out: Rectangle | null = null): Rectangle {
+        out || (out = new Rectangle());
+        this.cloneTo(out);
+        return out;
+    }
+
+    cloneTo(destObject: any): void {
+        let out:Rectangle = destObject;
+        out.x = this.x;
+        out.y = this.y;
+        out.width = this.width;
+        out.height = this.height;
     }
 }

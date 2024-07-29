@@ -239,6 +239,7 @@ export class InputManager {
                 touch.begin();
                 this._touches[0] = touch;
                 touch.event.button = ev.button;
+                touch.downButton = ev.button;
 
                 if (InputManager.mouseEventsEnabled) {
                     this.handleFocus();
@@ -251,7 +252,7 @@ export class InputManager {
             }
         }
         else if (type == 1) {
-            if (touch.began) {
+            if (touch.began && ev.button == touch.downButton) {
                 touch.end();
                 this._touches.length = 0;
                 touch.event.button = ev.button;
@@ -566,7 +567,7 @@ export class InputManager {
         if (sp.width > 0 && sp.height > 0 || mouseThrough || hitArea) {
             //判断是否在矩形区域内
             if (!mouseThrough)
-                isHit = (hitArea ? hitArea : _tempRect.setTo(0, 0, sp.width, sp.height)).contains(x, y);
+                isHit = (hitArea ? hitArea : _tempRect.setTo(0, 0, sp.width, sp.height)).contains(x, y, sp);
             else //如果可穿透，则根据子对象实际大小进行碰撞
                 isHit = sp.getGraphicBounds().contains(x, y);
         }
@@ -636,6 +637,7 @@ class TouchInfo implements ITouchInfo {
     lastRollOver: Node;
     clickCancelled: boolean;
     moved: boolean;
+    downButton: number;
     readonly downTargets: Node[];
 
     private downPos: Point;
@@ -742,5 +744,6 @@ class TouchInfo implements ITouchInfo {
         this.downTargets.length = 0;
         this.lastRollOver = null;
         this.clickCancelled = false;
+        this.downButton = 0;
     }
 }

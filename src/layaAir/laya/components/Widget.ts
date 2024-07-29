@@ -4,10 +4,14 @@ import { Sprite } from "../display/Sprite"
 import { Event } from "../events/Event"
 
 /**
- * 相对布局插件
+ * @en Relative layout Component.
+ * @zh 相对布局组件
  */
 export class Widget extends Component {
-    /**一个已初始化的 <code>Widget</code> 实例。*/
+    /**
+     * @en An static instance of a Widget that has been initialized.
+     * @zh 一个已初始化的 Widget 静态实例。
+     */
     static EMPTY: Widget = null;// new Widget();
 
     private _top: number = null;
@@ -24,6 +28,10 @@ export class Widget extends Component {
         this.hideFlags |= HideFlags.HideAndDontSave;
     }
 
+    /**
+     * @en Resets the boundaries and center coordinates of the object to null.
+     * @zh 将对象的边界和中心坐标重置为 null。
+     */
     onReset(): void {
         this._top = this._bottom = this._left = this._right = this._centerX = this._centerY = null;
     }
@@ -55,8 +63,9 @@ export class Widget extends Component {
     }
 
     /**
-     * <p>重置对象的 <code>X</code> 轴（水平方向）布局。</p>
      * @private
+     * @en Resets the object's layout along the X-axis (horizontal direction).
+     * @zh 重置对象的水平布局（X轴方向）。
      */
     resetLayoutX(): boolean {
         var owner: Sprite = (<Sprite>this.owner);
@@ -84,8 +93,9 @@ export class Widget extends Component {
     }
 
     /**
-     * <p>重置对象的 <code>Y</code> 轴（垂直方向）布局。</p>
      * @private
+     * @en Resets the object's layout along the Y-axis (vertical direction).
+     * @zh 重置对象的垂直布局（Y轴方向）。
      */
     resetLayoutY(): boolean {
         var owner: Sprite = (<Sprite>this.owner);
@@ -113,7 +123,8 @@ export class Widget extends Component {
     }
 
     /**
-     * 重新计算布局
+     * @en Recalculate layout
+     * @zh 重新计算布局
      */
     resetLayout(): void {
         if (this.owner) {
@@ -122,7 +133,10 @@ export class Widget extends Component {
         }
     }
 
-    /**表示距顶边的距离（以像素为单位）。*/
+    /**
+     * @en The distance from the top edge, in pixels.
+     * @zh 距顶边的距离（以像素为单位）。
+     */
     get top(): number {
         return this._top;
     }
@@ -136,7 +150,10 @@ export class Widget extends Component {
         }
     }
 
-    /**表示距底边的距离（以像素为单位）。*/
+    /**
+     * @en The distance from the bottom edge, in pixels.
+     * @zh 距底边的距离（以像素为单位）。
+     */
     get bottom(): number {
         return this._bottom;
     }
@@ -150,7 +167,10 @@ export class Widget extends Component {
         }
     }
 
-    /**表示距左边的距离（以像素为单位）。*/
+    /**
+     * @en The distance from the left edge, in pixels.
+     * @zh 距左边的距离（以像素为单位）。
+     */
     get left(): number {
         return this._left;
     }
@@ -164,7 +184,10 @@ export class Widget extends Component {
         }
     }
 
-    /**表示距右边的距离（以像素为单位）。*/
+    /**
+     * @en The distance from the right edge, in pixels.
+     * @zh 距右边的距离（以像素为单位）。
+     */
     get right(): number {
         return this._right;
     }
@@ -178,7 +201,10 @@ export class Widget extends Component {
         }
     }
 
-    /**表示距水平方向中心轴的距离（以像素为单位）。*/
+    /**
+     * @en The distance from the horizontal center axis, in pixels.
+     * @zh 距水平方向中心轴的距离（以像素为单位）。
+     */
     get centerX(): number {
         return this._centerX;
     }
@@ -192,7 +218,10 @@ export class Widget extends Component {
         }
     }
 
-    /**表示距垂直方向中心轴的距离（以像素为单位）。*/
+    /**
+     * @en The distance from the vertical center axis, in pixels.
+     * @zh 距垂直方向中心轴的距离（以像素为单位）。
+     */
     get centerY(): number {
         return this._centerY;
     }

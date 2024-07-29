@@ -2,12 +2,12 @@ import { Matrix } from "../../maths/Matrix";
 import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
 import { VertexElement } from "../../renders/VertexElement";
 import { VertexElementFormat } from "../../renders/VertexElementFormat";
-import { Mesh2D } from "./Mesh2D";
+import { Sprite2DGeometry } from "./Sprite2DGeometry";
 
 /**
  * 与MeshQuadTexture基本相同。不过index不是固定的
  */
-export class MeshTexture extends Mesh2D {
+export class MeshTexture extends Sprite2DGeometry {
     static const_stride = 48;
     static VertexDeclarition: VertexDeclaration = null;
     //private _vbUin32Array: Uint32Array;

@@ -9,24 +9,49 @@ import { Tween } from "./Tween";
 
 /**
  * @private
- * <code>Dragging</code> 类是触摸滑动控件。
+ * @en The `Dragging` class is a touch sliding control.
+ * @zh `Dragging` 类是触摸滑动控件。
  */
 export class Dragging {
-    /** 被拖动的对象。*/
+    /**
+     * @en The object being dragged.
+     * @zh 被拖动的对象。
+     */
     target: Sprite;
-    /** 缓动衰减系数。*/
+    /**
+     * @en The damping ratio for easing.
+     * @zh 缓动衰减系数。
+     */
     ratio: number = 0.92;
-    /** 单帧最大偏移量。*/
+    /**
+     * @en The maximum offset per frame.
+     * @zh 单帧最大偏移量。
+     */
     maxOffset: number = 60;
-    /** 滑动范围。*/
+    /**
+     * @en The sliding area.
+     * @zh 滑动范围。
+     */
     area: Rectangle;
-    /** 表示拖动是否有惯性。*/
+    /**
+     * @en Indicates whether the dragging has inertia.
+     * @zh 表示拖动是否有惯性。
+     */
     hasInertia: boolean;
-    /** 橡皮筋最大值。*/
+    /**
+     * @en The maximum elastic distance.
+     * @zh 橡皮筋最大值。
+     */
     elasticDistance: number;
-    /** 橡皮筋回弹时间，单位为毫秒。*/
+    /**
+     * @en The time for elastic back in milliseconds.
+     * @zh 橡皮筋回弹时间，单位为毫秒。
+     */
     elasticBackTime: number;
-    /** 事件携带数据。*/
+    /**
+     * @en The event data carried along.
+     * @zh 事件携带数据。
+     */
     data: any;
 
     private _dragging: boolean = false;
@@ -42,14 +67,22 @@ export class Dragging {
     private _parent: Sprite;
 
     /**
-     * 开始拖拽。
-     * @param	target 待拖拽的 <code>Sprite</code> 对象。
-     * @param	area 滑动范围。
-     * @param	hasInertia 拖动是否有惯性。
-     * @param	elasticDistance 橡皮筋最大值。
-     * @param	elasticBackTime 橡皮筋回弹时间，单位为毫秒。
-     * @param	data 事件携带数据。
-     * @param	ratio 惯性阻尼系数
+     * @en Start dragging.
+     * @param target The Sprite object to be dragged.
+     * @param area The area within which the object can be dragged.
+     * @param hasInertia Indicates whether the dragging has inertia.
+     * @param elasticDistance The maximum elastic distance allowed for the drag.
+     * @param elasticBackTime The time in milliseconds for the elastic back effect.
+     * @param data Any data to be carried with the event.
+     * @param ratio The damping ratio for inertia.
+     * @zh 开始拖拽。
+     * @param target 待拖拽的 Sprite 对象。
+     * @param area 滑动范围。
+     * @param hasInertia 拖动是否有惯性。
+     * @param elasticDistance 橡皮筋最大值。
+     * @param elasticBackTime 橡皮筋回弹时间，单位为毫秒。
+     * @param data 事件携带数据。
+     * @param ratio 惯性阻尼系数。
      */
     start(target: Sprite, area: Rectangle, hasInertia: boolean, elasticDistance: number, elasticBackTime: number, data: any, ratio: number = 0.92): void {
         this.clearTimer();
@@ -89,7 +122,8 @@ export class Dragging {
     }
 
     /**
-     * 停止拖拽。
+     * @en Stop dragging
+     * @zh 停止拖拽。
      */
     stop(): void {
         if (this._dragging) {

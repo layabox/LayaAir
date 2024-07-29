@@ -1,3 +1,4 @@
+import { WebGPU_GLSLMacro } from "../RenderDevice/GLSLProcess/WebGPU_GLSLMacro";
 import { WebGPUShaderCompileCode, TypeOutData, enumOperator } from "./WebGPUShaderCompileCode";
 import { WebGPUShaderToken } from "./WebGPUShaderToken";
 
@@ -31,9 +32,58 @@ export class WebGPUShaderCompileUtil {
         }
     }
 
+    /**
+     * 提取宏定义
+     * @param code 
+     */
+    static extractMacros(code: string) {
+        const regex = /^\s*#\s*define\s+/;
+        const lines = code.split('\n');
+        const macros: WebGPU_GLSLMacro[] = [];
+        let currentMacro = '';
+
+        for (let i = 0, len = lines.length; i < len; i++) {
+            const line = lines[i].trim();
+            //忽略空白行
+            if (line.length === 0) continue;
+            //处理宏定义
+            if (currentMacro.length > 0 || regex.test(line)) {
+                if (line.endsWith('\\')) { //续行
+                    currentMacro += line.slice(0, -1) + ' ';
+                } else {
+                    currentMacro += line;
+                    macros.push(new WebGPU_GLSLMacro(currentMacro));
+                    currentMacro = '';
+                }
+            }
+        }
+        return macros;
+    }
+
+    static macrosToVariable(macros: WebGPU_GLSLMacro[]) {
+        const regex = /^([_a-zA-Z][_a-zA-Z0-9]*)$/;
+        const variable = new Set<string>();
+        for (let i = macros.length - 1; i > -1; i--) {
+            let name = macros[i].replace;
+            if (name) {
+                const ofs = name.indexOf('.');
+                if (ofs >= 0) {
+                    name = name.substring(0, ofs).trim();
+                    if (name.match(regex))
+                        variable.add(name);
+                } else if (name.match(regex))
+                    variable.add(name);
+            }
+        }
+        return variable;
+    }
+
     static toScript(root: WebGPUShaderToken, def?: Record<string, boolean>, outData?: TypeOutData) {
         if (null == def) def = {};
         let out = this._parseChilds(root, def);
+
+        const macros = this.extractMacros(out);
+        const mvariable = this.macrosToVariable(macros);
 
         if (outData) {
             let st = WebGPUShaderCompileCode.compile(out);
@@ -45,24 +95,27 @@ export class WebGPUShaderCompileUtil {
             if (variable) {
                 if (uniform) {
                     for (let k in uniform) {
-                        if (variable.has(k)) {
-                            if (null == outData.uniform) outData.uniform = {};
+                        if (variable.has(k) || mvariable.has(k)) {
+                            if (null == outData.uniform)
+                                outData.uniform = {};
                             outData.uniform[k] = uniform[k];
                         }
                     }
                 }
                 if (varying) {
                     for (let k in varying) {
-                        if (variable.has(k)) {
-                            if (null == outData.varying) outData.varying = {};
+                        if (variable.has(k) || mvariable.has(k)) {
+                            if (null == outData.varying)
+                                outData.varying = {};
                             outData.varying[k] = varying[k];
                         }
                     }
                 }
                 if (attribute) {
                     for (let k in attribute) {
-                        if (variable.has(k)) {
-                            if (null == outData.attribute) outData.attribute = {};
+                        if (variable.has(k) || mvariable.has(k)) {
+                            if (null == outData.attribute)
+                                outData.attribute = {};
                             outData.attribute[k] = attribute[k];
                         }
                     }

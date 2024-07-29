@@ -280,7 +280,13 @@ export class BaseRender extends Component {
      * @param value 
      */
     setLightmapIndex(value: number) {
-        (value != -1) && (this._baseRenderNode.lightmap = (this._scene as Scene3D).lightmaps[value]._dataModule);
+        let scene = <Scene3D>this._scene;
+        if (value != -1 && (scene.lightmaps[value])) {
+            this._baseRenderNode.lightmap = scene.lightmaps[value]._dataModule;
+        }
+        else {
+            this._baseRenderNode.lightmap = null;
+        }
         //this._scene && this._applyLightMapParams(); todo miner
         this._getIrradientMode();
     }
@@ -477,12 +483,13 @@ export class BaseRender extends Component {
         return this._lightProb;
     }
 
-    set lightProb(volumetricGI: VolumetricGI) {
+    set lightProbe(volumetricGI: VolumetricGI) {
         if (this._lightProb == volumetricGI) {
             return;
         }
         this._baseRenderNode.lightProbUpdateMark = -1;
         this._lightProb = volumetricGI;
+        this._baseRenderNode.volumetricGI = volumetricGI ? volumetricGI._dataModule : null;
         this._getIrradientMode();
     }
 
@@ -653,10 +660,10 @@ export class BaseRender extends Component {
     private _getIrradientMode() {
         if (this.lightmapIndex >= 0) {
             this._baseRenderNode.irradientMode = IrradianceMode.LightMap;
-        } else if (this.lightProb) {
+        } else if (this.lightProbe) {
             this._baseRenderNode.irradientMode = IrradianceMode.VolumetricGI;
         } else {
-
+            this._baseRenderNode.irradientMode = IrradianceMode.Common;
         }
     }
 

@@ -68,6 +68,7 @@ export class VideoNode extends Sprite {
         else {
             this._internalTex.setTo(null);
         }
+        this._checkCachAs();
     }
 
     /**
@@ -85,7 +86,25 @@ export class VideoNode extends Sprite {
         }
         else if (this._videoTexture)
             this._videoTexture.source = value;
+        this._checkCachAs();
     }
+
+
+    private _checkCachAs() {
+        if (this.videoTexture != null)
+            this.videoTexture.on(VideoTexture.videoEvent_update, this, this._repaintCachAs);
+        else {
+            this.videoTexture.off(VideoTexture.videoEvent_update, this, this._repaintCachAs);
+        }
+    }
+
+    private _repaintCachAs(){
+        if(this.cacheAs!="none"||(!!this._getCacheStyle().mask)){
+            this.repaint();
+        }
+    }
+
+
 
     /**
      * 设置播放源。

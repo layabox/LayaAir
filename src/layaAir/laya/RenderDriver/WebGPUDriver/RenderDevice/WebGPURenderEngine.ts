@@ -14,8 +14,6 @@ import { WebGPURenderEngineFactory } from "./WebGPURenderEngineFactory";
 import { WebGPUTextureContext, WebGPUTextureFormat } from "./WebGPUTextureContext";
 import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
 import { GPUEngineStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
-import { BufferTargetType, BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
-import { GLBuffer } from "../../WebGLDriver/RenderDevice/WebGLEngine/GLBuffer";
 
 export class WebGPUConfig {
     /**
@@ -73,6 +71,8 @@ export class WebGPURenderEngine implements IRenderEngine {
     _lodTextureSample: boolean = false;
     _breakTextureSample: boolean = false;
 
+    _enableStatistics: boolean;
+
     private _adapter: GPUAdapter;
     private _device: GPUDevice;
     private _supportCapatable: WebGPUCapable;
@@ -80,6 +80,8 @@ export class WebGPURenderEngine implements IRenderEngine {
 
     private _adapterSupportedExtensions: GPUFeatureName[];
     private _deviceEnabledExtensions: GPUFeatureName[];
+
+    private _GPUStatisticsInfo: Map<GPUEngineStatisticsInfo, number> = new Map();
 
     gpuBufferMgr: WebGPUBufferManager; //GPU大内存管理器
 
@@ -96,16 +98,11 @@ export class WebGPURenderEngine implements IRenderEngine {
             WebGPURenderEngine._instance = this;
         else console.error('WebGPU is not supported by your browser');
 
+        this.gpuBufferMgr = new WebGPUBufferManager(WebGPUGlobal.useBigBuffer);
+
+        this._initStatisticsInfo();
         this.globalId = WebGPUGlobal.getId(this);
     }
-
-    getUBOPointer?(name: string): number {
-        throw new Error('Method not implemented.');
-    }
-    createBuffer?(targetType: BufferTargetType, bufferUsageType: BufferUsage): GLBuffer {
-        throw new Error('Method not implemented.');
-    }
-    _enableStatistics: boolean;
 
     /**
      * 获取适配器
@@ -175,15 +172,6 @@ export class WebGPURenderEngine implements IRenderEngine {
         });
         this._device.addEventListener('uncapturederror', this._unCapturedErrorCall);
         this._device.lost.then(this._deviceLostCall);
-
-        this.gpuBufferMgr = new WebGPUBufferManager(device);
-        if (WebGPUGlobal.useBigBuffer) {
-            this.gpuBufferMgr.addBuffer('scene3D', 2 * 1024, 1);
-            this.gpuBufferMgr.addBuffer('camera', 2 * 1024, 1);
-            this.gpuBufferMgr.addBuffer('material', 16 * 1024, 1);
-            this.gpuBufferMgr.addBuffer('sprite3D', 64 * 1024, 2);
-            this.gpuBufferMgr.addBuffer('sprite3D_static', 64 * 1024, 4);
-        }
     }
 
     /**
@@ -227,6 +215,13 @@ export class WebGPURenderEngine implements IRenderEngine {
     }
 
     /**
+     * 开始新的一帧
+     */
+    startFrame() {
+        this.gpuBufferMgr.startFrame();
+    }
+
+    /**
      * 上传数据
      */
     upload() {
@@ -262,9 +257,6 @@ export class WebGPURenderEngine implements IRenderEngine {
 
         this._textureContext = new WebGPUTextureContext(this);
         this.createScreenRT();
-
-        // limit TODO
-        // this._adapter 得到Webgpu限制
     }
 
     copySubFrameBuffertoTex(texture: InternalTexture, level: number, xoffset: number, yoffset: number, x: number, y: number, width: number, height: number): void {
@@ -337,6 +329,18 @@ export class WebGPURenderEngine implements IRenderEngine {
 
     /**获得各个参数 */
     getParams(params: RenderParams): number {
+        switch (params) {
+            case RenderParams.Max_Active_Texture_Count:
+                return this._device.limits.maxSampledTexturesPerShaderStage;
+            case RenderParams.Max_Uniform_Count:
+                return this._device.limits.maxUniformBuffersPerShaderStage;
+            case RenderParams.Max_AnisoLevel_Count:
+                return 16; //?
+            case RenderParams.MAX_Texture_Size:
+                return this._device.limits.maxTextureDimension2D;
+            case RenderParams.MAX_Texture_Image_Uint:
+                return 1024; //?
+        }
         return 0;
     }
 
@@ -353,19 +357,40 @@ export class WebGPURenderEngine implements IRenderEngine {
         return new WebGPURenderEngineFactory()
     }
 
-    viewport(x: number, y: number, width: number, height: number): void {
+    private _initStatisticsInfo() {
+        for (let i = 0; i < GPUEngineStatisticsInfo.Count; i++) {
+            this._GPUStatisticsInfo.set(i, 0);
+        }
     }
 
-    scissor(x: number, y: number, width: number, height: number): void {
+    /**
+     * @internal
+     * @param info 
+     * @param value 
+     */
+    _addStatisticsInfo(info: GPUEngineStatisticsInfo, value: number) {
+        this._enableStatistics && this._GPUStatisticsInfo.set(info, this._GPUStatisticsInfo.get(info) + value);
     }
 
-    //统计相关
-    clearStatisticsInfo(): void {
+    /**
+     * 清除
+     * @internal
+     * @param info 
+     */
+    clearStatisticsInfo() {
+        if (this._enableStatistics) {
+            for (let i = 0; i < GPUEngineStatisticsInfo.FrameClearCount; i++) {
+                this._GPUStatisticsInfo.set(i, 0);
+            }
+        }
     }
 
-    //统计相关
+    /**
+     * @internal
+     * @param info 
+     */
     getStatisticsInfo(info: GPUEngineStatisticsInfo): number {
-        return 0;
+        return this._GPUStatisticsInfo.get(info);
     }
 
     /**

@@ -3,11 +3,18 @@ const HALF_PI = Math.PI * 0.5;
 const PI2 = Math.PI * 2;
 
 /**
-* <code>Ease</code> 类定义了缓动函数，以便实现 <code>Tween</code> 动画的缓动效果。
-*/
+ * @en The `Ease` class defines easing functions for Tween animations to achieve various transition effects.
+ * @zh `Ease` 类定义了缓动函数，用于实现 Tween 动画的缓动效果，以便于创建各种转换效果。
+ */
 export class Ease {
     /**
-     * 定义无加速持续运动。
+     * @en Define continuous motion without acceleration.
+     * @param t Current time between 0 and the duration (inclusive).
+     * @param b The initial value of the animated property.
+     * @param c The total change in the animated property.
+     * @param d The duration of the motion.
+     * @returns The value of the interpolated property at the specified time.
+     * @zh 定义无加速持续运动。
      * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
      * @param	b 指定动画属性的初始值。
      * @param	c 指定动画属性的更改总计。
@@ -19,7 +26,13 @@ export class Ease {
     }
 
     /**
-     * 定义无加速持续运动。
+     * @en Define continuous motion without acceleration.
+     * @param t Current time between 0 and the duration (inclusive).
+     * @param b The initial value of the animated property.
+     * @param c The total change in the animated property.
+     * @param d The duration of the motion.
+     * @returns The value of the interpolated property at the specified time.
+     * @zh 定义无加速持续运动。
      * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
      * @param	b 指定动画属性的初始值。
      * @param	c 指定动画属性的更改总计。
@@ -31,7 +44,13 @@ export class Ease {
     }
 
     /**
-     * 定义无加速持续运动。
+     * @en Define continuous motion without acceleration.
+     * @param t Current time between 0 and the duration (inclusive).
+     * @param b The initial value of the animated property.
+     * @param c The total change in the animated property.
+     * @param d The duration of the motion.
+     * @returns The value of the interpolated property at the specified time.
+     * @zh 定义无加速持续运动。
      * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
      * @param	b 指定动画属性的初始值。
      * @param	c 指定动画属性的更改总计。
@@ -43,7 +62,13 @@ export class Ease {
     }
 
     /**
-     * 定义无加速持续运动。
+     * @en Define continuous motion without acceleration.
+     * @param t Current time between 0 and the duration (inclusive).
+     * @param b The initial value of the animated property.
+     * @param c The total change in the animated property.
+     * @param d The duration of the motion.
+     * @returns The value of the interpolated property at the specified time.
+     * @zh 定义无加速持续运动。
      * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
      * @param	b 指定动画属性的初始值。
      * @param	c 指定动画属性的更改总计。
@@ -55,7 +80,14 @@ export class Ease {
     }
 
     /**
-     * 方法以零速率开始运动，然后在执行时加快运动速度。
+     * @en Starts the motion with zero velocity, then accelerates the motion.
+     * The motion is similar to a ball falling towards the floor and bouncing back with decreasing rebounds.
+     * @param t Current time between 0 and the duration (inclusive).
+     * @param b The initial value of the animated property.
+     * @param c The total change in the property's value.
+     * @param d The duration of the motion.
+     * @returns The value of the interpolated property at the specified time.
+     * @zh 方法以零速率开始运动，然后在执行时加快运动速度。
      * 它的运动是类似一个球落向地板又弹起后，几次逐渐减小的回弹运动。
      * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
      * @param	b 指定动画属性的初始值。
@@ -68,7 +100,14 @@ export class Ease {
     }
 
     /**
-     * 开始运动时速率为零，先对运动进行加速，再减速直到速率为零。
+     * @en Starts the motion with zero velocity, accelerates, and then decelerates to zero velocity.
+     * The motion is similar to a ball falling towards the floor and bouncing back with decreasing rebounds.
+     * @param t Current time between 0 and the duration (inclusive).
+     * @param b The initial value of the animated property.
+     * @param c The total change in the property's value.
+     * @param d The duration of the motion.
+     * @returns The value of the interpolated property at the specified time.
+     * @zh 开始运动时速率为零，先对运动进行加速，再减速直到速率为零。
      * 它的运动是类似一个球落向地板又弹起后，几次逐渐减小的回弹运动。
      * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
      * @param	b 指定动画属性的初始值。
@@ -82,7 +121,14 @@ export class Ease {
     }
 
     /**
-     * 以较快速度开始运动，然后在执行时减慢运动速度，直至速率为零。
+     * @en Begins the motion at a faster velocity, then decelerates until the velocity is zero.
+     * The motion is similar to a ball falling towards the floor and bouncing back with decreasing rebounds.
+     * @param t Current time between 0 and the duration (inclusive).
+     * @param b The initial value of the animated property.
+     * @param c The total change in the property's value.
+     * @param d The duration of the motion.
+     * @returns The value of the interpolated property at the specified time.
+     * @zh 以较快速度开始运动，然后在执行时减慢运动速度，直至速率为零。
      * 它的运动是类似一个球落向地板又弹起后，几次逐渐减小的回弹运动。
      * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
      * @param	b 指定动画属性的初始值。
@@ -98,7 +144,14 @@ export class Ease {
     }
 
     /**
-     * 开始时往后运动，然后反向朝目标移动。
+     * @en Starts the motion with a backward movement, then moves towards the target in the opposite direction, overshoots, and then returns.
+     * @param t Current time between 0 and the duration, inclusive.
+     * @param b The initial value of the animation property at the start.
+     * @param c The total change in the property's value that occurs during the animation.
+     * @param d The total duration of the motion.
+     * @param s The overshoot amount. The larger the value, the greater the overshoot.
+     * @returns The value of the interpolation attribute for the specified time.
+     * @zh 开始时往后运动，然后反向朝目标移动。
      * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
      * @param	b 指定动画属性的初始值。
      * @param	c 指定动画属性的更改总计。
@@ -111,7 +164,14 @@ export class Ease {
     }
 
     /**
-     * 开始运动时是向后跟踪，再倒转方向并朝目标移动，稍微过冲目标，然后再次倒转方向，回来朝目标移动。
+     * @en Starts the motion with a backward movement, then moves towards the target, overshoots slightly, reverses direction again, and finally moves towards the target.
+     * @param t Current time between 0 and the duration, inclusive.
+     * @param b The initial value of the animation property at the start.
+     * @param c The total change in the property's value that occurs during the animation.
+     * @param d The total duration of the motion.
+     * @param s The overshoot amount. The larger the value, the greater the overshoot.
+     * @returns The value of the interpolation attribute for the specified time.
+     * @zh 开始运动时是向后跟踪，再倒转方向并朝目标移动，稍微过冲目标，然后再次倒转方向，回来朝目标移动。
      * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
      * @param	b 指定动画属性的初始值。
      * @param	c 指定动画属性的更改总计。
@@ -125,7 +185,14 @@ export class Ease {
     }
 
     /**
-     * 开始运动时是朝目标移动，稍微过冲，再倒转方向回来朝着目标。
+     * @en Starts the motion towards the target, overshoots slightly, then reverses direction and moves back towards the target.
+     * @param t Current time between 0 and the duration, inclusive.
+     * @param b The initial value of the animation property at the start.
+     * @param c The total change in the property's value that occurs during the animation.
+     * @param d The total duration of the motion.
+     * @param s The overshoot amount. The larger the value, the greater the overshoot.
+     * @returns The value of the interpolation attribute for the specified time.
+     * @zh 开始运动时是朝目标移动，稍微过冲，再倒转方向回来朝着目标。
      * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
      * @param	b 指定动画属性的初始值。
      * @param	c 指定动画属性的更改总计。
@@ -138,7 +205,16 @@ export class Ease {
     }
 
     /**
-     * 方法以零速率开始运动，然后在执行时加快运动速度。
+     * @en Starts the motion from zero velocity, then accelerates. 
+     * The motion is defined by a sine wave that elastically decays in an exponential manner.
+     * @param t Current time between 0 and the duration, inclusive.
+     * @param b The initial value of the animated property.
+     * @param c The total change in the property's value.
+     * @param d The duration of the motion.
+     * @param a The amplitude of the sine wave.
+     * @param p The period of the sine wave in milliseconds.
+     * @return The value of the interpolation attribute for the specified time.
+     * @zh 方法以零速率开始运动，然后在执行时加快运动速度。
      * 其中的运动由按照指数方式衰减的正弦波来定义。
      * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
      * @param	b 指定动画属性的初始值。
@@ -162,7 +238,16 @@ export class Ease {
     }
 
     /**
-     * 开始运动时速率为零，先对运动进行加速，再减速直到速率为零。
+     * @en Starts the motion with zero velocity, accelerates, and then decelerates to zero velocity. 
+     * The motion is defined by a sine wave that elastically decays in an exponential manner.
+     * @param t Current time between 0 and the duration, inclusive.
+     * @param b The initial value of the animated property.
+     * @param c The total change in the property's value.
+     * @param d The duration of the motion.
+     * @param a The amplitude of the sine wave.
+     * @param p The period of the sine wave in milliseconds.
+     * @return The value of the interpolation attribute for the specified time.
+     * @zh 开始运动时速率为零，先对运动进行加速，再减速直到速率为零。
      * 其中的运动由按照指数方式衰减的正弦波来定义。
      * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
      * @param	b 指定动画属性的初始值。
@@ -187,7 +272,16 @@ export class Ease {
     }
 
     /**
-     * 以较快速度开始运动，然后在执行时减慢运动速度，直至速率为零。
+     * @en Starts the motion at a faster velocity, then decelerates until the velocity reaches zero. 
+     * The motion is defined by a sine wave that decays in an exponential manner.
+     * @param t Current time between 0 and the duration, inclusive.
+     * @param b The initial value of the animated property.
+     * @param c The total change in the property's value.
+     * @param d The duration of the motion.
+     * @param a The amplitude of the sine wave.
+     * @param p The period of the sine wave in milliseconds.
+     * @return The value of the interpolation attribute for the specified time.
+     * @zh 以较快速度开始运动，然后在执行时减慢运动速度，直至速率为零。
      * 其中的运动由按照指数方式衰减的正弦波来定义。
      * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
      * @param	b 指定动画属性的初始值。
@@ -211,7 +305,13 @@ export class Ease {
     }
 
     /**
-     * 以零速率开始运动，然后在执行时加快运动速度。
+     * @en Starts the motion from zero velocity and then accelerates rapidly.
+     * @param t Current time between 0 and the duration, inclusive.
+     * @param b The initial value of the animated property.
+     * @param c The total change in the property's value.
+     * @param d The duration of the motion.
+     * @return The value of the interpolation attribute for the specified time.
+     * @zh 以零速率开始运动，然后在执行时加快运动速度。
      * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
      * @param	b 指定动画属性的初始值。
      * @param	c 指定动画属性的更改总计。
@@ -223,7 +323,13 @@ export class Ease {
     }
 
     /**
-     * 开始运动时速率为零，先对运动进行加速，再减速直到速率为零。
+     * @en At the beginning of the motion, the velocity is zero. Accelerate the motion first, then decelerate until the velocity is zero.
+     * @param t Current time between 0 and the duration, inclusive.
+     * @param b The initial value of the animated property.
+     * @param c The total change in the property's value.
+     * @param d The duration of the motion.
+     * @return The value of the interpolation attribute for the specified time.
+     * @zh 开始运动时速率为零，先对运动进行加速，再减速直到速率为零。
      * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
      * @param	b 指定动画属性的初始值。
      * @param	c 指定动画属性的更改总计。
@@ -236,7 +342,13 @@ export class Ease {
     }
 
     /**
-     * 以较快速度开始运动，然后在执行时减慢运动速度，直至速率为零。
+     * @en Start moving at a faster speed, then slow down the motion speed during execution until the speed reaches zero.
+     * @param t Current time between 0 and the duration, inclusive.
+     * @param b The initial value of the animated property.
+     * @param c The total change in the property's value.
+     * @param d The duration of the motion.
+     * @return The value of the interpolation attribute for the specified time.
+     * @zh 以较快速度开始运动，然后在执行时减慢运动速度，直至速率为零。
      * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
      * @param	b 指定动画属性的初始值。
      * @param	c 指定动画属性的更改总计。
@@ -248,7 +360,14 @@ export class Ease {
     }
 
     /**
-     * 开始运动时速率为零，先对运动进行加速，再减速直到速率为零。
+     * @en Starts the motion with zero velocity, accelerates the motion, and then decelerates to zero velocity.
+     * The motion acceleration in the Sine slow motion equation is smaller than that in the Quad equation.
+     * @param t Current time between 0 and the duration, inclusive.
+     * @param b The initial value of the animated property.
+     * @param c The total change in the property's value.
+     * @param d The duration of the motion.
+     * @return The value of the interpolation attribute for the specified time.
+     * @zh 开始运动时速率为零，先对运动进行加速，再减速直到速率为零。
      * Sine 缓动方程中的运动加速度小于 Quad 方程中的运动加速度。
      * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
      * @param	b 指定动画属性的初始值。
@@ -261,7 +380,14 @@ export class Ease {
     }
 
     /**
-     * 以零速率开始运动，然后在执行时加快运动速度。
+     * @en Starts the motion from zero velocity, then accelerates the motion.
+     * The motion acceleration in the Sine slow motion equation is smaller than that in the Quad equation.
+     * @param t Current time between 0 and the duration, inclusive.
+     * @param b The initial value of the animated property.
+     * @param c The total change in the property's value.
+     * @param d The duration of the motion.
+     * @return The value of the interpolation attribute for the specified time.
+     * @zh 以零速率开始运动，然后在执行时加快运动速度。
      * Sine 缓动方程中的运动加速度小于 Quad 方程中的运动加速度。
      * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
      * @param	b 指定动画属性的初始值。
@@ -274,7 +400,14 @@ export class Ease {
     }
 
     /**
-     * 以较快速度开始运动，然后在执行时减慢运动速度，直至速率为零。
+     * @en Starts the motion at a faster pace, then decelerates until the velocity reaches zero.
+     * The motion acceleration in the Sine slow motion equation is smaller than that in the Quad equation.
+     * @param t Current time between 0 and the duration, inclusive.
+     * @param b The initial value of the animated property.
+     * @param c The total change in the property's value.
+     * @param d The duration of the motion.
+     * @return The value of the interpolation attribute for the specified time.
+     * @zh 以较快速度开始运动，然后在执行时减慢运动速度，直至速率为零。
      * Sine 缓动方程中的运动加速度小于 Quad 方程中的运动加速度。
      * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
      * @param	b 指定动画属性的初始值。
@@ -287,7 +420,14 @@ export class Ease {
     }
 
     /**
-     * 以零速率开始运动，然后在执行时加快运动速度。
+     * @en Start moving at zero speed and then accelerate the motion speed during execution.
+     * The motion acceleration of the Quint slow motion equation is greater than that of the Quart slow motion equation.
+     * @param t Current time between 0 and the duration, inclusive.
+     * @param b The initial value of the animated property.
+     * @param c The total change in the property's value.
+     * @param d The duration of the motion.
+     * @return The value of the interpolation attribute for the specified time.
+     * @zh 以零速率开始运动，然后在执行时加快运动速度。
      * Quint 缓动方程的运动加速大于 Quart 缓动方程。
      * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
      * @param	b 指定动画属性的初始值。
@@ -300,7 +440,14 @@ export class Ease {
     }
 
     /**
-     * 开始运动时速率为零，先对运动进行加速，再减速直到速率为零。
+     * @en At the beginning of the motion, the velocity is zero. Accelerate the motion first, then decelerate until the velocity is zero.
+     * The motion acceleration of the Quint slow motion equation is greater than that of the Quart slow motion equation.
+     * @param t Current time between 0 and the duration, inclusive.
+     * @param b The initial value of the animated property.
+     * @param c The total change in the property's value.
+     * @param d The duration of the motion.
+     * @return The value of the interpolation attribute for the specified time.
+     * @zh 开始运动时速率为零，先对运动进行加速，再减速直到速率为零。
      * Quint 缓动方程的运动加速大于 Quart 缓动方程。
      * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
      * @param	b 指定动画属性的初始值。
@@ -314,7 +461,14 @@ export class Ease {
     }
 
     /**
-     * 以较快速度开始运动，然后在执行时减慢运动速度，直至速率为零。
+     * @en Start moving at a faster speed, then slow down the motion speed during execution until the speed reaches zero.
+     * The motion acceleration of the Quint slow motion equation is greater than that of the Quart slow motion equation.
+     * @param t Current time between 0 and the duration, inclusive.
+     * @param b The initial value of the animated property.
+     * @param c The total change in the property's value.
+     * @param d The duration of the motion.
+     * @return The value of the interpolation attribute for the specified time.
+     * @zh 以较快速度开始运动，然后在执行时减慢运动速度，直至速率为零。
      * Quint 缓动方程的运动加速大于 Quart 缓动方程。
      * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
      * @param	b 指定动画属性的初始值。
@@ -327,7 +481,14 @@ export class Ease {
     }
 
     /**
-     * 方法以零速率开始运动，然后在执行时加快运动速度。
+     * @en The method starts at zero speed and then accelerates the motion speed during execution.
+     * The motion acceleration of the Quart slow motion equation is greater than that of the Cubic slow motion equation.
+     * @param t Current time between 0 and the duration, inclusive.
+     * @param b The initial value of the animated property.
+     * @param c The total change in the property's value.
+     * @param d The duration of the motion.
+     * @return The value of the interpolation attribute for the specified time.
+     * @zh 方法以零速率开始运动，然后在执行时加快运动速度。
      * Quart 缓动方程的运动加速大于 Cubic 缓动方程。
      * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
      * @param	b 指定动画属性的初始值。
@@ -340,7 +501,14 @@ export class Ease {
     }
 
     /**
-     * 开始运动时速率为零，先对运动进行加速，再减速直到速率为零。
+     * @en At the beginning of the motion, the velocity is zero. Accelerate the motion first, then decelerate until the velocity is zero.
+     * The motion acceleration of the Quart slow motion equation is greater than that of the Cubic slow motion equation.
+     * @param t Current time between 0 and the duration, inclusive.
+     * @param b The initial value of the animated property.
+     * @param c The total change in the property's value.
+     * @param d The duration of the motion.
+     * @return The value of the interpolation attribute for the specified time.
+     * @zh 开始运动时速率为零，先对运动进行加速，再减速直到速率为零。
      * Quart 缓动方程的运动加速大于 Cubic 缓动方程。
      * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
      * @param	b 指定动画属性的初始值。
@@ -354,7 +522,14 @@ export class Ease {
     }
 
     /**
-     * 以较快速度开始运动，然后在执行时减慢运动速度，直至速率为零。
+     * @en Start moving at a faster speed, then slow down the motion speed during execution until the speed reaches zero.
+     * The motion acceleration of the Quart slow motion equation is greater than that of the Cubic slow motion equation.
+     * @param t Current time between 0 and the duration, inclusive.
+     * @param b The initial value of the animated property.
+     * @param c The total change in the property's value.
+     * @param d The duration of the motion.
+     * @return The value of the interpolation attribute for the specified time.
+     * @zh 以较快速度开始运动，然后在执行时减慢运动速度，直至速率为零。
      * Quart 缓动方程的运动加速大于 Cubic 缓动方程。
      * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
      * @param	b 指定动画属性的初始值。
@@ -367,7 +542,14 @@ export class Ease {
     }
 
     /**
-     * 方法以零速率开始运动，然后在执行时加快运动速度。
+     * @en The method starts at zero speed and then accelerates the motion speed during execution.
+     * The motion acceleration of the Quart slow motion equation is greater than that of the Cubic slow motion equation.
+     * @param t Current time between 0 and the duration, inclusive.
+     * @param b The initial value of the animated property.
+     * @param c The total change in the property's value.
+     * @param d The duration of the motion.
+     * @return The value of the interpolation attribute for the specified time.
+     * @zh 方法以零速率开始运动，然后在执行时加快运动速度。
      * Cubic 缓动方程的运动加速大于 Quad 缓动方程。
      * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
      * @param	b 指定动画属性的初始值。
@@ -380,7 +562,14 @@ export class Ease {
     }
 
     /**
-     * 开始运动时速率为零，先对运动进行加速，再减速直到速率为零。
+     * @en At the beginning of the motion, the velocity is zero. Accelerate the motion first, then decelerate until the velocity is zero.
+     * The motion acceleration of the Quart slow motion equation is greater than that of the Cubic slow motion equation.
+     * @param t Current time between 0 and the duration, inclusive.
+     * @param b The initial value of the animated property.
+     * @param c The total change in the property's value.
+     * @param d The duration of the motion.
+     * @return The value of the interpolation attribute for the specified time.
+     * @zh 开始运动时速率为零，先对运动进行加速，再减速直到速率为零。
      * Cubic 缓动方程的运动加速大于 Quad 缓动方程。
      * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
      * @param	b 指定动画属性的初始值。
@@ -394,7 +583,14 @@ export class Ease {
     }
 
     /**
-     * 以较快速度开始运动，然后在执行时减慢运动速度，直至速率为零。
+     * @en Start moving at a faster speed, then slow down the motion speed during execution until the speed reaches zero.
+     * The motion acceleration of the Quart slow motion equation is greater than that of the Cubic slow motion equation.
+     * @param t Current time between 0 and the duration, inclusive.
+     * @param b The initial value of the animated property.
+     * @param c The total change in the property's value.
+     * @param d The duration of the motion.
+     * @return The value of the interpolation attribute for the specified time.
+     * @zh 以较快速度开始运动，然后在执行时减慢运动速度，直至速率为零。
      * Cubic 缓动方程的运动加速大于 Quad 缓动方程。
      * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
      * @param	b 指定动画属性的初始值。
@@ -407,7 +603,14 @@ export class Ease {
     }
 
     /**
-     * 方法以零速率开始运动，然后在执行时加快运动速度。
+     * @en The method starts at zero speed and then accelerates the motion speed during execution.
+     * The motion acceleration in the Quad deceleration equation is equal to the motion acceleration between the 100% deceleration time axis and is significantly smaller than the motion acceleration in the Cubic deceleration equation.
+     * @param t Current time between 0 and the duration, inclusive.
+     * @param b The initial value of the animated property.
+     * @param c The total change in the property's value.
+     * @param d The duration of the motion.
+     * @return The value of the interpolation attribute for the specified time.
+     * @zh 方法以零速率开始运动，然后在执行时加快运动速度。
      * Quad 缓动方程中的运动加速度等于 100% 缓动的时间轴补间的运动加速度，并且显著小于 Cubic 缓动方程中的运动加速度。
      * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
      * @param	b 指定动画属性的初始值。
@@ -420,7 +623,14 @@ export class Ease {
     }
 
     /**
-     * 开始运动时速率为零，先对运动进行加速，再减速直到速率为零。
+     * @en Starts the motion with zero velocity, accelerates the motion, and then decelerates to zero velocity. 
+     * The motion acceleration in the Quad deceleration equation is equal to the motion acceleration between the 100% deceleration time axis and is significantly smaller than the motion acceleration in the Cubic deceleration equation.
+     * @param t Current time between 0 and the duration, inclusive.
+     * @param b The initial value of the animated property.
+     * @param c The total change in the property's value.
+     * @param d The duration of the motion.
+     * @return The value of the interpolation attribute for the specified time.
+     * @zh 开始运动时速率为零，先对运动进行加速，再减速直到速率为零。
      * Quad 缓动方程中的运动加速度等于 100% 缓动的时间轴补间的运动加速度，并且显著小于 Cubic 缓动方程中的运动加速度。
      * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
      * @param	b 指定动画属性的初始值。
@@ -434,7 +644,14 @@ export class Ease {
     }
 
     /**
-     * 以较快速度开始运动，然后在执行时减慢运动速度，直至速率为零。
+     * @en Start moving at a faster speed, then slow down the motion speed during execution until the speed reaches zero.
+     * The motion acceleration in the Quad deceleration equation is equal to the motion acceleration between the 100% deceleration time axis and is significantly smaller than the motion acceleration in the Cubic deceleration equation.
+     * @param t Current time between 0 and the duration, inclusive.
+     * @param b The initial value of the animated property.
+     * @param c The total change in the property's value.
+     * @param d The duration of the motion.
+     * @return The value of the interpolation attribute for the specified time.
+     * @zh 以较快速度开始运动，然后在执行时减慢运动速度，直至速率为零。
      * Quad 缓动方程中的运动加速度等于 100% 缓动的时间轴补间的运动加速度，并且显著小于 Cubic 缓动方程中的运动加速度。
      * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
      * @param	b 指定动画属性的初始值。
@@ -447,7 +664,14 @@ export class Ease {
     }
 
     /**
-     * 方法以零速率开始运动，然后在执行时加快运动速度。
+     * @en Starts the motion with zero velocity, then accelerates the motion.
+     * Each time interval is the remaining distance minus a fixed proportion.
+     * @param t Current time between 0 and the duration, inclusive.
+     * @param b The initial value of the animated property.
+     * @param c The total change in the property's value.
+     * @param d The duration of the motion.
+     * @return The value of the interpolation attribute for the specified time.
+     * @zh 方法以零速率开始运动，然后在执行时加快运动速度。
      * 其中每个时间间隔是剩余距离减去一个固定比例部分。
      * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
      * @param	b 指定动画属性的初始值。
@@ -460,7 +684,14 @@ export class Ease {
     }
 
     /**
-     * 开始运动时速率为零，先对运动进行加速，再减速直到速率为零。
+     * @en At the beginning of the motion, the velocity is zero. Accelerate the motion first, then decelerate until the velocity is zero.
+     * Each time interval is the remaining distance minus a fixed proportion.
+     * @param t Current time between 0 and the duration, inclusive.
+     * @param b The initial value of the animated property.
+     * @param c The total change in the property's value.
+     * @param d The duration of the motion.
+     * @return The value of the interpolation attribute for the specified time.
+     * @zh 开始运动时速率为零，先对运动进行加速，再减速直到速率为零。
      * 其中每个时间间隔是剩余距离减去一个固定比例部分。
      * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
      * @param	b 指定动画属性的初始值。
@@ -476,7 +707,14 @@ export class Ease {
     }
 
     /**
-     * 以较快速度开始运动，然后在执行时减慢运动速度，直至速率为零。
+     * @en Start moving at a faster speed, then slow down the motion speed during execution until the speed reaches zero.
+     * Each time interval is the remaining distance minus a fixed proportion.
+     * @param t Current time between 0 and the duration, inclusive.
+     * @param b The initial value of the animated property.
+     * @param c The total change in the property's value.
+     * @param d The duration of the motion.
+     * @return The value of the interpolation attribute for the specified time.
+     * @zh 以较快速度开始运动，然后在执行时减慢运动速度，直至速率为零。
      * 其中每个时间间隔是剩余距离减去一个固定比例部分。
      * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
      * @param	b 指定动画属性的初始值。
@@ -489,7 +727,14 @@ export class Ease {
     }
 
     /**
-     * 方法以零速率开始运动，然后在执行时加快运动速度。
+     * @en The method starts at zero speed and then accelerates the motion speed during execution.
+     * The acceleration of the slow motion equation will result in a sudden change in velocity.
+     * @param t Current time between 0 and the duration, inclusive.
+     * @param b The initial value of the animated property.
+     * @param c The total change in the property's value.
+     * @param d The duration of the motion.
+     * @return The value of the interpolation attribute for the specified time.
+     * @zh 方法以零速率开始运动，然后在执行时加快运动速度。
      * 缓动方程的运动加速会产生突然的速率变化。
      * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
      * @param	b 指定动画属性的初始值。
@@ -502,7 +747,14 @@ export class Ease {
     }
 
     /**
-     * 开始运动时速率为零，先对运动进行加速，再减速直到速率为零。
+     * @en At the beginning of the motion, the velocity is zero. Accelerate the motion first, then decelerate until the velocity is zero.
+     * The acceleration of the slow motion equation will result in a sudden change in velocity.
+     * @param t Current time between 0 and the duration, inclusive.
+     * @param b The initial value of the animated property.
+     * @param c The total change in the property's value.
+     * @param d The duration of the motion.
+     * @return The value of the interpolation attribute for the specified time.
+     * @zh 开始运动时速率为零，先对运动进行加速，再减速直到速率为零。
      * 缓动方程的运动加速会产生突然的速率变化。
      * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
      * @param	b 指定动画属性的初始值。
@@ -516,7 +768,14 @@ export class Ease {
     }
 
     /**
-     * 以较快速度开始运动，然后在执行时减慢运动速度，直至速率为零。
+     * @en Start moving at a faster speed, then slow down the motion speed during execution until the speed reaches zero.
+     * The acceleration of the slow motion equation will result in a sudden change in velocity.
+     * @param t Current time between 0 and the duration, inclusive.
+     * @param b The initial value of the animated property.
+     * @param c The total change in the property's value.
+     * @param d The duration of the motion.
+     * @return The value of the interpolation attribute for the specified time.
+     * @zh 以较快速度开始运动，然后在执行时减慢运动速度，直至速率为零。
      * 缓动方程的运动加速会产生突然的速率变化。
      * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
      * @param	b 指定动画属性的初始值。

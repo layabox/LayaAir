@@ -220,7 +220,7 @@ export class NavigationUtils {
     static getTitleData(title: any, vbDatas: number[], center: Vector3, ibs: number[]): void {
         let header: any = title.getheader();
         if (!header) return null;
-        const vboff = vbDatas.length / 3;
+        const vboff = vbDatas.length / 6; //兼容WGSL
         let tvertCount: number = header.vertCount;
         let tailTris: number[] = title.getdetailTris();
         for (var i = 0; i < header.polyCount; i++) {
@@ -246,6 +246,7 @@ export class NavigationUtils {
             vbDatas.push(verts[i] - center.x);
             vbDatas.push(verts[i + 1] - center.y);
             vbDatas.push(verts[i + 2] - center.z);
+            vbDatas.push(0, 0, 0); //兼容WGSL
         }
 
         verts = title.getdetailVerts();
@@ -253,6 +254,7 @@ export class NavigationUtils {
             vbDatas.push(verts[i] - center.x);
             vbDatas.push(verts[i + 1] - center.y);
             vbDatas.push(verts[i + 2] - center.z);
+            vbDatas.push(0, 0, 0); //兼容WGSL
         }
     }
 
@@ -270,7 +272,7 @@ export class NavigationUtils {
         for (var i = 0; i < tileCount; i++) {
             this.getTitleData(m_navMesh.getTile(i), poses, orig, indexs);
         }
-        let vertexDeclaration = VertexMesh.getVertexDeclaration("POSITION");
+        let vertexDeclaration = VertexMesh.getVertexDeclaration("POSITION,NORMAL"); //兼容WSGL
         let vb = new Float32Array(poses);
         let ib = new Uint16Array(indexs);
         if (mesh == null) {

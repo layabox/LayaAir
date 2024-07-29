@@ -45,16 +45,26 @@ export class WebGPUSampler {
     static pointer_comparedMode: number = 10;
     static pointer_anisoLevel: number = 14; //0-16
 
-    private static _cacheMap: { [key: number]: WebGPUSampler } = {};
+    private static _cacheMap: { [key: number]: WebGPUSampler } = {}; //Sampler是全局缓存的，不能删除
+    private _descriptor: GPUSamplerDescriptor
+    source: GPUSampler;
+
+    globalId: number;
+    objectName: string = 'WebGPUSamper';
+
+    constructor(obj: WebGPUSamplerParams) {
+        this.source = this._createGPUSampler(obj);
+        this.globalId = WebGPUGlobal.getId(this);
+    }
 
     static getWebGPUSampler(params: WebGPUSamplerParams) {
-        let cacheKey = WebGPUSampler._getCatchSamplerKey(params);
+        const cacheKey = WebGPUSampler._getCacheSamplerKey(params);
         if (!this._cacheMap[cacheKey])
             this._cacheMap[cacheKey] = new WebGPUSampler(params);
         return this._cacheMap[cacheKey];
     }
 
-    private static _getCatchSamplerKey(params: WebGPUSamplerParams): number {
+    private static _getCacheSamplerKey(params: WebGPUSamplerParams): number {
         return (params.wrapU << WebGPUSampler.pointer_wrapU) +
             (params.warpV << WebGPUSampler.pointer_warpV) +
             (params.warpW << WebGPUSampler.pointer_warpW) +
@@ -64,32 +74,16 @@ export class WebGPUSampler {
             (params.anisoLevel << WebGPUSampler.pointer_anisoLevel);
     }
 
-    private _descriptor: GPUSamplerDescriptor
-    source: GPUSampler;
-
-    globalId: number;
-    objectName: string = 'WebGPUSamper';
-
-    constructor(obj: WebGPUSamplerParams) {
-        this.source = this._createGPUSampler(obj);
-
-        this.globalId = WebGPUGlobal.getId(this);
-    }
-
     private _createGPUSampler(params: WebGPUSamplerParams): GPUSampler {
         this._descriptor = this._getSamplerDescriptor(params);
-        if (this._descriptor.maxAnisotropy < 1)
+        if (this._descriptor.maxAnisotropy < 1) //不能设成<1
             this._descriptor.maxAnisotropy = 1;
         return WebGPURenderEngine._instance.getDevice().createSampler(this._descriptor);
     }
 
     private _getSamplerDescriptor(params: WebGPUSamplerParams) {
-        if (params.comparedMode > 0) {
-            params.filterMode = 0;
-            params.mipmapFilter = 0;
-        }
-        if (params.anisoLevel > 1)
-            params.mipmapFilter = FilterMode.Bilinear;
+        if (params.anisoLevel > 1 && params.mipmapFilter === FilterMode.Point)
+            params.mipmapFilter = FilterMode.Bilinear; //支持各向异性不能设成点采样
 
         return {
             addressModeU: this._getSamplerAddressMode(params.wrapU),
@@ -103,37 +97,31 @@ export class WebGPUSampler {
         }
     }
 
-    private _getSamplerAddressMode(warpmode: WrapMode): GPUAddressMode {
-        let mode = GPUAddressMode.clamp;
-        switch (warpmode) {
+    private _getSamplerAddressMode(warpMode: WrapMode): GPUAddressMode {
+        switch (warpMode) {
             case WrapMode.Repeat:
-                mode = GPUAddressMode.repeat;
-                break;
-            case WrapMode.Clamp:
-                mode = GPUAddressMode.clamp;
-                break;
+                return GPUAddressMode.repeat;
             case WrapMode.Mirrored:
-                mode = GPUAddressMode.mirror;
-                break;
+                return GPUAddressMode.mirror;
+            case WrapMode.Clamp:
+            default:
+                return GPUAddressMode.clamp;
         }
-        return mode;
     }
 
-    private _getFilterMode(mode: FilterMode): GPUFilterMode {
-        switch (mode) {
-            case FilterMode.Point:
-                return GPUFilterMode.nearest;
+    private _getFilterMode(filterMode: FilterMode): GPUFilterMode {
+        switch (filterMode) {
             case FilterMode.Bilinear:
             case FilterMode.Trilinear:
                 return GPUFilterMode.linear;
+            case FilterMode.Point:
             default:
                 return GPUFilterMode.nearest;
         }
     }
 
-    private _getGPUCompareFunction(comparedMode: TextureCompareMode): GPUCompareFunction {
-        return undefined; //暂时不支持compare模式
-        switch (comparedMode) {
+    private _getGPUCompareFunction(compareMode: TextureCompareMode): GPUCompareFunction {
+        switch (compareMode) {
             case TextureCompareMode.ALWAYS:
                 return GPUCompareFunction.always;
             case TextureCompareMode.EQUAL:

@@ -34,6 +34,57 @@ export class CameraCullInfo {
 }
 
 /**
+ * 阴影裁剪信息
+ */
+export class ShadowCullInfo {
+    position: Vector3;
+    direction: Vector3;
+    cullPlanes: Plane[];
+    cullSphere: BoundSphere;
+    cullPlaneCount: number;
+}
+
+
+/**
+ * 聚光灯阴影数据
+ */
+export class ShadowSpotData {
+    cameraShaderValue: ShaderData;
+    position: Vector3 = new Vector3;
+    offsetX: number;
+    offsetY: number;
+    resolution: number;
+    viewMatrix: Matrix4x4 = new Matrix4x4();
+    projectionMatrix: Matrix4x4 = new Matrix4x4();
+    viewProjectMatrix: Matrix4x4 = new Matrix4x4();
+    cameraCullInfo: CameraCullInfo;
+    cameraUBO: UniformBufferObject;
+    cameraUBData: UnifromBufferData;
+
+    constructor() {
+        this.cameraShaderValue = LayaGL.renderDeviceFactory.createShaderData(null);
+
+        if (Config3D._uniformBlock) {
+            let cameraUBO = UniformBufferObject.getBuffer(UniformBufferObject.UBONAME_CAMERA, 0);
+            let cameraUBData = BaseCamera.createCameraUniformBlock();
+
+            if (!cameraUBO) {
+                cameraUBO = UniformBufferObject.create(UniformBufferObject.UBONAME_CAMERA, BufferUsage.Dynamic, cameraUBData.getbyteLength(), false);
+            }
+
+            this.cameraShaderValue._addCheckUBO(UniformBufferObject.UBONAME_CAMERA, cameraUBO, cameraUBData);
+            this.cameraShaderValue.setUniformBuffer(BaseCamera.CAMERAUNIFORMBLOCK, cameraUBO);
+
+            this.cameraUBO = cameraUBO;
+            this.cameraUBData = cameraUBData;
+        }
+
+        this.cameraCullInfo = new CameraCullInfo();
+
+    }
+}
+
+/**
  * @internal
  * 阴影分割数据。
  */

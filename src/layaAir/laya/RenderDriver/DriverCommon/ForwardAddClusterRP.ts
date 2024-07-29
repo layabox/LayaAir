@@ -126,6 +126,8 @@ export class ForwardAddClusterRP {
             this._renderDepthNormalPass(context);
         this._cacheViewPortAndScissor();
         this._mainPass(context);
+
+        this._opaqueList._batch.recoverData();
     }
 
     /**

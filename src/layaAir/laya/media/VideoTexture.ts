@@ -20,7 +20,7 @@ import { LayaGL } from "../layagl/LayaGL";
  */
 export class VideoTexture extends BaseTexture {
     public readonly element: HTMLVideoElement;
-
+    static videoEvent_update:string = "videoUpdate";
     private _source: string;
     private _listeningEvents: Record<string, (evt: Event) => void>;
     private immediatelyPlay: boolean;
@@ -178,6 +178,8 @@ export class VideoTexture extends BaseTexture {
         if (this.isNeedUpdate() || Browser.onLayaRuntime) {
             LayaGL.textureContext.updateVideoTexture(this._texture, this.element, false, false);
             this._needUpdate = false;
+            //更新事件
+            this.event(VideoTexture.videoEvent_update);
         }
     }
 

@@ -16,169 +16,55 @@ import { UIComponent } from "./UIComponent";
 import { ScrollType } from "./Styles";
 
 /**
- * 当对象的 <code>selectedIndex</code> 属性发生变化时调度。
+ * @en Schedule when the selectedIndex property of an object changes.
+ * @zh 当对象的 selectedIndex 属性发生变化时调度。
  * @eventType laya.events.Event
  */
 /*[Event(name = "change", type = "laya.events.Event")]*/
 
 /**
- * 渲染列表的单元项对象时调度。
+ * @en Schedule when rendering unit item objects in a list.
+ * @zh 渲染列表的单元项对象时调度。
  * @eventType Event.RENDER
  */
 /*[Event(name = "render", type = "laya.events.Event")]*/
 
 /**
- * <code>List</code> 控件可显示项目列表。默认为垂直方向列表。可通过UI编辑器自定义列表。
- *
- * @example <caption>以下示例代码，创建了一个 <code>List</code> 实例。</caption>
- * package
- *	{
- *		import laya.ui.List;
- *		import laya.utils.Handler;
- *		public class List_Example
- *		{
- *			public function List_Example()
- *			{
- *				Laya.init(640, 800, "false");//设置游戏画布宽高、渲染模式。
- *				Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。
- *				Laya.loader.load(["resource/ui/vscroll.png", "resource/ui/vscroll$bar.png", "resource/ui/vscroll$down.png", "resource/ui/vscroll$up.png"], Handler.create(this, onLoadComplete));
- *			}
- *			private function onLoadComplete():void
- *			{
- *				var arr:Array = [];//创建一个数组，用于存贮列表的数据信息。
- *				for (var i:int = 0; i &lt; 20; i++)
- *				{
- *					arr.push({label: "item" + i});
- *				}
- *				var list:List = new List();//创建一个 List 类的实例对象 list 。
- *				list.itemRender = Item;//设置 list 的单元格渲染器。
- *				list.repeatX = 1;//设置 list 的水平方向单元格数量。
- *				list.repeatY = 10;//设置 list 的垂直方向单元格数量。
- *				list.vScrollBarSkin = "resource/ui/vscroll.png";//设置 list 的垂直方向滚动条皮肤。
- *				list.array = arr;//设置 list 的列表数据源。
- *				list.pos(100, 100);//设置 list 的位置。
- *				list.selectEnable = true;//设置 list 可选。
- *				list.selectHandler = new Handler(this, onSelect);//设置 list 改变选择项执行的处理器。
- *				Laya.stage.addChild(list);//将 list 添加到显示列表。
- *			}
- *			private function onSelect(index:int):void
- *			{
- *				trace("当前选择的项目索引： index= ", index);
- *			}
- *		}
- *	}
- *	import laya.ui.Box;
- *	import laya.ui.Label;
- *	class Item extends Box
- *	{
- *		public function Item()
- *		{
- *			graphics.drawRect(0, 0, 100, 20,null, "#ff0000");
- *			var label:Label = new Label();
- *			label.text = "100000";
- *			label.name = "label";//设置 label 的name属性值。
- *			label.size(100, 20);
- *			addChild(label);
- *		}
- *	}
- * @example
- * (function (_super){
- *     function Item(){
- *         Item.__super.call(this);//初始化父类
- *         this.graphics.drawRect(0, 0, 100, 20, "#ff0000");
- *         var label = new laya.ui.Label();//创建一个 Label 类的实例对象 label 。
- *         label.text = "100000";//设置 label 的文本内容。
- *         label.name = "label";//设置 label 的name属性值。
- *         label.size(100, 20);//设置 label 的宽度、高度。
- *         this.addChild(label);//将 label 添加到显示列表。
- *     };
- *     Laya.class(Item,"mypackage.listExample.Item",_super);//注册类 Item 。
- * })(laya.ui.Box);
-    
- * Laya.init(640, 800);//设置游戏画布宽高、渲染模式。
- * Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。
- * var res = ["resource/ui/vscroll.png", "resource/ui/vscroll$bar.png", "resource/ui/vscroll$down.png", "resource/ui/vscroll$up.png"];
- * Laya.loader.load(res, new laya.utils.Handler(this, onLoadComplete));//加载资源。
-    
- * function onLoadComplete() {
- *     var arr = [];//创建一个数组，用于存贮列表的数据信息。
- *     for (var i = 0; i &lt; 20; i++) {
- *         arr.push({label: "item" + i});
- *     }
-    
- *     var list = new laya.ui.List();//创建一个 List 类的实例对象 list 。
- *     list.itemRender = mypackage.listExample.Item;//设置 list 的单元格渲染器。
- *     list.repeatX = 1;//设置 list 的水平方向单元格数量。
- *     list.repeatY = 10;//设置 list 的垂直方向单元格数量。
- *     list.vScrollBarSkin = "resource/ui/vscroll.png";//设置 list 的垂直方向滚动条皮肤。
- *     list.array = arr;//设置 list 的列表数据源。
- *     list.pos(100, 100);//设置 list 的位置。
- *     list.selectEnable = true;//设置 list 可选。
- *     list.selectHandler = new laya.utils.Handler(this, onSelect);//设置 list 改变选择项执行的处理器。
- *     Laya.stage.addChild(list);//将 list 添加到显示列表。
- * }
-    
- * function onSelect(index)
- * {
- *     console.log("当前选择的项目索引： index= ", index);
- * }
- *
- * @example
- * import List = laya.ui.List;
- * import Handler = laya.utils.Handler;
- * public class List_Example {
- *     public List_Example() {
- *         Laya.init(640, 800);//设置游戏画布宽高。
- *         Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。
- *         Laya.loader.load(["resource/ui/vscroll.png", "resource/ui/vscroll$bar.png", "resource/ui/vscroll$down.png", "resource/ui/vscroll$up.png"], Handler.create(this, this.onLoadComplete));
- *     }
- *     private onLoadComplete(): void {
- *         var arr= [];//创建一个数组，用于存贮列表的数据信息。
- *         for (var i: number = 0; i &lt; 20; i++)
- *         {
- *             arr.push({ label: "item" + i });
- *         }
- *         var list: List = new List();//创建一个 List 类的实例对象 list 。
- *         list.itemRender = Item;//设置 list 的单元格渲染器。
- *         list.repeatX = 1;//设置 list 的水平方向单元格数量。
- *         list.repeatY = 10;//设置 list 的垂直方向单元格数量。
- *         list.vScrollBarSkin = "resource/ui/vscroll.png";//设置 list 的垂直方向滚动条皮肤。
- *         list.array = arr;//设置 list 的列表数据源。
- *         list.pos(100, 100);//设置 list 的位置。
- *         list.selectEnable = true;//设置 list 可选。
- *         list.selectHandler = new Handler(this, this.onSelect);//设置 list 改变选择项执行的处理器。
- *         Laya.stage.addChild(list);//将 list 添加到显示列表。
- *     }
- *     private onSelect(index: number): void {
- *         console.log("当前选择的项目索引： index= ", index);
- *     }
- * }
- * import Box = laya.ui.Box;
- * import Label = laya.ui.Label;
- * class Item extends Box {
- *     constructor() {
- *         this.graphics.drawRect(0, 0, 100, 20, null, "#ff0000");
- *         var label: Label = new Label();
- *         label.text = "100000";
- *         label.name = "label";//设置 label 的name属性值。
- *         label.size(100, 20);
- *         this.addChild(label);
- *     }
- * }
+ * @en The List control can display a list of items. The default is a vertical list. The list can be customized through the UI editor.
+ * @zh List 控件可显示项目列表。默认为垂直方向列表。可通过UI编辑器自定义列表。
  */
 export class List extends Box {
 
-    /**改变 <code>List</code> 的选择项时执行的处理器，(默认返回参数： 项索引（index:int）)。*/
+    /**
+     * @en The processor executed when changing the selection of a List. (Default return parameters: Item index(index:int))
+     * @zh 改变 List 的选择项时执行的处理器。(默认返回参数： 项索引（index:int）)。
+     */
     selectHandler: Handler | null;
-    /**单元格渲染处理器(默认返回参数cell:UIComponent,index:int)。*/
+    /**
+     * @en Cell rendering processor(Default return parameters  cell:UIComponent,index:int)
+     * @zh 单元格渲染处理器(默认返回参数cell:UIComponent,index:int)。
+     */
     renderHandler: Handler | null;
-    /**单元格鼠标事件处理器(默认返回参数e:Event,index:int)。*/
+    /**
+     * @en Cell Mouse Event Processor(Default return parameters  e:Event,index:int)
+     * @zh 单元格鼠标事件处理器(默认返回参数e:Event,index:int)。
+     */
     mouseHandler: Handler | null;
-    /**指定是否可以选择，若值为true则可以选择，否则不可以选择。 @default false*/
+    /**
+     * @en Specify whether it is selectable. If the value is true, you can choose; Otherwise, you cannot choose.
+     * @zh 指定是否可以选择。若值为 true，则可以选择；否则不可以选择。
+     * @default false
+     */
     selectEnable: boolean = false;
-    /**最大分页数。*/
+    /**
+     * @en The maximum number of pages for pagination.
+     * @zh 最大分页数。
+     */
     totalPage: number = 0;
-    /**禁用滚动条停止 */
+    /**
+     * @en Disable scrollbar stop.
+     * @zh 禁用滚动条停止。
+     */
     disableStopScroll: boolean = false;
 
     /**@internal */
@@ -235,11 +121,17 @@ export class List extends Box {
     protected _hScrollBarSkin: string;
     /**@internal */
     private _preLen = 0;
-    /**是否缓存内容，如果数据源较少，并且list内无动画，设置此属性为true能大大提高性能 */
+
+    /**
+     * @en Determines whether the content is cached for performance optimization.
+     * Setting this property to true can greatly improve performance if the data source is small and there are no animations within the list.
+     * @zh 是否缓存内容。如果数据源较少，并且列表内无动画，设置此属性为 true 能大大提高性能。
+     */
     cacheContent: boolean;
 
     /**
-     * 列表的当前页码。
+     * @en The current page number of the list.
+     * @zh 列表的当前页码。
      */
     get page(): number {
         return this._page;
@@ -255,21 +147,26 @@ export class List extends Box {
     }
 
     /**
-     * 列表的数据总个数。
+     * @en The total number of items in the list.
+     * @zh 列表的数据总个数。
      */
     get length(): number {
         return this._array ? this._array.length : 0;
     }
 
     /**
-     * 单元格集合。
+     * @en The collection of cells in the list.
+     * @zh 单元格集合。
      */
     get cells(): UIComponent[] {
         this.runCallLater(this.changeCells);
         return this._cells;
     }
 
-    /**是否开启橡皮筋效果*/
+    /**
+     * @en If the elastic effect is enabled.
+     * @zh 是否开启橡皮筋效果。
+     */
     get elasticEnabled(): boolean {
         return this._elasticEnabled;
     }
@@ -282,8 +179,10 @@ export class List extends Box {
     }
 
     /**
-     * @inheritDoc 
+     * @inheritDoc
      * @override
+     * @en The caching mode for the list.
+     * @zh 列表的缓存模式。
      */
     set cacheAs(value: string) {
         super.cacheAs = value;
@@ -295,22 +194,32 @@ export class List extends Box {
     }
 
     /**
-     * @inheritDoc 
+     * @inheritDoc
      * @override
+     * @en The caching mode of the list.
+     * @zh 列表的缓存模式。
      */
     get cacheAs() {
         return super.cacheAs;
     }
 
     /**
-     * 获取对 <code>List</code> 组件所包含的内容容器 <code>Box</code> 组件的引用。
+     * @en Reference to the content container Box component of the List component.
+     * @zh List 组件所包含的内容容器 Box 组件的引用。
      */
     get content() {
         return this._content;
     }
 
     /**
-     * 滚动类型
+     * @en Scrollbar type. Options include:
+      - ScrollType.None (0): No scrollbar
+      - ScrollType.Horizontal (1): Horizontal scrollbar.
+      - Others: such as ScrollType.Vertical (2) indicates a vertical scrollbar
+     * @zh 滚动条类型。可选值包括：
+     * - ScrollType.None（0）：无滚动条
+     * - ScrollType.Horizontal（1）：水平方向滚动条。
+     * - 其它：如 ScrollType.Vertical（2） 表示垂直方向滚动条
      */
     get scrollType() {
         return this._scrollType;
@@ -371,7 +280,8 @@ export class List extends Box {
     }
 
     /**
-     * 垂直方向滚动条皮肤。
+     * @en The skin of the vertical scroll bar.
+     * @zh 垂直方向滚动条皮肤。
      */
     get vScrollBarSkin(): string {
         return this._vScrollBarSkin;
@@ -390,7 +300,8 @@ export class List extends Box {
     }
 
     /**
-     * 水平方向滚动条皮肤。
+     * @en The skin of the horizontal scroll bar.
+     * @zh 水平方向滚动条皮肤。
      */
     get hScrollBarSkin(): string {
         return this._hScrollBarSkin;
@@ -408,7 +319,8 @@ export class List extends Box {
     }
 
     /**
-     * 获取对 <code>List</code> 组件所包含的滚动条 <code>ScrollBar</code> 组件的引用。
+     * @en The reference to the ScrollBar component contained within the List component.
+     * @zh List 组件所包含的 ScrollBar 组件的引用。
      */
     get scrollBar(): ScrollBar | null {
         return this._scrollBar;
@@ -428,12 +340,10 @@ export class List extends Box {
     }
 
     /**
-     * 单元格渲染器。
-     * <p><b>取值：</b>
-     * <ol>
-     * <li>单元格类对象。</li>
-     * <li> UI 的 JSON 描述。</li>
-     * </ol></p>
+     * @en The cell renderer for the List component.
+     * value:  The value can be a cell class object or a UI JSON description.
+     * @zh 单元格渲染器。
+     * 取值：单元格类对象 或 UI的JSON描述。
      * @implements
      */
     get itemRender(): any {
@@ -453,7 +363,8 @@ export class List extends Box {
     }
 
     /**
-     * 水平方向显示的单元格数量。
+     * @en The number of cells displayed horizontally.
+     * @zh 水平方向显示的单元格数量。
      */
     get repeatX(): number {
         return this._repeatX > 0 ? this._repeatX : this._repeatX2 > 0 ? this._repeatX2 : 1;
@@ -465,7 +376,8 @@ export class List extends Box {
     }
 
     /**
-     * 垂直方向显示的单元格数量。
+     * @en The number of cells displayed vertically.
+     * @zh 垂直方向显示的单元格数量。
      */
     get repeatY(): number {
         return this._repeatY > 0 ? this._repeatY : this._repeatY2 > 0 ? this._repeatY2 : 1;
@@ -477,7 +389,8 @@ export class List extends Box {
     }
 
     /**
-     * 水平方向显示的单元格之间的间距（以像素为单位）。
+     * @en The horizontal spacing between cells in pixels.
+     * @zh 水平方向显示的单元格之间的间距（以像素为单位）。
      */
     get spaceX(): number {
         return this._spaceX;
@@ -489,7 +402,8 @@ export class List extends Box {
     }
 
     /**
-     * 垂直方向显示的单元格之间的间距（以像素为单位）。
+     * @en The vertical spacing between cells in pixels.
+     * @zh 垂直方向显示的单元格之间的间距（以像素为单位）。
      */
     get spaceY(): number {
         return this._spaceY;
@@ -501,7 +415,8 @@ export class List extends Box {
     }
 
     /**
-     * 表示当前选择的项索引。selectedIndex值更改会引起list重新渲染
+     * @en Represents the index of the currently selected item. Changing the selectedIndex value will cause the list to re-render.
+     * @zh 表示当前选择的项索引。selectedIndex值更改会引起列表重新渲染。
      */
     get selectedIndex(): number {
         return this._selectedIndex;
@@ -519,7 +434,8 @@ export class List extends Box {
     }
 
     /**
-     * 列表数据源。
+     * @en List data source
+     * @zh 列表数据源。
      */
     get array(): any[] {
         return this._array as any[];
@@ -554,7 +470,8 @@ export class List extends Box {
     }
 
     /**
-     * 当前选中的单元格数据源。
+     * @en The data source of the currently selected cell.
+     * @zh 当前选中的单元格数据源。
      */
     get selectedItem(): any {
         if (!this._array) return null;
@@ -566,7 +483,8 @@ export class List extends Box {
     }
 
     /**
-     * 获取或设置当前选择的单元格对象。
+     * @en The currently selected cell object.
+     * @zh 当前选择的单元格对象。
      */
     get selection(): UIComponent {
         return this.getCell(this._selectedIndex);
@@ -577,7 +495,8 @@ export class List extends Box {
     }
 
     /**
-     * 当前显示的单元格列表的开始索引。
+     * @en The start index of the currently displayed list of cells.
+     * @zh 当前显示的单元格列表的开始索引。
      */
     get startIndex(): number {
         return this._startIndex;
@@ -809,7 +728,9 @@ export class List extends Box {
 
     /**
      * @internal
-     * 添加单元格。
+     * @en Adds a cell to the list.
+     * @param cell The cell object to be added.
+     * @zh 添加单元格。
      * @param cell 需要添加的单元格对象。
      */
     protected addCell(cell: UIComponent): void {
@@ -824,7 +745,10 @@ export class List extends Box {
 
     /**
      * @internal
-     * 单元格的鼠标事件侦听处理函数。
+     * @en Handles mouse events for cells.
+     * @param e The event object.
+     * @zh 单元格的鼠标事件侦听处理函数。
+     * @param e 事件对象。
      */
     protected onCellMouse(e: Event): void {
         if (e.type === Event.MOUSE_DOWN) this._isMoved = false;
@@ -842,10 +766,14 @@ export class List extends Box {
 
     /**
      * @internal
-     * 改变单元格的可视状态。
-     * @param cell 单元格对象。
-     * @param visable 是否显示。
-     * @param index 单元格的属性 <code>index</code> 值。
+     * @en Changes the visual state of a cell.
+     * @param cell The cell object.
+     * @param visible Indicates whether the cell should be visible.
+     * @param index The cell's property index value.
+     * @zh 改变单元格的可视状态。
+     * @param cell 单元格对象
+     * @param visible 是否显示。
+     * @param index 单元格的属性 index 值。
      */
     protected changeCellState(cell: UIComponent, visible: boolean, index: number): void {
         let selectBox = (<Clip>cell.getChildByName("selectBox"));
@@ -858,7 +786,8 @@ export class List extends Box {
 
     /**
      * @internal
-     * 滚动条的 <code>Event.CHANGE</code> 事件侦听处理函数。
+     * @en Event handler for the scrollbar's Event.CHANGE event.
+     * @zh 滚动条的 Event.CHANGE 事件侦听处理函数。
      */
     protected onScrollBarChange(e: Event | null = null): void {
         this.runCallLater(this.changeCells);
@@ -933,7 +862,8 @@ export class List extends Box {
 
     /**
      * @internal
-     * 改变单元格的选择状态。
+     * @en Changes the selection state of the cells.
+     * @zh 改变单元格的选择状态。
      */
     protected changeSelectStatus(): void {
         for (let i: number = 0, n: number = this._cells.length; i < n; i++) {
@@ -943,7 +873,12 @@ export class List extends Box {
 
     /**
      * @internal
-     * 渲染单元格列表。
+     * @en Renders the list of cells.
+     * @param from The start index to begin rendering from.
+     * @param to The end index to stop rendering. If not provided, it renders to the end of the list.
+     * @zh 渲染单元格列表。
+     * @param from 渲染开始的索引。
+     * @param to 停止渲染的结束索引。如果没有提供，它将渲染到列表末尾。
      */
     protected renderItems(from: number = 0, to: number = 0): void {
         for (let i = from, n = to || this._cells.length; i < n; i++) {
@@ -953,8 +888,11 @@ export class List extends Box {
     }
 
     /**
-     * 渲染一个单元格。
      * @internal
+     * @en Renders a single cell.
+     * @param cell The cell object that needs to be rendered.
+     * @param index The index of the cell.
+     * @zh 渲染一个单元格。
      * @param cell 需要渲染的单元格对象。
      * @param index 单元格索引。
      */
@@ -988,8 +926,10 @@ export class List extends Box {
     }
 
     /**
-     * 更新数据源，不刷新list，只增加滚动长度
-     * @param	array 数据源
+     * @en Updates the data source without refreshing the entire list, only increasing the scroll length.
+     * @param array The data source to update.
+     * @zh 更新数据源，不刷新list，只增加滚动长度。
+     * @param array 数据源。
      */
     updateArray(array: any[]): void {
         this._array = array;
@@ -1012,13 +952,18 @@ export class List extends Box {
         }
     }
 
+    /**
+     * @en Called after deserialization to perform additional setup.
+     * @zh 反序列化后调用以执行额外的设置。
+     */
     onAfterDeserialize() {
         super.onAfterDeserialize();
         this.initItems();
     }
 
     /**
-     * 初始化单元格信息。
+     * @en Initializes cell information.
+     * @zh 初始化单元格信息。
      */
     initItems(): void {
         if (!this._itemRender && this.getChildByName("item0") != null) {
@@ -1039,8 +984,12 @@ export class List extends Box {
     }
 
     /**
-     * 设置可视区域大小。
-     * <p>以（0，0，width参数，height参数）组成的矩形区域为可视区域。</p>
+     * @en Sets the size of the viewable area.
+     * The viewable area is defined by a rectangle with the top-left corner at (0,0) and the specified width and height.
+     * @param width The width of the viewable area.
+     * @param height The height of the viewable area.
+     * @zh 设置可视区域大小。
+     * 以（0，0，width参数，height参数）组成的矩形区域为可视区域。
      * @param width 可视区域宽度。
      * @param height 可视区域高度。
      */
@@ -1058,9 +1007,12 @@ export class List extends Box {
     }
 
     /**
-     * @inheritDoc 
      * @override
-    */
+     * @en Sets the data source for the component, overriding the base class's method to handle different data types.
+     * @param value The new data source.
+     * @zh 设置数据源，覆盖基类方法以处理不同类型的数据。
+     * @param value 新的数据源。
+     */
     set_dataSource(value: any) {
         this._dataSource = value;
         if (typeof (value) == 'number' || typeof (value) == 'string')
@@ -1072,7 +1024,8 @@ export class List extends Box {
     }
 
     /**
-     * 刷新列表数据源。
+     * @en Refreshes the list data source.
+     * @zh 刷新列表数据源。
      */
     refresh(): void {
         this.array = this._array as any[];
@@ -1080,7 +1033,9 @@ export class List extends Box {
     }
 
     /**
-     * 获取单元格数据源。
+     * @en Get the cell data source.
+     * @param index The index of the cell.
+     * @zh 获取单元格数据源。
      * @param index 单元格索引。
      */
     getItem(index: number): any {
@@ -1093,7 +1048,10 @@ export class List extends Box {
     }
 
     /**
-     * 修改单元格数据源。
+     * @en Changes the data source of a cell at a specified index.
+     * @param index The index of the cell.
+     * @param source The data source for the cell.
+     * @zh 修改单元格数据源。
      * @param index 单元格索引。
      * @param source 单元格数据源。
      */
@@ -1108,7 +1066,10 @@ export class List extends Box {
     }
 
     /**
-     * 设置单元格数据源。
+     * @en Sets the data source for a cell at a specified index.
+     * @param index The cell index.
+     * @param source The data source for the cell.
+     * @zh 设置单元格数据源。
      * @param index 单元格索引。
      * @param source 单元格数据源。
      */
@@ -1117,7 +1078,9 @@ export class List extends Box {
     }
 
     /**
-     * 添加单元格数据源。
+     * @en Adds a new data source to the cell list.
+     * @param source The data source to add.
+     * @zh 添加单元格数据源。
      * @param source 数据源。
      */
     addItem(source: any): void {
@@ -1130,7 +1093,10 @@ export class List extends Box {
     }
 
     /**
-     * 添加单元格数据源到对应的数据索引处。
+     * @en Adds a new data source to the cell list at a specified index.
+     * @param source The data source to add.
+     * @param index The index at which to insert the data source.
+     * @zh 添加单元格数据源到对应的数据索引处。
      * @param souce 单元格数据源。
      * @param index 索引。
      */
@@ -1140,7 +1106,9 @@ export class List extends Box {
     }
 
     /**
-     * 通过数据源索引删除单元格数据源。
+     * @en Deletes a data source from the cell list by its index.
+     * @param index The index of the data source to delete.
+     * @zh 通过数据源索引删除单元格数据源。
      * @param index 需要删除的数据源索引值。
      */
     deleteItem(index: number): void {
@@ -1151,7 +1119,10 @@ export class List extends Box {
     }
 
     /**
-     * 通过可视单元格索引，获取单元格。
+     * @en Gets the cell object by its visible index.
+     * @param index The visible index of the cell.
+     * @return The cell object.
+     * @zh 通过可视单元格索引，获取单元格。
      * @param index 可视单元格索引。
      * @return 单元格对象。
      */
@@ -1164,7 +1135,9 @@ export class List extends Box {
     }
 
     /**
-     * <p>滚动列表，以设定的数据索引对应的单元格为当前可视列表的第一项。</p>
+     * @en Scrolls the list so that the cell corresponding to the specified data index becomes the first visible item in the list.
+     * @param index The index of the cell in the data list.
+     * @zh 滚动列表，以设定的数据索引对应的单元格为当前可视列表的第一项。
      * @param index 单元格在数据列表中的索引。
      */
     scrollTo(index: number): void {
@@ -1177,10 +1150,14 @@ export class List extends Box {
     }
 
     /**
-     * <p>缓动滚动列表，以设定的数据索引对应的单元格为当前可视列表的第一项。</p>
+     * @en Scrolls the list with tweening to make the cell corresponding to the specified data index the first visible item in the list.
+     * @param index The index of the cell in the data list.
+     * @param time The duration of the tweening effect in milliseconds.
+     * @param complete An optional callback function to call when the tweening completes.
+     * @zh 缓动滚动列表，以设定的数据索引对应的单元格为当前可视列表的第一项。
      * @param index 单元格在数据列表中的索引。
      * @param time	缓动时间。
-     * @param complete	缓动结束回掉
+     * @param complete	缓动结束回调.
      */
     tweenTo(index: number, time: number = 200, complete: Handler | null = null): void {
         if (this._scrollBar) {
@@ -1194,8 +1171,11 @@ export class List extends Box {
     }
 
     /**
-     * @inheritDoc 
      * @override
+     * @en Destroys the instance and its child elements.
+     * @param destroyChild Specifies whether to destroy child elements.
+     * @zh 销毁实例及其子元素。
+     * @param destroyChild 指定是否销毁子元素。
      */
     destroy(destroyChild: boolean = true): void {
         this._content && this._content.destroy(destroyChild);

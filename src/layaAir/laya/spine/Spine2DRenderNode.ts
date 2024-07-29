@@ -23,6 +23,11 @@ import { IRenderGeometryElement } from "../RenderDriver/DriverDesign/RenderDevic
 import { Material } from "../resource/Material";
 import { IndexFormat } from "../RenderEngine/RenderEnum/IndexFormat";
 import { ClassUtils } from "../utils/ClassUtils";
+import { SpineNormalRender } from "./optimize/SpineNormalRender";
+import { SketonOptimise } from "./optimize/SketonOptimise";
+import { Texture } from "../resource/Texture";
+import { SpineEmptyRender } from "./optimize/SpineEmptyRender";
+import { Texture2D } from "../resource/Texture2D";
 
 
 /**动画开始播放调度
@@ -120,6 +125,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
         super();
         this._renderElements = [];
         this._materials = [];
+        this.spineItem = SpineEmptyRender.instance;
     }
 
     /**
@@ -156,7 +162,8 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
      */
     resetExternalSkin() {
         if (this._skeleton) {
-            this._skeleton = new this._templet.ns.Skeleton(this._templet.skeletonData);
+            this._skeleton = new spine.Skeleton(this._templet.skeletonData);
+            this.spineItem.changeSkeleton(this._skeleton);
             this._flushExtSkin();
         }
     }
@@ -297,6 +304,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
      */
     protected init(templet: SpineTemplet): void {
         if (this._templet) {
+            this.clear();
             this.reset();
             //this.graphics.clear();
         }
@@ -306,10 +314,10 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
             return;
 
         this._templet._addReference();
-        this._skeleton = new templet.ns.Skeleton(this._templet.skeletonData);
-        this._stateData = new templet.ns.AnimationStateData(this._skeleton.data);
+        this._skeleton = new spine.Skeleton(this._templet.skeletonData);
+        this._stateData = new spine.AnimationStateData(this._skeleton.data);
         // 动画状态类
-        this._state = new templet.ns.AnimationState(this._stateData);
+        this._state = new spine.AnimationState(this._stateData);
         //this._renerer = new SpineSkeletonRenderer(templet, false);
         this._timeKeeper = new TimeKeeper(Laya.timer);
         //let sMesh=this._templet.slotManger.init(this._skeleton.drawOrder, this._templet,this._templet.mainTexture);
@@ -613,16 +621,6 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
             this._onAniSoundStoped(true);
     }
 
-    /**
-     * 销毁当前动画
-     * @override
-     */
-    destroy(): void {
-        super.destroy();
-        if (this._templet)
-            this.reset();
-    }
-
     // ------------------------------------新增加的接口----------------------------------------------------
     /**
      * 添加一个动画
@@ -681,6 +679,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
      * @param attachmentName 
      */
     setSlotAttachment(slotName: string, attachmentName: string) {
+        this.changeNormal();
         this._skeleton.setAttachment(slotName, attachmentName);
     }
 
@@ -691,8 +690,21 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
         super.clear();
     }
 
+    changeNormal() {
+        if (!(this.spineItem instanceof SpineNormalRender)) {
+            this.spineItem.destroy();
+            let before = SketonOptimise.normalRenderSwitch;
+            SketonOptimise.normalRenderSwitch = true;
+            this.spineItem = this._templet.sketonOptimise._initSpineRender(this._skeleton, this._templet, this, this._state);
+            SketonOptimise.normalRenderSwitch = before;
+        }
+    }
+
     onDestroy(): void {
-        this.spineItem.destroy()
+        if (this._templet) {
+            this.reset();
+        }
+        this.spineItem.destroy();
     }
 
     drawGeos(geo: IRenderGeometryElement, elements: [Material, number, number][]) {
@@ -722,9 +734,6 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
     }
 
     drawGeo(geo: IRenderGeometryElement, material: Material) {
-        if (this._renderElements.length > 0) {
-            debugger
-        }
         let element = Spine2DRenderNode.createRenderElement2D();
         element.geometry = geo;
         // geo.clearRenderParams();
@@ -740,6 +749,20 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
         element.materialShaderData = material.shaderData;
         element.subShader = material._shader.getSubShaderAt(0);
         element.value2DShaderData = this._spriteShaderData;
+    }
+
+    getMaterial(texture: Texture2D, blendMode: number): Material {
+        let mat: Material;
+        if (this._materials.length <= this._renderElements.length) {
+            //默认给一个新的Mateiral
+            mat = this.templet.getMaterial(texture, blendMode);
+            //renderNode._materials.push(mat);
+        } else {
+            mat = this._materials[this._renderElements.length];
+            SpineShaderInit.SetSpineBlendMode(blendMode, mat);
+            mat.setTextureByIndex(SpineShaderInit.SpineTexture, texture);
+        }
+        return mat;
     }
 }
 

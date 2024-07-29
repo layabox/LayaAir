@@ -1,5 +1,7 @@
+import { Material } from "../../resource/Material";
 import { Texture as string } from "../../resource/Texture";
 type RenderData = {
+    material?: Material;
     textureName: string;
     blendMode: number;
     offset: number;

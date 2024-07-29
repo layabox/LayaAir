@@ -23,7 +23,6 @@ import { RenderState2D } from "./laya/webgl/utils/RenderState2D";
 import { WebGL } from "./laya/webgl/WebGL";
 import { Mouse } from "./laya/utils/Mouse";
 import { MeshVG } from "./laya/webgl/utils/MeshVG";
-import { MeshParticle2D } from "./laya/webgl/utils/MeshParticle2D";
 import { MeshQuadTexture } from "./laya/webgl/utils/MeshQuadTexture";
 import { MeshTexture } from "./laya/webgl/utils/MeshTexture";
 import { WeakObject } from "./laya/utils/WeakObject";
@@ -214,7 +213,6 @@ export class Laya {
         }
 
         RenderStateContext.__init__();
-        MeshParticle2D.__init__();
         RenderSprite.__init__();
         Material.__initDefine__();
         DrawStyle._Defaultinit();

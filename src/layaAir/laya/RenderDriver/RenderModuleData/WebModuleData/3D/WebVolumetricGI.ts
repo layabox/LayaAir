@@ -33,6 +33,7 @@ export class WebVolumetricGI implements IVolumetricGIData {
 
     constructor() {
         this._params = new Vector4();
+        this.bound = new Bounds();
     }
     setParams(value: Vector4): void {
         value.cloneTo(this._params)

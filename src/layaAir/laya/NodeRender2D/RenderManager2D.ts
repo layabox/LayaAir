@@ -8,7 +8,10 @@ import { BaseRenderNode2D } from "./BaseRenderNode2D";
 export interface IBatch2DRender {
     /**合批范围，合批的RenderElement2D直接add进list中 */
     batchRenderElement(list: FastSinglelist<IRenderElement2D>, start: number, length: number): void;
+
+    recover():void;
 }
+
 export class Batch2DInfo {
     batchFun: IBatch2DRender = null;
     batch: boolean = false;
@@ -85,7 +88,6 @@ export class RenderManager2D {
         this.list = new FastSinglelist<BaseRenderNode2D>();
         this._renderElementList = new FastSinglelist<IRenderElement2D>();
         this._batchInfoList = new FastSinglelist<Batch2DInfo>();
-        this._lastbatch2DInfo = Batch2DInfo.create();
     }
 
     /**
@@ -111,7 +113,11 @@ export class RenderManager2D {
         this._list.clear();
         this._renderElementList.clear();
         for (var i = 0, n = this._batchInfoList.length; i < n; i++) {
-            Batch2DInfo.recover(this._batchInfoList.elements[i]);
+            let element = this._batchInfoList.elements[i];
+            if (element.batch) {
+                element.batchFun.recover();
+            }
+            Batch2DInfo.recover(element);
         }
         this._batchInfoList.clear();
     }
@@ -157,14 +163,13 @@ export class RenderManager2D {
                 renderNode.preRenderUpdate(context);
             let n = renderNode._renderElements.length;
             if (n == 1) {
-                this._renderElementList.add(renderNode._renderElements[0]);
                 this._batchStart(renderNode._renderType, 1);
-
+                this._renderElementList.add(renderNode._renderElements[0]);
             } else {
+                this._batchStart(renderNode._renderType, n);
                 for (var i = 0; i < n; i++) {
                     this._renderElementList.add(renderNode._renderElements[i]);
                 }
-                this._batchStart(renderNode._renderType, n);
             }
         }
     }
@@ -181,8 +186,8 @@ export class RenderManager2D {
             if (info.batch) {
                 info.batchFun.batchRenderElement(this._renderElementList, info.indexStart, info.elementLenth);
             } else {
-                for (var i = info.indexStart, n = info.elementLenth + info.indexStart; i < n; i++)
-                    this._renderElementList.add(this._renderElementList.elements[i]);
+                for (let j = info.indexStart, m = info.elementLenth + info.indexStart; j < m; j++)
+                    this._renderElementList.add(this._renderElementList.elements[j]);
             }
         }
     }
@@ -192,12 +197,13 @@ export class RenderManager2D {
      */
     private _batchStart(renderNodeType: number, elementLength: number) {
         if (this._lastRenderNodeType == -1) {
+            this._lastbatch2DInfo = Batch2DInfo.create();
             //first renderNode
             this._lastbatch2DInfo.batch = false;
             this._lastbatch2DInfo.batchFun = RenderManager2D._batchMapManager[renderNodeType];
             this._lastbatch2DInfo.indexStart = 0;
             this._lastbatch2DInfo.elementLenth = elementLength;
-            this._lastRenderNodeType = renderNodeType
+            this._lastRenderNodeType = renderNodeType;
             return;
         }
         if (this._lastRenderNodeType == renderNodeType) {
@@ -210,6 +216,7 @@ export class RenderManager2D {
             this._lastbatch2DInfo.batchFun = RenderManager2D._batchMapManager[renderNodeType];
             this._lastbatch2DInfo.indexStart = this._renderElementList.length;
             this._lastbatch2DInfo.elementLenth = elementLength;
+            this._lastRenderNodeType = renderNodeType;
         }
     }
 

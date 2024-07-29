@@ -65,7 +65,7 @@ interface ContentTypeMap {
 }
 
 var typeIdCounter = 0;
-type TypeMapEntry = { typeId: number, loaderType: new () => IResourceLoader };
+type TypeMapEntry = { typeId: number, loaderType: new () => IResourceLoader, hotReloadable?: boolean };
 
 interface URLInfo {
     ext: string,
@@ -128,6 +128,7 @@ export class Loader extends EventDispatcher {
 
     static readonly extMap: { [ext: string]: Array<TypeMapEntry> } = {};
     static readonly typeMap: { [type: string]: TypeMapEntry } = {};
+    static readonly hotReloadableFlags: Record<number, boolean> = {};
 
     static downloader = new Downloader();
 
@@ -136,8 +137,9 @@ export class Loader extends EventDispatcher {
      * @param exts 扩展名
      * @param cls
      * @param type 类型标识。如果这种资源需要支持识别没有扩展名的情况，或者一个扩展名对应了多种资源类型的情况，那么指定type参数是个最优实践。
+     * @param hotReloadable 是否支持热重载
      */
-    static registerLoader(exts: string[], cls: new () => IResourceLoader, type?: string) {
+    static registerLoader(exts: string[], cls: new () => IResourceLoader, type?: string, hotReloadable?: boolean) {
         let typeEntry: TypeMapEntry;
         if (type) {
             typeEntry = <TypeMapEntry>Loader.typeMap[type];
@@ -148,6 +150,8 @@ export class Loader extends EventDispatcher {
         }
         else
             typeEntry = { typeId: typeIdCounter++, loaderType: cls };
+        if (hotReloadable)
+            Loader.hotReloadableFlags[typeEntry.typeId] = true;
 
         for (let ext of exts) {
             let entry = Loader.extMap[ext];

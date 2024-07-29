@@ -8,7 +8,7 @@ import { Scene3DShaderDeclaration } from "../../../d3/core/scene/Scene3DShaderDe
 import { BoundSphere } from "../../../d3/math/BoundSphere";
 import { Plane } from "../../../d3/math/Plane";
 import { ShadowCasterPass } from "../../../d3/shadowMap/ShadowCasterPass";
-import { ShadowSliceData } from "../../../d3/shadowMap/ShadowSliceData";
+import { ShadowCullInfo, ShadowSliceData } from "../../../d3/shadowMap/ShadowSliceData";
 import { Color } from "../../../maths/Color";
 import { MathUtils3D } from "../../../maths/MathUtils3D";
 import { Matrix4x4 } from "../../../maths/Matrix4x4";
@@ -24,17 +24,6 @@ import { WebCameraNodeData } from "../../RenderModuleData/WebModuleData/3D/WebMo
 import { WebGPUInternalRT } from "../RenderDevice/WebGPUInternalRT";
 import { WebGPUShaderData } from "../RenderDevice/WebGPUShaderData";
 import { WebGPURenderContext3D } from "./WebGPURenderContext3D";
-
-/**
- * 阴影裁剪信息
- */
-export class ShadowCullInfo {
-    position: Vector3;
-    direction: Vector3;
-    cullPlanes: Plane[];
-    cullSphere: BoundSphere;
-    cullPlaneCount: number;
-}
 
 /**
  * 线性光源阴影渲染流程
@@ -228,6 +217,8 @@ export class WebGPUDirectLightShadowRP {
             this._applyCasterPassCommandBuffer(context);
         }
         this._applyRenderData(context.sceneData, context.cameraData);
+
+        this._renderQueue._batch.recoverData();
 
         context.restoreViewPortAndScissor();
         context.cameraData = originCameraData;

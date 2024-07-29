@@ -1,8 +1,11 @@
 import { FilterMode } from "../../../RenderEngine/RenderEnum/FilterMode";
+import { GPUEngineStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
 import { TextureCompareMode } from "../../../RenderEngine/RenderEnum/TextureCompareMode";
 import { TextureDimension } from "../../../RenderEngine/RenderEnum/TextureDimension";
 import { WrapMode } from "../../../RenderEngine/RenderEnum/WrapMode";
 import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
+import { WebGLEngine } from "../../WebGLDriver/RenderDevice/WebGLEngine";
+import { WebGPURenderEngine } from "./WebGPURenderEngine";
 import { WebGPUSampler, WebGPUSamplerParams } from "./WebGPUSampler";
 import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
 import { WebGPUStatis } from "./WebGPUStatis/WebGPUStatis";
@@ -19,12 +22,17 @@ export class WebGPUInternalTex implements InternalTexture {
     mipmapCount: number;
     baseMipmapLevel: number;
     maxMipmapLevel: number;
-    gpuMemory: number;
     useSRGBLoad: boolean;
     gammaCorrection: number;
     multiSamplers: number;
 
     _webGPUFormat: WebGPUTextureFormat;
+
+    private _engine: WebGPURenderEngine;
+    private _statistics_M_TextureX: GPUEngineStatisticsInfo; //分类
+    private _statistics_M_TextureA: GPUEngineStatisticsInfo; //不分类
+    private _statistics_RC_TextureX: GPUEngineStatisticsInfo;
+    private _statistics_RC_TextureA: GPUEngineStatisticsInfo;
 
     globalId: number;
     objectName: string = 'WebGPUInternalTex';
@@ -130,6 +138,15 @@ export class WebGPUInternalTex implements InternalTexture {
         return this._webgpuSampler;
     }
 
+    private _gpuMemory: number = 0;
+    get gpuMemory(): number {
+        return this._gpuMemory;
+    }
+    set gpuMemory(value: number) {
+        this._changeTexMemory(value);
+        this._gpuMemory = value;
+    }
+
     constructor(width: number, height: number, depth: number, dimension: TextureDimension, mipmap: boolean, multiSamples: number, useSRGBLoader: boolean, gammaCorrection: number) {
         this.width = width;
         this.height = height;
@@ -137,13 +154,13 @@ export class WebGPUInternalTex implements InternalTexture {
         this.dimension = dimension;
         this.multiSamplers = multiSamples;
 
-        const isPot = (value: number): boolean => {
+        const _isPot = (value: number): boolean => {
             return (value & (value - 1)) === 0;
         }
 
-        this.isPotSize = isPot(width) && isPot(height);
+        this.isPotSize = _isPot(width) && _isPot(height);
         if (dimension === TextureDimension.Tex3D) {
-            this.isPotSize = this.isPotSize && isPot(this.depth);
+            this.isPotSize = this.isPotSize && _isPot(this.depth);
         }
 
         this.mipmap = mipmap && this.isPotSize;
@@ -153,10 +170,37 @@ export class WebGPUInternalTex implements InternalTexture {
         this.useSRGBLoad = useSRGBLoader;
         this.gammaCorrection = gammaCorrection;
 
+        this._engine = WebGPURenderEngine._instance;
         this._webgpuSampler = WebGPUSampler.getWebGPUSampler(this._webGPUSamplerParams);
+
+        switch (dimension) {
+            case TextureDimension.Tex2D:
+                this._statistics_M_TextureX = GPUEngineStatisticsInfo.M_Texture2D;
+                this._statistics_RC_TextureX = GPUEngineStatisticsInfo.RC_Texture2D;
+                break;
+            case TextureDimension.Tex3D:
+                this._statistics_M_TextureX = GPUEngineStatisticsInfo.M_Texture3D;
+                this._statistics_RC_TextureX = GPUEngineStatisticsInfo.RC_Texture3D;
+                break;
+            case TextureDimension.Cube:
+                this._statistics_M_TextureX = GPUEngineStatisticsInfo.M_TextureCube;
+                this._statistics_RC_TextureX = GPUEngineStatisticsInfo.RC_TextureCube;
+                break;
+            case TextureDimension.Texture2DArray:
+                this._statistics_M_TextureX = GPUEngineStatisticsInfo.M_Texture2DArray;
+                this._statistics_RC_TextureX = GPUEngineStatisticsInfo.RC_Texture2DArray;
+                break;
+        }
+        this._statistics_M_TextureA = GPUEngineStatisticsInfo.M_ALLTexture;
+        this._statistics_RC_TextureA = GPUEngineStatisticsInfo.RC_ALLTexture;
 
         this.globalId = WebGPUGlobal.getId(this);
         WebGPUStatis.addTexture(this);
+    }
+
+    statisAsRenderTexture() {
+        this._statistics_M_TextureA = GPUEngineStatisticsInfo.M_ALLRenderTexture;
+        this._statistics_RC_TextureA = GPUEngineStatisticsInfo.RC_ALLRenderTexture;
     }
 
     getTextureView(): GPUTextureView {
@@ -182,18 +226,29 @@ export class WebGPUInternalTex implements InternalTexture {
                 break;
         }
 
-        let descriptor: GPUTextureViewDescriptor = {
+        const descriptor: GPUTextureViewDescriptor = {
             format: this._webGPUFormat,
-            dimension: dimension,
+            dimension,
             baseMipLevel: this.baseMipmapLevel,
             mipLevelCount: this.maxMipmapLevel - this.baseMipmapLevel + 1,
         }
         return this.resource.createView(descriptor);
     }
 
+    private _changeTexMemory(memory: number) {
+        this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.M_GPUMemory, -this._gpuMemory + memory);
+        if (this._statistics_M_TextureA !== GPUEngineStatisticsInfo.M_ALLRenderTexture)
+            this._engine._addStatisticsInfo(this._statistics_M_TextureX, -this._gpuMemory + memory);
+        this._engine._addStatisticsInfo(this._statistics_M_TextureA, -this._gpuMemory + memory);
+        // if (this._statistics_RC_TextureA !== GPUEngineStatisticsInfo.RC_ALLRenderTexture)
+        //     this._engine._addStatisticsInfo(this._statistics_RC_TextureX, -this._gpuMemory + memory);
+        // this._engine._addStatisticsInfo(this._statistics_RC_TextureA, -this._gpuMemory + memory);
+    }
+
     dispose(): void {
         //TODO好像需要延迟删除
+        this.gpuMemory = 0;
         WebGPUGlobal.releaseId(this);
-        this.resource.destroy();
+        this.resource.destroy(); //如果有报错，就需要采取延迟删除措施
     }
 }

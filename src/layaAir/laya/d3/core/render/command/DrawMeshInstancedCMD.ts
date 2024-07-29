@@ -77,8 +77,6 @@ export class DrawMeshInstancedCMD extends Command {
     /**@internal */
     _transform: Transform3D;
     /**@internal */
-    _instanceRenderElement: RenderElement;
-    /**@internal */
     _render: BaseRender;
     /**@internal */
     _drawElementCMDData: DrawElementCMDData;

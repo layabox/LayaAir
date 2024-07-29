@@ -1,5 +1,6 @@
 import { Laya } from "../../../../Laya";
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
+import { GPUEngineStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
 import { Color } from "../../../maths/Color";
 import { Vector4 } from "../../../maths/Vector4";
 import { Viewport } from "../../../maths/Viewport";
@@ -59,6 +60,7 @@ export class WebGPURenderContext3D implements IRenderContext3D {
     private _needStart: boolean = true;
 
     device: GPUDevice; //GPU设备
+    frameCount: number = 0; //帧计数
     bundleHit: number = 0; //命中Bundle
     needRemoveBundle: number[] = []; //需要清除绘图指令缓存的渲染节点
     bundleManagerSets: Map<string, WebGPURenderBundleManagerSet> = new Map(); //绘图指令缓存组
@@ -77,6 +79,7 @@ export class WebGPURenderContext3D implements IRenderContext3D {
 
     constructor() {
         this.globalId = WebGPUGlobal.getId(this);
+        this.device = WebGPURenderEngine._instance.getDevice();
         WebGPURenderEngine._instance.gpuBufferMgr.setRenderContext(this);
     }
 
@@ -240,6 +243,7 @@ export class WebGPURenderContext3D implements IRenderContext3D {
     drawRenderElementList(list: FastSinglelist<WebGPURenderElement3D>): number {
         const len = list.length;
         if (len === 0) return 0; //没有需要渲染的对象
+        //let tttt = performance.now();
         this._setScreenRT(); //如果没有渲染目标，则将屏幕作为渲染目标
         if (this._needStart) {
             this._start(); //为录制渲染命令做准备
@@ -265,7 +269,9 @@ export class WebGPURenderContext3D implements IRenderContext3D {
             elementsToBundleStatic = rbms.elementsToBundleStatic;
             elementsToBundleDynamic = rbms.elementsToBundleDynamic;
         }
+        //console.log('preTime =', (performance.now() - tttt), len);
 
+        //tttt = performance.now();
         let compile = false;
         let createBundleCount = 0;
         const elements = list.elements;
@@ -280,7 +286,9 @@ export class WebGPURenderContext3D implements IRenderContext3D {
                 }
             }
         }
+        //console.log('updateTime =', (performance.now() - tttt), len);
 
+        //tttt = performance.now();
         if (WebGPUGlobal.useBundle) { //启用绘图指令缓存模式
             const needRemoveBundle = this.needRemoveBundle;
             for (let i = 0, n = needRemoveBundle.length; i < n; i++) //如果有需要清除的绘图指令缓存，先清除
@@ -331,6 +339,8 @@ export class WebGPURenderContext3D implements IRenderContext3D {
         }
         this._submit(); //提交渲染命令
         WebGPUStatis.addRenderElement(list.length); //统计渲染节点数量
+        //console.log('renderTime =', (performance.now() - tttt), len);
+
         return 0;
     }
 
@@ -403,7 +413,6 @@ export class WebGPURenderContext3D implements IRenderContext3D {
      * @param viewPortAndScissor 
      */
     private _start(viewPortAndScissor: boolean = true) {
-        this.device = WebGPURenderEngine._instance.getDevice();
         const renderPassDesc: GPURenderPassDescriptor
             = WebGPURenderPassHelper.getDescriptor(this.destRT, this._clearFlag, this._clearColor, this._clearDepth, this._clearStencil);
         this.renderCommand.startRender(renderPassDesc);
@@ -426,13 +435,19 @@ export class WebGPURenderContext3D implements IRenderContext3D {
      * 提交渲染命令
      */
     private _submit() {
-        if (this.blitScreen && WebGPURenderEngine._instance.screenResized) return; //屏幕尺寸改变，丢弃这一帧
+        const engine = WebGPURenderEngine._instance;
+        if (this.blitScreen && engine.screenResized) return; //屏幕尺寸改变，丢弃这一帧
         this.renderCommand.end();
-        if (WebGPUGlobal.useBigBuffer)
-            WebGPURenderEngine._instance.upload(); //上传所有Uniform数据
+        if (Laya.timer.currFrame != this.frameCount) {
+            this.frameCount = Laya.timer.currFrame;
+            engine.startFrame();
+        }
+        engine.upload(); //上传所有Uniform数据
         this.device.queue.submit([this.renderCommand.finish()]);
         this._needStart = true;
         WebGPUStatis.addSubmit(); //统计提交次数
+
+        engine._addStatisticsInfo(GPUEngineStatisticsInfo.C_DrawCallCount, 1);
     }
 
     /**

@@ -4,7 +4,7 @@ import { Camera } from "../../../d3/core/Camera";
 import { Transform3D } from "../../../d3/core/Transform3D";
 import { Color } from "../../../maths/Color";
 import { Vector4 } from "../../../maths/Vector4";
-import { FastSinglelist } from "../../../utils/SingletonList";
+import { FastSinglelist, SingletonList } from "../../../utils/SingletonList";
 import { ICameraNodeData, IBaseRenderNode, ISceneNodeData } from "../../RenderModuleData/Design/3D/I3DRenderModuleData";
 import { ShaderData } from "../RenderDevice/ShaderData";
 import { IRenderGeometryElement } from "../RenderDevice/IRenderGeometryElement";
@@ -52,6 +52,19 @@ export interface IRenderElement3D {
     destroy(): void;
 }
 
-export interface ISkinRenderElement3D{
-    skinnedData:Float32Array[];
+export interface IInstanceRenderBatch {
+    batch(elements: SingletonList<IRenderElement3D>): void;
+    clearRenderData(): void;
+    recoverData(): void;
+}
+
+export interface IInstanceRenderElement3D extends IRenderElement3D {
+    instanceElementList: SingletonList<IRenderElement3D>;
+    setGeometry(geometry: IRenderGeometryElement): void;
+    clearRenderData(): void;
+    recover(): void;
+}
+
+export interface ISkinRenderElement3D {
+    skinnedData: Float32Array[];
 }

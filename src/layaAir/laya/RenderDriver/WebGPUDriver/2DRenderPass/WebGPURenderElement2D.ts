@@ -124,14 +124,14 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
 
         //查找着色器对象缓存
         for (let i = 0; i < this._passNum; i++) {
-            if (!this._shaderPass[i].moduleData.getCacheShader(compileDefine)) {
+            if (!this._shaderPass[i].moduleData.getCacheShader(compileDefine.clone())) {
                 const { uniformMap, arrayMap } = this._collectUniform(compileDefine); //@ts-ignore
                 this._shaderPass[i].uniformMap = uniformMap; //@ts-ignore
                 this._shaderPass[i].arrayMap = arrayMap;
             }
 
             //获取着色器实例，先查找缓存，如果没有则创建
-            const shaderInstance = this._shaderPass[i].withCompile(compileDefine, true) as WebGPUShaderInstance;
+            const shaderInstance = this._shaderPass[i].withCompile(compileDefine.clone(), true) as WebGPUShaderInstance;
             this._shaderInstance[i] = this._shaderInstances[this._passIndex[i]] = shaderInstance;
 
             //创建uniform缓冲区
@@ -157,7 +157,9 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
     protected _calcStateKey(shaderInstance: WebGPUShaderInstance, dest: WebGPUInternalRT, context: WebGPURenderContext2D) {
         this._getBlendState(shaderInstance);
         this._getDepthStencilState(shaderInstance, dest);
-        this._getCullFrontMode(this.value2DShaderData, shaderInstance, false, context.invertY);
+        if (this.renderStateIsBySprite || !this.materialShaderData)
+            this._getCullFrontMode(this.value2DShaderData, shaderInstance, false, context.invertY);
+        else this._getCullFrontMode(this.materialShaderData, shaderInstance, false, context.invertY);
         const primitiveState = WebGPUPrimitiveState.getGPUPrimitiveState(this.geometry.mode, this.frontFace, this.cullMode);
         const bufferState = this.geometry.bufferState;
         const depthStencilId = this.depthStencilState ? this.depthStencilState.id : -1;
@@ -174,7 +176,9 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
     protected _getWebGPURenderPipeline(shaderInstance: WebGPUShaderInstance, dest: WebGPUInternalRT, context: WebGPURenderContext2D, entries: any) {
         this._getBlendState(shaderInstance);
         this._getDepthStencilState(shaderInstance, dest);
-        this._getCullFrontMode(this.value2DShaderData, shaderInstance, false, context.invertY);
+        if (this.renderStateIsBySprite || !this.materialShaderData)
+            this._getCullFrontMode(this.value2DShaderData, shaderInstance, false, context.invertY);
+        else this._getCullFrontMode(this.materialShaderData, shaderInstance, false, context.invertY);
         return WebGPURenderPipeline.getRenderPipeline(this, shaderInstance, dest, entries);
     }
 
@@ -183,9 +187,15 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
      * @param shaderInstance 
      */
     private _getBlendState(shaderInstance: WebGPUShaderInstance) {
-        if ((shaderInstance._shaderPass as ShaderPass).statefirst)
-            this.blendState = this._getRenderStateBlendByShader(this.value2DShaderData, shaderInstance);
-        else this.blendState = this._getRenderStateBlendByMaterial(this.value2DShaderData);
+        if (this.renderStateIsBySprite || !this.materialShaderData) {
+            if ((shaderInstance._shaderPass as ShaderPass).statefirst)
+                this.blendState = this._getRenderStateBlendByShader(this.value2DShaderData, shaderInstance);
+            else this.blendState = this._getRenderStateBlendByMaterial(this.value2DShaderData);
+        } else {
+            if ((shaderInstance._shaderPass as ShaderPass).statefirst)
+                this.blendState = this._getRenderStateBlendByShader(this.materialShaderData, shaderInstance);
+            else this.blendState = this._getRenderStateBlendByMaterial(this.materialShaderData);
+        }
     }
 
     private _getRenderStateBlendByShader(shaderData: WebGPUShaderData, shaderInstance: WebGPUShaderInstance) {
@@ -228,9 +238,6 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
     private _getRenderStateBlendByMaterial(shaderData: WebGPUShaderData) {
         const data = shaderData.getData();
         const blend = data[Shader3D.BLEND] ?? RenderState.Default.blend;
-        //shaderData.setInt(Shader3D.BLEND, RenderState.BLEND_ENABLE_ALL);
-        //shaderData.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_SRC_ALPHA);
-        //shaderData.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA);
         let blendState: any;
         switch (blend) {
             case RenderState.BLEND_DISABLE:
@@ -280,9 +287,15 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
      */
     private _getDepthStencilState(shaderInstance: WebGPUShaderInstance, dest: WebGPUInternalRT): void {
         if (dest._depthTexture) {
-            if ((shaderInstance._shaderPass as ShaderPass).statefirst)
-                this.depthStencilState = this._getRenderStateDepthByShader(this.value2DShaderData, shaderInstance, dest);
-            else this.depthStencilState = this._getRenderStateDepthByMaterial(this.value2DShaderData, dest);
+            if (this.renderStateIsBySprite || !this.materialShaderData) {
+                if ((shaderInstance._shaderPass as ShaderPass).statefirst)
+                    this.depthStencilState = this._getRenderStateDepthByShader(this.value2DShaderData, shaderInstance, dest);
+                else this.depthStencilState = this._getRenderStateDepthByMaterial(this.value2DShaderData, dest);
+            } else {
+                if ((shaderInstance._shaderPass as ShaderPass).statefirst)
+                    this.depthStencilState = this._getRenderStateDepthByShader(this.materialShaderData, shaderInstance, dest);
+                else this.depthStencilState = this._getRenderStateDepthByMaterial(this.materialShaderData, dest);
+            }
         } else this.depthStencilState = null;
     }
 
@@ -442,11 +455,13 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
      * @param bundle 
      */
     protected _uploadGeometry(command: WebGPURenderCommandEncoder) {
+        let triangles = 0;
         if (command) {
             if (WebGPUGlobal.useGlobalContext)
-                WebGPUContext.applyCommandGeometry(command, this.geometry);
-            else command.applyGeometry(this.geometry);
+                triangles += WebGPUContext.applyCommandGeometry(command, this.geometry);
+            else triangles += command.applyGeometry(this.geometry);
         }
+        return triangles;
     }
 
     /**
@@ -524,6 +539,7 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
     render(context: WebGPURenderContext2D, command: WebGPURenderCommandEncoder) {
         //如果command是null，则只上传shaderData数据，不执行bindGroup操作
         let stateKey;
+        let triangles = 0;
         for (let i = 0; i < this._passNum; i++) {
             const index = this._passIndex[i];
             const shaderInstance = this._shaderInstance[i];
@@ -543,9 +559,10 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
                 if (command)
                     this._bindGroup(shaderInstance, command); //绑定资源组
                 this._uploadUniform(); //上传uniform数据
-                this._uploadGeometry(command); //上传几何数据
+                triangles += this._uploadGeometry(command); //上传几何数据
             }
         }
+        return triangles;
     }
 
     /**

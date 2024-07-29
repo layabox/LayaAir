@@ -1,5 +1,4 @@
 import { Config3D } from "../../../Config3D"
-import { Component } from "../../components/Component"
 import { LayaGL } from "../../layagl/LayaGL"
 import { Matrix4x4 } from "../../maths/Matrix4x4"
 import { BaseRenderType, IMeshRenderNode } from "../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData"
@@ -8,7 +7,6 @@ import { ShaderDefine } from "../../RenderDriver/RenderModuleData/Design/ShaderD
 import { RenderCapable } from "../../RenderEngine/RenderEnum/RenderCapable"
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D"
 import { VertexMesh } from "../../RenderEngine/RenderShader/VertexMesh"
-import { Material } from "../../resource/Material"
 import { Laya3DRender } from "../RenderObjs/Laya3DRender"
 import { Mesh } from "../resource/models/Mesh"
 import { MeshUtil } from "../resource/models/MeshUtil"
@@ -48,8 +46,7 @@ export class MeshRenderer extends BaseRender {
     }
 
     private morphTargetActiveCount: number = 0;
-    private morphTargetActiveWeight: Float32Array;
-    private morphTargetActiveIndex: Float32Array;
+    private morphTargetActiveData: Float32Array; // vec4 ,x : index, y: weight
 
     /**@internal */
     morphTargetWeight: Float32Array;
@@ -208,8 +205,9 @@ export class MeshRenderer extends BaseRender {
             // todo top k
             this.morphTargetWeight.forEach((weight, index) => {
                 if (weight > 0) {
-                    this.morphTargetActiveIndex[activeIndex] = index;
-                    this.morphTargetActiveWeight[activeIndex] = weight;
+                    let offset = activeIndex * 4;
+                    this.morphTargetActiveData[offset] = index;
+                    this.morphTargetActiveData[offset + 1] = weight;
                     activeIndex++;
                 }
             });
@@ -219,8 +217,7 @@ export class MeshRenderer extends BaseRender {
             if (LayaGL.renderEngine.getCapable(RenderCapable.Texture3D)) {
                 shaderData.setInt(RenderableSprite3D.MorphActiveCount, this.morphTargetActiveCount);
 
-                shaderData.setBuffer(RenderableSprite3D.MorphActiceTargets, this.morphTargetActiveIndex);
-                shaderData.setBuffer(RenderableSprite3D.MorphActiveWeights, this.morphTargetActiveWeight);
+                shaderData.setBuffer(RenderableSprite3D.MorphActiceTargets, this.morphTargetActiveData);
             }
             else {
                 // todo
@@ -260,8 +257,7 @@ export class MeshRenderer extends BaseRender {
         const maxMorphTargetCount = Config3D.maxMorphTargetCount;
         let maxCount = maxMorphTargetCount;
 
-        this.morphTargetActiveIndex = new Float32Array(maxCount);
-        this.morphTargetActiveWeight = new Float32Array(maxCount);
+        this.morphTargetActiveData = new Float32Array(maxCount * 4);
 
         if (LayaGL.renderEngine.getCapable(RenderCapable.Texture3D)) {
             if (oldMesh && oldMesh.morphTargetData) {
@@ -315,8 +311,7 @@ export class MeshRenderer extends BaseRender {
 
                 shaderData.setVector(RenderableSprite3D.MorphParams, morphData.params);
 
-                shaderData.setBuffer(RenderableSprite3D.MorphActiceTargets, this.morphTargetActiveIndex);
-                shaderData.setBuffer(RenderableSprite3D.MorphActiveWeights, this.morphTargetActiveWeight);
+                shaderData.setBuffer(RenderableSprite3D.MorphActiceTargets, this.morphTargetActiveData);
             }
         }
 

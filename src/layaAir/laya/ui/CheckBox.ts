@@ -1,89 +1,27 @@
 import { Button } from "./Button"
 
 /**
- * 当按钮的选中状态（ <code>selected</code> 属性）发生改变时调度。
+ * @en Dispatched when the selection state (the `selected` property) of the button changes.
+ * @zh 当按钮的选中状态（ `selected` 属性）发生改变时调度。
  * @eventType laya.events.Event
  */
 /*[Event(name = "change", type = "laya.events.Event")]*/
 
 /**
- * <code>CheckBox</code> 组件显示一个小方框，该方框内可以有选中标记。
- * <code>CheckBox</code> 组件还可以显示可选的文本标签，默认该标签位于 CheckBox 右侧。
- * <p><code>CheckBox</code> 使用 <code>dataSource</code>赋值时的的默认属性是：<code>selected</code>。</p>
- *
- * @example <caption>以下示例代码，创建了一个 <code>CheckBox</code> 实例。</caption>
- * package
- *	{
- *		import laya.ui.CheckBox;
- *		import laya.utils.Handler;
- *		public class CheckBox_Example
- *		{
- *			public function CheckBox_Example()
- *			{
- *				Laya.init(640, 800);//设置游戏画布宽高。
- * 				Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。
- *				Laya.loader.load("resource/ui/check.png", Handler.create(this,onLoadComplete));//加载资源。
- *			}
- *			private function onLoadComplete():void
- *			{
- *				trace("资源加载完成！");
- *				var checkBox:CheckBox = new CheckBox("resource/ui/check.png", "这个是一个CheckBox组件。");//创建一个 CheckBox 类的实例对象 checkBox ,传入它的皮肤skin和标签label。
- *				checkBox.x = 100;//设置 checkBox 对象的属性 x 的值，用于控制 checkBox 对象的显示位置。
- *				checkBox.y = 100;//设置 checkBox 对象的属性 y 的值，用于控制 checkBox 对象的显示位置。
- *				checkBox.clickHandler = new Handler(this, onClick, [checkBox]);//设置 checkBox 的点击事件处理器。
- *				Laya.stage.addChild(checkBox);//将此 checkBox 对象添加到显示列表。
- *			}
- *			private function onClick(checkBox:CheckBox):void
- *			{
- *				trace("输出选中状态: checkBox.selected = " + checkBox.selected);
- *			}
- *		}
- *	}
- * @example
- * Laya.init(640, 800);//设置游戏画布宽高
- * Laya.stage.bgColor = "#efefef";//设置画布的背景颜色
- * Laya.loader.load("resource/ui/check.png",laya.utils.Handler.create(this,loadComplete));//加载资源
- * function loadComplete()
- * {
- *     console.log("资源加载完成！");
- *     var checkBox:laya.ui.CheckBox= new laya.ui.CheckBox("resource/ui/check.png", "这个是一个CheckBox组件。");//创建一个 CheckBox 类的类的实例对象 checkBox ,传入它的皮肤skin和标签label。
- *     checkBox.x =100;//设置 checkBox 对象的属性 x 的值，用于控制 checkBox 对象的显示位置。
- *     checkBox.y =100;//设置 checkBox 对象的属性 y 的值，用于控制 checkBox 对象的显示位置。
- *     checkBox.clickHandler = new laya.utils.Handler(this,this.onClick,[checkBox],false);//设置 checkBox 的点击事件处理器。
- *     Laya.stage.addChild(checkBox);//将此 checkBox 对象添加到显示列表。
- * }
- * function onClick(checkBox)
- * {
- *     console.log("checkBox.selected = ",checkBox.selected);
- * }
- * @example
- * import CheckBox= laya.ui.CheckBox;
- * import Handler=laya.utils.Handler;
- * class CheckBox_Example{
- *     constructor()
- *     {
- *         Laya.init(640, 800);
- *         Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。
- *         Laya.loader.load("resource/ui/check.png", Handler.create(this,this.onLoadComplete));//加载资源。
- *     }
- *     private onLoadComplete()
- *     {
- *         var checkBox:CheckBox = new CheckBox("resource/ui/check.png", "这个是一个CheckBox组件。");//创建一个 CheckBox 类的实例对象 checkBox ,传入它的皮肤skin和标签label。
- *         checkBox.x = 100;//设置 checkBox 对象的属性 x 的值，用于控制 checkBox 对象的显示位置。
- *         checkBox.y = 100;//设置 checkBox 对象的属性 y 的值，用于控制 checkBox 对象的显示位置。
- *         checkBox.clickHandler = new Handler(this, this.onClick,[checkBox]);//设置 checkBox 的点击事件处理器。
- *         Laya.stage.addChild(checkBox);//将此 checkBox 对象添加到显示列表。
- *     }
- *     private onClick(checkBox:CheckBox):void
- *     {
- *         console.log("输出选中状态: checkBox.selected = " + checkBox.selected);
- *     }
- * }
+ * @en The `CheckBox` component displays a small box that can have a check mark. 
+ * The `CheckBox` component can also display an optional text label, which is positioned to the right of the CheckBox by default.
+ * When assigning a value to `CheckBox` using `dataSource`, the default property is `selected`.
+ * @zh `CheckBox` 组件显示一个小方框，该方框内可以有选中标记。
+ * `CheckBox` 组件还可以显示可选的文本标签，默认该标签位于 CheckBox 右侧。
+ * 使用 `dataSource` 赋值时，`CheckBox` 的默认属性是 `selected`。
  */
 export class CheckBox extends Button {
 
     /**
-     * 创建一个新的 <code>CheckBox</code> 组件实例。
+     * @en `CheckBox` component constructor.
+     * @param skin The skin resource address.
+     * @param label The content of the text label.
+     * @zh `CheckBox` 组件的构造函数。
      * @param skin 皮肤资源地址。
      * @param label 文本标签的内容。
      */
@@ -96,7 +34,9 @@ export class CheckBox extends Button {
     /**
      * @internal
      * @inheritDoc 
-     * @override
+     * @override 
+     * @en Preinitialization method. Called before the object is initialized.
+     * @zh 预初始化方法。在对象初始化之前调用。
      */
     protected preinitialize(): void {
         super.preinitialize();
@@ -108,6 +48,8 @@ export class CheckBox extends Button {
      * @internal
      * @inheritDoc 
      * @override
+     * @en Initialization method. Called when the object is initialized.
+     * @zh 初始化方法。在对象初始化时调用。
      */
     protected initialize(): void {
         super.initialize();
@@ -120,6 +62,10 @@ export class CheckBox extends Button {
     /**
      * @inheritDoc 
      * @override
+     * @en Sets the data source of the component.
+     * @param value The data source.
+     * @zh 设置组件的数据源。
+     * @param value 数据源。
      */
     set_dataSource(value: any) {
         this._dataSource = value;

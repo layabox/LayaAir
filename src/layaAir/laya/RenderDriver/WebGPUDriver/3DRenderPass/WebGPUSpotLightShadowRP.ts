@@ -8,7 +8,7 @@ import { ShadowMode } from "../../../d3/core/light/ShadowMode";
 import { CommandBuffer } from "../../../d3/core/render/command/CommandBuffer";
 import { Scene3DShaderDeclaration } from "../../../d3/core/scene/Scene3DShaderDeclaration";
 import { ShadowCasterPass } from "../../../d3/shadowMap/ShadowCasterPass";
-import { CameraCullInfo } from "../../../d3/shadowMap/ShadowSliceData";
+import { CameraCullInfo, ShadowSpotData } from "../../../d3/shadowMap/ShadowSliceData";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { Color } from "../../../maths/Color";
 import { MathUtils3D } from "../../../maths/MathUtils3D";
@@ -25,37 +25,6 @@ import { WebGPUInternalRT } from "../RenderDevice/WebGPUInternalRT";
 import { WebGPUShaderData } from "../RenderDevice/WebGPUShaderData";
 import { WebGPURenderContext3D } from "./WebGPURenderContext3D";
 
-/**
- * 聚光灯阴影数据
- */
-export class ShadowSpotData {
-    cameraShaderData: WebGPUShaderData;
-    position: Vector3 = new Vector3();
-    offsetX: number;
-    offsetY: number;
-    resolution: number;
-    viewMatrix: Matrix4x4 = new Matrix4x4();
-    projectionMatrix: Matrix4x4 = new Matrix4x4();
-    viewProjectMatrix: Matrix4x4 = new Matrix4x4();
-    cameraCullInfo: CameraCullInfo;
-    cameraUBO: UniformBufferObject;
-    cameraUBData: UnifromBufferData;
-
-    constructor() {
-        this.cameraShaderData = <WebGPUShaderData>LayaGL.renderDeviceFactory.createShaderData(null);
-        this.cameraCullInfo = new CameraCullInfo();
-        if (Config3D._uniformBlock) {
-            let cameraUBO = UniformBufferObject.getBuffer(UniformBufferObject.UBONAME_CAMERA, 0);
-            const cameraUBData = BaseCamera.createCameraUniformBlock();
-            if (!cameraUBO)
-                cameraUBO = UniformBufferObject.create(UniformBufferObject.UBONAME_CAMERA, BufferUsage.Dynamic, cameraUBData.getbyteLength(), false);
-            this.cameraShaderData._addCheckUBO(UniformBufferObject.UBONAME_CAMERA, cameraUBO, cameraUBData);
-            this.cameraShaderData.setUniformBuffer(BaseCamera.CAMERAUNIFORMBLOCK, cameraUBO);
-            this.cameraUBO = cameraUBO;
-            this.cameraUBData = cameraUBData;
-        }
-    }
-}
 
 /**
  * 聚光灯阴影渲染流程
@@ -149,7 +118,7 @@ export class WebGPUSpotLightShadowRP {
         this._getShadowBias(shadowSpotData.resolution, this._shadowBias);
         this._setupShadowCasterShaderValues(shaderData, shadowSpotData, this._shadowBias);
         RenderCullUtil.cullSpotShadow(shadowSpotData.cameraCullInfo, list, count, this._renderQueue, context);
-        context.cameraData = shadowSpotData.cameraShaderData;
+        context.cameraData = <WebGPUShaderData>shadowSpotData.cameraShaderValue;
         context.cameraUpdateMask++;
 
         Viewport._tempViewport.set(shadowSpotData.offsetX, shadowSpotData.offsetY, shadowSpotData.resolution, shadowSpotData.resolution);
@@ -235,7 +204,7 @@ export class WebGPUSpotLightShadowRP {
     private _setupShadowCasterShaderValues(shaderData: WebGPUShaderData, shadowSliceData: ShadowSpotData, shadowBias: Vector4): void {
         shaderData.setVector(ShadowCasterPass.SHADOW_BIAS, shadowBias);
         shaderData.setMatrix4x4(BaseCamera.VIEWPROJECTMATRIX, shadowSliceData.viewProjectMatrix);
-        const cameraData = shadowSliceData.cameraShaderData;
+        const cameraData = shadowSliceData.cameraShaderValue;
         cameraData.setMatrix4x4(BaseCamera.VIEWMATRIX, shadowSliceData.viewMatrix);
         cameraData.setMatrix4x4(BaseCamera.PROJECTMATRIX, shadowSliceData.projectionMatrix);
         cameraData.setMatrix4x4(BaseCamera.VIEWPROJECTMATRIX, shadowSliceData.viewProjectMatrix);

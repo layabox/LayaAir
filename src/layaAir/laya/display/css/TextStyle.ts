@@ -20,6 +20,11 @@ export class TextStyle {
     /**下划线颜色*/
     underlineColor:string = null;
 
+    /**是否显示删除线 */
+    strikethrough = false;
+    /** 删除线颜色 */
+    strikethroughColor:string = null;
+
     /**
      * <p>表示使用此文本格式的文本段落的水平对齐方式。</p>
      * @default  "left"
@@ -53,8 +58,6 @@ export class TextStyle {
      * @default "#000000";
      */
     strokeColor = '#000000';
-
-    strikethrough: boolean;
 
     constructor() {
         this.font = "";

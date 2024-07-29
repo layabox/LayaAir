@@ -4,7 +4,8 @@ const _COLOR_MAP: Record<string, string> = { "purple": "#800080", "orange": "#ff
 
 /**
  * @private
- * <code>ColorUtils</code> 是一个颜色值处理类。
+ * @en The ColorUtils is a class for color value processing.
+ * @zh ColorUtils 是一个用于处理颜色值的类。
  */
 export class ColorUtils {
     /**@private */
@@ -16,19 +17,30 @@ export class ColorUtils {
     /**@private */
     private static _DEFAULT: any = ColorUtils._initDefault();
 
-    /**rgba 取值范围0-1*/
+    /**
+     * @en An array representing the color in RGBA format, Value range 0-1
+     * @zh 以 RGBA 格式表示颜色的数组，取值范围0-1
+     */
     //TODO:delete？
     arrColor: any[] = [];
-    /** 字符串型颜色值。*/
+    /**
+     * @en The string representation of the color value.
+     * @zh 字符串型颜色值。
+     */
     strColor: string;
-    /** uint 型颜色值。*/
+    /**
+     * @en The uint representation of the color value.
+     * @zh uint 型颜色值。
+     */
     numColor: number;
     /**@internal TODO:*/
     _drawStyle: any;
 
     /**
-     * 根据指定的属性值，创建一个 <code>Color</code> 类的实例。
-     * @param	value 颜色值，可以是字符串："#ff0000"或者16进制颜色 0xff0000。
+     * @en Constructor method.
+     * @param value The color value, which can be a string (e.g., "#ff0000") or a hexadecimal color (e.g., 0xff0000).
+     * @zh 构造方法
+     * @param value 颜色值，可以是字符串（例如 "#ff0000"）或16进制颜色值（例如 0xff0000）。
      */
     constructor(value: any) {
         if (value == null || value == 'none') {
@@ -64,16 +76,23 @@ export class ColorUtils {
         return ColorUtils._DEFAULT;
     }
 
-    /**@private 缓存太大，则清理缓存*/
+    /**
+     * @private
+     * @en Clears the cache if it gets too large.
+     * @zh 如果缓存太大，则清理缓存。
+     */
     static _initSaveMap(): void {
         ColorUtils._SAVE_SIZE = 0;
         ColorUtils._SAVE = Object.assign({}, ColorUtils._DEFAULT);
     }
 
     /**
-     * 根据指定的属性值，创建并返回一个 <code>Color</code> 类的实例。
-     * @param	value 颜色值，可以是字符串："#ff0000"或者16进制颜色 0xff0000。
-     * @return 一个 <code>Color</code> 类的实例。
+     * @en Creates and returns an instance of the Color class based on the specified color value.
+     * @param value The color value, which can be a string (e.g., "#ff0000") or a hexadecimal color (e.g., 0xff0000).
+     * @returns An instance of the Color class.
+     * @zh 根据指定的颜色值创建并返回一个 Color 类的实例，可以是字符串（例如 "#ff0000"）或16进制颜色值（例如 0xff0000）。
+     * @param value 颜色值，可以是字符串："#ff0000"或者16进制颜色 0xff0000。
+     * @returns Color 类的一个实例。
      */
     static create(value: any): ColorUtils {
         let key: string = value + "";

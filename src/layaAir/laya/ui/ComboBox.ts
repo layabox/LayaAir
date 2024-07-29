@@ -20,74 +20,8 @@ import { HideFlags } from "../Const";
 /*[Event(name = "change", type = "laya.events.Event")]*/
 
 /**
- * <code>ComboBox</code> 组件包含一个下拉列表，用户可以从该列表中选择单个值。
- *
- * @example <caption>以下示例代码，创建了一个 <code>ComboBox</code> 实例。</caption>
- * package
- *	{
- *		import laya.ui.ComboBox;
- *		import laya.utils.Handler;
- *		public class ComboBox_Example
- *		{
- *			public function ComboBox_Example()
- *			{
- *				Laya.init(640, 800);//设置游戏画布宽高。
- *				Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。
- *				Laya.loader.load("resource/ui/button.png", Handler.create(this,onLoadComplete));//加载资源。
- *			}
- *			private function onLoadComplete():void
- *			{
- *				trace("资源加载完成！");
- *				var comboBox:ComboBox = new ComboBox("resource/ui/button.png", "item0,item1,item2,item3,item4,item5");//创建一个 ComboBox 类的实例对象 comboBox ,传入它的皮肤和标签集。
- *				comboBox.x = 100;//设置 comboBox 对象的属性 x 的值，用于控制 comboBox 对象的显示位置。
- *				comboBox.y = 100;//设置 comboBox 对象的属性 x 的值，用于控制 comboBox 对象的显示位置。
- *				comboBox.selectHandler = new Handler(this, onSelect);//设置 comboBox 选择项改变时执行的处理器。
- *				Laya.stage.addChild(comboBox);//将此 comboBox 对象添加到显示列表。
- *			}
- *			private function onSelect(index:int):void
- *			{
- *				trace("当前选中的项对象索引： ",index);
- *			}
- *		}
- *	}
- * @example
- * Laya.init(640, 800);//设置游戏画布宽高。
- * Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。
- * Laya.loader.load("resource/ui/button.png",laya.utils.Handler.create(this,loadComplete));//加载资源
- * function loadComplete() {
- *     console.log("资源加载完成！");
- *     var comboBox = new laya.ui.ComboBox("resource/ui/button.png", "item0,item1,item2,item3,item4,item5");//创建一个 ComboBox 类的实例对象 comboBox ,传入它的皮肤和标签集。
- *     comboBox.x = 100;//设置 comboBox 对象的属性 x 的值，用于控制 comboBox 对象的显示位置。
- *     comboBox.y = 100;//设置 comboBox 对象的属性 x 的值，用于控制 comboBox 对象的显示位置。
- *     comboBox.selectHandler = new laya.utils.Handler(this, onSelect);//设置 comboBox 选择项改变时执行的处理器。
- *     Laya.stage.addChild(comboBox);//将此 comboBox 对象添加到显示列表。
- * }
- * function onSelect(index)
- * {
- *     console.log("当前选中的项对象索引： ",index);
- * }
- * @example
- * import ComboBox = laya.ui.ComboBox;
- * import Handler = laya.utils.Handler;
- * class ComboBox_Example {
- *     constructor() {
- *         Laya.init(640, 800);//设置游戏画布宽高。
- *         Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。
- *         Laya.loader.load("resource/ui/button.png", Handler.create(this, this.onLoadComplete));//加载资源。
- *     }
- *     private onLoadComplete(): void {
- *         console.log("资源加载完成！");
- *         var comboBox: ComboBox = new ComboBox("resource/ui/button.png", "item0,item1,item2,item3,item4,item5");//创建一个 ComboBox 类的实例对象 comboBox ,传入它的皮肤和标签集。
- *         comboBox.x = 100;//设置 comboBox 对象的属性 x 的值，用于控制 comboBox 对象的显示位置。
- *         comboBox.y = 100;//设置 comboBox 对象的属性 x 的值，用于控制 comboBox 对象的显示位置。
- *         comboBox.selectHandler = new Handler(this, this.onSelect);//设置 comboBox 选择项改变时执行的处理器。
- *         Laya.stage.addChild(comboBox);//将此 comboBox 对象添加到显示列表。
- *     }
- *     private onSelect(index: number): void {
- *         console.log("当前选中的项对象索引： ", index);
- *     }
- * }
- *
+ * @en The `ComboBox` component contains a drop-down list from which the user can select a single value.
+ * @zh `ComboBox` 组件包含一个下拉列表，用户可以从该列表中选择单个值。
  */
 export class ComboBox extends UIComponent {
     /**@internal */
@@ -159,11 +93,16 @@ export class ComboBox extends UIComponent {
      */
     protected _isCustomList: boolean;
     /**
-     * 渲染项，用来显示下拉列表展示对象
+     * @en Rendering item, used to display a dropdown list to display objects
+     * @zh 渲染项，用来显示下拉列表展示对象
      */
     itemRender: any = null;
 
-
+    /**
+     * @en The skin resource address of the object. Supports single state, two states and three states, set with the `stateNum` property.
+     * @zh 对象的皮肤纹理资源地址。 支持单态，两态和三态，用 `stateNum` 属性设置
+     * @see #stateNum
+     */
     get skin(): string {
         return this._button.skin;
     }
@@ -175,10 +114,11 @@ export class ComboBox extends UIComponent {
         }
     }
 
-
     /**
-     * 下拉列表文本的边距Padding
-     * @readme <p><b>格式：</b>上边距,右边距,下边距,左边距</p>
+     * @en The padding of the drop-down list text.
+     * @readme The format is: top, right, bottom, left
+     * @zh 下拉列表文本的边距。
+     * @readme 格式：上边距,右边距,下边距,左边距
      */
     get itemPadding(): string {
         return this._itemPadding.join(",");
@@ -190,7 +130,8 @@ export class ComboBox extends UIComponent {
 
 
     /**
-     * 标签集合字符串。
+     * @en The string of label collection.
+     * @zh 标签集合字符串。
      */
     get labels(): string {
         return this._labels.join(",");
@@ -208,7 +149,8 @@ export class ComboBox extends UIComponent {
 
 
     /**
-     * 表示选择的下拉列表项的索引。
+     * @en Indicates the index of the selected drop-down list item.
+     * @zh 表示选择的下拉列表项的索引。
      */
     get selectedIndex(): number {
         return this._selectedIndex;
@@ -229,8 +171,9 @@ export class ComboBox extends UIComponent {
     }
 
     /**
-    * 默认的下拉提示文本。
-    */
+     * @en The default drop-down prompt text.
+     * @zh 默认的下拉提示文本。
+     */
     get defaultLabel(): string {
         return this._defaultLabel;
     }
@@ -241,7 +184,8 @@ export class ComboBox extends UIComponent {
     }
 
     /**
-     * 改变下拉列表的选择项时执行的处理器(默认返回参数index:int)。
+     * @en The handler to be executed when changing the selection of the drop-down list (default returns parameter index:int).
+     * @zh 改变下拉列表的选择项时执行的处理器(默认返回参数index:int)。
      */
     get selectHandler(): Handler {
         return this._selectHandler;
@@ -252,7 +196,8 @@ export class ComboBox extends UIComponent {
     }
 
     /**
-     * 表示选择的下拉列表项的的标签。
+     * @en Indicates the label of the selected drop-down list item.
+     * @zh 表示选择的下拉列表项的的标签。
      */
     get selectedLabel(): string {
         return this._selectedIndex > -1 && this._selectedIndex < this._labels.length ? this._labels[this._selectedIndex] : this.defaultLabel;
@@ -263,7 +208,8 @@ export class ComboBox extends UIComponent {
     }
 
     /**
-     * 获取或设置没有滚动条的下拉列表中可显示的最大行数。
+     * @en Gets or sets the maximum number of rows that can be displayed in the drop-down list without a scrollbar.
+     * @zh 获取或设置没有滚动条的下拉列表中可显示的最大行数。
      */
     get visibleNum(): number {
         return this._visibleNum;
@@ -276,7 +222,8 @@ export class ComboBox extends UIComponent {
 
 
     /**
-     * 下拉列表项的高度
+     * @en The height of the drop-down list item.
+     * @zh 下拉列表项的高度。
      */
     get itemHeight(): number {
         return this._itemHeight;
@@ -287,8 +234,10 @@ export class ComboBox extends UIComponent {
     }
 
     /**
-     * 下拉列表项颜色。
-     * <p><b>格式：</b>"悬停或被选中时背景颜色,悬停或被选中时标签颜色,标签颜色,边框颜色,背景颜色"</p>
+     * @en The color of drop-down list items.
+     * The format is: "background color when hovering or selected, label color when hovering or selected, label color, border color, background color"
+     * @zh 下拉列表项颜色。
+     * 格式：悬停或被选中时背景颜色,悬停或被选中时标签颜色,标签颜色,边框颜色,背景颜色"。
      */
     get itemColors(): string {
         return this._itemColors.join(",");
@@ -300,7 +249,8 @@ export class ComboBox extends UIComponent {
     }
 
     /**
-     * 下拉列表项标签的字体大小。
+     * @en The font size of the drop-down list item label.
+     * @zh 下拉列表项标签的字体大小。
      */
     get itemSize(): number {
         return this._itemSize;
@@ -312,7 +262,8 @@ export class ComboBox extends UIComponent {
     }
 
     /**
-     * 表示下拉列表的打开状态。
+     * @en Indicates the open state of the drop-down list.
+     * @zh 表示下拉列表的打开状态。
      */
     get isOpen(): boolean {
         return this._isOpen;
@@ -349,7 +300,8 @@ export class ComboBox extends UIComponent {
     }
 
     /**
-     * 滚动类型
+     * @en The scroll type.
+     * @zh 滚动类型。
      */
     get scrollType() {
         return this._scrollType;
@@ -360,7 +312,8 @@ export class ComboBox extends UIComponent {
     }
 
     /**
-     * 滚动条皮肤。
+     * @en The scrollbar skin.
+     * @zh 滚动条皮肤。
      */
     get scrollBarSkin(): string {
         return this._scrollBarSkin;
@@ -371,9 +324,14 @@ export class ComboBox extends UIComponent {
     }
 
     /**
-     * <p>当前实例的位图 <code>AutoImage</code> 实例的有效缩放网格数据。</p>
-     * <p>数据格式："上边距,右边距,下边距,左边距,是否重复填充(值为0：不重复填充，1：重复填充)"，以逗号分隔。
-     * <ul><li>例如："4,4,4,4,1"</li></ul></p>
+     * @en The size grid of the texture.
+     * The size grid is a 3x3 division of the texture, allowing it to be scaled without distorting the corners and edges. 
+     * The array contains five values representing the top, right, bottom, and left margins, and whether to repeat the fill (0: no repeat, 1: repeat). 
+     * The values are separated by commas. For example: "6,6,6,6,1".
+     * @zh 纹理的九宫格数据。
+     * 九宫格是一种将纹理分成3x3格的方式，使得纹理缩放时保持角和边缘不失真。
+     * 数组包含五个值，分别代表上边距、右边距、下边距、左边距以及是否重复填充（0：不重复填充，1：重复填充）。
+     * 值以逗号分隔。例如："6,6,6,6,1"。
      */
     get sizeGrid(): string {
         return this._button.sizeGrid;
@@ -384,21 +342,24 @@ export class ComboBox extends UIComponent {
     }
 
     /**
-     * 获取对 <code>ComboBox</code> 组件所包含的 <code>VScrollBar</code> 滚动条组件的引用。
+     * @en a reference to the `VScrollBar` scrollbar component contained in the `ComboBox` component.
+     * @zh `ComboBox` 组件所包含的 `VScrollBar` 滚动条组件的引用。
      */
     get scrollBar(): VScrollBar {
         return (<VScrollBar>this.list.scrollBar);
     }
 
     /**
-     * 获取对 <code>ComboBox</code> 组件所包含的 <code>Button</code> 组件的引用。
+     * @en a reference to the `Button` component contained in the `ComboBox` component.
+     * @zh `ComboBox` 组件所包含的 `Button` 组件的引用。
      */
     get button(): Button {
         return this._button;
     }
 
     /**
-     * 获取对 <code>ComboBox</code> 组件所包含的 <code>List</code> 列表组件的引用。
+     * @en a reference to the `List` list component contained in the `ComboBox` component.
+     * @zh `ComboBox` 组件所包含的 `List` 列表组件的引用。
      */
     get list(): List {
         this._list || this._createList();
@@ -416,8 +377,10 @@ export class ComboBox extends UIComponent {
     }
 
     /**
-     * 获取或设置对 <code>ComboBox</code> 组件所包含的 <code>Button</code> 组件的文本标签颜色。
-     * <p><b>格式：</b>upColor,overColor,downColor</p>
+     * @en the text label color of the `Button` component contained in the `ComboBox` component.
+     * The format is: upColor,overColor,downColor
+     * @zh  `ComboBox` 组件所包含的 `Button` 组件的文本标签颜色。
+     * 格式：upColor,overColor,downColor
      */
     get labelColors(): string {
         return this._button.labelColors;
@@ -430,8 +393,10 @@ export class ComboBox extends UIComponent {
     }
 
     /**
-     * 获取或设置对 <code>ComboBox</code> 组件所包含的 <code>Button</code> 组件的文本边距。
-     * <p><b>格式：</b>上边距,右边距,下边距,左边距</p>
+     * @en the text margin of the `Button` component contained in the `ComboBox` component.
+     * The format is: top, right, bottom, left
+     * @zh `ComboBox` 组件所包含的 `Button` 组件的文本边距。
+     * 格式：上边距,右边距,下边距,左边距
      */
     get labelPadding(): string {
         return this._button.text.padding.join(",");
@@ -442,8 +407,9 @@ export class ComboBox extends UIComponent {
     }
 
     /**
-     * 获取或设置对 <code>ComboBox</code> 组件所包含的 <code>Button</code> 组件的标签字体大小。
-     */
+    * @en the label font size of the `Button` component contained in the `ComboBox` component.
+    * @zh `ComboBox` 组件所包含的 `Button` 组件的标签字体大小。
+    */
     get labelSize(): number {
         return this._button.text.fontSize;
     }
@@ -453,9 +419,10 @@ export class ComboBox extends UIComponent {
     }
 
     /**
-     * 表示按钮文本标签是否为粗体字。
-     * @see laya.display.Text#bold
-     */
+    * @en Indicates whether the button text label is bold.
+    * @zh 表示按钮文本标签是否为粗体字。
+    * @see laya.display.Text#bold
+    */
     get labelBold(): boolean {
         return this._button.text.bold;
     }
@@ -465,7 +432,8 @@ export class ComboBox extends UIComponent {
     }
 
     /**
-     * 表示按钮文本标签的字体名称，以字符串形式表示。
+     * @en Indicates the font name of the button text label, expressed as a string.
+     * @zh 表示按钮文本标签的字体名称，以字符串形式表示。
      * @see laya.display.Text#font
      */
     get labelFont(): string {
@@ -477,7 +445,8 @@ export class ComboBox extends UIComponent {
     }
 
     /**
-     * 表示按钮的状态值。
+     * @en Indicates the state value of the button.
+     * @zh 表示按钮的状态值。
      * @see laya.ui.Button#stateNum
      */
     get stateNum(): number {
@@ -489,7 +458,10 @@ export class ComboBox extends UIComponent {
     }
 
     /**
-     * 创建一个新的 <code>ComboBox</code> 组件实例。
+     * @en `ComboBox` constructor.
+     * @param skin The skin resource address.
+     * @param labels The string of the label collection in the drop-down list. Separated by commas, such as "item0,item1,item2,item3,item4,item5".
+     * @zh  `ComboBox` UI组件的构造函数。
      * @param skin 皮肤资源地址。
      * @param labels 下拉列表的标签集字符串。以逗号做分割，如"item0,item1,item2,item3,item4,item5"。
      */
@@ -713,11 +685,14 @@ export class ComboBox extends UIComponent {
         this._button.label = this.selectedLabel;
     }
 
-
     /**
+     * @en Destroy the component and release the memory occupied by the component. Destroy the child objects of the component at the same time by default.
+     * @param destroyChild Whether to simultaneously destroy the child objects of the component. The default value is true.
+     * @zh 销毁组件并释放组件所占用的内存。默认会同时销毁组件的子对象。
+     * @param destroyChild 是否同时销毁组件的子对象。默认值为true。
      * @inheritDoc 
      * @override
-    */
+     */
     destroy(destroyChild: boolean = true): void {
         ILaya.stage.off(Event.MOUSE_DOWN, this, this.removeList);
         ILaya.stage.off(Event.MOUSE_WHEEL, this, this._onStageMouseWheel);
@@ -737,7 +712,11 @@ export class ComboBox extends UIComponent {
     /**
      * @inheritDoc 
      * @override
-    */
+     * @en Set the data source of the ComboBox.
+     * @param value The new data source.
+     * @zh 设置下拉选项框的数据源。
+     * @param value 新的数据源。
+     */
     set_dataSource(value: any): void {
         this._dataSource = value;
         if (typeof (value) == 'number' || typeof (value) == 'string')

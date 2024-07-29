@@ -34,7 +34,7 @@ export class GLESREnderContext2D implements IRenderContext2D {
         listelement.forEach((element) => {
             this._tempList.push(element._nativeObj);
         });
-        return this._nativeObj.drawRenderElementList(list.elements, list.length);
+        return this._nativeObj.drawRenderElementList(this._tempList, list.length);
     }
     setRenderTarget(value: GLESInternalRT, clear: boolean, clearColor: Color): void {
         this._nativeObj.setRenderTarget(value ? value._nativeObj : null, clear, clearColor);

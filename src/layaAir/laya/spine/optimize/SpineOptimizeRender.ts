@@ -1,3 +1,4 @@
+import { BaseRender2DType, BaseRenderNode2D } from "../../NodeRender2D/BaseRenderNode2D";
 import { IIndexBuffer } from "../../RenderDriver/DriverDesign/RenderDevice/IIndexBuffer";
 import { IRenderGeometryElement } from "../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
 import { IVertexBuffer } from "../../RenderDriver/DriverDesign/RenderDevice/IVertexBuffer";
@@ -67,6 +68,8 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
 
     bakeData: TSpineBakeData;
 
+    private _renderProxytype: ERenderProxyType;
+
     constructor(spineOptimize: SketonOptimise) {
         this.renderProxyMap = new Map();
         this.geoMap = new Map();
@@ -85,23 +88,31 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
         }
         this.currentRender = this.skinRenderArray[this._skinIndex];//default
     }
-    
+
     destroy(): void {
         //throw new Error("Method not implemented.");
     }
 
     initBake(obj: TSpineBakeData): void {
         this.bakeData = obj;
-        let render = new RenderBake(this.bones, this.slots, this._nodeOwner);
-        render.simpleAnimatorTexture =obj.texture2d;
-        render._bonesNums = obj.bonesNums;
-        render.aniOffsetMap = obj.aniOffsetMap;
-        this.renderProxyMap.set(ERenderProxyType.RenderBake, render);
-        this.isBake = true;
+        if (obj) {
+            let render = this.renderProxyMap.get(ERenderProxyType.RenderBake) as RenderBake || new RenderBake(this.bones, this.slots, this._nodeOwner);
+            render.simpleAnimatorTexture = obj.texture2d;
+            render._bonesNums = obj.bonesNums;
+            render.aniOffsetMap = obj.aniOffsetMap;
+            this.renderProxyMap.set(ERenderProxyType.RenderBake, render);
+        }
+        this.isBake = !!obj;
+        if (this._curAnimationName) {
+            this._clear();
+            this.play(this._curAnimationName);
+        }
         //throw new Error("Method not implemented.");
     }
 
     initRender(type: ESpineRenderType) {
+        //buffers .pos .uv .color vbs ib
+
         let geoResult = this.geoMap.get(type);
         if (!geoResult) {
             let geo = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
@@ -110,12 +121,21 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
             let vb = LayaGL.renderDeviceFactory.createVertexBuffer(BufferUsage.Dynamic);
             vb.vertexDeclaration = type == ESpineRenderType.rigidBody ? SpineShaderInit.SpineRBVertexDeclaration : SpineShaderInit.SpineFastVertexDeclaration;
             let ib = LayaGL.renderDeviceFactory.createIndexBuffer(BufferUsage.Dynamic);
-            mesh.applyState([vb], ib)
+
+            mesh.applyState([vb], ib);
             geo.indexFormat = IndexFormat.UInt16;
+            // geo.instanceCount = 
             geoResult = { geo, vb, ib };
             this.geoMap.set(type, geoResult);
         }
         return geoResult;
+    }
+
+    changeSkeleton(skeleton:spine.Skeleton){
+        this._skeleton=skeleton;
+        this.bones = skeleton.bones;
+        this.slots = skeleton.slots;
+        (this.renderProxyMap.get(ERenderProxyType.RenderNormal) as RenderNormal)._skeleton=skeleton;
     }
 
     init(skeleton: spine.Skeleton, templet: SpineTemplet, renderNode: Spine2DRenderNode, state: spine.AnimationState): void {
@@ -140,6 +160,10 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
         this.renderProxyMap.set(ERenderProxyType.RenderOptimize, renderOptimize);
     }
 
+    get renderProxytype(): ERenderProxyType {
+        return this._renderProxytype;
+    }
+
     set renderProxytype(value: ERenderProxyType) {
         if (this.isBake && value == ERenderProxyType.RenderOptimize) {
             if (this.bakeData.aniOffsetMap[this._curAnimationName] != undefined) {
@@ -151,6 +175,7 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
             this._nodeOwner._spriteShaderData.removeDefine(SpineShaderInit.SPINE_FAST);
             this._nodeOwner._spriteShaderData.removeDefine(SpineShaderInit.SPINE_RB);
         }
+        this._renderProxytype = value;
     }
 
     beginCache() {
@@ -252,17 +277,17 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
                     this.renderProxytype = ERenderProxyType.RenderOptimize;
                 }
                 else {
-                    this._nodeOwner.drawGeo(currentRender.geo, currentRender.material);
+                    currentRender.material&&this._nodeOwner.drawGeo(currentRender.geo, currentRender.material);
                     this.renderProxytype = ERenderProxyType.RenderOptimize;
                 }
                 this._isRender = true;
             }
         }
-        if(oldRenderProxy){
+        if (oldRenderProxy) {
             oldRenderProxy.leave();
         }
         this.renderProxy.change(currentRender, currentAnimation);
-        if ((currentAnimation.animator.isCache || this.renderProxytype==ERenderProxyType.RenderBake) && !currentSKin.isNormalRender) {
+        if ((currentAnimation.animator.isCache || this.renderProxytype == ERenderProxyType.RenderBake) && !currentSKin.isNormalRender) {
             this.beginCache();
         }
         else {
@@ -301,7 +326,7 @@ class RenderOptimize implements IRender {
         this.skinRender = currentRender;
         this.currentAnimation = currentAnimation;
     }
-    leave(): void{
+    leave(): void {
 
     }
 
@@ -322,7 +347,7 @@ class RenderNormal implements IRender {
         this._skeleton = skeleton;
     }
 
-    leave(): void{
+    leave(): void {
 
     }
 
@@ -403,6 +428,8 @@ class RenderBake implements IRender {
 
     leave() {
         this._renderNode._spriteShaderData.removeDefine(SpineShaderInit.SPINE_SIMPLE);
+        //this._renderNode._spriteShaderData.removeDefine(SpineShaderInit.SPINE_GPU_INSTANCE);
+        this._renderNode._renderType = BaseRender2DType.spine;
     }
 
     change(currentRender: SkinRender, currentAnimation: AnimationRenderProxy) {
@@ -410,6 +437,10 @@ class RenderBake implements IRender {
         this.currentAnimation = currentAnimation;
         this._renderNode._spriteShaderData.addDefine(SpineShaderInit.SPINE_SIMPLE);
         this._simpleAnimatorOffset.x = this.aniOffsetMap[currentAnimation.name];
+        if (currentAnimation.currentSKin.canInstance) {
+            this._renderNode._renderType = BaseRender2DType.spineSimple;
+            // this._renderNode._spriteShaderData.addDefine(SpineShaderInit.SPINE_GPU_INSTANCE);
+        }
     }
 
     /**
@@ -485,27 +516,8 @@ class SkinRender implements IVBIBUpdate {
         this.ib = geoResult.ib;
     }
 
-    getMaterial(texture: Texture, blendMode: number): Material {
-        let key = texture.id + "_" + blendMode;
-        let mat = SpineTemplet.materialMap.get(key);
-        if (!mat) {
-            mat = new Material();
-            mat.setShaderName("SpineStandard");
-            SpineShaderInit.initSpineMaterial(mat);
-            mat.setTextureByIndex(SpineShaderInit.SpineTexture, texture.bitmap);
-
-            SpineShaderInit.SetSpineBlendMode(blendMode, mat);
-            //mat.color = this.owner.spineColor;
-            //mat.setVector2("u_size",new Vector2(Laya.stage.width,Laya.stage.height));
-            mat._addReference();
-            SpineTemplet.materialMap.set(key, mat);
-        }
-        return mat;
-    }
-
     getMaterialByName(name: string, blendMode: number): Material {
-        let texture = this.templet.getTexture(name).realTexture;
-        return this.getMaterial(texture, blendMode);
+        return this.templet.getMaterial(this.templet.getTexture(name), blendMode);
     }
 
 
@@ -517,14 +529,15 @@ class SkinRender implements IVBIBUpdate {
         vb.setData(vertexArray.buffer, 0, 0, vblen);
     }
 
-    updateIB(indexArray: Uint16Array, ibLength: number, mutiRenderData: MultiRenderData) {
+    updateIB(indexArray: Uint16Array, ibLength: number, mutiRenderData: MultiRenderData, isMuti: boolean) {
         let ib = this.ib;
         let iblen = ibLength * 2;
         ib._setIndexDataLength(iblen)
-        ib._setIndexData(new Uint16Array(indexArray.buffer, 0, iblen / 2), 0)
+        ib._setIndexData(new Uint16Array(indexArray.buffer, 0, iblen / 2), 0);
         this.geo.clearRenderParams();
         this.geo.setDrawElemenParams(iblen / 2, 0);
-        if (mutiRenderData) {
+        this.ib.indexCount = iblen / 2;
+        if (isMuti) {
             let elementsCreator = this.elementsMap.get(mutiRenderData.id);
             if (!elementsCreator) {
                 elementsCreator = new ElementCreator(mutiRenderData, this);
@@ -534,13 +547,27 @@ class SkinRender implements IVBIBUpdate {
             this.currentMaterials = elementsCreator.currentMaterials;
             this.owner._nodeOwner.updateElements(this.geo, this.elements);
         }
+        else {
+            let currentData = mutiRenderData.currentData;
+            if(!currentData) return;
+            let material=currentData.material;
+            if (!material) {
+                material=currentData.material = this.getMaterialByName(currentData.textureName, currentData.blendMode);
+            }
+            if(material!=this.material){
+                this.owner._nodeOwner.clear();
+                this.owner._nodeOwner.drawGeo(this.geo, material);
+            }
+        }
     }
     init(skeleton: spine.Skeleton, templet: SpineTemplet, renderNode: Spine2DRenderNode) {
         this.templet = templet;
         if (this.hasNormalRender) {
             this._renerer = SpineAdapter.createNormalRender(templet, false);
         }
-        this.material = this.getMaterial(templet.mainTexture, 0);
+        if (templet.mainTexture) {
+            this.material = templet.getMaterial(templet.mainTexture, templet.mainBlendMode);
+        }
     }
 
     render(time: number) {

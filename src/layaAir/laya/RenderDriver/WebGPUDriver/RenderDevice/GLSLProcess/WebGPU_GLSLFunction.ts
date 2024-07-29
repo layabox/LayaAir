@@ -172,6 +172,7 @@ export class WebGPU_GLSLFunction {
      */
     private _findFunctionCalls(glslCode: string) {
         //使用正则表达式匹配函数调用，同时捕获函数名和参数部分
+        //@ts-ignore
         const regex = /(\b\w+\b)\s*\(([^()]*\([^()]*\)[^()]*)*([^()]*)\)/gs;
         let matches: RegExpExecArray | null;
         while ((matches = regex.exec(glslCode)) !== null) {
@@ -204,8 +205,12 @@ export class WebGPU_GLSLFunction {
             for (let i = 0, len = this.params.length; i < len; i++) {
                 const param = this.params[i];
                 if (param.type.includes('sampler')) {
-                    const textureType = param.type.replace('sampler', 'texture');
-                    const samplerType = 'sampler';
+                    let samplerType = 'sampler';
+                    let textureType = param.type.replace('sampler', 'texture');
+                    if (textureType === 'texture2DShadow') {
+                        textureType = 'texture2D';
+                        samplerType = 'samplerShadow';
+                    }
                     const textureName = param.name + '_texture';
                     const samplerName = param.name + '_sampler';
                     const textureParam = {
@@ -230,12 +235,15 @@ export class WebGPU_GLSLFunction {
                     let functionNames;
                     let replacementInCategory;
                     let replacementOutOfCategory;
-                    if (param.type == 'sampler2D') {
+                    if (param.type === 'sampler2D') {
                         functionNames = ['texture', 'texture2D'];
                         replacementInCategory = `sampler2D(${textureName}, ${samplerName})`;
-                    } else if (param.type == 'samplerCube') {
+                    } else if (param.type === 'samplerCube') {
                         functionNames = ['texture', 'textureCube'];
                         replacementInCategory = `samplerCube(${textureName}, ${samplerName})`;
+                    } else if (param.type === 'sampler2DShadow') {
+                        functionNames = ['textureLod'];
+                        replacementInCategory = `sampler2DShadow(${textureName}, ${samplerName})`;
                     }
                     replacementOutOfCategory = `${textureName}, ${samplerName}`;
                     this.samplerBody = WebGPU_GLSLCommon.replaceArgumentByFunctionCategory
@@ -244,7 +252,7 @@ export class WebGPU_GLSLFunction {
             }
 
             //处理直接调用
-            const functionNames = ['texture', 'texture2D', 'textureCube'];
+            const functionNames = ['texture', 'texture2D', 'textureCube', 'textureLod'];
             for (let i = 0; i < textureNames.length; i++) {
                 const replacementInCategory: string = null;
                 const replacementOutOfCategory = `${textureNames[i]}Texture, ${textureNames[i]}Sampler`;

@@ -6,6 +6,8 @@ import { ILaya } from "../../../ILaya";
 
 /**
  * @internal
+ * @en Represents an inverse kinematics (IK) constraint in a skeletal animation system.
+ * @zh 表示骨骼动画系统中的逆动力学（IK）约束。
  */
 export class IkConstraint {
 
@@ -15,11 +17,35 @@ export class IkConstraint {
 	private _bones: Bone[];
 	/**@internal */
 	//private _data: IkConstraintData;
+	/**
+	 * @en The name of the inverse kinematics constraint.
+	 * @zh IK约束的名称。
+	 */
 	name: string;
+	/**
+	 * @en The mix value determines the influence of the constraint on the bones, ranging from 0 (no effect) to 1 (full effect).
+	 * @zh 混合值确定约束对骨骼的影响程度，范围从 0（无效果）到 1（完全有效）。
+	 */
 	mix: number;
+	/**
+	 * @en The bend direction of the bones in the constraint, which can be positive or negative.
+	 * @zh 约束中骨骼的弯曲方向，可以是正向或负向。
+	 */
 	bendDirection: number;
+	/**
+	 * @en Indicating whether the constraint is applied using the Spine algorithm.
+	 * @zh 指示是否使用 Spine 算法应用约束。
+	 */
 	isSpine: boolean = true;
+	/**
+	 * @en A static property that converts radians to degrees.
+	 * @zh 一个静态属性，用于将弧度转换为度数。
+	 */
 	static radDeg: number = 180 / Math.PI;
+	/**
+	 * @en A static property that converts degrees to radians.
+	 * @zh 一个静态属性，用于将度数转换为弧度。
+	 */
 	static degRad: number = Math.PI / 180;
 	/**@internal */
 	private static _tempMatrix: Matrix = new Matrix();
@@ -39,6 +65,10 @@ export class IkConstraint {
 		this.bendDirection = data.bendDirection;
 	}
 
+    /**
+     * @en Apply the IK constraint
+     * @zh 应用IK约束
+     */
 	apply(): void {
 		switch (this._bones.length) {
 			case 1:
@@ -77,6 +107,14 @@ export class IkConstraint {
 	private _sp: Sprite;
 	private isDebug: boolean = false;
 
+    /**
+     * @en Update the position of the debug sprite
+     * @param x The x-coordinate of the new position
+     * @param y The y-coordinate of the new position
+     * @zh 更新调试精灵的位置
+     * @param x 新位置的x坐标
+     * @param y 新位置的y坐标
+     */
 	//TODO:coverage
 	updatePos(x: number, y: number): void {
 		if (this._sp) {

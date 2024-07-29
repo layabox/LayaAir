@@ -20,16 +20,6 @@ export class GLESTextureContext implements ITextureContext {
         this.needBitmap = false;
     }
 
-    createTexture3DInternal(dimension: TextureDimension, width: number, height: number, depth: number, format: TextureFormat, generateMipmap: boolean, sRGB: boolean, premultipliedAlpha: boolean): GLESInternalTex {
-        //return this._native.createTexture3DInternal
-        return null;
-    }
-
-    setTexture3DPixelsData(texture: GLESInternalTex, source: ArrayBufferView, depth: number, premultiplyAlpha: boolean, invertY: boolean): void {
-        //return this._native.setTexture3DPixelsData
-        return null;
-    }
-
     createTextureInternal(dimension: TextureDimension, width: number, height: number, format: TextureFormat, generateMipmap: boolean, sRGB: boolean, premultipliedAlpha: boolean): GLESInternalTex {
         var tex = new GLESInternalTex(this._native.createTextureInternal(dimension, width, height, format, generateMipmap, sRGB, premultipliedAlpha));
         return tex
@@ -68,8 +58,11 @@ export class GLESTextureContext implements ITextureContext {
         this._native.setTexture3DImageData(texture._nativeObj, (source as any[]).map(function (s) { return s._nativeObj }), depth, premultiplyAlpha, invertY);
     }
 
-    setTexture3DPixlesData(texture: GLESInternalTex, source: ArrayBufferView, depth: number, premultiplyAlpha: boolean, invertY: boolean): void {
-        this._native.setTexture3DPixlesData(texture._nativeObj, source, depth, premultiplyAlpha, invertY);
+    createTexture3DInternal(dimension: TextureDimension, width: number, height: number, depth: number, format: TextureFormat, generateMipmap: boolean, sRGB: boolean, premultipliedAlpha: boolean): GLESInternalTex {
+        return new GLESInternalTex(this._native.createTexture3DInternal(dimension, width, height, depth, format, generateMipmap, sRGB, premultipliedAlpha));
+    }
+    setTexture3DPixelsData(texture: GLESInternalTex, source: ArrayBufferView, depth: number, premultiplyAlpha: boolean, invertY: boolean): void {
+        this._native.setTexture3DPixelsData(texture._nativeObj, source, depth, premultiplyAlpha, invertY);
     }
 
     setTexture3DSubPixelsData(texture: GLESInternalTex, source: ArrayBufferView, mipmapLevel: number, generateMipmap: boolean, xOffset: number, yOffset: number, zOffset: number, width: number, height: number, depth: number, premultiplyAlpha: boolean, invertY: boolean): void {

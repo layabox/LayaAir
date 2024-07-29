@@ -5,6 +5,7 @@ import { PhysicsSettings } from "../../d3/physics/PhysicsSettings";
 import { PhysicsUpdateList } from "../../d3/physics/PhysicsUpdateList";
 import { Physics3DUtils } from "../../d3/utils/Physics3DUtils";
 import { Event } from "../../events/Event";
+import { Quaternion } from "../../maths/Quaternion";
 import { Vector3 } from "../../maths/Vector3";
 import { Stat } from "../../utils/Stat";
 import { ICollider } from "../interface/ICollider";
@@ -12,6 +13,7 @@ import { IPhysicsManager } from "../interface/IPhysicsManager";
 import { pxCharactorCollider } from "./Collider/pxCharactorCollider";
 import { pxCollider, pxColliderType } from "./Collider/pxCollider";
 import { pxDynamicCollider } from "./Collider/pxDynamicCollider";
+import { pxColliderShape } from "./Shape/pxColliderShape";
 import { pxCollisionTool } from "./pxCollisionTool";
 import { pxPhysicsCreateUtil } from "./pxPhysicsCreateUtil";
 
@@ -75,6 +77,14 @@ export class pxPhysicsManager implements IPhysicsManager {
 
     private _gravity: Vector3 = new Vector3(0, -9.81, 0);
 
+    /**temp tranform object */
+    private static _tempTransform: {
+        translation: Vector3;
+        rotation: Quaternion;
+    } = { translation: new Vector3(), rotation: new Quaternion() };
+    /**@internal */
+    private static _tempVector30: Vector3 = new Vector3();
+
     constructor(physicsSettings: PhysicsSettings) {
 
 
@@ -120,6 +130,17 @@ export class pxPhysicsManager implements IPhysicsManager {
             this._pxScene.setPVDClient();
         }
         this.fixedTime = physicsSettings.fixedTimeStep;
+    }
+    setActiveCollider(collider: pxCollider, value: boolean): void {
+        collider.active = value;
+        if (value) {
+            collider._physicsManager = this;
+        } else {
+            collider._physicsManager = null;
+        }
+    }
+    enableDebugDrawer?(value: boolean): void {
+        throw new Error("Method not implemented.");
     }
 
     setDataToMap(dataCallBack: any, eventType: string, isTrigger: boolean = false) {
@@ -185,6 +206,9 @@ export class pxPhysicsManager implements IPhysicsManager {
     }
 
     addCollider(collider: ICollider): void {
+        if (!collider.active) {
+            return;
+        }
         let pxcollider = collider as pxCollider;
         //collider._derivePhysicsTransformation(true);
         switch (pxcollider._type) {
@@ -194,10 +218,10 @@ export class pxPhysicsManager implements IPhysicsManager {
                 break;
             case pxColliderType.RigidbodyCollider:
                 this._pxScene.addActor(pxcollider._pxActor, null);
-                if(!(collider as pxDynamicCollider).IsKinematic){
+                if (!(collider as pxDynamicCollider).IsKinematic) {
                     this._dynamicUpdateList.add(collider);
                     Stat.physics_dynamicRigidBodyCount++;
-                }else{
+                } else {
                     Stat.phyiscs_KinematicRigidBodyCount++;
                 }
                 break;
@@ -223,10 +247,10 @@ export class pxPhysicsManager implements IPhysicsManager {
                 if (collider.inPhysicUpdateListIndex !== -1)
                     !(collider as pxDynamicCollider).IsKinematic && this._dynamicUpdateList.remove(collider);
                 this._pxScene.removeActor(pxcollider._pxActor, true);
-                if(!(collider as pxDynamicCollider).IsKinematic){
+                if (!(collider as pxDynamicCollider).IsKinematic) {
                     this._dynamicUpdateList.add(collider);
                     Stat.physics_dynamicRigidBodyCount--;
-                }else{
+                } else {
                     Stat.phyiscs_KinematicRigidBodyCount--;
                 }
                 break;
@@ -417,13 +441,37 @@ export class pxPhysicsManager implements IPhysicsManager {
         // update Events
         this._updatePhysicsEvents();
     }
-    rayCast(ray: Ray, outHitResult: HitResult, distance: number = 1000000, collisonGroup: number = 1 << 4, collisionMask: number = Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER): boolean {
-        let result: any = this._pxScene.raycastCloset(ray.origin, ray.direction, distance, collisonGroup);
+    rayCast(ray: Ray, outHitResult: HitResult, distance: number = 1000000, collisonGroup: number = 1 << 4, collisionMask: number = 1 << 4): boolean {
+        let result: any = this._pxScene.raycastCloset(ray.origin, ray.direction, distance, collisonGroup, collisionMask);
         pxCollisionTool.getRayCastResult(outHitResult, result);
         return outHitResult.succeeded;
     }
-    rayCastAll?(ray: Ray, out: HitResult[], distance: number = 1000000, collisonGroup: number = 1 << 4, collisionMask: number = Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER): boolean {
-        let results: any = this._pxScene.raycastAllHits(ray.origin, ray.direction, distance, collisonGroup);
+    rayCastAll?(ray: Ray, out: HitResult[], distance: number = 1000000, collisonGroup: number = 1 << 4, collisionMask: number = 1 << 4): boolean {
+        let results: any = this._pxScene.raycastAllHits(ray.origin, ray.direction, distance, collisonGroup, collisionMask);
+        pxCollisionTool.getRayCastResults(out, results);
+        return (out.length >= 1 ? true : false);
+    }
+
+    shapeCast(shape: pxColliderShape, fromPosition: Vector3, toPosition: Vector3, out: HitResult, fromRotation: Quaternion = new Quaternion(), toRotation: Quaternion = new Quaternion(), collisonGroup: number = 1 << 4, collisionMask: number = 1 << 4, allowedCcdPenetration: number = 0.0): boolean {
+        let transform = pxPhysicsManager._tempTransform;
+        fromPosition.cloneTo(transform.translation);
+        let distance = Vector3.distance(fromPosition, toPosition);
+        Vector3.subtract(toPosition, fromPosition, pxPhysicsManager._tempVector30);
+        Vector3.normalize(pxPhysicsManager._tempVector30, pxPhysicsManager._tempVector30);
+        let dir = pxPhysicsManager._tempVector30;
+        let result: any = this._pxScene.sweepSingle(shape._pxGeometry, transform, dir, distance, collisonGroup, collisionMask, allowedCcdPenetration);
+        pxCollisionTool.getRayCastResult(out, result);
+        return out.succeeded;
+    }
+
+    shapeCastAll(shape: pxColliderShape, fromPosition: Vector3, toPosition: Vector3, out: HitResult[], fromRotation: Quaternion = new Quaternion(), toRotation: Quaternion = new Quaternion(), collisonGroup: number = 1 << 4, collisionMask: number = 1 << 4, allowedCcdPenetration: number = 0.0): boolean {
+        let transform = pxPhysicsManager._tempTransform;
+        fromPosition.cloneTo(transform.translation);
+        let distance = Vector3.distance(fromPosition, toPosition);
+        Vector3.subtract(toPosition, fromPosition, pxPhysicsManager._tempVector30);
+        Vector3.normalize(pxPhysicsManager._tempVector30, pxPhysicsManager._tempVector30);
+        let dir = pxPhysicsManager._tempVector30;
+        let results: any = this._pxScene.sweepAny(shape._pxGeometry, transform, dir, distance, collisonGroup, collisionMask, allowedCcdPenetration);
         pxCollisionTool.getRayCastResults(out, results);
         return (out.length >= 1 ? true : false);
     }
