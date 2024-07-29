@@ -88,11 +88,9 @@ import { LensFlareData, LensFlareEffect, LensFlareElement } from "./core/render/
 import "./loaders/AnimationClipLoader";
 import "./loaders/CubemapLoader";
 import "./loaders/Texture2DArrayLoader";
-import "./loaders/MaterialLoader";
 import "./loaders/MeshLoader";
 import "./loaders/HierarchyParserV2";
 import "./loaders/AvatarMaskLoader";
-import "./loaders/ShaderLoader";
 import "./loaders/GLSLLoader";
 import "./loaders/AnimationControllerLoader";
 import "./core/scene/Input3D";
