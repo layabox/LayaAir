@@ -469,7 +469,7 @@ export class InputManager {
             }
         }
 
-        // this._keyEvent.nativeEvent = null;
+        this._keyEvent.nativeEvent = null;
     }
 
     /**
