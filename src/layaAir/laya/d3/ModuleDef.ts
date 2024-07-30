@@ -95,12 +95,6 @@ import "./loaders/GLSLLoader";
 import "./loaders/AnimationControllerLoader";
 import "./core/scene/Input3D";
 import { Viewport } from "../maths/Viewport";
-import { BoxColliderShape } from "./physics/shape/BoxColliderShape";
-import { CapsuleColliderShape } from "./physics/shape/CapsuleColliderShape";
-import { ConeColliderShape } from "./physics/shape/ConeColliderShape";
-import { CylinderColliderShape } from "./physics/shape/CylinderColliderShape";
-import { SphereColliderShape } from "./physics/shape/SphereColliderShape";
-
 
 let c = ClassUtils.regClass;
 c("Sprite3D", Sprite3D);
@@ -195,14 +189,6 @@ c("MeshRenderer", MeshRenderer);
 c("SkinnedMeshRenderer", SkinnedMeshRenderer);
 c("SimpleSkinnedMeshRenderer", SimpleSkinnedMeshRenderer);
 c("SkyRenderer", SkyRenderer);
-
-c("BoxColliderShape", BoxColliderShape);
-c("CapsuleColliderShape", CapsuleColliderShape);
-c("ConeColliderShape", ConeColliderShape);
-c("CylinderColliderShape", CylinderColliderShape);
-c("SphereColliderShape", SphereColliderShape);
-//c("MeshColliderShape", MeshColliderShape);
-//c("CompoundColliderShape", CompoundColliderShape);
 
 c("PostProcess", PostProcess);
 c("PostProcessEffect", PostProcessEffect);
