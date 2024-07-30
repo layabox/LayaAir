@@ -170,7 +170,7 @@ export class btCollider implements ICollider {
     protected _initCollider() {
         this.setBounciness(this._restitution);
         this.setfriction(this._friction);
-        this.setRollingFriction(this._friction);
+        this.setRollingFriction(this._rollingFriction);
         this.setCcdMotionThreshold(this._physicsManager.ccdThreshold);
         this.setCcdSweptSphereRadius(this._physicsManager.ccdSphereRadius);
     }
