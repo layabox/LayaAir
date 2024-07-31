@@ -10,6 +10,7 @@ import { Timer } from "../utils/Timer"
 import { ILaya } from "../../ILaya";
 import { ClassUtils } from "../utils/ClassUtils";
 import { URL } from "../net/URL";
+import { Config } from "../../Config";
 
 /**
  * 场景类，负责场景创建，加载，销毁等功能
@@ -427,7 +428,7 @@ export class Scene extends Sprite {
      * @param	param 打开参数，如果是scene，则会传递给onOpened方法
      * @param	delay 延迟打开时间，默认500毫秒
      */
-    static showLoadingPage(param: any = null, delay: number = 500): void {
+    static showLoadingPage(param: any = null, delay: number = Config.showLoadingPageDelay): void {
         if (Scene._loadPage) {
             ILaya.systemTimer.clear(null, Scene._showLoading);
             ILaya.systemTimer.clear(null, Scene._hideLoading);
@@ -448,7 +449,7 @@ export class Scene extends Sprite {
      * 隐藏loading界面
      * @param	delay 延迟关闭时间，默认500毫秒
      */
-    static hideLoadingPage(delay: number = 500): void {
+    static hideLoadingPage(delay: number = Config.hideLoadingPageDelay): void {
         if (Scene._loadPage) {
             ILaya.systemTimer.clear(null, Scene._showLoading);
             ILaya.systemTimer.clear(null, Scene._hideLoading);
