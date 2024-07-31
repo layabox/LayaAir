@@ -48,11 +48,16 @@ export class Dependence {
                 task.onComplete.add(resolve);
                 Laya.loader.load(url)
                     .then(res => {
-                        if (Utils.getFileExtension(res.url) != "bp") {//非蓝图情况
+                        if (res) {
+                            if (Utils.getFileExtension(res.url) != "bp") {//非蓝图情况
+                                this.finish(url);
+                                delete this.tasks[url];
+                            }
+                            return Promise.resolve();
+                        }else{
                             this.finish(url);
-                            delete this.tasks[url];
+                            return Promise.reject();
                         }
-                        return Promise.resolve();
                     });
             });
         }
