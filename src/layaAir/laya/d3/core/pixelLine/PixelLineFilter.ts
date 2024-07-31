@@ -296,6 +296,15 @@ export class PixelLineFilter extends GeometryElement {
 	 * @override
 	 * @internal
 	 */
+	_prepareRender(state: RenderContext3D): boolean {
+		return true;
+	}
+
+	/**
+	 * @inheritDoc
+	 * @override
+	 * @internal
+	 */
 	_updateRenderParams(state: RenderContext3D): void {
 		this.clearRenderParams();
 		if (this._minUpdate !== Number.MAX_VALUE && this._maxUpdate !== Number.MIN_VALUE) {

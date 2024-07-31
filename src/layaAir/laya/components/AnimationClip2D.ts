@@ -6,13 +6,20 @@ import { Animation2DEvent } from "./Animation2DEvent";
 import { Resource } from "../resource/Resource";
 import { Byte } from "../utils/Byte";
 
+/**
+ * @en Class for parsing and storing 2D animation data.
+ * @zh 用于处理2D动画片段的类。
+ */
 export class AnimationClip2D extends Resource {
 
     /**
-     * 动画数据解析为2D动画片段
      * @internal
-     * @param data 动画数据 
-     * @returns 2D动画片段
+     * @en Parses animation data into a 2D animation clip.
+     * @param data The animation data to be parsed.
+     * @returns The parsed 2D animation clip.
+     * @zh 将动画数据解析为2D动画片段。
+     * @param data 要解析的动画数据。
+     * @returns 解析后的2D动画片段。
      */
     static _parse(data: ArrayBuffer): AnimationClip2D {
         var clip = new AnimationClip2D();
@@ -29,7 +36,8 @@ export class AnimationClip2D extends Resource {
     }
 
     /**
-     * 动画补帧函数
+     * @en Animation frame filling function
+     * @zh 动画补帧函数
      */
     static tween = {
         Linear: function (t: number, b: number, c: number, d: number): number { return c * t / d + b; },
@@ -210,12 +218,14 @@ export class AnimationClip2D extends Resource {
     _nodes: KeyframeNodeList2D | null = new KeyframeNodeList2D();
 
     /**
-     * 是否循环
+     * @en Is it a loop?
+     * @zh 是否循环
      */
     islooping: boolean;
 
     /**
-     * 实例化一个2D动画clip类
+     * @en Constructor method. ctructs a AnimationClip2D object.
+     * @zh 构造方法，创建AnimationClip2D对象。
      */
     constructor() {
         super();
@@ -223,8 +233,8 @@ export class AnimationClip2D extends Resource {
     }
 
     /**
-     * 动画时长
-     * @returns 动画时长
+     * @en Animation duration
+     * @zh 动画时长
      */
     duration() {
         return this._duration;
@@ -400,9 +410,20 @@ export class AnimationClip2D extends Resource {
     }
 
     /**
-     * hermite插值算法
+     * @en hermite interpolation algorithm
+     * @param frameValue The value of the previous keyframe.
+     * @param frametime The time point of the previous keyframe.
+     * @param frameOutWeight The weight of the outgoing tangent for the previous keyframe.
+     * @param frameOutTangent The outgoing tangent value for the previous keyframe.
+     * @param nextframeValue The value of the next keyframe.
+     * @param nextframetime The time point of the next keyframe.
+     * @param nextframeInweight The weight of the incoming tangent for the next keyframe.
+     * @param nextframeIntangent The incoming tangent value for the next keyframe.
+     * @param time The current time.
+     * @returns The interpolated value at the specified time.
+     * @zh hermite插值算法
      * @param frameValue 上一帧值
-     * @param frametime 上一帧事件
+     * @param frametime 上一帧时间
      * @param frameOutWeight 上一帧权重
      * @param frameOutTangent 上一帧切线
      * @param nextframeValue 下一帧值
@@ -410,7 +431,7 @@ export class AnimationClip2D extends Resource {
      * @param nextframeInweight 下一帧权重
      * @param nextframeIntangent 下一帧切线
      * @param time 时间
-     * @returns 
+     * @returns 指定时间的插值。
      */
     hermiteCurveSplineWeight(frameValue: number, frametime: number, frameOutWeight: number, frameOutTangent: number, nextframeValue: number, nextframetime: number, nextframeInweight: number, nextframeIntangent: number, time: number) {
         let Eps = 2.22e-16;
@@ -467,16 +488,14 @@ export class AnimationClip2D extends Resource {
         return y * dy + y1;
     }
 
-
     /**
-     * 添加动画事件。
+     * @en Adds an animation event to the animation timeline.
+     * @param event The animation event to be added.
+     * @zh 添加动画事件
      * @param event 动画事件
      */
     addEvent(event: Animation2DEvent): void {
         var index = this._binarySearchEventIndex(event.time);
         this._animationEvents.splice(index, 0, event);
     }
-
-
-
 }

@@ -6,13 +6,15 @@ import { Pool } from "../utils/Pool"
 import { Utils } from "../utils/Utils";
 
 /**
- * <code>Component</code> 类用于创建组件的基类。
+ * @en The Component class is used to create the base class for components.
+ * @zh Component 类用于创建组件的基类。
  */
 export class Component {
-    /** 
-     * 唯一标识
+    /**
      * @private
-     * @internal 
+     * @internal
+     * @en Unique identifier for the component.
+     * @zh 组件的唯一标识。
      */
     _id: number;
     /**@private */
@@ -23,26 +25,31 @@ export class Component {
     _status: number = 0; //1-awaked,2-starting,3-started,4-destroyed
 
     /**
-     * 获取所属Node节点。
+     * @en Gets the owner Node to which the component belongs.
+     * @zh 获取组件所属的 Node 节点。
      */
     owner: Node;
     /** @internal */
     _enabled: boolean = true;
+
     /**
      * @internal
-     * 是否单例，即同一个节点只能添加此类型的脚本一次
+     * @en Whether the component is a singleton, meaning only one instance of this type of script can be added to the same node.
+     * @zh 是否为单例，即同一个节点只能添加此类型的脚本一次。
      */
     _singleton: boolean;
 
     /**
-     *  @internal
-     * 是否可以在IDE环境中运行
+     * @internal
+     * @en Whether the script can run in the IDE environment.
+     * @zh 是否可以在 IDE 环境中运行。
      */
     runInEditor: boolean;
 
     /**
      * @internal
-     * 脚本路径
+     * @en The path of the script file.
+     * @zh 脚本文件的路径。
      */
     scriptPath: string;
 
@@ -52,7 +59,8 @@ export class Component {
     _extra: IComponentExtra;
 
     /**
-     * 隐藏状态
+     * @en The hide flags that determine the hiding behavior of the component.
+     * @zh 确定组件隐藏行为的标志。
      */
     get hideFlags(): number {
         return this._hideFlags;
@@ -63,7 +71,8 @@ export class Component {
     }
 
     /**
-     * 创建一个新的 <code>Component</code> 实例。
+     * @en Constructor method of Component.
+     * @zh 组件的构造方法
      */
     constructor() {
         this._id = Utils.getGID();
@@ -74,30 +83,34 @@ export class Component {
 
     /**
      * @internal
-     * used in IDE
+     * @en used in IDE
+     * @zh 在IDE中使用。
      * */
     _initialize(): void {
         this._extra = {};
     }
 
     /**
-     * 是否存在隐藏标志
-     * @param flag 标签
-     * @returns 
+     * @en Checks if the component has a specific hide flag set.
+     * @param flag The hide flag to check for.
+     * @zh 检查组件是否设置了特定的隐藏标志。
+     * @param flag 要检查的隐藏标志。
      */
     hasHideFlag(flag: number): boolean {
         return (this._hideFlags & flag) != 0;
     }
 
     /**
-     * 唯一标识ID。
+     * @en The unique identifier for the component.
+     * @zh 组件的唯一标识。
      */
     get id(): number {
         return this._id;
     }
 
     /**
-     * 是否启用组件。
+     * @en whether the component is enabled.
+     * @zh 是否启用组件。
      */
     get enabled(): boolean {
         return this._enabled;
@@ -112,18 +125,21 @@ export class Component {
     }
 
     /**
-     * 是否已唤醒
+     * @en whether the component has been awakened.
+     * @zh 组件是否已经被唤醒。
      */
     get awaked(): boolean {
         return this._status > 0;
     }
 
     /**
-     * 是否已经销毁 。
+     * @en whether the component has been destroyed.
+     * @zh 组件是否已经被销毁。
      */
     get destroyed(): boolean {
         return this._status == 4;
     }
+
     /**
      * @internal
      */
@@ -141,9 +157,11 @@ export class Component {
     }
 
     /**
-     * 设置所属Node节点
      * @internal
-     * @param node 节点
+     * @en Sets the owner Node of the component.
+     * @param node The Node that now owns the component.
+     * @zh 设置组件所属的 Node 节点。
+     * @param node 现在拥有该组件的 Node。
      */
     _setOwner(node: Node) {
         if (this._status != 0) {
@@ -159,39 +177,39 @@ export class Component {
     }
 
     /**
-     * 被添加到节点后调用，可根据需要重写此方法
      * @internal
+     * 被添加到节点后调用，可根据需要重写此方法
      */
     protected _onAdded(): void {
     }
 
     /**
-   * 被激活后调用，可根据需要重写此方法
-   * @internal
-   */
+     * @internal
+     * 被激活后调用，可根据需要重写此方法
+     */
     protected _onAwake(): void {
     }
 
     /**
-     * 被激活后调用，可根据需要重写此方法
      * @internal
+     * 被激活后调用，可根据需要重写此方法
      */
     protected _onEnable(): void {
         this.onEnable();
     }
 
     /**
-    * 被禁用时调用，可根据需要重写此方法
-    * @internal
-    * 销毁组件
-    */
+     * @internal
+     * 被禁用时调用，可根据需要重写此方法
+     * 销毁组件
+     */
     protected _onDisable(): void {
         this.onDisable();
     }
 
     /**
-     * 被销毁时调用，可根据需要重写此方法
      * @internal
+     * 被销毁时调用，可根据需要重写此方法
      */
     protected _onDestroy(): void {
     }
@@ -263,7 +281,8 @@ export class Component {
     }
 
     /**
-     * 销毁组件
+     * @en Destroy components
+     * @zh 销毁组件
      */
     destroy(): void {
         if (this._status == 4)
@@ -303,63 +322,74 @@ export class Component {
     }
 
     /**
-     * 被添加到节点后调用，和Awake不同的是即使节点未激活onAdded也会调用。
+     * @en Called after the component is added to a node. Unlike Awake, onAdded is called even if the node is not active.
+     * @zh 组件被添加到节点后调用，与 onAwake 不同的是，即使节点未激活也会调用 onAdded。
      */
     onAdded(): void {
     }
 
     /**
-     * 重置组件参数到默认值，如果实现了这个函数，则组件会被重置并且自动回收到对象池，方便下次复用
-     * 如果没有重置，则不进行回收复用
-
+     * @en Resets the component's parameters to their default values. If this function is implemented, the component will be reset and automatically recycled for future use.
+     * If not reset, it will not be recycled for reuse.
+     * @zh 将组件的参数重置为默认值。如果实现了这个函数，组件将被重置并自动回收到对象池，方便下次复用。
+     * 如果没有重置，则不会进行回收复用。
      */
     onReset?(): void;
 
     /**
-     * 组件被激活后执行，此时所有节点和组件均已创建完毕，次方法只执行一次
+     * @en Executed after the component is activated. At this point, all nodes and components have been created. This method is executed only once.
+     * @zh 组件被激活后执行，此时所有节点和组件均已创建完毕，此方法只执行一次。
      */
     onAwake(): void {
     }
 
     /**
-     * 组件被启用后执行，比如节点被添加到舞台后
+     * @en Executed after the component is enabled, such as when the node is added to the stage.
+     * @zh 组件被启用后执行，比如节点被添加到舞台后。
      */
     onEnable(): void {
     }
 
     /**
-     * 第一次执行update之前执行，只会执行一次
+     * @en Executed once, before the first update.
+     * @zh 在第一次执行 update 之前执行，只会执行一次。
      */
     onStart?(): void;
 
     /**
-     * 每帧更新时执行，尽量不要在这里写大循环逻辑或者使用getComponent方法
+     * @en Executed every frame during the update phase. Avoid writing complex loop logic or using the getComponent method here.
+     * @zh 每帧更新时执行，在 update 阶段。尽量不要在这里写大循环逻辑或使用 getComponent 方法。
      */
     onUpdate?(): void;
 
     /**
-     * 每帧更新时执行，在update之后执行，尽量不要在这里写大循环逻辑或者使用getComponent方法
+     * @en Executed every frame during the late update phase, after the update phase.
+     * @zh 每帧更新时执行，在 late update 阶段，update 阶段之后。
      */
     onLateUpdate?(): void;
 
     /**
-     * 渲染之前执行
+     * @en Executed before rendering.
+     * @zh 渲染之前执行。
      */
     onPreRender?(): void;
 
     /**
-     * 渲染之后执行
+     * @en Executed after rendering.
+     * @zh 渲染之后执行。
      */
     onPostRender?(): void;
 
     /**
-     * 组件被禁用时执行，比如从节点从舞台移除后
+     * @en Executed when the component is disabled, such as when the node is removed from the stage.
+     * @zh 组件被禁用时执行，比如从节点从舞台移除后。
      */
     onDisable(): void {
     }
 
     /**
-     * 手动调用节点销毁时执行
+     * @en Executed when the node is destroyed manually.
+     * @zh 手动调用节点销毁时执行。
      */
     onDestroy(): void {
     }

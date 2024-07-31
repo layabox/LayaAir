@@ -8,31 +8,36 @@ import { Matrix } from "../../maths/Matrix";
 import { Loader } from "../../net/Loader";
 
 /**
- * 动画播放完毕后调度。
+ * @en The animation is scheduled after playing.
+ * @zh 动画播放完毕后调度。
  * @eventType Event.COMPLETE
  */
 /*[Event(name = "complete", type = "laya.events.Event")]*/
 
 /**
- * 播放到某标签后调度。
+ * @en Schedule after playing to a tag.
+ * @zh 播放到某标签后调度。
  * @eventType Event.LABEL
  */
 /*[Event(name = "label", type = "laya.events.Event")]*/
 
 /**
- * 加载完成后调度。
+ * @en Schedule after loading.
+ * @zh 加载完成后调度。
  * @eventType Event.LOADED
  */
 /*[Event(name = "loaded", type = "laya.events.Event")]*/
 
 /**
- * 进入帧后调度。
+ * @en Schedule after enter post frame.
+ * @zh 进入帧后调度。
  * @eventType Event.FRAME
  */
 /*[Event(name = "frame", type = "laya.events.Event")]*/
 
 /**
- * <p> <code>MovieClip</code> 用于播放经过工具处理后的 swf 动画。</p>
+ * @en MovieClip is used to play SWF animations that have been processed by tools.
+ * @zh MovieClip 用于播放经过工具处理后的 swf 动画。
  */
 export class MovieClip extends Sprite {
     /**@internal */
@@ -67,7 +72,10 @@ export class MovieClip extends Sprite {
     _movieClipList: MovieClip[];
     /**@internal */
     protected _labels: any;
-    /**资源根目录。*/
+    /** 
+     * @en Resource root directory
+     * @zh 资源根目录
+     */
     basePath: string;
     /**@internal */
     private _isRoot: boolean;
@@ -77,14 +85,22 @@ export class MovieClip extends Sprite {
     private _endFrame: number = -1;
     private _source: string;
 
-    /** 播放间隔(单位：毫秒)。*/
+    /** 
+     * @en Playback interval (in milliseconds)
+     * @zh 播放间隔(单位：毫秒)。
+     */
     interval: number = 30;
-    /**是否循环播放 */
+    /**
+     * @en Whether to play in a loop
+     * @zh 是否循环播放 
+     */
     loop: boolean;
 
     /**
-     * 创建一个 <code>MovieClip</code> 实例。
-     * @param parentMovieClip 父MovieClip,自己创建时不需要传该参数
+     * @en Constructor method of MovieClip.
+     * @param parentMovieClip The parent MovieClip, this parameter is not required when creating your own MovieClip.
+     * @zh MovieClip构造方法
+     * @param parentMovieClip 父 MovieClip，自己创建时不需要传该参数。
      */
     constructor(parentMovieClip: MovieClip = null) {
         super();
@@ -105,9 +121,11 @@ export class MovieClip extends Sprite {
     }
 
     /**
-     * <p>销毁此对象。以及销毁引用的Texture</p>
-     * @param	destroyChild 是否同时销毁子节点，若值为true,则销毁子节点，否则不销毁子节点。
      * @override
+     * @en Destroys this object and its referenced Texture.
+     * @param destroyChild Whether to destroy child nodes simultaneously. If true, child nodes are destroyed; otherwise, they are not.
+     * @zh 销毁此对象及其引用的Texture。
+     * @param destroyChild 是否同时销毁子节点，若值为true,则销毁子节点，否则不销毁子节点。
      */
     destroy(destroyChild: boolean = true): void {
         this._clear();
@@ -133,7 +151,11 @@ export class MovieClip extends Sprite {
         else this.timer.clear(this, this.updates);
     }
 
-    /**@private 更新时间轴*/
+    /**
+     * @private
+     * @en Update the timeline of the MovieClip.
+     * @zh 更新 MovieClip 的时间轴。
+     */
     //TODO:coverage
     updates(): void {
         if (this._parentMovieClip) return;
@@ -144,7 +166,10 @@ export class MovieClip extends Sprite {
         }
     }
 
-    /**当前播放索引。*/
+    /**
+     * @en The current playback index of the MovieClip.
+     * @zh MovieClip 当前播放的索引。
+     */
     get index(): number {
         return this._playIndex;
     }
@@ -157,7 +182,10 @@ export class MovieClip extends Sprite {
     }
 
     /**
-     * 增加一个标签到index帧上，播放到此index后会派发label事件
+     * @en Adds a label to a specified frame index. When played to this index, a label event will be dispatched.
+     * @param label The name of the label.
+     * @param index The frame index to add the label to.
+     * @zh 在指定的帧索引上增加一个标签，播放到此索引后会派发label事件。
      * @param	label	标签名称
      * @param	index	索引位置
      */
@@ -167,7 +195,9 @@ export class MovieClip extends Sprite {
     }
 
     /**
-     * 删除某个标签
+     * @en Remove the corresponding label from the specified label name.
+     * @param label The name of the label to remove. If not provided, all labels are removed.
+     * @zh 从指定的标签名字删除对应标签。
      * @param	label 标签名字，如果label为空，则删除所有Label
      */
     removeLabel(label: string): void {
@@ -183,14 +213,16 @@ export class MovieClip extends Sprite {
     }
 
     /**
-     * 帧总数。
+     * @en The total number of frames in the MovieClip.
+     * @zh MovieClip 中的帧总数。
      */
     get count(): number {
         return this._count;
     }
 
     /**
-     * 是否在播放中
+     * @en Whether the MovieClip is currently playing.
+     * @zh MovieClip 是否正在播放中。
      */
     get playing(): boolean {
         return this._playing;
@@ -227,15 +259,18 @@ export class MovieClip extends Sprite {
     }
 
     /**
-     * 停止播放动画。
+     * @en Stops the playback of the animation.
+     * @zh 停止播放动画。
      */
     stop(): void {
         this._playing = false;
     }
 
     /**
-     * 跳到某帧并停止播放动画。
-     * @param frame 要跳到的帧
+     * @en Jumps to a specified frame and stops playing the animation.
+     * @param index The frame index to jump to.
+     * @zh 跳到指定帧并停止播放动画。
+     * @param index 要跳到的帧
      */
     gotoAndStop(index: number): void {
         this.index = index;
@@ -273,8 +308,10 @@ export class MovieClip extends Sprite {
     }
 
     /**
-     * 播放动画。
-     * @param	index 帧索引。
+     * @en Play Animation
+     * @param	index frame index
+     * @zh 播放动画。
+     * @param	index 帧索引
      */
     play(index: number = 0, loop: boolean = true): void {
         this.loop = loop;
@@ -418,21 +455,26 @@ export class MovieClip extends Sprite {
         this._start = start + 3;
     }
 
+    /**
+     * @en The source of the MovieClip.
+     * @zh MovieClip 的资源地址。
+     */
     get source() {
         return this._source;
     }
 
-    /**
-     * 资源地址。
-     */
     set source(value: string) {
         this.load(value);
     }
 
     /**
-     * 加载资源。
-     * @param	url swf 资源地址。
-     * @param   atlas  是否使用图集资源
+     * @en Loads resources for the MovieClip.
+     * @param url The URL of the SWF resource.
+     * @param atlas Whether to use atlas resources.
+     * @param atlasPath The path of the atlas, by default it uses the atlas with the same name as the SWF.
+     * @zh 加载 MovieClip 资源。
+     * @param url SWF 资源的 URL。
+     * @param atlas 是否使用图集资源。  
      * @param   atlasPath  图集路径，默认使用与swf同名的图集
      */
     load(url: string, atlas: boolean = false, atlasPath: string = null): void {
@@ -482,10 +524,14 @@ export class MovieClip extends Sprite {
     }
 
     /**
-     * 从开始索引播放到结束索引，结束之后出发complete回调
-     * @param	start	开始索引
-     * @param	end		结束索引
-     * @param	complete	结束回调
+     * @en Plays the animation from the start index to the end index, and triggers the complete callback when finished.
+     * @param start The starting frame index.
+     * @param end The ending frame index.
+     * @param complete End callback.
+     * @zh 从开始索引播放到结束索引，结束后触发 complete 回调。
+     * @param start 开始索引
+     * @param end 结束索引
+     * @param complete 结束回调
      */
     playTo(start: number, end: number, complete: Handler = null): void {
         this._completeHandler = complete;

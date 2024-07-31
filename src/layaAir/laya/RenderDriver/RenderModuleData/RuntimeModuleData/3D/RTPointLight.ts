@@ -73,6 +73,6 @@ export class RTPointLight implements IPointLightData {
     }
 
     constructor() {
-        this._nativeObj = new new (window as any).conchRTPointLight();
+        this._nativeObj = new (window as any).conchRTPointLight();
     }
 }

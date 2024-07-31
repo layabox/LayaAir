@@ -1,16 +1,27 @@
 /**
- * <code>Animation2DEvent</code> 类用于实现动画事件。
+ * @en Animation2DEvent class is used to implement animation events.
+ * @zh Animation2DEvent 类用于实现动画事件。
  */
 export class Animation2DEvent {
-    /** 事件触发时间。*/
+    /**
+     * @en The time at which the event is triggered.
+     * @zh 事件触发的时间。
+     */
     time: number;
-    /** 事件触发名称。*/
+    /**
+     * @en The name of the event that is triggered.
+     * @zh 被触发的事件名称。
+     */
     eventName: string;
-    /** 事件触发参数。*/
+    /**
+     * @en Event triggering parameters
+     * @zh 事件触发参数。
+     */
     params: any[];
 
     /**
-     * 创建一个 <code>Animation2DEvent</code> 实例。
+     * @en Constructor method, instance of Animation2DEvent.
+     * @zh 2D动画事件类实例
      */
     constructor() {
     }

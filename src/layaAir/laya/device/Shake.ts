@@ -8,7 +8,8 @@ import { ILaya } from "../../ILaya";
 
 
 /**
- * Shake只能在支持此操作的设备上有效。
+ * @en Shake is usually achieved through the built-in accelerometer and gyroscope sensors in a mobile phone, and it only works on devices that support this operation.
+ * @zh 摇动通常是通过手机内置的加速度计和陀螺仪传感器来实现，只能在支持此操作的设备环境上有效。
  * 
  */
 export class Shake extends EventDispatcher {
@@ -29,16 +30,23 @@ export class Shake extends EventDispatcher {
     }
 
     private static _instance: Shake;
+    /**
+     * @en The singleton instance of Shake.
+     * @zh  Shake 的单例实例。
+     */
     static get instance(): Shake {
         Shake._instance = Shake._instance || new Shake();
         return Shake._instance;
     }
 
     /**
-     * 开始响应设备摇晃。
-     * @param	throushold	响应的瞬时速度阈值，轻度摇晃的值约在5~10间。
-     * @param	timeout		设备摇晃的响应间隔时间。
-     * @param	callback	在设备摇晃触发时调用的处理器。
+     * @en Starts responding to device shaking.
+     * The response is based on the threshold of instantaneous velocity and the interval between shakes.
+     * @param threshold The threshold for the instantaneous velocity for a shake response, which is approximately between 5 to 10 for a mild shake.
+     * @param timeout The interval time for responding to device shakes.
+     * @zh 开始响应设备摇晃。
+     * @param threshold 响应瞬时速度的阈值，轻度摇晃的值约在 5 到 10 之间。
+     * @param timeout 设备摇晃的响应间隔时间。
      */
     start(throushold: number, interval: number): void {
         this.throushold = throushold;
@@ -51,7 +59,8 @@ export class Shake extends EventDispatcher {
     }
 
     /**
-     * 停止响应设备摇晃。
+     * @en Stops responding to device shaking.
+     * @zh 停止响应设备摇晃。
      */
     stop(): void {
         Accelerator.instance.off(Event.CHANGE, this, this.onShake);

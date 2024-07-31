@@ -9,6 +9,7 @@ const _tempVector2 = new Vector3();
 const _tempVector3 = new Vector3();
 const DEFAULTARRAY = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
 
+
 /**
  * <code>Matrix4x4</code> 类用于创建4x4矩阵。
  */
@@ -186,6 +187,7 @@ export class Matrix4x4 implements IClone {
         oe[15] = 1;
     }
 
+    
     /**
      * 计算两个矩阵的乘法
      * @param	left left矩阵
@@ -399,9 +401,11 @@ export class Matrix4x4 implements IClone {
         oe[14] = -znear * zRange;
     }
 
+    
     /**矩阵元素数组*/
     elements: Float32Array;
 
+    
     /**
      * 创建一个 <code>Matrix4x4</code> 实例。
      * @param	4x4矩阵的各元素
@@ -495,6 +499,7 @@ export class Matrix4x4 implements IClone {
         e[10] = 1.0 - (2.0 * (yy + xx));
     }
 
+    
     /**
      * 位置
      * @param position 坐标位置

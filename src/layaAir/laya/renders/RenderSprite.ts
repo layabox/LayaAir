@@ -131,9 +131,10 @@ export class RenderSprite {
 
         if (sprite._renderNode.addCMDCall)
             sprite._renderNode.addCMDCall(context, x, y);
+        
         context.drawLeftData();//强制渲染之前的遗留
         if (context._render2DManager._renderEnd) {
-            context._render2DManager._renderEnd = false;    
+            context._render2DManager._renderEnd = false;
             context._render2DManager.addRenderObject(sprite._renderNode);
         } else {
             context._render2DManager.addRenderObject(sprite._renderNode);

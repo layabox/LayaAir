@@ -17,18 +17,16 @@ export class WebGLSkinRenderElement3D extends WebGLRenderElement3D implements IS
 
     /** 更新数据并且 */
     drawGeometry(shaderIns: WebGLShaderInstance) {
-        let length = this._shaderInstances.length;
+
         let element = this.geometry.drawParams.elements;
         if (!this.skinnedData)
             return;
         this.geometry.bufferState.bind();
-        for (var i: number = 0, n: number = length; i < n; i++) {
-            for (var j = 0, m = this.geometry.drawParams.length / 2; j < m; j++) {
-                var subSkinnedDatas: Float32Array = this.skinnedData[j];
-                shaderIns.uploadCustomUniform(SkinnedMeshSprite3D.BONES, subSkinnedDatas);
-                var offset = j * 2;
-                WebGLEngine.instance.getDrawContext().drawElements((this.geometry as WebGLRenderGeometryElement)._glmode, element[offset + 1], (this.geometry as WebGLRenderGeometryElement)._glindexFormat, element[offset]);
-            }
+        for (var j = 0, m = this.geometry.drawParams.length / 2; j < m; j++) {
+            var subSkinnedDatas: Float32Array = this.skinnedData[j];
+            shaderIns.uploadCustomUniform(SkinnedMeshSprite3D.BONES, subSkinnedDatas);
+            var offset = j * 2;
+            WebGLEngine.instance.getDrawContext().drawElements((this.geometry as WebGLRenderGeometryElement)._glmode, element[offset + 1], (this.geometry as WebGLRenderGeometryElement)._glindexFormat, element[offset]);
         }
     }
 }

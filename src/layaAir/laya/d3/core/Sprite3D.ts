@@ -23,6 +23,7 @@ export enum StaticFlag {
     StaticBatch = 1 << 1,
 }
 
+
 /**
  * <code>Sprite3D</code> 类用于实现3D精灵。
  */
@@ -132,6 +133,7 @@ export class Sprite3D extends Node {
         this.event(Event.staticMask, this._isStatic);
     }
 
+    
     /**
      * 精灵变换。
      */
@@ -306,7 +308,7 @@ export class Sprite3D extends Node {
             Sprite3D._parseSprite3DInstance(srcRoot, dstRoot, srcChildren[i], dstChildren[i])
         scrSprite._cloneTo(dstSprite, srcRoot, dstRoot);
     }
-
+    
     /**
      * 克隆。
      * @return	 克隆副本。

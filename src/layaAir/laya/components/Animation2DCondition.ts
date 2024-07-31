@@ -1,40 +1,49 @@
 
 /**
- * 动画条件类型
+ * @en Animation condition types
+ * @zh 动画条件类型
  */
 export enum AniConditionType {
     /**
-     * 大于
+     * @en Greater than
+     * @zh 大于
      */
     Greater,
     /**
-     * 小于
+     * @en Less than
+     * @zh 小于
      */
     Less,
     /**
-     * 等于
+     * @en Equal to
+     * @zh 等于
      */
     Equals,
     /**
-     * 不等于
+     * @en Not equal to
+     * @zh 不等于
      */
     NotEqual,//不等于
 }
 
 /**
- * 2D动画类型
+ * @en 2D animation types
+ * @zh 2D动画类型
  */
 export class Animation2DCondition {
     /**
-     * id编号
+     * @en ID number
+     * @zh id编号
      */
     id: number;
     /**
-     * 动画条件
+     * @en Animation conditions
+     * @zh 动画条件
      */
     type: AniConditionType;
     /**
-     * 检测值
+     * @en Detection value
+     * @zh 检测值
      */
     checkValue: any
 }
