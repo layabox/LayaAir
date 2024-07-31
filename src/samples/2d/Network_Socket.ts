@@ -15,7 +15,7 @@ export class Network_Socket {
 
 	private connect(): void {
 		this.socket = new Socket();
-		//socket.connect("echo.websocket.org", 80);
+		// this.socket.connect("echo.websocket.org", 80);
 		this.socket.connectByUrl("ws://echo.websocket.org:80");
 
 		this.output = this.socket.output;
