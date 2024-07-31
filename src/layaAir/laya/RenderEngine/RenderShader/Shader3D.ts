@@ -180,6 +180,7 @@ export class Shader3D {
      * @param   subShaderIndex 子着色器索引。
      * @param   passIndex  通道索引。
      * @param	defineNames 宏定义名字集合。
+     * @param   nodeCommonMap ubo集合名称集合
      */
     static compileShaderByDefineNames(shaderName: string, subShaderIndex: number, passIndex: number, defineNames: string[], nodeCommonMap: string[]): boolean {
         var shader: Shader3D = Shader3D.find(shaderName);
@@ -198,10 +199,35 @@ export class Shader3D {
                 }
             }
         }
-
         return false;
     }
 
+    /**
+     * 通过宏定义和二进制数据编译shader。
+     * @param shaderName Shader名称。
+     * @param subShaderIndex 子着色器索引。
+     * @param passIndex 通道索引。
+     * @param defineNames 宏定义名字集合。
+     * @param nodeCommonMap ubo集合名称集合
+     * @param cacheBuffer 缓存的shader数据
+     */
+    static compileShaderByBin(shaderName: string, subShaderIndex: number, passIndex: number, defineNames: string[], nodeCommonMap: string[], cacheBuffer: ArrayBuffer) {
+        var shader: Shader3D = Shader3D.find(shaderName);
+        if (shader) {
+            var subShader: SubShader = shader.getSubShaderAt(subShaderIndex);
+            if (subShader) {
+                var pass: ShaderPass = subShader._passes[passIndex];
+                pass.nodeCommonMap = nodeCommonMap;
+                if (pass) {
+                    var compileDefineDatas = Shader3D._compileDefineDatas;
+                    compileDefineDatas.clear();
+                    for (let n of defineNames)
+                        compileDefineDatas.add(Shader3D.getDefineByName(n));
+                    pass.withComplieByBin(compileDefineDatas, false, cacheBuffer);
+                }
+            }
+        }
+    }
     /**
      * 添加预编译shader文件，主要是处理宏定义
      */

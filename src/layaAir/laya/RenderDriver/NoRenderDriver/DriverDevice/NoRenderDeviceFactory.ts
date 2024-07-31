@@ -91,6 +91,12 @@ export class NoRenderCommandUnifojrmMap extends CommandUniformMap {
 }
 
 export class NoRenderShaderInstance implements IShaderInstance {
+    _serializeShader(): ArrayBuffer {
+        throw new Error("Method not implemented.");
+    }
+    _deserialize(buffer: ArrayBuffer): boolean {
+        throw new Error("Method not implemented.");
+    }
     _create(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderPass): void {
     }
     _disposeResource(): void {

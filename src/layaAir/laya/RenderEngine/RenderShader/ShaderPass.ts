@@ -77,7 +77,7 @@ export class ShaderPass extends ShaderCompileDefineBase {
         shaderProcessInfo.defineString = defines;
         shader = LayaGL.renderDeviceFactory.createShaderInstance(shaderProcessInfo, shaderpass);
 
-        
+
 
         if (Shader3D.debugMode)
             ShaderVariantCollection.active.add(shaderpass, defines);
@@ -96,5 +96,15 @@ export class ShaderPass extends ShaderCompileDefineBase {
         shader = ShaderPass.createShaderInstance(this, IS2d, compileDefine);
         this.moduleData.setCacheShader(compileDefine, shader);
         return shader;
+    }
+
+    withComplieByBin(compileDefine: IDefineDatas, IS2d: boolean = false, buffer: ArrayBuffer) {
+        var shader: IShaderInstance = this.moduleData.getCacheShader(compileDefine);
+        if (shader)
+            return shader;
+        //TODO
+        //shader = ShaderPass.createShaderInstance(this, IS2d, compileDefine);
+        this.moduleData.setCacheShader(compileDefine, shader);
+        return null;
     }
 }
