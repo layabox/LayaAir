@@ -33,15 +33,13 @@ export class Mesh2DRenderDemo {
         Laya.loader.load("res/apes/monkey2.png", Loader.IMAGE).then(() => {
 
             var t = Laya.loader.getRes("res/apes/monkey2.png")._bitmap;
-            debugger;
-
             var ape: Sprite = new Sprite();
             let mesh2Drender = ape.addComponent(Mesh2DRender);
             mesh2Drender.shareMesh = this.generateCircleVerticesAndUV(100, 100);
             mesh2Drender.texture = t;
             // ape.graphics.drawTexture(t, 0, 0);
             this.Main.box2D.addChild(ape);
-            ape.pos(300, -300);
+            ape.pos(300, 300);
         });
     }
 
@@ -52,7 +50,6 @@ export class Mesh2DRenderDemo {
      * @returns 
      */
     private generateCircleVerticesAndUV(radius: number, numSegments: number): Mesh2D {
-        debugger;
         const twoPi = Math.PI * 2;
         let vertexs = new Float32Array((numSegments + 1) * 5);
         let index = new Uint16Array((numSegments + 1) * 3);
