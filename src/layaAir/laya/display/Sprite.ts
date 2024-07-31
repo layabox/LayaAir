@@ -1646,6 +1646,7 @@ export class Sprite extends Node {
         ctx._drawingToTexture = true;
         let outrt = RenderSprite.RenderToRenderTexture(sprite, ctx, offsetX, offsetY, renderout);
         ctx._drawingToTexture = false;
+        ctx.destroy();
         return outrt;
     }
 

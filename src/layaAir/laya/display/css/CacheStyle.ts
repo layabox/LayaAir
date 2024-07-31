@@ -23,7 +23,7 @@ export class CacheStyle {
     maskParent: Sprite;
     /**当前缓存区域*/
     cacheRect: Rectangle;
-    renderTexture:RenderTexture2D;
+    private _renderTexture:RenderTexture2D;
     renderTexOffx=0;
     renderTexOffy=0;
 
@@ -38,6 +38,16 @@ export class CacheStyle {
         //console.log('TODO cache invisibl')       
     }
 
+    set renderTexture(rt:RenderTexture2D){
+        if(this._renderTexture && rt!=this._renderTexture){
+            this._renderTexture.destroy();
+        }
+        this._renderTexture = rt;
+    }
+
+    get renderTexture(){
+        return this._renderTexture;
+    }
     /**
      * 回收
      */
