@@ -20,9 +20,9 @@ export class VolumeManager implements IVolumeManager {
     //注册特殊的Volume管理类
     //static regVolumeManager: { [key: number]: any } = {};
     /** @internal 需要跟新反射探针的渲染队列 */
-    private _motionObjects: FastSinglelist<BaseRender> = new FastSinglelist<BaseRender>();
+    private _motionObjects: SingletonList<BaseRender> = new SingletonList<BaseRender>();
     /** @internal volume list */
-    private _volumeList: FastSinglelist<Volume> = new FastSinglelist<Volume>();
+    private _volumeList: SingletonList<Volume> = new SingletonList<Volume>();
 
     /** @internal */
     _needUpdateAllRender: boolean = false;
