@@ -7,8 +7,8 @@ import { ShaderDataType } from "../../RenderDriver/DriverDesign/RenderDevice/Sha
 import { ShaderDefine } from "../../RenderDriver/RenderModuleData/Design/ShaderDefine";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { RenderTexture } from "../../resource/RenderTexture";
-import { RenderTexture2D } from "../../resource/RenderTexture2D";
 import { RenderState2D } from "../../webgl/utils/RenderState2D";
+import { Node } from "../Node";
 import { Scene } from "../Scene";
 import { Sprite } from "../Sprite";
 export enum AnchoreMode {
@@ -102,9 +102,8 @@ export class Camera2D extends Sprite {
                 this.scene._specialManager._setMainCamera(this);
             else
                 (this.scene._specialManager._mainCamera == this) && this.scene._specialManager._setMainCamera(null);
-        } else {
-            this._isMain = value;
         }
+        this._isMain = value;
     }
 
     /**@internal TODO*/
@@ -210,6 +209,24 @@ export class Camera2D extends Sprite {
 
 
     private _viewRect: Vector2 = new Vector2();
+
+    /**
+     * @internal
+     */
+    _setBelongScene(scene: Node): void {
+        super._setBelongScene(scene);
+        if (this._isMain) {
+            this.scene._specialManager._setMainCamera(this);
+        }
+    }
+
+    /**
+     * @internal
+     */
+    _setUnBelongScene(): void {
+        this.scene._specialManager._setMainCamera(null);
+        super._setUnBelongScene();
+    }
 
     /**
      * TODO 功能
