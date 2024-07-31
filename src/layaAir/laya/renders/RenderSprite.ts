@@ -335,6 +335,7 @@ export class RenderSprite {
             */
             this._next._fun(sprite, ctx, -tRec.x, -tRec.y);
             ctx.endRender();
+            ctx.destroy();
             //临时，恢复
             //ctx.render2D.setRenderTarget(context.render2D.out);endRender实现了
             _cacheStyle.renderTexture = rt;
@@ -501,6 +502,7 @@ export class RenderSprite {
                 [0, 1, 1, 1, 1, 0, 0, 0])
 
             ctx1.endRender();
+            ctx1.destroy();
             //临时，恢复
             //ctx1.render2D.setRenderTarget(ctx.render2D.out);endRender实现了
 
