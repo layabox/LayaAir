@@ -15,7 +15,7 @@ const ARRAY_EMPTY: any[] = [];
  * The display list manages all objects displayed in the runtime of Laya. 
  * Use the Node class to arrange the display list. A Node object can have child display objects.
  * @zh `Node` 类是可放在显示列表中的所有对象的基类。
- * 该显示列表管理 Laya 运行时中显示的所有对象。使用 Node 类排列显示列表中的显示对象。Node 对象可以有子显示对象。
+ * 该显示列表管理 LayaAir 运行时中显示的所有对象。使用 Node 类排列显示列表中的显示对象。Node 对象可以有子显示对象。
  */
 export class Node extends EventDispatcher {
     /**
@@ -44,10 +44,10 @@ export class Node extends EventDispatcher {
      */
     _parent: Node = null;
     /**
-    * @internal
-    * @en Whether it has been destroyed.
-    * @zh 是否已经被销毁。
-    */
+     * @internal
+     * @en Whether it has been destroyed.
+     * @zh 是否已经被销毁。
+     */
     _destroyed: boolean = false;
     /**@internal */
     _conchData: any;
@@ -61,16 +61,16 @@ export class Node extends EventDispatcher {
     _is3D: boolean;
     /**
      * @internal
-    * @en the URL of the resource.
-    * @zh 资源的URL。
+     * @en the URL of the resource.
+     * @zh 资源的URL。
      */
     _url: string;
 
     /**
-      * @internal
-      * @en Extra data of the node.
-      * @zh 节点的额外数据。
-      */
+     * @internal
+     * @en Extra data of the node.
+     * @zh 节点的额外数据。
+     */
     _extra: INodeExtra;
 
     /**
@@ -162,9 +162,9 @@ export class Node extends EventDispatcher {
      * @internal
      * @en Get a specific bit of the node.
      * @param type The bit type to get.
+     * @returns The bit value, true or false.
      * @zh 获取节点的特定位。
      * @param type 要获取的位类型。
-     * @returns The bit value, true or false.
      * @returns 位的值,true或false。
      */
     _getBit(type: number): boolean {
@@ -174,8 +174,7 @@ export class Node extends EventDispatcher {
     /**
      * @private
      * @en Update the display status of the node in the stage.
-     * This method checks the node's hierarchy to determine if it or any of its parents are displayed in the stage,
-     * and updates the DISPLAYED_INSTAGE flag accordingly.
+     * This method checks the node's hierarchy to determine if it or any of its parents are displayed in the stage, and updates the DISPLAYED_INSTAGE flag accordingly.
      * @zh 更新节点在舞台中的显示状态。
      * 此方法检查节点的层次结构，以确定它或其任何父节点是否显示在舞台中，并相应地更新 DISPLAYED_INSTAGE 标志。
      */
@@ -418,7 +417,7 @@ export class Node extends EventDispatcher {
      * @param node The child node to query.
      * @returns The index of the child node.
      * @zh 获取子节点的索引位置。
-     * @param node 子节点。c
+     * @param node 子节点。
      * @returns 子节点所在的索引位置。
      */
     getChildIndex(node: Node): number {
@@ -817,7 +816,7 @@ export class Node extends EventDispatcher {
 
     /**
      * @en Delays the execution of a callback function until the next frame after the current execution block is finished.
-     * The callback function will only be executed once.
+     * The callback function will only be executed once. It is generally called before the control is displayed on the screen to delay the calculation of data.
      * @param method The callback function.
      * @param args The parameters passed to the callback function.
      * @zh 在当前执行块完成后,延迟执行回调函数到下一帧。
@@ -867,17 +866,13 @@ export class Node extends EventDispatcher {
     }
 
     /**
-     * @en Get whether this node is active.
-     * @zh 获取该节点自身是否激活。
+     * @en Thether this node is active.
+     * @zh 该节点自身是否激活。
      */
     get active(): boolean {
         return !this._getBit(NodeFlags.NOT_READY) && !this._getBit(NodeFlags.NOT_ACTIVE);
     }
 
-    /**
-     * @en Set whether this node is active.
-     * @zh 设置该节点是否激活。
-     */
     set active(value: boolean) {
         value = !!value;
         if (!this._getBit(NodeFlags.NOT_ACTIVE) !== value) {
@@ -898,8 +893,8 @@ export class Node extends EventDispatcher {
     }
 
     /**
-     * @en Get whether this node is active in the hierarchy.
-     * @zh 获取该节点在层级中是否激活。
+     * @en Thether this node is active in the hierarchy.
+     * @zh 该节点在层级中是否激活。
      */
     get activeInHierarchy(): boolean {
         return this._getBit(NodeFlags.ACTIVE_INHIERARCHY);
@@ -987,8 +982,8 @@ export class Node extends EventDispatcher {
     /**
     * @internal
     * @en Set the scene to which the node belongs.
-    * @zh 设置节点归属的场景。
     * @param scene The scene the node belongs to.
+    * @zh 设置节点归属的场景。
     * @param scene 节点所属的场景。
     */
     _setBelongScene(scene: Node): void {

@@ -4,37 +4,77 @@ import { IHitArea } from "../../utils/IHitArea";
 import { Pool } from "../../utils/Pool"
 
 /**
- * 元素样式
+ * @en Sprite style
+ * @zh 精灵样式
  */
 export class SpriteStyle {
 
     static readonly EMPTY: Readonly<SpriteStyle> = new SpriteStyle();
 
-    /**水平缩放 */
+    /**
+     * @en Horizontal scaling
+     * @zh 水平缩放
+     */
     scaleX: number;
-    /**垂直缩放 */
+    /**
+     * @en Vertical scaling
+     * @zh 垂直缩放
+     */
     scaleY: number;
-    /**水平倾斜角度 */
+    /**
+     * @en Horizontal skew angle
+     * @zh 水平倾斜角度
+     */
     skewX: number;
-    /**垂直倾斜角度 */
+    /**
+     * @en Vertical skew angle
+     * @zh 垂直倾斜角度
+     */
     skewY: number;
-    /**X轴心点 */
+    /**
+     * @en X-axis pivot point
+     * @zh X轴心点
+     */
     pivotX: number;
-    /**Y轴心点 */
+    /**
+     * @en Y-axis pivot point
+     * @zh Y轴心点
+     */
     pivotY: number;
-    /**旋转角度 */
+    /**
+     * @en Rotation angle
+     * @zh 旋转角度
+     */
     rotation: number;
-    /**透明度 */
+    /**
+     * @en Transparency
+     * @zh 透明度
+     */
     alpha: number;
-    /**滚动区域 */
+    /**
+     * @en Scroll area
+     * @zh 滚动区域
+     */
     scrollRect: Rectangle;
-    /**视口 */
+    /**
+     * @en Viewport
+     * @zh 视口
+     */
     viewport: Rectangle;
-    /**点击区域 */
+    /**
+     * @en Hit area
+     * @zh 点击区域
+     */
     hitArea: IHitArea;
-    /**滑动 */
+    /**
+     * @en Dragging
+     * @zh 滑动
+     */
     dragging: Dragging;
-    /**混合模式 */
+    /**
+     * @en Blend mode
+     * @zh 混合模式
+     */
     blendMode: string;
 
     constructor() {
@@ -42,7 +82,8 @@ export class SpriteStyle {
     }
 
     /**
-     * 重置，方便下次复用
+     * @en Reset for easy reuse next time
+     * @zh 重置，方便下次复用
      */
     reset(): SpriteStyle {
         this.scaleX = this.scaleY = 1;
@@ -60,7 +101,8 @@ export class SpriteStyle {
     }
 
     /**
-     * 回收
+     * @en Recycle to the object pool
+     * @zh 回收到对象池
      */
     recover(): void {
         if (this === SpriteStyle.EMPTY) return;
@@ -68,7 +110,8 @@ export class SpriteStyle {
     }
 
     /**
-     * 从对象池中创建
+     * @en Create SpriteStyle object pool instance
+     * @zh 创建SpriteStyle对象池实例
      */
     static create(): SpriteStyle {
         return Pool.getItemByClass("SpriteStyle", SpriteStyle);

@@ -32,7 +32,8 @@ const _tempMatrixArrays: any[] = [];
 
 /**
  * @private
- * Graphic bounds数据类
+ * @en Graphic bounds data class
+ * @zh 图形边界数据类
  */
 export class GraphicsBounds {
     /**@private */
@@ -49,7 +50,8 @@ export class GraphicsBounds {
     _affectBySize: boolean;
 
     /**
-     * 销毁
+     * @en Destroy
+     * @zh 销毁
      */
     destroy(): void {
         this._graphics = null;
@@ -62,23 +64,28 @@ export class GraphicsBounds {
     }
 
     /**
-     * 创建
+     * @en Create a new GraphicsBounds instance
+     * @zh 创建一个新的GraphicsBounds实例
      */
     static create(): GraphicsBounds {
         return Pool.getItemByClass("GraphicsBounds", GraphicsBounds);
     }
 
     /**
-     * 重置数据
+     * @en Reset data
+     * @zh 重置数据
      */
     reset(): void {
         this._temp && (this._temp.length = 0);
     }
 
     /**
-     * 获取位置及宽高信息矩阵(比较耗CPU，频繁使用会造成卡顿，尽量少用)。
-     * @param realSize	（可选）使用图片的真实大小，默认为false
-     * @return 位置与宽高组成的 一个 Rectangle 对象。
+     * @en Get the position and size information matrix (CPU intensive, frequent use may cause lag, use sparingly).
+     * @param realSize (Optional) Use the real size of the image. Default is false.
+     * @returns A Rectangle object composed of position and size.
+     * @zh 获取位置及宽高信息矩阵(比较耗CPU，频繁使用会造成卡顿，尽量少用)。
+     * @param realSize （可选）使用图片的真实大小，默认为false。
+     * @returns 位置与宽高组成的一个Rectangle对象。
      */
     getBounds(realSize: boolean = false): Rectangle {
         if (!this._bounds || !this._temp || this._temp.length < 1 || realSize != this._cacheBoundsType) {
@@ -90,8 +97,12 @@ export class GraphicsBounds {
 
     /**
      * @private
-     * @param realSize	（可选）使用图片的真实大小，默认为false
-     * 获取端点列表。
+     * @en Get the list of boundary points.
+     * @param realSize (Optional) Use the real size of the image. Default is false.
+     * @returns An array of boundary points.
+     * @zh 获取边界点列表。
+     * @param realSize （可选）使用图片的真实大小，默认为false。
+     * @returns 边界点的数组。
      */
     getBoundPoints(realSize: boolean = false): any[] {
         if (!this._temp || this._temp.length < 1 || realSize != this._cacheBoundsType)

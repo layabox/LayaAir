@@ -3,8 +3,8 @@ import { ClassUtils } from "../utils/ClassUtils"
 import { Ease } from "../utils/Ease"
 
 /**
- * <p> 动效模板。用于为指定目标对象添加动画效果。每个动效有唯一的目标对象，而同一个对象可以添加多个动效。 当一个动效开始播放时，其他动效会自动停止播放。</p>
- * <p> 可以通过LayaAir IDE创建。 </p>
+ * @en Effect template. Used to add animation effects to specified target objects. Each effect has a unique target object, while the same object can add multiple effects. When one effect starts playing, other effects will automatically stop playing.
+ * @zh 动效模板。用于为指定目标对象添加动画效果。每个动效有唯一的目标对象，而同一个对象可以添加多个动效。当一个动效开始播放时，其他动效会自动停止播放。
  */
 export class EffectAnimation extends FrameAnimation {
     /**
@@ -25,18 +25,18 @@ export class EffectAnimation extends FrameAnimation {
     private _effectClass: new () => any;
 
     /**
-     * 本实例的目标对象。通过本实例控制目标对象的属性变化。
-     * @param v 指定的目标对象。
+     * @en The target object of this instance. Controls the property changes of the target object through this instance.
+     * @zh 本实例的目标对象。通过本实例控制目标对象的属性变化。
      */
+    get target(): any {
+        return this._target;
+    }
+
     set target(v: any) {
         if (this._target) this._target.off(EffectAnimation.EFFECT_BEGIN, this, this._onOtherBegin);
         this._target = v;
         if (this._target) this._target.on(EffectAnimation.EFFECT_BEGIN, this, this._onOtherBegin);
         this._addEvent();
-    }
-
-    get target(): any {
-        return this._target;
     }
 
     /**@private */
@@ -46,8 +46,8 @@ export class EffectAnimation extends FrameAnimation {
     }
 
     /**
-     * 设置开始播放的事件。本实例会侦听目标对象的指定事件，触发后播放相应动画效果。
-     * @param event
+     * @en The event name to trigger the animation. This instance will listen for the specified event of the target object and play the corresponding animation effect when triggered.
+     * @zh 触发动画的事件名称。本实例会侦听目标对象的指定事件，触发后播放相应动画效果。
      */
     set playEvent(event: string) {
         this._playEvent = event;
@@ -66,11 +66,17 @@ export class EffectAnimation extends FrameAnimation {
     private _onPlayAction(): void {
         this.play(0, false);
     }
+
     /**
-     * @param start 
-     * @param loop 
-     * @param name 
      * @override
+     * @en Play the animation effect.
+     * @param start The starting position of the animation. Default is 0.
+     * @param loop Whether to loop the animation. Default is true.
+     * @param name The name of the animation to play. Default is an empty string.
+     * @zh 播放动画效果。
+     * @param start 动画的起始位置。默认为0。
+     * @param loop 是否循环播放动画。默认为true。
+     * @param name 要播放的动画名称。默认为空字符串。
      */
     play(start: any = 0, loop: boolean = true, name: string = ""): void {
         if (!this._target)
@@ -93,8 +99,8 @@ export class EffectAnimation extends FrameAnimation {
     }
 
     /**
-     * 设置提供数据的类。
-     * @param classStr 类路径
+     * @en Provide the path of the class that provides the data.
+     * @zh 提供数据的类的路径。
      */
     set effectClass(classStr: string) {
         this._effectClass = ClassUtils.getClass(classStr);
@@ -114,8 +120,8 @@ export class EffectAnimation extends FrameAnimation {
     }
 
     /**
-     * 设置动画数据。
-     * @param uiData
+     * @en The UI data containing animation information.
+     * @zh 包含动画信息的UI数据。
      */
     set effectData(uiData: any) {
         if (uiData) {
