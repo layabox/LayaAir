@@ -39,6 +39,9 @@ export class NoRenderEngineFactory implements IRenderEngineFactory {
 
 
 export class NoRenderEngine implements IRenderEngine {
+    endFrame(): void {
+
+    }
     _context: any;
     _isShaderDebugMode: boolean;
     _renderOBJCreateContext: IRenderEngineFactory;

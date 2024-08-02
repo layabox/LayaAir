@@ -23,6 +23,7 @@ import { ComponentDriver } from "../components/ComponentDriver";
 import { LayaEnv } from "../../LayaEnv";
 import { Scene3D } from "../d3/core/scene/Scene3D";
 import { Color } from "../maths/Color";
+import { LayaGL } from "../layagl/LayaGL";
 
 /**
  * @en Dispatched when the stage size is resized.
@@ -1072,6 +1073,8 @@ export class Stage extends Sprite {
             this._runComponents();
 
         this._updateTimers();
+
+        LayaGL.renderEngine.endFrame();
     }
 
     /**
