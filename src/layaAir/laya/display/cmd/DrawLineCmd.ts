@@ -3,43 +3,72 @@ import { ClassUtils } from "../../utils/ClassUtils";
 import { Pool } from "../../utils/Pool"
 
 /**
- * 绘制单条曲线
+ * @en Draw bend line command
+ * @zh 绘制单条曲线命令
  */
 export class DrawLineCmd implements IGraphicCMD {
-    /**绘制单条曲线标识符 */
+    /**
+     * @en Identifier for the DrawLineCmd
+     * @zh 绘制单条曲线命令的标识符
+     */
     static ID: string = "DrawLine";
 
     /**
-     * X轴开始位置。
+     * @en X-axis start position
+     * @zh X轴起始位置
      */
     fromX: number;
     /**
-     * Y轴开始位置。
+     * @en Y-axis start position
+     * @zh Y轴起始位置
      */
     fromY: number;
     /**
-     * X轴结束位置。
+     * @en X-axis end position
+     * @zh X轴结束位置
      */
     toX: number;
     /**
-     * Y轴结束位置。
+     * @en Y-axis end position
+     * @zh Y轴结束位置
      */
     toY: number;
     /**
-     * 颜色。
+     * @en Line color
+     * @zh 线条颜色
      */
     lineColor: string;
     /**
-     * （可选）线条宽度。
+     * @en (Optional) Line width
+     * @zh （可选）线条宽度
      */
     lineWidth: number = 0;
 
     /**
-     * 位置是否是百分比
+     * @en Whether the position is a percentage
+     * @zh 位置是否是百分比
      */
     percent: boolean;
 
-    /**@private 创建绘制单条曲线CMD*/
+    /**
+     * @private
+     * @en Create a DrawLineCmd instance
+     * @param fromX X-axis start position
+     * @param fromY Y-axis start position
+     * @param toX X-axis end position
+     * @param toY Y-axis end position
+     * @param lineColor Line color
+     * @param lineWidth Line width
+     * @returns A DrawLineCmd instance
+     * @zh 创建一个绘制单条曲线命令实例
+     * @param fromX X轴起始位置
+     * @param fromY Y轴起始位置
+     * @param toX X轴结束位置
+     * @param toY Y轴结束位置
+     * @param lineColor 线条颜色
+     * @param lineWidth 线条宽度
+     * @returns DrawLineCmd 实例
+     */
     static create(fromX: number, fromY: number, toX: number, toY: number, lineColor: string, lineWidth: number): DrawLineCmd {
         var cmd: DrawLineCmd = Pool.getItemByClass("DrawLineCmd", DrawLineCmd);
         cmd.fromX = fromX;
@@ -52,13 +81,24 @@ export class DrawLineCmd implements IGraphicCMD {
     }
 
     /**
-     * 回收到对象池
+     * @en Recycle the instance to the object pool
+     * @zh 将实例回收到对象池
      */
     recover(): void {
         Pool.recover("DrawLineCmd", this);
     }
 
-    /**@private 执行绘制单条曲线cmd*/
+    /**
+     * @private
+     * @en Execute the draw bend line command
+     * @param context The rendering context
+     * @param gx Global X offset
+     * @param gy Global Y offset
+     * @zh 执行绘制单条曲线命令
+     * @param context 渲染上下文
+     * @param gx 全局X偏移
+     * @param gy 全局Y偏移
+     */
     run(context: Context, gx: number, gy: number): void {
         let offset = (this.lineWidth < 1 || this.lineWidth % 2 === 0) ? 0 : 0.5;
         if (this.percent && context.sprite) {
@@ -70,15 +110,23 @@ export class DrawLineCmd implements IGraphicCMD {
             context._drawLine(gx, gy, this.fromX + offset, this.fromY + offset, this.toX + offset, this.toY + offset, this.lineColor, this.lineWidth, 0);
     }
 
-    /**@private 获取绘制单条曲线的标识符*/
+
+    /**
+     * @private
+     * @en The identifier for the DrawLineCmd
+     * @zh 绘制单条曲线命令的标识符
+     */
     get cmdID(): string {
         return DrawLineCmd.ID;
     }
 
     /**
-     * 获取包围盒顶点数据
-     * @param sp 绘制cmd的精灵 
-     * @returns 
+     * @en Get the bounding points of the line
+     * @param sp The sprite that draws the cmd
+     * @returns An array of bounding points
+     * @zh 获取直线的包围盒顶点数据
+     * @param sp 绘制cmd的精灵
+     * @returns 包围盒顶点数据数组
      */
     getBoundPoints(sp?: { width: number, height?: number }): number[] {
         _tempPoints.length = 0;
