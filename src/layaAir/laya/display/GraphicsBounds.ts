@@ -188,20 +188,20 @@ export class GraphicsBounds {
                     addPointArrToRst(rst, (<DrawLineCmd>cmd).getBoundPoints(sp), tMatrix);
                     break;
                 case DrawCurvesCmd.ID:
-                    addPointArrToRst(rst, (<DrawCurvesCmd>cmd).getBoundPoints(sp), tMatrix, cmd.x, cmd.y);
+                    addPointArrToRst(rst, (<DrawCurvesCmd>cmd).getBoundPoints(), tMatrix, cmd.x, cmd.y);
                     break;
                 case DrawLinesCmd.ID:
                 case DrawPolyCmd.ID:
                     addPointArrToRst(rst, cmd.points, tMatrix, cmd.x, cmd.y);
                     break;
                 case DrawPathCmd.ID:
-                    addPointArrToRst(rst, (<DrawPathCmd>cmd).getBoundPoints(sp), tMatrix, cmd.x, cmd.y);
+                    addPointArrToRst(rst, (<DrawPathCmd>cmd).getBoundPoints(), tMatrix, cmd.x, cmd.y);
                     break;
                 case DrawPieCmd.ID:
-                    addPointArrToRst(rst, (<DrawPieCmd>cmd).getBoundPoints(sp), tMatrix);
+                    addPointArrToRst(rst, (<DrawPieCmd>cmd).getBoundPoints(), tMatrix);
                     break;
                 case DrawTrianglesCmd.ID:
-                    addPointArrToRst(rst, (<DrawTrianglesCmd>cmd).getBoundPoints(sp), tMatrix);
+                    addPointArrToRst(rst, (<DrawTrianglesCmd>cmd).getBoundPoints(), tMatrix);
                     break;
                 case Draw9GridTextureCmd.ID:
                     addPointArrToRst(rst, (<Draw9GridTextureCmd>cmd).getBoundPoints(sp), tMatrix);
