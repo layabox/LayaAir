@@ -405,4 +405,7 @@ export class WebGPURenderEngine implements IRenderEngine {
                     RenderTargetFormat.None, false, false, this._config.msaa ? 4 : 1) as WebGPUInternalRT;
         this.screenResized = true;
     }
+
+    endFrame() {
+    }
 }
