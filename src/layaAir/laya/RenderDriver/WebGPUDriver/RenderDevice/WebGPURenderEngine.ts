@@ -106,6 +106,10 @@ export class WebGPURenderEngine implements IRenderEngine {
         this.globalId = WebGPUGlobal.getId(this);
     }
 
+    endFrame(): void {
+       
+    }
+
     /**
      * 获取适配器
      */
