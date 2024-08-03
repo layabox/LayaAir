@@ -1013,14 +1013,14 @@ export class GL2TextureContext extends GLTextureContext implements ITextureConte
                 renderTarget._depthbuffer = depthbuffer;
                 gl.framebufferRenderbuffer(gl.FRAMEBUFFER, depthBufferParam.attachment, gl.RENDERBUFFER, depthbuffer);
             }
-            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+            gl.bindFramebuffer(gl.FRAMEBUFFER, WebGLEngine._lastFrameBuffer_WebGLOBJ);
 
             let framebuffer = renderTarget._framebuffer;
             gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
             // color
             let colorAttachment = this.glRenderTargetAttachment(colorFormat);
             gl.framebufferTexture2D(gl.FRAMEBUFFER, colorAttachment, gl.TEXTURE_2D, texture.resource, 0);
-            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+            gl.bindFramebuffer(gl.FRAMEBUFFER, WebGLEngine._lastFrameBuffer_WebGLOBJ);
         }
         else {
             let framebuffer = renderTarget._framebuffer;
@@ -1037,7 +1037,7 @@ export class GL2TextureContext extends GLTextureContext implements ITextureConte
                 renderTarget._depthbuffer = depthbuffer;
                 gl.framebufferRenderbuffer(gl.FRAMEBUFFER, depthBufferParam.attachment, gl.RENDERBUFFER, depthbuffer);
             }
-            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+            gl.bindFramebuffer(gl.FRAMEBUFFER, WebGLEngine._lastFrameBuffer_WebGLOBJ);
         }
 
         return renderTarget;
@@ -1069,7 +1069,7 @@ export class GL2TextureContext extends GLTextureContext implements ITextureConte
                 renderTarget._depthbuffer = depthbuffer;
                 gl.framebufferRenderbuffer(gl.FRAMEBUFFER, depthBufferParam.attachment, gl.RENDERBUFFER, depthbuffer);
             }
-            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+            gl.bindFramebuffer(gl.FRAMEBUFFER, WebGLEngine._lastFrameBuffer_WebGLOBJ);
         }
         else {
             let framebuffer = renderTarget._framebuffer;
@@ -1083,7 +1083,7 @@ export class GL2TextureContext extends GLTextureContext implements ITextureConte
                 renderTarget._depthbuffer = depthbuffer;
                 gl.framebufferRenderbuffer(gl.FRAMEBUFFER, depthBufferParam.attachment, gl.RENDERBUFFER, depthbuffer);
             }
-            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+            gl.bindFramebuffer(gl.FRAMEBUFFER, WebGLEngine._lastFrameBuffer_WebGLOBJ);
         }
 
 
@@ -1152,7 +1152,7 @@ export class GL2TextureContext extends GLTextureContext implements ITextureConte
 
     unbindRenderTarget(renderTarget: WebGLInternalRT): void {
         let gl = this._gl;
-        if (renderTarget._samples > 1) {
+        if (renderTarget && renderTarget._samples > 1) {
 
             gl.bindFramebuffer(gl.READ_FRAMEBUFFER, renderTarget._msaaFramebuffer);
             gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, renderTarget._framebuffer);
@@ -1171,7 +1171,7 @@ export class GL2TextureContext extends GLTextureContext implements ITextureConte
 
             gl.blitFramebuffer(0, 0, texture.width, texture.height, 0, 0, texture.width, texture.height, biltMask, gl.NEAREST);
         }
-        if (renderTarget._generateMipmap) {
+        if (renderTarget && renderTarget._generateMipmap) {
             renderTarget._textures.forEach(tex => {
                 let target = (<WebGLInternalTex>tex).target;
                 this._engine._bindTexture(target, tex.resource);
@@ -1179,7 +1179,7 @@ export class GL2TextureContext extends GLTextureContext implements ITextureConte
                 this._engine._bindTexture(target, null);
             });
         }
-        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-        this.currentActiveRT = null;
+        gl.bindFramebuffer(gl.FRAMEBUFFER, WebGLEngine._lastFrameBuffer_WebGLOBJ);
+        this.currentActiveRT = WebGLEngine._lastFrameBuffer;
     }
 }

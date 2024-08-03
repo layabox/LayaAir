@@ -127,6 +127,7 @@ export class PhysicsColliderComponent extends Component {
     }
 
     set dynamicFriction(value: number) {
+        this._dynamicFriction = value;
         if (this._collider && this._collider.getCapable(EColliderCapable.Collider_DynamicFriction)) {
             this._collider.setDynamicFriction(value);
         }
@@ -140,7 +141,7 @@ export class PhysicsColliderComponent extends Component {
     }
 
     set staticFriction(value: number) {
-        this._staticFriction = value
+        this._staticFriction = value;
         if (this._collider && this._collider.getCapable(EColliderCapable.Collider_StaticFriction)) {
             this._collider.setStaticFriction(value);
         }
@@ -200,12 +201,13 @@ export class PhysicsColliderComponent extends Component {
     }
 
     set collisionGroup(value: number) {
+        if (this._collisionGroup !== value) {
+            this._collisionGroup = value;
+        }
+
         if (this._collider && this._collider.getCapable(EColliderCapable.Collider_CollisionGroup)) {
-            if (this._collisionGroup !== value) {
-                this._collisionGroup = value;
-                if (this._colliderShape && this._enabled) {
-                    this._collider.setCollisionGroup(value);
-                }
+            if (this._colliderShape && this._enabled) {
+                this._collider.setCanCollideWith(value);
             }
         }
     }
@@ -218,12 +220,13 @@ export class PhysicsColliderComponent extends Component {
     }
 
     set canCollideWith(value: number) {
+        if (this._canCollideWith !== value) {
+            this._canCollideWith = value;
+        }
+
         if (this._collider && this._collider.getCapable(EColliderCapable.Collider_CollisionGroup)) {
-            if (this._canCollideWith !== value) {
-                this._canCollideWith = value;
-                if (this._colliderShape && this._enabled) {
-                    this._collider.setCanCollideWith(value);
-                }
+            if (this._colliderShape && this._enabled) {
+                this._collider.setCanCollideWith(value);
             }
         }
     }

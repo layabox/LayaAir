@@ -8,6 +8,7 @@ import { Quaternion } from "../../maths/Quaternion";
 import { Vector3 } from "../../maths/Vector3";
 import { Sprite3D } from "./Sprite3D";
 
+
 /**
  * <code>Transform3D</code> 类用于实现3D变换。
  */
@@ -482,6 +483,7 @@ export class Transform3D extends EventDispatcher {
 		this._setTransformFlag(Transform3D.TRANSFORM_WORLDEULER, false);
 	}
 
+	
 	/**
 	 * 世界矩阵。
 	 */
@@ -653,6 +655,7 @@ export class Transform3D extends EventDispatcher {
 			this._children![i]._onWorldTransform();
 	}
 
+	
 	/**
 	 * 平移变换。
 	 * @param 	translation 移动距离。
@@ -670,6 +673,7 @@ export class Transform3D extends EventDispatcher {
 		}
 	}
 
+	
 	/**
 	 * 旋转变换。
 	 * @param 	rotations 旋转幅度。

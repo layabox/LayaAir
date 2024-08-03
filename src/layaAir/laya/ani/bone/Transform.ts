@@ -1,28 +1,63 @@
 import { Matrix } from "../../maths/Matrix";
 
+/**
+ * @en The `Transform` class represents a 2D transformation matrix, used to apply rotations, scaling, skewing, and translation to objects.
+ * @zh `Transform` 类表示一个2D变换矩阵，用于对对象应用旋转、缩放、倾斜和位移。
+ */
 export class Transform {
 
-	/**水平方向旋转角度 */
-	skX: number = 0;		// 旋转？
-	/**垂直方向旋转角度 */
-	skY: number = 0;		// 不知道干什么的
-	/**水平方向缩放 */
-	scX: number = 1;		// 缩放
-	/**垂直方向缩放 */
+	/**
+	* @en The rotation angle around the X-axis (in degrees).
+	* @zh 绕X轴旋转的角度（以度为单位）。
+	*/
+	skX: number = 0;
+	/**
+	 * @en The rotation angle around the Y-axis (in degrees).
+	 * @zh 绕Y轴旋转的角度（以度为单位）。
+	 */
+	skY: number = 0;
+	/**
+	 * @en The scaling factor along the X-axis.
+	 * @zh 沿X轴的缩放系数。
+	 */
+	scX: number = 1;
+	/**
+	 * @en The scaling factor along the Y-axis.
+	 * @zh 沿Y轴的缩放系数。
+	 */
 	scY: number = 1;
-	/**水平方向偏移 */
-	x: number = 0;		// 偏移
-	/**垂直方向偏移 */
+	/**
+	 * @en The translation along the X-axis.
+	 * @zh 沿X轴的平移。
+	 */
+	x: number = 0;
+	/**
+	 * @en The translation along the Y-axis.
+	 * @zh 沿Y轴的平移。
+	 */
 	y: number = 0;
-	/**水平方向倾斜角度 */
+	/**
+	 * @en The skew angle along the X-axis (in degrees).
+	 * @zh 沿X轴的倾斜角度（以度为单位）。
+	 */
 	skewX: number = 0;	// skew
-	/**垂直方向倾斜角度 */
+	/**
+	 * @en The skew angle along the Y-axis (in degrees).
+	 * @zh 沿Y轴的倾斜角度（以度为单位）。
+	 */
 	skewY: number = 0;
+	/**
+	 * @en The internal matrix used for transformations.
+	 * @zh 用于变换的内部矩阵。
+	 * @private
+	 */
 	private mMatrix: Matrix;
 
 	/**
-	 * 初始化数据
-	 * @param data 
+	 * @en Initializes the transform data with the provided values.
+	 * @param data The data object containing transformation properties.
+	 * @zh 使用提供的数据初始化变换。
+	 * @param data 数据对象，包含变换属性。
 	 */
 	//TODO:coverage
 	initData(data: any): void {
@@ -47,7 +82,10 @@ export class Transform {
 	}
 
 	/**
-	 * 获取当前矩阵
+	 * @en Gets the current matrix.
+	 * @returns The transformation matrix.
+	 * @zh 获取当前矩阵。
+	 * @returns 变换矩阵。
 	 */
 	//TODO:coverage
 	getMatrix(): Matrix {
@@ -70,10 +108,16 @@ export class Transform {
 	}
 
 	/**
-	 * 获取倾斜矩阵
-	 * @param m 
-	 * @param x 
-	 * @param y 
+	 * @en Applies skew to the matrix based on the given angles.
+	 * @param m The matrix to apply the skew transformation to.
+	 * @param x The horizontal skew angle, in radians.
+	 * @param y The vertical skew angle, in radians.
+	 * @returns The modified matrix with skew applied.
+	 * @zh 根据给定的角度对矩阵应用倾斜。
+	 * @param m 要应用倾斜变换的矩阵。
+	 * @param x 水平倾斜角度，以弧度为单位。
+	 * @param y 垂直倾斜角度，以弧度为单位。
+	 * @returns 应用倾斜后的矩阵。
 	 */
 	//TODO:coverage
 	skew(m: Matrix, x: number, y: number): Matrix {

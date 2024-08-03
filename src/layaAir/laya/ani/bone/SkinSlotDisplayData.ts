@@ -2,40 +2,91 @@ import { Transform } from "./Transform";
 import { Texture } from "../../resource/Texture";
 
 /**
- * 插槽显示数据
+ * @en Slot display data
+ * @zh 插槽显示数据
  */
 export class SkinSlotDisplayData {
 
-	/**名称 */
+	/**
+	 * @en The name of the slot.
+	 * @zh 插槽的名称。
+	 */
 	name: string;
-	/**附件名称 */
+	/**
+	 * @en The name of the attachment.
+	 * @zh 附件的名称。
+	 */
 	attachmentName: string;
-	/**类型 */
+	/**
+	 * @en The type of the slot display.
+	 * @zh 插槽显示的类型。
+	 */
 	type: number;				//0 硬  1 skin 2 另一种skin? 3 不支持
-	/**变换 */
+	/**
+	 * @en The transformation data of the slot.
+	 * @zh 插槽的变换数据。
+	 */
 	transform: Transform;
-	/**宽度 */
+	/**
+	 * @en The width of the slot.
+	 * @zh 插槽的宽度。
+	 */
 	width: number;
-	/**高度 */
+	/**
+	 * @en The height of the slot.
+	 * @zh 插槽的高度。
+	 */
 	height: number;
-	/**纹理 */
+	/**
+	 * @en The texture of the slot.
+	 * @zh 插槽的纹理。
+	 */
 	texture: Texture;
 
-	/**骨骼数据 */
+	/**
+	 * @en The bone data array.
+	 * @zh 骨骼数据数组。
+	 */
 	bones: any[];
-	/**uv数据 */
+	/**
+	 * @en The UV data array.
+	 * @zh UV数据数组。
+	 */
 	uvs: any[];
-	/**权重 */
+	/**
+	 * @en The weight data array.
+	 * @zh 权重数据数组。
+	 */
 	weights: any[];
-	/**三角面数据 */
+	/**
+	 * @en The triangle data array.
+	 * @zh 三角面数据数组。
+	 */
 	triangles: any[];
-	/**顶点数据 */
+	/**
+	 * @en The vertex data array.
+	 * @zh 顶点数据数组。
+	 */
 	vertices: any[];
-	/**长度数据 */
+	/**
+	 * @en The length data array.
+	 * @zh 长度数据数组。
+	 */
 	lengths: any[];
-	/**版本号 */
+	/**
+	 * @en The version.
+	 * @zh 版本号。
+	 */
 	verLen: number;
 
+	/**
+	 * @en Create and update the texture for the slot based on the current texture.
+	 * @param currTexture The current texture to be used for creating the slot's texture.
+	 * @return The created and updated texture.
+	 * @zh 根据当前纹理创建并更新插槽纹理。
+	 * @param currTexture 用于创建槽纹理的当前纹理。
+	 * @return 新的插槽纹理。
+	 */
 	createTexture(currTexture: Texture): Texture {
 		if (this.texture) return this.texture;
 		this.texture = new Texture(currTexture.bitmap, this.uvs);
@@ -61,6 +112,10 @@ export class SkinSlotDisplayData {
 		return this.texture;
 	}
 
+	/**
+	 * @en Destroy and clean up the resources used by the slot's texture.
+	 * @zh 销毁并清理插槽纹理所使用的资源。
+	 */
 	destory(): void {
 		if (this.texture) this.texture.destroy();
 	}

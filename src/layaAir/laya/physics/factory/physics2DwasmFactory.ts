@@ -2055,7 +2055,6 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
         p = this.box2d.wrapPointer(p, this.box2d.b2Vec2);
         size *= this._debugDraw.camera.m_zoom;
         size /= this._debugDraw.camera.m_extent;
-        size /= Browser.pixelRatio;
         var hsize: any = size / 2;
         this._debugDraw.mG.drawRect(p.x - hsize, p.y - hsize, size, size, this.makeStyleString(color, 1), null);
     }

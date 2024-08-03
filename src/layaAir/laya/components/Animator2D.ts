@@ -15,7 +15,8 @@ import { Animation2DEvent } from "./Animation2DEvent";
 import { AnimatorUpdateMode } from "./AnimatorUpdateMode";
 
 /**
- * <code>Animator2D<code/>2D动画组件
+ * @en 2D animation components
+ * @zh 2D动画组件
  */
 export class Animator2D extends Component {
     /**@internal */
@@ -37,8 +38,10 @@ export class Animator2D extends Component {
     /**@internal */
     _checkEnterIndex: number[];
 
+
     /**
-     * 实例化2D动画组件
+     * @en Constructor method of Animator2D Component.  
+     * @zh 2D动画组件构造方法。
      */
     constructor() {
         super();
@@ -47,8 +50,13 @@ export class Animator2D extends Component {
     }
 
     /**
-     * 2D动画控制器
+     * @en The 2D animation controller.
+     * @zh 2D动画控制器。
      */
+    get controller() {
+        return this._controller;
+    }
+
     set controller(val: AnimatorController2D) {
         this._controller = val;
         if (val) {
@@ -56,34 +64,33 @@ export class Animator2D extends Component {
         }
     }
 
-    get controller() {
-        return this._controller;
-    }
-
     /**
-     * 动画参数
+     * @en The current 2D animation controller.
+     * @zh 动画参数
      */
-    set parameters(val: Record<string, Animation2DParm>) {
-        this._parameters = val;
-    }
-
     get parameters() {
         return this._parameters;
     }
 
-    /**
-     * 播放速度
-     */
-    set speed(num: number) {
-        this._speed = num;
+    set parameters(val: Record<string, Animation2DParm>) {
+        this._parameters = val;
     }
 
+    /**
+     * @en The playback speed of the animation.
+     * @zh 播放速度
+     */
     get speed() {
         return this._speed;
     }
 
+    set speed(num: number) {
+        this._speed = num;
+    }
+
     /**
-     * 是否正在播放中
+     * @en If the animation is currently playing.
+     * @zh 动画是否正在播放。
      */
     get isPlaying() {
         return this._isPlaying;
@@ -101,11 +108,16 @@ export class Animator2D extends Component {
     }
 
     /**
-     * 赋值Node数据
-     * @param stateInfo 动画状态
-     * @param additive 是否为addtive
-     * @param weight state权重
-     * @param isFirstLayer 是否是第一层
+     * @en Assigns data to a Node.
+     * @param stateInfo The animation state information.
+     * @param additive Indicates if it is additive.
+     * @param weight The weight of the state.
+     * @param isFirstLayer Indicates if it is the first layer.
+     * @zh 赋值Node数据。
+     * @param stateInfo 动画状态信息。
+     * @param additive 是否为加法。
+     * @param weight 状态的权重。
+     * @param isFirstLayer 是否是第一层。
      */
     private _setClipDatasToNode(stateInfo: AnimatorState2D, additive: boolean, weight: number, controllerLayer: AnimatorControllerLayer2D = null): void {
         var realtimeDatas = stateInfo._realtimeDatas;
@@ -482,11 +494,14 @@ export class Animator2D extends Component {
     }
 
     /**
-     * 跳转到指定帧并停止播放动画
+     * @en Jump to the specified frame and stop playing the animation.
+     * @param name The name of the animation.
+     * @param layerIndex The index of the animation layer.
+     * @param frame The specified frame to jump to.
+     * @zh 跳转到指定帧并停止播放动画。
      * @param name 动画名称
      * @param layerIndex 动画层
      * @param frame 指定帧
-     * @returns 
      */
     gotoAndStopByFrame(name: string, layerIndex: number, frame: number) {
         var controllerLayer = this._controllerLayers[layerIndex];
@@ -502,11 +517,14 @@ export class Animator2D extends Component {
     }
 
     /**
-     * 跳转到指定时间并停止播放动画
+     * @en Jump to the specified time and stop playing the animation.
+     * @param name The name of the animation.
+     * @param layerIndex The index of the layer.
+     * @param normalizedTime The normalized playback time of the animation.
+     * @zh 跳转到指定时间并停止播放动画。
      * @param name 动画名称
      * @param layerIndex 层索引
      * @param normalizedTime 归一化播放动画时间
-     * @returns 
      */
     gotoAndStop(name: string, layerIndex: number, normalizedTime: number) {
         var controllerLayer = this._controllerLayers[layerIndex];
@@ -536,11 +554,14 @@ export class Animator2D extends Component {
     }
 
     /**
-     * 播放动画
+     * @en Play animation
+     * @param name The name of the animation.
+     * @param layerIndex The index of the layer.
+     * @param normalizedTime The normalized time.
+     * @zh 播放动画
      * @param name 动画名称
      * @param layerIndex 层索引
      * @param normalizedTime 归一化时间
-     * @returns 
      */
     play(name?: string, layerIndex = 0, normalizedTime: number = Number.NEGATIVE_INFINITY) {
         if (this._checkEnterIndex) {
@@ -597,15 +618,16 @@ export class Animator2D extends Component {
     }
 
     /**
-     * 停止播放动画
+     * @en Stop playing animation.
+     * @zh 停止播放动画
      */
     stop() {
         this._isPlaying = false;
     }
 
     /**
-     * 帧循环
-     * @returns 
+     * @en Frame Loop
+     * @zh 帧循环 
      */
     onUpdate(): void {
         if (!this._isPlaying) return;
@@ -675,15 +697,22 @@ export class Animator2D extends Component {
     }
 
     /**
-     * 添加控制器层。
-     * @param 动画层
+     * @en Adds an animator controller layer.
+     * @param controllderLayer The animator controller layer to be added.
+     * @zh 增加一个动画控制器层。
+     * @param controllderLayer 动画控制器层.
      */
     addControllerLayer(controllderLayer: AnimatorControllerLayer2D): void {
         this._controllerLayers.push(controllderLayer);
     }
 
     /**
-     * 在当前动画状态和目标动画状态之间进行融合过渡播放。
+     * @en Cross-fades between the current and target animation states.
+     * @param name The name of the target animation state.
+     * @param layerIndex The index of the layer.
+     * @param normalizedTime The normalized start time for playback.
+     * @param transitionDuration The duration of the transition in normalized time (between 0.0 and 1.0).
+     * @zh 在当前动画状态和目标动画状态之间进行融合过渡播放。
      * @param	name 目标动画状态。
      * @param	layerIndex 层索引。
      * @param	normalizedTime 归一化的播放起始时间。
@@ -691,10 +720,14 @@ export class Animator2D extends Component {
      */
     crossFade(name: string, layerIndex: number, normalizedTime: number, transitionDuration: number): boolean;
     /**
-     * 在当前动画状态和目标动画状态之间进行融合过渡播放。
-     * @param	name 目标动画状态。
-     * @param	layerIndex 层索引。
-     * @param	normalizedTime 归一化的播放起始时间。
+     * @en Cross-fades between the current and target animation states with an optional transition duration.
+     * @param name The name of the target animation state.
+     * @param layerIndex The index of the layer.
+     * @param normalizedTime The normalized start time for playback.
+     * @zh 在当前动画状态和目标动画状态之间进行融合过渡播放。
+     * @param name 目标动画状态的名称。
+     * @param layerIndex 层的索引。
+     * @param normalizedTime 归一化的播放起始时间。
      */
     crossFade(name: string, layerIndex: number, normalizedTime: number): boolean;
     crossFade(name: string, layerIndex: number = 0, normalizedTime: number = Number.NEGATIVE_INFINITY, transitionDuration?: number): boolean {
@@ -758,9 +791,10 @@ export class Animator2D extends Component {
     }
 
     /**
-     * 默认状态机
+     * @en Get the default State Machine
+     * @param layerIndex The index of the layer.
+     * @zh 获取默认状态机
      * @param layerIndex 层索引
-     * @returns 
      */
     getDefaultState(layerIndex = 0) {
         var controllerLayer = this._controllerLayers[layerIndex];
@@ -768,7 +802,9 @@ export class Animator2D extends Component {
     }
 
     /**
-     * 设置参数Trigger值
+     * @en Set a parameter's trigger value.
+     * @param name The name of the parameter.
+     * @zh 设置参数Trigger值
      * @param name 名字
      */
     setParamsTrigger(name: string) {
@@ -776,7 +812,10 @@ export class Animator2D extends Component {
     }
 
     /**
-     * 设置参数Number值
+     * @en Set a parameter's float value.
+     * @param name The name of the parameter.
+     * @param value The value of the parameter.
+     * @zh 设置参数Number值
      * @param name 名字
      * @param value 值
      */
@@ -785,7 +824,10 @@ export class Animator2D extends Component {
     }
 
     /**
-     * 设置参数Bool值
+     * @en Set a parameter's bool value.
+     * @param name The name of the parameter.
+     * @param value The value of the parameter.
+     * @zh 设置参数Bool值
      * @param name 名字
      * @param value 值
      */
@@ -794,9 +836,10 @@ export class Animator2D extends Component {
     }
 
     /**
-     * 得到参数值
+     * @en Get a parameter's trigger value.
+     * @param name The name of the parameter.
+     * @zh 得到参数值
      * @param name 名字
-     * @returns 
      */
     getParamsvalue(name: number) {
         let parm = this._parameters[name];

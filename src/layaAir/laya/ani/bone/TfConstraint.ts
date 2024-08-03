@@ -2,21 +2,51 @@ import { TfConstraintData } from "./TfConstraintData";
 import { Bone } from "./Bone";
 /**
  * @internal
+ * @en Class representing a transform constraint which is used to control the transformations (translation, rotation, scale, shear) of bones based on a target bone.
+ * @zh 变换约束类，用于根据目标骨骼控制其他骨骼的变换（平移、旋转、缩放、剪切）。
  */
 export class TfConstraint {
 	/**@internal */
 	private _data: TfConstraintData;
 	/**@internal */
 	private _bones: Bone[];
+	/**
+	 * @en The target bone that the constraint will follow.
+	 * @zh 约束跟随的目标骨骼。
+	 */
 	target: Bone;
+	/**
+	 * @en The mix ratio for rotation transformation.
+	 * @zh 旋转变换的混合比率。
+	 */
 	rotateMix: number;
+	/**
+	 * @en The mix ratio for translation transformation.
+	 * @zh 平移变换的混合比率。
+	 */
 	translateMix: number;
+	/**
+	 * @en The mix ratio for scale transformation.
+	 * @zh 缩放变换的混合比率。
+	 */
 	scaleMix: number;
+	/**
+	 * @en The mix ratio for shear transformation.
+	 * @zh 剪切变换的混合比率。
+	 */
 	shearMix: number;
 	/**@internal */
 	private _temp: number[] = [];
 
 	//TODO:coverage
+	/**
+	 * @en Creates a new transform constraint.
+	 * @param data The transform constraint data.
+	 * @param bones The bones to be constrained.
+	 * @zh 构造方法，创建一个新的变换约束。
+	 * @param data 变换约束数据。
+	 * @param bones 要被约束的骨骼。
+	 */
 	constructor(data: TfConstraintData, bones: Bone[]) {
 		this._data = data;
 		if (this._bones == null) {
@@ -34,6 +64,11 @@ export class TfConstraint {
 	}
 
 	//TODO:coverage
+	/**
+	 * @internal
+	 * @en Applies the constraint to the bones, adjusting their transformations to match the target bone.
+	 * @zh 应用约束，将骨骼的变换调整为与目标骨骼一致。
+	 */
 	apply(): void {
 		var tTfBone: Bone;
 		var ta: number = this.target.resultMatrix.a, tb: number = this.target.resultMatrix.b, tc: number = this.target.resultMatrix.c, td: number = this.target.resultMatrix.d;

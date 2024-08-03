@@ -17,122 +17,220 @@ import { CallLater } from "../utils/CallLater"
 import { ColorUtils } from "../utils/ColorUtils"
 import { RunDriver } from "../utils/RunDriver"
 import { VectorGraphManager } from "../utils/VectorGraphManager"
-import { RenderState2D } from "../webgl/utils/RenderState2D";
 import { Stat } from "../utils/Stat";
 import { ILaya } from "../../ILaya";
 import { ComponentDriver } from "../components/ComponentDriver";
 import { LayaEnv } from "../../LayaEnv";
-import { LayaGL } from "../layagl/LayaGL";
 import { Scene3D } from "../d3/core/scene/Scene3D";
 import { Color } from "../maths/Color";
-import { PERF_BEGIN, PERF_END, PerformanceDefine } from "../tools/PerformanceTool";
+import { LayaGL } from "../layagl/LayaGL";
 
 /**
- * stage大小经过重新调整时进行调度。
+ * @en Dispatched when the stage size is resized.
+ * @zh stage大小经过重新调整时进行调度。
  * @eventType Event.RESIZE
  */
 /*[Event(name = "resize", type = "laya.events.Event")]*/
 /**
- * 舞台获得焦点时调度。比如浏览器或者当前标签处于后台，重新切换回来时进行调度。
+ * @en Dispatched when the stage gains focus. For example, when the browser or current tab is switched back from the background.
+ * @zh 舞台获得焦点时调度。比如浏览器或者当前标签处于后台，重新切换回来时进行调度。
  * @eventType Event.FOCUS
  */
 /*[Event(name = "focus", type = "laya.events.Event")]*/
 /**
- * 舞台失去焦点时调度。比如浏览器或者当前标签被切换到后台后调度。
+ * @en Dispatched when the stage loses focus. For example, when the browser or current tab is switched to the background.
+ * @zh 舞台失去焦点时调度。比如浏览器或者当前标签被切换到后台后调度。
  * @eventType Event.BLUR
  */
 /*[Event(name = "blur", type = "laya.events.Event")]*/
 /**
- * 舞台焦点变化时调度，使用Laya.stage.isFocused可以获取当前舞台是否获得焦点。
+ * @en Dispatched when the stage focus changes. Use Laya.stage.isFocused to get whether the current stage has focus.
+ * @zh 舞台焦点变化时调度，使用Laya.stage.isFocused可以获取当前舞台是否获得焦点。
  * @eventType Event.FOCUS_CHANGE
  */
 /*[Event(name = "focuschange", type = "laya.events.Event")]*/
 /**
- * 舞台可见性发生变化时调度（比如浏览器或者当前标签被切换到后台后调度），使用Laya.stage.isVisibility可以获取当前是否处于显示状态。
+ * @en Dispatched when the stage visibility changes (e.g., when the browser or current tab is switched to the background). Use Laya.stage.isVisibility to get the current visibility state.
+ * @zh 舞台可见性发生变化时调度（比如浏览器或者当前标签被切换到后台后调度），使用Laya.stage.isVisibility可以获取当前是否处于显示状态。
  * @eventType Event.VISIBILITY_CHANGE
  */
 /*[Event(name = "visibilitychange", type = "laya.events.Event")]*/
 /**
- * 浏览器全屏更改时调度，比如进入全屏或者退出全屏。
+ * @en Dispatched when the browser fullscreen state changes, such as entering or exiting fullscreen mode.
+ * @zh 浏览器全屏更改时调度，比如进入全屏或者退出全屏。
  * @eventType Event.FULL_SCREEN_CHANGE
  */
 /*[Event(name = "fullscreenchange", type = "laya.events.Event")]*/
 
 /**
- * <p> <code>Stage</code> 是舞台类，显示列表的根节点，所有显示对象都在舞台上显示。通过 Laya.stage 单例访问。</p>
- * <p>Stage提供几种适配模式，不同的适配模式会产生不同的画布大小，画布越大，渲染压力越大，所以要选择合适的适配方案。</p>
- * <p>Stage提供不同的帧率模式，帧率越高，渲染压力越大，越费电，合理使用帧率甚至动态更改帧率有利于改进手机耗电。</p>
+ * @en Stage is the root node of the display list. All display objects are shown on the stage. It can be accessed through the Laya.stage singleton.
+ * Stage provides several adaptation modes. Different adaptation modes will produce different canvas sizes. The larger the canvas, the greater the rendering pressure, so it's important to choose an appropriate adaptation scheme.
+ * Stage provides different frame rate modes. The higher the frame rate, the greater the rendering pressure and power consumption. Reasonable use of frame rates or even dynamic changes in frame rates can help improve mobile phone power consumption.
+ * @zh Stage 是舞台类，显示列表的根节点，所有显示对象都在舞台上显示。通过 Laya.stage 单例访问。
+ * Stage提供几种适配模式，不同的适配模式会产生不同的画布大小，画布越大，渲染压力越大，所以要选择合适的适配方案。
+ * Stage提供不同的帧率模式，帧率越高，渲染压力越大，越费电，合理使用帧率甚至动态更改帧率有利于改进手机耗电。
  */
 export class Stage extends Sprite {
-    /**应用保持设计宽高不变，不缩放不变形，stage的宽高等于设计宽高。*/
+    /**
+     * @en No scaling is applied, and the stage is displayed at its design size. The actual width and height of the canvas are set to the design width and height. This mode is suitable for applications that want to maintain the original design ratio, but it may result in blank areas or content overflow on different devices.
+     * @zh 不进行缩放，舞台按照设计尺寸显示，画布的实际宽度和高度设置为设计宽度和高度。这种模式适合希望保持原始设计比例的应用，但在不同设备上可能会出现空白区域或内容超出屏幕的情况。
+     */
     static SCALE_NOSCALE: string = "noscale";
-    /**应用根据屏幕大小铺满全屏，非等比缩放会变形，stage的宽高等于设计宽高。*/
-    static SCALE_EXACTFIT: string = "exactfit";
-    /**应用显示全部内容，按照最小比率缩放，等比缩放不变形，一边可能会留空白，stage的宽高等于设计宽高。*/
+
+    /**
+     * @en The stage is scaled to fit the screen while maintaining the aspect ratio, ensuring the entire stage content is visible. The actual width and height of the canvas are calculated based on the design width and height multiplied by the minimum scale factor. While this prevents content from being cut off, it may result in blank borders at the top/bottom or sides.
+     * @zh 保持纵横比的情况下，将舞台缩放以适应屏幕，确保整个舞台内容可见。画布的实际宽度和高度根据设计宽度和高度乘以最小缩放因子计算。虽然避免了内容被裁切，但可能会出现上下或左右的空白边缘。
+     */
     static SCALE_SHOWALL: string = "showall";
-    /**应用按照最大比率缩放显示，宽或高方向会显示一部分，等比缩放不变形，stage的宽高等于设计宽高。*/
+
+    /**
+     * @en The stage is scaled to fill the screen, with the actual width and height of the canvas calculated based on the design width and height multiplied by the maximum scale factor. This mode ensures that content fully covers the display area, but it may result in some content being cut off.
+     * @zh 将舞台缩放以填满屏幕，画布的实际宽度和高度根据设计宽度和高度乘以最大缩放因子计算。这种模式保证内容完全覆盖屏幕，但可能会导致部分设计内容被裁切。
+     */
     static SCALE_NOBORDER: string = "noborder";
-    /**应用保持设计宽高不变，不缩放不变形，stage的宽高等于屏幕宽高。*/
+
+    /**
+     * @en Set the stage and canvas directly to the screen's width and height. Other aspects are the same as the SCALE_NOSCALE mode, with no scaling applied to the design content itself. This mode is suitable for scenarios where you want to fully utilize the screen space and handle dynamic layout on the screen yourself.
+     * @zh 将舞台与画布直接设置为屏幕宽度和高度，其它方面与SCALE_NOSCALE模式一样，不对设计内容本身进行缩放。这种模式适用于希望完全利用屏幕空间，自行对屏幕动态排版的需求。
+     */
     static SCALE_FULL: string = "full";
-    /**应用保持设计宽度不变，高度根据屏幕比缩放，stage的宽度等于设计高度，高度根据屏幕比率大小而变化*/
+
+    /**
+     * @en The stage width is kept fixed, and scaling is done based on the screen height. The canvas height is calculated based on the screen height and scale factor, and the stage height is set accordingly. This mode ensures consistent width but may alter the height ratio on different devices.
+     * @zh 保持舞台的宽度固定，根据屏幕高度进行缩放。画布的高度根据屏幕高度和缩放因子计算，并设置舞台的高度。这种模式确保宽度一致，但在不同设备上可能会改变高度比例。
+     */
     static SCALE_FIXED_WIDTH: string = "fixedwidth";
-    /**应用保持设计高度不变，宽度根据屏幕比缩放，stage的高度等于设计宽度，宽度根据屏幕比率大小而变化*/
+
+    /**
+     * @en The stage height is kept fixed, and scaling is done based on the screen width. The canvas width is calculated based on the screen width and scale factor, and the stage width is set accordingly. This mode ensures consistent height but may alter the width ratio on different devices.
+     * @zh 保持舞台的高度固定，根据屏幕宽度进行缩放。画布的宽度根据屏幕宽度和缩放因子计算，并设置舞台的宽度。这种模式确保高度一致，但在不同设备上可能会改变宽度比例。
+     */
     static SCALE_FIXED_HEIGHT: string = "fixedheight";
-    /**应用保持设计比例不变，全屏显示全部内容(类似showall，但showall非全屏，会有黑边)，根据屏幕长宽比，自动选择使用SCALE_FIXED_WIDTH或SCALE_FIXED_HEIGHT*/
+
+    /**
+     * @en The scaling method is automatically chosen based on the comparison between the screen aspect ratio and the design aspect ratio. If the screen aspect ratio is less than the design aspect ratio, the width is kept fixed with equal scale factors and the canvas height is calculated; otherwise, the height is kept fixed with equal scale factors and the canvas width is calculated. This mode flexibly adapts to different devices but may result in content being cut off or blank borders appearing.
+     * @zh 根据屏幕宽高比与设计宽高比的比较，自动选择缩放方式；如果屏幕宽高比小于设计宽高比，则保持宽度固定，缩放因子相等并计算画布高度；否则，保持高度固定，缩放因子相等并计算画布宽度。这种模式可以灵活适应不同的设备，但可能会导致内容被裁切或出现空白边缘。
+     */
     static SCALE_FIXED_AUTO: string = "fixedauto";
 
-    // static SCALE_FIXED_AUTO_LAYAME: string = "fixedauto_layame";
-    // static SCALE_FIXED_AUTO_LAYAVERSE: string = "fixedauto_layaverse";
 
-    /**画布水平居左对齐。*/
+
+    /**
+     * @en Canvas is horizontally aligned to the left.
+     * @zh 画布水平居左对齐。
+     */
     static ALIGN_LEFT: string = "left";
-    /**画布水平居右对齐。*/
+    /**
+     * @en Canvas is horizontally aligned to the right.
+     * @zh 画布水平居右对齐。
+     */
     static ALIGN_RIGHT: string = "right";
-    /**画布水平居中对齐。*/
+    /**
+     * @en Canvas is horizontally centered.
+     * @zh 画布水平居中对齐。
+     */
     static ALIGN_CENTER: string = "center";
-    /**画布垂直居上对齐。*/
+    /**
+     * @en Canvas is vertically aligned to the top.
+     * @zh 画布垂直居上对齐。
+     */
     static ALIGN_TOP: string = "top";
-    /**画布垂直居中对齐。*/
+    /**
+     * @en Canvas is vertically centered.
+     * @zh 画布垂直居中对齐。
+     */
     static ALIGN_MIDDLE: string = "middle";
-    /**画布垂直居下对齐。*/
+    /**
+     * @en Canvas is vertically aligned to the bottom.
+     * @zh 画布垂直居下对齐。
+     */
     static ALIGN_BOTTOM: string = "bottom";
 
-    /**不更改屏幕。*/
+    /**
+     * @en Do not change the screen orientation.
+     * @zh 不更改屏幕。
+     */
     static SCREEN_NONE: string = "none";
-    /**自动横屏。*/
+    /**
+     * @en Automatically switch to landscape mode.
+     * @zh 自动横屏。
+     */
     static SCREEN_HORIZONTAL: string = "horizontal";
-    /**自动竖屏。*/
+    /**
+     * @en Automatically switch to portrait mode.
+     * @zh 自动竖屏。
+     */
     static SCREEN_VERTICAL: string = "vertical";
 
-    /**全速模式，以60的帧率运行。*/
+    /**
+     * @en Fast mode, running at the configured maximum frame rate (not exceeding the device's maximum frame rate).
+     * @zh 快速模式，以配置的最高帧率运行（不得超过设备最高帧率）。
+     */
     static FRAME_FAST: string = "fast";
-    /**慢速模式，以30的帧率运行。*/
+    /**
+     * @en Slow mode has a frame rate that is half of the fast mode. The principle is to skip rendering every other frame. For example, if the maximum frame rate in fast mode is 60, the maximum frame rate in slow mode would be 30.
+     * @zh 慢速模式的帧率是快速模式的一半，其原理是每隔一帧就会跳过渲染。例如快速模式的满帧为60时，慢速模式的满帧则为30。
+     */
     static FRAME_SLOW: string = "slow";
-    /**自动模式，以30的帧率运行，但鼠标活动后会自动加速到60，鼠标不动2秒后降低为30帧，以节省消耗。*/
+    /**
+     * @en Mouse mode, In this mode, it checks if the last mouse movement occurred within the last two seconds. If it did, `frameMode` will be set to `FRAME_FAST`; otherwise, it will be set to `FRAME_SLOW`.
+     * @zh 鼠标模式，该模式下，会检查上一次鼠标移动的时间，如果是在最近的两秒内，帧率的模式会采用快速模式，否则采用慢速模式。
+     */
     static FRAME_MOUSE: string = "mouse";
-    /**休眠模式，以1的帧率运行*/
+    /**
+     * @en Sleep mode, running at 1 frame per second.
+     * @zh 休眠模式，以每秒1帧的速度运行。
+     */
     static FRAME_SLEEP: string = "sleep";
 
-    /**当前焦点对象，此对象会影响当前键盘事件的派发主体。*/
+    /**
+     * @en The current focus object, which will affect the dispatch of current keyboard events.
+     * @zh 当前焦点对象，此对象会影响当前键盘事件的派发主体。
+     */
     focus: Node;
-    /**@private 相对浏览器左上角的偏移，弃用，请使用_canvasTransform。*/
+    /**
+     * @private
+     * @deprecated
+     * @en Offset relative to the browser's top-left corner, deprecated, please use _canvasTransform.
+     * @zh 相对浏览器左上角的偏移，弃用，请使用_canvasTransform。
+     */
     offset: Point = new Point();
-    /**帧率类型，支持三种模式：fast-60帧(默认)，slow-30帧，mouse-30帧（鼠标活动后会自动加速到60，鼠标不动2秒后降低为30帧，以节省消耗），sleep-1帧。*/
+    /**
+     * @en Frame rate types:fast (default, full frame rate),slow (half of the full frame rate),mouse (full frame rate after mouse activity, switches to half frame rate if the mouse is idle for 2 seconds),sleep (1 frame per second)
+     * @zh 帧率类型：fast(默认，满帧)，slow（满帧减半），mouse（鼠标活动后满帧，鼠标不动2秒后满帧减半），sleep（每秒1帧）。
+     */
     private _frameRate: string = "fast";
-    /**设计宽度（初始化时设置的宽度Laya.init(width,height)）*/
+    /**
+     * @en Design width (the width set during initialization Laya.init(width,height))
+     * @zh 设计宽度（初始化时设置的宽度Laya.init(width,height)）
+     */
     designWidth: number = 0;
-    /**设计高度（初始化时设置的高度Laya.init(width,height)）*/
+    /**
+     * @en Design height (the height set during initialization Laya.init(width,height))
+     * @zh 设计高度（初始化时设置的高度Laya.init(width,height)）
+     */
     designHeight: number = 0;
-    /**画布是否发生翻转。*/
+    /**
+     * @en Whether the canvas has been flipped.
+     * @zh 画布是否发生翻转。
+     */
     canvasRotation: boolean = false;
-    /**画布的旋转角度。*/
+    /**
+     * @en The rotation angle of the canvas.
+     * @zh 画布的旋转角度。
+     */
     canvasDegree: number = 0;
     /**
-     * <p>设置是否渲染，设置为false，可以停止渲染，画面会停留到最后一次渲染上，减少cpu消耗，此设置不影响时钟。</p>
-     * <p>比如非激活状态，可以设置renderingEnabled=false以节省消耗。</p>
-     * */
+     * @en Set whether to render. When set to false, rendering can be stopped, the screen will stay on the last render, reducing CPU consumption. This setting does not affect the clock.
+     * For example, in an inactive state, you can set renderingEnabled=false to save consumption.
+     * @zh 设置是否渲染，设置为false，可以停止渲染，画面会停留到最后一次渲染上，减少cpu消耗，此设置不影响时钟。
+     * 比如非激活状态，可以设置renderingEnabled=false以节省消耗。
+     */
     renderingEnabled: boolean = true;
-    /**是否启用屏幕适配，可以适配后，在某个时候关闭屏幕适配，防止某些操作导致的屏幕意外改变*/
+    /**
+     * @en Whether to enable screen adaptation. After adaptation, screen adaptation can be turned off at some point to prevent unexpected screen changes caused by certain operations.
+     * @zh 是否启用屏幕适配，可以适配后，在某个时候关闭屏幕适配，防止某些操作导致的屏幕意外改变。
+     */
     screenAdaptationEnabled: boolean = true;
     /**@internal */
     _canvasTransform: Matrix = new Matrix();
@@ -170,7 +268,10 @@ export class Stage extends Sprite {
     /**@private */
     private _globalRepaintGet: boolean = false;		// 一个get一个set是为了把标志延迟到下一帧的开始，防止部分对象接收不到。
 
-    /**使用物理分辨率作为canvas大小，会改进渲染效果，但是会降低性能*/
+    /**
+     * @en Using physical resolution as the canvas size will improve rendering effects, but it will reduce performance
+     * @zh 使用物理分辨率作为画布大小，会改进渲染效果，但是会降低性能
+     */
     useRetinalCanvas: boolean = false;
 
     /**场景类，引擎中只有一个stage实例，此实例可以通过Laya.stage访问。*/
@@ -274,7 +375,10 @@ export class Stage extends Sprite {
     /**
      * @internal
      * @override
-     * @param value 数值
+     * @en Set the width of the stage.
+     * @param value The numeric value to set as the width.
+     * @zh 设置舞台的宽度。
+     * @param value  要设置的宽度数值。
      */
     set_width(value: number) {
         this.designWidth = value;
@@ -285,7 +389,8 @@ export class Stage extends Sprite {
     /**
      * @internal
      * @override
-     * @param value 数值
+     * @en Get the width of the stage.
+     * @zh 获取舞台的宽度。
      */
     get_width(): number {
         this.needUpdateCanvasSize();
@@ -293,8 +398,12 @@ export class Stage extends Sprite {
     }
 
     /**
-     * @override
      * @internal
+     * @override
+     * @en Set the height of the stage.
+     * @param value The numeric value to set as the height.
+     * @zh 设置舞台的高度。
+     * @param value 要设置的高度数值。
      */
     set_height(value: number) {
         this.designHeight = value;
@@ -303,8 +412,10 @@ export class Stage extends Sprite {
     }
 
     /**
-     * @override
      * @internal
+     * @override
+     * @en Get the height of the stage.
+     * @zh 获取舞台的高度。
      */
     get_height(): number {
         this.needUpdateCanvasSize();
@@ -326,14 +437,16 @@ export class Stage extends Sprite {
     }
 
     /**
-     * 舞台是否获得焦点。
+     * @en Whether the stage has focus.
+     * @zh 舞台是否获得焦点。
      */
     get isFocused(): boolean {
         return this._isFocused;
     }
 
     /**
-     * 舞台是否处于可见状态(是否进入后台)。
+     * @en Indicates whether the stage is in a visible state (whether it has entered the background).
+     * @zh 舞台是否处于可见状态(是否进入后台)。
      */
     get isVisibility(): boolean {
         return this._isVisibility;
@@ -342,8 +455,10 @@ export class Stage extends Sprite {
     private _needUpdateCanvasSize: boolean = false;
 
     /**
-     * 更新canvas大小
-     * @param delay 是否立即执行改动，如果是true，将延迟执行
+     * @en Update the canvas size
+     * @param delay If true, the change will be executed with a delay
+     * @zh 更新canvas大小
+     * @param delay 是否延迟执行改动，如果为true，将延迟执行
      */
     updateCanvasSize(delay?: boolean): void {
         if (delay) {
@@ -358,7 +473,8 @@ export class Stage extends Sprite {
     }
 
     /**
-     * 同步最终canvas大小
+     * @en Synchronize the final canvas size
+     * @zh 同步最终canvas大小
      */
     needUpdateCanvasSize() {
         if (this._needUpdateCanvasSize)
@@ -366,9 +482,12 @@ export class Stage extends Sprite {
     }
 
     /**
-     * 设置屏幕大小，场景会根据屏幕大小进行适配。可以动态调用此方法，来更改游戏显示的大小。
-     * @param	screenWidth		屏幕宽度。
-     * @param	screenHeight	屏幕高度。
+     * @en Set the screen size. The scene will adapt to the screen size. This method can be called dynamically to change the game display size.
+     * @param screenWidth The width of the screen.
+     * @param screenHeight The height of the screen.
+     * @zh 设置屏幕大小，场景会根据屏幕大小进行适配。可以动态调用此方法，来更改游戏显示的大小。
+     * @param screenWidth 屏幕宽度。
+     * @param screenHeight 屏幕高度。
      */
     setScreenSize(screenWidth: number, screenHeight: number): void {
         this._needUpdateCanvasSize = false;
@@ -417,11 +536,6 @@ export class Stage extends Sprite {
                 realWidth = Math.round(this.designWidth * scaleX);
                 realHeight = Math.round(this.designHeight * scaleY);
                 break;
-            // case Stage.SCALE_FULL:
-            //     scaleX = scaleY = 1;
-            //     this._width = canvasWidth = screenWidth;
-            //     this._height = canvasHeight = screenHeight;
-            //     break;
             case Stage.SCALE_FULL:
                 scaleX = scaleY = pixelRatio;
                 canvasWidth = screenWidth;
@@ -446,29 +560,6 @@ export class Stage extends Sprite {
                     this._width = canvasWidth = Math.round(screenWidth / scaleY);
                 }
                 break;
-            // case Stage.SCALE_FIXED_AUTO_LAYAME:
-            //     if (screenWidth < screenHeight) {
-            //         scaleY = scaleX;
-            //         this._height = canvasHeight = Math.round(screenHeight / scaleX);
-            //     } else {
-            //         scaleX = screenHeight / this.designWidth;
-            //         scaleY = scaleX;
-            //         this._width = canvasWidth = Math.round(screenWidth / scaleX);
-            //         this._height = canvasHeight = Math.round(screenHeight / scaleY);
-            //     }
-            //     break;
-            // case Stage.SCALE_FIXED_AUTO_LAYAVERSE:
-            //     if (screenWidth > screenHeight) {
-            //         scaleX = scaleY;
-            //         this._width = canvasWidth = Math.round(screenWidth / scaleY);
-            //     }
-            //     else {
-            //         scaleX = screenWidth / this.designHeight;
-            //         scaleY = scaleX;
-            //         this._width = canvasWidth = Math.round(screenWidth / scaleX);
-            //         this._height = canvasHeight = Math.round(screenHeight / scaleY);
-            //     }
-            //     break;
         }
 
         if (this.useRetinalCanvas) {
@@ -538,8 +629,16 @@ export class Stage extends Sprite {
 
     /**
      * @internal
-     * 适配淘宝小游戏
-     * @param mainCanv 
+     * @en Adapt to Taobao mini-game
+     * @param mainCanv The main canvas
+     * @param canvasWidth The width of the canvas
+     * @param canvasHeight The height of the canvas
+     * @param mat The transformation matrix
+     * @zh 适配淘宝小游戏
+     * @param mainCanv 主画布
+     * @param canvasWidth 画布宽度
+     * @param canvasHeight 画布高度
+     * @param mat 变换矩阵
      */
     static _setStageStyle(mainCanv: HTMLCanvas, canvasWidth: number, canvasHeight: number, mat: Matrix) {
         var canvasStyle: any = mainCanv.source.style;
@@ -551,11 +650,14 @@ export class Stage extends Sprite {
     }
 
     /**
-     * 屏幕旋转用layaverse 需要
+     * @en Set screen size for scene rotation, required by layaverse
+     * @param screenWidth The width of the screen
+     * @param screenHeight The height of the screen
+     * @param screenMode The screen mode. "none" is the default value, "horizontal" for landscape mode, "vertical" for portrait mode
+     * @zh 设置场景旋转的屏幕大小，layaverse 需要
      * @param screenWidth 屏幕宽度
      * @param screenHeight 屏幕高度
-     * @param _screenMode 屏幕模式 "none"为默认值，horizontal为横屏，vertical为竖屏
-     * @returns 
+     * @param screenMode 屏幕模式。"none"为默认值，"horizontal"为横屏，"vertical"为竖屏
      */
     setScreenSizeForScene(screenWidth: number, screenHeight: number, screenMode: string) {
         //计算是否旋转
@@ -572,9 +674,9 @@ export class Stage extends Sprite {
         }
         this.canvasRotation = rotation;
 
-        var canvas: HTMLCanvas = Render._mainCanvas;
-        var canvasStyle: any = canvas.source.style;
-        var mat: Matrix = this._canvasTransform/**add */.clone().identity();
+        // var canvas: HTMLCanvas = Render._mainCanvas;
+        // var canvasStyle: any = canvas.source.style;
+        // var mat: Matrix = this._canvasTransform.clone().identity();
         var scaleMode: string = this._scaleMode;
         var scaleX: number = screenWidth / this.designWidth
         var scaleY: number = screenHeight / this.designHeight;
@@ -582,7 +684,7 @@ export class Stage extends Sprite {
         var canvasHeight: number = this.useRetinalCanvas ? screenHeight : this.designHeight;
         var realWidth: number = screenWidth;
         var realHeight: number = screenHeight;
-        var pixelRatio: number = Browser.pixelRatio;
+        // var pixelRatio: number = Browser.pixelRatio;
         let /**this.*/_width = this.designWidth;
         let /**this.*/_height = this.designHeight;
 
@@ -650,17 +752,24 @@ export class Stage extends Sprite {
     }
 
     /**
-     * <p>缩放模式。默认值为 "noscale"。</p>
-     * <p><ul>取值范围：
-     * <li>"noscale" ：不缩放；</li>
-     * <li>"exactfit" ：全屏不等比缩放；</li>
-     * <li>"showall" ：最小比例缩放；</li>
-     * <li>"noborder" ：最大比例缩放；</li>
-     * <li>"full" ：不缩放，stage的宽高等于屏幕宽高；</li>
-     * <li>"fixedwidth" ：宽度不变，高度根据屏幕比缩放；</li>
-     * <li>"fixedheight" ：高度不变，宽度根据屏幕比缩放；</li>
-     * <li>"fixedauto" ：根据宽高比，自动选择使用fixedwidth或fixedheight；</li>
-     * </ul></p>
+     * @en The scale mode. Default value is "noscale".
+     * Available values:
+     * - "noscale": No scaling.
+     * - "showall": Scale with the minimum ratio to fit the screen.
+     * - "noborder": Scale with the maximum ratio to fit the screen.
+     * - "full": No scaling, the stage width and height equal to the screen width and height.
+     * - "fixedwidth": Fixed width, height scales according to the screen ratio.
+     * - "fixedheight": Fixed height, width scales according to the screen ratio.
+     * - "fixedauto": Automatically choose between fixedwidth or fixedheight based on the aspect ratio.
+     * @zh 缩放模式。默认值为 "noscale"。
+     * 取值范围：
+     * - "noscale"：不缩放，舞台与画布采用设计宽高。
+     * - "showall"：舞台与画布按最小比例缩放。
+     * - "noborder"：舞台与画布按最大比例缩放。
+     * - "full"：不缩放，舞台与画布的宽高等于屏幕宽高。
+     * - "fixedwidth"：宽度不变，高度根据屏幕比缩放。
+     * - "fixedheight"：高度不变，宽度根据屏幕比缩放。
+     * - "fixedauto"：根据宽高比，自动选择使用fixedwidth或fixedheight。
      */
     get scaleMode(): string {
         return this._scaleMode;
@@ -672,12 +781,16 @@ export class Stage extends Sprite {
     }
 
     /**
-     * <p>水平对齐方式。默认值为"left"。</p>
-     * <p><ul>取值范围：
-     * <li>"left" ：居左对齐；</li>
-     * <li>"center" ：居中对齐；</li>
-     * <li>"right" ：居右对齐；</li>
-     * </ul></p>
+     * @en Horizontal alignment of canvas. Default value is "left".
+     * Available values:
+     * - "left": Align to the left.
+     * - "center": Align to the center.
+     * - "right": Align to the right.
+     * @zh 画布水平对齐方式。默认值为"left"。
+     * 取值范围：
+     * - "left"：居左对齐。
+     * - "center"：居中对齐。
+     * - "right"：居右对齐。
      */
     get alignH(): string {
         this.needUpdateCanvasSize();
@@ -690,12 +803,16 @@ export class Stage extends Sprite {
     }
 
     /**
-     * <p>垂直对齐方式。默认值为"top"。</p>
-     * <p><ul>取值范围：
-     * <li>"top" ：居顶部对齐；</li>
-     * <li>"middle" ：居中对齐；</li>
-     * <li>"bottom" ：居底部对齐；</li>
-     * </ul></p>
+     * @en Vertical alignment of canvas. Default value is "top".
+     * Available values:
+     * - "top": Align to the top.
+     * - "middle": Align to the middle.
+     * - "bottom": Align to the bottom.
+     * @zh 画布垂直对齐方式。默认值为"top"。
+     * 取值范围：
+     * - "top"：居顶部对齐。
+     * - "middle"：居中对齐。
+     * - "bottom"：居底部对齐。
      */
     get alignV(): string {
         this.needUpdateCanvasSize();
@@ -707,7 +824,10 @@ export class Stage extends Sprite {
         this.updateCanvasSize(true);
     }
 
-    /**舞台的背景颜色，默认为黑色，null为透明。*/
+    /**
+     * @en The background color of the stage. Default is black, null for transparent.
+     * @zh 舞台的背景颜色，默认为黑色，null为透明。
+     */
     get bgColor(): string {
         return this._bgColor;
     }
@@ -726,8 +846,10 @@ export class Stage extends Sprite {
 
     /**
      * @internal
-     * 适配淘宝小游戏
-     * @param value 
+     * @en Adapt to Taobao mini-game
+     * @param value The background color value
+     * @zh 适配淘宝小游戏
+     * @param value 背景颜色值
      */
     static _setStyleBgColor(value: string) {
         if (value) {
@@ -737,18 +859,28 @@ export class Stage extends Sprite {
         }
     }
 
-    /**鼠标在 Stage 上的 X 轴坐标。@override*/
+    /**
+     * @override
+     * @en The X coordinate of the mouse on the Stage.
+     * @zh 鼠标在 舞台 上的 X 轴坐标。
+     */
     get mouseX(): number {
         return Math.round(InputManager.mouseX / this.clientScaleX);
     }
 
-    /**鼠标在 Stage 上的 Y 轴坐标。@override*/
+    /**
+     * @override
+     * @en The Y coordinate of the mouse on the Stage.
+     * @zh 鼠标在 舞台 上的 Y 轴坐标。
+     */
     get mouseY(): number {
         return Math.round(InputManager.mouseY / this.clientScaleY);
     }
 
     /**
-     * 获得屏幕上的鼠标坐标信息
+     * @en Get the mouse coordinate information on the screen
+     * @returns Screen point information
+     * @zh 获得屏幕上的鼠标坐标信息
      * @returns 屏幕点信息
      */
     getMousePoint(): Point {
@@ -756,7 +888,8 @@ export class Stage extends Sprite {
     }
 
     /**
-     * 当前视窗由缩放模式导致的 X 轴缩放系数。
+     * @en The X-axis scaling factor caused by the current viewport scaling mode.
+     * @zh 当前视窗由缩放模式导致的 X 轴缩放系数。
      */
     get clientScaleX(): number {
         this.needUpdateCanvasSize();
@@ -764,7 +897,8 @@ export class Stage extends Sprite {
     }
 
     /**
-     * 当前视窗由缩放模式导致的 Y 轴缩放系数。
+     * @en The Y-axis scaling factor caused by the current viewport scaling mode.
+     * @zh 当前视窗由缩放模式导致的 Y 轴缩放系数。
      */
     get clientScaleY(): number {
         this.needUpdateCanvasSize();
@@ -772,12 +906,16 @@ export class Stage extends Sprite {
     }
 
     /**
-     * <p>场景布局类型。</p>
-     * <p><ul>取值范围：
-     * <li>"none" ：不更改屏幕</li>
-     * <li>"horizontal" ：自动横屏</li>
-     * <li>"vertical" ：自动竖屏</li>
-     * </ul></p>
+     * @en The scene layout type.
+     * Available values:
+     * - "none": Do not change the screen
+     * - "horizontal": Automatic landscape mode
+     * - "vertical": Automatic portrait mode
+     * @zh 场景布局类型。
+     * 取值范围：
+     * - "none"：不更改屏幕
+     * - "horizontal"：自动横屏
+     * - "vertical"：自动竖屏
      */
     get screenMode(): string {
         return this._screenMode;
@@ -789,7 +927,9 @@ export class Stage extends Sprite {
 
     /**
      * @override
-     * 重新绘制
+     * @en Redraw
+     * @param type The type of redraw
+     * @zh 重新绘制
      * @param type 重新绘制类型
      */
     repaint(type: number = SpriteConst.REPAINT_CACHE): void {
@@ -798,7 +938,9 @@ export class Stage extends Sprite {
 
     /**
      * @override
-     * 重新绘制父节点
+     * @en Redraw the parent node
+     * @param type The type of redraw
+     * @zh 重新绘制父节点
      * @param type 重新绘制类型
      */
     parentRepaint(type: number = SpriteConst.REPAINT_CACHE): void {
@@ -812,14 +954,20 @@ export class Stage extends Sprite {
         return true;
     }
 
-    /**@private */
+    /**
+     * @private
+     * @en Get frame start time.
+     * @zh 获取帧开始时间
+     */
     getFrameTm(): number {
         return this._frameStartTime;
     }
 
     /**
-     * <p>获得距当前帧开始后，过了多少时间，单位为毫秒。</p>
-     * <p>可以用来判断函数内时间消耗，通过合理控制每帧函数处理消耗时长，避免一帧做事情太多，对复杂计算分帧处理，能有效降低帧率波动。</p>
+     * @en Get the time elapsed since the current frame started, in milliseconds.
+     * This can be used to judge the time consumption within functions, reasonably control the processing time of each frame function, avoid doing too much in one frame, and process complex calculations across frames, which can effectively reduce frame rate fluctuations.
+     * @zh 获得距当前帧开始后，过了多少时间，单位为毫秒。
+     * 可以用来判断函数内时间消耗，通过合理控制每帧函数处理消耗时长，避免一帧做事情太多，对复杂计算分帧处理，能有效降低帧率波动。
      */
     getTimeFromFrameStart(): number {
         return Browser.now() - this._frameStartTime;
@@ -827,7 +975,8 @@ export class Stage extends Sprite {
 
     /**
      * @override
-     * 表示是否可见，默认为true。如果设置不可见，节点将不被渲染。
+     * @en Indicates whether it is visible, default is true. If set to invisible, the node will not be rendered.
+     * @zh 表示是否可见，默认为true。如果设置不可见，节点将不被渲染。
      */
     get visible() {
         return super.visible;
@@ -843,8 +992,10 @@ export class Stage extends Sprite {
 
     /**
      * @internal
-     * 适配淘宝小游戏
-     * @param value 
+     * @en Adapt to Taobao mini-game
+     * @param value The visibility value
+     * @zh 适配淘宝小游戏
+     * @param value 可见性值
      */
     static _setVisibleStyle(value: boolean) {
         var style: any = Render._mainCanvas.source.style;
@@ -852,11 +1003,14 @@ export class Stage extends Sprite {
     }
 
     /**
-     * 渲染舞台上的所有显示对象
+     * @en Render all display objects on the stage
+     * @param context2D The rendering context
+     * @param x The x-axis coordinate
+     * @param y The y-axis coordinate
+     * @zh 渲染舞台上的所有显示对象
      * @param context2D 渲染的上下文
      * @param x 横轴坐标
      * @param y 纵轴坐标
-     * @returns 
      */
     render(context2D: Context, x: number, y: number): void {
         if (this._frameRate === Stage.FRAME_SLEEP) {
@@ -919,6 +1073,8 @@ export class Stage extends Sprite {
             this._runComponents();
 
         this._updateTimers();
+
+        LayaGL.renderEngine.endFrame();
     }
 
     /**
@@ -950,8 +1106,10 @@ export class Stage extends Sprite {
     }
 
     /**
-     * <p>是否开启全屏，用户点击后进入全屏。</p>
-     * <p>兼容性提示：部分浏览器不允许点击进入全屏，比如Iphone等。</p>
+     * @en Whether to enable fullscreen mode. Users can enter fullscreen mode by clicking.
+     * Compatibility note: Some browsers, such as iPhone, do not allow entering fullscreen mode by clicking.
+     * @zh 是否开启全屏，用户点击后进入全屏。
+     * 兼容性提示：部分浏览器不允许点击进入全屏，比如iPhone等。
      */
     set fullScreenEnabled(value: boolean) {
         var document: any = Browser.document;
@@ -973,7 +1131,10 @@ export class Stage extends Sprite {
         }
     }
 
-    /**退出全屏模式*/
+    /**
+     * @zh Exit full screen mode
+     * @en 退出全屏模式
+     */
     exitFullscreen(): void {
         var document: any = Browser.document;
         if (document.exitFullscreen) {
@@ -985,6 +1146,10 @@ export class Stage extends Sprite {
         }
     }
 
+    /**
+     * @en Frame rate types:fast (default, full frame rate),slow (half of the full frame rate),mouse (full frame rate after mouse activity, switches to half frame rate if the mouse is idle for 2 seconds),sleep (1 frame per second)
+     * @zh 当前帧率类型：fast(默认，满帧)，slow（满帧减半），mouse（鼠标活动后满帧，鼠标不动2秒后满帧减半），sleep（每秒1帧）。
+     */
     get frameRate(): string {
         return this._frameRate;
     }

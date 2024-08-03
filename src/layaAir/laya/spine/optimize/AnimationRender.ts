@@ -2,6 +2,7 @@ import { AttachmentParse } from "./AttachmentParse";
 import { IBCreator } from "./IBCreator";
 import { IBRenderData } from "./SketonOptimise";
 import { VBCreator } from "./VBCreator";
+import { ChangeDeform } from "./change/ChangeDeform";
 import { ChangeDrawOrder } from "./change/ChangeDrawOrder";
 import { ChangeRGBA } from "./change/ChangeRGBA";
 import { ChangeSlot } from "./change/ChangeSlot";
@@ -52,12 +53,12 @@ export class AnimationRender {
     getFrameIndex(time: number, frameIndex: number) {
         let frames = this.frames;
         let lastFrame = this.frameNumber - 1;
-        if (frameIndex < 0) {
-            frameIndex = 0;
+        if (frameIndex < -1) {
+            frameIndex = -1;
         }
         else if (frameIndex == lastFrame) {
             if (time < frames[lastFrame]) {
-                frameIndex = 0;
+                frameIndex = -1;
             }
         }
         else if (time >= frames[frameIndex + 1]) {
@@ -96,7 +97,7 @@ export class AnimationRender {
         let hasClip: boolean;
         for (let i = 0, n = timeline.length; i < n; i++) {
             let time = timeline[i];
-            if (time instanceof window.spine.AttachmentTimeline) {
+            if (time instanceof spine.AttachmentTimeline) {
                 let attachment = time as spine.AttachmentTimeline;
                 let frames = attachment.frames;
                 let attachmentNames = attachment.attachmentNames;
@@ -115,7 +116,7 @@ export class AnimationRender {
                     arr.push(change);
                 }
             }
-            else if (time instanceof window.spine.DrawOrderTimeline) {
+            else if (time instanceof spine.DrawOrderTimeline) {
                 let drawOrder = time as spine.DrawOrderTimeline;
                 let frames = drawOrder.frames;
                 let orders = time.drawOrders;
@@ -132,8 +133,12 @@ export class AnimationRender {
                     arr.unshift(change);
                 }
             }
-            //@ts-ignore
-            else if (time instanceof (window.spine.ColorTimeline || window.spine.RGBATimeline)) {
+            else if (
+                //@ts-ignore
+                time instanceof (spine.ColorTimeline || spine.RGBATimeline)
+                //@ts-ignore
+                 || ( spine.TwoColorTimeline && time instanceof spine.TwoColorTimeline)
+                ) {
                 let rgba = time as spine.RGBATimeline;
                 let frames = rgba.frames;
                 let slotIndex = rgba.slotIndex;
@@ -173,6 +178,13 @@ export class AnimationRender {
                         arr.push(event);
                     }
                 }
+            }
+            else if (time instanceof spine.DeformTimeline) {
+                this.checkChangeVB();
+                let slotIndex = time.slotIndex;
+                let change = new ChangeDeform();
+                change.slotId = slotIndex;
+                this.changeVB.push(change);
             }
             // else if (time instanceof window.spine.AlphaTimeline) {
             //     debugger;

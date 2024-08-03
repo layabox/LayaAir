@@ -34,7 +34,8 @@ export enum AniParmType {
 }
 
 /**
- * 动画状态条件类型
+ * @en Animation state condition types
+ * @zh 动画状态条件类型
  */
 export enum AniStateConditionType {
     Number,
@@ -87,7 +88,15 @@ export enum AniStateConditionNumberCompressType {
     Greater
 }
 
+/**
+ * @en Animation controller parsing and processing utility class.
+ * @zh 解析和处理动画控制器数据的工具类。
+ */
 export class AnimatorControllerParse {
+    /**
+     * @en Parses the provided data to create a structured TypeAnimatorControllerData object..
+     * @zh 解析提供的数据以创建结构化的 TypeAnimatorControllerData 对象。
+     */
     static parse(data: TypeAnimatorControllerData) {
         //let ret: TypeAnimatorControllerData = JSON.parse(JSON.stringify(data));
         let ret = data;

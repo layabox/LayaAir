@@ -38,7 +38,7 @@ const packsDef = [{
         './layaAir/laya/filters/**/*.*',
         './layaAir/laya/layagl/**/*.*',
         './layaAir/laya/webgl/**/*.*',
-        
+
         './layaAir/laya/RenderDriver/DriverDesign/RenderDevice/**/*.*',
         
         './layaAir/laya/RenderDriver/DriverDesign/2DRenderPass/**/*.*',
@@ -66,6 +66,7 @@ const packsDef = [{
         './layaAir/laya/tools/**/*.*',
         './layaAir/laya/html/**/*.*',
         './layaAir/Config3D.ts',
+        "./layaAir/laya/bt/**/*.*"
     ],
 },
 {
@@ -484,7 +485,7 @@ gulp.task("copyJsLibs", async () => {
         './src/layaAir/jsLibs/recast-navigation.wasm',
         './src/layaAir/jsLibs/spine.wasm_3.8.wasm',
         './src/layaAir/jsLibs/naga_wasm_bg.wasm',
-      
+
         '!./src/layaAir/jsLibs/{laya.Box2D.js,cannon.js,bullet.js,physx.release.js,laya.Box2D.wasm.js,bullet.wasm.js,physx.wasm.js,recast-navigation.js}'
     ])
         .pipe(gulp.dest('./build/libs'));

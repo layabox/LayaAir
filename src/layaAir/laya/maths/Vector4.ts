@@ -3,6 +3,7 @@ import { MathUtils3D } from "./MathUtils3D";
 import { Vector2 } from "./Vector2";
 import { IClone } from "../utils/IClone";
 
+
 /**
  * <code>Vector4</code> 类用于创建四维向量。
  */
@@ -29,15 +30,21 @@ export class Vector4 implements IClone {
     /** @internal */
     static tempVec4: Vector4 = new Vector4(0.0, 0.0, 0.0, 0.0);
 
+    
     /**X轴坐标*/
     x: number;
+    
     /**Y轴坐标*/
+    
     y: number;
+    
     /**Z轴坐标*/
     z: number;
+    
     /**W轴坐标*/
     w: number;
 
+    
     /**
      * 创建一个 <code>Vector4</code> 实例。
      * @param	x  X轴坐标。

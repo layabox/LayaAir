@@ -8,18 +8,24 @@ import { ClassUtils } from "../../utils/ClassUtils";
 import { Config } from "../../../Config";
 
 /**
- * 绘制文字
+ * @en Draw text command
+ * @zh 绘制文字命令
  */
 export class FillTextCmd {
-    /**绘制文字CMD的标识符 */
+    /**
+     * @en Identifier for the FillTextCmd
+     * @zh 绘制文字命令的标识符
+     */
     static ID: string = "FillText";
 
     /**
-     * 开始绘制文本的 x 坐标位置（相对于画布）。
+     * @en The x position of the start of the text (relative to the canvas).
+     * @zh 开始绘制文本的 x 坐标位置（相对于画布）。
      */
     x: number = 0;
     /**
-     * 开始绘制文本的 y 坐标位置（相对于画布）。
+     * @en The y position of the start of the text (relative to the canvas).    
+     * @zh 开始绘制文本的 y 坐标位置（相对于画布）。
      */
     y: number = 0;
 
@@ -33,47 +39,61 @@ export class FillTextCmd {
     private _fontObj: FontInfo;
 
     /**
-     * 文本内容
+     * @en Text content
+     * @zh 文本内容
      */
-    set text(value: string) {
-        this._text = value;
-    }
     get text() {
         return this._text;
     }
+    set text(value: string) {
+        this._text = value;
+    }
 
     /**
-     * 描边颜色
+     * @en Stroke color
+     * @zh 描边颜色
      */
-    set strokeColor(value: string) {
-        this._strokeColor = value;
-    }
     get strokeColor() {
         return this._strokeColor;
     }
+    set strokeColor(value: string) {
+        this._strokeColor = value;
+    }
 
     /**
-     * 描边宽度
+     * @en Stroke width
+     * @zh 描边宽度
      */
-    set stroke(value: number) {
-        this._stroke = value;
-    }
     get stroke() {
         return this._stroke;
     }
+    set stroke(value: number) {
+        this._stroke = value;
+    }
 
     /**
-     * 对齐方式
+     * @en Text alignment
+     * @zh 对齐方式
      */
-    set align(value: number) {
-        this._align = value;
-    }
     get align() {
         return this._align;
     }
+    set align(value: number) {
+        this._align = value;
+    }
 
     /**
-     * 创建绘制文本的CMD
+     * @en Create a FillTextCmd instance
+     * @param text Text content
+     * @param x X position
+     * @param y Y position
+     * @param font Font
+     * @param color Text color
+     * @param align Alignment
+     * @param stroke Stroke width
+     * @param strokeColor Stroke color
+     * @returns FillTextCmd instance
+     * @zh 创建绘制文本的命令的实例
      * @param text 文本内容
      * @param x x位置
      * @param y y位置
@@ -82,7 +102,7 @@ export class FillTextCmd {
      * @param align 对齐方式
      * @param stroke 描边宽度
      * @param strokeColor 描边颜色
-     * @returns 
+     * @returns 绘制文本的命令实例
      */
     static create(text: string | WordText | null, x: number, y: number, font: string, color: string | null, align: string, stroke: number, strokeColor: string | null): FillTextCmd {
         var cmd: FillTextCmd = Pool.getItemByClass("FillTextCmd", FillTextCmd);
@@ -117,13 +137,24 @@ export class FillTextCmd {
     }
 
     /**
-     * 回收到对象池
+     * @en Recycle to the object pool
+     * @zh 回收到对象池
      */
     recover(): void {
         Pool.recover("FillTextCmd", this);
     }
 
-    /**@private 执行绘制文本CMD*/
+    /**
+     * @private
+     * @en Execute the drawing text command
+     * @param context The rendering context
+     * @param gx Global X offset
+     * @param gy Global Y offset
+     * @zh 执行绘制文本命令
+     * @param context 渲染上下文
+     * @param gx 全局X偏移
+     * @param gy 全局Y偏移
+     */
     run(context: Context, gx: number, gy: number): void {
         if (ILaya.stage.isGlobalRepaint()) {
             this._wordText && this._wordText.cleanCache();
@@ -139,13 +170,18 @@ export class FillTextCmd {
         context._fast_filltext(this._wordText || this._text, this.x + gx, this.y + gy, this._fontObj, this._color, this._strokeColor, this._stroke, this._align);
     }
 
-    /**@private 获取绘制文本CMD的标识符*/
+    /**
+     * @private
+     * @en The identifier for the FillTextCmd
+     * @zh 绘制文字命令的标识符
+     */
     get cmdID(): string {
         return FillTextCmd.ID;
     }
 
     /**
-     * 定义字号和字体，比如"20px Arial"。
+     * @en Define the font size and font, e.g., "20px Arial".
+     * @zh 定义字号和字体，比如"20px Arial"。
      */
     get font(): string {
         return this._font;
@@ -160,7 +196,8 @@ export class FillTextCmd {
     }
 
     /**
-     * 定义文本颜色，比如"#ff0000"。
+     * @en Define the text color, e.g., "#ff0000".
+     * @zh 定义文本颜色，比如"#ff0000"。
      */
     get color(): string {
         return this._color;

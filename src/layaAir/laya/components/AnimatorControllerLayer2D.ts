@@ -3,12 +3,22 @@ import { AnimatorPlayState2D } from "./AnimatorPlayState2D";
 import { AnimatorState2D } from "./AnimatorState2D";
 import { AnimatorTransition2D } from "./AnimatorTransition2D";
 
+/**
+ * @en Layer of 2D animation controllers
+ * @zh 2D动画控制器层
+ */
 export class AnimatorControllerLayer2D implements IClone {
 
-    /**混合模式_覆盖。 */
+    /**
+     * @en Mixed Mode: Overwrite
+     * @zh 混合模式_覆盖。
+     */
     static BLENDINGMODE_OVERRIDE: number = 0;
 
-    /**混合模式_叠加。 */
+    /**
+     * @en Mixed Mode: Stacking
+     * @zh 混合模式_叠加。 
+     */
     static BLENDINGMODE_ADDTIVE: number = 1;
 
     /**@internal */
@@ -45,52 +55,65 @@ export class AnimatorControllerLayer2D implements IClone {
     _enterTransition: AnimatorTransition2D;
 
     /**
-     * 层的名字
+     * @en layer name
+     * @zh 层的名字
      */
     name: string;
 
     /**
-     * 是否开始时播放
+     * @en Whether to play when the layer is started.
+     * @zh 是否开始时播放
      */
     playOnWake = true;
 
     /**
-     * 默认权重
+     * @en Default weight
+     * @zh 默认权重
      */
     defaultWeight = 1.0;
 
     /**
-     * 混合模式
+     * @en Mixed Mode
+     * @zh 混合模式
      */
     blendingMode = AnimatorControllerLayer2D.BLENDINGMODE_OVERRIDE;
 
     /**
-     * 是否开启
+     * @en Is it enabled
+     * @zh 是否开启
      */
     enable = true;
 
     /**
      * @internal
+     * @en State machine
+     * @zh 状态机
      */
     _states: AnimatorState2D[] = [];
 
     /**
      * @internal 
-     * 0:常规播放、1:动态融合播放、2:固定融合播放
+     * @en 0:normal play, 1:dynamic fusing play, 2:fixed fusing play
+     * @zh 0:常规播放、1:动态融合播放、2:固定融合播放
      */
     _playType = -1;
 
     /**
-     * 实例化一个2D动画控制器
-     * @param name 
+     * @en Constructor method of 2D animator controller Layer.
+     * @zh 2D动画控制器层的构造方法
      */
     constructor(name: string) {
         this.name = name;
     }
 
     /**
-     * 设置状态机
+     * @en State machine
+     * @zh 状态机
      */
+    get states(): ReadonlyArray<AnimatorState2D> {
+        return this._states;
+    }
+
     set states(states: ReadonlyArray<AnimatorState2D>) {
         if (this._states === states)
             return;
@@ -102,14 +125,17 @@ export class AnimatorControllerLayer2D implements IClone {
         }
     }
 
-    get states(): ReadonlyArray<AnimatorState2D> {
-        return this._states;
+    /**
+     * @en The default state name.
+     * @zh 默认状态名称。
+     */
+    get defaultStateName() {
+        if (!this._defaultState) {
+            return null;
+        }
+        return this._defaultState.name;
     }
 
-    /**
-     * 默认状态名称
-     * @param str 默认状态名称
-     */
     set defaultStateName(str: string) {
         this._defaultState = this.getStateByName(str);
         if (null == this._defaultState) {
@@ -126,15 +152,9 @@ export class AnimatorControllerLayer2D implements IClone {
         }
     }
 
-    get defaultStateName() {
-        if (!this._defaultState) {
-            return null;
-        }
-        return this._defaultState.name;
-    }
-
     /**
-     * 默认动画状态机。
+     * @en Default animation state machine
+     * @zh 默认动画状态机。
      */
     get defaultState(): AnimatorState2D {
         return this._defaultState!;
@@ -154,7 +174,6 @@ export class AnimatorControllerLayer2D implements IClone {
     private _removeClip(clipStateInfos: AnimatorState2D[], index: number, state: AnimatorState2D): void {
         clipStateInfos.splice(index, 1);
     }
-
 
     /**
      * @internal
@@ -191,19 +210,23 @@ export class AnimatorControllerLayer2D implements IClone {
         this._removeReference(-this._referenceCount);
     }
 
-
     /**
-    * 获取当前的播放状态。
-    * @return 动画播放状态。
-    */
+     * @en Gets the current play state of the animator.
+     * @returns The play state of the animation.
+     * @zh 获取当前的动画播放状态。
+     * @returns 动画的播放状态。
+     */
     getCurrentPlayState(): AnimatorPlayState2D {
         return this._playStateInfo!;
     }
 
     /**
-     * 状态机名称
-     * @param str 
-     * @returns 
+     * @en Gets an animator state by its name.
+     * @param str The name of the state to retrieve.
+     * @returns The AnimatorState2D object if found, otherwise null.
+     * @zh 通过状态机名称获取动画状态对象。
+     * @param str 要检索的状态名称。
+     * @returns 如果找到，返回 AnimatorState2D 对象，否则返回 null。
      */
     getStateByName(str: string) {
         for (let i = this._states.length - 1; i >= 0; i--) {
@@ -215,9 +238,10 @@ export class AnimatorControllerLayer2D implements IClone {
     }
 
     /**
-     * 添加动画状态。
-     * @param	state 动画状态。
-     * @param   layerIndex 层索引。
+     * @en Adds an animation state to the animator.
+     * @param state The AnimatorState2D to add.
+     * @zh 向动画机添加动画状态。
+     * @param state 要添加的 AnimatorState2D。
      */
     addState(state: AnimatorState2D): void {
         var stateName = state.name;
@@ -233,9 +257,10 @@ export class AnimatorControllerLayer2D implements IClone {
     }
 
     /**
-     * 移除动画状态。
-     * @param	state 动画状态。
-     * @param   layerIndex 层索引。
+     * @en Removes an animation state.
+     * @param state The AnimatorState2D to remove.
+     * @zh 移除动画状态。
+     * @param state 要移除的 AnimatorState2D。
      */
     removeState(state: AnimatorState2D): void {
         var states = this._states;
@@ -251,8 +276,10 @@ export class AnimatorControllerLayer2D implements IClone {
     }
 
     /**
-     * 克隆。
-     * @return 克隆副本。
+     * @en Clones the current animator controller layer.
+     * @returns A clone of the current animator controller layer.
+     * @zh 克隆当前的动画控制器层。
+     * @returns 当前动画控制器层的克隆副本。
      */
     clone() {
         var dest: AnimatorControllerLayer2D = new AnimatorControllerLayer2D(this.name);
@@ -261,8 +288,10 @@ export class AnimatorControllerLayer2D implements IClone {
     }
 
     /**
-     * 克隆。
-     * @param	destObject 克隆源。
+     * @en Clones the current animator controller layer to a destination object.
+     * @param destObject The destination object to clone to.
+     * @zh 克隆当前的动画控制器层到目标对象。
+     * @param destObject 克隆到的目标对象。
      */
     cloneTo(destObject: any): void {
         var dest: AnimatorControllerLayer2D = (<AnimatorControllerLayer2D>destObject);
@@ -270,7 +299,8 @@ export class AnimatorControllerLayer2D implements IClone {
     }
 
     /**
-     * 销毁
+     * @en Destroys the animator controller layer and all its states.
+     * @zh 销毁动画控制器层及其所有状态。
      */
     destroy() {
         this._removeReference();

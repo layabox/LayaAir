@@ -6,35 +6,64 @@ import { Resource } from "../resource/Resource";
 import { XML } from "../html/XML";
 
 /**
- * <code>BitmapFont</code> 是位图字体类，用于定义位图字体信息。
- * 字体制作及使用方法，请参考文章
- * @see http://ldc2.layabox.com/doc/?nav=ch-js-1-2-5
+ * @en BitmapFont is a bitmap font class used to define bitmap font information.
+ * @zh BitmapFont 是位图字体类，用于定义位图字体信息。
  */
 export class BitmapFont extends Resource {
-    /**位图字体纹理 */
+    /**
+     * @en Bitmap font texture
+     * @zh 位图字体纹理
+     */
     texture: Texture;
-    /**位图字体键值对映射 */
+    /**
+     * @en Bitmap font key-value mapping
+     * @zh 位图字体键值对映射
+     */
     dict: Record<string, BMGlyph> = {};
-    /**字体边距 */
+    /**
+     * @en Font padding
+     * @zh 字体边距
+     */
     padding: any[];
 
-    /**当前位图字体字号，使用时，如果字号和设置不同，并且autoScaleSize=true，则按照设置字号比率进行缩放显示。*/
+    /**
+     * @en Current bitmap font size. When used, if the font size is different from the setting and autoScaleSize=true, it will be scaled according to the set font size ratio.
+     * @zh 当前位图字体字号，使用时，如果字号和设置不同，并且autoScaleSize=true，则按照设置字号比率进行缩放显示。
+     */
     fontSize: number = 12;
-    /**表示是否根据实际使用的字体大小缩放位图字体大小。*/
+    /**
+     * @en Indicates whether to scale the bitmap font size according to the actual font size used.
+     * @zh 表示是否根据实际使用的字体大小缩放位图字体大小。
+     */
     autoScaleSize: boolean = false;
-    /**是否是字体 */
+    /**
+     * @en Whether it is a font
+     * @zh 是否是字体
+     */
     tint: boolean = true;
-    /**最大宽度 */
+    /**
+     * @en Maximum width
+     * @zh 最大宽度
+     */
     maxWidth: number = 0;
-    /**行高 */
+    /**
+     * @en Line height
+     * @zh 行高
+     */
     lineHeight: number = 12;
-    /**字符间隔 */
+    /**
+     * @en Letter spacing
+     * @zh 字符间隔
+     */
     letterSpacing = 0;
 
     /**
-     * 通过指定位图字体文件路径，加载位图字体文件，加载完成后会自动解析。
-     * @param	path		位图字体文件的路径。
-     * @param	complete	加载并解析完成的回调。
+     * @en Load the bitmap font file by specifying the file path. After loading, it will be automatically parsed.
+     * @param path The path of the bitmap font file.
+     * @param complete The callback function after loading and parsing are completed.
+     * @zh 通过指定位图字体文件路径，加载位图字体文件，加载完成后会自动解析。
+     * @param path 位图字体文件的路径。
+     * @param complete 加载并解析完成的回调。
      */
     static loadFont(path: string, complete: Handler): void {
         ILaya.loader.load(path, Loader.FONT).then(font => {
@@ -42,14 +71,21 @@ export class BitmapFont extends Resource {
         });
     }
 
+    /**
+     * @en BitmapFont constructor.
+     * @zh 位图字体构造方法。
+     */
     constructor() {
         super(false);
     }
 
     /**
-     * 解析字体文件。
-     * @param	xml			字体文件XML。
-     * @param	texture		字体的纹理。
+     * @en Parse the font file.
+     * @param xml The XML of the font file.
+     * @param texture The texture of the font.
+     * @zh 解析字体文件。
+     * @param xml 字体文件XML。
+     * @param texture 字体的纹理。
      */
     parseFont(xml: XML, texture: Texture): void {
         if (xml == null || texture == null) return;
@@ -104,9 +140,11 @@ export class BitmapFont extends Resource {
     }
 
     /**
-     * 销毁位图字体，调用Text.unregisterBitmapFont 时，默认会销毁。
      * @internal
+     * @en Destroys the bitmap font. This is called by default when Text.unregisterBitmapFont is invoked.
+     * @zh 销毁位图字体，调用 Text.unregisterBitmapFont 时，默认会销毁。
      */
+
     protected _disposeResource(): void {
         if (this.texture) {
             for (let k in this.dict) {
@@ -120,10 +158,14 @@ export class BitmapFont extends Resource {
     }
 
     /**
-     * 获取指定文本内容的宽度。
-     * @param	text 文本内容。
-     * @param   fontSize 字体大小
-     * @return  宽度。
+     * @en Get the width of the specified text content.
+     * @param text The text content.
+     * @param fontSize The font size.
+     * @return The width of the text content.
+     * @zh 获取指定文本内容的宽度。
+     * @param text 文本内容。
+     * @param fontSize 字体大小。
+     * @return 文本内容的宽度。
      */
     getTextWidth(text: string, fontSize?: number): number {
         let w = 0;
@@ -138,8 +180,10 @@ export class BitmapFont extends Resource {
     }
 
     /**
-     * 获取最大字符宽度。
-     * @param fontSize 字体大小 
+     * @en Get the maximum character width.
+     * @param fontSize The font size.
+     * @zh 获取最大字符宽度。
+     * @param fontSize 字体大小。
      */
     getMaxWidth(fontSize?: number): number {
         if (fontSize != null && this.autoScaleSize)
@@ -149,8 +193,10 @@ export class BitmapFont extends Resource {
     }
 
     /**
-     * 获取最大字符高度。
-     * @param fontSize 字体大小
+     * @en Get the maximum character height.
+     * @param fontSize The font size.
+     * @zh 获取最大字符高度。
+     * @param fontSize 字体大小。
      */
     getMaxHeight(fontSize?: number): number {
         if (fontSize != null && this.autoScaleSize)

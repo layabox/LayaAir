@@ -26,9 +26,14 @@ const LAYA_ANIMATION_160_VISION: string = "LAYAANIMATION:1.6.0";
 const LAYA_ANIMATION_VISION: string = "LAYAANIMATION:1.7.0";
 
 /**
- * 动画模板类
+ * @en Animation template class
+ * @zh 动画模板类
  */
 export class Templet extends AnimationTemplet {
+    /**
+     * @en The frame rate of the animation
+     * @zh 动画的帧率
+     */
     public rate: number = 30;
 
     /**@internal */
@@ -36,39 +41,87 @@ export class Templet extends AnimationTemplet {
     /**@internal */
     private _graphicsCache: any[] = [];
 
-    /** 存放原始骨骼信息 */
+    /**
+     * @en Stores the original bone information.
+     * @zh 存放原始骨骼信息。
+     */
     srcBoneMatrixArr: any[] = [];
-    /** IK数据 */
+    /**
+     * @en IK (Inverse Kinematics) data array.
+     * @zh IK数据数组。
+     */
     ikArr: any[] = [];
-    /** transform数据 */
+    /**
+     * @en Transform data array.
+     * @zh transform数据数组。
+     */
     tfArr: any[] = [];
-    /** path数据 */
+    /**
+     * @en Path data array.
+     * @zh path数据数组。
+     */
     pathArr: any[] = [];
-    /** 存放插槽数据的字典 */
+    /**
+     * @en Dictionary for storing slot data.
+     * @zh 存放插槽数据的字典。
+     */
     boneSlotDic: any = {};
-    /** 绑定插槽数据的字典 */
+    /**
+     * @en Dictionary for binding slot data.
+     * @zh 绑定插槽数据的字典。
+     */
     bindBoneBoneSlotDic: any = {};
-    /** 存放插糟数据的数组 */
+    /**
+     * @en Array for storing slot data.
+     * @zh 存放插槽数据的数组。
+     */
     boneSlotArray: any[] = [];
-    /** 皮肤数据 */
+    /**
+     * @en Skin data array.
+     * @zh 皮肤数据数组。
+     */
     skinDataArray: any[] = [];
-    /** 皮肤的字典数据 */
+    /**
+     * @en Dictionary for skin data.
+     * @zh 皮肤的字典数据。
+     */
     skinDic: any = {};
-    /** 存放纹理数据 */
+    /**
+     * @en Dictionary for storing texture data.
+     * @zh 存放纹理数据的字典。
+     */
     subTextureDic: Record<string, Texture> = {};
-    /** 是否解析失败 */
+    /**
+     * @en Indicates whether parsing has failed.
+     * @zh 是否解析失败。
+     */
     isParseFail: boolean = false;
-    /** 反转矩阵，有些骨骼动画要反转才能显示 */
+    /**
+     * @en The reverse matrix, some bone animations need to be reversed to be displayed correctly.
+     * @zh 反转矩阵，有些骨骼动画需要反转才能正确显示。
+     */
     yReverseMatrix: Matrix;
-    /** 渲染顺序动画数据 */
+    /**
+     * @en Render order animation data array.
+     * @zh 渲染顺序动画数据数组。
+     */
     drawOrderAniArr: any[] = [];
-    /** 事件动画数据 */
+    /**
+     * @en Event animation data array.
+     * @zh 事件动画数据数组。
+     */
     eventAniArr: any[] = [];
     /** @private 索引对应的名称 */
     attachmentNames: any[] = null;
-    /** 顶点动画数据 */
+    /**
+     * @en Vertex animation data array.
+     * @zh 顶点动画数据数组。
+     */
     deformAniArr: any[] = [];
-    /** 实际显示对象列表，用于销毁用 */
+    /**
+     * @en Actual display object list for destruction purposes.
+     * @zh 实际显示对象列表，用于销毁用。
+     */
     skinSlotDisplayDataArr: SkinSlotDisplayData[] = [];
 
     /** @internal 是否需要解析audio数据 */
@@ -79,16 +132,30 @@ export class Templet extends AnimationTemplet {
     /**@private */
     tMatrixDataLen: number;
 
+    /**
+     * @en Root bone of the skeleton
+     * @zh 骨骼的根骨骼
+     */
     mRootBone: Bone;
+    /**
+     * @en Array of all bones in the skeleton
+     * @zh 骨骼中所有骨骼的数组
+     */
     mBoneArr: Bone[] = [];
 
     /**
-     * 创建动画
-     * 0,使用模板缓冲的数据，模板缓冲的数据，不允许修改					（内存开销小，计算开销小，不支持换装）
-     * 1,使用动画自己的缓冲区，每个动画都会有自己的缓冲区，相当耗费内存	（内存开销大，计算开销小，支持换装）
-     * 2,使用动态方式，去实时去画										（内存开销小，计算开销大，支持换装,不建议使用）
-     * @param	aniMode 0	动画模式，0:不支持换装,1,2支持换装
-     * @return
+     * @en Create skeletal animation.
+     * - 0: Use the template's buffer data, which cannot be modified. (Low memory overhead, low computation overhead, does not support costume changes)
+     * - 1: Use the animation's own buffer. Each animation will have its own buffer, which is quite memory-intensive. (High memory overhead, low computation overhead, supports costume changes)
+     * - 2: Use a dynamic approach for real-time drawing. (Low memory overhead, high computation overhead, supports costume changes, not recommended)
+     * @param aniMode The animation mode: 0 for no costume change support, 1 or 2 for costume change support.
+     * @return The created instance.
+     * @zh 创建骨骼动画。
+     * - 0: 使用模板缓冲的数据，不允许修改。（内存开销小，计算开销小，不支持换装）
+     * - 1: 使用动画自己的缓冲区，每个动画都会有自己的缓冲区，相当耗费内存。（内存开销大，计算开销小，支持换装）
+     * - 2: 使用动态方式进行实时绘制。（内存开销小，计算开销大，支持换装，不建议使用）
+     * @param aniMode 动画模式，0:不支持换装；1、2支持换装
+     * @return 创建的实例。
      */
     buildArmature(aniMode: number = 0): Skeleton {
         let sk = new Skeleton(aniMode);
@@ -502,9 +569,12 @@ export class Templet extends AnimationTemplet {
     }
 
     /**
-     * 得到指定的纹理
+     * @en Get the specified texture by its name.
+     * @param name The name of the texture.
+     * @returns The requested texture object.
+     * @zh 通过名称获取指定的纹理。
      * @param	name	纹理的名字
-     * @return
+     * @returns 所请求的纹理对象。
      */
     getTexture(name: string): Texture {
         let tTexture = this.subTextureDic[name];
@@ -519,10 +589,16 @@ export class Templet extends AnimationTemplet {
 
     /**
      * @private
-     * 显示指定的皮肤
-     * @param	boneSlotDic	插糟字典的引用
-     * @param	skinIndex	皮肤的索引
-     * @param	freshDisplayIndex	是否重置插槽纹理
+     * @en Display the specified skin using the bone slot dictionary and skin index.
+     * @param boneSlotDic The dictionary of bone slots.
+     * @param skinIndex The index of the skin to display.
+     * @param freshDisplayIndex Whether to reset the slot textures, default is true.
+     * @return Whether the skin was successfully displayed.
+     * @zh 使用插槽字典和皮肤索引显示指定的皮肤。
+     * @param	boneSlotDic	插槽字典的引用
+     * @param	skinIndex	要显示的皮肤的索引
+     * @param	freshDisplayIndex	是否重置插槽纹理，默认为true
+     * @return	是否显示皮肤成功
      */
     showSkinByIndex(boneSlotDic: any, skinIndex: number, freshDisplayIndex: boolean = true): boolean {
         if (skinIndex < 0 && skinIndex >= this.skinDataArray.length) return false;
@@ -551,9 +627,12 @@ export class Templet extends AnimationTemplet {
     }
 
     /**
-     * 通过皮肤名字得到皮肤索引
-     * @param	skinName 皮肤名称
-     * @return
+     * @en Retrieves the index of a skin based on its name.
+     * @param skinName The name of the skin.
+     * @return The index of the skin, or -1 if not found.
+     * @zh 通过皮肤名称获取皮肤索引。
+     * @param	skinName	皮肤名称
+     * @return	皮肤索引，找不到返回-1
      */
     getSkinIndexByName(skinName: string): number {
         for (let i = 0, n = this.skinDataArray.length; i < n; i++) {
@@ -566,11 +645,29 @@ export class Templet extends AnimationTemplet {
     }
 
     /**
+     * @en Retrieves the name of an animation based on its index.
+     * @param index The index of the animation.
+     * @return The name of the animation, or null if not found.
+     * @zh 通过索引获取动画名称。
+     * @param index 动画索引
+     * @return 动画名称，找不到返回null
+     */
+    getAniNameByIndex(index: number): string {
+        var tAni: any = this.getAnimation(index);
+        if (tAni) return tAni.name;
+        return null;
+    }
+
+    /**
      * @private
-     * 得到缓冲数据
+     * @en Retrieves the buffered graphics data for a specific animation frame.
+     * @param aniIndex The index of the animation.
+     * @param frameIndex The index of the frame within the animation.
+     * @return The graphics object for the specified animation frame, or null if not available.
+     * @zh 获取特定动画帧的缓冲图形数据。
      * @param	aniIndex	动画索引
      * @param	frameIndex	帧索引
-     * @return
+     * @return	指定动画帧的对象，如果不存在则返回null
      */
     getGrahicsDataWithCache(aniIndex: number, frameIndex: number): Graphics {
         if (this._graphicsCache[aniIndex] && this._graphicsCache[aniIndex][frameIndex]) {
@@ -582,15 +679,25 @@ export class Templet extends AnimationTemplet {
 
     /**
      * @private
-     * 保存缓冲grahpics
+     * @en Saves graphics data to the cache for a specific animation frame.
+     * @param aniIndex The index of the animation.
+     * @param frameIndex The index of the frame within the animation.
+     * @param graphics The graphics object to cache.
+     * @zh 保存特定动画帧的图形数据到缓冲区。
      * @param	aniIndex	动画索引
      * @param	frameIndex	帧索引
-     * @param	graphics	要保存的数据
+     * @param	graphics	要缓存的数据
      */
     setGrahicsDataWithCache(aniIndex: number, frameIndex: number, graphics: Graphics): void {
         this._graphicsCache[aniIndex][frameIndex] = graphics;
     }
 
+    /**
+     * @en Deletes animation data at the specified index.
+     * @param aniIndex The index of the animation data to delete.
+     * @zh 删除指定索引的动画数据。
+     * @param	aniIndex	要删除的动画索引
+     */
     deleteAniData(aniIndex: number): void {
         if (this._anis[aniIndex]) {
             var tAniDataO: AnimationContent = this._anis[aniIndex];
@@ -613,17 +720,7 @@ export class Templet extends AnimationTemplet {
         this.skinSlotDisplayDataArr.length = 0;
     }
 
-    /***********************************下面为一些儿访问接口*****************************************/
-    /**
-     * 通过索引得动画名称
-     * @param	index
-     * @return
-     */
-    getAniNameByIndex(index: number): string {
-        var tAni: any = this.getAnimation(index);
-        if (tAni) return tAni.name;
-        return null;
-    }
+
 }
 
 IAniLib.Templet = Templet;

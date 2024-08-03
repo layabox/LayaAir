@@ -87,6 +87,7 @@ import { UI3D } from "./core/UI3D/UI3D";
 import { LensFlareData, LensFlareEffect, LensFlareElement } from "./core/render/PostEffect/LensFlares/LensFlareEffect";
 import "./loaders/AnimationClipLoader";
 import "./loaders/CubemapLoader";
+import "./loaders/Texture2DArrayLoader";
 import "./loaders/MeshLoader";
 import "./loaders/HierarchyParserV2";
 import "./loaders/AvatarMaskLoader";
