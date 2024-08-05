@@ -6,7 +6,8 @@ import { Handler } from "../utils/Handler"
 import { LayaEnv } from "../../LayaEnv";
 
 /**
- * 用于播放背景音乐或者音效的节点
+ * @en Nodes used for playing background music or sound effects
+ * @zh 用于播放背景音乐或者音效的节点
  */
 export class SoundNode extends Sprite {
     private _channel: SoundChannel;
@@ -28,7 +29,8 @@ export class SoundNode extends Sprite {
     }
 
     /**
-     * 音频源
+     * @en Audio source
+     * @zh 音频源
      */
     get source() {
         return this._source;
@@ -45,7 +47,8 @@ export class SoundNode extends Sprite {
     }
 
     /**
-     * 如果是，音乐类型为背景音乐，否则为音效
+     * @en Determines if the audio type is background music. If true, it's background music; otherwise, it's a sound effect.
+     * @zh 确定音频类型是否为背景音乐。如果为true，音乐类型为背景音乐，否则为音效
      */
     get isMusic() {
         return this._isMusic;
@@ -56,7 +59,8 @@ export class SoundNode extends Sprite {
     }
 
     /**
-     * 循环次数
+     * @en The number of times the audio should loop
+     * @zh 循环次数
      */
     get loop() {
         return this._loop;
@@ -67,7 +71,8 @@ export class SoundNode extends Sprite {
     }
 
     /**
-     * 是否自动播放
+     * @en Determines if the audio should auto-play
+     * @zh 是否自动播放
      */
     get autoPlay() {
         return this._autoPlay;
@@ -85,10 +90,12 @@ export class SoundNode extends Sprite {
     }
 
     /**
-     * 播放
+     * @en Play the audio
+     * @param loops The number of times to loop the audio
+     * @param complete The callback function to be called when playback is complete
+     * @zh 播放音频
      * @param loops 循环次数
-     * @param complete 完成回调
-     *
+     * @param complete 完成回调函数
      */
     play(loops?: number, complete?: Handler): void {
         if (!this._source) return;
@@ -105,8 +112,8 @@ export class SoundNode extends Sprite {
     }
 
     /**
-     * 停止播放
-     *
+     * @en Stop playing the audio
+     * @zh 停止播放音频
      */
     stop(): void {
         if (this._channel && !this._channel.isStopped) {
@@ -139,8 +146,8 @@ export class SoundNode extends Sprite {
     }
 
     /**
-     * 设置触发播放的事件
-     * @param events
+     * @en The events string that trigger audio playback
+     * @zh 触发播放的事件字符串
      */
     set playEvent(events: string) {
         this._playEvents = events;
@@ -151,9 +158,8 @@ export class SoundNode extends Sprite {
     }
 
     /**
-     * 设置控制播放的对象
-     * @param tar
-     *
+     * @en The target sprite object that controls audio playback
+     * @zh 控制播放的精灵对象
      */
     set target(tar: Sprite) {
         if (this._tar) {
@@ -168,9 +174,8 @@ export class SoundNode extends Sprite {
     }
 
     /**
-     * 设置触发停止的事件
-     * @param events
-     *
+     * @en Set the events string that trigger audio stop
+     * @zh 设置触发停止的事件字符串
      */
     set stopEvent(events: string) {
         this._stopEvents = events;
