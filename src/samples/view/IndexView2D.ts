@@ -69,7 +69,6 @@ import { Interaction_Swipe } from "./../2d/Interaction_Swipe";
 import { Interaction_CustomEvent } from "./../2d/Interaction_CustomEvent";
 import { Interaction_Mouse } from "./../2d/Interaction_Mouse";
 import { Interaction_FixInteractiveRegion } from "./../2d/Interaction_FixInteractiveRegion";
-import { SmartScale_Scale_EXTRACT_FIT } from "./../2d/SmartScale_Scale_EXTRACT_FIT";
 import { SmartScale_Scale_NOBORDER } from "./../2d/SmartScale_Scale_NOBORDER";
 import { SmartScale_Scale_SHOW_ALL } from "./../2d/SmartScale_Scale_SHOW_ALL";
 import { SmartScale_T } from "./../2d/SmartScale_T";
@@ -131,6 +130,7 @@ import { Sprite_Guide } from "../2d/Sprite_Guide";
 import { Text_Prompt } from "../2d/Text_Prompt";
 import { UI_Panel } from "../2d/UI_Panel";
 import { Text_UBB } from "../2d/Text_UBB";
+import { Config } from "Config";
 
 /**
  * 首页View 
@@ -208,8 +208,8 @@ export class IndexView2D extends IndexViewUI {
 	/************************Interaction-end***************************/
 
 	/************************SmartScale-start***************************/
-	private _comboBoxSmartScaleClsArr: any[] = [SmartScale_Align_Contral, SmartScale_Landscape, SmartScale_Portrait, SmartScale_Scale_NOSCALE, SmartScale_Scale_EXTRACT_FIT, SmartScale_Scale_NOBORDER, SmartScale_Scale_SHOW_ALL, SmartScale_T];
-	private _comboBoxSmartScaleArr: any[] = ['缩放-Align 居中', '屏幕-横屏', '屏幕-竖屏', '缩放-NoScale', '缩放-Extract Fit', '缩放-No Border', '缩放-Show All', '屏幕适配'];
+	private _comboBoxSmartScaleClsArr: any[] = [SmartScale_Align_Contral, SmartScale_Landscape, SmartScale_Portrait, SmartScale_Scale_NOSCALE, SmartScale_Scale_NOBORDER, SmartScale_Scale_SHOW_ALL, SmartScale_T];
+	private _comboBoxSmartScaleArr: any[] = ['缩放-Align 居中', '屏幕-横屏', '屏幕-竖屏', '缩放-NoScale', '缩放-No Border', '缩放-Show All', '屏幕适配'];
 	/************************SmartScale-end***************************/
 
 	/************************Network-start***************************/
@@ -364,6 +364,14 @@ export class IndexView2D extends IndexViewUI {
 		this.box2d.destroyChildren();
 	}
 
+	/**
+	 * 恢复默认Config配置
+	 */
+	private resetConfig(): void {
+		Config.isAntialias = false;
+		Config.preserveDrawingBuffer = false;
+	}
+
 	private onSmallBoxSelectHandler(index: number): void {
 		if (index < 0)
 			return;
@@ -376,6 +384,7 @@ export class IndexView2D extends IndexViewUI {
 		}
 		this.m_length += 1;
 		this.onClearPreBox();
+		this.resetConfig();
 		this._smallIndex = index;
 
 		switch (this._bigIndex) {
