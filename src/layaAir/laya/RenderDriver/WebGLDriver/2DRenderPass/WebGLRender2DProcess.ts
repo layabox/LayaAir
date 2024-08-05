@@ -20,4 +20,3 @@ Laya.addBeforeInitCallback(() => {
     if (!LayaGL.render2DRenderPassFactory)
         LayaGL.render2DRenderPassFactory = new WebGLRender2DProcess();
 });
-

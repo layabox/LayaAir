@@ -50,13 +50,17 @@ export class WebglRenderContext2D implements IRenderContext2D {
             let engine = LayaGL.renderEngine as WebGLEngine;
             engine.on("endFrame", () => {
                 let last_main_frame_buffer = WebGLEngine._lastFrameBuffer_WebGLOBJ;
+                let last_main_frame = WebGLEngine._lastFrameBuffer;
                 WebGLEngine._lastFrameBuffer_WebGLOBJ = null;
+                WebGLEngine._lastFrameBuffer = null;
                 WebglRenderContext2D.blitContext.setOffscreenView((engine as WebGLEngine).getInnerWidth(), (engine as WebGLEngine).getInnerHeight());
 
-                WebglRenderContext2D.blitContext.setRenderTarget(null, false, Color.BLACK);
-                WebglRenderContext2D.blitScreenElement.materialShaderData._setInternalTexture(Shader3D.propertyNameToID("u_MainTex"), WebGLEngine._lastFrameBuffer._textures[0]);
+                WebglRenderContext2D.blitContext.setRenderTarget(null, true, Color.BLACK);
+                WebglRenderContext2D.blitScreenElement.materialShaderData._setInternalTexture(Shader3D.propertyNameToID("u_MainTex"), last_main_frame._textures[0]);
                 WebglRenderContext2D.blitContext.drawRenderElementOne(WebglRenderContext2D.blitScreenElement);
                 WebGLEngine._lastFrameBuffer_WebGLOBJ = last_main_frame_buffer;
+                WebGLEngine._lastFrameBuffer = last_main_frame;
+                WebGLEngine.instance.getTextureContext().bindRenderTarget(last_main_frame);
             })
         }
     }
