@@ -19,7 +19,7 @@ export interface IRenderEngine {
 
     _enableStatistics: boolean;
 
-    _remapZ:boolean;
+    _remapZ: boolean;
     _screenInvertY: boolean;
     _lodTextureSample: boolean;
     _breakTextureSample: boolean;
@@ -48,4 +48,6 @@ export interface IRenderEngine {
     getStatisticsInfo(info: GPUEngineStatisticsInfo): number;
     getUBOPointer?(name: string): number;   // TODO
     createBuffer?(targetType: BufferTargetType, bufferUsageType: BufferUsage): GLBuffer;    // TODO
+
+    endFrame(): void;
 }

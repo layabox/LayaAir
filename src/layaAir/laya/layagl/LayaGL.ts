@@ -6,7 +6,8 @@ import { ITextureContext } from "../RenderDriver/DriverDesign/RenderDevice/IText
 import { IUnitRenderModuleDataFactory } from "../RenderDriver/RenderModuleData/Design/IUnitRenderModuleDataFactory";
 
 /**
- * 封装GL命令
+ * @en Package GL commands
+ * @zh 封装GL命令
  */
 export class LayaGL {
     static textureContext: ITextureContext;

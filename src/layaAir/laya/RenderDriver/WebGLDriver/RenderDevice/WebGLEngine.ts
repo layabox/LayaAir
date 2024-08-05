@@ -1,6 +1,5 @@
 import { Laya } from "../../../../Laya";
 import { LayaEnv } from "../../../../LayaEnv";
-import { Event } from "../../../events/Event";
 import { CommandEncoder } from "../../../layagl/CommandEncoder";
 import { Color } from "../../../maths/Color";
 import { Vector4 } from "../../../maths/Vector4";
@@ -30,11 +29,14 @@ import { WebGLShaderData } from "../../RenderModuleData/WebModuleData/WebGLShade
 import { IDefineDatas } from "../../RenderModuleData/Design/IDefineDatas";
 import { WebGLInternalTex } from "./WebGLInternalTex";
 import { GPUEngineStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
+import { EventDispatcher } from "../../../events/EventDispatcher";
+import { WebGLInternalRT } from "./WebGLInternalRT";
+import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
 
 /**
  * 封装Webgl
  */
-export class WebGLEngine implements IRenderEngine {
+export class WebGLEngine extends EventDispatcher implements IRenderEngine {
 
     /**
      * @internal
@@ -42,6 +44,10 @@ export class WebGLEngine implements IRenderEngine {
      */
     static _texGammaDefine: { [key: number]: ShaderDefine } = {};
 
+    //兼容ConchWebGL
+    static _lastFrameBuffer: WebGLInternalRT = null;
+    //兼容ConchWebGL
+    static _lastFrameBuffer_WebGLOBJ: WebGLFramebuffer = null;
 
     _context: WebGLRenderingContext | WebGL2RenderingContext;
 
@@ -114,6 +120,9 @@ export class WebGLEngine implements IRenderEngine {
     private _lastClearColor: Color = new Color;
     private _lastClearDepth: number = -1;
 
+    private _globalWidth: number;
+    private _globalHeight: number;
+
     //GL参数
     private _GLParams: GLParams;
 
@@ -147,6 +156,7 @@ export class WebGLEngine implements IRenderEngine {
     private _GLStatisticsInfo: Map<GPUEngineStatisticsInfo, number> = new Map();
     static instance: WebGLEngine;
     constructor(config: WebGLConfig, webglMode: WebGLMode = WebGLMode.Auto) {
+        super();
         this._config = config;
         this._isWebGL2 = false;
         //init data
@@ -158,8 +168,36 @@ export class WebGLEngine implements IRenderEngine {
         WebGLEngine.instance = this;
     }
 
+    endFrame(): void {
+        this.event("endFrame", null);
+    }
+
+    getInnerWidth() {
+        if (LayaEnv.isConch) {
+            return (window as any).getInnerWidth();
+        } else
+            return this._globalWidth;
+    }
+
+    getInnerHeight() {
+        if (LayaEnv.isConch) {
+            return (window as any).getInnerHeight();
+        } else
+            return this._globalHeight;
+    }
+
+
     resizeOffScreen(width: number, height: number): void {
-        //这里不需要，为了其他渲染底层预留
+        this._globalWidth = width;
+        this._globalHeight = height;
+        if (LayaEnv.isConch) {
+            if (WebGLEngine._lastFrameBuffer) {
+                WebGLEngine._lastFrameBuffer.dispose();
+                WebGLEngine._lastFrameBuffer_WebGLOBJ = null;
+            }
+            WebGLEngine._lastFrameBuffer = this.getTextureContext().createRenderTargetInternal(width, height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None, false, false, 1) as WebGLInternalRT;
+            WebGLEngine._lastFrameBuffer_WebGLOBJ = WebGLEngine._lastFrameBuffer._framebuffer;
+        }
     }
     addTexGammaDefine(key: number, value: ShaderDefine): void {
         WebGLEngine._texGammaDefine[key] = value;

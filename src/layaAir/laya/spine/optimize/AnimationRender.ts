@@ -97,7 +97,7 @@ export class AnimationRender {
         let hasClip: boolean;
         for (let i = 0, n = timeline.length; i < n; i++) {
             let time = timeline[i];
-            if (time instanceof window.spine.AttachmentTimeline) {
+            if (time instanceof spine.AttachmentTimeline) {
                 let attachment = time as spine.AttachmentTimeline;
                 let frames = attachment.frames;
                 let attachmentNames = attachment.attachmentNames;
@@ -116,7 +116,7 @@ export class AnimationRender {
                     arr.push(change);
                 }
             }
-            else if (time instanceof window.spine.DrawOrderTimeline) {
+            else if (time instanceof spine.DrawOrderTimeline) {
                 let drawOrder = time as spine.DrawOrderTimeline;
                 let frames = drawOrder.frames;
                 let orders = time.drawOrders;
@@ -133,8 +133,12 @@ export class AnimationRender {
                     arr.unshift(change);
                 }
             }
-            //@ts-ignore
-            else if (time instanceof (window.spine.ColorTimeline || window.spine.RGBATimeline)) {
+            else if (
+                //@ts-ignore
+                time instanceof (spine.ColorTimeline || spine.RGBATimeline)
+                //@ts-ignore
+                 || ( spine.TwoColorTimeline && time instanceof spine.TwoColorTimeline)
+                ) {
                 let rgba = time as spine.RGBATimeline;
                 let frames = rgba.frames;
                 let slotIndex = rgba.slotIndex;

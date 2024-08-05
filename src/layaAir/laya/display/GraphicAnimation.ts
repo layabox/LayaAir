@@ -5,13 +5,22 @@ import { Loader } from "../net/Loader"
 import { Texture } from "../resource/Texture"
 
 /**
- * Graphics动画解析器
  * @private
+ * @en Graphics animation parser
+ * @zh Graphics动画解析器
  */
 export class GraphicAnimation extends FrameAnimation {
-    /**@private */
+    /**
+     * @private
+     * @en List of animations
+     * @zh 动画列表
+     */
     animationList: any[];
-    /**@private */
+    /**
+     * @private
+     * @en Dictionary of animations
+     * @zh 动画字典
+     */
     animationDic: any;
     /**@private */
     protected _nodeList: any[];
@@ -312,7 +321,15 @@ export class GraphicAnimation extends FrameAnimation {
         return Loader.getRes(url);
     }
 
-    /**@private */
+    /**
+     * @private
+     * @en Set animation data
+     * @param uiView The UI view containing animation data
+     * @param aniName The name of the animation to set 
+     * @zh 设置动画数据
+     * @param uiView 包含动画数据的UI视图
+     * @param aniName 要设置的动画名称
+     */
     setAniData(uiView: any, aniName: string = null): void {
         if (uiView.animations) {
             this._nodeDefaultProps = {};
@@ -354,6 +371,14 @@ export class GraphicAnimation extends FrameAnimation {
 
     }
 
+    /**
+     * @en Parse animation data
+     * @param aniData The animation data to parse
+     * @returns Parsed animation frame object
+     * @zh 解析动画数据
+     * @param aniData 要解析的动画数据
+     * @returns 解析后的动画帧对象
+     */
     parseByData(aniData: any): any {
         var rootNode: any, aniO: any;
         rootNode = aniData.nodeRoot;
@@ -380,7 +405,15 @@ export class GraphicAnimation extends FrameAnimation {
         return frameO;
     }
 
-    /**@private */
+    /**
+     * @private
+     * @en Set up animation data
+     * This method processes the animations in the UI view, creating a list and dictionary of animation frames.
+     * @param uiView The UI view containing animation data
+     * @zh 设置动画数据
+     * 此方法处理UI视图中的动画，创建动画帧的列表和字典。
+     * @param uiView 包含动画数据的UI视图
+     */
     setUpAniData(uiView: any): void {
         if (uiView.animations) {
             var aniDic: any = {};
@@ -411,6 +444,14 @@ export class GraphicAnimation extends FrameAnimation {
         this._nodeGDic = null;
     }
 
+    /**
+     * @en Parse animation by data
+     * @param animationObject The animation object to parse
+     * @returns Parsed animation data
+     * @zh 通过数据解析动画
+     * @param animationObject 要解析的动画对象
+     * @returns 解析后的动画数据
+     */
     static parseAnimationByData(animationObject: any): any {
         if (!GraphicAnimation._I) GraphicAnimation._I = new GraphicAnimation();
         var rst: any;
@@ -419,6 +460,14 @@ export class GraphicAnimation extends FrameAnimation {
         return rst;
     }
 
+    /**
+     * @en Parse animation data
+     * @param aniData The animation data to parse
+     * @returns An object containing parsed animation list and dictionary
+     * @zh 解析动画数据
+     * @param aniData 要解析的动画数据
+     * @returns 包含解析后的动画列表和字典的对象
+     */
     static parseAnimationData(aniData: any): any {
         if (!GraphicAnimation._I) GraphicAnimation._I = new GraphicAnimation();
         GraphicAnimation._I.setUpAniData(aniData);

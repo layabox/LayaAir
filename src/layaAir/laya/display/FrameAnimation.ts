@@ -3,29 +3,40 @@ import { MathUtil } from "../maths/MathUtil"
 import { Ease } from "../utils/Ease"
 
 /**
- * 动画播放完毕后调度。
+ * @en Dispatched when the animation playback is complete.
+ * @zh 动画播放完毕后调度。
  * @eventType Event.COMPLETE
  */
 /*[Event(name = "complete", type = "laya.events.Event")]*/
 
 /**
- * 播放到某标签后调度。
+ * @en Dispatched when the animation plays to a certain label.
+ * @zh 播放到某标签后调度。
  * @eventType Event.LABEL
  */
 /*[Event(name = "label", type = "laya.events.Event")]*/
 /**
- * 节点关键帧动画播放类。解析播放IDE内制作的节点动画。
+ * @en Node keyframe animation playback class. Parses and plays node animations created in the IDE.
+ * @zh 节点关键帧动画播放类。解析播放IDE内制作的节点动画。
  */
 export class FrameAnimation extends AnimationBase {
 
     /**@private */
-    private static _sortIndexFun(objpre: any, objnext: any) {
-        return objpre.index - objnext.index
-    }
+    private static _sortIndexFun(objpre: any, objnext: any) {
+        return objpre.index - objnext.index
+    }
 
-    /**@internal id对象表*/
+    /**
+     * @internal 
+     * @en ID Object Table
+     * @zh id对象表
+     */
     _targetDic: any;
-    /**@internal 动画数据*/
+    /**
+     * @internal 
+     * @en Animation Data
+     * @zh 动画数据
+     */
     _animationData: any;
     /**@private */
     protected _usedFrames: any[];
@@ -39,7 +50,10 @@ export class FrameAnimation extends AnimationBase {
 
     /**
      * @internal
-     * 初始化动画数据
+     * @en Initialize animation data
+     * @param targetDic Node ID index
+     * @param animationData Animation data
+     * @zh 初始化动画数据
      * @param targetDic 节点ID索引
      * @param animationData 动画数据
      */
@@ -62,9 +76,14 @@ export class FrameAnimation extends AnimationBase {
         }
     }
 
-    /**@inheritDoc 
+    /**
+     * @inheritDoc
      * @override
-    */
+     * @en Clears the animation data and resets the animation to its initial state.
+     * @returns The instance of the AnimationBase.
+     * @zh 清除动画数据并将动画重置为初始状态。
+     * @returns AnimationBase 实例。
+     */
     clear(): AnimationBase {
         super.clear();
         this._targetDic = null;
@@ -185,7 +204,10 @@ export class FrameAnimation extends AnimationBase {
     }
 
     /**
-     * 重置节点，使节点恢复到动画之前的状态，方便其他动画控制
+     * @en Reset nodes to restore them to their state before the animation, facilitating control by other animations.
+     * This method iterates through all nodes in the animation data, resetting their properties to initial values.
+     * @zh 重置节点，使节点恢复到动画之前的状态，方便其他动画控制。
+     * 此方法遍历动画数据中的所有节点，将它们的属性重置为初始值。
      */
     resetNodes(): void {
         if (!this._targetDic) return;

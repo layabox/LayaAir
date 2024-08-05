@@ -19,116 +19,62 @@ import { UBBParser } from "../html/UBBParser";
 import { HtmlParseOptions } from "../html/HtmlParseOptions";
 
 /**
- * 文本内容发生改变后调度。
+ * @en Dispatched after the text content changes.
+ * @zh 文本内容发生改变后调度。
  * @eventType Event.CHANGE
  */
 /*[Event(name = "change", type = "laya.events.Event")]*/
 
 /**
- * <p> <code>Text</code> 类用于创建显示对象以显示文本。</p>
- * <p>
+ * @en The Text class is used to create display objects to show text.
+ * Note: If the runtime system cannot find the specified font, it will render the text with the system default font, which may cause display anomalies. (Usually, it displays normally on computers, but may display abnormally on some mobile devices due to the lack of the set font.)
+ * @zh Text类用于创建显示对象以显示文本。
  * 注意：如果运行时系统找不到设定的字体，则用系统默认的字体渲染文字，从而导致显示异常。(通常电脑上显示正常，在一些移动端因缺少设置的字体而显示异常)。
- * </p>
- * @example
- * package
- * {
- * 	import laya.display.Text;
- * 	public class Text_Example
- * 	{
- * 		public function Text_Example()
- * 		{
- * 			Laya.init(640, 800);//设置游戏画布宽高、渲染模式。
- * 			Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。
- * 			onInit();
- * 		}
- * 		private function onInit():void
- * 		{
- * 			var text:Text = new Text();//创建一个 Text 类的实例对象 text 。
- * 			text.text = "这个是一个 Text 文本示例。";
- * 			text.color = "#008fff";//设置 text 的文本颜色。
- * 			text.font = "Arial";//设置 text 的文本字体。
- * 			text.bold = true;//设置 text 的文本显示为粗体。
- * 			text.fontSize = 30;//设置 text 的字体大小。
- * 			text.wordWrap = true;//设置 text 的文本自动换行。
- * 			text.x = 100;//设置 text 对象的属性 x 的值，用于控制 text 对象的显示位置。
- * 			text.y = 100;//设置 text 对象的属性 y 的值，用于控制 text 对象的显示位置。
- * 			text.width = 300;//设置 text 的宽度。
- * 			text.height = 200;//设置 text 的高度。
- * 			text.italic = true;//设置 text 的文本显示为斜体。
- * 			text.borderColor = "#fff000";//设置 text 的文本边框颜色。
- * 			Laya.stage.addChild(text);//将 text 添加到显示列表。
- * 		}
- * 	}
- * }
- * @example
- * Text_Example();
- * function Text_Example()
- * {
- *     Laya.init(640, 800);//设置游戏画布宽高、渲染模式。
- *     Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。
- *     onInit();
- * }
- * function onInit()
- * {
- *     var text = new laya.display.Text();//创建一个 Text 类的实例对象 text 。
- *     text.text = "这个是一个 Text 文本示例。";
- *     text.color = "#008fff";//设置 text 的文本颜色。
- *     text.font = "Arial";//设置 text 的文本字体。
- *     text.bold = true;//设置 text 的文本显示为粗体。
- *     text.fontSize = 30;//设置 text 的字体大小。
- *     text.wordWrap = true;//设置 text 的文本自动换行。
- *     text.x = 100;//设置 text 对象的属性 x 的值，用于控制 text 对象的显示位置。
- *     text.y = 100;//设置 text 对象的属性 y 的值，用于控制 text 对象的显示位置。
- *     text.width = 300;//设置 text 的宽度。
- *     text.height = 200;//设置 text 的高度。
- *     text.italic = true;//设置 text 的文本显示为斜体。
- *     text.borderColor = "#fff000";//设置 text 的文本边框颜色。
- *     Laya.stage.addChild(text);//将 text 添加到显示列表。
- * }
- * @example
- * class Text_Example {
- *     constructor() {
- *         Laya.init(640, 800);//设置游戏画布宽高、渲染模式。
- *         Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。
- *         this.onInit();
- *     }
- *     private onInit(): void {
- *         var text: laya.display.Text = new laya.display.Text();//创建一个 Text 类的实例对象 text 。
- *         text.text = "这个是一个 Text 文本示例。";
- *         text.color = "#008fff";//设置 text 的文本颜色。
- *         text.font = "Arial";//设置 text 的文本字体。
- *         text.bold = true;//设置 text 的文本显示为粗体。
- *         text.fontSize = 30;//设置 text 的字体大小。
- *         text.wordWrap = true;//设置 text 的文本自动换行。
- *         text.x = 100;//设置 text 对象的属性 x 的值，用于控制 text 对象的显示位置。
- *         text.y = 100;//设置 text 对象的属性 y 的值，用于控制 text 对象的显示位置。
- *         text.width = 300;//设置 text 的宽度。
- *         text.height = 200;//设置 text 的高度。
- *         text.italic = true;//设置 text 的文本显示为斜体。
- *         text.borderColor = "#fff000";//设置 text 的文本边框颜色。
- *         Laya.stage.addChild(text);//将 text 添加到显示列表。
- *     }
- * }
  */
 export class Text extends Sprite {
 
-    /**visible不进行任何裁切。*/
+    /**
+     * @en Visible without any clipping.
+     * @zh visible不进行任何裁切。
+     */
     static VISIBLE: string = "visible";
-    /**scroll 不显示文本域外的字符像素，并且支持 scroll 接口。*/
+    /**
+     * @en Scroll does not display character pixels outside the text area and supports the scroll interface.
+     * @zh scroll 不显示文本域外的字符像素，并且支持 scroll 接口。
+     */
     static SCROLL: string = "scroll";
-    /**hidden 不显示超出文本域的字符。*/
+    /**
+     * @en Hidden does not display characters beyond the text area.
+     * @zh hidden 不显示超出文本域的字符。
+     */
     static HIDDEN: string = "hidden";
-    /**shrink 超出文本域时，文本整体缩小以适应文本框。*/
+    /**
+     * @en Shrink the entire text to fit the text box when it exceeds the text area.
+     * @zh shrink 超出文本域时，文本整体缩小以适应文本框。
+     */
     static SHRINK: string = "shrink";
-    /**ellipsis 超出文本域时，文本被截断，并且文本最后显示省略号。*/
+    /**
+     * @en Ellipsis truncates the text and displays an ellipsis at the end when it exceeds the text area.
+     * @zh ellipsis 超出文本域时，文本被截断，并且文本最后显示省略号。
+     */
     static ELLIPSIS: string = "ellipsis";
 
-    /**语言包，是一个包含key:value的集合，用key索引，替换为目标value语言*/
+    /**
+     * @en Language pack, a collection of key:value pairs, indexed by key, replaced with target value language.
+     * @zh 语言包，是一个包含key:value的集合，用key索引，替换为目标value语言。
+     */
     static langPacks: Record<string, string>;
-    /**是否是从右向左的显示顺序*/
+    /**
+     * @en Whether the display order is from right to left.
+     * @zh 是否是从右向左的显示顺序。
+     */
     static RightToLeft: boolean = false;
 
-    /**@internal 预测长度的文字，用来提升计算效率，不同语言找一个最大的字符即可*/
+    /**
+     * @internal
+     * @en Predicted length text, used to improve calculation efficiency, find the largest character for different languages.
+     * @zh 预测长度的文字，用来提升计算效率，不同语言找一个最大的字符即可。
+     */
     static _testWord: string = "游";
     /**
      * @internal
@@ -138,30 +84,38 @@ export class Text extends Sprite {
     /**
      * @internal
      * @private 
-     * 位图字体字典。
+     * @en Dictionary of bitmap fonts.
+     * @zh 位图字体字典。
      */
     private static _bitmapFonts: Record<string, BitmapFont> = {};
 
-    /** 标记此文本是否忽略语言包 */
+    /**
+     * @en Mark whether this text ignores the language pack.
+     * @zh 标记此文本是否忽略语言包。
+     */
     ignoreLang: boolean;
 
     /**
      * @internal
      * @protected
-     * 表示文本内容字符串。
+     * @en Represents the text content string.
+     * @zh 表示文本内容字符串。
      */
     protected _text: string;
 
     /**
      * @internal
      * @protected
+     * @en Represents the text overflow property.
+     * @zh 表示文本的溢出属性。
      */
     protected _overflow: string = Text.VISIBLE;
 
     /**
-     * 拆分渲染
      * @internal
      * @protected
+     * @en Split render.
+     * @zh 拆分渲染。
      */
     protected _singleCharRender: boolean = false;
 
@@ -180,45 +134,55 @@ export class Text extends Sprite {
     /**
      * @internal
      * @protected
-     * 输入提示符颜色。
+     * @en The color of the input prompt.
+     * @zh 输入提示符颜色。
      */
     protected _promptColor: string;
 
     /**
      * @internal
      * @protected
-     * 文本背景颜色，以字符串表示。
+     * @en The background color of the text, represented as a string.
+     * @zh 文本背景颜色，以字符串表示。
      */
     protected _bgColor: string;
 
     /**
      * @internal
      * @protected
-     * 文本边框背景颜色，以字符串表示。
+     * @en The border color of the text background, represented as a string.
+     * @zh 文本边框背景颜色，以字符串表示。
      */
     protected _borderColor: string;
 
     /**
      * @internal
      * @protected
-     * <p>默认边距信息</p>
-     * <p>[上边距，右边距，下边距，左边距]（边距以像素为单位）</p>
+     * @en The default padding information.
+     * [top padding, right padding, bottom padding, left padding] (in pixels).
+     * @zh 默认边距信息
+     * [上边距，右边距，下边距，左边距]（边距以像素为单位）。
      */
     protected _padding: number[];
+
 
     /**
      * @internal
      * @protected
-     * <p>表示使用此文本格式的文本字段是否自动换行。</p>
+     * @en Indicates whether the text field using this text format automatically wraps.
+     * If the value of wordWrap is true, the text field automatically wraps; if the value is false, the text field does not automatically wrap.
+     * @zh 表示使用此文本格式的文本字段是否自动换行。
      * 如果 wordWrap 的值为 true，则该文本字段自动换行；如果值为 false，则该文本字段不自动换行。
-     * @default false。
+     * @default false
      */
     protected _wordWrap: boolean;
 
     /**
      * @internal
      * @protected
-     * <p>指定文本字段是否是密码文本字段。</p>
+     * @en Specifies whether the text field is a password text field.
+     * If the value of this property is true, the text field is considered a password text field and uses asterisks to hide the input characters instead of the actual characters. If false, the text field is not considered a password text field.
+     * @zh 指定文本字段是否是密码文本字段。
      * 如果此属性的值为 true，则文本字段被视为密码文本字段，并使用星号而不是实际字符来隐藏输入的字符。如果为 false，则不会将文本字段视为密码文本字段。
      */
     protected _asPassword: boolean;
@@ -238,21 +202,24 @@ export class Text extends Sprite {
     /**
      * @internal
      * @protected
-     * 表示文本内容是否发生改变。
+     * @en Indicates whether the text content has changed.
+     * @zh 表示文本内容是否发生改变。
      */
     protected _isChanged: boolean;
 
     /**
      * @internal
      * @protected
-     * 表示文本的宽度，以像素为单位。
+     * @en Indicates the width of the text in pixels.
+     * @zh 表示文本的宽度，以像素为单位。
      */
     protected _textWidth: number = 0;
 
     /**
      * @internal
      * @protected
-     * 表示文本的高度，以像素为单位。
+     * @en Indicates the height of the text in pixels.
+     * @zh 表示文本的高度，以像素为单位。
      */
     protected _textHeight: number = 0;
 
@@ -327,7 +294,8 @@ export class Text extends Sprite {
 
     /**
      * @internal
-     * 是否将字符串中的\n,\t转换为实际功能的字符
+     * @en Whether to convert` \n `and `\t `in the string to functional characters.
+     * @zh 是否将字符串中的`\n`,`\t`转换为实际功能的字符。
      */
     _parseEscapeChars: boolean;
     /**
@@ -336,7 +304,8 @@ export class Text extends Sprite {
     _onPostLayout: () => void;
 
     /**
-     * 创建一个新的 <code>Text</code> 实例。
+     * @en Constructor method of Text.
+     * @zh 文本的构造方法
      */
     constructor() {
         super();
@@ -352,9 +321,12 @@ export class Text extends Sprite {
     }
 
     /**
-     * 注册位图字体。
-     * @param	name		位图字体的名称。
-     * @param	bitmapFont	位图字体文件。
+     * @en Register a bitmap font.
+     * @param name The name of the bitmap font.
+     * @param bitmapFont The bitmap font file.
+     * @zh 注册位图字体。
+     * @param name 位图字体的名称。
+     * @param bitmapFont 位图字体文件。
      */
     static registerBitmapFont(name: string, bitmapFont: BitmapFont): void {
         bitmapFont._addReference();
@@ -362,9 +334,12 @@ export class Text extends Sprite {
     }
 
     /**
-     * 移除注册的位图字体文件。
-     * @param	name		位图字体的名称。
-     * @param	destroy		是否销毁指定的字体文件。
+     * @en Remove a registered bitmap font file.
+     * @param name The name of the bitmap font.
+     * @param destroy Whether to destroy the specified font file. Default is true.
+     * @zh 移除注册的位图字体文件。
+     * @param name 位图字体的名称。
+     * @param destroy 是否销毁指定的字体文件。默认为 true。
      */
     static unregisterBitmapFont(name: string, destroy: boolean = true): void {
         let font = Text._bitmapFonts[name];
@@ -376,11 +351,13 @@ export class Text extends Sprite {
     }
 
     /**
-     * 销毁文本
-     * @param destroyChild 是否销毁子节点
-     * @inheritDoc 
      * @override
-    */
+     * @inheritDoc 
+     * @en Destroy the text.
+     * @param destroyChild Whether to destroy child nodes. Default is true.
+     * @zh 销毁文本。
+     * @param destroyChild 是否销毁子节点。默认为 true。
+     */
     destroy(destroyChild: boolean = true): void {
         recoverLines(this._lines);
         HtmlElement.returnToPool(this._elements);
@@ -400,10 +377,12 @@ export class Text extends Sprite {
     }
 
     /**
-     * 获取滚动可视视窗
-     * @param realSize	（可选）使用图片的真实大小，默认为false
-     * @inheritDoc
      * @override
+     * @inheritDoc
+     * @en Get the scrollable visible window.
+     * @param realSize Whether to use the real size of the image. Default is false.
+     * @zh 获取滚动可视视窗。
+     * @param realSize 是否使用图片的真实大小。默认为 false。
      */
     getGraphicBounds(realSize: boolean = false): Rectangle {
         var rec: Rectangle = Rectangle.TEMP;
@@ -454,7 +433,8 @@ export class Text extends Sprite {
     }
 
     /**
-     * 表示文本的宽度，以像素为单位。
+     * @en The width of the text in pixels.
+     * @zh 文本的宽度，以像素为单位。
      */
     get textWidth(): number {
         this.typeset();
@@ -462,15 +442,17 @@ export class Text extends Sprite {
     }
 
     /**
-     * 表示文本的高度，以像素为单位。
+     * @en The height of the text in pixels.
+     * @zh 文本的高度，以像素为单位。
      */
     get textHeight(): number {
         this.typeset();
         return this._textHeight;
     }
 
-    /** 
-     * 当前文本的内容字符串。
+    /**
+     * @en The current content string of the text.
+     * @zh 当前文本的内容字符串。
      */
     get text(): string {
         return this._text;
@@ -501,9 +483,12 @@ export class Text extends Sprite {
     }
 
     /**
-     * <p>文本的字体名称，以字符串形式表示。</p>
-     * <p>默认值为："Arial"，可以通过Config.defaultFont设置默认字体。</p>
-     * <p>如果运行时系统找不到设定的字体，则用系统默认的字体渲染文字，从而导致显示异常。(通常电脑上显示正常，在一些移动端因缺少设置的字体而显示异常)。</p>
+     * @en The font name of the text, represented as a string.
+     * The default value is "Arial", which can be set through Config.defaultFont.
+     * If the runtime system cannot find the specified font, it will render the text with the system default font, which may cause display anomalies. (Usually, it displays normally on computers, but may display abnormally on some mobile devices due to the lack of the set font.)
+     * @zh 文本的字体名称，以字符串形式表示。
+     * 默认值为："Arial"，可以通过Config.defaultFont设置默认字体。
+     * 如果运行时系统找不到设定的字体，则用系统默认的字体渲染文字，从而导致显示异常。(通常电脑上显示正常，在一些移动端因缺少设置的字体而显示异常)。
      */
     get font(): string {
         return this._textStyle.font;
@@ -557,8 +542,10 @@ export class Text extends Sprite {
     }
 
     /**
-     * <p>指定文本的字体大小（以像素为单位）。</p>
-     * <p>默认为20像素，可以通过 <code>Config.defaultFontSize</code> 设置默认大小。</p>
+     * @en Specifies the font size of the text in pixels.
+     * The default is 20 pixels, which can be set through Config.defaultFontSize.
+     * @zh 指定文本的字体大小（以像素为单位）。
+     * 默认为20像素，可以通过 Config.defaultFontSize 设置默认大小。
      */
     get fontSize(): number {
         return this._textStyle.fontSize;
@@ -572,8 +559,10 @@ export class Text extends Sprite {
     }
 
     /**
-     * <p>表示文本的颜色值。可以通过 <code>Text.defaultColor</code> 设置默认颜色。</p>
-     * <p>默认值为黑色。</p>
+     * @en Represents the color value of the text. The default color can be set through Text.defaultColor.
+     * The default value is black.
+     * @zh 表示文本的颜色值。可以通过 Text.defaultColor 设置默认颜色。
+     * 默认值为黑色。
      */
     get color(): string {
         return this._textStyle.color;
@@ -598,8 +587,10 @@ export class Text extends Sprite {
     }
 
     /**
-     * <p>指定文本是否为粗体字。</p>
-     * <p>默认值为 false，这意味着不使用粗体字。如果值为 true，则文本为粗体字。</p>
+     * @en Specifies whether the text is bold.
+     * The default value is false, which means bold is not used. If the value is true, the text is bold.
+     * @zh 指定文本是否为粗体字。
+     * 默认值为 false，这意味着不使用粗体字。如果值为 true，则文本为粗体字。
      */
     get bold(): boolean {
         return this._textStyle.bold;
@@ -613,8 +604,10 @@ export class Text extends Sprite {
     }
 
     /**
-     * <p>表示使用此文本格式的文本是否为斜体。</p>
-     * <p>默认值为 false，这意味着不使用斜体。如果值为 true，则文本为斜体。</p>
+     * @en Indicates whether the text using this text format is italic.
+     * The default value is false, which means italic is not used. If the value is true, the text is italic.
+     * @zh 表示使用此文本格式的文本是否为斜体。
+     * 默认值为 false，这意味着不使用斜体。如果值为 true，则文本为斜体。
      */
     get italic(): boolean {
         return this._textStyle.italic;
@@ -628,12 +621,16 @@ export class Text extends Sprite {
     }
 
     /**
-     * <p>表示文本的水平显示方式。</p>
-     * <p><b>取值：</b>
-     * <li>"left"： 居左对齐显示。</li>
-     * <li>"center"： 居中对齐显示。</li>
-     * <li>"right"： 居右对齐显示。</li>
-     * </p>
+     * @en Represents the horizontal alignment of the text.
+     * Possible values:
+     * - "left": Left-aligned.
+     * - "center": Center-aligned.
+     * - "right": Right-aligned.
+     * @zh 表示文本的水平显示方式。
+     * 取值：
+     * - "left"： 居左对齐显示。
+     * - "center"： 居中对齐显示。
+     * - "right"： 居右对齐显示。
      */
     get align(): string {
         return this._textStyle.align;
@@ -647,12 +644,16 @@ export class Text extends Sprite {
     }
 
     /**
-     * <p>表示文本的垂直显示方式。</p>
-     * <p><b>取值：</b>
-     * <li>"top"： 居顶部对齐显示。</li>
-     * <li>"middle"： 居中对齐显示。</li>
-     * <li>"bottom"： 居底部对齐显示。</li>
-     * </p>
+     * @en Represents the vertical alignment of the text.
+     * Possible values:
+     * - "top": Top-aligned.
+     * - "middle": Middle-aligned.
+     * - "bottom": Bottom-aligned.
+     * @zh 表示文本的垂直显示方式。
+     * 取值：
+     * - "top"： 居顶部对齐显示。
+     * - "middle"： 居中对齐显示。
+     * - "bottom"： 居底部对齐显示。
      */
     get valign(): string {
         return this._textStyle.valign;
@@ -666,7 +667,8 @@ export class Text extends Sprite {
     }
 
     /**
-     * 图文混排时图片和文字的对齐方式。可选值是top,middle,bottom
+     * @en Alignment of images and text in mixed content. Possible values are top, middle, bottom.
+     * @zh 图文混排时图片和文字的对齐方式。可选值是 top, middle, bottom。
      */
     get alignItems(): string {
         return this._textStyle.alignItems;
@@ -680,8 +682,10 @@ export class Text extends Sprite {
     }
 
     /**
-     * <p>表示文本是否自动换行，默认为false。</p>
-     * <p>若值为true，则自动换行；否则不自动换行。</p>
+     * @en Indicates whether the text automatically wraps, default is false.
+     * If true, the text will automatically wrap; otherwise, it will not.
+     * @zh 表示文本是否自动换行，默认为 false。
+     * 若值为 true，则自动换行；否则不自动换行。
      */
     get wordWrap(): boolean {
         return this._wordWrap;
@@ -695,7 +699,8 @@ export class Text extends Sprite {
     }
 
     /**
-     * 垂直行间距（以像素为单位）。
+     * @en Vertical line spacing in pixels.
+     * @zh 垂直行间距（以像素为单位）。
      */
     get leading(): number {
         return this._textStyle.leading;
@@ -709,8 +714,10 @@ export class Text extends Sprite {
     }
 
     /**
-     * <p>边距信息。</p>
-     * <p>数据格式：[上边距，右边距，下边距，左边距]（边距以像素为单位）。</p>
+     * @en Margin information.
+     * Data format: [top margin, right margin, bottom margin, left margin] (margins in pixels).
+     * @zh 边距信息。
+     * 数据格式：[上边距，右边距，下边距，左边距]（边距以像素为单位）。
      */
     get padding(): number[] {
         return this._padding;
@@ -733,7 +740,8 @@ export class Text extends Sprite {
     }
 
     /**
-     * 文本背景颜色，以字符串表示。
+     * @en Text background color, represented as a string.
+     * @zh 文本背景颜色，以字符串表示。
      */
     get bgColor(): string {
         return this._bgColor;
@@ -745,7 +753,8 @@ export class Text extends Sprite {
     }
 
     /**
-     * 文本边框背景颜色，以字符串表示。
+     * @en Text border background color, represented as a string.
+     * @zh 文本边框背景颜色，以字符串表示。
      */
     get borderColor(): string {
         return this._borderColor;
@@ -757,8 +766,10 @@ export class Text extends Sprite {
     }
 
     /**
-     * <p>描边宽度（以像素为单位）。</p>
-     * <p>默认值0，表示不描边。</p>
+     * @en Stroke width in pixels.
+     * The default value is 0, which means no stroke.
+     * @zh 描边宽度（以像素为单位）。
+     * 默认值0，表示不描边。
      */
     get stroke(): number {
         return this._textStyle.stroke;
@@ -772,8 +783,10 @@ export class Text extends Sprite {
     }
 
     /**
-     * <p>描边颜色，以字符串表示。</p>
-     * <p>默认值为 "#000000"（黑色）;</p>
+     * @en Stroke color, represented as a string.
+     * The default value is "#000000" (black).
+     * @zh 描边颜色，以字符串表示。
+     * 默认值为 "#000000"（黑色）。
      */
     get strokeColor(): string {
         return this._textStyle.strokeColor;
@@ -787,11 +800,22 @@ export class Text extends Sprite {
     }
 
     /**
-     * 指定文本超出文本域后的行为
-     * @tips: <p>值为:可见visible、隐藏hidden、滚动:scroll、自动收缩shrink、显示省略号ellipsis。</p>
-     * @tips: <p>作用：可见，表示文本不受文本宽高约束全部可见；隐藏，超过文本宽高就会被裁切掉，性能最好；
-     * 滚动，表示超出宽高的部分被隐藏，可以通过划动控制显示在宽高内区域；自动收缩，表示文本会跟随宽高的大小而自动调整文本的大小，始终全部显示在文本宽高内。
-     * 显示省略号，表示当文本超出宽高后，未尾的几位字符会替换为省略号，表示当前文本还有未显示的内容</p>
+     * @en Specifies the behavior when text exceeds the text area.
+     * Values: visible, hidden, scroll, shrink, ellipsis.
+     * Effects:
+     * - visible: All text is visible regardless of text width and height constraints.
+     * - hidden: Text exceeding width and height will be clipped, best for performance.
+     * - scroll: Parts exceeding width and height are hidden, can be controlled by scrolling.
+     * - shrink: Text size automatically adjusts to fit within the width and height.
+     * - ellipsis: When text exceeds width and height, last few characters are replaced with ellipsis.
+     * @zh 指定文本超出文本域后的行为。
+     * 值为：可见visible、隐藏hidden、滚动scroll、自动收缩shrink、显示省略号ellipsis。
+     * 作用：
+     * - 可见：文本不受文本宽高约束全部可见。
+     * - 隐藏：超过文本宽高就会被裁切掉，性能最好。
+     * - 滚动：超出宽高的部分被隐藏，可以通过划动控制显示在宽高内区域。
+     * - 自动收缩：文本会跟随宽高的大小而自动调整文本的大小，始终全部显示在文本宽高内。
+     * - 显示省略号：当文本超出宽高后，未尾的几位字符会替换为省略号，表示当前文本还有未显示的内容。
      */
     get overflow(): string {
         return this._overflow;
@@ -805,7 +829,8 @@ export class Text extends Sprite {
     }
 
     /**
-     * 是否显示下划线。
+     * @en Whether to display underline.
+     * @zh 是否显示下划线。
      */
     get underline(): boolean {
         return this._textStyle.underline;
@@ -819,7 +844,8 @@ export class Text extends Sprite {
     }
 
     /**
-     * 下划线的颜色，为null则使用字体颜色。
+     * @en The color of the underline. If null, it uses the font color.
+     * @zh 下划线的颜色。如果为null，则使用字体颜色。
      */
     get underlineColor(): string {
         return this._textStyle.underlineColor;
@@ -855,26 +881,28 @@ export class Text extends Sprite {
             this._textStyle.strikethroughColor = value;
             this.markChanged();
         }
-    }    
+    }
 
+
+    /**
+     * @en Whether single character rendering is enabled. Enable this if the text content changes frequently, such as an increasing number, to prevent inefficient use of cache.
+     * @zh 是否启用单个字符渲染。如果Textd的内容一直改变，例如是一个增加的数字，就设置这个，防止无效占用缓存 
+     */
     get singleCharRender(): boolean {
         return this._singleCharRender;
     }
 
-    /** 
-     * 设置是否单个字符渲染，如果Textd的内容一直改变，例如是一个增加的数字，就设置这个，防止无效占用缓存 
-     */
     set singleCharRender(value: boolean) {
         this._singleCharRender = value;
     }
 
-    /** 
-     * 设置是否富文本，支持html语法 
+    /**
+     * @en Whether rich text is enabled, supporting HTML syntax.
+     * @zh 是否启用富文本，支持HTML语法。
      */
     get html(): boolean {
         return this._html;
     }
-
 
     set html(value: boolean) {
         if (this._html != value) {
@@ -883,13 +911,13 @@ export class Text extends Sprite {
         }
     }
 
-    /** 
-     * 设置是否使用UBB语法解析文本 
+    /**
+     * @en Whether UBB syntax parsing is enabled for text.
+     * @zh 是否启用UBB语法解析文本。
      */
     get ubb(): boolean {
         return this._ubb;
     }
-
 
     set ubb(value: boolean) {
         if (this._ubb != value) {
@@ -898,13 +926,14 @@ export class Text extends Sprite {
         }
     }
 
+    /**
+     * @en The maximum width allowed for text. When text reaches this width, it will automatically wrap. Set to 0 to disable this limit.
+     * @zh 文本允许的最大宽度。当文本达到这个宽度时，将自动换行。设置为0则此限制不生效。
+     */
     get maxWidth(): number {
         return this._maxWidth;
     }
 
-    /** 
-     * 设置当文本达到最大允许的宽度时，自定换行，设置为0则此限制不生效。
-     */
     set maxWidth(value: number) {
         if (this._maxWidth != value) {
             this._maxWidth = value;
@@ -913,7 +942,8 @@ export class Text extends Sprite {
     }
 
     /**
-     * 富文本HTML模式选项
+     * @en Rich text HTML mode options.
+     * @zh 富文本HTML模式选项。
      */
     get htmlParseOptions(): HtmlParseOptions {
         return this._htmlParseOptions;
@@ -924,11 +954,14 @@ export class Text extends Sprite {
     }
 
     /**
-     * 解析模板
      * @internal
      * @protected
+     * @en Parse the template content.
+     * @param template The template content.
+     * @returns The template string with placeholders substituted by their corresponding values from _templateVars.
+     * @zh 解析模板。
      * @param template 模板内容 
-     * @returns 
+     * @returns 模板字符串，其中占位符由_templateVars中的相应值替换。
      */
     protected parseTemplate(template: string): string {
         let pos1: number = 0, pos2: number, pos3: number;
@@ -980,7 +1013,8 @@ export class Text extends Sprite {
     }
 
     /**
-     * 文本模板
+     * @en Text Template
+     * @zh 文本模板
      */
     public get templateVars(): Record<string, any> {
         return this._templateVars;
@@ -1000,10 +1034,14 @@ export class Text extends Sprite {
     }
 
     /**
-     * 设置模板值
+     * @en Set the value of a template variable.
+     * @param name The name of the template variable.
+     * @param value The value to set.
+     * @returns The current Text instance.
+     * @zh 设置模板值。
      * @param name 模板名 
      * @param value 值
-     * @returns 
+     * @returns 当前 Text 实例。
      */
     public setVar(name: string, value: any): Text {
         if (!this._templateVars)
@@ -1015,9 +1053,16 @@ export class Text extends Sprite {
     }
 
     /**
-    * <p>设置横向滚动量。</p>
-    * <p>即使设置超出滚动范围的值，也会被自动限制在可能的最大值处。</p>
-    */
+     * @en The horizontal scroll amount.
+     * Even if a value outside the scroll range is set, it will be automatically limited to the maximum possible value.
+     * @zh 横向滚动量。
+     * 即使设置超出滚动范围的值，也会被自动限制在可能的最大值处。
+     */
+    get scrollX(): number {
+        if (!this._scrollPos) return 0;
+        return this._scrollPos.x;
+    }
+
     set scrollX(value: number) {
         this.typeset();
         if (!this._scrollPos) return;
@@ -1031,16 +1076,16 @@ export class Text extends Sprite {
     }
 
     /**
-     * 获取横向滚动量。
+     * @en The vertical scroll amount (in pixels).
+     * Even if a value outside the scroll range is set, it will be automatically limited to the maximum possible value.
+     * @zh 纵向滚动量（以像素为单位）。
+     * 即使设置超出滚动范围的值，也会被自动限制在可能的最大值处。
      */
-    get scrollX(): number {
+    get scrollY(): number {
         if (!this._scrollPos) return 0;
-        return this._scrollPos.x;
+        return this._scrollPos.y;
     }
 
-    /**
-     * 设置纵向滚动量（px)。即使设置超出滚动范围的值，也会被自动限制在可能的最大值处。
-     */
     set scrollY(value: number) {
         this.typeset();
         if (!this._scrollPos) return;
@@ -1054,15 +1099,8 @@ export class Text extends Sprite {
     }
 
     /**
-     * 获取纵向滚动量。
-     */
-    get scrollY(): number {
-        if (!this._scrollPos) return 0;
-        return this._scrollPos.y;
-    }
-
-    /**
-     * 获取横向可滚动最大值。
+     * @en The maximum horizontal scrollable value.
+     * @zh 横向可滚动的最大值。
      */
     get maxScrollX(): number {
         let r = this.textWidth - this._width;
@@ -1070,14 +1108,18 @@ export class Text extends Sprite {
     }
 
     /**
-     * 获取纵向可滚动最大值。
+     * @en The maximum vertical scrollable value.
+     * @zh 纵向可滚动的最大值。
      */
     get maxScrollY(): number {
         let r = this.textHeight - this._height;
         return r < 0 ? 0 : r;
     }
 
-    /**返回文字行信息*/
+    /**
+     * @en The text line information.
+     * @zh 文字行信息。
+     */
     get lines(): ReadonlyArray<ITextLine> {
         this.typeset();
         return this._lines;
@@ -1095,21 +1137,24 @@ export class Text extends Sprite {
     }
 
     /**
-     * 排版文本
+     * @en Typeset the text.
+     * @zh 排版文本。
      */
     typeset() {
         this._isChanged && ILaya.systemTimer.runCallLater(this, this._typeset);
     }
 
     /**
-     * 延迟刷新排版
+     * @en Refresh the layout with a delay.
+     * @zh 延迟刷新排版。
      */
     refreshLayout() {
         ILaya.systemTimer.callLater(this, this.doLayout);
     }
 
     /**
-     * 获取对象容器
+     * @en The object container.
+     * @zh 对象容器。
      */
     get objContainer(): Sprite {
         if (!this._objContainer) {
@@ -1123,8 +1168,8 @@ export class Text extends Sprite {
     /**
      * @internal
      * @protected
-     * <p>排版文本。</p>
-     * <p>进行宽高计算，渲染、重绘文本。</p>
+     * 排版文本。
+     * 进行宽高计算，渲染、重绘文本。
      */
     protected _typeset(): void {
         this._isChanged = false;
@@ -1192,7 +1237,8 @@ export class Text extends Sprite {
     /**
      * @internal
      * @protected
-     * 分析文本换行。
+     * @en Analyze text wrapping.
+     * @zh 分析文本换行。
      */
     protected doLayout(): void {
         if (this._destroyed)
@@ -1771,18 +1817,18 @@ export class Text extends Sprite {
                     }
                 }
 
-                if (!lineClipped ) {
-                    if(cmd.style.underline){
+                if (!lineClipped) {
+                    if (cmd.style.underline) {
                         let thickness = Math.max(1, cmd.style.fontSize * this._fontSizeScale / 16);
                         graphics.drawLine(x + cmd.x, y + line.height - thickness, x + cmd.x + cmd.width, y + line.height - thickness, cmd.style.underlineColor || cmd.style.color, thickness);
                     }
-                    if(cmd.style.strikethrough){
+                    if (cmd.style.strikethrough) {
                         //画删除线
                         let thickness = Math.max(1, cmd.style.fontSize * this._fontSizeScale / 16);
-                        let stx = x+cmd.x;
-                        let sty = (y+line.height/2 - thickness)|0;
+                        let stx = x + cmd.x;
+                        let sty = (y + line.height / 2 - thickness) | 0;
                         let ext = 4;
-                        graphics.drawLine(stx-ext, sty, stx + cmd.width+ext, sty, cmd.style.strikethroughColor || cmd.style.color, thickness);
+                        graphics.drawLine(stx - ext, sty, stx + cmd.width + ext, sty, cmd.style.strikethroughColor || cmd.style.color, thickness);
                     }
                 }
 

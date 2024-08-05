@@ -5,8 +5,8 @@ import { RenderSprite } from "../renders/RenderSprite"
 import { Context } from "../renders/Context"
 import { ILaya } from "../../ILaya";
 /**
- * ...
- * @author ww
+ * @en QuickTestTool class for rendering and performance testing.
+ * @zh 用于渲染和性能测试的 QuickTestTool 类。
  */
 export class QuickTestTool {
 
@@ -15,11 +15,27 @@ export class QuickTestTool {
     private static _typeToNameDic: any = {};
 
     //TODO:coverage
+    /**
+     * @en Get the name of a specific render command type.
+     * @param type The render command type.
+     * @returns The name of the render command type.
+     * @zh 获取特定渲染命令类型的名称。
+     * @param type 渲染命令类型。
+     * @returns 渲染命令类型的名称。
+     */
     static getMCDName(type: number): string {
         return QuickTestTool._typeToNameDic[type];
     }
 
     //TODO:coverage
+    /**
+     * @en Show render type information.
+     * @param type The render type.
+     * @param force Whether to force display even if it has been shown before.
+     * @zh 显示渲染类型信息。
+     * @param type 渲染类型。
+     * @param force 是否强制显示，即使之前已经显示过。
+     */
     static showRenderTypeInfo(type: any, force: boolean = false): void {
         if (!force && QuickTestTool.showedDic[type])
             return;
@@ -55,7 +71,7 @@ export class QuickTestTool {
         QuickTestTool._typeToNameDic[SpriteConst.FILTERS] = "FILTERS";
         QuickTestTool._typeToNameDic[SpriteConst.MASK] = "MASK";
         QuickTestTool._typeToNameDic[SpriteConst.CLIP] = "CLIP";
-       // QuickTestTool._typeToNameDic[SpriteConst.LAYAGL3D] = "LAYAGL3D";
+        // QuickTestTool._typeToNameDic[SpriteConst.LAYAGL3D] = "LAYAGL3D";
     }
     _renderType: number;
     _repaint: number;
@@ -65,11 +81,16 @@ export class QuickTestTool {
     constructor() {
 
     }
+
     /**
-     * 更新、呈现显示对象。由系统调用。
-     * @param	context 渲染的上下文引用。
-     * @param	x X轴坐标。
-     * @param	y Y轴坐标。
+     * @en Update and render the display object. Called by the system.
+     * @param context The rendering context reference.
+     * @param x The X-axis coordinate.
+     * @param y The Y-axis coordinate.
+     * @zh 更新、呈现显示对象。由系统调用。
+     * @param context 渲染的上下文引用。
+     * @param x X轴坐标。
+     * @param y Y轴坐标。
      */
     //TODO:coverage
     render(context: Context, x: number, y: number): void {
@@ -123,6 +144,10 @@ export class QuickTestTool {
     }
 
     //TODO:coverage
+    /**
+     * @en Show count information for render types.
+     * @zh 显示渲染类型的计数信息。
+     */
     static showCountInfo(): void {
         console.log("===================");
         var key: string;
@@ -133,6 +158,10 @@ export class QuickTestTool {
     }
 
     //TODO:coverage
+    /**
+     * @en Enable quick test mode.
+     * @zh 启用快速测试模式。
+     */
     static enableQuickTest(): void {
         QuickTestTool.__init__();
         Sprite["prototype"]["render"] = QuickTestTool["prototype"]["render"];

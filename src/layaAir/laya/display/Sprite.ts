@@ -1,6 +1,5 @@
 import { ILaya } from "../../ILaya";
 import { NodeFlags } from "../Const";
-import { ColorFilter } from "../filters/ColorFilter";
 import { Filter } from "../filters/Filter";
 import { GrahamScan } from "../maths/GrahamScan";
 import { Matrix } from "../maths/Matrix";
@@ -10,7 +9,6 @@ import { RenderSprite } from "../renders/RenderSprite";
 import { Context } from "../renders/Context";
 import { HTMLCanvas } from "../resource/HTMLCanvas";
 import { Texture } from "../resource/Texture";
-import { Texture2D } from "../resource/Texture2D";
 import { Handler } from "../utils/Handler";
 import { Utils } from "../utils/Utils";
 import { BoundsStyle } from "./css/BoundsStyle";
@@ -45,15 +43,31 @@ export class Sprite extends Node {
     _width: number = 0;
     /**@internal */
     _height: number = 0;
-    /***@internal X锚点，值为0-1，设置anchorX值最终通过pivotX值来改变节点轴心点。*/
+    /**
+     * @internal
+     * @en X anchor point, value ranges from 0 to 1. Setting anchorX ultimately changes the node's pivot point through the pivotX value.
+     * @zh X锚点，值为0-1，设置anchorX值最终通过pivotX值来改变节点轴心点。
+     */
     _anchorX: number = 0;
-    /***@internal Y锚点，值为0-1，设置anchorY值最终通过pivotY值来改变节点轴心点。*/
+    /**
+     * @internal
+     * @en Y anchor point, value ranges from 0 to 1. Setting anchorY ultimately changes the node's pivot point through the pivotY value.
+     * @zh Y锚点，值为0-1，设置anchorY值最终通过pivotY值来改变节点轴心点。
+     */
     _anchorY: number = 0;
     /**@internal */
     _visible: boolean = true;
-    /**@internal 鼠标状态，0:auto,1:mouseEnabled=false,2:mouseEnabled=true。*/
+    /**
+     * @internal
+     * @en Mouse state, 0: auto, 1: mouseEnabled=false, 2: mouseEnabled=true.
+     * @zh 鼠标状态，0:auto，1:mouseEnabled=false，2:mouseEnabled=true。
+     */
     _mouseState: number = 0;
-    /**@internal z排序，数值越大越靠前。*/
+    /**
+     * @internal
+     * @en Z-order for sorting, higher values are displayed in front.
+     * @zh z排序，数值越大越靠前。
+     */
     _zOrder: number = 0;
     /**@internal */
     _renderType: number = 0;
@@ -153,9 +167,7 @@ export class Sprite extends Node {
 
     /**
      * @en Get the scene the sprite belongs to.
-     * @returns {Scene} The scene object.
      * @zh 获取所属的场景。
-     * @returns {Scene} 场景对象。
      */
     get scene(): Scene {
         return <Scene>this._scene;
@@ -290,11 +302,12 @@ export class Sprite extends Node {
     }
 
     /** 
-    * @internal
-    * @en Set the x coordinate value.
-    * @zh 设置 x 坐标值。
-    * @param {number} value x 坐标值。
-    */
+     * @internal
+     * @en Set the x coordinate value.
+     * @param value The x coordinate value.
+     * @zh 设置 x 坐标值。
+     * @param value x 坐标值。
+     */
     _setX(value: number): void {
         this._x = value;
     }
@@ -302,6 +315,7 @@ export class Sprite extends Node {
     /** 
      * @internal
      * @en Set the y coordinate value.
+     * @param  value The y coordinate value.
      * @zh 设置 y 坐标值。
      * @param  value y 坐标值。
      */
@@ -311,9 +325,7 @@ export class Sprite extends Node {
 
     /**
      * @en The x coordinate value relative to the parent container.
-     * @returns The x coordinate value.
-     * @zh 表示显示对象相对于父容器的水平方向坐标值。
-     * @returns 水平方向坐标值。
+     * @zh 显示对象相对于父容器的水平方向坐标值。
      */
     get x(): number {
         return this._x;
@@ -338,9 +350,7 @@ export class Sprite extends Node {
 
     /**
      * @en The y coordinate value relative to the parent container.
-     * @returns The y coordinate value.
-     * @zh 表示显示对象相对于父容器的垂直方向坐标值。
-     * @returns 垂直方向坐标值。
+     * @zh 显示对象相对于父容器的垂直方向坐标值。
      */
     get y(): number {
         return this._y;
@@ -379,9 +389,9 @@ export class Sprite extends Node {
     /**
      * @internal
      * @en Set the width of the Node.
-     * @param {number} value - The width value, in pixels.
+     * @param number value  The width value, in pixels.
      * @zh 设置节点的宽度。
-     * @param {number} value - 宽度值，以像素为单位。
+     * @param number value  宽度值，以像素为单位。
      */
     set_width(value: number): void {
         let flag = this._sizeFlag;
@@ -405,6 +415,8 @@ export class Sprite extends Node {
 
     /**
      * @internal
+     * @en Get the width of the Node, in pixels
+     * @zh 获取节点的宽度。以像素为单位。
      */
     get_width(): number {
         if (!this.autoSize) return (this._width == 0 && (this._sizeFlag & 1) == 0 && this.texture) ? this.texture.width : this._width;
@@ -412,12 +424,6 @@ export class Sprite extends Node {
         if (!this._graphics && this._children.length === 0) return 0;
         return this.getSelfBounds().width;
     }
-
-    /**
-     * <p>显示对象的高度，单位为像素，默认为0。</p>
-     * <p>此高度用于鼠标碰撞检测，并不影响显示对象图像大小。需要对显示对象的图像进行缩放，请使用scale、scaleX、scaleY。</p>
-     * <p>可以通过getbounds获取显示对象图像的实际高度。</p>
-     */
 
     /**
      * @en The height of the Node, in pixels.
@@ -433,7 +439,7 @@ export class Sprite extends Node {
 
     /**
     * @internal
-    * @en Set the height of the Node.
+    * @en Set the height of the Node, in pixels
     * @zh 设置节点的高度，单位为像素。
     */
     set_height(value: number): void {
@@ -455,12 +461,11 @@ export class Sprite extends Node {
             this._shouldRefreshLayout();
         }
     }
+
     /**
     * @internal
-    * @en Get the height of the Node.
-    * @returns The height value,in pixels.
-    * @zh 获取节点的高度。
-    * @returns 高度值，以像素为单位。
+    * @en Get the height of the Node, in pixels.
+    * @zh 获取节点的高度，以像素为单位。
     */
     get_height(): number {
         if (!this.autoSize) return (this._height == 0 && (this._sizeFlag & 2) == 0 && this.texture) ? this.texture.height : this._height;
@@ -1646,6 +1651,7 @@ export class Sprite extends Node {
         ctx.render2D = ctx.render2D.clone(null);//这个ctx只是提供大小，所以不要设置rt
         let outrt = RenderSprite.RenderToRenderTexture(sprite, ctx, offsetX, offsetY, renderout);
         ctx.destroy();
+        ctx.destroy();
         return outrt;
     }
 
@@ -2128,16 +2134,16 @@ export class Sprite extends Node {
         return this.globalToLocal(Point.TEMP.setTo(ILaya.stage.mouseX, ILaya.stage.mouseY));
     }
     /**
-     * @en Get the X-axis coordinate of the mouse in this object's coordinate system.
-     * @zh 返回鼠标在此对象坐标系上的 X 轴坐标信息。
+     * @en The X-axis coordinate of the mouse in this object's coordinate system.
+     * @zh 鼠标在此对象坐标系上的 X 轴坐标信息。
      */
     get mouseX(): number {
         return this.getMousePoint().x;
     }
 
     /**
-     * @en Get the Y-axis coordinate of the mouse in this object's coordinate system.
-     * @zh 返回鼠标在此对象坐标系上的 Y 轴坐标信息。
+     * @en The Y-axis coordinate of the mouse in this object's coordinate system.
+     * @zh 鼠标在此对象坐标系上的 Y 轴坐标信息。
      */
     get mouseY(): number {
         return this.getMousePoint().y;
@@ -2310,6 +2316,10 @@ export class Sprite extends Node {
 
     /**
      * @internal
+     * @en Get the global matrix of the sprite.
+     * @returns The global transformation matrix of the sprite.
+     * @zh 获取精灵的全局矩阵。
+     * @returns 精灵的全局变换矩阵。
      */
     getGlobalMatrix() {
         if (this._globalMatrix == null) this._globalMatrix = Matrix.create()
@@ -2326,21 +2336,13 @@ export class Sprite extends Node {
 
     /**
      * @internal
-     * @en Sets the global X position.
-     * @zh 设置全局X位置。
+     * @en The global X position.
+     * @zh 全局X位置。
      */
     set globalPosX(value: number) {
         this.setGlobalPos(value, this._globalPosy);
     }
 
-    /**
-     * @internal
-     * @en Sets the global Y position.
-     * @zh 设置全局Y位置。
-     */
-    set globalPosY(value: number) {
-        this.setGlobalPos(this._globalPosx, value);
-    }
 
     /**
      * @en Sets the global position of the node.
@@ -2376,8 +2378,8 @@ export class Sprite extends Node {
     }
 
     /**
-     * @en Gets the X-axis position in global coordinates.
-     * @zh 获取全局坐标中的 X 轴位置。
+     * @en The X-axis position in global coordinates.
+     * @zh 全局坐标中的 X 轴位置。
      */
     get globalPosX(): number {
         if (!this._cacheGlobal) {
@@ -2399,8 +2401,8 @@ export class Sprite extends Node {
     }
 
     /**
-     * @en Gets the Y-axis position in global coordinates.
-     * @zh 获取全局坐标中的 Y 轴位置。
+     * @en The Y-axis position in global coordinates.
+     * @zh 全局坐标中的 Y 轴位置。
      */
     get globalPosY(): number {
         if (!this._cacheGlobal) {
@@ -2418,6 +2420,12 @@ export class Sprite extends Node {
             }
             return this._globalPosy;
         }
+    }
+    /**
+     * @internal
+     */
+    set globalPosY(value: number) {
+        this.setGlobalPos(this._globalPosx, value);
     }
 
     /**

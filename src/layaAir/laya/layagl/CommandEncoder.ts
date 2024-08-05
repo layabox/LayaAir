@@ -2,22 +2,28 @@ import { ShaderVariable } from "../RenderEngine/RenderShader/ShaderVariable";
 
 /**
  * @private
- * CommandEncoder Shader变量集合
+ * @en CommandEncoder Shader variable collection
+ * @zh CommandEncoder Shader变量集合
  */
 export class CommandEncoder {
-    
-    /**@internal shader variable list*/
+    /**
+     * @internal
+     * @en Shader variable list
+     * @zh Shader变量列表
+     */
     _idata: ShaderVariable[] = [];
 
     /**
-     * 实例化一个ShaderVariable集合
+     * @en Constructor method, initialize CommandEncoder object
+     * @zh 构造方法，初始化CommandEncoder对象
      */
     constructor() {
     }
 
     /**
      * @internal
-     * @returns Array of ShaderVariable
+     * @en Get the Shader variable list
+     * @zh 获取ShaderVariable数组
      */
     getArrayData(): ShaderVariable[] {
         return this._idata;
@@ -25,7 +31,8 @@ export class CommandEncoder {
 
     /**
      * @internal
-     * @returns count of ShaderVariableArray
+     * @en Get the count of ShaderVariables in the array
+     * @zh 获取ShaderVariable数组的数量    
      */
     getCount(): number {
         return this._idata.length;
@@ -33,8 +40,10 @@ export class CommandEncoder {
 
     /**
      * @internal
-     * add one ShaderVariable
-     * @param variable 
+     * @en Add one ShaderVariable
+     * @param variable The ShaderVariable to be added
+     * @zh 添加一个ShaderVariable
+     * @param variable 要添加的ShaderVariable
      */
     addShaderUniform(variable: ShaderVariable): void {
         this._idata.push(variable);
