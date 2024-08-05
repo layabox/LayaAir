@@ -476,17 +476,27 @@ export class TextRender {
             imgdt = this.charRender.getCharBmp(str, this.fontStr, lineWidth, color, strokeColor, ri,
 				margin, margin, margin, margin, TextRender.imgdtRect);
 			if(imgdt){
-				atlas = this.addBmpData(imgdt, ri);
-				if (TextRender.isWan1Wan) {
-					// 这时候 imgdtRect 是不好使的，要自己设置
-					ri.orix = margin;	// 不要乘缩放。要不后面也要除。
-					ri.oriy = margin;
-				} else {
-					// 取下来的imagedata的原点在哪
-					ri.orix = (this.fontSizeOffX + lineExt);	// 由于是相对于imagedata的，上面会根据包边调整左上角，所以原点也要相应反向调整
-					ri.oriy = (this.fontSizeOffY + lineExt);
-				}
-				atlas.charMaps[key] = ri;
+                if(imgdt.width>TextRender.atlasWidth||imgdt.height>TextRender.atlasWidth){
+                    var tex = TextTexture.getTextTexture(imgdt.width, imgdt.height);
+                    tex.addChar(imgdt, 0, 0, ri.uv);
+                    ri.tex = tex;
+                    ri.orix = margin; // 这里是原始的，不需要乘scale,因为scale的会创建一个scale之前的rect
+                    ri.oriy = margin;
+                    tex.ri = ri;
+                    this.isoTextures.push(tex);
+                }else{
+                    atlas = this.addBmpData(imgdt, ri);
+                    if (TextRender.isWan1Wan) {
+                        // 这时候 imgdtRect 是不好使的，要自己设置
+                        ri.orix = margin;	// 不要乘缩放。要不后面也要除。
+                        ri.oriy = margin;
+                    } else {
+                        // 取下来的imagedata的原点在哪
+                        ri.orix = (this.fontSizeOffX + lineExt);	// 由于是相对于imagedata的，上面会根据包边调整左上角，所以原点也要相应反向调整
+                        ri.oriy = (this.fontSizeOffY + lineExt);
+                    }
+                    atlas.charMaps[key] = ri;
+                }
 			}
         }
         return ri;
