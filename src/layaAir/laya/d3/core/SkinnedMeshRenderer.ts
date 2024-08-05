@@ -201,7 +201,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
             this._changeMorphData(null);
             this.boundsChange = false;
         }
-
+        this._meshChange = true;
     }
     /**
     *@inheritDoc
@@ -227,6 +227,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
         }
         this._isISkinRenderNode() && this._ownerSkinRenderNode.setSkinnedData(this._skinnedData);
         this._setRenderElements();
+     
     }
 
     /**

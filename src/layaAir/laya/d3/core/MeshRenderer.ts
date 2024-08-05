@@ -340,7 +340,7 @@ export class MeshRenderer extends BaseRender {
 
     }
 
-
+    protected _meshChange = false;
 
 
 
@@ -386,6 +386,7 @@ export class MeshRenderer extends BaseRender {
         }
 
         this._setRenderElements();
+        this._meshChange = true;
     }
 
 
@@ -406,6 +407,9 @@ export class MeshRenderer extends BaseRender {
         }
 
         this._mesh.morphTargetData && this._applyMorphdata();
+        if (!this._meshChange) {
+            return;
+        }
         if (this._renderElements.length == 1) {
             this._renderElements[0]._renderElementOBJ.isRender = this._renderElements[0]._geometry._prepareRender(context);
             this._renderElements[0]._geometry._updateRenderParams(context);
@@ -420,6 +424,7 @@ export class MeshRenderer extends BaseRender {
                 this._renderElements[i].material = material;
             }
         }
+        this._meshChange = false;
     }
 
     /**
