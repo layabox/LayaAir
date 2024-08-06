@@ -17,24 +17,36 @@ const TEMPVector33 = new Vector3();
 const _tempMatrix3x3 = new Matrix3x3();
 
 /**
- * <code>Quaternion</code> 类用于创建四元数。
+ * @en The `Quaternion` class is used to create quaternions.
+ * @zh `Quaternion` 类用于创建四元数。
  */
 export class Quaternion implements IClone {
 
     /**@internal */
     static TEMP = new Quaternion();
 
-    /**默认矩阵,禁止修改*/
+    /**
+     * @en Default quaternion, read-only.
+     * @zh 默认四元数，只读。
+     */
     static readonly DEFAULT: Readonly<Quaternion> = new Quaternion();
-    /**无效矩阵,禁止修改*/
+    /**
+     * @en Invalid quaternion, read-only.
+     * @zh 无效四元数，只读。
+     */
     static readonly NAN: Readonly<Quaternion> = new Quaternion(NaN, NaN, NaN, NaN);
 
     /**
-     *  从欧拉角生成四元数（顺序为Yaw、Pitch、Roll）
-     * @param	yaw yaw值
-     * @param	pitch pitch值
-     * @param	roll roll值
-     * @param	out 输出四元数
+     * @en Generate a quaternion from Euler angles (order is Yaw, Pitch, Roll)
+     * @param yaw The yaw value
+     * @param pitch The pitch value
+     * @param roll The roll value
+     * @param out The output quaternion
+     * @zh 从欧拉角生成四元数（顺序为Yaw、Pitch、Roll）
+     * @param yaw yaw值
+     * @param pitch pitch值
+     * @param roll roll值
+     * @param out 输出四元数
      */
     static createFromYawPitchRoll(yaw: number, pitch: number, roll: number, out: Quaternion): void {
         var halfRoll: number = roll * 0.5;
@@ -56,10 +68,14 @@ export class Quaternion implements IClone {
     }
 
     /**
-     * 计算两个四元数相乘
-     * @param	left left四元数
-     * @param	right  right四元数
-     * @param	out 输出四元数
+     * @en Multiply two quaternions
+     * @param left The left quaternion
+     * @param right The right quaternion
+     * @param out The output quaternion
+     * @zh 计算两个四元数相乘
+     * @param left left四元数
+     * @param right right四元数
+     * @param out 输出四元数
      */
     static multiply(left: Quaternion, right: Quaternion, out: Quaternion): void {
         var lx: number = left.x;
@@ -81,11 +97,15 @@ export class Quaternion implements IClone {
     }
 
     /**
-   * Calculate a quaternion rotates around an arbitrary axis.
-   * @param axis - The axis
-   * @param rad - The rotation angle in radians
-   * @param out - The quaternion after rotate
-   */
+     * @en Calculate a quaternion that rotates around an arbitrary axis.
+     * @param axis The rotation axis
+     * @param rad The rotation angle in radians
+     * @param out The output quaternion after rotation
+     * @zh 计算绕任意轴旋转的四元数。
+     * @param axis 旋转轴
+     * @param rad 旋转角度（以弧度为单位）
+     * @param out 旋转后的输出四元数
+     */
     static rotationAxisAngle(axis: Vector3, rad: number, out: Quaternion): void {
         const normalAxis = Vector3._tempVector3
         Vector3.normalize(axis, normalAxis);
@@ -122,10 +142,14 @@ export class Quaternion implements IClone {
     }
 
     /**
-     * 从指定的轴和角度计算四元数
-     * @param	axis  轴
-     * @param	rad  角度
-     * @param	out  输出四元数
+     * @en Calculate a quaternion from the specified axis and angle.
+     * @param axis The axis vector.
+     * @param rad The angle in radians.
+     * @param out The output quaternion.
+     * @zh 从指定的轴和角度计算四元数。
+     * @param axis 轴向量。
+     * @param rad 角度（以弧度为单位）。
+     * @param out 输出的四元数。
      */
     static createFromAxisAngle(axis: Vector3, rad: number, out: Quaternion): void {
         rad = rad * 0.5;
@@ -136,11 +160,13 @@ export class Quaternion implements IClone {
         out.w = Math.cos(rad);
     }
 
-
     /**
-     *  从旋转矩阵计算四元数
-     * @param	mat 旋转矩阵
-     * @param	out  输出四元数
+     * @en Calculate a quaternion from a rotation matrix.
+     * @param mat The rotation matrix.
+     * @param out The output quaternion.
+     * @zh 从旋转矩阵计算四元数。
+     * @param mat 旋转矩阵。
+     * @param out 输出的四元数。
      */
     static createFromMatrix4x4(mat: Matrix4x4, out: Quaternion): void {
         var me: Float32Array = mat.elements;
@@ -186,12 +212,18 @@ export class Quaternion implements IClone {
     }
 
     /**
-     * 球面插值
-     * @param	left left四元数
-     * @param	right  right四元数
-     * @param	t 插值比例
-     * @param	out 输出四元数
-     * @returns 输出Float32Array
+     * @en Spherical linear interpolation between two quaternions.
+     * @param left The left quaternion.
+     * @param right The right quaternion.
+     * @param t The interpolation factor, ranging from 0 to 1.
+     * @param out The output quaternion.
+     * @returns The output quaternion.
+     * @zh 两个四元数之间的球面线性插值。
+     * @param left 左侧四元数。
+     * @param right 右侧四元数。
+     * @param t 插值因子，范围从0到1。
+     * @param out 输出的四元数。
+     * @returns 输出的四元数。
      */
     static slerp(left: Quaternion, right: Quaternion, t: number, out: Quaternion): Quaternion {
         var ax: number = left.x, ay: number = left.y, az: number = left.z, aw: number = left.w, bx: number = right.x, by: number = right.y, bz: number = right.z, bw: number = right.w;
@@ -231,11 +263,16 @@ export class Quaternion implements IClone {
     }
 
     /**
-     * 计算两个四元数的线性插值
-     * @param	left left四元数
-     * @param	right right四元数b
-     * @param	t 插值比例
-     * @param	out 输出四元数
+     * @en Calculate the linear interpolation between two quaternions.
+     * @param left The left quaternion.
+     * @param right The right quaternion.
+     * @param amount The interpolation factor, ranging from 0 to 1.
+     * @param out The output quaternion.
+     * @zh 计算两个四元数的线性插值。
+     * @param left 左侧四元数。
+     * @param right 右侧四元数。
+     * @param amount 插值因子，范围从0到1。
+     * @param out 输出的四元数。
      */
     static lerp(left: Quaternion, right: Quaternion, amount: number, out: Quaternion): void {
         var inverse: number = 1.0 - amount;
@@ -252,12 +289,15 @@ export class Quaternion implements IClone {
         }
         out.normalize(out);
     }
-
     /**
-     * 计算两个四元数的和
-     * @param	left  left四元数
-     * @param	right right 四元数
-     * @param	out 输出四元数
+     * @en Calculate the sum of two quaternions.
+     * @param left The left quaternion.
+     * @param right The right quaternion.
+     * @param out The output quaternion.
+     * @zh 计算两个四元数的和。
+     * @param left 左侧四元数。
+     * @param right 右侧四元数。
+     * @param out 输出的四元数。
      */
     static add(left: Quaternion, right: Quaternion, out: Quaternion): void {
         out.x = left.x + right.x;
@@ -267,30 +307,54 @@ export class Quaternion implements IClone {
     }
 
     /**
-     * 计算两个四元数的点积
-     * @param	left left四元数
-     * @param	right right四元数
-     * @return  点积
+     * @en Calculate the dot product of two quaternions.
+     * @param left The left quaternion.
+     * @param right The right quaternion.
+     * @returns The dot product.
+     * @zh 计算两个四元数的点积。
+     * @param left 左侧四元数。
+     * @param right 右侧四元数。
+     * @returns 点积结果。
      */
     static dot(left: Quaternion, right: Quaternion): number {
         return left.x * right.x + left.y * right.y + left.z * right.z + left.w * right.w;
     }
 
-    /**X轴坐标*/
+    /**
+     * @en X-axis coordinate.
+     * @zh X轴坐标。
+     */
     x: number;
-    /**Y轴坐标*/
+
+    /**
+     * @en Y-axis coordinate.
+     * @zh Y轴坐标。
+     */
     y: number;
-    /**Z轴坐标*/
+
+    /**
+     * @en Z-axis coordinate.
+     * @zh Z轴坐标。
+     */
     z: number;
-    /**W轴坐标*/
+
+    /**
+     * @en W-axis coordinate.
+     * @zh W轴坐标。
+     */
     w: number;
 
     /**
-     * 创建一个 <code>Quaternion</code> 实例。
-     * @param	x 四元数的x值
-     * @param	y 四元数的y值
-     * @param	z 四元数的z值
-     * @param	w 四元数的w值
+     * @en Constructor method, initializes the default value.
+     * @param x The x value of the quaternion. Default is 0.
+     * @param y The y value of the quaternion. Default is 0.
+     * @param z The z value of the quaternion. Default is 0.
+     * @param w The w value of the quaternion. Default is 1.
+     * @zh 构造方法,初始化为默认值。
+     * @param x 四元数的x值。默认为0。
+     * @param y 四元数的y值。默认为0。
+     * @param z 四元数的z值。默认为0。
+     * @param w 四元数的w值。默认为1。
      */
     constructor(x: number = 0, y: number = 0, z: number = 0, w: number = 1) {
         this.x = x;
@@ -300,32 +364,47 @@ export class Quaternion implements IClone {
     }
 
     /**
-     * 设置四元数的值。
-     * @param	x X值。
-     * @param	y Y值。
-     * @param	z Z值。
-     * @param   w W值
+     * @en Set the values of the quaternion.
+     * @param x The X value.
+     * @param y The Y value.
+     * @param z The Z value.
+     * @param w The W value.
+     * @zh 设置四元数的值。
+     * @param x X值。
+     * @param y Y值。
+     * @param z Z值。
+     * @param w W值。
      */
     setValue(x: number, y: number, z: number, w: number): void {
         this.x = x; this.y = y; this.z = z; this.w = w;
     }
 
     /**
-     * 设置四元数的值。
-     * @param	x X值。
-     * @param	y Y值。
-     * @param	z Z值。
-     * @param   w W值
-     * @return 返回四元数
+     * @en Set the values of the quaternion and return itself.
+     * @param x The X value.
+     * @param y The Y value.
+     * @param z The Z value.
+     * @param w The W value.
+     * @returns The quaternion itself.
+     * @zh 设置四元数的值并返回自身。
+     * @param x X值。
+     * @param y Y值。
+     * @param z Z值。
+     * @param w W值。
+     * @returns 四元数自身。
      */
     set(x: number, y: number, z: number, w: number) {
         this.x = x; this.y = y; this.z = z; this.w = w;
         return this;
     }
+
     /**
-     * 根据缩放值缩放四元数
-     * @param	scale 缩放值
-     * @param	out 输出四元数
+     * @en Scale the quaternion by a scalar value.
+     * @param scaling The scalar value to scale by.
+     * @param out The output quaternion.
+     * @zh 根据缩放值缩放四元数。
+     * @param scaling 缩放值。
+     * @param out 输出的四元数。
      */
     scaling(scaling: number, out: Quaternion): void {
         out.x = this.x * scaling;
@@ -335,8 +414,10 @@ export class Quaternion implements IClone {
     }
 
     /**
-     * 归一化四元数
-     * @param	out 输出四元数
+     * @en Normalize the quaternion.
+     * @param out The output normalized quaternion.
+     * @zh 归一化四元数。
+     * @param out 输出的归一化四元数。
      */
     normalize(out: Quaternion): void {
         var len: number = this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w;
@@ -350,17 +431,22 @@ export class Quaternion implements IClone {
     }
 
     /**
-     * 计算四元数的长度
-     * @return  长度
+     * @en Calculate the length of the quaternion.
+     * @returns The length of the quaternion.
+     * @zh 计算四元数的长度。
+     * @returns 四元数的长度。
      */
     length(): number {
         return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w);
     }
 
     /**
-     * 根据绕X轴的角度旋转四元数
-     * @param	rad 角度
-     * @param	out 输出四元数
+     * @en Rotate the quaternion around the X axis.
+     * @param rad The angle of rotation.
+     * @param out The output rotated quaternion.
+     * @zh 根据绕X轴的角度旋转四元数。
+     * @param rad 旋转角度。
+     * @param out 输出的旋转后的四元数。
      */
     rotateX(rad: number, out: Quaternion): void {
         rad *= 0.5;
@@ -374,9 +460,12 @@ export class Quaternion implements IClone {
     }
 
     /**
-     * 根据绕Y轴的制定角度旋转四元数
-     * @param	rad 角度
-     * @param	out 输出四元数
+     * @en Rotate the quaternion around the Y axis by a specified angle.
+     * @param rad The angle of rotation.
+     * @param out The output rotated quaternion.
+     * @zh 根据绕Y轴的指定角度旋转四元数。
+     * @param rad 旋转角度。
+     * @param out 输出的旋转后的四元数。
      */
     rotateY(rad: number, out: Quaternion): void {
         rad *= 0.5;
@@ -390,9 +479,12 @@ export class Quaternion implements IClone {
     }
 
     /**
-     * 根据绕Z轴的制定角度旋转四元数
-     * @param	rad 角度
-     * @param	out 输出四元数
+     * @en Rotate the quaternion around the Z axis by a specified angle.
+     * @param rad The angle of rotation.
+     * @param out The output rotated quaternion.
+     * @zh 根据绕Z轴的指定角度旋转四元数。
+     * @param rad 旋转角度。
+     * @param out 输出的旋转后的四元数。
      */
     rotateZ(rad: number, out: Quaternion): void {
         rad *= 0.5;
@@ -405,9 +497,12 @@ export class Quaternion implements IClone {
     }
 
     /**
-     * 分解四元数到欧拉角（顺序为Yaw、Pitch、Roll），参考自http://xboxforums.create.msdn.com/forums/p/4574/23988.aspx#23988,问题绕X轴翻转超过±90度时有，会产生瞬间反转
-     * @param	quaternion 源四元数
-     * @param	out 欧拉角值
+     * @en Decompose the quaternion into Euler angles (in the order of Yaw, Pitch, Roll).
+     * Note: This method may produce sudden flips when rotating around the X axis beyond ±90 degrees.
+     * @param out The output Vector3 to store the Euler angles.
+     * @zh 将四元数分解为欧拉角（按Yaw、Pitch、Roll的顺序）。
+     * 注意：当绕X轴旋转超过±90度时，此方法可能会产生突然的翻转。
+     * @param out 用于存储欧拉角的输出Vector3。
      */
     getYawPitchRoll(out: Vector3): void {
 
@@ -453,8 +548,10 @@ export class Quaternion implements IClone {
     }
 
     /**
-     * 求四元数的逆
-     * @param	out  输出四元数
+     * @en Calculate the inverse of the quaternion.
+     * @param out The output inverted quaternion.
+     * @zh 计算四元数的逆。
+     * @param out 输出的逆四元数。
      */
     invert(out: Quaternion): void {
         var a0: number = this.x, a1: number = this.y, a2: number = this.z, a3: number = this.w;
@@ -469,8 +566,8 @@ export class Quaternion implements IClone {
     }
 
     /**
-     *设置四元数为单位算数
-     * @param out  输出四元数
+     * @en Set the quaternion to identity quaternion.
+     * @zh 将四元数设置为单位四元数。
      */
     identity(): void {
         this.x = 0;
@@ -480,9 +577,12 @@ export class Quaternion implements IClone {
     }
 
     /**
-     * 从Array数组拷贝值。
-     * @param  array 数组。
-     * @param  offset 数组偏移。
+     * @en Copy values from an array.
+     * @param array The source array.
+     * @param offset The start offset in the array. Default is 0.
+     * @zh 从数组中拷贝值。
+     * @param array 源数组。
+     * @param offset 数组中的起始偏移量。默认为0。
      */
     fromArray(array: any[], offset: number = 0): void {
         this.x = array[offset + 0];
@@ -492,8 +592,10 @@ export class Quaternion implements IClone {
     }
 
     /**
-     * 克隆。
-     * @param	destObject 克隆源。
+     * @en Clone the quaternion to a destination object.
+     * @param destObject The destination object.
+     * @zh 克隆四元数到目标对象。
+     * @param destObject 目标对象。
      */
     cloneTo(destObject: any): void {
         if (this === destObject) {
@@ -506,8 +608,10 @@ export class Quaternion implements IClone {
     }
 
     /**
-     * 克隆。
-     * @return	 克隆副本。
+     * @en Clone the quaternion.
+     * @returns A new quaternion with the same values as this one.
+     * @zh 克隆四元数。
+     * @returns 一个与当前四元数值相同的新四元数。
      */
     clone(): any {
         var dest: Quaternion = new Quaternion();
@@ -516,16 +620,21 @@ export class Quaternion implements IClone {
     }
 
     /**
-     * 判断四元数是否相同
+     * @en Determines if two quaternions are equal.
+     * @param b The quaternion to compare with.
+     * @zh 如果四元数相等则返回true，否则返回false。
      * @param b 对比四元数
-     * @returns 
      */
     equals(b: Quaternion): boolean {
         return MathUtils3D.nearEqual(this.x, b.x) && MathUtils3D.nearEqual(this.y, b.y) && MathUtils3D.nearEqual(this.z, b.z) && MathUtils3D.nearEqual(this.w, b.w);
     }
 
     /**
-     * 计算旋转观察四元数
+     * @en Calculates a rotation quaternion to look at a direction.
+     * @param forward The forward direction.
+     * @param up The up vector.
+     * @param out The output quaternion.
+     * @zh 计算旋转观察四元数。
      * @param	forward 方向
      * @param	up     上向量
      * @param	out    输出四元数
@@ -535,7 +644,12 @@ export class Quaternion implements IClone {
     }
 
     /**
-     * 计算观察四元数（适用Camera 灯光）
+     * @en Calculates a look-at quaternion (suitable for Camera and Light).
+     * @param eye The position of the observer.
+     * @param target The target position to look at.
+     * @param up The up vector.
+     * @param out The output quaternion.
+     * @zh 计算观察四元数（适用于相机和灯光）。
      * @param	eye    观察者位置
      * @param	target 目标位置
      * @param	up     上向量
@@ -547,7 +661,12 @@ export class Quaternion implements IClone {
     }
 
     /**
-     * 计算观察四元数（适用gameObject）
+     * @en Calculates a look-at quaternion (suitable for GameObject).
+     * @param eye The position of the observer.
+     * @param target The target position to look at.
+     * @param up The up vector.
+     * @param out The output quaternion.
+     * @zh 计算观察四元数（适用于游戏对象）。
      * @param eye 观察者位置
      * @param target 目标位置
      * @param up 上向量
@@ -559,15 +678,20 @@ export class Quaternion implements IClone {
     }
 
     /**
-     * 计算长度的平方。
-     * @return 长度的平方。
+     * @en Calculates the squared length of the quaternion.
+     * @returns The squared length of the quaternion.
+     * @zh 计算四元数长度的平方。
+     * @returns 四元数长度的平方。
      */
     lengthSquared(): number {
         return (this.x * this.x) + (this.y * this.y) + (this.z * this.z) + (this.w * this.w);
     }
 
     /**
-     * 计算四元数的逆四元数。
+     * @en Calculates the inverse of a quaternion.
+     * @param value The input quaternion.
+     * @param out The output inverse quaternion.
+     * @zh 计算四元数的逆四元数。
      * @param	value 四元数。
      * @param	out 逆四元数。
      */
@@ -584,7 +708,10 @@ export class Quaternion implements IClone {
     }
 
     /**
-     * 通过一个3x3矩阵创建一个四元数
+     * @en Creates a quaternion from a 3x3 rotation matrix.
+     * @param matrix3x3 The 3x3 rotation matrix.
+     * @param out The output quaternion.
+     * @zh 通过一个3x3旋转矩阵创建一个四元数。
      * @param	matrix3x3  3x3矩阵
      * @param	out        四元数
      */
