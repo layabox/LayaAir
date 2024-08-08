@@ -20,9 +20,20 @@ const tempMatrix = new Matrix4x4;
 const TriangleIndices = [0, 1, 2];
 const InvertTriangleIndices = [0, 2, 1];
 
-
+/**
+ * @en Represents a static batch mesh for efficient rendering of multiple static meshes.
+ * @zh 用于高效渲染多个静态网格的静态批处理网格。
+ */
 export class StaticBatchMesh {
 
+    /**
+     * @en Creates a new StaticBatchMesh instance based on the provided merge information.
+     * @param info The static mesh merge information.
+     * @returns A new StaticBatchMesh instance.
+     * @zh 根据提供的合并信息创建一个新的静态合批实例。
+     * @param info 静态网格合并信息。
+     * @returns 一个新的静态合批实例。
+     */
     static create(info: StaticMeshMergeInfo): StaticBatchMesh {
         let staticMesh = new StaticBatchMesh();
 
@@ -47,10 +58,10 @@ export class StaticBatchMesh {
             indexArray = new Uint16Array(indexCount);
         }
 
-        let positionElement = vertexDec.getVertexElementByUsage(VertexMesh.MESH_POSITION0);
-        let normalElement = vertexDec.getVertexElementByUsage(VertexMesh.MESH_NORMAL0);
-        let lightmapUVElement = vertexDec.getVertexElementByUsage(VertexMesh.MESH_TEXTURECOORDINATE1);
-        let tangentElement = vertexDec.getVertexElementByUsage(VertexMesh.MESH_TANGENT0);
+        // let positionElement = vertexDec.getVertexElementByUsage(VertexMesh.MESH_POSITION0);
+        // let normalElement = vertexDec.getVertexElementByUsage(VertexMesh.MESH_NORMAL0);
+        // let lightmapUVElement = vertexDec.getVertexElementByUsage(VertexMesh.MESH_TEXTURECOORDINATE1);
+        // let tangentElement = vertexDec.getVertexElementByUsage(VertexMesh.MESH_TANGENT0);
 
         let vertexDataOffset = 0;
         let vertexCountOffset = 0;
@@ -159,14 +170,30 @@ export class StaticBatchMesh {
     /**@internal */
     _staticSubMeshes: Map<Material, StaticBatchSubMesh>;
 
+    /**
+     * @en The bounding volume of the static batch mesh.
+     * @zh 静态批处理网格的边界体积。
+     */
     bounds: Bounds;
 
+    /**
+     * @en Constructs, initializes a new static batch mesh.
+     * @zh 构造方法，初始化静态网格合批。
+     */
     constructor() {
         this._bufferState = new BufferState();
         this._staticSubMeshes = new Map();
         this.bounds = new Bounds();
     }
 
+    /**
+     * @en Sets the vertex and index buffers for this static batch mesh.
+     * @param vertex The vertex buffer to set.
+     * @param index The index buffer to set.
+     * @zh 为此静态批处理网格设置顶点和索引缓冲区。
+     * @param vertex 要设置的顶点缓冲区。
+     * @param index 要设置的索引缓冲区。
+     */
     setBuffer(vertex: VertexBuffer3D, index: IndexBuffer3D) {
         let bufferState = this._bufferState;
 
@@ -176,6 +203,10 @@ export class StaticBatchMesh {
         bufferState.applyState([vertex], index);
     }
 
+    /**
+     * @en Destroys this static batch mesh and releases all associated resources.
+     * @zh 销毁此静态批处理网格并释放所有相关资源。
+     */
     destroy() {
         this._staticSubMeshes.forEach(submesh => {
             submesh.destroy();

@@ -7,24 +7,49 @@ import { Event } from "../../../events/Event";
 import { Scene3D } from "../../core/scene/Scene3D";
 import { Vector3 } from "../../../maths/Vector3";
 
+/**
+ * @en Enum representing the types of intersection between volumes.
+ * @zh 表示体积之间相交类型的枚举。
+ */
 export enum volumeIntersectType {
-    /**包含 */
+    /**
+     * @en One volume contains the other.
+     * @zh 一个体积包含另一个体积。
+     */
     contain,
-    /**相交 */
+    /**
+     * @en Volumes intersect but do not fully contain each other.
+     * @zh 体积相交但不完全包含彼此。
+     */
     intersect,
-    /**不相交*/
+    /**
+     * @en Volumes are disjoint (do not intersect).
+     * @zh 体积不相交（互不相交）。
+     */
     Disjoint
 }
 
 /**
- * 物体于Volume的相交属性
+ * @en Represents the intersection properties between volume.
+ * @zh 表示物体的相交属性。
  */
 export class volumeIntersectInfo {
+    /**
+     * @en Intersection Type
+     * @zh 相交类型 
+     */
     type: volumeIntersectType;
-    /**相交比例 */
+    /**
+     * @en Intersection ratio
+     * @zh 相交比例
+     */
     intersectRate: number;
 }
 
+/**
+ * @en Represents a volume component in the scene.
+ * @zh 表示场景中的体积组件。
+ */
 export class Volume extends Component {
     /**@internal */
     protected _primitiveBounds: Bounds;
@@ -42,7 +67,8 @@ export class Volume extends Component {
     protected _importance: number;
 
     /**
-     * 创建一个<code>Volume</code>实例
+     * @en constractor of Volume 
+     * @zh 体积组件的构造函数。
      */
     constructor() {
         super();
@@ -53,7 +79,8 @@ export class Volume extends Component {
     }
 
     /**
-     * volume Type
+     * @en The volume type.
+     * @zh 体积类型。
      */
     get type() {
         return this._type;
@@ -61,13 +88,16 @@ export class Volume extends Component {
 
     /**
      * @internal
+     * @en The bounds of the volume.
+     * @zh 体积的边界。
      */
     get bounds(): Bounds {
         return this._bounds;
     }
 
     /**
-     * 体积组件自身包围盒最大点
+     * @en The maximum point of the volume component's own bounding box.
+     * @zh 体积组件自身包围盒的最大点。
      */
     get boundsMax(): Vector3 {
         return this._primitiveBounds.getMax();
@@ -79,7 +109,8 @@ export class Volume extends Component {
     }
 
     /**
-     * 体积组件自身包围盒最小点
+     * @en The minimum point of the volume component's own bounding box.
+     * @zh 体积组件自身包围盒的最小点。
      */
     get boundsMin(): Vector3 {
         return this._primitiveBounds.getMin();
@@ -89,16 +120,18 @@ export class Volume extends Component {
         this._primitiveBounds.setMin(value);
         this._reCaculateBoundBox();
     }
-    
+
     /**
-     * 探针位置
+     * @en The probe position of the volume.
+     * @zh 体积的探针位置。
      */
     get probePosition(): Vector3 {
         return (this.owner as Sprite3D).transform.position;
     }
 
     /**
-     * 体积块探针重要度
+     * @en The importance value of the volume probe.
+     * @zh 体积探针的重要度。
      */
     get importance() {
         return this._importance;
@@ -132,29 +165,35 @@ export class Volume extends Component {
 
     /**
      * @internal
-     * 当一个渲染节点进入体积
-     * @param renderNode 
+     * @en Called when a render node enters the volume.
+     * @param renderNode The BaseRender node entering the volume.
+     * @zh 当一个渲染节点进入体积时调用。
+     * @param renderNode 进入体积的BaseRender节点。
      */
     _addRenderNode?(renderNode: BaseRender): void;
 
     /**
      * @internal
-     * 当一个渲染节点移除体积
-     * @param renderNode    
+     * @en Called when a render node is removed from the volume.
+     * @param renderNode The BaseRender node being removed from the volume.
+     * @zh 当一个渲染节点从体积中移除时调用。
+     * @param renderNode 从体积中移除的BaseRender节点。
      */
     _removeRenderNode?(renderNode: BaseRender): void;
 
     /**
      * @internal
-     * 当一个渲染节点在体积中移动
-     * @param renderNode 
+     * @en Called when a render node moves within the volume.
+     * @param renderNode The BaseRender node moving within the volume.
+     * @zh 当一个渲染节点在体积中移动时调用。
+     * @param renderNode 在体积中移动的BaseRender节点。
      */
     _motionInVolume?(renderNode: BaseRender): void;
 
-
     /**
      * @internal
-     * Volume change
+     * @en Handles volume changes.
+     * @zh 处理体积变化。
      */
     _VolumeChange() {
         this._volumeManager._needUpdateAllRender = true;

@@ -15,45 +15,98 @@ export enum KeyFrameValueType {
 }
 /**
  * @internal
- * <code>KeyframeNodeOwner</code> 类用于保存帧节点的拥有者信息。
+ * @en The KeyframeNodeOwner class is used to store the owner information of frame nodes.
+ * @zh KeyframeNodeOwner 类用于保存帧节点的拥有者信息。
  */
 export class KeyframeNodeOwner {
-	/**@internal */
+	/**
+	 * @internal
+	 * @en Index in the list
+	 * @zh 列表中的索引
+	 */
 	indexInList: number = -1;
-	/**@internal */
+	/**
+	 * @internal
+	 * @en Reference count
+	 * @zh 引用计数
+	 */
 	referenceCount: number = 0;
-	/**@internal */
+	/**
+	 * @internal
+	 * @en Update mark
+	 * @zh 更新标记
+	 */
 	updateMark: number = -1;
 
-	/**@internal 0 float,1 position,2 rotation,3 Scale,4 rotationEuler*/
+	/**
+	 * @internal
+	 * @en 0 float, 1 position, 2 rotation, 3 Scale, 4 rotationEuler
+	 * @zh 0 浮点数, 1 位置, 2 旋转, 3 缩放, 4 欧拉角旋转
+	 */
 	type: KeyFrameValueType = -1;
-	/**@internal */
+	/**
+	 * @internal
+	 * @en Full path of the node
+	 * @zh 节点的完整路径
+	 */
 	fullPath: string | null = null;
 	nodePath: string | null = null;
-	/**@internal */
+	/**
+	 * @internal
+	 * @en Owner of the property
+	 * @zh 属性的所有者
+	 */
 	propertyOwner: any = null;
-	/**@internal */
+	/**
+	 * @internal
+	 * @en Property array
+	 * @zh 属性数组
+	 */
 	property: string[] | null = null;
-	/**@internal */
+	/**
+	 * @internal
+	 * @en Default value of the property
+	 * @zh 属性的默认值
+	 */
 	defaultValue: any = null;
-	/**@internal */
+	/**
+	 * @internal
+	 * @en Current value of the property
+	 * @zh 属性的当前值
+	 */
 	value: any = null;
-	/**@internal */
+	/**
+	 * @internal
+	 * @en Fixed value for cross-fading
+	 * @zh 用于交叉淡入淡出的固定值
+	 */
 	crossFixedValue: any = null;
-	/**@internal */
+	/**
+	 * @internal
+	 * @en Whether the property belongs to a material
+	 * @zh 属性是否属于材质
+	 */
 	isMaterial: boolean = false;
-	
-	/**@internal 回调路径*/
-	callbackFunData:string;
-	/**@internal 回调归属*/
-	callBackOwner:any;
-	/**@internal */
-	callbackFun:string;
-	/**@internal */
-	callParams:any[];
 
 	/**
-	 * 创建一个 <code>KeyframeNodeOwner</code> 实例。
+	 * @internal
+	 * @en Callback path
+	 * @zh 回调路径
+	 */
+	callbackFunData: string;
+	/**
+	 * @internal
+	 * @en Callback owner
+	 * @zh 回调归属
+	 */
+	callBackOwner: any;
+	/**@internal */
+	callbackFun: string;
+	/**@internal */
+	callParams: any[];
+	/**
+	 * @en constructor of KeyframeNodeOwner
+	 * @zh 构造函数
 	 */
 	constructor() {
 	}
@@ -86,22 +139,22 @@ export class KeyframeNodeOwner {
 	/**
 	 * @internal
 	 */
-	animatorDataSetCallBack(){
-		let fn:Function = this.callBackOwner[this.callbackFun];
-		fn.apply(this.callBackOwner,this.callParams);
+	animatorDataSetCallBack() {
+		let fn: Function = this.callBackOwner[this.callbackFun];
+		fn.apply(this.callBackOwner, this.callParams);
 	}
-	
+
 	/**
 	 * @internal
 	 */
-	getCallbackNode(){
-		if(this.propertyOwner&&this.callbackFunData){
+	getCallbackNode() {
+		if (this.propertyOwner && this.callbackFunData) {
 			let funPropertys = this.callbackFunData.split(".");
 			this.callBackOwner = this.propertyOwner;
-			for(let i = 0,n = funPropertys.length-1;i<n;i++){
+			for (let i = 0, n = funPropertys.length - 1; i < n; i++) {
 				this.callBackOwner = this.callBackOwner[funPropertys[i]];
 			}
-			this.callbackFun = funPropertys[funPropertys.length-1];
+			this.callbackFun = funPropertys[funPropertys.length - 1];
 		}
 	}
 }

@@ -8,9 +8,27 @@ import { AnimatorState } from "./AnimatorState";
 import { AnimatorTransition } from "./AnimatorTransition";
 import { AvatarMask } from "./AvatarMask";
 
+/**
+ * @en Represents an animator controller resource that manages animation states and transitions.
+ * @zh 管理动画状态和转换的动画控制器资源。
+ */
 export class AnimatorController extends Resource {
+    /**
+     * @en The parsed data of the animator controller.
+     * @zh 解析后的动画控制器数据。
+     */
     data: TypeAnimatorControllerData;
+    /**
+     * @en An array of clip IDs associated with this animator controller.
+     * @zh 与此动画控制器关联的剪辑ID数组。
+     */
     clipsID: string[];
+    /**
+     * @en The constructor of AnimatorController, initialize a new AnimatorController object.
+     * @param data The animator controller data.
+     * @zh 构造函数，初始化一个新的 AnimatorController 对象。
+     * @param data 动画控制器数据。
+     */
     constructor(data: any) {
         super();
         let obj = AnimatorControllerParse.parse(data);
@@ -41,6 +59,14 @@ export class AnimatorController extends Resource {
         return lArr;
     }
 
+    /**
+     * @en Updates the given Animator with the current AnimatorController's data.
+     * This method updates the controller layers and animator parameters.
+     * @param a The Animator to update.
+     * @zh 使用当前AnimatorController的数据更新给定的Animator。
+     * 此方法更新控制器层和动画参数。
+     * @param a 要更新的Animator。
+     */
     updateTo(a: Animator) {
         let currLayer = (a as any)._controllerLayers;
 

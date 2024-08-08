@@ -10,7 +10,8 @@ import { SubMesh } from "../../../resource/models/SubMesh";
 import { BatchRender } from "./BatchRender";
 
 /**
- * <code>StaticInstanceBatchRender</code> 类用于创建动作状态。
+ * @en used to create static instance batch rendering.
+ * @zh 用于创建静态实例批处理渲染。
  */
 export class StaticInstanceBatchRender extends BatchRender {
 
@@ -30,7 +31,8 @@ export class StaticInstanceBatchRender extends BatchRender {
     private _updateChangeElement: InstanceRenderElement[] = [];
 
     /**
-     * 创建一个 <code>StaticInstanceBatchRender</code> 实例。
+     * @en constructor, initialize static instance batch rendering.
+     * @zh 构造方法, 初始化静态实例批处理渲染。
      */
     constructor() {
         super();
@@ -40,9 +42,12 @@ export class StaticInstanceBatchRender extends BatchRender {
     }
 
     /**
-     * 判断这个Render是否支持InstanceBatch
-     * @param render 
-     * @returns 
+     * @en Determines whether this render supports instance batching.
+     * @param render The render object to be checked.
+     * @returns A boolean value indicating whether instance batching is supported.
+     * @zh 判断这个 Render 是否支持 InstanceBatch。
+     * @param render 要检查的渲染对象。
+     * @returns 一个布尔值，指示是否支持实例批处理。
      */
     private _isRenderNodeAllCanInstanceBatch(render: BaseRender): boolean {
         let elements = render._renderElements;
@@ -56,8 +61,10 @@ export class StaticInstanceBatchRender extends BatchRender {
     }
 
     /**
-     * 计算Instance合并数量
-     * @param render 
+     * @en Calculates the number of instances to be batched.
+     * @param render The render object containing the elements to be batched.
+     * @zh 计算实例合并的数量。
+     * @param render 包含要合并元素的渲染对象。
      */
     private _sumInstanceBatch(render: BaseRender) {
         let elements = render._renderElements;
@@ -171,12 +178,16 @@ export class StaticInstanceBatchRender extends BatchRender {
     }
 
     /**
-     * 是否满足batch条件
      * @internal
      * @override
-     * @param render 
-     * @returns 
+     * @en Determines whether the render instance meets the batch conditions.
+     * @param render The base render object to check for batching conditions.
+     * @returns boolean True if the render instance meets the batching conditions; otherwise, false.
+     * @zh 判断渲染实例是否满足批处理条件。
+     * @param render 要检查批处理条件的基础渲染对象。
+     * @returns boolean 如果渲染实例满足批处理条件，则返回 true；否则返回 false。
      */
+
     protected _canBatch(render: BaseRender): boolean {
         let elements = render._renderElements;
         for (var i = 0, n = elements.length; i < n; i++) {
@@ -192,7 +203,8 @@ export class StaticInstanceBatchRender extends BatchRender {
     /**
      * @override
      * @internal
-     * 重新计算包围盒
+     * @en Recalculate the bounding box
+     * @zh 重新计算包围盒
      */
     _calculateBoundingBox() {
         let bound = this._bounds;
@@ -278,7 +290,8 @@ export class StaticInstanceBatchRender extends BatchRender {
 
     /**
      * @internal
-     * 清理所有渲染
+     * @en Clean up all renderings
+     * @zh 清理所有渲染
      */
     _clear() {
         super._clear();
@@ -294,9 +307,11 @@ export class StaticInstanceBatchRender extends BatchRender {
 
 
     /**
-    * 合批队列传入
-    * @param renderNodes 渲染队列
-    */
+     * @en Add a list of renders to the batch queue
+     * @param renderNodes  The render queue to be added
+     * @zh 将渲染队列添加到批处理队列
+     * @param renderNodes  要添加的渲染队列
+     */
     addList(renderNodes: BaseRender[]) {
         if (!this._batchList) {
             this._batchList = new SingletonList<BaseRender>();
@@ -321,7 +336,8 @@ export class StaticInstanceBatchRender extends BatchRender {
         }
     }
     /**
-     * 根据_batchList合批
+     * @en Rebatch based on the _batchList
+     * @zh 根据_batchList重新进行批处理
      */
     reBatch() {
         let renderNums = this._batchList.length;

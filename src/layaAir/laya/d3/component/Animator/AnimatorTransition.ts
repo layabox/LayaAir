@@ -2,6 +2,10 @@ import { AniStateConditionType } from "../../../components/AnimatorControllerPar
 import { AnimatorStateCondition } from "../../../components/AnimatorStateCondition";
 import { AnimatorState } from "./AnimatorState";
 
+/**
+ * @en The AnimatorTransition class represents a transition between two AnimatorStates.
+ * @zh AnimatorTransition 类表示两个 AnimatorState 之间的过渡。
+ */
 export class AnimatorTransition {
 
     /**
@@ -62,7 +66,8 @@ export class AnimatorTransition {
     }
 
     /**
-     * 设置过渡名字
+     * @en The name of the transition.
+     * @zh 过渡的名称。
      */
     get name() {
         return this._name;
@@ -73,7 +78,8 @@ export class AnimatorTransition {
     }
 
     /**
-     * 禁用
+     * @en Whether the transition is disabled.
+     * @zh 过渡是否被禁用。
      */
     get mute() {
         return this._mute;
@@ -84,7 +90,8 @@ export class AnimatorTransition {
     }
 
     /**
-     * 目标状态
+     * @en The destination state of the transition.
+     * @zh 过渡的目标状态。
      */
     get destState() {
         return this._destState;
@@ -95,8 +102,8 @@ export class AnimatorTransition {
     }
 
     /**
-     * 设置condition数组
-     * IDE
+     * @en The conditions array for the transition. Used by IDE.
+     * @zh 过渡的条件数组。由IDE使用。
      */
     get conditions() {
         return this._conditions;
@@ -113,7 +120,8 @@ export class AnimatorTransition {
     }
 
     /**
-     * 时间触发
+     * @en Whether the transition is triggered by time.
+     * @zh 过渡是否由时间触发。
      */
     get exitByTime() {
         return this._exitByTime;
@@ -124,7 +132,8 @@ export class AnimatorTransition {
     }
 
     /**
-     * 过度归一化时间（相对于目标State）
+     * @en The normalized transition duration (relative to the target state).
+     * @zh 过渡的归一化持续时间（相对于目标状态）。
      */
     set transduration(value: number) {
         this._transduration = Math.max(0, Math.min(value, 1.0));
@@ -136,8 +145,9 @@ export class AnimatorTransition {
 
 
     /**
-    * 目标State播放时间偏移（归一化时间）
-    */
+     * @en The playback time offset of the target state (normalized time).
+     * @zh 目标状态的播放时间偏移（归一化时间）。
+     */
     set transstartoffset(value: number) {
         this._transstartoffset = Math.max(0, Math.min(value, 1.0));
     }
@@ -147,19 +157,20 @@ export class AnimatorTransition {
     }
 
     /**
-    * 触发时间（归一化时间）
-    */
-    set exitTime(value: number) {
-        this._exitTime = Math.max(0, Math.min(value, 1.0));
-    }
-
+     * @en The trigger time (normalized time).
+     * @zh 触发时间（归一化时间）。
+     */
     get exitTime() {
         return this._exitTime;
     }
 
+    set exitTime(value: number) {
+        this._exitTime = Math.max(0, Math.min(value, 1.0));
+    }
+
     /**
-     * 增加一个条件
-     * @param condition 条件
+     * @en Adds a condition to the transition.
+     * @zh 增加一个条件到过渡中。
      */
     addCondition(condition: AnimatorStateCondition): void {
         if (this._conditions.indexOf(condition) == -1) {
@@ -168,8 +179,10 @@ export class AnimatorTransition {
     }
 
     /**
-     * 删除一个条件
-     * @param condition 条件
+     * @en Removes a condition from the transition.
+     * @param condition The condition to remove.
+     * @zh 从过渡中删除一个条件。
+     * @param condition 要删除的条件。
      */
     removeCondition(condition: AnimatorStateCondition): void {
         let index = this._conditions.indexOf(condition);
@@ -177,8 +190,10 @@ export class AnimatorTransition {
             this._conditions.splice(index, 0);
         }
     }
+
     /**
-     * 当有多个条件的时候是否使用与操作
+     * @en Whether to use AND operation when there are multiple conditions.
+     * @zh 当有多个条件时是否使用与（AND）操作。
      */
     get isAndOperEnabled() {
         return this._isAndOperEnabled;
@@ -188,9 +203,14 @@ export class AnimatorTransition {
     }
 
     /**
-     * 是否启用过渡
-     * @param normalizeTime 归一化时间
-     * @param paramsMap 条件组
+     * @en Checks if the transition should be enabled based on the current conditions and time.
+     * @param normalizeTime The normalized time of the current animation state.
+     * @param paramsMap A map of condition parameters, where the key is the condition ID and the value is the condition state.
+     * @returns True if the transition should be enabled, false otherwise.
+     * @zh 检查是否应该根据当前条件和时间启用过渡。
+     * @param normalizeTime 当前动画状态的归一化时间。
+     * @param paramsMap 条件参数的映射，其中键是条件ID，值是条件状态。
+     * @returns 如果应该启用过渡则返回true，否则返回false。
      */
     check(normalizeTime: number, paramsMap: { [key: number]: number | boolean }): boolean {
         if (this._mute) {

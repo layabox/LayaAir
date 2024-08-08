@@ -32,7 +32,8 @@ export type AnimatorParams = { [key: number]: number | boolean };
 
 
 /**
- * <code>Animator</code> 类用于创建动画组件。
+ * @en The `Animator` class is used to create 3D animation components.
+ * @zh `Animator` 类用于创建3D动画组件。
  */
 export class Animator extends Component {
     /**@internal */
@@ -42,9 +43,15 @@ export class Animator extends Component {
     /**@internal */
     private static _tempQuaternion1: Quaternion = new Quaternion();
 
-    /** 裁剪模式_始终播放动画。*/
+    /**
+     * @en Culling mode: Always animate.
+     * @zh 裁剪模式：始终播放动画。
+     */
     static CULLINGMODE_ALWAYSANIMATE: number = 0;
-    /** 裁剪模式_不可见时完全不播放动画。*/
+    /**
+     * @en Culling mode: Don't animate when not visible.
+     * @zh 裁剪模式：不可见时完全不播放动画。
+     */
     static CULLINGMODE_CULLCOMPLETELY: number = 2;
 
     /**@internal */
@@ -74,7 +81,10 @@ export class Animator extends Component {
     /**@internal */
     _renderableSprites: RenderableSprite3D[] = [];
 
-    /**	裁剪模式*/
+    /**	
+     * @en Culling mode，By default, when set to invisible, the animation will not play at all.
+     * @zh 裁剪模式,默认为不可见时完全不播放动画。
+     */
     cullingMode: number = Animator.CULLINGMODE_CULLCOMPLETELY;
 
     /**@internal	[NATIVE]*/
@@ -95,10 +105,13 @@ export class Animator extends Component {
      */
     _controller: AnimatorController;
 
-
     /**
-     * 动画控制器
+     * @en The animation controller.
+     * @zh 动画控制器。
      */
+    get controller() {
+        return this._controller;
+    }
     set controller(val: AnimatorController) {
 
         this._controller = val;
@@ -107,71 +120,72 @@ export class Animator extends Component {
         }
 
     }
-    get controller() {
-        return this._controller;
-    }
 
     /**
-     * 动画的播放速度,1.0为正常播放速度。
+     * @en The playback speed of the animation. 1.0 is the normal playback speed.
+     * @zh 动画的播放速度。1.0 为正常播放速度。
      */
     get speed(): number {
         return this._speed;
     }
-
 
     set speed(value: number) {
         this._speed = value;
     }
 
 
-
-
-
     /**
-     * 设置更新模式
+     * @en The update mode for the animator.
+     * @zh 动画更新模式。
      */
     set updateMode(value: AnimatorUpdateMode) {
         this._updateMode = value;
     }
 
     /**
-     * 低更新模式
+     * @en Low update mode
+     * @zh 低更新模式
      */
     set lowUpdateDelty(value: number) {
         this._lowUpdateDelty = value;
     }
 
     /**
-     * 状态机动画层数量
+     * @en The number of layers in the state machine animation.
+     * @zh 状态机动画层的数量。
      */
     get controllerLayerCount(): number {
         return this._controllerLayers.length;
     }
 
     /**
-     * 状态机参数map
+     * @en The map of animator parameters.
+     * @zh 状态机参数map。
      */
-    set animatorParams(values: AnimatorParams) {
-        this._animatorParams = values;
-    }
-
     get animatorParams() {
         return this._animatorParams;
     }
 
-    /**
-     * 动画完成是否停止更新
-     */
-    set sleep(value: boolean) {
-        this._finishSleep = value;
+    set animatorParams(values: AnimatorParams) {
+        this._animatorParams = values;
     }
 
+
+    /**
+     * @en Whether to stop updating after the animation is completed.
+     * @zh 动画完成后是否停止更新。
+     */
     get sleep() {
         return this._finishSleep;
     }
 
+    set sleep(value: boolean) {
+        this._finishSleep = value;
+    }
+
     /**
-     * 创建一个 <code>Animation</code> 实例。
+     * @en The constructor of Animator.
+     * @zh 构造方法，创建动画组件。
      */
     constructor() {
         super();
@@ -1500,7 +1514,10 @@ export class Animator extends Component {
     }
 
     /**
-     * 获取默认动画状态。
+     * @en Gets the default animation state.
+     * @param layerIndex The layer index.
+     * @returns The default animation state.
+     * @zh 获取默认动画状态。
      * @param	layerIndex 层索引。
      * @return 默认动画状态。
      */
@@ -1510,7 +1527,10 @@ export class Animator extends Component {
     }
 
     /**
-     * 添加动画状态。
+     * @en Adds an animation state.
+     * @param state The animation state to add.
+     * @param layerIndex The layer index. 
+     * @zh 添加动画状态。
      * @param	state 动画状态。
      * @param   layerIndex 层索引。
      */
@@ -1521,7 +1541,10 @@ export class Animator extends Component {
     }
 
     /**
-     * 移除动画状态。
+     * @en Removes an animation state.
+     * @param state The animation state to remove.
+     * @param layerIndex The layer index.
+     * @zh 移除动画状态。
      * @param	state 动画状态。
      * @param   layerIndex 层索引。
      */
@@ -1532,8 +1555,10 @@ export class Animator extends Component {
     }
 
     /**
-     * 添加控制器层。
-     * @param controllderLayer 动画控制层
+     * @en Adds a controller layer.
+     * @param controllderLayer The animation controller layer to add.
+     * @zh 添加控制器层。
+     * @param controllderLayer 动画控制层。
      */
     addControllerLayer(controllderLayer: AnimatorControllerLayer): void {
         this._controllerLayers.push(controllderLayer);
@@ -1545,15 +1570,23 @@ export class Animator extends Component {
     }
 
     /**
-     * 获取控制器层。
-     * @param 层索引
+     * @en Gets the controller layer.
+     * @param layerIndex The layer index. Defaults to 0.
+     * @returns The AnimatorControllerLayer at the specified index.
+     * @zh 获取控制器层。
+     * @param	layerIndex 层索引。
+     * @return 指定索引处的AnimatorControllerLayer。
      */
     getControllerLayer(layerInex: number = 0): AnimatorControllerLayer {
         return this._controllerLayers[layerInex];
     }
 
     /**
-     * 播放动画。
+     * @en Plays an animation.
+     * @param name If null, plays the default animation; otherwise, plays the animation clip with the specified name.
+     * @param layerIndex The layer index. Defaults to 0.
+     * @param normalizedTime The normalized start time of the animation. Defaults to Number.NEGATIVE_INFINITY.
+     * @zh 播放动画。
      * @param	name 如果为null则播放默认动画，否则按名字播放动画片段。
      * @param	layerIndex 层索引。
      * @param	normalizedTime 归一化的播放起始时间。
@@ -1601,7 +1634,12 @@ export class Animator extends Component {
     }
 
     /**
-     * 在当前动画状态和目标动画状态之间进行融合过渡播放。
+     * @en Performs a crossfade transition between the current animation state and the target animation state.
+     * @param name The name of the target animation state.
+     * @param transitionDuration The transition duration, normalized to the current animation state's duration. Value should be between 0.0 and 1.0.
+     * @param layerIndex The layer index. Defaults to 0.
+     * @param normalizedTime The normalized start time of the animation. Defaults to Number.NEGATIVE_INFINITY.
+     * @zh 在当前动画状态和目标动画状态之间进行融合过渡播放。
      * @param	name 目标动画状态。
      * @param	transitionDuration 过渡时间,该值为当前动画状态的归一化时间，值在0.0~1.0之间。
      * @param	layerIndex 层索引。
@@ -1731,7 +1769,9 @@ export class Animator extends Component {
     }
 
     /**
-     * 启用触发条件
+     * @en Enables a trigger parameter.
+     * @param name The name or index of the trigger parameter.
+     * @zh 启用触发条件参数。
      * @param name 触发条件的名字或者索引
      */
     setParamsTrigger(name: number): void;
@@ -1746,7 +1786,10 @@ export class Animator extends Component {
     }
 
     /**
-     * 设置值条件属性值
+     * @en Sets the value of a number parameter.
+     * @param name The name or index of the parameter.
+     * @param value The value to set.
+     * @zh 设置数值类型参数的值。
      * @param name 属性的名字或者索引
      * @param value 属性值
      */
@@ -1762,7 +1805,10 @@ export class Animator extends Component {
     }
 
     /**
-     * 设置布尔条件属性值
+     * @en Sets the value of a boolean parameter.
+     * @param name The name or index of the parameter.
+     * @param value The value to set.
+     * @zh 设置布尔类型参数的值。
      * @param name 属性的名字或者索引
      * @param value 属性值
      */
@@ -1778,8 +1824,12 @@ export class Animator extends Component {
     }
 
     /**
-     * 得到条件属性值
-     * @param name 
+     * @en Gets the value of a parameter.
+     * @param name The name or index of the parameter.
+     * @returns The value of the parameter.
+     * @zh 获取参数的值。
+     * @param	name 属性的名字或者索引
+     * @return 属性值
      */
     getParamsvalue(name: number): number | boolean;
     getParamsvalue(name: string): number | boolean;

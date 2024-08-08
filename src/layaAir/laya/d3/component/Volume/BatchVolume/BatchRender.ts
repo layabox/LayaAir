@@ -5,9 +5,10 @@ import { BaseRender, RenderBitFlag } from "../../../core/render/BaseRender";
 import { InstanceRenderElement } from "../../../core/render/InstanceRenderElement";
 import { Scene3D } from "../../../core/scene/Scene3D";
 const tempVec = new Vector3();
-const tempVec1 = new Vector3();
+// const tempVec1 = new Vector3();
 /**
- * 类用来描述合批的渲染节点
+ * @en Class used to describe batched rendering nodes.
+ * @zh 类用来描述合批的渲染节点。
  */
 export class BatchRender extends BaseRender {
     /**@internal */
@@ -30,7 +31,8 @@ export class BatchRender extends BaseRender {
     private _cacheLod: number;
 
     /**
-     * 创建一个 <code>BatchRender</code> 实例。
+     * @en constructor, initialize the batch rendering node.
+     * @zh 构造方法, 初始化合批渲染节点。
      */
     constructor() {
         super();
@@ -41,7 +43,8 @@ export class BatchRender extends BaseRender {
     }
 
     /**
-     * 是否根据lod来合批
+     * @en Whether to batch based on LOD (Level of Detail).
+     * @zh 是否根据 LOD（细节层次）来进行合批。
      */
     get checkLOD() {
         return this._checkLOD;
@@ -52,18 +55,19 @@ export class BatchRender extends BaseRender {
     }
 
     /**
-     * lod裁剪过滤
+     * @en Sets the LOD culling rate array for filtering.
+     * @zh 设置 LOD 裁剪率数组用于过滤。
      */
+    get lodCullRateArray() {
+        return this._lodRateArray;
+    }
+
     set lodCullRateArray(value: number[]) {
         if (!this._checkLOD) {
             return;
         }
         value.sort((a, b) => b - a);
         this._lodRateArray = value;
-    }
-
-    get lodCullRateArray() {
-        return this._lodRateArray;
     }
 
 
@@ -131,7 +135,8 @@ export class BatchRender extends BaseRender {
     }
 
     /**
-     * 渲染前调用
+     * @en Called before rendering. Handles LOD (Level of Detail) calculations and changes.
+     * @zh 渲染前调用。处理 LOD（细节级别）计算和变更。
      */
     onPreRender() {
         if (!this.checkLOD || !this._lodRateArray || this._lodRateArray.length < 1) {
@@ -179,8 +184,10 @@ export class BatchRender extends BaseRender {
     }
 
     /**
-     * 合批队列传入
-     * @param renderNodes 渲染节点队列
+     * @en Adds a list of render nodes to the batch queue.
+     * @param renderNode An array of BaseRender objects to be added to the batch.
+     * @zh 将渲染节点队列添加到合批队列中。
+     * @param renderNode 要添加到合批的 BaseRender 对象数组。
      */
     addList(renderNode: BaseRender[]) {
         for (var i = 0, n = renderNode.length; i < n; i++) {
@@ -192,7 +199,10 @@ export class BatchRender extends BaseRender {
     }
 
     /**
-     * 根据_batchList合批
+     * @en Performs batching based on the _batchList.
+     * This method iterates through the _batchList and batches each render node.
+     * @zh 根据 _batchList 执行合批操作。
+     * 此方法遍历 _batchList 并对每个渲染节点进行合批。
      */
     reBatch() {
         let renderNums = this._batchList.length;
@@ -205,7 +215,8 @@ export class BatchRender extends BaseRender {
 
     /**
      * @internal
-     * Restoring the Batch Render State
+     * @en Restoring the Batch Render State
+     * @zh 恢复批处理渲染状态
      */
     _restorRenderNode() {
         for (let i = 0, n = this._batchList.length; i < n; i++) {
