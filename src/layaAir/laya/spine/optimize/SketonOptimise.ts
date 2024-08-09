@@ -212,34 +212,27 @@ export class SkinAttach {
     }
 
     checkMainAttach(slots: spine.SlotData[]) {
-        let type: ESpineRenderType = ESpineRenderType.rigidBody;
-        for (let i = 0, n = slots.length; i < n; i++) {
-            let slot = slots[i];
-            let attachment = this.slotAttachMap.get(slot.index).get(slot.attachmentName);
-            let tempType = SlotUtils.checkAttachment(attachment ? attachment.sourceData : null);
-            if (tempType < type) {
-                type = tempType;
-                if (type == ESpineRenderType.normal) {
-                    break;
-                }
-            }
-        }
-        this.type = type;
-        switch (this.type) {
-            case ESpineRenderType.normal:
-                this.mainVB = new VBBoneCreator();
-                break;
-            case ESpineRenderType.boneGPU:
-                this.mainVB = new VBBoneCreator();
-                break;
-            case ESpineRenderType.rigidBody:
-                this.mainVB = new VBRigBodyCreator();
-                break;
-        }
+        // for (let i = 0, n = slots.length; i < n; i++) {
+        //     let slot = slots[i];
+        //     let attachmentMap = this.slotAttachMap.get(slot.index);
+      
+        //     attachmentMap.forEach((attachment)=>{
+        //         let tempType = SlotUtils.checkAttachment(attachment ? attachment.sourceData : null);
+        //         if (tempType < type) {
+        //             type = tempType;
+        //             // if (type == ESpineRenderType.normal) {
+        //             //     // break;
+        //             // }
+        //         }
+        //     })
+        // }
         this.init(slots);
     }
 
     attachMentParse(skinData: spine.Skin, slots: spine.SlotData[]) {
+
+        let type: ESpineRenderType = ESpineRenderType.rigidBody;
+
         let attachments = skinData.attachments;
         for (let i = 0, n = slots.length; i < n; i++) {
             let attachment = attachments[i];
@@ -256,6 +249,10 @@ export class SkinAttach {
                     let deform = null;//slot.deform; TODO
                     let parse = new AttachmentParse();
                     parse.init(attach, boneIndex, i, deform, slot);
+                    let tempType = SlotUtils.checkAttachment(parse ? parse.sourceData : null);
+                    if (tempType < type) {
+                        type = tempType;
+                    }
                     map.set(key, parse);
                 }
             }
@@ -267,6 +264,20 @@ export class SkinAttach {
                 nullAttachment.attachment = null;
                 map.set(nullAttachment.attachment, nullAttachment);
             }
+        }
+
+        this.type = type;
+
+        switch (this.type) {
+            case ESpineRenderType.normal:
+                this.mainVB = new VBBoneCreator();
+                break;
+            case ESpineRenderType.boneGPU:
+                this.mainVB = new VBBoneCreator();
+                break;
+            case ESpineRenderType.rigidBody:
+                this.mainVB = new VBRigBodyCreator();
+                break;
         }
     }
 
