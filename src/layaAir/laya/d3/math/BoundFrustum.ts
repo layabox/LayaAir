@@ -9,7 +9,8 @@ import { Matrix4x4 } from "../../maths/Matrix4x4";
 import { Vector3 } from "../../maths/Vector3";
 
 /**
- * 锥体角点。
+ * @en The corner of frustum.
+ * @zh 锥体角点。
  */
 export enum FrustumCorner {
 	FarBottomLeft = 0,
@@ -25,7 +26,8 @@ export enum FrustumCorner {
 
 
 /**
- * <code>BoundFrustum</code> 类用于创建锥截体。
+ * @en The BoundFrustum class is used to create a frustum.
+ * @zh BoundFrustum 类用于创建截锥体。
  */
 export class BoundFrustum implements IClone {
 	/** @internal */
@@ -44,7 +46,15 @@ export class BoundFrustum implements IClone {
 	private static _tempV36: Vector3 = new Vector3();
 
 	/**
-	 * 根据矩阵获取6个包围平面。
+	 * @en Obtain 6 enclosing planes based on the matrix.
+	 * @param  m The matrix that describes the frustum.
+	 * @param  np The near plane.
+	 * @param  fp The far plane.
+	 * @param  lp The left plane.
+	 * @param  rp The right plane.
+	 * @param  tp The top plane.
+	 * @param  bp The bottom plane.
+	 * @zh 根据矩阵获取6个包围平面。
 	 * @param  m 描述矩阵。
 	 * @param  np 近平面。
 	 * @param  fp 远平面。
@@ -143,8 +153,10 @@ export class BoundFrustum implements IClone {
 	protected _bottom: Plane;
 
 	/**
-	 * 创建一个 <code>BoundFrustum</code> 实例。
-	 * @param	matrix 锥截体的描述4x4矩阵。
+	 * @en Constructor method.
+	 * @param matrix The 4x4 matrix that describes the frustum.
+	 * @zh 构造方法。
+	 * @param matrix 锥截体的描述4x4矩阵。
 	 */
 	constructor(matrix: Matrix4x4) {
 		this._matrix = matrix;
@@ -162,7 +174,8 @@ export class BoundFrustum implements IClone {
 	}
 
 	/**
-	 * 描述矩阵。
+	 * @en The matrix that describes the frustum.
+	 * @zh 描述矩阵。
 	 */
 	get matrix(): Matrix4x4 {
 		return this._matrix;
@@ -174,58 +187,68 @@ export class BoundFrustum implements IClone {
 	}
 
 	/**
-	 * 近平面。
+	 * @en The near plane.
+	 * @zh 近平面。
 	 */
 	get near(): Plane {
 		return this._near;
 	}
 
 	/**
-	 * 远平面。
+	 * @en The far plane.
+	 * @zh 远平面。
 	 */
 	get far(): Plane {
 		return this._far;
 	}
 
 	/**
-	 * 左平面。
+	 * @en The left plane.
+	 * @zh 左平面。
 	 */
 	get left(): Plane {
 		return this._left;
 	}
 
 	/**
-	 * 右平面。
+	 * @en The right plane.
+	 * @zh 右平面。
 	 */
 	get right(): Plane {
 		return this._right;
 	}
 
 	/**
-	 * 顶平面。
+	 * @en The top plane.
+	 * @zh 顶平面。
 	 */
 	get top(): Plane {
 		return this._top;
 	}
 
 	/**
-	 * 底平面。
+	 * @en The bottom plane.
+	 * @zh 底平面。
 	 */
 	get bottom(): Plane {
 		return this._bottom;
 	}
 
 	/**
-	 * 判断是否与其他锥截体相等。
-	 * @param	other 锥截体。
+	 * @en Determines whether this bound frustum is equal to another bound frustum.
+	 * @param other The other bound frustum to compare.
+	 * @zh 判断这个截锥体是否与另一个截锥体相等。
+	 * @param other 要比较的另一个截锥体。
 	 */
 	equalsBoundFrustum(other: BoundFrustum): boolean {
 		return this._matrix.equalsOtherMatrix(other.matrix)
 	}
 
 	/**
-	 * 判断是否与其他对象相等。
-	 * @param	obj 对象。
+	 * @en Determines whether this object is equal to another object.
+	 * @param obj The object to compare.
+	 * @zh 判断此对象是否等于另一个对象。
+	 * @param obj 要比较的另一个对象。
 	 */
 	equalsObj(obj: any): boolean {
 		if (obj instanceof BoundFrustum) {
@@ -236,14 +259,24 @@ export class BoundFrustum implements IClone {
 	}
 
 	/**
-	 * 获取锥截体的任意一平面。
-	 * 0:近平面
-	 * 1:远平面
-	 * 2:左平面
-	 * 3:右平面
-	 * 4:顶平面
-	 * 5:底平面
-	 * @param	index 索引。
+	 * @en Gets a specific plane of the frustum.
+	 * @param index The index of the plane to retrieve. Indices:
+	 * - 0: Near plane
+	 * - 1: Far plane
+	 * - 2: Left plane
+	 * - 3: Right plane
+	 * - 4: Top plane
+	 * - 5: Bottom plane
+	 * @returns The requested plane or `null` if the index is out of range.
+	 * @zh 获取截锥体的特定平面。
+	 * @param index 要检索的平面的索引。索引：
+	 * - 0: 近平面
+	 * - 1: 远平面
+	 * - 2: 左平面
+	 * - 3: 右平面
+	 * - 4: 顶平面
+	 * - 5: 底平面
+	 * @returns 所请求的平面或 `null` 如果索引超出范围。
 	 */
 	getPlane(index: number): Plane {
 		switch (index) {
@@ -265,10 +298,16 @@ export class BoundFrustum implements IClone {
 	}
 
 	/**
-	 * 锥截体三个相交平面的交点。
-	 * @param  p1  平面1。
-	 * @param  p2  平面2。
-	 * @param  p3  平面3。
+	 * @en Calculates the intersection point of three planes within the frustum.
+	 * @param p1 The first plane.
+	 * @param p2 The second plane.
+	 * @param p3 The third plane.
+	 * @param out The vector to store the intersection point.
+	 * @zh 计算截锥体中三个平面的交点。
+	 * @param p1 第一个平面。
+	 * @param p2 第二个平面。
+	 * @param p3 第三个平面。
+	 * @param out 存储交点的向量。
 	 */
 	static get3PlaneInterPoint(p1: Plane, p2: Plane, p3: Plane, out: Vector3): void {
 		var p1Nor: Vector3 = p1.normal;
@@ -292,8 +331,10 @@ export class BoundFrustum implements IClone {
 	}
 
 	/**
-	 * 锥截体的8个顶点。
-	 * @param  corners  返回顶点的输出队列。
+	 * @en Retrieves the eight corner points of the frustum.
+	 * @param corners The array to store the corner points.
+	 * @zh 获取截锥体的八个角点
+	 * @param corners 存储角点的数组。
 	 */
 	getCorners(corners: Vector3[]): void {
 		BoundFrustum.get3PlaneInterPoint(this._near, this._bottom, this._right, corners[FrustumCorner.nearBottomRight]);
@@ -307,9 +348,18 @@ export class BoundFrustum implements IClone {
 	}
 
 	/**
-	 * 与点的关系。
-	 * @param  point  点。
-	 * @returns 包涵:1,相交:2,不相交:0
+	 * @en Determines the relationship between the frustum and a point.
+	 * @param point The point to test.
+	 * @returns The relationship between the point and the frustum:
+	 * - 1: The point is inside the frustum.
+	 * - 2: The point intersects the frustum.
+	 * - 0: The point is outside and does not intersect the frustum.
+	 * @zh 确定截锥体与点的关系。
+	 * @param point  要测试的点。
+	 * @returns 点与截锥体之间的关系：
+	 * - 1: 点在截锥体内。
+	 * - 2: 点与截锥体相交。
+	 * - 0: 点在截锥体外且不相交。
 	 */
 	containsPoint(point: Vector3): number {
 		var result: number = Plane.PlaneIntersectionType_Front;
@@ -356,9 +406,12 @@ export class BoundFrustum implements IClone {
 	}
 
 	/**
-	 * 是否与包围盒交叉。
-	 * @param box 包围盒。
-	 * @returns boolean 是否相交
+	 * @en Determines whether this frustum intersects with a bounding box.
+	 * @param box The bounding box to test against.
+	 * @returns `true` if they intersect; otherwise, `false`.
+	 * @zh 判断这个截锥体是否与包围盒相交。
+	 * @param box 要测试的包围盒。
+	 * @returns 如果相交返回 `true`；否则返回 `false`。
 	 */
 	intersects(box: BoundBox | Bounds): boolean {
 		var min: Vector3 = box.min;
@@ -399,9 +452,18 @@ export class BoundFrustum implements IClone {
 	}
 
 	/**
-	 * 与包围盒的位置关系。
-	 * @param  box  包围盒。
-	 * @returns 包涵:1,相交:2,不相交:0
+	 * @en Determines the spatial relationship between this frustum and a bounding box.
+	 * @param box The bounding box to test.
+	 * @returns The spatial relationship: 
+	 * - 1: The bounding box is inside the frustum.
+	 * - 2: The bounding box intersects the frustum.
+	 * - 0: The bounding box is outside and does not intersect the frustum.
+	 * @zh 确定这个截锥体和包围盒之间的空间关系。
+	 * @param box 要测试的包围盒。
+	 * @returns 关系类型：
+	 * - 1: 包围盒在截锥体内。
+	 * - 2: 包围盒与截锥体相交。
+	 * - 0: 包围盒在截锥体外且不相交。
 	 */
 	containsBoundBox(box: BoundBox | Bounds): number {
 		var p: Vector3 = BoundFrustum._tempV30, n: Vector3 = BoundFrustum._tempV31;
@@ -444,9 +506,18 @@ export class BoundFrustum implements IClone {
 	}
 
 	/**
-	 * 与包围球的位置关系
-	 * @param  sphere  包围球。
-	 * @returns 包涵:1,相交:2,不相交:0
+	 * @en Determines the spatial relationship between this frustum and a bounding sphere.
+	 * @param sphere The bounding sphere to test.
+	 * @returns The relationship type: 
+	 * - 1: The sphere is inside the frustum.
+	 * - 2: The sphere intersects the frustum.
+	 * - 0: The sphere is outside and does not intersect the frustum.
+	 * @zh 确定这个截锥体和包围球之间的空间关系。
+	 * @param sphere 要测试的包围球。
+	 * @returns 关系类型：
+	 * - 1: 包围球在截锥体内。
+	 * - 2: 包围球与截锥体相交。
+	 * - 0: 包围球在截锥体外且不相交。
 	 */
 	containsBoundSphere(sphere: BoundSphere): number {
 		var result: number = Plane.PlaneIntersectionType_Front;
@@ -492,10 +563,22 @@ export class BoundFrustum implements IClone {
 		}
 	}
 
+	/**
+	 * @en Clones this frustum into another object.
+	 * @param dest The destination BoundFrustum to copy the values into.
+	 * @zh 克隆这个截锥体到另一个对象。
+	 * @param dest 目标对象，用以复制值。
+	 */
 	cloneTo(dest: BoundFrustum) {
 		dest.matrix = this.matrix;
 	}
 
+	/**
+	 * @en Creates a clone of this frustum.
+	 * @returns A new BoundFrustum that is a clone of this one.
+	 * @zh 创建这个截锥体的克隆。
+	 * @returns 一个克隆自当前截锥体的新的 BoundFrustum。
+	 */
 	clone(): BoundFrustum {
 		let dest = new BoundFrustum(new Matrix4x4);
 		this.cloneTo(dest);
