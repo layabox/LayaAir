@@ -215,6 +215,11 @@ export class VolumeManager implements IVolumeManager {
      */
     clearMotionObjects() {
         this._motionObjects.length = 0;
+        //下面是避免this._motionObjects.elements太长，以及避免引用对象
+        if(this._motionObjects.elements.length>100){
+            this._motionObjects.elements.length = 100;
+        }
+        this._motionObjects.elements.fill(null);
     }
 
     /**
