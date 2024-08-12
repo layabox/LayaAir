@@ -4,6 +4,7 @@ import { ICompoundColliderShape } from "../../interface/Shape/ICompoundColliderS
 import { btColliderShape } from "./btColliderShape";
 
 /**
+ * @deprecated
  * <code>CompoundColliderShape</code> 类用于创建组合碰撞器。
  */
 export class btCompoundColliderShape extends btColliderShape implements ICompoundColliderShape {
