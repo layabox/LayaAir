@@ -6,11 +6,14 @@ import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
 import { DrawType } from "../../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
 import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
+import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
+import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
 import { LayaGL } from "../../layagl/LayaGL";
 import { Color } from "../../maths/Color";
 import { Vector2 } from "../../maths/Vector2";
 import { Vector4 } from "../../maths/Vector4";
 import { Material } from "../../resource/Material";
+import { Mesh2D } from "../../resource/Mesh2D";
 import { Texture } from "../../resource/Texture";
 import { Texture2D } from "../../resource/Texture2D";
 import { Spine2DRenderNode } from "../Spine2DRenderNode";
@@ -20,10 +23,14 @@ import { SpineTemplet } from "../SpineTemplet";
 import { ISpineRender } from "../interface/ISpineRender";
 
 import { SpineShaderInit } from "../material/SpineShaderInit";
+import { SpineMeshUtils } from "../mesh/SpineMeshUtils";
+import { FrameRenderData, SkinAniRenderData } from "./AnimationRender";
 import { AnimationRenderProxy } from "./AnimationRenderProxy";
 import { MultiRenderData } from "./MultiRenderData";
-import { SketonOptimise, SkinAttach, TSpineBakeData } from "./SketonOptimise";
+import { SketonDynamicInfo, SketonOptimise, SkinAttach, TSpineBakeData } from "./SketonOptimise";
+import { VBCreator } from "./VBCreator";
 import { ISpineOptimizeRender } from "./interface/ISpineOptimizeRender";
+import { IVBChange } from "./interface/IVBChange";
 import { IVBIBUpdate } from "./interface/IVBIBUpdate";
 
 export class SpineOptimizeRender implements ISpineOptimizeRender {
@@ -31,8 +38,6 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
     currentAnimation: AnimationRenderProxy;
     bones: spine.Bone[];
     slots: spine.Slot[];
-
-
 
     skinRenderArray: SkinRender[];
 
@@ -46,8 +51,8 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
     //  * Material
     //  */
     // material: IOptimizeMaterial;
-
-    geoMap: Map<ESpineRenderType, TGeo>;
+    
+    _dynamicMap:Map<number,Mesh2D>;
 
     private _isRender: boolean;
 
@@ -70,13 +75,16 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
 
     private _renderProxytype: ERenderProxyType;
 
+    dynamicInfo:SketonDynamicInfo;
+
     constructor(spineOptimize: SketonOptimise) {
         this.renderProxyMap = new Map();
-        this.geoMap = new Map();
+        // this.geoMap = new Map();
+        this._dynamicMap = new Map;
         this.animatorMap = new Map();
         this.skinRenderArray = [];
         this.boneMat = new Float32Array(spineOptimize.maxBoneNumber * 8);
-
+        
         spineOptimize.skinAttachArray.forEach((value) => {
             this.skinRenderArray.push(new SkinRender(this, value));
         })
@@ -87,9 +95,12 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
             this.animatorMap.set(animator.name, new AnimationRenderProxy(animator));
         }
         this.currentRender = this.skinRenderArray[this._skinIndex];//default
+        this.dynamicInfo = spineOptimize.dynamicInfo;
     }
 
     destroy(): void {
+        this._dynamicMap.forEach(mesh=>mesh.destroy());
+        this._dynamicMap.clear();
         //throw new Error("Method not implemented.");
     }
 
@@ -109,28 +120,7 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
         }
         //throw new Error("Method not implemented.");
     }
-
-    initRender(type: ESpineRenderType) {
-        //buffers .pos .uv .color vbs ib
-
-        let geoResult = this.geoMap.get(type);
-        if (!geoResult) {
-            let geo = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
-            let mesh = LayaGL.renderDeviceFactory.createBufferState();
-            geo.bufferState = mesh;
-            let vb = LayaGL.renderDeviceFactory.createVertexBuffer(BufferUsage.Dynamic);
-            vb.vertexDeclaration = type == ESpineRenderType.rigidBody ? SpineShaderInit.SpineRBVertexDeclaration : SpineShaderInit.SpineFastVertexDeclaration;
-            let ib = LayaGL.renderDeviceFactory.createIndexBuffer(BufferUsage.Dynamic);
-
-            mesh.applyState([vb], ib);
-            geo.indexFormat = IndexFormat.UInt16;
-            // geo.instanceCount = 
-            geoResult = { geo, vb, ib };
-            this.geoMap.set(type, geoResult);
-        }
-        return geoResult;
-    }
-
+    
     changeSkeleton(skeleton:spine.Skeleton){
         this._skeleton=skeleton;
         this.bones = skeleton.bones;
@@ -145,7 +135,7 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
         this._nodeOwner = renderNode;
         let scolor = skeleton.color;
         this.spineColor = new Color(scolor.r * scolor.a, scolor.g * scolor.a, scolor.b * scolor.a, scolor.a);
-        renderNode._spriteShaderData.setColor(SpineShaderInit.Color, this.spineColor);
+        renderNode._spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, this.spineColor);
         this.skinRenderArray.forEach((value) => {
             value.init(skeleton, templet, renderNode);
         });
@@ -219,6 +209,24 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
         }
     }
 
+    /**
+     * 获取对应类型的 Dynamic mesh
+     * @param type 
+     * @param [create=true] 
+     * @returns 
+     */
+    getDynamicMesh( vertexDeclaration:VertexDeclaration , create = true){
+        let id = vertexDeclaration.id;
+        let mesh = this._dynamicMap.get(id);
+        if (!mesh && create) {
+            mesh = SpineMeshUtils.createMeshDynamic(vertexDeclaration, 
+                this.dynamicInfo.maxVertexCount , this.dynamicInfo.maxIndexCount , 
+                this.dynamicInfo.indexFormat , this.dynamicInfo.indexByteCount );
+            this._dynamicMap.set(id , mesh);
+        }
+        return mesh;
+    }
+
     private _clear() {
         this._nodeOwner.clear();
         this._isRender = false;
@@ -239,7 +247,6 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
         }
 
         if (currentSKin.isNormalRender) {
-
             this.renderProxytype = ERenderProxyType.RenderNormal;
         }
         else {
@@ -257,35 +264,41 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
                     this._nodeOwner._spriteShaderData.removeDefine(SpineShaderInit.SPINE_RB);
                     break;
             }
+
             if (old && oldSkinData.isNormalRender) {
                 this._clear();
             }
+
             if (oldSkinData != currentSKin) {
-                currentRender.updateVB(currentSKin.vb.vb, currentSKin.vb.vbLength);
+                currentRender.renderUpdate(currentSKin , -1);
             }
-            //currentAnimation.
             // old.animator.mutiRenderAble
-            let mutiRenderAble = currentSKin.mutiRenderAble;
+            // let mutiRenderAble = currentSKin.mutiRenderAble;
             if (this._isRender) {
-                if (mutiRenderAble != oldSkinData.mutiRenderAble) {
-                    this._clear();
-                }
+                //
+                // if (mutiRenderAble != oldSkinData.mutiRenderAble) {
+                    // this._clear();
+                // }
             }
-            if (!this._isRender) {
-                if (mutiRenderAble) {
-                    //this._nodeOwner.drawGeos(currentRender.geo, currentRender.elements);
-                    this.renderProxytype = ERenderProxyType.RenderOptimize;
-                }
-                else {
-                    currentRender.material&&this._nodeOwner.drawGeo(currentRender.geo, currentRender.material);
-                    this.renderProxytype = ERenderProxyType.RenderOptimize;
-                }
+            else {
+                // else (!this._isRender) {
+                this.renderProxytype = ERenderProxyType.RenderOptimize;
+                // if (mutiRenderAble) {
+                //     //this._nodeOwner.drawGeos(currentRender.geo, currentRender.elements);
+                    // this.renderProxytype = ERenderProxyType.RenderOptimize;
+                // }
+                // else {
+                //     // currentRender.material&&this._nodeOwner.drawGeo(currentRender.geo, currentRender.material);
+                //     this.renderProxytype = ERenderProxyType.RenderOptimize;
+                // }
                 this._isRender = true;
             }
         }
+
         if (oldRenderProxy) {
             oldRenderProxy.leave();
         }
+
         this.renderProxy.change(currentRender, currentAnimation);
         if ((currentAnimation.animator.isCache || this.renderProxytype == ERenderProxyType.RenderBake) && !currentSKin.isNormalRender) {
             this.beginCache();
@@ -299,6 +312,7 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
         this.renderProxy.render(time, this.boneMat);
     }
 }
+
 enum ERenderProxyType {
     RenderNormal,
     RenderOptimize,
@@ -322,16 +336,18 @@ class RenderOptimize implements IRender {
         this.slots = slots;
         this._renderNode = renderNode;
     }
+
     change(currentRender: SkinRender, currentAnimation: AnimationRenderProxy) {
         this.skinRender = currentRender;
         this.currentAnimation = currentAnimation;
     }
+
     leave(): void {
 
     }
 
     render(curTime: number, boneMat: Float32Array) {
-        this.currentAnimation.render(this.bones, this.slots, this.skinRender, curTime, boneMat);//TODO bone
+        this.currentAnimation.render(this.bones, this.slots, this.skinRender, curTime, boneMat );//TODO bone
         // this.material.boneMat = boneMat;
         this._renderNode._spriteShaderData.setBuffer(SpineShaderInit.BONEMAT, boneMat);
     }
@@ -352,7 +368,7 @@ class RenderNormal implements IRender {
     }
 
     change(currentRender: SkinRender, currentAnimation: AnimationRenderProxy) {
-        this._renerer = currentRender._renerer;
+        this._renerer = currentRender._renderer;
     }
 
     render(curTime: number, boneMat: Float32Array) {
@@ -462,7 +478,7 @@ class RenderBake implements IRender {
     }
 
     render(curTime: number, boneMat: Float32Array) {
-        this.currentAnimation.renderWithOutMat(this.slots, this.skinRender, curTime);
+        this.currentAnimation.renderWithOutMat(this.slots, this.skinRender, curTime );
         this._simpleAnimatorOffset.y = curTime / this.step;
         this._computeAnimatorParamsData();
         // let boneMat = this.currentAnimation.render(this.bones, this.slots, this.skinRender, curTime);//TODO bone
@@ -476,94 +492,165 @@ class SkinRender implements IVBIBUpdate {
 
     owner: SpineOptimizeRender;
     name: string;
-    /**
-   * Geometry
-   */
-    geo: IRenderGeometryElement;
-
-    protected vb: IVertexBuffer;
-    protected ib: IIndexBuffer;
-    elements: [Material, number, number][];
+    // protected vb: IVertexBuffer;
+    // protected ib: IIndexBuffer;
+    // elements: [Material, number, number][];
     private hasNormalRender: boolean;
-    _renerer: ISpineRender;
+    _renderer: ISpineRender;
 
-    elementsMap: Map<number, ElementCreator>;
+    // elementsMap: Map<number, ElementCreator>;
 
     templet: SpineTemplet;
 
     skinAttachType: ESpineRenderType;
     material: Material;
     currentMaterials: Material[] = [];
+
+    cacheMaterials: Material[][] = [];
+
+    vChanges:IVBChange[] = [];
+
     constructor(owner: SpineOptimizeRender, skinAttach: SkinAttach) {
         this.owner = owner;
         this.name = skinAttach.name;
-        this.elements = [];
+        // this.elements = [];
         this.hasNormalRender = skinAttach.hasNormalRender;
-        this.elementsMap = new Map();
+        // this.elementsMap = new Map();
         this.skinAttachType = skinAttach.type;
-        // if (skinAttach.type == ERenderType.boneGPU) {
-        //     this.materialConstructor = SpineFastMaterial;
-        // }
-        // else if (skinAttach.type == ERenderType.rigidBody) {
-        //     this.materialConstructor = SpineRBMaterial;
-        // }
-        // else {
-        //     this.materialConstructor = SpineFastMaterial;
-        // }
-        let geoResult = owner.initRender(skinAttach.type);
-        this.geo = geoResult.geo;
-        this.vb = geoResult.vb;
-        this.ib = geoResult.ib;
     }
 
     getMaterialByName(name: string, blendMode: number): Material {
         return this.templet.getMaterial(this.templet.getTexture(name), blendMode);
     }
 
+    renderUpdate( skindata:SkinAniRenderData, frame:number){
+        let frameData = skindata.getFrameData(frame);
+        let mulitRenderData = frameData.mulitRenderData
+        let mats:Material[] = this.cacheMaterials[mulitRenderData.id];
 
-
-    updateVB(vertexArray: Float32Array, vbLength: number) {
-        let vb = this.vb;
-        let vblen = vbLength * 4;
-        vb.setDataLength(vblen);
-        vb.setData(vertexArray.buffer, 0, 0, vblen);
-    }
-
-    updateIB(indexArray: Uint16Array, ibLength: number, mutiRenderData: MultiRenderData, isMuti: boolean) {
-        let ib = this.ib;
-        let iblen = ibLength * 2;
-        ib._setIndexDataLength(iblen)
-        ib._setIndexData(new Uint16Array(indexArray.buffer, 0, iblen / 2), 0);
-        this.geo.clearRenderParams();
-        this.geo.setDrawElemenParams(iblen / 2, 0);
-        this.ib.indexCount = iblen / 2;
-        if (isMuti) {
-            let elementsCreator = this.elementsMap.get(mutiRenderData.id);
-            if (!elementsCreator) {
-                elementsCreator = new ElementCreator(mutiRenderData, this);
-                this.elementsMap.set(mutiRenderData.id, elementsCreator);
-            }
-            elementsCreator.cloneTo(this.elements);
-            this.currentMaterials = elementsCreator.currentMaterials;
-            this.owner._nodeOwner.updateElements(this.geo, this.elements);
-        }
-        else {
-            let currentData = mutiRenderData.currentData;
-            if(!currentData) return;
-            let material=currentData.material;
-            if (!material) {
-                material=currentData.material = this.getMaterialByName(currentData.textureName, currentData.blendMode);
-            }
-            if(material!=this.material){
-                this.owner._nodeOwner.clear();
-                this.owner._nodeOwner.drawGeo(this.geo, material);
+        let needUpdate = false;
+        if (!mats) {
+            mats = this.cacheMaterials[mulitRenderData.id] = [];
+            let renderData = mulitRenderData.renderData;
+            for (let i = 0, n = renderData.length; i < n; i++) {
+                let data = renderData[i];
+                let mat = this.getMaterialByName(data.textureName, data.blendMode);
+                mats.push(mat);
             }
         }
+
+        let renderNode = this.owner._nodeOwner;
+        if (this.currentMaterials != mats) {
+            renderNode._updateMaterials(mats);
+            needUpdate = true;
+        }
+        this.currentMaterials = mats;
+
+        let mesh : Mesh2D ;
+        if (skindata.isDynamic) {
+            let mesh = this.owner.getDynamicMesh(skindata.vb.vertexDeclaration);
+            
+            if (this.vChanges.length || frameData.vChanges || frame < 0) {
+                let needUpload = frame <= 0;
+                let currentChanges = this.vChanges;
+                let frameChanges = frameData.vChanges;
+                
+                if (frameChanges) {
+                    for (let i = 0 , n = frameChanges.length; i < n; i++) 
+                        currentChanges.indexOf(frameChanges[i]) == -1 && currentChanges.push(frameChanges[i]);
+                }
+
+                for (let i = currentChanges.length - 1; i > -1; i--) {
+                    let change = currentChanges[i];
+                    if ( change.startFrame <= frame 
+                        && change.endFrame >= frame 
+                        || frame <= 0) {
+                            if(change.updateVB(skindata.vb ,this.owner.slots)){
+                                needUpload = true;
+                            }else
+                                currentChanges.splice(i , 1);
+                    }else{
+                        currentChanges.splice(i , 1);
+                    }
+                }
+
+                if (needUpload) {
+                    this.uploadVertexBuffer( skindata.vb , mesh);
+                }
+            }
+
+            
+            if (frameData.ib || frame < 0) {
+                this.uploadIndexBuffer( frameData.ib , mesh)
+            }
+            needUpdate = SpineMeshUtils.updateSpineSubMesh(mesh , frameData.mulitRenderData , this.owner.dynamicInfo);
+            needUpdate = !renderNode._onMeshChange(mesh , needUpdate);
+        }else{
+            mesh = skindata.getMesh();
+            needUpdate = !renderNode._onMeshChange(mesh);
+        }
+
+        if (needUpdate) renderNode._updateRenderElements();
+            
     }
+
+    uploadIndexBuffer( indexData:Uint16Array|Uint8Array|Uint32Array , mesh:Mesh2D){
+        let indexbuffer = mesh._indexBuffer;
+        indexbuffer._setIndexData(indexData , 0);
+    }
+
+
+    uploadVertexBuffer( vbCreator : VBCreator , mesh:Mesh2D){
+        let vertexBuffer = mesh.vertexBuffers[0];
+        // let float32 = new Float32Array(vbCreator.vb , vbCreator.vbLength);
+        let vblen = vbCreator.vbLength * 4;
+        vertexBuffer.setDataLength(vblen);
+        vertexBuffer.setData(vbCreator.vb.buffer, 0, 0, vblen);
+    }
+
+    // updateVB(vertexArray: Float32Array, vbLength: number) {
+    //     let vb = this.vb;
+    //     let vblen = vbLength * 4;
+    //     vb.setDataLength(vblen);
+    //     vb.setData(vertexArray.buffer, 0, 0, vblen);
+    // }
+
+    // updateIB(indexArray: Uint16Array, ibLength: number, mutiRenderData: MultiRenderData, isMuti: boolean) {
+    //     let ib = this.ib;
+    //     let iblen = ibLength * 2;
+    //     ib._setIndexDataLength(iblen)
+    //     ib._setIndexData(new Uint16Array(indexArray.buffer, 0, iblen / 2), 0);
+    //     this.geo.clearRenderParams();
+    //     this.geo.setDrawElemenParams(iblen / 2, 0);
+    //     this.ib.indexCount = iblen / 2;
+    //     if (isMuti) {
+    //         let elementsCreator = this.elementsMap.get(mutiRenderData.id);
+    //         if (!elementsCreator) {
+    //             elementsCreator = new ElementCreator(mutiRenderData, this);
+    //             this.elementsMap.set(mutiRenderData.id, elementsCreator);
+    //         }
+    //         elementsCreator.cloneTo(this.elements);
+    //         this.currentMaterials = elementsCreator.currentMaterials;
+    //         this.owner._nodeOwner.updateElements(this.geo, this.elements);
+    //     }
+    //     else {
+    //         let currentData = mutiRenderData.currentData;
+    //         if(!currentData) return;
+    //         let material=currentData.material;
+    //         if (!material) {
+    //             material=currentData.material = this.getMaterialByName(currentData.textureName, currentData.blendMode);
+    //         }
+    //         if(material!=this.material){
+    //             this.owner._nodeOwner.clear();
+    //             this.owner._nodeOwner.drawGeo(this.geo, material);
+    //         }
+    //     }
+    // }
+
     init(skeleton: spine.Skeleton, templet: SpineTemplet, renderNode: Spine2DRenderNode) {
         this.templet = templet;
         if (this.hasNormalRender) {
-            this._renerer = SpineAdapter.createNormalRender(templet, false);
+            this._renderer = SpineAdapter.createNormalRender(templet, false);
         }
         if (templet.mainTexture) {
             this.material = templet.getMaterial(templet.mainTexture, templet.mainBlendMode);
@@ -575,32 +662,32 @@ class SkinRender implements IVBIBUpdate {
     }
 }
 
-class ElementCreator {
-    elements: [Material, number, number][];
-    currentMaterials: Material[];
+// class ElementCreator {
+//     elements: [Material, number, number][];
+//     currentMaterials: Material[];
 
-    constructor(mutiRenderData: MultiRenderData, skinData: SkinRender) {
-        let elements: [Material, number, number][] = this.elements = [];
-        let currentMaterials: Material[] = this.currentMaterials = [];
-        let renderData = mutiRenderData.renderData;
-        for (let i = 0, n = renderData.length; i < n; i++) {
-            let data = renderData[i];
-            let mat = skinData.getMaterialByName(data.textureName, data.blendMode);
-            if (currentMaterials.indexOf(mat) == -1) {
-                this.currentMaterials.push(mat);
-            }
-            elements[i] = [mat, data.length, data.offset * 2];
-        }
-    }
+//     constructor(mutiRenderData: MultiRenderData, skinData: SkinRender) {
+//         let elements: [Material, number, number][] = this.elements = [];
+//         let currentMaterials: Material[] = this.currentMaterials = [];
+//         let renderData = mutiRenderData.renderData;
+//         for (let i = 0, n = renderData.length; i < n; i++) {
+//             let data = renderData[i];
+//             let mat = skinData.getMaterialByName(data.textureName, data.blendMode);
+//             if (currentMaterials.indexOf(mat) == -1) {
+//                 this.currentMaterials.push(mat);
+//             }
+//             elements[i] = [mat, data.length, data.offset * 2];
+//         }
+//     }
 
-    cloneTo(source: [Material, number, number][]) {
-        let target = this.elements;
-        for (let i = 0, n = target.length; i < n; i++) {
-            source[i] = target[i];
-        }
-        source.length = target.length;
-    }
-}
+//     cloneTo(source: [Material, number, number][]) {
+//         let target = this.elements;
+//         for (let i = 0, n = target.length; i < n; i++) {
+//             source[i] = target[i];
+//         }
+//         source.length = target.length;
+//     }
+// }
 
 type TGeo = {
     geo: IRenderGeometryElement;

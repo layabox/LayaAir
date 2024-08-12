@@ -1,10 +1,15 @@
 #define SHADER_NAME SpineStandardVS
-#include "SpineVertex.glsl"
+
+#include "Sprite2DVertex.glsl";
+
+#include "SpineVertex.glsl";
 
 void main()
 {
-    vUv = a_texcoord;
-    vColor = a_color*u_color;
     vec4 pos = getSpinePos();
+    vertexInfo info;
+    getVertexInfo(info);
+    v_texcoord = info.uv;
+    v_color = info.color;
     gl_Position = getScreenPos(pos);
 }

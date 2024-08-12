@@ -27,6 +27,8 @@ import { SpineNormalRender } from "./optimize/SpineNormalRender";
 import { SketonOptimise } from "./optimize/SketonOptimise";
 import { SpineEmptyRender } from "./optimize/SpineEmptyRender";
 import { Texture2D } from "../resource/Texture2D";
+import { Mesh2D } from "../resource/Mesh2D";
+import { Vector3 } from "../maths/Vector3";
 
 
 /**动画开始播放调度
@@ -56,7 +58,6 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
             return this._pool.pop();
         }
         let element = LayaGL.render2DRenderPassFactory.createRenderElement2D();
-        element.geometry = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
         element.renderStateIsBySprite = false;
         element.nodeCommonMap = ["spine2D"]
         return element;
@@ -119,12 +120,25 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
     private _externalSkins: ExternalSkin[];
     private _skin: string;
 
-    private _matBuffer: Float32Array = new Float32Array(6);
+    // private _matBuffer: Float32Array = new Float32Array(6);
+    _nMatrix_0 = new Vector3;
+    _nMatrix_1 = new Vector3;
+
+
+    _mesh:Mesh2D;
+
     constructor() {
         super();
         this._renderElements = [];
         this._materials = [];
         this.spineItem = SpineEmptyRender.instance;
+        this._spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);
+        this._spriteShaderData.addDefine(SpineShaderInit.SPINE_UV);
+        this._spriteShaderData.addDefine(SpineShaderInit.SPINE_COLOR);
+    }
+
+    protected _getcommonUniformMap(): Array<string> {
+        return ["BaseRender2D","Spine2D"]
     }
 
     /**
@@ -144,16 +158,21 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
 
     addCMDCall(context: Context, px: number, py: number) {
         let mat = context._curMat;
-        let buffer = this._matBuffer;
-        buffer[0] = mat.a;
-        buffer[1] = mat.b;
-        buffer[2] = mat.tx + mat.a * px + mat.c * py;
-        buffer[3] = mat.c;
-        buffer[4] = mat.d;
-        buffer[5] = mat.ty + mat.b * px + mat.d * py;
-        this._spriteShaderData.setBuffer(SpineShaderInit.NMatrix, buffer);
+        // let buffer = this._matBuffer;
+        this._nMatrix_0.setValue(mat.a , mat.b , mat.tx + mat.a * px + mat.c * py );
+        this._nMatrix_1.setValue(mat.c , mat.d , mat.ty + mat.b * px + mat.d * py );
+        // buffer[0] = mat.a;
+        // buffer[1] = mat.b;
+        // buffer[2] = mat.tx + mat.a * px + mat.c * py;
+        // buffer[3] = mat.c;
+        // buffer[4] = mat.d;
+        // buffer[5] = mat.ty + mat.b * px + mat.d * py;
+        // this._spriteShaderData.setBuffer(SpineShaderInit.NMatrix, buffer);
+        this._spriteShaderData.setVector3(BaseRenderNode2D.NMATRIX_0, this._nMatrix_0);
+        this._spriteShaderData.setVector3(BaseRenderNode2D.NMATRIX_1, this._nMatrix_1);
+
         Vector2.TempVector2.setValue(context.width, context.height);
-        this._spriteShaderData.setVector2(SpineShaderInit.Size, Vector2.TempVector2);
+        this._spriteShaderData.setVector2(BaseRenderNode2D.BASERENDERSIZE, Vector2.TempVector2);
     }
 
     /**
@@ -706,48 +725,58 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
         this.spineItem.destroy();
     }
 
-    drawGeos(geo: IRenderGeometryElement, elements: [Material, number, number][]) {
-        for (var i = 0, n = elements.length; i < n; i++) {
-            let element = Spine2DRenderNode.createRenderElement2D();
-            element.geometry.bufferState = geo.bufferState;
-            element.geometry.indexFormat = IndexFormat.UInt16;
-            element.geometry.clearRenderParams();
-            element.geometry.setDrawElemenParams(elements[i][1], elements[i][2]);
-            let material = elements[i][0];
-            this._renderElements.push(element);
-            if (this._materials[0] != null) {
-                let rendernodeMaterial = this._materials[i];
-                rendernodeMaterial.setTextureByIndex(SpineShaderInit.SpineTexture, material.getTextureByIndex(SpineShaderInit.SpineTexture));
-                rendernodeMaterial.blendSrc = material.blendSrc;
-                rendernodeMaterial.blendDst = material.blendDst;
-                material = rendernodeMaterial;
-            }
+    _updateMaterials(elements: Material[]){
+        for (let i = 0 , len = elements.length; i < len; i++) {
+            this._materials[i] = elements[i];
+        }
+    }
+
+    _updateRenderElements(){
+        let elementLength = this._renderElements.length
+        for (let i = 0 ; i < elementLength ; i++) {
+            let element = this._renderElements[i];
+            let material = this._materials[i];
             element.materialShaderData = material.shaderData;
             element.subShader = material._shader.getSubShaderAt(0);
             element.value2DShaderData = this._spriteShaderData;
         }
     }
-    updateElements(geo: IRenderGeometryElement, elements: [Material, number, number][]) {
-        this.clear();
-        this.drawGeos(geo, elements);
-    }
 
-    drawGeo(geo: IRenderGeometryElement, material: Material) {
-        let element = Spine2DRenderNode.createRenderElement2D();
-        element.geometry = geo;
-        // geo.clearRenderParams();
-        // geo.setDrawElemenParams(geo.bufferState._bindedIndexBuffer.indexCount, 0);
-        this._renderElements.push(element);
-        if (this._materials[0] != null) {
-            let rendernodeMaterial = this._materials[0];
-            rendernodeMaterial.setTextureByIndex(SpineShaderInit.SpineTexture, material.getTextureByIndex(SpineShaderInit.SpineTexture));
-            rendernodeMaterial.blendSrc = material.blendSrc;
-            rendernodeMaterial.blendDst = material.blendDst;
-            material = rendernodeMaterial;
+    _onMeshChange( mesh:Mesh2D , force :boolean = false ){
+        let hasChange = false;
+        if (this._mesh != mesh || force) {
+            hasChange = true;
+            if (mesh) {
+                let subMeshes = mesh._subMeshes;
+                let elementLength = this._renderElements.length;
+                let flength = Math.max(elementLength , mesh.subMeshCount);
+                for (let i = 0 ; i < flength ; i++) {
+                    let element = this._renderElements[i];
+                    let subMesh = subMeshes[i];   
+                    if (subMesh) {
+                        if (!element) {
+                            element = Spine2DRenderNode.createRenderElement2D();
+                            this._renderElements[i] = element;
+                        }
+                        let material = this._materials[i];
+                        element.geometry = subMesh;
+                        element.materialShaderData = material.shaderData;
+                        element.subShader = material._shader.getSubShaderAt(0);
+                        element.value2DShaderData = this._spriteShaderData;
+                        element.nodeCommonMap = this._getcommonUniformMap();
+                    }else{
+                        Spine2DRenderNode.recoverRenderElement2D(element);
+                    }
+                }
+                this._renderElements.length = mesh.subMeshCount;
+            }else{
+                for (let i = 0 , len = this._renderElements.length ; i < len ; i++)
+                    Spine2DRenderNode.recoverRenderElement2D(this._renderElements[i]);
+                this._renderElements.length = 0;
+            }
         }
-        element.materialShaderData = material.shaderData;
-        element.subShader = material._shader.getSubShaderAt(0);
-        element.value2DShaderData = this._spriteShaderData;
+        this._mesh = mesh;
+        return hasChange
     }
 
     getMaterial(texture: Texture2D, blendMode: number): Material {
@@ -755,7 +784,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
         if (this._materials.length <= this._renderElements.length) {
             //默认给一个新的Mateiral
             mat = this.templet.getMaterial(texture, blendMode);
-            //renderNode._materials.push(mat);
+            // renderNode._materials.push(mat);
         } else {
             mat = this._materials[this._renderElements.length];
             SpineShaderInit.SetSpineBlendMode(blendMode, mat);
@@ -763,12 +792,6 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
         }
         return mat;
     }
-}
-
-export enum ERenderType {
-    normal = 0,
-    boneGPU = 1,
-    rigidBody = 2,
 }
 
 class TimeKeeper {

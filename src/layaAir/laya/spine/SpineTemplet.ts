@@ -127,6 +127,9 @@ export class SpineTemplet extends Resource {
      * @override
      */
     protected _disposeResource(): void {
+        
+        this.sketonOptimise.destroy();
+        
         for (let k in this._textures) {
             let tex = this._textures[k];
             if (tex) {
@@ -142,5 +145,8 @@ export class SpineTemplet extends Resource {
         else {
             console.error("SpineTemplet is using");
         }
+
+        this.skeletonData = null;
+        this.sketonOptimise = null;
     }
 }

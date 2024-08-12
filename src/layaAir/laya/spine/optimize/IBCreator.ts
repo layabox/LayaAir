@@ -1,21 +1,38 @@
+import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
 import { SpineMeshBase } from "../mesh/SpineMeshBase";
 import { MultiRenderData } from "./MultiRenderData";
 
 export class IBCreator {
-    ib: Uint16Array;
+    type:IndexFormat;
+    size:number;
+    ib: Uint16Array|Uint32Array|Uint8Array;
     ibLength: number;
+    maxIndexCount:number
     outRenderData: MultiRenderData;
 
-    private _realib: Uint16Array;
-
-    get realIb(): Uint16Array {
-        if (!this._realib) {
-            this._realib = new Uint16Array(this.ib.buffer, 0, this.ibLength);
-        }
-        return this._realib;
+    get realIb(): Uint16Array|Uint32Array|Uint8Array {
+        return this.ib;
     }
-    constructor() {
-        this.ib = new Uint16Array(SpineMeshBase.maxVertex * 3);
+
+    constructor(type:IndexFormat , maxIndexCount : number ) {
+        this.type = type;
+        this.maxIndexCount = maxIndexCount;
+        // this.ib = new Uint16Array(SpineMeshBase.maxVertex * 3);
+        switch (type) {
+            case IndexFormat.UInt16:
+                this.size = 2;
+                this.ib = new Uint16Array(maxIndexCount);
+                break;
+            case IndexFormat.UInt8:
+                this.size = 1;
+                this.ib = new Uint8Array(maxIndexCount);
+                break;
+                
+            case IndexFormat.UInt32:
+                this.size = 4
+                this.ib = new Uint32Array(maxIndexCount);
+                break;
+        }
         this.ibLength = 0;
     }
 }

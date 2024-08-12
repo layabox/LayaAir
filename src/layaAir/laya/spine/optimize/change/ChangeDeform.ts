@@ -6,6 +6,8 @@ export class ChangeDeform implements IVBChange {
     slotId: number;
     // attachment: string;
     sizeMap: Map<string, TAttamentPos>;
+    startFrame: number;
+    endFrame: number;
 
     constructor() {
     }
@@ -59,6 +61,8 @@ export class ChangeDeform implements IVBChange {
     clone(): IVBChange {
         let out = new ChangeDeform;
         out.slotId = this.slotId;
+        out.startFrame = this.startFrame;
+        out.endFrame = this.endFrame;
         // out.attachment = this.attachment;
         return out;
     }

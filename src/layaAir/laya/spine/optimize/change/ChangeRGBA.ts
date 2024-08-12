@@ -4,6 +4,8 @@ import { IVBChange } from "../interface/IVBChange";
 export class ChangeRGBA implements IVBChange {
     slotId: number;
     sizeMap: Map<string, TAttamentPos>;
+    startFrame: number;
+    endFrame: number;
 
     constructor(slotId: number) {
         this.slotId = slotId;
@@ -22,6 +24,7 @@ export class ChangeRGBA implements IVBChange {
             }
         }
         let slot = slots[this.slotId];
+        let color = slot.color;
         if (slot.attachment) {
             let vertexSize = vb.vertexSize;
             let attachmentPos = this.sizeMap.get(slot.attachment.name);
@@ -29,30 +32,20 @@ export class ChangeRGBA implements IVBChange {
             let vbData = vb.vb;
             let attachment = attachmentPos.attachment;
             let r, g, b, a;
-            let attachmentColor = attachment.attachmentColor;
-            let light = slot.color;
-            let drak = slot.darkColor;
-            let premultipliedAlpha = true;
-
+            let attachmentColor = attachment.lightColor;
             if (!attachmentColor) {
-                r = light.r;
-                g = light.g;
-                b = light.b;
-                a = light.a;
+                r = color.r * color.a;
+                g = color.g * color.a;
+                b = color.b * color.a;
+                a = color.a;
             }
             else {
-                r = light.r * attachmentColor.r
-                g = light.g * attachmentColor.g
-                b = light.b * attachmentColor.b
-                a = light.a * attachmentColor.a
+                r = color.r * color.a * attachmentColor.r;
+                g = color.g * color.a * attachmentColor.g;
+                b = color.b * color.a * attachmentColor.b;
+                a = color.a * attachmentColor.a;
             }
-
-            if (premultipliedAlpha) {
-                r = r * a;
-                g = g * a;
-                b = b * a;
-            }
-
+            
             let n = attachment.vertexCount;
             for (let i = 0; i < n; i++) {
                 vbData[offset + i * vertexSize + 2] = r;
@@ -65,6 +58,9 @@ export class ChangeRGBA implements IVBChange {
     }
 
     clone(): IVBChange {
-        return new ChangeRGBA(this.slotId);
+        let out = new ChangeRGBA(this.slotId);
+        out.startFrame = this.startFrame;
+        out.endFrame = this.endFrame;
+        return out
     }
 }
