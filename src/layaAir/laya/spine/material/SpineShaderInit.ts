@@ -13,13 +13,14 @@ import { RenderState } from "../../RenderDriver/RenderModuleData/Design/RenderSt
 import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
 import { VertexElement } from "../../renders/VertexElement";
 import { VertexElementFormat } from "../../renders/VertexElementFormat";
+import { SpineMeshUtils } from "../mesh/SpineMeshUtils";
 export class SpineShaderInit {
 
-    static SpineFastVertexDeclaration: VertexDeclaration;
+    // static SpineFastVertexDeclaration: VertexDeclaration;
 
     static SpineNormalVertexDeclaration: VertexDeclaration;
 
-    static SpineRBVertexDeclaration: VertexDeclaration;
+    // static SpineRBVertexDeclaration: VertexDeclaration;
 
 
     static instanceNMatrixDeclaration:VertexDeclaration;
@@ -99,7 +100,9 @@ export class SpineShaderInit {
 
         'a_NMatrix_0': [8, ShaderDataType.Vector3],
         'a_NMatrix_1': [9, ShaderDataType.Vector3],
-        'a_SimpleTextureParams': [10, ShaderDataType.Vector4]
+        'a_SimpleTextureParams': [10, ShaderDataType.Vector4],
+        //todo
+        // "a_color2":[11,ShaderDataType.Vector4],
     }
 
 
@@ -146,29 +149,31 @@ export class SpineShaderInit {
         let shadingPass = subShader.addShaderPass(spineStandardVS, spineStandardFS);
 
 
-        SpineShaderInit.SpineFastVertexDeclaration = new VertexDeclaration(88, [
-            new VertexElement(0, VertexElementFormat.Vector2, 0),
-            new VertexElement(8, VertexElementFormat.Vector4, 1),
-            new VertexElement(24, VertexElementFormat.Vector2, 2),
-            new VertexElement(32, VertexElementFormat.Single, 3),
-            new VertexElement(36, VertexElementFormat.Single, 4),
-            new VertexElement(40, VertexElementFormat.Vector4, 5),
-            new VertexElement(56, VertexElementFormat.Vector4, 6),
-            new VertexElement(72, VertexElementFormat.Vector4, 7)
-        ]);
+        // SpineShaderInit.SpineFastVertexDeclaration = new VertexDeclaration(88, [
+        //     new VertexElement(0, VertexElementFormat.Vector2, 0),
+        //     new VertexElement(8, VertexElementFormat.Vector4, 1),
+        //     new VertexElement(24, VertexElementFormat.Vector2, 2),
+        //     new VertexElement(32, VertexElementFormat.Single, 3),
+        //     new VertexElement(36, VertexElementFormat.Single, 4),
+        //     new VertexElement(40, VertexElementFormat.Vector4, 5),
+        //     new VertexElement(56, VertexElementFormat.Vector4, 6),
+        //     new VertexElement(72, VertexElementFormat.Vector4, 7)
+        // ]);
 
-        SpineShaderInit.SpineNormalVertexDeclaration = new VertexDeclaration(32, [
-            new VertexElement(0, VertexElementFormat.Vector2, 0),
-            new VertexElement(8, VertexElementFormat.Vector4, 1),
-            new VertexElement(24, VertexElementFormat.Vector2, 2)
-        ])
+        // SpineShaderInit.SpineRBVertexDeclaration = new VertexDeclaration(36, [
+        //     new VertexElement(0, VertexElementFormat.Vector2, 0),
+        //     new VertexElement(8, VertexElementFormat.Vector4, 1),
+        //     new VertexElement(24, VertexElementFormat.Vector2, 2),
+        //     new VertexElement(32, VertexElementFormat.Single, 4)
+        // ])
 
-        SpineShaderInit.SpineRBVertexDeclaration = new VertexDeclaration(36, [
-            new VertexElement(0, VertexElementFormat.Vector2, 0),
-            new VertexElement(8, VertexElementFormat.Vector4, 1),
-            new VertexElement(24, VertexElementFormat.Vector2, 2),
-            new VertexElement(32, VertexElementFormat.Single, 4)
-        ])
+        SpineShaderInit.SpineNormalVertexDeclaration = SpineMeshUtils.getVertexDeclaration("UV,COLOR,POSITION")
+        // SpineShaderInit.SpineNormalVertexDeclaration = new VertexDeclaration(32, [
+        //     new VertexElement(0, VertexElementFormat.Vector2, 0),
+        //     new VertexElement(8, VertexElementFormat.Vector4, 1),
+        //     new VertexElement(24, VertexElementFormat.Vector2, 2)
+        // ])
+
 
         SpineShaderInit.instanceNMatrixDeclaration = new VertexDeclaration(24 , [
             new VertexElement(0, VertexElementFormat.Vector3, 8),

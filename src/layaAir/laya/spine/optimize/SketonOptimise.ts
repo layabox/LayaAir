@@ -21,7 +21,7 @@ export class SketonOptimise implements IPreRender {
     static normalRenderSwitch: boolean = false;
     static cacheSwitch: boolean = false;
     canCache: boolean;
-    sketon: spine.Skeleton;
+    sketon: spine.Skeleton; 
     _stateData: spine.AnimationStateData;
     _state: spine.AnimationState;
 
@@ -108,7 +108,7 @@ export class SketonOptimise implements IPreRender {
         let skins = skeletonData.skins;
         let slots = skeletonData.slots;
         let defaultSkinAttach;
-        
+        //不同skin vbib长度可能不一致
         let maxVertexCount = -Number.MAX_VALUE;
         let maxIndexCount = -Number.MAX_VALUE;
 
@@ -121,7 +121,7 @@ export class SketonOptimise implements IPreRender {
             }
             skinAttach.attachMentParse(skin, slots);
             this.skinAttachArray.push(skinAttach);
-            skinAttach.checkMainAttach(slots);
+            // skinAttach.checkMainAttach(slots);
             maxVertexCount = Math.max(skinAttach.maxVertexCount);
             maxIndexCount = Math.max(skinAttach.maxIndexCount);
             if (i == 0) {
@@ -249,51 +249,51 @@ export class SkinAttach {
         });
     }
 
-    checkMainAttach(slots: spine.SlotData[]) {
+    // checkMainAttach(slots: spine.SlotData[]) {
+        // let type: ESpineRenderType = ESpineRenderType.rigidBody;
+        // for (let i = 0, n = slots.length; i < n; i++) {
+        //     let slot = slots[i];
+        //     let attachment = this.slotAttachMap.get(slot.index).get(slot.attachmentName);
+        //     let tempType = SlotUtils.checkAttachment(attachment ? attachment.sourceData : null);
+        //     if (tempType < type) {
+        //         type = tempType;
+        //         if (type == ESpineRenderType.normal) {
+        //             break;
+        //         }
+        //     }
+        // }
+        // this.type = type;
+
+        // let vertexCount = this.maxVertexCount;
+        // let indexCount = this.maxIndexCount;
+        // switch (this.type) {
+        //     case ESpineRenderType.normal:
+        //         this.mainVB = new VBBoneCreator(vertexCount);
+        //         break;
+        //     case ESpineRenderType.boneGPU:
+        //         this.mainVB = new VBBoneCreator(vertexCount);
+        //         break;
+        //     case ESpineRenderType.rigidBody:
+        //         this.mainVB = new VBRigBodyCreator(vertexCount);
+        //         break;
+        // }
+
         
-        let type: ESpineRenderType = ESpineRenderType.rigidBody;
-        for (let i = 0, n = slots.length; i < n; i++) {
-            let slot = slots[i];
-            let attachment = this.slotAttachMap.get(slot.index).get(slot.attachmentName);
-            let tempType = SlotUtils.checkAttachment(attachment ? attachment.sourceData : null);
-            if (tempType < type) {
-                type = tempType;
-                if (type == ESpineRenderType.normal) {
-                    break;
-                }
-            }
-        }
-        this.type = type;
+        // let ntype:IndexFormat = IndexFormat.UInt32;
+        // if (vertexCount < 256) {
+        //     ntype = IndexFormat.UInt8;
+        // }else if (vertexCount < 65536) {
+        //     ntype = IndexFormat.UInt16;
+        // }
 
-        let vertexCount = this.maxVertexCount;
-        let indexCount = this.maxIndexCount;
-        switch (this.type) {
-            case ESpineRenderType.normal:
-                this.mainVB = new VBBoneCreator(vertexCount);
-                break;
-            case ESpineRenderType.boneGPU:
-                this.mainVB = new VBBoneCreator(vertexCount);
-                break;
-            case ESpineRenderType.rigidBody:
-                this.mainVB = new VBRigBodyCreator(vertexCount);
-                break;
-        }
-
-        
-        let ntype:IndexFormat = IndexFormat.UInt32;
-        if (vertexCount < 256) {
-            ntype = IndexFormat.UInt8;
-        }else if (vertexCount < 65536) {
-            ntype = IndexFormat.UInt16;
-        }
-
-        this.mainIB = new IBCreator(ntype , indexCount);
-        this.tempIbCreate = new IBCreator( this.mainIB.type , this.mainIB.maxIndexCount)
-        this.init(slots);
-    }
+        // this.mainIB = new IBCreator(ntype , indexCount);
+        // this.tempIbCreate = new IBCreator( this.mainIB.type , this.mainIB.maxIndexCount);
+        // this.init(slots);
+    // }
 
     attachMentParse(skinData: spine.Skin, slots: spine.SlotData[]) {
-        // let type: ESpineRenderType = ESpineRenderType.rigidBody;
+        
+        let type: ESpineRenderType = ESpineRenderType.rigidBody;
         let attachments = skinData.attachments;
         let vertexCount = 0;
         let indexCount = 0;
@@ -315,6 +315,10 @@ export class SkinAttach {
                     
                     parse.init(attach, boneIndex, i, deform, slot);
 
+                    let tempType = SlotUtils.checkAttachment(parse.sourceData);
+                    if (tempType < type) {
+                        type = tempType;
+                    }
                     indexCount += parse.indexCount;
                     vertexCount += parse.vertexCount;
                     map.set(key, parse);
@@ -331,8 +335,34 @@ export class SkinAttach {
             }
         }
 
+        this.type = type;
+
         this.maxVertexCount = vertexCount;
         this.maxIndexCount = indexCount;
+
+        switch (this.type) {
+            case ESpineRenderType.normal:
+                this.mainVB = new VBBoneCreator(vertexCount , "UV,COLOR,POSITION,BONE");
+                break;
+            case ESpineRenderType.boneGPU:
+                this.mainVB = new VBBoneCreator(vertexCount , "UV,COLOR,POSITION,BONE");
+                break;
+            case ESpineRenderType.rigidBody:
+                this.mainVB = new VBRigBodyCreator(vertexCount , "UV,COLOR,POSITION,RIGIDBODY");
+                break;
+        }
+
+        
+        let ntype:IndexFormat = IndexFormat.UInt32;
+        if (vertexCount < 256) {
+            ntype = IndexFormat.UInt8;
+        }else if (vertexCount < 65536) {
+            ntype = IndexFormat.UInt16;
+        }
+
+        this.mainIB = new IBCreator(ntype , indexCount);
+        this.tempIbCreate = new IBCreator( this.mainIB.type , this.mainIB.maxIndexCount);
+        this.init(slots);
     }
 
     init(slots: spine.SlotData[]) {

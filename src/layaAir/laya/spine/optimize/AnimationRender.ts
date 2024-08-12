@@ -65,12 +65,12 @@ export class AnimationRender {
     getFrameIndex(time: number, frameIndex: number) {
         let frames = this.frames;
         let lastFrame = this.frameNumber - 1;
-        if (frameIndex < 0) {
-            frameIndex = 0;
+        if (frameIndex < -1) {
+            frameIndex = -1;
         }
         else if (frameIndex == lastFrame) {
             if (time < frames[lastFrame]) {
-                frameIndex = 0;
+                frameIndex = -1;
             }
         }
         else if (time >= frames[frameIndex + 1]) {
@@ -106,7 +106,6 @@ export class AnimationRender {
         //this.mainIb = mainib;
         changeMap.clear();
         renderFrames.length = 0;
-
         let hasClip: boolean;
         for (let i = 0, n = timeline.length; i < n; i++) {
             let time = timeline[i];
@@ -150,9 +149,10 @@ export class AnimationRender {
                     let arr = changeItem.iChanges = changeItem.iChanges||[];
                     arr.push(change);
                 }
+                // spine.timline
             }
             //@ts-ignore
-            else if (time instanceof (spine.ColorTimeline || spine.RGBATimeline)) {
+            else if (time instanceof (spine.ColorTimeline || spine.RGBATimeline ) || time instanceof spine.TwoColorTimeline) {
                 let rgba = time as spine.RGBATimeline;
                 let slotIndex = rgba.slotIndex;
                 if (frames.length == 5 && frames[0] == 0 && frames[4] == 0) {
@@ -249,6 +249,7 @@ export class AnimationRender {
 
         this.isDynamic = !!changeMap.size;
         renderFrames.sort();
+
         if (!hasClip) {
             if (preRender.canCache) {
                 this.cacheBones(preRender);
@@ -375,11 +376,11 @@ export class SkinAniRenderData {
 
         this._defaultFrameData = {
             mulitRenderData : ibCreator.outRenderData,
-            ib:new Uint16Array(ibCreator.ib.buffer, 0, ibCreator.ibLength)
+            ib:ibCreator.ib.slice(0,this.mainIB.ibLength)
         }
 
         if (isDynamic) {
-            this.vb = this.vb || mainVB.clone();
+            this.vb = mainVB.clone();
             this.vb.initBoneMat();
 
             let creator = tempCreator;

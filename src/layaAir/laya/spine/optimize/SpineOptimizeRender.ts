@@ -7,6 +7,7 @@ import { DrawType } from "../../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
 import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
+import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
 import { LayaGL } from "../../layagl/LayaGL";
 import { Color } from "../../maths/Color";
 import { Vector2 } from "../../maths/Vector2";
@@ -51,7 +52,7 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
     //  */
     // material: IOptimizeMaterial;
     
-    _dynamicMap:Map<ESpineRenderType,Mesh2D>;
+    _dynamicMap:Map<number,Mesh2D>;
 
     private _isRender: boolean;
 
@@ -214,13 +215,14 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
      * @param [create=true] 
      * @returns 
      */
-    getDynamicMesh(type:ESpineRenderType , create = true){
-        let mesh = this._dynamicMap.get(type);
+    getDynamicMesh( vertexDeclaration:VertexDeclaration , create = true){
+        let id = vertexDeclaration.id;
+        let mesh = this._dynamicMap.get(id);
         if (!mesh && create) {
-            mesh = SpineMeshUtils.createMeshDynamic(type, 
+            mesh = SpineMeshUtils.createMeshDynamic(vertexDeclaration, 
                 this.dynamicInfo.maxVertexCount , this.dynamicInfo.maxIndexCount , 
                 this.dynamicInfo.indexFormat , this.dynamicInfo.indexByteCount );
-            this._dynamicMap.set(type , mesh);
+            this._dynamicMap.set(id , mesh);
         }
         return mesh;
     }
@@ -546,7 +548,7 @@ class SkinRender implements IVBIBUpdate {
 
         let mesh : Mesh2D ;
         if (skindata.isDynamic) {
-            let mesh = this.owner.getDynamicMesh(this.skinAttachType);
+            let mesh = this.owner.getDynamicMesh(skindata.vb.vertexDeclaration);
             
             if (this.vChanges.length || frameData.vChanges || frame < 0) {
                 let needUpload = frame <= 0;

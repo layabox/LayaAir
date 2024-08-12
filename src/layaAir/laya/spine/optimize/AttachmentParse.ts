@@ -8,7 +8,8 @@ export class AttachmentParse {
     slotId: number;
     attachment: string;
     color: TColor;
-    attachmentColor: TColor;
+    lightColor: TColor;
+    // darkColor: TColor;
     blendMode: number;
     vertexArray: Float32Array;
     indexArray: Array<number>;
@@ -30,6 +31,8 @@ export class AttachmentParse {
         this.blendMode = slot.blendMode;
         let color = this.color = new Color();
         let attchmentColor: spine.Color;
+        let darkColor:spine.Color = slot.darkColor;
+
         if (attachment instanceof window.spine.RegionAttachment) {
             attchmentColor = attachment.color;
             let region = attachment as spine.RegionAttachment;
@@ -127,7 +130,7 @@ export class AttachmentParse {
 
         if (attchmentColor) {
             if (attchmentColor.a != 1 || attchmentColor.r != 1 || attchmentColor.g != 1 && attchmentColor.b != 1) {
-                this.attachmentColor = attchmentColor;
+                this.lightColor = attchmentColor;
             }
             color.r = slotColor.r * attchmentColor.r;
             color.g = slotColor.g * attchmentColor.g;
@@ -138,6 +141,10 @@ export class AttachmentParse {
             color.g *= a;
             color.b *= a;
         }
+
+        // if (darkColor) {
+            
+        // }
         return true;
     }
 }

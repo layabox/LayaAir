@@ -2,7 +2,6 @@ import { Laya } from "../../Laya";
 import { IBatchProgress } from "../net/BatchProgress";
 import { IResourceLoader, ILoadTask, Loader, ILoadURL } from "../net/Loader";
 import { URL } from "../net/URL";
-import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
 import { Texture2D } from "../resource/Texture2D";
 import { Utils } from "../utils/Utils";
 import { SpineTemplet } from "./SpineTemplet";
@@ -41,7 +40,8 @@ class SpineTempletLoader implements IResourceLoader {
         let atlas = new spine.TextureAtlas(atlasText, (path: string) => {
             let url = basePath + path;
             atlasPages.push({ 
-                url , type : Loader.TEXTURE2D , 
+                url ,
+                type : Loader.TEXTURE2D ,
                 propertyParams:{
                     premultiplyAlpha:true
                 }

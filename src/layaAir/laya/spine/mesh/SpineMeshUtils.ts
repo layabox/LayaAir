@@ -4,7 +4,10 @@ import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
 import { DrawType } from "../../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
 import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
+import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
 import { LayaGL } from "../../layagl/LayaGL";
+import { VertexElement } from "../../renders/VertexElement";
+import { VertexElementFormat } from "../../renders/VertexElementFormat";
 import { Mesh2D } from "../../resource/Mesh2D";
 import { ESpineRenderType } from "../SpineSkeleton";
 import { SpineShaderInit } from "../material/SpineShaderInit";
@@ -14,6 +17,9 @@ import { SketonDynamicInfo } from "../optimize/SketonOptimise";
 import { VBCreator } from "../optimize/VBCreator";
 
 export class SpineMeshUtils{
+
+    static SPINEMESH_COLOR2:number = 11;
+
     static createMesh( type:ESpineRenderType , vbCreator:VBCreator , ibCreator:IBCreator , isDynamic:boolean = false , uploadBuffer:boolean = true):Mesh2D{
         let mesh = new Mesh2D;
         
@@ -22,7 +28,7 @@ export class SpineMeshUtils{
         let usage = isDynamic ? BufferUsage.Dynamic : BufferUsage.Static
 
         let vertexBuffer = LayaGL.renderDeviceFactory.createVertexBuffer(usage);
-        let vertexDeclaration = type == ESpineRenderType.rigidBody ? SpineShaderInit.SpineRBVertexDeclaration : SpineShaderInit.SpineFastVertexDeclaration;
+        let vertexDeclaration = vbCreator.vertexDeclaration;
         let vertexStride = vertexDeclaration.vertexStride;
         vertexBuffer.vertexDeclaration = vertexDeclaration;
 
@@ -80,7 +86,7 @@ export class SpineMeshUtils{
         return mesh;
     }
 
-    static createMeshDynamic( type:ESpineRenderType , maxVertexCount:number , maxIndexCount:number , indexFormat:IndexFormat , indexSize:number):Mesh2D{
+    static createMeshDynamic( vertexDeclaration:VertexDeclaration , maxVertexCount:number , maxIndexCount:number , indexFormat:IndexFormat , indexSize:number):Mesh2D{
         let mesh = new Mesh2D;
         
         let vertexBuffers:IVertexBuffer[] = [];
@@ -88,7 +94,6 @@ export class SpineMeshUtils{
         let usage = BufferUsage.Dynamic;
 
         let vertexBuffer = LayaGL.renderDeviceFactory.createVertexBuffer(usage);
-        let vertexDeclaration = type == ESpineRenderType.rigidBody ? SpineShaderInit.SpineRBVertexDeclaration : SpineShaderInit.SpineFastVertexDeclaration;
         let vertexStride = vertexDeclaration.vertexStride;
         vertexBuffer.vertexDeclaration = vertexDeclaration;
 
@@ -181,5 +186,71 @@ export class SpineMeshUtils{
             }
         }
         return needUpdate;
+    }
+
+    private static _vertexDeclarationMap: any = {};
+
+    static getVertexDeclaration( vertexFlag:string ){
+        var verDec: VertexDeclaration = SpineMeshUtils._vertexDeclarationMap[vertexFlag];
+		if (!verDec) {
+			var subFlags: any[] = vertexFlag.split(",");
+			var elements: VertexElement[] = [];
+            var offset: number = 0;
+
+			for (var i: number = 0, n: number = subFlags.length; i < n; i++) {
+				var element: VertexElement;
+				switch (subFlags[i]) {
+                    case "COLOR2":
+						element = new VertexElement(offset, VertexElementFormat.Vector4, SpineMeshUtils.SPINEMESH_COLOR2);
+						offset += 16;
+						break;
+					case "BONE":
+						element = new VertexElement(offset, VertexElementFormat.Single, 3);
+        				elements.push(element);
+                        offset += 4;
+
+                        element = new VertexElement(offset, VertexElementFormat.Single, 4);
+        				elements.push(element);
+                        offset += 4;
+
+                        element = new VertexElement(offset, VertexElementFormat.Vector4, 5);
+        				elements.push(element);
+                        offset += 16;
+
+                        element = new VertexElement(offset, VertexElementFormat.Vector4, 6);
+        				elements.push(element);
+                        offset += 16;
+
+                        element = new VertexElement(offset, VertexElementFormat.Vector4, 7);
+                        offset += 16;
+						break;
+                    case "RIGIDBODY":
+                        element = new VertexElement(offset, VertexElementFormat.Single, 4);
+                        offset += 4;
+                        break;
+                    case "UV":
+                        element = new VertexElement(offset, VertexElementFormat.Vector2, 0);
+                        offset += 8;
+                        break;
+                    case "COLOR":
+                        element = new VertexElement(offset, VertexElementFormat.Vector4, 1);
+                        offset += 16;
+                        break;
+                    case "POSITION":
+                        element = new VertexElement(offset, VertexElementFormat.Vector2, 2);
+                        offset += 8
+                        break;
+                        
+					default:
+						throw "VertexMesh: unknown vertex flag.";
+				}
+				elements.push(element);
+			}
+
+			verDec = new VertexDeclaration(offset, elements);
+			SpineMeshUtils._vertexDeclarationMap[vertexFlag] = verDec;
+		}
+          
+        return verDec;
     }
 }
