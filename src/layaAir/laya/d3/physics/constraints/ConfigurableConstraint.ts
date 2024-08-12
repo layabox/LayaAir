@@ -8,7 +8,8 @@ import { Scene3D } from "../../core/scene/Scene3D";
 import { EPhysicsCapable } from "../../../Physics3D/physicsEnum/EPhycisCapable";
 
 /**
- * <code>ConfigurableConstraint</code>类用于可设置的约束组件
+ * @en The ConfigurableConstraint class is used for configurable constraint components.
+ * @zh ConfigurableConstraint类用于可设置的约束组件
  */
 export class ConfigurableConstraint extends ConstraintComponent {
     /**@internal */
@@ -113,9 +114,8 @@ export class ConfigurableConstraint extends ConstraintComponent {
     private _angularSlerpDriveForce: number = 0;
     /**@internal */
     private _angularSlerpDriveDamp: number = 0;
-    /**
-     * 创建一个<code>ConfigurableConstraint</code>实例	可设置的约束组件
-     */
+
+    /** @ignore */
     constructor() {
         super();
     }
@@ -178,8 +178,13 @@ export class ConfigurableConstraint extends ConstraintComponent {
     }
 
     /**
-     * 主轴
+     * @en Main axis
+     * @zh 主轴
      */
+    get axis(): Vector3 {
+        return this._axis;
+    }
+
     set axis(value: Vector3) {
         if (!value)
             return;
@@ -187,8 +192,12 @@ export class ConfigurableConstraint extends ConstraintComponent {
         this._setAxis();
     }
 
-    get axis(): Vector3 {
-        return this._axis;
+    /**
+     * @en Secondary axis
+     * @zh 副轴
+     */
+    get secondaryAxis(): Vector3 {
+        return this._secondaryAxis;
     }
 
     set secondaryAxis(value: Vector3) {
@@ -199,87 +208,94 @@ export class ConfigurableConstraint extends ConstraintComponent {
     }
 
     /**
-     * 副轴
+     * @en The motion type for X translation.
+     * @zh X位移运动类型。
      */
-    get secondaryAxis(): Vector3 {
-        return this._secondaryAxis;
+    get XMotion() {
+        return this._xMotion;
     }
 
-    /**
-     * X 位移运动类型
-     */
     set XMotion(value: D6Axis) {
         this._xMotion = value;
         this._joint.setMotion(value, D6MotionType.eX);
     }
 
-    get XMotion() {
-        return this._xMotion;
-    }
 
     /**
-     * Y 位移运动类型
+     * @en The motion type for Y translation.
+     * @zh Y位移运动类型。
      */
+    get YMotion() {
+        return this._yMotion;
+    }
+
     set YMotion(value: D6Axis) {
         this._yMotion = value;
         this._joint.setMotion(value, D6MotionType.eY);
     }
 
-    get YMotion() {
-        return this._yMotion;
-    }
 
     /**
-     * Z 位移运动类型
+     * @en The motion type for Z translation.
+     * @zh Z位移运动类型。
      */
+    get ZMotion() {
+        return this._zMotion;
+    }
+
     set ZMotion(value: D6Axis) {
         this._zMotion = value;
         this._joint.setMotion(value, D6MotionType.eZ);
     }
 
-    get ZMotion() {
-        return this._zMotion;
-    }
 
     /**
-     * X 角度运动类型
+     * @en The motion type for X-axis rotation.
+     * @zh 绕 X 轴旋转的角运动类型
      */
+    get angularXMotion() {
+        return this._angularXMotion;
+    }
+
     set angularXMotion(value: D6Axis) {
         this._angularXMotion = value;
         this._joint.setMotion(value, D6MotionType.eTWIST);
     }
 
-    get angularXMotion() {
-        return this._angularXMotion;
+    /**
+     * @en The motion type for Y-axis rotation.
+     * @zh 绕 Y 轴旋转的角运动类型
+     */
+    get angularYMotion() {
+        return this._angularYMotion;
     }
 
-    /**
-     * Y 角度运动类型
-     */
     set angularYMotion(value: D6Axis) {
         this._angularYMotion = value;
         this._joint.setMotion(value, D6MotionType.eSWING1);
     }
 
-    get angularYMotion() {
-        return this._angularYMotion;
+    /**
+     * @en The motion type for Z-axis rotation.
+     * @zh 绕 Z 轴旋转的角运动类型
+     */
+    get angularZMotion() {
+        return this._angularZMotion;
     }
 
-    /**
-     * Z 角度运动类型
-     */
     set angularZMotion(value: D6Axis) {
         this._angularZMotion = value;
         this._joint.setMotion(value, D6MotionType.eSWING2);
     }
 
-    get angularZMotion() {
-        return this._angularZMotion;
+    /**
+     * @en The limit value for joint translation.
+     * @zh 关节位移值。
+     */
+    get distanceLimit() {
+        return this._distanceLimit;
     }
 
-    /**
-     * 关节位移值
-     */
     set distanceLimit(value: number) {
         if (value < 0)
             return;
@@ -287,13 +303,14 @@ export class ConfigurableConstraint extends ConstraintComponent {
         this._setDistanceLimit();
     }
 
-    get distanceLimit() {
-        return this._distanceLimit;
-    }
-
     /**
-     * 关节位移限制后的弹力值
+     * @en The bounciness value after the joint translation limit is reached.
+     * @zh 关节位移限制后的弹力值。
      */
+    get distanceBounciness() {
+        return this._distanceBounciness;
+    }
+    
     set distanceBounciness(value: number) {
         if (value < 0)
             return;
@@ -301,13 +318,14 @@ export class ConfigurableConstraint extends ConstraintComponent {
         this._setDistanceLimit();
     }
 
-    get distanceBounciness() {
-        return this._distanceBounciness;
+    /**
+     * @en The bounciness threshold after the joint translation limit is reached.
+     * @zh 关节位移限制后弹力阈值。
+     */
+    get distanceBounceThreshold() {
+        return this._distanceBounceThreshold;
     }
 
-    /**
-     * 关节位移限制后弹力阈值
-     */
     set distanceBounceThreshold(value: number) {
         if (value < 0)
             return;
@@ -315,13 +333,14 @@ export class ConfigurableConstraint extends ConstraintComponent {
         this._setDistanceLimit();
     }
 
-    get distanceBounceThreshold() {
-        return this._distanceBounceThreshold;
+    /**
+     * @en The spring coefficient value for joint translation.
+     * @zh 关节位移的弹簧系数。
+     */
+    get distanceSpring() {
+        return this._distanceSpring;
     }
 
-    /**
-     * 关节位移弹簧系数值
-     */
     set distanceSpring(value: number) {
         if (value < 0)
             return;
@@ -329,13 +348,14 @@ export class ConfigurableConstraint extends ConstraintComponent {
         this._setDistanceLimit();
     }
 
-    get distanceSpring() {
-        return this._distanceSpring;
+    /**
+     * @en The damping coefficient value for joint translation.
+     * @zh 关节位移的阻尼值。
+     */
+    get distanceDamper() {
+        return this._distanceDamper;
     }
 
-    /**
-     * 关节位移阻尼值
-     */
     set distanceDamper(value: number) {
         if (value < 0)
             return;
@@ -343,344 +363,367 @@ export class ConfigurableConstraint extends ConstraintComponent {
         this._setDistanceLimit();
     }
 
-    get distanceDamper() {
-        return this._distanceDamper;
-    }
-
     //linear Axis Limit 
 
     /**
-     * 关节X轴最大角度值
-     * -180° ~ 180°
+     * @en The maximum angle value for the joint's X-axis, ranging from -180° to 180°.
+     * @zh 关节X轴的最大角度值，范围从 -180° 到 180°。
      */
+    get angularXMaxLimit() {
+        return this._twistUper;
+    }
+
     set angularXMaxLimit(value: number) {
         value = Math.min(180, Math.max(value, this._twistLower));
         this._twistUper = value;
         this._setAngularXLimit();
     }
 
-    get angularXMaxLimit() {
-        return this._twistUper;
+    /**
+     * @en The minimum angle value for the joint's X-axis.
+     * @zh 关节X轴的最小角度值。
+     */
+    get angularXMinLimit() {
+        return this._twistLower;
     }
 
-    /**
-     * 关节X轴最小角度值
-     */
     set angularXMinLimit(value: number) {
         value = Math.max(-180, Math.min(value, this._twistUper));
         this._twistLower = value;
         this._setAngularXLimit();
     }
 
-    get angularXMinLimit() {
-        return this._twistLower;
+    /**
+     * @en The bounciness value after the joint's X-axis angle reaches its maximum value.
+     * @zh 关节X轴角度达到最大值后的弹力值。
+     */
+    get AngleXLimitBounceness() {
+        return this._twistBounceness;
     }
 
-    /**
-     * 关节X轴角度最大值后的弹力值 
-     */
     set AngleXLimitBounceness(value: number) {
         value = Math.max(0, value);
         this._twistBounceness = value;
         this._setAngularXLimit();
     }
 
-    get AngleXLimitBounceness() {
-        return this._twistBounceness;
+    /**
+     * @en The bounciness threshold after the joint's X-axis angle reaches its maximum value.
+     * @zh 关节X轴角度达到最大值后的弹力阈值。
+     */
+    get AngleXLimitBounceThreshold() {
+        return this._twistBounceThreshold;
     }
 
-    /**
-     * 关节X轴角度最大值后弹力阈值
-     */
     set AngleXLimitBounceThreshold(value: number) {
         value = Math.max(0, value);
         this._twistBounceThreshold = value;
         this._setAngularXLimit();
     }
 
-    get AngleXLimitBounceThreshold() {
-        return this._twistBounceThreshold;
+    /**
+     * @en The spring coefficient value for the joint's X-axis angle.
+     * @zh 关节X轴角度弹簧系数。
+     */
+    get AngleXLimitSpring() {
+        return this._twistStiffness;
     }
 
-    /**
-     * 关节X轴角度弹簧系数值
-     */
     set AngleXLimitSpring(value: number) {
         value = Math.max(0, value);
         this._twistStiffness = value;
         this._setAngularXLimit();
     }
 
-    get AngleXLimitSpring() {
-        return this._twistStiffness;
+    /**
+     * @en The damping value of joint X-axis angle
+     * @zh 关节X轴角度阻尼值
+     */
+    get AngleXLimitDamp() {
+        return this._twistDamping;
     }
 
-    /**
-     * 关节X轴角度阻尼值
-     */
     set AngleXLimitDamp(value: number) {
         value = Math.max(0, value);
         this._twistDamping = value;
         this._setAngularXLimit();
     }
 
-    get AngleXLimitDamp() {
-        return this._twistDamping;
-    }
 
     //angular SwingLimit
 
     /**
-     * 关节Y轴角度限制值
+     * @en The angle limit value for the joint's Y-axis.
+     * @zh 关节Y轴的角度限制值。
      */
+    get AngleYLimit() {
+        return this._ySwingAngleLimit;
+    }
+
     set AngleYLimit(value: number) {
         value = Math.min(180, Math.max(0, value));
         this._ySwingAngleLimit = value;
         this._setSwingLimit();
     }
 
-    get AngleYLimit() {
-        return this._ySwingAngleLimit;
+    /**
+     * @en The angle limit value for the joint's Z-axis.
+     * @zh 关节Z轴的角度限制值。
+     */
+    get AngleZLimit() {
+        return this._zSwingAngleLimit;
     }
 
-    /**
-     * 关节Z轴角度限制值
-     */
     set AngleZLimit(value: number) {
         value = Math.min(180, Math.max(0, value));
         this._zSwingAngleLimit = value;
         this._setSwingLimit();
     }
 
-    get AngleZLimit() {
-        return this._zSwingAngleLimit;
+    /**
+     * @en The bounciness value after the joint's YZ-plane angle reaches its maximum limit.
+     * @zh 关节YZ平面角度达到最大限制后的弹力值。
+     */
+    get AngleYZLimitBounciness() {
+        return this._Swingrestitution;
     }
 
-    /**
-     * 关节YZ平面角度最大值后弹力值
-     */
     set AngleYZLimitBounciness(value: number) {
         value = Math.max(0, value);
         this._Swingrestitution = value;
         this._setSwingLimit();
     }
 
-    get AngleYZLimitBounciness() {
-        return this._Swingrestitution;
+    /**
+     * @en The bounciness threshold after the joint's YZ-plane angle reaches its maximum limit.
+     * @zh 关节YZ平面角度达到最大限制后的弹力阈值。
+     */
+    get AngleYZLimitBounceThreshold() {
+        return this._SwingbounceThreshold;
     }
 
-    /**
-     * 关节YZ平面角度限制后弹力阈值
-     */
     set AngleYZLimitBounceThreshold(value: number) {
         value = Math.max(0, value);
         this._SwingbounceThreshold = value;
         this._setSwingLimit();
     }
 
-    get AngleYZLimitBounceThreshold() {
-        return this._SwingbounceThreshold;
+    /**
+     * @en The spring coefficient value for the joint's YZ-axis rotation.
+     * @zh 关节YZ轴旋转的弹簧系数。
+     */
+    get AngleYZLimitSpring() {
+        return this._SwingStiffness;
     }
 
-    /**
-     * 关节的YZ轴旋转的弹簧系数值
-     */
     set AngleYZLimitSpring(value: number) {
         value = Math.max(0, value);
         this._SwingStiffness = value;
         this._setSwingLimit();
     }
 
-    get AngleYZLimitSpring() {
-        return this._SwingStiffness;
+    /**
+     * @en The damping value for the joint's YZ-axis rotation.
+     * @zh 关节YZ轴旋转的阻尼值。
+     */
+    get AngleYZLimitDamping() {
+        return this._SwingDamping;
     }
 
-    /**
-     * 关节的YZ轴旋转的阻尼值
-     */
     set AngleYZLimitDamping(value: number) {
         value = Math.max(0, value);
         this._SwingDamping = value;
         this._setSwingLimit();
     }
 
-    get AngleYZLimitDamping() {
-        return this._SwingDamping;
-    }
-
     //set target transform Velocity
     /**
-     * 关节移动到目标的位置
+     * @en The target position the joint is moving towards.
+     * @zh 关节移动到的目标位置。
      */
+    get targetPosition() {
+        return this._targetPosition;
+    }
+
     set targetPosition(value: Vector3) {
         value.cloneTo(this._targetPosition);
         this._setTargetTransform();
     }
 
-    get targetPosition() {
-        return this._targetPosition;
+    /**
+     * @en The target rotation direction for the joint's rotation drive.
+     * @zh 关节旋转驱动的目标方向。
+     */
+    get targetRotation() {
+        return this._targetRotation;
     }
 
-    /**
-     * 关节旋转驱动的方向
-     */
     set targetRotation(value: Vector3) {
         value.cloneTo(this._targetRotation);
         this._setTargetTransform();
     }
 
-    get targetRotation() {
-        return this._targetRotation;
+    /**
+     * @en The velocity at which the joint moves towards the target position.
+     * @zh 关节移动到目标位置的速度。
+     */
+    get targetPositionVelocity() {
+        return this._targetVelocity;
     }
 
-    /**
-     * 关节移动到目标位置的移动速度
-     */
     set targetPositionVelocity(value: Vector3) {
         value.cloneTo(this._targetVelocity);
         this._setTargetVelocirty();
     }
 
-    get targetPositionVelocity() {
-        return this._targetVelocity;
+    /**
+     * @en The angular velocity driven by joint rotation to the target angle.
+     * @zh 关节旋转到目标角度驱动的角速度。
+     */
+    get targetAngularVelocity() {
+        return this._targetAngularVelocity;
     }
 
-    /**
-     * 关节旋转到目标角度驱动的角速度
-     */
     set targetAngularVelocity(value: Vector3) {
         value.cloneTo(this._targetAngularVelocity);
         this._setTargetVelocirty();
     }
 
-    get targetAngularVelocity() {
-        return this._targetAngularVelocity;
+    /**
+     * @en The spring coefficient value for the joint along the X-axis.
+     * @zh 关节在X轴方向上的弹簧系数。
+     */
+    get XDriveSpring() {
+        return this._linearDriveForce.x;
     }
 
-
-    /**
-     * 关节在X轴方向上的弹簧系数值
-     */
     set XDriveSpring(value: number) {
         value = Math.max(value, 0);
         this._linearDriveForce.x = value;
         this._setDriveLinearX();
     }
 
-    get XDriveSpring() {
-        return this._linearDriveForce.x;
+    /**
+     * @en The spring coefficient value for the joint along the Y-axis.
+     * @zh 关节在Y轴方向上的弹簧系数。
+     */
+    get YDriveSpring() {
+        return this._linearDriveForce.y;
     }
 
-    /**
-     * 关节在Y轴方向上的弹簧系数值
-     */
     set YDriveSpring(value: number) {
         value = Math.max(value, 0);
         this._linearDriveForce.y = value;
         this._setDriveLinearY();
     }
 
-    get YDriveSpring() {
-        return this._linearDriveForce.y;
+    /**
+     * @en The spring coefficient value for the joint along the Z-axis.
+     * @zh 关节在Z轴方向上的弹簧系数。
+     */
+    get ZDriveSpring() {
+        return this._linearDriveForce.z;
     }
 
-    /**
-     * 关节在Z轴方向上的
-     */
     set ZDriveSpring(value: number) {
         value = Math.max(value, 0);
         this._linearDriveForce.z = value;
         this._setDriveLinearZ();
     }
 
-    get ZDriveSpring() {
-        return this._linearDriveForce.z;
+    /**
+     * @en The damping value along the X-axis of the joint drive.
+     * @zh 关节在X轴方向上的阻尼值。
+     */
+    get XDriveDamp() {
+        return this._linearDriveDamping.x;
     }
 
-    /**
-     * 关节在X轴方向上的阻尼值
-     */
     set XDriveDamp(value: number) {
         value = Math.max(value, 0);
         this._linearDriveDamping.x = value;
         this._setDriveLinearX();
     }
 
-    get XDriveDamp() {
-        return this._linearDriveDamping.x;
+    /**
+     * @en The damping value along the Y-axis of the joint drive.
+     * @zh 关节在Y轴方向上的阻尼值。
+     */
+    get YDriveDamp() {
+        return this._linearDriveDamping.y;
     }
 
-    /**
-     * 关节在Y轴方向上的阻尼值
-     */
     set YDriveDamp(value: number) {
         value = Math.max(value, 0);
         this._linearDriveDamping.y = value;
         this._setDriveLinearY();
     }
 
-    get YDriveDamp() {
-        return this._linearDriveDamping.y;
+    /**
+     * @en The damping value along the Z-axis of the joint drive.
+     * @zh 关节在Z轴方向上的阻尼值。
+     */
+    get ZDriveDamp() {
+        return this._linearDriveDamping.z;
     }
 
-    /**
-     * 关节在Z轴方向上的阻尼值
-     */
     set ZDriveDamp(value: number) {
         value = Math.max(value, 0);
         this._linearDriveDamping.z = value;
         this._setDriveLinearZ();
     }
 
-    get ZDriveDamp() {
-        return this._linearDriveDamping.z;
+    /**
+     * @en The maximum force limit along the X-axis of the joint drive.
+     * @zh 关节在X轴方向上的最大驱动力值。
+     */
+    get XDriveForceLimit() {
+        return this._linearDriveforceLimit.x;
     }
 
-    /**
-     * 关节在X轴方向上的最大驱动力值
-     */
     set XDriveForceLimit(value: number) {
         value = Math.max(value, 0);
         this._linearDriveforceLimit.x = value;
         this._setDriveLinearX();
     }
 
-    get XDriveForceLimit() {
-        return this._linearDriveforceLimit.x;
+    /**
+     * @en The maximum force limit along the Y-axis of the joint drive.
+     * @zh 关节在Y轴方向上的最大驱动力值。
+     */
+    get YDriveForceLimit() {
+        return this._linearDriveforceLimit.y;
     }
 
-    /**
-     * 关节在Y轴方向上的最大驱动力值
-     */
     set YDriveForceLimit(value: number) {
         value = Math.max(value, 0);
         this._linearDriveforceLimit.y = value;
         this._setDriveLinearY();
     }
 
-    get YDriveForceLimit() {
-        return this._linearDriveforceLimit.y;
+    /**
+     * @en The maximum force limit along the Z-axis of the joint drive.
+     * @zh 关节在Z轴方向上的最大驱动力值。
+     */
+
+    get ZDriveForceLimit() {
+        return this._linearDriveforceLimit.z;
     }
 
-    /**
-     * 关节在Z轴方向上的最大驱动力值
-     */
     set ZDriveForceLimit(value: number) {
         value = Math.max(value, 0);
         this._linearDriveforceLimit.z = value;
         this._setDriveLinearZ();
     }
 
-    get ZDriveForceLimit() {
-        return this._linearDriveforceLimit.z;
-    }
-
     /**
-     * 关节在X轴角度的最大驱动力
+     * @en The maximum rotational driving force of the joint on the X-axis.
+     * @zh 关节在X轴上的最大旋转驱动力。
      */
     public get angularXDriveForceLimit(): number {
         return this._angularXDriveForceLimit;
     }
+
     public set angularXDriveForceLimit(value: number) {
         value = Math.max(value, 0);
         this._angularXDriveForceLimit = value;
@@ -688,11 +731,13 @@ export class ConfigurableConstraint extends ConstraintComponent {
     }
 
     /**
-     * 关节在X轴的角度驱动力
+     * @en The drive force for the joint's rotation around the X-axis.
+     * @zh 关节在X轴上的旋转驱动力。
      */
     public get angularXDriveForce(): number {
         return this._angularXDriveForce;
     }
+
     public set angularXDriveForce(value: number) {
         value = Math.max(value, 0);
         this._angularXDriveForce = value;
@@ -700,11 +745,13 @@ export class ConfigurableConstraint extends ConstraintComponent {
     }
 
     /**
-     * 关节在X轴方向的角度阻尼值
+     * @en The rotational damping value of the joint in the X-axis direction.
+     * @zh 关节在X轴方向上的旋转阻尼值。
      */
     public get angularXDriveDamp(): number {
         return this._angularXDriveDamp;
     }
+
     public set angularXDriveDamp(value: number) {
         value = Math.max(value, 0);
         this._angularXDriveDamp = value;
@@ -712,11 +759,13 @@ export class ConfigurableConstraint extends ConstraintComponent {
     }
 
     /**
-     * 关节在YZ平面旋转驱动力最大值
+     * @en The maximum drive force for the joint's rotation in the YZ-plane.
+     * @zh 关节在YZ平面旋转驱动力的最大值。
      */
     public get angularYZDriveForceLimit(): number {
         return this._angularYZDriveForceLimit;
     }
+
     public set angularYZDriveForceLimit(value: number) {
         value = Math.max(value, 0);
         this._angularYZDriveForceLimit = value;
@@ -724,11 +773,13 @@ export class ConfigurableConstraint extends ConstraintComponent {
     }
 
     /**
-     * 关节在YZ平面旋转驱动力
+     * @en The drive force for the joint's rotation in the YZ-plane.
+     * @zh 关节在YZ平面上的旋转驱动力。
      */
     public get angularYZDriveForce(): number {
         return this._angularYZDriveForce;
     }
+
     public set angularYZDriveForce(value: number) {
         value = Math.max(value, 0);
         this._angularYZDriveForce = value;
@@ -736,11 +787,13 @@ export class ConfigurableConstraint extends ConstraintComponent {
     }
 
     /**
-     * 关节在YZ平面上的阻尼
+     * @en The damping for the joint's rotation in the YZ-plane.
+     * @zh 关节在YZ平面上的阻尼。
      */
     public get angularYZDriveDamp(): number {
         return this._angularYZDriveDamp;
     }
+
     public set angularYZDriveDamp(value: number) {
         value = Math.max(value, 0);
         this._angularYZDriveDamp = value;
@@ -748,11 +801,13 @@ export class ConfigurableConstraint extends ConstraintComponent {
     }
 
     /**
-     * 关节的角度插值驱动力最大值
+     * @en The maximum drive force for the joint's angular slerp interpolation.
+     * @zh 关节的角度插值驱动力的最大值。
      */
     public get angularSlerpDriveForceLimit(): number {
         return this._angularSlerpDriveForceLimit;
     }
+
     public set angularSlerpDriveForceLimit(value: number) {
         value = Math.max(value, 0);
         this._angularSlerpDriveForceLimit = value;
@@ -760,11 +815,13 @@ export class ConfigurableConstraint extends ConstraintComponent {
     }
 
     /**
-     * 关节的角度插值驱动力
+     * @en The drive force for the joint's angular slerp interpolation.
+     * @zh 关节的角度插值驱动力。
      */
     public get angularSlerpDriveForce(): number {
         return this._angularSlerpDriveForce;
     }
+
     public set angularSlerpDriveForce(value: number) {
         value = Math.max(value, 0);
         this._angularSlerpDriveForce = value;
@@ -772,11 +829,13 @@ export class ConfigurableConstraint extends ConstraintComponent {
     }
 
     /**
-     * 角度插值阻尼
+     * @en The damping for the joint's angular slerp interpolation.
+     * @zh 角度插值阻尼。
      */
     public get angularSlerpDriveDamp(): number {
         return this._angularSlerpDriveDamp;
     }
+
     public set angularSlerpDriveDamp(value: number) {
         value = Math.max(value, 0);
         this._angularSlerpDriveDamp = value;

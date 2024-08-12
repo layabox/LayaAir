@@ -16,25 +16,50 @@ import { ConeColliderShape } from "./shape/ConeColliderShape";
 import { CylinderColliderShape } from "./shape/CylinderColliderShape";
 
 /**
- * Describes how physics materials of the colliding objects are combined.
+ * @en Describes how the physics materials of colliding objects are combined.
+ * @zh 描述碰撞对象的物理材料是如何组合的。
  */
 export enum PhysicsCombineMode {
-    /** Averages the friction/bounce of the two colliding materials. */
+    /**
+     * @en Averages the friction/bounce of the two colliding materials.
+     * @zh 平均值，对两个碰撞材料的摩擦力/反弹力取平均值。
+     */
     Average,
-    /** Uses the smaller friction/bounce of the two colliding materials. */
+    /**
+     * @en Uses the smaller friction/bounce of the two colliding materials.
+     * @zh 最小值，使用两个碰撞材料中较小的摩擦力/反弹力。
+     */
     Minimum,
-    /** Multiplies the friction/bounce of the two colliding materials. */
+    /**
+     * @en Multiplies the friction/bounce of the two colliding materials.
+     * @zh 乘积，将两个碰撞材料的摩擦力/反弹力相乘，得到最终的摩擦系数。
+     */
     Multiply,
-    /** Uses the larger friction/bounce of the two colliding materials. */
+    /**
+     * @en Uses the larger friction/bounce of the two colliding materials.
+     * @zh 最大值，使用两个碰撞材料中较大的摩擦力/反弹力。
+     */
     Maximum
 }
-
+/**
+ * @en Describes the mode of applying physics forces.
+ * @zh 描述应用物理力的模式。
+ */
 export enum PhysicsForceMode {
+    /**
+     * @en Applies a continuous force to the object.
+     * @zh 对物体施加持续的力。
+     */
     Force,
+    /**
+     * @en Applies an instantaneous velocity change to the object, equivalent to an impulse.
+     * @zh 对物体施加瞬时速度变化，相当于冲量。
+     */
     Impulse
 }
 /**
- * <code>PhysicsColliderComponent</code> 类用于创建物理组件的父类。
+ * @en PhysicsColliderComponent is the base class for creating physics components.
+ * @zh PhysicsColliderComponent 类用于创建物理组件的父类。
  */
 export class PhysicsColliderComponent extends Component {
 
@@ -70,14 +95,16 @@ export class PhysicsColliderComponent extends Component {
     protected _eventsArray: string[];
 
     /**
-     * 获取碰撞体
+     * @en The collider object.
+     * @zh 碰撞器对象。
      */
     get collider(): ICollider {
         return this._collider;
     }
 
     /**
-     * 弹力。也叫Bounciness
+     * @en The restitution of the collider (also known as bounciness).
+     * @zh 碰撞器的弹力（也叫Bounciness）。
      */
     get restitution(): number {
         return this._restitution;
@@ -91,7 +118,8 @@ export class PhysicsColliderComponent extends Component {
     }
 
     /**
-     * 摩擦力。
+     * @en The friction of the collider.
+     * @zh 碰撞器的摩擦力。
      */
     get friction(): number {
         return this._friction;
@@ -106,7 +134,8 @@ export class PhysicsColliderComponent extends Component {
     }
 
     /**
-     * 滚动摩擦力。
+     * @en The rolling friction of the collider.
+     * @zh 碰撞器的滚动摩擦力。
      */
     get rollingFriction(): number {
         return this._rollingFriction;
@@ -120,21 +149,22 @@ export class PhysicsColliderComponent extends Component {
     }
 
     /**
-     * 动态摩擦力
+     * @en The dynamic friction of the collider.
+     * @zh 碰撞器的动态摩擦力。
      */
     get dynamicFriction(): number {
         return this._dynamicFriction;
     }
 
     set dynamicFriction(value: number) {
-        this._dynamicFriction = value;
         if (this._collider && this._collider.getCapable(EColliderCapable.Collider_DynamicFriction)) {
             this._collider.setDynamicFriction(value);
         }
     }
 
     /**
-     * 静态摩擦力
+     * @en The static friction of the collider.
+     * @zh 碰撞器的静态摩擦力。
      */
     get staticFriction(): number {
         return this._staticFriction;
@@ -148,8 +178,23 @@ export class PhysicsColliderComponent extends Component {
     }
 
     /**
-     * 摩擦力模式
+     * @en Friction combination mode, used to define how the friction coefficients of two objects are combined during a collision to determine the final friction force.
+     * The values include:
+     * - Average: The friction coefficients of the two objects are averaged.
+     * - Minimum: The minimum friction coefficient of the two objects is used.
+     * - Maximum: The maximum friction coefficient of the two objects is used.
+     * - Multiply: The friction coefficients of the two objects are multiplied to get the final friction coefficient.
+     * @zh 摩擦力组合模式，用于定义在两个物体发生碰撞时，如何组合它们的摩擦系数，以确定最终的摩擦力。
+     * 值包括：
+     * - Average（平均值）：两个物体的摩擦系数取平均值。
+     * - Minimum（最小值）：使用两个物体摩擦系数中的最小值。
+     * - Maximum（最大值）：使用两个物体摩擦系数中的最大值。
+     * - Multiply（乘积）：将两个物体的摩擦系数相乘，得到最终的摩擦系数。
      */
+    get frictionCombine() {
+        return this._frictionCombine;
+    }
+
     set frictionCombine(value: PhysicsCombineMode) {
         this._frictionCombine = value;
         if (this._collider && this._collider.getCapable(EColliderCapable.Collider_FrictionCombine)) {
@@ -157,13 +202,24 @@ export class PhysicsColliderComponent extends Component {
         }
     }
 
-    get frictionCombine() {
-        return this._frictionCombine;
+    /**
+     * @en The restitution mode of the collider.
+     * The values include:
+     * - Average: The friction coefficients of the two objects are averaged.
+     * - Minimum: The minimum friction coefficient of the two objects is used.
+     * - Maximum: The maximum friction coefficient of the two objects is used.
+     * - Multiply: The friction coefficients of the two objects are multiplied to get the final friction coefficient.
+     * @zh 弹力组合模式，用于定义在两个物体发生碰撞时，如何组合它们的弹力系数，以确定最终的弹力。
+     * 值为：
+     * - Average（平均值）：两个物体的摩擦系数取平均值。
+     * - Minimum（最小值）：使用两个物体摩擦系数中的最小值。
+     * - Maximum（最大值）：使用两个物体摩擦系数中的最大值。
+     * - Multiply（乘积）：将两个物体的摩擦系数相乘，得到最终的摩擦系数。
+     */
+    get restitutionCombine() {
+        return this._restitutionCombine;
     }
 
-    /**
-     * 弹力模式
-     */
     set restitutionCombine(value: PhysicsCombineMode) {
         this._restitutionCombine = value;
         if (this._collider && this._collider.getCapable(EColliderCapable.Collider_BounceCombine)) {
@@ -171,12 +227,9 @@ export class PhysicsColliderComponent extends Component {
         }
     }
 
-    get restitutionCombine() {
-        return this._restitutionCombine;
-    }
-
     /**
-     * 碰撞形状。
+     * @en The collider shape of the physics collider.
+     * @zh 物理碰撞器的碰撞形状。
      */
     get colliderShape(): Physics3DColliderShape {
         return this._colliderShape;
@@ -194,7 +247,8 @@ export class PhysicsColliderComponent extends Component {
     }
 
     /**
-     * 所属碰撞组。
+     * @en The collision group this collider belongs to.
+     * @zh 此碰撞器所属的碰撞组。
      */
     get collisionGroup(): number {
         return this._collisionGroup;
@@ -206,14 +260,15 @@ export class PhysicsColliderComponent extends Component {
         }
 
         if (this._collider && this._collider.getCapable(EColliderCapable.Collider_CollisionGroup)) {
-            if (this._colliderShape && this._enabled) {
+                if (this._colliderShape && this._enabled) {
                 this._collider.setCanCollideWith(value);
             }
         }
     }
 
     /**
-     * 可碰撞的碰撞组,基于位运算。
+     * @en The collision groups this collider can collide with, based on bitwise operations.
+     * @zh 此碰撞器可以与之碰撞的碰撞组，基于位运算。
      */
     get canCollideWith(): number {
         return this._canCollideWith;
@@ -225,12 +280,12 @@ export class PhysicsColliderComponent extends Component {
         }
 
         if (this._collider && this._collider.getCapable(EColliderCapable.Collider_CollisionGroup)) {
-            if (this._colliderShape && this._enabled) {
-                this._collider.setCanCollideWith(value);
+                if (this._colliderShape && this._enabled) {
+                    this._collider.setCanCollideWith(value);
             }
         }
     }
-
+    /** @ignore */
     constructor() {
         super();
 
@@ -244,18 +299,21 @@ export class PhysicsColliderComponent extends Component {
         if (shapeCount === 1) {
             var shape: Physics3DColliderShape = PhysicsColliderComponent._creatShape(shapesData[0]);
             this.colliderShape = shape;
-        } else {
-            // var compoundShape: CompoundColliderShape = new CompoundColliderShape();
-            // for (var i = 0; i < shapeCount; i++) {
-            //     shape = PhysicsColliderComponent._creatShape(shapesData[i]);
-            //     compoundShape.addChildShape(shape);
-            // }
-            // this.colliderShape = compoundShape;
-        }
+        } 
+        // else {
+        //     var compoundShape: CompoundColliderShape = new CompoundColliderShape();
+        //     for (var i = 0; i < shapeCount; i++) {
+        //         shape = PhysicsColliderComponent._creatShape(shapesData[i]);
+        //         compoundShape.addChildShape(shape);
+        //     }
+        //     this.colliderShape = compoundShape;
+        // }
     }
 
     /**
      * @internal
+     * @en Initializes the collider and configures its properties.
+     * @zh 初始化碰撞器并配置其属性。
      */
     initCollider() {
         this._initCollider();

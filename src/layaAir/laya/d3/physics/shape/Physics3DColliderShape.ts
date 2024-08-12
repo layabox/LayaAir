@@ -3,20 +3,34 @@ import { Vector3 } from "../../../maths/Vector3";
 import { IColliderShape } from "../../../Physics3D/interface/Shape/IColliderShape";
 
 /**
- * <code>ColliderShape</code> 类用于创建形状碰撞器的父类，该类为抽象类。
+ * @en The Physics3DColliderShape class serves as the base class for creating collider shapes and is an abstract class.
+ * @zh 类是用于创建形状碰撞器的父类，该类为抽象类。
  */
 export class Physics3DColliderShape implements IClone {
 
-	/** 形状方向_X轴正向 */
+	/**
+	 * @en Shape orientation: along the positive X-axis.
+	 * @zh 形状方向：沿 X 轴正向。
+	 */
 	static SHAPEORIENTATION_UPX: number = 0;
-	/** 形状方向_Y轴正向 */
+	/**
+	 * @en Shape orientation: along the positive Y-axis.
+	 * @zh 形状方向：沿 Y 轴正向。
+	 */
 	static SHAPEORIENTATION_UPY: number = 1;
-	/** 形状方向_Z轴正向 */
+	/**
+	 * @en Shape orientation: along the positive Z-axis.
+	 * @zh 形状方向：沿 Z 轴正向。
+	 */
 	static SHAPEORIENTATION_UPZ: number = 2;
 
 	/**@internal */
 	_shape: IColliderShape;
 
+	/**
+	 * @en The shape of the collider.
+	 * @zh 碰撞器的形状。
+	 */
 	get shape(): IColliderShape {
 		return this._shape;
 	}
@@ -25,7 +39,8 @@ export class Physics3DColliderShape implements IClone {
 	protected _localOffset: Vector3 = new Vector3(0, 0, 0);
 
 	/**
-	 * Shape的本地偏移。
+	 * @en The local offset of the shape.
+	 * @zh 形状的本地偏移。
 	 */
 	get localOffset(): Vector3 {
 		return this._localOffset;
@@ -35,10 +50,7 @@ export class Physics3DColliderShape implements IClone {
 		this._localOffset = value;
 		this._shape.setOffset(value);
 	}
-
-	/**
-	 * 创建一个新的 <code>ColliderShape</code> 实例。
-	 */
+	/**@ignore */
 	constructor() {
 		this._createShape();
 	}
@@ -52,8 +64,10 @@ export class Physics3DColliderShape implements IClone {
 	}
 
 	/**
-	 * 克隆。
-	 * @param	destObject 克隆源。
+	 * @en Clone this object to a destination object.
+	 * @param destObject The destination object.
+	 * @zh 将此对象克隆到目标对象。
+	 * @param destObject 目标对象。
 	 */
 	cloneTo(destObject: any): void {
 		var destColliderShape: Physics3DColliderShape = (<Physics3DColliderShape>destObject);
@@ -62,15 +76,18 @@ export class Physics3DColliderShape implements IClone {
 	}
 
 	/**
-	 * 克隆。
-	 * @return 克隆副本。
+	 * @en Clone.
+	 * @return A clone of this object.
+	 * @zh 克隆。
+	 * @return 此对象的克隆
 	 */
 	clone(): any {
 		return null;
 	}
 
 	/**
-	 * 销毁。
+	 * @en Destroy this object.
+	 * @zh 销毁此对象。
 	 */
 	destroy(): void {
 		if (this._shape) {

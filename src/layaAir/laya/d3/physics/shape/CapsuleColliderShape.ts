@@ -4,7 +4,8 @@ import { ICapsuleColliderShape } from "../../../Physics3D/interface/Shape/ICapsu
 import { EPhysicsCapable } from "../../../Physics3D/physicsEnum/EPhycisCapable";
 import { Physics3DColliderShape } from "./Physics3DColliderShape";
 /**
- * <code>CapsuleColliderShape</code> 类用于创建胶囊形状碰撞器。
+ * @en CapsuleColliderShape class is used to create capsule collider shape.
+ * @zh CapsuleColliderShape 类用于创建胶囊形状碰撞器。
  */
 export class CapsuleColliderShape extends Physics3DColliderShape {
 	/**@internal */
@@ -19,13 +20,13 @@ export class CapsuleColliderShape extends Physics3DColliderShape {
 	/**@internal */
 	private _orientation: number;
 
-	/**
-	 * 半径。
-	 */
+    /**
+     * @en The radius of the capsule collider.
+     * @zh 胶囊碰撞器的半径。
+     */
 	get radius(): number {
 		return this._radius;
 	}
-
 	set radius(value: number) {
 		this._radius = value;
 		if (LayaEnv.isPlaying) {
@@ -33,9 +34,10 @@ export class CapsuleColliderShape extends Physics3DColliderShape {
 		}
 	}
 
-	/**
-	 * 长度。
-	 */
+    /**
+     * @en The length of the capsule collider.
+     * @zh 胶囊碰撞器的长度。
+     */
 	get length(): number {
 		return this._length;
 	}
@@ -47,9 +49,10 @@ export class CapsuleColliderShape extends Physics3DColliderShape {
 		}
 	}
 
-	/**
-	 * 方向。
-	 */
+    /**
+     * @en The orientation of the capsule collider.
+     * @zh 胶囊碰撞器的方向。
+     */
 	get orientation(): number {
 		return this._orientation;
 	}
@@ -62,9 +65,13 @@ export class CapsuleColliderShape extends Physics3DColliderShape {
 	}
 
 	/**
-	 * 创建一个新的 <code>CapsuleColliderShape</code> 实例。
-	 * @param 半径。
-	 * @param 高(包含半径)。
+	 * @en initialize the capsule collider radius, length and direction.
+	 * @param radius The radius of the capsule collider.
+	 * @param length The length of the capsule collider.
+	 * @param orientation The orientation of the capsule collider.
+	 * @zh 初始化胶囊碰撞器的半径、长度和方向。
+	 * @param radius 胶囊半径。
+	 * @param length 胶囊长度。
 	 * @param orientation 胶囊体方向。
 	 */
 	constructor(radius: number = 0.5, length: number = 2, orientation: number = Physics3DColliderShape.SHAPEORIENTATION_UPY) {
@@ -87,9 +94,12 @@ export class CapsuleColliderShape extends Physics3DColliderShape {
 	}
 
 	/**
-	 * 克隆
 	 * @inheritDoc
 	 * @override
+	 * @en Clone a new CapsuleColliderShape object.
+	 * @rerurn Clone CapsuleColliderShape object.
+	 * @zh 克隆一个新的 胶囊形状碰撞器 对象。
+	 * @return 克隆的 胶囊形状碰撞器 对象。
 	 */
 	clone(): any {
 		var dest: CapsuleColliderShape = new CapsuleColliderShape(this._radius, this._length, this._orientation);
@@ -98,10 +108,12 @@ export class CapsuleColliderShape extends Physics3DColliderShape {
 	}
 
 	/**
-	 * 克隆数据到目标
-	 * @param destObject 克隆目标
 	 * @inheritDoc
 	 * @override
+	 * @en Clone data to target.
+	 * @param destObject Clone target.
+	 * @zh 克隆数据到目标
+	 * @param destObject 克隆目标
 	 */
 	cloneTo(destObject: CapsuleColliderShape): void {
 		super.cloneTo(destObject);
