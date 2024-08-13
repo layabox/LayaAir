@@ -1,12 +1,23 @@
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { UniformBufferParamsType, UnifromBufferData } from "../../RenderEngine/UniformBufferData";
 
-export class DepthCasterData{
-    static DepthCasterUBOData: UnifromBufferData;
+/**
+ * @en DepthCasterData class for managing depth casting data.
+ * @zh DepthCasterData 类，用于管理深度投射数据。
+ */
+export class DepthCasterData {
     /**
-     * create DepthCaster UniformBuffer
+     * @en Stores the uniform buffer data for the depth caster
+     * @zh 存储深度投射器的统一缓冲数据
+     */
+    static DepthCasterUBOData: UnifromBufferData;
+
+    /**
      * @internal
-     * @returns 
+     * @en Create DepthCaster UniformBuffer.
+     * @returns The created UniformBufferData for depth caster.
+     * @zh 创建深度投射器的 UniformBuffer。
+     * @returns 创建的深度投射器 UniformBufferData。
      */
     static createDepthCasterUniformBlock(): UnifromBufferData {
 
