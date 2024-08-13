@@ -16,7 +16,8 @@ import { ReflectionProbe } from "../component/Volume/reflectionProbe/ReflectionP
 
 /**
  * @internal
- * <code>Utils3D</code> 类用于创建3D工具。
+ * @en `HierarchyParserV2` is a class used for parsing hierarchy data in a 3D scene.
+ * @zh `HierarchyParserV2` 类用于解析3D场景中的层级数据。
  */
 class HierarchyParserV2 {
     /**
@@ -127,7 +128,13 @@ class HierarchyParserV2 {
     }
 
     /**
-     *@internal
+     * @internal
+     * @en Parses the provided data into a 3D scene hierarchy.
+     * @param data The data object containing the hierarchy information and version.
+     * @returns A `Sprite3D` or `Scene3D` object representing the parsed hierarchy.
+     * @zh 将提供的数据解析为3D场景层级。
+     * @param data 包含层级信息和版本的数据对象。
+     * @returns 解析后的层级的Sprite3D或Scene3D对象
      */
     static parse(data: any) {
         let json: any = data.data;
@@ -202,6 +209,16 @@ class HierarchyParserV2 {
         return node;
     }
 
+    /**
+     * @en Collects all the resource links required for loading from the given data object.
+     * @param data The data object containing hierarchy and resource information.
+     * @param basePath The base path to resolve relative URLs.
+     * @returns An array of resource URLs or `ILoadURL` objects.
+     * @zh 从给定的数据对象中收集所有需要加载的资源链接。
+     * @param data 包含层级和资源信息的数据对象。
+     * @param basePath 用于解析相对URL的基路径。
+     * @returns 资源URL或 `ILoadURL` 对象的数组。
+     */
     public static collectResourceLinks(data: any, basePath: string): (string | ILoadURL)[] {
         let test: Record<string, string> = {};
         let innerUrls: ILoadURL[] = [];
