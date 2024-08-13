@@ -6,12 +6,9 @@ import { Mesh } from "../resource/models/Mesh";
 import { Texture2D } from "../../resource/Texture2D";
 import { Vector2 } from "../../maths/Vector2";
 import { Vector4 } from "../../maths/Vector4";
-import { IRenderContext3D } from "../../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
 import { BaseRenderType, IBaseRenderNode, ISimpleSkinRenderNode } from "../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
-import { Sprite3D } from "./Sprite3D";
 import { Laya3DRender } from "../RenderObjs/Laya3DRender";
 import { RenderContext3D } from "./render/RenderContext3D";
-import { RenderElement } from "./render/RenderElement";
 import { SimpleSkinnedMeshSprite3D } from "./SimpleSkinnedMeshSprite3D";
 
 export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
@@ -120,7 +117,6 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
     renderUpdate(context: RenderContext3D): void {
         super.renderUpdate(context);
         this._computeSkinnedData();
-        this._baseRenderNode.transform = this.rootBone ? this.rootBone.transform : this.owner.transform;
     }
 
     /**

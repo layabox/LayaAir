@@ -1,14 +1,14 @@
 import { ShadowMode } from "../../../../d3/core/light/ShadowMode";
 import { Vector3 } from "../../../../maths/Vector3";
 import { ISpotLightData } from "../../Design/3D/I3DRenderModuleData";
-import { NativeTransform3D } from "./NativeTransform3D";
+import { RTTransform3D } from "./RTTransform3D";
 
 export class RTSpotLight implements ISpotLightData {
-    private _transform: NativeTransform3D;
-    public get transform(): NativeTransform3D {
+    private _transform: RTTransform3D;
+    public get transform(): RTTransform3D {
         return this._transform;
     }
-    public set transform(value: NativeTransform3D) {
+    public set transform(value: RTTransform3D) {
         this._nativeObj.setTransform(value._nativeObj);
         this._transform = value;
     }

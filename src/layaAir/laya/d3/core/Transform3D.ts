@@ -44,6 +44,10 @@ export class Transform3D extends EventDispatcher {
 	static TRANSFORM_WORLDMATRIX: number = 0x40;
 	/**@internal */
 	static TRANSFORM_WORLDEULER: number = 0x80;
+	/**@internal */
+	static TRANSFORM_LOCALPOS: number = 0x100;
+	/**@internal */
+	static TRANSFORM_LOCALSCALE: number = 0x200;
 
 	/**@internal */
 	static _angleToRandin: number = 180 / Math.PI;
@@ -84,16 +88,19 @@ export class Transform3D extends EventDispatcher {
 	/** @internal */
 	_parent: Transform3D | null = null;
 	/**@internal */
-	_transformFlag: number = 0;
+	private _transformFlag: number = 0;
 
 
-	/**@internal */
+	/**
+	 * 是否未DefaultMatrix
+	 */
 	get isDefaultMatrix(): boolean {
 		if (this._getTransformFlag(Transform3D.TRANSFORM_LOCALMATRIX)) {
 			let localMat = this.localMatrix;
 		}
 		return this._isDefaultMatrix;
 	}
+
 	/**
 	 * @internal
 	 */
@@ -483,7 +490,7 @@ export class Transform3D extends EventDispatcher {
 		this._setTransformFlag(Transform3D.TRANSFORM_WORLDEULER, false);
 	}
 
-	
+
 	/**
 	 * 世界矩阵。
 	 */
@@ -529,6 +536,10 @@ export class Transform3D extends EventDispatcher {
 		super();
 		this._owner = owner;
 		this._children = [];
+		this._initProperty();
+	}
+
+	protected _initProperty() {
 		this._setTransformFlag(Transform3D.TRANSFORM_LOCALQUATERNION | Transform3D.TRANSFORM_LOCALEULER | Transform3D.TRANSFORM_LOCALMATRIX, false);
 		this._setTransformFlag(Transform3D.TRANSFORM_WORLDPOSITION | Transform3D.TRANSFORM_WORLDQUATERNION | Transform3D.TRANSFORM_WORLDEULER | Transform3D.TRANSFORM_WORLDSCALE | Transform3D.TRANSFORM_WORLDMATRIX, true);
 	}
@@ -551,7 +562,7 @@ export class Transform3D extends EventDispatcher {
 	/**
 	 * @internal
 	 */
-	_setTransformFlag(type: number, value: boolean): void {
+	protected _setTransformFlag(type: number, value: boolean): void {
 		if (value)
 			this._transformFlag |= type;
 		else
@@ -561,7 +572,7 @@ export class Transform3D extends EventDispatcher {
 	/**
 	 * @internal
 	 */
-	_getTransformFlag(type: number): boolean {
+	protected _getTransformFlag(type: number): boolean {
 		return (this._transformFlag & type) != 0;
 	}
 
@@ -586,7 +597,7 @@ export class Transform3D extends EventDispatcher {
 	/**
 	 * @internal
 	 */
-	_onWorldPositionRotationTransform(): void {
+	protected _onWorldPositionRotationTransform(): void {
 		if (!this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDPOSITION) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDQUATERNION) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDEULER)) {
 			this._setTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX | Transform3D.TRANSFORM_WORLDPOSITION | Transform3D.TRANSFORM_WORLDQUATERNION | Transform3D.TRANSFORM_WORLDEULER, true);
 			this.event(Event.TRANSFORM_CHANGED, this._transformFlag);
@@ -598,7 +609,7 @@ export class Transform3D extends EventDispatcher {
 	/**
 	 * @internal
 	 */
-	_onWorldPositionScaleTransform(): void {
+	protected _onWorldPositionScaleTransform(): void {
 		if (!this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDPOSITION) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDSCALE)) {
 			this._setTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX | Transform3D.TRANSFORM_WORLDPOSITION | Transform3D.TRANSFORM_WORLDSCALE, true);
 			this.event(Event.TRANSFORM_CHANGED, this._transformFlag);
@@ -610,7 +621,7 @@ export class Transform3D extends EventDispatcher {
 	/**
 	 * @internal
 	 */
-	_onWorldPositionTransform(): void {
+	protected _onWorldPositionTransform(): void {
 		if (!this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDPOSITION)) {
 			this._setTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX | Transform3D.TRANSFORM_WORLDPOSITION, true);
 			this.event(Event.TRANSFORM_CHANGED, this._transformFlag);
@@ -634,7 +645,7 @@ export class Transform3D extends EventDispatcher {
 	/**
 	 * @internal
 	 */
-	_onWorldScaleTransform(): void {
+	protected _onWorldScaleTransform(): void {
 		if (!this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDSCALE)) {
 			this._setTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX | Transform3D.TRANSFORM_WORLDSCALE, true);
 			this.event(Event.TRANSFORM_CHANGED, this._transformFlag);
@@ -655,7 +666,7 @@ export class Transform3D extends EventDispatcher {
 			this._children![i]._onWorldTransform();
 	}
 
-	
+
 	/**
 	 * 平移变换。
 	 * @param 	translation 移动距离。
@@ -673,7 +684,7 @@ export class Transform3D extends EventDispatcher {
 		}
 	}
 
-	
+
 	/**
 	 * 旋转变换。
 	 * @param 	rotations 旋转幅度。
@@ -691,7 +702,7 @@ export class Transform3D extends EventDispatcher {
 
 		Quaternion.createFromYawPitchRoll(rot.y, rot.x, rot.z, Transform3D._tempQuaternion0);
 		if (isLocal) {
-			Quaternion.multiply(this._localRotation, Transform3D._tempQuaternion0, this._localRotation);
+			Quaternion.multiply(this.localRotation, Transform3D._tempQuaternion0, this._localRotation);
 			this.localRotation = this._localRotation;
 		} else {
 			Quaternion.multiply(Transform3D._tempQuaternion0, this.rotation, this._rotation);
@@ -741,15 +752,15 @@ export class Transform3D extends EventDispatcher {
 	lookAt(target: Vector3, up: Vector3, isLocal: boolean = false, isCamera: boolean = true): void {
 		var eye: Vector3;
 		if (isLocal) {
-			eye = this._localPosition;
+			eye = this.localPosition;
 			if (Math.abs(eye.x - target.x) < MathUtils3D.zeroTolerance && Math.abs(eye.y - target.y) < MathUtils3D.zeroTolerance && Math.abs(eye.z - target.z) < MathUtils3D.zeroTolerance)
 				return;
 			if (isCamera) {
-				Quaternion.lookAt(this._localPosition, target, up, this._localRotation);
+				Quaternion.lookAt(this.localPosition, target, up, this._localRotation);
 				this._localRotation.invert(this._localRotation);
 			} else {
 				Vector3.subtract(this.localPosition, target, Transform3D._tempVector30);
-				Quaternion.rotationLookAt(Transform3D._tempVector30, up, this.localRotation);
+				Quaternion.rotationLookAt(Transform3D._tempVector30, up, this._localRotation);
 				this._localRotation.invert(this._localRotation);
 			}
 

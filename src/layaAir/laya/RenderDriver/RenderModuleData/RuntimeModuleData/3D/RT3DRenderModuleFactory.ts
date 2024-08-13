@@ -5,7 +5,7 @@ import { Vector3 } from "../../../../maths/Vector3";
 import { IPointLightData, ISimpleSkinRenderNode, ISkinRenderNode } from "../../Design/3D/I3DRenderModuleData";
 import { I3DRenderModuleFactory } from "../../Design/3D/I3DRenderModuleFactory";
 import { NativeBounds } from "./NativeBounds";
-import { NativeTransform3D } from "./NativeTransform3D";
+import { RTTransform3D } from "./RTTransform3D";
 import { RTCameraNodeData, RTSceneNodeData } from "./RT3DRenderModuleData";
 import { RTBaseRenderNode } from "./RTBaseRenderNode";
 import { RTDirectLight } from "./RTDirectLight";
@@ -21,8 +21,8 @@ import { RTVolumetricGI } from "./RTVolumetricGI";
 export class RT3DRenderModuleFactory implements I3DRenderModuleFactory {
   
 
-    createTransform(owner: Sprite3D): NativeTransform3D {
-        return new NativeTransform3D(owner);
+    createTransform(owner: Sprite3D): RTTransform3D {
+        return new RTTransform3D(owner);
     }
     createBounds(min: Vector3, max: Vector3): NativeBounds {
         return new NativeBounds(min, max);

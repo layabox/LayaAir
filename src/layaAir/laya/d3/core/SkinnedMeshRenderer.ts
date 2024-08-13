@@ -108,6 +108,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
             }
             this._isISkinRenderNode() && this._ownerSkinRenderNode.setRootBoneTransfom(this._cacheRootBone);
         }
+        this._baseRenderNode.transform = this.rootBone ? this.rootBone.transform : this.owner.transform;
     }
 
     /**
