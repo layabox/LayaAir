@@ -15,7 +15,7 @@ export class HTMLStyle {
     /**
      * 需要继承的属性
      */
-    private static _inheritProps: any[] = ["italic", "align", "valign", "leading", "letterSpacing", "stroke", "strokeColor", "bold", "fontWeight", "fontSize", "lineHeight", "wordWrap", "color"];
+    private static _inheritProps: any[] = ["italic", "align", "valign", "leading", "letterSpacing", "stroke", "strokeColor", "bold", "fontWeight", "fontSize", "lineHeight", "wordWrap", "color", "family"];
 
     /**水平居左对齐方式。 */
     static ALIGN_LEFT: string = "left";
