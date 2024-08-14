@@ -34,6 +34,35 @@ export class VideoTexture extends BaseTexture {
     _needUpdate: boolean;
     /** @inernal 是否使用了requestVideoFrameCallback 接口 */
     _requestVideoFrame: boolean = false;
+    /**@internal */
+    private _frameDelty: number;
+    /**@internal */
+    private _updateFrame: number;
+    /**@internal */
+    private _useFrame: boolean;
+    /**@internal */
+    private _lastTimer: number = 0;
+
+    /**
+     * @en videoTexture update frame
+     * @zh 视频纹理更新帧率
+     */
+    set updateFrame(value: number) {
+        this._frameDelty = 1 / value * 1000;
+        this._updateFrame = value;
+    }
+
+    get updateFrame() {
+        return this._updateFrame;
+    }
+
+    set useFrame(value: boolean) {
+        this._useFrame = value;
+    }
+
+    get useFrame() {
+        return this._useFrame;
+    }
 
     /**
      * @en Constructor method of VideoTexture 
@@ -47,6 +76,9 @@ export class VideoTexture extends BaseTexture {
         this._needUpdate = false;
         this.immediatelyPlay = false;
         this.element = ele;
+
+        this.useFrame = false;
+        this.updateFrame = 30;
 
         this._listeningEvents = {};
 
@@ -92,7 +124,8 @@ export class VideoTexture extends BaseTexture {
             this.loadedmetadata();
         });
 
-        if ('requestVideoFrameCallback' in ele) {
+
+        if ("requestVideoFrameCallback" in HTMLVideoElement.prototype) {
             const scope = this;
             function updateVideo() {
                 scope._needUpdate = true;
@@ -104,10 +137,32 @@ export class VideoTexture extends BaseTexture {
             this._needUpdate = true;
         }
 
+        // if ('requestVideoFrameCallback' in ele) {
+        //     const scope = this;
+        //     function updateVideo() {
+        //         scope._needUpdate = true;
+        //         ele.requestVideoFrameCallback(updateVideo);
+        //     }
+        //     ele.requestVideoFrameCallback(updateVideo);
+        //     this._requestVideoFrame = true
+        // } else {
+        //     this._needUpdate = true;
+        // }
+
     }
 
+
     private isNeedUpdate() {
-        return !this._requestVideoFrame || this._needUpdate;
+        if (!this.useFrame)
+            return !this._requestVideoFrame || this._needUpdate;
+        else {
+            let timer: number = Browser.now();
+            if (timer - this._lastTimer > this._frameDelty) {
+                this._lastTimer = timer;
+                return true;
+            }
+            return false;
+        }
     }
 
     /**
