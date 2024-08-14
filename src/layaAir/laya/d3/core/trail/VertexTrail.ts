@@ -3,8 +3,9 @@ import { VertexElement } from "../../../renders/VertexElement";
 import { VertexElementFormat } from "../../../renders/VertexElementFormat";
 import { IVertex } from "../../graphics/IVertex"
 /**
- * <code>VertexTrail</code> 类用于创建拖尾顶点结构。
  * @internal
+ * @en The `VertexTrail` class is used to create the vertex structure for a trail.
+ * @zh `VertexTrail` 类用于创建拖尾的顶点结构。
  */
 export class VertexTrail implements IVertex {
 	/**@internal */
@@ -25,20 +26,28 @@ export class VertexTrail implements IVertex {
 	/**@internal */
 	private static _vertexDeclaration2: VertexDeclaration;
 
-	/**
+    /**
 	 * @internal
-	 */
+     * @en The vertex declaration for the first set of vertex elements.
+     * @zh 第一组顶点元素的顶点声明。
+     */
 	static get vertexDeclaration1(): VertexDeclaration {
 		return VertexTrail._vertexDeclaration1;
 	}
 
-	/**
+    /**
 	 * @internal
-	 */
+     * @en The vertex declaration for the second set of vertex elements.
+     * @zh 第二组顶点元素的顶点声明。
+     */
 	static get vertexDeclaration2(): VertexDeclaration {
 		return VertexTrail._vertexDeclaration2;
 	}
 
+    /**
+     * @en The vertex declaration for this vertex structure.
+     * @zh 此顶点结构的顶点声明。
+     */
 	get vertexDeclaration(): VertexDeclaration {
 		return VertexTrail._vertexDeclaration1;
 	}

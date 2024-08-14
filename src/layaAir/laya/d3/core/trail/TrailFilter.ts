@@ -20,7 +20,8 @@ import { ShaderDataType } from "../../../RenderDriver/DriverDesign/RenderDevice/
 
 
 /**
- * <code>TrailFilter</code> 类用于创建拖尾过滤器。
+ * @en The TrailFilter class is used to create a trailing filter.
+ * @zh TrailFilter 类用于创建拖尾过滤器。
  */
 export class TrailFilter {
 	/**@internal */
@@ -71,70 +72,57 @@ export class TrailFilter {
 	/**@internal */
 	_curtime: number = 0;
 
-	/**轨迹准线。*/
+	/**
+	 * @en The trail alignment.
+	 * @zh 轨迹准线。
+	 */
 	alignment: TrailAlignment = TrailAlignment.View;
 
 	/**
-	 * 获取淡出时间。
-	 * @return  淡出时间。
+	 * @en Fade out time.
+	 * @zh 淡出时间。
 	 */
 	get time(): number {
 		return this._time;
 	}
 
-	/**
-	 * 设置淡出时间。
-	 * @param value 淡出时间。
-	 */
 	set time(value: number) {
 		this._time = value;
 		this._ownerRender._baseRenderNode.shaderData.setNumber(TrailFilter.LIFETIME, value);
 	}
 
 	/**
-	 * 获取新旧顶点之间最小距离。
-	 * @return  新旧顶点之间最小距离。
+	 * @en Minimum distance between new and old vertices
+	 * @zh 新旧顶点之间最小距离。
 	 */
 	get minVertexDistance(): number {
 		return this._minVertexDistance;
 	}
 
-	/**
-	 * 设置新旧顶点之间最小距离。
-	 * @param value 新旧顶点之间最小距离。
-	 */
 	set minVertexDistance(value: number) {
 		this._minVertexDistance = value;
 	}
 
 	/**
-	 * 获取宽度倍数。
-	 * @return  宽度倍数。
+	 * @en The width multiplier.
+	 * @zh 宽度倍数。
 	 */
 	get widthMultiplier(): number {
 		return this._widthMultiplier;
 	}
 
-	/**
-	 * 设置宽度倍数。
-	 * @param value 宽度倍数。
-	 */
 	set widthMultiplier(value: number) {
 		this._widthMultiplier = value;
 	}
 
 	/**
-	 * 获取宽度曲线。
-	 * @return  宽度曲线。
+	 * @en The width curve. The maximum number is 10.
+	 * @zh 宽度曲线。最多10个。
 	 */
 	get widthCurve(): FloatKeyframe[] {
 		return this._widthCurve;
 	}
 
-	/**
-	 * 设置宽度曲线。最多10个
-	 * @param value 宽度曲线。
-	 */
 	set widthCurve(value: FloatKeyframe[]) {
 		this._widthCurve = value;
 		var widthCurveFloatArray: Float32Array = new Float32Array(value.length * 4);
@@ -150,38 +138,31 @@ export class TrailFilter {
 	}
 
 	/**
-	 * 获取颜色梯度。
-	 * @return  颜色梯度。
+	 * @en The color gradient.
+	 * @zh 颜色梯度。
 	 */
 	get colorGradient(): Gradient {
 		return this._colorGradient;
 	}
 
-	/**
-	 * 设置颜色梯度。
-	 * @param value 颜色梯度。
-	 */
 	set colorGradient(value: Gradient) {
 		this._colorGradient = value;
 
 	}
 
 	/**
-	 * 获取纹理模式。
-	 * @return  纹理模式。
+	 * @en The texture mode.
+	 * @zh 纹理模式。
 	 */
 	get textureMode(): TrailTextureMode {
 		return this._textureMode;
 	}
 
-	/**
-	 * 设置纹理模式。
-	 * @param value 纹理模式。
-	 */
 	set textureMode(value: TrailTextureMode) {
 		this._textureMode = value;
 	}
 
+	/** @ignore */
 	constructor(owner: TrailRenderer) {
 		this._ownerRender = owner;
 		this._initDefaultData();
@@ -189,9 +170,10 @@ export class TrailFilter {
 	}
 
 
-
 	/**
 	 * @internal
+	 * @en Adds a render element to the renderer.
+	 * @zh 向渲染器添加渲染元素。
 	 */
 	addRenderElement(): void {
 		var render: TrailRenderer = (<TrailRenderer>this._ownerRender);
@@ -264,6 +246,8 @@ export class TrailFilter {
 
 	/**
 	 * @internal
+	 * @en Destroys the instance and releases resources.
+	 * @zh 销毁实例并释放资源。
 	 */
 	destroy(): void {
 		this._trialGeometry.destroy();
@@ -273,7 +257,8 @@ export class TrailFilter {
 	}
 
 	/**
-	 * 清除拖尾
+	 * @en Clears the trail.
+	 * @zh 清除拖尾。
 	 */
 	clear(): void {
 		(<TrailGeometry>this._trialGeometry).clear();
