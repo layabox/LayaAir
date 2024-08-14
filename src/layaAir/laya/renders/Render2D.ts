@@ -53,9 +53,10 @@ export abstract class Render2D {
  */
 export class Render2DSimple extends Render2D {
     static rendercontext2D: IRenderContext2D;
-    private _tex_vert_decl: VertexDeclaration;
-    private geo: IRenderGeometryElement;
+    //private geo: IRenderGeometryElement;
     private _renderElement: IRenderElement2D;
+    private _geoMap:{[key:number]:IRenderGeometryElement}={}
+
     constructor(out: RenderTexture2D = null) {
         super(out);
         if (!Render2DSimple.rendercontext2D) {
@@ -68,22 +69,25 @@ export class Render2DSimple extends Render2D {
         return new Render2DSimple(out);
     }
 
-    private _createMesh() {
-        let geo = this.geo = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
+    private _createMesh(decl: VertexDeclaration) {
+        let geo = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
         let mesh = LayaGL.renderDeviceFactory.createBufferState();
         geo.bufferState = mesh;
         let vb = LayaGL.renderDeviceFactory.createVertexBuffer(BufferUsage.Dynamic);
-        vb.vertexDeclaration = this._tex_vert_decl;
+        vb.vertexDeclaration = decl;
         let ib = LayaGL.renderDeviceFactory.createIndexBuffer(BufferUsage.Dynamic);
         mesh.applyState([vb], ib)
         geo.indexFormat = IndexFormat.UInt16;
+        return geo;
     }
 
-    private setVertexDecl(decl: VertexDeclaration) {
-        if (this._tex_vert_decl != decl) {
-            this._tex_vert_decl = decl;
-            this._createMesh();
+    private getGeo(decl: VertexDeclaration){
+        let geo = this._geoMap[decl.id];
+        if(geo==undefined){
+            geo = this._createMesh(decl);
+            this._geoMap[decl.id]=geo;
         }
+        return geo;
     }
 
     renderStart(clear: boolean, clearColor: Color): void {
@@ -126,8 +130,7 @@ export class Render2DSimple extends Render2D {
 
     draw(mesh2d: ISprite2DGeometry, vboff: number, vblen: number, iboff: number, iblen: number, mtl: Value2D, customMaterial: Material): void {
         Stat.draw2D++;
-        this.setVertexDecl(mesh2d.vertexDeclarition);
-        let geo = this.geo;
+        let geo = this.getGeo(mesh2d.vertexDeclarition);
         let mesh = geo.bufferState
         let vb = mesh._vertexBuffers[0];
         let ib = mesh._bindedIndexBuffer;
