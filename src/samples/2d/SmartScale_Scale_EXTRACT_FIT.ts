@@ -11,7 +11,7 @@ export class SmartScale_Scale_EXTRACT_FIT {
 		this.Main = maincls;
 
 		Laya.init(550, 400).then(() => {
-			Laya.stage.scaleMode = Stage.SCALE_EXACTFIT;
+			// Laya.stage.scaleMode = Stage.SCALE_EXACTFIT;
 			Laya.stage.bgColor = "#232628";
 			this.createCantralRect();
 		});

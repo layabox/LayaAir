@@ -23,6 +23,9 @@ export class GLESRenderGeometryElement implements IRenderGeometryElement {
     this.drawParams = new FastSinglelist();
     this.drawType = drawType;
   }
+  getDrawDataParams(out: FastSinglelist<number>): void {
+    this.drawParams.cloneTo(out);
+  }
 
   /**@internal */
   setDrawArrayParams(first: number, count: number): void {

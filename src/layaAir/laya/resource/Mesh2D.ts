@@ -163,6 +163,8 @@ export class Mesh2D extends Resource {
         ILaya.loader.load(url, complete, null, Loader.MESH);
     }
 
+    
+
     /** @internal */
     _bufferState: IBufferState;
     /** @internal */
