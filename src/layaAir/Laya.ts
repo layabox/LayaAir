@@ -138,9 +138,6 @@ export class Laya {
         WeakObject.__init__();
         Mouse.__init__();
 
-        if (LayaEnv.isConch) {
-            Laya.enableNative();
-        }
         CacheManger.beginCheck();
 
         let steps: Array<() => any> = [];
@@ -271,34 +268,6 @@ export class Laya {
             Browser.document.body.appendChild(script);
         } else {
             (window as any)['Laya']["DebugPanel"].enable();
-        }
-    }
-
-    private static enableNative(): void {
-        if (Laya.isNativeRender_enable)
-            return;
-        Laya.isNativeRender_enable = true;
-
-        Object["defineProperty"](RenderTexture2D.prototype, "uv", {
-            "get": function (): any {
-                return this._uv;
-            },
-            "set": function (v: any): void {
-                this._uv = v;
-            }
-        }
-        );
-        HTMLCanvas.prototype.getTexture = function (): Texture | RenderTexture2D {
-            if (!this._texture) {
-                // @ts-ignore
-                this._texture = this.context._targets;
-                //遗留的奇怪代码，先注释掉
-                // @ts-ignore
-                this._texture.uv = RenderTexture2D.flipyuv;
-                // @ts-ignore
-                this._texture.bitmap = this._texture;
-            }
-            return this._texture;
         }
     }
 
