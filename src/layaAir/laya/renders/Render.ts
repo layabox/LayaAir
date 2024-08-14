@@ -78,6 +78,7 @@ export class Render {
         source.height = height;
         if (LayaEnv.isConch) {
             document.body.appendChild(source);
+            Render._mainCanvas.getContext("2d");
         }
 
         this.initRender(Render._mainCanvas, width, height);
