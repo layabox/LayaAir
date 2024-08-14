@@ -1,6 +1,16 @@
+/**
+ * @en Enum for trail alignment options.
+ * @zh 拖尾对齐方式枚举。
+ */
 export enum TrailAlignment {
-    /** 使拖尾面向摄像机。*/
+    /**
+     * @en Align the trail to face the camera.
+     * @zh 使拖尾面向摄像机。
+     */
     View,
-    /** 使拖尾的与组件的方向对齐*/
+    /**
+     * @en Align the trail with the direction of the component
+     * @zh 使拖尾与组件的方向对齐。
+     */
     TransformZ
 }

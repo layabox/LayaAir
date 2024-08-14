@@ -6,12 +6,16 @@ import { BaseTexture } from "../../../resource/BaseTexture";
 import { Material, MaterialRenderMode } from "../../../resource/Material";
 
 /**
- * <code>TrailMaterial</code> 类用于实现拖尾材质。
+ * @en The `TrailMaterial` class is used to implement trail materials.
+ * @zh `TrailMaterial` 类用于实现拖尾材质。
  */
 export class TrailMaterial extends Material {
 
 
-	/** 默认材质，禁止修改*/
+	/**
+	 * @en The default material, do not modify.
+	 * @zh 默认材质，禁止修改。
+	 */
 	static defaultMaterial: TrailMaterial;
 	/**@internal */
 	static MAINTEXTURE: number;
@@ -30,33 +34,25 @@ export class TrailMaterial extends Material {
 	}
 
 	/**
-	 * 获取颜色。
-	 * @return 颜色。
+	 * @en The color of the material.
+	 * @zh 材质的颜色。
 	 */
 	get color(): Color {
 		return (<Color>this._shaderValues.getColor(TrailMaterial.TINTCOLOR));
 	}
 
-	/**
-	 * 设置颜色。
-	 * @param value 颜色。
-	 */
 	set color(value: Color) {
 		this._shaderValues.setColor(TrailMaterial.TINTCOLOR, value);
 	}
 
 	/**
-	 * 获取贴图。
-	 * @return 贴图。
+	 * @en The texture of the material.
+	 * @zh 材质贴图。
 	 */
 	get texture(): BaseTexture {
 		return this._shaderValues.getTexture(TrailMaterial.MAINTEXTURE);
 	}
 
-	/**
-	 * 设置贴图。
-	 * @param value 贴图。
-	 */
 	set texture(value: BaseTexture) {
 		if (value)
 			this._shaderValues.addDefine(TrailMaterial.SHADERDEFINE_MAINTEXTURE);
@@ -66,17 +62,13 @@ export class TrailMaterial extends Material {
 	}
 
 	/**
-	 * 获取纹理平铺和偏移。
-	 * @return 纹理平铺和偏移。
+	 * @en The tiling and offset of the texture.
+	 * @zh 纹理的平铺和偏移。
 	 */
 	get tilingOffset(): Vector4 {
 		return (<Vector4>this._shaderValues.getVector(TrailMaterial.TILINGOFFSET));
 	}
 
-	/**
-	 * 设置纹理平铺和偏移。
-	 * @param value 纹理平铺和偏移。
-	 */
 	set tilingOffset(value: Vector4) {
 		if (value) {
 			this._shaderValues.setVector(TrailMaterial.TILINGOFFSET, value);
@@ -86,6 +78,7 @@ export class TrailMaterial extends Material {
 		}
 	}
 
+	/**@ignore */
 	constructor() {
 		super();
 		this.setShaderName("Trail");
@@ -95,6 +88,10 @@ export class TrailMaterial extends Material {
 	/**
 	 * @inheritdoc
 	 * @override
+	 * @en Clones the material.
+	 * @returns A cloned instance of the material.
+	 * @zh 克隆材质。
+	 * @returns 材质的一个克隆实例。
 	 */
 	clone(): any {
 		var dest: TrailMaterial = new TrailMaterial();
