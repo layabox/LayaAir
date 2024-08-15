@@ -84,7 +84,7 @@ export class WebGLInternalRT extends GLObject implements InternalRenderTarget {
         this._msaaRenderbuffer = null;
 
         this._changeTexMemory(0);
-        this.gpuMemory = 0;
+        this._gpuMemory = 0;
         this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.RC_ALLRenderTexture, -1);
     }
 }
