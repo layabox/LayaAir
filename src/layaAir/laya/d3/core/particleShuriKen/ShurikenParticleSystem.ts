@@ -1197,8 +1197,13 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
                 meshSize = ShurikenParticleSystem.halfKSqrtOf2;// Math.sqrt(2) / 2.0;
                 break;
             case 4: // mesh
-                var meshBounds: Bounds = particleRender.mesh.bounds;
-                meshSize = Math.sqrt(Math.pow(meshBounds.getExtent().x, 2.0) + Math.pow(meshBounds.getExtent().y, 2.0) + Math.pow(meshBounds.getExtent().z, 2.0));
+                if (particleRender.mesh) {
+                    var meshBounds: Bounds = particleRender.mesh.bounds;
+                    meshSize = Math.sqrt(Math.pow(meshBounds.getExtent().x, 2.0) + Math.pow(meshBounds.getExtent().y, 2.0) + Math.pow(meshBounds.getExtent().z, 2.0));
+                } else {
+                    meshSize = ShurikenParticleSystem.halfKSqrtOf2;// Math.sqrt(2) / 2.0;
+                }
+
                 break;
             default:
                 break;
