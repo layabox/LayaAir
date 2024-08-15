@@ -11,8 +11,11 @@ export class WebGLIndexBuffer implements IIndexBuffer {
     _glBuffer: GLBuffer;
     indexType: IndexFormat;
     indexCount: number;
+    canRead:boolean;
 
-    constructor(targetType: BufferTargetType, bufferUsageType: BufferUsage) {
+    _buffer:Uint16Array | Uint32Array | Uint8Array;
+
+    constructor(targetType: BufferTargetType, bufferUsageType: BufferUsage ) {
         this._glBuffer = this._glBuffer = WebGLEngine.instance.createBuffer(targetType, bufferUsageType) as GLBuffer;
         WebGLEngine.instance._addStatisticsInfo(GPUEngineStatisticsInfo.RC_IndexBuffer, 1);
     }
@@ -45,6 +48,18 @@ export class WebGLIndexBuffer implements IIndexBuffer {
         } else {
             this._glBuffer.bindBuffer()
             this._glBuffer.setData(data, bufferOffset)
+        }
+
+        if (this.canRead) {
+            this._buffer = data;
+        }
+    }
+
+    getData():Readonly<Uint16Array|Uint32Array | Uint8Array>{
+        if (this.canRead) {
+            return this._buffer;
+        }else{
+			throw new Error("Can't read data from VertexBuffer with only write flag!");
         }
     }
 

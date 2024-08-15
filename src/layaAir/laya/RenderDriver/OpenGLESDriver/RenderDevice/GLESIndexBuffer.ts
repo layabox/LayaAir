@@ -5,6 +5,8 @@ import { IIndexBuffer } from "../../DriverDesign/RenderDevice/IIndexBuffer";
 
 
 export class GLESIndexBuffer implements IIndexBuffer {
+    canRead: boolean = false;
+    _buffer:Uint32Array | Uint16Array | Uint8Array;
     destroy(): void {
         this._nativeObj.destroy();
     }
@@ -13,7 +15,18 @@ export class GLESIndexBuffer implements IIndexBuffer {
     }
     _setIndexData(data: Uint32Array | Uint16Array | Uint8Array, bufferOffset: number): void {
         this._nativeObj._setIndexData(data, bufferOffset);
+        if (this.canRead) {
+            this._buffer = data;
+        }
     }
+    getData():Readonly<Uint16Array|Uint32Array | Uint8Array>{
+        if (this.canRead) {
+            return this._buffer;
+        }else{
+			throw new Error("Can't read data from VertexBuffer with only write flag!");
+        }
+    }
+
     public get indexType(): IndexFormat {
         return this._nativeObj._indexType;
     }

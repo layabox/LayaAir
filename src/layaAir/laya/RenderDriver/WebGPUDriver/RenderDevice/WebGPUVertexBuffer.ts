@@ -8,7 +8,7 @@ export class WebGPUVertexBuffer implements IVertexBuffer {
     source: WebGPUBuffer;
     vertexDeclaration: VertexDeclaration;
     instanceBuffer: boolean;
-
+    canRead = true;
     buffer: ArrayBuffer;
 
     globalId: number;
@@ -31,6 +31,10 @@ export class WebGPUVertexBuffer implements IVertexBuffer {
         }
     }
 
+    getData():Readonly<ArrayBuffer>{
+        return this.buffer;
+    }
+    
     setDataLength(byteLength: number): void {
         this.source.setDataLength(byteLength);
     }

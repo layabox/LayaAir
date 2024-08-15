@@ -8,6 +8,8 @@ import { GLBuffer } from "./WebGLEngine/GLBuffer";
 
 export class WebGLVertexBuffer implements IVertexBuffer {
     _glBuffer: GLBuffer;
+    canRead:boolean;
+    _buffer:ArrayBuffer;
 
     private _vertexDeclaration: VertexDeclaration;
 
@@ -47,6 +49,18 @@ export class WebGLVertexBuffer implements IVertexBuffer {
             this._glBuffer.setData(subData, bufferOffset);
         } else {
             this._glBuffer.setData(buffer, bufferOffset);
+        }
+
+        if (this.canRead) {
+            this._buffer = buffer;
+        }
+    }
+
+    getData():Readonly<ArrayBuffer>{
+        if (this.canRead) {
+            return this._buffer;
+        }else{
+			throw new Error("Can't read data from VertexBuffer with only write flag!");
         }
     }
 

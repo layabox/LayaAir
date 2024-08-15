@@ -38,7 +38,7 @@ import { Script } from "./components/Script";
 import { Matrix } from "./maths/Matrix";
 import { Matrix3x3 } from "./maths/Matrix3x3";
 import { Matrix4x4 } from "./maths/Matrix4x4";
-
+import "./loaders/MeshLoader";
 import "./loaders/TextResourceLoader";
 import "./loaders/AtlasLoader";
 import "./loaders/HierarchyLoader";

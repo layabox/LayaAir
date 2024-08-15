@@ -116,6 +116,7 @@ export class Mesh2D extends Resource {
      * @param ib index Buffer
      * @param ibFormat index Buffer format
      * @param submeshInfo subMesh render info，start for index offset，length for draw range。one mesh2D can Multisegmental rendering。
+     * @param canRead vb & ib data is readable or not
      * @returns return a mesh2D，can use to Mesh2DRender
      * @zh 创建一个Mesh2D
      * @param vbs 顶点数组数据
@@ -123,20 +124,23 @@ export class Mesh2D extends Resource {
      * @param ib 索引数据
      * @param ibFormat 索引数据格式
      * @param submeshInfo 子Mesh渲染信息，start标识从索引数据哪里开始，length指draw多少索引值的三角形，一个Mesh2D可以分成多端来渲染，方便赋入不同的材质
+     * @param canRead vb 和 ib 数据是否可读
      * @returns 返回一个mesh2D实例。可用于mesh2DRender组件渲染
      */
-    static createMesh2DByPrimitive(vbs: Float32Array[], vbDeclaration: VertexDeclaration[], ib: Uint16Array | Uint32Array, ibFormat: IndexFormat, submeshInfo: { start: number, length: number }[]) {
+    static createMesh2DByPrimitive(vbs: Float32Array[], vbDeclaration: VertexDeclaration[], ib: Uint16Array | Uint32Array, ibFormat: IndexFormat, submeshInfo: { start: number, length: number }[] , canRead = false) {
         let mesh2d = new Mesh2D();
         let vbArray = [];
         for (var i = 0, n = vbs.length; i < n; i++) {
             let vbdata = vbs[i];
             let vertex = LayaGL.renderDeviceFactory.createVertexBuffer(BufferUsage.Dynamic);
+            vertex.canRead = canRead;
             vertex.vertexDeclaration = vbDeclaration[i];
             vertex.setDataLength(vbdata.buffer.byteLength);
             vertex.setData(vbdata.buffer, 0, 0, vbdata.buffer.byteLength);
             vbArray.push(vertex);
         }
         let indexBuffer = LayaGL.renderDeviceFactory.createIndexBuffer(BufferUsage.Dynamic);
+        indexBuffer.canRead = canRead;
         indexBuffer._setIndexDataLength(ib.buffer.byteLength);
         indexBuffer._setIndexData(ib, 0);
         mesh2d._setBuffers(vbArray, indexBuffer);
