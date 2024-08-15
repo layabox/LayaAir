@@ -109,6 +109,9 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
             this._vertexBuffer.destroy();
             this._instanceParticleVertexBuffer.destroy();
             this._indexBuffer.destroy();
+            this._vertexBuffer = null;
+            this._instanceParticleVertexBuffer = null;
+            this._indexBuffer = null;
         }
         let render: ShurikenParticleRenderer = this._ownerRender;
         let renderMode: number = render.renderMode;
@@ -195,6 +198,7 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
     }
 
     protected _retireActiveParticles(): void {
+        if (this._instanceParticleVertexBuffer == null) return;
         const epsilon: number = 0.0001;
         let firstActive = this._firstActiveElement;
         while (this._firstActiveElement != this._firstNewElement) {
