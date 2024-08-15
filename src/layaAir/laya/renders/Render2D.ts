@@ -55,7 +55,7 @@ export class Render2DSimple extends Render2D {
     static rendercontext2D: IRenderContext2D;
     //private geo: IRenderGeometryElement;
     private _renderElement: IRenderElement2D;
-    private _geoMap:{[key:number]:IRenderGeometryElement}={}
+    private static _geoMap:{[key:number]:IRenderGeometryElement}={}
 
     constructor(out: RenderTexture2D = null) {
         super(out);
@@ -82,10 +82,10 @@ export class Render2DSimple extends Render2D {
     }
 
     private getGeo(decl: VertexDeclaration){
-        let geo = this._geoMap[decl.id];
+        let geo = Render2DSimple._geoMap[decl.id];
         if(geo==undefined){
             geo = this._createMesh(decl);
-            this._geoMap[decl.id]=geo;
+            Render2DSimple._geoMap[decl.id]=geo;
         }
         return geo;
     }
