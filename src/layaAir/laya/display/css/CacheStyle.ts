@@ -65,7 +65,8 @@ export class CacheStyle {
      */
     releaseContext(): void {
         if (this.canvas && ((<any>this.canvas)).size) {
-            Pool.recover("CacheCanvas", this.canvas);
+            //Pool.recover("CacheCanvas", this.canvas);
+            Pool.recoverByClass(this.canvas);
             this.canvas.size(0, 0);
             // 微信在iphone8和mate20上个bug，size存在但是不起作用，可能是canvas对象不是我们的。
             // 为了避免canvas不消失，再强制设置宽高为0 TODO 没有测试
@@ -81,7 +82,8 @@ export class CacheStyle {
 
     createContext(): void {
         if (!this.canvas) {
-            this.canvas = Pool.getItem("CacheCanvas") || new HTMLCanvas(false);
+            //this.canvas = Pool.getItem("CacheCanvas") || new HTMLCanvas(false);
+            this.canvas = Pool.createByClass(HTMLCanvas);
             var tx: Context = this.canvas.context as Context;
             if (!tx) {
                 tx = this.canvas.getContext('2d') as Context;	//如果是webGL的话，这个会返回WebGLContext2D
