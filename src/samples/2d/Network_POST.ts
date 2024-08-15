@@ -32,7 +32,7 @@ export class Network_POST {
 		this.hr.once(Event.PROGRESS, this, this.onHttpRequestProgress);
 		this.hr.once(Event.COMPLETE, this, this.onHttpRequestComplete);
 		this.hr.once(Event.ERROR, this, this.onHttpRequestError);
-		this.hr.send('http://xkxz.zhonghao.huo.inner.layabox.com/api/getData', 'name=myname&psword=xxx', 'post', 'text');
+		this.hr.send('https://httpbin.org/post', 'key1=value1&key2=value2', 'post', 'text');
 	}
 
 	private showLogger(): void {
@@ -58,6 +58,7 @@ export class Network_POST {
 
 	private onHttpRequestComplete(e: any = null): void {
 		this.logger.text += "收到数据：" + this.hr.data;
+		console.log("收到数据：" + this.hr.data);
 	}
 }
 
