@@ -26,7 +26,7 @@ export class VideoNode extends Sprite {
 
         this.texture = this._internalTex = new Texture();
 
-        if (LayaEnv.isPlaying && ILaya.Browser.onMobile&& !LayaEnv.isConch) {
+        if (LayaEnv.isPlaying && ILaya.Browser.onMobile && !LayaEnv.isConch) {
             let func = () => {
                 ILaya.Browser.document.removeEventListener("touchend", func);
 
@@ -55,6 +55,7 @@ export class VideoNode extends Sprite {
     set videoTexture(value: VideoTexture) {
         if (this._videoTexture) {
             this._videoTexture._removeReference();
+            this.videoTexture.off(VideoTexture.videoEvent_update, this, this._repaintCachAs);
             this._videoTexture.off(Event.READY, this, this.onVideoMetaLoaded);
         }
 
@@ -93,13 +94,11 @@ export class VideoNode extends Sprite {
     private _checkCachAs() {
         if (this.videoTexture != null)
             this.videoTexture.on(VideoTexture.videoEvent_update, this, this._repaintCachAs);
-        else {
-            this.videoTexture.off(VideoTexture.videoEvent_update, this, this._repaintCachAs);
-        }
+
     }
 
-    private _repaintCachAs(){
-        if(this.cacheAs!="none"||(!!this._getCacheStyle().mask)){
+    private _repaintCachAs() {
+        if (this.cacheAs != "none" || (!!this._getCacheStyle().mask)) {
             this.repaint();
         }
     }
