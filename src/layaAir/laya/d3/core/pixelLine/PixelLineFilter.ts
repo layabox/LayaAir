@@ -14,7 +14,8 @@ import { PixelLineRenderer } from "./PixelLineRenderer";
 import { PixelLineVertex } from "./PixelLineVertex";
 
 /**
- * <code>PixelLineFilter</code> 类用于线过滤器。
+ * @en The `PixelLineFilter` class is used for line filtering.
+ * @zh `PixelLineFilter` 类用于线过滤器。
  */
 export class PixelLineFilter extends GeometryElement {
 	/** @private */
@@ -52,9 +53,13 @@ export class PixelLineFilter extends GeometryElement {
 	_lineCount: number = 0;
 
 	/**
-	 * 创建一个PixelLineFilter实例
-	 * @param owner 渲染精灵节点 
-	 * @param maxLineCount 最大线长
+	 * @ignore
+	 * @en initialize pixeLineFilter instance.
+	 * @param owner The rendering sprite node.
+	 * @param maxLineCount The maximum line count.
+	 * @zh 初始化pixeLineFilter实例。
+	 * @param owner 渲染精灵节点。
+	 * @param maxLineCount 最大线段数量。
 	 */
 	constructor(owner: PixelLineRenderer, maxLineCount: number) {
 		super(MeshTopology.Lines, DrawType.DrawArray);
@@ -252,9 +257,14 @@ export class PixelLineFilter extends GeometryElement {
 		this._calculateBound = data.length > 0;
 	}
 
+
 	/**
-	 * 获取线段数据
-	 * @return 线段数据。
+	 * @en Get the line segment data.
+	 * @param index The index of the line segment.
+	 * @param out The output PixelLineData object.
+	 * @zh 获取线段数据。
+	 * @param index 线段的索引。
+	 * @param out 输出的PixelLineData对象。
 	 */
 	_getLineData(index: number, out: PixelLineData): void {
 		var startPosition: Vector3 = out.startPosition;
@@ -320,7 +330,8 @@ export class PixelLineFilter extends GeometryElement {
 	/**
 	 * @inheritDoc
 	 * @override
-	 * 删除
+	 * @en Destroy the PixelLineFilter instance.
+	 * @zh 销毁PixelLineFilter实例。
 	 */
 	destroy(): void {
 		if (this._destroyed)

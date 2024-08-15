@@ -19,7 +19,8 @@ import { PixelLineMaterial } from "./PixelLineMaterial";
 
 
 /**
- * <code>PixelLineRenderer</code> 类用于线渲染器。
+ * @en PixelLineRenderer class for line rendering.
+ * @zh PixelLineRenderer 类用于线渲染器。
  */
 export class PixelLineRenderer extends BaseRender {
     /** @internal */
@@ -33,9 +34,11 @@ export class PixelLineRenderer extends BaseRender {
     private _isInRenders: Boolean = false;
 
     private _needUpdatelines: boolean = false;
+
     /**
-     * 创建一个PixelLineRenderer实例
-     * @param owner 线渲染精灵
+     * @ignore
+     * @en Initialize PixelLineRenderer instance.
+     * @zh 初始化PixelLineRenderer实例。
      */
     constructor() {
         super();
@@ -45,6 +48,10 @@ export class PixelLineRenderer extends BaseRender {
         this.geometryBounds = this._pixelLineFilter._bounds;
     }
 
+    /**
+     * @en The bounds of the line renderer.
+     * @zh 线渲染器的包围盒。
+     */
     get bounds(): Bounds {
         var lineFilter: PixelLineFilter = this._pixelLineFilter;
         lineFilter._reCalculateBound();
@@ -54,7 +61,8 @@ export class PixelLineRenderer extends BaseRender {
     private _lines: PixelLineData[] = [];
 
     /**
-     * 线段数据
+     * @en The line segment data.
+     * @zh 线段数据。
      */
     get pixelLinesDatas() {
         if (this._needUpdatelines) {
@@ -69,7 +77,8 @@ export class PixelLineRenderer extends BaseRender {
     }
 
     /**
-     * 最大线数量
+     * @en The maximum number of lines.
+     * @zh 最大线数量。
      */
     get maxLineCount(): number {
         return this._pixelLineFilter._maxLineCount;
@@ -81,7 +90,8 @@ export class PixelLineRenderer extends BaseRender {
     }
 
     /**
-     * 获取线数量。
+     * @en The current number of lines.
+     * @zh 当前线数量。
      */
     get lineCount(): number {
         return this._pixelLineFilter._lineCount;
@@ -126,7 +136,12 @@ export class PixelLineRenderer extends BaseRender {
         return Laya3DRender.Render3DModuleDataFactory.createMeshRenderNode();
     }
 
-
+    /**
+     * @en Update the render context.
+     * @param context The render context.
+     * @zh 更新渲染上下文。
+     * @param context 渲染上下文。
+     */
     renderUpdate(context: RenderContext3D): void {
         this._renderElements.forEach((element, index) => {
             element._renderElementOBJ.isRender = element._geometry._prepareRender(context);
@@ -171,11 +186,16 @@ export class PixelLineRenderer extends BaseRender {
     }
 
     /**
-     * 增加一条线。
-     * @param	startPosition  初始点位置
-     * @param	endPosition	   结束点位置
-     * @param	startColor	   初始点颜色
-     * @param	endColor	   结束点颜色
+     * @en Add a line.
+     * @param startPosition Initial point position
+     * @param endPosition End point position
+     * @param startColor Initial point color
+     * @param endColor End point color
+     * @zh 增加一条线。
+     * @param startPosition 初始点位置
+     * @param endPosition 结束点位置
+     * @param startColor 初始点颜色
+     * @param endColor 结束点颜色
      */
     addLine(startPosition: Vector3, endPosition: Vector3, startColor: Color, endColor: Color): void {
         if (this._pixelLineFilter._lineCount !== this._pixelLineFilter._maxLineCount) {
@@ -193,13 +213,20 @@ export class PixelLineRenderer extends BaseRender {
     }
 
     /**
-     * 增加一条线。
-     * @param	startPosition  初始点位置
-     * @param	endPosition	   结束点位置
-     * @param	startColor	   初始点颜色
-     * @param	endColor	   结束点颜色
-     * @param startNormal   初始点法线
-     * @param endNormal     结束点法线
+     * @en Add a line with normal.
+     * @param startPosition Initial point position
+     * @param endPosition End point position
+     * @param startColor Initial point color
+     * @param endColor End point color
+     * @param startNormal Initial point normal
+     * @param endNormal End point normal
+     * @zh 增加一条带有法线的线。
+     * @param startPosition 初始点位置
+     * @param endPosition 结束点位置
+     * @param startColor 初始点颜色
+     * @param endColor 结束点颜色
+     * @param startNormal 初始点法线     
+     * @param endNormal 结束点法线
      */
     addLineWithNormal(startPosition: Vector3, endPosition: Vector3, startColor: Color, endColor: Color, startNormal: Vector3, endNormal: Vector3) {
         if (this._pixelLineFilter._lineCount !== this._pixelLineFilter._maxLineCount) {
@@ -217,8 +244,10 @@ export class PixelLineRenderer extends BaseRender {
     }
 
     /**
-     * 添加多条线段。
-     * @param	lines  线段数据
+     * @en Add multiple line segments.
+     * @param lines Line segment data
+     * @zh 添加多条线段。
+     * @param lines 线段数据
      */
     addLines(lines: PixelLineData[]): void {
         var lineCount: number = this._pixelLineFilter._lineCount;
@@ -239,8 +268,10 @@ export class PixelLineRenderer extends BaseRender {
     }
 
     /**
-     * 移除一条线段。
-     * @param index 索引。
+     * @en Remove a line segment.
+     * @param index Index of the line to remove
+     * @zh 移除一条线段。
+     * @param index 线段索引。
      */
     removeLine(index: number): void {
         if (index < this._pixelLineFilter._lineCount)
@@ -255,12 +286,18 @@ export class PixelLineRenderer extends BaseRender {
     }
 
     /**
-     * 更新线
-     * @param	index  		   索引
-     * @param	startPosition  初始点位置
-     * @param	endPosition	   结束点位置
-     * @param	startColor	   初始点颜色
-     * @param	endColor	   结束点颜色
+     * @en Update a line.
+     * @param index Index of the line to update
+     * @param startPosition Initial point position
+     * @param endPosition End point position
+     * @param startColor Initial point color
+     * @param endColor End point color
+     * @zh 更新线。
+     * @param index 线段索引。
+     * @param startPosition 初始点位置。
+     * @param endPosition 结束点位置。
+     * @param startColor 初始点颜色。
+     * @param endColor 结束点颜色。
      */
     setLine(index: number, startPosition: Vector3, endPosition: Vector3, startColor: Color, endColor: Color): void {
         if (index < this._pixelLineFilter._lineCount) {
@@ -279,14 +316,22 @@ export class PixelLineRenderer extends BaseRender {
     }
 
     /**
-     * 更新线
-     * @param	index  		   索引
-     * @param	startPosition  初始点位置
-     * @param	endPosition	   结束点位置
-     * @param	startColor	   初始点颜色
-     * @param	endColor	   结束点颜色
-     * @param startNormal   初始点法线
-     * @param endNormal     结束点法线
+     * @en Update a line with normal.
+     * @param index Index of the line to update
+     * @param startPosition Initial point position
+     * @param endPosition End point position
+     * @param startColor Initial point color
+     * @param endColor End point color
+     * @param startNormal Initial point normal
+     * @param endNormal End point normal
+     * @zh 更新带有法线的线。
+     * @param index 线段索引。
+     * @param startPosition 初始点位置。
+     * @param endPosition 结束点位置。
+     * @param startColor 初始点颜色。
+     * @param endColor 结束点颜色。
+     * @param startNormal 初始点法线。
+     * @param endNormal 结束点法线。
      */
     setLineWithNormal(index: number, startPosition: Vector3, endPosition: Vector3, startColor: Color, endColor: Color, startNormal: Vector3, endNormal: Vector3): void {
         if (index < this._pixelLineFilter._lineCount) {
@@ -307,7 +352,11 @@ export class PixelLineRenderer extends BaseRender {
     }
 
     /**
-     * 获取线段数据
+     * @en Get line segment data.
+     * @param index Index of the line to get
+     * @param out Output line segment data
+     * @zh 获取线段数据。
+     * @param index 线段索引。
      * @param out 线段数据。
      */
     getLine(index: number, out: PixelLineData): void {
@@ -332,7 +381,8 @@ export class PixelLineRenderer extends BaseRender {
     }
 
     /**
-     * 清除所有线段。
+     * @en Clear all line segments.
+     * @zh 清除所有线段。
      */
     clear(): void {
         this._pixelLineFilter._lineCount = 0;
