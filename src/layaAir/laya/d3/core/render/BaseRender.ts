@@ -44,8 +44,10 @@ export enum IrradianceMode {
     VolumetricGI,
     Common
 }
+
 /**
- * <code>Render</code> 类用于渲染器的父类，抽象类不允许实例。
+ * @en The `BaseRender` class is the parent class for renderers and is an abstract class that should not be instantiated.
+ * @zh `BaseRender` 类是渲染器的父类，是一个抽象类，不允许实例化。
  */
 export class BaseRender extends Component {
 
@@ -62,17 +64,22 @@ export class BaseRender extends Component {
     static _defaultLightmapScaleOffset: Vector4 = new Vector4(1.0, 1.0, 0.0, 0.0);
 
     /**
-     * BaseRender Init
+     * @en Initialize the BaseRender class.
+     * @zh 初始化 BaseRender 类。
      */
     static __init__() {
         BaseRender.shaderValueInit();
     }
 
     /**
-      * @internal
-      * @param mesh 
-      * @param out 
-      */
+     * @internal
+     * @en Get mesh definitions and store them in the output array.
+     * @param mesh The input mesh.
+     * @param out The output array to store shader definitions.
+     * @zh 获取网格定义并存储在输出数组中。
+     * @param mesh 输入网格。
+     * @param out 输出数组用于存储着色器定义。
+     */
     static getMeshDefine(mesh: Mesh, out: Array<ShaderDefine>): number {
         out.length = 0;
         var define: number;
@@ -102,10 +109,14 @@ export class BaseRender extends Component {
     }
 
     /**
-     * 更改顶点宏定义
-     * @param oldMesh 旧Mesh 
-     * @param mesh 新Mesh
-     * @param defineDatas 宏数据  
+     * @en Change vertex shader definitions based on mesh changes.
+     * @param oldMesh The old mesh.
+     * @param mesh The new mesh.
+     * @param defineDatas The shader data containing definitions.
+     * @zh 根据网格变化更改顶点着色器宏定义。
+     * @param oldMesh 旧的网格。
+     * @param mesh 新的网格。
+     * @param defineDatas 包含着色器定义的着色器数据。  
      */
     static changeVertexDefine(oldMesh: Mesh, mesh: Mesh, defineDatas: ShaderData) {
 
@@ -123,7 +134,8 @@ export class BaseRender extends Component {
     }
 
     /**
-     * 宏定义初始化
+     * @en Macro definition initialization
+     * @zh 宏定义初始化
      */
     static shaderValueInit() {
         Sprite3DRenderDeclaration.SHADERDEFINE_GI_LEGACYIBL = Shader3D.getDefineByName("GI_LEGACYIBL");
@@ -196,76 +208,86 @@ export class BaseRender extends Component {
 
     _renderElements: RenderElement[] = [];
 
+    /**
+     * @en Whether to enable the renderer.
+     * @zh 是否启用。
+     */
+    get enabled(): boolean {
+        return super.enabled;
+    }
     set enabled(value: boolean) {
         super.enabled = value;
         this._baseRenderNode.enable = value;
     }
 
-    get enabled(): boolean {
-        return super.enabled;
+    /**
+     * @en The sorting fudge value.
+     * @zh 排序矫正值。
+     */
+    get sortingFudge() {
+        return this._baseRenderNode.sortingFudge;
     }
-
-    /**排序矫正值。*/
     set sortingFudge(value: number) {
         this._baseRenderNode.sortingFudge = value;
     }
 
-    get sortingFudge() {
-        return this._baseRenderNode.sortingFudge;
-    }
     /**
-     * 获取渲染节点的渲染禁用位
+     * @en The render bit flag of the render node.
+     * @zh 渲染节点的渲染禁用位。
      */
     get renderbitFlag() {
         return this._baseRenderNode.renderbitFlag;
     }
 
     /**
-     * 包围盒是否更新
+     * @en Whether the bounds have changed.
+     * @zh 包围盒是否更新。
      */
-    set boundsChange(value: boolean) {
-        this._baseRenderNode.boundsChange = value
-    }
-
     get boundsChange(): boolean {
         return this._baseRenderNode.boundsChange;
+    }
+    set boundsChange(value: boolean) {
+        this._baseRenderNode.boundsChange = value
     }
 
     /**
      * 渲染数据
      */
     /**
-     * 获取渲染节点
+     * @en The render node.
+     * @zh 渲染节点。
      */
     get renderNode(): IBaseRenderNode {
         return this._baseRenderNode;
     }
 
     /**
-     * 排序距离
+     * @en The distance used for sorting.
+     * @zh 排序距离。
      */
+    get distanceForSort() {
+        return this._baseRenderNode.distanceForSort;
+    }
     set distanceForSort(value: number) {
         this._baseRenderNode.distanceForSort = value;
     }
 
-    get distanceForSort() {
-        return this._baseRenderNode.distanceForSort;
-    }
-
     /**
-     * 设置GeometryBounds，
-     * 如果设置了此bounds，渲染包围盒会根据geometryBounds和transform来更新，native层会下沉
+     * @en The Geometry Bounds.
+     * If this bounds is set, the render bounding box will be updated based on geometryBounds and transform, and the native layer will be sunk.
+     * @zh 几何包围盒，
+     * 如果设置了此包围盒，渲染包围盒会根据 geometryBounds 和变换来更新，并且原生层会下沉。
      */
+    get geometryBounds(): Bounds {
+        return this._baseRenderNode.baseGeometryBounds;
+    }
     set geometryBounds(value: Bounds) {
         this._baseRenderNode.baseGeometryBounds = value;
     }
 
-    get geometryBounds(): Bounds {
-        return this._baseRenderNode.baseGeometryBounds;
-    }
-
     /**
-     * 光照贴图的索引。
+     * @en The lightmap index.
+     * @zh 光照贴图的索引。
      */
     get lightmapIndex(): number {
         return this._baseRenderNode.lightmapIndex;
@@ -277,7 +299,10 @@ export class BaseRender extends Component {
 
     /**
      * @internal
-     * @param value 
+     * @en Sets the lightmap index.
+     * @param value The new lightmap index.
+     * @zh 设置光照贴图的索引。
+     * @param value 新的光照贴图索引。
      */
     setLightmapIndex(value: number) {
         let scene = <Scene3D>this._scene;
@@ -292,14 +317,16 @@ export class BaseRender extends Component {
     }
 
     /**
-     * 间接光照功能查询
+     * @en The irradient mode.
+     * @zh 间接光照功能。
      */
     get irradientMode() {
         return this._baseRenderNode.irradientMode;
     }
 
     /**
-     * 光照贴图的缩放和偏移。
+     * @en The lightmap scale and offset.
+     * @zh 光照贴图的缩放和偏移。
      */
     get lightmapScaleOffset(): Vector4 {
         return this._lightmapScaleOffset;
@@ -311,7 +338,8 @@ export class BaseRender extends Component {
     }
 
     /**
-     * 返回第一个材质。
+     * @en The first material.
+     * @zh 第一个材质。
      */
     get sharedMaterial(): Material {
         return this._sharedMaterials[0];
@@ -332,7 +360,8 @@ export class BaseRender extends Component {
     }
 
     /**
-     * 返回所以渲染材质
+     * @en All shared materials.
+     * @zh 所有渲染材质。
      */
     get sharedMaterials(): Material[] {
         return this._sharedMaterials.slice();
@@ -380,14 +409,16 @@ export class BaseRender extends Component {
     }
 
     /**
-     * 包围盒,只读,不允许修改其值。
+     * @en The bounds. Read-only, do not modify its value.
+     * @zh 包围盒。只读，不允许修改其值。
      */
     get bounds(): Bounds {
         return this._baseRenderNode.bounds;
     }
 
     /**
-     * 是否接收阴影属性
+     * @en Whether the object receives shadows.
+     * @zh 是否接收阴影属性。
      */
     get receiveShadow(): boolean {
         return this._receiveShadow;
@@ -405,7 +436,8 @@ export class BaseRender extends Component {
     }
 
     /**
-     * 是否产生阴影。
+     * @en Whether the object casts shadows.
+     * @zh 是否产生阴影。
      */
     get castShadow(): boolean {
         return this._baseRenderNode.castShadow;
@@ -416,7 +448,8 @@ export class BaseRender extends Component {
     }
 
     /**
-     * 反射模式
+     * @en The reflection mode.
+     * @zh 反射模式。
      */
     get reflectionMode(): ReflectionProbeMode {
         return this._baseRenderNode.reflectionMode;
@@ -427,10 +460,8 @@ export class BaseRender extends Component {
     }
 
     /**
-     * 体积光探针
-     */
-    /**
-     * 获得所属包围盒
+     * @en The volume light probe.
+     * @zh 体积光探针。
      */
     get volume(): Volume {
         return this._volume;
@@ -455,7 +486,8 @@ export class BaseRender extends Component {
 
     /**
      * @internal
-     * 设置反射球
+     * @en The reflection probe.
+     * @zh 反射探针。
      */
     get probReflection() {
         return this._probReflection;
@@ -477,7 +509,8 @@ export class BaseRender extends Component {
     }
 
     /**
-     * 设置探针
+     * @en The light probe.
+     * @zh 光照探针。
      */
     get lightProbe(): VolumetricGI {
         return this._lightProb;
@@ -494,7 +527,9 @@ export class BaseRender extends Component {
     }
 
     /**
-     * 创建一个新的 <code>BaseRender</code> 实例。
+     * @ignore
+     * @en consructor of BaseRender.
+     * @zh 构造函数，初始化BaseRender。
      */
     constructor() {
         super();
@@ -526,20 +561,25 @@ export class BaseRender extends Component {
         this.castShadow = false;
         this._baseRenderNode.renderNodeType = 0;
     }
+
     /**
-     * 每一帧计算包围盒会调用的函数
+     * @en The function called by the bounding box calculation for each frame.
+     * @zh 每一帧计算包围盒会调用的函数
      */
     _calculateBoundingBox?(): void;
 
     /**
-     * 每一帧渲染前更新SpriteShaderData的调用函数
-     * @param context3D 
+     * @en Update the calling function of SpriteShaderData before rendering each frame.
+     * @param context3D The 3D rendering context.
+     * @zh 每一帧渲染前更新SpriteShaderData的调用函数。
+     * @param context3D 3D渲染上下文。
      */
     _renderUpdate?(context3D: IRenderContext3D): void;
+
     /**
-  * set BaseRenderElement
-  * @param mesh 
-  */
+     * set BaseRenderElement
+     * @param mesh 
+     */
     protected _setRenderElements() {
         let arrayElement: IRenderElement3D[] = [];
         this._renderElements.forEach(element => {
@@ -577,7 +617,7 @@ export class BaseRender extends Component {
     }
 
     /**
-     * protected
+     * @protected
      * @param context 
      */
     renderUpdate(context: RenderContext3D) {
@@ -723,8 +763,9 @@ export class BaseRender extends Component {
     }
 
     /**
-     * 渲染器添加到更新反射探针队列
      * @internal
+     * @en Adds the renderer to the update reflection probe queue.
+     * @zh 渲染器添加到更新反射探针队列。
      */
     _addReflectionProbeUpdate() {
         //TODO目前暂时不支持混合以及与天空盒模式，只支持simple和off
@@ -732,8 +773,9 @@ export class BaseRender extends Component {
     }
 
     /**
-     * 设置所属Scene调用此方法
      * @internal
+     * @en Sets the scene to which this object belongs.
+     * @zh 设置所属 Scene 调用此方法。
      */
     _setBelongScene(scene: any): void {
         this._scene = scene;
@@ -745,8 +787,9 @@ export class BaseRender extends Component {
     }
 
     /**
-     * 从Scene移除会调用此方法
      * @internal
+     * @en This method is called when the object is removed from the Scene.
+     * @zh 从 Scene 移除会调用此方法。
      */
     _setUnBelongScene() {
         Stat.renderNode--;
@@ -785,10 +828,13 @@ export class BaseRender extends Component {
     }
 
     /**
-    * 设置渲染flag,每一位都代表不同的淘汰原因，1表示lod淘汰
-    * @param flag 标记，可以查RenderBitFlag相关，也可以自定义标签位
-    * @param pass 设置标签值
-    */
+     * @en Sets the rendering flag, where each bit represents a different culling reason, 1 indicates LOD culling.
+     * @param flag The flag to set, refer to RenderBitFlag for related flags or define custom bit flags.
+     * @param pass Whether to set the flag.
+     * @zh 设置渲染标志，每一位都代表不同的淘汰原因，1表示LOD淘汰。
+     * @param flag 标记，可以查RenderBitFlag相关，也可以自定义标签位
+     * @param pass 设置标签值
+     */
     setRenderbitFlag(flag: number, pass: boolean) {
         if (pass)
             this._baseRenderNode.renderbitFlag |= (1 << flag);

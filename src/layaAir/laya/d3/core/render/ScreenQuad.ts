@@ -12,7 +12,8 @@ import { GeometryElement } from "../GeometryElement"
 import { RenderContext3D } from "./RenderContext3D"
 
 /**
- * <code>ScreenQuad</code> 类用于创建全屏四边形。
+ * @en The `ScreenQuad` class is used to create a fullscreen quad.
+ * @zh `ScreenQuad` 类用于创建全屏四边形。
  */
 export class ScreenQuad extends GeometryElement {
 	/** @internal */
@@ -56,7 +57,9 @@ export class ScreenQuad extends GeometryElement {
 	private _bufferStateInvertUV: BufferState = new BufferState();
 
 	/**
-	 * 创建一个 <code>ScreenQuad</code> 实例,禁止使用。
+	 * @ignore
+	 * @en Construcutor method, do not use.
+	 * @zh 构造方法，禁止使用。
 	 */
 	constructor() {
 		super(MeshTopology.TriangleStrip, DrawType.DrawArray);
@@ -76,7 +79,10 @@ export class ScreenQuad extends GeometryElement {
 	}
 
 	/**
-	 * set BufferState
+	 * @en Sets whether to invert the Y-axis and selects the corresponding buffer state.
+	 * @param value Whether to invert the Y-axis 
+	 * @zh 设置Y轴是否反转，并选择相应的缓冲状态。
+	 * @param value 是否反转Y轴
 	 */
 	set invertY(value: boolean) {
 		value = LayaGL.renderEngine._screenInvertY ? !value : value;
@@ -93,6 +99,8 @@ export class ScreenQuad extends GeometryElement {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @en Destroys the ScreenQuad instance.
+	 * @zh 销毁ScreenQuad实例。
 	 */
 	destroy(): void {
 		super.destroy();

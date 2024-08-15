@@ -22,8 +22,8 @@ import { LensFlareShaderInit } from "./LensFlareShaderInit";
 
 
 /**
- * lens Flare Element
- * 光耀元素
+ * @en lens Flare Element
+ * @zh 镜头光晕元素
  */
 export class LensFlareElement {
     /**@internal active*/
@@ -66,7 +66,8 @@ export class LensFlareElement {
     private _translationScale: Vector2 = new Vector2(1, 1);
 
     /**
-     * 是否激活
+     * @en Whether the element is active.
+     * @zh 是否激活
      */
     public get active(): boolean {
         return this._active;
@@ -76,7 +77,8 @@ export class LensFlareElement {
     }
 
     /**
-     * 颜色
+     * @en The tint color of the lens flare.
+     * @zh 光晕的颜色
      */
     public get tint(): Color {
         return this._tint;
@@ -86,7 +88,8 @@ export class LensFlareElement {
     }
 
     /**
-     * 强度
+     * @en The intensity of the lens flare.
+     * @zh 光晕的强度
      */
     public get intensity(): number {
         return this._intensity;
@@ -96,7 +99,8 @@ export class LensFlareElement {
     }
 
     /**
-     * 贴图
+     * @en The texture of the lens flare.
+     * @zh 光晕的贴图
      */
     public get texture(): BaseTexture {
         return this._texture;
@@ -106,7 +110,8 @@ export class LensFlareElement {
     }
 
     /**
-     * 位置偏移(屏幕空间下)
+     * @en The position offset of the lens flare in screen space.
+     * @zh 光晕的位置偏移(屏幕空间下)
      */
     public get positionOffset(): Vector2 {
         return this._positionOffset;
@@ -116,7 +121,8 @@ export class LensFlareElement {
     }
 
     /**
-     * 缩放(每个轴上)
+     * @en The scale of the lens flare in each dimension.
+     * @zh 光晕的缩放(每个轴上)
      */
     public get scale(): Vector2 {
         return this._scale;
@@ -126,7 +132,8 @@ export class LensFlareElement {
     }
 
     /**
-     * 自动旋转
+     * @en Whether to enable automatic rotation.
+     * @zh 是否开启自动旋转
      */
     public get autoRotate(): boolean {
         return this._autoRotate;
@@ -136,7 +143,8 @@ export class LensFlareElement {
     }
 
     /**
-     * 旋转角度
+     * @en The rotation of the lens flare.
+     * @zh 光晕的旋转角度
      */
     public get rotation(): number {
         return this._rotation;
@@ -146,7 +154,8 @@ export class LensFlareElement {
     }
 
     /**
-     * 起始位置
+     * @en The start position of the lens flare.
+     * @zh 光晕的起始位置
      */
     public get startPosition(): number {
         return this._startPosition;
@@ -156,7 +165,8 @@ export class LensFlareElement {
     }
 
     /**
-     * 角度偏移
+     * @en The angle offset of the lens flare.
+     * @zh 光晕的角度偏移
      */
     public get angularOffset(): number {
         return this._angularOffset;
@@ -168,8 +178,8 @@ export class LensFlareElement {
 }
 
 /**
- * lens Flare Data 
- * 资源数据
+ * @en Lens Flare Data 
+ * @zh 镜头光晕的资源数据
  */
 export class LensFlareData extends Resource {
     constructor() {
@@ -177,13 +187,15 @@ export class LensFlareData extends Resource {
     }
 
     /**
-     * 光耀元素集合
+     * @en Lens Flare Element Collection
+     * @zh 镜头光晕元素集合
      */
     elements: LensFlareElement[] = [];
 }
 
 /**
- * lens Flare Element
+ * @en Lens Flare Effect
+ * @zh 镜头光晕效果
  */
 export class LensFlareEffect extends PostProcessEffect {
     /**@interal */
@@ -198,7 +210,8 @@ export class LensFlareEffect extends PostProcessEffect {
     }
 
     /**
-     * init Shader\Geometry
+     * @en Initialize Shader and Geometry
+     * @zh 初始化着色器和几何体
      */
     static init() {
         LensFlareElementGeomtry.init();
@@ -237,8 +250,13 @@ export class LensFlareEffect extends PostProcessEffect {
     _lensFlareData: LensFlareData;
 
     /**
-     * LensFlareData
+     * @en LensFlareData
+     * @zh 镜头光晕数据
      */
+    get lensFlareData(): LensFlareData {
+        return this._lensFlareData;
+    }
+
     set lensFlareData(value: LensFlareData) {
         if (!value) return;
         this._flareCMDS.length = 0;
@@ -253,13 +271,15 @@ export class LensFlareEffect extends PostProcessEffect {
         this._needUpdate = true;
     }
 
-    get lensFlareData(): LensFlareData {
-        return this._lensFlareData;
-    }
 
     /**
-     * bind light
+     * @en Bind light
+     * @zh 绑定光源
      */
+    get bindLight(): Light {
+        return this._light;
+    }
+
     set bindLight(light: Light) {
         if (!light)
             return;
@@ -267,12 +287,10 @@ export class LensFlareEffect extends PostProcessEffect {
         this._needUpdate = true;
     }
 
-    get bindLight(): Light {
-        return this._light;
-    }
 
     /**
-     * 后处理强度
+     * @en Post-processing effect intensity
+     * @zh 后处理效果强度
      */
     public get effectIntensity(): number {
         return this._effectIntensity;
@@ -283,7 +301,8 @@ export class LensFlareEffect extends PostProcessEffect {
     }
 
     /**
-     * 后处理缩放
+     * @en Post-processing effect scale
+     * @zh 后处理效果缩放
      */
     public get effectScale(): number {
         return this._effectScale;
@@ -327,7 +346,9 @@ export class LensFlareEffect extends PostProcessEffect {
     }
 
     /**
-     * 计算直射光中心点
+     * @en Calculate the center point of directional light
+     * @param camera The camera
+     * @zh 计算直射光中心点
      * @param camera 摄像机
      */
     caculateDirCenter(camera: Camera) {
@@ -351,7 +372,9 @@ export class LensFlareEffect extends PostProcessEffect {
     }
 
     /**
-     * 计算点光
+     * @en Calculate point light
+     * @param camera The camera
+     * @zh 计算点光源
      * @param camera 相机
      */
     caculatePointCenter(camera: Camera) {
@@ -360,7 +383,9 @@ export class LensFlareEffect extends PostProcessEffect {
     }
 
     /**
-     * 计算spot光
+     * @en Calculate spot light
+     * @param value Screen point
+     * @zh 计算聚光灯
      * @param value 屏幕点
      */
     caculateSpotCenter(value: Vector2) {
@@ -369,9 +394,10 @@ export class LensFlareEffect extends PostProcessEffect {
     }
 
     /**
-     * 渲染流程
+     * @en Render process
+     * @param context Post-processing render context
+     * @zh 渲染流程
      * @param context 后期处理渲染上下文
-     * @returns 
      */
     render(context: PostProcessRenderContext) {
         var cmd: CommandBuffer = context.command;
@@ -396,11 +422,13 @@ export class LensFlareEffect extends PostProcessEffect {
     }
 
     /**
-   * 释放Effect
-   * @param postprocess 后期处理节点
-   * @inheritDoc
-   * @override
-   */
+     * @inheritDoc
+     * @override
+     * @en Release the effect
+     * @param postprocess Post-processing node
+     * @zh 释放效果
+     * @param postprocess 后期处理节点
+     */
     release(postprocess: PostProcess) {
         //TODO
         this._needUpdate = false;

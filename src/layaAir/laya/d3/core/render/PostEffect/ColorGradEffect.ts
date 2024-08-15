@@ -27,17 +27,20 @@ export enum ToneMappingType {
 }
 
 /**
- * <code>ColorGradEffect</code> 类用于创建调色Effect
+ * @en Class of ColorGradEffect used to create tone mapping effect.
+ * @zh ColorGradEffect 类用于创建调色效果
  */
 export class ColorGradEffect extends PostProcessEffect {
 	/**
 	 * @internal
-	 * ACES宏
+	 * @en ACES macro
+	 * @zh ACES宏
 	 */
 	static SHADERDEFINE_ACES: ShaderDefine;
 	/**
 	 * @internal
-	 * 自定义LUT宏
+	 * @en Custom LUT macro
+	 * @zh 自定义LUT宏
 	 */
 	static SHADERDEFINE_CUSTOMLUT: ShaderDefine;
 	/**@internal */
@@ -51,7 +54,8 @@ export class ColorGradEffect extends PostProcessEffect {
 
 	/**
 	 * @internal
-	 * bloom resource init
+	 * @en Initialize shader configurations and rendering state settings.
+	 * @zh 初始化着色器配置和渲染状态设置。
 	 */
 	static init() {
 		ColorGradEffect.__initDefine__();
@@ -75,6 +79,10 @@ export class ColorGradEffect extends PostProcessEffect {
 		pass.renderState.blend = RenderState.BLEND_DISABLE;
 	}
 
+	/**
+	 * @en Initialize shader definitions.
+	 * @zh 初始化着色器定义。
+	 */
 	static __initDefine__() {
 		ColorGradEffect.SHADERDEFINE_ACES = Shader3D.getDefineByName("ACES");
 		ColorGradEffect.SHADERDEFINE_CUSTOMLUT = Shader3D.getDefineByName("CUSTOMLUT");
@@ -141,8 +149,8 @@ export class ColorGradEffect extends PostProcessEffect {
 	//Color Adjustments
 	/**@internal */
 	private _enableColorAdjust: boolean = false;
-	/**@internal */
-	private _postExposure = 1;//自动曝光,默认值是1
+	/**@internal 自动曝光,默认值是1 */
+	private _postExposure = 1;
 	/**@internal */
 	private _contrast = 1;//range 0-2//对比度HueSatCon.z
 	/**@internal */
@@ -157,7 +165,8 @@ export class ColorGradEffect extends PostProcessEffect {
 	private _HueSatCon: Vector4 = new Vector4(0, 1, 1, 0);
 
 	/**
-	 * Tone Map色彩空间
+	 * @en the tone mapping type.
+	 * @zh 色调映射类型
 	 */
 	public get toneMapping(): ToneMappingType {
 		return this._toneMapping;
@@ -171,7 +180,8 @@ export class ColorGradEffect extends PostProcessEffect {
 	}
 
 	/**
-	 * 是否开启Split Tone
+	 * @en Whether split tone effect is enabled.
+	 * @zh 是否启用分离色调效果。
 	 */
 	public get enableSplitTone() {
 		return this._enableSplitTone;
@@ -183,8 +193,9 @@ export class ColorGradEffect extends PostProcessEffect {
 	}
 
 	/**
-	 * split shadow
-	 */
+   * @en The color of shadows in split tone effect.
+   * @zh 分离色调效果中阴影的颜色。
+   */
 	public get splitShadow(): Vector3 {
 		return this._splitShadow;
 	}
@@ -195,7 +206,8 @@ export class ColorGradEffect extends PostProcessEffect {
 	}
 
 	/**
-	 * split hightLight
+	 * @en The color of highlights in split tone effect.
+	 * @zh 分离色调效果中高光的颜色。
 	 */
 	public get splithighlights(): Vector3 {
 		return this._splithighlights;
@@ -208,8 +220,9 @@ export class ColorGradEffect extends PostProcessEffect {
 	}
 
 	/**
-	 * split balance
-	 */
+	* @en The balance between shadow and highlight coloring in split tone effect.
+	* @zh 分离色调效果中阴影和高光着色的平衡。
+	*/
 	public get splitBalance(): number {
 		return this._splitBalance;
 	}
@@ -220,8 +233,8 @@ export class ColorGradEffect extends PostProcessEffect {
 	}
 
 	/**
-	 * shadows, midtones, highlights 
-	 * 暗处，中亮，高亮调节
+	 * @en wheather to enable shadows, midtones, highlights 
+	 * @zh 是否启用阴影，中亮，高亮调节
 	 */
 	public get enableSMH(): boolean {
 		return this._enableSMH;
@@ -233,7 +246,8 @@ export class ColorGradEffect extends PostProcessEffect {
 	}
 
 	/**
-	 * shadows 0-5
+	 * @en Shadows value, range 0-5.
+	 * @zh 阴影值，取值范围0-5
 	 */
 	public get shadows(): Vector3 {
 		return this._shadows;
@@ -247,7 +261,8 @@ export class ColorGradEffect extends PostProcessEffect {
 	}
 
 	/**
-	 * midtones 0-5
+	 * @en Midtones value, range 0-5.
+	 * @zh 中亮值，取值范围0-5
 	 */
 	public get midtones(): Vector3 {
 		return this._midtones;
@@ -260,7 +275,8 @@ export class ColorGradEffect extends PostProcessEffect {
 	}
 
 	/**
-	 * highlights 0-5
+	 * @en Highlights value, range 0-5.
+	 * @zh 高亮值，取值范围0-5
 	 */
 	public get highlights(): Vector3 {
 		return this._highlights;
@@ -273,7 +289,8 @@ export class ColorGradEffect extends PostProcessEffect {
 	}
 
 	/**
-	 * shadow limit start 0-1
+	 * @en Shadow limit start 0-1
+	 * @zh 阴影限界起点，取值范围0-1
 	 */
 	public get shadowLimitStart(): number {
 		return this._limits.x;
@@ -285,7 +302,8 @@ export class ColorGradEffect extends PostProcessEffect {
 	}
 
 	/**
-	 * shadow limit end 0-1
+	 * @en Shadow limit end 0-1
+	 * @zh 阴影限界终点，取值范围0-1
 	 */
 	public get shadowLimitEnd(): number {
 		return this._limits.y;
@@ -298,7 +316,8 @@ export class ColorGradEffect extends PostProcessEffect {
 
 
 	/**
-	 * high Light limit start 0-1
+	 * @en HighLight limit start 0-1
+	 * @zh 高光限界起点，取值范围0-1
 	 */
 	public get highLightLimitStart(): number {
 		return this._limits.z;
@@ -310,7 +329,8 @@ export class ColorGradEffect extends PostProcessEffect {
 	}
 
 	/**
-	 * high Light limit end 0-1
+	 * @en HighLight limit end 0-1
+	 * @zh 高光限界终点，取值范围0-1
 	 */
 	public get highLightLimitEnd(): number {
 		return this._limits.w;
@@ -323,7 +343,8 @@ export class ColorGradEffect extends PostProcessEffect {
 
 
 	/**
-	 * lift gamma gain
+	 * @en Whether lift, gamma, gain adjustments are enabled.
+	 * @zh 是否启用暗部、中间调、亮部调整。
 	 */
 	public get enableLiftGammaGain() {
 		return this._enableLiftGammaGain;
@@ -335,7 +356,8 @@ export class ColorGradEffect extends PostProcessEffect {
 	}
 
 	/**
-	 * lift -1-1
+	 * @en The lift adjustment value. Primarily affects the shadow areas of the image, with a range of -1-1.
+	 * @zh 暗部调整值。主要影响图像的阴影区域，范围 -1-1
 	 */
 	public get lift(): Vector3 {
 		return this._lift;
@@ -350,7 +372,8 @@ export class ColorGradEffect extends PostProcessEffect {
 
 
 	/**
-	 * gamma 999-0.5
+	 * @en The gamma adjustment value. Affects the midtones of the image, but also influences shadows and highlights. with a range of 999-0.5.
+	 * @zh 中间调调整值。影响图像的中间调，范围 999-0.5
 	 */
 	public get gamma(): Vector3 {
 		return this._gamma;
@@ -364,7 +387,8 @@ export class ColorGradEffect extends PostProcessEffect {
 	}
 
 	/**
-	 * gain 0-2
+	 * @en The gain adjustment value. Primarily affects the highlight areas of the image, with a range of 0-2.
+	 * @zh 亮部调整值。主要影响图像的高光区域，范围 0-2
 	 */
 	public get gain(): Vector3 {
 		return this._gain;
@@ -413,8 +437,8 @@ export class ColorGradEffect extends PostProcessEffect {
 	}
 
 	/**
-	 * balance
-	 * 白平衡开启
+	 * @zh Wheather to enable white balance.
+	 * @zh 白平衡是否开启
 	 */
 	public get enableBalance() {
 		return this._enableBalance;
@@ -426,7 +450,8 @@ export class ColorGradEffect extends PostProcessEffect {
 	}
 
 	/**
-	 * tint -100 - 100
+	 * @en Controls the white balance color to compensate for a green or magenta tint. Range -100-100.
+	 * @zh 白平衡颜色，用于补偿绿色或品红色。范围 -100-100。
 	 */
 	public get tint(): number {
 		return this._tint;
@@ -440,7 +465,8 @@ export class ColorGradEffect extends PostProcessEffect {
 	}
 
 	/**
-	 * temperature -100-100
+	 * @en White Balance Temperature. Range -100-100.
+	 * @zh 白平衡色温。范围 -100-100.
 	 */
 	public get temperature(): number {
 		return this._temperature;
@@ -453,8 +479,8 @@ export class ColorGradEffect extends PostProcessEffect {
 	}
 
 	/**
-	 * Color Adjustments
-	 * 开启颜色调整
+	 * @en Whether color adjust is enabled.
+	 * @zh 是否开启颜色调整
 	 */
 	public get enableColorAdjust() {
 		return this._enableColorAdjust;
@@ -466,7 +492,8 @@ export class ColorGradEffect extends PostProcessEffect {
 	}
 
 	/**
-	 * 曝光
+	 * @en The overall exposure of the scene.
+	 * @zh 场景的整体曝光
 	 */
 	public get postExposure() {
 		return this._postExposure;
@@ -477,7 +504,8 @@ export class ColorGradEffect extends PostProcessEffect {
 	}
 
 	/**
-	 * contrast颜色对比度range 0-2
+	 * @en Color Contrast. Range 0-2.
+	 * @zh 颜色对比度，范围 0-2
 	 */
 	public get contrast() {
 		return this._contrast;
@@ -489,7 +517,8 @@ export class ColorGradEffect extends PostProcessEffect {
 	}
 
 	/**
-	 * 正片叠底
+	 * @en The color filter.
+	 * @zh 颜色过滤器
 	 */
 	public get colorFilter() {
 		return this._colorFilter;
@@ -500,7 +529,10 @@ export class ColorGradEffect extends PostProcessEffect {
 		value.cloneTo(this._colorFilter);
 	}
 
-	/**色相 -0.5-0.5*/
+	/**
+	 * @en The Hue Shift. Range -0.5-0.5.
+	 * @zh 色相偏移，范围 -0.5-0.5
+	 */
 	public get HueShift() {
 		return this._HueShift;
 	}
@@ -510,7 +542,8 @@ export class ColorGradEffect extends PostProcessEffect {
 	}
 
 	/**
-	 * 饱和度
+	 * @en Saturation. 
+	 * @zh 饱和度
 	 */
 	public get saturation() {
 		return this._saturation;
@@ -521,9 +554,9 @@ export class ColorGradEffect extends PostProcessEffect {
 	}
 
 
-
-	/**
-	 * 创建一个 <code>BloomEffect</code> 实例。
+	/** 
+	 * @en initialize the color grad effect instance.
+	 * @zh 初始化调色效果实例
 	 */
 	constructor() {
 		super();
@@ -639,8 +672,10 @@ export class ColorGradEffect extends PostProcessEffect {
 	private _postProcess: PostProcess
 
 	/**
-	 * 添加到后期处理栈时,会调用
-	 * @param 后期处理节点
+	 * @en Called when added to the post-processing stack.
+	 * @param postprocess The post-processing node.
+	 * @zh 在添加到后期处理栈时调用。
+	 * @param postprocess 后期处理节点。
 	 */
 	effectInit(postprocess: PostProcess) {
 		super.effectInit(postprocess);
@@ -654,8 +689,10 @@ export class ColorGradEffect extends PostProcessEffect {
 	}
 
 	/**
-	 * 释放Effect
-	 * @param postprocess 后期处理节点
+	 * @en Release the Effect.
+	 * @param postprocess The post-processing node.
+	 * @zh 释放Effect。
+	 * @param postprocess 后期处理节点。
 	 */
 	release(postprocess: PostProcess) {
 		super.release(postprocess);
@@ -668,6 +705,10 @@ export class ColorGradEffect extends PostProcessEffect {
 	 * @inheritDoc
 	 * @override
 	 * @internal
+	 * @en Render the effect.
+	 * @param context The post-processing rendering context.
+	 * @zh 渲染效果。
+	 * @param context 后期处理渲染上下文。
 	 */
 	render(context: PostProcessRenderContext): void {
 		let cmd: CommandBuffer = context.command;

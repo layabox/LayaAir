@@ -12,8 +12,20 @@ import { VertexBuffer3D } from "../../../../graphics/VertexBuffer3D";
 import { GeometryElement } from "../../../GeometryElement";
 import { RenderContext3D } from "../../RenderContext3D";
 
+/**
+ * @en Represents the geometry of a lens flare element.
+ * @zh 表示镜头光晕元素的几何体。
+ */
 export class LensFlareElementGeomtry extends GeometryElement {
+    /**
+     * @en Constant representing the position and UV attributes.
+     * @zh 表示位置和UV属性的常量。
+     */
     static PositionUV: number = 0;
+    /**
+     * @en Constant representing the position, rotation, and scale attributes.
+     * @zh 表示位置、旋转和缩放属性的常量。
+     */
     static PositionRotationScale: number = 1;
     /**@internal */
     static lensQuadVertices: Float32Array;
@@ -35,7 +47,8 @@ export class LensFlareElementGeomtry extends GeometryElement {
     private static _type: number = GeometryElement._typeCounter++;
 
     /**
-     * initData
+     * @en Initializes the data for lens flare element geometry.
+     * @zh 初始化镜头光晕元素几何体的数据。
      */
     static init() {
         let quadSize = 0.1;
@@ -52,7 +65,9 @@ export class LensFlareElementGeomtry extends GeometryElement {
     }
 
     /**
-     * instance LensFlaresGeometry
+     * @ignore
+     * @en Constructor method, initialize the instance.
+     * @zh 构造方法，初始化实例
      */
     constructor() {
         super(MeshTopology.Triangles, DrawType.DrawElementInstance);
@@ -106,7 +121,8 @@ export class LensFlareElementGeomtry extends GeometryElement {
     }
 
     /**
-     * 销毁。
+     * @en Destroys the lens flare element geometry and releases its resources.
+     * @zh 销毁镜头光晕元素几何体并释放其资源。
      */
     destroy(): void {
         super.destroy();

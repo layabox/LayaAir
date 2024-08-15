@@ -6,8 +6,16 @@ import { RenderContext3D } from "./RenderContext3D";
 import { RenderElement } from "./RenderElement";
 
 const InvertYScaleMat = new Matrix4x4(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+/**
+ * @en The `SkyRenderElement` class is a render element that represents the sky.
+ * @zh `SkyRenderElement` 类表示天空渲染元素。
+ */
 export class SkyRenderElement extends RenderElement {
 
+    /**
+     * @en The render element object that is declared for rendering.
+     * @zh 声明用于渲染的渲染元素对象。
+     */
     declare _renderElementOBJ: IRenderElement3D;
 
     private _viewMatrix: Matrix4x4;
@@ -21,11 +29,33 @@ export class SkyRenderElement extends RenderElement {
         this._projectViewMatrix = new Matrix4x4();
     }
 
+    /**
+     * @en Calculates the view matrix based on the camera's view matrix.
+     * @param cameraViewMat The camera's view matrix.
+     * @zh 根据摄像机的视图矩阵计算视图矩阵。
+     * @param cameraViewMat 摄像机的视图矩阵。
+     */
     calculateViewMatrix(cameraViewMat: Matrix4x4) {
         cameraViewMat.cloneTo(this._viewMatrix);
         this._viewMatrix.setTranslationVector(Vector3.ZERO);
     }
 
+    /**
+     * @en Calculates the projection matrix based on the camera's projection matrix and other parameters.
+     * @param cameraProjMat The camera's projection matrix.
+     * @param aspectRatio The aspect ratio of the projection.
+     * @param nearPlane The near plane distance of the projection.
+     * @param farPlane The far plane distance of the projection.
+     * @param fov The field of view for the perspective projection.
+     * @param orthographic Whether to use an orthographic projection.
+     * @zh 根据摄像机的投影矩阵和其他参数计算投影矩阵。
+     * @param cameraProjMat 摄像机的投影矩阵。
+     * @param aspectRatio 投影的纵横比。
+     * @param nearPlane 投影的近平面距离。
+     * @param farPlane 投影的远平面距离。
+     * @param fov 透视投影的视场角。
+     * @param orthographic 是否使用正交投影。
+     */
     caluclateProjectionMatrix(cameraProjMat: Matrix4x4, aspectRatio: number, nearPlane: number, farPlane: number, fov: number, orthographic: boolean) {
         if (orthographic) {
             let halfWidth = 0.2;
@@ -45,6 +75,12 @@ export class SkyRenderElement extends RenderElement {
         }
     }
 
+    /**
+     * @en Prepares for rendering by setting up matrices and lighting information for sky rendering.
+     * @param context The rendering context.
+     * @zh 渲染前的准备工作，设置天空渲染所需的矩阵和光照信息。
+     * @param context 渲染上下文。
+     */
     renderpre(context: RenderContext3D) {
         if (context.invertY) {
             let tempprojectMat = Matrix4x4.TEMPMatrix0;

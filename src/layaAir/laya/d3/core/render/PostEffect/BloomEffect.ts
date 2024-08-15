@@ -30,7 +30,8 @@ import { LayaGL } from "../../../../layagl/LayaGL";
 import { Viewport } from "../../../../maths/Viewport";
 
 /**
- * <code>BloomEffect</code> 类用于创建泛光效果。
+ * @en The BloomEffect class is used to create a flood effect.
+ * @zh BloomEffect 类用于创建泛光效果。
  */
 export class BloomEffect extends PostProcessEffect {
 	/** @internal */
@@ -63,7 +64,8 @@ export class BloomEffect extends PostProcessEffect {
 	private static MAXPYRAMIDSIZE: number = 16; // Just to make sure we handle 64k screens... Future-proof!
 
 	/**
-	 * bloom resource init
+	 * @en Bloom resource initialize
+	 * @zh 泛光资源初始化
 	 */
 	static init() {
 		Shader3D.addInclude("StdLib.glsl", StdLibGLSL);
@@ -145,7 +147,8 @@ export class BloomEffect extends PostProcessEffect {
 
 	/**
 	 * @internal
-	 * shader初始化
+	 * @en Shader initialize
+	 * @zh 着色器初始化
 	 */
 	static CompositeInit() {
 		//PostProcessComposite
@@ -233,7 +236,8 @@ export class BloomEffect extends PostProcessEffect {
 	private _dirtTexture: BaseTexture = null;
 
 	/**
-	 * 泛光像素的数量,该值在伽马空间
+	 * @en The number of the bloom pixel, this value is in gamma space
+	 * @zh 泛光像素的数量,该值在伽马空间
 	 */
 	get clamp(): number {
 		return this._clamp;
@@ -244,7 +248,8 @@ export class BloomEffect extends PostProcessEffect {
 	}
 
 	/**
-	 * 泛光颜色。
+	 * @en Flood color.
+	 * @zh 泛光颜色。
 	 */
 	get color(): Color {
 		return this._color;
@@ -255,7 +260,8 @@ export class BloomEffect extends PostProcessEffect {
 	}
 
 	/**
-	 * 快速模式
+	 * @en Fast mode.
+	 * @zh 快速模式
 	 */
 	get fastMode(): boolean {
 		return this._fastMode;
@@ -266,7 +272,8 @@ export class BloomEffect extends PostProcessEffect {
 	}
 
 	/**
-	 * 脏迹贴图
+	 * @en Dirty texture
+	 * @zh 脏迹贴图
 	 */
 	get dirtTexture() {
 		return this._dirtTexture;
@@ -279,103 +286,79 @@ export class BloomEffect extends PostProcessEffect {
 	}
 
 	/**
-	 * 获取泛光过滤器强度,最小值为0。
-	 * @return 强度。
+	 * @en Intensity of floodlight filter, the minimum value is 0.
+	 * @zh 泛光过滤器强度,最小值为0。
 	 */
 	get intensity(): number {
 		return this._intensity;
 	}
 
-	/**
-	 * 设置泛光过滤器强度,最小值为0。
-	 * @param value 强度。
-	 */
 	set intensity(value: number) {
 		this._intensity = Math.max(value, 0.0);
 	}
 
 	/**
-	 * 设置泛光阈值,在该阈值亮度以下的像素会被过滤掉,该值在伽马空间。
-	 * @return 阈值。
+	 * @en The flood threshold, below which pixels with brightness will be filtered out, is in gamma space.
+	 * @zh 泛光阈值,在该阈值亮度以下的像素会被过滤掉,该值在伽马空间。
 	 */
 	get threshold(): number {
 		return this._threshold;
 	}
 
-	/**
-	 * 获取泛光阈值,在该阈值亮度以下的像素会被过滤掉,该值在伽马空间。
-	 * @param value 阈值。
-	 */
 	set threshold(value: number) {
 		this._threshold = Math.max(value, 0.0);
 	}
 
 	/**
-	 * 获取软膝盖过渡强度,在阈值以下进行渐变过渡(0为完全硬过度,1为完全软过度)。
-	 * @return 软膝盖值。
+	 * @en Soft knee transition strength. Gradual transition occurs below the threshold (0 for completely hard transition, 1 for completely soft transition).
+	 * @zh 软膝盖过渡强度，在阈值以下进行渐变过渡（0为完全硬过度，1为完全软过度）。
 	 */
 	get softKnee(): number {
 		return this._softKnee;
 	}
 
-	/**
-	 * 设置软膝盖过渡强度,在阈值以下进行渐变过渡(0为完全硬过度,1为完全软过度)。
-	 * @param value 软膝盖值。
-	 */
 	set softKnee(value: number) {
 		this._softKnee = Math.min(Math.max(value, 0.0), 1.0);
 	}
 
 	/**
-	 * 获取扩散值,改变泛光的扩散范围,最好使用整数值保证效果,该值会改变内部的迭代次数,范围是1到10。
-	 * @return 光晕的扩散范围。
+	 * @en Diffusion value, changes the bloom spread range. It's best to use integer values for the best effect. This value changes the internal iteration count, range is 1 to 10.
+	 * @zh 扩散值，改变泛光的扩散范围。最好使用整数值以保证效果，该值会改变内部的迭代次数，范围是1到10。
 	 */
 	get diffusion(): number {
 		return this._diffusion;
 	}
 
-	/**
-	 * 设置扩散值,改变泛光的扩散范围,最好使用整数值保证效果,该值会改变内部的迭代次数,范围是1到10。
-	 * @param value 光晕的扩散范围。
-	 */
 	set diffusion(value: number) {
 		this._diffusion = Math.min(Math.max(value, 1), 10);
 	}
 
 	/**
-	 * 获取形变比,通过扭曲泛光产生视觉上形变,负值为垂直扭曲,正值为水平扭曲。-1 - 1
-	 * @return 形变比。
+	 * @en Anamorphic ratio, distorts the bloom to produce a visual deformation. Negative values for vertical distortion, positive values for horizontal distortion. Range: -1 to 1.
+	 * @zh 形变比，通过扭曲泛光产生视觉上的形变。负值为垂直扭曲，正值为水平扭曲。范围：-1到1。
 	 */
 	get anamorphicRatio(): number {
 		return this._anamorphicRatio;
 	}
 
-	/**
-	 * 设置形变比,通过扭曲泛光产生视觉上形变,负值为垂直扭曲,正值为水平扭曲。-1 - 1
-	 * @param value 形变比。
-	 */
 	set anamorphicRatio(value: number) {
 		this._anamorphicRatio = Math.min(Math.max(value, -1.0), 1.0);
 	}
 
 	/**
-	 * 获取污渍强度。
-	 * @return 污渍强度。
+	 * @en Dirt intensity. Range: 0 to 1.
+	 * @zh 污渍强度。范围：0到1。
 	 */
 	get dirtIntensity(): number {
 		return this._dirtIntensity;
 	}
 
-	/**
-	 * 设置污渍强度。0-1
-	 * @param value 污渍强度。
-	 */
 	set dirtIntensity(value: number) {
 		this._dirtIntensity = Math.max(value, 0.0);
 	}
-
 	/**
-	 * 创建一个 <code>BloomEffect</code> 实例。
+	 * @en initializate the bloom effect instance.
+	 * @zh 初始化泛光效果实例。
 	 */
 	constructor() {
 		super();
@@ -388,12 +371,13 @@ export class BloomEffect extends PostProcessEffect {
 		this.diffusion = 7;
 		this.anamorphicRatio = 0;
 		this.color = new Color(1.0, 1.0, 1.0, 1.0);
-
 	}
 
 	/**
-	 * 添加到后期处理栈时,会调用
-	 * @param postprocess 后期处理组件
+	 * @en Called when added to the post-processing stack.
+	 * @param postprocess The post-processing component.
+	 * @zh 添加到后期处理栈时调用。
+	 * @param postprocess 后期处理组件。
 	 */
 	effectInit(postprocess: PostProcess) {
 		super.effectInit(postprocess);
@@ -402,18 +386,22 @@ export class BloomEffect extends PostProcessEffect {
 	}
 
 	/**
-	 * 根据后期处理设置cameraDepthTextureMode
 	 * @inheritDoc
 	 * @override
-	 * @returns 
+	 * @en Get the camera depth texture mode flag according to the post-processing settings.
+	 * @returns The camera depth texture mode flag.
+	 * @zh 根据后期处理设置获取相机深度纹理模式标志。
+	 * @returns 相机深度纹理模式标志。
 	 */
 	getCameraDepthTextureModeFlag() {
 		return 0;
 	}
 
 	/**
-	 * 释放Effect
-	 * @param postprocess 后期处理组件
+	 * @en Release the Effect.
+	 * @param postprocess The post-processing component.
+	 * @zh 释放Effect。
+	 * @param postprocess 后期处理组件。
 	 */
 	release(postprocess: PostProcess) {
 		super.release(postprocess);
@@ -425,6 +413,10 @@ export class BloomEffect extends PostProcessEffect {
 	 * @inheritDoc
 	 * @override
 	 * @internal
+	 * @en Render the effect.
+	 * @param context The post-processing render context.
+	 * @zh 渲染效果。
+	 * @param context 后期处理渲染上下文。
 	 */
 	render(context: PostProcessRenderContext): void {
 		var cmd: CommandBuffer = context.command;

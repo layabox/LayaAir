@@ -7,7 +7,8 @@ import { RenderContext3D } from "../RenderContext3D";
 import { CommandBuffer } from "./CommandBuffer";
 
 /**
- * <code>Command</code> 类用于创建指令。
+ * @en The `Command` class is used to create commands.
+ * @zh `Command` 类用于创建指令。
  */
 export class Command {
 	/**@internal */
@@ -42,26 +43,25 @@ export class Command {
 		Command.SCREENTEXTUREOFFSETSCALE_ID = Shader3D.propertyNameToID(Command.SCREENTEXTUREOFFSETSCALE_NAME);//todo：
 		Command.MAINTEXTURE_TEXELSIZE_ID = Shader3D.propertyNameToID(Command.MAINTEXTURE_TEXELSIZE_NAME);//todo：
 	}
-
-	/**
-	 * 创建一个 <code>Command</code> 实例。
-	 */
+	/**@ignore */
 	constructor() {
 
 	}
 
 	/**
-	 * 组织渲染指令
+	 * @en Organizes rendering commands.
+	 * @zh 组织渲染指令。
 	 */
 	run?(): void;
 
 	/**
-	 * 回收渲染指令
+	 * @en Recycles the rendering command.
+	 * @zh 回收渲染指令。
 	 */
 	recover(): void {
 		this._commandBuffer = null;
 	}
-	
+
 	/**
 	 * @override
 	 * @internal

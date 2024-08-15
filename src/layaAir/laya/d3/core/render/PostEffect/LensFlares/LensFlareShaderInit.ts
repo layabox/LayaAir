@@ -8,8 +8,15 @@ import { LensFlareElementGeomtry } from "./LensFlareGeometry";
 import { ShaderDataType } from "../../../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { RenderState } from "../../../../../RenderDriver/RenderModuleData/Design/RenderState";
 
+/**
+ * @en Initialize the lens flare element shader.
+ * @zh 初始化镜头光晕元素着色器
+ */
 export class LensFlareShaderInit {
-
+    /**
+     * @en Initialize the lens flare element shader.
+     * @zh 初始化镜头光晕元素着色器
+     */
     static init() {
         let attribute: { [name: string]: [number, ShaderDataType] } = {
             'a_PositionTexcoord': [LensFlareElementGeomtry.PositionUV, ShaderDataType.Vector4],
