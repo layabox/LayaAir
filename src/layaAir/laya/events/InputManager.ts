@@ -51,8 +51,6 @@ export class InputManager {
     protected _pressKeys: Set<string | number>;
     protected _keyEvent: Event;
 
-    private _touchInput: boolean;
-
     constructor() {
         this._touches = [];
         this._touchPool = [];
@@ -123,28 +121,23 @@ export class InputManager {
         canvas.addEventListener("mousedown", ev => {
             if (!Browser.onIE)
                 (ev.cancelable) && (ev.preventDefault());
-            if (!inst._touchInput)
-                inst.handleMouse(ev, 0);
+            inst.handleMouse(ev, 0);
         }, { passive: false });
         canvas.addEventListener("mouseup", ev => {
             (ev.cancelable) && (ev.preventDefault());
-            if (!inst._touchInput)
-                inst.handleMouse(ev, 1);
+            inst.handleMouse(ev, 1);
         }, { passive: false });
         canvas.addEventListener("mousemove", ev => {
             (ev.cancelable) && (ev.preventDefault());
-            if (!inst._touchInput)
-                inst.handleMouse(ev, 2);
+            inst.handleMouse(ev, 2);
         }, { passive: false });
         canvas.addEventListener("mouseout", ev => {
-            if (!inst._touchInput)
-                inst.handleMouse(ev, 3);
+            inst.handleMouse(ev, 3);
         }, { passive: false });
         // canvas.addEventListener("mouseover", ev => {
         // });
 
         canvas.addEventListener("touchstart", ev => {
-            inst._touchInput = true;
             if (!_isFirstTouch && !InputManager.isTextInputting)
                 (ev.cancelable) && (ev.preventDefault());
             inst.handleTouch(ev, 0);
@@ -648,6 +641,7 @@ class TouchInfo implements ITouchInfo {
         this.event = new Event();
         this.event._touches = touches;
         this.pos = this.event.touchPos;
+        this.touchId = 0;
         this.reset();
     }
 
