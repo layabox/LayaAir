@@ -5,10 +5,6 @@ import { IVertexBuffer } from "../../DriverDesign/RenderDevice/IVertexBuffer";
 export class GLESVertexBuffer implements IVertexBuffer {
     _instanceBuffer: boolean;
     _nativeObj:any;
-
-    canRead:boolean;
-    _buffer:ArrayBuffer;
-    
     constructor(targetType: BufferTargetType, bufferUsageType: BufferUsage){
         this._nativeObj = new (window as any).conchGLESVertexBuffer(targetType, bufferUsageType);
     }
@@ -45,19 +41,7 @@ export class GLESVertexBuffer implements IVertexBuffer {
     }
     setData(buffer: ArrayBuffer, bufferOffset: number, dataStartIndex: number, dataCount: number): void {
         this._nativeObj.setData(buffer, bufferOffset, dataStartIndex, dataCount);
-        if (this.canRead) {
-            this._buffer = buffer;
-        }
     }
-
-    getData():Readonly<ArrayBuffer>{
-        if (this.canRead) {
-            return this._buffer;
-        }else{
-			throw new Error("Can't read data from VertexBuffer with only write flag!");
-        }
-    }
-
     setDataLength(byteLength: number): void {
         this._nativeObj.setDataLength(byteLength);
     }

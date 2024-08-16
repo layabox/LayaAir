@@ -8,9 +8,6 @@ export class WebGPUIndexBuffer implements IIndexBuffer {
     source: WebGPUBuffer;
     indexType: IndexFormat;
     indexCount: number;
-    canRead: boolean;
-
-    _buffer:Uint8Array | Uint16Array | Uint32Array;
 
     globalId: number;
     objectName: string = 'WebGPUIndexBuffer';
@@ -27,19 +24,7 @@ export class WebGPUIndexBuffer implements IIndexBuffer {
 
     _setIndexData(data: Uint8Array | Uint16Array | Uint32Array, bufferOffset: number): void {
         this.source.setData(data, bufferOffset);
-        if (this.canRead) {
-            this._buffer = data;
-        }
     }
-
-    getData():Readonly<Uint16Array|Uint32Array | Uint8Array>{
-        if (this.canRead) {
-            return this._buffer;
-        }else{
-			throw new Error("Can't read data from VertexBuffer with only write flag!");
-        }
-    }
-
 
     destroy(): void {
         WebGPUGlobal.releaseId(this);

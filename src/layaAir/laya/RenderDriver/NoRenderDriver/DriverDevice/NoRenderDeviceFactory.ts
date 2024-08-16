@@ -113,10 +113,6 @@ export class NoRenderIndexBuffer implements IIndexBuffer {
     }
     indexType: IndexFormat;
     indexCount: number;
-    canRead: boolean;
-    getData(): Uint16Array | Uint32Array | Uint8Array {
-        return null
-    }
 
 }
 
@@ -128,10 +124,6 @@ export class NoRenderVertexBuffer implements IVertexBuffer {
     setDataLength(byteLength: number): void {
     }
     destroy(): void {
-    }
-    canRead: boolean;
-    getData(): ArrayBuffer {
-        return null
     }
 }
 

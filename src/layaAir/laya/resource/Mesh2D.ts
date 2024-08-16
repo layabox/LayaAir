@@ -133,14 +133,12 @@ export class Mesh2D extends Resource {
         for (var i = 0, n = vbs.length; i < n; i++) {
             let vbdata = vbs[i];
             let vertex = LayaGL.renderDeviceFactory.createVertexBuffer(BufferUsage.Dynamic);
-            vertex.canRead = canRead;
             vertex.vertexDeclaration = vbDeclaration[i];
             vertex.setDataLength(vbdata.buffer.byteLength);
             vertex.setData(vbdata.buffer, 0, 0, vbdata.buffer.byteLength);
             vbArray.push(vertex);
         }
         let indexBuffer = LayaGL.renderDeviceFactory.createIndexBuffer(BufferUsage.Dynamic);
-        indexBuffer.canRead = canRead;
         indexBuffer._setIndexDataLength(ib.buffer.byteLength);
         indexBuffer._setIndexData(ib, 0);
         mesh2d._setBuffers(vbArray, indexBuffer);
@@ -239,7 +237,12 @@ export class Mesh2D extends Resource {
         return this._indexFormat;
     }
 
-
+    /** 是否保留数据 */
+    canRead:boolean = false;
+    /** @internal */
+    _vertices:ArrayBuffer[] = null;
+    /** @internal */
+    _indices:Uint16Array | Uint32Array |Uint8Array = null;
     // /**
     //  * 设置indexformat
     //  * @param 索引格式
@@ -326,6 +329,22 @@ export class Mesh2D extends Resource {
                 this._vertexBuffers[i].setData(vertices[i], 0, 0, vertices[i].byteLength);
             }
         }
+
+        if (this.canRead) {
+            this._vertices = vertices;
+        }
+    }
+
+    /**
+     * @en VertexBuffer data that was set earlier
+     * @zh 之前设置的vertexbuffer数据
+     */
+    getVertices():ArrayBuffer[]{
+        if (!this.canRead || !this._vertices) {
+            throw new Error("Can't getVertices without the canRead flag, or if the canRead flag is false before setVertices!");
+        }else{
+            return this._vertices;
+        }
     }
 
     /**
@@ -365,6 +384,22 @@ export class Mesh2D extends Resource {
             indexBuffer.indexType = format;
         }
         indexBuffer._setIndexData(indices, 0);
+
+        if (this.canRead) {
+            this._indices = indices;
+        }
+    }
+
+    /**
+     * @en The indexbuffer data that was set earlier
+     * @zh 之前设置的索引buffer数据
+     */
+    getIndices(){
+        if (!this.canRead || !this._indices) {
+            throw new Error("Can't getIndices without the canRead flag, or if the canRead flag is false before setIndices!");
+        }else{
+            return this._indices;
+        }
     }
 }
 
