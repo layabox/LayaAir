@@ -260,8 +260,8 @@ export class PhysicsColliderComponent extends Component {
         }
 
         if (this._collider && this._collider.getCapable(EColliderCapable.Collider_CollisionGroup)) {
-                if (this._colliderShape && this._enabled) {
-                this._collider.setCanCollideWith(value);
+            if (this._colliderShape && this._enabled) {
+                this._collider.setCollisionGroup(value);
             }
         }
     }
@@ -280,8 +280,8 @@ export class PhysicsColliderComponent extends Component {
         }
 
         if (this._collider && this._collider.getCapable(EColliderCapable.Collider_CollisionGroup)) {
-                if (this._colliderShape && this._enabled) {
-                    this._collider.setCanCollideWith(value);
+            if (this._colliderShape && this._enabled) {
+                this._collider.setCanCollideWith(value);
             }
         }
     }
@@ -299,7 +299,7 @@ export class PhysicsColliderComponent extends Component {
         if (shapeCount === 1) {
             var shape: Physics3DColliderShape = PhysicsColliderComponent._creatShape(shapesData[0]);
             this.colliderShape = shape;
-        } 
+        }
         // else {
         //     var compoundShape: CompoundColliderShape = new CompoundColliderShape();
         //     for (var i = 0; i < shapeCount; i++) {
