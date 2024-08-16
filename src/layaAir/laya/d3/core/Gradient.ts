@@ -25,34 +25,107 @@ export class Gradient implements IClone {
 	_keyRanges: Vector4 = new Vector4(1, 0, 1, 0);
 
 	/**@internal */
-	_alphaElements: Float32Array = null;
-	/**@internal */
-	_rgbElements: Float32Array = null;
+	_alphaElementDatas: Float32Array;
+
+	/**
+	 * @internal
+	 * alpha 保存设置值
+	 */
+	get _alphaElements(): Float32Array {
+		return this._alphaElementDatas;
+	}
+
+	/**
+	 * @internal
+	 * alpha 保存设置值
+	 */
+	set _alphaElements(value: Float32Array) {
+		this._alphaElementDatas = value;
+
+		let keyCount = value.length / 2;
+		if (this.colorAlphaKeysCount < keyCount) {
+			let maxKeyCount = keyCount > 4 ? 8 : 4;
+			this._colorAlphaKeysCount = Math.ceil(Math.min(keyCount, 8));
+			this._maxAlphaKeysCount = maxKeyCount;
+		}
+
+		if (this.colorAlphaKeysCount < 2) {
+			// 只有一帧数据， 补全成首尾两帧
+			let alpha = value[1];
+
+			this._alphaDataBuffer[0] = 0;
+			this._alphaDataBuffer[1] = alpha;
+			this._alphaDataBuffer[2] = 1;
+			this._alphaDataBuffer[3] = alpha;
+		}
+		else {
+			this._alphaDataBuffer.set(value);
+		}
+	}
 
 	/**@internal */
-	__alphaElements: Float32Array = null;
-	/**@internal */
-	__rgbElements: Float32Array = null;
+	_rgbElementDatas: Float32Array;
+
+	/**
+	 * @internal
+	 * rgb 数据 保存设置值
+	 */
+	get _rgbElements(): Float32Array {
+		return this._rgbElementDatas;
+	}
+
+	/**
+	 * @internal
+	 * rgb 数据 保存设置值
+	 */
+	set _rgbElements(value: Float32Array) {
+		this._rgbElementDatas = value;
+
+		let keyCount = value.length / 4;
+		if (this.colorRGBKeysCount < keyCount) {
+			let maxRGBCount = keyCount > 4 ? 8 : 4;
+			this._colorRGBKeysCount = Math.ceil(Math.min(keyCount, 8));
+			this._maxRGBKeysCount = maxRGBCount;
+		}
+
+		if (this.colorRGBKeysCount < 2) {
+			// 只有一帧数据， 补全成首尾两帧
+			let r = value[1];
+			let g = value[2];
+			let b = value[3];
+
+			this._rgbDataBuffer[0] = 0;
+			this._rgbDataBuffer[1] = r;
+			this._rgbDataBuffer[2] = g;
+			this._rgbDataBuffer[3] = b;
+
+			this._rgbDataBuffer[4] = 1;
+			this._rgbDataBuffer[5] = r;
+			this._rgbDataBuffer[6] = g;
+			this._rgbDataBuffer[7] = b;
+		}
+		else {
+			this._rgbDataBuffer.set(value);
+		}
+	}
+
+	/**
+	 * @internal
+	 * alpha 数据 uniform buffer value
+	 */
+	_alphaDataBuffer: Float32Array = null;
+	/**
+	 * @internal
+	 * rgb 数据 uniform buffer value
+	 */
+	_rgbDataBuffer: Float32Array = null;
 
 	/**
 	 * 获取颜色数据。
 	 * @return  颜色数据。
 	 */
 	get rgbElements(): Float32Array {
-		if (this._colorRGBKeysCount < 2) {
-			if (this.__rgbElements == null) {
-				this.__rgbElements = new Float32Array(8);
-			}
-			let rgbElements = this.__rgbElements;
-			rgbElements[1] = rgbElements[5] = this._rgbElements[1];
-			rgbElements[2] = rgbElements[6] = this._rgbElements[2];
-			rgbElements[3] = rgbElements[7] = this._rgbElements[3];
-			rgbElements[0] = 0;
-			rgbElements[4] = 1;
-			return rgbElements;
-		} else {
-			return this._rgbElements;
-		}
+		return this._rgbDataBuffer;
 	}
 
 	/**
@@ -60,18 +133,7 @@ export class Gradient implements IClone {
 	 * @return  alpha数据。
 	 */
 	get alphaElements(): Float32Array {
-		if (this._colorAlphaKeysCount < 2) {
-			if (this.__alphaElements == null) {
-				this.__alphaElements = new Float32Array(4);
-			}
-			let alphaElements = this.__alphaElements;
-			alphaElements[1] = alphaElements[3] = this._alphaElements[1];
-			alphaElements[0] = 0;
-			alphaElements[2] = 1;
-			return alphaElements;
-		} else {
-			return this._alphaElements;
-		}
+		return this._alphaDataBuffer;
 	}
 
 
@@ -97,6 +159,28 @@ export class Gradient implements IClone {
 	 */
 	get colorRGBKeysCount(): number {
 		return this._colorRGBKeysCount;
+	}
+
+	/**
+	 * @internal
+	 * 设置最大颜色Alpha帧数量。
+	 */
+	set _maxAlphaKeysCount(value: number) {
+		this._maxColorAlphaKeysCount = value;
+
+		value = Math.max(value, 2);
+		this._alphaDataBuffer = new Float32Array(Math.ceil(value / 2) * 4);
+	}
+
+	/**
+	 * @internal
+	 * 设置最大颜色RGB帧数量。
+	 */
+	set _maxRGBKeysCount(value: number) {
+		this._maxColorRGBKeysCount = value;
+
+		value = Math.max(value, 2);
+		this._rgbDataBuffer = new Float32Array(value * 4);
 	}
 
 	/**
@@ -128,11 +212,17 @@ export class Gradient implements IClone {
 	 * @param maxColorRGBKeyCount 最大RGB帧个数。
 	 * @param maxColorAlphaKeyCount 最大Alpha帧个数。
 	 */
-	constructor(maxColorRGBKeyCount: number, maxColorAlphaKeyCount: number) {
-		this._maxColorRGBKeysCount = maxColorRGBKeyCount;
-		this._maxColorAlphaKeysCount = maxColorAlphaKeyCount;
-		this._rgbElements = new Float32Array(maxColorRGBKeyCount * 4);
-		this._alphaElements = new Float32Array(maxColorAlphaKeyCount * 2);
+	constructor() {
+		// 加载 decodeObj 赋值 _rgbElements/ _alphaElements, 初始化buffer
+		// 手动创建对象，调用 setMaxKeyCount 初始化buffer
+	}
+
+	setMaxKeyCount(maxRGBCount: number, maxAlphaCount: number) {
+		this._maxAlphaKeysCount = maxAlphaCount;
+		this._maxRGBKeysCount = maxRGBCount;
+
+		this._rgbElements = new Float32Array(maxRGBCount * 4);
+		this._alphaElements = new Float32Array(maxAlphaCount * 2);
 	}
 
 	/**
@@ -148,6 +238,8 @@ export class Gradient implements IClone {
 			this._rgbElements[offset + 2] = value.g;
 			this._rgbElements[offset + 3] = value.b;
 			this._colorRGBKeysCount++;
+
+			this._rgbElements = this._rgbElements;
 		} else {
 			console.warn("Gradient:warning:data count must lessEqual than " + this._maxColorRGBKeysCount);
 		}
@@ -164,6 +256,8 @@ export class Gradient implements IClone {
 			this._alphaElements[offset] = key;
 			this._alphaElements[offset + 1] = value;
 			this._colorAlphaKeysCount++;
+
+			this._alphaElements = this._alphaElements;
 		} else {
 			console.warn("Gradient:warning:data count must lessEqual than " + this._maxColorAlphaKeysCount);
 		}
@@ -182,6 +276,8 @@ export class Gradient implements IClone {
 			this._rgbElements[offset + 1] = value.r;
 			this._rgbElements[offset + 2] = value.g;
 			this._rgbElements[offset + 3] = value.b;
+
+			this._rgbElements = this._rgbElements;
 		} else {
 			console.warn("Gradient:warning:index must lessEqual than colorRGBKeysCount:" + this._colorRGBKeysCount);
 		}
@@ -198,6 +294,8 @@ export class Gradient implements IClone {
 			var offset: number = index * 2;
 			this._alphaElements[offset] = key;
 			this._alphaElements[offset + 1] = value;
+
+			this._alphaElements = this._alphaElements;
 		} else {
 			console.warn("Gradient:warning:index must lessEqual than colorAlphaKeysCount:" + this._colorAlphaKeysCount);
 		}
@@ -426,7 +524,8 @@ export class Gradient implements IClone {
 	 * @return	 克隆副本。
 	 */
 	clone(): any {
-		var destGradientDataColor: Gradient = new Gradient(this._maxColorRGBKeysCount, this._maxColorAlphaKeysCount);
+		var destGradientDataColor: Gradient = new Gradient();
+		destGradientDataColor.setMaxKeyCount(this.maxColorRGBKeysCount, this.maxColorAlphaKeysCount);
 		this.cloneTo(destGradientDataColor);
 		return destGradientDataColor;
 	}

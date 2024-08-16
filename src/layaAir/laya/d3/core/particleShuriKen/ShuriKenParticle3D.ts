@@ -770,7 +770,8 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 	 * @internal
 	 */
 	private _initParticleColor(gradientColorData: any, maxkeyCount: number = 4): Gradient {
-		var gradientColor: Gradient = new Gradient(maxkeyCount, maxkeyCount);
+		var gradientColor: Gradient = new Gradient();
+		gradientColor.setMaxKeyCount(maxkeyCount, maxkeyCount);
 		if (!gradientColorData) {
 			gradientColor.addColorAlpha(0, 1);
 			gradientColor.addColorAlpha(1, 1);

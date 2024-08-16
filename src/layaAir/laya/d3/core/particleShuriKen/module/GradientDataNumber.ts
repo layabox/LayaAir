@@ -19,8 +19,28 @@ export class GradientDataNumber implements IClone {
 
 	private _currentLength: number = 0;
 
-	/**@internal 开发者禁止修改。*/
-	_elements: Float32Array;
+	/**
+	 * @internal
+	 */
+	_dataBuffer: Float32Array;
+
+	/**
+	 * @internal
+	 */
+	get _elements(): Float32Array {
+		return this._dataBuffer;
+	}
+
+	/**
+	 * @internal
+	 */
+	set _elements(value: Float32Array) {
+		let currentLength = value.length;
+		currentLength = currentLength > 8 ? 8 : currentLength;
+		this._currentLength = currentLength;
+		this._dataBuffer.set(value);
+		this._formatData();
+	}
 
 	/**@internal 曲线编辑范围*/
 	_curveMin: number;
@@ -35,7 +55,8 @@ export class GradientDataNumber implements IClone {
 	 * 创建一个 <code>GradientDataNumber</code> 实例。
 	 */
 	constructor() {
-		this._elements = new Float32Array(8);
+		// this._elements = new Float32Array(8);
+		this._dataBuffer = new Float32Array(8);
 	}
 
 	/**
