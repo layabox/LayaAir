@@ -548,7 +548,7 @@ export class Stat {
 
         Stat.gpuMemory = LayaGL.renderEngine.getStatisticsInfo(GPUEngineStatisticsInfo.M_GPUMemory);
         Stat.textureMemory = LayaGL.renderEngine.getStatisticsInfo(GPUEngineStatisticsInfo.M_ALLTexture);
-        Stat.renderTextureMemory = LayaGL.renderEngine.getStatisticsInfo(GPUEngineStatisticsInfo.RC_ALLRenderTexture);
+        Stat.renderTextureMemory = LayaGL.renderEngine.getStatisticsInfo(GPUEngineStatisticsInfo.M_ALLRenderTexture);
         Stat.bufferMemory = LayaGL.renderEngine.getStatisticsInfo(GPUEngineStatisticsInfo.M_GPUBuffer);
     }
 

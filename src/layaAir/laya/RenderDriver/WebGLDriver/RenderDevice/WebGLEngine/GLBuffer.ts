@@ -60,6 +60,7 @@ export class GLBuffer extends GLObject {
 
     private _memorychange(bytelength: number) {
         this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.M_GPUBuffer, -this._byteLength + bytelength);
+        this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.M_GPUMemory, -this._byteLength + bytelength);
     }
 
     bindBuffer(): boolean {
