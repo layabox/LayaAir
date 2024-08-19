@@ -1,3 +1,4 @@
+import { MeshLoader } from "../../loaders/MeshLoader";
 import { Byte } from "../../utils/Byte";
 import { Mesh } from "../resource/models/Mesh";
 import { SubMesh } from "../resource/models/SubMesh";
@@ -8,6 +9,32 @@ import { LoadModelV05 } from "./LoadModelV05";
  * @internal
  */
 export class MeshReader {
+	
+	static parse(readData:Byte, version:string): Mesh {
+		var mesh: Mesh = new Mesh();
+		let subMeshes = mesh._subMeshes;
+		switch (version) {
+			case "LAYAMODEL:0301":
+			case "LAYAMODEL:0400":
+			case "LAYAMODEL:0401":
+				LoadModelV04.parse(readData, version, mesh, subMeshes);
+				break;
+			case "LAYAMODEL:05":
+			case "LAYAMODEL:COMPRESSION_05":
+			case "LAYAMODEL:0501":
+			case "LAYAMODEL:COMPRESSION_0501":
+			case "LAYAMODEL:0502":
+				LoadModelV05.parse(readData, version, mesh, subMeshes);
+				break;
+			default:
+				throw new Error("unknown mesh version: " + version);
+		}
+		mesh._setSubMeshes(subMeshes);
+		if (version != "LAYAMODEL:0501" && version != "LAYAMODEL:COMPRESSION_0501" && version != "LAYAMODEL:0502")//compatible
+			mesh.calculateBounds();
+		return mesh;
+	}
+
 	/**
 	 */
 	static _parse(data: ArrayBuffer): Mesh {
@@ -42,3 +69,4 @@ export class MeshReader {
 	}
 }
 
+MeshLoader.v3d = MeshReader;
