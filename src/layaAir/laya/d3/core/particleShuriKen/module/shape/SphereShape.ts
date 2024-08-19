@@ -5,16 +5,25 @@ import { Rand } from "../../../../math/Rand"
 import { Vector3 } from "../../../../../maths/Vector3";
 
 /**
- * <code>SphereShape</code> 类用于创建球形粒子形状。
+ * @en SphereShape class is used to create spherical particle shapes.
+ * @zh SphereShape 类用于创建球形粒子发射器。
  */
 export class SphereShape extends BaseShape {
-	/**发射器半径。*/
+	/**
+	 * @en Emitter radius.
+	 * @zh 发射器半径。
+	 */
 	radius: number;
-	/**从外壳发射。*/
+	/**
+	 * @en Whether to emit from the shell.
+	 * @zh 是否从外壳发射。
+	 */
 	emitFromShell: boolean;
 
 	/**
-	 * 创建一个 <code>SphereShape</code> 实例。
+	 * @ignore
+	 * @en Creates an instance of the SphereShape class.
+	 * @zh 创建一个 SphereShape 实例。
 	 */
 	constructor() {
 		super();
@@ -47,18 +56,17 @@ export class SphereShape extends BaseShape {
 		max.x = max.y = max.z = 1;
 	}
 
-	/**
-	 *  用于生成粒子初始位置和方向。
-	 * @param	position 粒子位置。
-	 * @param	direction 粒子方向。
-	 * @override
-	 */
-	/**
-	 *  用于生成粒子初始位置和方向。
-	 * @param position 粒子位置
-	 * @param direction 粒子方向
-	 * @param rand 随机数
-	 * @param randomSeeds 随机数种子队列 
+	/** 
+	 * @en Generates initial position and direction for particles.
+	 * @param position The particle position.
+	 * @param direction The particle direction.
+	 * @param rand Random number.
+	 * @param randomSeeds Array of random seeds.
+	 * @zh 用于生成粒子初始位置和方向。
+	 * @param position 粒子位置。
+	 * @param direction 粒子方向。
+	 * @param rand 随机数。
+	 * @param randomSeeds 随机种子数组。
 	 */
 	generatePositionAndDirection(position: Vector3, direction: Vector3, rand: Rand = null, randomSeeds: Uint32Array = null): void {
 		if (rand) {
@@ -91,9 +99,11 @@ export class SphereShape extends BaseShape {
 	}
 
 	/**
-	 * 克隆
-	 * @param destObject 克隆目标
 	 * @override
+	 * @en Clones to a target object.
+	 * @param destObject The target object to clone to.
+	 * @zh 克隆到目标对象。
+	 * @param destObject 要克隆到的目标对象。
 	 */
 	cloneTo(destObject: any): void {
 		super.cloneTo(destObject);
@@ -105,8 +115,10 @@ export class SphereShape extends BaseShape {
 
 	/**
 	 * @override
-	 * 克隆。
-	 * @return	 克隆副本。
+	 * @en Clone.
+	 * @returns Clone copy.
+	 * @zh 克隆。
+	 * @returns 克隆副本。
 	 */
 	clone(): any {
 		var destShape: SphereShape = new SphereShape();
@@ -114,5 +126,3 @@ export class SphereShape extends BaseShape {
 		return destShape;
 	}
 }
-
-

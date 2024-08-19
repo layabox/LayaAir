@@ -1,35 +1,54 @@
 import { IClone } from "../../../../utils/IClone"
 
 /**
- * <code>GradientDataInt</code> 类用于创建整形渐变。
+ * @en The GradientDataInt class is used to create integer gradients.
+ * @zh GradientDataInt 类用于创建整形渐变。
  */
 export class GradientDataInt implements IClone {
 	private _currentLength: number = 0;
-	/**@internal 开发者禁止修改。*/
+    /**
+     * @internal
+     * @en Developers are prohibited from modifying this.
+     * @zh 开发者禁止修改。
+     */
 	_elements: Float32Array;//TODO:是否用int
 
-	/**@internal 曲线编辑范围*/
+    /**
+     * @internal
+     * @en Curve editing range (minimum).
+     * @zh 曲线编辑范围（最小值）。
+     */
 	_curveMin: number = 0;
-	/**@internal 曲线编辑范围*/
+    /**
+     * @internal
+     * @en Curve editing range (maximum).
+     * @zh 曲线编辑范围（最大值）。
+     */
 	_curveMax: number = 1;
 
-	/**整形渐变数量。*/
+    /**
+     * @en The number of integer gradients.
+     * @zh 整形渐变数量。
+     */
 	get gradientCount(): number {
 		return this._currentLength / 2;
 	}
 
 	/**
-	 * 创建一个 <code>GradientDataInt</code> 实例。
+	 * @ignore
+	 * @en creates an instance of the GradientDataInt class.
+	 * @zh 创建一个 GradientDataInt 类的实例。
 	 */
 	constructor() {
 		this._elements = new Float32Array(8);
 	}
 
 
-	/**
-	 * @internal
-	 * 格式化数据；保证数据的最大值为1
-	 */
+    /**
+     * @internal
+     * @en Format the data to ensure the maximum value is 1.
+     * @zh 格式化数据；保证数据的最大值为1。
+     */
 	_formatData() {
 		if (this._currentLength == 8) return;
 		if (this._elements[this._currentLength - 2] !== 1) {
@@ -38,11 +57,14 @@ export class GradientDataInt implements IClone {
 		}
 	}
 
-	/**
-	 * 增加整形渐变。
-	 * @param	key 生命周期，范围为0到1。
-	 * @param	value 整形值。
-	 */
+    /**
+     * @en Add an integer gradient.
+     * @param key - The lifecycle key, ranging from 0 to 1.
+     * @param value - The integer value.
+	 * @zh 增加整形渐变。
+     * @param key - 生命周期，范围为0到1。
+     * @param value - 整形值。
+     */
 	add(key: number, value: number): void {
 		if (this._currentLength < 8) {
 			if ((this._currentLength === 6) && ((key !== 1))) {
@@ -58,8 +80,10 @@ export class GradientDataInt implements IClone {
 	}
 
 	/**
-	 * 克隆。
-	 * @param	destObject 克隆源。
+	 * @en Clones to a target object.
+	 * @param destObject The target object to clone to.
+	 * @zh 克隆到目标对象。
+	 * @param destObject 要克隆到的目标对象。
 	 */
 	cloneTo(destObject: any): void {
 		var destGradientDataInt: GradientDataInt = <GradientDataInt>destObject;
@@ -71,8 +95,10 @@ export class GradientDataInt implements IClone {
 	}
 
 	/**
-	 * 克隆。
-	 * @return	 克隆副本。
+	 * @en Clone.
+	 * @returns Clone copy.
+	 * @zh 克隆。
+	 * @returns 克隆副本。
 	 */
 	clone(): any {
 		var destGradientDataInt: GradientDataInt = new GradientDataInt();
@@ -81,5 +107,3 @@ export class GradientDataInt implements IClone {
 	}
 
 }
-
-

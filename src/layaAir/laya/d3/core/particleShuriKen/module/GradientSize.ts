@@ -3,13 +3,17 @@ import { IClone } from "../../../../utils/IClone"
 import { Vector3 } from "../../../../maths/Vector3";
 
 /**
- * <code>GradientSize</code> 类用于创建渐变尺寸。
+ * @en The `GradientSize` class is used to create gradient sizes.
+ * @zh `GradientSize` 类用于创建渐变尺寸。
  */
 export class GradientSize implements IClone {
 	/**
-	 * 通过渐变尺寸创建一个 <code>GradientSize</code> 实例。
-	 * @param	gradient 渐变尺寸。
-	 * @return  渐变尺寸。
+	 * @en Create a `GradientSize` instance by gradient size.
+	 * @param gradient  The gradient size.
+	 * @returns The gradient size instance.
+	 * @zh 通过渐变尺寸创建一个 `GradientSize` 实例。
+	 * @param gradient 渐变尺寸。
+	 * @returns 渐变尺寸实例。
 	 */
 	static createByGradient(gradient: GradientDataNumber): GradientSize {
 		var gradientSize: GradientSize = new GradientSize();
@@ -20,11 +24,16 @@ export class GradientSize implements IClone {
 	}
 
 	/**
-	 * 通过分轴渐变尺寸创建一个 <code>GradientSize</code> 实例。
-	 * @param	gradientX 渐变尺寸X。
-	 * @param	gradientY 渐变尺寸Y。
-	 * @param	gradientZ 渐变尺寸Z。
-	 * @return  渐变尺寸。
+	 * @en Create a `GradientSize` instance by separate axis gradient sizes.
+	 * @param gradientX The gradient size for X axis.
+	 * @param gradientY The gradient size for Y axis.
+	 * @param gradientZ The gradient size for Z axis.
+	 * @returns The gradient size instance.
+	 * @zh 通过分轴渐变尺寸创建一个 `GradientSize` 实例。
+	 * @param gradientX 渐变尺寸X。
+	 * @param gradientY 渐变尺寸Y。
+	 * @param gradientZ 渐变尺寸Z。
+	 * @returns 渐变尺寸实例。
 	 */
 	static createByGradientSeparate(gradientX: GradientDataNumber, gradientY: GradientDataNumber, gradientZ: GradientDataNumber): GradientSize {
 		var gradientSize: GradientSize = new GradientSize();
@@ -37,10 +46,14 @@ export class GradientSize implements IClone {
 	}
 
 	/**
-	 * 通过随机双固定尺寸创建一个 <code>GradientSize</code> 实例。
-	 * @param	constantMin 最小固定尺寸。
-	 * @param	constantMax 最大固定尺寸。
-	 * @return 渐变尺寸。
+	 * @en Create a `GradientSize` instance by random two constant sizes.
+	 * @param constantMin The minimum constant size.
+	 * @param constantMax The maximum constant size.
+	 * @returns The gradient size instance.
+	 * @zh 通过随机双固定尺寸创建一个 `GradientSize` 实例。
+	 * @param constantMin 最小固定尺寸。
+	 * @param constantMax 最大固定尺寸。
+	 * @returns 渐变尺寸实例。
 	 */
 	static createByRandomTwoConstant(constantMin: number, constantMax: number): GradientSize {
 		var gradientSize: GradientSize = new GradientSize();
@@ -52,10 +65,14 @@ export class GradientSize implements IClone {
 	}
 
 	/**
-	 * 通过分轴随机双固定尺寸创建一个 <code>GradientSize</code> 实例。
-	 * @param	constantMinSeparate 分轴最小固定尺寸.
-	 * @param	constantMaxSeparate 分轴最大固定尺寸。
-	 * @return   渐变尺寸。
+	 * @en Create a `GradientSize` instance by separate axis random two constant sizes.
+	 * @param constantMinSeparate The minimum constant size for separate axes.
+	 * @param constantMaxSeparate The maximum constant size for separate axes.
+	 * @returns The gradient size instance.
+	 * @zh 通过分轴随机双固定尺寸创建一个 `GradientSize` 实例。
+	 * @param constantMinSeparate 分轴最小固定尺寸。
+	 * @param constantMaxSeparate 分轴最大固定尺寸。
+	 * @returns 渐变尺寸实例。
 	 */
 	static createByRandomTwoConstantSeparate(constantMinSeparate: Vector3, constantMaxSeparate: Vector3): GradientSize {
 		var gradientSize: GradientSize = new GradientSize();
@@ -67,10 +84,14 @@ export class GradientSize implements IClone {
 	}
 
 	/**
-	 * 通过随机双渐变尺寸创建一个 <code>GradientSize</code> 实例。
-	 * @param	gradientMin 最小渐变尺寸。
-	 * @param	gradientMax 最大渐变尺寸。
-	 * @return 渐变尺寸。
+	 * @en Create a `GradientSize` instance by random two gradient sizes.
+	 * @param gradientMin The minimum gradient size.
+	 * @param gradientMax The maximum gradient size.
+	 * @returns The gradient size instance.
+	 * @zh 通过随机双渐变尺寸创建一个 `GradientSize` 实例。
+	 * @param gradientMin 最小渐变尺寸。
+	 * @param gradientMax 最大渐变尺寸。
+	 * @returns 渐变尺寸实例。
 	 */
 	static createByRandomTwoGradient(gradientMin: GradientDataNumber, gradientMax: GradientDataNumber): GradientSize {
 		var gradientSize: GradientSize = new GradientSize();
@@ -82,14 +103,22 @@ export class GradientSize implements IClone {
 	}
 
 	/**
-	 * 通过分轴随机双渐变尺寸创建一个 <code>GradientSize</code> 实例。
-	 * @param	gradientXMin X轴最小渐变尺寸。
-	 * @param	gradientXMax X轴最大渐变尺寸。
-	 * @param	gradientYMin Y轴最小渐变尺寸。
-	 * @param	gradientYMax Y轴最大渐变尺寸。
-	 * @param	gradientZMin Z轴最小渐变尺寸。
-	 * @param	gradientZMax Z轴最大渐变尺寸。
-	 * @return  渐变尺寸。
+	 * @en Create a `GradientSize` instance by separate axis random two gradient sizes.
+	 * @param gradientXMin The minimum gradient size for X axis.
+	 * @param gradientXMax The maximum gradient size for X axis.
+	 * @param gradientYMin The minimum gradient size for Y axis.
+	 * @param gradientYMax The maximum gradient size for Y axis.
+	 * @param gradientZMin The minimum gradient size for Z axis.
+	 * @param gradientZMax The maximum gradient size for Z axis.
+	 * @returns The gradient size instance.
+	 * @zh 通过分轴随机双渐变尺寸创建一个 `GradientSize` 实例。
+	 * @param gradientXMin X轴最小渐变尺寸。
+	 * @param gradientXMax X轴最大渐变尺寸。
+	 * @param gradientYMin Y轴最小渐变尺寸。
+	 * @param gradientYMax Y轴最大渐变尺寸。
+	 * @param gradientZMin Z轴最小渐变尺寸。
+	 * @param gradientZMax Z轴最大渐变尺寸。
+	 * @returns 渐变尺寸实例。
 	 */
 	static createByRandomTwoGradientSeparate(gradientXMin: GradientDataNumber, gradientXMax: GradientDataNumber, gradientYMin: GradientDataNumber, gradientYMax: GradientDataNumber, gradientZMin: GradientDataNumber, gradientZMax: GradientDataNumber): GradientSize {
 		var gradientSize: GradientSize = new GradientSize();
@@ -129,140 +158,164 @@ export class GradientSize implements IClone {
 	private _gradientZMax: GradientDataNumber = null;
 
 	/**
-	 *生命周期尺寸类型，0曲线模式，1随机双常量模式，2随机双曲线模式。
+	 * @en The type of lifecycle size. 0: Curve mode, 1: Random double constant mode, 2: Random double curve mode.
+	 * @zh 生命周期尺寸类型，0：曲线模式，1：随机双常量模式，2：随机双曲线模式。
 	 */
 	get type(): number {
 		return this._type;
 	}
 
 	/**
-	 *是否分轴。
+	 * @en Whether to separate axes.
+	 * @zh 是否分轴。
 	 */
 	get separateAxes(): boolean {
 		return this._separateAxes;
 	}
 
 	/**
-	 * 渐变尺寸。
+	 * @en The gradient size.
+	 * @zh 渐变尺寸。
 	 */
 	get gradient(): GradientDataNumber {
 		return this._gradient;
 	}
 
 	/**
-	 * 渐变尺寸X。
+	 * @en The gradient size for X axis.
+	 * @zh 渐变尺寸X。
 	 */
 	get gradientX(): GradientDataNumber {
 		return this._gradientX;
 	}
 
 	/**
-	 * 渐变尺寸Y。
+	 * @en The gradient size for Y axis.
+	 * @zh 渐变尺寸Y。
 	 */
 	get gradientY(): GradientDataNumber {
 		return this._gradientY;
 	}
 
 	/**
-	 *渐变尺寸Z。
+	 * @en The gradient size for Z axis.
+	 * @zh 渐变尺寸Z。
 	 */
 	get gradientZ(): GradientDataNumber {
 		return this._gradientZ;
 	}
 
 	/**
-	 *最小随机双固定尺寸。
+	 * @en The minimum random double constant size.
+	 * @zh 最小随机双固定尺寸。
 	 */
 	get constantMin(): number {
 		return this._constantMin;
 	}
 
 	/**
-	 * 最大随机双固定尺寸。
+	 * @en The maximum random double constant size.
+	 * @zh 最大随机双固定尺寸。
 	 */
 	get constantMax(): number {
 		return this._constantMax;
 	}
 
 	/**
-	 * 最小分轴随机双固定尺寸。
+	 * @en The minimum separate axis random double constant size.
+	 * @zh 最小分轴随机双固定尺寸。
 	 */
 	get constantMinSeparate(): Vector3 {
 		return this._constantMinSeparate;
 	}
 
 	/**
-	 *  最小分轴随机双固定尺寸。
+	 * @en The maximum separate axis random double constant size.
+	 * @zh 最大分轴随机双固定尺寸。
 	 */
 	get constantMaxSeparate(): Vector3 {
 		return this._constantMaxSeparate;
 	}
 
 	/**
-	 *渐变最小尺寸。
+	 * @en The minimum gradient size.
+	 * @zh 渐变最小尺寸。
 	 */
 	get gradientMin(): GradientDataNumber {
 		return this._gradientMin;
 	}
 
 	/**
-	 * 渐变最大尺寸。
+	 * @en The maximum gradient size.
+	 * @zh 渐变最大尺寸。
 	 */
 	get gradientMax(): GradientDataNumber {
 		return this._gradientMax;
 	}
 
 	/**
-	 * 渐变最小尺寸X。
+	 * @en The minimum gradient size for X axis.
+	 * @zh 渐变最小尺寸X。
 	 */
 	get gradientXMin(): GradientDataNumber {
 		return this._gradientXMin;
 	}
 
 	/**
-	 * 渐变最大尺寸X。
+	 * @en The maximum gradient size for X axis.
+	 * @zh 渐变最大尺寸X。
 	 */
 	get gradientXMax(): GradientDataNumber {
 		return this._gradientXMax;
 	}
 
 	/**
-	 * 渐变最小尺寸Y。
+	 * @en The minimum gradient size for Y axis.
+	 * @zh 渐变最小尺寸Y。
 	 */
 	get gradientYMin(): GradientDataNumber {
 		return this._gradientYMin;
 	}
 
 	/**
-	 *渐变最大尺寸Y。
+	 * @en The maximum gradient size for Y axis.
+	 * @zh 渐变最大尺寸Y。
 	 */
 	get gradientYMax(): GradientDataNumber {
 		return this._gradientYMax;
 	}
 
 	/**
-	 * 渐变最小尺寸Z。
+	 * @en The minimum gradient size for Z axis.
+	 * @zh 渐变最小尺寸Z。
 	 */
 	get gradientZMin(): GradientDataNumber {
 		return this._gradientZMin;
 	}
 
 	/**
-	 * 渐变最大尺寸Z。
+	 * @en The maximum gradient size for Z axis.
+	 * @zh 渐变最大尺寸Z。
 	 */
 	get gradientZMax(): GradientDataNumber {
 		return this._gradientZMax;
 	}
 
 	/**
-	 * 创建一个 <code>GradientSize,不允许new，请使用静态创建函数。</code> 实例。
+	 * @ignore
+	 * @en Constructor, not allowed to use "new", please use the static creation function.
+	 * @zh 构造方法。不允许new，请使用静态创建函数。
 	 */
 	constructor() {
 	}
 
 	/**
-	 * 获取最大尺寸。
+	 * @en Retrieves the maximum size within a gradient, based on the specified parameters and mode.
+	 * @param meshMode Indicates whether the calculation is for mesh mode.
+	 * @returns The maximum size found in the gradient.
+	 * @zh 获取渐变中的最大尺寸。
 	 * @param	meshMode 是否是网格模式
+	 * @returns 返回渐变中找到的最大尺寸。
 	 */
 	getMaxSizeInGradient(meshMode: boolean = false): number {
 		var i: number, n: number;
@@ -306,7 +359,7 @@ export class GradientSize implements IClone {
 						maxSize = Math.max(maxSize, this._gradientYMin.getValueByIndex(i));
 					for (i = 0, n = this._gradientZMax.gradientCount; i < n; i++)
 						maxSize = Math.max(maxSize, this._gradientZMax.getValueByIndex(i));
-					
+
 					if (meshMode) {
 						for (i = 0, n = this._gradientZMin.gradientCount; i < n; i++) {
 							maxSize = Math.max(maxSize, this._gradientZMin.getValueByIndex(i));
@@ -327,8 +380,10 @@ export class GradientSize implements IClone {
 	}
 
 	/**
-	 * 克隆。
-	 * @param	destObject 克隆源。
+	 * @en Clones to a target object.
+	 * @param destObject The target object to clone to.
+	 * @zh 克隆到目标对象。
+	 * @param destObject 要克隆到的目标对象。
 	 */
 	cloneTo(destObject: any): void {
 		var destGradientSize: GradientSize = (<GradientSize>destObject);
@@ -353,8 +408,10 @@ export class GradientSize implements IClone {
 	}
 
 	/**
-	 * 克隆。
-	 * @return	 克隆副本。
+	 * @en Clone.
+	 * @returns Clone copy.
+	 * @zh 克隆。
+	 * @returns 克隆副本。
 	 */
 	clone(): any {
 		var destGradientSize: GradientSize = new GradientSize();

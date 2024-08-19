@@ -1,30 +1,41 @@
 import { GradientColor } from "./GradientColor";
 /**
- * <code>ColorOverLifetime</code> 类用于粒子的生命周期颜色。
+ * @en The ColorOverLifetime class is used for the lifecycle color of particles.
+ * @zh ColorOverLifetime 类用于粒子的生命周期颜色。
  */
 export class ColorOverLifetime {
 	private _color: GradientColor;
 
-	/**是否启用。*/
+	/**
+	 * @en Whether to enable.
+	 * @zh 是否启用。
+	 */
 	enable: boolean;
 
 	/**
-	 *获取颜色。
+	 * @en The color.
+	 * @zh 颜色。
 	 */
 	get color(): GradientColor {
 		return this._color;
 	}
 
 	/**
-	 * 创建一个 <code>ColorOverLifetime</code> 实例。
+	 * @ignore
+	 * @en creates an instance of the ColorOverLifetime class.
+	 * @param color gradient color.
+	 * @zh 创建ColorOverLifetime类的实例。
+	 * @param color 渐变颜色。
 	 */
 	constructor(color: GradientColor) {
 		this._color = color;
 	}
 
 	/**
-	 * 克隆。
-	 * @param	destObject 克隆源。
+	 * @en Clones to a target object.
+	 * @param destObject The target object to clone to.
+	 * @zh 克隆到目标对象。
+	 * @param destObject 要克隆到的目标对象。
 	 */
 	cloneTo(destObject: any): void {
 		var destColorOverLifetime: ColorOverLifetime = (<ColorOverLifetime>destObject);
@@ -33,8 +44,10 @@ export class ColorOverLifetime {
 	}
 
 	/**
-	 * 克隆。
-	 * @return	 克隆副本。
+	 * @en Clone.
+	 * @returns Clone copy.
+	 * @zh 克隆。
+	 * @returns 克隆副本。
 	 */
 	clone(): any {
 		var destColor: GradientColor;

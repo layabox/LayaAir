@@ -3,13 +3,17 @@ import { IClone } from "../../../../utils/IClone"
 import { Vector3 } from "../../../../maths/Vector3";
 
 /**
- * <code>GradientVelocity</code> 类用于创建渐变速度。
+ * @en The `GradientVelocity` class is used to create gradient velocities.
+ * @zh `GradientVelocity` 类用于创建渐变速度。
  */
 export class GradientVelocity implements IClone {
 	/**
-	 * 通过固定速度创建一个 <code>GradientVelocity</code> 实例。
-	 * @param	constant 固定速度。
-	 * @return 渐变速度。
+	 * @en Create a `GradientVelocity` instance with constant velocity.
+	 * @param constant The constant velocity.
+	 * @returns The gradient velocity instance.
+	 * @zh 通过固定速度创建一个 `GradientVelocity` 实例。
+	 * @param constant 固定速度。
+	 * @returns 渐变速度实例。
 	 */
 	static createByConstant(constant: Vector3): GradientVelocity {
 		var gradientVelocity: GradientVelocity = new GradientVelocity();
@@ -22,11 +26,16 @@ export class GradientVelocity implements IClone {
 	}
 
 	/**
-	 * 通过渐变速度创建一个 <code>GradientVelocity</code> 实例。
-	 * @param	gradientX 渐变速度X。
-	 * @param	gradientY 渐变速度Y。
-	 * @param	gradientZ 渐变速度Z。
-	 * @return  渐变速度。
+	 * @en Create a `GradientVelocity` instance with gradient velocities.
+	 * @param gradientX Gradient velocity for X axis.
+	 * @param gradientY Gradient velocity for Y axis.
+	 * @param gradientZ Gradient velocity for Z axis.
+	 * @returns The gradient velocity instance.
+	 * @zh 通过渐变速度创建一个 `GradientVelocity` 实例。
+	 * @param gradientX 渐变速度X。
+	 * @param gradientY 渐变速度Y。
+	 * @param gradientZ 渐变速度Z。
+	 * @returns 渐变速度实例。
 	 */
 	static createByGradient(gradientX: GradientDataNumber, gradientY: GradientDataNumber, gradientZ: GradientDataNumber): GradientVelocity {
 		var gradientVelocity: GradientVelocity = new GradientVelocity();
@@ -38,10 +47,14 @@ export class GradientVelocity implements IClone {
 	}
 
 	/**
-	 * 通过随机双固定速度创建一个 <code>GradientVelocity</code> 实例。
-	 * @param	constantMin 最小固定角速度。
-	 * @param	constantMax 最大固定角速度。
-	 * @return 渐变速度。
+	 * @en Create a `GradientVelocity` instance with random two constant velocities.
+	 * @param constantMin The minimum constant velocity.
+	 * @param constantMax The maximum constant velocity.
+	 * @returns The gradient velocity instance.
+	 * @zh 通过随机双固定速度创建一个 `GradientVelocity` 实例。
+	 * @param constantMin 最小固定速度。
+	 * @param constantMax 最大固定速度。
+	 * @returns 渐变速度实例。
 	 */
 	static createByRandomTwoConstant(constantMin: Vector3, constantMax: Vector3): GradientVelocity {
 		var gradientVelocity: GradientVelocity = new GradientVelocity();
@@ -60,14 +73,22 @@ export class GradientVelocity implements IClone {
 	}
 
 	/**
-	 * 通过随机双渐变速度创建一个 <code>GradientVelocity</code> 实例。
-	 * @param	gradientXMin X轴最小渐变速度。
-	 * @param	gradientXMax X轴最大渐变速度。
-	 * @param	gradientYMin Y轴最小渐变速度。
-	 * @param	gradientYMax Y轴最大渐变速度。
-	 * @param	gradientZMin Z轴最小渐变速度。
-	 * @param	gradientZMax Z轴最大渐变速度。
-	 * @return  渐变速度。
+	 * @en Create a `GradientVelocity` instance with random two gradient velocities.
+	 * @param gradientXMin Minimum gradient velocity for X axis.
+	 * @param gradientXMax Maximum gradient velocity for X axis.
+	 * @param gradientYMin Minimum gradient velocity for Y axis.
+	 * @param gradientYMax Maximum gradient velocity for Y axis.
+	 * @param gradientZMin Minimum gradient velocity for Z axis.
+	 * @param gradientZMax Maximum gradient velocity for Z axis.
+	 * @returns The gradient velocity instance.
+	 * @zh 通过随机双渐变速度创建一个 `GradientVelocity` 实例。
+	 * @param gradientXMin X轴最小渐变速度。
+	 * @param gradientXMax X轴最大渐变速度。
+	 * @param gradientYMin Y轴最小渐变速度。
+	 * @param gradientYMax Y轴最大渐变速度。
+	 * @param gradientZMin Z轴最小渐变速度。
+	 * @param gradientZMax Z轴最大渐变速度。
+	 * @returns 渐变速度实例。
 	 */
 	static createByRandomTwoGradient(gradientXMin: GradientDataNumber, gradientXMax: GradientDataNumber, gradientYMin: GradientDataNumber, gradientYMax: GradientDataNumber, gradientZMin: GradientDataNumber, gradientZMax: GradientDataNumber): GradientVelocity {
 		var gradientVelocity: GradientVelocity = new GradientVelocity();
@@ -84,6 +105,10 @@ export class GradientVelocity implements IClone {
 	private _type: number = 0;
 
 	private __constant: Vector3 = null;
+	/**
+	 * @en The constant velocity.
+	 * @zh 固定速度。
+	 */
 	public get _constant(): Vector3 {
 		return this.__constant;
 	}
@@ -96,6 +121,10 @@ export class GradientVelocity implements IClone {
 
 
 	private __constantMin: Vector3 = null;
+	/**
+	 * @en The minimum constant velocity.
+	 * @zh 最小固定速度。
+	 */
 	public get _constantMin(): Vector3 {
 		return this.__constantMin;
 	}
@@ -108,6 +137,10 @@ export class GradientVelocity implements IClone {
 	}
 
 	private __constantMax: Vector3 = null;
+	/**
+	 * @en The maximum constant velocity.
+	 * @zh 最大固定速度。
+	 */
 	public get _constantMax(): Vector3 {
 		return this.__constantMax;
 	}
@@ -117,7 +150,7 @@ export class GradientVelocity implements IClone {
 		this._gradientConstantYMax = GradientDataNumber.createConstantData(value.y);
 		this._gradientConstantZMax = GradientDataNumber.createConstantData(value.z);
 	}
-	
+
 	private _gradientConstantX: GradientDataNumber = null;
 	private _gradientConstantY: GradientDataNumber = null;
 	private _gradientConstantZ: GradientDataNumber = null;
@@ -144,44 +177,57 @@ export class GradientVelocity implements IClone {
 	private _gradientZMax: GradientDataNumber = null;
 
 	/**
-	 *生命周期速度类型，0常量模式，1曲线模式，2随机双常量模式，3随机双曲线模式。
+	 * @en The lifecycle velocity type. 0: constant mode, 1: curve mode, 2: random double constant mode, 3: random double curve mode.
+	 * @zh 生命周期速度类型。0：常量模式，1：曲线模式，2：随机双常量模式，3：随机双曲线模式。
 	 */
 	get type(): number {
 		return this._type;
 	}
 
-	/**固定速度。*/
+	/**
+	 * @en The constant velocity.
+	 * @zh 固定速度。
+	 */
 	get constant(): Vector3 {
 		return this._constant;
 	}
 
 	/**
-	 * 渐变速度X。
+	 * @en The gradient velocity for X axis.
+	 * @zh X轴渐变速度。
 	 */
 	get gradientX(): GradientDataNumber {
 		return this._gradientX;
 	}
 
 	/**
-	 * 渐变速度Y。
+	 * @en The gradient velocity for Y axis.
+	 * @zh Y轴渐变速度。
 	 */
 	get gradientY(): GradientDataNumber {
 		return this._gradientY;
 	}
 
 	/**
-	 *渐变速度Z。
+	 * @en The gradient velocity for Z axis.
+	 * @zh Z轴渐变速度。
 	 */
 	get gradientZ(): GradientDataNumber {
 		return this._gradientZ;
 	}
 
-	/**最小固定速度。*/
+	/**
+	 * @en The minimum constant velocity.
+	 * @zh 最小固定速度。
+	 */
 	get constantMin(): Vector3 {
 		return this._constantMin;
 	}
 
-	/**最大固定速度。*/
+	/**
+	 * @en The maximum constant velocity.
+	 * @zh 最大固定速度。
+	 */
 	get constantMax(): Vector3 {
 		return this._constantMax;
 	}
@@ -189,7 +235,7 @@ export class GradientVelocity implements IClone {
 
 	/**
 	 *@internal
-	*/
+	 */
 	get gradientConstantX(): GradientDataNumber {
 		return this._gradientConstantX;
 	}
@@ -210,7 +256,7 @@ export class GradientVelocity implements IClone {
 
 	/**
 	 *@internal
-	*/
+	 */
 	get gradientConstantXMin(): GradientDataNumber {
 		return this._gradientConstantXMin;
 	}
@@ -251,57 +297,67 @@ export class GradientVelocity implements IClone {
 	}
 
 	/**
-	 * 渐变最小速度X。
+	 * @en The minimum gradient velocity for X axis.
+	 * @zh X轴最小渐变速度。
 	 */
 	get gradientXMin(): GradientDataNumber {
 		return this._gradientXMin;
 	}
 
 	/**
-	 * 渐变最大速度X。
+	 * @en The maximum gradient velocity for X axis.
+	 * @zh X轴最大渐变速度。
 	 */
 	get gradientXMax(): GradientDataNumber {
 		return this._gradientXMax;
 	}
 
 	/**
-	 * 渐变最小速度Y。
+	 * @en The minimum gradient velocity for Y axis.
+	 * @zh Y轴最小渐变速度。
 	 */
 	get gradientYMin(): GradientDataNumber {
 		return this._gradientYMin;
 	}
 
 	/**
-	 *渐变最大速度Y。
+	 * @en The maximum gradient velocity for Y axis.
+	 * @zh Y轴最大渐变速度。
 	 */
 	get gradientYMax(): GradientDataNumber {
 		return this._gradientYMax;
 	}
 
 	/**
-	 * 渐变最小速度Z。
+	 * @en The minimum gradient velocity for Z axis.
+	 * @zh Z轴最小渐变速度。
 	 */
 	get gradientZMin(): GradientDataNumber {
 		return this._gradientZMin;
 	}
 
 	/**
-	 * 渐变最大速度Z。
+	 * @en The maximum gradient velocity for Z axis.
+	 * @zh Z轴最大渐变速度。
 	 */
 	get gradientZMax(): GradientDataNumber {
 		return this._gradientZMax;
 	}
 
 	/**
-	 * 创建一个 <code>GradientVelocity,不允许new，请使用静态创建函数。</code> 实例。
+	 * @ignore
+	 * @en Constructor, not allowed to use "new", please use the static creation function.
+	 * @zh 构造方法。不允许new，请使用静态创建函数。
 	 */
 	constructor() {
 
 	}
 
 	/**
-	 * 克隆。
-	 * @param	destObject 克隆源。
+	 * @en Clones to a target object.
+	 * @param destObject The target object to clone to.
+	 * @zh 克隆到目标对象。
+	 * @param destObject 要克隆到的目标对象。
 	 */
 	cloneTo(destObject: any): void {
 		var destGradientVelocity: GradientVelocity = (<GradientVelocity>destObject);
@@ -321,8 +377,10 @@ export class GradientVelocity implements IClone {
 	}
 
 	/**
-	 * 克隆。
-	 * @return	 克隆副本。
+	 * @en Clone.
+	 * @returns Clone copy.
+	 * @zh 克隆。
+	 * @returns 克隆副本。
 	 */
 	clone(): any {
 		var destGradientVelocity: GradientVelocity = new GradientVelocity();

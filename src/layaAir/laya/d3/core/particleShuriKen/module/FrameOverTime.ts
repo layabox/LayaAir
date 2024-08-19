@@ -3,14 +3,18 @@ import { IClone } from "../../../../utils/IClone"
 
 
 /**
- * <code>FrameOverTime</code> 类用于创建时间帧。
+ * @en The FrameOverTime class is used to create time frames.
+ * @zh FrameOverTime 类用于创建时间帧。
  */
 export class FrameOverTime implements IClone {
-	/**
-	 * 通过固定帧创建一个 <code>FrameOverTime</code> 实例。
-	 * @param	constant 固定帧。
+    /**
+     * @en Create a FrameOverTime instance with a constant frame.
+	 * @param constant The constant frame.
+	 * @returns The time frame.
+     * @zh 通过固定帧创建一个 FrameOverTime 实例。
+	 * @param constant 固定帧。
 	 * @return 时间帧。
-	 */
+     */
 	static createByConstant(constant: number = 0): FrameOverTime {
 		var rotationOverLifetime: FrameOverTime = new FrameOverTime();
 		rotationOverLifetime._type = 0;
@@ -18,11 +22,14 @@ export class FrameOverTime implements IClone {
 		return rotationOverLifetime;
 	}
 
-	/**
-	 * 通过时间帧创建一个 <code>FrameOverTime</code> 实例。
+    /**
+     * @en Create a FrameOverTime instance with a time frame.
+	 * @param overTime The time frame.
+	 * @returns The time frame.
+     * @zh 通过时间帧创建一个 FrameOverTime 实例。
 	 * @param	overTime 时间帧。
 	 * @return 时间帧。
-	 */
+     */
 	static createByOverTime(overTime: GradientDataInt): FrameOverTime {
 		var rotationOverLifetime: FrameOverTime = new FrameOverTime();
 		rotationOverLifetime._type = 1;
@@ -30,12 +37,16 @@ export class FrameOverTime implements IClone {
 		return rotationOverLifetime;
 	}
 
-	/**
-	 * 通过随机双固定帧创建一个 <code>FrameOverTime</code> 实例。
+    /**
+     * @en Create a FrameOverTime instance with random two constant frames.
+     * @param constantMin The minimum constant frame.
+     * @param constantMax The maximum constant frame.
+     * @returns The time frame.
+	 * @zh 通过随机双固定帧创建一个 FrameOverTime 实例。
 	 * @param	constantMin 最小固定帧。
 	 * @param	constantMax 最大固定帧。
 	 * @return 时间帧。
-	 */
+     */
 	static createByRandomTwoConstant(constantMin: number = 0, constantMax: number = 0): FrameOverTime {
 		var rotationOverLifetime: FrameOverTime = new FrameOverTime();
 		rotationOverLifetime._type = 2;
@@ -44,12 +55,16 @@ export class FrameOverTime implements IClone {
 		return rotationOverLifetime;
 	}
 
-	/**
-	 * 通过随机双时间帧创建一个 <code>FrameOverTime</code> 实例。
+    /**
+     * @en Create a FrameOverTime instance with random two time frames.
+     * @param gradientFrameMin The minimum time frame.
+     * @param gradientFrameMax The maximum time frame.
+     * @returns The time frame.
+	 * @zh 通过随机双时间帧创建一个 FrameOverTime 实例。
 	 * @param	gradientFrameMin 最小时间帧。
 	 * @param	gradientFrameMax 最大时间帧。
 	 * @return 时间帧。
-	 */
+     */
 	static createByRandomTwoOverTime(gradientFrameMin: GradientDataInt, gradientFrameMax: GradientDataInt): FrameOverTime {
 		var rotationOverLifetime: FrameOverTime = new FrameOverTime();
 		rotationOverLifetime._type = 3;
@@ -70,65 +85,76 @@ export class FrameOverTime implements IClone {
 	private _overTimeMin: GradientDataInt = null;
 	private _overTimeMax: GradientDataInt = null;
 
-	/**
-	 *生命周期旋转类型,0常量模式，1曲线模式，2随机双常量模式，3随机双曲线模式。
-	 */
+    /**
+     * @en Lifecycle rotation type, 0: constant mode, 1: curve mode, 2: random double constant mode, 3: random double curve mode.
+     * @zh 生命周期旋转类型，0：常量模式，1：曲线模式，2：随机双常量模式，3：随机双曲线模式。
+     */
 	get type(): number {
 		return this._type;
 	}
 
-	/**
-	 * 固定帧。
-	 */
+    /**
+     * @en Constant frame.
+     * @zh 固定帧。
+     */
 	get constant(): number {
 		return this._constant;
 	}
 
-	/**
-	 * 时间帧。
-	 */
+    /**
+     * @en Time frame.
+     * @zh 时间帧。
+     */
 	get frameOverTimeData(): GradientDataInt {
 		return this._overTime;
 	}
 
-	/**
-	 * 最小固定帧。
-	 */
+    /**
+     * @en Minimum constant frame.
+     * @zh 最小固定帧。
+     */
 	get constantMin(): number {
 		return this._constantMin;
 	}
 
-	/**
-	 * 最大固定帧。
-	 */
+    /**
+     * @en Maximum constant frame.
+     * @zh 最大固定帧。
+     */
 	get constantMax(): number {
 		return this._constantMax;
 	}
 
-	/**
-	 * 最小时间帧。
-	 */
+    /**
+     * @en Minimum time frame.
+     * @zh 最小时间帧。
+     */
 	get frameOverTimeDataMin(): GradientDataInt {
 		return this._overTimeMin;
 	}
 
-	/**
-	 * 最大时间帧。
-	 */
+    /**
+     * @en Maximum time frame.
+     * @zh 最大时间帧。
+     */
 	get frameOverTimeDataMax(): GradientDataInt {
 		return this._overTimeMax;
 	}
 
 	/**
-	 * 创建一个 <code>FrameOverTime,不允许new，请使用静态创建函数。</code> 实例。
+	 * @ignore
+	 * @en Creation via `new` is not allowed; please use the static creation function.
+	 * @zh 不允许new，请使用静态创建函数。
 	 */
 	constructor() {
 
 	}
 
 	/**
-	 * 克隆。
-	 * @param	destObject 克隆源。
+	 * @en Clones to a target object.
+	 * @param destObject The target object to clone to.
+	 * @zh 克隆到目标对象。
+	 * @param destObject 要克隆到的目标对象。
 	 */
 	cloneTo(destObject: any): void {
 		var destFrameOverTime: FrameOverTime = (<FrameOverTime>destObject);
@@ -142,8 +168,10 @@ export class FrameOverTime implements IClone {
 	}
 
 	/**
-	 * 克隆。
-	 * @return	 克隆副本。
+	 * @en Clone.
+	 * @returns Clone copy.
+	 * @zh 克隆。
+	 * @returns 克隆副本。
 	 */
 	clone(): any {
 		var destFrameOverTime: FrameOverTime = new FrameOverTime();
@@ -152,5 +180,3 @@ export class FrameOverTime implements IClone {
 	}
 
 }
-
-
