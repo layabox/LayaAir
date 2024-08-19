@@ -1,5 +1,5 @@
 export class LayaEnv {
-    static version: string = "3.2.0-beta.2";
+    static version: string = "3.2.0-beta.3";
     static isPlaying: boolean = true;
     static isPreview: boolean = false;
     static isConch: boolean = window ? ((<any>window).conch != null) : false;
