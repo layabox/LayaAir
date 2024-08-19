@@ -1,10 +1,4 @@
-import { IndexBuffer3D } from "../d3/graphics/IndexBuffer3D";
-import { VertexBuffer3D } from "../d3/graphics/VertexBuffer3D";
-import { Laya3DRender } from "../d3/RenderObjs/Laya3DRender";
-import { Mesh, skinnedMatrixCache } from "../d3/resource/models/Mesh";
-import { SubMesh } from "../d3/resource/models/SubMesh";
 import { LayaGL } from "../layagl/LayaGL";
-import { Matrix4x4 } from "../maths/Matrix4x4";
 import { IIndexBuffer } from "../RenderDriver/DriverDesign/RenderDevice/IIndexBuffer";
 import { IRenderGeometryElement } from "../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
 import { IVertexBuffer } from "../RenderDriver/DriverDesign/RenderDevice/IVertexBuffer";
