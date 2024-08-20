@@ -6,16 +6,25 @@ import { Vector3 } from "../../../../../maths/Vector3";
 
 
 /**
- * <code>HemisphereShape</code> 类用于创建半球形粒子形状。
+ * @en The HemisphereShape class is used to create hemispherical particle shapes emitters.
+ * @zh HemisphereShape 类用于创建半球形粒子形状发射器。
  */
 export class HemisphereShape extends BaseShape {
-	/**发射器半径。*/
+	/**
+	 * @en The radius of the hemisphere.
+	 * @zh 发射器半径。
+	 */
 	radius: number;
-	/**从外壳发射。*/
+	/**
+	 * @en Whether to emit from the shell.
+	 * @zh 是否从外壳发射。
+	 */
 	emitFromShell: boolean;
 
 	/**
-	 * 创建一个 <code>HemisphereShape</code> 实例。
+	 * @ignore
+	 * @en Creats an instance of the HemisphereShape class.
+	 * @zh 创建一个HemisphereShape实例。
 	 */
 	constructor() {
 		super();
@@ -50,13 +59,18 @@ export class HemisphereShape extends BaseShape {
 		max.x = max.y = max.z = 1;
 	}
 
-	/**
-	 *  用于生成粒子初始位置和方向。
-	 * @param	position 粒子位置。
-	 * @param	direction 粒子方向。
-	 * @param 	rand	随机数
-	 * @param	randomSeeds 随机数种子队列
+	/** 
 	 * @override
+	 * @en Generates initial position and direction for particles.
+	 * @param position The particle position.
+	 * @param direction The particle direction.
+	 * @param rand Random number.
+	 * @param randomSeeds Array of random seeds.
+	 * @zh 用于生成粒子初始位置和方向。
+	 * @param position 粒子位置。
+	 * @param direction 粒子方向。
+	 * @param rand 随机数。
+	 * @param randomSeeds 随机种子数组。
 	 */
 	generatePositionAndDirection(position: Vector3, direction: Vector3, rand: Rand = null, randomSeeds: Uint32Array = null): void {
 		if (rand) {
@@ -93,8 +107,10 @@ export class HemisphereShape extends BaseShape {
 
 	/**
 	 * @override
-	 * 克隆
-	 * @param destObject 克隆目标
+	 * @en Clones to a target object.
+	 * @param destObject The target object to clone to.
+	 * @zh 克隆到目标对象。
+	 * @param destObject 要克隆到的目标对象。
 	 */
 	cloneTo(destObject: any): void {
 		super.cloneTo(destObject);
@@ -106,8 +122,10 @@ export class HemisphereShape extends BaseShape {
 
 	/**
 	 * @override
-	 * 克隆。
-	 * @return	 克隆副本。
+	 * @en Clone.
+	 * @returns Clone copy.
+	 * @zh 克隆。
+	 * @returns 克隆副本。
 	 */
 	clone(): any {
 		var destShape: HemisphereShape = new HemisphereShape();
@@ -116,5 +134,3 @@ export class HemisphereShape extends BaseShape {
 	}
 
 }
-
-

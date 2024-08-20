@@ -6,21 +6,33 @@ import { Vector2 } from "../../../../../maths/Vector2";
 import { Vector3 } from "../../../../../maths/Vector3";
 
 /**
- * <code>CircleShape</code> 类用于创建环形粒子形状。
+ * @en CircleShape class for creating circular particle emitters.
+ * @zh CircleShape 类用于创建环形粒子发射器。
  */
 export class CircleShape extends BaseShape {
 	/** @internal */
 	protected static _tempPositionPoint: Vector2 = new Vector2();
 
-	/**发射器半径。*/
+	/**
+	 * @en Emitter radius.
+	 * @zh 发射器半径。
+	 */
 	radius: number;
-	/**环形弧度。*/
+	/**
+	 * @en Arc angle.
+	 * @zh 环形弧度。
+	 */
 	arc: number;
-	/**从边缘发射。*/
+	/**
+	 * @en Whether to emit from the edge.
+	 * @zh 是否从边缘发射。
+	 */
 	emitFromEdge: boolean;
 
 	/**
-	 * 创建一个 <code>CircleShape</code> 实例。
+	 * @ignore
+	 * @en Creates an instance of the CircleShape class.
+	 * @zh 创建一个CircleShape实例。
 	 */
 	constructor() {
 		super();
@@ -31,15 +43,17 @@ export class CircleShape extends BaseShape {
 	}
 
 	/**
-	 * 发射角度0-360
+	 * @en Emission angle 0-360
+	 * @zh 发射角度 0-360
 	 */
+	get arcDEG() {
+		return this.arc * 180 / Math.PI;
+	}
+
 	set arcDEG(deg: number) {
 		this.arc = deg / 180 * Math.PI;
 	}
 
-	get arcDEG() {
-		return this.arc * 180 / Math.PI;
-	}
 
 	/**
 	 * @inheritDoc
@@ -70,17 +84,16 @@ export class CircleShape extends BaseShape {
 	}
 
 	/**
-	 *  用于生成粒子初始位置和方向。
-	 * @param	position 粒子位置。
-	 * @param	direction 粒子方向。
-	 * @override
-	 */
-	/**
-	 * 用于生成粒子初始位置和方向。
-	 * @param position  粒子位置。
+	 * @en Generates initial position and direction for particles.
+	 * @param position The particle position.
+	 * @param direction The particle direction.
+	 * @param rand Random number.
+	 * @param randomSeeds Array of random seeds.
+	 * @zh 用于生成粒子初始位置和方向。
+	 * @param position 粒子位置。
 	 * @param direction 粒子方向。
-	 * @param rand 随机数
-	 * @param randomSeeds 随机种子队列 
+	 * @param rand 随机数。
+	 * @param randomSeeds 随机种子数组。
 	 */
 	generatePositionAndDirection(position: Vector3, direction: Vector3, rand: Rand = null, randomSeeds: Uint32Array = null): void {
 		var positionPoint: Vector2 = CircleShape._tempPositionPoint;
@@ -118,9 +131,11 @@ export class CircleShape extends BaseShape {
 	}
 
 	/**
-	 * 克隆
-	 * @param destObject 克隆目标
 	 * @override
+	 * @en Clones to a target object.
+	 * @param destObject The target object to clone to.
+	 * @zh 克隆到目标对象。
+	 * @param destObject 要克隆到的目标对象。
 	 */
 	cloneTo(destObject: any): void {
 		super.cloneTo(destObject);
@@ -132,8 +147,10 @@ export class CircleShape extends BaseShape {
 	}
 
 	/**
-	 * 克隆。
-	 * @return	 克隆副本。
+	 * @en Clone.
+	 * @returns Clone copy.
+	 * @zh 克隆。
+	 * @returns 克隆副本。
 	 */
 	clone(): any {
 		var destShape: CircleShape = new CircleShape();
@@ -142,5 +159,3 @@ export class CircleShape extends BaseShape {
 	}
 
 }
-
-

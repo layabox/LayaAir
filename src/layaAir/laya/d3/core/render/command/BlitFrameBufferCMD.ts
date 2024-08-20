@@ -12,6 +12,7 @@ import { Laya3DRender } from "../../../RenderObjs/Laya3DRender";
 import { Camera } from "../../Camera";
 import { Transform3D } from "../../Transform3D";
 import { Viewport } from "../../../../maths/Viewport";
+import { Stat } from "../../../../utils/Stat";
 
 
 
@@ -162,6 +163,8 @@ export class BlitFrameBufferCMD {
 		context.destTarget = dest;
 		context._contextOBJ.cameraUpdateMask = Camera._updateMark;
 		context.drawRenderElement(this._renderElement._renderElementOBJ);
+
+		Stat.blitDrawCall++;
 	}
 
 	/**

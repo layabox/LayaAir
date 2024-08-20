@@ -1,11 +1,21 @@
 /**
- * 阴影得级联模式。
+ * @en Shadow cascade mode.
+ * @zh 阴影的级联模式。
  */
 export enum ShadowCascadesMode {
-    /** 无级联。 */
+    /**
+     * @en No cascades.
+     * @zh 无级联。
+     */
     NoCascades,
-    /** 二级级联。 */
+    /**
+     * @en Two-level cascades.
+     * @zh 二级级联。
+     */
     TwoCascades,
-    /** 四级级联。 */
+    /**
+     * @en Four-level cascades.
+     * @zh 四级级联。
+     */
     FourCascades,
 }

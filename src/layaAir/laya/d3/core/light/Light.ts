@@ -8,8 +8,10 @@ import { Matrix4x4 } from "../../../maths/Matrix4x4";
 import { Vector3 } from "../../../maths/Vector3";
 import { IDirectLightData, IPointLightData, ISpotLightData } from "../../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
 
-
-
+/** 
+ * @en Light type.
+ * @zh 灯光类型。
+ */
 export enum LightType {
     Directional,
     Spot,
@@ -17,6 +19,10 @@ export enum LightType {
     Area
 }
 
+/** 
+ * @en Light mode.
+ * @zh 灯光模式。
+ */
 export enum LightMode {
     mix,
     realTime,//
@@ -24,7 +30,8 @@ export enum LightMode {
 }
 
 /**
- * <code>LightSprite</code> 类用于创建灯光的父类。
+ * @en LightSprite is the base class for creating light sources.
+ * @zh LightSprite 类用于创建灯光的父类。
  */
 export class Light extends Component {
     /**@internal 下沉数据集合 */
@@ -42,14 +49,22 @@ export class Light extends Component {
     _lightmapBakedType: LightMode;
     /** @internal */
     _lightType: LightType;
-    /** @internal 因为scale会影响裁剪阴影*/
+    /** 
+     * @internal
+     * @en The light world matrix,because the scale will affect the clipping of the shadow
+     * @zh 因为scale会影响裁剪阴影
+     */
     _lightWoldMatrix: Matrix4x4 = new Matrix4x4();
 
-    /** 灯光颜色。 */
+    /** 
+     * @en The light color.
+     * @zh 灯光颜色。 
+     */
     color: Color;
 
     /**
-     * 灯光强度。
+     * @en The light intensity.
+     * @zh 灯光强度。
      */
     get intensity(): number {
         return this._intensity;
@@ -60,7 +75,8 @@ export class Light extends Component {
     }
 
     /**
-     * 阴影模式。
+     * @en Shadow mode.
+     * @zh 阴影模式。
      */
     get shadowMode(): ShadowMode {
         return this._dataModule.shadowMode;
@@ -71,7 +87,8 @@ export class Light extends Component {
     }
 
     /**
-     * 最大阴影距离。
+     * @en The maximum shadow distance.
+     * @zh 最大阴影距离。
      */
     get shadowDistance(): number {
         return this._dataModule.shadowDistance;
@@ -82,7 +99,8 @@ export class Light extends Component {
     }
 
     /**
-     * 阴影贴图分辨率。
+     * @en The shadow map resolution.
+     * @zh 阴影贴图分辨率。
      */
     get shadowResolution(): number {
         return this._dataModule.shadowResolution;
@@ -93,7 +111,8 @@ export class Light extends Component {
     }
 
     /**
-     * 阴影深度偏差。
+     * @en The shadow depth bias.
+     * @zh 阴影深度偏差。
      */
     get shadowDepthBias(): number {
         return this._dataModule.shadowDepthBias;
@@ -104,7 +123,8 @@ export class Light extends Component {
     }
 
     /**
-     * 阴影法线偏差。
+     * @en The shadow normal bias.
+     * @zh 阴影法线偏差。
      */
     get shadowNormalBias(): number {
         return this._dataModule.shadowNormalBias;
@@ -115,7 +135,8 @@ export class Light extends Component {
     }
 
     /**
-     * 阴影强度。
+     * @en The shadow strength.
+     * @zh 阴影强度。
      */
     get shadowStrength(): number {
         return this._dataModule.shadowStrength;
@@ -126,7 +147,8 @@ export class Light extends Component {
     }
 
     /**
-     * 阴影视锥的近裁面。
+     * @en The near cut surface of the shadow cone.
+     * @zh 阴影视锥的近裁面。
      */
     get shadowNearPlane(): number {
         return this._dataModule.shadowNearPlane;
@@ -137,7 +159,8 @@ export class Light extends Component {
     }
 
     /**
-     * 灯光烘培类型。
+     * @en Light baking type
+     * @zh 灯光烘培类型。
      */
     get lightmapBakedType(): LightMode {
         return this._lightmapBakedType;
@@ -158,7 +181,8 @@ export class Light extends Component {
     }
 
     /**
-     * 获取灯光世界矩阵
+     * @en The light world matrix.
+     * @zh 灯光世界矩阵
      */
     get lightWorldMatrix(): Matrix4x4 {
         var position = (this.owner as Sprite3D).transform.position;
@@ -168,7 +192,8 @@ export class Light extends Component {
     }
 
     /**
-     * 获取灯光类型
+     * @en The light type.
+     * @zh 灯光类型
      */
     get lightType() {
         return this._lightType;
@@ -178,7 +203,9 @@ export class Light extends Component {
 
 
     /**
-     * 创建一个 <code>LightSprite</code> 实例。
+     * @ignore
+     * @en Creates an instance of Light.
+     * @zh 创建一个 Light 的实例。
      */
     constructor() {
         super();

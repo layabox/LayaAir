@@ -2,31 +2,40 @@ import { GradientAngularVelocity } from "./GradientAngularVelocity";
 import { IClone } from "../../../../utils/IClone"
 
 /**
- * <code>RotationOverLifetime</code> 类用于粒子的生命周期旋转。
+ * @en The `RotationOverLifetime` class is used for particle rotation over its lifecycle.
+ * @zh `RotationOverLifetime` 类用于控制粒子在其生命周期内的旋转。
  */
 export class RotationOverLifetime implements IClone {
 	private _angularVelocity: GradientAngularVelocity;
 
-	/**是否启用*/
+    /**
+     * @en Indicates whether the rotation over lifetime is enabled.
+     * @zh 是否启用生命周期旋转。
+     */
 	enable: boolean;
 
-	/**
-	 *获取角速度。
-	 */
+    /**
+     * @en The angular velocity of the particle.
+     * @zh 粒子的角速度。
+     */
 	get angularVelocity(): GradientAngularVelocity {
 		return this._angularVelocity;
 	}
 
 	/**
-	 * 创建一个 <code>RotationOverLifetime,不允许new，请使用静态创建函数。</code> 实例。
+	 * @ignore
+	 * @en Constructor, not allowed to use "new", please use the static creation function.
+	 * @zh 构造方法。不允许new，请使用静态创建函数。
 	 */
 	constructor(angularVelocity: GradientAngularVelocity) {
 		this._angularVelocity = angularVelocity;
 	}
 
 	/**
-	 * 克隆。
-	 * @param	destObject 克隆源。
+	 * @en Clones to a target object.
+	 * @param destObject The target object to clone to.
+	 * @zh 克隆到目标对象。
+	 * @param destObject 要克隆到的目标对象。
 	 */
 	cloneTo(destObject: any): void {
 		var destRotationOverLifetime: RotationOverLifetime = (<RotationOverLifetime>destObject);
@@ -35,8 +44,10 @@ export class RotationOverLifetime implements IClone {
 	}
 
 	/**
-	 * 克隆。
-	 * @return	 克隆副本。
+	 * @en Clone.
+	 * @returns Clone copy.
+	 * @zh 克隆。
+	 * @returns 克隆副本。
 	 */
 	clone(): any {
 		var destAngularVelocity: GradientAngularVelocity;

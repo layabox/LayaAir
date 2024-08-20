@@ -1,14 +1,18 @@
 import { IClone } from "../../../../utils/IClone"
 
 /**
- * <code>GradientDataNumber</code> 类用于创建浮点渐变。
+ * @en The `GradientDataNumber` class is used to create floating-point gradients.
+ * @zh `GradientDataNumber` 类用于创建浮点渐变。
  */
 export class GradientDataNumber implements IClone {
 	/**
 	 * @internal
-	 * 创建一个常数渐变曲线数据
-	 * @param constantValue 
-	 * @returns 
+	 * @en Create a constant gradient curve data.
+	 * @param constantValue The constant value for the gradient.
+	 * @returns A new GradientDataNumber instance with constant value.
+	 * @zh 创建一个常数渐变曲线数据。
+	 * @param constantValue 常数值。
+	 * @returns 包含常数值的 GradientDataNumber 实例。
 	 */
 	static createConstantData(constantValue: number) {
 		let gradientData = new GradientDataNumber();
@@ -19,28 +23,55 @@ export class GradientDataNumber implements IClone {
 
 	private _currentLength: number = 0;
 
-	/**@internal 开发者禁止修改。*/
-	_elements: Float32Array;
+	/**
+	 * @internal
+	 */
+	_dataBuffer: Float32Array;
+
+	/**
+	 * @internal
+	 */
+	get _elements(): Float32Array {
+		return this._dataBuffer;
+	}
+
+	/**
+	 * @internal
+	 */
+	set _elements(value: Float32Array) {
+		let currentLength = value.length;
+		currentLength = currentLength > 8 ? 8 : currentLength;
+		this._currentLength = currentLength;
+		this._dataBuffer.set(value);
+		this._formatData();
+	}
 
 	/**@internal 曲线编辑范围*/
 	_curveMin: number;
 	/**@internal 曲线编辑范围*/
 	_curveMax: number;
-	/**渐变浮点数量。*/
+	/**
+	 * @en The number of gradient floats.
+	 * @zh 渐变浮点数量。
+	 */
 	get gradientCount(): number {
 		return this._currentLength / 2;
 	}
 
 	/**
-	 * 创建一个 <code>GradientDataNumber</code> 实例。
+	 * @ignore
+	 * @en creates an instance of the GradientDataNumber class.
+	 * @zh 创建一个 GradientDataNumber 类的实例。
 	 */
 	constructor() {
-		this._elements = new Float32Array(8);
+		// this._elements = new Float32Array(8);
+		this._dataBuffer = new Float32Array(8);
 	}
 
 	/**
 	 * @internal
-	 * 格式化数据；保证数据的最大值为1
+	 * @en Format data, ensure the maximum value is 1.
+	 * @zh 格式化数据，确保数据的最大值为 1。
 	 */
 	_formatData() {
 		if (this._currentLength == 8) return;
@@ -51,9 +82,12 @@ export class GradientDataNumber implements IClone {
 	}
 
 	/**
-	 * 增加浮点渐变。
-	 * @param	key 生命周期，范围为0到1。
-	 * @param	value 浮点值。
+	 * @en Add a floating-point gradient.
+	 * @param key Lifecycle, ranging from 0 to 1.
+	 * @param value The float value.
+	 * @zh 增加浮点渐变。
+	 * @param key 生命周期，范围为 0 到 1。
+	 * @param value 浮点值。
 	 */
 	add(key: number, value: number): void {
 		if (this._currentLength < 8) {
@@ -71,25 +105,34 @@ export class GradientDataNumber implements IClone {
 	}
 
 	/**
-	 * 通过索引获取键。
-	 * @param	index 索引。
-	 * @return	value 键。
+	 * @en Get the key by index.
+	 * @param index The index.
+	 * @returns The key.
+	 * @zh 通过索引获取键。
+	 * @param index 索引。
+	 * @returns 键。
 	 */
 	getKeyByIndex(index: number): number {
 		return this._elements[index * 2];
 	}
 
 	/**
-	 * 通过索引获取值。
-	 * @param	index 索引。
-	 * @return	value 值。
+	 * @en Get the value by index.
+	 * @param index The index.
+	 * @returns The value.
+	 * @zh 通过索引获取值。
+	 * @param index 索引。
+	 * @returns 值。
 	 */
 	getValueByIndex(index: number): number {
 		return this._elements[index * 2 + 1];
 	}
 
 	/**
-	 * 获取平均值。
+	 * @en Get the average value.
+	 * @returns The average value of the gradient.
+	 * @zh 获取平均值。
+	 * @returns 渐变的平均值。
 	 */
 	getAverageValue(): number {
 		var total: number = 0;
@@ -105,8 +148,10 @@ export class GradientDataNumber implements IClone {
 	}
 
 	/**
-	 * 克隆。
-	 * @param	destObject 克隆源。
+	 * @en Clones to a target object.
+	 * @param destObject The target object to clone to.
+	 * @zh 克隆到目标对象。
+	 * @param destObject 要克隆到的目标对象。
 	 */
 	cloneTo(destObject: any): void {
 		var destGradientDataNumber: GradientDataNumber = <GradientDataNumber>destObject;
@@ -117,8 +162,10 @@ export class GradientDataNumber implements IClone {
 	}
 
 	/**
-	 * 克隆。
-	 * @return	 克隆副本。
+	 * @en Clone.
+	 * @returns Clone copy.
+	 * @zh 克隆。
+	 * @returns 克隆副本。
 	 */
 	clone(): any {
 		var destGradientDataNumber: GradientDataNumber = new GradientDataNumber();

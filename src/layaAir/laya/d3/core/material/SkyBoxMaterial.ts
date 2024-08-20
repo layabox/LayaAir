@@ -4,7 +4,8 @@ import { TextureCube } from "../../../resource/TextureCube";
 import { Material } from "../../../resource/Material";
 
 /**
- * <code>SkyBoxMaterial</code> 类用于实现SkyBoxMaterial材质。
+ * @en The SkyBoxMaterial class is used to implement the SkyBoxMaterial material.
+ * @zh SkyBoxMaterial 类用于实现天空盒材质。
  */
 export class SkyBoxMaterial extends Material {
 	static TINTCOLOR: number;
@@ -12,7 +13,10 @@ export class SkyBoxMaterial extends Material {
 	static ROTATION: number;
 	static TEXTURECUBE: number;
 
-	/** 默认材质，禁止修改*/
+	/** 
+	 * @en Default material, no modification allowed
+	 * @zh 默认材质，禁止修改
+	 */
 	static defaultMaterial: SkyBoxMaterial;
 
 	/**
@@ -26,7 +30,8 @@ export class SkyBoxMaterial extends Material {
 	}
 
 	/**
-	 * 颜色。
+	 * @en Tint color of the skybox.
+	 * @zh 天空盒的颜色。
 	 */
 	get tintColor(): Color {
 		return this._shaderValues.getColor(SkyBoxMaterial.TINTCOLOR);
@@ -37,7 +42,8 @@ export class SkyBoxMaterial extends Material {
 	}
 
 	/**
-	 * 曝光强度。
+	 * @en Exposure intensity of the skybox.
+	 * @zh 天空盒的曝光强度。
 	 */
 	get exposure(): number {
 		return this._shaderValues.getNumber(SkyBoxMaterial.EXPOSURE);
@@ -48,7 +54,8 @@ export class SkyBoxMaterial extends Material {
 	}
 
 	/**
-	 * 旋转角度。
+	 * @en Rotation angle of the skybox.
+	 * @zh 天空盒的旋转角度。
 	 */
 	get rotation(): number {
 		return this._shaderValues.getNumber(SkyBoxMaterial.ROTATION);
@@ -59,7 +66,8 @@ export class SkyBoxMaterial extends Material {
 	}
 
 	/**
-	 * 天空盒纹理。
+	 * @en Texture of the skybox.
+	 * @zh 天空盒的纹理。
 	 */
 	get textureCube(): TextureCube {
 		return (<TextureCube>this._shaderValues.getTexture(SkyBoxMaterial.TEXTURECUBE));
@@ -70,9 +78,11 @@ export class SkyBoxMaterial extends Material {
 	}
 
 	/**
-	 * 克隆。
-	 * @return	 克隆副本。
 	 * @override
+	 * @en Clone.
+	 * @returns Clone copy.
+	 * @zh 克隆。
+	 * @returns 克隆副本。
 	 */
 	clone(): any {
 		var dest: SkyBoxMaterial = new SkyBoxMaterial();
@@ -81,7 +91,9 @@ export class SkyBoxMaterial extends Material {
 	}
 
 	/**
-	 * 创建一个 <code>SkyBoxMaterial</code> 实例。
+	 * @ignore
+	 * @en Creates an instance of SkyBoxMaterial.
+	 * @zh 创建一个 SkyBoxMaterial 实例。
 	 */
 	constructor() {
 		super();

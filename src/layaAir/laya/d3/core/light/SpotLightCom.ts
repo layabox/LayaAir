@@ -7,30 +7,38 @@ import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 import { ISpotLightData } from "../../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
 
 /**
- * <code>SpotLight</code> 类用于创建聚光。
+ * @en The `SpotLightCom` class is used to create a spotlight.
+ * @zh `SpotLightCom` 类用于创建聚光。
  */
 export class SpotLightCom extends Light {
-	 
+
+	/**
+	 * @en Declares the data module for the spotlight.
+	 * @zh 声明聚光灯的数据模块。
+	 */
 	declare _dataModule: ISpotLightData;
 
 	/** @internal */
 	private _direction: Vector3;
 
 	/**
-	 * 直射光方向
+	 * @en The direction of the spotlight.
+	 * @zh 聚光的方向。
 	 */
+	get direction(): Vector3 {
+		return this._direction;
+	}
+
 	set direction(value: Vector3) {
 		value.cloneTo(this.direction);
 		this._dataModule.setDirection(this._direction);
 	};
 
-	get direction(): Vector3 {
-		return this._direction;
-	}
 
-	/**
-	  * 聚光灯的锥形角度。
-	  */
+    /**
+     * @en The cone angle of the spotlight.
+     * @zh 聚光灯的锥形角度。
+     */
 	get spotAngle(): number {
 		return this._dataModule.spotAngle;
 	}
@@ -39,9 +47,10 @@ export class SpotLightCom extends Light {
 		this._dataModule.spotAngle = Math.max(Math.min(value, 179), 0);
 	}
 
-	/**
-	 * 聚光的范围。
-	 */
+    /**
+     * @en The range of the spotlight.
+     * @zh 聚光灯的范围。
+     */
 	get range(): number {
 		return this._dataModule.spotRange;
 	}
@@ -51,7 +60,9 @@ export class SpotLightCom extends Light {
 	}
 
 	/**
-	 * 创建一个 <code>SpotLight</code> 实例。
+	 * @ignore
+	 * @en Creats an instance of SpotLightCom.
+	 * @zh 创建一个 SpotLightCom 的实例。
 	 */
 	constructor() {
 		super();

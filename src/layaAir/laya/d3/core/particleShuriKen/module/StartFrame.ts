@@ -1,13 +1,17 @@
 import { IClone } from "../../../../utils/IClone"
 
 /**
- * <code>StartFrame</code> 类用于创建开始帧。
+ * @en The `StartFrame` class is used to create start frames.
+ * @zh `StartFrame` 类用于创建起始帧。
  */
 export class StartFrame implements IClone {
 	/**
-	 * 通过随机常量旋转创建一个 <code>StartFrame</code> 实例。
-	 * @param	constant  固定帧。
-	 * @return 开始帧。
+	 * @en Create a `StartFrame` instance with a constant frame value.
+	 * @param constant The fixed frame value. Default is 0.
+	 * @returns A new StartFrame instance.
+	 * @zh 通过固定帧值创建一个 `StartFrame` 实例。
+	 * @param constant 固定帧值。默认为0。
+	 * @returns 新的 StartFrame 实例。
 	 */
 	static createByConstant(constant: number = 0): StartFrame {
 		var rotationOverLifetime: StartFrame = new StartFrame();
@@ -17,10 +21,14 @@ export class StartFrame implements IClone {
 	}
 
 	/**
-	 *  通过随机双常量旋转创建一个 <code>StartFrame</code> 实例。
-	 * @param	constantMin 最小固定帧。
-	 * @param	constantMax 最大固定帧。
-	 * @return 开始帧。
+	 * @en Create a `StartFrame` instance with a random range between two constant frame values.
+	 * @param constantMin The minimum fixed frame value. Default is 0.
+	 * @param constantMax The maximum fixed frame value. Default is 0.
+	 * @returns A new StartFrame instance.
+	 * @zh 通过随机范围在两个固定帧值之间创建一个 `StartFrame` 实例。
+	 * @param constantMin 最小固定帧值。默认为0。
+	 * @param constantMax 最大固定帧值。默认为0。
+	 * @returns 新的 StartFrame 实例。
 	 */
 	static createByRandomTwoConstant(constantMin: number = 0, constantMax: number = 0): StartFrame {
 		var rotationOverLifetime: StartFrame = new StartFrame();
@@ -37,43 +45,51 @@ export class StartFrame implements IClone {
 	private _constantMax: number = 0;
 
 	/**
-	 *开始帧类型,0常量模式，1随机双常量模式。
+	 * @en The start frame type. 0 for constant mode, 1 for random between two constants mode.
+	 * @zh 起始帧类型。0表示常量模式，1表示随机双常量模式。
 	 */
 	get type(): number {
 		return this._type;
 	}
 
 	/**
-	 * 固定帧。
+	 * @en The constant frame value.
+	 * @zh 固定帧值。
 	 */
 	get constant(): number {
 		return this._constant;
 	}
 
 	/**
-	 * 最小固定帧。
+	 * @en The minimum constant frame value.
+	 * @zh 最小固定帧值。
 	 */
 	get constantMin(): number {
 		return this._constantMin;
 	}
 
 	/**
-	 * 最大固定帧。
+	 * @en The maximum constant frame value.
+	 * @zh 最大固定帧值。
 	 */
 	get constantMax(): number {
 		return this._constantMax;
 	}
 
 	/**
-	 * 创建一个 <code>StartFrame,不允许new，请使用静态创建函数。</code> 实例。
+	 * @ignore
+	 * @en Constructor, not allowed to use "new", please use the static creation function.
+	 * @zh 构造方法。不允许new，请使用静态创建函数。
 	 */
 	constructor() {
 
 	}
 
 	/**
-	 * 克隆。
-	 * @param	destObject 克隆源。
+	 * @en Clones to a target object.
+	 * @param destObject The target object to clone to.
+	 * @zh 克隆到目标对象。
+	 * @param destObject 要克隆到的目标对象。
 	 */
 	cloneTo(destObject: any): void {
 		var destStartFrame: StartFrame = (<StartFrame>destObject);
@@ -84,15 +100,14 @@ export class StartFrame implements IClone {
 	}
 
 	/**
-	 * 克隆。
-	 * @return	 克隆副本。
+	 * @en Clone.
+	 * @returns Clone copy.
+	 * @zh 克隆。
+	 * @returns 克隆副本。
 	 */
 	clone(): any {
 		var destStartFrame: StartFrame = new StartFrame();
 		this.cloneTo(destStartFrame);
 		return destStartFrame;
 	}
-
 }
-
-

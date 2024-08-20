@@ -31,6 +31,10 @@ enum FrustumFace {
     Top = 5,
 }
 
+/**
+ * @en Enum representing the format of the shadow map.
+ * @zh 表示阴影贴图格式的枚举。
+ */
 export enum ShadowMapFormat {
     bit16,
     bit24_8,
@@ -39,6 +43,8 @@ export enum ShadowMapFormat {
 
 /**
  * @internal
+ * @en Utility class for shadow-related calculations and operations.
+ * @zh 用于阴影相关计算和操作的实用工具类。
  */
 export class ShadowUtils {
     /** @internal */
@@ -91,23 +97,41 @@ export class ShadowUtils {
         [[FrustumCorner.nearTopRight, FrustumCorner.nearTopLeft]/* near */, [FrustumCorner.FarTopLeft, FrustumCorner.FarTopRight]/* far */, [FrustumCorner.nearTopLeft, FrustumCorner.FarTopLeft]/* left */, [FrustumCorner.FarTopRight, FrustumCorner.nearTopRight], [FrustumCorner.unknown/* right */, FrustumCorner.unknown]/* bottom */, [FrustumCorner.unknown, FrustumCorner.unknown]/* top */]// top
     ];
 
-    /** @internal */
+    /**
+     * @internal
+     * @en The size of the border for the shadow atlas, which is used to avoid shadow artifacts. Now the maximum shadow sample tent is 5x5, so the atlas border size should be at least 3 (ceiling of 2.5), plus 1 pixel for the global border in no cascade mode.
+     * @zh 阴影图集的边框大小，用于避免阴影伪影。当前最大阴影采样罩是5x5，因此图集边框大小至少应为3（2.5的上取整），再加上1像素用于无级联模式下的全局边框。
+     */
     static readonly atlasBorderSize: number = 4.0;//now max shadow sample tent is 5x5,atlas borderSize at leate 3=ceil(2.5),and +1 pixle is for global border for no cascade mode.
 
+    /**
+     * @en Initializes the shadow utility with default planes for adjusting the near and far planes.
+     * @zh 使用默认平面初始化阴影工具，以调整近平面和远平面。
+     */
     static init() {
         ShadowUtils._adjustNearPlane = new Plane(new Vector3(), 0);
         ShadowUtils._adjustFarPlane = new Plane(new Vector3(), 0);
     }
 
     /**
-    * @internal
-    */
+     * @internal
+     * @en Checks if shadow rendering is supported by the current rendering engine.
+     * @zh 检查当前渲染引擎是否支持阴影渲染。
+     */
     static supportShadow(): boolean {
         return LayaGL.renderEngine.getCapable(RenderCapable.RenderTextureFormat_Depth);
     }
 
     /**
      * @internal
+     * @en Creates a temporary shadow texture with the specified dimensions and format.
+     * @param width The width of the shadow texture.
+     * @param height The height of the shadow texture.
+     * @param shadowFormat The format of the shadow map.
+     * @zh 创建一个具有指定尺寸和格式的临时阴影纹理。
+     * @param width 阴影纹理的宽度。
+     * @param height 阴影纹理的高度。
+     * @param shadowFormat 阴影贴图的格式。
      */
     static getTemporaryShadowTexture(witdh: number, height: number, shadowFormat: ShadowMapFormat): RenderTexture {
         let depthFormat = RenderTargetFormat.DEPTH_16;
@@ -133,6 +157,16 @@ export class ShadowUtils {
 
     /**
      * @internal
+     * @en Calculates the shadow bias for a light based on the shadow projection matrix and shadow resolution.
+     * @param light The light source.
+     * @param shadowProjectionMatrix The shadow projection matrix.
+     * @param shadowResolution The resolution of the shadow map.
+     * @param out The output vector to store the calculated depth and normal bias values.
+     * @zh 根据阴影投影矩阵和阴影分辨率为光源计算阴影偏差。
+     * @param light 光源。
+     * @param shadowProjectionMatrix 阴影投影矩阵。
+     * @param shadowResolution 阴影贴图的分辨率。
+     * @param out 输出向量，用于存储计算出的深度和法线偏差值。
      */
     static getShadowBias(light: Light, shadowProjectionMatrix: Matrix4x4, shadowResolution: number, out: Vector4): void {
         var frustumSize: number;
@@ -175,14 +209,26 @@ export class ShadowUtils {
 
     /**
      * @internal
+     * @en Retrieves the frustum planes from the camera's view-projection matrix.
+     * @param cameraViewProjectMatrix The combined camera view and projection matrix.
+     * @param frustumPlanes An array to store the retrieved frustum planes.
+     * @zh 从相机的视图投影矩阵中检索透视体的各个平面。
+     * @param cameraViewProjectMatrix 相机的视图和投影矩阵。
+     * @param frustumPlanes 一个数组，用于存储检索到的透视体平面。
      */
     static getCameraFrustumPlanes(cameraViewProjectMatrix: Matrix4x4, frustumPlanes: Plane[]): void {
         BoundFrustum.getPlanesFromMatrix(cameraViewProjectMatrix, frustumPlanes[FrustumFace.Near], frustumPlanes[FrustumFace.Far], frustumPlanes[FrustumFace.Left], frustumPlanes[FrustumFace.Right], frustumPlanes[FrustumFace.Top], frustumPlanes[FrustumFace.Bottom]);
     }
 
     /**
-    * @internal
-    */
+     * @internal
+     * @en Calculates the far distance based on the given radius and denominator.
+     * @param radius The radius used for calculation.
+     * @param denominator The denominator used in the calculation.
+     * @zh 根据给定的半径和分母计算远距离。
+     * @param radius 用于计算的半径。
+     * @param denominator 计算中使用的分母。
+     */
     static getFarWithRadius(radius: number, denominator: number): number {
         // use the frustum side as the radius and get the far distance form camera.
         // var tFov: number = Math.tan(fov * 0.5);// get this the equation using Pythagorean
@@ -191,8 +237,26 @@ export class ShadowUtils {
     }
 
     /**
-    * @internal
-    */
+     * @internal
+     * @en Calculates the split distances for cascade shadow mapping.
+     * @param twoSplitRatio The split ratio for two cascades.
+     * @param fourSplitRatio The split ratios for four cascades.
+     * @param cameraNear The near plane distance of the camera.
+     * @param shadowFar The far plane distance for shadow rendering.
+     * @param fov The field of view of the camera.
+     * @param aspectRatio The aspect ratio of the camera.
+     * @param cascadesMode The cascade mode (NoCascades, TwoCascades, or FourCascades).
+     * @param out The output array to store the calculated split distances.
+     * @zh 计算级联阴影映射的分割距离。
+     * @param twoSplitRatio 两级级联的分割比例。
+     * @param fourSplitRatio 四级级联的分割比例。
+     * @param cameraNear 相机的近平面距离。
+     * @param shadowFar 阴影渲染的远平面距离。
+     * @param fov 相机的视野角度。
+     * @param aspectRatio 相机的宽高比。
+     * @param cascadesMode 级联模式（无级联、两级级联或四级级联）。
+     * @param out 用于存储计算得出的分割距离的输出数组。
+     */
     static getCascadesSplitDistance(twoSplitRatio: number, fourSplitRatio: Vector3, cameraNear: number, shadowFar: number, fov: number, aspectRatio: number, cascadesMode: ShadowCascadesMode, out: number[]): void {
         out[0] = cameraNear;
         var range: number = shadowFar - cameraNear;
@@ -217,6 +281,18 @@ export class ShadowUtils {
 
     /**
      * @internal
+     * @en Applies transformation to the shadow slice.
+     * @param shadowSliceData The data containing the resolution and offset for the shadow slice.
+     * @param atlasWidth The width of the shadow map atlas.
+     * @param atlasHeight The height of the shadow map atlas.
+     * @param cascadeIndex The index of the cascade to apply the transformation to.
+     * @param outShadowMatrices The output array to store the transformed shadow matrices.
+     * @zh 对阴影切片应用变换。
+     * @param shadowSliceData 包含阴影切片的分辨率和偏移量的数据。
+     * @param atlasWidth 阴影图集的宽度。
+     * @param atlasHeight 阴影图集的高度。
+     * @param cascadeIndex 要应用变换的级联索引。
+     * @param outShadowMatrices 输出数组，用于存储变换后的阴影矩阵。
      */
     static applySliceTransform(shadowSliceData: ShadowSliceData, atlasWidth: number, atlasHeight: number, cascadeIndex: number, outShadowMatrices: Float32Array): void {
         // Apply shadow slice scale and offset
@@ -235,9 +311,22 @@ export class ShadowUtils {
         Utils3D._mulMatrixArray(sliceE, outShadowMatrices, offset, outShadowMatrices, offset);
     }
 
-
     /**
      * @internal
+     * @en Calculates the culling planes for a directional light shadow from the camera frustum planes and the specified cascade index.
+     * @param cameraFrustumPlanes Array containing the planes of the camera frustum.
+     * @param cascadeIndex The index of the cascade for which to calculate the shadow culling planes.
+     * @param splitDistance Array containing the split distances for the shadow cascades.
+     * @param cameraNear The near plane distance of the camera.
+     * @param direction The direction of the directional light.
+     * @param shadowSliceData The data structure to store the calculated culling planes and related information.
+     * @zh 根据相机透视体平面和指定的级联索引计算定向光阴影的剔除平面。
+     * @param cameraFrustumPlanes 包含相机透视体平面的数组。
+     * @param cascadeIndex 要计算阴影剔除平面的级联索引。
+     * @param splitDistance 包含阴影级联分割距离的数组。
+     * @param cameraNear 相机的近平面距离。
+     * @param direction 定向光的方向。
+     * @param shadowSliceData 用于存储计算得到的剔除平面和相关信息的数据结构。
      */
     static getDirectionLightShadowCullPlanes(cameraFrustumPlanes: Array<Plane>, cascadeIndex: number, splitDistance: number[], cameraNear: number, direction: Vector3, shadowSliceData: ShadowSliceData): void {
         // http://lspiroengine.com/?p=187
@@ -318,6 +407,24 @@ export class ShadowUtils {
 
     /**
      * @internal
+     * @en Calculates the minimal bounding sphere of a frustum defined by a camera.
+     * @param near The distance to the near plane of the frustum.
+     * @param far The distance to the far plane of the frustum.
+     * @param fov The field of view angle of the camera.
+     * @param aspectRatio The aspect ratio of the camera.
+     * @param cameraPos The position of the camera.
+     * @param forward The forward direction of the camera.
+     * @param outBoundSphere The output bound sphere containing the calculated center and radius.
+     * @returns The calculated center Z position of the bounding sphere.
+     * @zh 计算由相机定义的透视体的最小边界球。
+     * @param near 到透视体近平面的距离。
+     * @param far 到透视体远平面的距离。
+     * @param fov 相机的视野角度。
+     * @param aspectRatio 相机的宽高比。
+     * @param cameraPos 相机的位置。
+     * @param forward 相机的前方向。
+     * @param outBoundSphere 输出边界球，包含计算得到的中心和半径。
+     * @returns 计算得到的边界球的中心 Z 位置。
      */
     static getBoundSphereByFrustum(near: number, far: number, fov: number, aspectRatio: number, cameraPos: Vector3, forward: Vector3, outBoundSphere: BoundSphere): number {
         // https://lxjk.github.io/2017/04/15/Calculate-Minimal-Bounding-Sphere-of-Frustum.html
@@ -345,7 +452,15 @@ export class ShadowUtils {
     }
 
     /**
-     * @inernal
+     * @internal
+     * @en Calculates the maximum tile resolution that can fit in the given atlas dimensions.
+     * @param atlasWidth The width of the atlas.
+     * @param atlasHeight The height of the atlas.
+     * @param tileCount The number of tiles to fit in the atlas.
+     * @zh 计算在给定的图集尺寸内可以容纳的最大瓦片分辨率。
+     * @param atlasWidth 图集的宽度。
+     * @param atlasHeight 图集的高度。
+     * @param tileCount 需要在图集中容纳的瓦片数量。
      */
     static getMaxTileResolutionInAtlas(atlasWidth: number, atlasHeight: number, tileCount: number): number {
         var resolution: number = Math.min(atlasWidth, atlasHeight);
@@ -360,6 +475,24 @@ export class ShadowUtils {
 
     /**
      * @internal
+     * @en Calculates the matrices for directional light shadows.
+     * @param lightUp The up vector of the light.
+     * @param lightSide The side vector of the light.
+     * @param lightForward The forward vector of the light.
+     * @param cascadeIndex The index of the current cascade.
+     * @param nearPlane The near plane distance.
+     * @param shadowResolution The resolution of the shadow map.
+     * @param shadowSliceData The data for the shadow slice.
+     * @param shadowMatrices The output array for the calculated shadow matrices.
+     * @zh 计算定向光阴影的矩阵。
+     * @param lightUp 光源的上向量。
+     * @param lightSide 光源的侧向量。
+     * @param lightForward 光源的前向量。
+     * @param cascadeIndex 当前级联的索引。
+     * @param nearPlane 近平面距离。
+     * @param shadowResolution 阴影贴图的分辨率。
+     * @param shadowSliceData 阴影切片的数据。
+     * @param shadowMatrices 用于存储计算得出的阴影矩阵的输出数组。
      */
     static getDirectionalLightMatrices(lightUp: Vector3, lightSide: Vector3, lightForward: Vector3, cascadeIndex: number, nearPlane: number, shadowResolution: number, shadowSliceData: ShadowSliceData, shadowMatrices: Float32Array): void {
         var boundSphere: BoundSphere = shadowSliceData.splitBoundSphere;
@@ -430,6 +563,22 @@ export class ShadowUtils {
 
     /**
      * @internal
+     * @en Prepares shader values for shadow receivers.
+     * @param shadowMapWidth The width of the shadow map.
+     * @param shadowMapHeight The height of the shadow map.
+     * @param shadowSliceDatas An array of ShadowSliceData objects.
+     * @param cascadeCount The number of shadow cascades.
+     * @param shadowMapSize A Vector4 to store shadow map size information.
+     * @param shadowMatrices A Float32Array to store shadow matrices.
+     * @param splitBoundSpheres A Float32Array to store split bound spheres.
+     * @zh 为阴影接收者准备着色器值。
+     * @param shadowMapWidth 阴影贴图的宽度。
+     * @param shadowMapHeight 阴影贴图的高度。
+     * @param shadowSliceDatas 阴影切片数据对象的数组。
+     * @param cascadeCount 阴影级联的数量。
+     * @param shadowMapSize 用于存储阴影贴图大小信息的 Vector4。
+     * @param shadowMatrices 用于存储阴影矩阵的 Float32Array。
+     * @param splitBoundSpheres 用于存储分割边界球的 Float32Array。
      */
     static prepareShadowReceiverShaderValues(shadowMapWidth: number, shadowMapHeight: number, shadowSliceDatas: ShadowSliceData[], cascadeCount: number, shadowMapSize: Vector4, shadowMatrices: Float32Array, splitBoundSpheres: Float32Array): void {
         shadowMapSize.setValue(1.0 / shadowMapWidth, 1.0 / shadowMapHeight, shadowMapWidth, shadowMapHeight);

@@ -2,29 +2,42 @@ import { Vector2 } from "../../../../maths/Vector2";
 import { IClone } from "../../../../utils/IClone"
 
 /**
- * <code>GradientDataVector2</code> 类用于创建二维向量渐变。
+ * @en The `GradientDataVector2` class is used to create two-dimensional vector gradients.
+ * @zh `GradientDataVector2` 类用于创建二维向量渐变。
  */
 export class GradientDataVector2 implements IClone {
 	private _currentLength: number = 0;
-	/**@internal 开发者禁止修改。*/
+	/**
+	 * @internal
+	 * @en Developers are prohibited from modifying this.
+	 * @zh 开发者禁止修改。
+	 */
 	_elements: Float32Array;
 
-	/**二维向量渐变数量。*/
+	/**
+	 * @en The number of two-dimensional vector gradients.
+	 * @zh 二维向量渐变数量。
+	 */
 	get gradientCount(): number {
 		return this._currentLength / 3;
 	}
 
 	/**
-	 * 创建一个 <code>GradientDataVector2</code> 实例。
+	 * @ignore
+	 * @en creates an instance of the `GradientDataVector2` class.
+	 * @zh 创建一个 `GradientDataVector2` 实例。
 	 */
 	constructor() {
 		this._elements = new Float32Array(12);
 	}
 
 	/**
-	 * 增加二维向量渐变。
-	 * @param	key 生命周期，范围为0到1。
-	 * @param	value 二维向量值。
+	 * @en Add a two-dimensional vector gradient.
+	 * @param key Lifecycle, ranging from 0 to 1.
+	 * @param value The two-dimensional vector value.
+	 * @zh 增加二维向量渐变。
+	 * @param key 生命周期，范围为 0 到 1。
+	 * @param value 二维向量值。
 	 */
 	add(key: number, value: Vector2): void {
 		if (this._currentLength < 8) {
@@ -43,8 +56,10 @@ export class GradientDataVector2 implements IClone {
 	}
 
 	/**
-	 * 克隆。
-	 * @param	destObject 克隆源。
+	 * @en Clones to a target object.
+	 * @param destObject The target object to clone to.
+	 * @zh 克隆到目标对象。
+	 * @param destObject 要克隆到的目标对象。
 	 */
 	cloneTo(destObject: any): void {
 		var destGradientDataVector2: GradientDataVector2 = <GradientDataVector2>destObject;
@@ -56,8 +71,10 @@ export class GradientDataVector2 implements IClone {
 	}
 
 	/**
-	 * 克隆。
-	 * @return	 克隆副本。
+	 * @en Clone.
+	 * @returns Clone copy.
+	 * @zh 克隆。
+	 * @returns 克隆副本。
 	 */
 	clone(): any {
 		var destGradientDataVector2: GradientDataVector2 = new GradientDataVector2();

@@ -24,10 +24,14 @@ import { BaseRenderType } from "../../../RenderDriver/RenderModuleData/Design/3D
 
 
 /**
- * <code>ShurikenParticleRender</code> 类用于创建3D粒子渲染器。
+ * @en The `ShurikenParticleRenderer` class is used to create 3D particle renderers.
+ * @zh `ShurikenParticleRenderer` 类用于创建3D粒子渲染器。
  */
 export class ShurikenParticleRenderer extends BaseRender {
-    /**重力值。*/
+    /**
+     * @en Gravity value.
+     * @zh 重力值。
+     */
     static gravity: Vector3 = new Vector3(0, -9.81, 0);
     /** @internal */
     private _finalGravity: Vector3 = new Vector3();
@@ -41,15 +45,25 @@ export class ShurikenParticleRenderer extends BaseRender {
 
     /**@interanl */
     _particleSystem: ShurikenParticleSystem;
-    /**拉伸广告牌模式摄像机速度缩放,暂不支持。*/
+    /**
+     * @en Scale of camera speed in stretched billboard mode (currently not supported).
+     * @zh 拉伸广告牌模式摄像机速度缩放（暂不支持）。
+     */
     stretchedBillboardCameraSpeedScale: number = 0;
-    /**拉伸广告牌模式速度缩放。*/
+    /**
+     * @en Speed scale in stretched billboard mode.
+     * @zh 拉伸广告牌模式速度缩放。
+     */
     stretchedBillboardSpeedScale: number = 0;
-    /**拉伸广告牌模式长度缩放。*/
+    /**
+     * @en Length scale in stretched billboard mode.
+     * @zh 拉伸广告牌模式长度缩放。
+     */
     stretchedBillboardLengthScale: number = 2;
 
     /**
-     * 粒子管理系统
+     * @en The particle management system.
+     * @zh 粒子管理系统。
      */
     get particleSystem(): ShurikenParticleSystem {
         return this._particleSystem;
@@ -59,7 +73,8 @@ export class ShurikenParticleRenderer extends BaseRender {
     //public var sortingMode:int;
 
     /**
-     * 获取渲染模式,0为BILLBOARD、1为STRETCHEDBILLBOARD、2为HORIZONTALBILLBOARD、3为VERTICALBILLBOARD、4为MESH。
+     * @en The render mode. 0: BILLBOARD, 1: STRETCHEDBILLBOARD, 2: HORIZONTALBILLBOARD, 3: VERTICALBILLBOARD, 4: MESH.
+     * @zh 渲染模式。0：粒子始终面向摄像机。、1：粒子面向摄像机，但会应用各种缩放、2：粒子平面与 XZ“地板”平面平行、3：粒子在世界 Y 轴上直立，但转向面向摄像机、4：从 3D 网格而非从纹理渲染粒子。。
      */
     get renderMode(): number {
         return this._renderMode;
@@ -111,7 +126,8 @@ export class ShurikenParticleRenderer extends BaseRender {
     }
 
     /**
-     * 获取网格渲染模式所使用的Mesh,rendderMode为4时生效。
+     * @en The Mesh used in mesh render mode. Effective when renderMode is 4.
+     * @zh 网格渲染模式所使用的Mesh。renderMode为4时生效。
      */
     get mesh(): Mesh {
         return this._mesh;
@@ -127,7 +143,9 @@ export class ShurikenParticleRenderer extends BaseRender {
     }
 
     /**
-     * 创建一个 <code>ShurikenParticleRender</code> 实例。
+     * @ignore
+     * @en Creates a new instance of ShurikenParticleRender class.
+     * @zh 创建ShurikenParticleRender类的新实例。
      */
     constructor() {
         super();
@@ -309,8 +327,11 @@ export class ShurikenParticleRenderer extends BaseRender {
     }
 
     /**
-     * @param context
      * @perfTag PerformanceDefine.T_ShurikenUpdate
+     * @en Update the render state.
+     * @param context The render context.
+     * @zh 更新渲染状态。
+     * @param context 渲染上下文。
      */
     renderUpdate(context: RenderContext3D): void {
         this._renderElements.forEach(element => {
@@ -321,8 +342,9 @@ export class ShurikenParticleRenderer extends BaseRender {
     }
 
     /**
-     * 包围盒,只读,不允许修改其值。
      * @override
+     * @en The bounding box. Read-only, not allowed to modify its value.
+     * @zh 包围盒。只读，不允许修改其值。
      */
     get bounds(): Bounds {
         if (this.boundsChange) {

@@ -43,7 +43,6 @@ import { AmbientMode } from "./AmbientMode";
 import { Color } from "../../../maths/Color";
 import { Vector3 } from "../../../maths/Vector3";
 import { Vector4 } from "../../../maths/Vector4";
-import { BufferState } from "../../../webgl/utils/BufferState";
 import { RenderTexture } from "../../../resource/RenderTexture";
 import { Laya3D } from "../../../../Laya3D";
 import { IPhysicsManager } from "../../../Physics3D/interface/IPhysicsManager";
@@ -64,7 +63,8 @@ export enum FogMode {
 }
 
 /**
- * 用于实现3D场景。
+ * @en The Scene3D class is used to create a 3D scene.
+ * @zh Scene3D类用于实现3D场景。
  */
 export class Scene3D extends Sprite {
     /** @internal */
@@ -135,32 +135,39 @@ export class Scene3D extends Sprite {
     //------------------legacy lighting-------------------------------
     /**@internal */
     static mainCavansViewPort: Viewport = new Viewport(0, 0, 1, 1);
-    /**场景组件管理表 */
+    /**
+     * @en Scene component management table
+     * @zh 场景组件管理表 
+     */
     static componentManagerMap: Map<string, any> = new Map();
 
     /**
-     * @internal
-     * 场景更新标记
+     * @en The update mark of the scene.
+     * @zh 场景更新标记。
      */
+    static get _updateMark(): number {
+        return RenderContext3D._instance._contextOBJ.cameraUpdateMask;
+    }
+    /** @internal 场景更新标记 */
     static set _updateMark(value: number) {
         RenderContext3D._instance._contextOBJ.cameraUpdateMask = value;
     }
 
-    static get _updateMark(): number {
-        return RenderContext3D._instance._contextOBJ.cameraUpdateMask;
-    }
-
     /**
-     * 注册场景内的管理器
-     * @param type 管理器类型
-     * @param cla 实例
+     * @en Registers a manager within the scene.
+     * @param type The type of the manager to register.
+     * @param cla The instance of the manager.
+     * @zh 注册场景内的管理器。
+     * @param type 要注册的管理器类型。
+     * @param cla 管理器实例。
      */
     static regManager(type: string, cla: any) {
         Scene3D.componentManagerMap.set(type, cla);
     }
 
     /**
-     * init shaderData
+     * @en init shaderData
+     * @zh 着色器数据初始化
      */
     static shaderValueInit() {
         Scene3DShaderDeclaration.SHADERDEFINE_FOG = Shader3D.getDefineByName("FOG");
@@ -221,7 +228,11 @@ export class Scene3D extends Sprite {
     }
 
     /**
-     * legency ShaderData
+     * @en Initializes legacy lighting values for the ShaderData. 
+     * This function sets up the uniform mappings between the shader and the scene for various types of lights, 
+     * including directional lights, point lights, and spotlights.
+     * @zh 初始化 ShaderData 的传统光照值。
+     * 此函数为各种类型的灯光（包括方向光、点光源和聚光灯）设置着色器与场景之间的统一映射。
      */
     static legacyLightingValueInit() {
         Scene3D.LIGHTDIRECTION = Shader3D.propertyNameToID("u_DirLightDirection");
@@ -255,9 +266,11 @@ export class Scene3D extends Sprite {
     }
 
     /**
-     * create Scene UniformBuffer
      * @internal
-     * @returns
+     * @en create Scene UniformBuffer
+     * @returns New Scene UniformBuffer
+     * @zh 创建场景统一缓冲区
+     * @returns 新的场景统一缓冲区
      */
     static createSceneUniformBlock(): UnifromBufferData {
         let uniformpara: Map<string, UniformBufferParamsType> = new Map<string, UniformBufferParamsType>();
@@ -308,7 +321,10 @@ export class Scene3D extends Sprite {
     }
 
     /**
-     * 加载场景,注意:不缓存。
+     * @en Loads the scene, note: not cached.
+     * @param url The template address.
+     * @param complete The completion callback.
+     * @zh 加载场景,注意:不缓存。
      * @param url 模板地址。
      * @param complete 完成回调。
      */
@@ -400,9 +416,15 @@ export class Scene3D extends Sprite {
     _UI3DManager: UI3DManager = new UI3DManager();
     /**@internal */
     _sceneRenderManager: SceneRenderManager;
-    /** 当前创建精灵所属遮罩层。*/
+    /** 
+     * @en The mask layer to which the sprite belongs is currently being created.
+     * @zh 当前创建精灵所属遮罩层。
+     */
     currentCreationLayer: number = Math.pow(2, 0);
-    /** 是否启用灯光。*/
+    /** 
+     * @en Whether to enable lighting.
+     * @zh 是否启用灯光。
+     */
     enableLight: boolean = true;
     /**lightShadowMap 更新频率 @internal */
     _ShadowMapupdateFrequency: number = 1;
@@ -421,26 +443,29 @@ export class Scene3D extends Sprite {
     /** @internal */
     private _componentElementDatasMap: any = {};
     /**
-     * Scene3D所属的2D场景，使用IDE编辑的场景载入后具有此属性。
+     * @en The 2D scene to which the Scene3D belongs, used when the scene is loaded by the IDE editor.
+     * @zh Scene3D所属的2D场景，使用IDE编辑的场景载入后具有此属性。
      */
     get scene2D(): Scene {
         return this._scene2D;
     }
 
     /**
-     * set SceneRenderableManager
+     * @en The SceneRenderableManager.
+     * @zh 场景渲染管理器。
      */
+    get sceneRenderableManager(): SceneRenderManager {
+        return this._sceneRenderManager;
+    }
     set sceneRenderableManager(manager: SceneRenderManager) {
         manager.list = this._sceneRenderManager.list;
         this._sceneRenderManager = manager;
     }
 
-    get sceneRenderableManager(): SceneRenderManager {
-        return this._sceneRenderManager;
-    }
 
     /**
-     * 是否允许雾化。
+     * @en Whether fog is enabled.
+     * @zh 是否启用雾化效果。
      */
     get enableFog(): boolean {
         return this._enableFog;
@@ -457,7 +482,8 @@ export class Scene3D extends Sprite {
     }
 
     /**
-     * 场景雾模式
+     * @en The fog mode.
+     * @zh 雾化模式。
      */
     get fogMode(): FogMode {
         return this._fogMode;
@@ -485,7 +511,8 @@ export class Scene3D extends Sprite {
     }
 
     /**
-     * 雾化颜色。
+     * @en The fog color.
+     * @zh 雾化颜色。
      */
     get fogColor(): Color {
         return this._shaderValues.getColor(Scene3D.FOGCOLOR);
@@ -496,7 +523,8 @@ export class Scene3D extends Sprite {
     }
 
     /**
-     * 雾化起始位置。
+     * @en The fog start position.
+     * @zh 雾化起始位置。
      */
     get fogStart(): number {
         return this._fogParams.x;
@@ -509,7 +537,8 @@ export class Scene3D extends Sprite {
     }
 
     /**
-     * 雾化end范围。
+     * @en The fog end range.
+     * @zh 雾化结束范围。
      */
     get fogEnd(): number {
         return this._fogParams.y;
@@ -522,7 +551,8 @@ export class Scene3D extends Sprite {
 
 
     /**
-     * 雾化密度
+     * @en The fog density.
+     * @zh 雾化密度。
      */
     get fogDensity(): number {
         return this._fogParams.z
@@ -533,7 +563,11 @@ export class Scene3D extends Sprite {
         this.fogParams = this._fogParams;
     }
 
-    /**@internal 雾效参数*/
+    /**
+     * @internal
+     * @en The fog effect parameters.
+     * @zh 雾效参数。
+     */
     get fogParams(): Vector4 {
         return this._shaderValues.getVector(Scene3D.FOGPARAMS);
     }
@@ -543,19 +577,21 @@ export class Scene3D extends Sprite {
     }
 
     /**
-     * 0-2PI
+     * @en The GI rotation value. The value should be between 0 and 2PI.
+     * @zh 全局光照旋转值。 值应在 0 到 2PI 之间。
      */
+    get GIRotate() {
+        return this._shaderValues.getNumber(Scene3D.GIRotate);
+    }
     set GIRotate(value: number) {
         this._shaderValues.setNumber(Scene3D.GIRotate, value);
     }
 
-    get GIRotate() {
-        return this._shaderValues.getNumber(Scene3D.GIRotate);
-    }
-
     /**
-     * 环境光模式。
-     * 如果值为AmbientMode.SolidColor一般使用ambientColor作为环境光源，如果值为如果值为AmbientMode.SphericalHarmonics一般使用ambientSphericalHarmonics作为环境光源。
+     * @en The ambient light mode.
+     * If the value is AmbientMode.SolidColor, the ambientColor is generally used as the ambient light source. If the value is AmbientMode.SphericalHarmonics, the ambientSphericalHarmonics is generally used as the ambient light source.
+     * @zh 环境光模式。
+     * 如果值为 AmbientMode.SolidColor，则通常使用 ambientColor 作为环境光源。如果值为 AmbientMode.SphericalHarmonics，则通常使用 ambientSphericalHarmonics 作为环境光源。
      */
     get ambientMode(): AmbientMode {
         return this._sceneReflectionProb.ambientMode;
@@ -566,7 +602,8 @@ export class Scene3D extends Sprite {
     }
 
     /**
-     * 场景反射探针
+     * @en The scene reflection probe.
+     * @zh 场景反射探针。
      */
     get sceneReflectionProb(): ReflectionProbe {
         return this._sceneReflectionProb;
@@ -574,13 +611,16 @@ export class Scene3D extends Sprite {
 
     /**
      * @internal
+     * @en The scene reflection probe.
+     * @zh 场景反射探针。
      */
     set sceneReflectionProb(value: ReflectionProbe) {
         this._sceneReflectionProb = value;
     }
 
     /**
-     * 固定颜色环境光。
+     * @en The fixed color ambient light.
+     * @zh 固定颜色环境光。
      */
     get ambientColor(): Color {
         return this._sceneReflectionProb.ambientColor;
@@ -590,9 +630,9 @@ export class Scene3D extends Sprite {
         this._sceneReflectionProb.ambientColor = value;
     }
 
-
     /**
-     * 设置环境漫反射的强度
+     * @en The ambient light intensity.
+     * @zh 环境漫反射的强度。
      */
     get ambientIntensity(): number {
         return this._sceneReflectionProb.ambientIntensity;
@@ -603,7 +643,8 @@ export class Scene3D extends Sprite {
     }
 
     /**
-     * 设置反射探针强度
+     * @en The reflection probe intensity.
+     * @zh 反射探针强度。
      */
     get reflectionIntensity(): number {
         return this._sceneReflectionProb.reflectionIntensity;
@@ -614,7 +655,8 @@ export class Scene3D extends Sprite {
     }
 
     /**
-     * ambient sh
+     * @en The ambient spherical harmonics coefficients.
+     * @zh 环境光球谐系数。
      */
     public get ambientSH(): Float32Array {
         return this._sceneReflectionProb.ambientSH;
@@ -622,8 +664,10 @@ export class Scene3D extends Sprite {
     public set ambientSH(value: Float32Array) {
         this._sceneReflectionProb.ambientSH = value;
     }
+
     /**
-     * ambient iblTexture
+     * @en The IBL texture .
+     * @zh IBL纹理。
      */
     public get iblTex(): TextureCube {
         return this._sceneReflectionProb.iblTex;
@@ -634,7 +678,8 @@ export class Scene3D extends Sprite {
     }
 
     /**
-     * ambient rgbd compress
+     * @en Checks if the ambient IBL texture is using RGBD compression.
+     * @zh 检查环境光贴图是否使用 RGBD 压缩。
      */
     public get iblTexRGBD(): boolean {
         return this._sceneReflectionProb.iblTexRGBD;
@@ -644,22 +689,25 @@ export class Scene3D extends Sprite {
     }
 
     /**
-     * 天空渲染器。
+     * @en The sky renderer.
+     * @zh 天空渲染器。
      */
     get skyRenderer(): SkyRenderer {
         return this._skyRenderer;
     }
 
     /**
-     * 物理模拟器。
+     * @en The physics simulation.
+     * @zh 物理模拟器。
      */
     get physicsSimulation(): IPhysicsManager {
         return this._physicsManager;
     }
 
     /**
-     * 场景时钟。
      * @override
+     * @en The scene timer.
+     * @zh 场景时钟。
      */
     get timer(): Timer {
         return this._timer;
@@ -670,7 +718,8 @@ export class Scene3D extends Sprite {
     }
 
     /**
-     * 光照贴图数组,返回值为浅拷贝数组。
+     * @en The array of lightmaps. The returned value is a shallow copy of the array.
+     * @zh 光照贴图数组。返回的是一个浅拷贝数组。
      */
     get lightmaps(): Lightmap[] {
         return this._lightmaps.slice();
@@ -702,7 +751,8 @@ export class Scene3D extends Sprite {
     }
 
     /**
-     * 阴影图更新频率（如果无自阴影，可以加大频率优化性能）
+     * @en The shadow map update frequency. Increasing the frequency can optimize performance if there are no self-shadows.
+     * @zh 阴影图更新频率。如果没有自阴影，增加频率可以优化性能。
      */
     get shadowMapFrequency() {
         return this._ShadowMapupdateFrequency;
@@ -714,7 +764,9 @@ export class Scene3D extends Sprite {
 
 
     /**
-     * 创建一个 <code>Scene3D</code> 实例。
+     * @ignore
+     * @en Creates an instance of the Scene3D class.
+     * @zh 创建一个Scene3D的实例。
      */
     constructor() {
         super();
@@ -774,8 +826,14 @@ export class Scene3D extends Sprite {
     }
 
     /**
-   * @internal
-   */
+     * @en The component element data map.
+     * @zh 组件元素数据映射表。
+     */
+    get componentElementDatasMap(): any {
+        return this._componentElementDatasMap;
+    }
+
+    /** @internal */
     set componentElementDatasMap(value: any) {
         this._componentElementDatasMap = value;
         this.componentElementMap.forEach((value, key) => {
@@ -783,12 +841,8 @@ export class Scene3D extends Sprite {
         });
     }
 
-    get componentElementDatasMap(): any {
-        return this._componentElementDatasMap;
-    }
-
     /**
-     *@internal
+     * @internal
      */
     _update(): void {
         var delta: number = this.timer._delta / 1000;
@@ -1077,11 +1131,13 @@ export class Scene3D extends Sprite {
     private _cullInfoCamera: Camera;
 
     /**
-     * 获取cullCamera
+     * @en The culling camera used for determining the visibility of scene elements.
+     * @zh 用于确定场景元素可见性的剔除摄像机。
      */
     get cullInfoCamera(): Camera {
         return this._cullInfoCamera;
     }
+
     /**
      * @internal
      * scence外的Camera渲染场景,需要设置这个接口
@@ -1092,7 +1148,8 @@ export class Scene3D extends Sprite {
     }
 
     /**
-     * 重新计算CullCamera
+     * @en Recalculate the culling camera.
+     * @zh 重新计算剔除摄像机。
      */
     recaculateCullCamera() {
         this._cullInfoCamera = this._cameraPool[0] as Camera;
@@ -1139,10 +1196,11 @@ export class Scene3D extends Sprite {
     }
 
     /**
-     * 
      * @inheritDoc
      * @override
-     * 删除资源
+     * @en Destroys the scene.
+     * @param destroyChild Whether to destroy the child node.
+     * @zh 销毁场景。
      * @param destroyChild 是否删除子节点
      */
     destroy(destroyChild: boolean = true): void {
@@ -1186,8 +1244,10 @@ export class Scene3D extends Sprite {
     }
 
     /**
-     * 获得某个组件的管理器
-     * @param type 组件管理类
+     * @en Gets the manager for a specific component type.
+     * @param type The type of the component manager.
+     * @zh 根据组件类型获取对应的管理器。
+     * @param type 组件管理器的类型。
      */
     getComponentElementManager(type: string) {
         return this.componentElementMap.get(type);
@@ -1208,7 +1268,8 @@ export class Scene3D extends Sprite {
     }
 
     /**
-     * 渲染入口
+     * @en The rendering entry.
+     * @zh 渲染入口
      */
     renderSubmit(): void {
         if (this._children.length <= 0) return;
@@ -1278,7 +1339,11 @@ export class Scene3D extends Sprite {
     }
 
     /**
-     * 设置全局渲染数据
+     * @en Sets a global shader value for rendering.
+     * @param name The name corresponding to the shader.
+     * @param shaderDataType The type of the shader data.
+     * @param value The value of the rendering data.
+     * @zh 设置全局渲染着色器值。
      * @param name 数据对应着色器名字
      * @param shaderDataType 渲染数据类型
      * @param value 渲染数据值
