@@ -7,7 +7,8 @@ import { IDirectLightData } from "../../../RenderDriver/RenderModuleData/Design/
 
 
 /**
- * <code>DirectionLight</code> 类用于创建平行光。
+ * @en DirectionLight used to create parallel light.
+ * @zh DirectionLight 类用于创建方向光。
  */
 export class DirectionLightCom extends Light {
 	/**@internal */
@@ -21,21 +22,23 @@ export class DirectionLightCom extends Light {
 	/** @internal */
 	_shadowFourCascadeSplits: Vector3 = new Vector3();
 
-	/**
-	 * 直射光方向
-	 */
+    /**
+     * @en The direction of the directional light.
+     * @zh 方向光的方向。
+     */
+	get direction(): Vector3 {
+		return this._direction;
+	}
+
 	set direction(value: Vector3) {
 		value.cloneTo(this.direction);
 		this._dataModule.setDirection(this._direction);
 	};
 
-	get direction(): Vector3 {
-		return this._direction;
-	}
-
-	/**
-	 * 阴影级联数量。
-	 */
+    /**
+     * @en The number of shadow cascades.
+     * @zh 阴影级联数量。
+     */
 	get shadowCascadesMode(): ShadowCascadesMode {
 		return this._dataModule.shadowCascadesMode;
 	}
@@ -44,9 +47,10 @@ export class DirectionLightCom extends Light {
 		this._dataModule.shadowCascadesMode = value;
 	}
 
-	/**
-	 * 二级级联阴影分割比例。
-	 */
+    /**
+     * @en The split ratio for two cascade shadows.
+     * @zh 二级级联阴影分割比例。
+     */
 	get shadowTwoCascadeSplits(): number {
 		return this._dataModule.shadowTwoCascadeSplits;
 	}
@@ -55,9 +59,10 @@ export class DirectionLightCom extends Light {
 		this._dataModule.shadowTwoCascadeSplits = value;
 	}
 
-	/**
-	 * 四级级联阴影分割比例,X、Y、Z依次为其分割比例,Z必须大于Y,Y必须大于X。
-	 */
+    /**
+     * @en The split ratios for four cascade shadows. X, Y, Z represent the split ratios in order. Z must be greater than Y, and Y must be greater than X.
+     * @zh 四级级联阴影分割比例。X、Y、Z依次为其分割比例，Z必须大于Y，Y必须大于X。
+     */
 	get shadowFourCascadeSplits(): Vector3 {
 		return this._shadowFourCascadeSplits;
 	}
@@ -70,7 +75,9 @@ export class DirectionLightCom extends Light {
 	}
 
 	/**
-	 * 创建一个 <code>DirectionLight</code> 实例。
+	 * @ignore
+	 * @en Creates an instance of DirectionLight.
+	 * @zh 创建一个 DirectionLight 的实例。
 	 */
 	constructor() {
 		super();

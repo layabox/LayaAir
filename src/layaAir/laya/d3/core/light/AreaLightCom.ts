@@ -6,7 +6,8 @@ export enum AreaShape {
     ellipse,
 }
 /**
- * <code>LightSprite</code> 类用于创建灯光的父类。
+ * @en The AreaLightCom class is used to create area lights.
+ * @zh AreaLightCom 类用于创建区域光。
  */
 export class AreaLightCom extends Light {
     /**@internal */
@@ -24,7 +25,9 @@ export class AreaLightCom extends Light {
     /**@internal */
     private _maxBounces: number;
     /**
-     * 创建一个 <code>AreaLightCoponent</code> 实例。
+     * @ignore
+     * @en Creates an instance of AreaLightCom.
+     * @zh 创建一个 AreaLightCom 的实例。
      */
     constructor() {
         super();
@@ -53,8 +56,9 @@ export class AreaLightCom extends Light {
 
 
     /**
-      * 灯光烘培类型。
-      */
+     * @en The lightmap baked type.
+     * @zh 灯光烘焙类型。
+     */
     get lightmapBakedType(): LightMode {
         return LightMode.bakeOnly;
     }
@@ -65,7 +69,8 @@ export class AreaLightCom extends Light {
 
 
     /**
-     * 面光类型
+     * @en The area light shape.
+     * @zh 区域光的形状。
      */
     get shape(): AreaShape {
         return this._areaShape;
@@ -76,47 +81,51 @@ export class AreaLightCom extends Light {
     }
 
     /**
-     * 光照强度
+     * @en The light intensity.
+     * @zh 光照强度。
      */
-    set power(value: number) {
-        this._power = value;
-    }
-
     get power() {
         return this._power;
     }
 
-    /**
-     * 面光大小
-     */
-    set size(value: Vector2) {
-        value && value.cloneTo(this._size);
+    set power(value: number) {
+        this._power = value;
     }
 
+    /**
+     * @en The size of the area light.
+     * @zh 区域光大小。
+     */
     get size() {
         return this._size;
     }
 
-    /**
-     * 面光辐射角度
-     */
-    set spread(value: number) {
-        this._spread = Math.min((Math.max(0, value)), 180);
+    set size(value: Vector2) {
+        value && value.cloneTo(this._size);
     }
 
+    /**
+     * @en The spread angle of the area light.
+     * @zh 区域光的辐射角度。
+     */
     get spread(): number {
         return this._spread;
     }
 
-    /**
-     * 最大反弹数
-     */
-    set maxBounces(value: number) {
-        this._maxBounces = value;
+    set spread(value: number) {
+        this._spread = Math.min((Math.max(0, value)), 180);
     }
 
+    /**
+     * @en The maximum number of light bounces.
+     * @zh 区域光的最大反弹次数。
+     */
     get maxBounces() {
         return this._maxBounces;
+    }
+
+    set maxBounces(value: number) {
+        this._maxBounces = value;
     }
 
 
