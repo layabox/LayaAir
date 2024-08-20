@@ -4,17 +4,25 @@ import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderDefine } from "../../../RenderDriver/RenderModuleData/Design/ShaderDefine";
 
 /**
- * 金属度PBR材质光滑度数据源。
+ * @en Metallic PBR material smoothness data source.
+ * @zh 金属度PBR材质光滑度数据源。
  */
 export enum PBRMetallicSmoothnessSource {
-	/**金属度贴图的Alpha通道。*/
+	/**
+	 * @en Alpha channel for metallicity mapping.
+	 * @zh 金属度贴图的Alpha通道。
+	 */
 	MetallicGlossTextureAlpha,
-	/**反射率贴图的Alpha通道。*/
+	/**
+	 * @en Alpha channel of albedo texture.
+	 * @zh 漫反射贴图的Alpha通道。
+	 */
 	AlbedoTextureAlpha
 }
 
 /**
- * <code>PBRStandardMaterial</code> 类用于实现PBR材质。
+ * @en The PBRStandardMaterial class is used to implement PBR materials.
+ * @zh PBRStandardMaterial 类用于实现PBR材质。
  */
 export class PBRStandardMaterial extends PBRMaterial {
 	/** @internal */
@@ -25,7 +33,10 @@ export class PBRStandardMaterial extends PBRMaterial {
 	static METALLICGLOSSTEXTURE: number;
 	/** @internal */
 	static METALLIC: number;
-	/** 默认材质，禁止修改*/
+	/** 
+	 * @en Default material, no modification allowed
+	 * @zh 默认材质，禁止修改
+	 */
 	static defaultMaterial: PBRStandardMaterial;
 
 	/**
@@ -48,7 +59,8 @@ export class PBRStandardMaterial extends PBRMaterial {
 	private _smoothnessSource: PBRMetallicSmoothnessSource = 0;
 
 	/**
-	 * 金属光滑度贴图。
+	 * @en Metallic gloss texture.
+	 * @zh 金属光滑度贴图。
 	 */
 	get metallicGlossTexture(): BaseTexture {
 		return this._shaderValues.getTexture(PBRStandardMaterial.METALLICGLOSSTEXTURE);
@@ -64,7 +76,8 @@ export class PBRStandardMaterial extends PBRMaterial {
 	}
 
 	/**
-	 * 获取金属度,范围为0到1。
+	 * @en The metallic value, ranging from 0 to 1.
+	 * @zh 金属度，范围为0到1。
 	 */
 	get metallic(): number {
 		return this._shaderValues.getNumber(PBRStandardMaterial.METALLIC);
@@ -75,7 +88,8 @@ export class PBRStandardMaterial extends PBRMaterial {
 	}
 
 	/**
-	 * 光滑度数据源,0或1。
+	 * @en The smoothness data source, 0 or 1.
+	 * @zh 光滑度数据源，0或1。
 	 */
 	get smoothnessSource(): PBRMetallicSmoothnessSource {
 		return this._smoothnessSource;
@@ -90,7 +104,9 @@ export class PBRStandardMaterial extends PBRMaterial {
 	}
 
 	/**
-	 * 创建一个 <code>PBRStandardMaterial</code> 实例。
+	 * @ignore
+	 * @en Creates an instance of PBRStandardMaterial.
+	 * @zh 创建一个 PBRStandardMaterial 的实例。
 	 */
 	constructor() {
 		super();
@@ -98,9 +114,11 @@ export class PBRStandardMaterial extends PBRMaterial {
 	}
 
 	/**
-	 * 克隆。
-	 * @return	 克隆副本。
 	 * @override
+	 * @en Clone.
+	 * @returns Clone copy.
+	 * @zh 克隆。
+	 * @returns 克隆副本。
 	 */
 	clone(): any {
 		var dest: PBRStandardMaterial = new PBRStandardMaterial();
@@ -108,5 +126,3 @@ export class PBRStandardMaterial extends PBRMaterial {
 		return dest;
 	}
 }
-
-

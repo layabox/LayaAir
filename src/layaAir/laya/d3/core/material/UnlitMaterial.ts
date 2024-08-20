@@ -7,7 +7,8 @@ import { BaseTexture } from "../../../resource/BaseTexture";
 import { Material } from "../../../resource/Material";
 
 /**
- * <code>UnlitMaterial</code> 类用于实现不受光照影响的材质。
+ * @en The UnlitMaterial class is used to implement materials that are not affected by lighting.
+ * @zh UnlitMaterial 类用于实现不受光照影响的材质。
  */
 export class UnlitMaterial extends Material {
 
@@ -38,7 +39,8 @@ export class UnlitMaterial extends Material {
 	private _albedoIntensity: number;
 
 	/**
-	 * 反照率颜色。
+	 * @en Albedo color
+	 * @zh 漫反射颜色。
 	 */
 	get albedoColor(): Color {
 		return this.getColorByIndex(UnlitMaterial.ALBEDOCOLOR);
@@ -49,7 +51,8 @@ export class UnlitMaterial extends Material {
 	}
 
 	/**
-	 * 反照率强度。
+	 * @en Albedo intensity
+	 * @zh 漫反射强度。
 	 */
 	get albedoIntensity(): number {
 		return this._albedoIntensity;
@@ -60,7 +63,8 @@ export class UnlitMaterial extends Material {
 	}
 
 	/**
-	 * 反照率贴图。
+	 * @en Albedo texture
+	 * @zh 漫反射贴图。
 	 */
 	get albedoTexture(): BaseTexture {
 		return this.getTextureByIndex(UnlitMaterial.ALBEDOTEXTURE);
@@ -75,7 +79,8 @@ export class UnlitMaterial extends Material {
 	}
 
 	/**
-	 * 纹理平铺和偏移。
+	 * @en Texture tiling and offsetting.
+	 * @zh 纹理平铺和偏移。
 	 */
 	get tilingOffset(): Vector4 {
 		return (<Vector4>this.getVector4ByIndex(UnlitMaterial.TILINGOFFSET));
@@ -91,7 +96,8 @@ export class UnlitMaterial extends Material {
 	}
 
 	/**
-	 * 是否支持顶点色。
+	 * @en Whether to support vertex color.
+	 * @zh 是否支持顶点色。
 	 */
 	get enableVertexColor(): boolean {
 		return this.hasDefine(UnlitMaterial.SHADERDEFINE_ENABLEVERTEXCOLOR);
@@ -105,7 +111,11 @@ export class UnlitMaterial extends Material {
 	}
 
 
-
+	/**
+	 * @ignore
+	 * @en Creates an instance of UnlitMaterial.
+	 * @zh 创建一个 UnlitMaterial 的实例。
+	 */
 	constructor() {
 		super();
 		this.setShaderName("Unlit");
@@ -114,9 +124,11 @@ export class UnlitMaterial extends Material {
 	}
 
 	/**
-	 * 克隆。
-	 * @return	 克隆副本。
 	 * @override
+	 * @en Clone.
+	 * @returns Clone copy.
+	 * @zh 克隆。
+	 * @returns 克隆副本。
 	 */
 	clone(): any {
 		var dest: UnlitMaterial = new UnlitMaterial();
