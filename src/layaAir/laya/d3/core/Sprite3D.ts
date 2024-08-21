@@ -23,14 +23,21 @@ export enum StaticFlag {
     StaticBatch = 1 << 1,
 }
 
-
 /**
- * <code>Sprite3D</code> 类用于实现3D精灵。
+ * @en The `Sprite3D` class is used to implement 3D sprites.
+ * @zh `Sprite3D` 类用于实现3D精灵。
  */
 export class Sprite3D extends Node {
-    /**@internal 着色器变量名，世界矩阵。*/
+    /**
+     * @internal
+     * @en Shader variable name for world matrix.
+     * @zh 着色器变量名，世界矩阵。
+     */
     static WORLDMATRIX: number;
-    /**-1为翻转了反面，1为正常情况 */
+    /**
+     * @en Indicates the front face direction. -1 for inverted back face, 1 for normal situation.
+     * @zh -1 表示翻转了背面，1 表示正常情况。
+     */
     static WORLDINVERTFRONT: number;
     /**@internal */
     static sprite3DCommandUniformMap: CommandUniformMap;
@@ -49,13 +56,20 @@ export class Sprite3D extends Node {
     }
 
     /**
-     * 创建精灵的克隆实例。
-     * @param	original  原始精灵。
-     * @param   parent    父节点。
-     * @param   worldPositionStays 是否保持自身世界变换。
-     * @param	position  世界位置,worldPositionStays为false时生效。
-     * @param	rotation  世界旋转,worldPositionStays为false时生效。
-     * @return  克隆实例。
+     * @en Create a clone instance of the sprite.
+     * @param original The original sprite.
+     * @param parent The parent node. Default is null.
+     * @param worldPositionStays Whether to maintain its own world transformation. Default is true.
+     * @param position World position, effective when worldPositionStays is false. Default is null.
+     * @param rotation World rotation, effective when worldPositionStays is false. Default is null.
+     * @returns The cloned instance.
+     * @zh 创建精灵的克隆实例。
+     * @param original 原始精灵。
+     * @param parent 父节点。默认为 null。
+     * @param worldPositionStays 是否保持自身世界变换。默认为 true。
+     * @param position 世界位置，worldPositionStays 为 false 时生效。默认为 null。
+     * @param rotation 世界旋转，worldPositionStays 为 false 时生效。默认为 null。
+     * @returns 克隆实例。
      */
     static instantiate(original: Sprite3D, parent: Node = null, worldPositionStays: boolean = true, position: Vector3 = null, rotation: Quaternion = null): Sprite3D {
         var destSprite3D: Sprite3D = (<Sprite3D>original.clone());
@@ -73,9 +87,12 @@ export class Sprite3D extends Node {
     }
 
     /**
-     * 加载网格模板。
+     * @en Load mesh template.
+     * @param url The template URL.
+     * @param complete The completion callback.
+     * @zh 加载网格模板。
      * @param url 模板地址。
-     * @param complete 完成回掉。
+     * @param complete 完成回调。
      */
     static load(url: string, complete: Handler): void {
         ILaya.loader.load(url).then((res: Prefab) => {
@@ -96,14 +113,16 @@ export class Sprite3D extends Node {
     _isRenderNode: number = 0;
 
     /**
-     * 唯一标识ID。
+     * @en Unique identifier ID.
+     * @zh 唯一标识ID。
      */
     get id(): number {
         return this._id;
     }
 
     /**
-     * 蒙版层。
+     * @en Mask layer.
+     * @zh 蒙版层。
      */
     get layer(): number {
         return this._layer;
@@ -121,7 +140,8 @@ export class Sprite3D extends Node {
     }
 
     /**
-     * 是否为静态。
+     * @en Whether the sprite is static.
+     * @zh 是否为静态。
      */
     get isStatic(): boolean {
         return !!(this._isStatic >> 1 | 0x0);
@@ -133,23 +153,27 @@ export class Sprite3D extends Node {
         this.event(Event.staticMask, this._isStatic);
     }
 
-    
     /**
-     * 精灵变换。
+     * @en Sprite transformation.
+     * @zh 精灵变换。
      */
     get transform(): Transform3D {
         return this._transform;
     }
 
     /**
-     * 获取精灵所属的场景
+     * @en Get the scene to which the sprite belongs.
+     * @zh 获取精灵所属的场景。
      */
     get scene(): Scene3D {
         return <Scene3D>this._scene;
     }
 
     /**
-     * 创建一个 <code>Sprite3D</code> 实例。
+     * @en Creates an instance of the Sprite3D class.
+     * @param name Sprite name.
+     * @param isStatic Whether it is static.
+     * @zh 创建 Sprite3D 类的实例。
      * @param name 精灵名称。
      * @param isStatic 是否为静态。
      */
@@ -308,10 +332,12 @@ export class Sprite3D extends Node {
             Sprite3D._parseSprite3DInstance(srcRoot, dstRoot, srcChildren[i], dstChildren[i])
         scrSprite._cloneTo(dstSprite, srcRoot, dstRoot);
     }
-    
+
     /**
-     * 克隆。
-     * @return	 克隆副本。
+     * @en clone.
+     * @returns clone instance.
+     * @zh 克隆。
+     * @returns	克隆副本。
      */
     clone(): Node {
         var dstSprite3D: Node = Sprite3D._createSprite3DInstance(this);
@@ -320,10 +346,12 @@ export class Sprite3D extends Node {
     }
 
     /**
-     * 删除
-     * @param destroyChild 是否删除子节点
      * @inheritDoc
      * @override
+     * @en destroy
+     * @param dextroychild whether to destroy the child node.
+     * @zh 销毁
+     * @param destroyChild 是否销毁子节点
      */
     destroy(destroyChild: boolean = true): void {
         if (this._destroyed)

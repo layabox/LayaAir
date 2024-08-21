@@ -35,43 +35,76 @@ import { Cluster } from "../graphics/renderPath/Cluster";
 import { Viewport } from "../../maths/Viewport";
 
 /**
- * 相机清除标记。
+ * @en Camera clear flags.
+ * @zh 相机清除标记。
  */
 export enum CameraClearFlags {
-    /**固定颜色。*/
+    /**
+     * @en Solid color.
+     * @zh 固定颜色。
+     */
     SolidColor,
-    /**天空。*/
+    /**
+     * @en Sky.
+     * @zh 天空。
+     */
     Sky,
-    /**仅深度。*/
+    /**
+     * @en Depth only.
+     * @zh 仅深度。
+     */
     DepthOnly,
-    /**不清除。*/
+    /**
+     * @en Do not clear.
+     * @zh 不清除。
+     */
     Nothing,
-    /**只清理颜色 */
+    /**
+     * @en Clear color only.
+     * @zh 只清理颜色。
+     */
     ColorOnly,
 }
 
 /**
- * 相机事件标记
+ * @en Camera event flags.
+ * @zh 相机事件标记。
  */
 export enum CameraEventFlags {
     //BeforeDepthTexture,
     //AfterDepthTexture,
     //BeforeDepthNormalsTexture,
     //AfterDepthNormalTexture,
-    /**在渲染非透明物体之前。*/
+    /**
+     * @en Before rendering opaque objects.
+     * @zh 在渲染非透明物体之前。
+     */
     BeforeForwardOpaque = 0,
-    /**在渲染天空盒之前。*/
+    /**
+     * @en Before rendering the skybox.
+     * @zh 在渲染天空盒之前。
+     */
     BeforeSkyBox = 2,
-    /**在渲染透明物体之前。*/
+    /**
+     * @en Before rendering transparent objects.
+     * @zh 在渲染透明物体之前。
+     */
     BeforeTransparent = 4,
-    /**在后期处理之前。*/
+    /**
+     * @en Before applying image effects.
+     * @zh 在后期处理之前。
+     */
     BeforeImageEffect = 6,
-    /**所有渲染之后。*/
+    /**
+     * @en After all rendering is complete.
+     * @zh 所有渲染之后。
+     */
     AfterEveryThing = 8,
 }
 
 /**
- * <code>Camera</code> 类用于创建摄像机。
+ * @en The Camera class is used to create cameras.
+ * @zh Camera 类用于创建摄像机。
  */
 export class Camera extends BaseCamera {
     /** @internal */
@@ -83,7 +116,8 @@ export class Camera extends BaseCamera {
 
     /**
      * @internal
-     * 更新标志位
+     * @en Update flag
+     * @zh 更新标志位
      */
     static get _updateMark(): number {
         return RenderContext3D._instance._contextOBJ.cameraUpdateMask;
@@ -95,15 +129,24 @@ export class Camera extends BaseCamera {
 
 
 
-    /** @internal 深度贴图管线*/
+    /** 
+     * @internal 
+     * @en Depth map pipeline
+     * @zh 深度贴图管线
+     */
     static depthPass: DepthPass;
 
     /**
-     * 根据相机、scene信息获得scene中某一位置的渲染结果
+     * @en Get the rendering result of a certain position in the scene based on camera and scene information.
+     * @param camera The camera
+     * @param scene The scene to be rendered
+     * @param renderTexture The render texture to draw to
+     * @returns The rendered texture
+     * @zh 根据相机、场景信息获得场景中某一位置的渲染结果。
      * @param camera 相机
      * @param scene 需要渲染的场景
-     * @param shader 着色器
-     * @param replacementTag 替换标记。
+     * @param renderTexture 要绘制到的渲染纹理
+     * @returns 渲染后的纹理
      */
     static drawRenderTextureByScene(camera: Camera, scene: Scene3D, renderTexture: RenderTexture): RenderTexture {
         if (!renderTexture) return null;
@@ -184,10 +227,12 @@ export class Camera extends BaseCamera {
     }
 
     /**
-     * get PixelTexture
-     * 获得纹理的像素
+     * @en Get the pixels of a texture asynchronously
+     * @param texture The texture
+     * @returns A promise that resolves with the pixel data
+     * @zh 获得纹理的像素
      * @param texture 纹理
-     * @returns 
+     * @returns 解析为像素数据的 Promise
      */
     static getTexturePixelAsync(texture: Texture2D): Promise<ArrayBufferView> {
         let coverFilter = texture.filterMode;
@@ -228,12 +273,20 @@ export class Camera extends BaseCamera {
     }
 
     /**
-     * 根据场景中相机的位置绘制场景内容并返回
-     * @param position 位置
+     * @en Draw scene content based on the camera's position in the scene and return it
+     * @param camera The camera
+     * @param scene The scene
+     * @param renderCubeSize The pixel size of the cube texture
+     * @param format The color format
+     * @param cullingMask The culling mask
+     * @returns Output texture pixels in order: back, front, left, right, up, down
+     * @zh 根据场景中相机的位置绘制场景内容并返回
+     * @param camera 相机
      * @param scene 场景
-     * @param renderCubeSize 立方体纹理像素大小 
+     * @param renderCubeSize 立方体纹理像素大小
      * @param format 颜色格式
-     * @returns 输出纹理像素顺序bake front left right up down
+     * @param cullingMask 剔除遮罩
+     * @returns 输出纹理像素顺序：后、前、左、右、上、下
      */
     static drawTextureCubePixelByScene(camera: Camera, scene: Scene3D, renderCubeSize: number, format: TextureFormat, cullingMask: number): ArrayBufferView[] {
         let rtFormat = RenderTargetFormat.R8G8B8;
@@ -301,14 +354,22 @@ export class Camera extends BaseCamera {
     }
 
     /**
-     * 绘制指定场景的内容到立方体贴图
-     * @param camera 相机
-     * @param position 相机位置
-     * @param scene 指定的场景
-     * @param renderCubeSize 立方体贴图的大小
-     * @param format 立方体贴图的格式
-     * @param cullingMask 相机剔除遮罩
-     * @returns 立方体贴图
+     * @en Draw the content of a specified scene to a cube map texture.
+     * @param camera The camera used for rendering.
+     * @param position The position of the camera.
+     * @param scene The specified scene to render.
+     * @param renderCubeSize The size of the cube map texture.
+     * @param format The format of the cube map texture.
+     * @param cullingMask The culling mask for the camera. Default is 0.
+     * @returns The created cube map texture.
+     * @zh 绘制指定场景的内容到立方体贴图。
+     * @param camera 用于渲染的相机。
+     * @param position 相机的位置。
+     * @param scene 要渲染的指定场景。
+     * @param renderCubeSize 立方体贴图的大小。
+     * @param format 立方体贴图的格式。
+     * @param cullingMask 相机的剔除遮罩。默认值为0。
+     * @returns 创建的立方体贴图。
      */
     static drawTextureCubeByScene(camera: Camera, position: Vector3, scene: Scene3D, renderCubeSize: number, format: TextureFormat, cullingMask: number = 0): TextureCube {
         camera.transform.position = position;
@@ -384,25 +445,51 @@ export class Camera extends BaseCamera {
     _offScreenRenderTexture: RenderTexture = null;
     /** @internal */
     _internalRenderTexture: RenderTexture = null;
-    /** @internal　是否直接使用渲染深度贴图*/
+    /**
+     * @internal
+     * @en Whether to directly use the rendered depth map
+     * @zh 是否直接使用渲染深度贴图
+     */
     _canBlitDepth: boolean = false;
     /**@internal */
     _internalCommandBuffer: CommandBuffer = new CommandBuffer();
-    /**@internal @protected 深度贴图模式 */
+    /**
+     * @internal
+     * @protected
+     * @en Depth texture format
+     * @zh 深度贴图格式
+     */
     protected _depthTextureFormat: RenderTargetFormat = RenderTargetFormat.DEPTH_32; //兼容WGSL
-    /** 深度贴图*/
+    /**
+     * @en Depth texture
+     * @zh 深度贴图
+     */
     private _depthTexture: BaseTexture;
-    /** 深度法线贴图*/
+    /**
+     * @en Depth normals texture
+     * @zh 深度法线贴图
+     */
     private _depthNormalsTexture: RenderTexture;
 
-    /** @internal 非透明物体贴图 */
+    /**
+     * @internal
+     * @en Opaque objects texture
+     * @zh 非透明物体贴图
+     */
     _opaqueTexture: RenderTexture;
-    /** 是否开启非透明物体通道 */
+    /**
+     * @en Whether to enable the opaque objects pass
+     * @zh 是否开启非透明物体通道
+     */
     private _opaquePass: boolean;
 
     /** @internal */
     _cameraEventCommandBuffer: { [key: string]: CommandBuffer[] } = {};
-    /**@internal 实现CommanBuffer的阴影渲染 */
+    /**
+     * @internal
+     * @en Implement shadow rendering using CommandBuffer
+     * @zh 实现CommandBuffer的阴影渲染
+     */
     private _shadowCasterCommanBuffer: CommandBuffer[] = [];
 
     /** @internal */
@@ -414,19 +501,39 @@ export class Camera extends BaseCamera {
     /** @internal */
     _screenOffsetScale: Vector4 = new Vector4();
 
-    /**是否允许渲染。*/
+    /**
+     * @en Whether rendering is allowed.
+     * @zh 是否允许渲染。
+     */
     enableRender: boolean = true;
-    /**清除标记。*/
+    /**
+     * @en Clear flag.
+     * @zh 清除标记。
+     */
     clearFlag: CameraClearFlags = CameraClearFlags.SolidColor;
-    /**@internal 是否缓存上一帧的Depth纹理 */
+    /**
+     * @internal
+     * @en Whether to cache the depth texture from the previous frame.
+     * @zh 是否缓存上一帧的深度纹理。
+     */
     _cacheDepth: boolean
-    /**@internal cache 上一帧纹理 */
+    /**
+     * @internal
+     * @en Cached texture from the previous frame.
+     * @zh 缓存的上一帧纹理。
+     */
     _cacheDepthTexture: RenderTexture;
 
     _renderDataModule: ICameraNodeData;
 
     private _Render3DProcess: IRender3DProcess;
 
+    /**
+     * @en The near clipping plane of the camera.
+     * @param value The distance to the near clipping plane.
+     * @zh 相机的近裁剪平面。
+     * @param value 近裁剪平面的距离。
+     */
     set nearPlane(value: number) {
         super.nearPlane = value;
         this._renderDataModule.nearplane = value;
@@ -436,6 +543,12 @@ export class Camera extends BaseCamera {
         return this._nearPlane;
     }
 
+    /**
+     * @en The far clipping plane of the camera.
+     * @param value The distance to the far clipping plane.
+     * @zh 相机的远裁剪平面。
+     * @param value 远裁剪平面的距离。
+     */
     set farPlane(value: number) {
         super.farPlane = value;
         this._renderDataModule.farplane = value;
@@ -445,6 +558,12 @@ export class Camera extends BaseCamera {
         return this._farPlane;
     }
 
+    /**
+     * @en Set the field of view of the camera.
+     * @param value The field of view in degrees.
+     * @zh 设置相机的视野。
+     * @param value 单位为度。
+     */
     set fieldOfView(value: number) {
         super.fieldOfView = value;
         this._renderDataModule.fieldOfView = value;
@@ -455,7 +574,8 @@ export class Camera extends BaseCamera {
     }
 
     /**
-     * 横纵比。
+     * @en The aspect ratio of the camera.
+     * @zh 相机的横纵比。
      */
     get aspectRatio(): number {
         if (this._aspectRatio === 0) {
@@ -474,7 +594,8 @@ export class Camera extends BaseCamera {
     }
 
     /**
-     * 获取屏幕像素坐标的视口。
+     * @en The viewport in screen pixel coordinates.
+     * @zh 屏幕像素坐标的视口。
      */
     get viewport(): Viewport {//TODO:优化
         if (this._offScreenRenderTexture)
@@ -503,7 +624,8 @@ export class Camera extends BaseCamera {
     }
 
     /**
-     * 相机显示宽度
+     * @en The display width of the camera.
+     * @zh 相机显示宽度。
      */
     get clientWidth(): number {
         ILaya.stage.needUpdateCanvasSize();
@@ -514,7 +636,8 @@ export class Camera extends BaseCamera {
     }
 
     /**
-     * 相机显示高度
+     * @en The display height of the camera.
+     * @zh 相机显示高度。
      */
     get clientHeight(): number {
         ILaya.stage.needUpdateCanvasSize();
@@ -527,7 +650,8 @@ export class Camera extends BaseCamera {
 
 
     /**
-     * 多重采样抗锯齿
+     * @en Multi-sample anti-aliasing.
+     * @zh 多重采样抗锯齿。
      */
     set msaa(value: boolean) {
         LayaGL.renderEngine.getCapable(RenderCapable.MSAA) ? this._msaa = value : this._msaa = false;
@@ -539,7 +663,8 @@ export class Camera extends BaseCamera {
     }
 
     /**
-     * 空间抗锯齿
+     * @en Space anti-aliasing.
+     * @zh 空间抗锯齿
      */
     set fxaa(value: boolean) {
         this._fxaa = value;
@@ -550,7 +675,8 @@ export class Camera extends BaseCamera {
     }
 
     /**
-     * 裁剪空间的视口。
+     * @en The viewport in clip space.
+     * @zh 裁剪空间的视口。
      */
     get normalizedViewport(): Viewport {
         return this._normalizedViewport;
@@ -573,7 +699,8 @@ export class Camera extends BaseCamera {
     }
 
     /**
-     * 获取视图矩阵。
+     * @en Get the view matrix.
+     * @zh 视图矩阵。
      */
     get viewMatrix(): Matrix4x4 {
         if (this._updateViewMatrix) {
@@ -602,7 +729,8 @@ export class Camera extends BaseCamera {
     }
 
     /**
-     * 投影矩阵。
+     * @en The projection matrix.
+     * @zh 投影矩阵。
      */
     get projectionMatrix(): Matrix4x4 {
         return this._projectionMatrix;
@@ -614,7 +742,8 @@ export class Camera extends BaseCamera {
     }
 
     /**
-     * 获取视图投影矩阵。
+     * @en The projection view matrix.
+     * @zh 视图投影矩阵。
      */
     get projectionViewMatrix(): Matrix4x4 {
         Matrix4x4.multiply(this.projectionMatrix, this.viewMatrix, this._projectionViewMatrix);
@@ -623,7 +752,8 @@ export class Camera extends BaseCamera {
     }
 
     /**
-     * 获取摄像机视锥。
+     * @en The bound frustum of the camera.
+     * @zh 摄像机视锥。
      */
     get boundFrustum(): BoundFrustum {
         this._boundFrustum.matrix = this.projectionViewMatrix;
@@ -631,7 +761,8 @@ export class Camera extends BaseCamera {
     }
 
     /**
-     * 自定义渲染场景的渲染目标。
+     * @en Customize the rendering target for the scene.
+     * @zh 自定义渲染场景的渲染目标。
      */
     get renderTarget(): RenderTexture {
         return this._offScreenRenderTexture;
@@ -648,7 +779,8 @@ export class Camera extends BaseCamera {
     }
 
     /**
-     * 后期处理。
+     * @en Post processing.
+     * @zh 后期处理。
      */
     get postProcess(): PostProcess {
         return this._postProcess;
@@ -661,8 +793,8 @@ export class Camera extends BaseCamera {
     }
 
     /**
-     * 是否开启HDR。
-     * 开启后对性能有一定影响。
+     * @en Whether to enable HDR. Enabling it has a certain impact on performance.
+     * @zh 是否开启HDR。开启后对性能有一定影响。
      */
     get enableHDR(): boolean {
         return this._enableHDR;
@@ -677,8 +809,8 @@ export class Camera extends BaseCamera {
     }
 
     /**
-     * 是否使用正在渲染的RenderTexture为CommandBuffer服务，设置为true
-     * 一般和CommandBuffer一起使用
+     * @en Whether to use the RenderTexture being rendered for CommandBuffer service. Set to true when used with CommandBuffer.
+     * @zh 是否使用正在渲染的 RenderTexture 为 CommandBuffer 服务。通常与 CommandBuffer 一起使用时设置为 true。
      */
     get enableBuiltInRenderTexture(): boolean {
         return this._needBuiltInRenderTexture;
@@ -689,7 +821,8 @@ export class Camera extends BaseCamera {
     }
 
     /**
-     * 深度贴图模式
+     * @en The depth texture mode for the camera.
+     * @zh 相机的深度纹理模式。
      */
     get depthTextureMode(): DepthTextureMode {
         return this._depthTextureMode;
@@ -703,7 +836,8 @@ export class Camera extends BaseCamera {
     }
 
     /**
-     * 设置OpaquePass模式
+     * @en Set the Opaque Pass mode for the camera.
+     * @zh 相机的不透明通道模式。
      */
     set opaquePass(value: boolean) {
         if (value == this._opaquePass)
@@ -724,7 +858,8 @@ export class Camera extends BaseCamera {
     opaqueTextureSize: number = 512;
 
     /**
-     * 深度贴图格式
+     * @en The format of the depth texture.
+     * @zh 深度纹理的格式。
      */
     get depthTextureFormat(): RenderTargetFormat {
         return this._depthTextureFormat;
@@ -735,7 +870,8 @@ export class Camera extends BaseCamera {
 
 
     /**
-     * 设置是否使用内置的深度贴图(TODO:如果开启,只可在后期使用深度贴图，不可在渲染流程中使用)
+     * @en Enable or disable the use of built-in depth texture (TODO: If enabled, the depth texture can only be used in post-processing, not in the rendering process).
+     * @zh 设置是否使用内置的深度纹理（TODO:如果开启，深度纹理只能在后期处理中使用，不能在渲染流程中使用）。
      */
     set enableBlitDepth(value: boolean) {
         if (value == this._canBlitDepth)
@@ -755,14 +891,19 @@ export class Camera extends BaseCamera {
     }
 
     /**
-     * 设置是否可以绘制深度贴图
+     * @en Whether the camera can blit (draw) the depth texture.
+     * @zh 相机是否可以绘制深度纹理。
      */
     get canblitDepth() {
         return this._canBlitDepth && this._internalRenderTexture && this._internalRenderTexture.depthStencilFormat != null;
     }
 
     /**
-     * 创建一个 <code>Camera</code> 实例。
+     * @en Creates an instance of the Camera.
+     * @param aspectRatio The aspect ratio of the camera view.
+     * @param nearPlane The near clipping plane distance.
+     * @param farPlane The far clipping plane distance.
+     * @zh 创建一个Camera实例。
      * @param	aspectRatio 横纵比。
      * @param	nearPlane 近裁面。
      * @param	farPlane 远裁面。
@@ -839,9 +980,12 @@ export class Camera extends BaseCamera {
 
     /**
      * @internal
-     *	通过蒙版值获取蒙版是否显示。
-     * 	@param  layer 层。
-     * 	@return 是否显示。
+     * @en Check if a layer is visible based on the culling mask.
+     * @param layer The layer to check.
+     * @returns Whether the layer is visible.
+     * @zh 通过蒙版值获取蒙版是否显示。
+     * @param layer 要检查的图层。
+     * @returns 图层是否可见。
      */
     _isLayerVisible(layer: number): boolean {
         return (Math.pow(2, layer) & this.cullingMask) != 0;
@@ -871,8 +1015,8 @@ export class Camera extends BaseCamera {
     }
 
     /**
-     * 克隆相机
-     * @returns 
+     * @en Clone the camera.
+     * @zh 克隆相机。
      */
     clone(): Camera {
         let camera = <Camera>super.clone();
@@ -923,8 +1067,12 @@ export class Camera extends BaseCamera {
 
     /**
      * @internal
-     * 渲染结果是否是Gamma
-     * @param rt 
+     * @en Determine if the render result needs gamma correction.
+     * @param rt The render target format to check.
+     * @returns Whether gamma correction is needed for the given render target format.
+     * @zh 判断渲染结果是否需要 Gamma 校正。
+     * @param rt 要检查的渲染目标格式。
+     * @returns 给定的渲染目标格式是否需要 Gamma 校正。
      */
     _needRenderGamma(rt: RenderTargetFormat) {
         switch (rt) {
@@ -1112,12 +1260,17 @@ export class Camera extends BaseCamera {
     }
 
     /**
-     * 渲染主流程之前
      * @internal
-     * @param context 渲染上下文
-     * @param scene 渲染场景
-     * @param needInternalRT 是否需要内部Rendertarget
-     * @param viewport 视口
+     * @en Pre-render process for the main rendering pass.
+     * @param context The rendering context.
+     * @param scene The scene to be rendered.
+     * @param needInternalRT Whether an internal render target is needed.
+     * @param viewport The viewport for rendering.
+     * @zh 主渲染流程之前的预处理过程。
+     * @param context 渲染上下文。
+     * @param scene 要渲染的场景。
+     * @param needInternalRT 是否需要内部渲染目标。
+     * @param viewport 渲染的视口。
      */
     _preRenderMainPass(context: RenderContext3D, scene: Scene3D, needInternalRT: boolean, viewport: Viewport) {
         context.camera = this;
@@ -1151,7 +1304,8 @@ export class Camera extends BaseCamera {
 
     /**
      * @internal
-     * 深度贴图
+     * @en The depth texture of the camera.
+     * @zh 相机的深度纹理。
      */
     get depthTexture(): BaseTexture {
         return this._depthTexture;
@@ -1160,10 +1314,10 @@ export class Camera extends BaseCamera {
     set depthTexture(value: BaseTexture) {
         this._depthTexture = value;
     }
-
     /**
      * @internal
-     * 深度法线贴图
+     * @en The depth-normal texture of the camera.
+     * @zh 相机的深度法线纹理。
      */
     get depthNormalTexture(): RenderTexture {
         return this._depthNormalsTexture;
@@ -1194,8 +1348,9 @@ export class Camera extends BaseCamera {
 
 
     /**
-     * 创建非透明通道纹理
      * @internal
+     * @en Create the opaque pass texture.
+     * @zh 创建不透明通道纹理。
      */
     _createOpaqueTexture() {
         if (!this._opaqueTexture) {
@@ -1220,9 +1375,10 @@ export class Camera extends BaseCamera {
 
     /**
      * @override
-     * 渲染
-     * @param shader 着色器
-     * @param replacementTag 替换标记。
+     * @en Render the scene.
+     * @param scene The scene to render.
+     * @zh 渲染场景。
+     * @param scene 要渲染的场景。
      * @perfTag PerformanceDefine.T_CameraRender
      */
     render(scene: Scene3D): void {
@@ -1288,7 +1444,10 @@ export class Camera extends BaseCamera {
     }
 
     /**
-     * 计算从屏幕空间生成的射线。
+     * @en Calculate a ray from screen space.
+     * @param point The position in screen space.
+     * @param out The output ray.
+     * @zh 计算从屏幕空间生成的射线。
      * @param point 屏幕空间的位置位置。
      * @param out  输出射线。
      */
@@ -1300,8 +1459,11 @@ export class Camera extends BaseCamera {
         Picker.calculateCursorRay(point, this._rayViewport, this._projectionMatrix, this.viewMatrix, null, out);
     }
 
-    /** 
-     * 计算从裁切空间生成的射线。
+    /**
+     * @en Calculate a ray from normalized viewport space.
+     * @param point The position in normalized viewport space.
+     * @param out The output ray.
+     * @zh 计算从归一化视口空间生成的射线。
      * @param point 裁切空间的位置。
      * @param out  输出射线。
      */
@@ -1317,7 +1479,10 @@ export class Camera extends BaseCamera {
     }
 
     /**
-     * 将一个点从世界空间转换到视口空间。
+     * @en Transform a point from world space to viewport space.
+     * @param position The coordinate in world space.
+     * @param out x, y, z are viewport space coordinates, w is the z-axis coordinate relative to the camera.
+     * @zh 将一个点从世界空间转换到视口空间。
      * @param position 世界空间的坐标。
      * @param out  x、y、z为视口空间坐标,w为相对于摄像机的z轴坐标。
      */
@@ -1335,7 +1500,10 @@ export class Camera extends BaseCamera {
     }
 
     /**
-     * 将一个点从世界空间转换到归一化视口空间。
+     * @en Transform a point from world space to normalized viewport space.
+     * @param position The coordinate in world space.
+     * @param out x, y, z are normalized viewport space coordinates, w is the z-axis coordinate relative to the camera.
+     * @zh 将一个点从世界空间转换到归一化视口空间。
      * @param position 世界空间的坐标。
      * @param out  x、y、z为归一化视口空间坐标,w为相对于摄像机的z轴坐标。
      */
@@ -1346,7 +1514,11 @@ export class Camera extends BaseCamera {
     }
 
     /**
-     * 转换2D屏幕坐标系统到3D正交投影下的坐标系统，注:只有正交模型下有效。
+     * @en Convert 2D screen coordinate system to 3D orthographic projection coordinate system. Note: Only valid under orthographic model.
+     * @param source The source coordinate.
+     * @param out The output coordinate.
+     * @returns Whether the conversion was successful.
+     * @zh 转换2D屏幕坐标系统到3D正交投影下的坐标系统，注：只有正交模型下有效。
      * @param   source 源坐标。
      * @param   out 输出坐标。
      * @return 是否转换成功。
@@ -1368,10 +1540,12 @@ export class Camera extends BaseCamera {
     }
 
     /**
-     * 删除Camera节点
-     * @param destroyChild 是否删除子节点
-     * @inheritDoc
      * @override
+     * @inheritDoc
+     * @en Destroy the Camera node.
+     * @param destroyChild Whether to destroy child nodes.
+     * @zh 删除Camera节点。
+     * @param destroyChild 是否删除子节点
      */
     destroy(destroyChild: boolean = true): void {
         this._shaderValues.destroy();
@@ -1391,7 +1565,10 @@ export class Camera extends BaseCamera {
     }
 
     /**
-     * 增加camera渲染节点渲染缓存
+     * @en Add a command buffer to the camera's rendering pipeline.
+     * @param event The camera event flag.
+     * @param commandBuffer The rendering command buffer.
+     * @zh 增加camera渲染节点渲染缓存。
      * @param event 相机事件标志
      * @param commandBuffer 渲染命令流
      */
@@ -1407,7 +1584,10 @@ export class Camera extends BaseCamera {
     }
 
     /**
-     * 移除camera渲染节点渲染缓存
+     * @en Remove a command buffer from the camera's rendering pipeline.
+     * @param event The camera event flag.
+     * @param commandBuffer The rendering command buffer to remove.
+     * @zh 移除camera渲染节点渲染缓存。
      * @param event 相机事件标志
      * @param commandBuffer 渲染命令流
      */
@@ -1424,7 +1604,9 @@ export class Camera extends BaseCamera {
     }
 
     /**
-     * 移除camera相机节点的所有渲染缓存
+     * @en Remove all command buffers for a specific camera event.
+     * @param event The camera event flag.
+     * @zh 移除camera相机节点的所有渲染缓存。
      * @param event 相机事件标志
      */
     removeCommandBuffers(event: CameraEventFlags): void {

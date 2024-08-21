@@ -24,7 +24,8 @@ import { Stat } from "../../utils/Stat"
 
 
 /**
- * <code>MeshRenderer</code> 类用于网格渲染器。
+ * @en The `MeshRenderer` class is used for mesh rendering.
+ * @zh `MeshRenderer` 类用于网格渲染器。
  */
 export class MeshRenderer extends BaseRender {
     /** @internal */
@@ -57,7 +58,9 @@ export class MeshRenderer extends BaseRender {
     private _moduleData: IMeshRenderNode;
 
     /**
-     * 创建一个新的 <code>MeshRender</code> 实例。
+     * @ignore
+     * @en Creates an instance of MeshRenderer.
+     * @zh 创建一个 MeshRenderer 的实例。
      */
     constructor() {
         super();
@@ -83,7 +86,13 @@ export class MeshRenderer extends BaseRender {
         return new SubMeshRenderElement();
     }
 
-    /**@intermal */
+    /**
+     * @internal
+     * @en Get the mesh object.
+     * @returns The mesh object.
+     * @zh 获取网格对象。
+     * @returns 网格对象。
+     */
     getMesh() {
         return this._mesh;
     }
@@ -155,9 +164,12 @@ export class MeshRenderer extends BaseRender {
     }
 
     /**
-     * 设置 morph target 通道 权重
-     * @param channelName 通道名
-     * @param weight 权重值
+     * @en Set the weight of a morph target channel.
+     * @param channelName The name of the morph target channel.
+     * @param weight The weight value to set for the channel.
+     * @zh 设置变形目标通道的权重。
+     * @param channelName 变形目标通道的名称。
+     * @param weight 要设置的通道权重值。
      */
     setMorphChannelWeight(channelName: string, weight: number) {
         // todo
@@ -173,7 +185,8 @@ export class MeshRenderer extends BaseRender {
     /**
      * @internal
      * @protected
-     * 更新 morph target 数据
+     * @en Update morph target data.
+     * @zh 更新变形目标数据。
      */
     protected _applyMorphdata() {
         let mesh = this._mesh;
@@ -245,8 +258,10 @@ export class MeshRenderer extends BaseRender {
     /**
      * @internal
      * @protected
-     * 更新 mesh 时 更新 morph target data (shader define)
-     * @param mesh 
+     * @en Update morph target data (shader define) when updating mesh.
+     * @param mesh The mesh to update.
+     * @zh 更新网格时更新变形目标数据（着色器定义）。
+     * @param mesh 要更新的网格。
      */
     protected _changeMorphData(mesh: Mesh) {
         let shaderData = this._baseRenderNode.shaderData;
@@ -401,6 +416,12 @@ export class MeshRenderer extends BaseRender {
         }
     }
 
+    /**
+     * @en Update the rendering state of the mesh renderer.
+     * @param context The 3D render context.
+     * @zh 更新网格渲染器的渲染状态。
+     * @param context 3D渲染上下文。
+     */
     renderUpdate(context: RenderContext3D): void {
         if (!this._mesh) {
             return;
