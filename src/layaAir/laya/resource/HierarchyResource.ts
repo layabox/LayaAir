@@ -1,4 +1,3 @@
-import { LayaEnv } from "../../LayaEnv";
 import { Node } from "../display/Node";
 import { LegacyUIParser } from "../loaders/LegacyUIParser";
 import { Resource } from "./Resource";
@@ -14,13 +13,6 @@ export class Prefab extends Resource {
      * @zh 预制体资源的版本号。
      */
     public readonly version: number;
-
-    /**
-     * @internal
-     * @protected 
-     * 依赖内容
-     */
-    protected _deps: Array<Resource>;
 
     /**
      * @internal
@@ -40,7 +32,7 @@ export class Prefab extends Resource {
         super();
 
         this.version = version;
-        this._deps = [];
+        this._traceDeps = true;
     }
 
     /**
@@ -56,82 +48,6 @@ export class Prefab extends Resource {
             return LegacyUIParser.createByData(null, this.json);
         else
             return null;
-    }
-
-    /**
-     * @en The list of dependencies for the prefab.
-     * @zh 预制体的依赖列表。
-     */
-    get deps(): ReadonlyArray<Resource> {
-        return this._deps;
-    }
-
-    /**
-     * @en Adds a dependency to the prefab.
-     * @param res The resource to be added as a dependency.
-     * @zh 向预制体增加一个依赖内容。
-     * @param res 要添加为依赖的资源。
-     */
-    addDep(res: Resource) {
-        if (res instanceof Resource) {
-            res._addReference();
-            this._deps.push(res);
-
-            if (!LayaEnv.isPlaying && (res instanceof Prefab))
-                res.on("obsolute", this, this.onDepObsolute);
-        }
-    }
-
-    /**
-     * @en Adds multiple dependencies to the prefab.
-     * @param resArr An array of resources to be added as dependencies.
-     * @zh 向预制体增加多个依赖内容。
-     * @param resArr 要添加为依赖的资源数组。
-     */
-    addDeps(resArr: Array<Resource>) {
-        for (let res of resArr) {
-            if (res instanceof Resource) {
-                res._addReference();
-                this._deps.push(res);
-
-                if (!LayaEnv.isPlaying && (res instanceof Prefab))
-                    res.on("obsolute", this, this.onDepObsolute);
-            }
-        }
-    }
-
-    /**
-     * @internal
-     * @protected
-     * 销毁资源
-     */
-    protected _disposeResource(): void {
-        for (let res of this._deps) {
-            res._removeReference();
-
-            if (!LayaEnv.isPlaying && (res instanceof Prefab))
-                res.off("obsolute", this, this.onDepObsolute);
-        }
-    }
-
-    /**
-     * @en Whether the prefab is obsolete.
-     * @zh 预制体是否已过时。
-     */
-    public get obsolute(): boolean {
-        return this._obsolute;
-    }
-
-    public set obsolute(value: boolean) {
-        if (this._obsolute != value) {
-            this._obsolute = value;
-            if (value && !LayaEnv.isPlaying)
-                this.event("obsolute");
-        }
-    }
-
-    private onDepObsolute() {
-        this.obsolute = true;
     }
 }
 
