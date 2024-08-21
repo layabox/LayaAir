@@ -1,11 +1,21 @@
 /**
- * Shadow Light enum
+ * @en Shadow Light enum
+ * @zh 阴影光类型
  */
  export enum ShadowLightType {
-    /**直射光 */
+    /**
+     * @en Directional Light
+     * @zh 方向光 
+     */
     DirectionLight,
-    /**聚光 */
+    /**
+     * @en Spot Light
+     * @zh 聚光 
+     */
     SpotLight,
-    /**点光 */
+    /**
+     * @en Point Light
+     * @zh 点光
+     */
     PointLight
 }

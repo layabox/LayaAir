@@ -19,7 +19,8 @@ import { Vector4 } from "../../maths/Vector4";
 import { RenderTexture } from "../../resource/RenderTexture";
 
 /**
- * <code>Utils3D</code> 类用于创建3D工具。
+ * @en Utils3D is a class used to create 3D tools.
+ * @zh Utils3D 类用于创建3D工具。
  */
 export class Utils3D {
     private static _tempVector3_0: Vector3 = new Vector3();
@@ -137,7 +138,8 @@ export class Utils3D {
     static _tempV1: Vector3 = new Vector3();
 
     /**
-     * 将顶点进行billboard转换
+     * @en Convert vertices to a billboard
+     * @zh 将顶点进行广告牌转换
      */
     static billboardTrans(v0: Vector3, cameraDir: Vector3, cameraUp: Vector3, out: Vector3) {
         //vec3 positionOS = vertex.positionOS.x * normalize(cross(u_CameraDirection, u_CameraUp));
@@ -151,13 +153,18 @@ export class Utils3D {
     }
 
     /**
-     * 判断P点是否在ABC组成的三角形中
-     * https://mathworld.wolfram.com/BarycentricCoordinates.html
-     * @param A 
-     * @param B 
-     * @param C 
-     * @param P 
-     * @returns 
+     * @en Determines if point P is within the triangle formed by points A, B, and C. https://mathworld.wolfram.com/BarycentricCoordinates.html
+     * @param A The first vertex of the triangle.
+     * @param B The second vertex of the triangle.
+     * @param C The third vertex of the triangle.
+     * @param P The point to check.
+     * @returns True if P is inside the triangle, false otherwise.
+     * @zh 判断点P是否在由点A、B、C组成的三角形内。https://mathworld.wolfram.com/BarycentricCoordinates.html
+     * @param A 三角形的第一个顶点。
+     * @param B 三角形的第二个顶点。
+     * @param C 三角形的第三个顶点。
+     * @param P 需要判断的点。
+     * @returns 若P在三角形内，返回true，否则返回false。
      */
     static PointinTriangle(A: Vector3, B: Vector3, C: Vector3, P: Vector3): boolean {
         let v0 = C.vsub(A, Utils3D._tempVector3_0);
@@ -265,10 +272,18 @@ export class Utils3D {
     }
 
     /**
-     * 根据四元数旋转三维向量。
-     * @param	source 源三维向量。
-     * @param	rotation 旋转四元数。
-     * @param	out 输出三维向量。
+     * @en Rotates a 3D vector using a quaternion.
+     * @param sourceArray The source vector components in a Float32Array.
+     * @param sourceOffset The offset in the source array where the source vector starts.
+     * @param rotation The quaternion representing the rotation.
+     * @param outArray The array to store the result of the rotation.
+     * @param outOffset The offset in the output array where the result will be stored.
+     * @zh 使用四元数旋转三维向量。
+     * @param sourceArray 源三维向量的数组。
+     * @param sourceOffset 源三维向量的偏移。
+     * @param rotation 四元数。
+     * @param outArray 输出数组。
+     * @param outOffset 输出数组的偏移。
      */
     static transformVector3ArrayByQuat(sourceArray: Float32Array, sourceOffset: number, rotation: Quaternion, outArray: Float32Array, outOffset: number): void {
         var x: number = sourceArray[sourceOffset], y: number = sourceArray[sourceOffset + 1], z: number = sourceArray[sourceOffset + 2], qx: number = rotation.x, qy: number = rotation.y, qz: number = rotation.z, qw: number = rotation.w, ix: number = qw * x + qy * z - qz * y, iy: number = qw * y + qz * x - qx * z, iz: number = qw * z + qx * y - qy * x, iw: number = -qx * x - qy * y - qz * z;
@@ -278,11 +293,18 @@ export class Utils3D {
     }
 
     /**
-     *通过数组数据计算矩阵乘法。
-     * @param leftArray left矩阵数组。
-     * @param leftOffset left矩阵数组的偏移。
-     * @param rightArray right矩阵数组。
-     * @param rightOffset right矩阵数组的偏移。
+     * @en Multiplies two matrices using array data.
+     * @param leftArray The left-hand side matrix array.
+     * @param leftOffset The offset in the left-hand side array.
+     * @param rightArray The right-hand side matrix array.
+     * @param rightOffset The offset in the right-hand side array.
+     * @param outArray The output matrix array where the result will be stored.
+     * @param outOffset The offset in the output array.
+     * @zh 通过数组数据计算矩阵乘法。
+     * @param leftArray 左矩阵数组。
+     * @param leftOffset 左矩阵数组的偏移。
+     * @param rightArray 右矩阵数组。
+     * @param rightOffset 右矩阵数组的偏移。
      * @param outArray 输出矩阵数组。
      * @param outOffset 输出矩阵数组的偏移。
      */
@@ -311,13 +333,20 @@ export class Utils3D {
     }
 
     /**
-     *通过数组数据计算矩阵乘法,rightArray和outArray不能为同一数组引用。
-     * @param leftArray left矩阵数组。
-     * @param leftOffset left矩阵数组的偏移。
-     * @param rightArray right矩阵数组。
-     * @param rightOffset right矩阵数组的偏移。
-     * @param outArray 结果矩阵数组。
-     * @param outOffset 结果矩阵数组的偏移。
+     * @en Multiplies two matrices using array data, with the restriction that rightArray and outArray cannot be the same array reference.
+     * @param leftArray The left-hand side matrix array.
+     * @param leftOffset The offset in the left-hand side array.
+     * @param rightArray The right-hand side matrix array.
+     * @param rightOffset The offset in the right-hand side array.
+     * @param outArray The output matrix array where the result will be stored.
+     * @param outOffset The offset in the output array.
+     * @zh 通过数组数据计算矩阵乘法，注意 rightArray 和 outArray 不能是同一个数组引用。
+     * @param leftArray 左矩阵数组。
+     * @param leftOffset 左矩阵数组的偏移。
+     * @param rightArray 右矩阵数组。
+     * @param rightOffset 右矩阵数组的偏移。
+     * @param outArray 输出矩阵数组。
+     * @param outOffset 输出矩阵数组的偏移。
      */
     static mulMatrixByArrayFast(leftArray: Float32Array, leftOffset: number, rightArray: Float32Array, rightOffset: number, outArray: Float32Array, outOffset: number): void {
 
@@ -335,12 +364,18 @@ export class Utils3D {
     }
 
     /**
-     *通过数组数据计算矩阵乘法,rightArray和outArray不能为同一数组引用。
-     * @param leftArray left矩阵数组。
-     * @param leftOffset left矩阵数组的偏移。
-     * @param rightMatrix right矩阵。
-     * @param outArray 结果矩阵数组。
-     * @param outOffset 结果矩阵数组的偏移。
+     * @en Multiplies a matrix by an array and another matrix, with the restriction that rightArray and outArray cannot be the same array reference.
+     * @param leftArray The left-hand side matrix array.
+     * @param leftOffset The offset in the left-hand side array.
+     * @param rightMatrix The right-hand side matrix.
+     * @param outArray The output matrix array where the result will be stored.
+     * @param outOffset The offset in the output array.
+     * @zh 通过数组数据和一个矩阵计算矩阵乘法，注意 rightArray 和 outArray 不能是同一个数组引用。
+     * @param leftArray 左矩阵数组。
+     * @param leftOffset 左矩阵数组的偏移。
+     * @param rightMatrix 右矩阵。
+     * @param outArray 输出矩阵数组。
+     * @param outOffset 输出矩阵数组的偏移。
      */
     static mulMatrixByArrayAndMatrixFast(leftArray: Float32Array, leftOffset: number, rightMatrix: Matrix4x4, outArray: Float32Array, outOffset: number): void {
 
@@ -372,19 +407,32 @@ export class Utils3D {
     }
 
     /**
-     *通过数平移、旋转、缩放值计算到结果矩阵数组。
-     * @param tX left矩阵数组。
-     * @param tY left矩阵数组的偏移。
-     * @param tZ right矩阵数组。
-     * @param qX right矩阵数组的偏移。
-     * @param qY 输出矩阵数组。
-     * @param qZ 输出矩阵数组的偏移。
-     * @param qW 输出矩阵数组的偏移。
-     * @param sX 输出矩阵数组的偏移。
-     * @param sY 输出矩阵数组的偏移。
-     * @param sZ 输出矩阵数组的偏移。
-     * @param outArray 结果矩阵数组。
-     * @param outOffset 结果矩阵数组的偏移。
+     * @en Calculates the result matrix array by the given translation, rotation, and scale values.
+     * @param tX X axis translation.
+     * @param tY Y axis translation.
+     * @param tZ Z axis translation.
+     * @param rX X axis rotation.
+     * @param rY Y axis rotation.
+     * @param rZ Z axis rotation.
+     * @param rW W component of the rotation quaternion.
+     * @param sX X axis scale.
+     * @param sY Y axis scale.
+     * @param sZ Z axis scale.
+     * @param outArray Output matrix array.
+     * @param outOffset Output matrix array offset.
+     * @zh 通过数平移、旋转、缩放值计算到结果矩阵数组。
+     * @param tX X轴的平移量。
+     * @param tY Y轴的平移量。
+     * @param tZ Z轴的平移量。
+     * @param rX 旋转四元数的X分量。
+     * @param rY 旋转四元数的Y分量。
+     * @param rZ 旋转四元数的Z分量。
+     * @param rW 旋转四元数的实部（W分量）。
+     * @param sX X轴的缩放因子。
+     * @param sY Y轴的缩放因子。
+     * @param sZ Z轴的缩放因子。
+     * @param outArray 输出矩阵数组。
+     * @param outOffset 输出矩阵数组的偏移。
      */
     static createAffineTransformationArray(tX: number, tY: number, tZ: number, rX: number, rY: number, rZ: number, rW: number, sX: number, sY: number, sZ: number, outArray: Float32Array, outOffset: number): void {
 
@@ -411,12 +459,18 @@ export class Utils3D {
     }
 
     /**
-     * 通过矩阵转换一个三维向量数组到另外一个三维向量数组。
-     * @param	source 源三维向量所在数组。
-     * @param	sourceOffset 源三维向量数组偏移。
-     * @param	transform  变换矩阵。
-     * @param	result 输出三维向量所在数组。
-     * @param	resultOffset 输出三维向量数组偏移。
+     * @en Transforms a 3D vector from one array to another using a transformation matrix.
+     * @param source The source vector array.
+     * @param sourceOffset The offset in the source array.
+     * @param transform The transformation matrix.
+     * @param result The resulting vector array.
+     * @param resultOffset The offset in the resulting array.
+     * @zh 使用变换矩阵将一个三维向量从一个数组转换到另一个数组。
+     * @param source 源三维向量所在数组。
+     * @param sourceOffset 源三维向量数组偏移。
+     * @param transform  变换矩阵。
+     * @param result 输出三维向量所在数组。
+     * @param resultOffset 输出三维向量数组偏移。
      */
     static transformVector3ArrayToVector3ArrayCoordinate(source: Float32Array, sourceOffset: number, transform: Matrix4x4, result: Float32Array, resultOffset: number): void {
         var coordinateX: number = source[sourceOffset + 0];
@@ -431,12 +485,18 @@ export class Utils3D {
     }
 
     /**
-     * 通过矩阵转换一个三维向量数组到另外一个归一化的三维向量数组。
-     * @param source 源三维向量所在数组。
-     * @param sourceOffset 源三维向量数组偏移。
+     * @en Transforms a 3D vector array from one array to another using a transformation matrix, and normalizes the resulting vector array.
+     * @param source The source normal vector array.
+     * @param sourceOffset The offset in the source array.
+     * @param transform The transformation matrix.
+     * @param result The resulting normal vector array.
+     * @param resultOffset The offset in the resulting array.
+     * @zh 通过矩阵转换一个三维向量数组到另外一个归一化的三维向量数组。
+     * @param source 源三维向量法线所在数组。
+     * @param sourceOffset 源三维向量法线数组偏移。
      * @param transform 变换矩阵。
-     * @param result 输出三维向量所在数组。
-     * @param resultOffset 输出三维向量数组偏移。
+     * @param result 输出三维向量法线所在数组。
+     * @param resultOffset 输出三维向量法线数组偏移。
      */
     static transformVector3ArrayToVector3ArrayNormal(source: Float32Array, sourceOffset: number, transform: Matrix4x4, result: Float32Array, resultOffset: number): void {
         var coordinateX: number = source[sourceOffset + 0];
@@ -458,9 +518,12 @@ export class Utils3D {
     }
 
     /**
-     * 获取URL版本字符。
-     * @param	url
-     * @return
+     * @en Retrieves the version string from a URL.
+     * @param url The URL to extract the version from.
+     * @returns The version string or null if not found.
+     * @zh 从URL中获取版本字符串。
+     * @param url 要提取版本的URL。
+     * @returns 版本字符串或null。
      */
     static getURLVerion(url: string): string {
         var index: number = url.indexOf("?");
@@ -559,10 +622,14 @@ export class Utils3D {
     }
 
     /**
-     * 四元数旋转矩阵
-     * @param source 源数据
-     * @param rotation 旋转四元数Array
-     * @param out 输出数据
+     * @en Applies a rotation to a 3D vector using a quaternion.
+     * @param source The original 3D vector.
+     * @param rotation The quaternion array representing the rotation.
+     * @param out The resulting rotated vector.
+     * @zh 使用四元数对三维向量应用旋转。
+     * @param source 原始三维向量。
+     * @param rotation 旋转四元数数组。
+     * @param out 结果旋转后的向量。
      */
     static transformQuat(source: Vector3, rotation: Float32Array, out: Vector3): void {
         var re: Float32Array = rotation;
@@ -577,10 +644,14 @@ export class Utils3D {
     }
 
     /**
-     * 修改四元数权重
+     * @en Modifies the weight of a quaternion.
+     * @param f The original quaternion.
+     * @param weight The weight to apply to the quaternion.
+     * @param e The target data.
+     * @zh 修改四元数的权重。
      * @param f 元数据
-     * @param weight 权重
-     * @param e 目标数据
+     * @param weight 要应用于四元数的权重。
+     * @param e 目标数据。
      */
     static quaternionWeight(f: Quaternion, weight: number, e: Quaternion): void {
         e.x = f.x * weight;
@@ -858,9 +929,12 @@ export class Utils3D {
     }
 
     /**
-     * 将RenderTexture转换为Base64
-     * @param rendertexture 
-     * @returns 
+     * @en Converts a RenderTexture to a Base64 encoded string.
+     * @param rendertexture The RenderTexture to convert.
+     * @returns A promise that resolves to a Base64 string representing the RenderTexture.
+     * @zh 将 RenderTexture 转换为 Base64 编码的字符串。
+     * @param rendertexture 要转换的 RenderTexture。
+     * @returns 一个 Promise，该 Promise 将解析为表示 RenderTexture 的 Base64 字符串。
      */
     static uint8ArrayToArrayBufferAsync(rendertexture: RenderTexture): Promise<String> {
         let pixelArray: Uint8Array | Float32Array;
