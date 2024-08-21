@@ -12,6 +12,8 @@ import { Vector4 } from "../../maths/Vector4";
 
 /**
  * @internal
+ * @en A tool class for parsing AnimationClip data.
+ * @zh 解析AnimationClip数据的工具类。
  */
 export class AnimationClipParser03 {
 	private static _animationClip: AnimationClip;
@@ -48,18 +50,26 @@ export class AnimationClipParser03 {
 
 	/**
 	 * @internal
+	 * @en Parse the AnimationClip data from the byte reader.
+	 * This method reads the AnimationClip data, including blocks and strings, and processes each block according to its type.
+	 * @param clip The AnimationClip object to be populated with parsed data.
+	 * @param reader The Byte reader containing the AnimationClip data.
+	 * @zh 从字节读取器中解析AnimationClip数据。
+	 * 此方法读取AnimationClip数据，包括块和字符串，并根据每个块的类型进行处理。
+	 * @param clip 要填充解析数据的 AnimationClip 对象。
+	 * @param reader 包含AnimationClip数据的字节读取器。
 	 */
 	static parse(clip: AnimationClip, reader: Byte): void {
 		AnimationClipParser03._animationClip = clip;
 		AnimationClipParser03._reader = reader;
-	
+
 		AnimationClipParser03.READ_DATA();
 		AnimationClipParser03.READ_BLOCK();
 		AnimationClipParser03.READ_STRINGS();
 		for (var i: number = 0, n: number = AnimationClipParser03._BLOCK.count; i < n; i++) {
 			var index: number = reader.getUint16();
 			var blockName: string = AnimationClipParser03._strings[index];
-			var fn:()=>void = (AnimationClipParser03 as any)["READ_" + blockName];
+			var fn: () => void = (AnimationClipParser03 as any)["READ_" + blockName];
 			if (fn == null)
 				throw new Error("model file err,no this function:" + index + " " + blockName);
 			else
@@ -69,6 +79,12 @@ export class AnimationClipParser03 {
 
 	/**
 	 * @internal
+	 * @en Read and parse animation data from the byte reader.
+	 * This method reads AnimationClip information, keyframe nodes, and animation events.
+	 * It populates the AnimationClip object with the parsed data.
+	 * @zh 从字节读取器中读取并解析动画数据。
+	 * 此方法读取AnimationClip信息、关键帧节点和动画事件。
+	 * 它用解析的数据填充 AnimationClip 对象。
 	 */
 	static READ_ANIMATIONS(): void {
 		var i: number, j: number;
@@ -141,18 +157,18 @@ export class AnimationClipParser03 {
 						floatArrayKeyframe.time = startTimeTypes[reader.getUint16()];
 
 
-							var inTangent: Vector3 = floatArrayKeyframe.inTangent;
-							var outTangent: Vector3 = floatArrayKeyframe.outTangent;
-							var value: Vector3 = floatArrayKeyframe.value;
-							inTangent.x = reader.getFloat32();
-							inTangent.y = reader.getFloat32();
-							inTangent.z = reader.getFloat32();
-							outTangent.x = reader.getFloat32();
-							outTangent.y = reader.getFloat32();
-							outTangent.z = reader.getFloat32();
-							value.x = reader.getFloat32();
-							value.y = reader.getFloat32();
-							value.z = reader.getFloat32();
+						var inTangent: Vector3 = floatArrayKeyframe.inTangent;
+						var outTangent: Vector3 = floatArrayKeyframe.outTangent;
+						var value: Vector3 = floatArrayKeyframe.value;
+						inTangent.x = reader.getFloat32();
+						inTangent.y = reader.getFloat32();
+						inTangent.z = reader.getFloat32();
+						outTangent.x = reader.getFloat32();
+						outTangent.y = reader.getFloat32();
+						outTangent.z = reader.getFloat32();
+						value.x = reader.getFloat32();
+						value.y = reader.getFloat32();
+						value.z = reader.getFloat32();
 
 						break;
 					case 2:
@@ -160,21 +176,21 @@ export class AnimationClipParser03 {
 						node._setKeyframeByIndex(j, quaArrayKeyframe);
 						quaArrayKeyframe.time = startTimeTypes[reader.getUint16()];
 
-							var inTangentQua: Vector4 = quaArrayKeyframe.inTangent;
-							var outTangentQua: Vector4 = quaArrayKeyframe.outTangent;
-							var valueQua: Quaternion = quaArrayKeyframe.value;
-							inTangentQua.x = reader.getFloat32();
-							inTangentQua.y = reader.getFloat32();
-							inTangentQua.z = reader.getFloat32();
-							inTangentQua.w = reader.getFloat32();
-							outTangentQua.x = reader.getFloat32();
-							outTangentQua.y = reader.getFloat32();
-							outTangentQua.z = reader.getFloat32();
-							outTangentQua.w = reader.getFloat32();
-							valueQua.x = reader.getFloat32();
-							valueQua.y = reader.getFloat32();
-							valueQua.z = reader.getFloat32();
-							valueQua.w = reader.getFloat32();
+						var inTangentQua: Vector4 = quaArrayKeyframe.inTangent;
+						var outTangentQua: Vector4 = quaArrayKeyframe.outTangent;
+						var valueQua: Quaternion = quaArrayKeyframe.value;
+						inTangentQua.x = reader.getFloat32();
+						inTangentQua.y = reader.getFloat32();
+						inTangentQua.z = reader.getFloat32();
+						inTangentQua.w = reader.getFloat32();
+						outTangentQua.x = reader.getFloat32();
+						outTangentQua.y = reader.getFloat32();
+						outTangentQua.z = reader.getFloat32();
+						outTangentQua.w = reader.getFloat32();
+						valueQua.x = reader.getFloat32();
+						valueQua.y = reader.getFloat32();
+						valueQua.z = reader.getFloat32();
+						valueQua.w = reader.getFloat32();
 						break;
 					default:
 						throw "AnimationClipParser03:unknown type.";
@@ -186,7 +202,7 @@ export class AnimationClipParser03 {
 			var event: AnimationEvent = new AnimationEvent();
 			event.time = Math.min(clipDur, reader.getFloat32());//TODO:事件时间可能大于动画总时长
 			event.eventName = AnimationClipParser03._strings[reader.getUint16()];
-			var params: Array<number|boolean|string> = [];
+			var params: Array<number | boolean | string> = [];
 			var paramCount: number = reader.getUint16();
 			(paramCount > 0) && (event.params = params = []);
 

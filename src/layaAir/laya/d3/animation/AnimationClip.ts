@@ -22,7 +22,8 @@ import { Vector3 } from "../../maths/Vector3";
 import { Vector4 } from "../../maths/Vector4";
 
 /**
- * <code>AnimationClip</code> 类用于动画片段资源。
+ * @en The AnimationClip class is used for animation clip resources.
+ * @zh AnimationClip 类用于动画片段资源。
  */
 export class AnimationClip extends Resource {
 
@@ -30,9 +31,11 @@ export class AnimationClip extends Resource {
 	static _tempQuaternion0: Quaternion = new Quaternion();
 
 	/**
-	 * 动画数据解析为动画片段
 	 * @internal
 	 * @inheritDoc
+	 * @en Parse animation data into animation clip
+	 * @returns Animation clip
+	 * @zh 动画数据解析为动画片段
 	 * @returns 动画片段
 	 */
 	static _parse(data: any): AnimationClip {
@@ -56,9 +59,12 @@ export class AnimationClip extends Resource {
 	}
 
 	/**
-	 * 加载动画片段。
+	 * @en Load animation clip.
+	 * @param url The URL of the animation clip.
+	 * @param complete Callback function when loading is complete.
+	 * @zh 加载动画片段。
 	 * @param url 动画片段地址。
-	 * @param complete  完成回掉。load
+	 * @param complete 加载完成回调。
 	 */
 	static load(url: string, complete: Handler): void {
 		ILaya.loader.load(url, complete, null, Loader.ANIMATIONCLIP);
@@ -77,19 +83,26 @@ export class AnimationClip extends Resource {
 	/** @internal */
 	_animationEvents: AnimationEvent[];
 
-	/**是否循环。*/
+	/**
+	 * @en Whether the animation is looping.
+	 * @zh 是否循环。
+	 */
 	islooping: boolean = false;
 
 	/**
-	 * 动画持续时间
-	 * @returns 返回动画持续时间
+	 * @en Get the duration of the animation.
+	 * @returns The duration of the animation.
+	 * @zh 动画持续时间。
+	 * @returns 返回动画持续时间。
 	 */
 	duration(): number {
 		return this._duration;
 	}
 
 	/**
-	 * 创建一个 <code>AnimationClip</code> 实例。
+	 * @ignore
+	 * @en Creates an instance of AnimationClip.
+	 * @zh 创建一个AnimationClip实例。
 	 */
 	constructor() {
 		super();
@@ -97,10 +110,14 @@ export class AnimationClip extends Resource {
 	}
 
 	/**
-	 * 是否是Weight模式
-	 * @param weightMode 
-	 * @param nextweightMode 
-	 * @returns true 此段动画插值使用埃尔米特插值
+	 * @en Whether is Weight mode.
+	 * @param weightMode The current weight mode.
+	 * @param nextweightMode The next weight mode.
+	 * @returns True if this animation segment uses Hermite interpolation.
+	 * @zh 是否是Weight模式。
+	 * @param weightMode 当前的权重模式。
+	 * @param nextweightMode 下一个权重模式。
+	 * @returns 返回true，表示此段动画插值使用埃尔米特插值。
 	 */
 	private _weightModeHermite(weightMode: number, nextweightMode: number): boolean {
 		return (((weightMode & WeightedMode.Out) == 0) && ((nextweightMode & WeightedMode.In) == 0));
@@ -398,12 +415,20 @@ export class AnimationClip extends Resource {
 
 	/**
 	 * @internal
-	 * @param nodes 动画帧
-	 * @param playCurTime 现在的播放时间
-	 * @param realTimeCurrentFrameIndexes 目前到达了动画的第几帧
-	 * @param addtive 是否是addtive模式
-	 * @param frontPlay 是否是前向播放
-	 * @param outDatas 计算好的动画数据
+	 * @en Calculate animation data for the current frame.
+	 * @param nodes Animation keyframes.
+	 * @param playCurTime Current playback time.
+	 * @param realTimeCurrentFrameIndexes Current frame indices of the animation.
+	 * @param addtive Whether it's in additive mode.
+	 * @param frontPlay Whether it's playing forward.
+	 * @param outDatas Calculated animation data.
+	 * @zh 计算当前帧的动画数据。
+	 * @param nodes 动画帧。
+	 * @param playCurTime 现在的播放时间。
+	 * @param realTimeCurrentFrameIndexes 目前到达了动画的第几帧。
+	 * @param addtive 是否是addtive模式。
+	 * @param frontPlay 是否是前向播放。
+	 * @param outDatas 计算好的动画数据。
 	 */
 	_evaluateClipDatasRealTime(nodes: KeyframeNodeList, playCurTime: number, realTimeCurrentFrameIndexes: Int16Array, addtive: boolean, frontPlay: boolean, outDatas: Array<number | Vector3 | Quaternion | Vector4 | Vector2>, avatarMask: AvatarMask): void {
 		for (var i = 0, n = nodes.count; i < n; i++) {
@@ -668,8 +693,10 @@ export class AnimationClip extends Resource {
 	}
 
 	/**
-	 * 添加动画事件。
-	 * @param event 动画事件
+	 * @en Add an animation event.
+	 * @param event The animation event to be added.
+	 * @zh 添加动画事件。
+	 * @param event 动画事件。
 	 */
 	addEvent(event: AnimationEvent): void {
 		var index = this._binarySearchEventIndex(event.time);
@@ -677,10 +704,11 @@ export class AnimationClip extends Resource {
 	}
 
 	/**
-	 * 销毁资源
 	 * @internal
 	 * @inheritDoc
 	 * @override
+	 * @en Dispose the resources.
+	 * @zh 销毁资源。
 	 */
 	protected _disposeResource(): void {
 		this._nodes = null;
