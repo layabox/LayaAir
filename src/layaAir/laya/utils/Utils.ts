@@ -224,5 +224,15 @@ export class Utils {
         else
             return path + newExt;
     }
+
+    /**
+     * 
+     * @param str 判断一个字符串是否UUID格式
+     * @returns 
+     */
+    static isUUID(str: string): boolean {
+        //uuid xxxxxxxx-xxxx-...
+        return str && str.length >= 36 && str.charCodeAt(8) === 45 && str.charCodeAt(13) === 45
+    }
 }
 

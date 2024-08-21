@@ -351,12 +351,12 @@ export class JsonBinRead {
 			keyMap.keyArray[i / 2] = [keyMap.strs[i], parseInt(keyMap.strs[i + 1])];
 		}
 		let time2 = Browser.now();
-		//if( (Browser.now()-time)>10) console.log("jsonbinread delay:",(Browser.now()-time),keyMap.strs.toString());
+		//if( (Browser.now()-time)>10) console.debug("jsonbinread delay:",(Browser.now()-time),keyMap.strs.toString());
 		this._dataStartOfs = bData.pos;
 		var r: any = {};
 		this._readOne(r, bData, null, JsonBinRead.OBJECT, keyMap);
 
-		if ((Browser.now() - time) > 10) console.log("jsonbinread delay:", (Browser.now() - time) + "/" + (time2 - time), data.byteLength);
+		if ((Browser.now() - time) > 10) console.debug("jsonbinread delay:", (Browser.now() - time) + "/" + (time2 - time), data.byteLength);
 
 		return binMark == JsonBinRead.ISJSONBIN3 ? r.top : r;
 	}

@@ -171,7 +171,7 @@ export class URL {
     }
 
     static getResURLByUUID(url: string): string {
-        if (url.length >= 36 && url.charCodeAt(8) === 45 && url.charCodeAt(13) === 45) //uuid xxxxxxxx-xxxx-...
+        if (Utils.isUUID(url))
             return "res://" + url;
         else
             return url;

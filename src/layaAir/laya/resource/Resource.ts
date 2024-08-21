@@ -1,3 +1,4 @@
+import { LayaEnv } from "../../LayaEnv";
 import { ILaya } from "../../ILaya";
 import { EventDispatcher } from "../events/EventDispatcher";
 
@@ -105,6 +106,9 @@ export class Resource extends EventDispatcher {
     protected _destroyed?: boolean;
     protected _referenceCount: number = 0;
     protected _obsolute: boolean;
+    protected _deps: Array<Resource>;
+    /** 是否建立引用跟踪链。 */
+    protected _traceDeps: boolean;
 
     /**
      * @en Whether to lock the resource, if true, the resource cannot be automatically released.
@@ -165,7 +169,6 @@ export class Resource extends EventDispatcher {
         return this._destroyed;
     }
 
-
     /** 
      * @en If a cached resource observer is set to true, then:
      * - 1) getRes will still return this resource;
@@ -179,7 +182,20 @@ export class Resource extends EventDispatcher {
     }
 
     set obsolute(value: boolean) {
-        this._obsolute = value;
+        if (this._obsolute != value) {
+            this._obsolute = value;
+
+            if (value && !LayaEnv.isPlaying)
+                this.event("obsolute");
+        }
+    }
+
+    /**
+     * @en The list of dependencies for the resource.
+     * @zh 资源的依赖列表。
+     */
+    get deps(): ReadonlyArray<Resource> {
+        return this._deps;
     }
 
     /**
@@ -204,6 +220,8 @@ export class Resource extends EventDispatcher {
             Resource._idResourcesMap[this._id] = this;
         this.lock = false;
         this.destroyedImmediately = true;
+        this._deps = [];
+        this._traceDeps = false;
     }
 
     /**
@@ -288,14 +306,41 @@ export class Resource extends EventDispatcher {
         this._referenceCount = 0;
     }
 
-    protected _recoverResource(): void {
+    /**
+     * 增加一个依赖内容
+     * @param res 依赖内容
+     */
+    addDep(res: Resource) {
+        if (res instanceof Resource) {
+            res._addReference();
+            this._deps.push(res);
+
+            if (!LayaEnv.isPlaying && res._traceDeps)
+                res.on("obsolute", this, this.onDepObsolute);
+        }
+    }
+
+    /**
+     * 增加多个依赖内容
+     * @param resArr 依赖内容
+     */
+    addDeps(resArr: Array<Resource>) {
+        for (let res of resArr) {
+            if (res instanceof Resource) {
+                res._addReference();
+                this._deps.push(res);
+
+                if (!LayaEnv.isPlaying && res._traceDeps)
+                    res.on("obsolute", this, this.onDepObsolute);
+            }
+        }
+    }
+
+    private onDepObsolute() {
+        this.obsolute = true;
     }
 
     protected _disposeResource(): void {
-    }
-
-    protected _activeResource(): void {
-
     }
 
     /**
@@ -310,6 +355,12 @@ export class Resource extends EventDispatcher {
         this.lock = false; //解锁资源，强制清理
         _disposingCounter++;
         this._disposeResource();
+        for (let res of this._deps) {
+            res._removeReference();
+
+            if (!LayaEnv.isPlaying && res._traceDeps)
+                res.off("obsolute", this, this.onDepObsolute);
+        }
         _disposingCounter--;
         this.offAll();
         delete Resource._idResourcesMap[this.id];
