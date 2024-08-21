@@ -23,46 +23,93 @@ import { RenderState } from "../RenderDriver/RenderModuleData/Design/RenderState
 import { IDefineDatas } from "../RenderDriver/RenderModuleData/Design/IDefineDatas";
 
 
-
+/**
+ * @en The material render mode.
+ * @zh 材质渲染模式。
+ */
 export enum MaterialRenderMode {
-    /**渲染状态_不透明。*/
+    /**
+     * @en RenderMode: Opaque
+     * @zh 渲染状态：不透明。
+     */
     RENDERMODE_OPAQUE,
-    /**渲染状态_阿尔法测试。*/
+    /**
+     * @en RenderMode: Alpha Testing
+     * @zh 渲染状态：阿尔法测试。
+     */
     RENDERMODE_CUTOUT,
-    /**渲染状态__透明。*/
+    /**
+     * @en RenderMode: Transparent
+     * @zh 渲染状态：透明。
+     */
     RENDERMODE_TRANSPARENT,
-    /**渲染状态__加色法混合。*/
+    /**
+     * @en RenderMode: additive mixing
+     * @zh 渲染状态：加色法混合。
+     */
     RENDERMODE_ADDTIVE,
-    /**渲染状态_透明混合。*/
+    /**
+     * @en RenderMode: Alpha Blending mixture
+     * @zh 渲染状态：透明混合。
+     */
     RENDERMODE_ALPHABLENDED,
-    /**渲染状态_自定义 */
+    /**
+     * @en RenderMode: Custom
+     * @zh 渲染状态：自定义 
+     */
     RENDERMODE_CUSTOME
 }
 
 /**
- * <code>Material</code> 类用于创建材质。
+ * @en The Material class is used to create materials.
+ * @zh Material 类用于创建材质。
  */
 export class Material extends Resource implements IClone {
-    /** 渲染队列_不透明。*/
+    /** 
+     * @en RenderQueue: Opaque
+     * @zh 渲染队列：不透明。
+     */
     static RENDERQUEUE_OPAQUE: number = 2000;
-    /** 渲染队列_阿尔法裁剪。*/
+    /** 
+     * @en RenderQueue: Alpha Testing
+     * @zh 渲染队列：阿尔法测试。
+     */
     static RENDERQUEUE_ALPHATEST: number = 2450;
-    /** 渲染队列_透明。*/
+    /** 
+     * @en RenderQueue: Transparent
+     * @zh 渲染队列：透明。
+     */
     static RENDERQUEUE_TRANSPARENT: number = 3000;
 
-    /**着色器变量,透明测试值。*/
+    /**
+     * @en Shader variables, transparent test values.
+     * @zh 着色器变量,透明测试值。
+     */
     static ALPHATESTVALUE: number;
 
-    /**材质级着色器宏定义,透明测试。*/
-    static SHADERDEFINE_ALPHATEST: ShaderDefine;
-    /**材质级着色器宏定义,主贴图。*/
-    static SHADERDEFINE_MAINTEXTURE: ShaderDefine;
-    /**材质级着色器宏定义,叠加雾效。*/
-    static SHADERDEFINE_ADDTIVEFOG: ShaderDefine;
     /**
-     * 加载材质。
-     * @param url 材质地址。
-     * @param complete 完成回掉。
+     * @en Material grade shader macro definition, transparency testing.
+     * @zh 材质级着色器宏定义,透明测试。
+     */
+    static SHADERDEFINE_ALPHATEST: ShaderDefine;
+    /**
+     * @en Material grade shader macro definition, main texture.
+     * @zh 材质级着色器宏定义,主贴图。
+     */
+    static SHADERDEFINE_MAINTEXTURE: ShaderDefine;
+    /**
+     * @en Material grade shader macro definition, additive fog.
+     * @zh 材质级着色器宏定义,叠加雾效。
+     */
+    static SHADERDEFINE_ADDTIVEFOG: ShaderDefine;
+
+    /**
+     * @en Loads a material from a URL.
+     * @param url The URL from which to load the material.
+     * @param complete A callback function that is called when the material has been loaded.
+     * @zh 从URL加载材质。
+     * @param url 材质的URL。
+     * @param complete 加载完成后的回调函数。
      */
     static load(url: string, complete: Handler): void {
         ILaya.loader.load(url, complete, null, Loader.MATERIAL);
@@ -101,8 +148,11 @@ export class Material extends Resource implements IClone {
     _shader: Shader3D;
     /** @internal */
     _shaderValues: ShaderData | null;//TODO:剥离贴图ShaderValue
-    /** 所属渲染队列. */
     private _renderQueue: number;
+    /** 
+     * @en The rendering queue of the material.
+     * @zh 所属渲染队列.
+     */
     public get renderQueue(): number {
         return this._renderQueue;
     }
@@ -111,17 +161,23 @@ export class Material extends Resource implements IClone {
         this.ownerELement && (this.ownerELement.material = this);//更新RenderElementRenderQueue
     }
 
+    /**
+     * @en Owner element.
+     * @zh 所属元素
+     */
     ownerELement: any;
 
     /**
-     * 着色器数据。
+     * @en The shader data.
+     * @zh 着色器数据。
      */
     get shaderData(): ShaderData {
         return this._shaderValues;
     }
 
     /**
-     * 透明测试模式裁剪值。
+     * @en The alpha test value used for the alpha test mode of the material.
+     * @zh 材质用于透明测试模式的透明测试值。
      */
     get alphaTestValue(): number {
         return this._shaderValues.getNumber(Material.ALPHATESTVALUE);
@@ -132,7 +188,8 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 是否透明裁剪。
+     * @en Whether the material uses alpha test mode.
+     * @zh 材质是否使用透明裁剪。
      */
     get alphaTest(): boolean {
         return this.shaderData.hasDefine(Material.SHADERDEFINE_ALPHATEST);
@@ -146,25 +203,32 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 增加Shader宏定义。
-     * @param value 宏定义。
+     * @en Adds a shader define to the material's shader data.
+     * @param define The shader define to add.
+     * @zh 向材质的着色器数据添加着色器宏定义。
+     * @param define 要添加的着色器宏定义。
      */
     addDefine(define: ShaderDefine): void {
         this._shaderValues.addDefine(define);
     }
 
     /**
-     * 移除Shader宏定义。
-     * @param value 宏定义。
+     * @en Removes a shader define from the material's shader data.
+     * @param define The shader define to remove.
+     * @zh 从材质的着色器数据移除着色器宏定义。
+     * @param define 要移除的着色器宏定义。
      */
     removeDefine(define: ShaderDefine): void {
         this._shaderValues.removeDefine(define);
     }
 
     /**
-     * 开启 或 关闭 shader 宏定义
-     * @param define 宏
-     * @param value true: addDefine, false: removeDefine
+     * @en Enables or disables a shader define.
+     * @param define The shader define to enable or disable.
+     * @param value true to add the define, false to remove it.
+     * @zh 开启或关闭着色器宏定义。
+     * @param define 要开启或关闭的着色器宏定义。
+     * @param value true 表示添加宏定义，false 表示移除宏定义。
      */
     setDefine(define: ShaderDefine, value: boolean) {
         if (value) {
@@ -176,15 +240,20 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 是否包含Shader宏定义。
-     * @param value 宏定义。
+     * @en Checks if a shader define is present.
+     * @param define The shader define to check for.
+     * @returns true if the define is present, false otherwise.
+     * @zh 检查是否包含特定的着色器宏定义。
+     * @param define 要检查的着色器宏定义。
+     * @returns 如果存在宏定义返回 true，否则返回 false。
      */
     hasDefine(define: ShaderDefine): boolean {
         return this._shaderValues.hasDefine(define);
     }
 
     /**
-     * 是否写入深度。
+     * @en Whether depth writing is enabled for this material.
+     * @zh 此材质是否启用深度写入。
      */
     get depthWrite(): boolean {
         return this._shaderValues.getBool(Shader3D.DEPTH_WRITE);
@@ -196,7 +265,8 @@ export class Material extends Resource implements IClone {
 
 
     /**
-     * 剔除方式。
+     * @en The culling mode for this material.
+     * @zh 此材质的剔除方式。
      */
     get cull(): number {
         return this._shaderValues.getInt(Shader3D.CULL);
@@ -207,7 +277,8 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 混合方式。
+     * @en The blend mode for this material.
+     * @zh 此材质的混合方式。
      */
     get blend(): number {
         return this._shaderValues.getInt(Shader3D.BLEND);
@@ -219,7 +290,8 @@ export class Material extends Resource implements IClone {
 
 
     /**
-     * 混合源。
+     * @en The blend source for this material.
+     * @zh 此材质的混合源。
      */
     get blendSrc(): number {
         return this._shaderValues.getInt(Shader3D.BLEND_SRC);
@@ -232,7 +304,8 @@ export class Material extends Resource implements IClone {
 
 
     /**
-     * 混合目标。
+     * @en The blend destination for this material.
+     * @zh 此材质的混合目标。
      */
     get blendDst(): number {
         return this._shaderValues.getInt(Shader3D.BLEND_DST);
@@ -243,7 +316,8 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 混合源 alpha
+     * @en The Alpha value of the blend source for this material.
+     * @zh 此材质的混合源的 Alpha 值。
      */
     public get blendSrcAlpha(): number {
         return this._shaderValues.getInt(Shader3D.BLEND_SRC_ALPHA);
@@ -253,20 +327,19 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 混合原 RGB
+     * @en The RGB value of the blend source for this material.
+     * @zh 此材质的混合源的 RGB 值。
      */
     public get blendSrcRGB(): number {
         return this._shaderValues.getInt(Shader3D.BLEND_SRC_RGB);
     }
-    /**
-     * 混合原 RGB
-     */
     public set blendSrcRGB(value: number) {
         this._shaderValues.setInt(Shader3D.BLEND_SRC_RGB, value);
     }
 
     /**
-     * 混合目标 RGB
+     * @en The RGB value of the blend destination for this material.
+     * @zh 此材质的混合目标的 RGB 值。
      */
     public get blendDstRGB(): number {
         return this._shaderValues.getInt(Shader3D.BLEND_DST_RGB);
@@ -276,7 +349,8 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 混合目标 alpha
+     * @en The Alpha value of the blend destination for this material.
+     * @zh 此材质的混合目标的 Alpha 值。
      */
     public get blendDstAlpha(): number {
         return this._shaderValues.getInt(Shader3D.BLEND_DST_ALPHA);
@@ -286,7 +360,8 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 混合方程
+     * @en The blend equation for this material.
+     * @zh 此材质的混合方程。
      */
     public get blendEquation(): number {
         return this._shaderValues.getInt(Shader3D.BLEND_EQUATION);
@@ -296,7 +371,8 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 混合方式 RGB
+     * @en The RGB value of the blend equation for this material.
+     * @zh 此材质的混合方程的 RGB 值。
      */
     public get blendEquationRGB(): number {
         return this._shaderValues.getInt(Shader3D.BLEND_EQUATION_RGB);
@@ -306,7 +382,8 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 混合方式 Alpha
+     * @en The Alpha value of the blend equation for this material.
+     * @zh 此材质的混合方程的 Alpha 值。
      */
     public get blendEquationAlpha(): number {
         return this._shaderValues.getInt(Shader3D.BLEND_EQUATION_ALPHA);
@@ -316,7 +393,8 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 深度测试方式。
+     * @en The depth test mode.
+     * @zh 深度测试方式。
      */
     get depthTest(): number {
         return this._shaderValues.getInt(Shader3D.DEPTH_TEST);
@@ -327,7 +405,8 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 模板测试方式
+     * @en The stencil test mode.
+     * @zh 模板测试方式
      */
     get stencilTest(): number {
         return this._shaderValues.getInt(Shader3D.STENCIL_TEST);
@@ -338,7 +417,8 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 是否写入模板。
+     * @en Whether to write it into the stencil
+     * @zh 是否写入模板。
      */
     get stencilWrite(): boolean {
         return this._shaderValues.getBool(Shader3D.STENCIL_WRITE);
@@ -349,31 +429,33 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 写入模板值
+     * @en Stencil values
+     * @zh 模板值
      */
-    set stencilRef(value: number) {
-        this._shaderValues.setInt(Shader3D.STENCIL_Ref, value);
-    }
-
     get stencilRef(): number {
         return this._shaderValues.getInt(Shader3D.STENCIL_Ref);
     }
 
-    /** */
-    /**
-     * 写入模板测试设置
-     * vector(fail, zfail, zpass)
-     */
-    set stencilOp(value: Vector3) {
-        this._shaderValues.setVector3(Shader3D.STENCIL_Op, value);
+    set stencilRef(value: number) {
+        this._shaderValues.setInt(Shader3D.STENCIL_Ref, value);
     }
 
+    /** */
+    /**
+     * @en The stencil operation settings for testing. The vector contains (fail, zfail, zpass) .
+     * @zh 模板测试设置，向量包含（fail，zfail，zpass）。
+     */
     get stencilOp(): Vector3 {
         return this._shaderValues.getVector3(Shader3D.STENCIL_Op);
     }
 
+    set stencilOp(value: Vector3) {
+        this._shaderValues.setVector3(Shader3D.STENCIL_Op, value);
+    }
+
     /**
-     * 获得材质属性
+     * @en The material properties.
+     * @zh 材质属性。
      */
     get MaterialProperty(): any {
         let propertyMap: any = {};
@@ -385,7 +467,8 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 获得材质宏
+     * @en The material defines.
+     * @zh 材质宏定义。
      */
     get MaterialDefine(): Array<string> {
         let shaderDefineArray = new Array<string>();
@@ -395,8 +478,13 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 渲染模式。
+     * @en Material rendering mode
+     * @zh 材质渲染模式
      */
+    get materialRenderMode() {
+        return this._matRenderNode;
+    }
+
     set materialRenderMode(value: MaterialRenderMode) {
         this._matRenderNode = value;
         switch (value) {
@@ -458,14 +546,9 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 获得材质渲染状态
-     */
-    get materialRenderMode() {
-        return this._matRenderNode;
-    }
-
-    /**
-     * 创建一个 <code>Material</code> 实例。
+     * @ignore
+     * @en Creates an instance of the Material.
+     * @zh 创建一个Material实例。
      */
     constructor() {
         super();
@@ -538,23 +621,28 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 获取材质的shader
+     * @en The shader of the material.
+     * @zh 材质的着色器。
      */
     get shader() {
         return this._shader;
     }
 
     /**
-     * get all material uniform property 
-     * @returns 
+     * @en Gets all uniform properties of the material.
+     * @returns The map of uniform properties. 
+     * @zh 获取材质的所有uniform属性。
+     * @returns uniform属性的映射表。
      */
     effectiveProperty() {
         return this._shader.getSubShaderAt(0)._uniformTypeMap;
     }
 
     /**
-     * 设置使用Shader名字。
-     * @param name 名称。
+     * @en Sets the shader by its name.
+     * @param name The name of the shader to set. 
+     * @zh 通过名称设置使用Shader。
+     * @param name 要设置的着色器名称。
      */
     setShaderName(name: string): void {
         this._shader = Shader3D.find(name);
@@ -599,28 +687,36 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 通过索引获得bool属性值
-     * @param uniformIndex 属性索引
-     * @returns 
+     * @en Gets the boolean uniform value by index.
+     * @param uniformIndex The index of the uniform.
+     * @returns The boolean value of the property. 
+     * @zh 通过uniform索引获取布尔值。
+     * @param uniformIndex uniform索引。
+     * @returns uniform索引的布尔值。
      */
     getBoolByIndex(uniformIndex: number): boolean {
         return this.shaderData.getBool(uniformIndex);
     }
 
-
     /**
-     * 通过索引设置bool值
-     * @param uniformIndex 属性索引
-     * @param value 值
+     * @en Sets the boolean value by uniform index.
+     * @param uniformIndex The index of the uniform. 
+     * @param value The bool value to set. 
+     * @zh 通过uniform索引设置布尔值。
+     * @param uniformIndex uniform索引。
+     * @param value 要设置的布尔值。
      */
     setBoolByIndex(uniformIndex: number, value: boolean) {
         this.shaderData.setBool(uniformIndex, value);
     }
 
     /**
-     * 获得bool值
-     * @param name 属性名称
-     * @returns 
+     * @en Gets a boolean value of uniformIndex by property name.
+     * @param name The name of the property.
+     * @returns The boolean value.
+     * @zh 根据属性名称获得uniform索引的布尔值。
+     * @param name 属性名称。
+     * @returns uniform索引的布尔值。
      */
     getBool(name: string): boolean {
         let uniformIndex = Shader3D.propertyNameToID(name);
@@ -628,9 +724,12 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 设置bool值
-     * @param name 属性名称
-     * @param value 值
+     * @en Sets a boolean value by property name.
+     * @param name The name of the property.
+     * @param value The value to set.
+     * @zh 设置属性名称对应的布尔值。
+     * @param name 属性名称。
+     * @param value 要设置的值。
      */
     setBool(name: string, value: boolean) {
         let uniformIndex = Shader3D.propertyNameToID(name);
@@ -638,27 +737,36 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 通过索引获得Float值
-     * @param uniformIndex 属性索引
-     * @returns 
+     * @en Gets a float value by uniform index.
+     * @param uniformIndex The index of the property.
+     * @returns The float value.
+     * @zh 通过属性索引获得浮点值。
+     * @param uniformIndex 属性索引。
+     * @returns 浮点值。
      */
     getFloatByIndex(uniformIndex: number): number {
         return this.shaderData.getNumber(uniformIndex);
     }
 
     /**
-     * 通过索引设置Float值
-     * @param uniformIndex 属性索引
-     * @param value 值
+     * @en Sets a float value by uniform index.
+     * @param uniformIndex The index of the property.
+     * @param value The value to set.
+     * @zh 通过属性索引设置浮点值。
+     * @param uniformIndex 属性索引。
+     * @param value 要设置的值。
      */
     setFloatByIndex(uniformIndex: number, value: number) {
         this.shaderData.setNumber(uniformIndex, value);
     }
 
     /**
-     * 获得Float值
-     * @param name 属性名称
-     * @returns 
+     * @en Gets a float value by property name.
+     * @param name The name of the property.
+     * @returns The float value.
+     * @zh 根据属性名称获得浮点值。
+     * @param name 属性名称。
+     * @returns 浮点值。
      */
     getFloat(name: string): number {
         let uniformIndex = Shader3D.propertyNameToID(name);
@@ -666,9 +774,12 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 设置Float值
-     * @param name 属性名称
-     * @param value 值
+     * @en Sets a float value by property name.
+     * @param name The name of the property.
+     * @param value The value to set.
+     * @zh 设置属性名称对应的浮点值。
+     * @param name 属性名称。
+     * @param value 要设置的值。
      */
     setFloat(name: string, value: number) {
         let uniformIndex = Shader3D.propertyNameToID(name);
@@ -676,27 +787,36 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 通过索引获得Int值
-     * @param uniformIndex 属性索引
-     * @returns 
+     * @en Gets an integer value by uniform index.
+     * @param uniformIndex The index of the property.
+     * @returns The integer value.
+     * @zh 通过属性索引获得整数值。
+     * @param uniformIndex 属性索引。
+     * @returns 整数值。
      */
     getIntByIndex(uniformIndex: number): number {
         return this.shaderData.getInt(uniformIndex);
     }
 
     /**
-     * 通过索引设置Int值
-     * @param uniformIndex 属性索引
-     * @param value 值
+     * @en Sets an integer value by uniform index.
+     * @param uniformIndex The index of the property.
+     * @param value The value to set.
+     * @zh 通过属性索引设置整数值。
+     * @param uniformIndex 属性索引。
+     * @param value 要设置的值。
      */
     setIntByIndex(uniformIndex: number, value: number) {
         this.shaderData.setInt(uniformIndex, value);
     }
 
     /**
-     * 获得Int值
-     * @param name 属性名称
-     * @returns 
+     * @en Gets an integer value by property name.
+     * @param name The name of the property.
+     * @returns The integer value.
+     * @zh 根据属性名称获得整数值。
+     * @param name 属性名称。
+     * @returns 整数值。
      */
     getInt(name: string): number {
         let uniformIndex = Shader3D.propertyNameToID(name);
@@ -704,9 +824,12 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 设置Int值
-     * @param name 属性名称
-     * @param value 值
+     * @en Sets an integer value by property name.
+     * @param name The name of the property.
+     * @param value The value to set.
+     * @zh 设置属性名称对应的整数值。
+     * @param name 属性名称。
+     * @param value 要设置的值。
      */
     setInt(name: string, value: number) {
         let uniformIndex = Shader3D.propertyNameToID(name);
@@ -714,27 +837,36 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 通过索引获得Vector2
-     * @param uniformIndex 属性索引
-     * @returns 
+     * @en Gets a Vector2 value by uniform index.
+     * @param uniformIndex The index of the property.
+     * @returns The Vector2 value.
+     * @zh 通过属性索引获得Vector2值。
+     * @param uniformIndex 属性索引。
+     * @returns Vector2值。
      */
     getVector2ByIndex(uniformIndex: number): Vector2 {
         return this.shaderData.getVector2(uniformIndex);
     }
 
     /**
-     * 通过索引设置Vector2
-     * @param uniformIndex 属性索引
-     * @param value 值
+     * @en Sets a Vector2 value by uniform index.
+     * @param uniformIndex The index of the property.
+     * @param value The Vector2 value to set.
+     * @zh 通过属性索引设置Vector2值。
+     * @param uniformIndex 属性索引。
+     * @param value 要设置的Vector2值。
      */
     setVector2ByIndex(uniformIndex: number, value: Vector2) {
         this.shaderData.setVector2(uniformIndex, value);
     }
 
     /**
-     * 获得Vector2
-     * @param name 属性名称
-     * @returns 
+     * @en Gets a Vector2 value by property name.
+     * @param name The name of the property.
+     * @returns The Vector2 value.
+     * @zh 根据属性名称获得Vector2值。
+     * @param name 属性名称。
+     * @returns Vector2值。
      */
     getVector2(name: string): Vector2 {
         let uniformIndex = Shader3D.propertyNameToID(name);
@@ -742,9 +874,12 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 设置Vector2
-     * @param name 属性名称
-     * @param value 值
+     * @en Sets a Vector2 value by property name.
+     * @param name The name of the property.
+     * @param value The Vector2 value to set.
+     * @zh 设置属性名称对应的Vector2值。
+     * @param name 属性名称。
+     * @param value 要设置的Vector2值。
      */
     setVector2(name: string, value: Vector2) {
         let uniformIndex = Shader3D.propertyNameToID(name);
@@ -752,27 +887,36 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 通过索引获得Vector3
-     * @param uniformIndex 属性索引
-     * @returns 
+     * @en Retrieves a Vector3 value by its uniform index.
+     * @param uniformIndex The index of the property.
+     * @returns The retrieved Vector3 value.
+     * @zh 通过属性索引获得Vector3值。
+     * @param uniformIndex 属性索引。
+     * @returns 检索到的Vector3值。
      */
     getVector3ByIndex(uniformIndex: number): Vector3 {
         return this.shaderData.getVector3(uniformIndex);
     }
 
     /**
-     * 通过索引设置Vector3
-     * @param uniformIndex 属性索引
-     * @param value 值
+     * @en Sets a Vector3 value by its uniform index.
+     * @param uniformIndex The index of the property.
+     * @param value The Vector3 value to set.
+     * @zh 通过属性索引设置Vector3值。
+     * @param uniformIndex 属性索引。
+     * @param value 要设置的Vector3值。
      */
     setVector3ByIndex(uniformIndex: number, value: Vector3) {
         this.shaderData.setVector3(uniformIndex, value);
     }
 
     /**
-     * 获得Vector3
-     * @param name 属性名称
-     * @returns 
+     * @en Retrieves a Vector3 value by its property name.
+     * @param name The name of the property as defined in the shader.
+     * @returns The retrieved Vector3 value.
+     * @zh 根据属性名称获得Vector3值。
+     * @param name 着色器中定义的属性名称。
+     * @returns 检索到的Vector3值。
      */
     getVector3(name: string) {
         let uniformIndex = Shader3D.propertyNameToID(name);
@@ -780,9 +924,12 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 设置Vector3
-     * @param name 属性名称
-     * @param value 值
+     * @en Sets a Vector3 value by its property name.
+     * @param name The name of the property as defined in the shader.
+     * @param value The Vector3 value to set.
+     * @zh 设置属性名称对应的Vector3值。
+     * @param name 着色器中定义的属性名称。
+     * @param value 要设置的Vector3值。
      */
     setVector3(name: string, value: Vector3) {
         let uniformIndex = Shader3D.propertyNameToID(name);
@@ -790,27 +937,36 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 通过索引设置Vector4
-     * @param uniformIndex 属性索引
-     * @param value 值
+     * @en Sets a Vector4 value by uniform index.
+     * @param uniformIndex The index of the property.
+     * @param value The Vector4 value to set.
+     * @zh 通过属性索引设置Vector4值。
+     * @param uniformIndex 属性索引。
+     * @param value 要设置的Vector4值。
      */
     setVector4ByIndex(uniformIndex: number, value: Vector4) {
         this.shaderData.setVector(uniformIndex, value);
     }
 
     /**
-     * 通过索引获取Vector4
-     * @param uniformIndex 属性索引
-     * @returns 
+     * @en Retrieves a Vector4 value by uniform index.
+     * @param uniformIndex The index of the property.
+     * @returns The retrieved Vector4 value.
+     * @zh 通过属性索引获取Vector4值。
+     * @param uniformIndex 属性索引。
+     * @returns 检索到的Vector4值。
      */
     getVector4ByIndex(uniformIndex: number): Vector4 {
         return this.shaderData.getVector(uniformIndex);
     }
 
     /**
-     * 设置Vector4
-     * @param name 属性名称
-     * @param value 值
+     * @en Sets a Vector4 value by property name.
+     * @param name The name of the property.
+     * @param value The Vector4 value to set.
+     * @zh 设置属性名称对应的Vector4值。
+     * @param name 属性名称。
+     * @param value 要设置的Vector4值。
      */
     setVector4(name: string, value: Vector4) {
         let uniformIndex = Shader3D.propertyNameToID(name);
@@ -818,9 +974,12 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 获得Vector4
-     * @param name 属性名称
-     * @returns 
+     * @en Retrieves a Vector4 value by property name.
+     * @param name The name of the property.
+     * @returns The retrieved Vector4 value.
+     * @zh 根据属性名称获得Vector4值。
+     * @param name 属性名称。
+     * @returns 检索到的Vector4值。
      */
     getVector4(name: string) {
         let uniformIndex = Shader3D.propertyNameToID(name);
@@ -828,27 +987,36 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 通过索引获得Color
-     * @param uniformIndex 属性索引
-     * @returns 
+     * @en Retrieves a Color value by its uniform index.
+     * @param uniformIndex The index of the property.
+     * @returns The retrieved Color value.
+     * @zh 通过属性索引获得颜色值。
+     * @param uniformIndex 属性索引。
+     * @returns 检索到的颜色值。
      */
     getColorByIndex(uniformIndex: number): Color {
         return this.shaderData.getColor(uniformIndex);
     }
 
     /**
-     * 通过索引设置Color
-     * @param uniformIndex 属性索引
-     * @param value 值
+     * @en Sets a Color value by its uniform index.
+     * @param uniformIndex The index of the property.
+     * @param value The Color value to set.
+     * @zh 通过属性索引设置颜色值。
+     * @param uniformIndex 属性索引。
+     * @param value 要设置的颜色值。
      */
     setColorByIndex(uniformIndex: number, value: Color) {
         this.shaderData.setColor(uniformIndex, value);
     }
 
     /**
-     * 获得Color
-     * @param name 属性名称
-     * @returns 
+     * @en Retrieves a Color value by property name.
+     * @param name The name of the property.
+     * @returns The retrieved Color value.
+     * @zh 根据属性名称获得颜色值。
+     * @param name 属性名称。
+     * @returns 检索到的颜色值。
      */
     getColor(name: string): Color {
         let uniformIndex = Shader3D.propertyNameToID(name);
@@ -856,9 +1024,12 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 设置Color
-     * @param name 属性名称
-     * @param value 值
+     * @en Sets a Color value by property name.
+     * @param name The name of the property.
+     * @param value The Color value to set.
+     * @zh 设置属性名称对应的颜色值。
+     * @param name 属性名称。
+     * @param value 要设置的颜色值。
      */
     setColor(name: string, value: Color) {
         let uniformIndex = Shader3D.propertyNameToID(name);
@@ -866,27 +1037,36 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 获得Matrix4x4
-     * @param uniformIndex 属性索引
-     * @returns 
+     * @en Retrieves a Matrix4x4 value by its uniform index.
+     * @param uniformIndex The index of the property.
+     * @returns The retrieved Matrix4x4 value.
+     * @zh 通过属性索引获得4x4矩阵值。
+     * @param uniformIndex 属性索引。
+     * @returns 检索到的4x4矩阵值。
      */
     getMatrix4x4ByIndex(uniformIndex: number): Matrix4x4 {
         return this.shaderData.getMatrix4x4(uniformIndex);
     }
 
     /**
-     * 通过索引设置Matrix4x4
-     * @param uniformIndex 属性索引
-     * @param value 值
+     * @en Sets a Matrix4x4 value by its uniform index.
+     * @param uniformIndex The index of the property.
+     * @param value The Matrix4x4 value to set.
+     * @zh 通过属性索引设置4x4矩阵值。
+     * @param uniformIndex 属性索引。
+     * @param value 要设置的4x4矩阵值。
      */
     setMatrix4x4ByIndex(uniformIndex: number, value: Matrix4x4) {
         this.shaderData.setMatrix4x4(uniformIndex, value);
     }
 
     /**
-     * 获得Matrix4x4
-     * @param name 属性名称
-     * @returns 
+     * @en Retrieves a Matrix4x4 value by property name.
+     * @param name The name of the property.
+     * @returns The retrieved Matrix4x4 value.
+     * @zh 根据属性名称获得4x4矩阵值。
+     * @param name 属性名称。
+     * @returns 检索到的4x4矩阵值。
      */
     getMatrix4x4(name: string): Matrix4x4 {
         let uniformIndex = Shader3D.propertyNameToID(name);
@@ -894,9 +1074,12 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 设置Matrix4x4
-     * @param name 属性名称
-     * @param value 值
+     * @en Sets a Matrix4x4 value by property name.
+     * @param name The name of the property.
+     * @param value The Matrix4x4 value to set.
+     * @zh 设置属性名称对应的4x4矩阵值。
+     * @param name 属性名称。
+     * @param value 要设置的4x4矩阵值。
      */
     setMatrix4x4(name: string, value: Matrix4x4) {
         let uniformIndex = Shader3D.propertyNameToID(name);
@@ -904,27 +1087,36 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 通过索引获取 matrix3x3
-     * @param index 索引 
-     * @returns 
+     * @en Retrieves a 3x3 matrix value by its index.
+     * @param index The index of the matrix within the shader data.
+     * @returns The retrieved 3x3 matrix value.
+     * @zh 通过索引获取3x3矩阵值。
+     * @param index 着色器数据中矩阵的索引。
+     * @returns 检索到的3x3矩阵值。
      */
     getMatrix3x3ByIndex(index: number) {
         return this.shaderData.getMatrix3x3(index);
     }
 
     /**
-     * 通过索引设置 matrix3x3
-     * @param index 索引
-     * @param value 值
+     * @en Sets a 3x3 matrix value by its index.
+     * @param index The index of the matrix within the shader data.
+     * @param value The 3x3 matrix value to set.
+     * @zh 通过索引设置3x3矩阵值。
+     * @param index 着色器数据中矩阵的索引。
+     * @param value 要设置的3x3矩阵值。
      */
     setMatrix3x3ByIndex(index: number, value: Matrix3x3) {
         this.shaderData.setMatrix3x3(index, value);
     }
 
     /**
-     * 获取 matrix3x3
-     * @param name 属性名称
-     * @returns 
+     * @en Retrieves a 3x3 matrix value by its property name.
+     * @param name The name of the property.
+     * @returns The retrieved 3x3 matrix value.
+     * @zh 根据属性名称获取3x3矩阵值。
+     * @param name 属性名称。
+     * @returns 检索到的3x3矩阵值。
      */
     getMatrix3x3(name: string): Matrix3x3 {
         let index = Shader3D.propertyNameToID(name);
@@ -932,9 +1124,12 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 设置 matrix3x3
-     * @param name 属性名称
-     * @param value 值
+     * @en Sets a 3x3 matrix value by its property name.
+     * @param name The name of the property.
+     * @param value The 3x3 matrix value to set.
+     * @zh 设置属性名称对应的3x3矩阵值。
+     * @param name 属性名称。
+     * @param value 要设置的3x3矩阵值。
      */
     setMatrix3x3(name: string, value: Matrix3x3) {
         let index = Shader3D.propertyNameToID(name);
@@ -942,9 +1137,12 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 设置纹理
-     * @param uniformIndex 属性索引
-     * @param texture 纹理
+     * @en Sets a texture by its uniform index.
+     * @param uniformIndex The index of the property.
+     * @param texture The texture to set.
+     * @zh 通过属性索引设置纹理。
+     * @param uniformIndex 属性索引。
+     * @param texture 要设置的纹理。
      */
     setTextureByIndex(uniformIndex: number, texture: BaseTexture) {
         this.shaderData.setTexture(uniformIndex, texture);
@@ -957,18 +1155,24 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 获得纹理
-     * @param uniformIndex 属性索引
-     * @returns 
+     * @en Retrieves a texture by its uniform index.
+     * @param uniformIndex The index of the property.
+     * @returns The retrieved texture.
+     * @zh 通过属性索引获得纹理。
+     * @param uniformIndex 属性索引。
+     * @returns 检索到的纹理。
      */
     getTextureByIndex(uniformIndex: number) {
         return this.shaderData.getTexture(uniformIndex);
     }
 
     /**
-     * 设置纹理
-     * @param name 属性名称
-     * @param texture 纹理
+     * @en Sets a texture by property name.
+     * @param name The name of the property.
+     * @param texture The texture to set.
+     * @zh 根据属性名称设置纹理。
+     * @param name 属性名称。
+     * @param texture 要设置的纹理。
      */
     setTexture(name: string, texture: BaseTexture) {
         let uniformIndex = Shader3D.propertyNameToID(name);
@@ -976,9 +1180,12 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 获得纹理
-     * @param name 属性名称
-     * @returns 
+     * @en Retrieves a texture by property name.
+     * @param name The name of the property.
+     * @returns The retrieved texture.
+     * @zh 根据属性名称获得纹理。
+     * @param name 属性名称。
+     * @returns 检索到的纹理。
      */
     getTexture(name: string): BaseTexture {
         let uniformIndex = Shader3D.propertyNameToID(name);
@@ -986,27 +1193,36 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 获得Buffer
-     * @param uniformIndex 属性索引
-     * @returns 
+     * @en Retrieves a buffer by its uniform index.
+     * @param uniformIndex The index of the property.
+     * @returns The retrieved buffer.
+     * @zh 通过属性索引获得Buffer。
+     * @param uniformIndex 属性索引。
+     * @returns 检索到的Buffer。
      */
     getBufferByIndex(uniformIndex: number): Float32Array {
         return this.shaderData.getBuffer(uniformIndex);
     }
 
     /**
-     * 设置Buffer
-     * @param uniformIndex 属性索引
-     * @param value 值
+     * @en Sets a buffer by its uniform index.
+     * @param uniformIndex The index of the property.
+     * @param value The buffer to set.
+     * @zh 通过属性索引设置Buffer。
+     * @param uniformIndex 属性索引。
+     * @param value 要设置的Buffer值。
      */
     setBufferByIndex(uniformIndex: number, value: Float32Array) {
         this.shaderData.setBuffer(uniformIndex, value);
     }
 
     /**
-     * 获得Buffer
-     * @param name 属性名称
-     * @returns 
+     * @en Retrieves a buffer by property name.
+     * @param name The name of the property.
+     * @returns The retrieved buffer.
+     * @zh 根据属性名称获得Buffer。
+     * @param name 属性名称。
+     * @returns 检索到的Buffer。
      */
     getBuffer(name: string): Float32Array {
         let uniformIndex = Shader3D.propertyNameToID(name);
@@ -1014,9 +1230,12 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 设置Buffer
-     * @param name 属性名称
-     * @param value 值
+     * @en Sets a buffer by property name.
+     * @param name The name of the property.
+     * @param value The buffer to set.
+     * @zh 根据属性名称设置Buffer。
+     * @param name 属性名称。
+     * @param value 要设置的Buffer值。
      */
     setBuffer(name: string, value: Float32Array) {
         let uniformIndex = Shader3D.propertyNameToID(name);
@@ -1024,20 +1243,28 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 设置ShaderData的属性值
-     * @param uniformIndex 属性索引
-     * @param type 值类型
-     * @param value 值
+     * @en Sets the attribute value of ShaderData by uniform index.
+     * @param uniformIndex The index of the attribute.
+     * @param type The type of the value to be set.
+     * @param value The value to be set.
+     * @zh 通过属性索引设置ShaderData的属性值。
+     * @param uniformIndex 属性索引。
+     * @param type 要设置的值的类型。
+     * @param value 要设置的值。
      */
     setShaderDataByIndex(uniformIndex: number, type: ShaderDataType, value: ShaderDataItem) {
         this.shaderData.setShaderData(uniformIndex, type, value);
     }
 
     /**
-     * 设置ShaderData的属性值
-     * @param name 属性名称
-     * @param type 值类型
-     * @param value 值
+     * @en Sets the attribute value of ShaderData by property name.
+     * @param name The name of the property.
+     * @param type The type of the value to be set.
+     * @param value The value to be set.
+     * @zh 根据属性名称设置ShaderData的属性值。
+     * @param name 属性名称。
+     * @param type 要设置的值的类型。
+     * @param value 要设置的值。
      */
     setShaderData(name: string, type: ShaderDataType, value: ShaderDataItem) {
         let uniformIndex = Shader3D.propertyNameToID(name);
@@ -1045,10 +1272,14 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 获得ShaderData的属性值
-     * @param name 属性名称
-     * @param type 值类型
-     * @returns 
+     * @en Retrieves the attribute value of ShaderData by property name.
+     * @param name The name of the property.
+     * @param type The type of the value to be retrieved.
+     * @returns The retrieved ShaderData attribute value.
+     * @zh 根据属性名称获得ShaderData的属性值。
+     * @param name 属性名称。
+     * @param type 要检索的值的类型。
+     * @returns 检索到的ShaderData属性值。
      */
     getShaderData(name: string, type: ShaderDataType): ShaderDataItem {
         let uniformIndex = Shader3D.propertyNameToID(name);
@@ -1056,18 +1287,24 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 获得ShaderData的属性值
-     * @param uniformIndex 属性索引
-     * @param type 值类型
-     * @returns 
+     * @en Retrieves the attribute value of ShaderData by uniform index.
+     * @param uniformIndex The index of the attribute.
+     * @param type The type of the value to be retrieved.
+     * @returns The retrieved ShaderData attribute value.
+     * @zh 通过属性索引获得ShaderData的属性值。
+     * @param uniformIndex 属性索引。
+     * @param type 要检索的值的类型。
+     * @returns 检索到的ShaderData属性值。
      */
     getShaderDataByIndex(uniformIndex: number, type: ShaderDataType): ShaderDataItem {
         return this._shaderValues.getShaderData(uniformIndex, type);
     }
 
     /**
-     * 克隆。
-     * @param	destObject 克隆源。
+     * @en Clones the current material to destination material object.
+     * @param destObject The destination material object.
+     * @zh 克隆当前材质到目标材质对象。
+     * @param destObject 目标材质对象。
      */
     cloneTo(destObject: any): void {
         var destBaseMaterial: Material = (<Material>destObject);
@@ -1078,8 +1315,10 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * 克隆。
-     * @return	 克隆副本。
+     * @en Creates a clone of the current material.
+     * @returns A new material instance that is a clone of the current material.
+     * @zh 创建当前材质的克隆副本。
+     * @returns 一个克隆自当前材质的新材质实例。
      */
     clone(): any {
         var dest: Material = new Material();
@@ -1090,15 +1329,17 @@ export class Material extends Resource implements IClone {
     //--------------------------------------------兼容-------------------------------------------------
 
     /**
-     * 材质宏
+     * @en The material define.
+     * @zh 材质宏
      */
     get _defineDatas(): IDefineDatas {
         return this._shaderValues.getDefineData();
     }
 
     /**
-     * 兼容老的解析结束事件
      * @override
+     * @en Compatible with old parsing end events
+     * @zh 兼容老的解析结束事件
      */
     oldparseEndEvent() {
         //TODO
