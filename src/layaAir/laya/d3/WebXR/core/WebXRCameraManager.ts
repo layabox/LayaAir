@@ -6,8 +6,8 @@ import { WebXRSessionManager } from "./WebXRSessionManager";
 
 
 /**
- * @author miner
- * 此类用来管理XRCamera
+ * @en This class is used to manage XRCamera
+ * @zh 此类用来管理XRCamera
  */
 export class WebXRCameraManager {
     /**
@@ -40,10 +40,15 @@ export class WebXRCameraManager {
     private _position = new Vector3();
 
     /**
-     * parent
+     * @en The parent object that owns this camera manager.
+     * @zh 拥有此摄像机管理器的父对象。
      */
     public owner: any;
 
+    /**
+     * @en The position of the camera.
+     * @zh 摄像机的位置。
+     */
     get position(): Vector3 {
         return this._position;
     }
@@ -53,22 +58,32 @@ export class WebXRCameraManager {
         newPosition.cloneTo(this._position);
     }
 
+    /**
+     * @en The rotation of the camera.
+     * @zh 摄像机的旋转
+     */
+    get rotationQuaternion(): Quaternion {
+        return this._referenceQuaternion;
+    }
     set rotationQuaternion(value: Quaternion) {
         value.cloneTo(this._referenceQuaternion);
     }
 
-    get rotationQuaternion(): Quaternion {
-        return this._referenceQuaternion;
-    }
-
+    /** 
+     * @en The array of rig cameras.
+     * @zh 绑定在此摄像机管理器上的摄像机数组。
+     */
     get rigCameras(): WebXRCamera[] {
         return this._rigCameras;
     }
 
     /**
-     * 用来创建XRCamera管理类
-     * @param camera 
-     * @param manager 
+     * @en Creates a new instance of the WebXRCameraManager class.
+     * @param camera The parent object that owns this camera manager.
+     * @param manager WebXR Session Manager.
+     * @zh 创建 WebXRCameraManager 类的新实例。
+     * @param camera 父对象，拥有此摄像机管理器。
+     * @param manager WebXR管理器。
      */
     constructor(camera: any, manager: WebXRSessionManager = null) {
         this.owner = camera;
@@ -83,7 +98,8 @@ export class WebXRCameraManager {
     }
 
     /**
-     * updateFrame by WebXR Session
+     * @en Updates the frame by the WebXR session, adjusting the camera's position, rotation, and viewport based on the XR session's viewer pose.
+     * @zh 通过WebXR会话更新帧，根据XR会话的观察者姿势调整相机的位置、旋转和视口。
      */
     _updateFromXRSession() {
         //XRViewerPose
@@ -172,7 +188,8 @@ export class WebXRCameraManager {
     }
 
     /**
-     * destroy
+     * @en Destroys and cleans up resources used by the WebXRCameraManager.
+     * @zh 销毁 WebXRCameraManager 并清理使用的资源。
      */
     destroy() {
         this.owner.enableRender = true;

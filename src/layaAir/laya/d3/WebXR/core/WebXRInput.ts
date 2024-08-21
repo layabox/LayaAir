@@ -6,8 +6,8 @@ import { ButtonGamepad, AxiGamepad } from "./WebXRGamepad";
 
 
 /**
- * @author miner
- * 类用来描述输入设备
+ * @en The `WebXRInput` class is used to describe input devices for WebXR.
+ * @zh `WebXRInput` 类用来描述 WebXR 的输入设备。
  */
 export class WebXRInput extends EventDispatcher {
     static HANDNESS_LEFT: string = "left";
@@ -27,38 +27,56 @@ export class WebXRInput extends EventDispatcher {
      */
     public _inputSource: any;//XRInputSource
 
+    /**
+     * @en The last XR pose data.
+     * @zh 上一次的 XR 姿态数据。
+     */
     public lastXRPose: any;
     /**
-     * handMode
+     * @en The handness of the device, "left" or "right".
+     * @zh 设备名称，"left" 或 "right"。
      */
     public handness: string;
     /**
-     * input Ray
+     * @en The input ray representing the direction of the hand or controller.
+     * @zh 表示手或控制器方向的输入射线。
      */
     public ray: Ray;
     /**
-     * hand Pos
+     * @en The position of the hand or controller.
+     * @zh 手或控制器的位置。
      */
     public position: Vector3;
     /**
-     * hand Rotate
+     * @en The rotation of the hand or controller.
+     * @zh 手或控制器的旋转。
      */
     public rotation: Quaternion;
     /**
-     * lastRayPos
+     * @en The last position of the input ray.
+     * @zh 输入射线的上一个位置。
      */
     public _lastXRPose: any;
 
     /**
-     * gamepad Button info
+     * @en Information about the gamepad buttons.
+     * @zh 游戏手柄按钮的信息。
      */
     public gamepadButton: Array<ButtonGamepad>;
 
     /**
-     * gamepad axis Info
+     * @en Information about the gamepad axes.
+     * @zh 游戏手柄轴的信息。
      */
     public gamepadAxis: AxiGamepad;
 
+    /**
+     * @ignore
+     * @en Creates a new instance of the `WebXRInput` class.
+     * @param handness  The handness of the device, "left" or "right".
+     * @zh 创建 `WebXRInput` 类的新实例。
+     * @param handness 设备名称，"left" 或 "right"。
+     */
     constructor(handness: string) {
         super();
         this.handness = handness;
@@ -134,9 +152,14 @@ export class WebXRInput extends EventDispatcher {
     }
 
     /**
-     * add button event
-     * @param index button索引
-     * @param type 事件类型
+     * @en Adds an event listener for a gamepad button.
+     * @param index The index of the button.
+     * @param type The type of event.
+     * @param caller The execution scope of the event listener function.
+     * @param listener The event listener function.
+     * @zh 为游戏手柄按钮添加事件侦听器
+     * @param index 按钮索引。
+     * @param type 事件类型。
      * @param caller 事件侦听函数的执行域。
      * @param listener 事件侦听函数。
      */
@@ -155,9 +178,14 @@ export class WebXRInput extends EventDispatcher {
     }
 
     /**
-     * add axis event
-     * @param index axis索引
-     * @param type 事件类型
+     * @en Adds an event listener for a gamepad axis.
+     * @param index The index of the axis.
+     * @param type The type of event.
+     * @param caller The execution scope of the event listener function.
+     * @param list ener The event listener function.
+     * @zh 为游戏手柄轴添加事件侦听器。
+     * @param index 轴索引。
+     * @param type 事件类型。
      * @param caller 事件侦听函数的执行域。
      * @param listener 事件侦听函数。
      */
@@ -175,9 +203,14 @@ export class WebXRInput extends EventDispatcher {
     }
 
     /**
-     * remove axis event
-     * @param index axis索引
-     * @param type 事件类型
+     * @en Removes an event listener for a gamepad axis.
+     * @param index The index of the axis.
+     * @param type The type of event.
+     * @param caller The execution scope of the event listener function.
+     * @param listener The event listener function.
+     * @zh 移除游戏手柄轴的事件侦听器。
+     * @param index 轴索引。
+     * @param type 事件类型。
      * @param caller 事件侦听函数的执行域。
      * @param listener 事件侦听函数。
      */
@@ -189,9 +222,14 @@ export class WebXRInput extends EventDispatcher {
     }
 
     /**
-     * remove Button event
-     * @param index axis索引
-     * @param type 事件类型
+     * @en Removes an event listener for a gamepad button.
+     * @param index The index of the button.
+     * @param type The type of event.
+     * @param caller The execution scope of the event listener function.
+     * @param listener The event listener function.
+     * @zh 移除游戏手柄按钮的事件侦听器
+     * @param index 按钮索引。
+     * @param type 事件类型。
      * @param caller 事件侦听函数的执行域。
      * @param listener 事件侦听函数。
      */
@@ -203,7 +241,8 @@ export class WebXRInput extends EventDispatcher {
     }
 
     /**
-     * 销毁
+     * @en Destroys and cleans up the WebXR input instance.
+     * @zh 销毁并清理 WebXR 输入实例。
      */
     destroy() {
         this.preButtonEventList = null;

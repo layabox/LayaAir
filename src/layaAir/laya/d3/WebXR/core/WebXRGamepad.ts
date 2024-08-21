@@ -2,16 +2,23 @@ import { EventDispatcher } from "../../../events/EventDispatcher";
 import { Vector2 } from "../../../maths/Vector2";
 
 /**
- * 类用来描述gamepad Axis
+ * @en The class used to describe the gamepad axis
+ * @zh 用于描述设备手柄上的摇杆轴
  */
 export class AxiGamepad extends EventDispatcher {
+    /**
+     * @en Static event name for output axis events.
+     * @zh 事件名称，用于输出轴事件。
+     */
     static EVENT_OUTPUT: string = "outputAxi_id";
     /**
-     * 轴设备名字
+     * @en The name of the axis device.
+     * @zh 轴设备名字。
      */
     public handness: string;
     /**
-     * 轴数量
+     * @en The number of axes.
+     * @zh 轴数量。
      */
     public axisLength: number;
     /**
@@ -57,7 +64,8 @@ export class AxiGamepad extends EventDispatcher {
     }
 
     /**
-     * destroy
+     * @en Cleans up and removes all listeners for this gamepad's axis events.
+     * @zh 清理并移除此游戏手柄轴的所有事件监听器。
      */
     destroy() {
         for (let i = 0; i < this.axisLength; i++) {
@@ -69,7 +77,8 @@ export class AxiGamepad extends EventDispatcher {
 }
 
 /**
- * 类用来描述gamepad Button
+ * @en The `ButtonGamepad` class is used to describe gamepad buttons.
+ * @zh `ButtonGamepad` 类用来描述游戏手柄上的按钮。
  */
 export class ButtonGamepad extends EventDispatcher {
     static EVENT_TOUCH_ENTER: string = "touchEnter";
@@ -81,12 +90,14 @@ export class ButtonGamepad extends EventDispatcher {
     static EVENT_PRESS_VALUE: string = "outpressed";
 
     /**
-     * The id of the gamepad
+     * @en The handness of the gamepad.
+     * @zh 游戏手柄的名称。
      */
     public handness: string;
     /**
-    * The index of the gamepad
-    */
+     * @en The index of the button on the gamepad.
+     * @zh 游戏手柄上按钮的索引。
+     */
     public index: number;
 
     /**
@@ -105,9 +116,12 @@ export class ButtonGamepad extends EventDispatcher {
 
 
     /**
-     * 类用于创建Button对象
+     * @en Creates a new instance of the `ButtonGamepad` class.
+     * @param handness The name of the gamepad.
+     * @param index The index of the button on the gamepad.
+     * @zh 创建 ButtonGamepad 类的新实例。
      * @param handness 设备名称
-     * @param index button缩影
+     * @param index button索引
      */
     constructor(handness: string, index: number) {
         super();
@@ -206,7 +220,8 @@ export class ButtonGamepad extends EventDispatcher {
     }
 
     /**
-     * destroy
+     * @en Cleans up and removes all listeners for this gamepad's button events.
+     * @zh 清理并移除此游戏手柄按钮的所有事件监听器。
      */
     destroy() {
         this.offAll(ButtonGamepad.EVENT_PRESS_ENTER);
