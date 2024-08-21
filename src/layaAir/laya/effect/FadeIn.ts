@@ -3,7 +3,8 @@ import { Tween } from "../utils/Tween";
 import { Ease } from "../utils/Ease";
 
 /**
- * 淡入效果
+ * @en Fade in effect
+ * @zh 淡入效果
  */
 export class FadeIn extends EffectBase {
     /**
