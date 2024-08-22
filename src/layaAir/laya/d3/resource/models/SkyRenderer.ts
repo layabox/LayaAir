@@ -13,7 +13,8 @@ import { SkyBox } from "./SkyBox";
 import { SkyDome } from "./SkyDome";
 
 /**
- * <code>SkyRenderer</code> 类用于实现天空渲染器。
+ * @en SkyRenderer class used to implement sky rendering.
+ * @zh SkyRenderer 类用于实现天空渲染器。
  */
 export class SkyRenderer {
     /**@internal */
@@ -59,7 +60,8 @@ export class SkyRenderer {
     private _cacheRenderElement: SkyRenderElement;
 
     /**
-     * 材质。
+     * @en The material.
+     * @zh 材质。
      */
     get material(): Material {
         return this._material;
@@ -79,7 +81,8 @@ export class SkyRenderer {
     }
 
     /**
-     * 网格。
+     * @en The mesh of the renderer.
+     * @zh 渲染器网格。
      */
     get mesh(): GeometryElement {
         return this._mesh;
@@ -106,7 +109,9 @@ export class SkyRenderer {
     }
 
     /**
-     * 创建一个新的 <code>SkyRenderer</code> 实例。
+     * @ignore
+     * @en Creates an instance of SkyRenderer.
+     * @zh 创建一个 SkyRenderer 的实例。
      */
     constructor() {
         this.mesh = SkyDome.instance;
@@ -131,8 +136,10 @@ export class SkyRenderer {
     }
 
     /**
-     * 设置天空盒渲染元素
-     * @param skyRenderElement 
+     * @en Sets the render element for the sky.
+     * @param skyRenderElement The render element to set.
+     * @zh 设置天空的渲染元素。
+     * @param skyRenderElement 要设置的渲染元素。
      */
     setRenderElement(skyRenderElement: SkyRenderElement) {
         if (this._cacheRenderElement != skyRenderElement) {
@@ -165,7 +172,6 @@ export class SkyRenderer {
         this._baseRenderNode.setRenderelements([]);
         this._baseRenderNode.destroy();
     }
-
 }
 
 
