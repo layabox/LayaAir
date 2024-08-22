@@ -19,123 +19,151 @@ import { IMeshColliderShape } from "./Shape/IMeshColliderShape";
 import { IPlaneColliderShape } from "./Shape/IPlaneColliderShape";
 import { ISphereColliderShape } from "./Shape/ISphereColliderShape";
 
+/**
+ * @en Interface for physics creation utility.
+ * @zh 物理创建工具接口。
+ */
 export interface IPhysicsCreateUtil {
     /**
-     * 初始化物理
+     * @en Initialize the physics system.
+     * @zh 初始化物理。
      */
     initialize(): Promise<void>;
 
     /**
-     * set PhysicsEngine Capable
+     * @en Set the physics engine capabilities.
+     * @zh 设置物理引擎能力。
      */
     initPhysicsCapable(): void;
 
     /**
-     * get PhysicsEngine Capable
-     * @param value 
+     * @en Get the physics engine capability.
+     * @param value The capability to check.
+     * @zh 获取物理引擎能力。
+     * @param value 要检查的能力。
      */
     getPhysicsCapable(value: EPhysicsCapable): boolean;
 
     /**
-     * 创建物理管理类
+     * @en Create a physics manager.
+     * @param physicsSettings The physics settings.
+     * @zh 创建物理管理器。
+     * @param physicsSettings 物理设置。
      */
     createPhysicsManger(physicsSettings: PhysicsSettings): IPhysicsManager;
 
     /**
-     * 创建动态碰撞体
+     * @en Create a dynamic collider.
+     * @param manager The physics manager.
+     * @zh 创建动态碰撞体。
+     * @param manager 物理管理器。
      */
     createDynamicCollider(manager: IPhysicsManager): IDynamicCollider;
 
     /**
-     * 创建静态碰撞体
+     * @en Create a static collider.
+     * @param manager The physics manager.
+     * @zh 创建静态碰撞体。
+     * @param manager 物理管理器。
      */
     createStaticCollider(manager: IPhysicsManager): IStaticCollider;
 
     /**
-     * 创建角色碰撞器
+     * @en Create a character controller.
+     * @param manager The physics manager.
+     * @zh 创建角色碰撞器。
+     * @param manager 物理管理器。
      */
     createCharacterController(manager: IPhysicsManager): ICharacterController;
 
     //joint module
     /**
-     * Create fixed joint.
-     * @param collider - Affector of joint
+     * @en Create fixed joint.
+     * @param manager The physics manager.
+     * @zh 创建固定关节。
+     * @param manager 物理管理器。
      */
     createFixedJoint(manager: IPhysicsManager): IFixedJoint;
 
     /**
-     * Create hinge joint.
-     * @param collider - Affector of joint
+     * @en Create hinge joint.
+     * @param manager The physics manager.
+     * @zh 创建铰链关节。
+     * @param manager 物理管理器。
      */
     createHingeJoint(manager: IPhysicsManager): IHingeJoint;
 
     /**
-     * Create spring joint
-     * @param collider - Affector of joint
+     * @en Create spring joint.
+     * @param manager The physics manager.
+     * @zh 创建弹簧关节。
+     * @param manager 物理管理器。
      */
     createSpringJoint(manager: IPhysicsManager): ISpringJoint;
 
     /**
-     * Create Custom Joint
+     * @en Create Custom Joint.
+     * @param manager The physics manager.
+     * @zh 创建自定义关节。
+     * @param manager 物理管理器。
      */
     createD6Joint(manager: IPhysicsManager): ID6Joint;
 
     //Shape
     /**
-     * Create box collider shape.
-     * @param uniqueID - Shape unique id
-     * @param size - Size of the box
-     * @param material - The material of this shape
+     * @en Create box collider shape.
+     * @zh 创建盒形碰撞器形状。
      */
     createBoxColliderShape(): IBoxColliderShape;
 
     /**
-     * Create sphere collider shape.
-     * @param uniqueID - Shape unique id
-     * @param radius - Radius of the sphere
-     * @param material - The material of this shape
+     * @en Create sphere collider shape.
+     * @zh 创建球形碰撞器形状。
      */
     createSphereColliderShape(): ISphereColliderShape;
 
     /**
-     * Create plane collider shape.
-     * @param uniqueID - Shape unique id
-     * @param material - The material of this shape
+     * @en Create plane collider shape.
+     * @zh 创建平面碰撞器形状。
      */
     createPlaneColliderShape(): IPlaneColliderShape;
 
     /**
-     * Create capsule collider shape.
-     * @param uniqueID - Shape unique id
-     * @param radius - Radius of capsule
-     * @param height - Height of capsule
-     * @param material - The material of this shape
+     * @en Create capsule collider shape.
+     * @zh 创建胶囊碰撞器形状。
      */
     createCapsuleColliderShape?(): ICapsuleColliderShape;
 
     /**
-     * create Mesh Collider shape
+     * @en Create mesh collider shape.
+     * @zh 创建网格碰撞器形状。
      */
     createMeshColliderShape?(): IMeshColliderShape;
 
     /**
-     * create Cylinder Collider Shape
+     * @en Create cylinder collider shape.
+     * @zh 创建圆柱碰撞器形状。
      */
     createCylinderColliderShape?(): ICylinderColliderShape;
 
     /**
-     * create Cone Collider Shape
+     * @en Create cone collider shape.
+     * @zh 创建圆锥碰撞器形状。
      */
     createConeColliderShape?(): IConeColliderShape;
 
     /**
-     * create Height Field Collider
+     * @en Create height field shape.
+     * @zh 创建高度场形状。
      */
     createHeightFieldShape?(): IHeightFieldShape;
 
 
     /**
-     * create Corve Mesh
+     * @en Create curve mesh.
+     * @param mesh The input mesh.
+     * @zh 创建曲线网格。
+     * @param mesh 输入的网格。
      */
     createCorveMesh?(mesh: Mesh): Mesh;
 }
