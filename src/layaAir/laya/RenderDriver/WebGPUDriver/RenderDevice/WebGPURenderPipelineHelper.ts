@@ -424,20 +424,12 @@ export class WebGPURenderPipeline {
      * @param shaderInstance 
      * @param renderTarget 
      * @param entries 
+     * @param stateKey 
      */
-    static getRenderPipeline(info: IRenderPipelineInfo, shaderInstance: WebGPUShaderInstance, renderTarget: WebGPUInternalRT, entries: any) {
-        const renderPipelineMap = shaderInstance.renderPipelineMap;
+    static getRenderPipeline(info: IRenderPipelineInfo, shaderInstance: WebGPUShaderInstance, renderTarget: WebGPUInternalRT, entries: any, stateKey: string) {
         const primitiveState = WebGPUPrimitiveState.getGPUPrimitiveState(info.geometry.mode, info.frontFace, info.cullMode);
-        const bufferState = info.geometry.bufferState;
-        const depthStencilId = info.depthStencilState ? info.depthStencilState.key : -1;
-        const strId = `${shaderInstance._id}_${primitiveState.key}_${info.blendState.key}_${depthStencilId}_${renderTarget.formatId}_${bufferState.id}_${bufferState.updateBufferLayoutFlag}`;
-        let renderPipeline = renderPipelineMap.get(strId);
-        if (!renderPipeline) {
-            renderPipeline = this._createRenderPipeline
-                (info.blendState.state, info.depthStencilState?.state, primitiveState.state, bufferState.vertexState, shaderInstance, renderTarget, entries, strId);
-            renderPipelineMap.set(strId, renderPipeline);
-        }
-        return renderPipeline;
+        return this._createRenderPipeline(info.blendState.state, info.depthStencilState?.state,
+            primitiveState.state, info.geometry.bufferState.vertexState, shaderInstance, renderTarget, entries, stateKey);
     }
 
     /**
@@ -449,16 +441,15 @@ export class WebGPURenderPipeline {
      * @param shaderInstance 
      * @param renderTarget 
      * @param entries 
-     * @param strId 
+     * @param stateKey 
      */
     private static _createRenderPipeline(blendState: GPUBlendState, depthState: GPUDepthStencilState,
         primitiveState: GPUPrimitiveState, vertexBuffers: GPUVertexBufferLayout[],
-        shaderInstance: WebGPUShaderInstance, renderTarget: WebGPUInternalRT, entries: any, strId: string) {
+        shaderInstance: WebGPUShaderInstance, renderTarget: WebGPUInternalRT, entries: any, stateKey: string) {
         const device = WebGPURenderEngine._instance.getDevice();
         const descriptor = shaderInstance.getRenderPipelineDescriptor(); //获取渲染管线描述符模板
         descriptor.label = 'render_' + this.idCounter;
         descriptor.vertex.buffers = vertexBuffers;
-        //descriptor.vertex.constants TODO
         const textureNum = renderTarget._textures.length;
         if (renderTarget._textures[0]._webGPUFormat === 'depth16unorm'
             || renderTarget._textures[0]._webGPUFormat === 'depth24plus-stencil8'
@@ -504,7 +495,7 @@ export class WebGPURenderPipeline {
         descriptor.layout = shaderInstance.createPipelineLayout(device, 'pipelineLayout_' + this.idCounter, entries);
         descriptor.multisample.count = renderTarget._samples;
         const renderPipeline = device.createRenderPipeline(descriptor);
-        console.log('create renderPipeline_' + this.idCounter, strId, descriptor, renderTarget._samples);
+        console.log('create renderPipeline_' + this.idCounter, stateKey, descriptor, renderTarget._samples, shaderInstance);
         this.idCounter++;
         return renderPipeline;
     }

@@ -12,7 +12,14 @@ import { NameNumberMap } from "../RenderDevice/WebGPUCommon";
 import { WebGPUInternalRT } from "../RenderDevice/WebGPUInternalRT";
 import { WebGPURenderCommandEncoder } from "../RenderDevice/WebGPURenderCommandEncoder";
 import { WebGPURenderGeometry } from "../RenderDevice/WebGPURenderGeometry";
-import { IRenderPipelineInfo, WebGPUBlendState, WebGPUBlendStateCache, WebGPUDepthStencilState, WebGPUDepthStencilStateCache, WebGPUPrimitiveState, WebGPURenderPipeline } from "../RenderDevice/WebGPURenderPipelineHelper";
+import {
+    IRenderPipelineInfo,
+    WebGPUBlendState,
+    WebGPUBlendStateCache,
+    WebGPUDepthStencilState,
+    WebGPUDepthStencilStateCache,
+    WebGPURenderPipeline
+} from "../RenderDevice/WebGPURenderPipelineHelper";
 import { WebGPUShaderData } from "../RenderDevice/WebGPUShaderData";
 import { WebGPUShaderInstance } from "../RenderDevice/WebGPUShaderInstance";
 import { WebGPUGlobal } from "../RenderDevice/WebGPUStatis/WebGPUGlobal";
@@ -37,14 +44,12 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
     frontFace: FrontFace;
 
     protected _stateKey: string[] = []; //用于判断渲染状态是否改变
+    protected _pipeline: GPURenderPipeline[] = []; //渲染管线缓存
     protected _shaderInstances: WebGPUShaderInstance[] = []; //着色器缓存
-    protected _pipelineCache: GPURenderPipeline[] = []; //渲染管线缓存
 
     protected _passNum = 0; //当前渲染通道数量
     protected _passName: string; //当前渲染名称
     protected _passIndex: number[] = []; //当前渲染通道索引
-    protected _shaderPass: ShaderPass[] = []; //当前渲染通道
-    protected _shaderInstance: WebGPUShaderInstance[] = []; //当前着色器实例
 
     //着色器数据状态，如果状态改变了，说明需要重建资源，否则直接使用缓存
     protected _shaderDataState: { [key: string]: number[] } = {};
@@ -124,28 +129,33 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
 
         //查找着色器对象缓存
         for (let i = 0; i < this._passNum; i++) {
-            if (!this._shaderPass[i].moduleData.getCacheShader(compileDefine.clone())) {
+            const index = this._passIndex[i];
+            const pass = this.subShader._passes[index];
+            if (!pass.moduleData.getCacheShader(compileDefine.clone())) {
                 const { uniformMap, arrayMap } = this._collectUniform(compileDefine); //@ts-ignore
-                this._shaderPass[i].uniformMap = uniformMap; //@ts-ignore
-                this._shaderPass[i].arrayMap = arrayMap;
+                pass.uniformMap = uniformMap; //@ts-ignore
+                pass.arrayMap = arrayMap;
             }
 
             //获取着色器实例，先查找缓存，如果没有则创建
-            const shaderInstance = this._shaderPass[i].withCompile(compileDefine.clone(), true) as WebGPUShaderInstance;
-            this._shaderInstance[i] = this._shaderInstances[this._passIndex[i]] = shaderInstance;
+            const shaderInstance = pass.withCompile(compileDefine.clone(), true) as WebGPUShaderInstance;
+            this._shaderInstances[index] = shaderInstance;
 
             //创建uniform缓冲区
             if (i === 0) {
                 this._sceneData?.createUniformBuffer(shaderInstance.uniformInfo[0], true);
                 this._cameraData?.createUniformBuffer(shaderInstance.uniformInfo[1], true);
-                this.value2DShaderData?.createUniformBuffer(shaderInstance.uniformInfo[2]);
-                this.materialShaderData?.createUniformBuffer(shaderInstance.uniformInfo[3]);
+                this.value2DShaderData?.createUniformBuffer(shaderInstance.uniformInfo[2], false);
+                this.materialShaderData?.createUniformBuffer(shaderInstance.uniformInfo[3], false);
             }
         }
 
         //重编译着色器后，清理绑定组缓存
         this.value2DShaderData?.clearBindGroup();
         this.materialShaderData?.clearBindGroup();
+        
+        //提取当前渲染通道
+        this._takeCurPass(context.pipelineMode);
     }
 
     /**
@@ -155,15 +165,14 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
      * @param context 
      */
     protected _calcStateKey(shaderInstance: WebGPUShaderInstance, dest: WebGPUInternalRT, context: WebGPURenderContext2D) {
-        this._getBlendState(shaderInstance);
-        this._getDepthStencilState(shaderInstance, dest);
-        if (this.renderStateIsBySprite || !this.materialShaderData)
-            this._getCullFrontMode(this.value2DShaderData, shaderInstance, false, context.invertY);
-        else this._getCullFrontMode(this.materialShaderData, shaderInstance, false, context.invertY);
-        const primitiveState = WebGPUPrimitiveState.getGPUPrimitiveState(this.geometry.mode, this.frontFace, this.cullMode);
-        const bufferState = this.geometry.bufferState;
-        const depthStencilId = this.depthStencilState ? this.depthStencilState.id : -1;
-        return `${shaderInstance._id}_${primitiveState.key}_${this.blendState.key}_${depthStencilId}_${dest.formatId}_${bufferState.id}_${bufferState.updateBufferLayoutFlag}`;
+        let stateKey = '';
+        stateKey += dest.formatId + '_';
+        stateKey += dest._samples + '_';
+        stateKey += shaderInstance._id + '_';
+        stateKey += this.materialShaderData.stateKey;
+        stateKey += this.geometry.bufferState.stateId + '_';
+        stateKey += this.geometry.bufferState.updateBufferLayoutFlag;
+        return stateKey;
     }
 
     /**
@@ -172,14 +181,15 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
      * @param dest 
      * @param context 
      * @param entries 
+     * @param stateKey 
      */
-    protected _getWebGPURenderPipeline(shaderInstance: WebGPUShaderInstance, dest: WebGPUInternalRT, context: WebGPURenderContext2D, entries: any) {
+    protected _getWebGPURenderPipeline(shaderInstance: WebGPUShaderInstance, dest: WebGPUInternalRT, context: WebGPURenderContext2D, entries: any, stateKey?: string) {
         this._getBlendState(shaderInstance);
         this._getDepthStencilState(shaderInstance, dest);
         if (this.renderStateIsBySprite || !this.materialShaderData)
             this._getCullFrontMode(this.value2DShaderData, shaderInstance, false, context.invertY);
         else this._getCullFrontMode(this.materialShaderData, shaderInstance, false, context.invertY);
-        return WebGPURenderPipeline.getRenderPipeline(this, shaderInstance, dest, entries);
+        return WebGPURenderPipeline.getRenderPipeline(this, shaderInstance, dest, entries, stateKey);
     }
 
     /**
@@ -429,7 +439,6 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
      * 绑定资源组
      * @param shaderInstance 
      * @param command 
-     * @param bundle 
      */
     protected _bindGroup(shaderInstance: WebGPUShaderInstance, command: WebGPURenderCommandEncoder) {
         const uniformSetMap = shaderInstance.uniformSetMap;
@@ -452,7 +461,6 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
     /**
      * 上传几何数据
      * @param command 
-     * @param bundle 
      */
     protected _uploadGeometry(command: WebGPURenderCommandEncoder) {
         let triangles = 0;
@@ -466,52 +474,57 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
 
     /**
      * 用于创建渲染管线的函数
-     * @param sn 
+     * @param index 
      * @param context 
      * @param shaderInstance 
      * @param command 
-     * @param bundle 
      * @param stateKey 
      */
-    protected _createPipeline(sn: number, context: WebGPURenderContext2D, shaderInstance: WebGPUShaderInstance,
+    protected _createPipeline(index: number, context: WebGPURenderContext2D, shaderInstance: WebGPUShaderInstance,
         command: WebGPURenderCommandEncoder, stateKey?: string) {
         this.value2DShaderData.isShare = false;
         const bindGroupLayout = this._createBindGroupLayout(shaderInstance);
         if (bindGroupLayout) {
-            const pipeline = this._getWebGPURenderPipeline(shaderInstance, context.destRT, context, bindGroupLayout);
+            const pipeline = this._getWebGPURenderPipeline(shaderInstance, context.destRT, context, bindGroupLayout, stateKey);
             if (command) {
                 if (WebGPUGlobal.useGlobalContext)
                     WebGPUContext.setCommandPipeline(command, pipeline);
                 else command.setPipeline(pipeline);
             }
             if (WebGPUGlobal.useCache) {
-                this._pipelineCache[sn] = pipeline;
-                this._stateKey[sn] = stateKey;
+                shaderInstance.renderPipelineMap.set(stateKey, pipeline);
+                this._pipeline[index] = pipeline;
+                this._stateKey[index] = stateKey;
             }
-            return true;
+            context.pipelineCache.push({ pipeline, shaderInstance, samples: context.destRT._samples, stateKey });
+            console.log('pipelineCache2d =', context.pipelineCache);
+            return pipeline;
         }
-        return false;
+        return null;
+    }
+
+    /**
+     * 提取当前渲染通道
+     * @param pipelineMode 
+     */
+    private _takeCurPass(pipelineMode: string) {
+        this._passNum = 0;
+        this._passName = pipelineMode;
+        const passes = this.subShader._passes;
+        for (let i = 0, len = passes.length; i < len; i++) {
+            if (passes[i].pipelineMode === pipelineMode) {
+                this._passIndex[this._passNum++] = i;
+            }
+        }
     }
 
     /**
      * 准备渲染
      * @param context 
-     * @returns 
      */
     prepare(context: WebGPURenderContext2D) {
-        //设定当前渲染通道
-        this._passNum = 0;
-        const passes = this.subShader._passes;
-        for (let i = 0, len = passes.length; i < len; i++) {
-            if (passes[i].pipelineMode === context.pipelineMode) {
-                this._passIndex[this._passNum] = i;
-                this._shaderPass[this._passNum] = passes[i];
-                this._shaderInstance[this._passNum] = this._shaderInstances[i];
-                this._passNum++;
-            }
-        }
+        this._takeCurPass(context.pipelineMode);
         if (this._passNum === 0) return false;
-        this._passName = context.pipelineMode;
 
         //设定当前渲染数据
         this._sceneData = context.sceneData;
@@ -538,22 +551,28 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
      */
     render(context: WebGPURenderContext2D, command: WebGPURenderCommandEncoder) {
         //如果command是null，则只上传shaderData数据，不执行bindGroup操作
-        let stateKey;
         let triangles = 0;
         for (let i = 0; i < this._passNum; i++) {
             const index = this._passIndex[i];
-            const shaderInstance = this._shaderInstance[i];
+            let pipeline = this._pipeline[index];
+            const shaderInstance = this._shaderInstances[index];
             if (shaderInstance && shaderInstance.complete) {
+                this._getDepthStencilState(shaderInstance, context.destRT); //更新Stencil信息
                 if (WebGPUGlobal.useCache) { //启用缓存机制
+                    let stateKey: string;
                     if (this.materialShaderData)
                         stateKey = this._calcStateKey(shaderInstance, context.destRT, context);
                     else stateKey = this._stateKey[index];
-                    if (stateKey != this._stateKey[index] || !this._pipelineCache[index]) //缓存未命中
-                        this._createPipeline(index, context, shaderInstance, command, stateKey); //新建渲染管线
+                    if (this._stateKey[index] !== stateKey || pipeline) { //缓存未命中
+                        this._stateKey[index] = stateKey;
+                        pipeline = this._pipeline[index] = shaderInstance.renderPipelineMap.get(stateKey);
+                    }
+                    if (!pipeline)
+                        pipeline = this._createPipeline(index, context, shaderInstance, command, stateKey); //新建渲染管线
                     else if (command) { //缓存命中
                         if (WebGPUGlobal.useGlobalContext)
-                            WebGPUContext.setCommandPipeline(command, this._pipelineCache[index]);
-                        else command.setPipeline(this._pipelineCache[index]);
+                            WebGPUContext.setCommandPipeline(command, pipeline);
+                        else command.setPipeline(pipeline);
                     }
                 } else this._createPipeline(index, context, shaderInstance, command); //不启用缓存机制
                 if (command)
@@ -571,7 +590,7 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
     destroy() {
         WebGPUGlobal.releaseId(this);
         this._shaderInstances.length = 0;
-        this._pipelineCache.length = 0;
+        this._pipeline.length = 0;
         this._stateKey.length = 0;
     }
 }
