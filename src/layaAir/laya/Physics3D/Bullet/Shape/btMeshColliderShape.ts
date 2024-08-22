@@ -5,7 +5,10 @@ import { btPhysicsCreateUtil } from "../btPhysicsCreateUtil";
 import { btPhysicsManager } from "../btPhysicsManager";
 import { btColliderShape } from "./btColliderShape";
 
-
+/**
+ * @en The `btMeshColliderShape` class is used to create and manage mesh-based collision shapes.
+ * @zh `btMeshColliderShape` 类用于创建和管理基于网格的碰撞形状。
+ */
 export class btMeshColliderShape extends btColliderShape implements IMeshColliderShape {
 	/**@internal */
 	private _mesh: Mesh;
@@ -27,8 +30,9 @@ export class btMeshColliderShape extends btColliderShape implements IMeshCollide
 
 
 	/**
-	 * 网格
-	*/
+	 * @en The mesh of the collider shape.
+	 * @zh 碰撞器形状的网格。
+	 */
 	public get mesh(): Mesh {
 		return this._mesh;
 	}
@@ -50,17 +54,29 @@ export class btMeshColliderShape extends btColliderShape implements IMeshCollide
 		btMeshColliderShape._btTempVector31 = bt.btVector3_create(0, 0, 0);
 		btMeshColliderShape._btTempVector32 = bt.btVector3_create(0, 0, 0);
 	}
-
+	/** @ignore */
 	constructor() {
 		super();
 	}
 
+	/**
+	 * @en Set the physics mesh from a given mesh.
+	 * @param value The mesh to set.
+	 * @zh 从给定的网格设置物理网格。
+	 * @param value 网格。
+	 */
 	setPhysicsMeshFromMesh(value: Mesh): void {
 		this._mesh = value;
 		this._convex = false;
 		this._createTrianggleMeshGeometry();
 	}
 
+	/**
+	 * @en Set the convex mesh.
+	 * @param value The mesh to set.
+	 * @zh 设置凸包网格。
+	 * @param value 网格。
+	 */
 	setConvexMesh(value: Mesh): void {
 		this._mesh = value;
 		this._convex = true;
@@ -68,12 +84,22 @@ export class btMeshColliderShape extends btColliderShape implements IMeshCollide
 		this._createConvexMeshGeometry();
 	}
 
+	/**
+	 * @en Set the limit of vertices.
+	 * @param limit The limit value.
+	 * @zh 设置顶点限制。
+	 * @param limit 限制值。
+	 */
 	setLimitVertex(limit: number): void {
 
 		this._limitvertex = limit;
 	}
 
-	/**@internal */
+	/**
+	 * @internal
+	 * @en Whether the shape is convex.
+	 * @zh 形状是否为凸包。
+	 */
 	get convex(): boolean {
 		return this._convex;
 	}
@@ -138,7 +164,12 @@ export class btMeshColliderShape extends btColliderShape implements IMeshCollide
 	}
 
 
-
+	/**
+	 * @en Set the world scale of the collider shape.
+	 * @param value The scale vector to set.
+	 * @zh 设置碰撞器形状的世界缩放。
+	 * @param value 缩放向量。
+	 */
 	setWorldScale(value: Vector3): void {
 		if (this._btShape && this._btCollider) {
 			let bt = btPhysicsCreateUtil._bt;

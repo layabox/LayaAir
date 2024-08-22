@@ -2,14 +2,26 @@ import { Vector3 } from "../../../maths/Vector3";
 import { IColliderShape } from "../../interface/Shape/IColliderShape";
 import { btCollider } from "../Collider/btCollider";
 import { btPhysicsCreateUtil } from "../btPhysicsCreateUtil";
-
+/**
+ * @en The `btColliderShape` class is the base class for defining and managing physics collision shapes.
+ * @zh 类`btColliderShape` 用于定义和管理物理碰撞形状的基类。
+ */
 export class btColliderShape implements IColliderShape {
 
-    /** 形状方向_X轴正向 */
+    /**
+     * @en Shape orientation along positive X-axis
+     * @zh 形状方向沿 X 轴正向
+     */
     static SHAPEORIENTATION_UPX: number = 0;
-    /** 形状方向_Y轴正向 */
+    /**
+     * @en Shape orientation along positive Y-axis
+     * @zh 形状方向沿 Y 轴正向
+     */
     static SHAPEORIENTATION_UPY: number = 1;
-    /** 形状方向_Z轴正向 */
+    /**
+     * @en Shape orientation along positive Z-axis
+     * @zh 形状方向沿 Z 轴正向
+     */
     static SHAPEORIENTATION_UPZ: number = 2;
 
     /** @internal */
@@ -67,10 +79,22 @@ export class btColliderShape implements IColliderShape {
         throw "override this function"
     }
 
+    /**
+     * @en Sets the local offset of the shape.
+     * @param value The offset value.
+     * @zh 设置形状的局部偏移。
+     * @param value 偏移量。
+     */
     setOffset(value: Vector3): void {
         value.cloneTo(this._localOffset);
     }
 
+    /**
+     * @en Sets the world scale of the shape.
+     * @param scale The scale value.
+     * @zh 设置形状的世界缩放。
+     * @param scale 缩放比例。
+     */
     setWorldScale(scale: Vector3): void {
         if (this._btShape && this._worldScale.equal(scale))
             return;
@@ -80,6 +104,10 @@ export class btColliderShape implements IColliderShape {
         bt.btCollisionShape_setLocalScaling(this._btShape, this._btScale);
     }
 
+    /**
+     * @en Destroys the collider shape and releases resources.
+     * @zh 销毁碰撞器形状并释放资源。
+     */
     destroy(): void {
         if (this._btShape && !this._destroyed) {
             btPhysicsCreateUtil._bt.btCollisionShape_destroy(this._btShape);
