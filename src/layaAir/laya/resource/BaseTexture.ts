@@ -10,7 +10,8 @@ import { LayaGL } from "../layagl/LayaGL";
 import { Resource } from "./Resource";
 
 /**
- * <code>BaseTexture</code> 纹理的父类，抽象类，不允许实例。
+ * @en The `BaseTexture` class is an abstract class and serves as the base class for textures. It should not be instantiated directly.
+ * @zh `BaseTexture` 类是纹理的父类，是一个抽象类，不允许直接实例化。
  */
 export class BaseTexture extends Resource {
     /**
@@ -25,7 +26,8 @@ export class BaseTexture extends Resource {
     protected _height: number;
 
     /**
-     * 获取宽度。
+     * @en The width of the texture.
+     * @zh 纹理的宽度。
      */
     get width(): number {
         return this._width;
@@ -35,8 +37,9 @@ export class BaseTexture extends Resource {
         this._width = width;
     }
 
-    /***
-     * 获取高度。
+    /**
+     * @en The height of the texture.
+     * @zh 纹理的高度。
      */
     get height(): number {
         return this._height;
@@ -49,7 +52,8 @@ export class BaseTexture extends Resource {
     protected _dimension: TextureDimension;
 
     /**
-     * 纹理几何属性
+     * @en The texture dimension.
+     * @zh 纹理几何属性
      */
     public get dimension(): TextureDimension {
         return this._dimension;
@@ -57,25 +61,32 @@ export class BaseTexture extends Resource {
 
     protected _format: TextureFormat;
     /**
-     * 纹理格式
+     * @en The format of the texture.
+     * @zh 纹理的格式。
      */
     public get format(): TextureFormat {
         return this._format;
     }
 
     /**
-     * 是否生成mipmap
+     * @en Whether to generate mipmap
+     * @zh 是否生成mipmap
      */
     public get mipmap(): boolean {
         return this._texture.mipmap;
     }
 
+    /**
+     * @en The number of mipmap generated for this texture.
+     * @zh 为此纹理生成的mipmap数量。
+     */
     public get mipmapCount(): number {
         return this._texture.mipmapCount;
     }
 
     /**
-     * 各向异性值
+     * @en The anisotropy value of texture
+     * @zh 纹理的各向异性值
      */
     public get anisoLevel(): number {
         return this._texture.anisoLevel;
@@ -85,7 +96,8 @@ export class BaseTexture extends Resource {
     }
 
     /**
-     * 采样过滤模式
+     * @en The sampling filtering mode of the texture.
+     * @zh 纹理的采样过滤模式。
      */
     public get filterMode(): FilterMode {
         return this._texture.filterMode;
@@ -95,7 +107,8 @@ export class BaseTexture extends Resource {
     }
 
     /**
-     * U方向采样模式
+     * @en U-direction sampling mode
+     * @zh U方向采样模式
      */
     public get wrapModeU(): WrapMode {
         return this._texture.wrapU;
@@ -105,7 +118,8 @@ export class BaseTexture extends Resource {
     }
 
     /**
-     * V方向采样模式
+     * @en V-direction sampling mode
+     * @zh V方向采样模式
      */
     public get wrapModeV(): WrapMode {
         return this._texture.wrapV;
@@ -115,7 +129,8 @@ export class BaseTexture extends Resource {
     }
 
     /**
-     * W方向采样模式
+     * @en W-direction sampling mode
+     * @zh W方向采样模式
      */
     public get wrapModeW(): WrapMode {
         return this._texture.wrapW;
@@ -125,7 +140,8 @@ export class BaseTexture extends Resource {
     }
 
     /**
-     * 贴图压缩格式
+     * @en The texture compare mode.
+     * @zh 贴图压缩格式
      */
     public get compareMode(): TextureCompareMode {
         return this._texture.compareMode;
@@ -135,50 +151,60 @@ export class BaseTexture extends Resource {
         this._texture.compareMode = LayaGL.textureContext.setTextureCompareMode(this._texture, value);
     }
 
-
     /**
-     * gamma矫正值
-     * 如果是1.0  texture2D直接采样就是linear 
+     * @en Gets the gamma correction value of the texture. If set to 1.0, texture sampling will be linear without any correction.
+     * @zh 获取纹理的伽马校正值。如果设置为1.0，则纹理采样将为线性，不进行任何校正。
      */
     public get gammaCorrection(): number {
         return this._texture.gammaCorrection;
     }
 
     /**
-     * mipmap起始等级
+     * @en The base mipmap level of the texture.
+     * @zh 纹理的mipmap起始等级。
      */
-    public set baseMipmapLevel(value: number) {
-        this._texture.baseMipmapLevel = value;
-    }
-
     public get baseMipmapLevel(): number {
         return this._texture.baseMipmapLevel;
     }
 
-    /**
-     * 最大Mipmap等级
-     */
-    public set maxMipmapLevel(value: number) {
-        this._texture.maxMipmapLevel = value;
+    public set baseMipmapLevel(value: number) {
+        this._texture.baseMipmapLevel = value;
     }
 
+    /**
+     * @en The maximum mipmap level of the texture.
+     * @zh 纹理的最大mipmap等级。
+     */
     public get maxMipmapLevel(): number {
         return this._texture.maxMipmapLevel;
     }
 
+    public set maxMipmapLevel(value: number) {
+        this._texture.maxMipmapLevel = value;
+    }
+
+
     /**@internal */
     _gammaSpace: boolean = false;
     // todo
+    /**
+     * @en Gets whether the texture is using gamma space.
+     * @zh 判断纹理是否使用伽马空间。
+     */
     public get gammaSpace(): boolean {
         // return this._gammaSpace;
         return this._texture.useSRGBLoad || this._texture.gammaCorrection > 1;
     }
 
     /**
-     * 实例化一个纹理
-     * @param width 长
-     * @param height 宽
-     * @param format 格式
+     * @en Creates an instance of BaseTexture.
+     * @param width The width of the texture.
+     * @param height The height of the texture.
+     * @param format The format of the texture, specified as a number.
+     * @zh 实例化一个纹理
+     * @param width 纹理的宽度。
+     * @param height 纹理的高度。
+     * @param format 纹理的格式，以数字形式指定。
      */
     constructor(width: number, height: number, format: number) {
         super();
@@ -190,8 +216,10 @@ export class BaseTexture extends Resource {
     }
 
     /**
-     * 是否是gpu压缩纹理格式
-     * @returns 
+     * @en Checks if the texture is in a GPU compressed format.
+     * @returns True if the texture is in a GPU compressed format, otherwise false.
+     * @zh 是否是gpu压缩纹理格式
+     * @returns 如果纹理是gpu压缩格式，则返回true，否则返回false。
      */
     gpuCompressFormat(): boolean {
         let format = this._format;
@@ -265,7 +293,8 @@ export class BaseTexture extends Resource {
     }
 
     /**
-     * 默认贴图
+     * @en The default texture.
+     * @zh 默认贴图
      */
     get defaultTexture(): BaseTexture {
         throw "defaulte"

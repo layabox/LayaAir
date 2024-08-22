@@ -8,9 +8,9 @@ import { Quaternion } from "../../maths/Quaternion";
 import { Vector3 } from "../../maths/Vector3";
 import { Sprite3D } from "./Sprite3D";
 
-
 /**
- * <code>Transform3D</code> 类用于实现3D变换。
+ * @en The `Transform3D` class is used to implement 3D transformations.
+ * @zh `Transform3D` 类用于实现3D变换。
  */
 export class Transform3D extends EventDispatcher {
 	/** @internal */
@@ -92,7 +92,8 @@ export class Transform3D extends EventDispatcher {
 
 
 	/**
-	 * 是否未DefaultMatrix
+	 * @en Whether it is the default matrix. If `true`, it indicates that there is no change relative to the parent node, and calculations will be skipped based on this parameter.
+	 * @zh 是否为默认矩阵，如果为true，表示自身相对于父节点并无任何改变，将通过这个参数忽略计算。
 	 */
 	get isDefaultMatrix(): boolean {
 		if (this._getTransformFlag(Transform3D.TRANSFORM_LOCALMATRIX)) {
@@ -117,8 +118,8 @@ export class Transform3D extends EventDispatcher {
 	}
 
 	/**
-	 * 获取是否前向顺时针面
-	 * @returns 
+	 * @en Whether the front face is clockwise.
+	 * @zh 获取是否前向顺时针面。
 	 */
 	getFrontFaceValue(): number {
 		if (this._getTransformFlag(Transform3D.TRANSFORM_WORLDSCALE)) {
@@ -129,21 +130,24 @@ export class Transform3D extends EventDispatcher {
 
 
 	/**
-	 * 所属精灵。
+	 * @en The sprite to which this transform belongs.
+	 * @zh 所属精灵。
 	 */
 	get owner(): Sprite3D {
 		return this._owner;
 	}
 
 	/**
-	 * 世界矩阵是否需要更新。
+	 * @en Whether the world matrix needs to be updated.
+	 * @zh 世界矩阵是否需要更新。
 	 */
 	get worldNeedUpdate(): boolean {
 		return this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX);
 	}
 
 	/**
-	 * 局部位置X轴分量。
+	 * @en The X component of the local position.
+	 * @zh 局部位置X轴分量。
 	 */
 	get localPositionX(): number {
 		return this._localPosition.x;
@@ -155,7 +159,8 @@ export class Transform3D extends EventDispatcher {
 	}
 
 	/**
-	 * 局部位置Y轴分量。
+	 * @en The Y component of the local position.
+	 * @zh 局部位置Y轴分量。
 	 */
 	get localPositionY(): number {
 		return this._localPosition.y;
@@ -167,7 +172,8 @@ export class Transform3D extends EventDispatcher {
 	}
 
 	/**
-	 * 局部位置Z轴分量。
+	 * @en The Z component of the local position.
+	 * @zh 局部位置Z轴分量。
 	 */
 	get localPositionZ(): number {
 		return this._localPosition.z;
@@ -179,7 +185,8 @@ export class Transform3D extends EventDispatcher {
 	}
 
 	/**
-	 * 局部位置。
+	 * @en The local position.
+	 * @zh 局部位置。
 	 */
 	get localPosition(): Vector3 {
 		return this._localPosition;
@@ -194,7 +201,8 @@ export class Transform3D extends EventDispatcher {
 	}
 
 	/**
-	 * 局部旋转四元数X分量。
+	 * @en The X component of the local rotation quaternion.
+	 * @zh 局部旋转四元数X分量。
 	 */
 	get localRotationX(): number {
 		return this.localRotation.x;
@@ -207,7 +215,8 @@ export class Transform3D extends EventDispatcher {
 	}
 
 	/**
-	 * 局部旋转四元数Y分量。
+	 * @en The Y component of the local rotation quaternion.
+	 * @zh 局部旋转四元数Y分量。
 	 */
 	get localRotationY(): number {
 		return this.localRotation.y;
@@ -220,7 +229,8 @@ export class Transform3D extends EventDispatcher {
 	}
 
 	/**
-	 * 局部旋转四元数Z分量。
+	 * @en The Z component of the local rotation quaternion.
+	 * @zh 局部旋转四元数Z分量。
 	 */
 	get localRotationZ(): number {
 		return this.localRotation.z;
@@ -233,7 +243,8 @@ export class Transform3D extends EventDispatcher {
 	}
 
 	/**
-	 * 局部旋转四元数W分量。
+	 * @en The W component of the local rotation quaternion.
+	 * @zh 局部旋转四元数W分量。
 	 */
 	get localRotationW(): number {
 		return this.localRotation.w;
@@ -246,7 +257,8 @@ export class Transform3D extends EventDispatcher {
 	}
 
 	/**
-	 * 局部旋转。
+	 * @en The local rotation.
+	 * @zh 局部旋转。
 	 */
 	get localRotation(): Quaternion {
 		if (this._getTransformFlag(Transform3D.TRANSFORM_LOCALQUATERNION)) {
@@ -267,7 +279,8 @@ export class Transform3D extends EventDispatcher {
 	}
 
 	/**
-	 * 局部缩放X。
+	 * @en The X component of the local scale.
+	 * @zh 局部缩放X。
 	 */
 	get localScaleX(): number {
 		return this._localScale.x;
@@ -279,7 +292,8 @@ export class Transform3D extends EventDispatcher {
 	}
 
 	/**
-	 * 局部缩放Y。
+	 * @en The Y component of the local scale.
+	 * @zh 局部缩放Y。
 	 */
 	get localScaleY(): number {
 		return this._localScale.y;
@@ -291,7 +305,8 @@ export class Transform3D extends EventDispatcher {
 	}
 
 	/**
-	 * 局部缩放Z。
+	 * @en The Z component of the local scale.
+	 * @zh 局部缩放Z。
 	 */
 	get localScaleZ(): number {
 		return this._localScale.z;
@@ -303,7 +318,8 @@ export class Transform3D extends EventDispatcher {
 	}
 
 	/**
-	 * 局部缩放。
+	 * @en The local scale of the transform.
+	 * @zh 局部缩放。
 	 */
 	get localScale(): Vector3 {
 		return this._localScale;
@@ -317,7 +333,8 @@ export class Transform3D extends EventDispatcher {
 	}
 
 	/**
-	 * 局部空间的X轴欧拉角。
+	 * @en The X component of the local rotation euler angles.
+	 * @zh 局部空间的X轴欧拉角。
 	 */
 	get localRotationEulerX(): number {
 		return this.localRotationEuler.x;
@@ -330,7 +347,8 @@ export class Transform3D extends EventDispatcher {
 	}
 
 	/**
-	 * 局部空间的Y轴欧拉角。
+	 * @en The Y component of the local rotation euler angles.
+	 * @zh 局部空间的Y轴欧拉角。
 	 */
 	get localRotationEulerY(): number {
 		return this.localRotationEuler.y;
@@ -343,7 +361,8 @@ export class Transform3D extends EventDispatcher {
 	}
 
 	/**
-	 * 局部空间的Z轴欧拉角。
+	 * @en The Z component of the local rotation euler angles.
+	 * @zh 局部空间的Z轴欧拉角。
 	 */
 	get localRotationEulerZ(): number {
 		return this.localRotationEuler.z;
@@ -356,7 +375,8 @@ export class Transform3D extends EventDispatcher {
 	}
 
 	/**
-	 * 局部空间欧拉角。
+	 * @en The local rotation euler angles of the transform.
+	 * @zh 局部空间欧拉角。
 	 */
 	get localRotationEuler(): Vector3 {
 		if (this._getTransformFlag(Transform3D.TRANSFORM_LOCALEULER)) {
@@ -380,7 +400,8 @@ export class Transform3D extends EventDispatcher {
 	}
 
 	/**
-	 * 局部矩阵。
+	 * @en The local matrix.
+	 * @zh 局部矩阵。
 	 */
 	get localMatrix(): Matrix4x4 {
 		if (this._getTransformFlag(Transform3D.TRANSFORM_LOCALMATRIX)) {
@@ -402,7 +423,8 @@ export class Transform3D extends EventDispatcher {
 	}
 
 	/**
-	 * 世界位置。
+	 * @en World position.
+	 * @zh 世界位置。
 	 */
 	get position(): Vector3 {
 		if (this._getTransformFlag(Transform3D.TRANSFORM_WORLDPOSITION)) {
@@ -437,7 +459,8 @@ export class Transform3D extends EventDispatcher {
 
 
 	/**
-	 * 世界旋转。
+	 * @en World rotation.
+	 * @zh 世界旋转。
 	 */
 	get rotation(): Quaternion {
 		if (this._getTransformFlag(Transform3D.TRANSFORM_WORLDQUATERNION)) {
@@ -466,7 +489,8 @@ export class Transform3D extends EventDispatcher {
 
 
 	/**
-	 * 世界空间的旋转角度，顺序为x、y、z。
+	 * @en Rotation angles in world space, in the order of x, y, z.
+	 * @zh 世界空间的旋转角度，顺序为x、y、z。
 	 */
 	get rotationEuler(): Vector3 {
 		if (this._getTransformFlag(Transform3D.TRANSFORM_WORLDEULER)) {
@@ -490,9 +514,9 @@ export class Transform3D extends EventDispatcher {
 		this._setTransformFlag(Transform3D.TRANSFORM_WORLDEULER, false);
 	}
 
-
 	/**
-	 * 世界矩阵。
+	 * @en World matrix.
+	 * @zh 世界矩阵。
 	 */
 	get worldMatrix(): Matrix4x4 {
 		if (this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX)) {
@@ -528,8 +552,10 @@ export class Transform3D extends EventDispatcher {
 	}
 
 	/**
-	 * 创建一个 <code>Transform3D</code> 实例。
 	 * @internal
+	 * @en Creates an instance of Transform3D.
+	 * @param owner The sprite of the owner.
+	 * @zh 创建一个 Transform3D 的实例。
 	 * @param owner 所属精灵。
 	 */
 	constructor(owner: Sprite3D) {
@@ -666,11 +692,13 @@ export class Transform3D extends EventDispatcher {
 			this._children![i]._onWorldTransform();
 	}
 
-
 	/**
-	 * 平移变换。
-	 * @param 	translation 移动距离。
-	 * @param 	isLocal 是否局部空间。
+	 * @en Perform translation transformation.
+	 * @param translation The distance to move.
+	 * @param isLocal Whether to use local space. Default is true.
+	 * @zh 平移变换。
+	 * @param translation 移动距离。
+	 * @param isLocal 是否局部空间。默认为 true。
 	 */
 	translate(translation: Vector3, isLocal: boolean = true): void {
 		if (isLocal) {
@@ -684,12 +712,15 @@ export class Transform3D extends EventDispatcher {
 		}
 	}
 
-
 	/**
-	 * 旋转变换。
-	 * @param 	rotations 旋转幅度。
-	 * @param 	isLocal 是否局部空间。
-	 * @param 	isRadian 是否弧度制。
+	 * @en Perform rotation transformation.
+	 * @param rotation The rotation amount.
+	 * @param isLocal Whether to use local space. Default is true.
+	 * @param isRadian Whether the rotation is in radians. Default is true.
+	 * @zh 旋转变换。
+	 * @param rotation 旋转幅度。
+	 * @param isLocal 是否局部空间。默认为 true。
+	 * @param isRadian 是否弧度制。默认为 true。
 	 */
 	rotate(rotation: Vector3, isLocal: boolean = true, isRadian: boolean = true): void {
 		var rot: Vector3;
@@ -711,7 +742,9 @@ export class Transform3D extends EventDispatcher {
 	}
 
 	/**
-	 * 获取向前方向。
+	 * @en Get the forward direction.
+	 * @param forward The vector to the forward direction.
+	 * @zh 获取向前方向。
 	 * @param forward 前方向。
 	 */
 	getForward(forward: Vector3): void {
@@ -722,7 +755,9 @@ export class Transform3D extends EventDispatcher {
 	}
 
 	/**
-	 * 获取向上方向。
+	 * @en Get the up direction.
+	 * @param up The vector to the up direction.
+	 * @zh 获取向上方向。
 	 * @param up 上方向。
 	 */
 	getUp(up: Vector3): void {
@@ -733,8 +768,10 @@ export class Transform3D extends EventDispatcher {
 	}
 
 	/**
-	 * 获取向右方向。
-	 * @param 右方向。
+	 * @en Get the right direction.
+	 * @param right The vector to the right direction.
+	 * @zh 获取向右方向。
+	 * @param right 右方向。
 	 */
 	getRight(right: Vector3): void {
 		var worldMatElem: Float32Array = this.worldMatrix.elements;
@@ -744,10 +781,16 @@ export class Transform3D extends EventDispatcher {
 	}
 
 	/**
-	 * 观察目标位置。
-	 * @param	target 观察目标。
-	 * @param	up 向上向量。
-	 * @param	isLocal 是否局部空间。
+	 * @en Look at a target position.
+	 * @param target The target to look at.
+	 * @param up The up vector.
+	 * @param isLocal Whether to use local space. Default is false.
+	 * @param isCamera Whether it's a camera. Default is true.
+	 * @zh 观察目标位置。
+	 * @param target 观察目标。
+	 * @param up 向上向量。
+	 * @param isLocal 是否局部空间。默认为 false。
+	 * @param isCamera 是否为相机。默认为 true。
 	 */
 	lookAt(target: Vector3, up: Vector3, isLocal: boolean = false, isCamera: boolean = true): void {
 		var eye: Vector3;
@@ -783,10 +826,14 @@ export class Transform3D extends EventDispatcher {
 	}
 
 	/**
-	 * 对象朝向目标
-	 * @param target 朝向目标位置
-	 * @param up 向上向量
-	 * @param isLocal 是否局部空间
+	 * @en Make the object face towards a target.
+	 * @param target The target position to face.
+	 * @param up The up vector.
+	 * @param isLocal Whether to use local space. Default is false.
+	 * @zh 对象朝向目标。
+	 * @param target 朝向目标位置。
+	 * @param up 向上向量。
+	 * @param isLocal 是否局部空间。默认为 false。
 	 */
 	objLookat(target: Vector3, up: Vector3, isLocal: boolean = false): void {
 		this.lookAt(target, up, isLocal, false);
@@ -795,9 +842,14 @@ export class Transform3D extends EventDispatcher {
 
 
 	/**
-	 * 世界缩放。
-	 * 某种条件下获取该值可能不正确（例如：父节点有缩放，子节点有旋转），缩放会倾斜，无法使用Vector3正确表示,必须使用Matrix3x3矩阵才能正确表示。
-	 * @return	世界缩放。
+	 * @en The world scale.
+	 * Under certain conditions, obtaining this value may not be accurate (e.g., when the parent node has scaling and the child node has rotation). 
+	 * The scaling may be skewed and cannot be correctly represented using Vector3. A Matrix3x3 matrix must be used for correct representation.
+	 * @returns The world scale.
+	 * @zh 世界缩放。
+	 * 某种条件下获取该值可能不正确（例如：父节点有缩放，子节点有旋转）。
+	 * 缩放会倾斜，无法使用Vector3正确表示，必须使用Matrix3x3矩阵才能正确表示。
+	 * @returns 世界缩放。
 	 */
 	getWorldLossyScale(): Vector3 {
 		if (this._getTransformFlag(Transform3D.TRANSFORM_WORLDSCALE)) {
@@ -816,8 +868,15 @@ export class Transform3D extends EventDispatcher {
 	}
 
 	/**
-	 * 设置世界缩放。
-	 * 某种条件下设置该值可能不正确（例如：父节点有缩放，子节点有旋转），缩放会倾斜，无法使用Vector3正确表示,必须使用Matrix3x3矩阵才能正确表示。
+	 * @en Set the world scale.
+	 * Under certain conditions, setting this value may not be accurate (e.g., when the parent node has scaling and the child node has rotation). 
+	 * The scaling may be skewed and cannot be correctly represented using Vector3. A Matrix3x3 matrix must be used for correct representation.
+	 * @param value The world scale to set.
+	 * @return The world scale.
+	 * @zh 设置世界缩放。
+	 * 某种条件下设置该值可能不正确（例如：父节点有缩放，子节点有旋转）。
+	 * 缩放会倾斜，无法使用Vector3正确表示，必须使用Matrix3x3矩阵才能正确表示。
+	 * @param value 要设置的世界缩放。
 	 * @return	世界缩放。
 	 */
 	setWorldLossyScale(value: Vector3) {
@@ -841,47 +900,38 @@ export class Transform3D extends EventDispatcher {
 		this._setTransformFlag(Transform3D.TRANSFORM_WORLDSCALE, false);
 	}
 
-	//----------------------------------------Discard-------------------------------------------------
 	/**
-	 * 世界坐标系缩放。
-	 * @deprecated
-	 */
-	get scale(): Vector3 {
-		console.warn("Transfrm3D: discard function,please use getWorldLossyScale instead.");
-		return this.getWorldLossyScale();
-	}
-
-	/**
-	 * @deprecated
-	 */
-	set scale(value: Vector3) {
-		console.warn("Transfrm3D: discard function,please use setWorldLossyScale instead.");
-		this.setWorldLossyScale(value);
-	}
-
-	/**
-	 * 局部转换位全局向量
-	 * @param value 局部向量
-	 * @param out 输出的全局向量
+	 * @en Transform a local vector to global space.
+	 * @param value The local vector to transform.
+	 * @param out The output global vector.
+	 * @zh 将局部向量转换为全局向量。
+	 * @param value 要转换的局部向量。
+	 * @param out 输出的全局向量。
 	 */
 	localToGlobal(value: Vector3, out: Vector3): void {
 		Vector3.transformV3ToV3(value, this.worldMatrix, out);
 	}
 
 	/**
-	 * 转化成局部坐标
-	 * @param pos 世界坐标
-	 * @param out 输出的局部坐标
-	*/
+	 * @en Transform a global position to local space.
+	 * @param pos The world position to transform.
+	 * @param out The output local position.
+	 * @zh 将世界坐标转换为局部坐标。
+	 * @param pos 要转换的世界坐标。
+	 * @param out 输出的局部坐标。
+	 */
 	globalToLocal(pos: Vector3, out: Vector3): void {
 		this.worldMatrix.invert(Transform3D._tempMatrix0);
 		Vector3.transformV3ToV3(pos, Transform3D._tempMatrix0, out);
 	}
 
 	/**
-	 * 转化成局部向量 
-	 * @param pos
-	 * @param out
+	 * @en Transform a global normal vector to local space.
+	 * @param pos The global normal vector to transform.
+	 * @param out The output local normal vector.
+	 * @zh 将全局法线向量转换为局部空间。
+	 * @param pos 要转换的全局法线向量。
+	 * @param out 输出的局部法线向量。
 	 */
 	toLocalNormal(pos: Vector3, out: Vector3): void {
 		this.worldMatrix.invert(Transform3D._tempMatrix0);
@@ -889,9 +939,12 @@ export class Transform3D extends EventDispatcher {
 	}
 
 	/**
-	 * 朝向指定方向
-	 * @param forward 前向向量 
-	 * @param dir 朝向方向
+	 * @en Rotate to face a specified direction.
+	 * @param forward The forward vector.
+	 * @param dir The target direction to face.
+	 * @zh 朝向指定方向。
+	 * @param forward 前向向量。
+	 * @param dir 目标朝向方向。
 	 */
 	toDir(forward: Vector3, dir: Vector3) {
 		this.rotationTo(this.rotation, forward, dir);
@@ -900,21 +953,21 @@ export class Transform3D extends EventDispatcher {
 	/**@internal */
 	static tmpVec3: Vector3 = new Vector3();
 	/**
-	 * 这是一个 glmatrix中的函数
-	 * a,b都是规格化以后的向量
-	 * Sets a quaternion to represent the shortest rotation from one
-	 * vector to another.
-	 *
+	 * @en This is a function from glmatrix. Sets a quaternion to represent the shortest rotation from one vector to another.
 	 * Both vectors are assumed to be unit length.
-	 *
-	 * @param {quat} out the receiving quaternion.
-	 * @param {vec3} a the initial vector
-	 * @param {vec3} b the destination vector
-	 * @returns {quat} out
+	 * @param out The receiving quaternion.
+	 * @param a The initial vector (normalized).
+	 * @param b The destination vector (normalized).
+	 * @returns {boolean} True if a rotation was applied, false if the vectors are already aligned.
+	 * @zh 这是一个 glmatrix 中的函数。设置一个四元数来表示从一个向量到另一个向量的最短旋转。
+	 * 假设两个向量都是单位长度。
+	 * @param out 接收结果的四元数。
+	 * @param a 初始向量（已归一化）。
+	 * @param b 目标向量（已归一化）。
+	 * @returns {boolean} 如果应用了旋转则返回 true，如果向量已经对齐则返回 false。
 	 */
 	rotationTo(out: Quaternion, a: Vector3, b: Vector3): boolean {
 		var dot: number = Vector3.dot(a, b);
-		Vector3.Up
 		if (dot < -0.999999) {// 180度了，可以选择多个轴旋转
 			Vector3.cross(Vector3.UnitX, a, Transform3D.tmpVec3);
 			if (Vector3.scalarLength(Transform3D.tmpVec3) < 0.000001)
@@ -938,9 +991,25 @@ export class Transform3D extends EventDispatcher {
 			out.normalize(out);
 			return true;
 		}
-		return false;
 	}
 
+	//----------------------------------------Discard-------------------------------------------------
+	/**
+	 * 世界坐标系缩放。
+	 * @deprecated
+	 */
+	get scale(): Vector3 {
+		console.warn("Transfrm3D: discard function,please use getWorldLossyScale instead.");
+		return this.getWorldLossyScale();
+	}
+
+	/**
+	 * @deprecated
+	 */
+	set scale(value: Vector3) {
+		console.warn("Transfrm3D: discard function,please use setWorldLossyScale instead.");
+		this.setWorldLossyScale(value);
+	}
 }
 
 

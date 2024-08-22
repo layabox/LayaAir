@@ -8,7 +8,8 @@ import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
 import { LayaEnv } from "../../LayaEnv";
 
 /**
- * <code>HTMLCanvas</code> 是 Html Canvas 的代理类，封装了 Canvas 的属性和方法。
+ * @en `HTMLCanvas` is a proxy class for the HTML Canvas, encapsulating the properties and methods of the Canvas.
+ * @zh `HTMLCanvas` 是 Html Canvas 的代理类，封装了 Canvas 的属性和方法。
  */
 export class HTMLCanvas extends Resource {
 
@@ -24,13 +25,16 @@ export class HTMLCanvas extends Resource {
 
     /**
      * @inheritDoc
+     * @en The source of the canvas element.
+     * @zh Canvas 元素的源。
      */
     get source() {
         return this._source;
     }
 
     /**
-     * 获取宽度。
+     * @en The width of the canvas.
+     * @zh 画布宽度。
      */
     get width(): number {
         return this._width;
@@ -40,8 +44,9 @@ export class HTMLCanvas extends Resource {
         this._width = width;
     }
 
-    /***
-     * 获取高度。
+    /**
+     * @en The height of the canvas.
+     * @zh 画布高度。
      */
     get height(): number {
         return this._height;
@@ -51,14 +56,18 @@ export class HTMLCanvas extends Resource {
         this._height = height;
     }
 
-    /**@internal 
+    /**
+     * @internal 
      * @override
-    */
+     */
     _getSource() {
         return this._source;
     }
     /**
-     * 根据指定的类型，创建一个 <code>HTMLCanvas</code> 实例。
+     * @en Creates an instance of HTMLCanvas.
+     * @param createCanvas If true, creates a new canvas element. If false, uses the instance itself as the canvas source. 
+     * @zh 根据指定的类型，创建一个 HTMLCanvas 的实例。
+     * @param createCanvas 如果为true，则创建一个新的画布元素。如果为 false，则使用当前实例作为画布源。
      */
     constructor(createCanvas: boolean = false) {
         super();
@@ -71,7 +80,8 @@ export class HTMLCanvas extends Resource {
     }
 
     /**
-     * 清空画布内容。
+     * @en Clear the canvas content.
+     * @zh 清空画布内容。
      */
     clear(): void {
         if (this._ctx) {
@@ -88,8 +98,9 @@ export class HTMLCanvas extends Resource {
     }
 
     /**
-     * 销毁。
      * @override
+     * @en Destroys the HTMLCanvas instance, releasing all associated resources.
+     * @zh 销毁 HTMLCanvas 实例，释放所有相关资源。
      */
     destroy(): void {
         super.destroy();
@@ -99,13 +110,15 @@ export class HTMLCanvas extends Resource {
     }
 
     /**
-     * 释放。
+     * @en Release.
+     * @zh 释放
      */
     release(): void {
     }
 
     /**
-     * Canvas 渲染上下文。
+     * @en The Canvas rendering context.
+     * @zh Canvas 渲染上下文。
      */
     get context(): Context {
         if (this._ctx) return this._ctx;
@@ -131,7 +144,11 @@ export class HTMLCanvas extends Resource {
     }
 
     /**
-     * 获取 Canvas 渲染上下文。
+     * @en Get the Canvas rendering context.
+     * @param contextID The context ID.
+     * @param other
+     * @return The Canvas rendering context Context object.
+     * @zh 获取 Canvas 渲染上下文。
      * @param	contextID 上下文ID.
      * @param	other
      * @return  Canvas 渲染上下文 Context 对象。
@@ -142,7 +159,9 @@ export class HTMLCanvas extends Resource {
 
 
     /**
-     * 获取内存大小。
+     * @en Get the memory size.
+     * @return The memory size.
+     * @zh 获取内存大小。
      * @return 内存大小。
      */
     //TODO:coverage
@@ -151,9 +170,12 @@ export class HTMLCanvas extends Resource {
     }
 
     /**
-     * 设置宽高。
-     * @param	w 宽度。
-     * @param	h 高度。
+     * @en Set the width and height of the Canvas.
+     * @param w The width of the Canvas.
+     * @param h The height of the Canvas.
+     * @zh 设置画布的宽度和高度。
+     * @param w 画布的宽度。
+     * @param h 画布的高度。
      */
     size(w: number, h: number): void {
         if (this._width != w || this._height != h || (this._source && (this._source.width != w || this._source.height != h))) {
@@ -173,7 +195,8 @@ export class HTMLCanvas extends Resource {
     }
 
     /**
-     * 获取texture实例
+     * @en Get the texture instance.
+     * @zh 获取纹理实例
      */
     getTexture(): Texture | null | RenderTexture2D {
         if (!this._texture) {
@@ -185,9 +208,12 @@ export class HTMLCanvas extends Resource {
     }
 
     /**
-     * 把图片转换为base64信息
-     * @param	type "image/png"
-     * @param	encoderOptions	质量参数，取值范围为0-1
+     * @en Convert the image to base64 information
+     * @param type The image type "image/png"
+     * @param encoderOptions quality parameter, range 0-1
+     * @zh 把图片转换为base64信息
+     * @param type 图片格式 "image/png"
+     * @param encoderOptions 质量参数，取值范围为0-1
      */
     toBase64(type: string, encoderOptions: number): string | null {
         if (this._source) {
@@ -206,10 +232,14 @@ export class HTMLCanvas extends Resource {
     }
 
     /**
-     * native多线程转图片
-     * @param type 
-     * @param encoderOptions 
-     * @param callBack 
+     * @en Converts the native multi-threaded rendering result to an image in Base64 format.
+     * @param type The type of image, such as 'png' or 'jpeg'.
+     * @param encoderOptions Options for the image encoder, such as quality level.
+     * @param callBack A callback function that is called with the resulting Base64 string.
+     * @zh 将原生多线程渲染结果转换为Base64格式的图片。
+     * @param type 图片类型，比如 'png' 或 'jpeg'。
+     * @param encoderOptions 图像编码器的选项，比如质量等级。
+     * @param callBack 回调函数，用返回的Base64字符串调用。
      */
     toBase64Async(type: string, encoderOptions: number, callBack: Function): void {
         var width: number = this._ctx._targets.sourceWidth;

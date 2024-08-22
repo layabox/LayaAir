@@ -1,17 +1,27 @@
 /**
- * <code>AnimationEvent</code> 类用于实现动画事件。
+ * @en The AnimationEvent class is used to implement animation events.
+ * @zh AnimationEvent 类用于实现动画事件。
  */
 export class AnimationEvent {
-	/** 事件触发时间。*/
+    /**
+     * @en The time at which the event is triggered.
+     * @zh 事件触发的时间。
+     */
 	time: number;
-	/** 事件触发名称。*/
+    /**
+     * @en The name of the triggered event.
+     * @zh 触发的事件名称。
+     */
 	eventName: string;
-	/** 事件触发参数。*/
+    /**
+     * @en The parameters of the triggered event.
+     * @zh 触发事件的参数。
+     */
 	params: any[];
 
-	/**
-	 * 创建一个 <code>AnimationEvent</code> 实例。
-	 */
+    /**
+     * @ignore
+     */
 	constructor() {
 	}
 

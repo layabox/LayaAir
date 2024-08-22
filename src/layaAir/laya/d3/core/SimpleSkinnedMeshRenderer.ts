@@ -37,7 +37,8 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
 
     /**
      * @internal
-     * 设置动画帧贴图
+     * @en The animator texture
+     * @zh 动画帧贴图
      */
     get simpleAnimatorTexture(): Texture2D {
         return this._simpleAnimatorTexture;
@@ -56,7 +57,8 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
 
     /**
      * @internal
-     * 设置动画帧数参数
+     * @en The animator params
+     * @zh 设置动画帧数参数
      */
     get simpleAnimatorOffset(): Vector2 {
         return this._simpleAnimatorOffset;
@@ -70,12 +72,14 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
     }
 
 
-    protected _isISkinRenderNode():any{
+    protected _isISkinRenderNode(): any {
         return null;
     }
 
     /**
-     * 创建一个 <code>SkinnedMeshRender</code> 实例。
+     * @ignore
+     * @en Creates an instance of SimpleSkinnedMeshRenderer.
+     * @zh 创建一个 SimpleSkinnedMeshRenderer 的实例。
      */
     constructor() {
         super();
@@ -111,9 +115,12 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
     }
 
     /**
-  * @param context
-  * @perfTag PerformanceDefine.T_SkinBoneUpdate
-  */
+     * @perfTag PerformanceDefine.T_SkinBoneUpdate
+     * @en Update the render state of the skinned mesh.
+     * @param context The 3D render context
+     * @zh 更新蒙皮网格的渲染状态。
+     * @param context 3D 渲染上下文。
+     */
     renderUpdate(context: RenderContext3D): void {
         super.renderUpdate(context);
         this._computeSkinnedData();
@@ -143,7 +150,10 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
     }
 
     /**
-     * 自定义数据
+     * @en Set custom data
+     * @param value1 Custom data 1
+     * @param value2 Custom data 2
+     * @zh 自定义数据
      * @param value1 自定义数据1
      * @param value2 自定义数据1
      */

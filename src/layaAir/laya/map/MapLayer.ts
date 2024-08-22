@@ -7,16 +7,18 @@ import { Sprite } from "../display/Sprite";
 import { Point } from "../maths/Point";
 import { Texture } from "../resource/Texture";
 
-
 /**
- * 地图支持多层渲染（例如，地表层，植被层，建筑层等）
- * 本类就是层级类
- * @author ...
+ * @en The `MapLayer` class represents layer within a map that supports multi-layer rendering, such as terrain, vegetation, and building layers. This class is a hierarchical class
+ * @zh `MapLayer` 类代表地图中的层级，支持多层渲染，例如地表层、植被层、建筑层等。本类就是层级类。
  */
 export class MapLayer extends Sprite {
 
     private _map: TiledMap;
-    /**@internal */
+    /**
+     * @internal
+     * @en Internal data associated with the map layer.
+     * @zh 与地图层相关联的内部数据。
+     */
     _mapData: any[] = null;
 
     private _tileWidthHalf: number = 0;
@@ -27,6 +29,8 @@ export class MapLayer extends Sprite {
 
     /**
      * @internal
+     * @en Array of grid sprites that make up the layer.
+     * @zh 构成层的网格精灵数组。
      */
     _gridSpriteArray: any[] = [];
     private _objDic: any = null;//用来做字典，方便查询
@@ -35,16 +39,25 @@ export class MapLayer extends Sprite {
     private _tempMapPos: Point = new Point();//临时变量
     private _properties: any;
 
-    /**被合到的层*/
+    /**
+     * @en The target layer that this layer is merged with.
+     * @zh 被合并到的目标层。
+     */
     tarLayer: MapLayer;
 
-    /**当前Layer的名称*/
+    /**
+     * @en The name of the current layer.
+     * @zh 当前层的名称。
+     */
     layerName: string = null;
 
     /**
-     * 解析LAYER数据，以及初始化一些数据
-     * @param	layerData 地图数据中，layer数据的引用
-     * @param	map 地图的引用
+     * @en Parse the LAYER data and initialize some data.
+     * @param layerData Reference to the layer data within the map data.
+     * @param map Reference to the map.
+     * @zh 解析LAYER数据，以及初始化一些数据。
+     * @param layerData 地图数据中，layer数据的引用。
+     * @param map 地图的引用。
      */
     init(layerData: any, map: TiledMap): void {
         this._map = map;
@@ -127,9 +140,10 @@ export class MapLayer extends Sprite {
 
     /******************************************对外接口*********************************************/
     /**
-     * 通过名字获取控制对象，如果找不到返回为null
-     * @param	objName 所要获取对象的名字
-     * @return
+     * @en Retrieve a control object by name; returns null if not found.
+     * @param objName The name of the object to retrieve.
+     * @zh 通过名字获取控制对象，如果找不到返回null。
+     * @param objName 所要获取对象的名字。。
      */
     getObjectByName(objName: string): GridSprite {
         if (this._objDic) {
@@ -138,11 +152,11 @@ export class MapLayer extends Sprite {
         return null;
     }
 
-
     /**
-     * 通过名字获取数据，如果找不到返回为null
-     * @param	objName 所要获取对象的名字
-     * @return
+     * @en Retrieve data by name; returns null if not found.
+     * @param objName The name of the object whose data is to be retrieved.
+     * @zh 通过名字获取数据，如果找不到返回null。
+     * @param objName 所要获取数据的对象名。
      */
     getObjectDataByName(objName: string): any {
         if (this._dataDic) {
@@ -152,9 +166,10 @@ export class MapLayer extends Sprite {
     }
 
     /**
-     * 得到地图层的自定义属性
-     * @param	name
-     * @return
+     * @en Get the custom properties of the map layer.
+     * @param name The property name.
+     * @zh 获取地图层的自定义属性。
+     * @param name 属性名。
      */
     getLayerProperties(name: string): any {
         if (this._properties) {
@@ -164,10 +179,14 @@ export class MapLayer extends Sprite {
     }
 
     /**
-     * 得到指定格子的数据
-     * @param	tileX 格子坐标X
-     * @param	tileY 格子坐标Y
-     * @return
+     * @en Get the data of the specified tile.
+     * @param tileX The X coordinate of the tile.
+     * @param tileY The Y coordinate of the tile.
+     * @returns The data of the tile or 0 if out of bounds.
+     * @zh 获取指定格子的数据。
+     * @param tileX 格子坐标X
+     * @param tileY 格子坐标Y
+     * @returns 格子数据，如果越界，返回0
      */
     getTileData(tileX: number, tileY: number): number {
         if (tileY >= 0 && tileY < this._map.numRowsTile && tileX >= 0 && tileX < this._map.numColumnsTile) {
@@ -181,7 +200,11 @@ export class MapLayer extends Sprite {
     }
 
     /**
-     * 通过地图坐标得到屏幕坐标
+     * @en Convert map coordinates to screen coordinates.
+     * @param tileX The X coordinate on the map grid.
+     * @param tileY The Y coordinate on the map grid.
+     * @param screenPos The Point object to store the calculated screen coordinates.
+     * @zh 通过地图坐标得到屏幕坐标。
      * @param	tileX 格子坐标X
      * @param	tileY 格子坐标Y
      * @param	screenPos 把计算好的屏幕坐标数据，放到此对象中
@@ -218,10 +241,12 @@ export class MapLayer extends Sprite {
     }
 
     /**
-     * 通过屏幕坐标来获取选中格子的数据
-     * @param	screenX 屏幕坐标x
-     * @param	screenY 屏幕坐标y
-     * @return
+     * @en Retrieve the data of the tile selected by screen coordinates.
+     * @param screenX The x-coordinate on the screen.
+     * @param screenY The y-coordinate on the screen.
+     * @zh 通过屏幕坐标来获取选中格子的数据。
+     * @param screenX 屏幕坐标x
+     * @param screenY 屏幕坐标y
      */
     getTileDataByScreenPos(screenX: number, screenY: number): number {
         var tData: number = 0;
@@ -232,11 +257,14 @@ export class MapLayer extends Sprite {
     }
 
     /**
-     * 通过屏幕坐标来获取选中格子的索引
-     * @param	screenX 屏幕坐标x
-     * @param	screenY 屏幕坐标y
-     * @param	result 把计算好的格子坐标，放到此对象中
-     * @return
+     * @en Get the index of the tile selected by screen coordinates.
+     * @param screenX The x-coordinate on the screen.
+     * @param screenY The y-coordinate on the screen.
+     * @param result The Point object to store the calculated tile coordinates.
+     * @zh 通过屏幕坐标来获取选中格子的索引。
+     * @param screenX 屏幕坐标x
+     * @param screenY 屏幕坐标y
+     * @param result 计算好的格子坐标，放到此对象中
      */
     getTilePositionByScreenPos(screenX: number, screenY: number, result: Point = null): boolean {
         //转换成地图坐标
@@ -306,10 +334,14 @@ export class MapLayer extends Sprite {
 
     /***********************************************************************************************/
     /**
-     * 得到一个GridSprite
-     * @param	gridX 当前Grid的X轴索引
-     * @param	gridY 当前Grid的Y轴索引
-     * @return  一个GridSprite对象
+     * @en Retrieve a GridSprite based on grid indices.
+     * @param gridX The X-axis index of the current Grid.
+     * @param gridY The Y-axis index of the current Grid.
+     * @returns A GridSprite object.
+     * @zh 根据网格的X轴和Y轴索引获取一个GridSprite对象。
+     * @param gridX 当前网格的X轴索引
+     * @param gridY 当前网格的Y轴索引
+     * @returns  一个GridSprite对象
      */
     getDrawSprite(gridX: number, gridY: number): GridSprite {
         var tSprite: GridSprite = new GridSprite();
@@ -321,8 +353,8 @@ export class MapLayer extends Sprite {
     }
 
     /**
-     * 更新此层中块的坐标
-     * 手动刷新的目的是，保持层级的宽和高保持最小，加快渲染
+     * @en Update the coordinates of the blocks in this layer. The purpose of manual refresh is to keep the width and height of the hierarchy to a minimum and accelerate rendering.
+     * @zh 更新此层中块的坐标。手动刷新的目的是，保持层级的宽和高保持最小，加快渲染。
      */
     updateGridPos(): void {
         var tSprite: GridSprite;
@@ -336,11 +368,16 @@ export class MapLayer extends Sprite {
 
     /**
      * @private
-     * 把tile画到指定的显示对象上
-     * @param	gridSprite 被指定显示的目标
-     * @param	tileX 格子的X轴坐标
-     * @param	tileY 格子的Y轴坐标
-     * @return
+     * @en Draw a tile onto a specified display object.
+     * @param gridSprite The target display object to draw on.
+     * @param tileX The X-coordinate of the tile.
+     * @param tileY The Y-coordinate of the tile.
+     * @returns A boolean indicating whether the tile was successfully drawn.
+     * @zh 把tile画到指定的显示对象上。
+     * @param gridSprite 要绘制的目标显示对象
+     * @param tileX 格子的X轴坐标
+     * @param tileY 格子的Y轴坐标
+     * @returns 一个布尔值，表示是否成功绘制了tile
      */
     drawTileTexture(gridSprite: GridSprite, tileX: number, tileY: number): boolean {
         if (tileY >= 0 && tileY < this._map.numRowsTile && tileX >= 0 && tileX < this._map.numColumnsTile) {
@@ -394,7 +431,8 @@ export class MapLayer extends Sprite {
 
     /**
      * @private
-     * 清理当前对象
+     * @en Clear all properties and references of the current object to free up resources.
+     * @zh 清理当前对象，释放资源。
      */
     clearAll(): void {
         this._map = null;

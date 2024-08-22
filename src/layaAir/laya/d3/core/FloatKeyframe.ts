@@ -1,34 +1,57 @@
 import { Keyframe, WeightedMode } from "./Keyframe";
 /**
-	 * <code>FloatKeyFrame</code> 类用于创建浮点关键帧实例。
-	 */
+ * @en The `FloatKeyframe` class is used to create floating-point keyframe instances.
+ * @zh `FloatKeyframe` 类用于创建浮点关键帧实例。
+ */
 export class FloatKeyframe extends Keyframe {
-	/**内切线 */
+    /**
+     * @en The in-tangent of the keyframe.
+     * @zh 关键帧的内切线。
+     */
 	inTangent: number;
-	/**外切线 */
+    /**
+     * @en The out-tangent of the keyframe.
+     * @zh 关键帧的外切线。
+     */
 	outTangent: number;
-	/**帧数据 */
+    /**
+     * @en The value of the keyframe.
+     * @zh 关键帧的值。
+     */
 	value: number;
-	/**内权重 */
+    /**
+     * @en The in-weight of the keyframe. Default is Keyframe.defaultWeight.
+     * @zh 关键帧的内权重。默认值为 Keyframe.defaultWeight。
+     */
 	inWeight: number = Keyframe.defaultWeight;
-	/**外权重 */
+    /**
+     * @en The out-weight of the keyframe. Default is Keyframe.defaultWeight.
+     * @zh 关键帧的外权重。默认值为 Keyframe.defaultWeight。
+     */
 	outWeight: number = Keyframe.defaultWeight;
-	/**权重模式 */
+    /**
+     * @en The weighted mode of the keyframe. Default is WeightedMode.None.
+     * @zh 关键帧的权重模式。默认值为 WeightedMode.None。
+     */
 	weightedMode: number = WeightedMode.None;
 
-	/**
-	 * 创建一个 <code>FloatKeyFrame</code> 实例。
-	 */
+     /**
+      * @ignore
+      * @en Creates an instance of `FloatKeyframe`.
+      * @zh 创建一个 `FloatKeyframe` 的实例。
+      */
 	constructor() {
 		super();
 	}
 
 	/**
-	 * 克隆数据
-	 * @param destObject 拷贝数据结构
 	 * @inheritDoc
 	 * @override
-	 */
+     * @en Clones the data to another object.
+     * @param destObject The target object to clone to.
+     * @zh 克隆数据到目标对象。
+	 * @param destObject 拷贝数据结构
+     */
 	cloneTo(destObject: any): void {
 		super.cloneTo(destObject);
 		var destKeyFrame: FloatKeyframe = (<FloatKeyframe>destObject);
@@ -43,10 +66,10 @@ export class FloatKeyframe extends Keyframe {
 		destKeyFrame.weightedMode = this.weightedMode;
 	}
 
-	/**
-	 * 克隆
-	 * @returns 
-	 */
+    /**
+     * @en Clones.
+     * @zh 克隆
+     */
 	clone(): FloatKeyframe {
 		let f = new FloatKeyframe();
 		this.cloneTo(f);

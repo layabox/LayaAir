@@ -1,6 +1,5 @@
 ﻿import { ILaya } from "./ILaya";
 import { Input } from "./laya/display/Input";
-import { Sprite } from "./laya/display/Sprite";
 import { Stage } from "./laya/display/Stage";
 import { InputManager } from "./laya/events/InputManager";
 import { SoundManager } from "./laya/media/SoundManager";
@@ -10,16 +9,12 @@ import { Render } from "./laya/renders/Render";
 import { RenderSprite } from "./laya/renders/RenderSprite";
 import { Context } from "./laya/renders/Context";
 import { HTMLCanvas } from "./laya/resource/HTMLCanvas";
-import { RenderTexture2D } from "./laya/resource/RenderTexture2D";
-import { Texture } from "./laya/resource/Texture";
 import { Browser } from "./laya/utils/Browser";
 import { CacheManger } from "./laya/utils/CacheManger";
-import { ColorUtils } from "./laya/utils/ColorUtils";
 import { Timer } from "./laya/utils/Timer";
 import { PrimitiveSV } from "./laya/webgl/shader/d2/value/PrimitiveSV";
 import { TextureSV } from "./laya/webgl/shader/d2/value/TextureSV";
 import { RenderSpriteData, Value2D } from "./laya/webgl/shader/d2/value/Value2D";
-import { RenderState2D } from "./laya/webgl/utils/RenderState2D";
 import { WebGL } from "./laya/webgl/WebGL";
 import { Mouse } from "./laya/utils/Mouse";
 import { MeshVG } from "./laya/webgl/utils/MeshVG";
@@ -27,9 +22,7 @@ import { MeshQuadTexture } from "./laya/webgl/utils/MeshQuadTexture";
 import { MeshTexture } from "./laya/webgl/utils/MeshTexture";
 import { WeakObject } from "./laya/utils/WeakObject";
 import { RenderStateContext } from "./laya/RenderEngine/RenderStateContext";
-import { RenderClearFlag } from "./laya/RenderEngine/RenderEnum/RenderClearFlag";
 import { IStageConfig, LayaEnv } from "./LayaEnv";
-import { Color } from "./laya/maths/Color";
 import { URL } from "./laya/net/URL";
 import { RunDriver } from "./laya/utils/RunDriver";
 import { Config } from "./Config";
@@ -152,7 +145,8 @@ export class Laya {
             steps.push(() => laya3D.__init__());
         steps.push(() => Promise.all(Laya._initCallbacks.map(func => func())));
 
-        steps.push(() => Promise.all(Laya._afterInitCallbacks.map(func => func())));
+        //after init 是按顺序执行
+        steps.push(...Laya._afterInitCallbacks);
 
         if (LayaEnv.afterInit)
             steps.push(() => LayaEnv.afterInit());

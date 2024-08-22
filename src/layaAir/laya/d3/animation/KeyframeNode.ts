@@ -2,7 +2,8 @@ import { KeyFrameValueType } from "../component/Animator/KeyframeNodeOwner";
 import { Keyframe } from "../core/Keyframe"
 
 /**
- *<code>KeyframeNode</code> 类用于动画帧。
+ * @en The KeyframeNode class is used for animation keyframes.
+ * @zh KeyframeNode 类用于动画关键帧。
  */
 export class KeyframeNode {
 	private _ownerPath: string[] = [];
@@ -32,21 +33,24 @@ export class KeyframeNode {
 	propertyChangePath: string;
 
 	/**
-	 * 精灵路径个数。
+	 * @en The number of sprite paths.
+	 * @zh 精灵路径个数。
 	 */
 	get ownerPathCount(): number {
 		return this._ownerPath.length;
 	}
 
 	/**
-	 * 属性路径个数。
+	 * @en The number of property paths.
+	 * @zh 属性路径个数。
 	 */
 	get propertyCount(): number {
 		return this._propertys.length;
 	}
 
 	/**
-	 * 帧个数。
+	 * @en The number of keyframes.
+	 * @zh 帧个数。
 	 */
 	get keyFramesCount(): number {
 		return this._keyFrames.length;
@@ -109,24 +113,36 @@ export class KeyframeNode {
 	}
 
 	/**
-	 * 通过索引获取精灵路径。
+	 * @en Get the sprite path by index.
+	 * @param index The index of the sprite path.
+	 * @returns The sprite path at the specified index.
+	 * @zh 通过索引获取精灵路径。
 	 * @param index 索引。
+	 * @returns 指定索引处的精灵路径。
 	 */
 	getOwnerPathByIndex(index: number): string {
 		return this._ownerPath[index];
 	}
 
 	/**
-	 * 通过索引获取属性路径。
+	 * @en Get the property path by index.
+	 * @param index The index of the property path.
+	 * @returns The property path at the specified index.
+	 * @zh 通过索引获取属性路径。
 	 * @param index 索引。
+	 * @returns 指定索引处的属性路径。
 	 */
 	getPropertyByIndex(index: number): string {
 		return this._propertys[index];
 	}
 
 	/**
-	 * 通过索引获取帧。
+	 * @en Get the keyframe by index.
+	 * @param index The index of the keyframe.
+	 * @returns The keyframe at the specified index.
+	 * @zh 通过索引获取帧。
 	 * @param index 索引。
+	 * @returns 指定索引处的关键帧。
 	 */
 	getKeyframeByIndex(index: number): Keyframe {
 		return this._keyFrames[index];

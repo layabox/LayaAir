@@ -1,6 +1,5 @@
 import { Node } from "../../display/Node";
 import { Event } from "../../events/Event";
-import { Loader } from "../../net/Loader";
 import { Config3D } from "../../../Config3D";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { UniformBufferParamsType, UnifromBufferData } from "../../RenderEngine/UniformBufferData";
@@ -12,20 +11,23 @@ import { ILaya } from "../../../ILaya";
 import { Color } from "../../maths/Color";
 import { Matrix4x4 } from "../../maths/Matrix4x4";
 import { Vector3 } from "../../maths/Vector3";
-import { SkyRenderer } from "../resource/models/SkyRenderer";
 import { LayaGL } from "../../layagl/LayaGL";
 import { ShaderDataType, ShaderData } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { ShaderDefine } from "../../RenderDriver/RenderModuleData/Design/ShaderDefine";
 import { IRenderEngine } from "../../RenderDriver/DriverDesign/RenderDevice/IRenderEngine";
 import { CommandUniformMap } from "../../RenderDriver/DriverDesign/RenderDevice/CommandUniformMap";
 import { SkyRenderElement } from "./render/SkyRenderElement";
-import { RenderableSprite3D } from "./RenderableSprite3D";
 
 /**
- * <code>BaseCamera</code> 类用于创建摄像机的父类。
+ * @en The `BaseCamera` class is used to create the parent class of cameras.
+ * @zh `BaseCamera` 类用于创建摄像机的父类。
  */
 export class BaseCamera extends Sprite3D {
-    /** @internal CameraUniformBlock Map */
+    /**
+     * @internal
+     * @en CameraUniformBlock Map
+     * @zh 相机UniformBlock映射
+     */
     static cameraUniformMap: CommandUniformMap;
     /**Camera Uniform PropertyID */
     /**@internal */
@@ -69,7 +71,10 @@ export class BaseCamera extends Sprite3D {
     static RENDERINGTYPE_SHADERDEFINE_FXAA: string = "FXAA";
     /**渲染模式,延迟光照渲染，暂未开放。*/
     static RENDERINGTYPE_DEFERREDLIGHTING: string = "DEFERREDLIGHTING";
-    /**渲染模式,前向渲染。*/
+    /**
+     * @en Rendering mode: Forward rendering.
+     * @zh 渲染模式：前向渲染。
+     */
     static RENDERINGTYPE_FORWARDRENDERING: string = "FORWARDRENDERING";
     /**@internal */
     protected static _invertYScaleMatrix: Matrix4x4 = new Matrix4x4(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);//Matrix4x4.createScaling(new Vector3(1, -1, 1), _invertYScaleMatrix);
@@ -83,7 +88,8 @@ export class BaseCamera extends Sprite3D {
     static CameraUBOData: UnifromBufferData;
     /**
      * @internal
-     * shaderInfo init
+     * @en Initialize shader information
+     * @zh 初始化着色器信息
      */
     static shaderValueInit() {
         BaseCamera.SHADERDEFINE_DEPTH = Shader3D.getDefineByName("DEPTHMAP");
@@ -168,9 +174,11 @@ export class BaseCamera extends Sprite3D {
     }
 
     /**
-     * create BaseCamera UniformBuffer
      * @internal
-     * @returns 
+     * @en Create BaseCamera UniformBuffer
+     * @returns {UnifromBufferData} The created UniformBufferData for the camera
+     * @zh 创建BaseCamera的UniformBuffer
+     * @returns {UnifromBufferData} 为相机创建的UniformBufferData
      */
     static createCameraUniformBlock() {
         if (!BaseCamera.CameraUBOData) {
@@ -194,48 +202,92 @@ export class BaseCamera extends Sprite3D {
         return BaseCamera.CameraUBOData;
     }
     /**
-     * Camera Init
+     * @en Initialize the Camera
+     * @zh 初始化相机
      */
     static __init__() {
         BaseCamera.shaderValueInit();
     }
 
-    /** @internal 渲染顺序。*/
+    /**
+     * @internal
+     * @en Rendering order.
+     * @zh 渲染顺序。
+     */
     _renderingOrder: number
     /** @internal */
     _cameraUniformData: UnifromBufferData;
     /** @internal */
     _cameraUniformUBO: UniformBufferObject;
-    /** 近裁剪面。*/
+    /**
+     * @en Near clipping plane.
+     * @zh 近裁剪面。
+     */
     protected _nearPlane: number;
-    /** 远裁剪面。*/
+    /**
+     * @en Far clipping plane.
+     * @zh 远裁剪面。
+     */
     protected _farPlane: number;
-    /**渲染引擎 */
+    /**
+     * @en Render engine.
+     * @zh 渲染引擎。
+     */
     protected _renderEngine: IRenderEngine;
-    /**@internal 相机最远处的开合高度*/
+    /**
+     * @internal
+     * @en The opening height at the farthest point of the camera.
+     * @zh 相机最远处的开合高度。
+     */
     private _yrange: number;
-    /** 视野。*/
+    /**
+     * @en Field of view.
+     * @zh 视野。
+     */
     protected _fieldOfView: number;
-    /** 正交投影的垂直尺寸。*/
+    /**
+     * @en Vertical size of orthographic projection.
+     * @zh 正交投影的垂直尺寸。
+     */
     private _orthographicVerticalSize: number;
 
     private _skyRenderElement: SkyRenderElement;
 
-    /** 前向量*/
+    /**
+     * @en Forward vector.
+     * @zh 前向量。
+     */
     _forward: Vector3 = new Vector3();
-    /** up向量 */
+    /**
+     * @en Up vector.
+     * @zh 上向量。
+     */
     _up: Vector3 = new Vector3();
-    /** 是否正交 */
+    /**
+     * @en Whether the camera uses orthographic projection.
+     * @zh 是否使用正交投影。
+     */
     protected _orthographic: boolean;
-    /**@internal 是否使用用户自定义投影矩阵，如果使用了用户投影矩阵，摄像机投影矩阵相关的参数改变则不改变投影矩阵的值，需调用ResetProjectionMatrix方法。*/
+    /**
+     * @internal
+     * @en Whether to use a user-defined projection matrix. If a user projection matrix is used, changes to camera projection-related parameters will not affect the projection matrix value. The ResetProjectionMatrix method needs to be called to update it.
+     * @zh 是否使用用户自定义投影矩阵。如果使用了用户投影矩阵，摄像机投影矩阵相关的参数改变则不改变投影矩阵的值，需调用ResetProjectionMatrix方法来更新。
+     */
     protected _useUserProjectionMatrix: boolean;
 
-    /** @internal 着色器数据*/
+    /**
+     * @internal
+     * @en Shader data.
+     * @zh 着色器数据。
+     */
     _shaderValues: ShaderData;
 
     /** @internal */
     _linearClearColor: Color;
-    /**摄像机的清除颜色,默认颜色为CornflowerBlue。*/
+    /**
+     * @en The clear color of the camera. The default color is CornflowerBlue.
+     * @zh 摄像机的清除颜色。默认颜色为CornflowerBlue。
+     */
     private _clearColor: Color;
     public get clearColor(): Color {
         return this._clearColor;
@@ -244,27 +296,36 @@ export class BaseCamera extends Sprite3D {
         this._clearColor = value;
         value.toLinear(this._linearClearColor);
     }
-    /** 可视层位标记遮罩值,支持混合 例:cullingMask=Math.pow(2,0)|Math.pow(2,1)为第0层和第1层可见。*/
+    /**
+     * @en The culling mask value for visible layers, supporting mixed values. For example, cullingMask = Math.pow(2,0) | Math.pow(2,1) means layers 0 and 1 are visible.
+     * @zh 可视层位标记遮罩值,支持混合 例:cullingMask=Math.pow(2,0)|Math.pow(2,1)为第0层和第1层可见。
+     */
     private _cullingMask: number;
 
     /**
      * @internal
-     * 静态遮罩
+     * @en Static mask
+     * @zh 静态遮罩
      */
     staticMask: number;
 
-    /** 渲染时是否用遮挡剔除。 */
+    /**
+     * @en Whether to use occlusion culling during rendering.
+     * @zh 渲染时是否使用遮挡剔除。
+     */
     useOcclusionCulling: boolean;
 
     /**
-     * 天空渲染器。
+     * @en Sky renderer element.
+     * @zh 天空渲染器。
      */
     get skyRenderElement(): SkyRenderElement {
         return this._skyRenderElement;
     }
 
     /**
-     * 视野。
+     * @en Field of view.
+     * @zh 视野。
      */
     get fieldOfView(): number {
         return this._fieldOfView;
@@ -277,14 +338,16 @@ export class BaseCamera extends Sprite3D {
     }
 
     /**
-   * 最大本地距离
-   */
+     * @en Maximum local distance.
+     * @zh 最大本地距离。
+     */
     get maxlocalYDistance(): number {
         return this._yrange;
     }
 
     /**
-     * 近裁面。
+     * @en Near clipping plane.
+     * @zh 近裁剪面。
      */
     get nearPlane(): number {
         return this._nearPlane;
@@ -296,7 +359,8 @@ export class BaseCamera extends Sprite3D {
     }
 
     /**
-     * 远裁面。
+     * @en Far clipping plane.
+     * @zh 远裁剪面。
      */
     get farPlane(): number {
         return this._farPlane;
@@ -309,7 +373,8 @@ export class BaseCamera extends Sprite3D {
     }
 
     /**
-     * 是否正交投影矩阵。
+     * @en Whether to use orthographic projection matrix.
+     * @zh 是否使用正交投影矩阵。
      */
     get orthographic(): boolean {
         return this._orthographic;
@@ -325,7 +390,8 @@ export class BaseCamera extends Sprite3D {
     }
 
     /**
-     * 正交投影垂直矩阵尺寸。
+     * @en Vertical size of the orthographic projection.
+     * @zh 正交投影的垂直尺寸。
      */
     get orthographicVerticalSize(): number {
         return this._orthographicVerticalSize;
@@ -336,6 +402,10 @@ export class BaseCamera extends Sprite3D {
         this._calculateProjectionMatrix();
     }
 
+    /**
+     * @en Culling mask.
+     * @zh 剔除遮罩。
+     */
     get cullingMask() {
         return this._cullingMask;
     }
@@ -345,7 +415,8 @@ export class BaseCamera extends Sprite3D {
     }
 
     /**
-     * 渲染顺序
+     * @en Rendering order.
+     * @zh 渲染顺序。
      */
     get renderingOrder(): number {
         return this._renderingOrder;
@@ -357,10 +428,12 @@ export class BaseCamera extends Sprite3D {
     }
 
     /**
-     * 创建一个 <code>BaseCamera</code> 实例。
-     * @param	fieldOfView 视野。
-     * @param	nearPlane 近裁面。
-     * @param	farPlane 远裁面。
+     * @en Constructor function.
+     * @param nearPlane The near clipping plane. Default value is 0.3.
+     * @param farPlane The far clipping plane. Default value is 1000.
+     * @zh 构造函数。
+     * @param nearPlane 近裁剪面。默认值为 0.3。
+     * @param farPlane 远裁剪面。默认值为 1000。
      */
     constructor(nearPlane: number = 0.3, farPlane: number = 1000) {
         super();
@@ -424,8 +497,9 @@ export class BaseCamera extends Sprite3D {
     }
 
     /**
-     * 通过RenderingOrder属性对摄像机机型排序。
      * @internal
+     * @en Sort cameras by their RenderingOrder property.
+     * @zh 通过 RenderingOrder 属性对摄像机进行排序。
      */
     _sortCamerasByRenderingOrder(): void {
         if (this.displayedInStage) {
@@ -471,45 +545,53 @@ export class BaseCamera extends Sprite3D {
 
 
     /**
-     * 相机渲染。
-     * @param	shader 着色器。
-     * @param   replacementTag 着色器替换标记。
+     * @en Camera rendering.
+     * @param scene The scene to render.
+     * @zh 相机渲染。
+     * @param scene 要渲染的场景。
      */
     render(scene: Scene3D): void {
     }
 
     /**
-     * 增加可视图层,layer值为0到31层。
-     * @param layer 图层。
+     * @en Add a visible layer, layer value ranges from 0 to 31.
+     * @param layer The layer to add.
+     * @zh 增加可视图层，layer值为0到31层。
+     * @param layer 要添加的图层。
      */
     addLayer(layer: number): void {
         this.cullingMask |= Math.pow(2, layer);
     }
 
     /**
-     * 移除可视图层,layer值为0到31层。
-     * @param layer 图层。
+     * @en Remove a visible layer, layer value ranges from 0 to 31.
+     * @param layer The layer to remove.
+     * @zh 移除可视图层，layer值为0到31层。
+     * @param layer 要移除的图层。
      */
     removeLayer(layer: number): void {
         this.cullingMask &= ~Math.pow(2, layer);
     }
 
     /**
-     * 增加所有图层。
+     * @en Add all layers.
+     * @zh 增加所有图层。
      */
     addAllLayers(): void {
         this.cullingMask = 2147483647/*int.MAX_VALUE*/;
     }
 
     /**
-     * 移除所有图层。
+     * @en Remove all layers.
+     * @zh 移除所有图层。
      */
     removeAllLayers(): void {
         this.cullingMask = 0;
     }
 
     /**
-     * 重算计算投影矩阵
+     * @en Recalculate the projection matrix.
+     * @zh 重新计算投影矩阵。
      */
     resetProjectionMatrix(): void {
         this._useUserProjectionMatrix = false;
@@ -553,10 +635,12 @@ export class BaseCamera extends Sprite3D {
     }
 
     /**
-     * 删除相机
      * @inheritDoc
      * @override
-     * @param 是否删除节点
+     * @en Destroy the camera.
+     * @param destroyChild Whether to destroy child nodes.
+     * @zh 销毁相机。
+     * @param destroyChild 是否销毁子节点。
      */
     destroy(destroyChild: boolean = true): void {
         //postProcess = null;

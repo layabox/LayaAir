@@ -11,7 +11,8 @@ import { VertexMesh } from "../../../RenderEngine/RenderShader/VertexMesh";
 import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 
 /**
- * <code>PrimitiveMesh</code> 类用于创建简单网格。
+ * @en The `PrimitiveMesh` class is used to create simple meshes.
+ * @zh `PrimitiveMesh` 类用于创建简单的网格。
  */
 export class PrimitiveMesh {
 
@@ -60,11 +61,16 @@ export class PrimitiveMesh {
 	}
 
 	/**
-	 * 创建Box网格。
-	 * @param long 半径
-	 * @param height 垂直层数
-	 * @param width 水平层数
-	 * @return
+	 * @en Creates a box mesh.
+	 * @param long The length of the box. Default is 1.
+	 * @param height The height of the box. Default is 1.
+	 * @param width The width of the box. Default is 1.
+	 * @return The created Mesh instance.
+	 * @zh 创建一个立方体网格。
+	 * @param long 立方体的长度，默认值为1。
+	 * @param height 立方体的高度，默认值为1。
+	 * @param width 立方体的宽度，默认值为1。
+	 * @return 创建的网格实例。
 	 */
 	static createBox(long: number = 1, height: number = 1, width: number = 1): Mesh {
 		var vertexDeclaration: VertexDeclaration = VertexMesh.getVertexDeclaration("POSITION,NORMAL,UV");
@@ -104,11 +110,16 @@ export class PrimitiveMesh {
 	}
 
 	/**
-	 * 创建一个胶囊体模型
-	 * @param radius 半径
-	 * @param height 高度
-	 * @param stacks 水平层数,一般设为垂直层数的一半
-	 * @param slices 垂直层数
+	 * @en Creates a capsule mesh.
+	 * @param radius The radius of the capsule. Default is 0.5.
+	 * @param height The height of the capsule. Default is 2.
+	 * @param stacks The number of stacks, typically half the number of vertical slices. Default is 16.
+	 * @param slices The number of vertical slices. Default is 32.
+	 * @zh 创建一个胶囊体网格。
+	 * @param radius 胶囊的半径，默认值为0.5。
+	 * @param height 胶囊的高度，默认值为2。
+	 * @param stacks 水平层数，默认为16，一般设为垂直层数的一半。
+	 * @param slices 垂直层数，默认为32。
 	 */
 	static createCapsule(radius: number = 0.5, height: number = 2, stacks: number = 16, slices: number = 32): Mesh {
 		var vertexCount: number = (stacks + 1) * (slices + 1) * 2 + (slices + 1) * 2;
@@ -264,10 +275,16 @@ export class PrimitiveMesh {
 	}
 
 	/**
-	 * 创建一个圆锥体模型
-	 * @param radius 半径
-	 * @param height 高度
-	 * @param slices 分段数
+	 * @en Creates a cone mesh.
+	 * @param radius The radius of the base of the cone. Default is 0.5.
+	 * @param height The height of the cone. Default is 1.
+	 * @param slices The number of segments around the base of the cone. Default is 32.
+	 * @return The created Mesh instance.
+	 * @zh 创建一个圆锥体网格。
+	 * @param radius 圆锥底面的半径，默认值为0.5。
+	 * @param height 圆锥的高度，默认值为1。
+	 * @param slices 圆锥底面圆周的分段数，默认为32。
+	 * @return 创建的网格实例。
 	 */
 	static createCone(radius: number = 0.5, height: number = 1, slices: number = 32): Mesh {
 		//(this._released) || (dispose());//如果已存在，则释放资源
@@ -411,10 +428,16 @@ export class PrimitiveMesh {
 	}
 
 	/**
-	 * 创建一个圆柱体模型
-	 * @param radius 半径
-	 * @param height 高度
-	 * @param slices 垂直层数
+	 * @en Creates a cylinder mesh.
+	 * @param radius The radius of the cylinder. Default is 0.5.
+	 * @param height The height of the cylinder. Default is 2.
+	 * @param slices The number of vertical segments of the cylinder. Default is 32.
+	 * @return The created Mesh instance.
+	 * @zh 创建一个圆柱体网格。
+	 * @param radius 圆柱的半径，默认值为0.5。
+	 * @param height 圆柱的高度，默认值为2。
+	 * @param slices 圆柱的垂直层数，默认为32。
+	 * @return 创建的网格实例。
 	 */
 	static createCylinder(radius: number = 0.5, height: number = 2, slices: number = 32): Mesh {
 		//(this._released) || (dispose());//如果已存在，则释放资源
@@ -577,9 +600,18 @@ export class PrimitiveMesh {
 	}
 
 	/**
-	 * 创建一个平面模型
-	 * @param long  长
-	 * @param width 宽
+	 * @en Creates a plane mesh.
+	 * @param long The length of the plane. Default is 10.
+	 * @param width The width of the plane. Default is 10.
+	 * @param stacks The number of longitudinal subdivisions. Default is 10.
+	 * @param slices The number of latitudinal subdivisions. Default is 10.
+	 * @return The created Mesh instance.
+	 * @zh 创建一个平面网格。
+	 * @param long 平面的长。默认值为10。
+	 * @param width 平面的宽。默认值为10。
+	 * @param stacks 纵向细分的数量。默认为10。
+	 * @param slices 横向细分的数量。默认为10。
+	 * @return 创建的网格实例。
 	 */
 	static createPlane(long: number = 10, width: number = 10, stacks: number = 10, slices: number = 10): Mesh {
 		var vertexCount: number = (stacks + 1) * (slices + 1);
@@ -634,9 +666,14 @@ export class PrimitiveMesh {
 	}
 
 	/**
-	 * 创建一个四边形模型
-	 * @param long  长
-	 * @param width 宽
+	 * @en Creates a quad mesh.
+	 * @param long The length of the quad. Default is 1.
+	 * @param width The width of the quad. Default is 1.
+	 * @return The created Mesh instance.
+	 * @zh 创建一个四边形网格。
+	 * @param long 四边形的长度。默认是1。
+	 * @param width 四边形的宽度。默认是1。
+	 * @return 创建的网格实例。
 	 */
 	static createQuad(long: number = 1, width: number = 1): Mesh {
 		//定义顶点数据结构
@@ -650,12 +687,18 @@ export class PrimitiveMesh {
 		return PrimitiveMesh._createMesh(vertexDeclaration, vertices, indices);
 	}
 
-	/**
-	 * 创建一个球体模型
-	 * @param radius 半径
-	 * @param stacks 水平层数
-	 * @param slices 垂直层数
-	 */
+    /**
+     * @en Creates a sphere mesh.
+     * @param radius The radius of the sphere. Default is 0.5.
+     * @param stacks The number of stacks, typically used for the vertical slices. Default is 32.
+     * @param slices The number of slices, typically used for the horizontal circles. Default is 32.
+     * @return The created Mesh instance.
+     * @zh 创建一个球体网格。
+     * @param radius 球体的半径。默认是0.5。
+     * @param stacks 水平层数，通常用作垂直切分。默认是32。
+     * @param slices 垂直层数，通常用作水平圆周切分。默认是32。
+     * @return 创建的网格实例。
+     */
 	static createSphere(radius: number = 0.5, stacks: number = 32, slices: number = 32): Mesh {
 		var vertexCount: number = (stacks + 1) * (slices + 1);
 		var indexCount: number = (3 * stacks * (slices + 1)) * 2;

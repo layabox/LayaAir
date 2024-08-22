@@ -15,15 +15,23 @@ import { VertexElementFormat } from "../renders/VertexElementFormat";
 import { Handler } from "../utils/Handler";
 import { Resource } from "./Resource";
 
-
+/**
+ * @en Class is used to process 2D vertex meshes
+ * @zh 类用于处理2D顶点网格
+ */
 export class VertexMesh2D{
     /**@internal */
 	private static _vertexDeclarationMap: any = {};
     /**
-	 * 获取顶点声明。
-	 * @param vertexFlags 顶点声明标记字符,格式为:"POSITION,COLOR,UV,BLENDWEIGHT,BLENDINDICES"。
-	 * @return 顶点声明。
-	 */
+     * @en Retrieves the vertex declaration based on the provided vertex flags.
+     * @param vertexFlags An array of vertex declaration flag characters, formatted as: "POSITION,COLOR,UV,BLENDWEIGHT,BLENDINDICES".
+     * @param compatible Whether to enable compatible mode.
+     * @return An array of vertex declarations.
+     * @zh 根据提供的顶点声明标志字符获取顶点声明。
+     * @param vertexFlags 顶点声明标志字符数组，格式为："POSITION,COLOR,UV,BLENDWEIGHT,BLENDINDICES"。
+     * @param compatible 是否启用兼容模式。
+     * @return 顶点声明数组。
+     */
 	static getVertexDeclaration(vertexFlags: string[], compatible: boolean = true): VertexDeclaration[] {
         let verDecs:VertexDeclaration[] = []
         for (let i = 0 , len = vertexFlags.length; i < len; i++) {
@@ -76,13 +84,17 @@ export class VertexMesh2D{
 }
 
 /**
- * <code>Mesh</code> 类用于创建文件网格数据模板。
+ * @en The `Mesh2D` class represents a 2D mesh in the engine.
+ * @zh `Mesh2D` 类表示引擎中的2D网格。
  */
 export class Mesh2D extends Resource {
     /**
-     * 加载网格模板。
-     * @param url 模板地址。
-     * @param complete 完成回调。
+     * @en Loads a mesh template from the specified URL.
+     * @param url The URL address of the mesh template.
+     * @param complete A callback function that is executed when the mesh template is loaded.
+     * @zh 从指定URL加载网格模板。
+     * @param url 网格模板的地址。
+     * @param complete 加载完成时的回调函数。
      */
     static load(url: string, complete: Handler): void {
         ILaya.loader.load(url, complete, null, Loader.MESH);
@@ -112,7 +124,8 @@ export class Mesh2D extends Resource {
 
     /**
      * @readonly
-     * 顶点数据
+     * @en The vertex buffer of the mesh.
+     * @zh 网格的顶点缓冲。
      */
     get vertexBuffers(): IVertexBuffer[] {
         return this._vertexBuffers;
@@ -120,30 +133,32 @@ export class Mesh2D extends Resource {
 
     /**
      * @readonly
-     * 顶点索引
+     * @en The index buffer of the mesh.
+     * @zh 网格的索引缓冲。
      */
     get indexBuffer(): IIndexBuffer {
         return this._indexBuffer;
     }
 
     /**
-     * 获取顶点个数。
+     * @en The number of vertices in the mesh.
+     * @zh 网格中的顶点数。
      */
     get vertexCount(): number {
         return this._vertexCount;
     }
 
     /**
-     * 获取索引个数。
-     * @returns 索引个数
+     * @en The index number of the mesh.
+     * @zh 网格的索引数。
      */
     get indexCount(): number {
         return this._indexBuffer.indexCount;
     }
 
     /**
-     * SubMesh的个数。
-     * @returns SubMesh的个数
+     * @en The number of SubMeshes in the mesh.
+     * @zh 网格中子网格的个数。
      */
     get subMeshCount(): number {
         return this._subMeshes.length;
@@ -151,18 +166,13 @@ export class Mesh2D extends Resource {
 
 
     /**
-     * 索引格式。
-     * @returns 索引格式
+     * @en The index format used by the mesh.
+     * @zh 网格使用的索引格式。
      */
     get indexFormat(): IndexFormat {
         return this._indexFormat;
     }
 
-
-    /**
-     * 设置indexformat
-     * @param 索引格式
-     */
     set indexFormat(value: IndexFormat) {
         this._indexFormat = value
         this._subMeshes.forEach(element => {
@@ -171,7 +181,8 @@ export class Mesh2D extends Resource {
     }
 
     /**
-     * 创建一个 <code>Mesh</code> 实例,禁止使用。
+     * @en Constructor method, prohibition of use.
+     * @zh 构造方法，禁止使用
      */
     constructor() {
         super();
@@ -224,17 +235,23 @@ export class Mesh2D extends Resource {
     }
 
     /**
-     * 根据获取子网格。
-     * @param index 索引。
+     * @en Retrieves a SubMesh based on its index.
+     * @param index The index of the SubMesh.
+     * @returns The SubMesh at the specified index.
+     * @zh 根据索引获取子网格。
+     * @param index 子网格的索引。
+     * @returns 索引指定的子网格。
      */
     getSubMesh(index: number): IRenderGeometryElement {
         return this._subMeshes[index];
     }
 
     /**
-    * 设置顶点数据。
-    * @param vertices 顶点数据。
-    */
+     * @en Sets the vertex data for the mesh.
+     * @param vertices An array of ArrayBuffer objects containing vertex data.
+     * @zh 设置网格的顶点数据。
+     * @param vertices 顶点数据数组。
+     */
     setVertices(vertices: ArrayBuffer[]): void {
         for (let i = 0 , len = vertices.length; i < len; i++) {
             if (vertices[i] && this._vertexBuffers[i]) {
@@ -245,8 +262,10 @@ export class Mesh2D extends Resource {
     }
 
     /**
-     * 设置网格索引。
-     * @param indices 网格索引。
+     * @en Sets the indices for the mesh.
+     * @param indices An array containing the mesh indices. 
+     * @zh 设置网格的索引。
+     * @param indices 索引数据数组。
      */
     setIndices(indices: Uint8Array | Uint16Array | Uint32Array): void {
         var format: IndexFormat;

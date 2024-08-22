@@ -1,3 +1,4 @@
+import { LayaEnv } from "../../LayaEnv";
 import { Component } from "../components/Component";
 import { Node } from "../display/Node";
 import { Scene } from "../display/Scene";
@@ -6,6 +7,7 @@ import { Loader, ILoadURL } from "../net/Loader";
 import { URL } from "../net/URL";
 import { Prefab } from "../resource/HierarchyResource";
 import { ClassUtils } from "../utils/ClassUtils";
+import { Utils } from "../utils/Utils";
 import { IDecodeObjOptions, SerializeUtil } from "./SerializeUtil";
 
 const errorList: Array<any> = [];
@@ -96,30 +98,6 @@ export class HierarchyParser {
                         overrideData2.push(nodeData._$child);
 
                         node = res.create({ inPrefab: true, prefabNodeDict: prefabNodeDict, overrideData: overrideData2 }, errors);
-                    }
-                }
-                else if (nodeData._$blueprint){
-                    let uuid = nodeData._$blueprint._$uuid;
-                    let res = Loader.getRes(URL.getResURLByUUID(uuid));
-                    if (res) {
-                        let overrideData2: Array<any> = [];
-                        let testId = nodeData._$id;
-                        if (overrideData) {
-                            for (let i = 0, n = overrideData.length; i < n; i++) {
-                                let arr = overrideData[i];
-                                if (arr && arr.length > 0) {
-                                    overrideData2[i] = arr.filter(d => {
-                                        let od = d._$override || d._$parent;
-                                        return Array.isArray(od) && od.length > n - i && od[n - i - 1] == testId;
-                                    });
-                                }
-                                else
-                                    overrideData2[i] = arr;
-                            }
-                        }
-
-                        overrideData2.push(nodeData._$child);
-                        node = res.create( { prefabNodeDict: prefabNodeDict, overrideData: overrideData2 } , errors);
                     }
                 }
                 else if (pstr = nodeData._$type) {
@@ -375,7 +353,7 @@ export class HierarchyParser {
             let entry = test[url];
             if (entry === undefined) {
                 let url2: string;
-                if (url.length >= 36 && url.charCodeAt(8) === 45 && url.charCodeAt(13) === 45) //uuid xxxxxxxx-xxxx-...
+                if (Utils.isUUID(url))
                     url2 = "res://" + url;
                 else
                     url2 = URL.join(basePath, url);
@@ -389,6 +367,27 @@ export class HierarchyParser {
             return entry[0];
         }
 
+        let type: string;
+        function checkData(data: any) {
+            if (data._$uuid != null) {
+                data._$uuid = addInnerUrl(data._$uuid, SerializeUtil.getLoadTypeByEngineType(data._$type));
+                return;
+            }
+
+            if (data._$prefab != null)
+                data._$prefab = addInnerUrl(data._$prefab, Loader.HIERARCHY);
+            else if ((type = data._$type) != null) {
+                if (type.endsWith(".bp"))
+                    addInnerUrl(type, null);
+                else if (LayaEnv.isPreview && Utils.isUUID(type)) {
+                    let cls = ClassUtils.getClass(type);
+                    if (cls == null || cls._$loadable)
+                        addInnerUrl("res://" + type, null);
+                }
+            }
+            check(data);
+        }
+
         function check(data: any) {
             for (let key in data) {
                 let child = data[key];
@@ -400,26 +399,12 @@ export class HierarchyParser {
                             continue;
 
                         if (typeof (item) === "object") {
-                            if (item._$uuid != null)
-                                item._$uuid = addInnerUrl(item._$uuid, SerializeUtil.getLoadTypeByEngineType(item._$type));
-                            else if (item._$prefab != null) {
-                                item._$prefab = addInnerUrl(item._$prefab, Loader.HIERARCHY);
-                                check(item);
-                            }
-                            else
-                                check(item);
+                            checkData(item);
                         }
                     }
                 }
                 else if (typeof (child) === "object") {
-                    if (child._$uuid != null)
-                        child._$uuid = addInnerUrl(child._$uuid, SerializeUtil.getLoadTypeByEngineType(child._$type));
-                    else if (child._$prefab != null) {
-                        child._$prefab = addInnerUrl(child._$prefab, Loader.HIERARCHY);
-                        check(child);
-                    }
-                    else
-                        check(child);
+                    checkData(child);
                 }
             }
         }

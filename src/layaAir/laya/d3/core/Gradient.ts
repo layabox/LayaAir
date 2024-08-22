@@ -5,7 +5,8 @@ import { Vector4 } from "../../maths/Vector4";
 
 
 /**
- * <code>Gradient</code> 类用于创建颜色渐变。
+ * @en The `Gradient` class is used to create color gradients.
+ * @zh `Gradient` 类用于创建颜色渐变。
  */
 export class Gradient implements IClone {
 	private _mode: number = 0;
@@ -15,13 +16,18 @@ export class Gradient implements IClone {
 	private _colorAlphaKeysCount: number = 0;
 
 	/**
-	 * @internal 
-	 * element key range
+	 * @internal
+	 * @en element key range
 	 * x: colorkey min
 	 * y: colorkey max
 	 * z: alphakey min
 	 * w: alphakey max
-	*/
+	 * @zh 元素键值范围
+	 * x: 颜色最小值
+	 * y: 颜色最大值
+	 * z: 透明度最小值
+	 * w: 透明度最大值
+	 */
 	_keyRanges: Vector4 = new Vector4(1, 0, 1, 0);
 
 	/**@internal */
@@ -138,15 +144,19 @@ export class Gradient implements IClone {
 
 
 	/**
-	 * 获取梯度模式。
-	 * @return  梯度模式。
+	 * @en Get the gradient mode.
+	 * @returns The gradient mode.
+	 * @zh 获取梯度模式。
+	 * @returns 梯度模式。
 	 */
 	get mode(): number {
 		return this._mode;
 	}
 
 	/**
-	 * 设置梯度模式。
+	 * @en Set the gradient mode.
+	 * @param value The gradient mode.
+	 * @zh 设置梯度模式。
 	 * @param value 梯度模式。
 	 */
 	set mode(value: number) {
@@ -154,8 +164,10 @@ export class Gradient implements IClone {
 	}
 
 	/**
-	 * 获取颜色RGB数量。
-	 * @return 颜色RGB数量。
+	 * @en Get the count of color RGB keys.
+	 * @returns The count of color RGB keys.
+	 * @zh 获取颜色 RGB 数量。
+	 * @returns 颜色 RGB 数量。
 	 */
 	get colorRGBKeysCount(): number {
 		return this._colorRGBKeysCount;
@@ -192,25 +204,32 @@ export class Gradient implements IClone {
 	}
 
 	/**
-	 * 获取最大颜色RGB帧数量。
-	 * @return 最大RGB帧数量。
+	 * @en Get the maximum count of color RGB keys.
+	 * @returns The maximum count of RGB keys.
+	 * @zh 获取最大颜色 RGB 帧数量。
+	 * @returns 最大 RGB 帧数量。
 	 */
 	get maxColorRGBKeysCount(): number {
 		return this._maxColorRGBKeysCount;
 	}
 
 	/**
-	 * 获取最大颜色Alpha帧数量。
-	 * @return 最大Alpha帧数量。
+	 * @en Get the maximum count of color Alpha keys.
+	 * @returns The maximum count of Alpha keys.
+	 * @zh 获取最大颜色 Alpha 帧数量。
+	 * @returns 最大 Alpha 帧数量。
 	 */
 	get maxColorAlphaKeysCount(): number {
 		return this._maxColorAlphaKeysCount;
 	}
 
 	/**
-	 * 创建一个 <code>Gradient</code> 实例。
-	 * @param maxColorRGBKeyCount 最大RGB帧个数。
-	 * @param maxColorAlphaKeyCount 最大Alpha帧个数。
+	 * @en Constructor function.
+	 * @param maxColorRGBKeyCount The maximum count of RGB keys.
+	 * @param maxColorAlphaKeyCount The maximum count of Alpha keys.
+	 * @zh 构造函数。
+	 * @param maxColorRGBKeyCount 最大 RGB 帧个数。
+	 * @param maxColorAlphaKeyCount 最大 Alpha 帧个数。
 	 */
 	constructor() {
 		// 加载 decodeObj 赋值 _rgbElements/ _alphaElements, 初始化buffer
@@ -226,9 +245,12 @@ export class Gradient implements IClone {
 	}
 
 	/**
-	 * 增加颜色RGB帧。
-	 * @param	key 生命周期，范围为0到1。
-	 * @param	value RGB值。
+	 * @en Add a color RGB key.
+	 * @param key The lifetime, ranging from 0 to 1.
+	 * @param value The RGB value.
+	 * @zh 增加颜色 RGB 帧。
+	 * @param key 生命周期，范围为 0 到 1。
+	 * @param value RGB 值。
 	 */
 	addColorRGB(key: number, value: Color): void {
 		if (this._colorRGBKeysCount < this._maxColorRGBKeysCount) {
@@ -246,9 +268,12 @@ export class Gradient implements IClone {
 	}
 
 	/**
-	 * 增加颜色Alpha帧。
-	 * @param	key 生命周期，范围为0到1。
-	 * @param	value Alpha值。
+	 * @en Add a color Alpha key.
+	 * @param key The lifetime, ranging from 0 to 1.
+	 * @param value The Alpha value.
+	 * @zh 增加颜色 Alpha 帧。
+	 * @param key 生命周期，范围为 0 到 1。
+	 * @param value Alpha 值。
 	 */
 	addColorAlpha(key: number, value: number): void {
 		if (this._colorAlphaKeysCount < this._maxColorAlphaKeysCount) {
@@ -264,10 +289,14 @@ export class Gradient implements IClone {
 	}
 
 	/**
-	 * 更新颜色RGB帧。
-	 * @param   index 索引。
-	 * @param	key 生命周期，范围为0到1。
-	 * @param	value RGB值。
+	 * @en Update a color RGB key.
+	 * @param index The index.
+	 * @param key The lifetime, ranging from 0 to 1.
+	 * @param value The RGB value.
+	 * @zh 更新颜色 RGB 帧。
+	 * @param index 索引。
+	 * @param key 生命周期，范围为 0 到 1。
+	 * @param value RGB 值。
 	 */
 	updateColorRGB(index: number, key: number, value: Color): void {//TODO:以key为键自动排序
 		if (index < this._colorRGBKeysCount) {
@@ -284,10 +313,14 @@ export class Gradient implements IClone {
 	}
 
 	/**
-	 * 更新颜色Alpha帧。
-	 * @param   index 索引。
-	 * @param	key 生命周期，范围为0到1。
-	 * @param	value Alpha值。
+	 * @en Update a color Alpha key.
+	 * @param index The index.
+	 * @param key The lifetime, ranging from 0 to 1.
+	 * @param value The Alpha value.
+	 * @zh 更新颜色 Alpha 帧。
+	 * @param index 索引。
+	 * @param key 生命周期，范围为 0 到 1。
+	 * @param value Alpha 值。
 	 */
 	updateColorAlpha(index: number, key: number, value: number): void {
 		if (index < this._colorAlphaKeysCount) {
@@ -302,12 +335,18 @@ export class Gradient implements IClone {
 	}
 
 	/**
-	 * 通过插值获取RGB颜色。
-	 * @param lerpFactor 插值因子。
+	 * @en Get RGB color through interpolation.
+	 * @param lerpFactor Interpolation factor, clamped between 0 and 1.
+	 * @param out The resulting color.
+	 * @param startSearchIndex The starting search index. Default is 0.
+	 * @param reverseSearch Whether to perform reverse interpolation. Default is false.
+	 * @returns The current index after interpolation.
+	 * @zh 通过插值获取RGB颜色。
+	 * @param lerpFactor 插值因子，取值范围在0到1之间。
 	 * @param out 颜色结果。
-	 * @param startSearchIndex 开始查找索引。
-	 * @param reverseSearch 反向插值。
-	 * @returns 
+	 * @param startSearchIndex 开始查找索引。默认为0。
+	 * @param reverseSearch 是否进行反向插值。默认为false。
+	 * @returns 插值后的当前索引。
 	 */
 	evaluateColorRGB(lerpFactor: number, out: Color, startSearchIndex: number = 0, reverseSearch: boolean = false): number {
 		lerpFactor = Math.min(Math.max(lerpFactor, 0.0), 1.0);
@@ -408,12 +447,18 @@ export class Gradient implements IClone {
 	}
 
 	/**
-	 * 通过插值获取透明值。
-	 * @param  lerpFactor 插值因子。
-	 * @param  out 颜色结果。
-	 * @param  startSearchIndex 开始查找索引。
-	 * @param  reverseSearch 是否反向插值
-	 * @return 结果索引 。
+	 * @en Get the alpha value through interpolation.
+	 * @param lerpFactor The interpolation factor.
+	 * @param outColor The resulting color.
+	 * @param startSearchIndex The starting search index. Default is 0.
+	 * @param reverseSearch Whether to perform reverse interpolation. Default is false.
+	 * @returns The resulting index.
+	 * @zh 通过插值获取透明值。
+	 * @param lerpFactor 插值因子。
+	 * @param outColor 颜色结果。
+	 * @param startSearchIndex 开始查找索引。默认为0。
+	 * @param reverseSearch 是否反向插值。默认为false。
+	 * @returns 结果索引。
 	 */
 	evaluateColorAlpha(lerpFactor: number, outColor: Color, startSearchIndex: number = 0, reverseSearch: boolean = false): number {
 		lerpFactor = Math.min(Math.max(lerpFactor, 0.0), 1.0);
@@ -501,8 +546,10 @@ export class Gradient implements IClone {
 	}
 
 	/**
-	 * 克隆。
-	 * @param	destObject 克隆源。
+	 * @en Clone.
+	 * @param destObject The destination object to clone to.
+	 * @zh 克隆。
+	 * @param destObject 克隆的目标对象。
 	 */
 	cloneTo(destObject: any): void {
 		var destGradientDataColor: Gradient = (<Gradient>destObject);
@@ -520,8 +567,10 @@ export class Gradient implements IClone {
 	}
 
 	/**
-	 * 克隆。
-	 * @return	 克隆副本。
+	 * @en Clone the gradient.
+	 * @returns A clone of the gradient.
+	 * @zh 克隆渐变。
+	 * @returns 克隆的副本。
 	 */
 	clone(): any {
 		var destGradientDataColor: Gradient = new Gradient();

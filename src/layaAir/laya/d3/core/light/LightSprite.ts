@@ -6,6 +6,7 @@ import { Color } from "../../../maths/Color";
 import { Matrix4x4 } from "../../../maths/Matrix4x4";
 
 /**
+ * @ignore
  * @deprecated
  * <code>LightSprite</code> 类用于创建灯光的父类。
  */

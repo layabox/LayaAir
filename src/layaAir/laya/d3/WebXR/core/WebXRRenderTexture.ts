@@ -1,30 +1,33 @@
 import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { RenderTexture } from "../../../resource/RenderTexture";
-import { WebXRExperienceHelper } from "./WebXRExperienceHelper";
 
 
 /**
- * @author miner
- * 类用来创建WebXRRenderTexture
+ * @en The `WebXRRenderTexture` class is used to create a render texture for WebXR rendering.
+ * @zh `WebXRRenderTexture` 类用来创建 WebXR 渲染的渲染纹理。
  */
 export class WebXRRenderTexture extends RenderTexture {
 
 	/** @internal */
 	protected _frameBuffer: any;
-	/**update mask */
+	/**
+	 * @en The frame loop counter for the render texture.
+	 * @zh 渲染纹理的帧循环计数器。
+	 */
 	public frameLoop: number = -1;
 
 	/**
-	 * 创建WebXRFrameBuffer
-	 * @param frameBuffer 
+	 * @en Creates a new instance of the `WebXRRenderTexture` class.
+	 * @zh 创建 WebXRRenderTexture 类的新实例
 	 */
 	constructor() {
 		super(1, 1, 1, RenderTargetFormat.STENCIL_8, false, 1);
 	}
 
-	/**
-	 * set frameBuffer
-	 */
+    /**
+     * @en The frame buffer for the render texture.
+     * @zh 渲染纹理的帧缓冲。。
+     */
 	set frameBuffer(value: any) {
 		this._frameBuffer = value;
 	}

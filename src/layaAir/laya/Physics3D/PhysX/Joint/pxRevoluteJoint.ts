@@ -10,6 +10,10 @@ export enum PxRevoluteJointFlag {
     eDRIVE_FREESPIN = 1 << 2	//!< if the existing velocity is beyond the drive velocity, do not add force
 };
 
+/**
+ * @en `pxRevoluteJoint` is a joint that allows rotation around an axis.
+ * @zh `pxRevoluteJoint`类用于在物理引擎中创建和管理旋转关节（铰链关节）
+ */
 export class pxRevoluteJoint extends pxJoint implements IHingeJoint {
 
     /**@internal */

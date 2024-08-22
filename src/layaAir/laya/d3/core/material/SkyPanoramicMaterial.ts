@@ -5,7 +5,8 @@ import { Color } from "../../../maths/Color";
 import { Vector4 } from "../../../maths/Vector4";
 
 /**
- * <code>SkyPanoramicMaterial</code> 类用于实现SkyPanoramicMaterial材质。
+ * @en The SkyPanoramicMaterial class is used to implement SkyPanoramicMaterial material.
+ * @zh SkyPanoramicMaterial 类用于实现全景天空材质。
  */
 export class SkyPanoramicMaterial extends Material {
     static TINTCOLOR: number;
@@ -29,7 +30,8 @@ export class SkyPanoramicMaterial extends Material {
     private _textureHDRParams: Vector4 = new Vector4(1.0, 0.0, 0.0, 1.0);
 
     /**
-     * 颜色。
+     * @en Tint color of the panoramic sky.
+     * @zh 全景天空的颜色。
      */
     get tintColor(): Color {
         return this.getColorByIndex(SkyPanoramicMaterial.TINTCOLOR);
@@ -40,7 +42,8 @@ export class SkyPanoramicMaterial extends Material {
     }
 
     /**
-     * 曝光强度。
+     * @en Exposure intensity of the panoramic sky.
+     * @zh 全景天空的曝光强度。
      */
     get exposure(): number {
         return this.getFloatByIndex(SkyPanoramicMaterial.EXPOSURE);
@@ -51,7 +54,8 @@ export class SkyPanoramicMaterial extends Material {
     }
 
     /**
-     * 旋转角度。
+     * @en Rotation angle of the panoramic sky.
+     * @zh 全景天空的旋转角度。
      */
     get rotation(): number {
         return this.getFloatByIndex(SkyPanoramicMaterial.ROTATION);
@@ -62,7 +66,8 @@ export class SkyPanoramicMaterial extends Material {
     }
 
     /**
-     * 全景天空纹理。
+     * @en Panoramic sky texture.
+     * @zh 全景天空纹理。
      */
     get panoramicTexture(): Texture2D {
         return <Texture2D>this.getTextureByIndex(SkyPanoramicMaterial.TEXTURE);
@@ -72,8 +77,10 @@ export class SkyPanoramicMaterial extends Material {
         this.setTextureByIndex(SkyPanoramicMaterial.TEXTURE, value);
     }
 
-    /**
-     * 创建一个 <code>SkyPanoramicMaterial</code> 实例。
+    /** 
+     * @ignore
+     * @en Creates an instance of SkyPanoramicMaterial.
+     * @zh 创建一个 SkyPanoramicMaterial 的实例。
      */
     constructor() {
         super();

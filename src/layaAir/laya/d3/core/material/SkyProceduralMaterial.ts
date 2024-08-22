@@ -4,14 +4,24 @@ import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { Material } from "../../../resource/Material";
 
 /**
- * <code>SkyProceduralMaterial</code> 类用于实现SkyProceduralMaterial材质。
+ * @en The SkyProceduralMaterial class is used to implement the SkyProceduralMaterial material.
+ * @zh SkyProceduralMaterial 类用于实现程序化天空材质。
  */
 export class SkyProceduralMaterial extends Material {
-	/** 太阳_无*/
+	/**
+	 * @en Sun: None
+	 * @zh 太阳：无
+	 */
 	static SUN_NODE: number = 0;
-	/** 太阳_精简*/
+	/**
+	 * @en Sun: Simple
+	 * @zh 太阳：简单
+	 */
 	static SUN_SIMPLE: number = 1;
-	/** 太阳_高质量*/
+	/**
+	 * @en Sun: High quality
+	 * @zh 太阳：高质量
+	 */
 	static SUN_HIGH_QUALITY: number = 2;
 
 	/**@internal */
@@ -53,7 +63,8 @@ export class SkyProceduralMaterial extends Material {
 	private _sunDisk: number;
 
 	/**
-	 * 太阳状态。
+	 * @en Sun state.
+	 * @zh 太阳状态。
 	 */
 	get sunDisk(): number {
 		return this._sunDisk;
@@ -80,7 +91,8 @@ export class SkyProceduralMaterial extends Material {
 	}
 
 	/**
-	 * 太阳尺寸,范围是0到1。
+	 * @en Sun size, range is 0 to 1.
+	 * @zh 太阳尺寸，范围是0到1。
 	 */
 	get sunSize(): number {
 		return this._shaderValues.getNumber(SkyProceduralMaterial.SUNSIZE);
@@ -92,7 +104,8 @@ export class SkyProceduralMaterial extends Material {
 	}
 
 	/**
-	 * 太阳尺寸收缩,范围是0到20。
+	 * @en Sun size convergence, range is 0 to 20.
+	 * @zh 太阳尺寸收缩，范围是0到20。
 	 */
 	get sunSizeConvergence(): number {
 		return this._shaderValues.getNumber(SkyProceduralMaterial.SUNSIZECONVERGENCE);
@@ -104,7 +117,8 @@ export class SkyProceduralMaterial extends Material {
 	}
 
 	/**
-	 * 大气厚度,范围是0到5。
+	 * @en Atmosphere thickness, range is 0 to 5.
+	 * @zh 大气厚度，范围是0到5。
 	 */
 	get atmosphereThickness(): number {
 		return this._shaderValues.getNumber(SkyProceduralMaterial.ATMOSPHERETHICKNESS);
@@ -116,7 +130,8 @@ export class SkyProceduralMaterial extends Material {
 	}
 
 	/**
-	 * 天空颜色。
+	 * @en Sky color.
+	 * @zh 天空颜色。
 	 */
 	get skyTint(): Color {
 		return (<Color>this._shaderValues.getColor(SkyProceduralMaterial.SKYTINT));
@@ -127,7 +142,8 @@ export class SkyProceduralMaterial extends Material {
 	}
 
 	/**
-	 * 地面颜色。
+	 * @en Ground color.
+	 * @zh 地面颜色。
 	 */
 	get groundTint(): Color {
 		return this._shaderValues.getColor(SkyProceduralMaterial.GROUNDTINT);
@@ -138,7 +154,8 @@ export class SkyProceduralMaterial extends Material {
 	}
 
 	/**
-	 * 曝光强度,范围是0到8。
+	 * @en Exposure intensity, range is 0 to 8.
+	 * @zh 曝光强度，范围是0到8。
 	 */
 	get exposure(): number {
 		return this._shaderValues.getNumber(SkyProceduralMaterial.EXPOSURE);
@@ -149,9 +166,11 @@ export class SkyProceduralMaterial extends Material {
 		this._shaderValues.setNumber(SkyProceduralMaterial.EXPOSURE, value);
 	}
 
-	/**
-	 * 创建一个 <code>SkyProceduralMaterial</code> 实例。
-	 */
+	/** 
+	 * @ignore
+	 * @en Creates an instance of SkyProceduralMaterial.
+	 * @zh 创建一个 SkyProceduralMaterial 的实例。
+     */
 	constructor() {
 		super();
 		this.setShaderName("SkyProcedural");
@@ -165,9 +184,11 @@ export class SkyProceduralMaterial extends Material {
 	}
 
 	/**
-	 * 克隆。
-	 * @return	 克隆副本。
 	 * @override
+	 * @en Clone.
+	 * @returns Clone copy.
+	 * @zh 克隆。
+	 * @returns 克隆副本。
 	 */
 	clone(): any {
 		var dest: SkyProceduralMaterial = new SkyProceduralMaterial();

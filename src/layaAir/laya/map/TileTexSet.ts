@@ -5,45 +5,99 @@ import { ILaya } from "../../ILaya";
 
 
 /**
- * 此类是子纹理类，也包括同类动画的管理
- * TiledMap会把纹理分割成无数子纹理，也可以把其中的某块子纹理替换成一个动画序列
- * 本类的实现就是如果发现子纹理被替换成一个动画序列，animationKey会被设为true
- * 即animationKey为true,就使用TileAniSprite来做显示，把动画序列根据时间画到TileAniSprite上
- * @author ...
+ * @en The `TileTexSet` class is a sub-texture class that also manages animations of the same type.
+ * TiledMap divides textures into numerous sub-textures and can replace a specific sub-texture with an animation sequence.
+ * The implementation of this class sets the `animationKey` to true if a sub-texture is replaced with an animation sequence.
+ * That is, if `animationKey` is true, use `TileAniSprite` for display, and draw the animation sequence onto `TileAniSprite` according to time.
+ * @zh `TileTexSet` 类是一个子纹理类，同时管理同类型动画。
+ * TiledMap 将纹理分割成许多子纹理，并且可以将其中的某个子纹理替换为动画序列。
+ * 如果发现子纹理被替换为动画序列，本类的实现会将 `animationKey` 设置为 true。
+ * 即如果 `animationKey` 为 true，则使用 `TileAniSprite` 来显示，并将动画序列根据时间绘制到 `TileAniSprite` 上。
  */
 export class TileTexSet {
 
-    /**唯一标识*/
+    /**
+     * @en The unique identifier for the tile texture set.
+     * @zh 子纹理集的唯一标识。
+     */
     gid: number = -1;
-    /**子纹理的引用*/
+    /**
+     * @en The reference to the sub-texture.
+     * @zh 子纹理的引用。
+     */
     texture: Texture;
-    /**纹理显示时的坐标偏移X*/
+    /**
+     * @en The X coordinate offset when displaying the texture.
+     * @zh 纹理显示时的X坐标偏移。
+     */
     offX: number = 0;
-    /**纹理显示时的坐标偏移Y*/
+    /**
+     * @en The Y coordinate offset when displaying the texture.
+     * @zh 纹理显示时的Y坐标偏移。
+     */
     offY: number = 0;
 
     //下面是动画支持需要的
-    /**当前要播放动画的纹理序列*/
+    /**
+     * @en The array of textures to be displayed for the current animation.
+     * @zh 当前要播放的动画纹理序列。
+     */
     textureArray: any[] = null;
-    /** 当前动画每帧的时间间隔*/
+    /**
+     * @en The duration of each frame in the current animation.
+     * @zh 当前动画每帧的时间间隔。
+     */
     durationTimeArray: any[] = null;
-    /** 动画播放的总时间 */
+    /**
+     * @en The total duration of the animation.
+     * @zh 动画播放的总时间。
+     */
     animationTotalTime: number = 0;
-    /**true表示当前纹理，是一组动画，false表示当前只有一个纹理*/
+    /**
+     * @en Indicates whether the current texture is an animation sequence (true) or a single texture (false).
+     * @zh 表示当前纹理是一组动画(true)还是单个纹理(false)。
+     */
     isAnimation: boolean = false;
 
+    /**
+     * @en The number of display objects in the current animation.
+     * @zh 当前动画的显示对象数量。
+     */
     private _spriteNum: number = 0;				//当前动画有多少个显示对象
+    /**
+     * @en A dictionary to save display objects by their unique name.
+     * @zh 通过显示对象的唯一名字保存显示对象的字典。
+     */
     private _aniDic: any = null;			//通过显示对象的唯一名字，去保存显示显示对象
+    /**
+     * @en The current frame index in the animation sequence.
+     * @zh 当前动画播放到的帧索引。
+     */
     private _frameIndex: number = 0;			//当前动画播放到第几帧
 
-    private _time: number = 0;					//距离上次动画刷新，过了多少长时间
-    private _interval: number = 0;				//每帧刷新的时间间隔
-    private _preFrameTime: number = 0;			//上一帧刷新的时间戳
+    /**
+     * @en The elapsed time since the last animation refresh.
+     * @zh 距离上次动画刷新过了多少时间。
+     */
+    private _time: number = 0;					
+    /**
+     * @en The interval time for refreshing each frame.
+     * @zh 每帧刷新的时间间隔。
+     */
+    private _interval: number = 0;			
+    /**
+     * @en The timestamp of the last frame refresh.
+     * @zh 上一帧刷新的时间戳。
+     */
+    private _preFrameTime: number = 0;		
 
     /**
-     * 加入一个动画显示对象到此动画中
-     * @param	aniName	//显示对象的名字
-     * @param	sprite	//显示对象
+     * @en Adds an animation display object to this animation.
+     * @param aniName The name of the display object.
+     * @param sprite The display object.
+     * @zh 将一个动画显示对象加入到此动画中。
+     * @param aniName 显示对象的名字。
+     * @param sprite 显示对象。
      */
     addAniSprite(aniName: string, sprite: TileAniSprite): void {
         if (this.animationTotalTime == 0) {
@@ -67,9 +121,10 @@ export class TileTexSet {
             this.drawTexture(sprite, tTileTextureSet);
         }
     }
-
+    
     /**
-     * 把动画画到所有注册的SPRITE上
+     * @en Draws the animation to all registered sprites.
+     * @zh 把动画画到所有注册的显示对象上。
      */
     private animate(): void {
         if (this.textureArray && this.textureArray.length > 0 && this.durationTimeArray && this.durationTimeArray.length > 0) {
@@ -98,6 +153,14 @@ export class TileTexSet {
         }
     }
 
+    /**
+     * @en Draws the texture to the specified sprite.
+     * @param sprite The sprite to draw the texture on.
+     * @param tileTextSet The tile texture set to draw.
+     * @zh 将纹理绘制到指定的显示对象上。
+     * @param sprite 要绘制纹理的显示对象。
+     * @param tileTextSet 要绘制的子纹理集。
+     */
     private drawTexture(sprite: TileAniSprite, tileTextSet: TileTexSet): void {
         sprite.graphics.clear(true);
         //sprite.graphics.drawImage(tileTextSet.texture, tileTextSet.offX, tileTextSet.offY, tileTextSet.texture.width, tileTextSet.texture.height);
@@ -105,8 +168,10 @@ export class TileTexSet {
     }
 
     /**
-     * 移除不需要更新的SPRITE
-     * @param	_name
+     * @en Removes the sprite that no longer needs to be updated.
+     * @param _name The name of the sprite to remove.
+     * @zh 移除不再需要更新的显示对象。
+     * @param _name 要移除的显示对象的名字。
      */
     removeAniSprite(_name: string): void {
         if (this._aniDic && this._aniDic[_name]) {
@@ -119,7 +184,10 @@ export class TileTexSet {
     }
 
     /**
-     * 显示当前动画的使用情况
+     * @en Displays the current usage of the animation.
+     * @returns A string containing the debug information.
+     * @zh 显示当前动画的使用情况。
+     * @returns 包含调试信息的字符串。
      */
     showDebugInfo(): string {
         var tInfo: string = null;
@@ -130,7 +198,8 @@ export class TileTexSet {
     }
 
     /**
-     * 清理
+     * @en Clears all properties of the tile texture set.
+     * @zh 清理子纹理集的所有属性。
      */
     clearAll(): void {
         this.gid = -1;//唯一标识

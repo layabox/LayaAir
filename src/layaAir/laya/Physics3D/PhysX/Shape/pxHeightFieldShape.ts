@@ -4,6 +4,10 @@ import { pxPhysicsCreateUtil } from "../pxPhysicsCreateUtil";
 import { pxColliderShape } from "./pxColliderShape";
 import { PxMeshGeometryFlag } from "./pxMeshColliderShape";
 
+/**
+ * @en Represents a height field shape in the PhysX physics engine.
+ * @zh 表示 PhysX 物理引擎中的高度场形状。
+ */
 export class pxHeightFieldShape extends pxColliderShape implements IHeightFieldShape {
     /**@internal */
     private _numRows: number = 2;
@@ -20,6 +24,7 @@ export class pxHeightFieldShape extends pxColliderShape implements IHeightFieldS
     /**@internal */
     private _maxHeight: number;
 
+    /**@ignore */
     constructor() {
         super();
     }
@@ -76,12 +81,18 @@ export class pxHeightFieldShape extends pxColliderShape implements IHeightFieldS
     }
 
     /**
-     * set height field Data
-     * @param numRows 
-     * @param numCols 
-     * @param heightData 
-     * @param flag 
-     * @param scale 
+     * @en Sets the height field data.
+     * @param numRows Number of rows.
+     * @param numCols Number of columns.
+     * @param heightData Height data array.
+     * @param flag Flag data array.
+     * @param scale Scale of the height field.
+     * @zh 设置高度场数据。
+     * @param numRows 行数。
+     * @param numCols 列数。
+     * @param heightData 高度数据数组。
+     * @param flag 标志数据数组。
+     * @param scale 高度场的缩放。
      */
     setHeightFieldData(numRows: number, numCols: number, heightData: Float32Array, flag: Uint8Array, scale: Vector3): void {
         this._numRows = numRows;
@@ -93,26 +104,34 @@ export class pxHeightFieldShape extends pxColliderShape implements IHeightFieldS
     }
 
     /**
-     * get rows number
-     * @returns 
+     * @en Gets the number of rows in the height field.
+     * @returns Number of rows.
+     * @zh 获取高度场的行数。
+     * @returns 行数。
      */
     getNbRows(): number {
         return this._heightFiled.getNbRows();
     }
 
     /**
-     * get cols number
-     * @returns
+     * @en Gets the number of columns in the height field.
+     * @returns Number of columns.
+     * @zh 获取高度场的列数。
+     * @returns 列数。
      */
     getNbColumns(): number {
         return this._heightFiled.getNbColumns();
     }
 
     /**
-     * get height number
-     * @param rows 
-     * @param cols 
-     * @returns 
+     * @en Gets the height at a specific row and column.
+     * @param rows Row index.
+     * @param cols Column index.
+     * @returns Height value.
+     * @zh 获取特定行列的高度值。
+     * @param rows 行索引。
+     * @param cols 列索引。
+     * @returns 高度值。
      */
     getHeight(rows: number, cols: number): number {
         return this._heightFiled.getHeight(rows, cols);
