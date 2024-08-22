@@ -30,11 +30,19 @@ export enum PxMeshGeometryFlag {
     //!< For detailed specifications of this flag for meshes and heightfields please refer to the Geometry Query section of the user guide.
 };
 
+/**
+ * @en Represents a mesh collider shape in the physics engine.
+ * @zh 表示物理引擎中的网格碰撞器形状。
+ */
 export class pxMeshColliderShape extends pxColliderShape implements IMeshColliderShape {
     private _limitvertex = 10;
     private _mesh: Mesh;
     private _convex: boolean;
     private _meshScale: any;
+    /**
+     * @en Creates a new instance of pxMeshColliderShape.
+     * @zh 创建一个新的 pxMeshColliderShape 实例。
+     */
     constructor() {
         super();
         this._convex = false;
@@ -155,6 +163,12 @@ export class pxMeshColliderShape extends pxColliderShape implements IMeshCollide
 
     }
 
+    /**
+     * @en Sets the offset of the collider shape.
+     * @param position The new offset position.
+     * @zh 设置碰撞器形状的偏移。
+     * @param position 新的偏移位置。
+     */
     setOffset(position: Vector3): void {
         if (!this._pxCollider) return;
         position.cloneTo(this._offset);
@@ -168,18 +182,36 @@ export class pxMeshColliderShape extends pxColliderShape implements IMeshCollide
     }
 
 
+    /**
+     * @en Sets the physics mesh from a given mesh.
+     * @param value The mesh to use for physics.
+     * @zh 从给定的网格设置物理网格。
+     * @param value 用于物理的网格。
+     */
     setPhysicsMeshFromMesh(value: Mesh): void {
         this._mesh = value;
         this._convex = false;
         this._createTrianggleMeshGeometry();
     }
 
+    /**
+     * @en Sets the convex mesh for the collider.
+     * @param value The convex mesh to use.
+     * @zh 设置碰撞器的凸面网格。
+     * @param value 要使用的凸面网格。
+     */
     setConvexMesh(value: Mesh): void {
         this._mesh = value;
         this._convex = true;
         this._createConvexMeshGeometry();
     }
 
+    /**
+     * @en Sets the vertex limit for convex mesh generation.
+     * @param limit The maximum number of vertices.
+     * @zh 设置凸面网格生成的顶点限制。
+     * @param limit 最大顶点数。
+     */
     setLimitVertex(limit: number): void {
         this._limitvertex = limit;
         if (this._convex)

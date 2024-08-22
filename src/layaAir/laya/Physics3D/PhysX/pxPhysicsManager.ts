@@ -40,6 +40,10 @@ export enum partFlag {
     eTRIGGER_DEFAULT = eNOTIFY_TOUCH_FOUND | eNOTIFY_TOUCH_LOST | eDETECT_DISCRETE_CONTACT  // 默认触发标志
 };
 
+/**
+ * @en The `pxPhysicsManager` class is used to implement physics management.
+ * @zh `pxPhysicsManager` 类用于实现物理管理。
+ */
 export class pxPhysicsManager implements IPhysicsManager {
     /** @internal 引擎更新物理列表*/
     _physicsUpdateList = new PhysicsUpdateList();
@@ -48,10 +52,16 @@ export class pxPhysicsManager implements IPhysicsManager {
     /** @internal */
     _pxScene: any;
 
-    /**fixedTimeStep */
+    /**
+     * @en Fixed time step for physics simulation.
+     * @zh 物理模拟的固定时间步长。
+     */
     fixedTime: number = 1.0 / 60.0;
 
-    /** enable CCD */
+    /**
+     * @en Whether to enable Continuous Collision Detection (CCD).
+     * @zh 是否启用连续碰撞检测(CCD)。
+     */
     enableCCD: boolean = false;
 
     /**@internal 碰撞开始数据表*/
@@ -85,6 +95,12 @@ export class pxPhysicsManager implements IPhysicsManager {
     /**@internal */
     private static _tempVector30: Vector3 = new Vector3();
 
+    /**
+     * @en Create a new instance of `pxPhysicsManager`.
+     * @param physicsSettings The physics settings to initialize the manager.
+     * @zh 创建`pxPhysicsManager`类的新实例。
+     * @param physicsSettings 用于初始化管理器的物理设置。
+     */
     constructor(physicsSettings: PhysicsSettings) {
 
 
@@ -131,6 +147,14 @@ export class pxPhysicsManager implements IPhysicsManager {
         }
         this.fixedTime = physicsSettings.fixedTimeStep;
     }
+    /**
+     * @en Set the active state of a collider.
+     * @param collider The collider to set.
+     * @param value The active state to set.
+     * @zh 设置碰撞器的活动状态。
+     * @param collider 要设置的碰撞器。
+     * @param value 要设置的活动状态。
+     */
     setActiveCollider(collider: pxCollider, value: boolean): void {
         collider.active = value;
         if (value) {
@@ -139,10 +163,26 @@ export class pxPhysicsManager implements IPhysicsManager {
             collider._physicsManager = null;
         }
     }
+    /**
+     * @en Enable or disable the debug drawer.
+     * @param value Whether to enable the debug drawer.
+     * @zh 启用或禁用调试绘制器。
+     * @param value 是否启用调试绘制器。
+     */
     enableDebugDrawer?(value: boolean): void {
         throw new Error("Method not implemented.");
     }
 
+    /**
+     * @en Set collision data to the appropriate map based on the event type.
+     * @param dataCallBack The collision data callback.
+     * @param eventType The type of collision event.
+     * @param isTrigger Whether the collision is a trigger event.
+     * @zh 根据事件类型将碰撞数据设置到适当的映射中。
+     * @param dataCallBack 碰撞数据回调。
+     * @param eventType 碰撞事件的类型。
+     * @param isTrigger 碰撞是否为触发器事件。
+     */
     setDataToMap(dataCallBack: any, eventType: string, isTrigger: boolean = false) {
         let curCollision = pxCollisionTool.getCollision(dataCallBack, isTrigger);
         if (!curCollision) return;
@@ -179,6 +219,12 @@ export class pxPhysicsManager implements IPhysicsManager {
         }
     }
 
+    /**
+     * @en Set the gravity of the physics world.
+     * @param gravity The gravity vector to set.
+     * @zh 设置物理世界的重力。
+     * @param gravity 要设置的重力向量。
+     */
     setGravity(gravity: Vector3): void {
         this._pxScene.setGravity(gravity);
     }
@@ -205,6 +251,12 @@ export class pxPhysicsManager implements IPhysicsManager {
         this._dynamicUpdateList.remove(collider);
     }
 
+    /**
+     * @en Add a collider to the physics world.
+     * @param collider The collider to be added.
+     * @zh 将碰撞器添加到物理世界中。
+     * @param collider 要添加的碰撞器。
+     */
     addCollider(collider: ICollider): void {
         if (!collider.active) {
             return;
@@ -233,6 +285,12 @@ export class pxPhysicsManager implements IPhysicsManager {
         pxcollider._isSimulate = true;
     }
 
+    /**
+     * @en Remove a collider from the physics world.
+     * @param collider The collider to be removed.
+     * @zh 从物理世界中移除碰撞器。
+     * @param collider 要移除的碰撞器。
+     */
     removeCollider(collider: ICollider): void {
         let pxcollider = collider as pxCollider;
 
@@ -428,8 +486,11 @@ export class pxPhysicsManager implements IPhysicsManager {
     }
 
     /**
-     * @param elapsedTime
      * @perfTag PerformanceDefine.T_Physics_Simulation
+     * @en Update the physics simulation.
+     * @param elapsedTime The elapsed time since the last update.
+     * @zh 更新物理模拟。
+     * @param elapsedTime 自上次更新以来经过的时间。
      */
     update(elapsedTime: number): void {
         this._updatePhysicsTransformFromRender();//update render to physics
@@ -441,17 +502,73 @@ export class pxPhysicsManager implements IPhysicsManager {
         // update Events
         this._updatePhysicsEvents();
     }
+    /**
+     * @en Performs a ray cast in the physics world.Returns the first hit object.
+     * @param ray The ray to cast.
+     * @param outHitResult The result of the raycast.
+     * @param distance The maximum distance of the raycast.
+     * @param collisonGroup The collision group of the ray.
+     * @param collisionMask The collision mask of the ray.
+     * @returns Whether the raycast hit anything.
+     * @zh 执行一次射线检测，返回第一个与射线相交的碰撞体信息。
+     * @param ray 要投射的射线。
+     * @param outHitResult 射线检测的结果。
+     * @param distance 射线检测的最大距离。
+     * @param collisonGroup 射线的碰撞组。
+     * @param collisionMask 射线的碰撞掩码。
+     * @returns 射线是否击中了任何物体。
+     */
     rayCast(ray: Ray, outHitResult: HitResult, distance: number = 1000000, collisonGroup: number = 1 << 4, collisionMask: number = 1 << 4): boolean {
         let result: any = this._pxScene.raycastCloset(ray.origin, ray.direction, distance, collisonGroup, collisionMask);
         pxCollisionTool.getRayCastResult(outHitResult, result);
         return outHitResult.succeeded;
     }
+    /**
+     * @en Performs a ray cast in the physics world.Returns all hit objects.
+     * @param ray The ray to cast.
+     * @param out An array to store all hit results.
+     * @param distance The maximum distance of the raycast.
+     * @param collisonGroup The collision group of the ray.
+     * @param collisionMask The collision mask of the ray.
+     * @returns Whether the raycast hit anything.
+     * @zh 执行一次射线检测，返回所有与射线相交的碰撞体信息。
+     * @param ray 要投射的射线。
+     * @param out 用于存储所有击中结果的数组。
+     * @param distance 射线检测的最大距离。
+     * @param collisonGroup 射线的碰撞组。
+     * @param collisionMask 射线的碰撞掩码。
+     * @returns 射线是否击中了任何物体。
+     */
     rayCastAll?(ray: Ray, out: HitResult[], distance: number = 1000000, collisonGroup: number = 1 << 4, collisionMask: number = 1 << 4): boolean {
         let results: any = this._pxScene.raycastAllHits(ray.origin, ray.direction, distance, collisonGroup, collisionMask);
         pxCollisionTool.getRayCastResults(out, results);
         return (out.length >= 1 ? true : false);
     }
 
+    /**
+     * @en Performs a shape cast. Returns the first hit object.
+     * @param shape The shape to cast.
+     * @param fromPosition The starting position of the shape.
+     * @param toPosition The ending position of the shape.
+     * @param out The result of the shape cast.
+     * @param fromRotation The starting rotation of the shape.
+     * @param toRotation The ending rotation of the shape.
+     * @param collisonGroup The collision group of the shape.
+     * @param collisionMask The collision mask of the shape.
+     * @param allowedCcdPenetration The allowed continuous collision detection penetration.
+     * @returns Whether the shape cast hit anything.
+     * @zh 执行形状射线检测，返回第一个与射线相交的碰撞体信息。
+     * @param shape 要投射的形状。
+     * @param fromPosition 形状的起始位置。
+     * @param toPosition 形状的结束位置。
+     * @param out 形状投射的结果。
+     * @param fromRotation 形状的起始旋转。
+     * @param toRotation 形状的结束旋转。
+     * @param collisonGroup 形状的碰撞组。
+     * @param collisionMask 形状的碰撞掩码。
+     * @param allowedCcdPenetration 允许的连续碰撞检测穿透。
+     * @returns 形状投射是否击中了任何物体。
+     */
     shapeCast(shape: pxColliderShape, fromPosition: Vector3, toPosition: Vector3, out: HitResult, fromRotation: Quaternion = new Quaternion(), toRotation: Quaternion = new Quaternion(), collisonGroup: number = 1 << 4, collisionMask: number = 1 << 4, allowedCcdPenetration: number = 0.0): boolean {
         let transform = pxPhysicsManager._tempTransform;
         fromPosition.cloneTo(transform.translation);
@@ -464,6 +581,30 @@ export class pxPhysicsManager implements IPhysicsManager {
         return out.succeeded;
     }
 
+    /**
+     * @en Performs a shape cast. Returns all hit objects.
+     * @param shape The shape to cast.
+     * @param fromPosition The starting position of the shape.
+     * @param toPosition The ending position of the shape.
+     * @param out An array to store all hit results.
+     * @param fromRotation The starting rotation of the shape.
+     * @param toRotation The ending rotation of the shape.
+     * @param collisonGroup The collision group of the shape.
+     * @param collisionMask The collision mask of the shape.
+     * @param allowedCcdPenetration The allowed continuous collision detection penetration.
+     * @returns Whether the shape cast hit anything.
+     * @zh 执行形状投射，返回所有与射线相交的碰撞体信息。
+     * @param shape 要投射的形状。
+     * @param fromPosition 形状的起始位置。
+     * @param toPosition 形状的结束位置。
+     * @param out 用于存储所有击中结果的数组。
+     * @param fromRotation 形状的起始旋转。
+     * @param toRotation 形状的结束旋转。
+     * @param collisonGroup 形状的碰撞组。
+     * @param collisionMask 形状的碰撞掩码。
+     * @param allowedCcdPenetration 允许的连续碰撞检测穿透。
+     * @returns 形状投射是否击中了任何物体。
+     */
     shapeCastAll(shape: pxColliderShape, fromPosition: Vector3, toPosition: Vector3, out: HitResult[], fromRotation: Quaternion = new Quaternion(), toRotation: Quaternion = new Quaternion(), collisonGroup: number = 1 << 4, collisionMask: number = 1 << 4, allowedCcdPenetration: number = 0.0): boolean {
         let transform = pxPhysicsManager._tempTransform;
         fromPosition.cloneTo(transform.translation);
