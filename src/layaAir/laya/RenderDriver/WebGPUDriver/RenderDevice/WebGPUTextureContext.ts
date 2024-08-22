@@ -1321,7 +1321,7 @@ export class WebGPUTextureContext implements ITextureContext {
         gpuColorDescriptor.usage = GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.COPY_SRC | GPUTextureUsage.COPY_DST;
         gpuColorDescriptor.label = 'renderTarget color';
         const gpuColorTexture = this._engine.getDevice().createTexture(gpuColorDescriptor);
-        const internalRT = new WebGPUInternalRT(colorFormat, depthStencilFormat, false, generateMipmap, multiSamples);
+        const internalRT = new WebGPUInternalRT(colorFormat, depthStencilFormat, false, generateMipmap, multiSamples, useSRGBExt);
         internalRT._textures.push(new WebGPUInternalTex(width, height, 1, TextureDimension.Tex2D, generateMipmap, multiSamples, useSRGBExt, gammaCorrection));
         internalRT._textures[0].resource = gpuColorTexture;
         internalRT._textures[0]._webGPUFormat = gpuColorFormat;
@@ -1344,11 +1344,6 @@ export class WebGPUTextureContext implements ITextureContext {
             || colorFormat === RenderTargetFormat.DEPTH_32
             || colorFormat === RenderTargetFormat.DEPTHSTENCIL_24_8) {
             depthStencilFormat = RenderTargetFormat.R8G8B8A8;
-            //const array = new Uint16Array(width * height);
-            //for (let j = 0; j < height; j++)
-            //    for (let i = 0; i < width; i++)
-            //        array[j * width + i] = 65535;
-            //this.setTexturePixelsData(internalRT._textures[0], array, false, false);
         }
         if (depthStencilFormat !== RenderTargetFormat.None) {
             const pixelByteSize = this._getGPURenderTexturePixelByteSize(depthStencilFormat);

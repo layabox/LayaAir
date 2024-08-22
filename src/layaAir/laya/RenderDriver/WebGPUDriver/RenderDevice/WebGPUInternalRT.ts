@@ -14,8 +14,7 @@ export class WebGPUInternalRT implements InternalRenderTarget {
     depthStencilFormat: RenderTargetFormat;
     isSRGB: boolean = false;
     gpuMemory: number = 0;
-
-    formatId: number = 0;
+    formatId: string = '';
 
     _colorStates: GPUColorTargetState[];
     _depthState: GPUColorTargetState;
@@ -27,9 +26,10 @@ export class WebGPUInternalRT implements InternalRenderTarget {
     objectName: string = 'WebGPUInternalRT';
 
     constructor(colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat,
-        isCube: boolean, generateMipmap: boolean, samples: number) {
+        isCube: boolean, generateMipmap: boolean, samples: number, sRGB: boolean) {
         this._isCube = isCube;
         this._samples = samples;
+        this.isSRGB = sRGB;
         this._generateMipmap = generateMipmap;
         this.colorFormat = colorFormat;
         this.depthStencilFormat = depthStencilFormat;
@@ -39,7 +39,7 @@ export class WebGPUInternalRT implements InternalRenderTarget {
         this._colorStates = [];
         this._renderPassDescriptor = { colorAttachments: [] };
         this._renderBundleDescriptor = { colorFormats: [] };
-        this.formatId = (this.depthStencilFormat << 10) + this.colorFormat;
+        this.formatId = '<' + colorFormat + '_' + depthStencilFormat + (sRGB ? '_t' : '_f') + '>';
 
         this.globalId = WebGPUGlobal.getId(this);
         //WebGPUGlobal.addTextureStatis(this);

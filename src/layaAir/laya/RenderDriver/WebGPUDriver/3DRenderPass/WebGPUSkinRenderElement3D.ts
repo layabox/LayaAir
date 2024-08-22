@@ -1,6 +1,5 @@
 import { SkinnedMeshSprite3D } from "../../../d3/core/SkinnedMeshSprite3D";
 import { ISkinRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
-import { WebGPUBuffer } from "../RenderDevice/WebGPUBuffer";
 import { WebGPURenderBundle } from "../RenderDevice/WebGPUBundle/WebGPURenderBundle";
 import { WebGPURenderCommandEncoder } from "../RenderDevice/WebGPURenderCommandEncoder";
 import { WebGPUShaderData } from "../RenderDevice/WebGPUShaderData";
@@ -32,19 +31,19 @@ export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D implements 
      */
     protected _compileShader(context: WebGPURenderContext3D) {
         super._compileShader(context);
-        const n = this.skinnedData ? this.skinnedData.length : 0;
-        if (n > 0) { //创建蒙皮分组材质数据
+        const len = this.skinnedData ? this.skinnedData.length : 0;
+        if (len > 0) { //创建蒙皮分组材质数据
             if (!this.renderShaderDatas)
                 this.renderShaderDatas = [];
             else this._destroyRenderShaderDatas();
-            for (let i = 0; i < n; i++) {
+            for (let i = 0; i < len; i++) {
                 this.renderShaderDatas[i] = new WebGPUShaderData();
-                this.renderShaderDatas[i].createUniformBuffer(this._shaderInstance[0].uniformInfo[2]);
+                this.renderShaderDatas[i].createUniformBuffer(this._shaderInstances[this._passIndex[0]].uniformInfo[2]);
                 this.renderShaderData.cloneTo(this.renderShaderDatas[i]);
             }
-            if (!this.renderShaderData.coShaderData)
-                this.renderShaderData.coShaderData = [];
-            this.renderShaderData.coShaderData.push(...this.renderShaderDatas); //共享材质数据
+            if (!this.renderShaderData.skinShaderData)
+                this.renderShaderData.skinShaderData = [];
+            this.renderShaderData.skinShaderData.push(...this.renderShaderDatas); //共享材质数据
         }
     }
 
@@ -62,24 +61,24 @@ export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D implements 
      * @param shaderInstance 
      * @param command 
      * @param bundle 
-     * @param sn 
+     * @param index 
      */
-    protected _bindGroupEx(shaderInstance: WebGPUShaderInstance, command: WebGPURenderCommandEncoder, bundle: WebGPURenderBundle, sn: number) {
+    protected _bindGroupEx(shaderInstance: WebGPUShaderInstance, command: WebGPURenderCommandEncoder, bundle: WebGPURenderBundle, index: number) {
         const uniformSetMap = shaderInstance.uniformSetMap;
         this._sceneData?.bindGroup(0, 'scene3D', uniformSetMap[0], command, bundle);
         this._cameraData?.bindGroup(1, 'camera', uniformSetMap[1], command, bundle);
-        this.renderShaderDatas[sn]?.bindGroup(2, 'sprite3D', uniformSetMap[2], command, bundle);
+        this.renderShaderDatas[index]?.bindGroup(2, 'sprite3D', uniformSetMap[2], command, bundle);
         this.materialShaderData?.bindGroup(3, 'material', uniformSetMap[3], command, bundle);
     }
 
     /**
      * 上传uniform数据
-     * @param sn 
+     * @param index 
      */
-    protected _uploadUniformEx(sn: number) {
+    protected _uploadUniformEx(index: number) {
         this._sceneData?.uploadUniform();
         this._cameraData?.uploadUniform();
-        this.renderShaderDatas[sn]?.uploadUniform();
+        this.renderShaderDatas[index]?.uploadUniform();
         this.materialShaderData?.uploadUniform();
     }
 
@@ -87,19 +86,19 @@ export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D implements 
      * 上传几何数据
      * @param command 
      * @param bundle 
-     * @param sn 
+     * @param index 
      */
-    protected _uploadGeometryEx(command: WebGPURenderCommandEncoder, bundle: WebGPURenderBundle, sn: number) {
+    protected _uploadGeometryEx(command: WebGPURenderCommandEncoder, bundle: WebGPURenderBundle, index: number) {
         let triangles = 0;
         if (command) {
             if (WebGPUGlobal.useGlobalContext)
-                triangles += WebGPUContext.applyCommandGeometryPart(command, this.geometry, sn);
-            else triangles += command.applyGeometryPart(this.geometry, sn);
+                triangles += WebGPUContext.applyCommandGeometryPart(command, this.geometry, index);
+            else triangles += command.applyGeometryPart(this.geometry, index);
         }
         if (bundle) {
             if (WebGPUGlobal.useGlobalContext)
-                triangles += WebGPUContext.applyBundleGeometryPart(bundle, this.geometry, sn);
-            else triangles += bundle.applyGeometryPart(this.geometry, sn);
+                triangles += WebGPUContext.applyBundleGeometryPart(bundle, this.geometry, index);
+            else triangles += bundle.applyGeometryPart(this.geometry, index);
         }
         return triangles;
     }
@@ -118,23 +117,20 @@ export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D implements 
         }
         //如果command和bundle都是null，则只上传shaderData数据，不执行bindGroup操作
         if (this.isRender && this.skinnedData) {
-            let stateKey;
             for (let i = 0; i < this._passNum; i++) {
                 const index = this._passIndex[i];
-                const shaderInstance = this._shaderInstance[i];
+                let pipeline = this._pipeline[index];
+                const shaderInstance = this._shaderInstances[index];
                 if (shaderInstance && shaderInstance.complete) {
                     if (WebGPUGlobal.useCache) { //启用缓存机制
-                        let pipeline: GPURenderPipeline;
-                        stateKey = this._calcStateKey(shaderInstance, context.destRT, context);
-                        if (this._stateKey !== stateKey) {
-                            this._stateKey = stateKey;
-                            pipeline = this._pipeline = WebGPURenderElement3D._pipelineCacheMap.get(stateKey);
-                        } else pipeline = this._pipeline;
-                        if (!pipeline) {
-                            this._createPipeline(index, context, shaderInstance, command, bundle, stateKey); //新建渲染管线
-                            pipeline = this._pipeline;
+                        let stateKey = this._calcStateKey(shaderInstance, context.destRT, context);
+                        if (this._stateKey[index] !== stateKey || !pipeline) {
+                            this._stateKey[index] = stateKey;
+                            pipeline = this._pipeline[index] = shaderInstance.renderPipelineMap.get(stateKey);
                         }
-                        else { //缓存命中
+                        if (!pipeline) {
+                            pipeline = this._createPipeline(index, context, shaderInstance, command, bundle, stateKey); //新建渲染管线
+                        } else { //缓存命中
                             if (command) {
                                 if (WebGPUGlobal.useGlobalContext)
                                     WebGPUContext.setCommandPipeline(command, pipeline);
