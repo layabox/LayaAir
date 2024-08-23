@@ -150,15 +150,12 @@ export class Laya {
         steps.push(() => Promise.all(Laya._initCallbacks.map(func => func())));
 
         //afterInitCallbacks 是按顺序执行
-        //Laya._afterInitCallbacks.forEach(func => steps.push(() => func()));
-        steps.push(()=>{
-            let callResolve = Promise.resolve();
-            for (let funCall of  Laya._afterInitCallbacks){
-                callResolve =callResolve.then(funCall);
-            }
-            return callResolve;
-            }
-        );
+        steps.push(() => {
+            let p = Promise.resolve();
+            for (let func of Laya._afterInitCallbacks)
+                p = p.then(func);
+            return p;
+        });
 
         if (LayaEnv.afterInit)
             steps.push(() => LayaEnv.afterInit());
