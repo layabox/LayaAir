@@ -21,6 +21,7 @@ import { ShaderDefine } from "../RenderDriver/RenderModuleData/Design/ShaderDefi
 import { ShaderData, ShaderDataDefaultValue, ShaderDataItem, ShaderDataType } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { RenderState } from "../RenderDriver/RenderModuleData/Design/RenderState";
 import { IDefineDatas } from "../RenderDriver/RenderModuleData/Design/IDefineDatas";
+import { IRenderElement3D } from "../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
 
 
 /**
@@ -158,14 +159,44 @@ export class Material extends Resource implements IClone {
     }
     public set renderQueue(value: number) {
         this._renderQueue = value;
-        this.ownerELement && (this.ownerELement.material = this);//更新RenderElementRenderQueue
+        this._notifyOwnerElements();
     }
 
     /**
      * @en Owner element.
      * @zh 所属元素
      */
-    ownerELement: any;
+    ownerElements: Set<IRenderElement3D> = new Set();
+
+    /**
+     * @internal
+     * @param element 
+     */
+    _setOwnerElement(element: IRenderElement3D) {
+        this.ownerElements.add(element);
+        element.materialShaderData = this.shaderData;
+        element.materialRenderQueue = this.renderQueue;
+        element.subShader = this._shader.getSubShaderAt(0);
+        element.materialId = this.id;
+    }
+
+    /**
+     * @internal
+     * @param element 
+     */
+    _removeOwnerElement(element: IRenderElement3D) {
+        this.ownerElements.delete(element);
+    }
+
+    /**
+     * @internal
+     * 通知 owner element 材质数据发生改变
+     */
+    _notifyOwnerElements() {
+        this.ownerElements.forEach(element => {
+            this._setOwnerElement(element);
+        });
+    }
 
     /**
      * @en The shader data.
@@ -447,6 +478,7 @@ export class Material extends Resource implements IClone {
      */
     get stencilOp(): Vector3 {
         return this._shaderValues.getVector3(Shader3D.STENCIL_Op);
+        this.destroy()
     }
 
     set stencilOp(value: Vector3) {
@@ -618,6 +650,7 @@ export class Material extends Resource implements IClone {
         this._releaseUBOData();
         this._shaderValues.destroy();
         this._shaderValues = null;
+        this.ownerElements.clear();
     }
 
     /**
@@ -665,7 +698,7 @@ export class Material extends Resource implements IClone {
         let defaultValue = subShader._uniformDefaultValue;
         let typeMap = subShader._uniformTypeMap;
         this.applyUniformDefaultValue(typeMap, defaultValue);
-        this.ownerELement && (this.ownerELement.material = this);//更新RenderElementRenderQueue
+        this._notifyOwnerElements();
     }
 
     /**

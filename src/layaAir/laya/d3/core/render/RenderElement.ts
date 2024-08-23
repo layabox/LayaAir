@@ -51,13 +51,13 @@ export class RenderElement {
         return this._material;
     }
     set material(value: Material) {
+        if (this._material) {
+            this._material._removeOwnerElement(this._renderElementOBJ);
+        }
+
         if (value) {
             this._material = value;
-            this._renderElementOBJ.materialShaderData = value.shaderData;
-            this._renderElementOBJ.materialRenderQueue = value.renderQueue;
-            this._renderElementOBJ.subShader = this._subShader = value.shader.getSubShaderAt(0);
-            this._renderElementOBJ.materialId = value.id;
-            value.ownerELement = this;
+            this.material._setOwnerElement(this._renderElementOBJ);
         }
         else {
             this._material = null;
@@ -140,11 +140,10 @@ export class RenderElement {
      * @internal
      */
     destroy(): void {
-        this._renderElementOBJ = null;
+        this.material = null;
         this._renderElementOBJ = null;
         this._geometry = null;
         this._baseRender = null;
-        this._material = null
         this._baseRender = null;
         this._subShader = null;
     }
