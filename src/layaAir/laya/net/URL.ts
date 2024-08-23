@@ -26,7 +26,21 @@ export class URL {
     private _path: string;
 
     private static overrideFileExts: Record<string, string> = {};
-    private static hasExtOverrides: boolean;
+    private static hasExtOverrides: boolean = false;
+    private static usingSafeFileExts: boolean = false;
+
+    private static readonly safeFileExtConversionMap: Record<string, string> = {
+        "rendertexture": "rt.json",
+        "videotexture": "rt.json",
+        "controller": "controller.json",
+        "mc": "mc.bin",
+        "mcc": "mcc.json",
+        "shader": "shader.json",
+        "fui": "fui.json",
+        "glsl": "glsl.txt",
+        "skel": "skel.bin",
+        "lavm": "lavm.json",
+    };
 
     static __init__() {
         //xiaomi 没有location
@@ -39,16 +53,9 @@ export class URL {
         if (LayaEnv.isPreview)
             return;
 
-        URL.overrideExtension(["rendertexture", "videotexture"], "rt.json");
-        URL.overrideExtension(["controller"], "controller.json");
-        URL.overrideExtension(["mc"], "mc.bin");
-        URL.overrideExtension(["mcc"], "mcc.json");
-        URL.overrideExtension(["shader"], "shader.json");
-        URL.overrideExtension(["scene3d", "scene", "taa", "prefab"], "json");
-        URL.overrideExtension(["fui"], "fui.json");
-        URL.overrideExtension(["glsl"], "glsl.txt");
-        URL.overrideExtension(["skel"], "skel.bin");
-        URL.overrideExtension(["lavm"], "lavm.json");
+        Object.assign(this.overrideFileExts, this.safeFileExtConversionMap);
+        this.hasExtOverrides = true;
+        this.usingSafeFileExts = true;
     }
 
     /**创建一个新的 <code>URL</code> 实例。*/
@@ -235,10 +242,18 @@ export class URL {
 
     /**
      * 下载时，转换URL的扩展名。
-     * @originalExts 原始扩展名。例如["scene"]。
-     * @targetExt 要转换为的扩展名。例如"json"。
+     * @param originalExts 原始扩展名。例如["scene"]。
+     * @param targetExt 要转换为的扩展名。例如"json"。
      */
-    static overrideExtension(originalExts: Array<string>, targetExt: string) {
+    static overrideExtension(originalExts: Array<string>, targetExt: string, miniGameOnly?: boolean) {
+        if (miniGameOnly) {
+            if (!URL.usingSafeFileExts) {
+                for (let ext of originalExts)
+                    URL.safeFileExtConversionMap[ext] = targetExt;
+                return;
+            }
+        }
+
         for (let ext of originalExts)
             URL.overrideFileExts[ext] = targetExt;
         URL.hasExtOverrides = true;
