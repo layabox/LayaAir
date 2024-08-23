@@ -137,16 +137,20 @@ export class Laya {
 
         if (LayaEnv.beforeInit)
             steps.push(() => LayaEnv.beforeInit(stageConfig));
-        steps.push(() => Promise.all(Laya._beforeInitCallbacks.map(func => func(stageConfig))));
+
+        //beforeInitCallbacks 是按顺序执行
+        Laya._beforeInitCallbacks.forEach(func => steps.push(() => func(stageConfig)));
 
         steps.push(() => LayaGL.renderOBJCreate.createEngine(null, Browser.mainCanvas));
         steps.push(() => Laya.initRender2D(stageConfig));
         if (laya3D)
             steps.push(() => laya3D.__init__());
+
+        //initCallbacks 是并发执行
         steps.push(() => Promise.all(Laya._initCallbacks.map(func => func())));
 
-        //after init 是按顺序执行
-        steps.push(...Laya._afterInitCallbacks);
+        //afterInitCallbacks 是按顺序执行
+        Laya._afterInitCallbacks.forEach(func => steps.push(() => func()));
 
         if (LayaEnv.afterInit)
             steps.push(() => LayaEnv.afterInit());
@@ -267,6 +271,7 @@ export class Laya {
 
     /**
      * 新增初始化函数，引擎各个模块，例如物理，寻路等，如果有初始化逻辑可以在这里注册初始化函数。开发者一般不直接使用。
+     * 所有注册的回调是并行执行。
      * @param callback 模块的初始化函数
      */
     static addInitCallback(callback: () => void | Promise<void>) {
@@ -275,6 +280,7 @@ export class Laya {
 
     /**
      * 在引擎初始化前执行自定义逻辑。此时Stage尚未创建，因为可以修改stageConfig实现动态舞台配置。
+     * 所有注册的的回调是注册顺序依次执行。
      * @param callback 模块的初始化函数
      */
     static addBeforeInitCallback(callback: (stageConfig: IStageConfig) => void | Promise<void>): void {
@@ -282,7 +288,8 @@ export class Laya {
     }
 
     /**
-     * 在引擎初始化后执行自定义逻辑
+     * 在引擎初始化后执行自定义逻辑。
+     * 所有注册的的回调是注册顺序依次执行。
      * @param callback 模块的初始化函数
      */
     static addAfterInitCallback(callback: () => void | Promise<void>): void {
