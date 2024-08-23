@@ -1572,11 +1572,11 @@ export class Sprite extends Node {
      * @param offsetY 绘制的 Y 轴偏移量。
      * @returns HTMLCanvas 对象。
      */
-    static drawToCanvas(sprite: Sprite, canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number): HTMLCanvas {
+    static drawToCanvas(sprite: Sprite, canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, isDrawRenderRect: boolean = true): HTMLCanvas {
         if (arguments.length > 5) {
             throw 'drawToCanvas 接口参数不对'
         }
-        let rt = Sprite.drawToTexture(sprite, canvasWidth, canvasHeight, offsetX, offsetY) as RenderTexture2D;
+        let rt = Sprite.drawToTexture(sprite, canvasWidth, canvasHeight, offsetX, offsetY, null, isDrawRenderRect) as RenderTexture2D;
         var dt = rt.getData(0, 0, canvasWidth, canvasHeight) as Uint8Array;
         var imgdata = new ImageData(canvasWidth, canvasHeight);;	//创建空的imagedata。因为下面要翻转，所以不直接设置内容
         //翻转getData的结果。
@@ -1616,8 +1616,8 @@ export class Sprite extends Node {
      * @param rt 渲染目标。
      * @returns 绘制的 Texture 或 RenderTexture2D 对象。
      */
-    drawToTexture(canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt: RenderTexture2D | null = null): Texture | RenderTexture2D {
-        let res = Sprite.drawToTexture(this, canvasWidth, canvasHeight, offsetX, offsetY, rt);
+    drawToTexture(canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt: RenderTexture2D | null = null, isDrawRenderRect: boolean = true): Texture | RenderTexture2D {
+        let res = Sprite.drawToTexture(this, canvasWidth, canvasHeight, offsetX, offsetY, rt, isDrawRenderRect);
         return res;
     }
     /**
@@ -1639,7 +1639,7 @@ export class Sprite extends Node {
      * @param rt 渲染目标。如果未提供,将创建一个新的 RenderTexture2D。
      * @returns 绘制的 Texture 或 RenderTexture2D 对象。
      */
-    static drawToTexture(sprite: Sprite, canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt: RenderTexture2D | null = null): Texture | RenderTexture2D {
+    static drawToTexture(sprite: Sprite, canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt: RenderTexture2D | null = null, isDrawRenderRect: boolean = true): Texture | RenderTexture2D {
         let renderout = rt || new RenderTexture2D(canvasWidth, canvasHeight, RenderTargetFormat.R8G8B8A8);
         let ctx = new Context();
         if (rt) {
@@ -1649,7 +1649,7 @@ export class Sprite extends Node {
         }
         ctx.render2D = ctx.render2D.clone(renderout);
         ctx._drawingToTexture = true;
-        let outrt = RenderSprite.RenderToRenderTexture(sprite, ctx, offsetX, offsetY, renderout);
+        let outrt = RenderSprite.RenderToRenderTexture(sprite, ctx, offsetX, offsetY, renderout, isDrawRenderRect);
         ctx._drawingToTexture = false;
         ctx.destroy();
         return outrt;
