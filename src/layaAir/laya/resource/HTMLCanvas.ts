@@ -217,38 +217,9 @@ export class HTMLCanvas extends Resource {
      */
     toBase64(type: string, encoderOptions: number): string | null {
         if (this._source) {
-            if (LayaEnv.isConch) {
-                var win: any = window as any;
-                var width: number = this._ctx._targets.sourceWidth;
-                var height: number = this._ctx._targets.sourceHeight;
-                var data: any = this._ctx._targets.getData(0, 0, width, height);
-                return win.conchToBase64FlipY ? win.conchToBase64FlipY(type, encoderOptions, data.buffer, width, height) : win.conchToBase64(type, encoderOptions, data.buffer, width, height);
-            }
-            else {
-                return (this._source as HTMLCanvasElement).toDataURL(type, encoderOptions);
-            }
+            return (this._source as HTMLCanvasElement).toDataURL(type, encoderOptions);
         }
         return null;
-    }
-
-    /**
-     * @en Converts the native multi-threaded rendering result to an image in Base64 format.
-     * @param type The type of image, such as 'png' or 'jpeg'.
-     * @param encoderOptions Options for the image encoder, such as quality level.
-     * @param callBack A callback function that is called with the resulting Base64 string.
-     * @zh 将原生多线程渲染结果转换为Base64格式的图片。
-     * @param type 图片类型，比如 'png' 或 'jpeg'。
-     * @param encoderOptions 图像编码器的选项，比如质量等级。
-     * @param callBack 回调函数，用返回的Base64字符串调用。
-     */
-    toBase64Async(type: string, encoderOptions: number, callBack: Function): void {
-        var width: number = this._ctx._targets.sourceWidth;
-        var height: number = this._ctx._targets.sourceHeight;
-        this._ctx._targets.getDataAsync(0, 0, width, height, function (data: Uint8Array): void {
-            let win = window as any;
-            var base64 = win.conchToBase64FlipY ? win.conchToBase64FlipY(type, encoderOptions, data.buffer, width, height) : win.conchToBase64(type, encoderOptions, data.buffer, width, height);
-            callBack(base64);
-        });
     }
 }
 
