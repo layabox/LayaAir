@@ -94,7 +94,7 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
     }
     /**深度模板纹理 */
     depthStencilTexture: BaseTexture;
-
+    
     _renderTarget: InternalRenderTarget;
     /**是否是CameraTarget */
     _isCameraTarget: boolean;

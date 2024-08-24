@@ -186,14 +186,14 @@ export class UniformBufferManager {
      * @param bb 
      */
     freeBlock(bb: UniformBufferBlock) {
-        const sn = bb.cluster.sn;
-        const size = bb.size;
-        const clusters = this.clustersAll.get(roundUp(size, this.byteAlign));
-        if (clusters.length > sn) {
-            const ret = clusters[sn].freeBlock(bb);
-            if (clusters[sn].usedNum === 0)
-                this.removeCluster(size, sn);
-            return ret;
+        const cluster = bb.cluster;
+        if (cluster) {
+            if (cluster.freeBlock(bb)) {
+                if (cluster.usedNum === 0)
+                    this.removeCluster(cluster.blockSize, cluster.sn);
+                return true;
+            }
+            return false;
         }
         return false;
     }

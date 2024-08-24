@@ -1225,14 +1225,14 @@ export class GLTextureContext extends GLObject implements ITextureContext {
     }
 
     bindoutScreenTarget(): void {
-        if (this.currentActiveRT) {
+        if (this.currentActiveRT != WebGLEngine._lastFrameBuffer) {
             this.unbindRenderTarget(this.currentActiveRT);
         }
     }
 
     unbindRenderTarget(renderTarget: WebGLInternalRT): void {
         let gl = renderTarget._gl;
-        if (renderTarget._generateMipmap) {
+        if (renderTarget && renderTarget._generateMipmap) {
             renderTarget._textures.forEach(tex => {
                 let target = (<WebGLInternalTex>tex).target;
                 this._engine._bindTexture(target, tex.resource);
@@ -1240,8 +1240,8 @@ export class GLTextureContext extends GLObject implements ITextureContext {
                 this._engine._bindTexture(target, null);
             });
         }
-        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-        this.currentActiveRT = null;
+        gl.bindFramebuffer(gl.FRAMEBUFFER, WebGLEngine._lastFrameBuffer_WebGLOBJ);
+        this.currentActiveRT = WebGLEngine._lastFrameBuffer;
     }
 
     createRenderTextureCubeInternal(dimension: TextureDimension, size: number, format: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean): WebGLInternalTex {
@@ -1319,7 +1319,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
             renderTarget._depthbuffer = depthbuffer;
             gl.framebufferRenderbuffer(gl.FRAMEBUFFER, depthBufferParam.attachment, gl.RENDERBUFFER, depthbuffer);
         }
-        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, WebGLEngine._lastFrameBuffer_WebGLOBJ);
 
         return renderTarget;
     }
@@ -1347,7 +1347,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
             gl.framebufferRenderbuffer(gl.FRAMEBUFFER, depthBufferParam.attachment, gl.RENDERBUFFER, depthbuffer);
         }
 
-        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, WebGLEngine._lastFrameBuffer_WebGLOBJ);
 
         return renderTarget;
     }
@@ -1436,7 +1436,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         let framebuffer = renderTarget._framebuffer;
         gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
         gl.framebufferTexture2D(gl.FRAMEBUFFER, attachment, gl.TEXTURE_2D, texture.resource, 0);
-        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, WebGLEngine._lastFrameBuffer_WebGLOBJ);
 
         return texture;
     }
@@ -1524,7 +1524,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         gl.bindFramebuffer(gl.FRAMEBUFFER, internalTex._framebuffer);
         var canRead: boolean = (gl.checkFramebufferStatus(gl.FRAMEBUFFER) === gl.FRAMEBUFFER_COMPLETE);
         if (!canRead) {
-            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+            gl.bindFramebuffer(gl.FRAMEBUFFER, WebGLEngine._lastFrameBuffer_WebGLOBJ);
             return null;
         }
         let size = width * height;
@@ -1565,7 +1565,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
                 return null;
         }
         gl.readPixels(x, y, width, height, format, type, pixels);
-        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, WebGLEngine._lastFrameBuffer_WebGLOBJ);
         return pixels;
     }
 

@@ -83,7 +83,7 @@ export class WebGLRenderelement2D implements IRenderElement2D {
         if (!shader.complete)
             return
         shader.bind();
-        shader.uploadUniforms(shader._sprite2DUniformParamsMap, this.value2DShaderData, true);
+        this.value2DShaderData && shader.uploadUniforms(shader._sprite2DUniformParamsMap, this.value2DShaderData, true);
         context.sceneData && shader.uploadUniforms(shader._sceneUniformParamsMap, context.sceneData, true);
         this.materialShaderData && shader.uploadUniforms(shader._materialUniformParamsMap, this.materialShaderData, true);
         //blend

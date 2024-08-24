@@ -368,6 +368,32 @@ export class Label extends UIComponent {
     }
 
     /**
+     * @en Text decoration style of the text, specifically whether it is underlined.
+     * @zh 文本是否显示下划线。
+     * @copy laya.display.Text#underline
+     */
+    get strikethrough(): boolean {
+        return this._tf.strikethrough;
+    }
+
+    set strikethrough(value: boolean) {
+        this._tf.strikethrough = value;
+    }
+
+    /**
+     * @en Color of the text underline.
+     * @zh 文本下划线的颜色。
+     * @copy laya.display.Text#underlineColor
+     */
+    get strikethroughColor(): string {
+        return this._tf.strikethroughColor;
+    }
+
+    set strikethroughColor(value: string) {
+        this._tf.strikethroughColor = value;
+    }    
+
+    /**
      * @en Whether the text ignores language localization.
      * @zh 文本是否忽略语言本地化。
      * @copy laya.display.Text#ignoreLang

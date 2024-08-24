@@ -97,6 +97,14 @@ export class SingletonList<T> {
     }
 
     /**
+     * @internal
+     */
+    cloneTo(out: SingletonList<T>) {
+        out.length = this.length;
+        out.elements = this.elements.slice();
+    }
+
+    /**
      * @en Destroys the list by nullifying the elements array.
      * @zh 通过将元素数组置为 null 来销毁列表。
      */
@@ -114,6 +122,8 @@ export class FastSinglelist<T> extends SingletonList<T> {
         this._add(element);
         this.length++;
     }
+
+
 
 }
 

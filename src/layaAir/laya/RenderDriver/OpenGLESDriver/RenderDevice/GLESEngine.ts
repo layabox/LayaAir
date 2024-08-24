@@ -35,17 +35,14 @@ export class GLESEngine implements IRenderEngine {
   constructor(config: WebGLConfig, webglMode: GLESMode = GLESMode.Auto) {
     this._nativeObj = new (window as any).conchGLESEngine(config, webglMode);
   }
-    _remapZ: boolean = true;
-    _screenInvertY: boolean = false;
-    _lodTextureSample: boolean = true;
-    _breakTextureSample: boolean = true;
+  endFrame(): void {
 
-    getUBOPointer?(name: string): number {
-        throw new Error("Method not implemented.");
-    }
-    createBuffer?(targetType: BufferTargetType, bufferUsageType: BufferUsage): GLBuffer {
-        throw new Error("Method not implemented.");
-    }
+  }
+  _remapZ: boolean = true;
+  _screenInvertY: boolean = false;
+  _lodTextureSample: boolean = true;
+  _breakTextureSample: boolean = true;
+
   public get _enableStatistics(): boolean {
     return this._nativeObj.enableStatistics;
   }

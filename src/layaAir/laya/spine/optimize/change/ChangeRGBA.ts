@@ -4,6 +4,8 @@ import { IVBChange } from "../interface/IVBChange";
 export class ChangeRGBA implements IVBChange {
     slotId: number;
     sizeMap: Map<string, TAttamentPos>;
+    startFrame: number;
+    endFrame: number;
 
     constructor(slotId: number) {
         this.slotId = slotId;
@@ -30,7 +32,7 @@ export class ChangeRGBA implements IVBChange {
             let vbData = vb.vb;
             let attachment = attachmentPos.attachment;
             let r, g, b, a;
-            let attachmentColor = attachment.attachmentColor;
+            let attachmentColor = attachment.lightColor;
             if (!attachmentColor) {
                 r = color.r * color.a;
                 g = color.g * color.a;
@@ -43,6 +45,7 @@ export class ChangeRGBA implements IVBChange {
                 b = color.b * color.a * attachmentColor.b;
                 a = color.a * attachmentColor.a;
             }
+            
             let n = attachment.vertexCount;
             for (let i = 0; i < n; i++) {
                 vbData[offset + i * vertexSize + 2] = r;
@@ -55,6 +58,9 @@ export class ChangeRGBA implements IVBChange {
     }
 
     clone(): IVBChange {
-        return new ChangeRGBA(this.slotId);
+        let out = new ChangeRGBA(this.slotId);
+        out.startFrame = this.startFrame;
+        out.endFrame = this.endFrame;
+        return out
     }
 }

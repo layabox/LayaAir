@@ -8,7 +8,8 @@ export class AttachmentParse {
     slotId: number;
     attachment: string;
     color: TColor;
-    attachmentColor: TColor;
+    lightColor: TColor;
+    // darkColor: TColor;
     blendMode: number;
     vertexArray: Float32Array;
     indexArray: Array<number>;
@@ -18,7 +19,8 @@ export class AttachmentParse {
     textureName: string;
     isclip: boolean;
     sourceData: spine.Attachment;
-    vertexCount: number;
+    vertexCount: number = 0;
+    indexCount:number = 0;
 
     init(attachment: spine.Attachment, boneIndex: number, slotId: number, deform: number[], slot: spine.SlotData) {
         this.slotId = slotId;
@@ -29,6 +31,8 @@ export class AttachmentParse {
         this.blendMode = slot.blendMode;
         let color = this.color = new Color();
         let attchmentColor: spine.Color;
+        let darkColor:spine.Color = slot.darkColor;
+
         if (attachment instanceof window.spine.RegionAttachment) {
             attchmentColor = attachment.color;
             let region = attachment as spine.RegionAttachment;
@@ -118,12 +122,15 @@ export class AttachmentParse {
             //debugger;
             this.attachment = null;
         }
-        if (this.uvs) {
-            this.vertexCount = this.uvs.length / 2;
+
+        if (this.textureName) {
+            this.vertexCount = this.vertexArray.length / this.stride;
+            this.indexCount = this.indexArray.length;
         }
+
         if (attchmentColor) {
             if (attchmentColor.a != 1 || attchmentColor.r != 1 || attchmentColor.g != 1 && attchmentColor.b != 1) {
-                this.attachmentColor = attchmentColor;
+                this.lightColor = attchmentColor;
             }
             color.r = slotColor.r * attchmentColor.r;
             color.g = slotColor.g * attchmentColor.g;
@@ -134,6 +141,10 @@ export class AttachmentParse {
             color.g *= a;
             color.b *= a;
         }
+
+        // if (darkColor) {
+            
+        // }
         return true;
     }
 }

@@ -58,6 +58,14 @@ export class WebGLShaderInstance implements IShaderInstance {
      */
     constructor() {
     }
+    _serializeShader(): ArrayBuffer {
+        //TODO
+        return null
+    }
+    _deserialize(buffer: ArrayBuffer): boolean {
+        //TODO
+        return false;
+    }
 
     /**
      * get complete

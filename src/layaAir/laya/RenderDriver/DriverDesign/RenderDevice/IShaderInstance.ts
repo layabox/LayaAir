@@ -4,6 +4,8 @@ import { ShaderProcessInfo } from "../../../webgl/utils/ShaderCompileDefineBase"
 export interface IShaderInstance {
     _create(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderPass): void
     _disposeResource(): void;
+    _serializeShader(): ArrayBuffer;
+    _deserialize(buffer: ArrayBuffer):boolean;
 }
 
 

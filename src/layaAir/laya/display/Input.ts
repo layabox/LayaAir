@@ -10,67 +10,112 @@ import { SpriteUtils } from "../utils/SpriteUtils";
 import { SerializeUtil } from "../loaders/SerializeUtil";
 
 /**
- * 用户输入一个或多个文本字符时后调度。
+ * @en Dispatched when one or more text characters are input by the user.
+ * @zh 当用户输入一个或多个文本字符时后调度。
  * @eventType Event.INPUT
  * */
 /*[Event(name = "input", type = "laya.events.Event")]*/
 /**
- * 文本发生变化后调度。
+ * @en Dispatched after the text has changed.
+ * @zh 文本发生变化后调度。
  * @eventType Event.CHANGE
  * */
 /*[Event(name = "change", type = "laya.events.Event")]*/
 /**
- * 用户在输入框内敲回车键后，将会调度 <code>enter</code> 事件。
+ * @en Dispatched when the user presses the Enter key in the input field.
+ * @zh 用户在输入框内敲回车键后，将会调度 enter 事件。
  * @eventType Event.ENTER
  * */
 /*[Event(name = "enter", type = "laya.events.Event")]*/
 /**
- * 显示对象获得焦点后调度。
+ * @en Dispatched when the display object receives focus.
+ * @zh 显示对象获得焦点后调度。
  * @eventType Event.FOCUS
  * */
 /*[Event(name = "focus", type = "laya.events.Event")]*/
 /**
- * 显示对象失去焦点后调度。
+ * @en Dispatched when the display object loses focus.
+ * @zh 显示对象失去焦点后调度。
  * @eventType Event.BLUR
  * */
 /*[Event(name = "blur", type = "laya.events.Event")]*/
 
 /**
- * <p><code>Input</code> 类用于创建显示对象以显示和输入文本。</p>
- * <p>Input 类封装了原生的文本输入框，由于不同浏览器的差异，会导致此对象的默认文本的位置与用户点击输入时的文本的位置有少许的偏差。</p>
+ * @en The Input class is used to create display objects to display and input text.
+ * The Input class encapsulates the native text input box. Due to differences between browsers, there may be slight deviations between the position of the default text of this object and the position of the text when the user clicks to input.
+ * @zh Input 类用于创建显示对象以显示和输入文本。
+ * Input 类封装了原生的文本输入框，由于不同浏览器的差异，会导致此对象的默认文本的位置与用户点击输入时的文本的位置有少许的偏差。
  */
 export class Input extends Text {
-    /** 常规文本域。*/
+    /**
+     * @en Regular text field.
+     * @zh 常规文本域。
+     */
     static TYPE_TEXT: string = "text";
-    /** password 类型用于密码域输入。*/
+    /**
+     * @en Password type for password input fields.
+     * @zh password 类型用于密码域输入。
+     */
     static TYPE_PASSWORD: string = "password";
-    /** email 类型用于应该包含 e-mail 地址的输入域。*/
+    /**
+     * @en Email type for input fields that should contain an e-mail address.
+     * @zh email 类型用于应该包含 e-mail 地址的输入域。
+     */
     static TYPE_EMAIL: string = "email";
-    /** url 类型用于应该包含 URL 地址的输入域。*/
+    /**
+     * @en URL type for input fields that should contain a URL address.
+     * @zh url 类型用于应该包含 URL 地址的输入域。
+     */
     static TYPE_URL: string = "url";
-    /** number 类型用于应该包含数值的输入域。*/
+    /**
+     * @en Number type for input fields that should contain a numeric value.
+     * @zh number 类型用于应该包含数值的输入域。
+     */
     static TYPE_NUMBER: string = "number";
     /**
-     * <p>range 类型用于应该包含一定范围内数字值的输入域。</p>
-     * <p>range 类型显示为滑动条。</p>
-     * <p>您还能够设定对所接受的数字的限定。</p>
+     * @en Range type for input fields that should contain a numeric value within a certain range.
+     * The range type is displayed as a slider.
+     * You can also set limitations on the accepted numbers.
+     * @zh range 类型用于应该包含一定范围内数字值的输入域。
+     * range 类型显示为滑动条。
+     * 您还能够设定对所接受的数字的限定。
      */
     static TYPE_RANGE: string = "range";
-    /**  选取日、月、年。*/
+    /**
+     * @en Select day, month, and year.
+     * @zh 选取日、月、年。
+     */
     static TYPE_DATE: string = "date";
-    /** month - 选取月、年。*/
+    /**
+     * @en Select month and year.
+     * @zh month - 选取月、年。
+     */
     static TYPE_MONTH: string = "month";
-    /** week - 选取周和年。*/
+    /**
+     * @en Select week and year.
+     * @zh week - 选取周和年。
+     */
     static TYPE_WEEK: string = "week";
-    /** time - 选取时间（小时和分钟）。*/
+    /**
+     * @en Select time (hours and minutes).
+     * @zh time - 选取时间（小时和分钟）。
+     */
     static TYPE_TIME: string = "time";
-    /** datetime - 选取时间、日、月、年（UTC 时间）。*/
+    /**
+     * @en Select time, day, month, year (UTC time).
+     * @zh datetime - 选取时间、日、月、年（UTC 时间）。
+     */
     static TYPE_DATE_TIME: string = "datetime";
-    /** datetime-local - 选取时间、日、月、年（本地时间）。*/
+    /**
+     * @en Select time, day, month, year (local time).
+     * @zh datetime-local - 选取时间、日、月、年（本地时间）。
+     */
     static TYPE_DATE_TIME_LOCAL: string = "datetime-local";
     /**
-     * <p>search 类型用于搜索域，比如站点搜索或 Google 搜索。</p>
-     * <p>search 域显示为常规的文本域。</p>
+     * @en Search type for search fields, such as site search or Google search.
+     * The search field is displayed as a regular text field.
+     * @zh search 类型用于搜索域，比如站点搜索或 Google 搜索。
+     * search 域显示为常规的文本域。
      */
     static TYPE_SEARCH: string = "search";
 
@@ -96,12 +141,19 @@ export class Input extends Text {
 
     private _type: string = "text";
 
-    /**@private */
+    /**
+     * @private
+     * @en Indicates whether the application is running in an iframe on iOS.
+     * @zh 指示应用程序是否在iOS的iframe中运行。
+     */
     static IOS_IFRAME: boolean = false;
 
+    /**
+     * @en Indicates whether the application uses the new input method.
+     * @zh 指示应用程序是否使用新的输入方法。
+     */
     static isAppUseNewInput: boolean = false;
 
-    /**创建一个新的 <code>Input</code> 类实例。*/
     constructor() {
         super();
         Input.IOS_IFRAME = (ILaya.Browser.onIOS && ILaya.Browser.window.top != ILaya.Browser.window.self);
@@ -206,9 +258,12 @@ export class Input extends Text {
     }
 
     /**
-     * 设置光标位置和选取字符。
-     * @param	startIndex	光标起始位置。
-     * @param	endIndex	光标结束位置。
+     * @en Set the cursor position and select characters.
+     * @param startIndex The starting position of the cursor.
+     * @param endIndex The ending position of the cursor.
+     * @zh 设置光标位置和选取字符。
+     * @param startIndex 光标起始位置。
+     * @param endIndex 光标结束位置。
      */
     setSelection(startIndex: number, endIndex: number): void {
         this.focus = true;
@@ -216,7 +271,10 @@ export class Input extends Text {
         Input.inputElement.selectionEnd = endIndex;
     }
 
-    /**表示是否是多行输入框。*/
+    /**
+     * @en Whether it's a multi-line input box.
+     * @zh 是否是多行输入框。
+     */
     get multiline(): boolean {
         return this._multiline;
     }
@@ -228,7 +286,8 @@ export class Input extends Text {
     }
 
     /**
-     * 获取对输入框的引用实例。
+     * @en Reference instance to input box
+     * @zh 对输入框的引用实例。
      */
     get nativeInput(): HTMLInputElement | HTMLTextAreaElement {
         return this._multiline ? Input.area : Input.input;
@@ -262,20 +321,26 @@ export class Input extends Text {
         }
     }
 
-    /**选中当前实例的所有文本。*/
+    /**
+     * @en Selects all the text in the current instance.
+     * @zh 选中当前实例的所有文本。
+     */
     select(): void {
         this.nativeInput.select();
     }
 
     /**
-     * 表示焦点是否在此实例上。
+     * @en Whether the focus is on this instance.
+     * Note: On mobile platforms, the keyboard may not immediately pop up when calling the focus interface.
+     * On mobile platforms, focus is usually triggered by clicking on the canvas.
+     * @zh 焦点是否在此实例上。
+     * 注意：在移动平台上，调用 focus 接口可能无法立即弹出键盘。
+     * 移动平台上通常是点击画布才会触发焦点。
      */
     get focus(): boolean {
         return this._focus;
     }
 
-    // 移动平台最后单击画布才会调用focus
-    // 因此 调用focus接口是无法都在移动平台立刻弹出键盘的
     set focus(value: boolean) {
         var input = this.nativeInput;
 
@@ -423,8 +488,10 @@ export class Input extends Text {
     }
 
     /**
-     * 小游戏专用(解决键盘输入框内容和游戏输入框内容不同步的bug)
-     * @param value 
+     * @en Specifically for mini-games (resolves the issue of content inconsistency between keyboard input box and game input box).
+     * @param value The text value to be synchronized.
+     * @zh 小游戏专用（解决键盘输入框内容和游戏输入框内容不同步的问题）。
+     * @param value 需要同步的文本值。
      */
     miniGameTxt(value: string) {
         value += '';
@@ -433,9 +500,19 @@ export class Input extends Text {
         this.text = value;
     }
 
-    /**@inheritDoc 
+    /**
+     * @inheritDoc
      * @override
-    */
+     * @en The text content of the input field.
+     * @zh 输入框的文本内容。
+     */
+    get text(): string {
+        if (this._focus)
+            return this.nativeInput.value;
+        else
+            return super.text;
+    }
+
     set text(value: string) {
         if (value == null)
             value = "";
@@ -453,19 +530,13 @@ export class Input extends Text {
             super.text = value;
         }
     }
-    /**
-     * @override
-     */
-    get text(): string {
-        if (this._focus)
-            return this.nativeInput.value;
-        else
-            return super.text;
-    }
 
-    /**@inheritDoc 
+    /**
+     * @inheritDoc
      * @override
-    */
+     * @en Set the color of the input text.
+     * @zh 设置输入文本的颜色。
+     */
     set_color(value: string) {
         if (this._focus)
             (this.nativeInput as any).setColor(value);
@@ -473,20 +544,26 @@ export class Input extends Text {
         super.set_color(value);
     }
 
-    /**@inheritDoc 
+    /**
+     * @inheritDoc
      * @override
-    */
+     * @en The background color of the input text.
+     * @zh 输入文本的背景颜色。
+     */
+    get bgColor() {
+        return super.bgColor;
+    }
+
     set bgColor(value: string) {
         super.bgColor = value;
         if (LayaEnv.isConch && !Input.isAppUseNewInput)
             (this.nativeInput as any).setBgColor(value);
     }
 
-    get bgColor() {
-        return super.bgColor;
-    }
-
-    /**限制输入的字符。*/
+    /**
+     * @en The restriction on input characters.
+     * @zh 对输入字符的限制。
+     */
     get restrict(): string {
         return this._restrict;
     }
@@ -507,8 +584,13 @@ export class Input extends Text {
     }
 
     /**
-     * 是否可编辑。
+     * @en Whether the input text is editable.
+     * @zh 输入框文本是否可编辑。
      */
+    get editable(): boolean {
+        return this._editable;
+    }
+
     set editable(value: boolean) {
         this._editable = value;
         if (LayaEnv.isConch && !Input.isAppUseNewInput) {
@@ -516,13 +598,11 @@ export class Input extends Text {
         }
     }
 
-    get editable(): boolean {
-        return this._editable;
-    }
-
     /**
-     * <p>字符数量限制，默认为10000。</p>
-     * <p>设置字符数量限制时，小于等于0的值将会限制字符数量为10000。</p>
+     * @en The maximum number of characters allowed in the input field. Default is 10000.
+     * When setting the character limit, values less than or equal to 0 will set the limit to 10000.
+     * @zh 输入框允许的最大字符数量，默认为10000。
+     * 设置字符数量限制时，小于等于0的值将会限制字符数量为10000。
      */
     get maxChars(): number {
         return this._maxChars;
@@ -533,7 +613,8 @@ export class Input extends Text {
     }
 
     /**
-     * 设置输入提示符。
+     * @en The prompt text for the input field.
+     * @zh 输入框的提示文本。
      */
     get prompt(): string {
         return this._prompt;
@@ -548,7 +629,8 @@ export class Input extends Text {
     }
 
     /**
-     * 设置输入提示符颜色。
+     * @en Enter the prompt color.
+     * @zh 输入提示文本的颜色。
      */
     get promptColor(): string {
         return this._promptColor;
@@ -562,22 +644,36 @@ export class Input extends Text {
     }
 
     /**
-     * <p>输入框类型为Input静态常量之一。</p>
-     * <ul>
-     * <li>TYPE_TEXT</li>
-     * <li>TYPE_PASSWORD</li>
-     * <li>TYPE_EMAIL</li>
-     * <li>TYPE_URL</li>
-     * <li>TYPE_NUMBER</li>
-     * <li>TYPE_RANGE</li>
-     * <li>TYPE_DATE</li>
-     * <li>TYPE_MONTH</li>
-     * <li>TYPE_WEEK</li>
-     * <li>TYPE_TIME</li>
-     * <li>TYPE_DATE_TIME</li>
-     * <li>TYPE_DATE_TIME_LOCAL</li>
-     * </ul>
-     * <p>平台兼容性参见http://www.w3school.com.cn/html5/html_5_form_input_types.asp。</p>
+     * @en The input field type, which should be one of the Input static constants.
+     * Available types include:
+     * - TYPE_TEXT
+     * - TYPE_PASSWORD
+     * - TYPE_EMAIL
+     * - TYPE_URL
+     * - TYPE_NUMBER
+     * - TYPE_RANGE
+     * - TYPE_DATE
+     * - TYPE_MONTH
+     * - TYPE_WEEK
+     * - TYPE_TIME
+     * - TYPE_DATE_TIME
+     * - TYPE_DATE_TIME_LOCAL
+     * For platform compatibility, please refer to: http://www.w3school.com.cn/html5/html_5_form_input_types.asp
+     * @zh 输入框类型，应为 Input 静态常量之一。
+     * 常用类型包括：
+     * - TYPE_TEXT
+     * - TYPE_PASSWORD
+     * - TYPE_EMAIL
+     * - TYPE_URL
+     * - TYPE_NUMBER
+     * - TYPE_RANGE
+     * - TYPE_DATE
+     * - TYPE_MONTH
+     * - TYPE_WEEK
+     * - TYPE_TIME
+     * - TYPE_DATE_TIME
+     * - TYPE_DATE_TIME_LOCAL
+     * @zh 平台兼容性请参考：http://www.w3school.com.cn/html5/html_5_form_input_types.asp
      */
     get type(): string {
         return this._type;

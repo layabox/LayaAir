@@ -48,6 +48,7 @@ export class URL {
         URL.overrideExtension(["fui"], "fui.json");
         URL.overrideExtension(["glsl"], "glsl.txt");
         URL.overrideExtension(["skel"], "skel.bin");
+        URL.overrideExtension(["lavm"], "lavm.json");
     }
 
     /**创建一个新的 <code>URL</code> 实例。*/

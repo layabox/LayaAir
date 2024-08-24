@@ -131,9 +131,10 @@ export class RenderSprite {
 
         if (sprite._renderNode.addCMDCall)
             sprite._renderNode.addCMDCall(context, x, y);
+        
         context.drawLeftData();//强制渲染之前的遗留
         if (context._render2DManager._renderEnd) {
-            context._render2DManager._renderEnd = false;    
+            context._render2DManager._renderEnd = false;
             context._render2DManager.addRenderObject(sprite._renderNode);
         } else {
             context._render2DManager.addRenderObject(sprite._renderNode);
@@ -334,8 +335,10 @@ export class RenderSprite {
             */
             this._next._fun(sprite, ctx, -tRec.x, -tRec.y);
             ctx.endRender();
+            ctx.destroy();
             //临时，恢复
             //ctx.render2D.setRenderTarget(context.render2D.out);endRender实现了
+            ctx.destroy();
             _cacheStyle.renderTexture = rt;
             return true;    //重绘
         }
@@ -402,6 +405,8 @@ export class RenderSprite {
         ctx.endRender();
         //临时，恢复
         //context && ctx.render2D.setRenderTarget(context.render2D.out); endRender实现了
+        ctx.destroy();
+        ctx.destroy();
         return rt;
     }
     /**
@@ -499,8 +504,10 @@ export class RenderSprite {
                 [0, 1, 1, 1, 1, 0, 0, 0])
 
             ctx1.endRender();
+            ctx1.destroy();
             //临时，恢复
             //ctx1.render2D.setRenderTarget(ctx.render2D.out);endRender实现了
+            ctx1.destroy();
 
             cache.renderTexture = rt;
             cache.cacheRect.x = x1 - sprite.pivotX;   //x1是t空间的，要转回sprite空间，所以-pivot

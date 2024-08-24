@@ -56,6 +56,7 @@ export class VideoNode extends Sprite {
         if (this._videoTexture) {
             this._videoTexture._removeReference();
             this._videoTexture.off(Event.READY, this, this.onVideoMetaLoaded);
+            this._videoTexture.off(VideoTexture.videoEvent_update, this, this._repaintCachAs);
         }
 
         this._videoTexture = value;
@@ -68,6 +69,7 @@ export class VideoNode extends Sprite {
         else {
             this._internalTex.setTo(null);
         }
+        this._checkCachAs();
     }
 
     /**
@@ -85,7 +87,22 @@ export class VideoNode extends Sprite {
         }
         else if (this._videoTexture)
             this._videoTexture.source = value;
+        this._checkCachAs();
     }
+
+
+    private _checkCachAs() {
+        if (this.videoTexture != null)
+            this.videoTexture.on(VideoTexture.videoEvent_update, this, this._repaintCachAs);
+    }
+
+    private _repaintCachAs() {
+        if (this.cacheAs != "none" || (!!this._getCacheStyle().mask)) {
+            this.repaint();
+        }
+    }
+
+
 
     /**
      * 设置播放源。
@@ -391,5 +408,6 @@ export class VideoNode extends Sprite {
     destroy(detroyChildren: boolean = true): void {
         this.videoTexture = null;
         super.destroy(detroyChildren);
+        
     }
 }

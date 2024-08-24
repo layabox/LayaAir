@@ -1,6 +1,7 @@
 import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
 import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode";
+import { FastSinglelist } from "../../../utils/SingletonList";
 import { IRenderGeometryElement } from "../../DriverDesign/RenderDevice/IRenderGeometryElement";
 import { WebGPUBufferState } from "./WebGPUBufferState";
 import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
@@ -95,6 +96,22 @@ export class WebGPURenderGeometry implements IRenderGeometryElement {
         this._id = WebGPURenderGeometry._idCounter++;
 
         this.globalId = WebGPUGlobal.getId(this);
+    }
+    
+    getDrawDataParams(out: FastSinglelist<number>): void {
+        out.length = 0;
+        if (this.drawType == DrawType.DrawArray || this.drawType == DrawType.DrawArrayInstance) {
+            this._drawArrayInfo.forEach(element => {
+                out.add(element.start);
+                out.add(element.count);
+            });
+        } else {
+            this._drawElementInfo.forEach(element => {
+                out.add(element.elementStart);
+                out.add(element.elementCount);
+            });
+        }
+
     }
 
     setDrawArrayParams(first: number, count: number): void {

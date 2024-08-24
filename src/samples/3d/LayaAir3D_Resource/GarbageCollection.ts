@@ -1,6 +1,4 @@
 import { Laya } from "Laya";
-import { Laya3D } from "Laya3D";
-import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Stage } from "laya/display/Stage";
 import { Event } from "laya/events/Event";
@@ -9,9 +7,6 @@ import { Button } from "laya/ui/Button";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import Client from "../../Client";
-import { CameraMoveScript } from "../common/CameraMoveScript";
-import { Vector3 } from "laya/maths/Vector3";
-import { Color } from "laya/maths/Color";
 
 /**
  * ...
@@ -85,12 +80,6 @@ export class GarbageCollection {
 	loadScene(): void {
 		Scene3D.load("res/threeDimen/scene/ParticleScene/Scene.ls", Handler.create(this, function (sprite: Scene3D): void {
 			this._scene = <Scene3D>Laya.stage.addChild(sprite);
-			var camera: Camera = <Camera>this._scene.addChild(new Camera(0, 0.1, 100));
-			camera.transform.translate(new Vector3(2, 2.7, 3));
-			camera.transform.rotate(new Vector3(0, 43, 0), false, false);
-			camera.clearFlag = CameraClearFlags.SolidColor;
-			camera.clearColor = new Color(0, 0, 0, 1);
-			camera.addComponent(CameraMoveScript);
 		}));
 	}
 

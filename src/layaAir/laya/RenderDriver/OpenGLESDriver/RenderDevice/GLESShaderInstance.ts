@@ -18,6 +18,12 @@ export class GLESShaderInstance implements IShaderInstance {
 	constructor() {
 
 	}
+	_serializeShader(): ArrayBuffer {
+		throw new Error("Method not implemented.");
+	}
+	_deserialize(buffer: ArrayBuffer): boolean {
+		throw new Error("Method not implemented.");
+	}
 
 	_create(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderPass): void {
 		this._shaderPass = shaderPass;

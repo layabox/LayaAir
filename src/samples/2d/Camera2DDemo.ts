@@ -2,7 +2,6 @@ import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";
 import { Loader } from "laya/net/Loader";
-import { Texture } from "laya/resource/Texture";
 import { Browser } from "laya/utils/Browser";
 import { Main } from "./../Main";
 import { Scene } from "laya/display/Scene";
@@ -31,29 +30,26 @@ export class Camera2DDemo {
 
         var scene = new Scene();
         this.Main.box2D.addChild(scene);
-        // 方法1：使用loadImage
-        var ape: Sprite = new Sprite();
-        scene.addChild(ape);
-        ape.loadImage("res/2kk.png");
-        ape.x = -100;
-        ape.y = -100;
-        ape.width = 3000;
-        ape.height = 2000;
+        var bg: Sprite = new Sprite();
+        scene.addChild(bg);
+        bg.loadImage("res/guide/crazy_snowball.png");
+        bg.x = 0;
+        bg.y = 0;
+        bg.width = Laya.stage.width;
+        bg.height = Laya.stage.height;
 
-        // 方法2：使用drawTexture
         Laya.loader.load("res/apes/monkey2.png", Loader.IMAGE).then(() => {
-            var t: Texture = Laya.loader.getRes("res/apes/monkey2.png");
             var ape: Sprite = new Sprite();
-            ape.graphics.drawTexture(t, 0, 0);
-            scene.addChild(ape);
+            ape.loadImage("res/apes/monkey2.png");
             ape.pos(500, 500);
             let camera = new Camera2D();
             ape.addChild(camera);
-            //this.testDrag(camera);
-            //this.testLimit(camera)
+            // this.testDrag(camera);
+            // this.testLimit(camera)
             this.testSmooth(camera);
             camera.isMain = true;
             ape.addComponent(testMove);
+            scene.addChild(ape);
         });
     }
 

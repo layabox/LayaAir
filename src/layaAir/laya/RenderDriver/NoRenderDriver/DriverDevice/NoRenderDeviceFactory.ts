@@ -16,6 +16,7 @@ import { Vector3 } from "../../../maths/Vector3";
 import { Vector4 } from "../../../maths/Vector4";
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { Resource } from "../../../resource/Resource";
+import { FastSinglelist } from "../../../utils/SingletonList";
 import { ShaderProcessInfo, ShaderCompileDefineBase } from "../../../webgl/utils/ShaderCompileDefineBase";
 import { CommandUniformMap, UniformProperty } from "../../DriverDesign/RenderDevice/CommandUniformMap";
 import { IBufferState } from "../../DriverDesign/RenderDevice/IBufferState";
@@ -91,6 +92,12 @@ export class NoRenderCommandUnifojrmMap extends CommandUniformMap {
 }
 
 export class NoRenderShaderInstance implements IShaderInstance {
+    _serializeShader(): ArrayBuffer {
+        throw new Error("Method not implemented.");
+    }
+    _deserialize(buffer: ArrayBuffer): boolean {
+        throw new Error("Method not implemented.");
+    }
     _create(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderPass): void {
     }
     _disposeResource(): void {
@@ -135,6 +142,8 @@ export class NoRenderBufferState implements IBufferState {
 }
 
 export class NoRenderGeometryElement implements IRenderGeometryElement {
+    getDrawDataParams(out: FastSinglelist<number>): void {
+    }
     bufferState: IBufferState;
     mode: MeshTopology;
     drawType: DrawType;

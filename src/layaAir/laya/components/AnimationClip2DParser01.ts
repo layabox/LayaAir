@@ -5,11 +5,10 @@ import { Animation2DEvent } from "./Animation2DEvent";
 import { Byte } from "../utils/Byte";
 
 /**
- * <code>AnimationClip2DParse01</code>
- * AnimationClip资源解析
+ * @en Class for AnimationClip resource parsing
+ * @zh 用于AnimationClip资源解析
  */
 export class AnimationClip2DParse01 {
-    
     /**@internal */
     private static _clip: AnimationClip2D | null;
     /**@internal */
@@ -43,7 +42,7 @@ export class AnimationClip2DParse01 {
             blockLengths.push(this._reader!.getUint32());
         }
     }
-    
+
     /**
      * @internal
      */
@@ -60,9 +59,14 @@ export class AnimationClip2DParse01 {
 
     /**
      * @internal
-     * @param clip 
-     * @param reader 
-     * @param version 
+     * @en Parses the animation data from the specified reader and clip, based on the given version.
+     * @param clip The animation clip to be parsed into.
+     * @param reader The reader containing the binary data of the animation.
+     * @param version The version of the animation file format.
+     * @zh 根据指定的版本，从指定的读取器和剪辑解析动画数据.
+     * @param clip 要解析的动画剪辑.
+     * @param reader 包含动画二进制数据的读取器.
+     * @param version 动画文件格式的版本.
      */
     static parse(clip: AnimationClip2D, reader: Byte, version: string) {
         this._clip = clip;

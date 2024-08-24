@@ -7,51 +7,95 @@ import { ColorUtils } from '../../utils/ColorUtils';
 import { Pool } from "../../utils/Pool";
 
 /**
- * 绘制单个贴图
+ * @en Draw a single texture
+ * @zh 绘制单个贴图
  */
 export class DrawTextureCmd {
+    /**
+     * @en Identifier for the DrawTextureCmd
+     * @zh 绘制单个贴图命令的标识符
+     */
     static ID: string = "DrawTexture";
 
     /**
-     * 纹理。
+     * @en The texture to be drawn.
+     * @zh 要绘制的纹理。
      */
     texture: Texture | null;
     /**
-     * （可选）X轴偏移量。
+     * @en (Optional) X-axis offset.
+     * @zh （可选）X轴偏移量。
      */
     x: number;
     /**
-     * （可选）Y轴偏移量。
+     * @en (Optional) Y-axis offset.
+     * @zh （可选）Y轴偏移量。
      */
     y: number;
     /**
-     * （可选）宽度。
+     * @en (Optional) Width of the texture.
+     * @zh （可选）纹理的宽度。
      */
     width: number;
     /**
-     * （可选）高度。
+     * @en (Optional) Height of the texture.
+     * @zh （可选）纹理的高度。
      */
     height: number;
     /**
-     * （可选）矩阵信息。
+     * @en (Optional) Matrix information for transformation.
+     * @zh （可选）矩阵信息，用于变换。
      */
     matrix: Matrix | null;
     /**
-     * （可选）透明度。
+     * @en (Optional) Alpha value.
+     * @zh （可选）透明度。
      */
     alpha: number;
     /**
-     * （可选）颜色滤镜。
+     * @en (Optional) Color filter.
+     * @zh （可选）颜色滤镜。
      */
     color: number = 0xffffffff;
     /**
-     * （可选）混合模式。
+     * @en (Optional) Blend mode.
+     * @zh （可选）混合模式。
      */
     blendMode: string | null;
 
+    /**
+     * @en (Optional) UV coordinates.
+     * @zh （可选）UV坐标。
+     */
     uv: number[] | null = null;
 
-    /**@private */
+    /**
+     * @private
+     * @en Create a DrawTextureCmd instance
+     * @param texture The texture to be drawn
+     * @param x X-axis offset
+     * @param y Y-axis offset
+     * @param width Width of the texture
+     * @param height Height of the texture
+     * @param matrix Matrix information for transformation
+     * @param alpha Alpha value
+     * @param color Color filter
+     * @param blendMode Blend mode
+     * @param uv UV coordinates
+     * @returns DrawTextureCmd instance
+     * @zh 创建一个绘制单个贴图实例
+     * @param texture 要绘制的纹理
+     * @param x X轴偏移量
+     * @param y Y轴偏移量
+     * @param width 纹理的宽度
+     * @param height 纹理的高度
+     * @param matrix 矩阵信息，用于变换
+     * @param alpha 透明度
+     * @param color 颜色滤镜
+     * @param blendMode 混合模式
+     * @param uv UV坐标
+     * @returns DrawTextureCmd实例
+     */
     static create(texture: Texture, x: number, y: number, width: number, height: number, matrix: Matrix | null, alpha: number, color: string | null, blendMode: string | null, uv?: number[]): DrawTextureCmd {
         if (width == null) width = texture.sourceWidth;
         if (height == null) height = texture.sourceHeight;
@@ -80,7 +124,8 @@ export class DrawTextureCmd {
     }
 
     /**
-     * 回收到对象池
+     * @en Recycle to the object pool
+     * @zh 回收到对象池
      */
     recover(): void {
         this.texture && this.texture._removeReference();
@@ -89,12 +134,27 @@ export class DrawTextureCmd {
         Pool.recover("DrawTextureCmd", this);
     }
 
-    /**@private */
+    /**
+     * @private
+     * @en Execute the draw texture command.
+     * @param context The rendering context.
+     * @param gx Starting X coordinate.
+     * @param gy Starting Y coordinate.
+     * @zh 执行绘制纹理命令。
+     * @param context 渲染上下文。
+     * @param gx 起始 X 坐标。
+     * @param gy 起始 Y 坐标。
+     */
+
     run(context: Context, gx: number, gy: number): void {
         this.texture && context.drawTextureWithTransform(this.texture, this.x, this.y, this.width, this.height, this.matrix, gx, gy, this.alpha, this.blendMode, this.uv, this.color);
     }
 
-    /**@private */
+    /**
+     * @private
+     * @en The identifier for the DrawTextureCmd
+     * @zh 绘制单个贴图命令的标识符
+     */
     get cmdID(): string {
         return DrawTextureCmd.ID;
     }

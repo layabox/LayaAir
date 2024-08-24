@@ -251,7 +251,7 @@ export class LoadModelV05 {
 
         mesh._setBuffer(mesh._vertexBuffer, indexBuffer);
 
-        memorySize += indexBuffer.indexCount * 2;
+        memorySize += ibDatas.byteLength;
         mesh._setCPUMemory(memorySize);
         mesh._setGPUMemory(memorySize);
 
@@ -387,5 +387,4 @@ export class LoadModelV05 {
         LoadModelV05._mesh._height = LoadModelV05._readData.readUint16();
     }
 }
-
 

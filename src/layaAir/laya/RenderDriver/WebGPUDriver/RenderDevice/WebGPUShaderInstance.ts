@@ -32,6 +32,12 @@ export class WebGPUShaderInstance implements IShaderInstance {
         this.name = name;
         this.globalId = WebGPUGlobal.getId(this);
     }
+    _serializeShader(): ArrayBuffer {
+        throw new Error("Method not implemented.");
+    }
+    _deserialize(buffer: ArrayBuffer): boolean {
+        throw new Error("Method not implemented.");
+    }
 
     /**
      * 获取渲染管线描述

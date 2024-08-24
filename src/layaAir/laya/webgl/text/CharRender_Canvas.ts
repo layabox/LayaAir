@@ -185,8 +185,8 @@ export class CharRender_Canvas extends ICharRender {
 		var h: number = cri.height * this.lastScaleY;
 		w += (margin_left + margin_right) * this.lastScaleX;
 		h += ((margin_top + margin_bottom) * this.lastScaleY + 1);	// 这个+1只是为了让测试能通过。确实应该加点高度，否则会被裁掉一部分，但是加多少还没找到方法。
-		w = Math.min(w, this.maxTexW);
-		h = Math.min(h, this.maxTexH);
+		w = Math.min(Math.ceil(w), this.maxTexW);
+		h = Math.min(Math.ceil(h), this.maxTexH);
 
 		//if (canvas.width != (w + 1) || canvas.height != (h + 1)) {
 		CharRender_Canvas.canvas.width = Math.min(w + 1, this.maxTexW);

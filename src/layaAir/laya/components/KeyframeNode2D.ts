@@ -1,5 +1,9 @@
 import { Keyframe2D } from "./KeyFrame2D";
 
+/**
+ * @en 2D animation keyframe nodes.
+ * @zh 2D 动画关键帧节点的类。
+ */
 export class KeyframeNode2D {
     _ownerPath: string[] = [];
     _propertys: string[] = [];
@@ -11,8 +15,9 @@ export class KeyframeNode2D {
 
     _keyFrames: Keyframe2D[] = [];
     /**
-    * 帧个数。
-    */
+     * @en Number of frames
+     * @zh 帧个数。
+     */
     get keyFramesCount(): number {
         return this._keyFrames.length;
     }
@@ -40,35 +45,46 @@ export class KeyframeNode2D {
     }
 
     /**
-    * 通过索引获取帧。
-    * @param index 索引。
-    */
+     * @en Gets a keyframe by its index in the animation timeline.
+     * @param index The index of the keyframe to retrieve.
+     * @zh 通过索引获取动画时间线上的关键帧。
+     * @param index 要检索的关键帧的索引。
+     */
     getKeyframeByIndex(index: number): Keyframe2D {
         return this._keyFrames[index];
     }
+
     /**
-    * 精灵路径个数。
-    */
+     * @en The number of owner paths in the animation.
+     * @zh 动画中的精灵路径个数。
+     */
     get ownerPathCount(): number {
         return this._ownerPath.length;
     }
+
     /**
-     * 属性路径个数。
+     * @en The number of property paths in the animation.
+     * @zh 动画中的属性路径个数。
      */
     get propertyCount(): number {
         return this._propertys.length;
     }
 
     /**
-     * 通过索引获取精灵路径。
-     * @param index 索引。
+     * @en Gets an owner path by its index in the list of owner paths.
+     * @param index The index of the owner path to retrieve.
+     * @zh 通过索引获取精灵路径列表中的精灵路径。
+     * @param index 要检索的精灵路径的索引。
      */
     getOwnerPathByIndex(index: number): string {
         return this._ownerPath[index];
     }
+
     /**
-     * 通过索引获取属性路径。
-     * @param index 索引。
+     * @en Gets a property path by its index in the list of property paths.
+     * @param index The index of the property path to retrieve.
+     * @zh 通过索引获取属性路径列表中的属性路径。
+     * @param index 要检索的属性路径的索引。
      */
     getPropertyByIndex(index: number): string {
         return this._propertys[index];

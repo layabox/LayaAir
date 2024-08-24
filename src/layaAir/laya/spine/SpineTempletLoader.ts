@@ -39,7 +39,13 @@ class SpineTempletLoader implements IResourceLoader {
         //@ts-ignore
         let atlas = new spine.TextureAtlas(atlasText, (path: string) => {
             let url = basePath + path;
-            atlasPages.push({ url , type : Loader.TEXTURE2D });
+            atlasPages.push({ 
+                url ,
+                type : Loader.TEXTURE2D ,
+                propertyParams:{
+                    premultiplyAlpha:true
+                }
+            });
             return new SpineTexture(null);
         });
 
@@ -82,7 +88,13 @@ class SpineTempletLoader implements IResourceLoader {
         let atlas = new spine.TextureAtlas(atlasText);
         let basePath = URL.getPath(task.url);
         return Laya.loader.load(atlas.pages.map((page: spine.TextureAtlasPage) => {
-            return { url :basePath + page.name , type :Loader.TEXTURE2D}
+            return { 
+                url :basePath + page.name , 
+                type :Loader.TEXTURE2D,
+                propertyParams:{
+                    premultiplyAlpha:true
+                }
+            }
         }),
             null, task.progress?.createCallback()).then((res: Array<Texture2D>) => {
                 let textures:Record<string , Texture2D> = {}

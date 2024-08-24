@@ -4,36 +4,67 @@ import { ColorUtils } from "../../utils/ColorUtils";
 import { Pool } from "../../utils/Pool"
 
 /**
- * 绘制图片
+ * @en Draw image command
+ * @zh 绘制图片命令
  */
 export class DrawImageCmd implements IGraphicCMD {
+    /**
+     * @en Identifier for the DrawImageCmd
+     * @zh 绘制图片命令的标识符
+     */
     static ID: string = "DrawImage";
 
     /**
-     * 纹理。
+     * @en Texture to be drawn
+     * @zh 要绘制的纹理
      */
     texture: Texture | null;
     /**
-     * （可选）X轴偏移量。
+     * @en (Optional) X-axis offset
+     * @zh （可选）X轴偏移量
      */
     x: number;
     /**
-     * （可选）Y轴偏移量。
+     * @en (Optional) Y-axis offset
+     * @zh （可选）Y轴偏移量
      */
     y: number;
     /**
-     * （可选）宽度。
+     * @en (Optional) Width of the drawn image
+     * @zh （可选）绘制图片的宽度
      */
     width: number;
     /**
-     * （可选）高度。
+     * @en (Optional) Height of the drawn image
+     * @zh （可选）绘制图片的高度
      */
     height: number;
 
-    /** （可选）绘图颜色 */
+    /**
+     * @en (Optional) Drawing color
+     * @zh （可选）绘图颜色
+     */
     color: number = 0xffffffff;
 
-    /**@private */
+    /**
+     * @private
+     * @en Create a DrawImageCmd instance
+     * @param texture Texture to be drawn
+     * @param x X-axis offset
+     * @param y Y-axis offset
+     * @param width Width of the drawn image
+     * @param height Height of the drawn image
+     * @param color Drawing color
+     * @returns A DrawImageCmd instance
+     * @zh 创建一个绘制图片命令实例
+     * @param texture 要绘制的纹理
+     * @param x X轴偏移量
+     * @param y Y轴偏移量
+     * @param width 绘制图片的宽度
+     * @param height 绘制图片的高度
+     * @param color 绘图颜色
+     * @returns 绘制图片命令实例
+     */
     static create(texture: Texture, x: number, y: number, width: number, height: number, color: string): DrawImageCmd {
         if (width == null) width = texture.sourceWidth;
         if (height == null) height = texture.sourceHeight;
@@ -58,7 +89,8 @@ export class DrawImageCmd implements IGraphicCMD {
     }
 
     /**
-     * 回收到对象池
+     * @en Recycle the instance to the object pool
+     * @zh 将实例回收到对象池
      */
     recover(): void {
         this.texture && this.texture._removeReference();
@@ -66,14 +98,28 @@ export class DrawImageCmd implements IGraphicCMD {
         Pool.recover("DrawImageCmd", this);
     }
 
-    /**@private */
+    /**
+     * @private
+     * @en Execute the draw image command
+     * @param context The rendering context
+     * @param gx Global X offset
+     * @param gy Global Y offset
+     * @zh 执行绘制图片命令
+     * @param context 渲染上下文
+     * @param gx 全局X偏移
+     * @param gy 全局Y偏移
+     */
     run(context: Context, gx: number, gy: number): void {
         if (this.texture) {
             context.drawTexture(this.texture, this.x + gx, this.y + gy, this.width, this.height, this.color);
         }
     }
 
-    /**@private */
+    /**
+     * @private
+     * @en The identifier for the DrawImageCmd
+     * @zh 绘制图片命令的标识符
+     */
     get cmdID(): string {
         return DrawImageCmd.ID;
     }
