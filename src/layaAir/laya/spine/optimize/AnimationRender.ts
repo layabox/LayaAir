@@ -155,7 +155,8 @@ export class AnimationRender {
             else if (time instanceof (spine.ColorTimeline || spine.RGBATimeline ) || time instanceof spine.TwoColorTimeline) {
                 let rgba = time as spine.RGBATimeline;
                 let slotIndex = rgba.slotIndex;
-                if (frames.length == 5 && frames[0] == 0 && frames[4] == 0) {
+               
+                if (frames.length == 5 && frames[0] == 0 && frames[4] == 0) {//优化，当0帧 透明度0时。
                     let change = new ChangeSlot();
                     change.slotId = slotIndex;
                     change.attachment = null;
@@ -173,9 +174,12 @@ export class AnimationRender {
                     arr.push(change);
                 }
                 else {
+
                     let changeRGBA = new ChangeRGBA(slotIndex);
                     let startFrame = frames[0];
-                    let endFrame = frames[frames.length - 1];
+                    let num = frames.length / 5 | 0;
+                    let endFrame = frames[(num - 1 ) * 5];
+
                     changeRGBA.startFrame = startFrame;
                     changeRGBA.endFrame = endFrame;
 
