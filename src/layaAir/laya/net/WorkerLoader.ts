@@ -1,3 +1,4 @@
+import { PlayerConfig } from "../../Config";
 import { EventDispatcher } from "../events/EventDispatcher"
 
 /**
@@ -30,7 +31,7 @@ export class WorkerLoader {
                     return;
 
                 if (!WorkerLoader._worker) {
-                    WorkerLoader._worker = new Worker(WorkerLoader.workerPath);
+                    WorkerLoader._worker = new Worker(PlayerConfig.workerLoaderLib || WorkerLoader.workerPath);
                     WorkerLoader._worker.onmessage = WorkerLoader.workerMessage;
                     WorkerLoader._dispatcher = new EventDispatcher();
                 }
