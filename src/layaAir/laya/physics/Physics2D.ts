@@ -9,6 +9,7 @@ import { IPhysiscs2DFactory } from "./IPhysiscs2DFactory";
 import { SingletonList } from "../utils/SingletonList";
 import { RigidBody } from "./RigidBody";
 import { Laya } from "../../Laya";
+import { PlayerConfig } from "../../Config";
 
 /**
  * @en 2D Physics Engine
@@ -262,6 +263,9 @@ export class Physics2D extends EventDispatcher {
      */
     enable(): Promise<void> {
         if (this._factory) {
+            if (PlayerConfig.physics2D != null)
+                Object.assign(Physics2DOption, PlayerConfig.physics2D);
+
             return this._factory.initialize().then(() => {
                 this.start();
                 return Promise.resolve();

@@ -12,6 +12,10 @@ import { Vector3 } from "../maths/Vector3";
 import { NavMesh } from "./NavMesh";
 import { NavigationPathData } from "./NavigationPathData";
 
+/**
+ * @en NavigationUtils is a utility class for handling operations related to navigation meshes.
+ * @zh NavigationUtils 是一个导航工具类,主要用于处理与导航网格相关的操作。
+ */
 export class NavigationUtils {
     /**@internal */
     private static MAX_SMOOTH: number = 2048;
@@ -259,9 +263,14 @@ export class NavigationUtils {
     }
 
     /**
-     * create navMesh tile to Laya Mesh 
-     * @param navMesh 
-     * @param mesh
+     * @en Create navMesh tile to Laya Mesh.
+     * @param navMesh The navigation mesh to create the debug mesh from.
+     * @param mesh The mesh to update or create. If null, a new mesh will be created.
+     * @returns The created or updated mesh.
+     * @zh 创建导航网格为Laya的网格。
+     * @param navMesh 用于创建调试网格的导航网格。
+     * @param mesh 要更新或创建的网格。如果为 null，将创建一个新的网格。
+     * @returns 创建或更新后的网格。
      */
     static creageDebugMesh(navMesh: NavMesh, mesh: Mesh) {
         let m_navMesh = navMesh.navMesh;
@@ -326,64 +335,80 @@ export class NavigationUtils {
     }
 
     /**
-     * create NavMesh
-     * @return any
+     * @en Create a new NavMesh.
+     * @returns A new NavMesh object.
+     * @zh 创建一个新的 NavMesh。
+     * @returns 一个新的 NavMesh 对象。
      */
     static createNavMesh() {
         return new this._recast.dtNavMesh();
     }
 
     /**
-     * create NavMeshQuery
-     * @return any
+     * @en Create a new NavMeshQuery.
+     * @returns A new NavMeshQuery object.
+     * @zh 创建一个新的 NavMeshQuery。
+     * @returns 一个新的 NavMeshQuery 对象。
      */
     static createNavMeshQuery() {
         return new this._recast.dtNavMeshQuery();
     }
 
     /**
-     * create RefPointData
-     * @return any
+     * @en Create a new RefPointData.
+     * @returns A new RefPointData object.
+     * @zh 创建一个新的 RefPointData。
+     * @returns 一个新的 RefPointData 对象。
      */
     static createRefPointData(): any {
         return new this._recast.dtRefPointData();
     }
 
     /**
-    * create MeshOffLink
-    * @return any
-    */
+     * @en Create a new MeshOffLink.
+     * @returns A new MeshOffLink object.
+     * @zh 创建一个新的 MeshOffLink。
+     * @returns 一个新的 MeshOffLink 对象。
+     */
     static createMeshOffLink(): any {
         return new this._recast.dtOffMeshConnection()
     }
 
     /**
-    * create ConvexVolum
-    * @return any
-    */
+     * @en Create a new ConvexVolume.
+     * @returns A new ConvexVolume object.
+     * @zh 创建一个新的 ConvexVolume。
+     * @returns 一个新的 ConvexVolume 对象。
+     */
     static createConvexVolume(): any {
         return new this._recast.dtConvexVolume()
     }
 
     /**
-     * create QueryFilter
-     * @return any
+     * @en Create a new QueryFilter.
+     * @returns A new QueryFilter object.
+     * @zh 创建一个新的 QueryFilter。
+     * @returns 一个新的 QueryFilter 对象。
      */
     static createQueryFilter(): any {
         return new this._recast.dtQueryFilter();
     }
 
     /**
-     * create Crowd
-     * @return any
+     * @en Create a new Crowd.
+     * @returns A new Crowd object.
+     * @zh 创建一个新的 Crowd。
+     * @returns 一个新的 Crowd 对象。
      */
     static createCrowd(): any {
         return new this._recast.dtCrowd();
     }
 
     /**
-     * create NavTileData
-     * @internal
+     * @en Create a new NavTileData.
+     * @returns A new NavTileData object.
+     * @zh 创建一个新的 NavTileData。
+     * @returns 一个新的 NavTileData 对象。
      */
     static createdtNavTileData() {
         return new this._recast.dtNavTileData()
@@ -398,49 +423,71 @@ export class NavigationUtils {
     }
 
     /**
-    * get CrowdAgentParams  
-    * @return any
-    */
+     * @en Get CrowdAgentParams.
+     * @returns CrowdAgentParams object.
+     * @zh 获取 CrowdAgentParams。
+     * @returns CrowdAgentParams 对象。
+     */
     static getCrowdAgentParams(): any {
         return this._dtCrowdAgentParams;
     }
 
     /**
-     * free NavMeshQuery
+     * @en Free the NavMeshQuery object.
+     * @param data The NavMeshQuery object to free.
+     * @zh 释放 NavMeshQuery 对象。
+     * @param data 要释放的 NavMeshQuery 对象。
      */
     static freeNavMeshQuery(data: any) {
         this._recast.dtFreeNavMeshQuery(data);
     }
 
     /**
-     * free NavMesh
+     * @en Free the NavMesh object.
+     * @param data The NavMesh object to free.
+     * @zh 释放 NavMesh 对象。
+     * @param data 要释放的 NavMesh 对象。
      */
     static freeNavMesh(data: any) {
         this._recast.dtFreeNavMesh(data);
     }
 
     /**
-     * free Crowd
+     * @en Free the Crowd object.
+     * @param data The Crowd object to free.
+     * @zh 释放 Crowd 对象。
+     * @param data 要释放的 Crowd 对象。
      */
     static freeCrowd(data: any) {
         this._recast.dtFreeCrowd(data);
     }
 
     /**
-     * free any other
+     * @en Free any other object.
+     * @param data The object to free.
+     * @zh 释放任何其他对象。
+     * @param data 要释放的对象。
      */
     static free(data: any) {
         this._recast.dtFree(data);
     }
 
     /**
-    * free any layaData
-    */
+     * @en Free any Laya data object.
+     * @param data The Laya data object to free.
+     * @zh 释放任何 Laya 数据对象。
+     * @param data 要释放的 Laya 数据对象。
+     */
     static freeLayaData(data: any) {
         this._recast._free(data);
     }
     /**
-     * check Status is Succeed
+     * @en Check if the status is successful.
+     * @param status The status to check.
+     * @returns True if the status is successful, false otherwise.
+     * @zh 检查状态是否成功。
+     * @param status 要检查的状态。
+     * @returns 如果状态成功则返回 true，否则返回 false。
      */
     static statusSucceed(data: any): boolean {
         return this._recast.dtStatusSucceed(status)

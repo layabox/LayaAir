@@ -18,9 +18,6 @@ import { WebDefineDatas } from "./WebDefineDatas";
  * 着色器数据类。
  */
 export class WebGLShaderData extends ShaderData {
-	/**@internal 反向找Material*/
-	protected _ownerResource: Resource = null;
-
 	/**@internal */
 	protected _gammaColorMap: Map<number, Color>;
 	/**@internal */

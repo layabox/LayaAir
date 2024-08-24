@@ -10,9 +10,21 @@ import { XMLUtils } from "./XMLUtils";
 const s_list1 = new Array<string>();
 const s_list2 = new Array<string>();
 
+/**
+ * @en The `HtmlParser` class is responsible for parsing HTML content and converting it into a series of HTML elements with styles.
+ * @zh `HtmlParser` 类负责解析 HTML 内容，将其转换为一系列具有样式的 HTML 元素。
+ */
 export class HtmlParser {
+    /**
+     * @en The default instance of the HtmlParser class.
+     * @zh HtmlParser 类的默认实例。
+     */
     static defaultParser: HtmlParser = new HtmlParser();
 
+    /**
+     * @en A mapping of HTML element types to their corresponding classes.
+     * @zh 将 HTML 元素类型映射到它们对应的类。
+     */
     static classMap: Record<number, new () => IHtmlObject> = {
         [HtmlElementType.Image]: HtmlImage,
         [HtmlElementType.Link]: HtmlLink
@@ -24,12 +36,25 @@ export class HtmlParser {
     protected _elements: Array<HtmlElement>;
     protected _options: HtmlParseOptions;
 
+    /** @ignore */
     public constructor() {
         this._styleStack = new Array<TextStyle>();
         this._style = new TextStyle();
         this._options = new HtmlParseOptions();
     }
 
+    /**
+     * @en Parses the given HTML source and populates the output array with HTML elements.
+     * @param aSource The HTML source to parse.
+     * @param style The default text style to apply.
+     * @param out The array to populate with parsed HTML elements.
+     * @param options The options for parsing the HTML.
+     * @zh 解析给定的 HTML 源代码，并将输出数组填充为 HTML 元素。
+     * @param aSource 要解析的 HTML 源代码。
+     * @param style 要应用的默认文本样式。
+     * @param out 要填充解析后的 HTML 元素的数组。
+     * @param options 解析 HTML 的选项。
+     */
     public parse(aSource: string, style: TextStyle, out: Array<HtmlElement>, options?: HtmlParseOptions): void {
         if (options == null)
             options = this._options;
@@ -313,6 +338,16 @@ export class HtmlParser {
     }
 }
 
+/**
+ * @en Compares two `TextStyle` objects to determine if they have the same style properties, ignoring private properties.
+ * @param s1 The first text style object to compare.
+ * @param s2 The second text style object to compare.
+ * @returns `true` if the style properties of both objects are the same, otherwise `false`.
+ * @zh 比较两个 `TextStyle` 对象，确定它们是否具有相同的样式属性，忽略私有属性。
+ * @param s1 要比较的第一个文本样式对象。
+ * @param s2 要比较的第二个文本样式对象。
+ * @returns 如果两个对象的样式属性相同，则返回 `true`，否则返回 `false`。
+ */
 function equalStyle(s1: TextStyle, s2: TextStyle) {
     for (let k in s1) {
         if (!k.startsWith("_") && (<any>s1)[k] != (<any>s2)[k])

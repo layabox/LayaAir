@@ -18,20 +18,30 @@ import { NavMeshLink } from "./NavMeshLink";
 
 
 /**
-* 数据分块算法
-*/
+ * @en Data partitioning algorithm
+ * @zh 数据分块算法
+ */
 export enum PartitionType {
     PARTITION_WATERSHED,
     PARTITION_MONOTONE,
     PARTITION_LAYERS
 };
 
+/**
+ * @en NavMeshSurface is a component used to generate navigation mesh.
+ * @zh NavMeshSurface 是一个用于生成导航网格的组件。
+ */
 export class NavMeshSurface extends Component {
 
     /**
-     * find all 
-     * @param surfaces 
-     * @param sprite 
+     * @en Find all NavMeshSurface components that match the given agent flags in the sprite hierarchy.
+     * @param surfaces An array to store the found NavMeshSurface components.
+     * @param sprite The starting Sprite3D to search from.
+     * @param agentFlags An array of agent types to filter the NavMeshSurface components.
+     * @zh 在精灵层级中查找所有匹配给定代理标志的 NavMeshSurface 组件。
+     * @param surfaces 用于存储找到的 NavMeshSurface 组件的数组。
+     * @param sprite 开始搜索的 Sprite3D 对象。
+     * @param agentFlags 用于过滤 NavMeshSurface 组件的代理类型数组。
      */
     static findNavMeshSurface(surfaces: Array<NavMeshSurface>, sprite: Sprite3D, agentFlags: string[]) {
         let array = sprite.getComponents(NavMeshSurface) as NavMeshSurface[];
@@ -56,7 +66,7 @@ export class NavMeshSurface extends Component {
     /**@internal */
     private _partitionType: PartitionType;
 
-    /**@intenral */
+    /**@internal */
     private _navMesh: NavMesh;
 
     /**@internal */
@@ -78,7 +88,8 @@ export class NavMeshSurface extends Component {
     private _needAsyn: boolean = false;
 
     /**
-     * agent 类型
+     * @en Agent type
+     * @zh 代理类型
      */
     set agentType(value: string) {
         this._agentType = value;
@@ -89,7 +100,8 @@ export class NavMeshSurface extends Component {
     }
 
     /**
-     * area 类型
+     * @en Area type
+     * @zh 区域类型
      */
     set areaFlag(value: string) {
         this._areaFlags = value;
@@ -100,7 +112,8 @@ export class NavMeshSurface extends Component {
     }
 
     /**
-     * 是否需要异步处理
+     * @en Whether asynchronous processing is needed
+     * @zh 是否需要异步处理
      */
     set asyn(value: boolean) {
         this._needAsyn = value;
@@ -111,8 +124,9 @@ export class NavMeshSurface extends Component {
     }
 
     /**
-    * 设置产生navMesh的方法
-    */
+     * @en Set the method for generating navMesh
+     * @zh 设置生成导航网格的方法
+     */
     set partitionType(value: PartitionType) {
         this._partitionType = value;
     }
@@ -133,6 +147,10 @@ export class NavMeshSurface extends Component {
         return this._boundBox;
     }
 
+    /**
+     * @en Set navigation data
+     * @zh 设置导航数据
+     */
     set datas(value: TextResource) {
         this._featureCache.clear();
         if (value) {
@@ -157,13 +175,18 @@ export class NavMeshSurface extends Component {
         return this._oriTiles._res;
     }
 
+    /**
+     * @en The navigation mesh
+     * @zh 导航网格
+     */
     get navMesh(): NavMesh {
         return this._navMesh;
     }
 
 
     /**
-     * <code>实例化一个寻路功能<code>
+     * @en Instantiate a pathfinding functionality
+     * @zh 实例化一个寻路功能
      */
     constructor() {
         super();
@@ -349,6 +372,10 @@ export class NavMeshSurface extends Component {
     }
 
 
+    /**
+     * @en Clean all navigation tiles
+     * @zh 清除所有导航网格块
+     */
     cleanAllTile() {
         //clear cache TODO
         for (var i = 0, n = this._oriTiles.length; i < n; i++) {
@@ -357,6 +384,12 @@ export class NavMeshSurface extends Component {
         }
     }
 
+    /**
+     * @en Rebuild a specific tile at the given position
+     * @param pos The position vector to determine which tile to rebuild
+     * @zh 重建指定位置的导航网格块
+     * @param pos 用于确定要重建哪个网格块的位置向量
+     */
     rebuildTile(pos: Vector3) {
         let index = this._navMesh.navTileGrid.getTileIndexByPos(pos.x, pos.z)
         this._buildTileList.add(index);
