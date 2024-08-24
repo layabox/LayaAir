@@ -17,6 +17,10 @@ import { TitleConfig } from "./TitleConfig";
 
 const CROW_MAX_FILTER: number = 16;
 
+/**
+ * @en NavMesh class is used to create and manage navigation meshes.
+ * @zh NavMesh 类用于创建和管理导航网格。
+ */
 export class NavMesh {
     /**@internal ori navMesh*/
     private _navMesh: any;
@@ -114,7 +118,15 @@ export class NavMesh {
 
 
     /**
-     * <code>实例化一个NavMesh组件<code>
+     * @ignore
+     * @en Instantiate a NavMesh component.
+     * @param config The Recast configuration for the NavMesh.
+     * @param bound The bounds of the NavMesh.
+     * @param manager The NavigationManager instance.
+     * @zh 实例化一个 NavMesh 组件。
+     * @param config NavMesh 的 Recast 配置。
+     * @param bound NavMesh 的边界。
+     * @param manager NavigationManager 实例。
      */
     constructor(config: RecastConfig, bound: Bounds, manager: NavigationManager) {
         this._manager = manager;
@@ -219,8 +231,10 @@ export class NavMesh {
 
 
     /**
-     * add Agent
-     * @param agent 
+     * @en Add an agent to the NavMesh.
+     * @param agent The NavAgent to be added.
+     * @zh 向 NavMesh 添加一个代理。
+     * @param agent 要添加的 NavAgent。
      */
     addAgent(agent: NavAgent) {
         let pos = (<Sprite3D>agent.owner).transform.position;
@@ -236,8 +250,10 @@ export class NavMesh {
     }
 
     /**
-     * remove agent
-     * @param agent 
+     * @en Remove an agent from the NavMesh.
+     * @param agent The NavAgent to be removed.
+     * @zh 从 NavMesh 中移除一个代理。
+     * @param agent 要移除的 NavAgent。
      */
     removeAgent(agent: NavAgent) {
         this._crowd.removeAgent(agent._agentId);
@@ -246,10 +262,12 @@ export class NavMesh {
     }
 
     /**
-     * rayCast navMesh
-     * @param ray 
-     * @param outPos 
-     * @returns 
+     * @en Perform a raycast on the NavMesh.
+     * @param ray The ray to cast.
+     * @param outPos The output vector to store the hit position.
+     * @zh 在 NavMesh 上执行射线投射。
+     * @param ray 要投射的射线。
+     * @param outPos 用于存储命中位置的输出向量。
      */
     raycastNavMesh(ray: Ray, outPos: Vector3): boolean {
         return false;
@@ -321,10 +339,14 @@ export class NavMesh {
     }
 
     /**
-     * 获得当前点的Flag
-     * @param pos 世界坐标
-     * @param fiter 
-     * @return area
+     * @en Get the flag of the polygon at the specified position.
+     * @param pos World coordinates.
+     * @param fiter Optional filter for the query.
+     * @returns The flag of the polygon.
+     * @zh 获取指定位置多边形的标志。
+     * @param pos 世界坐标。
+     * @param fiter 可选的查询过滤器。
+     * @returns 多边形的标志。
      */
     getPolyFlags(pos: Vector3, fiter: any = null): number {
         const posRef = this.findNearestPoly(pos, fiter);
@@ -332,10 +354,14 @@ export class NavMesh {
     }
 
     /**
-     * 获得当前点的AreaFlag
-     * @param pos 世界坐标
-     * @param fiter 
-     * @return area
+     * @en Get the area flag of the polygon at the specified position.
+     * @param pos World coordinates.
+     * @param fiter Optional filter for the query.
+     * @returns The area flag of the polygon.
+     * @zh 获取指定位置多边形的区域标志。
+     * @param pos 世界坐标。
+     * @param fiter 可选的查询过滤器。
+     * @returns 多边形的区域标志。
      */
     getPolyArea(pos: Vector3, fiter: any = null): number {
         const posRef = this.findNearestPoly(pos, fiter);
@@ -343,9 +369,14 @@ export class NavMesh {
     }
 
     /**
-     * 查找最近点
-     * @param pos 世界坐标
-     * @param fiter 
+     * @en Find the nearest polygon to the specified position.
+     * @param pos World coordinates.
+     * @param fiter Optional filter for the query.
+     * @returns Information about the nearest polygon.
+     * @zh 查找指定位置最近的多边形。
+     * @param pos 世界坐标。
+     * @param fiter 可选的查询过滤器。
+     * @returns 最近多边形的信息。
      */
     findNearestPoly(pos: Vector3, fiter: any = null): any {
         if (!fiter) fiter = this._defatfilter;
@@ -353,9 +384,14 @@ export class NavMesh {
     }
 
     /**
-     * @param agent 
-     * @param fllowPaths 
-     * @returns 
+     * @en Find a follow path for the specified agent.
+     * @param agent The navigation agent.
+     * @param fllowPaths Array to store the resulting path data.
+     * @returns Whether the path was successfully found.
+     * @zh 为指定的代理查找跟随路径。
+     * @param agent 导航代理。
+     * @param fllowPaths 用于存储结果路径数据的数组。
+     * @returns 是否成功找到路径。
      */
     findFllowPath(agent: NavAgent, fllowPaths: NavigationPathData[]): boolean {
         let pos = (<Sprite3D>agent.owner).transform.position;
@@ -368,9 +404,12 @@ export class NavMesh {
         }
     }
     /**
-     * @param agent 
-     * @param fllowPaths 
-     * @returns {dist:number,pos:Array<number>(3),normal:Array<number>(3)}
+     * @en Find the distance to the nearest wall for the specified agent.
+     * @param agent The navigation agent.
+     * @returns An object containing the distance, position, and normal of the nearest wall, or null if not found.
+     * @zh 查找指定代理到最近墙壁的距离。
+     * @param agent 导航代理。
+     * @returns 包含最近墙壁的距离、位置和法线的对象，如果未找到则返回 null。
      */
     findDistanceToWall(agent: NavAgent): { dist: number, pos: Array<number>, normal: Array<number> } {
         let filter = agent._filter;
@@ -384,8 +423,14 @@ export class NavMesh {
     }
 
     /**
-     * @param agent 
-     * @returns 
+     * @en Request a move target for the specified agent.
+     * @param agent The navigation agent.
+     * @param destination The target destination.
+     * @returns Whether the move target request was successful.
+     * @zh 为指定的代理请求移动目标。
+     * @param agent 导航代理。
+     * @param destination 目标位置。
+     * @returns 移动目标请求是否成功。
      */
     requestMoveTarget(agent: NavAgent, destination: Vector3): boolean {
         let pos = (<Sprite3D>agent.owner).transform.position;
@@ -443,9 +488,11 @@ export class NavMesh {
     }
 
     /**
-    * get Mesh
-    * 
-    */
+     * @en Build and get the debug mesh for the NavMesh.
+     * @returns The created debug mesh.
+     * @zh 构建并获取 NavMesh 的调试网格。
+     * @returns 创建的调试网格。
+     */
     buildDebugMesh() {
         this._debugMesh = NavigationUtils.creageDebugMesh(this, null);
         return this._debugMesh;

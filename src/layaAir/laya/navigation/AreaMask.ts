@@ -1,5 +1,9 @@
 import { NavAreaFlag } from "./NavigationManager";
 
+/**
+ * @en Indicate the navigation area types that the agent can pass through.
+ * @zh 表示代理可以通过的导航区域类型。
+ */
 export class AreaMask {
     /**@internal */
     private _flags: number;
@@ -9,15 +13,17 @@ export class AreaMask {
     private _areaFlagMap: Map<string, NavAreaFlag>;
 
     /**
-     * excludeflag
+     * @en The exclude flag.
+     * @zh 排除标志。
      */
     get excludeflag(): number {
         return this._excludeflag;
     }
 
     /**
-    * flag
-    */
+     * @en The current flag.
+     * @zh 获取当前标志。
+     */
     get flag(): number {
         return this._flags;
     }
@@ -26,6 +32,10 @@ export class AreaMask {
         this._flags = value;
         this._calculFlagVale();
     }
+    /**
+     * @en Creates a new instance of AreaMask.
+     * @zh 创建 AreaMask 的新实例。
+     */
     constructor() {
         this._flags = 7;
     }

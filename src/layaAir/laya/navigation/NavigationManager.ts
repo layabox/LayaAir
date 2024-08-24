@@ -12,16 +12,40 @@ import { NavMeshObstacles } from "./Component/NavMeshObstacles";
 import { NavigationUtils } from "./NavigationUtils";
 import { RecastConfig } from "./RecastConfig";
 
+/**
+ * @en Represents a navigation area flag.
+ * @zh 表示导航区域标志。
+ */
 export class NavAreaFlag {
+    /**
+     * @en The index of the navigation area flag.
+     * @zh 导航区域标志的索引。
+     */
     index: number;
+    /**
+     * @en The cost associated with the navigation area flag.
+     * @zh 与导航区域标志相关的代价。
+     */
     cost: number;
+    /**
+     * @en The name of the navigation area flag.
+     * @zh 导航区域标志的名称。
+     */
     name: string;
 
+    /**
+     * @en Get the flag value based on the index.
+     * @zh 根据索引获取标志值。
+     */
     get flag(): number {
         return 1 << this.index;
     }
 }
 
+/**
+ * @en NavigationManager is a navigation manager responsible for managing navigation meshes.
+ * @zh NavigationManager 是一个导航管理器，负责管理导航网格。
+ */
 export class NavigationManager implements IElementComponentManager {
 
     /**@internal  */
@@ -66,7 +90,8 @@ export class NavigationManager implements IElementComponentManager {
     _deflatAllMask: AreaMask;
 
     /**
-     * <code>实例化一个Navigation管理器<code>
+     * @en Instantiates a Navigation manager.
+     * @zh 实例化一个 Navigation 管理器。
      */
     constructor() {
         this.name = NavigationManager.managerName;
@@ -186,53 +211,68 @@ export class NavigationManager implements IElementComponentManager {
     }
 
     /**
-     * 注册导航网格的 agent 类型
+     * @en Registers a navigation mesh agent type configuration.
+     * @param config The RecastConfig object containing the agent configuration.
+     * @zh 注册导航网格的 agent 类型配置。
+     * @param config RecastConfig 对象，包含 agent 的配置。
      */
     regNavConfig(config: RecastConfig) {
         this._navConfigMap.set(config.agentName, config);
     }
 
     /**
-     * 或者导航网格的agent 配置
-     * @param type 
-     * @returns 
+     * @en Gets the navigation mesh agent configuration for a specific type.
+     * @param type The agent type name.
+     * @returns The RecastConfig for the specified agent type, or undefined if not found.
+     * @zh 获取指定类型的导航网格 agent 配置。
+     * @param type agent 类型名称。
+     * @returns 指定 agent 类型的 RecastConfig，如果未找到则返回 undefined。
      */
     getNavConfig(type: string): RecastConfig {
         return this._navConfigMap.get(type);
     }
 
     /**
-     * 注册地形类型
-     * @param type
-     * @param cost 
+     * @en Registers a navigation area type.
+     * @param area The NavAreaFlag object representing the area type.
+     * @zh 注册导航区域类型。
+     * @param area 表示区域类型的 NavAreaFlag 对象。
      */
     regArea(area: NavAreaFlag) {
         this._areaFlagMap.set(area.name, area);
     }
 
     /**
-     * 获取地形配置
-     * @param type 
-     * @returns 
+     * @en Gets the configuration for a specific navigation area type.
+     * @param type The area type name.
+     * @returns The NavAreaFlag for the specified area type, or undefined if not found.
+     * @zh 获取指定导航区域类型的配置。
+     * @param type 区域类型名称。
+     * @returns 指定区域类型的 NavAreaFlag，如果未找到则返回 undefined。
      */
     getArea(type: string): NavAreaFlag {
         return this._areaFlagMap.get(type);
     }
 
     /**
-    * get areaFlag Map
-    * @param type 
-    * @returns 
-    */
+     * @en Gets the map of all registered navigation area flags.
+     * @returns A Map of area names to NavAreaFlag objects.
+     * @zh 获取所有已注册的导航区域标志的映射。
+     * @returns 区域名称到 NavAreaFlag 对象的 Map。
+     */
     getAreaFlagMap(): Map<string, NavAreaFlag> {
         return this._areaFlagMap;
     }
 
     /**
-     * 注册不同navMesh的NavMeshLink
-     * @param start NavMeshSurface
-     * @param end NavMeshSurface
-     * @param link NavMeshLink
+     * @en Registers a NavMeshLink between two different NavMeshSurfaces.
+     * @param start The starting NavMeshSurface.
+     * @param end The ending NavMeshSurface.
+     * @param link The NavMeshLink to register.
+     * @zh 注册连接两个不同 NavMeshSurface 的 NavMeshLink。
+     * @param start 起始 NavMeshSurface。
+     * @param end 结束 NavMeshSurface。
+     * @param link 要注册的 NavMeshLink。
      */
     regNavMeshLink(start: NavMeshSurface, end: NavMeshSurface, link: NavMeshLink) {
         if (start == end) return;
@@ -280,10 +320,14 @@ export class NavigationManager implements IElementComponentManager {
     }
 
     /**
-     * 通过空间位置获得对应的NavMeshSurface
-     * @param pos  世界坐标位置
-     * @param agentType  类型 
-     * @returns NavMeshSurface
+     * @en Get the corresponding NavMeshSurface based on a world position.
+     * @param pos World coordinate position.
+     * @param agentType Agent type.
+     * @returns NavMeshSurface or null if not found.
+     * @zh 通过空间位置获得对应的 NavMeshSurface。
+     * @param pos 世界坐标位置。
+     * @param agentType agent 类型。
+     * @returns NavMeshSurface，如果未找到则返回 null。
      */
     public getNavMeshSurface(pos: Vector3, agentType: string): NavMeshSurface {
         if (!this._naveMeshMaps.has(agentType)) return null;
@@ -297,9 +341,12 @@ export class NavigationManager implements IElementComponentManager {
     }
 
     /**
-     * 通过空间坐标获得所有的NavMeshSurface
-     * @param pos  世界坐标位置
-     *  @returns NavMeshSurface[]
+     * @en Get all NavMeshSurfaces that contain a given world position.
+     * @param pos World coordinate position.
+     * @returns Array of NavMeshSurface objects.
+     * @zh 通过空间坐标获得所有包含该位置的 NavMeshSurface。
+     * @param pos 世界坐标位置。
+     * @returns NavMeshSurface 对象数组。
      */
     public getNavMeshSurfaces(pos: Vector3): NavMeshSurface[] {
         var surfaces: NavMeshSurface[] = [];

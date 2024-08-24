@@ -10,7 +10,8 @@ import { Event } from "../../events/Event";
 import { NavigationUtils } from "../NavigationUtils";
 
 /**
- * <code>NavModifleBase</code> 动态节点的基类。
+ * @en NavModifleBase is the base class for dynamic navigation nodes.
+ * @zh NavModifleBase 是动态导航节点的基类。
  */
 export class NavModifleBase extends Component {
     /**@internal */
@@ -48,8 +49,9 @@ export class NavModifleBase extends Component {
     }
 
     /**
-    * agentType
-    */
+     * @en Agent type for the navigation node
+     * @zh 导航节点的代理类型
+     */
     set agentType(value: string) {
         this._agentType = value;
     }
@@ -59,7 +61,8 @@ export class NavModifleBase extends Component {
     }
 
     /**
-     * area 类型
+     * @en Area type for the navigation node
+     * @zh 导航节点的区域类型
      */
     set areaFlag(value: string) {
         this._areaFlags = value;
@@ -75,7 +78,8 @@ export class NavModifleBase extends Component {
     }
 
     /**
-     * <code>NavModifleBase<Code>
+     * @en Create a new instance of NavModifleBase.
+     * @zh 创建 NavModifleBase 类的新实例。
      */
     constructor() {
         super();

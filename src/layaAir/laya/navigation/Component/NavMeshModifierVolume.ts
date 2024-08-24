@@ -12,6 +12,10 @@ import { NavMeshSurface } from "./NavMeshSurface";
 const tempVec3 = new Vector3();
 var tempBound: Bounds;
 
+/**
+ * @en NavMeshModifierVolume is a component that modifies the navigation mesh in a specific volume.
+ * @zh NavMeshModifierVolume 是一个在特定体积内修改导航网格的组件。
+ */
 export class NavMeshModifierVolume extends Component {
     /**@internal */
     _transfrom: Matrix4x4 = new Matrix4x4();
@@ -35,8 +39,9 @@ export class NavMeshModifierVolume extends Component {
 
 
     /**
-    * center
-    */
+     * @en The center of the modifier volume.
+     * @zh 修改体积的中心点。
+     */
     get center(): Vector3 {
         return this._center;
     }
@@ -45,7 +50,8 @@ export class NavMeshModifierVolume extends Component {
     }
 
     /**
-     * size
+     * @en The size of the modifier volume.
+     * @zh 修改体积的大小。
      */
     get size(): Vector3 {
         return this._size;
@@ -55,8 +61,9 @@ export class NavMeshModifierVolume extends Component {
     }
 
     /**
-    * agentType
-    */
+     * @en The agent type that this volume applies to.
+     * @zh 该体积适用的代理类型。
+     */
     set agentType(value: string) {
         this._agentType = value;
     }
@@ -66,7 +73,8 @@ export class NavMeshModifierVolume extends Component {
     }
 
     /**
-     * area 类型
+     * @en The area flag for this volume.
+     * @zh 该体积的区域标志。
      */
     set areaFlag(value: string) {
         this._areaFlags = value;
@@ -77,7 +85,8 @@ export class NavMeshModifierVolume extends Component {
     }
 
     /**
-     * <code>NavModifleBase<Code>
+     * @en Creates a new NavMeshModifierVolume instance.
+     * @zh 创建一个新的 NavMeshModifierVolume 实例。
      */
     constructor() {
         super();

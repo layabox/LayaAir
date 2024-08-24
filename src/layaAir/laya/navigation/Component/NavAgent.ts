@@ -37,7 +37,8 @@ export enum ObstacleAvoidanceType {
 }
 
 /**
- * 类用来实例化一个寻路代理
+ * @en Class used to instantiate a navigation agent
+ * @zh 类用来实例化一个寻路代理
  */
 export class NavAgent extends Component {
     /**@internal */
@@ -97,7 +98,8 @@ export class NavAgent extends Component {
     private _baseOffset: number = 1;
 
     /**
-     * 半径
+     * @en Radius of the agent.
+     * @zh 代理的半径。
      */
     set radius(value: number) {
         this._radius = value;
@@ -115,7 +117,8 @@ export class NavAgent extends Component {
     }
 
     /**
-     * 高度
+     * @en Height of the agent.
+     * @zh 代理的高度。
      */
     set height(value: number) {
         this._height = value;
@@ -129,7 +132,8 @@ export class NavAgent extends Component {
     }
 
     /**
-     * 移动速度
+     * @en Movement speed of the agent.
+     * @zh 代理的移动速度。
      */
     set speed(value: number) {
         this._speed = value;
@@ -143,8 +147,9 @@ export class NavAgent extends Component {
     }
 
     /**
-    * 加速度
-    */
+     * @en Maximum acceleration of the agent.
+     * @zh 代理的最大加速度。
+     */
     set maxAcceleration(value: number) {
         this._maxAcceleration = value;
         if (this._crowAgent) {
@@ -157,7 +162,8 @@ export class NavAgent extends Component {
     }
 
     /**
-     * 转身速度
+     * @en Angular speed of the agent.
+     * @zh 代理的转身速度。
      */
     set angularSpeed(value: number) {
         this._angularSpeed = value;
@@ -168,8 +174,9 @@ export class NavAgent extends Component {
     }
 
     /**
-    * 轴心点的偏移
-    */
+     * @en Offset of the pivot point.
+     * @zh 轴心点的偏移。
+     */
     set baseOffset(value: number) {
         this._baseOffset = value;
     }
@@ -179,7 +186,8 @@ export class NavAgent extends Component {
     }
 
     /**
-     * 	规避品质级别
+     * @en Obstacle avoidance quality level.
+     * @zh 障碍物规避品质级别。
      */
     set quality(value: ObstacleAvoidanceType) {
         if (this._quality == value) return;
@@ -196,7 +204,8 @@ export class NavAgent extends Component {
     }
 
     /**
-     * 规避优先级别
+     * @en Avoidance priority level.
+     * @zh 规避优先级别。
      */
     set priority(value: number) {
         if (this._priority == value) return;
@@ -213,14 +222,16 @@ export class NavAgent extends Component {
     }
 
     /**
-     * 否绑定到导航网格
+     * @en Whether the agent is bound to a navigation mesh.
+     * @zh 代理是否绑定到导航网格。
      */
     get isOnNavMesh(): boolean {
         return this._crowAgent != null;
     }
 
     /**
-     * 当前是否位于 OffMeshLink 上
+     * @en Whether the agent is currently on an OffMeshLink.
+     * @zh 代理当前是否位于 OffMeshLink 上。
      */
     get isOnOffMeshLink(): boolean {
         if (!this.isOnNavMesh) return false;
@@ -229,7 +240,10 @@ export class NavAgent extends Component {
 
 
     /**
-     * 目的地
+     * @en Set the destination for the agent.
+     * @param value The destination vector.
+     * @zh 设置代理的目的地。
+     * @param value 目的地位置向量。
      */
     set destination(value: Vector3) {
         value.cloneTo(this._destination);
@@ -284,7 +298,10 @@ export class NavAgent extends Component {
     }
 
     /**
-     * 设置网格类型
+     * @en Set the agent type.
+     * @param value The agent type.
+     * @zh 设置代理类型。
+     * @param value 代理类型。
      */
     set agentType(value: string) {
         if (value == this._agentType) return;
@@ -300,9 +317,8 @@ export class NavAgent extends Component {
     }
 
     /**
-     * @description: 
-     * @param {*}
-     * @return {*}
+     * @en Set the area mask for the agent.
+     * @zh 设置代理的区域掩码。
      */
     set areaMask(value: number) {
         this._areaMask.flag = value
@@ -313,7 +329,8 @@ export class NavAgent extends Component {
     }
 
     /**
-     * 创建一个 <code>NavAgent</code> 实例。
+     * @en Create a new NavAgent instance.
+     * @zh 创建一个新的 NavAgent 实例。
      */
     constructor() {
         super();
@@ -396,6 +413,10 @@ export class NavAgent extends Component {
         this._removeAgent();
     }
 
+    /**
+     * @en Update method called every frame.
+     * @zh 每帧调用的更新方法。
+     */
     onUpdate(): void {
         if (this._crowAgent == null && !this._navAgentLinkAnim._active) return;
         let transform = (<Sprite3D>this.owner).transform;
@@ -436,14 +457,16 @@ export class NavAgent extends Component {
     }
 
     /**
-     * 是否停止
+     * @en Whether the agent has stopped moving.
+     * @zh 代理是否已停止移动。
      */
     isStop(): boolean {
         return MathUtils3D.isZero(this._curentSpeed.length())
     }
 
     /**
-     * 当前路径
+     * @en Get the current path of the agent.
+     * @zh 获取代理的当前路径。
      */
     getCurrentPath(): Array<NavigationPathData> {
         if (!this._currentNaveSurface) {
@@ -456,8 +479,10 @@ export class NavAgent extends Component {
 
 
     /**
-     * 设置位置
-     * @param pos 世界坐标
+     * @en Set the position of the agent in world coordinates.
+     * @param pos The new position in world coordinates.
+     * @zh 在世界坐标中设置代理的位置。
+     * @param pos 世界坐标系下的新位置。
      */
     setPosition(pos: Vector3) {
         (<Sprite3D>this.owner).transform.position = pos;
@@ -468,8 +493,10 @@ export class NavAgent extends Component {
     }
 
     /**
-     * 到墙面的距离
-     * @returns {dist:距离，pos:碰撞点， normal:法向量}
+     * @en Find the distance to the nearest wall.
+     * @returns {dist:distance， pos:collision point， normal:Normal vector}
+     * @zh 查找到最近墙面的距离。
+     * @returns {dist:距离， pos:碰撞点， normal:法向量}
      */
     findDistanceToWall(): { dist: number, pos: Array<number>, normal: Array<number> } {
         if (this._crowAgent) {

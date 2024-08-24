@@ -7,7 +7,8 @@ import { NavMeshSurface } from "./NavMeshSurface";
 
 
 /**
- * <code>NavMeshLink</code> 网格外链接。
+ * @en NavMeshLink represents a connection between two points outside the navigation mesh.
+ * @zh NavMeshLink 表示导航网格外的两点之间的连接。
  */
 export class NavMeshLink extends Component {
     /**@internal */
@@ -43,9 +44,9 @@ export class NavMeshLink extends Component {
     private _agentType: string = NavigationManager.defaltAgentName;
 
     /**
-    * 起始位置
-    */
-
+     * @en The start position of the link
+     * @zh 链接的起始位置
+     */
     set start(value: Vector3) {
         value.cloneTo(this._localstart);
     }
@@ -55,7 +56,8 @@ export class NavMeshLink extends Component {
     }
 
     /**
-     * 结束位置
+     * @en The end position of the link
+     * @zh 链接的结束位置
      */
     set end(value: Vector3) {
         value.cloneTo(this._localend);
@@ -66,7 +68,8 @@ export class NavMeshLink extends Component {
     }
 
     /**
-     * 宽度
+     * @en The width of the link
+     * @zh 链接的宽度
      */
     set width(value: number) {
         if (value == this._width)
@@ -80,7 +83,8 @@ export class NavMeshLink extends Component {
 
 
     /**
-     * 地形标记
+     * @en The area flag of the link
+     * @zh 链接的区域标记
      */
     set areaFlag(value: string) {
         this._areaFlag = value;
@@ -91,7 +95,8 @@ export class NavMeshLink extends Component {
     }
 
     /**
-     * 区域类型
+     * @en The agent type that can use this link
+     * @zh 可以使用此链接的代理类型
      */
     set agentType(value: string) {
         this._agentType = value;
@@ -102,7 +107,8 @@ export class NavMeshLink extends Component {
     }
 
     /**
-     * 是否双向
+     * @en Whether the link is bidirectional
+     * @zh 链接是否为双向
      */
     set bidirectional(value: boolean) {
         this._bidirectional = value;
@@ -113,7 +119,9 @@ export class NavMeshLink extends Component {
     }
 
     /**
-     * 创建一个 <code>NavNavMeshLink</code> 实例。
+     * @ignore
+     * @en Creates a new NavMeshLink instance.
+     * @zh 创建一个新的 NavMeshLink 实例。
      */
     constructor() {
         super();

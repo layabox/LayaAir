@@ -9,6 +9,10 @@ import { NavTileCache } from "../NavTileData";
 import { NavigationManager } from "../NavigationManager";
 import { NavModifleBase } from "./NavModifleBase";
 
+/**
+ * @en Enum for the different types of obstacle meshes supported by the navigation system.
+ * @zh 导航系统支持的不同类型的障碍物网格枚举。
+ */
 export enum NavObstaclesMeshType {
     BOX,
     CAPSULE,
@@ -51,7 +55,8 @@ let createObstacleData = function (slices: number, radiusOff: number = 0, radius
 }
 
 /**
- * <code>NavMeshObstacles</code> 常用形状。
+ * @en NavMeshObstacles Common shapes for navigation mesh obstacles.
+ * @zh NavMeshObstacles 常用的导航网格障碍物形状。
  */
 export class NavMeshObstacles extends NavModifleBase {
 
@@ -85,6 +90,16 @@ export class NavMeshObstacles extends NavModifleBase {
     /**@internal */
     private _crave: boolean;//TODO
 
+    /**
+     * @en The mesh type of the obstacle.
+     * @param value The mesh type to set.
+     * @zh 障碍物的网格类型。
+     * @param value 障碍物的网格类型。
+     */
+    get meshType() {
+        return this._meshType;
+    }
+
     set meshType(value: NavObstaclesMeshType) {
         if (this._meshType == value)
             return;
@@ -94,25 +109,31 @@ export class NavMeshObstacles extends NavModifleBase {
             this._onWorldMatNeedChange();
     }
 
-    get meshType() {
-        return this._meshType;
+    /**
+     * @en The center offset of the obstacle.
+     * @param value The center offset vector to set.
+     * @zh 障碍物的中心偏移。
+     * @param value 障碍物的中心偏移向量。
+     */
+    get center() {
+        return this._center;
     }
 
-    /**
-     * 中心偏移
-     */
     set center(value: Vector3) {
         value.cloneTo(this._center);
         if (this._enabled) this._onWorldMatNeedChange();
     }
 
-    get center() {
-        return this._center;
+    /**
+     * @en The size of the box obstacle.
+     * @param value The size vector to set.
+     * @zh 盒型障碍物的大小。
+     * @param value 盒型障碍物的大小向量。
+     */
+    get size() {
+        return this._size;
     }
 
-    /**
-     * box size
-     */
     set size(value: Vector3) {
         value.cloneTo(this.size);
         if (this._enabled && this._meshType == NavObstaclesMeshType.BOX) {
@@ -120,13 +141,17 @@ export class NavMeshObstacles extends NavModifleBase {
         }
     }
 
-    get size() {
-        return this._size;
-    }
 
     /**
-     * 圆柱高
+     * @en The height of the capsule obstacle.
+     * @param value The height to set.
+     * @zh 胶囊障碍物的圆柱高度。
+     * @param value 胶囊障碍物的圆柱高度。
      */
+    get height() {
+        return this._height;
+    }
+
     set height(value: number) {
         this._height = value;
         if (this._enabled && this._meshType == NavObstaclesMeshType.CAPSULE) {
@@ -134,13 +159,16 @@ export class NavMeshObstacles extends NavModifleBase {
         }
     }
 
-    get height() {
-        return this._height;
+    /**
+     * @en Set the radius of the capsule obstacle.
+     * @param value The radius to set.
+     * @zh 设置胶囊障碍物的圆柱半径。
+     * @param value 胶囊障碍物的圆柱半径。
+     */
+    get radius() {
+        return this._radius;
     }
 
-    /**
-     * 圆柱半径
-     */
     set radius(value: number) {
         this._radius = value;
         if (this._enabled && this._meshType == NavObstaclesMeshType.CAPSULE) {
@@ -148,10 +176,11 @@ export class NavMeshObstacles extends NavModifleBase {
         }
     }
 
-    get radius() {
-        return this._radius;
-    }
-
+    /**
+     * @ignore
+     * @en Create a new NavMeshObstacles instance.
+     * @zh 创建NavMeshObstacles的一个新实例。
+     */
     constructor() {
         super();
         this._localMat = new Matrix4x4();
