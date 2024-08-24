@@ -1,9 +1,11 @@
-import { Laya } from "../../Laya";
-import { Vector3 } from "../maths/Vector3";
-import { NavMeshSurface } from "./Component/NavMeshSurface";
+import { Laya } from "../../../Laya";
+import { Vector3 } from "../../maths/Vector3";
+import { BaseNavMeshSurface } from "./component/BaseNavMeshSurface";
+
 
 /**@internal */
 export class NavAgentLinkAnim {
+
     /**@internal */
     _startPos: Vector3 = new Vector3();
     /**@internal */
@@ -11,7 +13,7 @@ export class NavAgentLinkAnim {
     /**@internal */
     _initPos: Vector3 = new Vector3();
     /**@internal */
-    targetSurface: NavMeshSurface;
+    targetSurface: BaseNavMeshSurface;
     /**@internal */
     _active: boolean = false;
     /**@internal */

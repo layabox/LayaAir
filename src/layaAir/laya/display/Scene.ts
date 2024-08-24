@@ -35,6 +35,18 @@ export class Scene extends Sprite {
     /**@private */
     private static _loadPage: Sprite;
 
+    /**@private 场景组件管理表 */
+    private static componentManagerMap: Map<string, any> = new Map();
+
+    /**
+     * 注册场景内的管理器
+     * @param type 管理器类型
+     * @param cla 实例
+     */
+    static regManager(type: string, cla: any) {
+        Scene.componentManagerMap.set(type, cla);
+    }
+
     /**
      * @en Whether to automatically destroy (destroy nodes and used resources) after the scene is closed, default is false
      * @zh 场景被关闭后，是否自动销毁（销毁节点和使用到的资源），默认为 false
@@ -59,6 +71,9 @@ export class Scene extends Sprite {
     /**@private */
     private _viewCreated: boolean = false;
 
+    /** @internal */
+    private _componentElementDatasMap: any = {};
+
     _specialManager: Scene2DSpecialManager;
 
     constructor(createChildren = true) {
@@ -70,6 +85,32 @@ export class Scene extends Sprite {
         this._scene = this;
         if (createChildren)
             this.createChildren();
+        Scene.componentManagerMap.forEach((val, key) => {
+            let cla: any = val;
+            this._specialManager.componentElementMap.set(key, new cla());
+        });
+    }
+
+    /**
+     * @internal
+     */
+    set componentElementDatasMap(value: any) {
+        this._componentElementDatasMap = value;
+        this._specialManager.componentElementMap.forEach((value, key) => {
+            value.Init(this._componentElementDatasMap[key])
+        });
+    }
+
+    get componentElementDatasMap(): any {
+        return this._componentElementDatasMap;
+    }
+
+    /**
+   * 获得某个组件的管理器
+   * @param type 组件管理类
+   */
+    getComponentElementManager(type: string) {
+        return this._specialManager.componentElementMap.get(type);
     }
 
     /**
@@ -449,6 +490,31 @@ export class Scene extends Sprite {
     private _getWidget(): Widget {
         this._widget === Widget.EMPTY && (this._widget = this.addComponent(Widget));
         return this._widget;
+    }
+
+    /**
+    * @override
+    * @protected 
+    * @en Sets a global cache flag for a specific type.
+    * @param type The type of cache flag to set.
+    * @param value Whether to enable the cache flag.
+    * @zh 设置特定类型的全局缓存标志。
+    * @param type 要设置的缓存标志类型。
+    * @param value 是否启用缓存标志。
+    */
+    protected _setGlobalCacheFlag(type: number, value: boolean): void {
+
+    }
+
+
+    /**
+     * @override
+     * @protected
+     * @param flag 
+     * @param value 
+     */
+    protected _syncGlobalFlag(flag: number, value: boolean) {
+
     }
 
     //////////////////////////////////////静态方法//////////////////////////////////////////

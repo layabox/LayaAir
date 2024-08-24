@@ -1,62 +1,31 @@
 
-import { Component } from "../../components/Component";
-import { MathUtils3D } from "../../maths/MathUtils3D";
-import { Quaternion } from "../../maths/Quaternion";
-import { Vector3 } from "../../maths/Vector3";
-import { Sprite3D } from "../../d3/core/Sprite3D";
-import { Scene3D } from "../../d3/core/scene/Scene3D";
-import { NavigationManager } from "../NavigationManager";
+import { Component } from "../../../components/Component";
+import { MathUtils3D } from "../../../maths/MathUtils3D";
+import { Vector3 } from "../../../maths/Vector3";
+import { BaseNavigationManager } from "../BaseNavigationManager";
 import { NavigationPathData } from "../NavigationPathData";
 import { AreaMask } from "../AreaMask";
 import { NavAgentLinkAnim } from "../NavAgentLinkAnim";
-import { NavMeshSurface } from "./NavMeshSurface";
-import { NavMeshLink } from "./NavMeshLink";
+import { CrowdAgentState, NavigationConfig, ObstacleAvoidanceType, UpdateFlags } from "../NavigationConfig";
+import { BaseNavMeshSurface } from "./BaseNavMeshSurface";
+import { NavMeshLinkData } from "../data/NavMeshLinkData";
 
-
-
-enum UpdateFlags {
-    DT_CROWD_ANTICIPATE_TURNS = 1,
-    DT_CROWD_OBSTACLE_AVOIDANCE = 2,
-    DT_CROWD_SEPARATION = 4,
-    DT_CROWD_OPTIMIZE_VIS = 8,	///< Use #dtPathCorridor::optimizePathVisibility() to optimize the agent path.
-    DT_CROWD_OPTIMIZE_TOPO = 16 ///< Use dtPathCorridor::optimizePathTopology() to optimize the agent path.
-};
-
-enum CrowdAgentState {
-    DT_CROWDAGENT_STATE_INVALID, ///< The agent is not in a valid state.
-    DT_CROWDAGENT_STATE_WALKING, ///< The agent is traversing a normal navigation mesh polygon.
-    DT_CROWDAGENT_STATE_OFFMESH	 ///< The agent is traversing an off-mesh connection.
-};
-
-export enum ObstacleAvoidanceType {
-    NoObstacle,
-    LowQuality,
-    MedQuality,
-    GoodQuality,
-    HighQuality
-}
-
+const tempVector3 = new Vector3();
+const tempVector31 = new Vector3();
 /**
  * 类用来实例化一个寻路代理
  */
-export class NavAgent extends Component {
-    /**@internal */
-    private static HelpTemp: Vector3 = new Vector3();
-    /**@internal */
-    private static HelpTemp1: Vector3 = new Vector3();
-    /**@internal */
-    private static HelpTemp2: Vector3 = new Vector3();
-    /**@internal */
-    private static TempQuaternion: Quaternion = new Quaternion();
+export class BaseNavAgent extends Component {
+   
 
     /**@internal */
-    private _agentType: string = NavigationManager.defaltAgentName;
+    protected _agentType: string = NavigationConfig.defaltAgentName;
     /**@internal */
-    _navManager: NavigationManager;
+    _navManager: BaseNavigationManager;
 
     _navAgentLinkAnim: NavAgentLinkAnim;
     /**@internal */
-    private _currentNaveSurface: NavMeshSurface;
+    protected _currentNaveSurface: BaseNavMeshSurface;
     /**@internal */
     _crowAgent: any;
     /**@internal */
@@ -69,32 +38,32 @@ export class NavAgent extends Component {
     _curentSpeed: Vector3;
     //move
     /**@internal 速度*/
-    private _speed: number = 3.5;
+    protected _speed: number = 3.5;
     /**@internal 加速度*/
-    private _maxAcceleration: number = 10;
+    protected _maxAcceleration: number = 10;
     /**@internal */
-    private _angularSpeed: number = 120;
+    protected _angularSpeed: number = 120;
     /**@internal TODO*/
-    private _stopDistance: number;
+    protected _stopDistance: number;
     /**@internal TODO*/
-    private _Acceleration: number;
+    protected _Acceleration: number;
     /**@internal TODO*/
-    private _autoBraking: boolean;
+    protected _autoBraking: boolean;
     //obstacles TODO
     /**@internal */
-    private _radius: number = 0.5;
+    protected _radius: number = 0.5;
     /**@internal */
-    private _height: number = 2;
+    protected _height: number = 2;
     /**@internal */
-    private _quality: ObstacleAvoidanceType = ObstacleAvoidanceType.MedQuality;
+    protected _quality: ObstacleAvoidanceType = ObstacleAvoidanceType.MedQuality;
     /**@internal */
-    private _priority: number = 0;
+    protected _priority: number = 0;
     /**@internal */
-    private _destination: Vector3 = new Vector3();
+    _targetPos: Vector3 = new Vector3();
     /**@internal */
-    private _fllowPath: NavigationPathData[];
+    protected _fllowPath: NavigationPathData[];
     /**@internal */
-    private _baseOffset: number = 1;
+    protected _baseOffset: number = 1;
 
     /**
      * 半径
@@ -167,17 +136,7 @@ export class NavAgent extends Component {
         return this._angularSpeed;
     }
 
-    /**
-    * 轴心点的偏移
-    */
-    set baseOffset(value: number) {
-        this._baseOffset = value;
-    }
-
-    get baseOffset(): number {
-        return this._baseOffset;
-    }
-
+  
     /**
      * 	规避品质级别
      */
@@ -231,30 +190,32 @@ export class NavAgent extends Component {
     /**
      * 目的地
      */
-    set destination(value: Vector3) {
-        value.cloneTo(this._destination);
+
+    protected _setTarget(value: Vector3) {
+        value.cloneTo(this._targetPos);
         if (!this._navManager) return;
-        let targetSurface: NavMeshSurface = this._navManager.getNavMeshSurface(value, this._agentType);
+        let targetSurface: BaseNavMeshSurface = this._navManager.getNavMeshSurface(value, this._agentType);
         if (targetSurface == this._currentNaveSurface) {
-            this._currentNaveSurface.navMesh.requestMoveTarget(this, this._destination);
+            this._currentNaveSurface.navMesh.requestMoveTarget(this, this._targetPos);
             return;
         }
         let linkes = this._navManager.getNavMeshLink(this._currentNaveSurface, targetSurface);
         //没有找到链接
         if (linkes == null) return;
-        let link: NavMeshLink = null;
+        let link: NavMeshLinkData = null;
         let distance: number = Number.MAX_VALUE;
         let isstart: boolean;
         linkes.forEach((value) => {
+            
             if (value._startNavSurfaces.indexOf(this._currentNaveSurface) >= 0) {
-                let dis = value._getdistance();
+                let dis = value.getDistance();
                 if (dis < distance) {
                     dis = distance;
                     link = value;
                     isstart = true;
                 }
-            } else if (value._endNavSurfaces.indexOf(this._currentNaveSurface) >= 0 && value.bidirectional) {
-                let dis = value._getdistance();
+            } else if (value._endNavSurfaces.indexOf(this._currentNaveSurface) >= 0 && value._bidirectional) {
+                let dis = value.getDistance();
                 if (dis < distance) {
                     dis = distance;
                     link = value;
@@ -268,19 +229,15 @@ export class NavAgent extends Component {
         this._navAgentLinkAnim.targetSurface = targetSurface;
         this._navAgentLinkAnim._active = true;
         if (isstart) {
-            this._navAgentLinkAnim._setStartPos(link._start);
-            this._navAgentLinkAnim._setEndPos(link._end);
+            this._navAgentLinkAnim._setStartPos(link.globalStart);
+            this._navAgentLinkAnim._setEndPos(link.globalEnd);
         } else {
-            this._navAgentLinkAnim._setStartPos(link._end);
-            this._navAgentLinkAnim._setEndPos(link._start);
+            this._navAgentLinkAnim._setStartPos(link.globalEnd);
+            this._navAgentLinkAnim._setEndPos(link.globalStart);
         }
         let refPoint = this._currentNaveSurface.navMesh.findNearestPoly(this._navAgentLinkAnim._getSartPos());
         this._navAgentLinkAnim._getSartPos().fromArray(refPoint.data);
         this._currentNaveSurface.navMesh.requestMoveTarget(this, this._navAgentLinkAnim._getSartPos());
-    }
-
-    get destination(): Vector3 {
-        return this._destination;
     }
 
     /**
@@ -312,6 +269,7 @@ export class NavAgent extends Component {
         return this._areaMask.flag;
     }
 
+   
     /**
      * 创建一个 <code>NavAgent</code> 实例。
      */
@@ -325,21 +283,47 @@ export class NavAgent extends Component {
     /**
      * @internal 
      */
-    protected _onEnable(): void {
-        super._onEnable();
-        this._fllowPath = [];
-        let manager: NavigationManager = this._navManager = (this.owner.scene as Scene3D).getComponentElementManager(NavigationManager.managerName) as NavigationManager;
-        this._areaMask._setAreaMap(manager.getAreaFlagMap())
-        this._addAgent();
+    _getpos(vec:Vector3){
+        throw new Error("Method not implemented.");
+    }
+
+    /**@internal */
+    _getcollisionQueryRange(): number {
+        return this.radius * 12;
+    }
+
+    /**@internal */
+    _getpathOptimizationRange(): number {
+        return this.radius * 30;
+    }
+
+
+    /**@internal */
+    _getManager(): BaseNavigationManager {
+        throw new Error("BaseNavMeshSurface: must override this function");
     }
 
     /**
      * @internal 
      */
+    protected _onEnable(): void {
+        super._onEnable();
+        this._fllowPath = [];
+        let manager = this._navManager = this._getManager();
+        this._areaMask._setAreaMap(manager.getAreaFlagMap())
+        this._addAgent();
+    }
+
+    
+    
+
+    /**
+     * @internal 
+     */
     protected _addAgent() {
-        let manager: NavigationManager = this._navManager = (this.owner.scene as Scene3D).getComponentElementManager(NavigationManager.managerName) as NavigationManager;
-        let pos = (<Sprite3D>this.owner).transform.position;
-        let surface = manager.getNavMeshSurface(pos, this._agentType);
+        if(this._navManager == null) return;
+        this._getpos(tempVector3);
+        let surface = this._navManager.getNavMeshSurface(tempVector3, this._agentType);
         if (surface == null) {
             console.error("not get the NavMeshSurface in this position.");
             return;
@@ -362,20 +346,18 @@ export class NavAgent extends Component {
      * @internal 
      */
     _getheight(): number {
-        let scale = (<Sprite3D>this.owner).transform.getWorldLossyScale();
-        return this._height * scale.y;
+       throw new Error("Method not implemented.");
     }
 
     /**
      * @internal 
      */
     _getradius(): number {
-        let scale = (<Sprite3D>this.owner).transform.getWorldLossyScale();
-        return this._radius * Math.max(scale.x, scale.y);
+        throw new Error("Method not implemented.");
     }
 
     /**
-    * @private
+    * @protected
     */
     _getUpdateFlags(): number {
         let updateFlags = UpdateFlags.DT_CROWD_ANTICIPATE_TURNS | UpdateFlags.DT_CROWD_OPTIMIZE_VIS | UpdateFlags.DT_CROWD_OPTIMIZE_TOPO;
@@ -389,50 +371,59 @@ export class NavAgent extends Component {
     }
 
     /**
-     * @private
+     * @protected
      */
     _onDestroy(): void {
         super._onDestroy();
         this._removeAgent();
     }
 
-    onUpdate(): void {
-        if (this._crowAgent == null && !this._navAgentLinkAnim._active) return;
-        let transform = (<Sprite3D>this.owner).transform;
-        const position = NavAgent.HelpTemp;
-        const dir = NavAgent.HelpTemp1;
-        if (this._crowAgent) {
-            this._crowAgent.getCurPos(position);
-            let isNearerStart: boolean = false;
-            if (this._navAgentLinkAnim._active) {
-                isNearerStart = this._navAgentLinkAnim._nearerStartPos(position);
-            }
-            this._crowAgent.getCurDir(dir);
-            if (isNearerStart) {
-                this._removeAgent();
-                this._navAgentLinkAnim._start(this._speed, position);
-            }
-            dir.cloneTo(this._curentSpeed);
-        } else {
-            this._navAgentLinkAnim._update(position, dir);
-            if (this._navAgentLinkAnim._nearerEndPos(position)) {
-                this._addAgent();
-                this._navAgentLinkAnim._clearn();
-                this.destination = this._destination;
-            }
+    /**
+     * 由系统调用
+     */
+    onUpdate(){
+        if(this._crowAgent!=null) return;
+        if(!this._navAgentLinkAnim._active) return;
+        let position = tempVector3;
+        let dir = tempVector31;
+        this._navAgentLinkAnim._update(position, dir);
+        if (this._navAgentLinkAnim._nearerEndPos(position)) {
+            this._addAgent();
+            this._navAgentLinkAnim._clearn();
+            this._setTarget(this._targetPos);
         }
-        position.y += this._baseOffset;
-        transform.position = position;
+        this._updatePosition(position, dir);
+    }
 
-        if (MathUtils3D.isZero(dir.length())) {
-            return;
+    /**
+     * 由系统调用
+     * @internal 
+     */
+    _updateNavMesh(pos:number[],dir:number[]){
+        if(this._crowAgent == null) return;
+        let position = tempVector3;
+        let direction = tempVector31;
+        position.fromArray(pos);
+        direction.fromArray(dir);
+        let isNearerStart: boolean = false;
+        if (this._navAgentLinkAnim._active) {
+            isNearerStart = this._navAgentLinkAnim._nearerStartPos(position);
         }
-        let up = NavAgent.HelpTemp2;
-        transform.getUp(up);
-        Vector3.normalize(dir, dir);
-        let roate = NavAgent.TempQuaternion;
-        Quaternion.rotationLookAt(dir, up, roate);
-        transform.rotation = roate;
+        if (isNearerStart) {
+            this._removeAgent();
+            this._navAgentLinkAnim._start(this._speed, position);
+        }
+        direction.cloneTo(this._curentSpeed);
+        this._updatePosition(position, direction);
+    }
+
+   
+
+    /**
+     * @internal 
+     */
+    _updatePosition(pos:Vector3,dir:Vector3){
+        throw new Error("Method not implemented.");
     }
 
     /**
@@ -460,11 +451,11 @@ export class NavAgent extends Component {
      * @param pos 世界坐标
      */
     setPosition(pos: Vector3) {
-        (<Sprite3D>this.owner).transform.position = pos;
-        if (this.enabled) {
-            this._removeAgent();
-            this._addAgent();
-        }
+        // (<Sprite3D>this.owner).transform.position = pos;
+        // if (this.enabled) {
+        //     this._removeAgent();
+        //     this._addAgent();
+        // }
     }
 
     /**
@@ -481,7 +472,7 @@ export class NavAgent extends Component {
 
     /**@internal */
     _cloneTo(dest: Component): void {
-        let agent = dest as NavAgent;
+        let agent = dest as BaseNavAgent;
         agent.agentType = this.agentType;
         agent.speed = this._speed;
         agent.angularSpeed = this.angularSpeed;

@@ -1,4 +1,4 @@
-import { IClone } from "../utils/IClone";
+import { IClone } from "../../utils/IClone";
 
 
 /**

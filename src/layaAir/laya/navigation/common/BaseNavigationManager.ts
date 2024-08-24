@@ -1,50 +1,55 @@
-
-import { Laya } from "../../Laya";
-import { IElementComponentManager } from "../d3/core/scene/IScenceComponentManager";
-import { Scene3D } from "../d3/core/scene/Scene3D";
-import { Bounds } from "../d3/math/Bounds";
-import { Vector3 } from "../maths/Vector3";
-import { SingletonList } from "../utils/SingletonList";
+import { IElementComponentManager } from "../../d3/core/scene/IScenceComponentManager";
+import { Vector3 } from "../../maths/Vector3";
+import { SingletonList } from "../../utils/SingletonList";
 import { AreaMask } from "./AreaMask";
-import { NavMeshSurface } from "./Component/NavMeshSurface";
-import { NavMeshLink } from "./Component/NavMeshLink";
-import { NavMeshObstacles } from "./Component/NavMeshObstacles";
 import { NavigationUtils } from "./NavigationUtils";
 import { RecastConfig } from "./RecastConfig";
+import { NavAreaFlag, NavigationConfig } from "./NavigationConfig";
+import { BaseNavMeshSurface } from "./component/BaseNavMeshSurface";
+import { Node } from "../../display/Node";
+import { NavMeshLinkData } from "./data/NavMeshLinkData";
 
-export class NavAreaFlag {
-    index: number;
-    cost: number;
-    name: string;
 
-    get flag(): number {
-        return 1 << this.index;
-    }
-}
+/**
+ * BaseNavigationManager 导航管理基类
+ */
+export class BaseNavigationManager implements IElementComponentManager {
 
-export class NavigationManager implements IElementComponentManager {
-
-    /**@internal  */
-    static managerName: string = "navMesh";
-    /**@internal  */
-    static readonly defaltAgentName: string = "humanoid";
-    /**@internal  */
-    static readonly defaltUnWalk: string = "unwalk";
-    /**@internal  */
-    static readonly defaltWalk: string = "walk";
-    /**@internal  */
-    static readonly defaltJump: string = "jump";
 
     /**
      * 初始化系统，由系统内部调用
      * @internal
      */
-    static initialize(): Promise<void> {
-        return (window as any).Recast().then((Recast: any) => {
-            NavigationUtils.initialize(Recast);
-            NavMeshObstacles._init_();
+    protected static _initialize(callback: () => void | Promise<void>): Promise<void> {
+        if(NavigationUtils.getRecast()!=null){
+            callback && callback();
             return Promise.resolve();
-        });
+        }else{
+            return (window as any).Recast().then((Recast: any) => {
+                NavigationUtils.initialize(Recast);
+                callback && callback();
+                return Promise.resolve();
+            });
+        }
+    }
+
+
+    /**
+    * find all 
+    * @param surfaces 
+    * @param sprite 
+    */
+    static findNavMeshSurface(surfaces: Array<BaseNavMeshSurface>, sprite: Node, agentFlags: string[]) {
+        let array = sprite.getComponents(BaseNavMeshSurface) as BaseNavMeshSurface[];
+        if (array && array.length > 0) {
+            array.forEach(element => {
+                (agentFlags.indexOf(element.agentType) >= 0) && surfaces.push(element);
+            });
+        }
+        let parat = sprite.parent;
+        if (parat && (parat instanceof Node)) {
+            BaseNavigationManager.findNavMeshSurface(surfaces, parat, agentFlags);
+        }
     }
 
     /**@internal */
@@ -57,10 +62,10 @@ export class NavigationManager implements IElementComponentManager {
     _areaFlagMap: Map<string, NavAreaFlag> = new Map();
 
     /**@internal */
-    _naveMeshMaps: Map<string, SingletonList<NavMeshSurface>> = new Map();
+    _naveMeshMaps: Map<string, SingletonList<BaseNavMeshSurface>> = new Map();
 
     /**@internal */
-    _naveMeshLinkMaps: Map<string, Array<NavMeshLink>> = new Map();
+    _naveMeshLinkMaps: Map<string, Array<NavMeshLinkData>> = new Map();
 
     /**@internal */
     _deflatAllMask: AreaMask;
@@ -68,8 +73,8 @@ export class NavigationManager implements IElementComponentManager {
     /**
      * <code>实例化一个Navigation管理器<code>
      */
-    constructor() {
-        this.name = NavigationManager.managerName;
+    constructor(name: string) {
+        this.name = name;
         this._deflatAllMask = new AreaMask();
         this._init();
     }
@@ -80,28 +85,28 @@ export class NavigationManager implements IElementComponentManager {
      * @param {*}
      * @return {*}
      */
-    private _init() {
+    protected _init() {
         let config = new RecastConfig();
-        config.agentName = NavigationManager.defaltAgentName;
+        config.agentName = NavigationConfig.defaltAgentName;
         this.regNavConfig(config);
 
         //unwalk
         let area = new NavAreaFlag()
-        area.name = NavigationManager.defaltUnWalk;
+        area.name = NavigationConfig.defaltUnWalk;
         area.cost = 1;
         area.index = 0;
         this.regArea(area);
 
         //walk
         area = new NavAreaFlag()
-        area.name = NavigationManager.defaltWalk;
+        area.name = NavigationConfig.defaltWalk;
         area.cost = 1;
         area.index = 1;
         this.regArea(area);
 
         //jump
         area = new NavAreaFlag()
-        area.name = NavigationManager.defaltJump;
+        area.name = NavigationConfig.defaltJump;
         area.cost = 1;
         area.index = 2;
         this.regArea(area);
@@ -115,7 +120,7 @@ export class NavigationManager implements IElementComponentManager {
     * @param {*}
     * @return {*}
     */
-    private _getLinkIdByNavMeshSurfaces(a: NavMeshSurface, b: NavMeshSurface): string {
+    private _getLinkIdByNavMeshSurfaces(a: BaseNavMeshSurface, b: BaseNavMeshSurface): string {
         if (a.id < b.id) {
             return a.id + "_" + b.id;
         } else {
@@ -171,6 +176,15 @@ export class NavigationManager implements IElementComponentManager {
             this._deflatAllMask.flag = flag;
         }
 
+    }
+
+    /**
+     * @internal
+     */
+    setFilterCost(filer: any) {
+        this._areaFlagMap.forEach((value) => {
+            filer.setAreaCost(value.flag, value.cost);
+        });
     }
 
     /**
@@ -234,25 +248,46 @@ export class NavigationManager implements IElementComponentManager {
      * @param end NavMeshSurface
      * @param link NavMeshLink
      */
-    regNavMeshLink(start: NavMeshSurface, end: NavMeshSurface, link: NavMeshLink) {
+    regNavMeshLink(start: BaseNavMeshSurface, end: BaseNavMeshSurface, link: NavMeshLinkData) {
         if (start == end) return;
         if (start.agentType != end.agentType) return;
         let key: string = this._getLinkIdByNavMeshSurfaces(start, end);
         if (!this._naveMeshLinkMaps.has(key)) {
-            this._naveMeshLinkMaps.set(key, Array<NavMeshLink>());
+            this._naveMeshLinkMaps.set(key, Array<NavMeshLinkData>());
         }
         this._naveMeshLinkMaps.get(key).push(link);
     }
 
+    /**
+     * 移除NavMeshLink
+     * @param start NavMeshSurface
+     * @param end NavMeshSurface
+     * @param link NavMesh  Link
+     * @returns
+     */
+    removeMeshLink(start: BaseNavMeshSurface, end: BaseNavMeshSurface, link: NavMeshLinkData) {
+        if (start == end) return;
+        if (start.agentType != end.agentType) return;
+        let key: string = this._getLinkIdByNavMeshSurfaces(start, end);
+        if (!this._naveMeshLinkMaps.has(key)) {
+            return;
+        }
+        let links = this._naveMeshLinkMaps.get(key);
+        let index = links.indexOf(link);
+        if (index >= 0) {
+            links.splice(index, 1);
+        }
+    }
+
 
     /**
-     * 根据两个不同的navMesh查找直接是否存在NavMeshLink
+     * 根据两个不同的BaseNavMeshSurface查找直接是否存在BaseNavMeshLink
      * @internal 
      * @param from NavMeshSurface
      * @param to NavMeshSurface
      * @returns NavMeshLink[]
      */
-    getNavMeshLink(from: NavMeshSurface, to: NavMeshSurface): NavMeshLink[] {
+    getNavMeshLink(from: BaseNavMeshSurface, to: BaseNavMeshSurface): NavMeshLinkData[] {
         let key: string = this._getLinkIdByNavMeshSurfaces(from, to);
         if (!this._naveMeshLinkMaps.has(key)) {
             return null;
@@ -265,31 +300,33 @@ export class NavigationManager implements IElementComponentManager {
      * @internal
      * @param nav
      */
-    public regNavMeshSurface(nav: NavMeshSurface) {
+    public regNavMeshSurface(nav: BaseNavMeshSurface) {
         if (!nav) {
             console.error("cannot regist empyt NavMeshSurface.");
             return;
         }
         const agentType = nav.agentType;
-        let surfaces: SingletonList<NavMeshSurface> = this._naveMeshMaps.get(agentType);
+        let surfaces: SingletonList<BaseNavMeshSurface> = this._naveMeshMaps.get(agentType);
         if (surfaces == null) {
-            surfaces = new SingletonList<NavMeshSurface>();
+            surfaces = new SingletonList<BaseNavMeshSurface>();
             this._naveMeshMaps.set(agentType, surfaces);
         }
         surfaces.add(nav);
     }
 
+
     /**
-     * 通过空间位置获得对应的NavMeshSurface
-     * @param pos  世界坐标位置
-     * @param agentType  类型 
-     * @returns NavMeshSurface
-     */
-    public getNavMeshSurface(pos: Vector3, agentType: string): NavMeshSurface {
+    * 通过空间位置获得对应的NavMeshSurface
+    * @param pos  世界坐标位置
+    * @param agentType  类型 
+    * @returns NavMeshSurface
+    */
+    public getNavMeshSurface(pos: Vector3, agentType: string): BaseNavMeshSurface {
         if (!this._naveMeshMaps.has(agentType)) return null;
         let surfaces = this._naveMeshMaps.get(agentType);
         for (var i = 0, n = surfaces.length; i < n; i++) {
-            if (Bounds.containPoint(surfaces.elements[i].bounds, pos)) {
+            let nav = surfaces.elements[i];
+            if (NavigationUtils.boundContentPoint(nav.min, nav.max, pos)) {
                 return surfaces.elements[i];
             }
         }
@@ -301,11 +338,27 @@ export class NavigationManager implements IElementComponentManager {
      * @param pos  世界坐标位置
      *  @returns NavMeshSurface[]
      */
-    public getNavMeshSurfaces(pos: Vector3): NavMeshSurface[] {
-        var surfaces: NavMeshSurface[] = [];
+    public getNavMeshSurfaces(pos: Vector3): BaseNavMeshSurface[] {
+        var surfaces: BaseNavMeshSurface[] = [];
         this._naveMeshMaps.forEach((datas) => {
             for (var i = 0, n = datas.length; i < n; i++) {
-                if (Bounds.containPoint(datas.elements[i].bounds, pos)) {
+                let nav = datas.elements[i];
+                if (NavigationUtils.boundContentPoint(nav.min, nav.max, pos)) {
+                    surfaces.push(datas.elements[i]);
+                }
+            }
+        })
+        return surfaces;
+    }
+
+
+    public getNavMeshSurfacesByBound(min:Vector3,max:Vector3,type:string): BaseNavMeshSurface[] {
+        var surfaces: BaseNavMeshSurface[] = [];
+        this._naveMeshMaps.forEach((datas) => {
+            for (var i = 0, n = datas.length; i < n; i++) {
+                let nav = datas.elements[i];
+                if(nav.agentType != type) continue;
+                if (NavigationUtils.boundInterection(nav.min, nav.max, min,max)>=0) {
                     surfaces.push(datas.elements[i]);
                 }
             }
@@ -315,7 +368,3 @@ export class NavigationManager implements IElementComponentManager {
 
 }
 
-//reg nav Component Manager
-Scene3D.regManager(NavigationManager.managerName, NavigationManager);
-//reg loader init
-Laya.addBeforeInitCallback(NavigationManager.initialize);
