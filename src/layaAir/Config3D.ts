@@ -88,5 +88,3 @@ export class Config3D {
      */
     static debugFrustumCulling: boolean = false;
 }
-
-Config.isStencil = true;

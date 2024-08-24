@@ -61,7 +61,7 @@ export class Config {
     /**
      * 设置画布的是否开启模板缓冲，只对2D(WebGL)、3D有效。
      */
-    static isStencil: boolean = false;
+    static isStencil: boolean = true;
     /**
      * 是否保留渲染缓冲区。
      */
@@ -82,3 +82,11 @@ export class Config {
     static _enableWindowRAFFunction: boolean = true;
 }
 
+export const PlayerConfig: {
+    physics2D?: any,
+    physics3D?: any,
+    spineVersion?: string,
+    workerLoaderLib?: string,
+    [key: string]: any,
+
+} = {};

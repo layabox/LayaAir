@@ -60,6 +60,7 @@ import { LayaGL } from "./laya/layagl/LayaGL";
 import { Laya } from "./Laya";
 import { PixelLineMaterial } from "./laya/d3/core/pixelLine/PixelLineMaterial";
 import { Texture2DArray } from "./laya/resource/Texture2DArray";
+import { PlayerConfig } from "./Config";
 
 /**
  * <code>Laya3D</code> 类用于初始化3D设置。
@@ -203,6 +204,9 @@ export class Laya3D {
         }
         else {
             Laya3D._enablePhysics = true;
+
+            if (PlayerConfig.physics3D)
+                Object.assign(Scene3D.physicsSettings, PlayerConfig.physics3D);
             return Laya3D._PhysicsCreateUtil.initialize();
         }
     }
