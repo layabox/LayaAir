@@ -179,7 +179,10 @@ export class CharRender_Canvas extends ICharRender {
 			ctx._lastFont = font;
 			//console.log('use font ' + font);
 		}
-
+		if (Browser.window.isIOSHighPerformanceModePlus) {
+			// 临时处理,微信高性能+模式下文本会出现裁剪问题,这里强制设置font解决
+			ctx.font = font;
+		}
 		cri.width = ctx.measureText(char).width;//排版用的width是没有缩放的。后面会用矩阵缩放
 		var w: number = cri.width * this.lastScaleX;//w h 只是clear用的。所以要缩放
 		var h: number = cri.height * this.lastScaleY;
