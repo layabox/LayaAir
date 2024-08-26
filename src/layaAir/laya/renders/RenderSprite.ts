@@ -324,6 +324,7 @@ export class RenderSprite {
             let ctx = new Context();
             ctx.copyState(context);
             ctx.size(w, h);
+            ctx.clearBG(0, 0, 0, 0);
             ctx.render2D = new Render2DSimple(rt);
             ctx.startRender();
             /*
