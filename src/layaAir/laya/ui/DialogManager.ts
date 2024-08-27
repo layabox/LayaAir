@@ -11,26 +11,14 @@ import { Tween } from "../utils/Tween"
 import { ILaya } from "../../ILaya";
 
 /**
- * @en Event dispatched when any dialog is opened.
- * @zh 打开任意窗口后调度。
- * @eventType Event.OPEN
- */
-/*[Event(name = "open", type = "laya.events.Event")]*/
-
-/**
- * @en Event dispatched when any dialog is closed.
- * @zh 关闭任意对话框时调度的事件。
- * @eventType Event.CLOSE
- */
-/*[Event(name = "close", type = "laya.events.Event")]*/
-
-/**
  * @en The `DialogManager` is a container for managing all dialog boxes, which are managed by the manager.
  * Opening and closing any dialog will trigger the manager's open and close events.
+ * open event is used for any window after dispatching, and close event is used to dispatch events when closing any dialog.
  * The background transparency of the popup, whether the modal window closes when the edge is clicked, and whether the layer changes when the window is clicked can be set in UIConfig.
  * The layer of the popup can be changed by setting the dialog's zOrder property.
  * @zh DialogManager 对话框管理容器，所有的对话框都在该容器内，并且受管理器管理。
  * 任意对话框打开和关闭，都会触发管理类的 open 和 close 事件。
+ * open事件用于任意窗口后调度，close事件用于关闭任意对话框时调度的事件。
  * 可以通过 UIConfig 设置弹出框背景透明度，模式窗口点击边缘是否关闭，点击窗口是否切换层次等。
  * 通过设置对话框的 zOrder 属性，可以更改弹出的层次。
  */
@@ -47,7 +35,6 @@ export class DialogManager extends Sprite {
     lockLayer: Sprite;
 
     /**
-     * @private
      * @en The global default popup effect for dialogs. You can set an effect to replace the default popup effect.
      * If you do not want any effect, you can assign it to null.
      * @zh 全局默认弹出对话框效果，可以设置一个效果代替默认的弹出效果，如果不想有任何效果，可以赋值为 null。
@@ -58,7 +45,6 @@ export class DialogManager extends Sprite {
     }
 
     /**
-     * @private
      * @en The global default close effect for dialogs. You can set an effect to replace the default close effect.
      * If you do not want any effect, you can assign it to null.
      * @zh 全局默认关闭对话框效果，可以设置一个效果代替默认的关闭效果，如果不想有任何效果，可以赋值为 null。
@@ -82,6 +68,7 @@ export class DialogManager extends Sprite {
      */
     closeEffectHandler: Handler = new Handler(this, this.closeEffect);
 
+    /** @ignore */
     constructor() {
         super();
         this.mouseEnabled = this.maskLayer.mouseEnabled = true;
@@ -92,13 +79,11 @@ export class DialogManager extends Sprite {
         this._onResize(null);
     }
 
-    /**@internal */
     private _closeOnSide(): void {
         var dialog: Dialog = (<Dialog>this.getChildAt(this.numChildren - 1));
         if (dialog instanceof Dialog) dialog.close("side");
     }
 
-    /**@internal */
     private _onResize(e: Event = null): void {
         var width: number = this.maskLayer.width = ILaya.stage.width;
         var height: number = this.maskLayer.height = ILaya.stage.height;
@@ -114,13 +99,11 @@ export class DialogManager extends Sprite {
         }
     }
 
-    /**@internal */
     private _centerDialog(dialog: Dialog): void {
         dialog.x = Math.round(((ILaya.stage.width - dialog.width) >> 1) + dialog.pivotX);
         dialog.y = Math.round(((ILaya.stage.height - dialog.height) >> 1) + dialog.pivotY);
     }
 
-    /**@internal */
     private _clearDialogEffect(dialog: Dialog): void {
         if (dialog._effectTween) {
             Tween.clear(dialog._effectTween);
@@ -128,8 +111,6 @@ export class DialogManager extends Sprite {
         }
     }
 
-
-    /**@internal */
     private _closeAll(): void {
         for (var i: number = this.numChildren - 1; i > -1; i--) {
             var item: Dialog = (<Dialog>this.getChildAt(i));
@@ -181,7 +162,7 @@ export class DialogManager extends Sprite {
      * @param dialog The Dialog instance to be displayed.
      * @param closeOther Whether to close other dialogs. If true, other dialogs will be closed.
      * @param showEffect Whether to show the popup effect.
-     * @zh 显示对话框。
+     * @zh 打开对话框。
      * @param dialog 需要显示的对话框 Dialog 实例。
      * @param closeOther 是否关闭其他对话框。若为 true，则关闭其他对话框。
      * @param showEffect 是否显示弹出效果。

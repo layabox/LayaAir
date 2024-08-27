@@ -12,25 +12,21 @@ import { LayaEnv } from "../../LayaEnv";
  * 封装了位置，宽高及九宫格的处理，供UI组件使用。
  */
 export class AutoBitmap extends Graphics {
-    /**@internal 宽度*/
+    /** 宽度*/
     private _width: number = null;
-    /**@internal 高度*/
+    /** 高度*/
     private _height: number = null;
-    /**@internal 源数据*/
+    /** 源数据*/
     private _source: Texture;
-    /**@internal 纹理的九宫格数据 */
+    /** 纹理的九宫格数据 */
     private _sizeGrid: number[];
-    /**@internal */
     protected _isChanged: boolean;
-    /**@internal */
     protected _stateIndex: number;
-    /**@internal */
     protected _stateNum: number;
     /**@internal */
     _color: string = "#ffffff";
     /**@internal */
     _offset: any[];
-    /**@internal */
     private _drawGridCmd: Draw9GridTextureCmd | DrawTextureCmd;
     uv: number[] = null;
 
@@ -125,7 +121,6 @@ export class AutoBitmap extends Graphics {
     }
 
     /**
-     * @internal
      * @en Mark the object as changed.
      * @zh 标记对象为已更改状态。
      */
@@ -137,7 +132,6 @@ export class AutoBitmap extends Graphics {
     }
 
     /**
-     * @internal
      * @en Change the texture resource.
      * @zh 修改纹理资源。
      */
@@ -185,8 +179,8 @@ export class AutoBitmap extends Graphics {
     }
 
     /**
-     * @internal
-     *  由于可能有其他的graphic命令，因此不能用原来的直接clear()的方法
+     * @en Due to the possibility of other graphic commands, the original method of directly using clear() cannot be used.
+     * @zh 由于可能有其他的graphic命令，因此不能用原来的直接clear()的方法
      */
     private _setDrawGridCmd(newcmd: any) {
         if (this._drawGridCmd) {
@@ -198,8 +192,7 @@ export class AutoBitmap extends Graphics {
             this.addCmd(newcmd);
     }
 
-    /**@inheritDoc 
-     * @override
+    /**
      * @en Destroy the object.
      * @zh 销毁对象。
      */

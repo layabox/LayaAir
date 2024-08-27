@@ -9,9 +9,9 @@ import { Slider } from "./Slider";
 export class HSlider extends Slider {
 
     /**
-     * @en In the constructor method, set the sliding direction to horizontal.
+     * @en Creates an instance of HSlider, and sets the direction to horizontal.
      * @param skin The skin of the HSlider.
-     * @zh 在构造方法里，设置滑动方向为水平，
+     * @zh 创建Slider实例，设置滑动方向为水平，
      * @param skin 皮肤纹理。
      */
     constructor(skin: string = null) {

@@ -8,7 +8,6 @@ export class Styles {
     /**
      * @en Default nine-slice grid information.
      * @zh 默认九宫格信息。
-     * @see laya.ui.AutoBitmap#sizeGrid
      */
     static defaultSizeGrid: any[] = [4, 4, 4, 4, 0];
 

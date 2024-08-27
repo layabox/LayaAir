@@ -7,11 +7,8 @@ import { Event } from "../events/Event"
  * @zh LayoutBox 是一个布局容器类。
  */
 export class LayoutBox extends Box {
-    /**@internal */
     protected _space: number = 0;
-    /**@internal */
     protected _align: string = "none";
-    /**@internal */
     protected _itemChanged: boolean = false;
 
     /**
@@ -40,9 +37,6 @@ export class LayoutBox extends Box {
         this._setItemChanged();
     }
 
-    /**
-     * @internal
-     */
     protected _setItemChanged(): void {
         if (!this._itemChanged) {
             this._itemChanged = true;
@@ -51,7 +45,6 @@ export class LayoutBox extends Box {
     }
 
     /**
-     * @internal
      * @en Change the layout of child objects.
      * @zh 改变子对象的布局。
      */
@@ -61,7 +54,6 @@ export class LayoutBox extends Box {
 
 
     /**
-     * @internal
      * @en Sort the item list. Default sorting rules can be changed by overriding.
      * @param items The item list.
      * @zh 排序项目列表。可通过重写改变默认排序规则。
@@ -71,13 +63,11 @@ export class LayoutBox extends Box {
         if (items) items.sort(function (a: any, b: any): number { return a.y - b.y; });
     }
 
-    /**@internal */
     private onResize(e: Event): void {
         this._setItemChanged();
     }
 
     /** 
-     * @override
      * @en Adds a child object.
      * @param child The child object to add.
      * @returns The added child object.
@@ -92,7 +82,6 @@ export class LayoutBox extends Box {
     }
 
     /** 
-     * @override
      * @en Adds a child object at a specified index position.
      * @param child The child object to add.
      * @param index The index position to add the child object.
@@ -109,7 +98,6 @@ export class LayoutBox extends Box {
     }
 
     /**
-     * @override
      * @en Removes a child object at a specified index position.
      * @param index The index position of the child object.
      * @returns The removed child object.

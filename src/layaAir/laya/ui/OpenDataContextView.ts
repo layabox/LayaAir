@@ -14,6 +14,7 @@ import { Browser } from "../utils/Browser";
 export class OpenDataContextView extends UIComponent {
     private _fps: number = 30;
 
+    /** @ignore */
     constructor() {
         super();
         this._width = this._height = 200;
@@ -42,7 +43,7 @@ export class OpenDataContextView extends UIComponent {
     }
 
     /**
-     * @override
+     * @ignore
      */
     _onActive(): void {
         if (!LayaEnv.isPlaying)
@@ -52,7 +53,7 @@ export class OpenDataContextView extends UIComponent {
             ILaya.timer.loop(1000 / this._fps, this, this._onLoop);
     }
     /**
-     * @override
+     * @ignore
      */
     _onInActive(): void {
         if (!LayaEnv.isPlaying)
@@ -80,7 +81,7 @@ export class OpenDataContextView extends UIComponent {
     }
 
     /**
-     * @override
+     * @ignore
      */
     _setWidth(value: number) {
         super._setWidth(value);
@@ -89,7 +90,7 @@ export class OpenDataContextView extends UIComponent {
     }
 
     /**
-     * @override
+     * @ignore
      */
     _setHeight(value: number) {
         super._setHeight(value);
@@ -98,7 +99,6 @@ export class OpenDataContextView extends UIComponent {
     }
 
     /**
-     * @override
      * @en The x-coordinate of the component.
      * @zh 组件的 x 坐标。
      */
@@ -112,7 +112,6 @@ export class OpenDataContextView extends UIComponent {
     }
 
     /**
-     * @override
      * @en The y-coordinate of the component.
      * @zh 组件的 y 坐标。
      */

@@ -8,35 +8,17 @@ import { UIUtils } from "./UIUtils"
 import { ILaya } from "../../ILaya";
 import { HideFlags } from "../Const";
 import { URL } from "../net/URL";
-
-/**
- * @en Dispatched after the user inputs text.
- * @zh 输入文本后调度。
- * @eventType Event.INPUT
- */
-/*[Event(name = "input", type = "laya.events.Event")]*/
-/**
- * @en Dispatched after the user presses the enter key within the input box.
- * @zh 在输入框内敲回车键后调度。
- * @eventType Event.ENTER
- */
-/*[Event(name = "enter", type = "laya.events.Event")]*/
-/**
- * @en Dispatched when the input gains focus.
- * @zh 当获得输入焦点后调度。
- * @eventType Event.FOCUS
- */
-/*[Event(name = "focus", type = "laya.events.Event")]*/
-/**
- * @en Dispatched when the input loses focus.
- * @zh 当失去输入焦点后调度。
- * @eventType Event.BLUR
- */
-/*[Event(name = "blur", type = "laya.events.Event")]*/
-
 /**
  * @en The TextInput class is used to create an input text display object.
+ * - Event.INPUT event: When the input text after dispatching.
+ * - Event.ENTER event: When the input box presses enter key after dispatching.
+ * - Event.FOCUS event: When the input box gets focus.
+ * - Event.BLUR event: When the input box loses focus.
  * @zh TextInput类用于创建输入文本显示对象。
+ * - Event.INPUT事件：当输入文本后调度。
+ * - Event.ENTER事件：当输入框内敲回车键后调度。
+ * - Event.FOCUS事件：当输入框获得焦点时调度。
+ * - Event.BLUR事件：当输入框失去焦点时调度。
  */
 export class TextInput extends Label {
     /** @internal */
@@ -49,7 +31,6 @@ export class TextInput extends Label {
     /**
      * @en The URL of the skin for the TextInput UIComponent.
      * @zh TextInput组件的皮肤地址。
-     * @copy laya.ui.Image#skin
      */
     get skin(): string {
         return this._skin;
@@ -126,7 +107,6 @@ export class TextInput extends Label {
     /**
      * @en The prompt text of the input.
      * @zh 输入框的提示文本。
-     * @copy laya.display.Input#prompt
      */
     get prompt(): string {
         return this._tf.prompt;
@@ -139,7 +119,6 @@ export class TextInput extends Label {
     /**
      * @en The prompt color of the input.
      * @zh 输入框的提示文字颜色。
-     * @copy laya.display.Input#promptColor
      */
     get promptColor(): string {
         return this._tf.promptColor;
@@ -152,7 +131,6 @@ export class TextInput extends Label {
     /**
      * @en The maximum number of characters allowed in the input.
      * @zh 输入框允许的最大字符数。
-     * @copy laya.display.Input#maxChars
      */
     get maxChars(): number {
         return this._tf.maxChars;
@@ -165,7 +143,6 @@ export class TextInput extends Label {
     /**
      * @en The focus state of the input.
      * @zh 输入框的焦点状态。
-     * @copy laya.display.Input#focus
      */
     get focus(): boolean {
         return this._tf.focus;
@@ -192,7 +169,6 @@ export class TextInput extends Label {
      * - number
      * - date
      * - time
-     * @copy laya.display.Input#type
      */
 
     get type(): string {
@@ -235,8 +211,6 @@ export class TextInput extends Label {
             return Promise.resolve();
         }
     }
-
-    /**@internal */
     protected _skinLoaded(source: any): void {
         if (this._destroyed)
             return;
@@ -248,8 +222,6 @@ export class TextInput extends Label {
 
     /**
      * @internal
-     * @inheritDoc 
-     * @override
      */
     _setWidth(value: number) {
         super._setWidth(value);
@@ -258,28 +230,16 @@ export class TextInput extends Label {
 
     /**
      * @internal
-     * @inheritDoc 
-     * @override
      */
     _setHeight(value: number) {
         super._setHeight(value);
         this._graphics && (this._graphics.height = value);
     }
 
-    /**
-     * @internal
-     * @inheritDoc 
-     * @override
-    */
     protected preinitialize(): void {
         this.mouseEnabled = true;
     }
 
-    /**
-     * @internal
-     * @inheritDoc
-     * @override 
-    */
     protected createChildren(): void {
         this.setGraphics(new AutoBitmap(), true);
 
@@ -294,11 +254,6 @@ export class TextInput extends Label {
         this.addChild(this._tf);
     }
 
-    /**
-     * @internal
-     * @inheritDoc 
-     * @override
-    */
     protected initialize(): void {
         this.width = 128;
         this.height = 22;

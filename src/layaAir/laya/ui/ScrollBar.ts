@@ -16,34 +16,18 @@ import { Utils } from "../utils/Utils";
 import { AssetDb } from "../resource/AssetDb";
 
 /**
- * @en Schedule when the position of the scroll bar slider changes.
- * @zh 滚动条滑块位置发生变化后调度。
- * @eventType laya.events.Event
- */
-/*[Event(name = "change", type = "laya.events.Event")]*/
-/**
- * @en Start sliding.
- * @zh 开始滑动。
- * @eventType laya.events.Event
- */
-/*[Event(name = "start", type = "laya.events.Event")]*/
-/**
- * @en End sliding.
- * @zh 结束滑动。
- * @eventType laya.events.Event
- */
-/*[Event(name = "end", type = "laya.events.Event")]*/
-
-/**
  * @en The `ScrollBar` component is a scrollbar component.
  * When there is too much data to fit in the display area, the end user can use the `ScrollBar` component to control the portion of data being displayed.
  * A scrollbar consists of four parts: two arrow buttons, a track, and a thumb (slider).
+ * - `start` event dispatched when the scrollbar starts to slide.
+ * - `end` event dispatched when the scrollbar stops sliding.
+ * - `change` event dispatched when the scrollbar thumb position changes.
  * @zh ScrollBar 组件是一个滚动条组件。
  * 当数据太多以至于显示区域无法容纳时，最终用户可以使用 ScrollBar 组件控制所显示的数据部分。
  * 滚动条由四部分组成：两个箭头按钮、一个轨道和一个滑块。
- *
- * @see laya.ui.VScrollBar
- * @see laya.ui.HScrollBar
+ * - `start` 事件在滚动条开始滑动时调度。
+ * - `end` 事件在滚动条滑动结束时调度。
+ * - `change` 事件在滚动条滑块位置发生变化时调度。
  */
 export class ScrollBar extends UIComponent {
     /** 
@@ -116,41 +100,26 @@ export class ScrollBar extends UIComponent {
      */
     disableDrag: boolean = false;
 
-    /**@private */
     protected _showButtons: boolean;
-    /**@private */
     protected _scrollSize: number = 1;
-    /**@private */
     protected _skin: string;
-    /**@private */
     protected _thumbPercent: number = 1;
-    /**@private */
     protected _target: Sprite;
-    /**@private */
     protected _lastPoint: Point;
-    /**@private */
     protected _lastOffset: number = 0;
-    /**@private */
     protected _checkElastic: boolean = false;
-    /**@private */
     protected _isElastic: boolean = false;
-    /**@private */
     protected _value: number;
-    /**@private */
     protected _hide: boolean = false;
-    /**@private */
     protected _clickOnly: boolean = true;
-    /**@private */
     protected _offsets: any[];
-    /**@private */
     protected _touchScrollEnable: boolean;
-    /**@private */
     protected _mouseWheelEnable: boolean;
 
     /**
-     * @en constructor method.
+     * @en creates an instance of ScrollBar.
      * @param skin The address of the skin resource.
-     * @zh 构造方法
+     * @zh 创建一个 ScrollBar 实例。
      * @param skin 皮肤资源地址。
      */
     constructor(skin: string = null) {
@@ -164,10 +133,6 @@ export class ScrollBar extends UIComponent {
         this.max = 1;
     }
 
-    /**
-     * @inheritDoc 
-     * @override
-    */
     destroy(destroyChild: boolean = true): void {
         this.stopScroll();
         this.target = null;
@@ -182,7 +147,6 @@ export class ScrollBar extends UIComponent {
     }
 
     /**
-     * @override
      * @en Creates the child elements of the ScrollBar, such as the slider and buttons.
      * @zh 创建 ScrollBar 的子元素，例如滑块和按钮。
      */
@@ -201,7 +165,6 @@ export class ScrollBar extends UIComponent {
     }
 
     /**
-     * @override
      * @en Initializes the ScrollBar, setting up the slider and buttons with appropriate event listeners.
      * @zh 初始化 ScrollBar，为滑块和按钮设置适当的事件监听器。
      */
@@ -216,7 +179,6 @@ export class ScrollBar extends UIComponent {
     }
 
     /**
-     * @private
      * @en The change event handler for the slider when its value changes.
      * @zh 滑块值改变时的事件处理函数。
      */
@@ -225,7 +187,6 @@ export class ScrollBar extends UIComponent {
     }
 
     /**
-     * @private
      * @en The mouse down event handler for the up and down buttons.
      * @zh 向上和向下按钮的 Event.MOUSE_DOWN 事件侦听处理函数。
      */
@@ -236,19 +197,16 @@ export class ScrollBar extends UIComponent {
         ILaya.stage.once(Event.MOUSE_UP, this, this.onStageMouseUp);
     }
 
-    /**@private */
     protected startLoop(isUp: boolean): void {
         ILaya.timer.frameLoop(1, this, this.slide, [isUp]);
     }
 
-    /**@private */
     protected slide(isUp: boolean): void {
         if (isUp) this.value -= this._scrollSize;
         else this.value += this._scrollSize;
     }
 
     /**
-     * @private
      * @en The mouse up event handler for the stage.
      * @param e The event object.
      * @zh 舞台的 Event.MOUSE_DOWN 事件侦听处理函数。
@@ -262,7 +220,6 @@ export class ScrollBar extends UIComponent {
     /**
      * @en the skin of the scrollbar.
      * @zh 滚动条的皮肤纹理路径。
-     * @copy laya.ui.Image#skin
      */
     get skin(): string {
         return this._skin;
@@ -323,7 +280,6 @@ export class ScrollBar extends UIComponent {
     }
 
     /**
-     * @private
      * @en Adjust the scroll bar's display state, including the visibility of the buttons and the position of the slider
      * @zh 更改滚动条的显示状态，包括按钮的可见性和滑动条的位置
      */
@@ -338,10 +294,6 @@ export class ScrollBar extends UIComponent {
         this.repaint();
     }
 
-    /**
-     * @inheritDoc 
-     * @override
-     */
     protected _sizeChanged(): void {
         super._sizeChanged();
         this.repaint();
@@ -350,7 +302,6 @@ export class ScrollBar extends UIComponent {
         this.changeHandler && this.changeHandler.runWith(this.value);
     }
 
-    /**@private */
     private resetPositions(): void {
         if (this.slider.isVertical) this.slider.height = this.height - (this._showButtons ? (this.upButton.height + this.downButton.height) : 0);
         else this.slider.width = this.width - (this._showButtons ? (this.upButton.width + this.downButton.width) : 0);
@@ -358,25 +309,16 @@ export class ScrollBar extends UIComponent {
 
     }
 
-    /**@private */
     protected resetButtonPosition(): void {
         if (this.slider.isVertical) this.downButton.y = this.slider._y + this.slider.height;
         else this.downButton.x = this.slider._x + this.slider.width;
     }
 
-    /**
-     * @inheritDoc 
-     * @override
-    */
     protected measureWidth(): number {
         if (this.slider.isVertical) return this.slider.width;
         return 100;
     }
 
-    /**
-     * @inheritDoc 
-     * @override
-    */
     protected measureHeight(): number {
         if (this.slider.isVertical) return 100;
         return this.slider.height;
@@ -492,10 +434,6 @@ export class ScrollBar extends UIComponent {
         this._scrollSize = value;
     }
 
-    /**
-     * @inheritDoc
-     * @override
-     */
     set_dataSource(value: any) {
         this._dataSource = value;
         if (typeof (value) == 'number' || typeof (value) == 'string')
@@ -526,7 +464,6 @@ export class ScrollBar extends UIComponent {
     /**
      * @en the target object of the scrollbar.
      * @zh 滚动的对象。
-     * @see laya.ui.TouchScroll#target
      */
     get target(): Sprite {
         return this._target;
@@ -596,7 +533,6 @@ export class ScrollBar extends UIComponent {
         this.target = this._target;
     }
 
-    /**@private */
     protected onTargetMouseWheel(e: Event): void {
         this.value += e.delta * this._scrollSize;
         this.target = this._target;
@@ -604,7 +540,6 @@ export class ScrollBar extends UIComponent {
 
     isLockedFun: Function;
 
-    /**@private */
     protected onTargetMouseDown(e: Event): void {
         if ((this.isLockedFun) && !this.isLockedFun(e)) return;
         this.event(Event.END);
@@ -701,7 +636,6 @@ export class ScrollBar extends UIComponent {
         ILaya.timer.frameLoop(1, this, this.tweenMove, [200]);
     }
 
-    /**@private */
     protected loop(): void {
         if (this.disableDrag) return;
         var mouseY: number = ILaya.stage.mouseY;
@@ -769,8 +703,6 @@ export class ScrollBar extends UIComponent {
             this.value -= this._lastOffset;
         }
     }
-
-    /**@private */
     protected onStageMouseUp2(e: Event): void {
         ILaya.stage.off(Event.MOUSE_UP, this, this.onStageMouseUp2);
         ILaya.stage.off(Event.MOUSE_OUT, this, this.onStageMouseUp2);
@@ -820,7 +752,6 @@ export class ScrollBar extends UIComponent {
         }
     }
 
-    /**@private */
     private elasticOver(): void {
         this._isElastic = false;
         if (!this.hide && this.autoHide) {
@@ -829,7 +760,6 @@ export class ScrollBar extends UIComponent {
         this.event(Event.END);
     }
 
-    /**@private */
     protected tweenMove(maxDistance: number): void {
         this._lastOffset *= this.rollRatio;
         if (this.checkTriggers(true)) {

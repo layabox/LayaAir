@@ -11,25 +11,15 @@ import { IStatUI, StatToggleUIParams, StatUIParams } from "../utils/IStatUI";
 import { Stat } from "../utils/Stat";
 
 export class StatUI implements IStatUI {
-
-    /**@internal */
     private _txt: Text;
-    /**@internal */
     private _sp: Sprite;
-    /**@internal */
     private _view: Array<StatUIParams>;
-    /**@internal */
     private _toggleView: Array<StatToggleUIParams>;
-    /**@internal */
     private _toggleSprite: Sprite;
-    /**@internal */
     private _checkBoxArray: Array<CheckBox>;
-    /**@internal */
     private _show = false;
-    /**@internal */
     private _showToggle = false;
 
-    /**@internal */
     private createUI(): void {
         let sp: Sprite = this._sp = new Sprite();
         sp.scale(Math.max(Laya.stage.clientScaleX, 1), Math.max(Laya.stage.clientScaleY, 1));
@@ -63,7 +53,6 @@ export class StatUI implements IStatUI {
         sp.graphics.alpha(2);
     }
 
-    /**@internal */
     private createToggleUI(): void {
         if (!checkBoxTex) {
             let pixels = new Uint8Array(9);
@@ -124,7 +113,6 @@ export class StatUI implements IStatUI {
     }
 
     /**
-     * @override
      * @en Display the performance statistics.
      * @param x The X-axis display position. 
      * @param y The Y-axis display position.
@@ -173,7 +161,6 @@ export class StatUI implements IStatUI {
     }
 
     /**
-     * @override
      * @en Hides performance statistics.
      * @zh 隐藏性能统计信息。
      */

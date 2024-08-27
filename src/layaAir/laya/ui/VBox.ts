@@ -41,11 +41,6 @@ export class VBox extends LayoutBox {
         this.callLater(this.changeItems);
     }
 
-    /** 
-     * @internal
-     * @inheritDoc	
-     * @override
-    */
     protected changeItems(): void {
         this._itemChanged = false;
         let items: any[] = [];

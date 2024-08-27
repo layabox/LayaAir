@@ -10,13 +10,6 @@ import { HideFlags } from "../Const";
 import { URL } from "../net/URL";
 
 /**
- * @en Schedule when the selectedIndex property of a Group instance changes.
- * @zh 当 Group 实例的 selectedIndex 属性发生变化时调度。
- * @eventType laya.events.Event
- */
-/*[Event(name = "change", type = "laya.events.Event")]*/
-
-/**
  * @en UIGroup is an item collection control that can be automatically laid out. 
  * The default item object for UIGroup is a Button class instance.
  * UIGroup is the base class for Tab and RadioGroup.
@@ -143,7 +136,6 @@ export class UIGroup extends Box {
     /**
      * @en The label colors string for the component.
      * @zh 组件的标签颜色字符串。
-     * @copy laya.ui.Button#labelColors()
      */
     get labelColors(): string {
         return this._labelColors;
@@ -161,7 +153,6 @@ export class UIGroup extends Box {
      * The default value is 0, indicating no stroke.
      * @zh 描边宽度（以像素为单位）。
      * 默认值0，表示不描边。
-     * @see laya.display.Text.stroke()
      */
     get labelStroke(): number {
         return this._labelStroke;
@@ -179,7 +170,6 @@ export class UIGroup extends Box {
      * The default color is "#000000" (black).
      * @zh 描边颜色，以字符串表示。
      * 默认值为 "#000000"（黑色）;
-     * @see laya.display.Text.strokeColor()
      */
     get labelStrokeColor(): string {
         return this._labelStrokeColor;
@@ -195,7 +185,6 @@ export class UIGroup extends Box {
     /**
      * @en The stroke colors in various states.
      * @zh 各个状态下的描边颜色
-     * @see laya.display.Text.strokeColor()
      */
     get strokeColors(): string {
         return this._strokeColors;
@@ -226,7 +215,6 @@ export class UIGroup extends Box {
     /**
      * @en The number of states the button has, represented as a number. The default is 3 states.
      * @zh 按钮的状态值，以数字表示，默认为3态。
-     * @see laya.ui.Button#stateNum
      */
     get stateNum(): number {
         return this._stateNum;
@@ -257,7 +245,6 @@ export class UIGroup extends Box {
     /**
      * @en The font name of the button's text label, represented as a string.
      * @zh 按钮文本标签的字体名称，以字符串形式表示。
-     * @see laya.display.Text.font()
      */
     get labelFont(): string {
         return this._labelFont;
@@ -339,10 +326,10 @@ export class UIGroup extends Box {
     }
 
     /**
-     * @en Constructor method.
+     * @en Creates an instance of UIGroup.
      * @param labels A string of labels separated by commas, e.g., "item0,item1,item2,item3,item4,item5".
      * @param skin The skin. 
-     * @zh 构造方法
+     * @zh 创建一个 UIGroup 的实例。
      * @param labels 标签集字符串，以逗号分隔，例如 "item0,item1,item2,item3,item4,item5"。
      * @param skin 皮肤。
      */
@@ -381,7 +368,6 @@ export class UIGroup extends Box {
         }
     }
 
-    /** @internal */
     protected _skinLoaded(): void {
         if (this._destroyed)
             return;
@@ -390,7 +376,6 @@ export class UIGroup extends Box {
         this.event(Event.LOADED);
     }
 
-    /**@internal */
     protected _setLabelChanged(): void {
         if (!this._labelChanged) {
             this._labelChanged = true;
@@ -399,7 +384,6 @@ export class UIGroup extends Box {
     }
 
     /**
-     * @internal
      * 项对象的点击事件侦听处理函数。
      * @param index 项索引。
      */
@@ -408,7 +392,6 @@ export class UIGroup extends Box {
     }
 
     /**
-     * @internal
      * @en Creates an item display object.
      * @param skin The skin path for the item object.
      * @param label The text label for the item object.
@@ -421,8 +404,8 @@ export class UIGroup extends Box {
     }
 
     /**
-     * @internal
-     * 更改项对象的属性值。
+     * @en Change the property value of an item object.
+     * @zh 更改项对象的属性值。
      */
     protected changeLabels(): void {
         this._labelChanged = false;
@@ -455,17 +438,11 @@ export class UIGroup extends Box {
         this._sizeChanged();
     }
 
-    /**
-     * @internal
-     * @inheritDoc 
-     * @override
-    */
     protected commitMeasure(): void {
         this.runCallLater(this.changeLabels);
     }
 
     /**
-     * @internal
      * @en Sets the `selected`property value of an item object by its index.
      * @param index The index of the item object to be set.
      * @param selected Indicates the selected state of the item object.
@@ -478,15 +455,11 @@ export class UIGroup extends Box {
         if (this._items && index > -1 && index < this._items.length) this._items[index].selected = selected;
     }
 
-    /**
-     * @internal
-     */
     protected preinitialize(): void {
         this.mouseEnabled = true;
     }
 
     /**
-     * @override
      * @en Destroys this instance.
      * @param destroyChild Whether to destroy the child components.
      * @zh 销毁此实例。
@@ -592,7 +565,6 @@ export class UIGroup extends Box {
     }
 
     /**
-     * @override
      * @en Sets the data source for this component.
      * @zh 设置此组件的数据源。
      */

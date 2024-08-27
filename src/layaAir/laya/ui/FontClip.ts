@@ -14,60 +14,55 @@ import { Clip } from "./Clip"
  */
 export class FontClip extends Clip {
     /**
-     * @internal 
      * @en Internal use. The array of values.
      * @zh 内部使用，数值数组。
     */
     protected _valueArr: string = '';
     /**
-     * @internal
      * @en Internal use. The array of text content.
      * @zh 内部使用，文字内容数组。
      */
     protected _indexMap: Record<string, number> = null;
     /**
-     * @internal
      * @en Internal use. The content of the font clip.
      * @zh 内部使用，字体切片内容。
      */
     protected _sheet: string = null;
     /**
-     * @internal
      * @en Internal use. The direction.
      * @zh 内部使用，方向。
      */
     protected _direction: string = "horizontal";
     /**
-     * @internal
      * @en Internal use. The gap on the X-axis.
      * @zh 内部使用，X轴方向间隙。
      */
     protected _spaceX: number = 0;
     /**
-     * @internal
      * @en Internal use. The gap on the Y-axis.
      * @zh 内部使用，Y轴方向间隙。
      */
     protected _spaceY: number = 0;
     /**
-     * @internal
      * @en Internal use. The horizontal alignment method.
      * @zh 内部使用，水平对齐方式。
      */
     private _align: string = "left";
     /**
-     * @internal
      * @en Internal use. The width of the displayed text.
      * @zh 内部使用，显示文字的宽度。
      */
     private _wordsW: number = 0;
     /**
-     * @internal
      * @en Internal use. The height of the displayed text.
      * @zh 内部使用，显示文字的高度。
      */
     private _wordsH: number = 0;
-
+    
+    /**
+     * @en Font clip index.
+     * @zh 字体切片索引。
+     */
     get index(): number {
         return this._index;
     }
@@ -138,7 +133,6 @@ export class FontClip extends Clip {
         this.callLater(this.changeValue);
     }
 
-
     /**
      * @en The X-axis spacing between characters in the font clip.
      * @zh 字体切片中字符的X轴方向间隙。
@@ -172,19 +166,16 @@ export class FontClip extends Clip {
     get align(): string {
         return this._align;
     }
-
-
     set align(v: string) {
         this._align = v;
         this.callLater(this.changeValue);
     }
 
-
     /**
-     * @en constructor method
+     * @en Creates an instance of the FontClip.
      * @param skin The skin path for the font clip.
      * @param sheet The content string for the font clip, with spaces representing line breaks.
-     * @zh 构造方法
+     * @zh 创建 FontClip 实例。
      * @param skin 字体切片的皮肤路径。
      * @param sheet 字体切片的内容字符串，空格代表换行。
      */

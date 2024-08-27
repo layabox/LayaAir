@@ -52,7 +52,7 @@ export class Dialog extends View {
      */
     static OK: string = "ok";
 
-    /**@internal 表示对话框管理器。*/
+    /** 表示对话框管理器。*/
     private static _manager: DialogManager;
 
     /**
@@ -73,13 +73,11 @@ export class Dialog extends View {
     }
 
     /**
-     * @en
-     * Set the lock view. Display the lock view before the interface is ready, and remove the lock layer after it is ready.
+     * @en Set the lock view. Display the lock view before the interface is ready, and remove the lock layer after it is ready.
      * If it is empty, nothing will be displayed.
      * @param view The content of the lock view.
-     * @zh
-     * 设置锁定界面，在界面未准备好前显示锁定界面，准备完毕后则移除锁定层，如果为空则什么都不显示
-     * @param	view 锁定界面内容
+     * @zh 设置锁定界面，在界面未准备好前显示锁定界面，准备完毕后则移除锁定层，如果为空则什么都不显示
+     * @param view 锁定界面内容
      */
     static setLockView(view: UIComponent): void {
         Dialog.manager.setLockView(view);
@@ -106,10 +104,10 @@ export class Dialog extends View {
     /**
      * @en Get the dialog collection by group.
      * @param group The group name.
-     * @return The dialog array.
+     * @returns The dialog array.
      * @zh 根据组获取对话框集合。
      * @param group 组名称
-     * @return 对话框数组
+     * @returns 对话框数组
      */
     static getDialogsByGroup(group: string): any[] {
         return Dialog.manager.getDialogsByGroup(group);
@@ -118,16 +116,15 @@ export class Dialog extends View {
     /**
      * @en Close all pop-up boxes by group.
      * @param group The group name that needs to be closed.
-     * @return The closed dialogs.
+     * @returns The closed dialogs.
      * @zh 根据组关闭所有弹出框。
      * @param group 需要关闭的组名称
-     * @return 关闭的对话框集合
+     * @returns 关闭的对话框集合
      */
     static closeByGroup(group: string): any[] {
         return Dialog.manager.closeByGroup(group);
     }
 
-    /**@internal */
     private _dragArea: Rectangle;
     /**@internal */
     _param: any;
@@ -135,11 +132,9 @@ export class Dialog extends View {
     _effectTween: Tween;
 
     /**
-     * @en
-     * The handler function that will be triggered when the dialog is closed.
+     * @en The handler function that will be triggered when the dialog is closed.
      * The callback function parameter is the button name clicked by the user, of type `String`.
-     * @zh
-     * 对话框被关闭时会触发的回调函数处理器。
+     * @zh 对话框被关闭时会触发的回调函数处理器。
      * 回调函数参数为用户点击的按钮名字name:String。
      */
     closeHandler: Handler;
@@ -197,7 +192,6 @@ export class Dialog extends View {
         if (this._dragArea) return this._dragArea.toString();
         return null;
     }
-
     set dragArea(value: string) {
         if (value) {
             var a: any[] = UIUtils.fillArray([0, 0, 0, 0], value, Number);
@@ -217,25 +211,18 @@ export class Dialog extends View {
         return this.parent != null;
     }
 
-
     /**
      * @en The z-order of the dialog.
      * @zh 对话框的层级。
-     * @inheritDoc 
-     * @override
      */
     get zOrder() {
         return super.zOrder;
     }
-
-    /**
-     * @inheritDoc 
-     * @override
-     */
     set zOrder(value: number) {
         super.zOrder = value;
         Dialog.manager._checkMask();
     }
+    /** @ignore */
     constructor() {
         super();
         this.popupEffect = Dialog.manager.popupEffectHandler;
@@ -244,7 +231,7 @@ export class Dialog extends View {
         this.on(Event.CLICK, this, this._onClick);
     }
 
-    /**@internal 提取拖拽区域*/
+    /** 提取拖拽区域*/
     protected _dealDragArea(): void {
         var dragTarget: Sprite = (<Sprite>this.getChildByName("drag"));
         if (dragTarget) {
@@ -252,15 +239,17 @@ export class Dialog extends View {
             dragTarget.removeSelf();
         }
     }
-
-    /**@internal */
     private _onMouseDown(e: Event): void {
         var point: Point = this.getMousePoint();
         if (this._dragArea.contains(point.x, point.y)) this.startDrag();
         else this.stopDrag();
     }
 
-    /**@internal 处理默认点击事件*/
+    /**
+     * @en Handle the click event for the dialog box. Close the dialog box based on the button name.
+     * @zh 处理对话框的点击事件。根据按钮的名称关闭对话框。
+     * @param e 鼠标事件。
+     */
     protected _onClick(e: Event): void {
         var btn: Button = (<Button>e.target);
         if (btn) {
@@ -284,8 +273,6 @@ export class Dialog extends View {
      * @zh 打开对话框。
      * @param closeOther 是否关闭其它的对话框。若值为true则关闭其它对话框。
      * @param param 传递给对话框的参数。
-     * @inheritDoc 
-     * @override
      */
     open(closeOther: boolean = true, param: any = null): void {
         this._dealDragArea();
@@ -311,8 +298,6 @@ export class Dialog extends View {
      * @param destroyChild Whether to destroy the child objects as well.
      * @zh 销毁对话框。
      * @param destroyChild 是否销毁子对象。
-     * @inheritDoc 
-     * @override
      */
     destroy(destroyChild: boolean = true): void {
         this.closeHandler = null;
@@ -347,7 +332,6 @@ export class Dialog extends View {
         this._open(true, closeOther, showEffect);
     }
 
-    /**@internal */
     protected _open(modal: boolean, closeOther: boolean, showEffect: boolean): void {
         this.isModal = modal;
         this.isShowEffect = showEffect;

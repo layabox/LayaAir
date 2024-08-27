@@ -10,24 +10,16 @@ import { URL } from "../net/URL";
 import { SerializeUtil } from "../loaders/SerializeUtil";
 
 /**
- * @en Dispatched when the resource is loaded.
- * @zh 资源加载完成后调度。
- * @eventType Event.LOADED
- */
-/*[Event(name = "loaded", type = "laya.events.Event")]*/
-
-/**
  * @en The Image class represents a bitmap image or drawing graphics display object.
  * Image and Clip are the only two components that support asynchronous loading. For example, `img.skin = "abc/xxx.png"`, other UI components do not support asynchronous loading.
- * @zh Image类是用于表示位图图像或绘制图形的显示对象。
+ * Event.LOADED: When the resource is loaded.
+ *  @zh Image类是用于表示位图图像或绘制图形的显示对象。
  * Image和Clip组件是唯一支持异步加载的两个组件，比如`img.skin = "abc/xxx.png"`，其他UI组件均不支持异步加载。
+ * Event.LOADED：资源加载完成后调度。
  */
 export class Image extends UIComponent {
-    /**@internal */
     protected _skin: string;
-    /**@internal */
     protected _group: string;
-    /**@internal */
     protected _useSourceSize: boolean;
     /**@internal */
     declare _graphics: AutoBitmap;
@@ -62,7 +54,6 @@ export class Image extends UIComponent {
      * 九宫格是一种将纹理分成3x3格的方式，使得纹理缩放时保持角和边缘不失真。
      * 数组包含五个值，分别代表上边距、右边距、下边距、左边距以及是否重复填充（0：不重复填充，1：重复填充）。
      * 值以逗号分隔。例如："6,6,6,6,1"。
-     * @see laya.ui.AutoBitmap#sizeGrid
      */
     get sizeGrid(): string {
         if (this._graphics.sizeGrid) return this._graphics.sizeGrid.join(",");
@@ -79,13 +70,12 @@ export class Image extends UIComponent {
     /**
      * @en The texture of the object.
      * Note, this is not the image URL, but the image texture. It is recommended to use the skin property to avoid directly using the texture when the image resource has not finished loading.
-     * @cn 图片对象的纹理。
+     * @zh 图片对象的纹理。
      * 注意，这里不是图片的地址，而是图片的纹理。建议使用skin属性，避免图片资源未加载完成时，直接使用texture。
      */
     get source(): Texture {
         return this._graphics.source;
     }
-
     set source(value: Texture) {
         if (!this._graphics) return;
         this._graphics.source = value;
@@ -102,7 +92,7 @@ export class Image extends UIComponent {
 
     /**
      * @en The color of the Image.
-     * @cn 图片的纹理颜色。
+     * @zh 图片的纹理颜色。
      */
     get color() {
         return this._graphics.color;
@@ -181,8 +171,6 @@ export class Image extends UIComponent {
 
     /**
      * @internal
-     * @inheritDoc 
-     * @override
      */
     _setWidth(value: number) {
         super._setWidth(value);
@@ -193,8 +181,6 @@ export class Image extends UIComponent {
 
     /**
      * @internal
-     * @inheritDoc 
-     * @override
      */
     _setHeight(value: number) {
         super._setHeight(value);
@@ -203,38 +189,22 @@ export class Image extends UIComponent {
             this._useSourceSize = false;
     }
 
-
-    /**
-     * @internal
-     * @inheritDoc 
-     * @override
-     */
     protected measureWidth(): number {
         return this._graphics.width;
     }
 
-    /**
-     * @internal
-     * @inheritDoc 
-     * @override
-     */
     protected measureHeight(): number {
         return this._graphics.height;
     }
 
-
-    /**
-     * @internal
-     * @inheritDoc 
-     * @override
-     */
     protected createChildren(): void {
         this.setGraphics(new AutoBitmap(), true);
     }
-
     /**
-     * @inheritDoc 
-     * @override
+     * @en Set the data source of the object.
+     * @param value The data source.
+     * @zh 设置对象的数据源。
+     * @param value 数据源。
      */
     set_dataSource(value: any): void {
         this._dataSource = value;
