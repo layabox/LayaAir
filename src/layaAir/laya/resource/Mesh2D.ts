@@ -72,8 +72,8 @@ export class VertexMesh2D {
                 }
                 verDec = new VertexDeclaration(offset, elements);
                 VertexMesh2D._vertexDeclarationMap[vertexFlag + (compatible ? "_0" : "_1")] = verDec;//TODO:兼容模式
-                verDecs.push(verDec);
             }
+            verDecs.push(verDec);
         }
         return verDecs;
     }
@@ -129,7 +129,9 @@ export class Mesh2D extends Resource {
      */
     static createMesh2DByPrimitive(vbs: Float32Array[], vbDeclaration: VertexDeclaration[], ib: Uint16Array | Uint32Array, ibFormat: IndexFormat, submeshInfo: { start: number, length: number }[] , canRead = false) {
         let mesh2d = new Mesh2D();
+        mesh2d.canRead = canRead;
         let vbArray = [];
+        let vertices = [];
         for (var i = 0, n = vbs.length; i < n; i++) {
             let vbdata = vbs[i];
             let vertex = LayaGL.renderDeviceFactory.createVertexBuffer(BufferUsage.Dynamic);
@@ -137,6 +139,7 @@ export class Mesh2D extends Resource {
             vertex.setDataLength(vbdata.buffer.byteLength);
             vertex.setData(vbdata.buffer, 0, 0, vbdata.buffer.byteLength);
             vbArray.push(vertex);
+            vertices[i] = vbdata.buffer;
         }
         let indexBuffer = LayaGL.renderDeviceFactory.createIndexBuffer(BufferUsage.Dynamic);
         indexBuffer._setIndexDataLength(ib.buffer.byteLength);
@@ -152,6 +155,12 @@ export class Mesh2D extends Resource {
             geometryArray.push(geometry);
         }
         mesh2d._setSubMeshes(geometryArray);
+
+        if (canRead) {
+            mesh2d._vertices = vertices;
+            mesh2d._indices = ib;
+        }
+        
         return mesh2d;
     }
 
