@@ -335,7 +335,6 @@ export class RenderSprite {
             */
             this._next._fun(sprite, ctx, -tRec.x, -tRec.y);
             ctx.endRender();
-            ctx.destroy();
             //临时，恢复
             //ctx.render2D.setRenderTarget(context.render2D.out);endRender实现了
             ctx.destroy();
