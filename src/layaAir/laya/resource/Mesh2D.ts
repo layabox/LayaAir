@@ -129,6 +129,7 @@ export class Mesh2D extends Resource {
      */
     static createMesh2DByPrimitive(vbs: Float32Array[], vbDeclaration: VertexDeclaration[], ib: Uint16Array | Uint32Array, ibFormat: IndexFormat, submeshInfo: { start: number, length: number }[] , canRead = false) {
         let mesh2d = new Mesh2D();
+        mesh2d.canRead = canRead;
         let vbArray = [];
         for (var i = 0, n = vbs.length; i < n; i++) {
             let vbdata = vbs[i];
@@ -152,6 +153,12 @@ export class Mesh2D extends Resource {
             geometryArray.push(geometry);
         }
         mesh2d._setSubMeshes(geometryArray);
+
+        if (canRead) {
+            mesh2d._vertices = vbs;
+            mesh2d._indices = ib;
+        }
+        
         return mesh2d;
     }
 
