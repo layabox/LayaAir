@@ -72,8 +72,8 @@ export class VertexMesh2D {
                 }
                 verDec = new VertexDeclaration(offset, elements);
                 VertexMesh2D._vertexDeclarationMap[vertexFlag + (compatible ? "_0" : "_1")] = verDec;//TODO:兼容模式
-                verDecs.push(verDec);
             }
+            verDecs.push(verDec);
         }
         return verDecs;
     }
