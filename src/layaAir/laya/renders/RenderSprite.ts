@@ -406,7 +406,6 @@ export class RenderSprite {
         //临时，恢复
         //context && ctx.render2D.setRenderTarget(context.render2D.out); endRender实现了
         ctx.destroy();
-        ctx.destroy();
         return rt;
     }
     /**
