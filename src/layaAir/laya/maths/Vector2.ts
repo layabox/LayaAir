@@ -134,6 +134,18 @@ export class Vector2 implements IClone {
     }
 
     /**
+     * 计算两个二维向量的距离
+     * @param a 
+     * @param b 
+     * @returns 
+     */
+    static distance(a:Vector2 , b:Vector2){
+        let x = a.x - b.x;
+        let y = a.y - b.y;
+        return Math.sqrt(x * x + y * y);
+    }
+
+    /**
      * 克隆。
      * @return	 克隆副本。
      */
