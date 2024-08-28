@@ -131,6 +131,7 @@ export class Mesh2D extends Resource {
         let mesh2d = new Mesh2D();
         mesh2d.canRead = canRead;
         let vbArray = [];
+        let vertices = [];
         for (var i = 0, n = vbs.length; i < n; i++) {
             let vbdata = vbs[i];
             let vertex = LayaGL.renderDeviceFactory.createVertexBuffer(BufferUsage.Dynamic);
@@ -138,6 +139,7 @@ export class Mesh2D extends Resource {
             vertex.setDataLength(vbdata.buffer.byteLength);
             vertex.setData(vbdata.buffer, 0, 0, vbdata.buffer.byteLength);
             vbArray.push(vertex);
+            vertices[i] = vbdata.buffer;
         }
         let indexBuffer = LayaGL.renderDeviceFactory.createIndexBuffer(BufferUsage.Dynamic);
         indexBuffer._setIndexDataLength(ib.buffer.byteLength);
@@ -155,7 +157,7 @@ export class Mesh2D extends Resource {
         mesh2d._setSubMeshes(geometryArray);
 
         if (canRead) {
-            mesh2d._vertices = vbs;
+            mesh2d._vertices = vertices;
             mesh2d._indices = ib;
         }
         
