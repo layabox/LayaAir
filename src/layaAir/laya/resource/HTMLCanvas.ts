@@ -18,13 +18,10 @@ export class HTMLCanvas extends Resource {
     _source: HTMLCanvasElement;
     /**@internal */
     _texture: Texture | RenderTexture2D;
-    /**@private */
     protected _width: number;
-    /**@private */
     protected _height: number;
 
     /**
-     * @inheritDoc
      * @en The source of the canvas element.
      * @zh Canvas 元素的源。
      */
@@ -58,15 +55,14 @@ export class HTMLCanvas extends Resource {
 
     /**
      * @internal 
-     * @override
      */
     _getSource() {
         return this._source;
     }
     /**
-     * @en Creates an instance of HTMLCanvas.
+     * @en According to the specified type, create an HTMLCanvas instance.
      * @param createCanvas If true, creates a new canvas element. If false, uses the instance itself as the canvas source. 
-     * @zh 根据指定的类型，创建一个 HTMLCanvas 的实例。
+     * @zh 根据指定的类型，创建一个 HTMLCanvas 实例。
      * @param createCanvas 如果为true，则创建一个新的画布元素。如果为 false，则使用当前实例作为画布源。
      */
     constructor(createCanvas: boolean = false) {
@@ -98,7 +94,6 @@ export class HTMLCanvas extends Resource {
     }
 
     /**
-     * @override
      * @en Destroys the HTMLCanvas instance, releasing all associated resources.
      * @zh 销毁 HTMLCanvas 实例，释放所有相关资源。
      */
@@ -110,8 +105,8 @@ export class HTMLCanvas extends Resource {
     }
 
     /**
-     * @en Release.
-     * @zh 释放
+     * @en Releases the resources of the HTMLCanvas instance.
+     * @zh 释放 HTMLCanvas 实例的资源。
      */
     release(): void {
     }
@@ -217,9 +212,8 @@ export class HTMLCanvas extends Resource {
      */
     toBase64(type: string, encoderOptions: number): string | null {
         if (this._source) {
-            return (this._source as HTMLCanvasElement).toDataURL(type, encoderOptions);
+                return (this._source as HTMLCanvasElement).toDataURL(type, encoderOptions);
         }
         return null;
     }
 }
-

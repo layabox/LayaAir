@@ -44,7 +44,7 @@ export class Texture3D extends BaseTexture {
      * @param format The format of the texture.
      * @param mipmap Indicates whether to generate mipmaps for the texture.
      * @param sRGB Indicates whether the texture uses sRGB color space.
-     * @zh 创建一个 Texture3D 的实例。
+     * @zh 创建 Texture3D 类的实例。
      * @param width 纹理的宽度。
      * @param height 纹理的高度。
      * @param depth 纹理的深度。

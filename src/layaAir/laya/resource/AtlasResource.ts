@@ -57,7 +57,6 @@ export class AtlasResource extends Resource {
     // }
 
     /**
-     * @internal
      * @en Disposes of the resources used by the atlas, destroying all textures and frames.
      * @zh 释放大图合集使用的资源，销毁所有纹理和帧。
      */

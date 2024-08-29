@@ -11,11 +11,11 @@ var _clearRetry: number = 0;
  * @zh `Resource` 类用于资源存取。
  */
 export class Resource extends EventDispatcher {
-    /** @private */
+    /**@ignore */
     static _idResourcesMap: any = {};
-    /** @private 以字节为单位。*/
+    /** 以字节为单位。*/
     private static _cpuMemory: number = 0;
-    /** @private 以字节为单位。*/
+    /** 以字节为单位。*/
     private static _gpuMemory: number = 0;
     /**
      * @en Whether the debug mode is enabled.
@@ -75,7 +75,6 @@ export class Resource extends EventDispatcher {
             ILaya.timer.frameLoop(1, Resource, Resource._destroyUnusedResources);
     }
 
-    /** @private */
     private static _destroyUnusedResources(force: boolean): void {
         if (!force && ILaya.loader.loading)
             return;
@@ -183,7 +182,7 @@ export class Resource extends EventDispatcher {
 
     set obsolute(value: boolean) {
         if (this._obsolute != value) {
-            this._obsolute = value;
+        this._obsolute = value;
 
             if (value && !LayaEnv.isPlaying)
                 this.event("obsolute");
@@ -207,7 +206,9 @@ export class Resource extends EventDispatcher {
     }
 
     /**
-     * 创建一个 <code>Resource</code> 实例。
+     * @en Creates an instance of Resource.
+     * @param managed If set to true, the resource will be automatically released when the reference count is 0. Default is true.
+     * @zh 创建一个 Resource 实例。
      * @param managed 如果设置为true，则在destroyUnusedResources时会检测引用计数并自动释放如果计数为0。默认为true。
      */
     protected constructor(managed?: boolean) {

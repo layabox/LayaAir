@@ -145,10 +145,6 @@ export class Texture2D extends BaseTexture {
 
     /**
      * @internal
-     * @param data 
-     * @param propertyParams 
-     * @param constructParams 
-     * @returns 
      */
     static _SimpleAnimatorTextureParse(data: ArrayBuffer, propertyParams: TexturePropertyParams = null, constructParams: TextureConstructParams = null) {
         var byte: Byte = new Byte(data);
@@ -200,10 +196,6 @@ export class Texture2D extends BaseTexture {
 
     /**
      * @internal
-     * @param imageSource 
-     * @param propertyParams 
-     * @param constructParams 
-     * @returns 
      */
     static _parseImage(imageSource: any, propertyParams: TexturePropertyParams = null, constructParams: TextureConstructParams = null): Texture2D {
 
@@ -238,10 +230,6 @@ export class Texture2D extends BaseTexture {
 
     /**
      * @internal
-     * @param data 
-     * @param propertyParams 
-     * @param constructParams 
-     * @returns 
      */
     static _parseDDS(data: ArrayBuffer, propertyParams: TexturePropertyParams = null, constructParams: TextureConstructParams = null) {
 
@@ -260,10 +248,6 @@ export class Texture2D extends BaseTexture {
 
     /**
      * @internal
-     * @param data 
-     * @param propertyParams 
-     * @param constructParams 
-     * @returns 
      */
     static _parseKTX(data: ArrayBuffer, propertyParams: TexturePropertyParams = null, constructParams: TextureConstructParams = null) {
         let ktxInfo = KTXTextureInfo.getKTXTextureInfo(data);
@@ -278,9 +262,6 @@ export class Texture2D extends BaseTexture {
 
     /**
      * @internal
-     * @param data 
-     * @param propertyParams 
-     * @param constructParams 
      */
     static _parsePVR(data: ArrayBuffer, propertyParams: TexturePropertyParams = null, constructParams: TextureConstructParams = null): Texture2D {
         throw "pvr !";
@@ -312,7 +293,7 @@ export class Texture2D extends BaseTexture {
      * @param canRead Indicates whether the texture data can be read.
      * @param sRGB Indicates whether the texture uses sRGB color space.
      * @param premultiplyAlpha Indicates whether the texture data is premultiplied by the alpha channel.
-     * @zh 实例化2D纹理
+     * @zh 创建 Texture2D 类的实例。
      * @param width 纹理的宽度。
      * @param height 纹理的高度。
      * @param format 纹理的格式。
@@ -441,10 +422,6 @@ export class Texture2D extends BaseTexture {
         }
     }
 
-    /**
-     * @internal
-     * @param propertyParams 
-     */
     private setProperties(propertyParams: TexturePropertyParams) {
         if (propertyParams) {
             if (propertyParams.wrapModeU != null) this.wrapModeU = propertyParams.wrapModeU;

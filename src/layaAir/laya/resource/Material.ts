@@ -143,7 +143,6 @@ export class Material extends Resource implements IClone {
         Shader3D.STENCIL_Op = Shader3D.propertyNameToID("s_StencilOp");
     }
 
-    /**@internal */
     private _matRenderNode: MaterialRenderMode;
     /** @internal */
     _shader: Shader3D;
@@ -219,8 +218,8 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * @en Whether the material uses alpha test mode.
-     * @zh 材质是否使用透明裁剪。
+     * @en Whether the material uses alpha cut mode.
+     * @zh 材质是否使用透明裁剪模式。
      */
     get alphaTest(): boolean {
         return this.shaderData.hasDefine(Material.SHADERDEFINE_ALPHATEST);
@@ -471,14 +470,12 @@ export class Material extends Resource implements IClone {
         this._shaderValues.setInt(Shader3D.STENCIL_Ref, value);
     }
 
-    /** */
     /**
      * @en The stencil operation settings for testing. The vector contains (fail, zfail, zpass) .
      * @zh 模板测试设置，向量包含（fail，zfail，zpass）。
      */
     get stencilOp(): Vector3 {
         return this._shaderValues.getVector3(Shader3D.STENCIL_Op);
-        this.destroy()
     }
 
     set stencilOp(value: Vector3) {
@@ -608,11 +605,6 @@ export class Material extends Resource implements IClone {
         this.destroyedImmediately = Config.destroyResourceImmediatelyDefault;
     }
 
-    /**
-     * @internal
-     * @param shader 
-     * @returns 
-     */
     private _bindShaderInfo(shader: Shader3D) {
         //update UBOData by Shader
         let subShader = shader.getSubShaderAt(0);//TODO	
@@ -630,21 +622,13 @@ export class Material extends Resource implements IClone {
         }
     }
 
-    /**
-     * @internal
-     * 清除UBO
-     * @returns 
-     */
     private _releaseUBOData() {
         this._shaderValues._releaseUBOData();
     }
 
     /**
-     * 销毁资源
-     * @protected
-     * @internal
-     * @inheritDoc
-     * @override
+     * @en Destroys the resources.
+     * @zh 销毁资源。
      */
     protected _disposeResource(): void {
         this._releaseUBOData();
@@ -1370,7 +1354,6 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-     * @override
      * @en Compatible with old parsing end events
      * @zh 兼容老的解析结束事件
      */

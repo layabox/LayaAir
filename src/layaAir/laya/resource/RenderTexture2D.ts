@@ -10,7 +10,6 @@ import { IRenderTarget } from "../RenderDriver/DriverDesign/RenderDevice/IRender
  * @zh RenderTexture2D 类用于创建2D渲染目标。
  */
 export class RenderTexture2D extends BaseTexture implements IRenderTarget {
-    /** @private */
     private static _currentActive: RenderTexture2D;
     static _clearColor: Color = new Color(0, 0, 0, 0);
     static _clear: boolean = false;
@@ -36,9 +35,7 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
         return RenderTexture2D._currentActive;
     }
 
-    /** @private */
     private _depthStencilFormat: number;
-    /** @private */
     private _colorFormat: RenderTargetFormat;
 
     /**@internal */
@@ -54,8 +51,6 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
     }
 
     /**
-     * @inheritDoc
-     * @override
      * @en The default texture.
      * @zh 默认纹理。
      */
@@ -110,6 +105,7 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
     depthStencilTexture: BaseTexture;
 
     /**
+     * @ignore
      * @en The RenderTarget.
      * @zh 渲染目标。
      */
@@ -127,7 +123,7 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
      * @param height The height.
      * @param format The texture format.
      * @param depthStencilFormat The depth format.
-     * @zh 创建一个RenderTexture2D实例。
+     * @zh 创建 RenderTexture2D 类的实例。
      * @param width  宽度。
      * @param height 高度。
      * @param format 纹理格式。
@@ -240,7 +236,6 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
     }
 
     /**
-     * @inheritDoc
      * @internal
      */
     _disposeResource(): void {

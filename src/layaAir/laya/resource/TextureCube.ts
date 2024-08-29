@@ -49,11 +49,8 @@ const DEFAULT_PIXELS: Uint8Array = new Uint8Array(4);
  */
 export class TextureCube extends BaseTexture {
 
-    /**@private*/
     private static _blackTexture: TextureCube;
-    /**@private*/
     private static _grayTexture: TextureCube;
-    /**@private*/
     private static _whiteTexture: TextureCube;
 
     private static _errorTexture: TextureCube;
@@ -120,7 +117,7 @@ export class TextureCube extends BaseTexture {
      * @param mipmap Indicates whether to generate mipmaps for the cube texture.
      * @param sRGB Indicates whether the texture uses sRGB color space.
      * @param premultiplyAlpha Indicates whether the texture data is premultiplied by the alpha channel.
-     * @zh 创建一个TextureCube实例。
+     * @zh 创建 TextureCube 类的实例。
      * @param size 立方体纹理各个面大小。
      * @param format 纹理格式。
      * @param mipmap 是否为立方体纹理生成mipmap。

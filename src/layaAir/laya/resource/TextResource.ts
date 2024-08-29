@@ -43,10 +43,10 @@ export class TextResource extends Resource {
      */
     public readonly format: TextResourceFormat;
     /**
-     * @en Constructor method.
+     * @en Creates a new instance of the `TextResource` class.
      * @param data The data of the text resource.
      * @param format The format of the text resource.
-     * @zh 构造方法
+     * @zh 创建 TextResource 类的新实例。
      * @param data 文字资源的数据。
      * @param format 文字资源的格式
      */

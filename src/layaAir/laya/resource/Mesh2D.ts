@@ -20,7 +20,6 @@ import { Resource } from "./Resource";
  * @zh 类用于处理2D顶点网格
  */
 export class VertexMesh2D{
-    /**@internal */
 	private static _vertexDeclarationMap: any = {};
     /**
      * @en Retrieves the vertex declaration based on the provided vertex flags.
@@ -123,42 +122,40 @@ export class Mesh2D extends Resource {
     _indexFormat: IndexFormat = IndexFormat.UInt16;
 
     /**
-     * @readonly
-     * @en The vertex buffer of the mesh.
-     * @zh 网格的顶点缓冲。
+     * @en Get the vertex buffer of the mesh.
+     * @zh 获取网格的顶点缓冲。
      */
     get vertexBuffers(): IVertexBuffer[] {
         return this._vertexBuffers;
     }
 
     /**
-     * @readonly
-     * @en The index buffer of the mesh.
-     * @zh 网格的索引缓冲。
+     * @en Get the index buffer of the mesh.
+     * @zh 获取网格的索引缓冲。
      */
     get indexBuffer(): IIndexBuffer {
         return this._indexBuffer;
     }
 
     /**
-     * @en The number of vertices in the mesh.
-     * @zh 网格中的顶点数。
+     * @en Get the number of vertices in the mesh.
+     * @zh 获取网格中的顶点数。
      */
     get vertexCount(): number {
         return this._vertexCount;
     }
 
     /**
-     * @en The index number of the mesh.
-     * @zh 网格的索引数。
+     * @en Get the index number of the mesh.
+     * @zh 获取网格的索引数。
      */
     get indexCount(): number {
         return this._indexBuffer.indexCount;
     }
 
     /**
-     * @en The number of SubMeshes in the mesh.
-     * @zh 网格中子网格的个数。
+     * @en Get the number of SubMeshes in the mesh.
+     * @zh 获取网格中子网格的个数。
      */
     get subMeshCount(): number {
         return this._subMeshes.length;
@@ -181,8 +178,9 @@ export class Mesh2D extends Resource {
     }
 
     /**
-     * @en Constructor method, prohibition of use.
-     * @zh 构造方法，禁止使用
+     * @ignore
+     * @en prohibition of use.
+     * @zh 禁止使用
      */
     constructor() {
         super();
@@ -192,10 +190,8 @@ export class Mesh2D extends Resource {
     }
 
     /**
-     * 销毁资源
-     * @internal
-     * @inheritDoc
-     * @override
+     * @en Destroy the resource.
+     * @zh 销毁资源
      */
     protected _disposeResource(): void {
         for (let i: number = 0, n: number = this._subMeshes.length; i < n; i++)
@@ -219,7 +215,7 @@ export class Mesh2D extends Resource {
     }
 
     /**
-     *@internal
+     * @internal
      */
     _setSubMeshes(subMeshes: IRenderGeometryElement[]): void {
         this._subMeshes = subMeshes

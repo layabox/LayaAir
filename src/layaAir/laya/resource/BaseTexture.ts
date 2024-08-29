@@ -18,11 +18,12 @@ export class BaseTexture extends Resource {
      * @internal
      */
     _texture: InternalTexture;
-    /**@internal */
+    /**
+     * @en hdr encode format
+     * @zh hdr编码格式
+     */
     hdrEncodeFormat: HDREncodeFormat;
-    /**@private */
     protected _width: number;
-    /**@private */
     protected _height: number;
 
     /**
@@ -152,8 +153,8 @@ export class BaseTexture extends Resource {
     }
 
     /**
-     * @en Gets the gamma correction value of the texture. If set to 1.0, texture sampling will be linear without any correction.
-     * @zh 获取纹理的伽马校正值。如果设置为1.0，则纹理采样将为线性，不进行任何校正。
+     * @en The gamma correction value of the texture. If set to 1.0, texture sampling will be linear without any correction.
+     * @zh 纹理的伽马校正值。如果设置为1.0，则纹理采样将为线性，不进行任何校正。
      */
     public get gammaCorrection(): number {
         return this._texture.gammaCorrection;
@@ -201,7 +202,7 @@ export class BaseTexture extends Resource {
      * @param width The width of the texture.
      * @param height The height of the texture.
      * @param format The format of the texture, specified as a number.
-     * @zh 实例化一个纹理
+     * @zh 创建 BaseTexture 类的实例。
      * @param width 纹理的宽度。
      * @param height 纹理的高度。
      * @param format 纹理的格式，以数字形式指定。
@@ -286,7 +287,6 @@ export class BaseTexture extends Resource {
 
     /**
      * @internal
-     * @returns 
      */
     _getSource() {
         return this._texture.resource;

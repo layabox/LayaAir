@@ -17,8 +17,7 @@ export class RenderTextureCube extends RenderTexture {
     faceIndex: number;
 
     /**
-     * @ignore
-     * @en Creates an instance of `RenderTextureCube`.
+     * @en Create a new instance of `RenderTextureCube`.
      * @param size The size of the texture.
      * @param colorFormat The color format of the render target.
      * @param depthFormat The depth format of the render target.

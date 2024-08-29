@@ -50,11 +50,11 @@ export class PrefabImpl extends Prefab {
     api: IHierarchyParserAPI;
 
     /**
-     * @en Constructor method.
+     * @en Create an instance of the PrefabImpl class.
      * @param api The hierarchy parser API.
      * @param data The data to initialize the prefab instance with.
      * @param version The version of the prefab.
-     * @zh 构造方法。
+     * @zh 创建 PrefabImpl 类的实例。
      * @param api 层次结构API
      * @param data 用于初始化预制体实例的数据。
      * @param version 预制体的版本。

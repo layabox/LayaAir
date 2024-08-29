@@ -17,37 +17,30 @@ const _rect2 = new Rectangle();
  */
 export class Texture extends Resource {
     /**
-     * @private 
      * @en Default UV information.
      * @zh 默认 UV 信息。
      */
     static readonly DEF_UV = new Float32Array([0, 0, 1.0, 0, 1.0, 1.0, 0, 1.0]);
     /**
-     * @private 
      * @en No UV information.
      * @zh 无 UV 信息
      */
     static readonly NO_UV = new Float32Array([0, 0, 0, 0, 0, 0, 0, 0]);
     /**
-     * @private 
      * @en Inverse UV information.
      * @zh 反转 UV 信息。
      */
     static readonly INV_UV = new Float32Array([0, 1, 1.0, 1, 1.0, 0.0, 0, 0.0]);
 
     /**
-     * @private
      * @en Range of UV
      * @zh uv的范围
      */
     uvrect: number[] = [0, 0, 1, 1]; //startu,startv, urange,vrange
-    /**@private */
     private _bitmap: BaseTexture;
     /**@internal */
     public _uv: ArrayLike<number>;
-    /** @private */
     private _w: number = 0;
-    /** @private */
     private _h: number = 0;
 
     /**
@@ -81,7 +74,6 @@ export class Texture extends Resource {
      */
     uuid: string;
     /**
-     * @private 
      * @en The scale rate of the texture.
      * @zh 纹理的缩放率。
      */
@@ -296,10 +288,10 @@ export class Texture extends Resource {
     }
 
     /**
-     * @en Constructor method.
+     * @en Creates an instance of Texture class.
      * @param bitmap Bitmap resource.
      * @param uv UV data information.
-     * @zh 构造方法。
+     * @zh 创建 Texture 类的新实例
      * @param bitmap 位图资源。
      * @param uv UV 数据信息。
      */
@@ -554,8 +546,8 @@ export class Texture extends Resource {
     }
 
     /**
-     * 销毁资源
-     * @internal
+     * @en Destroys the resource.
+     * @zh 销毁资源。
      */
     protected _disposeResource(): void {
         let bit = this._bitmap;

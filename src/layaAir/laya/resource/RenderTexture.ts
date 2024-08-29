@@ -123,7 +123,7 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
         RenderTexture._poolMemory = 0;
     }
 
-    /** @internal 最后绑定到主画布上的结果 此值可能为null*/
+    /** 最后绑定到主画布上的结果 此值可能为null*/
     private static _bindCanvasRender: RenderTexture;
     /**
      * @en The RenderTexture bound to the main canvas.
@@ -187,8 +187,8 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
         this._generateDepthTexture = value;
     }
     /**
-     * @internal
-     * 深度与模板剔除纹理贴图
+     * @en Depth and stencil removal texture mapping
+     * @zh 深度与模板剔除纹理贴图
      */
     private _depthStencilTexture: BaseTexture;
 
@@ -214,8 +214,8 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
         return this._renderTarget.colorFormat;
     }
     /**
-     * 深度与模板剔除的格式
-     * @internal
+     * @en Depth and stencil removal format
+     * @zh 深度与模板剔除的格式
      */
     protected _depthStencilFormat: RenderTargetFormat;
     /**
@@ -227,8 +227,8 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
     }
 
     /**
-     * 多采样次数
-     * @internal
+     * @en Number of multisamples.
+     * @zh 多采样次数
      */
     protected _multiSamples: number;
     /**
@@ -264,7 +264,7 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
     }
 
     /**
-     * @en Constructor method.
+     * @en Create an instance of the RenderTexture class.
      * @param width Width of the RenderTexture.
      * @param height Height of the RenderTexture.
      * @param colorFormat Color format for the RenderTexture. 
@@ -273,7 +273,7 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
      * @param multiSamples Number of multisamples for the RenderTexture.
      * @param generateDepthTexture Whether to generate a depth texture for the RenderTexture. 
      * @param sRGB Whether the RenderTexture uses sRGB color space. 
-     * @zh 构造方法。
+     * @zh 创建 RenderTexture 类的实例。
      * @param width 宽度。
      * @param height 高度。
      * @param colorFormat 颜色格式。
@@ -316,7 +316,6 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
     }
 
     /**
-     * @internal
      * @en Recreates the RenderTexture with the specified parameters.
      * @param width New width of the RenderTexture.
      * @param height New height of the RenderTexture.
@@ -391,8 +390,8 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
     }
 
     /**
-     * 销毁资源
-     * @internal
+     * @en Destroy the Resource.
+     * @zh 销毁资源
      */
     protected _disposeResource(): void {
         this._renderTarget.dispose();
@@ -400,5 +399,4 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
         this._depthStencilTexture?.destroy();
         this._depthStencilTexture = null;
     }
-
 }

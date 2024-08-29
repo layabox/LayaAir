@@ -36,6 +36,25 @@ export class Texture2DArray extends BaseTexture {
      */
     depth: number;
 
+    /**
+     * @en Creates a `Texture2DArray` instance.
+     * @zh Texture2DArray 的构造函数
+     * @param width The width of the texture
+     * @param height The height of the texture
+     * @param depth The depth of the texture array
+     * @param format The format of the texture
+     * @param mipmap Whether to generate mipmaps
+     * @param canRead Whether the texture can be read
+     * @param sRGB Whether the texture is in sRGB color space
+     * @zh 创建 Texture2DArray 类的实例。
+     * @param width 纹理的宽度
+     * @param height 纹理的高度
+     * @param depth 纹理数组的深度
+     * @param format 纹理的格式
+     * @param mipmap 是否生成 mipmap
+     * @param canRead 纹理是否可读
+     * @param sRGB 纹理是否在 sRGB 颜色空间中
+     */
     constructor(width: number, height: number, depth: number, format: TextureFormat, mipmap: boolean = true, canRead: boolean, sRGB: boolean = false) {
         super(width, height, format);
         this._dimension = TextureDimension.Texture2DArray;
@@ -81,8 +100,7 @@ export class Texture2DArray extends BaseTexture {
         let context = <ITextureContext>LayaGL.textureContext;
         context.setTexture3DPixelsData(texture, source, this.depth, premultiplyAlpha, invertY)
     }
-
-
+    
     /**
      * @en Updates the sub-pixel data for the texture.
      * @param xOffset The x-offset.
