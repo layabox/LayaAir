@@ -25,6 +25,7 @@ export class VideoNode extends Sprite {
     private _videoTexture: VideoTexture;
     private _internalTex: Texture;
 
+    /** @ignore */
     constructor() {
         super();
 
@@ -373,8 +374,9 @@ export class VideoNode extends Sprite {
     }
 
     /**
-     * @en See also: http://www.w3school.com.cn/tags/av_prop_controls.asp
-     * @zh 参见 http://www.w3school.com.cn/tags/av_prop_seekable.asp
+     * @en Used to represent the currently loaded and seekable time range in a video, helping the player or script to know which parts are immediately accessible.
+     * @zh 用于表示视频中当前已加载且可以跳转的时间范围，帮助播放器或脚本知道哪些部分可以立即访问。
+     * @see http://www.w3school.com.cn/tags/av_prop_seekable.asp
      */
     get seekable(): any {
         return this._videoTexture?.seekable;
@@ -392,7 +394,6 @@ export class VideoNode extends Sprite {
 
     /**
      * @internal
-     * @override
      */
     _setX(value: number): void {
         super._setX(value);
@@ -404,7 +405,6 @@ export class VideoNode extends Sprite {
 
     /**
      * @internal
-     * @override
      */
     _setY(value: number): void {
         super._setY(value);
@@ -416,7 +416,6 @@ export class VideoNode extends Sprite {
 
     /**
      * @internal
-     * @override
      */
     set_width(value: number): void {
         super.set_width(value);
@@ -434,7 +433,6 @@ export class VideoNode extends Sprite {
 
     /**
      * @internal
-     * @override
      */
     set_height(value: number) {
         super.set_height(value);
@@ -452,7 +450,6 @@ export class VideoNode extends Sprite {
     }
 
     /**
-     * @override
      * @en Destroy the internal event bindings and optionally destroy child nodes
      * @param destroyChildren Whether to destroy child nodes
      * @zh 销毁内部事件绑定，并可选择是否删除子节点

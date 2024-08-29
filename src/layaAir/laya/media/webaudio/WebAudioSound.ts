@@ -7,7 +7,6 @@ import { ILaya } from "../../../ILaya";
 import { Loader } from "../../net/Loader";
 
 /**
- * @private
  * @en Web Audio API for playing sounds
  * @zh Web Audio API 方式播放声音
  */
@@ -26,7 +25,8 @@ export class WebAudioSound extends EventDispatcher {
     static _miniBuffer: any = WebAudioSound.ctx ? WebAudioSound.ctx.createBuffer(1, 1, 22050) : undefined;
 
     /**
-     * 是否已解锁声音播放
+     * @en Indicates whether the sound is unlocked
+     * @zh 是否已解锁声音播放
      */
     private static _unlocked: boolean = false;
 
@@ -46,18 +46,16 @@ export class WebAudioSound extends EventDispatcher {
      */
     audioBuffer: AudioBuffer;
     /**
-     * 待播放的声音列表
+     * @en Channel list to be played
+     * @zh 待播放的声音列表
      */
     private __toPlays: any[];
-    /**
-     * @private
-     */
     private _disposed: boolean = false;
 
 
     /**
-     * 播放声音以解锁IOS的声音
-     *
+     * @en Play a sound to unlock audio on iOS.
+     * @zh 播放声音以解锁IOS的声音播放。
      */
     private static _playEmptySound(): void {
         if (WebAudioSound.ctx == null) {
@@ -70,8 +68,8 @@ export class WebAudioSound extends EventDispatcher {
     }
 
     /**
-     * 尝试解锁声音
-     *
+     * @en Try to unlock the sound
+     * @zh 尝试解锁声音
      */
     private static _unlock(): void {
         if (WebAudioSound._unlocked) {
@@ -85,8 +83,6 @@ export class WebAudioSound extends EventDispatcher {
             WebAudioSound._unlocked = true;
         }
     }
-    /*;*/
-
     /**
      * @en Initialize Web Audio
      * @zh 初始化 Web Audio
@@ -175,7 +171,7 @@ export class WebAudioSound extends EventDispatcher {
     }
 
     /**
-     * @returns The duration of the sound in seconds
+     * @en The duration of the sound in seconds
      * @zh 声音的持续时间，以秒为单位
      */
     get duration(): number {

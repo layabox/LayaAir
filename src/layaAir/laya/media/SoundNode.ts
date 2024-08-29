@@ -84,7 +84,6 @@ export class SoundNode extends Sprite {
             this.play();
     }
 
-    /**@private */
     private _onParentChange(): void {
         this.target = (<Sprite>this.parent);
     }
@@ -122,7 +121,6 @@ export class SoundNode extends Sprite {
         this._channel = null;
     }
 
-    /**@private */
     private _setPlayAction(tar: Sprite, event: string, action: string, add: boolean = true): void {
         if (!(this as any)[action]) return;
         if (!tar) return;
@@ -134,7 +132,6 @@ export class SoundNode extends Sprite {
 
     }
 
-    /**@private */
     private _setPlayActions(tar: Sprite, events: string, action: string, add: boolean = true): void {
         if (!tar) return;
         if (!events) return;

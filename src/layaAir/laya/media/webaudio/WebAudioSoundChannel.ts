@@ -6,7 +6,6 @@ import { SoundManager } from "../SoundManager";
 import { WebAudioSound } from "./WebAudioSound";
 
 /**
- * @private
  * @en Sound track control for playing sounds using Web Audio API
  * @zh 使用 Web Audio API 方式播放声音的音轨控制
  */
@@ -64,6 +63,7 @@ export class WebAudioSoundChannel extends SoundChannel {
      */
     static SetTargetDelay: number = 0.001;
 
+    /**@ignore */
     constructor() {
         super();
 
@@ -77,7 +77,6 @@ export class WebAudioSoundChannel extends SoundChannel {
         }
     }
     /**
-     * @override
      * @en Play the sound
      * @zh 播放声音
      */
@@ -114,8 +113,6 @@ export class WebAudioSoundChannel extends SoundChannel {
         this._currentTime = 0;
     }
 
-
-
     private __onPlayEnd(): void {
         if (this.loops == 1) {
 
@@ -135,7 +132,6 @@ export class WebAudioSoundChannel extends SoundChannel {
     }
 
     /**
-     * @override
      * @en The current playback position in seconds
      * @zh 当前播放位置，以秒为单位
      */
@@ -146,7 +142,6 @@ export class WebAudioSoundChannel extends SoundChannel {
         return 0;
     }
     /**
-     * @override
      * @en The duration of the audio in seconds
      * @zh 音频的持续时间，以秒为单位
      */
@@ -181,7 +176,6 @@ export class WebAudioSoundChannel extends SoundChannel {
     }
 
     /**
-     * @override
      * @en Stop playing 
      * @zh 停止播放
      */
@@ -198,7 +192,6 @@ export class WebAudioSoundChannel extends SoundChannel {
             SoundManager.disposeSoundLater(this.url);
     }
     /**
-     * @override
      * @en Pause the audio playback
      * @zh 暂停音频播放
      */
@@ -215,7 +208,6 @@ export class WebAudioSoundChannel extends SoundChannel {
             SoundManager.disposeSoundLater(this.url);
     }
     /**
-     * @override
      * @en Resume the audio playback
      * @zh 恢复音频播放
      */
@@ -225,7 +217,6 @@ export class WebAudioSoundChannel extends SoundChannel {
     }
 
     /**
-     * @override
      * @en The volume of the audio
      * @zh 音频的音量
      */
@@ -243,8 +234,6 @@ export class WebAudioSoundChannel extends SoundChannel {
         } else
             this.gain.gain.value = v;
     }
-
-
 }
 
 

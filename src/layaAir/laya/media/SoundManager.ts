@@ -2,7 +2,6 @@ import { SoundChannel } from "./SoundChannel";
 import { Event } from "../events/Event"
 import { AudioSound } from "./h5audio/AudioSound"
 import { WebAudioSound } from "./webaudio/WebAudioSound"
-import { URL } from "../net/URL"
 import { Handler } from "../utils/Handler"
 import { Sound } from "./Sound";
 import { ILaya } from "../../ILaya";
@@ -11,100 +10,88 @@ import { LayaEnv } from "../../LayaEnv";
 
 /**
  * @en The `SoundManager` is a sound management class. It provides control methods for playing background music and sound effects.
- * @en The engine has two default sound schemes: WebAudio and H5Audio.
- * @en For playing sound effects, WebAudio is prioritized. If WebAudio is not available, H5Audio is used. H5Audio may have compatibility issues on some devices (such as inability to mix sounds or playback delays).
- * @en For playing background music, H5Audio is used (using WebAudio would significantly increase memory usage and cause a delay as it needs to wait for the sound to load completely before playing).
- * @en It is recommended to use mp3 format for background music and wav or mp3 format for sound effects (if packaging as an app, only wav format can be used for sound effects).
- * @en For detailed tutorials and sound formats, please refer to: http://ldc2.layabox.com/doc/?nav=ch-as-1-7-0
+ * - The engine has two default sound schemes: WebAudio and H5Audio.
+ * - For playing sound effects, WebAudio is prioritized. If WebAudio is not available, H5Audio is used. H5Audio may have compatibility issues on some devices (such as inability to mix sounds or playback delays).
+ * - For playing background music, H5Audio is used (using WebAudio would significantly increase memory usage and cause a delay as it needs to wait for the sound to load completely before playing).
+ * - It is recommended to use mp3 format for background music and wav or mp3 format for sound effects (if packaging as an app, only wav format can be used for sound effects).
  * @zh `SoundManager` 是一个声音管理类。提供了对背景音乐、音效的播放控制方法。
- * @zh 引擎默认有两套声音方案：WebAudio和H5Audio。
- * @zh 播放音效时，优先使用WebAudio播放声音，如果WebAudio不可用，则用H5Audio播放。H5Audio在部分机器上有兼容问题（比如不能混音，播放有延迟等）。
- * @zh 播放背景音乐时，则使用H5Audio播放（使用WebAudio会增加特别大的内存，并且要等加载完毕后才能播放，有延迟）。
- * @zh 建议背景音乐用mp3类型，音效用wav或者mp3类型（如果打包为app，音效只能用wav格式）。
- * @zh 详细教程及声音格式请参考：http://ldc2.layabox.com/doc/?nav=ch-as-1-7-0
+ * - 引擎默认有两套声音方案：WebAudio和H5Audio。
+ * - 播放音效时，优先使用WebAudio播放声音，如果WebAudio不可用，则用H5Audio播放。H5Audio在部分机器上有兼容问题（比如不能混音，播放有延迟等）。
+ * - 播放背景音乐时，则使用H5Audio播放（使用WebAudio会增加特别大的内存，并且要等加载完毕后才能播放，有延迟）。
+ * - 建议背景音乐用mp3类型，音效用wav或者mp3类型（如果打包为app，音效只能用wav格式）。
  */
 export class SoundManager {
     /**
-     * @en Background music volume.
-     * @zh 背景音乐音量。
-     * @default 1
+     * @en Background music volume. default value is 1.
+     * @zh 背景音乐音量。默认值为1。
      */
     static musicVolume: number = 1;
     /**
-     * @en Sound effect volume.
-     * @zh 音效音量。
-     * @default 1
+     * @en Sound effect volume. default value is 1.
+     * @zh 音效音量。默认值为1。
      */
     static soundVolume: number = 1;
     /**
-     * @en Sound playback rate.
-     * @zh 声音播放速率。
-     * @default 1
+     * @en Sound playback rate. default value is 1.
+     * @zh 声音播放速率。默认值为1。
      */
     static playbackRate: number = 1;
     /**
-     * @en Background music uses the Audio tag for playback.
-     * @zh 背景音乐使用 Audio 标签播放。
-     * @default true
+     * @en Background music uses the Audio tag for playback. The default is true.
+     * @zh 背景音乐使用 Audio 标签播放。 默认值为true。
      */
     private static _useAudioMusic: boolean = true;
 
     /**
-     * @private
      * @en Indicates whether the audio is muted. The default is false.
      * @zh 是否静音，默认为 false。
      */
     private static _muted: boolean = false;
 
     /**
-     * @private
      * @en Indicates whether sound effects are muted. The default is false.
      * @zh 是否音效静音，默认为 false。
      */
     private static _soundMuted: boolean = false;
 
     /**
-     * @private
      * @en Indicates whether background music is muted. The default is false.
      * @zh 是否背景音乐静音，默认为 false。
      */
     private static _musicMuted: boolean = false;
 
     /**
-     * @internal
      * @en The current background music URL.
      * @zh 当前背景音乐 URL。
      */
     static _bgMusic: string = null;
 
     /**
-     * @private
      * @en The current background music channel.
      * @zh 当前背景音乐声道。
      */
     static _musicChannel: SoundChannel = null;
 
     /**
-     * @private
      * @en The list of currently playing channels.
      * @zh 当前播放的 Channel 列表。
      */
     private static _channels: any[] = [];
-    /**@private */
+    
     private static _autoStopMusic: boolean;
-    /**@private */
+    
     private static _blurPaused: boolean = false;
-    /**@private */
+    
     private static _isActive: boolean = true;
     /**@internal */
     static _soundClass: new () => any;
     /**@internal */
     static _musicClass: new () => any;
-    /**@private */
+    
     private static _lastSoundUsedTimeDic: any = {};
-    /**@private */
+    
     private static _isCheckingDispose: boolean = false;
-    /**@private */
+    
     private static _soundCache: Record<string, Sound> = {};
 
     /**@internal */
@@ -124,9 +111,8 @@ export class SoundManager {
     }
 
     /**
-     * @en Automatically delete sound effects after playing.
-     * @zh 音效播放后自动删除。
-     * @default true
+     * @en Automatically delete sound effects after playing.default value is true.
+     * @zh 音效播放后自动删除。默认值是 true。
      */
     static autoReleaseSound: boolean = true;
 
@@ -155,7 +141,6 @@ export class SoundManager {
         }
     }
 
-    /**@private */
     static disposeSoundLater(url: string): void {
         SoundManager._lastSoundUsedTimeDic[url] = ILaya.Browser.now();
         if (!SoundManager._isCheckingDispose) {
@@ -163,8 +148,7 @@ export class SoundManager {
             ILaya.timer.loop(5000, null, SoundManager._checkDisposeSound);
         }
     }
-
-    /**@private */
+    
     private static _checkDisposeSound(): void {
         let tTime: number = ILaya.Browser.now();
         let hasCheck: boolean = false;
@@ -182,7 +166,6 @@ export class SoundManager {
         }
     }
 
-    /**@private */
     static disposeSoundIfNotUsed(url: string): void {
         for (let i = SoundManager._channels.length - 1; i >= 0; i--) {
             if (SoundManager._channels[i].url == url) {
@@ -521,4 +504,3 @@ export class SoundManager {
         }
     }
 }
-

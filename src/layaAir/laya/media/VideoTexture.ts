@@ -31,16 +31,13 @@ export class VideoTexture extends BaseTexture {
     private _frameRender: boolean;
     /** @inernal 避免重复的加载 */
     _isLoaded: boolean;
+    /** @internal */
     _needUpdate: boolean;
     /** @inernal 是否使用了requestVideoFrameCallback 接口 */
     _requestVideoFrame: boolean = false;
-    /**@internal */
     private _frameDelty: number;
-    /**@internal */
     private _updateFrame: number;
-    /**@internal */
     private _useFrame: boolean;
-    /**@internal */
     private _lastTimer: number = 0;
 
     /**
@@ -65,7 +62,8 @@ export class VideoTexture extends BaseTexture {
     }
 
     /**
-     * @en Constructor method of VideoTexture 
+     * @ignore
+     * @en Creates an inst
      * @zh VideoTexture对象的构造方法
      */
     constructor() {

@@ -10,13 +10,11 @@ import { SoundManager } from "../SoundManager";
 import { AssetDb } from "../../resource/AssetDb";
 
 /**
- * @private
  * @en Use Audio tag to play sound
  * @zh 使用Audio标签播放声音
  */
 export class AudioSound extends EventDispatcher {
 
-    /**@private */
     private static _audioCache: any = {};
     /**
      * @en Sound URL
@@ -59,7 +57,6 @@ export class AudioSound extends EventDispatcher {
         }
     }
 
-    /**@private */
     private static _makeMusicOK(): void {
         Browser.document.removeEventListener("mousedown", AudioSound._makeMusicOK);
         if (!AudioSound._musicAudio.src) {

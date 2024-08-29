@@ -93,9 +93,6 @@ export class SoundChannel extends EventDispatcher {
     resume(): void {
     }
 
-    /**
-     * @private
-     */
     protected __runComplete(handler: Handler): void {
         if (handler) {
             handler.runWith(true);
