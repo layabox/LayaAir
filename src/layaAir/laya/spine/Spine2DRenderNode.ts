@@ -114,7 +114,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
     private trackIndex: number = 0;
 
     private _skinName: string = "default";
-    private _animationName: string = "";
+    private _animationName: string;
     private _loop: boolean = true;
 
     private _externalSkins: ExternalSkin[];
@@ -391,7 +391,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
         this._flushExtSkin();
         this.event(Event.READY);
 
-        if (LayaEnv.isPlaying && this._animationName)
+        if (LayaEnv.isPlaying && this._animationName !== undefined)
             this.play(this._animationName, this._loop, true);
     }
 
