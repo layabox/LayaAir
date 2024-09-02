@@ -17,6 +17,7 @@ export class AttachmentParse {
     boneIndex: number;
     textureName: string;
     isclip: boolean;
+    isPath:boolean;
     sourceData: spine.Attachment;
     vertexCount: number;
 
@@ -113,6 +114,11 @@ export class AttachmentParse {
         else if (attachment instanceof window.spine.ClippingAttachment) {
             this.attachment = null;
             this.isclip = true;
+        }
+        else if (attachment instanceof spine.PathAttachment) {
+            this.attachment = attachment.name;
+            this.vertexArray = new Float32Array(attachment.vertices);
+            this.isPath = true;
         }
         else {
             //debugger;
