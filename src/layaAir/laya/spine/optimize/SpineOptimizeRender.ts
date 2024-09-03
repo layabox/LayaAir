@@ -269,7 +269,7 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
                 this._clear();
             }
 
-            if (oldSkinData != currentSKin) {
+            if (oldSkinData != currentSKin || !this._nodeOwner._mesh) {
                 currentRender.renderUpdate(currentSKin , -1);
             }
             // old.animator.mutiRenderAble

@@ -36,7 +36,7 @@ export class AttachmentParse {
         let darkColor:spine.Color = slot.darkColor;
         // let boneMap:number[] = AttachmentParse.boneMap;
 
-        if (attachment instanceof window.spine.RegionAttachment) {
+        if (attachment instanceof spine.RegionAttachment) {
             attchmentColor = attachment.color;
             let region = attachment as spine.RegionAttachment;
             this.vertexArray = region.offset as Float32Array;
@@ -46,7 +46,7 @@ export class AttachmentParse {
             //region.region.
             this.textureName = (region.region as any).page.name;
         }
-        else if (attachment instanceof window.spine.MeshAttachment) {
+        else if (attachment instanceof spine.MeshAttachment) {
             attchmentColor = attachment.color;
             let vside = SpineOptimizeConst.BONEVERTEX;
             //return false;
@@ -121,7 +121,7 @@ export class AttachmentParse {
                 }
             }
         }
-        else if (attachment instanceof window.spine.ClippingAttachment) {
+        else if (attachment instanceof spine.ClippingAttachment) {
             this.attachment = null;
             this.isclip = true;
         }

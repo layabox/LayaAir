@@ -308,7 +308,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
     onAwake(): void {
         if (this._skeleton) {
             //this.spineItem = this._templet.sketonOptimise._initSpineRender(this._skeleton, this._templet, this, this._state);
-            if (LayaEnv.isPlaying && this._animationName)
+            if (LayaEnv.isPlaying && this._animationName !== undefined)
                 this.play(this._animationName, this._loop, true);
         }
     }
@@ -702,6 +702,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
     }
 
     clear(): void {
+        this._mesh = null;
         this._renderElements.forEach(element => {
             Spine2DRenderNode.recoverRenderElement2D(element);
         });
