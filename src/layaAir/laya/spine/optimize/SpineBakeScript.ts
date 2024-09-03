@@ -9,6 +9,7 @@ import { Spine2DRenderNode } from "../Spine2DRenderNode";
 import { TSpineBakeData } from "./SketonOptimise";
 import { SpineOptimizeRender } from "./SpineOptimizeRender";
 import { ISpineOptimizeRender } from "./interface/ISpineOptimizeRender";
+import { SpineEmptyRender } from "./SpineEmptyRender";
 
 export class SpineBakeScript extends Script {
     url: string;
@@ -60,7 +61,7 @@ export class SpineBakeScript extends Script {
         data.texture2d = texture;
 
         let spine = this.owner.getComponent(Spine2DRenderNode) as Spine2DRenderNode;
-        if (spine.spineItem) {
+        if (spine.spineItem && !(spine.spineItem instanceof SpineEmptyRender)) {
             spine.spineItem.initBake(data);
         } else {
             this.owner.on(Event.READY, this, () => {
