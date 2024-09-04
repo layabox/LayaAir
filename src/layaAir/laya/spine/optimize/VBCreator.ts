@@ -71,6 +71,7 @@ export abstract class VBCreator implements IGetBone {
         }
         offset = this.vbLength / this.vertexSize;
         map.set(attach.attachment, { offset: offset, attachment: attach });
+        if (attach.isPath) return offset;
         this.vbLength = this.appendVertexArray(attach, this.vb, this.vbLength, this);
         return offset;
     }
@@ -99,7 +100,7 @@ export abstract class VBCreator implements IGetBone {
         let ib = ibCreator.ib;
         for (let i = 0, n = drawOrder.length; i < n; i++) {
             let attach = getAttach(drawOrder[i]);
-            if (attach.attachment) {
+            if (attach.attachment && !attach.isPath) {
                 let needAdd = false;
                 if (texture != attach.textureName) {
                     texture = attach.textureName;
@@ -334,6 +335,8 @@ export class VBRigBodyCreator extends VBCreator {
                 vertexArray[offset + 8] = boneid;
                 offset += vside;
             }
+        }else{
+
         }
         return offset;
     }
