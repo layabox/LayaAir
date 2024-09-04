@@ -18,9 +18,11 @@ export class AttachmentParse {
     boneIndex: number;
     textureName: string;
     isclip: boolean;
+    isPath:boolean ;
     sourceData: spine.Attachment;
     vertexCount: number = 0;
     indexCount:number = 0;
+    // static boneMap:number[] = [];
 
     init(attachment: spine.Attachment, boneIndex: number, slotId: number, deform: number[], slot: spine.SlotData) {
         this.slotId = slotId;
@@ -32,8 +34,9 @@ export class AttachmentParse {
         let color = this.color = new Color();
         let attchmentColor: spine.Color;
         let darkColor:spine.Color = slot.darkColor;
+        // let boneMap:number[] = AttachmentParse.boneMap;
 
-        if (attachment instanceof window.spine.RegionAttachment) {
+        if (attachment instanceof spine.RegionAttachment) {
             attchmentColor = attachment.color;
             let region = attachment as spine.RegionAttachment;
             this.vertexArray = region.offset as Float32Array;
@@ -43,7 +46,7 @@ export class AttachmentParse {
             //region.region.
             this.textureName = (region.region as any).page.name;
         }
-        else if (attachment instanceof window.spine.MeshAttachment) {
+        else if (attachment instanceof spine.MeshAttachment) {
             attchmentColor = attachment.color;
             let vside = SpineOptimizeConst.BONEVERTEX;
             //return false;
@@ -87,7 +90,11 @@ export class AttachmentParse {
                     let result = [];
                     for (; v < n; v++, b += 3, nid++) {
                         result.push([vertices[b], vertices[b + 1], vertices[b + 2], bones[v]]);
+                        // if(boneMap.indexOf(bones[v]) == -1){
+                        //     boneMap.push(bones[v]);
+                        // }
                     }
+                    // console.log(boneMap);
                     if (result.length == needPoint) {
 
                     }
@@ -114,9 +121,14 @@ export class AttachmentParse {
                 }
             }
         }
-        else if (attachment instanceof window.spine.ClippingAttachment) {
+        else if (attachment instanceof spine.ClippingAttachment) {
             this.attachment = null;
             this.isclip = true;
+        }
+        else if (attachment instanceof spine.PathAttachment) {
+            this.attachment = attachment.name;
+            this.vertexArray = new Float32Array(attachment.vertices);
+            this.isPath = true;
         }
         else {
             //debugger;

@@ -287,8 +287,8 @@ export class SpineSkeleton extends Sprite {
 }
 
 export enum ESpineRenderType {
-    normal = 0,
-    boneGPU = 1,
+    boneGPU = 0,
+    normal = 1,
     rigidBody = 2,
 }
 
