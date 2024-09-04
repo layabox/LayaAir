@@ -6,7 +6,7 @@ function locateFile(path) {
 let scriptDirectory = document.currentScript.src;
 scriptDirectory = scriptDirectory.substr(0, scriptDirectory.replace(/[?#].*/, "").lastIndexOf("/") + 1)
 
-if (window.conch) {
+if (window.conch && window.layaConchBullet) {
   window.Physics3D = function(initialMemory, interactive) {
     window.conch.setGetWorldTransformFunction(interactive.getWorldTransform);
     window.conch.setSetWorldTransformFunction(interactive.setWorldTransform);

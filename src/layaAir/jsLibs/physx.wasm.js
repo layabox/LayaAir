@@ -1,4 +1,4 @@
-if (window.conch){
+if (window.conch && window.physx) {
 	window.PHYSX = function(initialMemory, interactive) {
 	var fake = {};
 	fake.then = (complete) => {
