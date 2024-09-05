@@ -10,7 +10,6 @@ import { WebGLExtension } from "./GLEnum/WebGLExtension";
 import { GLObject } from "./GLObject";
 import { WebGLEngine } from "./WebGLEngine";
 
-/** @internal */
 export class WebGLInternalTex extends GLObject implements InternalTexture {
 
     _gl: WebGLRenderingContext | WebGL2RenderingContext;

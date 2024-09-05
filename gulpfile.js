@@ -516,9 +516,8 @@ gulp.task('genDts', () => {
         });
         for (let file of files) {
             let file2 = file.replace(/\\/g, '/');
-            if (file2.indexOf("laya/RenderEngine/RenderEngine/") != -1
-                || file2.indexOf("laya/d3/RenderObjs/WebGPUOBJ/") != -1
-                || file2.indexOf("laya/d3/RenderObjs/NativeOBJ/") != -1)
+            if (file2.indexOf("laya/RenderEngine/RenderEngine/WebGPUEngine/") != -1
+                || file2.indexOf("laya/d3/RenderObjs/WebGPUOBJ/") != -1)
                 continue;
 
             let inNamespace = !file.endsWith("Laya.d.ts") && !file.endsWith("Laya3D.d.ts");
