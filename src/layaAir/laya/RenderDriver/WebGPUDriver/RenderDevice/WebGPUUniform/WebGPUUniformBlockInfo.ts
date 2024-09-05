@@ -4,7 +4,7 @@ import { WebGPUGlobal } from "../WebGPUStatis/WebGPUGlobal";
 /**
  * 每一个Uniform变量的具体信息
  */
-type ItemType = {
+type WebGPUUniformBlockItemType = {
     propertyId: number, //编码
     name: string, //名称
     type: string, //数据类型int, float, vec2 ...
@@ -21,7 +21,7 @@ type ItemType = {
 export class WebGPUUniformBlockInfo {
     name: string; //Block名称
     size: number; //Block字节长度
-    items: ItemType[]; //具体的uniform变量
+    items: WebGPUUniformBlockItemType[]; //具体的uniform变量
 
     globalId: number;
     objectName: string = 'WebGPUUniformBlockInfo';

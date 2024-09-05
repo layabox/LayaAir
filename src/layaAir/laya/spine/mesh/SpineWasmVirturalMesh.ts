@@ -1,8 +1,8 @@
 
 import { IRenderElement2D } from "../../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
-import { Graphics } from "../../display/Graphics";
+import { type VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
 import { LayaGL } from "../../layagl/LayaGL";
-import { Material } from "../../resource/Material";
+import { type Material } from "../../resource/Material";
 import { SpineShaderInit } from "../material/SpineShaderInit";
 import { SpineMeshBase } from "./SpineMeshBase";
 
@@ -14,8 +14,8 @@ export class SpineWasmVirturalMesh extends SpineMeshBase {
         this._renderElement2D = LayaGL.render2DRenderPassFactory.createRenderElement2D();
         this._renderElement2D.geometry = this.geo;
     }
-    
-    get vertexDeclarition() {
+
+    get vertexDeclarition(): VertexDeclaration {
         return SpineShaderInit.SpineNormalVertexDeclaration;
     }
 }

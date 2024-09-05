@@ -9,8 +9,8 @@ import { Sprite2DGeometry } from "./Sprite2DGeometry";
  * @param	var QuadNum
  */
 function createQuadIB(quadNum: number) {
-	let ibbuf = new Byte(quadNum*6*2);
-	let ib = new Uint16Array(ibbuf.buffer) ;
+	let ibbuf = new Byte(quadNum * 6 * 2);
+	let ib = new Uint16Array(ibbuf.buffer);
 	var idx = 0;
 	var curvert = 0;
 	for (var i = 0; i < quadNum; i++) {
@@ -23,7 +23,7 @@ function createQuadIB(quadNum: number) {
 		curvert += 4;
 	}
 	return ib;
-}	
+}
 
 /**
  * drawImage，fillRect等会用到的简单的mesh。每次添加必然是一个四边形。
@@ -35,8 +35,8 @@ export class MeshQuadTexture extends Sprite2DGeometry {
 	static VertexDeclarition: VertexDeclaration;
 	//操作vb的buffer
 	//private _vbUin32Array:Uint32Array;	//注意不要赋值，因为super会给这个赋值，如果再设置null就会冲掉
-	private _vbFloat32Array:Float32Array;
-	private _curVBPos=0;
+	private _vbFloat32Array: Float32Array;
+	private _curVBPos = 0;
 
 	static __int__(): void {
 		MeshQuadTexture._fixib = createQuadIB(MeshQuadTexture._maxIB);	//每个quad 4个顶点。正好达到64k的索引。
@@ -47,7 +47,7 @@ export class MeshQuadTexture extends Sprite2DGeometry {
 		])
 	}
 
-	constructor(vballoc=4) {
+	constructor(vballoc = 4) {
 		super(MeshQuadTexture.const_stride, vballoc, 4);	//x,y,u,v,rgba
 	}
 
@@ -71,43 +71,43 @@ export class MeshQuadTexture extends Sprite2DGeometry {
 		//x,y,u,v,rgba
 		var vbdata = this._vbFloat32Array;
 		//var vbu32Arr = this._vbUin32Array;
-		let r = ((color>>>16)&0xff)/255.0; 
-		let g = ((color>>>8)&0xff)/255.0; 
-		let b = (color&0xff)/255.0; 
-		let a = (color>>>24)/255.0; 
+		let r = ((color >>> 16) & 0xff) / 255.0;
+		let g = ((color >>> 8) & 0xff) / 255.0;
+		let b = (color & 0xff) / 255.0;
+		let a = (color >>> 24) / 255.0;
 		var cpos = this._curVBPos;
 		var useTexVal = useTex ? 1 : 0;
-		vbdata[cpos++] = pos[0]; vbdata[cpos++] = pos[1]; vbdata[cpos++] = uv[0]; vbdata[cpos++] = uv[1]; 
-		vbdata[cpos++] = b; vbdata[cpos++] = g; vbdata[cpos++] = r; vbdata[cpos++] = a; 
-		vbdata[cpos++] = useTexVal; cpos+=3;
+		vbdata[cpos++] = pos[0]; vbdata[cpos++] = pos[1]; vbdata[cpos++] = uv[0]; vbdata[cpos++] = uv[1];
+		vbdata[cpos++] = b; vbdata[cpos++] = g; vbdata[cpos++] = r; vbdata[cpos++] = a;
+		vbdata[cpos++] = useTexVal; cpos += 3;
 
-		vbdata[cpos++] = pos[2]; vbdata[cpos++] = pos[3]; vbdata[cpos++] = uv[2]; vbdata[cpos++] = uv[3]; 
-		vbdata[cpos++] = b; vbdata[cpos++] = g; vbdata[cpos++] = r; vbdata[cpos++] = a; 
-		vbdata[cpos++] = useTexVal; cpos+=3;
-		
-		vbdata[cpos++] = pos[4]; vbdata[cpos++] = pos[5]; vbdata[cpos++] = uv[4]; vbdata[cpos++] = uv[5]; 
-		vbdata[cpos++] = b; vbdata[cpos++] = g; vbdata[cpos++] = r; vbdata[cpos++] = a; 
-		vbdata[cpos++] = useTexVal; cpos+=3;
+		vbdata[cpos++] = pos[2]; vbdata[cpos++] = pos[3]; vbdata[cpos++] = uv[2]; vbdata[cpos++] = uv[3];
+		vbdata[cpos++] = b; vbdata[cpos++] = g; vbdata[cpos++] = r; vbdata[cpos++] = a;
+		vbdata[cpos++] = useTexVal; cpos += 3;
 
-		vbdata[cpos++] = pos[6]; vbdata[cpos++] = pos[7]; vbdata[cpos++] = uv[6]; vbdata[cpos++] = uv[7]; 
-		vbdata[cpos++] = b; vbdata[cpos++] = g; vbdata[cpos++] = r; vbdata[cpos++] = a; 
-		vbdata[cpos++] = useTexVal; cpos+=3;
-		
+		vbdata[cpos++] = pos[4]; vbdata[cpos++] = pos[5]; vbdata[cpos++] = uv[4]; vbdata[cpos++] = uv[5];
+		vbdata[cpos++] = b; vbdata[cpos++] = g; vbdata[cpos++] = r; vbdata[cpos++] = a;
+		vbdata[cpos++] = useTexVal; cpos += 3;
+
+		vbdata[cpos++] = pos[6]; vbdata[cpos++] = pos[7]; vbdata[cpos++] = uv[6]; vbdata[cpos++] = uv[7];
+		vbdata[cpos++] = b; vbdata[cpos++] = g; vbdata[cpos++] = r; vbdata[cpos++] = a;
+		vbdata[cpos++] = useTexVal; cpos += 3;
+
 		this._curVBPos = cpos;
-		this._vertNum+=4;
-		this._indexNum+=6;
+		this._vertNum += 4;
+		this._indexNum += 6;
 	}
 
 	clearMesh(): void {
 		super.clearMesh();
-		this._curVBPos=0;
+		this._curVBPos = 0;
 	}
 
-    get ibBuffer():ArrayBuffer{
-        return MeshQuadTexture._fixib.buffer;
-    }
+	get ibBuffer(): ArrayBuffer {
+		return MeshQuadTexture._fixib.buffer;
+	}
 
-	get vertexDeclarition(){
+	get vertexDeclarition(): VertexDeclaration {
 		return MeshQuadTexture.VertexDeclarition;
 	}
 }

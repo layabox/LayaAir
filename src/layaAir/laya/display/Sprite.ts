@@ -28,6 +28,7 @@ import { IHitArea } from "../utils/IHitArea";
 import type { Material } from "../resource/Material";
 import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
 import { BaseRenderNode2D } from "../NodeRender2D/BaseRenderNode2D";
+import type { Stage } from "./Stage";
 
 /**
  * @en Sprite is a basic display list node for displaying graphical content. By default, Sprite does not accept mouse events. Through the graphics API, images or vector graphics can be drawn, supporting operations like rotation, scaling, translation, and more. Sprite also functions as a container class, allowing the addition of multiple child nodes.
@@ -2059,7 +2060,7 @@ export class Sprite extends Node {
      * @en Reference to the stage.
      * @zh 对舞台的引用。
      */
-    get stage() {
+    get stage(): Stage {
         return ILaya.stage;
     }
 

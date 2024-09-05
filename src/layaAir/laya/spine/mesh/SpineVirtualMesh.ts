@@ -1,3 +1,4 @@
+import { type VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
 import { Material } from "../../resource/Material";
 import { SpineShaderInit } from "../material/SpineShaderInit";
 import { SpineMeshBase } from "./SpineMeshBase";
@@ -108,7 +109,7 @@ export class SpineVirtualMesh extends SpineMeshBase {
         this.indicesLength += indicesLength;
     }
 
-    get vertexDeclarition() {
+    get vertexDeclarition(): VertexDeclaration {
         return SpineShaderInit.SpineNormalVertexDeclaration;
     }
 
