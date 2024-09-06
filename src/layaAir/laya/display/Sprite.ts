@@ -1651,7 +1651,6 @@ export class Sprite extends Node {
         ctx.render2D = ctx.render2D.clone(null);//这个ctx只是提供大小，所以不要设置rt
         let outrt = RenderSprite.RenderToRenderTexture(sprite, ctx, offsetX, offsetY, renderout);
         ctx.destroy();
-        ctx.destroy();
         return outrt;
     }
 
