@@ -1,0 +1,7 @@
+{
+    "dtsPath": "./bin/tsc/layaAir",
+    "outDir": "./docTool/dist/internal/",
+    "emptyDataDir": "./docTool/dist/emptyData/",
+    "mdPath": "./docTool/dist/internal/",
+    "deleteDir": "./docTool/dist/delete/"
+}
