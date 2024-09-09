@@ -13,10 +13,13 @@ export class TitleConfig {
     agentHeight: number;
     agentRadius: number;
     agentMaxClimb: number;
+    maxEdgeLen: number;
+    maxSimplificationError: number;
     partitionType: any;
     constructor() {
         this.tx = 0;
         this.ty = 0;
+        this.maxSimplificationError = 1.3;
         this.bmin = [0, 0, 0];
         this.bmax = [0, 0, 0];
     }
@@ -57,6 +60,11 @@ export class TitleConfig {
         this.agentHeight = height;
         this.agentRadius = radius;
         this.agentMaxClimb = maxClimb;
+    }
+
+    /** 设置最大边长 */
+    public setMaxEdgeLen(value: number) {
+        this.maxEdgeLen = Math.ceil(value);
     }
 
 }
