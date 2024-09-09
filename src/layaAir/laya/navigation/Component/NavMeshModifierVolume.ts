@@ -20,7 +20,7 @@ export class NavMeshModifierVolume extends Component {
     /**@internal */
     _transfrom: Matrix4x4 = new Matrix4x4();
     /**@internal */
-    _datas: number[];
+    _datas: Float32Array;
 
     /**@internal */
     _center: Vector3 = new Vector3();
@@ -90,7 +90,7 @@ export class NavMeshModifierVolume extends Component {
      */
     constructor() {
         super();
-        this._datas = [0, 0, 0, 0, 0, 0];
+        this._datas = new Float32Array(22);
     }
 
     /**
@@ -112,6 +112,7 @@ export class NavMeshModifierVolume extends Component {
         this._datas[4] = tempBound.max.y;
         this._datas[5] = tempBound.max.z;
         this._transfrom.invert(this._transfrom);
+        this._datas.set(this._transfrom.elements,6);
         this._surface.forEach(element => {
             element._updateCovexVoume(this);
         });

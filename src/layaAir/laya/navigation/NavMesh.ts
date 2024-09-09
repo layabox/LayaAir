@@ -155,6 +155,7 @@ export class NavMesh {
         this._crowd = NavigationUtils.createCrowd();
         this._navMeshLink = NavigationUtils.createMeshOffLink();
         this._navConvexVolume = NavigationUtils.createConvexVolume();
+        this._navConvexVolume.setIs3D(true);
     }
 
     /**
@@ -286,7 +287,7 @@ export class NavMesh {
         let area = this._manager.getArea(link.areaFlag);
         let pos = link._start.toArray();
         pos[1] += this._grid.config.cellHeight;
-        this._meshlinkoffIdLists[index] = this._navMeshLink.addOffMeshConnection(pos, link._end.toArray(), link.width, link.bidirectional ? 1 : 0, area.index, area.flag, link.id);
+        this._meshlinkoffIdLists[index] = this._navMeshLink.addOffMeshConnection(index,pos, link._end.toArray(), link.width, link.bidirectional ? 1 : 0,  area.index);
     }
 
     /**
@@ -309,8 +310,10 @@ export class NavMesh {
     addCovexVoume(volume: NavMeshModifierVolume): void {
         if (this._meshVolumeList.indexof(volume) >= 0) return;
         this._meshVolumeList.add(volume);
-        let type = this._manager.getArea(volume.areaFlag).index;
-        this._meshVolumeIdLists[this._meshVolumeList.length - 1] = this._navConvexVolume.addCovexVoume(volume._datas, volume._transfrom.elements, type);
+        let index = this._meshVolumeList.length - 1;
+        let areaType = this._manager.getArea(volume.areaFlag).index;
+        this._navConvexVolume.addCovexVoume(index,volume._datas,0,0, areaType);
+        this._meshVolumeIdLists[this._meshVolumeList.length - 1] =index;
     }
 
 
@@ -322,8 +325,8 @@ export class NavMesh {
     updateCovexVoume(volume: NavMeshModifierVolume) {
         let index = this._meshVolumeList.indexof(volume);
         if (index < 0) return;
-        let type = this._manager.getArea(volume.areaFlag).index;
-        return this._navConvexVolume.updateCovexVoume(this._meshVolumeIdLists[index], volume._datas, volume._transfrom.elements, type);
+        let areaType = this._manager.getArea(volume.areaFlag).index;
+        this._navConvexVolume.addCovexVoume(index,volume._datas,0,0, areaType);
     }
 
     /**
@@ -456,12 +459,18 @@ export class NavMesh {
         if (binds.length <= 0) return;
         const config = this._grid.config;
         this._titileConfig.partitionType = partitionType;
+        this._titileConfig.maxSimplificationError = 0.9;
+        this._titileConfig.setMaxEdgeLen(12 / config.cellSize);
         this._titileConfig.setAgent(config.agentHeight, config.agentRadius, config.agentMaxClimb);
         this._titileConfig.setOff(tileX, tileY);
         this._titileConfig.setMin(bound.min);
         this._titileConfig.setMax(bound.max);
         this.removeTile(tileX, tileY);
-        this._navMesh.addTile(config, this._titileConfig, binds, this._navMeshLink, this._navConvexVolume);
+        let ptrs:number[]= [];
+        binds.forEach((value) => {
+            ptrs.push(value.$$.ptr);
+        });
+        this._navMesh.addTile(config, this._titileConfig, ptrs, this._navMeshLink, this._navConvexVolume);
         this._navcreateedTileMaps.add(this._grid.getTileIndex(tileX, tileY));
         let tileIndex = this._grid.getTileIndex(tileX, tileY);
         if (this._delayCreates.has(tileIndex)) {

@@ -482,7 +482,7 @@ gulp.task("copyJsLibs", async () => {
         './src/layaAir/jsLibs/physx.release.wasm',
         './src/layaAir/jsLibs/physx.release.js.mem',
         './src/layaAir/jsLibs/laya.Box2D.wasm.wasm',
-        './src/layaAir/jsLibs/recast-navigation.wasm',
+        './src/layaAir/jsLibs/recast-navigation-wasm.wasm',
         './src/layaAir/jsLibs/spine.wasm_3.8.wasm',
         './src/layaAir/jsLibs/naga_wasm_bg.wasm',
 
@@ -534,6 +534,14 @@ gulp.task('buildPhysXWASMPhysics', () => {
         './src/layaAir/jsLibs/physx.wasm.js',
     ])
         .pipe(concat('laya.physX.wasm.js'))
+        .pipe(gulp.dest('./build/libs/'));
+});
+
+gulp.task('buildNavMesh_wasm', () => {
+    return gulp.src([
+        './src/layaAir/jsLibs/recast-navigation-wasm.js',
+        './build/libs/laya.navMesh.js',
+    ]).pipe(concat('laya.navMesh_wasm.js'))
         .pipe(gulp.dest('./build/libs/'));
 });
 
@@ -737,6 +745,7 @@ gulp.task('build',
         'buildBulletPhysics',
         'buildPhysXWASMPhysics',
         'buildPhysXPhysics',
+        'buildNavMesh_wasm',
         'buildNavMesh',
         'genDts',
     ));
