@@ -69,7 +69,7 @@ export class MDManager {
                 baseData.param = this.createBaseParam(section.content);
             }
             else {
-                baseData[arr[0]] = arr[1].trim();
+                baseData[arr[0]] = arr[1] ? arr[1].trim() : "";
             }
         });
 

@@ -138,6 +138,7 @@ export class BlueprintDTSParser {
     }
 
     _getItem(clsJson, name, isFunc = false) {
+        if(!clsJson) return null;
         /** @type {any[]} */
         let datas;
         if (isFunc) {
@@ -1074,7 +1075,7 @@ export class BlueprintDTSParser {
                         }
                     }
                     if (!extendData) {
-                        if (!parentData.extends) {
+                        if (!parentData || !parentData.extends) {
                             break;
                         } else {
                             parentName = parentData.extends[0];
