@@ -164,8 +164,8 @@ export abstract class Filter implements IFilter {
         }
         //直接使用缓存的
         cache.renderTexture && context._drawRenderTexture(cache.renderTexture,
-            x + cache.renderTexOffx,
-            y + cache.renderTexOffy,
+            x + cache.renderTexOffx - sprite.anchorX*sprite.width,
+            y + cache.renderTexOffy - sprite.anchorY*sprite.height,
             cache.renderTexture.width,
             cache.renderTexture.height,
             null, 1.0, RenderTexture2D.defuv);
