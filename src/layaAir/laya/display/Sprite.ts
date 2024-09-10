@@ -1574,10 +1574,10 @@ export class Sprite extends Node {
      * @returns HTMLCanvas 对象。
      */
     static drawToCanvas(sprite: Sprite, canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, isDrawRenderRect: boolean = true): HTMLCanvas {
-        if (arguments.length > 5) {
-            throw 'drawToCanvas 接口参数不对'
-        }
-        let rt = Sprite.drawToTexture(sprite, canvasWidth, canvasHeight, offsetX, offsetY, null, isDrawRenderRect) as RenderTexture2D;
+        // if (arguments.length > 5) {
+        //     throw 'drawToCanvas 接口参数不对'
+        // }
+        let rt = Sprite.drawToRenderTexture2D(sprite, canvasWidth, canvasHeight, offsetX, offsetY, null);
         var dt = rt.getData(0, 0, canvasWidth, canvasHeight) as Uint8Array;
         var imgdata = new ImageData(canvasWidth, canvasHeight);;	//创建空的imagedata。因为下面要翻转，所以不直接设置内容
         //翻转getData的结果。
