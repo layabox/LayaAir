@@ -25,6 +25,8 @@ import { Graphics } from "./Graphics";
 import { DrawTrianglesCmd } from "./cmd/DrawTrianglesCmd";
 import { Draw9GridTextureCmd } from "./cmd/Draw9GridTextureCmd";
 import { SaveCmd } from "./cmd/SaveCmd"
+import { DrawEllipseCmd } from "./cmd/DrawEllipseCmd"
+import { DrawRoundRectCmd } from "./cmd/DrawRoundRectCmd"
 
 const _tempMatrix: Matrix = new Matrix();
 const _initMatrix: Matrix = new Matrix();
@@ -183,6 +185,12 @@ export class GraphicsBounds {
                     break;
                 case DrawCircleCmd.ID:
                     addPointArrToRst(rst, (<DrawCircleCmd>cmd).getBoundPoints(sp), tMatrix);
+                    break;
+                case DrawEllipseCmd.ID:
+                    addPointArrToRst(rst,(<DrawEllipseCmd>cmd).getBoundPoints(sp),tMatrix);
+                    break;
+                case DrawRoundRectCmd.ID:
+                    addPointArrToRst(rst,(<DrawRoundRectCmd>cmd).getBoundPoints(sp),tMatrix);
                     break;
                 case DrawLineCmd.ID:
                     addPointArrToRst(rst, (<DrawLineCmd>cmd).getBoundPoints(sp), tMatrix);
