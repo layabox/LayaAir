@@ -27,6 +27,7 @@ import { Draw9GridTextureCmd } from "./cmd/Draw9GridTextureCmd";
 import { SaveCmd } from "./cmd/SaveCmd"
 import { DrawEllipseCmd } from "./cmd/DrawEllipseCmd"
 import { DrawRoundRectCmd } from "./cmd/DrawRoundRectCmd"
+import { FillTextCmd } from "./cmd/FillTextCmd"
 
 const _tempMatrix: Matrix = new Matrix();
 const _initMatrix: Matrix = new Matrix();
@@ -214,6 +215,12 @@ export class GraphicsBounds {
                 case Draw9GridTextureCmd.ID:
                     addPointArrToRst(rst, (<Draw9GridTextureCmd>cmd).getBoundPoints(sp), tMatrix);
                     break;
+                case FillTextCmd.ID:
+                    addPointArrToRst(rst, (<FillTextCmd>cmd).getBoundPoints(sp), tMatrix);
+                    break;
+                default:
+                    //没有相应功能的取sprite的
+                    addPointArrToRst(rst,Rectangle._getBoundPointS(sp.x, sp.y, sp.width, sp.height, null), tMatrix);
             }
         }
         if (rst.length > 200) {
