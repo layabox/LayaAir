@@ -32,6 +32,16 @@ export function roundUp(n: number, align: number) {
 }
 
 /**
+ * 向下圆整到align的整数倍
+ * @param n 
+ * @param align 
+ */
+export function roundDown(n: number, align: number) {
+    const res = (((n + align - 1) / align) | 0) * align;
+    return res > n ? res - align : res;
+}
+
+/**
  * Uniform内存块管理
  */
 export class UniformBufferManager {
@@ -49,6 +59,7 @@ export class UniformBufferManager {
     moveNum: number = 0; //内存块的移动次数
     uploadNum: number = 0; //每帧上传次数
     uploadByte: number = 0; //每帧上传字节数
+    removeHoleTimer: number = 0; //移除空洞的计时器
 
     timeCostAvg: number = 0; //花费时间（帧平均）
     timeCostSum: number = 0; //花费时间（总数）
@@ -65,7 +76,7 @@ export class UniformBufferManager {
      * @param size 
      * @param blockNum 
      */
-    private _addCluster(size: number, blockNum: number = 1) {
+    private _addCluster(size: number, blockNum: number = 10) {
         const alignedSize = roundUp(size, this.byteAlign);
         const cluster = new UniformBufferCluster(alignedSize, blockNum, this);
         const clusters = this.clustersAll.get(alignedSize);
@@ -76,6 +87,18 @@ export class UniformBufferManager {
         else this.clustersAll.set(alignedSize, [cluster]);
         this.clustersCur.set(alignedSize, cluster);
         return cluster;
+    }
+
+    /**
+     * 移除空洞
+     */
+    private _removeHole() {
+        if (this.useBigBuffer) {
+            this.clustersAll.forEach(clusters => {
+                for (let i = clusters.length - 1; i > -1; i--)
+                    clusters[i].removeHole();
+            });
+        }
     }
 
     /**
@@ -216,6 +239,11 @@ export class UniformBufferManager {
                 this.timeCostAvg = (this.timeCostSum / this.timeCostCount) * 1000 | 0;
                 this.timeCostSum = 0;
                 this.timeCostCount = 0;
+            }
+            this.removeHoleTimer++;
+            if (this.removeHoleTimer > 1000) { //定期移除内存空洞
+                this.removeHoleTimer = 0;
+                this._removeHole();
             }
         }
     }
