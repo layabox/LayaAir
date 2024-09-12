@@ -46,6 +46,7 @@ export class RenderListQueue {
         this._quickSort.sort(this._elements, this._isTransparent, 0, count - 1);
         context.drawRenderElementList(this._elements);
         this._batch.clearRenderData();
+        this._batch.recoverData();
     }
 
     /**
@@ -53,8 +54,8 @@ export class RenderListQueue {
      */
     clear() {
         //下面是避免this.elements.elements太长，以及避免引用对象
-        if(this.elements.elements.length>100){
-            this.elements.elements.length=100;
+        if (this.elements.elements.length > 100) {
+            this.elements.elements.length = 100;
         }
         this.elements.elements.fill(null);  //避免引用js对象导致无法gc
         this._elements.length = 0;
