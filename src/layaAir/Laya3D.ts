@@ -52,7 +52,6 @@ import { BloomEffect } from "./laya/d3/core/render/PostEffect/BloomEffect";
 import { ScalableAO } from "./laya/d3/core/render/PostEffect/ScalableAO";
 import { GaussianDoF } from "./laya/d3/core/render/PostEffect/GaussianDoF";
 import { VertexMesh } from "./laya/RenderEngine/RenderShader/VertexMesh";
-import { RenderTexture } from "./laya/resource/RenderTexture";
 import { ColorGradEffect } from "./laya/d3/core/render/PostEffect/ColorGradEffect";
 import { LensFlareEffect } from "./laya/d3/core/render/PostEffect/LensFlares/LensFlareEffect";
 import { IPhysicsCreateUtil } from "./laya/Physics3D/interface/IPhysicsCreateUtil";
@@ -63,18 +62,26 @@ import { Texture2DArray } from "./laya/resource/Texture2DArray";
 import { PlayerConfig } from "./Config";
 
 /**
- * <code>Laya3D</code> 类用于初始化3D设置。
+ * @en Laya3D class is used to initialize 3D settings.
+ * @zh Laya3D类用于初始化3D设置。
  */
 export class Laya3D {
-    /**物理创建管理器 */
+    /**
+     * @en Physics creation manager.
+     * @zh 物理创建管理器。
+     */
     static _PhysicsCreateUtil: IPhysicsCreateUtil;
 
     /**@internal */
     static _enablePhysics: boolean = false;
 
     /**
-     * 设置物理创建管理器
+     * @en The physics creation manager.
+     * @zh 物理创建管理器。
      */
+    static get PhysicsCreateUtil() {
+        return this._PhysicsCreateUtil;
+    }
     static set PhysicsCreateUtil(value: IPhysicsCreateUtil) {
         if (value && !Laya3D._PhysicsCreateUtil) {
             Laya3D._PhysicsCreateUtil = value;
@@ -82,13 +89,11 @@ export class Laya3D {
         }
     }
 
-    static get PhysicsCreateUtil() {
-        return this._PhysicsCreateUtil;
-    }
-
     /**
-     * 是否启用物理。
-     * @param 是否启用物理。
+     * @en Whether physics is enabled.
+     * @zh 是否启用物理。
+     * @returns {boolean} True if physics is enabled, false otherwise.
+     * @returns {boolean} 如果启用了物理则返回true，否则返回false。
      */
     static get enablePhysics(): any {
         return Laya3D._enablePhysics;

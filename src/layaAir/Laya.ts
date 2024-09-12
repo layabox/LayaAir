@@ -33,43 +33,68 @@ import { VertexElementFormat } from "./laya/renders/VertexElementFormat";
 import { DrawStyle } from "./laya/webgl/canvas/DrawStyle";
 
 /**
- * <code>Laya</code> 是全局对象的引用入口集。
- * Laya类引用了一些常用的全局对象，比如Laya.stage：舞台，Laya.timer：时间管理器，Laya.loader：加载管理器，使用时注意大小写。
+ * @en Laya is the reference entry for global objects.
+ * @en The Laya class refers to some commonly used global objects, such as Laya.stage: stage, Laya.timer: time manager, Laya.loader: loading manager. Pay attention to case when using.
+ * @zh Laya是全局对象的引用入口集。
+ * @zh Laya类引用了一些常用的全局对象，比如Laya.stage：舞台，Laya.timer：时间管理器，Laya.loader：加载管理器，使用时注意大小写。
  */
 export class Laya {
-    /** 舞台对象的引用。*/
+    /**
+     * @en Reference to the stage object.
+     * @zh 舞台对象的引用。
+     */
     static stage: Stage = null;
 
-    /**@private 系统时钟管理器，引擎内部使用*/
+    /**
+     * @ignore 
+     * @en System clock manager, used by the engine internally.
+     * @zh 系统时钟管理器，引擎内部使用。
+     */
     static systemTimer: Timer = null;
-    /**@private 组件的物理时钟管理器*/
+    /**
+     * @ignore
+     * @en physics clock manager for components.
+     * @zh 组件的物理时钟管理器
+     */
     static physicsTimer: Timer = null;
-    /**游戏主时针，同时也是管理场景，动画，缓动等效果时钟，通过控制本时针缩放，达到快进慢播效果*/
+    /**
+     * @en Main game timer, also manages scene, animation, tween effects clock. By controlling this timer's scale, fast-forward and slow-motion effects can be achieved.
+     * @zh 游戏主时针，同时也是管理场景，动画，缓动等效果时钟，通过控制本时针缩放，达到快进慢播效果。
+     */
     static timer: Timer = null;
-    /** 加载管理器的引用。*/
+    /**
+     * @en Reference to the loading manager.
+     * @zh 加载管理器的引用。
+     */
     static loader: Loader = null;
-    /**@private Render 类的引用。*/
+    /**
+     * @ignore
+     * @en Reference to the Render class.
+     * @zh Render类的引用。
+     */
     static render: Render;
     private static _inited = false;
     private static _initCallbacks: Array<() => void | Promise<void>> = [];
     private static _beforeInitCallbacks: Array<(stageConfig: IStageConfig) => void | Promise<void>> = [];
     private static _afterInitCallbacks: Array<() => void | Promise<void>> = [];
-    /**@internal */
     private static _evcode: string = "eva" + "l";
     private static isNativeRender_enable: boolean = false;
+
     /**
-     * 初始化引擎。使用引擎需要先初始化引擎。/Initialize the engine. 
-     * @param   stageConfig 初始化引擎的舞台设置/Stage settings used to initialize the engine
+     * @en Initialize the engine. To use the engine, you need to initialize it first.
+     * @param stageConfig Stage settings used to initialize the engine
+     * @zh 初始化引擎。使用引擎需要先初始化引擎。
+     * @param stageConfig 初始化引擎的舞台设置。
      */
     static init(stageConfig?: IStageConfig): Promise<void>;
 
     /**
      * @en Initialize the engine. To use the engine, you need to initialize it first.
-     * @param width design width.The width of the initialized game window
-     * @param height  design height.The height of the initialized game window
+     * @param width The width of the initialized game window, also known as design width.
+     * @param height The height of the initialized game window, also known as design height.
      * @zh 初始化引擎。使用引擎需要先初始化引擎。
-     * @param	width 初始化的游戏窗口宽度，又称设计宽度。
-     * @param	height 初始化的游戏窗口高度，又称设计高度。
+     * @param width 初始化的游戏窗口宽度，又称设计宽度。
+     * @param height 初始化的游戏窗口高度，又称设计高度。
      */
     static init(width: number, height: number): Promise<void>;
     static init(...args: any[]): Promise<void> {
@@ -180,8 +205,10 @@ export class Laya {
     }
 
     /**
-     * 初始化2D
-     * @param stageConfig 用于初始化2D的设置
+     * @en Initialize 2D rendering.
+     * @param stageConfig Settings used to initialize 2D rendering.
+     * @zh 初始化2D渲染。
+     * @param stageConfig 用于初始化2D的设置。
      */
     static initRender2D(stageConfig: IStageConfig) {
         stage = ((<any>window)).stage = ILaya.stage = Laya.stage = new Stage();
@@ -230,14 +257,15 @@ export class Laya {
     /**
      * hook function
      * @internal
-     * @returns 
      */
     static createRender(): Render {
         return new Render(0, 0, Browser.mainCanvas);
     }
 
     /**
-     * 弹出错误信息，适用于移动设备等不方便调试的时候，
+     * @en Pop up error information, suitable for mobile devices and other convenient debugging.
+     * @param value Indicates whether to capture global errors and display a prompt. When set to true, detailed error stacks can be thrown in a pop-up window if unknown errors occur. The default is false.
+     * @zh 弹出错误信息，适用于移动设备等不方便调试的时候，
      * @param value 表示是否捕获全局错误并弹出提示。设置为true后，如有未知错误，可以弹窗抛出详细错误堆栈,默认为false。
      */
     static alertGlobalError(value: boolean) {
@@ -258,8 +286,10 @@ export class Laya {
     }
 
     /**
-     * 开启DebugPanel
-     * @param	debugJsPath laya.debugtool.js文件路径
+     * @en Enable DebugPanel.
+     * @param debugJsPath Path to the laya.debugtool.js file.
+     * @zh 开启DebugPanel。
+     * @param debugJsPath laya.debugtool.js文件路径。
      */
     static enableDebugPanel(debugJsPath: string = "libs/laya.debugtool.js"): void {
         if (!(window as any)['Laya']["DebugPanel"]) {
@@ -275,27 +305,33 @@ export class Laya {
     }
 
     /**
-     * 新增初始化函数，引擎各个模块，例如物理，寻路等，如果有初始化逻辑可以在这里注册初始化函数。开发者一般不直接使用。
-     * 所有注册的回调是并行执行。
-     * @param callback 模块的初始化函数
+     * @en Adds an initialization function. Various engine modules, such as physics, pathfinding, etc., can register their initialization logic here if needed. 
+     * Developers typically do not use this directly. All registered callbacks are executed in parallel.
+     * @param callback The initialization function of the module.
+     * @zh 新增初始化函数，引擎各个模块，例如物理，寻路等，如果有初始化逻辑可以在这里注册初始化函数。
+     * 开发者一般不直接使用。所有注册的回调是并行执行。
+     * @param callback 模块的初始化函数。
      */
     static addInitCallback(callback: () => void | Promise<void>) {
         Laya._initCallbacks.push(callback);
     }
 
     /**
-     * 在引擎初始化前执行自定义逻辑。此时Stage尚未创建，因为可以修改stageConfig实现动态舞台配置。
-     * 所有注册的的回调是注册顺序依次执行。
-     * @param callback 模块的初始化函数
+     * @en Execute custom logic before engine initialization. At this time, the Stage has not been created yet, so you can modify stageConfig to implement dynamic stage configuration. All registered callbacks are executed in the order of registration.
+     * @param callback The initialization function of the module.
+     * @zh 在引擎初始化前执行自定义逻辑。
+     * 此时 Stage 尚未创建，可以修改 stageConfig 实现动态舞台配置。所有注册的回调按注册顺序依次执行。
+     * @param callback 模块的初始化函数。
      */
     static addBeforeInitCallback(callback: (stageConfig: IStageConfig) => void | Promise<void>): void {
         Laya._beforeInitCallbacks.push(callback);
     }
 
     /**
-     * 在引擎初始化后执行自定义逻辑。
-     * 所有注册的的回调是注册顺序依次执行。
-     * @param callback 模块的初始化函数
+     * @en Execute custom logic after engine initialization. All registered callbacks are executed in the order of registration.
+     * @param callback The initialization function of the module.
+     * @zh 在引擎初始化后执行自定义逻辑。所有注册的回调按注册顺序依次执行。
+     * @param callback 模块的初始化函数。
      */
     static addAfterInitCallback(callback: () => void | Promise<void>): void {
         Laya._afterInitCallbacks.push(callback);
