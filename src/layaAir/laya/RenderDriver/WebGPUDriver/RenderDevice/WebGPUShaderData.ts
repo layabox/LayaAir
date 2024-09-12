@@ -49,14 +49,15 @@ export class WebGPUShaderData extends ShaderData {
 
     private _infoId: number; //WebGPUUniformPropertyBindingInfo数据的唯一标识
     private _uniformBuffer: WebGPUUniformBuffer; //Uniform缓冲区（负责上传数据到GPU）
-    private _bindGroupMap: Map<string, [GPUBindGroup, GPUBindGroupLayoutEntry[]]>; //缓存的BindGroup
-    private _bindGroup: GPUBindGroup; //缓存的BindGroup（非共享模式的着色器数据只可能有一个绑定组）
-    private _bindGroupLayoutEntries: GPUBindGroupLayoutEntry[];
-    private _bindGroupKey: string = '';
+    private _bindGroupMap: Map<string, [GPUBindGroup, GPUBindGroupLayoutEntry[], Set<number>]>; //基于主键缓存的BindGroup
+    private _bindGroup: GPUBindGroup; //缓存的BindGroup（非共享模式的着色器数据只有一个绑定组）
+    private _bindGroupLayoutEntries: GPUBindGroupLayoutEntry[]; //该BindGroup的布局
+    private _bindGroupResourceSet: Set<number>; //该BindGroup所包含的重要资源
+    private _bindGroupKey: string = ''; //区别该BindGroup的主键
 
     //伴随ShaderData
     skinShaderData: WebGPUShaderData[]; //用于骨骼动画
-    instShaderData: WebGPUShaderData; //用于instance
+    instShaderData: WebGPUShaderData; //用于Instance
 
     private _isShare: boolean = true; //是否共享模式，该ShaderData数据是否会被多个节点共享
     get isShare(): boolean {
@@ -166,12 +167,41 @@ export class WebGPUShaderData extends ShaderData {
     }
 
     /**
+     * 删除包含指定资源的缓存
+     * @param index 资源id
+     */
+    removeBindGroup(index: number) {
+        if (this._bindGroupResourceSet
+            && this._bindGroupResourceSet.has(index)) {
+            this._bindGroupKey = '';
+            this._bindGroup = null;
+            this._bindGroupResourceSet = null;
+            this._bindGroupLayoutEntries = null;
+            //console.log('removeBindGroup1 =', this.globalId, this._infoId, index);
+        }
+        if (this._bindGroupMap.size > 0) {
+            for (let [key, value] of this._bindGroupMap) {
+                if (value[2].has(index)) {
+                    this._bindGroupMap.delete(key);
+                    //console.log('removeBindGroup2 =', this.globalId, this._infoId, index);
+                }
+            }
+        }
+        if (this.instShaderData)
+            this.instShaderData.removeBindGroup(index);
+        if (this.skinShaderData)
+            for (let i = this.skinShaderData.length - 1; i > -1; i--)
+                this.skinShaderData[i].removeBindGroup(index);
+    }
+
+    /**
      * 清理缓存的BindGroup
      */
     clearBindGroup() {
         this._bindGroupMap.clear();
         this._bindGroupKey = '';
         this._bindGroup = null;
+        this._bindGroupResourceSet = null;
         this._bindGroupLayoutEntries = null;
         if (this.instShaderData)
             this.instShaderData.clearBindGroup();
@@ -294,6 +324,7 @@ export class WebGPUShaderData extends ShaderData {
 
         let key = '';
         let bindGroup;
+        let bindGroupResourceSet;
         let bindGroupLayoutEntries;
 
         //构建key，查找缓存bindGroup
@@ -302,21 +333,21 @@ export class WebGPUShaderData extends ShaderData {
                 key += info[i].propertyId + '_';
             if (key === this._bindGroupKey) {
                 bindGroup = this._bindGroup;
+                bindGroupResourceSet = this._bindGroupResourceSet;
                 bindGroupLayoutEntries = this._bindGroupLayoutEntries;
             } else {
                 const bindInfo = this._bindGroupMap.get(key); //根据Key查找缓存
                 bindGroup = bindInfo ? bindInfo[0] : null;
                 bindGroupLayoutEntries = bindInfo ? bindInfo[1] : null;
+                bindGroupResourceSet = bindInfo ? bindInfo[2] : null;
             }
         } else {
             bindGroup = this._bindGroup;
+            bindGroupResourceSet = this._bindGroupResourceSet;
             bindGroupLayoutEntries = this._bindGroupLayoutEntries;
         }
 
-        //如果没有从缓存中找到, 则创建一个bindGroup
-        if (!bindGroup) {
-            bindGroupLayoutEntries = [];
-            const bindGroupEntries = [];
+        const _createBindGroupEntry = (info: WebGPUUniformPropertyBindingInfo[], bindGroupEntries: any[], bindGroupResourceSet: Set<number>) => {
             let internalTex: WebGPUInternalTex;
             for (const item of info) {
                 switch (item.type) {
@@ -324,13 +355,8 @@ export class WebGPUShaderData extends ShaderData {
                         if (item.uniform) {
                             if (!this._uniformBuffer) {
                                 console.warn('uniformBuffer is null');
-                                return null;
+                                bindGroupEntries.length = 0;
                             }
-                            bindGroupLayoutEntries.push({
-                                binding: item.binding,
-                                visibility: item.visibility,
-                                buffer: item.buffer,
-                            });
                             bindGroupEntries.push(this._uniformBuffer.getGPUBindEntry());
                         }
                         break;
@@ -342,31 +368,15 @@ export class WebGPUShaderData extends ShaderData {
                             if (texture instanceof WebGPUInternalTex)
                                 internalTex = texture;
                             else internalTex = texture._texture as WebGPUInternalTex;
-                            if (!internalTex) {
+                            if (!internalTex) { //保护措施
                                 texture = WebGPUShaderData._dummyTexture2D;
                                 internalTex = texture._texture as WebGPUInternalTex;
                             }
-                            if (internalTex.compareMode > 0)
-                                item.texture.sampleType = 'depth';
-                            else if (internalTex._webGPUFormat === WebGPUTextureFormat.depth16unorm
-                                || internalTex._webGPUFormat === WebGPUTextureFormat.depth24plus_stencil8
-                                || internalTex._webGPUFormat === WebGPUTextureFormat.depth32float) {
-                                item.texture.sampleType = 'unfilterable-float';
-                            } else {
-                                const supportFloatLinearFiltering = LayaGL.renderEngine.getCapable(RenderCapable.Texture_FloatLinearFiltering);
-                                if (!supportFloatLinearFiltering && texture.format === TextureFormat.R32G32B32A32)
-                                    item.texture.sampleType = 'unfilterable-float';
-                                else item.texture.sampleType = 'float';
-                            }
-                            bindGroupLayoutEntries.push({
-                                binding: item.binding,
-                                visibility: item.visibility,
-                                texture: item.texture,
-                            });
                             bindGroupEntries.push({
                                 binding: item.binding,
                                 resource: internalTex.getTextureView(),
                             });
+                            bindGroupResourceSet.add(item.propertyId);
                         }
                         break;
                     case WebGPUBindingInfoType.sampler:
@@ -379,32 +389,6 @@ export class WebGPUShaderData extends ShaderData {
                                 texture = WebGPUShaderData._dummyTexture2D;
                                 internalTex = texture._texture as WebGPUInternalTex;
                             }
-                            if (internalTex.compareMode > 0)
-                                item.sampler.type = 'comparison';
-                            else if (internalTex._webGPUFormat === WebGPUTextureFormat.depth16unorm
-                                || internalTex._webGPUFormat === WebGPUTextureFormat.depth24plus_stencil8
-                                || internalTex._webGPUFormat === WebGPUTextureFormat.depth32float) {
-                                if (item.sampler.type !== 'non-filtering') {
-                                    item.sampler.type = 'non-filtering';
-                                    internalTex.filterMode = FilterMode.Point;
-                                }
-                            } else {
-                                const supportFloatLinearFiltering = LayaGL.renderEngine.getCapable(RenderCapable.Texture_FloatLinearFiltering);
-                                if (!supportFloatLinearFiltering && texture.format === TextureFormat.R32G32B32A32) {
-                                    if (item.sampler.type !== 'non-filtering') {
-                                        item.sampler.type = 'non-filtering';
-                                        internalTex.filterMode = FilterMode.Point;
-                                    }
-                                } else if (item.sampler.type !== 'filtering') {
-                                    item.sampler.type = 'filtering';
-                                    internalTex.filterMode = FilterMode.Bilinear;
-                                }
-                            }
-                            bindGroupLayoutEntries.push({
-                                binding: item.binding,
-                                visibility: item.visibility,
-                                sampler: item.sampler,
-                            });
                             bindGroupEntries.push({
                                 binding: item.binding,
                                 resource: internalTex.sampler.source,
@@ -413,6 +397,15 @@ export class WebGPUShaderData extends ShaderData {
                         break;
                 }
             }
+        }
+
+        //如果没有从缓存中找到, 则创建一个bindGroup
+        if (!bindGroup) {
+            bindGroupLayoutEntries = this.createBindGroupLayoutEntry(info);
+            bindGroupResourceSet = new Set<number>();
+            const bindGroupEntries: any[] = [];
+            _createBindGroupEntry(info, bindGroupEntries, bindGroupResourceSet);
+            if (bindGroupEntries.length === 0) return null;
 
             //创建绑定组
             const bindGroupLayoutDesc: GPUBindGroupLayoutDescriptor = { entries: bindGroupLayoutEntries };
@@ -424,13 +417,15 @@ export class WebGPUShaderData extends ShaderData {
 
             //缓存绑定组
             if (this.isShare) {
-                this._bindGroupMap.set(key, [bindGroup, bindGroupLayoutEntries]);
+                this._bindGroupMap.set(key, [bindGroup, bindGroupLayoutEntries, bindGroupResourceSet]);
                 this._bindGroupKey = key;
                 this._bindGroup = bindGroup;
                 this._bindGroupLayoutEntries = bindGroupLayoutEntries;
+                this._bindGroupResourceSet = bindGroupResourceSet;
             } else {
                 this._bindGroup = bindGroup;
                 this._bindGroupLayoutEntries = bindGroupLayoutEntries;
+                this._bindGroupResourceSet = bindGroupResourceSet;
             }
             //console.log('create bindGroup_' + WebGPUShaderData._bindGroupCounter++, key, bindGroupLayoutDesc, bindGroupEntries);
         }
@@ -911,7 +906,7 @@ export class WebGPUShaderData extends ShaderData {
             this._data[index] = value;
             lastValue && lastValue._removeReference();
             value && value._addReference();
-            //this.clearBindGroup(); //清理绑定组（重建绑定）
+            this.removeBindGroup(index); //删除包含该纹理的绑定组
             if (this.instShaderData)
                 this.instShaderData.setTexture(index, value);
             if (this.skinShaderData)
@@ -938,7 +933,7 @@ export class WebGPUShaderData extends ShaderData {
             }
             this.changeMark++;
             this._data[index] = value;
-            //this.clearBindGroup(); //清理绑定组（重建绑定）
+            this.removeBindGroup(index); //删除包含该纹理的绑定组
             if (this.instShaderData)
                 this.instShaderData._setInternalTexture(index, value);
             if (this.skinShaderData)
@@ -1021,6 +1016,7 @@ export class WebGPUShaderData extends ShaderData {
         this._gammaColorMap.clear();
         this._bindGroupMap.clear();
         this._bindGroup = null;
+        this._bindGroupResourceSet = null;
         this._bindGroupLayoutEntries = null;
         if (this._uniformBuffer)
             this._uniformBuffer.destroy();
