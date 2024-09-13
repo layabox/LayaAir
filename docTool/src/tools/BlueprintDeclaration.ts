@@ -54,6 +54,8 @@ export type TBPDeclaration = {
     /** 提示内容 */
     tips?: string;
 
+    imports?: string[];
+
     enTips: string;
     enParamTips: string[];
 
@@ -169,9 +171,11 @@ export type TBPDeclarationFunction = {
 
     enTips: string;
     enParamTips: any[];
+    enReturnTips: string;
 
     zhTips: string;
     zhParamTips: any[];
+    zhReturnTips: string;
 }
 
 export type TBPDeclarationParam = {

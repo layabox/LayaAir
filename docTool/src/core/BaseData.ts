@@ -12,6 +12,7 @@ export class BaseData implements IBaseData {
     describe: string;
     tips: string;
     param?: IBaseParam;
+    returns?: string;
 
     /* constructor(data: IBaseData) {
         this.name = data.name;
@@ -23,11 +24,16 @@ export class BaseData implements IBaseData {
 
     toString(): string {
         let str = `- name: ${this.name}\n`;
-        str += `- describe: ${this.describe}\n`;
+        if (this.describe) {
+            str += `- describe: ${this.describe}\n`;
+        }
         str += `- tips: ${this.tips || ''}`;
-        if (this.param) {
-            str += `\n- Param:\n`;
+        if (this.param && this.param.params.length > 0) {
+            str += `\n- param:\n`;
             str += this.param.toString();
+        }
+        if (this.returns) {
+            str += `\n- returns: ${this.returns}\n`;
         }
         return str;
     }
@@ -46,8 +52,10 @@ export class BaseData implements IBaseData {
             obj.describe = '';
         if (!this.tips)
             obj.tips = '';
+        if (!this.returns)
+            obj.returns = '';
 
-        if(Object.keys(obj).length === 0){
+        if (Object.keys(obj).length === 0) {
             return null;
         }
         return obj;
@@ -65,6 +73,9 @@ export class BaseData implements IBaseData {
         }
         if (data.param) {
             this.param.writeEmptyData(data.param);
+        }
+        if (data.returns) {
+            this.returns = data.returns;
         }
     }
 }

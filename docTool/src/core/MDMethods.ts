@@ -31,6 +31,9 @@ export class MDMethods implements IMethods {
     }
 
     toString(): string {
+        if (this.methods.length === 0) {
+            return '';
+        }
         let str = `## Methods\n\n`;
         this.methods.forEach((method) => {
             str += method.toString();

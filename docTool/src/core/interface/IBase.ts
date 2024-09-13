@@ -31,5 +31,6 @@ export interface IBaseParam {
 
 export interface IBaseParamData {
     key: string;
+    type: string;
     value: string;
 }

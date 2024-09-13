@@ -8,6 +8,7 @@ import { MDSelf } from "./core/MDSelf";
 import { MethodsData } from "./core/MethodsData";
 import { PropertiesData } from "./core/PropertiesData";
 import { PropertiesValue } from "./core/PropertiesValue";
+import { IHierarchy } from "./core/interface/IHierarchy";
 import { IMethods } from "./core/interface/IMethods";
 import { IProperties } from "./core/interface/IProperties";
 import { BlueprintDTSParser } from "./tools/BlueprintDTSParser";
@@ -25,8 +26,31 @@ const path = require("path");
  * @ data: 2024-04-23 15:08
  */
 export class Main {
+    dts = new BlueprintDTSParser()
     constructor() {
 
+    }
+
+    init(dtsPath: string) {
+        this.dts.start(dtsPath);
+    }
+
+    initByPath(dtsPath: string) {
+        try {
+            const stats = fs.statSync(dtsPath);
+            if (stats.isDirectory()) {
+                const files = fs.readdirSync(dtsPath);
+                files.forEach(file => {
+                    let fullPath = path.join(dtsPath, file);
+                    this.initByPath(fullPath);
+                });
+            } else if (stats.isFile() && path.basename(dtsPath).endsWith('.d.ts')) {
+                this.init(dtsPath);
+                // main.canver(dtsPath, getFileNameWithoutExt(dtsPath, outDir), getFileNameWithoutExt(dtsPath, emptyDataDir));
+            }
+        } catch (err) {
+            console.error(err);
+        }
     }
 
     canver(dtsPath: string, outDir: string, emptyDataDir: string, mdFileName: string) {
@@ -39,19 +63,21 @@ export class Main {
 
         var bp = new BlueprintDTSParser();
         bp.start(dtsPath);
+
         const data = bp.classData;
         let allMdStr: string = "";
         for (const key in data) {
             const element = data[key];
             let mc = MDManager.instance.get(element.name);
+            const extendsCls = this.getExtendsCls(element.name, dtsPath);
             if (!mc) {
-                mc = CreateUtils.createMDClass(element);
+                mc = CreateUtils.createMDClass(element, extendsCls);
                 MDManager.instance.add(mc.className, mc);
             } else {
-                this.updateMDClass(mc, element);
+                this.updateMDClass(mc, element, extendsCls);
             }
             const mdStr = mc.toString();
-            allMdStr += mdStr;
+            allMdStr += mdStr + "\n\n";
             const tObj = TranslateUtils.extractZHContent(mdStr);
             if (Object.keys(tObj).length > 0) {
                 TranslateUtils.map.set(mc.className, tObj);
@@ -60,7 +86,7 @@ export class Main {
             // TranslateUtils.translate();
 
             const emptydata = mc.getEmptydata();
-            if (!mdFileName){
+            if (!mdFileName) {
                 const outPath = outDir + mc.className + ".md";
                 MoveUtils.addNewPath(outPath, true);
                 fs.writeFileSync(outPath, mdStr, "utf-8");
@@ -91,7 +117,7 @@ export class Main {
                     let updatedEmptyDataDir = path.join(emptyDataDir, path.basename(dtsPath) + '/');
                     this.canverByPath(fullPath, updatedOutDir, updatedEmptyDataDir);
                 });
-            } else if (stats.isFile()) {
+            } else if (stats.isFile() && path.basename(dtsPath).endsWith('.d.ts')) {
                 this.canver(dtsPath, outDir, this.getFileNameWithoutExt(dtsPath, emptyDataDir), this.getFileNameWithoutExt(dtsPath, null));
                 // main.canver(dtsPath, getFileNameWithoutExt(dtsPath, outDir), getFileNameWithoutExt(dtsPath, emptyDataDir));
             }
@@ -114,10 +140,24 @@ export class Main {
         return str;
     }
 
-    updateMDClass(mc: MDClass, element: TBPDeclaration) {
+    private getExtendsCls(className: string, dtsPath: string) {
+        const extendsCls = [];
+        const classData = this.dts.classData;
+        for (const key in classData) {
+            const element = classData[key];
+            if (element.extends && element.extends[0] == className) {
+                extendsCls.push(`[${element.name}](${this.getRelativePath(element.filePath, dtsPath)})`);
+            }
+        }
+        return extendsCls;
+    }
+
+    updateMDClass(mc: MDClass, element: TBPDeclaration, extendsCls: string[]) {
         mc.className = element.name;
 
         mc.seft = this.updateMDSelf(mc.seft, element);
+
+        mc.hierarchy = this.updateMDHierarchy(mc.hierarchy, element, extendsCls);
 
         mc.properties = this.updateMDProperties(mc.properties, element.props);
 
@@ -156,6 +196,20 @@ export class Main {
             }
         }
         return self;
+    }
+
+    updateMDHierarchy(hierarchy: IHierarchy, element: TBPDeclaration, extendsCls: string[]) {
+        if (!element.extends) return null;
+
+        if (!hierarchy) {
+            hierarchy = CreateUtils.createHierarchy(element, extendsCls);
+        } else {
+            const parentCls = element.extends[0];
+            hierarchy.parent = `[${parentCls}](${element.imports[parentCls]})`;
+            hierarchy.className = element.name;
+            hierarchy.extends = element.extends || [];
+        }
+        return hierarchy;
     }
 
     updateMDMethods(methods: IMethods, funcs: TBPDeclarationFunction[]) {
@@ -267,6 +321,35 @@ export class Main {
         return properties;
     }
 
+    private getRelativePath(path1: string, path2: string): string {
+        // 将路径分割成数组
+        const arr1 = path1.split(/[\/\\]/);
+        const arr2 = path2.split(/[\/\\]/);
+
+        // 找到共同的前缀
+        let i = 0;
+        while (i < arr1.length && i < arr2.length && arr1[i] === arr2[i]) {
+            i++;
+        }
+
+        // 构建相对路径
+        const goBack = arr2.slice(i, -1).map(() => '..').join('/');
+        let goForward = arr1.slice(i).join('/');
+
+        // 去掉 .d.ts 后缀
+        goForward = goForward.replace(/\.d\.ts$/, '');
+
+        // 组合相对路径
+        let relativePath = goBack + (goBack && goForward ? '/' : '') + goForward;
+
+        // 如果结果为空字符串或只有文件名，加上 './'
+        if (!relativePath || !relativePath.includes('/')) {
+            relativePath = './' + relativePath;
+        }
+
+        return relativePath;
+    }
+
     test() {
         let mc = new MDClass();
         mc.className = "Sprite";
@@ -347,8 +430,8 @@ export class Main {
         mdataZH.tips = "无";
 
         let mdataParams = new BaseParam();
-        mdataParams.addParam("url", "图片资源的地址");
-        mdataParams.addParam("complete", "(可选)加载完成回调");
+        mdataParams.addParam("url", "图片资源的地址", 'string');
+        mdataParams.addParam("complete", "(可选)加载完成回调", 'Handler');
 
         mdataZH.param = mdataParams;
 
@@ -358,8 +441,8 @@ export class Main {
         mdataEN.tips = "None";
 
         let mdataParamsEN = new BaseParam();
-        mdataParamsEN.addParam("url", "The address of the image resource");
-        mdataParamsEN.addParam("complete", "(Optional) Load completion callback");
+        mdataParamsEN.addParam("url", "The address of the image resource", 'string');
+        mdataParamsEN.addParam("complete", "(Optional) Load completion callback", 'Handler');
 
         mdataEN.param = mdataParamsEN;
 

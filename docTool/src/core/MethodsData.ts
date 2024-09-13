@@ -21,13 +21,13 @@ export class MethodsData implements IMethodsData {
     } */
 
     toString(): string {
-        let str = `### ${this.name}\n\n`;
+        let str = `### ${this.name}[${this.returns}]\n\n`;
         str += `#### ZH\n\n`;
         str += `${this.ZH.toString()}\n`;
         str += `#### EN\n\n`;
         str += `${this.EN.toString()}\n`;
-        str += `#### Returns\n\n`;
-        str += `${this.returns}\n\n`;
+        // str += `#### Returns\n\n`;
+        // str += `${this.returns}\n\n`;
         return str;
     }
 

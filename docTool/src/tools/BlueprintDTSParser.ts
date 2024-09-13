@@ -46,6 +46,7 @@ export class BlueprintDTSParser {
     // typeParamters = {};
 
     COLLECT = {
+        "ImportDeclaration": this.collectImport, //improt引用
         "ClassDeclaration": this.collectClassFunc, //Class对象
         "ModuleDeclaration": this.collectModuleFunc,
         "EnumDeclaration": this.collectEnum, //枚举导出
@@ -125,7 +126,8 @@ export class BlueprintDTSParser {
                 propsArr.push(newItem);
             } else {
                 //理论上不可能
-                debugger
+                // debugger
+                console.log("重复的属性", newItem.name);
             }
         } else
             propsArr.push(newItem);
@@ -138,7 +140,7 @@ export class BlueprintDTSParser {
     }
 
     _getItem(clsJson, name, isFunc = false) {
-        if(!clsJson) return null;
+        if (!clsJson) return null;
         /** @type {any[]} */
         let datas;
         if (isFunc) {
@@ -168,7 +170,21 @@ export class BlueprintDTSParser {
         return needReturn ? out : null;
     }
 
+    importObj: any;
+    collectImport(node) {
+        if (!node.importClause || !node.moduleSpecifier) return;
 
+        const importClause = node.importClause.getText();
+        const iModuleSpecifier = node.moduleSpecifier.getText();
+        const pattern: RegExp = /\{([^}]*)\}/;
+        const removeQuotesRegex = /^(['"])(.*)\1$/;
+        const match = importClause.match(pattern);
+
+        if (match && match[1]) {
+            const content = match[1].trim(); // 使用 trim() 方法去除首尾空格
+            this.importObj[content] = iModuleSpecifier.replace(removeQuotesRegex, '$2');
+        }
+    }
 
     /**
      * 
@@ -181,6 +197,8 @@ export class BlueprintDTSParser {
         let obj: any = {
             module: this.moduleName,
             name: this.className,
+            imports: this.importObj,
+            filePath: this._dtsPath
         };
         //检查继承关系
         if (node.heritageClauses) {//没有继承对象的直接跳过
@@ -717,8 +735,8 @@ export class BlueprintDTSParser {
     emitMethodFunc(node) {
         let funcName = node.name.getText();
         let ext: any = {};
-        this.emitJSDoc(node.jsDoc, ext);
-
+        const ignore = this.emitJSDoc(node.jsDoc, ext);
+        if (ignore) return;
         let func: any = { name: funcName, type: "function" };
 
         this.emitModifiers(node.modifiers, func);
@@ -794,6 +812,7 @@ export class BlueprintDTSParser {
                         let tag = node.tags[j];
                         if (tag.tagName) {
                             let text = tag.tagName.escapedText;
+                            if (text == "ignore") return true;
                             switch (text) {
                                 case "private":
                                     out.modifiers || (out.modifiers = {});
@@ -816,6 +835,13 @@ export class BlueprintDTSParser {
                                     out.zhParamTips = [];
                                     currentLang = 'zh';
                                     break;
+                                case "returns":
+                                    if (currentLang == "en") {
+                                        out.enReturnTips = tag.comment;
+                                    } else if (currentLang == "zh") {
+                                        out.zhReturnTips = tag.comment;
+                                    }
+                                    break;
                                 default:
                                     if (currentLang == "en") {
                                         out.enParamTips.push(tag.comment);
@@ -827,19 +853,20 @@ export class BlueprintDTSParser {
                             }
                         }
                     }
-                    if(out.paramTips?.length == 0){
+                    if (out.paramTips?.length == 0) {
                         delete out.paramTips;
                     }
-                    if(out.enParamTips?.length == 0){
+                    if (out.enParamTips?.length == 0) {
                         delete out.enParamTips;
                     }
-                    if(out.zhParamTips?.length == 0){
+                    if (out.zhParamTips?.length == 0) {
                         delete out.zhParamTips;
                     }
                 }
                 out.tips = node.comment;
             }
         }
+        return false;
     }
 
     /**
@@ -1336,15 +1363,18 @@ export class BlueprintDTSParser {
             return
         }
         this.init(dtsPath);
+        this.importObj = {};
         //优先收集一遍
         this.collectClass(this.sc.statements);//先生成查询用表格
         this.checkNodes(this.sc.statements);
         this.parseExtends()
     }
 
+    _dtsPath: string;
+
     init(dtsPath) {
         let code = fs.readFileSync(dtsPath, "utf-8");
         this.sc = ts.createSourceFile(dtsPath, code, ts.ScriptTarget.Latest, true);
+        this._dtsPath = dtsPath;
     }
-
 }

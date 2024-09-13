@@ -82,7 +82,7 @@ export class MDManager {
         const child = this.splitMainSections('\n  ' + content, '\n  -');
         child.forEach(section => {
             const arr = section.title.split(':');
-            baseParam.addParam(arr[0], arr[1].trim());
+            baseParam.addParam(arr[0], arr[1].trim(), '');
         });
 
         return baseParam;

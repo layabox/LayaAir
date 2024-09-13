@@ -1,4 +1,5 @@
 import { IClass } from "./interface/IClass";
+import { IHierarchy } from "./interface/IHierarchy";
 import { IMethods } from "./interface/IMethods";
 import { IProperties } from "./interface/IProperties";
 import { ISelf } from "./interface/ISelf";
@@ -14,12 +15,16 @@ export class MDClass implements IClass {
     seft: ISelf;
     properties: IProperties;
     methods: IMethods;
+    hierarchy: IHierarchy;
 
     toString(): string {
         let str = `# ${this.className}\n\n`;
 
         if (this.seft)
             str += this.seft.toString();
+
+        if (this.hierarchy)
+            str += this.hierarchy.toString();
 
         if (this.properties)
             str += this.properties.toString();

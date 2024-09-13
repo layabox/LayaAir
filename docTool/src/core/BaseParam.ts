@@ -17,8 +17,8 @@ export class BaseParam implements IBaseParam {
         this.params = [];
     }
 
-    addParam(key: string, value: string) {
-        this.params.push({ key, value });
+    addParam(key: string, value: string, type: string): void {
+        this.params.push({ key, value, type });
     }
 
     getParam(key: string): IBaseParamData {
@@ -28,7 +28,7 @@ export class BaseParam implements IBaseParam {
     }
 
     updateMethodParamByDatas(datas: TBPDeclarationParam[], tips: string[]) {
-        if(!datas){
+        if (!datas) {
             return;
         }
         const _params = [];
@@ -38,7 +38,7 @@ export class BaseParam implements IBaseParam {
             if (param) {
                 param.value = tips[index];
             } else {
-                param = { key: data.name, value: tips[index] };
+                param = { key: data.name, value: tips[index], type: data.type };
             }
             _params.push(param);
         };
@@ -49,7 +49,7 @@ export class BaseParam implements IBaseParam {
     toString(): string {
         let str = "";
         this.params.forEach((item) => {
-            str += `  - ${item.key}: ${item.value}\n`;
+            str += `  - ${item.key}[${item.type}]: ${item.value}\n`;
         });
         return str;
     }
@@ -57,13 +57,13 @@ export class BaseParam implements IBaseParam {
     getEmptydata() {
         let _params = [];
         this.params.forEach((item) => {
-            if(!item.value){
+            if (!item.value) {
                 const _item = {};
                 _item[item.key] = '';
                 _params.push(_item);
             }
         });
-        if(_params.length === 0){
+        if (_params.length === 0) {
             return null;
         }
         let obj: any = {};
@@ -72,11 +72,11 @@ export class BaseParam implements IBaseParam {
     }
 
     writeEmptyData(data: any): void {
-        if(data.params){
+        if (data.params) {
             data.params.forEach((item: any) => {
                 const key = Object.keys(item)[0];
                 const param = this.getParam(key);
-                if(param){
+                if (param) {
                     param.value = item[key];
                 }
             });

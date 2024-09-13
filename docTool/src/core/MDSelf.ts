@@ -21,8 +21,10 @@ export class MDSelf implements ISelf {
 
     toString(): string {
         let str = `## self\n\n`;
-        str += `#### extends\n\n`;
-        str += `extends ${this.extends || ''}\n\n`;
+        if (this.extends) {
+            str += `#### extends\n\n`;
+            str += `extends ${this.extends || ''}\n\n`;
+        }
         str += `#### ZH\n\n`;
         str += `${this.ZH.toString()}\n\n`;
         str += `#### EN\n\n`;
@@ -31,22 +33,22 @@ export class MDSelf implements ISelf {
     }
 
     getEmptydata() {
-        let obj:any = {}
-        if (this.ZH){
+        let obj: any = {}
+        if (this.ZH) {
             const _ZH = this.ZH.getEmptydata();
             if (_ZH)
                 obj.ZH = _ZH;
         }
-        if (this.EN){
+        if (this.EN) {
             const _EN = this.EN.getEmptydata();
             if (_EN)
                 obj.EN = _EN;
         }
-        if(!this.extends){
+        if (!this.extends) {
             obj.extends = '';
         }
 
-        if(Object.keys(obj).length === 0){
+        if (Object.keys(obj).length === 0) {
             return null;
         }
         return obj;

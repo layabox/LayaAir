@@ -31,6 +31,9 @@ export class MDProperties implements IProperties {
     }
 
     toString(): string {
+        if(this.properties.length === 0){
+            return '';
+        }
         let str = `## Properties\n\n`;
         this.properties.forEach((item) => {
             str += item.toString();

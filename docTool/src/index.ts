@@ -24,9 +24,7 @@ if (!fs.existsSync(outDir)) {
     fs.mkdirSync(outDir, { recursive: true });
 }
 
-if (!fs.existsSync(emptyDataDir)) {
-    fs.mkdirSync(emptyDataDir, { recursive: true });
-}
+
 console.log("start");
 if (mdPath) {
     console.log("reload md start");
@@ -35,6 +33,10 @@ if (mdPath) {
 }
 
 if (emptyDataDir) {
+    if (!fs.existsSync(emptyDataDir)) {
+        fs.mkdirSync(emptyDataDir, { recursive: true });
+    }
+    
     console.log("write empty data start");
     EmptyDataUtils.writeEmptyData(emptyDataDir);
     console.log("write empty data end");
@@ -68,6 +70,7 @@ function _next() {
     // if (i < 2) return;
     console.log("canver start");
     var main = new Main();
+    main.initByPath(dtsPath);
     main.canverByPath(dtsPath, outDir, emptyDataDir);
     console.log("canver end");
 
