@@ -52,6 +52,7 @@ import { BufferState } from "../../../webgl/utils/BufferState";
 import { VertexMesh } from "../../../RenderEngine/RenderShader/VertexMesh";
 import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 import { ShaderData } from "../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { SerializeUtil } from "../../../loaders/SerializeUtil";
 
 
 /**
@@ -462,7 +463,8 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
             this._initBufferDatas();
         }
 
-        this._updateParticlesSimulationRestart(0);
+        if (!SerializeUtil.isDeserializing)
+            this._updateParticlesSimulationRestart(0);
     }
 
     /**
@@ -1385,8 +1387,8 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
                 break;
             case 4: // mesh
                 if (particleRender.mesh) {
-                var meshBounds: Bounds = particleRender.mesh.bounds;
-                meshSize = Math.sqrt(Math.pow(meshBounds.getExtent().x, 2.0) + Math.pow(meshBounds.getExtent().y, 2.0) + Math.pow(meshBounds.getExtent().z, 2.0));
+                    var meshBounds: Bounds = particleRender.mesh.bounds;
+                    meshSize = Math.sqrt(Math.pow(meshBounds.getExtent().x, 2.0) + Math.pow(meshBounds.getExtent().y, 2.0) + Math.pow(meshBounds.getExtent().z, 2.0));
                 } else {
                     meshSize = ShurikenParticleSystem.halfKSqrtOf2;// Math.sqrt(2) / 2.0;
                 }
