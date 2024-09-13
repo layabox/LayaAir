@@ -486,7 +486,7 @@ gulp.task("copyJsLibs", async () => {
         './src/layaAir/jsLibs/spine.wasm_3.8.wasm',
         './src/layaAir/jsLibs/naga_wasm_bg.wasm',
 
-        '!./src/layaAir/jsLibs/{laya.Box2D.js,cannon.js,bullet.js,physx.release.js,laya.Box2D.wasm.js,bullet.wasm.js,physx.wasm.js,recast-navigation.js}'
+        '!./src/layaAir/jsLibs/{laya.Box2D.js,cannon.js,bullet.js,physx.release.js,laya.Box2D.wasm.js,bullet.wasm.js,physx.wasm.js,recast-navigation.js,recast-navigation-wasm.js}'
     ])
         .pipe(gulp.dest('./build/libs'));
 });
