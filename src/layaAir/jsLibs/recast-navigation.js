@@ -31,3 +31,5 @@ if (typeof exports === 'object' && typeof module === 'object')
   module.exports = Recast;
 else if (typeof define === 'function' && define['amd'])
   define([], () => Recast);
+
+window.Recast = Recast;
