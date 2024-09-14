@@ -947,14 +947,13 @@ export class Loader extends EventDispatcher {
             remoteUrl = arg2;
             progress = arg3;
         } else {
-            progress = arg2;
+            progress = arg3 || arg2;
         }
 
         if (remoteUrl) {
             if (!remoteUrl.endsWith("/"))
                 remoteUrl += "/";
-            let tmpPath: string = path + "/";
-            URL.basePaths[tmpPath] = remoteUrl;
+            URL.basePaths[path.length > 0 ? (path + "/") : path] = remoteUrl;
             return this._loadSubFileConfig(path, null, progress);
         } else {
             if (LayaEnv.isPreview)
