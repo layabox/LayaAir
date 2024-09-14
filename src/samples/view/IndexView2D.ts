@@ -16,10 +16,6 @@ import { Skeleton_SpineIkMesh } from "./../2d/Skeleton_SpineIkMesh";
 import { Skeleton_SpineVine } from "./../2d/Skeleton_SpineVine";
 import { Skeleton_ChangeSkin } from "./../2d/Skeleton_ChangeSkin";
 import { BlendMode_Lighter } from "./../2d/BlendMode_Lighter";
-import { TiledMap_AnimationTile } from "./../2d/TiledMap_AnimationTile";
-import { TiledMap_IsometricWorld } from "./../2d/TiledMap_IsometricWorld";
-import { TiledMap_PerspectiveWall } from "./../2d/TiledMap_PerspectiveWall";
-import { TiledMap_ScrollMap } from "./../2d/TiledMap_ScrollMap";
 import { Filters_Glow } from "./../2d/Filters_Glow";
 import { Filters_Blur } from "./../2d/Filters_Blur";
 import { Filters_Color } from "./../2d/Filters_Color";
@@ -168,8 +164,8 @@ export class IndexView2D extends IndexViewUI {
 	/************************BlendMode-end***************************/
 
 	/************************TiledMap-start***************************/
-	private _comboBoxTiledMapClsArr: any[] = [TiledMap_AnimationTile, TiledMap_IsometricWorld, TiledMap_PerspectiveWall, TiledMap_ScrollMap];
-	private _comboBoxTiledMapArr: any[] = ['带动画的地图', '等角地图', 'PerspectiveWall', '滚动地图'];
+	//private _comboBoxTiledMapClsArr: any[] = [TiledMap_AnimationTile, TiledMap_IsometricWorld, TiledMap_PerspectiveWall, TiledMap_ScrollMap];
+	//private _comboBoxTiledMapArr: any[] = ['带动画的地图', '等角地图', 'PerspectiveWall', '滚动地图'];
 	/************************TiledMap-end***************************/
 
 	/************************Filters-start***************************/
@@ -396,8 +392,8 @@ export class IndexView2D extends IndexViewUI {
 				this.b_length = this._comboBoxBlendModeClsArr.length - 1;
 				break;
 			case 4://TiledMap
-				this._oldView = new this._comboBoxTiledMapClsArr[index](this.Main);
-				this.b_length = this._comboBoxTiledMapClsArr.length - 1;
+				// this._oldView = new this._comboBoxTiledMapClsArr[index](this.Main);
+				// this.b_length = this._comboBoxTiledMapClsArr.length - 1;
 				break;
 			case 5://Filters
 				this._oldView = new this._comboBoxFiltersClsArr[index](this.Main);
@@ -506,7 +502,7 @@ export class IndexView2D extends IndexViewUI {
 					labelStr = this._comboBoxBlendModeArr.toString();
 					break;
 				case 4://TiledMap
-					labelStr = this._comboBoxTiledMapArr.toString();
+					//labelStr = this._comboBoxTiledMapArr.toString();
 					break;
 				case 6://other
 					labelStr = this._comboBoxHitTestArr.toString();
