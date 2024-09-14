@@ -47,6 +47,8 @@ export class WebGPUShaderData extends ShaderData {
     stateKey: string = ''; //状态标识符
     static _stateKeyMap: Set<number>;
 
+    private _destroyed: boolean = false; //是否已经销毁
+
     private _infoId: number; //WebGPUUniformPropertyBindingInfo数据的唯一标识
     private _uniformBuffer: WebGPUUniformBuffer; //Uniform缓冲区（负责上传数据到GPU）
     private _bindGroupMap: Map<string, [GPUBindGroup, GPUBindGroupLayoutEntry[], Set<number>]>; //基于主键缓存的BindGroup
@@ -998,7 +1000,9 @@ export class WebGPUShaderData extends ShaderData {
     clear() {
         this._gammaColorMap.clear();
         this._bindGroupMap.clear();
+        this._bindGroupKey = '';
         this._bindGroup = null;
+        this._bindGroupResourceSet = null;
         this._bindGroupLayoutEntries = null;
         if (this.instShaderData)
             this.instShaderData.clear();
@@ -1011,19 +1015,27 @@ export class WebGPUShaderData extends ShaderData {
      * 销毁
      */
     destroy() {
-        WebGPUGlobal.releaseId(this);
-        WebGPUShaderData.objectCount--;
-        this._gammaColorMap.clear();
-        this._bindGroupMap.clear();
-        this._bindGroup = null;
-        this._bindGroupResourceSet = null;
-        this._bindGroupLayoutEntries = null;
-        if (this._uniformBuffer)
-            this._uniformBuffer.destroy();
-        if (this.instShaderData)
-            this.instShaderData.destroy();
-        if (this.skinShaderData)
-            for (let i = this.skinShaderData.length - 1; i > -1; i--)
-                this.skinShaderData[i].destroy();
+        if (!this._destroyed) {
+            this._destroyed = true;
+            WebGPUGlobal.releaseId(this);
+            WebGPUShaderData.objectCount--;
+            this._gammaColorMap = null;
+            this._bindGroupMap = null;
+            this._bindGroupKey = null;
+            this._bindGroup = null;
+            this._bindGroupResourceSet = null;
+            this._bindGroupLayoutEntries = null;
+            if (this._uniformBuffer)
+                this._uniformBuffer.destroy();
+            if (this.instShaderData) {
+                this.instShaderData.destroy();
+                this.instShaderData = null;
+            }
+            if (this.skinShaderData) {
+                for (let i = this.skinShaderData.length - 1; i > -1; i--)
+                    this.skinShaderData[i].destroy();
+                this.skinShaderData = null;
+            }
+        }
     }
 }
