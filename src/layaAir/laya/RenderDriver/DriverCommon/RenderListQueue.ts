@@ -46,7 +46,6 @@ export class RenderListQueue {
         this._quickSort.sort(this._elements, this._isTransparent, 0, count - 1);
         context.drawRenderElementList(this._elements);
         this._batch.clearRenderData();
-        this._batch.recoverData();
     }
 
     /**
