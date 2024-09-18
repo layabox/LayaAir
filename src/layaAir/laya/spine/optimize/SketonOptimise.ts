@@ -19,6 +19,9 @@ import { ISpineOptimizeRender } from "./interface/ISpineOptimizeRender";
 
 export class SketonOptimise implements IPreRender {
     static normalRenderSwitch: boolean = false;
+    /** optimise render的最大骨骼数 */
+    static MAX_BONES = 100;
+
     static cacheSwitch: boolean = false;
     canCache: boolean;
     sketon: spine.Skeleton; 
@@ -49,7 +52,7 @@ export class SketonOptimise implements IPreRender {
 
     _initSpineRender(skeleton: spine.Skeleton, templet: SpineTemplet, renderNode: Spine2DRenderNode, state: spine.AnimationState): ISpineOptimizeRender {
         let sp: ISpineOptimizeRender;
-        if (SketonOptimise.normalRenderSwitch) {
+        if (SketonOptimise.normalRenderSwitch || this.maxBoneNumber > SketonOptimise.MAX_BONES) {
             sp = new SpineNormalRender();
         }
         else {
