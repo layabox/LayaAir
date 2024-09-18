@@ -52,7 +52,11 @@ export class SketonOptimise implements IPreRender {
 
     _initSpineRender(skeleton: spine.Skeleton, templet: SpineTemplet, renderNode: Spine2DRenderNode, state: spine.AnimationState): ISpineOptimizeRender {
         let sp: ISpineOptimizeRender;
-        if (SketonOptimise.normalRenderSwitch || this.maxBoneNumber > SketonOptimise.MAX_BONES) {
+        if (SketonOptimise.normalRenderSwitch) {
+            sp = new SpineNormalRender();
+        }
+        else if (this.maxBoneNumber > SketonOptimise.MAX_BONES) {
+            console.warn("The number of Bones :" , this.maxBoneNumber ," > " , SketonOptimise.MAX_BONES , ", use CPU caculation");
             sp = new SpineNormalRender();
         }
         else {
