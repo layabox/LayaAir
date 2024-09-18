@@ -1,5 +1,3 @@
-
-import { Bounds } from "../d3/math/Bounds";
 import { Vector3 } from "../maths/Vector3";
 import { TextResource } from "../resource/TextResource";
 import { Byte } from "../utils/Byte";
@@ -16,23 +14,22 @@ import { NavigationUtils } from "./NavigationUtils";
  */
 const readNavTileCache = function (byte: Byte, navData: NavTileData) {
     navData._dirtyFlag = byte.getFloat32();
-    const min: Vector3 = navData._boundBox.min;
+    const min: Vector3 = navData._boundMin;
     min.x = byte.getFloat32();
     min.y = byte.getFloat32();
     min.z = byte.getFloat32();
-    const max: Vector3 = navData._boundBox.max;
+    const max: Vector3 = navData._boundMax;
     max.x = byte.getFloat32();
     max.y = byte.getFloat32();
     max.z = byte.getFloat32();
     let navCount: number = byte.readUint16();
     for (var i = 0; i < navCount; i++) {
         let nav = navData._oriTiles[i] = new NavTileCache();
-        const bound = nav._bound;
-        const min = bound.min;
+        const min = nav._boundMin;
         min.x = byte.getFloat32();
         min.y = byte.getFloat32();
         min.z = byte.getFloat32();
-        const max = bound.max
+        const max = nav._boundMax;
         max.x = byte.getFloat32();
         max.y = byte.getFloat32();
         max.z = byte.getFloat32();
@@ -77,7 +74,10 @@ export class NavTileCache {
     _triFlag: Uint8Array;
 
     /** @internal tile bounds */
-    _bound: Bounds;
+    _boundMin: Vector3;
+
+    /** @internal tile bounds */
+    _boundMax: Vector3;
     /**
      * @en The x offset of the tile.
      * @zh 瓦片的x偏移。
@@ -96,7 +96,8 @@ export class NavTileCache {
      */
     constructor() {
         this._bindData = NavigationUtils.createdtNavTileData();
-        this._bound = new Bounds(new Vector3(), new Vector3());
+        this._boundMax = new Vector3();
+        this._boundMin = new Vector3();
         this.x = this.y = 0;
     }
 
@@ -144,8 +145,12 @@ export class NavTileCache {
      * @en Bounding box
      * @zh 包围盒大小
      */
-    get bound(): Bounds {
-        return this._bound;
+    get boundMin(): Vector3 {
+        return this._boundMin;
+    }
+
+    get boundMax(): Vector3 {
+        return this._boundMax;
     }
 
     /**
@@ -181,7 +186,9 @@ export class NavTileData {
     /**@internal load*/
     _res: TextResource;
     /**@internal load*/
-    _boundBox: Bounds;
+    _boundMin: Vector3;
+    /**@internal load*/
+    _boundMax: Vector3;
     /**
      * @en Create a new instance of NavTileData.
      * @param res TextResource containing navigation data
@@ -189,7 +196,8 @@ export class NavTileData {
      * @param res 包含导航数据的 TextResource
      */
     constructor(res: TextResource) {
-        this._boundBox = new Bounds(new Vector3(), new Vector3());
+        this._boundMax = new Vector3();
+        this._boundMin = new Vector3();
         this._res = res;
         this._oriTiles = [];
         this._parse();

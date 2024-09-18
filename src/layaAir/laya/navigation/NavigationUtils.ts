@@ -8,10 +8,13 @@ import { IndexBuffer3D } from "../d3/graphics/IndexBuffer3D";
 import { VertexBuffer3D } from "../d3/graphics/VertexBuffer3D";
 import { Mesh } from "../d3/resource/models/Mesh";
 import { PrimitiveMesh } from "../d3/resource/models/PrimitiveMesh";
+import { Matrix4x4 } from "../maths/Matrix4x4";
 import { Vector3 } from "../maths/Vector3";
 import { NavMesh } from "./NavMesh";
 import { NavigationPathData } from "./NavigationPathData";
 
+const tempVector3 = new Vector3();
+const tempVector31 = new Vector3();
 /**
  * @en NavigationUtils is a utility class for handling operations related to navigation meshes.
  * @zh NavigationUtils 是一个导航工具类,主要用于处理与导航网格相关的操作。
@@ -275,11 +278,11 @@ export class NavigationUtils {
     static creageDebugMesh(navMesh: NavMesh, mesh: Mesh) {
         let m_navMesh = navMesh.navMesh;
         let tileCount = m_navMesh.getMaxTiles();
-        let orig: Vector3 = navMesh.navTileGrid.bounds.getCenter();
+        Vector3.lerp(navMesh.navTileGrid.boundMax, navMesh.navTileGrid.boundMin, 0.5, tempVector3);
         let poses: number[] = []
         let indexs: number[] = [];
         for (var i = 0; i < tileCount; i++) {
-            this.getTitleData(m_navMesh.getTile(i), poses, orig, indexs);
+            this.getTitleData(m_navMesh.getTile(i), poses, tempVector3, indexs);
         }
         let vertexDeclaration = VertexMesh.getVertexDeclaration("POSITION,NORMAL"); //兼容WSGL
         let vb = new Float32Array(poses);
@@ -289,8 +292,8 @@ export class NavigationUtils {
         } else {
             this.resetMesh(mesh, vertexDeclaration, vb, ib);
         }
-        Vector3.subtract(navMesh.navTileGrid.bounds.max, orig, mesh.bounds.max);
-        Vector3.subtract(navMesh.navTileGrid.bounds.min, orig, mesh.bounds.min);
+        Vector3.subtract(navMesh.navTileGrid.boundMax, tempVector3, mesh.bounds.max);
+        Vector3.subtract(navMesh.navTileGrid.boundMin, tempVector3, mesh.bounds.min);
         return mesh;
     }
 
@@ -324,6 +327,40 @@ export class NavigationUtils {
         var memorySize: number = vertexBuffer._byteLength + indexBuffer._byteLength;
         mesh._setCPUMemory(memorySize);
         mesh._setGPUMemory(memorySize);
+    }
+
+    static transfromBound(mat:Matrix4x4,min:Vector3,max:Vector3,outMin:Vector3,outMax:Vector3){
+        let center = tempVector3;
+        let extent = tempVector31;
+        Vector3.lerp(max, min, 0.5, center);
+        Vector3.subtract(max, min, extent);
+        Vector3.scale(extent, 0.5, extent);
+        Vector3.transformCoordinate(center, mat, center);
+        NavigationUtils._rotateExtents(extent, mat, extent);
+        Vector3.subtract(center, extent, outMin);
+        Vector3.add(center, extent, outMax);
+    }
+
+    /**
+     * 旋转范围
+     * @internal
+     * @param extent 范围
+     * @param rotation 旋转矩阵
+     * @param out 返回值
+     * @return void
+     */
+    protected static _rotateExtents(extents: Vector3, rotation: Matrix4x4, out: Vector3): void {
+        var extentsX: number = extents.x;
+        var extentsY: number = extents.y;
+        var extentsZ: number = extents.z;
+        var matE: Float32Array = rotation.elements;
+        out.x = Math.abs(matE[0] * extentsX) + Math.abs(matE[4] * extentsY) + Math.abs(matE[8] * extentsZ);
+        out.y = Math.abs(matE[1] * extentsX) + Math.abs(matE[5] * extentsY) + Math.abs(matE[9] * extentsZ);
+        out.z = Math.abs(matE[2] * extentsX) + Math.abs(matE[6] * extentsY) + Math.abs(matE[10] * extentsZ);
+    }
+
+    static boundContainPoint(min:Vector3,max:Vector3,point:Vector3){
+        return point.x >= min.x && point.x <= max.x && point.y >= min.y && point.y <= max.y && point.z >= min.z && point.z <= max.z;
     }
 
     /**@internal  */
