@@ -205,11 +205,22 @@ export class WebGPUTextureContext extends WebGPUObject implements ITextureContex
                 webgpuTextureFormat = !useSRGB ? GPUTextureFormat.bc3_rgba_unorm : GPUTextureFormat.bc3_rgba_unorm_srgb;
                 break;
             case TextureFormat.ETC2RGBA:
-            case TextureFormat.ETC1RGB:
+                webgpuTextureFormat = GPUTextureFormat.etc2_rgba8unorm;
+                break;
             case TextureFormat.ETC2RGB:
+                webgpuTextureFormat = GPUTextureFormat.etc2_rgb8unorm;
+                break;
             case TextureFormat.ETC2SRGB:
+                webgpuTextureFormat = GPUTextureFormat.etc2_rgb8unorm_srgb;
+                break;
             case TextureFormat.ETC2SRGB_Alpha8:
-                webgpuTextureFormat = !useSRGB ? GPUTextureFormat.etc2_rgba8unorm : GPUTextureFormat.etc2_rgba8unorm_srgb;
+                webgpuTextureFormat = GPUTextureFormat.etc2_rgba8unorm_srgb;
+                break;
+            case TextureFormat.ETC2RGB_Alpha1:
+                webgpuTextureFormat = GPUTextureFormat.etc2_rgb8a1unorm;
+                break;
+            case TextureFormat.ETC2SRGB_Alpha1:
+                webgpuTextureFormat = GPUTextureFormat.etc2_rgb8a1unorm_srgb;
                 break;
             case TextureFormat.ASTC4x4:
             case TextureFormat.ASTC4x4SRGB:
@@ -248,6 +259,8 @@ export class WebGPUTextureContext extends WebGPUObject implements ITextureContex
             case TextureFormat.ETC2RGB:
             case TextureFormat.ETC2SRGB:
             case TextureFormat.ETC2SRGB_Alpha8:
+            case TextureFormat.ETC2RGB_Alpha1:
+            case TextureFormat.ETC2SRGB_Alpha1:
             case TextureFormat.ASTC4x4:
             case TextureFormat.ASTC4x4SRGB:
             case TextureFormat.ASTC6x6:

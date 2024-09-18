@@ -108,6 +108,10 @@ export class KTXTextureInfo {
                     return { format: TextureFormat.ETC2SRGB_Alpha8, sRGB: true };
                 case COMPRESSED_SRGB8_ETC2:
                     return { format: TextureFormat.ETC2SRGB, sRGB: true };
+                case COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2:
+                    return { format: TextureFormat.ETC2RGB_Alpha1, sRGB: false };
+                case COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2:
+                    return { format: TextureFormat.ETC2SRGB_Alpha1, sRGB: true };
 
                 /** astc */
                 // todo astc 其他格式
