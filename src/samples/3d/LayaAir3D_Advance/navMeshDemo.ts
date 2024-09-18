@@ -16,7 +16,6 @@ import { Component } from "laya/components/Component";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { UnlitMaterial } from "laya/d3/core/material/UnlitMaterial";
 import { PixelLineSprite3D } from "laya/d3/core/pixelLine/PixelLineSprite3D";
-import { Bounds } from "laya/d3/math/Bounds";
 import { Color } from "laya/maths/Color";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { NavAgent } from "laya/navigation/Component/NavAgent";
@@ -51,7 +50,7 @@ export class NavMeshDemo {
     }
 }
 
-
+const tempV = new Vector3();
 class NavMeshScript extends Script {
     camera: Camera;
 
@@ -99,18 +98,17 @@ class NavMeshScript extends Script {
         mat.renderMode = UnlitMaterial.RENDERMODE_TRANSPARENT;
         mat.albedoColor = new Color(0, 0.75, 1, 0.3)
         navSprite.meshRenderer.material = mat;
-        navSprite.transform.position = suface.bounds.getCenter();
+        Vector3.lerp(suface.boundMin, suface.boundMax, 0.5, tempV);
+        navSprite.transform.position = tempV;
         //@ts-ignore
         let tiles = suface._oriTiles;
         for (var j = 0, n1 = tiles.length; j < n1; j++) {
-            this.drawBoundingBox(this._lineSprite, tiles.getNavData(j).bound, Color.RED);
+            this.drawBoundingBox(this._lineSprite, tiles.getNavData(j).boundMin,tiles.getNavData(j).boundMax, Color.RED);
             // this.drawTitleTriangle(this._lineSprite, titles[j], Color.YELLOW);
         }
-        this.drawBoundingBox(this._lineSprite, suface.bounds, Color.GREEN);
+        this.drawBoundingBox(this._lineSprite, suface.boundMin,suface.boundMax, Color.GREEN);
     }
-    private drawBoundingBox(lineSprite3D: PixelLineSprite3D, bound: Bounds, color: Color): void {
-        let min: Vector3 = bound.min;
-        let max: Vector3 = bound.max;
+    private drawBoundingBox(lineSprite3D: PixelLineSprite3D, min: Vector3,max: Vector3, color: Color): void {
         let corners: Vector3[] = [];
         corners.push(min.clone())
         let p = min.clone();

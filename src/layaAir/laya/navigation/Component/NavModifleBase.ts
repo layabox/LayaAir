@@ -1,7 +1,6 @@
 import { Component } from "../../components/Component";
 import { Sprite3D } from "../../d3/core/Sprite3D";
 import { Scene3D } from "../../d3/core/scene/Scene3D";
-import { Bounds } from "../../d3/math/Bounds";
 import { Matrix4x4 } from "../../maths/Matrix4x4";
 import { Vector3 } from "../../maths/Vector3";
 import { NavigationManager } from "../NavigationManager";
@@ -18,7 +17,9 @@ export class NavModifleBase extends Component {
     _navManager: NavigationManager;
 
     /**@internal */
-    protected _bounds: Bounds;
+    protected _boundMin: Vector3 = new Vector3();
+
+    protected _boundMax: Vector3 = new Vector3();
 
     /**@internal */
     protected _dtNavTileCache: any;
@@ -40,12 +41,12 @@ export class NavModifleBase extends Component {
     /**
      * @internal
      */
-    get bounds(): Bounds {
-        return this._bounds;
+    get boundMin(): Vector3 {
+        return this._boundMin;
     }
 
-    set bounds(value: Bounds) {
-        value.cloneTo(this._bounds);
+    get boundMax(): Vector3 {
+        return this._boundMax;
     }
 
     /**
@@ -83,7 +84,8 @@ export class NavModifleBase extends Component {
      */
     constructor() {
         super();
-        this._bounds = new Bounds(new Vector3(), new Vector3());
+        this._boundMax = new Vector3();
+        this._boundMin = new Vector3();
         this._dtNavTileCache = NavigationUtils.createdtNavTileCache();
     }
 
@@ -95,7 +97,7 @@ export class NavModifleBase extends Component {
         this._surface.forEach(element => {
             element._removeModifileNavMesh(this);
         });
-        this._refeashTranfrom((<Sprite3D>this.owner).transform.worldMatrix, this.bounds);
+        this._refeashTranfrom((<Sprite3D>this.owner).transform.worldMatrix, this._boundMin, this._boundMax);
         this._surface.forEach(element => {
             element._addModifileNavMesh(this);
         });
@@ -104,7 +106,7 @@ export class NavModifleBase extends Component {
     /**
      * @internal
      */
-    _refeashTranfrom(mat: Matrix4x4, bound: Bounds) {
+    _refeashTranfrom(mat: Matrix4x4, min:Vector3,max:Vector3) {
 
     }
 
@@ -150,7 +152,8 @@ export class NavModifleBase extends Component {
         let base = dest as NavModifleBase;
         base._agentType = this._agentType;
         base._areaFlags = this._areaFlags;
-        this._bounds.cloneTo(base._bounds);
+        this._boundMax.cloneTo(base._boundMax);
+        this._boundMin.cloneTo(base._boundMin);
         super._cloneTo(dest);
     }
 }

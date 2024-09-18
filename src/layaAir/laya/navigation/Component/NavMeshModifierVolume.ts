@@ -4,13 +4,13 @@ import { Vector3 } from "../../maths/Vector3";
 import { Event } from "../../events/Event";
 import { Matrix4x4 } from "../../maths/Matrix4x4";
 import { Quaternion } from "../../maths/Quaternion";
-import { Bounds } from "../../d3/math/Bounds";
 import { Sprite3D } from "../../d3/core/Sprite3D";
 import { NavigationManager } from "../NavigationManager";
 import { NavMeshSurface } from "./NavMeshSurface";
+import { NavigationUtils } from "../NavigationUtils";
 
 const tempVec3 = new Vector3();
-var tempBound: Bounds;
+const tempVec31 = new Vector3();
 
 /**
  * @en NavMeshModifierVolume is a component that modifies the navigation mesh in a specific volume.
@@ -97,22 +97,22 @@ export class NavMeshModifierVolume extends Component {
      * @internal
      */
     _onWorldMatNeedChange() {
-        if (!tempBound)
-            tempBound = new Bounds(new Vector3(), new Vector3());
         Vector3.scale(this._size, 0.5, tempVec3);
         Matrix4x4.createAffineTransformation(this._center, Quaternion.DEFAULT, tempVec3, this._transfrom);
         Matrix4x4.multiply((<Sprite3D>this.owner).transform.worldMatrix, this._transfrom, this._transfrom);
-        tempBound.min.setValue(-1, -1, -1);
-        tempBound.max.setValue(1, 1, 1);
-        tempBound._tranform(this._transfrom, tempBound);
-        this._datas[0] = tempBound.min.x;
-        this._datas[1] = tempBound.min.y;
-        this._datas[2] = tempBound.min.z;
-        this._datas[3] = tempBound.max.x;
-        this._datas[4] = tempBound.max.y;
-        this._datas[5] = tempBound.max.z;
+        let min = tempVec31;
+        let max = tempVec31;
+        min.setValue(-1, -1, -1);
+        max.setValue(1, 1, 1);
+        NavigationUtils.transfromBound(this._transfrom, min, max, min, max);
+        this._datas[0] = min.x;
+        this._datas[1] = min.y;
+        this._datas[2] = min.z;
+        this._datas[3] = max.x;
+        this._datas[4] = max.y;
+        this._datas[5] = max.z;
         this._transfrom.invert(this._transfrom);
-        this._datas.set(this._transfrom.elements,6);
+        this._datas.set(this._transfrom.elements, 6);
         this._surface.forEach(element => {
             element._updateCovexVoume(this);
         });

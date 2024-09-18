@@ -3,7 +3,6 @@ import { Component } from "../../components/Component";
 import { Vector3 } from "../../maths/Vector3";
 import { Sprite3D } from "../../d3/core/Sprite3D";
 import { Scene3D } from "../../d3/core/scene/Scene3D";
-import { Bounds } from "../../d3/math/Bounds";
 import { TextResource } from "../../resource/TextResource";
 import { SingletonList } from "../../utils/SingletonList";
 
@@ -70,7 +69,9 @@ export class NavMeshSurface extends Component {
     private _navMesh: NavMesh;
 
     /**@internal */
-    private _boundBox: Bounds;
+    private _boundMin: Vector3 = new Vector3();
+    /**@internal */
+    private _boundMax: Vector3 = new Vector3();
 
     /**@internal load*/
     _oriTiles: NavTileData;
@@ -136,16 +137,18 @@ export class NavMeshSurface extends Component {
     }
 
     /**
-     * @internal
-     * load set only
+     * @readonly
+     * @en The minimum bounds of the navigation mesh
+     * @zh 导航网格的最小边界 
      */
-    set bounds(value: Bounds) {
-        value.cloneTo(this._boundBox);
-    }
+    get boundMin() { return this._boundMin; }
 
-    get bounds() {
-        return this._boundBox;
-    }
+    /**
+     * @readonly
+     * @en The maximum bounds of the navigation mesh
+     * @zh 导航网格的最大边界 
+     */
+    get boundMax() { return this._boundMax; }
 
     /**
      * @en Set navigation data
@@ -157,7 +160,7 @@ export class NavMeshSurface extends Component {
             this._oriTiles = new NavTileData(value);
             if (this._navMesh) {
                 this._navMesh.navTileGrid.refeachConfig(this._oriTiles);
-                this._navMesh._navMeshInit()
+                this._navMesh._navMeshInit();
             }
             for (var i = 0, n = this._oriTiles.length; i < n; i++) {
                 if (!this._bindDatas.has(i)) this._bindDatas.set(i, NavigationUtils.createdtNavTileCache());
@@ -193,7 +196,8 @@ export class NavMeshSurface extends Component {
         this._singleton = false;
         this._buildTileList = new SingletonList<number>();
         this._featureCache = new Map<number, SingletonList<NavModifleBase>>()
-        this._boundBox = new Bounds();
+        this._boundMax = new Vector3();
+        this._boundMin = new Vector3();
         this._bindDatas = new Map<number, any>();
         this._partitionType = PartitionType.PARTITION_WATERSHED;
     }
@@ -204,7 +208,7 @@ export class NavMeshSurface extends Component {
     _onEnable(): void {
         //start Build Tile
         let manager: NavigationManager = (this.owner.scene as Scene3D).getComponentElementManager("navMesh") as NavigationManager;
-        this._navMesh = new NavMesh(manager.getNavConfig(this._agentType), this._boundBox, manager);
+        this._navMesh = new NavMesh(manager.getNavConfig(this._agentType), this._boundMin, this._boundMax, manager);
         if (this._oriTiles) {
             this._navMesh.navTileGrid.refeachConfig(this._oriTiles);
             this._navMesh._navMeshInit()
@@ -241,7 +245,7 @@ export class NavMeshSurface extends Component {
      * @param navModifile 
      */
     _addModifileNavMesh(navModifile: NavModifleBase) {
-        let indexs = this.navMesh.navTileGrid.getBoundTileIndex(navModifile.bounds, true);
+        let indexs = this.navMesh.navTileGrid.getBoundTileIndex(navModifile.boundMin,navModifile.boundMax, true);
         indexs.forEach((index) => {
             let cacheFeature = this._featureCache.get(index);
             if (!cacheFeature) {
@@ -261,7 +265,7 @@ export class NavMeshSurface extends Component {
      * @param navModifile 
      */
     _removeModifileNavMesh(navModifile: NavModifleBase) {
-        let indexs = this.navMesh.navTileGrid.getBoundTileIndex(navModifile.bounds, true);
+        let indexs = this.navMesh.navTileGrid.getBoundTileIndex(navModifile.boundMin,navModifile.boundMax, true);
         indexs.forEach((index) => {
             let cacheFeature = this._featureCache.get(index);
             if (!cacheFeature) {
@@ -335,7 +339,7 @@ export class NavMeshSurface extends Component {
                 binds.push(featureCache.elements[i].dtNavTileCache);
             }
         }
-        this._navMesh._addTile(oritile.x, oritile.y, binds, oritile.bound, this._partitionType);
+        this._navMesh._addTile(oritile.x, oritile.y, binds, oritile.boundMin,oritile.boundMax, this._partitionType);
     }
 
     /**

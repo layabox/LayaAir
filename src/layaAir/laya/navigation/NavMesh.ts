@@ -1,5 +1,4 @@
 import { Sprite3D } from "../d3/core/Sprite3D";
-import { Bounds } from "../d3/math/Bounds";
 import { Ray } from "../d3/math/Ray";
 import { Mesh } from "../d3/resource/models/Mesh";
 import { Vector3 } from "../maths/Vector3";
@@ -72,12 +71,12 @@ export class NavMesh {
     private _meshVolumeIdLists: number[];
 
 
-    /**
-    * @internal
-    * get  bounds of mesh
-    */
-    get bounds(): Bounds {
-        return this._grid.bounds;
+    public get min(): Vector3 {
+        return this._grid.boundMin;
+    }
+
+    public get max(): Vector3 {
+        return this._grid.boundMax;
     }
 
     /**
@@ -128,9 +127,9 @@ export class NavMesh {
      * @param bound NavMesh 的边界。
      * @param manager NavigationManager 实例。
      */
-    constructor(config: RecastConfig, bound: Bounds, manager: NavigationManager) {
+    constructor(config: RecastConfig, min: Vector3, max: Vector3, manager: NavigationManager) {
         this._manager = manager;
-        this._grid = new NavMeshGrid(config, bound);
+        this._grid = new NavMeshGrid(config, min, max);
         this._titileConfig = new TitleConfig();
         this._navcreateedTileMaps = new Set<number>();
         this._delayCreates = new Map<number, NavAgent[]>();
@@ -164,8 +163,8 @@ export class NavMesh {
      */
     _navMeshInit() {
         let config = this._grid.config;
-        let min = this._grid.bounds.min;
-        let max = this._grid.bounds.max;
+        let min = this._grid.boundMin;
+        let max = this._grid.boundMax;
         this._navMesh.init(min.toArray(), max.toArray(), config.cellSize, config.tileSize);
         this._navQuery.init(this._navMesh, 2048);
         this._crowd.init(this._maxAgents, config.agentRadius, this.navMesh);
@@ -287,7 +286,7 @@ export class NavMesh {
         let area = this._manager.getArea(link.areaFlag);
         let pos = link._start.toArray();
         pos[1] += this._grid.config.cellHeight;
-        this._meshlinkoffIdLists[index] = this._navMeshLink.addOffMeshConnection(index,pos, link._end.toArray(), link.width, link.bidirectional ? 1 : 0,  area.index);
+        this._meshlinkoffIdLists[index] = this._navMeshLink.addOffMeshConnection(index, pos, link._end.toArray(), link.width, link.bidirectional ? 1 : 0, area.index);
     }
 
     /**
@@ -312,8 +311,8 @@ export class NavMesh {
         this._meshVolumeList.add(volume);
         let index = this._meshVolumeList.length - 1;
         let areaType = this._manager.getArea(volume.areaFlag).index;
-        this._navConvexVolume.addCovexVoume(index,volume._datas,0,0, areaType);
-        this._meshVolumeIdLists[this._meshVolumeList.length - 1] =index;
+        this._navConvexVolume.addCovexVoume(index, volume._datas, 0, 0, areaType);
+        this._meshVolumeIdLists[this._meshVolumeList.length - 1] = index;
     }
 
 
@@ -326,7 +325,7 @@ export class NavMesh {
         let index = this._meshVolumeList.indexof(volume);
         if (index < 0) return;
         let areaType = this._manager.getArea(volume.areaFlag).index;
-        this._navConvexVolume.addCovexVoume(index,volume._datas,0,0, areaType);
+        this._navConvexVolume.addCovexVoume(index, volume._datas, 0, 0, areaType);
     }
 
     /**
@@ -451,11 +450,12 @@ export class NavMesh {
      * add a tile
      * @internal
      * @param cellX 
-     * @param cellY 
-     * @param binds
+     * @param cellY
+     * @param min
+     * @param max
      * @param bound 
      */
-    _addTile(tileX: number, tileY: number, binds: any[], bound: Bounds, partitionType: number) {
+    _addTile(tileX: number, tileY: number, binds: any[], min: Vector3, max: Vector3, partitionType: number) {
         if (binds.length <= 0) return;
         const config = this._grid.config;
         this._titileConfig.partitionType = partitionType;
@@ -463,10 +463,10 @@ export class NavMesh {
         this._titileConfig.setMaxEdgeLen(12 / config.cellSize);
         this._titileConfig.setAgent(config.agentHeight, config.agentRadius, config.agentMaxClimb);
         this._titileConfig.setOff(tileX, tileY);
-        this._titileConfig.setMin(bound.min);
-        this._titileConfig.setMax(bound.max);
+        this._titileConfig.setMin(min);
+        this._titileConfig.setMax(max);
         this.removeTile(tileX, tileY);
-        let ptrs:number[]= [];
+        let ptrs: number[] = [];
         binds.forEach((value) => {
             ptrs.push(value.$$.ptr);
         });

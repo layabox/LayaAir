@@ -1,8 +1,9 @@
 
 import { Component } from "../../components/Component";
-import { Bounds } from "../../d3/math/Bounds";
 import { Matrix4x4 } from "../../maths/Matrix4x4";
+import { Vector3 } from "../../maths/Vector3";
 import { TextResource } from "../../resource/TextResource";
+import { NavigationUtils } from "../NavigationUtils";
 import { NavTileData, NavTileCache } from "../NavTileData";
 import { NavModifleBase } from "./NavModifleBase";
 
@@ -47,9 +48,9 @@ export class NavMeshModifileSurface extends NavModifleBase {
     /**
     * @internal
     */
-    _refeashTranfrom(mat: Matrix4x4, bound: Bounds) {
+    _refeashTranfrom(mat: Matrix4x4, min:Vector3, max:Vector3): void {
         if (this._oriNavTileCache == null) return;
-        this._oriNavTileCache.bound._tranform(mat, bound);
+        NavigationUtils.transfromBound(mat,this._oriNavTileCache.boundMin, this._oriNavTileCache.boundMax, min, max);
         this._dtNavTileCache.transfromData(mat.elements);
     }
 
