@@ -242,6 +242,8 @@ export class BaseTexture extends Resource {
             case TextureFormat.ETC2RGBA:
             case TextureFormat.ETC2SRGB_Alpha8:
             case TextureFormat.ETC2SRGB:
+            case TextureFormat.ETC2RGB_Alpha1:
+            case TextureFormat.ETC2SRGB_Alpha1:
             case TextureFormat.PVRTCRGB_2BPPV:
             case TextureFormat.PVRTCRGBA_2BPPV:
             case TextureFormat.PVRTCRGB_4BPPV:
