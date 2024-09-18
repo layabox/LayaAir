@@ -114,7 +114,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
     private trackIndex: number = 0;
 
     private _skinName: string = "default";
-    private _animationName: string = "";
+    private _animationName: string;
     private _loop: boolean = true;
 
     private _externalSkins: ExternalSkin[];
@@ -308,7 +308,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
     onAwake(): void {
         if (this._skeleton) {
             //this.spineItem = this._templet.sketonOptimise._initSpineRender(this._skeleton, this._templet, this, this._state);
-            if (LayaEnv.isPlaying && this._animationName)
+            if (LayaEnv.isPlaying && this._animationName !== undefined)
                 this.play(this._animationName, this._loop, true);
         }
     }
@@ -321,6 +321,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
      * @returns 
      */
     protected init(templet: SpineTemplet): void {
+        if (this.destroyed) return;
         if (this._templet) {
             this.clear();
             this.reset();
@@ -391,7 +392,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
         this._flushExtSkin();
         this.event(Event.READY);
 
-        if (LayaEnv.isPlaying && this._animationName)
+        if (LayaEnv.isPlaying && this._animationName !== undefined)
             this.play(this._animationName, this._loop, true);
     }
 
@@ -702,6 +703,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
     }
 
     clear(): void {
+        this._mesh = null;
         this._renderElements.forEach(element => {
             Spine2DRenderNode.recoverRenderElement2D(element);
         });

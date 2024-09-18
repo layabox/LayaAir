@@ -8,6 +8,28 @@ import { Vector4 } from "../../maths/Vector4";
  * <code>Gradient</code> 类用于创建颜色渐变。
  */
 export class Gradient implements IClone {
+
+	/**
+	 * @internal
+	 * @param gammaColorBuffer 
+	 * @returns 
+	 */
+	static _getLinearGradientColorData(gammaColorBuffer: Float32Array): Float32Array {
+		if (gammaColorBuffer.length > 0 && Math.floor(gammaColorBuffer.length / 4) == 0) {
+			let outBuffer = new Float32Array(gammaColorBuffer.length);
+			//x 为key  yzw才是color
+			for (var i = 0; i < gammaColorBuffer.length; i += 4) {
+				outBuffer[i] = gammaColorBuffer[i];
+				outBuffer[i + 1] = Color.gammaToLinearSpace(gammaColorBuffer[i + 1]);
+				outBuffer[i + 2] = Color.gammaToLinearSpace(gammaColorBuffer[i + 2]);
+				outBuffer[i + 3] = Color.gammaToLinearSpace(gammaColorBuffer[i + 3]);
+			}
+			return outBuffer
+		} else {
+			throw "Gradient Color Data Trans Linear is error"
+		}
+	}
+
 	private _mode: number = 0;
 	private _maxColorRGBKeysCount: number = 0;
 	private _maxColorAlphaKeysCount: number = 0;

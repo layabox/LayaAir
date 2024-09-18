@@ -46,6 +46,11 @@ export class Color implements IClone {
     static CLEAR: Color = new Color(0, 0, 0, 0);
 
     /**
+     * @internal
+     */
+    static _tempColor = new Color();
+
+    /**
      * Gamma空间值转换到线性空间。
      * @param value gamma空间值。
      */

@@ -121,7 +121,10 @@ export class SketonOptimise implements IPreRender {
             }
             skinAttach.attachMentParse(skin, slots);
             this.skinAttachArray.push(skinAttach);
-            // skinAttach.checkMainAttach(slots);
+            // if (i != 0) {
+            //     defaultSkinAttach.mainVB._cloneBones(skinAttach.mainVB)
+            // }
+            skinAttach.init(slots);
             maxVertexCount = Math.max(skinAttach.maxVertexCount);
             maxIndexCount = Math.max(skinAttach.maxIndexCount);
             if (i == 0) {
@@ -362,7 +365,7 @@ export class SkinAttach {
 
         this.mainIB = new IBCreator(ntype , indexCount);
         this.tempIbCreate = new IBCreator( this.mainIB.type , this.mainIB.maxIndexCount);
-        this.init(slots);
+        // this.init(slots);
     }
 
     init(slots: spine.SlotData[]) {
