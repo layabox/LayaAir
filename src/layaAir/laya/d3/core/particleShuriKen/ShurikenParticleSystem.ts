@@ -633,9 +633,9 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
                         let alphaElements: Float32Array = gradientColor.alphaElements;
                         let rgbElements: Float32Array = gradientColor.rgbElements;
                         shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.COLOROVERLIFEGRADIENTALPHAS, alphaElements);
-                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.COLOROVERLIFEGRADIENTCOLORS, Gradient._getLinearGradientColorData(rgbElements));
+                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.COLOROVERLIFEGRADIENTCOLORS, rgbElements);
                         shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.MAXCOLOROVERLIFEGRADIENTALPHAS, alphaElements);
-                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.MAXCOLOROVERLIFEGRADIENTCOLORS, Gradient._getLinearGradientColorData(rgbElements));
+                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.MAXCOLOROVERLIFEGRADIENTCOLORS, rgbElements);
                         let ranges = gradientColor._keyRanges;
                         ranges.setValue(1, 0, 1, 0);
                         for (let index = 0, n = Math.max(2, gradientColor.colorRGBKeysCount); index < n; index++) {
@@ -668,9 +668,9 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
                         let maxalphaElements: Float32Array = maxGradientColor.alphaElements;
                         let maxrgbElements: Float32Array = maxGradientColor.rgbElements;
                         shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.COLOROVERLIFEGRADIENTALPHAS, minalphaElements);
-                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.COLOROVERLIFEGRADIENTCOLORS, Gradient._getLinearGradientColorData(minrgbElements));
+                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.COLOROVERLIFEGRADIENTCOLORS, minrgbElements);
                         shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.MAXCOLOROVERLIFEGRADIENTALPHAS, maxalphaElements);
-                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.MAXCOLOROVERLIFEGRADIENTCOLORS, Gradient._getLinearGradientColorData(maxrgbElements));
+                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.MAXCOLOROVERLIFEGRADIENTCOLORS, maxrgbElements);
 
                         let minRanges = minGradientColor._keyRanges;
                         minRanges.setValue(1, 0, 1, 0);
