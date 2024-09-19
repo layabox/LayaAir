@@ -1760,7 +1760,19 @@ export class Sprite extends Node {
 
     set filters(value: Filter[]) {
         value && value.length === 0 && (value = null);
+
+        //先去掉旧的事件监听
+        if(this._filterArr){
+            for(let f of this._filterArr){
+                f && f.off(Filter.EVENT_CHANGE,this,this.repaint);
+            }
+        }
         this._filterArr = value ? value.slice() : null;
+        if(value){
+            for(let f of value){
+                f && f.on(Filter.EVENT_CHANGE,this,this.repaint);
+            }
+        }
         if (value)
             this._renderType |= SpriteConst.FILTERS;
         else

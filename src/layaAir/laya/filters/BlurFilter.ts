@@ -73,6 +73,7 @@ export class BlurFilter extends Filter {
             _definiteIntegralMap[key] = s;
         }
         v1.w /= s;
+        this.onChange();
     }
 
     /**

@@ -1,4 +1,5 @@
 import { Sprite } from "../display/Sprite";
+import { EventDispatcher } from "../events/EventDispatcher";
 import { Matrix } from "../maths/Matrix";
 import { Context } from "../renders/Context";
 import { Render2D } from "../renders/Render2D";
@@ -12,7 +13,7 @@ import { IFilter } from "./IFilter";
  * @en The `Filter` class is the base class for filters. Filters are post-processing operations on nodes, so they inevitably operate on a renderTexture.
  * @zh Filter 是滤镜基类。滤镜是针对节点的后处理过程，所以必然操作一个rendertexture
  */
-export abstract class Filter implements IFilter {
+export abstract class Filter extends EventDispatcher implements IFilter {
     /**
      * @private 
      * @en color filter
@@ -36,6 +37,12 @@ export abstract class Filter implements IFilter {
     protected height = 0;
     protected texture: RenderTexture2D;  //TODO 创建 优化
     protected _render2D: Render2D;
+    
+    /**
+     * @en event：some parameter changed
+     * @zh 参数改变事件
+     */
+    static EVENT_CHANGE='change';
 
     /**
      * @en Current usage
@@ -61,6 +68,7 @@ export abstract class Filter implements IFilter {
      * @ignore
      */
     constructor() {
+        super();
         let rect1 = this._rectMeshNormY = new MeshQuadTexture();
         rect1.addQuad([0, 0, 1, 0, 1, 1, 0, 1], [0, 0, 1, 0, 1, 1, 0, 1], 0xffffffff, true)
         this._rectMeshVBNormY = new Float32Array(rect1.vbBuffer);
@@ -69,6 +77,10 @@ export abstract class Filter implements IFilter {
         rectInvY.addQuad([0, 0, 1, 0, 1, 1, 0, 1], [0, 1, 1, 1, 1, 0, 0, 0], 0xffffffff, true)
         this._rectMeshVBInvY = new Float32Array(rectInvY.vbBuffer);
         this.useFlipY(false);
+    }
+
+    protected onChange(){
+        this.event(Filter.EVENT_CHANGE);
     }
 
     /**

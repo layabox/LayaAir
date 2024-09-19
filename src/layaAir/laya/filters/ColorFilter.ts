@@ -156,6 +156,7 @@ export class ColorFilter extends Filter implements IFilter {
                 this._alpha[z++] = matrix[i];
             }
         }
+        this.onChange();
         return this;
     }
 
