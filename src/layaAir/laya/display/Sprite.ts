@@ -1292,7 +1292,19 @@ export class Sprite extends Node {
 
     set filters(value: any[]) {
         value && value.length === 0 && (value = null);
+        //如果之前有filter了先去掉
+        let oldFilters = this._getCacheStyle().filters;
+        if(oldFilters){
+            for(let f of oldFilters){
+                f.off(Filter.EVENT_CHANGE,this,this.repaint);
+            }
+        }
         this._getCacheStyle().filters = value ? value.slice() : null;
+        if(value){
+            for(let f of value){
+                f.on(Filter.EVENT_CHANGE,this,this.repaint);
+            }
+        }
         if (value)
             this._renderType |= SpriteConst.FILTERS;
         else

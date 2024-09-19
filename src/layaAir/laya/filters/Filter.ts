@@ -12,11 +12,12 @@ import { BlendMode } from "../webgl/canvas/BlendMode"
 import { RenderSpriteData, Value2D } from "../webgl/shader/d2/value/Value2D"
 import { SubmitCMD } from "../webgl/submit/SubmitCMD"
 import { ColorFilter } from "./ColorFilter";
+import { EventDispatcher } from "../events/EventDispatcher";
 
 /**
  * <code>Filter</code> 是滤镜基类。
  */
-export class Filter implements IFilter {
+export class Filter extends EventDispatcher implements IFilter {
     /**@private 模糊滤镜。*/
     static BLUR: number = 0x10;
     /**@private 颜色滤镜。*/
@@ -25,14 +26,19 @@ export class Filter implements IFilter {
     static GLOW: number = 0x08;
     /** @internal*/
     _glRender: any;
+    static EVENT_CHANGE = 'change';
 
     /**
      * 创建一个 <code>Filter</code> 实例。
      * */
-    constructor() { }
+    constructor() { super();}
 
     /**@private 滤镜类型。*/
     get type(): number { return -1 }
+
+    protected onChange(){
+        this.event(Filter.EVENT_CHANGE);
+    }
 
     static _filter = function (this: RenderSprite, sprite: Sprite, context: Context, x: number, y: number): void {
         var webglctx: Context = context;

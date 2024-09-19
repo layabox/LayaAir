@@ -66,6 +66,7 @@ export class GlowFilter extends Filter {
     set offY(value: number) {
         this._elements[6] = value;
         this._sv_blurInfo1[3] = -value;
+        this.onChange();
     }
 
     /**@private */
@@ -77,6 +78,7 @@ export class GlowFilter extends Filter {
     set offX(value: number) {
         this._elements[5] = value;
         this._sv_blurInfo1[2] = value;
+        this.onChange();
     }
 
     /**@private */
@@ -87,6 +89,7 @@ export class GlowFilter extends Filter {
     /**@private */
     set color(value: string) {
         this._color = new ColorUtils(value);
+        this.onChange();
     }
 
     /**@private */
@@ -103,6 +106,7 @@ export class GlowFilter extends Filter {
     set blur(value: number) {
         this._elements[4] = value;
         this._sv_blurInfo1[0] = this._sv_blurInfo1[1] = value;
+        this.onChange();
     }
 
     getColorNative(): Float32Array {

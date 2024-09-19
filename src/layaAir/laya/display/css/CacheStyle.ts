@@ -4,6 +4,7 @@ import { Rectangle } from "../../maths/Rectangle"
 import { Context } from "../../resource/Context"
 import { HTMLCanvas } from "../../resource/HTMLCanvas"
 import { Pool } from "../../utils/Pool"
+import { Filter } from "../../filters/Filter"
 
 /**
  * @internal
@@ -29,7 +30,7 @@ export class CacheStyle {
     /**作为mask时的父对象*/
     maskParent: Sprite;
     /**滤镜数据*/
-    filters: any[];
+    filters: Filter[];
     /**当前缓存区域*/
     cacheRect: Rectangle;
     /**当前使用的canvas*/
