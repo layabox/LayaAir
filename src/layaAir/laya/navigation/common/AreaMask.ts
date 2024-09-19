@@ -1,5 +1,8 @@
-import { NavAreaFlag } from "./NavigationManager";
+import { NavAreaFlag } from "./NavigationConfig";
 
+/**
+ * 区域遮罩
+ */
 export class AreaMask {
     /**@internal */
     private _flags: number;

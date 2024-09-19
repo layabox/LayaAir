@@ -1,13 +1,20 @@
+
+import { Laya } from "../../../Laya";
+import { IElementComponentManager } from "../../components/IScenceComponentManager";
 import { LayaGL } from "../../layagl/LayaGL";
 import { ShaderData } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { Context } from "../../renders/Context";
 import { Camera2D } from "./Camera2D";
+
 
 export class Scene2DSpecialManager {
     /**@internal */
     _shaderData: ShaderData;
 
     _mainCamera: Camera2D;
+
+    /** @internal */
+    componentElementMap: Map<string, IElementComponentManager> = new Map();
     constructor() {
         this._shaderData = LayaGL.renderDeviceFactory.createShaderData(null);
     }
@@ -26,7 +33,7 @@ export class Scene2DSpecialManager {
     }
 
 
-    _preRenderUpdate(context:Context) {
+    _preRenderUpdate(context: Context) {
         if (this._mainCamera) {
             context.drawLeftData();
             this._shaderData.setMatrix3x3(Camera2D.VIEW2D, this._mainCamera._getCameraTransform());

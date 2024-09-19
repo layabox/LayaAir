@@ -3,7 +3,7 @@
  */
 export interface IElementComponentManager {
 
-    /**@internal name used find manager by scene3D */
+    /**@internal name used find manager by Scene */
     name: string;
 
     /**@internal init by Scene3D Init*/

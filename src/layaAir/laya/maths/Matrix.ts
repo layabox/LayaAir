@@ -1,5 +1,6 @@
 import { Point } from "./Point";
 import { Pool } from "../utils/Pool"
+import { Utils } from "../utils/Utils";
 
 /**
  * <p> <code>Matrix</code> 类表示一个转换矩阵，它确定如何将点从一个坐标空间映射到另一个坐标空间。</p>
@@ -12,7 +13,7 @@ export class Matrix {
     /**用于中转使用的 <code>Matrix</code> 对象。*/
     static TEMP: Matrix = new Matrix();
     /**@internal */
-    static _createFun: Function|null = null;
+    static _createFun: Function | null = null;
 
     /**缩放或旋转图像时影响像素沿 x 轴定位的值。*/
     a: number;
@@ -137,14 +138,20 @@ export class Matrix {
      * @return 当前 Matrix 对象。
      */
     skew(x: number, y: number): Matrix {
-        var tanX: number = Math.tan(x);
-        var tanY: number = Math.tan(y);
-        var a1: number = this.a;
-        var b1: number = this.b;
-        this.a += tanY * this.c;
-        this.b += tanY * this.d;
-        this.c += tanX * a1;
-        this.d += tanX * b1;
+        var sinx = Math.sin(x);
+        var cosx = Math.cos(x);
+        var siny = Math.sin(y);
+        var cosy = Math.cos(y);
+        var a = this.a;
+        var c = this.c;
+        var tx = this.tx;
+        this.a = cosy * a + sinx * this.b;
+        this.b = siny * a + cosx * this.b;
+        this.c = cosy * c + sinx * this.d;
+        this.d = siny * c + cosx * this.d;
+        this.tx = cosy * tx + sinx * this.ty;
+        this.ty = siny * tx + cosx * this.ty;
+        this._bTransform = true;
         return this;
     }
 
@@ -388,6 +395,44 @@ export class Matrix {
         dec.ty = this.ty;
         dec._bTransform = this._bTransform;
         return dec;
+    }
+
+    /**
+     * 设置矩阵
+     * 输出矩阵 = 平移矩阵*旋转矩阵*斜切矩阵*缩放矩阵*描点矩阵
+     * [a,b,tx] = [1,0,x]  *  [cos(r),-sin(r),0]  *  [cos(sy),sin(sx),0]  *  [sx,0,0]  *  [1,0,-pivotx]
+     * [c,d,ty]   [0,1,y]     [sin(r), cos(r),0]     [sin(sy),cos(sx),0]     [0,sy,0]     [0,1,-pivoty]   
+     * 
+     * @param x x坐标
+     * @param y y坐标
+     * @param sx x轴缩放
+     * @param sy y轴缩放
+     * @param rotation 旋转，以角度为单位。
+     * @param skewX x轴倾斜，以角度为单位。
+     * @param skewY y轴倾斜，以角度为单位。
+     * @param pivotx x 描点
+     * @param pivoty y 描点
+     */
+    setMatrix(x: number, y: number, sx: number, sy: number, rotation: number, skewX: number, skewY: number, pivotx: number, pivoty: number): Matrix {
+        rotation = Utils.toRadian(rotation);
+        skewX = Utils.toRadian(skewX);
+        skewY = Utils.toRadian(skewY);
+        const cosr = Math.cos(rotation);
+        const sinr = Math.sin(rotation);
+        const coskx = Math.cos(skewX);
+        const sinkx = Math.sin(skewX);
+        const cosky = Math.cos(skewY);
+        const sinky = Math.sin(skewY);
+
+        this.a = (cosr * cosky - sinr * sinky) * sx;
+        this.b = (sinr * cosky + cosr * sinky) * sx;
+        this.c = (cosr * sinkx - sinr * coskx) * sy;
+        this.d = (sinr * sinkx + cosr * coskx) * sy;
+
+        this.tx = x - this.a * pivotx - this.c * pivoty;
+        this.ty = y - this.b * pivotx - this.d * pivoty;
+        this._checkTransform();
+        return this;
     }
 
     /**

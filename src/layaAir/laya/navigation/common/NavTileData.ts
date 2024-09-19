@@ -1,8 +1,7 @@
 
-import { Bounds } from "../d3/math/Bounds";
-import { Vector3 } from "../maths/Vector3";
-import { TextResource } from "../resource/TextResource";
-import { Byte } from "../utils/Byte";
+import { Vector3 } from "../../maths/Vector3";
+import { TextResource } from "../../resource/TextResource";
+import { Byte } from "../../utils/Byte";
 import { NavigationUtils } from "./NavigationUtils";
 
 
@@ -13,26 +12,25 @@ import { NavigationUtils } from "./NavigationUtils";
  */
 const readNavTileCache = function (byte: Byte, navData: NavTileData) {
     navData._dirtyFlag = byte.getFloat32();
-    const min: Vector3 = navData._boundBox.min;
+    const min: Vector3 = navData._boundMin;
     min.x = byte.getFloat32();
     min.y = byte.getFloat32();
     min.z = byte.getFloat32();
-    const max: Vector3 = navData._boundBox.max;
+    const max: Vector3 = navData._boundMax;
     max.x = byte.getFloat32();
     max.y = byte.getFloat32();
     max.z = byte.getFloat32();
     let navCount: number = byte.readUint16();
     for (var i = 0; i < navCount; i++) {
         let nav = navData._oriTiles[i] = new NavTileCache();
-        const bound = nav._bound;
-        const min = bound.min;
-        min.x = byte.getFloat32();
-        min.y = byte.getFloat32();
-        min.z = byte.getFloat32();
-        const max = bound.max
-        max.x = byte.getFloat32();
-        max.y = byte.getFloat32();
-        max.z = byte.getFloat32();
+        
+        nav.boundMin.x = byte.getFloat32();
+        nav.boundMin.y = byte.getFloat32();
+        nav.boundMin.z = byte.getFloat32();
+
+        nav.boundMax.x = byte.getFloat32();
+        nav.boundMax.y = byte.getFloat32();
+        nav.boundMax.z = byte.getFloat32();
 
         nav.x = byte.readUint16();
         nav.y = byte.readUint16();
@@ -69,8 +67,12 @@ export class NavTileCache {
      */
     _triFlag: Uint8Array;
 
-    /** @internal tile bounds */
-    _bound: Bounds;
+    /**@internal */
+    _boundMin:Vector3;
+
+    /**@internal */
+    _boundMax:Vector3;
+
     /** tile offset */
     x: number;
     y: number;
@@ -78,7 +80,8 @@ export class NavTileCache {
 
     constructor() {
         this._bindData = NavigationUtils.createdtNavTileData();
-        this._bound = new Bounds(new Vector3(), new Vector3());
+        this._boundMin = new Vector3();
+        this._boundMax = new Vector3();
         this.x = this.y = 0;
     }
 
@@ -113,11 +116,12 @@ export class NavTileCache {
     }
 
 
-    /**
-     * 包围盒大小
-     */
-    get bound(): Bounds {
-        return this._bound;
+    get boundMin(): Vector3 {
+        return this._boundMin;
+    }
+
+    get boundMax(): Vector3 {
+        return this._boundMax;
     }
 
     /**
@@ -130,7 +134,7 @@ export class NavTileCache {
 
     destroy(): void {
         if (this._bindData) {
-            NavigationUtils.free(this._bindData);
+            this._bindData.destroy();
             this._bindData = null;
         }
     }
@@ -144,10 +148,15 @@ export class NavTileData {
     _oriTiles: Array<NavTileCache>;
     /**@internal load*/
     _res: TextResource;
-    /**@internal load*/
-    _boundBox: Bounds;
+    
+    /**@internal min*/
+    _boundMin:Vector3;
+
+    /**@internal max*/
+    _boundMax:Vector3;
     constructor(res: TextResource) {
-        this._boundBox = new Bounds(new Vector3(), new Vector3());
+        this._boundMin = new Vector3();
+        this._boundMax = new Vector3();
         this._res = res;
         this._oriTiles = [];
         this._parse();
@@ -171,7 +180,16 @@ export class NavTileData {
         return this._oriTiles[index];
     }
 
+
     public get length(): number {
         return this._oriTiles.length;
+    }
+
+    destroy(): void {
+        this._oriTiles.forEach(element => {
+            element.destroy();
+        });
+        this._oriTiles = null;
+        this._res = null;
     }
 }

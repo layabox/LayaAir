@@ -1,16 +1,11 @@
-
-import { BufferUsage } from "../RenderEngine/RenderEnum/BufferTargetType";
-import { IndexFormat } from "../RenderEngine/RenderEnum/IndexFormat";
-import { VertexMesh } from "../RenderEngine/RenderShader/VertexMesh";
-import { VertexDeclaration } from "../RenderEngine/VertexDeclaration";
-import { Laya3DRender } from "../d3/RenderObjs/Laya3DRender";
-import { IndexBuffer3D } from "../d3/graphics/IndexBuffer3D";
-import { VertexBuffer3D } from "../d3/graphics/VertexBuffer3D";
-import { Mesh } from "../d3/resource/models/Mesh";
-import { PrimitiveMesh } from "../d3/resource/models/PrimitiveMesh";
-import { Vector3 } from "../maths/Vector3";
-import { NavMesh } from "./NavMesh";
+import { Matrix4x4 } from "../../maths/Matrix4x4";
+import { Vector3 } from "../../maths/Vector3";
+import { BaseNavMesh } from "./BaseNavMesh";
 import { NavigationPathData } from "./NavigationPathData";
+const tempVec3 = new Vector3();
+const tempVec31 = new Vector3();
+const tempVec32 = new Vector3();
+const tempVec33 = new Vector3();
 
 export class NavigationUtils {
     /**@internal */
@@ -18,7 +13,7 @@ export class NavigationUtils {
     /**@internal 超了怎么办 */
     private static MAX_POLYS: number = 256;
     /**@internal */
-    private static TitleMeshIbOff: number[] = [0, 2, 1];
+    static TitleMeshIbOff: number[] = [0, 2, 1];
     /**@internal ori recast Data */
     static _recast: any;
     /**@internal */
@@ -27,6 +22,36 @@ export class NavigationUtils {
     static _TemprefPoint: any;
     /**@internal */
     static _TemprefPoint1: any;
+
+    /** @internal */
+    static boundContentPoint(min:Vector3,max:Vector3,point:Vector3):boolean{
+        if (point.x > max.x || point.x < min.x) return false;
+        if (point.y > max.y || point.y < min.y) return false;
+        if (point.z > max.z || point.z < min.z) return false;
+        return true;
+    }
+
+    /** @internal */
+    static boundInterection(min1:Vector3,max1:Vector3,min2:Vector3,max2:Vector3):number{
+        var tempV0: Vector3 = tempVec3;
+        var tempV1: Vector3 = tempVec31;
+        var thisExtends: Vector3 = tempVec32;
+        Vector3.subtract(max1, min1, thisExtends);
+        Vector3.scale(thisExtends, 0.5, thisExtends);
+        var boundExtends: Vector3 = tempVec33;
+        Vector3.subtract(max2, min2, boundExtends);
+        Vector3.scale(boundExtends, 0.5, boundExtends);
+        tempV0.setValue(Math.max(max1.x, max2.x) - Math.min(min1.x, min2.x),
+            Math.max(max1.y, max2.y) - Math.min(min1.y, min2.y),
+            Math.max(max1.z, max2.z) - Math.min(min1.z, min2.z));
+        tempV1.setValue((thisExtends.x + boundExtends.x) * 2.0,
+            (thisExtends.y + boundExtends.y) * 2.0,
+            (thisExtends.z + boundExtends.z) * 2.0);
+        if ((tempV0.x) > (tempV1.x)) return -1;
+        if ((tempV0.y) > (tempV1.y)) return -1;
+        if ((tempV0.z) > (tempV1.z)) return -1;
+        return (tempV1.x - tempV0.x) * (tempV1.y - tempV0.y) * (tempV1.z - tempV0.z);
+    }
 
     /**
      * @internal
@@ -50,6 +75,25 @@ export class NavigationUtils {
         return (dx * dx + dz * dz) < radius * radius && Math.abs(dy) < height;
     }
 
+    /**@internal 
+     * calculate the boundBox of the transform
+     * @param min vector3
+     * @param max vector3
+     * @param transfrom matrix4x4
+     * @param outMin vector3
+     * @param outMax vector3
+     */
+    static transfromBoundBox(min:Vector3,max:Vector3,transfrom:Matrix4x4,outMin:Vector3,outMax:Vector3){
+        const center = tempVec3;
+        Vector3.lerp(min,max,0.5,center);
+        const extent = tempVec31;
+        Vector3.subtract(max,min,extent);
+        Vector3.scale(extent,0.5,extent);
+        Vector3.transformCoordinate(center,transfrom,center);
+        Vector3.TransformNormal(extent,transfrom,extent);
+        Vector3.subtract(center,extent,outMin);
+        Vector3.add(center,extent,outMax);
+    }
     /**@internal  */
     static isFlags(data: number, flag: any): number {
         return data & flag.value;
@@ -65,7 +109,7 @@ export class NavigationUtils {
     }
 
     /**@internal  */
-    static getSteerTarget(navMesh: NavMesh, startRef: any, endRef: any, minTargetDist: number, paths: number[], pathSize: number, out: Vector3) {
+    static getSteerTarget(navMesh: BaseNavMesh, startRef: any, endRef: any, minTargetDist: number, paths: number[], pathSize: number, out: Vector3) {
         const navQuery = navMesh.navQuery;
         let data = navQuery.findStraightPath(startRef, endRef, paths, pathSize, 3);
         let steerPath = data.steerPath;
@@ -123,14 +167,14 @@ export class NavigationUtils {
     }
 
     /**@internal  */
-    static findFllowPath(navMesh: NavMesh, filter: any, startPos: Vector3, endPos: Vector3, steplength: number, minTarget: number, fllowPath: NavigationPathData[]) {
+    static findFllowPath(navMesh: BaseNavMesh, filter: any, startPos: Vector3, endPos: Vector3, steplength: number, minTarget: number, fllowPath: NavigationPathData[]) {
         const navQuery = navMesh.navQuery;
         const namesh = navMesh.navMesh;
         const startRef = navQuery.findNearestPoly(startPos.toArray(), navMesh.extents, filter);
         const endRef = navQuery.findNearestPoly(endPos.toArray(), navMesh.extents, filter);
         let pathdata = navQuery.findPath(startRef, endRef, filter, NavigationUtils.MAX_POLYS);
         let polys = pathdata.polys;
-        let m_npolys = pathdata.pathCount;
+        let m_npolys = polys.length;
         let m_nsmoothPath = 0;
         let steerPos: Vector3 = new Vector3();
         let help1: Vector3 = new Vector3();
@@ -138,7 +182,7 @@ export class NavigationUtils {
         if (polys.length > 0) {
             let npolys = m_npolys;
             let iterPos = navQuery.closestPointOnPolyByRefPointData(startRef);
-            let targetPos = navQuery.closestPointOnPoly(polys[npolys - 1], endRef.getData());
+            let targetPos = navQuery.closestPointOnPoly(polys[npolys - 1], endRef.data);
             this._setDatastoArray(fllowPath, m_nsmoothPath, iterPos, this._recast.dtStraightPathFlags.DT_STRAIGHTPATH_START.value);
             m_nsmoothPath++;
             while (npolys && m_nsmoothPath < NavigationUtils.MAX_SMOOTH) {
@@ -216,106 +260,7 @@ export class NavigationUtils {
         fllowPath.length = m_nsmoothPath;
     }
 
-    /**@internal  */
-    static getTitleData(title: any, vbDatas: number[], center: Vector3, ibs: number[]): void {
-        let header: any = title.getheader();
-        if (!header) return null;
-        const vboff = vbDatas.length / 6; //兼容WGSL
-        let tvertCount: number = header.vertCount;
-        let tailTris: number[] = title.getdetailTris();
-        for (var i = 0; i < header.polyCount; i++) {
-            let p: any = title.getPolys(i);
-            let vertCount: number = p.vertCount;
-            let pverts: number[] = p.getVerts();
-            let pd: any = title.getPolyDetail(i);
-            let triCount: number = pd.triCount;
-            for (var j = 0; j < triCount; j++) {
-                let index = (pd.triBase + j) * 4;
-                for (var k = 0; k < 3; k++) {
-                    const kvalue = tailTris[index + NavigationUtils.TitleMeshIbOff[k]];
-                    if (kvalue < vertCount) {
-                        ibs.push(pverts[kvalue] + vboff)
-                    } else {
-                        ibs.push(pd.vertBase + kvalue - vertCount + vboff + tvertCount)
-                    }
-                }
-            }
-        }
-        let verts = title.getVerts();
-        for (var i = 0, n = verts.length; i < n; i += 3) {
-            vbDatas.push(verts[i] - center.x);
-            vbDatas.push(verts[i + 1] - center.y);
-            vbDatas.push(verts[i + 2] - center.z);
-            vbDatas.push(0, 0, 0); //兼容WGSL
-        }
-
-        verts = title.getdetailVerts();
-        for (var i = 0, n = verts.length; i < n; i += 3) {
-            vbDatas.push(verts[i] - center.x);
-            vbDatas.push(verts[i + 1] - center.y);
-            vbDatas.push(verts[i + 2] - center.z);
-            vbDatas.push(0, 0, 0); //兼容WGSL
-        }
-    }
-
-    /**
-     * create navMesh tile to Laya Mesh 
-     * @param navMesh 
-     * @param mesh
-     */
-    static creageDebugMesh(navMesh: NavMesh, mesh: Mesh) {
-        let m_navMesh = navMesh.navMesh;
-        let tileCount = m_navMesh.getMaxTiles();
-        let orig: Vector3 = navMesh.navTileGrid.bounds.getCenter();
-        let poses: number[] = []
-        let indexs: number[] = [];
-        for (var i = 0; i < tileCount; i++) {
-            this.getTitleData(m_navMesh.getTile(i), poses, orig, indexs);
-        }
-        let vertexDeclaration = VertexMesh.getVertexDeclaration("POSITION,NORMAL"); //兼容WSGL
-        let vb = new Float32Array(poses);
-        let ib = new Uint16Array(indexs);
-        if (mesh == null) {
-            mesh = PrimitiveMesh._createMesh(vertexDeclaration, vb, ib);
-        } else {
-            this.resetMesh(mesh, vertexDeclaration, vb, ib);
-        }
-        Vector3.subtract(navMesh.navTileGrid.bounds.max, orig, mesh.bounds.max);
-        Vector3.subtract(navMesh.navTileGrid.bounds.min, orig, mesh.bounds.min);
-        return mesh;
-    }
-
-    /**@internal  */
-    static resetMesh(mesh: Mesh, vertexDeclaration: VertexDeclaration, vertices: Float32Array, indices: Uint16Array) {
-        var vertexBuffer: VertexBuffer3D = Laya3DRender.renderOBJCreate.createVertexBuffer3D(vertices.length * 4, BufferUsage.Static, true);
-        vertexBuffer.vertexDeclaration = vertexDeclaration;
-        vertexBuffer.setData(vertices.buffer);
-        mesh._vertexBuffer = vertexBuffer;
-        mesh._vertexCount = vertexBuffer._byteLength / vertexDeclaration.vertexStride;
-        var indexBuffer: IndexBuffer3D = Laya3DRender.renderOBJCreate.createIndexBuffer3D(IndexFormat.UInt16, indices.length, BufferUsage.Static, true);
-        indexBuffer.setData(indices);
-        mesh._indexBuffer = indexBuffer;
-
-        mesh._setBuffer(vertexBuffer, indexBuffer);
-        let subMesh = mesh.getSubMesh(0);
-        //mesh._setInstanceBuffer(mesh._instanceBufferStateType);
-        subMesh._vertexBuffer = vertexBuffer;
-        subMesh._indexBuffer = indexBuffer;
-        subMesh._setIndexRange(0, indexBuffer.indexCount);
-
-        var subIndexBufferStart: number[] = subMesh._subIndexBufferStart;
-        var subIndexBufferCount: number[] = subMesh._subIndexBufferCount;
-        var boneIndicesList: Uint16Array[] = subMesh._boneIndicesList;
-        subIndexBufferStart.length = 1;
-        subIndexBufferCount.length = 1;
-        boneIndicesList.length = 1;
-        subIndexBufferStart[0] = 0;
-        subIndexBufferCount[0] = indexBuffer.indexCount;
-
-        var memorySize: number = vertexBuffer._byteLength + indexBuffer._byteLength;
-        mesh._setCPUMemory(memorySize);
-        mesh._setGPUMemory(memorySize);
-    }
+    
 
     /**@internal  */
     static initialize(Recast: any) {
@@ -323,6 +268,11 @@ export class NavigationUtils {
         NavigationUtils._dtCrowdAgentParams = new Recast.dtCrowdAgentParams();
         NavigationUtils._TemprefPoint = {};
         NavigationUtils._TemprefPoint1 = {};
+    }
+
+    /**@internal  */
+    static getRecast() {
+        return NavigationUtils._recast;
     }
 
     /**
@@ -443,6 +393,13 @@ export class NavigationUtils {
      * check Status is Succeed
      */
     static statusSucceed(data: any): boolean {
-        return this._recast.dtStatusSucceed(status)
+        return this._recast.dtStatusSucceed(data)
+    }
+
+    /**
+     * update crowd
+     */
+    static updateCrowd(crowd:any, dt:number) {
+        return this._recast.updateCrowd(crowd, dt);
     }
 }

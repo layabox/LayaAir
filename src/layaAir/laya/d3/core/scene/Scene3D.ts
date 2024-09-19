@@ -48,7 +48,6 @@ import { RenderTexture } from "../../../resource/RenderTexture";
 import { Laya3D } from "../../../../Laya3D";
 import { IPhysicsManager } from "../../../Physics3D/interface/IPhysicsManager";
 import { LayaGL } from "../../../layagl/LayaGL";
-import { IElementComponentManager } from "./IScenceComponentManager";
 import { ISceneNodeData } from "../../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
 import { ShaderDataType, ShaderData, ShaderDataItem } from "../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
@@ -56,6 +55,7 @@ import { CommandUniformMap } from "../../../RenderDriver/DriverDesign/RenderDevi
 import { RenderTexture2D } from "../../../resource/RenderTexture2D";
 import { BaseRender } from "../render/BaseRender";
 import { Viewport } from "../../../maths/Viewport";
+import { IElementComponentManager } from "../../../components/IScenceComponentManager";
 
 export enum FogMode {
     Linear = 0, //Linear

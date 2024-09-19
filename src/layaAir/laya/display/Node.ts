@@ -43,6 +43,7 @@ export class Node extends EventDispatcher {
      * @zh 父节点对象。
      */
     _parent: Node = null;
+    
     /**
      * @internal
      * @en Whether it has been destroyed.

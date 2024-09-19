@@ -1,4 +1,4 @@
-import { Vector3 } from "../maths/Vector3";
+import { Vector3 } from "../../maths/Vector3";
 
 
 /**
@@ -13,14 +13,16 @@ export class TitleConfig {
     agentHeight: number;
     agentRadius: number;
     agentMaxClimb: number;
+    maxEdgeLen: number;
+    maxSimplificationError: number;
     partitionType: any;
     constructor() {
         this.tx = 0;
         this.ty = 0;
+        this.maxSimplificationError = 0.9;
         this.bmin = [0, 0, 0];
         this.bmax = [0, 0, 0];
     }
-
 
     /**
      * 设置Title序列
@@ -53,10 +55,20 @@ export class TitleConfig {
         this.bmax[2] = value.z;
     }
 
+    /**
+     * 设置运行代理的参数
+     * @param {number} height
+     * @param {number} radius
+     * @param {number} maxClimb
+     */
     public setAgent(height: number, radius: number, maxClimb: number) {
         this.agentHeight = height;
         this.agentRadius = radius;
         this.agentMaxClimb = maxClimb;
     }
 
+    /** 设置最大边长 */
+    public setMaxEdgeLen(value: number) {
+        this.maxEdgeLen = Math.ceil(value);
+    }
 }

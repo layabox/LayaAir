@@ -58,7 +58,7 @@ export class VertexShurikenParticleBillboard extends VertexShuriKenParticle {
 			new VertexElement(108, VertexElementFormat.Vector4, VertexShuriKenParticle.PARTICLE_RANDOM1),
 			new VertexElement(124, VertexElementFormat.Vector3, VertexShuriKenParticle.PARTICLE_SIMULATIONWORLDPOSTION),//TODO:local模式下可省去内存
 			new VertexElement(136, VertexElementFormat.Vector4, VertexShuriKenParticle.PARTICLE_SIMULATIONWORLDROTATION),
-			new VertexElement(152, VertexElementFormat.Vector4,VertexShuriKenParticle.PARTICLE_SIMULATIONUV)
+			new VertexElement(152, VertexElementFormat.Vector4, VertexShuriKenParticle.PARTICLE_SIMULATIONUV)
 		]);
 
 
@@ -77,7 +77,7 @@ export class VertexShurikenParticleBillboard extends VertexShuriKenParticle {
 			new VertexElement(92, VertexElementFormat.Vector4, VertexShuriKenParticle.PARTICLE_RANDOM1),
 			new VertexElement(108, VertexElementFormat.Vector3, VertexShuriKenParticle.PARTICLE_SIMULATIONWORLDPOSTION),//TODO:local模式下可省去内存
 			new VertexElement(120, VertexElementFormat.Vector4, VertexShuriKenParticle.PARTICLE_SIMULATIONWORLDROTATION),
-			new VertexElement(136, VertexElementFormat.Vector4,VertexShuriKenParticle.PARTICLE_SIMULATIONUV)
+			new VertexElement(136, VertexElementFormat.Vector4, VertexShuriKenParticle.PARTICLE_SIMULATIONUV)
 		])
 
 		VertexShurikenParticleBillboard._billboardIndexArray = new Uint16Array([
