@@ -24,6 +24,7 @@ import { LayaEnv } from "../../LayaEnv";
 import { Scene3D } from "../d3/core/scene/Scene3D";
 import { Color } from "../maths/Color";
 import { LayaGL } from "../layagl/LayaGL";
+import { Scene } from "./Scene";
 
 /**
  * @en Dispatched when the stage size is resized.
@@ -262,6 +263,8 @@ export class Stage extends Sprite {
     _wgColor = new Color(0, 0, 0, 0);// number[] | null = [0, 0, 0, 1];
     /**@internal */
     _scene3Ds: Scene3D[] = [];
+
+    _scene2Ds: Scene[] = [];
 
     /**@private */
     private _globalRepaintSet: boolean = false;		// 设置全局重画标志。这个是给IDE用的。IDE的Image无法在onload的时候通知对应的sprite重画。
@@ -1049,9 +1052,12 @@ export class Stage extends Sprite {
 
         if (this.renderingEnabled) {
 
+            for (let i = 0, n = this._scene2Ds.length; i < n; i++) {
+                this._scene2Ds[i]._update();
+            }
             for (let i = 0, n = this._scene3Ds.length; i < n; i++)//更新3D场景,必须提出来,否则在脚本中移除节点会导致BUG
                 (<any>this._scene3Ds[i])._update();
-            
+
             this._runComponents();
             this._componentDriver.callPreRender();
 
@@ -1094,6 +1100,7 @@ export class Stage extends Sprite {
     }
 
     private _runComponents() {
+
         this._componentDriver.callStart();
         this._componentDriver.callUpdate();
         this._componentDriver.callLateUpdate();

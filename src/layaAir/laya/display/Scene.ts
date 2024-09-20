@@ -13,6 +13,7 @@ import { Context } from "../renders/Context";
 import { CommandUniformMap } from "../RenderDriver/DriverDesign/RenderDevice/CommandUniformMap";
 import { Scene2DSpecialManager } from "./Scene2DSpecial/Scene2DSpecialManager";
 import { Render2DSimple } from "../renders/Render2D";
+import { Laya, stage } from "../../Laya";
 
 /**
  * @en Scene class, responsible for scene creation, loading, destruction and other functions.
@@ -34,6 +35,18 @@ export class Scene extends Sprite {
     private static _root: Sprite;
     /**@private */
     private static _loadPage: Sprite;
+
+    /**@private 场景组件管理表 */
+    private static componentManagerMap: Map<string, any> = new Map();
+
+    /**
+     * 注册场景内的管理器
+     * @param type 管理器类型
+     * @param cla 实例
+     */
+    static regManager(type: string, cla: any) {
+        Scene.componentManagerMap.set(type, cla);
+    }
 
     /**
      * @en Whether to automatically destroy (destroy nodes and used resources) after the scene is closed, default is false
@@ -59,6 +72,9 @@ export class Scene extends Sprite {
     /**@private */
     private _viewCreated: boolean = false;
 
+    /** @internal */
+    private _componentElementDatasMap: any = {};
+
     _specialManager: Scene2DSpecialManager;
 
     constructor(createChildren = true) {
@@ -70,6 +86,39 @@ export class Scene extends Sprite {
         this._scene = this;
         if (createChildren)
             this.createChildren();
+        Scene.componentManagerMap.forEach((val, key) => {
+            let cla: any = val;
+            this._specialManager.componentElementMap.set(key, new cla());
+        });
+    }
+
+    /**
+     * @internal
+     */
+    set componentElementDatasMap(value: any) {
+        this._componentElementDatasMap = value;
+        this._specialManager.componentElementMap.forEach((value, key) => {
+            value.Init(this._componentElementDatasMap[key])
+        });
+    }
+
+    get componentElementDatasMap(): any {
+        return this._componentElementDatasMap;
+    }
+
+    _update() {
+        var delta: number = Laya.timer.delta * 0.001;
+        this._specialManager.componentElementMap.forEach((value) => {
+            value.update(delta);
+        });
+    }
+
+    /**
+   * 获得某个组件的管理器
+   * @param type 组件管理类
+   */
+    getComponentElementManager(type: string) {
+        return this._specialManager.componentElementMap.get(type);
     }
 
     /**
@@ -432,6 +481,21 @@ export class Scene extends Sprite {
         if (this._widget !== Widget.EMPTY) this._widget.resetLayout();
     }
 
+    protected _onAdded(): void {
+        super._onAdded();
+        if (this.displayedInStage) {
+            stage._scene2Ds.push(this);
+        }
+    }
+
+    protected _onRemoved(): void {
+        super._onRemoved();
+        if (this.displayedInStage) {
+            let index = stage._scene2Ds.indexOf(this);
+            stage._scene2Ds.splice(index, 1);
+        }
+    }
+
     /**
      * @en Repositioning
      * @zh 重新排版
@@ -450,7 +514,6 @@ export class Scene extends Sprite {
         this._widget === Widget.EMPTY && (this._widget = this.addComponent(Widget));
         return this._widget;
     }
-
     //////////////////////////////////////静态方法//////////////////////////////////////////
 
     /**
