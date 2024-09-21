@@ -211,6 +211,7 @@ export class CharRender_Canvas extends ICharRender {
 		//ctx.translate(CborderSize, CborderSize);
 		//ctx.scale(xs, ys);
 		if (lineWidth > 0) {
+			ctx.lineJoin = "round";
 			ctx.strokeStyle = strokeColStr;
 			ctx.fillStyle = colStr;
 			ctx.lineWidth = lineWidth;
