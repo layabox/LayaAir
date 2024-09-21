@@ -5,21 +5,61 @@ import { MultiRenderData } from "./MultiRenderData";
 import { SlotUtils } from "./SlotUtils";
 import { IGetBone } from "./interface/IGetBone";
 
+/**
+ * @en Abstract class for creating vertex buffers in a spine skeleton animation system.
+ * @zh 用于在spine骨骼动画系统中创建顶点缓冲区的抽象类。
+ */
 export abstract class VBCreator implements IGetBone {
+    /**
+     * @en Map of bone index to bone ID.
+     * @zh 骨骼索引到骨骼ID的映射。
+     */
     mapIndex: Map<number, number>;
+    /**
+     * @en Array of bone IDs and indices.
+     * @zh 骨骼ID和索引的数组。
+     */
     boneArray: number[];
+    /**
+     * @en Vertex buffer data.
+     * @zh 顶点缓冲区数据。
+     */
     vb: Float32Array;
+    /**
+     * @en Length of the vertex buffer.
+     * @zh 顶点缓冲区的长度。
+     */
     vbLength: number;
+    /**
+     * @en Map of slot ID to attachment position data.
+     * @zh 插槽ID到附件位置数据的映射。
+     */
     slotVBMap: Map<number, Map<string, TAttamentPos>>;
 
+    /**
+     * @en Bone matrix data.
+     * @zh 骨骼矩阵数据。
+     */
     boneMat: Float32Array;
 
     private boneMaxId: number = 0;
 
+    /**
+     * @en Create a new instance of the VBCreator.
+     * @param autoNew Whether to automatically create a new vertex buffer. Default is true.
+     * @zh 创建 VBCreator 的新实例。
+     * @param autoNew 是否自动创建新的顶点缓冲区。默认为true。
+     */
     constructor(autoNew: boolean = true) {
         this.init(autoNew);
     }
 
+    /**
+     * @en Initialize the VBCreator.
+     * @param autoNew Whether to automatically create a new vertex buffer.
+     * @zh 初始化VBCreator。
+     * @param autoNew 是否自动创建新的顶点缓冲区。
+     */
     init(autoNew: boolean) {
         this.mapIndex = new Map();
         this.slotVBMap = new Map();
@@ -30,17 +70,59 @@ export abstract class VBCreator implements IGetBone {
         this.vbLength = 0;
     }
 
+    /**
+     * @en The size of each vertex in the vertex buffer.
+     * @zh 顶点缓冲区中每个顶点的大小。
+     */
     abstract get vertexSize(): number;
 
+    /**
+     * @en Append vertex data to the vertex buffer.
+     * @param attachmentParse Attachment parse data.
+     * @param vertexArray Vertex array to append.
+     * @param offset Offset in the vertex buffer.
+     * @param boneGet Interface for getting bone data.
+     * @zh 将顶点数据追加到顶点缓冲区。
+     * @param attachmentParse 附件解析数据。
+     * @param vertexArray 要追加的顶点数组。
+     * @param offset 顶点缓冲区中的偏移量。
+     * @param boneGet 获取骨骼数据的接口。
+     */
     abstract appendVertexArray(attachmentParse: AttachmentParse, vertexArray: Float32Array, offset: number, boneGet: IGetBone): number;
 
-    abstract appendDeform(attachmentParse: AttachmentParse, deform: Array<number> , offset: number, out: Float32Array):void;
+    /**
+     * @en Append deform data to the output array.
+     * @param attachmentParse Attachment parse data.
+     * @param deform Deform data array.
+     * @param offset Offset in the output array.
+     * @param out Output array.
+     * @zh 将变形数据追加到输出数组。
+     * @param attachmentParse 附件解析数据。
+     * @param deform 变形数据数组。
+     * @param offset 输出数组中的偏移量。
+     * @param out 输出数组。
+     */
+    abstract appendDeform(attachmentParse: AttachmentParse, deform: Array<number>, offset: number, out: Float32Array): void;
 
+    /**
+     * @en Append vertex buffer and create index buffer for an attachment.
+     * @param attach Attachment parse data.
+     * @zh 为附件追加顶点缓冲区并创建索引缓冲区。
+     * @param attach 附件解析数据。
+     */
     appendAndCreateIB(attach: AttachmentParse) {
         //this.mesh.appendSlot(slot);
         this.appendVB(attach);
     }
 
+    /**
+     * @en Get the bone ID for a given bone index.
+     * @param boneIndex Bone index.
+     * @returns Bone ID.
+     * @zh 获取给定骨骼索引的骨骼ID。
+     * @param boneIndex 骨骼索引。
+     * @returns 骨骼ID。
+     */
     getBoneId(boneIndex: number) {
         let id = this.mapIndex.get(boneIndex);
         if (id == undefined) {
@@ -52,10 +134,22 @@ export abstract class VBCreator implements IGetBone {
         return id;
     }
 
+    /**
+     * @en Initialize the bone matrix.
+     * @zh 初始化骨骼矩阵。
+     */
     initBoneMat() {
         this.boneMat = new Float32Array(8 * this.mapIndex.size);
     }
 
+    /**
+     * @en Append vertex buffer data for an attachment.
+     * @param attach Attachment parse data.
+     * @returns Offset in the vertex buffer.
+     * @zh 为附件追加顶点缓冲区数据。
+     * @param attach 附件解析数据。
+     * @returns 顶点缓冲区中的偏移量。
+     */
     appendVB(attach: AttachmentParse) {
         let offset;
         let map = this.slotVBMap.get(attach.slotId);
@@ -76,6 +170,16 @@ export abstract class VBCreator implements IGetBone {
         return offset;
     }
 
+    /**
+     * @en Create index buffer for attachments.
+     * @param attachs Array of attachment parse data.
+     * @param ibCreator Index buffer creator.
+     * @param order Optional draw order array.
+     * @zh 为附件创建索引缓冲区。
+     * @param attachs 附件解析数据数组。
+     * @param ibCreator 索引缓冲区创建器。
+     * @param order 可选的绘制顺序数组。
+     */
     createIB(attachs: AttachmentParse[], ibCreator: IBCreator, order?: number[]) {
         let offset = 0;
         let slotVBMap = this.slotVBMap;
@@ -127,7 +231,15 @@ export abstract class VBCreator implements IGetBone {
         ibCreator.ibLength = offset;
     }
 
-    updateBone(bones: spine.Bone[],boneMat:Float32Array) {
+    /**
+     * @en Update bone matrices.
+     * @param bones Array of bones.
+     * @param boneMat Bone matrix array.
+     * @zh 更新骨骼矩阵。
+     * @param bones 骨骼数组。
+     * @param boneMat 骨骼矩阵数组。
+     */
+    updateBone(bones: spine.Bone[], boneMat: Float32Array) {
         let boneArray = this.boneArray;
         for (let i = 0, n = boneArray.length; i < n; i += 2) {
             let offset = boneArray[i] * 8;
@@ -143,7 +255,17 @@ export abstract class VBCreator implements IGetBone {
         }
     }
 
-    updateBoneCache(boneFrames: Float32Array[][], frames: number,boneMat:Float32Array) {
+    /**
+     * @en Update bone cache.
+     * @param boneFrames Array of bone frame data.
+     * @param frames Frame number.
+     * @param boneMat Bone matrix array.
+     * @zh 更新骨骼缓存。
+     * @param boneFrames 骨骼帧数据数组。
+     * @param frames 帧数。
+     * @param boneMat 骨骼矩阵数组。
+     */
+    updateBoneCache(boneFrames: Float32Array[][], frames: number, boneMat: Float32Array) {
         let boneArray = this.boneArray;
         let floor = Math.floor(frames);
         let detal;
@@ -190,6 +312,10 @@ export abstract class VBCreator implements IGetBone {
 
     abstract _create(): VBCreator;
 
+    /**
+     * @en Clone this VBCreator.
+     * @zh 克隆此VBCreator。
+     */
     clone() {
         let rs = this._create();
         this._cloneTo(rs);
@@ -197,16 +323,36 @@ export abstract class VBCreator implements IGetBone {
     }
 }
 
+/**
+ * @en VBBoneCreator class used to handle bone-specific vertex buffer creation.
+ * @zh VBBoneCreator 类用于处理骨骼特定的顶点缓冲区创建。
+ */
 export class VBBoneCreator extends VBCreator {
-    
+
     _create(): VBCreator {
         return new VBBoneCreator(false);
     }
 
+    /**
+     * @en The size of each vertex in the vertex buffer.
+     * @zh 顶点缓冲区中每个顶点的大小。
+     */
     get vertexSize(): number {
         return 22;
     }
 
+    /**
+     * @en Appends vertex array data for an attachment.
+     * @param attachmentParse The attachment parse data.
+     * @param vertexArray The vertex array to append to.
+     * @param offset The current offset in the vertex array.
+     * @param boneGet The interface for getting bone IDs.
+     * @zh 为附件追加顶点数组数据。
+     * @param attachmentParse 附件解析数据。
+     * @param vertexArray 要追加到的顶点数组。
+     * @param offset 顶点数组中的当前偏移量。
+     * @param boneGet 获取骨骼ID的接口。
+     */
     appendVertexArray(attachmentParse: AttachmentParse, vertexArray: Float32Array, offset: number, boneGet: IGetBone) {
         if (!attachmentParse.attachment) {
             boneGet.getBoneId(attachmentParse.boneIndex);
@@ -268,13 +414,25 @@ export class VBBoneCreator extends VBCreator {
         return offset;
     }
 
-    appendDeform(attachmentParse: AttachmentParse, deform: Array<number> , offset: number , out: Float32Array ) {
+    /**
+     * @en Appends deform data to the output array.
+     * @param attachmentParse The attachment parse data.
+     * @param deform The deform data array.
+     * @param offset The current offset in the output array.
+     * @param out The output array to append to.
+     * @zh 将变形数据追加到输出数组。
+     * @param attachmentParse 附件解析数据。
+     * @param deform 变形数据数组。
+     * @param offset 输出数组中的当前偏移量。
+     * @param out 要追加到的输出数组。
+     */
+    appendDeform(attachmentParse: AttachmentParse, deform: Array<number>, offset: number, out: Float32Array) {
         if (!attachmentParse.attachment) {
             return;
         }
         let vside = this.vertexSize;
         let slotVertex = attachmentParse.vertexArray;
-    
+
         if (attachmentParse.stride == 2) {
             for (let j = 0, n = slotVertex.length; j < n; j += attachmentParse.stride) {
                 out[offset + 6] = deform[j];
@@ -284,7 +442,7 @@ export class VBBoneCreator extends VBCreator {
         }
         else {
             let f = 0;
-            for (let j = 0, n = slotVertex.length ; j < n; j += attachmentParse.stride) {
+            for (let j = 0, n = slotVertex.length; j < n; j += attachmentParse.stride) {
                 let leftsize = vside - 6;
                 let ox = offset + 6;
                 for (let z = 0; z < leftsize / 4; z++) {
@@ -303,16 +461,38 @@ export class VBBoneCreator extends VBCreator {
     }
 }
 
+/**
+ * @en VBRigBodyCreator class used to handle rigid body specific vertex buffer creation.
+ * @zh VBRigBodyCreator 类用于处理刚体特定的顶点缓冲区创建。
+ */
 export class VBRigBodyCreator extends VBCreator {
-    
+    /** @internal */
     _create(): VBCreator {
         return new VBRigBodyCreator(false);
     }
 
+    /**
+     * @en Gets the size of each vertex in the vertex buffer.
+     * @returns The size of each vertex.
+     * @zh 获取顶点缓冲区中每个顶点的大小。
+     * @returns 每个顶点的大小。
+     */
     get vertexSize(): number {
         return 9;
     }
 
+    /**
+     * @en Appends vertex array data for an attachment.
+     * @param attachmentParse The attachment parse data.
+     * @param vertexArray The vertex array to append to.
+     * @param offset The current offset in the vertex array.
+     * @param boneGet The interface for getting bone IDs.
+     * @zh 为附件追加顶点数组数据。
+     * @param attachmentParse 附件解析数据。
+     * @param vertexArray 要追加到的顶点数组。
+     * @param offset 顶点数组中的当前偏移量。
+     * @param boneGet 获取骨骼ID的接口。
+     */
     appendVertexArray(attachmentParse: AttachmentParse, vertexArray: Float32Array, offset: number, boneGet: IGetBone) {
         let slotVertex = attachmentParse.vertexArray;
         let uvs = attachmentParse.uvs;
@@ -330,24 +510,36 @@ export class VBRigBodyCreator extends VBCreator {
                 vertexArray[offset + 5] = color.a;
 
                 ///////////uv
-                vertexArray[offset +0] = uvs[j];
-                vertexArray[offset +1] = uvs[j + 1];
+                vertexArray[offset + 0] = uvs[j];
+                vertexArray[offset + 1] = uvs[j + 1];
                 vertexArray[offset + 8] = boneid;
                 offset += vside;
             }
-        }else{
+        } else {
 
         }
         return offset;
     }
 
-    appendDeform(attachmentParse: AttachmentParse, deform: Array<number> , offset: number, out: Float32Array): void {
+    /**
+     * @en Appends deform data to the output array.
+     * @param attachmentParse The attachment parse data.
+     * @param deform The deform data array.
+     * @param offset The current offset in the output array.
+     * @param out The output array to append to.
+     * @zh 将变形数据追加到输出数组。
+     * @param attachmentParse 附件解析数据。
+     * @param deform 变形数据数组。
+     * @param offset 输出数组中的当前偏移量。
+     * @param out 要追加到的输出数组。
+     */
+    appendDeform(attachmentParse: AttachmentParse, deform: Array<number>, offset: number, out: Float32Array): void {
         if (!attachmentParse.attachment) {
             return;
         }
         let vside = this.vertexSize;
         let slotVertex = attachmentParse.vertexArray;
-    
+
         if (attachmentParse.stride == 2) {
             for (let j = 0, n = slotVertex.length; j < n; j += attachmentParse.stride) {
                 out[offset + 6] = deform[j];
