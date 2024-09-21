@@ -43,6 +43,7 @@ export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D implements 
             }
             if (!this.renderShaderData.skinShaderData)
                 this.renderShaderData.skinShaderData = [];
+            else this.renderShaderData.skinShaderData.length = 0;
             this.renderShaderData.skinShaderData.push(...this.renderShaderDatas); //共享材质数据
         }
     }
