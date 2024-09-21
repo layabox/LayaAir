@@ -51,6 +51,10 @@ import "./loaders/TTFFontLoader";
 import "./loaders/MaterialLoader";
 import "./loaders/ShaderLoader";
 import "./media/webaudio/WebAudioLoader";
+import { Camera2D } from "./display/Scene2DSpecial/Camera2D";
+import { Mesh2DRender } from "./display/Scene2DSpecial/Mesh2DRender";
+import { BaseRenderNode2D } from "./NodeRender2D/BaseRenderNode2D";
+import { Mesh2D } from "./resource/Mesh2D";
 
 let c = ClassUtils.regClass;
 
@@ -98,3 +102,7 @@ c("Color", Color);
 c("Matrix", Matrix);
 c("Matrix3x3", Matrix3x3);
 c("Matrix4x4", Matrix4x4);
+c("Camera2D", Camera2D);
+c("Mesh2DRender", Mesh2DRender);
+c("BaseRenderNode2D", BaseRenderNode2D);
+c("Mesh2D", Mesh2D);
