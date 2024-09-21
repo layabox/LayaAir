@@ -137,7 +137,7 @@ export class NavigationUtils {
         const endRef = navQuery.findNearestPoly(endPos.toArray(), navMesh.extents, filter);
         let pathdata = navQuery.findPath(startRef, endRef, filter, NavigationUtils.MAX_POLYS);
         let polys = pathdata.polys;
-        let m_npolys = pathdata.pathCount;
+        let m_npolys = polys.length;
         let m_nsmoothPath = 0;
         let steerPos: Vector3 = new Vector3();
         let help1: Vector3 = new Vector3();
@@ -145,7 +145,7 @@ export class NavigationUtils {
         if (polys.length > 0) {
             let npolys = m_npolys;
             let iterPos = navQuery.closestPointOnPolyByRefPointData(startRef);
-            let targetPos = navQuery.closestPointOnPoly(polys[npolys - 1], endRef.getData());
+            let targetPos = navQuery.closestPointOnPoly(polys[npolys - 1], endRef.data);
             this._setDatastoArray(fllowPath, m_nsmoothPath, iterPos, this._recast.dtStraightPathFlags.DT_STRAIGHTPATH_START.value);
             m_nsmoothPath++;
             while (npolys && m_nsmoothPath < NavigationUtils.MAX_SMOOTH) {
