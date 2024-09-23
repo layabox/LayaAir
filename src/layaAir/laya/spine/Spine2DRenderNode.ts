@@ -176,6 +176,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
         this._spriteShaderData.setBuffer(SpineShaderInit.NMatrix, buffer);
         Vector2.TempVector2.setValue(context.width, context.height);
         this._spriteShaderData.setVector2(SpineShaderInit.Size, Vector2.TempVector2);
+        context._copyClipInfoToShaderData(this._spriteShaderData);
     }
 
     /**
