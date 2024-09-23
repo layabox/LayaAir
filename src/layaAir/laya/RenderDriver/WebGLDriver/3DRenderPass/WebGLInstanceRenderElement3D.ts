@@ -155,11 +155,11 @@ export class WebGLInstanceRenderElement3D extends WebGLRenderElement3D implement
             comDef.addDefineDatas(this.materialShaderData._defineDatas);
 
             comDef.add(MeshSprite3DShaderDeclaration.SHADERDEFINE_GPU_INSTANCE);
-            this._updateInstanceData();
 
             let shaderIns = <WebGLShaderInstance>pass.withCompile(comDef);
             this._addShaderInstance(shaderIns);
         }
+        this._shaderInstances.length > 0 && this._updateInstanceData();
     }
 
     private _updateInstanceData() {
@@ -228,7 +228,12 @@ export class WebGLInstanceRenderElement3D extends WebGLRenderElement3D implement
         this.geometry.bufferState = this._instanceStateInfo.state;
     }
 
-    drawGeometry(shaderIns: WebGLShaderInstance): void {
+    /**
+    * render RenderElement
+    * context:GLESRenderContext3D
+    * @param renderqueue 
+    */
+    _render(context: WebGLRenderContext3D): void {
         for (let i = 0; i < this.updateNums; i++) {
             let buffer = this._vertexBuffers[i];
             if (!buffer)
@@ -237,7 +242,7 @@ export class WebGLInstanceRenderElement3D extends WebGLRenderElement3D implement
             buffer.orphanStorage();
             buffer.setData(data.buffer, 0, 0, this.drawCount * this._updateDataNum[i] * 4);
         }
-        WebGLEngine.instance.getDrawContext().drawGeometryElement(this.geometry);
+        super._render(context);
         this.clearRenderData();
     }
 
