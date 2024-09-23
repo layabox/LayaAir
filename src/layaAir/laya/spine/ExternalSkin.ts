@@ -5,18 +5,26 @@ import { SpineSkeleton } from "./SpineSkeleton";
 import { SpineTemplet } from "./SpineTemplet";
 import { ISpineSkeleton } from "./interface/ISpineSkeleton";
 
+/**
+ * @en Class representing an external skin for a Spine skeleton.
+ * @zh 表示 Spine 骨骼的外部皮肤的类。
+ */
 export class ExternalSkin {
-    /**@internal @protected */
+    /**@internal */
     protected _source: string;
-    /**@internal @protected */
+    /**@internal */
     protected _templet: SpineTemplet;
-    /**@internal @protected */
+    /**@internal */
     protected _items: ExternalSkinItem[];
-    /**目标spine */
+    /**
+     * @en The target Spine skeleton.
+     * @zh 目标 Spine 骨骼。
+     */
     target: ISpineSkeleton;
 
     /**
-     * 外部皮肤spine的源
+     * @en The source of the external skin Spine.
+     * @zh 外部皮肤spine的源。
      */
     get source(): string {
         return this._source;
@@ -37,20 +45,20 @@ export class ExternalSkin {
     }
 
     /**
-     * 要设置的外部皮肤的内容
+     * @en The content of the external skin.
+     * @zh 要设置的外部皮肤的内容。
      */
-    set items(value: ExternalSkinItem[]) {
-        this._items = value;
-    }
     get items() {
         return this._items;
     }
-
+    set items(value: ExternalSkinItem[]) {
+        this._items = value;
+    }
 
     /**
-    * 得到动画模板的引用
-    * @return templet
-    */
+     * @en Get the reference of the animation template.
+     * @zh 得到动画模板的引用。
+     */
     get templet(): SpineTemplet {
         return this._templet;
     }
@@ -59,10 +67,10 @@ export class ExternalSkin {
     }
 
     /**
-     * @internal
-     * 初始化
-     * @param templet 动画模板引用 
-     * @returns 
+     * @en Initialize the external skin with a given template.
+     * @param templet The animation template reference.
+     * @zh 使用给定的模板初始化外部皮肤。
+     * @param templet 动画模板的引用。
      */
     protected init(templet: SpineTemplet): void {
         this._templet = templet;
@@ -73,9 +81,8 @@ export class ExternalSkin {
     }
 
     /**
-     * 替换外部i皮肤spine
-     * @internal
-     * @returns 
+     * @en Replace the external skin Spine.
+     * @zh 替换外部皮肤 Spine。
      */
     flush() {
         if (this.target && this.target.templet && this._items && this._templet && this._templet.skeletonData) {
