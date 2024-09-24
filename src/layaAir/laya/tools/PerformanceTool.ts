@@ -22,9 +22,9 @@ export class PerformanceDefine {
     static C_SetRenderPassCount: string;//GPUEngineStatisticsInfo
     static C_DrawCallCount: string;//GPUEngineStatisticsInfo
     static C_Instancing_DrawCallCount: string;//GPUEngineStatisticsInfo
-    static C_TransDrawCall: string;//Stat.transdrawcall     //TODO
-    static C_OpaqueDrawCall: string;//Stat.opaqueDrawCall   //TODO
-    static C_DepthCastDrawCall: string;//Stat.depthCastDrawCall //TODO
+    static C_TransDrawCall: string;//Stat.transdrawcall     
+    static C_OpaqueDrawCall: string;//Stat.opaqueDrawCall   
+    static C_DepthCastDrawCall: string;//Stat.depthCastDrawCall 
     static C_ShadowDrawCall:string;//Stat.shadowMapDrawCall
     //shader compile
     static C_ShaderCompile: string;//GPUEngineStatisticsInfo
