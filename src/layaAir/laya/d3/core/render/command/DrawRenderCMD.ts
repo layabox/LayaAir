@@ -5,6 +5,10 @@ import { BaseRender } from "../BaseRender";
 import { Command } from "./Command";
 import { CommandBuffer } from "./CommandBuffer";
 
+/**
+ * @en Represents a draw render command.
+ * @zh 表示一个绘制渲染命令。
+ */
 export class DrawRenderCMD extends Command {
     /**@internal */
     private static _pool: any[] = [];
@@ -25,17 +29,30 @@ export class DrawRenderCMD extends Command {
     /**@internal */
     private _render: BaseRender;
 
+    /**
+     * @en The render object.
+     * @zh 渲染对象。
+     */
+    get render(): BaseRender {
+        return this._render;
+    }
+
     set render(render: BaseRender) {
         this._drawNodeCMDData.node = render._baseRenderNode;
         this._render = render;
     }
 
-    get render(): BaseRender {
-        return this._render;
-    }
 
     /**@internal */
     private _material: Material;
+
+    /**
+     * @en The material.
+     * @zh 材质。
+     */
+    get material(): Material {
+        return this._material;
+    }
 
     set material(value: Material) {
         this._material && this._material._removeReference(1);
@@ -53,12 +70,13 @@ export class DrawRenderCMD extends Command {
         this._material = value;
     }
 
-    get material(): Material {
-        return this._material;
-    }
 
     private _subMeshIndex: number;
 
+    /**
+     * @en The sub-mesh index.
+     * @zh 子网格索引。
+     */
     public get subMeshIndex(): number {
         return this._subMeshIndex;
     }
@@ -79,10 +97,18 @@ export class DrawRenderCMD extends Command {
         this._drawNodeCMDData = Laya3DRender.Render3DPassFactory.createDrawNodeCMDData();
     }
 
+    /**
+     * @en Gets the render command data.
+     * @zh 获取渲染命令数据。
+     */
     getRenderCMD(): DrawNodeCMDData {
         return this._drawNodeCMDData;
     }
 
+    /**
+     * @en Runs the  command.
+     * @zh 运行命令。
+     */
     run(): void {
         if (this.render) {
             this.render.renderUpdate(this._context);
@@ -93,6 +119,8 @@ export class DrawRenderCMD extends Command {
     /**
      * @inheritDoc
      * @override
+     * @en Recovers the render command for reuse.
+     * @zh 回收渲染命令以供重用。
      */
     recover(): void {
         DrawRenderCMD._pool.push(this);
@@ -103,6 +131,10 @@ export class DrawRenderCMD extends Command {
         this.subMeshIndex = 0;
     }
 
+    /**
+     * @en Destroys the render command.
+     * @zh 销毁渲染命令。
+     */
     destroy(): void {
         super.destroy();
         this.material = null;

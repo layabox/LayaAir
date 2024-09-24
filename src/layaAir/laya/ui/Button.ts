@@ -11,9 +11,6 @@ import { UIUtils } from "./UIUtils"
 import { Handler } from "../utils/Handler"
 import { ILaya } from "../../ILaya";
 import { URL } from "../net/URL";
-
-
-
 /**
  * @en The Button component is used to represent a button with multiple states. The Button component can display a text label, an icon, or both.
  * The states can be single-state, two-state (normal, pressed), or three-state (normal, hover, pressed). By default, it is three-state.
@@ -28,66 +25,54 @@ export class Button extends UIComponent implements ISelect {
     toggle: boolean;
 
     /**
-     * @internal
      * @en The text on the button.
      * @zh 按钮上的文本。
      */
     protected _text: Text;
     /**
-     * @internal
      * @en The color value of the button's text label.
      * @zh 按钮文本标签的颜色值。
      */
     protected _labelColors: string[];
     /**
-     * @internal
      * @en The color value of the button's text label stroke.
      * @zh 按钮文本标签描边的颜色值。
      */
     protected _strokeColors: string[];
     /**
-     * @internal 
      * @en The state value of the button.
      * @zh 按钮的状态值。
      */
     protected _state: number = 0;
     /**
-     * @internal
      * @en Indicates the selected state of the button.
      * @zh 表示按钮的选中状态。
      */
     protected _selected: boolean;
 
     /**
-     * @internal
      * @en The skin resource of the button.
      * @zh 按钮的皮肤资源。
      */
     protected _skin: string;
 
     /**
-     * @internal
      * @en Specifies whether the display object automatically calculates and changes size and other attributes.
      * @zh 指定此显示对象是否自动计算并改变大小等属性。
      */
     protected _autoSize: boolean = true;
 
     /**
-     * @internal
      * @en The number of states for the button.
      * @zh 按钮的状态数。
      */
     protected _stateNum: number;
     /**
-     * @internal
      * @en The click event handler of the button.
      * @zh 按钮的点击事件函数。
      */
     protected _clickHandler: Handler;
 
-    /**
-     * @internal
-     */
     protected _stateChanged: boolean = false;
 
     /**
@@ -96,18 +81,13 @@ export class Button extends UIComponent implements ISelect {
     declare _graphics: AutoBitmap;
 
     /**
-     * @internal
      * @en The state value of the button.
      * @zh 对象的状态值。
-     * @see #stateMap
      */
     protected get state(): number {
         return this._state;
     }
 
-    /**
-     * @internal
-     */
     protected set state(value: number) {
         if (this._state != value) {
             this._state = value;
@@ -120,7 +100,6 @@ export class Button extends UIComponent implements ISelect {
      * Supports single state, two states and three states, set with the `stateNum` property.
      * @zh 对象的皮肤资源地址。
      * 支持单态，两态和三态，用 `stateNum` 属性设置
-     * @see #stateNum
      */
     get skin(): string {
         return this._skin;
@@ -188,7 +167,6 @@ export class Button extends UIComponent implements ISelect {
      * If the value is true, it indicates that the object is in the selected state. Otherwise, it is not selected.
      * @zh 表示按钮的选中状态。
      * 如果值为true，表示该对象处于选中状态。否则该对象处于未选中状态。
-     * @implements
      */
     get selected(): boolean {
         return this._selected;
@@ -227,7 +205,6 @@ export class Button extends UIComponent implements ISelect {
     get strokeColors(): string {
         return this._strokeColors ? this._strokeColors.join(",") : "";
     }
-
     set strokeColors(value: string) {
         this._strokeColors = UIUtils.fillArray(Styles.buttonLabelColors, value, String);
         this._setStateChanged();
@@ -355,7 +332,6 @@ export class Button extends UIComponent implements ISelect {
     /**
      * @en The click event handler of the object (without default parameters).
      * @zh 对象的点击事件处理器函数（无默认参数）。
-     * @implements
      */
     get clickHandler(): Handler {
         return this._clickHandler;
@@ -373,10 +349,6 @@ export class Button extends UIComponent implements ISelect {
         this.createText();
         return this._text;
     }
-
-    /**
-     * @private
-    */
     set text(value: Text) {
         if (typeof (value) == "string") {
             this._text && (this._text.text = value);
@@ -384,15 +356,15 @@ export class Button extends UIComponent implements ISelect {
     }
 
     /**
-       * @en The size grid of the texture.
-       * The size grid is a 3x3 division of the texture, allowing it to be scaled without distorting the corners and edges. 
-       * The array contains five values representing the top, right, bottom, and left margins, and whether to repeat the fill (0: no repeat, 1: repeat). 
-       * The values are separated by commas. For example: "6,6,6,6,1".
-       * @zh 皮肤纹理的九宫格数据。
-       * 九宫格是一种将纹理分成3x3格的方式，使得纹理缩放时保持角和边缘不失真。
-       * 数组包含五个值，分别代表上边距、右边距、下边距、左边距以及是否重复填充（0：不重复填充，1：重复填充）。
-       * 值以逗号分隔。例如："6,6,6,6,1"。
-       */
+     * @en The size grid of the texture.
+     * The size grid is a 3x3 division of the texture, allowing it to be scaled without distorting the corners and edges. 
+     * The array contains five values representing the top, right, bottom, and left margins, and whether to repeat the fill (0: no repeat, 1: repeat). 
+     * The values are separated by commas. For example: "6,6,6,6,1".
+     * @zh 皮肤纹理的九宫格数据。
+     * 九宫格是一种将纹理分成3x3格的方式，使得纹理缩放时保持角和边缘不失真。
+     * 数组包含五个值，分别代表上边距、右边距、下边距、左边距以及是否重复填充（0：不重复填充，1：重复填充）。
+     * 值以逗号分隔。例如："6,6,6,6,1"。
+     */
     get sizeGrid(): string {
         if (this._graphics.sizeGrid) return this._graphics.sizeGrid.join(",");
         return null;
@@ -437,12 +409,6 @@ export class Button extends UIComponent implements ISelect {
             this.skin = skin;
         this.label = label;
     }
-
-    /**
-   * @internal
-   * @inheritDoc
-   * @override
-   */
     protected measureWidth(): number {
         if (this._skin)
             this.runCallLater(this.changeClips);
@@ -451,11 +417,6 @@ export class Button extends UIComponent implements ISelect {
         return this._graphics.width + (this._text ? this._text.width : 0);
     }
 
-    /**
-     * @internal
-     * @inheritDoc
-     * @override
-     */
     protected measureHeight(): number {
         if (this._skin)
             this.runCallLater(this.changeClips);
@@ -463,10 +424,9 @@ export class Button extends UIComponent implements ISelect {
     }
 
     /**
-     * 销毁
+     * @en Destroy the object and release resources.
+     * @zh 销毁
      * @param destroyChild 是否删除子节点
-     * @inheritDoc 
-     * @override
      */
     destroy(destroyChild: boolean = true): void {
         super.destroy(destroyChild);
@@ -476,16 +436,10 @@ export class Button extends UIComponent implements ISelect {
         this._labelColors = this._strokeColors = null;
     }
 
-    /**
-     * @internal
-     * @inheritDoc 
-     * @override
-     */
     protected createChildren(): void {
         this.setGraphics(new AutoBitmap(), true);
     }
 
-    /**@internal */
     protected createText(): void {
         if (!this._text) {
             this._text = new Text();
@@ -497,11 +451,6 @@ export class Button extends UIComponent implements ISelect {
             this._text.hideFlags = HideFlags.HideAndDontSave;
         }
     }
-
-    /**
-     * @internal 
-     * @override
-    */
     protected initialize(): void {
         if (this._mouseState !== 1) {
             this.mouseEnabled = true;
@@ -515,7 +464,6 @@ export class Button extends UIComponent implements ISelect {
     }
 
     /**
-     * @internal
      * @en The event listener process function for the object's `Event.MOUSE_OVER`, `Event.MOUSE_OUT`, `Event.MOUSE_DOWN`, `Event.MOUSE_UP`, and `Event.CLICK` events.
      * @param e The event object.
      * @zh 对象的 `Event.MOUSE_OVER`、`Event.MOUSE_OUT`、`Event.MOUSE_DOWN`、`Event.MOUSE_UP`、`Event.CLICK` 事件侦听处理函数。
@@ -559,7 +507,6 @@ export class Button extends UIComponent implements ISelect {
     }
 
     /**
-     * @internal
      * @en The skin resource is loaded.
      * @param tex The texture resource.
      * @zh 皮肤资源加载完成后的处理。
@@ -580,8 +527,6 @@ export class Button extends UIComponent implements ISelect {
 
     /**
      * @internal
-     * @inheritDoc 
-     * @override
      */
     _setWidth(value: number) {
         super._setWidth(value);
@@ -593,8 +538,6 @@ export class Button extends UIComponent implements ISelect {
 
     /**
      * @internal
-     * @inheritDoc 
-     * @override
      */
     _setHeight(value: number) {
         super._setHeight(value);
@@ -605,7 +548,6 @@ export class Button extends UIComponent implements ISelect {
     }
 
     /**
-     * @internal
      * @en The resource slices of the object have changed.
      * @zh 对象的资源切片发生改变。
      */
@@ -637,7 +579,6 @@ export class Button extends UIComponent implements ISelect {
     }
 
     /**
-     * @internal
      * @en Change the state of the object.
      * @zh 改变对象的状态。
      */
@@ -652,18 +593,14 @@ export class Button extends UIComponent implements ISelect {
             if (this._strokeColors) this._text.strokeColor = this._strokeColors[index];
         }
     }
-
-    /**@internal */
     protected _setStateChanged(): void {
         if (!this._stateChanged) {
             this._stateChanged = true;
             this.callLater(this.changeState);
         }
     }
-
+    
     /**
-     * @inheritDoc 
-     * @override
      * @en Sets the data source.
      * @zh 设置数据源。
      */

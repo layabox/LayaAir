@@ -6,22 +6,40 @@ import { Physics3DColliderShape } from "./Physics3DColliderShape";
 
 
 /**
- * 高度场数据
+ * @en Interface for height field data.
+ * @zh 高度场数据接口。
  */
 export interface heightFieldData {
-    /** 排*/
+    /**
+     * @en The number of rows in the height field.
+     * @zh 高度场中的行数。
+     */
     numRows: number;
-    /** 列*/
+    /**
+     * @en The number of columns in the height field.
+     * @zh 高度场中的列数。
+     */
     numCols: number;
-    /** 高度数据*/
+    /**
+     * @en The height data of the field.
+     * @zh 高度场的高度数据。
+     */
     heightData: Float32Array;
-    /** 镶嵌标志 0和1 分别表示地形三角形朝向左还是朝右*/
+    /**
+     * @en The tessellation flags for the height field, where 0 and 1 indicate whether the terrain triangle faces left or right.
+     * @zh 镶嵌标志，0 和 1 分别表示地形三角形朝向左还是朝右。
+     */
     flag: Uint8Array;
-    /** 高度Scale*/
+    /**
+     * @en The scale of the height field.
+     * @zh 高度场的缩放。
+     */
     scale: Vector3;
 }
+
 /**
- * 此类描述高度场物理碰撞
+ * @en Class describing the physics collision of a height field.
+ * @zh 描述高度场物理碰撞的类。
  */
 export class HeightFieldColliderShape extends Physics3DColliderShape {
     /**@internal */
@@ -30,8 +48,11 @@ export class HeightFieldColliderShape extends Physics3DColliderShape {
     _terrainData: heightFieldData;
 
     /**
-     * 实例化一个高度场碰撞体
-     * @param heightFieldData 
+     * @ignore
+     * @en Constructor method, initialize height field data.
+     * @param heightFieldData Height field data.
+     * @zh 构造方法, 初始化高度场数据。
+     * @param heightFieldData 高度场数据。
      */
     constructor(heightFieldData: heightFieldData) {
         super();

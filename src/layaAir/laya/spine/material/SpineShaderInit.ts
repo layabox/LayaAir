@@ -14,19 +14,43 @@ import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
 import { VertexElement } from "../../renders/VertexElement";
 import { VertexElementFormat } from "../../renders/VertexElementFormat";
 import { SpineMeshUtils } from "../mesh/SpineMeshUtils";
+/**
+ * @en SpineShaderInit class handles the initialization and management of Spine shader-related components.
+ * @zh SpineShaderInit 类用于处理 Spine 着色器相关组件的初始化和管理。
+ */
 export class SpineShaderInit {
 
-    // static SpineFastVertexDeclaration: VertexDeclaration;
+    static SpineFastVertexDeclaration: VertexDeclaration;
 
+    /**
+     * @en Vertex declaration for normal Spine rendering.
+     * @zh 用于普通 Spine 渲染的顶点声明。
+     */
     static SpineNormalVertexDeclaration: VertexDeclaration;
 
     // static SpineRBVertexDeclaration: VertexDeclaration;
 
 
+    /**
+     * @en Vertex declaration for instance normal matrix.
+     * @zh 实例法线矩阵的顶点声明。
+     */
     static instanceNMatrixDeclaration:VertexDeclaration;
     
+    /**
+     * @en Vertex declaration for instance simple animator.
+     * @zh 实例简单动画器的顶点声明。
+     */
     static instanceSimpleAnimatorDeclaration:VertexDeclaration;
 
+    /**
+     * @en Set the blend mode for Spine material.
+     * @param value The blend mode value.
+     * @param mat The material to set the blend mode for.
+     * @zh 设置 Spine 材质的混合模式。
+     * @param value 混合模式值。
+     * @param mat 要设置混合模式的材质。
+     */
     static SetSpineBlendMode(value: number, mat: Material) {
         switch (value) {
             case 1: //light 
@@ -45,6 +69,12 @@ export class SpineShaderInit {
         }
     }
 
+    /**
+     * @en Initialize the Spine material with default settings.
+     * @param mat The material to initialize.
+     * @zh 使用默认设置初始化 Spine 材质。
+     * @param mat 要初始化的材质。
+     */
     static initSpineMaterial(mat: Material) {
         mat.alphaTest = false;
         mat.depthWrite = false;
@@ -55,6 +85,10 @@ export class SpineShaderInit {
         mat.depthTest = RenderState.DEPTHTEST_OFF;
     }
 
+    /**
+     * @en Property ID for bone matrix.
+     * @zh 骨骼矩阵的属性 ID。
+     */
     static BONEMAT: number;
 
     // static NMatrix: number;
@@ -63,17 +97,41 @@ export class SpineShaderInit {
 
     // static Size: number;
 
-    /**@internal  */
+    /**
+     * @internal
+     * @en Simple animator texture.
+     * @zh 简单动画器纹理。
+     */
     static SIMPLE_SIMPLEANIMATORTEXTURE: number;
-    /**@internal */
+    /**
+     * @internal
+     * @en Simple animator parameters.
+     * @zh 简单动画器参数。
+     */
     static SIMPLE_SIMPLEANIMATORPARAMS: number;
-    /**@internal */
+    /**
+     * @internal
+     * @en Simple animator texture size.
+     * @zh 简单动画器纹理尺寸。
+     */
     static SIMPLE_SIMPLEANIMATORTEXTURESIZE: number;
 
+    /**
+     * @en Property ID for Spine texture.
+     * @zh Spine 纹理的属性 ID。
+     */
     static SpineTexture: number;
 
+    /**
+     * @en Shader define for fast Spine rendering.
+     * @zh 快速 Spine 渲染的着色器定义。
+     */
     static SPINE_FAST: ShaderDefine;
 
+    /**
+     * @en Shader define for Spine rendering with runtime blending.
+     * @zh 运行时混合 Spine 渲染的着色器定义。
+     */
     static SPINE_RB: ShaderDefine;
 
     static SPINE_UV: ShaderDefine;
@@ -82,11 +140,16 @@ export class SpineShaderInit {
 
     static SPINE_SIMPLE:ShaderDefine;
 
+    /**
+     * @en Shader define for GPU instance rendering.
+     * @zh GPU 实例渲染的着色器定义。
+     */
     static SPINE_GPU_INSTANCE:ShaderDefine;
 
     /**
-    * TextureSV Mesh Descript
-    */
+     * @en TextureSV Mesh Descript.
+     * @zh 纹理 Spine 顶点属性描述。
+     */
     public static readonly textureSpineAttribute: { [name: string]: [number, ShaderDataType] } = {
         'a_uv': [0, ShaderDataType.Vector2],
         'a_color': [1, ShaderDataType.Vector4],
@@ -106,6 +169,10 @@ export class SpineShaderInit {
     }
 
 
+    /**
+     * @en Initialize Spine shader-related components.
+     * @zh 初始化 Spine 着色器相关组件。
+     */
     static init() {
         Shader3D.addInclude("SpineVertex.glsl", spineVertex);
         Shader3D.addInclude("SpineFragment.glsl", spineFragment);

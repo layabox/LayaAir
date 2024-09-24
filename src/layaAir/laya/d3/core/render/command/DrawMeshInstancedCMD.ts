@@ -19,15 +19,41 @@ import { Transform3D } from "../../Transform3D";
 import { DrawElementCMDData } from "../../../../RenderDriver/DriverDesign/3DRenderPass/IRendderCMD";
 import { IRenderElement3D } from "../../../../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
 
+/**
+ * @en DrawMeshInstancedCMD class for instanced mesh drawing command.
+ * @zh DrawMeshInstancedCMD 类，用于实例化网格绘制命令。
+ */
 export class DrawMeshInstancedCMD extends Command {
     /**@internal */
     private static _pool: DrawMeshInstancedCMD[] = [];
-    /**设置最大DrawInstance数 */
+    /**
+     * @en Maximum number of draw instances.
+     * @zh 设置最大DrawInstance数。
+     */
     static maxInstanceCount = 1024;
 
     /**
-     * 创建一个命令流
      * @internal
+     * @en Create a command stream.
+     * @param mesh The mesh to be drawn.
+     * @param subMeshIndex The index of the sub-mesh.
+     * @param matrixs Array of transformation matrices.
+     * @param material The material to be used.
+     * @param subShaderIndex The index of the sub-shader.
+     * @param instanceProperty Material instance property block.
+     * @param drawnums Number of instances to be drawn.
+     * @param commandBuffer The command buffer.
+     * @returns A new DrawMeshInstancedCMD instance.
+     * @zh 创建一个命令流。
+     * @param mesh 要绘制的网格。
+     * @param subMeshIndex 子网格索引。
+     * @param matrixs 变换矩阵数组。
+     * @param material 要使用的材质。
+     * @param subShaderIndex 子着色器索引。
+     * @param instanceProperty 材质实例属性块。
+     * @param drawnums 要绘制的实例数量。
+     * @param commandBuffer 命令缓冲区。
+     * @return 一个新的 DrawMeshInstancedCMD 实例。
      */
     static create(mesh: Mesh, subMeshIndex: number, matrixs: Matrix4x4[], material: Material, subShaderIndex: number, instanceProperty: MaterialInstancePropertyBlock, drawnums: number, commandBuffer: CommandBuffer): DrawMeshInstancedCMD {
         var cmd: DrawMeshInstancedCMD;
@@ -96,15 +122,30 @@ export class DrawMeshInstancedCMD extends Command {
         this._instanceBufferState = new BufferState();
         this._drawElementCMDData = Laya3DRender.Render3DPassFactory.createDrawElementCMDData();
     }
-
+    /**
+     * @en The material for the command.
+     * @zh 命令的材质。
+     */
     set material(value: Material) {
         this._material && this._material._removeReference(1);
         this._material = value;
         this._material && this._material._addReference(1);
     }
 
+    /**
+     * @en The buffer state.
+     * @zh 缓冲状态。
+     */
     get bufferState() {
         return this._instanceWorldMatrixBuffer;
+    }
+
+    /**
+     * @en The mesh of the command.
+     * @zh 命令的网格。
+     */
+    get mesh(): Mesh {
+        return this._mesh;
     }
 
     set mesh(value: Mesh) {
@@ -146,9 +187,6 @@ export class DrawMeshInstancedCMD extends Command {
         }
     }
 
-    get mesh(): Mesh {
-        return this._mesh;
-    }
 
     /**
      * @internal
@@ -187,8 +225,10 @@ export class DrawMeshInstancedCMD extends Command {
     }
 
     /**
-     * 重置DrawInstance的世界矩阵数组
-     * @param worldMatrixArray 
+     * @en Reset the world matrix array for DrawInstance.
+     * @param worldMatrixArray Array of world matrices.
+     * @zh 重置DrawInstance的世界矩阵数组。
+     * @param worldMatrixArray 世界矩阵数组
      */
     setWorldMatrix(worldMatrixArray: Matrix4x4[]): void {
         if (worldMatrixArray.length < this._drawnums)
@@ -198,8 +238,10 @@ export class DrawMeshInstancedCMD extends Command {
     }
 
     /**
-     * 重置渲染个数
-     * @param drawNums 
+     * @en Reset the number of instances to draw.
+     * @param drawNums Number of instances to draw.
+     * @zh 重置渲染个数。
+     * @param drawNums 渲染个数。
      */
     setDrawNums(drawNums: number): void {
         if (this._matrixs && this._matrixs.length < drawNums)
@@ -217,6 +259,7 @@ export class DrawMeshInstancedCMD extends Command {
         }
         this._matrixs && this._updateWorldMatrixBuffer();
     }
+
     /**
      * @override
      * @internal
@@ -226,6 +269,16 @@ export class DrawMeshInstancedCMD extends Command {
         return this._drawElementCMDData
     }
 
+    /**
+     * @en Update the render element.
+     * @param renderElement The render element to update.
+     * @param context The render context.
+     * @returns The updated IRenderElement3D.
+     * @zh 更新渲染元素。
+     * @param renderElement 要更新的渲染元素。
+     * @param context 渲染上下文。
+     * @return 更新后的IRenderElement3D。
+     */
     renderUpdateElement(renderElement: RenderElement, context: RenderContext3D): IRenderElement3D {
         let renderObj = renderElement._renderElementOBJ;
         renderObj.isRender = renderElement._geometry._prepareRender(context);
@@ -233,6 +286,10 @@ export class DrawMeshInstancedCMD extends Command {
         return renderObj;
     }
 
+    /**
+     * @en Execute the command.
+     * @zh 执行命令。
+     */
     run(): void {
         //update blockData
         let context = RenderContext3D._instance;
@@ -261,6 +318,8 @@ export class DrawMeshInstancedCMD extends Command {
     /**
      * @inheritDoc
      * @override
+     * @en Recycle the command.
+     * @zh 回收命令。
      */
     recover(): void {
         DrawMeshInstancedCMD._pool.push(this);
@@ -279,6 +338,8 @@ export class DrawMeshInstancedCMD extends Command {
 
     /**
      * @internal
+     * @en Destroy the command.
+     * @zh 销毁命令。
      */
     destroy(): void {
         super.destroy();

@@ -5,6 +5,7 @@ import { btCollider } from "./Collider/btCollider";
 
 
 /**
+ * @internal
  * <code>CollisionMap</code> 类用于实现碰撞组合实例图。
  */
 export class CollisionTool {

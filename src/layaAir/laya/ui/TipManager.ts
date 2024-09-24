@@ -38,11 +38,8 @@ export class TipManager extends UIComponent {
      * @zh 显示提示框前的延迟时间
      */
     static tipDelay: number = 200;
-    /** @internal */
     private _tipBox: UIComponent;
-    /** @internal */
     private _tipText: Text;
-    /** @internal */
     private _defaultTipHandler: Function;
 
     /**
@@ -57,6 +54,7 @@ export class TipManager extends UIComponent {
         this._defaultTipHandler = value;
     }
 
+    /** @ignore */
     constructor() {
         super();
         this._tipBox = new UIComponent();
@@ -69,25 +67,16 @@ export class TipManager extends UIComponent {
         this.zOrder = 1100
     }
 
-    /**
-     * @internal
-     */
     private _onStageHideTip(e: any): void {
         ILaya.timer.clear(this, this._showTip);
         this.closeAll();
         this.removeSelf();
     }
 
-    /**
-     * @internal
-     */
     private _onStageShowTip(data: any): void {
         ILaya.timer.once(TipManager.tipDelay, this, this._showTip, [data], true);
     }
 
-    /**
-     * @internal
-     */
     private _showTip(tip: any): void {
         if (typeof (tip) == 'string') {
             var text: string = String(tip);
@@ -107,23 +96,15 @@ export class TipManager extends UIComponent {
         this._onStageMouseMove(null);
     }
 
-    /**
-     * @internal
-     */
     private _onStageMouseDown(e: Event): void {
         this.closeAll();
     }
 
-    /**
-     * @internal
-     */
     private _onStageMouseMove(e: Event): void {
         this._showToStage(this, TipManager.offsetX, TipManager.offsetY);
     }
 
-    /**
-     * @internal
-     */
+
     private _showToStage(dis: Sprite, offX: number = 0, offY: number = 0): void {
         var rec: Rectangle = dis.getBounds();
         dis.x = ILaya.stage.mouseX + offX;
@@ -136,9 +117,6 @@ export class TipManager extends UIComponent {
         }
     }
 
-    /**
-    * @internal
-    */
     private _showDefaultTip(text: string): void {
         this._tipText.text = text;
         var g: Graphics = this._tipBox.graphics;
@@ -172,6 +150,4 @@ export class TipManager extends UIComponent {
         this._showToStage(this);
         ILaya.stage.addChild(this);
     }
-
-
 }

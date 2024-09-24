@@ -24,19 +24,30 @@ import { ShaderDefine } from "../../../../RenderDriver/RenderModuleData/Design/S
 import { RenderState } from "../../../../RenderDriver/RenderModuleData/Design/RenderState";
 
 /**
- * AO质量
+ * @en The quality of AO.
+ * @zh AO质量
  */
 export enum AOQUALITY {
-    /**高 */
+    /**
+     * @en High quality.
+     * @zh 高质量
+     */
     High,
-    /**中 */
+    /**
+     * @en Medium quality.
+     * @zh 中质量
+     */
     MEDIUM,
-    /**低 */
+    /**
+     * @en Low quality.
+     * @zh 低质量
+     */
     LOWEST
 }
 
 /**
- * <code>BloomEffect</code> 类用于创建环境光遮罩效果。
+ * @en The ScalableAO class is used to create ambient occlusion effect.
+ * @zh ScalableAO 类用于创建环境光遮罩效果。
  */
 export class ScalableAO extends PostProcessEffect {
 
@@ -71,7 +82,8 @@ export class ScalableAO extends PostProcessEffect {
     static deltyVector: Vector2 = new Vector2(0.0, 1.0);
 
     /**
-     * scaleAO resource init
+     * @en ScaleAO resource init
+     * @zh 初始化AO资源
      */
     static init() {
         ScalableAO.BlurDelty = Shader3D.propertyNameToID("u_Delty");
@@ -144,7 +156,9 @@ export class ScalableAO extends PostProcessEffect {
     private _aoQuality: AOQUALITY = AOQUALITY.MEDIUM;
 
     /**
-     * 实例化一个AO效果类
+     * @ignore
+     * @en initializes the effect.
+     * @zh 构造函数, 初始化实例。
      */
     constructor() {
         super();
@@ -159,44 +173,50 @@ export class ScalableAO extends PostProcessEffect {
     }
 
 
-
     /**
-     * ao Color
+     * @en The color of ambient occlusion.
+     * @zh 环境光遮挡的颜色
      */
-    set aoColor(value: Color) {
-        this._shaderData.setColor(ScalableAO.AOColor, value);
-    }
-
     get aoColor() {
         return this._shaderData.getColor(ScalableAO.AOColor);
     }
 
+    set aoColor(value: Color) {
+        this._shaderData.setColor(ScalableAO.AOColor, value);
+    }
+
+
     /**
-     * ao intensity
+     * @en The intensity of ambient occlusion.
+     * @zh 环境光遮挡的强度
      */
+    get intensity() {
+        return this._aoParams.x;
+    }
+
     set intensity(value: number) {
         this._aoParams.x = value;
         this._shaderData.setVector3(ScalableAO.AOParams, this._aoParams);
     }
 
-    get intensity() {
-        return this._aoParams.x;
-    }
 
     /**
-     * ao影响半径
+     * @en The influence radius of ambient occlusion.
+     * @zh 环境光遮挡的影响半径
      */
+    get radius() {
+        return this._aoParams.y;
+    }
+    
     set radius(value: number) {
         this._aoParams.y = value;
         this._shaderData.setVector3(ScalableAO.AOParams, this._aoParams);
     }
 
-    get radius() {
-        return this._aoParams.y;
-    }
 
     /**
-     * ao质量
+     * @en The quality of ambient occlusion.
+     * @zh 环境光遮挡的质量
      */
     get aoQuality() {
         return this._aoQuality;
@@ -226,6 +246,8 @@ export class ScalableAO extends PostProcessEffect {
     /**
      * @internal
      * @override
+     * @en Get the camera depth texture mode flag.
+     * @zh 获取相机深度纹理模式标志。
      */
     getCameraDepthTextureModeFlag() {
         return DepthTextureMode.DepthAndDepthNormals;
@@ -234,7 +256,10 @@ export class ScalableAO extends PostProcessEffect {
     /**
      * @internal
      * @override
-     * @param context 
+     * @en Render the ambient occlusion effect.
+     * @param context The post-process render context.
+     * @zh 渲染环境光遮挡效果。
+     * @param context 后处理渲染上下文。
      */
     render(context: PostProcessRenderContext): void {
         let cmd: CommandBuffer = context.command;

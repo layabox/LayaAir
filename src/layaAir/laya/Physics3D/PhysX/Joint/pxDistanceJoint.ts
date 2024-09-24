@@ -2,6 +2,10 @@ import { ISpringJoint } from "../../interface/Joint/ISpringJoint";
 import { pxPhysicsCreateUtil } from "../pxPhysicsCreateUtil";
 import { pxJoint } from "./pxJoint";
 
+/**
+ * @en The pxDistanceJoint class represents a distance joint in the PhysX physics engine.
+ * @zh pxDistanceJoint 类表示 PhysX 物理引擎中的距离关节。
+ */
 export class pxDistanceJoint extends pxJoint implements ISpringJoint {
     /**
      * create Joint
@@ -19,48 +23,60 @@ export class pxDistanceJoint extends pxJoint implements ISpringJoint {
     }
 
     /**
-     * min distance
-     * @param distance 
+     * @en Sets the minimum distance for the joint.
+     * @param distance The minimum distance value.
+     * @zh 设置关节的最小距离。
+     * @param distance 最小距离值。
      */
     setMinDistance(distance: number): void {
         this._pxJoint && this._pxJoint.setMinDistance(distance);
     }
 
     /**
-     * max distance
-     * @param distance 
+     * @en Sets the maximum distance for the joint.
+     * @param distance The maximum distance value.
+     * @zh 设置关节的最大距离。
+     * @param distance 最大距离值。
      */
     setMaxDistance(distance: number): void {
         this._pxJoint && this._pxJoint.setMaxDistance(distance);
     }
 
     /**
-     * set connect Distance
-     * @param distance 
+     * @en Sets the connect distance for the joint.
+     * @param distance The connect distance value.
+     * @zh 设置关节的连接距离。
+     * @param distance 连接距离值。
      */
     setConnectDistance(distance: number): void {
         this._pxJoint && this._pxJoint.setConnectDistance(distance);
     }
 
     /**
-     * 允许弹簧具有不同的静止长度。
-     * @param tolerance 
+     * @en Allows the spring to have a different rest length.
+     * @param tolerance The tolerance value for the spring rest length.
+     * @zh 允许弹簧具有不同的静止长度。
+     * @param tolerance 弹簧静止长度的容差值。
      */
     setTolerance(tolerance: number): void {
         this._pxJoint && this._pxJoint.setTolerance(tolerance);
     }
 
     /**
-     * 弹力
-     * @param stiffness 
+     * @en Sets the stiffness of the joint spring.
+     * @param stiffness The stiffness value.
+     * @zh 设置关节弹簧的刚度。
+     * @param stiffness 刚度值。
      */
     setStiffness(stiffness: number): void {
         this._pxJoint && this._pxJoint.setStiffness(stiffness);
     }
 
     /**
-     * 弹簧阻尼
-     * @param damping 
+     * @en Sets the damping of the joint spring.
+     * @param damping The damping value.
+     * @zh 设置关节弹簧的阻尼。
+     * @param damping 阻尼值。
      */
     setDamping(damping: number): void {
         this._pxJoint && this._pxJoint.setDamping(damping);

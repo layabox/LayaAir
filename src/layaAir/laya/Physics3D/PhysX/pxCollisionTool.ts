@@ -6,7 +6,8 @@ import { pxCollider } from "./Collider/pxCollider";
 import { pxColliderShape } from "./Shape/pxColliderShape";
 
 /**
- * 实现PhysX碰撞数据内容
+ * @en Implements PhysX collision data content
+ * @zh 实现PhysX碰撞数据内容
  */
 export class pxCollisionTool {
     /**@internal */
@@ -18,6 +19,7 @@ export class pxCollisionTool {
     /**@internal */
     static _contactPoint: ContactPoint = new ContactPoint();
 
+    /**@ignore */
     constructor() {
 
     }
@@ -61,10 +63,14 @@ export class pxCollisionTool {
     }
 
     /**
-     * 转换physX的LayaQuaryResult到HitResult类型
-     * @param out
-     * @param quaryResult 
-     * @returns 
+     * @en Convert PhysX LayaQuaryResult to HitResult type
+     * @param out The HitResult object to store the result
+     * @param quaryResult The PhysX query result
+     * @returns The converted HitResult
+     * @zh 转换PhysX的LayaQuaryResult到HitResult类型
+     * @param out 用于存储结果的HitResult对象
+     * @param quaryResult PhysX查询结果
+     * @returns 转换后的HitResult
      */
     static getRayCastResult(out: HitResult, quaryResult: any): HitResult {
         if (quaryResult.Quary) {
@@ -83,10 +89,14 @@ export class pxCollisionTool {
     }
 
     /**
-     * 转换所有physX的LayaQuaryResult到HitResult类型
-     * @param out 
-     * @param quaryResults
-     * @returns 
+     * @en Convert all PhysX LayaQuaryResults to HitResult type
+     * @param out The array to store the converted HitResults
+     * @param quaryResults The PhysX query results
+     * @returns The array of converted HitResults
+     * @zh 转换所有PhysX的LayaQuaryResult到HitResult类型
+     * @param out 用于存储转换后HitResult的数组
+     * @param quaryResults PhysX查询结果
+     * @returns 转换后的HitResult数组
      */
     static getRayCastResults(out: HitResult[], quaryResults: any): HitResult[] {
         let quarySize: number = quaryResults.size();
@@ -114,8 +124,10 @@ export class pxCollisionTool {
     }
 
     /**
-     * 回收Collision到pool
-     * @param value 
+     * @en Recycle Collision object back to the pool
+     * @param value The Collision object to be recycled
+     * @zh 回收Collision对象到对象池
+     * @param value 要回收的Collision对象
      */
     static reCoverCollision(value: Collision) {
         if (!value._inPool) {
@@ -125,8 +137,10 @@ export class pxCollisionTool {
     }
 
     /**
-     * 回收HitResult到pool
-     * @param value 
+     * @en Recycle HitResult object back to the pool
+     * @param value The HitResult object to be recycled
+     * @zh 回收HitResult对象到对象池
+     * @param value 要回收的HitResult对象
      */
     static reCoverHitresults(value: HitResult) {
         if (!value._inPool) {

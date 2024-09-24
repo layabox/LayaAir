@@ -20,7 +20,8 @@ import { Transform3D } from "./Transform3D";
 import { BaseRenderType, IBaseRenderNode, ISkinRenderNode } from "../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
 import { RenderElement } from "./render/RenderElement";
 /**
- * <code>SkinMeshRenderer</code> 类用于蒙皮渲染器。
+ * @en The `SkinnedMeshRenderer` class is used for skinned mesh rendering.
+ * @zh `SkinnedMeshRenderer` 类用于蒙皮网格渲染。
  */
 export class SkinnedMeshRenderer extends MeshRenderer {
 
@@ -62,7 +63,8 @@ export class SkinnedMeshRenderer extends MeshRenderer {
     private _ownerSkinRenderNode: ISkinRenderNode;
 
     /**
-     * 局部边界。
+     * @en Local bounds.
+     * @zh 局部边界。
      */
     get localBounds(): Bounds {
         return this._localBounds;
@@ -74,7 +76,8 @@ export class SkinnedMeshRenderer extends MeshRenderer {
     }
 
     /**
-     * 根节点。
+     * @en Root node.
+     * @zh 根节点。
      */
     get rootBone(): Sprite3D {
         return this._cacheRootBone;
@@ -108,10 +111,12 @@ export class SkinnedMeshRenderer extends MeshRenderer {
             }
             this._isISkinRenderNode() && this._ownerSkinRenderNode.setRootBoneTransfom(this._cacheRootBone);
         }
+        this._baseRenderNode.transform = this.rootBone ? this.rootBone.transform : this.owner.transform;
     }
 
     /**
-     * 用于蒙皮的骨骼。
+     * @en The bones used for skinning.
+     * @zh 用于蒙皮的骨骼。
      */
     get bones(): Sprite3D[] {
         return this._bones;
@@ -122,7 +127,9 @@ export class SkinnedMeshRenderer extends MeshRenderer {
     }
 
     /**
-     * 创建一个 <code>SkinnedMeshRender</code> 实例。
+     * @ignore
+     * @en Creates an instance of SkinnedMeshRenderer.
+     * @zh 创建一个 SkinnedMeshRenderer 的实例。
      */
     constructor() {
         super();
@@ -201,7 +208,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
             this._changeMorphData(null);
             this.boundsChange = false;
         }
-
+        this._meshChange = true;
     }
     /**
     *@inheritDoc
@@ -250,8 +257,11 @@ export class SkinnedMeshRenderer extends MeshRenderer {
     }
 
     /**
-     * @param context
      * @perfTag PerformanceDefine.T_SkinBoneUpdate
+     * @en Updates the render state of the skinned mesh renderer.
+     * @param context The 3D render context.
+     * @zh 更新蒙皮网格渲染器的渲染状态。
+     * @param context 3D渲染上下文。
      */
     renderUpdate(context: RenderContext3D): void {
         super.renderUpdate(context);

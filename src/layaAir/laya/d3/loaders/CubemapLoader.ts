@@ -13,6 +13,11 @@ import { TextureCube } from "../../resource/TextureCube";
 
 var internalResources: Record<string, TextureCube>;
 
+/**
+ * @ignore
+ * @en Used for loading cubemap textures.
+ * @zh 用于加载立方体纹理资源。
+ */
 export class CubemapLoader implements IResourceLoader {
     constructor() {
         if (!internalResources) {
@@ -24,6 +29,14 @@ export class CubemapLoader implements IResourceLoader {
         }
     }
 
+    /**
+     * @en Load a cubemap texture resource.
+     * @param task The load task.
+     * @returns A Promise, when loaded successfully, it is resolves with the loaded texture or null if loading fails.
+     * @zh 加载立方体贴图资源。
+     * @param task 加载任务。 
+     * @returns 一个Promise, 加载成功时解析为加载的纹理，加载失败时为 null。
+     */
     load(task: ILoadTask) {
         if (task.url.indexOf("internal/") != -1) {
             let tex = internalResources[Utils.getBaseName(task.url)];

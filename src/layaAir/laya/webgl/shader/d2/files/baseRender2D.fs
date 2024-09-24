@@ -9,6 +9,7 @@ precision mediump float;
 
 void main()
 {
+    clip();
     vec4 textureColor = texture2D(u_baseRender2DTexture, v_texcoord);
     textureColor= transspaceColor(textureColor);
     setglColor(textureColor);

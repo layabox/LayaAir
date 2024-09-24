@@ -13,6 +13,10 @@ import { MeshUtil } from "../../resource/models/MeshUtil";
 import { HLODBatchMesh } from "./HLODBatchMesh";
 import { HLODElement } from "./HLODUtil";
 
+/**
+ * @en Handles the rendering of a hierarchical level of detail (HLOD) element. This class is responsible for managing LODs for objects to achieve better performance by rendering simpler meshes when objects are further from the camera.
+ * @zh HLOD渲染处理类，负责管理场景中对象的层级细节层次（HLOD），以提高渲染性能。通过在相机较远时渲染更简单的网格来实现。
+ */
 export class HLODRender extends BaseRender {
 
     /**@internal */
@@ -31,7 +35,8 @@ export class HLODRender extends BaseRender {
     }
 
     /**
-     * set HLOD element
+     * @en The current HLOD rendering state.
+     * @zh 当前的 HLOD 渲染状态。
      */
     get curHLODRS() {
         return this._curHLODRS;
@@ -51,9 +56,12 @@ export class HLODRender extends BaseRender {
     }
 
     /**
-     * 根据LOD资源生成渲染节点
-     * @param source 
-     * @returns 
+     * @en Set the geometry and material of the RenderElement based on the given HLODElement resource.
+     * @param source The HLODElement containing mesh and material information.
+     * @param out The RenderElement to be set.
+     * @zh 根据给定的 HLOD 资源设置渲染节点的几何体和材质。
+     * @param source 包含网格和材料信息的 HLODElement。
+     * @param out 要设置的 RenderElement。
      */
     private _createRenderelementByHLODElement(source: HLODElement, out: RenderElement) {
         out.setGeometry(source.HLODMesh);
@@ -61,7 +69,10 @@ export class HLODRender extends BaseRender {
     }
 
     /**
-     * change Render Mesh
+     * @en Change the current rendering mesh to a new LOD mesh.
+     * @param lodMesh The new LOD mesh for rendering.
+     * @zh 将当前渲染网格更改为新的 LOD 网格。
+     * @param lodMesh 新的 LOD 网格，用于渲染。
      */
     private _changeMesh(lodMesh: HLODBatchMesh) {
         var defineDatas: ShaderData = this._baseRenderNode.shaderData;
@@ -88,7 +99,8 @@ export class HLODRender extends BaseRender {
     /**
      * @override
      * @internal
-     * 全局贴图
+     * @en Apply the lightmap parameters of the current HLOD element to the shader.
+     * @zh 将当前 HLOD 元素的光照图参数应用到着色器上。
      */
     _applyLightMapParams() {
         if (!this._scene) return;
@@ -111,7 +123,8 @@ export class HLODRender extends BaseRender {
     }
 
     /**
-     * re caculate BoundBox
+     * @en re caculate BoundBox
+     * @zh 重新计算包围盒
      */
     _calculateBoundingBox() {
         // todo 根节点移动更新包围盒
@@ -129,9 +142,8 @@ export class HLODRender extends BaseRender {
     }
 
     /**
-     * update data
-     * @param context 
-     * @param transform 
+     * @en Update rendering data.
+     * @zh 更新渲染数据。
      */
     _renderUpdate(context: IRenderContext3D): void {
         this._applyLightMapParams();
@@ -139,6 +151,16 @@ export class HLODRender extends BaseRender {
         this._baseRenderNode.shaderData.setMatrix4x4(Sprite3D.WORLDMATRIX, this._transform.worldMatrix);
     }
 
+    /**
+     * @en Determine if the object needs to be rendered based on its visibility within the bounding frustum.
+     * @param boundFrustum The bounding frustum used for culling.
+     * @param context The rendering context.
+     * @returns True if the object needs to be rendered, false otherwise.
+     * @zh 根据对象在边界视锥体内的可见性确定是否需要渲染该对象。
+     * @param boundFrustum 用于裁剪的边界视锥体。
+     * @param context 渲染上下文。
+     * @returns 如果对象需要被渲染则返回 true，否则返回 false。
+     */
     _needRender(boundFrustum: BoundFrustum, context: RenderContext3D): boolean {
         if (boundFrustum) {
             if (boundFrustum.intersects(this.bounds)) {
@@ -167,14 +189,29 @@ export class HLODRender extends BaseRender {
         }
     }
 
+    /**
+     * @ignore
+     * @en Called when the component is enabled.
+     * @zh 当组件被启用时调用。
+     */
     onEnable() {
         super.onEnable();
     }
 
+    /**
+     * @ignore
+     * @en Called when the component is disabled.
+     * @zh 当组件被禁用时调用。
+     */
     onDisable() {
         super.onDisable();
     }
 
+    /**
+     * @ignore
+     * @en Called when the component is being destroyed.
+     * @zh 当组件被销毁时调用。
+     */
     onDestroy() {
         super.onDestroy();
         this._renderElements.forEach(element => {
@@ -184,6 +221,12 @@ export class HLODRender extends BaseRender {
         this._renderElements = null;
     }
 
+    /**
+     * @en Clone the current HLODRender to another instance.
+     * @param dest The destination HLODRender instance to clone to.
+     * @zh 将当前 HLODRender 克隆到另一个实例。
+     * @param dest 要克隆到的目标 HLODRender 实例。
+     */
     _cloneTo(dest: HLODRender) {
         //TODO
     }

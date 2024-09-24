@@ -13,84 +13,32 @@ import { ILaya } from "../../ILaya";
 import { HideFlags } from "../Const";
 
 /**
- * 当用户更改 <code>ComboBox</code> 组件中的选定内容时调度。
- * @eventType laya.events.Event
- * selectedIndex属性变化时调度。
- */
-/*[Event(name = "change", type = "laya.events.Event")]*/
-
-/**
  * @en The `ComboBox` component contains a drop-down list from which the user can select a single value.
+ * - `change` event: Dispatched when the user changes the selected content in `ComboBox` component.
  * @zh `ComboBox` 组件包含一个下拉列表，用户可以从该列表中选择单个值。
+ * - `change`事件：当用户更改 `ComboBox` 组件中的选定内容时调度。
  */
 export class ComboBox extends UIComponent {
-    /**@internal */
     protected _visibleNum: number = 6;
-    /**
-     * @internal
-     */
     protected _button: Button;
-    /**
-     * @internal
-     */
     protected _list: List;
-    /**
-     * @internal
-     */
     protected _isOpen: boolean;
-    /**
-     * @internal
-     */
     protected _itemColors: string[];
-    /**
-     * @internal
-     */
     protected _itemPadding: number[];
-    /**
-     * @internal
-     */
     protected _itemSize: number = 12;
-    /**
-     * @internal
-     */
     protected _labels: string[] = [];
     /**
-     * @internal
      * 下拉提示文本
      */
     protected _defaultLabel: string = '';
-    /**
-     * @internal
-     */
     protected _selectedIndex: number = -1;
-    /**
-     * @internal
-     */
     protected _selectHandler: Handler;
-    /**
-     * @internal 下拉框列表单元的高度
-     */
     protected _itemHeight: number;
-    /**
-     * @internal
-     */
     protected _listHeight: number;
-    /**
-     * @internal
-     */
     protected _listChanged: boolean;
-    /**
-     * @internal
-     */
     protected _itemChanged: boolean;
-    /**
-     * @internal
-     */
     protected _scrollBarSkin: string;
     protected _scrollType: ScrollType = 0;
-    /**
-     * @internal
-     */
     protected _isCustomList: boolean;
     /**
      * @en Rendering item, used to display a dropdown list to display objects
@@ -101,12 +49,10 @@ export class ComboBox extends UIComponent {
     /**
      * @en The skin resource address of the object. Supports single state, two states and three states, set with the `stateNum` property.
      * @zh 对象的皮肤纹理资源地址。 支持单态，两态和三态，用 `stateNum` 属性设置
-     * @see #stateNum
      */
     get skin(): string {
         return this._button.skin;
     }
-
     set skin(value: string) {
         if (this._button.skin != value) {
             this._button.skin = value;
@@ -116,9 +62,9 @@ export class ComboBox extends UIComponent {
 
     /**
      * @en The padding of the drop-down list text.
-     * @readme The format is: top, right, bottom, left
+     * - The format is: top, right, bottom, left
      * @zh 下拉列表文本的边距。
-     * @readme 格式：上边距,右边距,下边距,左边距
+     * - 格式：上边距,右边距,下边距,左边距
      */
     get itemPadding(): string {
         return this._itemPadding.join(",");
@@ -127,7 +73,6 @@ export class ComboBox extends UIComponent {
     set itemPadding(value: string) {
         this._itemPadding = UIUtils.fillArray(this._itemPadding, value, Number);
     }
-
 
     /**
      * @en The string of label collection.
@@ -146,7 +91,6 @@ export class ComboBox extends UIComponent {
             this._labels.length = 0;
         this._itemChanged = true;
     }
-
 
     /**
      * @en Indicates the index of the selected drop-down list item.
@@ -219,7 +163,6 @@ export class ComboBox extends UIComponent {
         this._visibleNum = value;
         this._listChanged = true;
     }
-
 
     /**
      * @en The height of the drop-down list item.
@@ -421,7 +364,6 @@ export class ComboBox extends UIComponent {
     /**
     * @en Indicates whether the button text label is bold.
     * @zh 表示按钮文本标签是否为粗体字。
-    * @see laya.display.Text#bold
     */
     get labelBold(): boolean {
         return this._button.text.bold;
@@ -434,7 +376,6 @@ export class ComboBox extends UIComponent {
     /**
      * @en Indicates the font name of the button text label, expressed as a string.
      * @zh 表示按钮文本标签的字体名称，以字符串形式表示。
-     * @see laya.display.Text#font
      */
     get labelFont(): string {
         return this._button.text.font;
@@ -447,7 +388,6 @@ export class ComboBox extends UIComponent {
     /**
      * @en Indicates the state value of the button.
      * @zh 表示按钮的状态值。
-     * @see laya.ui.Button#stateNum
      */
     get stateNum(): number {
         return this._button.stateNum;
@@ -474,11 +414,6 @@ export class ComboBox extends UIComponent {
         this.skin = skin;
         this.labels = labels;
     }
-
-    /**
-     * @inheritDoc 
-     * @override
-    */
     protected createChildren(): void {
         this._button = new Button();
         this._button.hideFlags = HideFlags.HideAndDontSave;
@@ -488,9 +423,6 @@ export class ComboBox extends UIComponent {
         this.addChild(this._button);
     }
 
-    /**
-     * @internal
-     */
     private _createList(): void {
         this._list = new List();
         this._list.hideFlags = HideFlags.HideAndDontSave;
@@ -500,9 +432,6 @@ export class ComboBox extends UIComponent {
         this._setListEvent(this._list);
     }
 
-    /**
-     * @internal
-     */
     private _setListEvent(list: List): void {
         this._list.selectEnable = true;
         this._list.on(Event.MOUSE_DOWN, this, this.onListDown);
@@ -513,8 +442,6 @@ export class ComboBox extends UIComponent {
 
     /**
      * @internal
-     * @inheritDoc 
-     * @override
      */
     _setWidth(value: number) {
         super._setWidth(value);
@@ -525,25 +452,20 @@ export class ComboBox extends UIComponent {
 
     /**
      * @internal
-     * @inheritDoc 
-     * @override
      */
     _setHeight(value: number) {
         super._setHeight(value);
         this._button.height = this._height;
     }
 
-    /**
-     * @internal
-     */
     private _onStageMouseWheel(e: Event): void {
         if (!this._list || this._list.contains(e.target)) return;
         this.removeList(null);
     }
 
     /**
-     * @internal
-     * 关闭下拉列表。
+     * @en Close the drop-down list of ComboBox.
+     * @zh 关闭下拉列表。
      */
     protected removeList(e: Event): void {
         ILaya.stage.off(Event.MOUSE_DOWN, this, this.removeList);
@@ -551,49 +473,26 @@ export class ComboBox extends UIComponent {
         this.isOpen = false;
     }
 
-    /**
-     * @internal
-     */
     private onListDown(e: Event): void {
         e.stopPropagation();
     }
 
-    /**
-     * @internal
-     */
     private onScrollBarDown(e: Event): void {
         e.stopPropagation();
     }
 
-    /**
-     * @internal
-     */
     private onButtonMouseDown(e: Event): void {
         this.callLater(this.switchTo, [!this._isOpen]);
     }
 
-
-    /**
-     * @internal
-     * @inheritDoc 
-     * @override
-    */
     protected measureWidth(): number {
         return this._button.width;
     }
 
-    /**
-     * @internal
-     * @inheritDoc 
-     * @override
-    */
     protected measureHeight(): number {
         return this._button.height;
     }
 
-    /**
-     * @internal
-     */
     protected changeList(): void {
         this._listChanged = false;
         var labelWidth: number = this.width - 2;
@@ -606,8 +505,12 @@ export class ComboBox extends UIComponent {
     }
 
     /**
-     * @internal
-     * 下拉列表的鼠标事件响应函数。
+     * @en Handles mouse events on a list item. This method manages the visual state of the list item based on mouse interaction, such as hover and click.
+     * @param e The mouse event.
+     * @param index The index of the list item.
+     * @zh 处理列表项的鼠标事件。该方法根据鼠标交互（如悬停和点击）管理列表项的视觉状态。
+     * @param e 鼠标事件。
+     * @param index 列表项的索引。
      */
     protected onlistItemMouse(e: Event, index: number): void {
         let type: string = e.type;
@@ -631,24 +534,21 @@ export class ComboBox extends UIComponent {
         }
     }
 
-    /**
-     * @internal
-     */
     private switchTo(value: boolean): void {
         this.isOpen = value;
     }
 
     /**
-     * @internal
-     * 更改下拉列表的打开状态。
+     * @en Changing the open state of the drop-down list.
+     * @zh 更改下拉列表的打开状态。
      */
     protected changeOpen(): void {
         this.isOpen = !this._isOpen;
     }
 
     /**
-     * @internal
-     * 更改下拉列表。
+     * @en Updates the items in the list and adjusts its visual representation. This method recalculates the list height, updates the background if it's not a custom list, and populates the list with new data.
+     * @zh 更新列表中的项目并调整其视觉表现。此方法重新计算列表高度，如果不是自定义列表，则更新背景，并使用新数据填充列表。
      */
     protected changeItem(): void {
         this._itemChanged = false;
@@ -669,12 +569,6 @@ export class ComboBox extends UIComponent {
         }
         this._list.size(this.width, this._listHeight);
         this._list.array = a;
-
-        //if (_visibleNum > a.length) {
-        //_list.height = _listHeight;
-        //} else {
-        //_list.height = 0;
-        //}
     }
 
 
@@ -690,8 +584,6 @@ export class ComboBox extends UIComponent {
      * @param destroyChild Whether to simultaneously destroy the child objects of the component. The default value is true.
      * @zh 销毁组件并释放组件所占用的内存。默认会同时销毁组件的子对象。
      * @param destroyChild 是否同时销毁组件的子对象。默认值为true。
-     * @inheritDoc 
-     * @override
      */
     destroy(destroyChild: boolean = true): void {
         ILaya.stage.off(Event.MOUSE_DOWN, this, this.removeList);
@@ -710,8 +602,6 @@ export class ComboBox extends UIComponent {
     }
 
     /**
-     * @inheritDoc 
-     * @override
      * @en Set the data source of the ComboBox.
      * @param value The new data source.
      * @zh 设置下拉选项框的数据源。

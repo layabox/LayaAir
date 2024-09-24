@@ -113,7 +113,11 @@ export class MaterialParser {
                             break;
                         default:
                             if (!property.length) {
-                                mat._shaderValues.setNumber(uniName, props[key]);
+                                if (typeof property == 'boolean')
+                                    mat._shaderValues.setBool(uniName, props[key]);
+                                else {
+                                    mat._shaderValues.setNumber(uniName, props[key]);
+                                }
                             } else {
                                 var vectorValue = property;
                                 switch (vectorValue.length) {
@@ -335,7 +339,12 @@ export class MaterialParser {
                                     break;
                                 default:
                                     if (!property.length) {
-                                        mat._shaderValues.setNumber(uniName, props[key]);
+                                        if (typeof property == 'boolean')
+                                            mat._shaderValues.setBool(uniName, props[key]);
+                                        else {
+                                            mat._shaderValues.setNumber(uniName, props[key]);
+                                        }
+
                                     } else {
                                         var vectorValue = property;
                                         switch (vectorValue.length) {

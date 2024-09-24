@@ -13,7 +13,8 @@ import { Laya3DRender } from "../RenderObjs/Laya3DRender"
 
 /**
  * @internal
- * <code>LoadModel</code> 类用于模型加载。
+ * @en `LoadModelV04` class is used for loading model data.
+ * @zh `LoadModelV04` 类用于加载模型数据。
  */
 export class LoadModelV04 {
 
@@ -33,9 +34,9 @@ export class LoadModelV04 {
 	/**@internal */
 	private static _subMeshes: SubMesh[];
 
-	/**
-	 * @internal
-	 */
+    /**
+     * @internal
+     */
 	static parse(readData: Byte, version: string, mesh: Mesh, subMeshes: SubMesh[]): void {
 		LoadModelV04._mesh = mesh;
 		LoadModelV04._subMeshes = subMeshes;

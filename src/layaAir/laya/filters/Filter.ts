@@ -1,4 +1,5 @@
 import { Sprite } from "../display/Sprite";
+import { EventDispatcher } from "../events/EventDispatcher";
 import { Matrix } from "../maths/Matrix";
 import { Context } from "../renders/Context";
 import { Render2D } from "../renders/Render2D";
@@ -9,35 +10,65 @@ import { ColorFilter } from "./ColorFilter";
 import { IFilter } from "./IFilter";
 
 /**
- * <code>Filter</code> 是滤镜基类。滤镜是针对节点的后处理过程，所以必然操作一个rendertexture
+ * @en The `Filter` class is the base class for filters. Filters are post-processing operations on nodes, so they inevitably operate on a renderTexture.
+ * @zh Filter 是滤镜基类。滤镜是针对节点的后处理过程，所以必然操作一个rendertexture
  */
-export abstract class Filter implements IFilter {
-    /**@private 颜色滤镜。*/
+export abstract class Filter extends EventDispatcher implements IFilter {
+    /**
+     * @private 
+     * @en color filter
+     * @zh 颜色滤镜。
+     */
     static COLOR = 0x20;
     /** @internal*/
     _glRender: any;
 
-    //结果的原点的坐标，相对于sprite的原始原点，如果扩展了，left和top可能是负的
+    /**
+     * @en The coordinate of the result origin, relative to the original origin of the sprite. If extended, left and top may be negative.
+     * @zh 结果原点的坐标，相对于sprite的原始原点。如果进行了扩展，left 和 top 可能是负值。
+     */
     protected left = 0;
     protected top = 0;
-    //渲染后大小
+    /**
+     * @en The size of the rendering result.
+     * @zh 渲染结果的大小。
+     */
     protected width = 0;
     protected height = 0;
     protected texture: RenderTexture2D;  //TODO 创建 优化
     protected _render2D: Render2D;
+    
+    /**
+     * @en event：some parameter changed
+     * @zh 参数改变事件
+     */
+    static EVENT_CHANGE='change';
 
-    //当前使用的
+    /**
+     * @en Current usage
+     * @zh 当前使用的
+     */
     protected _rectMesh: MeshQuadTexture;
     protected _rectMeshVB: Float32Array;
 
-    //uv坐标正常的版本
-    private _rectMeshNormY:MeshQuadTexture;
-    private _rectMeshVBNormY:Float32Array;
-    //uv坐标翻转的版本
-    private _rectMeshInvY:MeshQuadTexture;
-    private _rectMeshVBInvY:Float32Array;
+    /**
+     * @en Version with normal UV coordinates
+     * @zh uv坐标正常的版本
+     */
+    private _rectMeshNormY: MeshQuadTexture;
+    private _rectMeshVBNormY: Float32Array;
+    /**
+     * @en Version of UV coordinate flipping
+     * @zh uv坐标翻转的版本
+     */
+    private _rectMeshInvY: MeshQuadTexture;
+    private _rectMeshVBInvY: Float32Array;
 
+    /**
+     * @ignore
+     */
     constructor() {
+        super();
         let rect1 = this._rectMeshNormY = new MeshQuadTexture();
         rect1.addQuad([0, 0, 1, 0, 1, 1, 0, 1], [0, 0, 1, 0, 1, 1, 0, 1], 0xffffffff, true)
         this._rectMeshVBNormY = new Float32Array(rect1.vbBuffer);
@@ -48,33 +79,55 @@ export abstract class Filter implements IFilter {
         this.useFlipY(false);
     }
 
+    protected onChange(){
+        this.event(Filter.EVENT_CHANGE);
+    }
+
+    /**
+     * @en Sets the mesh and vertex buffer to use based on whether Y-flip is needed.
+     * @zh 根据是否需要翻转 Y 坐标来设置使用的网格和顶点缓冲区。
+     */
     useFlipY(b: boolean) {
         this._rectMesh = b ? this._rectMeshInvY : this._rectMeshNormY;
         this._rectMeshVB = b ? this._rectMeshVBInvY : this._rectMeshVBNormY;
     }
 
+    /**
+     * @en The setter for the Render2D object used for rendering.
+     * @zh 用于设置渲染用的 Render2D 对象。
+     */
     set render2D(r: Render2D) {
         this._render2D = r;
     }
     /**
-     * 不需要位置
+     * @en No location required
+     * @zh 不需要位置
      * @param texture 
      * @param width 
      * @param height 
      */
     abstract render(texture: RenderTexture2D, width: number, height: number): void;
 
-    /**@private 滤镜类型。*/
+    /**
+     * @private
+     * @en Gets the type of the filter.
+     * @zh 获取滤镜类型。
+     */
     get type(): number { return -1 }
 
     /**
-     * @internal
-     * @param this 
-     * @param sprite 
-     * @param context 
-     * @param x 
-     * @param y 
-     * @returns 
+     * @en Applies multiple filters to a sprite within the given context.
+     * @param this The context in which this function is executed, typically a RenderSprite instance.
+     * @param sprite The sprite to which the filters are applied.
+     * @param context The current rendering context.
+     * @param x The x-coordinate at which the sprite is being rendered.
+     * @param y The y-coordinate at which the sprite is being rendered.
+     * @zh 在给定的上下文中为精灵应用多个滤镜。
+     * @param this 执行此函数的上下文，通常是 RenderSprite 实例。
+     * @param sprite 应用滤镜的精灵。
+     * @param context 当前的渲染上下文。
+     * @param x 精灵正在渲染的 x 坐标。
+     * @param y 精灵正在渲染的 y 坐标。
      */
     static _filter = function (this: RenderSprite, sprite: Sprite, context: Context, x: number, y: number): void {
         var next = this._next;
@@ -105,7 +158,7 @@ export abstract class Filter implements IFilter {
                 src = dst;
                 var filter = filters[i];
                 filter._render2D = context.render2D;
-                filter.useFlipY(i!=0);
+                filter.useFlipY(i != 0);
                 filter.render(src, width, height);
                 width = filter.width;
                 height = filter.height;
@@ -121,8 +174,8 @@ export abstract class Filter implements IFilter {
         }
         //直接使用缓存的
         cache.renderTexture && context._drawRenderTexture(cache.renderTexture,
-            x + cache.renderTexOffx,
-            y + cache.renderTexOffy,
+            x + cache.renderTexOffx - sprite.anchorX*sprite.width,
+            y + cache.renderTexOffy - sprite.anchorY*sprite.height,
             cache.renderTexture.width,
             cache.renderTexture.height,
             null, 1.0, RenderTexture2D.defuv);

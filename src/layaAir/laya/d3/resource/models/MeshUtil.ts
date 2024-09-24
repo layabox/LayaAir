@@ -4,13 +4,17 @@ import { MeshSprite3DShaderDeclaration } from "../../core/MeshSprite3DShaderDecl
 import { Mesh } from "./Mesh";
 
 /**
- * <code>Mesh</code> 类用于创建文件网格数据模板。
+ * @en Utility class for mesh operations
+ * @zh Mesh操作的实用工具类
  */
 export class MeshUtil {
     /**
-     * 获得mesh的宏
-     * @param mesh Mesh
-     * @param out define
+     * @en Get the shader defines for a mesh
+     * @param mesh The mesh to analyze
+     * @param out Array to store the resulting shader defines
+     * @zh 获取mesh的着色器宏定义
+     * @param mesh 输入的Mesh对象
+     * @param out 用于存储着色器宏定义的输出数组
      */
     static getMeshDefine(mesh: Mesh, out: Array<ShaderDefine>) {
         out.length = 0;

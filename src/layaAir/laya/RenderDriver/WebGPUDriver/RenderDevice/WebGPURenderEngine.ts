@@ -14,8 +14,6 @@ import { WebGPURenderEngineFactory } from "./WebGPURenderEngineFactory";
 import { WebGPUTextureContext, WebGPUTextureFormat } from "./WebGPUTextureContext";
 import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
 import { GPUEngineStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
-import { BufferTargetType, BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
-import { GLBuffer } from "../../WebGLDriver/RenderDevice/WebGLEngine/GLBuffer";
 
 export class WebGPUConfig {
     /**
@@ -402,7 +400,7 @@ export class WebGPURenderEngine implements IRenderEngine {
         this._screenRT =
             this._textureContext.createRenderTargetInternal
                 (this._canvas.width, this._canvas.height, RenderTargetFormat.R8G8B8A8,
-                    RenderTargetFormat.None, false, false, this._config.msaa ? 4 : 1) as WebGPUInternalRT;
+                    RenderTargetFormat.None, false, false, 1) as WebGPUInternalRT;
         this.screenResized = true;
     }
 

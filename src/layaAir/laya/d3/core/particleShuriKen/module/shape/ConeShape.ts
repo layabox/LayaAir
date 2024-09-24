@@ -6,7 +6,8 @@ import { Vector2 } from "../../../../../maths/Vector2";
 import { Vector3 } from "../../../../../maths/Vector3";
 
 /**
- * <code>ConeShape</code> 类用于创建锥形粒子形状。
+ * @en ConeShape class is used to create cone-shaped particle emitters.
+ * @zh ConeShape类用于创建锥形粒子发射器。
  */
 export class ConeShape extends BaseShape {
 	/** @internal */
@@ -14,17 +15,31 @@ export class ConeShape extends BaseShape {
 	/** @internal */
 	protected static _tempDirectionPoint: Vector2 = new Vector2();
 
-	/**发射弧度。*/
+    /**
+     * @en The emission angle in radians.
+     * @zh 发射角度，单位为弧度。
+     */
 	angle: number;
-	/**发射器半径。*/
+    /**
+     * @en The radius of the emitter.
+     * @zh 发射器的半径。
+     */
 	radius: number;
-	/**椎体长度。*/
+    /**
+     * @en The length of the cone.
+     * @zh 锥体的长度。
+     */
 	length: number;
-	/**发射类型,0为Base,1为BaseShell,2为Volume,3为VolumeShell。*/
+    /**
+     * @en The emission type. 0 for Base, 1 for BaseShell, 2 for Volume, 3 for VolumeShell.
+     * @zh 发射类型：0 表示基础发射，1 表示基础外壳发射，2 表示体积发射，3 表示体积外壳发射。
+     */
 	emitType: number;
 
 	/**
-	 * 创建一个 <code>ConeShape</code> 实例。
+	 * @ignore
+	 * @en Creates an instance of the ConeShape class.
+	 * @zh 创建一个ConeShape实例。
 	 */
 	constructor() {
 		super();
@@ -37,15 +52,17 @@ export class ConeShape extends BaseShape {
 	}
 
 	/**
-	 * 发射角度0-360
+	 * @en Emission angle 0-360
+	 * @zh 发射角度0-360
 	 */
+	get angleDEG() {
+		return this.angle * 180 / Math.PI;
+	}
+
 	set angleDEG(deg: number) {
 		this.angle = deg / 180 * Math.PI;
 	}
 
-	get angleDEG() {
-		return this.angle * 180 / Math.PI;
-	}
 
 	/**
 	 * @inheritDoc
@@ -80,18 +97,17 @@ export class ConeShape extends BaseShape {
 		max.z = 1;
 	}
 
-	/**
-	 *  用于生成粒子初始位置和方向。
-	 * @param	position 粒子位置。
-	 * @param	direction 粒子方向。
-	 * @override
-	 */
-	/**
-	 * 用于生成粒子初始位置和方向。
-	 * @param	position 粒子位置。
-	 * @param	direction 粒子方向。
-	 * @param 	rand 随机数
-	 * @param 	randomSeeds 随机数种子队列
+	/** 
+	 * @en Generates initial position and direction for particles.
+	 * @param position The particle position.
+	 * @param direction The particle direction.
+	 * @param rand Random number.
+	 * @param randomSeeds Array of random seeds.
+	 * @zh 用于生成粒子初始位置和方向。
+	 * @param position 粒子位置。
+	 * @param direction 粒子方向。
+	 * @param rand 随机数。
+	 * @param randomSeeds 随机种子数组。
 	 */
 	generatePositionAndDirection(position: Vector3, direction: Vector3, rand: Rand = null, randomSeeds: Uint32Array = null): void {
 		var positionPointE: Vector2 = ConeShape._tempPositionPoint;
@@ -247,9 +263,11 @@ export class ConeShape extends BaseShape {
 	}
 
 	/**
-	 * 克隆
-	 * @param destObject 克隆目标
 	 * @override
+	 * @en Clones to a target object.
+	 * @param destObject The target object to clone to.
+	 * @zh 克隆到目标对象。
+	 * @param destObject 要克隆到的目标对象。
 	 */
 	cloneTo(destObject: any): void {
 		super.cloneTo(destObject);
@@ -263,8 +281,10 @@ export class ConeShape extends BaseShape {
 
 	/**
 	 * @override
-	 * 克隆。
-	 * @return	 克隆副本。
+	 * @en Clone.
+	 * @returns Clone copy.
+	 * @zh 克隆。
+	 * @returns 克隆副本。
 	 */
 	clone(): any {
 		var destShape: ConeShape = new ConeShape();

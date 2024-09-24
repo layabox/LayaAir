@@ -11,10 +11,9 @@ import { DepthTextureMode, RenderTexture } from "../../resource/RenderTexture";
 import { ShaderDefine } from "../../RenderDriver/RenderModuleData/Design/ShaderDefine";
 import { Viewport } from "../../maths/Viewport";
 
-
-
 /**
- * <code>ShadowCasterPass</code> 类用于实现阴影渲染管线
+ * @en The `DepthPass` class is responsible for handling depth rendering and shadow mapping in a 3D scene.
+ * @zh `DepthPass` 类负责处理3D场景中的深度渲染和阴影映射。
  */
 export class DepthPass {
     static SHADOW_BIAS: Vector4 = new Vector4();
@@ -54,6 +53,7 @@ export class DepthPass {
     private _castDepthData: UnifromBufferData;
     /** @internal */
     private _castDepthUBO: UniformBufferObject;
+    /** @ignore */
     constructor() {
         if (Config3D._uniformBlock) {
             this._castDepthData = DepthCasterData.createDepthCasterUniformBlock();
@@ -66,9 +66,15 @@ export class DepthPass {
     }
 
     /**
-     * 渲染深度更新
-     * @param camera 
-     * @param depthType 
+     * @en Creates and assigns the appropriate render texture for capturing depth information based on the specified depth texture mode. This method configures the camera's properties to hold newly created textures prepared for depth or depth normals rendering.
+     * @param camera The camera for which the depth texture is being prepared.
+     * @param depthType The type of depth texture to create, which determines the kind of data the texture will capture (e.g., depth only, depth and normals).
+     * @param depthTextureFormat The format of the depth texture, defining how the data is represented.
+     * @zh 根据指定的深度纹理模式创建并分配相应的渲染纹理，用于捕捉深度信息。
+     * 此方法配置相机的属性，以保存为深度或深度法线渲染准备的新创建的纹理。
+     * @param camera 准备深度纹理的相机。
+     * @param depthType 要创建的深度纹理类型，决定纹理将捕捉的数据种类（如仅深度，深度加法线等）。
+     * @param depthTextureFormat 深度纹理的格式，定义数据的表示方式。
      */
     getTarget(camera: Camera, depthType: DepthTextureMode, depthTextureFormat: RenderTargetFormat): void {
         this._viewPort = camera.viewport;
@@ -89,10 +95,10 @@ export class DepthPass {
     }
 
     /**
-    *
-    * 渲染完后传入使用的参数
-    * @internal
-    */
+     * @internal
+     * @en Parameters passed after rendering is complete.
+     * @zh 渲染完后传入使用的参数。
+     */
     _setupDepthModeShaderValue(depthType: DepthTextureMode, camera: Camera) {
         switch (depthType) {
             case DepthTextureMode.Depth:
@@ -109,8 +115,9 @@ export class DepthPass {
     }
 
     /**
-     * 清理深度数据
      * @internal
+     * @en Clear the depth data.
+     * @zh 清理深度数据
      */
     cleanUp(): void {
         (this._depthTexture instanceof RenderTexture) && this._depthTexture && RenderTexture.recoverToPool(this._depthTexture);

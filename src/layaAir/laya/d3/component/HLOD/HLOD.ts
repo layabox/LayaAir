@@ -9,6 +9,10 @@ import { HLODConfig, HLODResourceGroup } from "./HLODUtil";
 
 const tempVec = new Vector3();
 
+/**
+ * @en HLOD (Hierarchical Level of Detail) component for optimizing rendering performance.
+ * @zh HLOD（分层细节层次）组件，用于优化渲染性能。
+ */
 export class HLOD extends Component {
     /**@internal */
     _resourceList: HLODResourceGroup[];
@@ -31,14 +35,15 @@ export class HLOD extends Component {
     /**@internal */
     private _size: number;
 
-    
+
     constructor() {
         super();
         this._singleton = true;
     }
 
     /**
-     * IDE
+     * @en The bounds of the HLOD.
+     * @zh HLOD 的边界。
      */
     get bounds() {
         return this._bounds;
@@ -50,7 +55,8 @@ export class HLOD extends Component {
     }
 
     /**
-     * IDE
+     * @en The LOD resources for the HLOD.
+     * @zh HLOD 的 LOD 资源。
      */
     get lodResource() {
         return this._resourceList;
@@ -61,16 +67,18 @@ export class HLOD extends Component {
 
 
     /**
-     * lod裁剪过滤
+     * @en The LOD culling rate array. The array will be sorted in descending order.
+     * @zh LOD 裁剪率数组。数组将按降序排列。
      */
+    get lodCullRateArray() {
+        return this._lodRateArray;
+    }
+
     set lodCullRateArray(value: number[]) {
         value.sort((a, b) => b - a);
         this._lodRateArray = value;
     }
 
-    get lodCullRateArray() {
-        return this._lodRateArray;
-    }
 
     private _applyLODResource(resource: HLODResourceGroup) {
         this._curLODSource = resource;
@@ -92,7 +100,8 @@ export class HLOD extends Component {
 
     /**
      * @internal
-     * 重新计算包围盒
+     * @en Recalculates the bounding box.
+     * @zh 重新计算包围盒。
      */
     recalculateBounds() {
         //如果移动了就修改Bounds
@@ -101,9 +110,10 @@ export class HLOD extends Component {
     }
 
     /**
-    * @internal
-    * 渲染之前的更新
-    */
+     * @internal
+     * @en Updates before rendering.
+     * @zh 渲染之前的更新。
+     */
     onPreRender() {
         // this.recalculateBounds();
         // //查看相机的距离
@@ -126,12 +136,22 @@ export class HLOD extends Component {
         }
     }
 
+    /**
+     * @ignore
+     * @en Executed every frame during the update phase.
+     * @zh 每帧更新时执行。
+     */
     onUpdate(): void {
         this._curLODSource.updateMark = Camera._updateMark;
         //GC TODO
-
     }
 
+    /**
+     * @en Applies the specified HLOD resource.
+     * @param resource The HLOD resource group to apply.
+     * @zh 应用指定的 HLOD 资源。
+     * @param resource 要应用的 HLOD 资源组。
+     */
     applyResource(resource: HLODResourceGroup) {
         if (resource == this._curLODSource)
             return;
@@ -148,20 +168,39 @@ export class HLOD extends Component {
         }
     }
 
+    /**
+     * @ignore
+     * @en Called when the component is enabled.
+     * @zh 当组件启用时调用。
+     */
     onEnable() {
         super.onEnable();
         //根据
     }
 
+    /**
+     * @ignore
+     * @en Called when the component is disabled.
+     * @zh 当组件禁用时调用。
+     */
     onDisable() {
         super.onDisable();
     }
 
+    /**
+     * @ignore
+     * @en Called when the component is destroyed.
+     * @zh 当组件被销毁时调用。
+     */
     onDestroy() {
         super.onDestroy();
         //TODO删除
     }
 
+    /**
+     * @en Clones the HLOD component to another object.
+     * @zh 将 HLOD 组件克隆到另一个对象。
+     */
     _cloneTo(dest: HLOD) {
         //Clone to
         throw "cant clone HLOD"

@@ -6,6 +6,11 @@ import { Utils } from "../../utils/Utils";
 
 var internalResources: Record<string, any> = {};
 
+/**
+ * @ignore
+ * @en Used for loading 2D texture array resources(.tex2darray).
+ * @zh 用于加载纹理数组资源（.tex2darray）。
+ */
 export class Texture2DArrayLoader implements IResourceLoader {
 
     constructor() {
@@ -16,6 +21,14 @@ export class Texture2DArrayLoader implements IResourceLoader {
         }
     }
 
+    /**
+     * @en Load a 2D texture array from the specified URL.
+     * @param task The load task that contains the URL and other loading options.
+     * @returns A promise that resolves with the loaded texture array or null if loading fails.
+     * @zh 加载指定的纹理数组资源。
+     * @param task 包含 URL 和其他加载选项的加载任务。
+     * @returns 一个Promise，加载成功时解析为加载的纹理数组，加载失败时为 null。
+     */
     load(task: ILoadTask) {
         // todo internal resources
         if (task.url.indexOf("internal/") != -1) {

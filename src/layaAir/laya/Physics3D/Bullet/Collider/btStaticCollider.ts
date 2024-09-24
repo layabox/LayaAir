@@ -4,7 +4,10 @@ import { EColliderCapable } from "../../physicsEnum/EColliderCapable";
 import { btPhysicsCreateUtil } from "../btPhysicsCreateUtil";
 import { btPhysicsManager } from "../btPhysicsManager";
 import { btCollider, btColliderType } from "./btCollider";
-
+/**
+ * @en The `btStaticCollider` class is used to create and manage static colliders.
+ * @zh `btStaticCollider` 类用于创建和管理静态碰撞体。
+ */
 export class btStaticCollider extends btCollider implements IStaticCollider {
     /**@internal */
     static _staticCapableMap: Map<any, any>;
@@ -37,6 +40,12 @@ export class btStaticCollider extends btCollider implements IStaticCollider {
         this._btCollider = btColObj;
     }
 
+    /**
+     * @en Set whether the collider is a trigger.
+     * @param value True if the collider should be a trigger, false otherwise.
+     * @zh 设置碰撞体是否为触发器。
+     * @param value 如果为true，则设置为触发器；否则为false。
+     */
     setTrigger(value: boolean): void {
         this._isTrigger = value;
         let bt = btPhysicsCreateUtil._bt;
@@ -56,20 +65,46 @@ export class btStaticCollider extends btCollider implements IStaticCollider {
         return btColliderType.StaticCollider;
     }
 
+    /**
+     * @en Check if the collider has a specific capability.
+     * @param value The capability to check.
+     * @returns Whether the collider has the specified capability.
+     * @zh 检查碰撞体是否具有特定能力。
+     * @param value 要检查的能力。
+     * @returns 碰撞体是否具有指定的能力。
+     */
     getCapable(value: number): boolean {
         return btStaticCollider.getStaticColliderCapable(value);
     }
 
+    /**
+     * @ignore
+     * @en Creates an instance of `btStaticCollider`.
+     * @param physicsManager The physics manager.
+     * @zh 创建一个 `btStaticCollider` 的实例。
+     * @param physicsManager 物理管理器。
+     */
     constructor(physicsManager: btPhysicsManager) {
         super(physicsManager);
         this._enableProcessCollisions = false;
     }
 
-
+    /**
+     * @en Check if the static collider has a specific capability.
+     * @param value The capability to check.
+     * @returns Whether the static collider has the specified capability.
+     * @zh 检查静态碰撞体是否具有特定能力。
+     * @param value 要检查的能力。
+     * @returns 静态碰撞体是否具有指定的能力。
+     */
     static getStaticColliderCapable(value: EColliderCapable): boolean {
         return this._staticCapableMap.get(value);
     }
 
+    /**
+     * @en Initialize the capabilities of the static collider.
+     * @zh 初始化静态碰撞体的能力。
+     */
     static initCapable(): void {
         this._staticCapableMap = new Map();
         this._staticCapableMap.set(EColliderCapable.Collider_AllowTrigger, true);
@@ -85,6 +120,12 @@ export class btStaticCollider extends btCollider implements IStaticCollider {
         this._staticCapableMap.set(EColliderCapable.Collider_CollisionDetectionMode, false);
     }
 
+    /**
+     * @en Set the world position of the static collider.
+     * @param value The world position.
+     * @zh 设置静态碰撞体的世界坐标位置。
+     * @param value 坐标位置。
+     */
     setWorldPosition(value: Vector3): void {
         let bt = btPhysicsCreateUtil._bt;
         var btColliderObject = this._btCollider;

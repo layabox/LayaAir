@@ -29,28 +29,15 @@ export class HBox extends LayoutBox {
 
     /**
      * @internal
-     * @inheritDoc	
-     * @override
      */
     _setHeight(value: number) {
         super._setHeight(value);
         this.callLater(this.changeItems);
     }
-
-    /** 
-     * @internal
-     * @inheritDoc	
-     * @override
-     */
     protected sortItem(items: any[]): void {
         if (items) items.sort(function (a: any, b: any): number { return a.x - b.x; });
     }
 
-    /** 
-     * @internal
-     * @inheritDoc	
-     * @override
-     */
     protected changeItems(): void {
         this._itemChanged = false;
         var items: any[] = [];

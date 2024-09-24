@@ -70,6 +70,8 @@ export class WebGPURenderContext3D implements IRenderContext3D {
     blitScreen: boolean = false; //正在渲染到屏幕
     renderCommand: WebGPURenderCommandEncoder = new WebGPURenderCommandEncoder(); //渲染命令编码器
 
+    pipelineCache: any[] = []; //所有的3D渲染管线缓存
+
     private _viewScissorSaved: boolean = false;
     private _viewPortSave: Viewport = new Viewport();
     private _scissorSave: Vector4 = new Vector4();

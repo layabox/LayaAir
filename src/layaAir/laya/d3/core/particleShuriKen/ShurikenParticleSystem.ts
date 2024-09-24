@@ -52,10 +52,12 @@ import { BufferState } from "../../../webgl/utils/BufferState";
 import { VertexMesh } from "../../../RenderEngine/RenderShader/VertexMesh";
 import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 import { ShaderData } from "../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { SerializeUtil } from "../../../loaders/SerializeUtil";
 
 
 /**
- * <code>ShurikenParticleSystem</code> 类用于创建3D粒子数据模板。
+ * @en The ShurikenParticleSystem class is used to create 3D particle data templates.
+ * @zh ShurikenParticleSystem 类用于创建3D粒子数据模板。
  */
 export class ShurikenParticleSystem extends GeometryElement implements IClone {
     /** @internal 0:Burst,1:预留,2:StartDelay,3:StartColor,4:StartSize,5:StartRotation,6:randomizeRotationDirection,7:StartLifetime,8:StartSpeed,9:VelocityOverLifetime,10:ColorOverLifetime,11:SizeOverLifetime,12:RotationOverLifetime,13-15:TextureSheetAnimation,16-17:Shape*/
@@ -95,7 +97,11 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
     protected static _type: number = GeometryElement._typeCounter++;
     /** @internal */
     _bounds: Bounds = null;
-    /** @internal 重力影响偏移, 用于计算世界包围盒 */
+    /** 
+     * @internal 
+     * @en Gravity effect offset, used to calculate the world bounding box
+     * @zh 重力影响偏移, 用于计算世界包围盒 
+     */
     _gravityOffset: Vector2 = new Vector2();
 
     /** @internal */
@@ -212,107 +218,240 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
     /**@internal */
     _randomSeeds: Uint32Array = null;
 
-    /**粒子运行的总时长，单位为秒。*/
+    /**
+     * @en Total duration of particle system runtime, in seconds.
+     * @zh 粒子运行的总时长，单位为秒。
+     */
     duration: number = 0;
-    /**是否循环。*/
+    /**
+     * @en Whether the particle system is looping.
+     * @zh 是否循环。
+     */
     looping: boolean = false;
-    /**是否预热。暂不支持*/
+    /**
+     * @en Whether to prewarm the particle system. Currently not supported.
+     * @zh 是否预热。暂不支持。
+     */
     prewarm: boolean = false;
-    /**开始延迟类型，0为常量模式,1为随机随机双常量模式，不能和prewarm一起使用。*/
+    /**
+     * @en Start delay type. 0 for constant mode, 1 for random between two constants. Cannot be used with prewarm.
+     * @zh 开始延迟类型，0为常量模式，1为随机双常量模式。不能和prewarm一起使用。
+     */
     startDelayType: number = 0;
-    /**开始播放延迟，不能和prewarm一起使用。*/
+    /**
+     * @en Start play delay. Cannot be used with prewarm.
+     * @zh 开始播放延迟。不能和prewarm一起使用。
+     */
     startDelay: number = 0;
-    /**开始播放最小延迟，不能和prewarm一起使用。*/
+    /**
+     * @en Minimum start play delay. Cannot be used with prewarm.
+     * @zh 开始播放最小延迟。不能和prewarm一起使用。
+     */
     startDelayMin: number = 0;
-    /**开始播放最大延迟，不能和prewarm一起使用。*/
+    /**
+     * @en Maximum start play delay. Cannot be used with prewarm.
+     * @zh 开始播放最大延迟。不能和prewarm一起使用。
+     */
     startDelayMax: number = 0;
 
-    /**开始速度模式，0为恒定速度，2为两个恒定速度的随机插值。缺少1、3模式*/
+    /**
+     * @en Start speed mode. 0 for constant speed, 2 for random between two constants. Modes 1 and 3 are missing.
+     * @zh 开始速度模式。0为恒定速度，2为两个恒定速度的随机插值。缺少1、3模式。
+     */
     startSpeedType: number = 0;
-    /**开始速度,0模式。*/
+    /**
+     * @en Start speed for mode 0.
+     * @zh 开始速度，0模式。
+     */
     startSpeedConstant: number = 0;
-    /**最小开始速度,1模式。*/
+    /**
+     * @en Minimum start speed for mode 1.
+     * @zh 最小开始速度，1模式。
+     */
     startSpeedConstantMin: number = 0;
-    /**最大开始速度,1模式。*/
+    /**
+     * @en Maximum start speed for mode 1.
+     * @zh 最大开始速度，1模式。
+     */
     startSpeedConstantMax: number = 0;
 
-    /**阻力模式，0为恒定速度，2为两个恒定速度的随机插值*/
+    /**
+     * @en Drag type. 0 for constant speed, 2 for random between two constants.
+     * @zh 阻力模式。0为恒定速度，2为两个恒定速度的随机插值。
+     */
     dragType: number = 0;
-    /**开始速度,0模式。*/
+    /**
+     * @en Constant drag for mode 0.
+     * @zh 恒定阻力，0模式。
+     */
     dragConstant: number = 0;
-    /**最小开始速度,1模式。*/
+    /**
+     * @en Minimum drag speed for mode 1.
+     * @zh 最小阻力速度，1模式。
+     */
     dragSpeedConstantMin: number = 0;
-    /**最大开始速度,1模式。*/
+    /**
+     * @en Maximum drag speed for mode 1.
+     * @zh 最大阻力速度，1模式。
+     */
     dragSpeedConstantMax: number = 0;
 
-
-
-    /**开始尺寸是否为3D模式。*/
+    /**
+     * @en Whether the start size is in 3D mode.
+     * @zh 开始尺寸是否为3D模式。
+     */
     threeDStartSize: boolean = false;
-    /**开始尺寸模式,0为恒定尺寸，2为两个恒定尺寸的随机插值。缺少1、3模式和对应的二种3D模式*/
+    /**
+     * @en Start size mode. 0 for constant size, 2 for random between two constants. Modes 1 and 3 and corresponding 3D modes are missing.
+     * @zh 开始尺寸模式。0为恒定尺寸，2为两个恒定尺寸的随机插值。缺少1、3模式和对应的两种3D模式。
+     */
     startSizeType: number = 0;
-    /**开始尺寸，0模式。*/
+    /**
+     * @en Start size for mode 0.
+     * @zh 开始尺寸，0模式。
+     */
     startSizeConstant: number = 0;
-    /**开始三维尺寸，0模式。*/
+    /**
+     * @en Start 3D size for mode 0.
+     * @zh 开始三维尺寸，0模式。
+     */
     startSizeConstantSeparate: Vector3 = null;
-    /**最小开始尺寸，2模式。*/
+    /**
+     * @en Minimum start size for mode 2.
+     * @zh 最小开始尺寸，2模式。
+     */
     startSizeConstantMin: number = 0;
-    /**最大开始尺寸，2模式。*/
+    /**
+     * @en Maximum start size for mode 2.
+     * @zh 最大开始尺寸，2模式。
+     */
     startSizeConstantMax: number = 0;
-    /**最小三维开始尺寸，2模式。*/
+    /**
+     * @en Minimum 3D start size for mode 2.
+     * @zh 最小三维开始尺寸，2模式。
+     */
     startSizeConstantMinSeparate: Vector3 = null;
-    /**最大三维开始尺寸，2模式。*/
+    /**
+     * @en Maximum 3D start size for mode 2.
+     * @zh 最大三维开始尺寸，2模式。
+     */
     startSizeConstantMaxSeparate: Vector3 = null;
 
-    /**3D开始旋转。*/
+    /**
+     * @en Whether to use 3D start rotation.
+     * @zh 是否使用3D开始旋转。
+     */
     threeDStartRotation: boolean = false;
-    /**开始旋转模式,0为恒定尺寸，2为两个恒定旋转的随机插值,缺少2种模式,和对应的四种3D模式。*/
+    /**
+     * @en Start rotation mode. 0 for constant rotation, 2 for random between two constants. Two modes and corresponding four 3D modes are missing.
+     * @zh 开始旋转模式。0为恒定旋转，2为两个恒定旋转的随机插值。缺少2种模式和对应的四种3D模式。
+     */
     startRotationType: number = 0;
-    /**开始旋转，0模式。*/
+    /**
+     * @en Start rotation for mode 0.
+     * @zh 开始旋转，0模式。
+     */
     startRotationConstant: number = 0;
-    /**开始三维旋转，0模式。*/
+    /**
+     * @en Start 3D rotation for mode 0.
+     * @zh 开始三维旋转，0模式。
+     */
     startRotationConstantSeparate: Vector3 = null;
-    /**最小开始旋转，1模式。*/
+    /**
+     * @en Minimum start rotation for mode 1.
+     * @zh 最小开始旋转，1模式。
+     */
     startRotationConstantMin: number = 0;
-    /**最大开始旋转，1模式。*/
+    /**
+     * @en Maximum start rotation for mode 1.
+     * @zh 最大开始旋转，1模式。
+     */
     startRotationConstantMax: number = 0;
-    /**最小开始三维旋转，1模式。*/
+    /**
+     * @en Minimum start 3D rotation for mode 1.
+     * @zh 最小开始三维旋转，1模式。
+     */
     startRotationConstantMinSeparate: Vector3 = null;
-    /**最大开始三维旋转，1模式。*/
+    /**
+     * @en Maximum start 3D rotation for mode 1.
+     * @zh 最大开始三维旋转，1模式。
+     */
     startRotationConstantMaxSeparate: Vector3 = null;
 
-    /**随机旋转方向，范围为0.0到1.0*/
+    /**
+     * @en Random rotation direction, range from 0.0 to 1.0.
+     * @zh 随机旋转方向，范围为0.0到1.0。
+     */
     randomizeRotationDirection: number = 0;
 
-    /**开始颜色模式，0为恒定颜色，2为两个恒定颜色的随机插值,缺少2种模式。*/
+    /**
+     * @en Start color mode. 0 for constant color, 2 for random between two constant colors. Two modes are missing.
+     * @zh 开始颜色模式。0为恒定颜色，2为两个恒定颜色的随机插值。缺少2种模式。
+     */
     startColorType: number = 0;
-    /**开始颜色，0模式。*/
+    /**
+     * @en Start color for mode 0.
+     * @zh 开始颜色，0模式。
+     */
     startColorConstant: Vector4 = new Vector4(1, 1, 1, 1);
-    /**最小开始颜色，1模式。*/
+    /**
+     * @en Minimum start color for mode 1.
+     * @zh 最小开始颜色，1模式。
+     */
     startColorConstantMin: Vector4 = new Vector4(0, 0, 0, 0);
-    /**最大开始颜色，1模式。*/
+    /**
+     * @en Maximum start color for mode 1.
+     * @zh 最大开始颜色，1模式。
+     */
     startColorConstantMax: Vector4 = new Vector4(1, 1, 1, 1);
 
-    /**重力敏感度。*/
+    /**
+     * @en Gravity modifier.
+     * @zh 重力敏感度。
+     */
     gravityModifier: number = 0;
-    /**模拟器空间,0为World,1为Local。暂不支持Custom。*/
+    /**
+     * @en Simulation space. 0 for World, 1 for Local. Custom is currently not supported.
+     * @zh 模拟器空间。0为World，1为Local。暂不支持Custom。
+     */
     simulationSpace: number = 0;
-    /**粒子的播放速度。 */
+    /**
+     * @en Playback speed of particles.
+     * @zh 粒子的播放速度。
+     */
     simulationSpeed: number = 1.0;
-    /**缩放模式，0为Hiercachy(world),1为Local,2为World。*/
+    /**
+     * @en Scale mode. 0 for Hierarchy (world), 1 for Local, 2 for World.
+     * @zh 缩放模式。0为Hierarchy (world)，1为Local，2为World。
+     */
     scaleMode: number = 1;
-    /**激活时是否自动播放。*/
+    /**
+     * @en Whether to play automatically when activated.
+     * @zh 激活时是否自动播放。
+     */
     playOnAwake: boolean = false;
 
-    /**随机种子,注:play()前设置有效。*/
+    /**
+     * @en Random seed. Note: Effective when set before play().
+     * @zh 随机种子。注：在play()之前设置有效。
+     */
     randomSeed: Uint32Array = null;
-    /**是否使用随机种子。 */
+    /**
+     * @en Whether to use a random seed.
+     * @zh 是否使用随机种子。
+     */
     autoRandomSeed: boolean = false;
 
-    /**是否为性能模式,性能模式下会延迟粒子释放。*/
+    /**
+     * @en Whether it's in performance mode. In performance mode, particle release will be delayed.
+     * @zh 是否为性能模式。性能模式下会延迟粒子释放。
+     */
     isPerformanceMode: boolean = false;
 
-    /**最大粒子数。*/
+    /**
+     * @en Maximum number of particles
+     * @zh 最大粒子数。
+     */
     get maxParticles(): number {
         return this._bufferMaxParticles - 1;
     }
@@ -324,11 +463,13 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
             this._initBufferDatas();
         }
 
-        this._updateParticlesSimulationRestart(0);
+        if (!SerializeUtil.isDeserializing)
+            this._updateParticlesSimulationRestart(0);
     }
 
     /**
-     * 获取发射器。
+     * @en Emission.
+     * @zh 发射器。
      */
     get emission(): Emission {
         return this._emission;
@@ -336,7 +477,8 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 
 
     /**
-     * 粒子存活个数。
+     * @en Number of alive particles
+     * @zh 粒子存活个数。
      */
     get aliveParticleCount(): number {
         if (this._firstNewElement >= this._firstRetiredElement)
@@ -346,14 +488,16 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
     }
 
     /**
-     * 一次循环内的累计时间。
+     * @en Accumulated time within one cycle.
+     * @zh 一次循环内的累计时间。
      */
     get emissionTime(): number {
         return this._emissionTime > this.duration ? this.duration : this._emissionTime;
     }
 
     /**
-     * 形状。
+     * @en Particle shape
+     * @zh 粒子形状。
      */
     get shape(): BaseShape {
         return this._shape;
@@ -366,7 +510,8 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
     }
 
     /**
-     * 是否存活。
+     * @en If the particle system is still alive.
+     * @zh 粒子系统是否仍然存活。
      */
     get isAlive(): boolean {
         if (this._isPlaying || this.aliveParticleCount > 0)//TODO:暂时忽略retired
@@ -376,28 +521,32 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
     }
 
     /**
-     * 是否正在发射。
+     * @en If the particle system is currently emitting particles.
+     * @zh 粒子系统是否正在发射粒子。
      */
     get isEmitting(): boolean {
         return this._isEmitting;
     }
 
     /**
-     * 是否正在播放。
+     * @en If the particle system is currently playing.
+     * @zh 粒子系统是否正在播放。
      */
     get isPlaying(): boolean {
         return this._isPlaying;
     }
 
     /**
-     * 是否已暂停。
+     * @en If the particle system is currently paused.
+     * @zh 粒子系统是否已暂停。
      */
     get isPaused(): boolean {
         return this._isPaused;
     }
 
     /**
-     * 开始生命周期模式,0为固定时间，1为渐变时间，2为两个固定之间的随机插值,3为两个渐变时间的随机插值。
+     * @en The lifectime mode of particles. 0: Constant, 1: Gradient, 2: Random Between Two Constants, 3: Random Between Two Gradients.
+     * @zh 粒子的生命周期模式。0: 固定时间, 1: 渐变时间, 2: 两个固定值之间的随机插值, 3: 两个渐变时间的随机插值。
      */
     get startLifetimeType(): number {
         return this._startLifetimeType;
@@ -434,7 +583,8 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
     }
 
     /**
-     * 开始生命周期，0模式,单位为秒。
+     * @en The lifecycle mode of particles: Constant(0), unit is seconds.
+     * @zh 粒子生命周期模式：固定时间(模式0)，单位为秒。
      */
     get startLifetimeConstant(): number {
         return this._startLifetimeConstant;
@@ -447,7 +597,8 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
     }
 
     /**
-     * 开始渐变生命周期，1模式,单位为秒。
+     * @en The lifecycle mode of particles: Gradient(1), unit is seconds.
+     * @zh 粒子生命周期模式：渐变时间(模式1)，单位为秒。
      */
     get startLifeTimeGradient(): GradientDataNumber {
         return this._startLifeTimeGradient;
@@ -463,7 +614,8 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
     }
 
     /**
-     * 最小开始生命周期，2模式,单位为秒。
+     * @en The minimum particle lifecycle, the lifecycle mode of particles: Random Between Two Constants（2）, unit is seconds.
+     * @zh 最小粒子生命周期，粒子生命周期模式: 两个固定值之间的随机插值(模式2)，单位为秒。
      */
     get startLifetimeConstantMin(): number {
         return this._startLifetimeConstantMin;
@@ -477,7 +629,8 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 
 
     /**
-     * 最大开始生命周期，2模式,单位为秒。
+     * @en The maximum particle lifecycle, the lifecycle mode of particles: Random Between Two Constants（2）, unit is seconds.
+     * @zh 最大粒子生命周期，粒子生命周期模式: 两个固定值之间的随机插值(模式2)，单位为秒。
      */
     get startLifetimeConstantMax(): number {
         return this._startLifetimeConstantMax;
@@ -492,7 +645,8 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 
 
     /**
-     * 开始渐变最小生命周期，3模式,单位为秒。
+     * @en Minimum value of gradient time, the lifecycle mode of particles: Random Between Two Gradients（3）, unit is seconds.
+     * @zh 渐变时间的最小值，粒子生命周期模式: 两个渐变时间的随机插值(模式3)，单位为秒。
      */
     get startLifeTimeGradientMin(): GradientDataNumber {
         return this._startLifeTimeGradientMin;
@@ -511,7 +665,8 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
     }
 
     /**
-     * 开始渐变最大生命周期，3模式,单位为秒。
+     * @en Maximum value of gradient time, the lifecycle mode of particles: Random Between Two Gradients（3）, unit is seconds.
+     * @zh 渐变时间的最大值，粒子生命周期模式: 两个渐变时间的随机插值(模式3)，单位为秒。
      */
     get startLifeTimeGradientMax(): GradientDataNumber {
         return this._startLifeTimeGradientMax;
@@ -530,7 +685,8 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
     }
 
     /**
-     * 生命周期速度,注意:如修改该值的某些属性,需重新赋值此属性才可生效。
+     * @en The velocity over lifetime. Note: If you modify certain properties of this value, you need to reassign this property for it to take effect.
+     * @zh 生命周期速度。注意：如修改该值的某些属性，需重新赋值此属性才可生效。
      */
     get velocityOverLifetime(): VelocityOverLifetime {
         return this._velocityOverLifetime;
@@ -609,7 +765,8 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
     }
 
     /**
-     * 生命周期颜色,注意:如修改该值的某些属性,需重新赋值此属性才可生效。
+     * @en The color over lifetime. Note: If you modify certain properties of this value, you need to reassign this property for it to take effect.
+     * @zh 生命周期颜色。注意：如修改该值的某些属性，需重新赋值此属性才可生效。
      */
     get colorOverLifetime(): ColorOverLifetime {
         return this._colorOverLifetime;
@@ -715,7 +872,8 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
     }
 
     /**
-     * 生命周期尺寸,注意:如修改该值的某些属性,需重新赋值此属性才可生效。
+     * @en The size over lifetime. Note: If you modify certain properties of this value, you need to reassign this property for it to take effect.
+     * @zh 生命周期尺寸。注意：如修改该值的某些属性，需重新赋值此属性才可生效。
      */
     get sizeOverLifetime(): SizeOverLifetime {
         return this._sizeOverLifetime;
@@ -787,7 +945,8 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
     }
 
     /**
-     * 生命周期旋转,注意:如修改该值的某些属性,需重新赋值此属性才可生效。
+     * @en The rotation over lifetime. Note: If you modify certain properties of this value, you need to reassign this property for it to take effect.
+     * @zh 生命周期旋转。注意：如修改该值的某些属性，需重新赋值此属性才可生效。
      */
     get rotationOverLifetime(): RotationOverLifetime {
         return this._rotationOverLifetime;
@@ -907,7 +1066,8 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
     }
 
     /**
-     * 生命周期纹理动画,注意:如修改该值的某些属性,需重新赋值此属性才可生效。
+     * @en The texture sheet animation over lifetime. Note: If you modify certain properties of this value, you need to reassign this property for it to take effect.
+     * @zh 生命周期纹理动画。注意：如修改该值的某些属性，需重新赋值此属性才可生效。
      */
     get textureSheetAnimation(): TextureSheetAnimation {
         return this._textureSheetAnimation;
@@ -950,7 +1110,16 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
     }
 
 
-
+    /**
+     * @en Creates a new instance of the ParticleSystem class.
+     * @param render The ShurikenParticleRenderer associated with this particle system.
+     * @param meshTopology The topology used by the mesh, default is MeshTopology.Triangles.
+     * @param drawType The draw type used for rendering, default is DrawType.DrawElement.
+     * @zh 创建ShuriknParticleSystem类的新实例。
+     * @param render 与该粒子系统关联的 ShurikenParticleRenderer。
+     * @param meshTopology 网格使用的拓扑结构，默认为 MeshTopology.Triangles。
+     * @param drawType 用于渲染的绘制类型，默认为 DrawType.DrawElement。
+     */
     constructor(render: ShurikenParticleRenderer, meshTopology: MeshTopology = MeshTopology.Triangles, drawType: DrawType = DrawType.DrawElement) {
         super(meshTopology, drawType);
         this.indexFormat = IndexFormat.UInt16;
@@ -1217,8 +1386,12 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
                 meshSize = ShurikenParticleSystem.halfKSqrtOf2;// Math.sqrt(2) / 2.0;
                 break;
             case 4: // mesh
-                var meshBounds: Bounds = particleRender.mesh.bounds;
-                meshSize = Math.sqrt(Math.pow(meshBounds.getExtent().x, 2.0) + Math.pow(meshBounds.getExtent().y, 2.0) + Math.pow(meshBounds.getExtent().z, 2.0));
+                if (particleRender.mesh) {
+                    var meshBounds: Bounds = particleRender.mesh.bounds;
+                    meshSize = Math.sqrt(Math.pow(meshBounds.getExtent().x, 2.0) + Math.pow(meshBounds.getExtent().y, 2.0) + Math.pow(meshBounds.getExtent().z, 2.0));
+                } else {
+                    meshSize = ShurikenParticleSystem.halfKSqrtOf2;// Math.sqrt(2) / 2.0;
+                }
                 break;
             default:
                 break;
@@ -1320,7 +1493,8 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
     }
 
     /**
-     * 设置 自定义 包围盒
+     * @en Custom bounds
+     * @zh 自定义 包围盒
      */
     get customBounds(): Bounds {
         return this._customBounds;
@@ -1756,7 +1930,8 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
     }
 
     /**
-     * 发射一个粒子。
+     * @en Emits a particle.
+     * @zh 发射一个粒子。
      */
     emit(time: number): boolean {
         var position: Vector3 = ShurikenParticleSystem._tempPosition;
@@ -1775,7 +1950,18 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
         return this.addParticle(position, direction, time);//TODO:提前判断优化
     }
 
-    //增加一个粒子
+    /**
+     * @en Add a new particle to the particle system.
+     * @param position The initial position of the particle.
+     * @param direction The initial direction of the particle.
+     * @param time The current simulation time.
+     * @returns Whether the particle was successfully added.
+     * @zh 向粒子系统添加一个新粒子。
+     * @param position 粒子的初始位置。
+     * @param direction 粒子的初始方向。
+     * @param time 当前的模拟时间。
+     * @returns 粒子是否成功添加。
+     */
     addParticle(position: Vector3, direction: Vector3, time: number): boolean {//TODO:还需优化
         Vector3.normalize(direction, direction);
         //下一个粒子
@@ -2031,6 +2217,10 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
         return true;
     }
 
+    /**
+     * @en Add new particles to the vertex buffer.
+     * @zh 将新粒子添加到顶点缓冲区。
+     */
     addNewParticlesToVertexBuffer(): void {
         var start: number;
         var byteStride: number = this._vertexStride * this._floatCountPerVertex * 4;
@@ -2111,7 +2301,8 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
     }
 
     /**
-     * 开始发射粒子。
+     * @en Start emitting particles
+     * @zh 开始发射粒子。
      */
     play(): void {
         this._burstsIndex = 0;
@@ -2150,16 +2341,20 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
     }
 
     /**
-     * 暂停发射粒子。
+     * @en Pause emitting particles
+     * @zh 暂停发射粒子。
      */
     pause(): void {
         this._isPaused = true;
     }
 
     /**
-     * 通过指定时间增加粒子播放进度，并暂停播放。
-     * @param time 进度时间.如果restart为true,粒子播放时间会归零后再更新进度。
-     * @param restart 是否重置播放状态。
+     * @en Advance the particle simulation by a specified time and pause playback.
+     * @param time The time to advance the simulation. If restart is true, the particle playback time will be reset to zero before updating progress.
+     * @param restart Whether to reset the playback state. Default is true.
+     * @zh 通过指定时间增加粒子播放进度，并暂停播放。
+     * @param time 进度时间。如果restart为true，粒子播放时间会归零后再更新进度。
+     * @param restart 是否重置播放状态。默认为true。
      */
     simulate(time: number, restart: boolean = true): void {
         this._simulateUpdate = true;
@@ -2176,7 +2371,8 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
     }
 
     /**
-     * 停止发射粒子。
+     * @en Stop emitting particles.
+     * @zh 停止发射粒子。
      */
     stop(): void {
         this._burstsIndex = 0;
@@ -2185,8 +2381,10 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
     }
 
     /**
-     * 克隆。
-     * @param	destObject 克隆源。
+     * @en Clones to a target object.
+     * @param destObject The target object to clone to.
+     * @zh 克隆到目标对象。
+     * @param destObject 要克隆到的目标对象。
      */
     cloneTo(destObject: any): void {
         var dest: ShurikenParticleSystem = (<ShurikenParticleSystem>destObject);
@@ -2279,8 +2477,10 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
     }
 
     /**
-     * 克隆。
-     * @return	 克隆副本。
+     * @en Clone.
+     * @returns Clone copy.
+     * @zh 克隆。
+     * @returns 克隆副本。
      */
     clone(): any {
         var dest: ShurikenParticleSystem = new ShurikenParticleSystem(null);

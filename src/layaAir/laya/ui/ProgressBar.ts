@@ -8,25 +8,15 @@ import { Utils } from "../utils/Utils"
 import { AssetDb } from "../resource/AssetDb"
 
 /**
- * @en Dispatched when the value changes.
- * @zh 值发生改变后调度。
- * @eventType laya.events.Event
- */
-/*[Event(name = "change", type = "laya.events.Event")]*/
-
-/**
  * @en The `ProgressBar` component displays the loading progress of content.
+ * change event is dispatched when the value changes.
  * @zh `ProgressBar` 组件用于显示内容的加载进度。
+ * change事件用于值发生改变后调度。
  */
 export class ProgressBar extends UIComponent {
-
-    /**@internal */
     protected _bg: Image;
-    /**@internal */
     protected _bar: Image;
-    /**@internal */
     protected _skin: string;
-    /**@internal */
     protected _value: number = 0.5;
     /**
      * @en The handler function that is called when the value of the `ProgressBar` instance's `value` property changes.The progress value. Default to return the `value` property.
@@ -37,7 +27,6 @@ export class ProgressBar extends UIComponent {
     /**
      * @en The skin of the progress bar.
      * @zh 进度条的皮肤资源路径。
-     * @copy laya.ui.Image#skin
      */
     get skin(): string {
         return this._skin;
@@ -103,9 +92,10 @@ export class ProgressBar extends UIComponent {
     }
 
     /**
-     * @en constructor method.
+     * @ignore
+     * @en creates an instance of ProgressBar.
      * @param skin The skin URL.
-     * @zh 构造方法
+     * @zh 创建一个 ProgresBar 的实例。
      * @param skin 皮肤地址。
      */
     constructor(skin: string = null) {
@@ -113,11 +103,6 @@ export class ProgressBar extends UIComponent {
         this.skin = skin;
     }
 
-    /**
-     * @internal
-     * @inheritDoc 
-     * @override
-    */
     protected createChildren(): void {
         this._bg = new Image();
         this._bg.left = 0;
@@ -159,8 +144,7 @@ export class ProgressBar extends UIComponent {
             return Promise.resolve();
         }
     }
-
-    /**@internal */
+    
     protected _skinLoaded(): void {
         if (this._destroyed)
             return;
@@ -170,27 +154,16 @@ export class ProgressBar extends UIComponent {
         this.event(Event.LOADED);
     }
 
-    /**
-     * @internal
-     * @inheritDoc 
-     * @override
-    */
     protected measureWidth(): number {
         return this._bg.width;
     }
-
-    /**
-     * @internal
-     * @inheritDoc 
-     * @override
-    */
     protected measureHeight(): number {
         return this._bg.height;
     }
 
     /**
-     * @internal
-     * 更改进度值的显示。
+     * @en Changes the progress value.
+     * @zh 更改进度值的显示。
      */
     protected changeValue(): void {
         if (this.sizeGrid) {
@@ -211,7 +184,6 @@ export class ProgressBar extends UIComponent {
     }
 
     /**
-     * @override
      * @en Sets the width of the component.
      * @param value The width value to set.
      * @zh 设置组件的宽度。
@@ -223,7 +195,6 @@ export class ProgressBar extends UIComponent {
     }
 
     /**
-     * @override
      * @en Sets the data source for the component.
      * @param value The data source to set. If it's a number or string, it will be converted to a number and set as the component's value.
      * @zh 设置组件的数据源。
@@ -238,7 +209,6 @@ export class ProgressBar extends UIComponent {
     }
 
     /**
-     * @override
      * @en Destroys the component and its child elements.
      * @param destroyChild Whether to destroy child elements. Default is true.
      * @zh 销毁组件及其子元素。

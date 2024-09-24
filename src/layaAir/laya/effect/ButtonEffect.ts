@@ -5,8 +5,8 @@ import { Ease } from "../utils/Ease";
 import { Handler } from "../utils/Handler";
 
 /**
- * @Script {name:ButtonEffect}
- * @author ww
+ * @deprecated
+ * @internal
  */
 export class ButtonEffect {
 

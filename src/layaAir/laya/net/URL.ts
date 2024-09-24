@@ -13,12 +13,9 @@ export class URL {
     static version: Record<string, string> = {};
 
     /**基础路径。如果不设置，默认为当前网页的路径。最终地址将被格式化为 basePath+相对URL地址，*/
-    static basePath: string = "";
+    static basePath: string;
     /**扩展的基础路径映射表，比如{"aa/":"http://abc.com/"},则把路径以aa/开头的资源映射到http://abc.com/下*/
     static basePaths: Record<string, string> = {};
-
-    /**root路径。只针对'~'类型的url路径有效*/
-    static rootPath: string = "";
 
     /**@private */
     private _url: string;
@@ -26,29 +23,37 @@ export class URL {
     private _path: string;
 
     private static overrideFileExts: Record<string, string> = {};
-    private static hasExtOverrides: boolean;
+    private static hasExtOverrides: boolean = false;
+    private static usingSafeFileExts: boolean = false;
+
+    private static readonly safeFileExtConversionMap: Record<string, string> = {
+        "rendertexture": "rt.json",
+        "videotexture": "rt.json",
+        "controller": "controller.json",
+        "mc": "mc.bin",
+        "mcc": "mcc.json",
+        "shader": "shader.json",
+        "fui": "fui.json",
+        "glsl": "glsl.txt",
+        "skel": "skel.bin",
+        "lavm": "lavm.json",
+    };
 
     static __init__() {
         //xiaomi 没有location
         //Vivo location.protocol是""
         //微信真机 location.protocol是undefined
-        URL.rootPath = URL.basePath = (location && location.protocol != undefined && location.protocol != "") ? URL.getPath(location.protocol + "//" + location.host + location.pathname) : "";
+        if (URL.basePath == null)
+            URL.basePath = (location && location.protocol != undefined && location.protocol != "") ? URL.getPath(location.protocol + "//" + location.host + location.pathname) : "";
     }
 
     static initMiniGameExtensionOverrides() {
         if (LayaEnv.isPreview)
             return;
 
-        URL.overrideExtension(["rendertexture", "videotexture"], "rt.json");
-        URL.overrideExtension(["controller"], "controller.json");
-        URL.overrideExtension(["mc"], "mc.bin");
-        URL.overrideExtension(["mcc"], "mcc.json");
-        URL.overrideExtension(["shader"], "shader.json");
-        URL.overrideExtension(["scene3d", "scene", "taa", "prefab"], "json");
-        URL.overrideExtension(["fui"], "fui.json");
-        URL.overrideExtension(["glsl"], "glsl.txt");
-        URL.overrideExtension(["skel"], "skel.bin");
-        URL.overrideExtension(["lavm"], "lavm.json");
+        Object.assign(this.overrideFileExts, this.safeFileExtConversionMap);
+        this.hasExtOverrides = true;
+        this.usingSafeFileExts = true;
     }
 
     /**创建一个新的 <code>URL</code> 实例。*/
@@ -73,6 +78,18 @@ export class URL {
     }
 
     /**
+     * 指以'~/'开头的的url路径的映射。
+     * 不推荐使用，应该使用basePaths。
+    */
+    static get rootPath() {
+        return URL.basePaths["~/"];
+    }
+
+    static set rootPath(value: string) {
+        URL.basePaths["~/"] = value;
+    }
+
+    /**
      * 包含normalizedURL功能，并且合并base，如果base没有提供，则使用URL.basePath或者URL.rootPath。
      * @param url 地址。
      * @param base 基础路径，如果没有，则使用URL.basePath或者URL.rootPath。
@@ -91,8 +108,7 @@ export class URL {
             url = url2;
         }
 
-        let char1 = url.charCodeAt(0);
-        if (url.indexOf(":") == -1 && char1 !== 47) { //已经format过
+        if (url.indexOf(":") == -1 && url.charCodeAt(0) !== 47) { //已经format过
             //自定义路径格式化
             if (URL.customFormat != null)
                 url = URL.customFormat(url);
@@ -103,20 +119,18 @@ export class URL {
                 url = url.substring(0, i) + "-" + ver + url.substring(i);
             }
 
-            if (char1 === 126) // ~
-                url = URL.join(URL.rootPath, url.substring(2));
-            else {
-                if (base == null) {
-                    base = URL.basePath;
-                    for (let k in URL.basePaths) {
-                        if (url.startsWith(k)) {
-                            base = URL.basePaths[k];
-                            break;
-                        }
+            if (base == null) {
+                base = URL.basePath;
+                for (let k in URL.basePaths) {
+                    if (url.startsWith(k)) {
+                        if (k.charCodeAt(0) === 126)
+                            url = url.substring(k.length);
+                        base = URL.basePaths[k];
+                        break;
                     }
                 }
-                url = URL.join(base, url);
             }
+            url = URL.join(base, url);
         }
 
         return url;
@@ -171,7 +185,7 @@ export class URL {
     }
 
     static getResURLByUUID(url: string): string {
-        if (url.length >= 36 && url.charCodeAt(8) === 45 && url.charCodeAt(13) === 45) //uuid xxxxxxxx-xxxx-...
+        if (Utils.isUUID(url))
             return "res://" + url;
         else
             return url;
@@ -235,10 +249,18 @@ export class URL {
 
     /**
      * 下载时，转换URL的扩展名。
-     * @originalExts 原始扩展名。例如["scene"]。
-     * @targetExt 要转换为的扩展名。例如"json"。
+     * @param originalExts 原始扩展名。例如["scene"]。
+     * @param targetExt 要转换为的扩展名。例如"json"。
      */
-    static overrideExtension(originalExts: Array<string>, targetExt: string) {
+    static overrideExtension(originalExts: Array<string>, targetExt: string, miniGameOnly?: boolean) {
+        if (miniGameOnly) {
+            if (!URL.usingSafeFileExts) {
+                for (let ext of originalExts)
+                    URL.safeFileExtConversionMap[ext] = targetExt;
+                return;
+            }
+        }
+
         for (let ext of originalExts)
             URL.overrideFileExts[ext] = targetExt;
         URL.hasExtOverrides = true;

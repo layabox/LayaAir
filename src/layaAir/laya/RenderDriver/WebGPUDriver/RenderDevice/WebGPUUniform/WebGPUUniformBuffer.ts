@@ -8,6 +8,8 @@ export class WebGPUUniformBuffer extends UniformBufferUser {
     set: number;
     binding: number;
 
+    uniformStr: string;
+
     globalId: number;
     objectName: string = 'WebGPUUniformBuffer';
 
@@ -40,6 +42,7 @@ export class WebGPUUniformBuffer extends UniformBufferUser {
             };
         }
         this.globalId = WebGPUGlobal.getId(this);
+        //console.log('createUniformBuffer: ' + name + ', set = ' + set + ', binding = ' + binding + ', size = ' + size);
     }
 
     /**
@@ -70,6 +73,15 @@ export class WebGPUUniformBuffer extends UniformBufferUser {
      */
     getGPUBindEntry() {
         return this._gpuBindGroupEntry;
+    }
+
+    /**
+     * 获取uniform名称列表
+     */
+    getUniformNameStr() {
+        let str = '|';
+        this.items.forEach(item => str += item.name + '|');
+        return str;
     }
 
     /**

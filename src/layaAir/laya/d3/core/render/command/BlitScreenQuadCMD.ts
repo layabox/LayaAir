@@ -14,6 +14,10 @@ import { Transform3D } from "../../Transform3D";
 import { BlitQuadCMDData } from "../../../../RenderDriver/DriverDesign/3DRenderPass/IRendderCMD";
 import { Viewport } from "../../../../maths/Viewport";
 
+/**
+ * @en The BlitScreenQuadCMD class is used to create render the source texture to the destination render texture by using the full screen quad command.
+ * @zh BlitScreenQuadCMD 类用于创建通过全屏四边形将源纹理渲染到目标渲染纹理的指令
+ */
 export class BlitScreenQuadCMD extends Command {
 	/**@internal */
 	static _SCREENTYPE_QUAD: number = 0;
@@ -23,16 +27,27 @@ export class BlitScreenQuadCMD extends Command {
 	private static _pool: any[] = [];
 	/** @internal */
 	private static _defaultOffsetScale: Vector4 = new Vector4(0, 0, 1, 1);
+
 	/**
-	* 创建命令流
-	* @param source 原始贴图 如果设置为null  将会使用默认的Camera流程中的原RenderTexture
-	* @param dest 目标贴图 如果设置为null，将会使用默认的camera渲染目标
-	* @param offsetScale 偏移缩放
-	* @param shader 渲染shader
-	* @param shaderData 渲染数据
-	* @param subShader subshader的节点
-	* @param screenType 
-	*/
+	 * @en Create command stream
+	 * @param source  The source texture. If set to null, it will use the default RenderTexture from the Camera process.
+	 * @param dest  The destination texture. If set to null, it will use the default rendering target of the camera.
+	 * @param offsetScale  Offset scaling.
+	 * @param shader  The shader to use for rendering. 
+	 * @param shaderData  The shader data for rendering. 
+	 * @param subShader  The subShader index. Default is 0.
+	 * @param screenType  The screen type for rendering.
+	 * @param commandbuffer  The command buffer to use.
+	 * @zh 创建命令流
+	 * @param source 原始贴图 如果设置为null  将会使用默认的Camera流程中的原RenderTexture
+	 * @param dest 目标贴图 如果设置为null，将会使用默认的camera渲染目标
+	 * @param offsetScale 偏移缩放
+	 * @param shader 用于渲染的着色器。。
+	 * @param shaderData 用于渲染的着色器数据。
+	 * @param subShader subshader的节点
+	 * @param screenType 渲染的屏幕类型
+	 * @param commandbuffer 命令缓冲
+	 */
 	static create(source: BaseTexture, dest: RenderTexture, offsetScale: Vector4 = null, shader: Shader3D = null, shaderData: ShaderData = null, subShader: number = 0, screenType: number = BlitScreenQuadCMD._SCREENTYPE_QUAD, commandbuffer: CommandBuffer = null): BlitScreenQuadCMD {
 		var cmd: BlitScreenQuadCMD;
 		cmd = BlitScreenQuadCMD._pool.length > 0 ? BlitScreenQuadCMD._pool.pop() : new BlitScreenQuadCMD();
@@ -76,6 +91,10 @@ export class BlitScreenQuadCMD extends Command {
 		this._blitQuadCMDData.element.isRender = true;
 	}
 
+	/**
+	 * @en The offset and scale for rendering.
+	 * @zh 渲染的偏移和缩放。
+	 */
 	get offsetScale(): Vector4 {
 		return this._offsetScale;
 	}
@@ -85,6 +104,10 @@ export class BlitScreenQuadCMD extends Command {
 		this._blitQuadCMDData.offsetScale = value;
 	}
 
+	/**
+	 * @en The destination render texture.
+	 * @zh 目标渲染纹理。
+	 */
 	get dest(): RenderTexture {
 		return this._dest;
 	}
@@ -94,6 +117,10 @@ export class BlitScreenQuadCMD extends Command {
 		this._blitQuadCMDData.dest = value ? value._renderTarget : null;
 	}
 
+	/**
+	 * @en The shader data for rendering.
+	 * @zh 渲染的着色器数据。
+	 */
 	set shaderData(value: ShaderData) {
 		this._shaderData = value || Command._screenShaderData;
 		this._renderElement._renderElementOBJ.materialShaderData = this._shaderData;
@@ -125,6 +152,8 @@ export class BlitScreenQuadCMD extends Command {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @en Execute the command.
+	 * @zh 执行命令。
 	 */
 	run(): void {//TODO:相机的UV
 		var source;
@@ -163,6 +192,8 @@ export class BlitScreenQuadCMD extends Command {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @en Recover the command for reuse.
+	 * @zh 回收命令以重复使用。
 	 */
 	recover(): void {
 		BlitScreenQuadCMD._pool.push(this);
@@ -174,6 +205,10 @@ export class BlitScreenQuadCMD extends Command {
 		super.recover();
 	}
 
+	/**
+	 * @en Destroy the command and release resources.
+	 * @zh 销毁命令并释放资源。
+	 */
 	destroy(): void {
 		this._source = null;
 		this.dest = null;

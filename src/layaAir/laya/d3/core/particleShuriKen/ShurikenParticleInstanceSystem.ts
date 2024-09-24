@@ -18,6 +18,10 @@ import { ShurikenParticleData } from "./ShurikenParticleData";
 import { ShurikenParticleRenderer } from "./ShurikenParticleRenderer";
 import { ShurikenParticleSystem } from "./ShurikenParticleSystem";
 
+/**
+ * @en ShurikenParticleInstanceSystem class is used to implement instanced particle rendering.
+ * @zh ShurikenParticleInstanceSystem 类用于实现实例化粒子渲染。
+ */
 export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
 
     private _instanceParticleVertexBuffer: VertexBuffer3D = null;
@@ -32,6 +36,13 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
      */
     private _floatCountPerParticleData: number;
 
+    /**
+     * @ignore
+     * @en creates an instance of ShurikenParticleInstanceSystem class.
+     * @param render The ShurikenParticleRenderer associated with this particle system.
+     * @zh 创建 ShurikenParticleInstanceSystem 类的实例。
+     * @param render 与该粒子系统关联的 ShurikenParticleRenderer。
+     */
     constructor(render: ShurikenParticleRenderer) {
         super(render, MeshTopology.Triangles, DrawType.DrawElementInstance);
     }
@@ -99,8 +110,8 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
     }
 
     /**
-     * 初始化 buffer
-     * @returns 
+     * @en Initialize buffer
+     * @zh 初始化 buffer
      */
     _initBufferDatas(): void {
         // todo  Resource._addMemory
@@ -109,6 +120,9 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
             this._vertexBuffer.destroy();
             this._instanceParticleVertexBuffer.destroy();
             this._indexBuffer.destroy();
+            this._vertexBuffer = null;
+            this._instanceParticleVertexBuffer = null;
+            this._indexBuffer = null;
         }
         let render: ShurikenParticleRenderer = this._ownerRender;
         let renderMode: number = render.renderMode;
@@ -195,6 +209,7 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
     }
 
     protected _retireActiveParticles(): void {
+        if (this._instanceParticleVertexBuffer == null) return;
         const epsilon: number = 0.0001;
         let firstActive = this._firstActiveElement;
         while (this._firstActiveElement != this._firstNewElement) {
@@ -245,6 +260,18 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
         }
     }
 
+    /**
+     * @en Add a new particle to the particle system.
+     * @param position The initial position of the particle.
+     * @param direction The initial direction of the particle.
+     * @param time The current simulation time.
+     * @returns Whether the particle was successfully added.
+     * @zh 向粒子系统添加一个新粒子。
+     * @param position 粒子的初始位置。
+     * @param direction 粒子的初始方向。
+     * @param time 当前的模拟时间。
+     * @returns 粒子是否成功添加。
+     */
     addParticle(position: Vector3, direction: Vector3, time: number): boolean {
         Vector3.normalize(direction, direction);
 
@@ -487,6 +514,8 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
 
     /**
      * @internal
+     * @en Add new particles to the vertex buffer.
+     * @zh 将新粒子添加到顶点缓冲区。
      */
     addNewParticlesToVertexBuffer(): void {
         let byteStride = this._floatCountPerParticleData * 4;
@@ -508,6 +537,12 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
         this._firstNewElement = this._firstFreeElement;
     }
 
+    /**
+     * @en Update the render parameters for the particle system.
+     * @param stage The current render context.
+     * @zh 更新粒子系统的渲染参数。
+     * @param stage 当前渲染上下文。
+     */
     _updateRenderParams(stage: RenderContext3D) {
         //this._instanceBufferState.bind();
         // instance buffer 每次从 0 更新
@@ -533,6 +568,10 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
         }
     }
 
+    /**
+     * @en Destroy the particle system and release resources.
+     * @zh 销毁粒子系统并释放资源。
+     */
     destroy(): void {
         // todo
         super.destroy();

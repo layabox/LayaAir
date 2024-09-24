@@ -11,9 +11,14 @@ import { RenderContext3D } from "../../core/render/RenderContext3D";
 
 //兼容WGSL
 /**
- * <code>SkyBox</code> 类用于创建天空盒。
+ * @en SkyBox class used to create a skybox.
+ * @zh SkyBox 类用于创建天空盒。
  */
 export class SkyBox extends GeometryElement {
+    /**
+     * @en The singleton instance of the SkyBox class.
+     * @zh SkyBox类的单例实例。
+     */
     static instance: SkyBox;
     /**
      * @internal
@@ -23,7 +28,9 @@ export class SkyBox extends GeometryElement {
     }
 
     /**
-     * 创建一个 <code>SkyBox</code> 实例。
+     * @ignore
+     * @en Creates an instance of SkyBox.
+     * @zh 创建 SkyBox 的实例。
      */
     constructor() {
         super(MeshTopology.Triangles, DrawType.DrawElement);

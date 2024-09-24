@@ -1,5 +1,4 @@
 import { Laya } from "../../Laya";
-import { IBatchProgress } from "../net/BatchProgress";
 import { IResourceLoader, ILoadTask, Loader, ILoadURL } from "../net/Loader";
 import { URL } from "../net/URL";
 import { Texture2D } from "../resource/Texture2D";
@@ -7,8 +6,18 @@ import { Utils } from "../utils/Utils";
 import { SpineTemplet } from "./SpineTemplet";
 import { SpineTexture } from "./SpineTexture";
 
+/**
+ * @en SpineTempletLoader class used for loading Spine skeleton data and atlas.
+ * @zh SpineTempletLoader 类用于加载 Spine 骨骼数据和图集。
+ */
 class SpineTempletLoader implements IResourceLoader {
 
+    /**
+     * @en Load Spine skeleton data and atlas.
+     * @param task The load task.
+     * @zh 加载 Spine 骨骼数据和图集。
+     * @param task 加载任务。
+     */
     load(task: ILoadTask) {
         let atlasUrl = Utils.replaceFileExtension(task.url, "atlas");
 

@@ -5,7 +5,6 @@ import { Texture2D } from "../../resource/Texture2D"
 /**
  * 贴图生成器
  * @internal
- * @author
  */
 export class TextureGenerator {
 

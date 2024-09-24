@@ -12,24 +12,29 @@ import { AnimatorTransition } from "./AnimatorTransition";
 import { KeyframeNodeOwner, KeyFrameValueType } from "./KeyframeNodeOwner";
 
 /**
- * <code>AnimatorState</code> 类用于创建动作状态。
+ * @en The AnimatorState class is used to create animation states.
+ * @zh AnimatorState 类用于创建动画状态。
  */
 export class AnimatorState extends EventDispatcher implements IClone {
     /**
-     * 动画事件 开始时调用
+     * @en Animation event called when the state is entered.
+     * @zh 动画事件，在进入状态时调用。
      */
     static EVENT_OnStateEnter = "OnStartEnter";
     /**
-     * 动画事件 更新时调用
+     * @en Animation event called when the state is updated.
+     * @zh 动画事件，在更新状态时调用。
      */
     static EVENT_OnStateUpdate = "OnStateUpdate";
 
     /**
-    * 动画事件 循环完成时调用
-    */
+     * @en Animation event called when a loop is completed.
+     * @zh 动画事件，在循环完成时调用。
+     */
     static EVENT_OnStateLoop = 'OnStateLoop';
     /**
-     * 动画事件 离开时调用
+     * @en Animation event called when the state is exited.
+     * @zh 动画事件，在离开状态时调用。
      */
     static EVENT_OnStateExit = "OnStateExit";
 
@@ -47,47 +52,75 @@ export class AnimatorState extends EventDispatcher implements IClone {
 
     /**
      * @internal
-     * 是否循环播放,为0时则使用_clip.islooping，1为循环，2为不循环
+     * @en Whether to loop playback. 0 uses _clip.islooping, 1 for loop, 2 for no loop.
+     * @zh 是否循环播放。0表示使用_clip.islooping，1表示循环，2表示不循环。
      */
     _isLooping: 0 | 1 | 2 = 0;
 
     /**
      * @internal
-     * to avoid data confused,must put realtime datas in animatorState,can't be in animationClip,
-     * for example use crossFade() with different animatorState but the sample clip source.
+     * @en Realtime data array to avoid data confusion. Must store realtime data in animatorState, not in animationClip.
+     * This is necessary for operations like crossFade() with different animatorStates but the same clip source.
+     * @zh 实时数据数组，用于避免数据混淆。必须将实时数据存储在animatorState中，而不是animationClip中。
+     * 这对于像crossFade()这样的操作是必要的，因为可能使用不同的animatorState但相同的片段源。
      */
     _realtimeDatas: Array<number | Vector3 | Quaternion> = [];
 
     /** @internal */
     _scripts: AnimatorStateScript[] | null = null;
 
-    /**@internal 过渡列表*/
+    /**
+     * @internal
+     * @en List of transitions.
+     * @zh 过渡列表。
+     */
     _transitions: AnimatorTransition[] = [];
 
-    /**@internal 优先过渡列表only play this transition */
+    /**
+     * @internal
+     * @en List of solo transitions that only play this transition.
+     * @zh 优先过渡列表，只播放此过渡。
+     */
     _soloTransitions: AnimatorTransition[] = [];
 
     /**
-     * 当前过渡内容
+     * @en Current transition content.
+     * @zh 当前过渡内容。
      */
     curTransition: AnimatorTransition;
 
-    /**名称。*/
+    /**
+     * @en Name of the animator state.
+     * @zh 动画状态的名称。
+     */
     name: string;
 
-    /**动画播放速度,1.0为正常播放速度。*/
+    /**
+     * @en Animation playback speed. 1.0 is normal playback speed.
+     * @zh 动画播放速度。1.0为正常播放速度。
+     */
     speed: number = 1.0;
 
-    /**动作播放起始时间。*/
+    /**
+     * @en Start time of animation playback.
+     * @zh 动画播放的起始时间。
+     */
     clipStart: number = 0.0;
 
-    /**动作播放结束时间。*/
+    /**
+     * @en End time of animation playback.
+     * @zh 动画播放的结束时间。
+     */
     clipEnd: number = 1.0;
-    /**play on awake start offset*/
+    /**
+     * @en Play on awake start offset.
+     * @zh 唤醒时播放的起始偏移量。
+     */
     cycleOffset: number = 0;
 
     /**
-     * 动作。
+     * @en The animation clip.
+     * @zh 动画片段。
      */
     get clip(): AnimationClip | null {
         return this._clip;
@@ -135,7 +168,8 @@ export class AnimatorState extends EventDispatcher implements IClone {
     }
 
     /**
-     * 是否循环
+     * @en Whether the animation is looping.
+     * @zh 动画是否循环播放。
      */
     get islooping() {
         if (0 != this._isLooping) {
@@ -145,7 +179,8 @@ export class AnimatorState extends EventDispatcher implements IClone {
     }
 
     /**
-     * 动画过渡内容(IDE使用)
+     * @en The animation transition content (used by IDE).
+     * @zh 动画过渡内容（IDE使用）。
      */
     get transitions() {
         return this._transitions;
@@ -156,7 +191,8 @@ export class AnimatorState extends EventDispatcher implements IClone {
     }
 
     /**
-     * 优先动画过渡内容(IDE使用)
+     * @en The priority animation transition content (used by IDE).
+     * @zh 优先动画过渡内容（IDE使用）。
      */
     get soloTransitions() {
         return this._soloTransitions;
@@ -166,10 +202,9 @@ export class AnimatorState extends EventDispatcher implements IClone {
         this._soloTransitions = value
     }
 
-
-
     /**
-     * 创建一个 <code>AnimatorState</code> 实例。
+     * @en consrtuctor of AnimatorState
+     * @zh 动画状态的构造方法
      */
     constructor() {
         super();
@@ -227,10 +262,15 @@ export class AnimatorState extends EventDispatcher implements IClone {
     }
 
     /**
-     * 派发过渡事件
      * @internal
-     * @param normalizeTime 
-     * @param paramsMap 
+     * @en Dispatch transition events.
+     * @param normalizeTime Normalized time of the animation.
+     * @param paramsMap Map of animator parameters.
+     * @returns The triggered transition, or null if no transition is triggered.
+     * @zh 派发过渡事件。
+     * @param normalizeTime 动画的归一化时间。
+     * @param paramsMap 动画参数映射。
+     * @returns 触发的过渡，如果没有触发过渡则返回null。
      */
     _eventtransition(normalizeTime: number, paramsMap: AnimatorParams): AnimatorTransition {
         let soloNums = this._soloTransitions.length;
@@ -292,10 +332,12 @@ export class AnimatorState extends EventDispatcher implements IClone {
     }
 
     /**
-     * 添加脚本。
-     * @param	type  组件类型。
-     * @return 脚本。
-     *
+     * @en Add a script to the animator state.
+     * @param type The type of the script to add.
+     * @returns The added script instance.
+     * @zh 向动画状态添加脚本。
+     * @param type 要添加的脚本类型。
+     * @returns 添加的脚本实例。
      */
     addScript(type: typeof AnimatorStateScript): AnimatorStateScript {
         var script: AnimatorStateScript = new type();
@@ -305,10 +347,12 @@ export class AnimatorState extends EventDispatcher implements IClone {
     }
 
     /**
-     * 获取脚本。
-     * @param	type  组件类型。
-     * @return 脚本。
-     *
+     * @en Get a script of the specified type from the animator state.
+     * @param type The type of the script to get.
+     * @returns The script of the specified type, or null if not found.
+     * @zh 从动画状态获取指定类型的脚本。
+     * @param type 要获取的脚本类型。
+     * @returns 指定类型的脚本，如果未找到则返回null。
      */
     getScript(type: typeof AnimatorStateScript): AnimatorStateScript | null {
         if (this._scripts) {
@@ -322,9 +366,12 @@ export class AnimatorState extends EventDispatcher implements IClone {
     }
 
     /**
-     * 获取脚本集合。
-     * @param	type  组件类型。
-     * @return 脚本集合。
+     * @en Get all scripts of the specified type from the animator state.
+     * @param type The type of the scripts to get.
+     * @returns An array of scripts of the specified type, or null if none found.
+     * @zh 从动画状态获取所有指定类型的脚本。
+     * @param type 要获取的脚本类型。
+     * @returns 指定类型的脚本数组，如果未找到则返回null。
      */
     getScripts(type: typeof AnimatorStateScript): AnimatorStateScript[] | null {
         var coms: AnimatorStateScript[] | null = null;
@@ -341,8 +388,10 @@ export class AnimatorState extends EventDispatcher implements IClone {
     }
 
     /**
-     * 克隆。
-     * @param	destObject 克隆源。
+     * @en Clone the current AnimatorState to another object.
+     * @param destObject The target object to clone to.
+     * @zh 将当前AnimatorState克隆到另一个对象。
+     * @param destObject 克隆的目标对象。
      */
     cloneTo(destObject: any): void {
         var dest: AnimatorState = <AnimatorState>destObject;
@@ -354,8 +403,10 @@ export class AnimatorState extends EventDispatcher implements IClone {
     }
 
     /**
-     * 克隆。
-     * @return	 克隆副本。
+     * @en Create a clone of the current AnimatorState.
+     * @returns A new AnimatorState object with the same properties as the current one.
+     * @zh 创建当前AnimatorState的克隆。
+     * @returns 一个新的AnimatorState对象，具有与当前对象相同的属性。
      */
     clone(): any {
         var dest: AnimatorState = new AnimatorState();

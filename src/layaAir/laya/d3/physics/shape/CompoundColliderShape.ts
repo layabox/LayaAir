@@ -4,6 +4,7 @@ import { Quaternion } from "../../../maths/Quaternion";
 import { Vector3 } from "../../../maths/Vector3";
 
 /**
+ * @deprecated
  * <code>CompoundColliderShape</code> 类用于创建组合碰撞器。
  */
 export class CompoundColliderShape extends Physics3DColliderShape {

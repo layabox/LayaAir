@@ -12,42 +12,70 @@ const _rect1 = new Rectangle();
 const _rect2 = new Rectangle();
 
 /**
- * <code>Texture</code> 是一个纹理处理类。
+ * @en The Texture is a texture processing class.
+ * @zh Texture 是一个纹理处理类。
  */
 export class Texture extends Resource {
-    /**@private 默认 UV 信息。*/
+    /**
+     * @en Default UV information.
+     * @zh 默认 UV 信息。
+     */
     static readonly DEF_UV = new Float32Array([0, 0, 1.0, 0, 1.0, 1.0, 0, 1.0]);
-    /**@private 无 UV 信息*/
+    /**
+     * @en No UV information.
+     * @zh 无 UV 信息
+     */
     static readonly NO_UV = new Float32Array([0, 0, 0, 0, 0, 0, 0, 0]);
-    /**@private 反转 UV 信息。*/
+    /**
+     * @en Inverse UV information.
+     * @zh 反转 UV 信息。
+     */
     static readonly INV_UV = new Float32Array([0, 1, 1.0, 1, 1.0, 0.0, 0, 0.0]);
 
-    /**@private uv的范围*/
+    /**
+     * @en Range of UV
+     * @zh uv的范围
+     */
     uvrect: number[] = [0, 0, 1, 1]; //startu,startv, urange,vrange
-    /**@private */
     private _bitmap: BaseTexture;
     /**@internal */
     public _uv: ArrayLike<number>;
-    /** @private */
     private _w: number = 0;
-    /** @private */
     private _h: number = 0;
 
-    /**沿 X 轴偏移量。*/
+    /**
+     * @en The offset along the X-axis.
+     * @zh 沿 X 轴的偏移量。
+     */
     offsetX: number = 0;
-    /**沿 Y 轴偏移量。*/
+    /**
+     * @en The offset along the Y-axis.
+     * @zh 沿 Y 轴的偏移量。
+     */
     offsetY: number = 0;
-    /**原始宽度（包括被裁剪的透明区域）。*/
+    /**
+     * @en The original width of the texture, including any transparent areas that have been cropped out.
+     * @zh 包括已被裁剪掉的透明区域的纹理原始宽度。
+     */
     sourceWidth: number = 0;
-    /**原始高度（包括被裁剪的透明区域）。*/
+    /**
+     * @en The original height of the texture, including any transparent areas that have been cropped out.
+     * @zh 包括已被裁剪掉的透明区域的纹理原始高度。
+     */
     sourceHeight: number = 0;
-    /**图片地址*/
+    /**
+     * @en The URL of the texture image.
+     * @zh 纹理图片的地址。
+     */
     url: string;
-    /** UUID */
+    /**
+     * @en The UUID of the texture.
+     * @zh 纹理的 UUID。
+     */
     uuid: string;
     /**
-     * 缩放率 
-     * @private 
+     * @en The scale rate of the texture.
+     * @zh 纹理的缩放率。
      */
     scaleRate: number = 1;
 
@@ -66,17 +94,28 @@ export class Texture extends Resource {
     _clipCache: Map<string, Texture>;
 
     /**
-     *  根据指定资源和坐标、宽高、偏移量等创建 <code>Texture</code> 对象。
-     * @param	source 绘图资源 Texture2D 或者 Texture对象。
-     * @param	x 起始绝对坐标 x 。
-     * @param	y 起始绝对坐标 y 。
-     * @param	width 宽绝对值。
-     * @param	height 高绝对值。
-     * @param	offsetX X 轴偏移量（可选）。	就是[x,y]相对于原始小图片的位置。一般都是正的，表示裁掉了空白边的大小，如果是负的一般表示加了保护边
-     * @param	offsetY Y 轴偏移量（可选）。
-     * @param	sourceWidth 原始宽度，包括被裁剪的透明区域（可选）。
-     * @param	sourceHeight 原始高度，包括被裁剪的透明区域（可选）。
-     * @return  <code>Texture</code> 对象。
+     * @en Creates a `Texture` object based on the specified source, coordinates, dimensions, and offsets.
+     * @param source The source texture, either a `Texture2D` or a `Texture` object.
+     * @param x The starting absolute x coordinate.
+     * @param y The starting absolute y coordinate.
+     * @param width The absolute width.
+     * @param height The absolute height.
+     * @param offsetX The offset on the X-axis (optional). It is the position of [x, y] relative to the original small image. Generally, it is positive, indicating that the size of the blank edge has been cut off. If it is negative, it usually indicates that a protective edge has been added
+     * @param offsetY The offset on the Y-axis (optional).
+     * @param sourceWidth The original width, including any cropped transparent areas (optional).
+     * @param sourceHeight The original height, including any cropped transparent areas (optional).
+     * @returns A `Texture` object.
+     * @zh 根据指定的资源、坐标、宽高和偏移量等创建 `Texture` 对象。
+     * @param source 资源，可以是 `Texture2D` 或 `Texture` 对象。
+     * @param x 绝对坐标 x 。
+     * @param y 绝对坐标 y 。
+     * @param width 绝对宽度。
+     * @param height 绝对高度。
+     * @param offsetX X 轴偏移量（可选）。 就是[x,y]相对于原始小图片的位置。一般都是正的，表示裁掉了空白边的大小，如果是负的一般表示加了保护边
+     * @param offsetY Y 轴偏移量（可选）。
+     * @param sourceWidth 原始宽度，包括被裁剪的透明区域（可选）。
+     * @param sourceHeight 原始高度，包括被裁剪的透明区域（可选）。
+     * @return `Texture` 对象。
      */
     static create(source: Texture | BaseTexture, x: number, y: number, width: number, height: number,
         offsetX: number = 0, offsetY: number = 0,
@@ -153,13 +192,20 @@ export class Texture extends Resource {
     }
 
     /**
-     * 截取Texture的一部分区域，生成新的Texture，如果两个区域没有相交，则返回null。
-     * @param	texture	目标Texture。
-     * @param	x		相对于目标Texture的x位置。
-     * @param	y		相对于目标Texture的y位置。
-     * @param	width	截取的宽度。
-     * @param	height	截取的高度。
-     * @return 返回一个新的Texture。
+     * @en Creates a new `Texture` by cropping a part of an existing `Texture`. If the two areas do not intersect, it returns null.
+     * @param texture The target `Texture` to crop.
+     * @param x The x position relative to the target `Texture`.
+     * @param y The y position relative to the target `Texture`.
+     * @param width The width to crop.
+     * @param height The height to crop.
+     * @returns A new `Texture` or null if the areas do not intersect.
+     * @zh 截取 `Texture` 的一部分区域，生成一个新的 `Texture`，如果两个区域没有相交，则返回 null。
+     * @param texture 目标 `Texture` 。
+     * @param x 相对于目标 `Texture` 的 x 位置。
+     * @param y 相对于目标 `Texture` 的 y 位置。
+     * @param width 截取的宽度。
+     * @param height 截取的高度。
+     * @return 一个新的 `Texture` 或 null，如果两个区域没有相交。
      */
     static createFromTexture(texture: Texture, x: number, y: number, width: number, height: number): Texture {
         var texScaleRate: number = texture.scaleRate;
@@ -178,7 +224,8 @@ export class Texture extends Resource {
     }
 
     /**
-     * uv
+     * @en The UV coordinates of the texture.
+     * @zh 纹理的 UV 坐标。
      */
     get uv(): ArrayLike<number> {
         return this._uv;
@@ -192,7 +239,10 @@ export class Texture extends Resource {
         this._uv = value;
     }
 
-    /** 实际宽度。*/
+    /**
+     * @en The actual width of the texture.
+     * @zh 纹理的实际宽度。
+     */
     get width(): number {
         if (this._w)
             return this._w;
@@ -205,7 +255,10 @@ export class Texture extends Resource {
         this.sourceWidth || (this.sourceWidth = value);
     }
 
-    /** 实际高度。*/
+    /**
+     * @en The actual height of the texture.
+     * @zh 纹理的实际高度。
+     */
     get height(): number {
         if (this._h)
             return this._h;
@@ -219,17 +272,13 @@ export class Texture extends Resource {
     }
 
     /**
-     * 获取位图。
-     * @return 位图。
+     * @en The bitmap of the texture.
+     * @zh 纹理的位图。
      */
     get bitmap(): BaseTexture {
         return this._bitmap;
     }
 
-    /**
-     * 设置位图。
-     * @param 位图。
-     */
     set bitmap(value: BaseTexture) {
         if (this._bitmap == value)
             return;
@@ -239,7 +288,10 @@ export class Texture extends Resource {
     }
 
     /**
-     * 创建一个 <code>Texture</code> 实例。
+     * @en Creates an instance of Texture class.
+     * @param bitmap Bitmap resource.
+     * @param uv UV data information.
+     * @zh 创建 Texture 类的新实例
      * @param bitmap 位图资源。
      * @param uv UV 数据信息。
      */
@@ -277,9 +329,16 @@ export class Texture extends Resource {
     }
 
     /**
-     * 设置此对象的位图资源、UV数据信息。
-     * @param	bitmap 位图资源
-     * @param	uv UV数据信息
+     * @en Sets the bitmap resource and UV data information for this object.
+     * @param bitmap The bitmap resource.
+     * @param uv The UV data information.
+     * @param sourceWidth The original width of the texture.
+     * @param sourceHeight The original height of the texture.
+     * @zh 设置此对象的位图资源和 UV 数据信息。
+     * @param bitmap 位图资源。
+     * @param uv UV 数据信息。
+     * @param sourceWidth 纹理原始宽度。
+     * @param sourceHeight 纹理原始高度。
      */
     setTo(bitmap: BaseTexture = null, uv: ArrayLike<number> = null,
         sourceWidth: number = 0, sourceHeight: number = 0): void {
@@ -297,9 +356,14 @@ export class Texture extends Resource {
     }
 
     /**
-     * 加载指定地址的图片。
-     * @param	url 图片地址。
-     * @param	complete 加载完成回调
+     * @en Loads an image from the specified URL.
+     * @param url The URL of the image to load.
+     * @param complete An optional callback function that is called when the image is loaded.
+     * @returns A promise that resolves to the loaded image.
+     * @zh 从指定的 URL 加载图片。
+     * @param url 图片地址。    
+     * @param complete 加载完成回调。
+     * @returns 一个 Promise 对象，解析为加载的图片。
      */
     load(url: string, complete?: Handler): Promise<void> {
         if (this._destroyed)
@@ -316,12 +380,18 @@ export class Texture extends Resource {
     }
 
     /**
-     * 获得像素数据
-     * @param x x
-     * @param y y
-     * @param width 宽
-     * @param height 高
-     * @returns 
+     * @en Retrieves the pixel data from a region of the texture.
+     * @param x The x-coordinate of the region.
+     * @param y The y-coordinate of the region.
+     * @param width The width of the region.
+     * @param height The height of the region.
+     * @returns A Uint8Array containing the pixel data.
+     * @zh 从纹理的特定区域获取像素数据。
+     * @param x 区域的 x 坐标。
+     * @param y 区域的 y 坐标。
+     * @param width 区域的宽度。
+     * @param height 区域的高度。
+     * @return 一个 Uint8Array 对象，包含了像素数据。   
      */
     getTexturePixels(x: number, y: number, width: number, height: number): Uint8Array {
         var st: number, dst: number, i: number;
@@ -411,12 +481,18 @@ export class Texture extends Resource {
     }
 
     /**
-     * 获取Texture上的某个区域的像素点
-     * @param	x x
-     * @param	y y
-     * @param	width 宽度
-     * @param	height 高度
-     * @return  返回像素点集合
+     * @en Retrieves the pixel data from a specific area of the `Texture`.
+     * @param x The x-coordinate of the area.
+     * @param y The y-coordinate of the area.
+     * @param width The width of the area.
+     * @param height The height of the area.
+     * @returns A `Uint8Array` containing the pixel data.
+     * @zh 从 `Texture` 的特定区域获取像素点集合。
+     * @param x 区域的 x 坐标。
+     * @param y 区域的 y 坐标。
+     * @param width 区域的宽度。
+     * @param height 区域的高度。
+     * @return 一个 `Uint8Array` 对象，包含了像素点集合。
      */
     getPixels(x: number, y: number, width: number, height: number): Uint8Array {
         return this.getTexturePixels(x, y, width, height);
@@ -424,8 +500,10 @@ export class Texture extends Resource {
     }
 
     /**
-     * 通过url强制恢复bitmap。
-     * @param 回调函数
+     * @en Forces the recovery of the `bitmap` from the URL.
+     * @param callback An optional callback function to call after the bitmap is recovered.
+     * @zh 通过 URL 强制恢复 `bitmap`。
+     * @param callback 位图恢复后调用的可选回调函数。
      */
     recoverBitmap(callback?: () => void): void {
         var url = this._bitmap.url;
@@ -438,7 +516,8 @@ export class Texture extends Resource {
     }
 
     /**
-     * 强制释放Bitmap,无论是否被引用。
+     * @en Forces the disposal of the `bitmap`, regardless of references.
+     * @zh 强制释放 `bitmap`，无论它是否被引用。
      */
     disposeBitmap(): void {
         if (!this._destroyed && this._bitmap) {
@@ -447,12 +526,17 @@ export class Texture extends Resource {
     }
 
     /**
-     * 是否有效
+     * @en Whether the texture is valid.
+     * @zh 纹理是否有效。
      */
     get valid(): boolean {
         return !this._destroyed && this._bitmap && !this._bitmap.destroyed;
     }
 
+    /**
+     * @en Whether the texture is considered obsolete.
+     * @zh 纹理是否被认为是过时的。
+     */
     public get obsolute(): boolean {
         return this._obsolute || !this._bitmap || this._bitmap.destroyed || this._bitmap.obsolute;
     }
@@ -462,8 +546,8 @@ export class Texture extends Resource {
     }
 
     /**
-     * 销毁资源
-     * @internal
+     * @en Destroys the resource.
+     * @zh 销毁资源。
      */
     protected _disposeResource(): void {
         let bit = this._bitmap;
@@ -473,12 +557,18 @@ export class Texture extends Resource {
     }
 
     /**
-     * 获得clip贴图
-     * @param x x
-     * @param y y
-     * @param width 宽
-     * @param height 高
-     * @returns 
+     * @en Retrieves a clipped sub-texture from this texture and caches it for future access.
+     * @param x The x-coordinate of the clip area.
+     * @param y The y-coordinate of the clip area.
+     * @param width The width of the clip area.
+     * @param height The height of the clip area.
+     * @returns A `Texture` object representing the clipped sub-texture, or null if the clip area is out of bounds.
+     * @zh 从当前纹理获取裁剪后的子纹理，并将其缓存以供将来访问。
+     * @param x 裁剪区域的 x 坐标。
+     * @param y 裁剪区域的 y 坐标。
+     * @param width 裁剪区域的宽度。
+     * @param height 裁剪区域的高度。
+     * @return 一个 `Texture` 对象，表示裁剪后的子纹理，如果裁剪区域越界，则返回 null。
      */
     public getCachedClip(x: number, y: number, width: number, height: number): Texture {
         let key = `${x}_${y}_${width}_${height}`;
@@ -502,11 +592,16 @@ export class Texture extends Resource {
 }
 
 /**
- * 平移 UV。
- * @param offsetX 沿 X 轴偏移量。
- * @param offsetY 沿 Y 轴偏移量。
- * @param uv 需要平移操作的的 UV。
- * @return 平移后的UV。
+ * @en Translates UV coordinates by a specified offset.
+ * @param offsetX The offset distance along the X-axis.
+ * @param offsetY The offset distance along the Y-axis.
+ * @param uv The UV coordinates to be translated. Expected to be an array of at least 8 numbers.
+ * @returns The translated UV coordinates.
+ * @zh 按指定的偏移量平移 UV 坐标。
+ * @param offsetX X 轴上的偏移量。
+ * @param offsetY Y 轴上的偏移量。
+ * @param uv 待平移的 UV 坐标。期望是一个包含 8 个元素的数组。
+ * @returns 平移后的 UV 坐标。
  */
 function moveUV(offsetX: number, offsetY: number, uv: any[]): any[] {
     for (var i: number = 0; i < 8; i += 2) {

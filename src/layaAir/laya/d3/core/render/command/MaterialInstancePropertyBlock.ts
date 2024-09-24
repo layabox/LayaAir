@@ -14,14 +14,21 @@ export enum InstanceLocation{
 }
 
 /**
- * <code>Mesh</code> 类用于创建CustomInstance属性块。
+ * @en Material instance property block.
+ * @zh 材质实例属性块。
  */
 export class MaterialInstancePropertyBlock{
 	
 	/**Instance合并方案 */
-	/**attribute instance渲染方案 优点：合并数量多,合并效率高，渲染性能优 缺点：instance变量元素少*/
+    /**
+     * @en Attribute instance rendering scheme. Advantages: High merge quantity, high merge efficiency, good rendering performance. Disadvantages: Few instance variable elements.
+     * @zh 属性实例渲染方案。优点：合并数量多，合并效率高，渲染性能优。缺点：实例变量元素少。
+     */
 	public static INSTANCETYPE_ATTRIBUTE:number = 0;
-	/**uniform instance渲染方案 优点：instance变量多，灵活  缺点：合并数量受WebGLContext._maxUniformFragmentVectors的影响，合并效率低 */
+    /**
+     * @en Uniform instance rendering scheme. Advantages: Many instance variables, flexible. Disadvantages: Merge quantity affected by WebGLContext._maxUniformFragmentVectors, low merge efficiency.
+     * @zh 统一实例渲染方案。优点：实例变量多，灵活。缺点：合并数量受 WebGLContext._maxUniformFragmentVectors 的影响，合并效率低。
+     */
 	public static INSTANCETYPE_UNIFORMBUFFER:number = 1;
 
 
@@ -70,12 +77,16 @@ export class MaterialInstancePropertyBlock{
 		prob.createInstanceVertexBuffer3D();
 	}
 	
-	/**
-	 * 设置Vector4材质数组属性
-	 * @param attributeName 属性名称（要对应到Shader中）
-	 * @param arrays 数据
-	 * @param attributeLocation  属性Shader位置（需要与shader中的声明Attribute一一对应）
-	 */
+    /**
+     * @en Set Vector4 material array property.
+     * @param attributeName The attribute name (should correspond to the Shader).
+     * @param arrays The data.
+     * @param attributeLocation The attribute Shader location (needs to correspond one-to-one with the Attribute declaration in the shader).
+     * @zh 设置 Vector4 材质数组属性。
+     * @param attributeName 属性名称（要对应到 Shader 中）。
+     * @param arrays 数据。
+     * @param attributeLocation 属性 Shader 位置（需要与 shader 中的声明 Attribute 一一对应）。
+     */
 	setVectorArray(attributeName:string,arrays:Vector4[]|Float32Array,attributeLocation:InstanceLocation):void{
 		var prob = this._propertyMap[attributeLocation];
 		if(prob){
@@ -87,12 +98,16 @@ export class MaterialInstancePropertyBlock{
 			this._creatProperty(attributeName,arrays,16,VertexElementFormat.Vector4,attributeLocation);
 	}
 
-	/**
-	 * 设置Vector3材质数组属性
-	 * @param attributeName 属性名称（要对应到Shader中）
-	 * @param arrays 数据
-	 * @param attributeLocation 属性shader位置（需要与shader中的声明Attribute一一对应）
-	 */
+    /**
+     * @en Set Vector3 material array property.
+     * @param attributeName The attribute name (should correspond to the Shader).
+     * @param arrays The data.
+     * @param attributeLocation The attribute Shader location (needs to correspond one-to-one with the Attribute declaration in the shader).
+     * @zh 设置 Vector3 材质数组属性。
+     * @param attributeName 属性名称（要对应到 Shader 中）。
+     * @param arrays 数据。
+     * @param attributeLocation 属性 Shader 位置（需要与 shader 中的声明 Attribute 一一对应）。
+     */
 	setVector3Array(attributeName:string,arrays:Vector3[]|Float32Array,attributeLocation:InstanceLocation){
 		var prob = this._propertyMap[attributeLocation];
 		if(prob){
@@ -104,12 +119,16 @@ export class MaterialInstancePropertyBlock{
 			this._creatProperty(attributeName,arrays,12,VertexElementFormat.Vector3,attributeLocation);
 	}
 
-	/**
-	 * 设置Vector2材质数组属性
-	 * @param attributeName 属性名称（要对应到Shader中）
-	 * @param arrays 数据
-	 * @param attributeLocation 属性shader位置（需要与shader中的声明Attribute一一对应）
-	 */
+    /**
+     * @en Set Vector2 material array property.
+     * @param attributeName The attribute name (should correspond to the Shader).
+     * @param arrays The data.
+     * @param attributeLocation The attribute Shader location (needs to correspond one-to-one with the Attribute declaration in the shader).
+     * @zh 设置 Vector2 材质数组属性。
+     * @param attributeName 属性名称（要对应到 Shader 中）。
+     * @param arrays 数据。
+     * @param attributeLocation 属性 Shader 位置（需要与 shader 中的声明 Attribute 一一对应）。
+     */
 	setVector2Array(attributeName:string,arrays:Vector2[]|Float32Array,attributeLocation:InstanceLocation){
 		var prob = this._propertyMap[attributeLocation];
 		if(prob){
@@ -121,12 +140,16 @@ export class MaterialInstancePropertyBlock{
 			this._creatProperty(attributeName,arrays,8,VertexElementFormat.Vector2,attributeLocation);
 	}
 
-	/**
- 	 * 设置Number材质数组属性
-	 * @param attributeName 属性名称（要对应到Shader中）
-	 * @param arrays 数据
-	 * @param attributeLocation 属性shader位置（需要与shader中的声明Attribute一一对应）
-	 */
+    /**
+     * @en Set Number material array property.
+     * @param attributeName The attribute name (should correspond to the Shader).
+     * @param arrays The data.
+     * @param attributeLocation The attribute Shader location (needs to correspond one-to-one with the Attribute declaration in the shader).
+     * @zh 设置 Number 材质数组属性。
+     * @param attributeName 属性名称（要对应到 Shader 中）。
+     * @param arrays 数据。
+     * @param attributeLocation 属性 Shader 位置（需要与 shader 中的声明 Attribute 一一对应）。
+     */
 	setNumberArray(attributeName:string,arrays:Float32Array,attributeLocation:InstanceLocation){
 		var prob = this._propertyMap[attributeLocation];
 		if(prob){
@@ -138,15 +161,21 @@ export class MaterialInstancePropertyBlock{
 			this._creatProperty(attributeName,arrays,4,VertexElementFormat.Single,attributeLocation);
 	}
 
-	/**
-	 * 获得属性数据
-	 * @param attributeLocation  属性shader位置
-	 */
+    /**
+     * @en Get property data.
+     * @param attributeLocation The attribute Shader location.
+     * @zh 获得属性数据。
+     * @param attributeLocation 属性 Shader 位置。
+     */
 	getPropertyArray(attributeLocation:InstanceLocation):Vector4[]|Vector3[]|Vector2[]|Float32Array{
 		var prob = this._propertyMap[attributeLocation];
 		return prob?prob._value:null;
 	}
 
+    /**
+     * @en Clear all properties.
+     * @zh 清除所有属性。
+     */
 	clear(){
 		for(var i in this._propertyMap){
 			this._propertyMap[i].destroy();

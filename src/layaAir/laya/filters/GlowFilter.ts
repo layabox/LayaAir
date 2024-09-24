@@ -10,7 +10,8 @@ import { TextureSV } from "../webgl/shader/d2/value/TextureSV";
 import { Filter } from "./Filter";
 
 /**
- *  发光滤镜(也可以当成阴影滤使用）
+ * @en Luminous filter (can also be used as shadow filter)
+ * @zh 发光滤镜(也可以当成阴影滤使用）
  */
 export class GlowFilter extends Filter {
 
@@ -34,11 +35,16 @@ export class GlowFilter extends Filter {
     private _flipY = false;
 
     /**
-     * 创建发光滤镜
-     * @param	color	滤镜的颜色
-     * @param	blur	边缘模糊的大小
-     * @param	offX	X轴方向的偏移
-     * @param	offY	Y轴方向的偏移
+     * @en Creates an instance of a glow filter.
+     * @param color The color of the glow filter. 
+     * @param blur The size of blurred edges
+     * @param offX The horizontal offset for the glow effect.
+     * @param offY The vertical offset for the glow effect.
+     * @zh 创建一个发光滤镜实例。
+     * @param color 发光滤镜的颜色。
+     * @param blur 边缘模糊的大小。
+     * @param offX 发光效果的水平偏移。
+     * @param offY 发光效果的垂直偏移。
      */
     constructor(color: string, blur = 4, offX = 6, offY = 6) {
         super();
@@ -59,8 +65,8 @@ export class GlowFilter extends Filter {
         this.shaderDataCopy1 = new TextureSV();
     }
 
-    private _fillQuad(x: number, y: number, w: number, h: number, flipY=false) {
-        let uvrect:number[];
+    private _fillQuad(x: number, y: number, w: number, h: number, flipY = false) {
+        let uvrect: number[];
         if (flipY) {
             uvrect = [0, 1, 1, 0];
         } else {
@@ -80,10 +86,14 @@ export class GlowFilter extends Filter {
     }
 
     /**
-     * 渲染
-     * @param srctexture 源渲染目标
-     * @param width 宽
-     * @param height 高
+     * @en Renders the glow effect based on the source texture.
+     * @param srctexture The source RenderTexture2D to apply the glow effect on.
+     * @param width The width of the rendering area.
+     * @param height The height of the rendering area.
+     * @zh 根据源纹理渲染发光效果。
+     * @param srctexture 应用发光效果的源 RenderTexture2D。
+     * @param width 渲染区域的宽度。
+     * @param height 渲染区域的高度。
      */
     render(srctexture: RenderTexture2D, width: number, height: number): void {
         let marginLeft = 50;
@@ -108,12 +118,12 @@ export class GlowFilter extends Filter {
         render2d.renderStart(true, new Color(0, 0, 0, 0));
         this.shaderDataCopy1.size = new Vector2(outTexWidth, outTexHeight);
         this.shaderDataCopy1.textureHost = srctexture;
-        this._fillQuad(marginLeft, marginTop, srctexture.width, srctexture.height,this._flipY);
+        this._fillQuad(marginLeft, marginTop, srctexture.width, srctexture.height, this._flipY);
         render2d.draw(
             this._rectMesh,
             0, 4 * this._rectMesh.vertexDeclarition.vertexStride,
             0, 12,
-            this.shaderDataCopy1,null);
+            this.shaderDataCopy1, null);
         render2d.renderEnd();
 
         //下面要画模糊的部分
@@ -165,59 +175,103 @@ export class GlowFilter extends Filter {
             this._rectMesh,
             0, 4 * this._rectMesh.vertexDeclarition.vertexStride,
             0, 12,
-            shadercpy,null);
+            shadercpy, null);
 
         render2d.renderEnd();
     }
 
-    /**@internal */
+    /**
+     * @internal
+     * @en Internal use only. Gets the shader define associated with this filter.
+     * @zh 获取与此滤镜相关联的着色器定义。
+     */
     get typeDefine(): ShaderDefine {
         return ShaderDefines2D.FILTERGLOW;
     }
 
-    /**@private Y偏移值*/
+    /**
+     * @private
+     * @en Gets Y offset value
+     * @zh 获取Y偏移值
+     */
     get offY(): number {
         return this._sv_blurInfo1[3];
     }
 
-    /**@private */
+    /**
+     * @private
+     * @en Sets Y offset value
+     * @zh 设置Y偏移值
+     */
     set offY(value: number) {
         this._sv_blurInfo1[3] = value;
+        this.onChange();
     }
 
-    /**@private X偏移值*/
+    /**
+     * @private
+     * @en Gets X offset value
+     * @zh 获取X偏移值
+     */
     get offX(): number {
         return this._sv_blurInfo1[2];
     }
 
-    /**@private */
+    /**
+     * @private
+     * @en Sets X offset value
+     * @zh 设置X偏移值
+     */
     set offX(value: number) {
         this._sv_blurInfo1[2] = value;
+        this.onChange();
     }
 
-    /**@private 颜色值*/
+    /**
+     * @private
+     * @en Gets X color value
+     * @zh 获取颜色值
+     */
     get color(): string {
         return this._color.strColor;
     }
 
-    /**@private */
+    /**
+     * @private
+     * @en Sets X color value
+     * @zh 设置颜色值
+     */
     set color(value: string) {
         this._color = new ColorUtils(value);
+        this.onChange();
     }
 
-    /**@private */
+    /**
+     * @private
+     * @en Get the color array from the color utility.
+     * @zh 从颜色工具获取颜色数组。
+     */
     getColor(): any[] {
         return this._color.arrColor;
     }
 
-    /**@private 模糊值*/
+    /**
+     * @private
+     * @en Gest fuzzy value
+     * @zh 获取模糊值
+     */
     get blur(): number {
         return this._sv_blurInfo1[1];
     }
 
-    /**@private */
+    /**
+     * @private
+     * @en Sets fuzzy value
+     * @zh 设置模糊值
+     */
     set blur(value: number) {
         this._sv_blurInfo1[0] = this._sv_blurInfo1[1] = value;
+        this.onChange();
     }
 
 }

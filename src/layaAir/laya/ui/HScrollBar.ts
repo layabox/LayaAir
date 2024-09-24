@@ -6,11 +6,6 @@ import { ScrollBar } from "./ScrollBar";
  */
 export class HScrollBar extends ScrollBar {
 
-    /**
-     * @internal
-     * @override
-     * @inheritDoc 
-     */
     protected initialize(): void {
         super.initialize();
         this.slider.isVertical = false;

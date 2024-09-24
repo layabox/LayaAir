@@ -64,7 +64,8 @@ export function ShaderDataDefaultValue(type: ShaderDataType) {
  */
 export class ShaderData implements IClone {
     /**@internal */
-    protected _ownerResource: Resource;
+    readonly _ownerResource: Resource;
+
     /**
      * @internal	
      */

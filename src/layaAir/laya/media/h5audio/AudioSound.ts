@@ -10,30 +10,32 @@ import { SoundManager } from "../SoundManager";
 import { AssetDb } from "../../resource/AssetDb";
 
 /**
- * @private
- * 使用Audio标签播放声音
+ * @en Use Audio tag to play sound
+ * @zh 使用Audio标签播放声音
  */
 export class AudioSound extends EventDispatcher {
 
-    /**@private */
     private static _audioCache: any = {};
     /**
-     * 声音URL
+     * @en Sound URL
+     * @zh 声音URL
      */
     url: string;
     /**
-     * 播放用的audio标签
+     * @en Audio tag used for playback
+     * @zh 播放用的audio标签
      */
     audio: HTMLAudioElement;
     /**
-     * 是否已加载完成
+     * @en Whether it has been loaded
+     * @zh 是否已加载完成
      */
     loaded: boolean = false;
     /**@internal */
     static _musicAudio: HTMLAudioElement;
     /**
-     * 释放声音
-     *
+     * @en Release the sound
+     * @zh 释放声音
      */
     dispose(): void {
         var ad: HTMLAudioElement = AudioSound._audioCache[this.url];
@@ -55,7 +57,6 @@ export class AudioSound extends EventDispatcher {
         }
     }
 
-    /**@private */
     private static _makeMusicOK(): void {
         Browser.document.removeEventListener("mousedown", AudioSound._makeMusicOK);
         if (!AudioSound._musicAudio.src) {
@@ -68,9 +69,10 @@ export class AudioSound extends EventDispatcher {
 
 
     /**
-     * 加载声音
-     * @param url
-     *
+     * @en Load the sound
+     * @param url The URL of the sound to load
+     * @zh 加载声音
+     * @param url 要加载的声音的URL
      */
     load(url: string): void {
         this.url = url;
@@ -133,11 +135,14 @@ export class AudioSound extends EventDispatcher {
     }
 
     /**
-     * 播放声音
-     * @param startTime 起始时间
-     * @param loops 循环次数
-     * @return
-     *
+     * @en Play the sound
+     * @param startTime The start time of playback
+     * @param loops The number of times to loop the sound
+     * @returns The sound channel
+     * @zh 播放声音
+     * @param startTime 播放的起始时间
+     * @param loops 循环播放次数
+     * @returns 声音通道
      */
     play(startTime: number = 0, loops: number = 0): SoundChannel {
         //trace("playAudioSound");
@@ -191,7 +196,8 @@ export class AudioSound extends EventDispatcher {
     }
 
     /**
-     * 获取总时间。
+     * @en Total time
+     * @zh 总时间。
      */
     get duration(): number {
         var ad: HTMLAudioElement;

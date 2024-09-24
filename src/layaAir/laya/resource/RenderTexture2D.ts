@@ -6,10 +6,10 @@ import { LayaGL } from "../layagl/LayaGL";
 import { InternalRenderTarget } from "../RenderDriver/DriverDesign/RenderDevice/InternalRenderTarget";
 import { IRenderTarget } from "../RenderDriver/DriverDesign/RenderDevice/IRenderTarget";
 /**
- * <code>RenderTexture</code> 类用于创建渲染目标。
+ * @en RenderTexture2D class used to create 2D render targets.
+ * @zh RenderTexture2D 类用于创建2D渲染目标。
  */
 export class RenderTexture2D extends BaseTexture implements IRenderTarget {
-    /** @private */
     private static _currentActive: RenderTexture2D;
     static _clearColor: Color = new Color(0, 0, 0, 0);
     static _clear: boolean = false;
@@ -18,23 +18,24 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
     //为push,pop 用的。以后和上面只保留一份。
     //由于可能递归，所以不能简单的用save，restore
     /**
-     * 默认uv
+     * @en Default UV coordinates.
+     * @zh 默认的UV坐标。
      */
     static defuv: any[] = [0, 0, 1, 0, 1, 1, 0, 1];
     /**
-     * 默认翻转uv
+     * @en Default flipped UV coordinates.
+     * @zh 默认翻转的UV坐标。
      */
     static flipyuv: any[] = [0, 1, 1, 1, 1, 0, 0, 0];
     /**
-     * 获取当前激活的Rendertexture
+     * @en The currently active RenderTexture.
+     * @zh 当前激活的渲染纹理。
      */
     static get currentActive(): RenderTexture2D {
         return RenderTexture2D._currentActive;
     }
 
-    /** @private */
     private _depthStencilFormat: number;
-    /** @private */
     private _colorFormat: RenderTargetFormat;
 
     /**@internal */
@@ -42,70 +43,91 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
     /**@internal */
     _invertY: boolean = false;
     /**
-     * 获取深度格式。
-     *@return 深度格式。
+     * @en Depth format.
+     * @zh 深度格式。
      */
     get depthStencilFormat(): number {
         return this._depthStencilFormat;
     }
 
     /**
-     * @inheritDoc
-     * @override
+     * @en The default texture.
+     * @zh 默认纹理。
      */
     get defaultTexture(): BaseTexture {
         return Texture2D.grayTexture;
     }
 
     /**
-     * RenderTexture2D是否准备好
-     * @returns 
+     * @en Checks whether the RenderTexture2D is ready.
+     * @zh 检查2D渲染纹理是否准备好。
      */
     getIsReady(): boolean {
         return true;
     }
 
     /**
-     * 获取宽度。
+     * @en The source width of the RenderTexture2D.
+     * @zh 2D渲染纹理的源宽度。
      */
     get sourceWidth(): number {
         return this._width;
     }
 
-    /***
-     * 获取高度。
+    /**
+     * @en The source height of the RenderTexture2D.
+     * @zh 2D渲染纹理的源高度。
      */
     get sourceHeight(): number {
         return this._height;
     }
 
     /**
-     * 获取offsetX。
+     * @en The X-axis offset of the RenderTexture2D.
+     * @zh 2D渲染纹理的X轴偏移。
      */
     get offsetX(): number {
         return 0;
     }
 
-    /***
-     * 获取offsetY
+    /**
+     * @en The Y-axis offset of the RenderTexture2D.
+     * @zh 2D渲染纹理的Y轴偏移。
      */
     get offsetY(): number {
         return 0;
     }
-    /**深度模板纹理 */
+
+    /**
+     * @en Depth stencil texture
+     * @zh 深度模板纹理
+     */
     depthStencilTexture: BaseTexture;
-    
+
+    /**
+     * @ignore
+     * @en The RenderTarget.
+     * @zh 渲染目标。
+     */
     _renderTarget: InternalRenderTarget;
-    /**是否是CameraTarget */
+    /**
+     * @en Whether the RenderTexture2D is a CameraTarget.
+     * @zh 是否是CameraTarget
+     */
     _isCameraTarget: boolean;
 
 
     /**
+     * @en Creates an instance of RenderTexture2D.
+     * @param width The width.
+     * @param height The height.
+     * @param format The texture format.
+     * @param depthStencilFormat The depth format.
+     * @zh 创建 RenderTexture2D 类的实例。
      * @param width  宽度。
      * @param height 高度。
      * @param format 纹理格式。
      * @param depthStencilFormat 深度格式。
-     * 创建一个 <code>RenderTexture</code> 实例。
      */
     constructor(width: number, height: number, format: RenderTargetFormat = RenderTargetFormat.R8G8B8, depthStencilFormat: RenderTargetFormat = RenderTargetFormat.None) {//TODO:待老郭清理
 
@@ -118,18 +140,25 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
         this.lock = true;
     }
 
-    /**是否是RTCube */
+    /**
+     * @en Whether the render target is a cube render target.
+     * @zh 渲染目标是否是立方体贴图渲染目标。
+     */
     get isCube(): boolean {
         return this._renderTarget._isCube;
     }
 
-    /**采样 */
+    /**
+     * @en The number of samples for the render target.
+     * @zh 渲染目标的采样数。
+     */
     get samples(): number {
         return this._renderTarget._samples;
     }
 
     /**
-     * 是否生成Mipmap
+     * @en Checks if mipmaps are generated for the render target.
+     * @zh 检查是否为渲染目标生成了mipmaps。
      */
     get generateMipmap(): boolean {
         return this._renderTarget._generateMipmap;
@@ -160,11 +189,16 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
     }
 
     /**
-     * 清理RT
-     * @param r 
-     * @param g 
-     * @param b 
-     * @param a 
+     * @en Clears the render texture.
+     * @param r The red component.
+     * @param g The green component.
+     * @param b The blue component.
+     * @param a The alpha component, default is 1.0 for full opacity.
+     * @zh 清理渲染纹理。
+     * @param r 红色分量。
+     * @param g 绿色分量。
+     * @param b 蓝色分量。
+     * @param a 透明度分量，默认为1.0表示完全不透明。
      */
     clear(r: number = 0.0, g: number = 0.0, b: number = 0.0, a: number = 1.0): void {
         RenderTexture2D._clearColor.r = r;
@@ -175,12 +209,18 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
     }
 
     /**
-     * 获得像素数据。
-     * @param x X像素坐标。
-     * @param y Y像素坐标。
-     * @param width 宽度。
-     * @param height 高度。
-     * @return 像素数据。
+     * @en Gets the pixel data from the render texture within the specified area.
+     * @param x The X coordinate of the pixel area.
+     * @param y The Y coordinate of the pixel area.
+     * @param width The width of the pixel area.
+     * @param height The height of the pixel area.
+     * @returns The pixel data from the specified area.
+     * @zh 从指定区域获取渲染纹理的像素数据。
+     * @param x 像素区域的X坐标。
+     * @param y 像素区域的Y坐标。
+     * @param width 像素区域的宽度。
+     * @param height 像素区域的高度。
+     * @returns 指定区域的像素数据。
      */
     getData(x: number, y: number, width: number, height: number): ArrayBufferView {
         return LayaGL.textureContext.getRenderTextureData(this._renderTarget, x, y, width, height);
@@ -188,13 +228,14 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
 
     /**
      * @internal
+     * @en Recycles the RenderTexture2D.
+     * @zh 回收渲染纹理。
      */
     recycle(): void {
 
     }
 
     /**
-     * @inheritDoc
      * @internal
      */
     _disposeResource(): void {

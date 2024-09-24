@@ -6,7 +6,10 @@ import { RenderContext3D } from "../../core/render/RenderContext3D";
 import { Mesh } from "../../resource/models/Mesh";
 import { HLODBatchSubMesh } from "./HLODUtil";
 
-
+/**
+ * @en a batched mesh for hierarchical level of detail (HLOD) in 3D rendering. This class optimizes rendering performance by combining multiple sub-meshes into a single rendering unit, reducing draw calls.
+ * @zh 用于层次化细节级别（HLOD）的批处理网格。该类通过合并多个子网格为单一的渲染单元来优化渲染性能，减少绘制调用。
+ */
 export class HLODBatchMesh extends GeometryElement {
     /**@internal batchMesh */
     private _mesh: Mesh;
@@ -16,17 +19,20 @@ export class HLODBatchMesh extends GeometryElement {
     /**@internal */
     private _drawSubMeshs: HLODBatchSubMesh[];
     /**
-     * instance HLODBatchMesh
+     * @en construct method of HLODBatchMesh.
+     * @zh HLODBatchMesh的构造方法。
      */
     constructor() {
         super(MeshTopology.Triangles, DrawType.DrawElement);
     }
 
     /**
-     * 合批后的mesh
-     * @param mesh 
-     * @param bounds 
+     * @en The batched mesh.
+     * @zh 合批后的网格。
      */
+    get batchMesh() {
+        return this._mesh;
+    }
     set batchMesh(mesh: Mesh) {
         if (this._mesh != mesh) {
             this._mesh && (this._mesh._removeReference());
@@ -36,32 +42,33 @@ export class HLODBatchMesh extends GeometryElement {
         }
     }
 
-    get batchMesh() {
-        return this._mesh;
-    }
 
     /**
-     * 合批子mesh信息
+     * @en The batch sub-mesh information.
+     * @zh 合批子网格信息。
      */
-    set batchSubMeshInfo(value: HLODBatchSubMesh[]) {
-        this._batchSubMeshInfos = value;
-    }
-
     get batchSubMeshInfo() {
         return this._batchSubMeshInfos;
     }
 
+    set batchSubMeshInfo(value: HLODBatchSubMesh[]) {
+        this._batchSubMeshInfos = value;
+    }
+
+
     /**
      * @internal
-     * @param value 
+     * @en The draw sub-meshes.
+     * @zh 绘制的子网格。
      */
+    get drawSubMeshs(): HLODBatchSubMesh[] {
+        return this._drawSubMeshs;
+    }
+
     set drawSubMeshs(value: HLODBatchSubMesh[]) {
         this._drawSubMeshs = value;
     }
 
-    get drawSubMeshs(): HLODBatchSubMesh[] {
-        return this._drawSubMeshs;
-    }
 
     /**
      * @internal
@@ -100,7 +107,8 @@ export class HLODBatchMesh extends GeometryElement {
     }
 
     /**
-     * 销毁
+     * @en Destroy the HLODBatchMesh.
+     * @zh 销毁 HLODBatchMesh。
      */
     destroy(): void {
         this._mesh && this._mesh._removeReference();

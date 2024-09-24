@@ -10,12 +10,16 @@ import { BufferState } from "../../../webgl/utils/BufferState";
 import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 
 /**
- * <code>SkyDome</code> 类用于创建天空盒。
+ * @en SkyDome class is used to create a sky dome.
+ * @zh SkyDome 类用于创建天空球。
  */
 export class SkyDome extends GeometryElement {
 	/**@internal */
 	private static _radius: number = 1;
-
+    /**
+     * @en The singleton instance of the SkyDome.
+     * @zh SkyDome的实例。
+     */
 	static instance: SkyDome;
 
 	/**
@@ -30,24 +34,31 @@ export class SkyDome extends GeometryElement {
 	/**@internal */
 	private _slices: number;
 
-	/**
-	 * 获取堆数。
-	 */
+    /**
+     * @internal
+     * @en The number of stacks of the SkyDome.
+     * @zh SkyDome的堆数。
+     */
 	get stacks(): number {
 		return this._stacks;
 	}
 
-	/**
-	 * 获取层数。
-	 */
+    /**
+     * @internal
+     * @en The number of slices of the SkyDome.
+     * @zh SkyDome的层数。
+     */
 	get slices(): number {
 		return this._slices;
 	}
 
 	/**
-	 * 创建一个 <code>SkyDome</code> 实例。
-	 * @param stacks 堆数。
-	 * @param slices 层数。
+	 * @en Creates an instance of SkyDome.
+	 * @param stacks The number of stacks of the SkyDome.
+	 * @param slices The number of slices of the SkyDome.
+	 * @zh 创建一个 SkyDome 的实例。
+	 * @param stacks SkyDome的堆数。
+	 * @param slices SkyDome的层数。
 	 */
 	constructor(stacks: number = 48, slices: number = 48) {
 		super(MeshTopology.Triangles,DrawType.DrawElement);

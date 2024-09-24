@@ -13,6 +13,7 @@ import { WebGPURenderBundle } from "../RenderDevice/WebGPUBundle/WebGPURenderBun
 import { WebGPUInternalRT } from "../RenderDevice/WebGPUInternalRT";
 import { WebGPURenderCommandEncoder } from "../RenderDevice/WebGPURenderCommandEncoder";
 import { WebGPURenderGeometry } from "../RenderDevice/WebGPURenderGeometry";
+import { WebGPUShaderData } from "../RenderDevice/WebGPUShaderData";
 import { WebGPUShaderInstance } from "../RenderDevice/WebGPUShaderInstance";
 import { WebGPUVertexBuffer } from "../RenderDevice/WebGPUVertexBuffer";
 import { WebGPURenderContext3D } from "./WebGPURenderContext3D";
@@ -141,8 +142,11 @@ export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D impleme
     protected _calcStateKey(shaderInstance: WebGPUShaderInstance, dest: WebGPUInternalRT, context: WebGPURenderContext3D) {
         let stateKey = '';
         stateKey += dest.formatId + '_';
+        stateKey += dest._samples + '_';
         stateKey += shaderInstance._id + '_';
         stateKey += this.materialShaderData.stateKey;
+        stateKey += this.geometry.bufferState.stateId + '_';
+        stateKey += 'x';
         return stateKey;
     }
 
@@ -155,6 +159,10 @@ export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D impleme
     }
 
     protected _compileShader(context: WebGPURenderContext3D) {
+        if (this.renderShaderData && !this.renderShaderData.instShaderData) {
+            this.renderShaderData.instShaderData = new WebGPUShaderData();
+            this.renderShaderData.cloneTo(this.renderShaderData.instShaderData);
+        }
         //将场景或全局配置定义准备好
         const compileDefine = WebGPURenderElement3D._compileDefine;
         if (this._sceneData)
@@ -177,28 +185,80 @@ export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D impleme
 
         //查找着色器对象缓存
         for (let i = 0; i < this._passNum; i++) {
-            if (!this._shaderPass[i].moduleData.getCacheShader(compileDefine.clone())) {
+            const index = this._passIndex[i];
+            const pass = this.subShader._passes[index];
+            if (!pass.moduleData.getCacheShader(compileDefine.clone())) {
                 const { uniformMap, arrayMap } = this._collectUniform(compileDefine); //@ts-ignore
-                this._shaderPass[i].uniformMap = uniformMap; //@ts-ignore
-                this._shaderPass[i].arrayMap = arrayMap;
+                pass.uniformMap = uniformMap; //@ts-ignore
+                pass.arrayMap = arrayMap;
             }
 
             //获取着色器实例，先查找缓存，如果没有则创建
-            const shaderInstance = this._shaderPass[i].withCompile(compileDefine.clone()) as WebGPUShaderInstance;
-            this._shaderInstance[i] = this._shaderInstances[this._passIndex[i]] = shaderInstance;
+            const shaderInstance = pass.withCompile(compileDefine.clone()) as WebGPUShaderInstance;
+            this._shaderInstances[index] = shaderInstance;
 
             //创建uniform缓冲区
             if (i === 0) {
                 this._sceneData?.createUniformBuffer(shaderInstance.uniformInfo[0], true);
                 this._cameraData?.createUniformBuffer(shaderInstance.uniformInfo[1], true);
-                this.renderShaderData?.createUniformBuffer(shaderInstance.uniformInfo[2]);
-                this.materialShaderData?.createUniformBuffer(shaderInstance.uniformInfo[3]);
+                this.renderShaderData?.instShaderData?.createUniformBuffer(shaderInstance.uniformInfo[2], false);
+                this.materialShaderData?.createUniformBuffer(shaderInstance.uniformInfo[3], false);
             }
         }
 
         //重编译着色器后，清理绑定组缓存
-        this.renderShaderData?.clearBindGroup();
+        this.renderShaderData?.instShaderData?.clearBindGroup();
         this.materialShaderData?.clearBindGroup();
+    }
+
+    /**
+     * 创建绑定组布局
+     * @param shaderInstance 
+     */
+    protected _createBindGroupLayout(shaderInstance: WebGPUShaderInstance) {
+        let entries: GPUBindGroupLayoutEntry[];
+        const bindGroupLayout = new Array(4);
+        const shaderData = new Array(4);
+        shaderData[0] = this._sceneData;
+        shaderData[1] = this._cameraData;
+        shaderData[2] = this.renderShaderData?.instShaderData;
+        shaderData[3] = this.materialShaderData;
+        const uniformSetMap = shaderInstance.uniformSetMap;
+
+        let error = false;
+        for (let i = 0; i < 4; i++) {
+            if (shaderData[i]) {
+                entries = shaderData[i].createBindGroupLayoutEntry(uniformSetMap[i]);
+                if (entries)
+                    bindGroupLayout[i] = entries;
+                else error = true;
+            } else error = true;
+        }
+        return error ? undefined : bindGroupLayout;
+    }
+
+    /**
+     * 绑定资源组
+     * @param shaderInstance 
+     * @param command 
+     * @param bundle 
+     */
+    protected _bindGroup(shaderInstance: WebGPUShaderInstance, command: WebGPURenderCommandEncoder, bundle: WebGPURenderBundle) {
+        const uniformSetMap = shaderInstance.uniformSetMap;
+        this._sceneData?.bindGroup(0, 'scene3D', uniformSetMap[0], command, bundle);
+        this._cameraData?.bindGroup(1, 'camera', uniformSetMap[1], command, bundle);
+        this.renderShaderData?.instShaderData?.bindGroup(2, 'sprite3D', uniformSetMap[2], command, bundle);
+        this.materialShaderData?.bindGroup(3, 'material', uniformSetMap[3], command, bundle);
+    }
+
+    /**
+     * 上传uniform数据
+     */
+    protected _uploadUniform() {
+        this._sceneData?.uploadUniform();
+        this._cameraData?.uploadUniform();
+        this.renderShaderData?.instShaderData?.uploadUniform();
+        this.materialShaderData?.uploadUniform();
     }
 
     private _updateInstanceData() {
@@ -335,12 +395,5 @@ export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D impleme
     recover() {
         this.instanceElementList.clear();
         WebGPUInstanceRenderElement3D._pool.push(this);
-    }
-
-    /**
-     * 销毁
-     */
-    destroy(): void {
-        super.destroy();
     }
 }

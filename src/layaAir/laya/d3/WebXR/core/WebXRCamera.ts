@@ -9,7 +9,8 @@ import { Viewport } from "../../../maths/Viewport";
 
 
 /**
- * @author miner
+ * @ignore 功能还没有实现完，开发者请勿使用。
+ * @internal
  * 类用于创建WebXR摄像机。
  */
 export class WebXRCamera extends Camera {

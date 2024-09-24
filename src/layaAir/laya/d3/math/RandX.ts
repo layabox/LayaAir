@@ -1,6 +1,7 @@
 /**
-	 * <code>Rand</code> 类用于通过128位整型种子创建随机数,算法来自:https://github.com/AndreasMadsen/xorshift。
-	 */
+ * @en The `RandX` class is used to generate random numbers using a 128-bit integer seed. The algorithm comes from the provided link: https://github.com/AndreasMadsen/xorshift
+ * @zh `RandX` 类用于通过128位整型种子创建随机数。算法来自提供的链接：https://github.com/AndreasMadsen/xorshift
+ */
 export class RandX {
 	/**@internal */
 	private static _CONVERTION_BUFFER: DataView = new DataView(new ArrayBuffer(8));
@@ -14,12 +15,17 @@ export class RandX {
 	/**@internal */
 	private _state1L: number;
 
-	/**基于时间种子的随机数。*/
+	/**
+	 * @en A random number generator seeded based on the current time.
+	 * @zh 基于当前时间种子的随机数生成器。
+	 */
 	static defaultRand: RandX = new RandX([0, Date.now() / 65536, 0, Date.now() % 65536]);
 
 	/**
-	 * 创建一个 <code>Rand</code> 实例。
-	 * @param	seed  随机种子。
+	 * @en Constructor method.
+	 * @param seed  Random seed.
+	 * @zh 构造方法
+	 * @param seed  随机种子。
 	 */
 	constructor(seed: any[]) {
 		if (!(seed instanceof Array) || seed.length !== 4)
@@ -32,8 +38,10 @@ export class RandX {
 	}
 
 	/**
-	 * 通过2x32位的数组，返回64位的随机数。
-	 * @return 64位的随机数。
+	 * @en Return a 64 bit random number through a 2x32-bit array.
+	 * @returns 64 bit random number.
+	 * @zh 通过2x32位的数组，返回64位的随机数。
+	 * @returns 64位的随机数。
 	 */
 	randomint(): any[] {
 		// uint64_t s1 = s[0]
@@ -95,8 +103,10 @@ export class RandX {
 	}
 
 	/**
-	 * 返回[0,1)之间的随机数。
-	 * @return
+	 * @en Returns a random number in the range [0, 1).
+	 * @returns A random number in the range [0, 1).
+	 * @zh 返回一个介于[0, 1)范围内的随机数。
+	 * @returns 介于[0, 1)范围内的随机数。
 	 */
 	random(): number {
 		// :: t2 = randomint()

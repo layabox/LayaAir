@@ -5,8 +5,8 @@ import { LayaGL } from "../../layagl/LayaGL";
 
 
 /**
- * 请使用LayaGL.RenderOBJCreate.createIndexBuffer3D来创建
- * <code>VertexBuffer3D</code> 类用于创建顶点缓冲。
+ * @en The `VertexBuffer3D` class is used to create vertex buffers. To create an instance of `VertexBuffer3D`, use `LayaGL.RenderOBJCreate.createIndexBuffer3D`.
+ * @zh `VertexBuffer3D` 类用于创建顶点缓冲。要创建 `VertexBuffer3D` 的实例，请使用 `LayaGL.RenderOBJCreate.createIndexBuffer3D`。
  */
 export class VertexBuffer3D {
 
@@ -18,10 +18,12 @@ export class VertexBuffer3D {
 	_buffer: Float32Array | Uint16Array | Uint8Array | Uint32Array;
 	/** @internal */
 	_float32Reader: Float32Array | null = null;
-	
+
 	bufferUsage:BufferUsage;
+
 	/**
-	 * 获取顶点声明。
+	 * @en The vertex declaration.
+	 * @zh 顶点声明。
 	 */
 	get vertexDeclaration(): VertexDeclaration | null {
 		return this._deviceBuffer.vertexDeclaration;
@@ -31,6 +33,10 @@ export class VertexBuffer3D {
 		this._deviceBuffer.vertexDeclaration = value;
 	}
 
+	/**
+	 * @en Whether this is an instance buffer.
+	 * @zh 是否是实例缓冲区。
+	 */
 	get instanceBuffer(): boolean {
 		return this._deviceBuffer.instanceBuffer;
 	}
@@ -40,17 +46,22 @@ export class VertexBuffer3D {
 	}
 
 	/**
-	 * 是否可读。
+	 * @en Whether the buffer is readable.
+	 * @zh 缓冲区是否可读。
 	 */
 	get canRead(): boolean {
 		return this._canRead;
 	}
 
 	/**
-	 * 创建一个 <code>VertexBuffer3D</code> 实例。
-	 * @param	byteLength 字节长度。
-	 * @param	bufferUsage VertexBuffer3D用途类型。
-	 * @param	canRead 是否可读。
+	 * @en Constructor method.
+	 * @param byteLength The byte length of the buffer.
+	 * @param bufferUsage The usage type of the VertexBuffer3D.
+	 * @param canRead Whether the buffer is readable.
+	 * @zh 构造方法。
+	 * @param byteLength 字节长度。
+	 * @param bufferUsage VertexBuffer3D用途类型。
+	 * @param canRead 是否可读。
 	 */
 	constructor(byteLength: number, bufferUsage: BufferUsage, canRead: boolean = false) {
 		//super(BufferTargetType.ARRAY_BUFFER, bufferUsage);
@@ -74,11 +85,16 @@ export class VertexBuffer3D {
 	// }
 
 	/**
-	 * 设置数据。
-	 * @param	data 顶点数据。
-	 * @param	bufferOffset 顶点缓冲中的偏移,以字节为单位。
-	 * @param	dataStartIndex 顶点数据的偏移,以字节为单位。
-	 * @param	dataCount 顶点数据的长度,以字节为单位。
+	 * @en Sets the data for the vertex buffer.
+	 * @param buffer The data to set.
+	 * @param bufferOffset The offset within the vertex buffer, in bytes.
+	 * @param dataStartIndex The starting index within the data, in bytes.
+	 * @param dataCount The number of bytes to set.
+	 * @zh 设置顶点缓冲区的数据。
+	 * @param buffer 要设置的数据。
+	 * @param bufferOffset 顶点缓冲中的偏移,以字节为单位。
+	 * @param dataStartIndex 顶点数据的偏移,以字节为单位。
+	 * @param dataCount 顶点数据的长度,以字节为单位。
 	 */
 	setData(buffer: ArrayBuffer, bufferOffset: number = 0, dataStartIndex: number = 0, dataCount: number = Number.MAX_SAFE_INTEGER): void {
 		this._deviceBuffer.setData(buffer, bufferOffset, dataStartIndex, dataCount);
@@ -95,8 +111,8 @@ export class VertexBuffer3D {
 	}
 
 	/**
-	 * 获取顶点数据。
-	 * @return	顶点数据。
+	 * @en Gets the vertex data as a `Uint8Array`.
+	 * @zh 以 `Uint8Array` 形式获取顶点数据。
 	 */
 	getUint8Data(): Uint8Array {
 		if (this._canRead)
@@ -107,6 +123,8 @@ export class VertexBuffer3D {
 
 	/**
 	 * @ignore
+	 * @en Gets the vertex data as a `Float32Array`, if the buffer is readable.
+	 * @zh 如果缓冲区可读，以 `Float32Array` 形式获取顶点数据。
 	 */
 	getFloat32Data(): Float32Array | null {
 		if (this._canRead)
@@ -117,6 +135,8 @@ export class VertexBuffer3D {
 
 	/**
 	 * @ignore
+	 * @en Marks the buffer as unreadable and releases the data.
+	 * @zh 将缓冲区标记为不可读并释放数据。
 	 */
 	markAsUnreadbale(): void {
 		this._canRead = false;
@@ -127,6 +147,8 @@ export class VertexBuffer3D {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @en Destroys the vertex buffer and releases the resources.
+	 * @zh 销毁顶点缓冲区并释放资源。
 	 */
 	destroy(): void {
 		this._deviceBuffer.destroy();

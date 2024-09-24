@@ -9,9 +9,6 @@ import { Texture } from "../resource/Texture"
 import { Handler } from "../utils/Handler"
 import { ILaya } from "../../ILaya";
 import { URL } from "../net/URL";
-
-
-
 /**
  * @en The `Clip` class is a bitmap slice animation.
  * `Clip` can split an image into a slice animation by horizontal split count `clipX`, vertical split count `clipY`, 
@@ -24,34 +21,20 @@ import { URL } from "../net/URL";
  * 从左向右，从上到下，分割组合为一个切片动画。
  * Image和Clip组件是唯一支持异步加载的两个组件，比如clip.skin = "abc/xxx.png"，其他UI组件均不支持异步加载。
  */
-export class Clip extends UIComponent {
-    /**@internal */
+export class Clip extends UIComponent {   
     protected _sources: Texture[];
-    /**@internal */
     protected _skin: string;
-    /**@internal */
     protected _clipX: number = 1;
-    /**@internal */
     protected _clipY: number = 1;
-    /**@internal */
     protected _clipWidth: number = 0;
-    /**@internal */
     protected _clipHeight: number = 0;
-    /**@internal */
     protected _autoPlay: boolean;
-    /**@internal */
     protected _interval: number = 50;
-    /**@internal */
     protected _complete: Handler;
-    /**@internal */
     protected _isPlaying: boolean;
-    /**@internal */
     protected _index: number = 0;
-    /**@internal */
     protected _clipChanged: boolean;
-    /**@internal */
     protected _group: string;
-    /**@internal */
     protected _toIndex: number = -1;
     /**@internal */
     declare _graphics: AutoBitmap;
@@ -59,12 +42,10 @@ export class Clip extends UIComponent {
     /**
      * @en The address of the skin resource.
      * @zh 皮肤资源地址
-     * @copy laya.ui.Image#skin
      */
     get skin(): string {
         return this._skin;
     }
-
     set skin(value: string) {
         if (this._skin == value)
             return;
@@ -261,7 +242,6 @@ export class Clip extends UIComponent {
         this.skin = url;
     }
 
-    /**@internal	 @override*/
     protected _onDisplay(e?: boolean): void {
         if (this._isPlaying) {
             if (this._getBit(NodeFlags.DISPLAYED_INSTAGE)) this.play();
@@ -290,7 +270,6 @@ export class Clip extends UIComponent {
         }
     }
 
-    /**@internal */
     protected _skinLoaded(): void {
         if (this._destroyed)
             return;
@@ -300,7 +279,6 @@ export class Clip extends UIComponent {
         this.event(Event.LOADED);
     }
 
-    /**@internal */
     protected _setClipChanged(): void {
         if (!this._clipChanged) {
             this._clipChanged = true;
@@ -310,8 +288,6 @@ export class Clip extends UIComponent {
 
     /**
      * @internal
-     * @inheritDoc 
-     * @override
      */
     _setWidth(value: number) {
         super._setWidth(value);
@@ -320,17 +296,12 @@ export class Clip extends UIComponent {
 
     /**
      * @internal
-     * @inheritDoc 
-     * @override
      */
     _setHeight(value: number) {
         super._setHeight(value);
         this._graphics.height = value;
     }
 
-    /**
-     * @internal
-     */
     protected _loop(): void {
         if (this._visible) {
             this._index++;
@@ -341,18 +312,11 @@ export class Clip extends UIComponent {
             this.index = this._index;
         }
     }
-
-    /**
-     * @internal
-     * @inheritDoc
-     * @override 
-     */
     protected createChildren(): void {
         this.setGraphics(new AutoBitmap(), true);
     }
 
     /**
-     * @internal
      * @en Changes the resources and size of the slices.
      * @zh 改变切片的资源、切片的大小。
      */
@@ -371,7 +335,6 @@ export class Clip extends UIComponent {
     }
 
     /**
-     * @internal
      * @en Callback function when the sliced image resources are loaded.
      * @param url Resource URL.
      * @param img Texture.
@@ -400,21 +363,11 @@ export class Clip extends UIComponent {
         this.onCompResize();
     }
 
-    /**
-     * @internal
-     * @inheritDoc 
-     * @override
-     */
     protected measureWidth(): number {
         this.runCallLater(this.changeClip);
         return this._graphics.width;
     }
 
-    /**
-     * @internal
-     * @inheritDoc 
-     * @override
-     */
     protected measureHeight(): number {
         this.runCallLater(this.changeClip);
         return this._graphics.height;
@@ -441,7 +394,6 @@ export class Clip extends UIComponent {
         this.on(Event.UNDISPLAY, this, this._onDisplay);
     }
 
-
     /**
      * @en Stops the slice animation.
      * @zh 停止切片动画。
@@ -451,11 +403,6 @@ export class Clip extends UIComponent {
         ILaya.timer.clear(this, this._loop);
         this.event(Event.COMPLETE);
     }
-
-    /**
-     * @inheritDoc 
-     * @override
-     */
     set_dataSource(value: any): void {
         this._dataSource = value;
         if (typeof (value) == 'number' || typeof (value) == 'string')

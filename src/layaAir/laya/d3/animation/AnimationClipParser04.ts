@@ -18,6 +18,8 @@ import { WeightedMode } from "../core/Keyframe";
 
 /**
  * @internal
+ * @en A tool class for parsing AnimationClip data.
+ * @zh 解析AnimationClip数据的工具类。
  */
 export class AnimationClipParser04 {
 	private static _animationClip: AnimationClip | null;
@@ -55,6 +57,14 @@ export class AnimationClipParser04 {
 
 	/**
 	 * @internal
+	 * @en Parse AnimationClip data from a byte stream.
+	 * @param clip The AnimationClip object to be populated with parsed data.
+	 * @param reader The Byte object containing the animation data to be parsed.
+	 * @param version The version string of the animation data format.
+	 * @zh 从字节流中解析AnimationClip数据。
+	 * @param clip 要填充解析数据的 AnimationClip 对象。
+	 * @param reader 包含要解析的动画数据的 Byte 对象。
+	 * @param version 动画数据格式的版本字符串。
 	 */
 	static parse(clip: AnimationClip, reader: Byte, version: string): void {
 		AnimationClipParser04._animationClip = clip;
@@ -79,6 +89,8 @@ export class AnimationClipParser04 {
 
 	/**
 	 * @internal
+	 * @en Parse the various components of the AnimationClip from binary data and assemble them into a complete AnimationClip object for subsequent animation playback and processing.
+	 * @zh 从二进制数据中解析出 AnimationClip 的各个组成部分，并将其组装成一个完整的 AnimationClip 对象，以便后续的动画播放和处理。
 	 */
 	static READ_ANIMATIONS(): void {
 		var i: number, j: number;

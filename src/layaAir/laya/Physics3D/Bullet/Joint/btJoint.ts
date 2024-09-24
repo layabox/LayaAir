@@ -6,7 +6,10 @@ import { EJointCapable } from "../../physicsEnum/EJointCapable";
 import { btCollider } from "../Collider/btCollider";
 import { btPhysicsCreateUtil } from "../btPhysicsCreateUtil";
 import { btPhysicsManager } from "../btPhysicsManager";
-
+/**
+ * @en Class `btJoint` is the base class for all joints in LayaAir physics engine.
+ * @zh 类`btJoint`用于实现物理关节的基类。
+ */
 export class btJoint implements IJoint {
     /**@internal */
     static _jointCapableMap: Map<any, any>;
@@ -62,7 +65,10 @@ export class btJoint implements IJoint {
     /**@internal */
     _constraintType: number;
     _manager: btPhysicsManager;
-    /** 连接的两个物体是否进行碰撞检测 */
+    /**
+     * @en Whether to perform collision detection between the two connected objects.
+     * @zh 连接的两个物体是否进行碰撞检测。
+     */
     _disableCollisionsBetweenLinkedBodies = false;
 
     /**@internal */
@@ -90,16 +96,34 @@ export class btJoint implements IJoint {
         btJoint.initJointCapable();
     }
 
+    /**
+     * @en Initialize the joint capability map.
+     * @zh 初始化关节能力映射。
+     */
     static initJointCapable(): void {
         btJoint._jointCapableMap = new Map();
         btJoint._jointCapableMap.set(EJointCapable.Joint_Anchor, true);
         btJoint._jointCapableMap.set(EJointCapable.Joint_ConnectAnchor, true);
     }
 
+    /**
+     * @en Get the joint capability.
+     * @param value The joint capability to check.
+     * @returns Whether the joint has the specified capability.
+     * @zh 获取关节能力。
+     * @param value 要检查的关节能力。
+     * @returns 关节是否具有指定的能力。
+     */
     static getJointCapable(value: EJointCapable): boolean {
         return btJoint._jointCapableMap.get(value);
     }
 
+    /**
+     * @en Creates an instance of btJoint.
+     * @param manager The physics manager.
+     * @zh 创建一个 btJoint 的实例。
+     * @param manager 物理管理器。
+     */
     constructor(manager: btPhysicsManager) {
         this._manager = manager;
         this.initJoint();
@@ -109,6 +133,12 @@ export class btJoint implements IJoint {
         //override it
     }
 
+    /**
+     * @en Set the collider for the joint.
+     * @param collider The collider to set.
+     * @zh 设置关节的碰撞器。
+     * @param collider 要设置的碰撞器。
+     */
     setCollider(collider: btCollider): void {
         if (collider == this._collider)
             return;
@@ -116,6 +146,12 @@ export class btJoint implements IJoint {
         this._createJoint();
     }
 
+    /**
+     * @en Set the connected collider for the joint.
+     * @param collider The connected collider to set.
+     * @zh 设置关节的连接碰撞器。
+     * @param collider 要设置的连接碰撞器。
+     */
     setConnectedCollider(collider: btCollider): void {
         if (collider == this._connectCollider)
             return;
@@ -126,6 +162,12 @@ export class btJoint implements IJoint {
         this._createJoint();
     }
 
+    /**
+     * @en Set the local position of the joint.
+     * @param pos The local position to set.
+     * @zh 设置关节的局部位置。
+     * @param pos 要设置的局部位置。
+     */
     setLocalPos(pos: Vector3): void {
         let bt = btPhysicsCreateUtil._bt;
         this._anchor = pos;
@@ -134,6 +176,12 @@ export class btJoint implements IJoint {
         bt.btTransform_setOrigin(this._btTempTrans0, this._btTempVector30);
         bt.btTransform_setOrigin(this._btTempTrans1, this._btTempVector31);
     }
+    /**
+     * @en Set the connected local position of the joint.
+     * @param pos The connected local position to set.
+     * @zh 设置关节的连接局部位置。
+     * @param pos 要设置的连接局部位置。
+     */
     setConnectLocalPos(pos: Vector3): void {
         let bt = btPhysicsCreateUtil._bt;
         this._connectAnchor = pos;
@@ -142,21 +190,43 @@ export class btJoint implements IJoint {
         bt.btTransform_setOrigin(this._btTempTrans0, this._btTempVector30);
         bt.btTransform_setOrigin(this._btTempTrans1, this._btTempVector31);
     }
+    /**
+     * @en Get the linear force of the joint.
+     * @zh 获取关节的线性力。
+     */
     getlinearForce(): Vector3 {
         throw new Error("Method not implemented.");
     }
+    /**
+     * @en Get the angular force of the joint.
+     * @zh 获取关节的角力。
+     */
     getAngularForce(): Vector3 {
         throw new Error("Method not implemented.");
     }
+    /**
+     * @en Check if the joint is valid.
+     * @zh 检查关节是否有效。
+     */
     isValid(): boolean {
         throw new Error("Method not implemented.");
     }
-
+    /**
+     * @en Enable or disable the joint.
+     * @param value Whether to enable the joint.
+     * @zh 启用或禁用关节。
+     * @param value 是否启用关节。
+     */
     isEnable(value: boolean): void {
         let bt = btPhysicsCreateUtil._bt;
         bt.btTypedConstraint_setEnabled(this._btJoint, value);
     }
-
+    /**
+     * @en Set whether collision is enabled between connected bodies.
+     * @param value Whether to enable collision.
+     * @zh 设置连接的物体之间是否启用碰撞。
+     * @param value 是否启用碰撞。
+     */
     isCollision(value: boolean): void {
         this._disableCollisionsBetweenLinkedBodies = !value;
         this._createJoint();
@@ -175,12 +245,20 @@ export class btJoint implements IJoint {
         bt.btTransform_setIdentity(this._btTempTrans1);
         bt.btTransform_setOrigin(this._btTempTrans1, this._btTempVector31);
     }
-
+    /**
+     * @en Set the owner of the joint.
+     * @param owner The owner to set.
+     * @zh 设置关节的所有者。
+     * @param owner 要设置的所有者。
+     */
     setOwner(owner: Sprite3D) {
         this.owner = owner;
     }
 
-
+    /**
+     * @en Check if the joint is constrained by break force or torque.
+     * @zh 检查关节是否受到断裂力或扭矩的约束。
+     */
     _isBreakConstrained() {
         this._getJointFeedBack = false;
         if (this._breakForce == -1 && this._breakTorque == -1)
@@ -197,7 +275,8 @@ export class btJoint implements IJoint {
 
     /**
      * @internal
-     * 获取bt回调参数
+     * @en Get the feedback information from bt.
+     * @zh 获取bt回调参数。
      */
     _btFeedBackInfo() {
         var bt = btPhysicsCreateUtil._bt;
@@ -208,21 +287,57 @@ export class btJoint implements IJoint {
         this._getJointFeedBack = true;
     }
 
+    /**
+     * @en Set the mass scale of the connected body.
+     * @param value The mass scale to set.
+     * @zh 设置连接物体的质量比例。
+     * @param value 要设置的质量比例。
+     */
     setConnectedMassScale(value: number): void {
         throw new Error("Method not implemented.");
     }
+    /**
+     * @en Set the inertia scale of the connected body.
+     * @param value The inertia scale to set.
+     * @zh 设置连接物体的惯性比例。
+     * @param value 要设置的惯性比例。
+     */
     setConnectedInertiaScale(value: number): void {
         throw new Error("Method not implemented.");
     }
+    /**
+     * @en Set the mass scale of the joint.
+     * @param value The mass scale to set.
+     * @zh 设置关节的质量比例。
+     * @param value 要设置的质量比例。
+     */
     setMassScale(value: number): void {
         throw new Error("Method not implemented.");
     }
+    /**
+     * @en Set the inertia scale of the joint.
+     * @param value The inertia scale to set.
+     * @zh 设置关节的惯性比例。
+     * @param value 要设置的惯性比例。
+     */
     setInertiaScale(value: number): void {
         throw new Error("Method not implemented.");
     }
+    /**
+     * @en Set the break force of the joint.
+     * @param value The break force to set.
+     * @zh 设置关节的断裂力。
+     * @param value 要设置的断裂力。
+     */
     setBreakForce(value: number): void {
         this._breakForce = value;
     }
+    /**
+     * @en Set the break torque of the joint.
+     * @param value The break torque to set.
+     * @zh 设置关节的断裂扭矩。
+     * @param value 要设置的断裂扭矩。
+     */
     setBreakTorque(value: number): void {
         this._breakTorque = value;
     }

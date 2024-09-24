@@ -7,7 +7,8 @@ import { PhysicsColliderComponent } from "./PhysicsColliderComponent";
 import { Event } from "../../events/Event";
 
 /**
- * <code>PhysicsCollider</code> 类用于创建物理碰撞器。
+ * @en PhysicsCollider is a class used to create physical collider.
+ * @zh PhysicsCollider 类用于创建物理碰撞器。
  */
 export class PhysicsCollider extends PhysicsColliderComponent {
     /** @internal */
@@ -30,13 +31,14 @@ export class PhysicsCollider extends PhysicsColliderComponent {
             console.error("PhysicsCollider:cant enable PhysicsCollider");
         }
     }
-
+    /** @ignore */
     constructor() {
         super();
     }
 
     /**
-     * 是否为触发器。
+     * @en If this collider is a trigger.
+     * @zh 此碰撞器是否为触发器。
      */
     get isTrigger(): boolean {
         return this._isTrigger;

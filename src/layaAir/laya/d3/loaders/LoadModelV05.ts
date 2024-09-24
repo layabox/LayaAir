@@ -17,7 +17,8 @@ import { SubMesh } from "../resource/models/SubMesh"
 
 /**
  * @internal
- * <code>LoadModelV05</code> 类用于模型加载。
+ * @en `LoadModelV05` class is used for loading model data.
+ * @zh `LoadModelV05` 类用于加载模型数据。
  */
 export class LoadModelV05 {
 

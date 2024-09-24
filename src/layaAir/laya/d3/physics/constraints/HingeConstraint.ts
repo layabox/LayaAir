@@ -5,6 +5,10 @@ import { Vector3 } from "../../../maths/Vector3";
 import { Scene3D } from "../../core/scene/Scene3D";
 import { ConstraintComponent } from "./ConstraintComponent";
 
+/**
+ * @en Represents a hinge constraint between two rigid bodies.
+ * @zh 两个刚体之间的铰链约束。
+ */
 export class HingeConstraint extends ConstraintComponent {
     /**@internal */
     _joint: IHingeJoint;
@@ -40,9 +44,7 @@ export class HingeConstraint extends ConstraintComponent {
     private _contactDistance: number = 0;
 
 
-    /**
-    * 创建一个<code>HingeConstraint</code>铰链实例
-    */
+    /** @ignore */
     constructor() {
         super();
     }
@@ -82,9 +84,13 @@ export class HingeConstraint extends ConstraintComponent {
     }
 
     /**
-     * 主轴
-     * set Hinge Rotation Axis,value by local rigibody0 
+     * @en Main axis. Set Hinge Rotation Axis, value by rigidbody0.
+     * @zh 主轴。设置铰链旋转轴，值由刚体0决定。
      */
+    get Axis(): Vector3 {
+        return this._axis;
+    }
+
     set Axis(value: Vector3) {
         if (!value || this._axis.equal(value)) {
             return;
@@ -94,140 +100,137 @@ export class HingeConstraint extends ConstraintComponent {
         this._joint && this._joint.setAxis(value);
     }
 
-    get Axis(): Vector3 {
-        return this._axis;
+    /**
+     * @en The minimum limit value for joints.
+     * @zh 关节的最小限制值。
+     */
+    get lowerLimit() {
+        return this._lowerLimit;
     }
 
-    /**
-     * 关节的最小限制值
-     * @param lowerLimit 最小限制值
-     */
     set lowerLimit(value: number) {
         this._lowerLimit = value;
         let lowerValue = value < this._lowerLimit ? this._lowerLimit : (value < (-Math.PI / 2) ? (-Math.PI) : value);
         this._joint && this._joint.setLowerLimit(lowerValue);
     }
 
-    get lowerLimit() {
-        return this._lowerLimit;
+    /**
+     * @en The maximum limit value of the joint.
+     * @zh 关节的最大限制值。
+     */
+    get uperLimit(): number {
+        return this._uperLimit;
     }
 
-    /**
-     * 关节的最大限制值
-     * @param lowerLimit 最大限制值
-     */
     set uperLimit(value: number) {
         this._uperLimit = value;
         let uperValue = value > this._uperLimit ? this._uperLimit : (value > (Math.PI / 2) ? (Math.PI) : value);
         this._joint && this._joint.setUpLimit(uperValue);
     }
 
-    get uperLimit(): number {
-        return this._uperLimit;
+    /**
+     * @en Bounciness value after joint limit.
+     * @zh 关节限制值后的弹力值。
+     */
+    get bounceness(): number {
+        return this._bounciness;
     }
 
-    /**
-     * 关节限制值后弹力值
-     * @param value 
-     */
     set bounceness(value: number) {
         value = value < 0 ? 0 : (value > 1 ? 1 : value);
         this._bounciness = value;
         this._joint && this._joint.setBounceness(value);
     }
 
-    get bounceness(): number {
-        return this._bounciness;
+    /**
+     * @en Minimum velocity for bounce after joint limit.
+     * @zh 关节限制值后弹力反弹的最小速度。
+     */
+    get bouncenMinVelocity() {
+        return this._bounceMinVelocity;
     }
 
-    /**
-     * 关节限制值后弹力反弹最小速度
-     * @param value 
-     */
     set bouncenMinVelocity(value: number) {
         this._bounceMinVelocity = value;
         this._joint && this._joint.setBouncenMinVelocity(value);
     }
 
-    get bouncenMinVelocity() {
-        return this._bounceMinVelocity;
+    /**
+     * @en Contact distance value of the joint, continuous collision within this distance.
+     * @zh 关节的接触距离值，在此距离内持续碰撞。
+     */
+    get contactDistance() {
+        return this._contactDistance;
     }
 
-    /**
-     * 关节的接触距离值，距离值内持续碰撞
-     * @param value 
-     */
     set contactDistance(value: number) {
         this._contactDistance = value;
         this._joint && this._joint.setContactDistance(value);
     }
 
-    get contactDistance() {
-        return this._contactDistance;
+    /**
+     * @en Rotation limit of the joint.
+     * @zh 关节的旋转限制。
+     */
+    get limit() {
+        return this._limit;
     }
 
-    /**
-     * 关节的旋转限制值
-     * @param value 
-     */
     set limit(value: boolean) {
         this._limit = value;
         this._joint && this._joint.enableLimit(value);
     }
 
-    get limit() {
-        return this._limit;
+    /**
+     * @en Whether it is a motor (self-driven).
+     * @zh 是否为马达（自驱动）。
+     */
+    get motor() {
+        return this._motor;
     }
 
-    /**
-     * 是否自驱动
-     * @param value 
-     */
     set motor(value: boolean) {
         this._motor = value;
         this._motor && this._joint.enableDrive(value);
     }
 
-    get motor() {
-        return this._motor;
+    /**
+     * @en Self driving acceleration (not maintaining a constant driving speed)
+     * @zh 自驱动加速（不保持恒定驱动速度）。
+     */
+    get freeSpin() {
+        return this._freeSpin;
     }
 
-    /**
-     * 自驱动加速(不保持恒定驱动速度)
-     * @param value 
-     */
     set freeSpin(value: boolean) {
         this._freeSpin = value;
         this._joint && this._joint.enableFreeSpin(value);
     }
 
-    get freeSpin() {
-        return this._freeSpin;
+    /**
+     * @en The target velocity for the drive model.
+     * @zh 驱动模型的目标速度。
+     */
+    get targetVelocity() {
+        return this._targetVelocity;
     }
 
-    /**
-     * set the target velocity for the drive model.
-     * @param velocity the drive target velocity
-     */
     set targetVelocity(velocity: number) {
         this._targetVelocity = velocity;
         this._joint && this._joint.setDriveVelocity(velocity)
     }
 
-    get targetVelocity() {
-        return this._targetVelocity;
-    }
-
-
     /**
-     * The current angle in degrees of the joint relative to its rest position.
+     * @en Get the current angle in degrees of the joint relative to its rest position.
+     * @zh 获取关节相对于其静止位置的当前角度(度)。
      */
     getAngle(): number {
         return this._joint ? this._joint.getAngle() : 0;
     }
 
     /**
-     * The angular velocity of the joint in degrees per second.
+     * @en The angular velocity of the joint in degrees per second.
+     * @zh 获取关节的角速度，单位为度每秒。
      */
     getVelocity(): Vector3 {
         return this._joint ? this._joint.getVelocity() : Vector3._tempVector3.set(0, 0, 0);

@@ -6,7 +6,8 @@ import { Lightmap } from "../../core/scene/Lightmap";
 import { Bounds } from "../../math/Bounds";
 import { HLODBatchMesh } from "./HLODBatchMesh";
 /**
- * HLOD的设置
+ * @en Configuration for Hierarchical Level of Detail (HLOD) settings.
+ * @zh 分层细节层次(HLOD)的配置设置。
  */
 export class HLODConfig {
     releaseCallTime: number;//CG调用时间
@@ -15,7 +16,8 @@ export class HLODConfig {
 
 
 /**
- * HLODBatch resource
+ * @en Represents a sub-mesh within an HLOD batch resource, describing geometric bounds and render parameters.
+ * @zh 在 HLOD 批处理资源中表示一个子网格，包括几何边界和渲染参数。
  */
 export class HLODBatchSubMesh {
     bounds: Bounds;
@@ -23,14 +25,22 @@ export class HLODBatchSubMesh {
 }
 
 /**
- * HLODElement 一组HLODRenderElement资源
+ * @en An element representing a set of HLOD renderable resources.
+ * @zh 表示一组 HLOD 可渲染资源的元素。
  */
 export class HLODElement {
-    /**batch mesh */
+    /**
+     * @en The batch mesh for this HLOD element.
+     * @zh 此 HLOD 元素的批处理网格。
+     */
     HLODMesh: HLODBatchMesh;
 
     /**material */
     private _material: Material;
+    /**
+     * @en The material for this HLOD element.
+     * @zh 此 HLOD 元素的材质。
+     */
     public get material(): Material {
         return this._material;
     }
@@ -45,6 +55,10 @@ export class HLODElement {
 
     /**lightmap */
     private _lightmap: Lightmap;
+    /**
+     * @en The lightmap for this HLOD element.
+     * @zh 此 HLOD 元素的光照贴图。
+     */
     public get lightmap(): Lightmap {
         return this._lightmap;
     }
@@ -63,8 +77,10 @@ export class HLODElement {
     }
 
     /**
-     * 释放资源
-     * lightmap direct destroy
+     * @en Release resources associated with this HLOD element.
+     * Lightmap is directly destroyed.
+     * @zh 释放与此 HLOD 元素关联的资源。
+     * 光照贴图会被直接销毁。
      */
     release() {
         this.HLODMesh.destroy();
@@ -77,19 +93,38 @@ export class HLODElement {
 }
 
 /**
- * HLOD Resource
- * Load/release
+ * @en A resource group for managing the lifecycle of HLOD resources, handling their load and release state.
+ * @zh 用于管理 HLOD 资源生命周期的资源组，处理其加载和释放状态。
  */
 export class HLODResourceGroup {
+    /**
+     * @en The URL of the HLOD resource.
+     * @zh HLOD 资源的 URL。
+     */
     url: string;
+    /**
+     * @en Update marker for the resource group.
+     * @zh 资源组的更新标记。
+     */
     updateMark: number;
+    /**
+     * @en Array of HLOD elements in this resource group.
+     * @zh 此资源组中的 HLOD 元素数组。
+     */
     resources: HLODElement[];
+    /**
+     * @en Indicates whether the resource group is loaded.
+     * @zh 资源组是否已加载。
+     */
     loaded: boolean;
 
     /**
-     * loaded
-     * @param callFun 
-     * @param hlod 
+     * @en Load the HLOD resource group.
+     * @param callFun The callback function to be called after loading.
+     * @param hlod The HLOD instance.
+     * @zh 加载 HLOD 资源组。
+     * @param callFun 加载完成后要调用的回调函数。
+     * @param hlod HLOD 实例。
      */
     load(callFun: Function, hlod: any) {
         if (!this.loaded) {
@@ -103,7 +138,8 @@ export class HLODResourceGroup {
     }
 
     /**
-     * 释放HLODGourp资源
+     * @en Releases all the resources of the HLOD group, marking the group as unloaded.
+     * @zh 释放 HLOD 组的所有资源，并标记组为未加载。
      */
     release() {
         this.resources.forEach(element => {

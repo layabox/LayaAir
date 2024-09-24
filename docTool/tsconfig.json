@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "target": "es6", // 设定编译后的ECMAScript目标版本
+        "module": "commonjs", // 设置生成代码的模块系统，Node.js主要使用CommonJS
+        "outDir": "./dist", // 指定输出目录
+        "rootDir": "./src", // 指定输入文件的根目录
+        "strictPropertyInitialization": false, // 严格检查类属性初始化
+        "skipLibCheck": true, // 跳过库文件的类型检查
+        "forceConsistentCasingInFileNames": true // 强制文件名大小写一致性
+    },
+    "include": [
+        "src/**/*"
+    ], // 编译器要包含的文件路径或模式数组
+    "exclude": [
+        "node_modules"
+    ] // 排除不需要编译的文件
+}

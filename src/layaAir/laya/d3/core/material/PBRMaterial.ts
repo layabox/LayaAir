@@ -10,21 +10,35 @@ import { ShaderDefine } from "../../../RenderDriver/RenderModuleData/Design/Shad
 import { RenderState } from "../../../RenderDriver/RenderModuleData/Design/RenderState";
 
 /**
- * 渲染模式。
+ * @en Enum representing the different render modes used in PBR (Physically Based Rendering) materials.
+ * @zh 表示 PBR（基于物理的渲染）材质中使用的不同渲染模式的枚举。
  */
 export enum PBRRenderMode {
-    /**不透明。*/
+    /**
+     * @en Opaque render mode.
+     * @zh 不透明渲染模式。
+     */
     Opaque,
-    /**透明裁剪。*/
+    /**
+     * @en Cutout render mode.
+     * @zh 裁剪透明渲染模式。
+     */
     Cutout,
-    /**透明混合_游戏中经常使用的透明。*/
+    /**
+     * @en Transparent Mixing: Transparent commonly used in games
+     * @zh 透明混合_游戏中经常使用的透明。
+     */
     Fade,
-    /**透明混合_物理上看似合理的透明。*/
+    /**
+     * @en Transparent Mixing: Physically Seemingly Reasonable Transparency
+     * @zh 透明混合_物理上看似合理的透明。
+     */
     Transparent
 }
 
 /**
- * PBR材质的父类,该类为抽象类。
+ * @en The parent class of PBR material, which is an abstract class.
+ * @zh PBR材质的父类,该类为抽象类。
  */
 export class PBRMaterial extends Material {
     /** @internal */
@@ -119,7 +133,10 @@ export class PBRMaterial extends Material {
     /** @internal */
     static ANISOTROPYROTATION: number;
 
-    /** 渲染质量。*/
+    /** 
+     * @en render quality
+     * @zh 渲染质量。
+     * */
     static renderQuality: PBRRenderQuality = PBRRenderQuality.High;
 
     /**
@@ -181,7 +198,8 @@ export class PBRMaterial extends Material {
 
 
     /**
-     * 漫反射颜色。
+     * @en Albedo color
+     * @zh 漫反射颜色。
      */
     get albedoColor(): Color {
         return this._shaderValues.getColor(PBRMaterial.ALBEDOCOLOR);
@@ -192,7 +210,8 @@ export class PBRMaterial extends Material {
     }
 
     /**
-     * 漫反射贴图。
+     * @en Albedo texture
+     * @zh 漫反射贴图。
      */
     get albedoTexture(): BaseTexture {
         if (this.hasDefine(PBRMaterial.SHADERDEFINE_ALBEDOTEXTURE)) {
@@ -213,7 +232,8 @@ export class PBRMaterial extends Material {
     }
 
     /**
-     * 法线贴图。
+     * @en Normal texture
+     * @zh 法线贴图。
      */
     get normalTexture(): BaseTexture {
         if (this.hasDefine(PBRMaterial.SHADERDEFINE_NORMALTEXTURE)) {
@@ -234,7 +254,8 @@ export class PBRMaterial extends Material {
     }
 
     /**
-     * 法线贴图缩放系数。
+     * @en Normal texture scaling factor.
+     * @zh 法线贴图缩放系数。
      */
     get normalTextureScale(): number {
         return this._shaderValues.getNumber(PBRMaterial.NORMALSCALE);
@@ -245,7 +266,8 @@ export class PBRMaterial extends Material {
     }
 
     /**
-     * 视差贴图。
+     * @en Parallax texture
+     * @zh 视差贴图。
      */
     get parallaxTexture(): BaseTexture {
         return this._shaderValues.getTexture(PBRMaterial.PARALLAXTEXTURE);
@@ -260,7 +282,8 @@ export class PBRMaterial extends Material {
     }
 
     /**
-     * 视差贴图缩放系数。
+     * @en Parallax texture scaling factor.
+     * @zh 视差贴图缩放系数。
      */
     get parallaxTextureScale(): number {
         return this._shaderValues.getNumber(PBRMaterial.PARALLAXSCALE);
@@ -271,7 +294,8 @@ export class PBRMaterial extends Material {
     }
 
     /**
-     * 遮挡贴图。
+     * @en Occlusion texture
+     * @zh 遮挡贴图。
      */
     get occlusionTexture(): BaseTexture {
         return this._shaderValues.getTexture(PBRMaterial.OCCLUSIONTEXTURE);
@@ -287,7 +311,8 @@ export class PBRMaterial extends Material {
     }
 
     /**
-     * 遮挡贴图强度,范围为0到1。
+     * @en Occlusion texture strength, the range is from 0 to 1.
+     * @zh 遮挡贴图强度，范围为0到1。
      */
     get occlusionTextureStrength(): number {
         return this._shaderValues.getNumber(PBRMaterial.OCCLUSIONSTRENGTH);
@@ -298,7 +323,8 @@ export class PBRMaterial extends Material {
     }
 
     /**
-     * 光滑度,范围为0到1。
+     * @en The smoothness of the material, the range is from 0 to 1.
+     * @zh 材质的光滑度，范围为0到1。
      */
     get smoothness(): number {
         return this._shaderValues.getNumber(PBRMaterial.SMOOTHNESS);
@@ -309,8 +335,9 @@ export class PBRMaterial extends Material {
     }
 
     /**
-      * 是否支持顶点色。
-      */
+     * @en Whether to support vertex color.
+     * @zh 是否支持顶点色。
+     */
     get enableVertexColor(): boolean {
         return this.hasDefine(PBRMaterial.SHADERDEFINE_ENABLEVERTEXCOLOR);
     }
@@ -323,7 +350,8 @@ export class PBRMaterial extends Material {
     }
 
     /**
-     * 是否开启自发光。
+     * @en Whether to enable emission.
+     * @zh 是否开启自发光。
      */
     get enableEmission(): boolean {
         return this._shaderValues.hasDefine(PBRShaderLib.DEFINE_EMISSION);
@@ -337,7 +365,8 @@ export class PBRMaterial extends Material {
     }
 
     /**
-     * 自发光颜色。
+     * @en Emission color.
+     * @zh 自发光颜色。
      */
     get emissionColor(): Color {
         return this._shaderValues.getColor(PBRMaterial.EMISSIONCOLOR);
@@ -347,17 +376,22 @@ export class PBRMaterial extends Material {
         this._shaderValues.setColor(PBRMaterial.EMISSIONCOLOR, value);
     }
 
+    /**
+     * @en Emission intensity
+     * @zh 自发光强度
+     */
+    get emissionIntensity() {
+        return this._shaderValues.getNumber(PBRMaterial.EMISSIONIntensity);
+    }
+
     set emissionIntensity(value: number) {
         //u_EmissionIntensity
         this._shaderValues.setNumber(PBRMaterial.EMISSIONIntensity, value);
     }
 
-    get emissionIntensity() {
-        return this._shaderValues.getNumber(PBRMaterial.EMISSIONIntensity);
-    }
-
     /**
-     * 自发光贴图。
+     * @en Emission texture.
+     * @zh 自发光贴图。
      */
     get emissionTexture(): BaseTexture {
         return this._shaderValues.getTexture(PBRMaterial.EMISSIONTEXTURE);
@@ -373,7 +407,8 @@ export class PBRMaterial extends Material {
     }
 
     /**
-     * 纹理平铺和偏移。
+     * @en Texture tiling and offsetting.
+     * @zh 纹理平铺和偏移。
      */
     get tilingOffset(): Vector4 {
         return (<Vector4>this._shaderValues.getVector(PBRMaterial.TILINGOFFSET));
@@ -390,7 +425,8 @@ export class PBRMaterial extends Material {
 
 
     /**
-     * 细节贴图。
+     * @en Detail texture.
+     * @zh 细节贴图。
      */
     get detailAlbedoTexture(): BaseTexture {
         return this._shaderValues.getTexture(PBRMaterial.DETAILALBEDOTEXTURE);
@@ -407,7 +443,8 @@ export class PBRMaterial extends Material {
 
 
     /**
-     * 细节法线贴图。
+     * @en Detail normal texture.
+     * @zh 细节法线贴图。
      */
     get detailNormalTexture(): BaseTexture {
         return this._shaderValues.getTexture(PBRMaterial.DETAILNORMALTEXTURE);
@@ -422,8 +459,9 @@ export class PBRMaterial extends Material {
     }
 
     /**
-    * 细节图纹理平铺和偏移。
-    */
+     * @en The tiling and offset values for the detail textures. 
+     * @zh 细节图纹理平铺和偏移。
+     */
     get detailTilingOffset(): Vector4 {
         return (<Vector4>this._shaderValues.getVector(PBRMaterial.DETAILTILLINGOFFSET));
     }
@@ -438,8 +476,9 @@ export class PBRMaterial extends Material {
     }
 
     /**
-    * 细节法线贴图缩放系数。
-    */
+     * @en The scale factor for the detail normal textures.
+     * @zh 细节法线贴图缩放系数。
+     */
     get detailNormalScale(): number {
         return this._shaderValues.getNumber(PBRMaterial.DETAILNORMALSCALE);
     }
@@ -452,7 +491,8 @@ export class PBRMaterial extends Material {
 
 
     /**
-     * 渲染模式。
+     * @en Render mode.
+     * @zh 渲染模式。
      */
     set renderMode(value: number) {
         switch (value) {
@@ -502,7 +542,8 @@ export class PBRMaterial extends Material {
     }
 
     /**
-     * 是否开启 anisotropy
+     * @en Whether to enable anisotropy
+     * @zh 是否开启各向异性
      */
     public get anisotropyEnable(): boolean {
         return this.shaderData.hasDefine(PBRShaderLib.DEFINE_ANISOTROPY);
@@ -517,7 +558,8 @@ export class PBRMaterial extends Material {
     }
 
     /**
-     * anisotropy 强度
+     * @en The strength of the anisotropy effect.
+     * @zh 各向异性强度
      */
     public get anisotropy(): number {
         return this.getFloatByIndex(PBRMaterial.ANISOTROPY);
@@ -527,7 +569,8 @@ export class PBRMaterial extends Material {
     }
 
     /**
-     * anisotropy 强度贴图
+     * @en Anisotropy strength texture.
+     * @zh 各向异性强度贴图。
      */
     public get anisotropyTexture(): Texture2D {
         return <Texture2D>this.getTextureByIndex(PBRMaterial.ANISOTROPYTEXTURE);
@@ -544,7 +587,8 @@ export class PBRMaterial extends Material {
     }
 
     /**
-     * anisotropy 在 切线空间 中的旋转
+     * @en Anisotropy rotation in tangent space.
+     * @zh 各向异性在切线空间中的旋转。
      */
     public get anisotropyRotation(): number {
         return this.getFloatByIndex(PBRMaterial.ANISOTROPYROTATION);
@@ -555,7 +599,8 @@ export class PBRMaterial extends Material {
     }
 
     /**
-     * 是否开启 clear coat
+     * @en Whether to enable clear coat
+     * @zh 是否开启透明涂层
      */
     public get clearCoatEnable(): boolean {
         return this.shaderData.hasDefine(PBRShaderLib.DEFINE_CLEARCOAT);
@@ -570,7 +615,8 @@ export class PBRMaterial extends Material {
     }
 
     /**
-     * clear coat 层 强度
+     * @en The strength of the clear coat effect.
+     * @zh 透明涂层强度
      */
     public get clearCoat(): number {
         return this.shaderData.getNumber(PBRMaterial.CLEARCOAT);
@@ -580,7 +626,8 @@ export class PBRMaterial extends Material {
     }
 
     /**
-     * clear coat 强度贴图
+     * @en Clear coat strength texture.
+     * @zh 透明涂层强度贴图
      */
     public get clearCoatTexture(): BaseTexture {
         return this.shaderData.getTexture(PBRMaterial.CLEARCOATTEXTURE);
@@ -596,7 +643,8 @@ export class PBRMaterial extends Material {
     }
 
     /**
-     * clear coat 层 粗糙度
+     * @en Clear coat roughness.
+     * @zh 透明涂层粗糙度。
      */
     public get clearCoatRoughness(): number {
         return this.shaderData.getNumber(PBRMaterial.CLEARCOATROUGHNESS);
@@ -606,7 +654,8 @@ export class PBRMaterial extends Material {
     }
 
     /**
-     * clear coat 层 粗糙度贴图
+     * @en Clear coat roughness texture.
+     * @zh 透明涂层粗糙度贴图。
      */
     public get clearCoatRoughnessTexture(): BaseTexture {
         return this.shaderData.getTexture(PBRMaterial.CLEARCOATROUGHNESSTEXTURE);
@@ -622,7 +671,8 @@ export class PBRMaterial extends Material {
     }
 
     /**
-     * clear coat 法线贴图
+     * @en Clear coat normal texture.
+     * @zh 透明涂层法线贴图。
      */
     public get clearCoatNormalTexture(): BaseTexture {
         return this.shaderData.getTexture(PBRMaterial.CLEARCOATNORMALTEXTURE);
@@ -649,9 +699,7 @@ export class PBRMaterial extends Material {
         this._shaderValues.setNumber(Material.ALPHATESTVALUE, 0.5);
         this.renderMode = PBRRenderMode.Opaque;
     }
-
-
-    //deprecated
+    
     /**
      * @deprecated
      * 光滑度缩放系数,范围为0到1。

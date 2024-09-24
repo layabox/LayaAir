@@ -14,53 +14,143 @@ import { UnifromBufferData } from "../../RenderEngine/UniformBufferData";
 
 
 /**
- * camera裁剪数据
+ * @en Camera culling information class.
+ * @zh 摄像机裁剪信息类。
  */
 export class CameraCullInfo {
-    /**位置 */
+    /**
+     * @en Position of the camera in the scene.
+     * @zh 摄像机在场景中的位置。
+     */
     position: Vector3;
-    /**是否遮挡剔除 */
+    /**
+     * @en Whether to use occlusion culling.
+     * @zh 是否遮挡剔除 
+     */
     useOcclusionCulling: Boolean;
-    /**锥体包围盒 */
+    /**
+     * @en Frustum that bounds the camera's view.
+     * @zh 摄像机视锥体的包围盒。
+     */
     boundFrustum: BoundFrustum;
-    /**遮挡标记 */
+    /**
+     * @en Occlusion Mask
+     * @zh 遮挡标记 
+     */
     cullingMask: number;
-    /**静态标记 */
+    /**
+     * @en Static Mask
+     * @zh 静态标记 
+     */
     staticMask: number;
 
+    /**
+     * @en Create a new instance of CameraCullInfo.
+     * @zh 创建 CameraCullInfo 类的新实例。
+     */
     constructor() {
         this.boundFrustum = new BoundFrustum(new Matrix4x4());
     }
 }
 
 /**
- * 阴影裁剪信息
+ * @en Shadow culling information.
+ * @zh 阴影裁剪信息
  */
 export class ShadowCullInfo {
+    /**
+     * @en Position.
+     * @zh 位置。
+     */
     position: Vector3;
+    /**
+     * @en Direction.
+     * @zh 方向。
+     */
     direction: Vector3;
+    /**
+     * @en Array of planes used for culling.
+     * @zh 用于裁剪的平面数组。
+     */
     cullPlanes: Plane[];
+    /**
+     * @en Sphere used for culling.
+     * @zh 用于裁剪的球体。
+     */
     cullSphere: BoundSphere;
+    /**
+     * @en Number of culling planes.
+     * @zh 裁剪平面的数量。
+     */
     cullPlaneCount: number;
 }
 
 
 /**
- * 聚光灯阴影数据
+ * @en Spotlight Shadow Data
+ * @zh 聚光灯阴影数据
  */
 export class ShadowSpotData {
+    /**
+     * @en The camera shader data.
+     * @zh 摄像机着色器数据。
+     */
     cameraShaderValue: ShaderData;
+    /**
+     * @en Position of the shadow.
+     * @zh 阴影的位置。
+     */
     position: Vector3 = new Vector3;
+    /**
+     * @en Offset on the X-axis for the shadow map.
+     * @zh 阴影贴图在X轴上的偏移。
+     */
     offsetX: number;
+    /**
+     * @en Offset on the Y-axis for the shadow map.
+     * @zh 阴影贴图在Y轴上的偏移。
+     */
     offsetY: number;
+    /**
+     * @en Resolution of the shadow map.
+     * @zh 阴影贴图的分辨率。
+     */
     resolution: number;
+    /**
+     * @en View matrix of the shadow.
+     * @zh 阴影的视图矩阵。
+     */
     viewMatrix: Matrix4x4 = new Matrix4x4();
+    /**
+     * @en Projection matrix of the shadow.
+     * @zh 阴影的投影矩阵。
+     */
     projectionMatrix: Matrix4x4 = new Matrix4x4();
+    /**
+     * @en Combined view and projection matrix of the shadow.
+     * @zh 阴影的视图投影矩阵。
+     */
     viewProjectMatrix: Matrix4x4 = new Matrix4x4();
+    /**
+     * @en Culling information for the shadow camera.
+     * @zh 阴影摄像机的裁剪信息。
+     */
     cameraCullInfo: CameraCullInfo;
+    /**
+     * @en Uniform buffer object for the camera.
+     * @zh 摄像机的统一缓冲对象。
+     */
     cameraUBO: UniformBufferObject;
+    /**
+     * @en Uniform buffer data for the camera.
+     * @zh 摄像机的统一缓冲数据。
+     */
     cameraUBData: UnifromBufferData;
 
+    /**
+     * @en Create a new instance of ShadowSpotData.
+     * @zh 创建 ShadowSpotData 类的新实例。
+     */
     constructor() {
         this.cameraShaderValue = LayaGL.renderDeviceFactory.createShaderData(null);
 
@@ -86,24 +176,98 @@ export class ShadowSpotData {
 
 /**
  * @internal
- * 阴影分割数据。
+ * @en Shadow Slice Data.
+ * @zh 阴影分割数据。
  */
 export class ShadowSliceData {
+    /**
+     * @en Shader data associated with the shadow slice.
+     * @zh 与阴影切片关联的着色器数据。
+     */
     cameraShaderValue: ShaderData;
+
+    /**
+     * @en Uniform buffer object for the shadow slice camera.
+     * @zh 阴影切片摄像机的统一缓冲对象。
+     */
     cameraUBO: UniformBufferObject;
-    cameraUBData: UnifromBufferData;
+
+    /**
+     * @en Uniform buffer data for the shadow slice camera.
+     * @zh 阴影切片摄像机的统一缓冲数据。
+     */
+    cameraUBData: UnifromBufferData; 
+
+    /**
+     * @en Position of the shadow slice in world space.
+     * @zh 阴影切片在世界空间中的位置。
+     */
     position: Vector3 = new Vector3();
+
+    /**
+     * @en X-axis offset for the shadow map.
+     * @zh 阴影贴图的X轴偏移。
+     */
     offsetX: number;
+
+    /**
+     * @en Y-axis offset for the shadow map.
+     * @zh 阴影贴图的Y轴偏移。
+     */
     offsetY: number;
+
+    /**
+     * @en Resolution of the shadow map for the slice.
+     * @zh 阴影切片的阴影贴图分辨率。
+     */
     resolution: number;
+
+    /**
+     * @en View matrix of the shadow slice camera.
+     * @zh 阴影切片摄像机的视图矩阵。
+     */
     viewMatrix: Matrix4x4 = new Matrix4x4();
+
+    /**
+     * @en Projection matrix of the shadow slice camera.
+     * @zh 阴影切片摄像机的投影矩阵。
+     */
     projectionMatrix: Matrix4x4 = new Matrix4x4();
+
+    /**
+     * @en Combined view and projection matrix for the shadow slice camera.
+     * @zh 阴影切片摄像机的视图投影矩阵。
+     */
     viewProjectMatrix: Matrix4x4 = new Matrix4x4();
+
+    /**
+     * @en Array of planes used for culling in the shadow slice.
+     * @zh 阴影切片中用于裁剪的平面数组。
+     */
     cullPlanes: Array<Plane> = [new Plane(new Vector3(), 0), new Plane(new Vector3(), 0), new Plane(new Vector3(), 0), new Plane(new Vector3(), 0), new Plane(new Vector3(), 0), new Plane(new Vector3(), 0), new Plane(new Vector3(), 0), new Plane(new Vector3(), 0), new Plane(new Vector3(), 0), new Plane(new Vector3(), 0)];
+
+    /**
+     * @en Total count of culling planes.
+     * @zh 裁剪平面的总数。
+     */
     cullPlaneCount: number;
+
+    /**
+     * @en Bounding sphere for the shadow slice.
+     * @zh 阴影切片的包围球体。
+     */
     splitBoundSphere: BoundSphere = new BoundSphere(new Vector3(), 0.0);
+
+    /**
+     * @en Center Z coordinate of the bounding sphere for culling.
+     * @zh 用于裁剪的包围球体的中心Z坐标。
+     */
     sphereCenterZ: number;
 
+    /**
+     * @en Create a new instance of ShadowSliceData.
+     * @zh 创建 ShadowSliceData 类的新实例。
+     */
     constructor() {
         this.cameraShaderValue = LayaGL.renderDeviceFactory.createShaderData(null);
 

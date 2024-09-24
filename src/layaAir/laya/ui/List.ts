@@ -15,23 +15,14 @@ import { HierarchyParser } from "../loaders/HierarchyParser";
 import { UIComponent } from "./UIComponent";
 import { ScrollType } from "./Styles";
 
-/**
- * @en Schedule when the selectedIndex property of an object changes.
- * @zh 当对象的 selectedIndex 属性发生变化时调度。
- * @eventType laya.events.Event
- */
-/*[Event(name = "change", type = "laya.events.Event")]*/
-
-/**
- * @en Schedule when rendering unit item objects in a list.
- * @zh 渲染列表的单元项对象时调度。
- * @eventType Event.RENDER
- */
-/*[Event(name = "render", type = "laya.events.Event")]*/
 
 /**
  * @en The List control can display a list of items. The default is a vertical list. The list can be customized through the UI editor.
+ * - Event.RENDER: When rendering the unit item object of a list, it is dispatched.
+ * - change event: When the selectedIndex property of an object changes, it is dispatched.
  * @zh List 控件可显示项目列表。默认为垂直方向列表。可通过UI编辑器自定义列表。
+ * - Event.RENDER事件: 渲染列表的单元项对象时调度。
+ * - change事件: 当对象的 selectedIndex 属性发生变化时调度。
  */
 export class List extends Box {
 
@@ -179,8 +170,6 @@ export class List extends Box {
     }
 
     /**
-     * @inheritDoc
-     * @override
      * @en The caching mode for the list.
      * @zh 列表的缓存模式。
      */
@@ -194,8 +183,6 @@ export class List extends Box {
     }
 
     /**
-     * @inheritDoc
-     * @override
      * @en The caching mode of the list.
      * @zh 列表的缓存模式。
      */
@@ -344,7 +331,6 @@ export class List extends Box {
      * value:  The value can be a cell class object or a UI JSON description.
      * @zh 单元格渲染器。
      * 取值：单元格类对象 或 UI的JSON描述。
-     * @implements
      */
     get itemRender(): any {
         return this._itemRender;
@@ -507,11 +493,6 @@ export class List extends Box {
         this.callLater(this.renderItems);
     }
 
-    /**
-     * @internal
-     * @inheritDoc 
-     * @override
-     */
     protected createChildren(): void {
         this._content = new Box();
         this._content.hideFlags = HideFlags.HideAndDontSave;
@@ -520,8 +501,6 @@ export class List extends Box {
 
     /**
      * @internal
-     * @inheritDoc 
-     * @override
     */
     _setWidth(value: number) {
         super._setWidth(value);
@@ -530,15 +509,12 @@ export class List extends Box {
 
     /**
      * @internal
-     * @inheritDoc 
-     * @override
     */
     _setHeight(value: number) {
         super._setHeight(value);
         this._setCellChanged();
     }
 
-    /**@internal */
     private _getOneCell(): UIComponent {
         if (this._cells.length === 0) {
             let item = this.createItem();
@@ -549,7 +525,6 @@ export class List extends Box {
         return this._cells[0];
     }
 
-    /**@internal */
     private _createItems(startY: number, numX: number, numY: number): void {
         let box = this._content;
         let cell = this._getOneCell();
@@ -601,7 +576,6 @@ export class List extends Box {
         this.initItems();
     }
 
-    /**@internal */
     private _bindData(cell: any, data: any): void {
         let arr: any[] = cell._$bindData;
         for (let i = 0, n = arr.length; i < n; i++) {
@@ -613,39 +587,28 @@ export class List extends Box {
         }
     }
 
-    /** 
-     * @internal
-     * @inheritDoc 
-     * @override
-    */
     protected _sizeChanged(): void {
         super._sizeChanged();
         this.setContentSize(this.width, this.height);
         if (this._scrollBar) this.callLater(this.onScrollBarChange);
     }
 
-    /**@internal */
     protected _setCellChanged(): void {
         if (!this._cellChanged) {
             this._cellChanged = true;
             this.callLater(this.changeCells);
         }
     }
-
-    /** @internal */
     private onScrollStart(): void {
         this._usedCache || (this._usedCache = super.cacheAs);
         super.cacheAs = "none";
         this._scrollBar!.once(Event.END, this, this.onScrollEnd);
     }
 
-    /** @internal */
     private onScrollEnd(): void {
         super.cacheAs = this._usedCache || 'none';
     }
 
-
-    /**@internal */
     protected createItem(): UIComponent {
         let arr: any[] = [];
         let box: UIComponent;

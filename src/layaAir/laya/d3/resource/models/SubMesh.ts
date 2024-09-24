@@ -7,12 +7,12 @@ import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
 import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode";
 import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
-import { SkinnedMeshRenderer } from "../../core/SkinnedMeshRenderer";
 import { LayaGL } from "../../../layagl/LayaGL";
 
 
 /**
- * <code>SubMesh</code> 类用于创建子网格数据模板。
+ * @en SubMesh class used to create submesh data template.
+ * @zh SubMesh 类用于创建子网格数据模板。
  */
 export class SubMesh extends GeometryElement {
 
@@ -43,15 +43,18 @@ export class SubMesh extends GeometryElement {
 	_indexBuffer: IndexBuffer3D;
 
 	/**
-	 * 获取索引数量。
+	 * @en The number of indices.
+	 * @zh 索引的数量。
 	 */
 	get indexCount(): number {
 		return this._indexCount;
 	}
 
 	/**
-	 * 创建一个 <code>SubMesh</code> 实例。
-	 * @param	mesh  网格数据模板。
+	 * @en Creates an instance of SubMesh.
+	 * @param mesh  The mesh data template.
+	 * @zh 创建 SubMesh 实例。
+	 * @param mesh  网格数据模板。
 	 */
 	constructor(mesh: Mesh) {
 		super(MeshTopology.Triangles, DrawType.DrawElement);
@@ -120,7 +123,7 @@ export class SubMesh extends GeometryElement {
 				break;
 		}
 		this.clearRenderParams();
-		
+
 		if (this._boneIndicesList && this._boneIndicesList.length > 1) {
 			for (var i: number = 0, n: number = this._boneIndicesList.length; i < n; i++) {
 				this.setDrawElemenParams(this._subIndexBufferCount[i], this._subIndexBufferStart[i] * byteCount);
@@ -132,7 +135,10 @@ export class SubMesh extends GeometryElement {
 
 
 	/**
-	 * 拷贝并获取子网格索引数据的副本。
+	 * @en Copies and gets a copy of the submesh index data.
+	 * @returns A copy of the indices.
+	 * @zh 拷贝并获取子网格索引数据的副本。
+	 * @returns 索引的副本。
 	 */
 	getIndices(): Uint16Array | Uint32Array {
 		if (this._mesh._isReadable)
@@ -142,8 +148,10 @@ export class SubMesh extends GeometryElement {
 	}
 
 	/**
-	 * 设置子网格索引。
-	 * @param indices 
+	 * @en Sets the indices for the submesh.
+	 * @param indices The indices to set.
+	 * @zh 设置子网格的索引。
+	 * @param indices 要设置的索引。
 	 */
 	setIndices(indices: Uint16Array): void {
 		this._indexBuffer.setData(indices, this._indexStart, 0, this._indexCount);
@@ -152,6 +160,8 @@ export class SubMesh extends GeometryElement {
 	/**
 	 * {@inheritDoc GeometryElement.destroy}
 	 * @override
+	 * @en Destroys the submesh and releases resources.
+	 * @zh 销毁子网格并释放资源。
 	 */
 	destroy(): void {
 		if (this._destroyed)

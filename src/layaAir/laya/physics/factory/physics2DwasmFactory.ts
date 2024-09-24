@@ -1662,8 +1662,8 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      * @param velocity 速度。
      */
     set_rigidbody_Velocity(body: any, velocity: IV2): void {
-        this._tempVe21.x = velocity.x;
-        this._tempVe21.y = velocity.y;
+        this._tempVe21.x = this.layaToPhyValue(velocity.x);
+        this._tempVe21.y = this.layaToPhyValue(velocity.y);
         body.SetLinearVelocity(this._tempVe21);
     }
 
@@ -1852,8 +1852,8 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      * @param value 线性速度。
      */
     set_rigidBody_linearVelocity(body: any, value: IV2) {
-        this._tempVe21.x = value.x;
-        this._tempVe21.y = value.y;
+        this._tempVe21.x = this.layaToPhyValue(value.x);
+        this._tempVe21.y = this.layaToPhyValue(value.y);
         body.SetLinearVelocity(this._tempVe21);
     }
 

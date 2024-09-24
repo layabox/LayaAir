@@ -2,7 +2,7 @@ import { Sprite3D } from "../../../../d3/core/Sprite3D";
 import { Mesh, skinnedMatrixCache } from "../../../../d3/resource/models/Mesh";
 import { Stat } from "../../../../utils/Stat";
 import { ISkinRenderNode } from "../../Design/3D/I3DRenderModuleData";
-import { NativeTransform3D } from "./NativeTransform3D";
+import { RTTransform3D } from "./RTTransform3D";
 import { RTBaseRenderNode } from "./RTBaseRenderNode";
 
 /**
@@ -25,11 +25,11 @@ export class RTSkinRenderNode extends RTBaseRenderNode implements ISkinRenderNod
     }
 
     setRootBoneTransfom(value: Sprite3D): void {
-        this._nativeObj.setRootBoneTransfom((value.transform as NativeTransform3D)._nativeObj)
+        this._nativeObj.setRootBoneTransfom((value.transform as RTTransform3D)._nativeObj)
     }
 
     setOwnerTransform(value: Sprite3D): void {
-        this._nativeObj.setOwnerTransform((value.transform as NativeTransform3D)._nativeObj);
+        this._nativeObj.setOwnerTransform((value.transform as RTTransform3D)._nativeObj);
     }
 
     setCacheMesh(cacheMesh: Mesh): void {
@@ -61,7 +61,7 @@ export class RTSkinRenderNode extends RTBaseRenderNode implements ISkinRenderNod
         this._nativeObj.clearBoneTransform();
         for (var i = 0, n = value.length; i < n; i++) {
             if (value[i]) {
-                this._nativeObj.addBoneTransform((value[i].transform as NativeTransform3D)._nativeObj);
+                this._nativeObj.addBoneTransform((value[i].transform as RTTransform3D)._nativeObj);
                 this.boneNums++;
             }
 

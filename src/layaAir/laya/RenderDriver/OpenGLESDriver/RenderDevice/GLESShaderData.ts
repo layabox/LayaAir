@@ -354,7 +354,7 @@ export class GLESShaderData extends ShaderData {
         if (value && (value as any).bitmap) value = (value as any).bitmap;
         //维护Reference
         this._textureData[index] = value;
-        if (value) {
+        if (value && value._texture) {
             this._setInternalTexture(index, (value._texture as GLESInternalTex)._nativeObj);
         }
         lastValue && lastValue._removeReference();

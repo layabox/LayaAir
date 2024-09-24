@@ -7,7 +7,8 @@ import { Plane } from "../math/Plane"
 import { Ray } from "../math/Ray"
 
 /**
- * <code>Picker</code> 类用于创建拾取。
+ * @en Picker class used to create picking.
+ * @zh Picker 类用于创建拾取。
  */
 export class Picker {
 	private static _tempVector30: Vector3 = new Vector3();
@@ -16,20 +17,25 @@ export class Picker {
 	private static _tempVector33: Vector3 = new Vector3();
 	private static _tempVector34: Vector3 = new Vector3();
 
-	/**
-	 * 创建一个 <code>Picker</code> 实例。
-	 */
+	/** @ignore */
 	constructor() {
 	}
 
 	/**
-	 * 计算鼠标生成的射线。
-	 * @param	point 鼠标位置。
-	 * @param	viewPort 视口。
-	 * @param	projectionMatrix 透视投影矩阵。
-	 * @param	viewMatrix 视图矩阵。
-	 * @param	world 世界偏移矩阵。
-	 * @return  out  输出射线。
+	 * @en Calculates a ray originating from the mouse position.
+	 * @param point The mouse position in screen space.
+	 * @param viewPort The viewport dimensions.
+	 * @param projectionMatrix The projection (perspective) matrix.
+	 * @param viewMatrix The view matrix.
+	 * @param world The world offset matrix.
+	 * @param out The output ray.
+	 * @zh 根据鼠标位置计算射线。
+	 * @param point 屏幕空间中的鼠标位置。
+	 * @param viewPort 视口尺寸。
+	 * @param projectionMatrix 投影（透视）矩阵。
+	 * @param viewMatrix 视图矩阵。
+	 * @param world 世界偏移矩阵。
+	 * @param out 输出射线。
 	 */
 	static calculateCursorRay(point: Vector2, viewPort: Viewport, projectionMatrix: Matrix4x4, viewMatrix: Matrix4x4, world: Matrix4x4, out: Ray): void {
 
@@ -62,12 +68,18 @@ export class Picker {
 	}
 
 	/**
-	 * 计算射线和三角形碰撞并返回碰撞距离。
-	 * @param	ray 射线。
-	 * @param	vertex1 顶点1。
-	 * @param	vertex2 顶点2。
-	 * @param	vertex3 顶点3。
-	 * @return   射线距离三角形的距离，返回Number.NaN则不相交。
+	 * @en Calculates the intersection of a ray with a triangle and returns the intersection distance.
+	 * @param ray The ray.
+	 * @param vertex1 The first vertex of the triangle.
+	 * @param vertex2 The second vertex of the triangle.
+	 * @param vertex3 The third vertex of the triangle.
+	 * @returns The distance from the ray to the triangle, or `Number.NaN` if there is no intersection.
+	 * @zh 计算射线与三角形的交点并返回交点距离。
+	 * @param ray 射线。
+	 * @param vertex1 三角形的第一个顶点。
+	 * @param vertex2 三角形的第二个顶点。
+	 * @param vertex3 三角形的第三个顶点。
+	 * @returns 射线到三角形的距离，如果没有交点则返回 `Number.NaN`。
 	 */
 	static rayIntersectsTriangle(ray: Ray, vertex1: Vector3, vertex2: Vector3, vertex3: Vector3): number {
 
@@ -137,10 +149,14 @@ export class Picker {
 	}
 
 	/**
-	 * 检测射线和平面的交点
-	 * @param ray 
-	 * @param plane 
-	 * @returns 
+	 * @en Detects the intersection point between a ray and a plane.
+	 * @param ray The ray.
+	 * @param plane The plane.
+	 * @returns The intersection point, or `null` if there is no intersection.
+	 * @zh 检测射线和平面的交点。
+	 * @param ray 射线。
+	 * @param plane 平面。
+	 * @returns 交点，如果没有交点则返回 `null`。
 	 */
 	static rayPlaneIntersection(ray: Ray, plane: Plane): Vector3 {
 		let point = new Vector3();

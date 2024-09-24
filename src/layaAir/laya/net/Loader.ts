@@ -33,6 +33,7 @@ export interface ILoadTask {
 
 export interface IResourceLoader {
     load(task: ILoadTask): Promise<any>;
+    postLoad?(task: ILoadTask, content: any): Promise<void>;
 }
 
 export interface ILoadOptions {
@@ -371,6 +372,10 @@ export class Loader extends EventDispatcher {
                     return Promise.resolve();
                 p = p.options.initiator;
             }
+
+            if (task.result != null)
+                return task.result;
+
             if (onProgress)
                 task.onProgress.add(onProgress);
             return new Promise((resolve) => task.onComplete.add(resolve));
@@ -424,11 +429,21 @@ export class Loader extends EventDispatcher {
             if (task.options.cache !== false)
                 Loader._cacheRes(formattedUrl, content, typeId, main);
 
-            task.progress.update(-1, 1);
-
             //console.log("Loaded " + url);
-            task.onComplete.invoke(content);
-            return content;
+
+            if (content != null && assetLoader.postLoad != null) {
+                task.result = content;
+                return assetLoader.postLoad(task, content).then(() => {
+                    task.progress.update(-1, 1);
+                    task.onComplete.invoke(content);
+                    return content;
+                });
+            }
+            else {
+                task.progress.update(-1, 1);
+                task.onComplete.invoke(content);
+                return content;
+            }
         }).catch(error => {
             !options.silent && Loader.warnFailed(url, error, options.initiator?.url);
 
@@ -437,13 +452,13 @@ export class Loader extends EventDispatcher {
 
             task.onComplete.invoke(null);
             return null;
-        }).then((result: any) => {
+        }).then(content => {
             this._loadings.delete(loadingKey);
             task.reset();
             loadTaskPool.push(task);
             if (this._loadings.size == 0)
                 this.event(Event.COMPLETE);
-            return result;
+            return content;
         });
     }
 
@@ -932,14 +947,13 @@ export class Loader extends EventDispatcher {
             remoteUrl = arg2;
             progress = arg3;
         } else {
-            progress = arg2;
+            progress = arg3 || arg2;
         }
 
         if (remoteUrl) {
             if (!remoteUrl.endsWith("/"))
                 remoteUrl += "/";
-            let tmpPath: string = path + "/";
-            URL.basePaths[tmpPath] = remoteUrl;
+            URL.basePaths[path.length > 0 ? (path + "/") : path] = remoteUrl;
             return this._loadSubFileConfig(path, null, progress);
         } else {
             if (LayaEnv.isPreview)
@@ -1081,6 +1095,7 @@ class LoadTask implements ILoadTask {
     loader: Loader;
     progress: BatchProgress;
     obsoluteInst: Resource;
+    result: any;
 
     onProgress: Delegate;
     onComplete: Delegate;
@@ -1099,6 +1114,7 @@ class LoadTask implements ILoadTask {
         this.onComplete.clear();
         this.progress.reset();
         this.obsoluteInst = null;
+        this.result = null;
     }
 }
 

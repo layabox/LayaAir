@@ -16,22 +16,46 @@ var _inst: InputManager;
 
 export class InputManager {
 
-    /**是否开启多点触控*/
+    /**
+     * @en Whether to enable multi-touch support.
+     * @zh 是否开启多点触控支持。
+     */
     static multiTouchEnabled: boolean = true;
-    /**是否开启鼠标/触摸事件，默认为true*/
+    /**
+     * @en Whether to enable mouse/touch events. Default is true.
+     * @zh 是否开启鼠标/触摸事件。默认为 true。
+     */
     static mouseEventsEnabled: boolean = true;
-    /**是否开启键盘事件，默认为true*/
+    /**
+     * @en Whether to enable keyboard events. Default is true.
+     * @zh 是否开启键盘事件。默认为 true。
+     */
     static keyEventsEnabled: boolean = true;
-    /**如果鼠标按下的位置和弹起的位置距离超过这个阀值，则不视为一次点击*/
+    /**
+     * @en The threshold for considering a mouse press and release as a click. If the distance between the press and release positions exceeds this value, it is not considered a click.
+     * @zh 鼠标按下和弹起位置之间的距离阀值，用以判断是否视为一次点击。如果超过这个距离，则不视为点击。
+     */
     static clickTestThreshold = 10;
 
-    /** canvas 上的鼠标X坐标。*/
+    /**
+     * @en The X coordinate of the mouse on the canvas.
+     * @zh canvas 上鼠标的 X 坐标。
+     */
     static mouseX: number = 0;
-    /** canvas 上的鼠标Y坐标。*/
+    /**
+     * @en The Y coordinate of the mouse on the canvas.
+     * @zh canvas 上鼠标的 Y 坐标。
+     */
     static mouseY: number = 0;
-    /** 当前是否正在输入文字 */
+    /**
+     * @en Indicates whether text input is currently active.
+     * @zh 表示当前是否正在输入文字。
+     */
     static isTextInputting = false;
-    /**当前是否是iOS的WKWebView平台 */
+    /**
+     * @en Indicates whether the current platform is iOS's WKWebView.
+     * @zh 表示当前是否是 iOS 的 WKWebView 平台。
+     */
     static isiOSWKwebView: boolean = false;
     /**@internal */
     protected _stage: Stage;
@@ -44,15 +68,19 @@ export class InputManager {
     /**@internal */
     protected _touchTarget: Node;
 
-    //用于IDE处理
+    /**
+     * @en Used for IDE processing.
+     * @zh 用于IDE处理。
+     */
     protected _eventType: number;
     protected _nativeEvent: MouseEvent | WheelEvent | TouchEvent;
 
     protected _pressKeys: Set<string | number>;
     protected _keyEvent: Event;
 
-    private _touchInput: boolean;
-
+    /**
+     * @ignore
+     */
     constructor() {
         this._touches = [];
         this._touchPool = [];
@@ -67,9 +95,12 @@ export class InputManager {
     }
 
     /**
-     * 获得触摸位置
-     * @param touchId 触摸点ID 
-     * @returns 
+     * @en Get the touch position.
+     * @param touchId The ID of the touch point. If not provided, the position of the first touch point will be returned.
+     * @returns The position of the touch point.
+     * @zh 获取触摸位置。
+     * @param touchId 触摸点ID。如果不提供，将返回第一个触摸点的位置。
+     * @returns 触摸点的位置。
      */
     static getTouchPos(touchId?: number): Readonly<Point> {
         if (touchId == null)
@@ -78,21 +109,35 @@ export class InputManager {
             return _inst.getTouch(touchId)?.pos || Point.EMPTY;
     }
 
+    /**
+     * @en Get the current touch target node.
+     * @zh 获取当前触摸目标节点。
+     */
     static get touchTarget(): Node {
         return _inst._touchTarget;
     }
 
+    /**
+     * @en Get the array of current touch information.
+     * @zh 获取当前触摸信息的数组。
+     */
     static get touches(): ReadonlyArray<Readonly<ITouchInfo>> {
         return _inst._touches;
     }
 
+    /**
+     * @en Get the number of current touches.
+     * @zh 获取当前触摸数量。
+     */
     static get touchCount(): number {
         return _inst._touches.length;
     }
 
     /**
-     * 取消点击
-     * @param touchId 取消的触摸事件ID 
+     * @en Cancel the click event for a touch point.
+     * @param touchId The ID of the touch event to cancel.
+     * @zh 取消指定触摸点的点击事件。
+     * @param touchId 要取消的触摸事件ID。
      */
     static cancelClick(touchId?: number): void {
         let touch = touchId == null ? _inst._touches[0] : _inst.getTouch(touchId);
@@ -101,8 +146,11 @@ export class InputManager {
     }
 
     /**
-     * 返回指定键是否被按下。
-     * @param	key 键值。参考：https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_key_values
+     * @en Check if a specific key is pressed.
+     * @param key The key value. For more information, see: https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_key_values
+     * @return Whether the key is pressed.
+     * @zh 返回指定键是否被按下。
+     * @param key 键值。更多信息请参考：https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_key_values
      * @return 是否被按下。
      */
     static hasKeyDown(key: string | number): boolean {
@@ -111,7 +159,8 @@ export class InputManager {
 
     /**
      * @private
-     * 初始化。
+     * @en Initialization.
+     * @zh 初始化。
      */
     static __init__(stage: Stage, canvas: HTMLCanvasElement): void {
         let inst = _inst = new InputManager();
@@ -123,28 +172,23 @@ export class InputManager {
         canvas.addEventListener("mousedown", ev => {
             if (!Browser.onIE)
                 (ev.cancelable) && (ev.preventDefault());
-            if (!inst._touchInput)
-                inst.handleMouse(ev, 0);
+            inst.handleMouse(ev, 0);
         }, { passive: false });
         canvas.addEventListener("mouseup", ev => {
             (ev.cancelable) && (ev.preventDefault());
-            if (!inst._touchInput)
-                inst.handleMouse(ev, 1);
+            inst.handleMouse(ev, 1);
         }, { passive: false });
         canvas.addEventListener("mousemove", ev => {
             (ev.cancelable) && (ev.preventDefault());
-            if (!inst._touchInput)
-                inst.handleMouse(ev, 2);
+            inst.handleMouse(ev, 2);
         }, { passive: false });
         canvas.addEventListener("mouseout", ev => {
-            if (!inst._touchInput)
-                inst.handleMouse(ev, 3);
+            inst.handleMouse(ev, 3);
         }, { passive: false });
         // canvas.addEventListener("mouseover", ev => {
         // });
 
         canvas.addEventListener("touchstart", ev => {
-            inst._touchInput = true;
             if (!_isFirstTouch && !InputManager.isTextInputting)
                 (ev.cancelable) && (ev.preventDefault());
             inst.handleTouch(ev, 0);
@@ -188,7 +232,10 @@ export class InputManager {
     }
 
     /**
-     * 处理鼠标事件
+     * @en Handling mouse events
+     * @param ev Mouse events
+     * @param type Event types
+     * @zh 处理鼠标事件
      * @param ev 鼠标事件
      * @param type 事件类型
      */
@@ -301,7 +348,10 @@ export class InputManager {
     }
 
     /**
-     * 处理触屏事件
+     * @en Handling touch screen events.
+     * @param ev Touch screen events.
+     * @param type Event types.
+     * @zh 处理触屏事件
      * @param ev 触屏事件
      * @param type 事件类型
      */
@@ -440,8 +490,10 @@ export class InputManager {
     }
 
     /**
-     * 处理按键事件
-     * @param ev 案件事件
+     * @en Handle keys events
+     * @param ev Keys events
+     * @zh 处理按键事件
+     * @param ev 按键事件
      */
     handleKeys(ev: KeyboardEvent): void {
         let type = ev.type;
@@ -473,10 +525,14 @@ export class InputManager {
     }
 
     /**
-     * 获取位置点下的节点
-     * @param x x位置值
-     * @param y y位置值
-     * @returns 
+     * @en Obtain nodes under location points
+     * @param x The x-coordinate value.
+     * @param y The y-coordinate value.
+     * @returns The node under the point or the stage if no node is found.
+     * @zh 获取位置点下的节点
+     * @param x x坐标值。
+     * @param y y坐标值。
+     * @returns 该点下的对象节点，如果没有找到节点则返回舞台。
      */
     getNodeUnderPoint(x: number, y: number): Node {
         let target: Node = this.getSpriteUnderPoint(this._stage, x, y);
@@ -486,11 +542,16 @@ export class InputManager {
     }
 
     /**
-     * 获取指定坐标下的sprite。x/y值是sp的本地坐标
-     * @param sp 相对Sprite
-     * @param x 相对Sp的X值
-     * @param y 相对Sp的Y值
-     * @returns
+     * @en Get the sprite under the specified coordinates relative to a Sprite. The x/y values are in the local coordinates of the Sprite.
+     * @param sp The Sprite relative to which the coordinates are calculated.
+     * @param x The x-coordinate relative to the Sprite.
+     * @param y The y-coordinate relative to the Sprite.
+     * @returns The sprite under the point or null if not found.
+     * @zh 获取在相对Sprite指定坐标下的sprite。x/y值是Sprite的本地坐标。
+     * @param sp 相对哪个Sprite计算坐标。
+     * @param x 相对于Sprite的X坐标。
+     * @param y 相对于Sprite的Y坐标。
+     * @returns 该点下的sprite，如果没有找到则返回null。
      */
     getSpriteUnderPoint(sp: Sprite, x: number, y: number): Sprite {
         //如果有裁剪，则先判断是否在裁剪范围内
@@ -540,12 +601,18 @@ export class InputManager {
     }
 
     /**
-     * 点击测试
+     * @en Hit test
+     * @param sp Relative Sprite.
+     * @param x The x-coordinate relative to the Sprite.
+     * @param y The y-coordinate relative to the Sprite.
+     * @param editing Whether the test is performed in editing mode.
+     * @returns True if the point is within the Sprite's bounds, false otherwise.
+     * @zh 点击测试
      * @param sp 相对Sprite
-     * @param x 相对Sprite的X位置
-     * @param y 相对Sprite的Y位置
-     * @param editing 是否是编辑状态
-     * @returns 
+     * @param x 相对于Sprite的X坐标。
+     * @param y 相对于Sprite的Y坐标。
+     * @param editing 是否在编辑模式下进行测试。
+     * @returns 如果点在Sprite的范围内返回true，否则返回false。
      */
     hitTest(sp: Sprite, x: number, y: number, editing?: boolean): boolean {
         let isHit: boolean = false;
@@ -627,30 +694,93 @@ export class InputManager {
 
 const clickTrack: Record<number, { pos: Point, time: number, button: number }> = {};
 
+/**
+ * @en Represents information about a touch event, including its position, state, and related nodes.
+ * @zh 表示触摸事件的信息，包括其位置、状态和相关节点。
+ */
 class TouchInfo implements ITouchInfo {
+    /**
+     * @en The event object associated with this touch.
+     * @zh 与此触摸关联的事件对象。
+     */
     readonly event: Event;
+    /**
+     * @en The current position of the touch.
+     * @zh 当前触摸的位置。
+     */
     readonly pos: Point;
+    /**
+     * @en The ID of the touch.
+     * @zh 触摸的ID。
+     */
     touchId: number;
+    /**
+     * @en The number of consecutive clicks.
+     * @zh 连续点击的次数。
+     */
     clickCount: number;
+    /**
+     * @en Indicates whether the touch has begun.
+     * @zh 表示触摸是否已开始。
+     */
     began: boolean;
+    /**
+     * @en The target node of the touch.
+     * @zh 触摸的目标节点。
+     */
     target: Node;
+    /**
+     * @en The last node the touch rolled over.
+     * @zh 最后一次触摸经过的节点。
+     */
     lastRollOver: Node;
+    /**
+     * @en Indicates whether the click was cancelled.
+     * @zh 表示点击是否已取消。
+     */
     clickCancelled: boolean;
+    /**
+     * @en Indicates whether the touch has moved.
+     * @zh 表示触摸是否已移动。
+     */
     moved: boolean;
+    /**
+     * @en The button pressed during the touch.
+     * @zh 触摸期间按下的按钮。
+     */
     downButton: number;
+    /**
+     * @en The list of nodes that were under the touch when it began.
+     * @zh 触摸开始时位于其下方的节点列表。
+     */
     readonly downTargets: Node[];
-
+    /**
+     * @en The position where the touch began.
+     * @zh 触摸开始时的位置。
+     */
     private downPos: Point;
 
+    /** 
+     * @ignore
+     * @en Creates a new instance of the TouchInfo class.
+     * @param touches An array of touch information.
+     * @zh 创建 TouchInfo 类的新实例。
+     * @param touches 触摸信息数组。
+     */
     constructor(touches: Array<TouchInfo>) {
         this.downPos = new Point();
         this.downTargets = [];
         this.event = new Event();
         this.event._touches = touches;
         this.pos = this.event.touchPos;
+        this.touchId = 0;
         this.reset();
     }
 
+    /**
+     * @en Marks the beginning of the touch.
+     * @zh 标记触摸的开始。
+     */
     begin() {
         this.began = true;
         this.clickCancelled = false;
@@ -667,6 +797,10 @@ class TouchInfo implements ITouchInfo {
         }
     }
 
+    /**
+     * @en Updates the touch information when the touch moves.
+     * @zh 当触摸移动时更新触摸信息。
+     */
     move() {
         this.moved = true;
 
@@ -675,6 +809,10 @@ class TouchInfo implements ITouchInfo {
             this.clickCancelled = true;
     }
 
+    /**
+     * @en Marks the end of the touch and updates the click count.
+     * @zh 标记触摸的结束并更新点击次数。
+     */
     end() {
         this.began = false;
         let now = performance.now();
@@ -708,6 +846,12 @@ class TouchInfo implements ITouchInfo {
         }
     }
 
+    /**
+     * @en Tests whether the touch should trigger a click event and returns the target node if successful.
+     * @returns The target node if the click test is successful; otherwise, null.
+     * @zh 测试触摸是否应触发点击事件，并在成功时返回目标节点。
+     * @returns 如果点击测试成功，则返回目标节点；否则返回null。
+     */
     clickTest(): Node {
         if (this.clickCancelled) {
             this.downTargets.length = 0;
@@ -734,6 +878,10 @@ class TouchInfo implements ITouchInfo {
         return obj;
     }
 
+    /**
+     * @en Resets the touch information to its initial state.
+     * @zh 将触摸信息重置为初始状态。
+     */
     reset() {
         this.pos.setTo(0, 0);
         this.touchId = 0;

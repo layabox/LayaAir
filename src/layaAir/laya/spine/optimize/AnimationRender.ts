@@ -29,18 +29,63 @@ export type FrameChanges = {
     vChanges?:IVBChange[]
 }
 const step = 1 / 30;
+/**
+ * @en Represents an animation renderer for spine animations.
+ * @zh 表示骨骼动画的动画渲染器。
+ */
 export class AnimationRender {
+    /**
+     * @en Name of the animation.
+     * @zh 动画的名称。
+     */
     name: string;
+    /**
+     * @en Animation Corresponding Frame Change Queue.
+     * @zh 动画对应帧变化队列。
+     */
     changeMap: Map<number,FrameChanges>;
-
+    /**
+     * @en Whether it is a dynamic mesh.
+     * @zh 是否为动态网格
+     */
     isDynamic:boolean = false;
+    /**
+     * @en Array of frame numbers.
+     * @zh 帧号数组。
+     */
     frames: number[];
+    /**
+     * @en Total number of frames in the animation.
+     * @zh 动画中的总帧数。
+     */
     frameNumber: number;
+    /**
+     * @en Array of skin animation render data.
+     * @zh 皮肤动画渲染数据数组。
+     */
     skinDataArray: SkinAniRenderData[];
+    /**
+     * @en Array of bone transforms for each frame.
+     * @zh 每帧的骨骼变换数组。
+     */
     boneFrames: Float32Array[][];
+    /**
+     * @en Array of events for each frame.
+     * @zh 每帧的事件数组。
+     */
     eventsFrames: spine.Event[][];
+    /**
+     * @en Indicates if the animation is cached.
+     * @zh 指示动画是否已缓存。
+     */
     isCache: boolean;
 
+    /**
+     * @en Creates a Float32Array representing a bone's transform.
+     * @param bone The spine bone to get the transform from.
+     * @zh 创建表示骨骼变换的Float32Array。
+     * @param bone 要获取变换的spine骨骼。
+     */
     static getFloat32Array(bone: spine.Bone) {
         let rs = new Float32Array(8);
         rs[0] = bone.a;
@@ -54,6 +99,7 @@ export class AnimationRender {
         return rs;
     }
 
+    /** @ignore */
     constructor() {
         this.changeMap = new Map();
         this.frames = [];
@@ -62,6 +108,14 @@ export class AnimationRender {
         this.eventsFrames = [];
     }
 
+    /**
+     * @en Gets the frame index for a given time.
+     * @param time The time to get the frame index for.
+     * @param frameIndex The current frame index.
+     * @zh 获取给定时间的帧索引。
+     * @param time 要获取帧索引的时间。
+     * @param frameIndex 当前帧索引。
+     */
     getFrameIndex(time: number, frameIndex: number) {
         let frames = this.frames;
         let lastFrame = this.frameNumber - 1;
@@ -82,6 +136,12 @@ export class AnimationRender {
         return frameIndex;
     }
 
+    /**
+     * @en Caches bone transforms for the animation.
+     * @param preRender The pre-renderer to use for caching.
+     * @zh 缓存动画的骨骼变换。
+     * @param preRender 用于缓存的预渲染器。
+     */
     cacheBones(preRender: IPreRender) {
         let duration = preRender._play(this.name);
         let totalFrame = Math.round(duration / step) || 1;
@@ -97,6 +157,14 @@ export class AnimationRender {
         }
     }
 
+    /**
+     * @en Checks and prepares the animation data.
+     * @param animation The spine animation to check.
+     * @param preRender The pre-renderer to use.
+     * @zh 检查并准备动画数据。
+     * @param animation 要检查的spine动画。
+     * @param preRender 要使用的预渲染器。
+     */
     check(animation: spine.Animation, preRender: IPreRender) {
         this.name = animation.name;
 
@@ -263,6 +331,24 @@ export class AnimationRender {
         this.frameNumber = renderFrames.length;
     }
 
+    /**
+     * @en Creates skin animation render data.
+     * @param mainVB The main vertex buffer creator.
+     * @param mainIB The main index buffer creator.
+     * @param tempIbCreate Temp index buffer creator.
+     * @param slotAttachMap Map of slot attachments.
+     * @param attachMap Array of attachment parses.
+     * @param type Animtion Render Type.
+     * @returns The created skin animation render data.
+     * @zh 创建皮肤动画渲染数据。
+     * @param mainVB 主顶点缓冲区创建器。
+     * @param mainIB 主索引缓冲区创建器。
+     * @param tempIbCreate 临时索引缓冲区创建器。
+     * @param slotAttachMap 插槽附件映射。
+     * @param attachMap 附件解析数组。
+     * @param type 动画渲染类型。
+     * @returns 创建的皮肤动画渲染数据。
+     */    
     createSkinData(
         mainVB: VBCreator, mainIB: IBCreator, tempIbCreate:IBCreator,
         slotAttachMap: Map<number, Map<string, AttachmentParse>>, 
@@ -286,26 +372,70 @@ export class AnimationRender {
     }
 }
 
+/**
+ * @en Represents skin animation render data for spine animations.
+ * @zh 表示骨骼动画的皮肤动画渲染数据。
+ */
 export class SkinAniRenderData {
-    isDynamic:boolean = false;
+ 	isDynamic:boolean = false;
+  	/**
+     * @en Name of the skin animation.
+     * @zh 皮肤动画的名称。
+     */
     name: string;
+    /**
+     * @en Indicates if the skin can be instanced.
+     * @zh 指示皮肤是否可以实例化。
+     */
     canInstance: boolean;
 
-    /** 默认mesh */
+    /**
+     * @en Default Mesh
+     * @zh 默认mesh 
+     */
     _defaultMesh:Mesh2D;
+    /** 
+     * @en Default FrameData
+     * @zh 默认帧数据
+     */
     _defaultFrameData:FrameRenderData;
 
+    /**
+     * @en Vertex buffer creator.
+     * @zh 顶点缓冲区创建器。
+     */
     vb: VBCreator;
+    /**
+     * @en Main index buffer creator.
+     * @zh 主索引缓冲区创建器。
+     */
     mainIB: IBCreator;
+    /**
+     * @en Animtion Render Type.
+     * @zh 动画渲染类型。
+     */
     type:ESpineRenderType;
 
+    /**
+     * @en Animation Frame Data. 
+     * @zh 动画帧数据。
+     */
     renderDatas:FrameRenderData[];
 
+    /**
+     * @en Indicates if normal rendering is required.
+     * @zh 指示是否需要正常渲染。
+     */
     isNormalRender: boolean;
     // checkVBChange: (slots: spine.Slot[]) => boolean;
+    /**
+     * @en Function to update bone matrices.
+     * @zh 更新骨骼矩阵的函数。
+     */
     updateBoneMat: (delta: number, animation: AnimationRender, bones: spine.Bone[], state: spine.AnimationState, boneMat: Float32Array) => void;
     // changeVB: IVBChange[];
 
+    /** @ignore */
     constructor() {
         // this.ibs = [];
         this.renderDatas = [];
@@ -313,6 +443,7 @@ export class SkinAniRenderData {
         // this.checkVBChange = this.checkVBChangeEmpty;
     }
 
+   
     getMesh(){
         return this._defaultMesh;
     }
@@ -321,13 +452,41 @@ export class SkinAniRenderData {
         return this.renderDatas[frameIndex] || this._defaultFrameData;
     }
 
+    /**
+     * @en Updates bone matrices using cached data.
+     * @param delta Time delta.
+     * @param animation Animation render data.
+     * @param bones Spine bones.
+     * @param state Spine animation state.
+     * @param boneMat Bone matrix array.
+     * @zh 使用缓存数据更新骨骼矩阵。
+     * @param delta 时间增量。
+     * @param animation 动画渲染数据。
+     * @param bones 骨骼数组。
+     * @param state 骨骼动画状态。
+     * @param boneMat 骨骼矩阵数组。
+     */
     updateBoneMatCache(delta: number, animation: AnimationRender, bones: spine.Bone[], state: spine.AnimationState, boneMat: Float32Array): void {
         this.vb.updateBoneCache(animation.boneFrames, delta / step, boneMat);
     }
 
+    /**
+     * @en Updates bone matrices using cached data and handles events.
+     * @param delta Time delta.
+     * @param animation Animation render data.
+     * @param bones Spine bones.
+     * @param state Spine animation state.
+     * @param boneMat Bone matrix array.
+     * @zh 使用缓存数据更新骨骼矩阵并处理事件。
+     * @param delta 时间增量。
+     * @param animation 动画渲染数据。
+     * @param bones 骨骼数组。
+     * @param state 骨骼动画状态。
+     * @param boneMat 骨骼矩阵数组。
+     */
     updateBoneMatCacheEvent(delta: number, animation: AnimationRender, bones: spine.Bone[], state: spine.AnimationState, boneMat: Float32Array): void {
         let f = delta / step;
-        this.vb.updateBoneCache(animation.boneFrames, f, boneMat);
+        this.vb.updateBoneCache(animation.boneFrames, f, boneMat); 
         let currFrame = Math.round(f);
         //@ts-ignore
         let curentTrack: spine.TrackEntry = state.currentTrack;
@@ -364,10 +523,46 @@ export class SkinAniRenderData {
         curentTrack.lastEventFrame = currFrame;
     }
 
+    /**
+     * @en Updates bone matrices using individual bone data.
+     * @param delta Time delta.
+     * @param animation Animation render data.
+     * @param bones Spine bones.
+     * @param state Spine animation state.
+     * @param boneMat Bone matrix array.
+     * @zh 使用单个骨骼数据更新骨骼矩阵。
+     * @param delta 时间增量。
+     * @param animation 动画渲染数据。
+     * @param bones 骨骼数组。
+     * @param state 骨骼动画状态。
+     * @param boneMat 骨骼矩阵数组。
+     */
     updateBoneMatByBone(delta: number, animation: AnimationRender, bones: spine.Bone[], state: spine.AnimationState, boneMat: Float32Array): void {
         this.vb.updateBone(bones, boneMat);
     }
 
+  /**
+     * @en Initializes the skin animation render data.
+     * @param changeMap Map of frame changes.
+     * @param mainVB Main vertex buffer creator.
+     * @param ibCreator Main index buffer creator.
+     * @param tempCreator Temp index buffer creator.
+     * @param frames Array of frame numbers.
+     * @param slotAttachMap Map of slot attachments.
+     * @param attachMap Array of attachment parses.
+     * @param changeVB Array of vertex buffer changes.
+     * @param isDynamic Whether it is a dynamic mesh.
+     * @zh 初始化皮肤动画渲染数据。
+     * @param changeMap 帧变化映射。
+     * @param mainVB 主顶点缓冲区创建器。
+     * @param ibCreator 主索引缓冲区创建器。
+     * @param tempCreator 临时索引缓冲区创建器。
+     * @param frames 帧号数组。
+     * @param slotAttachMap 插槽附件映射。
+     * @param attachMap 附件解析数组。
+     * @param changeVB 顶点缓冲区变化数组。
+     * @param isDynamic 是否为动态网格
+     */    
     init(
         changeMap: Map<number, FrameChanges>, 
         mainVB: VBCreator , ibCreator: IBCreator , tempCreator:IBCreator, 
@@ -445,6 +640,10 @@ export class SkinAniRenderData {
 
     }
 
+    /**
+     * @en Destroy Render.
+     * @zh 销毁当前Render。
+     */
     destroy(){
         this._defaultMesh && this._defaultMesh.destroy();
         this._defaultMesh = null;

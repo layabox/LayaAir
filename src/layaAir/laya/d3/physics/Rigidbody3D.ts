@@ -9,10 +9,10 @@ import { Quaternion } from "../../maths/Quaternion";
 import { EColliderCapable } from "../../Physics3D/physicsEnum/EColliderCapable";
 import { EPhysicsCapable } from "../../Physics3D/physicsEnum/EPhycisCapable";
 import { Event } from "../../events/Event";
-import { Stat } from "../../utils/Stat";
 
 /**
- * <code>Rigidbody3D</code> 类用于创建刚体碰撞器。
+ * @en Rigidbody3D is a component that creates a rigidbody collider.
+ * @zh Rigidbody3D 类用于创建刚体碰撞器。
  */
 export class Rigidbody3D extends PhysicsColliderComponent {
     /**@internal */
@@ -59,7 +59,8 @@ export class Rigidbody3D extends PhysicsColliderComponent {
     }
 
     /**
-     * 质量。
+     * @en The mass of the rigidbody.
+     * @zh 刚体的质量。
      */
     get mass(): number {
         return this._mass;
@@ -73,7 +74,8 @@ export class Rigidbody3D extends PhysicsColliderComponent {
     }
 
     /**
-     * 是否为运动物体，如果为true仅可通过transform属性移动物体,而非其他力相关属性。
+     * @en Determines if the rigidbody is kinematic. If true, the rigidbody can only be moved by transform property, not by other force-related properties.
+     * @zh 确定刚体是否为运动物体。如果为true仅可通过transform属性移动物体,而非其他力相关属性。
      */
     get isKinematic(): boolean {
         return this._isKinematic;
@@ -87,7 +89,8 @@ export class Rigidbody3D extends PhysicsColliderComponent {
     }
 
     /**
-     * 刚体的线阻力。
+     * @en The linear damping of the rigidbody.
+     * @zh 刚体的线阻力。
      */
     get linearDamping(): number {
         return this._linearDamping;
@@ -101,7 +104,8 @@ export class Rigidbody3D extends PhysicsColliderComponent {
     }
 
     /**
-     * 刚体的角阻力。
+     * @en The angular damping of the rigidbody.
+     * @zh 刚体的角阻力。
      */
     get angularDamping(): number {
         return this._angularDamping;
@@ -115,7 +119,8 @@ export class Rigidbody3D extends PhysicsColliderComponent {
     }
 
     /**
-     * 重力。
+     * @en The gravity applied to the rigidbody.
+     * @zh 应用于刚体的重力。
      */
     get gravity(): Vector3 {
         return this._gravity;
@@ -129,7 +134,8 @@ export class Rigidbody3D extends PhysicsColliderComponent {
     }
 
     /**
-     * 每个轴的线性运动缩放因子,如果某一轴的值为0表示冻结在该轴的线性运动。
+     * @en The linear motion scaling factor for each axis of the rigidbody. If the value of any axis is 0, it means that the linear motion is frozen on that axis.
+     * @zh 刚体每个轴的线性运动缩放因子。如果某一轴的值为0表示冻结在该轴的线性运动。
      */
     get linearFactor(): Vector3 {
         return this._linearFactor;
@@ -143,7 +149,8 @@ export class Rigidbody3D extends PhysicsColliderComponent {
     }
 
     /**
-     * 线速度
+     * @en The linear velocity of the rigidbody.
+     * @zh 刚体的线速度。
      */
     get linearVelocity(): Vector3 {
         if (this._collider && this.collider.getCapable(EColliderCapable.RigidBody_LinearVelocity)) {
@@ -161,7 +168,8 @@ export class Rigidbody3D extends PhysicsColliderComponent {
     }
 
     /**
-     * 每个轴的角度运动缩放因子,如果某一轴的值为0表示冻结在该轴的角度运动。
+     * @en The angular motion scaling factor for each axis of the rigidbody. If the value of any axis is 0, it means that the angular motion is frozen on that axis.
+     * @zh 刚体每个轴的角度运动缩放因子。如果某一轴的值为0表示冻结在该轴的角度运动。
      */
     get angularFactor(): Vector3 {
         return this._angularFactor;
@@ -175,7 +183,8 @@ export class Rigidbody3D extends PhysicsColliderComponent {
     }
 
     /**
-     * 角速度。
+     * @en The angular velocity of the rigidbody.
+     * @zh 刚体的角速度。
      */
     get angularVelocity(): Vector3 {
         if (this._collider && this.collider.getCapable(EColliderCapable.RigidBody_AngularVelocity)) {
@@ -193,7 +202,8 @@ export class Rigidbody3D extends PhysicsColliderComponent {
     }
 
     /**
-     * 刚体睡眠的线速度阈值。
+     * @en The linear velocity threshold below which the rigidbody will go to sleep.
+     * @zh 刚体进入睡眠状态的线速度阈值。
      */
     get sleepThreshold(): number {
         return this._sleepThreshold;
@@ -207,7 +217,8 @@ export class Rigidbody3D extends PhysicsColliderComponent {
     }
 
     /**
-     * 直接设置物理位置
+     * @en Directly sets the physical position of the rigidbody.
+     * @zh 直接设置刚体的物理位置。
      */
     set position(pos: Vector3) {
         if (this._collider && this.collider.getCapable(EColliderCapable.RigidBody_WorldPosition)) {
@@ -216,7 +227,8 @@ export class Rigidbody3D extends PhysicsColliderComponent {
     }
 
     /**
-     * 直接设置物理旋转
+     * @en Directly sets the physical rotation of the rigidbody.
+     * @zh 直接设置刚体的物理旋转。
      */
     set orientation(q: Quaternion) {
         if (this._collider && this.collider.getCapable(EColliderCapable.RigidBody_WorldOrientation)) {
@@ -225,7 +237,8 @@ export class Rigidbody3D extends PhysicsColliderComponent {
     }
 
     /**
-     * 是否触发器
+     * @en If the rigidbody is a trigger.
+     * @zh 刚体是否为触发器。
      */
     public get trigger(): boolean {
         return this._trigger;
@@ -238,7 +251,8 @@ export class Rigidbody3D extends PhysicsColliderComponent {
     }
 
     /**
-     * 碰撞检测模式
+     * @en The collision detection mode of the rigidbody.
+     * @zh 刚体的碰撞检测模式。
      */
     public get collisionDetectionMode(): number {
         return this._collisionDetectionMode;
@@ -250,6 +264,7 @@ export class Rigidbody3D extends PhysicsColliderComponent {
         }
     }
 
+    /** @ignore */
     constructor() {
         super();
     }
@@ -305,9 +320,12 @@ export class Rigidbody3D extends PhysicsColliderComponent {
     }
 
     /**
-     * 应用作用力。
-     * @param	force 作用力。
-     * @param	localOffset 偏移,如果为null则为中心点
+     * @en Applies a force to the rigidbody.
+     * @param force The force to apply.
+     * @param localOffset The offset, if it is null, it is the center point.
+     * @zh 应用作用力。
+     * @param force 作用力。
+     * @param localOffset 偏移,如果为null则为中心点
      */
     applyForce(force: Vector3, localOffset: Vector3 = null): void {
         if (this._collider && this.collider.getCapable(EColliderCapable.RigidBody_ApplyForce)) {
@@ -316,8 +334,10 @@ export class Rigidbody3D extends PhysicsColliderComponent {
     }
 
     /**
-     * 应用扭转力。
-     * @param	torque 扭转力。
+     * @en Applies a torque to the rigidbody.
+     * @param torque The torque vector to apply.
+     * @zh 对刚体应用扭转力。
+     * @param torque 扭转力
      */
     applyTorque(torque: Vector3): void {
         if (this._collider && this.collider.getCapable(EColliderCapable.RigidBody_ApplyTorque)) {
@@ -326,9 +346,12 @@ export class Rigidbody3D extends PhysicsColliderComponent {
     }
 
     /**
-     * 应用冲量。
-     * @param	impulse 冲量。
-     * @param   localOffset 偏移,如果为null则为中心点。
+     * @en Applies an impulse to the rigidbody.
+     * @param impulse The impulse vector to apply.
+     * @param localOffset The offset at which the impulse is applied, relative to the rigidbody's center of mass. If null, the impulse is applied at the center.
+     * @zh 对刚体应用冲量。
+     * @param impulse 冲量。
+     * @param localOffset 冲量相对于质心的偏移。如果为null，则冲量应用在质心处。
      */
     applyImpulse(impulse: Vector3, localOffset: Vector3 = null): void {
         if (this._collider && this.collider.getCapable(EColliderCapable.RigidBody_ApplyImpulse)) {
@@ -337,8 +360,10 @@ export class Rigidbody3D extends PhysicsColliderComponent {
     }
 
     /**
-     * 应用扭转冲量。
-     * @param	torqueImpulse 冲量值
+     * @en Applies a torque impulse (rotational impulse) to the rigidbody.
+     * @param torqueImpulse The torque impulse vector to apply.
+     * @zh 对刚体应用扭转冲量（旋转冲量）。
+     * @param torqueImpulse 扭转冲量
      */
     applyTorqueImpulse(torqueImpulse: Vector3): void {
         if (this._collider && this.collider.getCapable(EColliderCapable.RigidBody_ApplyTorqueImpulse)) {
@@ -347,7 +372,8 @@ export class Rigidbody3D extends PhysicsColliderComponent {
     }
 
     /**
-     * 唤醒刚体。
+     * @en Wakes up the rigidbody.
+     * @zh 唤醒刚体。
      */
     wakeUp(): void {
         if (this._collider && this.collider.getCapable(EColliderCapable.RigidBody_AllowSleep)) {

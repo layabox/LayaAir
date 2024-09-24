@@ -5,7 +5,8 @@ import { IConeColliderShape } from "../../../Physics3D/interface/Shape/IConeColl
 import { EPhysicsCapable } from "../../../Physics3D/physicsEnum/EPhycisCapable";
 import { Physics3DColliderShape } from "./Physics3DColliderShape";
 /**
- * <code>ConeColliderShape</code> 类用于创建圆锥碰撞器。
+ * @en ConeColliderShape class is used to create cone collider.
+ * @zh ConeColliderShape 类用于创建圆锥碰撞器。
  */
 export class ConeColliderShape extends Physics3DColliderShape {
 	/**@internal */
@@ -19,7 +20,8 @@ export class ConeColliderShape extends Physics3DColliderShape {
 	private _height: number = 0.5;
 
 	/**
-	 * 半径。
+	 * @en The radius of the cone collider.
+	 * @zh 圆锥碰撞器的半径。
 	 */
 	get radius(): number {
 		return this._radius;
@@ -31,7 +33,8 @@ export class ConeColliderShape extends Physics3DColliderShape {
 	}
 
 	/**
-	 * 高度。
+	 * @en The height of the cone collider.
+	 * @zh 圆锥碰撞器的高度。
 	 */
 	get height(): number {
 		return this._height;
@@ -43,7 +46,8 @@ export class ConeColliderShape extends Physics3DColliderShape {
 	}
 
 	/**
-	 * 方向。
+	 * @en The orientation of the cone collider.
+	 * @zh 圆锥碰撞器的方向。
 	 */
 	get orientation(): number {
 		return this._orientation;
@@ -55,9 +59,14 @@ export class ConeColliderShape extends Physics3DColliderShape {
 	}
 
 	/**
-	 * 创建一个新的 <code>ConeColliderShape</code> 实例。
-	 * @param height 高。
+	 * @en Constructor method, initialize ConeColliderShape.
+	 * @param radius The radius of the cone collider.
+	 * @param height The height of the cone collider.
+	 * @param orientation The orientation of the cone collider.
+	 * @zh 构造方法，初始化圆锥碰撞器。
 	 * @param radius 半径。
+	 * @param height 圆锥的高度。
+	 * @param orientation 圆锥的朝向。
 	 */
 	constructor(radius: number = 0.5, height: number = 1.0, orientation: number = Physics3DColliderShape.SHAPEORIENTATION_UPY) {
 		super();
@@ -79,10 +88,12 @@ export class ConeColliderShape extends Physics3DColliderShape {
 	}
 
 	/**
-	 * 克隆
 	 * @inheritDoc
 	 * @override
-	 * @returns 克隆的ConeColliderShape实例
+	 * @en Clone a new ConeColliderShape object.
+	 * @return A new ConeColliderShape object.
+	 * @zh 克隆一个新的 圆锥碰撞器 对象。
+	 * @return 一个新的 圆锥碰撞器 对象。
 	 */
 	clone(): any {
 		var dest: ConeColliderShape = new ConeColliderShape(this._radius, this._height, this._orientation);
@@ -91,11 +102,12 @@ export class ConeColliderShape extends Physics3DColliderShape {
 	}
 
 	/**
-	 * 克隆
-	 * @param destObject 克隆目标
 	 * @inheritDoc
 	 * @override
-	 * @returns 克隆的ConeColliderShape实例
+	 * @en Clone data to target object.
+	 * @param destObject Target object.
+	 * @zh 将数据克隆到目标对象
+	 * @param destObject 目标对象。
 	 */
 	cloneTo(destObject: ConeColliderShape): void {
 		super.cloneTo(destObject);

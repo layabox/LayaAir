@@ -7,8 +7,8 @@ import { BaseTexture } from "../../../resource/BaseTexture";
 import { Material } from "../../../resource/Material";
 
 /**
- * ...
- * @author ...
+ * @internal
+ * @deprecated
  */
 export class ExtendTerrainMaterial extends Material {
 	/**渲染状态_不透明。*/

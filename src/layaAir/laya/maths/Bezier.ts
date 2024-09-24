@@ -2,12 +2,14 @@ import { Point } from "./Point";
 
 /**
  * @private
- * 计算贝塞尔曲线的工具类。
+ * @en Utility class for calculating Bezier curves.
+ * @zh 计算贝塞尔曲线的工具类。
  */
 export class Bezier {
 
     /**
-     * 工具类单例
+     * @en Singleton instance of the utility class
+     * @zh 工具类单例
      */
     static I: Bezier = new Bezier();
     /** @private */
@@ -23,7 +25,12 @@ export class Bezier {
     }
 
     /**
-     * 计算二次贝塞尔点。
+     * @en Calculate quadratic Bezier point.
+     * @param t The parameter in the range [0, 1]
+     * @param rst The array to store the result
+     * @zh 计算二次贝塞尔点。
+     * @param t 用于计算的参数，范围[0, 1]
+     * @param rst 用于存结果的数组
      */
     getPoint2(t: number, rst: any[]): void {
         //二次贝塞尔曲线公式
@@ -36,7 +43,12 @@ export class Bezier {
     }
 
     /**
-     * 计算三次贝塞尔点
+     * @en Calculate cubic Bezier point
+     * @param t The parameter in the range [0, 1]
+     * @param rst The array to store the result
+     * @zh 计算三次贝塞尔点
+     * @param t 用于计算的参数，范围[0, 1]
+     * @param rst 用于存结果的数组
      */
     getPoint3(t: number, rst: any[]): void {
         //三次贝塞尔曲线公式
@@ -50,7 +62,12 @@ export class Bezier {
     }
 
     /**
-     * 计算贝塞尔点序列
+     * @en Calculate a sequence of Bezier points
+     * @param count The number of points to insert
+     * @param rst The array to store the result
+     * @zh 计算贝塞尔点序列
+     * @param count 输入的点的数量
+     * @param rst 用于存结果的数组
      */
     insertPoints(count: number, rst: any[]): void {
         var i: number;
@@ -63,9 +80,16 @@ export class Bezier {
     }
 
     /**
-     * 获取贝塞尔曲线上的点。
+     * @en Get points on the Bezier curve.
+     * @param pList Control points [x0,y0,x1,y1...]
+     * @param inSertCount The number of interpolation points for each curve segment
+     * @param count The order of the Bezier curve (2 for quadratic, 3 for cubic)
+     * @returns An array of points on the Bezier curve
+     * @zh 获取贝塞尔曲线上的点。
      * @param pList 控制点[x0,y0,x1,y1...]
      * @param inSertCount 每次曲线的插值数量
+     * @param count 贝塞尔曲线的阶数（2表示二次曲线，3表示三次曲线）
+     * @returns 贝塞尔曲线上的点组成的数组
      */
     getBezierPoints(pList: any[], inSertCount: number = 5, count: number = 2): any[] {
         var i: number, len: number;

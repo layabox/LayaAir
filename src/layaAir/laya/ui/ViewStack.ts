@@ -65,6 +65,7 @@ export class ViewStack extends Box {
         return this._items;
     }
 
+    /** @ignore */
     constructor() {
         super();
 
@@ -72,7 +73,6 @@ export class ViewStack extends Box {
     }
 
     /**
-     * @internal
      * @en Sets the `selected` property value of an item object by its index.
      * @param index The index of the object to be set.
      * @param selected Indicates the selected state of the object.
@@ -87,7 +87,6 @@ export class ViewStack extends Box {
     }
 
     /**
-     * @internal
      * 设置属性<code>selectedIndex</code>的值。
      * @param index 选中项索引值。
      */
@@ -136,7 +135,6 @@ export class ViewStack extends Box {
         this.initItems();
     }
 
-    /**@internal */
     _afterInited(): void {
         this.initItems();
     }
@@ -158,7 +156,6 @@ export class ViewStack extends Box {
     }
 
     /**
-     * @override
      * @en Sets the data source for the ViewStack, updating the selectedIndex or properties accordingly.
      * @zh 为 ViewStack 设置数据源，相应地更新 selectedIndex 或属性。
      */

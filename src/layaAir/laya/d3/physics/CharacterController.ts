@@ -10,7 +10,8 @@ import { EPhysicsCapable } from "../../Physics3D/physicsEnum/EPhycisCapable";
 import { Event } from "../../events/Event";
 
 /**
- * <code>CharacterController</code> 类用于创建角色控制器。
+ * @en CharacterController class is used to create a character controller.
+ * @zh CharacterController 类用于创建角色控制器。
  */
 export class CharacterController extends PhysicsColliderComponent {
 
@@ -57,7 +58,8 @@ export class CharacterController extends PhysicsColliderComponent {
     }
 
     /**
-     * 帧循环
+     * @en The frame loop.
+     * @zh 帧循环
      */
     onUpdate(): void {
         if (this._collider && this._collider.getCapable(ECharacterCapable.Character_SimulateGravity)) {
@@ -67,7 +69,8 @@ export class CharacterController extends PhysicsColliderComponent {
     }
 
     /**
-     * 胶囊半径。
+     * @en The capsule radius.
+     * @zh 胶囊半径。
      */
     get radius(): number {
         return this._radius;
@@ -82,7 +85,8 @@ export class CharacterController extends PhysicsColliderComponent {
     }
 
     /**
-     * 高度。
+     * @en The capsule height.
+     * @zh 胶囊高度。
      */
     get height(): number {
         return this._height;
@@ -97,7 +101,8 @@ export class CharacterController extends PhysicsColliderComponent {
     }
 
     /**
-     * 最小距离
+     * @en The minimum distance
+     * @zh 最小距离。
      */
     get minDistance(): number {
         return this._minDistance;
@@ -111,7 +116,8 @@ export class CharacterController extends PhysicsColliderComponent {
     }
 
     /**
-     * 碰撞偏移
+     * @en The center offset of the capsule.
+     * @zh 胶囊的本地偏移
      */
     get centerOffset(): Vector3 {
         return this._offset;
@@ -127,7 +133,8 @@ export class CharacterController extends PhysicsColliderComponent {
 
 
     /**
-     * 重力。
+     * @en gravity.
+     * @zh 重力。
      */
     get gravity(): Vector3 {
         return this._gravity;
@@ -141,8 +148,13 @@ export class CharacterController extends PhysicsColliderComponent {
     }
 
     /**
-    * 碰撞偏移。
-    */
+     * @en The skin width of the CharacterController.
+     * - This property is only effective in the PhysX engine.
+     * - It defines the distance between the collider surface and where collision detection actually occurs. This helps in triggering collision detection and response earlier, improving the stability and reliability of the object's physical simulation.
+     * @zh 碰撞器外表的宽度;
+     * - 该属性仅在 PhysX 引擎中有效。
+     * - 用于定义碰撞器表面与实际发生碰撞检测的距离，用于提前触发碰撞检测和响应，从而提高物体在物理模拟中的稳定性和可靠性。
+     */
     get skinWidth(): number {
         return this._contactOffset;
     }
@@ -155,7 +167,10 @@ export class CharacterController extends PhysicsColliderComponent {
     }
 
     /**
-     * 最大坡度。
+     * @en The maximum slope angle that the character can climb.
+     * If the slope angle exceeds the set value, the character will be unable to continue moving upward and may start sliding down or stop at the bottom of the slope.
+     * @zh 角色行走的最大坡度。
+     * 如果坡度角度超过设定的值，角色将无法继续向上移动，可能会开始滑落或停在斜坡下方。
      */
     get maxSlope(): number {
         return this._maxSlope;
@@ -169,7 +184,8 @@ export class CharacterController extends PhysicsColliderComponent {
     }
 
     /**
-     * 角色行走的脚步高度，表示可跨越的最大高度。
+     * @en The height of the character's step. It represents the maximum height that the character can step over.
+     * @zh 角色行走的脚步高度，表示可跨越的最大高度。
      */
     get stepHeight(): number {
         return this._stepHeight;
@@ -183,7 +199,8 @@ export class CharacterController extends PhysicsColliderComponent {
     }
 
     /**
-     * 角色的Up轴。
+     * @en The up axis of the character.
+     * @zh 角色的Up轴。
      */
     get upAxis(): Vector3 {
         return this._upAxis;
@@ -197,7 +214,8 @@ export class CharacterController extends PhysicsColliderComponent {
     }
 
     /**
-     * 角色位置
+     * @en The character's position.
+     * @zh 角色位置
      */
     get position(): Vector3 {
         if (this._collider && this.collider.getCapable(ECharacterCapable.Charcater_WorldPosition)) {
@@ -214,7 +232,8 @@ export class CharacterController extends PhysicsColliderComponent {
     }
 
     /**
-     * 推动力大小
+     * @en The magnitude of the push force.
+     * @zh 推动力的大小。
      */
     public get pushForce(): number {
         return this._pushForce;
@@ -227,7 +246,8 @@ export class CharacterController extends PhysicsColliderComponent {
     }
 
     /**
-     * 起跳速度
+     * @en The jump speed.
+     * @zh 起跳速度。
      */
     public get jumpSpeed(): number {
         return this._jumpSpeed;
@@ -240,7 +260,12 @@ export class CharacterController extends PhysicsColliderComponent {
     }
 
     /**
-     * 创建一个 <code>CharacterController</code> 实例。
+     * @en Constructor of the character controller.
+     * @param stepheight The character's step height.
+     * @param upAxis The character's up axis.
+     * @param collisionGroup The collision group to which the character belongs.
+     * @param canCollideWith The collision group that can produce collisions.
+     * @zh 角色控制器的构造函数。
      * @param stepheight 角色脚步高度。
      * @param upAxis 角色Up轴
      * @param collisionGroup 所属碰撞组。
@@ -251,16 +276,18 @@ export class CharacterController extends PhysicsColliderComponent {
     }
 
     /**
-     * 获得速度
-     * @returns 
+     * @en Gets the velocity.
+     * @zh 获取速度。
      */
     getVerticalVel() {
         return this._collider ? this._collider.getVerticalVel() : 0;
     }
 
     /**
-     * 通过指定移动向量移动角色。
-     * @param	movement 移动向量。
+     * @en Moves the character by the specified movement vector.
+     * @param movement The movement vector.
+     * @zh 通过指定移动向量移动角色。
+     * @param movement 移动向量。
      */
     move(movement: Vector3): void {
         if (this._collider && this.collider.getCapable(ECharacterCapable.Charcater_Move)) {
@@ -269,7 +296,9 @@ export class CharacterController extends PhysicsColliderComponent {
     }
 
     /**
-     * 跳跃。
+     * @en Jumps.
+     * @param velocity The jump velocity.
+     * @zh 跳跃。
      * @param velocity 跳跃速度。
      */
     jump(velocity: Vector3 = null): void {

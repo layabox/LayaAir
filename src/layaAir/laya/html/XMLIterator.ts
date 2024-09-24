@@ -1,11 +1,39 @@
 import { XMLUtils } from "./XMLUtils";
 
+/**
+ * @en The tag type of XML.　　
+ * @zh XML 的标签类型
+ */
 export enum XMLTagType {
+    /**
+     * @en Represents the start of an XML element.
+     * @zh 表示XML元素的开始。
+     */
     Start,
+    /**
+     * @en Represents the end of an XML element.
+     * @zh 表示XML元素的结束。
+     */
     End,
+    /**
+     * @en Represents a void XML element (self-closing tag).
+     * @zh 表示空的XML元素（自闭合标签）。
+     */
     Void,
+    /**
+     * @en Represents a CDATA section in XML.
+     * @zh 表示XML中的CDATA部分。
+     */
     CDATA,
+    /**
+     * @en Represents an XML comment.
+     * @zh 表示XML注释。
+     */
     Comment,
+    /**
+     * @en Represents an XML processing instruction.
+     * @zh 表示XML处理指令。
+     */
     Instruction
 };
 
@@ -14,22 +42,78 @@ const CDATA_END = "]]>";
 const COMMENT_START = "<!--";
 const COMMENT_END = "-->";
 
+/**
+ * @en XMLIterator class for parsing XML strings.
+ * @zh XML迭代器类，用于解析XML字符串。
+ */
 export class XMLIterator {
+    /**
+     * @en The name of the current XML tag.
+     * @zh 当前XML标签的名称。
+     */
     public static tagName: string;
+    /**
+     * @en The type of the current XML tag.
+     * @zh 当前XML标签的类型。
+     */
     public static tagType: XMLTagType;
+    /**
+     * @en The name of the last processed XML tag.
+     * @zh 上一个处理的XML标签的名称。
+     */
     public static lastTagName: string;
 
+    /**
+     * @en The source XML string being parsed.
+     * @zh 正在解析的源XML字符串。
+     */
     static source: string;
+    /**
+     * @en The length of the source XML string.
+     * @zh 源XML字符串的长度。
+     */
     static sourceLen: number;
+    /**
+     * @en The current parsing position in the source string.
+     * @zh 源字符串中的当前解析位置。
+     */
     static parsePos: number;
+    /**
+     * @en The starting position of the current tag in the source string.
+     * @zh 当前标签在源字符串中的起始位置。
+     */
     static tagPos: number;
+    /**
+     * @en The length of the current tag.
+     * @zh 当前标签的长度。
+     */
     static tagLength: number;
+    /**
+     * @en The ending position of the last processed tag.
+     * @zh 上一个处理的标签的结束位置。
+     */
     static lastTagEnd: number;
+    /**
+     * @en Indicates whether attributes have been parsed.
+     * @zh 指示是否已解析属性。
+     */
     static attrParsed: boolean;
+    /**
+     * @en Indicates whether tag names should be converted to lowercase.
+     * @zh 指示是否应将标签名称转换为小写。
+     */
     static lowerCaseName: boolean;
 
     private static _attrs: any = {};
 
+    /**
+     * @en Initialize the XMLIterator with a source string.
+     * @param source The XML string to parse.
+     * @param lowerCaseName Optional. Whether to convert tag names to lowercase.
+     * @zh 使用源字符串初始化XMLIterator。
+     * @param source 要解析的XML字符串。
+     * @param lowerCaseName 可选。是否将标签名称转换为小写。
+     */
     public static begin(source: string, lowerCaseName?: boolean) {
         XMLIterator.source = source;
         XMLIterator.lowerCaseName = lowerCaseName;
@@ -41,6 +125,12 @@ export class XMLIterator {
         this.tagName = null;
     }
 
+    /**
+     * @en Parses through the XML source to find the next tag and updates the iterator's state accordingly.
+     * @returns Returns true if a new tag is found; otherwise, false if the end of the source is reached.
+     * @zh 解析XML源，查找下一个标签并相应地更新迭代器的状态。
+     * @returns 如果找到新标签则返回true；如果到达源的末尾则返回false。
+     */
     public static nextTag(): boolean {
         let pos: number;
         let c: string;
@@ -159,10 +249,24 @@ export class XMLIterator {
         return false;
     }
 
+    /**
+     * @en Get the source of the current XML tag.
+     * @returns The source of the current XML tag.
+     * @zh 获取当前XML标签的源代码。
+     * @returns 当前XML标签的源代码。
+     */
     public static getTagSource(): string {
         return this.source.substring(this.tagPos, this.tagPos + this.tagLength);
     }
 
+    /**
+     * @en Gets the raw text between the last tag end and the current tag position.
+     * @param trim Whether to trim the whitespace characters at the beginning and end of the text.
+     * @returns The raw text, trimmed if specified.
+     * @zh 获取上一个标签结束和当前标签位置之间的原始文本。
+     * @param trim 是否去除文本首尾的空白字符。
+     * @returns 返回的原始文本，如果指定则去除首尾空白。
+     */
     public static getRawText(trim?: boolean) {
         if (this.lastTagEnd == this.tagPos)
             return "";
@@ -183,6 +287,14 @@ export class XMLIterator {
             return this.source.substring(this.lastTagEnd, this.tagPos);
     }
 
+    /**
+     * @en Get the decoded text between XML tags, optionally trimmed.
+     * @param trim Whether to trim the whitespace at the beginning and end of the text. Default is false.
+     * @returns The decoded text between XML tags.
+     * @zh 获取XML标签之间的解码文本，可选择是否去除首尾空白字符。
+     * @param trim 是否去除文本开头和结尾的空白字符。默认为false。
+     * @returns XML标签之间的解码文本。
+     */
     public static getText(trim?: boolean): string {
         if (this.lastTagEnd == this.tagPos)
             return "";
@@ -203,6 +315,10 @@ export class XMLIterator {
             return XMLUtils.decodeString(this.source.substring(this.lastTagEnd, this.tagPos));
     }
 
+    /**
+     * @en The parsed attributes of the current tag.
+     * @zh 当前标签解析后的属性。
+     */
     public static get attributes() {
         if (!this.attrParsed) {
             for (let key in this._attrs) {
@@ -215,10 +331,24 @@ export class XMLIterator {
         return this._attrs;
     }
 
+    /**
+     * @en Gets the value of the specified attribute from the current tag.
+     * @param attrName The name of the attribute to get.
+     * @returns The value of the attribute.
+     * @zh 从当前标签获取指定属性的值。
+     * @param attrName 要获取的属性名称。
+     * @returns 返回属性的值。
+     */
     public static getAttribute(attrName: string): string {
         return this.attributes[attrName];
     }
 
+    /**
+     * @en Parses the attributes from the source text.
+     * @param attrs The object to store the parsed attributes.
+     * @zh 从源文本解析属性。
+     * @param attrs 存储解析后属性的对象。
+     */
     static parseAttributes(attrs: any) {
         let attrName: string;
         let valueStart: number = 0;

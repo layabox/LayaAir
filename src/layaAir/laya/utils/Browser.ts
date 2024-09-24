@@ -50,6 +50,12 @@ export class Browser {
     static onAndroid: boolean;
 
     /**
+     * @en Indicates whether the current environment is within an OpenHarmonyOS device.
+     * @zh 表示当前环境是否在 OpenHarmonyOS 设备内。
+     */
+    static onOpenHarmonyOS: boolean
+
+    /**
      * @en Indicates whether the current environment is within a Windows Phone device.
      * @zh 表示当前环境是否在 Windows Phone 设备内。
      */
@@ -385,6 +391,7 @@ export class Browser {
         Browser.onMac = u.indexOf("Mac OS X") > -1;
         Browser.onIPad = u.indexOf("iPad") > -1 || (platform === 'MacIntel' && maxTouchPoints > 1);//"platform === 'MacIntel' && maxTouchPoints >1" is a temporary solution，maybe accidentally injure other platform.
         Browser.onAndroid = u.indexOf('Android') > -1 || u.indexOf('Adr') > -1;
+        Browser.onOpenHarmonyOS = u.indexOf('OpenHarmony') > -1;
         Browser.onWP = u.indexOf("Windows Phone") > -1;
         Browser.onQQBrowser = u.indexOf("QQBrowser") > -1;
         Browser.onMQQBrowser = u.indexOf("MQQBrowser") > -1 || (u.indexOf("Mobile") > -1 && u.indexOf("QQ") > -1);

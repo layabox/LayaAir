@@ -39,10 +39,10 @@ vec4 transspaceColor(vec4 color)
  }
 
 
-
+  varying vec2 v_cliped;
 #if defined(PRIMITIVEMESH)
     varying vec4 v_color;
-    varying vec2 v_cliped;
+  
   
 
     vec4 getGlColor(vec4 color){
@@ -54,7 +54,6 @@ vec4 transspaceColor(vec4 color)
     }
 
 #elif defined(TEXTUREVS)
-    varying vec2 v_cliped;
     varying vec4 v_texcoordAlpha;
     varying vec4 v_color;
     varying float v_useTex;
@@ -204,11 +203,9 @@ vec4 transspaceColor(vec4 color)
 
 #endif
 
-#if defined(PRIMITIVEMESH)||defined(TEXTUREVS)
 void clip(){
     if(v_cliped.x<0.) discard;
     if(v_cliped.x>1.) discard;
     if(v_cliped.y<0.) discard;
     if(v_cliped.y>1.) discard;
 }
-#endif

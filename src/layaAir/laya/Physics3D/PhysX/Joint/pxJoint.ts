@@ -24,6 +24,10 @@ export enum PxConstraintFlag {
     eDISABLE_CONSTRAINT = 1 << 12		//!< disables the constraint. SolverPrep functions won't be called for this constraint.
 };
 
+/**
+ * @en The `pxJoint` class is used to implement joint functionality in the physical engine.
+ * @zh `pxJoint`类用于在物理引擎中实现关节功能。
+ */
 export class pxJoint implements IJoint {
 
     /**@internal */
@@ -32,7 +36,7 @@ export class pxJoint implements IJoint {
     /**@internal */
     static _pxJointID: number = 0;
 
-    /**@interanl */
+    /**@internal */
     static _tempTransform0: {
         translation: Vector3;
         rotation: Quaternion;
@@ -83,7 +87,10 @@ export class pxJoint implements IJoint {
     _physicsManager: pxPhysicsManager;
 
     /**
-     * @param manager 
+     * @en Create an instance of the pxJoint class.
+     * @param manager The physics manager.
+     * @zh 创建pxJoint类的shape实例。
+     * @param manager 物理管理器。
      */
     constructor(manager: pxPhysicsManager) {
         this._physicsManager = manager;

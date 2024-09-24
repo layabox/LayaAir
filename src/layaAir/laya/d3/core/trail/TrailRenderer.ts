@@ -14,7 +14,8 @@ import { IBaseRenderNode } from "../../../RenderDriver/RenderModuleData/Design/3
 import { TrailMaterial } from "./TrailMaterial";
 
 /**
- * <code>TrailRenderer</code> 类用于创建拖尾渲染器。
+ * @en The `TrailRenderer` class is used to create a trail renderer.
+ * @zh `TrailRenderer` 类用于创建拖尾渲染器。
  */
 export class TrailRenderer extends BaseRender {
 
@@ -23,10 +24,7 @@ export class TrailRenderer extends BaseRender {
 
     /**@internal */
     protected _projectionViewWorldMatrix: Matrix4x4 = new Matrix4x4();
-
-    /**
-     * 实例化一个拖尾渲染器
-     */
+    /** @ignore */
     constructor() {
         super();
     }
@@ -51,103 +49,80 @@ export class TrailRenderer extends BaseRender {
     }
 
     /**
-     * 获取淡出时间。单位s
-     * @return  淡出时间。
+     * @en Fade out time. Unit: s.
+     * @zh 淡出时间。单位: 秒。
      */
     get time(): number {
         return this._trailFilter.time;
     }
 
-    /**
-     * 设置淡出时间。单位s
-     * @param value 淡出时间。
-     */
     set time(value: number) {
         this._trailFilter.time = value;
     }
 
     /**
-     * 获取新旧顶点之间最小距离。
-     * @return  新旧顶点之间最小距离。
+     * @en Minimum distance between new and old vertices.
+     * @zh 新旧顶点之间最小距离。
      */
     get minVertexDistance(): number {
         return this._trailFilter.minVertexDistance;
     }
 
-    /**
-     * 设置新旧顶点之间最小距离。
-     * @param value 新旧顶点之间最小距离。
-     */
     set minVertexDistance(value: number) {
         this._trailFilter.minVertexDistance = value;
     }
 
     /**
-     * 获取宽度倍数。
-     * @return  宽度倍数。
+     * @en The width multiplier.
+     * @zh 宽度倍数。
      */
     get widthMultiplier(): number {
         return this._trailFilter.widthMultiplier;
     }
 
-    /**
-     * 设置宽度倍数。
-     * @param value 宽度倍数。
-     */
     set widthMultiplier(value: number) {
         this._trailFilter.widthMultiplier = value;
     }
 
     /**
-     * 获取宽度曲线。
-     * @return  宽度曲线。
+     * @en The width curve. Maximum 10.
+     * @zh 宽度曲线。最多10个。
      */
     get widthCurve(): FloatKeyframe[] {
         return this._trailFilter.widthCurve;
     }
 
-    /**
-     * 设置宽度曲线。最多10个
-     * @param value 宽度曲线。
-     */
     set widthCurve(value: FloatKeyframe[]) {
         this._trailFilter.widthCurve = value;
     }
 
     /**
-     * 获取颜色梯度。
-     * @return  颜色梯度。
+     * @en The color gradient.
+     * @zh 颜色梯度。
      */
     get colorGradient(): Gradient {
         return this._trailFilter.colorGradient;
     }
 
-    /**
-     * 设置颜色梯度。
-     * @param value 颜色梯度。
-     */
     set colorGradient(value: Gradient) {
         this._trailFilter.colorGradient = value;
     }
 
     /**
-     * 获取纹理模式。
-     * @return  纹理模式。
+     * @en The texture mode.
+     * @zh 纹理模式。
      */
     get textureMode(): TrailTextureMode {
         return this._trailFilter.textureMode;
     }
 
-    /**
-     * 设置纹理模式。
-     * @param value 纹理模式。
-     */
     set textureMode(value: TrailTextureMode) {
         this._trailFilter.textureMode = value;
     }
 
     /**
-     * 拖尾轨迹准线
+     * @en The trail alignment.
+     * @zh 拖尾轨迹准线
      */
     get alignment(): TrailAlignment {
         return this._trailFilter.alignment;
@@ -168,7 +143,9 @@ export class TrailRenderer extends BaseRender {
     }
 
     /**
-     * 渲染更新
+     * @en Render update.
+     * @param context 3D rendering context.
+     * @zh 渲染更新。
      * @param context 3D渲染上下文 
      */
     renderUpdate(context: RenderContext3D) {
@@ -189,7 +166,8 @@ export class TrailRenderer extends BaseRender {
 
 
     /**
-     * 包围盒,只读,不允许修改其值。
+     * @en The bounding box. Read-only, do not modify its value.
+     * @zh 包围盒,只读,不允许修改其值。
      */
     get bounds(): Bounds {
         return this._bounds;
@@ -207,7 +185,8 @@ export class TrailRenderer extends BaseRender {
     }
 
     /**
-     * 清除拖尾
+     * @en Clear the trail.
+     * @zh 清除拖尾
      */
     clear(): void {
         this._trailFilter.clear();

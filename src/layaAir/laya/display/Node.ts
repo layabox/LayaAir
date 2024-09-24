@@ -68,9 +68,8 @@ export class Node extends EventDispatcher {
     _url: string;
 
     /**
-     * @internal
      * @en Extra data of the node.
-     * @zh 节点的额外数据。
+     * @zh 节点的额外数据。IDE内部使用。
      */
     _extra: INodeExtra;
 
@@ -142,7 +141,6 @@ export class Node extends EventDispatcher {
     }
 
     /**
-     * @internal
      * @en Set a specific bit of the node.
      * @param type The bit type to set.
      * @param value The value to set, true or false.
@@ -160,7 +158,6 @@ export class Node extends EventDispatcher {
     }
 
     /**
-     * @internal
      * @en Get a specific bit of the node.
      * @param type The bit type to get.
      * @returns The bit value, true or false.

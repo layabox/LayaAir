@@ -3,7 +3,8 @@ import { BaseRender } from "../../core/render/BaseRender";
 import { Volume } from "./Volume";
 
 /**
- * <code>VolumeManager</code> 类用于管理体积组件
+ * @en The `VolumeManager` class is used to manage volume components.
+ * @zh `VolumeManager` 类用于管理体积组件。
  */
 export interface IVolumeManager {
     /**是否需要重新更新 */

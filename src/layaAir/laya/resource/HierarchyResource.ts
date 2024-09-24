@@ -1,38 +1,46 @@
-import { LayaEnv } from "../../LayaEnv";
 import { Node } from "../display/Node";
 import { LegacyUIParser } from "../loaders/LegacyUIParser";
 import { Resource } from "./Resource";
 
+/**
+ * @en Prefab class.
+ * @zh 预制体类。
+ */
 export class Prefab extends Resource {
     /**
-     * 资源版本
      * @readonly
+     * @en The version number of the prefab resource.
+     * @zh 预制体资源的版本号。
      */
     public readonly version: number;
 
     /**
      * @internal
-     * @protected 
-     * 依赖内容
+     * @en Compatible with the LayaAir 2.x engine.
+     * @zh 兼容LayaAir2.x引擎
      */
-    protected _deps: Array<Resource>;
+    json: any;
 
     /**
-     * @internal
-     * 兼容2.0
+     * @ignore
+     * @en Create an instance of the prefab.
+     * @param version The version number of the prefab resource.
+     * @zh 创建一个预制体实例。
+     * @param version 预制体资源的版本号。
      */
-    json: any; //兼容2.0
-
     constructor(version?: number) {
         super();
 
         this.version = version;
-        this._deps = [];
+        this._traceDeps = true;
     }
 
     /**
-     * 创建实例
-     * @param options 类型
+     * @en Create an instance of the prefab.
+     * @param options Instantiation options.
+     * @param errors Error content.
+     * @zh 创建一个预制体的实例。
+     * @param options 实例化选项
      * @param errors 错误内容
      */
     create(options?: Record<string, any>, errors?: Array<any>): Node {
@@ -40,76 +48,6 @@ export class Prefab extends Resource {
             return LegacyUIParser.createByData(null, this.json);
         else
             return null;
-    }
-
-    /**
-     * 获取依赖内容
-     */
-    get deps(): ReadonlyArray<Resource> {
-        return this._deps;
-    }
-
-    /**
-     * 增加一个依赖内容
-     * @param res 依赖内容
-     */
-    addDep(res: Resource) {
-        if (res instanceof Resource) {
-            res._addReference();
-            this._deps.push(res);
-
-            if (!LayaEnv.isPlaying && (res instanceof Prefab))
-                res.on("obsolute", this, this.onDepObsolute);
-        }
-    }
-
-    /**
-     * 增加多个依赖内容
-     * @param resArr 依赖内容
-     */
-    addDeps(resArr: Array<Resource>) {
-        for (let res of resArr) {
-            if (res instanceof Resource) {
-                res._addReference();
-                this._deps.push(res);
-
-                if (!LayaEnv.isPlaying && (res instanceof Prefab))
-                    res.on("obsolute", this, this.onDepObsolute);
-            }
-        }
-    }
-
-    /**
-     * @internal
-     * @protected
-     * 销毁资源
-     */
-    protected _disposeResource(): void {
-        for (let res of this._deps) {
-            res._removeReference();
-
-            if (!LayaEnv.isPlaying && (res instanceof Prefab))
-                res.off("obsolute", this, this.onDepObsolute);
-        }
-    }
-
-    /**
-     * 
-     */
-    public get obsolute(): boolean {
-        return this._obsolute;
-    }
-
-    public set obsolute(value: boolean) {
-        if (this._obsolute != value) {
-            this._obsolute = value;
-            if (value && !LayaEnv.isPlaying)
-                this.event("obsolute");
-        }
-    }
-
-    private onDepObsolute() {
-        this.obsolute = true;
     }
 }
 

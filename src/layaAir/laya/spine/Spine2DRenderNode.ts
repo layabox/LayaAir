@@ -125,7 +125,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
     _nMatrix_1 = new Vector3;
 
 
-    _mesh:Mesh2D;
+    _mesh: Mesh2D;
 
     constructor() {
         super();
@@ -138,7 +138,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
     }
 
     protected _getcommonUniformMap(): Array<string> {
-        return ["BaseRender2D","Spine2D"]
+        return ["BaseRender2D", "Spine2D"]
     }
 
     /**
@@ -159,20 +159,14 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
     addCMDCall(context: Context, px: number, py: number) {
         let mat = context._curMat;
         // let buffer = this._matBuffer;
-        this._nMatrix_0.setValue(mat.a , mat.b , mat.tx + mat.a * px + mat.c * py );
-        this._nMatrix_1.setValue(mat.c , mat.d , mat.ty + mat.b * px + mat.d * py );
-        // buffer[0] = mat.a;
-        // buffer[1] = mat.b;
-        // buffer[2] = mat.tx + mat.a * px + mat.c * py;
-        // buffer[3] = mat.c;
-        // buffer[4] = mat.d;
-        // buffer[5] = mat.ty + mat.b * px + mat.d * py;
-        // this._spriteShaderData.setBuffer(SpineShaderInit.NMatrix, buffer);
+        this._nMatrix_0.setValue(mat.a, mat.b, mat.tx + mat.a * px + mat.c * py);
+        this._nMatrix_1.setValue(mat.c, mat.d, mat.ty + mat.b * px + mat.d * py);
         this._spriteShaderData.setVector3(BaseRenderNode2D.NMATRIX_0, this._nMatrix_0);
         this._spriteShaderData.setVector3(BaseRenderNode2D.NMATRIX_1, this._nMatrix_1);
 
         Vector2.TempVector2.setValue(context.width, context.height);
         this._spriteShaderData.setVector2(BaseRenderNode2D.BASERENDERSIZE, Vector2.TempVector2);
+        context._copyClipInfoToShaderData(this._spriteShaderData);
     }
 
     /**
@@ -727,15 +721,15 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
         this.spineItem.destroy();
     }
 
-    _updateMaterials(elements: Material[]){
-        for (let i = 0 , len = elements.length; i < len; i++) {
+    _updateMaterials(elements: Material[]) {
+        for (let i = 0, len = elements.length; i < len; i++) {
             this._materials[i] = elements[i];
         }
     }
 
-    _updateRenderElements(){
+    _updateRenderElements() {
         let elementLength = this._renderElements.length
-        for (let i = 0 ; i < elementLength ; i++) {
+        for (let i = 0; i < elementLength; i++) {
             let element = this._renderElements[i];
             let material = this._materials[i];
             element.materialShaderData = material.shaderData;
@@ -744,17 +738,17 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
         }
     }
 
-    _onMeshChange( mesh:Mesh2D , force :boolean = false ){
+    _onMeshChange(mesh: Mesh2D, force: boolean = false) {
         let hasChange = false;
         if (this._mesh != mesh || force) {
             hasChange = true;
             if (mesh) {
                 let subMeshes = mesh._subMeshes;
                 let elementLength = this._renderElements.length;
-                let flength = Math.max(elementLength , mesh.subMeshCount);
-                for (let i = 0 ; i < flength ; i++) {
+                let flength = Math.max(elementLength, mesh.subMeshCount);
+                for (let i = 0; i < flength; i++) {
                     let element = this._renderElements[i];
-                    let subMesh = subMeshes[i];   
+                    let subMesh = subMeshes[i];
                     if (subMesh) {
                         if (!element) {
                             element = Spine2DRenderNode.createRenderElement2D();
@@ -766,13 +760,13 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
                         element.subShader = material._shader.getSubShaderAt(0);
                         element.value2DShaderData = this._spriteShaderData;
                         element.nodeCommonMap = this._getcommonUniformMap();
-                    }else{
+                    } else {
                         Spine2DRenderNode.recoverRenderElement2D(element);
                     }
                 }
                 this._renderElements.length = mesh.subMeshCount;
-            }else{
-                for (let i = 0 , len = this._renderElements.length ; i < len ; i++)
+            } else {
+                for (let i = 0, len = this._renderElements.length; i < len; i++)
                     Spine2DRenderNode.recoverRenderElement2D(this._renderElements[i]);
                 this._renderElements.length = 0;
             }

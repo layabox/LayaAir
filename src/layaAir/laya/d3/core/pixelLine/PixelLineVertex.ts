@@ -4,7 +4,6 @@ import { VertexElement } from "../../../renders/VertexElement";
 import { VertexElementFormat } from "../../../renders/VertexElementFormat";
 /**
  * @internal
- * @author 
  */
 export class PixelLineVertex {
 	private static _vertexDeclaration: VertexDeclaration;

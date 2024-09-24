@@ -1,0 +1,14 @@
+{
+    "dtsPath": "./bin/tsc/layaAir",
+    "outDir": "./docTool/dist/internal/",
+    "emptyDataDir": "./docTool/dist/emptyData/",
+    "mdPath": "./docTool/dist/internal/",
+    "deleteDir": "./docTool/dist/delete/",
+    "_comment": [
+        "`dtsPath` 是LayaAir引擎生成的d.ts的目录或文件",
+        "`outDir` 是基于d.ts输出的markdown(.md)目录",
+        "`emptyDataDir` 是检测到注释空内容的输出目录",
+        "`mdPath` 用于老的md目录与新的目录对比用",
+        "`deleteDir` 是与上一次对比新结果删除的文件目录"
+    ]
+}

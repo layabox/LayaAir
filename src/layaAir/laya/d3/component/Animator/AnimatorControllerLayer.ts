@@ -8,12 +8,19 @@ import { KeyframeNodeOwner } from "./KeyframeNodeOwner";
 
 
 /**
- * <code>AnimatorControllerLayer</code> 类用于创建动画控制器层。
+ * @en The `AnimatorControllerLayer` class is used to create animation controller layers.
+ * @zh `AnimatorControllerLayer` 类用于创建动画控制器层。
  */
 export class AnimatorControllerLayer implements IClone {
-    /**混合模式_覆盖。 */
+    /**
+     * @en Blending mode: Override. 
+     * @zh 混合模式：覆盖。
+     */
     static BLENDINGMODE_OVERRIDE: number = 0;
-    /**混合模式_叠加。 */
+    /**
+     * @en Blending mode: Additive. 
+     * @zh 混合模式：叠加。
+     */
     static BLENDINGMODE_ADDTIVE: number = 1;
 
     /**@internal */
@@ -21,7 +28,11 @@ export class AnimatorControllerLayer implements IClone {
     /**@internal */
     private _referenceCount: number = 0;
 
-    /**@internal 0:常规播放、1:动态融合播放、2:固定融合播放*/
+    /**
+     * @internal
+     * @en Play type of the layer. 0: Normal play, 1: Dynamic blend play, 2: Fixed blend play
+     * @zh 层的播放类型。0：常规播放、1：动态融合播放、2：固定融合播放
+     */
     _playType: number = -1;
     /**@internal */
     _crossDuration: number = -1;
@@ -50,19 +61,35 @@ export class AnimatorControllerLayer implements IClone {
     _crossPlayStateInfo: AnimatorPlayState | null = new AnimatorPlayState();
     /**@internal */
     _avatarMask: AvatarMask;
-    /** 层的名称。*/
+    /**
+     * @en The name of the layer.
+     * @zh 层的名称。
+     */
     name: string;
-    /** 混合模式。*/
+    /**
+     * @en The blending mode of the layer.
+     * @zh 层的混合模式。
+     */
     blendingMode: number = AnimatorControllerLayer.BLENDINGMODE_OVERRIDE;
-    /** 默认权重。*/
+    /**
+     * @en The default weight of the layer.
+     * @zh 层的默认权重。
+     */
     defaultWeight: number = 1.0;
-    /**	激活时是否自动播放。*/
+    /**
+     * @en Whether to automatically play when activated.
+     * @zh 激活时是否自动播放。
+     */
     playOnWake: boolean = true;
-    /** 是否开启 */
+    /**
+     * @en Whether the layer is enabled.
+     * @zh 层是否启用。
+     */
     enable: boolean = true;
 
     /**
-     * 默认动画状态机。
+     * @en Default animation state machine.
+     * @zh 默认动画状态机。
      */
     get defaultState(): AnimatorState {
         return this._defaultState!;
@@ -73,7 +100,8 @@ export class AnimatorControllerLayer implements IClone {
     }
 
     /**
-     * 骨骼遮罩
+     * @en The avatar mask of the layer.
+     * @zh 层的骨骼遮罩。
      */
     get avatarMask(): AvatarMask {
         return this._avatarMask;
@@ -83,7 +111,11 @@ export class AnimatorControllerLayer implements IClone {
         this._avatarMask = value;
     }
 
-    //@internal
+    /**
+     * @internal
+     * @en The name of the default animation state machine for this layer.
+     * @zh 此层的默认动画状态机的名称。
+     */
     public get defaultStateName() {
         if (!this._defaultState) {
             return null;
@@ -92,7 +124,7 @@ export class AnimatorControllerLayer implements IClone {
     }
 
     private _defaultStateNameCatch: string;
-    //@internal
+
     public set defaultStateName(value: string) {
         this._defaultState = this.getAnimatorState(value);
         if (null == this._defaultState) {
@@ -109,12 +141,14 @@ export class AnimatorControllerLayer implements IClone {
         }
     }
 
-    //@internal
+    /**
+     * @en The AnimatorStates in this layer.
+     * @zh 此层中动画状态
+     */
     public get states(): ReadonlyArray<AnimatorState> {
         return this._states;
     }
 
-    //@internal
     public set states(states: ReadonlyArray<AnimatorState>) {
         if (this._states === states)
             return;
@@ -136,8 +170,10 @@ export class AnimatorControllerLayer implements IClone {
     }
 
     /**
-     * 创建一个 <code>AnimatorControllerLayer</code> 实例。
-     * @param 动画层名称
+     * @en Constructor method.
+     * @param name 动画层名称
+     * @zh 构造方法
+     * @param name 动画层名称
      */
     constructor(name: string) {
         this.name = name;
@@ -194,7 +230,9 @@ export class AnimatorControllerLayer implements IClone {
     }
 
     /**
-     * 获取当前的播放状态。
+     * @en Gets the current play state of the animation.
+     * @returns The current AnimatorPlayState.
+     * @zh 获取当前的动画播放状态。
      * @return 动画播放状态。
      */
     getCurrentPlayState(): AnimatorPlayState {
@@ -202,9 +240,12 @@ export class AnimatorControllerLayer implements IClone {
     }
 
     /**
-     * 获取动画状态。
-     * @param name 动画状态机名称
-     * @return 动画状态。
+     * @en Gets an animator state by its name.
+     * @param name The name of the animator state to find.
+     * @returns The AnimatorState if found, or null if not found.
+     * @zh 通过名称获取动画状态。
+     * @param name 要查找的动画状态的名称。
+     * @returns 如果找到则返回AnimatorState，否则返回null。
      */
     getAnimatorState(name: string): AnimatorState | null {
         var state: AnimatorState;;
@@ -218,9 +259,10 @@ export class AnimatorControllerLayer implements IClone {
     }
 
     /**
-     * 添加动画状态。
-     * @param	state 动画状态。
-     * @param   layerIndex 层索引。
+     * @en Adds an animation state to the layer.
+     * @param state The AnimatorState to add.
+     * @zh 向层中添加动画状态。
+     * @param state 要添加的AnimatorState。
      */
     addState(state: AnimatorState): void {
         var stateName: string = state.name;
@@ -241,9 +283,10 @@ export class AnimatorControllerLayer implements IClone {
     }
 
     /**
-     * 移除动画状态。
-     * @param	state 动画状态。
-     * @param   layerIndex 层索引。
+     * @en Removes an animation state from the layer.
+     * @param state The AnimatorState to remove.
+     * @zh 从层中移除动画状态。
+     * @param state 要移除的动画状态。
      */
     removeState(state: AnimatorState): void {
         var states: AnimatorState[] = this._states;
@@ -259,7 +302,8 @@ export class AnimatorControllerLayer implements IClone {
     }
 
     /**
-     * 销毁。
+     * @en Destroys the AnimatorControllerLayer and clears all references.
+     * @zh 销毁AnimatorControllerLayer并清除所有引用。
      */
     destroy(): void {
         this._clearReference();
@@ -270,8 +314,10 @@ export class AnimatorControllerLayer implements IClone {
     }
 
     /**
-     * 克隆。
-     * @param	destObject 克隆源。
+     * @en Clones the properties of this AnimatorControllerLayer to another object.
+     * @param destObject The target object to clone to.
+     * @zh 将此AnimatorControllerLayer的属性克隆到另一个对象。
+     * @param destObject 要克隆到的目标对象。
      */
     cloneTo(destObject: any): void {
         var dest: AnimatorControllerLayer = (<AnimatorControllerLayer>destObject);
@@ -283,8 +329,10 @@ export class AnimatorControllerLayer implements IClone {
     }
 
     /**
-     * 克隆。
-     * @return	 克隆副本。
+     * @en Creates and returns a clone of this AnimatorControllerLayer.
+     * @returns A new AnimatorControllerLayer instance with properties copied from this one.
+     * @zh 创建并返回此AnimatorControllerLayer的克隆副本。
+     * @returns 一个新的AnimatorControllerLayer实例，其属性从当前实例复制。
      */
     clone(): any {
         var dest: AnimatorControllerLayer = new AnimatorControllerLayer(this.name);

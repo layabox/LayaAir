@@ -12,90 +12,71 @@ import { ILaya } from "../../ILaya";
 import { HideFlags } from "../Const";
 
 /**
- * 选择项改变后调度。
- * @eventType laya.events.Event
- */
-/*[Event(name = "change", type = "laya.events.Event")]*/
-
-/**
  * @en The `ColorPicker` component displays a color palette from which the user can select a color.
  * @zh `ColorPicker` 组件将显示包含多个颜色样本的列表，用户可以从中选择颜色。
  */
 export class ColorPicker extends UIComponent {
 
     /**
-     * @internal
      * @en Specifies the width and height of each color cell (in pixels).
      * @zh 指定每个正方形的颜色小格子的宽高（以像素为单位）。
      */
     protected _gridSize: number = 11;
     /**
-     * @internal
      * @en The background color value of the color palette panel.
      * @zh 表示颜色样本列表面板的背景颜色值。
      */
     protected _bgColor: string = "#ffffff";
     /**
-     * @internal
      * @en The border color value of the color palette panel.
      * @zh 表示颜色样本列表面板的边框颜色值。
      */
     protected _borderColor: string = "#000000";
     /**
-     * @internal
      * @en Represents the color value selected or input in the color sample list panel.
      * @cn 表示颜色样本列表面板选择或输入的颜色值。
      */
     protected _inputColor: string = "#000000";
     /**
-     * @internal
      * @en The background color value of the color input box.
      * @zh 表示颜色输入框的背景颜色值。
      */
     protected _inputBgColor: string = "#efefef";
     /**
-     * @internal 
      * @en Represents the color palette panel.
      * @zh 表示颜色样本列表面板。
      */
     protected _colorPanel: Box;
     /**
-     * @internal
      * @en Represents the color grid.
      * @zh 表示颜色网格。
      */
     protected _colorTiles: Sprite;
     /**
-     * @internal
      * @en Represents the color block display object.
      * @zh 表示颜色块显示对象。
      */
     protected _colorBlock: Sprite;
     /**
-     * @internal 
      * @en Represents the color input box control `Input`.
      * @zh 表示颜色输入框控件 `Input`。
      */
     protected _colorInput: Input;
     /**
-     * @internal
      * @en Represents the button control `Button` that displays the color palette panel when clicked.
      * @zh 表示点击后显示颜色样本列表面板的按钮控件 `Button`。
      */
     protected _colorButton: Button;
      /**
-     * @internal
      * @en Represents the list of color values.
      * @zh 表示颜色值列表。
      */
     protected _colors: any[] = [];
     /**
-     * @internal
      * @en Represents the selected color value.  
      * @zh 表示选择的颜色值。
      */
     protected _selectedColor: string = "#000000";
-    /** @internal */
     protected _panelChanged: boolean;
 
     /**
@@ -114,7 +95,6 @@ export class ColorPicker extends UIComponent {
     get selectedColor(): string {
         return this._selectedColor;
     }
-
     set selectedColor(value: string) {
         if (this._selectedColor != value) {
             this._selectedColor = this._colorInput.text = value;
@@ -128,7 +108,6 @@ export class ColorPicker extends UIComponent {
     /**
      * @en The skin URL of the color picker.
      * @zh 颜色选择器的皮肤地址。
-     * @copy laya.ui.Button#skin
      */
     get skin(): string {
         return this._colorButton.skin;
@@ -201,7 +180,6 @@ export class ColorPicker extends UIComponent {
         }
     }
 
-    /**@internal */
     protected _setPanelChanged(): void {
         if (!this._panelChanged) {
             this._panelChanged = true;
@@ -209,12 +187,6 @@ export class ColorPicker extends UIComponent {
         }
     }
 
-
-    /**
-     * @internal
-     * @inheritDoc 
-     * @override
-     */
     protected createChildren(): void {
         this._colorButton = new Button()
         this._colorButton.hideFlags = HideFlags.HideAndDontSave;
@@ -227,11 +199,6 @@ export class ColorPicker extends UIComponent {
         this._colorPanel.addChild(this._colorInput = new Input());
     }
 
-    /**
-     * @internal
-     * @inheritDoc 
-     * @override
-     */
     protected initialize(): void {
         this._colorButton.on(Event.CLICK, this, this.onColorButtonClick);
 
@@ -252,13 +219,11 @@ export class ColorPicker extends UIComponent {
         this.bgColor = this._bgColor;
     }
 
-    /**@internal */
     private onPanelMouseDown(e: Event): void {
         e.stopPropagation();
     }
 
     /**
-     * @internal
      * @en Changes the color palette panel.
      * @zh 改变颜色样本列表面板。
      */
@@ -299,7 +264,6 @@ export class ColorPicker extends UIComponent {
     }
 
     /**
-     * @internal
      * @en Handles the `Event.MOUSE_DOWN` event of the color button.
      * @param e The event object.
      * @zh 颜色样本列表面板显示按钮的 `Event.MOUSE_DOWN` 事件侦听处理函数。
@@ -311,7 +275,6 @@ export class ColorPicker extends UIComponent {
     }
 
     /**
-     * @internal 
      * @en Handles the `Event.MOUSE_DOWN` event of the stage to close the color palette panel.
      * @param e (Optional) The event object. 
      * @zh 处理舞台的 `Event.MOUSE_DOWN` 事件侦听处理函数，关闭颜色面板。
@@ -322,7 +285,6 @@ export class ColorPicker extends UIComponent {
     }
 
     /**
-     * @internal
      * @en Handles the `Event.KEY_DOWN` event of the color input field.
      * @param e The event object.
      * @zh 处理颜色输入框的 `Event.KEY_DOWN` 事件侦听处理函数。
@@ -338,7 +300,6 @@ export class ColorPicker extends UIComponent {
     }
 
     /**
-     * @internal
      * @en Handles the `Event.CHANGE` event of the color input field.
      * @param e (Optional) The event object.
      * @zh 处理颜色输入框的 `Event.CHANGE` 事件侦听处理函数。
@@ -350,7 +311,6 @@ export class ColorPicker extends UIComponent {
     }
 
     /**
-     * @internal
      * @en Handles the `Event.CLICK` event of the color tiles.
      * @param e The event object.
      * @zh 处理颜色格子的 `Event.CLICK` 事件侦听处理函数。
@@ -362,7 +322,6 @@ export class ColorPicker extends UIComponent {
     }
 
     /**
-     * @internal 
      * @en Handles the `Event.MOUSE_MOVE` event of the color tiles.
      * @param e The event object.
      * @zh 处理颜色格子的 `Event.MOUSE_MOVE` 事件侦听处理函数。
@@ -376,7 +335,6 @@ export class ColorPicker extends UIComponent {
     }
 
     /**
-     * @internal
      * @en Gets the color value of the corresponding color block based on the mouse position.
      * @zh 通过鼠标位置取对应的颜色块的颜色值。
      */  
@@ -388,7 +346,6 @@ export class ColorPicker extends UIComponent {
     }
 
     /**
-     * @internal 
      * @en Draws the color block.
      * @param color The color value to draw.
      * @zh 绘制颜色块。
@@ -404,7 +361,6 @@ export class ColorPicker extends UIComponent {
     }
 
     /**
-     * @internal
      * @en Changes the color.
      * @zh 改变颜色。
      */
@@ -442,8 +398,6 @@ export class ColorPicker extends UIComponent {
     }
 
     /**
-     * @inheritDoc 
-     * @override
      * @en Destroys the color picker component.
      * @param destroyChild Indicates whether to destroy the component's children as well. Default value is true.
      * @zh 销毁颜色选择器组件。

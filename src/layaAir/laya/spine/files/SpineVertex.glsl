@@ -44,12 +44,8 @@
 #endif
 
 uniform vec2 u_size;
-// #ifdef GPU_INSTANCE
-//     uniform vec3 a_NMatrix[2];
-// #else
-    // uniform vec3 u_NMatrix[2];
-// #endif //GPU_INSTANCE
 uniform vec4 u_color;
+
 
 vec4 getSpinePos(){
 
@@ -100,6 +96,7 @@ vec4 getScreenPos(vec4 pos){
        x = posT.x;
        y = posT.y;
     #endif  
+    v_cliped = getClipedInfo(vec2(x,-y));
     return vec4((x/u_baseRenderSize2D.x-0.5)*2.0,(y/u_baseRenderSize2D.y+0.5)*2.0,pos.z,1.0);
 }
 

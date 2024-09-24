@@ -2,31 +2,42 @@ import { GradientSize } from "./GradientSize";
 import { IClone } from "../../../../utils/IClone"
 
 /**
- * <code>SizeOverLifetime</code> 类用于粒子的生命周期尺寸。
+ * @en The `SizeOverLifetime` class is used to control the size of particles over their lifetime.
+ * @zh `SizeOverLifetime` 类用于控制粒子在其生命周期内的尺寸变化。
  */
 export class SizeOverLifetime implements IClone {
 	private _size: GradientSize;
 
-	/**是否启用*/
+	/**
+     * @en Whether to enable.
+     * @zh 是否启用
+     */
 	enable: boolean;
 
-	/**
-	 *获取尺寸。
-	 */
+    /**
+     * @en The size.
+     * @zh 尺寸。
+     */
 	get size(): GradientSize {
 		return this._size;
 	}
 
 	/**
-	 * 创建一个 <code>SizeOverLifetime</code> 实例。
+	 * @ignore
+	 * @en Creates an instance of the `SizeOverLifetime` class.
+	 * @param size gradient size.
+	 * @zh 创建一个 `SizeOverLifetime` 实例。
+	 * @param size 渐变尺寸
 	 */
 	constructor(size: GradientSize) {
 		this._size = size;
 	}
 
 	/**
-	 * 克隆。
-	 * @param	destObject 克隆源。
+	 * @en Clones to a target object.
+	 * @param destObject The target object to clone to.
+	 * @zh 克隆到目标对象。
+	 * @param destObject 要克隆到的目标对象。
 	 */
 	cloneTo(destObject: any): void {
 		var destSizeOverLifetime: SizeOverLifetime = (<SizeOverLifetime>destObject);
@@ -35,8 +46,10 @@ export class SizeOverLifetime implements IClone {
 	}
 
 	/**
-	 * 克隆。
-	 * @return	 克隆副本。
+	 * @en Clone.
+	 * @returns Clone copy.
+	 * @zh 克隆。
+	 * @returns 克隆副本。
 	 */
 	clone(): any {
 		var destSize: GradientSize;
