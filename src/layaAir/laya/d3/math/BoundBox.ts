@@ -3,7 +3,8 @@ import { Vector3 } from "../../maths/Vector3";
 import { IClone } from "../../utils/IClone"
 
 /**
- * <code>BoundBox</code> 类用于创建包围盒。
+ * @en The `BoundBox` class is used for creating a bounding box.
+ * @zh `BoundBox` 类用于创建包围盒。
  */
 export class BoundBox implements IClone {
 	/**@internal */
@@ -11,13 +12,22 @@ export class BoundBox implements IClone {
 	/**@internal */
 	private static _tempVector31: Vector3 = new Vector3();
 
-	/**最小顶点。*/
+	/**
+	 * @en The minimum vertex of the bounding box.
+	 * @zh 包围盒的最小顶点。
+	 */
 	min: Vector3;
-	/**最大顶点。*/
+	/**
+	 * @en The maximum vertex of the bounding box.
+	 * @zh 包围盒的最大顶点。
+	 */
 	max: Vector3;
 
 	/**
-	 * 创建一个 <code>BoundBox</code> 实例。
+	 * @en Constructor method of the bounding box.
+	 * @param	min The minimum vertex of the bounding box.
+	 * @param	max The maximum vertex of the bounding box.
+	 * @zh 包围盒的构造方法。
 	 * @param	min 包围盒的最小顶点。
 	 * @param	max 包围盒的最大顶点。
 	 */
@@ -40,8 +50,10 @@ export class BoundBox implements IClone {
 	}
 
 	/**
-	 * 获取包围盒的8个角顶点。
-	 * @param	corners 返回顶点的输出队列。
+	 * @en Retrieves the 8 corner vertices of the bounding box.
+	 * @param corners The array to store the corner vertices.
+	 * @zh 获取包围盒的8个角顶点。
+	 * @param corners 角顶点的输出数组。
 	 */
 	getCorners(corners: Vector3[]): void {
 		corners.length = 8;
@@ -62,8 +74,10 @@ export class BoundBox implements IClone {
 	}
 
 	/**
-	 * 获取中心点。
-	 * @param	out 输出中心点
+	 * @en Retrieves the center point of the bounding box.。
+	 * @param out The vector to store the center point.
+	 * @zh 获取包围盒的中心点。
+	 * @param out 存储中心点的向量。
 	 */
 	getCenter(out: Vector3): void {
 		Vector3.add(this.min, this.max, out);
@@ -71,8 +85,10 @@ export class BoundBox implements IClone {
 	}
 
 	/**
-	 * 获取范围。
-	 * @param	out 输出轴半径
+	 * @en Retrieves the extents of the bounding box.
+	 * @param out The vector to store the extents.
+	 * @zh 获取包围盒的范围。
+	 * @param out 存储轴半径的向量。
 	 */
 	getExtent(out: Vector3): void {
 		Vector3.subtract(this.max, this.min, out);
@@ -80,9 +96,12 @@ export class BoundBox implements IClone {
 	}
 
 	/**
-	 * 设置中心点和范围。
-	 * @param center 设置中心点
-	 * @param extent 轴半径
+	 * @en Sets the center and extents of the bounding box.
+	 * @param center The center point of the bounding box.
+	 * @param extent The axis radius of the bounding box.
+	 * @zh 设置包围盒的中心点和范围
+	 * @param center 包围盒的中心点。
+	 * @param extent 包围盒的轴半径
 	 */
 	setCenterAndExtent(center: Vector3, extent: Vector3): void {
 		Vector3.subtract(center, extent, this.min);
@@ -91,6 +110,12 @@ export class BoundBox implements IClone {
 
 	/**
 	 * @internal
+	 * @en Transforms the bounding box using the given matrix.
+	 * @param matrix The transformation matrix.
+	 * @param out The bounding box to store the result.
+	 * @zh 使用给定的矩阵变换包围盒。
+	 * @param matrix 变换矩阵。
+	 * @param out 存储结果的包围盒。
 	 */
 	tranform(matrix: Matrix4x4, out: BoundBox): void {
 		var center: Vector3 = BoundBox._tempVector30;
@@ -103,7 +128,8 @@ export class BoundBox implements IClone {
 	}
 
 	/**
-	 * 恢复默认值
+	 * @en Resets the bounding box to its default values.
+	 * @zh 将包围盒重置为其默认值。
 	 */
 	toDefault(): void {
 		this.min.toDefault();
@@ -111,9 +137,12 @@ export class BoundBox implements IClone {
 	}
 
 	/**
-	 * 从顶点生成包围盒。
-	 * @param	points 所需顶点队列。
-	 * @param	out 生成的包围盒。
+	 * @en Creates a bounding box from a set of points.
+	 * @param points The set of points.
+	 * @param out The resulting bounding box.
+	 * @zh 从一组顶点生成包围盒。
+	 * @param points 所需顶点队列。
+	 * @param out 生成的包围盒。
 	 */
 	static createfromPoints(points: Vector3[], out: BoundBox): void {
 		if (points == null)
@@ -135,10 +164,14 @@ export class BoundBox implements IClone {
 	}
 
 	/**
-	 * 合并两个包围盒。
-	 * @param	box1 包围盒1。
-	 * @param	box2 包围盒2。
-	 * @param	out 生成的包围盒。
+	 * @en Merges two bounding boxes into one.
+	 * @param box1 The first bounding box.
+	 * @param box2 The second bounding box.
+	 * @param out The merged bounding box
+	 * @zh 合并两个包围盒为一个。
+	 * @param box1 第一个包围盒。
+	 * @param box2 第二个包围盒。
+	 * @param out 合并后的包围盒。
 	 */
 	static merge(box1: BoundBox, box2: BoundBox, out: BoundBox): void {
 		Vector3.min(box1.min, box2.min, out.min);
@@ -146,8 +179,10 @@ export class BoundBox implements IClone {
 	}
 
 	/**
-	 * 克隆。
-	 * @param	destObject 克隆源。
+	 * @en Clones this bounding box to another object.
+	 * @param destObject The object to receive the clone.
+	 * @zh 克隆这个包围盒到另一个对象。
+	 * @param destObject 接收克隆的对象。
 	 */
 	cloneTo(destObject: BoundBox): void {
 		var dest: BoundBox = (<BoundBox>destObject);
@@ -156,8 +191,10 @@ export class BoundBox implements IClone {
 	}
 
 	/**
-	 * 克隆。
-	 * @return	 克隆副本。
+	 * @en Creates a clone of this bounding box.
+	 * @return The cloned bounding box.
+	 * @zh 创建这个包围盒的克隆。
+	 * @return 克隆的包围盒。
 	 */
 	clone(): any {
 		var dest: BoundBox = new BoundBox(new Vector3(), new Vector3());

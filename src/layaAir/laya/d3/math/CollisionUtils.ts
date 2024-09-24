@@ -5,9 +5,11 @@ import { Ray } from "./Ray";
 import { ContainmentType } from "./ContainmentType";
 import { MathUtils3D } from "../../maths/MathUtils3D";
 import { Vector3 } from "../../maths/Vector3";
+
 /**
-     * <code>Collision</code> 类用于检测碰撞。
-     */
+ * @en Collision class is used to detect collisions
+ * @zh Collision 类用于检测碰撞。
+ */
 export class CollisionUtils {
 
     /** @internal */
@@ -25,19 +27,23 @@ export class CollisionUtils {
     /** @internal */
     private static _tempV36: Vector3 = new Vector3();
 
-
     /**
-     * 创建一个 <code>Collision</code> 实例。
+     * @en constructor
+     * @zh 构造方法
      */
     constructor() {
 
     }
 
-
     /**
-     * 空间中点到平面的距离
-     * @param	plane 平面
-     * @param	point 点
+     * @en Calculates the distance from a point to a plane in space.
+     * @param plane The plane.
+     * @param point The point.
+     * @returns The distance from the point to the plane.
+     * @zh 计算空间中点到平面的距离。
+     * @param plane 平面。
+     * @param point 点。
+     * @returns 点到平面的距离。
      */
     static distancePlaneToPoint(plane: Plane, point: Vector3): number {
 
@@ -46,9 +52,14 @@ export class CollisionUtils {
     }
 
     /**
-     * 空间中点到包围盒的距离
-     * @param	box 包围盒
-     * @param	point 点
+     * @en Calculates the distance from a point to a bounding box in space.
+     * @param box The bounding box.
+     * @param point The point.
+     * @returns The distance from the point to the bounding box.
+     * @zh 计算空间中点到包围盒的距离。
+     * @param box 包围盒。
+     * @param point 点。
+     * @returns 点到包围盒的距离。
      */
     static distanceBoxToPoint(box: BoundBox, point: Vector3): number {
 
@@ -87,9 +98,14 @@ export class CollisionUtils {
     }
 
     /**
-     * 空间中包围盒到包围盒的距离
-     * @param	box1 包围盒1
-     * @param	box2 包围盒2
+     * @en Calculates the distance between two bounding boxes in space.
+     * @param box1 The first bounding box.
+     * @param box2 The second bounding box.
+     * @returns The distance between the two bounding boxes.
+     * @zh 计算空间中两个包围盒之间的距离。
+     * @param box1 第一个包围盒。
+     * @param box2 第二个包围盒。
+     * @returns 两个包围盒之间的距离。
      */
     static distanceBoxToBox(box1: BoundBox, box2: BoundBox): number {
 
@@ -150,9 +166,14 @@ export class CollisionUtils {
     }
 
     /**
-     * 空间中点到包围球的距离
-     * @param	sphere 包围球
-     * @param	point  点
+     * @en Calculates the distance from a point to a bounding sphere in space.
+     * @param sphere The bounding sphere.
+     * @param point The point in space.
+     * @returns The distance from the point to the bounding sphere.
+     * @zh 计算空间中点到包围球的距离。
+     * @param sphere 包围球。
+     * @param point 空间中的点。
+     * @returns 点到包围球的距离
      */
     static distanceSphereToPoint(sphere: BoundSphere, point: Vector3): number {
 
@@ -163,9 +184,14 @@ export class CollisionUtils {
     }
 
     /**
-     * 空间中包围球到包围球的距离
-     * @param	sphere1 包围球1
-     * @param	sphere2 包围球2
+     * @en Calculates the distance between two bounding spheres in space.
+     * @param sphere1 The first bounding sphere.
+     * @param sphere2 The second bounding sphere.
+     * @returns The distance between the two bounding spheres.
+     * @zh 计算空间中两个包围球之间的距离。
+     * @param sphere1 第一个包围球。
+     * @param sphere2 第二个包围球。
+     * @returns 两个包围球之间的距离。
      */
     static distanceSphereToSphere(sphere1: BoundSphere, sphere2: BoundSphere): number {
 
@@ -175,15 +201,21 @@ export class CollisionUtils {
         return Math.max(distance, 0);
     }
 
-
     /**
-     * 空间中射线和三角面是否相交,输出距离
-     * @param	ray 射线
-     * @param	vertex1 三角面顶点1
-     * @param	vertex2	三角面顶点2
-     * @param	vertex3 三角面顶点3
-     * @param	out 点和三角面的距离
-     * @return  是否相交
+     * @en Determines whether a ray intersects with a triangle and outputs the distance to the intersection.
+     * @param ray The ray.
+     * @param vertex1 The first vertex of the triangle.
+     * @param vertex2 The second vertex of the triangle.
+     * @param vertex3 The third vertex of the triangle.
+     * @param out The distance to the intersection point.
+     * @returns True if there is an intersection, otherwise false.
+     * @zh 判断射线是否与三角形相交，并输出到交点的距离。
+     * @param ray 射线。
+     * @param vertex1 三角形的第一个顶点。
+     * @param vertex2 三角形的第二个顶点。
+     * @param vertex3 三角形的第三个顶点。
+     * @param out 点和三角面间距离。
+     * @returns 如果相交返回真，否则返回假。
      */
     static intersectsRayAndTriangleRD(ray: Ray, vertex1: Vector3, vertex2: Vector3, vertex3: Vector3, out: number): boolean {
 
@@ -291,13 +323,20 @@ export class CollisionUtils {
     }
 
     /**
-     * 空间中射线和三角面是否相交,输出相交点
-     * @param	ray 射线
-     * @param	vertex1 三角面顶点1
-     * @param	vertex2	三角面顶点2
-     * @param	vertex3 三角面顶点3
-     * @param	out 相交点
-     * @return  是否相交
+     * @en Determines whether a ray intersects with a triangle and outputs the intersection point.
+     * @param ray The ray.
+     * @param vertex1 The first vertex of the triangle.
+     * @param vertex2 The second vertex of the triangle.
+     * @param vertex3 The third vertex of the triangle.
+     * @param out The intersection point.
+     * @returns True if there is an intersection, otherwise false.
+     * @zh 判断射线是否与三角形相交，并输出交点。
+     * @param ray 射线。
+     * @param vertex1 三角形的第一个顶点。
+     * @param vertex2 三角形的第二个顶点。
+     * @param vertex3 三角形的第三个顶点。
+     * @param out 交点。
+     * @returns 如果相交返回真，否则返回假。
      */
     static intersectsRayAndTriangleRP(ray: Ray, vertex1: Vector3, vertex2: Vector3, vertex3: Vector3, out: Vector3): boolean {
 
@@ -314,9 +353,14 @@ export class CollisionUtils {
     }
 
     /**
-     * 空间中射线和点是否相交
-     * @param	sphere1 包围球1
-     * @param	sphere2 包围球2
+     * @en Determines whether a ray intersects with a point.
+     * @param ray The ray.
+     * @param point The point.
+     * @returns True if there is an intersection, otherwise false.
+     * @zh 判断射线是否与点相交。
+     * @param ray 射线。
+     * @param point 点。
+     * @returns 如果相交返回真，否则返回假。
      */
     static intersectsRayAndPoint(ray: Ray, point: Vector3): boolean {
 
@@ -334,10 +378,16 @@ export class CollisionUtils {
     }
 
     /**
-     * 空间中射线和射线是否相交
-     * @param	ray1 射线1
-     * @param	ray2 射线2
-     * @param	out 相交点
+     * @en Determines whether two rays intersect and outputs the intersection point.
+     * @param ray1 The first ray.
+     * @param ray2 The second ray.
+     * @param out The intersection point.
+     * @returns True if there is an intersection, otherwise false.
+     * @zh 判断两条射线是否相交，并输出交点。
+     * @param ray1 第一个射线。
+     * @param ray2 第二个射线。
+     * @param out 交点。
+     * @returns 如果相交返回真，否则返回假。
      */
     static intersectsRayAndRay(ray1: Ray, ray2: Ray, out: Vector3): boolean {
 
@@ -413,12 +463,24 @@ export class CollisionUtils {
     }
 
     /**
-     * 空间中平面和三角面是否相交
-     * @param	plane 平面
-     * @param	vertex1 三角面顶点1
-     * @param	vertex2 三角面顶点2
-     * @param	vertex3 三角面顶点3
-     * @return  返回空间位置关系
+     * @en Determines whether a plane intersects with a triangle in space and returns the spatial relationship.
+     * @param plane The plane.
+     * @param vertex1 The first vertex of the triangle.
+     * @param vertex2 The second vertex of the triangle.
+     * @param vertex3 The third vertex of the triangle.
+     * @returns The spatial relationship between the plane and the triangle： 
+     * - 0(PlaneIntersectionType_Back): back, 
+     * - 1(PlaneIntersectionType_Front): front, 
+     * - 2(PlaneIntersectionType_Intersecting): intersecting.
+     * @zh 判断空间中的平面是否与三角形相交，并返回空间位置关系。
+     * @param plane 平面。
+     * @param vertex1 三角形的第一个顶点。
+     * @param vertex2 三角形的第二个顶点。
+     * @param vertex3 三角形的第三个顶点。
+     * @returns 平面与三角面的相交类型： 
+     * - 0(PlaneIntersectionType_Back): 背面，
+     * - 1(PlaneIntersectionType_Front): 正面，
+     * - 2(PlaneIntersectionType_Intersecting): 相交。
      */
     static intersectsPlaneAndTriangle(plane: Plane, vertex1: Vector3, vertex2: Vector3, vertex3: Vector3): number {
 
@@ -436,10 +498,14 @@ export class CollisionUtils {
     }
 
     /**
-     * 射线和平面是否相交,并返回相交距离。
-     * @param	ray   射线。
-     * @param	plane 平面。
-     * @return	相交距离,-1为不相交。
+     * @en Determines whether a ray intersects with a plane and returns the distance to the intersection.
+     * @param ray The ray.
+     * @param plane The plane.
+     * @returns The distance to the intersection point, or -1 if there is no intersection.
+     * @zh 判断射线是否与平面相交，并返回到交点的距离。
+     * @param ray 射线。    
+     * @param plane 平面。
+     * @returns 到交点的距离，如果没有交点则为 -1。
      */
     static intersectsRayAndPlaneRD(ray: Ray, plane: Plane): number {
         //Source: Real-Time Collision Detection by Christer Ericson
@@ -462,10 +528,16 @@ export class CollisionUtils {
     }
 
     /**
-     * 空间中射线和平面是否相交，并返回相交点。
-     * @param	ray   射线。
-     * @param	plane 平面。
-     * @param	out 相交点。
+     * @en Determines whether a ray intersects with a plane and outputs the intersection point.
+     * @param ray The ray.
+     * @param plane The plane.
+     * @param out The intersection point.
+     * @returns True if there is an intersection, otherwise false.
+     * @zh 判断射线是否与平面相交，并输出交点。
+     * @param ray 射线。
+     * @param plane 平面。
+     * @param out 交点。
+     * @returns 如果相交返回真，否则返回假。
      */
     static intersectsRayAndPlaneRP(ray: Ray, plane: Plane, out: Vector3): boolean {
         //Source: Real-Time Collision Detection by Christer Ericson
@@ -483,10 +555,14 @@ export class CollisionUtils {
     }
 
     /**
-     * 空间中射线和包围盒是否相交
-     * @param	ray 射线
-     * @param	box	包围盒
-     * @param	out 相交距离,如果为0,不相交
+     * @en Determines whether a ray intersects with a bounding box and outputs the distance to the intersection.
+     * @param ray The ray.
+     * @param box The bounding box.
+     * @returns The distance to the intersection point, or -1 if there is no intersection.
+     * @zh 判断射线是否与包围盒相交，并输出到交点的距离。
+     * @param ray 射线。
+     * @param box 包围盒。
+     * @returns 到交点的距离，如果没有交点则为 -1。
      */
     static intersectsRayAndBoxRD(ray: Ray, box: BoundBox): number {
 
@@ -608,10 +684,16 @@ export class CollisionUtils {
     }
 
     /**
-     * 空间中射线和包围盒是否相交
-     * @param	ray 射线
-     * @param	box	包围盒
-     * @param	out 相交点
+     * @en Determines whether a ray intersects with a bounding box and returns the intersection point.
+     * @param ray The ray.
+     * @param box The bounding box.
+     * @param out The intersection point.
+     * @returns The distance to the intersection, or -1 if there is no intersection.
+     * @zh 判断射线是否与包围盒相交，并返回交点。
+     * @param ray 射线。
+     * @param box 包围盒。
+     * @param out 交点。
+     * @returns 到交点的距离，如果没有交点则为 -1。
      */
     static intersectsRayAndBoxRP(ray: Ray, box: BoundBox, out: Vector3): number {
 
@@ -630,10 +712,14 @@ export class CollisionUtils {
     }
 
     /**
-     * 空间中射线和包围球是否相交
-     * @param	ray    射线
-     * @param	sphere 包围球
-     * @return	相交距离,-1表示不相交
+     * @en Determines whether a ray intersects with a bounding sphere and returns the distance to the intersection.
+     * @param ray The ray.
+     * @param sphere The bounding sphere.
+     * @returns The distance to the intersection point, or -1 if there is no intersection.
+     * @zh 判断射线是否与包围球相交，并返回到交点的距离。
+     * @param ray 射线。
+     * @param sphere 包围球。
+     * @returns 到交点的距离，如果没有交点则为 -1。
      */
     static intersectsRayAndSphereRD(ray: Ray, sphere: BoundSphere): number {
 
@@ -663,11 +749,16 @@ export class CollisionUtils {
     }
 
     /**
-     * 空间中射线和包围球是否相交
-     * @param	ray    射线
-     * @param	sphere 包围球
-     * @param	out    相交点
-     * @return  相交距离,-1表示不相交
+     * @en Determines whether a ray intersects with a bounding sphere and returns the distance to the intersection.
+     * @param ray The ray.
+     * @param sphere The bounding sphere.
+     * @param out The intersection point.
+     * @returns The distance to the intersection, or -1 if there is no intersection.
+     * @zh 判断射线是否与包围球相交并返回到交点的距离。
+     * @param ray 射线。
+     * @param sphere 包围球。
+     * @param out 交点。
+     * @returns 到交点的距离，如果没有交点则为 -1。
      */
     static intersectsRayAndSphereRP(ray: Ray, sphere: BoundSphere, out: Vector3): number {
         var distance: number = CollisionUtils.intersectsRayAndSphereRD(ray, sphere);
@@ -684,12 +775,18 @@ export class CollisionUtils {
     }
 
     /**
-     * 空间中包围球和三角面是否相交
-     * @param	sphere 包围球
-     * @param	vertex1 三角面顶点1
-     * @param	vertex2 三角面顶点2
-     * @param	vertex3 三角面顶点3
-     * @return  返回是否相交
+     * @en Determines whether a bounding sphere intersects with a triangle.
+     * @param sphere The bounding sphere.
+     * @param vertex1 The first vertex of the triangle.
+     * @param vertex2 The second vertex of the triangle.
+     * @param vertex3 The third vertex of the triangle.
+     * @returns True if they intersect, otherwise false.
+     * @zh 判断包围球是否与三角形相交。
+     * @param sphere 包围球。
+     * @param vertex1 三角形的第一个顶点。
+     * @param vertex2 三角形的第二个顶点。
+     * @param vertex3 三角形的第三个顶点。
+     * @returns 如果相交返回真，否则返回假。
      */
     static intersectsSphereAndTriangle(sphere: BoundSphere, vertex1: Vector3, vertex2: Vector3, vertex3: Vector3): boolean {
 
@@ -705,10 +802,20 @@ export class CollisionUtils {
     }
 
     /**
-     * 空间中点和平面是否相交
-     * @param	plane  平面
-     * @param	point  点
-     * @return  碰撞状态
+     * @en Determines the intersection status between a point and a plane.
+     * @param plane The plane.
+     * @param point The point.
+     * @returns The type of intersection between a point and a plane: 
+     * - 0(PlaneIntersectionType_Back): back, 
+     * - 1(PlaneIntersectionType_Front): front, 
+     * - 2(PlaneIntersectionType_Intersecting): intersecting.
+     * @zh 判断点与平面之间的相交状态。
+     * @param plane 平面。
+     * @param point 点。
+     * @returns 点与平面的相交类型：
+     * - 0(PlaneIntersectionType_Back): 背面，
+     * - 1(PlaneIntersectionType_Front): 正面，
+     * - 2(PlaneIntersectionType_Intersecting): 相交。
      */
     static intersectsPlaneAndPoint(plane: Plane, point: Vector3): number {
         var distance: number = Vector3.dot(plane.normal, point) + plane.distance;
@@ -720,11 +827,16 @@ export class CollisionUtils {
     }
 
     /**
-     * 空间中平面和平面是否相交
-     * @param	plane1 平面1
-     * @param	plane2 平面2
-     * @return  是否相交
+     * @en Determines whether two planes intersect.
+     * @param plane1 The first plane.
+     * @param plane2 The second plane.
+     * @returns True if they intersect, otherwise false.
+     * @zh 判断两个平面是否相交。
+     * @param plane1 第一个平面。
+     * @param plane2 第二个平面。
+     * @returns 如果相交返回真，否则返回假。
      */
+
     static intersectsPlaneAndPlane(plane1: Plane, plane2: Plane): boolean {
 
         Vector3.cross(plane1.normal, plane2.normal, CollisionUtils._tempV30);
@@ -738,11 +850,16 @@ export class CollisionUtils {
     }
 
     /**
-     * 空间中平面和平面是否相交
-     * @param	plane1 平面1
-     * @param	plane2 平面2
-     * @param	line   相交线
-     * @return  是否相交
+     * @en Determines whether two planes intersect and outputs the line of intersection.
+     * @param plane1 The first plane.
+     * @param plane2 The second plane.
+     * @param line The line representing the intersection.
+     * @returns True if they intersect, otherwise false.
+     * @zh 判断两个平面是否相交并输出相交线。
+     * @param plane1 第一个平面。
+     * @param plane2 第二个平面。
+     * @param line 相交线。
+     * @returns 如果相交返回真，否则返回假。
      */
     static intersectsPlaneAndPlaneRL(plane1: Plane, plane2: Plane, line: Ray): boolean {
 
@@ -767,10 +884,20 @@ export class CollisionUtils {
     }
 
     /**
-     * 空间中平面和包围盒是否相交
-     * @param	plane 平面
-     * @param   box  包围盒
-     * @return  碰撞状态
+     * @en Determines the intersection status between a plane and a bounding box.
+     * @param plane The plane.
+     * @param box The bounding box.
+     * @returns The intersection type of the plane and the bounding box: 
+     * - 0(PlaneIntersectionType_Back): back, 
+     * - 1(PlaneIntersectionType_Front): front, 
+     * - 2(PlaneIntersectionType_Intersecting): intersecting.
+     * @zh 判断平面与包围盒之间的相交状态。
+     * @param plane 平面。
+     * @param box 包围盒。
+     * @returns 平面与包围盒的相交类型: 
+     * - 0(PlaneIntersectionType_Back): 背面，
+     * - 1(PlaneIntersectionType_Front): 正面，
+     * - 2(PlaneIntersectionType_Intersecting): 相交。
      */
     static intersectsPlaneAndBox(plane: Plane, box: BoundBox): number {
 
@@ -811,10 +938,14 @@ export class CollisionUtils {
     }
 
     /**
-     * 空间中平面和包围球是否相交
-     * @param	plane 平面
-     * @param   sphere 包围球
-     * @return  碰撞状态
+     * @en Determines the intersection status between a plane and a bounding sphere.
+     * @param plane The plane.
+     * @param sphere The bounding sphere.
+     * @returns The intersection type of the plane and the bounding sphere: 0-back, 1-front, 2-intersecting.
+     * @zh 判断平面与包围球之间的相交状态。
+     * @param plane 平面。
+     * @param sphere 包围球。
+     * @returns 平面与包围球的相交类型:  0-背面，1-正面，2-相交。
      */
     static intersectsPlaneAndSphere(plane: Plane, sphere: BoundSphere): number {
 
@@ -829,10 +960,14 @@ export class CollisionUtils {
     }
 
     /**
-     * 空间中包围盒和包围盒是否相交
-     * @param	box1 包围盒1
-     * @param   box2 包围盒2
-     * @return  是否相交
+     * @en Determines whether two bounding boxes intersect.
+     * @param box1 The first bounding box.
+     * @param box2 The second bounding box.
+     * @returns True if they intersect, otherwise false.
+     * @zh 判断两个包围盒是否相交。
+     * @param box1 第一个包围盒。
+     * @param box2 第二个包围盒。
+     * @returns 如果相交返回真，否则返回假。
      */
     static intersectsBoxAndBox(box1: BoundBox, box2: BoundBox): boolean {
 
@@ -851,10 +986,14 @@ export class CollisionUtils {
     }
 
     /**
-     * 空间中包围盒和包围球是否相交
-     * @param	box 包围盒
-     * @param   sphere 包围球
-     * @return  是否相交
+     * @en Determines whether a bounding box intersects with a bounding sphere.
+     * @param box The bounding box.
+     * @param sphere The bounding sphere.
+     * @returns True if they intersect, otherwise false.
+     * @zh 判断包围盒是否与包围球是否相交。
+     * @param box 包围盒。
+     * @param sphere 包围球。
+     * @returns 如果相交返回真，否则返回假。
      */
     static intersectsBoxAndSphere(box: BoundBox, sphere: BoundSphere): boolean {
         var center: Vector3 = sphere.center;
@@ -866,10 +1005,14 @@ export class CollisionUtils {
     }
 
     /**
-     * 空间中包围球和包围球是否相交
-     * @param	sphere1 包围球1
-     * @param   sphere2 包围球2
-     * @return  是否相交
+     * @en Determines whether one bounding sphere intersects with another bounding sphere.
+     * @param sphere1 The first bounding sphere.
+     * @param sphere2 The second bounding sphere.
+     * @returns True if they intersect, otherwise false.
+     * @zh 判断一个包围球是否与另一个包围球相交。
+     * @param sphere1 第一个包围球。
+     * @param sphere2 第二个包围球。
+     * @returns 如果相交返回真，否则返回假。
      */
     static intersectsSphereAndSphere(sphere1: BoundSphere, sphere2: BoundSphere): boolean {
 
@@ -877,12 +1020,15 @@ export class CollisionUtils {
         return Vector3.distanceSquared(sphere1.center, sphere2.center) <= radiisum * radiisum;
     }
 
-
     /**
-     * 空间中包围盒是否包含另一个点
-     * @param	box 包围盒
-     * @param   point 点
-     * @return  位置关系:0 不想交,1 包含, 2 相交
+     * @en Determines the spatial relationship between a bounding box and a point.
+     * @param box The bounding box.
+     * @param point The point.
+     * @returns The relationship type: 0 for disjoint, 1 for contains, 2 for intersecting.
+     * @zh 确定包围盒和点之间的空间关系。
+     * @param box 包围盒。
+     * @param point 点。
+     * @returns 位置关系：0 表示不相交，1 表示包含，2 表示相交。
      */
     static boxContainsPoint(box: BoundBox, point: Vector3): number {
         var boxMine: Vector3 = box.min;
@@ -893,10 +1039,14 @@ export class CollisionUtils {
     }
 
     /**
-     * 空间中包围盒是否包含另一个包围盒
-     * @param	box1 包围盒1
-     * @param   box2 包围盒2
-     * @return  位置关系:0 不想交,1 包含, 2 相交
+     * @en Determines the spatial relationship between two bounding boxes.
+     * @param box1 The first bounding box.
+     * @param box2 The second bounding box.
+     * @returns The relationship type: 0 for disjoint, 1 for contains, 2 for intersecting.
+     * @zh 确定两个包围盒之间的空间关系。
+     * @param box1 第一个包围盒。
+     * @param box2 第二个包围盒。
+     * @returns 位置关系：0 表示不相交，1 表示包含，2 表示相交。
      */
     static boxContainsBox(box1: BoundBox, box2: BoundBox): number {
 
@@ -938,10 +1088,14 @@ export class CollisionUtils {
 
 
     /**
-     * 空间中包围盒是否包含另一个包围球
-     * @param	box 包围盒
-     * @param   sphere 包围球
-     * @return  位置关系:0 不想交,1 包含, 2 相交
+     * @en Determines the spatial relationship between a bounding box and a bounding sphere.
+     * @param box The bounding box.
+     * @param sphere The bounding sphere.
+     * @returns The relationship type:  0 for disjoint, 1 for contains, 2 for intersecting.
+     * @zh 确定包围盒和包围球之间的空间关系。
+     * @param box 包围盒。
+     * @param sphere 包围球。
+     * @returns 位置关系: 0 表示不相交，1 表示包含，2 表示相交。
      */
     static boxContainsSphere(box: BoundBox, sphere: BoundSphere): number {
 
@@ -977,10 +1131,14 @@ export class CollisionUtils {
     }
 
     /**
-     * 空间中包围球是否包含另一个点
-     * @param	sphere 包围球
-     * @param   point 点
-     * @return  位置关系:0 不想交,1 包含, 2 相交
+     * @en Determines the spatial relationship between a bounding sphere and a point.
+     * @param sphere The bounding sphere.
+     * @param point The point.
+     * @returns The relationship type: 0 for disjoint, 1 for contains, 2 for intersecting.
+     * @zh 确定包围球和点之间的空间关系。
+     * @param sphere 包围球。
+     * @param point 点。
+     * @returns 位置关系：0 表示不相交，1 表示包含，2 表示相交。
      */
     static sphereContainsPoint(sphere: BoundSphere, point: Vector3): number {
 
@@ -991,12 +1149,18 @@ export class CollisionUtils {
     }
 
     /**
-     * 空间中包围球是否包含另一个三角面
-     * @param	sphere
-     * @param	vertex1 三角面顶点1
-     * @param	vertex2 三角面顶点2
-     * @param	vertex3 三角面顶点3
-     * @return  返回空间位置关系
+     * @en Determines the spatial relationship between a bounding sphere and a triangle.
+     * @param sphere The bounding sphere.
+     * @param vertex1 The first vertex of the triangle.
+     * @param vertex2 The second vertex of the triangle.
+     * @param vertex3 The third vertex of the triangle.
+     * @returns The relationship type:  0 for disjoint, 1 for contains, 2 for intersecting.
+     * @zh 确定包围球和三角形之间的空间关系。
+     * @param sphere 包围球。
+     * @param vertex1 第一个顶点。
+     * @param vertex2 第二个顶点。
+     * @param vertex3 第三个顶点。
+     * @returns 位置关系：0 表示不相交，1 表示包含，2 表示相交。
      */
     static sphereContainsTriangle(sphere: BoundSphere, vertex1: Vector3, vertex2: Vector3, vertex3: Vector3): number {
         var test1: number = CollisionUtils.sphereContainsPoint(sphere, vertex1);
@@ -1013,10 +1177,14 @@ export class CollisionUtils {
     }
 
     /**
-     * 空间中包围球是否包含另一包围盒
-     * @param	sphere 包围球
-     * @param   box 包围盒
-     * @return  位置关系:0 不想交,1 包含, 2 相交
+     * @en Determines whether a bounding sphere contains a bounding box.
+     * @param sphere The bounding sphere.
+     * @param box The bounding box.
+     * @returns The spatial relationship: 0 for disjoint, 1 for contains, 2 for intersecting.
+     * @zh 判断包围球是否包含包围盒。
+     * @param sphere 包围球。
+     * @param box 包围盒。
+     * @returns 位置关系：0 表示不相交，1 表示包含，2 表示相交。
      */
     static sphereContainsBox(sphere: BoundSphere, box: BoundBox): number {
 
@@ -1100,10 +1268,14 @@ export class CollisionUtils {
     }
 
     /**
-     * 空间中包围球是否包含另一包围球
-     * @param	sphere1 包围球
-     * @param   sphere2 包围球
-     * @return  位置关系:0 不想交,1 包含, 2 相交
+     * @en Determines whether one bounding sphere contains another bounding sphere.
+     * @param sphere1 The first bounding sphere.
+     * @param sphere2 The second bounding sphere.
+     * @returns The spatial relationship: 0 for disjoint, 1 for contains, 2 for intersecting.
+     * @zh 判断一个包围球是否包含另一个包围球。
+     * @param sphere1 第一个包围球。
+     * @param sphere2 第二个包围球。
+     * @returns 位置关系：0 表示不相交，1 表示包含，2 表示相交。
      */
     static sphereContainsSphere(sphere1: BoundSphere, sphere2: BoundSphere): number {
 
@@ -1123,12 +1295,18 @@ export class CollisionUtils {
 
 
     /**
-     * 空间中点与三角面的最近点
-     * @param	point 点
-     * @param	vertex1 三角面顶点1
-     * @param	vertex2	三角面顶点2
-     * @param	vertex3 三角面顶点3
-     * @param	out 最近点
+     * @en Finds the closest point on a triangle to a given point in space.
+     * @param point The point in space.
+     * @param vertex1 The first vertex of the triangle.
+     * @param vertex2 The second vertex of the triangle.
+     * @param vertex3 The third vertex of the triangle.
+     * @param out The closest point on the triangle.
+     * @zh 找到空间中点到三角形的最近点。
+     * @param point 空间中的点。
+     * @param vertex1 三角形的第一个顶点。
+     * @param vertex2 三角形的第二个顶点。
+     * @param vertex3 三角形的第三个顶点。
+     * @param out 三角形上的最近点。
      */
     static closestPointPointTriangle(point: Vector3, vertex1: Vector3, vertex2: Vector3, vertex3: Vector3, out: Vector3): void {
 
@@ -1196,10 +1374,14 @@ export class CollisionUtils {
     }
 
     /**
-     * 空间中平面与一点的最近点
-     * @param	plane 平面
-     * @param	point 点
-     * @param	out 最近点
+     * @en Finds the closest point on a plane to a given point in space.
+     * @param plane The plane.
+     * @param point The point in space.
+     * @param out The closest point on the plane.
+     * @zh 找到空间中点到平面的最近点。
+     * @param plane 平面。
+     * @param point 空间中的点。
+     * @param out 平面上的最近点。
      */
     static closestPointPlanePoint(plane: Plane, point: Vector3, out: Vector3): void {
 
@@ -1211,10 +1393,14 @@ export class CollisionUtils {
     }
 
     /**
-     * 空间中包围盒与一点的最近点
-     * @param	box 包围盒
-     * @param	point 点
-     * @param	out 最近点
+     * @en Finds the closest point on a bounding box to a given point in space.
+     * @param box The bounding box.
+     * @param point The point in space.
+     * @param out The closest point on the bounding box.
+     * @zh 找到空间中点到包围盒的最近点。
+     * @param box 包围盒。
+     * @param point 空间中的点。
+     * @param out 包围盒上的最近点。
      */
     static closestPointBoxPoint(box: BoundBox, point: Vector3, out: Vector3): void {
         Vector3.max(point, box.min, CollisionUtils._tempV30);
@@ -1222,10 +1408,14 @@ export class CollisionUtils {
     }
 
     /**
-     * 空间中包围球与一点的最近点
-     * @param	sphere 包围球
-     * @param	point 点
-     * @param	out 最近点
+     * @en Finds the closest point on a bounding sphere to a given point in space.
+     * @param sphere The bounding sphere.
+     * @param point The point in space.
+     * @param out The closest point on the bounding sphere.
+     * @zh 找到空间中点到包围球的最近点。
+     * @param sphere 包围球。
+     * @param point 空间中的点。
+     * @param out 包围球上的最近点。
      */
     static closestPointSpherePoint(sphere: BoundSphere, point: Vector3, out: Vector3): void {
         var sphereC: Vector3 = sphere.center;
@@ -1238,10 +1428,14 @@ export class CollisionUtils {
     }
 
     /**
-     * 空间中包围球与包围球的最近点
-     * @param	sphere1 包围球1
-     * @param	sphere2 包围球2
-     * @param	out 最近点
+     * @en Finds the closest points between two bounding spheres.
+     * @param sphere1 The first bounding sphere.
+     * @param sphere2 The second bounding sphere.
+     * @param out The closest point on the first bounding sphere to the second.
+     * @zh 找到两个包围球之间的最近点。
+     * @param sphere1 第一个包围球。
+     * @param sphere2 第二个包围球。
+     * @param out 第一个包围球上到第二个包围球的最近点。
      */
     static closestPointSphereSphere(sphere1: BoundSphere, sphere2: BoundSphere, out: Vector3): void {
         var sphere1C: Vector3 = sphere1.center;

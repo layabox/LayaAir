@@ -29,10 +29,15 @@ import { RenderState } from "../../../RenderDriver/RenderModuleData/Design/Rende
 import { LayaGL } from "../../../layagl/LayaGL";
 
 /**
- * <code>BaseCamera</code> 类用于创建摄像机的父类。
+ * @en UI3D class, used to create 3D UI components.
+ * @zh UI3D类，用于创建3D UI组件。
  */
 export class UI3D extends BaseRender {
 
+    /**
+     * @en The Sprite3D owner of this UI3D component.
+     * @zh 3D UI组件所属的3D节点。
+     */
     declare owner: Sprite3D;
 
     /**@intrtnal */
@@ -83,8 +88,13 @@ export class UI3D extends BaseRender {
     protected _worldParams: Vector4 = new Vector4();
 
     /**
-     * 3D渲染的UI节点
+     * @en UI nodes for 3D rendering
+     * @zh 3D渲染的UI节点
      */
+    get sprite() {
+        return this._uisprite;
+    }
+
     set sprite(value: Sprite) {
         if (value == this._uisprite)
             return;
@@ -96,14 +106,15 @@ export class UI3D extends BaseRender {
         this.boundsChange = true;
     }
 
-    get sprite() {
-        return this._uisprite;
-    }
-
     /**
      * IDE
-     * 3D渲染的UI预制体
+     * @en The 3D rendering UI prefab.
+     * @zh 3D渲染的UI预制体。
      */
+    get prefab() {
+        return this._prefab;
+    }
+
     set prefab(value: Prefab) {
         this._prefab = value;
         if (value)
@@ -112,13 +123,15 @@ export class UI3D extends BaseRender {
             this.sprite = null;
     }
 
-    get prefab() {
-        return this._prefab;
-    }
 
     /**
-     * UI3DmeshScale
+     * @en Mesh scale for 3D UI.
+     * @zh 3D UI的网格缩放。
      */
+    get scale() {
+        return this._size;
+    }
+
     set scale(value: Vector2) {
         if (value.x <= 0 || value.y <= 0)
             return;
@@ -128,33 +141,27 @@ export class UI3D extends BaseRender {
         this._scale.setValue(value.x, value.y, 1);
     }
 
-    get scale() {
-        return this._size;
-    }
 
     /**
-     * UI渲染模式
+     * @en The UI render mode.
+     * @zh UI渲染模式。
      */
-    set renderMode(value: MaterialRenderMode) {
-        this.sharedMaterial.materialRenderMode = value;
-        this.boundsChange = true;
-    }
-
-
     get renderMode(): MaterialRenderMode {
         if (!this.sharedMaterial)
             this.sharedMaterial = this._ui3DMat;
         return this.sharedMaterial.materialRenderMode;
     }
 
-    /**
-     * UI剔除模式
-     */
-    set cull(value: number) {
-        this.sharedMaterial && (this.sharedMaterial.cull = value);
+    set renderMode(value: MaterialRenderMode) {
+        this.sharedMaterial.materialRenderMode = value;
+        this.boundsChange = true;
     }
 
 
+    /**
+     * @en The UI culling mode.
+     * @zh UI剔除模式。
+     */
     get cull(): number {
         let mat = this.sharedMaterial;
         if (!mat) {
@@ -163,9 +170,14 @@ export class UI3D extends BaseRender {
         return mat.cull;
     }
 
+    set cull(value: number) {
+        this.sharedMaterial && (this.sharedMaterial.cull = value);
+    }
+
 
     /**
-     * 分辨率比例
+     * @en The resolution rate.
+     * @zh 分辨率比例。
      */
     get resolutionRate() {
         return this._resolutionRate;
@@ -181,7 +193,8 @@ export class UI3D extends BaseRender {
     }
 
     /**
-     * 面向相机模式
+     * @en The UI3D component is billboard mode.
+     * @zh 面向相机模式
      */
     get billboard() {
         return this._view;
@@ -194,7 +207,8 @@ export class UI3D extends BaseRender {
     }
 
     /**
-     * 检测鼠标事件(关闭优化性能)，开启可以触发鼠标事件
+     * @en Detect mouse events, disable optimization performance, enable to trigger mouse events.
+     * @zh 检测鼠标事件，关闭优化性能，开启可以触发鼠标事件
      */
     get enableHit() {
         return this._hit;
@@ -204,9 +218,10 @@ export class UI3D extends BaseRender {
         this._hit = value;
     }
 
-    /**
-     * 实例化一个UI3D
-     */
+    /** @ignore 
+     * @en constructor method, initialize 3D UI.
+     * @zh 构造方法，初始化3D UI。
+    */
     constructor() {
         super();
         this._uiPlane = new Plane(new Vector3(), 0);
@@ -335,7 +350,8 @@ export class UI3D extends BaseRender {
     }
 
     /**
-     * 获得ui渲染图
+     * @en Get the UI rendering texture.
+     * @zh 获得ui渲染图
      */
     getUITexture(): BaseTexture {
         return this._rendertexure2D;

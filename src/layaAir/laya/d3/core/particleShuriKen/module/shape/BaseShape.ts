@@ -4,34 +4,65 @@ import { IClone } from "../../../../../utils/IClone"
 import { BoundBox } from "../../../../math/BoundBox"
 import { Rand } from "../../../../math/Rand"
 
+/**
+ * @en Enumeration of particle system shape types.
+ * @zh 粒子系统形状类型枚举。
+ */
 export enum ParticleSystemShapeType {
-	/**盒体 */
+	/**
+	 * @en Box shape.
+	 * @zh 盒子形状。
+	 */
 	Box = 0,
-	/**环形 */
+	/**
+	 * @en Circle shape.
+	 * @zh 环形形状。
+	 */
 	Circle = 1,
-	/**锥体 */
+	/**
+	 * @en Cone shape.
+	 * @zh 锥体形状。
+	 */
 	Cone = 2,
-	/**半球体 */
+	/**
+	 * @en Hemisphere shape.
+	 * @zh 半球体形状。
+	 */
 	Hemisphere = 3,
-	/**球体 */
+	/**
+	 * @en Sphere shape.
+	 * @zh 球体形状。
+	 */
 	Sphere = 4
 }
 
 
 /**
- * <code>BaseShape</code> 类用于粒子形状。
+ * @en BaseShape class for particle shapes.
+ * @zh BaseShape类用于粒子形状。
  */
 export class BaseShape implements IClone {
-	/**是否启用。*/
+	/**
+	 * @en Whether the shape is enabled.
+	 * @zh 是否启用。
+	 */
 	enable: boolean = true;
-	/**随机方向。*/
+	/**
+	 * @en Random direction.
+	 * @zh 随机方向，默认0为不随机。
+	 */
 	randomDirection: number = 0;
 
-	/**粒子类型 */
+	/**
+	 * @en Particle shape type.
+	 * @zh 粒子形状类型。
+	 */
 	shapeType: ParticleSystemShapeType;
 
 	/**
-	 * 创建一个 <code>BaseShape</code> 实例。
+	 * @ignore
+	 * @en Creates an instance of the BaseShape class.
+	 * @zh 创建一个BaseShape实例。
 	 */
 	constructor() {
 	}
@@ -47,11 +78,16 @@ export class BaseShape implements IClone {
 	}
 
 	/**
-	 * 用于生成粒子初始位置和方向。
-	 * @param	position 粒子位置。
-	 * @param	direction 粒子方向。
-	 * @param	rand 随机数
-	 * @param 	randomSeeds 随机种子
+	 * @en Generates initial position and direction for particles.
+	 * @param position The particle position.
+	 * @param direction The particle direction.
+	 * @param rand Random number.
+	 * @param randomSeeds Random seeds.
+	 * @zh 用于生成粒子初始位置和方向。
+	 * @param position 粒子位置。
+	 * @param direction 粒子方向。
+	 * @param rand 随机数。
+	 * @param randomSeeds 随机种子。
 	 */
 	generatePositionAndDirection(position: Vector3, direction: Vector3, rand: Rand = null, randomSeeds: Uint32Array = null): void {
 		throw new Error("BaseShape: must override it.");
@@ -106,8 +142,10 @@ export class BaseShape implements IClone {
 	}
 
 	/**
-	 * 克隆。
-	 * @param	destObject 克隆目标。
+	 * @en Clones to a target object.
+	 * @param destObject The target object to clone to.
+	 * @zh 克隆到目标对象。
+	 * @param destObject 要克隆到的目标对象。
 	 */
 	cloneTo(destObject: any): void {
 		var destShape: BaseShape = (<BaseShape>destObject);
@@ -116,8 +154,10 @@ export class BaseShape implements IClone {
 	}
 
 	/**
-	 * 克隆。
-	 * @return	 克隆副本。
+	 * @en Clone.
+	 * @returns Clone copy.
+	 * @zh 克隆。
+	 * @returns 克隆副本。
 	 */
 	clone(): any {
 		var destShape: BaseShape = new BaseShape();

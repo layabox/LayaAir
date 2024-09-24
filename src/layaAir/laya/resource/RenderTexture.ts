@@ -8,35 +8,67 @@ import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
 import { BaseTexture } from "./BaseTexture";
 
 /**
- * 深度贴图模式
+ * @en Depth texture mode
+ * @zh 深度贴图模式
  */
 export enum DepthTextureMode {
-    /**不生成深度贴图 */
+    /**
+     * @en Do not generate depth texture.
+     * @zh 不生成深度贴图。
+     */
     None = 0,
-    /**生成深度贴图 */
+    /**
+     * @en Generate depth texture.
+     * @zh 生成深度贴图。
+     */
     Depth = 1,
-    /**生成深度+法线贴图 */
+    /**
+     * @en Generate depth and normal textures.
+     * @zh 生成深度和法线贴图。
+     */
     DepthNormals = 2,
-    /**是否应渲染运动矢量  TODO*/
+    /**
+     * @en Generate depth and depth normals textures, and indicate whether motion vectors should be rendered.
+     * @zh 生成深度和深度法线贴图，并指示是否应该渲染运动矢量。
+     */
     DepthAndDepthNormals = 3,
+    /**
+     * @en Generate motion vectors texture.
+     * @zh 生成运动矢量贴图。
+     */
     MotionVectors = 4,
 }
+
+/**
+ * @en RenderTexture class used to create render texture.
+ * @zh RenderTexture 类用于创建渲染纹理。
+ */
 export class RenderTexture extends BaseTexture implements IRenderTarget {
 
     private static _pool: RenderTexture[] = [];
     private static _poolMemory: number = 0;
 
     /**
-     * 创建一个RenderTexture
-     * @param width 宽度
-     * @param height 高度
-     * @param colorFormat 颜色格式
-     * @param depthFormat 深度格式
-     * @param mipmap 是否生成多级纹理
-     * @param multiSamples 多采样次数
-     * @param depthTexture 是否生成深度纹理
-     * @param sRGB 是否sRGB空间
-     * @returns 
+     * @en Creates a RenderTexture instance from the pool.
+     * @param width Width of the RenderTexture.
+     * @param height Height of the RenderTexture.
+     * @param colorFormat Color format of the RenderTexture.
+     * @param depthFormat Depth format of the RenderTexture.
+     * @param mipmap Whether to generate mipmaps for the RenderTexture.
+     * @param multiSamples Number of multisamples for the RenderTexture.
+     * @param depthTexture Whether to generate a depth texture.
+     * @param sRGB Whether the RenderTexture is in sRGB space.
+     * @returns A RenderTexture instance.
+     * @zh 从对象池中创建一个RenderTexture实例。
+     * @param width 宽度。
+     * @param height 高度。
+     * @param colorFormat 颜色格式。
+     * @param depthFormat 深度格式。
+     * @param mipmap 是否生成多级纹理。
+     * @param multiSamples 多采样次数。
+     * @param depthTexture 是否生成深度纹理。
+     * @param sRGB 是否sRGB空间。
+     * @returns RenderTexture实例。
      */
     static createFromPool(width: number, height: number, colorFormat: RenderTargetFormat, depthFormat: RenderTargetFormat, mipmap: boolean = false, multiSamples: number = 1, depthTexture: boolean = false, sRGB: boolean = false) {
 
@@ -63,9 +95,10 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
     }
 
     /**
-     * 回收渲染纹理到对象池
-     * @param rt 渲染纹理
-     * @returns 
+     * @en Recovers the RenderTexture to the pool for reuse.
+     * @param rt The RenderTexture to recover.
+     * @zh 回收渲染纹理到对象池以便重用。
+     * @param rt 要回收的渲染纹理。
      */
     static recoverToPool(rt: RenderTexture): void {
         if (rt._inPool || rt.destroyed)
@@ -76,8 +109,8 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
     }
 
     /**
-     * 清空对象池
-     * @returns 
+     * @en Clears the RenderTexture pool.
+     * @zh 清空渲染纹理对象池。
      */
     static clearPool() {
         if (RenderTexture._poolMemory < Config3D.defaultCacheRTMemory) {
@@ -90,10 +123,11 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
         RenderTexture._poolMemory = 0;
     }
 
-    /** @internal 最后绑定到主画布上的结果 此值可能为null*/
+    /** 最后绑定到主画布上的结果 此值可能为null*/
     private static _bindCanvasRender: RenderTexture;
     /**
-     * 绑定到主画布上的RenderTexture
+     * @en The RenderTexture bound to the main canvas.
+     * @zh 绑定到主画布上的渲染纹理。
      */
     static get bindCanvasRender(): RenderTexture {
         return RenderTexture._bindCanvasRender;
@@ -126,7 +160,8 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
 
     private _generateDepthTexture: boolean = false;
     /**
-     * 是否生成深度纹理贴图
+     * @en Whether to generate depth texture maps.
+     * @zh 是否生成深度纹理贴图。
      */
     public get generateDepthTexture(): boolean {
         return this._generateDepthTexture;
@@ -152,13 +187,14 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
         this._generateDepthTexture = value;
     }
     /**
-     * @internal
-     * 深度与模板剔除纹理贴图
+     * @en Depth and stencil removal texture mapping
+     * @zh 深度与模板剔除纹理贴图
      */
     private _depthStencilTexture: BaseTexture;
 
     /**
-     * 深度与模板剔除纹理贴图
+     * @en Depth and stencil removal texture mapping
+     * @zh 深度与模板剔除纹理贴图
      */
     get depthStencilTexture(): BaseTexture {
         return this._depthStencilTexture;
@@ -171,65 +207,81 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
     _generateMipmap: boolean;
 
     /**
-     * 颜色格式
+     * @en Color format
+     * @zh 颜色格式
      */
     get colorFormat(): RenderTargetFormat {
         return this._renderTarget.colorFormat;
     }
     /**
-     * 深度与模板剔除的格式
-     * @internal
+     * @en Depth and stencil removal format
+     * @zh 深度与模板剔除的格式
      */
     protected _depthStencilFormat: RenderTargetFormat;
     /**
-     * 深度与模板剔除的格式
+     * @en Depth and stencil removal format
+     * @zh 深度与模板剔除的格式
      */
     get depthStencilFormat(): RenderTargetFormat {
         return this._renderTarget.depthStencilFormat;
     }
 
     /**
-     * 多采样次数
-     * @internal
+     * @en Number of multisamples.
+     * @zh 多采样次数
      */
     protected _multiSamples: number;
     /**
-     * 多采样次数
+     * @en Number of multisamples.
+     * @zh 多采样次数
      */
     public get multiSamples(): number {
         return this._renderTarget._samples;
     }
 
     /**
-     * 是否是立方体贴图
+     * @en Whether the RenderTexture is a cube texture.
+     * @zh 是否是立方体贴图
      */
     get isCube(): boolean {
         return this._renderTarget._isCube;
     }
 
     /**
-     * 采样次数
+     * @en Sampling times
+     * @zh 采样次数
      */
     get samples(): number {
         return this._renderTarget._samples;
     }
 
     /**
-     * 是否生成多级纹理
+     * @en Whether to generate multi-level textures.
+     * @zh 是否生成多级纹理。
      */
     get generateMipmap(): boolean {
         return this._renderTarget._generateMipmap;
     }
 
     /**
-     * @param width 
-     * @param height 
-     * @param colorFormat 
-     * @param depthFormat 
-     * @param generateMipmap 
-     * @param multiSamples 
-     * @param generateDepthTexture 
-     * @param sRGB 
+     * @en Create an instance of the RenderTexture class.
+     * @param width Width of the RenderTexture.
+     * @param height Height of the RenderTexture.
+     * @param colorFormat Color format for the RenderTexture. 
+     * @param depthFormat Depth format for the RenderTexture. 
+     * @param generateMipmap Whether to generate mipmaps for the RenderTexture. 
+     * @param multiSamples Number of multisamples for the RenderTexture.
+     * @param generateDepthTexture Whether to generate a depth texture for the RenderTexture. 
+     * @param sRGB Whether the RenderTexture uses sRGB color space. 
+     * @zh 创建 RenderTexture 类的实例。
+     * @param width 宽度。
+     * @param height 高度。
+     * @param colorFormat 颜色格式。
+     * @param depthFormat 深度格式。
+     * @param generateMipmap 是否生成多级纹理。
+     * @param multiSamples 多采样次数。
+     * @param generateDepthTexture 是否生成深度纹理。
+     * @param sRGB 是否sRGB空间。
      */
     constructor(width: number, height: number, colorFormat: RenderTargetFormat, depthFormat: RenderTargetFormat, generateMipmap: boolean = false, multiSamples: number = 1, generateDepthTexture: boolean = false, sRGB: boolean = false) {
         super(width, height, colorFormat);
@@ -263,7 +315,26 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
         this.generateDepthTexture = this._generateDepthTexture;
     }
 
-    //@internal
+    /**
+     * @en Recreates the RenderTexture with the specified parameters.
+     * @param width New width of the RenderTexture.
+     * @param height New height of the RenderTexture.
+     * @param colorFormat New color format for the RenderTexture.
+     * @param depthFormat New depth format for the RenderTexture. 
+     * @param generateMipmap Whether to regenerate mipmaps for the RenderTexture. 
+     * @param multiSamples New number of multisamples for the RenderTexture. 
+     * @param generateDepthTexture Whether to generate a new depth texture for the RenderTexture. 
+     * @param sRGB Whether the RenderTexture uses sRGB color space. 
+     * @zh 使用指定参数重新创建RenderTexture。
+     * @param width 新宽度。
+     * @param height 新高度。
+     * @param colorFormat 新颜色格式。
+     * @param depthFormat 新深度格式。
+     * @param generateMipmap 是否重新生成多级纹理。
+     * @param multiSamples 新多采样次数。
+     * @param generateDepthTexture 是否生成新的深度纹理。
+     * @param sRGB 是否sRGB空间。
+     */
     recreate(width: number, height: number, colorFormat: RenderTargetFormat, depthFormat: RenderTargetFormat, generateMipmap: boolean = false, multiSamples: number = 1, generateDepthTexture: boolean = false, sRGB: boolean = false) {
         this._width = width;
         this._height = height;
@@ -299,12 +370,19 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
     }
 
     /**
-     * 获取渲染纹理的像素数据
+     * @en Asynchronously retrieves pixel data from the RenderTexture.
+     * @param xOffset The x-offset value.
+     * @param yOffset The y-offset value.
+     * @param width The width of the area to retrieve.
+     * @param height The height of the area to retrieve.
+     * @param out The array to hold the output data.
+     * @returns binary data
+     * @zh 异步获取渲染纹理的像素数据。
      * @param xOffset x偏移值
      * @param yOffset y偏移值
-     * @param width 宽度
-     * @param height 高度
-     * @param out 输出
+     * @param width 要检索的区域的宽度。
+     * @param height 要检索的区域的高度。
+     * @param out 用于保存输出数据的数组。
      * @returns 二进制数据
      */
     getDataAsync(xOffset: number, yOffset: number, width: number, height: number, out: Uint8Array | Float32Array) { //兼容WGSL
@@ -312,8 +390,8 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
     }
 
     /**
-     * 销毁资源
-     * @internal
+     * @en Destroy the Resource.
+     * @zh 销毁资源
      */
     protected _disposeResource(): void {
         this._renderTarget.dispose();
@@ -321,5 +399,4 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
         this._depthStencilTexture?.destroy();
         this._depthStencilTexture = null;
     }
-
 }

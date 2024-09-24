@@ -4,7 +4,8 @@ import { IClone } from "../../../../utils/IClone"
 import { Vector2 } from "../../../../maths/Vector2";
 
 /**
- * <code>TextureSheetAnimation</code> 类用于创建粒子帧动画。
+ * @en The `TextureSheetAnimation` class is used to create particle frame animations.
+ * @zh `TextureSheetAnimation` 类用于创建粒子帧动画。
  */
 export class TextureSheetAnimation implements IClone {
 	/**@internal */
@@ -12,33 +13,63 @@ export class TextureSheetAnimation implements IClone {
 	/**@internal */
 	private _startFrame: StartFrame;
 
-	/**纹理平铺。*/
+	/**
+	 * @en Texture tiling.
+	 * @zh 纹理平铺。
+	 */
 	tiles: Vector2;
-	/**类型,0为whole sheet、1为singal row。*/
+	/**
+	 * @en Type, 0 for whole sheet, 1 for single row.
+	 * @zh 类型，0 表示整个纹理表，1 表示纹理表中的某一行。
+	 */
 	type: number = 0;
-	/**是否随机行，type为1时有效。*/
+	/**
+	 * @en Whether to use random row, effective when type is 1.
+	 * @zh 是否随机行，type属性 为 1 时，该属性才会生效。
+	 */
 	randomRow: boolean = false;
-	/**行索引,type为1时有效。*/
+	/**
+	 * @en Row index, effective when type is 1.
+	 * @zh 行索引，type属性 为 1 时，该属性才会生效。
+	 */
 	rowIndex: number = 0;
-	/**循环次数。*/
+	/**
+	 * @en Number of cycles.
+	 * @zh 循环次数。
+	 */
 	cycles: number = 0;
-	/**UV通道类型,0为Noting,1为Everything,待补充,暂不支持。*/
+	/**
+	 * @en UV channel type, 0 for Nothing, 1 for Everything. 
+	 * @zh UV 通道类型，0 表示 Nothing，1 表示 Everything。
+	 */
 	enableUVChannels: number = 0;
-	/**是否启用*/
+	/**
+	 * @en Whether enabled.
+	 * @zh 是否启用。
+	 */
 	enable: boolean = false;
 
-	/**获取时间帧率。*/
+	/**
+	 * @en The time frame rate.
+	 * @zh 时间帧率。
+	 */
 	get frame(): FrameOverTime {
 		return this._frame;
 	}
 
-	/**获取开始帧率。*/
+	/**
+	 * @en The start frame rate.
+	 * @zh 开始帧率。
+	 */
 	get startFrame(): StartFrame {
 		return this._startFrame;
 	}
 
 	/**
-	 * 创建一个 <code>TextureSheetAnimation</code> 实例。
+	 * @en Creates an instance of the `TextureSheetAnimation` class.
+	 * @param frame Animation frames.
+	 * @param  startFrame Start frame.
+	 * @zh 创建一个 `TextureSheetAnimation` 类的实例。
 	 * @param frame 动画帧。
 	 * @param  startFrame 开始帧。
 	 */
@@ -54,8 +85,10 @@ export class TextureSheetAnimation implements IClone {
 	}
 
 	/**
-	 * 克隆。
-	 * @param	destObject 克隆源。
+	 * @en Clones to a target object.
+	 * @param destObject The target object to clone to.
+	 * @zh 克隆到目标对象。
+	 * @param destObject 要克隆到的目标对象。
 	 */
 	cloneTo(destObject: any): void {
 		var destTextureSheetAnimation: TextureSheetAnimation = (<TextureSheetAnimation>destObject);
@@ -71,8 +104,10 @@ export class TextureSheetAnimation implements IClone {
 	}
 
 	/**
-	 * 克隆。
-	 * @return	 克隆副本。
+	 * @en Clone.
+	 * @returns Clone copy.
+	 * @zh 克隆。
+	 * @returns 克隆副本。
 	 */
 	clone(): any {
 		var destFrame: FrameOverTime;

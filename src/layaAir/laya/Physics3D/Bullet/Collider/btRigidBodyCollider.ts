@@ -9,7 +9,10 @@ import { btMeshColliderShape } from "../Shape/btMeshColliderShape";
 import { btPhysicsCreateUtil } from "../btPhysicsCreateUtil";
 import { btPhysicsManager } from "../btPhysicsManager";
 import { btCollider, btColliderType } from "./btCollider";
-
+/**
+ * @en The `btRigidBodyCollider` class is used to implement 3D physics rigid body colliders.
+ * @zh `btRigidBodyCollider` 类用于实现3D物理刚体碰撞器。
+ */
 export class btRigidBodyCollider extends btCollider implements IDynamicCollider {
     /** @internal */
     static _BT_DISABLE_WORLD_GRAVITY = 1;
@@ -90,14 +93,34 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
         super(manager);
     }
 
+    /**
+     * @en Get the capability of the rigid body collider.
+     * @param value The capability value to check.
+     * @returns Whether the rigid body collider has the specified capability.
+     * @zh 获取刚体碰撞器的能力。
+     * @param value 要检查的能力值。
+     * @returns 刚体碰撞器是否具有指定的能力。
+     */
     getCapable(value: number): boolean {
         return btRigidBodyCollider.getRigidBodyCapable(value);
     }
 
+    /**
+     * @en Get the capability of the rigid body.
+     * @param value The capability to check.
+     * @returns Whether the rigid body has the specified capability.
+     * @zh 获取刚体的能力。
+     * @param value 要检查的能力。
+     * @returns 刚体是否具有指定的能力。
+     */
     static getRigidBodyCapable(value: EColliderCapable): boolean {
         return this._rigidBodyCapableMap.get(value);
     }
 
+    /**
+     * @en Initialize the capabilities of the rigid body collider.
+     * @zh 初始化刚体碰撞器的能力。
+     */
     static initCapable(): void {
         this._rigidBodyCapableMap = new Map();
         this._rigidBodyCapableMap.set(EColliderCapable.Collider_AllowTrigger, true);
@@ -140,18 +163,34 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
         this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_WorldOrientation, true);
     }
 
+    /**
+     * @en Set the world position of the rigid body.
+     * @param value The new world position.
+     * @zh 设置刚体的世界坐标位置。
+     * @param value 坐标位置。
+     */
     setWorldPosition(value: Vector3): void {
         let bt = btPhysicsCreateUtil._bt;
         var btColliderObject = this._btCollider;
         bt.btRigidBody_setCenterOfMassPos(btColliderObject, value.x, value.y, value.z);
     }
 
+    /**
+     * @en Set the world rotation of the rigid body.
+     * @param value The new world rotation.
+     * @zh 设置刚体在世界坐标系下的旋转。
+     * @param value 旋转四元数。
+     */
     setWorldRotation(value: Quaternion): void {
         let bt = btPhysicsCreateUtil._bt;
         var btColliderObject = this._btCollider;
         bt.btRigidBody_setCenterOfMassOrientation(btColliderObject, value.x, value.y, value.z, value.w);
     }
 
+    /**
+     * @en Set the rigid body to sleep state.
+     * @zh 设置刚体进入睡眠状态。
+     */
     sleep(): void {
         this._allowSleep = true;
     }
@@ -162,8 +201,9 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
     }
 
     /**
-    * 是否重载重力。
-    */
+     * @en Whether to override gravity.
+     * @zh 是否重载重力。
+     */
     private _setoverrideGravity(value: boolean) {
         this._overrideGravity = value;
         let bt = btPhysicsCreateUtil._bt;
@@ -193,7 +233,8 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
     }
 
     /**
-     * 是否处于睡眠状态。
+     * @en Whether it is sleeping.
+     * @zh 是否处于睡眠状态。
      */
     private isSleeping(): boolean {
         let bt = btPhysicsCreateUtil._bt;
@@ -238,6 +279,12 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
         }
     }
 
+    /**
+     * @en Set the linear damping of the rigid body.
+     * @param value The linear damping value.
+     * @zh 设置刚体的线性阻尼。
+     * @param value 线性阻尼值。
+     */
     setLinearDamping(value: number): void {
         this._linearDamping = value;
         let bt = btPhysicsCreateUtil._bt;
@@ -245,6 +292,12 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
             bt.btRigidBody_setDamping(this._btCollider, value, this._angularDamping);
     }
 
+    /**
+     * @en Set the angular damping of the rigid body.
+     * @param value The angular damping value.
+     * @zh 设置刚体的角速度阻尼。
+     * @param value 角速度阻尼值。
+     */
     setAngularDamping(value: number): void {
         this._angularDamping = value;
         let bt = btPhysicsCreateUtil._bt;
@@ -252,6 +305,12 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
             bt.btRigidBody_setDamping(this._btCollider, this._linearDamping, value);
     }
 
+    /**
+     * @en Set the linear velocity of the rigid body.
+     * @param value The linear velocity vector.
+     * @zh 设置刚体的线速度。
+     * @param value 线速度向量。
+     */
     setLinearVelocity(value: Vector3): void {
         this._linearVelocity = value;
         let bt = btPhysicsCreateUtil._bt;
@@ -263,6 +322,12 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
         }
     }
 
+    /**
+     * @en Get the linear velocity of the rigid body.
+     * @returns The current linear velocity vector.
+     * @zh 获取刚体的线速度。
+     * @returns 当前的线速度。
+     */
     getLinearVelocity(): Vector3 {
         let bt = btPhysicsCreateUtil._bt;
         let velocity = bt.btRigidBody_getLinearVelocity(this._btCollider);
@@ -271,14 +336,22 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
     }
 
     /**
-     * 设置睡眠刚体线速度阈值
-     * @param value 
+     * @en Set the linear velocity threshold for the rigid body.
+     * @param value The linear velocity threshold vector.
+     * @zh 设置刚体线速度阈值。
+     * @param value 线速度阈值。
      */
     setSleepLinearVelocity(value: Vector3): void {
         let bt = btPhysicsCreateUtil._bt;
         bt.btRigidBody_setSleepingThresholds(this._btCollider, value, bt.btRigidBody_getAngularSleepingThreshold(this._btCollider));
     }
 
+    /**
+     * @en Set the angular velocity of the rigid body.
+     * @param value The angular velocity vector.
+     * @zh 设置刚体的角速度。
+     * @param value 角速度。
+     */
     setAngularVelocity(value: Vector3): void {
         this._angularVelocity = value;
         let bt = btPhysicsCreateUtil._bt;
@@ -290,6 +363,12 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
         }
     }
 
+    /**
+     * @en Get the angular velocity of the rigid body.
+     * @returns The current angular velocity vector.
+     * @zh 获取刚体的角速度。
+     * @returns 当前的角速度。
+     */
     getAngularVelocity(): Vector3 {
         let bt = btPhysicsCreateUtil._bt;
         let angVelocity = bt.btRigidBody_getAngularVelocity(this._btCollider);
@@ -297,13 +376,24 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
         return btRigidBodyCollider._RBtempVector30;
     }
 
+    /**
+     * @en Set the mass of the rigid body.
+     * @param value The mass value.
+     * @zh 设置刚体的质量。
+     * @param value 质量值。
+     */
     setMass(value: number): void {
         value = Math.max(value, 1e-07);//质量最小为1e-07
         this._mass = value;
         (this._isKinematic) || (this._updateMass(value));
     }
 
-
+    /**
+     * @en Set the inertia tensor of the rigid body.
+     * @param value The inertia tensor vector.
+     * @zh 设置刚体的惯性张量。
+     * @param value 惯性张量。
+     */
     setInertiaTensor(value: Vector3): void {
         this._gravity = value;
         let bt = btPhysicsCreateUtil._bt;
@@ -317,16 +407,34 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
 
     }
 
+    /**
+     * @en Set the center of mass of the rigid body.
+     * @param value The center of mass vector.
+     * @zh 设置刚体的质心。
+     * @param value 质心。
+     */
     setCenterOfMass(value: Vector3) {
         let bt = btPhysicsCreateUtil._bt;
         var btColliderObject = this._btCollider;
         bt.btRigidBody_setCenterOfMassPos(btColliderObject, value.x, value.y, value.z);
     }
 
+    /**
+     * @en Set the maximum angular velocity of the rigid body.
+     * @param value The maximum angular velocity.
+     * @zh 设置刚体的最大角速度。
+     * @param value 角速度。
+     */
     setMaxAngularVelocity(value: number): void {
         throw new Error("Method not implemented.");
     }
 
+    /**
+     * @en Set the maximum depenetration velocity of the rigid body.
+     * @param value The maximum depenetration velocity.
+     * @zh 设置刚体的最大去穿透速度。
+     * @param value 速度。
+     */
     setMaxDepenetrationVelocity(value: number): void {
         throw new Error("Method not implemented.");
     }
@@ -338,16 +446,33 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
         this._btCollider && bt.btRigidBody_setSleepingThresholds(this._btCollider, value, bt.btRigidBody_getAngularSleepingThreshold(this._btCollider));
     }
 
+    /**
+     * @en Set the angular velocity threshold for the rigid body to sleep.
+     * @param value The angular velocity threshold.
+     * @zh 设置刚体进入睡眠状态的角速度阈值。
+     * @param value 角速度阈值。
+     */
     setSleepAngularVelocity(value: number) {
         let bt = btPhysicsCreateUtil._bt;
         bt.btRigidBody_setSleepingThresholds(this._btCollider, bt.btRigidBody_getLinearSleepingThreshold(this._btCollider), value);
     }
 
-
+    /**
+     * @en Set the solver iterations for the rigid body.
+     * @param value The number of solver iterations.
+     * @zh 设置刚体的求解器迭代次数。
+     * @param value 求解器迭代次数。
+     */
     setSolverIterations(value: number): void {
         throw new Error("Method not implemented.");
     }
 
+    /**
+     * @en Set the collision detection mode for the rigid body.
+     * @param value The collision detection mode.
+     * @zh 设置刚体的碰撞检测模式。
+     * @param value 碰撞检测模式。
+     */
     setCollisionDetectionMode(value: number): void {
         let bt = btPhysicsCreateUtil._bt;
         var canInSimulation = this._isSimulate;
@@ -363,6 +488,12 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
         canInSimulation && this._physicsManager.addCollider(this);
     }
 
+    /**
+     * @en Set whether the rigid body is kinematic.
+     * @param value True if the body should be kinematic, false otherwise.
+     * @zh 设置刚体是否为运动学刚体。
+     * @param value 如果为true，则设置为运动学刚体；否则为false。
+     */
     setIsKinematic(value: boolean): void {
         this._isKinematic = value;
         //this._controlBySimulation = !value;//isKinematic not controll by Simulation
@@ -396,6 +527,14 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
         oldSimulate && this._physicsManager.addCollider(this);
     }
 
+    /**
+     * @en Set the linear and angular factor constraints for the rigid body.
+     * @param linearFactor The linear factor constraint.
+     * @param angularFactor The angular factor constraint.
+     * @zh 设置刚体的线性和角度因子约束。
+     * @param linearFactor 线性因子约束。
+     * @param angularFactor 角度因子约束。
+     */
     setConstraints(linearFactor: Vector3, angularFactor: Vector3): void {
         let bt = btPhysicsCreateUtil._bt;
         //if (!linearFactor.equal(this._linearFactor)) {
@@ -413,6 +552,12 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
         //}
     }
 
+    /**
+     * @en Set whether the rigid body is a trigger.
+     * @param value True if the body should be a trigger, false otherwise.
+     * @zh 设置刚体是否为触发器。
+     * @param value 如果为true，则设置为触发器；否则为false。
+     */
     setTrigger(value: boolean): void {
         this._isTrigger = value;
         let bt = btPhysicsCreateUtil._bt;
@@ -429,9 +574,12 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
     }
 
     /**
-     * 应用作用力。
-     * @param	force 作用力。
-     * @param	localOffset 偏移,如果为null则为中心点
+     * @en Apply a force to the rigid body.
+     * @param force The force to be applied.
+     * @param localOffset The offset. If null, force is applied at the center.
+     * @zh 应用作用力。
+     * @param force 要施加的作用力。
+     * @param localOffset 偏移量，如果为null则为中心点。
      */
     private _applyForce(force: Vector3, localOffset: Vector3 = null): void {
         if (this._btCollider == null)
@@ -450,9 +598,11 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
     }
 
     /**
-   * 应用扭转力。
-   * @param	torque 扭转力。
-   */
+     * @en Apply a torque to the rigid body.
+     * @param torque The torque to be applied.
+     * @zh 应用扭转力。
+     * @param torque 要施加的扭转力。
+     */
     private _applyTorque(torque: Vector3): void {
         if (this._btCollider == null)
             throw "Attempted to call a Physics function that is avaliable only when the Entity has been already added to the Scene.";
@@ -464,9 +614,12 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
     }
 
     /**
-     * 应用冲量。
-     * @param	impulse 冲量。
-     * @param   localOffset 偏移,如果为null则为中心点。
+     * @en Apply an impulse to the rigid body.
+     * @param impulse The impulse to be applied.
+     * @param localOffset The offset. If null, force is applied at the center.
+     * @zh 应用冲量。
+     * @param impulse 要施加的冲量。
+     * @param localOffset 偏移量，如果为null则为中心点。
      */
     private _applyImpulse(impulse: Vector3, localOffset: Vector3 = null): void {
         if (this._btCollider == null)
@@ -483,8 +636,10 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
     }
 
     /**
-     * 应用扭转冲量。
-     * @param	torqueImpulse
+     * @en Apply a torque impulse to the rigid body.
+     * @param torqueImpulse The torque impulse to be applied.
+     * @zh 应用扭转冲量。
+     * @param torqueImpulse 要施加的扭转冲量。
      */
     private _applyTorqueImpulse(torqueImpulse: Vector3): void {
         if (this._btCollider == null)
@@ -496,6 +651,16 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
         bt.btRigidBody_applyTorqueImpulse(this._btCollider, btTorqueImpulse);
     }
 
+    /**
+     * @en Add a force to the rigid body.
+     * @param force The force to be added.
+     * @param mode The force mode.
+     * @param localOffset The offset from the center of mass.
+     * @zh 向刚体添加力。
+     * @param force 要添加的力。
+     * @param mode 力的模式。
+     * @param localOffset 相对于质心的偏移量。
+     */
     addForce(force: Vector3, mode: PhysicsForceMode, localOffset: Vector3): void {
         switch (mode) {
             case PhysicsForceMode.Force:
@@ -509,6 +674,14 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
         }
     }
 
+    /**
+     * @en Add a torque to the rigid body.
+     * @param torque The torque to be added.
+     * @param mode The force mode.
+     * @zh 向刚体添加扭矩。
+     * @param torque 要添加的扭矩。
+     * @param mode 力的模式。
+     */
     addTorque(torque: Vector3, mode: PhysicsForceMode): void {
         switch (mode) {
             case PhysicsForceMode.Force:
@@ -521,7 +694,8 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
     }
 
     /**
-     * 清除应用到刚体上的所有力。
+     * @en Clear all forces applied to the rigid body.
+     * @zh 清除应用到刚体上的所有力。
      */
     private clearForces(): void {
         var rigidBody: number = this._btCollider;
@@ -536,15 +710,21 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
         bt.btRigidBody_setAngularVelocity(rigidBody, btZero);
     }
 
-
+    /**
+     * @en Wake up the rigid body.
+     * @zh 唤醒刚体。
+     */
     wakeUp(): void {
         let bt = btPhysicsCreateUtil._bt;
         this._btCollider && (bt.btCollisionObject_activate(this._btCollider, false));
     }
 
     /**
-     * 	@internal
-     * 通过渲染矩阵更新物理矩阵。
+     * @internal
+     * @en Update the physics transformation based on the render matrix.
+     * @param force Whether to force update.
+     * @zh 通过渲染矩阵更新物理矩阵。
+     * @param force 是否强制更新。
      */
     _derivePhysicsTransformation(force: boolean): void {
         let bt = btPhysicsCreateUtil._bt;
@@ -561,6 +741,12 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
         bt.btRigidBody_setCenterOfMassTransform(btColliderObject, transform);//RigidBody use 'setCenterOfMassTransform' instead(influence interpolationWorldTransform and so on) ,or stepSimulation may return old transform because interpolation.
     }
 
+    /**
+     * @en Set the collider shape for the rigid body.
+     * @param shape The collider shape to be set.
+     * @zh 设置刚体的碰撞器形状。
+     * @param shape 要设置的碰撞器形状。
+     */
     setColliderShape(shape: btColliderShape) {
         if (shape instanceof MeshColliderShape) {
             console.error("RigidBody3D is not support MeshColliderShape");
@@ -569,6 +755,10 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
         super.setColliderShape(shape);
     }
 
+    /**
+     * @en Destroy the rigid body.
+     * @zh 销毁刚体。
+     */
     destroy(): void {
         let bt = btPhysicsCreateUtil._bt;
         bt.btMotionState_destroy(this._btLayaMotionState);

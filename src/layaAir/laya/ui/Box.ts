@@ -9,16 +9,11 @@ import { UIComponent } from "./UIComponent";
 export class Box extends UIComponent {
 
     /**
-     * @internal
      * @en The background color.
      * @zh 背景颜色。
      */
     private _bgColor: string;
 
-    /**
-    * @inheritDoc 
-    * @override
-    */
     set_dataSource(value: any) {
         this._dataSource = value;
         for (let name in value) {
@@ -37,7 +32,6 @@ export class Box extends UIComponent {
     get bgColor(): string {
         return this._bgColor;
     }
-
     set bgColor(value: string) {
         this._bgColor = value;
         this.graphics.clear();

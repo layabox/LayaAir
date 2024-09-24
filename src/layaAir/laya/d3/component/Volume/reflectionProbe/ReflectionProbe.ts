@@ -13,30 +13,50 @@ import { IReflectionProbeData } from "../../../../RenderDriver/RenderModuleData/
 
 
 /**
- * 反射探针模式
+ * @en Reflective probe mode
+ * @zh 反射探针模式
  */
 export enum ReflectionProbeMode {
-	/**烘培模式 */
-	off = 0,//现在仅仅支持Back烘培
-	/**实时简单采样模式 还未支持*/
+	/**
+	 * @en Baking mode. Currently, only Back baking is supported.
+	 * @zh 烘培模式。现在仅仅支持Back烘培
+	 */
+	off = 0,
+	/**
+	 * @en Real time simple sampling mode, not supported yet.
+	 * @zh 实时简单采样模式 还未支持*/
 	simple = 1,
 }
 /**
- * <code>ReflectionProbe</code> 类用于实现反射探针组件
  * @miner
+ * @en used to implement reflection probe components
+ * @zh 用于实现反射探针组件
  */
 export class ReflectionProbe extends Volume {
-	/**反射探针数量 */
+	/**
+	 * @en Number of reflection probes
+	 * @zh 反射探针数量
+	 */
 	static reflectionCount: number = 0;
-	/**获取一个全局唯一ID。*/
+	/**
+	 * @en Get a globally unique ID
+	 * @zh 获取一个全局唯一ID
+	 */
 	static getID(): number {
 		return ReflectionProbe.reflectionCount++;
 	}
 
 	//因为纹理数量问题 暂不支持探针混合
-	/**@internal */
+	/**
+	 * @internal
+	 * @en Temporary Vector3 for calculations
+	 * @zh 用于计算的临时 Vector3
+	 */
 	static TEMPVECTOR3: Vector3 = new Vector3();
-	/** 默认解码数据 */
+	/**
+	 * @en Default HDR decode values
+	 * @zh 默认的 HDR 解码数据
+	 */
 	static defaultTextureHDRDecodeValues: Vector4 = new Vector4(1.0, 1.0, 0.0, 0.0);
 
 	/**@internal @protected 探针重要度 */
@@ -45,7 +65,11 @@ export class ReflectionProbe extends Volume {
 	private _ambientColor: Color = new Color();
 	/**漫反射SH */
 	private _ambientSH: Float32Array;
-	/**@internal 是否是场景探针 */
+	/**
+	 * @internal 
+	 * @en Whether the probe is a scene probe.
+	 * @zh 是否是场景探针 
+	 */
 	_isScene: boolean = false;
 	/**@internal */
 	_reflectionProbeID: number;
@@ -70,7 +94,8 @@ export class ReflectionProbe extends Volume {
 
 
 	/**
-	 * 是否开启正交反射。
+	 * @en Whether to enable orthogonal reflection
+	 * @zh 是否开启正交反射
 	 */
 	get boxProjection(): boolean {
 		return this._dataModule.boxProjection;
@@ -84,7 +109,8 @@ export class ReflectionProbe extends Volume {
 	}
 
 	/**
-	 * 设置反射探针的重要度
+	 * @en The importance of the reflection probe
+	 * @zh 反射探针的重要度
 	 */
 	get importance(): number {
 		return this._importance;
@@ -95,7 +121,8 @@ export class ReflectionProbe extends Volume {
 	}
 
 	/**
-	 * 设置环境漫反射的强度
+	 * @en The intensity of ambient diffuse reflection
+	 * @zh 环境漫反射的强度
 	 */
 	get ambientIntensity(): number {
 		return this._dataModule.ambientIntensity;
@@ -108,7 +135,8 @@ export class ReflectionProbe extends Volume {
 	}
 
 	/**
-	 * 设置反射探针强度
+	 * @en The intensity of the reflection probe
+	 * @zh 反射探针的强度
 	 */
 	get reflectionIntensity(): number {
 		return this._dataModule.reflectionIntensity;
@@ -128,47 +156,54 @@ export class ReflectionProbe extends Volume {
 	}
 
 	/**
-	 * 获得反射探针的包围盒
+	 * @en The bounding box of the reflection probe
+	 * @zh 反射探针的包围盒
 	 */
 	get bounds(): Bounds {
 		return this._bounds as Bounds;
 	}
 
 	/**
-	 * 包围盒 max
+	 * @en The maximum point of the bounding box
+	 * @zh 包围盒的最大点
 	 */
+	get boundsMax(): Vector3 {
+		return this._primitiveBounds.getMax();
+	}
+
 	set boundsMax(value: Vector3) {
 		super.boundsMax = value;
 		if (this.boxProjection)
 			this._dataModule.updateMark = ILaya3D.Scene3D._updateMark;
 	}
 
-	get boundsMax(): Vector3 {
-		return this._primitiveBounds.getMax();
-	}
 
 	/**
-	 * 包围盒 min
+	 * @en The minimum point of the bounding box
+	 * @zh 包围盒的最小点
 	 */
+	get boundsMin(): Vector3 {
+		return this._primitiveBounds.getMin();
+	}
+
 	set boundsMin(value: Vector3) {
 		super.boundsMin = value;
 		if (this.boxProjection)
 			this._dataModule.updateMark = ILaya3D.Scene3D._updateMark;
 	}
 
-	get boundsMin(): Vector3 {
-		return this._primitiveBounds.getMin();
-	}
 
 	/**
-	 * probe 位置
+	 * @en The position of the probe
+	 * @zh 探针的位置
 	 */
 	get probePosition(): Vector3 {
 		return (this.owner as Sprite3D).transform.position;
 	}
 
 	/**
-	 * 漫反射颜色
+	 * @en The ambient diffuse color
+	 * @zh 环境漫反射颜色
 	 */
 	public get ambientColor(): Color {
 		return this._ambientColor;
@@ -183,7 +218,8 @@ export class ReflectionProbe extends Volume {
 	}
 
 	/**
-	 * 漫反射颜色 sh
+	 * @en The spherical harmonics coefficients for ambient color
+	 * @zh 环境颜色的球谐系数
 	 */
 	public get ambientSH(): Float32Array {
 		return this._ambientSH;
@@ -197,9 +233,13 @@ export class ReflectionProbe extends Volume {
 	}
 
 	/**
-	* 环境光模式。
-	* 如果值为AmbientMode.SolidColor一般使用ambientColor作为环境光源，如果值为如果值为AmbientMode.SphericalHarmonics一般使用ambientSphericalHarmonics作为环境光源。
-	*/
+	 * @en Get or set the ambient light mode
+	 * If the value is AmbientMode.SolidColor, ambientColor is generally used as the ambient light source
+	 * If the value is AmbientMode.SphericalHarmonics, ambientSphericalHarmonics is generally used as the ambient light source
+	 * @zh 获取或设置环境光模式
+	 * 如果值为AmbientMode.SolidColor，一般使用ambientColor作为环境光源
+	 * 如果值为AmbientMode.SphericalHarmonics，一般使用ambientSphericalHarmonics作为环境光源
+	 */
 	get ambientMode(): AmbientMode {
 		return this._dataModule.ambientMode;
 	}
@@ -213,7 +253,8 @@ export class ReflectionProbe extends Volume {
 
 	private _iblTex: TextureCube;
 	/**
-	 * Image base Light
+	 * @en The Image-Based Lighting (IBL) texture
+	 * @zh 基于图像的照明(IBL)纹理
 	 */
 	public get iblTex(): TextureCube {
 		return this._iblTex;
@@ -232,7 +273,8 @@ export class ReflectionProbe extends Volume {
 	}
 
 	/**
-	 * Image base Light Compress by RGBD
+	 * @en Whether the Image-Based Lighting texture is compressed using RGBD format
+	 * @zh 基于图像的照明纹理是否使用RGBD格式压缩
 	 */
 	public get iblTexRGBD(): boolean {
 		return this._dataModule.iblTexRGBD;

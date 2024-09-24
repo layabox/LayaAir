@@ -9,6 +9,7 @@ export class StaticBatchMeshRenderElement extends RenderElement {
         super();
     }
 
+    /** @internal */
     getInvertFront(): boolean {
         return false;
     }

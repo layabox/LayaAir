@@ -17,6 +17,10 @@ import { GeometryElement } from "../GeometryElement";
 import { RenderContext3D } from "../render/RenderContext3D";
 import { UI3D } from "./UI3D";
 
+/**
+ * @en UI3DGeometry class is used to create and manage the geometry structure of 3D UI elements.
+ * @zh UI3DGeometry 类用于创建和管理 3D UI元素的几何结构的类。
+ */
 export class UI3DGeometry extends GeometryElement {
     /**@internal */
     private static tempV0: Vector3 = new Vector3();
@@ -35,7 +39,11 @@ export class UI3DGeometry extends GeometryElement {
     /**@internal */
     _positionArray: Vector3[];
 
-    /**@internal */
+    /**
+     * @internal
+     * @en Constructor method.
+     * @zh 构造方法。
+     */
     constructor(owner: UI3D) {
         super(MeshTopology.Triangles, DrawType.DrawElement);
         this._owner = owner;
@@ -201,9 +209,12 @@ export class UI3DGeometry extends GeometryElement {
         this.clearRenderParams();
         this.setDrawElemenParams(6, 0);
     }
+
     /**
      * @inheritDoc
      * @override
+     * @en Destroys the instance and releases resources.
+     * @zh 销毁实例并释放资源。
      */
     destroy() {
         super.destroy();

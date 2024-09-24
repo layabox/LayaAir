@@ -15,7 +15,8 @@ import { ShaderDataType } from "../../RenderDriver/DriverDesign/RenderDevice/Sha
 
 /**
  * @internal
- * <code>ShadowCasterPass</code> 类用于实现阴影渲染管线
+ * @en ShadowCasterPass class used to implement the shadow rendering pipeline.
+ * @zh ShadowCasterPass 类用于实现阴影渲染管线。
  */
 export class ShadowCasterPass {
     /** @internal */
@@ -103,6 +104,10 @@ export class ShadowCasterPass {
     /** @internal */
     private _shadowSpotLightMap: RenderTexture;
 
+    /**
+     * @en Create a new instance of ShadowCasterPass.
+     * @zh 创建  ShadowCasterPass 类的新实例。
+     */
     constructor() {
         if (Config3D._uniformBlock) {
             this._castDepthBufferData = DepthCasterData.createDepthCasterUniformBlock();
@@ -120,6 +125,14 @@ export class ShadowCasterPass {
 
     }
 
+    /**
+     * @en Retrieve the shadow map for a directional light.
+     * @param light The directional light component.
+     * @returns The shadow map texture for the directional light.
+     * @zh 获取方向光的阴影贴图。
+     * @param light 方向光组件。
+     * @returns 方向光的阴影贴图纹理。
+     */
     getDirectLightShadowMap(light: DirectionLightCom) {
         var shadowMapWidth;
         var shadowMapHeight;
@@ -143,6 +156,14 @@ export class ShadowCasterPass {
         return this._shadowDirectLightMap;
     }
 
+    /**
+     * @en Retrieve the shadow pass data for a spot light.
+     * @param light The spot light component.
+     * @returns The shadow map texture for the spot light.
+     * @zh 获取聚光灯的阴影通道数据。
+     * @param light 聚光灯组件。
+     * @returns 聚光灯的阴影贴图纹理。
+     */
     getSpotLightShadowPassData(light: SpotLightCom) {
         this._shadowSpotLightMap && RenderTexture.recoverToPool(this._shadowSpotLightMap);
         var shadowResolution: number = light.shadowResolution;
@@ -152,13 +173,18 @@ export class ShadowCasterPass {
         return this._shadowSpotLightMap;
     }
 
+    /**
+     * @en Retrieve the shadow pass data for a point light.
+     * @zh 获取点光源的阴影通道数据。
+     */
     getPointLightShadowPassData() {
         //TODO
     }
 
     /**
-     * 清理阴影数据
      * @internal
+     * @en Clean up shadow data.
+     * @zh 清理阴影数据。
      */
     cleanUp(): void {
         this._shadowDirectLightMap && RenderTexture.recoverToPool(this._shadowDirectLightMap);

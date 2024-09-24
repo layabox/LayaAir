@@ -47,14 +47,19 @@ export class WebGPUShaderData extends ShaderData {
     stateKey: string = ''; //状态标识符
     static _stateKeyMap: Set<number>;
 
+    private _destroyed: boolean = false; //是否已经销毁
+
     private _infoId: number; //WebGPUUniformPropertyBindingInfo数据的唯一标识
     private _uniformBuffer: WebGPUUniformBuffer; //Uniform缓冲区（负责上传数据到GPU）
-    private _bindGroupMap: Map<string, [GPUBindGroup, GPUBindGroupLayoutEntry[]]>; //缓存的BindGroup
-    private _bindGroup: GPUBindGroup; //缓存的BindGroup（非共享模式的着色器数据只可能有一个绑定组）
-    private _bindGroupLayoutEntries: GPUBindGroupLayoutEntry[];
-    private _bindGroupKey: string = '';
+    private _bindGroupMap: Map<string, [GPUBindGroup, GPUBindGroupLayoutEntry[], Set<number>]>; //基于主键缓存的BindGroup
+    private _bindGroup: GPUBindGroup; //缓存的BindGroup（非共享模式的着色器数据只有一个绑定组）
+    private _bindGroupLayoutEntries: GPUBindGroupLayoutEntry[]; //该BindGroup的布局
+    private _bindGroupResourceSet: Set<number>; //该BindGroup所包含的重要资源
+    private _bindGroupKey: string = ''; //区别该BindGroup的主键
 
-    coShaderData: WebGPUShaderData[]; //伴随ShaderData（用于骨骼动画）
+    //伴随ShaderData
+    skinShaderData: WebGPUShaderData[]; //用于骨骼动画
+    instShaderData: WebGPUShaderData; //用于Instance
 
     private _isShare: boolean = true; //是否共享模式，该ShaderData数据是否会被多个节点共享
     get isShare(): boolean {
@@ -62,9 +67,11 @@ export class WebGPUShaderData extends ShaderData {
     }
     set isShare(value: boolean) {
         this._isShare = value;
-        if (this.coShaderData)
-            for (let i = this.coShaderData.length - 1; i > -1; i--)
-                this.coShaderData[i].isShare = value;
+        if (this.instShaderData)
+            this.instShaderData.isShare = value;
+        if (this.skinShaderData)
+            for (let i = this.skinShaderData.length - 1; i > -1; i--)
+                this.skinShaderData[i].isShare = value;
     }
     private _isStatic: boolean = false; //是否静态，静态的节点会使用静态的大Buffer，减少上传次数
     get isStatic(): boolean {
@@ -72,9 +79,11 @@ export class WebGPUShaderData extends ShaderData {
     }
     set isStatic(value: boolean) {
         this._isStatic = value;
-        if (this.coShaderData)
-            for (let i = this.coShaderData.length - 1; i > -1; i--)
-                this.coShaderData[i].isStatic = value;
+        if (this.instShaderData)
+            this.instShaderData.isStatic = value;
+        if (this.skinShaderData)
+            for (let i = this.skinShaderData.length - 1; i > -1; i--)
+                this.skinShaderData[i].isStatic = value;
     }
     changeMark: number = 0; //变化标记，用于标记预编译设置是否变化，如变化，值+1
 
@@ -123,8 +132,9 @@ export class WebGPUShaderData extends ShaderData {
      * 创建UniformBuffer
      * @param info 
      * @param single 
+     * @param inst 
      */
-    createUniformBuffer(info: WebGPUUniformPropertyBindingInfo, single: boolean = false) {
+    createUniformBuffer(info: WebGPUUniformPropertyBindingInfo, single: boolean = false, inst: boolean = false) {
         //如果指明了这种类型UniformBuffer是single的，则不会重复创建
         if (single && this._uniformBuffer) return;
         if (info && info.uniform) {
@@ -140,6 +150,7 @@ export class WebGPUShaderData extends ShaderData {
                     this._uniformBuffer.addUniform(uniform.propertyId, uniform.name, uniform.type, uniform.offset, uniform.align, uniform.size, uniform.element, uniform.count);
                 }
                 this._updateUniformData();
+                //console.log('createUniformBuffer: ' + this.globalId + '|' + info.name + ', set = ' + info.set + ', binding = ' + info.binding + ', size = ' + info.uniform.size, this._uniformBuffer.getUniformStr());
             }
         }
     }
@@ -150,9 +161,39 @@ export class WebGPUShaderData extends ShaderData {
     private _updateUniformData() {
         for (const id in this._data)
             this._uniformBuffer.setUniformData(Number(id), this._data[id]);
-        if (this.coShaderData)
-            for (let i = this.coShaderData.length - 1; i > -1; i--)
-                this.coShaderData[i]._updateUniformData();
+        if (this.instShaderData)
+            this.instShaderData._updateUniformData();
+        if (this.skinShaderData)
+            for (let i = this.skinShaderData.length - 1; i > -1; i--)
+                this.skinShaderData[i]._updateUniformData();
+    }
+
+    /**
+     * 删除包含指定资源的缓存
+     * @param index 资源id
+     */
+    removeBindGroup(index: number) {
+        if (this._bindGroupResourceSet
+            && this._bindGroupResourceSet.has(index)) {
+            this._bindGroupKey = '';
+            this._bindGroup = null;
+            this._bindGroupResourceSet = null;
+            this._bindGroupLayoutEntries = null;
+            //console.log('removeBindGroup1 =', this.globalId, this._infoId, index);
+        }
+        if (this._bindGroupMap.size > 0) {
+            for (let [key, value] of this._bindGroupMap) {
+                if (value[2].has(index)) {
+                    this._bindGroupMap.delete(key);
+                    //console.log('removeBindGroup2 =', this.globalId, this._infoId, index);
+                }
+            }
+        }
+        if (this.instShaderData)
+            this.instShaderData.removeBindGroup(index);
+        if (this.skinShaderData)
+            for (let i = this.skinShaderData.length - 1; i > -1; i--)
+                this.skinShaderData[i].removeBindGroup(index);
     }
 
     /**
@@ -162,10 +203,13 @@ export class WebGPUShaderData extends ShaderData {
         this._bindGroupMap.clear();
         this._bindGroupKey = '';
         this._bindGroup = null;
+        this._bindGroupResourceSet = null;
         this._bindGroupLayoutEntries = null;
-        if (this.coShaderData)
-            for (let i = this.coShaderData.length - 1; i > -1; i--)
-                this.coShaderData[i].clearBindGroup();
+        if (this.instShaderData)
+            this.instShaderData.clearBindGroup();
+        if (this.skinShaderData)
+            for (let i = this.skinShaderData.length - 1; i > -1; i--)
+                this.skinShaderData[i].clearBindGroup();
         //console.log('clearBindGroup =', this.globalId, this._infoId);
     }
 
@@ -282,6 +326,7 @@ export class WebGPUShaderData extends ShaderData {
 
         let key = '';
         let bindGroup;
+        let bindGroupResourceSet;
         let bindGroupLayoutEntries;
 
         //构建key，查找缓存bindGroup
@@ -290,21 +335,21 @@ export class WebGPUShaderData extends ShaderData {
                 key += info[i].propertyId + '_';
             if (key === this._bindGroupKey) {
                 bindGroup = this._bindGroup;
+                bindGroupResourceSet = this._bindGroupResourceSet;
                 bindGroupLayoutEntries = this._bindGroupLayoutEntries;
             } else {
                 const bindInfo = this._bindGroupMap.get(key); //根据Key查找缓存
                 bindGroup = bindInfo ? bindInfo[0] : null;
                 bindGroupLayoutEntries = bindInfo ? bindInfo[1] : null;
+                bindGroupResourceSet = bindInfo ? bindInfo[2] : null;
             }
         } else {
             bindGroup = this._bindGroup;
+            bindGroupResourceSet = this._bindGroupResourceSet;
             bindGroupLayoutEntries = this._bindGroupLayoutEntries;
         }
 
-        //如果没有从缓存中找到, 则创建一个bindGroup
-        if (!bindGroup) {
-            bindGroupLayoutEntries = [];
-            const bindGroupEntries = [];
+        const _createBindGroupEntry = (info: WebGPUUniformPropertyBindingInfo[], bindGroupEntries: any[], bindGroupResourceSet: Set<number>) => {
             let internalTex: WebGPUInternalTex;
             for (const item of info) {
                 switch (item.type) {
@@ -312,13 +357,8 @@ export class WebGPUShaderData extends ShaderData {
                         if (item.uniform) {
                             if (!this._uniformBuffer) {
                                 console.warn('uniformBuffer is null');
-                                return null;
+                                bindGroupEntries.length = 0;
                             }
-                            bindGroupLayoutEntries.push({
-                                binding: item.binding,
-                                visibility: item.visibility,
-                                buffer: item.buffer,
-                            });
                             bindGroupEntries.push(this._uniformBuffer.getGPUBindEntry());
                         }
                         break;
@@ -330,31 +370,15 @@ export class WebGPUShaderData extends ShaderData {
                             if (texture instanceof WebGPUInternalTex)
                                 internalTex = texture;
                             else internalTex = texture._texture as WebGPUInternalTex;
-                            if (!internalTex) {
+                            if (!internalTex) { //保护措施
                                 texture = WebGPUShaderData._dummyTexture2D;
                                 internalTex = texture._texture as WebGPUInternalTex;
                             }
-                            if (internalTex.compareMode > 0)
-                                item.texture.sampleType = 'depth';
-                            else if (internalTex._webGPUFormat === WebGPUTextureFormat.depth16unorm
-                                || internalTex._webGPUFormat === WebGPUTextureFormat.depth24plus_stencil8
-                                || internalTex._webGPUFormat === WebGPUTextureFormat.depth32float) {
-                                item.texture.sampleType = 'unfilterable-float';
-                            } else {
-                                const supportFloatLinearFiltering = LayaGL.renderEngine.getCapable(RenderCapable.Texture_FloatLinearFiltering);
-                                if (!supportFloatLinearFiltering && texture.format === TextureFormat.R32G32B32A32)
-                                    item.texture.sampleType = 'unfilterable-float';
-                                else item.texture.sampleType = 'float';
-                            }
-                            bindGroupLayoutEntries.push({
-                                binding: item.binding,
-                                visibility: item.visibility,
-                                texture: item.texture,
-                            });
                             bindGroupEntries.push({
                                 binding: item.binding,
                                 resource: internalTex.getTextureView(),
                             });
+                            bindGroupResourceSet.add(item.propertyId);
                         }
                         break;
                     case WebGPUBindingInfoType.sampler:
@@ -367,32 +391,6 @@ export class WebGPUShaderData extends ShaderData {
                                 texture = WebGPUShaderData._dummyTexture2D;
                                 internalTex = texture._texture as WebGPUInternalTex;
                             }
-                            if (internalTex.compareMode > 0)
-                                item.sampler.type = 'comparison';
-                            else if (internalTex._webGPUFormat === WebGPUTextureFormat.depth16unorm
-                                || internalTex._webGPUFormat === WebGPUTextureFormat.depth24plus_stencil8
-                                || internalTex._webGPUFormat === WebGPUTextureFormat.depth32float) {
-                                if (item.sampler.type !== 'non-filtering') {
-                                    item.sampler.type = 'non-filtering';
-                                    internalTex.filterMode = FilterMode.Point;
-                                }
-                            } else {
-                                const supportFloatLinearFiltering = LayaGL.renderEngine.getCapable(RenderCapable.Texture_FloatLinearFiltering);
-                                if (!supportFloatLinearFiltering && texture.format === TextureFormat.R32G32B32A32) {
-                                    if (item.sampler.type !== 'non-filtering') {
-                                        item.sampler.type = 'non-filtering';
-                                        internalTex.filterMode = FilterMode.Point;
-                                    }
-                                } else if (item.sampler.type !== 'filtering') {
-                                    item.sampler.type = 'filtering';
-                                    internalTex.filterMode = FilterMode.Bilinear;
-                                }
-                            }
-                            bindGroupLayoutEntries.push({
-                                binding: item.binding,
-                                visibility: item.visibility,
-                                sampler: item.sampler,
-                            });
                             bindGroupEntries.push({
                                 binding: item.binding,
                                 resource: internalTex.sampler.source,
@@ -401,6 +399,15 @@ export class WebGPUShaderData extends ShaderData {
                         break;
                 }
             }
+        }
+
+        //如果没有从缓存中找到, 则创建一个bindGroup
+        if (!bindGroup) {
+            bindGroupLayoutEntries = this.createBindGroupLayoutEntry(info);
+            bindGroupResourceSet = new Set<number>();
+            const bindGroupEntries: any[] = [];
+            _createBindGroupEntry(info, bindGroupEntries, bindGroupResourceSet);
+            if (bindGroupEntries.length === 0) return null;
 
             //创建绑定组
             const bindGroupLayoutDesc: GPUBindGroupLayoutDescriptor = { entries: bindGroupLayoutEntries };
@@ -412,13 +419,15 @@ export class WebGPUShaderData extends ShaderData {
 
             //缓存绑定组
             if (this.isShare) {
-                this._bindGroupMap.set(key, [bindGroup, bindGroupLayoutEntries]);
+                this._bindGroupMap.set(key, [bindGroup, bindGroupLayoutEntries, bindGroupResourceSet]);
                 this._bindGroupKey = key;
                 this._bindGroup = bindGroup;
                 this._bindGroupLayoutEntries = bindGroupLayoutEntries;
+                this._bindGroupResourceSet = bindGroupResourceSet;
             } else {
                 this._bindGroup = bindGroup;
                 this._bindGroupLayoutEntries = bindGroupLayoutEntries;
+                this._bindGroupResourceSet = bindGroupResourceSet;
             }
             //console.log('create bindGroup_' + WebGPUShaderData._bindGroupCounter++, key, bindGroupLayoutDesc, bindGroupEntries);
         }
@@ -436,9 +445,11 @@ export class WebGPUShaderData extends ShaderData {
      */
     uploadUniform() {
         this._uniformBuffer?.upload();
-        if (this.coShaderData)
-            for (let i = this.coShaderData.length - 1; i > -1; i--)
-                this.coShaderData[i].uploadUniform();
+        if (this.instShaderData)
+            this.instShaderData.uploadUniform();
+        if (this.skinShaderData)
+            for (let i = this.skinShaderData.length - 1; i > -1; i--)
+                this.skinShaderData[i].uploadUniform();
     }
 
     /**
@@ -461,19 +472,47 @@ export class WebGPUShaderData extends ShaderData {
      */
     addDefine(define: ShaderDefine) {
         if (!this._defineDatas.has(define)) {
+            const names1: string[] = [];
+            Shader3D._getNamesByDefineData(this._defineDatas, names1);
+
             this._defineDatas.add(define);
             this.changeMark++;
-            if (this.coShaderData)
-                for (let i = this.coShaderData.length - 1; i > -1; i--)
-                    this.coShaderData[i].addDefine(define);
+
+            const names2: string[] = [];
+            Shader3D._getNamesByDefineData(this._defineDatas, names2);
+            const names: string[] = [];
+            for (const item of names1) {
+                if (!names2.includes(item)) {
+                    names.push(item);
+                }
+            }
+            for (const item of names2) {
+                if (!names1.includes(item)) {
+                    names.push(item);
+                }
+            }
+            //console.log('addDefine =', names);
+
+            if (this.instShaderData)
+                this.instShaderData.addDefine(define);
+            if (this.skinShaderData)
+                for (let i = this.skinShaderData.length - 1; i > -1; i--)
+                    this.skinShaderData[i].addDefine(define);
         }
     }
-    addDefines(define: WebDefineDatas) {
-        this._defineDatas.addDefineDatas(define);
+    addDefines(defines: WebDefineDatas) {
+        this._defineDatas.addDefineDatas(defines);
         this.changeMark++;
-        if (this.coShaderData)
-            for (let i = this.coShaderData.length - 1; i > -1; i--)
-                this.coShaderData[i].addDefines(define);
+
+        const names: string[] = [];
+        Shader3D._getNamesByDefineData(defines, names);
+        //console.log('addDefines =', names);
+
+        if (this.instShaderData)
+            this.instShaderData.addDefines(defines)
+        if (this.skinShaderData)
+            for (let i = this.skinShaderData.length - 1; i > -1; i--)
+                this.skinShaderData[i].addDefines(defines);
     }
 
     /**
@@ -482,11 +521,32 @@ export class WebGPUShaderData extends ShaderData {
      */
     removeDefine(define: ShaderDefine) {
         if (this._defineDatas.has(define)) {
+            const names1: string[] = [];
+            Shader3D._getNamesByDefineData(this._defineDatas, names1);
+
             this._defineDatas.remove(define);
             this.changeMark++;
-            if (this.coShaderData)
-                for (let i = this.coShaderData.length - 1; i > -1; i--)
-                    this.coShaderData[i].removeDefine(define);
+
+            const names2: string[] = [];
+            Shader3D._getNamesByDefineData(this._defineDatas, names2);
+            const names: string[] = [];
+            for (const item of names1) {
+                if (!names2.includes(item)) {
+                    names.push(item);
+                }
+            }
+            for (const item of names2) {
+                if (!names1.includes(item)) {
+                    names.push(item);
+                }
+            }
+            //console.log('removeDefine =', names);
+
+            if (this.instShaderData)
+                this.instShaderData.removeDefine(define);
+            if (this.skinShaderData)
+                for (let i = this.skinShaderData.length - 1; i > -1; i--)
+                    this.skinShaderData[i].removeDefine(define);
         }
     }
 
@@ -503,9 +563,11 @@ export class WebGPUShaderData extends ShaderData {
      */
     clearDefine() {
         this._defineDatas.clear();
-        if (this.coShaderData)
-            for (let i = this.coShaderData.length - 1; i > -1; i--)
-                this.coShaderData[i].clearDefine();
+        if (this.instShaderData)
+            this.instShaderData.clearDefine();
+        if (this.skinShaderData)
+            for (let i = this.skinShaderData.length - 1; i > -1; i--)
+                this.skinShaderData[i].clearDefine();
     }
 
     /**
@@ -527,9 +589,11 @@ export class WebGPUShaderData extends ShaderData {
         this._data[index] = value;
         if (this._uniformBuffer)
             this._uniformBuffer.setBool(index, value);
-        if (this.coShaderData)
-            for (let i = this.coShaderData.length - 1; i > -1; i--)
-                this.coShaderData[i].setBool(index, value);
+        if (this.instShaderData)
+            this.instShaderData.setBool(index, value);
+        if (this.skinShaderData)
+            for (let i = this.skinShaderData.length - 1; i > -1; i--)
+                this.skinShaderData[i].setBool(index, value);
     }
 
     /**
@@ -552,7 +616,7 @@ export class WebGPUShaderData extends ShaderData {
 
         //更新状态标识符
         if (WebGPUShaderData._stateKeyMap.has(index)) {
-            this.stateKey = '';
+            this.stateKey = '<';
             this.stateKey += (this._data[Shader3D.BLEND] ?? 'x') + '_';
             this.stateKey += (this._data[Shader3D.BLEND_EQUATION] ?? 'x') + '_';
             this.stateKey += (this._data[Shader3D.BLEND_SRC] ?? 'x') + '_';
@@ -566,14 +630,18 @@ export class WebGPUShaderData extends ShaderData {
                 this.stateKey += this._data[Shader3D.STENCIL_Op].z + '_';
             } else this.stateKey += 'x_x_x_';
             this.stateKey += (this._data[Shader3D.STENCIL_Ref] ?? 'x') + '_';
-            this.stateKey += (this._data[Shader3D.STENCIL_WRITE] ? 't' : 'f') + '_';
+            this.stateKey += (this._data[Shader3D.STENCIL_WRITE] ? 't' : 'f') + '>_';
         }
+
+        //console.log('setInt =', index, value, this.stateKey);
 
         if (this._uniformBuffer)
             this._uniformBuffer.setInt(index, value);
-        if (this.coShaderData)
-            for (let i = this.coShaderData.length - 1; i > -1; i--)
-                this.coShaderData[i].setInt(index, value);
+        if (this.instShaderData)
+            this.instShaderData.setInt(index, value);
+        if (this.skinShaderData)
+            for (let i = this.skinShaderData.length - 1; i > -1; i--)
+                this.skinShaderData[i].setInt(index, value);
     }
 
     /**
@@ -595,9 +663,11 @@ export class WebGPUShaderData extends ShaderData {
         this._data[index] = value;
         if (this._uniformBuffer)
             this._uniformBuffer.setFloat(index, value);
-        if (this.coShaderData)
-            for (let i = this.coShaderData.length - 1; i > -1; i--)
-                this.coShaderData[i].setNumber(index, value);
+        if (this.instShaderData)
+            this.instShaderData.setNumber(index, value);
+        if (this.skinShaderData)
+            for (let i = this.skinShaderData.length - 1; i > -1; i--)
+                this.skinShaderData[i].setNumber(index, value);
     }
 
     /**
@@ -622,9 +692,11 @@ export class WebGPUShaderData extends ShaderData {
         } else this._data[index] = value.clone();
         if (this._uniformBuffer)
             this._uniformBuffer.setVector2(index, value);
-        if (this.coShaderData)
-            for (let i = this.coShaderData.length - 1; i > -1; i--)
-                this.coShaderData[i].setVector2(index, value);
+        if (this.instShaderData)
+            this.instShaderData.setVector2(index, value);
+        if (this.skinShaderData)
+            for (let i = this.skinShaderData.length - 1; i > -1; i--)
+                this.skinShaderData[i].setVector2(index, value);
     }
 
     /**
@@ -649,9 +721,11 @@ export class WebGPUShaderData extends ShaderData {
         } else this._data[index] = value.clone();
         if (this._uniformBuffer)
             this._uniformBuffer.setVector3(index, value);
-        if (this.coShaderData)
-            for (let i = this.coShaderData.length - 1; i > -1; i--)
-                this.coShaderData[i].setVector3(index, value);
+        if (this.instShaderData)
+            this.instShaderData.setVector3(index, value);
+        if (this.skinShaderData)
+            for (let i = this.skinShaderData.length - 1; i > -1; i--)
+                this.skinShaderData[i].setVector3(index, value);
     }
 
     /**
@@ -676,9 +750,11 @@ export class WebGPUShaderData extends ShaderData {
         } else this._data[index] = value.clone();
         if (this._uniformBuffer)
             this._uniformBuffer.setVector4(index, value);
-        if (this.coShaderData)
-            for (let i = this.coShaderData.length - 1; i > -1; i--)
-                this.coShaderData[i].setVector(index, value);
+        if (this.instShaderData)
+            this.instShaderData.setVector(index, value);
+        if (this.skinShaderData)
+            for (let i = this.skinShaderData.length - 1; i > -1; i--)
+                this.skinShaderData[i].setVector(index, value);
     }
 
     /**
@@ -721,9 +797,11 @@ export class WebGPUShaderData extends ShaderData {
             if (this._uniformBuffer)
                 this._uniformBuffer.setVector4(index, linearColor);
         }
-        if (this.coShaderData)
-            for (let i = this.coShaderData.length - 1; i > -1; i--)
-                this.coShaderData[i].setColor(index, value);
+        if (this.instShaderData)
+            this.instShaderData.setColor(index, value);
+        if (this.skinShaderData)
+            for (let i = this.skinShaderData.length - 1; i > -1; i--)
+                this.skinShaderData[i].setColor(index, value);
     }
 
     /**
@@ -747,9 +825,11 @@ export class WebGPUShaderData extends ShaderData {
         else this._data[index] = value.clone();
         if (this._uniformBuffer)
             this._uniformBuffer.setMatrix3x3(index, value);
-        if (this.coShaderData)
-            for (let i = this.coShaderData.length - 1; i > -1; i--)
-                this.coShaderData[i].setMatrix3x3(index, value);
+        if (this.instShaderData)
+            this.instShaderData.setMatrix3x3(index, value);
+        if (this.skinShaderData)
+            for (let i = this.skinShaderData.length - 1; i > -1; i--)
+                this.skinShaderData[i].setMatrix3x3(index, value);
     }
 
     /**
@@ -774,9 +854,11 @@ export class WebGPUShaderData extends ShaderData {
         } else this._data[index] = value.clone();
         if (this._uniformBuffer)
             this._uniformBuffer.setMatrix4x4(index, value);
-        if (this.coShaderData)
-            for (let i = this.coShaderData.length - 1; i > -1; i--)
-                this.coShaderData[i].setMatrix4x4(index, value);
+        if (this.instShaderData)
+            this.instShaderData.setMatrix4x4(index, value);
+        if (this.skinShaderData)
+            for (let i = this.skinShaderData.length - 1; i > -1; i--)
+                this.skinShaderData[i].setMatrix4x4(index, value);
     }
 
     /**
@@ -797,9 +879,11 @@ export class WebGPUShaderData extends ShaderData {
         this._data[index] = value;
         if (this._uniformBuffer)
             this._uniformBuffer.setBuffer(index, value);
-        if (this.coShaderData)
-            for (let i = this.coShaderData.length - 1; i > -1; i--)
-                this.coShaderData[i].setBuffer(index, value);
+        if (this.instShaderData)
+            this.instShaderData.setBuffer(index, value);
+        if (this.skinShaderData)
+            for (let i = this.skinShaderData.length - 1; i > -1; i--)
+                this.skinShaderData[i].setBuffer(index, value);
     }
 
     /**
@@ -824,10 +908,12 @@ export class WebGPUShaderData extends ShaderData {
             this._data[index] = value;
             lastValue && lastValue._removeReference();
             value && value._addReference();
-            //this.clearBindGroup(); //清理绑定组（重建绑定）
-            if (this.coShaderData)
-                for (let i = this.coShaderData.length - 1; i > -1; i--)
-                    this.coShaderData[i].setTexture(index, value);
+            this.removeBindGroup(index); //删除包含该纹理的绑定组
+            if (this.instShaderData)
+                this.instShaderData.setTexture(index, value);
+            if (this.skinShaderData)
+                for (let i = this.skinShaderData.length - 1; i > -1; i--)
+                    this.skinShaderData[i].setTexture(index, value);
         }
     }
 
@@ -849,10 +935,12 @@ export class WebGPUShaderData extends ShaderData {
             }
             this.changeMark++;
             this._data[index] = value;
-            //this.clearBindGroup(); //清理绑定组（重建绑定）
-            if (this.coShaderData)
-                for (let i = this.coShaderData.length - 1; i > -1; i--)
-                    this.coShaderData[i]._setInternalTexture(index, value);
+            this.removeBindGroup(index); //删除包含该纹理的绑定组
+            if (this.instShaderData)
+                this.instShaderData._setInternalTexture(index, value);
+            if (this.skinShaderData)
+                for (let i = this.skinShaderData.length - 1; i > -1; i--)
+                    this.skinShaderData[i]._setInternalTexture(index, value);
         }
     }
 
@@ -912,27 +1000,42 @@ export class WebGPUShaderData extends ShaderData {
     clear() {
         this._gammaColorMap.clear();
         this._bindGroupMap.clear();
+        this._bindGroupKey = '';
         this._bindGroup = null;
+        this._bindGroupResourceSet = null;
         this._bindGroupLayoutEntries = null;
-        if (this.coShaderData)
-            for (let i = this.coShaderData.length - 1; i > -1; i--)
-                this.coShaderData[i].clear();
+        if (this.instShaderData)
+            this.instShaderData.clear();
+        if (this.skinShaderData)
+            for (let i = this.skinShaderData.length - 1; i > -1; i--)
+                this.skinShaderData[i].clear();
     }
 
     /**
      * 销毁
      */
     destroy() {
-        WebGPUGlobal.releaseId(this);
-        WebGPUShaderData.objectCount--;
-        this._gammaColorMap.clear();
-        this._bindGroupMap.clear();
-        this._bindGroup = null;
-        this._bindGroupLayoutEntries = null;
-        if (this._uniformBuffer)
-            this._uniformBuffer.destroy();
-        if (this.coShaderData)
-            for (let i = this.coShaderData.length - 1; i > -1; i--)
-                this.coShaderData[i].destroy();
+        if (!this._destroyed) {
+            this._destroyed = true;
+            WebGPUGlobal.releaseId(this);
+            WebGPUShaderData.objectCount--;
+            this._gammaColorMap = null;
+            this._bindGroupMap = null;
+            this._bindGroupKey = null;
+            this._bindGroup = null;
+            this._bindGroupResourceSet = null;
+            this._bindGroupLayoutEntries = null;
+            if (this._uniformBuffer)
+                this._uniformBuffer.destroy();
+            if (this.instShaderData) {
+                this.instShaderData.destroy();
+                this.instShaderData = null;
+            }
+            if (this.skinShaderData) {
+                for (let i = this.skinShaderData.length - 1; i > -1; i--)
+                    this.skinShaderData[i].destroy();
+                this.skinShaderData = null;
+            }
+        }
     }
 }

@@ -2,7 +2,10 @@ import { Vector3 } from "../../../maths/Vector3";
 import { ICapsuleColliderShape } from "../../interface/Shape/ICapsuleColliderShape";
 import { btPhysicsCreateUtil } from "../btPhysicsCreateUtil";
 import { btColliderShape } from "./btColliderShape";
-
+/**
+ * @en The `btCapsuleColliderShape` class is used to create and manage capsule-shaped colliders.
+ * @zh 类 `btCapsuleColliderShape` 用于创建和管理胶囊形状的碰撞体。
+ */
 export class btCapsuleColliderShape extends btColliderShape implements ICapsuleColliderShape {
     private static _tempVector30: Vector3 = new Vector3();
     /**@internal */
@@ -40,6 +43,12 @@ export class btCapsuleColliderShape extends btColliderShape implements ICapsuleC
         return this._type = btColliderShape.SHAPETYPES_CAPSULE;
     }
 
+    /**
+     * @en Sets the radius of the capsule.
+     * @param radius The radius of the capsule.
+     * @zh 设置胶囊体的半径。
+     * @param radius 胶囊体的半径。
+     */
     setRadius(radius: number): void {
         if (this._btShape && this._radius == radius)
             return;
@@ -47,6 +56,12 @@ export class btCapsuleColliderShape extends btColliderShape implements ICapsuleC
         this._createShape();
     }
 
+    /**
+     * @en Sets the height of the capsule.
+     * @param height The height of the capsule.
+     * @zh 设置胶囊体的高度。
+     * @param height 胶囊体的高度。
+     */
     setHeight(height: number): void {
         if (this._btShape && this._length == height)
             return;
@@ -54,6 +69,12 @@ export class btCapsuleColliderShape extends btColliderShape implements ICapsuleC
         this._createShape();
     }
 
+    /**
+     * @en Sets the up axis of the capsule.
+     * @param upAxis The up axis of the capsule.
+     * @zh 设置胶囊体的朝向轴。
+     * @param upAxis 胶囊体的朝向轴。
+     */
     setUpAxis(upAxis: number): void {
         if (this._btShape && this._orientation == upAxis)
             return;
@@ -61,6 +82,12 @@ export class btCapsuleColliderShape extends btColliderShape implements ICapsuleC
         this._createShape();
     }
 
+    /**
+     * @en Sets the world scale of the capsule collider shape.
+     * @param scale The scale of the capsule collider shape.
+     * @zh 设置胶囊碰撞器形状的世界缩放。
+     * @param scale 缩放比例。
+     */
     setWorldScale(scale: Vector3): void {
         var fixScale: Vector3 = btCapsuleColliderShape._tempVector30;
         switch (this._orientation) {
@@ -82,6 +109,10 @@ export class btCapsuleColliderShape extends btColliderShape implements ICapsuleC
         super.setWorldScale(fixScale);
     }
 
+    /**
+     * @en Destroys the capsule collider shape and releases resources.
+     * @zh 销毁胶囊碰撞器形状并释放资源。
+     */
     destroy(): void {
         super.destroy();
         this._radius = null;

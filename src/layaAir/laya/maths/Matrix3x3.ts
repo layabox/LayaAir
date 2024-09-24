@@ -10,19 +10,28 @@ const _tempV31 = new Vector3();
 const _tempV32 = new Vector3();
 
 /**
- * <code>Matrix3x3</code> 类用于创建3x3矩阵。
+ * @en The Matrix3x3 class is used to create a 3x3 matrix.
+ * @zh Matrix3x3 类用于创建 3x3 矩阵。
  */
 export class Matrix3x3 implements IClone {
-    /**默认值 */
+    /**
+     * @en Default value
+     * @zh 默认值
+     */
     static readonly DEFAULT: Readonly<Matrix3x3> = new Matrix3x3();
-    /**临时变量 */
+    /**
+     * @en Temporary variable
+     * @zh 临时变量
+     */
     static Temp: Matrix3x3 = new Matrix3x3();
     /**
-     * 通过四元数创建旋转矩阵。
+     * @en Create a rotation matrix from a quaternion.
+     * @param rotation The rotation quaternion.
+     * @param out The output rotation matrix.
+     * @zh 通过四元数创建旋转矩阵。
      * @param rotation 旋转四元数。
-     * @param out 旋转矩阵。
+     * @param out 输出的旋转矩阵。
      */
-
     static createRotationQuaternion(rotation: Quaternion, out: Matrix3x3) {
         var rotX: number = rotation.x;
         var rotY: number = rotation.y;
@@ -52,9 +61,12 @@ export class Matrix3x3 implements IClone {
     }
 
     /**
-     * 根据指定平移生成3x3矩阵
-     * @param	tra 平移
-     * @param	out 输出矩阵
+     * @en Generate a 3x3 matrix based on the specified translation.
+     * @param trans The translation vector.
+     * @param out The output matrix.
+     * @zh 根据指定平移生成 3x3 矩阵。
+     * @param trans 平移向量。
+     * @param out 输出矩阵。
      */
     static createFromTranslation(trans: Vector2, out: Matrix3x3): void {
         var e: Float32Array = out.elements;
@@ -88,9 +100,12 @@ export class Matrix3x3 implements IClone {
     }
 
     /**
-     * 根据指定旋转生成3x3矩阵
-     * @param	rad  旋转值
-     * @param	out 输出矩阵
+     * @en Generate a 3x3 matrix based on the specified rotation.
+     * @param rad The rotation value.
+     * @param out The output matrix.
+     * @zh 根据指定旋转生成 3x3 矩阵。
+     * @param rad 旋转值。
+     * @param out 输出矩阵。
      */
     static createFromRotation(rad: number, out: Matrix3x3): void {
         var e: Float32Array = out.elements;
@@ -111,9 +126,12 @@ export class Matrix3x3 implements IClone {
     }
 
     /**
-     * 根据制定缩放生成3x3矩阵
-     * @param	scale 缩放值
-     * @param	out 输出矩阵
+     * @en Generate a 3x3 matrix based on the specified scaling.
+     * @param scale The scaling vector.
+     * @param out The output matrix.
+     * @zh 根据指定缩放生成 3x3 矩阵。
+     * @param scale 缩放向量。
+     * @param out 输出矩阵。
      */
     static createFromScaling(scale: Vector3, out: Matrix3x3): void {
         var e: Float32Array = out.elements;
@@ -132,9 +150,12 @@ export class Matrix3x3 implements IClone {
     }
 
     /**
-     * 从4x4矩阵转换为一个3x3的矩阵（原则为upper-left,忽略第四行四列）
-     * @param	sou 4x4源矩阵
-     * @param	out 3x3输出矩阵
+     * @en Convert a 4x4 matrix to a 3x3 matrix (upper-left principle, ignoring the fourth row and column).
+     * @param sou The source 4x4 matrix.
+     * @param out The output 3x3 matrix.
+     * @zh 从 4x4 矩阵转换为一个 3x3 的矩阵（原则为 upper-left，忽略第四行四列）。
+     * @param sou 4x4 源矩阵。
+     * @param out 3x3 输出矩阵。
      */
     static createFromMatrix4x4(sou: Matrix4x4, out: Matrix3x3): void {
         var souE: Float32Array = sou.elements;
@@ -151,10 +172,14 @@ export class Matrix3x3 implements IClone {
     }
 
     /**
-     *  两个3x3矩阵的相乘
-     * @param	left 左矩阵
-     * @param	right  右矩阵
-     * @param	out  输出矩阵
+     * @en Multiply two 3x3 matrices.
+     * @param left The left matrix.
+     * @param right The right matrix.
+     * @param out The output matrix.
+     * @zh 两个 3x3 矩阵的相乘。
+     * @param left 左矩阵。
+     * @param right 右矩阵。
+     * @param out 输出矩阵。
      */
     static multiply(left: Matrix3x3, right: Matrix3x3, out: Matrix3x3): void {
         var l: Float32Array = left.elements;
@@ -182,25 +207,31 @@ export class Matrix3x3 implements IClone {
         e[8] = r31 * l13 + r32 * l23 + r33 * l33;
     }
 
-    /**矩阵元素数组*/
+    /**
+     * @en Matrix element array
+     * @zh 矩阵元素数组
+     */
     elements: Float32Array;
 
-    /**
-     * 创建一个 <code>Matrix3x3</code> 实例。
-     */
     constructor(createElement: boolean = true) {
         createElement && (this.elements = _DEFAULTELEMENTS.slice());
     }
+
     /**
-     * 克隆
-     * @param destObject 克隆目标
+     * @en Clone the matrix by array.
+     * @param destObject The target array to clone to.
+     * @zh 通过数组克隆矩阵。
+     * @param destObject 克隆目标数组。
      */
     cloneByArray(destObject: Float32Array) {
         this.elements.set(destObject);
     }
+
     /**
-     * 计算3x3矩阵的行列式
-     * @return    矩阵的行列式
+     * @en Calculate the determinant of the 3x3 matrix.
+     * @returns The determinant of the matrix.
+     * @zh 计算 3x3 矩阵的行列式。
+     * @returns 返回矩阵的行列式。
      */
     determinant(): number {
         var f: Float32Array = this.elements;
@@ -213,9 +244,12 @@ export class Matrix3x3 implements IClone {
     }
 
     /**
-     * 通过一个二维向量转换3x3矩阵
-     * @param	tra 转换向量
-     * @param	out 输出矩阵
+     * @en Transform the 3x3 matrix by a two-dimensional vector.
+     * @param trans The translation vector.
+     * @param out The output matrix.
+     * @zh 通过一个二维向量转换 3x3 矩阵。
+     * @param trans 转换向量。
+     * @paramh out 输出矩阵。
      */
     translate(trans: Vector2, out: Matrix3x3): void {
         var e: Float32Array = out.elements;
@@ -240,9 +274,12 @@ export class Matrix3x3 implements IClone {
     }
 
     /**
-     * 根据指定角度旋转3x3矩阵
-     * @param	rad 旋转角度
-     * @param	out 输出矩阵
+     * @en Rotate the 3x3 matrix by a specified angle.
+     * @param rad The rotation angle in radians.
+     * @param out The output matrix.
+     * @zh 根据指定角度旋转 3x3 矩阵。
+     * @param rad 旋转角度（弧度）。
+     * @param out 输出矩阵。
      */
     rotate(rad: number, out: Matrix3x3): void {
         var e: Float32Array = out.elements;
@@ -269,9 +306,12 @@ export class Matrix3x3 implements IClone {
     }
 
     /**
-     *根据制定缩放3x3矩阵
-     * @param	scale 缩放值
-     * @param	out 输出矩阵
+     * @en Scale the 3x3 matrix by a specified value.
+     * @param scale The scaling vector.
+     * @param out The output matrix.
+     * @zh 根据指定缩放值缩放 3x3 矩阵。
+     * @param scale 缩放向量。
+     * @param out 输出矩阵。
      */
     scale(scale: Vector2, out: Matrix3x3): void {
         var e: Float32Array = out.elements;
@@ -293,8 +333,10 @@ export class Matrix3x3 implements IClone {
     }
 
     /**
-     * 计算3x3矩阵的逆矩阵
-     * @param	out 输出的逆矩阵
+     * @en Calculate the inverse of the 3x3 matrix.
+     * @param out The output inverse matrix.
+     * @zh 计算 3x3 矩阵的逆矩阵。
+     * @param out 输出的逆矩阵。
      */
     invert(out: Matrix3x3): void {
         var e = out.elements;
@@ -328,8 +370,10 @@ export class Matrix3x3 implements IClone {
     }
 
     /**
-     * 计算3x3矩阵的转置矩阵
-     * @param 	out 输出矩阵
+     * @en Calculate the transpose of the 3x3 matrix.
+     * @param out The output matrix.
+     * @zh 计算 3x3 矩阵的转置矩阵。
+     * @param  out 输出矩阵。
      */
     transpose(out: Matrix3x3): void {
         var e: Float32Array = out.elements;
@@ -356,7 +400,10 @@ export class Matrix3x3 implements IClone {
         }
     }
 
-    /** 设置已有的矩阵为单位矩阵*/
+    /**
+     * @en Set the existing matrix to an identity matrix.
+     * @zh 设置已有的矩阵为单位矩阵。
+     */
     identity(): void {
         this.elements.set(_DEFAULTELEMENTS);
         /*
@@ -373,8 +420,10 @@ export class Matrix3x3 implements IClone {
     }
 
     /**
-     * 克隆。
-     * @param	destObject 克隆源。
+     * @en Clone the matrix.
+     * @param destObject The clone target.
+     * @zh 克隆矩阵。
+     * @param destObject 克隆目标。
      */
     cloneTo(destObject: any): void {
         var i: number, s: Float32Array, d: Float32Array;
@@ -391,8 +440,10 @@ export class Matrix3x3 implements IClone {
     }
 
     /**
-     * 克隆。
-     * @return	 克隆副本。
+     * @en Clone the matrix.
+     * @returns A clone of the matrix.
+     * @zh 克隆矩阵。
+     * @returns 矩阵的克隆副本。
      */
     clone(): any {
         var dest: Matrix3x3 = new Matrix3x3(false);
@@ -401,11 +452,16 @@ export class Matrix3x3 implements IClone {
     }
 
     /**
-     * 计算观察3x3矩阵
-     * @param	eye    观察者位置
-     * @param	target 目标位置
-     * @param	up     上向量
-     * @param	out    输出3x3矩阵
+     * @en Calculate the 3x3 view matrix.
+     * @param eye The position of the observer.
+     * @param target The position of the target.
+     * @param up The up vector.
+     * @param out The output 3x3 matrix.
+     * @zh 计算观察3x3矩阵。
+     * @param eye 观察者位置。
+     * @param target 目标位置。
+     * @param up 上向量。
+     * @param out 输出3x3矩阵。
      */
     static lookAt(eye: Vector3, target: Vector3, up: Vector3, out: Matrix3x3): void {
         Vector3.subtract(eye, target, _tempV30);//WebGL为右手坐标系统
@@ -435,11 +491,16 @@ export class Matrix3x3 implements IClone {
     }
 
     /**
-     * forward看向target，forward在这里规定为z轴
-     * @param eye 起始点
-     * @param target 目标点
-     * @param up 向上轴
-     * @param out 输出矩阵
+     * @en Calculate the 3x3 view matrix with forward direction looking at target. Forward is defined as the z-axis here.
+     * @param eye The starting point.
+     * @param target The target point.
+     * @param up The up vector.
+     * @param out The output matrix.
+     * @zh 计算前向看向目标的3x3观察矩阵。这里规定前向为z轴。
+     * @param eye 起始点。
+     * @param target 目标点。
+     * @param up 向上轴。
+     * @param out 输出矩阵。
      */
     static forwardLookAt(eye: Vector3, target: Vector3, up: Vector3, out: Matrix3x3): void {
         var vx = _tempV31;

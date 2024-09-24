@@ -6,11 +6,8 @@ import { Button } from "./Button"
  * Choosing an unselected member of a Radio group will unselect the currently selected `Radio` control within that group.
  * @zh Radio 控件使用户可在一组互相排斥的选择中做出一种选择。
  * 用户一次只能选择 Radio 组中的一个成员。选择未选中的组成员将取消选择该组中当前所选的 Radio 控件。
- * @see laya.ui.RadioGroup
  */
 export class Radio extends Button {
-
-    /**@internal */
     protected _value: any;
 
     /**
@@ -27,10 +24,10 @@ export class Radio extends Button {
 
 
     /**
-     * @en constructor method
+     * @en creates an instance of Radio.
      * @param skin The path of the skin to be used for the Radio.
      * @param label The text label to be displayed next to the Radio.
-     * @zh 构造方法。
+     * @zh 创建一个 Radio 实例。
      * @param skin Radio 的皮肤路径。
      * @param label 显示在 Radio 旁边的文本标签。
      */
@@ -55,7 +52,6 @@ export class Radio extends Button {
     }
 
     /**
-     * @internal
      * @en Preinitializes the Radio component by setting properties before initialization.
      * @zh 在初始化前对 Radio 组件进行预初始化，设置相关属性。
      */
@@ -66,9 +62,6 @@ export class Radio extends Button {
     }
 
     /**
-     * @internal
-     * @inheritDoc 
-     * @override
      * @en Initializes the Radio component, creating text and setting text properties.
      * @zh 初始化 Radio 组件，创建文本并设置文本属性。
      */
@@ -82,7 +75,6 @@ export class Radio extends Button {
     }
 
     /**
-     * @internal
      * @en The click event handler for the Radio object.
      * @param e The event object.
      * @zh 对象的Event.CLICK事件侦听处理函数。 
@@ -92,7 +84,6 @@ export class Radio extends Button {
         this.selected = true;
     }
 
-    /**@internal */
     protected changeClips(): void {
         super.changeClips();
         this._setWidth(this._width);

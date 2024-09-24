@@ -157,7 +157,7 @@ export class CharRender_Canvas extends ICharRender {
 		//ctx.restore();
 		if (rect) {
 			if (rect[2] <= 0)//<=0表示原点的x偏移，例如原点在2，则这里就是-2， 这时候测量的宽度是从原点开始的，所以要加上偏移。否则会有右边被裁剪的情况
-				rect[2] = Math.ceil(-rect[2]+(cri.width + lineWidth * 2) * this.lastScaleX);
+				rect[2] = Math.ceil(-rect[2] + (cri.width + lineWidth * 2) * this.lastScaleX);
 			//if (rect[2] == -1) rect[2] = Math.ceil((cri.width + lineWidth * 2) * this.lastScaleX); // 这个没有考虑左右margin
 			if (rect[2] <= 0) rect[2] = 1;	// 有的字体在处理不存在文字的时候，测量宽度为0，会导致getImageData出错
 		}
@@ -179,7 +179,10 @@ export class CharRender_Canvas extends ICharRender {
 			ctx._lastFont = font;
 			//console.log('use font ' + font);
 		}
-
+		if (Browser.window.isIOSHighPerformanceModePlus) {
+			// 临时处理,微信高性能+模式下文本会出现裁剪问题,这里强制设置font解决
+			ctx.font = font;
+		}
 		cri.width = ctx.measureText(char).width;//排版用的width是没有缩放的。后面会用矩阵缩放
 		var w: number = cri.width * this.lastScaleX;//w h 只是clear用的。所以要缩放
 		var h: number = cri.height * this.lastScaleY;

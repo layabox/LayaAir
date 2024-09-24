@@ -54,7 +54,8 @@ export class Component {
     scriptPath: string;
 
     /**
-     * @internal
+     * @en Extra data of the node.
+     * @zh 组件的额外数据。IDE内部使用。
      */
     _extra: IComponentExtra;
 

@@ -349,11 +349,22 @@ export class WebGPUTextureContext implements ITextureContext {
                 webgpuTextureFormat = !useSRGB ? WebGPUTextureFormat.bc3_rgba_unorm : WebGPUTextureFormat.bc3_rgba_unorm_srgb;
                 break;
             case TextureFormat.ETC2RGBA:
-            case TextureFormat.ETC1RGB:
+                webgpuTextureFormat = WebGPUTextureFormat.etc2_rgba8unorm;
+                break;
             case TextureFormat.ETC2RGB:
+                webgpuTextureFormat = WebGPUTextureFormat.etc2_rgb8unorm;
+                break;
             case TextureFormat.ETC2SRGB:
+                webgpuTextureFormat = WebGPUTextureFormat.etc2_rgb8unorm_srgb;
+                break;
             case TextureFormat.ETC2SRGB_Alpha8:
-                webgpuTextureFormat = !useSRGB ? WebGPUTextureFormat.etc2_rgba8unorm : WebGPUTextureFormat.etc2_rgba8unorm_srgb;
+                webgpuTextureFormat = WebGPUTextureFormat.etc2_rgba8unorm_srgb;
+                break;
+            case TextureFormat.ETC2RGB_Alpha1:
+                webgpuTextureFormat = WebGPUTextureFormat.etc2_rgb8a1unorm;
+                break;
+            case TextureFormat.ETC2SRGB_Alpha1:
+                webgpuTextureFormat = WebGPUTextureFormat.etc2_rgb8a1unorm_srgb;
                 break;
             case TextureFormat.ASTC4x4:
             case TextureFormat.ASTC4x4SRGB:
@@ -1320,7 +1331,7 @@ export class WebGPUTextureContext implements ITextureContext {
         gpuColorDescriptor.usage = GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.COPY_SRC | GPUTextureUsage.COPY_DST;
         gpuColorDescriptor.label = 'renderTarget color';
         const gpuColorTexture = this._engine.getDevice().createTexture(gpuColorDescriptor);
-        const internalRT = new WebGPUInternalRT(colorFormat, depthStencilFormat, false, generateMipmap, multiSamples);
+        const internalRT = new WebGPUInternalRT(colorFormat, depthStencilFormat, false, generateMipmap, multiSamples, useSRGBExt);
         internalRT._textures.push(new WebGPUInternalTex(width, height, 1, TextureDimension.Tex2D, generateMipmap, multiSamples, useSRGBExt, gammaCorrection));
         internalRT._textures[0].resource = gpuColorTexture;
         internalRT._textures[0]._webGPUFormat = gpuColorFormat;
@@ -1343,11 +1354,6 @@ export class WebGPUTextureContext implements ITextureContext {
             || colorFormat === RenderTargetFormat.DEPTH_32
             || colorFormat === RenderTargetFormat.DEPTHSTENCIL_24_8) {
             depthStencilFormat = RenderTargetFormat.R8G8B8A8;
-            //const array = new Uint16Array(width * height);
-            //for (let j = 0; j < height; j++)
-            //    for (let i = 0; i < width; i++)
-            //        array[j * width + i] = 65535;
-            //this.setTexturePixelsData(internalRT._textures[0], array, false, false);
         }
         if (depthStencilFormat !== RenderTargetFormat.None) {
             const pixelByteSize = this._getGPURenderTexturePixelByteSize(depthStencilFormat);

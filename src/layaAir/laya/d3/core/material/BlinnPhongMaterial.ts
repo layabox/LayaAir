@@ -9,19 +9,35 @@ import { Material } from "../../../resource/Material";
 
 
 /**
- * <code>BlinnPhongMaterial</code> 类用于实现Blinn-Phong材质。
+ * @en The BlinnPhongMaterial class is used to implement Blinn-Phong materials.
+ * @zh BlinnPhongMaterial 类用于实现Blinn-Phong材质。
  */
 export class BlinnPhongMaterial extends Material {
-	/**高光强度数据源_漫反射贴图的Alpha通道。*/
+	/**
+	 * @en Specular intensity data source: Alpha channel of the diffuse map.
+	 * @zh 高光强度数据源：漫反射贴图的 Alpha 通道。
+	 */
 	static SPECULARSOURCE_DIFFUSEMAPALPHA: number;
-	/**高光强度数据源_高光贴图的RGB通道。*/
+	/**
+	 * @en Specular intensity data source: RGB channels of the specular map.
+	 * @zh 高光强度数据源：高光贴图的 RGB 通道。
+	 */
 	static SPECULARSOURCE_SPECULARMAP: number;
 
-	/**渲染状态_不透明。*/
+	/**
+	 * @en Render mode: Opaque.
+	 * @zh 渲染状态：不透明。
+	 */
 	static RENDERMODE_OPAQUE: number = 0;
-	/**渲染状态_阿尔法测试。*/
+	/**
+	 * @en Render mode: Alpha test.
+	 * @zh 渲染状态：Alpha 测试。
+	 */
 	static RENDERMODE_CUTOUT: number = 1;
-	/**渲染状态_透明混合。*/
+	/**
+	 * @en Render mode: Transparent blend.
+	 * @zh 渲染状态：透明混合。
+	 */
 	static RENDERMODE_TRANSPARENT: number = 2;
 
 	/**@internal */
@@ -63,7 +79,10 @@ export class BlinnPhongMaterial extends Material {
 	/**@internal */
 	static AlbedoIntensity: number;
 
-	/** 默认材质，禁止修改*/
+	/**
+	 * @en The default material, prohibit modification.
+	 * @zh 默认材质，禁止修改。
+	 */
 	static defaultMaterial: BlinnPhongMaterial;
 
 	/**
@@ -93,8 +112,8 @@ export class BlinnPhongMaterial extends Material {
 	}
 
 	/**
-	 * 设置渲染模式。
-	 * @param 渲染模式
+	 * @en The render mode.
+	 * @zh 渲染模式。
 	 */
 	set renderMode(value: number) {
 		switch (value) {
@@ -130,7 +149,8 @@ export class BlinnPhongMaterial extends Material {
 	}
 
 	/**
-	 * 是否支持顶点色。
+	 * @en Whether to support vertex color.
+	 * @zh 是否支持顶点色。
 	 */
 	get enableVertexColor(): boolean {
 		return this.hasDefine(BlinnPhongMaterial.SHADERDEFINE_ENABLEVERTEXCOLOR);
@@ -144,7 +164,8 @@ export class BlinnPhongMaterial extends Material {
 	}
 
 	/**
-	 * 纹理平铺和偏移。
+	 * @en Texture tiling and offsetting.
+	 * @zh 纹理平铺和偏移。
 	 */
 	get tilingOffset(): Vector4 {
 		return (<Vector4>this.getVector4ByIndex(BlinnPhongMaterial.TILINGOFFSET));
@@ -160,7 +181,8 @@ export class BlinnPhongMaterial extends Material {
 	}
 
 	/**
-	 * 反照率颜色。
+	 * @en Albedo color.
+	 * @zh 漫反射颜色。
 	 */
 	get albedoColor(): Color {
 		return this.getColorByIndex(BlinnPhongMaterial.ALBEDOCOLOR);
@@ -171,7 +193,8 @@ export class BlinnPhongMaterial extends Material {
 	}
 
 	/**
-	 * 反照率强度。
+	 * @en Albedo intensity
+	 * @zh 漫反射强度。
 	 */
 	get albedoIntensity(): number {
 		return this.getFloatByIndex(BlinnPhongMaterial.AlbedoIntensity);
@@ -182,7 +205,8 @@ export class BlinnPhongMaterial extends Material {
 	}
 
 	/**
-	 * 高光颜色。
+	 * @en Specular color.
+	 * @zh 高光颜色。
 	 */
 	get specularColor(): Color {
 		return this.getColorByIndex(BlinnPhongMaterial.MATERIALSPECULAR);
@@ -193,7 +217,8 @@ export class BlinnPhongMaterial extends Material {
 	}
 
 	/**
-	 * 高光强度,范围为0到1。
+	 * @en Specular intensity, ranging from 0 to 1.
+	 * @zh 高光强度,范围为0到1。
 	 */
 	get shininess(): number {
 		return this.getFloatByIndex(BlinnPhongMaterial.SHININESS);
@@ -205,7 +230,8 @@ export class BlinnPhongMaterial extends Material {
 	}
 
 	/**
-	 * 反照率贴图。
+	 * @en Albedo texture.
+	 * @zh 漫反射贴图。
 	 */
 	get albedoTexture(): BaseTexture {
 		return this.getTextureByIndex(BlinnPhongMaterial.ALBEDOTEXTURE);
@@ -220,7 +246,8 @@ export class BlinnPhongMaterial extends Material {
 	}
 
 	/**
-	 * 法线贴图。
+	 * @en Normal texture.
+	 * @zh 法线贴图。
 	 */
 	get normalTexture(): BaseTexture {
 		return this.getTextureByIndex(BlinnPhongMaterial.NORMALTEXTURE);
@@ -237,7 +264,8 @@ export class BlinnPhongMaterial extends Material {
 	}
 
 	/**
-	 * 高光贴图。
+	 * @en Specular texture.
+	 * @zh 高光贴图。
 	 */
 	get specularTexture(): BaseTexture {
 		return this.getTextureByIndex(BlinnPhongMaterial.SPECULARTEXTURE);
@@ -251,8 +279,10 @@ export class BlinnPhongMaterial extends Material {
 
 		this.setTextureByIndex(BlinnPhongMaterial.SPECULARTEXTURE, value);
 	}
+
 	/**
-	 * 是否支持透光色。
+	 * @en Does it support transparency.
+	 * @zh 是否支持透光。
 	 */
 	get enableTransmission(): boolean {
 		return this.hasDefine(BlinnPhongMaterial.SHADERDEFINE_ENABLETRANSMISSION);
@@ -266,7 +296,8 @@ export class BlinnPhongMaterial extends Material {
 	}
 
 	/**
-	 * 透光率，会影响漫反射以及透光强度
+	 * @en Transmittance, which affects diffuse reflection and transmittance intensity
+	 * @zh 透光率，会影响漫反射以及透光强度
 	 */
 	get transmissionRata(): number {
 		return this.getFloatByIndex(BlinnPhongMaterial.TRANSMISSIONRATE);
@@ -277,7 +308,8 @@ export class BlinnPhongMaterial extends Material {
 	}
 
 	/**
-	 * 透射影响范围指数
+	 * @en Transmission influence range index
+	 * @zh 透射影响范围指数
 	 */
 	get backDiffuse(): number {
 		return this.getFloatByIndex(BlinnPhongMaterial.IBACKDIFFUSE);
@@ -285,8 +317,10 @@ export class BlinnPhongMaterial extends Material {
 	set backDiffuse(value: number) {
 		this.setFloatByIndex(BlinnPhongMaterial.IBACKDIFFUSE, Math.max(value, 1.0));
 	}
+
 	/**
-	 * 透射光强度
+	 * @en Transmitted light intensity
+	 * @zh 透射光强度
 	 */
 	get backScale(): number {
 		return this.getFloatByIndex(BlinnPhongMaterial.IBACKSCALE);
@@ -296,7 +330,8 @@ export class BlinnPhongMaterial extends Material {
 	}
 
 	/**
-	 * 厚度贴图，会影响透视光，越厚，透射光越弱
+	 * @en Thickness texture, which affects the perspective light. The thicker the material, the weaker the transmitted light.
+	 * @zh 厚度贴图，会影响透射光。材质越厚，透射光越弱。
 	 */
 	get thinknessTexture(): BaseTexture {
 		return this.getTextureByIndex(BlinnPhongMaterial.THINKNESSTEXTURE);
@@ -311,7 +346,8 @@ export class BlinnPhongMaterial extends Material {
 	}
 
 	/**
-	 * 透光颜色。模拟透光物质内部颜色吸收率
+	 * @en Transmission color. Simulates the internal color absorption rate of translucent materials.
+	 * @zh 透光颜色。模拟透光物质内部颜色吸收率。
 	 */
 	get transmissionColor(): Color {
 		return this.getColorByIndex(BlinnPhongMaterial.TRANSMISSIONCOLOR);
@@ -329,7 +365,9 @@ export class BlinnPhongMaterial extends Material {
 	}
 
 	/**
-	 * 创建一个 <code>BlinnPhongMaterial</code> 实例。
+	 * @ignore
+	 * @en Creates an instance of BlinnPhongMaterial.
+	 * @zh 创建一个 BlinnPhongMaterial 的实例。
 	 */
 	constructor() {
 		super();
@@ -338,9 +376,11 @@ export class BlinnPhongMaterial extends Material {
 	}
 
 	/**
-	 * 克隆。
-	 * @return	 克隆副本。
 	 * @override
+	 * @en Clone.
+	 * @returns Clone Copy.
+	 * @zh 克隆。
+	 * @returns 克隆的副本。
 	 */
 	clone(): any {
 		var dest: BlinnPhongMaterial = new BlinnPhongMaterial();
@@ -349,8 +389,12 @@ export class BlinnPhongMaterial extends Material {
 	}
 
 	/**
-	 * @inheritDoc
 	 * @override
+	 * @inheritDoc
+	 * @en Clone the properties of this material to another material.
+	 * @param destObject The target material to clone to.
+	 * @zh 将此材质的属性克隆到另一个材质。
+	 * @param destObject 要克隆到的目标材质。
 	 */
 	cloneTo(destObject: any): void {
 		super.cloneTo(destObject);

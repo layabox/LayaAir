@@ -8,11 +8,7 @@ import { WeakObject } from "../utils/WeakObject"
  * @zh `UIUtils` 是文本工具集。
  */
 export class UIUtils {
-
-    /**@internal */
     private static grayFilter: ColorFilter = new ColorFilter([0.3086, 0.6094, 0.082, 0, 0, 0.3086, 0.6094, 0.082, 0, 0, 0.3086, 0.6094, 0.082, 0, 0, 0, 0, 0, 1, 0]);
-
-    /**@internal */
     private static _funMap: WeakObject = null;//new WeakObject();
 
     /**
@@ -46,7 +42,7 @@ export class UIUtils {
      * @returns The string color value.
      * @zh 转换 uint 类型颜色值为字符型颜色值。
      * @param color uint颜色值。
-     * @return 字符型颜色值。
+     * @returns 字符型颜色值。
      */
     static toColor(color: number): string {
         return Utils.toHexColor(color);
@@ -76,7 +72,6 @@ export class UIUtils {
     }
 
     /**
-     * @internal
      * @en Get the function expression based on the string.
      * @param value The string value.
      * @returns The function expression.

@@ -5,22 +5,30 @@ import { RenderTexture } from "./RenderTexture";
 
 
 /**
- * <code>SpotLight</code> 类用于创建RenderTextureCube。
+ * @en The `RenderTextureCube` class is used for creating cube map render textures.
+ * @zh `RenderTextureCube` 类用于创建立方体贴图渲染纹理。
  */
 export class RenderTextureCube extends RenderTexture {
 
     /**
-     * +x, -x, +y, -y, +z, -z
+     * @en The index of the cube face, which can be +x, -x, +y, -y, +z, or -z.
+     * @zh 立方体贴图的面索引，可以是 +x, -x, +y, -y, +z 或 -z。
      */
     faceIndex: number;
 
     /**
-     * 实例化一个RendertextureCube
-     * @param size 像素
-     * @param colorFormat 颜色格式
-     * @param depthFormat 深度格式
-     * @param generateMipmap 是否生成mipmap
-     * @param multiSamples 
+     * @en Create a new instance of `RenderTextureCube`.
+     * @param size The size of the texture.
+     * @param colorFormat The color format of the render target.
+     * @param depthFormat The depth format of the render target.
+     * @param generateMipmap Whether to generate mipmaps for the render texture.
+     * @param multiSamples The number of samples for multi-sampling.
+     * @zh 创建一个 `RenderTextureCube` 实例。
+     * @param size 纹理的尺寸。
+     * @param colorFormat 渲染目标的颜色格式。
+     * @param depthFormat 渲染目标的深度格式。
+     * @param generateMipmap 是否为渲染纹理生成 mipmaps。
+     * @param multiSamples 多采样的样本数量。
      */
     constructor(size: number, colorFormat: RenderTargetFormat, depthFormat: RenderTargetFormat, generateMipmap: boolean, multiSamples: number) {
         super(size, size, colorFormat, depthFormat, generateMipmap, multiSamples);

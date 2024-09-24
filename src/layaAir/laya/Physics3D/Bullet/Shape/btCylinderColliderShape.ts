@@ -2,7 +2,10 @@ import { Vector3 } from "../../../maths/Vector3";
 import { ICylinderColliderShape } from "../../interface/Shape/ICylinderColliderShape";
 import { btPhysicsCreateUtil } from "../btPhysicsCreateUtil";
 import { btColliderShape } from "./btColliderShape";
-
+/**
+ * @en The `btCylinderColliderShape` class is used to create and manage cylinder collision shapes.
+ * @zh `btCylinderColliderShape` 类用于创建和管理圆柱体碰撞形状。
+ */
 export class btCylinderColliderShape extends btColliderShape implements ICylinderColliderShape {
     private static _tempVector30: Vector3 = new Vector3();
     /**@internal */
@@ -47,6 +50,12 @@ export class btCylinderColliderShape extends btColliderShape implements ICylinde
         return this._type = btColliderShape.SHAPETYPES_CYLINDER;
     }
 
+    /**
+     * @en Sets the radius of the cylinder.
+     * @param radius The radius of the cylinder.
+     * @zh 设置圆柱体的半径。
+     * @param radius 圆柱体的半径。
+     */
     setRadius(radius: number): void {
         if (this._btShape && this._radius == radius)
             return;
@@ -54,19 +63,34 @@ export class btCylinderColliderShape extends btColliderShape implements ICylinde
         this._createShape();
     }
 
+    /**
+     * @en Sets the height of the cylinder.
+     * @param height The height of the cylinder.
+     * @zh 设置圆柱体的高度。
+     * @param height 圆柱体的高度。
+     */
     setHeight(height: number): void {
         if (this._btShape && this._length == height)
             return;
         this._length = height;
         this._createShape();
     }
+    /**
+     * @en Sets the up axis of the cylinder.
+     * @param upAxis The up axis of the cylinder.
+     * @zh 设置圆柱体的朝上轴。
+     * @param upAxis 圆柱体的朝上轴。
+     */
     setUpAxis(upAxis: number): void {
         if (this._btShape && this._orientation == upAxis)
             return;
         this._orientation = upAxis;
         this._createShape();
     }
-
+    /**
+     * @en Destroys the cylinder collider shape and releases resources.
+     * @zh 销毁圆柱体碰撞器形状并释放资源。
+     */
     destroy(): void {
         super.destroy();
         this._radius = null;

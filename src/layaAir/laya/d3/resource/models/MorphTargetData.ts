@@ -10,6 +10,10 @@ import { Texture2DArray } from "../../../resource/Texture2DArray";
 import { Bounds } from "../../math/Bounds";
 import { MorphTarget, MorphTargetChannel } from "./MorphTarget";
 
+/**
+ * @en Morph target data.
+ * @zh 变形目标数据。
+ */
 export class MorphTargetData {
 
     // keep origin insert order
@@ -18,27 +22,51 @@ export class MorphTargetData {
 
     private channels: Array<MorphTargetChannel>;
 
+    /**
+     * @en The count of vertices in the morph target data.
+     * @zh 变形目标数据中的顶点计数。
+     */
     vertexCount: number;
 
     /**
-     * // todo 移除  
-     * // 改为 从 VertexDeclaration 中获取
-     * morph target attribute element count
+     * @en Removed, replaced by getting it from the VertexDeclaration.
+     * @zh 移除，改为从 VertexDeclaration 中获取
      */
     elementCount: number;
 
-    /**@internal */
+    /**
+     * @internal
+     * @en The attribute offset vector.
+     * @zh 属性偏移向量。
+     */
     attributeOffset: Vector4;
-    /**@internal */
+    /**
+     * @internal
+     * @en The parameters vector.
+     * @zh 参数向量。
+     */
     params: Vector4;
 
-    /** @internal */
+    /**
+     * @internal
+     * @en The target texture for morph targets, used internally.
+     * @zh 用于变形目标的内部目标纹理。
+     */
     targetTexture: Texture2DArray;
 
+    /**
+     * @en The vertex declaration associated with the morph target data.
+     * @zh 与变形目标数据关联的顶点声明。
+     */
     vertexDec: VertexDeclaration;
 
+    /**
+     * @en The bounding box.
+     * @zh 包围盒
+     */
     bounds: Bounds;
 
+    /** @ignore */
     constructor() {
         this.targets = new Array();
         this.channels = new Array();
@@ -46,6 +74,13 @@ export class MorphTargetData {
         this.params = new Vector4();
     }
 
+
+    /**
+     * @en Adds a morph target channel to the data.
+     * @param channel The morph target channel to add.
+     * @zh 向数据添加一个变形目标通道。
+     * @param channel 要添加的变形目标通道。
+     */
     addMorphChannel(channel: MorphTargetChannel) {
 
         channel._index = this.channels.length;
@@ -57,26 +92,53 @@ export class MorphTargetData {
         })
     }
 
+    /**
+     * @en Retrieves a morph target channel by its name.
+     * @param name The name of the morph target channel to retrieve.
+     * @returns The morph target channel with the specified name.
+     * @zh 通过名称检索变形目标通道。
+     * @param name 要检索的变形目标通道的名称。
+     * @returns 具有指定名称的变形目标通道。
+     */
     getMorphChannel(name: string): MorphTargetChannel {
         // return this.targets.find(value => value.name == name);
         return this.channels.find(value => value.name == name);
     }
 
+    /**
+     * @en Retrieves a morph target channel by its index.
+     * @param index The index of the morph target channel to retrieve.
+     * @returns The morph target channel at the specified index.
+     * @zh 通过索引检索变形目标通道。
+     * @param index 要检索的变形目标通道的索引。
+     * @returns 在指定索引处的变形目标通道。
+     */
     getMorphChannelbyIndex(index: number) {
         return this.channels[index];
     }
 
     /**
      * @internal
+     * @en The count of morph targets.
+     * @zh 变形目标的计数。
      */
     get targetCount(): number {
         return this.targets.length;
     }
 
+    /**
+     * @internal
+     * @en The count of morph target channels.
+     * @zh 变形目标通道的计数。
+     */
     get channelCount(): number {
         return this.channels.length;
     }
 
+    /**
+     * @en Initializes the data for the morph targets.
+     * @zh 初始化变形目标的数据。
+     */
     initData() {
         if (LayaGL.renderEngine.getCapable(RenderCapable.Texture3D)) {
             let targetNum = this.targets.length;
@@ -149,6 +211,10 @@ export class MorphTargetData {
         }
     }
 
+    /**
+     * @en Cleans up and destroys the resources associated with the morph target data.
+     * @zh 清理并销毁与变形目标数据关联的资源。
+     */
     destroy() {
         if (this.targetTexture) {
             this.targetTexture.lock = false;
@@ -161,6 +227,12 @@ export class MorphTargetData {
         this.channels = null;
     }
 
+    /**
+     * @en Clone the morph target data.
+     * @returns A cloned instance of the morph target data.
+     * @zh 克隆变形目标数据。
+     * @returns 变形目标数据的克隆实例。
+     */
     clone(): MorphTargetData {
         let res = new MorphTargetData();
 
@@ -180,12 +252,12 @@ export class MorphTargetData {
             let targetCount = channel.targetCount;
             for (let targetIndex = 0; targetIndex < targetCount; targetIndex++) {
                 let target = channel.getTargetByIndex(targetIndex);
-                
+
                 let newTarget = new MorphTarget();
                 newTarget.name = target.name;
                 newTarget.fullWeight = target.fullWeight;
                 newTarget.data = new Float32Array(target.data);
-                
+
                 newChannel.addTarget(newTarget);
             }
 

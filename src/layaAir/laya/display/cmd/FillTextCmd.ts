@@ -6,6 +6,7 @@ import { ILaya } from "../../../ILaya";
 import { Const } from "../../Const";
 import { ClassUtils } from "../../utils/ClassUtils";
 import { Config } from "../../../Config";
+import { Rectangle } from "../../maths/Rectangle";
 
 /**
  * @en Draw text command
@@ -38,6 +39,7 @@ export class FillTextCmd {
     private _align: number;
     private _fontObj: FontInfo;
 
+    private _loosyBound:Rectangle=null;
     /**
      * @en Text content
      * @zh 文本内容
@@ -207,6 +209,39 @@ export class FillTextCmd {
         this._color = value;
         this._wordText && this._wordText.cleanCache();
     }
+
+
+
+    getBoundPoints(sp?: { width: number, height?: number }): number[] {
+        if(!this._loosyBound){
+            let ctx = ILaya.Browser.context;
+            ctx.save();
+            ctx.font = this.font;
+            let size = ctx.measureText(this.text);
+            let w = size.width;
+            ctx.restore();
+            let x = this.x;
+            let y = this.y;
+
+            switch(this._align){
+                case Const.ENUM_TEXTALIGN_CENTER:
+                    x-=w/2;
+                break;
+                case Const.ENUM_TEXTALIGN_RIGHT:
+                    x-=w;
+                break;
+                default:
+                break;
+            }
+            //留一些余量
+            x-=4;
+            y-=this._fontObj._size;            
+            this._loosyBound = new Rectangle(x,y,w+8,this._fontObj._size*2);
+        }
+
+        return Rectangle._getBoundPointS(this._loosyBound.x, this._loosyBound.y, this._loosyBound.width, this._loosyBound.height, null)
+    }
+
 }
 
 ClassUtils.regClass("FillTextCmd", FillTextCmd);

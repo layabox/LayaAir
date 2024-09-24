@@ -129,6 +129,7 @@ import { FogDemo } from "../3d/LayaAir3D_Scene3D/FogDemo";
 import BlendShapeDemo from "../3d/LayaAir3D_Mesh/BlendShapeDemo";
 import { PostProcess_LensFlare } from "../3d/LayaAir3D_PostProcess/PostPorcess_LensFlare";
 import { NavMeshDemo } from "../3d/LayaAir3D_Advance/navMeshDemo";
+import { Config } from "Config";
 
 export class IndexView3D extends IndexViewUI {
 
@@ -326,6 +327,7 @@ export class IndexView3D extends IndexViewUI {
 		}
 		this.m_length += 1;
 		this.onClearPreBox();
+		this.resetConfig();
 		this._smallIndex = index;
 		if (false) {
 			if (this.i % 2 == 0) {
@@ -450,6 +452,14 @@ export class IndexView3D extends IndexViewUI {
 		Resource.destroyUnusedResources();
 		URL.basePath = this.oldPath;//还原BasePath
 
+	}
+
+	/**
+	 * 恢复默认Config配置
+	 */
+	private resetConfig(): void {
+		Config.isAlpha = false;
+		Config.useRetinalCanvas = false;
 	}
 
 	/**

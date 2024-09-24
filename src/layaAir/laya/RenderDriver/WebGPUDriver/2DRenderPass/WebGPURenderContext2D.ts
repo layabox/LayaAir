@@ -28,6 +28,8 @@ export class WebGPURenderContext2D implements IRenderContext2D {
     cameraData: WebGPUShaderData = new WebGPUShaderData();
     _globalConfigShaderData: WebDefineDatas;
     renderCommand: WebGPURenderCommandEncoder = new WebGPURenderCommandEncoder(); //渲染命令编码器
+    pipelineCache: any[] = []; //所有的2D渲染管线缓存
+
     private _offscreenWidth: number;
     private _offscreenHeight: number;
     private _needClearColor: boolean;

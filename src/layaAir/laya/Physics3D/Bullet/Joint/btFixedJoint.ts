@@ -4,9 +4,18 @@ import { btRigidBodyCollider } from "../Collider/btRigidBodyCollider";
 import { btPhysicsCreateUtil } from "../btPhysicsCreateUtil";
 import { btPhysicsManager } from "../btPhysicsManager";
 import { btJoint } from "./btJoint";
-
+/**
+ * @en Class `btFixedJoint` is used to create a fixed joint in the physical engine.
+ * @zh 类`btFixedJoint`用于在物理引擎中创建固定关节。
+ */
 export class btFixedJoint extends btJoint implements IFixedJoint {
 
+    /**
+     * @en Creates an instance of `btFixedJoint`.
+     * @param manager The physics manager that will handle this joint.
+     * @zh 创建一个实例`btFixedJoint`。
+     * @param manager 将处理这个关节的物理管理器。
+     */
     constructor(manager: btPhysicsManager) {
         super(manager);
     }

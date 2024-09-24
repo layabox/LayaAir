@@ -4,7 +4,8 @@ import { Mesh } from "../resource/models/Mesh";
 import { MeshRenderer } from "./MeshRenderer";
 
 /**
- * <code>MeshFilter</code> 类用于创建网格过滤器。
+ * @en The `MeshFilter` class is used to create mesh filters.
+ * @zh `MeshFilter` 类用于创建网格过滤器。
  */
 export class MeshFilter extends Component {
     /** @internal */
@@ -36,7 +37,8 @@ export class MeshFilter extends Component {
     }
 
     /**
-     * 共享网格。
+     * @en The shared mesh of the MeshFilter.
+     * @zh 共享网格。
      */
     get sharedMesh(): Mesh {
         return this._sharedMesh;
@@ -73,7 +75,10 @@ export class MeshFilter extends Component {
 
     /**
      * @internal
-     * @param dest 
+     * @en Clone the component to another object.
+     * @param dest The destination component.
+     * @zh 克隆组件到另一个对象。
+     * @param dest 目标组件。
      */
     _cloneTo(dest: Component): void {
         let meshfilter = dest as MeshFilter;

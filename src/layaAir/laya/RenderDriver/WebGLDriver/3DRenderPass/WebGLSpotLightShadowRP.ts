@@ -134,7 +134,7 @@ export class WebGLSpotLightShadowRP {
         this._renderQueue.renderQueue(context);
         this._applyCasterPassCommandBuffer(context);
         this._applyRenderData(context.sceneData, context.cameraData);
-
+        this._renderQueue._batch.recoverData();
         context.cameraData = originCameraData;
         context.cameraUpdateMask++;
     }

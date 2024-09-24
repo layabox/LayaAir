@@ -10,39 +10,28 @@ import { LayaEnv } from "../../LayaEnv";
 export type LabelFitContent = "no" | "yes" | "height";
 
 /**
- * @en Scheduling after text content changes.
- * @zh 文本内容发生改变后调度。
- * @eventType laya.events.Event
- */
-/*[Event(name = "change", type = "laya.events.Event")]*/
-
-/**
  * @en The Label class is used to create display objects to display text
+ * `change` event is dispatched when the text content changes.
  * @zh Label 类用于创建显示对象以显示文本。
- * @see laya.display.Text
+ * `change`事件用于文本内容发生改变后调度。
  */
 export class Label extends UIComponent {
 
     /**
-     * @internal
      * @en Text instance.
      * @zh 文本 Text 实例。
      */
     protected _tf: Text;
-    /**@internal */
     protected _fitContent: LabelFitContent;
-    /** @internal */
     private _fitFlag: boolean;
 
     /**
      * @en Current text content string.
      * @zh 当前文本内容字符串。
-     * @see laya.display.Text.text
      */
     get text(): string {
         return this._tf.text;
     }
-
     set text(value: string) {
         this._tf.text = value;
     }
@@ -51,12 +40,10 @@ export class Label extends UIComponent {
      * @en Whether the text automatically wraps when it reaches the maximum width.
      * @zh 文本是否在达到最大宽度时自动换行。
      * 值为 true，则该文本字段自动换行；值为 false，则该文本字段不自动换行。
-     * @copy laya.display.Text#wordWrap
      */
     get wordWrap(): boolean {
         return this._tf.wordWrap;
     }
-
     set wordWrap(value: boolean) {
         this._tf.wordWrap = value;
     }
@@ -64,7 +51,6 @@ export class Label extends UIComponent {
     /**
      * @en Color of the text.
      * @zh 文本颜色。
-     * @copy laya.display.Text#color
      */
     get color(): string {
         return this._tf.color;
@@ -77,7 +63,6 @@ export class Label extends UIComponent {
     /**
      * @en Font of the text.
      * @zh 文本字体。
-     * @copy laya.display.Text#font
      */
     get font(): string {
         return this._tf.font;
@@ -90,7 +75,6 @@ export class Label extends UIComponent {
     /**
      * @en Horizontal alignment of the text within the label.
      * @zh 文本的水平对齐方式。
-     * @copy laya.display.Text#align
      */
     get align(): string {
         return this._tf.align;
@@ -103,7 +87,6 @@ export class Label extends UIComponent {
     /**
      * @en Vertical alignment of the text within the label.
      * @zh 文本的垂直对齐方式。
-     * @copy laya.display.Text#valign
      */
     get valign(): string {
         return this._tf.valign;
@@ -115,8 +98,7 @@ export class Label extends UIComponent {
 
     /**
      * @en The alignment of images and text when mixed. The optional values are top, middle, and bottom.
-     * @zh 图文混排时图片和文字的对齐方式。可选值是top,middle,bottom
-     * @copy laya.display.Text#alignItems
+     * @zh 图文混排时图片和文字的对齐方式。可选值是top,middle,bottom。
      */
     get alignItems(): string {
         return this._tf.alignItems;
@@ -129,7 +111,6 @@ export class Label extends UIComponent {
     /**
      * @en Whether the text is bold.
      * @zh 文本是否加粗。
-     * @copy laya.display.Text#bold
      */
     get bold(): boolean {
         return this._tf.bold;
@@ -142,7 +123,6 @@ export class Label extends UIComponent {
     /**
      * @en Whether the text is italic.
      * @zh 文本是否斜体。
-     * @copy laya.display.Text#italic
      */
     get italic(): boolean {
         return this._tf.italic;
@@ -155,7 +135,6 @@ export class Label extends UIComponent {
     /**
      * @en Space between lines of text.
      * @zh 文本行之间的间距（以像素为单位）
-     * @copy laya.display.Text#leading
      */
     get leading(): number {
         return this._tf.leading;
@@ -168,7 +147,6 @@ export class Label extends UIComponent {
     /**
      * @en Font size of the text.
      * @zh 文本的字号大小。
-     * @copy laya.display.Text#fontSize
      */
     get fontSize(): number {
         return this._tf.fontSize;
@@ -195,7 +173,6 @@ export class Label extends UIComponent {
     /**
      * @en Background color of the label.
      * @zh 文本标签的背景颜色。
-     * @copy laya.display.Text#bgColor
      */
     get bgColor(): string {
         return this._tf.bgColor
@@ -208,7 +185,6 @@ export class Label extends UIComponent {
     /**
      * @en Border color of the label.
      * @zh 文本标签的边框颜色。
-     * @copy laya.display.Text#borderColor
      */
     get borderColor(): string {
         return this._tf.borderColor
@@ -221,7 +197,6 @@ export class Label extends UIComponent {
     /**
      * @en Stroke width of the text stroke.
      * @zh 文本描边的宽度（以像素为单位），默认值为0，表示不描边。
-     * @copy laya.display.Text#stroke
      */
     get stroke(): number {
         return this._tf.stroke;
@@ -234,7 +209,6 @@ export class Label extends UIComponent {
     /**
      * @en Color of the text stroke.
      * @zh 文本描边的颜色。
-     * @copy laya.display.Text#strokeColor
      */
     get strokeColor(): string {
         return this._tf.strokeColor;
@@ -330,7 +304,6 @@ export class Label extends UIComponent {
      * 滚动，表示超出宽高的部分被隐藏，可以通过划动控制显示在宽高内区域；
      * 自动收缩，表示文本会跟随宽高的大小而自动调整文本的大小，始终全部显示在文本宽高内；
      * 显示省略号，表示当文本超出宽高后，未尾的几位字符会替换为省略号，表示当前文本还有未显示的内容。
-     * @copy laya.display.Text#overflow
      */
 
     get overflow(): string {
@@ -344,7 +317,6 @@ export class Label extends UIComponent {
     /**
      * @en Text decoration style of the text, specifically whether it is underlined.
      * @zh 文本是否显示下划线。
-     * @copy laya.display.Text#underline
      */
     get underline(): boolean {
         return this._tf.underline;
@@ -357,7 +329,6 @@ export class Label extends UIComponent {
     /**
      * @en Color of the text underline.
      * @zh 文本下划线的颜色。
-     * @copy laya.display.Text#underlineColor
      */
     get underlineColor(): string {
         return this._tf.underlineColor;
@@ -370,7 +341,6 @@ export class Label extends UIComponent {
     /**
      * @en Text decoration style of the text, specifically whether it is underlined.
      * @zh 文本是否显示下划线。
-     * @copy laya.display.Text#underline
      */
     get strikethrough(): boolean {
         return this._tf.strikethrough;
@@ -383,7 +353,6 @@ export class Label extends UIComponent {
     /**
      * @en Color of the text underline.
      * @zh 文本下划线的颜色。
-     * @copy laya.display.Text#underlineColor
      */
     get strikethroughColor(): string {
         return this._tf.strikethroughColor;
@@ -396,7 +365,6 @@ export class Label extends UIComponent {
     /**
      * @en Whether the text ignores language localization.
      * @zh 文本是否忽略语言本地化。
-     * @copy laya.display.Text#ignoreLang
      */
     get ignoreLang(): boolean {
         return this._tf.ignoreLang;
@@ -440,6 +408,7 @@ export class Label extends UIComponent {
         return this;
     }
 
+    /** @ignore */
     constructor(text?: string) {
         super();
         this._fitContent = "no";
@@ -447,7 +416,6 @@ export class Label extends UIComponent {
             this.text = text;
     }
 
-    /**@internal */
     protected _onPostLayout() {
         if ((this._fitContent == "yes" || this._fitContent == "height") && (LayaEnv.isPlaying || this._tf.textWidth > 0 && this._tf.textHeight > 0)) {
             this._fitFlag = true;
@@ -461,8 +429,6 @@ export class Label extends UIComponent {
 
     /**
      * @internal
-     * @inheritDoc
-     * @override
      */
     _setWidth(value: number): void {
         super._setWidth(value);
@@ -471,18 +437,12 @@ export class Label extends UIComponent {
 
     /**
      * @internal
-     * @inheritDoc
-     * @override
      */
     _setHeight(value: number) {
         super._setHeight(value);
         this._tf.height = value;
     }
 
-    /**
-     * @override
-     * @inheritDoc 
-    */
     protected createChildren(): void {
         this._tf = new Text();
         this._tf.hideFlags = HideFlags.HideAndDontSave;
@@ -496,28 +456,14 @@ export class Label extends UIComponent {
         this.addChild(this._tf);
     }
 
-    /**
-     * @internal
-     * @inheritDoc
-     * @override
-     */
     protected measureWidth(): number {
         return this._tf.width;
     }
 
-    /**
-     * @internal
-     * @inheritDoc
-     * @override
-     */
     protected measureHeight(): number {
         return this._tf.height;
     }
 
-    /**
-     * @inheritDoc
-     * @override
-     */
     get_width(): number {
         if (this._isWidthSet || this._tf.text) return super.get_width();
         return 0;
@@ -535,10 +481,6 @@ export class Label extends UIComponent {
         super.set_width(value);
     }
 
-    /**
-     * @inheritDoc
-     * @override
-     */
     get_height(): number {
         if (this._isHeightSet || this._tf.text) return super.get_height();
         return 0;
@@ -556,10 +498,6 @@ export class Label extends UIComponent {
         super.set_height(value);
     }
 
-    /**
-     * @inheritDoc 
-     * @override
-     */
     set_dataSource(value: any) {
         this._dataSource = value;
         if (typeof (value) == 'number' || typeof (value) == 'string')
@@ -567,6 +505,5 @@ export class Label extends UIComponent {
         else
             super.set_dataSource(value);
     }
-
 
 }

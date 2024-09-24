@@ -1,11 +1,15 @@
 /**
-	 * <code>Rand</code> 类用于通过32位无符号整型随机种子创建随机数。
-	 */
+ * @en The Rand class is used to create random numbers using a 32-bit unsigned integer seed.
+ * @zh Rand 类用于通过32位无符号整型随机种子创建随机数。
+ */
 export class Rand {
 	/**
-	 * 通过无符号32位整形，获取32位浮点随机数。
-	 * @param 无符号32位整形随机数。
-	 * @return 32位浮点随机数。
+	 * @en Obtain unsigned 32-bit floating-point random numbers through unsigned 32-bit shaping
+	 * @param v The unsigned 32-bit integer random number.
+	 * @returns The 32-bit floating-point random number.
+	 * @zh 通过无符号32位整形，获取32位浮点随机数。
+	 * @param v 无符号32位整数随机数。
+	 * @returns 32位浮点随机数。
 	 */
 	static getFloatFromInt(v: number): number {
 		// take 23 bits of integer, and divide by 2^23-1
@@ -13,9 +17,12 @@ export class Rand {
 	}
 
 	/**
-	 * 通过无符号32位整形，获取无符号8位字节随机数。
-	 * @param 无符号32位整形随机数。
-	 * @return 无符号8位字节随机数。
+	 * @en Obtain an unsigned 8-bit byte random number through unsigned 32-bit shaping.
+	 * @param v The unsigned 32-bit integer random number.
+	 * @returns The unsigned 8-bit byte random number.
+	 * @zh 通过无符号32位整形，获取无符号8位字节随机数。
+	 * @param v 无符号32位整数随机数。
+	 * @returns 无符号8位字节随机数。
 	 */
 	static getByteFromInt(v: number): number {//TODO：待验证函数
 		// take the most significant byte from the 23-bit value
@@ -25,21 +32,20 @@ export class Rand {
 	/**@internal */
 	private _temp: Uint32Array = new Uint32Array(1);
 
-	/**获取随机种子。*/
+	/**
+	 * @en Obtain random seeds
+	 * @zh 获取随机种子。
+	 */
 	seeds: Uint32Array = new Uint32Array(4);
 
 	/**
-	 * 获取随机种子。
-	 * @return 随机种子。
+	 * @en The random seed.
+	 * @zh 随机种子。
 	 */
 	get seed(): number {
 		return this.seeds[0];
 	}
 
-	/**
-	 * 设置随机种子。
-	 * @param	seed 随机种子。
-	 */
 	set seed(seed: number) {
 		this.seeds[0] = seed;
 		this.seeds[1] = this.seeds[0] * 0x6C078965/*1812433253U*/ + 1;
@@ -48,7 +54,9 @@ export class Rand {
 	}
 
 	/**
-	 * 创建一个 <code>Rand</code> 实例。
+	 * @en Constructor method.
+	 * @param	seed  32bit unsigned integer random seed.
+	 * @zh 构造方法。
 	 * @param	seed  32位无符号整型随机种子。
 	 */
 	constructor(seed: number) {
@@ -59,8 +67,10 @@ export class Rand {
 	}
 
 	/**
-	 * 获取无符号32位整形随机数。
-	 * @return 无符号32位整形随机数。
+	 * @en Gets an unsigned 32-bit integer random number.
+	 * @returns The unsigned 32-bit integer random number.
+	 * @zh 获取无符号32位整数随机数
+	 * @returns 无符号32位整数随机数。
 	 */
 	getUint(): number {
 		this._temp[0] = this.seeds[0] ^ (this.seeds[0] << 11);
@@ -72,8 +82,10 @@ export class Rand {
 	}
 
 	/**
-	 * 获取0到1之间的浮点随机数。
-	 * @return 0到1之间的浮点随机数。
+	 * @en Gets a floating-point random number between 0 and 1.
+	 * @returns The floating-point random number between 0 and 1.
+	 * @zh 获取0到1之间的浮点随机数。
+	 * @returns 0到1之间的浮点随机数。
 	 */
 	getFloat(): number {
 		this.getUint();
@@ -81,8 +93,10 @@ export class Rand {
 	}
 
 	/**
-	 * 获取-1到1之间的浮点随机数。
-	 * @return -1到1之间的浮点随机数。
+	 * @en Gets a floating-point random number between -1 and 1.
+	 * @returns The floating-point random number between -1 and 1.
+	 * @zh 获取-1到1之间的浮点随机数。
+	 * @returns -1到1之间的浮点随机数。
 	 */
 	getSignedFloat(): number {
 		return this.getFloat() * 2.0 - 1.0;

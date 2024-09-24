@@ -16,35 +16,30 @@ import { SerializeUtil } from "../loaders/SerializeUtil";
 export class UIComponent extends Sprite {
 
     /**
-     * @internal
      * @en The data source of the UIComponent.
      * @zh UI组件的数据源。
      */
     protected _dataSource: any;
 
     /**
-     * @internal
      * @en Mouse hover prompt
      * @zh 鼠标悬停提示
      */
     protected _toolTip: any;
 
     /**
-     * @internal
      * @en Disabled
      * @zh 禁用
      */
     protected _disabled: boolean;
 
     /**
-     * @internal
      * @en Grayed out
      * @zh 变灰
      */
     protected _gray: boolean;
 
     /**
-     * @internal
      * @en Relative layout component
      * @zh 相对布局组件
      */
@@ -251,7 +246,6 @@ export class UIComponent extends Sprite {
     }
 
     /**
-     * @internal
      * @en Called when the layout should be refreshed.
      * This method will call the `_sizeChanged` method later to perform the actual layout refresh.
      * @zh 当需要刷新布局时调用。
@@ -263,7 +257,6 @@ export class UIComponent extends Sprite {
     }
 
     /**
-     * @internal
      * @en Callback function when the component size changes.
      * @zh 组件尺寸变化时的回调函数。
      */
@@ -273,8 +266,6 @@ export class UIComponent extends Sprite {
     }
 
     /**
-    * @internal
-    * @override
     * @en Callback when a child node changes.
     * @param child The child node that has changed.
     * @zh 子节点发生变化时的回调。
@@ -286,7 +277,6 @@ export class UIComponent extends Sprite {
     }
 
     /**
-     * @internal
      * @en Get the layout style of the object. Please do not modify this object directly.
      * @zh 获取对象的布局样式。请不要直接修改此对象。
      */
@@ -296,7 +286,6 @@ export class UIComponent extends Sprite {
     }
 
     /**
-     * @internal
      * @en Pre-initialization.
      * Subclasses can set and modify default property values in this function.
      * @zh 预初始化。
@@ -306,7 +295,6 @@ export class UIComponent extends Sprite {
     }
 
     /**
-     * @internal
      * @en Create and add UIComponent child nodes.
      * Subclasses can create and add child nodes in this function.
      * @zh 创建并添加UI组件的子节点。
@@ -316,7 +304,6 @@ export class UIComponent extends Sprite {
     }
 
     /**
-     * @internal
      * @en UIComponent initialization.
      * Child objects have been created at this point and can be modified.
      * @zh UI组件初始化。
@@ -326,7 +313,6 @@ export class UIComponent extends Sprite {
     }
 
     /**
-     * @internal
      * @en The actual display area width of the object (in pixels).
      * @zh 显示对象的实际显示区域宽度（以像素为单位）。
      */
@@ -343,19 +329,15 @@ export class UIComponent extends Sprite {
     }
 
     /**
-     * @internal
      * @en Immediately execute the delayed call function that affects the width and height measurement.
      * Use the 'runCallLater' function to immediately execute the delayed running function that affects the width and height measurement (set using 'callLater').
      * @zh 立即执行影响宽高度量的延迟调用函数。
      * 使用 'runCallLater' 函数，立即执行影响宽高度量的延迟运行函数(使用 'callLater' 设置延迟执行函数)。
-     * @see #callLater()
-     * @see #runCallLater()
      */
     protected commitMeasure(): void {
     }
 
     /**
-     * @internal
      * @en The actual display area height of the object (in pixels).
      * @zh 显示对象的实际显示区域高度（以像素为单位）。
      */
@@ -372,7 +354,6 @@ export class UIComponent extends Sprite {
     }
 
     /**
-     * @internal
      * @en The event handler for the 'Event.MOUSE_OVER' event, triggered when the mouse enters the component (the node object to which the component belongs).
      * When the 'toolTip' property is set, this method is invoked to dispatch the 'UIEvent.SHOW_TIP' event with the '_toolTip' property as the parameter.
      * @param e The event object.
@@ -385,7 +366,6 @@ export class UIComponent extends Sprite {
     }
 
     /**
-     * @internal
      * @en The event handler for the 'Event.MOUSE_OUT' event, triggered when the mouse leaves the component (the node object to which the component belongs).
      * When the 'toolTip' property is set, this method is invoked to dispatch the 'UIEvent.HIDE_TIP' event with the '_toolTip' property as the parameter.
      * @param e The event object.
@@ -398,7 +378,6 @@ export class UIComponent extends Sprite {
     }
 
     /**
-     * @internal
      * @en The method to be invoked when the component is resized.
      * It handles the logic for when the component's size changes.
      * @zh 组件大小调整时调用的方法。
@@ -409,10 +388,8 @@ export class UIComponent extends Sprite {
     }
 
     /**
-     * @internal
      * @en Get the width of the object.
      * @zh 获取对象的宽度。
-     * @override
      */
     get_width(): number {
         if (this._isWidthSet) return this._width;
@@ -420,10 +397,8 @@ export class UIComponent extends Sprite {
     }
 
     /**
-     * @internal
      * @en Get the height of the object.
      * @zh 获取对象的高度。
-     * @override
      */
     get_height(): number {
         if (this._isHeightSet) return this._height;
@@ -431,7 +406,6 @@ export class UIComponent extends Sprite {
     }
 
     /**
-     * @internal
      * @en Get the top margin of the object.
      * @zh 获取对象的上边距。
      */
@@ -440,7 +414,6 @@ export class UIComponent extends Sprite {
     }
 
     /**
-     * @internal
      * @en Set the top margin of the object.
      * @param value The top margin value.
      * @zh 设置对象的上边距。
@@ -453,7 +426,6 @@ export class UIComponent extends Sprite {
     }
 
     /**
-     * @internal
      * @en Get the bottom margin of the object.
      * @zh 获取对象的下边距。
      */
@@ -462,7 +434,6 @@ export class UIComponent extends Sprite {
     }
 
     /**
-     * @internal
      * @en Set the bottom margin of the object.
      * @param value The bottom margin value.
      * @zh 设置对象的下边距。
@@ -475,7 +446,6 @@ export class UIComponent extends Sprite {
     }
 
     /**
-     * @internal
      * @en Get the data source of the object.
      * @zh 获取对象的数据源。
      */
@@ -484,7 +454,6 @@ export class UIComponent extends Sprite {
     }
 
     /**
-     * @internal
      * @en Set the data source of the object.
      * @param value The data source.
      * @zh 设置对象的数据源。
@@ -515,7 +484,6 @@ export class UIComponent extends Sprite {
     }
 
     /**
-     * @override
      * @en Destroy the object.
      * @param destroyChild Whether to destroy child nodes, default is true.
      * @zh 销毁对象。

@@ -40,7 +40,8 @@ export class skinnedMatrixCache {
 }
 
 /**
- * <code>Mesh</code> 类用于创建文件网格数据模板。
+ * @en Mesh class is used to create a template for file mesh data.
+ * @zh Mesh 类用于创建文件网格数据模板。
  */
 export class Mesh extends Resource implements IClone {
     /**@internal */
@@ -66,9 +67,12 @@ export class Mesh extends Resource implements IClone {
 
 
     /**
-     * 加载网格模板。
-     * @param url 模板地址。
-     * @param complete 完成回调。
+     * @en Loads a mesh template from the specified URL and calls the complete callback upon completion.
+     * @param url The URL of the mesh template.
+     * @param complete The callback function to call when the mesh is loaded.
+     * @zh 从指定的URL加载网格模板，并在加载完成后执行完成回调。
+     * @param url 网格模板的URL。
+     * @param complete 加载完成后的回调函数。
      */
     static load(url: string, complete: Handler): void {
         ILaya.loader.load(url, complete, null, Loader.MESH);
@@ -121,7 +125,8 @@ export class Mesh extends Resource implements IClone {
     instanceLightMapScaleOffsetData: Float32Array;
 
     /**
-     * 变形目标数据
+     * @en Morph target data for the mesh.
+     * @zh 网格的变形目标数据。
      */
     morphTargetData: MorphTargetData;
 
@@ -132,65 +137,58 @@ export class Mesh extends Resource implements IClone {
     _height: number;
 
     /**
-     * 网格的全局默认绑定动作逆矩阵。
+     * @en The array of inverse absolute bind poses for the mesh.
+     * @zh 网格的全局默认绑定动作逆矩阵数组。
      */
     get inverseAbsoluteBindPoses(): Matrix4x4[] {
         return this._inverseBindPoses;
     }
 
     /**
-     * 获取顶点个数。
+     * @en The number of vertices in the mesh.
+     * @zh 网格中的顶点数。
      */
     get vertexCount(): number {
         return this._vertexCount;
     }
 
     /**
-     * 获取索引个数。
-     * @returns 索引个数
+     * @en The number of indices in the mesh.
+     * @zh 网格中的索引个数。
      */
     get indexCount(): number {
         return this._indexBuffer.indexCount;
     }
 
     /**
-     * SubMesh的个数。
-     * @returns SubMesh的个数
+     * @en The number of SubMeshes in the mesh.
+     * @zh 子网格的个数。
      */
     get subMeshCount(): number {
         return this._subMeshes.length;
     }
 
     /**
-     * 边界。
-     * @returns 边界
+     * @en The bounds of the mesh.
+     * @zh 网格的边界
      */
     get bounds(): Bounds {
         return this._bounds;
     }
 
-    /**
-     * 设置边界
-     * @param 边界
-     */
     set bounds(value: Bounds) {
         if (this._bounds !== value)
             value.cloneTo(this._bounds);
     }
 
     /**
-     * 索引格式。
-     * @returns 索引格式
+     * @en The index format of the mesh.
+     * @zh 网格的索引格式。
      */
     get indexFormat(): IndexFormat {
         return this._indexFormat;
     }
 
-
-    /**
-     * 设置indexformat
-     * @param 索引格式
-     */
     set indexFormat(value: IndexFormat) {
         this._indexFormat = value
         this._subMeshes.forEach(element => {
@@ -199,7 +197,9 @@ export class Mesh extends Resource implements IClone {
     }
 
     /**
-     * 创建一个 <code>Mesh</code> 实例,禁止使用。
+     * @en Constructor method, do not use.
+     * @param isReadable 是否可读。
+     * @zh 构造方法，禁止使用。
      * @param isReadable 是否可读。
      */
     constructor(isReadable: boolean = true) {
@@ -458,16 +458,23 @@ export class Mesh extends Resource implements IClone {
     }
 
     /**
-     * 根据获取子网格。
-     * @param index 索引。
+     * @en Retrieves a sub-mesh based on the index.
+     * @param index The index of the sub-mesh.
+     * @returns The sub-mesh at the specified index.
+     * @zh 根据索引获取子网格。
+     * @param index 子网格的索引。
+     * @returns 索引处的子网格。
      */
     getSubMesh(index: number): SubMesh {
         return this._subMeshes[index];
     }
 
     /**
-     * 拷贝并填充位置数据至数组。
-     * @param positions 位置数组。
+     * @en Copies and fills position data into an array.
+     * @param positions The array to fill with position data.
+     * @remark This method is a copy operation, which may be time-consuming.
+     * @zh 拷贝并填充位置数据至数组。
+     * @param positions 用于填充位置数据的数组。
      * @remark 该方法为拷贝操作，比较耗费性能。
      */
     getPositions(positions: Vector3[]): void {
@@ -478,8 +485,10 @@ export class Mesh extends Resource implements IClone {
     }
 
     /**
-     * 设置位置数据。
-     * @param positions 位置。
+     * @en Sets the position data.
+     * @param positions The new position data to set.
+     * @zh 设置位置数据。
+     * @param positions 要设置的新位置数据。
      */
     setPositions(positions: Vector3[]): void {
         if (this._isReadable) {
@@ -492,9 +501,12 @@ export class Mesh extends Resource implements IClone {
     }
 
     /**
-     * 拷贝并填充颜色数据至数组。
-     * @param colors 颜色数组。
-     * @remark 该方法为拷贝操作，比较耗费性能。
+     * @en Copies and fills color data into an array.
+     * @param colors The array to fill with color data.
+     * @remark This method is a copy operation, which may be time-consuming.
+     * @zh 拷贝并填充颜色数据至数组。
+     * @param colors 用于填充颜色数据的数组。
+     * @remark 该方法为拷贝操作，比较耗费性
      */
     getColors(colors: Color[]): void {
         if (this._isReadable)
@@ -504,8 +516,10 @@ export class Mesh extends Resource implements IClone {
     }
 
     /**
-     * 设置颜色数据。
-     * @param colors  颜色。
+     * @en Sets the color data.
+     * @param colors The new color data to set.
+     * @zh 设置颜色数据。
+     * @param colors 要设置的新颜色数据。
      */
     setColors(colors: Color[]): void {
         if (this._isReadable)
@@ -515,7 +529,11 @@ export class Mesh extends Resource implements IClone {
     }
 
     /**
-     * 拷贝并填充纹理坐标数据至数组。
+     * @en Copies and fills texture coordinate data into an array.
+     * @param uvs The array to fill with texture coordinate data.
+     * @param channel The texture coordinate channel.
+     * @remark This method is a copy operation, which may be time-consuming.
+     * @zh 拷贝并填充纹理坐标数据至数组。
      * @param uvs 纹理坐标数组。
      * @param channel 纹理坐标通道。
      * @remark 该方法为拷贝操作，比较耗费性能。
@@ -539,8 +557,11 @@ export class Mesh extends Resource implements IClone {
     }
 
     /**
-     * 设置纹理坐标数据。
-     * @param uvs 纹理坐标。
+     * @en Sets the texture coordinate data.
+     * @param uvs The new texture coordinate data to set.
+     * @param channel The texture coordinate channel.
+     * @zh 设置纹理坐标数据。
+     * @param uvs 要设置的新纹理坐标数据。
      * @param channel 纹理坐标通道。
      */
     setUVs(uvs: Vector2[], channel: number = 0): void {
@@ -562,8 +583,11 @@ export class Mesh extends Resource implements IClone {
     }
 
     /**
-     * 拷贝并填充法线数据至数组。
-     * @param normals 法线数组。
+     * @en Copies and fills normal data into an array.
+     * @param normals The array to fill with normal data.
+     * @remark This method is a copy operation, which may be time-consuming.
+     * @zh 拷贝并填充法线数据至数组。
+     * @param normals 用于填充法线数据的数组。
      * @remark 该方法为拷贝操作，比较耗费性能。
      */
     getNormals(normals: Vector3[]): void {
@@ -574,8 +598,10 @@ export class Mesh extends Resource implements IClone {
     }
 
     /**
-     * 设置法线数据。
-     * @param normals 法线。 
+     * @en Sets the normal data.
+     * @param normals The new normal data to set.
+     * @zh 设置法线数据。
+     * @param normals 要设置的新法线数据。
      */
     setNormals(normals: Vector3[]): void {
         if (this._isReadable)
@@ -585,8 +611,10 @@ export class Mesh extends Resource implements IClone {
     }
 
     /**
-     * 拷贝并填充切线数据至数组。
-     * @param tangents 切线。
+     * @en Copies and fills tangent data into an array.
+     * @param tangents The array to fill with tangent data.
+     * @zh 拷贝并填充切线数据至数组。
+     * @param tangents 用于填充切线数据的数组。
      */
     getTangents(tangents: Vector4[]): void {
         if (this._isReadable)
@@ -596,8 +624,10 @@ export class Mesh extends Resource implements IClone {
     }
 
     /**
-     * 设置切线数据。
-     * @param tangents 切线。
+     * @en Sets the tangent data.
+     * @param tangents The new tangent data to set.
+     * @zh 设置切线数据。
+     * @param tangents 要设置的新切线数据。
      */
     setTangents(tangents: Vector4[]): void {
         if (this._isReadable)
@@ -607,9 +637,11 @@ export class Mesh extends Resource implements IClone {
     }
 
     /**
-    * 获取骨骼权重。
-    * @param boneWeights 骨骼权重。
-    */
+     * @en Copies and fills bone weight data into an array.
+     * @param boneWeights The array to fill with bone weight data.
+     * @zh 拷贝并填充骨骼权重数据至数组。
+     * @param boneWeights 用于填充骨骼权重数据的数组。
+     */
     getBoneWeights(boneWeights: Vector4[]): void {
         if (this._isReadable)
             this._getVerticeElementData(boneWeights, VertexMesh.MESH_BLENDWEIGHT0);
@@ -618,9 +650,11 @@ export class Mesh extends Resource implements IClone {
     }
 
     /**
-    * 拷贝并填充骨骼权重数据至数组。
-    * @param boneWeights 骨骼权重。
-    */
+     * @en Copy and fill the bone weight data into the array.
+     * @param boneWeights Bone weight data.
+     * @zh 拷贝并填充骨骼权重数据至数组。
+     * @param boneWeights 骨骼权重。
+     */
     setBoneWeights(boneWeights: Vector4[]): void {
         if (this._isReadable)
             this._setVerticeElementData(boneWeights, VertexMesh.MESH_BLENDWEIGHT0);
@@ -629,9 +663,11 @@ export class Mesh extends Resource implements IClone {
     }
 
     /**
-    * 获取骨骼索引。
-    * @param boneIndices 骨骼索引。
-    */
+     * @en Gets the bone indices.
+     * @param boneIndices The bone indices
+     * @zh 获取骨骼索引。
+     * @param boneIndices 骨骼索引。
+     */
     getBoneIndices(boneIndices: Vector4[]): void {
         if (this._isReadable)
             this._getVerticeElementData(boneIndices, VertexMesh.MESH_BLENDINDICES0);
@@ -640,9 +676,11 @@ export class Mesh extends Resource implements IClone {
     }
 
     /**
-    * 拷贝并填充骨骼索引数据至数组。
-    * @param boneWeights 骨骼索引。
-    */
+     * @en Sets the bone index data.
+     * @param boneIndices The new bone index data to set.
+     * @zh 设置骨骼索引数据。
+     * @param boneIndices 要设置的新骨骼索引数据。
+     */
     setBoneIndices(boneIndices: Vector4[]): void {
         if (this._isReadable)
             this._setVerticeElementData(boneIndices, VertexMesh.MESH_BLENDINDICES0);
@@ -652,7 +690,8 @@ export class Mesh extends Resource implements IClone {
 
 
     /**
-     * 将Mesh标记为不可读,可减少内存，标记后不可再调用相关读取方法。
+     * @en Marks the Mesh as non-readable, which can reduce memory usage. Once marked, no read methods can be called.
+     * @zh 将Mesh标记为不可读，可以减少内存使用。标记后，不能再调用任何读取方法。
      */
     markAsUnreadbale(): void {
         this._uploadVerticesData();
@@ -661,16 +700,19 @@ export class Mesh extends Resource implements IClone {
     }
 
     /**
-     * 获取顶点声明。
+     * @en Gets the vertex declaration.
+     * @zh 获取顶点声明。
      */
     getVertexDeclaration(): VertexDeclaration {
         return this._vertexBuffer.vertexDeclaration;
     }
 
     /**
-    * 拷贝并获取顶点数据的副本。
-    * @return 顶点数据。
-    */
+     * @en Copies and retrieves a copy of the vertex data.
+     * @returns A copy of the vertex data.
+     * @zh 拷贝并获取顶点数据的副本。
+     * @returns 顶点数据副本。
+     */
     getVertices(): ArrayBuffer {
         if (this._isReadable)
             return this._vertexBuffer.getUint8Data().buffer.slice(0);
@@ -679,17 +721,21 @@ export class Mesh extends Resource implements IClone {
     }
 
     /**
-    * 设置顶点数据。
-    * @param vertices 顶点数据。
-    */
+     * @en Sets the vertex data.
+     * @param vertices The vertex data to set.
+     * @zh 设置顶点数据。
+     * @param vertices 要设置的顶点数据。
+     */
     setVertices(vertices: ArrayBuffer): void {
         this._vertexBuffer.setData(vertices);
         this._needUpdateBounds = true;
     }
 
     /**
-     * 拷贝并获取网格索引的副本。
-     * @return 网格索引。
+     * @en Copies and retrieves a copy of the mesh indices.
+     * @returns A copy of the mesh indices.
+     * @zh 拷贝并获取网格索引的副本。
+     * @returns 网格索引的副本。
      */
     getIndices(): Uint8Array | Uint16Array | Uint32Array {
         if (this._isReadable)
@@ -699,8 +745,10 @@ export class Mesh extends Resource implements IClone {
     }
 
     /**
-     * 设置网格索引。
-     * @param indices 网格索引。
+     * @en Sets the mesh indices.
+     * @param indices The mesh indices to set.
+     * @zh 设置网格索引。
+     * @param indices 要设置的网格索引。
      */
     setIndices(indices: Uint8Array | Uint16Array | Uint32Array): void {
         var format: IndexFormat;
@@ -723,7 +771,8 @@ export class Mesh extends Resource implements IClone {
 
 
     /**
-     * 从模型位置数据生成包围盒。
+     * @en Generates a bounding box from the model's position data.
+     * @zh 从模型位置数据生成包围盒。
      */
     calculateBounds(): void {
         if (this._isReadable) {
@@ -760,10 +809,11 @@ export class Mesh extends Resource implements IClone {
         }
     }
 
-
     /**
-     * 获得Corve模型
-     * @returns Corve模型
+     * @en Gets the convex model.
+     * @returns The convex mesh.
+     * @zh 获取凸包模型。
+     * @returns 凸包网格。
      */
     getCorveMesh(): Mesh {
         if (this._convexMesh == null) {
@@ -775,10 +825,11 @@ export class Mesh extends Resource implements IClone {
         return this.__convexMesh;
     }
 
-
     /**
-     * 克隆。
-     * @param	destObject 克隆源。
+     * @en Clones this mesh to the destination object.
+     * @param destObject The destination object to clone to.
+     * @zh 克隆当前网格到目标对象。
+     * @param destObject 克隆的目标对象。
      */
     cloneTo(destObject: any): void {//[实现IClone接口]
         var destMesh: Mesh = <Mesh>destObject;
@@ -861,8 +912,10 @@ export class Mesh extends Resource implements IClone {
     }
 
     /**
-     * 克隆。
-     * @return	 克隆副本。
+     * @en Clones this mesh.
+     * @returns A clone of the current mesh.
+     * @zh 克隆当前网格。
+     * @return 当前网格的克隆副本。
      */
     clone(): any {//[实现IClone接口]
         var dest: Mesh = new Mesh();
@@ -876,6 +929,3 @@ export class Mesh extends Resource implements IClone {
     /** @internal */
     _inverseBindPosesBuffer: ArrayBuffer;
 }
-
-
-

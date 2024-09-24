@@ -16,34 +16,15 @@ interface ITreeDataSource {
 }
 
 /**
- * @en Dispatched when the `selectedIndex` property of the instance changes.
- * @zh 实例的 `selectedIndex` 属性发生变化时调度。
- * @eventType laya.events.Event
- */
-/*[Event(name = "change", type = "laya.events.Event")]*/
-/**
- * @en Dispatched when a node is opened or closed.
- * @zh 节点打开关闭时触发。
- * @eventType laya.events.Event
- */
-/*[Event(name = "open", type = "laya.events.Event")]*/
-
-/**
  * @en The `Tree` UI component allows users to view hierarchical data arranged in an expandable tree format.
  * @zh `Tree` UI组件使用户可以查看排列为可扩展树的层次结构数据。
  */
 export class Tree extends Box {
-    /**@internal */
     protected _list: List;
-    /**@internal */
     protected _source: any[];
-    /**@internal */
     protected _renderHandler: Handler;
-    /**@internal */
     protected _spaceLeft: number = 10;
-    /**@internal */
     protected _spaceBottom: number = 0;
-    /**@internal */
     protected _keepStatus: boolean = true;
 
     /**
@@ -103,7 +84,6 @@ export class Tree extends Box {
      * 取值：
      * 单元格类对象。
      *  UI 的 JSON 描述。
-     * @implements
      */
     get itemRender(): any {
         return this._list.itemRender;
@@ -228,19 +208,15 @@ export class Tree extends Box {
     }
 
     /**
-     * @en Constructor method.
+     * @en Creats an instance of `Tree`.
      * The `width` and `height` properties are both set to 200 in the `Tree` constructor.
-     * @zh 构造方法
-     * 在`Tree`构造函数中设置属性width、height的值都为200。
+     * @zh 创建一个 `Tree` 实例。
+     * 在`Tree`构造函数中设置属性width、height的值默认都为200。
      */
     constructor() {
         super();
         this.width = this.height = 200;
     }
-
-    /**
-     * @internal
-     */
     protected createChildren(): void {
         this._list = new List();
         this._list.hideFlags = HideFlags.HideAndDontSave;
@@ -256,16 +232,16 @@ export class Tree extends Box {
     }
 
     /**
-     * @internal
-     * 此对象包含的<code>List</code>实例的<code>Event.CHANGE</code>事件侦听处理函数。
+     * @en this object contains the List instance's Event.CHANGE event listener function.
+     * @zh 此对象包含的List实例的Event.CHANGE事件侦听处理函数。
      */
     protected onListChange(e: Event = null): void {
         this.event(Event.CHANGE);
     }
 
     /**
-     * @internal
-     * 获取数据源集合。
+     * @en Get the data source collection.
+     * @zh 获取数据源集合。
      */
     protected getArray(): any[] {
         var arr: any[] = [];
@@ -280,8 +256,8 @@ export class Tree extends Box {
     }
 
     /**
-     * @internal
-     * 获取项对象的深度。
+     * @en Get item object's depth.
+     * @zh 获取项对象的深度。
      */
     protected getDepth(item: any, num: number = 0): number {
         if (item.nodeParent == null) return num;
@@ -289,8 +265,8 @@ export class Tree extends Box {
     }
 
     /**
-     * @internal
-     * 获取项对象的上一级的打开状态。
+     * @en Get item object's parent open status.
+     * @zh 获取项对象的上一级的打开状态。
      */
     protected getParentOpenStatus(item: any): boolean {
         var parent: any = item.nodeParent;
@@ -307,8 +283,10 @@ export class Tree extends Box {
     }
 
     /**
-     * @internal
-     * 渲染一个项对象。
+     * @en Renders a item object.
+     * @param cell a item object.
+     * @param index item's index.
+     * @zh 渲染一个项对象。
      * @param cell 一个项对象。
      * @param index 项的索引。
      */
@@ -340,9 +318,6 @@ export class Tree extends Box {
         }
     }
 
-    /**
-     * @internal
-     */
     private onArrowClick(e: Event): void {
         var arrow = e.currentTarget;
         var index = arrow.__cellIndex;
@@ -352,8 +327,8 @@ export class Tree extends Box {
     }
 
     /**
-     * @internal
-     * 解析并处理XML类型的数据源。
+     * @en parse data source of XML type.
+     * @zh 解析并处理XML类型的数据源。
      */
     protected parseXml(xml: XML, source: any[], nodeParent: any, isRoot: boolean): void {
         var obj: any;
@@ -378,8 +353,8 @@ export class Tree extends Box {
     }
 
     /**
-     * @internal
-     * 处理数据项的打开状态。
+     * @en Handle the open state of the data items.
+     * @zh 处理数据项的打开状态。
      */
     protected parseOpenStatus(oldSource: any[], newSource: any[]): void {
         for (var i = 0, n = newSource.length; i < n; i++) {
@@ -397,11 +372,14 @@ export class Tree extends Box {
     }
 
     /**
-     * @internal
-     * 判断两个项对象在树结构中的父节点是否相同。
+     * @en Determine whether the two item objects have the same parent node in the tree structure.
+     * @param item1 Item object.
+     * @param item2 Item object.    
+     * @returns If the parent node is the same, the value of true. Otherwise, false.
+     * @zh 判断两个项对象在树结构中的父节点是否相同。
      * @param item1 项对象。
      * @param item2 项对象。
-     * @return 如果父节点相同值为true，否则值为false。
+     * @returns 如果父节点相同值为true，否则值为false。
      */
     protected isSameParent(item1: any, item2: any): boolean {
         if (item1.nodeParent == null && item2.nodeParent == null) return true;
@@ -413,8 +391,8 @@ export class Tree extends Box {
     }
 
     /**
-     * @internal
-     * 获取数据源中指定键名的值。
+     * @en Retrieve the value of a specified key from the data source.
+     * @zh 获取数据源中指定键名的值。
      */
     private getFilterSource(array: any[], result: any[], key: string): void {
         key = key.toLocaleLowerCase();
@@ -453,8 +431,6 @@ export class Tree extends Box {
     }
 
     /**
-     * @inheritDoc 
-     * @override
      * @en Set the data source.
      * @param value The data source.
      * @zh 设置数据源。
@@ -483,7 +459,6 @@ export class Tree extends Box {
     }
 
     /**
-     * @override
      * @en Destroy the object.
      * @param destroyChild Whether to destroy the child objects as well.
      * @zh 销毁对象。

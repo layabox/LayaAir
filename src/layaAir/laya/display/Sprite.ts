@@ -29,6 +29,7 @@ import type { Material } from "../resource/Material";
 import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
 import { BaseRenderNode2D } from "../NodeRender2D/BaseRenderNode2D";
 import { Vector2 } from "../maths/Vector2";
+import type { Stage } from "./Stage";
 
 /**
  * @en Sprite is a basic display list node for displaying graphical content. By default, Sprite does not accept mouse events. Through the graphics API, images or vector graphics can be drawn, supporting operations like rotation, scaling, translation, and more. Sprite also functions as a container class, allowing the addition of multiple child nodes.
@@ -1575,11 +1576,11 @@ export class Sprite extends Node {
      * @param offsetY 绘制的 Y 轴偏移量。
      * @returns HTMLCanvas 对象。
      */
-    static drawToCanvas(sprite: Sprite, canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number): HTMLCanvas {
-        if (arguments.length > 5) {
-            throw 'drawToCanvas 接口参数不对'
-        }
-        let rt = Sprite.drawToTexture(sprite, canvasWidth, canvasHeight, offsetX, offsetY) as RenderTexture2D;
+    static drawToCanvas(sprite: Sprite, canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, isDrawRenderRect: boolean = true): HTMLCanvas {
+        // if (arguments.length > 5) {
+        //     throw 'drawToCanvas 接口参数不对'
+        // }
+        let rt = Sprite.drawToRenderTexture2D(sprite, canvasWidth, canvasHeight, offsetX, offsetY, null);
         var dt = rt.getData(0, 0, canvasWidth, canvasHeight) as Uint8Array;
         var imgdata = new ImageData(canvasWidth, canvasHeight);;	//创建空的imagedata。因为下面要翻转，所以不直接设置内容
         //翻转getData的结果。
@@ -1604,6 +1605,7 @@ export class Sprite extends Node {
     }
 
     /**
+     * @deprecated
      * @en Draws the current object to a Texture object.
      * @param canvasWidth The width of the canvas.
      * @param canvasHeight The height of the canvas.
@@ -1619,11 +1621,34 @@ export class Sprite extends Node {
      * @param rt 渲染目标。
      * @returns 绘制的 Texture 或 RenderTexture2D 对象。
      */
-    drawToTexture(canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt: RenderTexture2D | null = null): Texture | RenderTexture2D {
-        let res = Sprite.drawToTexture(this, canvasWidth, canvasHeight, offsetX, offsetY, rt);
+    drawToTexture(canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt: RenderTexture2D | null = null, isDrawRenderRect: boolean = true): Texture | RenderTexture2D {
+        let res = Sprite.drawToTexture(this, canvasWidth, canvasHeight, offsetX, offsetY, rt, isDrawRenderRect);
         return res;
     }
+
     /**
+     * @en Draws the current object to a RenderTexture2D object.
+     * @param canvasWidth The width of the canvas.
+     * @param canvasHeight The height of the canvas.
+     * @param offsetX The X-axis offset for drawing.
+     * @param offsetY The Y-axis offset for drawing.
+     * @param rt The render target.
+     * @returns The drawn RenderTexture2D object.
+     * @zh 绘制当前对象到一个 Texture 对象上。
+     * @param canvasWidth 画布宽度。
+     * @param canvasHeight 画布高度。
+     * @param offsetX 绘制的 X 轴偏移量。
+     * @param offsetY 绘制的 Y 轴偏移量。
+     * @param rt 渲染目标。
+     * @returns 绘制的 RenderTexture2D 对象。
+     */
+    drawToRenderTexture2D(canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt: RenderTexture2D | null = null): RenderTexture2D {
+        let res = Sprite.drawToRenderTexture2D(this, canvasWidth, canvasHeight, offsetX, offsetY, rt);
+        return res;
+    }
+
+    /**
+     * @deprecated
      * @private
      * @en Draws the specified Sprite to a Texture or RenderTexture2D object.
      * @param sprite The Sprite to draw.
@@ -1642,7 +1667,7 @@ export class Sprite extends Node {
      * @param rt 渲染目标。如果未提供,将创建一个新的 RenderTexture2D。
      * @returns 绘制的 Texture 或 RenderTexture2D 对象。
      */
-    static drawToTexture(sprite: Sprite, canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt: RenderTexture2D | null = null): Texture | RenderTexture2D {
+    static drawToTexture(sprite: Sprite, canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt: RenderTexture2D | null = null, isDrawRenderRect: boolean = true): Texture | RenderTexture2D {
         let renderout = rt || new RenderTexture2D(canvasWidth, canvasHeight, RenderTargetFormat.R8G8B8A8);
         let ctx = new Context();
         if (rt) {
@@ -1651,12 +1676,49 @@ export class Sprite extends Node {
             ctx.size(canvasWidth, canvasHeight)
         }
         ctx.render2D = ctx.render2D.clone(null);//这个ctx只是提供大小，所以不要设置rt
+        let outrt = RenderSprite.RenderToRenderTexture(sprite, ctx, offsetX, offsetY, renderout, isDrawRenderRect);
+        ctx._drawingToTexture = false;
+        ctx.destroy();
+        if (!rt) {
+            let outTexture = new Texture(outrt, Texture.INV_UV);
+            return outTexture;
+        }
+        return outrt;
+    }
+
+    /**
+     * @private
+     * @en Draws the specified Sprite to a RenderTexture2D object.
+     * @param sprite The Sprite to draw.
+     * @param canvasWidth The width of the canvas.
+     * @param canvasHeight The height of the canvas.
+     * @param offsetX The X-axis offset for drawing.
+     * @param offsetY The Y-axis offset for drawing.
+     * @param rt The render target. If not provided, a new RenderTexture2D will be created.
+     * @returns The drawn RenderTexture2D object.
+     * @zh 将指定的 Sprite 绘制到 RenderTexture2D 对象上。
+     * @param sprite 要绘制的 Sprite。
+     * @param canvasWidth 画布宽度。
+     * @param canvasHeight 画布高度。
+     * @param offsetX 绘制的 X 轴偏移量。
+     * @param offsetY 绘制的 Y 轴偏移量。
+     * @param rt 渲染目标。如果未提供,将创建一个新的 RenderTexture2D。
+     * @returns 绘制的 RenderTexture2D 对象。
+     */
+    static drawToRenderTexture2D(sprite: Sprite, canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt: RenderTexture2D | null = null): RenderTexture2D {
+        let renderout = rt || new RenderTexture2D(canvasWidth, canvasHeight, RenderTargetFormat.R8G8B8A8);
+        let ctx = new Context();
+        if (rt) {
+            ctx.size(rt.width, rt.height);
+        } else {
+            ctx.size(canvasWidth, canvasHeight)
+        }
+        ctx.render2D = ctx.render2D.clone(renderout);
+        ctx._drawingToTexture = true;
         let outrt = RenderSprite.RenderToRenderTexture(sprite, ctx, offsetX, offsetY, renderout);
         ctx.destroy();
         return outrt;
     }
-
-
 
     /**
      * 绘制到Canvas的上下文
@@ -1699,7 +1761,19 @@ export class Sprite extends Node {
 
     set filters(value: Filter[]) {
         value && value.length === 0 && (value = null);
+
+        //先去掉旧的事件监听
+        if(this._filterArr){
+            for(let f of this._filterArr){
+                f && f.off(Filter.EVENT_CHANGE,this,this.repaint);
+            }
+        }
         this._filterArr = value ? value.slice() : null;
+        if(value){
+            for(let f of value){
+                f && f.on(Filter.EVENT_CHANGE,this,this.repaint);
+            }
+        }
         if (value)
             this._renderType |= SpriteConst.FILTERS;
         else
@@ -1999,7 +2073,7 @@ export class Sprite extends Node {
      * @en Reference to the stage.
      * @zh 对舞台的引用。
      */
-    get stage() {
+    get stage(): Stage {
         return ILaya.stage;
     }
 

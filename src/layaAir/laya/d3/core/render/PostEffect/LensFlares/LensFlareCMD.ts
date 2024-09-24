@@ -12,6 +12,10 @@ import { CommandBuffer } from "../../command/CommandBuffer";
 import { LensFlareElement, LensFlareEffect } from "./LensFlareEffect";
 import { LensFlareElementGeomtry } from "./LensFlareGeometry";
 
+/**
+ * @en Represents lens flare command
+ * @zh 表示镜头光晕指令
+ */
 export class LensFlareCMD {
 
     /**@internal geoemtry */
@@ -29,9 +33,11 @@ export class LensFlareCMD {
     /**@internal */
     private _lensFlareElementData: LensFlareElement;
 
-    /**instance绘制的个数 */
     private _instanceCount: number = 1;
-
+    /**
+     * @en The number of instances drawn
+     * @zh instance绘制的个数 
+     */
     public get instanceCount(): number {
         return this._instanceCount;
     }
@@ -42,7 +48,9 @@ export class LensFlareCMD {
 
 
     /**
-     * instance CMD
+     * @ignore
+     * @en Constructor method, initialize instance.
+     * @zh 构造方法，初始化实例
      */
     constructor() {
         this._transform3D = Laya3DRender.Render3DModuleDataFactory.createTransform(null);
@@ -69,28 +77,42 @@ export class LensFlareCMD {
         this._renderElement.subShaderIndex = 0;
     }
 
-    /**@internal */
+    /**
+     * @internal
+     * @en The center position of the lens flare effect.
+     * @zh 镜头光晕效果的中心位置。
+     */
     set center(value: Vector2) {
         this._materials.setVector2("u_FlareCenter", value);
     }
 
-    /**@internal */
+    /**
+     * @internal
+     * @en The rotation angle of the lens flare effect.
+     * @zh 镜头光晕效果的旋转角度。
+     */
     set rotate(value: number) {
         this._materials.setFloat("u_rotate", value);
     }
 
-    /**@internal */
+    /**
+     * @internal
+     * @en The lens flare element data.
+     * @zh 镜头光晕元素数据
+     */
+    get lensFlareElement(): LensFlareElement {
+        return this._lensFlareElementData;
+    }
+
     set lensFlareElement(value: LensFlareElement) {
         this._lensFlareElementData = value;
         this.applyElementData();
     }
 
-    get lensFlareElement(): LensFlareElement {
-        return this._lensFlareElementData;
-    }
 
     /**
-     * apply element Data
+     * @en apply element Data
+     * @zh 应用元素数据
      */
     applyElementData() {
         //根据LensFlareElement更新数据
@@ -117,6 +139,8 @@ export class LensFlareCMD {
     /**
      * @inheritDoc
      * @override
+     * @en Execute the command.
+     * @zh 执行命令
      */
     run(cmd: CommandBuffer): void {
         var context = RenderContext3D._instance;
@@ -126,6 +150,8 @@ export class LensFlareCMD {
 
     /**
      * @internal
+     * @en recover command
+     * @zh 回收命令
      */
     recover(): void {
         //TODO
@@ -133,6 +159,8 @@ export class LensFlareCMD {
 
     /**
      * @internal
+     * @en Destroy command
+     * @zh 销毁命令
      */
     destroy(): void {
         this._materials.lock = false;

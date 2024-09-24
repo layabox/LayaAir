@@ -28,6 +28,10 @@ export enum TextureFormat {
     ETC2SRGB_Alpha8 = 8,
     /** 纹理格式_ETC2SRGB*/
     ETC2SRGB = 28,
+    /** 纹理格式 RGB8_PUNCHTHROUGH_ALPHA1_ETC2 */
+    ETC2RGB_Alpha1 = 32,
+    /** 纹理格式 SRGB8_PUNCHTHROUGH_ALPHA1_ETC2 */
+    ETC2SRGB_Alpha1 = 33,
     /** 纹理格式_PVRTCRGB_2BPPV*/
     PVRTCRGB_2BPPV = 9,
     /**纹理格式_PVRTCRGBA_2BPPV。*/

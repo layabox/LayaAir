@@ -6,7 +6,8 @@ import { Volume } from "../Volume";
 import { ReflectionProbe } from "./ReflectionProbe";
 
 /**
- *<code>ReflectionProbeManager</code> 类用于反射探针管理
+ * @en The `ReflectionProbeManager` class is used for managing reflection probes.
+ * @zh `ReflectionProbeManager` 类用于管理反射探针。
  */
 export class ReflectionProbeManager implements IVolumeManager {
 
@@ -18,7 +19,8 @@ export class ReflectionProbeManager implements IVolumeManager {
     _needUpdateAllRender: boolean = false;
 
     /**
-     * 实例化一个反射探针管理类
+     * @en The constructor of the `ReflectionProbeManager` class.
+     * @zh `ReflectionProbeManager` 类构造函数。
      */
     constructor() {
         this._sceneReflectionProbe = new ReflectionProbe();
@@ -27,20 +29,24 @@ export class ReflectionProbeManager implements IVolumeManager {
     }
 
     /**
-     * Scene Reflection
+     * @en The scene reflection probe
+     * @zh 场景反射探针
      */
+    get sceneReflectionProbe(): ReflectionProbe {
+        return this._sceneReflectionProbe;
+    }
+
     set sceneReflectionProbe(value: ReflectionProbe) {
         this._sceneReflectionProbe = value;
         this._needUpdateAllRender = true;//update Reflection
     }
 
-    get sceneReflectionProbe(): ReflectionProbe {
-        return this._sceneReflectionProbe;
-    }
 
     /**
-     * 更新baseRender的反射探针
-     * @param baseRender 
+     * @en Update the reflection probe for the base render.
+     * @param baseRender The base render object to update.
+     * @zh 更新基础渲染对象的反射探针。
+     * @param baseRender 要更新的基础渲染对象。
      */
     _updateRenderObject(baseRender: BaseRender): void {
         if (this._reflectionProbes.length == 0) {
@@ -71,18 +77,23 @@ export class ReflectionProbeManager implements IVolumeManager {
     }
 
     /**
-     * 场景中添加反射探针
      * @internal
-     * @param reflectionProbe 
+     * @en Add a reflection probe to the scene.
+     * @param volume The reflection probe to add.
+     * @zh 在场景中添加反射探针。
+     * @param volume 要添加的反射探针。
      */
     add(volume: ReflectionProbe) {
         this._reflectionProbes.add(volume);
         this._needUpdateAllRender = true;
     }
+
     /**
-     * 场景中删除反射探针
      * @internal
-     * @param reflectionProbe 
+     * @en Remove a reflection probe from the scene.
+     * @param volume The reflection probe to remove.
+     * @zh 从场景中删除反射探针。
+     * @param volume 要删除的反射探针。
      */
     remove(volume: ReflectionProbe) {
         this._reflectionProbes.remove(volume);
@@ -91,7 +102,10 @@ export class ReflectionProbeManager implements IVolumeManager {
 
     /**
      * @internal
-     * 更新运动物体的反射探针信息
+     * @en Update reflection probe information for moving objects.
+     * @param motionObjects List of moving render objects.
+     * @zh 更新运动物体的反射探针信息。
+     * @param motionObjects 运动渲染对象列表。
      */
     handleMotionlist(motionObjects: SingletonList<BaseRender>): void {
         var elements: BaseRender[] = motionObjects.elements;
@@ -107,8 +121,10 @@ export class ReflectionProbeManager implements IVolumeManager {
 
     /**
      * @internal
-     * 更新传入所有渲染器反射探针
-     * @param 渲染器列表
+     * @en Recalculate reflection probes for all provided renderers.
+     * @param baseRenders List of base renderers to update.
+     * @zh 重新计算所有提供的渲染器的反射探针。
+     * @param baseRenders 要更新的基础渲染器列表。
      */
     reCaculateAllRenderObjects(baseRenders: SingletonList<BaseRender>) {
         var elements = baseRenders.elements;
@@ -122,10 +138,10 @@ export class ReflectionProbeManager implements IVolumeManager {
         }
     }
 
-
     /**
      * @internal
-     * destroy
+     * @en Destroy the ReflectionProbeManager and all associated resources.
+     * @zh 销毁 ReflectionProbeManager 及其关联的所有资源。
      */
     destroy() {
         for (let index = 0; index < this._reflectionProbes.length; index++) {

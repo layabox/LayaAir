@@ -8,12 +8,19 @@ import { ShaderDefine } from "../../../RenderDriver/RenderModuleData/Design/Shad
 
 
 /**
- * <code>ShurikenParticleMaterial</code> 类用于实现粒子材质。
+ * @en ShurikenParticleMaterial class is used to implement particle materials.
+ * @zh ShurikenParticleMaterial 类用于实现粒子材质。
  */
 export class ShurikenParticleMaterial extends Material {
-	/**渲染状态_透明混合。*/
+	/**
+	 * @en Render mode for transparent blending.
+	 * @zh 渲染状态_透明混合。
+	 */
 	static RENDERMODE_ALPHABLENDED: number = 0;
-	/**渲染状态_加色法混合。*/
+	/**
+	 * @en Render mode for additive blending.
+	 * @zh 渲染状态_加色法混合。
+	 */
 	static RENDERMODE_ADDTIVE: number = 1;
 
 	/**@internal */
@@ -30,7 +37,10 @@ export class ShurikenParticleMaterial extends Material {
 	/**@internal */
 	static TILINGOFFSET: number;
 
-	/** 默认材质，禁止修改*/
+	/**
+	 * @en Default material, modification prohibited.
+	 * @zh 默认材质，禁止修改。
+	 */
 	static defaultMaterial: ShurikenParticleMaterial;
 
 	/**
@@ -46,7 +56,8 @@ export class ShurikenParticleMaterial extends Material {
 	}
 
 	/**
-	 * 颜色。
+	 * @en Color of the particle material.
+	 * @zh 粒子材质的颜色。
 	 */
 	get color(): Color {
 		return this._shaderValues.getColor(ShurikenParticleMaterial.TINTCOLOR);
@@ -64,7 +75,8 @@ export class ShurikenParticleMaterial extends Material {
 
 
 	/**
-	 * 纹理平铺和偏移。
+	 * @en Texture tiling and offset.
+	 * @zh 纹理平铺和偏移。
 	 */
 	get tilingOffset(): Vector4 {
 		return (<Vector4>this._shaderValues.getVector(ShurikenParticleMaterial.TILINGOFFSET));
@@ -80,7 +92,8 @@ export class ShurikenParticleMaterial extends Material {
 	}
 
 	/**
-	 * 漫反射贴图。
+	 * @en Diffuse texture.
+	 * @zh 漫反射贴图。
 	 */
 	get texture(): BaseTexture {
 		return this._shaderValues.getTexture(ShurikenParticleMaterial.DIFFUSETEXTURE);
@@ -95,9 +108,10 @@ export class ShurikenParticleMaterial extends Material {
 		this._shaderValues.setTexture(ShurikenParticleMaterial.DIFFUSETEXTURE, value);
 	}
 
-
 	/**
-	 * 创建一个 <code>ShurikenParticleMaterial</code> 实例。
+	 * @ignore
+	 * @en creates a new instance of the ShurikenParticleMaterial class.
+	 * @zh 创建ShurikenParticleMaterial类的新实例。
 	 */
 	constructor() {
 		super();
@@ -108,10 +122,12 @@ export class ShurikenParticleMaterial extends Material {
 	}
 
 	/**
-	* 克隆。
-	* @return	 克隆副本。
-	* @override
-	*/
+	 * @override
+	 * @en Clone.
+	 * @returns Clone copy.
+	 * @zh 克隆。
+	 * @returns 克隆副本。
+	 */
 	clone(): any {
 		var dest: ShurikenParticleMaterial = new ShurikenParticleMaterial();
 		this.cloneTo(dest);

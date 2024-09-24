@@ -6,16 +6,19 @@ import { Material } from "../../../resource/Material";
 import { UnlitMaterial } from "./UnlitMaterial";
 
 /**
- * <code>EffectMaterial</code> 类用于实现Mesh特效材质。
+ * @en The AffectMaterial class is used to implement Mesh effect materials.
+ * @zh EffectMaterial 类用于实现Mesh特效材质。
  */
 export class EffectMaterial extends Material {
-	/** 默认材质，禁止修改*/
+	/**
+	 * @en Default material, no modification allowed
+	 * @zh 默认材质，禁止修改
+	 */
 	static defaultMaterial: EffectMaterial;
 
-
-
 	/**
-	 * 获取颜色。
+	 * @en The color of the material.
+	 * @zh 材质的颜色。
 	 */
 	get color(): Color {
 		return (<Color>this.getColorByIndex(UnlitMaterial.ALBEDOCOLOR));
@@ -26,7 +29,8 @@ export class EffectMaterial extends Material {
 	}
 
 	/**
-	 * 贴图。
+	 * @en The texture of the material.
+	 * @zh 材质的贴图。
 	 */
 	get texture(): BaseTexture {
 		return this.getTextureByIndex(UnlitMaterial.ALBEDOTEXTURE);
@@ -41,7 +45,8 @@ export class EffectMaterial extends Material {
 	}
 
 	/**
-	 * 纹理平铺和偏移。
+	 * @en The tiling and offset values for the material's textures.
+	 * @zh 材质纹理的平铺和偏移值。
 	 */
 	get tilingOffset(): Vector4 {
 		return (<Vector4>this.getVector4ByIndex(UnlitMaterial.TILINGOFFSET));
@@ -58,7 +63,9 @@ export class EffectMaterial extends Material {
 
 
 	/**
-	 * 创建一个 <code>EffectMaterial</code> 实例。
+	 * @ignore
+	 * @en Creates an instance of EffectMaterial.
+	 * @zh 创建EffectMaterial实例。
 	 */
 	constructor() {
 		super();
@@ -69,9 +76,11 @@ export class EffectMaterial extends Material {
 	}
 
 	/**
-	 * 克隆。
-	 * @return	 克隆副本。
 	 * @override
+	 * @en Clone the material.
+	 * @returns A clone of the material.
+	 * @zh 克隆材质。
+	 * @returns 克隆的材质副本。
 	 */
 	clone(): any {
 		var dest: EffectMaterial = new EffectMaterial();

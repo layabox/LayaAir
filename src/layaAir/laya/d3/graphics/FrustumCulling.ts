@@ -4,7 +4,8 @@ import { Vector3 } from "../../maths/Vector3";
 
 /**
  * @internal
- * <code>FrustumCulling</code> 类用于裁剪。
+ * @en The `FrustumCulling` class is used for performing frustum culling calculations to determine visibility of objects within the camera's view.
+ * @zh `FrustumCulling` 类用于执行视锥体剔除计算，以确定对象是否在相机视图中可见。
  */
 export class FrustumCulling {
 
@@ -28,13 +29,16 @@ export class FrustumCulling {
 	// 	}
 	// }
 
-
-	/**
-	 * caculate Bounds by ShadowCullInfo
-	 * @param bounds 
-	 * @param cullInfo 
-	 * @returns 
-	 */
+    /**
+     * @en Calculates whether the given bounds are culled based on the provided culling information.
+     * @param bounds The bounds to test for culling.
+     * @param cullInfo The culling information containing plane data.
+     * @returns  True if the bounds are not culled and are therefore visible, otherwise false.
+	 * @zh 根据提供的剔除信息，计算给定的边界是否被剔除。
+	 * @param bounds 要测试剔除的边界。
+     * @param cullInfo 包含剔除平面数据的剔除信息。
+     * @returns 如果边界没有被剔除并且因此可见，则返回 true，否则返回 false。
+     */
 	static cullingRenderBounds(bounds: Bounds, cullInfo: any): boolean {
 		var cullPlaneCount: number = cullInfo.cullPlaneCount;
 		var cullPlanes: Plane[] = cullInfo.cullPlanes;

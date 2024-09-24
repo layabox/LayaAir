@@ -2,7 +2,15 @@ export interface ITagHandler {
     (tagName: string, end: boolean, attr: string): string;
 }
 
+/**
+ * @en The `UBBParser` class is responsible for parsing UBB formatted text and converting it to HTML.
+ * @zh `UBBParser` 类负责解析 UBB 格式的文本，并将其转换为 HTML。
+ */
 export class UBBParser {
+    /**
+     * @en The default instance of the UBBParser class.
+     * @zh UBBParser 类的默认实例。
+     */
     static defaultParser: UBBParser = new UBBParser();
 
     private _text: string;
@@ -10,11 +18,32 @@ export class UBBParser {
 
     protected _handlers: Record<string, ITagHandler>;
 
+    /**
+     * @en The default width for image tags.
+     * @zh 图像标签的默认宽度。
+     */
     public defaultImgWidth: number = 0;
+    /**
+     * @en The default height for image tags.
+     * @zh 图像标签的默认高度。
+     */
     public defaultImgHeight: number = 0;
+    /**
+     * @en The last color parsed in the text.
+     * @zh 文本中解析的最后颜色。
+     */
     public lastColor: string;
+    /**
+     * @en The last size parsed in the text.
+     * @zh 文本中解析的最后大小。
+     */
     public lastSize: string;
 
+    /**
+     * @ignore
+     * @en Creates an instance of the `UBBParser` class.
+     * @zh 创建 `UBBParser` 类的实例。
+     */
     constructor() {
         this._handlers = {};
         this._handlers["url"] = this.onTag_URL;
@@ -123,6 +152,16 @@ export class UBBParser {
         return result;
     }
 
+    /**
+     * @en Parses the UBB formatted text and returns the corresponding HTML string.
+     * @param text The UBB formatted text to parse.
+     * @param remove Whether to remove UBB tags or convert them to HTML.
+     * @returns The resulting HTML string.
+     * @zh 解析 UBB 格式的文本，并返回相应的 HTML 字符串。
+     * @param text 要解析的 UBB 格式文本。
+     * @param remove 是否移除 UBB 标签或将其转换为 HTML。
+     * @returns 生成的 HTML 字符串。
+     */
     public parse(text: string, remove?: boolean): string {
         this._text = text;
         this.lastColor = null;

@@ -9,27 +9,47 @@ const _tempVector2 = new Vector3();
 const _tempVector3 = new Vector3();
 const DEFAULTARRAY = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
 
-
 /**
- * <code>Matrix4x4</code> 类用于创建4x4矩阵。
+ * @en The `Matrix4x4` class is used to create 4x4 matrices.
+ * @zh `Matrix4x4` 类用于创建4x4矩阵。
  */
 export class Matrix4x4 implements IClone {
-    /**@internal */
+    /**
+     * @internal
+     * @en Temporary matrix for internal calculations.
+     * @zh 用于内部计算的临时矩阵。
+     */
     static TEMPMatrix0: Matrix4x4 = new Matrix4x4();
-    /**@internal */
+    /**
+     * @internal
+     * @en Another temporary matrix for internal calculations.
+     * @zh 另一个用于内部计算的临时矩阵。
+     */
     static TEMPMatrix1: Matrix4x4 = new Matrix4x4();
 
-    /**默认矩阵,禁止修改*/
+    /**
+     * @en Default matrix. Do not modify.
+     * @zh 默认矩阵，禁止修改。
+     */
     static readonly DEFAULT: Readonly<Matrix4x4> = new Matrix4x4();
-    /**默认值的逆矩阵，禁止修改 */
+    /**
+     * @en Inverse of the default matrix. Do not modify.
+     * @zh 默认值的逆矩阵，禁止修改。
+     */
     static readonly DEFAULTINVERT: Readonly<Matrix4x4> = new Matrix4x4(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
-    /**默认矩阵,禁止修改*/
+    /**
+     * @en Default matrix. Do not modify.
+     * @zh 默认矩阵，禁止修改。
+     */
     static readonly ZERO: Readonly<Matrix4x4> = new Matrix4x4(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 
     /**
-     * 绕X轴旋转
-     * @param	rad  旋转角度
-     * @param	out 输出矩阵
+     * @en Create a rotation matrix around the X axis.
+     * @param rad The rotation angle.
+     * @param out The output matrix.
+     * @zh 创建绕X轴旋转的矩阵。
+     * @param rad 旋转角度。
+     * @param out 输出矩阵。
      */
     static createRotationX(rad: number, out: Matrix4x4): void {
         var oe: Float32Array = out.elements;
@@ -43,10 +63,12 @@ export class Matrix4x4 implements IClone {
     }
 
     /**
-     *
-     * 绕Y轴旋转
-     * @param	rad  旋转角度
-     * @param	out 输出矩阵
+     * @en Create a rotation matrix around the Y axis.
+     * @param rad The rotation angle.
+     * @param out The output matrix.
+     * @zh 创建绕Y轴旋转的矩阵。
+     * @param rad 旋转角度。
+     * @param out 输出矩阵。
      */
     static createRotationY(rad: number, out: Matrix4x4): void {
 
@@ -61,9 +83,12 @@ export class Matrix4x4 implements IClone {
     }
 
     /**
-     * 绕Z轴旋转
-     * @param	rad  旋转角度
-     * @param	out 输出矩阵
+     * @en Create a rotation matrix around the Z axis.
+     * @param rad The rotation angle.
+     * @param out The output matrix.
+     * @zh 创建绕Z轴旋转的矩阵。
+     * @param rad 旋转角度。
+     * @param out 输出矩阵。
      */
     static createRotationZ(rad: number, out: Matrix4x4): void {
 
@@ -78,11 +103,16 @@ export class Matrix4x4 implements IClone {
     }
 
     /**
-     * 通过yaw pitch roll旋转创建旋转矩阵。
-     * @param	yaw 这个角度表示物体围绕其垂直轴的旋转，即Y轴
-     * @param	pitch 这个角度表示物体围绕其横向轴的旋转，即X轴
-     * @param	roll 这个角度表示沿物体的前进方向轴的旋转，即Z轴
-     * @param	result 输出结果矩阵
+     * @en Create a rotation matrix from yaw, pitch, and roll angles.
+     * @param yaw The rotation angle around the vertical axis (Y-axis).
+     * @param pitch The rotation angle around the transverse axis (X-axis).
+     * @param roll The rotation angle around the longitudinal axis (Z-axis).
+     * @param result The output result matrix.
+     * @zh 通过yaw、pitch、roll角度创建旋转矩阵。
+     * @param yaw 绕垂直轴（Y轴）的旋转角度。
+     * @param pitch 绕横向轴（X轴）的旋转角度。
+     * @param roll 绕纵向轴（Z轴）的旋转角度。
+     * @param result 输出结果矩阵。
      */
     static createRotationYawPitchRoll(yaw: number, pitch: number, roll: number, result: Matrix4x4): void {
         Quaternion.createFromYawPitchRoll(yaw, pitch, roll, Quaternion.TEMP);
@@ -90,10 +120,14 @@ export class Matrix4x4 implements IClone {
     }
 
     /**
-     * 通过旋转轴axis和旋转角度angle计算旋转矩阵。
-     * @param	axis 旋转轴,假定已经归一化。
-     * @param	angle 旋转角度。
-     * @param	result 结果矩阵。
+     * @en Create a rotation matrix from an axis and an angle.
+     * @param axis The rotation axis, assumed to be normalized.
+     * @param angle The rotation angle.
+     * @param result The output result matrix.
+     * @zh 通过旋转轴和旋转角度计算旋转矩阵。
+     * @param axis 旋转轴，假定已经归一化。
+     * @param angle 旋转角度。
+     * @param result 输出结果矩阵。
      */
     static createRotationAxis(axis: Vector3, angle: number, result: Matrix4x4): void {
         var x: number = axis.x;
@@ -123,9 +157,12 @@ export class Matrix4x4 implements IClone {
     }
 
     /**
-     * 通过四元数创建旋转矩阵。
-     * @param	rotation 旋转四元数。
-     * @param	result 输出旋转矩阵
+     * @en Create a rotation matrix from a quaternion.
+     * @param rotation The rotation quaternion.
+     * @param result The output rotation matrix.
+     * @zh 通过四元数创建旋转矩阵。
+     * @param rotation 旋转四元数。
+     * @param result 输出旋转矩阵。
      */
     static createRotationQuaternion(rotation: Quaternion, result: Matrix4x4): void {
         var resultE: Float32Array = result.elements;
@@ -158,9 +195,12 @@ export class Matrix4x4 implements IClone {
     }
 
     /**
-     * 根据平移计算输出矩阵
-     * @param	trans  平移向量
-     * @param	out 输出矩阵
+     * @en Create a translation matrix.
+     * @param trans The translation vector.
+     * @param out The output matrix.
+     * @zh 根据平移向量创建平移矩阵。
+     * @param trans 平移向量。
+     * @param out 输出矩阵。
      */
     static createTranslate(trans: Vector3, out: Matrix4x4): void {
 
@@ -173,9 +213,12 @@ export class Matrix4x4 implements IClone {
     }
 
     /**
-     * 根据缩放计算输出矩阵
-     * @param	scale  缩放值
-     * @param	out 输出矩阵
+     * @en Create a scaling matrix.
+     * @param scale The scaling values.
+     * @param out The output matrix.
+     * @zh 根据缩放值创建缩放矩阵。
+     * @param scale 缩放值。
+     * @param out 输出矩阵。
      */
     static createScaling(scale: Vector3, out: Matrix4x4): void {
 
@@ -187,12 +230,15 @@ export class Matrix4x4 implements IClone {
         oe[15] = 1;
     }
 
-    
     /**
-     * 计算两个矩阵的乘法
-     * @param	left left矩阵
-     * @param	right  right矩阵
-     * @param	out  输出矩阵
+     * @en Multiply two matrices.
+     * @param left The left matrix.
+     * @param right The right matrix.
+     * @param out The output matrix.
+     * @zh 计算两个矩阵的乘法。
+     * @param left 左矩阵。
+     * @param right 右矩阵。
+     * @param out 输出矩阵。
      */
     static multiply(left: Matrix4x4, right: Matrix4x4, out: Matrix4x4): void {
         var l: Float32Array = right.elements;
@@ -228,9 +274,12 @@ export class Matrix4x4 implements IClone {
     }
 
     /**
-     * 从四元数计算旋转矩阵
-     * @param	rotation 四元数
-     * @param	out 输出矩阵
+     * @en Calculate the rotation matrix from a quaternion.
+     * @param rotation The input quaternion.
+     * @param out The output matrix.
+     * @zh 从四元数计算旋转矩阵。
+     * @param rotation 输入的四元数。
+     * @param out 输出矩阵。
      */
     static createFromQuaternion(rotation: Quaternion, out: Matrix4x4): void {
         var e: Float32Array = out.elements;
@@ -271,11 +320,16 @@ export class Matrix4x4 implements IClone {
     }
 
     /**
-     * 计算仿射矩阵
-     * @param	trans 平移
-     * @param	rot 旋转
-     * @param	scale 缩放
-     * @param	out 输出矩阵
+     * @en Calculate the affine transformation matrix.
+     * @param trans The translation vector.
+     * @param rot The rotation quaternion.
+     * @param scale The scale vector.
+     * @param out The output matrix.
+     * @zh 计算仿射变换矩阵。
+     * @param trans 平移向量。
+     * @param rot 旋转四元数。
+     * @param scale 缩放向量。
+     * @param out 输出矩阵。
      */
     static createAffineTransformation(trans: Vector3, rot: Quaternion, scale: Vector3, out: Matrix4x4): void {
         var oe: Float32Array = out.elements;
@@ -303,11 +357,16 @@ export class Matrix4x4 implements IClone {
     }
 
     /**
-     * 计算观察矩阵
-     * @param	eye 视点位置
-     * @param	target 视点目标
-     * @param	up 向上向量
-     * @param	out 输出矩阵
+     * @en Calculate the view matrix.
+     * @param eye The position of the viewer's eye.
+     * @param target The position of the target point.
+     * @param up The up vector.
+     * @param out The output matrix.
+     * @zh 计算观察矩阵。
+     * @param eye 视点位置。
+     * @param target 视点目标。
+     * @param up 向上向量。
+     * @param out 输出矩阵。
      */
     static createLookAt(eye: Vector3, target: Vector3, up: Vector3, out: Matrix4x4): void {
         var oE: Float32Array = out.elements;
@@ -338,12 +397,18 @@ export class Matrix4x4 implements IClone {
     }
 
     /**
-     * 通过FOV创建透视投影矩阵。
-     * @param	fov  视角。
-     * @param	aspect 横纵比。
-     * @param	near 近裁面。
-     * @param	far 远裁面。
-     * @param	out 输出矩阵。
+     * @en Create a perspective projection matrix using FOV.
+     * @param fov The field of view in radians.
+     * @param aspect The aspect ratio (width / height).
+     * @param near The near clipping plane.
+     * @param far The far clipping plane.
+     * @param out The output matrix.
+     * @zh 通过FOV创建透视投影矩阵。
+     * @param fov 视角（以弧度为单位）。
+     * @param aspect 横纵比（宽/高）。
+     * @param near 近裁面。
+     * @param far 远裁面。
+     * @param out 输出矩阵。
      */
     static createPerspective(fov: number, aspect: number, znear: number, zfar: number, out: Matrix4x4): void {
         var yScale: number = 1.0 / Math.tan(fov * 0.5);
@@ -355,14 +420,22 @@ export class Matrix4x4 implements IClone {
     }
 
     /**
-     * 创建透视投影矩阵。
-     * @param	left 视椎左边界。
-     * @param	right 视椎右边界。
-     * @param	bottom 视椎底边界。
-     * @param	top 视椎顶边界。
-     * @param	znear 视椎近边界。
-     * @param	zfar 视椎远边界。
-     * @param	out 输出矩阵。
+     * @en Create a perspective projection matrix.
+     * @param left The left boundary of the frustum.
+     * @param right The right boundary of the frustum.
+     * @param bottom The bottom boundary of the frustum.
+     * @param top The top boundary of the frustum.
+     * @param znear The near boundary of the frustum.
+     * @param zfar The far boundary of the frustum.
+     * @param out The output matrix.
+     * @zh 创建透视投影矩阵。
+     * @param left 视椎左边界。
+     * @param right 视椎右边界。
+     * @param bottom 视椎底边界。
+     * @param top 视椎顶边界。
+     * @param znear 视椎近边界。
+     * @param zfar 视椎远边界。
+     * @param out 输出矩阵。
      */
     static createPerspectiveOffCenter(left: number, right: number, bottom: number, top: number, znear: number, zfar: number, out: Matrix4x4): void {
         var oe: Float32Array = out.elements;
@@ -378,14 +451,22 @@ export class Matrix4x4 implements IClone {
     }
 
     /**
-     * 计算正交投影矩阵。
-     * @param	left 视椎左边界。
-     * @param	right 视椎右边界。
-     * @param	bottom 视椎底边界。
-     * @param	top 视椎顶边界。
-     * @param	near 视椎近边界。
-     * @param	far 视椎远边界。
-     * @param	out 输出矩阵。
+     * @en Calculate the orthographic projection matrix.
+     * @param left The left boundary of the frustum.
+     * @param right The right boundary of the frustum.
+     * @param bottom The bottom boundary of the frustum.
+     * @param top The top boundary of the frustum.
+     * @param near The near boundary of the frustum.
+     * @param far The far boundary of the frustum.
+     * @param out The output matrix.
+     * @zh 计算正交投影矩阵。
+     * @param left 视椎左边界。
+     * @param right 视椎右边界。
+     * @param bottom 视椎底边界。
+     * @param top 视椎顶边界。
+     * @param near 视椎近边界。
+     * @param far 视椎远边界。
+     * @param out 输出矩阵。
      */
     static createOrthoOffCenter(left: number, right: number, bottom: number, top: number, znear: number, zfar: number, out: Matrix4x4): void {
 
@@ -401,14 +482,17 @@ export class Matrix4x4 implements IClone {
         oe[14] = -znear * zRange;
     }
 
-    
-    /**矩阵元素数组*/
+    /**
+     * @en Matrix elements array.
+     * @zh 矩阵元素数组。
+     */
     elements: Float32Array;
 
-    
     /**
-     * 创建一个 <code>Matrix4x4</code> 实例。
-     * @param	4x4矩阵的各元素
+     * @en Constructor method.
+     * @param Elements Elements of a 4x4 matrix
+     * @zh 构造方法
+     * @param Elements 4x4矩阵的各元素
      */
     constructor(m11: number = 1, m12: number = 0, m13: number = 0, m14: number = 0, m21: number = 0, m22: number = 1, m23: number = 0, m24: number = 0, m31: number = 0, m32: number = 0, m33: number = 1, m34: number = 0, m41: number = 0, m42: number = 0, m43: number = 0, m44: number = 1, elements: Float32Array = null) {
         if (arguments.length == 0) {
@@ -439,9 +523,14 @@ export class Matrix4x4 implements IClone {
 
     /**
      * @internal
-     * @param row 
-     * @param column 
-     * @returns 
+     * @en Get the element of the matrix by row and column.
+     * @param row The row index (0-3).
+     * @param column The column index (0-3).
+     * @returns The value of the element.
+     * @zh 通过行和列获取矩阵元素。
+     * @param row 行索引（0-3）。
+     * @param column 列索引（0-3）。
+     * @returns 元素的值。
      */
     getElementByRowColumn(row: number, column: number): number {
         if (row < 0 || row > 3)
@@ -454,9 +543,14 @@ export class Matrix4x4 implements IClone {
 
     /**
      * @internal
-     * @param row 
-     * @param column 
-     * @param value 
+     * @en Set the element of the matrix by row and column.
+     * @param row The row index (0-3).
+     * @param column The column index (0-3).
+     * @param value The value to set.
+     * @zh 通过行和列设置矩阵元素。
+     * @param row 行索引（0-3）。
+     * @param column 列索引（0-3）。
+     * @param value 要设置的值。
      */
     setElementByRowColumn(row: number, column: number, value: number): void {
         if (row < 0 || row > 3)
@@ -468,8 +562,10 @@ export class Matrix4x4 implements IClone {
     }
 
     /**
-     * 四元数生成矩阵
-     * @param rotation 旋转四元数值
+     * @en Generate matrix from quaternion.
+     * @param rotation The rotation quaternion.
+     * @zh 从四元数生成矩阵。
+     * @param rotation 旋转四元数。
      */
     setRotation(rotation: Quaternion): void {
         var rotationX: number = rotation.x;
@@ -499,10 +595,11 @@ export class Matrix4x4 implements IClone {
         e[10] = 1.0 - (2.0 * (yy + xx));
     }
 
-    
     /**
-     * 位置
-     * @param position 坐标位置
+     * @en Set the position of the matrix.
+     * @param position The position vector.
+     * @zh 设置矩阵的位置。
+     * @param position 位置向量。
      */
     setPosition(position: Vector3): void {
         var e: Float32Array = this.elements;
@@ -513,8 +610,12 @@ export class Matrix4x4 implements IClone {
 
 
     /**
-     * 判断两个4x4矩阵的值是否相等。
-     * @param	other 4x4矩阵
+     * @en Determine if two 4x4 matrices have equal values.
+     * @param other The other 4x4 matrix to compare.
+     * @returns True if the matrices are equal, false otherwise.
+     * @zh 判断两个4x4矩阵的值是否相等。
+     * @param other 要比较的另一个4x4矩阵。
+     * @returns 如果矩阵相等则返回true，否则返回false。
      */
     equalsOtherMatrix(other: Matrix4x4): boolean {
         var e: Float32Array = this.elements;
@@ -524,11 +625,16 @@ export class Matrix4x4 implements IClone {
     }
 
     /**
-     * 分解矩阵为平移向量、旋转四元数、缩放向量。
-     * @param	translation 平移向量。
-     * @param	rotation 旋转四元数。
-     * @param	scale 缩放向量。
-     * @return 是否分解成功。
+     * @en Decompose the matrix into translation vector, rotation quaternion, and scale vector.
+     * @param translation The translation vector.
+     * @param rotation The rotation quaternion.
+     * @param scale The scale vector.
+     * @returns Whether the decomposition was successful.
+     * @zh 分解矩阵为平移向量、旋转四元数、缩放向量。
+     * @param translation 平移向量。
+     * @param rotation 旋转四元数。
+     * @param scale 缩放向量。
+     * @returns 是否分解成功。
      */
     decomposeTransRotScale(translation: Vector3, rotation: Quaternion, scale: Vector3): boolean {
         var rotationMatrix: Matrix4x4 = _tempMatrix4x4;
@@ -542,11 +648,16 @@ export class Matrix4x4 implements IClone {
     }
 
     /**
-     * 分解矩阵为平移向量、旋转矩阵、缩放向量。
-     * @param	translation 平移向量。
-     * @param	rotationMatrix 旋转矩阵。
-     * @param	scale 缩放向量。
-     * @return 是否分解成功。
+     * @en Decompose the matrix into translation vector, rotation matrix, and scale vector.
+     * @param translation The translation vector.
+     * @param rotationMatrix The rotation matrix.
+     * @param scale The scale vector.
+     * @returns Whether the decomposition was successful.
+     * @zh 分解矩阵为平移向量、旋转矩阵、缩放向量。
+     * @param translation 平移向量。
+     * @param rotationMatrix 旋转矩阵。
+     * @param scale 缩放向量。
+     * @returns 是否分解成功。
      */
     decomposeTransRotMatScale(translation: Vector3, rotationMatrix: Matrix4x4, scale: Vector3): boolean {
         var e: Float32Array = this.elements;
@@ -612,11 +723,10 @@ export class Matrix4x4 implements IClone {
     }
 
     /**
-     * 分解旋转矩阵的旋转为YawPitchRoll欧拉角。
-     * @param	out float yaw
-     * @param	out float pitch
-     * @param	out float roll
-     * @return
+     * @en Decompose the rotation matrix into Yaw-Pitch-Roll Euler angles.
+     * @param yawPitchRoll Vector3 to store the resulting Euler angles (in radians).
+     * @zh 分解旋转矩阵为Yaw-Pitch-Roll欧拉角。
+     * @param yawPitchRoll 用于存储结果欧拉角的Vector3（单位为弧度）。
      */
     decomposeYawPitchRoll(yawPitchRoll: Vector3): void {//TODO:经飞仙测试,好像有BUG。
         var pitch: number = Math.asin(-this.elements[9]);
@@ -634,7 +744,8 @@ export class Matrix4x4 implements IClone {
     }
 
     /**
-     * 归一化矩阵 
+     * @en Normalize the matrix.
+     * @zh 归一化矩阵。
      */
     normalize(): void {
         var v: Float32Array = this.elements;
@@ -655,7 +766,10 @@ export class Matrix4x4 implements IClone {
     }
 
     /**
-     * 计算矩阵的转置矩阵
+     * @en Calculate the transpose of the matrix.
+     * @returns The transposed matrix.
+     * @zh 计算矩阵的转置矩阵。
+     * @returns 转置后的矩阵。
      */
     transpose(): Matrix4x4 {
         var e: Float32Array, t: number;
@@ -682,8 +796,10 @@ export class Matrix4x4 implements IClone {
     }
 
     /**
-     * 计算一个矩阵的逆矩阵
-     * @param	out 输出矩阵
+     * @en Calculate the inverse of a matrix.
+     * @param out The output matrix to store the result.
+     * @zh 计算矩阵的逆矩阵。
+     * @param out 用于存储结果的输出矩阵。
      */
     invert(out: Matrix4x4): void {
 
@@ -720,12 +836,18 @@ export class Matrix4x4 implements IClone {
     }
 
     /**
-     * 计算BlillBoard矩阵
-     * @param	objectPosition 物体位置
-     * @param	cameraPosition 相机位置
-     * @param	cameraUp       相机上向量
-     * @param	cameraForward  相机前向量
-     * @param	mat            变换矩阵
+     * @en Calculate the Billboard matrix
+     * @param objectPosition The position of the object
+     * @param cameraPosition The position of the camera
+     * @param cameraUp The up vector of the camera
+     * @param cameraForward The forward vector of the camera
+     * @param mat The transformation matrix to store the result
+     * @zh 计算Billboard矩阵
+     * @param objectPosition 物体位置
+     * @param cameraPosition 相机位置
+     * @param cameraUp 相机上向量
+     * @param cameraForward 相机前向量
+     * @param mat 用于存储结果的变换矩阵
      */
     static billboard(objectPosition: Vector3, cameraPosition: Vector3, cameraUp: Vector3, cameraForward: Vector3, mat: Matrix4x4): void {
 
@@ -769,7 +891,8 @@ export class Matrix4x4 implements IClone {
     }
 
     /**
-     * 归一化
+     * @en Normalization
+     * @zh 归一化
      */
     identity(): void {
         /*
@@ -780,7 +903,10 @@ export class Matrix4x4 implements IClone {
         this.elements.set(DEFAULTARRAY);
     }
 
-    /**判断是否是单位矩阵 */
+    /**
+     * @en Check if the matrix is an identity matrix
+     * @zh 判断是否是单位矩阵
+     */
     isIdentity(): boolean {
         let delty = function (num0: number, num1: number) {
             return Math.abs(num0 - num1) < 1e-7;
@@ -796,8 +922,10 @@ export class Matrix4x4 implements IClone {
     }
 
     /**
-     * 克隆。
-     * @param	destObject 克隆源。
+     * @en Clone the matrix to another object
+     * @param destObject Clone Source
+     * @zh 克隆矩阵到另一个对象
+     * @param destObject 克隆源。
      */
     cloneTo(destObject: any): void {
         var i: number, s: Float32Array, d: Float32Array;
@@ -813,16 +941,20 @@ export class Matrix4x4 implements IClone {
     }
 
     /**
-     * 克隆
-     * @param destObject 克隆目标
+     * @en Clone the matrix from a Float32Array
+     * @param destObject The Float32Array to clone from
+     * @zh 从Float32Array克隆矩阵
+     * @param destObject 要克隆的Float32Array
      */
     cloneByArray(destObject: Float32Array) {
         this.elements.set(destObject);
     }
 
     /**
-     * 克隆。
-     * @return	 克隆副本。
+     * @en Clone the matrix
+     * @returns A new Matrix4x4 object with the same values
+     * @zh 克隆矩阵
+     * @returns 一个具有相同值的新Matrix4x4对象
      */
     clone(): any {
         var dest: Matrix4x4 = new Matrix4x4(null);
@@ -831,8 +963,11 @@ export class Matrix4x4 implements IClone {
     }
 
     /**
-     * 转换一个坐标位矩阵
-     * @param v3 坐标点 
+     * @en Convert a coordinate matrix
+     * @param v3 Coordinate points
+     * @param out The output matrix
+     * @zh 转换一个坐标位矩阵
+     * @param v3 坐标点
      * @param out 输出矩阵
      */
     static translation(v3: Vector3, out: Matrix4x4): void {
@@ -844,8 +979,10 @@ export class Matrix4x4 implements IClone {
     }
 
     /**
-     * 获取平移向量。
-     * @param	out 平移向量。
+     * @en Get the translation vector from the matrix
+     * @param out The output vector to store the translation
+     * @zh 获取矩阵中的平移向量
+     * @param out 用于存储平移向量的输出向量
      */
     getTranslationVector(out: Vector3): void {
         var me: Float32Array = this.elements;
@@ -855,8 +992,10 @@ export class Matrix4x4 implements IClone {
     }
 
     /**
-     * 设置平移向量。
-     * @param	translate 平移向量。
+     * @en Set the translation vector of the matrix
+     * @param translate The vector representing the translation
+     * @zh 设置矩阵的平移向量
+     * @param translate 表示平移的向量
      */
     setTranslationVector(translate: Vector3): void {
         var me: Float32Array = this.elements;
@@ -867,8 +1006,10 @@ export class Matrix4x4 implements IClone {
     }
 
     /**
-     * 获取前向量。
-     * @param	out 前向量。
+     * @en Get the forward vector from the matrix
+     * @param out The output vector to store the forward vector
+     * @zh 获取矩阵的前向量
+     * @param out 用于存储前向量的输出向量
      */
     getForward(out: Vector3): void {
         var me: Float32Array = this.elements;
@@ -878,8 +1019,10 @@ export class Matrix4x4 implements IClone {
     }
 
     /**
-     * 设置前向量。
-     * @param	forward 前向量。
+     * @en Set the forward vector of the matrix
+     * @param forward The vector representing the forward direction
+     * @zh 设置矩阵的前向量
+     * @param forward 表示前向方向的向量
      */
     setForward(forward: Vector3): void {
         var me: Float32Array = this.elements;
@@ -889,7 +1032,10 @@ export class Matrix4x4 implements IClone {
     }
 
     /**
-     * 判断此矩阵是否是反向矩阵
+     * @en Determine if this matrix is an inverted matrix
+     * @returns True if the matrix is inverted, false otherwise
+     * @zh 判断此矩阵是否是反向矩阵
+     * @returns 如果矩阵是反向的返回true，否则返回false
      */
     getInvertFront(): boolean {
         this.decomposeTransRotScale(_tempVector0, Quaternion.TEMP, _tempVector1);

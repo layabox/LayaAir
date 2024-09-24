@@ -7,7 +7,8 @@ import { StaticInstanceBatchRender } from "./StaticInstanceBatchRender";
 import { StatiVertexMergeBatchRender } from "./StatiVertexMergeBatchRender";
 
 /**
- * 类用来描述一个可合并渲染节点的体积
+ * @en Class used to describe the volume of a mergeable render node.
+ * @zh 用来描述一个可合并渲染节点的体积。
  */
 export class StaticBatchVolume extends Volume {
 
@@ -65,7 +66,8 @@ export class StaticBatchVolume extends Volume {
     }
 
     /**
-     * 合批是否考虑LOD
+     * @en Whether LOD (Level of Detail) is considered in batching.
+     * @zh 合批是否考虑 LOD（细节层次）。
      */
     get checkLOD(): boolean {
         return this._checkLOD;
@@ -87,7 +89,8 @@ export class StaticBatchVolume extends Volume {
     }
 
     /**
-     * 开启静态Instance实例合批
+     * @en Whether static instance batching is enabled.
+     * @zh 是否启用静态实例合批渲染。
      */
     get enableStaticInstanceBatchRender(): boolean {
         return this._enableStaticInstanceBatch;
@@ -108,7 +111,8 @@ export class StaticBatchVolume extends Volume {
     }
 
     /**
-     * 开启静态顶点合批
+     * @en Whether static vertex merge batching is enabled.
+     * @zh 是否启用静态顶点合并合批。
      */
     get enableMergeBatchRender() {
         return this._enableStaticVertexMergeBatch;
@@ -129,7 +133,8 @@ export class StaticBatchVolume extends Volume {
     }
 
     /**
-     * 开启自定义合批
+     * @en Whether custom batching is enabled.
+     * @zh 是否启用自定义合批。
      */
     get enableCustomBatchRender() {
         return this._enableCustomBatch;
@@ -143,8 +148,12 @@ export class StaticBatchVolume extends Volume {
     }
 
     /**
-     * 设置自定义的合批方案BatchRender
+     * @en The custom batch renderers.
+     * @zh 自定义的合批渲染器。
      */
+    get customBatchRenders() {
+        return this._customBatchs;
+    }
     set customBatchRenders(value: BatchRender[]) {
         if (this._customBatchs) {
             this._customBatchs.forEach(element => {
@@ -158,12 +167,9 @@ export class StaticBatchVolume extends Volume {
         this.enableCustomBatchRender = this._enableCustomBatch;
     }
 
-    get customBatchRenders() {
-        return this._customBatchs;
-    }
-
     /**
-     * 创建一个<code>BatchVolume</code>实例
+     * @en Constructor method，initialize rendering related settings.
+     * @zh 构造方法，初始化渲染相关的设置。
      */
     constructor() {
         super();
@@ -256,10 +262,14 @@ export class StaticBatchVolume extends Volume {
     }
 
     /**
-     * 当一个渲染节点进入体积
      * @internal
      * @override
-     * @param renderNode 
+     * @en Adds a render node to the volume when it enters.
+     * This method handles the addition of static batch render nodes.
+     * @param renderNode The render node to be added.
+     * @zh 当一个渲染节点进入体积时添加该节点。
+     * 此方法处理静态批次渲染节点的添加。
+     * @param renderNode 要添加的渲染节点。
      */
     _addRenderNode?(renderNode: BaseRender): void {
         if (renderNode.renderNode.staticMask == StaticFlag.StaticBatch) {
@@ -274,10 +284,14 @@ export class StaticBatchVolume extends Volume {
     }
 
     /**
-     * 当一个渲染节点移除体积
      * @internal
      * @override
-     * @param renderNode    
+     * @en Removes a render node from the volume when it exits.
+     * This method handles the removal of static batch render nodes.
+     * @param renderNode The render node to be removed.
+     * @zh 当一个渲染节点移出体积时移除该节点。
+     * 此方法处理静态批次渲染节点的移除。
+     * @param renderNode 要移除的渲染节点。
      */
     _removeRenderNode(renderNode: BaseRender): void {
         if (renderNode.renderNode.staticMask == StaticFlag.StaticBatch) {
@@ -290,7 +304,8 @@ export class StaticBatchVolume extends Volume {
 
     /**
      * @internal
-     * Volume change
+     * @en Volume change
+     * @zh 体积变化
      */
     _VolumeChange() {
         super._VolumeChange();
@@ -299,14 +314,20 @@ export class StaticBatchVolume extends Volume {
 
     /**
      * @internal
+     * @en Called when the component starts.
+     * Initiates the rebatching process.
+     * @zh 当组件启动时调用。
+     * 启动重新合批过程。
      */
     onStart() {
         this.reBatch();
     }
 
     /**
-     * 重新合批,将清理前面状态
-     * 必要时需要手动调用,根据Volume里面的值,进行合批
+     * @en Rebatches the render nodes, clearing previous states.
+     * This method should be called manually when necessary. Performs batching based on the values in the Volume.
+     * @zh 重新合批渲染节点，清理先前的状态。
+     * 必要时需要手动调用此方法。根据 Volume 中的值执行合批。
      */
     reBatch() {
         this._cacheRender.elements.length = this._cacheRender.length;

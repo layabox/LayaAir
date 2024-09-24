@@ -3,7 +3,8 @@ import { Utils } from "../utils/Utils"
 
 /**
  * @private
- * 凸包算法。
+ * @en Graham Scan algorithm for convex hull calculation.
+ * @zh 凸包算法。
  */
 export class GrahamScan {
 
@@ -12,21 +13,37 @@ export class GrahamScan {
     private static _temPList: any[] = [];
     private static _temArr: any[] = [];
 
+    /**
+     * @en Calculate the cross product of two two-dimensional vectors.
+     * @param p1 End point 1.
+     * @param p2 End point 2.
+     * @param p0 Start point.
+     * @returns The cross product value.
+     * @zh 计算两个二维向量的叉积。
+     * @param p1 终点1。
+     * @param p2 终点2。
+     * @param p0 起点。
+     * @returns 叉积的值。
+     */
     static multiply(p1: Point, p2: Point, p0: Point): number {
         return ((p1.x - p0.x) * (p2.y - p0.y) - (p2.x - p0.x) * (p1.y - p0.y));
     }
 
     /**
-     * 计算两个点的距离。
-     * @param	p1
-     * @param	p2
-     * @return
+     * @en Calculate the squared distance between two points.
+     * @param p1 The Start point.
+     * @param p2 The End point.
+     * @returns The squared distance.
+     * @zh 计算两个点距离的平方。
+     * @param p1 起点
+     * @param p2 终点
+     * @returns 距离的平方。
      */
     static dis(p1: Point, p2: Point): number {
         return (p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y);
     }
 
-    private static _getPoints(count: number, tempUse: boolean = false, rst: any[]|null = null): any[] {
+    private static _getPoints(count: number, tempUse: boolean = false, rst: any[] | null = null): any[] {
         if (!GrahamScan._mPointList) GrahamScan._mPointList = [];
         while (GrahamScan._mPointList.length < count) GrahamScan._mPointList.push(new Point());
         if (!rst) rst = [];
@@ -42,11 +59,16 @@ export class GrahamScan {
     }
 
     /**
-     * 将数组 src 从索引0位置 依次取 cout 个项添加至 tst 数组的尾部。
-     * @param	rst 原始数组，用于添加新的子元素。
-     * @param	src 用于取子元素的数组。
-     * @param	count 需要取得子元素个数。
-     * @return 添加完子元素的 rst 对象。
+     * @en Take cout items from the src array at index 0 and add them to the tail of the tst array.
+     * @param rst The original array is used to add new child elements.
+     * @param src An array used to retrieve child elements.
+     * @param count The number of child elements to add.
+     * @returns Add the RST object of the child elements.
+     * @zh 将数组src从索引0位置，依次取cout个项添加至tst数组的尾部。
+     * @param rst 原始数组，用于添加新的子元素。
+     * @param src 用于取子元素的数组。
+     * @param count 需要取得子元素个数。
+     * @returns 添加完子元素的 rst 对象。
      */
     static getFrom(rst: any[], src: any[], count: number): any[] {
         var i: number;
@@ -57,11 +79,16 @@ export class GrahamScan {
     }
 
     /**
-     * 将数组 src 从末尾索引位置往头部索引位置方向 依次取 cout 个项添加至 tst 数组的尾部。
-     * @param	rst 原始数组，用于添加新的子元素。
-     * @param	src 用于取子元素的数组。
-     * @param	count 需要取得子元素个数。
-     * @return 添加完子元素的 rst 对象。
+     * @en Take cout items from the end index position to the head index position of the src array and add them to the tail of the tst array.
+     * @param rst The original array is used to add new child elements.
+     * @param src An array used to retrieve child elements.
+     * @param count The number of child elements to add.
+     * @returns Add the RST object of the child elements.
+     * @zh 将数组src从末尾索引位置往头部索引位置方向，依次取cout个项添加至tst数组的尾部。
+     * @param rst 原始数组，用于添加新的子元素。
+     * @param src 用于取子元素的数组。
+     * @param count 需要取得子元素个数。
+     * @returns 添加完子元素的 rst 对象。
      */
     static getFromR(rst: any[], src: any[], count: number): any[] {
         var i: number;
@@ -72,9 +99,14 @@ export class GrahamScan {
     }
 
     /**
-     *  [x,y...]列表 转 Point列表
-     * @param pList Point列表
-     * @return [x,y...]列表
+     * @en Convert a list of [x,y...] to a list of Points.
+     * @param pList The Point list.
+     * @param tempUse Whether to use temporary storage.
+     * @returns A list of [x,y...].
+     * @zh 将 [x,y...] 列表转换为 Point 列表。
+     * @param pList Point列表。
+     * @param tempUse 是否使用临时存储。
+     * @returns [x,y...]列表
      */
     static pListToPointList(pList: any[], tempUse: boolean = false): any[] {
         var i: number, len: number = pList.length / 2, rst: any[] = GrahamScan._getPoints(len, tempUse, GrahamScan._tempPointList);
@@ -85,9 +117,12 @@ export class GrahamScan {
     }
 
     /**
-     * Point列表转[x,y...]列表
+     * @en Convert a list of Points to a [x,y...] list.
+     * @param pointList The list of Points.
+     * @returns The [x,y...] list.
+     * @zh 将 Point 列表转换为 [x,y...] 列表。
      * @param pointList Point列表
-     * @return [x,y...]列表
+     * @returns [x,y...]列表
      */
     static pointListToPlist(pointList: any[]): any[] {
         var i: number, len: number = pointList.length, rst: any[] = GrahamScan._temPList, tPoint: Point;
@@ -100,16 +135,22 @@ export class GrahamScan {
     }
 
     /**
-     *  寻找包括所有点的最小多边形顶点集合
-     * @param pList 形如[x0,y0,x1,y1...]的点列表
-     * @return  最小多边形顶点集合
+     * @en Find the minimum polygon vertex set that includes all points.
+     * @param pList The [x,y...] list.
+     * @returns The minimum polygon vertex set.
+     * @zh 寻找包括所有点的最小多边形顶点集合。
+     * @param pList 形如[x0,y0,x1,y1...]的点列表。
+     * @returns  最小多边形顶点集合。
      */
     static scanPList(pList: any[]): any[] {
         return Utils.copyArray(pList, GrahamScan.pointListToPlist(GrahamScan.scan(GrahamScan.pListToPointList(pList, true))));
     }
 
     /**
-     * 寻找包括所有点的最小多边形顶点集合
+     * @en Find the minimum polygon vertex set that includes all points.
+     * @param PointSet The Point list.
+     * @returns The minimum polygon vertex set.
+     * @zh 寻找包括所有点的最小多边形顶点集合。
      * @param PointSet Point列表
      * @return 最小多边形顶点集合
      */

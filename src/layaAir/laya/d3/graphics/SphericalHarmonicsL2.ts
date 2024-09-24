@@ -3,7 +3,8 @@ import { Vector3 } from "../../maths/Vector3";
 import { TextureCubeFace } from "../../resource/TextureCube";
 
 /**
- * 二阶球谐函数。
+ * @en Second-order spherical harmonics function.
+ * @zh 二阶球谐函数。
  */
 export class SphericalHarmonicsL2 {
     /** @internal */
@@ -13,25 +14,46 @@ export class SphericalHarmonicsL2 {
     private _coefficients: Float32Array = new Float32Array(27);
 
     /**
-     * 获取颜色通道的系数。
+     * @en Gets the coefficient for a specific color channel.
+     * @param i The channel index, ranging from 0 to 2.
+     * @param j The coefficient index, ranging from 0 to 8.
+     * @returns The coefficient value.
+     * @zh 获取特定颜色通道的系数。
      * @param i 通道索引，范围0到2。
      * @param j 系数索引，范围0到8。
+     * @returns 系数值。
      */
     getCoefficient(i: number, j: number): number {
         return this._coefficients[i * 9 + j];
     }
 
     /**
-     * 设置颜色通道的系数。
+     * @en Sets the coefficient for a specific color channel.
+     * @param i The channel index, ranging from 0 to 2.
+     * @param j The coefficient index, ranging from 0 to 8.
+     * @param coefficient The coefficient value to set.
+     * @zh 设置特定颜色通道的系数。
      * @param i 通道索引，范围0到2。
      * @param j 系数索引，范围0到8。
+     * @param coefficient 要设置的系数值。
      */
     setCoefficient(i: number, j: number, coefficient: number): void {
         this._coefficients[i * 9 + j] = coefficient;
     }
 
     /**
-     * 设置颜色通道的系数。
+     * @en Sets the coefficients for a specific color channel.
+     * @param i The channel index, ranging from 0 to 2.
+     * @param coefficient0 Coefficient 0
+     * @param coefficient1 Coefficient 1
+     * @param coefficient2 Coefficient 2
+     * @param coefficient3 Coefficient 3
+     * @param coefficient4 Coefficient 4
+     * @param coefficient5 Coefficient 5
+     * @param coefficient6 Coefficient 6
+     * @param coefficient7 Coefficient 7
+     * @param coefficient8 Coefficient 8
+     * @zh 设置颜色通道的系数。
      * @param i 通道索引，范围0到2。
      * @param coefficient0 系数0
      * @param coefficient1 系数1
@@ -57,8 +79,10 @@ export class SphericalHarmonicsL2 {
     }
 
     /**
-     * 克隆
-     * @param dest 克隆目标数据
+     * @en Clones the spherical harmonics data to another instance.
+     * @param dest The destination instance to which the data is cloned.
+     * @zh 克隆球谐函数数据到另一个实例。
+     * @param dest 克隆数据的目标实例。
      */
     cloneTo(dest: SphericalHarmonicsL2): void {
         if (this === dest)
@@ -72,7 +96,8 @@ export class SphericalHarmonicsL2 {
 
 /**
  * @internal
- * 生成二阶球谐系数
+ * @en The `SphericalHarmonicsL2Generater` class is used for generating second-order spherical harmonics coefficients.
+ * @zh `SphericalHarmonicsL2Generater` 类用于生成二阶球谐系数。
  */
 export class SphericalHarmonicsL2Generater {
 
@@ -106,22 +131,33 @@ export class SphericalHarmonicsL2Generater {
     private static _tempSkyPixels: Float32Array = new Float32Array(SphericalHarmonicsL2Generater.GradientSimulateSize * SphericalHarmonicsL2Generater.GradientSimulateSize * 3);
     private static _tempEquatorPixels: Float32Array = new Float32Array(SphericalHarmonicsL2Generater.GradientSimulateSize * SphericalHarmonicsL2Generater.GradientSimulateSize * 3);
     private static _tempGroundPixels: Float32Array = new Float32Array(SphericalHarmonicsL2Generater.GradientSimulateSize * SphericalHarmonicsL2Generater.GradientSimulateSize * 3);
+
     /**
      * @internal
-     * uv 坐标对应 纹素 球面面积
-     * @param u 
-     * @param v 
+     * @en Calculates the surface area corresponding to the uv coordinates on a sphere.
+     * @param u The u coordinate.
+     * @param v The v coordinate.
+     * @returns The surface area.
+     * @zh 计算球面上uv坐标对应的立体角。
+     * @param u u坐标。
+     * @param v v坐标。
+     * @returns 立体角。
      */
     static surfaceArea(u: number, v: number) {
         return Math.atan2(u * v, Math.sqrt(u * u + v * v + 1.0));
     }
 
     /**
-     * uv 与 法线(方向) 对应关系
-     * @param u 
-     * @param v 
-     * @param face 
-     * @param out_dir 
+     * @en Converts uv coordinates to a direction vector based on the cube face.
+     * @param u The u coordinate.
+     * @param v The v coordinate.
+     * @param face The cube map face.
+     * @param out_dir The resulting direction vector.
+     * @zh 根据立方体贴图面将uv坐标转换为方向向量。
+     * @param u u坐标。
+     * @param v v坐标。
+     * @param face 立方体贴图面。
+     * @param out_dir 输出的方向向量。
      */
     static uv2Dir(u: number, v: number, face: TextureCubeFace, out_dir: Vector3) {
         switch (face) {
@@ -162,12 +198,18 @@ export class SphericalHarmonicsL2Generater {
 
     /**
      * @internal
-     * 计算 球谐系数
-     * @param i 
-     * @param x 
-     * @param y 
-     * @param z 
-     * @returns 
+     * @en Evaluates the spherical harmonics function for given coefficients.
+     * @param i The coefficient index.
+     * @param x The x component of the direction vector.
+     * @param y The y component of the direction vector.
+     * @param z The z component of the direction vector.
+     * @returns The evaluated value.
+     * @zh 根据给定的系数评估球谐函数。
+     * @param i 系数索引。
+     * @param x 方向向量的x分量。
+     * @param y 方向向量的y分量。
+     * @param z 方向向量的z分量。
+     * @returns 评估值。
      */
     static sh_eval_9(i: number, x: number, y: number, z: number) {
         const sqrt = Math.sqrt;
@@ -198,11 +240,16 @@ export class SphericalHarmonicsL2Generater {
 
     /**
      * @internal
-     * 通过 cubemap 像素值 计算环境光照系数
-     * @param cubemapPixels cubemap 像素数据
-     * @param pixelComponentSize 每像素数据量 (RGB 3, RGBA 4)
-     * @param cubemapSize cubemap 大小
-     * @param isGamma 像素数据颜色空间
+     * @en Calculates the ambient light coefficients from cubemap pixel values.
+     * @param cubemapPixels The cubemap pixel data for each face.
+     * @param pixelComponentSize The number of components per pixel.
+     * @param cubemapSize The size of the cubemap.
+     * @param isGamma Whether the pixel data is in gamma color space.
+     * @zh 从立方体贴图像素值计算环境光照系数。
+     * @param cubemapPixels 立方体贴图的每个面的像素数据。
+     * @param pixelComponentSize 每像素数据量。
+     * @param cubemapSize 立方体贴图的大小。
+     * @param isGamma 像素数据是否为伽马颜色空间。
      */
     static CalCubemapSH(cubemapPixels: Float32Array[], pixelComponentSize: number, cubemapSize: number, isGamma: boolean = true): SphericalHarmonicsL2 {
 
@@ -281,11 +328,16 @@ export class SphericalHarmonicsL2Generater {
 
     /**
      * @internal
-     * 通过 天空颜色, 地平线颜色, 地面颜色计算环境光照系数
-     * @param skyColor 
-     * @param equatorColor 
-     * @param groundColor 
-     * @param isGamma 颜色空间
+     * @en Calculate the ambient lighting coefficient based on sky color, horizon color, and ground color
+     * @param skyColor The color of the sky.
+     * @param equatorColor The color of the equator.
+     * @param groundColor The color of the ground.
+     * @param isGamma Whether the colors are in gamma color space.
+     * @zh 通过 天空颜色, 地平线颜色, 地面颜色计算环境光照系数
+     * @param skyColor 天空颜色。
+     * @param equatorColor 地平线颜色。
+     * @param groundColor 地面颜色。
+     * @param isGamma 颜色是否为伽马空间。
      */
     static CalGradientSH(skyColor: Vector3, equatorColor: Vector3, groundColor: Vector3, isGamma: boolean = true): SphericalHarmonicsL2 {
 

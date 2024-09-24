@@ -12,7 +12,8 @@ const tempVec = new Vector3();
 const tempVec1 = new Vector3();
 
 /**
- * 此类描述Lod数据
+ * @en The `LODInfo` class describes Level of Detail (LOD) data.
+ * @zh `LODInfo` 类描述了细节层次（LOD）数据。
  */
 export class LODInfo {
     /**@internal */
@@ -33,8 +34,8 @@ export class LODInfo {
 
 
     /**
-     * 实例化一个LODInfo
-     * @param mincullRate 
+     * @en Constructor method of LODInfo.
+     * @zh 细节层次数据的构造方法
      */
     constructor(mincullRate: number) {
         this._mincullRate = mincullRate;
@@ -43,19 +44,22 @@ export class LODInfo {
     }
 
     /**
-     * 设置最小通过率
+     * @en Minimum culling ratio for LOD.
+     * @zh LOD的最小剔除率。
      */
-    set mincullRate(value: number) {
-        this._mincullRate = value;
-    }
-
     get mincullRate() {
         return this._mincullRate;
     }
 
+    set mincullRate(value: number) {
+        this._mincullRate = value;
+    }
+
+
     /**
      * @internal
-     * 设置LODGroup
+     * @en Sets the LOD group
+     * @zh 设置LOD组。
      */
     set group(value: LODGroup) {
         if (value == this._group)
@@ -80,8 +84,13 @@ export class LODInfo {
     }
 
     /**
-     * 设置LODInfo的节点信息
+     * @en The node information for the LODInfo.
+     * @zh LODInfo的节点信息。
      */
+    get renders(): Sprite3D[] {
+        return this._cachSprite3D;
+    }
+
     set renders(value: Sprite3D[]) {
         this._cachSprite3D = value;
         for (var i = 0, n = value.length; i < n; i++) {
@@ -89,13 +98,12 @@ export class LODInfo {
         }
     }
 
-    get renders(): Sprite3D[] {
-        return this._cachSprite3D;
-    }
 
     /**
-     * 在lodInfo中增加渲染节点
-     * @param node 
+     * @en Adds a rendering node to the LODInfo.
+     * @param node The Sprite3D node to be added as a rendering node.
+     * @zh 在LODInfo中增加渲染节点。
+     * @param node 要作为渲染节点添加的Sprite3D节点。
      */
     addNode(node: Sprite3D) {
         if (!node)
@@ -115,8 +123,10 @@ export class LODInfo {
     }
 
     /**
-     * 删除某个lod节点
-     * @param node 
+     * @en Removes a LOD node from the LODInfo.
+     * @param node The Sprite3D node to be removed from the LOD.
+     * @zh 从LODInfo中删除某个LOD节点。
+     * @param node 要从LOD中删除的Sprite3D节点。
      */
     removeNode(node: Sprite3D) {
         let ren = node;
@@ -137,7 +147,8 @@ export class LODInfo {
     }
 
     /**
-     * 释放所有的渲染节点cull标记
+     * @en Releases all render node cull flags in the LODInfo.
+     * @zh 释放LODInfo中的所有渲染节点的剔除标记。
      */
     removeAllRender() {
         this._renders.forEach(element => {
@@ -147,53 +158,62 @@ export class LODInfo {
 }
 
 /**
- * <code>SpotLight</code> 类用于构建LOD组件
+ * @en The `LODGroup` class is used to build LOD components.
+ * @zh SpotLight 类用于构建LOD组件
  */
 export class LODGroup extends Component {
 
     /**
-     * 是否需要重新计算_lodBoundsRadius，和_bounds
-     * 在LOD值里面位置有相对改动的时候是需要重新计算的
-     */
+   * @en Indicates whether the LOD bounds radius and bounds need to be recalculated. Recalculation is needed when there is a relative change in the LOD values.
+   * @zh 是否需要重新计算 _lodBoundsRadius 和 _bounds。当 LOD 值的位置有相对改动时，需要重新计算。
+   */
     private _needcaculateBounds: boolean = false;
 
-    /**     
-     * lodGroup所有的渲染节点的包围盒计算
+    /**
+     * @en The bounds calculation for all rendering nodes in the LOD group.
+     * @zh lodGroup 所有的渲染节点的包围盒计算
      */
     private _bounds: Bounds;
 
     /**
-     * size
+     * @en The size of the LOD group.
+     * @zh LOD组大小
      */
     private _size: number;
 
     /**
-     * 包围盒中心位置
+     * @en The center position of the bounding box.
+     * @zh 包围盒中心位置
      */
     private _lodPosition: Vector3;
 
     /**
-     * lod等级数量
+     * @en The number of LOD levels.
+     * @zh LOD 等级数量
      */
     private _lodCount: number;
 
     /**
-     * lod等级信息
+     * @en The information of LOD levels.
+     * @zh LOD 等级信息
      */
     private _lods: LODInfo[] = [];
 
     /**
-     * 显示节点
+     * @en The index of the visible node.
+     * @zh 显示节点
      */
     private _visialIndex = -1;
 
     /**
-     * lod节点比例
+     * @en The ratio of the LOD node.
+     * @zh LOD节点比例
      */
     private _nowRate: number;
 
     /**
-     * 实例化一个LODGroup
+     * @en Constructor method of LODGroup.
+     * @zh LOD组的构造方法
      */
     constructor() {
         super();
@@ -203,25 +223,21 @@ export class LODGroup extends Component {
     }
 
     /**
-     * 阴影裁剪pass
-     * @returns 
+     * @en Shadow culling pass
+     * @zh 阴影裁剪pass
      */
     shadowCullPass(): boolean {
         return false;
     }
 
     /**
-    * get LODInfo 数组
-    * @returns 
-    */
+     * @en The array of LODInfo objects
+     * @zh LODInfo数组
+     */
     get lods(): LODInfo[] {
         return this._lods;
     }
 
-    /**
-     * 设置 LODInfo 数组
-     * @param data 
-     */
     set lods(data: LODInfo[]) {
         this._lods = data;
         for (var i = 0, n = this._lods.length; i < n; i++) {
@@ -234,14 +250,16 @@ export class LODGroup extends Component {
     }
 
     /**
-     * lod节点比例
+     * @en Proportion of lod nodes
+     * @zh lod节点比例
      */
     get nowRate() {
         return this._nowRate;
     }
 
     /**
-     * 获得LOD包围盒
+     * @en LOD bounds
+     * @zh LOD包围盒
      */
     get bounds() {
         this.recalculateBounds();
@@ -326,7 +344,8 @@ export class LODGroup extends Component {
 
     /**
      * @internal
-     * 删除
+     * @en Called when the object is being destroyed to perform cleanup operations.
+     * @zh 在对象被销毁时调用，以执行清理操作。
      */
     onDestroy() {
         this._lods.forEach(element => {
@@ -394,7 +413,8 @@ export class LODGroup extends Component {
 
     /**
      * @internal
-     * 重新计算包围盒
+     * @en Recalculate the bounding box
+     * @zh 重新计算包围盒
      */
     recalculateBounds() {
         if (!this._needcaculateBounds) {
@@ -420,7 +440,8 @@ export class LODGroup extends Component {
 
     /**
      * @internal
-     * 渲染之前的更新
+     * @en Update before rendering
+     * @zh 渲染之前的更新
      */
     onPreRender() {
         this.recalculateBounds();

@@ -4,7 +4,6 @@ import { Image } from "./Image";
 import { Button } from "./Button";
 import { Event } from "../events/Event"
 import { Point } from "../maths/Point"
-import { Loader } from "../net/Loader"
 import { Handler } from "../utils/Handler"
 import { ILaya } from "../../ILaya";
 import { HideFlags } from "../Const";
@@ -14,35 +13,20 @@ import { AssetDb } from "../resource/AssetDb";
 import { SerializeUtil } from "../loaders/SerializeUtil";
 
 /**
- * @en Dispatched when the slider is moved.
- * @zh 移动滑块位置时调度。
- * @eventType laya.events.Event
- */
-/*[Event(name = "change", type = "laya.events.Event")]*/
-
-/**
- * @en Dispatched when the movement of the slider is completed (when the user releases the mouse).
- * @zh 移动滑块位置完成（用户鼠标抬起）后调度。
- * @eventType @eventType laya.events.EventD
- *
- */
-/*[Event(name = "changed", type = "laya.events.Event")]*/
-
-/**
  * @en The Slider control allows users to select a value by moving a slider between the end points of the track.
  * The current value of the slider is determined by the relative position of the slider between the end points of the slider (corresponding to the minimum and maximum values of the slider).
  * The slider allows values at specific intervals between the minimum and maximum values. The slider can also display its current value using a data tip.
+ * - `changed` event is dispatched when the movement of the slider is completed (when the user releases the mouse).
+ * - `change` event is dispatched when the movement of the slider.
  * @zh 使用 Slider 控件，用户可以通过在滑块轨道的终点之间移动滑块来选择值。
  * 滑块的当前值由滑块端点（对应于滑块的最小值和最大值）之间滑块的相对位置确定。
  * 滑块允许最小值和最大值之间特定间隔内的值。滑块还可以使用数据提示显示其当前值。
- *
- * @see laya.ui.HSlider
- * @see laya.ui.VSlider
+ * - `changed`事件用于移动滑块位置完成（用户鼠标抬起）后调度。
+ * - `change`事件用于移动滑块位置时调度。
  */
 export class Slider extends UIComponent {
 
     /** 
-     * @private
      * @en Get a reference to the Label component contained within the Slider component.
      * @zh 获取 Slider 组件所包含的 Label 组件的引用。
      */
@@ -57,16 +41,14 @@ export class Slider extends UIComponent {
     changeHandler: Handler;
 
     /**
-     * @default true
      * @en Whether it is vertical sliding. The default value is true, indicating vertical direction; false indicates horizontal direction.
      * @zh 是否为垂直滑动。默认值为true，表示垂直方向，false为水平方向。
      */
     isVertical: boolean = true;
 
     /**
-     * @default true
-     * @en A Boolean value that indicates whether to display labels.
-     * @zh 是否显示标签。
+     * @en A Boolean value that indicates whether to display labels.defalut value is true.
+     * @zh 是否显示标签。默认值为true。
      */
     showLabel: boolean = true;
 
@@ -76,37 +58,24 @@ export class Slider extends UIComponent {
      */
     protected _showProgress: boolean = false;
 
-    /**@private */
     protected _allowClickBack: boolean;
-    /**@private */
     protected _max: number = 100;
-    /**@private */
     protected _min: number = 0;
-    /**@private */
     protected _tick: number = 1;
-    /**@private */
     protected _value: number = 0;
-    /**@private */
     protected _skin: string;
-    /**@private */
     protected _bg: Image;
-    /**@private */
     protected _progress: Image;
-    /**@private */
     protected _bar: Button;
-    /**@private */
     protected _tx: number;
-    /**@private */
     protected _ty: number;
-    /**@private */
     protected _maxMove: number;
-    /**@private */
     protected _globalSacle: Point;
 
     /**
-     * @en construcor mehtod.
+     * @en Creates an instance of Slider.
      * @param skin The skin.
-     * @zh 构造方法
+     * @zh 创建一个Silder实例。
      * @param skin 皮肤纹理。
      */
     constructor(skin: string = null) {
@@ -118,10 +87,6 @@ export class Slider extends UIComponent {
         this.skin = skin;
     }
 
-    /**
-     * @inheritDoc
-     * @override
-     */
     destroy(destroyChild: boolean = true): void {
         super.destroy(destroyChild);
         this._bg && this._bg.destroy(destroyChild);
@@ -133,10 +98,6 @@ export class Slider extends UIComponent {
         this.changeHandler = null;
     }
 
-    /**
-     * @inheritDoc 
-     * @override
-    */
     protected createChildren(): void {
         this._bg = new Image();
         this._bg.hideFlags = HideFlags.HideAndDontSave;
@@ -151,20 +112,11 @@ export class Slider extends UIComponent {
         this.addChild(this._bar);
     }
 
-    /**
-     * @inheritDoc 
-     * @override
-    */
     protected initialize(): void {
         this._bar.on(Event.MOUSE_DOWN, this, this.onBarMouseDown);
         this.allowClickBack = true;
     }
 
-    /**
-     * @private
-     * @en The event of the slider Event.MOUSE_DOWN listening and handling function.
-     * @zh 滑块的 Event.MOUSE_DOWN 事件侦听处理函数。
-     */
     protected onBarMouseDown(e: Event): void {
         let stage = ILaya.stage;
         this._globalSacle || (this._globalSacle = new Point());
@@ -180,11 +132,6 @@ export class Slider extends UIComponent {
         this.showValueText();
     }
 
-    /**
-     * @private
-     * @en Display labels.
-     * @zh 显示标签。
-     */
     protected showValueText(): void {
         if (this.showLabel) {
             var label: Label = Slider.label;
@@ -200,18 +147,11 @@ export class Slider extends UIComponent {
         }
     }
 
-    /**
-     * @private
-     * @en Hide tags.
-     * @zh 隐藏标签。
-     */
     protected hideValueText(): void {
         Slider.label && Slider.label.removeSelf();
     }
 
-    /**
-     * @private
-     */
+
     private mouseUp(e: Event): void {
         let stage = ILaya.stage;
         stage.off(Event.MOUSE_MOVE, this, this.mouseMove);
@@ -221,9 +161,6 @@ export class Slider extends UIComponent {
         this.hideValueText();
     }
 
-    /**
-     * @private
-     */
     private mouseMove(e: Event): void {
         let stage = ILaya.stage;
         var oldValue: number = this._value;
@@ -255,9 +192,6 @@ export class Slider extends UIComponent {
         this.showValueText();
     }
 
-    /**
-     * @private
-     */
     protected sendChangeEvent(type: string = Event.CHANGE): void {
         this.event(type);
         this.changeHandler && this.changeHandler.runWith(this._value);
@@ -266,7 +200,6 @@ export class Slider extends UIComponent {
     /**
      * @en The skin of the slider.
      * @zh 滑块的皮肤纹理。
-     * @copy laya.ui.Image#skin
      */
     get skin(): string {
         return this._skin;
@@ -298,7 +231,7 @@ export class Slider extends UIComponent {
         else
             this._progress.skin = null;
     }
-
+    /** @ignore */
     _setSkin(url: string): Promise<void> {
         this._skin = url;
 
@@ -341,7 +274,6 @@ export class Slider extends UIComponent {
     }
 
     /**
-     * @private
      * @en Set the position information of the slider.
      * @zh 设置滑块的位置信息。
      */
@@ -350,23 +282,14 @@ export class Slider extends UIComponent {
         else this._bar.y = Math.round((this._bg.height - this._bar.height) * 0.5);
     }
 
-    /**@inheritDoc @override*/
     protected measureWidth(): number {
         return Math.max(this._bg.width, this._bar.width);
     }
 
-    /**
-     * @inheritDoc 
-     * @override
-    */
     protected measureHeight(): number {
         return Math.max(this._bg.height, this._bar.height);
     }
 
-    /**
-     * @inheritDoc 
-     * @override
-    */
     protected _sizeChanged(): void {
         super._sizeChanged();
         if (this.isVertical) this._bg.height = this.height;
@@ -444,7 +367,6 @@ export class Slider extends UIComponent {
     }
 
     /**
-     * @private
      * @en Change the position value of the slider.
      * @zh 改变滑块的位置值。
      */
@@ -540,7 +462,6 @@ export class Slider extends UIComponent {
     }
 
     /**
-     * @private
      * @en The Event.MOUSE_DOWN event handler of the slider.
      * @zh 滑动条的 Event.MOUSE_DOWN 事件侦听处理函数。
      */
@@ -550,10 +471,6 @@ export class Slider extends UIComponent {
         else this.value = point.x / (this.width - this._bar.width) * (this._max - this._min) + this._min;
     }
 
-    /**
-     * @inheritDoc 
-     * @override
-     */
     set_dataSource(value: any) {
         this._dataSource = value;
         if (typeof (value) == 'number' || typeof (value) == 'string')

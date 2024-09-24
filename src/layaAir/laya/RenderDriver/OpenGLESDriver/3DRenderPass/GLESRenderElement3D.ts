@@ -1,6 +1,6 @@
 import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
 import { IRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
-import { NativeTransform3D } from "../../RenderModuleData/RuntimeModuleData/3D/NativeTransform3D";
+import { RTTransform3D } from "../../RenderModuleData/RuntimeModuleData/3D/RTTransform3D";
 import { RTBaseRenderNode } from "../../RenderModuleData/RuntimeModuleData/3D/RTBaseRenderNode";
 import { RTDefineDatas } from "../../RenderModuleData/RuntimeModuleData/RTDefineDatas";
 import { RTShaderPass } from "../../RenderModuleData/RuntimeModuleData/RTShaderPass";
@@ -29,7 +29,7 @@ export class GLESRenderElement3D implements IRenderElement3D {
 
     private _renderShaderData: GLESShaderData;
 
-    private _transform: NativeTransform3D;
+    private _transform: RTTransform3D;
 
     set geometry(data: GLESRenderGeometryElement) {
         this._geometry = data;
@@ -58,12 +58,12 @@ export class GLESRenderElement3D implements IRenderElement3D {
         return this._renderShaderData;
     }
 
-    set transform(data: NativeTransform3D) {
+    set transform(data: RTTransform3D) {
         this._transform = data;
         this._nativeObj.setTransform((data as any)._nativeObj);
     }
 
-    get transform(): NativeTransform3D {
+    get transform(): RTTransform3D {
         return this._transform;
     }
 

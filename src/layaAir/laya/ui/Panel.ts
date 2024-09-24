@@ -14,26 +14,19 @@ import { ScrollType } from "./Styles";
  * @zh Panel 是一个面板容器类。
  */
 export class Panel extends Box {
-    /**@private */
     protected _content: Box;
-    /**@private */
     protected _vScrollBar: VScrollBar;
-    /**@private */
     protected _hScrollBar: HScrollBar;
-    /**@private */
     protected _scrollChanged: boolean;
-    /**@private */
     protected _usedCache: string = null;
-    /**@private */
     protected _elasticEnabled: boolean = false;
-
     protected _scrollType: ScrollType = 0;
     protected _vScrollBarSkin: string;
     protected _hScrollBarSkin: string;
 
     /**
-     * @en In the `Panel` constructor, the default values of properties `width` and `height` are both 100.
-     * @zh 在 `Panel` 构造函数中，属性 `width` 和 `height` 的默认值均为 100。
+     * @en Creates an instance of Panel, and sets the width and height of it.
+     * @zh 创建一个`Panel`实例，属性 `width` 和 `height` 的默认值均为 100。
      */
     constructor() {
         super();
@@ -43,7 +36,6 @@ export class Panel extends Box {
     }
 
     /**
-     * @override
      * @en Destroy this object.
      * @param destroyChild Whether to destroy the child objects as well.
      * @zh 销毁此对象。
@@ -60,7 +52,6 @@ export class Panel extends Box {
     }
 
     /**
-     * @override
      * @en Destroy all child objects.
      * @zh 销毁所有的子对象。
      */
@@ -68,7 +59,6 @@ export class Panel extends Box {
         this._content.destroyChildren();
     }
 
-    /**@inheritDoc @override*/
     protected createChildren(): void {
         this._content = new Box();
         this._content.hideFlags = HideFlags.HideAndDontSave;
@@ -76,7 +66,6 @@ export class Panel extends Box {
     }
 
     /**
-     * @override
      * @en Add a child object.
      * @param child The child object to add.
      * @returns The added child object.
@@ -91,7 +80,6 @@ export class Panel extends Box {
     }
 
     /**
-    * @private
     * @en Event handler for the child object's Event.RESIZE event.
     * @zh 子对象的 Event.RESIZE 事件侦听处理函数。
     */
@@ -101,7 +89,6 @@ export class Panel extends Box {
     }
 
     /**
-     * @override
      * @en Add a child object at a specific index position.
      * @param child The child object to add.
      * @param index The index position to place the child at.
@@ -118,7 +105,6 @@ export class Panel extends Box {
     }
 
     /**
-     * @override
      * @en Remove a child object.
      * @param child The child object to remove.
      * @returns The removed child object.
@@ -142,7 +128,6 @@ export class Panel extends Box {
     }
 
     /**
-     * @override
      * @en Remove a child object at a specific index position.
      * @param index The index position of the child object.
      * @returns The removed child object.
@@ -157,7 +142,6 @@ export class Panel extends Box {
     }
 
     /**
-     * @override
      * @en Remove a range of children from the object.
      * @param beginIndex The beginning position.
      * @param endIndex The ending position. The default value is 0x7fffffff.
@@ -174,7 +158,6 @@ export class Panel extends Box {
     }
 
     /**
-     * @override
      * @en Returns the child object at a specific index position.
      * @param index The index position of the child object.
      * @returns The child object at the specified index position.
@@ -187,7 +170,6 @@ export class Panel extends Box {
     }
 
     /**
-     * @override
      * @en Returns a child object with a specific name.
      * @param name The name of the child object.
      * @returns The child object with the specified name.
@@ -200,7 +182,6 @@ export class Panel extends Box {
     }
 
     /**
-     * @override
      * @en Returns the index position of a specific child object.
      * @param child The child object.
      * @returns The index position of the child object.
@@ -213,7 +194,6 @@ export class Panel extends Box {
     }
 
     /**
-     * @override
      * @en The number of child objects.
      * @zh 子节点对象数量。
      */
@@ -221,7 +201,6 @@ export class Panel extends Box {
         return this._content.numChildren;
     }
 
-    /**@private */
     private changeScroll(): void {
         this._scrollChanged = false;
         var contentW = this.contentWidth || 1;
@@ -249,14 +228,12 @@ export class Panel extends Box {
         }
     }
 
-    /**@inheritDoc @override*/
     protected _sizeChanged(): void {
         super._sizeChanged();
         this.setContentSize(this._width, this._height);
     }
 
     /**
-     * @private
      * @en Get the width of the content area in pixels.
      * @zh 获取内容区域宽度（以像素为单位）。
      */
@@ -270,7 +247,6 @@ export class Panel extends Box {
     }
 
     /**
-     * @private
      * @en Get the height of the content area in pixels.
      * @zh 获取内容区域高度（以像素为单位）。
      */
@@ -284,7 +260,6 @@ export class Panel extends Box {
     }
 
     /**
-     * @private
      * @en Sets the width and height of the content (in pixels).
      * @param width The width.
      * @param height The height.
@@ -301,16 +276,13 @@ export class Panel extends Box {
         content.scrollRect = content.scrollRect;
     }
 
-    /**
-     * @inheritDoc
-     * @override
-     */
+    /**@ignore */
     _setWidth(value: number) {
         super._setWidth(value);
         this._setScrollChanged();
     }
 
-    /**@inheritDoc @override*/
+    /**@ignore */
     _setHeight(value: number) {
         super._setHeight(value);
         this._setScrollChanged();
@@ -474,7 +446,6 @@ export class Panel extends Box {
     }
 
     /**
-     * @private
      * @en Event.MOUSE_DOWN event handler for the scrollbar.
      * @param scrollBar The scrollbar object.
      * @zh 滚动条的 Event.MOUSE_DOWN 事件侦听处理函数。
@@ -511,15 +482,9 @@ export class Panel extends Box {
         this.changeScroll();
     }
 
-    /**
-     * @inheritDoc
-     * @override
-     */
     get cacheAs() {
         return super.cacheAs;
     }
-
-    /**@inheritDoc @override*/
     set cacheAs(value: string) {
         super.cacheAs = value;
         this._usedCache = null;
@@ -560,8 +525,7 @@ export class Panel extends Box {
     private onScrollEnd(): void {
         super.cacheAs = this._usedCache;
     }
-
-    /**@private */
+    
     protected _setScrollChanged(): void {
         if (!this._scrollChanged) {
             this._scrollChanged = true;

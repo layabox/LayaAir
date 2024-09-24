@@ -2,7 +2,8 @@ import { ICollider } from "../../Physics3D/interface/ICollider";
 import { Vector3 } from "../../maths/Vector3";
 
 /**
- * <code>ContactPoint</code> 类用于创建物理碰撞信息。
+ * @en ContactPoint class used to create physical contact information.
+ * @zh ContactPoint 类用于创建物理碰撞信息。
  */
 export class ContactPoint {
 	/**@internal */
@@ -11,21 +12,40 @@ export class ContactPoint {
 	/**@internal */
 	_id: number;
 
-	/**碰撞器A。*/
+	/**
+	 * @en Collider A.
+	 * @zh 碰撞器A。
+	 */
 	_colliderA: ICollider = null;
-	/**碰撞器B。*/
+	/**
+	 * @en Collider B.
+	 * @zh 碰撞器B。
+	 */
 	_colliderB: ICollider = null;
-	/**距离。*/
+	/**
+	 * @en Distance.
+	 * @zh 距离。
+	 */
 	distance: number = 0;
-	/**法线。*/
+	/**
+	 * @en Normal.
+	 * @zh 法线。
+	 */
 	normal: Vector3 = new Vector3();
-	/**碰撞器A的碰撞点。*/
+	/**
+	 * @en Collider A's contact point.
+	 * @zh 碰撞器A的碰撞点。
+	 */
 	positionOnA: Vector3 = new Vector3();
-	/**碰撞器B的碰撞点。*/
+	/**
+	 * @en Collider B's contact point.
+	 * @zh 碰撞器B的碰撞点。
+	 */
 	positionOnB: Vector3 = new Vector3();
 
 	/**
-	 * 创建一个 <code>ContactPoint</code> 实例。
+	 * @en constructor of ContactPoint.	
+	 * @zh ContactPoint 构造函数。
 	 */
 	constructor() {
 		this._id = ++this._idCounter;

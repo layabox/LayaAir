@@ -15,7 +15,8 @@ import { Vector4 } from "../../maths/Vector4"
 import { Viewport } from "../../maths/Viewport"
 
 /**
- * <code>PostProcess</code> 类用于创建后期处理组件。
+ * @en The `PostProcess` class is used to create post-processing components.
+ * @zh `PostProcess` 类用于创建后期处理组件。
  */
 export class PostProcess {
 
@@ -83,9 +84,17 @@ export class PostProcess {
 
     /**@internal */
     private _depthtextureFlag: DepthTextureMode;
-    /**@internal 调色Effect*/
+    /**
+     * @internal 
+     * @en Color Effect
+     * @zh 调色Effect
+     */
     _ColorGradEffect: ColorGradEffect;
-    /**@internal 是否开启调色Effect*/
+    /**
+     * @internal
+     * @en Whether to enable the color effect.
+     * @zh 是否开启调色Effect
+     */
     _enableColorGrad: boolean = false;
 
     /**@internal */
@@ -103,7 +112,8 @@ export class PostProcess {
     }
 
     /**
-     * 创建一个 <code>PostProcess</code> 实例。
+     * @en Add a post-process effect.
+     * @zh 构造方法，添加后期处理效果。
      */
     constructor() {
         this._context = new PostProcessRenderContext();
@@ -113,7 +123,8 @@ export class PostProcess {
     }
 
     /**
-     * 开启属性
+     * @en The enable property of the post-process.
+     * @zh 启用后期处理。
      */
     get enable(): boolean {
         return this._enable;
@@ -132,9 +143,13 @@ export class PostProcess {
     }
 
     /**
-     * IDEmain
-     * 设置后期Effect数组
+     * @en Set the array of post-process effects.IDE main
+     * @zh 设置后期处理效果数组。
      */
+    get effects(): PostProcessEffect[] {
+        return this._effects;
+    }
+
     set effects(value: PostProcessEffect[]) {
         this.clearEffect();
         for (var i = 0, n = value.length; i < n; i++) {
@@ -143,12 +158,10 @@ export class PostProcess {
         }
     }
 
-    get effects(): PostProcessEffect[] {
-        return this._effects;
-    }
 
     /**
-     * 根据后期处理的需要,设置值
+     * @en The camera depth texture mode required for post-processing.
+     * @zh 后期处理所需的相机深度纹理模式。
      */
     get cameraDepthTextureMode() {
         return this._depthtextureFlag;
@@ -237,7 +250,9 @@ export class PostProcess {
     }
 
     /**
-     * 添加后期处理效果。
+     * @en Add a post-processing effect.
+     * @param effect The post-processing effect to add.
+     * @zh 添加后期处理效果。
      * @param effect 后期处理效果
      */
     addEffect(effect: PostProcessEffect): void {
@@ -256,9 +271,12 @@ export class PostProcess {
     }
 
     /**
-     * 根据类型获得后期处理实例
+     * @en Get a post-processing instance based on its type.
+     * @param classReg The registered post-processing class type.
+     * @returns The post-processing effect instance, or null if not found.
+     * @zh 根据类型获取后期处理实例。
      * @param classReg 注册的后期处理类型
-     * @returns 
+     * @returns 后期处理效果实例，如果没有找到则返回null
      */
     getEffect(classReg: any): any {
         let size: number = this._effects.length;
@@ -272,7 +290,9 @@ export class PostProcess {
     }
 
     /**
-     * 移除后期处理效果。
+     * @en Remove a post-processing effect.
+     * @param effect The post-processing effect to remove.
+     * @zh 移除后期处理效果。
      * @param effect 后期处理效果
      */
     removeEffect(effect: PostProcessEffect): void {
@@ -285,7 +305,8 @@ export class PostProcess {
     }
 
     /**
-     * 清理所有后期处理
+     * @en Clear all post-processing effects.
+     * @zh 清理所有后期处理效果。
      */
     clearEffect(): void {
         let i = this.effects.length - 1;
@@ -296,8 +317,9 @@ export class PostProcess {
     }
 
     /**
-     * 调用指令集
      * @internal
+     * @en Call the instruction set.
+     * @zh 调用指令集。
      */
     _applyPostProcessCommandBuffers(): void {
         this._context.command!._apply();

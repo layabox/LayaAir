@@ -7,11 +7,13 @@ import { Material } from "../../../resource/Material";
 import { Transform3D } from "../Transform3D";
 
 /**
- * <code>RenderElement</code> 类用于实现渲染元素。
+ * @en RenderElement class is used to implement rendering elements.
+ * @zh RenderElement 类用于实现渲染元素。
  */
 export class RenderElement {
     /**
-     * 可提交底层的渲染节点
+     * @en Can submit underlying rendering nodes
+     * @zh 可提交底层的渲染节点
      */
     _renderElementOBJ: IRenderElement3D;
     /** @internal */
@@ -27,28 +29,35 @@ export class RenderElement {
     /**@internal */
     _transform: Transform3D;
 
-    /** @internal */
+    /**
+     * @internal
+     * @en The transform of the render element.
+     * @zh 渲染元素的变换。
+     */
+    get transform(): Transform3D {
+        return this._renderElementOBJ.transform;
+    }
     set transform(value: Transform3D) {
         this._transform = value;
         this._renderElementOBJ.transform = value;
     }
 
-    /**@internal */
-    get transform(): Transform3D {
-        return this._renderElementOBJ.transform;
-    }
 
     /**
-     * set RenderElement Material/Shaderdata
+     * @en The material of the render element.
+     * @zh 渲染元素的材质。
      */
+    get material(): Material {
+        return this._material;
+    }
     set material(value: Material) {
+        if (this._material) {
+            this._material._removeOwnerElement(this._renderElementOBJ);
+        }
+
         if (value) {
             this._material = value;
-            this._renderElementOBJ.materialShaderData = value.shaderData;
-            this._renderElementOBJ.materialRenderQueue = value.renderQueue;
-            this._renderElementOBJ.subShader = this._subShader = value.shader.getSubShaderAt(0);
-            this._renderElementOBJ.materialId = value.id;
-            value.ownerELement = this;
+            this.material._setOwnerElement(this._renderElementOBJ);
         }
         else {
             this._material = null;
@@ -59,42 +68,44 @@ export class RenderElement {
         }
     }
 
-    /**@internal */
-    get material(): Material {
-        return this._material;
-    }
 
     /**
-     * 设置 SubShader
+     * @en The SubShader of the render element.
+     * @zh 渲染元素的 SubShader。
      */
+    get renderSubShader(): SubShader {
+        return this._subShader;
+    }
     set renderSubShader(value: SubShader) {
         this._subShader = value;
         this._renderElementOBJ.subShader = value;
     }
 
-    get renderSubShader(): SubShader {
-        return this._subShader;
+    /**
+     * @en The SubShader index of the render element.
+     * @zh 渲染元素的 SubShader 索引。
+     */
+    get subShaderIndex() {
+        return this._subShaderIndex;
     }
-
     set subShaderIndex(value: number) {
         this._subShaderIndex = value;
     }
 
-    get subShaderIndex() {
-        return this._subShaderIndex;
+    /**
+     * @internal
+     * @en The BaseRender of the render element.
+     * @zh 渲染元素的 BaseRender。
+     */
+    get render(): BaseRender {
+        return this._baseRender;
     }
-    /**@internal */
     set render(value: BaseRender) {
         this._baseRender = value;
         this._renderElementOBJ.renderShaderData = value._baseRenderNode.shaderData;
     }
 
-    get render(): BaseRender {
-        return this._baseRender;
-    }
-    /**
-     * 创建一个 <code>RenderElement</code> 实例。
-     */
+    /**@ignore */
     constructor() {
         this._createRenderElementOBJ();
     }
@@ -104,7 +115,10 @@ export class RenderElement {
     }
 
     /**
-     * 设置位置
+     * @en Set the transform of the render element.
+     * @param transform The transform to set.
+     * @zh 设置渲染元素的位置变换。
+     * @param transform 要设置的变换。
      */
     setTransform(transform: Transform3D): void {
         this.transform = transform;
@@ -112,7 +126,10 @@ export class RenderElement {
     }
 
     /**
-     * 设置渲染几何信息
+     * @en Set the geometry information of the render element.
+     * @param geometry The geometry to set.
+     * @zh 设置渲染元素的几何信息。
+     * @param geometry 要设置的几何信息。
      */
     setGeometry(geometry: GeometryElement): void {
         this._geometry = geometry;
@@ -123,11 +140,10 @@ export class RenderElement {
      * @internal
      */
     destroy(): void {
-        this._renderElementOBJ = null;
+        this.material = null;
         this._renderElementOBJ = null;
         this._geometry = null;
         this._baseRender = null;
-        this._material = null
         this._baseRender = null;
         this._subShader = null;
     }

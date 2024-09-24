@@ -131,7 +131,7 @@ export class RenderSprite {
 
         if (sprite._renderNode.addCMDCall)
             sprite._renderNode.addCMDCall(context, x, y);
-        
+
         context.drawLeftData();//强制渲染之前的遗留
         if (context._render2DManager._renderEnd) {
             context._render2DManager._renderEnd = false;
@@ -324,6 +324,7 @@ export class RenderSprite {
             let ctx = new Context();
             ctx.copyState(context);
             ctx.size(w, h);
+            ctx.clearBG(0, 0, 0, 0);
             ctx.render2D = new Render2DSimple(rt);
             ctx.startRender();
             /*
@@ -377,7 +378,8 @@ export class RenderSprite {
         }
     }
 
-    static RenderToRenderTexture(sprite: Sprite, context: Context | null, x: number, y: number, renderTexture: RenderTexture2D = null) {
+    //use Render Rect
+    static RenderToRenderTexture(sprite: Sprite, context: Context | null, x: number, y: number, renderTexture: RenderTexture2D = null, isDrawRenderRect: boolean = true) {
         //如果需要构造RenderTexture
         // 先计算需要的texuture的大小。
         let scaleInfo = sprite._getCacheStyle()._calculateCacheRect(sprite, "bitmap"/*sprite._cacheStyle.cacheAs*/, 0, 0);
@@ -390,8 +392,9 @@ export class RenderSprite {
             ctx.clearBG(RenderTexture2D._clearColor.r, RenderTexture2D._clearColor.g, RenderTexture2D._clearColor.b, RenderTexture2D._clearColor.a);
         } else {
             //计算cache画布的大小
-            let w = tRec.width * scaleInfo.x;
-            let h = tRec.height * scaleInfo.y;
+
+            let w = tRec.width * scaleInfo.x + (isDrawRenderRect ? 0 : tRec.x);
+            let h = tRec.height * scaleInfo.y + (isDrawRenderRect ? 0 : tRec.y);
             rt = new RenderTexture2D(w, h, RenderTargetFormat.R8G8B8A8);
             ctx.size(w, h);
             ctx.clearBG(0, 0, 0, 0);
@@ -400,7 +403,12 @@ export class RenderSprite {
 
         ctx.startRender();
         //把位置移到0，所以要-sprite.xy, 考虑图集空白，所以要-tRec.xy,因为tRec.xy是sprite空间的，所以转到贴图空间是取反
-        sprite.render(ctx, x - sprite.x - tRec.x, y - sprite.y - tRec.y);
+        if (isDrawRenderRect) {
+            sprite.render(ctx, x - sprite.x - tRec.x, y - sprite.y - tRec.y);
+        } else {
+            sprite.render(ctx, x - sprite.x, y - sprite.y);
+        }
+
         ctx.endRender();
         //临时，恢复
         //context && ctx.render2D.setRenderTarget(context.render2D.out); endRender实现了
@@ -415,13 +423,13 @@ export class RenderSprite {
      * @param y 
      * @returns 
      */
-    static RenderToCacheTexture(sprite: Sprite, context: Context | null, x: number, y: number) {
+    static RenderToCacheTexture(sprite: Sprite, context: Context | null, x: number, y: number, isDrawRenderRect: boolean = true) {
         var _cacheStyle = sprite._getCacheStyle();
         if (sprite._needRepaint() || !_cacheStyle.renderTexture || ILaya.stage.isGlobalRepaint()) {
             if (_cacheStyle.renderTexture) {
                 _cacheStyle.renderTexture.destroy();//TODO 优化， 如果大小相同，可以重复利用
             }
-            _cacheStyle.renderTexture = RenderSprite.RenderToRenderTexture(sprite, context, x, y);
+            _cacheStyle.renderTexture = RenderSprite.RenderToRenderTexture(sprite, context, x, y, null, isDrawRenderRect);
             return true;    //重绘
         }
         return false;

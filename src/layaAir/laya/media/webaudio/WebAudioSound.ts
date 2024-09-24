@@ -7,51 +7,55 @@ import { ILaya } from "../../../ILaya";
 import { Loader } from "../../net/Loader";
 
 /**
- * @private
- * web audio api方式播放声音
+ * @en Web Audio API for playing sounds
+ * @zh Web Audio API 方式播放声音
  */
 export class WebAudioSound extends EventDispatcher {
 
     /**
-     * 播放设备
+     * @en Audio playback device
+     * @zh 音频播放设备
      */
     static ctx: AudioContext;
 
     /**
-     * 用于播放解锁声音以及解决Ios9版本的内存释放
+     * @en Used to unlock sound playback and resolve memory release issues in iOS 9
+     * @zh 用于解锁声音播放以及解决 iOS 9 版本的内存释放问题
      */
     static _miniBuffer: any = WebAudioSound.ctx ? WebAudioSound.ctx.createBuffer(1, 1, 22050) : undefined;
 
     /**
-     * 是否已解锁声音播放
+     * @en Indicates whether the sound is unlocked
+     * @zh 是否已解锁声音播放
      */
     private static _unlocked: boolean = false;
 
     /**
-     * 声音URL
+     * @en URL of the sound file
+     * @zh 声音文件的 URL
      */
     url: string;
     /**
-     * 是否已加载完成
+     * @en Indicates whether the sound has finished loading
+     * @zh 指示声音是否已加载完成
      */
     loaded: boolean = false;
     /**
-     * 声音原始文件数据
+     * @en Original audio file data
+     * @zh 声音原始文件数据
      */
     audioBuffer: AudioBuffer;
     /**
-     * 待播放的声音列表
+     * @en Channel list to be played
+     * @zh 待播放的声音列表
      */
     private __toPlays: any[];
-    /**
-     * @private
-     */
     private _disposed: boolean = false;
 
 
     /**
-     * 播放声音以解锁IOS的声音
-     *
+     * @en Play a sound to unlock audio on iOS.
+     * @zh 播放声音以解锁IOS的声音播放。
      */
     private static _playEmptySound(): void {
         if (WebAudioSound.ctx == null) {
@@ -64,8 +68,8 @@ export class WebAudioSound extends EventDispatcher {
     }
 
     /**
-     * 尝试解锁声音
-     *
+     * @en Try to unlock the sound
+     * @zh 尝试解锁声音
      */
     private static _unlock(): void {
         if (WebAudioSound._unlocked) {
@@ -79,8 +83,10 @@ export class WebAudioSound extends EventDispatcher {
             WebAudioSound._unlocked = true;
         }
     }
-    /*;*/
-
+    /**
+     * @en Initialize Web Audio
+     * @zh 初始化 Web Audio
+     */
     static initWebAudio(): void {
         WebAudioSound.ctx = new (window["AudioContext"] || (window as any)["webkitAudioContext"] || (window as any)["mozAudioContext"])();
 
@@ -93,9 +99,10 @@ export class WebAudioSound extends EventDispatcher {
     }
 
     /**
-     * 加载声音
-     * @param url
-     *
+     * @en Load the sound
+     * @param url The URL of the sound file to load
+     * @zh 加载声音
+     * @param url 要加载的声音文件的 URL
      */
     load(url: string): void {
         this.url = url;
@@ -133,11 +140,16 @@ export class WebAudioSound extends EventDispatcher {
     }
 
     /**
-     * 播放声音
-     * @param startTime 起始时间
-     * @param loops 循环次数
-     * @return
-     *
+     * @en Play the sound
+     * @param startTime The start time of the sound playback
+     * @param loops The number of times to loop the sound
+     * @param channel The WebAudioSoundChannel to use for playback
+     * @returns The SoundChannel used for playback
+     * @zh 播放声音
+     * @param startTime 声音播放的起始时间
+     * @param loops 声音循环播放的次数
+     * @param channel 用于播放的 WebAudioSoundChannel
+     * @returns 用于播放的 SoundChannel
      */
     play(startTime: number = 0, loops: number = 0, channel: WebAudioSoundChannel = null): SoundChannel {
         channel = channel ? channel : new WebAudioSoundChannel();
@@ -158,6 +170,10 @@ export class WebAudioSound extends EventDispatcher {
         return channel;
     }
 
+    /**
+     * @en The duration of the sound in seconds
+     * @zh 声音的持续时间，以秒为单位
+     */
     get duration(): number {
         if (this.audioBuffer) {
             return this.audioBuffer.duration;
@@ -165,6 +181,10 @@ export class WebAudioSound extends EventDispatcher {
         return 0;
     }
 
+    /**
+     * @en Dispose of the sound and release resources
+     * @zh 销毁声音并释放资源
+     */
     dispose(): void {
         this._disposed = true;
         if (this.audioBuffer) {

@@ -1,7 +1,8 @@
 import { AnimatorState } from "./AnimatorState";
 
 /**
- * <code>AnimatorPlayState</code> 类用于创建动画播放状态信息。
+ * @en The AnimatorPlayState class is used to create animation play state information.
+ * @zh AnimatorPlayState 类用于创建动画播放状态信息。
  */
 export class AnimatorPlayState {
 	/**@internal */
@@ -28,7 +29,8 @@ export class AnimatorPlayState {
 	private _currentState: AnimatorState | null = null;
 
 	/**
-	 * 当前动画State
+	 * @en The current AnimatorState.
+	 * @zh 当前的动画状态。
 	 */
 	public get currentState(): AnimatorState | null {
 		return this._currentState;
@@ -39,28 +41,34 @@ export class AnimatorPlayState {
 	}
 
 	/**
-	 * 播放状态的归一化时间,整数为循环次数，小数为单次播放时间。
+	 * @en The normalized time of the play state. The integer part represents the number of loops, and the fractional part represents the time of a single play.
+	 * @returns The normalized time of the animation.
+	 * @zh 播放状态的归一化时间。整数部分表示循环次数，小数部分表示单次播放时间。
+	 * @returns 动画的归一化时间。
 	 */
 	get normalizedTime(): number {
 		return this._normalizedTime;
 	}
 
 	/**
-	 * 当前动画的持续时间，以秒为单位。
+	 * @en The duration of the current animation in seconds.
+	 * @zh 当前动画的持续时间，以秒为单位。
 	 */
 	get duration(): number {
 		return this._duration;
 	}
 
 	/**
-	 * 动画状态机。
+	 * @en The current animator state.
+	 * @zh 当前的动画状态机。
 	 */
 	get animatorState(): AnimatorState {
 		return this._currentState!;
 	}
 
 	/**
-	 * 创建一个 <code>AnimatorPlayState</code> 实例。
+	 * @en constructor
+	 * @zh 构造函数
 	 */
 	constructor() {
 	}

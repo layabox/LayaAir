@@ -4,7 +4,8 @@ import { IClone } from "../../utils/IClone";
 import { BoundBox } from "./BoundBox";
 
 /**
- * <code>BoundsImp</code> 类用于创建包围体。
+ * @en BoundsImpl class is used to create a bounding box.
+ * @zh BoundsImpl 类用于创建包围体。
  */
 export class BoundsImpl implements IClone {
     /**@internal */
@@ -25,7 +26,8 @@ export class BoundsImpl implements IClone {
     _boundBox: BoundBox = new BoundBox(new Vector3(), new Vector3());
 
     /**
-     * 最小点
+     * @en The minimum point of the bounding box.
+     * @zh 包围盒的最小点。
      */
     get min() {
         return this.getMin();
@@ -36,7 +38,8 @@ export class BoundsImpl implements IClone {
     }
 
     /**
-     * 最大点
+     * @en The maximum point of the bounding box.
+     * @zh 包围盒的最大点。
      */
     get max() {
         return this.getMax();
@@ -47,8 +50,10 @@ export class BoundsImpl implements IClone {
     }
 
     /**
-     * 设置包围盒的最小点。
-     * @param value	包围盒的最小点。
+     * @en Sets the minimum point of the bounding box.
+     * @param value The new minimum point to set for the bounding box.
+     * @zh 设置包围盒的最小点。
+     * @param value 为包围盒设置的新最小点。
      */
     setMin(value: Vector3): void {
         var min: Vector3 = this._boundBox.min;
@@ -59,8 +64,10 @@ export class BoundsImpl implements IClone {
     }
 
     /**
-     * 获取包围盒的最小点。
-     * @return	包围盒的最小点。
+     * @en Gets the minimum point of the bounding box.
+     * @return The minimum point of the bounding box.
+     * @zh 获取包围盒的最小点。
+     * @return 包围盒的最小点。
      */
     getMin(): Vector3 {
         var min: Vector3 = this._boundBox.min;
@@ -72,8 +79,10 @@ export class BoundsImpl implements IClone {
     }
 
     /**
-     * 设置包围盒的最大点。
-     * @param value	包围盒的最大点。
+     * @en Sets the maximum point of the bounding box.
+     * @param value The new maximum point to set for the bounding box.
+     * @zh 设置包围盒的最大点。
+     * @param value	要设置的包围盒的新最大点。
      */
     setMax(value: Vector3): void {
         var max: Vector3 = this._boundBox.max;
@@ -84,7 +93,9 @@ export class BoundsImpl implements IClone {
     }
 
     /**
-     * 获取包围盒的最大点。
+     * @en Gets the maximum point of the bounding box.
+     * @return The maximum point of the bounding box.
+     * @zh 获取包围盒的最大点。
      * @return	包围盒的最大点。
      */
     getMax(): Vector3 {
@@ -97,8 +108,10 @@ export class BoundsImpl implements IClone {
     }
 
     /**
-     * 设置包围盒的中心点。
-     * @param value	包围盒的中心点。
+     * @en Sets the center point of the bounding box.
+     * @param value The new center point to set for the bounding box.
+     * @zh 设置包围盒的中心点。
+     * @param value	要设置的包围盒的新中心点。
      */
     setCenter(value: Vector3): void {
         if (value !== this._center)
@@ -109,7 +122,9 @@ export class BoundsImpl implements IClone {
     }
 
     /**
-     * 获取包围盒的中心点。
+     * @en Gets the center point of the bounding box.
+     * @return The center point of the bounding box.
+     * @zh 获取包围盒的中心点。
      * @return	包围盒的中心点。
      */
     getCenter(): Vector3 {
@@ -121,8 +136,10 @@ export class BoundsImpl implements IClone {
     }
 
     /**
-     * 设置包围盒的范围。
-     * @param value	包围盒的范围。
+     * @en Sets the range of the bounding box.
+     * @param value The new range to set for the bounding box.
+     * @zh 设置包围盒的范围。
+     * @param value	要设置的包围盒的新范围。
      */
     setExtent(value: Vector3): void {
         if (value !== this._extent)
@@ -133,7 +150,9 @@ export class BoundsImpl implements IClone {
     }
 
     /**
-     * 获取包围盒的范围。
+     * @en Gets the range of the bounding box.
+     * @return The range of the bounding box.
+     * @zh 获取包围盒的范围。
      * @return	包围盒的范围。
      */
     getExtent(): Vector3 {
@@ -145,7 +164,10 @@ export class BoundsImpl implements IClone {
     }
 
     /**
-     * 创建一个 <code>BoundsImp</code> 实例。
+     * @en Constructor method.
+     * @param	min  The minimum point of the bounding box.
+     * @param	max  The maximum point of the bounding box.
+     * @zh 构造方法。
      * @param	min  min 最小坐标
      * @param	max  max 最大坐标。
      */
@@ -285,7 +307,12 @@ export class BoundsImpl implements IClone {
     }
 
     /**
-     * @returns -1为不相交 不为0的时候返回值为相交体积
+     * @en Calculates the intersection volume between this bounds implementation and another `BoundsImpl` instance.
+     * @param bounds The `BoundsImpl` instance to calculate the intersection with.
+     * @returns -1 if the bounds do not intersect; when not 0, the return value is the intersecting volume
+     * @zh 计算此边界实现与另一个 `BoundsImpl` 实例之间的相交体积。
+     * @param bounds 要计算相交的 `BoundsImpl` 实例。
+     * @returns -1 如果边界不相交；不为0的时候返回值为相交体积。
      */
     calculateBoundsintersection(bounds: BoundsImpl): number {
         var ownMax: Vector3 = this.getMax();
@@ -310,8 +337,10 @@ export class BoundsImpl implements IClone {
 
 
     /**
-     * 克隆。
-     * @param	destObject 克隆源。
+     * @en Clones the current bounding box into another object.
+     * @param destObject The destination object to clone into.
+     * @zh 将当前包围体克隆到另一个对象中。
+     * @param destObject  克隆的目标对象。
      */
     cloneTo(destObject: any): void {
         var destBounds: BoundsImpl = (<BoundsImpl>destObject);
@@ -323,8 +352,10 @@ export class BoundsImpl implements IClone {
     }
 
     /**
-     * 克隆。
-     * @return	 克隆副本。
+     * @en Creates a clone of the bounding box.
+     * @return A new `BoundsImpl` instance that is a clone of the current bounding box.
+     * @zh 创建当前包围体的克隆。
+     * @return 一个新的 `BoundsImpl` 实例，是当前包围体的克隆。
      */
     clone(): any {
         var dest: BoundsImpl = new BoundsImpl(new Vector3(), new Vector3());

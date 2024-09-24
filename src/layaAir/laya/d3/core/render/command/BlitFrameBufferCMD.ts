@@ -12,11 +12,13 @@ import { Laya3DRender } from "../../../RenderObjs/Laya3DRender";
 import { Camera } from "../../Camera";
 import { Transform3D } from "../../Transform3D";
 import { Viewport } from "../../../../maths/Viewport";
+import { Stat } from "../../../../utils/Stat";
 
 
 
 /**
- * 类用于创建从渲染源输出到渲染目标的指令
+ * @en Class used for creating instructions to output from a render source to a render target.
+ * @zh 类用于创建从渲染源输出到渲染目标的指令。
  */
 export class BlitFrameBufferCMD {
 	/**@internal */
@@ -32,15 +34,25 @@ export class BlitFrameBufferCMD {
 	}
 
 	/**
-   * 渲染命令集
-   * @param source 
-   * @param dest 
-   * @param viewport 
-   * @param offsetScale 
-   * @param shader 
-   * @param shaderData 
-   * @param subShader 
-   */
+	 * @en Create a render command set.
+	 * @param source The source texture.
+	 * @param dest The destination render texture.
+	 * @param viewport The viewport for rendering.
+	 * @param offsetScale The offset and scale vector. Default is null.
+	 * @param shader The shader to use. Default is null.
+	 * @param shaderData The shader data to use. Default is null.
+	 * @param subShader The sub-shader index. Default is 0.
+	 * @returns The created BlitFrameBufferCMD instance.
+	 * @zh 创建渲染命令集。
+	 * @param source 源纹理。
+	 * @param dest 目标渲染纹理。
+	 * @param viewport 渲染视口。
+	 * @param offsetScale 偏移和缩放向量。默认为 null。
+	 * @param shader 要使用的着色器。默认为 null。
+	 * @param shaderData 要使用的着色器数据。默认为 null。
+	 * @param subShader 子着色器索引。默认为 0。
+	 * @returns 创建的 BlitFrameBufferCMD 实例。
+	 */
 	static create(source: BaseTexture, dest: RenderTexture, viewport: Viewport, offsetScale: Vector4 = null, shader: Shader3D = null, shaderData: ShaderData = null, subShader: number = 0) {
 		var cmd: BlitFrameBufferCMD;
 		cmd = BlitFrameBufferCMD._pool.length > 0 ? BlitFrameBufferCMD._pool.pop() : new BlitFrameBufferCMD();
@@ -87,11 +99,25 @@ export class BlitFrameBufferCMD {
 		this._texture_size = new Vector4();
 	}
 
+	/**
+	 * @en The shader data for the command.
+	 * @zh 命令的着色器数据。
+	 */
 	set shaderData(value: ShaderData) {
 		this._shaderData = value || BlitFrameBufferCMD.shaderdata;
 		this._renderElement._renderElementOBJ.materialShaderData = this._shaderData;
 	}
 
+	/**
+	 * @en Set the shader, sub-shader, and shader data for the command.
+	 * @param shader The shader to set. If null, uses the default screen shader.
+	 * @param subShader The sub-shader index. Default is 0.
+	 * @param shaderData The shader data to set.
+	 * @zh 设置命令的着色器、子着色器和着色器数据。
+	 * @param shader 要设置的着色器。如果为 null，则使用默认屏幕着色器。
+	 * @param subShader 子着色器索引。默认为 0。
+	 * @param shaderData 要设置的着色器数据。
+	 */
 	setshader(shader: Shader3D, subShader: number, shaderData: ShaderData) {
 		this._shader = shader || Command._screenShader;
 		this._subShader = subShader || 0;
@@ -102,6 +128,8 @@ export class BlitFrameBufferCMD {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @en Execute the render command.
+	 * @zh 执行渲染命令。
 	 */
 	run(): void {
 		if (!this._source || !this._viewPort)
@@ -135,10 +163,15 @@ export class BlitFrameBufferCMD {
 		context.destTarget = dest;
 		context._contextOBJ.cameraUpdateMask = Camera._updateMark;
 		context.drawRenderElement(this._renderElement._renderElementOBJ);
+
+		Stat.blitDrawCall++;
 	}
+
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @en Recycle the command instance.
+	 * @zh 回收命令实例。
 	 */
 	recover(): void {
 		BlitFrameBufferCMD._pool.push(this);

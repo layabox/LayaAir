@@ -5,23 +5,22 @@ import { Vector4 } from "../../../../maths/Vector4";
 import { Material } from "../../../../resource/Material";
 import { IRenderElement3D } from "../../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { IBaseRenderNode } from "../../Design/3D/I3DRenderModuleData";
-import { NativeTransform3D } from "./NativeTransform3D";
+import { RTTransform3D } from "./RTTransform3D";
 import { RTLightmapData } from "./RTLightmap";
 import { RTReflectionProb } from "./RTReflectionProb";
 import { RTVolumetricGI } from "./RTVolumetricGI";
 import { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
-import { NativeBounds } from "./NativeBounds";
 
 
 export class RTBaseRenderNode implements IBaseRenderNode {
     renderelements: IRenderElement3D[];
-    private _transform: NativeTransform3D;
+    private _transform: RTTransform3D;
 
-    public get transform(): NativeTransform3D {
+    public get transform(): RTTransform3D {
         return this._transform;
     }
 
-    public set transform(value: NativeTransform3D) {
+    public set transform(value: RTTransform3D) {
         this._nativeObj.setTransform(value._nativeObj);
         this._transform = value;
     }

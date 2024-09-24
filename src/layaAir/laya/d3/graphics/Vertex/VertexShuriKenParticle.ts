@@ -1,8 +1,5 @@
-
-
 /**
  * @internal
- * @author ...
  */
 export class VertexShuriKenParticle {
 	//TODO Attribute

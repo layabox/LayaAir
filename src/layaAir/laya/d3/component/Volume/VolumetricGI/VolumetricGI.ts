@@ -7,10 +7,20 @@ import { Laya3DRender } from "../../../RenderObjs/Laya3DRender";
 import { Volume } from "../Volume";
 import { VolumeManager } from "../VolumeManager";
 
+/**
+ * @en The VolumetricGI class represents volumetric global illumination in the scene.
+ * @zh VolumetricGI 类表示场景中的体积全局光照。
+ */
 export class VolumetricGI extends Volume {
-    /**体积全局光照探针个数 */
+    /**
+     * @en The count of volumetric global illumination probes.
+     * @zh 体积全局光照探针的数量。
+     */
     static volumetricCount: number = 0;
-    /**获取一个全局唯一ID。*/
+    /**
+     * @en Get a globally unique ID.
+     * @zh 获取一个全局唯一的ID。
+     */
     static getID(): number {
         return VolumetricGI.volumetricCount++;
     }
@@ -34,7 +44,8 @@ export class VolumetricGI extends Volume {
     _dataModule: IVolumetricGIData;
 
     /**
-     * <code>实例化一个体积光照探针<code>
+     * @en construct method, initialize VolumetricGI object.
+     * @zh 构造方法，初始化VolumetricGI对象。
      */
     constructor() {
         super();
@@ -61,7 +72,8 @@ export class VolumetricGI extends Volume {
 
     private _irradiance: Texture2D;
     /**
-     * light probe texture
+     * @en Light probe irradiance texture.
+     * @zh 光照探针辐照度纹理。
      */
     get irradiance(): Texture2D {
         return this._irradiance;
@@ -85,7 +97,8 @@ export class VolumetricGI extends Volume {
 
     private _distance: Texture2D;
     /**
-     * distance texture
+     * @en Distance texture for light probe.
+     * @zh 光照探针的距离纹理。
      */
     get distance(): Texture2D {
         return this._distance;
@@ -108,7 +121,8 @@ export class VolumetricGI extends Volume {
     }
 
     /**
-     * normal bias
+     * @en Normal bias for volumetric global illumination.
+     * @zh 体积全局光照的法线偏移。
      */
     get normalBias(): number {
         return this._params.z;
@@ -121,7 +135,8 @@ export class VolumetricGI extends Volume {
     }
 
     /**
-     * view bias
+     * @en View bias for volumetric global illumination.
+     * @zh 体积全局光照的视图偏移。
      */
     get viewBias(): number {
         return this._params.w;
@@ -134,21 +149,24 @@ export class VolumetricGI extends Volume {
     }
 
     /**
-     * irradiance Texture one probe texel number
+     * @en Number of texels per probe in the irradiance texture.
+     * @zh 辐照度纹理中每个探针的纹素数量。
      */
     get irradianceTexel(): number {
         return this._params.x;
     }
 
     /**
-     * distance Texture one probe texel number
+     * @en Number of texels per probe in the distance texture.
+     * @zh 距离纹理中每个探针的纹素数量。
      */
     get distanceTexel(): number {
         return this._params.y;
     }
 
     /**
-     * 设置反射探针强度
+     * @en The intensity of the reflection probe.
+     * @zh 反射探针的强度。
      */
     get intensity(): number {
         return this._dataModule.intensity;
@@ -161,7 +179,8 @@ export class VolumetricGI extends Volume {
     }
 
     /**
-     * 设置反射数量
+     * @en The number of probes for volumetric global illumination.
+     * @zh 体积全局光照的探针数量。
      */
     get probeCounts(): Vector3 {
         return this._probeCounts;
@@ -174,7 +193,8 @@ export class VolumetricGI extends Volume {
         this._dataModule.updateMark = ILaya3D.Scene3D._updateMark;
     }
     /**
-     * 设置反射探针间隔
+     * @en The step size between probes for volumetric global illumination.
+     * @zh 体积全局光照探针之间的间隔。
      */
     get probeStep(): Vector3 {
         return this._probeStep;

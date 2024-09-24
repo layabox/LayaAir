@@ -72,6 +72,7 @@ export class SingletonList<T> {
         let index = this.elements.indexOf(element);
         if (index != -1 && index < this.length) {
             this.elements[index] = this.elements[this.length - 1];
+            this.elements[this.length - 1] = null;//去掉引用
             this.length--;
         }
 

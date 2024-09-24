@@ -1,5 +1,4 @@
-import { Graphics } from "../../display/Graphics";
-import { Matrix } from "../../maths/Matrix";
+
 import { SpineTexture } from "../SpineTexture";
 import { SpineTemplet } from "../SpineTemplet";
 import { Material } from "../../resource/Material";
@@ -18,9 +17,25 @@ interface Renderable {
 
 const QUAD_TRIANGLES = [0, 1, 2, 2, 3, 0];
 
+/**
+ * @en SpineSkeletonRenderer class for rendering Spine skeletons.
+ * @zh SpineSkeletonRenderer 类用于渲染 Spine 骨骼。
+ */
 export class SpineSkeletonRenderer extends SpineNormalRenderBase implements ISpineRender {
+    /**
+     * @en Indicates if alpha should be premultiplied.
+     * @zh 指示是否应预乘 alpha。
+     */
     premultipliedAlpha: boolean;
+    /**
+     * @en Vertex effect to be applied during rendering.
+     * @zh 渲染期间要应用的顶点效果。
+     */
     vertexEffect: spine.VertexEffect = null;
+    /**
+     * @en Spine templet associated with this renderer.
+     * @zh 与此渲染器关联的 Spine 模板。
+     */
     templet: SpineTemplet;
 
     private tempColor = new window.spine.Color();
@@ -37,10 +52,26 @@ export class SpineSkeletonRenderer extends SpineNormalRenderBase implements ISpi
     // private temp4 = new window.spine.Color();
 
     
+    /**
+     * @en Create a mesh with the given material.
+     * @param material The material to be used for the mesh.
+     * @returns A SpineMeshBase object.
+     * @zh 创建具有给定材质的网格。
+     * @param material 用于网格的材质。
+     * @returns SpineMeshBase 对象。
+     */
     createMesh(material: Material): SpineMeshBase{
         return new SpineVirtualMesh(material);
     }
 
+    /**
+     * @en Create a new instance of the SpineSkeletonRenderer class.
+     * @param templet The Spine templet to use.
+     * @param twoColorTint Whether to use two-color tinting.
+     * @zh 创建 SpineSkeletonRenderer 类的新实例。
+     * @param templet 要使用的 Spine 模板。
+     * @param twoColorTint 是否使用双色调色。
+     */
     constructor(templet: SpineTemplet, twoColorTint: boolean = true) {
         super();
         this.twoColorTint = twoColorTint;
@@ -290,6 +321,18 @@ export class SpineSkeletonRenderer extends SpineNormalRenderBase implements ISpi
     //     clipper.clipEnd();
     // }
 
+    /**
+     * @en Draw the skeleton.
+     * @param skeleton The skeleton to draw.
+     * @param renderNode The render node.
+     * @param slotRangeStart The starting slot index.
+     * @param slotRangeEnd The ending slot index.
+     * @zh 绘制骨骼。
+     * @param skeleton 要绘制的骨骼。
+     * @param renderNode 渲染节点。
+     * @param slotRangeStart 起始插槽索引。
+     * @param slotRangeEnd 结束插槽索引。
+     */
     draw(skeleton: spine.Skeleton, renderNode: Spine2DRenderNode, slotRangeStart?: number, slotRangeEnd?: number): void {
 
         let clipper = this.clipper;

@@ -8,13 +8,23 @@ import { WebXRSessionManager } from "./WebXRSessionManager";
 
 
 /**
- * @author miner
- * 类用来管理输入设备
- * The path of the CDN the sample will fetch controller models from：
- * MeshSource https://cdn.jsdelivr.net/npm/@webxr-input-profiles/assets@1.0.9/dist/profiles/
+ * @en The `WebXRInputManager` class is responsible for managing input devices in a WebXR environment.
+ * - The path of the CDN from which the sample will fetch controller models:
+ * - MeshSource https://cdn.jsdelivr.net/npm/@webxr-input-profiles/assets@1.0.9/dist/profiles/
+ * @zh `WebXRInputManager` 类用来在 WebXR 环境中管理输入设备。
+ * - 样本将从此 CDN 路径获取控制器模型的路径：
+ * - MeshSource <https://cdn.jsdelivr.net/npm/@webxr-input-profiles/assets@1.0.9/dist/profiles/>
  */
 export class WebXRInputManager {
+    /**
+     * @en A temporary Vector3 for calculations.
+     * @zh 用于计算的临时 Vector3。
+     */
     static tempVec: Vector3 = new Vector3();
+    /**
+     * @en Another temporary Vector3 for calculations.
+     * @zh 另一个用于计算的临时 Vector3。
+     */
     static tempVec1: Vector3 = new Vector3();
     /**
      * Session Manager
@@ -46,9 +56,12 @@ export class WebXRInputManager {
     private rayLength: number = 2;
 
     /**
-     * 类用于创建WebXRInput管理类
+     * @en Creates a new instance of the `WebXRInputManager` class.
      * @param webxrManager WebXR Session manager
      * @param webXRCamera WebXR Manager
+     * @zh 创建 WebXRInputManager 类的新实例
+     * @param webxrManager WebXR 会话管理器
+     * @param webXRCamera WebXR 管理器
      */
     constructor(webxrManager: WebXRSessionManager, webXRCamera: WebXRCameraManager) {
         this.webXRSessionManager = webxrManager;
@@ -106,27 +119,36 @@ export class WebXRInputManager {
     }
 
     /**
-     * 绑定输入设备渲染节点
-     * @param meshSprite 渲染挂点
-     * @param handness 设备名称left/right
+     * @en Binds a rendering node to the input device.
+     * @param meshSprite The rendering sprite to bind.
+     * @param handness The handness of the device, "left" or "right".
+     * @zh 将渲染节点绑定到输入设备。
+     * @param meshSprite 渲染挂点。
+     * @param handness 设备名称，"left" 或 "right"。
      */
     bindMeshNode(meshSprite: Sprite3D, handness: string) {
         this.controllerHandMesh.set(handness, meshSprite);
     }
 
     /**
-     * 绑定输入设备射线
-     * @param lineSprite 线
-     * @param handness 设备名称left/right
+     * @en Binds a ray to the input device for visual representation.
+     * @param lineSprite The line sprite to bind as a ray.
+     * @param handness The handness of the device, "left" or "right".
+     * @zh 为输入设备绑定射线以进行可视化表示。
+     * @param lineSprite 作为射线绑定的线条精灵。
+     * @param handness 设备名称，"left" 或 "right"。
      */
     bindRayNode(lineSprite: PixelLineSprite3D, handness: string) {
         this.controllerLineRender.set(handness, lineSprite);
     }
 
     /**
-     * 获得输入设备
-     * @param handness 设备名称left/right
-     * @returns 
+     * @en Retrieves the input device based on the specified handness.
+     * @param handness The handness of the device, "left" or "right".
+     * @returns The WebXRInput instance or null if handness is not valid.
+     * @zh 根据指定的设备名称获得输入设备。
+     * @param handness 设备名称，"left" 或 "right"。
+     * @returns 返回 WebXRInput 实例，如果手部设备名称无效则返回 null。
      */
     getController(handness: string): WebXRInput {
         if (handness != "left" && handness != "right")
@@ -140,8 +162,8 @@ export class WebXRInputManager {
     }
 
     /**
-     * @internal
-     * 删除
+     * @en Destroys and cleans up the WebXR input manager.
+     * @zh 销毁并清理 WebXR 输入管理器。
      */
     destory() {
         this.webXRSessionManager.off(WebXRSessionManager.EVENT_FRAME_LOOP, this, this._updateFromXRFrame);

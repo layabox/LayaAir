@@ -3,8 +3,8 @@ import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
 import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
 import { LayaGL } from "../../layagl/LayaGL";
 /**
- * 请使用LayaGL.RenderOBJCreate.createIndexBuffer3D来创建
- * <code>IndexBuffer3D</code> 类用于创建索引缓冲。
+ * @en IndexBuffer3D class is used to create index buffer. Please use LayaGL.RenderOBJCreate.createIndexBuffer3D to create.
+ * @zh IndexBuffer3D 类用于创建索引缓冲。请使用LayaGL.RenderOBJCreate.createIndexBuffer3D来创建。
  */
 export class IndexBuffer3D {
 	/** @internal */
@@ -19,36 +19,46 @@ export class IndexBuffer3D {
 	/**@internal */
 	_deviceBuffer: IIndexBuffer;
 	bufferUsage: BufferUsage;
+
 	/**
-	 * 索引类型。
+	 * @en The index type.
+	 * @zh 索引类型。
 	 */
 	get indexType(): IndexFormat {
 		return this._indexType;
 	}
 
 	/**
-	 * 索引类型字节数量。
+	 * @en The byte count of the index type.
+	 * @zh 索引类型字节数量。
 	 */
 	get indexTypeByteCount(): number {
 		return this._indexTypeByteCount;
 	}
 
 	/**
-	 * 索引个数。
+	 * @en The number of indices.
+	 * @zh 索引个数。
 	 */
 	get indexCount(): number {
 		return this._indexCount;
 	}
 
 	/**
-	 * 是否可读。
+	 * @en Whether the buffer can be read.
+	 * @zh 是否可读。
 	 */
 	get canRead(): boolean {
 		return this._canRead;
 	}
 
 	/**
-	 * 创建一个 <code>IndexBuffer3D,不建议开发者使用并用IndexBuffer3D.create()代替</code> 实例。
+	 * @en Constructor method, create index buffer.
+	 * @param	indexType Index type.
+	 * @param	indexCount Index count.
+	 * @param	bufferUsage IndexBuffer3D usage type.
+	 * @param	canRead Whether the buffer can be read.
+	 * @zh 构造方法,创建索引缓冲。
 	 * @param	indexType 索引类型。
 	 * @param	indexCount 索引个数。
 	 * @param	bufferUsage IndexBuffer3D用途类型。
@@ -92,11 +102,16 @@ export class IndexBuffer3D {
 	}
 
 	/**
-	 * 设置数据。
-	 * @param	data 索引数据。
-	 * @param	bufferOffset 索引缓冲中的偏移。
-	 * @param	dataStartIndex 索引数据的偏移。
-	 * @param	dataCount 索引数据的数量。
+	 * @en Sets the data for the index buffer.
+	 * @param data The index data.
+	 * @param bufferOffset The offset within the index buffer.
+	 * @param dataStartIndex The offset within the data.
+	 * @param dataCount The number of indices to set.
+	 * @zh 设置索引缓冲区的数据。
+	 * @param data 索引数据。
+	 * @param bufferOffset 索引缓冲中的偏移。
+	 * @param dataStartIndex 索引数据的偏移。
+	 * @param dataCount 索引数据的数量。
 	 */
 	setData(data: any, bufferOffset: number = 0, dataStartIndex: number = 0, dataCount: number = 4294967295/*uint.MAX_VALUE*/): void {
 		var byteCount: number = this._indexTypeByteCount;
@@ -133,8 +148,10 @@ export class IndexBuffer3D {
 	}
 
 	/**
-	 * 获取索引数据。
-	 * @return	索引数据。
+	 * @en Gets the index data.
+	 * @returns The index data.
+	 * @zh 获取索引数据。
+	 * @returns 返回索引数据。
 	 */
 	getData(): Uint16Array | Uint32Array {
 		if (this._canRead)
@@ -146,6 +163,8 @@ export class IndexBuffer3D {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @en Destroys this IndexBuffer3D.
+	 * @zh 销毁此索引缓冲。
 	 */
 	destroy(): void {
 		this._deviceBuffer.destroy();

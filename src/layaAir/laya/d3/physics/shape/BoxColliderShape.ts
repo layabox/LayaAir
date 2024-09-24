@@ -6,7 +6,8 @@ import { Physics3DColliderShape } from "./Physics3DColliderShape";
 import { EPhysicsCapable } from "../../../Physics3D/physicsEnum/EPhycisCapable";
 
 /**
- * <code>BoxColliderShape</code> 类用于创建盒子形状碰撞器。
+ * @en BoxColliderShape class is used to create box collider shape.
+ * @zh BoxColliderShape 类用于创建盒子形状碰撞器。
  */
 export class BoxColliderShape extends Physics3DColliderShape {
 
@@ -16,7 +17,11 @@ export class BoxColliderShape extends Physics3DColliderShape {
 	private _size: Vector3;
 
 	/**
-	 * 创建一个新的 <code>BoxColliderShape</code> 实例。
+	 * @en Constructor method, initializes the box collider shape with a specified size.
+	 * @param sizeX The size of the box along the X-axis.
+	 * @param sizeY The size of the box along the Y-axis.
+	 * @param sizeZ The size of the box along the Z-axis.
+	 * @zh 盒形碰撞器的构造方法，初始化为指定尺寸。
 	 * @param sizeX 盒子X轴尺寸。
 	 * @param sizeY 盒子Y轴尺寸。
 	 * @param sizeZ 盒子Z轴尺寸。
@@ -40,8 +45,8 @@ export class BoxColliderShape extends Physics3DColliderShape {
 	}
 
 	/**
-	 * 盒子尺寸
-	 * Box size
+	 * @en Box size
+	 * @zh 盒子尺寸
 	 */
 	get size(): Vector3 {
 		return this._size;
@@ -55,9 +60,10 @@ export class BoxColliderShape extends Physics3DColliderShape {
 	}
 
 	/**
-	 * 克隆
 	 * @inheritDoc
 	 * @override
+	 * @en Clone a new BoxColliderShape object.
+	 * @zh 克隆一个新的 BoxColliderShape 对象。
 	 */
 	clone(): any {
 		var dest: BoxColliderShape = new BoxColliderShape(this._size.x, this._size.y, this._size.z);
@@ -66,7 +72,9 @@ export class BoxColliderShape extends Physics3DColliderShape {
 	}
 
 	/**
-	 * 克隆数据到目标
+	 * @en Clone data to target object.
+	 * @param destObject target object.
+	 * @zh 克隆数据到目标对象
 	 * @param destObject 目标对象 
 	 */
 	cloneTo(destObject: any): void {
@@ -77,7 +85,8 @@ export class BoxColliderShape extends Physics3DColliderShape {
 	//-------------------deprecated-------------------
 	/**
 	 * @description
-	 * X轴尺寸。
+	 * @en X-axis size.
+	 * @zh X轴尺寸。
 	 */
 	get sizeX(): number {
 		return this.size.x;
@@ -92,7 +101,8 @@ export class BoxColliderShape extends Physics3DColliderShape {
 
 	/**
 	 * @description
-	 * Y轴尺寸。
+	 * @en Y-axis size.
+	 * @zh Y轴尺寸。
 	 */
 	get sizeY(): number {
 		return this.size.y;
@@ -107,7 +117,8 @@ export class BoxColliderShape extends Physics3DColliderShape {
 
 	/**
 	 * @description
-	 * Z轴尺寸。
+	 * @en Z-axis size.
+	 * @zh Z轴尺寸。
 	 */
 	get sizeZ(): number {
 		return this.size.z;

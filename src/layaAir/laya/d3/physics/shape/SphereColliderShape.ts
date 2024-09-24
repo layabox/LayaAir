@@ -5,7 +5,8 @@ import { Laya3D } from "../../../../Laya3D";
 import { EPhysicsCapable } from "../../../Physics3D/physicsEnum/EPhycisCapable";
 
 /**
- * <code>SphereColliderShape</code> 类用于创建球形碰撞器。
+ * @en The `SphereColliderShape` class is used to create spherical colliders.
+ * @zh `SphereColliderShape` 类用于创建球形碰撞器。
  */
 export class SphereColliderShape extends Physics3DColliderShape {
 	/**@internal */
@@ -13,9 +14,10 @@ export class SphereColliderShape extends Physics3DColliderShape {
 	/** @internal */
 	private _radius: number;
 
-	/**
-	 * 半径。
-	 */
+    /**
+     * @en The radius of the sphere collider.
+     * @zh 球形碰撞器的半径。
+     */
 	get radius(): number {
 		return this._radius;
 	}
@@ -26,8 +28,10 @@ export class SphereColliderShape extends Physics3DColliderShape {
 	}
 
 	/**
-	 * 创建一个新的 <code>SphereColliderShape</code> 实例。
-	 * @param radius 半径。
+	 * @en Constructor method, initialize the sphere collider.
+	 * @param radius The radius of the sphere collider.
+	 * @zh 构造方法，初始化球形碰撞器。
+	 * @param radius 球形碰撞器的半径。
 	 */
 	constructor(radius: number = 0.5) {//TODO:球形旋转无效，需要优化
 		super();
@@ -44,9 +48,12 @@ export class SphereColliderShape extends Physics3DColliderShape {
 	}
 
 	/**
-	 * 克隆
 	 * @inheritDoc
 	 * @override
+	 * @en Clone a new SphereColliderShape object.
+	 * @return A new SphereColliderShape object.
+	 * @zh 克隆一个新的 球形碰撞器 对象。
+	 * @return 一个新的 球形碰撞器 对象。
 	 */
 	clone(): any {
 		var dest: SphereColliderShape = new SphereColliderShape(this._radius);
@@ -55,8 +62,11 @@ export class SphereColliderShape extends Physics3DColliderShape {
 	}
 
 	/**
-	 * @internal 
-	 * 克隆到目标对象
+     * @internal 
+	 * @en Clone data to target object.
+	 * @param destObject Target object.
+	 * @zh 将数据克隆到目标对象
+	 * @param destObject 目标对象。
 	 */
 	cloneTo(destObject: SphereColliderShape): void {
 		super.cloneTo(destObject);

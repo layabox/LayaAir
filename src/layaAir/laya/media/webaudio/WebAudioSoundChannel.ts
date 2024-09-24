@@ -6,50 +6,64 @@ import { SoundManager } from "../SoundManager";
 import { WebAudioSound } from "./WebAudioSound";
 
 /**
- * @private
- * web audio api方式播放声音的音轨控制
+ * @en Sound track control for playing sounds using Web Audio API
+ * @zh 使用 Web Audio API 方式播放声音的音轨控制
  */
 export class WebAudioSoundChannel extends SoundChannel {
     /**
-     * 声音原始文件数据
+     * @en Original audio file data
+     * @zh 声音原始文件数据
      */
     audioBuffer: any;
 
     /**
-     * gain节点
+     * @en Gain node for audio processing.
+     * @zh gain 节点
      */
     private gain: any;
 
     /**
-     * 播放用的数据
+     * @en Buffer source for playback.
+     * @zh 播放用的数据
      */
     private bufferSource: any = null;
+
     /**
-     * 当前时间
+     * @en The current playback time.
+     * @zh 当前时间
      */
     private _currentTime: number = 0;
 
     /**
-     * 当前音量
+     * @en The current volume level.
+     * @zh 当前音量
      */
     private _volume: number = 1;
 
     /**
-     * 播放开始时的时间戳
+     * @en Timestamp when playback starts.
+     * @zh 播放开始时的时间戳
      */
     private _startTime: number = 0;
 
     private _pauseTime: number = 0;
 
     /**
-     * 播放设备
+     * @en The audio playback device.
+     * @zh 播放设备
      */
     private context: AudioContext;
 
+
     private _onPlayEnd: Function;
     private static _tryCleanFailed: boolean = false;
+    /**
+     * @en Target delay for audio playback (in seconds)
+     * @zh 音频播放的目标延迟时间（以秒为单位）
+     */
     static SetTargetDelay: number = 0.001;
 
+    /**@ignore */
     constructor() {
         super();
 
@@ -63,8 +77,8 @@ export class WebAudioSoundChannel extends SoundChannel {
         }
     }
     /**
-     * 播放声音
-     * @override
+     * @en Play the sound
+     * @zh 播放声音
      */
     play(): void {
         SoundManager.addChannel(this);
@@ -99,8 +113,6 @@ export class WebAudioSoundChannel extends SoundChannel {
         this._currentTime = 0;
     }
 
-
-
     private __onPlayEnd(): void {
         if (this.loops == 1) {
 
@@ -120,8 +132,8 @@ export class WebAudioSoundChannel extends SoundChannel {
     }
 
     /**
-     * 获取当前播放位置
-     * @override
+     * @en The current playback position in seconds
+     * @zh 当前播放位置，以秒为单位
      */
     get position(): number {
         if (this.bufferSource) {
@@ -130,7 +142,8 @@ export class WebAudioSoundChannel extends SoundChannel {
         return 0;
     }
     /**
-     * @override
+     * @en The duration of the audio in seconds
+     * @zh 音频的持续时间，以秒为单位
      */
     get duration(): number {
         if (this.audioBuffer) {
@@ -163,8 +176,8 @@ export class WebAudioSoundChannel extends SoundChannel {
     }
 
     /**
-     * 停止播放
-     * @override
+     * @en Stop playing 
+     * @zh 停止播放
      */
     stop(): void {
         super.stop();
@@ -179,7 +192,8 @@ export class WebAudioSoundChannel extends SoundChannel {
             SoundManager.disposeSoundLater(this.url);
     }
     /**
-     * @override
+     * @en Pause the audio playback
+     * @zh 暂停音频播放
      */
     pause(): void {
         if (!this.isStopped) {
@@ -194,7 +208,8 @@ export class WebAudioSoundChannel extends SoundChannel {
             SoundManager.disposeSoundLater(this.url);
     }
     /**
-     * @override
+     * @en Resume the audio playback
+     * @zh 恢复音频播放
      */
     resume(): void {
         this.startTime = this._pauseTime;
@@ -202,9 +217,13 @@ export class WebAudioSoundChannel extends SoundChannel {
     }
 
     /**
-     * 设置音量
-     * @override
+     * @en The volume of the audio
+     * @zh 音频的音量
      */
+    get volume(): number {
+        return this._volume;
+    }
+
     set volume(v: number) {
         this._volume = v;
         if (this.isStopped) {
@@ -215,15 +234,6 @@ export class WebAudioSoundChannel extends SoundChannel {
         } else
             this.gain.gain.value = v;
     }
-
-    /**
-     * 获取音量
-     * @override
-     */
-    get volume(): number {
-        return this._volume;
-    }
-
 }
 
 

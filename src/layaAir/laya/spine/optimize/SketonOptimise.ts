@@ -17,39 +17,83 @@ import { VBBoneCreator, VBCreator, VBRigBodyCreator } from "./VBCreator";
 import { IPreRender } from "./interface/IPreRender";
 import { ISpineOptimizeRender } from "./interface/ISpineOptimizeRender";
 
+/**
+ * @en SketonOptimise class used for skeleton optimization.
+ * @zh SketonOptimise 类用于骨骼优化。
+ */
 export class SketonOptimise implements IPreRender {
+    /**
+     * @en Switch for normal rendering mode.
+     * @zh 普通渲染模式的开关。
+     */
     static normalRenderSwitch: boolean = false;
-    /** optimise render的最大骨骼数 */
-    static MAX_BONES = 100;
-
+     /** optimise render的最大骨骼数 */
+     static MAX_BONES = 100;
+    /**
+     * @en Switch for caching mode.
+     * @zh 缓存模式的开关。
+     */
     static cacheSwitch: boolean = false;
+    /**
+     * @en Indicates whether caching is possible.
+     * @zh 表示是否可以缓存。
+     */
     canCache: boolean;
-    sketon: spine.Skeleton; 
+    /**
+     * @en The spine skeleton object.
+     * @zh spine骨骼对象。
+     */
+    sketon: spine.Skeleton;
     _stateData: spine.AnimationStateData;
     _state: spine.AnimationState;
 
+    /**
+     * @en Map of blend modes.
+     * @zh 混合模式的映射。
+     */
     blendModeMap: Map<number, number>;
 
+    /**
+     * @en Array of animation renderers.
+     * @zh 动画渲染器数组。
+     */
     animators: AnimationRender[];
 
+    /**
+     * @en Array of skin attachments.
+     * @zh 皮肤附件数组。
+     */
     skinAttachArray: SkinAttach[];
 
+    /**
+     * @en Default skin attachment.
+     * @zh 默认皮肤附件。
+     */
     defaultSkinAttach: SkinAttach;
 
+    /**
+     * @en Maximum number of bones.
+     * @zh 最大骨骼数量。
+     */
     maxBoneNumber: number;
 
+    /**
+     * @en Baked spine data.
+     * @zh 烘焙的spine数据。
+     */
     bakeData: TSpineBakeData;
 
     /** */
     dynamicInfo:SketonDynamicInfo;
 
+    /** @ignore */
     constructor() {
         this.blendModeMap = new Map();
         this.skinAttachArray = [];
         this.animators = [];
         this.canCache = SketonOptimise.cacheSwitch;
     }
-
+    /** @internal */
     _initSpineRender(skeleton: spine.Skeleton, templet: SpineTemplet, renderNode: Spine2DRenderNode, state: spine.AnimationState): ISpineOptimizeRender {
         let sp: ISpineOptimizeRender;
         if (SketonOptimise.normalRenderSwitch) {
@@ -66,7 +110,7 @@ export class SketonOptimise implements IPreRender {
         return sp;
     }
 
-
+    /** @internal */
     _updateState(delta: number) {
         this._state.update(delta);
         let trackEntry = this._state.getCurrent(0);
@@ -74,7 +118,7 @@ export class SketonOptimise implements IPreRender {
         this.sketon.updateWorldTransform();
         return this.sketon.bones;
     }
-
+    /** @internal */
     _play(animationName: string) {
         // 设置执行哪个动画
         let trackEntry = this._state.setAnimation(0, animationName, true);
@@ -87,6 +131,12 @@ export class SketonOptimise implements IPreRender {
         return animationDuration;
     }
 
+    /**
+     * @en Check and initialize the main attachment.
+     * @param skeletonData The skeleton data to check.
+     * @zh 检查并初始化主附件。
+     * @param skeletonData 要检查的骨骼数据。
+     */
     checkMainAttach(skeletonData: spine.SkeletonData) {
         // return;
         this.sketon = new window.spine.Skeleton(skeletonData);
@@ -111,6 +161,12 @@ export class SketonOptimise implements IPreRender {
         //this.mainVB = new VBCreator();
     }
 
+    /**
+     * @en Parse attachments from skeleton data.
+     * @param skeletonData The skeleton data to parse.
+     * @zh 从骨骼数据解析附件。
+     * @param skeletonData 要解析的骨骼数据。
+     */
     attachMentParse(skeletonData: spine.SkeletonData) {
         let skins = skeletonData.skins;
         let slots = skeletonData.slots;
@@ -157,6 +213,12 @@ export class SketonOptimise implements IPreRender {
         }
     }
 
+    /**
+     * @en Initialize animations from the skeleton data.
+     * @param animations Array of animations to initialize.
+     * @zh 从骨骼数据初始化动画。
+     * @param animations 要初始化的动画数组。
+     */
     initAnimation(animations: spine.Animation[]) {
         let maxBoneNumber = 0;
         for (let i = 0, n = animations.length; i < n; i++) {
@@ -179,6 +241,10 @@ export class SketonOptimise implements IPreRender {
         this.maxBoneNumber = maxBoneNumber;
     }
 
+    /**
+     * @en Cache bone data for optimization.
+     * @zh 缓存骨骼数据以进行优化。
+     */
     cacheBone() {
         if(!SketonOptimise.cacheSwitch){
             for (let i = 0, n = this.animators.length; i < n; i++) {
@@ -197,6 +263,12 @@ export class SketonOptimise implements IPreRender {
         this.animators.length = 0;
     }
 
+    /**
+     * @en Initialize the skeleton with given slots.
+     * @param slots Array of spine slots.
+     * @zh 使用给定的插槽初始化骨骼。
+     * @param slots spine插槽数组。
+     */
     init(slots: spine.Slot[]) {
         // let mainAttachMentOrder = this.mainAttachMentOrder;
         // slots.forEach((slot: spine.Slot, index: number) => {
@@ -228,31 +300,70 @@ export class SketonOptimise implements IPreRender {
     }
 }
 
+/**
+ * @en SkinAttach class represents skin attachment.
+ * @zh SkinAttach类表示皮肤附件。
+ */
 export class SkinAttach {
+    /**
+     * @en Name of the skin attachment.
+     * @zh 皮肤附件的名称。
+     */
     name: string;
     /**
-     * Attachments for each slot
+     * @en Attachments for each slot
+     * @zh 每个插槽的附件。
      */
     slotAttachMap: Map<number, Map<string, AttachmentParse>>;
+    /**
+     * @en Order of main attachments.
+     * @zh 主要附件的顺序。
+     */
     mainAttachMentOrder: AttachmentParse[];
+    /**
+     * @en Indicates if normal rendering is used.
+     * @zh 表示是否使用普通渲染。
+     */
     isNormalRender: boolean;
-
+    /**
+     * @en Main vertex buffer creator.
+     * @zh 主顶点缓冲区创建器。
+     */
     mainVB: VBCreator;
+    /**
+     * @en Main index buffer creator.
+     * @zh 主索引缓冲区创建器。
+     */
     mainIB: IBCreator;
     tempIbCreate:IBCreator;
 
+    /**
+     * @en Indicates if there's any normal rendering.
+     * @zh 表示是否存在任何普通渲染。
+     */
     hasNormalRender: boolean;
+    /**
+     * @en Type of spine rendering.
+     * @zh spine渲染的类型。
+     */
     type: ESpineRenderType;
     /** 当前皮肤的最大顶点数 */
     maxVertexCount = 0;
     /** 当前皮肤的最大索引数 */
     maxIndexCount = 0;
 
+    /** @ignore */
     constructor() {
         this.slotAttachMap = new Map();
         this.mainAttachMentOrder = [];
     }
 
+    /**
+     * @en Copy data from another SkinAttach.
+     * @param other The SkinAttach to copy from.
+     * @zh 从另一个SkinAttach复制数据。
+     * @param other 要复制的SkinAttach。
+     */
     copyFrom(other: SkinAttach) {
         other.slotAttachMap.forEach((value, key) => {
             this.slotAttachMap.set(key, new Map(value));
@@ -274,33 +385,14 @@ export class SkinAttach {
         // }
         // this.type = type;
 
-        // let vertexCount = this.maxVertexCount;
-        // let indexCount = this.maxIndexCount;
-        // switch (this.type) {
-        //     case ESpineRenderType.normal:
-        //         this.mainVB = new VBBoneCreator(vertexCount);
-        //         break;
-        //     case ESpineRenderType.boneGPU:
-        //         this.mainVB = new VBBoneCreator(vertexCount);
-        //         break;
-        //     case ESpineRenderType.rigidBody:
-        //         this.mainVB = new VBRigBodyCreator(vertexCount);
-        //         break;
-        // }
-
-        
-        // let ntype:IndexFormat = IndexFormat.UInt32;
-        // if (vertexCount < 256) {
-        //     ntype = IndexFormat.UInt8;
-        // }else if (vertexCount < 65536) {
-        //     ntype = IndexFormat.UInt16;
-        // }
-
-        // this.mainIB = new IBCreator(ntype , indexCount);
-        // this.tempIbCreate = new IBCreator( this.mainIB.type , this.mainIB.maxIndexCount);
-        // this.init(slots);
-    // }
-
+    /**
+     * @en Parse attachments from skin data.
+     * @param skinData The spine skin data.
+     * @param slots Array of spine slot data.
+     * @zh 从皮肤数据解析附件。
+     * @param skinData spine皮肤数据。
+     * @param slots spine插槽数据数组。
+     */
     attachMentParse(skinData: spine.Skin, slots: spine.SlotData[]) {
         
         let type: ESpineRenderType = ESpineRenderType.rigidBody;
@@ -375,6 +467,12 @@ export class SkinAttach {
         // this.init(slots);
     }
 
+    /**
+     * @en Initialize the skin attachment.
+     * @param slots Array of spine slot data.
+     * @zh 初始化皮肤附件。
+     * @param slots spine插槽数据数组。
+     */
     init(slots: spine.SlotData[]) {
         let mainAttachMentOrder = this.mainAttachMentOrder;
         slots.forEach((slot: spine.SlotData, index: number) => {
@@ -399,6 +497,12 @@ export class SkinAttach {
         this.mainVB.createIB(mainAttachMentOrder, this.mainIB);
     }
 
+    /**
+     * @en Initialize an animator with this skin attachment.
+     * @param animator The animation renderer to initialize.
+     * @zh 使用此皮肤附件初始化动画器。
+     * @param animator 要初始化的动画渲染器。
+     */
     initAnimator(animator: AnimationRender) {
         let skinData = animator.createSkinData(
             this.mainVB, this.mainIB , this.tempIbCreate , this.slotAttachMap, this.mainAttachMentOrder , this.type

@@ -352,7 +352,7 @@ export class Stage extends Sprite {
 
             if (this.screenAdaptationEnabled) {
                 this.event(Event.WILL_RESIZE);
-                this.updateCanvasSize();
+                this.updateCanvasSize(true);
             }
         });
 
@@ -360,7 +360,7 @@ export class Stage extends Sprite {
         window.addEventListener("orientationchange", (e: any) => {
             if (this.screenAdaptationEnabled) {
                 this.event(Event.WILL_RESIZE);
-                this.updateCanvasSize();
+                this.updateCanvasSize(true);
             }
         });
 

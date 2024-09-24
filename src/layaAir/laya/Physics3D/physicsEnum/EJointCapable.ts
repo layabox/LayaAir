@@ -1,4 +1,12 @@
 export enum EJointCapable {
-    Joint_Anchor,   // 锚点
-    Joint_ConnectAnchor,    // 链接锚点
+    /**
+     * @en The anchor point of the joint.
+     * @zh 关节的锚点。
+     */
+    Joint_Anchor,   
+    /**
+     * @en The connected anchor point of the joint.
+     * @zh 关节的连接锚点。
+     */
+    Joint_ConnectAnchor,    
 }

@@ -22,12 +22,16 @@ import { DepthTextureMode, RenderTexture } from "../../../../resource/RenderText
 import { RenderState } from "../../../../RenderDriver/RenderModuleData/Design/RenderState";
 
 /**
- *  <code>BloomEffect</code> 类用于创建环境光遮罩效果。
- *  Gaussian DoF
- *  * 只支持 远景模糊
- *  - start: 开始远景模糊的深度
- *  - end: 达到最大模糊半径的远景深度
- *  - maxRadius: 远景模糊最大半径
+ * @en The `GaussianDoF` class is used to create a Gaussian Depth of Field effect.
+ * Only supports far field blur.
+ * - start: The depth at which the far field begins to blur.
+ * - end: The depth at which the far field reaches its maximum blur radius.
+ * - maxRadius: The maximum blur radius for the far field.
+ * @zh `GaussianDoF` 类用于创建高斯景深效果。
+ * 仅支持远景模糊。
+ * - start: 开始远景模糊的深度
+ * - end: 达到最大模糊半径的远景深度
+ * - maxRadius: 远景模糊最大半径
  */
 export class GaussianDoF extends PostProcessEffect {
     /**@internal */
@@ -58,7 +62,8 @@ export class GaussianDoF extends PostProcessEffect {
     static SHADERDEFINE_DEPTHNORMALTEXTURE: ShaderDefine;
 
     /**
-     * GaussianDOF resource init
+     * @en GaussianDOF resource init
+     * @zh 高斯DOF资源初始化
      */
     static init() {
         GaussianDoF.SOURCESIZE = Shader3D.propertyNameToID("u_SourceSize");
@@ -156,7 +161,9 @@ export class GaussianDoF extends PostProcessEffect {
     private _dowmSampleScale: Vector4;
 
     /**
-     * 实例化一个高斯DOF效果类
+     * @ignore
+     * @en initialization GaussianDOF effect instance.
+     * @zh 初始化高斯DOF效果实例
      */
     constructor() {
         super();
@@ -169,43 +176,49 @@ export class GaussianDoF extends PostProcessEffect {
     }
 
     /**
-     * 开始远景模糊的深度
+     * @en The depth at which far field blur begins.
+     * @zh 开始远景模糊的深度。
      */
+    get farStart(): number {
+        return this._shaderData.getVector3(GaussianDoF.COCPARAMS).x;
+    }
+
     set farStart(value: number) {
         let cocParams: Vector3 = this._shaderData.getVector3(GaussianDoF.COCPARAMS);
         cocParams.x = value;
         this._shaderData.setVector3(GaussianDoF.COCPARAMS, cocParams);
     }
 
-    get farStart(): number {
-        return this._shaderData.getVector3(GaussianDoF.COCPARAMS).x;
-    }
 
     /**
-     * 达到最大模糊半径的远景深度
+     * @en The depth at which maximum blur radius is reached for far field.
+     * @zh 达到最大模糊半径的远景深度。
      */
+    get farEnd(): number {
+        return this._shaderData.getVector3(GaussianDoF.COCPARAMS).y;
+    }
+
     set farEnd(value: number) {
         let cocParams: Vector3 = this._shaderData.getVector3(GaussianDoF.COCPARAMS);
         cocParams.y = Math.max(cocParams.x, value);
         this._shaderData.setVector3(GaussianDoF.COCPARAMS, cocParams);
     }
 
-    get farEnd(): number {
-        return this._shaderData.getVector3(GaussianDoF.COCPARAMS).y;
-    }
 
     /**
-     * 最大模糊半径
+     * @en The maximum blur radius.
+     * @zh 最大模糊半径。
      */
+    get maxRadius(): number {
+        return this._shaderData.getVector3(GaussianDoF.COCPARAMS).z;
+    }
+
     set maxRadius(value: number) {
         let cocParams: Vector3 = this._shaderData.getVector3(GaussianDoF.COCPARAMS);
         cocParams.z = Math.min(value, 2);
         this._shaderData.setVector3(GaussianDoF.COCPARAMS, cocParams);
     }
 
-    get maxRadius(): number {
-        return this._shaderData.getVector3(GaussianDoF.COCPARAMS).z;
-    }
 
     /**
      * @internal
@@ -225,16 +238,21 @@ export class GaussianDoF extends PostProcessEffect {
     /**
      * @internal
      * @override
+     * @en Get the camera depth texture mode flag.
+     * @zh 获取相机深度纹理模式标志。
      */
     getCameraDepthTextureModeFlag() {
         return DepthTextureMode.Depth;
     }
 
     /**
-    * @internal
-    * @override
-    * @param context 
-    */
+     * @internal
+     * @override
+     * @en Render the Gaussian DoF effect.
+     * @param context The post-process render context.
+     * @zh 渲染高斯景深效果。
+     * @param context 后处理渲染上下文。
+     */
     render(context: PostProcessRenderContext): void {
         let cmd: CommandBuffer = context.command;
         this._setupShaderValue(context);

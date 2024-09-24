@@ -1,6 +1,5 @@
 import { Event as LayaEvent } from "../../events/Event"
 import { SoundChannel } from "../SoundChannel"
-//import { SoundManager } from "../SoundManager"
 import { Browser } from "../../utils/Browser"
 import { ILaya } from "../../../ILaya";
 import { Pool } from "../../utils/Pool";
@@ -9,8 +8,8 @@ import { SoundManager } from "../SoundManager";
 import { AudioSound } from "./AudioSound";
 
 /**
- * @private
- * audio标签播放声音的音轨控制
+ * @en Audio tag sound track control for playing sounds
+ * @zh audio标签播放声音的音轨控制
  */
 export class AudioSoundChannel extends SoundChannel {
 
@@ -21,7 +20,8 @@ export class AudioSoundChannel extends SoundChannel {
     private _onEnd: (evt: Event) => void;
     private _resumePlay: (evt: Event) => void;
     private _src: string;
-
+    
+    /** @ignore */
     constructor(audio: HTMLAudioElement) {
         super();
         this._onEnd = this.__onEnd.bind(this);
@@ -62,8 +62,8 @@ export class AudioSoundChannel extends SoundChannel {
     }
 
     /**
-     * 播放
-     * @override
+     * @en Play the sound
+     * @zh 播放声音
      */
     play(): void {
         this.isStopped = false;
@@ -84,10 +84,8 @@ export class AudioSoundChannel extends SoundChannel {
     }
 
     /**
-     * 当前播放到的位置
-     * @return
-     * @override
-     *
+     * @en The current playback position, in seconds.
+     * @zh 当前播放到的位置,单位为秒
      */
     get position(): number {
         if (!this._audio)
@@ -96,8 +94,8 @@ export class AudioSoundChannel extends SoundChannel {
     }
 
     /**
-     * 获取总时间。
-     * @override
+     * @en The total duration of the sound, in seconds.
+     * @zh 声音的总时长,单位为秒。
      */
     get duration(): number {
         if (!this._audio)
@@ -106,8 +104,8 @@ export class AudioSoundChannel extends SoundChannel {
     }
 
     /**
-     * 停止播放
-     * @override
+     * @en Stop playing
+     * @zh 停止播放
      */
     stop(): void {
         //trace("stop and remove event");
@@ -136,8 +134,10 @@ export class AudioSoundChannel extends SoundChannel {
         if (SoundManager.autoReleaseSound)
             SoundManager.disposeSoundLater(this.url);
     }
+
     /**
-     * @override
+     * @en Pause the sound playback
+     * @zh 暂停声音播放
      */
     pause(): void {
         this.isStopped = true;
@@ -149,8 +149,10 @@ export class AudioSoundChannel extends SoundChannel {
         if (SoundManager.autoReleaseSound)
             SoundManager.disposeSoundLater(this.url);
     }
+
     /**
-     * @override
+     * @en Resume the sound playback
+     * @zh 恢复声音播放
      */
     resume(): void {
         var audio = this._audio;
@@ -169,25 +171,17 @@ export class AudioSoundChannel extends SoundChannel {
     }
 
     /**
-     * 设置音量
-     * @param v
-     * @override
-     *
-     */
-    set volume(v: number) {
-        if (!this._audio) return;
-        this._audio.volume = v;
-    }
-
-    /**
-     * 获取音量
-     * @return
-     * @override
-     *
+     * @en The volume of the sound
+     * @zh 声音的音量
      */
     get volume(): number {
         if (!this._audio) return 1;
         return this._audio.volume;
+    }
+
+    set volume(v: number) {
+        if (!this._audio) return;
+        this._audio.volume = v;
     }
 
 }

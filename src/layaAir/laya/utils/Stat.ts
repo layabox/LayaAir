@@ -530,7 +530,7 @@ export class Stat {
             let delay: string = Stat.FPS > 0 ? Math.floor(1000 / Stat.FPS).toString() : " ";
             Stat._fpsStr = Stat.FPS + (Stat.renderSlow ? " slow" : "") + " " + delay + "ms";
             Stat._statUI.update();
-            //Stat.clear();
+            // Stat.clear();
         }
 
         Stat._count = 0;
@@ -542,13 +542,13 @@ export class Stat {
      * @zh 更新引擎数据，包括三角形数量、绘制调用计数和内存使用情况等统计信息。
      */
     static updateEngineData(): void {
-        Stat.trianglesFaces = LayaGL.renderEngine.getStatisticsInfo(GPUEngineStatisticsInfo.C_TriangleCount);
-        Stat.drawCall = LayaGL.renderEngine.getStatisticsInfo(GPUEngineStatisticsInfo.C_DrawCallCount);
-        Stat.instanceDrawCall = LayaGL.renderEngine.getStatisticsInfo(GPUEngineStatisticsInfo.C_Instancing_DrawCallCount);
+        Stat.trianglesFaces += LayaGL.renderEngine.getStatisticsInfo(GPUEngineStatisticsInfo.C_TriangleCount);
+        Stat.drawCall += LayaGL.renderEngine.getStatisticsInfo(GPUEngineStatisticsInfo.C_DrawCallCount);
+        Stat.instanceDrawCall += LayaGL.renderEngine.getStatisticsInfo(GPUEngineStatisticsInfo.C_Instancing_DrawCallCount);
 
         Stat.gpuMemory = LayaGL.renderEngine.getStatisticsInfo(GPUEngineStatisticsInfo.M_GPUMemory);
         Stat.textureMemory = LayaGL.renderEngine.getStatisticsInfo(GPUEngineStatisticsInfo.M_ALLTexture);
-        Stat.renderTextureMemory = LayaGL.renderEngine.getStatisticsInfo(GPUEngineStatisticsInfo.RC_ALLRenderTexture);
+        Stat.renderTextureMemory = LayaGL.renderEngine.getStatisticsInfo(GPUEngineStatisticsInfo.M_ALLRenderTexture);
         Stat.bufferMemory = LayaGL.renderEngine.getStatisticsInfo(GPUEngineStatisticsInfo.M_GPUBuffer);
     }
 
@@ -558,7 +558,7 @@ export class Stat {
      * @zh 清零性能统计计算相关的数据。
      */
     static clear(): void {
-        if (!Stat._currentShowArray)
+        if (!Stat._currentShowArray || Stat._count)
             return;
         Stat._currentShowArray.forEach(element => {
             if (element.mode == "average")

@@ -4,9 +4,9 @@ import { MathUtils3D } from "./MathUtils3D";
 import { IClone } from "../utils/IClone";
 import { Quaternion } from "./Quaternion";
 
-
 /**
- * <code>Vector3</code> 类用于创建三维向量。
+ * @en The `Vector3` class is used to create three-dimensional vectors.
+ * @zh `Vector3` 类用于创建三维向量。
  */
 export class Vector3 implements IClone {
     /**@internal*/
@@ -14,30 +14,61 @@ export class Vector3 implements IClone {
     /**@internal*/
     static _tempVector3 = new Vector3();
 
-    /**零值 */
+    /**
+     * @en Zero vector (0, 0, 0).
+     * @zh 零向量 (0, 0, 0)。
+     */
     static readonly ZERO: Readonly<Vector3> = new Vector3(0.0, 0.0, 0.0);
-    /**壹值 */
+    /**
+     * @en One vector (1, 1, 1).
+     * @zh 单位向量 (1, 1, 1)。
+     */
     static readonly ONE: Readonly<Vector3> = new Vector3(1.0, 1.0, 1.0);
-    /**负X轴 */
+    /**
+     * @en Negative X axis (-1, 0, 0).
+     * @zh 负X轴 (-1, 0, 0)。
+     */
     static readonly NegativeUnitX: Readonly<Vector3> = new Vector3(-1, 0, 0);
-    /**正X轴 */
+    /**
+     * @en Positive X axis (1, 0, 0).
+     * @zh 正X轴 (1, 0, 0)。
+     */
     static readonly UnitX: Readonly<Vector3> = new Vector3(1, 0, 0);
-    /**正Y轴 */
+    /**
+     * @en Positive Y axis (0, 1, 0).
+     * @zh 正Y轴 (0, 1, 0)。
+     */
     static readonly UnitY: Readonly<Vector3> = new Vector3(0, 1, 0);
-    /**正Z轴 */
+    /**
+     * @en Positive Z axis (0, 0, 1).
+     * @zh 正Z轴 (0, 0, 1)。
+     */
     static readonly UnitZ: Readonly<Vector3> = new Vector3(0, 0, 1);
-    /**负Z值 */
+    /**
+     * @en Forward vector in right-handed coordinate system (0, 0, -1).
+     * @zh 右手坐标系中的前向量 (0, 0, -1)。
+     */
     static readonly ForwardRH: Readonly<Vector3> = new Vector3(0, 0, -1);
-    /**正Z值 */
+    /**
+     * @en Forward vector in left-handed coordinate system (0, 0, 1).
+     * @zh 左手坐标系中的前向量 (0, 0, 1)。
+     */
     static readonly ForwardLH: Readonly<Vector3> = new Vector3(0, 0, 1);
-    /**正Y值 */
+    /**
+     * @en Up vector (0, 1, 0).
+     * @zh 上向量 (0, 1, 0)。
+     */
     static readonly Up: Readonly<Vector3> = new Vector3(0, 1, 0);
 
     /**
-     * 两个三维向量距离的平方。
-     * @param	value1 向量1。
-     * @param	value2 向量2。
-     * @return	距离的平方。
+     * @en Calculates the squared distance between two three-dimensional vectors.
+     * @param value1 The first vector.
+     * @param value2 The second vector.
+     * @returns The squared distance.
+     * @zh 计算两个三维向量之间距离的平方。
+     * @param value1 第一个向量。
+     * @param value2 第二个向量。
+     * @returns 距离的平方。
      */
     static distanceSquared(value1: Vector3, value2: Vector3): number {
         var x: number = value1.x - value2.x;
@@ -47,10 +78,14 @@ export class Vector3 implements IClone {
     }
 
     /**
-     * 两个三维向量距离。
-     * @param	value1 向量1。
-     * @param	value2 向量2。
-     * @return	距离。
+     * @en Calculates the distance between two three-dimensional vectors.
+     * @param value1 The first vector.
+     * @param value2 The second vector.
+     * @returns The distance.
+     * @zh 计算两个三维向量之间的距离。
+     * @param value1 第一个向量。
+     * @param value2 第二个向量。
+     * @returns 距离。
      */
     static distance(value1: Vector3, value2: Vector3): number {
         var x: number = value1.x - value2.x;
@@ -60,10 +95,14 @@ export class Vector3 implements IClone {
     }
 
     /**
-     * 分别取两个三维向量x、y、z的最小值计算新的三维向量。
-     * @param	a。
-     * @param	b。
-     * @param	out。
+     * @en Calculates a new three-dimensional vector by taking the minimum of x, y, and z from two vectors.
+     * @param a The first Vector3.
+     * @param b The second Vector3.
+     * @param out The resulting Vector3.
+     * @zh 通过取两个三维向量的 x、y、z 的最小值计算新的三维向量。
+     * @param a 第一个三维向量。
+     * @param b 第二个三维向量。
+     * @param out 结果三维向量。
      */
     static min(a: Vector3, b: Vector3, out: Vector3): void {
         out.x = Math.min(a.x, b.x);
@@ -72,10 +111,14 @@ export class Vector3 implements IClone {
     }
 
     /**
-     * 分别取两个三维向量x、y、z的最大值计算新的三维向量。
-     * @param	a a三维向量。
-     * @param	b b三维向量。
-     * @param	out 结果三维向量。
+     * @en Calculates a new three-dimensional vector by taking the maximum of x, y, and z from two vectors.
+     * @param a The first Vector3.
+     * @param b The second Vector3.
+     * @param out The resulting Vector3.
+     * @zh 通过取两个三维向量的 x、y、z 的最大值计算新的三维向量。
+     * @param a 第一个三维向量。
+     * @param b 第二个三维向量。
+     * @param out 结果三维向量。
      */
     static max(a: Vector3, b: Vector3, out: Vector3): void {
         out.x = Math.max(a.x, b.x);
@@ -84,10 +127,14 @@ export class Vector3 implements IClone {
     }
 
     /**
-     * 根据四元数旋转三维向量。
-     * @param	source 源三维向量。
-     * @param	rotation 旋转四元数。
-     * @param	out 输出三维向量。
+     * @en Rotates a three-dimensional vector by a quaternion.
+     * @param source The source vector3 to be rotated.
+     * @param rotation The rotation quaternion.
+     * @param out The output vector3.
+     * @zh 根据四元数旋转三维向量。
+     * @param source 要旋转的源三维向量。
+     * @param rotation 旋转四元数。
+     * @param out 输出三维向量。
      */
     static transformQuat(source: Vector3, rotation: Quaternion, out: Vector3): void {
         var x: number = source.x, y: number = source.y, z: number = source.z, qx: number = rotation.x, qy: number = rotation.y, qz: number = rotation.z, qw: number = rotation.w,
@@ -100,9 +147,12 @@ export class Vector3 implements IClone {
     }
 
     /**
-     * 计算标量长度。
-     * @param	a 源三维向量。
-     * @return 标量长度。
+     * @en Calculates the scalar length of a vector.
+     * @param a The source vector.
+     * @returns The scalar length.
+     * @zh 计算向量的标量长度。
+     * @param a 源向量。
+     * @returns 标量长度。
      */
     static scalarLength(a: Vector3): number {
         var x: number = a.x, y: number = a.y, z: number = a.z;
@@ -110,9 +160,12 @@ export class Vector3 implements IClone {
     }
 
     /**
-     * 计算标量长度的平方。
-     * @param	a 源三维向量。
-     * @return 标量长度的平方。
+     * @en Calculates the squared scalar length of a vector.
+     * @param a The source three-dimensional vector.
+     * @returns The squared scalar length.
+     * @zh 计算标量长度的平方。
+     * @param a 源三维向量。
+     * @returns 标量长度的平方。
      */
     static scalarLengthSquared(a: Vector3): number {
         var x: number = a.x, y: number = a.y, z: number = a.z;
@@ -120,9 +173,12 @@ export class Vector3 implements IClone {
     }
 
     /**
-     * 归一化三维向量。
-     * @param	s 源三维向量。
-     * @param	out 输出三维向量。
+     * @en Normalizes a three-dimensional vector.
+     * @param s The source vector to be normalized.
+     * @param out The output normalized vector.
+     * @zh 归一化三维向量。
+     * @param s 要归一化的源向量。
+     * @param out 输出的归一化向量。
      */
     static normalize(s: Vector3, out: Vector3): void {
         var x: number = s.x, y: number = s.y, z: number = s.z;
@@ -138,10 +194,14 @@ export class Vector3 implements IClone {
 
 
     /**
-     * 计算两个三维向量的乘积。
-     * @param	a left三维向量。
-     * @param	b right三维向量。
-     * @param	out 输出三维向量。
+     * @en Calculates the product of two three-dimensional vectors.
+     * @param a The left vector3.
+     * @param b The right vector3.
+     * @param out The output vector3.
+     * @zh 计算两个三维向量的乘积。
+     * @param a 左侧三维向量。
+     * @param b 右侧三维向量。
+     * @param out 输出三维向量。
      */
     static multiply(a: Vector3, b: Vector3, out: Vector3): void {
         out.x = a.x * b.x;
@@ -150,10 +210,14 @@ export class Vector3 implements IClone {
     }
 
     /**
-     * 缩放三维向量。
-     * @param	a 源三维向量。
-     * @param	b 缩放值。
-     * @param	out 输出三维向量。
+     * @en Scales a three-dimensional vector.
+     * @param a The source vector3 to be scaled.
+     * @param b The scaling factor.
+     * @param out The output scaled vector3.
+     * @zh 缩放三维向量。
+     * @param a 要缩放的源三维向量。
+     * @param b 缩放因子。
+     * @param out 输出的缩放后的三维向量。
      */
     static scale(a: Vector3, b: number, out: Vector3): void {
         out.x = a.x * b;
@@ -162,11 +226,16 @@ export class Vector3 implements IClone {
     }
 
     /**
-     * 插值三维向量。
-     * @param	a left向量。
-     * @param	b right向量。
-     * @param	t 插值比例。
-     * @param	out 输出向量。
+     * @en Performs a linear interpolation between two three-dimensional vectors.
+     * @param a The starting vector.
+     * @param b The ending vector.
+     * @param t The interpolation coefficient in the range [0, 1].
+     * @param out The output interpolated vector.
+     * @zh 在两个三维向量之间进行线性插值。
+     * @param a 起始向量。
+     * @param b 结束向量。
+     * @param t 插值系数，范围为 [0, 1]。
+     * @param out 输出的插值向量。
      */
     static lerp(a: Vector3, b: Vector3, t: number, out: Vector3): void {
         var ax: number = a.x, ay: number = a.y, az: number = a.z;
@@ -176,10 +245,14 @@ export class Vector3 implements IClone {
     }
 
     /**
-     * 通过矩阵转换一个三维向量到另外一个三维向量。
-     * @param	vector 源三维向量。
-     * @param	transform  变换矩阵。
-     * @param	result 输出三维向量。
+     * @en Transforms a three-dimensional vector to another three-dimensional vector using a matrix.
+     * @param vector The source vector3.
+     * @param transform The transformation matrix.
+     * @param result The output transformed vector3.
+     * @zh 使用矩阵将一个三维向量转换为另一个三维向量。
+     * @param vector 源三维向量。
+     * @param transform 变换矩阵。
+     * @param result 输出的转换后的三维向量。
      */
     static transformV3ToV3(vector: Vector3, transform: Matrix4x4, result: Vector3): void {
         var intermediate: Vector4 = Vector3._tempVector4;
@@ -190,10 +263,14 @@ export class Vector3 implements IClone {
     }
 
     /**
-     * 通过矩阵转换一个三维向量到另外一个四维向量。
-     * @param	vector 源三维向量。
-     * @param	transform  变换矩阵。
-     * @param	result 输出四维向量。
+     * @en Transforms a three-dimensional vector to a four-dimensional vector using a matrix.
+     * @param vector The source vector3.
+     * @param transform The transformation matrix.
+     * @param result The output vector4.
+     * @zh 使用矩阵将三维向量转换为四维向量。
+     * @param vector 源三维向量。
+     * @param transform 变换矩阵。
+     * @param result 输出的四维向量。
      */
     static transformV3ToV4(vector: Vector3, transform: Matrix4x4, result: Vector4): void {
         var vectorX: number = vector.x;
@@ -208,10 +285,14 @@ export class Vector3 implements IClone {
     }
 
     /**
-     * 通过法线矩阵转换一个法线三维向量到另外一个三维向量。
-     * @param	normal 源法线三维向量。
-     * @param	transform  法线变换矩阵。
-     * @param	result 输出法线三维向量。
+     * @en Transforms a normal three-dimensional vector to another three-dimensional vector using a normal transformation matrix.
+     * @param normal The source normal vector3.
+     * @param transform The normal transformation matrix.
+     * @param result The output transformed normal vector3.
+     * @zh 使用法线变换矩阵将法线三维向量转换为另一个三维向量。
+     * @param normal 源法线三维向量。
+     * @param transform 法线变换矩阵。
+     * @param result 输出转换后的法线三维向量。
      */
     static TransformNormal(normal: Vector3, transform: Matrix4x4, result: Vector3): void {
         var normalX: number = normal.x;
@@ -225,10 +306,14 @@ export class Vector3 implements IClone {
     }
 
     /**
-     * 通过矩阵转换一个三维向量到另外一个归一化的三维向量。
-     * @param	vector 源三维向量。
-     * @param	transform  变换矩阵。
-     * @param	result 输出三维向量。
+     * @en Transforms a three-dimensional vector to another normalized three-dimensional vector using a matrix.
+     * @param coordinate The source three-dimensional vector.
+     * @param transform The transformation matrix.
+     * @param result The output normalized three-dimensional vector.
+     * @zh 使用矩阵将三维向量转换为另一个归一化的三维向量。
+     * @param coordinate 源三维向量。
+     * @param transform 变换矩阵。
+     * @param result 输出的归一化三维向量。
      */
     static transformCoordinate(coordinate: Vector3, transform: Matrix4x4, result: Vector3): void {
         var coordinateX: number = coordinate.x;
@@ -243,11 +328,16 @@ export class Vector3 implements IClone {
     }
 
     /**
-     * 求一个指定范围的向量
-     * @param	value clamp向量
-     * @param	min  最小
-     * @param	max  最大
-     * @param   out 输出向量
+     * @en Clamps a vector within a specified range.
+     * @param value The vector to be clamped.
+     * @param min The minimum values for each component.
+     * @param max The maximum values for each component.
+     * @param out The output clamped vector.
+     * @zh 将向量限制在指定范围内。
+     * @param value 要限制的向量。
+     * @param min 每个分量的最小值。
+     * @param max 每个分量的最大值。
+     * @param out 输出的限制后的向量。
      */
     static Clamp(value: Vector3, min: Vector3, max: Vector3, out: Vector3): void {
         var x: number = value.x;
@@ -277,10 +367,14 @@ export class Vector3 implements IClone {
     }
 
     /**
-     * 求两个三维向量的和。
-     * @param	a left三维向量。
-     * @param	b right三维向量。
-     * @param	out 输出向量。
+     * @en Calculates the sum of two three-dimensional vectors.
+     * @param a The left vector3.
+     * @param b The right vector3.
+     * @param out The output vector3.
+     * @zh 计算两个三维向量的和。
+     * @param a 左侧三维向量。
+     * @param b 右侧三维向量。
+     * @param out 输出向量。
      */
     static add(a: Vector3, b: Vector3, out: Vector3): void {
         out.x = a.x + b.x;
@@ -289,10 +383,14 @@ export class Vector3 implements IClone {
     }
 
     /**
-     * 求两个三维向量的差。
-     * @param	a  left三维向量。
-     * @param	b  right三维向量。
-     * @param	o out 输出向量。
+     * @en Calculates the difference between two three-dimensional vectors.
+     * @param a The left vector3.
+     * @param b The right vector3.
+     * @param o The output vector3.
+     * @zh 计算两个三维向量的差。
+     * @param a 左侧三维向量。
+     * @param b 右侧三维向量。
+     * @param o 输出向量。
      */
     static subtract(a: Vector3, b: Vector3, o: Vector3): void {
         o.x = a.x - b.x;
@@ -301,10 +399,14 @@ export class Vector3 implements IClone {
     }
 
     /**
-     * 求两个三维向量的叉乘。
-     * @param	a left向量。
-     * @param	b right向量。
-     * @param	o 输出向量。
+     * @en Calculates the cross product of two three-dimensional vectors.
+     * @param a The left vector3.
+     * @param b The right vector3.
+     * @param o The output vector3.
+     * @zh 计算两个三维向量的叉乘。
+     * @param a 左侧三维向量。
+     * @param b 右侧三维向量。
+     * @param o 输出三维向量。
      */
     static cross(a: Vector3, b: Vector3, o: Vector3): void {
         var ax: number = a.x, ay: number = a.y, az: number = a.z, bx: number = b.x, by: number = b.y, bz: number = b.z;
@@ -314,41 +416,60 @@ export class Vector3 implements IClone {
     }
 
     /**
-     * 求两个三维向量的点积。
-     * @param	a left向量。
-     * @param	b right向量。
-     * @return   点积。
+     * @en Calculates the dot product of two three-dimensional vectors.
+     * @param a The left vector3.
+     * @param b The right vector3.
+     * @returns The dot product.
+     * @zh 计算两个三维向量的点积。
+     * @param a 左侧向量。
+     * @param b 右侧向量。
+     * @returns 点积。
      */
     static dot(a: Vector3, b: Vector3): number {
         return (a.x * b.x) + (a.y * b.y) + (a.z * b.z);
     }
 
     /**
-     * 判断两个三维向量是否相等。
-     * @param	a 三维向量。
-     * @param	b 三维向量。
-     * @return  是否相等。
+     * @en Determines whether two three-dimensional vectors are equal.
+     * @param a The first vector3.
+     * @param b The second vector3.
+     * @returns Whether the vectors are equal.
+     * @zh 判断两个三维向量是否相等。
+     * @param a 第一个三维向量。
+     * @param b 第二个三维向量。
+     * @returns 是否相等。
      */
     static equals(a: Vector3, b: Vector3): boolean {
         return MathUtils3D.nearEqual(a.x, b.x) && MathUtils3D.nearEqual(a.y, b.y) && MathUtils3D.nearEqual(a.z, b.z);
     }
 
-    
-    /**X轴坐标*/
-    x: number;
-    
-    /**Y轴坐标*/
-    y: number;
-    
-    /**Z轴坐标*/
-    z: number;
-    
-    
     /**
-     * 创建一个 <code>Vector3</code> 实例。
-     * @param	x  X轴坐标。
-     * @param	y  Y轴坐标。
-     * @param	z  Z轴坐标。
+     * @en X-axis coordinate
+     * @zh X轴坐标
+     */
+    x: number;
+
+    /**
+     * @en Y-axis coordinate
+     * @zh Y轴坐标
+     */
+    y: number;
+
+    /**
+     * @en Z-axis coordinate
+     * @zh Z轴坐标
+     */
+    z: number;
+
+    /**
+     * @en Constructor method, 3D vector initialization.
+     * @param x X-axis coordinate.
+     * @param y Y-axis coordinate.
+     * @param z Z-axis coordinate.
+     * @zh 构造方法，初始化三维向量。
+     * @param x X轴坐标。
+     * @param y Y轴坐标。
+     * @param z Z轴坐标。
      */
     constructor(x: number = 0, y: number = 0, z: number = 0) {
         this.x = x;
@@ -357,19 +478,26 @@ export class Vector3 implements IClone {
     }
 
     /**
-     * 判断四维向量是否相等
+     * @en Determines whether the three-dimensional vector is equal to another vector.
+     * @param value The vector to compare with.
+     * @returns Returns true if the vectors are equal, false otherwise.
+     * @zh 判断三维向量是否与另一个向量相等。
      * @param value 对比值
-     * @returns 
+     * @returns 如果向量相等则返回 true，否则返回 false。
      */
     equal(value: Vector3) {
         return Vector3.equals(this, value);
     }
 
     /**
-     * 设置xyz值。
-     * @param	x X值。
-     * @param	y Y值。
-     * @param	z Z值。
+     * @en Sets the x, y, and z values of the vector.
+     * @param x The x value.
+     * @param y The y value.
+     * @param z The z value.
+     * @zh 设置向量的 x、y 和 z 值。
+     * @param x X值。
+     * @param y Y值。
+     * @param z Z值。
      */
     setValue(x: number, y: number, z: number): Vector3 {
         this.x = x;
@@ -379,11 +507,14 @@ export class Vector3 implements IClone {
     }
 
     /**
-     * 设置xyz值。
-     * @param	x X值。
-     * @param	y Y值。
-     * @param	z Z值。
-     * @return 返回Vector3
+     * @en Sets the x, y, and z values of the vector.
+     * @param x The x value.
+     * @param y The y value.
+     * @param z The z value.
+     * @zh 设置向量的 x、y 和 z 值。
+     * @param x X值。
+     * @param y Y值。
+     * @param z Z值。
      */
     set(x: number, y: number, z: number) {
         this.x = x;
@@ -393,9 +524,12 @@ export class Vector3 implements IClone {
     }
 
     /**
-     * 从Array数组拷贝值。
-     * @param  arr 数组。
-     * @param  offset 数组偏移。
+     * @en Copies values from an array.
+     * @param arr The source array.
+     * @param offset The offset in the array. Default is 0.
+     * @zh 从数组中拷贝值。
+     * @param arr 源数组。
+     * @param offset 数组偏移。默认值为 0。
      */
     fromArray(arr: ArrayLike<number>, offset: number = 0): void {
         this.x = arr[offset + 0];
@@ -404,17 +538,20 @@ export class Vector3 implements IClone {
     }
 
     /**
-     * 转换为Array数组
-     * @return
+     * @en Converts the vector to an array.
+     * @zh 将向量转换为数组。
      */
     toArray(): Array<number> {
         return [this.x, this.y, this.z];
     }
 
     /**
-     * 写入Array数组
-     * @param arr 数组。
-     * @param offset 数组偏移。 
+     * @en Writes the vector values to an array.
+     * @param arr The target array.
+     * @param offset The offset in the array. Default is 0.
+     * @zh 将向量值写入数组。
+     * @param arr 目标数组。
+     * @param offset 数组偏移。默认值为 0。
      */
     writeTo(arr: Float32Array, offset: number = 0): void {
         arr[offset + 0] = this.x;
@@ -423,26 +560,30 @@ export class Vector3 implements IClone {
     }
 
     /**
-     * 计算长度。
-     * @return 长度。
+     * @en Calculates the length of the vector.
+     * @zh 计算向量的长度。
      */
     length() {
         return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
     }
 
     /**
-     * 计算平方。
-     * @return 返回向量长度的平方。
+     * @en Calculates the squared length of the vector.
+     * @zh 计算向量长度的平方。
      */
     lengthSquared() {
         return this.x * this.x + this.y * this.y + this.z * this.z;
     }
 
     /**
-     * 向量相减
-     * @param b 被减向量
-     * @param out 输出向量
-     * @returns 
+     * @en Subtracts a vector from this vector.
+     * @param b The vector to subtract.
+     * @param out The output vector.
+     * @returns The resulting vector.
+     * @zh 向量相减
+     * @param b 被减向量。
+     * @param out 输出向量。
+     * @returns 相减后的结果向量。
      */
     vsub(b: Vector3, out: Vector3) {
         out.x = this.x - b.x;
@@ -452,10 +593,14 @@ export class Vector3 implements IClone {
     }
 
     /**
-     * 向量相加
-     * @param b 加向量
-     * @param out 输出向量
-     * @returns 
+     * @en Adds a vector to this vector.
+     * @param b The vector to add.
+     * @param out The output vector.
+     * @returns The resulting vector.
+     * @zh 向量相加。
+     * @param b 加向量。
+     * @param out 输出向量。
+     * @returns returns 相加后的结果向量。
      */
     vadd(b: Vector3, out: Vector3) {
         out.x = this.x + b.x;
@@ -465,10 +610,14 @@ export class Vector3 implements IClone {
     }
 
     /**
-     * 缩放向量
-     * @param s 缩放值
-     * @param out 输出向量
-     * @returns 返回缩放向量
+     * @en Scales this vector by a scalar value.
+     * @param s The scalar value.
+     * @param out The output vector.
+     * @returns The scaled vector.
+     * @zh 缩放向量。
+     * @param s 缩放值。
+     * @param out 输出向量。
+     * @returns 缩放后的向量。
      */
     scale(s: number, out: Vector3) {
         out.x = this.x * s;
@@ -478,8 +627,10 @@ export class Vector3 implements IClone {
     }
 
     /**
-     * 归一化向量
-     * @returns 
+     * @en Normalizes this vector.
+     * @returns The normalized vector.
+     * @zh 归一化向量。
+     * @returns 归一化后的向量。
      */
     normalize() {
         let x = this.x, y = this.y, z = this.z;
@@ -494,19 +645,26 @@ export class Vector3 implements IClone {
     }
 
     /**
-     * 向量点乘
-     * @param b 点乘向量
-     * @returns 
+     * @en Calculates the dot product of this vector with another vector.
+     * @param b The vector to dot product with.
+     * @returns The dot product.
+     * @zh 计算向量点乘。
+     * @param b 点乘向量。
+     * @returns 点乘结果。
      */
     dot(b: Vector3): number {
         return (this.x * b.x) + (this.y * b.y) + (this.z * b.z);
     }
 
     /**
-     * 向量叉乘
-     * @param b 叉乘向量
-     * @param o 输出向量
-     * @returns 
+     * @en Calculates the cross product of this vector with another vector.
+     * @param b The vector to cross product with.
+     * @param o The output vector.
+     * @returns The resulting cross product vector.
+     * @zh 计算向量叉乘。
+     * @param b 叉乘向量。
+     * @param o 输出向量。
+     * @returns 叉乘结果向量。
      */
     cross(b: Vector3, o: Vector3): Vector3 {
         var ax = this.x, ay = this.y, az = this.z, bx = b.x, by = b.y, bz = b.z;
@@ -517,8 +675,10 @@ export class Vector3 implements IClone {
     }
 
     /**
-     * 克隆。
-     * @param	destObject 克隆源。
+     * @en Clones this vector to another object.
+     * @param destObject The destination object to clone to.
+     * @zh 将当前向量克隆到目标对象。
+     * @param destObject 克隆的目标对象。
      */
     cloneTo(destObject: any): void {
         var destVector3: Vector3 = (<Vector3>destObject);
@@ -528,8 +688,10 @@ export class Vector3 implements IClone {
     }
 
     /**
-     * 克隆。
-     * @return	 克隆副本。
+     * @en Creates a clone of this vector.
+     * @returns A new Vector3 object with the same values as this vector.
+     * @zh 创建当前向量的克隆。
+     * @returns 返回一个新的 Vector3 对象，其值与当前向量相同。
      */
     clone(): any {
         var destVector3: Vector3 = new Vector3();
@@ -538,7 +700,8 @@ export class Vector3 implements IClone {
     }
 
     /**
-     * 设置默认值
+     * @en Sets this vector to its default value (0, 0, 0).
+     * @zh 将当前向量设置为默认值 (0, 0, 0)。
      */
     toDefault(): void {
         this.x = 0;

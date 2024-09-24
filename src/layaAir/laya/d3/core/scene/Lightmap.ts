@@ -3,7 +3,8 @@ import { Texture2D } from "../../../resource/Texture2D";
 import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 
 /**
- * 光照贴图。
+ * @en Lightmap.
+ * @zh 光照贴图。
  */
 export class Lightmap {
     /**@internal */
@@ -12,9 +13,11 @@ export class Lightmap {
     /**@internal */
     _dataModule: ILightMapData;
 
-    /** 光照贴图颜色。 */
     private _lightmapColor: Texture2D;
-
+    /**
+     * @en The color of the lightmap.
+     * @zh 光照贴图的颜色。
+     */
     public get lightmapColor(): Texture2D {
         return this._lightmapColor;
     }
@@ -36,7 +39,10 @@ export class Lightmap {
 
     /** 光照贴图方向。 */
     private _lightmapDirection: Texture2D;
-
+    /**
+     * @en The direction of the lightmap.
+     * @zh 光照贴图的方向。
+     */
     public get lightmapDirection(): Texture2D {
         return this._lightmapDirection;
     }

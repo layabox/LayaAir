@@ -5,7 +5,8 @@ import { Laya3D } from "../../../../Laya3D";
 import { EPhysicsCapable } from "../../../Physics3D/physicsEnum/EPhycisCapable";
 
 /**
- * <code>MeshColliderShape</code> 类用于创建网格碰撞器。
+ * @en The `MeshColliderShape` class is used to create mesh colliders.
+ * @zh `MeshColliderShape` 类用于创建网格碰撞器。
  */
 export class MeshColliderShape extends Physics3DColliderShape {
 	/** @internal */
@@ -18,7 +19,8 @@ export class MeshColliderShape extends Physics3DColliderShape {
 	_shape: IMeshColliderShape;
 
 	/**
-	 * 网格。
+	 * @en The mesh of the collider.
+	 * @zh 碰撞器的网格。
 	 */
 	get mesh(): Mesh {
 		return this._mesh;
@@ -41,7 +43,8 @@ export class MeshColliderShape extends Physics3DColliderShape {
 	}
 
 	/**
-	 * 凸多边形最大值。
+	 * @en The maximum number of convex vertices.
+	 * @zh 凸多边形顶点的最大数量。
 	 */
 	get convexVertexMax(): number {
 		return this._convexVertexMax;
@@ -53,7 +56,8 @@ export class MeshColliderShape extends Physics3DColliderShape {
 	}
 
 	/**
-	 * 是否使用凸多边形。
+	 * @en Whether the collider uses a convex shape.
+	 * @zh 碰撞器是否使用凸多边形形状。
 	 */
 	get convex(): boolean {
 		return this._convex;
@@ -66,10 +70,7 @@ export class MeshColliderShape extends Physics3DColliderShape {
 		this._convex = value;
 		this._changeShape();
 	}
-
-	/**
-	 * 创建一个新的 <code>MeshColliderShape</code> 实例。
-	 */
+	/** @ignore */
 	constructor() {
 		super();
 	}
@@ -87,10 +88,12 @@ export class MeshColliderShape extends Physics3DColliderShape {
 	}
 
 	/**
-	 * 克隆数据到目标对象
 	 * @inheritDoc
 	 * @override
-	 * @param destObject 目标对象
+	 * @en Clone data to target object.
+	 * @param destObject Target object.
+	 * @zh 将数据克隆到目标对象
+	 * @param destObject 目标对象。
 	 */
 	cloneTo(destObject: any): void {
 		var destMeshCollider: MeshColliderShape = (<MeshColliderShape>destObject);
@@ -101,9 +104,12 @@ export class MeshColliderShape extends Physics3DColliderShape {
 	}
 
 	/**
-	 * 克隆
 	 * @inheritDoc
 	 * @override
+	 * @en Clone a new MeshColliderShape object.
+	 * @return A new MeshColliderShape object.
+	 * @zh 克隆一个新的 网格碰撞器 对象。
+	 * @return 一个新的 网格碰撞器 对象。
 	 */
 	clone(): any {
 		var dest: MeshColliderShape = new MeshColliderShape();

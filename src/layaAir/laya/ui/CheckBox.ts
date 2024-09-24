@@ -1,19 +1,13 @@
 import { Button } from "./Button"
-
-/**
- * @en Dispatched when the selection state (the `selected` property) of the button changes.
- * @zh 当按钮的选中状态（ `selected` 属性）发生改变时调度。
- * @eventType laya.events.Event
- */
-/*[Event(name = "change", type = "laya.events.Event")]*/
-
 /**
  * @en The `CheckBox` component displays a small box that can have a check mark. 
- * The `CheckBox` component can also display an optional text label, which is positioned to the right of the CheckBox by default.
- * When assigning a value to `CheckBox` using `dataSource`, the default property is `selected`.
+ * - The `CheckBox` component can also display an optional text label, which is positioned to the right of the CheckBox by default.
+ * - When assigning a value to `CheckBox` using `dataSource`, the default property is `selected`.
+ * - `change` event, dispatched when the button's selected state (`selected` property) changes.
  * @zh `CheckBox` 组件显示一个小方框，该方框内可以有选中标记。
- * `CheckBox` 组件还可以显示可选的文本标签，默认该标签位于 CheckBox 右侧。
- * 使用 `dataSource` 赋值时，`CheckBox` 的默认属性是 `selected`。
+ * - `CheckBox` 组件还可以显示可选的文本标签，默认该标签位于 CheckBox 右侧。
+ * - 使用 `dataSource` 赋值时，`CheckBox` 的默认属性是 `selected`。
+ * - `change`事件，当按钮的选中状态（ `selected` 属性）发生改变时调度。
  */
 export class CheckBox extends Button {
 

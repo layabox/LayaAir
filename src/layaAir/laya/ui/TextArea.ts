@@ -10,15 +10,10 @@ import { HideFlags } from "../Const";
  * @zh TextArea 类用于创建多行的文本域显示对象，以显示和输入文本。
  */
 export class TextArea extends TextInput {
-    /**@internal */
     protected _scrollType: ScrollType = 0;
-    /**@internal */
     protected _vScrollBarSkin: string;
-    /**@internal */
     protected _hScrollBarSkin: string;
-    /**@internal */
     protected _vScrollBar: VScrollBar;
-    /**@internal */
     protected _hScrollBar: HScrollBar;
 
     /**
@@ -175,16 +170,15 @@ export class TextArea extends TextInput {
     }
 
     /**
-     * @en constructor method.
+     * @en Creates an instance of TextArea.
      * @param text Text content string.
-     * @zh 构造方法
+     * @zh 创建一个TextArea实例。
      * @param text 文本内容字符串。
      */
     constructor(text?: string) {
         super(text);
     }
 
-    /**@internal */
     protected _onPostLayout(): void {
         super._onPostLayout();
         this.callLater(this.changeScroll);
@@ -206,9 +200,6 @@ export class TextArea extends TextInput {
         this.callLater(this.changeScroll);
     }
 
-    /**
-     * @internal
-     */
     protected initialize(): void {
         this.width = 180;
         this.height = 150;
@@ -216,7 +207,6 @@ export class TextArea extends TextInput {
         this.multiline = true;
     }
 
-    /**@internal */
     private createHScrollBar() {
         this._hScrollBar = new HScrollBar();
         this._hScrollBar.hideFlags = HideFlags.HideAndDontSave;
@@ -231,7 +221,6 @@ export class TextArea extends TextInput {
         this.callLater(this.changeScroll);
     }
 
-    /**@internal */
     private createVScrollBar() {
         this._vScrollBar = new VScrollBar();
         this._vScrollBar.hideFlags = HideFlags.HideAndDontSave;
@@ -245,21 +234,18 @@ export class TextArea extends TextInput {
         this.callLater(this.changeScroll);
     }
 
-    /**@internal */
     protected onVBarChanged(e: Event): void {
         if (this._tf.scrollY != this._vScrollBar.value) {
             this._tf.scrollY = this._vScrollBar.value;
         }
     }
 
-    /**@internal */
     protected onHBarChanged(e: Event): void {
         if (this._tf.scrollX != this._hScrollBar.value) {
             this._tf.scrollX = this._hScrollBar.value;
         }
     }
 
-    /**@internal */
     private changeScroll(): void {
         let vShow = this._vScrollBar && this._tf.maxScrollY > 0;
         let hShow = this._hScrollBar && this._tf.maxScrollX > 0;
@@ -299,7 +285,6 @@ export class TextArea extends TextInput {
     }
 
     /**
-     * @override
      * @en Destroys the instance.
      * @param destroyChild Whether to destroy child elements as well. Defaults to true.
      * @zh 销毁实例。

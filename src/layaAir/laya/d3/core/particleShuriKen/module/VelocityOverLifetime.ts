@@ -2,34 +2,47 @@ import { IClone } from "../../../../utils/IClone";
 import { GradientVelocity } from "./GradientVelocity";
 
 /**
- * <code>VelocityOverLifetime</code> 类用于粒子的生命周期速度。
+ * @en The `VelocityOverLifetime` class is used for particle velocity over its lifetime.
+ * @zh `VelocityOverLifetime` 类用于控制粒子在生命周期内的速度变化。
  */
 export class VelocityOverLifetime implements IClone {
 	/**@internal */
 	private _velocity: GradientVelocity;
 
-	/**是否启用*/
+	/**
+	 * @en Whether to enable.
+	 * @zh 是否启用*/
 	enable: boolean = false;
-	/**速度空间,0为local,1为world。*/
+	/**
+	 * @en Velocity space, 0 for local, 1 for world.
+	 * @zh 速度空间，0 表示局部空间，1 表示世界空间。
+	 */
 	space: number = 0;
 
 	/**
-	 *获取尺寸。
+	 * @en The gradient velocity.
+	 * @zh 渐变速度。
 	 */
 	get velocity(): GradientVelocity {
 		return this._velocity;
 	}
 
 	/**
-	 * 创建一个 <code>VelocityOverLifetime</code> 实例。
+	 * @ignore
+	 * @en Creates an instance of `VelocityOverLifetime` class.
+	 * @param velocity gradient velocity.
+	 * @zh 创建一个 `VelocityOverLifetime` 类的实例。
+	 * @param velocity 渐变速度。
 	 */
 	constructor(velocity: GradientVelocity) {
 		this._velocity = velocity;
 	}
 
 	/**
-	 * 克隆。
-	 * @param	destObject 克隆源。
+	 * @en Clones to a target object.
+	 * @param destObject The target object to clone to.
+	 * @zh 克隆到目标对象。
+	 * @param destObject 要克隆到的目标对象。
 	 */
 	cloneTo(destObject: any): void {
 		var destVelocityOverLifetime: VelocityOverLifetime = (<VelocityOverLifetime>destObject);
@@ -39,8 +52,10 @@ export class VelocityOverLifetime implements IClone {
 	}
 
 	/**
-	 * 克隆。
-	 * @return	 克隆副本。
+	 * @en Clone.
+	 * @returns Clone copy.
+	 * @zh 克隆。
+	 * @returns 克隆副本。
 	 */
 	clone(): any {
 		var destVelocity: GradientVelocity;

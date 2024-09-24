@@ -22,12 +22,19 @@ import { TrailFilter } from "./TrailFilter";
 import { VertexTrail } from "./VertexTrail";
 
 /**
- * <code>TrailGeometry</code> 类用于创建拖尾渲染单元。
+ * @en The `TrailGeometry` class is used to create trail rendering elements.
+ * @zh `TrailGeometry` 类用于创建拖尾渲染单元。
  */
 export class TrailGeometry extends GeometryElement {
-	/** 轨迹准线_面向摄像机。*/
+	/**
+	 * @en Alignment of the trail ti j wq e o face the camera.
+	 * @zh 轨迹准线_面向摄像机。
+	 */
 	static ALIGNMENT_VIEW: number = 0;
-	/** 轨迹准线_面向运动方向。*/
+	/**
+	 * @en Alignment of the trail to face the direction of movement.
+	 * @zh 轨迹准线_面向运动方向。
+	 */
 	static ALIGNMENT_TRANSFORM_Z: number = 1;
 
 	/**@internal */
@@ -416,6 +423,8 @@ export class TrailGeometry extends GeometryElement {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @en Get the type.
+	 * @zh 获取类型。
 	 */
 	_getType(): number {
 		return TrailGeometry._type;
@@ -445,6 +454,8 @@ export class TrailGeometry extends GeometryElement {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @en Destroys the instance and releases resources.
+	 * @zh 销毁实例并释放资源。
 	 */
 	destroy(): void {
 		super.destroy();
@@ -465,6 +476,10 @@ export class TrailGeometry extends GeometryElement {
 		this._disappearBoundsMode = false;
 	}
 
+	/**
+	 * @en Clear.
+	 * @zh 清除。
+	 */
 	clear(): void {
 		this._activeIndex = 0;
 		this._endIndex = 0;
