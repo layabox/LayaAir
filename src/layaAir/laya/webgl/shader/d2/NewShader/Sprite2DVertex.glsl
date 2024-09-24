@@ -134,10 +134,14 @@
 #ifdef BASERENDER2D
     varying vec2 v_texcoord;
     varying vec4 v_color;
+    varying vec2 v_cliped;
 
    uniform vec3 u_NMatrix_0;
    uniform vec3 u_NMatrix_1;
    uniform vec2 u_baseRenderSize2D;
+   
+   uniform vec4 u_clipMatDir;
+   uniform vec2 u_clipMatPos;// 这个是全局的，不用再应用矩阵了。
 
     //attribute vec3 a_position
     //attribute vec4 a_color
@@ -160,6 +164,20 @@
          #endif
     }
 
+    vec2 getClipedInfo(vec2 screenPos){
+        vec2 cliped;
+        float clipw = length(u_clipMatDir.xy);
+        float cliph = length(u_clipMatDir.zw);
+        vec2 clippos = screenPos - u_clipMatPos.xy;	//pos已经应用矩阵了，为了减的有意义，clip的位置也要缩放
+        if(clipw>20000. && cliph>20000.)
+            cliped = vec2(0.5,0.5);
+        else {
+            //clipdir是带缩放的方向，由于上面clippos是在缩放后的空间计算的，所以需要把方向先normalize一下
+            cliped =vec2( dot(clippos,u_clipMatDir.xy)/clipw/clipw, dot(clippos,u_clipMatDir.zw)/cliph/cliph);
+        }
+        return cliped;
+    }
+
     void getPosition(inout vec4 pos){
         pos = vec4(a_position.xy,0.,1.);
         float x=u_NMatrix_0.x*pos.x+u_NMatrix_1.x*pos.y+u_NMatrix_0.z;
@@ -168,6 +186,7 @@
         #ifdef CAMERA2D
             pos.xy = (u_view2D *vec3(pos.x,pos.y,1.0)).xy+u_baseRenderSize2D/2.;
         #endif   
+        v_cliped = getClipedInfo(vec2(pos.xy));
         pos= vec4((pos.x/u_baseRenderSize2D.x-0.5)*2.0,(0.5-pos.y/u_baseRenderSize2D.y)*2.0,0.,1.0);
 
         #ifdef INVERTY

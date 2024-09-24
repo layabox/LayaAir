@@ -204,11 +204,9 @@ vec4 transspaceColor(vec4 color)
 
 #endif
 
-#if defined(PRIMITIVEMESH)||defined(TEXTUREVS)
 void clip(){
     if(v_cliped.x<0.) discard;
     if(v_cliped.x>1.) discard;
     if(v_cliped.y<0.) discard;
     if(v_cliped.y>1.) discard;
 }
-#endif
