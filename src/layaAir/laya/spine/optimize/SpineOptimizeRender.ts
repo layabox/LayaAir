@@ -2,19 +2,12 @@ import { BaseRender2DType, BaseRenderNode2D } from "../../NodeRender2D/BaseRende
 import { IIndexBuffer } from "../../RenderDriver/DriverDesign/RenderDevice/IIndexBuffer";
 import { IRenderGeometryElement } from "../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
 import { IVertexBuffer } from "../../RenderDriver/DriverDesign/RenderDevice/IVertexBuffer";
-import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
-import { DrawType } from "../../RenderEngine/RenderEnum/DrawType";
-import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
-import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
-import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
-import { LayaGL } from "../../layagl/LayaGL";
 import { Color } from "../../maths/Color";
 import { Vector2 } from "../../maths/Vector2";
 import { Vector4 } from "../../maths/Vector4";
 import { Material } from "../../resource/Material";
 import { Mesh2D } from "../../resource/Mesh2D";
-import { Texture } from "../../resource/Texture";
 import { Texture2D } from "../../resource/Texture2D";
 import { Spine2DRenderNode } from "../Spine2DRenderNode";
 import { SpineAdapter } from "../SpineAdapter";
@@ -23,9 +16,8 @@ import { SpineTemplet } from "../SpineTemplet";
 import { ISpineRender } from "../interface/ISpineRender";
 import { SpineShaderInit } from "../material/SpineShaderInit";
 import { SpineMeshUtils } from "../mesh/SpineMeshUtils";
-import { FrameRenderData, SkinAniRenderData } from "./AnimationRender";
+import { SkinAniRenderData } from "./AnimationRender";
 import { AnimationRenderProxy } from "./AnimationRenderProxy";
-import { MultiRenderData } from "./MultiRenderData";
 import { SketonDynamicInfo, SketonOptimise, SkinAttach, TSpineBakeData } from "./SketonOptimise";
 import { VBCreator } from "./VBCreator";
 import { ISpineOptimizeRender } from "./interface/ISpineOptimizeRender";
@@ -769,8 +761,9 @@ class SkinRender implements IVBIBUpdate {
     // protected ib: IIndexBuffer;
     // elements: [Material, number, number][];
     private hasNormalRender: boolean;
+    
     /** @internal */
-    _renerer: ISpineRender;
+    _renderer: ISpineRender;
 
     // elementsMap: Map<number, ElementCreator>;
 

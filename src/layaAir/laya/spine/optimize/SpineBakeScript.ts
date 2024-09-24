@@ -1,5 +1,4 @@
-import { Laya, init } from "../../../Laya";
-import { HideFlags } from "../../Const";
+import { Laya } from "../../../Laya";
 import { TextureFormat } from "../../RenderEngine/RenderEnum/TextureFormat";
 import { Script } from "../../components/Script";
 import { Event } from "../../events/Event";
@@ -8,9 +7,8 @@ import { ClassUtils } from "../../utils/ClassUtils";
 import { Spine2DRenderNode } from "../Spine2DRenderNode";
 import { TSpineBakeData } from "./SketonOptimise";
 import { SpineEmptyRender } from "./SpineEmptyRender";
-import { SpineOptimizeRender } from "./SpineOptimizeRender";
 import { ISpineOptimizeRender } from "./interface/ISpineOptimizeRender";
-import { SpineEmptyRender } from "./SpineEmptyRender";
+
 
 /**
  * @en Script class for baking Spine animations.
