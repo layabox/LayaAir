@@ -4,36 +4,52 @@ import { MultiRenderData } from "./MultiRenderData";
 
 /**
  * @en Creator class for index buffer (IB) in spine rendering.
- * @zh SpineäÖÈ¾ÖĞÓÃÓÚ´´½¨Ë÷Òı»º³åÇø£¨IB£©µÄÀà¡£
+ * @zh Spineæ¸²æŸ“ä¸­ç”¨äºåˆ›å»ºç´¢å¼•ç¼“å†²åŒºï¼ˆIBï¼‰çš„ç±»ã€‚
  */
 export class IBCreator {
+    /** 
+     * @en The index type.
+     * @zh ç´¢å¼•ç±»å‹ã€‚
+     */
     type:IndexFormat;
+    /**
+     * @en The byte count of the index type.
+     * @zh ç´¢å¼•ç±»å‹å­—èŠ‚æ•°é‡ã€‚
+     */
     size:number;
-   /**
+    /**
      * @en The index buffer array.
-     * @zh Ë÷Òı»º³åÇøÊı×é¡£
+     * @zh ç´¢å¼•ç¼“å†²åŒºæ•°ç»„ã€‚
      */
     ib: Uint16Array|Uint32Array|Uint8Array;
     /**
      * @en The actual length of the index buffer.
-     * @zh Ë÷Òı»º³åÇøµÄÊµ¼Ê³¤¶È¡£
+     * @zh ç´¢å¼•ç¼“å†²åŒºçš„å®é™…é•¿åº¦ã€‚
      */
     ibLength: number;
+    /**
+     * @en The Max length of the index buffer.
+     * @zh ç´¢å¼•ç¼“å†²åŒºçš„æœ€å¤§é•¿åº¦ã€‚
+     */
     maxIndexCount:number
     /**
      * @en The output render data for multiple renders.
-     * @zh ÓÃÓÚ¶àÖØäÖÈ¾µÄÊä³öäÖÈ¾Êı¾İ¡£
+     * @zh ç”¨äºå¤šé‡æ¸²æŸ“çš„è¾“å‡ºæ¸²æŸ“æ•°æ®ã€‚
      */
     outRenderData: MultiRenderData;
 
-    get realIb(): Uint16Array|Uint32Array|Uint8Array {
-        return this.ib;
-    }
-
+    /**
+	 * @en Constructor method, create index buffer.
+	 * @param	type Index type.
+	 * @param	maxIndexCount The Max length of Index count.
+	 * @zh æ„é€ æ–¹æ³•,åˆ›å»ºç´¢å¼•ç¼“å†²ã€‚
+	 * @param	type ç´¢å¼•ç±»å‹ã€‚
+	 * @param	maxIndexCount ç´¢å¼•æœ€å¤§ä¸ªæ•°ã€‚
+	 */
     constructor(type:IndexFormat , maxIndexCount : number ) {
         this.type = type;
         this.maxIndexCount = maxIndexCount;
-        // this.ib = new Uint16Array(SpineMeshBase.maxVertex * 3);
+
         switch (type) {
             case IndexFormat.UInt16:
                 this.size = 2;

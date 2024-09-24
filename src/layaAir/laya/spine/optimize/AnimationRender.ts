@@ -39,8 +39,15 @@ export class AnimationRender {
      * @zh 动画的名称。
      */
     name: string;
+    /**
+     * @en Animation Corresponding Frame Change Queue.
+     * @zh 动画对应帧变化队列。
+     */
     changeMap: Map<number,FrameChanges>;
-
+    /**
+     * @en Whether it is a dynamic mesh.
+     * @zh 是否为动态网格
+     */
     isDynamic:boolean = false;
     /**
      * @en Array of frame numbers.
@@ -328,18 +335,21 @@ export class AnimationRender {
      * @en Creates skin animation render data.
      * @param mainVB The main vertex buffer creator.
      * @param mainIB The main index buffer creator.
-     * TODO
+     * @param tempIbCreate Temp index buffer creator.
      * @param slotAttachMap Map of slot attachments.
      * @param attachMap Array of attachment parses.
-     * TODO
+     * @param type Animtion Render Type.
      * @returns The created skin animation render data.
      * @zh 创建皮肤动画渲染数据。
      * @param mainVB 主顶点缓冲区创建器。
      * @param mainIB 主索引缓冲区创建器。
+     * @param tempIbCreate 临时索引缓冲区创建器。
      * @param slotAttachMap 插槽附件映射。
      * @param attachMap 附件解析数组。
+     * @param type 动画渲染类型。
      * @returns 创建的皮肤动画渲染数据。
-     */    createSkinData(
+     */    
+    createSkinData(
         mainVB: VBCreator, mainIB: IBCreator, tempIbCreate:IBCreator,
         slotAttachMap: Map<number, Map<string, AttachmentParse>>, 
         attachMap: AttachmentParse[] , type:ESpineRenderType
@@ -371,15 +381,23 @@ export class SkinAniRenderData {
   	/**
      * @en Name of the skin animation.
      * @zh 皮肤动画的名称。
-     */    name: string;
+     */
+    name: string;
     /**
      * @en Indicates if the skin can be instanced.
      * @zh 指示皮肤是否可以实例化。
      */
     canInstance: boolean;
 
-    /** 默认mesh */
+    /**
+     * @en Default Mesh
+     * @zh 默认mesh 
+     */
     _defaultMesh:Mesh2D;
+    /** 
+     * @en Default FrameData
+     * @zh 默认帧数据
+     */
     _defaultFrameData:FrameRenderData;
 
     /**
@@ -392,8 +410,16 @@ export class SkinAniRenderData {
      * @zh 主索引缓冲区创建器。
      */
     mainIB: IBCreator;
+    /**
+     * @en Animtion Render Type.
+     * @zh 动画渲染类型。
+     */
     type:ESpineRenderType;
 
+    /**
+     * @en Animation Frame Data. 
+     * @zh 动画帧数据。
+     */
     renderDatas:FrameRenderData[];
 
     /**
@@ -417,6 +443,7 @@ export class SkinAniRenderData {
         // this.checkVBChange = this.checkVBChangeEmpty;
     }
 
+   
     getMesh(){
         return this._defaultMesh;
     }
@@ -459,7 +486,7 @@ export class SkinAniRenderData {
      */
     updateBoneMatCacheEvent(delta: number, animation: AnimationRender, bones: spine.Bone[], state: spine.AnimationState, boneMat: Float32Array): void {
         let f = delta / step;
-        this.vb.updateBoneCache(animation.boneFrames, f, boneMat);
+        this.vb.updateBoneCache(animation.boneFrames, f, boneMat); 
         let currFrame = Math.round(f);
         //@ts-ignore
         let curentTrack: spine.TrackEntry = state.currentTrack;
@@ -516,22 +543,27 @@ export class SkinAniRenderData {
 
   /**
      * @en Initializes the skin animation render data.
-     * @param tempMap Map of frame changes.
+     * @param changeMap Map of frame changes.
      * @param mainVB Main vertex buffer creator.
-     * @param mainIB Main index buffer creator.
-     * @param tempArray Array of frame numbers.
+     * @param ibCreator Main index buffer creator.
+     * @param tempCreator Temp index buffer creator.
+     * @param frames Array of frame numbers.
      * @param slotAttachMap Map of slot attachments.
      * @param attachMap Array of attachment parses.
      * @param changeVB Array of vertex buffer changes.
+     * @param isDynamic Whether it is a dynamic mesh.
      * @zh 初始化皮肤动画渲染数据。
-     * @param tempMap 帧变化映射。
+     * @param changeMap 帧变化映射。
      * @param mainVB 主顶点缓冲区创建器。
-     * @param mainIB 主索引缓冲区创建器。
-     * @param tempArray 帧号数组。
+     * @param ibCreator 主索引缓冲区创建器。
+     * @param tempCreator 临时索引缓冲区创建器。
+     * @param frames 帧号数组。
      * @param slotAttachMap 插槽附件映射。
      * @param attachMap 附件解析数组。
      * @param changeVB 顶点缓冲区变化数组。
-     */    init(
+     * @param isDynamic 是否为动态网格
+     */    
+    init(
         changeMap: Map<number, FrameChanges>, 
         mainVB: VBCreator , ibCreator: IBCreator , tempCreator:IBCreator, 
         frames: number[], slotAttachMap: Map<number, Map<string, AttachmentParse>>, 
@@ -608,6 +640,10 @@ export class SkinAniRenderData {
 
     }
 
+    /**
+     * @en Destroy Render.
+     * @zh 销毁当前Render。
+     */
     destroy(){
         this._defaultMesh && this._defaultMesh.destroy();
         this._defaultMesh = null;

@@ -22,8 +22,10 @@ export class AttachmentParse {
      * @zh 附件的颜色。
      */
     color: TColor;
+    
     lightColor: TColor;
-    // darkColor: TColor;
+    /** @internal TODO 双顶点色 */
+    darkColor: TColor;
     /**
      * @en The blend mode of the attachment.
      * @zh 附件的混合模式。
@@ -64,6 +66,10 @@ export class AttachmentParse {
      * @zh 指示附件是否为裁剪附件。
      */
     isclip: boolean;
+    /**
+     * @en the attachment is a path attachment.
+     * @zh 是否为路径解析器
+     */
     isPath:boolean;
     /**
      * @en The source data of the attachment.
@@ -75,8 +81,11 @@ export class AttachmentParse {
      * @zh 附件中的顶点数量。
      */
     vertexCount: number = 0;
+    /**
+     * @en The number of indices in the attachment.
+     * @zh 附件中的索引数量。
+     */
     indexCount:number = 0;
-    // static boneMap:number[] = [];
 
     /**
      * @en Initializes the attachment parser with the given parameters.
@@ -222,9 +231,6 @@ export class AttachmentParse {
             color.b *= a;
         }
 
-        // if (darkColor) {
-            
-        // }
         return true;
     }
 }

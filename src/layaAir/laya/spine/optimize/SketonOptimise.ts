@@ -335,6 +335,10 @@ export class SkinAttach {
      * @zh 主索引缓冲区创建器。
      */
     mainIB: IBCreator;
+    /**
+     * @en Used for constructing temp Mesh2D
+     * @zh 用于构建临时Mesh2D
+     */
     tempIbCreate:IBCreator;
 
     /**
@@ -369,21 +373,6 @@ export class SkinAttach {
             this.slotAttachMap.set(key, new Map(value));
         });
     }
-
-    // checkMainAttach(slots: spine.SlotData[]) {
-        // let type: ESpineRenderType = ESpineRenderType.rigidBody;
-        // for (let i = 0, n = slots.length; i < n; i++) {
-        //     let slot = slots[i];
-        //     let attachment = this.slotAttachMap.get(slot.index).get(slot.attachmentName);
-        //     let tempType = SlotUtils.checkAttachment(attachment ? attachment.sourceData : null);
-        //     if (tempType < type) {
-        //         type = tempType;
-        //         if (type == ESpineRenderType.normal) {
-        //             break;
-        //         }
-        //     }
-        // }
-        // this.type = type;
 
     /**
      * @en Parse attachments from skin data.
@@ -464,7 +453,6 @@ export class SkinAttach {
 
         this.mainIB = new IBCreator(ntype , indexCount);
         this.tempIbCreate = new IBCreator( this.mainIB.type , this.mainIB.maxIndexCount);
-        // this.init(slots);
     }
 
     /**
@@ -528,7 +516,7 @@ export type TSpineBakeData = {
 }
 
 export type SketonDynamicInfo = {
-      /** 所有皮肤的最大顶点数 */
+    /** 所有皮肤的最大顶点数 */
     maxVertexCount:number;
     /** 所有皮肤的最大索引数 */
     maxIndexCount:number;
