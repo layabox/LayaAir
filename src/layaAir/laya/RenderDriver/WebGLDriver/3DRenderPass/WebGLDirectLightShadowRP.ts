@@ -1,4 +1,5 @@
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
+import { RenderPassStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
 import { BaseCamera } from "../../../d3/core/BaseCamera";
 import { ShadowCascadesMode } from "../../../d3/core/light/ShadowCascadesMode";
 import { ShadowMode } from "../../../d3/core/light/ShadowMode";
@@ -15,6 +16,7 @@ import { Matrix4x4 } from "../../../maths/Matrix4x4";
 import { Vector3 } from "../../../maths/Vector3";
 import { Vector4 } from "../../../maths/Vector4";
 import { Viewport } from "../../../maths/Viewport";
+import { Stat } from "../../../utils/Stat";
 import { RenderCullUtil } from "../../DriverCommon/RenderCullUtil";
 import { RenderListQueue } from "../../DriverCommon/RenderListQueue";
 import { WebBaseRenderNode } from "../../RenderModuleData/WebModuleData/3D/WebBaseRenderNode";
@@ -128,7 +130,6 @@ export class WebGLDirectLightShadowRP {
 
     /**
      * @param context
-     * @perfTag PerformanceDefine.T_Render_ShadowPassMode
      */
     update(context: WebGLRenderContext3D): void {
         var splitDistance: number[] = this._cascadesSplitDistance;
@@ -157,7 +158,6 @@ export class WebGLDirectLightShadowRP {
      * @param context
      * @param list
      * @param count
-     * @perfTag PerformanceDefine.T_Render_ShadowPassMode
      */
     render(context: WebGLRenderContext3D, list: WebBaseRenderNode[], count: number): void {
         var shaderValues: WebGLShaderData = context.sceneData;
@@ -180,7 +180,9 @@ export class WebGLDirectLightShadowRP {
             shadowCullInfo.cullSphere = sliceData.splitBoundSphere;
             shadowCullInfo.direction = this._lightForward;
             //cull
+            var time = performance.now();//T_ShadowMapCull Stat
             RenderCullUtil.cullDirectLightShadow(shadowCullInfo, list, count, this._renderQueue, context);
+            Stat.renderPassStatArray[RenderPassStatisticsInfo.T_ShadowMapCull] += (performance.now() - time);//Stat
 
             context.cameraData = sliceData.cameraShaderValue as WebGLShaderData;
             context.cameraUpdateMask++;
@@ -209,6 +211,7 @@ export class WebGLDirectLightShadowRP {
 
             context.setClearData(RenderClearFlag.Depth, Color.BLACK, 1, 0);
             this._renderQueue.renderQueue(context);
+            Stat.shadowMapDrawCall += this._renderQueue.elements.length;
             this._applyCasterPassCommandBuffer(context);
         }
         this._applyRenderData(context.sceneData, context.cameraData);

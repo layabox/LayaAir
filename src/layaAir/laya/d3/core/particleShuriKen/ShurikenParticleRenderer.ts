@@ -279,9 +279,9 @@ export class ShurikenParticleRenderer extends BaseRender {
                 throw new Error("ShurikenParticleMaterial: SimulationSpace value is invalid.");
         }
 
-        if(particleSystem.shape&&particleSystem.shape.enable){
+        if (particleSystem.shape && particleSystem.shape.enable) {
             sv.setBool(ShuriKenParticle3DShaderDeclaration.SHAPE, true)
-        }else{
+        } else {
             sv.setBool(ShuriKenParticle3DShaderDeclaration.SHAPE, false)
         }
 
@@ -375,6 +375,16 @@ export class ShurikenParticleRenderer extends BaseRender {
         this._particleSystem.destroy();
         this._particleSystem = null;
         super._onDestroy();
+    }
+
+    protected _statAdd() {
+        Stat.renderNode++;
+        Stat.particleRenderNode++;
+    }
+
+    protected _statRemove() {
+        Stat.renderNode--;
+        Stat.particleRenderNode--;
     }
 
 }

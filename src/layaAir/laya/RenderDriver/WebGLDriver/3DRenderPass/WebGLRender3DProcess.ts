@@ -1,5 +1,6 @@
 import { ILaya3D } from "../../../../ILaya3D";
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
+import { RenderPassStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
 import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { Camera, CameraClearFlags, CameraEventFlags } from "../../../d3/core/Camera";
 import { ShadowMode } from "../../../d3/core/light/ShadowMode";
@@ -200,6 +201,7 @@ export class WebGLRender3DProcess implements IRender3DProcess {
     }
 
     fowardRender(context: WebGLRenderContext3D, camera: Camera): void {
+        let time: number;
         this.initRenderpass(camera, context);
 
         this.renderDepth(camera);
@@ -214,6 +216,7 @@ export class WebGLRender3DProcess implements IRender3DProcess {
 
     renderFowarAddCameraPass(context: WebGLRenderContext3D, renderpass: WebGLForwardAddRP, list: WebBaseRenderNode[], count: number): void {
         //先渲染ShadowTexture
+        var time = performance.now();//T_Render_ShadowPassMode Stat
         if (renderpass.shadowCastPass) {
             if (renderpass.enableDirectLightShadow) {
                 context.sceneData.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW);
@@ -241,11 +244,15 @@ export class WebGLRender3DProcess implements IRender3DProcess {
                 context.sceneData.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT);
             }
         }
+        Stat.renderPassStatArray[RenderPassStatisticsInfo.T_Render_ShadowPassMode] += (performance.now() - time);//Stat
+
         renderpass.renderpass.render(context, list, count);
         renderpass._beforeImageEffectCMDS && this._rendercmd(renderpass._beforeImageEffectCMDS, context)
 
         if (renderpass.enablePostProcess) {
+            time = performance.now();//T_Render_PostProcess Stat
             renderpass.postProcess && this._renderPostProcess(renderpass.postProcess, context);
+            Stat.renderPassStatArray[RenderPassStatisticsInfo.T_Render_PostProcess] += (performance.now() - time);//Stat
         }
         renderpass._afterAllRenderCMDS && this._rendercmd(renderpass._afterAllRenderCMDS, context);
 
@@ -262,9 +269,12 @@ export class WebGLRender3DProcess implements IRender3DProcess {
     private _rendercmd(cmds: CommandBuffer[], context: WebGLRenderContext3D) {
         if (!cmds || cmds.length == 0)
             return;
+
+        var time = performance.now();//T_Render_CameraEventCMD Stat
         cmds.forEach(function (value) {
             context.runCMDList(value._renderCMDs);
         });
+        Stat.renderPassStatArray[RenderPassStatisticsInfo.T_Render_CameraEventCMD] += (performance.now() - time);//Stat
     }
 
     /**

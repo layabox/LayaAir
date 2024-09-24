@@ -783,7 +783,15 @@ export class BaseRender extends Component {
         this._isSupportRenderFeature();
         this._batchRender && this._batchRender._batchOneRender(this);
         this.setLightmapIndex(this.lightmapIndex);
+        this._statAdd();
+    }
+
+    protected _statAdd() {
         Stat.renderNode++;
+    }
+
+    protected _statRemove() {
+        Stat.renderNode--;
     }
 
     /**
@@ -792,7 +800,7 @@ export class BaseRender extends Component {
      * @zh 从 Scene 移除会调用此方法。
      */
     _setUnBelongScene() {
-        Stat.renderNode--;
+        this._statRemove
         this._scene._volumeManager.removeMotionObject(this);
         let batch = this._batchRender;
         this._batchRender && this._batchRender._removeOneRender(this);

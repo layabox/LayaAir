@@ -1,6 +1,7 @@
 import { Config3D } from "../../../../Config3D";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
+import { RenderPassStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
 import { UnifromBufferData } from "../../../RenderEngine/UniformBufferData";
 import { UniformBufferObject } from "../../../RenderEngine/UniformBufferObject";
 import { BaseCamera } from "../../../d3/core/BaseCamera";
@@ -17,6 +18,7 @@ import { Matrix4x4 } from "../../../maths/Matrix4x4";
 import { Vector3 } from "../../../maths/Vector3";
 import { Vector4 } from "../../../maths/Vector4";
 import { Viewport } from "../../../maths/Viewport";
+import { Stat } from "../../../utils/Stat";
 import { RenderCullUtil } from "../../DriverCommon/RenderCullUtil";
 import { RenderListQueue } from "../../DriverCommon/RenderListQueue";
 import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
@@ -89,7 +91,6 @@ export class WebGLSpotLightShadowRP {
 
     /**
     * 更新阴影数据
-    * @perfTag PerformanceDefine.T_Render_ShadowPassMode
     */
     update(context: WebGLRenderContext3D): void {
         var shadowSpotData: ShadowSpotData = this._shadowSpotData;
@@ -100,7 +101,6 @@ export class WebGLSpotLightShadowRP {
      * render
      * @param context 
      * @param list
-     * @perfTag PerformanceDefine.T_Render_ShadowPassMode
      */
     render(context: WebGLRenderContext3D, list: WebBaseRenderNode[], count: number): void {
 
@@ -113,7 +113,10 @@ export class WebGLSpotLightShadowRP {
         this._getShadowBias(shadowSpotData.resolution, this._shadowBias);
         this._setupShadowCasterShaderValues(shaderValues, shadowSpotData, this._shadowBias);
         //cull
+        var time = performance.now();//T_ShadowMapCull Stat
         RenderCullUtil.cullSpotShadow(shadowSpotData.cameraCullInfo, list, count, this._renderQueue, context);
+        Stat.renderPassStatArray[RenderPassStatisticsInfo.T_ShadowMapCull] += (performance.now() - time);//Stat
+
         context.cameraData = <WebGLShaderData>shadowSpotData.cameraShaderValue;
         context.cameraUpdateMask++;;
         //if (this._renderQueue._elements.length > 0) {
@@ -132,6 +135,7 @@ export class WebGLSpotLightShadowRP {
 
         context.setClearData(RenderClearFlag.Depth, Color.BLACK, 1, 0);
         this._renderQueue.renderQueue(context);
+        Stat.shadowMapDrawCall += this._renderQueue.elements.length;
         this._applyCasterPassCommandBuffer(context);
         this._applyRenderData(context.sceneData, context.cameraData);
         this._renderQueue._batch.recoverData();
