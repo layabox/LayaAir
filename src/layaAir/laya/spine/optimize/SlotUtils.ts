@@ -3,14 +3,14 @@ import { AttachmentParse } from "./AttachmentParse";
 
 /**
  * @en Utility class for Spine slot operations.
- * @zh Spine ²å²Û²Ù×÷µÄÊµÓÃ¹¤¾ßÀà¡£
+ * @zh Spine æ’æ§½æ“ä½œçš„å®ç”¨å·¥å…·ç±»ã€‚
  */
 export class SlotUtils {
     /**
      * @en Check the type of attachment and determine the appropriate render type.
      * @param attachment The spine attachment to check.
-     * @zh ¼ì²é¸½¼şµÄÀàĞÍ²¢È·¶¨ÊÊµ±µÄäÖÈ¾ÀàĞÍ¡£
-     * @param attachment Òª¼ì²éµÄ Spine ¸½¼ş¡£
+     * @zh æ£€æŸ¥é™„ä»¶çš„ç±»å‹å¹¶ç¡®å®šé€‚å½“çš„æ¸²æŸ“ç±»å‹ã€‚
+     * @param attachment è¦æ£€æŸ¥çš„ Spine é™„ä»¶ã€‚
      */
     static checkAttachment(attachment: spine.Attachment) {
         //let attachment = slot.getAttachment();
@@ -39,11 +39,11 @@ export class SlotUtils {
      * @param indexArray The target index array to append to.
      * @param size The size to offset each index by.
      * @param offset The starting offset in the target index array.
-     * @zh ½«¸½¼ş½âÎöÖĞµÄË÷ÒıÊı×é×·¼Óµ½Ä¿±êË÷ÒıÊı×é¡£
-     * @param attachmentParse °üº¬Ô´Ë÷ÒıÊı×éµÄ¸½¼ş½âÎö¡£
-     * @param indexArray Òª×·¼Óµ½µÄÄ¿±êË÷ÒıÊı×é¡£
-     * @param size Ã¿¸öË÷ÒıµÄÆ«ÒÆÁ¿¡£
-     * @param offset Ä¿±êË÷ÒıÊı×éÖĞµÄÆğÊ¼Æ«ÒÆÁ¿¡£
+     * @zh å°†é™„ä»¶è§£æä¸­çš„ç´¢å¼•æ•°ç»„è¿½åŠ åˆ°ç›®æ ‡ç´¢å¼•æ•°ç»„ã€‚
+     * @param attachmentParse åŒ…å«æºç´¢å¼•æ•°ç»„çš„é™„ä»¶è§£æã€‚
+     * @param indexArray è¦è¿½åŠ åˆ°çš„ç›®æ ‡ç´¢å¼•æ•°ç»„ã€‚
+     * @param size æ¯ä¸ªç´¢å¼•çš„åç§»é‡ã€‚
+     * @param offset ç›®æ ‡ç´¢å¼•æ•°ç»„ä¸­çš„èµ·å§‹åç§»é‡ã€‚
      */    
 	static appendIndexArray(attachmentParse: AttachmentParse, indexArray: Uint16Array | Uint8Array | Uint32Array, size: number, offset: number) {
         if (!attachmentParse.attachment || !attachmentParse.indexArray) return offset;

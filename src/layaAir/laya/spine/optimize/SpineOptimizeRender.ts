@@ -66,18 +66,8 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
     /** @internal */
     _curAnimationName: string;
 
-    // /**
-    //  * Material
-    //  */
-    // material: IOptimizeMaterial;
-    
+    /** @internal */
     _dynamicMap:Map<number,Mesh2D>;
-
-    /**
-     * @en Map of ESpineRenderType to TGeo objects.
-     * @zh ESpineRenderType 到 TGeo 对象的映射。
-     */
-    geoMap: Map<ESpineRenderType, TGeo>;
 
     private _isRender: boolean;
 
@@ -822,6 +812,14 @@ class SkinRender implements IVBIBUpdate {
         return this.templet.getMaterial(this.templet.getTexture(name), blendMode);
     }
 
+    /**
+     * @en Rendering Update
+     * @param skindata animation rendering data
+     * @param frame Current Frame
+     * @zh 渲染更新
+     * @param skindata 动画渲染数据
+     * @param frame 当前帧
+     */
     renderUpdate( skindata:SkinAniRenderData, frame:number){
         let frameData = skindata.getFrameData(frame);
         let mulitRenderData = frameData.mulitRenderData
@@ -893,59 +891,44 @@ class SkinRender implements IVBIBUpdate {
             
     }
 
+    /**
+     * @en Submit IndexData.
+     * @param indexData Vertex IndexData.
+     * @param mesh  Mesh2D object.
+     * @zh 提交索引数据。
+     * @param indexData 索引数据。
+     * @param mesh 网格对象。
+     */
     uploadIndexBuffer( indexData:Uint16Array|Uint8Array|Uint32Array , mesh:Mesh2D){
         let indexbuffer = mesh._indexBuffer;
         indexbuffer._setIndexData(indexData , 0);
     }
 
-
+    /**
+     * @en Submit vertex data.
+     * @param vbCreator Vertex buffer creator object.
+     * @param mesh Mesh2D object.
+     * @zh 提交顶点数据。
+     * @param vbCreator 构建顶点缓冲区对象。
+     * @param mesh 网格对象。
+     */
     uploadVertexBuffer( vbCreator : VBCreator , mesh:Mesh2D){
         let vertexBuffer = mesh.vertexBuffers[0];
-        // let float32 = new Float32Array(vbCreator.vb , vbCreator.vbLength);
         let vblen = vbCreator.vbLength * 4;
         vertexBuffer.setDataLength(vblen);
         vertexBuffer.setData(vbCreator.vb.buffer, 0, 0, vblen);
     }
 
-    // updateVB(vertexArray: Float32Array, vbLength: number) {
-    //     let vb = this.vb;
-    //     let vblen = vbLength * 4;
-    //     vb.setDataLength(vblen);
-    //     vb.setData(vertexArray.buffer, 0, 0, vblen);
-    // }
-
-    // updateIB(indexArray: Uint16Array, ibLength: number, mutiRenderData: MultiRenderData, isMuti: boolean) {
-    //     let ib = this.ib;
-    //     let iblen = ibLength * 2;
-    //     ib._setIndexDataLength(iblen)
-    //     ib._setIndexData(new Uint16Array(indexArray.buffer, 0, iblen / 2), 0);
-    //     this.geo.clearRenderParams();
-    //     this.geo.setDrawElemenParams(iblen / 2, 0);
-    //     this.ib.indexCount = iblen / 2;
-    //     if (isMuti) {
-    //         let elementsCreator = this.elementsMap.get(mutiRenderData.id);
-    //         if (!elementsCreator) {
-    //             elementsCreator = new ElementCreator(mutiRenderData, this);
-    //             this.elementsMap.set(mutiRenderData.id, elementsCreator);
-    //         }
-    //         elementsCreator.cloneTo(this.elements);
-    //         this.currentMaterials = elementsCreator.currentMaterials;
-    //         this.owner._nodeOwner.updateElements(this.geo, this.elements);
-    //     }
-    //     else {
-    //         let currentData = mutiRenderData.currentData;
-    //         if(!currentData) return;
-    //         let material=currentData.material;
-    //         if (!material) {
-    //             material=currentData.material = this.getMaterialByName(currentData.textureName, currentData.blendMode);
-    //         }
-    //         if(material!=this.material){
-    //             this.owner._nodeOwner.clear();
-    //             this.owner._nodeOwner.drawGeo(this.geo, material);
-    //         }
-    //     }
-    // }
-
+    /**
+     * @en Initialize renderer
+     * @param skeleton spine.skeleton instance
+     * @param templet Engine spine animation template
+     * @param renderNode Rendering component
+     * @en 初始化渲染器
+     * @param skeleton spine.skeleton 实例
+     * @param templet 引擎spine动画模板
+     * @param renderNode 渲染组件
+     */
     init(skeleton: spine.Skeleton, templet: SpineTemplet, renderNode: Spine2DRenderNode) {
         this.templet = templet;
         if (this.hasNormalRender) {
@@ -965,37 +948,4 @@ class SkinRender implements IVBIBUpdate {
     render(time: number) {
 
     }
-}
-
-// class ElementCreator {
-//     elements: [Material, number, number][];
-//     currentMaterials: Material[];
-
-//     constructor(mutiRenderData: MultiRenderData, skinData: SkinRender) {
-//         let elements: [Material, number, number][] = this.elements = [];
-//         let currentMaterials: Material[] = this.currentMaterials = [];
-//         let renderData = mutiRenderData.renderData;
-//         for (let i = 0, n = renderData.length; i < n; i++) {
-//             let data = renderData[i];
-//             let mat = skinData.getMaterialByName(data.textureName, data.blendMode);
-//             if (currentMaterials.indexOf(mat) == -1) {
-//                 this.currentMaterials.push(mat);
-//             }
-//             elements[i] = [mat, data.length, data.offset * 2];
-//         }
-//     }
-
-//     cloneTo(source: [Material, number, number][]) {
-//         let target = this.elements;
-//         for (let i = 0, n = target.length; i < n; i++) {
-//             source[i] = target[i];
-//         }
-//         source.length = target.length;
-//     }
-// }
-
-type TGeo = {
-    geo: IRenderGeometryElement;
-    vb: IVertexBuffer;
-    ib: IIndexBuffer;
 }

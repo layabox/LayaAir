@@ -16,7 +16,15 @@ export class ChangeRGBA implements IVBChange {
      * @zh 存储插槽附件位置的映射。
      */
     sizeMap: Map<string, TAttamentPos>;
+    /**
+     * @en The start frame of this Change.
+     * @zh 变化的起始帧。
+     */
     startFrame: number;
+    /**
+     * @en The end frame of this Change.
+     * @zh 变化的结束帧。
+     */
     endFrame: number;
 
     /**

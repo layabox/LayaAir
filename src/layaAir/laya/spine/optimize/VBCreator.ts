@@ -9,49 +9,60 @@ import { IGetBone } from "./interface/IGetBone";
 
 /**
  * @en Abstract class for creating vertex buffers in a spine skeleton animation system.
- * @zh ÓÃÓÚÔÚspine¹Ç÷À¶¯»­ÏµÍ³ÖĞ´´½¨¶¥µã»º³åÇøµÄ³éÏóÀà¡£
+ * @zh ç”¨äºåœ¨spineéª¨éª¼åŠ¨ç”»ç³»ç»Ÿä¸­åˆ›å»ºé¡¶ç‚¹ç¼“å†²åŒºçš„æŠ½è±¡ç±»ã€‚
  */
 export abstract class VBCreator implements IGetBone {
     /**
      * @en Map of bone index to bone ID.
-     * @zh ¹Ç÷ÀË÷Òıµ½¹Ç÷ÀIDµÄÓ³Éä¡£
+     * @zh éª¨éª¼ç´¢å¼•åˆ°éª¨éª¼IDçš„æ˜ å°„ã€‚
      */
     mapIndex: Map<number, number>;
     /**
      * @en Array of bone IDs and indices.
-     * @zh ¹Ç÷ÀIDºÍË÷ÒıµÄÊı×é¡£
+     * @zh éª¨éª¼IDå’Œç´¢å¼•çš„æ•°ç»„ã€‚
      */
     boneArray: number[];
     /**
      * @en Vertex buffer data.
-     * @zh ¶¥µã»º³åÇøÊı¾İ¡£
+     * @zh é¡¶ç‚¹ç¼“å†²åŒºæ•°æ®ã€‚
      */
     vb: Float32Array;
     /**
      * @en Length of the vertex buffer.
-     * @zh ¶¥µã»º³åÇøµÄ³¤¶È¡£
+     * @zh é¡¶ç‚¹ç¼“å†²åŒºçš„é•¿åº¦ã€‚
      */
     vbLength: number;
+    /**
+     * @en The Max Length of the vertex buffer.
+     * @zh é¡¶ç‚¹ç¼“å†²åŒºçš„æœ€å¤§é•¿åº¦ã€‚
+     */
     maxVertexCount:number;
     /**
      * @en Map of slot ID to attachment position data.
-     * @zh ²å²ÛIDµ½¸½¼şÎ»ÖÃÊı¾İµÄÓ³Éä¡£
+     * @zh æ’æ§½IDåˆ°é™„ä»¶ä½ç½®æ•°æ®çš„æ˜ å°„ã€‚
      */
     slotVBMap: Map<number, Map<string, TAttamentPos>>;
 
     /**
      * @en Bone matrix data.
-     * @zh ¹Ç÷À¾ØÕóÊı¾İ¡£
+     * @zh éª¨éª¼çŸ©é˜µæ•°æ®ã€‚
      */
     boneMat: Float32Array;
+
+    /** @internal */
     _vertexSize = 0;
 
+    /** @internal TODO åŒé¡¶ç‚¹è‰²æ¨¡å¼ */
     twoColorTint:boolean = false;
 
     private boneMaxId: number = 0;
 
-    _vertexDeclaration:VertexDeclaration;
+    private _vertexDeclaration:VertexDeclaration;
 
+    /**
+     * @en
+     * @zh
+     */
     vertexFlag:string;
 
     constructor( maxVertexCount :number , vertexFlag:string , auto: boolean = true ) {
@@ -87,19 +98,19 @@ export abstract class VBCreator implements IGetBone {
      * @param deform Deform data array.
      * @param offset Offset in the output array.
      * @param out Output array.
-     * @zh ½«±äĞÎÊı¾İ×·¼Óµ½Êä³öÊı×é¡£
-     * @param attachmentParse ¸½¼ş½âÎöÊı¾İ¡£
-     * @param deform ±äĞÎÊı¾İÊı×é¡£
-     * @param offset Êä³öÊı×éÖĞµÄÆ«ÒÆÁ¿¡£
-     * @param out Êä³öÊı×é¡£
+     * @zh å°†å˜å½¢æ•°æ®è¿½åŠ åˆ°è¾“å‡ºæ•°ç»„ã€‚
+     * @param attachmentParse é™„ä»¶è§£ææ•°æ®ã€‚
+     * @param deform å˜å½¢æ•°æ®æ•°ç»„ã€‚
+     * @param offset è¾“å‡ºæ•°ç»„ä¸­çš„åç§»é‡ã€‚
+     * @param out è¾“å‡ºæ•°ç»„ã€‚
      */
     abstract appendDeform(attachmentParse: AttachmentParse, deform: Array<number>, offset: number, out: Float32Array): void;
 
     /**
      * @en Append vertex buffer and create index buffer for an attachment.
      * @param attach Attachment parse data.
-     * @zh Îª¸½¼ş×·¼Ó¶¥µã»º³åÇø²¢´´½¨Ë÷Òı»º³åÇø¡£
-     * @param attach ¸½¼ş½âÎöÊı¾İ¡£
+     * @zh ä¸ºé™„ä»¶è¿½åŠ é¡¶ç‚¹ç¼“å†²åŒºå¹¶åˆ›å»ºç´¢å¼•ç¼“å†²åŒºã€‚
+     * @param attach é™„ä»¶è§£ææ•°æ®ã€‚
      */
     appendAndCreateIB(attach: AttachmentParse) {
         this.appendVB(attach);
@@ -109,9 +120,9 @@ export abstract class VBCreator implements IGetBone {
      * @en Get the bone ID for a given bone index.
      * @param boneIndex Bone index.
      * @returns Bone ID.
-     * @zh »ñÈ¡¸ø¶¨¹Ç÷ÀË÷ÒıµÄ¹Ç÷ÀID¡£
-     * @param boneIndex ¹Ç÷ÀË÷Òı¡£
-     * @returns ¹Ç÷ÀID¡£
+     * @zh è·å–ç»™å®šéª¨éª¼ç´¢å¼•çš„éª¨éª¼IDã€‚
+     * @param boneIndex éª¨éª¼ç´¢å¼•ã€‚
+     * @returns éª¨éª¼IDã€‚
      */
     getBoneId(boneIndex: number) {
         let id = this.mapIndex.get(boneIndex);
@@ -126,7 +137,7 @@ export abstract class VBCreator implements IGetBone {
 
     /**
      * @en Initialize the bone matrix.
-     * @zh ³õÊ¼»¯¹Ç÷À¾ØÕó¡£
+     * @zh åˆå§‹åŒ–éª¨éª¼çŸ©é˜µã€‚
      */
     initBoneMat() {
         this.boneMat = new Float32Array(8 * this.mapIndex.size);
@@ -136,9 +147,9 @@ export abstract class VBCreator implements IGetBone {
      * @en Append vertex buffer data for an attachment.
      * @param attach Attachment parse data.
      * @returns Offset in the vertex buffer.
-     * @zh Îª¸½¼ş×·¼Ó¶¥µã»º³åÇøÊı¾İ¡£
-     * @param attach ¸½¼ş½âÎöÊı¾İ¡£
-     * @returns ¶¥µã»º³åÇøÖĞµÄÆ«ÒÆÁ¿¡£
+     * @zh ä¸ºé™„ä»¶è¿½åŠ é¡¶ç‚¹ç¼“å†²åŒºæ•°æ®ã€‚
+     * @param attach é™„ä»¶è§£ææ•°æ®ã€‚
+     * @returns é¡¶ç‚¹ç¼“å†²åŒºä¸­çš„åç§»é‡ã€‚
      */
     appendVB(attach: AttachmentParse) {
         let offset;
@@ -165,10 +176,10 @@ export abstract class VBCreator implements IGetBone {
      * @param attachs Array of attachment parse data.
      * @param ibCreator Index buffer creator.
      * @param order Optional draw order array.
-     * @zh Îª¸½¼ş´´½¨Ë÷Òı»º³åÇø¡£
-     * @param attachs ¸½¼ş½âÎöÊı¾İÊı×é¡£
-     * @param ibCreator Ë÷Òı»º³åÇø´´½¨Æ÷¡£
-     * @param order ¿ÉÑ¡µÄ»æÖÆË³ĞòÊı×é¡£
+     * @zh ä¸ºé™„ä»¶åˆ›å»ºç´¢å¼•ç¼“å†²åŒºã€‚
+     * @param attachs é™„ä»¶è§£ææ•°æ®æ•°ç»„ã€‚
+     * @param ibCreator ç´¢å¼•ç¼“å†²åŒºåˆ›å»ºå™¨ã€‚
+     * @param order å¯é€‰çš„ç»˜åˆ¶é¡ºåºæ•°ç»„ã€‚
      */
     createIB(attachs: AttachmentParse[], ibCreator: IBCreator, order?: number[]) {
         let offset = 0;
@@ -225,9 +236,9 @@ export abstract class VBCreator implements IGetBone {
      * @en Update bone matrices.
      * @param bones Array of bones.
      * @param boneMat Bone matrix array.
-     * @zh ¸üĞÂ¹Ç÷À¾ØÕó¡£
-     * @param bones ¹Ç÷ÀÊı×é¡£
-     * @param boneMat ¹Ç÷À¾ØÕóÊı×é¡£
+     * @zh æ›´æ–°éª¨éª¼çŸ©é˜µã€‚
+     * @param bones éª¨éª¼æ•°ç»„ã€‚
+     * @param boneMat éª¨éª¼çŸ©é˜µæ•°ç»„ã€‚
      */
     updateBone(bones: spine.Bone[], boneMat: Float32Array) {
         let boneArray = this.boneArray;
@@ -250,10 +261,10 @@ export abstract class VBCreator implements IGetBone {
      * @param boneFrames Array of bone frame data.
      * @param frames Frame number.
      * @param boneMat Bone matrix array.
-     * @zh ¸üĞÂ¹Ç÷À»º´æ¡£
-     * @param boneFrames ¹Ç÷ÀÖ¡Êı¾İÊı×é¡£
-     * @param frames Ö¡Êı¡£
-     * @param boneMat ¹Ç÷À¾ØÕóÊı×é¡£
+     * @zh æ›´æ–°éª¨éª¼ç¼“å­˜ã€‚
+     * @param boneFrames éª¨éª¼å¸§æ•°æ®æ•°ç»„ã€‚
+     * @param frames å¸§æ•°ã€‚
+     * @param boneMat éª¨éª¼çŸ©é˜µæ•°ç»„ã€‚
      */
     updateBoneCache(boneFrames: Float32Array[][], frames: number, boneMat: Float32Array) {
         let boneArray = this.boneArray;
@@ -289,12 +300,6 @@ export abstract class VBCreator implements IGetBone {
         }
     }
 
-    // _cloneBones(target:VBCreator){
-    //     target.mapIndex = new Map(this.mapIndex);
-    //     target.boneMaxId = this.boneMaxId;
-    //     target.boneArray = this.boneArray.slice();
-    // }
-
     _cloneTo(target: VBCreator) {
         target.vb = new Float32Array(this.vb);
         target.vbLength = this.vbLength;
@@ -314,7 +319,7 @@ export abstract class VBCreator implements IGetBone {
 
     /**
      * @en Clone this VBCreator.
-     * @zh ¿ËÂ¡´ËVBCreator¡£
+     * @zh å…‹éš†æ­¤VBCreatorã€‚
      */
     clone() {
         let rs = this._create();
@@ -325,7 +330,7 @@ export abstract class VBCreator implements IGetBone {
 
 /**
  * @en VBBoneCreator class used to handle bone-specific vertex buffer creation.
- * @zh VBBoneCreator ÀàÓÃÓÚ´¦Àí¹Ç÷ÀÌØ¶¨µÄ¶¥µã»º³åÇø´´½¨¡£
+ * @zh VBBoneCreator ç±»ç”¨äºå¤„ç†éª¨éª¼ç‰¹å®šçš„é¡¶ç‚¹ç¼“å†²åŒºåˆ›å»ºã€‚
  */
 export class VBBoneCreator extends VBCreator {
 
@@ -339,11 +344,11 @@ export class VBBoneCreator extends VBCreator {
      * @param vertexArray The vertex array to append to.
      * @param offset The current offset in the vertex array.
      * @param boneGet The interface for getting bone IDs.
-     * @zh Îª¸½¼ş×·¼Ó¶¥µãÊı×éÊı¾İ¡£
-     * @param attachmentParse ¸½¼ş½âÎöÊı¾İ¡£
-     * @param vertexArray Òª×·¼Óµ½µÄ¶¥µãÊı×é¡£
-     * @param offset ¶¥µãÊı×éÖĞµÄµ±Ç°Æ«ÒÆÁ¿¡£
-     * @param boneGet »ñÈ¡¹Ç÷ÀIDµÄ½Ó¿Ú¡£
+     * @zh ä¸ºé™„ä»¶è¿½åŠ é¡¶ç‚¹æ•°ç»„æ•°æ®ã€‚
+     * @param attachmentParse é™„ä»¶è§£ææ•°æ®ã€‚
+     * @param vertexArray è¦è¿½åŠ åˆ°çš„é¡¶ç‚¹æ•°ç»„ã€‚
+     * @param offset é¡¶ç‚¹æ•°ç»„ä¸­çš„å½“å‰åç§»é‡ã€‚
+     * @param boneGet è·å–éª¨éª¼IDçš„æ¥å£ã€‚
      */
     appendVertexArray(attachmentParse: AttachmentParse, vertexArray: Float32Array, offset: number, boneGet: IGetBone) {
         if (!attachmentParse.attachment) {
@@ -414,11 +419,11 @@ export class VBBoneCreator extends VBCreator {
      * @param deform The deform data array.
      * @param offset The current offset in the output array.
      * @param out The output array to append to.
-     * @zh ½«±äĞÎÊı¾İ×·¼Óµ½Êä³öÊı×é¡£
-     * @param attachmentParse ¸½¼ş½âÎöÊı¾İ¡£
-     * @param deform ±äĞÎÊı¾İÊı×é¡£
-     * @param offset Êä³öÊı×éÖĞµÄµ±Ç°Æ«ÒÆÁ¿¡£
-     * @param out Òª×·¼Óµ½µÄÊä³öÊı×é¡£
+     * @zh å°†å˜å½¢æ•°æ®è¿½åŠ åˆ°è¾“å‡ºæ•°ç»„ã€‚
+     * @param attachmentParse é™„ä»¶è§£ææ•°æ®ã€‚
+     * @param deform å˜å½¢æ•°æ®æ•°ç»„ã€‚
+     * @param offset è¾“å‡ºæ•°ç»„ä¸­çš„å½“å‰åç§»é‡ã€‚
+     * @param out è¦è¿½åŠ åˆ°çš„è¾“å‡ºæ•°ç»„ã€‚
      */
     appendDeform(attachmentParse: AttachmentParse, deform: Array<number>, offset: number, out: Float32Array) {
         if (!attachmentParse.attachment) {
@@ -457,7 +462,7 @@ export class VBBoneCreator extends VBCreator {
 
 /**
  * @en VBRigBodyCreator class used to handle rigid body specific vertex buffer creation.
- * @zh VBRigBodyCreator ÀàÓÃÓÚ´¦Àí¸ÕÌåÌØ¶¨µÄ¶¥µã»º³åÇø´´½¨¡£
+ * @zh VBRigBodyCreator ç±»ç”¨äºå¤„ç†åˆšä½“ç‰¹å®šçš„é¡¶ç‚¹ç¼“å†²åŒºåˆ›å»ºã€‚
  */
 export class VBRigBodyCreator extends VBCreator {
     /** @internal */
@@ -471,11 +476,11 @@ export class VBRigBodyCreator extends VBCreator {
      * @param vertexArray The vertex array to append to.
      * @param offset The current offset in the vertex array.
      * @param boneGet The interface for getting bone IDs.
-     * @zh Îª¸½¼ş×·¼Ó¶¥µãÊı×éÊı¾İ¡£
-     * @param attachmentParse ¸½¼ş½âÎöÊı¾İ¡£
-     * @param vertexArray Òª×·¼Óµ½µÄ¶¥µãÊı×é¡£
-     * @param offset ¶¥µãÊı×éÖĞµÄµ±Ç°Æ«ÒÆÁ¿¡£
-     * @param boneGet »ñÈ¡¹Ç÷ÀIDµÄ½Ó¿Ú¡£
+     * @zh ä¸ºé™„ä»¶è¿½åŠ é¡¶ç‚¹æ•°ç»„æ•°æ®ã€‚
+     * @param attachmentParse é™„ä»¶è§£ææ•°æ®ã€‚
+     * @param vertexArray è¦è¿½åŠ åˆ°çš„é¡¶ç‚¹æ•°ç»„ã€‚
+     * @param offset é¡¶ç‚¹æ•°ç»„ä¸­çš„å½“å‰åç§»é‡ã€‚
+     * @param boneGet è·å–éª¨éª¼IDçš„æ¥å£ã€‚
      */
     appendVertexArray(attachmentParse: AttachmentParse, vertexArray: Float32Array, offset: number, boneGet: IGetBone) {
         let slotVertex = attachmentParse.vertexArray;
@@ -511,11 +516,11 @@ export class VBRigBodyCreator extends VBCreator {
      * @param deform The deform data array.
      * @param offset The current offset in the output array.
      * @param out The output array to append to.
-     * @zh ½«±äĞÎÊı¾İ×·¼Óµ½Êä³öÊı×é¡£
-     * @param attachmentParse ¸½¼ş½âÎöÊı¾İ¡£
-     * @param deform ±äĞÎÊı¾İÊı×é¡£
-     * @param offset Êä³öÊı×éÖĞµÄµ±Ç°Æ«ÒÆÁ¿¡£
-     * @param out Òª×·¼Óµ½µÄÊä³öÊı×é¡£
+     * @zh å°†å˜å½¢æ•°æ®è¿½åŠ åˆ°è¾“å‡ºæ•°ç»„ã€‚
+     * @param attachmentParse é™„ä»¶è§£ææ•°æ®ã€‚
+     * @param deform å˜å½¢æ•°æ®æ•°ç»„ã€‚
+     * @param offset è¾“å‡ºæ•°ç»„ä¸­çš„å½“å‰åç§»é‡ã€‚
+     * @param out è¦è¿½åŠ åˆ°çš„è¾“å‡ºæ•°ç»„ã€‚
      */
     appendDeform(attachmentParse: AttachmentParse, deform: Array<number>, offset: number, out: Float32Array): void {
         if (!attachmentParse.attachment) {
