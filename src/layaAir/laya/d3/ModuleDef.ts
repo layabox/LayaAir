@@ -94,7 +94,9 @@ import "./loaders/AvatarMaskLoader";
 import "./loaders/GLSLLoader";
 import "./loaders/AnimationControllerLoader";
 import "./core/scene/Input3D";
+import "./loaders/MeshReader";
 import { Viewport } from "../maths/Viewport";
+
 
 let c = ClassUtils.regClass;
 c("Sprite3D", Sprite3D);
