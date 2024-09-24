@@ -4,41 +4,41 @@ import { IVBIBUpdate } from "./interface/IVBIBUpdate";
 
 /**
  * @en Animation rendering proxy class for managing animation state and rendering.
- * @zh ¶¯»­äÖÈ¾´úÀíÀà£¬ÓÃÓÚ¹ÜÀí¶¯»­×´Ì¬ºÍäÖÈ¾¡£
+ * @zh åŠ¨ç”»æ¸²æŸ“ä»£ç†ç±»ï¼Œç”¨äºç®¡ç†åŠ¨ç”»çŠ¶æ€å’Œæ¸²æŸ“ã€‚
  */
 export class AnimationRenderProxy {
     /**
      * @en The animation state.
-     * @zh ¶¯»­×´Ì¬¡£
+     * @zh åŠ¨ç”»çŠ¶æ€ã€‚
      */
     state: spine.AnimationState;
     /**
      * @en The current animation time.
-     * @zh µ±Ç°¶¯»­Ê±¼ä¡£
+     * @zh å½“å‰åŠ¨ç”»æ—¶é—´ã€‚
      */
     currentTime: number;
     /**
      * @en The current frame index.
-     * @zh µ±Ç°Ö¡Ë÷Òı¡£
+     * @zh å½“å‰å¸§ç´¢å¼•ã€‚
      */
     currentFrameIndex: number;
     /**
      * @en The animation renderer.
-     * @zh ¶¯»­äÖÈ¾Æ÷¡£
+     * @zh åŠ¨ç”»æ¸²æŸ“å™¨ã€‚
      */
     animator: AnimationRender;
     //vb: VBCreator;
     /**
      * @en The current skin animation render data.
-     * @zh µ±Ç°Æ¤·ô¶¯»­äÖÈ¾Êı¾İ¡£
+     * @zh å½“å‰çš®è‚¤åŠ¨ç”»æ¸²æŸ“æ•°æ®ã€‚
      */
     currentSKin: SkinAniRenderData;
 
     /**
      * @en Creates an instance of AnimationRenderProxy.
      * @param animator The animation renderer.
-     * @zh ´´½¨ AnimationRenderProxy µÄÊµÀı¡£
-     * @param animator ¶¯»­äÖÈ¾Æ÷¡£
+     * @zh åˆ›å»º AnimationRenderProxy çš„å®ä¾‹ã€‚
+     * @param animator åŠ¨ç”»æ¸²æŸ“å™¨ã€‚
      */
     constructor(animator: AnimationRender) {
         this.animator = animator;
@@ -48,8 +48,8 @@ export class AnimationRenderProxy {
     /**
      * @en Sets the skin index.
      * @param value The skin index to set.
-     * @zh ÉèÖÃÆ¤·ôË÷Òı¡£
-     * @param value ÒªÉèÖÃµÄÆ¤·ôË÷Òı¡£
+     * @zh è®¾ç½®çš®è‚¤ç´¢å¼•ã€‚
+     * @param value è¦è®¾ç½®çš„çš®è‚¤ç´¢å¼•ã€‚
      */
     set skinIndex(value: number) {
         this.currentSKin = this.animator.skinDataArray[value];
@@ -58,8 +58,8 @@ export class AnimationRenderProxy {
     /**
      * @en Gets the name of the animator.
      * @returns The name of the animator.
-     * @zh »ñÈ¡¶¯»­Æ÷µÄÃû³Æ¡£
-     * @returns ¶¯»­Æ÷µÄÃû³Æ¡£
+     * @zh è·å–åŠ¨ç”»å™¨çš„åç§°ã€‚
+     * @returns åŠ¨ç”»å™¨çš„åç§°ã€‚
      */
     get name() {
         return this.animator.name;
@@ -67,7 +67,7 @@ export class AnimationRenderProxy {
 
     /**
      * @en Resets the animation state.
-     * @zh ÖØÖÃ¶¯»­×´Ì¬¡£
+     * @zh é‡ç½®åŠ¨ç”»çŠ¶æ€ã€‚
      */
     reset() {
         this.currentTime = -1;
@@ -78,10 +78,10 @@ export class AnimationRenderProxy {
      * @param slots The slots to render.
      * @param updator The VB/IB updater.
      * @param curTime The current animation time.
-     * @zh ²»½øĞĞ¾ØÕó±ä»»µÄ¶¯»­äÖÈ¾¡£
-     * @param slots ÒªäÖÈ¾µÄ²å²Û¡£
-     * @param updator VB/IB ¸üĞÂÆ÷¡£
-     * @param curTime µ±Ç°¶¯»­Ê±¼ä¡£
+     * @zh ä¸è¿›è¡ŒçŸ©é˜µå˜æ¢çš„åŠ¨ç”»æ¸²æŸ“ã€‚
+     * @param slots è¦æ¸²æŸ“çš„æ’æ§½ã€‚
+     * @param updator VB/IB æ›´æ–°å™¨ã€‚
+     * @param curTime å½“å‰åŠ¨ç”»æ—¶é—´ã€‚
      */
     renderWithOutMat(slots: spine.Slot[], updator: IVBIBUpdate, curTime: number) {
         let beforeFrame = this.currentFrameIndex;
@@ -109,12 +109,12 @@ export class AnimationRenderProxy {
      * @param updator The VB/IB updater.
      * @param curTime The current animation time.
      * @param boneMat The bone matrix.
-     * @zh ½øĞĞ¾ØÕó±ä»»µÄ¶¯»­äÖÈ¾¡£
-     * @param bones ÒªäÖÈ¾µÄ¹Ç÷À¡£
-     * @param slots ÒªäÖÈ¾µÄ²å²Û¡£
-     * @param updator VB/IB ¸üĞÂÆ÷¡£
-     * @param curTime µ±Ç°¶¯»­Ê±¼ä¡£
-     * @param boneMat ¹Ç÷À¾ØÕó¡£
+     * @zh è¿›è¡ŒçŸ©é˜µå˜æ¢çš„åŠ¨ç”»æ¸²æŸ“ã€‚
+     * @param bones è¦æ¸²æŸ“çš„éª¨éª¼ã€‚
+     * @param slots è¦æ¸²æŸ“çš„æ’æ§½ã€‚
+     * @param updator VB/IB æ›´æ–°å™¨ã€‚
+     * @param curTime å½“å‰åŠ¨ç”»æ—¶é—´ã€‚
+     * @param boneMat éª¨éª¼çŸ©é˜µã€‚
      */
     render(bones: spine.Bone[], slots: spine.Slot[], updator: IVBIBUpdate, curTime: number, boneMat: Float32Array) {
         this.renderWithOutMat(slots, updator, curTime );
