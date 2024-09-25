@@ -220,7 +220,7 @@ export class AnimationRender {
                 // spine.timline
             }
             //@ts-ignore
-            else if (time instanceof (spine.ColorTimeline || spine.RGBATimeline ) || time instanceof spine.TwoColorTimeline) {
+            else if (time instanceof (spine.ColorTimeline || spine.RGBATimeline ) || (spine.TwoColorTimeline && time instanceof spine.TwoColorTimeline)) {
                 let rgba = time as spine.RGBATimeline;
                 let slotIndex = rgba.slotIndex;
                

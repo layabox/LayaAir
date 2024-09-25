@@ -901,6 +901,7 @@ class SkinRender implements IVBIBUpdate {
      */
     uploadIndexBuffer( indexData:Uint16Array|Uint8Array|Uint32Array , mesh:Mesh2D){
         let indexbuffer = mesh._indexBuffer;
+        indexbuffer._setIndexDataLength(indexData.length);
         indexbuffer._setIndexData(indexData , 0);
     }
 
