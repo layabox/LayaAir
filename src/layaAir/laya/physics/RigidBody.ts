@@ -311,6 +311,7 @@ export class RigidBody extends Component {
 
     /** @internal */
     _onEnable(): void {
+        (<Sprite>this.owner).cacheGlobal = true;
         this._createBody();
         this.owner.on("GlobaChange", this, this._globalChangeHandler)
     }
@@ -369,7 +370,8 @@ export class RigidBody extends Component {
     _onDisable(): void {
         Physics2D.I._removeRigidBody(this);
         Physics2D.I._removeRigidBodyAttribute(this);
-        this.owner.off("GlobaChange", this, this._globalChangeHandler)
+        this.owner.off("GlobaChange", this, this._globalChangeHandler);
+        (<Sprite>this.owner).cacheGlobal = false;
         //添加到物理世界
         this._body && Physics2D.I._factory.removeBody(this._body);
         this._body = null;
