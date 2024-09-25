@@ -31,6 +31,8 @@ import { LayaGL } from "./laya/layagl/LayaGL";
 import { Material } from "./laya/resource/Material";
 import { VertexElementFormat } from "./laya/renders/VertexElementFormat";
 import { DrawStyle } from "./laya/webgl/canvas/DrawStyle";
+import { Stat } from "./laya/utils/Stat";
+import { RenderPassStatisticsInfo } from "./laya/RenderEngine/RenderEnum/RenderStatInfo";
 
 /**
  * @en Laya is the reference entry for global objects.
@@ -101,7 +103,7 @@ export class Laya {
         if (Laya._inited)
             return Promise.resolve();
         Laya._inited = true;
-
+        Stat.renderPassStatArray.length = RenderPassStatisticsInfo.RenderPassStatisticCount;
         if (!WebGL.enable())
             throw new Error("Must support webGL!");
 

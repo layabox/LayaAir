@@ -122,6 +122,7 @@ export class WebGLInternalTex extends GLObject implements InternalTexture {
 
         this.compareMode = TextureCompareMode.None;
         WebGLEngine.instance._addStatisticsInfo(this._statistics_RC_Texture, 1);
+        WebGLEngine.instance._addStatisticsInfo(GPUEngineStatisticsInfo.RC_ALLTexture, 1);
     }
 
     private _filterMode: FilterMode;
@@ -319,5 +320,6 @@ export class WebGLInternalTex extends GLObject implements InternalTexture {
         this._changeTexMemory(0);
         this._gpuMemory = 0;
         WebGLEngine.instance._addStatisticsInfo(this._statistics_RC_Texture, -1);
+        WebGLEngine.instance._addStatisticsInfo(GPUEngineStatisticsInfo.RC_ALLTexture, -1);
     }
 }

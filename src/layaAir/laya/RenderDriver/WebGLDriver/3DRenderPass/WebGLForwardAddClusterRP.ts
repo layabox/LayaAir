@@ -1,4 +1,5 @@
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
+import { RenderPassStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
 import { Camera } from "../../../d3/core/Camera";
 import { CommandBuffer } from "../../../d3/core/render/command/CommandBuffer";
 import { DepthPass } from "../../../d3/depthMap/DepthPass";
@@ -7,6 +8,7 @@ import { Color } from "../../../maths/Color";
 import { Vector4 } from "../../../maths/Vector4";
 import { Viewport } from "../../../maths/Viewport";
 import { DepthTextureMode } from "../../../resource/RenderTexture";
+import { Stat } from "../../../utils/Stat";
 import { RenderCullUtil } from "../../DriverCommon/RenderCullUtil";
 import { RenderListQueue } from "../../DriverCommon/RenderListQueue";
 import { PipelineMode } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
@@ -148,14 +150,20 @@ export class WebGLForwardAddClusterRP {
         context.cameraUpdateMask++
         this.opaqueList.clear();
         this.transparent.clear();
-        RenderCullUtil.cullByCameraCullInfo(this.cameraCullInfo, list, count, this.opaqueList, this.transparent, context)
 
+        var time = performance.now();//T_CameraMainCull Stat
+        RenderCullUtil.cullByCameraCullInfo(this.cameraCullInfo, list, count, this.opaqueList, this.transparent, context)
+        Stat.renderPassStatArray[RenderPassStatisticsInfo.T_CameraMainCull] += (performance.now() - time);//Stat
+
+        time = performance.now();//T_Render_CameraOtherDest Stat
         if ((this.depthTextureMode & DepthTextureMode.Depth) != 0) {
             this._renderDepthPass(context);
         }
         if ((this.depthTextureMode & DepthTextureMode.DepthNormals) != 0) {
             this._renderDepthNormalPass(context);
         }
+        Stat.renderPassStatArray[RenderPassStatisticsInfo.T_Render_CameraOtherDest] += (performance.now() - time);//Stat
+
         this._viewPort.cloneTo(WebGLForwardAddClusterRP._context3DViewPortCatch);
         this._scissor.cloneTo(WebGLForwardAddClusterRP._contextScissorPortCatch);
         this._mainPass(context);
@@ -167,7 +175,6 @@ export class WebGLForwardAddClusterRP {
      * 渲染深度Pass
      * @param context
      * @param list
-     * @perfTag PerformanceDefine.T_Render_CameraOtherDest
      */
     private _renderDepthPass(context: WebGLRenderContext3D): void {
         context.pipelineMode = this.depthPipelineMode;
@@ -184,7 +191,7 @@ export class WebGLForwardAddClusterRP {
 
         // render
         this.opaqueList.renderQueue(context);
-
+        Stat.depthCastDrawCall += this.opaqueList.elements.length;
         //渲染完后传入使用的参数
         var far = this.camera.farplane;
         var near = this.camera.nearplane;
@@ -199,27 +206,26 @@ export class WebGLForwardAddClusterRP {
     /**
      * @param context
      * @private
-     * @perfTag PerformanceDefine.T_Render_TransparentRender
      */
     private _transparentListRender(context: WebGLRenderContext3D) {
         this.transparent.renderQueue(context);
+        Stat.transDrawCall+=this.transparent.elements.length;
     }
 
     /**
      * 渲染非透明物体Pass
      * @param context 
      * @param list
-     * @perfTag PerformanceDefine.T_Render_OpaqueRender
      */
     private _opaqueListRender(context: WebGLRenderContext3D) {
         this.opaqueList.renderQueue(context);
+        Stat.opaqueDrawCall+=this.opaqueList.elements.length;
     }
 
     /**
      * 渲染法线深度Pass
      * @param context 
      * @param list
-     * @perfTag PerformanceDefine.T_Render_CameraOtherDest
      */
     private _renderDepthNormalPass(context: WebGLRenderContext3D): void {
         context.pipelineMode = this.depthNormalPipelineMode;
@@ -232,12 +238,9 @@ export class WebGLForwardAddClusterRP {
         context.setClearData(RenderClearFlag.Color | RenderClearFlag.Depth, this._defaultNormalDepthColor, 1, 0);
         context.setRenderTarget(this.depthNormalTarget, RenderClearFlag.Color | RenderClearFlag.Depth);
         this.opaqueList.renderQueue(context);
-
+        Stat.depthCastDrawCall += this.opaqueList.elements.length;
     }
 
-    /**
-     * @perfTag PerformanceDefine.T_Render_CameraOtherDest
-     */
     private opaqueTexturePass(context: WebGLRenderContext3D) {
         let commanbuffer = this.blitOpaqueBuffer;
         commanbuffer._apply(false);
@@ -249,7 +252,11 @@ export class WebGLForwardAddClusterRP {
         this._rendercmd(this.beforeForwardCmds, context);
         this._recoverRenderContext3D(context);
         context.setClearData(this.clearFlag, this.clearColor, 1, 0);
+
+        var time = performance.now();//T_Render_OpaqueRender Stat
         this.enableOpaque && this._opaqueListRender(context);
+        Stat.renderPassStatArray[RenderPassStatisticsInfo.T_Render_OpaqueRender] += (performance.now() - time);//Stat
+
         this._rendercmd(this.beforeSkyboxCmds, context);
 
         if (this.skyRenderNode) {
@@ -264,21 +271,26 @@ export class WebGLForwardAddClusterRP {
 
         this._rendercmd(this.beforeTransparentCmds, context);
         this._recoverRenderContext3D(context);
+
+        time = performance.now();//T_Render_TransparentRender Stat
         this.transparent && this._transparentListRender(context);
+        Stat.renderPassStatArray[RenderPassStatisticsInfo.T_Render_TransparentRender] += (performance.now() - time);//Stat
+
     }
 
     /**
      * @param cmds
      * @param context
      * @private
-     * @perfTag PerformanceDefine.T_Render_CameraEventCMD
      */
     private _rendercmd(cmds: Array<CommandBuffer>, context: WebGLRenderContext3D) {
         if (!cmds || cmds.length == 0)
             return;
+        var time = performance.now();//T_Render_CameraEventCMD Stat
         cmds.forEach(function (value) {
             context.runCMDList(value._renderCMDs);
         });
+        Stat.renderPassStatArray[RenderPassStatisticsInfo.T_Render_CameraEventCMD] += (performance.now() - time);//Stat
     }
 
     private _recoverRenderContext3D(context: WebGLRenderContext3D) {

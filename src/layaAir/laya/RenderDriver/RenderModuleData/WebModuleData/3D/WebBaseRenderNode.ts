@@ -1,4 +1,5 @@
 
+import { RenderPassStatisticsInfo } from "../../../../RenderEngine/RenderEnum/RenderStatInfo";
 import { ReflectionProbeMode } from "../../../../d3/component/Volume/reflectionProbe/ReflectionProbe";
 import { RenderableSprite3D } from "../../../../d3/core/RenderableSprite3D";
 import { Transform3D } from "../../../../d3/core/Transform3D";
@@ -7,6 +8,7 @@ import { BoundFrustum } from "../../../../d3/math/BoundFrustum";
 import { Bounds } from "../../../../d3/math/Bounds";
 import { Vector4 } from "../../../../maths/Vector4";
 import { Material } from "../../../../resource/Material";
+import { Stat } from "../../../../utils/Stat";
 import { IRenderElement3D, IRenderContext3D } from "../../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
 import { IBaseRenderNode } from "../../Design/3D/I3DRenderModuleData";
@@ -56,6 +58,19 @@ export class WebBaseRenderNode implements IBaseRenderNode {
     * context3D:GLESRenderContext3D
     * @internal
     */
+    _renderUpdatePre_StatUse(context3D: IRenderContext3D): void {
+        if (this._updateMark == context3D.cameraUpdateMask)
+            return;
+        var time = performance.now();//T_RenderPreUpdate Stat
+        this._renderUpdatePreFun.call(this._renderUpdatePreCall, context3D);
+        Stat.renderPassStatArray[RenderPassStatisticsInfo.T_RenderPreUpdate] += (performance.now() - time);//Stat
+        this._updateMark = context3D.cameraUpdateMask;
+    }
+
+    /**
+     * context3D:GLESRenderContext3D
+     * @internal
+     */
     _renderUpdatePre(context3D: IRenderContext3D): void {
         if (this._updateMark == context3D.cameraUpdateMask)
             return;

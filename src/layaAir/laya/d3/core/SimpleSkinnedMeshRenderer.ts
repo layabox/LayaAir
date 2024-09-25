@@ -176,29 +176,7 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
         this._setRenderElements();
 
     }
-    // /**
-    //  * @inheritDoc
-    //  * @override
-    //  * @internal
-    //  */
-    // _renderUpdate(context: IRenderContext3D): void {
-
-    //     let shaderData = this._baseRenderNode.shaderData;
-
-    //     let transform = this.rootBone ? this.rootBone.transform : this.owner.transform;
-    //     let worldMat = transform.worldMatrix;
-    //     let worldParams = this._worldParams;
-
-    //     worldParams.x = this.owner.transform.getFrontFaceValue();
-    //     shaderData.setMatrix4x4(Sprite3D.WORLDMATRIX, worldMat);
-    //     shaderData.setVector(Sprite3D.WORLDINVERTFRONT, worldParams);
-
-    //     this._baseRenderNode._applyLightProb();
-    //     this._baseRenderNode._applyReflection();
-
-    //     shaderData.setVector(SimpleSkinnedMeshRenderer.SIMPLE_SIMPLEANIMATORPARAMS, this._simpleAnimatorParams);
-    // }
-
+    
     /**
      * @internal
      * 克隆到目标

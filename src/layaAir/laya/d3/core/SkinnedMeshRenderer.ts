@@ -243,9 +243,6 @@ export class SkinnedMeshRenderer extends MeshRenderer {
     _setBelongScene(scene: Scene3D): void {
         super._setBelongScene(scene);
         this._isISkinRenderNode() && this._ownerSkinRenderNode.setOwnerTransform(this.owner);
-
-        Stat.skinRenderNode++;
-        Stat.meshRenderNode--;
     }
 
     /**
@@ -253,8 +250,18 @@ export class SkinnedMeshRenderer extends MeshRenderer {
      */
     _setUnBelongScene() {
         super._setUnBelongScene();
+    }
+
+    protected _statAdd() {
+        Stat.renderNode++;
+        Stat.skinRenderNode++;
+    }
+
+    protected _statRemove() {
+        Stat.renderNode--;
         Stat.skinRenderNode--;
     }
+
 
     /**
      * @perfTag PerformanceDefine.T_SkinBoneUpdate

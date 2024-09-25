@@ -33,6 +33,7 @@ import { ICameraNodeData } from "../../RenderDriver/RenderModuleData/Design/3D/I
 import { Transform3D } from "./Transform3D";
 import { Cluster } from "../graphics/renderPath/Cluster";
 import { Viewport } from "../../maths/Viewport";
+import { RenderPassStatisticsInfo } from "../../RenderEngine/RenderEnum/RenderStatInfo";
 
 /**
  * @en Camera clear flags.
@@ -1379,7 +1380,6 @@ export class Camera extends BaseCamera {
      * @param scene The scene to render.
      * @zh 渲染场景。
      * @param scene 要渲染的场景。
-     * @perfTag PerformanceDefine.T_CameraRender
      */
     render(scene: Scene3D): void {
         // set context
@@ -1437,8 +1437,9 @@ export class Camera extends BaseCamera {
         if (multiLight) {
             Cluster.instance.update(this, scene);
         }
-
+        var time = performance.now();//T_CameraRender Stat
         this._Render3DProcess.fowardRender(context._contextOBJ, this);
+        Stat.renderPassStatArray[RenderPassStatisticsInfo.T_CameraRender] += (performance.now() - time);//Stat
 
         scene._componentDriver.callPostRender();
     }
