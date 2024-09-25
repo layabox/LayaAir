@@ -208,16 +208,11 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
                 pass.arrayMap = arrayMap;
             }
 
-            //设置nodeCommonMap
-            if (this.renderShaderData && this.owner)
-                this._shaderPass[i].nodeCommonMap = this.owner._commonUniformMap;
-            else this._shaderPass[i].nodeCommonMap = null;
-
             //获取着色器实例，先查找缓存，如果没有则创建
             const shaderInstance = pass.withCompile(compileDefine.clone()) as WebGPUShaderInstance;
             this._shaderInstances[index] = shaderInstance;
 
-            //创建uniform缓冲区
+            //创建uniform缓冲区，各pass共享shaderData，因此只需要创建一份
             if (i === 0) {
                 this._sceneData?.createUniformBuffer(shaderInstance.uniformInfo[0], true);
                 this._cameraData?.createUniformBuffer(shaderInstance.uniformInfo[1], true);
@@ -596,7 +591,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
                 this._stateKey[index] = stateKey;
                 this._pipeline[index] = pipeline;
             }
-            context.pipelineCache.push({ pipeline, shaderInstance, samples: context.destRT._samples, stateKey });
+            context.pipelineCache.push({ name: shaderInstance.name, pipeline, shaderInstance, samples: context.destRT._samples, stateKey });
             console.log('pipelineCache3d =', context.pipelineCache);
             return pipeline;
         }

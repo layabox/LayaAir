@@ -1,5 +1,11 @@
 //https://github.com/greggman/webgpu-utils
-import { isTypedArray } from "../WebGPUCommon";
+
+/**
+ * 是否是TypedArray
+ * @param arr 
+ */
+const isTypedArray = (arr: any) =>
+    arr && typeof arr.length === 'number' && arr.buffer instanceof ArrayBuffer && typeof arr.byteLength === 'number';
 
 function guessTextureBindingViewDimensionForTexture(texture: GPUTexture): GPUTextureViewDimension {
     switch (texture.dimension) {

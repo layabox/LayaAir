@@ -1,15 +1,19 @@
+import { Laya } from "../../../../Laya";
 import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
-import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
 import { GPUEngineStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
 import { WebGPURenderEngine } from "./WebGPURenderEngine";
 import { WebGPURenderGeometry } from "./WebGPURenderGeometry";
 import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
 
+/**
+ * GPU渲染指令编码器
+ */
 export class WebGPURenderCommandEncoder {
-    _commandEncoder: GPUCommandEncoder;
-    _encoder: GPURenderPassEncoder;
-    _engine: WebGPURenderEngine;
-    _device: GPUDevice;
+    private _commandEncoder: GPUCommandEncoder;
+    private _engine: WebGPURenderEngine;
+    private _device: GPUDevice;
+
+    encoder: GPURenderPassEncoder;
 
     globalId: number;
     objectName: string = 'WebGPURenderCommandEncoder';
@@ -21,21 +25,23 @@ export class WebGPURenderCommandEncoder {
         this.globalId = WebGPUGlobal.getId(this);
     }
 
-    startRender(renderPassDesc: GPURenderPassDescriptor): void {
+    startRender(renderPassDesc: GPURenderPassDescriptor) {
         this._commandEncoder = this._device.createCommandEncoder();
-        this._encoder = this._commandEncoder.beginRenderPass(renderPassDesc);
+        this.encoder = WebGPUGlobal.useTimeQuery ?
+            this._engine.timingManager.getTimingHelper(Laya.timer.currFrame).beginRenderPass(this._commandEncoder, renderPassDesc) :
+            this._commandEncoder.beginRenderPass(renderPassDesc);
     }
 
-    setPipeline(pipeline: GPURenderPipeline): void {
-        this._encoder.setPipeline(pipeline);
+    setPipeline(pipeline: GPURenderPipeline) {
+        this.encoder.setPipeline(pipeline);
     }
 
-    setIndexBuffer(buffer: GPUBuffer, indexFormat: GPUIndexFormat, byteSize: number, offset: number = 0): void {
-        this._encoder.setIndexBuffer(buffer, indexFormat, offset, byteSize);
+    setIndexBuffer(buffer: GPUBuffer, indexFormat: GPUIndexFormat, byteSize: number, offset: number = 0) {
+        this.encoder.setIndexBuffer(buffer, indexFormat, offset, byteSize);
     }
 
-    setVertexBuffer(slot: number, buffer: GPUBuffer, offset: number = 0, size: number = 0): void {
-        this._encoder.setVertexBuffer(slot, buffer, offset, size);
+    setVertexBuffer(slot: number, buffer: GPUBuffer, offset: number = 0, size: number = 0) {
+        this.encoder.setVertexBuffer(slot, buffer, offset, size);
     }
 
     drawIndirect(indirectBuffer: GPUBuffer, indirectOffset: GPUSize64) {
@@ -47,35 +53,39 @@ export class WebGPURenderCommandEncoder {
     }
 
     setBindGroup(index: GPUIndex32, bindGroup: GPUBindGroup, dynamicOffsets?: Iterable<GPUBufferDynamicOffset>) {
-        this._encoder.setBindGroup(index, bindGroup, dynamicOffsets);
+        this.encoder.setBindGroup(index, bindGroup, dynamicOffsets);
     }
 
     setBindGroupByDataOffaset(index: GPUIndex32, bindGroup: GPUBindGroup, dynamicOffsetsData: Uint32Array, dynamicOffsetsDataStart: GPUSize64, dynamicOffsetsDataLength: GPUSize32) {
-        this._encoder.setBindGroup(index, bindGroup, dynamicOffsetsData, dynamicOffsetsDataStart, dynamicOffsetsDataLength);
+        this.encoder.setBindGroup(index, bindGroup, dynamicOffsetsData, dynamicOffsetsDataStart, dynamicOffsetsDataLength);
     }
 
     setViewport(x: number, y: number, width: number, height: number, minDepth: number, maxDepth: number) {
-        this._encoder.setViewport(x, y, width, height, minDepth, maxDepth);
+        this.encoder.setViewport(x, y, width, height, minDepth, maxDepth);
     }
 
     setScissorRect(x: GPUIntegerCoordinate, y: GPUIntegerCoordinate, width: GPUIntegerCoordinate, height: GPUIntegerCoordinate) {
-        this._encoder.setScissorRect(x, y, width, height);
+        this.encoder.setScissorRect(x, y, width, height);
     }
 
     setStencilReference(ref: number) {
-        this._encoder.setStencilReference(ref);
+        this.encoder.setStencilReference(ref);
     }
 
     end() {
-        this._encoder.end();
+        this.encoder.end();
     }
 
     finish() {
         return this._commandEncoder.finish();
     }
 
+    /**
+     * 执行缓存绘图指令
+     * @param bundles 
+     */
     playBundle(bundles: GPURenderBundle[]) {
-        this._encoder.executeBundles(bundles);
+        this.encoder.executeBundles(bundles);
     }
 
     /**
@@ -108,7 +118,7 @@ export class WebGPURenderCommandEncoder {
                     count = _drawArrayInfo[i].count;
                     start = _drawArrayInfo[i].start;
                     triangles += count - 2;
-                    this._encoder.draw(count, 1, start, 0);
+                    this.encoder.draw(count, 1, start, 0);
                 }
                 break;
             case DrawType.DrawElement:
@@ -116,7 +126,7 @@ export class WebGPURenderCommandEncoder {
                     count = _drawElementInfo[i].elementCount;
                     start = _drawElementInfo[i].elementStart;
                     triangles += count / 3;
-                    this._encoder.drawIndexed(count, 1, start / indexByte, 0);
+                    this.encoder.drawIndexed(count, 1, start / indexByte, 0);
                 }
                 break;
             case DrawType.DrawArrayInstance:
@@ -124,7 +134,7 @@ export class WebGPURenderCommandEncoder {
                     count = _drawArrayInfo[i].count;
                     start = _drawArrayInfo[i].start;
                     triangles += (count - 2) * instanceCount;
-                    this._encoder.draw(count, instanceCount, start, 0);
+                    this.encoder.draw(count, instanceCount, start, 0);
                     this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.C_Instancing_DrawCallCount, 1);
                 }
                 break;
@@ -133,7 +143,7 @@ export class WebGPURenderCommandEncoder {
                     count = _drawElementInfo[i].elementCount;
                     start = _drawElementInfo[i].elementStart;
                     triangles += count / 3 * instanceCount;
-                    this._encoder.drawIndexed(count, instanceCount, start / indexByte, 0);
+                    this.encoder.drawIndexed(count, instanceCount, start / indexByte, 0);
                     this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.C_Instancing_DrawCallCount, 1);
                 }
                 break;
@@ -172,26 +182,26 @@ export class WebGPURenderCommandEncoder {
                 count = _drawArrayInfo[part].count;
                 start = _drawArrayInfo[part].start;
                 triangles = count - 2;
-                this._encoder.draw(count, 1, start, 0);
+                this.encoder.draw(count, 1, start, 0);
                 break;
             case DrawType.DrawElement:
                 count = _drawElementInfo[part].elementCount;
                 start = _drawElementInfo[part].elementStart;
                 triangles = count / 3;
-                this._encoder.drawIndexed(count, 1, start / indexByte, 0);
+                this.encoder.drawIndexed(count, 1, start / indexByte, 0);
                 break;
             case DrawType.DrawArrayInstance:
                 count = _drawArrayInfo[part].count;
                 start = _drawArrayInfo[part].start;
                 triangles = (count - 2) * instanceCount;
-                this._encoder.draw(count, instanceCount, start, 0);
+                this.encoder.draw(count, instanceCount, start, 0);
                 this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.C_Instancing_DrawCallCount, 1);
                 break;
             case DrawType.DrawElementInstance:
                 count = _drawElementInfo[part].elementCount;
                 start = _drawElementInfo[part].elementStart;
                 triangles = count / 3 * instanceCount;
-                this._encoder.drawIndexed(count, instanceCount, start / indexByte, 0);
+                this.encoder.drawIndexed(count, instanceCount, start / indexByte, 0);
                 this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.C_Instancing_DrawCallCount, 1);
                 break;
         }
@@ -199,6 +209,9 @@ export class WebGPURenderCommandEncoder {
         return triangles;
     }
 
+    /**
+     * 销毁
+     */
     destroy() {
         WebGPUGlobal.releaseId(this);
     }

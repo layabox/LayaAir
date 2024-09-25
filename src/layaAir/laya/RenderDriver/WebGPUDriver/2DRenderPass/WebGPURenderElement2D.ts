@@ -63,14 +63,15 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
     isStatic: boolean = false;
     staticChange: boolean = false;
 
+    nodeCommonMap: string[];
+    renderStateIsBySprite: boolean = true;
+
     globalId: number;
     objectName: string = 'WebGPURenderElement2D';
 
     constructor() {
         this.globalId = WebGPUGlobal.getId(this);
     }
-    nodeCommonMap: string[];//TODO
-    renderStateIsBySprite: boolean = true;
 
     /**
      * 获取渲染通道的uniform
@@ -140,14 +141,14 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
 
             //设置nodeCommonMap
             if (this.value2DShaderData)
-                this._shaderPass[i].nodeCommonMap = this.nodeCommonMap;
-            else this._shaderPass[i].nodeCommonMap = null;
+                pass.nodeCommonMap = this.nodeCommonMap;
+            else pass.nodeCommonMap = null;
 
             //获取着色器实例，先查找缓存，如果没有则创建
             const shaderInstance = pass.withCompile(compileDefine.clone(), true) as WebGPUShaderInstance;
             this._shaderInstances[index] = shaderInstance;
 
-            //创建uniform缓冲区
+            //创建uniform缓冲区，各pass共享shaderData，因此只需要创建一份
             if (i === 0) {
                 this._sceneData?.createUniformBuffer(shaderInstance.uniformInfo[0], true);
                 this._cameraData?.createUniformBuffer(shaderInstance.uniformInfo[1], true);
@@ -159,7 +160,7 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
         //重编译着色器后，清理绑定组缓存
         this.value2DShaderData?.clearBindGroup();
         this.materialShaderData?.clearBindGroup();
-        
+
         //提取当前渲染通道
         this._takeCurPass(context.pipelineMode);
     }
@@ -502,7 +503,7 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
                 this._pipeline[index] = pipeline;
                 this._stateKey[index] = stateKey;
             }
-            context.pipelineCache.push({ pipeline, shaderInstance, samples: context.destRT._samples, stateKey });
+            context.pipelineCache.push({ name: shaderInstance.name, pipeline, shaderInstance, samples: context.destRT._samples, stateKey });
             console.log('pipelineCache2d =', context.pipelineCache);
             return pipeline;
         }
