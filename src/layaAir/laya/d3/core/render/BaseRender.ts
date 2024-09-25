@@ -800,7 +800,7 @@ export class BaseRender extends Component {
      * @zh 从 Scene 移除会调用此方法。
      */
     _setUnBelongScene() {
-        this._statRemove
+        this._statRemove();
         this._scene._volumeManager.removeMotionObject(this);
         let batch = this._batchRender;
         this._batchRender && this._batchRender._removeOneRender(this);
