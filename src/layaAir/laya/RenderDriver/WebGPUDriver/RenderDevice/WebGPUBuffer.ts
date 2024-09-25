@@ -1,5 +1,5 @@
 import { GPUEngineStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
-import { roundDown, roundUp } from "./WebGPUCommon";
+import { roundUp } from "../../DriverDesign/RenderDevice/UniformBufferManager/UniformBufferManager";
 import { WebGPURenderEngine } from "./WebGPURenderEngine";
 import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
 

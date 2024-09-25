@@ -124,7 +124,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
      * 提取当前渲染通道
      * @param pipelineMode 
      */
-    private _takeCurPass(pipelineMode: string) {
+    private _takeCurrentPass(pipelineMode: string) {
         this._passNum = 0;
         this._passName = pipelineMode;
         const passes = this.subShader._passes;
@@ -140,7 +140,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
      * @param context 
      */
     _preUpdatePre(context: WebGPURenderContext3D) {
-        this._takeCurPass(context.pipelineMode);
+        this._takeCurrentPass(context.pipelineMode);
         if (this._passNum === 0) return false;
 
         //设定当前渲染数据
@@ -212,7 +212,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
             const shaderInstance = pass.withCompile(compileDefine.clone()) as WebGPUShaderInstance;
             this._shaderInstances[index] = shaderInstance;
 
-            //创建uniform缓冲区
+            //创建uniform缓冲区，各pass共享shaderData，因此只需要创建一份
             if (i === 0) {
                 this._sceneData?.createUniformBuffer(shaderInstance.uniformInfo[0], true);
                 this._cameraData?.createUniformBuffer(shaderInstance.uniformInfo[1], true);
@@ -226,7 +226,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
         this.materialShaderData?.clearBindGroup();
 
         //提取当前渲染通道
-        this._takeCurPass(context.pipelineMode);
+        this._takeCurrentPass(context.pipelineMode);
     }
 
     /**
@@ -591,7 +591,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
                 this._stateKey[index] = stateKey;
                 this._pipeline[index] = pipeline;
             }
-            context.pipelineCache.push({ pipeline, shaderInstance, samples: context.destRT._samples, stateKey });
+            context.pipelineCache.push({ name: shaderInstance.name, pipeline, shaderInstance, samples: context.destRT._samples, stateKey });
             console.log('pipelineCache3d =', context.pipelineCache);
             return pipeline;
         }

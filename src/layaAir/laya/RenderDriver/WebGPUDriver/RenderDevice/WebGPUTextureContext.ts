@@ -2,6 +2,7 @@ import { DDSTextureInfo } from "../../../RenderEngine/DDSTextureInfo";
 import { HDRTextureInfo } from "../../../RenderEngine/HDRTextureInfo";
 import { KTXTextureInfo } from "../../../RenderEngine/KTXTextureInfo";
 import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
+import { GPUEngineStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
 import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { TextureCompareMode } from "../../../RenderEngine/RenderEnum/TextureCompareMode";
 import { TextureDimension } from "../../../RenderEngine/RenderEnum/TextureDimension";
@@ -349,22 +350,11 @@ export class WebGPUTextureContext implements ITextureContext {
                 webgpuTextureFormat = !useSRGB ? WebGPUTextureFormat.bc3_rgba_unorm : WebGPUTextureFormat.bc3_rgba_unorm_srgb;
                 break;
             case TextureFormat.ETC2RGBA:
-                webgpuTextureFormat = WebGPUTextureFormat.etc2_rgba8unorm;
-                break;
+            case TextureFormat.ETC1RGB:
             case TextureFormat.ETC2RGB:
-                webgpuTextureFormat = WebGPUTextureFormat.etc2_rgb8unorm;
-                break;
             case TextureFormat.ETC2SRGB:
-                webgpuTextureFormat = WebGPUTextureFormat.etc2_rgb8unorm_srgb;
-                break;
             case TextureFormat.ETC2SRGB_Alpha8:
-                webgpuTextureFormat = WebGPUTextureFormat.etc2_rgba8unorm_srgb;
-                break;
-            case TextureFormat.ETC2RGB_Alpha1:
-                webgpuTextureFormat = WebGPUTextureFormat.etc2_rgb8a1unorm;
-                break;
-            case TextureFormat.ETC2SRGB_Alpha1:
-                webgpuTextureFormat = WebGPUTextureFormat.etc2_rgb8a1unorm_srgb;
+                webgpuTextureFormat = !useSRGB ? WebGPUTextureFormat.etc2_rgba8unorm : WebGPUTextureFormat.etc2_rgba8unorm_srgb;
                 break;
             case TextureFormat.ASTC4x4:
             case TextureFormat.ASTC4x4SRGB:

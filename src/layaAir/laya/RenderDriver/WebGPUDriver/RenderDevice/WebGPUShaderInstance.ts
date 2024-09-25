@@ -103,7 +103,7 @@ export class WebGPUShaderInstance implements IShaderInstance {
         const device = engine.getDevice();
         const shaderObj = WebGPUCodeGenerator.shaderLanguageProcess(
             shaderProcessInfo.defineString, shaderProcessInfo.attributeMap, //@ts-ignore
-            shaderPass.uniformMap, shaderPass.arrayMap, shaderProcessInfo.vs, shaderProcessInfo.ps,
+            shaderPass.uniformMap, shaderPass.arrayMap, shaderPass.nodeCommonMap, shaderProcessInfo.vs, shaderProcessInfo.ps,
             shaderProcessInfo.is2D);
 
         this.uniformInfo = shaderObj.uniformInfo;

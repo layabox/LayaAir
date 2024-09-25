@@ -1,10 +1,10 @@
+import { Laya } from "../../../../Laya";
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { Color } from "../../../maths/Color";
 import { Viewport } from "../../../maths/Viewport";
 import { FastSinglelist } from "../../../utils/SingletonList";
 import { IRenderContext2D } from "../../DriverDesign/2DRenderPass/IRenderContext2D";
-import { IRenderElement2D } from "../../DriverDesign/2DRenderPass/IRenderElement2D";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
 import { WebGPUContext } from "../3DRenderPass/WebGPUContext";
 import { WebGPUInternalRT } from "../RenderDevice/WebGPUInternalRT";
@@ -99,9 +99,14 @@ export class WebGPURenderContext2D implements IRenderContext2D {
      * 提交渲染命令
      */
     private _submit() {
+        const engine = WebGPURenderEngine._instance;
         this.renderCommand.end();
+        if (Laya.timer.currFrame != engine.frameCount) {
+            engine.frameCount = Laya.timer.currFrame;
+            engine.startFrame();
+        }
         if (WebGPUGlobal.useBigBuffer)
-            WebGPURenderEngine._instance.upload(); //上传所有Uniform数据
+            engine.upload(); //上传所有Uniform数据
         this.device.queue.submit([this.renderCommand.finish()]);
         this._needStart = true;
         WebGPUStatis.addSubmit(); //统计提交次数

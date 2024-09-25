@@ -52,11 +52,7 @@ export class RenderListQueue {
      * 清空队列
      */
     clear() {
-        //下面是避免this.elements.elements太长，以及避免引用对象
-        if (this.elements.elements.length > 100) {
-            this.elements.elements.length = 100;
-        }
-        this.elements.elements.fill(null);  //避免引用js对象导致无法gc
+        this._elements.elements.fill(null); //避免引用js对象导致无法gc
         this._elements.length = 0;
     }
 
