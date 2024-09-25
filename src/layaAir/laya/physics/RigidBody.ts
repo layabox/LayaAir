@@ -72,7 +72,7 @@ export class RigidBody extends Component {
         defRigidBodyDef.angle = Utils.toRadian(sp.globalRotation);
         defRigidBodyDef.allowSleep = this._allowSleep;
         defRigidBodyDef.angularDamping = this._angularDamping;
-      
+
         defRigidBodyDef.bullet = this._bullet;
         defRigidBodyDef.fixedRotation = !this._allowRotation;
         defRigidBodyDef.gravityScale = this._gravityScale;
@@ -80,10 +80,10 @@ export class RigidBody extends Component {
         defRigidBodyDef.group = this.group;
         var obj: any = this._linearVelocity;
         defRigidBodyDef.type = this._type;
-        if(this._type == "static"){
+        if (this._type == "static") {
             defRigidBodyDef.angularVelocity = 0;
-            defRigidBodyDef.linearVelocity.setValue(0,0);
-        }else{
+            defRigidBodyDef.linearVelocity.setValue(0, 0);
+        } else {
             defRigidBodyDef.angularVelocity = this._angularVelocity;
             if (obj && obj.x != 0 || obj.y != 0) {
                 defRigidBodyDef.linearVelocity.setValue(obj.x, obj.y);
@@ -123,6 +123,7 @@ export class RigidBody extends Component {
 
     /** @override */
     protected _onEnable(): void {
+        (<Sprite>this.owner).cacheGlobal = true;
         this._createBody();
         this.owner.on("GlobaChange", this, this._globalChangeHandler)
     }
@@ -168,7 +169,7 @@ export class RigidBody extends Component {
             var sp: Sprite = (<Sprite>this.owner);
             sp.globalRotation = Utils.toAngle(factory.get_RigidBody_Angle(this.body));
             sp.setGlobalPos(pos.x, pos.y);
-            
+
         }
     }
 
@@ -176,7 +177,8 @@ export class RigidBody extends Component {
     protected _onDisable(): void {
         Physics2D.I.removeRigidBody(this);
         Physics2D.I.removeRigidBodyAttribute(this);
-        this.owner.off("GlobaChange", this, this._globalChangeHandler)
+        this.owner.off("GlobaChange", this, this._globalChangeHandler);
+        (<Sprite>this.owner).cacheGlobal = false;
         //添加到物理世界
         this._body && Physics2D.I._factory.removeBody(this._body);
         this._body = null;
@@ -362,7 +364,7 @@ export class RigidBody extends Component {
 
     set angularVelocity(value: number) {
         this._angularVelocity = value;
-        if(this._type == "static"){
+        if (this._type == "static") {
             return;
         }
         if (this._body) Physics2D.I._factory.set_rigidBody_angularVelocity(this.body, value);
@@ -393,7 +395,7 @@ export class RigidBody extends Component {
             value = { x: value[0], y: value[1] };
         }
         this._linearVelocity = value;
-        if(this._type == "static"){
+        if (this._type == "static") {
             return;
         }
         if (this._body) Physics2D.I._factory.set_rigidBody_linearVelocity(this._body, value);
@@ -414,8 +416,8 @@ export class RigidBody extends Component {
      * @param x (单位： 像素)
      * @param y (单位： 像素)
     */
-    getWorldPoint(x: number, y: number):Point{
-        return (<Sprite>this.owner)._getGlobalCacheLocalToGlobal(x,y);
+    getWorldPoint(x: number, y: number): Point {
+        return (<Sprite>this.owner)._getGlobalCacheLocalToGlobal(x, y);
     }
 
     /** 
@@ -423,8 +425,8 @@ export class RigidBody extends Component {
      * @param x (单位： 像素)
      * @param y (单位： 像素)
     */
-    getLocalPoint(x: number, y: number):Point{
-        return (<Sprite>this.owner)._getGlobalCacheGlobalToLocal(x,y);
+    getLocalPoint(x: number, y: number): Point {
+        return (<Sprite>this.owner)._getGlobalCacheGlobalToLocal(x, y);
     }
 
 }
