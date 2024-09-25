@@ -52,6 +52,7 @@ export class RenderListQueue {
      * 清空队列
      */
     clear() {
+        this._elements.elements.fill(null); //避免引用js对象导致无法gc
         this._elements.length = 0;
     }
 
