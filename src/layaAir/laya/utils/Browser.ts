@@ -226,6 +226,12 @@ export class Browser {
      */
     static miniGameContext: any;
 
+    /**
+     * @en The loaded bundles.
+     * @zh 已载入的脚本集。
+     */
+    static bundles = new Map<string, any>();
+
     /** @private */
     private static _window: any;
     /** @private */
@@ -646,3 +652,29 @@ export class Browser {
     }
 }
 
+let win: any = window;
+win.__getBundle_ = function (bundleId: string) {
+    let bun = Browser.bundles.get(bundleId);
+    if (!bun)
+        Browser.bundles.set(bundleId, bun = {});
+    return bun;
+}
+
+win.__setBundle_ = function (bundleId: string, bun: any, globalName?: string) {
+    let existing = Browser.bundles.get(bundleId);
+    if (existing)
+        copyProps(existing, bun, "default");
+    Browser.bundles.set(bundleId, bun);
+    if (globalName)
+        win[globalName] = bun;
+}
+
+function copyProps(to: any, from: any, except?: string) {
+    var desc: any;
+    if (from && typeof from === "object" || typeof from === "function") {
+        for (let key of Object.getOwnPropertyNames(from))
+            if (!to.hasOwnProperty(key) && key !== except)
+                Object.defineProperty(to, key, { get: () => from[key], enumerable: !(desc = Object.getOwnPropertyDescriptor(from, key)) || desc.enumerable });
+    }
+    return to;
+}

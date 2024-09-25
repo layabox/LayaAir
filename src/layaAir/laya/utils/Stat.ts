@@ -89,6 +89,11 @@ export class Stat {
      */
     public static DepthCastDrawCall: StatUIParams = { title: "DepthCastDrawCall", value: "depthCastDrawCall", color: "white", units: "int", mode: "average" }
     /**
+    * @en TransformDrawCall
+    * @zh 透明物体渲染提交批次
+    */
+    public static ShadowDrawCall: StatUIParams = { title: "ShadowDrawCall", value: "shadowMapDrawCall", color: "white", units: "int", mode: "average" }
+    /**
      * @en InstanceDrawCall
      * @zh 实例绘制渲染提交批次
      */
@@ -133,7 +138,7 @@ export class Stat {
      * @zh 所有显示
      */
     public static AllShow: Array<StatUIParams> = [Stat.FPSStatUIParams, Stat.NodeStatUIParams, Stat.Sprite3DStatUIParams, Stat.DrawCall, Stat.TriangleFace, Stat.RenderNode, Stat.SkinRenderNode, Stat.ParticleRenderNode
-        , Stat.FrustumCulling, Stat.OpaqueDrawCall, Stat.TransDrawCall, Stat.DepthCastDrawCall, Stat.InstanceDrawCall, Stat.CMDDrawCall, Stat.BlitDrawCall, Stat.GPUMemory, Stat.TextureMemeory, Stat.RenderTextureMemory, Stat.BufferMemory, Stat.uploadUniformNum];
+        , Stat.FrustumCulling, Stat.OpaqueDrawCall, Stat.TransDrawCall, Stat.ShadowDrawCall, Stat.DepthCastDrawCall, Stat.InstanceDrawCall, Stat.CMDDrawCall, Stat.BlitDrawCall, Stat.GPUMemory, Stat.TextureMemeory, Stat.RenderTextureMemory, Stat.BufferMemory, Stat.uploadUniformNum];
     /**
      * @en Memory Show
      * @zh 内存显示
@@ -143,7 +148,7 @@ export class Stat {
      * @en Rendering Show
      * @zh 渲染显示
      */
-    public static renderShow: Array<StatUIParams> = [Stat.DrawCall, Stat.TriangleFace, Stat.OpaqueDrawCall, Stat.TransDrawCall, Stat.DepthCastDrawCall, Stat.InstanceDrawCall, Stat.CMDDrawCall, Stat.BlitDrawCall];
+    public static renderShow: Array<StatUIParams> = [Stat.DrawCall, Stat.TriangleFace, Stat.OpaqueDrawCall, Stat.TransDrawCall, Stat.ShadowDrawCall, Stat.DepthCastDrawCall, Stat.InstanceDrawCall, Stat.CMDDrawCall, Stat.BlitDrawCall];
     /**
      * @internal 
      * @en Enable/disable shadows
@@ -308,11 +313,18 @@ export class Stat {
     /**@internal */
     public static depthCastDrawCall: number = 0;
     /**@internal */
+    public static shadowMapDrawCall: number = 0;
+    /**@internal */
     public static instanceDrawCall: number = 0;
     /**@internal */
     public static cmdDrawCall: number = 0;
 
     public static blitDrawCall: number = 0;
+
+    public static renderPassStatArray: number[] = [];
+    //是否开启渲染流程统计，会将一些消耗较多的统计放入事件中,在最开始的时候设置最准确
+    public static enableRenderPassStatArray: boolean = false;
+
     /**
      * @en The cumulative memory of the resources managed by the resource manager, in bytes. 
      * @zh 资源管理器所管理资源的累计内存，以字节为单位。
@@ -565,6 +577,7 @@ export class Stat {
                 (Stat as any)[element.value] = 0;
         });
         LayaGL.renderEngine.clearStatisticsInfo();
+        Stat.renderPassStatArray.fill(0);
     }
 
     static render(ctx: any, x: number, y: number) {

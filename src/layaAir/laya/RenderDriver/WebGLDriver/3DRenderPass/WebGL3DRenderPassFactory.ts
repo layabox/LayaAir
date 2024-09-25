@@ -1,6 +1,7 @@
 import { Laya } from "../../../../Laya";
 import { Laya3DRender } from "../../../d3/RenderObjs/Laya3DRender";
 import { SceneRenderManagerOBJ } from "../../../d3/core/scene/SceneRenderManagerOBJ";
+import { Stat } from "../../../utils/Stat";
 import { IInstanceRenderBatch, IInstanceRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { I3DRenderPassFactory } from "../../DriverDesign/3DRenderPass/I3DRenderPassFactory";
 import { WebGLInstanceRenderBatch } from "./WebGLInstanceRenderBatch";
@@ -45,7 +46,12 @@ export class WebGL3DRenderPassFactory implements I3DRenderPassFactory {
         return new WebGLSkinRenderElement3D();
     }
     createRenderContext3D(): WebGLRenderContext3D {
-        return new WebGLRenderContext3D();
+        let context = new WebGLRenderContext3D();
+        if (Stat.enableRenderPassStatArray) {
+            context.drawRenderElementOne = context.drawRenderElementOne_StatUse;
+            context.drawRenderElementList = context.drawRenderElementList_StatUse;
+        }
+        return context;
     }
     createRenderElement3D(): WebGLRenderElement3D {
         return new WebGLRenderElement3D();

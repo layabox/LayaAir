@@ -1,3 +1,4 @@
+import { stat } from "fs";
 import { Laya } from "../../../../../Laya";
 import { Laya3DRender } from "../../../../d3/RenderObjs/Laya3DRender";
 import { Sprite3D } from "../../../../d3/core/Sprite3D";
@@ -5,6 +6,7 @@ import { Transform3D } from "../../../../d3/core/Transform3D";
 import { BoundsImpl } from "../../../../d3/math/BoundsImpl";
 import { LayaGL } from "../../../../layagl/LayaGL";
 import { Vector3 } from "../../../../maths/Vector3";
+import { Stat } from "../../../../utils/Stat";
 import { IPointLightData, ISimpleSkinRenderNode, ISkinRenderNode } from "../../Design/3D/I3DRenderModuleData";
 import { I3DRenderModuleFactory } from "../../Design/3D/I3DRenderModuleFactory";
 import { WebBaseRenderNode } from "./WebBaseRenderNode";
@@ -67,7 +69,12 @@ export class Web3DRenderModuleFactory implements I3DRenderModuleFactory {
 
 
   createBaseRenderNode(): WebBaseRenderNode {
-    return new WebBaseRenderNode();
+
+    let renderNode = new WebBaseRenderNode();
+    if (Stat.enableRenderPassStatArray) {
+      renderNode._renderUpdatePre = renderNode._renderUpdatePre_StatUse;
+    }
+    return renderNode;
   }
 
   createMeshRenderNode(): WebMeshRenderNode {
@@ -82,6 +89,7 @@ export class Web3DRenderModuleFactory implements I3DRenderModuleFactory {
 
 
 Laya.addBeforeInitCallback(() => {
-  if (!Laya3DRender.Render3DModuleDataFactory)
+  if (!Laya3DRender.Render3DModuleDataFactory) {
     Laya3DRender.Render3DModuleDataFactory = new Web3DRenderModuleFactory();
+  }
 })
