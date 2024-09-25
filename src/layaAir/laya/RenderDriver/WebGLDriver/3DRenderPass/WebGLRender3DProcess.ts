@@ -264,7 +264,6 @@ export class WebGLRender3DProcess implements IRender3DProcess {
      * @param cmds
      * @param context
      * @private
-     * @perfTag PerformanceDefine.T_Render_CameraEventCMD
      */
     private _rendercmd(cmds: CommandBuffer[], context: WebGLRenderContext3D) {
         if (!cmds || cmds.length == 0)
@@ -281,7 +280,6 @@ export class WebGLRender3DProcess implements IRender3DProcess {
      * @param postprocessCMD
      * @param context
      * @private
-     * @perfTag PerformanceDefine.T_Render_PostProcess
      */
     private _renderPostProcess(postprocessCMD: CommandBuffer, context: WebGLRenderContext3D) {
         context.runCMDList(postprocessCMD._renderCMDs);
