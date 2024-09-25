@@ -6,7 +6,9 @@ import "laya/ui/ModuleDef";
 import "laya/ani/ModuleDef";
 import "laya/spine/ModuleDef";
 import "laya/gltf/glTFLoader";
-import "laya/navigation/ModuleDef";
+import "laya/navigation/common/ModuleDef";
+import "laya/navigation/3D/ModuleDef";
+import "laya/navigation/2D/ModuleDef";
 
 import { Resource } from "laya/resource/Resource";
 import { Main } from "./Main";
@@ -14,6 +16,7 @@ import { LayaGL } from "laya/layagl/LayaGL";
 import { WebGLRenderEngineFactory } from "laya/RenderDriver/WebGLDriver/RenderDevice/WebGLRenderEngineFactory";
 import { Laya3D } from "Laya3D";
 import { btPhysicsCreateUtil } from "laya/Physics3D/Bullet/btPhysicsCreateUtil";
+import { Skeleton_SpineAdapted } from "./2d/Skeleton_SpineAdapted";
 
 Resource.DEBUG = true;
 LayaGL.renderOBJCreate = new WebGLRenderEngineFactory();
