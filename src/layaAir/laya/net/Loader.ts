@@ -119,6 +119,11 @@ export class Loader extends EventDispatcher {
     static TERRAINRES = "TERRAIN";
     /** Spine 资源 */
     static SPINE = "SPINE";
+    /** Loader ResourceTime */
+    static LoaderStat_LoadResourceTime: number;//资源下载+解析时间
+    static LoaderStat_LoaderResourceCount: number;//资源下载次数
+    static LoaderStat_LoadRequestCount: number;//网络文件请求次数
+    static LoaderStat_LoadRequestTime: number;//网络下载时间
 
     /** 加载出错后的重试次数，默认重试一次*/
     retryNum: number = 1;
@@ -182,6 +187,8 @@ export class Loader extends EventDispatcher {
     private _queue: Array<DownloadItem>;
     /**@private */
     private _downloadings: Set<DownloadItem>;
+
+    private _tempTime: number;
 
     /**
      * <p>创建一个新的 <code>Loader</code> 实例。</p>
@@ -412,7 +419,10 @@ export class Loader extends EventDispatcher {
         this._loadings.set(loadingKey, task);
 
         let promise: Promise<any>;
+
         try {
+            Loader.LoaderStat_LoaderResourceCount++;
+            this._tempTime = performance.now();
             promise = assetLoader.load(task);
         }
         catch (err: any) {
@@ -422,6 +432,7 @@ export class Loader extends EventDispatcher {
         }
 
         return promise.then(content => {
+            Loader.LoaderStat_LoadResourceTime += performance.now() - this._tempTime;
             if (content instanceof Resource) {
                 content._setCreateURL(url, uuid);
             }
@@ -520,6 +531,8 @@ export class Loader extends EventDispatcher {
 
     private download(item: DownloadItem) {
         this._downloadings.add(item);
+        Loader.LoaderStat_LoadRequestCount++;
+        item.startTime = performance.now();
         let url = URL.postFormatURL(item.url);
 
         if (item.contentType == "image") {
@@ -571,6 +584,7 @@ export class Loader extends EventDispatcher {
 
     private completeItem(item: DownloadItem, content: any, error?: string) {
         this._downloadings.delete(item);
+        Loader.LoaderStat_LoadRequestTime += performance.now() - item.startTime;
         if (content) {
             if (this._downloadings.size < this.maxLoader && this._queue.length > 0)
                 this.download(this._queue.shift());
@@ -1096,7 +1110,6 @@ class LoadTask implements ILoadTask {
     progress: BatchProgress;
     obsoluteInst: Resource;
     result: any;
-
     onProgress: Delegate;
     onComplete: Delegate;
 
@@ -1131,6 +1144,7 @@ interface DownloadItem {
     blob?: ArrayBuffer;
     retryCnt?: number;
     silent?: boolean;
+    startTime?: number;
     onComplete: (content: any) => void;
     onProgress: ProgressCallback;
 }
