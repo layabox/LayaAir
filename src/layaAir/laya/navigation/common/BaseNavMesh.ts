@@ -1,4 +1,3 @@
-import { Ray } from "../../d3/math/Ray";
 import { Vector3 } from "../../maths/Vector3";
 import { AreaMask } from "./AreaMask";
 import { NavMeshGrid } from "./NavMeshGrid";
@@ -11,9 +10,10 @@ import { NavTileCache } from "./NavTileData";
 import { BaseNavAgent } from "./component/BaseNavAgent";
 
 const CROW_MAX_FILTER: number = 16;
-
 const tempVec3 = new Vector3();
+
 /** 
+ * @internal
  * <code>BaseNavMesh</code> 类用于创建导航网格。
 */
 export class BaseNavMesh {
@@ -54,7 +54,7 @@ export class BaseNavMesh {
     protected _delayCreates: Map<number, BaseNavAgent[]>;
 
     /**@internal */
-    protected _allAgents: BaseNavAgent[];
+    protected _allAgents: Map<number, BaseNavAgent>;
 
     /**@internal */
     protected _fiterMap: Map<number, any>;
@@ -67,7 +67,8 @@ export class BaseNavMesh {
 
     /**
      * @internal
-     * get  bounds of mesh
+     * @en Find the nearest point's range
+     * @zh 寻找最近点的范围
      */
     get extents(): number[] {
         return this._extents;
@@ -75,6 +76,7 @@ export class BaseNavMesh {
 
     /**
      * @internal
+     * @en Get the navigation mesh
      */
     get navMesh() {
         return this._navMesh;
@@ -118,180 +120,9 @@ export class BaseNavMesh {
         this._titileConfig = new TitleConfig();
         this._navcreateedTileMaps = new Set<number>();
         this._delayCreates = new Map<number, BaseNavAgent[]>();
-        this._allAgents = [];
+        this._allAgents = new Map<number, BaseNavAgent>();
         this._fiterMap = new Map<number, any>();
-
         this._creatNavMesh();
-    }
-
-
-    /**
-     * add Agent
-     * @param agent 
-     */
-    addAgent(agent: BaseNavAgent) {
-        agent._getpos(tempVec3);
-        let tileIndex = this._grid.getTileIndexByPos(tempVec3.x, tempVec3.z);
-        if (this._navcreateedTileMaps.has(tileIndex)) {
-            this._createAgents(agent);
-        } else {
-            if (!this._delayCreates.has(tileIndex)) {
-                this._delayCreates.set(tileIndex, []);
-            }
-            this._delayCreates.get(tileIndex).push(agent);
-        }
-    }
-
-    /**
-     * remove agent
-     * @param agent 
-     */
-    removeAgent(agent: BaseNavAgent) {
-        if (agent._agentId == null) {
-            agent._getpos(tempVec3);
-            let tileIndex = this._grid.getTileIndexByPos(tempVec3.x, tempVec3.z);
-            if (this._delayCreates.has(tileIndex)) {
-                let lists = this._delayCreates.get(tileIndex);
-                let index = lists.indexOf(agent);
-                if (index >= 0) {
-                    lists.splice(index, 1);
-                }
-            }
-        } else {
-            this._crowd.removeAgent(agent._agentId);
-            let index = this._allAgents.indexOf(agent);
-            if (index >= 0) {
-                this._allAgents.splice(index, 1);
-            }
-            agent._agentId = null;
-            agent._crowAgent = null;
-        }
-
-    }
-
-    /**
-     * rayCast navMesh
-     * @param ray 
-     * @param outPos 
-     * @returns 
-     */
-    raycastNavMesh(ray: Ray, outPos: Vector3): boolean {
-        return false;
-    }
-
-
-    /**
-     * 获得当前点的Flag
-     * @param pos 世界坐标
-     * @param fiter 
-     * @return area
-     */
-    getPolyFlags(pos: Vector3, fiter: any = null): number {
-        const posRef = this.findNearestPoly(pos, fiter);
-        return this._navMesh.getPolyFlags(posRef.polyRef);
-    }
-
-    /**
-     * 获得当前点的AreaFlag
-     * @param pos 世界坐标
-     * @param fiter 
-     * @return area
-     */
-    getPolyArea(pos: Vector3, fiter: any = null): number {
-        const posRef = this.findNearestPoly(pos, fiter);
-        return this._navMesh.getPolyArea(posRef.polyRef);
-    }
-
-    /**
-     * 查找最近点
-     * @param pos 世界坐标
-     * @param fiter 
-     */
-    findNearestPoly(pos: Vector3, fiter: any = null): any {
-        if (!fiter) fiter = this._defatfilter;
-        return this._navQuery.findNearestPoly(pos.toArray(), this.extents, fiter);
-    }
-
-    /**
-     * @param agent 
-     * @param fllowPaths 
-     * @returns 
-     */
-    findFllowPath(agent: BaseNavAgent, fllowPaths: NavigationPathData[]): boolean {
-        agent._getpos(tempVec3);
-        let tileIndex = this._grid.getTileIndexByPos(tempVec3.x, tempVec3.z);
-        if (this._navcreateedTileMaps.has(tileIndex)) {
-            agent._getpos(tempVec3);
-            NavigationUtils.findFllowPath(this, agent._filter, tempVec3, agent._targetPos, agent.speed * 0.1, 0.01, fllowPaths);
-            return true;
-        } else {
-            return false;
-        }
-    }
-    /**
-     * @param agent 
-     * @param fllowPaths 
-     * @returns {dist:number,pos:Array<number>(3),normal:Array<number>(3)}
-     */
-    findDistanceToWall(agent: BaseNavAgent): { dist: number, pos: Array<number>, normal: Array<number> } {
-        let filter = agent._filter;
-        agent._getpos(tempVec3);
-        let posref = this._navQuery.findNearestPoly(tempVec3.toArray(), this.extents, filter);
-        let data = this._navQuery.findDistanceToWall(posref, filter, 100);
-        if (NavigationUtils.statusSucceed(data.Status))
-            return data;
-        else
-            return null;
-    }
-
-    /**
-     * @param agent 
-     * @returns 
-     */
-    requestMoveTarget(agent: BaseNavAgent, destination: Vector3): boolean {
-        agent._getpos(tempVec3);
-        let tileIndex = this._grid.getTileIndexByPos(tempVec3.x, tempVec3.z);
-        if (this._navcreateedTileMaps.has(tileIndex)) {
-            let refPoint = this._navQuery.findNearestPoly(destination.toArray(), this._extents, agent._filter);
-            this.crowd.requestMoveTarget(agent._agentId, refPoint);
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-
-    /**
-     * create a navMesh and navQuery
-     * @internal
-     */
-    _creatNavMesh() {
-        this._navMesh = NavigationUtils.createNavMesh();
-        this._navQuery = NavigationUtils.createNavMeshQuery();
-        this._crowd = NavigationUtils.createCrowd();
-        this._navMeshLink = NavigationUtils.createMeshOffLink();
-        this._navConvexVolume = NavigationUtils.createConvexVolume();
-        let surface = this._surface;
-        let manager = surface._manager;
-        for (var i = 0; i < CROW_MAX_FILTER; i++) {
-            manager.setFilterCost(this._crowd.getFilter(i));
-        }
-        this._getFilter(manager._deflatAllMask);
-        this._navConvexVolume.setIs3D(this._is3D);
-    }
-
-    /**
-     * init navMesh
-     *  @internal
-     */
-    _navMeshInit() {
-        let config = this._grid.config;
-        let min = this._grid.min;
-        let max = this._grid.max;
-        this._navMesh.init(min.toArray(), max.toArray(), config.cellSize, config.tileSize);
-
-        this._navQuery.init(this._navMesh, 2048);
-        this._crowd.init(this._maxAgents, config.agentRadius, this.navMesh);
     }
 
     /**
@@ -317,26 +148,12 @@ export class BaseNavMesh {
     }
 
     /**
-     * @internal
-     * @param dt 
-     */
-    _updateNavMesh(dt: number) {
-        let datas: Float32Array = NavigationUtils.updateCrowd(this._crowd, dt);
-        this._allAgents.forEach((agent, index) => {
-            let off = agent._agentId * 6;
-            let pos = [datas[off], datas[off + 1], datas[off + 2]];
-            let vel = [datas[off + 3], datas[off + 4], datas[off + 5]];
-            agent._updateNavMesh(pos, vel);
-        });
-    }
-
-    /**
      * create agent
      * @param agent 
      */
     protected _createAgents(agent: BaseNavAgent) {
         agent._filter = this._getFilter(agent._areaMask)
-        let params = NavigationUtils.getCrowdAgentParams();
+        let params = NavigationUtils._getCrowdAgentParams();
         params.radius = agent._getradius();
         params.collisionQueryRange = agent._getcollisionQueryRange();
         params.pathOptimizationRange = agent._getpathOptimizationRange();
@@ -351,20 +168,217 @@ export class BaseNavMesh {
         let refPoint = this._navQuery.findNearestPoly(tempVec3.toArray(), this._extents, agent._filter);
         agent._agentId = this._crowd.addAgent(refPoint.data, params);
         agent._crowAgent = this._crowd.getAgent(agent._agentId);
-        this._allAgents.push(agent);
+        this._allAgents.set(agent._agentId, agent);
+    }
+
+    /**
+     * add Agent
+     * @internal
+     * @param agent 
+     */
+    _addAgent(agent: BaseNavAgent) {
+        agent._getpos(tempVec3);
+        let tileIndex = this._grid.getTileIndexByPos(tempVec3.x, tempVec3.z);
+        if (this._navcreateedTileMaps.has(tileIndex)) {
+            this._createAgents(agent);
+        } else {
+            if (!this._delayCreates.has(tileIndex)) {
+                this._delayCreates.set(tileIndex, []);
+            }
+            this._delayCreates.get(tileIndex).push(agent);
+        }
+    }
+
+    /**
+     * remove agent
+     * @internal
+     * @param agent 
+     */
+    _removeAgent(agent: BaseNavAgent) {
+        if (agent._agentId == null) {
+            agent._getpos(tempVec3);
+            let tileIndex = this._grid.getTileIndexByPos(tempVec3.x, tempVec3.z);
+            if (this._delayCreates.has(tileIndex)) {
+                let lists = this._delayCreates.get(tileIndex);
+                let index = lists.indexOf(agent);
+                if (index >= 0) {
+                    lists.splice(index, 1);
+                }
+            }
+        } else {
+            this._crowd.removeAgent(agent._agentId);
+            this._allAgents.delete(agent._agentId);
+            agent._agentId = null;
+            agent._crowAgent = null;
+        }
+
     }
 
     /**
      * @internal
-     * @param index
+     * @en Get the current point's Flag
+     * @zh 获得当前点的Flag
+     * @param pos 世界坐标
+     * @param fiter 
+     * @return flag
+     */
+    _getPolyFlags(pos: Vector3, fiter: any = null): number {
+        const polyRef = this._findNearestPoly(pos, fiter, tempVec3);
+        return this._navMesh.getPolyFlags(polyRef);
+    }
+
+    /**
+     * @internal
+     * @en Get the current point's Area
+     * @zh 获得当前点的Area
+     * @param pos 世界坐标
+     * @param fiter 
+     * @return area
+     */
+    _getPolyArea(pos: Vector3, fiter: any = null): number {
+        const polyRef = this._findNearestPoly(pos, fiter, tempVec3);
+        return this._navMesh.getPolyArea(polyRef);
+    }
+
+    /**
+     * @internal
+     * @en Find the nearest point
+     * @zh 查找最近点
+     * @param pos 世界坐标
+     * @param fiter 
+     * @param out 返回世界坐标
+     * @return polyRef
+     */
+    _findNearestPoly(pos: Vector3, fiter: any = null, out: Vector3): number {
+        if (!fiter) fiter = this._defatfilter;
+        let poly = this._navQuery.findNearestPoly(pos.toArray(), this.extents, fiter);
+        out.fromArray(poly.data);
+        return poly.polyRef;
+    }
+
+    /**
+     * @internal
+     * @en Find the Path from start to end
+     * @param agent 
+     * @param fllowPaths 
      * @returns 
      */
-    _addNavMeshLink(index: number, start: Vector3, end: Vector3, width: number, bidirectional: boolean, areaType: number): void {
-        this._navMeshLink.addOffMeshConnection(index, start.toArray(), end.toArray(), width, bidirectional ? 1 : 0, areaType);
+    _findFllowPath(fllowPaths: NavigationPathData[], startPos: Vector3, endPos: Vector3, speed: number, filter: any = null): boolean {
+        if (!filter) filter = this._defatfilter;
+        let tileIndex = this._grid.getTileIndexByPos(startPos.x, startPos.z);
+        if (this._navcreateedTileMaps.has(tileIndex)) {
+            NavigationUtils._findFllowPath(this, filter, startPos, endPos, speed * 0.1, 0.01, fllowPaths);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
      * @internal
+     * @en Find the distance to the wall
+     * @zh 查找到墙的距离
+     * @param pos:Vector3 
+     * @param filter
+     * @returns {dist:number,pos:Array<number>(3),normal:Array<number>(3)}
+     */
+    _findDistanceToWall(pos: Vector3, filter: any = null): { dist: number, pos: Array<number>, normal: Array<number> } {
+        if (!filter) filter = this._defatfilter;
+        let posref = this._navQuery.findNearestPoly(pos.toArray(), this.extents, filter);
+        let data = this._navQuery.findDistanceToWall(posref, filter, 100);
+        if (NavigationUtils._statusSucceed(data.Status))
+            return data;
+        else
+            return null;
+    }
+
+    /**
+     * @internal
+     * @param agent 
+     * @returns 
+     */
+    _requestMoveTarget(agent: BaseNavAgent, destination: Vector3): boolean {
+        agent._getpos(tempVec3);
+        let tileIndex = this._grid.getTileIndexByPos(tempVec3.x, tempVec3.z);
+        if (this._navcreateedTileMaps.has(tileIndex)) {
+            let refPoint = this._navQuery.findNearestPoly(destination.toArray(), this._extents, agent._filter);
+            this.crowd.requestMoveTarget(agent._agentId, refPoint);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * @internal
+     * @en create a navMesh and navQuery
+     */
+    _creatNavMesh() {
+        this._navMesh = NavigationUtils._createNavMesh();
+        this._navQuery = NavigationUtils._createNavMeshQuery();
+        this._crowd = NavigationUtils._createCrowd();
+        this._navMeshLink = NavigationUtils._createMeshOffLink();
+        this._navConvexVolume = NavigationUtils._createConvexVolume();
+        let surface = this._surface;
+        let manager = surface._manager;
+        for (var i = 0; i < CROW_MAX_FILTER; i++) {
+            manager.setFilterCost(this._crowd.getFilter(i));
+        }
+        this._defatfilter = this._getFilter(manager._deflatAllMask);
+        this._navConvexVolume.setIs3D(this._is3D);
+    }
+
+    /**
+     * @internal
+     * @en init the navMesh
+     * @zh 初始化导航网格
+     */
+    _navMeshInit() {
+        let config = this._grid.config;
+        let min = this._grid.min;
+        let max = this._grid.max;
+        this._navMesh.init(min.toArray(), max.toArray(), config.cellSize, config.tileSize);
+
+        this._navQuery.init(this._navMesh, 2048);
+        this._crowd.init(this._maxAgents, config.agentRadius, this.navMesh);
+    }
+
+    /**
+     * @internal
+     * @en The heartbeat of pathfinding, updating the navigation mesh, synchronizing the agent's position, orientation
+     * @zh 寻路的心跳，更新导航网格,同步agent的位置,朝向
+     * @param dt (秒)
+     */
+    _updateNavMesh(dt: number) {
+        let datas: Float32Array = NavigationUtils._updateCrowd(this._crowd, dt);
+        this._allAgents.forEach((agent, index) => {
+            let off = agent._agentId * 6;
+            let pos = [datas[off], datas[off + 1], datas[off + 2]];
+            let vel = [datas[off + 3], datas[off + 4], datas[off + 5]];
+            agent._updateNavMesh(pos, vel);
+        });
+    }
+
+    /**
+     * @internal
+     * @en add a navigation grid link
+     * @zh 添加一个导航网格链接
+     * @param index
+     * @param start
+     * @param end
+     * @param width
+     * @param bidirectional
+     * @param areaFlag
+     * @returns 
+     */
+    _addNavMeshLink(index: number, start: Vector3, end: Vector3, width: number, bidirectional: boolean, areaFlag: number): void {
+        this._navMeshLink.addOffMeshConnection(index, start.toArray(), end.toArray(), width, bidirectional ? 1 : 0, areaFlag);
+    }
+
+    /**
+     * @internal
+     * @en remove a navigation grid link
+     * @zh 删除一个导航网格链接
      * @param linkid 
      */
     _removeNavMeshLink(index: number): void {
@@ -373,33 +387,30 @@ export class BaseNavMesh {
 
     /**
      * @internal
+     * @en add a convexVolume
+     * @zh 添加一个凸体
      */
-    _updateCovexVoume(index: number, buffer: Float32Array, miny: number, maxy: number, areaType: number): boolean {
+    _updateConvexVolume(index: number, buffer: Float32Array, miny: number, maxy: number, areaType: number): boolean {
         this._navConvexVolume.addCovexVoume(index, buffer, miny, maxy, areaType);
         return true;
     }
 
     /**
      * @internal
+     * @en remove a convexVolume
+     * @zh 删除一个凸体
+     * @param index 
      */
-    _updataCoverVolumeTransform(index: number, transfrom: Float32Array): boolean {
-        this._navConvexVolume.addTransform(index, transfrom);
-        return true;
-    }
-
-    /**
-     * @internal
-     * @param linkid 
-     */
-    _deleteCovexVoume(index: number): boolean {
+    _deleteConvexVoume(index: number): boolean {
         if (index < 0) return false;
         this._navConvexVolume.deleteCovexVoume(index);
         return true;
     }
 
     /**
-     * add a tile
      * @internal
+     * @en add a tile
+     * @zh 添加一个tile
      * @param cellX 
      * @param cellY 
      * @param binds
@@ -409,12 +420,12 @@ export class BaseNavMesh {
         if (binds.length <= 0) return;
         const config = this._grid.config;
         this._titileConfig.partitionType = partitionType;
-        this._titileConfig.setAgent(config.agentHeight, config.agentRadius, config.agentMaxClimb);
-        this._titileConfig.setOff(cache.x, cache.y);
-        this._titileConfig.setMin(cache.boundMin);
-        this._titileConfig.setMax(cache.boundMax);
+        this._titileConfig._setAgent(config.agentHeight, config.agentRadius, config.agentMaxClimb);
+        this._titileConfig._setOff(cache.x, cache.y);
+        this._titileConfig._setMin(cache.boundMin);
+        this._titileConfig._setMax(cache.boundMax);
         this._titileConfig.maxSimplificationError = maxSimplificationError;
-        this.removeTile(cache.x, cache.y);
+        this._removeTile(cache.x, cache.y);
         let ptrs: number[] = [];
         binds.forEach((value) => {
             ptrs.push(value.$$.ptr);
@@ -432,51 +443,53 @@ export class BaseNavMesh {
     }
 
     /**
-     * remove a tile
      * @internals
+     * @en remove a tile
+     * @zh 删除一个tile
      * @param cellX 
      * @param cellY 
      */
-    removeTile(tileX: number, tileY: number) {
+    _removeTile(tileX: number, tileY: number) {
         this._navMesh.removeTile(tileX, tileY);
         this._navcreateedTileMaps.delete(this._grid.getTileIndex(tileX, tileY));
     }
 
-    clearn() {
+    /**@internal */
+    _clearn() {
         this._allAgents.forEach((agent) => {
-            this.removeAgent(agent);
+            this._removeAgent(agent);
         });
-        this._allAgents.length = 0;
+        this._allAgents.clear();
     }
 
 
     /**
      * @internal
      */
-    destroy(): void {
+    _destroy(): void {
 
         if (this._navMesh) {
-            NavigationUtils.freeNavMesh(this._navMesh);
+            NavigationUtils._freeNavMesh(this._navMesh);
             this._navMesh = null;
         }
 
         if (this._navQuery) {
-            NavigationUtils.freeNavMeshQuery(this._navQuery);
+            NavigationUtils._freeNavMeshQuery(this._navQuery);
             this._navQuery = null;
         }
 
         if (this._navMeshLink) {
-            NavigationUtils.free(this._navMeshLink);
+            NavigationUtils._free(this._navMeshLink);
             this._navMeshLink = null;
         }
 
         if (this._navConvexVolume) {
-            NavigationUtils.free(this._navConvexVolume);
+            NavigationUtils._free(this._navConvexVolume);
             this._navConvexVolume = null;
         }
 
         if (this._crowd) {
-            NavigationUtils.freeCrowd(this._crowd);
+            NavigationUtils._freeCrowd(this._crowd);
             this._crowd = null;
         }
     }

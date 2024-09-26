@@ -13,7 +13,8 @@ import { BaseNav3DModifle } from "./BaseNav3DModifle";
 
 
 /**
- * <code>NavMeshObstacles</code> 常用形状。
+ * @en NavMeshObstacles Common shapes for navigation mesh obstacles.
+ * @zh NavMeshObstacles 常用的导航网格障碍物形状。
  */
 export class NavMeshObstacles extends BaseNav3DModifle {
 
@@ -44,6 +45,12 @@ export class NavMeshObstacles extends BaseNav3DModifle {
     /**@internal load*/
     _oriTiles: NavTileData;
 
+    /**
+     * @en The mesh type of the obstacle.
+     * @param value The mesh type to set.
+     * @zh 障碍物的网格类型。
+     * @param value 障碍物的网格类型。
+     */
     set meshType(value: NavObstaclesMeshType) {
         if (this._meshType == value)
             return;
@@ -57,7 +64,10 @@ export class NavMeshObstacles extends BaseNav3DModifle {
     }
 
     /**
-     * 中心偏移
+     * @en The center offset of the obstacle.
+     * @param value The center offset vector to set.
+     * @zh 障碍物的中心偏移。
+     * @param value 障碍物的中心偏移向量。
      */
     set center(value: Vector3) {
         value.cloneTo(this._center);
@@ -69,7 +79,10 @@ export class NavMeshObstacles extends BaseNav3DModifle {
     }
 
     /**
-     * box size
+     * @en The size of the box obstacle.
+     * @param value The size vector to set.
+     * @zh 盒型障碍物的大小。
+     * @param value 盒型障碍物的大小向量。
      */
     set size(value: Vector3) {
         value.cloneTo(this.size);
@@ -83,7 +96,10 @@ export class NavMeshObstacles extends BaseNav3DModifle {
     }
 
     /**
-     * 圆柱高
+     * @en The height of the cylinder obstacle.
+     * @param value The height to set.
+     * @zh 圆柱体的圆柱高度。
+     * @param value  圆柱体障碍物的高度。
      */
     set height(value: number) {
         this._height = value;
@@ -97,7 +113,10 @@ export class NavMeshObstacles extends BaseNav3DModifle {
     }
 
     /**
-     * 圆柱半径
+     * @en Set the radius of the cylinder obstacle.
+     * @param value The radius to set.
+     * @zh 设置圆柱体障碍物的圆柱半径。
+     * @param value 圆柱体障碍物的圆柱半径。
      */
     set radius(value: number) {
         this._radius = value;
@@ -112,7 +131,10 @@ export class NavMeshObstacles extends BaseNav3DModifle {
 
     
     /**
-     * obstracle resource 
+     * @en Sets the baked navigation data.
+     * @param value The TextResource containing the navigation data.
+     * @zh 设置获取烘焙的导航数据。
+     * @param value 包含导航数据的 TextResource。
      */
     set datas(value: TextResource) {
         if(this._oriTiles){
@@ -139,7 +161,6 @@ export class NavMeshObstacles extends BaseNav3DModifle {
 
     /**@internal */
     protected _onEnable(): void {
-        // this._dtNavTileCache.init(BaseNavigationManager.getNavMeshData(this._meshType).bindData);
         this._changeData();
         super._onEnable();
         let min = this._modifierData._min;
@@ -164,7 +185,7 @@ export class NavMeshObstacles extends BaseNav3DModifle {
         if(data.datas == null) return;
         let boundmin = data.datas._boundMin;
         let boundmax = data.datas._boundMax;
-        NavigationUtils.transfromBoundBox(boundmin,boundmax,this._modifierData._transfrom,min,max);
+        NavigationUtils._transfromBoundBox(boundmin,boundmax,this._modifierData._transfrom,min,max);
         this._modifierData._refeahTransfrom();
     }
 
@@ -174,10 +195,10 @@ export class NavMeshObstacles extends BaseNav3DModifle {
         let modiferData = this._modifierData as NavModifleData;
         switch (this._meshType) {
             case NavObstaclesMeshType.BOX:
-                modiferData.datas = NavigationManager.getObstacleData(NavObstaclesMeshType.BOX);
+                modiferData.datas = NavigationManager._getObstacleData(NavObstaclesMeshType.BOX);
                 break;
             case NavObstaclesMeshType.CYLINDER:
-                modiferData.datas = NavigationManager.getObstacleData(NavObstaclesMeshType.CYLINDER);
+                modiferData.datas = NavigationManager._getObstacleData(NavObstaclesMeshType.CYLINDER);
                 break;
             case NavObstaclesMeshType.CUSTOMER:
                 if(this._oriTiles){

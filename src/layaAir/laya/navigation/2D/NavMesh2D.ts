@@ -12,11 +12,11 @@ export class NavMesh2D extends BaseNavMesh {
 
     constructor(config: RecastConfig, min:Vector3,max:Vector3, surface:NavMesh2DSurface) {
         super(config,min,max,surface,false);
-        this._titileConfig.setMaxEdgeLen(1000);
+        this._titileConfig._setMaxEdgeLen(1000);
     }
 
     /**
-     * @overload
+     * @internal
      * @param cache 
      * @param binds 
      * @param partitionType 
@@ -29,7 +29,7 @@ export class NavMesh2D extends BaseNavMesh {
         config.agentMaxClimb = 0.3;
         super._addTile(cache,binds,partitionType,maxSimplificationError);
         if (this._debugMesh) {
-            Navgiation2DUtils.createDebugMesh(this, this._debugMesh,true);
+            Navgiation2DUtils._createDebugMesh(this, this._debugMesh,true);
         }
     }
 
@@ -39,7 +39,7 @@ export class NavMesh2D extends BaseNavMesh {
     */
     buildDebugMesh() {
         if(this._debugMesh == null){
-            this._debugMesh = Navgiation2DUtils.createDebugMesh(this, this._debugMesh,true);
+            this._debugMesh = Navgiation2DUtils._createDebugMesh(this, this._debugMesh,true);
         }
         return this._debugMesh;
     }

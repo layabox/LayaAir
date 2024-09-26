@@ -285,9 +285,22 @@ const packsDef = [{
     ],
 },
 {
-    'libName': "navMesh",
+    'libName': "navMeshCommon",
     'input': [
-        './layaAir/laya/navigation/**/**.ts'
+        './layaAir/laya/navigation/common/**/**.ts'
+    ],
+},
+{
+    'libName': "navMesh3d",
+    'input': [
+        './layaAir/laya/navigation/3D/**/**.ts'
+    ],
+},
+
+{
+    'libName': "navMesh2d",
+    'input': [
+        './layaAir/laya/navigation/2D/**/**.ts'
     ],
 },
 ];
@@ -486,7 +499,7 @@ gulp.task("copyJsLibs", async () => {
         './src/layaAir/jsLibs/spine.wasm_3.8.wasm',
         './src/layaAir/jsLibs/naga_wasm_bg.wasm',
 
-        '!./src/layaAir/jsLibs/{laya.Box2D.js,cannon.js,bullet.js,physx.release.js,laya.Box2D.wasm.js,bullet.wasm.js,physx.wasm.js,recast-navigation.js,recast-navigation-wasm.js}'
+        '!./src/layaAir/jsLibs/{laya.Box2D.js,cannon.js,bullet.js,physx.release.js,laya.Box2D.wasm.js,bullet.wasm.js,physx.wasm.js,recast-navigation-wasm.js}'
     ])
         .pipe(gulp.dest('./build/libs'));
 });
@@ -537,21 +550,37 @@ gulp.task('buildPhysXWASMPhysics', () => {
         .pipe(gulp.dest('./build/libs/'));
 });
 
-gulp.task('buildNavMesh_wasm', () => {
+
+gulp.task('buildNavMeshCommon_wasm', () => {
     return gulp.src([
         './src/layaAir/jsLibs/recast-navigation-wasm.js',
-        './build/libs/laya.navMesh.js',
-    ]).pipe(concat('laya.navMesh_wasm.js'))
+        './build/libs/laya.navMeshCommon.js',
+    ]).pipe(concat('laya.navMeshCommon_wasm.js'))
         .pipe(gulp.dest('./build/libs/'));
 });
 
-gulp.task('buildNavMesh', () => {
+gulp.task('buildNavMeshCommon', () => {
     return gulp.src([
         './src/layaAir/jsLibs/recast-navigation.js',
-        './build/libs/laya.navMesh.js',
-    ]).pipe(concat('laya.navMesh.js'))
+        './build/libs/laya.navMeshCommon.js',
+    ]).pipe(concat('laya.navMeshCommon.js'))
         .pipe(gulp.dest('./build/libs/'));
 });
+// gulp.task('buildNavMesh3d', () => {
+//     return gulp.src([
+//         './src/layaAir/jsLibs/recast-navigation.js',
+//         './build/libs/laya.navMesh3d.js',
+//     ]).pipe(concat('laya.navMesh3d.js'))
+//         .pipe(gulp.dest('./build/libs/'));
+// });
+
+// gulp.task('buildNavMesh2d', () => {
+//     return gulp.src([
+//         './src/layaAir/jsLibs/recast-navigation.js',
+//         './build/libs/laya.navMesh2d.js',
+//     ]).pipe(concat('laya.navMesh2d.js'))
+//         .pipe(gulp.dest('./build/libs/'));
+// });
 
 //合并physX物理引擎库 和 编译出来的physics.physX.js
 gulp.task('buildPhysXPhysics', () => {
@@ -745,8 +774,8 @@ gulp.task('build',
         'buildBulletPhysics',
         'buildPhysXWASMPhysics',
         'buildPhysXPhysics',
-        'buildNavMesh_wasm',
-        'buildNavMesh',
+        'buildNavMeshCommon_wasm',
+        'buildNavMeshCommon',
         'genDts',
     ));
 
@@ -755,7 +784,6 @@ gulp.task('build',
 /**
  * 主要用来给laya库加上所有的Laya.xx=xx
  * 主要用在
- *  1. 分包的时候统计laya文件
  *  2. 打包的时候导出Laya
  * addLayaExpAt:string 打包的最后会替换这个字符串，加上Laya.xx=xx
  * layaPath:laya所在目录。这个目录下的是laya文件，可以用来收集laya文件或者判断需要导出的类

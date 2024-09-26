@@ -12,20 +12,64 @@ import { NavMeshLinkData } from "../data/NavMeshLinkData";
 
 const tempVector3 = new Vector3();
 const tempVector31 = new Vector3();
+
 /**
- * 类用来实例化一个寻路代理
+ * @en Class used to instantiate a navigation agent
+ * @zh 类用来实例化一个寻路代理
  */
 export class BaseNavAgent extends Component {
-   
+
+    /**@internal */
+    private _targetPos: Vector3 = new Vector3();
 
     /**@internal */
     protected _agentType: string = NavigationConfig.defaltAgentName;
+
+    /**@internal */
+    protected _currentNaveSurface: BaseNavMeshSurface;
+
+    /**@internal 速度*/
+    protected _speed: number = 3.5;
+
+    /**@internal 加速度*/
+    protected _maxAcceleration: number = 10;
+
+    /**@internal */
+    protected _angularSpeed: number = 120;
+
+    /**@internal TODO*/
+    protected _stopDistance: number;
+
+    /**@internal TODO*/
+    protected _Acceleration: number;
+
+    /**@internal TODO*/
+    protected _autoBraking: boolean;
+
+    /**@internal */
+    protected _radius: number = 0.5;
+
+    /**@internal */
+    protected _height: number = 2;
+
+    /**@internal */
+    protected _quality: ObstacleAvoidanceType = ObstacleAvoidanceType.MedQuality;
+
+    /**@internal */
+    protected _priority: number = 0;
+
+    /**@internal */
+    protected _fllowPath: NavigationPathData[];
+
+    /**@internal */
+    protected _baseOffset: number = 1;
+
     /**@internal */
     _navManager: BaseNavigationManager;
 
-    _navAgentLinkAnim: NavAgentLinkAnim;
     /**@internal */
-    protected _currentNaveSurface: BaseNavMeshSurface;
+    _navAgentLinkAnim: NavAgentLinkAnim;
+
     /**@internal */
     _crowAgent: any;
     /**@internal */
@@ -36,39 +80,12 @@ export class BaseNavAgent extends Component {
     _filter: any;
     /**@internal */
     _curentSpeed: Vector3;
-    //move
-    /**@internal 速度*/
-    protected _speed: number = 3.5;
-    /**@internal 加速度*/
-    protected _maxAcceleration: number = 10;
-    /**@internal */
-    protected _angularSpeed: number = 120;
-    /**@internal TODO*/
-    protected _stopDistance: number;
-    /**@internal TODO*/
-    protected _Acceleration: number;
-    /**@internal TODO*/
-    protected _autoBraking: boolean;
-    //obstacles TODO
-    /**@internal */
-    protected _radius: number = 0.5;
-    /**@internal */
-    protected _height: number = 2;
-    /**@internal */
-    protected _quality: ObstacleAvoidanceType = ObstacleAvoidanceType.MedQuality;
-    /**@internal */
-    protected _priority: number = 0;
-    /**@internal */
-    _targetPos: Vector3 = new Vector3();
-    /**@internal */
-    protected _fllowPath: NavigationPathData[];
-    /**@internal */
-    protected _baseOffset: number = 1;
 
     /**
-     * 半径
+     * @en Radius of the agent.
+     * @zh 代理的半径。
      */
-    set radius(value: number) {
+    public set radius(value: number) {
         this._radius = value;
         if (this._crowAgent) {
             let params = this._crowAgent.getparams();
@@ -79,28 +96,30 @@ export class BaseNavAgent extends Component {
         }
     }
 
-    get radius() {
+    public get radius() {
         return this._radius;
     }
 
     /**
-     * 高度
+     * @en Height of the agent.
+     * @zh 代理的高度。
      */
-    set height(value: number) {
+    public set height(value: number) {
         this._height = value;
         if (this._crowAgent) {
             this._crowAgent.getparams().height = this._getheight();
         }
     }
 
-    get height() {
+    public get height() {
         return this._height;
     }
 
     /**
-     * 移动速度
+     * @en Movement speed of the agent.
+     * @zh 代理的移动速度。
      */
-    set speed(value: number) {
+    public set speed(value: number) {
         this._speed = value;
         if (this._crowAgent) {
             this._crowAgent.getparams().maxSpeed = this._speed;
@@ -112,8 +131,9 @@ export class BaseNavAgent extends Component {
     }
 
     /**
-    * 加速度
-    */
+     * @en Maximum acceleration of the agent.
+     * @zh 代理的最大加速度。
+     */
     set maxAcceleration(value: number) {
         this._maxAcceleration = value;
         if (this._crowAgent) {
@@ -126,7 +146,8 @@ export class BaseNavAgent extends Component {
     }
 
     /**
-     * 转身速度
+     * @en Angular speed of the agent.
+     * @zh 代理的转身速度。
      */
     set angularSpeed(value: number) {
         this._angularSpeed = value;
@@ -136,9 +157,10 @@ export class BaseNavAgent extends Component {
         return this._angularSpeed;
     }
 
-  
+
     /**
-     * 	规避品质级别
+     * @en Obstacle avoidance quality level.
+     * @zh 障碍物规避品质级别。
      */
     set quality(value: ObstacleAvoidanceType) {
         if (this._quality == value) return;
@@ -155,7 +177,8 @@ export class BaseNavAgent extends Component {
     }
 
     /**
-     * 规避优先级别
+     * @en Avoidance priority level.
+     * @zh 规避优先级别。
      */
     set priority(value: number) {
         if (this._priority == value) return;
@@ -172,20 +195,115 @@ export class BaseNavAgent extends Component {
     }
 
     /**
-     * 否绑定到导航网格
+     * @en Whether the agent is bound to a navigation mesh.
+     * @zh 代理是否绑定到导航网格。
      */
     get isOnNavMesh(): boolean {
         return this._crowAgent != null;
     }
 
     /**
-     * 当前是否位于 OffMeshLink 上
+     * @en Whether the agent is currently on an OffMeshLink.
+     * @zh 代理当前是否位于 OffMeshLink 上。
      */
     get isOnOffMeshLink(): boolean {
-        if (!this.isOnNavMesh) return false;
+        if (!this.isOnNavMesh) return this._navAgentLinkAnim._active;
         return this._crowAgent.state == CrowdAgentState.DT_CROWDAGENT_STATE_OFFMESH;
     }
 
+    /**
+     * @en Set the agent type.
+     * @param value The agent type.
+     * @zh 设置代理类型。
+     * @param value 代理类型。
+     */
+    set agentType(value: string) {
+        if (value == this._agentType) return;
+        this._agentType = value;
+        if (this._crowAgent) {
+            this._removeAgent();
+            this._addAgent();
+        }
+    }
+
+    get agentType() {
+        return this._agentType;
+    }
+
+    /**
+     * @en Set the area mask for the agent.
+     * @zh 设置代理的区域掩码。
+     */
+    set areaMask(value: number) {
+        this._areaMask.flag = value
+    }
+
+    get areaMask(): number {
+        return this._areaMask.flag;
+    }
+
+
+    /**
+     * 创建一个 <code>NavAgent</code> 实例。
+     */
+    constructor() {
+        super();
+        this._navAgentLinkAnim = new NavAgentLinkAnim();
+        this._areaMask = new AreaMask();
+        this._curentSpeed = new Vector3();
+    }
+
+    /**
+     * 由系统调用
+     */
+    onUpdate() {
+        if (this._crowAgent != null) return;
+        if (!this._navAgentLinkAnim._active) return;
+        let position = tempVector3;
+        let dir = tempVector31;
+        this._navAgentLinkAnim._update(position, dir);
+        if (this._navAgentLinkAnim._nearerEndPos(position)) {
+            this._addAgent();
+            this._navAgentLinkAnim._clearn();
+            this._setTarget(this._targetPos);
+        }
+        this._updatePosition(position, dir);
+    }
+
+    /**
+     * @en Whether the agent has stopped moving.
+     * @zh 代理是否已停止移动。
+     */
+    isStop(): boolean {
+        return MathUtils3D.isZero(this._curentSpeed.length())
+    }
+
+    /**
+     * @en Get the current path of the agent.
+     * @zh 获取代理的当前路径。
+     */
+    getCurrentPath(): Array<NavigationPathData> {
+        if (!this._currentNaveSurface) {
+            this._fllowPath.length = 0;
+        } else {
+            this._getpos(tempVector3);
+            this._currentNaveSurface.findFllowPath(this._fllowPath, tempVector3, this._targetPos, this._speed, this._filter);
+        }
+        return this._fllowPath;
+    }
+
+    /**
+     * 到墙面的距离
+     * @returns {dist:距离,pos:碰撞点, normal:法向量}
+     */
+    findDistanceToWall(): { dist: number, pos: Array<number>, normal: Array<number> } {
+        if (this._crowAgent) {
+            this._getpos(tempVector3);
+            return this._currentNaveSurface.findDistanceToWall(tempVector3, this._filter);
+        } else {
+            return null;
+        }
+    }
 
     /**
      * 目的地
@@ -196,7 +314,7 @@ export class BaseNavAgent extends Component {
         if (!this._navManager) return;
         let targetSurface: BaseNavMeshSurface = this._navManager.getNavMeshSurface(value, this._agentType);
         if (targetSurface == this._currentNaveSurface) {
-            this._currentNaveSurface.navMesh.requestMoveTarget(this, this._targetPos);
+            this._currentNaveSurface._navMesh._requestMoveTarget(this, this._targetPos);
             return;
         }
         let linkes = this._navManager.getNavMeshLink(this._currentNaveSurface, targetSurface);
@@ -206,7 +324,6 @@ export class BaseNavAgent extends Component {
         let distance: number = Number.MAX_VALUE;
         let isstart: boolean;
         linkes.forEach((value) => {
-            
             if (value._startNavSurfaces.indexOf(this._currentNaveSurface) >= 0) {
                 let dis = value.getDistance();
                 if (dis < distance) {
@@ -235,55 +352,19 @@ export class BaseNavAgent extends Component {
             this._navAgentLinkAnim._setStartPos(link.globalEnd);
             this._navAgentLinkAnim._setEndPos(link.globalStart);
         }
-        let refPoint = this._currentNaveSurface.navMesh.findNearestPoly(this._navAgentLinkAnim._getSartPos());
-        this._navAgentLinkAnim._getSartPos().fromArray(refPoint.data);
-        this._currentNaveSurface.navMesh.requestMoveTarget(this, this._navAgentLinkAnim._getSartPos());
-    }
-
-    /**
-     * 设置网格类型
-     */
-    set agentType(value: string) {
-        if (value == this._agentType) return;
-        this._agentType = value;
-        if (this._crowAgent) {
-            this._removeAgent();
-            this._addAgent();
+        let startPos = this._navAgentLinkAnim._getSartPos();
+        let refPoint = this._currentNaveSurface._navMesh._findNearestPoly(startPos, this._filter, startPos);
+        if (refPoint >= 0) {
+            this._currentNaveSurface._navMesh._requestMoveTarget(this, startPos);
         }
+
     }
 
-    get agentType() {
-        return this._agentType;
-    }
-
-    /**
-     * @description: 
-     * @param {*}
-     * @return {*}
-     */
-    set areaMask(value: number) {
-        this._areaMask.flag = value
-    }
-
-    get areaMask(): number {
-        return this._areaMask.flag;
-    }
-
-   
-    /**
-     * 创建一个 <code>NavAgent</code> 实例。
-     */
-    constructor() {
-        super();
-        this._navAgentLinkAnim = new NavAgentLinkAnim();
-        this._areaMask = new AreaMask();
-        this._curentSpeed = new Vector3();
-    }
 
     /**
      * @internal 
      */
-    _getpos(vec:Vector3){
+    _getpos(vec: Vector3) {
         throw new Error("Method not implemented.");
     }
 
@@ -299,7 +380,7 @@ export class BaseNavAgent extends Component {
 
 
     /**@internal */
-    _getManager(): BaseNavigationManager {
+    protected _getManager(): BaseNavigationManager {
         throw new Error("BaseNavMeshSurface: must override this function");
     }
 
@@ -314,14 +395,11 @@ export class BaseNavAgent extends Component {
         this._addAgent();
     }
 
-    
-    
-
     /**
      * @internal 
      */
     protected _addAgent() {
-        if(this._navManager == null) return;
+        if (this._navManager == null) return;
         this._getpos(tempVector3);
         let surface = this._navManager.getNavMeshSurface(tempVector3, this._agentType);
         if (surface == null) {
@@ -329,7 +407,7 @@ export class BaseNavAgent extends Component {
             return;
         }
         this._currentNaveSurface = surface;
-        this._currentNaveSurface.navMesh.addAgent(this);
+        this._currentNaveSurface._navMesh._addAgent(this);
     }
 
     /**
@@ -338,7 +416,7 @@ export class BaseNavAgent extends Component {
     protected _removeAgent() {
         if (this._currentNaveSurface == null || this._agentId == null || this._crowAgent == null)
             return;
-        this._currentNaveSurface.navMesh.removeAgent(this);
+        this._currentNaveSurface._navMesh._removeAgent(this);
         this._currentNaveSurface = null;
     }
 
@@ -346,7 +424,7 @@ export class BaseNavAgent extends Component {
      * @internal 
      */
     _getheight(): number {
-       throw new Error("Method not implemented.");
+        throw new Error("Method not implemented.");
     }
 
     /**
@@ -380,27 +458,10 @@ export class BaseNavAgent extends Component {
 
     /**
      * 由系统调用
-     */
-    onUpdate(){
-        if(this._crowAgent!=null) return;
-        if(!this._navAgentLinkAnim._active) return;
-        let position = tempVector3;
-        let dir = tempVector31;
-        this._navAgentLinkAnim._update(position, dir);
-        if (this._navAgentLinkAnim._nearerEndPos(position)) {
-            this._addAgent();
-            this._navAgentLinkAnim._clearn();
-            this._setTarget(this._targetPos);
-        }
-        this._updatePosition(position, dir);
-    }
-
-    /**
-     * 由系统调用
      * @internal 
      */
-    _updateNavMesh(pos:number[],dir:number[]){
-        if(this._crowAgent == null) return;
+    _updateNavMesh(pos: number[], dir: number[]) {
+        if (this._crowAgent == null) return;
         let position = tempVector3;
         let direction = tempVector31;
         position.fromArray(pos);
@@ -417,57 +478,12 @@ export class BaseNavAgent extends Component {
         this._updatePosition(position, direction);
     }
 
-   
 
     /**
      * @internal 
      */
-    _updatePosition(pos:Vector3,dir:Vector3){
+    protected _updatePosition(pos: Vector3, dir: Vector3) {
         throw new Error("Method not implemented.");
-    }
-
-    /**
-     * 是否停止
-     */
-    isStop(): boolean {
-        return MathUtils3D.isZero(this._curentSpeed.length())
-    }
-
-    /**
-     * 当前路径
-     */
-    getCurrentPath(): Array<NavigationPathData> {
-        if (!this._currentNaveSurface) {
-            this._fllowPath.length = 0;
-        } else {
-            this._currentNaveSurface.navMesh.findFllowPath(this, this._fllowPath);
-        }
-        return this._fllowPath;
-    }
-
-
-    /**
-     * 设置位置
-     * @param pos 世界坐标
-     */
-    setPosition(pos: Vector3) {
-        // (<Sprite3D>this.owner).transform.position = pos;
-        // if (this.enabled) {
-        //     this._removeAgent();
-        //     this._addAgent();
-        // }
-    }
-
-    /**
-     * 到墙面的距离
-     * @returns {dist:距离，pos:碰撞点， normal:法向量}
-     */
-    findDistanceToWall(): { dist: number, pos: Array<number>, normal: Array<number> } {
-        if (this._crowAgent) {
-            return this._currentNaveSurface.navMesh.findDistanceToWall(this);
-        } else {
-            return null;
-        }
     }
 
     /**@internal */

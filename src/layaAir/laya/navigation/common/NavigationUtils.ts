@@ -7,13 +7,17 @@ const tempVec31 = new Vector3();
 const tempVec32 = new Vector3();
 const tempVec33 = new Vector3();
 
+/**
+ * @en NavigationUtils is a utility class for handling operations related to navigation meshes.
+ * @zh NavigationUtils 是一个导航工具类,主要用于处理与导航网格相关的操作。
+ */
 export class NavigationUtils {
     /**@internal */
-    private static MAX_SMOOTH: number = 2048;
+    private static _MAX_SMOOTH: number = 2048;
     /**@internal 超了怎么办 */
-    private static MAX_POLYS: number = 256;
+    private static _MAX_POLYS: number = 256;
     /**@internal */
-    static TitleMeshIbOff: number[] = [0, 2, 1];
+    static _TitleMeshIbOff: number[] = [0, 2, 1];
     /**@internal ori recast Data */
     static _recast: any;
     /**@internal */
@@ -24,7 +28,7 @@ export class NavigationUtils {
     static _TemprefPoint1: any;
 
     /** @internal */
-    static boundContentPoint(min:Vector3,max:Vector3,point:Vector3):boolean{
+    static _boundContentPoint(min: Vector3, max: Vector3, point: Vector3): boolean {
         if (point.x > max.x || point.x < min.x) return false;
         if (point.y > max.y || point.y < min.y) return false;
         if (point.z > max.z || point.z < min.z) return false;
@@ -32,7 +36,7 @@ export class NavigationUtils {
     }
 
     /** @internal */
-    static boundInterection(min1:Vector3,max1:Vector3,min2:Vector3,max2:Vector3):number{
+    static _boundInterection(min1: Vector3, max1: Vector3, min2: Vector3, max2: Vector3): number {
         var tempV0: Vector3 = tempVec3;
         var tempV1: Vector3 = tempVec31;
         var thisExtends: Vector3 = tempVec32;
@@ -68,7 +72,7 @@ export class NavigationUtils {
     }
 
     /**@internal  */
-    static inRange(v1: number[], v2: number[], radius: number, height: number, offIndex: number) {
+    static _inRange(v1: number[], v2: number[], radius: number, height: number, offIndex: number) {
         const dx = v2[0] - v1[offIndex];
         const dy = v2[1] - v1[offIndex + 1];
         const dz = v2[2] - v1[offIndex + 2];
@@ -83,24 +87,24 @@ export class NavigationUtils {
      * @param outMin vector3
      * @param outMax vector3
      */
-    static transfromBoundBox(min:Vector3,max:Vector3,transfrom:Matrix4x4,outMin:Vector3,outMax:Vector3){
+    static _transfromBoundBox(min: Vector3, max: Vector3, transfrom: Matrix4x4, outMin: Vector3, outMax: Vector3) {
         const center = tempVec3;
-        Vector3.lerp(min,max,0.5,center);
+        Vector3.lerp(min, max, 0.5, center);
         const extent = tempVec31;
-        Vector3.subtract(max,min,extent);
-        Vector3.scale(extent,0.5,extent);
-        Vector3.transformCoordinate(center,transfrom,center);
-        Vector3.TransformNormal(extent,transfrom,extent);
-        Vector3.subtract(center,extent,outMin);
-        Vector3.add(center,extent,outMax);
+        Vector3.subtract(max, min, extent);
+        Vector3.scale(extent, 0.5, extent);
+        Vector3.transformCoordinate(center, transfrom, center);
+        Vector3.TransformNormal(extent, transfrom, extent);
+        Vector3.subtract(center, extent, outMin);
+        Vector3.add(center, extent, outMax);
     }
     /**@internal  */
-    static isFlags(data: number, flag: any): number {
+    static _isFlags(data: number, flag: any): number {
         return data & flag.value;
     }
 
     /**@internal  */
-    static addVector3ToArray(vec1: Vector3, vec2: Vector3, scale: number) {
+    static _addVector3ToArray(vec1: Vector3, vec2: Vector3, scale: number) {
         let dest: number[] = [];
         dest[0] = vec1.x + vec2.x * scale;
         dest[1] = vec1.y + vec2.y * scale;
@@ -109,7 +113,7 @@ export class NavigationUtils {
     }
 
     /**@internal  */
-    static getSteerTarget(navMesh: BaseNavMesh, startRef: any, endRef: any, minTargetDist: number, paths: number[], pathSize: number, out: Vector3) {
+    static _getSteerTarget(navMesh: BaseNavMesh, startRef: any, endRef: any, minTargetDist: number, paths: number[], pathSize: number, out: Vector3) {
         const navQuery = navMesh.navQuery;
         let data = navQuery.findStraightPath(startRef, endRef, paths, pathSize, 3);
         let steerPath = data.steerPath;
@@ -121,8 +125,8 @@ export class NavigationUtils {
         }
         let ns = 0;
         while (ns < nsteerPath) {
-            if (this.isFlags(steerPathFlags[ns], this._recast.dtStraightPathFlags.DT_STRAIGHTPATH_OFFMESH_CONNECTION) ||
-                !this.inRange(steerPath, startRef, minTargetDist, 1000, ns * 3))
+            if (this._isFlags(steerPathFlags[ns], this._recast.dtStraightPathFlags.DT_STRAIGHTPATH_OFFMESH_CONNECTION) ||
+                !this._inRange(steerPath, startRef, minTargetDist, 1000, ns * 3))
                 break;
             ns++;
         }
@@ -136,7 +140,7 @@ export class NavigationUtils {
     }
 
     /**@internal  */
-    static dtMergeCorridorStartMoved(path: number[], npath: number, maxPath: number, visited: number[], nvisited: number) {
+    static _dtMergeCorridorStartMoved(path: number[], npath: number, maxPath: number, visited: number[], nvisited: number) {
         let furthestPath = -1;
         let furthestVisited = -1;
         for (var i = npath - 1; i >= 0; i--) {
@@ -167,12 +171,12 @@ export class NavigationUtils {
     }
 
     /**@internal  */
-    static findFllowPath(navMesh: BaseNavMesh, filter: any, startPos: Vector3, endPos: Vector3, steplength: number, minTarget: number, fllowPath: NavigationPathData[]) {
+    static _findFllowPath(navMesh: BaseNavMesh, filter: any, startPos: Vector3, endPos: Vector3, steplength: number, minTarget: number, fllowPath: NavigationPathData[]) {
         const navQuery = navMesh.navQuery;
         const namesh = navMesh.navMesh;
         const startRef = navQuery.findNearestPoly(startPos.toArray(), navMesh.extents, filter);
         const endRef = navQuery.findNearestPoly(endPos.toArray(), navMesh.extents, filter);
-        let pathdata = navQuery.findPath(startRef, endRef, filter, NavigationUtils.MAX_POLYS);
+        let pathdata = navQuery.findPath(startRef, endRef, filter, NavigationUtils._MAX_POLYS);
         let polys = pathdata.polys;
         let m_npolys = polys.length;
         let m_nsmoothPath = 0;
@@ -185,38 +189,38 @@ export class NavigationUtils {
             let targetPos = navQuery.closestPointOnPoly(polys[npolys - 1], endRef.data);
             this._setDatastoArray(fllowPath, m_nsmoothPath, iterPos, this._recast.dtStraightPathFlags.DT_STRAIGHTPATH_START.value);
             m_nsmoothPath++;
-            while (npolys && m_nsmoothPath < NavigationUtils.MAX_SMOOTH) {
-                let steerData = this.getSteerTarget(navMesh, iterPos, targetPos, minTarget, polys, npolys, steerPos);
+            while (npolys && m_nsmoothPath < NavigationUtils._MAX_SMOOTH) {
+                let steerData = this._getSteerTarget(navMesh, iterPos, targetPos, minTarget, polys, npolys, steerPos);
                 if (steerData == null) {
                     break;
                 }
                 help1.fromArray(iterPos);
                 let steerPosFlag = steerData.steerPosFlag;
                 let steerPosRef = steerData.steerPosRef;
-                let endOfPath = this.isFlags(steerPosFlag, this._recast.dtStraightPathFlags.DT_STRAIGHTPATH_END) ? true : false;
-                let offMeshConnection = this.isFlags(steerPosFlag, this._recast.dtStraightPathFlags.DT_STRAIGHTPATH_OFFMESH_CONNECTION) ? true : false;
+                let endOfPath = this._isFlags(steerPosFlag, this._recast.dtStraightPathFlags.DT_STRAIGHTPATH_END) ? true : false;
+                let offMeshConnection = this._isFlags(steerPosFlag, this._recast.dtStraightPathFlags.DT_STRAIGHTPATH_OFFMESH_CONNECTION) ? true : false;
                 Vector3.subtract(steerPos, help1, help2);
                 let len = help2.length();
                 if ((endOfPath || offMeshConnection) && len < steplength)
                     len = 1;
                 else
                     len = steplength / len;
-                let moveTgt = this.addVector3ToArray(help1, help2, len);
+                let moveTgt = this._addVector3ToArray(help1, help2, len);
                 let surfacedata = navQuery.moveAlongSurface(polys[0], iterPos, moveTgt, filter, 16);
                 let result = surfacedata.resultPos;
                 let visited = surfacedata.visited;
-                polys = this._recast.mergeCorridorStartMoved(polys, NavigationUtils.MAX_POLYS, Array.from(visited));
+                polys = this._recast.mergeCorridorStartMoved(polys, NavigationUtils._MAX_POLYS, Array.from(visited));
                 polys = this._recast.fixupShortcuts(polys, navQuery);
                 npolys = polys.length;
                 let heightData = navQuery.getPolyHeight(polys[0], result);
                 result[1] = heightData.height;
                 iterPos = result;
-                let isRange = this.inRange(iterPos, steerPos.toArray(), minTarget, 1.0, 0);
+                let isRange = this._inRange(iterPos, steerPos.toArray(), minTarget, 1.0, 0);
 
                 if (endOfPath && isRange) {
                     // Reached end of path.
                     iterPos = targetPos;
-                    if (m_nsmoothPath < NavigationUtils.MAX_SMOOTH) {
+                    if (m_nsmoothPath < NavigationUtils._MAX_SMOOTH) {
                         this._setDatastoArray(fllowPath, m_nsmoothPath, iterPos, this._recast.dtStraightPathFlags.DT_STRAIGHTPATH_END.value);
                         m_nsmoothPath++;
                     }
@@ -236,8 +240,8 @@ export class NavigationUtils {
                     }
                     npolys -= npos;
                     let status = namesh.getOffMeshConnectionPolyEndPoints(prevRef, polyRef, startPos, endPos);
-                    if (this.statusSucceed(status)) {
-                        if (m_nsmoothPath < NavigationUtils.MAX_SMOOTH) {
+                    if (this._statusSucceed(status)) {
+                        if (m_nsmoothPath < NavigationUtils._MAX_SMOOTH) {
                             this._setDatastoArray(fllowPath, m_nsmoothPath, startPos, steerPosFlag);
                             m_nsmoothPath++;
                             if (m_nsmoothPath & 1) {
@@ -251,7 +255,7 @@ export class NavigationUtils {
                         iterPos[1] = heightData.height;
                     }
                 }
-                if (m_nsmoothPath < NavigationUtils.MAX_SMOOTH) {
+                if (m_nsmoothPath < NavigationUtils._MAX_SMOOTH) {
                     this._setDatastoArray(fllowPath, m_nsmoothPath, iterPos, steerPosFlag);
                     m_nsmoothPath++;
                 }
@@ -260,10 +264,10 @@ export class NavigationUtils {
         fllowPath.length = m_nsmoothPath;
     }
 
-    
+
 
     /**@internal  */
-    static initialize(Recast: any) {
+    static _initialize(Recast: any) {
         NavigationUtils._recast = Recast;
         NavigationUtils._dtCrowdAgentParams = new Recast.dtCrowdAgentParams();
         NavigationUtils._TemprefPoint = {};
@@ -271,7 +275,7 @@ export class NavigationUtils {
     }
 
     /**@internal  */
-    static getRecast() {
+    static _getRecast() {
         return NavigationUtils._recast;
     }
 
@@ -279,7 +283,7 @@ export class NavigationUtils {
      * create NavMesh
      * @return any
      */
-    static createNavMesh() {
+    static _createNavMesh() {
         return new this._recast.dtNavMesh();
     }
 
@@ -287,7 +291,7 @@ export class NavigationUtils {
      * create NavMeshQuery
      * @return any
      */
-    static createNavMeshQuery() {
+    static _createNavMeshQuery() {
         return new this._recast.dtNavMeshQuery();
     }
 
@@ -295,7 +299,7 @@ export class NavigationUtils {
      * create RefPointData
      * @return any
      */
-    static createRefPointData(): any {
+    static _createRefPointData(): any {
         return new this._recast.dtRefPointData();
     }
 
@@ -303,7 +307,7 @@ export class NavigationUtils {
     * create MeshOffLink
     * @return any
     */
-    static createMeshOffLink(): any {
+    static _createMeshOffLink(): any {
         return new this._recast.dtOffMeshConnection()
     }
 
@@ -311,7 +315,7 @@ export class NavigationUtils {
     * create ConvexVolum
     * @return any
     */
-    static createConvexVolume(): any {
+    static _createConvexVolume(): any {
         return new this._recast.dtConvexVolume()
     }
 
@@ -319,7 +323,7 @@ export class NavigationUtils {
      * create QueryFilter
      * @return any
      */
-    static createQueryFilter(): any {
+    static _createQueryFilter(): any {
         return new this._recast.dtQueryFilter();
     }
 
@@ -327,7 +331,7 @@ export class NavigationUtils {
      * create Crowd
      * @return any
      */
-    static createCrowd(): any {
+    static _createCrowd(): any {
         return new this._recast.dtCrowd();
     }
 
@@ -335,7 +339,7 @@ export class NavigationUtils {
      * create NavTileData
      * @internal
      */
-    static createdtNavTileData() {
+    static _createdtNavTileData() {
         return new this._recast.dtNavTileData()
     }
 
@@ -343,7 +347,7 @@ export class NavigationUtils {
      * create NavTileCache
      * @internal
      */
-    static createdtNavTileCache() {
+    static _createdtNavTileCache() {
         return new this._recast.dtNavTileCache();
     }
 
@@ -351,55 +355,55 @@ export class NavigationUtils {
     * get CrowdAgentParams  
     * @return any
     */
-    static getCrowdAgentParams(): any {
+    static _getCrowdAgentParams(): any {
         return this._dtCrowdAgentParams;
     }
 
     /**
      * free NavMeshQuery
      */
-    static freeNavMeshQuery(data: any) {
+    static _freeNavMeshQuery(data: any) {
         this._recast.dtFreeNavMeshQuery(data);
     }
 
     /**
      * free NavMesh
      */
-    static freeNavMesh(data: any) {
+    static _freeNavMesh(data: any) {
         this._recast.dtFreeNavMesh(data);
     }
 
     /**
      * free Crowd
      */
-    static freeCrowd(data: any) {
+    static _freeCrowd(data: any) {
         this._recast.dtFreeCrowd(data);
     }
 
     /**
      * free any other
      */
-    static free(data: any) {
+    static _free(data: any) {
         this._recast.dtFree(data);
     }
 
     /**
     * free any layaData
     */
-    static freeLayaData(data: any) {
+    static _freeLayaData(data: any) {
         this._recast._free(data);
     }
     /**
      * check Status is Succeed
      */
-    static statusSucceed(data: any): boolean {
+    static _statusSucceed(data: any): boolean {
         return this._recast.dtStatusSucceed(data)
     }
 
     /**
      * update crowd
      */
-    static updateCrowd(crowd:any, dt:number) {
+    static _updateCrowd(crowd: any, dt: number) {
         return this._recast.updateCrowd(crowd, dt);
     }
 }

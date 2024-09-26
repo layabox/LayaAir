@@ -3,7 +3,10 @@ import { Vector3 } from "../../../maths/Vector3";
 import { CacheData } from "./CacheData";
 import { NavigationConfig } from "../NavigationConfig";
 
-/**@internal */
+/**
+ * @internal 
+ * 
+ */
 export class BaseData {
     /**@internal */
     _transfrom: Matrix4x4 = new Matrix4x4();
@@ -67,7 +70,7 @@ export class BaseData {
 
     /**
      * @internal
-     * 刷新transfrom
+     * 刷新包围盒
      */
     _refeahBound(): void {
         this._cacheDatas.forEach(element => {

@@ -7,7 +7,10 @@ import { NavigationUtils } from "../../common/NavigationUtils";
 import { NavTileData, NavTileCache } from "../../common/NavTileData";
 import { BaseNav3DModifle } from "./BaseNav3DModifle";
 
-
+/**
+ * @en NavMeshModifileSurface is a component that modifies the navigation mesh surface.
+ * @zh NavMeshModifileSurface 是一个修改导航网格表面的组件。
+ */
 export class NavMeshModifileSurface extends BaseNav3DModifle {
 
     /**@internal load*/
@@ -25,8 +28,13 @@ export class NavMeshModifileSurface extends BaseNav3DModifle {
         this._modifierData = new NavModifleData();
     }
 
-    /**
-     * bake datas
+     /**
+     * @en Sets or gets the baked navigation data.
+     * @param value The TextResource containing the navigation data.
+     * @returns The TextResource containing the navigation data.
+     * @zh 设置或获取烘焙的导航数据。
+     * @param value 包含导航数据的 TextResource。
+     * @returns 包含导航数据的 TextResource。
      */
     set datas(value: TextResource) {
         if(this._oriTiles){
@@ -65,7 +73,7 @@ export class NavMeshModifileSurface extends BaseNav3DModifle {
         if(data.datas == null) return;
         let boundmin = data.datas._boundMin;
         let boundmax = data.datas._boundMax;
-        NavigationUtils.transfromBoundBox(boundmin,boundmax,this._modifierData._transfrom,min,max);
+        NavigationUtils._transfromBoundBox(boundmin,boundmax,this._modifierData._transfrom,min,max);
         this._modifierData._refeahTransfrom();
     }
 

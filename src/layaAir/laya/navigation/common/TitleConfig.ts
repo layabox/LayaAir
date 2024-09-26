@@ -3,7 +3,7 @@ import { Vector3 } from "../../maths/Vector3";
 
 /**
  * @internal
- * 写入三角形数据；用于生成tile
+ * @zh js向wasm 写入数据，内部使用；不对外开放。
  */
 export class TitleConfig {
     tx: number;
@@ -29,7 +29,7 @@ export class TitleConfig {
      * @param {*}
      * @return {*}
      */
-    public setOff(tx: number, ty: number) {
+    _setOff(tx: number, ty: number) {
         this.tx = tx;
         this.ty = ty;
     }
@@ -40,7 +40,7 @@ export class TitleConfig {
      * @param {*}
      * @return {*}
      */
-    public setMin(value: Vector3): void {
+    _setMin(value: Vector3): void {
         this.bmin[0] = value.x;
         this.bmin[1] = value.y;
         this.bmin[2] = value.z;
@@ -49,7 +49,7 @@ export class TitleConfig {
     /**
      *设置包围盒最大值
      */
-    public setMax(value: Vector3): void {
+    _setMax(value: Vector3): void {
         this.bmax[0] = value.x;
         this.bmax[1] = value.y;
         this.bmax[2] = value.z;
@@ -61,14 +61,14 @@ export class TitleConfig {
      * @param {number} radius
      * @param {number} maxClimb
      */
-    public setAgent(height: number, radius: number, maxClimb: number) {
+    _setAgent(height: number, radius: number, maxClimb: number) {
         this.agentHeight = height;
         this.agentRadius = radius;
         this.agentMaxClimb = maxClimb;
     }
 
     /** 设置最大边长 */
-    public setMaxEdgeLen(value: number) {
+    _setMaxEdgeLen(value: number) {
         this.maxEdgeLen = Math.ceil(value);
     }
 }

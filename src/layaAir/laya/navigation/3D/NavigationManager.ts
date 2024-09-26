@@ -49,37 +49,39 @@ let createObstacleData = function (slices: number, radiusOff: number = 0, radius
 
 export class NavigationManager extends BaseNavigationManager {
     /**@internal  */
-    static managerName: string = "navMesh";
+    static _managerName: string = "navMesh";
+    /**@internal  */
     static _obstacleMap: Map<NavObstaclesMeshType, NavTileCache> = new Map();
-
-    static getNavManager(comp: Component): NavigationManager {
-        return (comp.owner.scene as Scene3D).getComponentElementManager(NavigationManager.managerName) as NavigationManager;
+    /**@internal */
+    static _getNavManager(comp: Component): NavigationManager {
+        return (comp.owner.scene as Scene3D).getComponentElementManager(NavigationManager._managerName) as NavigationManager;
     }
 
-
-    static initialize(): Promise<void> {
-
+    /**@internal */
+    static _initialize(): Promise<void> {
         return BaseNavigationManager._initialize(() => {
             NavigationManager.__init__();
         });
     }
 
+    /**@internal */
     private static __init__(): void {
         NavigationManager._obstacleMap.set(NavObstaclesMeshType.BOX, createObstacleData(4));
         NavigationManager._obstacleMap.set(NavObstaclesMeshType.CYLINDER, createObstacleData(20));
     }
 
-    static getObstacleData(type: NavObstaclesMeshType): NavTileCache {
+    /**@internal */
+    static _getObstacleData(type: NavObstaclesMeshType): NavTileCache {
         return this._obstacleMap.get(type);
     }
 
     constructor() {
-        super(NavigationManager.managerName);
+        super(NavigationManager._managerName);
     }
 
 }
 
 //reg nav Component Manager
-Scene3D.regManager(NavigationManager.managerName, NavigationManager);
+Scene3D.regManager(NavigationManager._managerName, NavigationManager);
 //reg loader init
-Laya.addBeforeInitCallback(NavigationManager.initialize);
+Laya.addBeforeInitCallback(NavigationManager._initialize);
