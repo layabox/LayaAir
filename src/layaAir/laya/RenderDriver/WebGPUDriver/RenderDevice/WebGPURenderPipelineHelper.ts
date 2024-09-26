@@ -143,7 +143,7 @@ export class WebGPUDepthStencilState {
     }
 
     private static _getDepthStencilCacheID(format: RenderTargetFormat, depthWriteEnabled: boolean, depthCompare: CompareFunction, stencilParam: any = null, depthBiasParam: any = null) {
-        if (stencilParam['enable'])
+        if (stencilParam && stencilParam['enable'])
             return (Number(depthWriteEnabled) << this._pointer_DepthWriteEnable) +
                 (depthCompare << this._pointer_DepthCompare) +
                 (format << this._pointer_DepthFormat) +
@@ -213,7 +213,7 @@ export class WebGPUDepthStencilState {
             depthCompare: stateDepthCompare,
             depthWriteEnabled,
         };
-        if (stencilParam['enable']) {
+        if (stencilParam && stencilParam['enable']) {
             let stateStencilCompare: GPUCompareFunction;
             let stateFailOp: GPUStencilOperation;
             let stateDepthFailOp: GPUStencilOperation;

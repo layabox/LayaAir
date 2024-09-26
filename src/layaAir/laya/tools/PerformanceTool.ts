@@ -22,9 +22,10 @@ export class PerformanceDefine {
     static C_SetRenderPassCount: string;//GPUEngineStatisticsInfo
     static C_DrawCallCount: string;//GPUEngineStatisticsInfo
     static C_Instancing_DrawCallCount: string;//GPUEngineStatisticsInfo
-    static C_TransDrawCall: string;//Stat.transdrawcall     //TODO
-    static C_OpaqueDrawCall :string;//Stat.opaqueDrawCall   //TODO
-    static C_DepthCastDrawCall:string;//Stat.depthCastDrawCall //TODO
+    static C_TransDrawCall: string;//Stat.transdrawcall     
+    static C_OpaqueDrawCall: string;//Stat.opaqueDrawCall   
+    static C_DepthCastDrawCall: string;//Stat.depthCastDrawCall 
+    static C_ShadowDrawCall:string;//Stat.shadowMapDrawCall
     //shader compile
     static C_ShaderCompile: string;//GPUEngineStatisticsInfo
     static T_ShaderCompile: string;//GPUEngineStatisticsInfo
@@ -52,20 +53,23 @@ export class PerformanceDefine {
     static RC_ALLRenderTexture: string;//GPUEngineStatisticsInfo
     //--------Performance3DRenderDefine--------
     //render module time
-    static T_CameraRender: string;
-    static T_Render_OpaqueRender: string;
-    static T_Render_TransparentRender: string;
-    static T_Render_PostProcess: string;
-    static T_Render_CameraEventCMD: string;
-    static T_Render_ShadowPassMode: string;
-    static T_Render_CameraOtherDest: string;
-    static T_RenderPreUpdate: string;//TODO
+    static T_CameraRender: string;//Stat.renderPassStatArray
+    static T_Render_OpaqueRender: string;//Stat.renderPassStatArray
+    static T_Render_TransparentRender: string;//Stat.renderPassStatArray
+    static T_Render_PostProcess: string;//Stat.renderPassStatArray
+    static T_Render_CameraEventCMD: string;//Stat.renderPassStatArray
+    static T_Render_ShadowPassMode: string;//Stat.renderPassStatArray
+    static T_Render_CameraOtherDest: string;//Stat.renderPassStatArray
+    static T_RenderPreUpdate: string;//Stat.renderPassStatArray
+    static T_CameraMainCull: string;//Stat.renderPassStatArray
+    static T_ShadowMapCull: string;//Stat.renderPassStatArray
     //Volume TODO
     //OtherSceneManager TODO
     //render type time
-    static T_OnlyMeshRender: string;//TODO
-    static T_OnlySkinnedMeshRender: string;//TODO
-    static T_OnlyShurikenParticleRender: string;//TODO
+    static T_OnlyMeshRender: string;//Stat.renderPassStatArray
+    static T_OnlySkinnedMeshRender: string;//Stat.renderPassStatArray
+    static T_OnlyShurikenParticleRender: string;//Stat.renderPassStatArray
+    static T_OtherRender: string;//Stat.renderPassStatArray
     //render count
     static C_Sprite3DCount: string;//Stat.sprite3DCount
     static C_BaseRenderCount: string;//Stat.renderNode
@@ -78,7 +82,7 @@ export class PerformanceDefine {
     static T_ShurikenUpdate: string;
     //--------Performance3DPhysicsDefine--------
     static T_Physics_Simulation: string;
-    static T_Physics_UpdateNode:string;
+    static T_Physics_UpdateNode: string;
     static T_PhysicsEvent: string;
     static C_PhysicsEventCount: string;
     static T_PhysicsCollider: string;

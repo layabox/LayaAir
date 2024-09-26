@@ -60,7 +60,6 @@ export class WebGPURenderContext3D implements IRenderContext3D {
     private _needStart: boolean = true;
 
     device: GPUDevice; //GPU设备
-    frameCount: number = 0; //帧计数
     bundleHit: number = 0; //命中Bundle
     needRemoveBundle: number[] = []; //需要清除绘图指令缓存的渲染节点
     bundleManagerSets: Map<string, WebGPURenderBundleManagerSet> = new Map(); //绘图指令缓存组
@@ -75,6 +74,8 @@ export class WebGPURenderContext3D implements IRenderContext3D {
     private _viewScissorSaved: boolean = false;
     private _viewPortSave: Viewport = new Viewport();
     private _scissorSave: Vector4 = new Vector4();
+
+    notifyGPUBufferChangeCounter: number = 0;
 
     globalId: number;
     objectName: string = 'WebGPURenderContext3D';
@@ -229,6 +230,7 @@ export class WebGPURenderContext3D implements IRenderContext3D {
     notifyGPUBufferChange() {
         this.bundleManagerSets.forEach(bms => bms.clearBundle());
         this.bundleManagerSets.clear();
+        //console.log('clear renderBuddle', this.notifyGPUBufferChangeCounter++);
     }
 
     /**
@@ -334,7 +336,7 @@ export class WebGPURenderContext3D implements IRenderContext3D {
                 bundleManager.createBundle(this, elementsToBundleDynamic, 1);
             elementsToBundleStatic.length = 0;
             elementsToBundleDynamic.length = 0;
-            bundleManager.renderBundles(this.renderCommand._encoder); //渲染所有绘图指令缓存
+            bundleManager.renderBundles(this.renderCommand.encoder); //渲染所有绘图指令缓存
         } else { //不启用绘图指令缓存模式，直接绘制
             for (let i = 0; i < len; i++)
                 elements[i]._render(this, this.renderCommand, null);
@@ -440,8 +442,8 @@ export class WebGPURenderContext3D implements IRenderContext3D {
         const engine = WebGPURenderEngine._instance;
         if (this.blitScreen && engine.screenResized) return; //屏幕尺寸改变，丢弃这一帧
         this.renderCommand.end();
-        if (Laya.timer.currFrame != this.frameCount) {
-            this.frameCount = Laya.timer.currFrame;
+        if (Laya.timer.currFrame != engine.frameCount) {
+            engine.frameCount = Laya.timer.currFrame;
             engine.startFrame();
         }
         engine.upload(); //上传所有Uniform数据

@@ -1,10 +1,12 @@
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
+import { RenderPassStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { Color } from "../../../maths/Color";
 import { Vector4 } from "../../../maths/Vector4";
 import { Viewport } from "../../../maths/Viewport";
 import { FastSinglelist } from "../../../utils/SingletonList";
+import { Stat } from "../../../utils/Stat";
 import { IRenderContext3D, PipelineMode } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { IRenderCMD } from "../../DriverDesign/3DRenderPass/IRendderCMD";
 import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
@@ -201,6 +203,69 @@ export class WebGLRenderContext3D implements IRenderContext3D {
 
         node._preUpdatePre(this);
         node._render(this);
+        return 0;
+    }
+
+
+    drawRenderElementList_StatUse(list: FastSinglelist<WebGLRenderElement3D>): number {
+        if (this._needStart) {
+            this._bindRenderTarget();
+            this._start();
+            this._needStart = false;
+        }
+        let elements = list.elements;
+        for (var i: number = 0, n: number = list.length; i < n; i++) {
+            elements[i]._preUpdatePre(this);//render
+        }
+        for (var i: number = 0, n: number = list.length; i < n; i++) {
+            var time = performance.now();//T_Render_CameraOtherDest Stat
+            elements[i]._render(this);//render
+            if (elements[i].owner) {
+                switch (elements[i].owner.renderNodeType) {
+                    case 0:
+                        Stat.renderPassStatArray[RenderPassStatisticsInfo.T_OtherRender] += (performance.now() - time);//Stat
+                        break;
+                    case 1:
+                        Stat.renderPassStatArray[RenderPassStatisticsInfo.T_OnlyMeshRender] += (performance.now() - time);//Stat
+                        break;
+                    case 2:
+                        Stat.renderPassStatArray[RenderPassStatisticsInfo.T_OnlyShurikenParticleRender] += (performance.now() - time);//Stat
+                        break;
+                    case 9:
+                        Stat.renderPassStatArray[RenderPassStatisticsInfo.T_OnlySkinnedMeshRender] += (performance.now() - time);//Stat
+                        break;
+                }
+            }
+        }
+        return 0;
+    }
+
+    drawRenderElementOne_StatUse(node: WebGLRenderElement3D): number {
+        if (this._needStart) {
+            this._bindRenderTarget();
+            this._start();
+            this._needStart = false;
+        }
+
+        node._preUpdatePre(this);
+        var time = performance.now();//T_Render_CameraOtherDest Stat
+        node._render(this);
+        if (node.owner) {
+            switch (node.owner.renderNodeType) {
+                case 0:
+                    Stat.renderPassStatArray[RenderPassStatisticsInfo.T_OtherRender] += (performance.now() - time);//Stat
+                    break;
+                case 1:
+                    Stat.renderPassStatArray[RenderPassStatisticsInfo.T_OnlyMeshRender] += (performance.now() - time);//Stat
+                    break;
+                case 2:
+                    Stat.renderPassStatArray[RenderPassStatisticsInfo.T_OnlyShurikenParticleRender] += (performance.now() - time);//Stat
+                    break;
+                case 9:
+                    Stat.renderPassStatArray[RenderPassStatisticsInfo.T_OnlySkinnedMeshRender] += (performance.now() - time);//Stat
+                    break;
+            }
+        }
         return 0;
     }
 

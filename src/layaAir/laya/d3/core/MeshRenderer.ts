@@ -244,7 +244,6 @@ export class MeshRenderer extends BaseRender {
 
     _setBelongScene(scene: any): void {
         super._setBelongScene(scene);
-        Stat.meshRenderNode++;
     }
 
     /**
@@ -252,6 +251,15 @@ export class MeshRenderer extends BaseRender {
      */
     _setUnBelongScene() {
         super._setUnBelongScene();
+    }
+
+    protected _statAdd() {
+        Stat.renderNode++;
+        Stat.meshRenderNode++;
+    }
+
+    protected _statRemove() {
+        Stat.renderNode--;
         Stat.meshRenderNode--;
     }
 

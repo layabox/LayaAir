@@ -29,8 +29,8 @@ enum GPUCompareFunction {
 export interface WebGPUSamplerParams {
     comparedMode: TextureCompareMode,
     wrapU: WrapMode,
-    warpV: WrapMode,
-    warpW: WrapMode,
+    wrapV: WrapMode,
+    wrapW: WrapMode,
     mipmapFilter: FilterMode,
     filterMode: FilterMode,
     anisoLevel: number
@@ -38,8 +38,8 @@ export interface WebGPUSamplerParams {
 
 export class WebGPUSampler {
     static pointer_wrapU: number = 0;
-    static pointer_warpV: number = 2;
-    static pointer_warpW: number = 4;
+    static pointer_wrapV: number = 2;
+    static pointer_wrapW: number = 4;
     static pointer_filterMode: number = 6;
     static pointer_mipmapFilter: number = 8;
     static pointer_comparedMode: number = 10;
@@ -66,8 +66,8 @@ export class WebGPUSampler {
 
     private static _getCacheSamplerKey(params: WebGPUSamplerParams): number {
         return (params.wrapU << WebGPUSampler.pointer_wrapU) +
-            (params.warpV << WebGPUSampler.pointer_warpV) +
-            (params.warpW << WebGPUSampler.pointer_warpW) +
+            (params.wrapV << WebGPUSampler.pointer_wrapV) +
+            (params.wrapW << WebGPUSampler.pointer_wrapW) +
             (params.filterMode << WebGPUSampler.pointer_filterMode) +
             (params.mipmapFilter << WebGPUSampler.pointer_mipmapFilter) +
             (params.comparedMode << WebGPUSampler.pointer_comparedMode) +
@@ -87,8 +87,8 @@ export class WebGPUSampler {
 
         return {
             addressModeU: this._getSamplerAddressMode(params.wrapU),
-            addressModeV: this._getSamplerAddressMode(params.wrapU),
-            addressModeW: this._getSamplerAddressMode(params.warpW),
+            addressModeV: this._getSamplerAddressMode(params.wrapV),
+            addressModeW: this._getSamplerAddressMode(params.wrapW),
             magFilter: this._getFilterMode(params.filterMode),
             minFilter: this._getFilterMode(params.filterMode),
             mipmapFilter: this._getFilterMode(params.mipmapFilter),

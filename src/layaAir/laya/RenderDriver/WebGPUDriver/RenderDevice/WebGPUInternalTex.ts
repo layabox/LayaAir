@@ -81,7 +81,7 @@ export class WebGPUInternalTex implements InternalTexture {
     }
     public set wrapV(value: WrapMode) {
         if (this._wrapV !== value) {
-            this._webGPUSamplerParams.wrapU = value;
+            this._webGPUSamplerParams.wrapV = value;
             this._webgpuSampler = WebGPUSampler.getWebGPUSampler(this._webGPUSamplerParams);
             this._wrapV = value;
         }
@@ -93,7 +93,7 @@ export class WebGPUInternalTex implements InternalTexture {
     }
     public set wrapW(value: WrapMode) {
         if (this._wrapW !== value) {
-            this._webGPUSamplerParams.wrapU = value;
+            this._webGPUSamplerParams.wrapW = value;
             this._webgpuSampler = WebGPUSampler.getWebGPUSampler(this._webGPUSamplerParams);
             this._wrapW = value;
         }
@@ -126,8 +126,8 @@ export class WebGPUInternalTex implements InternalTexture {
     private _webGPUSamplerParams: WebGPUSamplerParams = {
         comparedMode: TextureCompareMode.None,
         wrapU: WrapMode.Repeat,
-        warpV: WrapMode.Repeat,
-        warpW: WrapMode.Repeat,
+        wrapV: WrapMode.Repeat,
+        wrapW: WrapMode.Repeat,
         mipmapFilter: FilterMode.Bilinear,
         filterMode: FilterMode.Bilinear,
         anisoLevel: 1
