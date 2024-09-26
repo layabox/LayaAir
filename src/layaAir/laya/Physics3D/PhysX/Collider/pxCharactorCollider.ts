@@ -8,6 +8,8 @@ import { partFlag, pxPhysicsManager } from "../pxPhysicsManager";
 import { pxCollider, pxColliderType } from "./pxCollider";
 import { pxDynamicCollider } from "./pxDynamicCollider";
 import { Event } from "../../../events/Event";
+import { EPhysicsStatisticsInfo } from "../../physicsEnum/EPhysicsStatisticsInfo";
+import { Physics3DStatInfo } from "../../interface/Physics3DStatInfo";
 export enum ControllerNonWalkableMode {
     /**
      * @en Stops character from climbing up non-walkable slopes, but doesn't move it otherwise.
@@ -93,6 +95,7 @@ export class pxCharactorCollider extends pxCollider implements ICharacterControl
     constructor(manager: pxPhysicsManager) {
         super(manager);
         this._type = pxColliderType.CharactorCollider;
+        Physics3DStatInfo.addStatisticsInfo(EPhysicsStatisticsInfo.C_PhysicaCharacterController, 1);
     }
 
     private _getNodeScale() {

@@ -7,6 +7,8 @@ import { ECharacterCapable } from "../../physicsEnum/ECharacterCapable";
 import { btColliderShape } from "../Shape/btColliderShape";
 import { PhysicsCombineMode } from "../../../d3/physics/PhysicsColliderComponent";
 import { btCapsuleColliderShape } from "../Shape/btCapsuleColliderShape";
+import { EPhysicsStatisticsInfo } from "../../physicsEnum/EPhysicsStatisticsInfo";
+import { Physics3DStatInfo } from "../../interface/Physics3DStatInfo";
 
 /**
  * @en The btCharacterCollider class is used to handle 3D physics character colliders.
@@ -79,6 +81,7 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
         bt.btCollisionObject_setCollisionFlags(ghostObject, btPhysicsManager.COLLISIONFLAGS_CHARACTER_OBJECT);
         bt.btCollisionObject_setContactProcessingThreshold(ghostObject, 0);
         this._btCollider = ghostObject;
+        Physics3DStatInfo.addStatisticsInfo(EPhysicsStatisticsInfo.C_PhysicaCharacterController, 1);
     }
     /**
      * @en Set the local offset of the collider shape.
@@ -421,5 +424,17 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
      */
     setColliderShape(shape: btColliderShape): void {
         super.setColliderShape(shape);
+    }
+
+    /**
+     * @en Destroy CharacterController
+     * @zh 销毁角色控制器
+     */
+    destroy(): void {
+        let bt = btPhysicsCreateUtil._bt;
+        bt.btKinematicCharacterController_destroy(this._btKinematicCharacter);
+        Physics3DStatInfo.addStatisticsInfo(EPhysicsStatisticsInfo.C_PhysicaCharacterController, -1);
+        super.destroy();
+        this._btKinematicCharacter = null;
     }
 }

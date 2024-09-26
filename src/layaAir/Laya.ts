@@ -33,6 +33,7 @@ import { VertexElementFormat } from "./laya/renders/VertexElementFormat";
 import { DrawStyle } from "./laya/webgl/canvas/DrawStyle";
 import { Stat } from "./laya/utils/Stat";
 import { RenderPassStatisticsInfo } from "./laya/RenderEngine/RenderEnum/RenderStatInfo";
+import { Physics3DStatInfo } from "./laya/Physics3D/interface/Physics3DStatInfo";
 
 /**
  * @en Laya is the reference entry for global objects.
@@ -167,6 +168,8 @@ export class Laya {
 
         //beforeInitCallbacks 是按顺序执行
         Laya._beforeInitCallbacks.forEach(func => steps.push(() => func(stageConfig)));
+
+        Physics3DStatInfo.initStatisticsInfo();
 
         steps.push(() => LayaGL.renderOBJCreate.createEngine(null, Browser.mainCanvas));
         steps.push(() => Laya.initRender2D(stageConfig));
