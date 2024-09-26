@@ -509,7 +509,6 @@ export class pxPhysicsManager implements IPhysicsManager {
         this._updatePhysicsTransformToRender();
         // update Events
         this._updatePhysicsEvents();
-        Physics3DStatInfo.clearStatisticsInfo();
     }
     /**
      * @en Performs a ray cast in the physics world.Returns the first hit object.

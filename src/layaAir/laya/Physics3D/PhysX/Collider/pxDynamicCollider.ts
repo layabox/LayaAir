@@ -159,6 +159,7 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
         super(manager);
         this._enableProcessCollisions = true;
         this._type = pxColliderType.RigidbodyCollider;
+        Physics3DStatInfo.addStatisticsInfo(EPhysicsStatisticsInfo.C_PhysicaDynamicRigidBody, 1);
     }
 
     /**
@@ -396,8 +397,6 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
             if (this._isSimulate && this.inPhysicUpdateListIndex == -1)
                 this._physicsManager._dynamicUpdateList.add(this);
             this._pxActor.setRigidBodyFlag(pxPhysicsCreateUtil._physX.PxRigidBodyFlag.eKINEMATIC, false);
-            Physics3DStatInfo.addStatisticsInfo(EPhysicsStatisticsInfo.C_PhysicaDynamicRigidBody, 1);
-            Physics3DStatInfo.addStatisticsInfo(EPhysicsStatisticsInfo.C_PhysicaKinematicRigidBody, -1);
         }
     }
 
