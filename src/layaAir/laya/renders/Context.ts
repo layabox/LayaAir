@@ -2016,7 +2016,7 @@ export class Context {
      */
     private _fillTexture_h(tex: Texture, imgid: number, uv: ArrayLike<number>, oriw: number, orih: number, x: number, y: number, w: number, color: number): void {
         if (oriw <= 0)
-            console.error('_fillTexture_h error: oriw must>0');
+            return;//console.error('_fillTexture_h error: oriw must>0');
 
         var stx = x;
         var num = Math.floor(w / oriw);
@@ -2049,7 +2049,7 @@ export class Context {
      */
     private _fillTexture_v(tex: Texture, imgid: number, uv: ArrayLike<number>, oriw: number, orih: number, x: number, y: number, h: number, color: number): void {
         if (orih <= 0)
-            console.error('_fillTexture_v error: orih must>0');
+            return; //console.error('_fillTexture_v error: orih must>0');
         var sty = y;
         var num = Math.floor(h / orih);
         var left = h % orih;
