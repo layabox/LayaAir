@@ -18,9 +18,7 @@ import { ICollider } from "../interface/ICollider";
 import { PhysicsColliderComponent } from "../../d3/physics/PhysicsColliderComponent";
 import { Quaternion } from "../../maths/Quaternion";
 import { btColliderShape } from "./Shape/btColliderShape";
-import { EPhysicsStatisticsInfo } from "../physicsEnum/EPhysicsStatisticsInfo";
 import { Node } from "../../display/Node";
-import { Physics3DStatInfo } from "../interface/Physics3DStatInfo";
 /**
  * @en The `btPhysicsManager` class is the core class for managing the Bullet physics engine.
  * @zh `btPhysicsManager` 类是用于管理 Bullet 物理引擎的核心类。
@@ -1043,7 +1041,6 @@ export class btPhysicsManager implements IPhysicsManager {
         this._updateCollisions();
         //send contact events
         this.dispatchCollideEvent();
-        Physics3DStatInfo.clearStatisticsInfo();
     }
 
     /**
