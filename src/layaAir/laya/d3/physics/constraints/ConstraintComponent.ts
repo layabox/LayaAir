@@ -219,7 +219,7 @@ export class ConstraintComponent extends Component {
      * @protected
      */
     protected _onDestroy() {
-
+        this._joint.destroy();
     }
 
     /**

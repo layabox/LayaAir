@@ -2,7 +2,9 @@ import { PhysicsForceMode } from "../../../d3/physics/PhysicsColliderComponent";
 import { Quaternion } from "../../../maths/Quaternion";
 import { Vector3 } from "../../../maths/Vector3";
 import { IDynamicCollider } from "../../interface/IDynamicCollider";
+import { Physics3DStatInfo } from "../../interface/Physics3DStatInfo";
 import { EColliderCapable } from "../../physicsEnum/EColliderCapable";
+import { EPhysicsStatisticsInfo } from "../../physicsEnum/EPhysicsStatisticsInfo";
 import { pxPhysicsCreateUtil } from "../pxPhysicsCreateUtil";
 import { pxPhysicsManager } from "../pxPhysicsManager";
 import { pxCollider, pxColliderType } from "./pxCollider";
@@ -387,11 +389,15 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
             if (this._isSimulate)
                 this._physicsManager._dynamicUpdateList.remove(this);
             this._pxActor.setRigidBodyFlag(pxPhysicsCreateUtil._physX.PxRigidBodyFlag.eKINEMATIC, true);
+            Physics3DStatInfo.addStatisticsInfo(EPhysicsStatisticsInfo.C_PhysicaKinematicRigidBody, 1);
+            Physics3DStatInfo.addStatisticsInfo(EPhysicsStatisticsInfo.C_PhysicaDynamicRigidBody, -1);
         } else {
             this._enableProcessCollisions = true;
             if (this._isSimulate && this.inPhysicUpdateListIndex == -1)
                 this._physicsManager._dynamicUpdateList.add(this);
             this._pxActor.setRigidBodyFlag(pxPhysicsCreateUtil._physX.PxRigidBodyFlag.eKINEMATIC, false);
+            Physics3DStatInfo.addStatisticsInfo(EPhysicsStatisticsInfo.C_PhysicaDynamicRigidBody, 1);
+            Physics3DStatInfo.addStatisticsInfo(EPhysicsStatisticsInfo.C_PhysicaKinematicRigidBody, -1);
         }
     }
 
@@ -483,5 +489,16 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
         }
     }
 
-
+    /**
+     * @en Destroy Rigidbody
+     * @zh 销毁刚体
+     */
+    destroy(): void {
+        if (this.IsKinematic) {
+            Physics3DStatInfo.addStatisticsInfo(EPhysicsStatisticsInfo.C_PhysicaKinematicRigidBody, -1);
+        } else {
+            Physics3DStatInfo.addStatisticsInfo(EPhysicsStatisticsInfo.C_PhysicaDynamicRigidBody, -1);
+        }
+        super.destroy();
+    }
 }

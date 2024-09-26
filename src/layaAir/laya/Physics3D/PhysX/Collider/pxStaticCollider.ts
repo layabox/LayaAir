@@ -1,7 +1,9 @@
 import { Quaternion } from "../../../maths/Quaternion";
 import { Vector3 } from "../../../maths/Vector3";
 import { IStaticCollider } from "../../interface/IStaticCollider";
+import { Physics3DStatInfo } from "../../interface/Physics3DStatInfo";
 import { EColliderCapable } from "../../physicsEnum/EColliderCapable";
+import { EPhysicsStatisticsInfo } from "../../physicsEnum/EPhysicsStatisticsInfo";
 import { pxPhysicsCreateUtil } from "../pxPhysicsCreateUtil";
 import { pxPhysicsManager } from "../pxPhysicsManager";
 import { pxCollider } from "./pxCollider";
@@ -54,6 +56,7 @@ export class pxStaticCollider extends pxCollider implements IStaticCollider {
      */
     constructor(manager: pxPhysicsManager) {
         super(manager);
+        Physics3DStatInfo.addStatisticsInfo(EPhysicsStatisticsInfo.C_PhysicaStaticRigidBody, 1);
     }
 
 
@@ -91,5 +94,12 @@ export class pxStaticCollider extends pxCollider implements IStaticCollider {
         this.setTrigger(this._isTrigger);
     }
 
-
+    /**
+     * @en Destroy Static Collider
+     * @zh 销毁静态碰撞器
+     */
+    destroy(): void {
+        Physics3DStatInfo.addStatisticsInfo(EPhysicsStatisticsInfo.C_PhysicaStaticRigidBody, -1);
+        super.destroy();
+    }
 }
