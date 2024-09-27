@@ -313,8 +313,11 @@ export class RenderSprite {
             // 先计算需要的texuture的大小。
             let scaleInfo = sprite._cacheStyle._calculateCacheRect(sprite, "bitmap"/*sprite._cacheStyle.cacheAs*/, 0, 0);
             let tRec = _cacheStyle.cacheRect;
-            if (tRec.width <= 0 || tRec.height <= 0)
+            if (tRec.width <= 0 || tRec.height <= 0){
+                //什么也没渲染，注意设置rt为null，后面会判断
+                _cacheStyle.renderTexture = null;
                 return false;
+            }
             //计算cache画布的大小
             Stat.canvasBitmap++;
 
@@ -412,7 +415,7 @@ export class RenderSprite {
         ctx.endRender();
         //临时，恢复
         context && ctx.render2D.setRenderTarget(context.render2D.out);
-        ctx.destroy();
+        //ctx.destroy();
         return rt;
     }
     /**
