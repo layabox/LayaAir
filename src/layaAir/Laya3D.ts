@@ -60,6 +60,7 @@ import { Laya } from "./Laya";
 import { PixelLineMaterial } from "./laya/d3/core/pixelLine/PixelLineMaterial";
 import { Texture2DArray } from "./laya/resource/Texture2DArray";
 import { PlayerConfig } from "./Config";
+import { Physics3DStatInfo } from "./laya/Physics3D/interface/Physics3DStatInfo";
 
 /**
  * @en Laya3D class is used to initialize 3D settings.
@@ -209,7 +210,7 @@ export class Laya3D {
         }
         else {
             Laya3D._enablePhysics = true;
-
+            Physics3DStatInfo.initStatisticsInfo();
             if (PlayerConfig.physics3D)
                 Object.assign(Scene3D.physicsSettings, PlayerConfig.physics3D);
             return Laya3D._PhysicsCreateUtil.initialize();
