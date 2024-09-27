@@ -8,7 +8,13 @@ export class Physics3DStatInfo {
      * @en enable Physics Statistics
      * @zh 启动物理统计信息
      */
-    static enableStatistics: boolean = true;
+    static enableStatistics: boolean = false;
+
+    /**
+     * @en enable Frame ClearData
+     * @zh 是否每帧自动清理
+     */
+    static autoFrameClear: boolean = false;
 
     /**
      * @en Initialize Physical Statistics Map
@@ -18,7 +24,7 @@ export class Physics3DStatInfo {
         for (let i = 0; i < EPhysicsStatisticsInfo.Count; i++) {
             this._PhysicsStatisticsInfo.set(i, 0);
         }
-        if (Physics3DStatInfo.enableStatistics) {
+        if (Physics3DStatInfo.enableStatistics && Physics3DStatInfo.autoFrameClear) {
             ILaya.timer.frameLoop(1, null, Physics3DStatInfo.clearStatisticsInfo);
         }
     }
@@ -71,7 +77,7 @@ export class Physics3DStatInfo {
         for (let i = 0; i < EPhysicsStatisticsInfo.Count; i++) {
             this._PhysicsStatisticsInfo.set(i, 0);
         }
-        if (Physics3DStatInfo.enableStatistics) {
+        if (Physics3DStatInfo.enableStatistics && Physics3DStatInfo.autoFrameClear) {
             ILaya.timer.clear(null, Physics3DStatInfo.clearStatisticsInfo);
         }
     }
