@@ -1,5 +1,4 @@
 import { ILaya } from "../../ILaya";
-import { Physics3DStatInfo } from "../Physics3D/interface/Physics3DStatInfo";
 import { GPUEngineStatisticsInfo } from "../RenderEngine/RenderEnum/RenderStatInfo";
 import { LayaGL } from "../layagl/LayaGL";
 import { Browser } from "./Browser";
@@ -578,7 +577,6 @@ export class Stat {
                 (Stat as any)[element.value] = 0;
         });
         LayaGL.renderEngine.clearStatisticsInfo();
-        Physics3DStatInfo.clearStatisticsInfo();
         Stat.renderPassStatArray.fill(0);
     }
 

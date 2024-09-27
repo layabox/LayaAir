@@ -1,3 +1,4 @@
+import { ILaya } from "../../../ILaya";
 import { EPhysicsStatisticsInfo } from "../physicsEnum/EPhysicsStatisticsInfo";
 
 export class Physics3DStatInfo {
@@ -16,6 +17,9 @@ export class Physics3DStatInfo {
     static initStatisticsInfo(): void {
         for (let i = 0; i < EPhysicsStatisticsInfo.Count; i++) {
             this._PhysicsStatisticsInfo.set(i, 0);
+        }
+        if (Physics3DStatInfo.enableStatistics) {
+            ILaya.timer.frameLoop(1, null, Physics3DStatInfo.clearStatisticsInfo);
         }
     }
 
@@ -56,6 +60,19 @@ export class Physics3DStatInfo {
             for (let i = 0; i < EPhysicsStatisticsInfo.FrameClearCount; i++) {
                 Physics3DStatInfo._PhysicsStatisticsInfo.set(i, 0);
             }
+        }
+    }
+
+    /**
+     * @en Stop Statistics
+     * @zh 停止统计信息
+     */
+    static stopAndClearAllStatisticsInfo(): void {
+        for (let i = 0; i < EPhysicsStatisticsInfo.Count; i++) {
+            this._PhysicsStatisticsInfo.set(i, 0);
+        }
+        if (Physics3DStatInfo.enableStatistics) {
+            ILaya.timer.clear(null, Physics3DStatInfo.clearStatisticsInfo);
         }
     }
 }
