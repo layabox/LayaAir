@@ -111,22 +111,27 @@ export class AnimationRender {
      */
     getFrameIndex(time: number, frameIndex: number) {
         let frames = this.frames;
-        let lastFrame = this.frameNumber - 1;
-        if (frameIndex < -1) {
-            frameIndex = -1;
-        }
-        else if (frameIndex == lastFrame) {
-            if (time < frames[lastFrame]) {
-                frameIndex = -1;
-            }
-        }
-        else if (time >= frames[frameIndex + 1]) {
-            frameIndex++;
-        }
-        else if (time < frames[frameIndex]) {
-            frameIndex = 0;
-        }
-        return frameIndex;
+        let n = frames.length;
+        for (let i = 1; i < n; i++)
+            if (frames[i] > time)
+                return i - 1;
+        return n - 1;
+        // let lastFrame = this.frameNumber - 1;
+        // if (frameIndex < -1) {
+        //     frameIndex = -1;
+        // }
+        // else if (frameIndex == lastFrame) {
+        //     if (time < frames[lastFrame]) {
+        //         frameIndex = -1;
+        //     }
+        // }
+        // else if (time >= frames[frameIndex + 1]) {
+        //     frameIndex++;
+        // }
+        // else if (time < frames[frameIndex]) {
+        //     frameIndex = 0;
+        // }
+        // return frameIndex;
     }
 
     /**
