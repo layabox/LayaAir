@@ -1,4 +1,3 @@
-
 import prime_ps from './files/primitive.ps.glsl';
 import prime_vs from './files/primitive.vs.glsl';
 import texture_ps from './files/texture.ps.glsl';
@@ -11,7 +10,7 @@ import Sprite2DShaderInfo from './NewShader/Sprite2DShaderInfo.glsl';
 import Sprite2DVertex from './NewShader/Sprite2DVertex.glsl';
 
 import { Shader3D, ShaderFeatureType } from "../../../RenderEngine/RenderShader/Shader3D";
-import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
+import { SubShader, UniformMapType } from "../../../RenderEngine/RenderShader/SubShader";
 import { ShaderDataType } from "../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 
 export class Shader2D {

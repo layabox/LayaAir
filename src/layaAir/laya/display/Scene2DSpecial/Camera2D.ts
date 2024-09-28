@@ -19,7 +19,8 @@ export class Camera2D extends Sprite {
     /**@internal */
     static shaderValueInit() {
         if (!Scene.scene2DUniformMap) {
-            Scene.scene2DUniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap("scene2D");
+            //Scene.scene2DUniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap("scene2D");
+            Scene.scene2DUniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap("Sprite2DGlobal"); //名称保持一致 //兼容Light2D
         }
         let scene2DUniformMap = Scene.scene2DUniformMap;
         Camera2D.VIEW2D = Shader3D.propertyNameToID("u_view2D");
@@ -98,12 +99,15 @@ export class Camera2D extends Sprite {
     }
     public set isMain(value: boolean) {
         if (this.scene) {
-            if (value)
+            if (value) {
                 this.scene._specialManager._setMainCamera(this);
-            else
+            }
+            else {
                 (this.scene._specialManager._mainCamera == this) && this.scene._specialManager._setMainCamera(null);
+            }
+        } else {
+            this._isMain = value;
         }
-        this._isMain = value;
     }
 
     /**@internal TODO*/

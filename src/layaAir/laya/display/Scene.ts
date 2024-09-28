@@ -8,12 +8,12 @@ import { ILaya } from "../../ILaya";
 import { Prefab } from "../resource/HierarchyResource";
 import { LegacyUIParser } from "../loaders/LegacyUIParser";
 import { NodeFlags } from "../Const";
-import { Vector2 } from "../maths/Vector2";
 import { Context } from "../renders/Context";
 import { CommandUniformMap } from "../RenderDriver/DriverDesign/RenderDevice/CommandUniformMap";
 import { Scene2DSpecialManager } from "./Scene2DSpecial/Scene2DSpecialManager";
 import { Render2DSimple } from "../renders/Render2D";
 import { Laya, stage } from "../../Laya";
+import { Light2DManager } from "./Scene2DSpecial/Light2D/Light2DManager";
 
 /**
  * @en Scene class, responsible for scene creation, loading, destruction and other functions.
@@ -76,12 +76,15 @@ export class Scene extends Sprite {
     private _componentElementDatasMap: any = {};
 
     _specialManager: Scene2DSpecialManager;
+    _light2DManager: Light2DManager;
 
     constructor(createChildren = true) {
         super();
         this._specialManager = new Scene2DSpecialManager();
         this._timer = ILaya.timer;
         this._widget = Widget.EMPTY;
+
+        this._light2DManager = new Light2DManager(this);
 
         this._scene = this;
         if (createChildren)
@@ -446,6 +449,8 @@ export class Scene extends Sprite {
         //更新2DScene场景数据    
         this._specialManager._preRenderUpdate(ctx);
         Render2DSimple.rendercontext2D.sceneData = this._specialManager._shaderData;
+        if (this._light2DManager)
+            this._light2DManager.preRenderUpdate(ctx);
     }
 
     /**
@@ -456,7 +461,6 @@ export class Scene extends Sprite {
         //恢复2D场景数据状态
         ctx.drawLeftData();
         Render2DSimple.rendercontext2D.sceneData = null;
-        //Render2DSimple.rendercontext2D.sceneData = null;
     }
 
 

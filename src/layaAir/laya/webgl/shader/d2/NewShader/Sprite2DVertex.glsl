@@ -55,6 +55,10 @@
        		#endif  
             pos = vec4((a_position.x/u_size.x-0.5)*2.0,(0.5-a_position.y/u_size.y)*2.0,a_position.z,1.0);
         #endif
+
+        #ifdef INVERTY
+            pos.y = -pos.y;
+        #endif
     }
 #endif
 
@@ -143,14 +147,16 @@
    uniform vec4 u_clipMatDir;
    uniform vec2 u_clipMatPos;// 这个是全局的，不用再应用矩阵了。
 
-    //attribute vec3 a_position
-    //attribute vec4 a_color
-    //attribute vec2 a_uv
+    #ifdef LIGHT_AND_SHADOW
+        uniform vec4 u_LightAndShadow2DParam;
+     
+    #endif
 
     struct vertexInfo {
         vec4 color;
         vec2 uv;
         vec2 pos;
+        vec2 lightUV[5];//TODO
     };
 
     void getVertexInfo(inout vertexInfo info){
@@ -162,6 +168,21 @@
          #ifdef UV
             info.uv = a_uv;
          #endif
+
+         #ifdef LIGHT_AND_SHADOW//TODO
+            float x = u_NMatrix_0.x * info.pos.x - u_NMatrix_0.y * info.pos.y + u_NMatrix_0.z;
+            float y =-u_NMatrix_1.x * info.pos.x + u_NMatrix_1.y * info.pos.y + u_NMatrix_1.z;
+            info.lightUV[0].x = (x - u_LightAndShadow2DParam.x) / u_LightAndShadow2DParam.z;
+            info.lightUV[0].y = 1.0 - (y - u_LightAndShadow2DParam.y) / u_LightAndShadow2DParam.w;
+            info.lightUV[1].x = info.lightUV[0].x - 2.0 / u_LightAndShadow2DParam.z;
+            info.lightUV[1].y = info.lightUV[0].y;
+            info.lightUV[2].x = info.lightUV[0].x + 2.0 / u_LightAndShadow2DParam.z;
+            info.lightUV[2].y = info.lightUV[0].y;
+            info.lightUV[3].x = info.lightUV[0].x;
+            info.lightUV[3].y = info.lightUV[0].y - 2.0 / u_LightAndShadow2DParam.w;
+            info.lightUV[4].x = info.lightUV[0].x;
+            info.lightUV[4].y = info.lightUV[0].y + 2.0 / u_LightAndShadow2DParam.w;
+        #endif
     }
 
     vec2 getClipedInfo(vec2 screenPos){
@@ -180,8 +201,10 @@
 
     void getPosition(inout vec4 pos){
         pos = vec4(a_position.xy,0.,1.);
-        float x=u_NMatrix_0.x*pos.x+u_NMatrix_1.x*pos.y+u_NMatrix_0.z;
-        float y=u_NMatrix_0.y*pos.x+u_NMatrix_1.y*pos.y+u_NMatrix_1.z;
+        //float x=u_NMatrix_0.x*pos.x+u_NMatrix_1.x*pos.y+u_NMatrix_0.z;
+        //float y=u_NMatrix_0.y*pos.x+u_NMatrix_1.y*pos.y+u_NMatrix_1.z;
+        float x = u_NMatrix_0.x * pos.x - u_NMatrix_0.y * pos.y + u_NMatrix_0.z;
+        float y =-u_NMatrix_1.x * pos.x + u_NMatrix_1.y * pos.y + u_NMatrix_1.z;
         pos.xy = vec2(x,y);
         #ifdef CAMERA2D
             pos.xy = (u_view2D *vec3(pos.x,pos.y,1.0)).xy+u_baseRenderSize2D/2.;

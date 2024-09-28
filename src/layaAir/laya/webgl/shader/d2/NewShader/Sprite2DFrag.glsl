@@ -190,6 +190,11 @@ vec4 transspaceColor(vec4 color)
     uniform sampler2D u_baseRender2DTexture;
     uniform vec4 u_baseRenderColor;
 
+#ifdef LIGHT_AND_SHADOW
+    uniform vec4 u_LightAndShadow2DParam;
+    uniform vec4 u_LightAndShadow2DAmbient;
+    uniform sampler2D u_LightAndShadow2D;
+#endif
 
     void setglColor(in vec4 color){
         color.a *= v_color.w;

@@ -4,6 +4,7 @@ import { ShaderData, ShaderDataType } from "../RenderDriver/DriverDesign/RenderD
 import { ShaderDefine } from "../RenderDriver/RenderModuleData/Design/ShaderDefine";
 import { Shader3D } from "../RenderEngine/RenderShader/Shader3D";
 import { Component } from "../components/Component";
+import { Scene } from "../display/Scene";
 import { Sprite } from "../display/Sprite";
 import { LayaGL } from "../layagl/LayaGL";
 import { Vector2 } from "../maths/Vector2";
@@ -50,10 +51,16 @@ export class BaseRenderNode2D extends Component {
      * 渲染节点size ID
      */
     static BASERENDERSIZE: number;
+
     /**
      * 2D渲染节点宏
      */
     static SHADERDEFINE_BASERENDER2D: ShaderDefine;
+
+    /**
+     * 2D灯光宏
+     */
+    static SHADERDEFINE_LIGHTANDSHADOW: ShaderDefine;
 
     /**
      * @internal
@@ -64,7 +71,9 @@ export class BaseRenderNode2D extends Component {
         BaseRenderNode2D.BASERENDER2DCOLOR = Shader3D.propertyNameToID("u_baseRenderColor");
         BaseRenderNode2D.BASERENDER2DTEXTURE = Shader3D.propertyNameToID("u_baseRender2DTexture")
         BaseRenderNode2D.BASERENDERSIZE = Shader3D.propertyNameToID("u_baseRenderSize2D");
+
         BaseRenderNode2D.SHADERDEFINE_BASERENDER2D = Shader3D.getDefineByName("BASERENDER2D");
+        BaseRenderNode2D.SHADERDEFINE_LIGHTANDSHADOW = Shader3D.getDefineByName("LIGHT_AND_SHADOW");
 
         const commandUniform = LayaGL.renderDeviceFactory.createGlobalUniformMap("BaseRender2D");
         commandUniform.addShaderUniform(BaseRenderNode2D.NMATRIX_0, "u_NMatrix_0", ShaderDataType.Vector3);
@@ -131,12 +140,14 @@ export class BaseRenderNode2D extends Component {
      * 节点内的渲染排序模式
      */
     private _ordingMode: Render2DOrderMode;
+
     /**
      * @internal
      * 渲染目标大小
      */
     private _rtsize: Vector2 = new Vector2();
 
+    protected _lightReceive: boolean = false;
 
     /**
      * 基于不同BaseRender的uniform集合
@@ -157,8 +168,6 @@ export class BaseRenderNode2D extends Component {
     protected _transformChange() {
         //TODO
     }
-
-
 
     /**
      * @internal
@@ -184,7 +193,7 @@ export class BaseRenderNode2D extends Component {
         this._spriteShaderData = LayaGL.renderDeviceFactory.createShaderData(null);
         this._renderType = BaseRender2DType.baseRenderNode;
         this._ordingMode = Render2DOrderMode.elementIndex;
-        this._layer = 1;
+        //this._layer = 1; ?
     }
 
     /**
@@ -215,7 +224,7 @@ export class BaseRenderNode2D extends Component {
     protected _onEnable(): void {
         super._onEnable();
         if (this.owner) {
-            (this.owner as Sprite).renderNode2D = this;;
+            (this.owner as Sprite).renderNode2D = this;
         }
     }
 
@@ -227,6 +236,7 @@ export class BaseRenderNode2D extends Component {
         if (this.owner) {
             (this.owner as Sprite).renderNode2D = null;
         }
+        super._onDisable();
     }
 
     /**
@@ -253,10 +263,41 @@ export class BaseRenderNode2D extends Component {
     set layer(value: number) {
         if (this._layer !== value) {
             if (value >= 0 && value <= 30) {
-                this._layer = value;
+                if (this._layer != value) {
+                    this._layer = value;
+                    this._changeLayer();
+                }
             } else {
                 throw new Error("Layer value must be 0-30.");
             }
+        }
+    }
+
+    set lightReceive(value: boolean) {
+        if (value === this._lightReceive)
+            return;
+        this._lightReceive = value;
+        if (value)
+            this._spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_LIGHTANDSHADOW);
+        else this._spriteShaderData.removeDefine(BaseRenderNode2D.SHADERDEFINE_LIGHTANDSHADOW);
+    }
+
+    get lightReceive() {
+        return this._lightReceive;
+    }
+
+    _lightUpdateMask: number;
+    _changeLayer() {
+        this._lightUpdateMask = 0;
+    }
+
+    _updateLight() {
+        if (!this.lightReceive || !this.owner.scene) return;
+        const lightRP = (this.owner.scene as Scene)._light2DManager;
+        const updateMask = lightRP._getLayerUpdateMask(this._layer);
+        if (this._lightUpdateMask != lightRP._getLayerUpdateMask(this._layer)) {
+            lightRP._updateShaderDataByLayer(this._layer, this._spriteShaderData);
+            this._lightUpdateMask = updateMask;
         }
     }
 
@@ -269,7 +310,7 @@ export class BaseRenderNode2D extends Component {
     }
 
     set sharedMaterial(value: Material) {
-        var lastValue: Material = this._materials[0];
+        const lastValue: Material = this._materials[0];
         if (lastValue !== value) {
             this._materials[0] = value;
             this._changeMaterialReference(lastValue, value);
@@ -291,8 +332,5 @@ export class BaseRenderNode2D extends Component {
      */
     clear(): void {
         this._renderElements.length = 0;
-
     }
-
-
 }
