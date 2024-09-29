@@ -35,7 +35,7 @@ export class Light2DManager {
 
     target: RenderTexture2D[] = []; //渲染目标（光影图），数量等于有灯光的层数
     param: Vector4[] = []; //光影图参数（xy：偏移，zw：宽高）
-    ambient: Color = new Color(0.5, 0.5, 0.5, 1); //环境光
+    ambient: Color = new Color(0.25, 0.25, 0.25, 1); //环境光
     ambientLayerMask: number = 1; //环境光影响的层
 
     private _PCF: Vector2[] = []; //PCF系数
@@ -97,8 +97,6 @@ export class Light2DManager {
             new Vector2(2, 2),
         ];
     }
-
-
 
     showRenderTarget(layer: number = 0) {
         if (!this._showRenderTarget[layer])
@@ -204,7 +202,6 @@ export class Light2DManager {
         let lights = this._lightsInLayer[layer];
         if (!lights)
             lights = this._lightsInLayer[layer] = [];
-        const len = lights.length;
         this._collectLightAndOccluderInLayer(layer);
         this._calcLightRange(layer);
         return lights.length > 0;
@@ -378,7 +375,7 @@ export class Light2DManager {
             result.length = 0;
             const range = light.getLightRange(this._screenSchmitt);
             for (let i = occluders.length - 1; i > -1; i--)
-                if (range.intersects(occluders[i].range))
+                if (range.intersects(occluders[i]._range))
                     result.push(occluders[i]);
         };
 
@@ -411,7 +408,7 @@ export class Light2DManager {
             let state = '[';
             for (let i = occluders.length - 1; i > -1; i--) {
                 const occluder = occluders[i];
-                state += '<' + occluder.occluderId + '>' + occluder.getSegmentState();
+                state += '<' + occluder._occluderId + '>' + occluder.getSegmentState();
             }
             state += ']';
             return state;
@@ -437,7 +434,7 @@ export class Light2DManager {
                     occluders[j].transformPoly();
                     occluders[j].getRange();
                 }
-                let update1 = true;
+                let update1 = false;
                 let update2 = false;
                 let update3 = false;
                 if (this._screenSchmittChange) { //屏幕位置和尺寸是否改变
@@ -495,7 +492,6 @@ export class Light2DManager {
                     }
                     update3 = false;
                 }
-                needRender = true;
                 if (needRender) { //更新光影图
                     this._scene.addChild(this._root);
                     this._root.drawToTexture(0, 0, 0, 0, this.target[i]);

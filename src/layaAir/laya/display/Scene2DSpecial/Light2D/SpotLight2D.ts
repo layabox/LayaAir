@@ -132,10 +132,6 @@ export class SpotLight2D extends BaseLight2D {
      */
     renderLightTexture(scene: Scene) {
         super.renderLightTexture(scene);
-        // if (this._lastRotation !== this.globalRotation) {
-        //     this._lastRotation = this.globalRotation;
-        //     this.needUpdateLight = true;
-        // }
         if (this._needUpdateLight) {
             this._needUpdateLight = false;
             this.updateMark++;
@@ -192,8 +188,6 @@ export class SpotLight2D extends BaseLight2D {
         const inds: number[] = [];
 
         //中心坐标
-        //const centerX = (this.owner as Sprite).width / 2;
-        //const centerY = (this.owner as Sprite).height / 2;
         const centerX = this._range.width / 2;
         const centerY = this._range.height / 2;
 

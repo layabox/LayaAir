@@ -12,6 +12,7 @@ import { Scene } from "../../Scene";
 import { Sprite } from "../../Sprite";
 import { Mesh2DRender } from "../Mesh2DRender";
 import { BaseLight2D, Light2DType } from "./BaseLight2D";
+import { PolygonPoint2D } from "./PolygonPoint2D";
 import { ShowRenderTarget } from "./ShowRenderTarget";
 
 /**
@@ -21,8 +22,8 @@ export class FreeformLight2D extends BaseLight2D {
     static FALLOF_WIDTH: number = 100; //渐变区的宽度系数
     private _falloffRange: number = 1; //灯光衰减范围 0-10
 
-    private _lightPolygon: Vector2[] = []; //定义灯光的多边形顶点（顺时针存储）
-    private _globalPolygon: Vector2[] = []; //变换后的多边形顶点（顺时针存储）
+    private _lightPolygon: PolygonPoint2D; //定义灯光的多边形顶点（顺时针存储）
+    private _globalPolygon: PolygonPoint2D; //变换后的多边形顶点（顺时针存储）
 
     //用于生成灯光贴图
     private _sprite: Sprite;
@@ -62,50 +63,13 @@ export class FreeformLight2D extends BaseLight2D {
     }
 
     /**
-     * 添加灯光顶点
-     * @param x 
-     * @param y 
-     * @param index 
+     * 设置多边形端点数据
+     * @param poly 
      */
-    addPoint(x: number, y: number, index: number = -1) {
-        if (index < 0) {
-            this._lightPolygon.push(new Vector2(x, y));
-            this._globalPolygon.push(new Vector2(x, y));
-        } else {
-            for (let i = this._lightPolygon.length; i > index; i--) {
-                this._lightPolygon[i] = this._lightPolygon[i - 1];
-                this._globalPolygon[i] = this._globalPolygon[i - 1];
-            }
-            this._lightPolygon[index] = new Vector2(x, y);
-            this._globalPolygon[index] = new Vector2(x, y);
-        }
+    setPolygonPoint(poly: PolygonPoint2D) {
+        this._lightPolygon = poly;
+        this._globalPolygon = poly.clone();
         this._needUpdateLight = true;
-    }
-
-    /**
-     * 更新灯光顶点
-     * @param x 
-     * @param y 
-     * @param index 
-     */
-    updatePoint(x: number, y: number, index: number) {
-        if (index < this._lightPolygon.length && index >= 0) {
-            this._lightPolygon[index].x = x;
-            this._lightPolygon[index].y = y;
-            this._needUpdateLight = true;
-        }
-    }
-
-    /**
-     * 删除灯光顶点
-     * @param index 
-     */
-    removePoint(index: number) {
-        if (index < this._lightPolygon.length && index >= 0) {
-            this._lightPolygon.splice(index, 1);
-            this._globalPolygon.splice(index, 1);
-            this._needUpdateLight = true;
-        }
     }
 
     /**
@@ -113,33 +77,33 @@ export class FreeformLight2D extends BaseLight2D {
      * @param screen 
      */
     getLightRange(screen?: Rectangle) {
-        this._transformPoly();
-        let xmin = Number.POSITIVE_INFINITY;
-        let ymin = Number.POSITIVE_INFINITY;
-        let xmax = Number.NEGATIVE_INFINITY;
-        let ymax = Number.NEGATIVE_INFINITY;
-        const polygon = this._globalPolygon;
-        for (let i = polygon.length - 1; i > -1; i--) {
-            const poly = polygon[i];
-            if (xmin > poly.x) xmin = poly.x;
-            if (xmax < poly.x) xmax = poly.x;
-            if (ymin > poly.y) ymin = poly.y;
-            if (ymax < poly.y) ymax = poly.y;
-        }
-        let x = (xmax - xmin) * Browser.pixelRatio | 0;
-        let y = (ymax - ymin) * Browser.pixelRatio | 0;
-        const t = this._falloffRange * FreeformLight2D.FALLOF_WIDTH * 1.5 * Browser.pixelRatio | 0;
-        //const w = (this.owner as Sprite).width = x + 10 + t * 2;
-        //const h = (this.owner as Sprite).height = y + 10 + t * 2;
-        const w = this._range.width = x + 10 + t * 2;
-        const h = this._range.height = y + 10 + t * 2;
-        x = this._range.x = (xmin - 5 - t) | 0;
-        y = this._range.y = (ymin - 5 - t) | 0;
-        this._range.width = w;
-        this._range.height = h;
-        for (let i = polygon.length - 1; i > -1; i--) {
-            polygon[i].x -= x;
-            polygon[i].y -= y;
+        if (this._globalPolygon) {
+            this._transformPoly();
+            let xmin = Number.POSITIVE_INFINITY;
+            let ymin = Number.POSITIVE_INFINITY;
+            let xmax = Number.NEGATIVE_INFINITY;
+            let ymax = Number.NEGATIVE_INFINITY;
+            const polygon = this._globalPolygon.points;
+            for (let i = polygon.length - 1; i > -1; i--) {
+                const poly = polygon[i];
+                if (xmin > poly.x) xmin = poly.x;
+                if (xmax < poly.x) xmax = poly.x;
+                if (ymin > poly.y) ymin = poly.y;
+                if (ymax < poly.y) ymax = poly.y;
+            }
+            let x = (xmax - xmin) * Browser.pixelRatio | 0;
+            let y = (ymax - ymin) * Browser.pixelRatio | 0;
+            const t = this._falloffRange * FreeformLight2D.FALLOF_WIDTH * 1.5 * Browser.pixelRatio | 0;
+            const w = this._range.width = x + 10 + t * 2;
+            const h = this._range.height = y + 10 + t * 2;
+            x = this._range.x = (xmin - 5 - t) | 0;
+            y = this._range.y = (ymin - 5 - t) | 0;
+            this._range.width = w;
+            this._range.height = h;
+            for (let i = polygon.length - 1; i > -1; i--) {
+                polygon[i].x -= x;
+                polygon[i].y -= y;
+            }
         }
         return this._range;
     }
@@ -150,12 +114,7 @@ export class FreeformLight2D extends BaseLight2D {
      */
     renderLightTexture(scene: Scene) {
         super.renderLightTexture(scene);
-        // if (this._lastRotation !== this.globalRotation) {
-        //     this._lastRotation = this.globalRotation;
-        //     this.needUpdateLight = true;
-        // }
-        //this._needUpdateLight = true;
-        if (this._needUpdateLight) {
+        if (this._globalPolygon && this._needUpdateLight) {
             this._needUpdateLight = false;
             this.updateMark++;
             const range = this.getLightRange();
@@ -196,24 +155,26 @@ export class FreeformLight2D extends BaseLight2D {
      * 变换多边形顶点
      */
     private _transformPoly() {
-        const globalPoly = this._globalPolygon;
-        const polygon = this._lightPolygon;
-        const len = polygon.length;
-        const ox = (this.owner as Sprite).globalPosX * Browser.pixelRatio;
-        const oy = (this.owner as Sprite).globalPosY * Browser.pixelRatio;
-        const sx = (this.owner as Sprite).globalScaleX;
-        const sy = (this.owner as Sprite).globalScaleY;
-        const rotation = (this.owner as Sprite).globalRotation * Math.PI / 180;
-        const pivotX = (this.owner as Sprite).pivotX * Browser.pixelRatio;
-        const pivotY = (this.owner as Sprite).pivotY * Browser.pixelRatio;
-        const sinA = Math.sin(rotation);
-        const cosA = Math.cos(rotation);
-        let x = 0, y = 0;
-        for (let i = 0; i < len; i++) {
-            x = polygon[i].x * Browser.pixelRatio - pivotX;
-            y = polygon[i].y * Browser.pixelRatio - pivotY;
-            globalPoly[i].x = (x * cosA - y * sinA) * sx + pivotX + ox;
-            globalPoly[i].y = (x * sinA + y * cosA) * sy + pivotY + oy;
+        if (this._globalPolygon) {
+            const globalPoly = this._globalPolygon.points;
+            const polygon = this._lightPolygon.points;
+            const len = polygon.length;
+            const ox = (this.owner as Sprite).globalPosX * Browser.pixelRatio;
+            const oy = (this.owner as Sprite).globalPosY * Browser.pixelRatio;
+            const sx = (this.owner as Sprite).globalScaleX;
+            const sy = (this.owner as Sprite).globalScaleY;
+            const rotation = (this.owner as Sprite).globalRotation * Math.PI / 180;
+            const pivotX = (this.owner as Sprite).pivotX * Browser.pixelRatio;
+            const pivotY = (this.owner as Sprite).pivotY * Browser.pixelRatio;
+            const sinA = Math.sin(rotation);
+            const cosA = Math.cos(rotation);
+            let x = 0, y = 0;
+            for (let i = 0; i < len; i++) {
+                x = polygon[i].x * Browser.pixelRatio - pivotX;
+                y = polygon[i].y * Browser.pixelRatio - pivotY;
+                globalPoly[i].x = (x * cosA - y * sinA) * sx + pivotX + ox;
+                globalPoly[i].y = (x * sinA + y * cosA) * sy + pivotY + oy;
+            }
         }
     }
 
@@ -225,7 +186,7 @@ export class FreeformLight2D extends BaseLight2D {
     private _createMesh(expand: number, arcSegments: number = 8) {
         const points: Vector3[] = [];
         const inds: number[] = [];
-        const poly = this._globalPolygon;
+        const poly = this._globalPolygon.points;
         const len = poly.length;
         const normal1 = new Vector2();
         const normal2 = new Vector2();
