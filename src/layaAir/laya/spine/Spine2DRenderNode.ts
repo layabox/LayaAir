@@ -206,7 +206,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
             let template = ILaya.loader.getRes(value, Loader.SPINE);
             if (template) {
                 this.templet = template;
-            }else{
+            } else {
                 ILaya.loader.load(value, Loader.SPINE).then((templet: SpineTemplet) => {
                     if (!this._source || templet && !templet.isCreateFromURL(this._source))
                         return;
@@ -323,12 +323,40 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
         return Spine2DRenderNode.PLAYING;
     }
 
+
+    private _useFastRender: boolean = true;
+    /**
+     * @en Whether to use fast rendering. It is enabled by default. When some complex spines are enabled, this value will render errors. For example, the number of bone controls of a vertex in the spine resource is greater than 4
+     * @returns Whether to use the state of fast rendering currently.
+     * @zh 是否使用快速渲染，默认开启，某些复杂的Spine开启此值会渲染错误，比如spine资源中某个顶点的骨骼控制数大于4
+     * @returns 当前是否使用快速渲染的状态。
+     */
+    set useFastRender(value: boolean) {
+        if (this._useFastRender === value)
+            return;
+        this._useFastRender = value;
+        if (value) {
+            if ((this.spineItem instanceof SpineNormalRender)) {
+                this.spineItem.destroy();
+                let before = SketonOptimise.normalRenderSwitch;
+                SketonOptimise.normalRenderSwitch = false;
+                this.spineItem = this._templet.sketonOptimise._initSpineRender(this._skeleton, this._templet, this, this._state);
+                SketonOptimise.normalRenderSwitch = before;
+            }
+        } else {
+            this.changeNormal();
+        }
+    }
+
+    get useFastRender() {
+        return this._useFastRender;
+    }
+
     spineItem: ISpineOptimizeRender;
 
     /** @ignore */
     onAwake(): void {
         if (this._skeleton) {
-            //this.spineItem = this._templet.sketonOptimise._initSpineRender(this._skeleton, this._templet, this, this._state);
             if (LayaEnv.isPlaying && this._animationName !== undefined)
                 this.play(this._animationName, this._loop, true);
         }
@@ -360,7 +388,14 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
         //this._renerer = new SpineSkeletonRenderer(templet, false);
         this._timeKeeper = new TimeKeeper(Laya.timer);
         //let sMesh=this._templet.slotManger.init(this._skeleton.drawOrder, this._templet,this._templet.mainTexture);
-        this.spineItem = this._templet.sketonOptimise._initSpineRender(this._skeleton, this._templet, this, this._state);
+        if (!this._useFastRender) {
+            let before = SketonOptimise.normalRenderSwitch;
+            SketonOptimise.normalRenderSwitch = true;
+            this.spineItem = this._templet.sketonOptimise._initSpineRender(this._skeleton, this._templet, this, this._state);
+            SketonOptimise.normalRenderSwitch = before;
+        } else
+            this.spineItem = this._templet.sketonOptimise._initSpineRender(this._skeleton, this._templet, this, this._state);
+
         let skinIndex = this._templet.getSkinIndexByName(this._skinName);
         if (skinIndex != -1)
             this.showSkinByIndex(skinIndex);

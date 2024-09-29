@@ -3,6 +3,7 @@ import { SketonOptimise } from "./optimize/SketonOptimise";
 import { Material } from "../resource/Material";
 import { SpineShaderInit } from "./material/SpineShaderInit";
 import { Texture2D } from "../resource/Texture2D";
+import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
 
 
 /**
@@ -95,6 +96,11 @@ export class SpineTemplet extends Resource {
      * @param blendMode 要使用的混合模式
      */
     getMaterial(texture: Texture2D, blendMode: number): Material {
+        if (!texture) {
+            console.error("SpineError:cant Find Main Texture");
+            texture = Texture2D.whiteTexture;
+        }
+
         let key = texture.id + "_" + blendMode;
         let mat = this.materialMap.get(key);
         if (!mat) {
@@ -102,7 +108,11 @@ export class SpineTemplet extends Resource {
             mat.setShaderName("SpineStandard");
             SpineShaderInit.initSpineMaterial(mat);
             mat.setTextureByIndex(SpineShaderInit.SpineTexture, texture);
-
+            if (texture.gammaCorrection != 1) {
+                mat.addDefine(ShaderDefines2D.GAMMATEXTURE);
+            } else {
+                mat.removeDefine(ShaderDefines2D.GAMMATEXTURE);
+            }
             SpineShaderInit.SetSpineBlendMode(blendMode, mat);
             //mat.color = this.owner.spineColor;
             //mat.setVector2("u_size",new Vector2(Laya.stage.width,Laya.stage.height));
