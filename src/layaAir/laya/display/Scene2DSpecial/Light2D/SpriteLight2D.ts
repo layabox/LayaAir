@@ -64,4 +64,12 @@ export class SpriteLight2D extends BaseLight2D {
             }
         }
     }
+
+    protected _onDestroy() {
+        super._onDestroy();
+        if (this._texLight) {
+            this._texLight._removeReference(1);
+            this._texLight = null;
+        }
+    }
 }

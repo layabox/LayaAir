@@ -62,6 +62,11 @@ export class FreeformLight2D extends BaseLight2D {
         }
     }
 
+    protected _transformChange() {
+        super._transformChange();
+        this._transformPoly();
+    }
+
     /**
      * 设置多边形端点数据
      * @param poly 
@@ -78,7 +83,7 @@ export class FreeformLight2D extends BaseLight2D {
      */
     getLightRange(screen?: Rectangle) {
         if (this._globalPolygon) {
-            this._transformPoly();
+            //this._transformPoly();
             let xmin = Number.POSITIVE_INFINITY;
             let ymin = Number.POSITIVE_INFINITY;
             let xmax = Number.NEGATIVE_INFINITY;
@@ -387,5 +392,13 @@ export class FreeformLight2D extends BaseLight2D {
             if (_pointInTriangle(vertices[index], a, b, c)) return true;
         }
         return false;
+    }
+
+    protected _onDestroy() {
+        super._onDestroy();
+        if (this._texLight) {
+            this._texLight.destroy();
+            this._texLight = null;
+        }
     }
 }

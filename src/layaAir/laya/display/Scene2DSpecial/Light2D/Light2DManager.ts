@@ -431,7 +431,7 @@ export class Light2DManager {
                 let needRender = false;
                 const occluders = this._occludersInLayer[i]; //遮光器坐标转换
                 for (let j = occluders.length - 1; j > -1; j--) {
-                    occluders[j].transformPoly();
+                    //occluders[j].transformPoly();
                     occluders[j].getRange();
                 }
                 let update1 = false;

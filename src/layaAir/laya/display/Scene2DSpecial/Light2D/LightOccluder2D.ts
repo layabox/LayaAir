@@ -17,9 +17,29 @@ export class LightOccluder2D extends Component {
      */
     static _idCounter: number = 0;
 
-    layerMask: number = 1; //层遮罩
-    canInLight: boolean = true; //如果灯光原点落入遮光器内部，是否挡光
-    outside: boolean = true; //是否只是外圈起作用
+    private _layerMask: number = 1; //层遮罩
+    get layerMask(): number {
+        return this._layerMask;
+    }
+    set layerMask(value: number) {
+        this._layerMask = value;
+    }
+
+    private _canInLight: boolean = true; //如果灯光原点落入遮光器内部，是否挡光
+    get canInLight(): boolean {
+        return this._canInLight;
+    }
+    set canInLight(value: boolean) {
+        this._canInLight = value;
+    }
+
+    private _outside: boolean = true; //是否只是外圈起作用
+    get outside(): boolean {
+        return this._outside;
+    }
+    set outside(value: boolean) {
+        this._outside = value;
+    }
 
     /**
      * @internal
@@ -68,8 +88,11 @@ export class LightOccluder2D extends Component {
             lightRP.removeOccluder(this);
     }
 
+    /**
+     * owner的transform发生改变
+     */
     protected _transformChange() {
-
+        this._transformPoly();
     }
 
     /**
@@ -82,6 +105,7 @@ export class LightOccluder2D extends Component {
         if (!this._cutPolygon)
             this._cutPolygon = new PolygonPoint2D();
         else this._cutPolygon.clear();
+        this._transformPoly();
     }
 
     /**
@@ -200,7 +224,7 @@ export class LightOccluder2D extends Component {
                 else this._select = true;
             } else this._select = true;
 
-            this.transformPoly();
+            //this._transformPoly();
             if (this._select && this.outside)
                 this._selectOutside(this._globalPolygon.points, new Vector2(x, y), this._outsideSegment);
         }
@@ -211,7 +235,7 @@ export class LightOccluder2D extends Component {
     /**
      * 变换多边形顶点
      */
-    transformPoly() {
+    private _transformPoly() {
         if (this._globalPolygon) {
             const globalPoly = this._globalPolygon.points;
             const polygon = this._occluderPolygon.points;

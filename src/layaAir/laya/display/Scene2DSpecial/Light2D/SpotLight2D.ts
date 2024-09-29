@@ -255,4 +255,12 @@ export class SpotLight2D extends BaseLight2D {
 
         return this._makeMesh(points, inds);
     }
+
+    protected _onDestroy() {
+        super._onDestroy();
+        if (this._texLight) {
+            this._texLight.destroy();
+            this._texLight = null;
+        }
+    }
 }
