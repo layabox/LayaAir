@@ -230,8 +230,17 @@ export class Vector4 implements IClone {
      * @param b 第二个四维向量。
      * @returns 如果向量相等则返回 true，否则返回 false。
      */
-    static equals(a: Vector4, b: Vector4): boolean {
+    static equals_(a: Vector4, b: Vector4): boolean {
         return MathUtils3D.nearEqual(Math.abs(a.x), Math.abs(b.x)) && MathUtils3D.nearEqual(Math.abs(a.y), Math.abs(b.y)) && MathUtils3D.nearEqual(Math.abs(a.z), Math.abs(b.z)) && MathUtils3D.nearEqual(Math.abs(a.w), Math.abs(b.w));
+    }
+    /**
+     * 判断两个四维向量是否相等。
+     * @param	a 四维向量。
+     * @param	b 四维向量。
+     * @return  是否相等。
+     */
+    static equals(a: Vector4, b: Vector4): boolean {
+        return MathUtils3D.nearEqual(a.x, b.x) && MathUtils3D.nearEqual(a.y, b.y) && MathUtils3D.nearEqual(a.z, b.z) && MathUtils3D.nearEqual(a.w, b.w);
     }
 
     /**

@@ -1,6 +1,7 @@
 import { Laya } from "../../Laya";
 import { LayaEnv } from "../../LayaEnv";
 import { Camera2D } from "../display/Scene2DSpecial/Camera2D";
+import { LightAndShadow } from "../display/Scene2DSpecial/Light2D/Shader/LightAndShadow";
 import { BaseRenderNode2D } from "../NodeRender2D/BaseRenderNode2D";
 import { IRenderEngine } from "../RenderDriver/DriverDesign/RenderDevice/IRenderEngine";
 import { HTMLCanvas } from "../resource/HTMLCanvas";
@@ -168,8 +169,8 @@ export class Render {
         Render._context = ctx;
         canvas._setContext(ctx);
 
-
         Shader2D.__init__();
+        LightAndShadow.__init__();
         BlendMode._init_();
         Camera2D.shaderValueInit();
         BaseRenderNode2D.initBaseRender2DCommandEncoder();

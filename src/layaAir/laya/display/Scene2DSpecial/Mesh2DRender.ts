@@ -1,6 +1,5 @@
 import { LayaGL } from "../../layagl/LayaGL";
 import { Color } from "../../maths/Color";
-import { Vector2 } from "../../maths/Vector2";
 import { Vector3 } from "../../maths/Vector3";
 import { BaseRenderNode2D } from "../../NodeRender2D/BaseRenderNode2D";
 import { RenderState } from "../../RenderDriver/RenderModuleData/Design/RenderState";
@@ -156,14 +155,17 @@ export class Mesh2DRender extends BaseRenderNode2D {
         let vec3 = Vector3._tempVector3;
         vec3.x = mat.a;
         vec3.y = mat.b;
-        vec3.z = px + mat.tx;
+        //vec3.z = px + mat.tx;
+        vec3.z = mat.tx + mat.a * px + mat.c * py;
         this._spriteShaderData.setVector3(BaseRenderNode2D.NMATRIX_0, vec3);
         vec3.x = mat.c;
         vec3.y = mat.d;
-        vec3.z = py + mat.ty;
+        //vec3.z = py + mat.ty;
+        vec3.z = mat.ty + mat.b * px + mat.d * py;
         this._spriteShaderData.setVector3(BaseRenderNode2D.NMATRIX_1, vec3);
         this._setRenderSize(context.width, context.height)
         context._copyClipInfoToShaderData(this._spriteShaderData);
+        this._lightReceive && this._updateLight();
     }
 
     constructor() {
@@ -184,5 +186,4 @@ export class Mesh2DRender extends BaseRenderNode2D {
         this._materials = [];
         this._spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);
     }
-
 }

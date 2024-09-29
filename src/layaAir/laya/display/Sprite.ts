@@ -313,6 +313,7 @@ export class Sprite extends Node {
      */
     _setX(value: number): void {
         this._x = value;
+        this._notifyTransChangedEvent();
     }
 
     /** 
@@ -324,6 +325,20 @@ export class Sprite extends Node {
      */
     _setY(value: number): void {
         this._y = value;
+        this._notifyTransChangedEvent();
+    }
+
+    /**
+     * 
+     */
+    _notifyTransChangedEvent() {
+        if (this._transChangeNotify) {
+            this.event("2DtransChanged");
+            this._children.forEach(element => {
+                (element as Sprite)._notifyTransChangedEvent();
+            });
+        }
+
     }
 
     /**
@@ -1763,15 +1778,15 @@ export class Sprite extends Node {
         value && value.length === 0 && (value = null);
 
         //先去掉旧的事件监听
-        if(this._filterArr){
-            for(let f of this._filterArr){
-                f && f.off(Filter.EVENT_CHANGE,this,this.repaint);
+        if (this._filterArr) {
+            for (let f of this._filterArr) {
+                f && f.off(Filter.EVENT_CHANGE, this, this.repaint);
             }
         }
         this._filterArr = value ? value.slice() : null;
-        if(value){
-            for(let f of value){
-                f && f.on(Filter.EVENT_CHANGE,this,this.repaint);
+        if (value) {
+            for (let f of value) {
+                f && f.on(Filter.EVENT_CHANGE, this, this.repaint);
             }
         }
         if (value)
@@ -2283,6 +2298,7 @@ export class Sprite extends Node {
         this._tfChanged = true;
         this._renderType |= SpriteConst.TRANSFORM;
         this.parentRepaint(SpriteConst.REPAINT_CACHE);
+        this._notifyTransChangedEvent();
     }
 
     /**
@@ -2340,6 +2356,8 @@ export class Sprite extends Node {
     /**@internal */
     private _cacheGlobal: boolean = false;
     /**@internal */
+    protected _transChangeNotify: boolean = false;
+    /**@internal */
     private _globalPosx: number = 0.0;
     /**@internal */
     private _globalPosy: number = 0.0;
@@ -2390,6 +2408,32 @@ export class Sprite extends Node {
             });
         }
     }
+
+    /**
+     * @internal
+     * 是否派发Trasform改动事件
+     */
+    public get transChangeNotify(): boolean {
+        return this._transChangeNotify;
+    }
+    public set transChangeNotify(value: boolean) {
+        if (this._transChangeNotify == value)
+            return;
+        this._transChangeNotify = value;
+        if (value) {
+            if (this._parent == ILaya.stage || !this._parent) {
+                return;
+            } else {
+                (this._parent as Sprite).transChangeNotify = value;
+            }
+        } else {
+            //更新子节点
+            this._children.forEach(element => {
+                (element as Sprite).transChangeNotify = value;
+            });
+        }
+    }
+
 
     /**
      * @internal
