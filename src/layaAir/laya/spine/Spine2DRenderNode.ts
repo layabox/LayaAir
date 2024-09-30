@@ -27,6 +27,8 @@ import { SpineNormalRender } from "./optimize/SpineNormalRender";
 import { SketonOptimise } from "./optimize/SketonOptimise";
 import { SpineEmptyRender } from "./optimize/SpineEmptyRender";
 import { Texture2D } from "../resource/Texture2D";
+import { Sprite } from "../display/Sprite";
+import { Color } from "../maths/Color";
 
 /**
  * @en The spine animation consists of three parts: `SpineTemplet`, `SpineSkeletonRender`, and `SpineSkeleton`.
@@ -128,6 +130,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
 
     private _externalSkins: ExternalSkin[];
     private _skin: string;
+    private _oldAlpha: number;
 
     private _matBuffer: Float32Array = new Float32Array(6);
     /** @ignore */
@@ -176,6 +179,14 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
         this._spriteShaderData.setBuffer(SpineShaderInit.NMatrix, buffer);
         Vector2.TempVector2.setValue(context.width, context.height);
         this._spriteShaderData.setVector2(SpineShaderInit.Size, Vector2.TempVector2);
+
+        if (this._oldAlpha !== (this.owner as Sprite).alpha) {
+            let scolor = this.spineItem.getSpineColor();
+            let a = scolor.a * (this.owner as Sprite).alpha;
+            let color = new Color(scolor.r , scolor.g , scolor.b , a);
+            this._spriteShaderData.setColor(SpineShaderInit.Color, color);
+            this._oldAlpha = (this.owner as Sprite).alpha;
+        }
         context._copyClipInfoToShaderData(this._spriteShaderData);
     }
 
@@ -335,6 +346,8 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
         if (this._useFastRender === value)
             return;
         this._useFastRender = value;
+        if (!this._templet)
+            return;
         if (value) {
             if ((this.spineItem instanceof SpineNormalRender)) {
                 this.spineItem.destroy();

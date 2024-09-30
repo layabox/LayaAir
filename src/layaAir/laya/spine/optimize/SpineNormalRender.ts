@@ -1,3 +1,4 @@
+import { Sprite } from "../../display/Sprite";
 import { Color } from "../../maths/Color";
 import { Spine2DRenderNode } from "../Spine2DRenderNode";
 import { SpineAdapter } from "../SpineAdapter";
@@ -12,6 +13,9 @@ import { ISpineOptimizeRender } from "./interface/ISpineOptimizeRender";
  * @zh 普通 Spine 渲染实现类。
  */
 export class SpineNormalRender implements ISpineOptimizeRender {
+    getSpineColor(): Color {
+        return this._spineColor;
+    }
     /**
      * @en Destroys the renderer.
      * @zh 销毁渲染器。
@@ -34,6 +38,8 @@ export class SpineNormalRender implements ISpineOptimizeRender {
     _renerer: ISpineRender;
     /** @internal */
     _skeleton: spine.Skeleton;
+    /**@internal */
+    _spineColor: Color
 
     /**
      * @en Initializes the renderer.
@@ -52,7 +58,8 @@ export class SpineNormalRender implements ISpineOptimizeRender {
         this._skeleton = skeleton;
         this._owner = renderNode;
         let scolor = skeleton.color;
-        let color = new Color(scolor.r * scolor.a, scolor.g * scolor.a, scolor.b * scolor.a, scolor.a);
+        this._spineColor = new Color(scolor.r, scolor.g, scolor.b, scolor.a);
+        let color = new Color(scolor.r, scolor.g, scolor.b, scolor.a * (this._owner.owner as Sprite).alpha);
         renderNode._spriteShaderData.setColor(SpineShaderInit.Color, color);
         renderNode._spriteShaderData.removeDefine(SpineShaderInit.SPINE_FAST);
         renderNode._spriteShaderData.removeDefine(SpineShaderInit.SPINE_RB);
@@ -77,15 +84,15 @@ export class SpineNormalRender implements ISpineOptimizeRender {
         //throw new Error("Method not implemented.");
     }
 
-    
+
     /**
      * @en Changes the skeleton.
      * @param skeleton The new spine skeleton.
      * @zh 更改骨骼。
      * @param skeleton 新的 Spine 骨骼。
      */
-    changeSkeleton(skeleton:spine.Skeleton){
-        this._skeleton=skeleton;
+    changeSkeleton(skeleton: spine.Skeleton) {
+        this._skeleton = skeleton;
     }
 
     /**

@@ -1,4 +1,5 @@
 import { BaseRenderNode2D } from "../../NodeRender2D/BaseRenderNode2D";
+import { Color } from "../../maths/Color";
 import { SpineTemplet } from "../SpineTemplet";
 import { TSpineBakeData } from "./SketonOptimise";
 import { ISpineOptimizeRender } from "./interface/ISpineOptimizeRender";
@@ -8,6 +9,9 @@ import { ISpineOptimizeRender } from "./interface/ISpineOptimizeRender";
  * @zh 空实现的渲染器，用于优化 Spine 动画的渲染。
  */
 export class SpineEmptyRender implements ISpineOptimizeRender{
+    getSpineColor(): Color {
+       return Color.WHITE;
+    }
     /**
      * @en Changes the skeleton.
      * @param skeleton The new spine skeleton.

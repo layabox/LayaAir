@@ -6,6 +6,7 @@ import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
 import { DrawType } from "../../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
 import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
+import { Sprite } from "../../display/Sprite";
 import { LayaGL } from "../../layagl/LayaGL";
 import { Color } from "../../maths/Color";
 import { Vector2 } from "../../maths/Vector2";
@@ -148,6 +149,9 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
         }
         this.currentRender = this.skinRenderArray[this._skinIndex];//default
     }
+    getSpineColor(): Color {
+        return this.spineColor;
+    }
 
     /**
      * @en Destroy the SpineOptimizeRender instance.
@@ -238,8 +242,9 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
         this.slots = skeleton.slots;
         this._nodeOwner = renderNode;
         let scolor = skeleton.color;
-        this.spineColor = new Color(scolor.r * scolor.a, scolor.g * scolor.a, scolor.b * scolor.a, scolor.a);
-        renderNode._spriteShaderData.setColor(SpineShaderInit.Color, this.spineColor);
+        this.spineColor = new Color(scolor.r , scolor.g, scolor.b , scolor.a);
+        let color = new Color(scolor.r, scolor.g, scolor.b , scolor.a * (this._nodeOwner.owner as Sprite).alpha);
+        renderNode._spriteShaderData.setColor(SpineShaderInit.Color, color);
         this.skinRenderArray.forEach((value) => {
             value.init(skeleton, templet, renderNode);
         });
