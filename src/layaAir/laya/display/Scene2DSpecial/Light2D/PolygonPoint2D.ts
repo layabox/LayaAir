@@ -4,9 +4,10 @@ import { Vector2 } from "../../../maths/Vector2";
  * 二维点集（可用于表示多边形）
  */
 export class PolygonPoint2D {
-    points: Vector2[] = [];
+    //points: Vector2[] = [];
+    points: number[] = [];
 
-    constructor(points?: Vector2[]) {
+    constructor(points?: number[]) {
         if (points)
             this.points.push(...points);
     };
@@ -19,11 +20,12 @@ export class PolygonPoint2D {
      */
     addPoint(x: number, y: number, index: number = -1) {
         if (index < 0) {
-            this.points.push(new Vector2(x, y));
+            this.points.push(x, y);
         } else {
             for (let i = this.points.length; i > index; i--)
                 this.points[i] = this.points[i - 1];
-            this.points[index] = new Vector2(x, y);
+            this.points[index * 2 + 0] = x;
+            this.points[index * 2 + 1] = y;
         }
     }
 
@@ -34,9 +36,9 @@ export class PolygonPoint2D {
      * @param index 
      */
     updatePoint(x: number, y: number, index: number) {
-        if (index < this.points.length && index >= 0) {
-            this.points[index].x = x;
-            this.points[index].y = y;
+        if (index < (this.points.length / 2 | 0) && index >= 0) {
+            this.points[index * 2 + 0] = x;
+            this.points[index * 2 + 1] = y;
         }
     }
 
@@ -61,8 +63,9 @@ export class PolygonPoint2D {
      */
     clone() {
         const poly = new PolygonPoint2D();
-        for (let i = 0, len = this.points.length; i < len; i++)
-            poly.points.push(new Vector2(this.points[i].x, this.points[i].y));
+        //for (let i = 0, len = this.points.length; i < len; i++)
+        //    poly.points.push(new Vector2(this.points[i].x, this.points[i].y));
+        poly.points.push(...this.points);
         return poly;
     }
 }

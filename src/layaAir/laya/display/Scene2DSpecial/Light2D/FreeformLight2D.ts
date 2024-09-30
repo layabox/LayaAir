@@ -62,19 +62,28 @@ export class FreeformLight2D extends BaseLight2D {
         }
     }
 
+    /**
+     * 相应矩阵变换
+     */
     protected _transformChange() {
         super._transformChange();
         this._transformPoly();
     }
 
     /**
-     * 设置多边形端点数据
-     * @param poly 
+     * 设置多边形顶点
      */
-    setPolygonPoint(poly: PolygonPoint2D) {
+    set polyPoints(poly: PolygonPoint2D) {
         this._lightPolygon = poly;
         this._globalPolygon = poly.clone();
         this._needUpdateLight = true;
+    }
+
+    /**
+     * 获取多边形顶点
+     */
+    get polyPoints() {
+        return this._lightPolygon;
     }
 
     /**
@@ -83,18 +92,19 @@ export class FreeformLight2D extends BaseLight2D {
      */
     getLightRange(screen?: Rectangle) {
         if (this._globalPolygon) {
-            //this._transformPoly();
+            this._transformPoly();
             let xmin = Number.POSITIVE_INFINITY;
             let ymin = Number.POSITIVE_INFINITY;
             let xmax = Number.NEGATIVE_INFINITY;
             let ymax = Number.NEGATIVE_INFINITY;
             const polygon = this._globalPolygon.points;
-            for (let i = polygon.length - 1; i > -1; i--) {
-                const poly = polygon[i];
-                if (xmin > poly.x) xmin = poly.x;
-                if (xmax < poly.x) xmax = poly.x;
-                if (ymin > poly.y) ymin = poly.y;
-                if (ymax < poly.y) ymax = poly.y;
+            for (let i = polygon.length - 2; i > -1; i -= 2) {
+                const x = polygon[i + 0];
+                const y = polygon[i + 1];
+                if (xmin > x) xmin = x;
+                if (xmax < x) xmax = x;
+                if (ymin > y) ymin = y;
+                if (ymax < y) ymax = y;
             }
             let x = (xmax - xmin) * Browser.pixelRatio | 0;
             let y = (ymax - ymin) * Browser.pixelRatio | 0;
@@ -105,9 +115,9 @@ export class FreeformLight2D extends BaseLight2D {
             y = this._range.y = (ymin - 5 - t) | 0;
             this._range.width = w;
             this._range.height = h;
-            for (let i = polygon.length - 1; i > -1; i--) {
-                polygon[i].x -= x;
-                polygon[i].y -= y;
+            for (let i = polygon.length - 2; i > -1; i -= 2) {
+                polygon[i + 0] -= x;
+                polygon[i + 1] -= y;
             }
         }
         return this._range;
@@ -163,7 +173,7 @@ export class FreeformLight2D extends BaseLight2D {
         if (this._globalPolygon) {
             const globalPoly = this._globalPolygon.points;
             const polygon = this._lightPolygon.points;
-            const len = polygon.length;
+            const len = polygon.length / 2 | 0;
             const ox = (this.owner as Sprite).globalPosX * Browser.pixelRatio;
             const oy = (this.owner as Sprite).globalPosY * Browser.pixelRatio;
             const sx = (this.owner as Sprite).globalScaleX;
@@ -175,10 +185,10 @@ export class FreeformLight2D extends BaseLight2D {
             const cosA = Math.cos(rotation);
             let x = 0, y = 0;
             for (let i = 0; i < len; i++) {
-                x = polygon[i].x * Browser.pixelRatio - pivotX;
-                y = polygon[i].y * Browser.pixelRatio - pivotY;
-                globalPoly[i].x = (x * cosA - y * sinA) * sx + pivotX + ox;
-                globalPoly[i].y = (x * sinA + y * cosA) * sy + pivotY + oy;
+                x = polygon[i * 2 + 0] * Browser.pixelRatio - pivotX;
+                y = polygon[i * 2 + 1] * Browser.pixelRatio - pivotY;
+                globalPoly[i * 2 + 0] = (x * cosA - y * sinA) * sx + pivotX + ox;
+                globalPoly[i * 2 + 1] = (x * sinA + y * cosA) * sy + pivotY + oy;
             }
         }
     }
@@ -192,18 +202,18 @@ export class FreeformLight2D extends BaseLight2D {
         const points: Vector3[] = [];
         const inds: number[] = [];
         const poly = this._globalPolygon.points;
-        const len = poly.length;
+        const len = poly.length / 2 | 0;
         const normal1 = new Vector2();
         const normal2 = new Vector2();
 
         //b点是否凸出
-        const _isConvex = (a: Vector2, b: Vector2, c: Vector2) => {
-            return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x) > 0;
+        const _isConvex = (ax: number, ay: number, bx: number, by: number, cx: number, cy: number) => {
+            return (bx - ax) * (cy - ay) - (by - ay) * (cx - ax) > 0;
         };
 
-        const _getNormal = (a: Vector2, b: Vector2, n: Vector2) => {
-            const dx = b.x - a.x;
-            const dy = b.y - a.y;
+        const _getNormal = (ax: number, ay: number, bx: number, by: number, n: Vector2) => {
+            const dx = bx - ax;
+            const dy = by - ay;
             const length = Math.sqrt(dx * dx + dy * dy);
             n.x = dy / length;
             n.y = -dx / length;
@@ -241,7 +251,7 @@ export class FreeformLight2D extends BaseLight2D {
 
         //添加原多边形顶点
         for (let i = 0; i < len; i++)
-            points.push(new Vector3(poly[i].x, poly[i].y, 1));
+            points.push(new Vector3(poly[i * 2], poly[i * 2 + 1], 1));
 
         //添加扩展顶点和圆弧点
         for (let i = 0; i < len; i++) {
@@ -249,27 +259,27 @@ export class FreeformLight2D extends BaseLight2D {
             const next = (i + 1) % len;
             const next2 = (i + 2) % len;
 
-            _getNormal(poly[i], poly[next], normal1);
-            _getNormal(poly[next], poly[next2], normal2);
+            _getNormal(poly[i * 2], poly[i * 2 + 1], poly[next * 2], poly[next * 2 + 1], normal1);
+            _getNormal(poly[next * 2], poly[next * 2 + 1], poly[next2 * 2], poly[next2 * 2 + 1], normal2);
 
             const start = points.length;
-            const p1 = new Vector3(poly[i].x + expand * normal1.x, poly[i].y + expand * normal1.y, 0);
-            const p2 = new Vector3(poly[next].x + expand * normal1.x, poly[next].y + expand * normal1.y, 0);
+            const p1 = new Vector3(poly[i * 2] + expand * normal1.x, poly[i * 2 + 1] + expand * normal1.y, 0);
+            const p2 = new Vector3(poly[next * 2] + expand * normal1.x, poly[next * 2 + 1] + expand * normal1.y, 0);
 
-            if (_isConvex(poly[i], poly[next], poly[next2])) {
+            if (_isConvex(poly[i * 2], poly[i * 2 + 1], poly[next * 2], poly[next * 2 + 1], poly[next2 * 2], poly[next2 * 2 + 1])) {
                 const angle1 = Math.atan2(normal1.y, normal1.x);
                 const angle2 = Math.atan2(normal2.y, normal2.x);
                 let angleDiff = angle2 - angle1;
                 if (angleDiff < 0)
                     angleDiff += Math.PI * 2;
 
-                if (_isConvex(poly[prev], poly[i], poly[next]))
+                if (_isConvex(poly[prev * 2], poly[prev * 2 + 1], poly[i * 2], poly[i * 2 + 1], poly[next * 2], poly[next * 2 + 1]))
                     points.push(p1, p2);
                 else {
-                    _getNormal(poly[prev], poly[i], normal1);
+                    _getNormal(poly[prev * 2], poly[prev * 2 + 1], poly[i * 2], poly[i * 2 + 1], normal1);
 
-                    const p3 = new Vector3(poly[prev].x + expand * normal1.x, poly[prev].y + expand * normal1.y, 0);
-                    const p4 = new Vector3(poly[i].x + expand * normal1.x, poly[i].y + expand * normal1.y, 0);
+                    const p3 = new Vector3(poly[prev * 2] + expand * normal1.x, poly[prev * 2 + 1] + expand * normal1.y, 0);
+                    const p4 = new Vector3(poly[i * 2] + expand * normal1.x, poly[i * 2 + 1] + expand * normal1.y, 0);
                     let t = _intersection(p1, p2, p3, p4);
                     if (!t) t = p1;
                     points.push(t, p2);
@@ -281,14 +291,14 @@ export class FreeformLight2D extends BaseLight2D {
                 for (let j = 1; j <= arcSegments; j++) {
                     const angle = angle1 + (angleDiff * j) / arcSegments;
                     points.push(new Vector3(
-                        poly[next].x + expand * Math.cos(angle),
-                        poly[next].y + expand * Math.sin(angle),
+                        poly[next * 2 + 0] + expand * Math.cos(angle),
+                        poly[next * 2 + 1] + expand * Math.sin(angle),
                         0));
                     inds.push(next, start + j, start + j + 1);
                 }
             } else {
-                const p3 = new Vector3(poly[next].x + expand * normal2.x, poly[next].y + expand * normal2.y, 0);
-                const p4 = new Vector3(poly[next2].x + expand * normal2.x, poly[next2].y + expand * normal2.y, 0);
+                const p3 = new Vector3(poly[next * 2] + expand * normal2.x, poly[next * 2 + 1] + expand * normal2.y, 0);
+                const p4 = new Vector3(poly[next2 * 2] + expand * normal2.x, poly[next2 * 2 + 1] + expand * normal2.y, 0);
                 let t = _intersection(p1, p2, p3, p4);
                 if (!t) t = p2;
                 points.push(p1, t, p4);
@@ -307,10 +317,13 @@ export class FreeformLight2D extends BaseLight2D {
      * 耳切法三角化凹多边形
      * @param polygon 
      */
-    private _earCut(polygon: Vector2[]) {
-        const vertices = polygon.map((p, i) => ({ x: p.x, y: p.y, index: i }));
+    private _earCut(polygon: number[]) {
+        const vertices: { x: number, y: number, index: number }[] = [];
+        let len = polygon.length / 2 | 0;
+        for (let i = 0; i < len; i++)
+            vertices.push({ x: polygon[i * 2], y: polygon[i * 2 + 1], index: i });
         const triangles: number[] = [];
-        const len = vertices.length;
+        len = vertices.length;
         if (len < 3) return triangles;
 
         const indices = vertices.map((_, i) => i);

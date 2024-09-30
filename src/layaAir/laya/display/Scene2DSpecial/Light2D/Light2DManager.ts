@@ -529,7 +529,7 @@ export class Light2DManager {
      * 更新屏幕尺寸和偏移参数
      */
     private _updateScreen() {
-        var camera = this._scene._specialManager._mainCamera;
+        const camera = this._scene._specialManager._mainCamera;
         if (camera) {
             //@ts-ignore
             this._screen.x = (camera._cameraPos.x - RenderState2D.width / 2) | 0;
