@@ -354,6 +354,8 @@ export class Animator2D extends Component {
         let clipDuration = clip!._duration;
         let time = playStateInfo._normalizedPlayTime * clipDuration;
         let frontPlay = playStateInfo._frontPlay;
+        const speed = playStateInfo._currentState.speed;
+        if (0 > speed) frontPlay = !frontPlay;
         let pTime = playStateInfo._parentPlayTime;
         let parentPlayTime = playStateInfo._parentPlayTime;
         if (null == parentPlayTime) {
@@ -365,12 +367,16 @@ export class Animator2D extends Component {
         }
         if (frontPlay) {
             if (time < parentPlayTime) {
-                this._eventScript(events, parentPlayTime, clipDuration * playStateInfo.animatorState.clipEnd, frontPlay);
+                //这里应该是YOYO的开始位置
+                this._eventScript(events, parentPlayTime, time, true);
+                //this._eventScript(events, parentPlayTime, clipDuration * playStateInfo.animatorState.clipEnd, frontPlay);
                 parentPlayTime = clipDuration * playStateInfo.animatorState.clipStart;
             }
         } else {
             if (time > parentPlayTime) {
-                this._eventScript(events, parentPlayTime, clipDuration * playStateInfo.animatorState.clipStart, frontPlay);
+                //这里应该是YOYO的一半结束位置
+                this._eventScript(events, parentPlayTime, time, false);
+                //this._eventScript(events, parentPlayTime, clipDuration * playStateInfo.animatorState.clipStart, frontPlay);
                 parentPlayTime = clipDuration * playStateInfo.animatorState.clipEnd;
             }
         }
