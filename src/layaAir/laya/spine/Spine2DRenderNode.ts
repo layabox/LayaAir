@@ -342,6 +342,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
                 SketonOptimise.normalRenderSwitch = false;
                 this.spineItem = this._templet.sketonOptimise._initSpineRender(this._skeleton, this._templet, this, this._state);
                 SketonOptimise.normalRenderSwitch = before;
+                this.play(this._currAniName, this._loop, true, this._currentPlayTime);
             }
         } else {
             this.changeNormal();
@@ -474,6 +475,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
         start /= 1000;
         end /= 1000;
         let animationName = nameOrIndex;
+        this._loop = loop;
         if (start < 0 || end < 0)
             throw new Error("SpineSkeleton: start and end must large than zero.");
         if ((end !== 0) && (start > end))
