@@ -4,11 +4,10 @@ import { Vector2 } from "../../../maths/Vector2";
 import { BaseLight2D, Light2DType } from "./BaseLight2D";
 
 /**
- * 精灵灯光
+ * 线性灯光
  */
 export class DirectionLight2D extends BaseLight2D {
     private _directionAngle: number = 0;
-
     private _directionVector: Vector2 = new Vector2(1, 0);
 
     constructor(directionAngle: number = 0) {

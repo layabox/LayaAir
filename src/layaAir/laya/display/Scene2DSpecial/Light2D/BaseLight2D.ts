@@ -83,8 +83,6 @@ export class BaseLight2D extends Component {
 
     protected _range: Rectangle = new Rectangle(); //灯光范围
 
-    _needUpdateLightRange: boolean;
-
     protected _recoverFC: number = 0; //回收资源帧序号
     protected _needToRecover: any[] = []; //需要回收的资源
     protected _lastRotation: number = -1; //上一帧旋转角度
@@ -219,17 +217,14 @@ export class BaseLight2D extends Component {
         super._onEnable();
         (this.owner as Sprite).on("2DtransChanged", this, this._transformChange);
         (this.owner as Sprite).transChangeNotify = true;
-        //add to LightAndShadowRP
         const lightRP = (this.owner?.scene as Scene)?._light2DManager;
         if (lightRP)
             lightRP.addLight(this);
     }
 
     protected _onDisable(): void {
-        //TODO
         super._onDisable();
         (this.owner as Sprite).off("2DtransChanged", this, this._transformChange);
-        //remove to LightAddShadowRP
         const lightRP = (this.owner?.scene as Scene)?._light2DManager;
         if (lightRP)
             lightRP.removeLight(this);
@@ -275,19 +270,11 @@ export class BaseLight2D extends Component {
     }
 
     getHeight() {
-        //if (this.owner && this.owner instanceof Sprite)
-            //return this.owner.height;
-            //return 500;
         return this._range.height;
-        //return 0;
     }
 
     getWidth() {
-        //if (this.owner && this.owner instanceof Sprite)
-            //return this.owner.width;
-            //return 500;
         return this._range.width;
-        //return 0;
     }
 
     getGlobalPosX() {
