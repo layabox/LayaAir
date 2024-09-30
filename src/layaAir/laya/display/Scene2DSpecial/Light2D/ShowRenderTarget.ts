@@ -9,15 +9,15 @@ import { Mesh2DRender } from "../Mesh2DRender";
  * 用于显示渲染目标（灯光贴图）
  */
 export class ShowRenderTarget {
-    sprite: Sprite;
-    render: Mesh2DRender;
+    private _sprite: Sprite;
+    private _render: Mesh2DRender;
 
     constructor(scene: Scene, tex: BaseTexture, x: number, y: number, width: number, height: number) {
-        this.sprite = scene.addChild(new Sprite());
-        this.render = this.sprite.addComponent(Mesh2DRender);
-        this.render.lightReceive = false;
-        if (tex) this.render.texture = tex;
-        this.render.shareMesh = this._genMesh(x, y, width, height);
+        this._sprite = scene.addChild(new Sprite());
+        this._render = this._sprite.addComponent(Mesh2DRender);
+        this._render.lightReceive = false;
+        if (tex) this._render.texture = tex;
+        this._render.shareMesh = this._genMesh(x, y, width, height);
     }
 
     /**
@@ -25,7 +25,7 @@ export class ShowRenderTarget {
      * @param rt 
      */
     setRenderTarget(rt: BaseTexture) {
-        this.render.texture = rt;
+        this._render.texture = rt;
     }
 
     /**
