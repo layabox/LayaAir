@@ -179,13 +179,13 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
         this._spriteShaderData.setBuffer(SpineShaderInit.NMatrix, buffer);
         Vector2.TempVector2.setValue(context.width, context.height);
         this._spriteShaderData.setVector2(SpineShaderInit.Size, Vector2.TempVector2);
-
-        if (this._oldAlpha !== (this.owner as Sprite).alpha) {
+        context.globalAlpha
+        if (this._oldAlpha !==  context.globalAlpha) {
             let scolor = this.spineItem.getSpineColor();
-            let a = scolor.a * (this.owner as Sprite).alpha;
+            let a = scolor.a *  context.globalAlpha;
             let color = new Color(scolor.r , scolor.g , scolor.b , a);
             this._spriteShaderData.setColor(SpineShaderInit.Color, color);
-            this._oldAlpha = (this.owner as Sprite).alpha;
+            this._oldAlpha =  context.globalAlpha;
         }
         context._copyClipInfoToShaderData(this._spriteShaderData);
     }
