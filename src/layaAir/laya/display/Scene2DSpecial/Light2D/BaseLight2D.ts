@@ -55,7 +55,6 @@ export class BaseLight2D extends Component {
         BaseLight2D.LIGHTANDSHADOW = Shader3D.propertyNameToID("u_LightAndShadow2D");
         BaseLight2D.LIGHTANDSHADOW_PARAM = Shader3D.propertyNameToID("u_LightAndShadow2DParam");
         BaseLight2D.LIGHTANDSHADOW_AMBIENT = Shader3D.propertyNameToID("u_LightAndShadow2DAmbient");
-        // BaseLight2D.LIGHTANDSHADOW_SHADOW = Shader3D.propertyNameToID("u_Shadow2DStrength");//generate light texture Shader need
 
         const sceneUniform = LayaGL.renderDeviceFactory.createGlobalUniformMap("BaseRender2D");
         sceneUniform.addShaderUniform(BaseLight2D.LIGHTANDSHADOW, "u_LightAndShadow2D", ShaderDataType.Texture2D);
@@ -105,9 +104,11 @@ export class BaseLight2D extends Component {
         return this._color;
     }
     set color(value: Color) {
-        if (!value.equal(this._color)) {
+        if (value.r !== this._color.r
+            || value.g !== this._color.g
+            || value.b !== this._color.b
+            || value.a !== this._color.a)
             this._needUpdateLight = true;
-        }
         value.cloneTo(this._color);
     }
 
@@ -116,7 +117,7 @@ export class BaseLight2D extends Component {
         return this._intensity;
     }
     set intensity(value: number) {
-        if (value != this._intensity)
+        if (value !== this._intensity)
             this._needUpdateLight = true;
         this._intensity = value;
     }
@@ -126,7 +127,7 @@ export class BaseLight2D extends Component {
         return this._shadowEnable;
     }
     set shadowEnable(value: boolean) {
-        if (this._shadowEnable != value)
+        if (this._shadowEnable !== value)
             this._needUpdateLight = true;
         this._shadowEnable = value;
     }
@@ -136,7 +137,7 @@ export class BaseLight2D extends Component {
         return this._shadowStrength;
     }
     set shadowStrength(value: number) {
-        if (value != this._shadowStrength)
+        if (value !== this._shadowStrength)
             this._needUpdateLight = true;
         this._needUpdateLight = true;
     }
@@ -146,7 +147,7 @@ export class BaseLight2D extends Component {
         return this._shadowLayerMask;
     }
     set shadowLayerMask(value: number) {
-        if (value != this._shadowLayerMask)
+        if (value !== this._shadowLayerMask)
             this._notifyShadowCastLayerChange(this.shadowLayerMask, value);
         this._shadowLayerMask = value;
     }
@@ -155,7 +156,7 @@ export class BaseLight2D extends Component {
         return this._shadowFilterType;
     }
     set shadowFilterType(value: ShadowFilterType) {
-        if (value != this._shadowFilterType)
+        if (value !== this._shadowFilterType)
             this._needUpdateLight = true;
         this._shadowFilterType = value;
     }
@@ -164,7 +165,7 @@ export class BaseLight2D extends Component {
         return this._layerMask;
     }
     set layerMask(value: number) {
-        if (this.layerMask != value) {
+        if (this.layerMask !== value) {
             this._notifyLightLayerChange(this.layerMask, value);
         }
         this._layerMask = value;
@@ -174,7 +175,7 @@ export class BaseLight2D extends Component {
         return this._shadowFilterSmooth;
     }
     set shadowFilterSmooth(value: number) {
-        if (value != this._shadowFilterSmooth)
+        if (value !== this._shadowFilterSmooth)
             this._needUpdateLight = true;
         this._shadowFilterSmooth = value;
     }
