@@ -12,7 +12,6 @@ import { Scene } from "../../Scene";
 import { Sprite } from "../../Sprite";
 import { Mesh2DRender } from "../Mesh2DRender";
 import { BaseLight2D, Light2DType } from "./BaseLight2D";
-import { PolygonPoint2D } from "./PolygonPoint2D";
 import { ShowRenderTarget } from "./ShowRenderTarget";
 
 /**
@@ -22,8 +21,8 @@ export class FreeformLight2D extends BaseLight2D {
     static FALLOF_WIDTH: number = 100; //渐变区的宽度系数
     private _falloffRange: number = 1; //灯光衰减范围 0-10
 
-    private _lightPolygon: PolygonPoint2D; //定义灯光的多边形顶点（顺时针存储）
-    private _globalPolygon: PolygonPoint2D; //变换后的多边形顶点（顺时针存储）
+    private _lightPoints: number[]; //定义灯光的多边形顶点（顺时针存储）
+    private _globalPoints: number[]; //变换后的多边形顶点（顺时针存储）
 
     //用于生成灯光贴图
     private _sprite: Sprite;
@@ -73,17 +72,19 @@ export class FreeformLight2D extends BaseLight2D {
     /**
      * 设置多边形顶点
      */
-    set polyPoints(poly: PolygonPoint2D) {
-        this._lightPolygon = poly;
-        this._globalPolygon = poly.clone();
-        this._needUpdateLight = true;
+    set polyPoints(points: number[]) {
+        if (points && points.length >= 3) {
+            this._lightPoints = points;
+            this._globalPoints = [...points];
+            this._needUpdateLight = true;
+        }
     }
 
     /**
      * 获取多边形顶点
      */
     get polyPoints() {
-        return this._lightPolygon;
+        return this._lightPoints;
     }
 
     /**
@@ -91,13 +92,13 @@ export class FreeformLight2D extends BaseLight2D {
      * @param screen 
      */
     getLightRange(screen?: Rectangle) {
-        if (this._globalPolygon) {
+        if (this._globalPoints) {
             this._transformPoly();
             let xmin = Number.POSITIVE_INFINITY;
             let ymin = Number.POSITIVE_INFINITY;
             let xmax = Number.NEGATIVE_INFINITY;
             let ymax = Number.NEGATIVE_INFINITY;
-            const polygon = this._globalPolygon.points;
+            const polygon = this._globalPoints;
             for (let i = polygon.length - 2; i > -1; i -= 2) {
                 const x = polygon[i + 0];
                 const y = polygon[i + 1];
@@ -129,7 +130,7 @@ export class FreeformLight2D extends BaseLight2D {
      */
     renderLightTexture(scene: Scene) {
         super.renderLightTexture(scene);
-        if (this._globalPolygon && this._needUpdateLight) {
+        if (this._globalPoints && this._needUpdateLight) {
             this._needUpdateLight = false;
             this.updateMark++;
             const range = this.getLightRange();
@@ -170,9 +171,9 @@ export class FreeformLight2D extends BaseLight2D {
      * 变换多边形顶点
      */
     private _transformPoly() {
-        if (this._globalPolygon) {
-            const globalPoly = this._globalPolygon.points;
-            const polygon = this._lightPolygon.points;
+        if (this._globalPoints) {
+            const globalPoly = this._globalPoints;
+            const polygon = this._lightPoints;
             const len = polygon.length / 2 | 0;
             const ox = (this.owner as Sprite).globalPosX * Browser.pixelRatio;
             const oy = (this.owner as Sprite).globalPosY * Browser.pixelRatio;
@@ -201,7 +202,7 @@ export class FreeformLight2D extends BaseLight2D {
     private _createMesh(expand: number, arcSegments: number = 8) {
         const points: Vector3[] = [];
         const inds: number[] = [];
-        const poly = this._globalPolygon.points;
+        const poly = this._globalPoints;
         const len = poly.length / 2 | 0;
         const normal1 = new Vector2();
         const normal2 = new Vector2();
