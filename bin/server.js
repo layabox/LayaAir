@@ -76,6 +76,26 @@ function watchAndCompile(srcDir, outDir) {
     console.log(`Watching ${srcDir} for changes...`);
 }
 
+function findCorrespondingTsFile(jsFilePath) {
+    console.log(`查找${jsFilePath}的源文件`)
+    const possibleTsPath = jsFilePath.replace('.js', '.ts');
+    const srcPath = path.join(process.cwd(), '../src');
+    //const testPath = path.join(process.cwd(), '../test');
+    
+    //注意加上tsc
+    const relativePath = path.relative(path.join(__dirname,'tsc'), possibleTsPath);
+    const srcTsPath = path.join(srcPath, relativePath);
+    //const testTsPath = path.join(testPath, relativePath);
+
+    if (fs.existsSync(srcTsPath)) {
+        return srcTsPath;
+    } 
+    // else if (fs.existsSync(testTsPath)) {
+    //     return testTsPath;
+    // }
+    return null;
+}
+
 function compileTypeScript(filePath, outPath) {
     const source = fs.readFileSync(filePath, 'utf8');
     const result = ts.transpileModule(source, {
@@ -87,18 +107,26 @@ function compileTypeScript(filePath, outPath) {
     });
 
     const jsPath = outPath.replace('.ts', '.js');
-    fs.writeFileSync(jsPath, result.outputText);
-    console.log(outdir,jsPath)
-    console.log(`编译到: ${path.relative(outdir,jsPath)}`);
+    fs.mkdirSync(path.dirname(jsPath), { recursive: true });
+    //用 writeFileSync 可能有写磁盘的延迟，所以用fd
+    const fd = fs.openSync(jsPath, 'w');
+    fs.writeSync(fd, result.outputText);
+    fs.fsyncSync(fd);
+    fs.closeSync(fd);
+    //fs.writeFileSync(jsPath, result.outputText);
+    console.log(`编译到: ${path.relative(outdir, jsPath)}`);
+    return result.outputText;
 }
 
 function copyFile(src, dest) {
+    fs.mkdirSync(path.dirname(dest), { recursive: true });
     fs.copyFileSync(src, dest);
     console.log(`拷贝到: ${ path.relative(outdir,dest)}`);
 }
 
 // 使用示例
 watchAndCompile( path.join(process.cwd(),'../src'), './tsc/');
+watchAndCompile( path.join(process.cwd(),'../test'), './tsc/test/');
 
 // 列出所有的2d测试
 app.get('/test', (req, res) => {
@@ -128,14 +156,39 @@ app.use((req, res, next) => {
 	//如果是目录，但是不是以/结尾的，算文件，避免express返回301。因为遇到一个问题 SceneRenderManager.js所在目录有一个 SceneRenderManager 目录
 	console.log(req.path);
     let filePath = path.join(__dirname, req.path);
-
 	
     // 检查原始文件是否存在
     if (!fs.existsSync(filePath)) {
         // 尝试.js扩展名
-        let jsFilePath = `${filePath}.js`;
+        let jsFilePath = filePath;
+        if(!path.extname(filePath)) //只有没有扩展名的才加.js
+            jsFilePath = `${filePath}.js`;
         if (fs.existsSync(jsFilePath)) {
             req.url += '.js'; // 修改请求路径
+        }else{
+            //如果js文件不存在。可能是没有编译
+            const srcFilePath = findCorrespondingTsFile(jsFilePath);
+            if (srcFilePath) {
+                if(path.extname(srcFilePath)=='.ts'){
+                    // 找到对应的 TS 文件，编译它
+                    let jscontent = compileTypeScript(srcFilePath, jsFilePath);
+                    if (fs.existsSync(jsFilePath)) {
+                        // 编译成功,直接发送给客户端
+                        res.type('application/javascript').send(jscontent);
+                        //res.sendFile(jsFilePath);
+                        next();
+                        //req.url += '.js'; // 修改请求路径
+                    }else{
+                        console.log('编译失败:',req.path);
+                    }
+                }else{
+                    //直接拷贝
+                    copyFile(srcFilePath, jsFilePath);
+                    //由于会有延迟，直接再发送一下内容
+                    //let fc = fs.readFileSync(srcFilePath,'utf-8');
+                    //res.type('application/javascript').send(fc);
+                }
+            }
         }
     }else{
 		try{
