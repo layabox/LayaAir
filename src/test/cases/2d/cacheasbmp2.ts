@@ -3,6 +3,7 @@ import { Laya } from "../../../layaAir/Laya";
 import { Sprite } from "../../../layaAir/laya/display/Sprite";
 import { Stage } from "../../../layaAir/laya/display/Stage";
 import { Text } from "../../../layaAir/laya/display/Text";
+import { captureAndSend } from "../../result";
 
 //HierarchyLoader和MaterialLoader等是通过前面的import完成的
 async function test(){
@@ -33,19 +34,24 @@ async function test(){
     Laya.stage.addChild(desc);
 
     let frm=0;
-    let isbmp=true;
-    function renderloop(){
-        frm++;
-        if(frm%120==0){
-            isbmp=!isbmp;
-            sp.cacheAs = isbmp?'bitmap':'none';
-            sp1.cacheAs = isbmp?'bitmap':'none';
-            desc.color = isbmp?'red':'green';
-        }
-        requestAnimationFrame(renderloop);
-    }
-    requestAnimationFrame(renderloop)
+    setTimeout(() => {
+        sp.cacheAs = 'none';
+        sp1.cacheAs ='none';
+        desc.color = 'red';    
+    }, 2000);
+    // function renderloop(){
+    //     frm++;
+    //     if(frm%120==0){
+    //         isbmp=!isbmp;
+    //         sp.cacheAs = isbmp?'bitmap':'none';
+    //         sp1.cacheAs = isbmp?'bitmap':'none';
+    //         desc.color = isbmp?'red':'green';
+    //     }
+    //     requestAnimationFrame(renderloop);
+    // }
+    // requestAnimationFrame(renderloop)
 }
 
+//captureAndSend(null,[{"time": 300, "rect": {"x": 62,"y": 1,"width": 738,"height": 381}},{"time": 4000, "rect": {"x": 62,"y": 1,"width": 738,"height": 381}}]);
 
 test();

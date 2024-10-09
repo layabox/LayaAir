@@ -58,8 +58,8 @@ puppeteer.launch({
             let testInfoPath = path.join(screenShotDir,`${js}_testInfo.json`);
             if(!fs.existsSync(testInfoPath)){
                 console.error('没有这个文件:',testInfoPath);
-                await browser.close();
-                return;
+                //await browser.close();
+                continue;
             }
             const testInfo = await JSON.parse( await fs.readFileSync(testInfoPath,'utf-8'))
             let ctm=0;    
