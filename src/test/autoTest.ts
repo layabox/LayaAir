@@ -3,26 +3,15 @@ import puppeteer  from 'puppeteer-core';
 import {Launcher} from 'chrome-launcher';
 import looksSame from 'looks-same';
 import fs from 'fs';
+import path from 'path'
+import { fileURLToPath } from 'url';
 var cases = fs.readdirSync('./cases/2d');
+// 获取当前模块文件的路径
+const __filename = fileURLToPath(import.meta.url);
+// 获取当前模块文件所在的目录
+const __dirname = path.dirname(__filename);
 
-/**
- * 遍历test目录下面的所有的以test开始的js文件执行，并从testResult中比对结果。
- * 下面的配置中可以配置这个test使用另外的比对图片，或者忽略这个test
- */
-var testscfg={
-    'testCacheAs1':{compare:'testCache1.png'},
-    'testCacheNormal':{ignore:true},
-    'testCacheNormalClip':{compare:'cacheAsNormalClip.png'},
-    'testCacheNormalClip2':{compare:'cacheAsNormalClip2.png'},
-    'testText2':{compare:'testText.png'},
-    'testColorFilter':{ignore:true},
-    'testInput':{ignore:true},
-    'testMask1':{ignore:true},
-    'testSpine1':{ignore:true},
-    'testSpinePerf1':{ignore:true},
-    'testText31':{ignore:true},
-    'testText32':{ignore:true},
-};
+var screenShotDir = path.join(__dirname,'../../../src/test/screenshots');
 
 const chromePath = Launcher.getFirstInstallation();
 console.log('发现chrome:',chromePath);
@@ -49,28 +38,28 @@ puppeteer.launch({executablePath: chromePath,args:[]}).then(
                 continue;
             }
 
-            var js = onecase.substr(0,onecase.length-3);
-            var cmppng=null;
-            var cfg = testscfg[js];
-            if(cfg){
-                if(cfg.ignore) continue;
-                cfg.compare && (cmppng=cfg.compare);
-            }
-
+            var js = onecase.substring(0,onecase.length-3);
             console.log('start [',testid,']',onecase,'http://127.0.0.1:3000/test.html?'+js);
             testid++;
             await page.goto('http://127.0.0.1:3000/test.html?'+js);
 
             // 等待页面加载完成
-            try{
-            await page.waitForFunction('window.testInfo !== undefined',{timeout: 5000});
-            }catch(e:any){
-                console.error(`超时了，测试页面没有testInfo结构:${js}`)
+            // try{
+            // await page.waitForFunction('window.testInfo !== undefined',{timeout: 5000});
+            // }catch(e:any){
+            //     console.error(`超时了，测试页面没有testInfo结构:${js}`)
+            //     await browser.close();
+            //     return;
+            // }
+            // 获取测试信息
+            //const testInfo = await page.evaluate(() => (window as any).testInfo);   
+            let testInfoPath = path.join(__dirname, screenShotDir,`${js}_testInfo.json`);
+            if(fs.existsSync(testInfoPath)){
+                console.error('没有这个文件:',testInfoPath);
                 await browser.close();
                 return;
             }
-            // 获取测试信息
-            const testInfo = await page.evaluate(() => (window as any).testInfo);    
+            const testInfo = await JSON.parse( await fs.readFileSync(testInfoPath,'utf-8'))
             let ctm=0;    
             for (let i = 0; i < testInfo.length; i++) {
                 let {time, rect, answer} = testInfo[i];

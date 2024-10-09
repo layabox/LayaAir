@@ -16,8 +16,12 @@ const WebSocket = require('ws');
 const chokidar = require('chokidar');
 const ts = require('typescript');
 const http = require('http');
+const multer = require('multer');
+const { createCanvas, loadImage } = require('canvas');
 
 const app = express();
+
+const upload = multer({ dest: 'uploads/' });
 
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
@@ -53,6 +57,10 @@ function watchAndCompile(srcDir, outDir) {
     watcher.on('change', (filePath) => {
         const relativePath = path.relative(srcDir, filePath);
         console.log('变化:', relativePath)
+        //忽略screenshots的变化
+        if(relativePath.startsWith('test/screenshots')||relativePath.startsWith('test\\screenshots')){
+            return;
+        }
         const outPath = path.join(outDir, relativePath);
         const fileExt = path.extname(filePath);
 
@@ -128,6 +136,91 @@ function copyFile(src, dest) {
 watchAndCompile( path.join(process.cwd(),'../src'), './tsc/');
 watchAndCompile( path.join(process.cwd(),'../test'), './tsc/test/');
 
+var resultDir = '../src/test/screenshots';
+fs.mkdirSync(resultDir,{recursive:true});
+
+app.post('/upload', upload.single('screenshot'), async (req, res) => {
+    const { pageId,frame } = req.body;
+    const frameNumber = frame === undefined ? 0 : parseInt(frame);
+    const testInfo = JSON.parse(req.body.testInfo);
+    const file = req.file;
+    console.log('upload:',pageId,frame,testInfo,file)
+
+    const timestamp = new Date().toISOString().replace(/[-:]/g, '').split('.')[0];
+    const fileName = `${pageId}_${frameNumber}_${timestamp}.png`;
+    const filePath = path.join(__dirname, resultDir, fileName);
+
+    // 加载图片
+    const image = await loadImage(file.path);
+
+    // 创建canvas并裁剪图片
+    const canvas = createCanvas(testInfo.rect.width, testInfo.rect.height);
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(image,
+        testInfo.rect.x, testInfo.rect.y, testInfo.rect.width, testInfo.rect.height,
+        0, 0, testInfo.rect.width, testInfo.rect.height
+    );
+
+  // 检查是否有相同的图片
+  /*
+  const existingPath = await checkExistingImage(pageId, canvas);
+  if (existingPath) {
+    res.json({ path: existingPath });
+    return;
+  }
+    */
+
+  // 保存新图片
+  const out = fs.createWriteStream(filePath);
+  const stream = canvas.createPNGStream();
+    stream.pipe(out);
+    out.on('finish', () => {
+        // 更新或创建 testInfo.json
+        const testInfoPath = path.join(__dirname, resultDir, `${pageId}_testInfo.json`);
+        let testInfoData = [];
+
+        if (fs.existsSync(testInfoPath)) {
+            const fileContent = fs.readFileSync(testInfoPath, 'utf8');
+            testInfoData = JSON.parse(fileContent);
+        }
+
+        // 添加新的 frame 数据
+        testInfo.answer = fileName; //只是记录文件名
+        testInfoData[frameNumber] = testInfo;
+
+        // 写入更新后的 testInfo.json
+        fs.writeFileSync(testInfoPath, JSON.stringify(testInfoData, null, 2));
+
+        res.json({ path: filePath });
+    });
+  
+});
+
+async function checkExistingImage(pageId, newCanvas) {
+    const dir = path.join(__dirname, 'screenshots');
+    const files = fs.readdirSync(dir).filter(f => f.startsWith(pageId));
+
+    for (let file of files) {
+        const filePath = path.join(dir, file);
+        const existingImage = await loadImage(filePath);
+        const existingCanvas = createCanvas(existingImage.width, existingImage.height);
+        const ctx = existingCanvas.getContext('2d');
+        ctx.drawImage(existingImage, 0, 0);
+
+        if (canvasesAreEqual(newCanvas, existingCanvas)) {
+            return filePath;
+        }
+    }
+
+    return null;
+}
+
+function canvasesAreEqual(canvas1, canvas2) {
+    const data1 = canvas1.getContext('2d').getImageData(0, 0, canvas1.width, canvas1.height).data;
+    const data2 = canvas2.getContext('2d').getImageData(0, 0, canvas2.width, canvas2.height).data;
+    return data1.every((val, index) => val === data2[index]);
+}
+
 // 列出所有的2d测试
 app.get('/test', (req, res) => {
     const directoryPath = path.join(__dirname, 'tsc/layaAir/laya/test/2d'); // 'test'目录路径
@@ -154,7 +247,7 @@ app.get('/test', (req, res) => {
 
 app.use((req, res, next) => {
 	//如果是目录，但是不是以/结尾的，算文件，避免express返回301。因为遇到一个问题 SceneRenderManager.js所在目录有一个 SceneRenderManager 目录
-	console.log(req.path);
+	//console.log(req.path);
     let filePath = path.join(__dirname, req.path);
 	
     // 检查原始文件是否存在
@@ -253,12 +346,12 @@ server.listen(port, () => {
 });
 
 
-   process.on('uncaughtException', (error) => {
-     console.error('Uncaught Exception:', error);
-     // 可选择根据错误情况结束进程 process.exit(1);
-   });
+process.on('uncaughtException', (error) => {
+    console.error('Uncaught Exception:', error);
+    // 可选择根据错误情况结束进程 process.exit(1);
+});
 
-   process.on('unhandledRejection', (reason, promise) => {
-     console.error('Unhandled Rejection at:', promise, 'reason:', reason);
-     // 可选择根据错误情况结束进程 process.exit(1);
-   });
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+    // 可选择根据错误情况结束进程 process.exit(1);
+});
