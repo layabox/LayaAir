@@ -22,13 +22,15 @@ function delay(time:number) {
     });
 }
 
-puppeteer.launch({executablePath: chromePath,args:[]}).then(
+puppeteer.launch({
+    //headless: false,  // 设置为 false 以显示浏览器
+    executablePath: chromePath,args:[]}).then(
     async browser => {
         const page = await browser.newPage();
         page.setViewport({width:1024,height:800});
 
         page.on('console', msg => {
-            console.log(msg.args().join(' '));
+            //console.log(msg.args().join(' '));
         });
 
         var testid=0;
@@ -53,8 +55,8 @@ puppeteer.launch({executablePath: chromePath,args:[]}).then(
             // }
             // 获取测试信息
             //const testInfo = await page.evaluate(() => (window as any).testInfo);   
-            let testInfoPath = path.join(__dirname, screenShotDir,`${js}_testInfo.json`);
-            if(fs.existsSync(testInfoPath)){
+            let testInfoPath = path.join(screenShotDir,`${js}_testInfo.json`);
+            if(!fs.existsSync(testInfoPath)){
                 console.error('没有这个文件:',testInfoPath);
                 await browser.close();
                 return;
@@ -64,6 +66,7 @@ puppeteer.launch({executablePath: chromePath,args:[]}).then(
             for (let i = 0; i < testInfo.length; i++) {
                 let {time, rect, answer} = testInfo[i];
                 if(!answer)answer = js+'.png'
+                answer = path.join(screenShotDir,answer);
 
                 // 等待指定时间
                 await delay(time-ctm);
@@ -76,8 +79,8 @@ puppeteer.launch({executablePath: chromePath,args:[]}).then(
                 });
 
                 // 比较截图
-                let equal = await looksSame(`temp_screenshot_${i}.png`, `testResult/${answer}`, {strict: true});
-                console.log(`Step ${i + 1} result:`, equal);
+                let diff = await looksSame(`temp_screenshot_${i}.png`, answer, {strict: true});
+                console.log(`Step ${i} result:`, diff.equal);
 
                 // 删除临时截图
                 fs.unlinkSync(`temp_screenshot_${i}.png`);

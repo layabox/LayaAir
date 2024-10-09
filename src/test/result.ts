@@ -9,6 +9,22 @@ Laya.addInitCallback(()=>{
     Config.preserveDrawingBuffer=false;
 })
 
+//为了避免循环引用，直接使用原生的事件
+let stx=0;
+let sty=0;
+document.addEventListener('mousedown',(e:MouseEvent)=>{
+    if(e.button === 2){
+        stx = e.clientX;
+        sty = e.clientY;
+    }
+})
+document.addEventListener('mouseup',(e:MouseEvent)=>{
+    if(e.button === 2){
+        let time = (window as any).testtime||300;
+        captureAndSend(null,[{time,rect:{x:stx,y:sty,width:e.clientX-stx,height:e.clientY-sty}}]);
+    }
+})
+
 export async function captureAndSend(pageId:string|null,testInfo:{time:number,rect:{x:number,y:number,width:number,height:number}}[]) {
     const startTime = Date.now();
     pageId = pageId || window.location.search.substring(1);

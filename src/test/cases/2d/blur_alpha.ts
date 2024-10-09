@@ -1,12 +1,11 @@
 import "laya/ModuleDef";
 
-import { Laya } from "../../../layaAir/Laya";
+import {Laya} from "../../../layaAir/Laya"
 import { Shader3D } from "../../../layaAir/laya/RenderEngine/RenderShader/Shader3D";
 import { Stage } from "../../../layaAir/laya/display/Stage";
 import { Sprite } from "../../../layaAir/laya/display/Sprite";
 import { BlurFilter } from "../../../layaAir/laya/filters/BlurFilter";
 import { captureAndSend } from "../../result";
-import { Config } from "../../../layaAir/Config";
 
 //HierarchyLoader和MaterialLoader等是通过前面的import完成的
 
@@ -17,16 +16,28 @@ async function test(){
     Laya.stage.scaleMode = Stage.SCALE_FULL;
     Laya.stage.screenMode = Stage.SCREEN_NONE;
     Shader3D.debugMode = true;
-    Config.preserveDrawingBuffer=false;
 
     await Laya.loader.loadPackage(packurl);
-    let tex = await Laya.loader.load('atlas/comp/image.png')
     let sp = new Sprite();
-    sp.graphics.drawTexture(tex,0,0);
-    sp.filters=[new BlurFilter(10)];
+    sp.width=200;
+    sp.pos(100,100);
+    sp.graphics.drawRect(20,20,10,10,'white');
+    sp.graphics.drawRect(40,40,100,100,'white');
+    sp.filters=[new BlurFilter(10),new BlurFilter(10)];
     Laya.stage.addChild(sp);
+
+    let ss = new Sprite();
+    ss.pos(100,100);
+    ss.graphics.drawRect(0,0,200,200,null,'red');
+    Laya.stage.addChild(ss);
+
+    function renderloop(){
+        sp.repaint();
+        requestAnimationFrame(renderloop);
+    }
+    requestAnimationFrame(renderloop)    
 }
 
-//captureAndSend(null,[{time:100,rect:{x:0,y:0,width:500,height:500}}]);
+//captureAndSend(null,[{time:100,rect:{x:0,y:0,width:400,height:400}}]);
 
 test();
