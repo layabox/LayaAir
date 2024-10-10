@@ -32,6 +32,10 @@ export class SpineTemplet extends Resource {
     private _textures: Record<string, Texture2D>;
     private _basePath: string;
 
+    width:number;
+
+    height:number;
+
     /**
      * @en Indicates if slot is needed
      * @zh 是否需要插槽
@@ -43,7 +47,6 @@ export class SpineTemplet extends Resource {
      * @zh 骨骼优化对象
      */
     sketonOptimise: SketonOptimise;
-
 
     /** @ignore */
     constructor() {
@@ -149,6 +152,8 @@ export class SpineTemplet extends Resource {
         this._textures = textures;
         this.mainBlendMode = this.skeletonData.slots[0]?.blendMode || 0;
         this.mainTexture = this._mainTexture;
+        this.width = this.skeletonData.width;
+        this.height = this.skeletonData.height;
         this.sketonOptimise.checkMainAttach(this.skeletonData);
     }
 

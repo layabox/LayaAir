@@ -410,6 +410,10 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
         } else
             this.spineItem = this._templet.sketonOptimise._initSpineRender(this._skeleton, this._templet, this, this._state);
 
+        let sprite = this.owner as Sprite;
+        sprite.width = templet.width;
+        sprite.height = templet.height;
+
         let skinIndex = this._templet.getSkinIndexByName(this._skinName);
         if (skinIndex != -1)
             this.showSkinByIndex(skinIndex);
@@ -873,7 +877,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
         for (var i = 0, n = elements.length; i < n; i++) {
             let element = Spine2DRenderNode.createRenderElement2D();
             element.geometry.bufferState = geo.bufferState;
-            element.geometry.indexFormat = IndexFormat.UInt16;
+            element.geometry.indexFormat = geo.indexFormat;
             element.geometry.clearRenderParams();
             element.geometry.setDrawElemenParams(elements[i][1], elements[i][2]);
             let material = elements[i][0];
@@ -907,15 +911,23 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
      * @en Draw a single geometry
      * @param geo Render geometry element
      * @param material Material to use for rendering
+     * @param count indexCount
+     * @param offset startIndex
      * @zh 绘制单个几何体
      * @param geo 渲染几何元素
      * @param material 用于渲染的材质
+     * @param count 索引数量
+     * @param offset 起始索引
      */
-    drawGeo(geo: IRenderGeometryElement, material: Material) {
+    drawGeo(geo: IRenderGeometryElement, material: Material , count:number , offset:number ) {
         let element = Spine2DRenderNode.createRenderElement2D();
-        element.geometry = geo;
-        // geo.clearRenderParams();
-        // geo.setDrawElemenParams(geo.bufferState._bindedIndexBuffer.indexCount, 0);
+        let eleGeo = element.geometry;
+        eleGeo.bufferState = geo.bufferState;
+        eleGeo.indexFormat = geo.indexFormat;
+        eleGeo.instanceCount = geo.instanceCount;
+        eleGeo.clearRenderParams();
+        eleGeo.setDrawElemenParams(count , offset);
+
         this._renderElements.push(element);
         if (this._materials[0] != null) {
             let rendernodeMaterial = this._materials[0];
@@ -1022,6 +1034,8 @@ class TimeKeeper {
      * @zh 更新时间管理器
      */
     update() {
+        // this.delta =1 / 30;
+
         this.delta = this.timer.delta / 1000;
         if (this.delta > this.maxDelta)
             this.delta = this.maxDelta;
