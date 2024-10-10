@@ -23,11 +23,11 @@ function delay(time:number) {
 }
 
 puppeteer.launch({
-    //headless: false,  // 设置为 false 以显示浏览器
+    headless: false,  // 设置为 false 以显示浏览器
     executablePath: chromePath,args:[]}).then(
     async browser => {
         const page = await browser.newPage();
-        page.setViewport({width:1024,height:800});
+        page.setViewport({width:1920,height:900});
 
         page.on('console', msg => {
             //console.log(msg.args().join(' '));
