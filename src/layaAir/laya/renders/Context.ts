@@ -235,7 +235,7 @@ export class Context {
         this._lastTex = this.defTexture;
         this._other = ContextParams.DEFAULT;
         this._curMat = Matrix.create();
-        this._charSubmitCache = new CharSubmitCache();
+        this._charSubmitCache = new CharSubmitCache(this);
         //_vb = _vbs[0] = VertexBuffer2D.create( -1);
         this._mesh = this._meshQuatTex;
         this._mesh.clearMesh();
