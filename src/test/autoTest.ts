@@ -5,7 +5,9 @@ import looksSame from 'looks-same';
 import fs from 'fs';
 import path from 'path'
 import { fileURLToPath } from 'url';
-var cases = fs.readdirSync('./cases/2d');
+
+// 获取命令行参数
+const args = process.argv.slice(2);
 // 获取当前模块文件的路径
 const __filename = fileURLToPath(import.meta.url);
 // 获取当前模块文件所在的目录
@@ -39,7 +41,8 @@ puppeteer.launch({
 
         var testid=0;
         let errors:string[]=[]
-        for await(const onecase of cases){
+        let casesToTest = args.length > 0 ? args : fs.readdirSync('./cases/2d');
+        for await(const onecase of casesToTest){
             // 必须是test开头的js文件
             if (/*!onecase.startsWith('test') ||*/ !onecase.endsWith('.js')){
                 continue;
