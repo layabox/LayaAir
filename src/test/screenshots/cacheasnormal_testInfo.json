@@ -1,12 +1,12 @@
 [
   {
-    "time": 300,
+    "time": 1000,
     "rect": {
-      "x": 0,
-      "y": 23,
-      "width": 605,
-      "height": 387
+      "x": 265,
+      "y": 41,
+      "width": 323,
+      "height": 385
     },
-    "answer": "cacheasnormal_0_20241009T142918.png"
+    "answer": "cacheasnormal_0_20241010T083106.png"
   }
 ]

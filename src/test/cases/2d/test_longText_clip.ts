@@ -1,11 +1,11 @@
 import "laya/ModuleDef";
 
-import { Laya } from "../../../layaAir/Laya";
-import { Stage } from "../../../layaAir/laya/display/Stage";
-import { Sprite } from "../../../layaAir/laya/display/Sprite";
-import { Text } from "../../../layaAir/laya/display/Text";
-import { Timer } from "../../../layaAir/laya/utils/Timer";
-import { TextRender } from "../../../layaAir/laya/webgl/text/TextRender";
+import { Laya } from "Laya";
+import { Stage } from "laya/display/Stage";
+import { Sprite } from "laya/display/Sprite";
+import { Text } from "laya/display/Text";
+import { Timer } from "laya/utils/Timer";
+import { TextRender } from "laya/webgl/text/TextRender";
 
 //HierarchyLoader和MaterialLoader等是通过前面的import完成的
 

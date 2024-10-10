@@ -1,8 +1,8 @@
 
-import { Laya } from "../../../layaAir/Laya";
-import { Sprite } from "../../../layaAir/laya/display/Sprite";
-import { Stage } from "../../../layaAir/laya/display/Stage";
-import { Text } from "../../../layaAir/laya/display/Text";
+import { Laya } from "Laya";
+import { Sprite } from "laya/display/Sprite";
+import { Stage } from "laya/display/Stage";
+import { Text } from "laya/display/Text";
 import { captureAndSend } from "../../result";
 
 //HierarchyLoader和MaterialLoader等是通过前面的import完成的

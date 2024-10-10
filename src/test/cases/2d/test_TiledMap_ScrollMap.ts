@@ -3,15 +3,15 @@ import "laya/ModuleDef";
 import "laya/ui/ModuleDef";
 import "laya/ani/ModuleDef";
 
-import { Laya } from "../../../layaAir/Laya";
-import { Stage } from "../../../layaAir/laya/display/Stage";    
-import { Event } from "../../../layaAir/laya/events/Event";
-import { URL } from "../../../layaAir/laya/net/URL";
-import { TiledMap } from "../../../layaAir/laya/map/TiledMap";
-import { Rectangle } from "../../../layaAir/laya/maths//Rectangle";
-import { Handler } from "../../../layaAir/laya/utils/Handler";
-import { RenderSprite } from "../../../layaAir/laya/renders/RenderSprite";
-import { Browser } from "../../../layaAir/laya/utils/Browser";
+import { Laya } from "Laya";
+import { Stage } from "laya/display/Stage";    
+import { Event } from "laya/events/Event";
+import { URL } from "laya/net/URL";
+import { TiledMap } from "laya/map/TiledMap";
+import { Rectangle } from "laya/maths//Rectangle";
+import { Handler } from "laya/utils/Handler";
+import { RenderSprite } from "laya/renders/RenderSprite";
+import { Browser } from "laya/utils/Browser";
 
 //HierarchyLoader和MaterialLoader等是通过前面的import完成的
 

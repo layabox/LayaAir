@@ -1,11 +1,11 @@
 import "laya/ModuleDef";
 
-import { Laya } from "../../../layaAir/Laya";
-import { Stage } from "../../../layaAir/laya/display/Stage";
-import { Sprite } from "../../../layaAir/laya/display/Sprite";
-import { RenderSprite } from "../../../layaAir/laya/renders/RenderSprite";
-import { VBox } from "../../../layaAir/laya/ui/VBox";
-import { HBox } from "../../../layaAir/laya/ui/HBox";
+import { Laya } from "Laya";
+import { Stage } from "laya/display/Stage";
+import { Sprite } from "laya/display/Sprite";
+import { RenderSprite } from "laya/renders/RenderSprite";
+import { VBox } from "laya/ui/VBox";
+import { HBox } from "laya/ui/HBox";
 
 //HierarchyLoader和MaterialLoader等是通过前面的import完成的
 RenderSprite.cacheNormalEnable = false;

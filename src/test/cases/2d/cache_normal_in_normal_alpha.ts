@@ -1,9 +1,9 @@
 import "laya/ModuleDef";
 
-import { Laya } from "../../../layaAir/Laya";
-import { Stage } from "../../../layaAir/laya/display/Stage";
-import { Sprite } from "../../../layaAir/laya/display/Sprite";
-import { RenderSprite } from "../../../layaAir/laya/renders/RenderSprite";
+import { Laya } from "Laya";
+import { Stage } from "laya/display/Stage";
+import { Sprite } from "laya/display/Sprite";
+import { RenderSprite } from "laya/renders/RenderSprite";
 
 //HierarchyLoader和MaterialLoader等是通过前面的import完成的
 RenderSprite.cacheNormalEnable = false;

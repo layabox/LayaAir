@@ -12,6 +12,10 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 var screenShotDir = path.join(__dirname,'../../../src/test/screenshots');
+//记录错误
+let errPath =path.join(screenShotDir,'../error'); 
+fs.mkdirSync(errPath, { recursive: true });
+fs.rmdirSync(errPath,{recursive:true})
 
 const chromePath = Launcher.getFirstInstallation();
 console.log('发现chrome:',chromePath);
@@ -34,6 +38,7 @@ puppeteer.launch({
         });
 
         var testid=0;
+        let errors:string[]=[]
         for await(const onecase of cases){
             // 必须是test开头的js文件
             if (/*!onecase.startsWith('test') ||*/ !onecase.endsWith('.js')){
@@ -63,6 +68,7 @@ puppeteer.launch({
             }
             const testInfo = await JSON.parse( await fs.readFileSync(testInfoPath,'utf-8'))
             let ctm=0;    
+            let ok=true;
             for (let i = 0; i < testInfo.length; i++) {
                 let {time, rect, answer} = testInfo[i];
                 if(!answer)answer = js+'.png'
@@ -81,6 +87,15 @@ puppeteer.launch({
                 // 比较截图
                 let diff = await looksSame(`temp_screenshot_${i}.png`, answer, {strict: true});
                 console.log(`Step ${i} result:`, diff.equal);
+                if(!diff.equal){
+                    ok=false;
+                    errors.push(js);
+                    //保存两个图片
+                    fs.cpSync(`temp_screenshot_${i}.png`,path.join(errPath,`${js}_实际.png`));
+                    fs.cpSync(answer,path.join(errPath,`${js}_期望.png`));
+                    fs.unlinkSync(`temp_screenshot_${i}.png`);
+                    break;
+                }
 
                 // 删除临时截图
                 fs.unlinkSync(`temp_screenshot_${i}.png`);
@@ -99,5 +114,6 @@ puppeteer.launch({
             */
         }
         await browser.close();
+        console.log('错误例子：',errors)
   });
 

@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+      "baseUrl": ".",
+      "paths": {
+        "laya/*": ["../../layaAir/laya/*"],
+        "Laya3D": ["../../layaAir/Laya3D"],
+        "Config3D": ["../../layaAir/Config3D"],
+        "ILaya3D": ["../../layaAir/ILaya3D"],
+        "Laya": ["../../layaAir/Laya"],
+        "Config": ["../../layaAir/Config"],
+        "ILaya": ["../../layaAir/ILaya"]
+      },
+    },
+  }

@@ -1,6 +1,6 @@
-import { Laya } from "../../../layaAir/Laya";
-import { Sprite } from "../../../layaAir/laya/display/Sprite";
-import { Texture } from "../../../layaAir/laya/resource/Texture";
+import { Laya } from "Laya";
+import { Sprite } from "laya/display/Sprite";
+import { Texture } from "laya/resource/Texture";
 
 var width=1024;
 var height=1024;

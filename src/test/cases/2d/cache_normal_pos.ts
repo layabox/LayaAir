@@ -2,11 +2,11 @@ import "laya/ModuleDef";
 import "laya/ui/ModuleDef";
 import "laya/ani/ModuleDef";
 
-import { Laya } from "../../../layaAir/Laya";
-import { Shader3D } from "../../../layaAir/laya/RenderEngine/RenderShader/Shader3D";
-import { Stage } from "../../../layaAir/laya/display/Stage";
-import { Sprite } from "../../../layaAir/laya/display/Sprite";
-import { TextRender } from "../../../layaAir/laya/webgl/text/TextRender";
+import { Laya } from "Laya";
+import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
+import { Stage } from "laya/display/Stage";
+import { Sprite } from "laya/display/Sprite";
+import { TextRender } from "laya/webgl/text/TextRender";
 
 /**
  * 设置cachenormal之后，移动位置不会重构cache信息

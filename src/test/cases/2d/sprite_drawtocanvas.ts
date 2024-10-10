@@ -1,5 +1,5 @@
-import { Laya } from "../../../layaAir/Laya";
-import { Sprite } from "../../../layaAir/laya/display/Sprite";
+import { Laya } from "Laya";
+import { Sprite } from "laya/display/Sprite";
 var width=1024;
 var height=1024;
 async function test(){

@@ -1,10 +1,10 @@
 import "laya/ModuleDef";
 
-import { Laya } from "../../../layaAir/Laya";
-import { Stage } from "../../../layaAir/laya/display/Stage";
-import { Sprite } from "../../../layaAir/laya/display/Sprite";
-import { Box } from "../../../layaAir/laya/ui/Box";
-import { Label } from "../../../layaAir/laya/ui/Label";
+import { Laya } from "Laya";
+import { Stage } from "laya/display/Stage";
+import { Sprite } from "laya/display/Sprite";
+import { Box } from "laya/ui/Box";
+import { Label } from "laya/ui/Label";
 import { captureAndSend } from "../../result";
 
 /**

@@ -1,12 +1,12 @@
 import "laya/ModuleDef";
 
-import { Laya } from "../../../layaAir/Laya";
-import { Shader3D } from "../../../layaAir/laya/RenderEngine/RenderShader/Shader3D";
-import { Stage } from "../../../layaAir/laya/display/Stage";
-import { Sprite } from "../../../layaAir/laya/display/Sprite";
-import { BlurFilter } from "../../../layaAir/laya/filters/BlurFilter";
+import { Laya } from "Laya";
+import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
+import { Stage } from "laya/display/Stage";
+import { Sprite } from "laya/display/Sprite";
+import { BlurFilter } from "laya/filters/BlurFilter";
 import { captureAndSend } from "../../result";
-import { Config } from "../../../layaAir/Config";
+import { Config } from "Config";
 
 //HierarchyLoader和MaterialLoader等是通过前面的import完成的
 

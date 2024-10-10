@@ -1,8 +1,8 @@
 import "laya/ModuleDef";
 
-import { Laya } from "../../../layaAir/Laya";
-import { Sprite } from "../../../layaAir/laya/display/Sprite";
-import { Stage } from "../../../layaAir/laya/display/Stage";
+import { Laya } from "Laya";
+import { Sprite } from "laya/display/Sprite";
+import { Stage } from "laya/display/Stage";
 
 async function test(){
     //初始化引擎

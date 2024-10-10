@@ -2,10 +2,10 @@ import "laya/d3/core/scene/Scene3D";
 import "laya/ModuleDef";
 import "laya/ui/ModuleDef";
 
-import { Laya } from "../../../layaAir/Laya";
-import { Shader3D } from "../../../layaAir/laya/RenderEngine/RenderShader/Shader3D";
-import { Stage } from "../../../layaAir/laya/display/Stage";
-import { PrefabImpl } from "../../resource/PrefabImpl";
+import { Laya } from "Laya";
+import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
+import { Stage } from "laya/display/Stage";
+import { PrefabImpl } from "laya/resource/PrefabImpl";
 
 //HierarchyLoader和MaterialLoader等是通过前面的import完成的
 

@@ -1,12 +1,12 @@
 import "laya/ModuleDef";
 
-import { Laya } from "../../../layaAir/Laya";
-import { Stage } from "../../../layaAir/laya/display/Stage";
-import { Sprite } from "../../../layaAir/laya/display/Sprite";
-import { Image } from "../../../layaAir/laya/ui/Image";
-import { Stat } from "../../../layaAir/laya/utils/Stat";
-import { StatUI } from "../../../layaAir/laya/ui/StatUI";
-import { Text } from "../../../layaAir/laya/display/Text";
+import { Laya } from "Laya";
+import { Stage } from "laya/display/Stage";
+import { Sprite } from "laya/display/Sprite";
+import { Image } from "laya/ui/Image";
+import { Stat } from "laya/utils/Stat";
+import { StatUI } from "laya/ui/StatUI";
+import { Text } from "laya/display/Text";
 StatUI;
 
 //HierarchyLoader和MaterialLoader等是通过前面的import完成的
