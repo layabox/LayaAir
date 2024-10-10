@@ -400,7 +400,7 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
                     this.renderProxytype = ERenderProxyType.RenderOptimize;
                 }
                 else {
-                    currentRender.material && this._nodeOwner.drawGeo(currentRender.geo, currentRender.material);
+                    // currentRender.material && this._nodeOwner.drawGeo(currentRender.geo, currentRender.material , 0 ,0);
                     this.renderProxytype = ERenderProxyType.RenderOptimize;
                 }
                 this._isRender = true;
@@ -876,12 +876,10 @@ class SkinRender implements IVBIBUpdate {
      */
     updateIB(indexArray: Uint16Array, ibLength: number, mutiRenderData: MultiRenderData, isMuti: boolean) {
         let ib = this.ib;
-        let iblen = ibLength * 2;
-        ib._setIndexDataLength(iblen)
-        ib._setIndexData(new Uint16Array(indexArray.buffer, 0, iblen / 2), 0);
-        this.geo.clearRenderParams();
-        this.geo.setDrawElemenParams(iblen / 2, 0);
-        this.ib.indexCount = iblen / 2;
+        ib._setIndexDataLength(ibLength * 2)
+        ib._setIndexData(new Uint16Array(indexArray.buffer, 0, ibLength), 0);
+        ib.indexCount = ibLength;
+        
         if (isMuti) {
             let elementsCreator = this.elementsMap.get(mutiRenderData.id);
             if (!elementsCreator) {
@@ -901,7 +899,7 @@ class SkinRender implements IVBIBUpdate {
             }
             if (material != this.material) {
                 this.owner._nodeOwner.clear();
-                this.owner._nodeOwner.drawGeo(this.geo, material);
+                this.owner._nodeOwner.drawGeo(this.geo, material , ibLength ,  0);
             }
         }
     }
@@ -920,9 +918,9 @@ class SkinRender implements IVBIBUpdate {
         if (this.hasNormalRender) {
             this._renerer = SpineAdapter.createNormalRender(templet, false);
         }
-        if (templet.mainTexture) {
-            this.material = templet.getMaterial(templet.mainTexture, templet.mainBlendMode);
-        }
+        // if (templet.mainTexture) {
+        //     this.material = templet.getMaterial(templet.mainTexture, templet.mainBlendMode);
+        // }
     }
 
     /**
