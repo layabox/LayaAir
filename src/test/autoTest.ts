@@ -60,7 +60,7 @@ puppeteer.launch({
             // }
             // 获取测试信息
             //const testInfo = await page.evaluate(() => (window as any).testInfo);   
-            let testInfoPath = path.join(screenShotDir,`${js}_testInfo.json`);
+            let testInfoPath = path.join(screenShotDir,`${js}.json`);
             if(!fs.existsSync(testInfoPath)){
                 console.error('没有这个文件:',testInfoPath);
                 //await browser.close();

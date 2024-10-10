@@ -176,7 +176,7 @@ app.post('/upload', upload.single('screenshot'), async (req, res) => {
     stream.pipe(out);
     out.on('finish', () => {
         // 更新或创建 testInfo.json
-        const testInfoPath = path.join(__dirname, resultDir, `${pageId}_testInfo.json`);
+        const testInfoPath = path.join(__dirname, resultDir, `${pageId}.json`);
         let testInfoData = [];
 
         if (fs.existsSync(testInfoPath)) {
