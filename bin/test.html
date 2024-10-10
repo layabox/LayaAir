@@ -31,6 +31,31 @@
             }
         }
     </script>
+    <script>
+        const socket = new WebSocket(`ws://${location.host}`);
+
+        socket.addEventListener('open', (event) => {
+            //console.log('Connected to WebSocket server');
+        });
+
+        socket.addEventListener('message', (event) => {
+            const data = JSON.parse(event.data);
+            if (data.type === 'fileChanged') {
+                console.log('File changed:', data.file);
+                // 如果变更的文件与当前页面相关，则刷新
+                if (isRelevantFile(data.file)) {
+                    location.reload();
+                }
+            }
+        });
+
+        function isRelevantFile(file) {
+            // 这里的逻辑需要根据你的项目结构来定制
+            // 例如，你可以检查文件路径是否与当前页面相关
+            return true; // 这里简单地总是返回 true，即任何文件变化都刷新
+        }
+    </script>
+
     <script src='astar.js'></script>
     <script src='laya.physics3D.js'></script>
     <!-- <script src='laya.performancetool.js'></script> -->
@@ -39,7 +64,7 @@
     <!--<script src='box2d.js'></script>-->
     <script src='spine-core-3.8.js'></script>
     <script src='webxr-polyfill.module.js' type='module'></script>
-    <script src='tsc/samples/test.js' type='module'></script>
+    <script src='tsc/test/test.js' type='module'></script>
     <!-- <script src='meshopt_simplifier.js'></script> -->
 </body>
 
