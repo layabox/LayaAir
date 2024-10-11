@@ -1,7 +1,7 @@
 import { BufferTargetType, BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
 import { IIndexBuffer } from "../../DriverDesign/RenderDevice/IIndexBuffer";
-import { WebGPUBuffer, WebGPUBufferUsage } from "./WebGPUBuffer";
+import { WebGPUBuffer } from "./WebGPUBuffer";
 import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
 
 export class WebGPUIndexBuffer implements IIndexBuffer {
@@ -13,7 +13,7 @@ export class WebGPUIndexBuffer implements IIndexBuffer {
     objectName: string = 'WebGPUIndexBuffer';
 
     constructor(targetType: BufferTargetType, bufferUsageType: BufferUsage) {
-        let usage = WebGPUBufferUsage.INDEX | WebGPUBufferUsage.COPY_DST;
+        let usage = GPUBufferUsage.INDEX | GPUBufferUsage.COPY_DST;
         this.source = new WebGPUBuffer(usage, 0);
         this.globalId = WebGPUGlobal.getId(this);
     }
