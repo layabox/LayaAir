@@ -216,19 +216,23 @@ export class BaseLight2D extends Component {
 
     protected _onEnable(): void {
         super._onEnable();
-        (this.owner as Sprite).on("2DtransChanged", this, this._transformChange);
-        (this.owner as Sprite).transChangeNotify = true;
-        const lightRP = (this.owner?.scene as Scene)?._light2DManager;
-        if (lightRP)
-            lightRP.addLight(this);
+        if (this.owner) {
+            (this.owner as Sprite).on("2DtransChanged", this, this._transformChange);
+            (this.owner as Sprite).transChangeNotify = true;
+            const lightRP = (this.owner.scene as Scene)?._light2DManager;
+            if (lightRP)
+                lightRP.addLight(this);
+        }
     }
 
     protected _onDisable(): void {
         super._onDisable();
-        (this.owner as Sprite).off("2DtransChanged", this, this._transformChange);
-        const lightRP = (this.owner?.scene as Scene)?._light2DManager;
-        if (lightRP)
-            lightRP.removeLight(this);
+        if (this.owner) {
+            (this.owner as Sprite).off("2DtransChanged", this, this._transformChange);
+            const lightRP = (this.owner?.scene as Scene)?._light2DManager;
+            if (lightRP)
+                lightRP.removeLight(this);
+        }
     }
 
     protected _onDestroy() {

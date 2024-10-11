@@ -109,14 +109,14 @@ export class Light2DManager {
     }
 
     addLight(light: BaseLight2D) {
-        this._lights.push(light);
+        if (this._lights.indexOf(light) === -1)
+            this._lights.push(light);
     }
 
     removeLight(light: BaseLight2D) {
         const index = this._lights.indexOf(light);
-        if (index >= 0) {
+        if (index >= 0)
             this._lights.splice(index, 1);
-        }
     }
 
     clearOccluder() {
@@ -124,14 +124,14 @@ export class Light2DManager {
     }
 
     addOccluder(occluder: LightOccluder2D) {
-        this._occluders.push(occluder);
+        if (this._occluders.indexOf(occluder) === -1)
+            this._occluders.push(occluder);
     }
 
     removeOccluder(occluder: LightOccluder2D) {
         const index = this._occluders.indexOf(occluder);
-        if (index >= 0) {
+        if (index >= 0)
             this._occluders.splice(index, 1);
-        }
     }
 
     /**
@@ -149,11 +149,6 @@ export class Light2DManager {
             occluders = this._occludersInLayer[layer] = [];
         else occluders.length = 0;
 
-        //this._lights.length = 0;
-        //this._occluders.length = 0;
-        //this._findLight(this._scene);
-        //this._findOccluder(this._scene);
-
         for (let i = this._lights.length - 1; i > -1; i--)
             if (this._lights[i].layerMask & mask)
                 if (this._lights[i].isInScreen(this._screenSchmitt))
@@ -162,37 +157,6 @@ export class Light2DManager {
             if (this._occluders[i].layerMask & mask)
                 occluders.push(this._occluders[i]);
     }
-
-    // /**
-    //  * 查找灯光
-    //  * @param sprite 
-    //  * @param children 
-    //  */
-    // private _findLight(sprite: Sprite, children: boolean = true) {
-    //     if (sprite) {
-    //         for (let i = sprite._children.length - 1; i > -1; i--)
-    //             if (sprite._children[i] instanceof BaseLight2D)
-    //                 this._lights.push(sprite._children[i] as BaseLight2D);
-    //         if (children)
-    //             for (let i = sprite._children.length - 1; i > -1; i--)
-    //                 this._findLight(sprite._children[i] as Sprite, children);
-    //     }
-    // }
-
-    // /**
-    //  * 查找灯光遮挡器
-    //  * @param sprite 
-    //  * @param children 
-    //  */
-    // private _findOccluder(sprite: Sprite, children: boolean = true) {
-    //     if (sprite) {
-    //         const lo = sprite.getComponent(LightOccluder2D);
-    //         lo && this._occluders.push(lo);
-    //         if (children)
-    //             for (let i = sprite._children.length - 1; i > -1; i--)
-    //                 this._findOccluder(sprite._children[i] as Sprite, children);
-    //     }
-    // }
 
     /**
      * 指定层中是否有灯光
