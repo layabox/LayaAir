@@ -223,7 +223,7 @@ function canvasesAreEqual(canvas1, canvas2) {
 
 // 列出所有的2d测试
 app.get('/test', (req, res) => {
-    const directoryPath = path.join(__dirname, 'tsc/layaAir/laya/test/2d'); // 'test'目录路径
+    const directoryPath = path.join(__dirname, 'tsc/test/cases/2d'); // 'test'目录路径
     fs.readdir(directoryPath, function (err, files) {
         // 处理读取目录的错误
         if (err) {
@@ -247,7 +247,7 @@ app.get('/test', (req, res) => {
 
 app.use((req, res, next) => {
 	//如果是目录，但是不是以/结尾的，算文件，避免express返回301。因为遇到一个问题 SceneRenderManager.js所在目录有一个 SceneRenderManager 目录
-	//console.log(req.path);
+	console.log(req.path);
     let filePath = path.join(__dirname, req.path);
 	
     // 检查原始文件是否存在
@@ -339,6 +339,7 @@ app.use((req, res, next) => {
 
 // 使用express的静态文件中间件
 app.use(express.static(__dirname));
+app.use('/src',express.static(path.join(__dirname,'../src')));
 
 // 启动服务器
 server.listen(port, () => {
