@@ -18,19 +18,45 @@
 </head>
 
 <body>
+    <!--由于其他地方都是请求没有.js扩展名的文件，这里也要去掉js,否则，例如会同时有laya和laya.js导致对象出错-->
     <script type="importmap">
         {
             "imports": {
                 "laya/":"/tsc/layaAir/laya/",
-                "Laya3D":"/tsc/layaAir/Laya3D.js",
-                "Config3D":"/tsc/layaAir/Config3D.js",
-                "ILaya3D":"/tsc/layaAir/ILaya3D.js",
-                "Laya":"/tsc/layaAir/Laya.js",
-                "Config":"/tsc/layaAir/Config.js",
-                "ILaya":"/tsc/layaAir/ILaya.js"
+                "Laya3D":"/tsc/layaAir/Laya3D",
+                "Config3D":"/tsc/layaAir/Config3D",
+                "ILaya3D":"/tsc/layaAir/ILaya3D",
+                "Laya":"/tsc/layaAir/Laya",
+                "Config":"/tsc/layaAir/Config",
+                "ILaya":"/tsc/layaAir/ILaya"
             }
         }
     </script>
+    <script>
+        const socket = new WebSocket(`ws://${location.host}`);
+
+        socket.addEventListener('open', (event) => {
+            //console.log('Connected to WebSocket server');
+        });
+
+        socket.addEventListener('message', (event) => {
+            const data = JSON.parse(event.data);
+            if (data.type === 'fileChanged') {
+                console.log('File changed:', data.file);
+                // 如果变更的文件与当前页面相关，则刷新
+                if (isRelevantFile(data.file)) {
+                    location.reload();
+                }
+            }
+        });
+
+        function isRelevantFile(file) {
+            // 这里的逻辑需要根据你的项目结构来定制
+            // 例如，你可以检查文件路径是否与当前页面相关
+            return true; // 这里简单地总是返回 true，即任何文件变化都刷新
+        }
+    </script>
+
     <script src='astar.js'></script>
     <script src='laya.physics3D.js'></script>
     <!-- <script src='laya.performancetool.js'></script> -->
@@ -39,7 +65,7 @@
     <!--<script src='box2d.js'></script>-->
     <script src='spine-core-3.8.js'></script>
     <script src='webxr-polyfill.module.js' type='module'></script>
-    <script src='tsc/samples/test.js' type='module'></script>
+    <script src='tsc/test/test.js' type='module'></script>
     <!-- <script src='meshopt_simplifier.js'></script> -->
 </body>
 

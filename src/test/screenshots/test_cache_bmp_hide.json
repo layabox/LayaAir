@@ -1,0 +1,22 @@
+[
+  {
+    "time": 300,
+    "rect": {
+      "x": 67,
+      "y": 82,
+      "width": 298,
+      "height": 271
+    },
+    "answer": "test_cache_bmp_hide_0_20241009T144946.png"
+  },
+  {
+    "time": 2000,
+    "rect": {
+      "x": 67,
+      "y": 82,
+      "width": 298,
+      "height": 271
+    },
+    "answer": "test_cache_bmp_hide_1_20241009T144948.png"
+  }
+]
