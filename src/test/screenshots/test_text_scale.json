@@ -1,0 +1,22 @@
+[
+  {
+    "time": 300,
+    "rect": {
+      "x": 77,
+      "y": 62,
+      "width": 196,
+      "height": 181
+    },
+    "answer": "test_text_scale_0_20241009T150042.png"
+  },
+  {
+    "time": 3000,
+    "rect": {
+      "x": 77,
+      "y": 62,
+      "width": 196,
+      "height": 181
+    },
+    "answer": "test_text_scale_1_20241009T150045.png"
+  }
+]
