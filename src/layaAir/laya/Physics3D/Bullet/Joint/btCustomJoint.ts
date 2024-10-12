@@ -608,4 +608,13 @@ export class btCustomJoint extends btJoint implements ID6Joint {
         throw new Error("Method not implemented.");
     }
 
+    /**
+     * @en Destroy joint
+     * @zh 销毁关节
+     */
+    destroy(): void {
+        this._btJoint = null;
+        this._btJointFeedBackObj = null;
+        super.destroy();
+    }
 }

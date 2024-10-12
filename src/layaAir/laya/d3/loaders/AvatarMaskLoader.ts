@@ -26,4 +26,4 @@ class AvatarMaskLoader implements IResourceLoader {
     }
 }
 
-Loader.registerLoader([""], AvatarMaskLoader);
+Loader.registerLoader(["lavm"], AvatarMaskLoader);

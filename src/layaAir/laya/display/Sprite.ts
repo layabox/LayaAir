@@ -28,6 +28,7 @@ import { IHitArea } from "../utils/IHitArea";
 import type { Material } from "../resource/Material";
 import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
 import { BaseRenderNode2D } from "../NodeRender2D/BaseRenderNode2D";
+import type { Stage } from "./Stage";
 
 /**
  * @en Sprite is a basic display list node for displaying graphical content. By default, Sprite does not accept mouse events. Through the graphics API, images or vector graphics can be drawn, supporting operations like rotation, scaling, translation, and more. Sprite also functions as a container class, allowing the addition of multiple child nodes.
@@ -1573,10 +1574,10 @@ export class Sprite extends Node {
      * @returns HTMLCanvas 对象。
      */
     static drawToCanvas(sprite: Sprite, canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, isDrawRenderRect: boolean = true): HTMLCanvas {
-        if (arguments.length > 5) {
-            throw 'drawToCanvas 接口参数不对'
-        }
-        let rt = Sprite.drawToTexture(sprite, canvasWidth, canvasHeight, offsetX, offsetY, null, isDrawRenderRect) as RenderTexture2D;
+        // if (arguments.length > 5) {
+        //     throw 'drawToCanvas 接口参数不对'
+        // }
+        let rt = Sprite.drawToRenderTexture2D(sprite, canvasWidth, canvasHeight, offsetX, offsetY, null);
         var dt = rt.getData(0, 0, canvasWidth, canvasHeight) as Uint8Array;
         var imgdata = new ImageData(canvasWidth, canvasHeight);;	//创建空的imagedata。因为下面要翻转，所以不直接设置内容
         //翻转getData的结果。
@@ -1759,7 +1760,19 @@ export class Sprite extends Node {
 
     set filters(value: Filter[]) {
         value && value.length === 0 && (value = null);
+
+        //先去掉旧的事件监听
+        if(this._filterArr){
+            for(let f of this._filterArr){
+                f && f.off(Filter.EVENT_CHANGE,this,this.repaint);
+            }
+        }
         this._filterArr = value ? value.slice() : null;
+        if(value){
+            for(let f of value){
+                f && f.on(Filter.EVENT_CHANGE,this,this.repaint);
+            }
+        }
         if (value)
             this._renderType |= SpriteConst.FILTERS;
         else
@@ -2059,7 +2072,7 @@ export class Sprite extends Node {
      * @en Reference to the stage.
      * @zh 对舞台的引用。
      */
-    get stage() {
+    get stage(): Stage {
         return ILaya.stage;
     }
 

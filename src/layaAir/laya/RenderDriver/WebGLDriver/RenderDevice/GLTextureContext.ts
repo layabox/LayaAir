@@ -144,6 +144,16 @@ export class GLTextureContext extends GLObject implements ITextureContext {
                 this._glParam.format = this._glParam.internalFormat;
                 this._glParam.type = gl.UNSIGNED_BYTE;
                 break;
+            case TextureFormat.ETC2RGB_Alpha1:
+                this._glParam.internalFormat = this._compressedTextureETC.COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2;
+                this._glParam.format = this._glParam.internalFormat;
+                this._glParam.type = gl.UNSIGNED_BYTE;
+                break;
+            case TextureFormat.ETC2SRGB_Alpha1:
+                this._glParam.internalFormat = this._compressedTextureETC.COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2;
+                this._glParam.format = this._glParam.internalFormat;
+                this._glParam.type = gl.UNSIGNED_BYTE;
+                break;
             case TextureFormat.ASTC4x4:
                 this._glParam.internalFormat = this._compressedTextureASTC.COMPRESSED_RGBA_ASTC_4x4_KHR;
                 this._glParam.format = this._glParam.internalFormat;
@@ -537,6 +547,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         switch (format) {
             case TextureFormat.ETC2SRGB:
             case TextureFormat.ETC2SRGB_Alpha8:
+            case TextureFormat.ETC2SRGB_Alpha1:
             case TextureFormat.ASTC4x4SRGB:
             case TextureFormat.ASTC6x6SRGB:
             case TextureFormat.ASTC8x8SRGB:

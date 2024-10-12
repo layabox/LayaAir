@@ -1,4 +1,4 @@
-if (window.conch) {
+if (window.conch && window.layaConchBullet) {
   window.Physics3D = function(initialMemory, interactive) {
     window.conch.setGetWorldTransformFunction(interactive.getWorldTransform);
     window.conch.setSetWorldTransformFunction(interactive.setWorldTransform);

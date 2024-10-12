@@ -10,11 +10,10 @@ import { ClassUtils } from "../utils/ClassUtils";
 import { Utils } from "../utils/Utils";
 import { IDecodeObjOptions, SerializeUtil } from "./SerializeUtil";
 
-const errorList: Array<any> = [];
-
 export class HierarchyParser {
     public static parse(data: any, options?: Record<string, any>, errors?: Array<any>): Array<Node> {
-        errors = errors || errorList;
+        let printErrors = errors == null;
+        errors = errors || [];
         let nodeMap: Record<string, Node> = {};
         let dataList: Array<any> = [];
         let allNodes: Array<Node> = [];
@@ -337,8 +336,8 @@ export class HierarchyParser {
         if (inPrefab && prefabNodeDict && topNode) //记录下nodeMap，上层创建prefab时使用
             prefabNodeDict.set(topNode, nodeMap);
 
-        if (errors == errorList)
-            errorList.length = 0;
+        if (printErrors && errors.length > 0)
+            errors.forEach(err => console.error(err));
 
         return outNodes;
     }

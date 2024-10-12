@@ -1,13 +1,14 @@
 export class ExternalSkinItem {
-    /**@internal @protected */
+    /**@internal */
     protected _skin: string;
-    /**@internal @protected */
+    /**@internal */
     protected _slot: string;
-    /**@internal @protected */
+    /**@internal */
     protected _attachment: string;
 
     /**
-     * 皮肤
+     * @en The skin.
+     * @zh 皮肤。
      */
     get skin() {
         return this._skin;
@@ -17,23 +18,24 @@ export class ExternalSkinItem {
     }
 
     /**
-     * 槽位
+     * @en The slot.
+     * @zh 槽位。
      */
-    set slot(value: string) {
-        this._slot = value;
-    }
     get slot() {
         return this._slot;
     }
+    set slot(value: string) {
+        this._slot = value;
+    }
 
     /**
-     * 附件
+     * @en The attachment.
+     * @zh 附件。
      */
-    set attachment(value: string) {
-        this._attachment = value;
-    }
     get attachment() {
         return this._attachment;
     }
-
+    set attachment(value: string) {
+        this._attachment = value;
+    }
 }

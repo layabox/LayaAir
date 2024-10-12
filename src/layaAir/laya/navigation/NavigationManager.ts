@@ -2,7 +2,6 @@
 import { Laya } from "../../Laya";
 import { IElementComponentManager } from "../d3/core/scene/IScenceComponentManager";
 import { Scene3D } from "../d3/core/scene/Scene3D";
-import { Bounds } from "../d3/math/Bounds";
 import { Vector3 } from "../maths/Vector3";
 import { SingletonList } from "../utils/SingletonList";
 import { AreaMask } from "./AreaMask";
@@ -333,7 +332,7 @@ export class NavigationManager implements IElementComponentManager {
         if (!this._naveMeshMaps.has(agentType)) return null;
         let surfaces = this._naveMeshMaps.get(agentType);
         for (var i = 0, n = surfaces.length; i < n; i++) {
-            if (Bounds.containPoint(surfaces.elements[i].bounds, pos)) {
+            if (NavigationUtils.boundContainPoint(surfaces.elements[i].boundMin, surfaces.elements[i].boundMax, pos)) {
                 return surfaces.elements[i];
             }
         }
@@ -352,7 +351,7 @@ export class NavigationManager implements IElementComponentManager {
         var surfaces: NavMeshSurface[] = [];
         this._naveMeshMaps.forEach((datas) => {
             for (var i = 0, n = datas.length; i < n; i++) {
-                if (Bounds.containPoint(datas.elements[i].bounds, pos)) {
+                if (NavigationUtils.boundContainPoint(datas.elements[i].boundMin, datas.elements[i].boundMax, pos)) {
                     surfaces.push(datas.elements[i]);
                 }
             }

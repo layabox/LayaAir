@@ -15,17 +15,29 @@ import { LayaGL } from "../../layagl/LayaGL";
 import { FastSinglelist } from "../../utils/SingletonList";
 import { SpineShaderInit } from "../material/SpineShaderInit";
 
+/**
+ * @en SpineInstanceBatch used for efficient rendering Spine instances.
+ * @zh SpineInstanceBatch 用于高效渲染 Spine 实例。
+ */
 export class SpineInstanceBatch implements IBatch2DRender{
-    /** @internal */
+    /**
+     * @en The instance of SpineInstanceBatch.
+     * @zh SpineInstanceBatch 的实例。
+     */
     static instance: SpineInstanceBatch;
 
     // _recoverList = new FastSinglelist<IRenderElement2D>();
     _recoverList = new FastSinglelist<SpineInstanceInfo>();
 
     /**
-     * 检测Element能否合并
-     * @param left 
-     * @param right 
+     * @en Check if two render elements can be merged.
+     * @param left The left render element to compare.
+     * @param right The right render element to compare.
+     * @returns True if the elements can be merged, false otherwise.
+     * @zh 检测两个渲染元素是否可以合并。
+     * @param left 要比较的左侧渲染元素。
+     * @param right 要比较的右侧渲染元素。
+     * @returns 如果元素可以合并则返回 true，否则返回 false。
      */
     check(left:IRenderElement2D , right:IRenderElement2D):boolean{
         if (left.materialShaderData != right.materialShaderData
@@ -40,10 +52,14 @@ export class SpineInstanceBatch implements IBatch2DRender{
     }
 
     /**
-     * 合并批次
-     * @param list 
-     * @param start 
-     * @param length 
+     * @en Batch render elements.
+     * @param list The list of render elements.
+     * @param start The starting index in the list.
+     * @param length The number of elements to process.
+     * @zh 批量渲染元素。
+     * @param list 渲染元素列表。
+     * @param start 列表中的起始索引。
+     * @param length 要处理的元素数量。
      */
     batchRenderElement(list: FastSinglelist<IRenderElement2D>, start: number, length: number): void {
         let elementArray = list.elements;
@@ -73,11 +89,16 @@ export class SpineInstanceBatch implements IBatch2DRender{
     }
 
     /**
-     * 更新InstanceBuffer
-     * @param info 
-     * @param nMatrixData 
-     * @param simpleAnimatorData 
-     * @param instanceCount 
+     * @en Update the instance buffer with new data.
+     * @param info The SpineInstanceInfo object.
+     * @param nMatrixData The new matrix data.
+     * @param simpleAnimatorData The new animator data.
+     * @param instanceCount The number of instances.
+     * @zh 使用新数据更新实例缓冲区。
+     * @param info SpineInstanceInfo 对象。
+     * @param nMatrixData 新的矩阵数据。
+     * @param simpleAnimatorData 新的动画器数据。
+     * @param instanceCount 实例数量。
      */
     updateBuffer(info:SpineInstanceInfo , nMatrixData:Float32Array , simpleAnimatorData : Float32Array , instanceCount:number){
         let nMatrixInstanceVB = info.nMatrixInstanceVB;
@@ -89,10 +110,14 @@ export class SpineInstanceBatch implements IBatch2DRender{
     }
 
     /**
-     * 组织Instance数据
-     * @param list 
-     * @param start 
-     * @param length 
+     * @en Organize instance data for batching.
+     * @param list The list of render elements.
+     * @param start The starting index in the list.
+     * @param length The number of elements to process.
+     * @zh 组织实例数据以进行批处理。
+     * @param list 渲染元素列表。
+     * @param start 列表中的起始索引。
+     * @param length 要处理的元素数量。
      */
     batch(list: FastSinglelist<IRenderElement2D> ,  start: number, length: number ){
 
@@ -180,7 +205,8 @@ export class SpineInstanceBatch implements IBatch2DRender{
     }
 
     /**
-     * 回收 InstanceData
+     * @en Recover instance data.
+     * @zh 回收实例数据。
      */
     recover(): void {
         let length = this._recoverList.length;
@@ -208,8 +234,16 @@ export interface SpineInstanceInfo {
     simpleAnimatorVB?: IVertexBuffer;
 }
 
+/**
+ * @en Tool class for managing Spine instance elements in 2D rendering.
+ * @zh 用于管理 2D 渲染中的 Spine 实例元素的工具类。
+ */
 export class SpineInstanceElement2DTool{
 
+    /**
+     * @en Maximum number of instances that can be batched.
+     * @zh 可以批处理的最大实例数量。
+     */
     static MaxInstanceCount = 2048;
 
     /**
@@ -218,6 +252,12 @@ export class SpineInstanceElement2DTool{
     // private static _instanceBufferStateMap: IBufferState[] = [];
     private static _instanceBufferInfoMap: Map<IRenderGeometryElement,SpineInstanceInfo[]>  = new Map;
 
+    /**
+     * @en Get or create a SpineInstanceInfo for a given geometry.
+     * @param geometry The render geometry element.
+     * @zh 获取或创建给定几何体的 SpineInstanceInfo。
+     * @param geometry 渲染几何体元素。
+     */
     static getInstanceInfo(geometry:IRenderGeometryElement):SpineInstanceInfo{
         let infos = SpineInstanceElement2DTool._instanceBufferInfoMap.get(geometry);
         if (!infos) {
@@ -258,6 +298,12 @@ export class SpineInstanceElement2DTool{
         return info;
     }
 
+    /**
+     * @en Create a new SpineInstanceInfo for a given geometry.
+     * @param geometry The render geometry element.
+     * @zh 为给定的几何体创建一个新的 SpineInstanceInfo。
+     * @param geometry 渲染几何体元素。
+     */
     static createInstanceInfo(geometry:IRenderGeometryElement){
         let element = LayaGL.render2DRenderPassFactory.createRenderElement2D();
         let instanceGeometry = element.geometry = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles,DrawType.DrawElementInstance);
@@ -297,6 +343,12 @@ export class SpineInstanceElement2DTool{
         return info;
     }
 
+    /**
+     * @en Recover a SpineInstanceInfo object.
+     * @param info The SpineInstanceInfo to recover.
+     * @zh 回收一个 SpineInstanceInfo 对象。
+     * @param info 要回收的 SpineInstanceInfo。
+     */
     static recover(info:SpineInstanceInfo){
         let element = info.element;
         element.value2DShaderData.removeDefine(SpineShaderInit.SPINE_GPU_INSTANCE);
@@ -331,7 +383,6 @@ export class SpineInstanceElement2DTool{
 
     /**
      * pool of Buffer
-     * @internal
      */
     private static _bufferPool: Float32Array[][] = [];
 

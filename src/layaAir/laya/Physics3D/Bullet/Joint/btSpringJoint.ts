@@ -169,4 +169,13 @@ export class btSpringJoint extends btJoint implements ISpringJoint {
         bt.btGeneric6DofSpring2Constraint_setDamping(this._btJoint, btSpringJoint.LINEARSPRING_AXIS_Y, damping, true);
     }
 
+    /**
+     * @en Destroy joint
+     * @zh 销毁关节
+     */
+    destroy(): void {
+        this._btJoint = null;
+        this._btJointFeedBackObj = null;
+        super.destroy();
+    }
 }

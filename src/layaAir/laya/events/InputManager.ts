@@ -78,6 +78,8 @@ export class InputManager {
     protected _pressKeys: Set<string | number>;
     protected _keyEvent: Event;
 
+    private _lastTouchTime: number;
+
     /**
      * @ignore
      */
@@ -242,6 +244,9 @@ export class InputManager {
     handleMouse(ev: MouseEvent | WheelEvent, type: number) {
         this._eventType = type;
         this._nativeEvent = ev;
+        let now = Browser.now();
+        if (this._lastTouchTime != null && now - this._lastTouchTime < 100)
+            return;
 
         //console.log("handleMouse", type);
         let touch: TouchInfo = this._mouseTouch;
@@ -264,7 +269,7 @@ export class InputManager {
             let iy = Math.round(y);
 
             if (ix != touch.pos.x || iy != touch.pos.y) {
-                this._stage._mouseMoveTime = Browser.now();
+                this._stage._mouseMoveTime = now;
 
                 touch.pos.setTo(ix, iy);
                 touch.move();
@@ -358,6 +363,7 @@ export class InputManager {
     handleTouch(ev: TouchEvent, type: number) {
         this._eventType = type;
         this._nativeEvent = ev;
+        this._lastTouchTime = Browser.now();
 
         let touches = ev.changedTouches;
         for (let i = 0; i < touches.length; ++i) {
@@ -386,7 +392,7 @@ export class InputManager {
                 touch.target = this._touchTarget = null;
             else {
                 touch.target = this._touchTarget = this.getNodeUnderPoint(x, y);
-                this._stage._mouseMoveTime = Browser.now();
+                this._stage._mouseMoveTime = this._lastTouchTime;
 
                 let ix = Math.round(x);
                 let iy = Math.round(y);

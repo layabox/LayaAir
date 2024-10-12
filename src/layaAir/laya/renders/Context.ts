@@ -3,6 +3,7 @@ import { Laya } from "../../Laya";
 import { Const } from "../Const";
 import { RenderManager2D } from "../NodeRender2D/RenderManager2D";
 import { IRenderGeometryElement } from "../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
+import { ShaderData } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { RenderState } from "../RenderDriver/RenderModuleData/Design/RenderState";
 import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
 import { Shader3D } from "../RenderEngine/RenderShader/Shader3D";
@@ -234,7 +235,7 @@ export class Context {
         this._lastTex = this.defTexture;
         this._other = ContextParams.DEFAULT;
         this._curMat = Matrix.create();
-        this._charSubmitCache = new CharSubmitCache();
+        this._charSubmitCache = new CharSubmitCache(this);
         //_vb = _vbs[0] = VertexBuffer2D.create( -1);
         this._mesh = this._meshQuatTex;
         this._mesh.clearMesh();
@@ -960,6 +961,14 @@ export class Context {
         var cmp = shaderValue.clipMatPos;
         cmp.x = clipInfo.tx; cmp.y = clipInfo.ty;
         shaderValue.clipMatPos = cmp;
+    }
+	/**@internal */
+    _copyClipInfoToShaderData(shaderData: ShaderData) {
+        let clipInfo = this._globalClipMatrix;
+        Vector4.tempVec4.setValue(clipInfo.a, clipInfo.b, clipInfo.c, clipInfo.d)
+        shaderData.setVector(ShaderDefines2D.UNIFORM_CLIPMATDIR, Vector4.tempVec4);
+        Vector2.TempVector2.setValue(clipInfo.tx, clipInfo.ty);
+        shaderData.setVector2(ShaderDefines2D.UNIFORM_CLIPMATPOS, Vector2.TempVector2);
     }
 
     //通用的部分的比较
@@ -2007,7 +2016,7 @@ export class Context {
      */
     private _fillTexture_h(tex: Texture, imgid: number, uv: ArrayLike<number>, oriw: number, orih: number, x: number, y: number, w: number, color: number): void {
         if (oriw <= 0)
-            console.error('_fillTexture_h error: oriw must>0');
+            return;//console.error('_fillTexture_h error: oriw must>0');
 
         var stx = x;
         var num = Math.floor(w / oriw);
@@ -2040,7 +2049,7 @@ export class Context {
      */
     private _fillTexture_v(tex: Texture, imgid: number, uv: ArrayLike<number>, oriw: number, orih: number, x: number, y: number, h: number, color: number): void {
         if (orih <= 0)
-            console.error('_fillTexture_v error: orih must>0');
+            return; //console.error('_fillTexture_v error: orih must>0');
         var sty = y;
         var num = Math.floor(h / orih);
         var left = h % orih;

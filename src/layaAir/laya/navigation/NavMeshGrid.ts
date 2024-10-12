@@ -1,6 +1,5 @@
-
-import { Bounds } from "../d3/math/Bounds";
 import { Vector2 } from "../maths/Vector2";
+import { Vector3 } from "../maths/Vector3";
 import { NavTileData } from "./NavTileData";
 import { RecastConfig } from "./RecastConfig";
 
@@ -13,7 +12,10 @@ export class NavMeshGrid {
     private _config: RecastConfig;
 
     /**@internal */
-    private _bounds: Bounds;
+    private _boundsMin: Vector3 = new Vector3();
+
+    /**@internal */
+    private _boundsMax: Vector3 = new Vector3();
 
     /**@internal */
     private _tileSize: Vector2;
@@ -41,9 +43,10 @@ export class NavMeshGrid {
      * @param config 导航网格的配置。
      * @param bound 导航网格的边界框。
      */
-    constructor(config: RecastConfig, bound: Bounds) {
+    constructor(config: RecastConfig, min: Vector3, max: Vector3) {
         this._config = config;
-        this._bounds = bound;
+        this._boundsMin = min;
+        this._boundsMax = max;
         this._tileSize = new Vector2();
         this._cellSize = new Vector2();
         this._updateBound();
@@ -54,8 +57,8 @@ export class NavMeshGrid {
      */
     private _updateBound() {
         this._bordWidth = this._config.cellSize * 3;
-        let max = this._bounds.getMax();
-        let min = this._bounds.getMin();
+        let max = this._boundsMax;
+        let min = this._boundsMin;
         const tileWidth = this._config.cellSize * this._config.tileSize;
         this._tileSize.x = Math.ceil((max.x - min.x) / tileWidth);
         this._tileSize.y = Math.ceil((max.z - min.z) / tileWidth);
@@ -74,7 +77,8 @@ export class NavMeshGrid {
      * @param tile 导航瓦片数据。
      */
     public refeachConfig(tile: NavTileData) {
-        tile._boundBox.cloneTo(this._bounds);
+        tile._boundMin.cloneTo(this._boundsMin);
+        tile._boundMax.cloneTo(this._boundsMax);
         this._updateBound()
     }
 
@@ -88,12 +92,12 @@ export class NavMeshGrid {
      * @param isbord 是否在边界框周围包含边界。
      * @returns 瓦片索引数组。
      */
-    public getBoundTileIndex(bound: Bounds, isbord: boolean = false): number[] {
+    public getBoundTileIndex(min: Vector3, max: Vector3, isbord: boolean = false): number[] {
         //阔边
-        let pMinx = bound.min.x;
-        let pMinz = bound.min.z;
-        let pMaxx = bound.max.x;
-        let pMaxz = bound.max.z;
+        let pMinx = min.x;
+        let pMinz = min.z;
+        let pMaxx = max.x;
+        let pMaxz = max.z;
         if (isbord) {
             pMinx -= this._bordWidth;
             pMinz -= this._bordWidth;
@@ -121,8 +125,16 @@ export class NavMeshGrid {
      * @en The bounding box of the navigation mesh.
      * @zh 导航网格的边界框。
      */
-    public get bounds(): Bounds {
-        return this._bounds;
+    public get boundMin(): Vector3 {
+        return this._boundsMin;
+    }
+
+    /**
+     * @en The bounding box of the navigation mesh.
+     * @zh 导航网格的边界框。
+     */
+    public get boundMax(): Vector3 {
+        return this._boundsMax;
     }
 
     /**
@@ -172,7 +184,7 @@ export class NavMeshGrid {
     * get tile x index
     */
     getTileXIndex(value: number) {
-        return this._getLeftValue(value - this._bounds.min.x);
+        return this._getLeftValue(value - this._boundsMin.x);
     }
 
     /**
@@ -180,7 +192,7 @@ export class NavMeshGrid {
     * get tile z index
     */
     getTileZIndex(value: number) {
-        return this._getLeftValue(value - this._bounds.min.z);
+        return this._getLeftValue(value - this._boundsMin.z);
     }
 
     /**

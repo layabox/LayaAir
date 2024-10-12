@@ -82,4 +82,13 @@ export class pxDistanceJoint extends pxJoint implements ISpringJoint {
         this._pxJoint && this._pxJoint.setDamping(damping);
     }
 
+    /**
+     * @en Destroy joint
+     * @zh 销毁关节
+     */
+    destroy(): void {
+        this._pxJoint && this._pxJoint.release();
+        super.destroy();
+    }
+
 }

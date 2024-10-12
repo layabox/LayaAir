@@ -2,18 +2,31 @@ import { Laya } from "../../Laya";
 import { SpineSkeletonRenderer } from "./normal/SpineSkeletonRenderer";
 import { SpineTemplet } from "./SpineTemplet";
 import { SpineWasmRender } from "./normal/SpineWasmRender";
+/**
+ * @en SpineAdapter is an adapter class for integrating the Spine animation system.
+ * @zh SpineAdapter 是一个适配器类，用于集成 Spine 动画系统。
+ */
 export class SpineAdapter {
     static _vbArray: Float32Array;
     static _ibArray: Uint16Array;
     static _spine: any;
 
+    /**
+     * @en Indicates whether the Spine system is using WebAssembly.
+     * @zh 指示 Spine 系统是否使用 WebAssembly。
+     */
     static isWasm: boolean;
 
+    /**
+     * @en Map of state values to their corresponding string representations.
+     * @zh 状态值到其对应字符串表示的映射。
+     */
     static stateMap: any = { 0: "start", 1: "interrupt", 2: "end", 3: "complete", 4: "dispose", 5: "event" };
 
     /**
-    * 初始化系统，由系统内部调用
-    * @internal
+     * @internal
+     * @en Initialize the system, called internally by the system.
+     * @zh 初始化系统，由系统内部调用。
     */
     static initialize() {
         //@ts-ignore
@@ -36,10 +49,22 @@ export class SpineAdapter {
         }
     }
 
+    /**
+     * @en Create a normal render object for Spine animation.
+     * @param templet The Spine template.
+     * @param twoColorTint Whether to use two-color tinting.
+     * @zh 为 Spine 动画创建一个普通渲染对象。
+     * @param templet Spine 模板。
+     * @param twoColorTint 是否使用两色染色。
+     */
     static createNormalRender(templet: SpineTemplet, twoColorTint: boolean) {
         return SpineAdapter.isWasm ? new SpineWasmRender(templet, twoColorTint) : new SpineSkeletonRenderer(templet, twoColorTint);
     }
 
+    /**
+     * @en Perform all necessary adaptations for Spine integration.
+     * @zh 执行所有必要的 Spine 集成适配。
+     */
     static allAdpat() {
 
         let stateProto = window.spine.AnimationState.prototype;
@@ -52,7 +77,8 @@ export class SpineAdapter {
         //@ts-ignore
         stateProto.getCurrentPlayTimeOld = function (trackIndex: number) {
             //@ts-ignore
-            return Math.max(0, this.getCurrentOld(trackIndex).animationLast);
+            // return Math.max(0, this.getCurrentOld(trackIndex).animationLast);
+            return this.getCurrentOld(trackIndex).getAnimationTime();
         }
         //@ts-ignore
         stateProto.getCurrentPlayTime = stateProto.getCurrentPlayTimeOld;
@@ -102,6 +128,10 @@ export class SpineAdapter {
         }
     }
 
+    /**
+     * @en Adapt the JavaScript version of Spine.
+     * @zh 适配 JavaScript 版本的 Spine。
+     */
     static adaptJS() {
         if (window.spine) {
             //@ts-ignore 
@@ -146,6 +176,10 @@ export class SpineAdapter {
         }
     }
 
+    /**
+     * @en Initialize and extend the Spine animation library's AnimationState prototype.
+     * @zh 初始化并扩展Spine动画库的AnimationState原型。
+     */
     static initClass() {
         let stateProto = window.spine.AnimationState.prototype;
         stateProto.addListener = function (data: any) {
@@ -164,9 +198,9 @@ export class SpineAdapter {
         stateProto.setAnimationOld = stateProto.setAnimation;
 
         stateProto.setAnimation = function (trackIndex: number, animationName: string, loop: boolean) {
-             //@ts-ignore
+            //@ts-ignore
             if(this.__tracks){
-                 //@ts-ignore
+                //@ts-ignore
                 this.__tracks.length = 0;
             }
             //@ts-ignore
@@ -653,6 +687,14 @@ export class SpineAdapter {
 
     }
 
+    /**
+     * @en Bind vertex and index buffers for Spine rendering.
+     * @param maxNumVertices Maximum number of vertices.
+     * @param maxNumIndices Maximum number of indices.
+     * @zh 为 Spine 渲染绑定顶点和索引缓冲区。
+     * @param maxNumVertices 最大顶点数量。
+     * @param maxNumIndices 最大索引数量。
+     */
     static bindBuffer(maxNumVertices: number, maxNumIndices: number) {
         SpineAdapter._spine.createBuffer(maxNumVertices, maxNumIndices);
         SpineAdapter._vbArray = SpineAdapter._spine.getVertexsBuffer();
@@ -694,6 +736,20 @@ export class SpineAdapter {
     //     })
     // }
 
+    /**
+     * @en Draw a Spine skeleton.
+     * @param fun The drawing function.
+     * @param skeleton The Spine skeleton to draw.
+     * @param twoColorTint Whether to use two-color tinting.
+     * @param slotRangeStart The starting slot index.
+     * @param slotRangeEnd The ending slot index.
+     * @zh 绘制 Spine 骨骼。
+     * @param fun 绘制函数。
+     * @param skeleton 要绘制的 Spine 骨骼。
+     * @param twoColorTint 是否使用两色混色。
+     * @param slotRangeStart 起始插槽索引。
+     * @param slotRangeEnd 结束插槽索引。
+     */
     static drawSkeleton(fun: Function, skeleton: any, twoColorTint: boolean, slotRangeStart: number, slotRangeEnd: number) {
         SpineAdapter._spine.drawSkeleton(fun, skeleton, twoColorTint, slotRangeStart, slotRangeEnd);
     }
@@ -708,7 +764,19 @@ export class SpineAdapter {
 
 }
 
+/**
+ * @en TextureAtlas class for handling Spine texture atlases.
+ * @zh TextureAtlas 类用于处理 Spine 纹理图集。
+ */
 class TextureAtlas {
+    /**
+     * @en Creates a new TextureAtlas instance.
+     * @param atlasText The atlas data in text format.
+     * @param textureLoader A function to load textures.
+     * @zh 创建一个新的 TextureAtlas 实例。
+     * @param atlasText 纹理图集数据（文本格式）。
+     * @param textureLoader 用于加载纹理的函数。
+     */
     constructor(atlasText: string, textureLoader: any) {
         return new SpineAdapter._spine.Atlas(atlasText, "", SpineAdapter._spine.TextureLoader.implement({
             load: (page: any, url: string) => {

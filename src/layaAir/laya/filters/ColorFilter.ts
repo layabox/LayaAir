@@ -4,6 +4,12 @@ import { ColorUtils } from "../utils/ColorUtils"
 import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
 import { ShaderDefine } from "../RenderDriver/RenderModuleData/Design/ShaderDefine";
 import { RenderTexture2D } from "../resource/RenderTexture2D";
+import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
+import { Vector2 } from "../maths/Vector2";
+import { Color } from "../maths/Color";
+import { TextureSV } from "../webgl/shader/d2/value/TextureSV";
+import { Matrix4x4 } from "../maths/Matrix4x4";
+import { Vector4 } from "../maths/Vector4";
 
 /**
  * @en An array representing a list of contrast values.
@@ -58,7 +64,43 @@ export class ColorFilter extends Filter implements IFilter {
         this.setByMatrix(mat);
     }
     /** @ignore */
-    render(texture: RenderTexture2D, width: number, height: number): void {
+    render(srctexture: RenderTexture2D, width: number, height: number): void {
+        let texwidth = width;
+        let texheight = height;
+        this.width = texwidth;
+        this.height = texheight;
+        if (!this.texture || this.texture.destroyed || this.texture.width != texwidth || this.texture.height != texheight) {
+            if (this.texture)
+                this.texture.destroy();
+            this.texture = new RenderTexture2D(texwidth, texheight, RenderTargetFormat.R8G8B8A8);
+        }
+
+        let render2d = this._render2D.clone(this.texture);
+        //render2d.out = this.texture;
+        render2d.renderStart(true, new Color(0, 0, 0, 0));
+        //修改mesh
+        let rectVB = this._rectMeshVB;
+        let stridef32 = this._rectMesh.vertexDeclarition.vertexStride / 4;
+        rectVB[0] = 0; rectVB[1] = 0;  //v0.xy
+        rectVB[stridef32] = width; rectVB[stridef32 + 1] = 0; //v1.xy
+        rectVB[stridef32 * 2] = width; rectVB[stridef32 * 2 + 1] = height; //v2.xy
+        rectVB[stridef32 * 3] = 0; rectVB[stridef32 * 3 + 1] =  height;   //v3.xy
+        //shaderdata
+        let shadersv = new TextureSV();// this.shaderData;
+        shadersv.setFilter(this);
+        Matrix4x4.TEMPMatrix0.cloneByArray(this._mat);
+        shadersv.shaderData.setMatrix4x4(ShaderDefines2D.UNIFORM_COLORMAT, Matrix4x4.TEMPMatrix0);
+        Vector4.tempVec4.setValue(this._alpha[0], this._alpha[1], this._alpha[2], this._alpha[3]);
+        shadersv.shaderData.setVector(ShaderDefines2D.UNIFORM_COLORALPHA, Vector4.tempVec4);
+
+        shadersv.size = new Vector2(texwidth, texheight);
+        shadersv.textureHost = srctexture;
+        render2d.draw(
+            this._rectMesh,
+            0, 4 * this._rectMesh.vertexDeclarition.vertexStride,
+            0, 12,
+            shadersv, null);
+        render2d.renderEnd();        
     }
 
     /**
@@ -114,6 +156,7 @@ export class ColorFilter extends Filter implements IFilter {
                 this._alpha[z++] = matrix[i];
             }
         }
+        this.onChange();
         return this;
     }
 

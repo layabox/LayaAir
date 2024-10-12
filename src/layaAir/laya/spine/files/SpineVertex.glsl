@@ -43,7 +43,11 @@
     }
 #endif
 
+uniform vec4 u_clipMatDir;
+uniform vec2 u_clipMatPos;// 这个是全局的，不用再应用矩阵了。
 uniform vec2 u_size;
+
+
 // #ifdef GPU_INSTANCE
 //     uniform vec3 a_NMatrix[2];
 // #else
@@ -53,6 +57,7 @@ uniform vec4 u_color;
 
 varying vec2 vUv;
 varying vec4 vColor;
+varying vec2 v_cliped;
 
 vec4 getSpinePos(){
 
@@ -87,6 +92,21 @@ vec4 getSpinePos(){
 
 }
 
+
+vec2 getClipedInfo(vec2 screenPos){
+    vec2 cliped;
+    float clipw = length(u_clipMatDir.xy);
+    float cliph = length(u_clipMatDir.zw);
+    vec2 clippos = screenPos - u_clipMatPos.xy;	//pos已经应用矩阵了，为了减的有意义，clip的位置也要缩放
+    if(clipw>20000. && cliph>20000.)
+        cliped = vec2(0.5,0.5);
+    else {
+        //clipdir是带缩放的方向，由于上面clippos是在缩放后的空间计算的，所以需要把方向先normalize一下
+        cliped =vec2( dot(clippos,u_clipMatDir.xy)/clipw/clipw, dot(clippos,u_clipMatDir.zw)/cliph/cliph);
+    }
+    return cliped;
+}
+
 vec4 getScreenPos(vec4 pos){
     #ifdef GPU_INSTANCE
         vec3 down =a_NMatrix_1;
@@ -97,7 +117,9 @@ vec4 getScreenPos(vec4 pos){
     #endif
     float x=up.x*pos.x+up.y*pos.y+up.z;
     float y=down.x*pos.x+down.y*pos.y-down.z;
+    v_cliped = getClipedInfo(vec2(x,-y));
     return vec4((x/u_size.x-0.5)*2.0,(y/u_size.y+0.5)*2.0,pos.z,1.0);
 }
+
 
 #endif // SpineVertex_lib

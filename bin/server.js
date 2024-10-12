@@ -1,9 +1,104 @@
+/**
+需要先整体编译，然后关掉，使用这里的watch
+功能：
+1. 请求test会返回tsc/layaAir/laya/test/2d下面的所有的文件列表
+2. 如果请求没有扩展名的文件，会转成js文件
+3. watch编译ts
+    1. 监听目录，修改后最简单的编译到指定目录 
+    2. 修改文件后会给客户端发消息，客户端可以就此刷新
+
+ */
+
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
+const WebSocket = require('ws');
+const chokidar = require('chokidar');
+const ts = require('typescript');
+const http = require('http');
+
 const app = express();
+
+const server = http.createServer(app);
+const wss = new WebSocket.Server({ server });
+
+// 存储所有连接的客户端
+const clients = new Set();
+wss.on('connection', (ws) => {
+    clients.add(ws);
+    ws.on('close', () => clients.delete(ws));
+  });
+
 const port = 3000;
 
+var outdir;
+
+function watchAndCompile(srcDir, outDir) {
+    outdir = outDir;
+    if (!fs.existsSync(outDir)) {
+        fs.mkdirSync(outDir, { recursive: true });
+    }
+
+    const watcher = chokidar.watch(srcDir, {
+        ignored: /(^|[\/\\])\../,
+        persistent: true,
+        awaitWriteFinish: {
+            stabilityThreshold: 2000,
+            pollInterval: 100
+          },
+          usePolling: false, // 设置为 true 如果需要使用轮询模式
+          interval: 100, // 轮询间隔，仅在 usePolling 为 true 时使用        
+    });
+
+    watcher.on('change', (filePath) => {
+        const relativePath = path.relative(srcDir, filePath);
+        console.log('变化:', relativePath)
+        const outPath = path.join(outDir, relativePath);
+        const fileExt = path.extname(filePath);
+
+        fs.mkdirSync(path.dirname(outPath), { recursive: true });
+
+        if (fileExt === '.ts') {
+            compileTypeScript(filePath, outPath);
+        } else if (fileExt === '.glsl' || fileExt === '.vs') {
+            copyFile(filePath, outPath);
+        }
+        
+        // 通知所有连接的客户端
+        const message = JSON.stringify({ type: 'fileChanged', file: relativePath });
+        clients.forEach(client => {
+            if (client.readyState === WebSocket.OPEN) {
+                client.send(message);
+            }
+        });
+    });
+
+    console.log(`Watching ${srcDir} for changes...`);
+}
+
+function compileTypeScript(filePath, outPath) {
+    const source = fs.readFileSync(filePath, 'utf8');
+    const result = ts.transpileModule(source, {
+        compilerOptions: {
+            module: ts.ModuleKind.ESNext,
+            target: ts.ScriptTarget.ES2017,
+            //removeComments: true,
+        },
+    });
+
+    const jsPath = outPath.replace('.ts', '.js');
+    fs.writeFileSync(jsPath, result.outputText);
+    console.log(outdir,jsPath)
+    console.log(`编译到: ${path.relative(outdir,jsPath)}`);
+}
+
+function copyFile(src, dest) {
+    fs.copyFileSync(src, dest);
+    console.log(`拷贝到: ${ path.relative(outdir,dest)}`);
+}
+
+// 使用示例
+watchAndCompile( path.join(process.cwd(),'../src'), './tsc/');
 
 // 列出所有的2d测试
 app.get('/test', (req, res) => {
@@ -100,7 +195,7 @@ app.use((req, res, next) => {
 app.use(express.static(__dirname));
 
 // 启动服务器
-app.listen(port, () => {
+server.listen(port, () => {
     console.log(`Server listening at http://localhost:${port}`);
 });
 

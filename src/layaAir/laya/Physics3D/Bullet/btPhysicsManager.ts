@@ -18,6 +18,7 @@ import { ICollider } from "../interface/ICollider";
 import { PhysicsColliderComponent } from "../../d3/physics/PhysicsColliderComponent";
 import { Quaternion } from "../../maths/Quaternion";
 import { btColliderShape } from "./Shape/btColliderShape";
+import { Node } from "../../display/Node";
 /**
  * @en The `btPhysicsManager` class is the core class for managing the Bullet physics engine.
  * @zh `btPhysicsManager` 类是用于管理 Bullet 物理引擎的核心类。
@@ -488,6 +489,7 @@ export class btPhysicsManager implements IPhysicsManager {
         bt.btGImpactCollisionAlgorithm_RegisterAlgorithm(this._btDispatcher);//注册算法
         this.initPhysicsCapable();  // 初始化物理能力
     }
+
     /**
      * @en Sets the active state of a btCollider.
      * @param collider The btCollider to set the active state for.
@@ -519,36 +521,6 @@ export class btPhysicsManager implements IPhysicsManager {
     sphereQuery?(pos: Vector3, radius: number, result: ICollider[], collisionmask: number): void {
         throw new Error("Method not implemented.");
     }
-
-    //TODO
-    //  * @internal
-    //  */
-    //  get speculativeContactRestitution(): boolean {
-    //     if (!this._btDiscreteDynamicsWorld)
-    //         throw "Simulation:Cannot Cannot perform this action when the physics engine is set to CollisionsOnly";
-    //     return ILaya3D.Physics3D._bullet.btDiscreteDynamicsWorld_getApplySpeculativeContactRestitution(this._btDiscreteDynamicsWorld);
-    // }
-
-    // /**
-    //  * @internal
-    //  */
-    // set speculativeContactRestitution(value: boolean) {
-    //     if (!this._btDiscreteDynamicsWorld)
-    //         throw "Simulation:Cannot Cannot perform this action when the physics engine is set to CollisionsOnly";
-    //     ILaya3D.Physics3D._bullet.btDiscreteDynamicsWorld_setApplySpeculativeContactRestitution(this._btDiscreteDynamicsWorld, value);
-    // }
-
-    //TODO
-    // /**
-    //  * 是否进行连续碰撞检测。
-    //  */
-    // get continuousCollisionDetection(): boolean {
-    //     return ILaya3D.Physics3D._bullet.btCollisionWorld_get_m_useContinuous(this._btDispatchInfo);
-    // }
-
-    // set continuousCollisionDetection(value: boolean) {
-    //     ILaya3D.Physics3D._bullet.btCollisionWorld_set_m_useContinuous(this._btDispatchInfo, value);
-    // }
 
     /**
     * @internal
@@ -712,6 +684,126 @@ export class btPhysicsManager implements IPhysicsManager {
     }
 
     /**
+     * @perfTag PerformanceDefine.T_PhysicsColliderEnter
+     * @en Dispatch Collider Enter Event
+     * @param colliderA 碰撞组件A
+     * @param ownerA 组件A的所属节点
+     * @param colliderB 碰撞组件B
+     * @param ownerB 组件B的所属节点
+     * @param curFrameCol 当前帧碰撞信息
+     * @zh 派发碰撞器进入事件
+     * @param colliderA Collision Component A
+     * @param ownerA The Node to Which Component A Belongs
+     * @param colliderB Collision Component B
+     * @param ownerB The Node to Which Component B Belongs
+     * @param curFrameCol Current Frame Collision Information
+     */
+    private _collision_EnterEvent(colliderA: PhysicsColliderComponent, ownerA: Node, colliderB: PhysicsColliderComponent, ownerB: Node, curFrameCol: Collision): void {
+        curFrameCol.other = colliderB;
+        ownerA.event(Event.COLLISION_ENTER, curFrameCol);
+        curFrameCol.other = colliderA;
+        ownerB.event(Event.COLLISION_ENTER, curFrameCol);
+    }
+
+    /**
+     * @perfTag PerformanceDefine.T_PhysicsColliderStay
+     * @en Dispatch Collider Stay Event
+     * @param colliderA 碰撞组件A
+     * @param ownerA 组件A的所属节点
+     * @param colliderB 碰撞组件B
+     * @param ownerB 组件B的所属节点
+     * @param curFrameCol 当前帧碰撞信息
+     * @zh 派发碰撞器持续事件
+     * @param colliderA Collision Component A
+     * @param ownerA The Node to Which Component A Belongs
+     * @param colliderB Collision Component B
+     * @param ownerB The Node to Which Component B Belongs
+     * @param curFrameCol Current Frame Collision Information
+     */
+    private _collision_StayEvent(colliderA: PhysicsColliderComponent, ownerA: Node, colliderB: PhysicsColliderComponent, ownerB: Node, curFrameCol: Collision): void {
+        curFrameCol.other = colliderB;
+        ownerA.event(Event.COLLISION_STAY, curFrameCol);
+        curFrameCol.other = colliderA;
+        ownerB.event(Event.COLLISION_STAY, curFrameCol);
+    }
+
+    /**
+     * @perfTag PerformanceDefine.T_PhysicsColliderExit
+     * @en Dispatch Collider Exit Event
+     * @param preColliderA 碰撞组件A
+     * @param ownerA 组件A的所属节点
+     * @param preColliderB 碰撞组件B
+     * @param ownerB 组件B的所属节点
+     * @param preFrameCol 当前帧碰撞信息
+     * @zh 派发碰撞器离开事件
+     * @param preColliderA Collision Component A
+     * @param ownerA The Node to Which Component A Belongs
+     * @param preColliderB Collision Component B
+     * @param ownerB The Node to Which Component B Belongs
+     * @param preFrameCol Current Frame Collision Information
+     */
+    private _collision_ExitEvent(preColliderA: PhysicsColliderComponent, ownerA: Node, preColliderB: PhysicsColliderComponent, ownerB: Node, preFrameCol: Collision): void {
+        preFrameCol.other = preColliderB;
+        ownerA.event(Event.COLLISION_EXIT, preFrameCol);
+        preFrameCol.other = preColliderA;
+        ownerB.event(Event.COLLISION_EXIT, preFrameCol);
+    }
+
+    /**
+     * @perfTag PerformanceDefine.T_PhysicsTriggerEnter
+     * @en Dispatch Trigger Enter Event
+     * @param colliderA 碰撞组件A
+     * @param ownerA 组件A的所属节点
+     * @param colliderB 碰撞组件B
+     * @param ownerB 组件B的所属节点
+     * @zh 派发触发器进入事件
+     * @param colliderA Collision Component A
+     * @param ownerA The Node to Which Component A Belongs
+     * @param colliderB Collision Component B
+     * @param ownerB The Node to Which Component B Belongs
+     */
+    private _trigger_EnterEvent(colliderA: PhysicsColliderComponent, ownerA: Node, colliderB: PhysicsColliderComponent, ownerB: Node): void {
+        ownerA.event(Event.TRIGGER_ENTER, colliderB);
+        ownerB.event(Event.TRIGGER_ENTER, colliderA);
+    }
+
+    /**
+     * @perfTag PerformanceDefine.T_PhysicsTriggerStay
+     * @en Dispatch Trigger Enter Event
+     * @param colliderA 碰撞组件A
+     * @param ownerA 组件A的所属节点
+     * @param colliderB 碰撞组件B
+     * @param ownerB 组件B的所属节点
+     * @zh 派发触发器持续事件
+     * @param colliderA Collision Component A
+     * @param ownerA The Node to Which Component A Belongs
+     * @param colliderB Collision Component B
+     * @param ownerB The Node to Which Component B Belongs
+     */
+    private _trigger_StayEvent(colliderA: PhysicsColliderComponent, ownerA: Node, colliderB: PhysicsColliderComponent, ownerB: Node): void {
+        ownerA.event(Event.TRIGGER_STAY, colliderB);
+        ownerB.event(Event.TRIGGER_STAY, colliderA);
+    }
+
+    /**
+     * @perfTag PerformanceDefine.T_PhysicsTriggerExit
+     * @en Dispatch Trigger Exit Event
+     * @param preColliderA 碰撞组件A
+     * @param ownerA 组件A的所属节点
+     * @param preColliderB 碰撞组件B
+     * @param ownerB 组件B的所属节点
+     * @zh 派发触发器离开事件
+     * @param preColliderA Collision Component A
+     * @param ownerA The Node to Which Component A Belongs
+     * @param preColliderB Collision Component B
+     * @param ownerB The Node to Which Component B Belongs
+     */
+    private _trigger_ExitEvent(preColliderA: PhysicsColliderComponent, ownerA: Node, preColliderB: PhysicsColliderComponent, ownerB: Node): void {
+        ownerA.event(Event.TRIGGER_EXIT, preColliderB);
+        ownerB.event(Event.TRIGGER_EXIT, preColliderA);
+    }
+
+    /**
      * @perfTag PerformanceDefine.T_PhysicsEvent
      * @en This method only sends events to objects, it doesn't call collision functions for each component individually.Components need to listen to events if they want to respond to collisions.
      * @zh 这个只是给对象发送事件，不会挨个组件调用碰撞函数。组件要响应碰撞的话，要通过监听事件。
@@ -730,23 +822,15 @@ export class btPhysicsManager implements IPhysicsManager {
             let ownerB = colliderB.owner;
             if (loopCount - curFrameCol._lastUpdateFrame === 1) {// 上一帧有，这一帧还有,则是stay
                 if (curFrameCol._isTrigger) {
-                    ownerA.event(Event.TRIGGER_STAY, colliderB);
-                    ownerB.event(Event.TRIGGER_STAY, colliderA);
+                    this._trigger_StayEvent(colliderA, ownerA, colliderB, ownerB);
                 } else {
-                    curFrameCol.other = colliderB;
-                    ownerA.event(Event.COLLISION_STAY, curFrameCol);
-                    curFrameCol.other = colliderA;
-                    ownerB.event(Event.COLLISION_STAY, curFrameCol);
+                    this._collision_StayEvent(colliderA, ownerA, colliderB, ownerB, curFrameCol);
                 }
             } else {
                 if (curFrameCol._isTrigger) {
-                    ownerA.event(Event.TRIGGER_ENTER, colliderB);
-                    ownerB.event(Event.TRIGGER_ENTER, colliderA);
+                    this._trigger_EnterEvent(colliderA, ownerA, colliderB, ownerB);
                 } else {
-                    curFrameCol.other = colliderB;
-                    ownerA.event(Event.COLLISION_ENTER, curFrameCol);
-                    curFrameCol.other = colliderA;
-                    ownerB.event(Event.COLLISION_ENTER, curFrameCol);
+                    this._collision_EnterEvent(colliderA, ownerA, colliderB, ownerB, curFrameCol);
                 }
             }
         }
@@ -763,13 +847,11 @@ export class btPhysicsManager implements IPhysicsManager {
             if (loopCount - preFrameCol._updateFrame === 1) {
                 this._collisionsUtils.recoverCollision(preFrameCol);//回收collision对象
                 if (preFrameCol._isTrigger) {
-                    ownerA.event(Event.TRIGGER_EXIT, preColliderB);
-                    ownerB.event(Event.TRIGGER_EXIT, preColliderA);
+                    this._trigger_ExitEvent(preColliderA, ownerA, preColliderB, ownerB);
+
                 } else {
-                    preFrameCol.other = preColliderB;
-                    ownerA.event(Event.COLLISION_EXIT, preFrameCol);
-                    preFrameCol.other = preColliderA;
-                    ownerB.event(Event.COLLISION_EXIT, preFrameCol);
+                    this._collision_ExitEvent(preColliderA, ownerA, preColliderB, ownerB, preFrameCol);
+
                 }
             }
         }
@@ -786,6 +868,8 @@ export class btPhysicsManager implements IPhysicsManager {
             }
         }
     }
+
+
 
     /**
     * @internal

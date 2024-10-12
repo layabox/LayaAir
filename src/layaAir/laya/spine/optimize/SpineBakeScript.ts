@@ -9,26 +9,54 @@ import { Spine2DRenderNode } from "../Spine2DRenderNode";
 import { TSpineBakeData } from "./SketonOptimise";
 import { SpineOptimizeRender } from "./SpineOptimizeRender";
 import { ISpineOptimizeRender } from "./interface/ISpineOptimizeRender";
+import { SpineEmptyRender } from "./SpineEmptyRender";
 
+/**
+ * @en Script class for baking Spine animations.
+ * @zh 用于烘焙 Spine 动画的脚本类。
+ */
 export class SpineBakeScript extends Script {
+    /**
+     * @en URL of the data.
+     * @zh 数据的地址。
+     */
     url: string;
+    /**
+     * @en Bake data in string format.
+     * @zh 字符串格式的烘焙数据。
+     */
     bakeData: string;
 
+    /** @ignore */
     constructor() {
         super();
     }
 
+    /**
+     * @en Called when the script is enabled.
+     * @zh 当脚本被启用时调用。
+     */
     onEnable(): void {
         if (this.bakeData)
             this.initBake(JSON.parse(this.bakeData));
     }
 
+    /**
+     * @en Called when the script is disabled.
+     * @zh 当脚本被禁用时调用。
+     */
     onDisable(): void {
         let spine = this.owner.getComponent(Spine2DRenderNode) as Spine2DRenderNode;
         if (spine.spineItem)
             spine.spineItem.initBake(null);
     }
 
+    /**
+     * @en Attaches bake data to the spine renderer.
+     * @param spine The spine optimizer renderer interface.
+     * @zh 将烘焙数据附加到 Spine 渲染器。
+     * @param spine Spine 优化渲染器接口。
+     */
     async attach(spine: ISpineOptimizeRender) {
         let texture = await Laya.loader.load({
             url: this.url,
@@ -60,7 +88,7 @@ export class SpineBakeScript extends Script {
         data.texture2d = texture;
 
         let spine = this.owner.getComponent(Spine2DRenderNode) as Spine2DRenderNode;
-        if (spine.spineItem) {
+        if (spine.spineItem && !(spine.spineItem instanceof SpineEmptyRender)) {
             spine.spineItem.initBake(data);
         } else {
             this.owner.on(Event.READY, this, () => {

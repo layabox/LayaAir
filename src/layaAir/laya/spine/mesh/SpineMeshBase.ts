@@ -7,22 +7,36 @@ import { DrawType } from "../../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
 import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
 import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
-import { Graphics } from "../../display/Graphics";
 import { LayaGL } from "../../layagl/LayaGL";
 import { Material } from "../../resource/Material";
 
+/**
+ * @en Abstract base class for Spine mesh rendering.
+ * @zh Spine 网格渲染的抽象基类。
+ */
 export abstract class SpineMeshBase {
-    static maxVertex: number = 10922;//64*1024/3/2  indexbuffer 64K限制
+    /**
+     * @en Maximum number of vertices. Limited by 64K indexbuffer constraint.
+     * @zh 最大顶点数。受64K索引缓冲区限制。
+     */
+    static maxVertex: number = 10922;//64*1024/3/2 
+    /**
+     * @en Render element for 2D rendering.
+     * @zh 用于2D渲染的渲染元素。
+     */
     element: IRenderElement2D;
     /**
-     * Geometry
+     * @en Geometry element for rendering.
+     * @zh 用于渲染的几何元素。
      */
     geo: IRenderGeometryElement;
-    /**
-     * Material
-     */
+
     private _material: Material;
 
+    /**
+     * @en The material of the mesh.
+     * @zh 网格的材质。
+     */
     get material() {
         return this._material;
     }
@@ -33,22 +47,56 @@ export abstract class SpineMeshBase {
         this.element.subShader = this._material._shader.getSubShaderAt(0);
     }
 
+    /**
+     * @en Vertex buffer interface.
+     * @zh 顶点缓冲区接口。
+     */
     protected vb: IVertexBuffer;
+    /**
+     * @en Index buffer interface.
+     * @zh 索引缓冲区接口。
+     */
     protected ib: IIndexBuffer;
 
+    /**
+     * @en Vertex array.
+     * @zh 顶点数组。
+     */
     protected vertexArray: Float32Array;
+    /**
+     * @en Index array.
+     * @zh 索引数组。
+     */
     protected indexArray: Uint16Array;
 
 
+    /**
+     * @en Vertex array length.
+     * @zh 顶点数组中顶点的数量。
+     */
     protected verticesLength: number = 0;
+    /**
+     * @en Index array length.
+     * @zh 引数组中索引的数量。
+     */
     protected indicesLength: number = 0;
 
+    /**
+     * @en Create a new instance of SpineMeshBase.
+     * @param material The material to use for this mesh.
+     * @zh 创建 SpineMeshBase 类的新实例。
+     * @param material 网格使用的材质。
+     */
     constructor(material: Material) {
 
         this.init();
         this.material = material;
     }
 
+    /**
+     * @en Initialize the mesh.
+     * @zh 初始化网格。
+     */
     init() {
         let geo = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
         let mesh = LayaGL.renderDeviceFactory.createBufferState();
@@ -64,16 +112,20 @@ export abstract class SpineMeshBase {
         //set renderelement2D
         this.element = LayaGL.render2DRenderPassFactory.createRenderElement2D();
         //@ts-ignore
-        this.element.canotPool=true;
+        this.element.canotPool = true;
         this.element.geometry = geo;
         this.element.renderStateIsBySprite = false;
 
     }
+    /**
+     * @en Get the vertex declaration for this mesh.
+     * @zh 获取此网格的顶点声明。
+     */
     abstract get vertexDeclarition(): VertexDeclaration;
 
     /**
-     * 添加到渲染队列
-     * @param graphics 
+     * @en Add the mesh to the rendering queue.
+     * @zh 添加到渲染队列。
      */
     draw() {
         let vb = this.vb;
@@ -91,6 +143,18 @@ export abstract class SpineMeshBase {
         //graphics.drawGeo(this.geo, this.material);
     }
 
+    /**
+     * @en Draw the mesh using provided vertex and index data.
+     * @param vertices Vertex data array.
+     * @param vblength Number of vertices.
+     * @param indices Index data array.
+     * @param iblength Number of indices.
+     * @zh 使用提供的顶点和索引数据绘制网格。
+     * @param vertices 顶点数据数组。
+     * @param vblength 顶点数量。
+     * @param indices 索引数据数组。
+     * @param iblength 索引数量。
+     */
     drawByData(vertices: Float32Array, vblength: number, indices: Uint16Array, iblength: number) {
         this.vertexArray = vertices;
         this.indexArray = indices;
@@ -101,14 +165,15 @@ export abstract class SpineMeshBase {
     }
 
     /**
-     * 清空
+     * @en Clear the mesh data.
+     * @zh 清空网格数据。
      */
     clear() {
         this.verticesLength = 0;
         this.indicesLength = 0;
     }
 
-
+    /** @internal */
     _cloneTo(target: SpineMeshBase) {
         target.verticesLength = this.verticesLength;
         target.indicesLength = this.indicesLength;

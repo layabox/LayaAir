@@ -2,7 +2,9 @@ import { Sprite3D } from "../../../d3/core/Sprite3D";
 import { Vector3 } from "../../../maths/Vector3";
 import { ICollider } from "../../interface/ICollider";
 import { IJoint } from "../../interface/Joint/IJoint";
+import { Physics3DStatInfo } from "../../interface/Physics3DStatInfo";
 import { EJointCapable } from "../../physicsEnum/EJointCapable";
+import { EPhysicsStatisticsInfo } from "../../physicsEnum/EPhysicsStatisticsInfo";
 import { btCollider } from "../Collider/btCollider";
 import { btPhysicsCreateUtil } from "../btPhysicsCreateUtil";
 import { btPhysicsManager } from "../btPhysicsManager";
@@ -127,10 +129,15 @@ export class btJoint implements IJoint {
     constructor(manager: btPhysicsManager) {
         this._manager = manager;
         this.initJoint();
+        Physics3DStatInfo.addStatisticsInfo(EPhysicsStatisticsInfo.C_PhysicsJoint, 1);
     }
 
     protected _createJoint() {
         //override it
+    }
+
+    destroy(): void {
+        Physics3DStatInfo.addStatisticsInfo(EPhysicsStatisticsInfo.C_PhysicsJoint, -1);
     }
 
     /**

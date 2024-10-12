@@ -41,3 +41,25 @@ export enum GPUEngineStatisticsInfo {
     RC_ALLRenderTexture,
     Count
 }
+
+
+/**
+ * 渲染流程统计数据
+ */
+export enum RenderPassStatisticsInfo {
+    T_CameraRender,
+    T_Render_OpaqueRender,
+    T_Render_TransparentRender,
+    T_Render_PostProcess,
+    T_Render_CameraEventCMD,
+    T_Render_ShadowPassMode,
+    T_Render_CameraOtherDest,
+    T_RenderPreUpdate,
+    T_OtherRender,//除了meshrender,skinRender，T_OnlyShurikenParticleRender
+    T_OnlyMeshRender,
+    T_OnlySkinnedMeshRender,
+    T_OnlyShurikenParticleRender,
+    T_CameraMainCull,
+    T_ShadowMapCull,
+    RenderPassStatisticCount
+}

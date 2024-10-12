@@ -39,7 +39,7 @@ import { Value2D } from "../webgl/shader/d2/value/Value2D";
 import { DrawEllipseCmd } from "./cmd/DrawEllipseCmd";
 import { DrawRoundRectCmd } from "./cmd/DrawRoundRectCmd";
 import { LayaGL } from "../layagl/LayaGL";
-import { ShaderDataType } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { ShaderData, ShaderDataType } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { DrawGeoCmd } from "./cmd/DrawGeoCmd";
 import { IRenderGeometryElement } from "../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
 import { DrawGeosCmd } from "./cmd/DrawGeosCmd";
@@ -72,7 +72,7 @@ export class Graphics {
      * @en Global shaderData
      * @zh 全局着色器数据
      */
-    static get globalShaderData() {
+    static get globalShaderData() : ShaderData {
         return Value2D.globalShaderData;
     }
 

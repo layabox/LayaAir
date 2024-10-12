@@ -350,11 +350,22 @@ export class WebGPUTextureContext implements ITextureContext {
                 webgpuTextureFormat = !useSRGB ? WebGPUTextureFormat.bc3_rgba_unorm : WebGPUTextureFormat.bc3_rgba_unorm_srgb;
                 break;
             case TextureFormat.ETC2RGBA:
-            case TextureFormat.ETC1RGB:
+                webgpuTextureFormat = WebGPUTextureFormat.etc2_rgba8unorm;
+                break;
             case TextureFormat.ETC2RGB:
+                webgpuTextureFormat = WebGPUTextureFormat.etc2_rgb8unorm;
+                break;
             case TextureFormat.ETC2SRGB:
+                webgpuTextureFormat = WebGPUTextureFormat.etc2_rgb8unorm_srgb;
+                break;
             case TextureFormat.ETC2SRGB_Alpha8:
-                webgpuTextureFormat = !useSRGB ? WebGPUTextureFormat.etc2_rgba8unorm : WebGPUTextureFormat.etc2_rgba8unorm_srgb;
+                webgpuTextureFormat = WebGPUTextureFormat.etc2_rgba8unorm_srgb;
+                break;
+            case TextureFormat.ETC2RGB_Alpha1:
+                webgpuTextureFormat = WebGPUTextureFormat.etc2_rgb8a1unorm;
+                break;
+            case TextureFormat.ETC2SRGB_Alpha1:
+                webgpuTextureFormat = WebGPUTextureFormat.etc2_rgb8a1unorm_srgb;
                 break;
             case TextureFormat.ASTC4x4:
             case TextureFormat.ASTC4x4SRGB:

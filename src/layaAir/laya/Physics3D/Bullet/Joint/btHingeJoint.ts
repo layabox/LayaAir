@@ -303,4 +303,13 @@ export class btHingeJoint extends btJoint implements IHingeJoint {
         throw new Error("Method not implemented.");
     }
 
+    /**
+     * @en Destroy joint
+     * @zh 销毁关节
+     */
+    destroy(): void {
+        this._btJoint = null;
+        this._btJointFeedBackObj = null;
+        super.destroy();
+    }
 }

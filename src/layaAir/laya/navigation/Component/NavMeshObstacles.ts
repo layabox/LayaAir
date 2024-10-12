@@ -1,12 +1,12 @@
 
 import { Component } from "../../components/Component";
 import { Scene3D } from "../../d3/core/scene/Scene3D";
-import { Bounds } from "../../d3/math/Bounds";
 import { Matrix4x4 } from "../../maths/Matrix4x4";
 import { Quaternion } from "../../maths/Quaternion";
 import { Vector3 } from "../../maths/Vector3";
 import { NavTileCache } from "../NavTileData";
 import { NavigationManager } from "../NavigationManager";
+import { NavigationUtils } from "../NavigationUtils";
 import { NavModifleBase } from "./NavModifleBase";
 
 /**
@@ -63,7 +63,8 @@ export class NavMeshObstacles extends NavModifleBase {
     /**@internal */
     static _mapDatas: Map<NavObstaclesMeshType, NavTileCache>;
     /**@internal */
-    static _defaltBound: Bounds;
+    static _defaltMin: Vector3;
+    static _defaltMax: Vector3;
     /**@internal */
     static _TempVec3: Vector3;
     /**@internal */
@@ -71,7 +72,8 @@ export class NavMeshObstacles extends NavModifleBase {
         this._mapDatas = new Map<NavObstaclesMeshType, any>();
         this._mapDatas.set(NavObstaclesMeshType.BOX, createObstacleData(4, Math.PI / 4, 1 / Math.sqrt(2)));
         this._mapDatas.set(NavObstaclesMeshType.CAPSULE, createObstacleData(16, 0));
-        this._defaltBound = new Bounds(new Vector3(-0.5, -0.5, -0.5), new Vector3(0.5, 0.5, 0.5));
+        this._defaltMin = new Vector3(-0.5, -0.5, -0.5);
+        this._defaltMax = new Vector3(0.5, 0.5, 0.5);
         this._TempVec3 = new Vector3();
     }
 
@@ -197,7 +199,7 @@ export class NavMeshObstacles extends NavModifleBase {
     /**
      * @internal
      */
-    _refeashTranfrom(mat: Matrix4x4, bound: Bounds) {
+    _refeashTranfrom(mat: Matrix4x4, min:Vector3,max:Vector3) {
         if (this._meshType == NavObstaclesMeshType.BOX) {
             Matrix4x4.createAffineTransformation(this._center, Quaternion.DEFAULT, this._size, this._localMat);
         } else {
@@ -205,7 +207,7 @@ export class NavMeshObstacles extends NavModifleBase {
             Matrix4x4.createAffineTransformation(this._center, Quaternion.DEFAULT, NavMeshObstacles._TempVec3, this._localMat);
         }
         Matrix4x4.multiply(mat, this._localMat, this._localMat);
-        NavMeshObstacles._defaltBound._tranform(this._localMat, bound);
+        NavigationUtils.transfromBound(this._localMat, NavMeshObstacles._defaltMin, NavMeshObstacles._defaltMax, min, max);
         this._dtNavTileCache.transfromData(this._localMat.elements);
     }
 

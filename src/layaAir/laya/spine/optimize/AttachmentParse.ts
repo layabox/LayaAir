@@ -1,25 +1,98 @@
 import { Color } from "../../maths/Color";
-import { Texture } from "../../resource/Texture";
-import { SpineTexture } from "../SpineTexture";
 import { SpineOptimizeConst } from "./SpineOptimizeConst";
 
 const QUAD_TRIANGLES = [0, 1, 2, 2, 3, 0];
+/**
+ * @en Represents a parser for spine attachments.
+ * @zh 表示一个spine附件解析器。
+ */
 export class AttachmentParse {
+    /**
+     * @en The ID of the slot.
+     * @zh 插槽的ID。
+     */
     slotId: number;
+    /**
+     * @en The name of the attachment.
+     * @zh 附件的名称。
+     */
     attachment: string;
+    /**
+     * @en The color of the attachment.
+     * @zh 附件的颜色。
+     */
     color: TColor;
+    /**
+     * @en The specific color of the attachment.
+     * @zh 附件的特定颜色。
+     */
     attachmentColor: TColor;
+    /**
+     * @en The blend mode of the attachment.
+     * @zh 附件的混合模式。
+     */
     blendMode: number;
+    /**
+     * @en The vertex array of the attachment.
+     * @zh 附件的顶点数组。
+     */
     vertexArray: Float32Array;
+    /**
+     * @en The index array of the attachment.
+     * @zh 附件的索引数组。
+     */
     indexArray: Array<number>;
+    /**
+     * @en The UV coordinates of the attachment.
+     * @zh 附件的UV坐标。
+     */
     uvs: spine.ArrayLike<number>;
+    /**
+     * @en The stride of the vertex data.
+     * @zh 顶点数据的步长。
+     */
     stride: number;
+    /**
+     * @en The index of the bone.
+     * @zh 骨骼的索引。
+     */
     boneIndex: number;
+    /**
+     * @en The name of the texture.
+     * @zh 纹理的名称。
+     */
     textureName: string;
+    /**
+     * @en Indicates if the attachment is a clipping attachment.
+     * @zh 指示附件是否为裁剪附件。
+     */
     isclip: boolean;
+    isPath:boolean;
+    /**
+     * @en The source data of the attachment.
+     * @zh 附件的源数据。
+     */
     sourceData: spine.Attachment;
+    /**
+     * @en The number of vertices in the attachment.
+     * @zh 附件中的顶点数量。
+     */
     vertexCount: number;
 
+    /**
+     * @en Initializes the attachment parser with the given parameters.
+     * @param attachment The spine attachment to parse.
+     * @param boneIndex The index of the bone.
+     * @param slotId The ID of the slot.
+     * @param deform The deformation array.
+     * @param slot The slot data.
+     * @zh 使用给定的参数初始化附件解析器。
+     * @param attachment 要解析的spine附件。
+     * @param boneIndex 骨骼的索引。
+     * @param slotId 插槽的ID。
+     * @param deform 变形数组。
+     * @param slot 插槽数据。
+     */
     init(attachment: spine.Attachment, boneIndex: number, slotId: number, deform: number[], slot: spine.SlotData) {
         this.slotId = slotId;
         this.sourceData = attachment;
@@ -113,6 +186,11 @@ export class AttachmentParse {
         else if (attachment instanceof window.spine.ClippingAttachment) {
             this.attachment = null;
             this.isclip = true;
+        }
+        else if (attachment instanceof spine.PathAttachment) {
+            this.attachment = attachment.name;
+            this.vertexArray = new Float32Array(attachment.vertices);
+            this.isPath = true;
         }
         else {
             //debugger;

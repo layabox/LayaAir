@@ -18,4 +18,13 @@ export class pxFixedJoint extends pxJoint implements IFixedJoint {
         this._pxJoint = pxPhysicsCreateUtil._pxPhysics.createFixedJoint(this._collider._pxActor, transform.translation, transform.rotation, this._connectCollider._pxActor, transform1.translation, transform1.rotation);
         this._pxJoint.setUUID(this._id);
     }
+
+    /**
+     * @en Destroy joint
+     * @zh 销毁关节
+     */
+    destroy(): void {
+        this._pxJoint && this._pxJoint.release();
+        super.destroy();
+    }
 }
