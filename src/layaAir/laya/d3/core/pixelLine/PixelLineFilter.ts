@@ -151,7 +151,7 @@ export class PixelLineFilter extends GeometryElement {
 		if (endColor) {
 			this._vertices[offset + 13] = endColor.r;
 			this._vertices[offset + 14] = endColor.g;
-			this._vertices[offset + 16] = endColor.b;
+			this._vertices[offset + 15] = endColor.b;
 			this._vertices[offset + 16] = endColor.a;
 		}
 
