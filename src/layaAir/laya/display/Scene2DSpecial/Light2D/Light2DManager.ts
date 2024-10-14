@@ -38,6 +38,8 @@ export class Light2DManager {
     ambient: Color = new Color(0.25, 0.25, 0.25, 1); //环境光
     ambientLayerMask: number = 1; //环境光影响的层
 
+    sceneTarget: RenderTexture2D; //临时测试用
+
     private _PCF: Vector2[] = []; //PCF系数
     private _scene: Scene; //场景对象
     private _screen: Rectangle; //屏幕偏移和尺寸
@@ -104,30 +106,65 @@ export class Light2DManager {
         else this._showRenderTarget[layer].setRenderTarget(this.target[layer]);
     }
 
+    //临时测试用
+    showSceneTarget(layer: number = 0) {
+        if (!this._showRenderTarget[layer])
+            this._showRenderTarget[layer] = new ShowRenderTarget(this._scene, this.sceneTarget, 400, layer * 300, this._screen.width / 4, this._screen.height / 4);
+        else this._showRenderTarget[layer].setRenderTarget(this.sceneTarget);
+    }
+
+    /**
+     * @en Clear all lights
+     * @zh 清除所有灯光
+     */
     clearLight() {
         this._lights.length = 0;
     }
 
+    /**
+     * @en Add light
+     * @zh 添加灯光
+     * @param light 
+     */
     addLight(light: BaseLight2D) {
         if (this._lights.indexOf(light) === -1)
             this._lights.push(light);
     }
 
+    /**
+     * @en Remove light
+     * @zh 移除灯光
+     * @param light 
+     */
     removeLight(light: BaseLight2D) {
         const index = this._lights.indexOf(light);
         if (index >= 0)
             this._lights.splice(index, 1);
     }
 
+    /**
+     * @en Clear all occluders
+     * @zn 清除所有遮光器
+     */
     clearOccluder() {
         this._occluders.length = 0;
     }
 
+    /**
+     * @en Add occluder
+     * @zh 添加遮光器
+     * @param occluder 
+     */
     addOccluder(occluder: LightOccluder2D) {
         if (this._occluders.indexOf(occluder) === -1)
             this._occluders.push(occluder);
     }
 
+    /**
+     * @en Remove occluder
+     * @zh 移除遮光器
+     * @param occluder 
+     */
     removeOccluder(occluder: LightOccluder2D) {
         const index = this._occluders.indexOf(occluder);
         if (index >= 0)
@@ -135,7 +172,8 @@ export class Light2DManager {
     }
 
     /**
-     * 收集指定层中的灯光和遮挡器
+     * @en Collect lights and occlusions from specified layers
+     * @zh 收集指定层中的灯光和遮挡器
      * @param layer 
      */
     private _collectLightAndOccluderInLayer(layer: number) {
@@ -159,7 +197,8 @@ export class Light2DManager {
     }
 
     /**
-     * 指定层中是否有灯光
+     * @en Is there any light in the specified layer
+     * @zh 指定层中是否有灯光
      * @param layer 
      */
     private _isHaveLight(layer: number) {
@@ -172,7 +211,8 @@ export class Light2DManager {
     }
 
     /**
-     * 计算当前层的光影图范围（带施密特）
+     * @en Calculate the range of the current layer's light and shadow map (with Schmidt)
+     * @zh 计算当前层的光影图范围（带施密特）
      * @param layer 
      */
     private _calcLightRange(layer: number) {
@@ -206,7 +246,8 @@ export class Light2DManager {
     }
 
     /**
-     * 提取指定层中灯光遮挡器线段
+     * @en Extract light occluder segments from the specified layer
+     * @zh 提取指定层中灯光遮挡器线段
      * @param layer 
      * @param lightX 
      * @param lightY 
@@ -234,7 +275,8 @@ export class Light2DManager {
     }
 
     /**
-     * 准备渲染目标
+     * @en Prepare render target
+     * @zh 准备渲染目标
      * @param layer 
      */
     private _prepareRenderTarget(layer: number) {
@@ -251,6 +293,8 @@ export class Light2DManager {
                 target.wrapModeU = WrapMode.Clamp;
                 target.wrapModeV = WrapMode.Clamp;
                 param = this.param[layer] = new Vector4(x, y, z, w);
+
+                this.sceneTarget = new RenderTexture2D(this._screen.width, this._screen.height, RenderTargetFormat.R8G8B8A8);
             } else if (param.z != z || param.w != w) {
                 this._needToRecover.push(target);
                 target = this.target[layer] = new RenderTexture2D(z, w, RenderTargetFormat.R8G8B8A8);
@@ -322,13 +366,15 @@ export class Light2DManager {
             for (let i = lights.length; i < this._spritesShadow.length; i++)
                 this._root.removeChild(this._spritesShadow[i]);
             //this.showRenderTarget(layer);
+            this.showSceneTarget(layer);
             return true;
         }
         return false;
     }
 
     /**
-     * 渲染光影图
+     * @en Render light and shader texture
+     * @zh 渲染光影图
      * @param context 
      */
     preRenderUpdate(context: Context) {
@@ -460,6 +506,7 @@ export class Light2DManager {
                     this._scene.addChild(this._root);
                     this._root.drawToTexture(0, 0, 0, 0, this.target[i]);
                     this._scene.removeChild(this._root);
+                    this._scene.drawToTexture(0, 0, 0, 0, this.sceneTarget);
                 }
             }
         }
@@ -471,11 +518,20 @@ export class Light2DManager {
         //}
     }
 
+    /**
+     * @internal
+     * @param layer 
+     */
     _getLayerUpdateMask(layer: number) {
-        //return -1;//TODO 需要判断更新这个灯光的纹理是否改变
-        return Laya.timer.currFrame; //临时测试
+        return -1; //TODO 需要判断更新这个灯光的纹理是否改变
+        //return Laya.timer.currFrame; //临时测试
     }
 
+    /**
+     * @internal
+     * @param layer 
+     * @param shaderData 
+     */
     _updateShaderDataByLayer(layer: number, shaderData: ShaderData) {
         shaderData.setColor(Shader3D.propertyNameToID('u_LightAndShadow2DAmbient'), this.ambient);
         if (this.target[layer]) {
@@ -490,7 +546,8 @@ export class Light2DManager {
     }
 
     /**
-     * 更新屏幕尺寸和偏移参数
+     * @en Update screen size and offset parameters
+     * @zh 更新屏幕尺寸和偏移参数
      */
     private _updateScreen() {
         const camera = this._scene._specialManager._mainCamera;
@@ -525,7 +582,8 @@ export class Light2DManager {
     }
 
     /**
-     * 更新光影信息
+     * @en Update light and shadow info
+     * @zh 更新光影信息
      * @param layer 
      * @param layerOffetX 
      * @param layerOffetY 
@@ -566,7 +624,8 @@ export class Light2DManager {
     }
 
     /**
-     * 更新光影信息（阴影）
+     * @en Update light and shadow info (shadow)
+     * @zh 更新光影信息（阴影）
      * @param layer 
      * @param layerOffsetX 
      * @param layerOffsetY 
@@ -607,7 +666,8 @@ export class Light2DManager {
     }
 
     /**
-     * 生成灯光网格
+     * @en Generate light mesh
+     * @zh 生成灯光网格
      * @param lightX 光源位置
      * @param lightY 
      * @param lightWidth 光源尺寸
@@ -653,7 +713,9 @@ export class Light2DManager {
     }
 
     /**
-     * 生成阴影多边形，阴影多边形是圆减去内部多边形的部分，圆要能完全包围住多边形
+     * @en Generate a shadow polygon, which is the part of a circle minus the inner polygon.
+     *     The circle should be able to completely surround the polygon
+     * @zh 生成阴影多边形，阴影多边形是圆减去内部多边形的部分，圆要能完全包围住多边形
      * @param lightX 光源位置
      * @param lightY 
      * @param lightWidth 光源尺寸
@@ -766,7 +828,8 @@ export class Light2DManager {
     }
 
     /**
-     * 初始化材质
+     * @en Initial material
+     * @zh 初始化材质
      * @param material 
      * @param shadow 
      */
@@ -789,7 +852,8 @@ export class Light2DManager {
     }
 
     /**
-     * 计算射线和线段的交点
+     * @en Calculate the intersection point of rays and line segments
+     * @zh 计算射线和线段的交点
      * @param ray 
      * @param segment 
      * @param result 
@@ -832,7 +896,9 @@ export class Light2DManager {
     }
 
     /**
-     * 根据灯光位置，遮光器线段，获取光照多边形顶点序列（按顺时针排列）
+     * @en Obtain the sequence of vertices of the illuminated polygon (arranged clockwise) 
+     *     based on the position of the light and the shading line segment
+     * @zh 根据灯光位置，遮光器线段，获取光照多边形顶点序列（按顺时针排列）
      * @param lightX 
      * @param lightY 
      * @param segments 

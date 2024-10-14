@@ -7,8 +7,8 @@ import { BaseLight2D, Light2DType } from "./BaseLight2D";
  * 线性灯光
  */
 export class DirectionLight2D extends BaseLight2D {
-    private _directionAngle: number = 0;
-    private _directionVector: Vector2 = new Vector2(1, 0);
+    private _directionAngle: number = 0; //灯光角度
+    private _directionVector: Vector2 = new Vector2(1, 0); //灯光角度矢量
 
     constructor(directionAngle: number = 0) {
         super();
@@ -16,9 +16,18 @@ export class DirectionLight2D extends BaseLight2D {
         this.directionAngle = directionAngle;
     }
 
+    /**
+     * @en Get direction light angle
+     * @zh 获取灯光角度
+     */
     get directionAngle() {
         return this._directionAngle;
     }
+
+    /**
+     * @en Set direction light angle
+     * @zh 设置灯光角度
+     */
     set directionAngle(value: number) {
         value %= 360;
         if (this._directionAngle !== value) {
@@ -29,9 +38,18 @@ export class DirectionLight2D extends BaseLight2D {
         }
     }
 
+    /**
+     * @en Get direction light vector
+     * @zh 获取灯光角度矢量
+     */
     get directionVector() {
         return this._directionVector;
     }
+
+    /**
+     * @en Set direction light vector
+     * @zh 设置灯光角度矢量
+     */
     set directionVector(value: Vector2) {
         const len = Vector2.scalarLength(value);
         if (len > Number.EPSILON) {
@@ -47,7 +65,8 @@ export class DirectionLight2D extends BaseLight2D {
     }
 
     /**
-     * 获取灯光范围
+     * @en Get light range
+     * @zh 获取灯光范围
      * @param screen 
      */
     getLightRange(screen?: Rectangle) {
@@ -65,7 +84,8 @@ export class DirectionLight2D extends BaseLight2D {
     }
 
     /**
-     * 是否在屏幕内
+     * @en Is light inside the screen
+     * @zh 是否在屏幕内
      * @param screen 
      */
     isInScreen(screen: Rectangle) {

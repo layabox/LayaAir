@@ -2,15 +2,37 @@
  * 二维点集（可用于表示多边形）
  */
 export class PolygonPoint2D {
-    points: number[] = [];
+    private _points: number[] = [];
+
+    /** @internal */
+    _user: any;
 
     constructor(points?: number[]) {
         if (points)
             this.points.push(...points);
-    };
+    }
 
     /**
-     * 添加灯光顶点
+     * @en get points
+     * @zh 获取点集
+     */
+    get points(): number[] {
+        return this._points;
+    }
+
+    /**
+     * @en set points
+     * @zh 设置点集
+     */
+    set points(value: number[]) {
+        this._points = value;
+        if (this._user)
+            this._user.setPolygonPoint(this);
+    }
+
+    /**
+     * @en add point
+     * @zh 添加顶点
      * @param x 
      * @param y 
      * @param index 
@@ -27,7 +49,8 @@ export class PolygonPoint2D {
     }
 
     /**
-     * 更新灯光顶点
+     * @en update point
+     * @zh 更新顶点
      * @param x 
      * @param y 
      * @param index 
@@ -40,7 +63,8 @@ export class PolygonPoint2D {
     }
 
     /**
-     * 删除灯光顶点
+     * @en remove point
+     * @zh 删除顶点
      * @param index 
      */
     removePoint(index: number) {
@@ -49,14 +73,16 @@ export class PolygonPoint2D {
     }
 
     /**
-     * 清空
+     * @en clear points
+     * @zh 清空顶点
      */
     clear() {
         this.points.length = 0;
     }
 
     /**
-     * 克隆
+     * @en clone object
+     * @zh 克隆对象
      */
     clone() {
         const poly = new PolygonPoint2D();

@@ -201,7 +201,7 @@ export class FreeformLight2D extends BaseLight2D {
     }
 
     /**
-     * @en Limit param range
+     * @en Limit parameter range
      * @zh 限制参数范围
      */
     private _limitParam() {

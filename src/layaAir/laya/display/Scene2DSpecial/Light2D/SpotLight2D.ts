@@ -19,8 +19,8 @@ import { ShowRenderTarget } from "./ShowRenderTarget";
 export class SpotLight2D extends BaseLight2D {
     private _innerRadius: number; //内圆半径（灯光不发生衰减的半径）
     private _outerRadius: number; //外圆半径（灯光照射最远半径）
-    private _innerAngle: number; //内扇形角度（该角度内灯光不衰减）
-    private _outerAngle: number; //外扇形角度（灯光最大角度）
+    private _innerAngle: number; //内扇形张角（该角度内灯光不衰减）
+    private _outerAngle: number; //外扇形张角（灯光最大角度）
     private _falloffIntensity: number = 1; //边缘衰减系数，数越大，边缘变淡越快（0-10）
 
     //用于生成灯光贴图
@@ -52,9 +52,18 @@ export class SpotLight2D extends BaseLight2D {
         this._render.sharedMaterial = this._material;
     }
 
+    /**
+     * @en Get inner circle radius
+     * @zh 获取内圆半径
+     */
     get innerRadius() {
         return this._innerRadius;
     }
+
+    /**
+     * @en Set inner circle radius
+     * @zh 设置内圆半径
+     */
     set innerRadius(value: number) {
         if (this._innerRadius !== value) {
             this._innerRadius = value;
@@ -64,9 +73,18 @@ export class SpotLight2D extends BaseLight2D {
         }
     }
 
+    /**
+     * @en Get outer circle radius
+     * @zh 获取外圆半径
+     */
     get outerRadius() {
         return this._outerRadius;
     }
+
+    /**
+     * @en Set outer circle radius
+     * @zh 设置外圆半径
+     */
     set outerRadius(value: number) {
         if (this._outerRadius !== value) {
             this._outerRadius = value;
@@ -76,9 +94,18 @@ export class SpotLight2D extends BaseLight2D {
         }
     }
 
+    /**
+     * @en Get inner fan angle
+     * @zh 获取内扇形张角
+     */
     get innerAngle() {
         return this._innerAngle;
     }
+
+    /**
+     * @en Set inner fan angle
+     * @zh 设置内扇形张角
+     */
     set innerAngle(value: number) {
         if (this._innerAngle !== value) {
             this._innerAngle = value;
@@ -88,9 +115,18 @@ export class SpotLight2D extends BaseLight2D {
         }
     }
 
+    /**
+     * @en Get outer fan angle
+     * @zh 获取外扇形张角
+     */
     get outerAngle() {
         return this._outerAngle;
     }
+
+    /**
+     * @en Set outer fan angle
+     * @zh 设置外扇形张角
+     */
     set outerAngle(value: number) {
         if (this._outerAngle !== value) {
             this._outerAngle = value;
@@ -100,9 +136,18 @@ export class SpotLight2D extends BaseLight2D {
         }
     }
 
+    /**
+     * @en Get the edge attenuation coefficient
+     * @zh 获取边缘衰减系数
+     */
     get falloffIntensity() {
         return this._falloffIntensity;
     }
+
+    /**
+     * @en Set the edge attenuation coefficient
+     * @zh 设置边缘衰减系数
+     */
     set falloffIntensity(value: number) {
         if (this._falloffIntensity !== value) {
             this._falloffIntensity = value;
@@ -113,7 +158,8 @@ export class SpotLight2D extends BaseLight2D {
     }
 
     /**
-     * 获取灯光范围
+     * @en Get light range
+     * @zh 获取灯光范围
      * @param screen 
      */
     getLightRange(screen?: Rectangle) {
@@ -127,7 +173,8 @@ export class SpotLight2D extends BaseLight2D {
     }
 
     /**
-     * 渲染灯光贴图
+     * @en Render light texture
+     * @zh 渲染灯光贴图
      * @param scene 
      */
     renderLightTexture(scene: Scene) {
@@ -163,7 +210,8 @@ export class SpotLight2D extends BaseLight2D {
     }
 
     /**
-     * 限制参数范围
+     * @en Limit parameter range
+     * @zh 限制参数范围
      */
     private _limitParam() {
         this._innerAngle = Math.max(Math.min(this._innerAngle, 360), 0);
@@ -178,7 +226,8 @@ export class SpotLight2D extends BaseLight2D {
     }
 
     /**
-     * 创建灯光多边形
+     * @en Create light mesh
+     * @zh 创建灯光多边形
      */
     private _createMesh() {
         const segments1 = Math.max(4, Math.min(64, this._innerAngle / 5 | 0));
@@ -256,6 +305,10 @@ export class SpotLight2D extends BaseLight2D {
         return this._makeMesh(points, inds);
     }
 
+    /**
+     * @en Destroy
+     * @zh 销毁
+     */
     protected _onDestroy() {
         super._onDestroy();
         if (this._texLight) {
