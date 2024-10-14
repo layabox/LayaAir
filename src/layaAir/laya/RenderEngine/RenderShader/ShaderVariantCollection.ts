@@ -175,7 +175,7 @@ export class ShaderVariantCollection {
             subShaderIndex: subShaderIndex,
             passIndex: passIndex,
             defines: <any>defines,
-            nodeCommonMap: nodeCommonMap
+            nodeCommonMap: nodeCommonMap.concat()
         });
 
         console.debug(`Shader variant: ${shader._name}/${subShaderIndex}/${passIndex}/${defines.join(",")}/${nodeCommonMap ? nodeCommonMap.join(",") : ""}`);
