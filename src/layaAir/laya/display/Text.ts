@@ -1304,8 +1304,12 @@ export class Text extends Sprite {
             if (wordWrap) {
                 for (let i = 0, n = lines.length; i < n; i++) {
                     let line = lines[i];
-                    if (line.length > 0)
-                        wrapText(line, style);
+                    if (line.length > 0){
+                        if(!wrapText(line, style)){
+                            //临时解决ubb换行问题：如果不是从头开始，并且一个word放不下了，就换行重来
+                            i--;
+                        }
+                    }
                     if (i != n - 1) {
                         endLine();
                         startLine();
@@ -1407,7 +1411,7 @@ export class Text extends Sprite {
             //优化1，如果一行小于宽度，则直接跳过遍历
             if (tw <= remainWidth) {
                 addCmd(text, style, tw);
-                return;
+                return true;
             }
 
             let maybeIndex = 0;
@@ -1473,8 +1477,12 @@ export class Text extends Sprite {
                         if (execResult) {
                             j = execResult.index + startIndex;
                             //此行只够容纳这一个单词 强制换行
-                            if (execResult.index == 0)
+                            if (execResult.index == 0){
+                                //临时解决ubb换行问题：如果不是从头开始，并且一个word放不下了，就换行重来
+                                if(lineX>0)//这个表示当前位置不是开始，并不符合‘一行容不下这个单词’的假设
+                                    return false;
                                 j += newLine.length;
+                            }
                             //此行有多个单词 按单词分行
                             else {
                                 wordWidth = null;
@@ -1505,6 +1513,7 @@ export class Text extends Sprite {
             }
             if (startIndex != -1)
                 addCmd(text.substring(startIndex, len), style);
+            return true;
         };
 
         let calcTextSize = () => {
@@ -1817,7 +1826,8 @@ export class Text extends Sprite {
                     }
                 }
 
-                if (!lineClipped) {
+                //cmd.width=2是html标签，html标签不能画线，当然应该用更好的方法
+                if (!lineClipped && cmd.width>2) {
                     if (cmd.style.underline) {
                         let thickness = Math.max(1, cmd.style.fontSize * this._fontSizeScale / 16);
                         graphics.drawLine(x + cmd.x, y + line.height - thickness, x + cmd.x + cmd.width, y + line.height - thickness, cmd.style.underlineColor || cmd.style.color, thickness);

@@ -29,7 +29,7 @@ function delay(time:number) {
 }
 
 puppeteer.launch({
-    headless: false,  // 设置为 false 以显示浏览器
+    //headless: false,  // 设置为 false 以显示浏览器
     executablePath: chromePath,args:[]}).then(
     async browser => {
         const page = await browser.newPage();
@@ -118,5 +118,6 @@ puppeteer.launch({
         }
         await browser.close();
         console.log('错误例子：',errors)
+        fs.writeFileSync('errors.txt',errors.join('\n'));
   });
 
