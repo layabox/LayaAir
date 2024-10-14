@@ -77,8 +77,6 @@ export class ShaderPass extends ShaderCompileDefineBase {
         shaderProcessInfo.defineString = defines;
         shader = LayaGL.renderDeviceFactory.createShaderInstance(shaderProcessInfo, shaderpass);
 
-        
-
         if (Shader3D.debugMode)
             ShaderVariantCollection.active.add(shaderpass, defines);
 

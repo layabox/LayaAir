@@ -149,7 +149,7 @@ export class ShaderVariantCollection {
         let passIndex = shaderPass._owner._passes.indexOf(shaderPass);
         let nodeCommonMap = shaderPass.nodeCommonMap;
         if (!nodeCommonMap) return; //兼容WGSL
-        defines = defines.filter((v) => !Shader3D._configDefineValues.has(Shader3D.getDefineByName(v)));
+        defines = defines.filter((v) => !Shader3D._configDefineValues.has(Shader3D.getDefineByName(v)) && v != "GRAPHICS_API_GLES3");
 
         let col = this.items[shader._name];
         if (!col) {
@@ -174,7 +174,7 @@ export class ShaderVariantCollection {
         col.push({
             subShaderIndex: subShaderIndex,
             passIndex: passIndex,
-            defines: defines.concat(),
+            defines: <any>defines,
             nodeCommonMap: nodeCommonMap.concat()
         });
 
