@@ -1826,7 +1826,8 @@ export class Text extends Sprite {
                     }
                 }
 
-                if (!lineClipped) {
+                //cmd.width=2是html标签，html标签不能画线，当然应该用更好的方法
+                if (!lineClipped && cmd.width>2) {
                     if (cmd.style.underline) {
                         let thickness = Math.max(1, cmd.style.fontSize * this._fontSizeScale / 16);
                         graphics.drawLine(x + cmd.x, y + line.height - thickness, x + cmd.x + cmd.width, y + line.height - thickness, cmd.style.underlineColor || cmd.style.color, thickness);
