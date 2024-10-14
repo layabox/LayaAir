@@ -174,7 +174,7 @@ export class ShaderVariantCollection {
         col.push({
             subShaderIndex: subShaderIndex,
             passIndex: passIndex,
-            defines: <any>defines,
+            defines: defines.concat(),
             nodeCommonMap: nodeCommonMap.concat()
         });
 
