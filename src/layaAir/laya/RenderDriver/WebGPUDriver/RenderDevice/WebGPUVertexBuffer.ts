@@ -1,7 +1,7 @@
 import { BufferTargetType, BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
 import { IVertexBuffer } from "../../DriverDesign/RenderDevice/IVertexBuffer";
-import { WebGPUBuffer, WebGPUBufferUsage } from "./WebGPUBuffer";
+import { WebGPUBuffer } from "./WebGPUBuffer";
 import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
 
 export class WebGPUVertexBuffer implements IVertexBuffer {
@@ -15,7 +15,7 @@ export class WebGPUVertexBuffer implements IVertexBuffer {
     objectName: string = 'WebGPUVertexBuffer';
 
     constructor(targetType: BufferTargetType, bufferUsageType: BufferUsage) {
-        const usage = WebGPUBufferUsage.VERTEX | WebGPUBufferUsage.COPY_DST;
+        const usage = GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST;
         this.source = new WebGPUBuffer(usage, 0);
         this.globalId = WebGPUGlobal.getId(this);
     }

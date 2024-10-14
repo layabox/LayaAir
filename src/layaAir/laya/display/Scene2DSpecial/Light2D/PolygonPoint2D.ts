@@ -1,10 +1,7 @@
-import { Vector2 } from "../../../maths/Vector2";
-
 /**
  * 二维点集（可用于表示多边形）
  */
 export class PolygonPoint2D {
-    //points: Vector2[] = [];
     points: number[] = [];
 
     constructor(points?: number[]) {
@@ -63,8 +60,6 @@ export class PolygonPoint2D {
      */
     clone() {
         const poly = new PolygonPoint2D();
-        //for (let i = 0, len = this.points.length; i < len; i++)
-        //    poly.points.push(new Vector2(this.points[i].x, this.points[i].y));
         poly.points.push(...this.points);
         return poly;
     }

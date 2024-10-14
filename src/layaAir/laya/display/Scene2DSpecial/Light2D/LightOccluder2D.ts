@@ -18,9 +18,19 @@ export class LightOccluder2D extends Component {
     static _idCounter: number = 0;
 
     private _layerMask: number = 1; //层遮罩
+
+    /**
+     * @en Get layer mask
+     * @zh 获取灯光层遮罩（灯光影响哪些层）
+     */
     get layerMask(): number {
         return this._layerMask;
     }
+
+    /**
+     * @en Set layer mask
+     * @zh 设置灯光层遮罩（灯光影响哪些层）
+     */
     set layerMask(value: number) {
         this._layerMask = value;
     }
@@ -75,47 +85,59 @@ export class LightOccluder2D extends Component {
         super._onEnable();
         (this.owner as Sprite).on("2DtransChanged", this, this._transformChange);
         (this.owner as Sprite).transChangeNotify = true;
-        const lightRP = (this.owner?.scene as Scene)?._light2DManager;
-        if (lightRP)
-            lightRP.addOccluder(this);
+        (this.owner.scene as Scene)?._light2DManager?.addOccluder(this);
     }
 
     protected _onDisable(): void {
         super._onDisable();
         (this.owner as Sprite).off("2DtransChanged", this, this._transformChange);
-        const lightRP = (this.owner?.scene as Scene)?._light2DManager;
-        if (lightRP)
-            lightRP.removeOccluder(this);
+        (this.owner.scene as Scene)?._light2DManager?.removeOccluder(this);
     }
 
     /**
-     * 响应矩阵改变
+     * @en Response matrix changes
+     * @zh 响应矩阵改变
      */
     protected _transformChange() {
         this._transformPoly();
     }
 
     /**
-     * 设置多边形顶点
+     * @en Set polygon endpoint data
+     * @zh 设置多边形端点数据
+     * @param poly 
      */
-    set polyPoints(poly: PolygonPoint2D) {
-        this._occluderPolygon = poly;
-        this._globalPolygon = poly.clone();
-        if (!this._cutPolygon)
-            this._cutPolygon = new PolygonPoint2D();
-        else this._cutPolygon.clear();
-        this._transformPoly();
+    set polygonPoint(poly: PolygonPoint2D) {
+        if (poly) {
+            poly._user = this;
+            this._occluderPolygon = poly;
+            this._globalPolygon = poly.clone();
+            if (!this._cutPolygon)
+                this._cutPolygon = new PolygonPoint2D();
+            else this._cutPolygon.clear();
+            this._transformPoly();
+            (this.owner?.scene as Scene)?._light2DManager?.addOccluder(this);
+        } else {
+            if (this._occluderPolygon)
+                this._occluderPolygon._user = null;
+            this._occluderPolygon = null;
+            this._globalPolygon = null;
+            this._cutPolygon.clear();
+            (this.owner?.scene as Scene)?._light2DManager?.removeOccluder(this);
+        }
     }
 
     /**
-     * 获取多边形顶点
+     * @en Get polygon endpoint data
+     * @zh 获取多边形端点数据
      */
-    get polyPoints() {
+    get polygonPoint() {
         return this._occluderPolygon;
     }
 
     /**
-     * 设置偏移值
+     * @en Set the offset value
+     * @zh 设置偏移值
      * @param x 
      * @param y 
      */
@@ -125,7 +147,8 @@ export class LightOccluder2D extends Component {
     }
 
     /**
-     * 获取遮光器线段
+     * @en Get occluder's segments
+     * @zh 获取遮光器线段
      * @param segment 
      */
     getSegment(segment: LightLine2D[]) {
@@ -165,7 +188,8 @@ export class LightOccluder2D extends Component {
     }
 
     /**
-     * 获取遮光器状态
+     * @en Get occluder's state
+     * @zh 获取遮光器状态
      */
     getSegmentState() {
         if (this._globalPolygon) {
@@ -176,7 +200,8 @@ export class LightOccluder2D extends Component {
     }
 
     /**
-     * 获取范围
+     * @en Get the range
+     * @zh 获取范围
      */
     getRange() {
         if (this._globalPolygon) {
@@ -202,7 +227,8 @@ export class LightOccluder2D extends Component {
     }
 
     /**
-     * 按照灯光位置是否被选用，如果灯光位于多边形内部，则不选用
+     * @en According to whether the light position is selected, if the light is located inside the polygon, it is not selected
+     * @zh 按照灯光位置是否被选用，如果灯光位于多边形内部，则不选用
      * @param x 
      * @param y 
      */
@@ -241,7 +267,6 @@ export class LightOccluder2D extends Component {
                 else this._select = true;
             } else this._select = true;
 
-            //this._transformPoly();
             if (this._select && this.outside)
                 this._selectOutside(this._globalPolygon.points, x, y, this._outsideSegment);
         }
@@ -250,7 +275,8 @@ export class LightOccluder2D extends Component {
     }
 
     /**
-     * 变换多边形顶点
+     * @en Transform polygon endpoints
+     * @zh 变换多边形顶点
      */
     private _transformPoly() {
         if (this._globalPolygon) {
@@ -277,9 +303,11 @@ export class LightOccluder2D extends Component {
     }
 
     /**
-     * 选择外边缘顶点
+     * @en Select outer edge points
+     * @zh 选择外边缘顶点
      * @param polygon 
-     * @param outsidePoint 
+     * @param outsidePointX 
+     * @param outsidePointY 
      * @param outPoly 
      */
     private _selectOutside(polygon: number[], outsidePointX: number, outsidePointY: number, outPoly: number[]) {
@@ -372,7 +400,8 @@ export class LightOccluder2D extends Component {
     }
 
     /**
-     * 查找距离p1最近的交点
+     * @en Find the nearest intersection point to p1
+     * @zh 查找距离p1最近的交点
      * @param p1x 
      * @param p1y 
      * @param p2x 
