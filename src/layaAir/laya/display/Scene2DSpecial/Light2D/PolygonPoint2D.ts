@@ -4,7 +4,9 @@
 export class PolygonPoint2D {
     private _points: number[] = [];
 
-    /** @internal */
+    /**
+     *  @internal
+     */
     _user: any;
 
     constructor(points?: number[]) {
