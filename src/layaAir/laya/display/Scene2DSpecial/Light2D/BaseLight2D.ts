@@ -62,26 +62,17 @@ export class BaseLight2D extends Component {
         sceneUniform.addShaderUniform(BaseLight2D.LIGHTANDSHADOW_AMBIENT, "u_LightAndShadow2DAmbient", ShaderDataType.Color);
     }
 
-    protected _type: Light2DType = Light2DType.Base;
-
-    protected _color: Color;
-
-    protected _intensity: number; //灯光强度
-
+    protected _type: Light2DType = Light2DType.Base; //灯光类型
+    protected _color: Color = new Color(1, 1, 1, 1); //灯光颜色
+    protected _intensity: number = 1; //灯光强度
+    protected _lightHeight: number = 0; //灯光高度（用于法线贴图效果）
     protected _layerMask: number = 1; //灯光层掩码（哪些层有灯光）
-
     protected _shadowEnable: boolean = false; //是否开启阴影
-
     protected _shadowStrength: number = 0.5; //阴影强度
-
     protected _shadowFilterSmooth: number = 1; //阴影边缘平滑系数
-
     protected _shadowLayerMask: number = 1; //阴影层掩码（哪些层有阴影）
-
     protected _shadowFilterType: ShadowFilterType = ShadowFilterType.None; //阴影边缘平滑类型
-
     protected _range: Rectangle = new Rectangle(); //灯光范围
-
     protected _recoverFC: number = 0; //回收资源帧序号
     protected _needToRecover: any[] = []; //需要回收的资源
     protected _lastRotation: number = -1; //上一帧旋转角度
@@ -99,10 +90,18 @@ export class BaseLight2D extends Component {
      */
     _needUpdateLightTrans: boolean = false; //是否需要更新灯光的Trans位置
 
-    //TODO 注释
+    /**
+     * @en Get light color
+     * @zh 获取灯光颜色
+     */
     get color(): Color {
         return this._color;
     }
+
+    /**
+     * @en Set light color
+     * @zh 设置灯光颜色
+     */
     set color(value: Color) {
         if (value.r !== this._color.r
             || value.g !== this._color.g
@@ -112,58 +111,126 @@ export class BaseLight2D extends Component {
         value.cloneTo(this._color);
     }
 
-    //TODO 注释
+    /**
+     * @en Get light intensity
+     * @zh 获取灯光强度
+     */
     get intensity(): number {
         return this._intensity;
     }
+
+    /**
+     * @en Set light intensity
+     * @zh 设置灯光强度
+     */
     set intensity(value: number) {
         if (value !== this._intensity)
             this._needUpdateLight = true;
         this._intensity = value;
     }
 
-    //TODO 注释
+    /**
+     * @en Get light height
+     * @zh 获取灯光高度（用于法线贴图效果）
+     */
+    get lightHeight(): number {
+        return this._lightHeight;
+    }
+
+    /**
+     * @en Set light height
+     * @zh 设置灯光高度（用于法线贴图效果）
+     */
+    set lightHeight(value: number) {
+        if (value !== this._lightHeight)
+            this._needUpdateLight = true;
+        this._lightHeight = value;
+    }
+
+    /**
+     * @en Is shadow enable
+     * @zh 获取阴影是否使能
+     */
     get shadowEnable(): boolean {
         return this._shadowEnable;
     }
+
+    /**
+     * @en Enable shadow
+     * @zh 使能灯光阴影
+     */
     set shadowEnable(value: boolean) {
         if (this._shadowEnable !== value)
             this._needUpdateLight = true;
         this._shadowEnable = value;
     }
 
-    //TODO 注释
+    /**
+     * @en Get shadow strength
+     * @zh 获取阴影强度
+     */
     get shadowStrength(): number {
         return this._shadowStrength;
     }
+
+    /**
+     * @en Set shadow strength
+     * @zh 设置阴影强度
+     */
     set shadowStrength(value: number) {
         if (value !== this._shadowStrength)
             this._needUpdateLight = true;
         this._needUpdateLight = true;
     }
 
-    //TODO 注释
+    /**
+     * @en Get shadow layer mask
+     * @zh 获取阴影层遮罩（阴影影响哪些层）
+     */
     get shadowLayerMask(): number {
         return this._shadowLayerMask;
     }
+
+    /**
+     * @en Set shadow layer mask
+     * @zh 设置阴影层遮罩（阴影影响哪些层）
+     */
     set shadowLayerMask(value: number) {
         if (value !== this._shadowLayerMask)
             this._notifyShadowCastLayerChange(this.shadowLayerMask, value);
         this._shadowLayerMask = value;
     }
 
+    /**
+     * @en Get shadow filter type
+     * @zh 获取阴影边缘平滑类型
+     */
     get shadowFilterType(): ShadowFilterType {
         return this._shadowFilterType;
     }
+
+    /**
+     * @en Set shadow filter type
+     * @zh 设置阴影边缘平滑类型
+     */
     set shadowFilterType(value: ShadowFilterType) {
         if (value !== this._shadowFilterType)
             this._needUpdateLight = true;
         this._shadowFilterType = value;
     }
 
+    /**
+     * @en Get layer mask
+     * @zh 获取灯光层遮罩（灯光影响哪些层）
+     */
     get layerMask(): number {
         return this._layerMask;
     }
+
+    /**
+     * @en Set layer mask
+     * @zh 设置灯光层遮罩（灯光影响哪些层）
+     */
     set layerMask(value: number) {
         if (this.layerMask !== value) {
             this._notifyLightLayerChange(this.layerMask, value);
@@ -171,9 +238,18 @@ export class BaseLight2D extends Component {
         this._layerMask = value;
     }
 
+    /**
+     * @en Get shadow filter smooth
+     * @zh 获取阴影边缘平滑系数
+     */
     get shadowFilterSmooth(): number {
         return this._shadowFilterSmooth;
     }
+
+    /**
+     * @en Set shadow filter smooth
+     * @zh 设置阴影边缘平滑系数
+     */
     set shadowFilterSmooth(value: number) {
         if (value !== this._shadowFilterSmooth)
             this._needUpdateLight = true;
@@ -189,7 +265,7 @@ export class BaseLight2D extends Component {
     editMode: boolean = false; //编辑模式
 
     //TODO
-    enableShadowColor: boolean;
+    //enableShadowColor: boolean;
     shadowColor: Color; //阴影颜色
 
     //测试用
@@ -216,23 +292,15 @@ export class BaseLight2D extends Component {
 
     protected _onEnable(): void {
         super._onEnable();
-        if (this.owner) {
-            (this.owner as Sprite).on("2DtransChanged", this, this._transformChange);
-            (this.owner as Sprite).transChangeNotify = true;
-            const lightRP = (this.owner.scene as Scene)?._light2DManager;
-            if (lightRP)
-                lightRP.addLight(this);
-        }
+        (this.owner as Sprite).on("2DtransChanged", this, this._transformChange);
+        (this.owner as Sprite).transChangeNotify = true;
+        (this.owner.scene as Scene)?._light2DManager?.addLight(this);
     }
 
     protected _onDisable(): void {
         super._onDisable();
-        if (this.owner) {
-            (this.owner as Sprite).off("2DtransChanged", this, this._transformChange);
-            const lightRP = (this.owner?.scene as Scene)?._light2DManager;
-            if (lightRP)
-                lightRP.removeLight(this);
-        }
+        (this.owner as Sprite).off("2DtransChanged", this, this._transformChange);
+        (this.owner.scene as Scene)?._light2DManager?.removeLight(this);
     }
 
     protected _onDestroy() {
@@ -246,7 +314,6 @@ export class BaseLight2D extends Component {
 
     /**
      * @internal
-     * @returns 
      */
     _pcfIntensity() {
         switch (this.shadowFilterType) {
@@ -264,30 +331,49 @@ export class BaseLight2D extends Component {
 
     /**
      * @internal
-     * @returns 
      */
     _getRange() {
         return this._range;
     }
 
+    /**
+     * @en Get light type
+     * @zh 获取灯光类型
+     */
     getLightType(): Light2DType {
         return this._type;
     }
 
+    /**
+     * @en Get light range height
+     * @zh 获取灯光影响范围矩形的高度值
+     */
     getHeight() {
         return this._range.height;
     }
 
+    /**
+     * @en Get light range width
+     * @zh 获取灯光影响范围矩形的宽度值
+     */
     getWidth() {
         return this._range.width;
     }
 
+    /**
+     * @en Get light global position x
+     * @zh 获取灯光世界位置的X坐标值
+     */
     getGlobalPosX() {
         if (this.owner && this.owner instanceof Sprite)
             return this.owner.globalPosX;
         return 0;
     }
 
+    /**
+     * @en Get light global position y
+     * @zh 获取灯光世界位置的Y坐标值
+     */
     getGlobalPosY() {
         if (this.owner && this.owner instanceof Sprite)
             return this.owner.globalPosY;
@@ -295,7 +381,8 @@ export class BaseLight2D extends Component {
     }
 
     /**
-     * 用列表设置灯光层掩码
+     * @en Set layer mask by list
+     * @zh 用列表设置灯光层掩码
      * @param layerList 
      */
     setLayerMaskByList(layerList: number[]) {
@@ -306,7 +393,8 @@ export class BaseLight2D extends Component {
     }
 
     /**
-     * 灯光对指定层是否开启
+     * @en Is the light turned on for the specified layer
+     * @zh 灯光对指定层是否开启
      * @param layer 
      */
     isLayerEnable(layer: number) {
@@ -315,7 +403,8 @@ export class BaseLight2D extends Component {
     }
 
     /**
-     * 用列表设置阴影层掩码
+     * @en Set shadow layer mask by list
+     * @zh 用列表设置阴影层掩码
      * @param layerList 
      */
     setShadowLayerMaskByList(layerList: number[]) {
@@ -326,7 +415,8 @@ export class BaseLight2D extends Component {
     }
 
     /**
-     * 阴影对指定层是否开启
+     * @en Is the shadow turned on for the specified layer
+     * @zh 阴影对指定层是否开启
      * @param layer 
      */
     isShadowLayerEnable(layer: number) {
@@ -335,7 +425,8 @@ export class BaseLight2D extends Component {
     }
 
     /**
-     * 获取灯光范围
+     * @en Get light range
+     * @zh 获取灯光范围
      * @param screen 
      */
     getLightRange(screen?: Rectangle) {
@@ -343,7 +434,8 @@ export class BaseLight2D extends Component {
     }
 
     /**
-     * 渲染灯光贴图
+     * @en Render light texture
+     * @zh 渲染灯光贴图
      * @param scene 
      */
     renderLightTexture(scene: Scene) {
@@ -359,7 +451,8 @@ export class BaseLight2D extends Component {
     }
 
     /**
-     * 是否在屏幕内
+     * @en Is light range inside the screen
+     * @zh 灯光范围是否在屏幕内
      * @param screen 
      */
     isInScreen(screen: Rectangle) {
@@ -367,7 +460,8 @@ export class BaseLight2D extends Component {
     }
 
     /**
-     * 生成网格对象
+     * @en Make mesh object
+     * @zh 生成网格对象
      * @param points 
      * @param inds 
      */
