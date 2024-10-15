@@ -29,6 +29,7 @@ import { SpineEmptyRender } from "./optimize/SpineEmptyRender";
 import { Texture2D } from "../resource/Texture2D";
 import { Sprite } from "../display/Sprite";
 import { Color } from "../maths/Color";
+import { Rectangle } from "../maths/Rectangle";
 
 /**
  * @en The spine animation consists of three parts: `SpineTemplet`, `SpineSkeletonRender`, and `SpineSkeleton`.
@@ -179,7 +180,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
         this._spriteShaderData.setBuffer(SpineShaderInit.NMatrix, buffer);
         Vector2.TempVector2.setValue(context.width, context.height);
         this._spriteShaderData.setVector2(SpineShaderInit.Size, Vector2.TempVector2);
-        context.globalAlpha
+        // context.globalAlpha
         if (this._oldAlpha !==  context.globalAlpha) {
             let scolor = this.spineItem.getSpineColor();
             let a = scolor.a *  context.globalAlpha;
@@ -411,9 +412,14 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
             this.spineItem = this._templet.sketonOptimise._initSpineRender(this._skeleton, this._templet, this, this._state);
 
         let sprite = this.owner as Sprite;
-        sprite.width = templet.width;
-        sprite.height = templet.height;
-
+        let boundsStyle = sprite._getBoundsStyle();
+        let userBounds = boundsStyle.userBounds;
+        if (!userBounds) {
+            userBounds = boundsStyle.userBounds = new Rectangle;
+        }
+        userBounds.setTo(sprite.x + templet.offsetX  , sprite.y - templet.offsetY - templet.height , templet.width , templet.height );
+        sprite.autoSize = true;
+        
         let skinIndex = this._templet.getSkinIndexByName(this._skinName);
         if (skinIndex != -1)
             this.showSkinByIndex(skinIndex);

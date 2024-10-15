@@ -175,10 +175,16 @@ export class SpineShaderInit {
         'a_pos': [2, ShaderDataType.Vector2],
         "a_weight": [3, ShaderDataType.Float],
         "a_BoneId": [4, ShaderDataType.Float],
-
         'a_PosWeightBoneID_2': [5, ShaderDataType.Vector4],
         'a_PosWeightBoneID_3': [6, ShaderDataType.Vector4],
         'a_PosWeightBoneID_4': [7, ShaderDataType.Vector4],
+
+        // 'a_PosWeightBoneID_1': [2, ShaderDataType.Vector4],//pos.xy weight boneID
+        // 'a_PosWeightBoneID_2': [3, ShaderDataType.Vector4],
+        // 'a_PosWeightBoneID_3': [4, ShaderDataType.Vector4],
+        // 'a_PosWeightBoneID_4': [5, ShaderDataType.Vector4],
+        // 'a_PosWeightBoneID_5': [6, ShaderDataType.Vector4],
+        // 'a_PosWeightBoneID_6': [7, ShaderDataType.Vector4],
 
         'a_NMatrix_0': [8, ShaderDataType.Vector3],
         'a_NMatrix_1': [9, ShaderDataType.Vector3],
@@ -237,20 +243,29 @@ export class SpineShaderInit {
             new VertexElement(36, VertexElementFormat.Single, 4),
             new VertexElement(40, VertexElementFormat.Vector4, 5),
             new VertexElement(56, VertexElementFormat.Vector4, 6),
-            new VertexElement(72, VertexElementFormat.Vector4, 7)
+            new VertexElement(72, VertexElementFormat.Vector4, 7),
+            // new VertexElement(24, VertexElementFormat.Vector4, 2),
+            // new VertexElement(40, VertexElementFormat.Vector4, 3),
+            // new VertexElement(56, VertexElementFormat.Vector4, 4),
+            // new VertexElement(72, VertexElementFormat.Vector4, 5),
+            // new VertexElement(88, VertexElementFormat.Vector4, 6),
+            // new VertexElement(104, VertexElementFormat.Vector4, 6),
         ]);
 
         SpineShaderInit.SpineNormalVertexDeclaration = new VertexDeclaration(32, [
             new VertexElement(0, VertexElementFormat.Vector2, 0),
             new VertexElement(8, VertexElementFormat.Vector4, 1),
             new VertexElement(24, VertexElementFormat.Vector2, 2)
+            // new VertexElement(24, VertexElementFormat.Vector4, 2)
         ])
 
         SpineShaderInit.SpineRBVertexDeclaration = new VertexDeclaration(36, [
             new VertexElement(0, VertexElementFormat.Vector2, 0),
             new VertexElement(8, VertexElementFormat.Vector4, 1),
             new VertexElement(24, VertexElementFormat.Vector2, 2),
-            new VertexElement(32, VertexElementFormat.Single, 4)
+            new VertexElement(32, VertexElementFormat.Single, 4),
+            // new VertexElement(36, VertexElementFormat.Single, 4),
+            // new VertexElement(24, VertexElementFormat.Vector4, 2),
         ])
 
         SpineShaderInit.instanceNMatrixDeclaration = new VertexDeclaration(24 , [

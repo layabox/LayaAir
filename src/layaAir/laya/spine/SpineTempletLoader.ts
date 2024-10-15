@@ -1,6 +1,7 @@
 import { Laya } from "../../Laya";
 import { IResourceLoader, ILoadTask, Loader, ILoadURL } from "../net/Loader";
 import { URL } from "../net/URL";
+import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
 import { Texture2D } from "../resource/Texture2D";
 import { Utils } from "../utils/Utils";
 import { SpineTemplet } from "./SpineTemplet";
@@ -52,7 +53,8 @@ class SpineTempletLoader implements IResourceLoader {
                 url, type: Loader.TEXTURE2D,
                 propertyParams: {
                     premultiplyAlpha: true
-                }
+                },
+                constructParams:[0,0,TextureFormat.R8G8B8A8,false,false,true,true]
             });
             return new SpineTexture(null);
         });
@@ -106,7 +108,8 @@ class SpineTempletLoader implements IResourceLoader {
                 type: Loader.TEXTURE2D,
                 propertyParams: {
                     premultiplyAlpha: true
-                }
+                },
+                constructParams:[0,0,TextureFormat.R8G8B8A8,false,false,true,true]
             }
         }),
             null, task.progress?.createCallback()).then((res: Array<Texture2D>) => {

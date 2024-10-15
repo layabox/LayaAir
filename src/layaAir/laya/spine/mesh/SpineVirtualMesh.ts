@@ -14,6 +14,11 @@ export class SpineVirtualMesh extends SpineMeshBase {
      */
     static vertexSize: number = 8;
     /**
+     * @en Size of each vertex in the vertex array with Two Color.
+     * @zh 双顶点色模式顶点数组中每个顶点的大小。
+     */
+    static vertexSize_TwoColor: number = 12;
+    /**
      * @en Shared vertex array for all instances.
      * @zh 所有实例共享的顶点数组。
      */
@@ -48,14 +53,15 @@ export class SpineVirtualMesh extends SpineMeshBase {
      */
     appendVerticesClip(vertices: ArrayLike<number>, indices: ArrayLike<number>) {
         let indicesLength = indices.length;
-        let verticesLength = vertices.length;
+        let vertexCount = vertices.length / 8;
         let vertexSize = SpineVirtualMesh.vertexSize;
+        let verticesLength = vertexCount * vertexSize;
         let indexStart = this.verticesLength / vertexSize;
         let vertexBuffer = this.vertexArray;
 
         let before = this.verticesLength;
         let vlen = before;
-        for (let j = 0; j < verticesLength; vlen += 8, j += 8) {
+        for (let j = 0; j < verticesLength; vlen += vertexSize, j += 8) {
             vertexBuffer[vlen] = vertices[j + 6];
             vertexBuffer[vlen + 1] = vertices[j + 7];
             vertexBuffer[vlen + 2] = vertices[j + 2];
