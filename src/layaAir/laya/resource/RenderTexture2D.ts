@@ -67,6 +67,14 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
     }
 
     /**
+     * @en get the colorFormat from RenderInternalRT
+     * @zh 得到此渲染纹理的颜色格式
+     */
+    getColorFormat(): RenderTargetFormat {
+        return this._colorFormat;
+    }
+
+    /**
      * @en The source width of the RenderTexture2D.
      * @zh 2D渲染纹理的源宽度。
      */
@@ -224,6 +232,26 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
      */
     getData(x: number, y: number, width: number, height: number): ArrayBufferView {
         return LayaGL.textureContext.getRenderTextureData(this._renderTarget, x, y, width, height);
+    }
+
+    /**
+     * @en Asynchronously retrieves pixel data from the RenderTexture.
+     * @param xOffset The x-offset value.
+     * @param yOffset The y-offset value.
+     * @param width The width of the area to retrieve.
+     * @param height The height of the area to retrieve.
+     * @param out The array to hold the output data.
+     * @returns binary data
+     * @zh 异步获取渲染纹理的像素数据。
+     * @param xOffset x偏移值
+     * @param yOffset y偏移值
+     * @param width 要检索的区域的宽度。
+     * @param height 要检索的区域的高度。
+     * @param out 用于保存输出数据的数组。
+     * @returns 二进制数据
+     */
+    getDataAsync(xOffset: number, yOffset: number, width: number, height: number, out: Uint8Array | Float32Array) { //兼容WGSL
+        return LayaGL.textureContext.readRenderTargetPixelDataAsync(this._renderTarget, xOffset, yOffset, width, height, out);
     }
 
     /**
