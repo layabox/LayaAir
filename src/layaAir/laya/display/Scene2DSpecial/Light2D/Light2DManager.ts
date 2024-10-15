@@ -61,6 +61,7 @@ export class Light2DManager {
     private _occluders: LightOccluder2D[] = []; //场景中的所有遮光器
 
     private _works: number = 0; //每帧工作负载
+    private _updateMark: number[] = new Array(32).fill(0); //各层的更新标识
     private _lightsInLayer: BaseLight2D[][] = []; //各层中的灯光
     private _occludersInLayer: LightOccluder2D[][] = []; //各层中的遮光器
     private _occludersInLight: LightOccluder2D[] = []; //影响当前灯光的遮光器
@@ -366,7 +367,7 @@ export class Light2DManager {
             for (let i = lights.length; i < this._spritesShadow.length; i++)
                 this._root.removeChild(this._spritesShadow[i]);
             //this.showRenderTarget(layer);
-            this.showSceneTarget(layer);
+            //this.showSceneTarget(layer);
             return true;
         }
         return false;
@@ -499,6 +500,7 @@ export class Light2DManager {
                             needRender = true;
                             works++;
                         }
+                        this._updateMark[i]++;
                     }
                     update3 = false;
                 }
@@ -506,7 +508,7 @@ export class Light2DManager {
                     this._scene.addChild(this._root);
                     this._root.drawToTexture(0, 0, 0, 0, this.target[i]);
                     this._scene.removeChild(this._root);
-                    this._scene.drawToTexture(0, 0, 0, 0, this.sceneTarget);
+                    //this._scene.drawToTexture(0, 0, 0, 0, this.sceneTarget);
                 }
             }
         }
@@ -523,8 +525,9 @@ export class Light2DManager {
      * @param layer 
      */
     _getLayerUpdateMask(layer: number) {
-        return -1; //TODO 需要判断更新这个灯光的纹理是否改变
+        //return -1; //TODO 需要判断更新这个灯光的纹理是否改变
         //return Laya.timer.currFrame; //临时测试
+        return this._updateMark[layer];
     }
 
     /**
