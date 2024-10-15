@@ -43,16 +43,16 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 	private _particleSystem: ShurikenParticleSystem;
 
 	/**
-     * @en The particle system.
-     * @zh 粒子系统。
+	 * @en The particle system.
+	 * @zh 粒子系统。
 	 */
 	get particleSystem(): ShurikenParticleSystem {
 		return this._particleSystem;
 	}
 
 	/**
-     * @en The particle renderer.
-     * @zh 粒子渲染器。
+	 * @en The particle renderer.
+	 * @zh 粒子渲染器。
 	 */
 	get particleRenderer(): ShurikenParticleRenderer {
 		return <ShurikenParticleRenderer>this._render;
@@ -778,7 +778,6 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 	 */
 	private _initParticleColor(gradientColorData: any, maxkeyCount: number = 4): Gradient {
 		var gradientColor: Gradient = new Gradient();
-		gradientColor.setMaxKeyCount(maxkeyCount, maxkeyCount);
 		if (!gradientColorData) {
 			gradientColor.addColorAlpha(0, 1);
 			gradientColor.addColorAlpha(1, 1);
