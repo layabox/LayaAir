@@ -214,6 +214,10 @@ export class Camera2D extends Sprite {
 
     private _viewRect: Vector2 = new Vector2();
 
+    getCameraPos(){
+        return this._cameraPos;
+    }
+
     /**
      * @internal
      */
