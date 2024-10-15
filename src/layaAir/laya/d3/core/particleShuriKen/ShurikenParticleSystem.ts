@@ -787,8 +787,21 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
                     case 1:
                         shaDat.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_RANDOMCOLOROVERLIFETIME);
                         let gradientColor: Gradient = color.gradient;
-                        let alphaElements: Float32Array = gradientColor.alphaElements;
-                        let rgbElements: Float32Array = gradientColor.rgbElements;
+                        let alphaElements: Float32Array;
+                        let rgbElements: Float32Array;
+                        if (gradientColor.maxColorKeysCount > 4) {
+                            shaDat.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_COLORKEYCOUNT_8);
+
+                            alphaElements = gradientColor._getGPUAlphaData8();
+                            rgbElements = gradientColor._getGPURGBData8();
+                        }
+                        else {
+                            shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_COLORKEYCOUNT_8);
+
+                            alphaElements = gradientColor._getGPUAlphaData4();
+                            rgbElements = gradientColor._getGPURGBData4();
+                        }
+
                         shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.COLOROVERLIFEGRADIENTALPHAS, alphaElements);
                         shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.COLOROVERLIFEGRADIENTCOLORS, rgbElements);
                         shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.MAXCOLOROVERLIFEGRADIENTALPHAS, alphaElements);
@@ -807,23 +820,36 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
                         }
                         shaDat.setVector(ShuriKenParticle3DShaderDeclaration.COLOROVERLIFEGRADIENTRANGES, ranges);
                         shaDat.setVector(ShuriKenParticle3DShaderDeclaration.MAXCOLOROVERLIFEGRADIENTRANGES, ranges);
-                        if (gradientColor.maxColorAlphaKeysCount == 8) {
-                            shaDat.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_COLORKEYCOUNT_8);
-                        }
-                        else {
-                            shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_COLORKEYCOUNT_8);
-                        }
                         break;
                     case 3:
                         shaDat.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_RANDOMCOLOROVERLIFETIME);
                         let minGradientColor: Gradient = color.gradientMin;
                         let maxGradientColor: Gradient = color.gradientMax;
 
-                        let minalphaElements: Float32Array = minGradientColor.alphaElements;
-                        let minrgbElements: Float32Array = minGradientColor.rgbElements;
+                        let minalphaElements: Float32Array;
+                        let minrgbElements: Float32Array;
 
-                        let maxalphaElements: Float32Array = maxGradientColor.alphaElements;
-                        let maxrgbElements: Float32Array = maxGradientColor.rgbElements;
+                        let maxalphaElements: Float32Array;
+                        let maxrgbElements: Float32Array;
+
+                        let maxkeyCount = Math.max(minGradientColor.maxColorKeysCount, maxGradientColor.maxColorKeysCount);
+                        if (maxkeyCount > 4) {
+                            shaDat.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_COLORKEYCOUNT_8);
+
+                            minalphaElements = minGradientColor._getGPUAlphaData8();
+                            minrgbElements = minGradientColor._getGPURGBData8();
+                            maxalphaElements = maxGradientColor._getGPUAlphaData8();
+                            maxrgbElements = maxGradientColor._getGPURGBData8();
+                        }
+                        else {
+                            shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_COLORKEYCOUNT_8);
+
+                            minalphaElements = minGradientColor._getGPUAlphaData4();
+                            minrgbElements = minGradientColor._getGPURGBData4();
+                            maxalphaElements = maxGradientColor._getGPUAlphaData4();
+                            maxrgbElements = maxGradientColor._getGPURGBData4();
+                        }
+
                         shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.COLOROVERLIFEGRADIENTALPHAS, minalphaElements);
                         shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.COLOROVERLIFEGRADIENTCOLORS, minrgbElements);
                         shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.MAXCOLOROVERLIFEGRADIENTALPHAS, maxalphaElements);
@@ -855,14 +881,6 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
                             maxRanges.w = Math.max(maxRanges.w, alphaKey);
                         }
                         shaDat.setVector(ShuriKenParticle3DShaderDeclaration.MAXCOLOROVERLIFEGRADIENTRANGES, maxRanges);
-
-                        let maxkeyCount = Math.max(minGradientColor.maxColorAlphaKeysCount, maxGradientColor.maxColorAlphaKeysCount);
-                        if (maxkeyCount == 8) {
-                            shaDat.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_COLORKEYCOUNT_8);
-                        }
-                        else {
-                            shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_COLORKEYCOUNT_8);
-                        }
                         break;
                     default:
                         break;
