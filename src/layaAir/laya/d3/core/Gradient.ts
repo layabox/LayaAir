@@ -47,6 +47,13 @@ export class Gradient implements IClone {
 	set _rgbElements(value: Float32Array) {
 		this._rgbElementDatas = value;
 		this._maxColorRGBKeysCount = value ? value.length / 4 : 0;
+
+		if (this._gpuRGBData4) {
+			this._updateGpuData(this._gpuRGBData4, value, 16);
+		}
+		if (this._gpuRGBData8) {
+			this._updateGpuData(this._gpuRGBData8, value, 32);
+		}
 	}
 
 	private _maxColorAlphaKeysCount: number = 0;
@@ -83,6 +90,14 @@ export class Gradient implements IClone {
 	set _alphaElements(value: Float32Array) {
 		this._alphaElementDatas = value;
 		this._maxColorAlphaKeysCount = value ? value.length / 2 : 0;
+
+		if (this._gpuAlphaData4) {
+			this._updateGpuData(this._gpuAlphaData4, value, 8);
+		}
+
+		if (this._gpuAlphaData8) {
+			this._updateGpuData(this._gpuAlphaData8, value, 16);
+		}
 	}
 
 	get maxColorKeysCount(): number {
@@ -486,6 +501,21 @@ export class Gradient implements IClone {
 		return curIndex;
 	}
 
+	private _updateGpuData(data: Float32Array, elements: Float32Array, dateLength: number) {
+		let length = Math.min(dateLength, elements.length);
+		for (let index = 0; index < length; index++) {
+			data[index] = elements[index];
+		}
+	}
+
+	private _getGpuData(data: Float32Array, elements: Float32Array, dateLength: number): Float32Array {
+		if (!data) {
+			data = new Float32Array(dateLength);
+			this._updateGpuData(data, elements, dateLength);
+		}
+		return data;
+	}
+
 	private _gpuRGBData4: Float32Array;
 
 	/**
@@ -493,14 +523,7 @@ export class Gradient implements IClone {
 	 * @returns 
 	 */
 	_getGPURGBData4() {
-		if (!this._gpuRGBData4) {
-			this._gpuRGBData4 = new Float32Array(16);
-			let maxLength = Math.min(this._rgbElementDatas.length, 16);
-			for (let index = 0; index < maxLength; index++) {
-				this._gpuRGBData4[index] = this._rgbElementDatas[index];
-			}
-		}
-		return this._gpuRGBData4;
+		return this._getGpuData(this._gpuRGBData4, this._rgbElementDatas, 16);
 	}
 
 	private _gpuRGBData8: Float32Array;
@@ -510,14 +533,7 @@ export class Gradient implements IClone {
 	 * @returns 
 	 */
 	_getGPURGBData8() {
-		if (!this._gpuRGBData8) {
-			this._gpuRGBData8 = new Float32Array(32);
-			let maxLength = Math.min(this._rgbElementDatas.length, 32);
-			for (let index = 0; index < maxLength; index++) {
-				this._gpuRGBData8[index] = this._rgbElementDatas[index];
-			}
-		}
-		return this._gpuRGBData8;
+		return this._getGpuData(this._gpuRGBData8, this._rgbElementDatas, 32);
 	}
 
 	private _gpuAlphaData4: Float32Array;
@@ -527,14 +543,7 @@ export class Gradient implements IClone {
 	 * @returns 
 	 */
 	_getGPUAlphaData4(): Float32Array {
-		if (!this._gpuAlphaData4) {
-			this._gpuAlphaData4 = new Float32Array(8);
-			let maxLength = Math.min(8, this._alphaElementDatas.length);
-			for (let index = 0; index < maxLength; index++) {
-				this._gpuAlphaData4[index] = this._alphaElementDatas[index];
-			}
-		}
-		return this._gpuAlphaData4;
+		return this._getGpuData(this._gpuAlphaData4, this._alphaElementDatas, 8);
 	}
 
 	private _gpuAlphaData8: Float32Array;
@@ -544,15 +553,7 @@ export class Gradient implements IClone {
 	 * @returns 
 	 */
 	_getGPUAlphaData8(): Float32Array {
-		if (!this._gpuAlphaData8) {
-			this._gpuAlphaData8 = new Float32Array(16);
-
-			let maxLength = Math.min(16, this._alphaElementDatas.length)
-			for (let index = 0; index < maxLength; index++) {
-				this._gpuAlphaData8[index] = this._alphaElementDatas[index];
-			}
-		}
-		return this._gpuAlphaData8;
+		return this._getGpuData(this._gpuAlphaData8, this._alphaElementDatas, 16);
 	}
 
 	/**
