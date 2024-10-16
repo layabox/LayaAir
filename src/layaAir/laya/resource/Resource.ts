@@ -182,7 +182,7 @@ export class Resource extends EventDispatcher {
 
     set obsolute(value: boolean) {
         if (this._obsolute != value) {
-        this._obsolute = value;
+            this._obsolute = value;
 
             if (value && !LayaEnv.isPlaying)
                 this.event("obsolute");

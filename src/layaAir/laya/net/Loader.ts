@@ -434,6 +434,7 @@ export class Loader extends EventDispatcher {
         return promise.then(content => {
             Loader.LoaderStat_LoadResourceTime += performance.now() - this._tempTime;
             if (content instanceof Resource) {
+                content.obsolute = false;
                 content._setCreateURL(url, uuid);
             }
 
