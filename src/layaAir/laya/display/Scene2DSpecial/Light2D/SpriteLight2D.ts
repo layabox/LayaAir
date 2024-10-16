@@ -1,5 +1,4 @@
 import { Rectangle } from "../../../maths/Rectangle";
-import { Vector2 } from "../../../maths/Vector2";
 import { Texture2D } from "../../../resource/Texture2D";
 import { Browser } from "../../../utils/Browser";
 import { Scene } from "../../Scene";
@@ -19,6 +18,10 @@ export class SpriteLight2D extends BaseLight2D {
         this._type = Light2DType.Sprite;
     }
 
+    /**
+     * @en Set the sprite texture
+     * @zh 设置精灵贴图
+     */
     set spriteTexture(value: Texture2D) {
         if (this._texLight === value)
             return;
@@ -30,12 +33,17 @@ export class SpriteLight2D extends BaseLight2D {
         this._needUpdateLight = true;
     }
 
+    /**
+     * @en Get the sprite texture
+     * @zh 获取精灵贴图
+     */
     get spriteTexture() {
         return this._texLight as Texture2D;
     }
 
     /**
-     * 获取灯光范围
+     * @en Get light range
+     * @zh 获取灯光范围
      * @param screen 
      */
     getLightRange(screen?: Rectangle) {
@@ -49,7 +57,8 @@ export class SpriteLight2D extends BaseLight2D {
     }
 
     /**
-     * 渲染灯光贴图
+     * @en Render light texture
+     * @zh 渲染灯光贴图
      * @param scene 
      */
     renderLightTexture(scene: Scene) {
@@ -65,6 +74,10 @@ export class SpriteLight2D extends BaseLight2D {
         }
     }
 
+    /**
+     * @en Destroy
+     * @zh 销毁
+     */
     protected _onDestroy() {
         super._onDestroy();
         if (this._texLight) {
