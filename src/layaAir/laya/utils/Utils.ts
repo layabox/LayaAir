@@ -1,8 +1,8 @@
 import { LayaEnv } from "../../LayaEnv";
 import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
-import { HTMLCanvas } from "../resource/HTMLCanvas";
 import { RenderTexture } from "../resource/RenderTexture";
 import { RenderTexture2D } from "../resource/RenderTexture2D";
+import { Browser } from "./Browser";
 
 var _gid: number = 1;
 const _pi: number = 180 / Math.PI;
@@ -283,25 +283,23 @@ export class Utils {
         var bs: String;
         if (LayaEnv.isConch) {
             //TODO:
-            //var base64img=__JS__("conchToBase64('image/png',1,pixels,canvasWidth,canvasHeight)");
-            //var l = base64img.split(",");
-            //if (isBase64)
-            //	return base64img;
-            //return base.utils.DBUtils.decodeArrayBuffer(l[1]);
+            // var base64img=__JS__("conchToBase64('image/png',1,pixels,canvasWidth,canvasHeight)");
+            // var l = base64img.split(",");
+            // if (isBase64)
+            // 	return base64img;
+            // return base.utils.DBUtils.decodeArrayBuffer(l[1]);
         }
         else {
-            var canv: HTMLCanvas = new HTMLCanvas(true);
-            canv.lock = true;
-            canv.size(width, height);
-            var ctx2d = canv.getContext('2d');
-            //@ts-ignore
+            let source = Browser.createElement("canvas");
+            source.height = height;
+            source.width = width;
+            var ctx2d = source.getContext('2d')
             var imgdata: ImageData = ctx2d.createImageData(width, height);
-            //@ts-ignore
             imgdata.data.set(new Uint8ClampedArray(pixels));
-            //@ts-ignore
             ctx2d.putImageData(imgdata, 0, 0);;
-            bs = canv.source.toDataURL();
-            canv.destroy();
+            bs = source.toDataURL();
+            source.remove();
+
         }
         return bs;
     }
@@ -359,18 +357,15 @@ export class Utils {
                 //return base.utils.DBUtils.decodeArrayBuffer(l[1]);
             }
             else {
-                var canv: HTMLCanvas = new HTMLCanvas(true);
-                canv.lock = true;
-                canv.size(width, height);
-                var ctx2d = canv.getContext('2d');
-                //@ts-ignore
+                let source = Browser.createElement("canvas");
+                source.height = height;
+                source.width = width;
+                var ctx2d = source.getContext('2d')
                 var imgdata: ImageData = ctx2d.createImageData(width, height);
-                //@ts-ignore
                 imgdata.data.set(new Uint8ClampedArray(pixels));
-                //@ts-ignore
                 ctx2d.putImageData(imgdata, 0, 0);;
-                bs = canv.source.toDataURL();
-                canv.destroy();
+                bs = source.toDataURL();
+                source.remove();
             }
             return Promise.resolve(bs);
         });
