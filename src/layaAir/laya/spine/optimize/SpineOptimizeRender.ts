@@ -2,6 +2,7 @@ import { BaseRender2DType, BaseRenderNode2D } from "../../NodeRender2D/BaseRende
 import { IIndexBuffer } from "../../RenderDriver/DriverDesign/RenderDevice/IIndexBuffer";
 import { IRenderGeometryElement } from "../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
 import { IVertexBuffer } from "../../RenderDriver/DriverDesign/RenderDevice/IVertexBuffer";
+import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
 import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
 import { Color } from "../../maths/Color";
 import { Vector2 } from "../../maths/Vector2";
@@ -114,7 +115,7 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
 
     private _renderProxytype: ERenderProxyType;
 
-    dynamicInfo:SketonDynamicInfo;
+    _dynamicInfo:SketonDynamicInfo;
 
     /**
      * @en Create a new SpineOptimizeRender instance.
@@ -140,7 +141,7 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
             this.animatorMap.set(animator.name, new AnimationRenderProxy(animator));
         }
         this.currentRender = this.skinRenderArray[this._skinIndex];//default
-        this.dynamicInfo = spineOptimize.dynamicInfo;
+        this._dynamicInfo = spineOptimize._dynamicInfo;
     }
 
     /**
@@ -310,9 +311,7 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
         let id = vertexDeclaration.id;
         let mesh = this._dynamicMap.get(id);
         if (!mesh && create) {
-            mesh = SpineMeshUtils.createMeshDynamic(vertexDeclaration, 
-                this.dynamicInfo.maxVertexCount , this.dynamicInfo.maxIndexCount , 
-                this.dynamicInfo.indexFormat , this.dynamicInfo.indexByteCount );
+            mesh = SpineMeshUtils.createMeshDynamic(vertexDeclaration, this._dynamicInfo.maxVertexCount , this._dynamicInfo.maxIndexCount );
             this._dynamicMap.set(id , mesh);
         }
         return mesh;
@@ -824,7 +823,7 @@ class SkinRender implements IVBIBUpdate {
         let frameData = skindata.getFrameData(frame);
         let mulitRenderData = frameData.mulitRenderData
         let mats:Material[] = this.cacheMaterials[mulitRenderData.id];
-
+        
         let needUpdate = false;
         if (!mats) {
             mats = this.cacheMaterials[mulitRenderData.id] = [];
@@ -880,7 +879,7 @@ class SkinRender implements IVBIBUpdate {
             if (frameData.ib || frame < 0) {
                 this.uploadIndexBuffer( frameData.ib , mesh)
             }
-            needUpdate = SpineMeshUtils.updateSpineSubMesh(mesh , frameData.mulitRenderData , this.owner.dynamicInfo);
+            needUpdate = SpineMeshUtils._updateSpineSubMesh(mesh , frameData , this.owner._dynamicInfo);
             needUpdate = !renderNode._onMeshChange(mesh , needUpdate);
         }else{
             mesh = skindata.getMesh();
@@ -901,7 +900,6 @@ class SkinRender implements IVBIBUpdate {
      */
     uploadIndexBuffer( indexData:Uint16Array|Uint8Array|Uint32Array , mesh:Mesh2D){
         let indexbuffer = mesh._indexBuffer;
-        indexbuffer._setIndexDataLength(indexData.length);
         indexbuffer._setIndexData(indexData , 0);
     }
 
@@ -916,7 +914,6 @@ class SkinRender implements IVBIBUpdate {
     uploadVertexBuffer( vbCreator : VBCreator , mesh:Mesh2D){
         let vertexBuffer = mesh.vertexBuffers[0];
         let vblen = vbCreator.vbLength * 4;
-        vertexBuffer.setDataLength(vblen);
         vertexBuffer.setData(vbCreator.vb.buffer, 0, 0, vblen);
     }
 

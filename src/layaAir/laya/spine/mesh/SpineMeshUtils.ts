@@ -11,6 +11,7 @@ import { VertexElementFormat } from "../../renders/VertexElementFormat";
 import { Mesh2D } from "../../resource/Mesh2D";
 import { ESpineRenderType } from "../SpineSkeleton";
 import { SpineShaderInit } from "../material/SpineShaderInit";
+import { FrameRenderData } from "../optimize/AnimationRender";
 import { IBCreator } from "../optimize/IBCreator";
 import { MultiRenderData } from "../optimize/MultiRenderData";
 import { SketonDynamicInfo } from "../optimize/SketonOptimise";
@@ -86,9 +87,19 @@ export class SpineMeshUtils{
         return mesh;
     }
 
-    static createMeshDynamic( vertexDeclaration:VertexDeclaration , maxVertexCount:number , maxIndexCount:number , indexFormat:IndexFormat , indexSize:number):Mesh2D{
+    static createMeshDynamic( vertexDeclaration:VertexDeclaration , maxVertexCount:number , maxIndexCount:number):Mesh2D{
         let mesh = new Mesh2D;
         
+        let indexByteCount = 2;
+        let indexFormat = IndexFormat.UInt16;
+        if (maxVertexCount < 256) {
+            indexByteCount = 1;
+            indexFormat = IndexFormat.UInt8;
+        }else if (maxVertexCount > 65535) {
+            indexByteCount = 4;
+            indexFormat = IndexFormat.UInt32;
+        }
+
         let vertexBuffers:IVertexBuffer[] = [];
         
         let usage = BufferUsage.Dynamic;
@@ -105,7 +116,7 @@ export class SpineMeshUtils{
         mesh._vertexCount = vbByteLength / vertexStride;
         mesh._vertexBuffers = vertexBuffers;
 
-        let ibByteLength = maxIndexCount * indexSize;
+        let ibByteLength = maxIndexCount * indexByteCount;
         // let ibUploadLength = ibCreator.ibLength; 
         let indexbuffer = LayaGL.renderDeviceFactory.createIndexBuffer(usage);
         indexbuffer.indexType = indexFormat;
@@ -118,29 +129,6 @@ export class SpineMeshUtils{
         let state = mesh._bufferState;
         state.applyState(vertexBuffers, indexbuffer);
 
-        // //@ts-ignore
-        // mesh._customData = {
-        //     vb:vbCreator.vb.slice(0,vbCreator.vbLength),
-        //     ib:ibCreator.ib.slice(0,ibCreator.ibLength)
-        // }
-       
-        // let subMeshes:IRenderGeometryElement[] = [];
-
-        // let multi = ibCreator.outRenderData;
-        // for (let i = 0 , len = multi.renderData.length; i < len; i++) {
-        //     let data = multi.renderData[i];
-
-        //     let geometry = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
-        //     geometry.bufferState = state;
-
-        //     geometry.setDrawElemenParams(data.length , data.offset * ibCreator.size);
-
-        //     geometry.indexFormat = ibCreator.type;
-        //     subMeshes.push(geometry);
-        // }
-
-        // mesh._setSubMeshes(subMeshes);
-
 		var memorySize: number = vbByteLength + ibByteLength;
         mesh._setCPUMemory(memorySize);
         mesh._setGPUMemory(memorySize);
@@ -148,8 +136,9 @@ export class SpineMeshUtils{
         return mesh;
     }
 
-    static updateSpineSubMesh( mesh:Mesh2D , mulitRenderData:MultiRenderData , dynamicInfo : SketonDynamicInfo):boolean{
+    static _updateSpineSubMesh( mesh:Mesh2D , frameData:FrameRenderData , dynamicInfo : SketonDynamicInfo):boolean{
         let subMeshCount = mesh.subMeshCount;
+        let mulitRenderData = frameData.mulitRenderData;
         let renderdata = mulitRenderData.renderData;
         let rdLength = renderdata.length;
         let needUpdate = subMeshCount != rdLength;
@@ -166,12 +155,11 @@ export class SpineMeshUtils{
                     if (!submesh) {
                         submesh = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
                         submesh.bufferState = state;
-                        submesh.indexFormat = dynamicInfo.indexFormat;
                         subMeshes[i] = submesh;
                     }
-
+                    submesh.indexFormat = frameData.type;
                     submesh.clearRenderParams();
-                    submesh.setDrawElemenParams(data.length , data.offset * dynamicInfo.indexByteCount);
+                    submesh.setDrawElemenParams(data.length , data.offset * frameData.size);
                 }else{
                     submesh.destroy();
                 }
@@ -181,8 +169,9 @@ export class SpineMeshUtils{
             for (let i = 0; i < subMeshCount; i++) {
                 let submesh = subMeshes[i];
                 let data = renderdata[i];
+                submesh.indexFormat = frameData.type;
                 submesh.clearRenderParams();
-                submesh.setDrawElemenParams(data.length , data.offset * dynamicInfo.indexByteCount);
+                submesh.setDrawElemenParams(data.length , data.offset * frameData.size);
             }
         }
         return needUpdate;
@@ -252,5 +241,15 @@ export class SpineMeshUtils{
 		}
           
         return verDec;
+    }
+
+    static getIndexFormat(vertexCount:number){
+        let type = IndexFormat.UInt32;
+        if (vertexCount < 256) {
+            type = IndexFormat.UInt8;
+        }else if (vertexCount < 65536) {
+            type = IndexFormat.UInt16;
+        }
+        return type;
     }
 }

@@ -71,7 +71,7 @@ export class AnimationRenderProxy {
      */
     reset() {
         this.currentTime = -1;
-        this.currentFrameIndex = -2;
+        this.currentFrameIndex = -1;
     }
     /**
      * @en Renders the animation without matrix transformation.

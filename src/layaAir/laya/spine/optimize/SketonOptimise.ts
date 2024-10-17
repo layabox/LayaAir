@@ -2,11 +2,12 @@ import { IRenderElement2D } from "../../RenderDriver/DriverDesign/2DRenderPass/I
 import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
 import { TextureFormat } from "../../RenderEngine/RenderEnum/TextureFormat";
 import { Graphics } from "../../display/Graphics";
+import { Mesh2D } from "../../resource/Mesh2D";
 import { Texture2D } from "../../resource/Texture2D";
 import { Spine2DRenderNode } from "../Spine2DRenderNode";
 import { ESpineRenderType } from "../SpineSkeleton";
 import { SpineTemplet } from "../SpineTemplet";
-import { AnimationRender } from "./AnimationRender";
+import { AnimationRender, FrameRenderData } from "./AnimationRender";
 import { AttachmentParse } from "./AttachmentParse";
 import { IBCreator } from "./IBCreator";
 import { MultiRenderData } from "./MultiRenderData";
@@ -27,8 +28,10 @@ export class SketonOptimise implements IPreRender {
      * @zh 普通渲染模式的开关。
      */
     static normalRenderSwitch: boolean = false;
-     /** optimise render的最大骨骼数 */
-     static MAX_BONES = 100;
+
+    /** optimise render的最大骨骼数 */
+    static MAX_BONES = 100;
+
     /**
      * @en Switch for caching mode.
      * @zh 缓存模式的开关。
@@ -44,6 +47,7 @@ export class SketonOptimise implements IPreRender {
      * @zh spine骨骼对象。
      */
     sketon: spine.Skeleton;
+
     _stateData: spine.AnimationStateData;
     _state: spine.AnimationState;
 
@@ -71,6 +75,8 @@ export class SketonOptimise implements IPreRender {
      */
     defaultSkinAttach: SkinAttach;
 
+    private _tempIbCreate:IBCreator;
+
     /**
      * @en Maximum number of bones.
      * @zh 最大骨骼数量。
@@ -83,8 +89,7 @@ export class SketonOptimise implements IPreRender {
      */
     bakeData: TSpineBakeData;
 
-    /** */
-    dynamicInfo:SketonDynamicInfo;
+    _dynamicInfo:SketonDynamicInfo;
 
     /** @ignore */
     constructor() {
@@ -93,6 +98,7 @@ export class SketonOptimise implements IPreRender {
         this.animators = [];
         this.canCache = SketonOptimise.cacheSwitch;
     }
+
     /** @internal */
     _initSpineRender(skeleton: spine.Skeleton, templet: SpineTemplet, renderNode: Spine2DRenderNode, state: spine.AnimationState): ISpineOptimizeRender {
         let sp: ISpineOptimizeRender;
@@ -146,19 +152,6 @@ export class SketonOptimise implements IPreRender {
         this._state = new window.spine.AnimationState(this._stateData);
         this.attachMentParse(skeletonData);
         this.initAnimation(skeletonData.animations);
-        // this.type = type;
-        // this.attachMentParse();
-        // switch (this.type) {
-        //     case ERenderType.normal:
-        //         return;
-        //     case ERenderType.boneGPU:
-        //         this.mainVB = new VBBoneCreator();
-        //         break;
-        //     case ERenderType.rigidBody:
-        //         this.mainVB = new VBRigBodyCreator();
-        //         break;
-        // }
-        //this.mainVB = new VBCreator();
     }
 
     /**
@@ -171,14 +164,14 @@ export class SketonOptimise implements IPreRender {
         let skins = skeletonData.skins;
         let slots = skeletonData.slots;
         let defaultSkinAttach;
-        //不同skin vbib长度可能不一致
-        let maxVertexCount = -Number.MAX_VALUE;
-        let maxIndexCount = -Number.MAX_VALUE;
+
+        this._tempIbCreate = new IBCreator();
 
         for (let i = 0, n = skins.length; i < n; i++) {
             let skin = skins[i];
             let skinAttach = new SkinAttach();
             skinAttach.name = skin.name;
+            skinAttach._tempIbCreate = this._tempIbCreate;
             if (i != 0) {
                 skinAttach.copyFrom(defaultSkinAttach);
             }
@@ -188,28 +181,10 @@ export class SketonOptimise implements IPreRender {
             //     defaultSkinAttach.mainVB._cloneBones(skinAttach.mainVB)
             // }
             skinAttach.init(slots);
-            maxVertexCount = Math.max(skinAttach.maxVertexCount);
-            maxIndexCount = Math.max(skinAttach.maxIndexCount);
+            
             if (i == 0) {
                 defaultSkinAttach = skinAttach;
             }
-        }
-
-        let indexByteCount = 2;
-        let indexFormat = IndexFormat.UInt16;
-        if (maxVertexCount < 256) {
-            indexByteCount = 1;
-            indexFormat = IndexFormat.UInt8;
-        }else if (maxVertexCount > 65535) {
-            indexByteCount = 4;
-            indexFormat = IndexFormat.UInt32;
-        }
-
-        this.dynamicInfo = {
-            maxIndexCount,
-            maxVertexCount,
-            indexFormat,
-            indexByteCount
         }
     }
 
@@ -221,6 +196,10 @@ export class SketonOptimise implements IPreRender {
      */
     initAnimation(animations: spine.Animation[]) {
         let maxBoneNumber = 0;
+        //不同skin vbib长度可能不一致
+        let maxVertexCount = -Number.MAX_VALUE;
+        let maxIndexCount = -Number.MAX_VALUE;
+
         for (let i = 0, n = animations.length; i < n; i++) {
             let animation = animations[i];
             let animator = new AnimationRender();
@@ -236,9 +215,17 @@ export class SketonOptimise implements IPreRender {
                         maxBoneNumber = boneNumber;
                     }
                 }
+                maxVertexCount = Math.max(skinData.maxVertexCount, maxVertexCount) 
+                maxIndexCount = Math.max(skinData.maxIndexCount , maxIndexCount) 
             });
         }
+        
         this.maxBoneNumber = maxBoneNumber;
+
+        this._dynamicInfo = {
+            maxIndexCount,
+            maxVertexCount,
+        }
     }
 
     /**
@@ -339,8 +326,7 @@ export class SkinAttach {
      * @en Used for constructing temp Mesh2D
      * @zh 用于构建临时Mesh2D
      */
-    tempIbCreate:IBCreator;
-
+    _tempIbCreate:IBCreator;
     /**
      * @en Indicates if there's any normal rendering.
      * @zh 表示是否存在任何普通渲染。
@@ -351,10 +337,6 @@ export class SkinAttach {
      * @zh spine渲染的类型。
      */
     type: ESpineRenderType;
-    /** 当前皮肤的最大顶点数 */
-    maxVertexCount = 0;
-    /** 当前皮肤的最大索引数 */
-    maxIndexCount = 0;
 
     /** @ignore */
     constructor() {
@@ -393,6 +375,8 @@ export class SkinAttach {
             let slot = slots[i];
             let boneIndex = slot.boneData.index;
             let map = this.slotAttachMap.get(i);
+            let slotAttachName = slot.attachmentName;
+
             if (!map) {
                 map = new Map();
                 this.slotAttachMap.set(i, map);
@@ -414,6 +398,12 @@ export class SkinAttach {
                     vertexCount += parse.vertexCount;
                     map.set(key, parse);
                 }
+            }else if (slotAttachName) {
+                let parse = map.get(slotAttachName);
+                if (parse) {
+                    indexCount += parse.indexCount;
+                    vertexCount += parse.vertexCount;
+                }
             }
 
             if (!map.get(null)) {
@@ -428,31 +418,22 @@ export class SkinAttach {
 
         this.type = type;
 
-        this.maxVertexCount = vertexCount;
-        this.maxIndexCount = indexCount;
-
         switch (this.type) {
             case ESpineRenderType.normal:
-                this.mainVB = new VBBoneCreator(vertexCount , "UV,COLOR,POSITION,BONE");
+                this.mainVB = new VBBoneCreator( "UV,COLOR,POSITION,BONE" , vertexCount);
                 break;
             case ESpineRenderType.boneGPU:
-                this.mainVB = new VBBoneCreator(vertexCount , "UV,COLOR,POSITION,BONE");
+                this.mainVB = new VBBoneCreator( "UV,COLOR,POSITION,BONE" , vertexCount);
                 break;
             case ESpineRenderType.rigidBody:
-                this.mainVB = new VBRigBodyCreator(vertexCount , "UV,COLOR,POSITION,RIGIDBODY");
+                this.mainVB = new VBRigBodyCreator( "UV,COLOR,POSITION,RIGIDBODY" , vertexCount);
                 break;
         }
-
         
-        let ntype:IndexFormat = IndexFormat.UInt32;
-        if (vertexCount < 256) {
-            ntype = IndexFormat.UInt8;
-        }else if (vertexCount < 65536) {
-            ntype = IndexFormat.UInt16;
-        }
-
-        this.mainIB = new IBCreator(ntype , indexCount);
-        this.tempIbCreate = new IBCreator( this.mainIB.type , this.mainIB.maxIndexCount);
+        //皮肤的基础长度
+        this.mainIB = new IBCreator();
+        this.mainIB.updateFormat(vertexCount);
+        this.mainIB.setBufferLength(indexCount);
     }
 
     /**
@@ -482,7 +463,7 @@ export class SkinAttach {
             }
         });
         this.mainVB.initBoneMat();
-        this.mainVB.createIB(mainAttachMentOrder, this.mainIB);
+        this.mainIB.createIB(mainAttachMentOrder, this.mainVB);
     }
 
     /**
@@ -493,7 +474,7 @@ export class SkinAttach {
      */
     initAnimator(animator: AnimationRender) {
         let skinData = animator.createSkinData(
-            this.mainVB, this.mainIB , this.tempIbCreate , this.slotAttachMap, this.mainAttachMentOrder , this.type
+            this.mainVB, this.mainIB , this._tempIbCreate , this.slotAttachMap, this.mainAttachMentOrder , this.type
         );
 
         skinData.name = this.name;
@@ -516,10 +497,8 @@ export type TSpineBakeData = {
 }
 
 export type SketonDynamicInfo = {
-    /** 所有皮肤的最大顶点数 */
+    /** 所有皮肤动画的最大顶点数 */
     maxVertexCount:number;
-    /** 所有皮肤的最大索引数 */
+    /** 所有皮肤动画的最大索引数 */
     maxIndexCount:number;
-    indexFormat :IndexFormat;
-    indexByteCount:number;
 }

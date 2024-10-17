@@ -71,32 +71,34 @@ export class ChangeRGBA implements IVBChange {
         let color = slot.color;
         if (slot.attachment) {
             let vertexSize = vb.vertexSize;
-            let attachmentPos = this.sizeMap.get(slot.attachment.name);
-            let offset = attachmentPos.offset * vertexSize;
+            // let attachmentPos = this.sizeMap.get(slot.attachment.name);
             let vbData = vb.vb;
-            let attachment = attachmentPos.attachment;
-            let r, g, b, a;
-            let attachmentColor = attachment.lightColor;
-            if (!attachmentColor) {
-                r = color.r * color.a;
-                g = color.g * color.a;
-                b = color.b * color.a;
-                a = color.a;
-            }
-            else {
-                r = color.r * color.a * attachmentColor.r;
-                g = color.g * color.a * attachmentColor.g;
-                b = color.b * color.a * attachmentColor.b;
-                a = color.a * attachmentColor.a;
-            }
-            
-            let n = attachment.vertexCount;
-            for (let i = 0; i < n; i++) {
-                vbData[offset + i * vertexSize + 2] = r;
-                vbData[offset + i * vertexSize + 3] = g;
-                vbData[offset + i * vertexSize + 4] = b;
-                vbData[offset + i * vertexSize + 5] = a;
-            }
+            this.sizeMap.forEach(attachmentPos=>{
+                let offset = attachmentPos.offset * vertexSize;
+                let attachment = attachmentPos.attachment;
+                let r, g, b, a;
+                let attachmentColor = attachment.lightColor;
+                if (!attachmentColor) {
+                    r = color.r * color.a;
+                    g = color.g * color.a;
+                    b = color.b * color.a;
+                    a = color.a;
+                }
+                else {
+                    r = color.r * color.a * attachmentColor.r;
+                    g = color.g * color.a * attachmentColor.g;
+                    b = color.b * color.a * attachmentColor.b;
+                    a = color.a * attachmentColor.a;
+                }
+                
+                let n = attachment.vertexCount;
+                for (let i = 0; i < n; i++) {
+                    vbData[offset + i * vertexSize + 2] = r;
+                    vbData[offset + i * vertexSize + 3] = g;
+                    vbData[offset + i * vertexSize + 4] = b;
+                    vbData[offset + i * vertexSize + 5] = a;
+                }
+            })
         }
         return true;
     }

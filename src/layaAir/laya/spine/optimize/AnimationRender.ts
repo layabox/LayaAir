@@ -16,12 +16,16 @@ import { ChangeRGBA } from "./change/ChangeRGBA";
 import { ChangeSlot } from "./change/ChangeSlot";
 import { IChange } from "./interface/IChange";
 import { IPreRender } from "./interface/IPreRender";
+import { ITimeline } from "./interface/ITimeLine";
 import { IVBChange } from "./interface/IVBChange";
+import { AttachmentTimeline } from "./timelines/AttachmentTimeline";
 
 export type FrameRenderData = {
     ib?: Uint16Array|Uint32Array|Uint8Array;
     vChanges?: IVBChange[];
     mulitRenderData: MultiRenderData;
+    type?:IndexFormat,
+    size?:number;
 }
 
 export type FrameChanges = {
@@ -80,6 +84,8 @@ export class AnimationRender {
      */
     isCache: boolean;
 
+    timelines:ITimeline[] = [];
+
     /**
      * @en Creates a Float32Array representing a bone's transform.
      * @param bone The spine bone to get the transform from.
@@ -118,22 +124,27 @@ export class AnimationRender {
      */
     getFrameIndex(time: number, frameIndex: number) {
         let frames = this.frames;
-        let lastFrame = this.frameNumber - 1;
-        if (frameIndex < -1) {
-            frameIndex = -1;
-        }
-        else if (frameIndex == lastFrame) {
-            if (time < frames[lastFrame]) {
-                frameIndex = -1;
-            }
-        }
-        else if (time >= frames[frameIndex + 1]) {
-            frameIndex++;
-        }
-        else if (time < frames[frameIndex]) {
-            frameIndex = 0;
-        }
-        return frameIndex;
+        let n = frames.length;
+        for (let i = 1; i < n; i++)
+            if (frames[i] > time)
+                return i - 1;
+        return n - 1;
+        // let lastFrame = this.frameNumber - 1;
+        // if (frameIndex < -1) {
+        //     frameIndex = 0;
+        // }
+        // else if (frameIndex == lastFrame) {
+        //     if (time < frames[lastFrame]) {
+        //         frameIndex = 0;
+        //     }
+        // }
+        // else if (time >= frames[frameIndex + 1]) {
+        //     frameIndex++;
+        // }
+        // else if (time < frames[frameIndex]) {
+        //     frameIndex = 0;
+        // }
+        // return frameIndex;
     }
 
     /**
@@ -175,12 +186,17 @@ export class AnimationRender {
         changeMap.clear();
         renderFrames.length = 0;
         let hasClip: boolean;
+
+        let lTimelines = this.timelines;
+
         for (let i = 0, n = timeline.length; i < n; i++) {
             let time = timeline[i];
             let frames = time.frames;
             if (time instanceof spine.AttachmentTimeline) {
                 let attachmentNames = time.attachmentNames;
                 let slotIndex = time.slotIndex;
+                // let ntl = new AttachmentTimeline();
+
                 for (let j = 0, m = frames.length; j < m; j++) {
                     let frame = frames[j];
                     let change = new ChangeSlot();
@@ -377,6 +393,12 @@ export class AnimationRender {
  * @zh 表示骨骼动画的皮肤动画渲染数据。
  */
 export class SkinAniRenderData {
+
+    /** 当前皮肤动画的最大顶点数 */
+    maxVertexCount = 0;
+    /** 当前皮肤动画的最大索引数 */
+    maxIndexCount = 0;
+
  	isDynamic:boolean = false;
   	/**
      * @en Name of the skin animation.
@@ -541,7 +563,7 @@ export class SkinAniRenderData {
         this.vb.updateBone(bones, boneMat);
     }
 
-  /**
+    /**
      * @en Initializes the skin animation render data.
      * @param changeMap Map of frame changes.
      * @param mainVB Main vertex buffer creator.
@@ -573,11 +595,6 @@ export class SkinAniRenderData {
         this.isDynamic = isDynamic;
         this.canInstance = !this.isDynamic;
 
-        this._defaultFrameData = {
-            mulitRenderData : ibCreator.outRenderData,
-            ib:ibCreator.ib.slice(0,this.mainIB.ibLength)
-        }
-
         if (isDynamic) {
             this.vb = mainVB.clone();
             this.vb.initBoneMat();
@@ -607,12 +624,15 @@ export class SkinAniRenderData {
                         }
                     }
                 }
+                //动画部分
+                creator.createIB(tAttachMap, this.vb, order);
 
-                this.vb.createIB(tAttachMap, creator, order);
                 let outRenderData = creator.outRenderData;
                 let data:FrameRenderData = {
                     ib : creator.ib.slice(0,creator.ibLength),
                     mulitRenderData : outRenderData,
+                    type:creator.type,
+                    size:creator.size,
                 }
                 let vChanges = fcs.vChanges;
                 if (vChanges) {
@@ -631,13 +651,30 @@ export class SkinAniRenderData {
                 }
 
                 this.renderDatas.push(data);
+
+                if (!frame) {
+                    this._defaultFrameData = data;
+                }
             }
-          
+
+            this.maxIndexCount = creator.maxIndexCount;
+            
         }else{
             this.vb = mainVB;
             this._defaultMesh = SpineMeshUtils.createMesh(this.type, this.vb , ibCreator , this.isDynamic);;
+            this.maxIndexCount = ibCreator.maxIndexCount;
         }
 
+        this.maxVertexCount = this.vb.maxVertexCount;
+
+        if (!this._defaultFrameData) {
+            this._defaultFrameData = {
+                mulitRenderData : ibCreator.outRenderData,
+                ib:ibCreator.ib.slice(0,this.mainIB.ibLength),
+                type:ibCreator.type,
+                size:ibCreator.size
+            }
+        }
     }
 
     /**
