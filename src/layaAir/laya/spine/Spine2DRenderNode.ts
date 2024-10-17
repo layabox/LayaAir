@@ -350,6 +350,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
         if (!this._templet)
             return;
         if (value) {
+          
             if ((this.spineItem instanceof SpineNormalRender)) {
                 this.spineItem.destroy();
                 let before = SketonOptimise.normalRenderSwitch;

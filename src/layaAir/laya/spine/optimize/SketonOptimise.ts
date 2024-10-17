@@ -384,7 +384,7 @@ export class SkinAttach {
                     let deform = null;//slot.deform; TODO
                     let parse = new AttachmentParse();
                     parse.init(attach, boneIndex, i, deform, slot);
-                    if (parse.isNormalRender) this.isNormalRender = true;
+                    // if (parse.isNormalRender) this.isNormalRender = true;
                     vertexBones = Math.max(vertexBones , parse.vertexBones);
                     let tempType = SlotUtils.checkAttachment(parse ? parse.sourceData : null);
                     if (tempType < type) {
@@ -405,10 +405,6 @@ export class SkinAttach {
 
         this.type = type;
         this.vertexBones = vertexBones;
-
-        if (vertexBones > 4) {
-            console.warn(`The max number of bones (${vertexBones}) that affect a vertex.`);
-        }
 
         switch (this.type) {
             case ESpineRenderType.normal:
