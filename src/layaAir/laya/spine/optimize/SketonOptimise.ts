@@ -407,7 +407,7 @@ export class SkinAttach {
         this.vertexBones = vertexBones;
 
         if (vertexBones > 4) {
-            console.warn(`The max number of bones (${vertexBones}) that affect a vertex.`);
+            console.warn(`Current skin: ${this.name}, Max number of bones influencing a vertex: ${vertexBones}.`);
         }
 
         switch (this.type) {
