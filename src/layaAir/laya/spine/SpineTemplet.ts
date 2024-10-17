@@ -31,11 +31,26 @@ export class SpineTemplet extends Resource {
 
     private _textures: Record<string, Texture2D>;
     private _basePath: string;
-
+    /**
+     * @en Base width of spine animation
+     * @zh spine 动画基础宽度
+     */
     width:number;
-
+    /**
+     * @en Base height of spine animation
+     * @zh spine 动画基础高度
+     */
     height:number;
-
+    /**
+     * @en X-axis offset of spine animation
+     * @zh spine 动画X轴偏移
+     */
+    offsetX:number;
+    /**
+     * @en Y-axis offset of spine animation
+     * @zh spine 动画Y轴偏移
+     */
+    offsetY:number;
     /**
      * @en Indicates if slot is needed
      * @zh 是否需要插槽
@@ -154,6 +169,8 @@ export class SpineTemplet extends Resource {
         this.mainTexture = this._mainTexture;
         this.width = this.skeletonData.width;
         this.height = this.skeletonData.height;
+        this.offsetX = this.skeletonData.x;
+        this.offsetY = this.skeletonData.y;
         this.sketonOptimise.checkMainAttach(this.skeletonData);
     }
 

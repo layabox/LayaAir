@@ -347,7 +347,7 @@ export class SpineSkeletonRenderer extends SpineNormalRenderBase implements ISpi
         let drawOrder = skeleton.drawOrder;
         let attachmentColor: spine.Color;
         let skeletonColor = skeleton.color;
-        let vertexSize = twoColorTint ? 12 : 8;
+        let vertexSize = twoColorTint ? SpineVirtualMesh.vertexSize_TwoColor : SpineVirtualMesh.vertexSize;
         let inRange = false;
         if (slotRangeStart == -1) inRange = true;
         let mesh: SpineVirtualMesh;
@@ -482,6 +482,7 @@ export class SpineSkeletonRenderer extends SpineNormalRenderBase implements ISpi
             clipper.clipEndWithSlot(slot);
         }
         clipper.clipEnd();
+        
         mesh && mesh.draw();
     }
 }

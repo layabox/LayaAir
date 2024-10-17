@@ -4,6 +4,7 @@ import { IBCreator } from "./IBCreator";
 import { MultiRenderData } from "./MultiRenderData";
 import { SlotUtils } from "./SlotUtils";
 import { IGetBone } from "./interface/IGetBone";
+import { SpineOptimizeConst } from "./SpineOptimizeConst";
 
 /**
  * @en Abstract class for creating vertex buffers in a spine skeleton animation system.
@@ -338,7 +339,7 @@ export class VBBoneCreator extends VBCreator {
      * @zh 顶点缓冲区中每个顶点的大小。
      */
     get vertexSize(): number {
-        return 22;
+        return SpineOptimizeConst.BONEVERTEX;
     }
 
     /**
@@ -441,20 +442,29 @@ export class VBBoneCreator extends VBCreator {
             }
         }
         else {
-            let f = 0;
-            for (let j = 0, n = slotVertex.length; j < n; j += attachmentParse.stride) {
-                let leftsize = vside - 6;
-                let ox = offset + 6;
-                for (let z = 0; z < leftsize / 4; z++) {
-                    let slotOffset = j + z * 4;
-                    if (slotVertex[slotOffset + 2]) {
-                        let offset = ox + z * 4;
-                        out[offset] = slotVertex[slotOffset] + deform[f];
-                        out[offset + 1] = slotVertex[slotOffset + 1] + deform[f + 1];
-                        f += 2;
-                    }
+            let attchment = attachmentParse.sourceData as spine.MeshAttachment;
+            let bones = attchment.bones;
+            let vertexCount = attachmentParse.vertexCount;
+            let maxbones = (vside - 6) / 4;
+            
+            let f = 0,v = 0;
+            for (let w = 0 ; w < vertexCount; w++) {
+                let len = bones[v++];
+                let slotOffset = w * (vside - 6);
+                let vertexOffset = offset + w * vside + 6;
+
+                for (let i = 0; i < len; i++) {
+                    if (i >= maxbones) break;
+
+                    let deformOffset = f + i * 2;
+                    let slotIndex = slotOffset + i * 4;
+                    let boneOffset = vertexOffset + i * 4;
+                    out[boneOffset] = slotVertex[slotIndex] + deform[deformOffset];
+                    out[boneOffset + 1] = slotVertex[slotIndex + 1] + deform[deformOffset + 1];
                 }
-                offset += vside;
+
+                v += len;
+                f += 2 * len;
             }
             // console.log(f , deform.length);
         }
