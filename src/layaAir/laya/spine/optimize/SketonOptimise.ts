@@ -406,10 +406,6 @@ export class SkinAttach {
         this.type = type;
         this.vertexBones = vertexBones;
 
-        if (vertexBones > 4) {
-            console.warn(`Current skin: ${this.name}, Max number of bones influencing a vertex: ${vertexBones}.`);
-        }
-
         switch (this.type) {
             case ESpineRenderType.normal:
                 this.mainVB = new VBBoneCreator();
