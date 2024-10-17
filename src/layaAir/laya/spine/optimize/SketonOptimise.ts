@@ -384,7 +384,7 @@ export class SkinAttach {
                     let deform = null;//slot.deform; TODO
                     let parse = new AttachmentParse();
                     parse.init(attach, boneIndex, i, deform, slot);
-                    if (parse.isNormalRender) this.isNormalRender = true;
+                    // if (parse.isNormalRender) this.isNormalRender = true;
                     vertexBones = Math.max(vertexBones , parse.vertexBones);
                     let tempType = SlotUtils.checkAttachment(parse ? parse.sourceData : null);
                     if (tempType < type) {
