@@ -307,6 +307,11 @@ export class SkinAttach {
      * @zh spine渲染的类型。
      */
     type: ESpineRenderType;
+    /**
+     * @en The number of bones that affect a vertex.
+     * @zh 影响一个顶点的最大骨骼数。
+     */
+    vertexBones:number = 0;
 
     /** @ignore */
     constructor() {
@@ -362,7 +367,7 @@ export class SkinAttach {
     attachMentParse(skinData: spine.Skin, slots: spine.SlotData[]) {
 
         let type: ESpineRenderType = ESpineRenderType.rigidBody;
-
+        let vertexBones = 0;
         let attachments = skinData.attachments;
         for (let i = 0, n = slots.length; i < n; i++) {
             let attachment = attachments[i];
@@ -380,6 +385,7 @@ export class SkinAttach {
                     let parse = new AttachmentParse();
                     parse.init(attach, boneIndex, i, deform, slot);
                     if (parse.isNormalRender) this.isNormalRender = true;
+                    vertexBones = Math.max(vertexBones , parse.vertexBones);
                     let tempType = SlotUtils.checkAttachment(parse ? parse.sourceData : null);
                     if (tempType < type) {
                         type = tempType;
@@ -398,6 +404,11 @@ export class SkinAttach {
         }
 
         this.type = type;
+        this.vertexBones = vertexBones;
+
+        if (vertexBones > 4) {
+            console.warn(`The max number of bones (${vertexBones}) that affect a vertex.`);
+        }
 
         switch (this.type) {
             case ESpineRenderType.normal:
