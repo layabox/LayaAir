@@ -1,4 +1,5 @@
 import { LayaEnv } from "../../LayaEnv";
+import { LayaGL } from "../layagl/LayaGL";
 import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
 import { RenderTexture } from "../resource/RenderTexture";
 import { RenderTexture2D } from "../resource/RenderTexture2D";
@@ -243,65 +244,53 @@ export class Utils {
 
     /**
      * @deprecated 请使用uint8ArrayToArrayBufferAsync函数代替
-     * 将RenderTexture转换为Base64
-     * @param rendertexture 渲染Buffer
-     * @returns 
+     * @en Converts a RenderTexture to a Base64 encoded string.
+     * @param rendertexture The RenderTexture to convert.
+     * @returns The converted Base64 string
+     * @zh 将RenderTexture转换为Base64
+     * @param rendertexture 要转换的RenderTexture
+     * @returns 转换后的Base64字符串
      */
-    static uint8ArrayToArrayBuffer(rendertexture: RenderTexture | RenderTexture2D) {
+    static uint8ArrayToArrayBuffer(rendertexture: RenderTexture | RenderTexture2D): string {
         let pixelArray: Uint8Array | Float32Array;
-        let width = rendertexture.width;
-        let height = rendertexture.height;
-        let colorformat = (rendertexture instanceof RenderTexture) ? rendertexture.colorFormat : rendertexture.getColorFormat();
-        switch (colorformat) {
+        const width = rendertexture.width;
+        const height = rendertexture.height;
+        const pixelCount = width * height * 4;
+        const colorFormat = (rendertexture instanceof RenderTexture) ? rendertexture.colorFormat : rendertexture.getColorFormat();
+        switch (colorFormat) {
             case RenderTargetFormat.R8G8B8:
-                pixelArray = new Uint8Array(width * height * 4);
-                break;
             case RenderTargetFormat.R8G8B8A8:
-                pixelArray = new Uint8Array(width * height * 4);
+                pixelArray = new Uint8Array(pixelCount);
                 break;
             case RenderTargetFormat.R16G16B16A16:
-                pixelArray = new Float32Array(width * height * 4);
+                pixelArray = new Float32Array(pixelCount);
                 break;
             default:
                 throw "this function is not surpprt " + rendertexture.format.toString() + "format Material";
         }
-        rendertexture.getData(0, 0, rendertexture.width, rendertexture.height, pixelArray);
+        LayaGL.textureContext.readRenderTargetPixelData(rendertexture._renderTarget, 0, 0, rendertexture.width, rendertexture.height, pixelArray);
         //tranceTo
         //throw " rt get Data";
-        switch (colorformat) {
-            case RenderTargetFormat.R16G16B16A16:
-                let ori = pixelArray;
-                let trans = new Uint8Array(width * height * 4);
-                for (let i = 0, n = ori.length; i < n; i++) {
-                    trans[i] = Math.min(Math.floor(ori[i] * 255), 255);
-                }
-                pixelArray = trans;
-                break;
+        if (colorFormat === RenderTargetFormat.R16G16B16A16) {
+            const ori = pixelArray;
+            const trans = new Uint8Array(pixelCount);
+            for (let i = 0, n = ori.length; i < n; i++) {
+                trans[i] = Math.min(Math.floor(ori[i] * 255), 255);
+            }
+            pixelArray = trans;
         }
 
-        let pixels = pixelArray;
-        var bs: String;
-        if (LayaEnv.isConch) {
-            //TODO:
-            // var base64img=__JS__("conchToBase64('image/png',1,pixels,canvasWidth,canvasHeight)");
-            // var l = base64img.split(",");
-            // if (isBase64)
-            // 	return base64img;
-            // return base.utils.DBUtils.decodeArrayBuffer(l[1]);
-        }
-        else {
-            let source = Browser.createElement("canvas");
-            source.height = height;
-            source.width = width;
-            var ctx2d = source.getContext('2d')
-            var imgdata: ImageData = ctx2d.createImageData(width, height);
-            imgdata.data.set(new Uint8ClampedArray(pixels));
-            ctx2d.putImageData(imgdata, 0, 0);;
-            bs = source.toDataURL();
-            source.remove();
-
-        }
-        return bs;
+        const pixels = pixelArray;
+        const canvas = Browser.createElement("canvas");
+        canvas.height = height;
+        canvas.width = width;
+        const ctx2d = canvas.getContext('2d')
+        const imgdata: ImageData = ctx2d.createImageData(width, height);
+        imgdata.data.set(new Uint8ClampedArray(pixels));
+        ctx2d.putImageData(imgdata, 0, 0);
+        const base64String = canvas.toDataURL();
+        canvas.remove();
+        return base64String;
     }
 
 
@@ -313,61 +302,56 @@ export class Utils {
     * @param rendertexture 要转换的 RenderTexture。
     * @returns 一个 Promise，该 Promise 将解析为表示 RenderTexture 的 Base64 字符串。
     */
-    static uint8ArrayToArrayBufferAsync(rendertexture: RenderTexture | RenderTexture2D): Promise<String> {
+    static uint8ArrayToArrayBufferAsync(rendertexture: RenderTexture | RenderTexture2D): Promise<string> {
         let pixelArray: Uint8Array | Float32Array;
-        let width = rendertexture.width;
-        let height = rendertexture.height;
-        let colorformat = (rendertexture instanceof RenderTexture) ? rendertexture.colorFormat : rendertexture.getColorFormat();
-        switch (colorformat) {
+        const width = rendertexture.width;
+        const height = rendertexture.height;
+        const pixelCount = width * height * 4;
+        const colorFormat = (rendertexture instanceof RenderTexture) ? rendertexture.colorFormat : rendertexture.getColorFormat();
+        switch (colorFormat) {
             case RenderTargetFormat.R8G8B8:
-                pixelArray = new Uint8Array(width * height * 4);
-                break;
             case RenderTargetFormat.R8G8B8A8:
-                pixelArray = new Uint8Array(width * height * 4);
+                pixelArray = new Uint8Array(pixelCount);
                 break;
             case RenderTargetFormat.R16G16B16A16:
-                pixelArray = new Float32Array(width * height * 4);
+                pixelArray = new Float32Array(pixelCount);
                 break;
             default:
                 throw "this function is not surpprt " + rendertexture.format.toString() + "format Material";
         }
-        return rendertexture.getDataAsync(0, 0, rendertexture.width, rendertexture.height, pixelArray).then(() => {
-
+        return rendertexture.getDataAsync(0, 0, width, height, pixelArray).then(() => {
             //tranceTo
             //throw " rt get Data";
-            switch (colorformat) {
-                case RenderTargetFormat.R16G16B16A16:
-                    let ori = pixelArray;
-                    let trans = new Uint8Array(width * height * 4);
-                    for (let i = 0, n = ori.length; i < n; i++) {
-                        trans[i] = Math.min(Math.floor(ori[i] * 255), 255);
-                    }
-                    pixelArray = trans;
-                    break;
+            if (colorFormat === RenderTargetFormat.R16G16B16A16) {
+                const ori = pixelArray;
+                const trans = new Uint8Array(pixelCount);
+                for (let i = 0, n = ori.length; i < n; i++) {
+                    trans[i] = Math.min(Math.floor(ori[i] * 255), 255);
+                }
+                pixelArray = trans;
             }
 
-            let pixels = pixelArray;
-            var bs: String;
-            if (LayaEnv.isConch) {
-                //TODO:
-                //var base64img=__JS__("conchToBase64('image/png',1,pixels,canvasWidth,canvasHeight)");
-                //var l = base64img.split(",");
-                //if (isBase64)
-                //	return base64img;
-                //return base.utils.DBUtils.decodeArrayBuffer(l[1]);
-            }
-            else {
-                let source = Browser.createElement("canvas");
-                source.height = height;
-                source.width = width;
-                var ctx2d = source.getContext('2d')
-                var imgdata: ImageData = ctx2d.createImageData(width, height);
-                imgdata.data.set(new Uint8ClampedArray(pixels));
-                ctx2d.putImageData(imgdata, 0, 0);;
-                bs = source.toDataURL();
-                source.remove();
-            }
-            return Promise.resolve(bs);
+            const pixels = pixelArray;
+            // if (LayaEnv.isConch) {
+            //TODO:
+            //var base64img=__JS__("conchToBase64('image/png',1,pixels,canvasWidth,canvasHeight)");
+            //var l = base64img.split(",");
+            //if (isBase64)
+            //	return base64img;
+            //return base.utils.DBUtils.decodeArrayBuffer(l[1]);
+            // }
+            // else {
+            const canvas = Browser.createElement("canvas");
+            canvas.height = height;
+            canvas.width = width;
+            const ctx2d = canvas.getContext('2d')
+            const imgdata: ImageData = ctx2d.createImageData(width, height);
+            imgdata.data.set(new Uint8ClampedArray(pixels));
+            ctx2d.putImageData(imgdata, 0, 0);
+            const base64String = canvas.toDataURL();
+            canvas.remove();
+            // }
+            return Promise.resolve(base64String);
         });
     }
 
