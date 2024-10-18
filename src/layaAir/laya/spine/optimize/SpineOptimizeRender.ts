@@ -362,10 +362,13 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
         }
 
         if (currentSKin.isNormalRender) {
-
             this.renderProxytype = ERenderProxyType.RenderNormal;
         }
         else {
+            if (currentRender.vertexBones > 4) {
+                console.warn(`Current skin: ${currentRender.name}, Max number of bones influencing a vertex: ${currentRender.vertexBones}.`);
+            }
+            
             switch (this.currentRender.skinAttachType) {
                 case ESpineRenderType.boneGPU:
                     this._nodeOwner._spriteShaderData.addDefine(SpineShaderInit.SPINE_FAST);
@@ -803,6 +806,13 @@ class SkinRender implements IVBIBUpdate {
      * @zh 当前材质数组。
      */
     currentMaterials: Material[] = [];
+
+    /**
+     * @en The number of bones that affect a vertex.
+     * @zh 影响一个顶点的最大骨骼数。
+     */
+    vertexBones:number = 0;
+
     /**
      * @en Create a new instance of SkinRender.
      * @param owner The SpineOptimizeRender that owns this SkinRender.
@@ -815,6 +825,7 @@ class SkinRender implements IVBIBUpdate {
         this.owner = owner;
         this.name = skinAttach.name;
         this.elements = [];
+        this.vertexBones = skinAttach.vertexBones;
         this.hasNormalRender = skinAttach.hasNormalRender;
         this.elementsMap = new Map();
         this.skinAttachType = skinAttach.type;

@@ -85,6 +85,12 @@ export class AttachmentParse {
     isNormalRender: boolean = false;
 
     /**
+     * @en The number of bones that affect a vertex.
+     * @zh 影响一个顶点的最大骨骼数。
+     */
+    vertexBones:number = 0;
+
+    /**
      * @en Initializes the attachment parser with the given parameters.
      * @param attachment The spine attachment to parse.
      * @param boneIndex The index of the bone.
@@ -107,6 +113,7 @@ export class AttachmentParse {
         this.blendMode = slot.blendMode;
         let color = this.color = new Color();
         let attchmentColor: spine.Color;
+        
         if (attachment instanceof window.spine.RegionAttachment) {
             attchmentColor = attachment.color;
             let region = attachment as spine.RegionAttachment;
@@ -152,7 +159,8 @@ export class AttachmentParse {
                 let bones = mesh.bones;
                 let v = 0;
                 let needPoint = (vside - 6) / 4;
-                
+                this.vertexBones = needPoint;
+
                 for (let w = 0, b = 0; w < vertexSize; w++) {
                     let n = bones[v++];
                     n += v;
@@ -165,7 +173,7 @@ export class AttachmentParse {
                     }
 
                     if(result.length > needPoint) {
-                        console.error(`The max number of bones (${needPoint}) that can affect a vertex in FastRender mode. `);
+                        this.vertexBones = Math.max(this.vertexBones ,result.length);
                         result.length = needPoint;
                         this.isNormalRender = true;
                     }
@@ -210,6 +218,7 @@ export class AttachmentParse {
             color.g *= a;
             color.b *= a;
         }
+
         return true;
     }
 }
