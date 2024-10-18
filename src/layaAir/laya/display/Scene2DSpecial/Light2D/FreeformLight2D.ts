@@ -103,14 +103,14 @@ export class FreeformLight2D extends BaseLight2D {
      */
     set polygonPoint(poly: PolygonPoint2D) {
         if (poly) {
-            poly._user = this;
+           // poly._user = this;
             this._lightPolygon = poly;
             this._globalPolygon = poly.clone();
             this._needUpdateLight = true;
             (this.owner?.scene as Scene)?._light2DManager?.addLight(this);
         } else {
-            if (this._lightPolygon)
-                this._lightPolygon._user = null;
+            // if (this._lightPolygon)
+            //     this._lightPolygon._user = null;
             this._lightPolygon = null;
             this._globalPolygon = null;
             (this.owner?.scene as Scene)?._light2DManager?.removeLight(this);

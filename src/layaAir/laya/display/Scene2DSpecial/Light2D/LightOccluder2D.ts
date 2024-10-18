@@ -109,7 +109,7 @@ export class LightOccluder2D extends Component {
      */
     set polygonPoint(poly: PolygonPoint2D) {
         if (poly) {
-            poly._user = this;
+           // poly._user = this;
             this._occluderPolygon = poly;
             this._globalPolygon = poly.clone();
             if (!this._cutPolygon)
@@ -118,8 +118,8 @@ export class LightOccluder2D extends Component {
             this._transformPoly();
             (this.owner?.scene as Scene)?._light2DManager?.addOccluder(this);
         } else {
-            if (this._occluderPolygon)
-                this._occluderPolygon._user = null;
+            // if (this._occluderPolygon)
+            //     this._occluderPolygon._user = null;
             this._occluderPolygon = null;
             this._globalPolygon = null;
             this._cutPolygon.clear();
