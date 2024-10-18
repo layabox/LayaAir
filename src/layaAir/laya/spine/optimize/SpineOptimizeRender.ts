@@ -366,9 +366,9 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
         }
         else {
             if (currentRender.vertexBones > 4) {
-                console.warn(`Current skin: ${currentRender.name}, Max number of bones influencing a vertex: ${currentRender.vertexBones}.`);
+                console.warn(`Current skin: ${currentRender.name}, the maximum number of bones that affect vertices in FastRender mode (${currentRender.vertexBones}) is more than 4.`);
             }
-            
+
             switch (this.currentRender.skinAttachType) {
                 case ESpineRenderType.boneGPU:
                     this._nodeOwner._spriteShaderData.addDefine(SpineShaderInit.SPINE_FAST);
