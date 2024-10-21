@@ -1,3 +1,9 @@
+import { LayaGL } from "../layagl/LayaGL";
+import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
+import { RenderTexture } from "../resource/RenderTexture";
+import { RenderTexture2D } from "../resource/RenderTexture2D";
+import { Browser } from "./Browser";
+
 var _gid: number = 1;
 const _pi: number = 180 / Math.PI;
 const _pi2: number = Math.PI / 180;
@@ -180,5 +186,54 @@ export class Utils {
         else
             return path + newExt;
     }
+
+    /**
+     * 将RenderTexture转换为Base64
+     * @param rendertexture 要转换的RenderTexture
+     * @returns 转换后的Base64字符串
+     */
+    static uint8ArrayToArrayBuffer(rendertexture: RenderTexture | RenderTexture2D): string {
+        let pixelArray: Uint8Array | Float32Array;
+        let width = rendertexture.width;
+        let height = rendertexture.height;
+        let pixelCount = width * height * 4;
+        let colorformat = (rendertexture instanceof RenderTexture) ? rendertexture.colorFormat : rendertexture.getColorFormat();
+        switch (colorformat) {
+            case RenderTargetFormat.R8G8B8:
+            case RenderTargetFormat.R8G8B8A8:
+                pixelArray = new Uint8Array(pixelCount);
+                break;
+            case RenderTargetFormat.R16G16B16A16:
+                pixelArray = new Float32Array(pixelCount);
+                break;
+            default:
+                throw "this function is not surpprt " + rendertexture.format.toString() + "format Material";
+        }
+        let textureContext = LayaGL.renderEngine.getTextureContext();
+        textureContext && textureContext.readRenderTargetPixelData(rendertexture._renderTarget, 0, 0, rendertexture.width, rendertexture.height, pixelArray);
+        //tranceTo
+        //throw " rt get Data";
+        if (colorformat === RenderTargetFormat.R16G16B16A16) {
+            let ori = pixelArray;
+            let trans = new Uint8Array(width * height * 4);
+            for (let i = 0, n = ori.length; i < n; i++) {
+                trans[i] = Math.min(Math.floor(ori[i] * 255), 255);
+            }
+            pixelArray = trans;
+        }
+        let pixels = pixelArray;
+        var bs: string;
+        let canvas = Browser.createElement("canvas");
+        canvas.height = height;
+        canvas.width = width;
+        var ctx2d = canvas.getContext('2d')
+        var imgdata: ImageData = ctx2d.createImageData(width, height);
+        imgdata.data.set(new Uint8ClampedArray(pixels));
+        ctx2d.putImageData(imgdata, 0, 0);;
+        bs = canvas.toDataURL();
+        canvas.remove();
+        return bs;
+    }
+
 }
 

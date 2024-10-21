@@ -1152,13 +1152,16 @@ export class Sprite extends Node {
 
     /**
      * 绘制到一个Texture对象
-     * @param canvasWidth 
-     * @param canvasHeight 
-     * @param offsetX 
-     * @param offsetY 
+     * @param canvasWidth 画布宽度。
+     * @param canvasHeight 画布高度。
+     * @param offsetX 绘制的 X 轴偏移量。
+     * @param offsetY 绘制的 Y 轴偏移量。
+     * @param rt 渲染目标。
+     * @param flipY 可选。如果为 true，则垂直翻转纹理。默认为 false。
+     * @returns 绘制的 Texture 或 RenderTexture2D 对象。
      */
-    drawToTexture(canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt: RenderTexture2D | null = null): Texture | RenderTexture2D {
-        let res = Sprite.drawToTexture(this, this._renderType, canvasWidth, canvasHeight, offsetX, offsetY, rt);
+    drawToTexture(canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt: RenderTexture2D | null = null, flipY: boolean = false): Texture | RenderTexture2D {
+        let res = Sprite.drawToTexture(this, this._renderType, canvasWidth, canvasHeight, offsetX, offsetY, rt, flipY);
         return res;
     }
 
@@ -1222,7 +1225,7 @@ export class Sprite extends Node {
      * @private 
      * 
      */
-    static drawToTexture(sprite: Sprite, _renderType: number, canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt: RenderTexture2D | null = null): Texture | RenderTexture2D {
+    static drawToTexture(sprite: Sprite, _renderType: number, canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt: RenderTexture2D | null = null, flipY: boolean = false): Texture | RenderTexture2D {
         Context.set2DRenderConfig();
         if (!Sprite.drawtocanvCtx) {
             Sprite.drawtocanvCtx = new Context();
@@ -1243,6 +1246,9 @@ export class Sprite extends Node {
         }
         let texRT;
         if (ctx._targets) {
+            if (flipY) {
+                ctx._targets._invertY = true;//翻转纹理
+            }
             ctx._targets.start();
             let color = RenderTexture2D._clearColor;
             ctx._targets.clear(color.r, color.g, color.b, color.a);
@@ -1294,15 +1300,15 @@ export class Sprite extends Node {
         value && value.length === 0 && (value = null);
         //如果之前有filter了先去掉
         let oldFilters = this._getCacheStyle().filters;
-        if(oldFilters){
-            for(let f of oldFilters){
-                f.off(Filter.EVENT_CHANGE,this,this.repaint);
+        if (oldFilters) {
+            for (let f of oldFilters) {
+                f.off(Filter.EVENT_CHANGE, this, this.repaint);
             }
         }
         this._getCacheStyle().filters = value ? value.slice() : null;
-        if(value){
-            for(let f of value){
-                f.on(Filter.EVENT_CHANGE,this,this.repaint);
+        if (value) {
+            for (let f of value) {
+                f.on(Filter.EVENT_CHANGE, this, this.repaint);
             }
         }
         if (value)
@@ -2086,13 +2092,13 @@ export class Sprite extends Node {
         return (this._globalDeltaFlages & type) != 0;
     }
 
-    
+
     /**
      * @internal 
      */
-    _getGlobalCacheLocalToGlobal(x:number,y:number):Point{
+    _getGlobalCacheLocalToGlobal(x: number, y: number): Point {
         if (this._cacheGlobal) {
-            return this.getGlobalMatrix().transformPoint(Point.TEMP.setTo(this.pivotX+x, this.pivotY+y));
+            return this.getGlobalMatrix().transformPoint(Point.TEMP.setTo(this.pivotX + x, this.pivotY + y));
         } else {
             return this.localToGlobal(Point.TEMP.setTo(x, y), false, null);
         }
@@ -2101,7 +2107,7 @@ export class Sprite extends Node {
     /**
      * @internal 
      */
-    _getGlobalCacheGlobalToLocal(x:number,y:number):Point{
+    _getGlobalCacheGlobalToLocal(x: number, y: number): Point {
         if (this._cacheGlobal) {
             let point = this.getGlobalMatrix().invertTransformPoint(Point.TEMP.setTo(x, y));
             point.x -= this.pivotX;

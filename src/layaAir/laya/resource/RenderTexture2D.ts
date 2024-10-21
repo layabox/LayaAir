@@ -73,6 +73,14 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
     }
 
     /**
+     * @en get the colorFormat from RenderInternalRT
+     * @zh 得到此渲染纹理的颜色格式
+     */
+    getColorFormat(): RenderTargetFormat {
+        return this._colorFormat;
+    }
+
+    /**
      * 获取宽度。
      */
     get sourceWidth(): number {
@@ -101,7 +109,7 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
     }
     /**深度模板纹理 */
     depthStencilTexture: BaseTexture;
-    
+
     _renderTarget: InternalRenderTarget;
     /**是否是CameraTarget */
     _isCameraTarget: boolean;

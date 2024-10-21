@@ -2,10 +2,10 @@ import { Texture } from "./Texture";
 import { Texture2D } from "./Texture2D";
 import { Context } from "./Context";
 import { Browser } from "../utils/Browser";
-import { RenderTexture2D } from "./RenderTexture2D";
 import { Resource } from "./Resource";
 import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
 import { LayaEnv } from "../../LayaEnv";
+import { BaseTexture } from "./BaseTexture";
 
 /**
  * <code>HTMLCanvas</code> 是 Html Canvas 的代理类，封装了 Canvas 的属性和方法。
@@ -16,7 +16,7 @@ export class HTMLCanvas extends Resource {
     /**@internal */
     _source: HTMLCanvasElement;
     /**@internal */
-    _texture: Texture | RenderTexture2D;
+    _texture: BaseTexture | Texture;
     /**@private */
     protected _width: number;
     /**@private */
@@ -175,7 +175,7 @@ export class HTMLCanvas extends Resource {
     /**
      * 获取texture实例
      */
-    getTexture(): Texture | null | RenderTexture2D {
+    getTexture(): Texture | BaseTexture {
         if (!this._texture) {
             var bitmap: Texture2D = new Texture2D(this.source.width, this.source.height, TextureFormat.R8G8B8A8, true, false, false);
             bitmap.setImageData(this.source, false, false);

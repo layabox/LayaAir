@@ -37,6 +37,7 @@ import { Config } from "./Config";
 import { Shader3D } from "./laya/RenderEngine/RenderShader/Shader3D";
 import { LayaGL } from "./laya/layagl/LayaGL";
 import { Material } from "./laya/resource/Material";
+import { BaseTexture } from "./laya/resource/BaseTexture";
 
 /**
  * <code>Laya</code> 是全局对象的引用入口集。
@@ -315,7 +316,7 @@ export class Laya {
             }
         }
         );
-        HTMLCanvas.prototype.getTexture = function (): Texture | RenderTexture2D {
+        HTMLCanvas.prototype.getTexture = function (): Texture | BaseTexture {
             if (!this._texture) {
                 // @ts-ignore
                 this._texture = this.context._targets;

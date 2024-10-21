@@ -14,7 +14,7 @@ export class ColorUtils {
     /**@private */
 
     /**@private */
-    private static _DEFAULT: any = ColorUtils._initDefault();
+    private static _DEFAULT: any;
 
     /**rgba 取值范围0-1*/
     //TODO:delete？
@@ -31,6 +31,8 @@ export class ColorUtils {
      * @param	value 颜色值，可以是字符串："#ff0000"或者16进制颜色 0xff0000。
      */
     constructor(value: any) {
+        if (!ColorUtils._DEFAULT)
+            ColorUtils._initDefault();
         if (value == null || value == 'none') {
             this.strColor = "#00000000";
             this.numColor = 0;
