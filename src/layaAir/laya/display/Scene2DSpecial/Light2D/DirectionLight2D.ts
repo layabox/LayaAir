@@ -35,7 +35,7 @@ export class DirectionLight2D extends BaseLight2D {
             this._directionAngle = value;
             this._directionVector.x = Math.cos(this._directionAngle * Math.PI / 180);
             this._directionVector.y = Math.sin(this._directionAngle * Math.PI / 180);
-            this._needUpdateLight = true;
+            this._needUpdateLightAndShadow = true;
         }
     }
 
@@ -60,7 +60,7 @@ export class DirectionLight2D extends BaseLight2D {
                 this._directionAngle = Math.atan2(y, x);
                 this._directionVector.x = x;
                 this._directionVector.y = y;
-                this._needUpdateLight = true;
+                this._needUpdateLightAndShadow = true;
             }
         }
     }

@@ -111,7 +111,6 @@ export class FreeformLight2D extends BaseLight2D {
             this._globalPolygon = poly.clone();
             this.calcLocalRange();
             this._needUpdateLight = true;
-            this._needUpdateLightAndShadow = true;
             this._needUpdateLightWorldRange = true;
             (this.owner?.scene as Scene)?._light2DManager?.addLight(this);
         } else {
@@ -232,6 +231,7 @@ export class FreeformLight2D extends BaseLight2D {
             scene.addChild(this._sprite);
             this._sprite.drawToTexture(0, 0, 0, 0, this._texLight as RenderTexture2D);
             scene.removeChild(this._sprite);
+            this._needUpdateLightAndShadow = true;
 
             if (this.showLightTexture) {
                 if (!this.showRenderTarget)

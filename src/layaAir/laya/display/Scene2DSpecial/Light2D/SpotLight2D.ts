@@ -226,6 +226,7 @@ export class SpotLight2D extends BaseLight2D {
             scene.addChild(this._sprite);
             this._sprite.drawToTexture(0, 0, 0, 0, this._texLight as RenderTexture2D);
             scene.removeChild(this._sprite);
+            this._needUpdateLightAndShadow = true;
 
             if (this.showLightTexture) {
                 if (!this.showRenderTarget)

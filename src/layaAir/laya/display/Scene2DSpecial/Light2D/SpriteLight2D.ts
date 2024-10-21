@@ -83,6 +83,7 @@ export class SpriteLight2D extends BaseLight2D {
         if (this._needUpdateLight) {
             this._needUpdateLight = false;
             this.updateMark++;
+            this._needUpdateLightAndShadow = true;
             if (this.showLightTexture) {
                 if (!this.showRenderTarget)
                     this.showRenderTarget = new ShowRenderTarget(scene, this._texLight, 0, 0, 300, 300);

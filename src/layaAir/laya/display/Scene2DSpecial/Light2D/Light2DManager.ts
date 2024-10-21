@@ -429,8 +429,6 @@ export class Light2DManager {
         if (lights.length === 0 && index >= 0)
             this._lightLayer.splice(index, 1);
 
-        if (lights.length === 0) debugger
-
         //建立或更新渲染目标
         let param = this.param[layer];
         let target = this.target[layer];
@@ -507,7 +505,6 @@ export class Light2DManager {
         }
         if (Light2DManager.DEBUG)
             console.log('light range =', range.x, range.y, range.width, range.height);
-        if (range.x === 0) debugger
 
         let rangeSchmitt = this._lightRangeSchmitt[layer];
         if (!rangeSchmitt) {
@@ -592,6 +589,11 @@ export class Light2DManager {
      * @param context 
      */
     preRenderUpdate(context: Context) {
+        //灯光状态是否更新
+        const _isLightUpdate = (light: BaseLight2D) => {
+            return light._needUpdateLightAndShadow;
+        };
+
         //遮光器状态是否更新
         const _isOccluderUpdate = (layer: number, sn: number) => {
             if (this._occludersInLight[layer]
@@ -646,8 +648,8 @@ export class Light2DManager {
                 const renderShadow = renderRes.renderShadow[j];
                 light.renderLightTexture(this._scene); //按需更新灯光贴图
                 if (!screenChange) {
+                    lightChange = _isLightUpdate(light);
                     occluderChange = _isOccluderUpdate(layer, j);
-                    lightChange = light._needUpdateLightAndShadow;
                 }
                 if (screenChange || occluderChange || lightChange) { //状态有改变，更新光照网格和阴影网格
                     for (let k = renders.length - 1; k > -1; k--) { //遍历PCF
@@ -657,6 +659,7 @@ export class Light2DManager {
                             this._update(layer, this._screenSchmitt.x, this._screenSchmitt.y, light, render, k);
                             needRender = true;
                             works++;
+                            //console.log('update light', screenChange, lightChange, occluderChange, light, k);
                         }
                     }
                     if (renderShadow) { //处理阴影
@@ -664,6 +667,7 @@ export class Light2DManager {
                         this._updateShadow(layer, this._screenSchmitt.x, this._screenSchmitt.y, light, renderShadow);
                         needRender = true;
                         works++;
+                        //console.log('update shadow', screenChange, lightChange, occluderChange, light);
                     }
                     this._updateMark[layer]++;
                 }
@@ -674,6 +678,7 @@ export class Light2DManager {
                 this._scene.addChild(renderRes.root);
                 renderRes.root.drawToTexture(0, 0, 0, 0, this.target[layer]);
                 this._scene.removeChild(renderRes.root);
+                //console.log('render light and shadow', layer);
             }
         }
 
@@ -691,11 +696,12 @@ export class Light2DManager {
         this._needCollectLightInLayer = false;
 
         //显示工作负载
-        if (Light2DManager.DEBUG)
+        if (Light2DManager.DEBUG) {
             if (this._works !== works) {
                 this._works = works;
                 console.log('works =', works);
             }
+        }
     }
 
     /**

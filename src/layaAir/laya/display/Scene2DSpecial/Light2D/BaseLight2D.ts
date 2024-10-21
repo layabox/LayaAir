@@ -85,15 +85,15 @@ export class BaseLight2D extends Component {
     /**
      * @internal
      */
-    _needUpdateLight: boolean = true; //是否需要更新灯光贴图
+    _needUpdateLight: boolean = true; //是否需要更新自身灯光图
     /**
      * @internal
      */
-    _needUpdateLightTrans: boolean = false; //是否需要更新灯光的位置
+    _needUpdateLightTrans: boolean = false; //灯光的变换矩阵是否已经更新
     /**
      * @internal
      */
-    _needUpdateLightAndShadow: boolean = false; //是否会引起光影图需要更新
+    _needUpdateLightAndShadow: boolean = false; //是否需要更新整体光影图
     /**
      * @internal
      */
@@ -117,7 +117,6 @@ export class BaseLight2D extends Component {
             || value.b !== this._color.b
             || value.a !== this._color.a) {
             this._needUpdateLight = true;
-            this._needUpdateLightAndShadow = true;
         }
         value.cloneTo(this._color);
     }
@@ -135,10 +134,8 @@ export class BaseLight2D extends Component {
      * @zh 设置灯光强度
      */
     set intensity(value: number) {
-        if (value !== this._intensity) {
+        if (value !== this._intensity)
             this._needUpdateLight = true;
-            this._needUpdateLightAndShadow = true;
-        }
         this._intensity = value;
     }
 
@@ -173,10 +170,8 @@ export class BaseLight2D extends Component {
      * @zh 使能灯光阴影
      */
     set shadowEnable(value: boolean) {
-        if (this._shadowEnable !== value) {
+        if (this._shadowEnable !== value)
             this._needUpdateLight = true;
-            this._needUpdateLightAndShadow = true;
-        }
         this._shadowEnable = value;
     }
 
@@ -193,10 +188,8 @@ export class BaseLight2D extends Component {
      * @zh 设置阴影强度
      */
     set shadowStrength(value: number) {
-        if (value !== this._shadowStrength) {
+        if (value !== this._shadowStrength)
             this._needUpdateLight = true;
-            this._needUpdateLightAndShadow = true;
-        }
         this._needUpdateLight = true;
     }
 
@@ -233,10 +226,8 @@ export class BaseLight2D extends Component {
      * @zh 设置阴影边缘平滑类型
      */
     set shadowFilterType(value: ShadowFilterType) {
-        if (value !== this._shadowFilterType) {
+        if (value !== this._shadowFilterType)
             this._needUpdateLight = true;
-            this._needUpdateLightAndShadow = true;
-        }
         this._shadowFilterType = value;
     }
 
@@ -273,10 +264,8 @@ export class BaseLight2D extends Component {
      * @zh 设置阴影边缘平滑系数
      */
     set shadowFilterSmooth(value: number) {
-        if (value !== this._shadowFilterSmooth) {
+        if (value !== this._shadowFilterSmooth)
             this._needUpdateLight = true;
-            this._needUpdateLightAndShadow = true;
-        }
         this._shadowFilterSmooth = value;
     }
 
@@ -334,7 +323,6 @@ export class BaseLight2D extends Component {
     protected _transformChange() {
         this._needUpdateLight = true;
         this._needUpdateLightTrans = true;
-        this._needUpdateLightAndShadow = true;
         this._needUpdateLightWorldRange = true;
         (this.owner.scene as Scene)?._light2DManager?.lightTransformChange(this);
     }
