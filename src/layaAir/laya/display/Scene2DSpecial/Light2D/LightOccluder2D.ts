@@ -4,6 +4,7 @@ import { Vector2 } from "../../../maths/Vector2";
 import { Browser } from "../../../utils/Browser";
 import { Scene } from "../../Scene";
 import { Sprite } from "../../Sprite";
+import { Light2DManager } from "./Light2DManager";
 import { LightLine2D } from "./LightLine2D";
 import { PolygonPoint2D } from "./PolygonPoint2D";
 
@@ -59,17 +60,36 @@ export class LightOccluder2D extends Component {
 
     /**
      * @internal
-     * 遮光器范围
+     * 遮光器范围（局部坐标）
      */
-    _range: Rectangle = new Rectangle();
+    _localRange: Rectangle = new Rectangle();
 
-    private _offset: Vector2 = new Vector2(); //整体偏移
+    /**
+     * @internal
+     * 遮光器范围（世界坐标）
+     */
+    _worldRange: Rectangle = new Rectangle();
+
+    /**
+     * @internal
+     * 需要更新遮光器
+     */
+    _needUpdate: boolean = false;
+
+    /**
+     * @internal
+     */
+    _needUpdateLightWorldRange: boolean = false; //是否需要更新遮光器区域（世界坐标）
+
     private _select: boolean = true; //是否选用
 
     private _occluderPolygon: PolygonPoint2D;
     private _globalPolygon: PolygonPoint2D;
     private _cutPolygon: PolygonPoint2D;
     private _outsideSegment: number[] = []; //外边缘线段序号（顺时针存储）
+
+    private _segments: LightLine2D[] = []; //缓存的线段
+    private _segLight: Vector2 = new Vector2(); //缓存线段对应的灯光位置
 
     private _tempVec: Vector2 = new Vector2();
 
@@ -109,22 +129,22 @@ export class LightOccluder2D extends Component {
      */
     set polygonPoint(poly: PolygonPoint2D) {
         if (poly) {
-            poly._user = this;
             this._occluderPolygon = poly;
             this._globalPolygon = poly.clone();
             if (!this._cutPolygon)
                 this._cutPolygon = new PolygonPoint2D();
             else this._cutPolygon.clear();
+            this._calcLocalRange();
             this._transformPoly();
+            this._needUpdateLightWorldRange = true;
             (this.owner?.scene as Scene)?._light2DManager?.addOccluder(this);
         } else {
-            if (this._occluderPolygon)
-                this._occluderPolygon._user = null;
             this._occluderPolygon = null;
             this._globalPolygon = null;
             this._cutPolygon.clear();
             (this.owner?.scene as Scene)?._light2DManager?.removeOccluder(this);
         }
+        (this.owner?.scene as Scene)?._light2DManager?.needCollectLightInLayer();
     }
 
     /**
@@ -136,27 +156,28 @@ export class LightOccluder2D extends Component {
     }
 
     /**
-     * @en Set the offset value
-     * @zh 设置偏移值
-     * @param x 
-     * @param y 
-     */
-    setOffset(x: number, y: number) {
-        this._offset.x = x;
-        this._offset.y = y;
-    }
-
-    /**
      * @en Get occluder's segments
      * @zh 获取遮光器线段
-     * @param segment 
+     * @param lightX 
+     * @param lightY 
      */
-    getSegment(segment: LightLine2D[]) {
+    getSegment(lightX: number, lightY: number) {
+        lightX |= 0;
+        lightY |= 0;
+        if (this._segLight.x === lightX && this._segLight.y === lightY) {
+            if (Light2DManager.DEBUG)
+                console.log('get segments cache', lightX, lightY);
+            return this._segments;
+        }
         if (this._globalPolygon) {
             const seg = this._outsideSegment;
             const poly = this._globalPolygon.points;
             const half = this._cutPolygon.points;
             const len = poly.length / 2 | 0;
+            this._segments.length = 0;
+            this._segLight.x = lightX;
+            this._segLight.y = lightY;
+            const segment = this._segments;
             if (!this.outside) {
                 if (len > 1) {
                     for (let i = 0; i < len; i++) {
@@ -185,25 +206,42 @@ export class LightOccluder2D extends Component {
                 }
             }
         }
+        if (Light2DManager.DEBUG)
+            console.log('calc occluder segments', lightX, lightY);
+        return this._segments;
     }
 
     /**
-     * @en Get occluder's state
-     * @zh 获取遮光器状态
+     * @en calculate the range
+     * @zh 计算范围
      */
-    getSegmentState() {
-        if (this._globalPolygon) {
-            const poly = this._globalPolygon.points;
-            return poly.length > 1 ? '<' + (poly[0] | 0) + ',' + (poly[1] | 0) + ',' + (poly[2] | 0) + ',' + (poly[3] | 0) + '>' : '<>';
+    private _calcLocalRange() {
+        if (this._occluderPolygon) {
+            const poly = this._occluderPolygon.points;
+            let minX = Number.POSITIVE_INFINITY;
+            let minY = Number.POSITIVE_INFINITY;
+            let maxX = Number.NEGATIVE_INFINITY;
+            let maxY = Number.NEGATIVE_INFINITY;
+            for (let i = poly.length - 2; i > -1; i -= 2) {
+                const x = poly[i + 0];
+                const y = poly[i + 1];
+                if (minX > x) minX = x;
+                if (maxX < x) maxX = x;
+                if (minY > y) minY = y;
+                if (maxY < y) maxY = y;
+            }
+            this._localRange.x = minX;
+            this._localRange.y = minY;
+            this._localRange.width = maxX - minX;
+            this._localRange.height = maxY - minY;
         }
-        return '<>';
     }
 
     /**
-     * @en Get the range
-     * @zh 获取范围
+     * @en calculate the range
+     * @zh 计算范围
      */
-    getRange() {
+    private _calcWorldRange() {
         if (this._globalPolygon) {
             const poly = this._globalPolygon.points;
             let minX = Number.POSITIVE_INFINITY;
@@ -218,12 +256,26 @@ export class LightOccluder2D extends Component {
                 if (minY > y) minY = y;
                 if (maxY < y) maxY = y;
             }
-            this._range.x = minX;
-            this._range.y = minY;
-            this._range.width = maxX - minX;
-            this._range.height = maxY - minY;
+            this._worldRange.x = minX;
+            this._worldRange.y = minY;
+            this._worldRange.width = maxX - minX;
+            this._worldRange.height = maxY - minY;
         }
-        return this._range;
+    }
+
+    /**
+     * @internal
+     * @en Get the range
+     * @zh 获取范围
+     */
+    _getRange() {
+        if (!this._worldRange) {
+            this._worldRange = new Rectangle();
+            this._calcWorldRange();
+        } else if (this._needUpdateLightWorldRange)
+            this._calcWorldRange();
+        this._needUpdateLightWorldRange = false;
+        return this._worldRange;
     }
 
     /**
@@ -238,8 +290,8 @@ export class LightOccluder2D extends Component {
                 let intersections = 0;
                 const poly = this._occluderPolygon.points;
                 const len = poly.length / 2 | 0;
-                const ox = this.owner ? (this.owner as Sprite).globalPosX * Browser.pixelRatio + this._offset.x : this._offset.x;
-                const oy = this.owner ? (this.owner as Sprite).globalPosY * Browser.pixelRatio + this._offset.y : this._offset.y;
+                const ox = this.owner ? (this.owner as Sprite).globalPosX * Browser.pixelRatio : 0;
+                const oy = this.owner ? (this.owner as Sprite).globalPosY * Browser.pixelRatio : 0;
 
                 for (let i = 0; i < len; i++) {
                     const currentX = poly[i * 2 + 0];
@@ -283,8 +335,8 @@ export class LightOccluder2D extends Component {
             const globalPoly = this._globalPolygon.points;
             const polygon = this._occluderPolygon.points;
             const len = polygon.length / 2 | 0;
-            const ox = (this.owner ? (this.owner as Sprite).globalPosX + this._offset.x : this._offset.x) * Browser.pixelRatio;
-            const oy = (this.owner ? (this.owner as Sprite).globalPosY + this._offset.y : this._offset.y) * Browser.pixelRatio;
+            const ox = (this.owner ? (this.owner as Sprite).globalPosX : 0) * Browser.pixelRatio;
+            const oy = (this.owner ? (this.owner as Sprite).globalPosY : 0) * Browser.pixelRatio;
             const sx = this.owner ? (this.owner as Sprite).globalScaleX : 1;
             const sy = this.owner ? (this.owner as Sprite).globalScaleY : 1;
             const rotation = this.owner ? (this.owner as Sprite).globalRotation * Math.PI / 180 : 0;
@@ -299,6 +351,13 @@ export class LightOccluder2D extends Component {
                 globalPoly[i * 2 + 0] = (x * cosA - y * sinA) * sx + ox + pivotX;
                 globalPoly[i * 2 + 1] = (x * sinA + y * cosA) * sy + oy + pivotY;
             }
+            this._needUpdate = true;
+            this._needUpdateLightWorldRange = true;
+
+            //使缓存失效
+            this._segments.length = 0;
+            this._segLight.x = Number.POSITIVE_INFINITY;
+            this._segLight.y = Number.POSITIVE_INFINITY;
         }
     }
 

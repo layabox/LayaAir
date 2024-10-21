@@ -1,3 +1,4 @@
+import { LayaGL } from "../../../layagl/LayaGL";
 import { Rectangle } from "../../../maths/Rectangle";
 import { Vector3 } from "../../../maths/Vector3";
 import { RenderState } from "../../../RenderDriver/RenderModuleData/Design/RenderState";
@@ -11,6 +12,7 @@ import { Scene } from "../../Scene";
 import { Sprite } from "../../Sprite";
 import { Mesh2DRender } from "../Mesh2DRender";
 import { BaseLight2D, Light2DType } from "./BaseLight2D";
+import { Light2DManager } from "./Light2DManager";
 import { ShowRenderTarget } from "./ShowRenderTarget";
 
 /**
@@ -69,6 +71,8 @@ export class SpotLight2D extends BaseLight2D {
             this._innerRadius = value;
             this.updateMark++;
             this._needUpdateLight = true;
+            this._needUpdateLightWorldRange = true;
+            this.calcLocalRange();
             this._limitParam();
         }
     }
@@ -90,6 +94,8 @@ export class SpotLight2D extends BaseLight2D {
             this._outerRadius = value;
             this.updateMark++;
             this._needUpdateLight = true;
+            this._needUpdateLightWorldRange = true;
+            this.calcLocalRange();
             this._limitParam();
         }
     }
@@ -158,18 +164,32 @@ export class SpotLight2D extends BaseLight2D {
     }
 
     /**
-     * @en Get light range
-     * @zh 获取灯光范围
-     * @param screen 
+     * @en Calculate light range（local）
+     * @zh 计算灯光范围（局部坐标）
      */
-    getLightRange(screen?: Rectangle) {
+    protected calcLocalRange() {
         const w = this._outerRadius * 2.1 * Browser.pixelRatio | 0;
         const h = this._outerRadius * 2.1 * Browser.pixelRatio | 0;
-        this._range.x = (-0.5 * w + (this.owner as Sprite).globalPosX * Browser.pixelRatio) | 0;
-        this._range.y = (-0.5 * h + (this.owner as Sprite).globalPosY * Browser.pixelRatio) | 0;
-        this._range.width = w;
-        this._range.height = h;
-        return this._range;
+        this._localRange.x = (-0.5 * w) | 0;
+        this._localRange.y = (-0.5 * h) | 0;
+        this._localRange.width = w;
+        this._localRange.height = h;
+    }
+
+    /**
+     * @en Calculate light range（world）
+     * @zh 计算灯光范围（世界坐标）
+     * @param screen 
+     */
+    protected calcWorldRange(screen?: Rectangle) {
+        super.calcWorldRange(screen);
+        const w = this._outerRadius * 2.1 * Browser.pixelRatio | 0;
+        const h = this._outerRadius * 2.1 * Browser.pixelRatio | 0;
+        this._worldRange.x = (-0.5 * w + (this.owner as Sprite).globalPosX * Browser.pixelRatio) | 0;
+        this._worldRange.y = (-0.5 * h + (this.owner as Sprite).globalPosY * Browser.pixelRatio) | 0;
+        this._worldRange.width = w;
+        this._worldRange.height = h;
+        (this.owner?.scene as Scene)?._light2DManager?.needUpdateLightRange();
     }
 
     /**
@@ -182,17 +202,23 @@ export class SpotLight2D extends BaseLight2D {
         if (this._needUpdateLight) {
             this._needUpdateLight = false;
             this.updateMark++;
-            const range = this.getLightRange();
+            const range = this._getRange();
             if (!this._texLight || !(this._texLight instanceof RenderTexture2D)) {
                 this._texLight = new RenderTexture2D(range.width, range.height, RenderTargetFormat.R8G8B8A8);
                 this._texLight.wrapModeU = WrapMode.Clamp;
                 this._texLight.wrapModeV = WrapMode.Clamp;
+                (this._texLight as RenderTexture2D)._invertY = LayaGL.renderEngine._screenInvertY;
+                if (Light2DManager.DEBUG)
+                    console.log('create spot light texture', range.width, range.height);
             }
             else if (this._texLight.width !== range.width || this._texLight.height !== range.height) {
                 this._texLight.destroy();
                 this._texLight = new RenderTexture2D(range.width, range.height, RenderTargetFormat.R8G8B8A8);
                 this._texLight.wrapModeU = WrapMode.Clamp;
                 this._texLight.wrapModeV = WrapMode.Clamp;
+                (this._texLight as RenderTexture2D)._invertY = LayaGL.renderEngine._screenInvertY;
+                if (Light2DManager.DEBUG)
+                    console.log('update spot light texture', range.width, range.height);
             }
             if (this._render.shareMesh)
                 this._needToRecover.push(this._render.shareMesh);
@@ -237,8 +263,8 @@ export class SpotLight2D extends BaseLight2D {
         const inds: number[] = [];
 
         //中心坐标
-        const centerX = this._range.width / 2;
-        const centerY = this._range.height / 2;
+        const centerX = this._worldRange.width / 2;
+        const centerY = this._worldRange.height / 2;
 
         //将度数转换为弧度
         const innerAngleRad = this._innerAngle * Math.PI / 180;

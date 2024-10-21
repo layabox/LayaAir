@@ -4,11 +4,6 @@
 export class PolygonPoint2D {
     private _points: number[] = [];
 
-    /**
-     *  @internal
-     */
-    _user: any;
-
     constructor(points?: number[]) {
         if (points)
             this.points.push(...points);
@@ -28,8 +23,6 @@ export class PolygonPoint2D {
      */
     set points(value: number[]) {
         this._points = value;
-        if (this._user)
-            this._user.setPolygonPoint(this);
     }
 
     /**
@@ -90,5 +83,19 @@ export class PolygonPoint2D {
         const poly = new PolygonPoint2D();
         poly.points.push(...this.points);
         return poly;
+    }
+
+    /**
+     * @en clone object
+     * @zh 克隆对象
+     */
+    cloneTo(other: PolygonPoint2D) {
+        const p = this._points;
+        const op = other._points;
+        const len = p.length;
+        op.length = len;
+        for (let i = 0; i < len; i++)
+            op[i] = p[i];
+        return other;
     }
 }

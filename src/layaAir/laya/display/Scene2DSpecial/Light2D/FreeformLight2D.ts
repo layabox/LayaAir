@@ -1,3 +1,4 @@
+import { LayaGL } from "../../../layagl/LayaGL";
 import { Rectangle } from "../../../maths/Rectangle";
 import { Vector2 } from "../../../maths/Vector2";
 import { Vector3 } from "../../../maths/Vector3";
@@ -12,6 +13,7 @@ import { Scene } from "../../Scene";
 import { Sprite } from "../../Sprite";
 import { Mesh2DRender } from "../Mesh2DRender";
 import { BaseLight2D, Light2DType } from "./BaseLight2D";
+import { Light2DManager } from "./Light2DManager";
 import { PolygonPoint2D } from "./PolygonPoint2D";
 import { ShowRenderTarget } from "./ShowRenderTarget";
 
@@ -68,6 +70,8 @@ export class FreeformLight2D extends BaseLight2D {
             this._falloffRange = value;
             this.updateMark++;
             this._needUpdateLight = true;
+            this._needUpdateLightWorldRange = true;
+            this.calcLocalRange();
             this._limitParam();
         }
     }
@@ -77,8 +81,8 @@ export class FreeformLight2D extends BaseLight2D {
      * @zh 响应矩阵变换
      */
     protected _transformChange() {
-        super._transformChange();
         this._transformPoly();
+        super._transformChange();
     }
 
     /**
@@ -103,18 +107,19 @@ export class FreeformLight2D extends BaseLight2D {
      */
     set polygonPoint(poly: PolygonPoint2D) {
         if (poly) {
-            poly._user = this;
             this._lightPolygon = poly;
             this._globalPolygon = poly.clone();
+            this.calcLocalRange();
             this._needUpdateLight = true;
+            this._needUpdateLightAndShadow = true;
+            this._needUpdateLightWorldRange = true;
             (this.owner?.scene as Scene)?._light2DManager?.addLight(this);
         } else {
-            if (this._lightPolygon)
-                this._lightPolygon._user = null;
             this._lightPolygon = null;
             this._globalPolygon = null;
             (this.owner?.scene as Scene)?._light2DManager?.removeLight(this);
         }
+        (this.owner?.scene as Scene)?._light2DManager?.needCollectLightInLayer();
     }
 
     /**
@@ -126,41 +131,71 @@ export class FreeformLight2D extends BaseLight2D {
     }
 
     /**
-     * @en Get light range
-     * @zh 获取灯光范围
+     * @en Calculate light range（local）
+     * @zh 计算灯光范围（局部坐标）
+     */
+    protected calcLocalRange() {
+        let xmin = Number.POSITIVE_INFINITY;
+        let ymin = Number.POSITIVE_INFINITY;
+        let xmax = Number.NEGATIVE_INFINITY;
+        let ymax = Number.NEGATIVE_INFINITY;
+        const polygon = this._lightPolygon.points;
+        for (let i = polygon.length - 2; i > -1; i -= 2) {
+            const x = polygon[i + 0];
+            const y = polygon[i + 1];
+            if (xmin > x) xmin = x;
+            if (xmax < x) xmax = x;
+            if (ymin > y) ymin = y;
+            if (ymax < y) ymax = y;
+        }
+        let x = (xmax - xmin) * Browser.pixelRatio | 0;
+        let y = (ymax - ymin) * Browser.pixelRatio | 0;
+        const t = this._falloffRange * FreeformLight2D.FALLOF_WIDTH * 1.5 * Browser.pixelRatio | 0;
+        const w = this._localRange.width = x + 10 + t * 2;
+        const h = this._localRange.height = y + 10 + t * 2;
+        x = this._localRange.x = (xmin - 5 - t) | 0;
+        y = this._localRange.y = (ymin - 5 - t) | 0;
+        this._localRange.width = w;
+        this._localRange.height = h;
+    }
+
+    /**
+     * @en Calculate light range（world）
+     * @zh 计算灯光范围（世界坐标）
      * @param screen 
      */
-    getLightRange(screen?: Rectangle) {
-        if (this._globalPolygon) {
-            this._transformPoly();
-            let xmin = Number.POSITIVE_INFINITY;
-            let ymin = Number.POSITIVE_INFINITY;
-            let xmax = Number.NEGATIVE_INFINITY;
-            let ymax = Number.NEGATIVE_INFINITY;
-            const polygon = this._globalPolygon.points;
-            for (let i = polygon.length - 2; i > -1; i -= 2) {
-                const x = polygon[i + 0];
-                const y = polygon[i + 1];
-                if (xmin > x) xmin = x;
-                if (xmax < x) xmax = x;
-                if (ymin > y) ymin = y;
-                if (ymax < y) ymax = y;
-            }
-            let x = (xmax - xmin) * Browser.pixelRatio | 0;
-            let y = (ymax - ymin) * Browser.pixelRatio | 0;
-            const t = this._falloffRange * FreeformLight2D.FALLOF_WIDTH * 1.5 * Browser.pixelRatio | 0;
-            const w = this._range.width = x + 10 + t * 2;
-            const h = this._range.height = y + 10 + t * 2;
-            x = this._range.x = (xmin - 5 - t) | 0;
-            y = this._range.y = (ymin - 5 - t) | 0;
-            this._range.width = w;
-            this._range.height = h;
-            for (let i = polygon.length - 2; i > -1; i -= 2) {
-                polygon[i + 0] -= x;
-                polygon[i + 1] -= y;
-            }
+    protected calcWorldRange(screen?: Rectangle) {
+        super.calcWorldRange(screen);
+        this._lightPolygon.cloneTo(this._globalPolygon);
+        this._transformPoly();
+
+        let xmin = Number.POSITIVE_INFINITY;
+        let ymin = Number.POSITIVE_INFINITY;
+        let xmax = Number.NEGATIVE_INFINITY;
+        let ymax = Number.NEGATIVE_INFINITY;
+        const polygon = this._globalPolygon.points;
+        for (let i = polygon.length - 2; i > -1; i -= 2) {
+            const x = polygon[i + 0];
+            const y = polygon[i + 1];
+            if (xmin > x) xmin = x;
+            if (xmax < x) xmax = x;
+            if (ymin > y) ymin = y;
+            if (ymax < y) ymax = y;
         }
-        return this._range;
+        let x = (xmax - xmin) * Browser.pixelRatio | 0;
+        let y = (ymax - ymin) * Browser.pixelRatio | 0;
+        const t = this._falloffRange * FreeformLight2D.FALLOF_WIDTH * 1.5 * Browser.pixelRatio | 0;
+        const w = this._worldRange.width = x + 10 + t * 2;
+        const h = this._worldRange.height = y + 10 + t * 2;
+        x = this._worldRange.x = (xmin - 5 - t) | 0;
+        y = this._worldRange.y = (ymin - 5 - t) | 0;
+        this._worldRange.width = w;
+        this._worldRange.height = h;
+        for (let i = polygon.length - 2; i > -1; i -= 2) {
+            polygon[i + 0] -= x;
+            polygon[i + 1] -= y;
+        }
+        (this.owner?.scene as Scene)?._light2DManager?.needUpdateLightRange();
     }
 
     /**
@@ -170,20 +205,26 @@ export class FreeformLight2D extends BaseLight2D {
      */
     renderLightTexture(scene: Scene) {
         super.renderLightTexture(scene);
-        if (this._globalPolygon && this._needUpdateLight) {
+        if (this._needUpdateLight) {
             this._needUpdateLight = false;
             this.updateMark++;
-            const range = this.getLightRange();
+            const range = this._getRange();
             if (!this._texLight || !(this._texLight instanceof RenderTexture2D)) {
                 this._texLight = new RenderTexture2D(range.width, range.height, RenderTargetFormat.R8G8B8A8);
                 this._texLight.wrapModeU = WrapMode.Clamp;
                 this._texLight.wrapModeV = WrapMode.Clamp;
+                (this._texLight as RenderTexture2D)._invertY = LayaGL.renderEngine._screenInvertY;
+                if (Light2DManager.DEBUG)
+                    console.log('create freeform light texture', range.width, range.height);
             }
             else if (this._texLight.width !== range.width || this._texLight.height !== range.height) {
                 this._texLight.destroy();
                 this._texLight = new RenderTexture2D(range.width, range.height, RenderTargetFormat.R8G8B8A8);
                 this._texLight.wrapModeU = WrapMode.Clamp;
                 this._texLight.wrapModeV = WrapMode.Clamp;
+                (this._texLight as RenderTexture2D)._invertY = LayaGL.renderEngine._screenInvertY;
+                if (Light2DManager.DEBUG)
+                    console.log('create freeform light texture', range.width, range.height);
             }
             if (this._render.shareMesh)
                 this._needToRecover.push(this._render.shareMesh);
@@ -197,6 +238,8 @@ export class FreeformLight2D extends BaseLight2D {
                     this.showRenderTarget = new ShowRenderTarget(scene, this._texLight, 0, 0, 300, 300);
                 else this.showRenderTarget.setRenderTarget(this._texLight);
             }
+            if (Light2DManager.DEBUG)
+                console.log('update freeform light texture');
         }
     }
 

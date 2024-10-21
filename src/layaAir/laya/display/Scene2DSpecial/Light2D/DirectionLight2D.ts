@@ -14,6 +14,7 @@ export class DirectionLight2D extends BaseLight2D {
         super();
         this._type = Light2DType.Direction;
         this.directionAngle = directionAngle;
+        this.calcLocalRange();
     }
 
     /**
@@ -65,22 +66,39 @@ export class DirectionLight2D extends BaseLight2D {
     }
 
     /**
-     * @en Get light range
-     * @zh 获取灯光范围
+     * @internal
      * @param screen 
      */
-    getLightRange(screen?: Rectangle) {
-        this._range.x = -10000;
-        this._range.y = -10000;
-        this._range.width = 20000;
-        this._range.height = 20000;
+    _getRange(screen?: Rectangle) {
+        if (!this._worldRange)
+            this._worldRange = new Rectangle();
+        this.calcWorldRange(screen);
+        return this._worldRange;
+    }
+
+    /**
+     * @en Calculate light range（local）
+     * @zh 计算灯光范围（局部坐标）
+     */
+    protected calcLocalRange() {
+        this._localRange.x = -10000;
+        this._localRange.y = -10000;
+        this._localRange.width = 20000;
+        this._localRange.height = 20000;
+    }
+
+    /**
+     * @en Calculate light range（world）
+     * @zh 计算灯光范围（世界坐标）
+     * @param screen 
+     */
+    protected calcWorldRange(screen?: Rectangle) {
+        super.calcWorldRange(screen);
+        this._localRange.cloneTo(this._worldRange);
         if (screen) {
-            this._range.x += screen.x;
-            this._range.y += screen.y;
-            this._range.width += screen.width;
-            this._range.height += screen.height;
+            this._worldRange.x += screen.x;
+            this._worldRange.y += screen.y;
         }
-        return this._range;
     }
 
     /**

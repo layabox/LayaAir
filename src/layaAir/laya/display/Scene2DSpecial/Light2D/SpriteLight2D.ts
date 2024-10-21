@@ -4,6 +4,7 @@ import { Browser } from "../../../utils/Browser";
 import { Scene } from "../../Scene";
 import { Sprite } from "../../Sprite";
 import { BaseLight2D, Light2DType } from "../Light2D/BaseLight2D"
+import { Light2DManager } from "./Light2DManager";
 import { ShowRenderTarget } from "./ShowRenderTarget";
 
 /**
@@ -31,6 +32,8 @@ export class SpriteLight2D extends BaseLight2D {
         if (value)
             this._texLight._addReference(1);
         this._needUpdateLight = true;
+        this._needUpdateLightWorldRange = true;
+        this.calcLocalRange();
     }
 
     /**
@@ -42,18 +45,32 @@ export class SpriteLight2D extends BaseLight2D {
     }
 
     /**
-     * @en Get light range
-     * @zh 获取灯光范围
+     * @en Calculate light range（local）
+     * @zh 计算灯光范围（局部坐标）
+     */
+    protected calcLocalRange() {
+        const w = (this._texLight ? this._texLight.width : 100) * Browser.pixelRatio | 0;
+        const h = (this._texLight ? this._texLight.height : 100) * Browser.pixelRatio | 0;
+        this._localRange.x = (-0.5 * w) | 0;
+        this._localRange.y = (-0.5 * h) | 0;
+        this._localRange.width = w;
+        this._localRange.height = h;
+    }
+
+    /**
+     * @en Calculate light range（world）
+     * @zh 计算灯光范围（世界坐标）
      * @param screen 
      */
-    getLightRange(screen?: Rectangle) {
-        const w = this._texLight.width * (this.owner as Sprite).globalScaleX * Browser.pixelRatio | 0;
-        const h = this._texLight.height * (this.owner as Sprite).globalScaleY * Browser.pixelRatio | 0;
-        this._range.x = (-0.5 * w + (this.owner as Sprite).globalPosX * Browser.pixelRatio) | 0;
-        this._range.y = (-0.5 * h + (this.owner as Sprite).globalPosY * Browser.pixelRatio) | 0;
-        this._range.width = w;
-        this._range.height = h;
-        return this._range;
+    protected calcWorldRange(screen?: Rectangle) {
+        super.calcWorldRange(screen);
+        const w = (this._texLight ? this._texLight.width : 100) * (this.owner as Sprite).globalScaleX * Browser.pixelRatio | 0;
+        const h = (this._texLight ? this._texLight.height : 100) * (this.owner as Sprite).globalScaleY * Browser.pixelRatio | 0;
+        this._worldRange.x = (-0.5 * w + (this.owner as Sprite).globalPosX * Browser.pixelRatio) | 0;
+        this._worldRange.y = (-0.5 * h + (this.owner as Sprite).globalPosY * Browser.pixelRatio) | 0;
+        this._worldRange.width = w;
+        this._worldRange.height = h;
+        (this.owner?.scene as Scene)?._light2DManager?.needUpdateLightRange();
     }
 
     /**
@@ -71,6 +88,8 @@ export class SpriteLight2D extends BaseLight2D {
                     this.showRenderTarget = new ShowRenderTarget(scene, this._texLight, 0, 0, 300, 300);
                 else this.showRenderTarget.setRenderTarget(this._texLight);
             }
+            if (Light2DManager.DEBUG)
+                console.log('update sprite light texture');
         }
     }
 

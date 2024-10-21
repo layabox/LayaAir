@@ -72,7 +72,8 @@ export class BaseLight2D extends Component {
     protected _shadowFilterSmooth: number = 1; //阴影边缘平滑系数
     protected _shadowLayerMask: number = 1; //阴影层掩码（哪些层有阴影）
     protected _shadowFilterType: ShadowFilterType = ShadowFilterType.None; //阴影边缘平滑类型
-    protected _range: Rectangle = new Rectangle(); //灯光范围
+    protected _localRange: Rectangle = new Rectangle(); //灯光范围（局部坐标）
+    protected _worldRange: Rectangle; //灯光范围（世界坐标）
     protected _recoverFC: number = 0; //回收资源帧序号
     protected _needToRecover: any[] = []; //需要回收的资源
     protected _lastRotation: number = -1; //上一帧旋转角度
@@ -88,7 +89,15 @@ export class BaseLight2D extends Component {
     /**
      * @internal
      */
-    _needUpdateLightTrans: boolean = false; //是否需要更新灯光的Trans位置
+    _needUpdateLightTrans: boolean = false; //是否需要更新灯光的位置
+    /**
+     * @internal
+     */
+    _needUpdateLightAndShadow: boolean = false; //是否会引起光影图需要更新
+    /**
+     * @internal
+     */
+    _needUpdateLightWorldRange: boolean = false; //是否需要更新灯光区域（世界坐标）
 
     /**
      * @en Get light color
@@ -106,8 +115,10 @@ export class BaseLight2D extends Component {
         if (value.r !== this._color.r
             || value.g !== this._color.g
             || value.b !== this._color.b
-            || value.a !== this._color.a)
+            || value.a !== this._color.a) {
             this._needUpdateLight = true;
+            this._needUpdateLightAndShadow = true;
+        }
         value.cloneTo(this._color);
     }
 
@@ -124,8 +135,10 @@ export class BaseLight2D extends Component {
      * @zh 设置灯光强度
      */
     set intensity(value: number) {
-        if (value !== this._intensity)
+        if (value !== this._intensity) {
             this._needUpdateLight = true;
+            this._needUpdateLightAndShadow = true;
+        }
         this._intensity = value;
     }
 
@@ -160,8 +173,10 @@ export class BaseLight2D extends Component {
      * @zh 使能灯光阴影
      */
     set shadowEnable(value: boolean) {
-        if (this._shadowEnable !== value)
+        if (this._shadowEnable !== value) {
             this._needUpdateLight = true;
+            this._needUpdateLightAndShadow = true;
+        }
         this._shadowEnable = value;
     }
 
@@ -178,8 +193,10 @@ export class BaseLight2D extends Component {
      * @zh 设置阴影强度
      */
     set shadowStrength(value: number) {
-        if (value !== this._shadowStrength)
+        if (value !== this._shadowStrength) {
             this._needUpdateLight = true;
+            this._needUpdateLightAndShadow = true;
+        }
         this._needUpdateLight = true;
     }
 
@@ -196,8 +213,10 @@ export class BaseLight2D extends Component {
      * @zh 设置阴影层遮罩（阴影影响哪些层）
      */
     set shadowLayerMask(value: number) {
-        if (value !== this._shadowLayerMask)
+        if (value !== this._shadowLayerMask) {
+            this._needUpdateLightAndShadow = true;
             this._notifyShadowCastLayerChange(this.shadowLayerMask, value);
+        }
         this._shadowLayerMask = value;
     }
 
@@ -214,8 +233,10 @@ export class BaseLight2D extends Component {
      * @zh 设置阴影边缘平滑类型
      */
     set shadowFilterType(value: ShadowFilterType) {
-        if (value !== this._shadowFilterType)
+        if (value !== this._shadowFilterType) {
             this._needUpdateLight = true;
+            this._needUpdateLightAndShadow = true;
+        }
         this._shadowFilterType = value;
     }
 
@@ -233,6 +254,7 @@ export class BaseLight2D extends Component {
      */
     set layerMask(value: number) {
         if (this.layerMask !== value) {
+            this._needUpdateLightAndShadow = true;
             this._notifyLightLayerChange(this.layerMask, value);
         }
         this._layerMask = value;
@@ -251,8 +273,10 @@ export class BaseLight2D extends Component {
      * @zh 设置阴影边缘平滑系数
      */
     set shadowFilterSmooth(value: number) {
-        if (value !== this._shadowFilterSmooth)
+        if (value !== this._shadowFilterSmooth) {
             this._needUpdateLight = true;
+            this._needUpdateLightAndShadow = true;
+        }
         this._shadowFilterSmooth = value;
     }
 
@@ -310,6 +334,9 @@ export class BaseLight2D extends Component {
     protected _transformChange() {
         this._needUpdateLight = true;
         this._needUpdateLightTrans = true;
+        this._needUpdateLightAndShadow = true;
+        this._needUpdateLightWorldRange = true;
+        (this.owner.scene as Scene)?._light2DManager?.lightTransformChange(this);
     }
 
     /**
@@ -331,9 +358,15 @@ export class BaseLight2D extends Component {
 
     /**
      * @internal
+     * @param screen 
      */
-    _getRange() {
-        return this._range;
+    _getRange(screen?: Rectangle) {
+        if (!this._worldRange) {
+            this._worldRange = new Rectangle();
+            this.calcWorldRange(screen);
+        } else if (this._needUpdateLightWorldRange)
+            this.calcWorldRange(screen);
+        return this._worldRange;
     }
 
     /**
@@ -349,7 +382,7 @@ export class BaseLight2D extends Component {
      * @zh 获取灯光影响范围矩形的高度值
      */
     getHeight() {
-        return this._range.height;
+        return this._worldRange.height;
     }
 
     /**
@@ -357,7 +390,7 @@ export class BaseLight2D extends Component {
      * @zh 获取灯光影响范围矩形的宽度值
      */
     getWidth() {
-        return this._range.width;
+        return this._worldRange.width;
     }
 
     /**
@@ -425,12 +458,21 @@ export class BaseLight2D extends Component {
     }
 
     /**
-     * @en Get light range
+     * @en Calculate light range（local）
+     * @zh 计算灯光范围（局部坐标）
+     */
+    protected calcLocalRange() {
+    }
+
+    /**
+     * @en Calculate light range（world）
      * @zh 获取灯光范围
      * @param screen 
      */
-    getLightRange(screen?: Rectangle) {
-        return this._range;
+    protected calcWorldRange(screen?: Rectangle) {
+        if (!this._worldRange)
+            this._worldRange = new Rectangle();
+        this._needUpdateLightWorldRange = false;
     }
 
     /**
@@ -456,7 +498,7 @@ export class BaseLight2D extends Component {
      * @param screen 
      */
     isInScreen(screen: Rectangle) {
-        return this.getLightRange().intersects(screen);
+        return this._getRange().intersects(screen);
     }
 
     /**

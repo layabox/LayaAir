@@ -24,6 +24,116 @@ import { ShowRenderTarget } from "./ShowRenderTarget";
 import { Laya } from "../../../../Laya";
 import { ShaderData } from "../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { BaseRenderNode2D } from "../../../NodeRender2D/BaseRenderNode2D";
+import { LayaGL } from "../../../layagl/LayaGL";
+
+/**
+ * @internal
+ * 每一层用于渲染光源的资源
+ */
+class Light2DRenderRes {
+    root: Sprite; //精灵根节点
+    sprites: Sprite[][] = []; //灯光精灵，数量等于当前层的灯光数量*PCF值
+    render: Mesh2DRender[][] = []; //2D网格渲染器，数量等于当前层的灯光数量*PCF值
+    material: Material[] = []; //生成光影图的材质，数量等于当前层的灯光数量
+    spritesShadow: Sprite[] = []; //阴影精灵，数量等于当前层的灯光数量
+    renderShadow: Mesh2DRender[] = []; //2D网格渲染器，数量等于当前层的灯光数量
+    materialShadow: Material[] = []; //生成阴影图的材质，数量等于当前层的灯光数量
+
+    /**
+     * @en Initial material
+     * @zh 初始化材质
+     * @param material 
+     * @param shadow 
+     */
+    private _initMaterial(material: Material, shadow: boolean) {
+        if (shadow) {
+            material.setShaderName('ShadowGen2D');
+            material.setFloat('u_Shadow2DStrength', 0.5);
+        }
+        else material.setShaderName('LightAndShadowGen2D');
+        material.setColor('u_LightColor', new Color(1, 1, 1, 1));
+        material.setFloat('u_LightIntensity', 1);
+        material.setFloat('u_PCFIntensity', 1);
+        material.setBoolByIndex(Shader3D.DEPTH_WRITE, false);
+        material.setIntByIndex(Shader3D.DEPTH_TEST, RenderState.DEPTHTEST_OFF);
+        material.setIntByIndex(Shader3D.BLEND, RenderState.BLEND_ENABLE_ALL);
+        material.setIntByIndex(Shader3D.BLEND_EQUATION, RenderState.BLENDEQUATION_ADD);
+        material.setIntByIndex(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ONE);
+        material.setIntByIndex(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE);
+        material.setIntByIndex(Shader3D.CULL, RenderState.CULL_NONE);
+    }
+
+    /**
+     * @en Add lights
+     * @zh 添加灯光组
+     * @param lights 
+     */
+    addLights(lights: BaseLight2D[]) {
+        if (!this.root)
+            this.root = new Sprite();
+
+        //遍历所有灯（建立灯光资源）
+        for (let i = 0, len = lights.length; i < len; i++) {
+            const light = lights[i];
+            const pcf = light.getLightType() === Light2DType.Direction ? 1 : light.shadowFilterType;
+            if (!this.sprites[i]) {
+                this.sprites[i] = [];
+                this.render[i] = [];
+            }
+            for (let j = 0; j < ShadowFilterType.PCF13; j++) {
+                if (j < pcf) {
+                    if (!this.sprites[i][j]) {
+                        this.sprites[i][j] = this.root.addChild(new Sprite());
+                        this.render[i][j] = this.sprites[i][j].addComponent(Mesh2DRender);
+                        this.render[i][j].lightReceive = false;
+                    } else this.root.addChild(this.sprites[i][j]);
+                } else if (this.sprites[i][j])
+                    this.root.removeChild(this.sprites[i][j]);
+            }
+            if (!this.material[i]) {
+                this.material[i] = new Material();
+                this._initMaterial(this.material[i], false);
+            }
+            for (let j = this.render[i].length - 1; j > -1; j--) {
+                this.render[i][j].texture = light._texLight;
+                this.render[i][j].sharedMaterial = this.material[i];
+            }
+            this.material[i].setColor('u_LightColor', light.color);
+            this.material[i].setFloat('u_LightIntensity', light.intensity);
+            this.material[i].setFloat('u_PCFIntensity', light._pcfIntensity());
+        }
+        for (let i = lights.length; i < this.sprites.length; i++)
+            for (let j = this.sprites[i].length - 1; j > -1; j--)
+                this.root.removeChild(this.sprites[i][j]);
+
+        //遍历所有灯（建立阴影资源）
+        for (let i = 0, len = lights.length; i < len; i++) {
+            const light = lights[i];
+            if (light.shadowEnable && light.shadowStrength < 1) {
+                if (!this.spritesShadow[i]) {
+                    this.spritesShadow[i] = this.root.addChild(new Sprite());
+                    this.renderShadow[i] = this.spritesShadow[i].addComponent(Mesh2DRender);
+                    this.renderShadow[i].lightReceive = false;
+                } else this.root.addChild(this.spritesShadow[i]);
+                if (!this.materialShadow[i]) {
+                    this.materialShadow[i] = new Material();
+                    this._initMaterial(this.materialShadow[i], true);
+                }
+                this.renderShadow[i].texture = light._texLight;
+                this.renderShadow[i].sharedMaterial = this.materialShadow[i];
+                if (light.shadowColor)
+                    this.materialShadow[i].setColor('u_LightColor', light.shadowColor);
+                else this.materialShadow[i].setColor('u_LightColor', light.color);
+                this.materialShadow[i].setFloat('u_LightIntensity', light.intensity);
+                this.materialShadow[i].setFloat('u_PCFIntensity', light._pcfIntensity());
+                this.materialShadow[i].setFloat('u_Shadow2DStrength', light.shadowStrength);
+            } else if (this.spritesShadow[i])
+                this.root.removeChild(this.spritesShadow[i]);
+        }
+        for (let i = lights.length; i < this.spritesShadow.length; i++)
+            this.root.removeChild(this.spritesShadow[i]);
+    }
+}
 
 /**
  * 生成2D光影图的渲染流程
@@ -32,13 +142,12 @@ export class Light2DManager {
     static MAX_LAYER: number = 32; //最大层数
     static LIGHT_SCHMITT_SIZE: number = 10; //灯光施密特边缘尺寸
     static SCREEN_SCHMITT_SIZE: number = 200; //屏幕施密特边缘尺寸
+    static DEBUG: boolean = false; //是否打印调试信息
 
     target: RenderTexture2D[] = []; //渲染目标（光影图），数量等于有灯光的层数
     param: Vector4[] = []; //光影图参数（xy：偏移，zw：宽高）
     ambient: Color = new Color(0.25, 0.25, 0.25, 1); //环境光
     ambientLayerMask: number = 1; //环境光影响的层
-
-    sceneTarget: RenderTexture2D; //临时测试用
 
     private _PCF: Vector2[] = []; //PCF系数
     private _scene: Scene; //场景对象
@@ -46,13 +155,6 @@ export class Light2DManager {
     private _screenPrev: Vector2; //先前屏幕尺寸
     private _screenSchmitt: Rectangle; //带施密特性质的屏幕偏移和尺寸
     private _screenSchmittChange: boolean; //带施密特性质的屏幕是否发生变化
-    private _root: Sprite; //精灵根节点
-    private _sprites: Sprite[][] = []; //灯光精灵，数量等于当前层的灯光数量*PCF值
-    private _render: Mesh2DRender[][] = []; //2D网格渲染器，数量等于当前层的灯光数量*PCF值
-    private _material: Material[] = []; //生成光影图的材质，数量等于当前层的灯光数量
-    private _spritesShadow: Sprite[] = []; //阴影精灵，数量等于当前层的灯光数量
-    private _renderShadow: Mesh2DRender[] = []; //2D网格渲染器，数量等于当前层的灯光数量
-    private _materialShadow: Material[] = []; //生成阴影图的材质，数量等于当前层的灯光数量
     private _lightRangeSchmitt: Rectangle[] = []; //带施密特性质灯光范围，数量等于当前层的灯光数量
     private _segments: LightLine2D[] = []; //当前层所有遮光器组成的线段
     private _points: number[] = []; //遮光器线段提取的点集
@@ -61,24 +163,29 @@ export class Light2DManager {
     private _occluders: LightOccluder2D[] = []; //场景中的所有遮光器
 
     private _works: number = 0; //每帧工作负载
-    private _updateMark: number[] = new Array(32).fill(0); //各层的更新标识
-    private _lightsInLayer: BaseLight2D[][] = []; //各层中的灯光
+    private _updateMark: number[] = new Array(Light2DManager.MAX_LAYER).fill(0); //各层的更新标识
+    private _updateLayerLight: boolean[] = new Array(Light2DManager.MAX_LAYER).fill(false); //各层是否需要更新光源图
+    private _lightLayer: number[] = []; //具有灯光的层序号（屏幕内）
+    private _lightLayerAll: number[] = []; //具有灯光的层序号
+    private _lightsInLayer: BaseLight2D[][] = []; //各层中的灯光（屏幕内）
+    private _lightsInLayerAll: BaseLight2D[][] = []; //各层中的所有灯光
+    private _occluderLayer: number[] = []; //具有遮光器的层序号
     private _occludersInLayer: LightOccluder2D[][] = []; //各层中的遮光器
-    private _occludersInLight: LightOccluder2D[] = []; //影响当前灯光的遮光器
+    private _occludersInLight: LightOccluder2D[][][] = []; //影响屏幕内各层灯光的遮光器
 
-    private _rangeState: string[] = []; //各层灯光围栏状态
-    private _lightsState: string[][] = []; //各层中各灯光状态
-    private _occludersState: string[][] = []; //各层中影响各灯的遮光器状态
+    private _lightRenderRes: Light2DRenderRes[] = []; //各层的渲染资源
+    private _lightRangeChange: boolean[] = []; //各层灯光围栏是否改变
 
     private _recoverFC: number = 0; //回收资源帧序号
     private _needToRecover: any[] = []; //需要回收的资源
+    private _needUpdateLightRange: boolean = false; //是否需要更新灯光范围
+    private _needCollectLightInLayer: boolean = false; //是否需要更新各层中的灯光
     private _showRenderTarget: ShowRenderTarget[] = []; //用于临时显示渲染目标
 
     private _tempRange: Rectangle = new Rectangle();
 
     constructor(scene: Scene) {
         this._scene = scene;
-        this._root = new Sprite();
         this._screen = new Rectangle();
         this._screenPrev = new Vector2();
         this._screenSchmitt = new Rectangle();
@@ -107,11 +214,71 @@ export class Light2DManager {
         else this._showRenderTarget[layer].setRenderTarget(this.target[layer]);
     }
 
-    //临时测试用
-    showSceneTarget(layer: number = 0) {
-        if (!this._showRenderTarget[layer])
-            this._showRenderTarget[layer] = new ShowRenderTarget(this._scene, this.sceneTarget, 400, layer * 300, this._screen.width / 4, this._screen.height / 4);
-        else this._showRenderTarget[layer].setRenderTarget(this.sceneTarget);
+    /**
+     * @en Light transform change
+     * @zh 灯光的变换矩阵发生变化
+     * @param light 
+     */
+    lightTransformChange(light: BaseLight2D) {
+        const layerMask = light.layerMask;
+        for (let i = 0; i < Light2DManager.MAX_LAYER; i++) {
+            if (layerMask & (1 << i)) {
+                this._collectLightInScreenByLayer(i); //收集该层屏幕内的灯光
+                this._updateLayerLight[i] = true;
+                this._needUpdateLightRange = true;
+            }
+        }
+        if (Light2DManager.DEBUG)
+            console.log('light transform change', light);
+    }
+
+    /**
+     * @en Need update the light range
+     * @zh 需要更新灯光范围
+     */
+    needUpdateLightRange() {
+        this._needUpdateLightRange = true;
+    }
+
+    /**
+     * @en Need collect light in layers
+     * @zh 是否需要收集各层中的灯光
+     */
+    needCollectLightInLayer() {
+        this._needCollectLightInLayer = true;
+    }
+
+    /**
+     * @en light layer mark change
+     * @zh 灯光的影响层发生变化
+     * @param light 
+     */
+    lightLayerMarkChange(light: BaseLight2D) {
+        const layerMask = light.layerMask;
+        for (let i = 0; i < Light2DManager.MAX_LAYER; i++) {
+            const index = this._lightsInLayerAll[i]?.indexOf(light);
+            if (layerMask & (1 << i)) {
+                if (index === undefined || index === -1) {
+                    if (!this._lightsInLayerAll[i])
+                        this._lightsInLayerAll[i] = [];
+                    this._lightsInLayerAll[i].push(light); //将灯光加入受影响的层
+                    if (this._lightLayerAll.indexOf(i) === -1) //记录有灯光的层序号
+                        this._lightLayerAll.push(i);
+                    this._collectLightInScreenByLayer(i); //收集该层屏幕内的灯光
+                    this._updateLayerLight[i] = true;
+                }
+            } else {
+                if (index >= 0) {
+                    this._lightsInLayerAll[i].splice(index, 1); //将灯光从受影响的层中去除
+                    if (this._lightsInLayerAll[i].length === 0) //如果受影响的层已经没有灯光，将层序号去除
+                        this._lightLayerAll.splice(this._lightLayerAll.indexOf(i), 1);
+                    this._collectLightInScreenByLayer(i); //收集该层屏幕内的灯光
+                    this._updateLayerLight[i] = true;
+                }
+            }
+        }
+        if (Light2DManager.DEBUG)
+            console.log('light layer mark change', light);
     }
 
     /**
@@ -120,6 +287,9 @@ export class Light2DManager {
      */
     clearLight() {
         this._lights.length = 0;
+        for (let i = 0; i < this._lightLayerAll.length; i++)
+            this._lightsInLayerAll[this._lightLayerAll[i]].length = 0;
+        this._lightLayerAll.length = 0;
     }
 
     /**
@@ -128,8 +298,22 @@ export class Light2DManager {
      * @param light 
      */
     addLight(light: BaseLight2D) {
-        if (this._lights.indexOf(light) === -1)
+        if (this._lights.indexOf(light) === -1) {
             this._lights.push(light);
+            const layerMask = light.layerMask;
+            for (let i = 0; i < Light2DManager.MAX_LAYER; i++) {
+                if (layerMask & (1 << i)) {
+                    if (!this._lightsInLayerAll[i])
+                        this._lightsInLayerAll[i] = [];
+                    this._lightsInLayerAll[i].push(light); //将灯光加入受影响的层
+                    if (this._lightLayerAll.indexOf(i) === -1) //记录有灯光的层序号
+                        this._lightLayerAll.push(i);
+                    this._collectLightInScreenByLayer(i); //收集该层屏幕内的灯光
+                }
+            }
+            if (Light2DManager.DEBUG)
+                console.log('add light', light);
+        }
     }
 
     /**
@@ -139,8 +323,23 @@ export class Light2DManager {
      */
     removeLight(light: BaseLight2D) {
         const index = this._lights.indexOf(light);
-        if (index >= 0)
+        if (index >= 0) {
             this._lights.splice(index, 1);
+            const layerMask = light.layerMask;
+            for (let i = 0; i < Light2DManager.MAX_LAYER; i++) {
+                if (layerMask & (1 << i)) {
+                    const idx = this._lightsInLayerAll[i].indexOf(light);
+                    if (idx >= 0) {
+                        this._lightsInLayerAll[i].splice(idx, 1); //将灯光从受影响的层中去除
+                        if (this._lightsInLayerAll[i].length === 0) //如果受影响的层已经没有灯光，将层序号去除
+                            this._lightLayerAll.splice(this._lightLayerAll.indexOf(i), 1);
+                        this._collectLightInScreenByLayer(i); //收集该层屏幕内的灯光
+                    }
+                }
+            }
+            if (Light2DManager.DEBUG)
+                console.log('remove light', light);
+        }
     }
 
     /**
@@ -149,6 +348,9 @@ export class Light2DManager {
      */
     clearOccluder() {
         this._occluders.length = 0;
+        for (let i = 0; i < this._occluderLayer.length; i++)
+            this._occludersInLayer[this._occluderLayer[i]].length = 0;
+        this._occluderLayer.length = 0;
     }
 
     /**
@@ -157,8 +359,21 @@ export class Light2DManager {
      * @param occluder 
      */
     addOccluder(occluder: LightOccluder2D) {
-        if (this._occluders.indexOf(occluder) === -1)
+        if (this._occluders.indexOf(occluder) === -1) {
             this._occluders.push(occluder);
+            const layerMask = occluder.layerMask;
+            for (let i = 0; i < Light2DManager.MAX_LAYER; i++) {
+                if (layerMask & (1 << i)) {
+                    if (!this._occludersInLayer[i])
+                        this._occludersInLayer[i] = [];
+                    this._occludersInLayer[i].push(occluder); //将遮光器加入受影响的层
+                    if (this._occluderLayer.indexOf(i) === -1) //记录有遮光器的层序号
+                        this._occluderLayer.push(i);
+                }
+            }
+            if (Light2DManager.DEBUG)
+                console.log('add occluder', occluder);
+        }
     }
 
     /**
@@ -168,51 +383,108 @@ export class Light2DManager {
      */
     removeOccluder(occluder: LightOccluder2D) {
         const index = this._occluders.indexOf(occluder);
-        if (index >= 0)
+        if (index >= 0) {
             this._occluders.splice(index, 1);
+            const layerMask = occluder.layerMask;
+            for (let i = 0; i < Light2DManager.MAX_LAYER; i++) {
+                if (layerMask & (1 << i)) {
+                    const idx = this._occludersInLayer[i].indexOf(occluder);
+                    if (idx >= 0) {
+                        this._occludersInLayer[i].splice(idx, 1); //将遮光器从受影响的层中去除
+                        if (this._occludersInLayer[i].length === 0) //如果受影响的层已经没有遮光器，将层序号去除
+                            this._occluderLayer.splice(this._occluderLayer.indexOf(i), 1);
+                    }
+                }
+            }
+            if (Light2DManager.DEBUG)
+                console.log('remove occluder', occluder);
+        }
     }
 
     /**
-     * @en Collect lights and occlusions from specified layers
-     * @zh 收集指定层中的灯光和遮挡器
+     * @en Collect lights and occlusions from specified layers inside screen
+     * @zh 收集屏幕内指定层中的灯光和遮挡器
      * @param layer 
+     * @param updateScreen 是否先更新屏幕范围
      */
-    private _collectLightAndOccluderInLayer(layer: number) {
-        const mask = 1 << layer;
+    private _collectLightInScreenByLayer(layer: number, updateScreen: boolean = true) {
+        //更新屏幕范围
+        if (updateScreen)
+            this._updateScreen();
+
         let lights = this._lightsInLayer[layer];
-        let occluders = this._occludersInLayer[layer];
+        const lightsAll = this._lightsInLayerAll[layer];
         if (!lights)
             lights = this._lightsInLayer[layer] = [];
         else lights.length = 0;
-        if (!occluders)
-            occluders = this._occludersInLayer[layer] = [];
-        else occluders.length = 0;
 
-        for (let i = this._lights.length - 1; i > -1; i--)
-            if (this._lights[i].layerMask & mask)
-                if (this._lights[i].isInScreen(this._screenSchmitt))
-                    lights.push(this._lights[i]);
-        for (let i = this._occluders.length - 1; i > -1; i--)
-            if (this._occluders[i].layerMask & mask)
-                occluders.push(this._occluders[i]);
+        for (let i = lightsAll.length - 1; i > -1; i--) {
+            if (lightsAll[i].isInScreen(this._screenSchmitt)) {
+                lights.push(lightsAll[i]);
+                if (this._lightLayer.indexOf(layer) === -1)
+                    this._lightLayer.push(layer);
+            }
+        }
+        const index = this._lightLayer.indexOf(layer);
+        if (lights.length === 0 && index >= 0)
+            this._lightLayer.splice(index, 1);
+
+        if (lights.length === 0) debugger
+
+        //建立或更新渲染目标
+        let param = this.param[layer];
+        let target = this.target[layer];
+        const x = this._screenSchmitt.x;
+        const y = this._screenSchmitt.y;
+        const z = this._screenSchmitt.width;
+        const w = this._screenSchmitt.height;
+        if (!target) {
+            target = this.target[layer] = new RenderTexture2D(z, w, RenderTargetFormat.R8G8B8A8);
+            target.wrapModeU = WrapMode.Clamp;
+            target.wrapModeV = WrapMode.Clamp;
+            target._invertY = LayaGL.renderEngine._screenInvertY;
+            param = this.param[layer] = new Vector4(x, y, z, w);
+            if (Light2DManager.DEBUG)
+                console.log('create light layer texture', z, w, layer);
+        } else if (param.z != z || param.w != w) {
+            this._needToRecover.push(target);
+            target = this.target[layer] = new RenderTexture2D(z, w, RenderTargetFormat.R8G8B8A8);
+            target.wrapModeU = WrapMode.Clamp;
+            target.wrapModeV = WrapMode.Clamp;
+            target._invertY = LayaGL.renderEngine._screenInvertY;
+            param.setValue(x, y, z, w);
+            if (Light2DManager.DEBUG)
+                console.log('update light layer texture', z, w, layer);
+        } else {
+            param.x = x;
+            param.y = y;
+        }
+
+        //更新该层的渲染资源
+        this._updateLayerRenderRes(layer);
+
+        //收集影响灯光的遮光器
+        for (let i = lights.length - 1; i > -1; i--)
+            this._collectOccludersInLight(layer, lights[i], i);
+
+        if (Light2DManager.DEBUG)
+            console.log('collect light in screen by layer', layer);
     }
 
     /**
-     * @en Is there any light in the specified layer
-     * @zh 指定层中是否有灯光
+     * @zh 更新指定层的渲染资源
      * @param layer 
      */
-    private _isHaveLight(layer: number) {
-        let lights = this._lightsInLayer[layer];
-        if (!lights)
-            lights = this._lightsInLayer[layer] = [];
-        this._collectLightAndOccluderInLayer(layer);
-        this._calcLightRange(layer);
-        return lights.length > 0;
+    private _updateLayerRenderRes(layer: number) {
+        if (!this._lightRenderRes[layer])
+            this._lightRenderRes[layer] = new Light2DRenderRes();
+        this._lightRenderRes[layer].addLights(this._lightsInLayer[layer]);
+        if (Light2DManager.DEBUG)
+            console.log('update layer render res', layer);
     }
 
     /**
-     * @en Calculate the range of the current layer's light and shadow map (with Schmidt)
+     * @en Calculate the range of the current layer's light and shadow map (with schmitt)
      * @zh 计算当前层的光影图范围（带施密特）
      * @param layer 
      */
@@ -220,14 +492,28 @@ export class Light2DManager {
         const range = this._tempRange.reset();
         const lights = this._lightsInLayer[layer];
         for (let i = 0, len = lights.length; i < len; i++) {
-            if (i === 0)
-                lights[i].getLightRange(this._screenSchmitt).cloneTo(range);
-            else range.union(lights[i].getLightRange(this._screenSchmitt), range);
+            if (i === 0) {
+                const r = lights[i]._getRange(this._screenSchmitt);
+                if (Light2DManager.DEBUG)
+                    console.log('range =', r.x, r.y, r.width, r.height, lights[i]);
+                lights[i]._getRange(this._screenSchmitt).cloneTo(range);
+            }
+            else {
+                const r = lights[i]._getRange(this._screenSchmitt);
+                if (Light2DManager.DEBUG)
+                    console.log('range =', r.x, r.y, r.width, r.height, lights[i]);
+                range.union(lights[i]._getRange(this._screenSchmitt), range);
+            }
         }
+        if (Light2DManager.DEBUG)
+            console.log('light range =', range.x, range.y, range.width, range.height);
+        if (range.x === 0) debugger
 
         let rangeSchmitt = this._lightRangeSchmitt[layer];
-        if (!rangeSchmitt)
+        if (!rangeSchmitt) {
             rangeSchmitt = this._lightRangeSchmitt[layer] = new Rectangle();
+            this._lightRangeChange[layer] = false;
+        }
 
         if (range.x < rangeSchmitt.x
             || range.y < rangeSchmitt.y
@@ -237,12 +523,13 @@ export class Light2DManager {
             rangeSchmitt.y = (range.y - Light2DManager.LIGHT_SCHMITT_SIZE) | 0;
             rangeSchmitt.width = (range.width + Light2DManager.LIGHT_SCHMITT_SIZE * 2) | 0;
             rangeSchmitt.height = (range.height + Light2DManager.LIGHT_SCHMITT_SIZE * 2) | 0;
+            this._lightRangeChange[layer] = true;
+            if (Light2DManager.DEBUG)
+                console.log('light range schmitt =', rangeSchmitt.x, rangeSchmitt.y, rangeSchmitt.width, rangeSchmitt.height);
         }
 
-        rangeSchmitt.x = rangeSchmitt.x | 0;
-        rangeSchmitt.y = rangeSchmitt.y | 0;
-        rangeSchmitt.width = rangeSchmitt.width | 0;
-        rangeSchmitt.height = rangeSchmitt.height | 0;
+        if (Light2DManager.DEBUG)
+            console.log('calc light range', layer);
         return rangeSchmitt;
     }
 
@@ -266,112 +553,38 @@ export class Light2DManager {
         this._segments.push(new LightLine2D(x + w, y + h, x, y + h, false)); //下边框
         this._segments.push(new LightLine2D(x, y + h, x, y, false)); //左边框
         const occluders = this._occludersInLayer[layer];
-        if (shadow) {
+        if (occluders && shadow) {
             for (let i = occluders.length - 1; i > -1; i--) {
                 if (occluders[i].selectByLight(lightX, lightY))
-                    occluders[i].getSegment(this._segments);
+                    this._segments.push(...occluders[i].getSegment(lightX, lightY));
             }
         }
+        if (Light2DManager.DEBUG)
+            console.log('get occluder segment', layer);
         return this._segments;
     }
 
     /**
-     * @en Prepare render target
-     * @zh 准备渲染目标
+     * @zh 收集影响指定灯光的遮光器
      * @param layer 
+     * @param light 
+     * @param sn //灯的序号
      */
-    private _prepareRenderTarget(layer: number) {
-        this._updateScreen();
-        if (this._isHaveLight(layer)) {
-            let param = this.param[layer];
-            const x = this._screenSchmitt.x;
-            const y = this._screenSchmitt.y;
-            const z = this._screenSchmitt.width;
-            const w = this._screenSchmitt.height;
-            let target = this.target[layer];
-            if (!target) {
-                target = this.target[layer] = new RenderTexture2D(z, w, RenderTargetFormat.R8G8B8A8);
-                target.wrapModeU = WrapMode.Clamp;
-                target.wrapModeV = WrapMode.Clamp;
-                param = this.param[layer] = new Vector4(x, y, z, w);
-
-                this.sceneTarget = new RenderTexture2D(this._screen.width, this._screen.height, RenderTargetFormat.R8G8B8A8);
-            } else if (param.z != z || param.w != w) {
-                this._needToRecover.push(target);
-                target = this.target[layer] = new RenderTexture2D(z, w, RenderTargetFormat.R8G8B8A8);
-                target.wrapModeU = WrapMode.Clamp;
-                target.wrapModeV = WrapMode.Clamp;
-                param.setValue(x, y, z, w);
-            } else {
-                param.x = x;
-                param.y = y;
-            }
-            //遍历当前层中的所有灯
-            const lights = this._lightsInLayer[layer];
-            for (let i = 0, len = lights.length; i < len; i++) {
-                const light = lights[i];
-                const pcf = light.getLightType() === Light2DType.Direction ? 1 : light.shadowFilterType;
-                if (!this._sprites[i]) {
-                    this._sprites[i] = [];
-                    this._render[i] = [];
-                }
-                for (let j = 0; j < ShadowFilterType.PCF13; j++) {
-                    if (j < pcf) {
-                        if (!this._sprites[i][j]) {
-                            this._sprites[i][j] = this._root.addChild(new Sprite());
-                            this._render[i][j] = this._sprites[i][j].addComponent(Mesh2DRender);
-                            this._render[i][j].lightReceive = false;
-                        } else this._root.addChild(this._sprites[i][j]);
-                    } else if (this._sprites[i][j])
-                        this._root.removeChild(this._sprites[i][j]);
-                }
-                if (!this._material[i]) {
-                    this._material[i] = new Material();
-                    this._initMaterial(this._material[i], false);
-                }
-                for (let j = this._render[i].length - 1; j > -1; j--) {
-                    this._render[i][j].texture = light._texLight;
-                    this._render[i][j].sharedMaterial = this._material[i];
-                }
-                this._material[i].setColor('u_LightColor', light.color);
-                this._material[i].setFloat('u_LightIntensity', light.intensity);
-                this._material[i].setFloat('u_PCFIntensity', light._pcfIntensity());
-            }
-            for (let i = lights.length; i < this._sprites.length; i++)
-                for (let j = this._sprites[i].length - 1; j > -1; j--)
-                    this._root.removeChild(this._sprites[i][j]);
-            //遍历当前层中的所有灯（提取阴影）
-            for (let i = 0, len = lights.length; i < len; i++) {
-                const light = lights[i];
-                if (light.shadowEnable && light.shadowStrength < 1) {
-                    if (!this._spritesShadow[i]) {
-                        this._spritesShadow[i] = this._root.addChild(new Sprite());
-                        this._renderShadow[i] = this._spritesShadow[i].addComponent(Mesh2DRender);
-                        this._renderShadow[i].lightReceive = false;
-                    } else this._root.addChild(this._spritesShadow[i]);
-                    if (!this._materialShadow[i]) {
-                        this._materialShadow[i] = new Material();
-                        this._initMaterial(this._materialShadow[i], true);
-                    }
-                    this._renderShadow[i].texture = light._texLight;
-                    this._renderShadow[i].sharedMaterial = this._materialShadow[i];
-                    if (light.shadowColor)
-                        this._materialShadow[i].setColor('u_LightColor', light.shadowColor);
-                    else this._materialShadow[i].setColor('u_LightColor', light.color);
-                    this._materialShadow[i].setFloat('u_LightIntensity', light.intensity);
-                    this._materialShadow[i].setFloat('u_PCFIntensity', light._pcfIntensity());
-                    this._materialShadow[i].setFloat('u_Shadow2DStrength', light.shadowStrength);
-                } else if (this._spritesShadow[i])
-                    this._root.removeChild(this._spritesShadow[i]);
-            }
-            for (let i = lights.length; i < this._spritesShadow.length; i++)
-                this._root.removeChild(this._spritesShadow[i]);
-            //this.showRenderTarget(layer);
-            //this.showSceneTarget(layer);
-            return true;
+    private _collectOccludersInLight = (layer: number, light: BaseLight2D, sn: number) => {
+        const occluders = this._occludersInLayer[layer];
+        if (occluders) {
+            if (!this._occludersInLight[layer])
+                this._occludersInLight[layer] = [];
+            if (!this._occludersInLight[layer][sn])
+                this._occludersInLight[layer][sn] = [];
+            const result = this._occludersInLight[layer][sn];
+            result.length = 0;
+            const range = light._getRange(this._screenSchmitt);
+            for (let i = occluders.length - 1; i > -1; i--)
+                if (range.intersects(occluders[i]._getRange()))
+                    result.push(occluders[i]);
         }
-        return false;
-    }
+    };
 
     /**
      * @en Render light and shader texture
@@ -379,50 +592,16 @@ export class Light2DManager {
      * @param context 
      */
     preRenderUpdate(context: Context) {
-        //收集影响指定灯光的遮光器
-        const _collectOccludersInLight = (layer: number, light: BaseLight2D) => {
-            const occluders = this._occludersInLayer[layer];
-            const result = this._occludersInLight;
-            result.length = 0;
-            const range = light.getLightRange(this._screenSchmitt);
-            for (let i = occluders.length - 1; i > -1; i--)
-                if (range.intersects(occluders[i]._range))
-                    result.push(occluders[i]);
-        };
-
-        //计算灯光围栏状态
-        const _calcRangeState = (layer: number) => {
-            const range = this._lightRangeSchmitt[layer];
-            let state = '[<';
-            state += range.x + ',';
-            state += range.y + ',';
-            state += range.width + ',';
-            state += range.height + '>]';
-            return state;
-        };
-
-        //计算灯光状态
-        const _calcLightState = (light: BaseLight2D) => {
-            let state = '[<';
-            state += light._lightId + '><';
-            state += light.updateMark + '><';
-            state += (light.getGlobalPosX() | 0) + ',' + (light.getGlobalPosY() | 0) + '>';
-            if (light.getLightType() === Light2DType.Direction)
-                state += '<' + ((light as DirectionLight2D).directionAngle * 10 | 0) + '>';
-            state += ']';
-            return state;
-        };
-
-        //计算遮光器状态
-        const _calcOccluderState = () => {
-            const occluders = this._occludersInLight;
-            let state = '[';
-            for (let i = occluders.length - 1; i > -1; i--) {
-                const occluder = occluders[i];
-                state += '<' + occluder._occluderId + '>' + occluder.getSegmentState();
+        //遮光器状态是否更新
+        const _isOccluderUpdate = (layer: number, sn: number) => {
+            if (this._occludersInLight[layer]
+                && this._occludersInLight[layer][sn]) {
+                const occluders = this._occludersInLight[layer][sn];
+                for (let i = occluders.length - 1; i > -1; i--)
+                    if (occluders[i]._needUpdate)
+                        return true;
             }
-            state += ']';
-            return state;
+            return false;
         };
 
         //回收资源（每10帧回收一次）
@@ -435,89 +614,88 @@ export class Light2DManager {
             this._recoverFC = Laya.timer.currFrame + 10;
         }
 
-        //遍历所有的层
+        //遍历屏幕内有灯光的层
         let works = 0;
-        for (let i = 0; i < Light2DManager.MAX_LAYER; i++) {
-            if (this._prepareRenderTarget(i)) { //该层是否具有光影
-                let needRender = false;
-                const occluders = this._occludersInLayer[i]; //遮光器坐标转换
-                for (let j = occluders.length - 1; j > -1; j--) {
-                    //occluders[j].transformPoly();
-                    occluders[j].getRange();
+        this._updateScreen();
+        for (let i = this._lightLayer.length - 1; i > -1; i--) {
+            let needRender = false;
+            const layer = this._lightLayer[i];
+            const renderRes = this._lightRenderRes[layer];
+            const occluders = this._occludersInLayer[layer]; //遮光器坐标转换
+            if (this._needUpdateLightRange)
+                this._calcLightRange(layer);
+            if (occluders)
+                for (let j = occluders.length - 1; j > -1; j--)
+                    occluders[j]._getRange();
+            let lightChange = false; //灯光是否有变化
+            let screenChange = false; //屏幕是否有变化
+            let occluderChange = false; //遮光器是否有变化
+            if (this._screenSchmittChange
+                || this._needCollectLightInLayer) { //屏幕位置和尺寸是否改变
+                this._collectLightInScreenByLayer(layer, false); //收集该层屏幕内灯光
+                screenChange = true;
+            }
+            if (this._lightRangeChange[layer]) { //灯光围栏是否改变
+                this._lightRangeChange[layer] = false;
+                screenChange = true;
+            }
+            const lights = this._lightsInLayer[layer];
+            for (let j = 0, len = lights.length; j < len; j++) { //遍历屏幕各层灯光
+                const light = lights[j];
+                const renders = renderRes.render[j];
+                const renderShadow = renderRes.renderShadow[j];
+                light.renderLightTexture(this._scene); //按需更新灯光贴图
+                if (!screenChange) {
+                    occluderChange = _isOccluderUpdate(layer, j);
+                    lightChange = light._needUpdateLightAndShadow;
                 }
-                let update1 = false;
-                let update2 = false;
-                let update3 = false;
-                if (this._screenSchmittChange) { //屏幕位置和尺寸是否改变
-                    this._screenSchmittChange = false;
-                    update1 = true;
-                }
-                if (!update1) {
-                    const rangeState = _calcRangeState(i);
-                    if (this._rangeState[i] !== rangeState) { //检查灯光围栏是否改变
-                        this._rangeState[i] = rangeState;
-                        update1 = true;
-                    }
-                }
-                const lights = this._lightsInLayer[i];
-                for (let j = 0, len = lights.length; j < len; j++) { //遍历灯光
-                    const light = lights[j];
-                    const renders = this._render[j];
-                    const renderShadow = this._renderShadow[j];
-                    light.renderLightTexture(this._scene); //更新灯光贴图
-                    if (!update1) {
-                        _collectOccludersInLight(i, light); //收集影响当前灯光的遮光器
-                        const occluderState = _calcOccluderState();
-                        if (!this._occludersState[i])
-                            this._occludersState[i] = [];
-                        if (this._occludersState[i][j] !== occluderState) { //检查遮光器是否改变
-                            this._occludersState[i][j] = occluderState;
-                            update2 = true;
-                        }
-                        if (!update2) {
-                            const lightState = _calcLightState(light);
-                            if (!this._lightsState[i])
-                                this._lightsState[i] = [];
-                            if (this._lightsState[i][j] !== lightState) { //检查灯光是否改变
-                                this._lightsState[i][j] = lightState;
-                                update3 = true;
-                            }
-                        }
-                    }
-                    if (update1 || update2 || update3) { //状态有改变，更新光照网格和阴影网格
-                        for (let k = renders.length - 1; k > -1; k--) { //遍历PCF
-                            const render = renders[k];
-                            if (render) {
-                                render.texture = light._texLight;
-                                this._update(i, this._screenSchmitt.x, this._screenSchmitt.y, light, render, k);
-                                needRender = true;
-                                works++;
-                            }
-                        }
-                        if (renderShadow) { //处理阴影
-                            renderShadow.texture = light._texLight;
-                            this._updateShadow(i, this._screenSchmitt.x, this._screenSchmitt.y, light, renderShadow);
+                if (screenChange || occluderChange || lightChange) { //状态有改变，更新光照网格和阴影网格
+                    for (let k = renders.length - 1; k > -1; k--) { //遍历PCF
+                        const render = renders[k];
+                        if (render) {
+                            render.texture = light._texLight;
+                            this._update(layer, this._screenSchmitt.x, this._screenSchmitt.y, light, render, k);
                             needRender = true;
                             works++;
                         }
-                        this._updateMark[i]++;
                     }
-                    update3 = false;
+                    if (renderShadow) { //处理阴影
+                        renderShadow.texture = light._texLight;
+                        this._updateShadow(layer, this._screenSchmitt.x, this._screenSchmitt.y, light, renderShadow);
+                        needRender = true;
+                        works++;
+                    }
+                    this._updateMark[layer]++;
                 }
-                if (needRender) { //更新光影图
-                    this._scene.addChild(this._root);
-                    this._root.drawToTexture(0, 0, 0, 0, this.target[i]);
-                    this._scene.removeChild(this._root);
-                    //this._scene.drawToTexture(0, 0, 0, 0, this.sceneTarget);
-                }
+                lightChange = false;
+                occluderChange = false;
+            }
+            if (needRender) { //更新光影图
+                this._scene.addChild(renderRes.root);
+                renderRes.root.drawToTexture(0, 0, 0, 0, this.target[layer]);
+                this._scene.removeChild(renderRes.root);
             }
         }
 
+        //清除相关标志
+        for (let i = this._lightLayer.length - 1; i > -1; i--) {
+            const layer = this._lightLayer[i];
+            const lights = this._lightsInLayer[layer];
+            for (let j = 0, len = lights.length; j < len; j++)
+                lights[j]._needUpdateLightAndShadow = false;
+            for (let j = 0, len = this._occluders.length; j < len; j++)
+                this._occluders[j]._needUpdate = false;
+        }
+        this._screenSchmittChange = false;
+        this._needUpdateLightRange = false;
+        this._needCollectLightInLayer = false;
+
         //显示工作负载
-        //if (this._works !== works) {
-        //    this._works = works;
-        //    console.log('works =', works);
-        //}
+        if (Light2DManager.DEBUG)
+            if (this._works !== works) {
+                this._works = works;
+                console.log('works =', works);
+            }
     }
 
     /**
@@ -525,8 +703,6 @@ export class Light2DManager {
      * @param layer 
      */
     _getLayerUpdateMask(layer: number) {
-        //return -1; //TODO 需要判断更新这个灯光的纹理是否改变
-        //return Laya.timer.currFrame; //临时测试
         return this._updateMark[layer];
     }
 
@@ -555,10 +731,8 @@ export class Light2DManager {
     private _updateScreen() {
         const camera = this._scene._specialManager._mainCamera;
         if (camera) {
-            //@ts-ignore
-            this._screen.x = (camera._cameraPos.x - RenderState2D.width / 2) | 0;
-            ///@ts-ignore
-            this._screen.y = (camera._cameraPos.y - RenderState2D.height / 2) | 0;
+            this._screen.x = (camera.getCameraPos().x - RenderState2D.width / 2) | 0;
+            this._screen.y = (camera.getCameraPos().y - RenderState2D.height / 2) | 0;
             this._screen.width = RenderState2D.width | 0;
             this._screen.height = RenderState2D.height | 0;
         } else {
@@ -581,6 +755,12 @@ export class Light2DManager {
             this._screenSchmitt.width = (this._screen.width + Light2DManager.SCREEN_SCHMITT_SIZE * 2) | 0;
             this._screenSchmitt.height = (this._screen.height + Light2DManager.SCREEN_SCHMITT_SIZE * 2) | 0;
             this._screenSchmittChange = true;
+            for (let i = this._lights.length - 1; i > -1; i--)
+                this._lights[i]._needUpdateLightWorldRange = true;
+            for (let i = this._occluders.length - 1; i > -1; i--)
+                this._occluders[i]._needUpdateLightWorldRange = true;
+            if (Light2DManager.DEBUG)
+                console.log('screen schmitt change');
         }
     }
 
@@ -828,30 +1008,6 @@ export class Light2DManager {
 
         const declaration = VertexMesh2D.getVertexDeclaration(['POSITION,UV'], false)[0];
         return Mesh2D.createMesh2DByPrimitive([vertices], [declaration], indices, IndexFormat.UInt16, [{ length: indices.length, start: 0 }]);
-    }
-
-    /**
-     * @en Initial material
-     * @zh 初始化材质
-     * @param material 
-     * @param shadow 
-     */
-    private _initMaterial(material: Material, shadow: boolean) {
-        if (shadow) {
-            material.setShaderName('ShadowGen2D');
-            material.setFloat('u_Shadow2DStrength', 0.5);
-        }
-        else material.setShaderName('LightAndShadowGen2D');
-        material.setColor('u_LightColor', new Color(1, 1, 1, 1));
-        material.setFloat('u_LightIntensity', 1);
-        material.setFloat('u_PCFIntensity', 1);
-        material.setBoolByIndex(Shader3D.DEPTH_WRITE, false);
-        material.setIntByIndex(Shader3D.DEPTH_TEST, RenderState.DEPTHTEST_OFF);
-        material.setIntByIndex(Shader3D.BLEND, RenderState.BLEND_ENABLE_ALL);
-        material.setIntByIndex(Shader3D.BLEND_EQUATION, RenderState.BLENDEQUATION_ADD);
-        material.setIntByIndex(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ONE);
-        material.setIntByIndex(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE);
-        material.setIntByIndex(Shader3D.CULL, RenderState.CULL_NONE);
     }
 
     /**
