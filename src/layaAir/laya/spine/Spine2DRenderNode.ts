@@ -412,15 +412,6 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
         } else
             this.spineItem = this._templet.sketonOptimise._initSpineRender(this._skeleton, this._templet, this, this._state);
 
-        let sprite = this.owner as Sprite;
-        let boundsStyle = sprite._getBoundsStyle();
-        let userBounds = boundsStyle.userBounds;
-        if (!userBounds) {
-            userBounds = boundsStyle.userBounds = new Rectangle;
-        }
-        userBounds.setTo(sprite.x + templet.offsetX  , sprite.y - templet.offsetY - templet.height , templet.width , templet.height );
-        sprite.autoSize = true;
-        
         let skinIndex = this._templet.getSkinIndexByName(this._skinName);
         if (skinIndex != -1)
             this.showSkinByIndex(skinIndex);
