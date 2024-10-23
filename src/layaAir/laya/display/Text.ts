@@ -20,17 +20,12 @@ import { HtmlParseOptions } from "../html/HtmlParseOptions";
 import { Browser } from "../utils/Browser";
 
 /**
- * @en Dispatched after the text content changes.
- * @zh 文本内容发生改变后调度。
- * @eventType Event.CHANGE
- */
-/*[Event(name = "change", type = "laya.events.Event")]*/
-
-/**
  * @en The Text class is used to create display objects to show text.
  * Note: If the runtime system cannot find the specified font, it will render the text with the system default font, which may cause display anomalies. (Usually, it displays normally on computers, but may display abnormally on some mobile devices due to the lack of the set font.)
+ *  - Event.CHANGE event dispatched after the text content changes.
  * @zh Text类用于创建显示对象以显示文本。
  * 注意：如果运行时系统找不到设定的字体，则用系统默认的字体渲染文字，从而导致显示异常。(通常电脑上显示正常，在一些移动端因缺少设置的字体而显示异常)。
+ *  - Event.CHANGE 事件表示文本内容发生改变后调度。
  */
 export class Text extends Sprite {
 
@@ -72,19 +67,13 @@ export class Text extends Sprite {
     static RightToLeft: boolean = false;
 
     /**
-     * @internal
      * @en Predicted length text, used to improve calculation efficiency, find the largest character for different languages.
      * @zh 预测长度的文字，用来提升计算效率，不同语言找一个最大的字符即可。
      */
     static _testWord: string = "游";
-    /**
-     * @internal
-     */
     static _passwordChar = "●";
 
     /**
-     * @internal
-     * @private 
      * @en Dictionary of bitmap fonts.
      * @zh 位图字体字典。
      */
@@ -98,7 +87,6 @@ export class Text extends Sprite {
 
     /**
      * @internal
-     * @protected
      * @en Represents the text content string.
      * @zh 表示文本内容字符串。
      */
@@ -106,7 +94,6 @@ export class Text extends Sprite {
 
     /**
      * @internal
-     * @protected
      * @en Represents the text overflow property.
      * @zh 表示文本的溢出属性。
      */
@@ -114,7 +101,6 @@ export class Text extends Sprite {
 
     /**
      * @internal
-     * @protected
      * @en Split render.
      * @zh 拆分渲染。
      */
@@ -122,19 +108,16 @@ export class Text extends Sprite {
 
     /**
      * @internal
-     * @protected
      */
     protected _textStyle: TextStyle;
 
     /**
      * @internal
-     * @protected
      */
     protected _prompt: string = '';
 
     /**
      * @internal
-     * @protected
      * @en The color of the input prompt.
      * @zh 输入提示符颜色。
      */
@@ -142,7 +125,6 @@ export class Text extends Sprite {
 
     /**
      * @internal
-     * @protected
      * @en The background color of the text, represented as a string.
      * @zh 文本背景颜色，以字符串表示。
      */
@@ -150,7 +132,6 @@ export class Text extends Sprite {
 
     /**
      * @internal
-     * @protected
      * @en The border color of the text background, represented as a string.
      * @zh 文本边框背景颜色，以字符串表示。
      */
@@ -158,7 +139,6 @@ export class Text extends Sprite {
 
     /**
      * @internal
-     * @protected
      * @en The default padding information.
      * [top padding, right padding, bottom padding, left padding] (in pixels).
      * @zh 默认边距信息
@@ -169,18 +149,15 @@ export class Text extends Sprite {
 
     /**
      * @internal
-     * @protected
      * @en Indicates whether the text field using this text format automatically wraps.
      * If the value of wordWrap is true, the text field automatically wraps; if the value is false, the text field does not automatically wrap.
      * @zh 表示使用此文本格式的文本字段是否自动换行。
      * 如果 wordWrap 的值为 true，则该文本字段自动换行；如果值为 false，则该文本字段不自动换行。
-     * @default false
      */
     protected _wordWrap: boolean;
 
     /**
      * @internal
-     * @protected
      * @en Specifies whether the text field is a password text field.
      * If the value of this property is true, the text field is considered a password text field and uses asterisks to hide the input characters instead of the actual characters. If false, the text field is not considered a password text field.
      * @zh 指定文本字段是否是密码文本字段。
@@ -190,19 +167,16 @@ export class Text extends Sprite {
 
     /**
      * @internal
-     * @protected
      */
     protected _htmlParseOptions: HtmlParseOptions;
 
     /**
      * @internal
-     * @protected
      */
     protected _templateVars: Record<string, string>;
 
     /**
      * @internal
-     * @protected
      * @en Indicates whether the text content has changed.
      * @zh 表示文本内容是否发生改变。
      */
@@ -210,7 +184,6 @@ export class Text extends Sprite {
 
     /**
      * @internal
-     * @protected
      * @en Indicates the width of the text in pixels.
      * @zh 表示文本的宽度，以像素为单位。
      */
@@ -218,7 +191,6 @@ export class Text extends Sprite {
 
     /**
      * @internal
-     * @protected
      * @en Indicates the height of the text in pixels.
      * @zh 表示文本的高度，以像素为单位。
      */
@@ -226,67 +198,56 @@ export class Text extends Sprite {
 
     /**
      * @internal
-     * @protected
      */
     protected _realFont: string;
 
     /**
      * @internal
-     * @protected
      */
     protected _bitmapFont: BitmapFont;
 
     /**
      * @internal
-     * @protected
      */
     protected _scrollPos: Point | null;
 
     /**
      * @internal
-     * @protected
      */
     protected _bgDrawCmd: DrawRectCmd;
 
     /**
      * @internal
-     * @protected
      */
     protected _html: boolean;
 
     /**
      * @internal
-     * @protected
      */
     protected _ubb: boolean;
 
     /**
      * @internal
-     * @protected
      */
     protected _lines: Array<ITextLine>;
 
     /**
      * @internal
-     * @protected
      */
     protected _elements: Array<HtmlElement>;
 
     /**
      * @internal
-     * @protected
      */
     protected _objContainer: Sprite;
 
     /**
      * @internal
-     * @protected
      */
     protected _maxWidth: number;
 
     /**
      * @internal
-     * @protected
      */
     protected _hideText: boolean;
 
@@ -352,8 +313,6 @@ export class Text extends Sprite {
     }
 
     /**
-     * @override
-     * @inheritDoc 
      * @en Destroy the text.
      * @param destroyChild Whether to destroy child nodes. Default is true.
      * @zh 销毁文本。
@@ -368,8 +327,6 @@ export class Text extends Sprite {
 
     /**
      * @internal
-     * @inheritDoc
-     * @override
      */
     _getBoundPointsM(ifRotate: boolean = false): any[] {
         var rec: Rectangle = Rectangle.TEMP;
@@ -378,8 +335,6 @@ export class Text extends Sprite {
     }
 
     /**
-     * @override
-     * @inheritDoc
      * @en Get the scrollable visible window.
      * @param realSize Whether to use the real size of the image. Default is false.
      * @zh 获取滚动可视视窗。
@@ -393,8 +348,6 @@ export class Text extends Sprite {
 
     /**
      * @internal
-     * @inheritDoc
-     * @override
      */
     get_width(): number {
         if (this._isWidthSet) return this._width;
@@ -402,7 +355,6 @@ export class Text extends Sprite {
     }
     /**
      * @internal
-     * @override
      */
     _setWidth(value: number) {
         super._setWidth(value);
@@ -414,8 +366,6 @@ export class Text extends Sprite {
 
     /**
      * @internal
-     * @inheritDoc
-     * @override
      */
     get_height(): number {
         if (this._isHeightSet) return this._height;
@@ -423,7 +373,6 @@ export class Text extends Sprite {
     }
     /**
      * @internal
-     * @override
      */
     _setHeight(value: number) {
         super._setHeight(value);
@@ -956,7 +905,6 @@ export class Text extends Sprite {
 
     /**
      * @internal
-     * @protected
      * @en Parse the template content.
      * @param template The template content.
      * @returns The template string with placeholders substituted by their corresponding values from _templateVars.
@@ -1128,7 +1076,6 @@ export class Text extends Sprite {
 
     /**
      * @internal
-     * @protected
      */
     protected markChanged() {
         if (!this._isChanged) {
@@ -1168,7 +1115,6 @@ export class Text extends Sprite {
 
     /**
      * @internal
-     * @protected
      * 排版文本。
      * 进行宽高计算，渲染、重绘文本。
      */
@@ -1237,7 +1183,6 @@ export class Text extends Sprite {
 
     /**
      * @internal
-     * @protected
      * @en Analyze text wrapping.
      * @zh 分析文本换行。
      */
@@ -1852,8 +1797,8 @@ export class Text extends Sprite {
 
     /**
      * @internal
-     * @protected
-     * 渲染文字。
+     * @en Render the text.
+     * @zh 渲染文字。
      */
     protected renderText(): void {
         let graphics = this.graphics;
@@ -1964,9 +1909,9 @@ export class Text extends Sprite {
     }
 
     /**
-     * 绘制背景
      * @internal
-     * @protected
+     * @en Draw background
+     * @zh 绘制背景
      */
     protected drawBg() {
         let cmd = this._bgDrawCmd;
