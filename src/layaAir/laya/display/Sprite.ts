@@ -385,13 +385,12 @@ export class Sprite extends Node {
     }
 
     /**
-     * @internal
      * @en Set the width of the Node.
      * @param number value  The width value, in pixels.
      * @zh 设置节点的宽度。
      * @param number value  宽度值，以像素为单位。
      */
-    set_width(value: number): void {
+    protected set_width(value: number): void {
         let flag = this._sizeFlag;
         if (value == null) {
             value = 0;
@@ -412,11 +411,10 @@ export class Sprite extends Node {
     }
 
     /**
-     * @internal
      * @en Get the width of the Node, in pixels
      * @zh 获取节点的宽度。以像素为单位。
      */
-    get_width(): number {
+    protected get_width(): number {
         if (!this.autoSize) return (this._width == 0 && (this._sizeFlag & 1) == 0 && this.texture) ? this.texture.width : this._width;
         if (this.texture) return this.texture.width;
         if (!this._graphics && this._children.length === 0) return 0;
@@ -436,11 +434,10 @@ export class Sprite extends Node {
     }
 
     /**
-    * @internal
     * @en Set the height of the Node, in pixels
     * @zh 设置节点的高度，单位为像素。
     */
-    set_height(value: number): void {
+    protected set_height(value: number): void {
         let flag = this._sizeFlag;
         if (value == null) {
             value = 0;
@@ -461,11 +458,10 @@ export class Sprite extends Node {
     }
 
     /**
-    * @internal
     * @en Get the height of the Node, in pixels.
     * @zh 获取节点的高度，以像素为单位。
     */
-    get_height(): number {
+    protected get_height(): number {
         if (!this.autoSize) return (this._height == 0 && (this._sizeFlag & 2) == 0 && this.texture) ? this.texture.height : this._height;
         if (this.texture) return this.texture.height;
         if (!this._graphics && this._children.length === 0) return 0;
@@ -473,7 +469,6 @@ export class Sprite extends Node {
     }
 
     /**
-     * @internal
      * @en Check if the width is set.
      * @returns True if the width is set, otherwise false.
      * @zh 检查是否设置了宽度。
@@ -484,7 +479,6 @@ export class Sprite extends Node {
     }
 
     /**
-     * @internal
      * @en Check if the height is set.
      * @returns True if the height is set, otherwise false.
      * @zh 检查是否设置了高度。
