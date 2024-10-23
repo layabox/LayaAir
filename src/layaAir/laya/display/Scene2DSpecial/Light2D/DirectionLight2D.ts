@@ -7,31 +7,50 @@ import { BaseLight2D, Light2DType } from "./BaseLight2D";
  * 线性灯光
  */
 export class DirectionLight2D extends BaseLight2D {
-    private _directionAngle: number = 0;
-    private _directionVector: Vector2 = new Vector2(1, 0);
+    private _directionAngle: number = 0; //灯光角度
+    private _directionVector: Vector2 = new Vector2(1, 0); //灯光角度矢量
 
     constructor(directionAngle: number = 0) {
         super();
         this._type = Light2DType.Direction;
         this.directionAngle = directionAngle;
+        this.calcLocalRange();
     }
 
+    /**
+     * @en Get direction light angle
+     * @zh 获取灯光角度
+     */
     get directionAngle() {
         return this._directionAngle;
     }
+
+    /**
+     * @en Set direction light angle
+     * @zh 设置灯光角度
+     */
     set directionAngle(value: number) {
         value %= 360;
         if (this._directionAngle !== value) {
             this._directionAngle = value;
             this._directionVector.x = Math.cos(this._directionAngle * Math.PI / 180);
             this._directionVector.y = Math.sin(this._directionAngle * Math.PI / 180);
-            this._needUpdateLight = true;
+            this._needUpdateLightAndShadow = true;
         }
     }
 
+    /**
+     * @en Get direction light vector
+     * @zh 获取灯光角度矢量
+     */
     get directionVector() {
         return this._directionVector;
     }
+
+    /**
+     * @en Set direction light vector
+     * @zh 设置灯光角度矢量
+     */
     set directionVector(value: Vector2) {
         const len = Vector2.scalarLength(value);
         if (len > Number.EPSILON) {
@@ -41,31 +60,50 @@ export class DirectionLight2D extends BaseLight2D {
                 this._directionAngle = Math.atan2(y, x);
                 this._directionVector.x = x;
                 this._directionVector.y = y;
-                this._needUpdateLight = true;
+                this._needUpdateLightAndShadow = true;
             }
         }
     }
 
     /**
-     * 获取灯光范围
+     * @internal
      * @param screen 
      */
-    getLightRange(screen?: Rectangle) {
-        this._range.x = -10000;
-        this._range.y = -10000;
-        this._range.width = 20000;
-        this._range.height = 20000;
-        if (screen) {
-            this._range.x += screen.x;
-            this._range.y += screen.y;
-            this._range.width += screen.width;
-            this._range.height += screen.height;
-        }
-        return this._range;
+    _getRange(screen?: Rectangle) {
+        if (!this._worldRange)
+            this._worldRange = new Rectangle();
+        this.calcWorldRange(screen);
+        return this._worldRange;
     }
 
     /**
-     * 是否在屏幕内
+     * @en Calculate light range（local）
+     * @zh 计算灯光范围（局部坐标）
+     */
+    protected calcLocalRange() {
+        this._localRange.x = -10000;
+        this._localRange.y = -10000;
+        this._localRange.width = 20000;
+        this._localRange.height = 20000;
+    }
+
+    /**
+     * @en Calculate light range（world）
+     * @zh 计算灯光范围（世界坐标）
+     * @param screen 
+     */
+    protected calcWorldRange(screen?: Rectangle) {
+        super.calcWorldRange(screen);
+        this._localRange.cloneTo(this._worldRange);
+        if (screen) {
+            this._worldRange.x += screen.x;
+            this._worldRange.y += screen.y;
+        }
+    }
+
+    /**
+     * @en Is light inside the screen
+     * @zh 是否在屏幕内
      * @param screen 
      */
     isInScreen(screen: Rectangle) {

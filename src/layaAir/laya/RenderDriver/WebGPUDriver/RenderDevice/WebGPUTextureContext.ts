@@ -767,7 +767,6 @@ export class WebGPUTextureContext implements ITextureContext {
 
     setTexturePixelsData(texture: WebGPUInternalTex, source: ArrayBufferView, premultiplyAlpha: boolean, invertY: boolean): void {
         if (!source) return;
-        if (texture._webGPUFormat === 'depth32float') debugger
         const imageCopy: GPUImageCopyTextureTagged = {
             texture: texture.resource,
             mipLevel: 0,
