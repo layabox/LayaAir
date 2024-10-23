@@ -1407,6 +1407,9 @@ export class Text extends Sprite {
             let ccode = cmd.wt.text.charCodeAt(pos);
             if (isLowSurrogate(ccode))
                 pos--;
+            if (pos == 0)
+                return false;
+
             let str = cmd.wt.text.substring(pos);
 
             cmd.wt.setText(cmd.wt.text.substring(0, pos));
@@ -1417,12 +1420,16 @@ export class Text extends Sprite {
                 cmd2.wt = new WordText();
             cmd2.wt.setText(str);
             cmd2.style = cmd.style;
+            cmd2.ctxFont = cmd.ctxFont;
+            cmd2.fontSize = cmd.fontSize;
             cmd2.width = cmd2.wt.width = getTextWidthByCmd(str, cmd);
             cmd2.height = cmd.height;
 
             cmd2.next = cmd.next;
             cmd2.prev = cmd;
             cmd.next = cmd2;
+
+            return true;
         };
 
         let addLine = (last?: boolean) => {
@@ -1501,16 +1508,8 @@ export class Text extends Sprite {
                 let cc = text.charAt(j);
                 let ccode = cc.charCodeAt(0);
 
-                if (isEmoji) {
-                    if (isHighSurrogate(ccode)) {
-                        if (j + 1 < len)
-                            cc += text.charAt(j + 1);
-                    }
-                    else if (isLowSurrogate(ccode)) {
-                        //ignore
-                        continue;
-                    }
-                }
+                if (isEmoji && isHighSurrogate(ccode) && j + 1 < len)
+                    cc += text.charAt(j + 1);
 
                 tw = getTextWidth(cc);
                 wordWidth += tw;
@@ -1530,29 +1529,19 @@ export class Text extends Sprite {
                     || (ccode >= 48 && ccode <= 57) // 0-9
                     || (isPunc = punctuationChars.includes(ccode))) {
                     let wb = part.length > 0 ? ((testResult = wordBoundaryTest.exec(part)) ? testResult.index : null) : 0;
-                    if (wb == null) { //边界就在文本的末尾。这个分支也隐含了j是大于stratIndex的
-                        if (isPunc) { //标点符号不允许在行首
-                            let b = (isEmoji && j >= 1 && isLowSurrogate(text.charCodeAt(j - 1))) ? 2 : 1;
-                            if (j - b > startIndex || lineX > 0) { //这里有个边界判断，如果只剩一个字符了，并且在行头，就不能移动了
-                                j -= b;
-                                part = text.substring(startIndex, j);
-                                wordWidth = null;
-                            }
-                        }
-                        //else 做默认处理即可
-                    }
-                    else if (wb > 0) { //边界在文本中间
+                    if (wb > 0) { //边界在文本中间
                         if (wb > part.length - maxWordLength) { //限制字符个数，超过的不看做一个单词
                             j = startIndex + wb;
                             part = text.substring(startIndex, j);
-                            wordWidth = null;
+                            wordWidth = null; //part指向的字符串已改变，wordWidth无效
+                            tw = null; //j指向的字符已改变，tw无效
                         }
                         //else 做默认处理即可
                     }
-                    else if (lastCmd != null) { //未找到边界，还需要向前面的元素查找
+                    else if (wb != null && lastCmd != null) { //未找到边界，还需要向前面的元素查找
                         let cmd = lastCmd;
                         let totalLen = part.length;
-                        let skip = false;
+                        let newLine = false;
                         while (cmd) {
                             if (cmd.width > 0) {
                                 if (cmd.obj != null)
@@ -1562,30 +1551,25 @@ export class Text extends Sprite {
                                 let textLen = cmd.wt.text.length;
                                 if (testResult == null) { //边界就在文本的末尾
                                     addLine();
-                                    if (isPunc && totalLen == 0 && (textLen > 1 || cmd.x > 0)) { //再次检查标点符号不能在行首
-                                        if (textLen > 1) {
-                                            splitCmd(cmd, textLen - 1);
+                                    if (isPunc && totalLen == 0) { //再次检查标点符号不能在行首
+                                        if (splitCmd(cmd, textLen - 1)) //将最后一个字符移到下一行
                                             moveCmds(cmd.next);
-                                        }
-                                        else
+                                        else if (cmd.x > 0) //如果命令不在行首，整个命令移到下一行
                                             moveCmds(cmd);
                                     }
                                     else if (cmd.next != null)
                                         moveCmds(cmd.next);
 
-                                    //回退到上一个字符
-                                    j -= (isEmoji && j >= 1 && isLowSurrogate(text.charCodeAt(j - 1))) ? 2 : 1;
-                                    skip = true; //表示不作默认处理
+                                    newLine = true;
                                     break;
                                 }
                                 else if (testResult.index > 0) {
                                     if (testResult.index > textLen - (maxWordLength - totalLen)) { //限制字符个数，超过的不看做一个单词
-                                        splitCmd(cmd, testResult.index);
                                         addLine();
+                                        splitCmd(cmd, testResult.index);
                                         moveCmds(cmd.next);
-                                        //回退到上一个字符
-                                        j -= (isEmoji && j >= 1 && isLowSurrogate(text.charCodeAt(j - 1))) ? 2 : 1;
-                                        skip = true; //表示不作默认处理
+
+                                        newLine = true;
                                     }
                                     break;
                                 }
@@ -1598,10 +1582,26 @@ export class Text extends Sprite {
                             cmd = cmd.prev;
                         }
 
-                        if (skip) {
+                        if (newLine) {
                             remainWidth = rectWidth - lineX;
-                            continue;
+                            if (wordWidth + tw < remainWidth) {
+                                wordWidth += tw;
+                                continue; //然后继续下一字符即可
+                            }
+                            //else j对应的字符也放不下了，那么和默认处理逻辑是一样的
                         }
+                    }
+                    else { //边界就在文本的末尾
+                        if (isPunc) { //标点符号不允许在行首
+                            let b = (isEmoji && j >= 1 && isLowSurrogate(text.charCodeAt(j - 1))) ? 2 : 1;
+                            if (j - b > startIndex || lineX > 0) { //这里有个边界判断，如果只剩一个字符了，并且在行头，就不能移动了
+                                j -= b; //回退一个字符
+                                part = text.substring(startIndex, j);
+                                wordWidth = null; //part指向的字符串已改变，wordWidth无效
+                                tw = null; //j指向的字符已改变，tw无效
+                            }
+                        }
+                        //else 做默认处理即可
                     }
                 }
 
@@ -1610,15 +1610,21 @@ export class Text extends Sprite {
                 addLine();
 
                 startIndex = j;
+                remainWidth = rectWidth;
+                wordWidth = null;
+
                 if (maybeIndex > 1)
                     j += maybeIndex - 1;
-                if (isEmoji && isHighSurrogate(text.charCodeAt(j)))
+                else if (tw != null) { //一个优化，如果是单字符遍历，而且j还是指向当前字符，那么直接用tw就行
+                    wordWidth = tw;
+                    if (cc.length > 1)
+                        j++;
+                }
+                else if (isEmoji && isHighSurrogate(text.charCodeAt(j)))
                     j++;
 
-                if (j < len - 1) {
+                if (wordWidth == null && j < len - 1)
                     wordWidth = getTextWidth(text.substring(startIndex, j + 1));
-                    remainWidth = rectWidth;
-                }
             }
 
             addCmd(text.substring(startIndex, len), style);
