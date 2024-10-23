@@ -26,9 +26,6 @@ export class CheckBox extends Button {
     }
 
     /**
-     * @internal
-     * @inheritDoc 
-     * @override 
      * @en Preinitialization method. Called before the object is initialized.
      * @zh 预初始化方法。在对象初始化之前调用。
      */
@@ -39,9 +36,6 @@ export class CheckBox extends Button {
     }
 
     /**
-     * @internal
-     * @inheritDoc 
-     * @override
      * @en Initialization method. Called when the object is initialized.
      * @zh 初始化方法。在对象初始化时调用。
      */
@@ -54,8 +48,6 @@ export class CheckBox extends Button {
     }
 
     /**
-     * @inheritDoc 
-     * @override
      * @en Sets the data source of the component.
      * @param value The data source.
      * @zh 设置组件的数据源。

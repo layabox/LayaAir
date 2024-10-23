@@ -19,39 +19,22 @@ import { URL } from "../net/URL";
  */
 export class UIGroup extends Box {
 
-    /**@internal */
     protected _items: ISelect[];
-    /**@internal */
     protected _selectedIndex: number = -1;
-    /**@internal */
     protected _skin: string;
-    /**@internal */
     protected _direction: string = "horizontal";
-    /**@internal */
     protected _space: number = 0;
-    /**@internal */
     protected _labels: string;
-    /**@internal */
     protected _labelColors: string;
-    /**@internal */
     private _labelFont: string;
-    /**@internal */
     protected _labelStrokeColor: string;
-    /**@internal */
     protected _strokeColors: string;
-    /**@internal */
     protected _labelStroke: number;
-    /**@internal */
     protected _labelSize: number;
-    /**@internal */
     protected _labelBold: boolean;
-    /**@internal */
     protected _labelPadding: string;
-    /**@internal */
     protected _labelAlign: string;
-    /**@internal */
     protected _stateNum: number;
-    /**@internal */
     protected _labelChanged: boolean;
     /**
      * @en The processor executed when changing the selection of the Group, (Default return parameter: item index (index: int)).
@@ -80,7 +63,6 @@ export class UIGroup extends Box {
     /**
      * @en The URL of the skin for the component.
      * @zh 组件的皮肤URL。
-     * @copy laya.ui.Image#skin
      */
     get skin(): string {
         return this._skin;
@@ -384,7 +366,9 @@ export class UIGroup extends Box {
     }
 
     /**
-     * 项对象的点击事件侦听处理函数。
+     * @en The item object's click event listener function, used to set the current selected item index.
+     * @param index The item index.
+     * @zh 项对象的点击事件侦听处理函数，用于设置当前选择的项索引
      * @param index 项索引。
      */
     protected itemClick(index: number): void {
