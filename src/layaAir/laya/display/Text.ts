@@ -261,7 +261,7 @@ export class Text extends Sprite {
      */
     _parseEscapeChars: boolean;
     /**
-     * @internal
+     * An callback function for wrappers to do something after layout updated.
      */
     _onPostLayout: () => void;
 
