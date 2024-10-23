@@ -1601,6 +1601,7 @@ export class Sprite extends Node {
      * @param offsetX The X-axis offset for drawing.
      * @param offsetY The Y-axis offset for drawing.
      * @param rt The render target.
+     * @param isDrawRenderRect A boolean indicating whether to draw the render rectangle. When true, it starts drawing from (0,0) of the render texture and subtracts the offset of the cache rectangle. When false, it keeps the sprite's original relative position for drawing.
      * @returns The drawn Texture or RenderTexture2D object.
      * @zh 绘制当前对象到一个 Texture 对象上。
      * @param canvasWidth 画布宽度。
@@ -1608,6 +1609,7 @@ export class Sprite extends Node {
      * @param offsetX 绘制的 X 轴偏移量。
      * @param offsetY 绘制的 Y 轴偏移量。
      * @param rt 渲染目标。
+     * @param isDrawRenderRect 表示是否绘制渲染矩形。为 true 时，从渲染纹理的(0,0)点开始绘制，但要减去缓存矩形的偏移；为 false 时，保持精灵的原始相对位置进行绘制。
      * @returns 绘制的 Texture 或 RenderTexture2D 对象。
      */
     drawToTexture(canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt: RenderTexture2D | null = null, isDrawRenderRect: boolean = true): Texture | RenderTexture2D {
@@ -1625,6 +1627,7 @@ export class Sprite extends Node {
      * @param offsetX The X-axis offset for drawing.
      * @param offsetY The Y-axis offset for drawing.
      * @param rt The render target. If not provided, a new RenderTexture2D will be created.
+     * @param isDrawRenderRect A boolean indicating whether to draw the render rectangle. When true, it starts drawing from (0,0) of the render texture and subtracts the offset of the cache rectangle. When false, it keeps the sprite's original relative position for drawing.
      * @returns The drawn Texture or RenderTexture2D object.
      * @zh 将指定的 Sprite 绘制到 Texture 或 RenderTexture2D 对象上。
      * @param sprite 要绘制的 Sprite。
@@ -1633,6 +1636,7 @@ export class Sprite extends Node {
      * @param offsetX 绘制的 X 轴偏移量。
      * @param offsetY 绘制的 Y 轴偏移量。
      * @param rt 渲染目标。如果未提供,将创建一个新的 RenderTexture2D。
+     * @param isDrawRenderRect 表示是否绘制渲染矩形。为 true 时，从渲染纹理的(0,0)点开始绘制，但要减去缓存矩形的偏移；为 false 时，保持精灵的原始相对位置进行绘制。
      * @returns 绘制的 Texture 或 RenderTexture2D 对象。
      */
     static drawToTexture(sprite: Sprite, canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt: RenderTexture2D | null = null, isDrawRenderRect: boolean = true): Texture | RenderTexture2D {
@@ -1663,6 +1667,7 @@ export class Sprite extends Node {
      * @param offsetX The X-axis offset for drawing.
      * @param offsetY The Y-axis offset for drawing.
      * @param rt The render target.
+     * @param isDrawRenderRect A boolean indicating whether to draw the render rectangle. When true, it starts drawing from (0,0) of the render texture and subtracts the offset of the cache rectangle. When false, it keeps the sprite's original relative position for drawing.
      * @param flipY Optional. If true, the texture will be flipped vertical. Default is false.
      * @returns The drawn RenderTexture2D object.
      * @zh 绘制当前对象到一个 Texture 对象上。
@@ -1671,11 +1676,12 @@ export class Sprite extends Node {
      * @param offsetX 绘制的 X 轴偏移量。
      * @param offsetY 绘制的 Y 轴偏移量。
      * @param rt 渲染目标。
+     * @param isDrawRenderRect 表示是否绘制渲染矩形。为 true 时，从渲染纹理的(0,0)点开始绘制，但要减去缓存矩形的偏移；为 false 时，保持精灵的原始相对位置进行绘制。
      * @param flipY 可选。如果为 true，则垂直翻转纹理。默认为 false。
      * @returns 绘制的 RenderTexture2D 对象。
      */
-    drawToRenderTexture2D(canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt: RenderTexture2D | null = null, flipY: boolean = false): RenderTexture2D {
-        let res = Sprite.drawToRenderTexture2D(this, canvasWidth, canvasHeight, offsetX, offsetY, rt, flipY);
+    drawToRenderTexture2D(canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt: RenderTexture2D | null = null, isDrawRenderRect: boolean = true, flipY: boolean = false): RenderTexture2D {
+        let res = Sprite.drawToRenderTexture2D(this, canvasWidth, canvasHeight, offsetX, offsetY, rt, isDrawRenderRect, flipY);
         return res;
     }
     /**
@@ -1687,6 +1693,7 @@ export class Sprite extends Node {
      * @param offsetX The X-axis offset for drawing.
      * @param offsetY The Y-axis offset for drawing.
      * @param rt The render target. If not provided, a new RenderTexture2D will be created.
+     * @param isDrawRenderRect A boolean indicating whether to draw the render rectangle. When true, it starts drawing from (0,0) of the render texture and subtracts the offset of the cache rectangle. When false, it keeps the sprite's original relative position for drawing.
      * @param flipY Optional. If true, the texture will be flipped vertical. Default is false.
      * @returns The drawn RenderTexture2D object.
      * @zh 将指定的 Sprite 绘制到 RenderTexture2D 对象上。
@@ -1696,10 +1703,11 @@ export class Sprite extends Node {
      * @param offsetX 绘制的 X 轴偏移量。
      * @param offsetY 绘制的 Y 轴偏移量。
      * @param rt 渲染目标。如果未提供,将创建一个新的 RenderTexture2D。
+     * @param isDrawRenderRect 表示是否绘制渲染矩形。为 true 时，从渲染纹理的(0,0)点开始绘制，但要减去缓存矩形的偏移；为 false 时，保持精灵的原始相对位置进行绘制。
      * @param flipY 可选。如果为 true，则垂直翻转纹理。默认为 false。
      * @returns 绘制的 RenderTexture2D 对象。
      */
-    static drawToRenderTexture2D(sprite: Sprite, canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt: RenderTexture2D | null = null, flipY: boolean = false): RenderTexture2D {
+    static drawToRenderTexture2D(sprite: Sprite, canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt: RenderTexture2D | null = null, isDrawRenderRect: boolean = true, flipY: boolean = false): RenderTexture2D {
         let renderout = rt || new RenderTexture2D(canvasWidth, canvasHeight, RenderTargetFormat.R8G8B8A8);
         let ctx = new Context();
         if (rt) {
@@ -1712,7 +1720,7 @@ export class Sprite extends Node {
         if (flipY) {
             renderout._invertY = true;//翻转纹理
         }
-        let outrt = RenderSprite.RenderToRenderTexture(sprite, ctx, offsetX, offsetY, renderout);
+        let outrt = RenderSprite.RenderToRenderTexture(sprite, ctx, offsetX, offsetY, renderout, isDrawRenderRect);
         ctx._drawingToTexture = false;
         ctx.destroy();
         return outrt;
