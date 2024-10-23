@@ -58,59 +58,32 @@ export class List extends Box {
      */
     disableStopScroll: boolean = false;
 
-    /**@internal */
     protected _content!: Box;
-    /**@internal */
     protected _scrollBar: ScrollBar | null;
-    /**@internal */
     protected _itemRender: any;
-    /**@internal */
     protected _repeatX: number = 0;
-    /**@internal */
     protected _repeatY: number = 0;
-    /**@internal */
     protected _repeatX2: number = 0;
-    /**@internal */
     protected _repeatY2: number = 0;
-    /**@internal */
     protected _spaceX: number = 0;
-    /**@internal */
     protected _spaceY: number = 0;
-    /**@internal */
     protected _cells: UIComponent[] = [];
-    /**@internal */
     protected _array: any[] | null;
-    /**@internal */
     protected _startIndex: number = 0;
-    /**@internal */
     protected _selectedIndex: number = -1;
-    /**@internal */
     protected _page: number = 0;
-    /**@internal */
     protected _isVertical: boolean = true;
-    /**@internal */
     protected _cellSize: number = 20;
-    /**@internal */
     protected _cellOffset: number = 0;
-    /**@internal */
     protected _isMoved: boolean;
-    /**@internal */
     protected _createdLine: number = 0;
-    /**@internal */
     protected _cellChanged: boolean;
-    /**@internal */
     protected _offset: Point = new Point();
-    /**@internal */
     protected _usedCache: string | null = null;
-    /**@internal */
     protected _elasticEnabled: boolean = false;
-    /**@internal */
     protected _scrollType: ScrollType = 0;
-    /**@internal */
     protected _vScrollBarSkin: string;
-    /**@internal */
     protected _hScrollBarSkin: string;
-    /**@internal */
     private _preLen = 0;
 
     /**
@@ -690,7 +663,6 @@ export class List extends Box {
     }
 
     /**
-     * @internal
      * @en Adds a cell to the list.
      * @param cell The cell object to be added.
      * @zh 添加单元格。
@@ -707,7 +679,6 @@ export class List extends Box {
     }
 
     /**
-     * @internal
      * @en Handles mouse events for cells.
      * @param e The event object.
      * @zh 单元格的鼠标事件侦听处理函数。
@@ -728,7 +699,6 @@ export class List extends Box {
     }
 
     /**
-     * @internal
      * @en Changes the visual state of a cell.
      * @param cell The cell object.
      * @param visible Indicates whether the cell should be visible.
@@ -748,7 +718,6 @@ export class List extends Box {
     }
 
     /**
-     * @internal
      * @en Event handler for the scrollbar's Event.CHANGE event.
      * @zh 滚动条的 Event.CHANGE 事件侦听处理函数。
      */
@@ -814,7 +783,6 @@ export class List extends Box {
         this._content.scrollRect = r;
     }
 
-    /**@internal */
     private posCell(cell: UIComponent, cellIndex: number): void {
         if (!this._scrollBar) return;
         let lineX = (this._isVertical ? this.repeatX : this.repeatY);
@@ -824,7 +792,6 @@ export class List extends Box {
     }
 
     /**
-     * @internal
      * @en Changes the selection state of the cells.
      * @zh 改变单元格的选择状态。
      */
@@ -835,7 +802,6 @@ export class List extends Box {
     }
 
     /**
-     * @internal
      * @en Renders the list of cells.
      * @param from The start index to begin rendering from.
      * @param to The end index to stop rendering. If not provided, it renders to the end of the list.
@@ -851,7 +817,6 @@ export class List extends Box {
     }
 
     /**
-     * @internal
      * @en Renders a single cell.
      * @param cell The cell object that needs to be rendered.
      * @param index The index of the cell.
@@ -883,7 +848,6 @@ export class List extends Box {
         }
     }
 
-    /**@internal */
     protected commitMeasure(): void {
         this.runCallLater(this.changeCells);
     }
@@ -970,7 +934,6 @@ export class List extends Box {
     }
 
     /**
-     * @override
      * @en Sets the data source for the component, overriding the base class's method to handle different data types.
      * @param value The new data source.
      * @zh 设置数据源，覆盖基类方法以处理不同类型的数据。
@@ -1134,7 +1097,6 @@ export class List extends Box {
     }
 
     /**
-     * @override
      * @en Destroys the instance and its child elements.
      * @param destroyChild Specifies whether to destroy child elements.
      * @zh 销毁实例及其子元素。

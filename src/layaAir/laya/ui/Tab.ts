@@ -15,11 +15,6 @@ export class Tab extends UIGroup {
         this._stateNum = Styles.buttonStateNum;
     }
 
-    /**
-     * @internal
-     * @inheritDoc
-     * @override
-     */
     protected createItem(skin: string, label: string): Sprite {
         let btn = new Button();
         btn._skinBaseUrl = this._skinBaseUrl;

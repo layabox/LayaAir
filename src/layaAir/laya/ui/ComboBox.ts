@@ -571,10 +571,6 @@ export class ComboBox extends UIComponent {
         this._list.array = a;
     }
 
-
-    /**
-     * @internal
-     */
     private changeSelected(): void {
         this._button.label = this.selectedLabel;
     }
