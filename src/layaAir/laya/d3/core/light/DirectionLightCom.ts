@@ -106,12 +106,5 @@ export class DirectionLightCom extends Light {
 	protected _removeFromLightQueue(): void {
 		(<Scene3D>this.owner.scene)._directionLights.remove(this);
 	}
-
-	/**
-	 * @internal
-	 */
-	protected _create(): DirectionLightCom {
-		return new DirectionLightCom();
-	}
 }
 

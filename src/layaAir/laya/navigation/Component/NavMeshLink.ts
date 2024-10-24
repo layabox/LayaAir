@@ -193,13 +193,12 @@ export class NavMeshLink extends Component {
 
 
     /**@internal */
-    _cloneTo(dest: Component): void {
-        let link = dest as NavMeshLink;
-        this._localstart.cloneTo(link._localstart);
-        this._localend.cloneTo(link._localend);
-        link._agentType = this._agentType;
-        link._areaFlag = this.areaFlag;
-        link._bidirectional = this._bidirectional;
+    _cloneTo(dest: NavMeshLink): void {
+        this._localstart.cloneTo(dest._localstart);
+        this._localend.cloneTo(dest._localend);
+        dest._agentType = this._agentType;
+        dest._areaFlag = this.areaFlag;
+        dest._bidirectional = this._bidirectional;
         super._cloneTo(dest);
     }
 }

@@ -6,8 +6,8 @@ import { Handler } from "../utils/Handler"
 import { Timer } from "../utils/Timer"
 import { ILaya } from "../../ILaya";
 import { Prefab } from "../resource/HierarchyResource";
-import { LegacyUIParser } from "../loaders/LegacyUIParser";
 import { NodeFlags } from "../Const";
+import { HierarchyLoader } from "../loaders/HierarchyLoader";
 
 /**
  * @en Scene class, responsible for scene creation, loading, destruction and other functions.
@@ -133,7 +133,7 @@ export class Scene extends Sprite {
     createView(view: any): void {
         if (view && !this._viewCreated) {
             this._viewCreated = true;
-            LegacyUIParser.createByData(this, view);
+            HierarchyLoader.legacySceneOrPrefab.createByData(this, view);
         }
     }
 

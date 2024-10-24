@@ -2,18 +2,12 @@ import { ICollider } from "../../Physics3D/interface/ICollider";
 import { Component } from "../../components/Component";
 import { Sprite3D } from "../core/Sprite3D";
 import { Transform3D } from "../core/Transform3D";
-import { BoxColliderShape } from "./shape/BoxColliderShape";
 import { Event } from "../../events/Event";
 import { Scene3D } from "../core/scene/Scene3D";
 import { IPhysicsManager } from "../../Physics3D/interface/IPhysicsManager";
 import { Physics3DColliderShape } from "./shape/Physics3DColliderShape";
-import { SphereColliderShape } from "./shape/SphereColliderShape";
-import { CapsuleColliderShape } from "./shape/CapsuleColliderShape";
 import { EColliderCapable } from "../../Physics3D/physicsEnum/EColliderCapable";
 import { Node } from "../../display/Node";
-import { MeshColliderShape } from "./shape/MeshColliderShape";
-import { ConeColliderShape } from "./shape/ConeColliderShape";
-import { CylinderColliderShape } from "./shape/CylinderColliderShape";
 
 /**
  * @en Describes how the physics materials of colliding objects are combined.
@@ -293,25 +287,6 @@ export class PhysicsColliderComponent extends Component {
 
     /**
      * @internal
-     */
-    protected _parseShape(shapesData: any[]): void {
-        var shapeCount = shapesData.length;
-        if (shapeCount === 1) {
-            var shape: Physics3DColliderShape = PhysicsColliderComponent._creatShape(shapesData[0]);
-            this.colliderShape = shape;
-        }
-        // else {
-        //     var compoundShape: CompoundColliderShape = new CompoundColliderShape();
-        //     for (var i = 0; i < shapeCount; i++) {
-        //         shape = PhysicsColliderComponent._creatShape(shapesData[i]);
-        //         compoundShape.addChildShape(shape);
-        //     }
-        //     this.colliderShape = compoundShape;
-        // }
-    }
-
-    /**
-     * @internal
      * @en Initializes the collider and configures its properties.
      * @zh 初始化碰撞器并配置其属性。
      */
@@ -415,66 +390,19 @@ export class PhysicsColliderComponent extends Component {
      * @override
      * @internal
      */
-    _cloneTo(dest: Component): void {
-        var destPhysicsComponent: PhysicsColliderComponent = <PhysicsColliderComponent>dest;
-        destPhysicsComponent.restitution = this._restitution;
-        destPhysicsComponent.friction = this._friction;
-        destPhysicsComponent.rollingFriction = this._rollingFriction;
+    _cloneTo(dest: PhysicsColliderComponent): void {
+        dest.restitution = this._restitution;
+        dest.friction = this._friction;
+        dest.rollingFriction = this._rollingFriction;
 
-        destPhysicsComponent.dynamicFriction = this.dynamicFriction;
-        destPhysicsComponent.staticFriction = this.staticFriction;
-        destPhysicsComponent.frictionCombine = this.frictionCombine;
-        destPhysicsComponent.restitutionCombine = this.restitutionCombine;
+        dest.dynamicFriction = this.dynamicFriction;
+        dest.staticFriction = this.staticFriction;
+        dest.frictionCombine = this.frictionCombine;
+        dest.restitutionCombine = this.restitutionCombine;
 
-        destPhysicsComponent.collisionGroup = this._collisionGroup;
-        destPhysicsComponent.canCollideWith = this._canCollideWith;
-        (this._colliderShape) && (destPhysicsComponent.colliderShape = this._colliderShape.clone());
+        dest.collisionGroup = this._collisionGroup;
+        dest.canCollideWith = this._canCollideWith;
+        (this._colliderShape) && (dest.colliderShape = this._colliderShape.clone());
     }
-
-    //-------------------deprecated-------------------
-    /**
-     * @deprecated
-     * @internal
-     */
-    static _creatShape(shapeData: any): Physics3DColliderShape {
-        var colliderShape: Physics3DColliderShape;
-        switch (shapeData.type) {
-            case "BoxColliderShape":
-                var sizeData: any[] = shapeData.size;
-                colliderShape = sizeData ? new BoxColliderShape(sizeData[0], sizeData[1], sizeData[2]) : new BoxColliderShape();
-                break;
-            case "SphereColliderShape":
-                colliderShape = new SphereColliderShape(shapeData.radius);
-                break;
-            case "CapsuleColliderShape":
-                colliderShape = new CapsuleColliderShape(shapeData.radius, shapeData.height, shapeData.orientation);
-                break;
-            case "MeshColliderShape":
-                colliderShape = new MeshColliderShape();
-                break;
-            case "ConeColliderShape":
-                colliderShape = new ConeColliderShape(shapeData.radius, shapeData.height, shapeData.orientation);
-                break;
-            case "CylinderColliderShape":
-                colliderShape = new CylinderColliderShape(shapeData.radius, shapeData.height, shapeData.orientation);
-                break;
-            default:
-                console.error("unknown shape type.");
-        }
-        return null;//TODO
-    }
-
-
-    /**
-     * @deprecated
-     * @inheritDoc
-     * @override
-     * @internal
-     */
-    _parse(data: any): void {
-        (data.collisionGroup != null) && (this._collider.setCollisionGroup(data.collisionGroup));
-        (data.canCollideWith != null) && (this._collider.setCanCollideWith(data.canCollideWith));
-    }
-
 }
 

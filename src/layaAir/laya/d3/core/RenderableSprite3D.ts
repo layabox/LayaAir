@@ -262,13 +262,6 @@ export class RenderableSprite3D extends Sprite3D {
 	/**
 	 * @internal
 	 */
-	protected _create(): Node {
-		return new Sprite3D(this.name);
-	}
-
-	/**
-	 * @internal
-	 */
 	_addToInitStaticBatchManager(): void {
 	}
 

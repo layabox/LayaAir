@@ -40,7 +40,7 @@ const packsDef = [{
         './layaAir/laya/webgl/**/*.*',
 
         './layaAir/laya/RenderDriver/DriverDesign/RenderDevice/**/*.*',
-        
+
         './layaAir/laya/RenderDriver/DriverDesign/2DRenderPass/**/*.*',
 
         './layaAir/laya/RenderEngine/RenderEnum/**/*.*',
@@ -288,6 +288,12 @@ const packsDef = [{
     'libName': "navMesh",
     'input': [
         './layaAir/laya/navigation/**/**.ts'
+    ],
+},
+{
+    'libName': "legacyParser",
+    'input': [
+        './layaAir/laya/legacy/**/**.ts'
     ],
 },
 ];

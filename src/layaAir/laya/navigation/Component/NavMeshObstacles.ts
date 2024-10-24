@@ -212,18 +212,12 @@ export class NavMeshObstacles extends NavModifleBase {
     }
 
     /**@internal */
-    protected _onDestroy(): void {
-        super._onDestroy();
-    }
-
-    /**@internal */
-    _cloneTo(dest: Component): void {
-        let obstacles = dest as NavMeshObstacles;
-        this._center.cloneTo(obstacles.center);
-        obstacles._meshType = this._meshType;
-        this.size.cloneTo(obstacles.size);
-        obstacles.radius = this.radius;
-        obstacles.height = this.height;
+    _cloneTo(dest: NavMeshObstacles): void {
+        this._center.cloneTo(dest.center);
+        dest._meshType = this._meshType;
+        this.size.cloneTo(dest.size);
+        dest.radius = this.radius;
+        dest.height = this.height;
         super._cloneTo(dest);
     }
 

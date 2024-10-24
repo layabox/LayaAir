@@ -204,21 +204,20 @@ export class TrailRenderer extends BaseRender {
      * @internal
      * @param dest 
      */
-    _cloneTo(dest: Component): void {
+    _cloneTo(dest: TrailRenderer): void {
         super._cloneTo(dest);
-        let render = dest as TrailRenderer;
-        render.time = this.time;
-        render.minVertexDistance = this.minVertexDistance;
+        dest.time = this.time;
+        dest.minVertexDistance = this.minVertexDistance;
         //render.widthCurve = this.widthCurve;
         var widthCurve: FloatKeyframe[] = [];
         var widthCurveData: any[] = this.widthCurve;
         for (let i = 0, n = this.widthCurve.length; i < n; i++) {
             widthCurve.push(widthCurveData[i].clone());
         }
-        render.widthCurve = widthCurve;
-        render.colorGradient = this.colorGradient.clone();
-        render.textureMode = this.textureMode;
-        render.alignment = this.alignment;
+        dest.widthCurve = widthCurve;
+        dest.colorGradient = this.colorGradient.clone();
+        dest.textureMode = this.textureMode;
+        dest.alignment = this.alignment;
     }
 
 }

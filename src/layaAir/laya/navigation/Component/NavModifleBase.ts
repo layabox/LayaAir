@@ -147,13 +147,11 @@ export class NavModifleBase extends Component {
     /**
      * @internal
      */
-    _cloneTo(dest: Component): void {
-        //TODO
-        let base = dest as NavModifleBase;
-        base._agentType = this._agentType;
-        base._areaFlags = this._areaFlags;
-        this._boundMax.cloneTo(base._boundMax);
-        this._boundMin.cloneTo(base._boundMin);
+    _cloneTo(dest: NavModifleBase): void {
+        dest._agentType = this._agentType;
+        dest._areaFlags = this._areaFlags;
+        this._boundMax.cloneTo(dest._boundMax);
+        this._boundMin.cloneTo(dest._boundMin);
         super._cloneTo(dest);
     }
 }

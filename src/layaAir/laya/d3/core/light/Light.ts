@@ -244,26 +244,11 @@ export class Light extends Component {
      * @override
      * @internal
      */
-    _parse(data: any, spriteMap: any): void {
-        super._parse(data, spriteMap);
-        var colorData: any[] = data.color;
-        this.color.r = colorData[0];
-        this.color.g = colorData[1];
-        this.color.b = colorData[2];
-        this.intensity = data.intensity;
-        this.lightmapBakedType = data.lightmapBakedType;
-    }
-    /**
-     * @inheritDoc
-     * @override
-     * @internal
-     */
-    _cloneTo(dest: Component) {
+    _cloneTo(dest: Light) {
         super._cloneTo(dest);
-        var light = <Light>dest;
-        light.color = this.color.clone();
-        light.intensity = this.intensity;
-        light.lightmapBakedType = this.lightmapBakedType;
+        dest.color = this.color.clone();
+        dest.intensity = this.intensity;
+        dest.lightmapBakedType = this.lightmapBakedType;
     }
 
     /**
@@ -332,20 +317,6 @@ export class Light extends Component {
      */
     protected _onDisable(): void {
         (this.lightmapBakedType !== LightMode.bakeOnly) && (this._removeFromScene());
-    }
-
-    /**
-     * @internal
-     * @protected
-     */
-    protected _onDestroy() {
-    }
-
-    /**
-     * @internal
-     */
-    protected _create(): Component {
-        return new Light();
     }
 }
 

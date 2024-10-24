@@ -1000,21 +1000,6 @@ export class Camera extends BaseCamera {
     }
 
     /**
-     * @inheritDoc
-     * @override
-     * @internal
-     */
-    _parse(data: any, spriteMap: any): void {
-        super._parse(data, spriteMap);
-        var clearFlagData: any = data.clearFlag;
-        (clearFlagData !== undefined) && (this.clearFlag = clearFlagData);
-        var viewport: any[] = data.viewport;
-        this.normalizedViewport = new Viewport(viewport[0], viewport[1], viewport[2], viewport[3]);
-        var enableHDR: boolean = data.enableHDR;
-        (enableHDR !== undefined) && (this.enableHDR = enableHDR);
-    }
-
-    /**
      * @en Clone the camera.
      * @zh 克隆相机。
      */

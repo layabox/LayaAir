@@ -358,16 +358,15 @@ export class ShurikenParticleRenderer extends BaseRender {
      * @internal
      * @override
      */
-    _cloneTo(dest: Component): void {
-        let parRender = dest as ShurikenParticleRenderer;
-        this._particleSystem.cloneTo(parRender._particleSystem);
-        parRender.sharedMaterial = this.sharedMaterial;
-        parRender.renderMode = this.renderMode;
-        parRender.mesh = this.mesh;
-        parRender.stretchedBillboardCameraSpeedScale = this.stretchedBillboardCameraSpeedScale;
-        parRender.stretchedBillboardSpeedScale = this.stretchedBillboardSpeedScale;
-        parRender.stretchedBillboardLengthScale = this.stretchedBillboardLengthScale;
-        parRender.sortingFudge = this.sortingFudge;
+    _cloneTo(dest: ShurikenParticleRenderer): void {
+        this._particleSystem.cloneTo(dest._particleSystem);
+        dest.sharedMaterial = this.sharedMaterial;
+        dest.renderMode = this.renderMode;
+        dest.mesh = this.mesh;
+        dest.stretchedBillboardCameraSpeedScale = this.stretchedBillboardCameraSpeedScale;
+        dest.stretchedBillboardSpeedScale = this.stretchedBillboardSpeedScale;
+        dest.stretchedBillboardLengthScale = this.stretchedBillboardLengthScale;
+        dest.sortingFudge = this.sortingFudge;
     }
 
     protected _onDestroy() {

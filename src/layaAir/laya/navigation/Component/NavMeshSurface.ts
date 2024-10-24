@@ -233,11 +233,10 @@ export class NavMeshSurface extends Component {
         if (this._oriTiles) this._oriTiles = null;
     }
 
-    _cloneTo(dest: Component): void {
-        let surface = dest as NavMeshSurface;
-        surface._agentType = this._agentType;
-        surface._areaFlags = this._areaFlags;
-        surface._partitionType = this._partitionType;
+    _cloneTo(dest: NavMeshSurface): void {
+        dest._agentType = this._agentType;
+        dest._areaFlags = this._areaFlags;
+        dest._partitionType = this._partitionType;
         super._cloneTo(dest);
     }
     /**

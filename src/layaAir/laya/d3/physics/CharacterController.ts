@@ -317,13 +317,12 @@ export class CharacterController extends PhysicsColliderComponent {
      * @override
      * @internal
      */
-    _cloneTo(dest: Component): void {
+    _cloneTo(dest: CharacterController): void {
         super._cloneTo(dest);
-        var destCharacterController: CharacterController = <CharacterController>dest;
-        destCharacterController.stepHeight = this._stepHeight;
-        destCharacterController.upAxis = this._upAxis;
-        destCharacterController.maxSlope = this._maxSlope;
-        destCharacterController.gravity = this._gravity;
+        dest.stepHeight = this._stepHeight;
+        dest.upAxis = this._upAxis;
+        dest.maxSlope = this._maxSlope;
+        dest.gravity = this._gravity;
     }
 
     /**

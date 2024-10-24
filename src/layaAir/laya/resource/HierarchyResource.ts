@@ -1,5 +1,5 @@
 import { Node } from "../display/Node";
-import { LegacyUIParser } from "../loaders/LegacyUIParser";
+import { HierarchyLoader } from "../loaders/HierarchyLoader";
 import { Resource } from "./Resource";
 
 /**
@@ -45,7 +45,7 @@ export class Prefab extends Resource {
      */
     create(options?: Record<string, any>, errors?: Array<any>): Node {
         if (this.json) //兼容2.0
-            return LegacyUIParser.createByData(null, this.json);
+            return HierarchyLoader.legacySceneOrPrefab.createByData(null, this.json);
         else
             return null;
     }

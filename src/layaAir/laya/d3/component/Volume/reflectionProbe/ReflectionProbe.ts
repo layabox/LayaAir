@@ -302,27 +302,9 @@ export class ReflectionProbe extends Volume {
 	 * @internal
 	 * @protected
 	 */
-	protected _onDisable(): void {
-		super._onDisable();
-	}
-
-	/**
-	 * @inheritdoc
-	 * @internal
-	 * @protected
-	 */
 	protected _onDestroy() {
 		this.iblTex = null;
 		this._dataModule.destroy();
-	}
-
-	/**
-	 * @inheritDoc
-	 * @override
-	 * @internal
-	 */
-	_cloneTo(dest: ReflectionProbe): void {
-		//TODO
 	}
 }
 

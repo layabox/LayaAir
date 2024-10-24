@@ -80,9 +80,8 @@ export class MeshFilter extends Component {
      * @zh 克隆组件到另一个对象。
      * @param dest 目标组件。
      */
-    _cloneTo(dest: Component): void {
-        let meshfilter = dest as MeshFilter;
-        meshfilter.sharedMesh = this.sharedMesh;
+    _cloneTo(dest: MeshFilter): void {
+        dest.sharedMesh = this.sharedMesh;
         super._cloneTo(dest);
     }
 
