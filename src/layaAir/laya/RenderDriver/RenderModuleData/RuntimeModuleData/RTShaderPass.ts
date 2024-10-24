@@ -11,7 +11,7 @@ export class RTShaderPass implements IShaderPassData {
     private _validDefine: RTDefineDatas = new RTDefineDatas();
     private _createShaderInstanceFun: any;
     _nativeObj: any;
-    static _globalCompileDefine:RTDefineDatas;
+    static _globalCompileDefine:RTDefineDatas = null;
     is2D: boolean = false;
     private _pass: ShaderPass;
     constructor(pass: ShaderPass) {
@@ -21,6 +21,13 @@ export class RTShaderPass implements IShaderPassData {
         this.renderState = new RTRenderState();
         this.renderState.setNull();
         this._pass = pass;
+    }
+    /** @internal */
+    static getGlobalCompileDefine(): RTDefineDatas {
+        if (!RTShaderPass._globalCompileDefine) {
+            RTShaderPass._globalCompileDefine = new RTDefineDatas();
+        }
+        return RTShaderPass._globalCompileDefine;
     }
     public get statefirst(): boolean {
         return this._nativeObj._statefirst;
@@ -50,7 +57,7 @@ export class RTShaderPass implements IShaderPassData {
         this._nativeObj.setValidDefine(value._nativeObj);
     }
     nativeCreateShaderInstance() {
-        var shaderIns = this._pass.withCompile(RTShaderPass._globalCompileDefine, this._nativeObj.is2D) as GLESShaderInstance;
+        var shaderIns = this._pass.withCompile(RTShaderPass.getGlobalCompileDefine(), this._nativeObj.is2D) as GLESShaderInstance;
         return shaderIns._nativeObj;
     }
     destroy(): void {
