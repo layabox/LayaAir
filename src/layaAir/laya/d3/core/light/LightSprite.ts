@@ -153,20 +153,6 @@ export class LightSprite extends Sprite3D {
 	 * @override
 	 * @internal
 	 */
-	_parse(data: any, spriteMap: any): void {
-		super._parse(data, spriteMap);
-		var colorData: any[] = data.color;
-		this.color.r = colorData[0];
-		this.color.g = colorData[1];
-		this.color.b = colorData[2];
-		this.intensity = data.intensity;
-		this.lightmapBakedType = data.lightmapBakedType;
-	}
-	/**
-	 * @inheritDoc
-	 * @override
-	 * @internal
-	 */
 	_cloneTo(destObject: LightSprite, rootSprite: Node, dstSprite: Node) {
 		super._cloneTo(destObject, rootSprite, dstSprite);
 		destObject.color = this.color.clone();
@@ -184,13 +170,6 @@ export class LightSprite extends Sprite3D {
 	 * @internal
 	 */
 	protected _removeFromLightQueue(): void {
-	}
-
-	/**
-	 * @internal
-	 */
-	protected _create(): Node {
-		return new Sprite3D();
 	}
 }
 

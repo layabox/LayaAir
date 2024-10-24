@@ -68,9 +68,8 @@ export class NavMeshModifileSurface extends NavModifleBase {
     /**
      * @internal
      */
-    _cloneTo(dest: Component): void {
-        let surface = dest as NavMeshModifileSurface;
-        surface.datas = this._oriTiles._res;
+    _cloneTo(dest: NavMeshModifileSurface): void {
+        dest.datas = this._oriTiles._res;
         super._cloneTo(dest);
     }
 }

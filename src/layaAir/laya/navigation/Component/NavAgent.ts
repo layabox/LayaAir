@@ -507,17 +507,16 @@ export class NavAgent extends Component {
     }
 
     /**@internal */
-    _cloneTo(dest: Component): void {
-        let agent = dest as NavAgent;
-        agent.agentType = this.agentType;
-        agent.speed = this._speed;
-        agent.angularSpeed = this.angularSpeed;
-        agent.radius = this.radius;
-        agent.height = this.height;
-        agent.areaMask = this.areaMask;
-        agent.quality = this.quality;
-        agent.priority = this.priority;
-        agent.maxAcceleration = this.maxAcceleration;
+    _cloneTo(dest: NavAgent): void {
+        dest.agentType = this.agentType;
+        dest.speed = this._speed;
+        dest.angularSpeed = this.angularSpeed;
+        dest.radius = this.radius;
+        dest.height = this.height;
+        dest.areaMask = this.areaMask;
+        dest.quality = this.quality;
+        dest.priority = this.priority;
+        dest.maxAcceleration = this.maxAcceleration;
         super._cloneTo(dest);
     }
 }

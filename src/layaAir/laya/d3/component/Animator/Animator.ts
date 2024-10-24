@@ -1,14 +1,12 @@
 
 import { Component } from "../../../components/Component";
 import { NodeFlags } from "../../../Const";
-import { Loader } from "../../../net/Loader";
 import { Stat } from "../../../utils/Stat";
 import { AnimationClip } from "../../animation/AnimationClip";
 import { AnimatorStateScript } from "../../animation/AnimatorStateScript";
 import { KeyframeNode } from "../../animation/KeyframeNode";
 import { KeyframeNodeList } from "../../animation/KeyframeNodeList";
 import { Material } from "../../../resource/Material";
-import { RenderableSprite3D } from "../../core/RenderableSprite3D";
 import { Sprite3D } from "../../core/Sprite3D";
 import { Utils3D } from "../../utils/Utils3D";
 import { AnimatorControllerLayer } from "./AnimatorControllerLayer";
@@ -78,8 +76,6 @@ export class Animator extends Component {
     _linkAvatarSpritesData: any = {};
     /**@internal */
     _linkAvatarSprites: Sprite3D[] = [];
-    /**@internal */
-    _renderableSprites: RenderableSprite3D[] = [];
 
     /**	
      * @en Culling mode，By default, when set to invisible, the animation will not play at all.
@@ -1329,58 +1325,6 @@ export class Animator extends Component {
     }
 
     /**
-     * @inheritDoc
-     * @internal
-     * @override
-     */
-    _parse(data: any): void {
-        var play: any = data.playOnWake;
-        var layersData: any[] = data.layers;
-        for (var i: number = 0; i < layersData.length; i++) {
-            var layerData: any = layersData[i];
-            var animatorLayer: AnimatorControllerLayer = new AnimatorControllerLayer(layerData.name);
-            if (i === 0)
-                animatorLayer.defaultWeight = 1.0;//TODO:
-            else
-                animatorLayer.defaultWeight = layerData.weight;
-
-            var blendingModeData: any = layerData.blendingMode;
-            (blendingModeData) && (animatorLayer.blendingMode = blendingModeData);
-            this.addControllerLayer(animatorLayer);
-            var states: any[] = layerData.states;
-            for (var j: number = 0, m: number = states.length; j < m; j++) {
-                var state: any = states[j];
-                var clipPath: string = state.clipPath;
-                if (clipPath) {
-                    var name: string = state.name;
-                    var motion: AnimationClip;
-                    motion = Loader.getRes(clipPath);
-                    if (motion) {//加载失败motion为空
-                        var animatorState: AnimatorState = new AnimatorState();
-                        animatorState.name = name;
-                        animatorState.clip = motion;
-                        state.speed && (animatorState.speed = state.speed);
-                        animatorLayer.addState(animatorState);
-                        (j === 0) && (this.getControllerLayer(i).defaultState = animatorState);
-                    }
-                }
-            }
-            (play !== undefined) && (animatorLayer.playOnWake = play);
-            //avatarMask
-            let layerMaskData = layerData.avatarMask;
-            if (layerMaskData) {
-                let avaMask = new AvatarMask();
-                animatorLayer.avatarMask = avaMask;
-                for (var bips in layerMaskData) {
-                    avaMask.setTransformActive(bips, layerMaskData[bips]);
-                }
-            }
-        }
-        var cullingModeData: any = data.cullingMode;
-        (cullingModeData !== undefined) && (this.cullingMode = cullingModeData);
-    }
-
-    /**
      * @internal
      * @perfTag PerformanceDefine.T_AnimatorUpdate
      */
@@ -1495,22 +1439,21 @@ export class Animator extends Component {
      * @internal
      * @override
      */
-    _cloneTo(dest: Component): void {
-        var animator: Animator = (<Animator>dest);
-        animator.cullingMode = this.cullingMode;
+    _cloneTo(dest: Animator): void {
+        dest.cullingMode = this.cullingMode;
 
         for (var i: number = 0, n: number = this._controllerLayers.length; i < n; i++) {
             var controllLayer: AnimatorControllerLayer = this._controllerLayers[i];
-            animator.addControllerLayer(controllLayer.clone());
+            dest.addControllerLayer(controllLayer.clone());
             var animatorStates: AnimatorState[] = controllLayer._states;
             for (var j: number = 0, m: number = animatorStates.length; j < m; j++) {
                 var state: AnimatorState = animatorStates[j].clone();
-                var cloneLayer: AnimatorControllerLayer = animator.getControllerLayer(i);
+                var cloneLayer: AnimatorControllerLayer = dest.getControllerLayer(i);
                 cloneLayer.addState(state);
                 (j == 0) && (cloneLayer.defaultState = state);
             }
         }
-        animator.controller = this._controller
+        dest.controller = this._controller;
     }
 
     /**

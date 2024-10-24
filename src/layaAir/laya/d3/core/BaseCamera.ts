@@ -619,24 +619,6 @@ export class BaseCamera extends Sprite3D {
     /**
      * @inheritDoc
      * @override
-     * @internal
-     */
-    _parse(data: any, spriteMap: any): void {
-        super._parse(data, spriteMap);
-
-        this.orthographic = data.orthographic;
-        (data.orthographicVerticalSize !== undefined) && (this.orthographicVerticalSize = data.orthographicVerticalSize);
-        (data.fieldOfView !== undefined) && (this.fieldOfView = data.fieldOfView);
-        this.nearPlane = data.nearPlane;
-        this.farPlane = data.farPlane;
-
-        var color: any[] = data.clearColor;
-        this.clearColor = new Color(color[0], color[1], color[2], color[3]);
-    }
-
-    /**
-     * @inheritDoc
-     * @override
      * @en Destroy the camera.
      * @param destroyChild Whether to destroy child nodes.
      * @zh 销毁相机。

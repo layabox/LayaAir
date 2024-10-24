@@ -53,21 +53,6 @@ export class PhysicsCollider extends PhysicsColliderComponent {
     }
 
     /**
-     * @deprecated
-     * @inheritDoc
-     * @override
-     * @internal
-     */
-    _parse(data: any): void {
-        (data.friction != null) && (this.friction = data.friction);
-        (data.rollingFriction != null) && (this.rollingFriction = data.rollingFriction);
-        (data.restitution != null) && (this.restitution = data.restitution);
-        (data.isTrigger != null) && (this.isTrigger = data.isTrigger);
-        super._parse(data);
-        this._parseShape(data.shapes);
-    }
-
-    /**
      * @internal
      */
     protected _setEventFilter() {

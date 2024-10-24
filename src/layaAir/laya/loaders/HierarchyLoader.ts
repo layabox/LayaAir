@@ -1,15 +1,18 @@
+import { Sprite } from "../display/Sprite";
 import { IResourceLoader, ILoadTask, Loader, ILoadOptions } from "../net/Loader";
 import { URL } from "../net/URL";
 import { AssetDb } from "../resource/AssetDb";
 import { Prefab } from "../resource/HierarchyResource";
 import { IHierarchyParserAPI, PrefabImpl } from "../resource/PrefabImpl";
 import { HierarchyParser } from "./HierarchyParser";
-import { LegacyUIParser } from "./LegacyUIParser";
 
 export class HierarchyLoader implements IResourceLoader {
     static v3: IHierarchyParserAPI = HierarchyParser;
     static v2: IHierarchyParserAPI = null;
-    static legacySceneOrPrefab: IHierarchyParserAPI = LegacyUIParser;
+    static legacySceneOrPrefab: IHierarchyParserAPI & {
+        createByData(root: Sprite, uiView: any): Sprite;
+        createComp(uiView: any, comp: Sprite, view: Sprite, dataMap: any[], initTool?: any): any;
+    };
 
     load(task: ILoadTask) {
         let url = task.url;

@@ -408,15 +408,14 @@ export class PixelLineRenderer extends BaseRender {
      * @override
      * @param dest 
      */
-    _cloneTo(dest: Component): void {
+    _cloneTo(dest: PixelLineRenderer): void {
         super._cloneTo(dest);
-        let render = dest as PixelLineRenderer;
-        render.maxLineCount = this.maxLineCount;
+        dest.maxLineCount = this.maxLineCount;
         const lineCount = this.lineCount;
         let linedata = new PixelLineData();
         for (let i = 0, n = lineCount; i < n; i++) {
             this.getLine(i, linedata);
-            render.addLine(linedata.startPosition, linedata.endPosition, linedata.startColor, linedata.endColor);
+            dest.addLine(linedata.startPosition, linedata.endPosition, linedata.startColor, linedata.endColor);
         }
     }
 

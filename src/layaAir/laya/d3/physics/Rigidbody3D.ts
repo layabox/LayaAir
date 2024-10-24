@@ -305,18 +305,17 @@ export class Rigidbody3D extends PhysicsColliderComponent {
      * @override
      * @internal
      */
-    _cloneTo(dest: Component): void {
+    _cloneTo(dest: Rigidbody3D): void {
         super._cloneTo(dest);
-        var destRigidbody3D: Rigidbody3D = (<Rigidbody3D>dest);
-        destRigidbody3D.isKinematic = this._isKinematic;
-        destRigidbody3D.mass = this._mass;
-        destRigidbody3D.gravity = this._gravity;
-        destRigidbody3D.angularDamping = this._angularDamping;
-        destRigidbody3D.linearDamping = this._linearDamping;
-        destRigidbody3D.linearVelocity = this._linearVelocity;
-        destRigidbody3D.angularVelocity = this._angularVelocity;
-        destRigidbody3D.linearFactor = this._linearFactor;
-        destRigidbody3D.angularFactor = this._angularFactor;
+        dest.isKinematic = this._isKinematic;
+        dest.mass = this._mass;
+        dest.gravity = this._gravity;
+        dest.angularDamping = this._angularDamping;
+        dest.linearDamping = this._linearDamping;
+        dest.linearVelocity = this._linearVelocity;
+        dest.angularVelocity = this._angularVelocity;
+        dest.linearFactor = this._linearFactor;
+        dest.angularFactor = this._angularFactor;
     }
 
     /**
@@ -419,41 +418,6 @@ export class Rigidbody3D extends PhysicsColliderComponent {
     applyForceXYZ(fx: number, fy: number, fz: number, localOffset: Vector3 = null): void {
         Utils3D._tempV0.set(fx, fy, fz);
         this.applyForce(Utils3D._tempV0, localOffset);
-    }
-
-
-    /**
-     * @deprecated
-     * @inheritDoc
-     * @override
-     * @internal
-     */
-    _parse(data: any): void {
-        (data.friction != null) && (this.friction = data.friction);
-        (data.rollingFriction != null) && (this.rollingFriction = data.rollingFriction);
-        (data.restitution != null) && (this.restitution = data.restitution);
-        (data.mass != null) && (this.mass = data.mass);
-        (data.linearDamping != null) && (this.linearDamping = data.linearDamping);
-        (data.angularDamping != null) && (this.angularDamping = data.angularDamping);
-
-        if (data.linearFactor != null) {
-            var linFac = this.linearFactor;
-            linFac.fromArray(data.linearFactor);
-            this.linearFactor = linFac;
-        }
-        if (data.angularFactor != null) {
-            var angFac = this.angularFactor;
-            angFac.fromArray(data.angularFactor);
-            this.angularFactor = angFac;
-        }
-
-        if (data.gravity) {
-            this.gravity.fromArray(data.gravity);
-            this.gravity = this.gravity;
-        }
-        super._parse(data);
-        this._parseShape(data.shapes);
-        (data.isKinematic != null) && (this.isKinematic = data.isKinematic);
     }
 
     /**

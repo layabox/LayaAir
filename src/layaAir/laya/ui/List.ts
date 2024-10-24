@@ -4,16 +4,16 @@ import { VScrollBar } from "./VScrollBar";
 import { HScrollBar } from "./HScrollBar";
 import { Clip } from "./Clip";
 import { UIUtils } from "./UIUtils";
-import { Event } from "../events/Event"
-import { Point } from "../maths/Point"
-import { Rectangle } from "../maths/Rectangle"
-import { Handler } from "../utils/Handler"
-import { Tween } from "../utils/Tween"
-import { LegacyUIParser } from "../loaders/LegacyUIParser";
+import { Event } from "../events/Event";
+import { Point } from "../maths/Point";
+import { Rectangle } from "../maths/Rectangle";
+import { Handler } from "../utils/Handler";
+import { Tween } from "../utils/Tween";
 import { HideFlags } from "../Const";
 import { HierarchyParser } from "../loaders/HierarchyParser";
 import { UIComponent } from "./UIComponent";
 import { ScrollType } from "./Styles";
+import { HierarchyLoader } from "../loaders/HierarchyLoader";
 
 
 /**
@@ -592,7 +592,7 @@ export class List extends Box {
             if (this._itemRender._$type || this._itemRender._$prefab)
                 box = <UIComponent>HierarchyParser.parse(this._itemRender, { skinBaseUrl: this._skinBaseUrl })[0];
             else
-                box = LegacyUIParser.createComp(this._itemRender, null, null, arr);
+                box = HierarchyLoader.legacySceneOrPrefab.createComp(this._itemRender, null, null, arr);
             if (!box) {
                 console.warn("cannot create item");
                 box = new Box();

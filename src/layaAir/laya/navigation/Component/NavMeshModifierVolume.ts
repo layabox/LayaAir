@@ -145,12 +145,11 @@ export class NavMeshModifierVolume extends Component {
     }
 
     /**@internal */
-    _cloneTo(dest: Component): void {
-        let volume = dest as NavMeshModifierVolume;
-        this._size.cloneTo(volume._size);
-        this._center.cloneTo(volume._center);
-        volume._agentType = this._agentType;
-        volume._areaFlags = this._areaFlags;
+    _cloneTo(dest: NavMeshModifierVolume): void {
+        this._size.cloneTo(dest._size);
+        this._center.cloneTo(dest._center);
+        dest._agentType = this._agentType;
+        dest._areaFlags = this._areaFlags;
         super._cloneTo(dest);
     }
 }

@@ -15,6 +15,7 @@ import { NodeFlags } from "../Const";
 import { PrefabImpl } from "../resource/PrefabImpl";
 import { Scene } from "../display/Scene";
 import { LayaEnv } from "../../LayaEnv";
+import { HierarchyLoader } from "../loaders/HierarchyLoader";
 
 var _listClass: any;
 var _viewClass: any;
@@ -762,3 +763,5 @@ class InitTool {
         this.recover();
     }
 }
+
+HierarchyLoader.legacySceneOrPrefab = LegacyUIParser;

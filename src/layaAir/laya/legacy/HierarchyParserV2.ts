@@ -1,25 +1,29 @@
-import { Component } from "../../components/Component";
-import { Node } from "../../display/Node";
-import { Camera } from "../core/Camera";
-import { MeshSprite3D } from "../core/MeshSprite3D";
-import { ShuriKenParticle3D } from "../core/particleShuriKen/ShuriKenParticle3D";
-import { RenderableSprite3D } from "../core/RenderableSprite3D";
-import { Scene3D } from "../core/scene/Scene3D";
-import { SkinnedMeshSprite3D } from "../core/SkinnedMeshSprite3D";
-import { Sprite3D } from "../core/Sprite3D";
-import { ClassUtils } from "../../utils/ClassUtils";
-import { SimpleSkinnedMeshSprite3D } from "../core/SimpleSkinnedMeshSprite3D";
-import { ILoadURL, Loader } from "../../net/Loader";
-import { URL } from "../../net/URL";
-import { HierarchyLoader } from "../../loaders/HierarchyLoader";
-import { ReflectionProbe } from "../component/Volume/reflectionProbe/ReflectionProbe";
+import { Component } from "../components/Component";
+import { Node } from "../display/Node";
+import { Camera } from "../d3/core/Camera";
+import { MeshSprite3D } from "../d3/core/MeshSprite3D";
+import { ShuriKenParticle3D } from "../d3/core/particleShuriKen/ShuriKenParticle3D";
+import { RenderableSprite3D } from "../d3/core/RenderableSprite3D";
+import { Scene3D } from "../d3/core/scene/Scene3D";
+import { SkinnedMeshSprite3D } from "../d3/core/SkinnedMeshSprite3D";
+import { Sprite3D } from "../d3/core/Sprite3D";
+import { ClassUtils } from "../utils/ClassUtils";
+import { SimpleSkinnedMeshSprite3D } from "../d3/core/SimpleSkinnedMeshSprite3D";
+import { ILoadURL, Loader } from "../net/Loader";
+import { URL } from "../net/URL";
+import { HierarchyLoader } from "../loaders/HierarchyLoader";
+import { ReflectionProbe } from "../d3/component/Volume/reflectionProbe/ReflectionProbe";
+import { DirectionLightCom } from "../d3/core/light/DirectionLightCom";
+import { PointLightCom } from "../d3/core/light/PointLightCom";
+import { SpotLightCom } from "../d3/core/light/SpotLightCom";
+import { TrailRenderer } from "../d3/core/trail/TrailRenderer";
 
 /**
  * @internal
  * @en `HierarchyParserV2` is a class used for parsing hierarchy data in a 3D scene.
  * @zh `HierarchyParserV2` 类用于解析3D场景中的层级数据。
  */
-class HierarchyParserV2 {
+export class HierarchyParserV2 {
     /**
      * @internal
      * @param nodeData 创建数据
@@ -28,6 +32,7 @@ class HierarchyParserV2 {
      */
     private static _createSprite3DInstance(nodeData: any, spriteMap: any, outBatchSprites: RenderableSprite3D[]): Node {
         let node: Node;
+        let nodeToComp: Component;
         switch (nodeData.type) {
             case "Scene3D":
                 node = new Scene3D();
@@ -53,10 +58,26 @@ class HierarchyParserV2 {
                 break;
             case "ReflectionProbe":
                 node = new Sprite3D();
-                node.addComponent(ReflectionProbe);
+                nodeToComp = node.addComponent(ReflectionProbe);
+                break;
+            case "DirectionLight":
+                node = new Sprite3D();
+                nodeToComp = node.addComponent(DirectionLightCom);
+                break;
+            case "PointLight":
+                node = new Sprite3D();
+                nodeToComp = node.addComponent(PointLightCom);
+                break;
+            case "SpotLight":
+                node = new Sprite3D();
+                nodeToComp = node.addComponent(SpotLightCom);
+                break;
+            case "TrailSprite3D":
+                node = new Sprite3D();
+                nodeToComp = node.addComponent(TrailRenderer);
                 break;
             default:
-                throw new Error("unknown class type in (.lh) file.");
+                throw new Error(`unknown node type ${nodeData.type}`);
         }
 
         let childData: any[] = nodeData.child;
@@ -67,7 +88,7 @@ class HierarchyParserV2 {
             }
         }
 
-        spriteMap[nodeData.instanceID] = node;
+        spriteMap[nodeData.instanceID] = nodeToComp || node;
         return node;
     }
 
@@ -78,7 +99,7 @@ class HierarchyParserV2 {
      * @param interactMap 
      */
     private static _createComponentInstance(nodeData: any, spriteMap: any, interactMap: any): void {
-        let node: Node = spriteMap[nodeData.instanceID];
+        let node: Node | Component = spriteMap[nodeData.instanceID];
         node._parse(nodeData.props, spriteMap);
 
         let childData: any[] = nodeData.child;
@@ -93,10 +114,10 @@ class HierarchyParserV2 {
                 let data: any = componentsData[j];
                 let cls: any = ClassUtils.getClass(data.type);
                 if (cls) {
-                    let component: Component = node.addComponent(cls);
+                    let component: Component = ((node instanceof Component) ? node.owner : node).addComponent(cls);
                     component._parse(data, interactMap);
                 } else {
-                    console.warn(`Unidentified component type: ${data.type}.`);
+                    console.warn(`unknown component type: ${data.type}.`);
                 }
             }
         }
@@ -160,6 +181,7 @@ class HierarchyParserV2 {
      */
     static _createNodeByJson(nodeData: any, outBatchSprites: RenderableSprite3D[]): Node {//兼容代码
         let node: Node;
+        let nodeToComp: Component;
         switch (nodeData.type) {
             case "Scene3D":
                 node = new Scene3D();
@@ -180,8 +202,24 @@ class HierarchyParserV2 {
             case "Camera":
                 node = new Camera();
                 break;
+            case "DirectionLight":
+                node = new Sprite3D();
+                nodeToComp = node.addComponent(DirectionLightCom);
+                break;
+            case "PointLight":
+                node = new Sprite3D();
+                nodeToComp = node.addComponent(PointLightCom);
+                break;
+            case "SpotLight":
+                node = new Sprite3D();
+                nodeToComp = node.addComponent(SpotLightCom);
+                break;
+            case "TrailSprite3D":
+                node = new Sprite3D();
+                nodeToComp = node.addComponent(TrailRenderer);
+                break;
             default:
-                throw new Error(`Unidentified node type ${nodeData.type}`);
+                throw new Error(`unknown node type ${nodeData.type}`);
         }
 
         let childData: any[] = nodeData.child;
@@ -201,11 +239,15 @@ class HierarchyParserV2 {
                     let component: Component = node.addComponent(clas);
                     component._parse(data);
                 } else {
-                    console.warn(`Unidentified component type: ${data.type}.`);
+                    console.warn(`unknown component type: ${data.type}.`);
                 }
             }
         }
-        node._parse(nodeData.props, null);
+
+        if (nodeToComp)
+            nodeToComp._parse(nodeData.props);
+        else
+            node._parse(nodeData.props, null);
         return node;
     }
 

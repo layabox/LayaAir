@@ -191,24 +191,6 @@ export class HLODRender extends BaseRender {
 
     /**
      * @ignore
-     * @en Called when the component is enabled.
-     * @zh 当组件被启用时调用。
-     */
-    onEnable() {
-        super.onEnable();
-    }
-
-    /**
-     * @ignore
-     * @en Called when the component is disabled.
-     * @zh 当组件被禁用时调用。
-     */
-    onDisable() {
-        super.onDisable();
-    }
-
-    /**
-     * @ignore
      * @en Called when the component is being destroyed.
      * @zh 当组件被销毁时调用。
      */
@@ -219,15 +201,5 @@ export class HLODRender extends BaseRender {
             element.destroy();
         });
         this._renderElements = null;
-    }
-
-    /**
-     * @en Clone the current HLODRender to another instance.
-     * @param dest The destination HLODRender instance to clone to.
-     * @zh 将当前 HLODRender 克隆到另一个实例。
-     * @param dest 要克隆到的目标 HLODRender 实例。
-     */
-    _cloneTo(dest: HLODRender) {
-        //TODO
     }
 }

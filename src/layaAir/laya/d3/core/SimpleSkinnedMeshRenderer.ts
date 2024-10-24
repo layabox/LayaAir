@@ -183,10 +183,9 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
      * @param dest 目标 
      */
     _cloneTo(dest: SimpleSkinnedMeshRenderer): void {
-        let render = dest as SimpleSkinnedMeshRenderer;
-        render.simpleAnimatorOffset = this.simpleAnimatorOffset;
-        render.simpleAnimatorTexture = this.simpleAnimatorTexture;
-        render._bonesNums = this._bonesNums;
+        dest.simpleAnimatorOffset = this.simpleAnimatorOffset;
+        dest.simpleAnimatorTexture = this.simpleAnimatorTexture;
+        dest._bonesNums = this._bonesNums;
         super._cloneTo(dest);
     }
 
