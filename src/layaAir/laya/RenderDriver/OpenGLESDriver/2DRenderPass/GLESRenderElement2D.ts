@@ -52,10 +52,7 @@ export class GLESREnderElement2D implements IRenderElement2D {
     _nativeObj: any;
     protected init(): void {
         this._nativeObj = new (window as any).conchGLESRenderElement2D();
-        if (!RTShaderPass._globalCompileDefine) {
-            RTShaderPass._globalCompileDefine = new RTDefineDatas();
-        }
-        (window as any).conchGLESRenderElement2D.setCompileDefine(RTShaderPass._globalCompileDefine._nativeObj);
+        (window as any).conchGLESRenderElement2D.setCompileDefine(RTShaderPass.getGlobalCompileDefine()._nativeObj);
     }
     constructor() {
         this.init();
