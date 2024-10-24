@@ -542,6 +542,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
         // 计算骨骼的世界SRT(world SRT)
         this._skeleton.updateWorldTransform();
         this.spineItem.render(this._currentPlayTime);
+        (this.owner as Sprite).repaint && (this.owner as Sprite).repaint();
     }
 
     private _flushExtSkin() {
