@@ -10,7 +10,7 @@ async function testf(){
     await import('./result');
     //@ts-ignore
     await import('./cases/2d/'+testfile);
-
+    (window as any).testEnd=true;
 }
 
 testf();

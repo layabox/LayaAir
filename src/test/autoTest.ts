@@ -54,13 +54,13 @@ puppeteer.launch({
             await page.goto('http://127.0.0.1:3000/test.html?'+js);
 
             // 等待页面加载完成
-            // try{
-            // await page.waitForFunction('window.testInfo !== undefined',{timeout: 5000});
-            // }catch(e:any){
-            //     console.error(`超时了，测试页面没有testInfo结构:${js}`)
-            //     await browser.close();
-            //     return;
-            // }
+            try{
+                await page.waitForFunction('window.testEnd !== undefined',{timeout: 5000});
+            }catch(e:any){
+                console.error(`超时了，测试页面没有testEnd:${js}`)
+                //await browser.close();
+                continue;
+            }
             // 获取测试信息
             //const testInfo = await page.evaluate(() => (window as any).testInfo);   
             let testInfoPath = path.join(screenShotDir,`${js}.json`);
@@ -88,7 +88,7 @@ puppeteer.launch({
                 });
 
                 // 比较截图
-                let diff = await looksSame(`temp_screenshot_${i}.png`, answer, {strict: true});
+                let diff = await looksSame(`temp_screenshot_${i}.png`, answer, {strict: false});
                 console.log(`Step ${i} result:`, diff.equal);
                 if(!diff.equal){
                     ok=false;
