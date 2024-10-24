@@ -6,6 +6,7 @@ import { Stage } from "laya/display/Stage";
 import { Sprite } from "laya/display/Sprite";
 import { GlowFilter } from "laya/filters/GlowFilter";
 import { Text } from "laya/display/Text";
+import { Texture } from "laya/resource/Texture";
 
 //HierarchyLoader和MaterialLoader等是通过前面的import完成的
 
@@ -37,7 +38,7 @@ async function test(){
     sp1.addChild(g1);
 
     let g2 = new Sprite();
-    g2.graphics.drawRect(0,0,tex.width,tex.height,null,'red',2);
+    g2.graphics.drawRect(tex.offsetX,tex.offsetY,tex.width,tex.height,null,'red',2);
     g2.pos(50,50);
     sp1.addChild(g2);
 
