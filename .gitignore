@@ -1,5 +1,6 @@
 bin/res
 bin/tsc
+bin/uploads
 node_modules
 .cache
 .vscode/chrome

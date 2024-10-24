@@ -12,6 +12,7 @@ import { Scene } from "../../Scene";
 import { Sprite } from "../../Sprite";
 import { Mesh2DRender } from "../Mesh2DRender";
 import { BaseLight2D, Light2DType } from "./BaseLight2D";
+import { PolygonPoint2D } from "./PolygonPoint2D";
 import { ShowRenderTarget } from "./ShowRenderTarget";
 
 /**
@@ -21,8 +22,8 @@ export class FreeformLight2D extends BaseLight2D {
     static FALLOF_WIDTH: number = 100; //渐变区的宽度系数
     private _falloffRange: number = 1; //灯光衰减范围 0-10
 
-    private _lightPolygon: Vector2[] = []; //定义灯光的多边形顶点（顺时针存储）
-    private _globalPolygon: Vector2[] = []; //变换后的多边形顶点（顺时针存储）
+    private _lightPolygon: PolygonPoint2D; //定义灯光的多边形顶点（顺时针存储）
+    private _globalPolygon: PolygonPoint2D; //变换后的多边形顶点（顺时针存储）
 
     //用于生成灯光贴图
     private _sprite: Sprite;
@@ -47,11 +48,21 @@ export class FreeformLight2D extends BaseLight2D {
         this._material.setIntByIndex(Shader3D.CULL, RenderState.CULL_NONE);
         this._render = this._sprite.addComponent(Mesh2DRender);
         this._render.sharedMaterial = this._material;
+        this._defaultPoly();
     }
 
+    /**
+     * @en Get the range of light attenuation
+     * @zh 获取灯光衰减范围
+     */
     get falloffRange() {
         return this._falloffRange;
     }
+
+    /**
+     * @en Set the range of light attenuation
+     * @zh 设置灯光衰减范围
+     */
     set falloffRange(value: number) {
         if (this._falloffRange !== value) {
             this._falloffRange = value;
@@ -62,100 +73,104 @@ export class FreeformLight2D extends BaseLight2D {
     }
 
     /**
-     * 添加灯光顶点
-     * @param x 
-     * @param y 
-     * @param index 
+     * @en Response matrix transformation
+     * @zh 响应矩阵变换
      */
-    addPoint(x: number, y: number, index: number = -1) {
-        if (index < 0) {
-            this._lightPolygon.push(new Vector2(x, y));
-            this._globalPolygon.push(new Vector2(x, y));
+    protected _transformChange() {
+        super._transformChange();
+        this._transformPoly();
+    }
+
+    /**
+     * @en Set default ploy endpoint data
+     * @zh 设置默认多边形数据
+     */
+    private _defaultPoly() {
+        if (!this._lightPolygon) {
+            const poly = new PolygonPoint2D();
+            poly.addPoint(-100, -100);
+            poly.addPoint(100, -100);
+            poly.addPoint(100, 100);
+            poly.addPoint(-100, 100);
+            this.polygonPoint = poly;
+        }
+    }
+
+    /**
+     * @en Set polygon endpoint data
+     * @zh 设置多边形端点数据
+     * @param poly 
+     */
+    set polygonPoint(poly: PolygonPoint2D) {
+        if (poly) {
+           // poly._user = this;
+            this._lightPolygon = poly;
+            this._globalPolygon = poly.clone();
+            this._needUpdateLight = true;
+            (this.owner?.scene as Scene)?._light2DManager?.addLight(this);
         } else {
-            for (let i = this._lightPolygon.length; i > index; i--) {
-                this._lightPolygon[i] = this._lightPolygon[i - 1];
-                this._globalPolygon[i] = this._globalPolygon[i - 1];
-            }
-            this._lightPolygon[index] = new Vector2(x, y);
-            this._globalPolygon[index] = new Vector2(x, y);
+            // if (this._lightPolygon)
+            //     this._lightPolygon._user = null;
+            this._lightPolygon = null;
+            this._globalPolygon = null;
+            (this.owner?.scene as Scene)?._light2DManager?.removeLight(this);
         }
-        this._needUpdateLight = true;
     }
 
     /**
-     * 更新灯光顶点
-     * @param x 
-     * @param y 
-     * @param index 
+     * @en Get polygon endpoint data
+     * @zh 获取多边形端点数据
      */
-    updatePoint(x: number, y: number, index: number) {
-        if (index < this._lightPolygon.length && index >= 0) {
-            this._lightPolygon[index].x = x;
-            this._lightPolygon[index].y = y;
-            this._needUpdateLight = true;
-        }
+    get polygonPoint() {
+        return this._lightPolygon;
     }
 
     /**
-     * 删除灯光顶点
-     * @param index 
-     */
-    removePoint(index: number) {
-        if (index < this._lightPolygon.length && index >= 0) {
-            this._lightPolygon.splice(index, 1);
-            this._globalPolygon.splice(index, 1);
-            this._needUpdateLight = true;
-        }
-    }
-
-    /**
-     * 获取灯光范围
+     * @en Get light range
+     * @zh 获取灯光范围
      * @param screen 
      */
     getLightRange(screen?: Rectangle) {
-        this._transformPoly();
-        let xmin = Number.POSITIVE_INFINITY;
-        let ymin = Number.POSITIVE_INFINITY;
-        let xmax = Number.NEGATIVE_INFINITY;
-        let ymax = Number.NEGATIVE_INFINITY;
-        const polygon = this._globalPolygon;
-        for (let i = polygon.length - 1; i > -1; i--) {
-            const poly = polygon[i];
-            if (xmin > poly.x) xmin = poly.x;
-            if (xmax < poly.x) xmax = poly.x;
-            if (ymin > poly.y) ymin = poly.y;
-            if (ymax < poly.y) ymax = poly.y;
-        }
-        let x = (xmax - xmin) * Browser.pixelRatio | 0;
-        let y = (ymax - ymin) * Browser.pixelRatio | 0;
-        const t = this._falloffRange * FreeformLight2D.FALLOF_WIDTH * 1.5 * Browser.pixelRatio | 0;
-        //const w = (this.owner as Sprite).width = x + 10 + t * 2;
-        //const h = (this.owner as Sprite).height = y + 10 + t * 2;
-        const w = this._range.width = x + 10 + t * 2;
-        const h = this._range.height = y + 10 + t * 2;
-        x = this._range.x = (xmin - 5 - t) | 0;
-        y = this._range.y = (ymin - 5 - t) | 0;
-        this._range.width = w;
-        this._range.height = h;
-        for (let i = polygon.length - 1; i > -1; i--) {
-            polygon[i].x -= x;
-            polygon[i].y -= y;
+        if (this._globalPolygon) {
+            this._transformPoly();
+            let xmin = Number.POSITIVE_INFINITY;
+            let ymin = Number.POSITIVE_INFINITY;
+            let xmax = Number.NEGATIVE_INFINITY;
+            let ymax = Number.NEGATIVE_INFINITY;
+            const polygon = this._globalPolygon.points;
+            for (let i = polygon.length - 2; i > -1; i -= 2) {
+                const x = polygon[i + 0];
+                const y = polygon[i + 1];
+                if (xmin > x) xmin = x;
+                if (xmax < x) xmax = x;
+                if (ymin > y) ymin = y;
+                if (ymax < y) ymax = y;
+            }
+            let x = (xmax - xmin) * Browser.pixelRatio | 0;
+            let y = (ymax - ymin) * Browser.pixelRatio | 0;
+            const t = this._falloffRange * FreeformLight2D.FALLOF_WIDTH * 1.5 * Browser.pixelRatio | 0;
+            const w = this._range.width = x + 10 + t * 2;
+            const h = this._range.height = y + 10 + t * 2;
+            x = this._range.x = (xmin - 5 - t) | 0;
+            y = this._range.y = (ymin - 5 - t) | 0;
+            this._range.width = w;
+            this._range.height = h;
+            for (let i = polygon.length - 2; i > -1; i -= 2) {
+                polygon[i + 0] -= x;
+                polygon[i + 1] -= y;
+            }
         }
         return this._range;
     }
 
     /**
-     * 渲染灯光贴图
+     * @en Render light texture
+     * @zh 渲染灯光贴图
      * @param scene 
      */
     renderLightTexture(scene: Scene) {
         super.renderLightTexture(scene);
-        // if (this._lastRotation !== this.globalRotation) {
-        //     this._lastRotation = this.globalRotation;
-        //     this.needUpdateLight = true;
-        // }
-        //this._needUpdateLight = true;
-        if (this._needUpdateLight) {
+        if (this._globalPolygon && this._needUpdateLight) {
             this._needUpdateLight = false;
             this.updateMark++;
             const range = this.getLightRange();
@@ -186,58 +201,63 @@ export class FreeformLight2D extends BaseLight2D {
     }
 
     /**
-     * 限制参数范围
+     * @en Limit param range
+     * @zh 限制参数范围
      */
     private _limitParam() {
         this._falloffRange = Math.max(Math.min(this._falloffRange, 10), 0);
     }
 
     /**
-     * 变换多边形顶点
+     * @en Transform ploy endpoint
+     * @zh 变换多边形顶点
      */
     private _transformPoly() {
-        const globalPoly = this._globalPolygon;
-        const polygon = this._lightPolygon;
-        const len = polygon.length;
-        const ox = (this.owner as Sprite).globalPosX * Browser.pixelRatio;
-        const oy = (this.owner as Sprite).globalPosY * Browser.pixelRatio;
-        const sx = (this.owner as Sprite).globalScaleX;
-        const sy = (this.owner as Sprite).globalScaleY;
-        const rotation = (this.owner as Sprite).globalRotation * Math.PI / 180;
-        const pivotX = (this.owner as Sprite).pivotX * Browser.pixelRatio;
-        const pivotY = (this.owner as Sprite).pivotY * Browser.pixelRatio;
-        const sinA = Math.sin(rotation);
-        const cosA = Math.cos(rotation);
-        let x = 0, y = 0;
-        for (let i = 0; i < len; i++) {
-            x = polygon[i].x * Browser.pixelRatio - pivotX;
-            y = polygon[i].y * Browser.pixelRatio - pivotY;
-            globalPoly[i].x = (x * cosA - y * sinA) * sx + pivotX + ox;
-            globalPoly[i].y = (x * sinA + y * cosA) * sy + pivotY + oy;
+        if (this._globalPolygon) {
+            const globalPoly = this._globalPolygon.points;
+            const polygon = this._lightPolygon.points;
+            const len = polygon.length / 2 | 0;
+            const ox = (this.owner as Sprite).globalPosX * Browser.pixelRatio;
+            const oy = (this.owner as Sprite).globalPosY * Browser.pixelRatio;
+            const sx = (this.owner as Sprite).globalScaleX;
+            const sy = (this.owner as Sprite).globalScaleY;
+            const rotation = (this.owner as Sprite).globalRotation * Math.PI / 180;
+            const pivotX = (this.owner as Sprite).pivotX * Browser.pixelRatio;
+            const pivotY = (this.owner as Sprite).pivotY * Browser.pixelRatio;
+            const sinA = Math.sin(rotation);
+            const cosA = Math.cos(rotation);
+            let x = 0, y = 0;
+            for (let i = 0; i < len; i++) {
+                x = polygon[i * 2 + 0] * Browser.pixelRatio - pivotX;
+                y = polygon[i * 2 + 1] * Browser.pixelRatio - pivotY;
+                globalPoly[i * 2 + 0] = (x * cosA - y * sinA) * sx + pivotX + ox;
+                globalPoly[i * 2 + 1] = (x * sinA + y * cosA) * sy + pivotY + oy;
+            }
         }
     }
 
     /**
-     * 创建灯光多边形
+     * @en Create light mesh
+     * @zh 创建灯光多边形网格
      * @param expand 
      * @param arcSegments 
      */
     private _createMesh(expand: number, arcSegments: number = 8) {
         const points: Vector3[] = [];
         const inds: number[] = [];
-        const poly = this._globalPolygon;
-        const len = poly.length;
+        const poly = this._globalPolygon.points;
+        const len = poly.length / 2 | 0;
         const normal1 = new Vector2();
         const normal2 = new Vector2();
 
         //b点是否凸出
-        const _isConvex = (a: Vector2, b: Vector2, c: Vector2) => {
-            return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x) > 0;
+        const _isConvex = (ax: number, ay: number, bx: number, by: number, cx: number, cy: number) => {
+            return (bx - ax) * (cy - ay) - (by - ay) * (cx - ax) > 0;
         };
 
-        const _getNormal = (a: Vector2, b: Vector2, n: Vector2) => {
-            const dx = b.x - a.x;
-            const dy = b.y - a.y;
+        const _getNormal = (ax: number, ay: number, bx: number, by: number, n: Vector2) => {
+            const dx = bx - ax;
+            const dy = by - ay;
             const length = Math.sqrt(dx * dx + dy * dy);
             n.x = dy / length;
             n.y = -dx / length;
@@ -275,7 +295,7 @@ export class FreeformLight2D extends BaseLight2D {
 
         //添加原多边形顶点
         for (let i = 0; i < len; i++)
-            points.push(new Vector3(poly[i].x, poly[i].y, 1));
+            points.push(new Vector3(poly[i * 2], poly[i * 2 + 1], 1));
 
         //添加扩展顶点和圆弧点
         for (let i = 0; i < len; i++) {
@@ -283,27 +303,27 @@ export class FreeformLight2D extends BaseLight2D {
             const next = (i + 1) % len;
             const next2 = (i + 2) % len;
 
-            _getNormal(poly[i], poly[next], normal1);
-            _getNormal(poly[next], poly[next2], normal2);
+            _getNormal(poly[i * 2], poly[i * 2 + 1], poly[next * 2], poly[next * 2 + 1], normal1);
+            _getNormal(poly[next * 2], poly[next * 2 + 1], poly[next2 * 2], poly[next2 * 2 + 1], normal2);
 
             const start = points.length;
-            const p1 = new Vector3(poly[i].x + expand * normal1.x, poly[i].y + expand * normal1.y, 0);
-            const p2 = new Vector3(poly[next].x + expand * normal1.x, poly[next].y + expand * normal1.y, 0);
+            const p1 = new Vector3(poly[i * 2] + expand * normal1.x, poly[i * 2 + 1] + expand * normal1.y, 0);
+            const p2 = new Vector3(poly[next * 2] + expand * normal1.x, poly[next * 2 + 1] + expand * normal1.y, 0);
 
-            if (_isConvex(poly[i], poly[next], poly[next2])) {
+            if (_isConvex(poly[i * 2], poly[i * 2 + 1], poly[next * 2], poly[next * 2 + 1], poly[next2 * 2], poly[next2 * 2 + 1])) {
                 const angle1 = Math.atan2(normal1.y, normal1.x);
                 const angle2 = Math.atan2(normal2.y, normal2.x);
                 let angleDiff = angle2 - angle1;
                 if (angleDiff < 0)
                     angleDiff += Math.PI * 2;
 
-                if (_isConvex(poly[prev], poly[i], poly[next]))
+                if (_isConvex(poly[prev * 2], poly[prev * 2 + 1], poly[i * 2], poly[i * 2 + 1], poly[next * 2], poly[next * 2 + 1]))
                     points.push(p1, p2);
                 else {
-                    _getNormal(poly[prev], poly[i], normal1);
+                    _getNormal(poly[prev * 2], poly[prev * 2 + 1], poly[i * 2], poly[i * 2 + 1], normal1);
 
-                    const p3 = new Vector3(poly[prev].x + expand * normal1.x, poly[prev].y + expand * normal1.y, 0);
-                    const p4 = new Vector3(poly[i].x + expand * normal1.x, poly[i].y + expand * normal1.y, 0);
+                    const p3 = new Vector3(poly[prev * 2] + expand * normal1.x, poly[prev * 2 + 1] + expand * normal1.y, 0);
+                    const p4 = new Vector3(poly[i * 2] + expand * normal1.x, poly[i * 2 + 1] + expand * normal1.y, 0);
                     let t = _intersection(p1, p2, p3, p4);
                     if (!t) t = p1;
                     points.push(t, p2);
@@ -315,14 +335,14 @@ export class FreeformLight2D extends BaseLight2D {
                 for (let j = 1; j <= arcSegments; j++) {
                     const angle = angle1 + (angleDiff * j) / arcSegments;
                     points.push(new Vector3(
-                        poly[next].x + expand * Math.cos(angle),
-                        poly[next].y + expand * Math.sin(angle),
+                        poly[next * 2 + 0] + expand * Math.cos(angle),
+                        poly[next * 2 + 1] + expand * Math.sin(angle),
                         0));
                     inds.push(next, start + j, start + j + 1);
                 }
             } else {
-                const p3 = new Vector3(poly[next].x + expand * normal2.x, poly[next].y + expand * normal2.y, 0);
-                const p4 = new Vector3(poly[next2].x + expand * normal2.x, poly[next2].y + expand * normal2.y, 0);
+                const p3 = new Vector3(poly[next * 2] + expand * normal2.x, poly[next * 2 + 1] + expand * normal2.y, 0);
+                const p4 = new Vector3(poly[next2 * 2] + expand * normal2.x, poly[next2 * 2 + 1] + expand * normal2.y, 0);
                 let t = _intersection(p1, p2, p3, p4);
                 if (!t) t = p2;
                 points.push(p1, t, p4);
@@ -338,13 +358,17 @@ export class FreeformLight2D extends BaseLight2D {
     }
 
     /**
-     * 耳切法三角化凹多边形
+     * @en Triangulating concave polygons using ear cutting method
+     * @zh 耳切法三角化凹多边形
      * @param polygon 
      */
-    private _earCut(polygon: Vector2[]) {
-        const vertices = polygon.map((p, i) => ({ x: p.x, y: p.y, index: i }));
+    private _earCut(polygon: number[]) {
+        const vertices: { x: number, y: number, index: number }[] = [];
+        let len = polygon.length / 2 | 0;
+        for (let i = 0; i < len; i++)
+            vertices.push({ x: polygon[i * 2], y: polygon[i * 2 + 1], index: i });
         const triangles: number[] = [];
-        const len = vertices.length;
+        len = vertices.length;
         if (len < 3) return triangles;
 
         const indices = vertices.map((_, i) => i);
@@ -374,7 +398,8 @@ export class FreeformLight2D extends BaseLight2D {
     }
 
     /**
-     * 是否耳尖
+     * @en Is ear tip
+     * @zh 是否耳尖
      * @param vertices 
      * @param indices 
      * @param vertexCount 
@@ -392,7 +417,8 @@ export class FreeformLight2D extends BaseLight2D {
     }
 
     /**
-     * 是否包含其他顶点
+     * @en Is include other vertices
+     * @zh 是否包含其他顶点
      * @param vertices 
      * @param indices 
      * @param vertexCount 
@@ -426,5 +452,17 @@ export class FreeformLight2D extends BaseLight2D {
             if (_pointInTriangle(vertices[index], a, b, c)) return true;
         }
         return false;
+    }
+
+    /**
+     * @en Destroy
+     * @zh 销毁
+     */
+    protected _onDestroy() {
+        super._onDestroy();
+        if (this._texLight) {
+            this._texLight.destroy();
+            this._texLight = null;
+        }
     }
 }

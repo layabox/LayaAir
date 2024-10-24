@@ -159,7 +159,7 @@ export class RenderSprite {
         let next = this._next;
         if (next == RenderSprite.NORENDER) return;
 
-        if (sprite._getBit(NodeFlags.DISABLE_INNER_CLIPPING)) {
+        if (sprite._getBit(NodeFlags.DISABLE_INNER_CLIPPING) && !context._drawingToTexture) {
             next._fun(sprite, context, x, y);
             return;
         }
@@ -215,7 +215,7 @@ export class RenderSprite {
 
     /**@internal IDE only*/
     _hitarea(sprite: Sprite, context: Context, x: number, y: number): void {
-        if (sprite.hitArea) {
+        if (!context._drawingToTexture && sprite.hitArea) {
             var style = sprite._style;
             var g = (<HitArea>sprite.hitArea)._hit;
             var temp = context.globalAlpha;
@@ -265,6 +265,7 @@ export class RenderSprite {
         x = x - sprite.pivotX;
         y = y - sprite.pivotY;
         let textLastRender: boolean = sprite._getBit(NodeFlags.DRAWCALL_OPTIMIZE) && context.drawCallOptimize(true);
+        let drawingToTexture = context._drawingToTexture;
         let rect: Rectangle;
         let left: number, top: number, right: number, bottom: number, x2: number, y2: number;
 
@@ -278,7 +279,11 @@ export class RenderSprite {
 
         for (let i = 0; i < n; ++i) {
             let ele = childs[i];
-            let visFlag = ele._visible || ele._getBit(NodeFlags.DISABLE_VISIBILITY);
+            let visFlag: boolean;
+            if (drawingToTexture)
+                visFlag = ele._visible && !ele._getBit(NodeFlags.ESCAPE_DRAWING_TO_TEXTURE);
+            else
+                visFlag = ele._visible || ele._getBit(NodeFlags.DISABLE_VISIBILITY);
             if (visFlag) {
                 if (rect && ((x2 = ele._x) >= right || (x2 + ele.width) <= left || (y2 = ele._y) >= bottom || (y2 + ele.height) <= top))
                     visFlag = false;
@@ -353,7 +358,7 @@ export class RenderSprite {
         var _cacheStyle = sprite._cacheStyle;
         var _next = this._next;
 
-        if (_cacheStyle.mask && _cacheStyle.mask._getBit(NodeFlags.DISABLE_VISIBILITY)) {
+        if ( !context._drawingToTexture && _cacheStyle.mask && _cacheStyle.mask._getBit(NodeFlags.DISABLE_VISIBILITY)) {
             //虽然有mask但是mask不可见，则不走这个流程。
             _next._fun(sprite, context, x, y);
             return;
@@ -388,6 +393,7 @@ export class RenderSprite {
         let scaleInfo = sprite._getCacheStyle()._calculateCacheRect(sprite, "bitmap"/*sprite._cacheStyle.cacheAs*/, 0, 0);
         let tRec = sprite._cacheStyle.cacheRect;
         let ctx = new Context();
+        ctx._drawingToTexture=true;
         context && ctx.copyState(context);
         let rt = renderTexture;
         if (rt) {
@@ -413,6 +419,7 @@ export class RenderSprite {
         }
 
         ctx.endRender();
+        ctx._drawingToTexture=false;
         //临时，恢复
         //context && ctx.render2D.setRenderTarget(context.render2D.out); endRender实现了
         ctx.destroy();

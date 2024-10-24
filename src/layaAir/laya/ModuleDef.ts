@@ -55,6 +55,13 @@ import { Camera2D } from "./display/Scene2DSpecial/Camera2D";
 import { Mesh2DRender } from "./display/Scene2DSpecial/Mesh2DRender";
 import { BaseRenderNode2D } from "./NodeRender2D/BaseRenderNode2D";
 import { Mesh2D } from "./resource/Mesh2D";
+import { DirectionLight2D } from "./display/Scene2DSpecial/Light2D/DirectionLight2D";
+import { BaseLight2D } from "./display/Scene2DSpecial/Light2D/BaseLight2D";
+import { SpriteLight2D } from "./display/Scene2DSpecial/Light2D/SpriteLight2D";
+import { FreeformLight2D } from "./display/Scene2DSpecial/Light2D/FreeformLight2D";
+import { SpotLight2D } from "./display/Scene2DSpecial/Light2D/SpotLight2D";
+import { LightOccluder2D } from "./display/Scene2DSpecial/Light2D/LightOccluder2D";
+import { PolygonPoint2D } from "./display/Scene2DSpecial/Light2D/PolygonPoint2D";
 
 let c = ClassUtils.regClass;
 
@@ -106,3 +113,11 @@ c("Camera2D", Camera2D);
 c("Mesh2DRender", Mesh2DRender);
 c("BaseRenderNode2D", BaseRenderNode2D);
 c("Mesh2D", Mesh2D);
+
+c("BaseLight2D", BaseLight2D);
+c("DirectionLight2D", DirectionLight2D);
+c("SpriteLight2D", SpriteLight2D);
+c("FreeformLight2D", FreeformLight2D);
+c("SpotLight2D", SpotLight2D);
+c("LightOccluder2D", LightOccluder2D);
+c("PolygonPoint2D", PolygonPoint2D);

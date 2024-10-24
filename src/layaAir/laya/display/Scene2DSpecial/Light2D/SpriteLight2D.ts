@@ -11,13 +11,13 @@ import { ShowRenderTarget } from "./ShowRenderTarget";
  * 精灵灯光
  */
 export class SpriteLight2D extends BaseLight2D {
-
-
+    /**
+     * @ignore
+     */
     constructor() {
         super();
         this._type = Light2DType.Sprite;
     }
-
 
     set spriteTexture(value: Texture2D) {
         if (this._texLight === value)
@@ -54,10 +54,6 @@ export class SpriteLight2D extends BaseLight2D {
      */
     renderLightTexture(scene: Scene) {
         super.renderLightTexture(scene);
-        if (this._lastRotation !== (this.owner as Sprite).globalRotation) {
-            this._lastRotation = (this.owner as Sprite).globalRotation;
-            this._needUpdateLight = true;
-        }
         if (this._needUpdateLight) {
             this._needUpdateLight = false;
             this.updateMark++;
@@ -66,6 +62,14 @@ export class SpriteLight2D extends BaseLight2D {
                     this.showRenderTarget = new ShowRenderTarget(scene, this._texLight, 0, 0, 300, 300);
                 else this.showRenderTarget.setRenderTarget(this._texLight);
             }
+        }
+    }
+
+    protected _onDestroy() {
+        super._onDestroy();
+        if (this._texLight) {
+            this._texLight._removeReference(1);
+            this._texLight = null;
         }
     }
 }

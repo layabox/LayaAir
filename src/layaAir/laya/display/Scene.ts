@@ -459,6 +459,9 @@ export class Scene extends Sprite {
      */
     _recoverRenderSceneState(ctx: Context) {
         //恢复2D场景数据状态
+        if (!ctx._render2DManager._renderEnd) {
+            ctx._render2DManager.render(Render2DSimple.rendercontext2D);
+        }
         ctx.drawLeftData();
         Render2DSimple.rendercontext2D.sceneData = null;
     }

@@ -78,9 +78,7 @@ export class Sprite extends Node {
     protected _tfChanged: boolean = false;
     /**@internal */
     protected _repaint: number = SpriteConst.REPAINT_NONE;
-    /**@internal */
     private _texture: Texture | null = null;
-    /**@internal */
     private _sizeFlag: number = 0;
 
     //以下变量为系统调用，请不要直接使用
@@ -715,7 +713,6 @@ export class Sprite extends Node {
     }
 
     /**
-     * @private
      * @en Get the sprite style.
      * @return The sprite style (SpriteStyle).
      * @zh 获取精灵样式。
@@ -727,7 +724,6 @@ export class Sprite extends Node {
     }
 
     /**
-     * @private
      * @en Set the sprite style.
      * @param value The sprite style to set.
      * @zh 设置精灵样式。
@@ -1575,7 +1571,7 @@ export class Sprite extends Node {
         return Sprite.drawToCanvas(this, canvasWidth, canvasHeight, offsetX, offsetY);
     }
     /**
-     * @private
+     * @ignore
      * @en Draws the specified Sprite to a Canvas and returns an HtmlCanvas object.
      * @param sprite The Sprite to draw.
      * @param canvasWidth The width of the canvas.
@@ -1642,29 +1638,8 @@ export class Sprite extends Node {
     }
 
     /**
-     * @en Draws the current object to a RenderTexture2D object.
-     * @param canvasWidth The width of the canvas.
-     * @param canvasHeight The height of the canvas.
-     * @param offsetX The X-axis offset for drawing.
-     * @param offsetY The Y-axis offset for drawing.
-     * @param rt The render target.
-     * @returns The drawn RenderTexture2D object.
-     * @zh 绘制当前对象到一个 Texture 对象上。
-     * @param canvasWidth 画布宽度。
-     * @param canvasHeight 画布高度。
-     * @param offsetX 绘制的 X 轴偏移量。
-     * @param offsetY 绘制的 Y 轴偏移量。
-     * @param rt 渲染目标。
-     * @returns 绘制的 RenderTexture2D 对象。
-     */
-    drawToRenderTexture2D(canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt: RenderTexture2D | null = null): RenderTexture2D {
-        let res = Sprite.drawToRenderTexture2D(this, canvasWidth, canvasHeight, offsetX, offsetY, rt);
-        return res;
-    }
-
-    /**
      * @deprecated
-     * @private
+     * @ignore
      * @en Draws the specified Sprite to a Texture or RenderTexture2D object.
      * @param sprite The Sprite to draw.
      * @param canvasWidth The width of the canvas.
@@ -1702,7 +1677,30 @@ export class Sprite extends Node {
     }
 
     /**
-     * @private
+     * @en Draws the current object to a RenderTexture2D object.
+     * @param canvasWidth The width of the canvas.
+     * @param canvasHeight The height of the canvas.
+     * @param offsetX The X-axis offset for drawing.
+     * @param offsetY The Y-axis offset for drawing.
+     * @param rt The render target.
+     * @param flipY Optional. If true, the texture will be flipped vertical. Default is false.
+     * @returns The drawn RenderTexture2D object.
+     * @zh 绘制当前对象到一个 Texture 对象上。
+     * @param canvasWidth 画布宽度。
+     * @param canvasHeight 画布高度。
+     * @param offsetX 绘制的 X 轴偏移量。
+     * @param offsetY 绘制的 Y 轴偏移量。
+     * @param rt 渲染目标。
+     * @param flipY 可选。如果为 true，则垂直翻转纹理。默认为 false。
+     * @returns 绘制的 RenderTexture2D 对象。
+     */
+    drawToRenderTexture2D(canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt: RenderTexture2D | null = null, flipY: boolean = false): RenderTexture2D {
+        let res = Sprite.drawToRenderTexture2D(this, canvasWidth, canvasHeight, offsetX, offsetY, rt, flipY);
+        return res;
+    }
+
+    /**
+     * @ignore
      * @en Draws the specified Sprite to a RenderTexture2D object.
      * @param sprite The Sprite to draw.
      * @param canvasWidth The width of the canvas.
@@ -1710,6 +1708,7 @@ export class Sprite extends Node {
      * @param offsetX The X-axis offset for drawing.
      * @param offsetY The Y-axis offset for drawing.
      * @param rt The render target. If not provided, a new RenderTexture2D will be created.
+     * @param flipY Optional. If true, the texture will be flipped vertical. Default is false.
      * @returns The drawn RenderTexture2D object.
      * @zh 将指定的 Sprite 绘制到 RenderTexture2D 对象上。
      * @param sprite 要绘制的 Sprite。
@@ -1718,9 +1717,10 @@ export class Sprite extends Node {
      * @param offsetX 绘制的 X 轴偏移量。
      * @param offsetY 绘制的 Y 轴偏移量。
      * @param rt 渲染目标。如果未提供,将创建一个新的 RenderTexture2D。
+     * @param flipY 可选。如果为 true，则垂直翻转纹理。默认为 false。
      * @returns 绘制的 RenderTexture2D 对象。
      */
-    static drawToRenderTexture2D(sprite: Sprite, canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt: RenderTexture2D | null = null): RenderTexture2D {
+    static drawToRenderTexture2D(sprite: Sprite, canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt: RenderTexture2D | null = null, flipY: boolean = false): RenderTexture2D {
         let renderout = rt || new RenderTexture2D(canvasWidth, canvasHeight, RenderTargetFormat.R8G8B8A8);
         let ctx = new Context();
         if (rt) {
@@ -1730,6 +1730,7 @@ export class Sprite extends Node {
         }
         ctx.render2D = ctx.render2D.clone(renderout);
         ctx._drawingToTexture = true;
+        if (flipY) renderout._invertY = true;//翻转纹理
         let outrt = RenderSprite.RenderToRenderTexture(sprite, ctx, offsetX, offsetY, renderout);
         ctx.destroy();
         return outrt;
