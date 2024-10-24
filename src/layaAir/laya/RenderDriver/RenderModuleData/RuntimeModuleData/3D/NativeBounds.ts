@@ -199,9 +199,8 @@ export class NativeBounds implements IClone {
      * 克隆。
      * @param	destObject 克隆源。
      */
-    cloneTo(destObject: any): void {
-        var destBounds: NativeBounds = (<NativeBounds>destObject);
-        this._nativeObj.cloneTo(destBounds._nativeObj);
+    cloneTo(destObject: NativeBounds): void {
+        this._nativeObj.cloneTo(destObject._nativeObj);
     }
 
     /**

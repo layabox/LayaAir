@@ -202,7 +202,7 @@ export class ExtendTerrainMaterial extends Material {
 				this.depthTest = RenderState.DEPTHTEST_LEQUAL;
 				break;
 			default:
-				throw new Error("ExtendTerrainMaterial:renderMode value error.");
+				throw new Error("unknown renderMode: " + value);
 		}
 	}
 

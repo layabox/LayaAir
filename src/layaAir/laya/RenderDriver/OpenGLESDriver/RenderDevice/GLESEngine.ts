@@ -2,6 +2,7 @@ import { BufferTargetType, BufferUsage } from "../../../RenderEngine/RenderEnum/
 import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
 import { RenderParams } from "../../../RenderEngine/RenderEnum/RenderParams";
 import { GPUEngineStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
+import { NotImplementedError } from "../../../utils/Error";
 import { IRenderEngine } from "../../DriverDesign/RenderDevice/IRenderEngine";
 import { IRenderEngineFactory } from "../../DriverDesign/RenderDevice/IRenderEngineFactory";
 import { ITextureContext } from "../../DriverDesign/RenderDevice/ITextureContext";
@@ -72,7 +73,7 @@ export class GLESEngine implements IRenderEngine {
     this._GLTextureContext = new GLESTextureContext(this._nativeObj.getTextureContext());
   }
   copySubFrameBuffertoTex(texture: InternalTexture, level: number, xoffset: number, yoffset: number, x: number, y: number, width: number, height: number): void {
-    throw new Error("Method not implemented.");
+    throw new NotImplementedError();
   }
   propertyNameToID(name: string): number {
     return this._nativeObj.propertyNameToID(name);
@@ -90,7 +91,7 @@ export class GLESEngine implements IRenderEngine {
     return this._GLTextureContext;
   }
   getCreateRenderOBJContext(): IRenderEngineFactory {
-    throw new Error("Method not implemented.");
+    throw new NotImplementedError();
   }
   clearStatisticsInfo(): void {
     this._nativeObj.clearStatisticsInfo();

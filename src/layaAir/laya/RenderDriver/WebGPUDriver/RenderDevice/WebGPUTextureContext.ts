@@ -7,6 +7,7 @@ import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTarge
 import { TextureCompareMode } from "../../../RenderEngine/RenderEnum/TextureCompareMode";
 import { TextureDimension } from "../../../RenderEngine/RenderEnum/TextureDimension";
 import { TextureFormat } from "../../../RenderEngine/RenderEnum/TextureFormat";
+import { NotImplementedError } from "../../../utils/Error";
 import { ITextureContext } from "../../DriverDesign/RenderDevice/ITextureContext";
 import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
 import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
@@ -1235,7 +1236,7 @@ export class WebGPUTextureContext implements ITextureContext {
     }
 
     setTextureCompareMode(texture: InternalTexture, compareMode: TextureCompareMode): TextureCompareMode {
-        //throw new Error("Method not implemented.");
+        //throw new NotImplementedError();
         switch (compareMode) {
             case TextureCompareMode.LEQUAL:
                 break;
@@ -1381,16 +1382,16 @@ export class WebGPUTextureContext implements ITextureContext {
     }
 
     createRenderTargetCubeInternal(size: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): InternalRenderTarget {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
     bindRenderTarget(renderTarget: InternalRenderTarget, faceIndex?: number): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
     bindoutScreenTarget(): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
     unbindRenderTarget(renderTarget: InternalRenderTarget): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
     /**
      * @deprecated 请使用readRenderTargetPixelDataAsync函数代替
@@ -1402,7 +1403,7 @@ export class WebGPUTextureContext implements ITextureContext {
      * @param out 
      */
     readRenderTargetPixelData(renderTarget: InternalRenderTarget, xOffset: number, yOffset: number, width: number, height: number, out: ArrayBufferView): ArrayBufferView {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
     async readRenderTargetPixelDataAsync(renderTarget: InternalRenderTarget, xOffset: number, yOffset: number, width: number, height: number, out: ArrayBufferView): Promise<ArrayBufferView> {
         const texture = renderTarget._textures[0].resource as GPUTexture;
@@ -1577,7 +1578,7 @@ export class WebGPUTextureContext implements ITextureContext {
      * @param height 
      */
     getRenderTextureData(internalTex: InternalRenderTarget, x: number, y: number, width: number, height: number): ArrayBufferView {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
     getRenderTextureDataAsync(internalTex: InternalRenderTarget, x: number, y: number, width: number, height: number): Promise<ArrayBufferView> {
         let bytesPerRow = 0;

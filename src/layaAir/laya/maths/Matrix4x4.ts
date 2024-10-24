@@ -534,9 +534,9 @@ export class Matrix4x4 implements IClone {
      */
     getElementByRowColumn(row: number, column: number): number {
         if (row < 0 || row > 3)
-            throw new Error("row Rows and columns for matrices run from 0 to 3, inclusive.");
+            throw new Error("row for matrices run from 0 to 3, inclusive.");
         if (column < 0 || column > 3)
-            throw new Error("column Rows and columns for matrices run from 0 to 3, inclusive.");
+            throw new Error("column for matrices run from 0 to 3, inclusive.");
 
         return this.elements[(row * 4) + column];
     }
@@ -554,9 +554,9 @@ export class Matrix4x4 implements IClone {
      */
     setElementByRowColumn(row: number, column: number, value: number): void {
         if (row < 0 || row > 3)
-            throw new Error("row Rows and columns for matrices run from 0 to 3, inclusive.");
+            throw new Error("row for matrices run from 0 to 3, inclusive.");
         if (column < 0 || column > 3)
-            throw new Error("column Rows and columns for matrices run from 0 to 3, inclusive.");
+            throw new Error("column for matrices run from 0 to 3, inclusive.");
 
         this.elements[(row * 4) + column] = value;
     }
@@ -927,7 +927,7 @@ export class Matrix4x4 implements IClone {
      * @zh 克隆矩阵到另一个对象
      * @param destObject 克隆源。
      */
-    cloneTo(destObject: any): void {
+    cloneTo(destObject: Matrix4x4): void {
         var i: number, s: Float32Array, d: Float32Array;
         s = this.elements;
         d = destObject.elements;

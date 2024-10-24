@@ -15,25 +15,25 @@ export class ConeShape extends BaseShape {
 	/** @internal */
 	protected static _tempDirectionPoint: Vector2 = new Vector2();
 
-    /**
-     * @en The emission angle in radians.
-     * @zh 发射角度，单位为弧度。
-     */
+	/**
+	 * @en The emission angle in radians.
+	 * @zh 发射角度，单位为弧度。
+	 */
 	angle: number;
-    /**
-     * @en The radius of the emitter.
-     * @zh 发射器的半径。
-     */
+	/**
+	 * @en The radius of the emitter.
+	 * @zh 发射器的半径。
+	 */
 	radius: number;
-    /**
-     * @en The length of the cone.
-     * @zh 锥体的长度。
-     */
+	/**
+	 * @en The length of the cone.
+	 * @zh 锥体的长度。
+	 */
 	length: number;
-    /**
-     * @en The emission type. 0 for Base, 1 for BaseShell, 2 for Volume, 3 for VolumeShell.
-     * @zh 发射类型：0 表示基础发射，1 表示基础外壳发射，2 表示体积发射，3 表示体积外壳发射。
-     */
+	/**
+	 * @en The emission type. 0 for Base, 1 for BaseShell, 2 for Volume, 3 for VolumeShell.
+	 * @zh 发射类型：0 表示基础发射，1 表示基础外壳发射，2 表示体积发射，3 表示体积外壳发射。
+	 */
 	emitType: number;
 
 	/**
@@ -269,14 +269,13 @@ export class ConeShape extends BaseShape {
 	 * @zh 克隆到目标对象。
 	 * @param destObject 要克隆到的目标对象。
 	 */
-	cloneTo(destObject: any): void {
+	cloneTo(destObject: ConeShape): void {
 		super.cloneTo(destObject);
-		var destShape: ConeShape = (<ConeShape>destObject);
-		destShape.angle = this.angle;
-		destShape.radius = this.radius;
-		destShape.length = this.length;
-		destShape.emitType = this.emitType;
-		destShape.randomDirection = this.randomDirection;
+		destObject.angle = this.angle;
+		destObject.radius = this.radius;
+		destObject.length = this.length;
+		destObject.emitType = this.emitType;
+		destObject.randomDirection = this.randomDirection;
 	}
 
 	/**

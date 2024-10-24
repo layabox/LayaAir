@@ -44,11 +44,10 @@ export class VelocityOverLifetime implements IClone {
 	 * @zh 克隆到目标对象。
 	 * @param destObject 要克隆到的目标对象。
 	 */
-	cloneTo(destObject: any): void {
-		var destVelocityOverLifetime: VelocityOverLifetime = (<VelocityOverLifetime>destObject);
-		this._velocity.cloneTo(destVelocityOverLifetime._velocity);
-		destVelocityOverLifetime.enable = this.enable;
-		destVelocityOverLifetime.space = this.space;
+	cloneTo(destObject: VelocityOverLifetime): void {
+		this._velocity.cloneTo(destObject._velocity);
+		destObject.enable = this.enable;
+		destObject.space = this.space;
 	}
 
 	/**

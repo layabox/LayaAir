@@ -52,18 +52,17 @@ export class FloatKeyframe extends Keyframe {
      * @zh 克隆数据到目标对象。
 	 * @param destObject 拷贝数据结构
      */
-	cloneTo(destObject: any): void {
+	cloneTo(destObject: FloatKeyframe): void {
 		super.cloneTo(destObject);
-		var destKeyFrame: FloatKeyframe = (<FloatKeyframe>destObject);
-		destKeyFrame.inTangent = this.inTangent;
-		destKeyFrame.outTangent = this.outTangent;
-		destKeyFrame.value = this.value;
-		destKeyFrame.inTangent = this.inTangent;
-		destKeyFrame.outTangent = this.outTangent;
-		destKeyFrame.value = this.value;
-		destKeyFrame.inWeight = this.inWeight;
-		destKeyFrame.outWeight = this.outWeight;
-		destKeyFrame.weightedMode = this.weightedMode;
+		destObject.inTangent = this.inTangent;
+		destObject.outTangent = this.outTangent;
+		destObject.value = this.value;
+		destObject.inTangent = this.inTangent;
+		destObject.outTangent = this.outTangent;
+		destObject.value = this.value;
+		destObject.inWeight = this.inWeight;
+		destObject.outWeight = this.outWeight;
+		destObject.weightedMode = this.weightedMode;
 	}
 
     /**

@@ -154,11 +154,10 @@ export class CompoundColliderShape extends Physics3DColliderShape {
 	 * @inheritDoc
 	 * @override
 	 */
-	cloneTo(destObject: any): void {
-		var destCompoundColliderShape: CompoundColliderShape = (<CompoundColliderShape>destObject);
-		destCompoundColliderShape.clearChildShape();
-		for (var i: number = 0, n: number = this._childColliderShapes.length; i < n; i++)
-			destCompoundColliderShape.addChildShape(this._childColliderShapes[i].clone());
+	cloneTo(destObject: CompoundColliderShape): void {
+		destObject.clearChildShape();
+		for (let i: number = 0, n: number = this._childColliderShapes.length; i < n; i++)
+			destObject.addChildShape(this._childColliderShapes[i].clone());
 	}
 
 	/**

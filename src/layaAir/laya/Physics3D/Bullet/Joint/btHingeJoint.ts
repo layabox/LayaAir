@@ -1,4 +1,5 @@
 import { Vector3 } from "../../../maths/Vector3";
+import { NotImplementedError } from "../../../utils/Error";
 import { IHingeJoint } from "../../interface/Joint/IHingeJoint";
 import { btRigidBodyCollider } from "../Collider/btRigidBodyCollider";
 import { btPhysicsCreateUtil } from "../btPhysicsCreateUtil";
@@ -144,7 +145,7 @@ export class btHingeJoint extends btJoint implements IHingeJoint {
      * @param value 接触距离值。
      */
     setContactDistance(value: number): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
     /**
      * @en Enables or disables the joint limit.
@@ -174,7 +175,7 @@ export class btHingeJoint extends btJoint implements IHingeJoint {
      */
     enableFreeSpin(value: boolean): void {
         //TODO bullet
-        // throw new Error("Method not implemented.");
+        // throw new NotImplementedError();
     }
 
     /**
@@ -219,21 +220,21 @@ export class btHingeJoint extends btJoint implements IHingeJoint {
      * @param value 摆动偏移向量。
      */
     setSwingOffset(value: Vector3): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
     /**
      * @en Gets the current angle of the joint.
      * @zh 获取关节的当前角度。
      */
     getAngle(): number {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
     /**
      * @en Gets the current velocity of the joint.
      * @zh 获取关节的当前速度。
      */
     getVelocity(): Readonly<Vector3> {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
     /**
      * @en Sets the hard limit for the joint.
@@ -246,7 +247,7 @@ export class btHingeJoint extends btJoint implements IHingeJoint {
      * @param contactDist 接触距离。
      */
     setHardLimit(lowerLimit: number, upperLimit: number, contactDist: number): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
     /**
      * @en Sets the soft limit for the joint.
@@ -261,7 +262,7 @@ export class btHingeJoint extends btJoint implements IHingeJoint {
      * @param damping 软限制的阻尼。
      */
     setSoftLimit(lowerLimit: number, upperLimit: number, stiffness: number, damping: number): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
     /**
      * @en Sets the drive velocity for the joint.
@@ -280,7 +281,7 @@ export class btHingeJoint extends btJoint implements IHingeJoint {
      * @param limit 关节电机可以施加的最大力。
      */
     setDriveForceLimit(limit: number): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
     /**
      * @en Sets the drive gear ratio for the joint.
@@ -289,7 +290,7 @@ export class btHingeJoint extends btJoint implements IHingeJoint {
      * @param ratio 关节电机的齿轮比。
      */
     setDriveGearRatio(ratio: number): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
     /**
      * @en Sets a specific flag for the hinge joint.
@@ -300,7 +301,7 @@ export class btHingeJoint extends btJoint implements IHingeJoint {
      * @param value 设置标志的布尔值。
      */
     setHingeJointFlag(flag: number, value: boolean): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     /**

@@ -105,12 +105,11 @@ export class SphereShape extends BaseShape {
 	 * @zh 克隆到目标对象。
 	 * @param destObject 要克隆到的目标对象。
 	 */
-	cloneTo(destObject: any): void {
+	cloneTo(destObject: SphereShape): void {
 		super.cloneTo(destObject);
-		var destShape: SphereShape = (<SphereShape>destObject);
-		destShape.radius = this.radius;
-		destShape.emitFromShell = this.emitFromShell;
-		destShape.randomDirection = this.randomDirection;
+		destObject.radius = this.radius;
+		destObject.emitFromShell = this.emitFromShell;
+		destObject.randomDirection = this.randomDirection;
 	}
 
 	/**

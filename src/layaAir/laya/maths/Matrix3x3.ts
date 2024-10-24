@@ -407,7 +407,7 @@ export class Matrix3x3 implements IClone {
      * @zh 克隆矩阵。
      * @param destObject 克隆目标。
      */
-    cloneTo(destObject: any): void {
+    cloneTo(destObject: Matrix3x3): void {
         var i: number, s: Float32Array, d: Float32Array;
         s = this.elements;
         d = destObject.elements;

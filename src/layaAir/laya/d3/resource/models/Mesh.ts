@@ -25,6 +25,7 @@ import { Config } from "../../../../Config";
 import { Laya3D } from "../../../../Laya3D";
 import { EPhysicsCapable } from "../../../Physics3D/physicsEnum/EPhycisCapable";
 import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
+import { NotReadableError } from "../../../utils/Error";
 /**
  * @internal
  */
@@ -481,7 +482,7 @@ export class Mesh extends Resource implements IClone {
         if (this._isReadable)
             this._getVerticeElementData(positions, VertexMesh.MESH_POSITION0);
         else
-            throw "Mesh:can't get positions on mesh,isReadable must be true.";
+            throw new NotReadableError();
     }
 
     /**
@@ -496,7 +497,7 @@ export class Mesh extends Resource implements IClone {
             this._needUpdateBounds = true;
         }
         else {
-            throw "Mesh:setPosition() need isReadable must be true or use setVertices().";
+            throw new NotReadableError();
         }
     }
 
@@ -512,7 +513,7 @@ export class Mesh extends Resource implements IClone {
         if (this._isReadable)
             this._getVerticeElementData(colors, VertexMesh.MESH_COLOR0);
         else
-            throw "Mesh:can't get colors on mesh,isReadable must be true.";
+            throw new NotReadableError();
     }
 
     /**
@@ -525,7 +526,7 @@ export class Mesh extends Resource implements IClone {
         if (this._isReadable)
             this._setVerticeElementData(colors, VertexMesh.MESH_COLOR0);
         else
-            throw "Mesh:setColors() need isReadable must be true or use setVertices().";
+            throw new NotReadableError();
     }
 
     /**
@@ -552,7 +553,7 @@ export class Mesh extends Resource implements IClone {
             }
         }
         else {
-            throw "Mesh:can't get uvs on mesh,isReadable must be true.";
+            throw new NotReadableError();
         }
     }
 
@@ -578,7 +579,7 @@ export class Mesh extends Resource implements IClone {
             }
         }
         else {
-            throw "Mesh:setUVs() need isReadable must be true or use setVertices().";
+            throw new NotReadableError();
         }
     }
 
@@ -594,7 +595,7 @@ export class Mesh extends Resource implements IClone {
         if (this._isReadable)
             this._getVerticeElementData(normals, VertexMesh.MESH_NORMAL0);
         else
-            throw "Mesh:can't get colors on mesh,isReadable must be true.";
+            throw new NotReadableError();
     }
 
     /**
@@ -607,7 +608,7 @@ export class Mesh extends Resource implements IClone {
         if (this._isReadable)
             this._setVerticeElementData(normals, VertexMesh.MESH_NORMAL0);
         else
-            throw "Mesh:setNormals() need must be true or use setVertices().";
+            throw new NotReadableError();
     }
 
     /**
@@ -620,7 +621,7 @@ export class Mesh extends Resource implements IClone {
         if (this._isReadable)
             this._getVerticeElementData(tangents, VertexMesh.MESH_TANGENT0);
         else
-            throw "Mesh:can't get colors on mesh,isReadable must be true.";
+            throw new NotReadableError();
     }
 
     /**
@@ -633,7 +634,7 @@ export class Mesh extends Resource implements IClone {
         if (this._isReadable)
             this._setVerticeElementData(tangents, VertexMesh.MESH_TANGENT0);
         else
-            throw "Mesh:setTangents() need isReadable must be true or use setVertices().";
+            throw new NotReadableError();
     }
 
     /**
@@ -646,7 +647,7 @@ export class Mesh extends Resource implements IClone {
         if (this._isReadable)
             this._getVerticeElementData(boneWeights, VertexMesh.MESH_BLENDWEIGHT0);
         else
-            throw "Mesh:can't get boneWeights on mesh,isReadable must be true.";
+            throw new NotReadableError();
     }
 
     /**
@@ -659,7 +660,7 @@ export class Mesh extends Resource implements IClone {
         if (this._isReadable)
             this._setVerticeElementData(boneWeights, VertexMesh.MESH_BLENDWEIGHT0);
         else
-            throw "Mesh:setBoneWeights() need isReadable must be true or use setVertices().";
+            throw new NotReadableError();
     }
 
     /**
@@ -672,7 +673,7 @@ export class Mesh extends Resource implements IClone {
         if (this._isReadable)
             this._getVerticeElementData(boneIndices, VertexMesh.MESH_BLENDINDICES0);
         else
-            throw "Mesh:can't get boneIndices on mesh,isReadable must be true.";
+            throw new NotReadableError();
     }
 
     /**
@@ -685,7 +686,7 @@ export class Mesh extends Resource implements IClone {
         if (this._isReadable)
             this._setVerticeElementData(boneIndices, VertexMesh.MESH_BLENDINDICES0);
         else
-            throw "Mesh:setBoneIndices() need isReadable must be true or use setVertices().";
+            throw new NotReadableError();
     }
 
 
@@ -717,7 +718,7 @@ export class Mesh extends Resource implements IClone {
         if (this._isReadable)
             return this._vertexBuffer.getUint8Data().buffer.slice(0);
         else
-            throw "Mesh:can't get vertices on mesh,isReadable must be true.";
+            throw new NotReadableError();
     }
 
     /**
@@ -741,7 +742,7 @@ export class Mesh extends Resource implements IClone {
         if (this._isReadable)
             return this._indexBuffer.getData().slice();
         else
-            throw "Mesh:can't get indices on subMesh,mesh's isReadable must be true.";
+            throw new NotReadableError();
     }
 
     /**
@@ -805,7 +806,7 @@ export class Mesh extends Resource implements IClone {
             }
         }
         else {
-            throw "Mesh:can't calculate bounds on subMesh,mesh's isReadable must be true.";
+            throw new NotReadableError();
         }
     }
 
@@ -831,51 +832,50 @@ export class Mesh extends Resource implements IClone {
      * @zh 克隆当前网格到目标对象。
      * @param destObject 克隆的目标对象。
      */
-    cloneTo(destObject: any): void {//[实现IClone接口]
-        var destMesh: Mesh = <Mesh>destObject;
+    cloneTo(destObject: Mesh): void {//[实现IClone接口]
         var vb: VertexBuffer3D = this._vertexBuffer;
         var destVB: VertexBuffer3D = Laya3DRender.renderOBJCreate.createVertexBuffer3D(vb._byteLength, vb.bufferUsage, vb.canRead);
         destVB.vertexDeclaration = vb.vertexDeclaration;
         destVB.setData(vb.getUint8Data().slice().buffer);
-        destMesh._vertexBuffer = destVB;
-        destMesh._vertexCount = this._vertexCount;
+        destObject._vertexBuffer = destVB;
+        destObject._vertexCount = this._vertexCount;
         var ib: IndexBuffer3D = this._indexBuffer;
         var destIB: IndexBuffer3D = Laya3DRender.renderOBJCreate.createIndexBuffer3D(IndexFormat.UInt16, ib.indexCount, ib.bufferUsage, ib.canRead);
         destIB.setData(ib.getData().slice());
-        destMesh._indexBuffer = destIB;
+        destObject._indexBuffer = destIB;
 
-        destMesh._setBuffer(destMesh._vertexBuffer, destIB);
-        destMesh._instanceBufferStateType = this._instanceBufferStateType;
+        destObject._setBuffer(destObject._vertexBuffer, destIB);
+        destObject._instanceBufferStateType = this._instanceBufferStateType;
 
-        destMesh._setCPUMemory(this.cpuMemory);
-        destMesh._setGPUMemory(this.gpuMemory);
+        destObject._setCPUMemory(this.cpuMemory);
+        destObject._setGPUMemory(this.gpuMemory);
 
         var i: number;
         var boneNames: string[] = this._boneNames;
         if (boneNames) {
-            var destBoneNames: string[] = destMesh._boneNames = [];
+            var destBoneNames: string[] = destObject._boneNames = [];
             for (i = 0; i < boneNames.length; i++)
                 destBoneNames[i] = boneNames[i];
         }
 
         var inverseBindPoses: Matrix4x4[] = this._inverseBindPoses;
         if (inverseBindPoses) {
-            var destInverseBindPoses: Matrix4x4[] = destMesh._inverseBindPoses = [];
+            var destInverseBindPoses: Matrix4x4[] = destObject._inverseBindPoses = [];
             for (i = 0; i < inverseBindPoses.length; i++)
                 destInverseBindPoses[i] = inverseBindPoses[i];
         }
         if (this._inverseBindPosesBuffer) {
             let length = this._inverseBindPosesBuffer.byteLength;
-            destMesh._inverseBindPosesBuffer = new ArrayBuffer(length);
-            new Uint8Array(destMesh._inverseBindPosesBuffer).set(new Uint8Array(this._inverseBindPosesBuffer));
+            destObject._inverseBindPosesBuffer = new ArrayBuffer(length);
+            new Uint8Array(destObject._inverseBindPosesBuffer).set(new Uint8Array(this._inverseBindPosesBuffer));
         }
 
         var cacheLength: number = this._skinnedMatrixCaches.length;
-        destMesh._skinnedMatrixCaches.length = cacheLength;
+        destObject._skinnedMatrixCaches.length = cacheLength;
         for (i = 0; i < cacheLength; i++) {
             var skinnedCache: skinnedMatrixCache = this._skinnedMatrixCaches[i];
             if (skinnedCache)
-                destMesh._skinnedMatrixCaches[i] = new skinnedMatrixCache(skinnedCache.subMeshIndex, skinnedCache.batchIndex, skinnedCache.batchBoneIndex);
+                destObject._skinnedMatrixCaches[i] = new skinnedMatrixCache(skinnedCache.subMeshIndex, skinnedCache.batchIndex, skinnedCache.batchBoneIndex);
         }
 
         for (i = 0; i < this.subMeshCount; i++) {
@@ -883,7 +883,7 @@ export class Mesh extends Resource implements IClone {
             var subIndexBufferStart: number[] = subMesh._subIndexBufferStart;
             var subIndexBufferCount: number[] = subMesh._subIndexBufferCount;
             var boneIndicesList: Uint16Array[] = subMesh._boneIndicesList;
-            var destSubmesh: SubMesh = new SubMesh(destMesh);
+            var destSubmesh: SubMesh = new SubMesh(destObject);
 
             destSubmesh._subIndexBufferStart.length = subIndexBufferStart.length;
             destSubmesh._subIndexBufferCount.length = subIndexBufferCount.length;
@@ -900,14 +900,14 @@ export class Mesh extends Resource implements IClone {
             destSubmesh._indexStart = subMesh._indexStart;
             destSubmesh._indexCount = subMesh._indexCount;
             destSubmesh._indices = new Uint16Array(destIB.getData().buffer, subMesh._indexStart * 2, subMesh._indexCount);
-            var vertexBuffer: VertexBuffer3D = destMesh._vertexBuffer;
+            var vertexBuffer: VertexBuffer3D = destObject._vertexBuffer;
             destSubmesh._vertexBuffer = vertexBuffer;
-            destMesh._subMeshes.push(destSubmesh);
+            destObject._subMeshes.push(destSubmesh);
         }
-        destMesh._setSubMeshes(destMesh._subMeshes);
+        destObject._setSubMeshes(destObject._subMeshes);
 
         if (this.morphTargetData) {
-            destMesh.morphTargetData = this.morphTargetData.clone();
+            destObject.morphTargetData = this.morphTargetData.clone();
         }
     }
 

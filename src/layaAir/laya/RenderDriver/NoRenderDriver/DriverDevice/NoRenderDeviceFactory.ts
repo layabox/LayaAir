@@ -515,56 +515,45 @@ export class NoRenderShaderData extends ShaderData {
      * 克隆。
      * @param	destObject 克隆源。
      */
-    cloneTo(destObject: ShaderData): void {
-        var dest: NoRenderShaderData = <NoRenderShaderData>destObject;
-        var destData: { [key: string]: number | boolean | Vector2 | Vector3 | Vector4 | Matrix3x3 | Matrix4x4 | BaseTexture } = dest._data;
-        for (var k in this._data) {//TODO:需要优化,杜绝is判断，慢
-            var value: any = this._data[k];
+    cloneTo(destObject: NoRenderShaderData): void {
+        let destData: { [key: string]: number | boolean | Vector2 | Vector3 | Vector4 | Matrix3x3 | Matrix4x4 | Resource } = destObject._data;
+        for (let k in this._data) { //TODO:需要优化,杜绝is判断，慢
+            let value: any = this._data[k];
             if (value != null) {
                 if (typeof value == "number") {
-                    destData[k] = value;
-                } else if (typeof value == "number") {
                     destData[k] = value;
                 } else if (typeof value == "boolean") {
                     destData[k] = value;
                 } else if (value instanceof Vector2) {
-                    var v2 = destData[k] || (destData[k] = new Vector2());
-                    (<Vector2>value).cloneTo(v2);
-                    destData[k] = v2;
+                    let v2 = destData[k] || (destData[k] = new Vector2());
+                    value.cloneTo(<Vector2>v2);
                 } else if (value instanceof Vector3) {
-                    var v3 = destData[k] || (destData[k] = new Vector3());
-                    (<Vector3>value).cloneTo(v3);
-                    destData[k] = v3;
+                    let v3 = destData[k] || (destData[k] = new Vector3());
+                    value.cloneTo(<Vector3>v3);
                 } else if (value instanceof Vector4) {
                     let color = this.getColor(parseInt(k));
                     if (color) {
                         let clonecolor = color.clone();
                         destObject.setColor(parseInt(k), clonecolor);
                     } else {
-                        var v4 = destData[k] || (destData[k] = new Vector4());
-                        (<Vector4>value).cloneTo(v4);
-                        destData[k] = v4;
+                        let v4 = destData[k] || (destData[k] = new Vector4());
+                        value.cloneTo(<Vector4>v4);
                     }
                 }
                 else if (value instanceof Matrix3x3) {
                     let mat = destData[k] || (destData[k] = new Matrix3x3());
-                    value.cloneTo(mat);
-                    destData[k] = mat;
+                    value.cloneTo(<Matrix3x3>mat);
                 }
                 else if (value instanceof Matrix4x4) {
-                    var mat = destData[k] || (destData[k] = new Matrix4x4());
-                    (<Matrix4x4>value).cloneTo(mat);
-                    destData[k] = mat;
-                } else if (value instanceof BaseTexture) {
-                    destData[k] = value;
-                    value._addReference();
+                    let mat = destData[k] || (destData[k] = new Matrix4x4());
+                    value.cloneTo(<Matrix4x4>mat);
                 } else if (value instanceof Resource) {
-                    destData[k] = value as any;
+                    destData[k] = value;
                     value._addReference();
                 }
             }
         }
-        this._defineDatas.cloneTo(dest._defineDatas);
+        this._defineDatas.cloneTo(destObject._defineDatas);
     }
 
     /**

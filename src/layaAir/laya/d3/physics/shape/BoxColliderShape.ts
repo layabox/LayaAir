@@ -77,7 +77,7 @@ export class BoxColliderShape extends Physics3DColliderShape {
 	 * @zh 克隆数据到目标对象
 	 * @param destObject 目标对象 
 	 */
-	cloneTo(destObject: any): void {
+	cloneTo(destObject: BoxColliderShape): void {
 		super.cloneTo(destObject);
 		destObject.size = this.size;
 	}

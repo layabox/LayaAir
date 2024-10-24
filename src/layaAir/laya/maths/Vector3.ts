@@ -680,11 +680,10 @@ export class Vector3 implements IClone {
      * @zh 将当前向量克隆到目标对象。
      * @param destObject 克隆的目标对象。
      */
-    cloneTo(destObject: any): void {
-        var destVector3: Vector3 = (<Vector3>destObject);
-        destVector3.x = this.x;
-        destVector3.y = this.y;
-        destVector3.z = this.z;
+    cloneTo(destObject: Vector3): void {
+        destObject.x = this.x;
+        destObject.y = this.y;
+        destObject.z = this.z;
     }
 
     /**

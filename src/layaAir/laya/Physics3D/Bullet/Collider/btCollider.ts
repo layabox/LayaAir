@@ -8,6 +8,7 @@ import { btPhysicsCreateUtil } from "../btPhysicsCreateUtil";
 import { btPhysicsManager } from "../btPhysicsManager";
 import { Sprite3D } from "../../../d3/core/Sprite3D";
 import { PhysicsColliderComponent, PhysicsCombineMode } from "../../../d3/physics/PhysicsColliderComponent";
+import { NotImplementedError } from "../../../utils/Error";
 
 export enum btColliderType {
     RigidbodyCollider,
@@ -209,7 +210,7 @@ export class btCollider implements ICollider {
      * @param value 动态摩擦力值。
      */
     setDynamicFriction?(value: number): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError;
     }
 
     /**
@@ -219,7 +220,7 @@ export class btCollider implements ICollider {
      * @param value 静态摩擦力值。
      */
     setStaticFriction?(value: number): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError;
     }
 
     /**
@@ -229,7 +230,7 @@ export class btCollider implements ICollider {
      * @param value 摩擦力组合模式。
      */
     setFrictionCombine?(value: PhysicsCombineMode): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError;
     }
 
     /**
@@ -239,7 +240,7 @@ export class btCollider implements ICollider {
      * @param value 弹力组合模式。
      */
     setBounceCombine?(value: PhysicsCombineMode): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError;
     }
 
     /**
@@ -249,7 +250,7 @@ export class btCollider implements ICollider {
      * @param events 要过滤的事件名称。
      */
     setEventFilter?(events: string[]): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError;
     }
 
     /**

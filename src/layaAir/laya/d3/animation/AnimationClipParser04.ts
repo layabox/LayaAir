@@ -251,7 +251,7 @@ export class AnimationClipParser04 {
 								valueV4.w = reader.getFloat32();
 								break;
 							default:
-								throw "AnimationClipParser04:unknown type.";
+								throw new Error("AnimationClipParser04:unknown type.");
 						}
 					}
 					break;

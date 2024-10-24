@@ -5,6 +5,7 @@ import { Vector3 } from "../../../maths/Vector3";
 import { IMeshRenderNode } from "../../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
 
 import { Material } from "../../../resource/Material";
+import { OutOfRangeError } from "../../../utils/Error";
 import { Bounds } from "../../math/Bounds";
 import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 import { UnlitMaterial } from "../material/UnlitMaterial";
@@ -202,7 +203,7 @@ export class PixelLineRenderer extends BaseRender {
             this._pixelLineFilter._updateLineData(this._pixelLineFilter._lineCount++, startPosition, endPosition, startColor, endColor);
         }
         else {
-            throw "PixelLineSprite3D: lineCount has equal with maxLineCount.";
+            throw new Error("wrong lineCount");
         }
 
         if (this._isRenderActive && !this._isInRenders && this._pixelLineFilter._lineCount > 0) {
@@ -233,7 +234,7 @@ export class PixelLineRenderer extends BaseRender {
             this._pixelLineFilter._updateLineData(this._pixelLineFilter._lineCount++, startPosition, endPosition, startColor, endColor, startNormal, endNormal);
         }
         else {
-            throw "PixelLineSprite3D: lineCount has equal with maxLineCount.";
+            throw new Error("wrong lineCount");
         }
 
         if (this._isRenderActive && !this._isInRenders && this._pixelLineFilter._lineCount > 0) {
@@ -253,7 +254,7 @@ export class PixelLineRenderer extends BaseRender {
         var lineCount: number = this._pixelLineFilter._lineCount;
         var addCount: number = lines.length;
         if (lineCount + addCount > this._pixelLineFilter._maxLineCount) {
-            throw "PixelLineSprite3D: lineCount plus lines count must less than maxLineCount.";
+            throw new Error("wrong lineCount");
         }
         else {
             this._pixelLineFilter._updateLineDatas(lineCount, lines);
@@ -277,7 +278,7 @@ export class PixelLineRenderer extends BaseRender {
         if (index < this._pixelLineFilter._lineCount)
             this._pixelLineFilter._removeLineData(index);
         else
-            throw "PixelLineSprite3D: index must less than lineCount.";
+            throw new OutOfRangeError(index);
         if (this._isRenderActive && this._isInRenders && this._pixelLineFilter._lineCount == 0) {
             this.owner.scene && this.owner.scene._removeRenderObject(this);
             this._isInRenders = false;
@@ -312,7 +313,7 @@ export class PixelLineRenderer extends BaseRender {
         }
 
         else
-            throw "PixelLineSprite3D: index must less than lineCount.";
+            throw new OutOfRangeError(index);
     }
 
     /**
@@ -348,7 +349,7 @@ export class PixelLineRenderer extends BaseRender {
         }
 
         else
-            throw "PixelLineSprite3D: index must less than lineCount.";
+            throw new OutOfRangeError(index);
     }
 
     /**
@@ -363,7 +364,7 @@ export class PixelLineRenderer extends BaseRender {
         if (index < this.lineCount)
             this._pixelLineFilter._getLineData(index, out);
         else
-            throw "PixelLineSprite3D: index must less than lineCount.";
+            throw new OutOfRangeError(index);
     }
 
     /**

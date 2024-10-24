@@ -5,6 +5,7 @@ import { Color } from "../maths/Color";
 import { LayaGL } from "../layagl/LayaGL";
 import { InternalRenderTarget } from "../RenderDriver/DriverDesign/RenderDevice/InternalRenderTarget";
 import { IRenderTarget } from "../RenderDriver/DriverDesign/RenderDevice/IRenderTarget";
+import { NotImplementedError } from "../utils/Error";
 /**
  * @en RenderTexture2D class used to create 2D render targets.
  * @zh RenderTexture2D 类用于创建2D渲染目标。
@@ -176,14 +177,14 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
      * @internal
      */
     _start(): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     /**
      * @internal
      */
     _end(): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     /**

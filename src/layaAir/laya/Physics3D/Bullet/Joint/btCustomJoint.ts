@@ -1,6 +1,7 @@
 import { ConfigurableConstraint } from "../../../d3/physics/constraints/ConfigurableConstraint";
 import { Quaternion } from "../../../maths/Quaternion";
 import { Vector3 } from "../../../maths/Vector3";
+import { NotImplementedError } from "../../../utils/Error";
 import { ICustomJoint } from "../../interface/Joint/ICustomJoint";
 import { D6Axis, D6Drive, D6MotionType, ID6Joint } from "../../interface/Joint/ID6Joint";
 import { btRigidBodyCollider } from "../Collider/btRigidBodyCollider";
@@ -585,7 +586,7 @@ export class btCustomJoint extends btJoint implements ID6Joint {
      * @zh 获取约束当前的扭转角度。
      */
     getTwistAngle(): number {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     /**
@@ -595,7 +596,7 @@ export class btCustomJoint extends btJoint implements ID6Joint {
      * @returns 当前Y轴摆动角度。
      */
     getSwingYAngle(): number {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     /**
@@ -605,7 +606,7 @@ export class btCustomJoint extends btJoint implements ID6Joint {
      * @returns 当前Z轴摆动角度。
      */
     getSwingZAngle(): number {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     /**

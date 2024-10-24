@@ -363,11 +363,10 @@ export class Rectangle implements IClone {
      * @zh 将此 Rectangle 的属性复制到目标对象。
      * @param destObject 目标对象。
      */
-    cloneTo(destObject: any): void {
-        let out: Rectangle = destObject;
-        out.x = this.x;
-        out.y = this.y;
-        out.width = this.width;
-        out.height = this.height;
+    cloneTo(destObject: Rectangle): void {
+        destObject.x = this.x;
+        destObject.y = this.y;
+        destObject.width = this.width;
+        destObject.height = this.height;
     }
 }

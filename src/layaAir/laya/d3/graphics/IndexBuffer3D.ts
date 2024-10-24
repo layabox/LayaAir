@@ -2,6 +2,7 @@ import { IIndexBuffer } from "../../RenderDriver/DriverDesign/RenderDevice/IInde
 import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
 import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
 import { LayaGL } from "../../layagl/LayaGL";
+import { NotReadableError } from "../../utils/Error";
 /**
  * @en IndexBuffer3D class is used to create index buffer. Please use LayaGL.RenderOBJCreate.createIndexBuffer3D to create.
  * @zh IndexBuffer3D 类用于创建索引缓冲。请使用LayaGL.RenderOBJCreate.createIndexBuffer3D来创建。
@@ -81,7 +82,7 @@ export class IndexBuffer3D {
 				this._indexTypeByteCount = 1;
 				break;
 			default:
-				throw new Error("unidentification index type.");
+				throw new Error("unknown index type: " + indexType);
 		}
 		var byteLength: number = this._indexTypeByteCount * indexCount;
 		this._byteLength = byteLength;
@@ -157,7 +158,7 @@ export class IndexBuffer3D {
 		if (this._canRead)
 			return <Uint16Array>this._buffer;
 		else
-			throw new Error("Can't read data from VertexBuffer with only write flag!");
+		throw new NotReadableError();
 	}
 
 	/**

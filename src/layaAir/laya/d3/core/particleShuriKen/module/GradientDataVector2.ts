@@ -61,10 +61,9 @@ export class GradientDataVector2 implements IClone {
 	 * @zh 克隆到目标对象。
 	 * @param destObject 要克隆到的目标对象。
 	 */
-	cloneTo(destObject: any): void {
-		var destGradientDataVector2: GradientDataVector2 = <GradientDataVector2>destObject;
-		destGradientDataVector2._currentLength = this._currentLength;
-		var destElements: Float32Array = destGradientDataVector2._elements;
+	cloneTo(destObject: GradientDataVector2): void {
+		destObject._currentLength = this._currentLength;
+		var destElements: Float32Array = destObject._elements;
 		for (var i: number = 0, n: number = this._elements.length; i < n; i++) {
 			destElements[i] = this._elements[i];
 		}

@@ -359,21 +359,20 @@ export class GradientVelocity implements IClone {
 	 * @zh 克隆到目标对象。
 	 * @param destObject 要克隆到的目标对象。
 	 */
-	cloneTo(destObject: any): void {
-		var destGradientVelocity: GradientVelocity = (<GradientVelocity>destObject);
-		destGradientVelocity._type = this._type;
-		this._constant.cloneTo(destGradientVelocity._constant);
-		this._gradientX.cloneTo(destGradientVelocity._gradientX);
-		this._gradientY.cloneTo(destGradientVelocity._gradientY);
-		this._gradientZ.cloneTo(destGradientVelocity._gradientZ);
-		this._constantMin.cloneTo(destGradientVelocity._constantMin);
-		this._constantMax.cloneTo(destGradientVelocity._constantMax);
-		this._gradientXMin.cloneTo(destGradientVelocity._gradientXMin);
-		this._gradientXMax.cloneTo(destGradientVelocity._gradientXMax);
-		this._gradientYMin.cloneTo(destGradientVelocity._gradientYMin);
-		this._gradientYMax.cloneTo(destGradientVelocity._gradientYMax);
-		this._gradientZMin.cloneTo(destGradientVelocity._gradientZMin);
-		this._gradientZMax.cloneTo(destGradientVelocity._gradientZMax);
+	cloneTo(destObject: GradientVelocity): void {
+		destObject._type = this._type;
+		this._constant.cloneTo(destObject._constant);
+		this._gradientX.cloneTo(destObject._gradientX);
+		this._gradientY.cloneTo(destObject._gradientY);
+		this._gradientZ.cloneTo(destObject._gradientZ);
+		this._constantMin.cloneTo(destObject._constantMin);
+		this._constantMax.cloneTo(destObject._constantMax);
+		this._gradientXMin.cloneTo(destObject._gradientXMin);
+		this._gradientXMax.cloneTo(destObject._gradientXMax);
+		this._gradientYMin.cloneTo(destObject._gradientYMin);
+		this._gradientYMax.cloneTo(destObject._gradientYMax);
+		this._gradientZMin.cloneTo(destObject._gradientZMin);
+		this._gradientZMax.cloneTo(destObject._gradientZMax);
 	}
 
 	/**

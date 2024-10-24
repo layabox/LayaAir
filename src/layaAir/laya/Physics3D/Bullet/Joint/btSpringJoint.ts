@@ -1,4 +1,5 @@
 import { Vector3 } from "../../../maths/Vector3";
+import { NotImplementedError } from "../../../utils/Error";
 import { ISpringJoint } from "../../interface/Joint/ISpringJoint";
 import { btRigidBodyCollider } from "../Collider/btRigidBodyCollider";
 import { btPhysicsCreateUtil } from "../btPhysicsCreateUtil";
@@ -99,7 +100,7 @@ export class btSpringJoint extends btJoint implements ISpringJoint {
      */
     setSwingOffset(value: Vector3): void {
         //TODO bullet
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
     /**
      * @en Sets the minimum distance of the spring joint.
@@ -139,7 +140,7 @@ export class btSpringJoint extends btJoint implements ISpringJoint {
     setTolerance(tolerance: number): void {
         // TODO
         // is bullet has this param?
-        // throw new Error("Method not implemented.");
+        // throw new NotImplementedError();
     }
     /**
      * @en Sets the stiffness of the spring joint.

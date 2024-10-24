@@ -7,6 +7,7 @@ import { Stat } from "../utils/Stat"
 import { Timer } from "../utils/Timer"
 import { ILaya } from "../../ILaya";
 import { ComponentDriver } from "../components/ComponentDriver";
+import { OutOfRangeError } from "../utils/Error"
 
 const ARRAY_EMPTY: any[] = [];
 
@@ -405,7 +406,7 @@ export class Node extends EventDispatcher {
             }
             return node;
         } else {
-            throw new Error("appendChildAt:The index is out of bounds");
+            throw new OutOfRangeError(index);
         }
     }
 
@@ -462,11 +463,11 @@ export class Node extends EventDispatcher {
     setChildIndex(node: Node, index: number): Node {
         var childs: any[] = this._children;
         if (index < 0 || index >= childs.length) {
-            throw new Error("setChildIndex:The index is out of bounds.");
+            throw new OutOfRangeError(index);
         }
 
         var oldIndex: number = this.getChildIndex(node);
-        if (oldIndex < 0) throw new Error("setChildIndex:node is must child of this object.");
+        if (oldIndex < 0) throw new Error("node must be a child of this object.");
         childs.splice(oldIndex, 1);
         childs.splice(index, 0, node);
         this._childChanged();
@@ -874,10 +875,7 @@ export class Node extends EventDispatcher {
         value = !!value;
         if (!this._getBit(NodeFlags.NOT_ACTIVE) !== value) {
             if (this._activeChangeScripts && this._activeChangeScripts.length !== 0) {
-                if (value)
-                    throw "Node: can't set the main inActive node active in hierarchy,if the operate is in main inActive node or it's children script's onDisable Event.";
-                else
-                    throw "Node: can't set the main active node inActive in hierarchy,if the operate is in main active node or it's children script's onEnable Event.";
+                throw new Error("recursive set active");
             } else {
                 this._setBit(NodeFlags.NOT_ACTIVE, !value);
                 if (this._parent) {
@@ -1100,7 +1098,7 @@ export class Node extends EventDispatcher {
      */
     protected _onAdded(): void {
         if (this._activeChangeScripts && this._activeChangeScripts.length !== 0) {
-            throw "Node: can't set the main inActive node active in hierarchy,if the operate is in main inActive node or it's children script's onDisable Event.";
+            throw new Error("recursive set active");
         } else {
             let parentScene = this._parent.scene;
             parentScene && this._setBelongScene(parentScene);
@@ -1119,7 +1117,7 @@ export class Node extends EventDispatcher {
      */
     protected _onRemoved(): void {
         if (this._activeChangeScripts && this._activeChangeScripts.length !== 0) {
-            throw "Node: can't set the main active node inActive in hierarchy,if the operate is in main active node or it's children script's onEnable Event.";
+            throw new Error("recursive set active");
         } else {
             (this._parent.activeInHierarchy && this.active) && this._processActive(false);
             this._parent.scene && this._setUnBelongScene();
@@ -1200,11 +1198,10 @@ export class Node extends EventDispatcher {
     * @zh 将当前节点的组件克隆到指定的目标对象中。
     * @param destObject 要克隆组件到的目标对象。
     */
-    _cloneTo(destObject: any, srcRoot: Node, dstRoot: Node): void {
-        var destNode: Node = (<Node>destObject);
+    _cloneTo(destObject: Node, srcRoot: Node, dstRoot: Node): void {
         if (this._components) {
             for (let i = 0, n = this._components.length; i < n; i++) {
-                var destComponent = destNode.addComponent((this._components[i] as any).constructor);
+                var destComponent = destObject.addComponent((this._components[i] as any).constructor);
                 this._components[i]._cloneTo(destComponent);
             }
         }
@@ -1221,9 +1218,9 @@ export class Node extends EventDispatcher {
      */
     addComponentInstance(component: Component): Component {
         if (component.owner)
-            throw "Node:the component has belong to other node.";
+            throw new Error("the component is belong to other node.");
         if (component._singleton && this.getComponent(((<any>component)).constructor))
-            console.warn("Node:the component is singleton, can't add the second one.", component);
+            console.warn("the component is singleton, can't add the second one.", component);
         else
             this._addComponentInstance(component);
         return component;
@@ -1240,11 +1237,11 @@ export class Node extends EventDispatcher {
     addComponent<T extends Component>(componentType: new () => T): T {
         let comp: T = Pool.createByClass(componentType);
         if (!comp) {
-            throw "missing " + componentType.toString();
+            throw new Error("missing " + componentType.toString());
         }
 
         if (comp._singleton && this.getComponent(componentType))
-            console.warn("Node:the component is singleton, can't add the second one.", comp);
+            console.warn("the component is singleton, can't add the second one.", comp);
         else
             this._addComponentInstance(comp);
         return comp;

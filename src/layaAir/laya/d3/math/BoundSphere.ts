@@ -170,10 +170,9 @@ export class BoundSphere implements IClone {
 	 * @zh 克隆这个包围球到另一个对象。
 	 * @param destObject 克隆目标对象。
 	 */
-	cloneTo(destObject: any): void {
-		var dest: BoundSphere = (<BoundSphere>destObject);
-		this._center.cloneTo(dest._center);
-		dest._radius = this._radius;
+	cloneTo(destObject: BoundSphere): void {
+		this._center.cloneTo(destObject._center);
+		destObject._radius = this._radius;
 	}
 
 	/**

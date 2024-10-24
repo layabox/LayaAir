@@ -288,25 +288,24 @@ export class Sprite3D extends Node {
      * 克隆。
      * @param	destObject 克隆源。
      */
-    _cloneTo(destObject: any, srcRoot: Node, dstRoot: Node): void {
+    _cloneTo(destObject: Sprite3D, srcRoot: Node, dstRoot: Node): void {
         if (this._destroyed)
             throw new Error("Sprite3D: Can't be cloned if the Sprite3D has destroyed.");
 
-        var destSprite3D: Sprite3D = <Sprite3D>destObject;
         var trans: Transform3D = this._transform;
-        var destTrans: Transform3D = destSprite3D._transform;
+        var destTrans: Transform3D = destObject._transform;
 
-        destSprite3D.name = this.name/* + "(clone)"*/;//TODO:克隆后不能播放刚体动画，找不到名字
-        destSprite3D.tag = this.tag;
-        destSprite3D._destroyed = this._destroyed;
-        destSprite3D.active = this.active;
+        destObject.name = this.name/* + "(clone)"*/;//TODO:克隆后不能播放刚体动画，找不到名字
+        destObject.tag = this.tag;
+        destObject._destroyed = this._destroyed;
+        destObject.active = this.active;
         destTrans.localPosition = trans.localPosition;
         destTrans.localRotation = trans.localRotation;
         destTrans.localScale = trans.localScale;
 
-        destSprite3D._isStatic = this._isStatic;
-        destSprite3D.layer = this.layer;
-        super._cloneTo(destSprite3D, srcRoot, dstRoot);
+        destObject._isStatic = this._isStatic;
+        destObject.layer = this.layer;
+        super._cloneTo(destObject, srcRoot, dstRoot);
     }
 
     /**
