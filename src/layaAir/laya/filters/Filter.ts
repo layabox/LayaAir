@@ -148,7 +148,10 @@ export abstract class Filter extends EventDispatcher implements IFilter {
         //if(RenderSprite.RenderToCacheTexture(sprite,context,x,y)){
         //多个滤镜off会累加，例如blur一次导致偏移50，两次就是100
         let rtOffX = 0, rtOffY = 0;
-        if (this._renderNextToCacheRT(sprite, context)) {
+        //在多个filter的情况下，假设必然有模糊，所以把sprite渲染到大一点的贴图上，否则下面模糊的时候，边界的地方就不模糊了
+        if (this._renderNextToCacheRT(sprite, context,16,16,16,16)) {
+            rtOffX = cache.cacheRect.x;
+            rtOffY = cache.cacheRect.y;
             let src = cache.renderTexture;
             let dst = src;
             let width = src.width;// cache.cacheRect.width;     不能用cacheRect,因为可能有空白，而src补充了这个空白
@@ -176,8 +179,8 @@ export abstract class Filter extends EventDispatcher implements IFilter {
         }
         //直接使用缓存的
         cache.renderTexture && context._drawRenderTexture(cache.renderTexture,
-            x + cache.renderTexOffx - sprite.anchorX*sprite.width,
-            y + cache.renderTexOffy - sprite.anchorY*sprite.height,
+            x + cache.renderTexOffx ,//不再减去anchor，因为上面 rtOffX = cache.cacheRect.x;已经包含了
+            y + cache.renderTexOffy ,
             cache.renderTexture.width,
             cache.renderTexture.height,
             null, 1.0, RenderTexture2D.defuv);
