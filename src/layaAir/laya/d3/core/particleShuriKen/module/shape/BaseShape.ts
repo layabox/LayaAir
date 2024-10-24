@@ -147,9 +147,8 @@ export class BaseShape implements IClone {
 	 * @zh 克隆到目标对象。
 	 * @param destObject 要克隆到的目标对象。
 	 */
-	cloneTo(destObject: any): void {
-		var destShape: BaseShape = (<BaseShape>destObject);
-		destShape.enable = this.enable;
+	cloneTo(destObject: BaseShape): void {
+		destObject.enable = this.enable;
 
 	}
 

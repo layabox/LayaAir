@@ -100,7 +100,7 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
      */
     setSkinWidth?(width: number): void {
         // bullet no skinwidth
-        // throw new Error("Method not implemented.");
+        // throw new NotImplementedError;
     }
     /**
      * @en Set the position.
@@ -151,7 +151,7 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
      */
     setminDistance(value: number): void {
         // bullet no mindistance
-        // throw new Error("Method not implemented.");
+        // throw new NotImplementedError;
     }
     /**
      * @en Set the dynamic friction of the character collider.
@@ -161,7 +161,7 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
      */
     setDynamicFriction?(value: number): void {
         // bullet no dynamicFriction
-        // throw new Error("Method not implemented.");
+        // throw new NotImplementedError;
     }
     /**
      * @en Set the static friction of the character collider.
@@ -171,7 +171,7 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
      */
     setStaticFriction?(value: number): void {
         // bullet no staticFriction
-        // throw new Error("Method not implemented.");
+        // throw new NotImplementedError;
     }
     /**
      * @en Set the friction combine mode of the character collider.
@@ -181,7 +181,7 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
      */
     setFrictionCombine?(value: PhysicsCombineMode): void {
         // bullet no frictionCombine
-        // throw new Error("Method not implemented.");
+        // throw new NotImplementedError;
     }
     /**
      * @en Set the bounce combine mode of the character collider.
@@ -191,7 +191,7 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
      */
     setBounceCombine?(value: PhysicsCombineMode): void {
         // bullet no bounceCombine
-        // throw new Error("Method not implemented.");
+        // throw new NotImplementedError;
     }
     /**
      * @en Get the character capability status.

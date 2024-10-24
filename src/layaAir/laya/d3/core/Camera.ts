@@ -320,8 +320,7 @@ export class Camera extends BaseCamera {
                 bytelength = 1;
                 break;
             default:
-                throw "Type is not supported";
-                break;
+                throw new Error("Type is not supported");
         }
         let rt = new RenderTexture(renderCubeSize, renderCubeSize, rtFormat, RenderTargetFormat.DEPTH_16, false, 0, false, false);
         camera.fieldOfView = 90;
@@ -393,7 +392,7 @@ export class Camera extends BaseCamera {
                 finalformat = TextureFormat.R8G8B8A8;
                 break;
             default:
-                throw "Type is not supported";
+                throw new Error("Type is not supported");
         }
         let textureCube = new TextureCube(renderCubeSize, format, true, false);
         textureCube.setPixelsData(pixels, false, false);

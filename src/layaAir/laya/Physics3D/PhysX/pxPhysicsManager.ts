@@ -6,6 +6,7 @@ import { PhysicsUpdateList } from "../../d3/physics/PhysicsUpdateList";
 import { Event } from "../../events/Event";
 import { Quaternion } from "../../maths/Quaternion";
 import { Vector3 } from "../../maths/Vector3";
+import { NotImplementedError } from "../../utils/Error";
 import { Stat } from "../../utils/Stat";
 import { ICollider } from "../interface/ICollider";
 import { IPhysicsManager } from "../interface/IPhysicsManager";
@@ -172,7 +173,7 @@ export class pxPhysicsManager implements IPhysicsManager {
      * @param value 是否启用调试绘制器。
      */
     enableDebugDrawer?(value: boolean): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     /**

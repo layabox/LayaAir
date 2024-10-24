@@ -67,10 +67,9 @@ export class AvatarMask {
      * @zh 克隆到目标对象。
      * @param destObject 目标对象
      */
-    cloneTo(destObject: any): void {
-        var dest: AvatarMask = (<AvatarMask>destObject);
+    cloneTo(destObject: AvatarMask): void {
         for (var key in this._avatarPathMap) {
-            dest.setTransformActive(key, this._avatarPathMap[key]);
+            destObject.setTransformActive(key, this._avatarPathMap[key]);
         }
 
     }

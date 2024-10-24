@@ -246,7 +246,7 @@ export class AnimatorControllerLayer2D implements IClone {
     addState(state: AnimatorState2D): void {
         var stateName = state.name;
         if (this.getStateByName(stateName)) {
-            throw "AnimatorControllerLayer:this stat's name has exist.";
+            throw new Error("AnimatorControllerLayer:this stat's name has exist.");
         } else {
             this._states.push(state);
             if (stateName == this._defaultStateNameCatch) {
@@ -293,9 +293,8 @@ export class AnimatorControllerLayer2D implements IClone {
      * @zh 克隆当前的动画控制器层到目标对象。
      * @param destObject 克隆到的目标对象。
      */
-    cloneTo(destObject: any): void {
-        var dest: AnimatorControllerLayer2D = (<AnimatorControllerLayer2D>destObject);
-        dest.name = this.name;
+    cloneTo(destObject: AnimatorControllerLayer2D): void {
+        destObject.name = this.name;
     }
 
     /**

@@ -37,10 +37,9 @@ export class ColorOverLifetime {
 	 * @zh 克隆到目标对象。
 	 * @param destObject 要克隆到的目标对象。
 	 */
-	cloneTo(destObject: any): void {
-		var destColorOverLifetime: ColorOverLifetime = (<ColorOverLifetime>destObject);
-		this._color.cloneTo(destColorOverLifetime._color);
-		destColorOverLifetime.enable = this.enable;
+	cloneTo(destObject: ColorOverLifetime): void {
+		this._color.cloneTo(destObject._color);
+		destObject.enable = this.enable;
 	}
 
 	/**

@@ -342,13 +342,12 @@ export class BoundsImpl implements IClone {
      * @zh 将当前包围体克隆到另一个对象中。
      * @param destObject  克隆的目标对象。
      */
-    cloneTo(destObject: any): void {
-        var destBounds: BoundsImpl = (<BoundsImpl>destObject);
-        this.getMin().cloneTo(destBounds._boundBox.min);
-        this.getMax().cloneTo(destBounds._boundBox.max);
-        this.getCenter().cloneTo(destBounds._center);
-        this.getExtent().cloneTo(destBounds._extent);
-        destBounds._updateFlag = 0;
+    cloneTo(destObject: BoundsImpl): void {
+        this.getMin().cloneTo(destObject._boundBox.min);
+        this.getMax().cloneTo(destObject._boundBox.max);
+        this.getCenter().cloneTo(destObject._center);
+        this.getExtent().cloneTo(destObject._extent);
+        destObject._updateFlag = 0;
     }
 
     /**

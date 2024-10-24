@@ -21,7 +21,7 @@ export class SpineNormalRender implements ISpineOptimizeRender {
      * @zh 销毁渲染器。
      */
     destroy(): void {
-        //throw new Error("Method not implemented.");
+        //throw new NotImplementedError();
     }
     /**
      * @en Initializes bake data.
@@ -30,7 +30,7 @@ export class SpineNormalRender implements ISpineOptimizeRender {
      * @param obj Spine 烘焙数据。
      */
     initBake(obj: TSpineBakeData): void {
-        //throw new Error("Method not implemented.");
+        //throw new NotImplementedError();
     }
     /** @internal */
     _owner: Spine2DRenderNode;
@@ -81,7 +81,7 @@ export class SpineNormalRender implements ISpineOptimizeRender {
      * @param index 要设置的皮肤索引。
      */
     setSkinIndex(index: number): void {
-        //throw new Error("Method not implemented.");
+        //throw new NotImplementedError();
     }
 
 

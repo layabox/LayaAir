@@ -56,7 +56,7 @@ class HierarchyParserV2 {
                 node.addComponent(ReflectionProbe);
                 break;
             default:
-                throw new Error("Utils3D:unidentified class type in (.lh) file.");
+                throw new Error("unknown class type in (.lh) file.");
         }
 
         let childData: any[] = nodeData.child;

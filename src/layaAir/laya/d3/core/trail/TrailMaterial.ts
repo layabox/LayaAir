@@ -139,7 +139,7 @@ export class TrailMaterial extends Material {
 				this._shaderValues.removeDefine(TrailMaterial.SHADERDEFINE_ADDTIVEFOG);
 				break;
 			default:
-				throw new Error("ShurikenParticleMaterial : renderMode value error.");
+				throw new Error("renderMode value error: " + value);
 		}
 	}
 }

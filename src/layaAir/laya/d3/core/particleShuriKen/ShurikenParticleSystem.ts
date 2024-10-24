@@ -1808,7 +1808,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
                     var vbCount: number = Math.floor(totalVertexCount / 65535) + 1;
                     var lastVBVertexCount: number = totalVertexCount % 65535;
                     if (vbCount > 1) {//TODO:随后支持
-                        throw new Error("ShurikenParticleSystem:the maxParticleCount multiply mesh vertexCount is large than 65535.");
+                        throw new Error("the maxParticleCount multiply mesh vertexCount is large than 65535.");
                     }
 
                     vbMemorySize = vertexDeclaration.vertexStride * lastVBVertexCount;
@@ -2222,7 +2222,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
                 case 1:
                     break;
                 default:
-                    throw new Error("ShurikenParticleMaterial: SimulationSpace value is invalid.");
+                    throw new Error("unknown simulationSpace: " + this.simulationSpace);
             }
             offset = i + this._simulationUV_Index;
             this._vertices[offset++] = startU;
@@ -2351,7 +2351,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
                 }
                 break;
             default:
-                throw new Error("Utils3D: startDelayType is invalid.");
+                throw new Error("unknown startDelayType: " + this.startDelayType);
         }
         this._frameRateTime = this._currentTime + this._playStartDelay;//同步频率模式发射时间,更新函数中小于延迟时间不会更新此时间。
 
@@ -2404,94 +2404,92 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
      * @zh 克隆到目标对象。
      * @param destObject 要克隆到的目标对象。
      */
-    cloneTo(destObject: any): void {
-        var dest: ShurikenParticleSystem = (<ShurikenParticleSystem>destObject);
+    cloneTo(destObject: ShurikenParticleSystem): void {
+        destObject._useCustomBounds = this._useCustomBounds;
+        (this._customBounds) && (this._customBounds.cloneTo(destObject._customBounds));
 
-        dest._useCustomBounds = this._useCustomBounds;
-        (this._customBounds) && (this._customBounds.cloneTo(dest._customBounds));
+        destObject.duration = this.duration;
+        destObject.looping = this.looping;
+        destObject.prewarm = this.prewarm;
+        destObject.startDelayType = this.startDelayType;
+        destObject.startDelay = this.startDelay;
+        destObject.startDelayMin = this.startDelayMin;
+        destObject.startDelayMax = this.startDelayMax;
 
-        dest.duration = this.duration;
-        dest.looping = this.looping;
-        dest.prewarm = this.prewarm;
-        dest.startDelayType = this.startDelayType;
-        dest.startDelay = this.startDelay;
-        dest.startDelayMin = this.startDelayMin;
-        dest.startDelayMax = this.startDelayMax;
+        destObject._maxStartLifetime = this._maxStartLifetime;
+        destObject.startLifetimeType = this.startLifetimeType;
+        destObject.startLifetimeConstant = this.startLifetimeConstant;
+        this.startLifeTimeGradient.cloneTo(destObject.startLifeTimeGradient);
+        destObject.startLifetimeConstantMin = this.startLifetimeConstantMin;
+        destObject.startLifetimeConstantMax = this.startLifetimeConstantMax;
+        this.startLifeTimeGradientMin.cloneTo(destObject.startLifeTimeGradientMin);
+        this.startLifeTimeGradientMax.cloneTo(destObject.startLifeTimeGradientMax);
 
-        dest._maxStartLifetime = this._maxStartLifetime;
-        dest.startLifetimeType = this.startLifetimeType;
-        dest.startLifetimeConstant = this.startLifetimeConstant;
-        this.startLifeTimeGradient.cloneTo(dest.startLifeTimeGradient);
-        dest.startLifetimeConstantMin = this.startLifetimeConstantMin;
-        dest.startLifetimeConstantMax = this.startLifetimeConstantMax;
-        this.startLifeTimeGradientMin.cloneTo(dest.startLifeTimeGradientMin);
-        this.startLifeTimeGradientMax.cloneTo(dest.startLifeTimeGradientMax);
+        destObject.startSpeedType = this.startSpeedType;
+        destObject.startSpeedConstant = this.startSpeedConstant;
+        destObject.startSpeedConstantMin = this.startSpeedConstantMin;
+        destObject.startSpeedConstantMax = this.startSpeedConstantMax;
 
-        dest.startSpeedType = this.startSpeedType;
-        dest.startSpeedConstant = this.startSpeedConstant;
-        dest.startSpeedConstantMin = this.startSpeedConstantMin;
-        dest.startSpeedConstantMax = this.startSpeedConstantMax;
+        destObject.dragType = this.dragType;
+        destObject.dragConstant = this.dragConstant;
+        destObject.dragSpeedConstantMax = this.dragSpeedConstantMax;
+        destObject.dragSpeedConstantMin = this.dragSpeedConstantMin;
 
-        dest.dragType = this.dragType;
-        dest.dragConstant = this.dragConstant;
-        dest.dragSpeedConstantMax = this.dragSpeedConstantMax;
-        dest.dragSpeedConstantMin = this.dragSpeedConstantMin;
+        destObject.threeDStartSize = this.threeDStartSize;
+        destObject.startSizeType = this.startSizeType;
+        destObject.startSizeConstant = this.startSizeConstant;
+        this.startSizeConstantSeparate.cloneTo(destObject.startSizeConstantSeparate);
+        destObject.startSizeConstantMin = this.startSizeConstantMin;
+        destObject.startSizeConstantMax = this.startSizeConstantMax;
+        this.startSizeConstantMinSeparate.cloneTo(destObject.startSizeConstantMinSeparate);
+        this.startSizeConstantMaxSeparate.cloneTo(destObject.startSizeConstantMaxSeparate);
 
-        dest.threeDStartSize = this.threeDStartSize;
-        dest.startSizeType = this.startSizeType;
-        dest.startSizeConstant = this.startSizeConstant;
-        this.startSizeConstantSeparate.cloneTo(dest.startSizeConstantSeparate);
-        dest.startSizeConstantMin = this.startSizeConstantMin;
-        dest.startSizeConstantMax = this.startSizeConstantMax;
-        this.startSizeConstantMinSeparate.cloneTo(dest.startSizeConstantMinSeparate);
-        this.startSizeConstantMaxSeparate.cloneTo(dest.startSizeConstantMaxSeparate);
+        destObject.threeDStartRotation = this.threeDStartRotation;
+        destObject.startRotationType = this.startRotationType;
+        destObject.startRotationConstant = this.startRotationConstant;
+        this.startRotationConstantSeparate.cloneTo(destObject.startRotationConstantSeparate);
+        destObject.startRotationConstantMin = this.startRotationConstantMin;
+        destObject.startRotationConstantMax = this.startRotationConstantMax;
+        this.startRotationConstantMinSeparate.cloneTo(destObject.startRotationConstantMinSeparate);
+        this.startRotationConstantMaxSeparate.cloneTo(destObject.startRotationConstantMaxSeparate);
 
-        dest.threeDStartRotation = this.threeDStartRotation;
-        dest.startRotationType = this.startRotationType;
-        dest.startRotationConstant = this.startRotationConstant;
-        this.startRotationConstantSeparate.cloneTo(dest.startRotationConstantSeparate);
-        dest.startRotationConstantMin = this.startRotationConstantMin;
-        dest.startRotationConstantMax = this.startRotationConstantMax;
-        this.startRotationConstantMinSeparate.cloneTo(dest.startRotationConstantMinSeparate);
-        this.startRotationConstantMaxSeparate.cloneTo(dest.startRotationConstantMaxSeparate);
+        destObject.randomizeRotationDirection = this.randomizeRotationDirection;
 
-        dest.randomizeRotationDirection = this.randomizeRotationDirection;
+        destObject.startColorType = this.startColorType;
+        this.startColorConstant.cloneTo(destObject.startColorConstant);
+        this.startColorConstantMin.cloneTo(destObject.startColorConstantMin);
+        this.startColorConstantMax.cloneTo(destObject.startColorConstantMax);
 
-        dest.startColorType = this.startColorType;
-        this.startColorConstant.cloneTo(dest.startColorConstant);
-        this.startColorConstantMin.cloneTo(dest.startColorConstantMin);
-        this.startColorConstantMax.cloneTo(dest.startColorConstantMax);
+        destObject.gravityModifier = this.gravityModifier;
+        destObject.simulationSpace = this.simulationSpace;
+        destObject.simulationSpeed = this.simulationSpeed;
+        destObject.scaleMode = this.scaleMode;
+        destObject.playOnAwake = this.playOnAwake;
+        destObject.autoRandomSeed = this.autoRandomSeed;
+        destObject.randomSeed[0] = this.randomSeed[0];
 
-        dest.gravityModifier = this.gravityModifier;
-        dest.simulationSpace = this.simulationSpace;
-        dest.simulationSpeed = this.simulationSpeed;
-        dest.scaleMode = this.scaleMode;
-        dest.playOnAwake = this.playOnAwake;
-        dest.autoRandomSeed = this.autoRandomSeed;
-        dest.randomSeed[0] = this.randomSeed[0];
-
-        dest.maxParticles = this.maxParticles;
+        destObject.maxParticles = this.maxParticles;
 
         //TODO:可做更优判断
-        (this._emission) && (dest._emission = this._emission.clone());
-        (this.shape) && (dest.shape = this.shape.clone());
-        (this.velocityOverLifetime) && (dest.velocityOverLifetime = this.velocityOverLifetime.clone());
-        (this.colorOverLifetime) && (dest.colorOverLifetime = this.colorOverLifetime.clone());
-        (this.sizeOverLifetime) && (dest.sizeOverLifetime = this.sizeOverLifetime.clone());
-        (this.rotationOverLifetime) && (dest.rotationOverLifetime = this.rotationOverLifetime.clone());
-        (this.textureSheetAnimation) && (dest.textureSheetAnimation = this.textureSheetAnimation.clone());
+        (this._emission) && (destObject._emission = this._emission.clone());
+        (this.shape) && (destObject.shape = this.shape.clone());
+        (this.velocityOverLifetime) && (destObject.velocityOverLifetime = this.velocityOverLifetime.clone());
+        (this.colorOverLifetime) && (destObject.colorOverLifetime = this.colorOverLifetime.clone());
+        (this.sizeOverLifetime) && (destObject.sizeOverLifetime = this.sizeOverLifetime.clone());
+        (this.rotationOverLifetime) && (destObject.rotationOverLifetime = this.rotationOverLifetime.clone());
+        (this.textureSheetAnimation) && (destObject.textureSheetAnimation = this.textureSheetAnimation.clone());
         //
 
-        dest.isPerformanceMode = this.isPerformanceMode;
+        destObject.isPerformanceMode = this.isPerformanceMode;
 
-        dest._isEmitting = this._isEmitting;
-        dest._isPlaying = this._isPlaying;
-        dest._isPaused = this._isPaused;
-        dest._playStartDelay = this._playStartDelay;
-        dest._frameRateTime = this._frameRateTime;
-        dest._emissionTime = this._emissionTime;
-        dest._totalDelayTime = this._totalDelayTime;
-        dest._burstsIndex = this._burstsIndex;
+        destObject._isEmitting = this._isEmitting;
+        destObject._isPlaying = this._isPlaying;
+        destObject._isPaused = this._isPaused;
+        destObject._playStartDelay = this._playStartDelay;
+        destObject._frameRateTime = this._frameRateTime;
+        destObject._emissionTime = this._emissionTime;
+        destObject._totalDelayTime = this._totalDelayTime;
+        destObject._burstsIndex = this._burstsIndex;
     }
 
     /**

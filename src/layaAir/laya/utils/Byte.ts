@@ -1,4 +1,5 @@
 import { Matrix } from "../maths/Matrix"
+import { OutOfRangeError } from "./Error";
 
 /**
  * @en The Byte class provides methods and properties for optimizing the reading, writing, and handling of binary data. The Byte class is suitable for advanced developers who need to access data at the byte level.
@@ -283,7 +284,7 @@ export class Byte {
      * @return 单精度（32 位）浮点数。
      */
     readFloat32(): number {
-        if (this._pos_ + 4 > this._length) throw "getFloat32 error - Out of bounds";
+        if (this._pos_ + 4 > this._length) throw new OutOfRangeError(this._pos_ + 4);
         var v: number = this._d_.getFloat32(this._pos_, this._xd_);
         this._pos_ += 4;
         return v;
@@ -307,7 +308,7 @@ export class Byte {
      * @return 双精度（64 位）浮点数。
      */
     readFloat64(): number {
-        if (this._pos_ + 8 > this._length) throw "getFloat64 error - Out of bounds";
+        if (this._pos_ + 8 > this._length) throw new OutOfRangeError(this._pos_ + 8);
         var v: number = this._d_.getFloat64(this._pos_, this._xd_);
         this._pos_ += 8;
         return v;
@@ -355,7 +356,7 @@ export class Byte {
      * @returns 读取的 Int32 值。
      */
     readInt32(): number {
-        if (this._pos_ + 4 > this._length) throw "getInt32 error - Out of bounds";
+        if (this._pos_ + 4 > this._length) throw new OutOfRangeError(this._pos_ + 4);
         var float: number = this._d_.getInt32(this._pos_, this._xd_);
         this._pos_ += 4;
         return float;
@@ -379,7 +380,7 @@ export class Byte {
      * @returns 读取的 Uint32 值。
      */
     readUint32(): number {
-        if (this._pos_ + 4 > this._length) throw "getUint32 error - Out of bounds";
+        if (this._pos_ + 4 > this._length) throw new OutOfRangeError(this._pos_ + 4);
         var v: number = this._d_.getUint32(this._pos_, this._xd_);
         this._pos_ += 4;
         return v;
@@ -427,7 +428,7 @@ export class Byte {
      * @returns 读取的 Int16 值。
      */
     readInt16(): number {
-        if (this._pos_ + 2 > this._length) throw "getInt16 error - Out of bounds";
+        if (this._pos_ + 2 > this._length) throw new OutOfRangeError(this._pos_ + 2);
         var us: number = this._d_.getInt16(this._pos_, this._xd_);
         this._pos_ += 2;
         return us;
@@ -451,7 +452,7 @@ export class Byte {
      * @returns 读取的 Uint16 值。
      */
     readUint16(): number {
-        if (this._pos_ + 2 > this._length) throw "getUint16 error - Out of bounds";
+        if (this._pos_ + 2 > this._length) throw new OutOfRangeError(this._pos_ + 2);
         var us: number = this._d_.getUint16(this._pos_, this._xd_);
         this._pos_ += 2;
         return us;
@@ -499,7 +500,7 @@ export class Byte {
      * @returns 读取的 Uint8 值。
      */
     readUint8(): number {
-        if (this._pos_ + 1 > this._length) throw "getUint8 error - Out of bounds";
+        if (this._pos_ + 1 > this._length) throw new OutOfRangeError(this._pos_ + 1);
         return this._u8d_[this._pos_++];
     }
 
@@ -864,7 +865,7 @@ export class Byte {
     readUTFBytes(len: number = -1): string {
         if (len === 0) return "";
         var lastBytes: number = this.bytesAvailable;
-        if (len > lastBytes) throw "readUTFBytes error - Out of bounds";
+        if (len > lastBytes) throw new OutOfRangeError(this._pos_ + len);
         len = len > 0 ? len : lastBytes;
         return this._rUTF(len);
     }
@@ -902,7 +903,7 @@ export class Byte {
      * @returns 介于 -128 和 127 之间的整数。
      */
     readByte(): number {
-        if (this._pos_ + 1 > this._length) throw "readByte error - Out of bounds";
+        if (this._pos_ + 1 > this._length) throw new OutOfRangeError(this._pos_ + 1);
         return this._d_.getInt8(this._pos_++);
     }
 
@@ -942,7 +943,7 @@ export class Byte {
      * @param length 从 Arraybuffer 对象写入到 Byte 对象的长度（以字节为单位）。
      */
     writeArrayBuffer(arraybuffer: any, offset: number = 0, length: number = 0): void {
-        if (offset < 0 || length < 0) throw "writeArrayBuffer error - Out of bounds";
+        if (offset < 0 || length < 0) throw new OutOfRangeError(offset + length);
         if (length == 0) length = arraybuffer.byteLength - offset;
         this._ensureWrite(this._pos_ + length);
         var uint8array: any = new Uint8Array(arraybuffer);

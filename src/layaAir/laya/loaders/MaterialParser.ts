@@ -224,7 +224,7 @@ export class MaterialParser {
                                             (<any>mat)[vector.name] = new Vector4(vectorValue[0], vectorValue[1], vectorValue[2], vectorValue[3]);
                                         break;
                                     default:
-                                        throw new Error("unkonwn material color length: " + vectorValue.length);
+                                        throw new Error("unknown material color length: " + vectorValue.length);
                                 }
                             }
                             break;
@@ -361,7 +361,7 @@ export class MaterialParser {
                                                     mat._shaderValues.setVector(uniName, new Vector4(vectorValue[0], vectorValue[1], vectorValue[2], vectorValue[3]));
                                                 break;
                                             default:
-                                                throw new Error("unkonwn material color length: " + vectorValue.length);
+                                                throw new Error("unknown material color length: " + vectorValue.length);
                                         }
                                     }
                                     break;
@@ -372,7 +372,7 @@ export class MaterialParser {
                 }
                 break;
             default:
-                throw new Error("unkonwn material version: " + jsonData.version);
+                throw new Error("unknown material version: " + jsonData.version);
         }
         return mat;
     }

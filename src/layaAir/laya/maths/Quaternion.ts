@@ -597,7 +597,7 @@ export class Quaternion implements IClone {
      * @zh 克隆四元数到目标对象。
      * @param destObject 目标对象。
      */
-    cloneTo(destObject: any): void {
+    cloneTo(destObject: Quaternion): void {
         if (this === destObject) {
             return;
         }

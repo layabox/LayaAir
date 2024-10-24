@@ -96,15 +96,14 @@ export class RecastConfig implements IClone {
      * @zh 将属性克隆到另一个对象
      * @param destObject 要克隆到的目标对象
      */
-    cloneTo(destObject: any): void {
-        var data: RecastConfig = (<RecastConfig>destObject);
-        data.agentName = this.agentName;
-        data.cellSize = this.cellSize;
-        data.cellHeight = this.cellHeight;
-        data.agentMaxSlope = this.agentMaxSlope;
-        data.agentHeight = this.agentHeight;
-        data.agentMaxClimb = this.agentMaxClimb;
-        data.agentRadius = this.agentRadius;
-        data.tileSize = this.tileSize;
+    cloneTo(destObject: RecastConfig): void {
+        destObject.agentName = this.agentName;
+        destObject.cellSize = this.cellSize;
+        destObject.cellHeight = this.cellHeight;
+        destObject.agentMaxSlope = this.agentMaxSlope;
+        destObject.agentHeight = this.agentHeight;
+        destObject.agentMaxClimb = this.agentMaxClimb;
+        destObject.agentRadius = this.agentRadius;
+        destObject.tileSize = this.tileSize;
     }
 }

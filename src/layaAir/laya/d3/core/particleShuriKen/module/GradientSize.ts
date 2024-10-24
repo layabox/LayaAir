@@ -385,26 +385,25 @@ export class GradientSize implements IClone {
 	 * @zh 克隆到目标对象。
 	 * @param destObject 要克隆到的目标对象。
 	 */
-	cloneTo(destObject: any): void {
-		var destGradientSize: GradientSize = (<GradientSize>destObject);
-		destGradientSize._type = this._type;
-		destGradientSize._separateAxes = this._separateAxes;
-		this._gradient.cloneTo(destGradientSize._gradient);
-		this._gradientX.cloneTo(destGradientSize._gradientX);
-		this._gradientY.cloneTo(destGradientSize._gradientY);
-		this._gradientZ.cloneTo(destGradientSize._gradientZ);
-		destGradientSize._constantMin = this._constantMin;
-		destGradientSize._constantMax = this._constantMax;
-		this._constantMinSeparate.cloneTo(destGradientSize._constantMinSeparate);
-		this._constantMaxSeparate.cloneTo(destGradientSize._constantMaxSeparate);
-		this._gradientMin.cloneTo(destGradientSize._gradientMin);
-		this._gradientMax.cloneTo(destGradientSize._gradientMax);
-		this._gradientXMin.cloneTo(destGradientSize._gradientXMin);
-		this._gradientXMax.cloneTo(destGradientSize._gradientXMax);
-		this._gradientYMin.cloneTo(destGradientSize._gradientYMin);
-		this._gradientYMax.cloneTo(destGradientSize._gradientYMax);
-		this._gradientZMin.cloneTo(destGradientSize._gradientZMin);
-		this._gradientZMax.cloneTo(destGradientSize._gradientZMax);
+	cloneTo(destObject: GradientSize): void {
+		destObject._type = this._type;
+		destObject._separateAxes = this._separateAxes;
+		this._gradient.cloneTo(destObject._gradient);
+		this._gradientX.cloneTo(destObject._gradientX);
+		this._gradientY.cloneTo(destObject._gradientY);
+		this._gradientZ.cloneTo(destObject._gradientZ);
+		destObject._constantMin = this._constantMin;
+		destObject._constantMax = this._constantMax;
+		this._constantMinSeparate.cloneTo(destObject._constantMinSeparate);
+		this._constantMaxSeparate.cloneTo(destObject._constantMaxSeparate);
+		this._gradientMin.cloneTo(destObject._gradientMin);
+		this._gradientMax.cloneTo(destObject._gradientMax);
+		this._gradientXMin.cloneTo(destObject._gradientXMin);
+		this._gradientXMax.cloneTo(destObject._gradientXMax);
+		this._gradientYMin.cloneTo(destObject._gradientYMin);
+		this._gradientYMax.cloneTo(destObject._gradientYMax);
+		this._gradientZMin.cloneTo(destObject._gradientZMin);
+		this._gradientZMax.cloneTo(destObject._gradientZMax);
 	}
 
 	/**

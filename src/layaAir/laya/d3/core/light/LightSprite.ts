@@ -167,12 +167,11 @@ export class LightSprite extends Sprite3D {
 	 * @override
 	 * @internal
 	 */
-	_cloneTo(destObject: any, rootSprite: Node, dstSprite: Node) {
+	_cloneTo(destObject: LightSprite, rootSprite: Node, dstSprite: Node) {
 		super._cloneTo(destObject, rootSprite, dstSprite);
-		var spriteLight = <LightSprite>destObject;
-		spriteLight.color = this.color.clone();
-		spriteLight.intensity = this.intensity;
-		spriteLight.lightmapBakedType = this.lightmapBakedType;
+		destObject.color = this.color.clone();
+		destObject.intensity = this.intensity;
+		destObject.lightmapBakedType = this.lightmapBakedType;
 	}
 
 	/**

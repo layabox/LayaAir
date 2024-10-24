@@ -2,6 +2,7 @@ import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
 import { Color } from "../../../maths/Color";
 import { Vector4 } from "../../../maths/Vector4";
 import { Viewport } from "../../../maths/Viewport";
+import { NotImplementedError } from "../../../utils/Error";
 import { IBaseRenderNode } from "../../RenderModuleData/Design/3D/I3DRenderModuleData";
 import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
 import { InternalRenderTarget } from "../RenderDevice/InternalRenderTarget";
@@ -65,7 +66,7 @@ export class DrawNodeCMDData implements IRenderCMD {
     }
     
     apply(context: IRenderContext3D): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 }
 
@@ -126,7 +127,7 @@ export class BlitQuadCMDData implements IRenderCMD {
     }
 
     apply(context: IRenderContext3D): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 }
 
@@ -134,11 +135,11 @@ export class DrawElementCMDData implements IRenderCMD {
     type: RenderCMDType;
 
     setRenderelements(value: IRenderElement3D[]): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     apply(context: IRenderContext3D): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 }
 
@@ -164,7 +165,7 @@ export class SetViewportCMD implements IRenderCMD {
     }
 
     apply(context: IRenderContext3D): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 }
 
@@ -217,7 +218,7 @@ export class SetRenderTargetCMD implements IRenderCMD {
     }
 
     apply(context: IRenderContext3D): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 }
 
@@ -261,7 +262,7 @@ export class SetRenderDataCMD implements IRenderCMD {
     }
 
     apply(context: IRenderContext3D): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 }
 
@@ -296,7 +297,7 @@ export class SetShaderDefineCMD implements IRenderCMD {
     }
 
     apply(context: IRenderContext3D): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
 }

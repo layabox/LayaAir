@@ -159,7 +159,7 @@ export class AnimatorState extends EventDispatcher implements IClone {
                             realtimeDatas[i] = new Vector4();
                             break;
                         default:
-                            throw "AnimationClipParser04:unknown type.";
+                            throw new Error("AnimationClipParser04:unknown type.");
                     }
                 }
             }
@@ -393,13 +393,12 @@ export class AnimatorState extends EventDispatcher implements IClone {
      * @zh 将当前AnimatorState克隆到另一个对象。
      * @param destObject 克隆的目标对象。
      */
-    cloneTo(destObject: any): void {
-        var dest: AnimatorState = <AnimatorState>destObject;
-        dest.name = this.name;
-        dest.speed = this.speed;
-        dest.clipStart = this.clipStart;
-        dest.clipEnd = this.clipEnd;
-        dest.clip = this._clip;
+    cloneTo(destObject: AnimatorState): void {
+        destObject.name = this.name;
+        destObject.speed = this.speed;
+        destObject.clipStart = this.clipStart;
+        destObject.clipEnd = this.clipEnd;
+        destObject.clip = this._clip;
     }
 
     /**

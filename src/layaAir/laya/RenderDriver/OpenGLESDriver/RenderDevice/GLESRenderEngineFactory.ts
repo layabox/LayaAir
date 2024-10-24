@@ -5,6 +5,7 @@ import { VertexMesh } from "../../../RenderEngine/RenderShader/VertexMesh";
 import { UniformBufferObject } from "../../../RenderEngine/UniformBufferObject";
 import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
 import { LayaGL } from "../../../layagl/LayaGL";
+import { NotImplementedError } from "../../../utils/Error";
 import { IRenderEngineFactory } from "../../DriverDesign/RenderDevice/IRenderEngineFactory";
 
 import { GLESCommandUniformMap } from "./GLESCommandUniformMap";
@@ -15,7 +16,7 @@ import { GLESEngine, GLESMode } from "./GLESEngine";
 export class GLESRenderEngineFactory implements IRenderEngineFactory {
     _nativeObj: any;
     createUniformBufferObject(glPointer: number, name: string, bufferUsage: BufferUsage, byteLength: number, isSingle: boolean): UniformBufferObject {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     createEngine(config: Config, canvas: any): Promise<void> {

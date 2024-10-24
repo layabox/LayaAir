@@ -2,6 +2,7 @@ import { PhysicsForceMode } from "../../../d3/physics/PhysicsColliderComponent";
 import { MeshColliderShape } from "../../../d3/physics/shape/MeshColliderShape";
 import { Quaternion } from "../../../maths/Quaternion";
 import { Vector3 } from "../../../maths/Vector3";
+import { NotImplementedError } from "../../../utils/Error";
 import { IDynamicCollider } from "../../interface/IDynamicCollider";
 import { Physics3DStatInfo } from "../../interface/Physics3DStatInfo";
 import { EColliderCapable } from "../../physicsEnum/EColliderCapable";
@@ -429,7 +430,7 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
      * @param value 角速度。
      */
     setMaxAngularVelocity(value: number): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     /**
@@ -439,7 +440,7 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
      * @param value 速度。
      */
     setMaxDepenetrationVelocity(value: number): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     //这里是bug把  类都不对
@@ -467,7 +468,7 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
      * @param value 求解器迭代次数。
      */
     setSolverIterations(value: number): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     /**

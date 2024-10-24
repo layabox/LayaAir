@@ -3,13 +3,14 @@ import { IRenderGeometryElement } from "../RenderDriver/DriverDesign/RenderDevic
 import { VertexDeclaration } from "../RenderEngine/VertexDeclaration";
 import { Material } from "../resource/Material";
 import { RenderTexture2D } from "../resource/RenderTexture2D";
+import { NotImplementedError } from "../utils/Error";
 import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
 import { Value2D } from "../webgl/shader/d2/value/Value2D";
 import { Render2D, ISprite2DGeometry } from "./Render2D";
 import { RenderObject2D } from "./SpriteCache";
 
 export class RenderToCache extends Render2D {
-    renderResult:RenderObject2D[]=[];
+    renderResult: RenderObject2D[] = [];
     private _tex_vert_decl: VertexDeclaration;
 
     constructor() {
@@ -19,7 +20,7 @@ export class RenderToCache extends Render2D {
     clone(out: RenderTexture2D): RenderToCache {
         return null;
     }
-    
+
     private _createMesh() {
         // let geo = this.geo = new WebGLRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
         // let mesh = new WebGLBufferState();
@@ -43,7 +44,7 @@ export class RenderToCache extends Render2D {
 
     draw(mesh2d: ISprite2DGeometry, vboff: number, vblen: number, iboff: number, iblen: number, mtl: Value2D): void {
         this.setVertexDecl(mesh2d.vertexDeclarition);
-        let submesh = new RenderObject2D(mesh2d,vboff,vblen,iboff,iblen,mtl);
+        let submesh = new RenderObject2D(mesh2d, vboff, vblen, iboff, iblen, mtl);
         let clipPos = mtl.clipMatPos;
         let clipDir = mtl.clipMatDir;
         let clipMat = submesh.localClipMatrix;
@@ -55,10 +56,10 @@ export class RenderToCache extends Render2D {
     }
 
     drawMesh(mesh: IRenderGeometryElement, mtl: Material): void {
-        throw "not implement"
+        throw new NotImplementedError();
     }
     drawElement(ele: IRenderElement2D): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
     renderEnd(): void {
     }

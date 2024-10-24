@@ -537,7 +537,7 @@ export class PBRMaterial extends Material {
                 this._shaderValues.addDefine(PBRMaterial.SHADERDEFINE_TRANSPARENTBLEND);
                 break;
             default:
-                throw new Error("PBRMaterial:unknown renderMode value.");
+                throw new Error("unknown renderMode: " + value);
         }
     }
 

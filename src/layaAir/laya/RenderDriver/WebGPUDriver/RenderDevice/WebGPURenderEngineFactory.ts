@@ -3,13 +3,14 @@ import { Laya } from "../../../../Laya";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { UniformBufferObject } from "../../../RenderEngine/UniformBufferObject";
 import { LayaGL } from "../../../layagl/LayaGL";
+import { NotImplementedError } from "../../../utils/Error";
 import { IRenderEngineFactory } from "../../DriverDesign/RenderDevice/IRenderEngineFactory";
 import { WebGPUCodeGenerator } from "./WebGPUCodeGenerator";
 import { WebGPUConfig, WebGPURenderEngine } from "./WebGPURenderEngine";
 
 export class WebGPURenderEngineFactory implements IRenderEngineFactory {
     createUniformBufferObject(glPointer: number, name: string, bufferUsage: BufferUsage, byteLength: number, isSingle: boolean): UniformBufferObject {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     async createEngine(config: Config, canvas: any): Promise<void> {

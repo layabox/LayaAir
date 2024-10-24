@@ -133,10 +133,9 @@ export class Vector2 implements IClone {
      * @zh 将向量克隆到另一个对象。
      * @param destObject 克隆的目标对象。
      */
-    cloneTo(destObject: any): void {
-        var destVector2: Vector2 = (<Vector2>destObject);
-        destVector2.x = this.x;
-        destVector2.y = this.y;
+    cloneTo(destObject: Vector2): void {
+        destObject.x = this.x;
+        destObject.y = this.y;
     }
 
     /**

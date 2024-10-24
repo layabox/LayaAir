@@ -562,18 +562,16 @@ export class Gradient implements IClone {
 	 * @zh 克隆。
 	 * @param destObject 克隆的目标对象。
 	 */
-	cloneTo(destObject: any): void {
-		var destGradientDataColor: Gradient = (<Gradient>destObject);
-		var i: number, n: number;
-		destGradientDataColor._colorAlphaKeysCount = this._colorAlphaKeysCount;
-		let destAlphaElements = destGradientDataColor._alphaElements = new Float32Array(this._alphaElements.length);
+	cloneTo(destObject: Gradient): void {
+		destObject._colorAlphaKeysCount = this._colorAlphaKeysCount;
+		let destAlphaElements = destObject._alphaElements = new Float32Array(this._alphaElements.length);
 
-		for (i = 0, n = this._alphaElements.length; i < n; i++)
+		for (let i = 0, n = this._alphaElements.length; i < n; i++)
 			destAlphaElements[i] = this._alphaElements[i];
 
-		destGradientDataColor._colorRGBKeysCount = this._colorRGBKeysCount;
-		var destRGBElements: Float32Array = destGradientDataColor._rgbElements = new Float32Array(this._rgbElements.length);
-		for (i = 0, n = this._rgbElements.length; i < n; i++)
+		destObject._colorRGBKeysCount = this._colorRGBKeysCount;
+		var destRGBElements: Float32Array = destObject._rgbElements = new Float32Array(this._rgbElements.length);
+		for (let i = 0, n = this._rgbElements.length; i < n; i++)
 			destRGBElements[i] = this._rgbElements[i];
 	}
 

@@ -19,6 +19,7 @@ import { PhysicsColliderComponent } from "../../d3/physics/PhysicsColliderCompon
 import { Quaternion } from "../../maths/Quaternion";
 import { btColliderShape } from "./Shape/btColliderShape";
 import { Node } from "../../display/Node";
+import { NotImplementedError } from "../../utils/Error";
 /**
  * @en The `btPhysicsManager` class is the core class for managing the Bullet physics engine.
  * @zh `btPhysicsManager` 类是用于管理 Bullet 物理引擎的核心类。
@@ -519,7 +520,7 @@ export class btPhysicsManager implements IPhysicsManager {
      * @param collisionmask 用于过滤查询结果的碰撞掩码。
      */
     sphereQuery?(pos: Vector3, radius: number, result: ICollider[], collisionmask: number): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError;
     }
 
     /**

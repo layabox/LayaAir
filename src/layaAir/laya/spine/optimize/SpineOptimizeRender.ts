@@ -158,7 +158,7 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
      * @zh 销毁 SpineOptimizeRender 实例。
      */
     destroy(): void {
-        //throw new Error("Method not implemented.");
+        //throw new NotImplementedError();
     }
 
     /**
@@ -181,7 +181,7 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
             this._clear();
             this.play(this._curAnimationName);
         }
-        //throw new Error("Method not implemented.");
+        //throw new NotImplementedError();
     }
 
     /**

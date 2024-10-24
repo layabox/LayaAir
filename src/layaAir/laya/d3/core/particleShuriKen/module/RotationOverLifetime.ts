@@ -37,10 +37,9 @@ export class RotationOverLifetime implements IClone {
      * @zh 克隆到目标对象。
      * @param destObject 要克隆到的目标对象。
      */
-    cloneTo(destObject: any): void {
-        var destRotationOverLifetime: RotationOverLifetime = (<RotationOverLifetime>destObject);
-        this._angularVelocity.cloneTo(destRotationOverLifetime._angularVelocity);
-        destRotationOverLifetime.enable = this.enable;
+    cloneTo(destObject: RotationOverLifetime): void {
+        this._angularVelocity.cloneTo(destObject._angularVelocity);
+        destObject.enable = this.enable;
     }
 
     /**

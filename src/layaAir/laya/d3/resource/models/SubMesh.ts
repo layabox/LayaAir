@@ -8,6 +8,7 @@ import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode"
 import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
 import { LayaGL } from "../../../layagl/LayaGL";
+import { NotReadableError } from "../../../utils/Error";
 
 
 /**
@@ -144,7 +145,7 @@ export class SubMesh extends GeometryElement {
 		if (this._mesh._isReadable)
 			return this._indices.slice();
 		else
-			throw "SubMesh:can't get indices on subMesh,mesh's isReadable must be true.";
+			throw new NotReadableError();
 	}
 
 	/**

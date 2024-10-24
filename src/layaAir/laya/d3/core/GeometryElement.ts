@@ -138,7 +138,7 @@ export class GeometryElement {
      * @zh 获取几何体类型
      */
 	_getType(): number {
-		throw "GeometryElement:must override it.";
+		throw new Error("GeometryElement:must override it.");
 	}
 
     /**
@@ -162,7 +162,7 @@ export class GeometryElement {
 	 * @param state 渲染上下文。
      */
 	_updateRenderParams(state: RenderContext3D): void {
-		throw "GeometryElement:must override it.";
+		throw new Error("GeometryElement:must override it.");
 	}
 
     /**
