@@ -308,7 +308,7 @@ export class RenderSprite {
      * @param context 
      * @returns 
      */
-    _renderNextToCacheRT(sprite: Sprite, context: Context) {
+    _renderNextToCacheRT(sprite: Sprite, context: Context,marginLeft=0,marginTop=0,marginRight=0,marginBottom=0) {
         var _cacheStyle = sprite._getCacheStyle();
         if (sprite._needRepaint() || !_cacheStyle.renderTexture || ILaya.stage.isGlobalRepaint()) {
             if (_cacheStyle.renderTexture) {
@@ -317,6 +317,7 @@ export class RenderSprite {
             //如果需要构造RenderTexture
             // 先计算需要的texuture的大小。
             let scaleInfo = sprite._cacheStyle._calculateCacheRect(sprite, "bitmap"/*sprite._cacheStyle.cacheAs*/, 0, 0);
+            //tRec相当于贴图在sprite坐标系下的位置
             let tRec = _cacheStyle.cacheRect;
             if (tRec.width <= 0 || tRec.height <= 0){
                 //什么也没渲染，注意设置rt为null，后面会判断
@@ -326,8 +327,8 @@ export class RenderSprite {
             //计算cache画布的大小
             Stat.canvasBitmap++;
 
-            let w = tRec.width * scaleInfo.x;  //,
-            let h = tRec.height * scaleInfo.y;
+            let w = tRec.width * scaleInfo.x+marginLeft+marginRight;  //,
+            let h = tRec.height * scaleInfo.y+marginTop+marginBottom;
             let rt = new RenderTexture2D(w, h, RenderTargetFormat.R8G8B8A8);
             let ctx = new Context();
             ctx.copyState(context);
@@ -342,6 +343,8 @@ export class RenderSprite {
                 所以为了rt能正确的包含节点的渲染效果，应该偏移一下节点再渲染，具体就是取节点在rt坐标系下的值
                 当使用这个rt的时候，要反向偏移，即偏移rt在节点坐标系下的值
             */
+            tRec.x -= marginLeft;   //margin要算到偏移中
+            tRec.y -= marginTop;
             this._next._fun(sprite, ctx, -tRec.x, -tRec.y);
             ctx.endRender();
             //临时，恢复
