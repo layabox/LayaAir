@@ -73,27 +73,6 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
     static _maxElapsedTime: number = 1.0 / 3.0;
 
     /**@internal */
-    protected static _tempVector30: Vector3 = new Vector3();
-    /**@internal */
-    protected static _tempVector31: Vector3 = new Vector3();
-    /**@internal */
-    protected static _tempVector32: Vector3 = new Vector3();
-    /**@internal */
-    protected static _tempVector33: Vector3 = new Vector3();
-    /**@internal */
-    protected static _tempVector34: Vector3 = new Vector3();
-    /**@internal */
-    protected static _tempVector35: Vector3 = new Vector3();
-    /**@internal */
-    protected static _tempVector36: Vector3 = new Vector3();
-    /**@internal */
-    protected static _tempVector37: Vector3 = new Vector3();
-    /** @internal */
-    protected static _tempPosition: Vector3 = new Vector3();
-    /** @internal */
-    protected static _tempDirection: Vector3 = new Vector3();
-
-    /**@internal */
     protected static _type: number = GeometryElement._typeCounter++;
     /** @internal */
     _bounds: Bounds = null;
@@ -1317,10 +1296,10 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
         }
 
         // shape
-        var zDirectionSpeed: Vector3 = ShurikenParticleSystem._tempVector30;
-        var fDirectionSpeed: Vector3 = ShurikenParticleSystem._tempVector31;
-        var zEmisionOffsetXYZ: Vector3 = ShurikenParticleSystem._tempVector32;
-        var fEmisionOffsetXYZ: Vector3 = ShurikenParticleSystem._tempVector33;
+        var zDirectionSpeed: Vector3 = _tempVector30;
+        var fDirectionSpeed: Vector3 = _tempVector31;
+        var zEmisionOffsetXYZ: Vector3 = _tempVector32;
+        var fEmisionOffsetXYZ: Vector3 = _tempVector33;
 
         zDirectionSpeed.setValue(0, 0, 1);
         fDirectionSpeed.setValue(0, 0, 0);
@@ -1415,7 +1394,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
                 break;
         }
 
-        var endSizeOffset: Vector3 = ShurikenParticleSystem._tempVector36;
+        var endSizeOffset: Vector3 = _tempVector36;
         endSizeOffset.setValue(1, 1, 1);
         if (this.sizeOverLifetime && this.sizeOverLifetime.enable) {
             var gradientSize: GradientSize = this.sizeOverLifetime.size;
@@ -1428,8 +1407,8 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
         Vector3.scale(endSizeOffset, offsetSize, endSizeOffset);
 
         // var distance: number = speedOrigan * time;
-        var speedZOffset: Vector3 = ShurikenParticleSystem._tempVector34;
-        var speedFOffset: Vector3 = ShurikenParticleSystem._tempVector35;
+        var speedZOffset: Vector3 = _tempVector34;
+        var speedFOffset: Vector3 = _tempVector35;
 
         if (speedOrigan > 0) {
             Vector3.scale(zDirectionSpeed, speedOrigan, speedZOffset);
@@ -1442,7 +1421,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 
         if (this.velocityOverLifetime && this.velocityOverLifetime.enable) {
             var gradientVelocity: GradientVelocity = this.velocityOverLifetime.velocity;
-            var velocitySpeedOffset: Vector3 = ShurikenParticleSystem._tempVector37;
+            var velocitySpeedOffset: Vector3 = _tempVector37;
             velocitySpeedOffset.setValue(0, 0, 0);
             switch (gradientVelocity.type) {
                 case 0: // 常量模式
@@ -1952,8 +1931,8 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
      * @zh 发射一个粒子。
      */
     emit(time: number): boolean {
-        var position: Vector3 = ShurikenParticleSystem._tempPosition;
-        var direction: Vector3 = ShurikenParticleSystem._tempDirection;
+        var position: Vector3 = _tempPosition;
+        var direction: Vector3 = _tempDirection;
         if (this._shape && this._shape.enable) {
             if (this.autoRandomSeed)
                 this._shape.generatePositionAndDirection(position, direction);
@@ -2505,4 +2484,13 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
     }
 }
 
-
+const _tempVector30: Vector3 = new Vector3();
+const _tempVector31: Vector3 = new Vector3();
+const _tempVector32: Vector3 = new Vector3();
+const _tempVector33: Vector3 = new Vector3();
+const _tempVector34: Vector3 = new Vector3();
+const _tempVector35: Vector3 = new Vector3();
+const _tempVector36: Vector3 = new Vector3();
+const _tempVector37: Vector3 = new Vector3();
+const _tempPosition: Vector3 = new Vector3();
+const _tempDirection: Vector3 = new Vector3();

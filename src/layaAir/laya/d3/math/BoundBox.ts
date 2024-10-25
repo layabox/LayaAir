@@ -7,11 +7,6 @@ import { IClone } from "../../utils/IClone"
  * @zh `BoundBox` 类用于创建包围盒。
  */
 export class BoundBox implements IClone {
-	/**@internal */
-	private static _tempVector30: Vector3 = new Vector3();
-	/**@internal */
-	private static _tempVector31: Vector3 = new Vector3();
-
 	/**
 	 * @en The minimum vertex of the bounding box.
 	 * @zh 包围盒的最小顶点。
@@ -118,8 +113,8 @@ export class BoundBox implements IClone {
 	 * @param out 存储结果的包围盒。
 	 */
 	tranform(matrix: Matrix4x4, out: BoundBox): void {
-		var center: Vector3 = BoundBox._tempVector30;
-		var extent: Vector3 = BoundBox._tempVector31;
+		var center: Vector3 = _tempVector30;
+		var extent: Vector3 = _tempVector31;
 		this.getCenter(center);
 		this.getExtent(extent);
 		Vector3.transformCoordinate(center, matrix, center);
@@ -203,5 +198,5 @@ export class BoundBox implements IClone {
 
 }
 
-
-
+const _tempVector30: Vector3 = new Vector3();
+const _tempVector31: Vector3 = new Vector3();

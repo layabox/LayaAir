@@ -201,7 +201,6 @@ export class BoneSlot {
     }
 
     private _mVerticleArr: any[];
-    private static _tempMatrix: Matrix = new Matrix();
 
     /**
      * @en Create SkinGraphic Mesh data.
@@ -307,19 +306,18 @@ export class BoneSlot {
                                 tResultMatrix = BoneSlot._tempResultMatrix;
                             }
                             if (this._diyTexture && this.currDisplayData.uvs) {
-                                var tTestMatrix: Matrix = BoneSlot._tempMatrix;
-                                tTestMatrix.identity();
+                                _tempMatrix.identity();
                                 //判断是否上下反转。
                                 if (this.currDisplayData.uvs[1] > this.currDisplayData.uvs[5]) {
-                                    tTestMatrix.d = -1;
+                                    _tempMatrix.d = -1;
                                 }
                                 //判断是否旋转
                                 if (this.currDisplayData.uvs[0] > this.currDisplayData.uvs[4]
                                     && this.currDisplayData.uvs[1] > this.currDisplayData.uvs[5]) {
                                     tRotateKey = true;
-                                    tTestMatrix.rotate(-Math.PI / 2);
+                                    _tempMatrix.rotate(-Math.PI / 2);
                                 }
-                                Matrix.mul(tTestMatrix, Matrix.TEMP, tResultMatrix);
+                                Matrix.mul(_tempMatrix, Matrix.TEMP, tResultMatrix);
                             } else {
                                 Matrix.TEMP.copyTo(tResultMatrix);
                             }
@@ -427,8 +425,6 @@ export class BoneSlot {
         }
     }
 
-    /**@internal */
-    private static _tempVerticleArr: any[] = [];
     /**
      * 显示蒙皮动画
      * @param	boneMatrixArray 当前帧的骨骼矩阵
@@ -464,11 +460,8 @@ export class BoneSlot {
         var tWeight: number = 0;
         var tVertices: any[];
         var i: number = 0, j: number = 0, n: number = 0;
-        var tRed: number = 1;
-        var tGreed: number = 1;
-        var tBlue: number = 1;
-        BoneSlot._tempVerticleArr.length = 0;
-        tVertices = BoneSlot._tempVerticleArr;
+        _tempVerticleArr.length = 0;
+        tVertices = _tempVerticleArr;
         if (this.deformData && this.deformData.length > 0) {
             var f: number = 0;
             for (i = 0, n = tBones.length; i < n;) {
@@ -561,3 +554,5 @@ export class BoneSlot {
     }
 }
 
+const _tempVerticleArr: any[] = [];
+const _tempMatrix: Matrix = new Matrix();

@@ -38,21 +38,6 @@ export class TrailGeometry extends GeometryElement {
 	static ALIGNMENT_TRANSFORM_Z: number = 1;
 
 	/**@internal */
-	private static _tempVector30: Vector3 = new Vector3();
-	/**@internal */
-	private static _tempVector31: Vector3 = new Vector3();
-	/**@internal */
-	private static _tempVector32: Vector3 = new Vector3();
-	/**@internal */
-	private static _tempVector33: Vector3 = new Vector3();
-	/**@internal */
-	private static _tempVector34: Vector3 = new Vector3();
-	/**@internal */
-	private static _tempVector35: Vector3 = new Vector3();
-	/**@internal */
-	private static _tempVector36: Vector3 = new Vector3();
-
-	/**@internal */
 	private static _type: number = GeometryElement._typeCounter++;
 
 	/**@internal */
@@ -88,7 +73,6 @@ export class TrailGeometry extends GeometryElement {
 	/**@internal */
 	protected _owner: TrailFilter;
 
-	private tmpColor: Color = new Color();
 	/** @private */
 	private _disappearBoundsMode: Boolean = false;
 
@@ -198,19 +182,19 @@ export class TrailGeometry extends GeometryElement {
 	 * 通过位置更新TrailRenderElement数据
 	 */
 	private _addTrailByNextPosition(camera: Camera, position: Vector3): void {
-		var delVector3: Vector3 = TrailGeometry._tempVector30;
-		var pointAtoBVector3: Vector3 = TrailGeometry._tempVector31;
+		var delVector3: Vector3 = _tempVector30;
+		var pointAtoBVector3: Vector3 = _tempVector31;
 		switch (this._owner.alignment) {
 			case TrailAlignment.View:
 				var cameraMatrix: Matrix4x4 = camera.viewMatrix;
-				Vector3.transformCoordinate(position, cameraMatrix, TrailGeometry._tempVector33);
-				Vector3.transformCoordinate(this._lastFixedVertexPosition, cameraMatrix, TrailGeometry._tempVector34);
-				Vector3.subtract(TrailGeometry._tempVector33, TrailGeometry._tempVector34, delVector3);
-				Vector3.cross(TrailGeometry._tempVector33, delVector3, pointAtoBVector3);
+				Vector3.transformCoordinate(position, cameraMatrix, _tempVector33);
+				Vector3.transformCoordinate(this._lastFixedVertexPosition, cameraMatrix, _tempVector34);
+				Vector3.subtract(_tempVector33, _tempVector34, delVector3);
+				Vector3.cross(_tempVector33, delVector3, pointAtoBVector3);
 				break;
 			case TrailAlignment.TransformZ:
 				Vector3.subtract(position, this._lastFixedVertexPosition, delVector3);
-				var forward: Vector3 = TrailGeometry._tempVector32;
+				var forward: Vector3 = _tempVector32;
 				(this._owner._ownerRender.owner as Sprite3D).transform.getForward(forward);
 				Vector3.cross(delVector3, forward, pointAtoBVector3);//实时更新模式需要和view一样根据当前forward重新计算
 				break;
@@ -287,9 +271,9 @@ export class TrailGeometry extends GeometryElement {
 		var bounds: Bounds = this._owner._ownerRender.bounds;
 		var min: Vector3 = bounds.getMin();
 		var max: Vector3 = bounds.getMax();
-		var up: Vector3 = TrailGeometry._tempVector35;
-		var down: Vector3 = TrailGeometry._tempVector36;
-		var out: Vector3 = TrailGeometry._tempVector32;
+		var up: Vector3 = _tempVector35;
+		var down: Vector3 = _tempVector36;
+		var out: Vector3 = _tempVector32;
 		Vector3.add(position, pointAtoBVector3, up);
 		Vector3.subtract(position, pointAtoBVector3, down);
 
@@ -352,27 +336,27 @@ export class TrailGeometry extends GeometryElement {
 				uvX = 1.0 - (totalLength - curLength);
 			}
 
-			startColorIndex = gradient.evaluateColorRGB(lerpFactor, this.tmpColor, startColorIndex, true);
-			startAlphaIndex = gradient.evaluateColorAlpha(lerpFactor, this.tmpColor, startAlphaIndex, true);
+			startColorIndex = gradient.evaluateColorRGB(lerpFactor, tmpColor, startColorIndex, true);
+			startAlphaIndex = gradient.evaluateColorAlpha(lerpFactor, tmpColor, startAlphaIndex, true);
 
 			var index: number = i * stride;
 			this._vertices2[index + 0] = uvX;
-			this._vertices2[index + 1] = this.tmpColor.r;
-			this._vertices2[index + 2] = this.tmpColor.g;
-			this._vertices2[index + 3] = this.tmpColor.b;
-			this._vertices2[index + 4] = this.tmpColor.a;
+			this._vertices2[index + 1] = tmpColor.r;
+			this._vertices2[index + 2] = tmpColor.g;
+			this._vertices2[index + 3] = tmpColor.b;
+			this._vertices2[index + 4] = tmpColor.a;
 
 			this._vertices2[index + 5] = uvX;
-			this._vertices2[index + 6] = this.tmpColor.r;
-			this._vertices2[index + 7] = this.tmpColor.g;
-			this._vertices2[index + 8] = this.tmpColor.b;
-			this._vertices2[index + 9] = this.tmpColor.a;
+			this._vertices2[index + 6] = tmpColor.r;
+			this._vertices2[index + 7] = tmpColor.g;
+			this._vertices2[index + 8] = tmpColor.b;
+			this._vertices2[index + 9] = tmpColor.a;
 
 			if (this._disappearBoundsMode) {
 				var posOffset = this._floatCountPerVertices1 * 2 * i;
-				var pos: Vector3 = TrailGeometry._tempVector32;
-				var up: Vector3 = TrailGeometry._tempVector33;
-				var side: Vector3 = TrailGeometry._tempVector34;
+				var pos: Vector3 = _tempVector32;
+				var up: Vector3 = _tempVector33;
+				var side: Vector3 = _tempVector34;
 
 				pos.setValue(this._vertices1[posOffset + 0], this._vertices1[posOffset + 1], this._vertices1[posOffset + 2]);
 				up.setValue(this._vertices1[posOffset + 3], this._vertices1[posOffset + 4], this._vertices1[posOffset + 5]);
@@ -493,3 +477,11 @@ export class TrailGeometry extends GeometryElement {
 	}
 }
 
+const _tempVector30: Vector3 = new Vector3();
+const _tempVector31: Vector3 = new Vector3();
+const _tempVector32: Vector3 = new Vector3();
+const _tempVector33: Vector3 = new Vector3();
+const _tempVector34: Vector3 = new Vector3();
+const _tempVector35: Vector3 = new Vector3();
+const _tempVector36: Vector3 = new Vector3();
+const tmpColor: Color = new Color();

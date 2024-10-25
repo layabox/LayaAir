@@ -8,8 +8,6 @@ import { Vector3 } from "../../maths/Vector3";
  * @zh BoundSphere 类用于创建包围球。
  */
 export class BoundSphere implements IClone {
-	private static _tempVector3: Vector3 = new Vector3();
-
 	/** @internal 包围球的中心。*/
 	_center: Vector3;
 	/** @internal 包围球的半径。*/
@@ -94,7 +92,7 @@ export class BoundSphere implements IClone {
 		var upperEnd: number = start + count;
 
 		//Find the center of all points. 
-		var center: Vector3 = BoundSphere._tempVector3;
+		var center: Vector3 = _tempVector3;
 		center.x = 0;
 		center.y = 0;
 		center.z = 0;
@@ -189,3 +187,4 @@ export class BoundSphere implements IClone {
 
 }
 
+const _tempVector3: Vector3 = new Vector3();

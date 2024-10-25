@@ -23,8 +23,6 @@ import { UI3D } from "./UI3D";
  */
 export class UI3DGeometry extends GeometryElement {
     /**@internal */
-    private static tempV0: Vector3 = new Vector3();
-    /**@internal */
     private static _type: number = GeometryElement._typeCounter++;
     /* @internal 顶点buffer*/
     private _vertexBuffer: VertexBuffer3D;
@@ -98,14 +96,14 @@ export class UI3DGeometry extends GeometryElement {
         var halfwidth = size.x / 2;
         var halfhight = size.y / 2;
         if (viewMode) {
-            UI3DGeometry.tempV0.set(-halfwidth, halfhight, 0.0);
-            Utils3D.billboardTrans(UI3DGeometry.tempV0, cameraDir, cameraUp, this._positionArray[0]);
-            UI3DGeometry.tempV0.set(halfwidth, halfhight, 0.0);
-            Utils3D.billboardTrans(UI3DGeometry.tempV0, cameraDir, cameraUp, this._positionArray[1]);
-            UI3DGeometry.tempV0.set(-halfwidth, -halfhight, 0.0);
-            Utils3D.billboardTrans(UI3DGeometry.tempV0, cameraDir, cameraUp, this._positionArray[2]);
-            UI3DGeometry.tempV0.set(halfwidth, -halfhight, 0.0);
-            Utils3D.billboardTrans(UI3DGeometry.tempV0, cameraDir, cameraUp, this._positionArray[3]);
+            tempV0.set(-halfwidth, halfhight, 0.0);
+            Utils3D.billboardTrans(tempV0, cameraDir, cameraUp, this._positionArray[0]);
+            tempV0.set(halfwidth, halfhight, 0.0);
+            Utils3D.billboardTrans(tempV0, cameraDir, cameraUp, this._positionArray[1]);
+            tempV0.set(-halfwidth, -halfhight, 0.0);
+            Utils3D.billboardTrans(tempV0, cameraDir, cameraUp, this._positionArray[2]);
+            tempV0.set(halfwidth, -halfhight, 0.0);
+            Utils3D.billboardTrans(tempV0, cameraDir, cameraUp, this._positionArray[3]);
             this._vertex[3] = this._vertex[11] = this._vertex[19] = this._vertex[27] = -cameraDir.x;
             this._vertex[4] = this._vertex[12] = this._vertex[20] = this._vertex[28] = -cameraDir.y;
             this._vertex[5] = this._vertex[13] = this._vertex[21] = this._vertex[29] = -cameraDir.z;
@@ -192,12 +190,12 @@ export class UI3DGeometry extends GeometryElement {
         this._vertex[25] = this._positionArray[3].y;
         this._vertex[26] = this._positionArray[3].z;
         this._vertexBuffer.setData(this._vertex.buffer, 0, 0, this._vertex.length * 4);
-        UI3DGeometry.tempV0.setValue(size.x / 2, size.y / 2, 0.0);
-        this._bound.setExtent(UI3DGeometry.tempV0);
+        tempV0.setValue(size.x / 2, size.y / 2, 0.0);
+        this._bound.setExtent(tempV0);
         let halfWidth = (this._positionArray[3].x - this._positionArray[2].x) / 2;
         let halfHeight = (this._positionArray[0].y - this._positionArray[2].y) / 2;
-        UI3DGeometry.tempV0.setValue(this._positionArray[2].x + halfWidth, this._positionArray[2].y + halfHeight, this._positionArray[2].z);
-        this._bound.setCenter(UI3DGeometry.tempV0);
+        tempV0.setValue(this._positionArray[2].x + halfWidth, this._positionArray[2].y + halfHeight, this._positionArray[2].z);
+        this._bound.setCenter(tempV0);
     }
 
     /**
@@ -228,3 +226,5 @@ export class UI3DGeometry extends GeometryElement {
         delete this._index;
     }
 }
+
+const tempV0: Vector3 = new Vector3();

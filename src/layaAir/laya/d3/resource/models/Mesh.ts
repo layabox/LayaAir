@@ -50,10 +50,6 @@ export class Mesh extends Resource implements IClone {
     /**@internal */
     static MESH_INSTANCEBUFFER_TYPE_SIMPLEANIMATOR: number = 1;
 
-    /** @internal */
-    private _tempVector30: Vector3 = new Vector3()
-    /** @internal */
-    private _tempVector31: Vector3 = new Vector3();
     /**@internal */
     _convexMesh: any;
     /**@interanl */
@@ -778,8 +774,8 @@ export class Mesh extends Resource implements IClone {
     calculateBounds(): void {
         if (this._isReadable) {
             if (this._needUpdateBounds) {
-                var min: Vector3 = this._tempVector30;
-                var max: Vector3 = this._tempVector31;
+                var min: Vector3 = _tempVector30;
+                var max: Vector3 = _tempVector31;
                 min.x = min.y = min.z = Number.MAX_VALUE;
                 max.x = max.y = max.z = -Number.MAX_VALUE;
 
@@ -929,3 +925,6 @@ export class Mesh extends Resource implements IClone {
     /** @internal */
     _inverseBindPosesBuffer: ArrayBuffer;
 }
+
+const _tempVector30: Vector3 = new Vector3()
+const _tempVector31: Vector3 = new Vector3();

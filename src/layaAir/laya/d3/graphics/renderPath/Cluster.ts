@@ -38,16 +38,6 @@ class ClusterData {
  * @internal
  */
 export class Cluster {
-    private static _tempVector30: Vector3 = new Vector3();
-    private static _tempVector31: Vector3 = new Vector3();
-    private static _tempVector32: Vector3 = new Vector3();
-    private static _tempVector33: Vector3 = new Vector3();
-    private static _tempVector34: Vector3 = new Vector3();
-    private static _tempVector35: Vector3 = new Vector3();
-    private static _tempVector36: Vector3 = new Vector3();
-    private static _tempVector37: Vector3 = new Vector3();
-    private static _tempLightBound: LightBound = new LightBound();
-
     static instance: Cluster;
 
     private _xSlices: number;
@@ -101,7 +91,7 @@ export class Cluster {
 
     // private _insertSpotLightSphere(origin: Vector3, forward: Vector3, size: number, angle: number, testSphere: Vector4): boolean {
     //     //combine cone cull and sphere range cull
-    //     var V: Vector3 = Cluster._tempVector35;
+    //     var V: Vector3 = _tempVector35;
     //     V.x = testSphere.x - origin.x;
     //     V.y = testSphere.y - origin.y;
     //     V.z = testSphere.z - origin.z;
@@ -172,8 +162,8 @@ export class Cluster {
     private _insertConePlane(origin: Vector3, forward: Vector3, radius: number, halfAngle: number, pNor: Vector3): boolean {
         //https://bartwronski.com/2017/04/13/cull-that-cone/
         //because distance is always zero so we ease this method
-        var V1: Vector3 = Cluster._tempVector36;
-        var V2: Vector3 = Cluster._tempVector37;
+        var V1: Vector3 = _tempVector36;
+        var V2: Vector3 = _tempVector37;
         Vector3.cross(pNor, forward, V1);
         Vector3.cross(V1, forward, V2);
         Vector3.normalize(V2, V2);
@@ -349,7 +339,7 @@ export class Cluster {
         var xMin: number, yMin: number;
         var xMax: number, yMax: number;
 
-        var normal: Vector3 = Cluster._tempVector32;
+        var normal: Vector3 = _tempVector32;
         var n: number = lightBound.yMax + 1;
         for (var i: number = lightBound.yMin + 1; i < n; i++) {
             if (this._insertConePlane(lightviewPos, viewForward, radius, halfAngle, yPlanes[i])) {
@@ -394,8 +384,8 @@ export class Cluster {
 
 
     private _updatePointLightPerspective(near: number, far: number, viewMat: Matrix4x4, pointLight: PointLightCom, lightIndex: number, xPlanes: Vector3[], yPlanes: Vector3[]): void {
-        var lightBound: LightBound = Cluster._tempLightBound;
-        var lightviewPos: Vector3 = Cluster._tempVector30;
+        var lightBound: LightBound = _tempLightBound;
+        var lightviewPos: Vector3 = _tempVector30;
         Vector3.transformV3ToV3((pointLight.owner as Sprite3D)._transform.position, viewMat, lightviewPos);//World to View
         lightviewPos.z *= -1;
         if (!this._shrinkSphereLightZPerspective(near, far, lightviewPos, pointLight.range, lightBound))
@@ -409,10 +399,10 @@ export class Cluster {
     private _updateSpotLightPerspective(near: number, far: number, viewMat: Matrix4x4, spotLight: SpotLightCom, lightIndex: number, xPlanes: Vector3[], yPlanes: Vector3[]): void {
         // technically could fall outside the bounds we make because the planes themeselves are tilted by some angle
         // the effect is exaggerated the steeper the angle the plane makes is
-        var lightBound: LightBound = Cluster._tempLightBound;
-        var viewPos: Vector3 = Cluster._tempVector30;
-        var forward: Vector3 = Cluster._tempVector31;
-        var viewConeCap: Vector3 = Cluster._tempVector34;
+        var lightBound: LightBound = _tempLightBound;
+        var viewPos: Vector3 = _tempVector30;
+        var forward: Vector3 = _tempVector31;
+        var viewConeCap: Vector3 = _tempVector34;
         var position: Vector3 = (spotLight.owner as Sprite3D)._transform.position;
         var range: number = spotLight.range;
         (spotLight.owner as Sprite3D)._transform.worldMatrix.getForward(forward);
@@ -429,7 +419,7 @@ export class Cluster {
             return;
         if (!this._shrinkXYByRadiusPerspective(viewPos, range, lightBound, xPlanes, yPlanes))
             return;
-        var viewFor: Vector3 = Cluster._tempVector33;
+        var viewFor: Vector3 = _tempVector33;
         viewFor.x = viewConeCap.x - viewPos.x, viewFor.y = viewConeCap.y - viewPos.y, viewFor.z = viewConeCap.z - viewPos.z;
         Vector3.normalize(viewFor, viewFor);
         this._shrinkSpotXYByConePerspective(viewPos, viewFor, range, halfAngle, lightBound, xPlanes, yPlanes);
@@ -438,8 +428,8 @@ export class Cluster {
     }
 
     private _updatePointLightOrth(halfX: number, halfY: number, near: number, far: number, viewMat: Matrix4x4, pointLight: PointLightCom, lightIndex: number): void {
-        var lightBound: LightBound = Cluster._tempLightBound;
-        var lightviewPos: Vector3 = Cluster._tempVector30;
+        var lightBound: LightBound = _tempLightBound;
+        var lightviewPos: Vector3 = _tempVector30;
         Vector3.transformV3ToV3((pointLight.owner as Sprite3D)._transform.position, viewMat, lightviewPos);//World to View
         lightviewPos.z *= -1;
 
@@ -452,10 +442,10 @@ export class Cluster {
     private _updateSpotLightOrth(halfX: number, halfY: number, near: number, far: number, viewMat: Matrix4x4, spotLight: SpotLightCom, lightIndex: number): void {
         // technically could fall outside the bounds we make because the planes themeselves are tilted by some angle
         // the effect is exaggerated the steeper the angle the plane makes is
-        var lightBound: LightBound = Cluster._tempLightBound;
-        var viewPos: Vector3 = Cluster._tempVector30;
-        var forward: Vector3 = Cluster._tempVector31;
-        var viewConeCap: Vector3 = Cluster._tempVector34;
+        var lightBound: LightBound = _tempLightBound;
+        var viewPos: Vector3 = _tempVector30;
+        var forward: Vector3 = _tempVector31;
+        var viewConeCap: Vector3 = _tempVector34;
         var position: Vector3 = (spotLight.owner as Sprite3D)._transform.position;
         var range: number = spotLight.range;
         (spotLight.owner as Sprite3D)._transform.worldMatrix.getForward(forward);
@@ -561,3 +551,13 @@ export class Cluster {
         }
     }
 }
+
+const _tempVector30: Vector3 = new Vector3();
+const _tempVector31: Vector3 = new Vector3();
+const _tempVector32: Vector3 = new Vector3();
+const _tempVector33: Vector3 = new Vector3();
+const _tempVector34: Vector3 = new Vector3();
+const _tempVector35: Vector3 = new Vector3();
+const _tempVector36: Vector3 = new Vector3();
+const _tempVector37: Vector3 = new Vector3();
+const _tempLightBound: LightBound = new LightBound();

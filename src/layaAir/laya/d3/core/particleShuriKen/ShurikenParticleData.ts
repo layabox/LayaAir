@@ -18,9 +18,6 @@ import { ShurikenParticleSystem } from "./ShurikenParticleSystem";
  *  @internal
  */
 export class ShurikenParticleData {
-	/**@internal */
-	private static _tempVector30: Vector3 = new Vector3();
-
 	static startLifeTime: number;
 	static startColor: Vector4 = new Vector4();
 	static startSize: Float32Array = new Float32Array(3);
@@ -218,7 +215,7 @@ export class ShurikenParticleData {
 				case 0:
 					if (particleSystem.threeDStartRotation) {
 						var startRotationConstantSeparate: Vector3 = particleSystem.startRotationConstantSeparate;
-						var randomRotationE: Vector3 = ShurikenParticleData._tempVector30;
+						var randomRotationE: Vector3 = _tempVector30;
 						ShurikenParticleData._randomInvertRoationArray(startRotationConstantSeparate, randomRotationE, particleSystem.randomizeRotationDirection, autoRandomSeed ? null : rand, randomSeeds);
 						ShurikenParticleData.startRotation[0] = randomRotationE.x;
 						ShurikenParticleData.startRotation[1] = randomRotationE.y;
@@ -236,7 +233,7 @@ export class ShurikenParticleData {
 					if (particleSystem.threeDStartRotation) {
 						var startRotationConstantMinSeparate: Vector3 = particleSystem.startRotationConstantMinSeparate;
 						var startRotationConstantMaxSeparate: Vector3 = particleSystem.startRotationConstantMaxSeparate;
-						var lerpRoationE: Vector3 = ShurikenParticleData._tempVector30;
+						var lerpRoationE: Vector3 = _tempVector30;
 						if (autoRandomSeed) {
 							lerpRoationE.x = MathUtil.lerp(startRotationConstantMinSeparate.x, startRotationConstantMaxSeparate.x, Math.random());
 							lerpRoationE.y = MathUtil.lerp(startRotationConstantMinSeparate.y, startRotationConstantMaxSeparate.y, Math.random());
@@ -379,4 +376,4 @@ export class ShurikenParticleData {
 
 }
 
-
+const _tempVector30: Vector3 = new Vector3();

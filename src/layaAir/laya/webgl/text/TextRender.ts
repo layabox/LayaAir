@@ -15,7 +15,7 @@ import { Const } from "../../Const";
 import { IFontMeasure } from "./MeasureFont";
 import { EventDispatcher } from "../../events/EventDispatcher";
 
-export class TextRender extends EventDispatcher{
+export class TextRender extends EventDispatcher {
     //config
     static useOldCharBook = false;
     static atlasWidth = 1024;
@@ -40,7 +40,7 @@ export class TextRender extends EventDispatcher{
      * xdist,ydist 是像素起点到排版原点的距离，都是正的，表示实际数据往左和上偏多少，如果实际往右和下偏，则算作0，毕竟这个只是一个大概
      * 例如 [Arial]=0x00002020, 表示宽高都是32
      */
-    private fontSizeInfo: {[key:string]:number} = {};
+    private fontSizeInfo: { [key: string]: number } = {};
     charRender: ICharRender;
     private mapFont: any = {};		// 把font名称映射到数字
     private fontID = 0;
@@ -66,11 +66,10 @@ export class TextRender extends EventDispatcher{
     private fontSizeOffY = 0;
 
     private renderPerChar = true;	// 是否是单个字符渲染。这个是结果，上面的是配置
-    private tmpAtlasPos = new Point();
     private fontStr: string;				// 因为要去掉italic，所以自己保存一份
     static simClean = false;				// 测试用。强制清理占用低的图集
 
-    private _fontMeasure:IFontMeasure=null;
+    private _fontMeasure: IFontMeasure = null;
 
     constructor() {
         super();
@@ -81,27 +80,27 @@ export class TextRender extends EventDispatcher{
             bugIOS = miniadp.systemInfo.system.toLowerCase() === 'ios 10.1.1';
             //12.3
         }
-        if ((ILaya.Browser.onMiniGame || 
-            ILaya.Browser.onTTMiniGame || 
-            ILaya.Browser.onBLMiniGame || 
-            ILaya.Browser.onAlipayMiniGame || 
-            ILaya.Browser.onTBMiniGame) && 
-                !bugIOS) TextRender.isWan1Wan = true; //android 微信下 字边缘发黑，所以不用getImageData了
+        if ((ILaya.Browser.onMiniGame ||
+            ILaya.Browser.onTTMiniGame ||
+            ILaya.Browser.onBLMiniGame ||
+            ILaya.Browser.onAlipayMiniGame ||
+            ILaya.Browser.onTBMiniGame) &&
+            !bugIOS) TextRender.isWan1Wan = true; //android 微信下 字边缘发黑，所以不用getImageData了
         //TextRender.isWan1Wan = true;
         this.charRender = new CharRender_Canvas(2048, 2048, TextRender.scaleFontWithCtx, !TextRender.isWan1Wan, false);
         TextRender.textRenderInst = this;
         ILaya.Laya['textRender'] = this;
     }
 
-    set fontMeasure(m:IFontMeasure){
-        this._fontMeasure=m;
+    set fontMeasure(m: IFontMeasure) {
+        this._fontMeasure = m;
     }
 
-    get fontMeasure(){
+    get fontMeasure() {
         return this._fontMeasure;
     }
 
-    private _wan1wansz(font:string,size:number){
+    private _wan1wansz(font: string, size: number) {
         let fontstr = 'bold ' + size + 'px ' + font;
         // 这时候无法获得imagedata，只能采取保险测量
         let fontSizeW = this.charRender.getWidth(fontstr, '有') * 1.5;
@@ -111,15 +110,15 @@ export class TextRender extends EventDispatcher{
         return szinfo;
     }
 
-    private getFontSizeInfo(font:string){
+    private getFontSizeInfo(font: string) {
         var finfo = this.fontSizeInfo[font];
-        if (!finfo ){
-            if(TextRender.isWan1Wan){
-                finfo = this._wan1wansz(font,TextRender.standardFontSize)
-            }else{
-                finfo = this._fontMeasure.getFontSizeInfo(font,TextRender.standardFontSize);
+        if (!finfo) {
+            if (TextRender.isWan1Wan) {
+                finfo = this._wan1wansz(font, TextRender.standardFontSize)
+            } else {
+                finfo = this._fontMeasure.getFontSizeInfo(font, TextRender.standardFontSize);
             }
-            this.fontSizeInfo[font]=finfo;
+            this.fontSizeInfo[font] = finfo;
         }
         return finfo;
     }
@@ -333,7 +332,7 @@ export class TextRender extends EventDispatcher{
      * @param  startx 保存的数据是相对位置，所以需要加上这个偏移。用相对位置更灵活一些。
      * @param y {int} 因为这个只能画在一行上所以没有必要保存y。所以这里再把y传进来
      */
-    protected _drawResortedWords(ctx: Context, startx: number, starty: number, samePagesData: {[key:number]:any}): void {
+    protected _drawResortedWords(ctx: Context, startx: number, starty: number, samePagesData: { [key: number]: any }): void {
         var isLastRender = ctx._charSubmitCache ? ctx._charSubmitCache._enable : false;
         var mat = ctx._curMat;
         //samePagesData可能是个不连续的数组，比如只有一个samePagesData[29999] = dt; 所以不要用普通for循环
@@ -352,7 +351,7 @@ export class TextRender extends EventDispatcher{
 
                 ctx._inner_drawTexture(tex, tex.id,
                     startx + riSaved.x - ri.orix, starty + riSaved.y - ri.oriy, riSaved.w, riSaved.h,
-                     mat, ri.uv, 1.0, isLastRender, 0xffffffff);
+                    mat, ri.uv, 1.0, isLastRender, 0xffffffff);
             }
         }
     }
@@ -418,7 +417,7 @@ export class TextRender extends EventDispatcher{
             lineWidth = 0;
         }
         var w1 = Math.ceil((this.charRender.getWidth(this.fontStr, str) + 2 * lineWidth) * this.fontScaleX);
-        let needCanvW = Math.min(2048, w1 + margin * 2*this.fontScaleX);//注意margin要*缩放，否则可能文字放不下
+        let needCanvW = Math.min(2048, w1 + margin * 2 * this.fontScaleX);//注意margin要*缩放，否则可能文字放不下
         if (needCanvW > this.charRender.canvasWidth) {
             this.charRender.canvasWidth = needCanvW;
         }
@@ -454,7 +453,7 @@ export class TextRender extends EventDispatcher{
             } else {
                 // 多个字符的处理
                 //TextRender.imgdtRect[2] = -1;	// -1 表示宽度要测量
-                TextRender.imgdtRect[2] =  -(this.fontSizeOffX * this.fontScaleX);//<0表示要测量宽度，但是提供了原点偏移
+                TextRender.imgdtRect[2] = -(this.fontSizeOffX * this.fontScaleX);//<0表示要测量宽度，但是提供了原点偏移
                 TextRender.imgdtRect[3] = fh; 	// TODO 如果被裁剪了，可以考虑把这个加大一点点
             }
             this.charRender.fontsz = font._size;
@@ -491,7 +490,7 @@ export class TextRender extends EventDispatcher{
         var find = false;
         for (var i = 0; i < sz; i++) {
             atlas = this.textAtlases[i];
-            find = atlas.getAEmpty(w, h, this.tmpAtlasPos);
+            find = atlas.getAEmpty(w, h, tmpAtlasPos);
             if (find) {
                 break;
             }
@@ -500,7 +499,7 @@ export class TextRender extends EventDispatcher{
             // 创建一个新的
             atlas = new TextAtlas()
             this.textAtlases.push(atlas);
-            find = atlas.getAEmpty(w, h, this.tmpAtlasPos);
+            find = atlas.getAEmpty(w, h, tmpAtlasPos);
             if (!find) {
                 throw 'err1'; //TODO
             }
@@ -508,7 +507,7 @@ export class TextRender extends EventDispatcher{
             this.cleanAtlases();
         }
         if (find) {
-            atlas.texture.addChar(data, this.tmpAtlasPos.x, this.tmpAtlasPos.y, ri.uv);
+            atlas.texture.addChar(data, tmpAtlasPos.x, tmpAtlasPos.y, ri.uv);
             ri.texture = atlas.texture;
         }
         return atlas;
@@ -684,3 +683,5 @@ export class TextRender extends EventDispatcher{
         return sp;
     }
 }
+
+const tmpAtlasPos = new Point();

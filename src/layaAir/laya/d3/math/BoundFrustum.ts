@@ -30,21 +30,6 @@ export enum FrustumCorner {
  * @zh BoundFrustum 类用于创建截锥体。
  */
 export class BoundFrustum implements IClone {
-	/** @internal */
-	private static _tempV30: Vector3 = new Vector3();
-	/** @internal */
-	private static _tempV31: Vector3 = new Vector3();
-	/** @internal */
-	private static _tempV32: Vector3 = new Vector3();
-	/** @internal */
-	private static _tempV33: Vector3 = new Vector3();
-	/** @internal */
-	private static _tempV34: Vector3 = new Vector3();
-	/** @internal */
-	private static _tempV35: Vector3 = new Vector3();
-	/** @internal */
-	private static _tempV36: Vector3 = new Vector3();
-
 	/**
 	 * @en Obtain 6 enclosing planes based on the matrix.
 	 * @param  m The matrix that describes the frustum.
@@ -314,20 +299,20 @@ export class BoundFrustum implements IClone {
 		var p2Nor: Vector3 = p2.normal;
 		var p3Nor: Vector3 = p3.normal;
 
-		Vector3.cross(p2Nor, p3Nor, BoundFrustum._tempV30);
-		Vector3.cross(p3Nor, p1Nor, BoundFrustum._tempV31);
-		Vector3.cross(p1Nor, p2Nor, BoundFrustum._tempV32);
+		Vector3.cross(p2Nor, p3Nor, _tempV30);
+		Vector3.cross(p3Nor, p1Nor, _tempV31);
+		Vector3.cross(p1Nor, p2Nor, _tempV32);
 
-		var a: number = Vector3.dot(p1Nor, BoundFrustum._tempV30);
-		var b: number = Vector3.dot(p2Nor, BoundFrustum._tempV31);
-		var c: number = Vector3.dot(p3Nor, BoundFrustum._tempV32);
+		var a: number = Vector3.dot(p1Nor, _tempV30);
+		var b: number = Vector3.dot(p2Nor, _tempV31);
+		var c: number = Vector3.dot(p3Nor, _tempV32);
 
-		Vector3.scale(BoundFrustum._tempV30, -p1.distance / a, BoundFrustum._tempV33);
-		Vector3.scale(BoundFrustum._tempV31, -p2.distance / b, BoundFrustum._tempV34);
-		Vector3.scale(BoundFrustum._tempV32, -p3.distance / c, BoundFrustum._tempV35);
+		Vector3.scale(_tempV30, -p1.distance / a, _tempV33);
+		Vector3.scale(_tempV31, -p2.distance / b, _tempV34);
+		Vector3.scale(_tempV32, -p3.distance / c, _tempV35);
 
-		Vector3.add(BoundFrustum._tempV33, BoundFrustum._tempV34, BoundFrustum._tempV36);
-		Vector3.add(BoundFrustum._tempV35, BoundFrustum._tempV36, out);
+		Vector3.add(_tempV33, _tempV34, _tempV36);
+		Vector3.add(_tempV35, _tempV36, out);
 	}
 
 	/**
@@ -466,7 +451,7 @@ export class BoundFrustum implements IClone {
 	 * - 0: 包围盒在截锥体外且不相交。
 	 */
 	containsBoundBox(box: BoundBox | Bounds): number {
-		var p: Vector3 = BoundFrustum._tempV30, n: Vector3 = BoundFrustum._tempV31;
+		var p: Vector3 = _tempV30, n: Vector3 = _tempV31;
 		var boxMin: Vector3 = box.min;
 		var boxMax: Vector3 = box.max;
 		var result: number = ContainmentType.Contains;
@@ -586,4 +571,10 @@ export class BoundFrustum implements IClone {
 	}
 }
 
-
+const _tempV30: Vector3 = new Vector3();
+const _tempV31: Vector3 = new Vector3();
+const _tempV32: Vector3 = new Vector3();
+const _tempV33: Vector3 = new Vector3();
+const _tempV34: Vector3 = new Vector3();
+const _tempV35: Vector3 = new Vector3();
+const _tempV36: Vector3 = new Vector3();

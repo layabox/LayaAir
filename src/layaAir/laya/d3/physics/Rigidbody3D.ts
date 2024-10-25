@@ -1,10 +1,8 @@
-import { Component } from "../../components/Component";
 import { Vector3 } from "../../maths/Vector3";
 import { PhysicsColliderComponent, PhysicsForceMode } from "./PhysicsColliderComponent";
 import { Laya3D } from "../../../Laya3D";
 import { IDynamicCollider } from "../../Physics3D/interface/IDynamicCollider";
 import { Scene3D } from "../core/scene/Scene3D";
-import { Utils3D } from "../utils/Utils3D";
 import { Quaternion } from "../../maths/Quaternion";
 import { EColliderCapable } from "../../Physics3D/physicsEnum/EColliderCapable";
 import { EPhysicsCapable } from "../../Physics3D/physicsEnum/EPhycisCapable";
@@ -416,8 +414,8 @@ export class Rigidbody3D extends PhysicsColliderComponent {
      * @param localOffset 受力点距离质点的偏移
      */
     applyForceXYZ(fx: number, fy: number, fz: number, localOffset: Vector3 = null): void {
-        Utils3D._tempV0.set(fx, fy, fz);
-        this.applyForce(Utils3D._tempV0, localOffset);
+        _tempV0.set(fx, fy, fz);
+        this.applyForce(_tempV0, localOffset);
     }
 
     /**
@@ -451,4 +449,4 @@ export class Rigidbody3D extends PhysicsColliderComponent {
 
 }
 
-
+const _tempV0: Vector3 = new Vector3();

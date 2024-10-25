@@ -108,8 +108,7 @@ export enum CameraEventFlags {
  * @zh Camera 类用于创建摄像机。
  */
 export class Camera extends BaseCamera {
-    /** @internal */
-    static _tempVector20: Vector2 = new Vector2();
+
     /** @internal*/
     static _context3DViewPortCatch: Viewport = new Viewport(0, 0, 0, 0);
     /**@internal */
@@ -1453,14 +1452,13 @@ export class Camera extends BaseCamera {
      * @param out  输出射线。
      */
     normalizedViewportPointToRay(point: Vector2, out: Ray): void {
-        var finalPoint: Vector2 = Camera._tempVector20;
         var vp: Viewport = this.normalizedViewport;
         point.x = point.x * Config3D.pixelRatio;
         point.y = point.y * Config3D.pixelRatio;
-        finalPoint.x = point.x * vp.width;
-        finalPoint.y = point.y * vp.height;
+        _tempVector20.x = point.x * vp.width;
+        _tempVector20.y = point.y * vp.height;
 
-        Picker.calculateCursorRay(finalPoint, this.viewport, this._projectionMatrix, this.viewMatrix, null, out);
+        Picker.calculateCursorRay(_tempVector20, this.viewport, this._projectionMatrix, this.viewMatrix, null, out);
     }
 
     /**
@@ -1610,3 +1608,5 @@ export class Camera extends BaseCamera {
     _boundFrustumBuffer: Float32Array;
 }
 
+
+const _tempVector20: Vector2 = new Vector2();
