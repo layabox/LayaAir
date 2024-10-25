@@ -172,10 +172,10 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
         let mat = context._curMat;
         let buffer = this._matBuffer;
         buffer[0] = mat.a;
-        buffer[1] = mat.b;
+        buffer[1] = - mat.c;
         buffer[2] = mat.tx + mat.a * px + mat.c * py;
-        buffer[3] = mat.c;
-        buffer[4] = mat.d;
+        buffer[3] = mat.b;
+        buffer[4] = - mat.d;
         buffer[5] = mat.ty + mat.b * px + mat.d * py;
         this._spriteShaderData.setBuffer(SpineShaderInit.NMatrix, buffer);
         Vector2.TempVector2.setValue(context.width, context.height);

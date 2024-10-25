@@ -116,9 +116,9 @@ vec4 getScreenPos(vec4 pos){
         vec3 up =u_NMatrix[0];
     #endif
     float x=up.x*pos.x+up.y*pos.y+up.z;
-    float y=down.x*pos.x+down.y*pos.y-down.z;
-    v_cliped = getClipedInfo(vec2(x,-y));
-    return vec4((x/u_size.x-0.5)*2.0,(y/u_size.y+0.5)*2.0,pos.z,1.0);
+    float y=down.x*pos.x+down.y*pos.y+down.z;
+    v_cliped = getClipedInfo(vec2(x,y));
+    return vec4((x/u_size.x-0.5)*2.0,(0.5-y/u_size.y)*2.0,pos.z,1.0);
 }
 
 
