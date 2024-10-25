@@ -82,8 +82,7 @@ export class BaseCamera extends Sprite3D {
     protected static _invertYProjectionMatrix: Matrix4x4 = new Matrix4x4();
     /**@internal */
     protected static _invertYProjectionViewMatrix: Matrix4x4 = new Matrix4x4();
-    /**@internal */
-    static _tempMatrix4x40: Matrix4x4 = new Matrix4x4();
+
     /**@internal */
     static CameraUBOData: UnifromBufferData;
     /**

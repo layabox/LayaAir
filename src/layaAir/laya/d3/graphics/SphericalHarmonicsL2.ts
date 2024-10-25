@@ -94,17 +94,16 @@ export class SphericalHarmonicsL2 {
     }
 }
 
+const _tempSHR: Float32Array = new Float32Array(9);
+const _tempSHG: Float32Array = new Float32Array(9);
+const _tempSHB: Float32Array = new Float32Array(9);
+
 /**
  * @internal
  * @en The `SphericalHarmonicsL2Generater` class is used for generating second-order spherical harmonics coefficients.
  * @zh `SphericalHarmonicsL2Generater` 类用于生成二阶球谐系数。
  */
 export class SphericalHarmonicsL2Generater {
-
-    private static _tempSHR: Float32Array = new Float32Array(9);
-    private static _tempSHG: Float32Array = new Float32Array(9);
-    private static _tempSHB: Float32Array = new Float32Array(9);
-
     /**
      * k0: 1/2  * sqrt(1/Pi)
      * k1: 1/3  * sqrt(3/Pi)
@@ -256,9 +255,9 @@ export class SphericalHarmonicsL2Generater {
         let width = cubemapSize;
         let height = cubemapSize;
 
-        let shr = this._tempSHR.fill(0);
-        let shg = this._tempSHG.fill(0);
-        let shb = this._tempSHB.fill(0);
+        let shr = _tempSHR.fill(0);
+        let shg = _tempSHG.fill(0);
+        let shb = _tempSHB.fill(0);
 
         let dir = new Vector3();
         for (let face = 0; face < 6; face++) {

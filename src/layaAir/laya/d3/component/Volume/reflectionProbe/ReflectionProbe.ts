@@ -46,13 +46,6 @@ export class ReflectionProbe extends Volume {
 		return ReflectionProbe.reflectionCount++;
 	}
 
-	//因为纹理数量问题 暂不支持探针混合
-	/**
-	 * @internal
-	 * @en Temporary Vector3 for calculations
-	 * @zh 用于计算的临时 Vector3
-	 */
-	static TEMPVECTOR3: Vector3 = new Vector3();
 	/**
 	 * @en Default HDR decode values
 	 * @zh 默认的 HDR 解码数据

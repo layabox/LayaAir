@@ -65,8 +65,7 @@ export class NavMeshObstacles extends NavModifleBase {
     /**@internal */
     static _defaltMin: Vector3;
     static _defaltMax: Vector3;
-    /**@internal */
-    static _TempVec3: Vector3;
+
     /**@internal */
     static _init_() {
         this._mapDatas = new Map<NavObstaclesMeshType, any>();
@@ -74,7 +73,6 @@ export class NavMeshObstacles extends NavModifleBase {
         this._mapDatas.set(NavObstaclesMeshType.CAPSULE, createObstacleData(16, 0));
         this._defaltMin = new Vector3(-0.5, -0.5, -0.5);
         this._defaltMax = new Vector3(0.5, 0.5, 0.5);
-        this._TempVec3 = new Vector3();
     }
 
     /**@internal */
@@ -199,12 +197,12 @@ export class NavMeshObstacles extends NavModifleBase {
     /**
      * @internal
      */
-    _refeashTranfrom(mat: Matrix4x4, min:Vector3,max:Vector3) {
+    _refeashTranfrom(mat: Matrix4x4, min: Vector3, max: Vector3) {
         if (this._meshType == NavObstaclesMeshType.BOX) {
             Matrix4x4.createAffineTransformation(this._center, Quaternion.DEFAULT, this._size, this._localMat);
         } else {
-            NavMeshObstacles._TempVec3.setValue(this.radius, this.height, this.radius);
-            Matrix4x4.createAffineTransformation(this._center, Quaternion.DEFAULT, NavMeshObstacles._TempVec3, this._localMat);
+            _tempVec3.setValue(this.radius, this.height, this.radius);
+            Matrix4x4.createAffineTransformation(this._center, Quaternion.DEFAULT, _tempVec3, this._localMat);
         }
         Matrix4x4.multiply(mat, this._localMat, this._localMat);
         NavigationUtils.transfromBound(this._localMat, NavMeshObstacles._defaltMin, NavMeshObstacles._defaltMax, min, max);
@@ -222,3 +220,5 @@ export class NavMeshObstacles extends NavModifleBase {
     }
 
 }
+
+const _tempVec3: Vector3 = new Vector3();

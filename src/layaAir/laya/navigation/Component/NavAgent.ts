@@ -42,15 +42,6 @@ export enum ObstacleAvoidanceType {
  */
 export class NavAgent extends Component {
     /**@internal */
-    private static HelpTemp: Vector3 = new Vector3();
-    /**@internal */
-    private static HelpTemp1: Vector3 = new Vector3();
-    /**@internal */
-    private static HelpTemp2: Vector3 = new Vector3();
-    /**@internal */
-    private static TempQuaternion: Quaternion = new Quaternion();
-
-    /**@internal */
     private _agentType: string = NavigationManager.defaltAgentName;
     /**@internal */
     _navManager: NavigationManager;
@@ -420,8 +411,8 @@ export class NavAgent extends Component {
     onUpdate(): void {
         if (this._crowAgent == null && !this._navAgentLinkAnim._active) return;
         let transform = (<Sprite3D>this.owner).transform;
-        const position = NavAgent.HelpTemp;
-        const dir = NavAgent.HelpTemp1;
+        const position = HelpTemp;
+        const dir = HelpTemp1;
         if (this._crowAgent) {
             this._crowAgent.getCurPos(position);
             let isNearerStart: boolean = false;
@@ -448,12 +439,10 @@ export class NavAgent extends Component {
         if (MathUtils3D.isZero(dir.length())) {
             return;
         }
-        let up = NavAgent.HelpTemp2;
-        transform.getUp(up);
+        transform.getUp(HelpTemp2);
         Vector3.normalize(dir, dir);
-        let roate = NavAgent.TempQuaternion;
-        Quaternion.rotationLookAt(dir, up, roate);
-        transform.rotation = roate;
+        Quaternion.rotationLookAt(dir, HelpTemp2, TempQuaternion);
+        transform.rotation = TempQuaternion;
     }
 
     /**
@@ -520,3 +509,8 @@ export class NavAgent extends Component {
         super._cloneTo(dest);
     }
 }
+
+const HelpTemp: Vector3 = new Vector3();
+const HelpTemp1: Vector3 = new Vector3();
+const HelpTemp2: Vector3 = new Vector3();
+const TempQuaternion: Quaternion = new Quaternion();

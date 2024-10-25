@@ -4,8 +4,8 @@ import { Camera } from "../../../core/Camera";
 import { BaseRender, RenderBitFlag } from "../../../core/render/BaseRender";
 import { InstanceRenderElement } from "../../../core/render/InstanceRenderElement";
 import { Scene3D } from "../../../core/scene/Scene3D";
-const tempVec = new Vector3();
-// const tempVec1 = new Vector3();
+
+
 /**
  * @en Class used to describe batched rendering nodes.
  * @zh 类用来描述合批的渲染节点。
@@ -237,3 +237,5 @@ export class BatchRender extends BaseRender {
 
     }
 }
+
+const tempVec = new Vector3();

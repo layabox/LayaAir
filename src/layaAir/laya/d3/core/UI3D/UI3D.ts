@@ -40,14 +40,6 @@ export class UI3D extends BaseRender {
      */
     declare owner: Sprite3D;
 
-    /**@intrtnal */
-    static TempMatrix = new Matrix4x4();
-    /**@internal */
-    static temp0: Vector3 = new Vector3();
-    /**@internal */
-    static temp1: Vector3 = new Vector3();
-    /**@internal */
-    static temp2: Vector3 = new Vector3();
     /**@internal */
     static DEBUG: boolean = false;
     //功能,将2DUI显示到3D面板上 并检测射线
@@ -316,9 +308,9 @@ export class UI3D extends BaseRender {
         let _tempRay = UI3D._ray;
         let u, v;
         if (!this._uisprite || !LayaEnv.isPlaying) return null;
-        this._matrix.invert(UI3D.TempMatrix);
-        Vector3.transformCoordinate(ray.origin, UI3D.TempMatrix, _tempRay.origin);
-        Vector3.TransformNormal(ray.direction, UI3D.TempMatrix, _tempRay.direction);
+        this._matrix.invert(tempMatrix);
+        Vector3.transformCoordinate(ray.origin, tempMatrix, _tempRay.origin);
+        Vector3.TransformNormal(ray.direction, tempMatrix, _tempRay.direction);
         _tempRay.direction.normalize();
 
         let normalizeHitWidth = 0;
@@ -494,3 +486,4 @@ export class UI3D extends BaseRender {
     }
 }
 
+const tempMatrix = new Matrix4x4();

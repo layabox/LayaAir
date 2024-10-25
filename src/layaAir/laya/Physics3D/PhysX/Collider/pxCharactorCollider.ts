@@ -294,8 +294,8 @@ export class pxCharactorCollider extends pxCollider implements ICharacterControl
      */
     getWorldTransform() {
         const v3 = this._pxController.getPosition();
-        pxDynamicCollider._tempTranslation.set(v3.x, v3.y, v3.z);
-        this.owner.transform.position = pxDynamicCollider._tempTranslation;
+        _tempTranslation.set(v3.x, v3.y, v3.z);
+        this.owner.transform.position = _tempTranslation;
     }
 
     /**
@@ -437,3 +437,5 @@ export class pxCharactorCollider extends pxCollider implements ICharacterControl
     }
 
 }
+
+const _tempTranslation = new Vector3();

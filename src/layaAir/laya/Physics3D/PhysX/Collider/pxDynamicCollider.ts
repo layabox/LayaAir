@@ -139,10 +139,6 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
         this._dynamicCapableMap.set(EColliderCapable.RigidBody_WorldOrientation, true);
     }
 
-    static _tempTranslation = new Vector3();
-
-    private static _tempRotation = new Quaternion();
-
     /**
      * @en Indicates whether the collider is kinematic.
      * @zh 表示碰撞体是否是运动学的。
@@ -198,8 +194,8 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
      */
     setWorldPosition(value: Vector3): void {
         const transform = this._pxActor.getGlobalPose();
-        pxDynamicCollider._tempRotation.setValue(transform.rotation.x, transform.rotation.y, transform.rotation.z, transform.rotation.w);
-        this._pxActor.setGlobalPose(this._transformTo(value, pxDynamicCollider._tempRotation), true);
+        _tempRotation.setValue(transform.rotation.x, transform.rotation.y, transform.rotation.z, transform.rotation.w);
+        this._pxActor.setGlobalPose(this._transformTo(value, _tempRotation), true);
     }
 
     /**
@@ -210,8 +206,8 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
      */
     setWorldRotation(value: Quaternion): void {
         const transform = this._pxActor.getGlobalPose();
-        pxDynamicCollider._tempTranslation.setValue(transform.translation.x, transform.translation.y, transform.translation.z);
-        this._pxActor.setGlobalPose(this._transformTo(pxDynamicCollider._tempTranslation, value), true);
+        _tempTranslation.setValue(transform.translation.x, transform.translation.y, transform.translation.z);
+        this._pxActor.setGlobalPose(this._transformTo(_tempTranslation, value), true);
     }
 
     /**
@@ -220,10 +216,10 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
      */
     getWorldTransform() {
         const transform = this._pxActor.getGlobalPose();
-        pxDynamicCollider._tempTranslation.set(transform.translation.x, transform.translation.y, transform.translation.z);
-        pxDynamicCollider._tempRotation.set(transform.rotation.x, transform.rotation.y, transform.rotation.z, transform.rotation.w);
-        this.owner.transform.position = pxDynamicCollider._tempTranslation;
-        this.owner.transform.rotation = pxDynamicCollider._tempRotation;
+        _tempTranslation.set(transform.translation.x, transform.translation.y, transform.translation.z);
+        _tempRotation.set(transform.rotation.x, transform.rotation.y, transform.rotation.z, transform.rotation.w);
+        this.owner.transform.position = _tempTranslation;
+        this.owner.transform.rotation = _tempRotation;
     }
 
     /**
@@ -275,8 +271,8 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
      */
     getLinearVelocity(): Vector3 {
         let velocity = this._pxActor.getLinearVelocity();
-        pxDynamicCollider._tempTranslation.set(velocity.x, velocity.y, velocity.z);
-        return pxDynamicCollider._tempTranslation;
+        _tempTranslation.set(velocity.x, velocity.y, velocity.z);
+        return _tempTranslation;
     }
 
     /**
@@ -297,8 +293,8 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
      */
     getAngularVelocity(): Vector3 {
         let angVelocity = this._pxActor.getAngularVelocity();
-        pxDynamicCollider._tempTranslation.set(angVelocity.x, angVelocity.y, angVelocity.z);
-        return pxDynamicCollider._tempTranslation;
+        _tempTranslation.set(angVelocity.x, angVelocity.y, angVelocity.z);
+        return _tempTranslation;
     }
 
     /**
@@ -478,13 +474,11 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
             return;
         }
 
-        const tempTranslation = pxDynamicCollider._tempTranslation;
-        const tempRotation = pxDynamicCollider._tempRotation;
         this.getWorldTransform();
         if (positionOrRotation instanceof Vector3) {
-            this._pxActor.setKinematicTarget(positionOrRotation, tempRotation);
+            this._pxActor.setKinematicTarget(positionOrRotation, _tempRotation);
         } else {
-            this._pxActor.setKinematicTarget(tempTranslation, positionOrRotation);
+            this._pxActor.setKinematicTarget(_tempTranslation, positionOrRotation);
         }
     }
 
@@ -501,3 +495,6 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
         super.destroy();
     }
 }
+
+const _tempRotation = new Quaternion();
+const _tempTranslation = new Vector3();

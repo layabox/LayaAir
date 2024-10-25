@@ -34,13 +34,6 @@ export type AnimatorParams = { [key: number]: number | boolean };
  * @zh `Animator` 类用于创建3D动画组件。
  */
 export class Animator extends Component {
-    /**@internal */
-    private static _tempVector31: Vector3 = new Vector3();
-    /**@internal */
-    private static _tempColor: Color = new Color();
-    /**@internal */
-    private static _tempQuaternion1: Quaternion = new Quaternion();
-
     /**
      * @en Culling mode: Always animate.
      * @zh 裁剪模式：始终播放动画。
@@ -659,10 +652,9 @@ export class Animator extends Component {
     private _applyRotation(nodeOwner: KeyframeNodeOwner, additive: boolean, weight: number, isFirstLayer: boolean, clipRot: Quaternion, localRotation: Quaternion): void {
         if (nodeOwner.updateMark === this._updateMark) {//一定非第一层
             if (additive) {
-                var tempQuat: Quaternion = Animator._tempQuaternion1;//使用临时四元数_tempQuaternion1，避免引用错乱
-                Utils3D.quaternionWeight(clipRot, weight, tempQuat);
-                tempQuat.normalize(tempQuat);
-                Quaternion.multiply(localRotation, tempQuat, localRotation);
+                Utils3D.quaternionWeight(clipRot, weight, _tempQuaternion1);
+                _tempQuaternion1.normalize(_tempQuaternion1);
+                Quaternion.multiply(localRotation, _tempQuaternion1, localRotation);
             } else {
                 Quaternion.lerp(localRotation, clipRot, weight, localRotation);
             }
@@ -680,10 +672,9 @@ export class Animator extends Component {
             } else {
                 defaultRot = nodeOwner.defaultValue;
                 if (additive) {
-                    tempQuat = Animator._tempQuaternion1;
-                    Utils3D.quaternionWeight(clipRot, weight, tempQuat);
-                    tempQuat.normalize(tempQuat);
-                    Quaternion.multiply(defaultRot, tempQuat, localRotation);
+                    Utils3D.quaternionWeight(clipRot, weight, _tempQuaternion1);
+                    _tempQuaternion1.normalize(_tempQuaternion1);
+                    Quaternion.multiply(defaultRot, _tempQuaternion1, localRotation);
                 } else {
                     Quaternion.lerp(defaultRot, clipRot, weight, localRotation);
                 }
@@ -697,11 +688,10 @@ export class Animator extends Component {
     private _applyScale(nodeOwner: KeyframeNodeOwner, additive: boolean, weight: number, isFirstLayer: boolean, clipSca: Vector3, localScale: Vector3): void {
         if (nodeOwner.updateMark === this._updateMark) {//一定非第一层
             if (additive) {
-                var scale: Vector3 = Animator._tempVector31;
-                Utils3D.scaleWeight(clipSca, weight, scale);
-                localScale.x = localScale.x * scale.x;
-                localScale.y = localScale.y * scale.y;
-                localScale.z = localScale.z * scale.z;
+                Utils3D.scaleWeight(clipSca, weight, _tempVector31);
+                localScale.x = localScale.x * _tempVector31.x;
+                localScale.y = localScale.y * _tempVector31.y;
+                localScale.z = localScale.z * _tempVector31.z;
             } else {
                 Utils3D.scaleBlend(localScale, clipSca, weight, localScale);
             }
@@ -720,11 +710,10 @@ export class Animator extends Component {
             } else {
                 defaultSca = nodeOwner.defaultValue;
                 if (additive) {
-                    scale = Animator._tempVector31;
-                    Utils3D.scaleWeight(clipSca, weight, scale);
-                    localScale.x = defaultSca.x * scale.x;
-                    localScale.y = defaultSca.y * scale.y;
-                    localScale.z = defaultSca.z * scale.z;
+                    Utils3D.scaleWeight(clipSca, weight, _tempVector31);
+                    localScale.x = defaultSca.x * _tempVector31.x;
+                    localScale.y = defaultSca.y * _tempVector31.y;
+                    localScale.z = defaultSca.z * _tempVector31.z;
                 } else {
                     Utils3D.scaleBlend(defaultSca, clipSca, weight, localScale);
                 }
@@ -1225,18 +1214,17 @@ export class Animator extends Component {
                                     break;
                             }
                             value = proPat[m];
-                            let tempColor = Animator._tempColor;
-                            tempColor.r = nodeOwner.defaultValue.x;
-                            tempColor.g = nodeOwner.defaultValue.y;
-                            tempColor.b = nodeOwner.defaultValue.z;
-                            tempColor.a = nodeOwner.defaultValue.w;
+                            _tempColor.r = nodeOwner.defaultValue.x;
+                            _tempColor.g = nodeOwner.defaultValue.y;
+                            _tempColor.b = nodeOwner.defaultValue.z;
+                            _tempColor.a = nodeOwner.defaultValue.w;
                             if (!nodeOwner.isMaterial) {
-                                pro && (pro[value] = tempColor);
+                                pro && (pro[value] = _tempColor);
                                 if (nodeOwner.callbackFun) {
                                     nodeOwner.animatorDataSetCallBack();
                                 }
                             } else {
-                                pro && pro.getColor(value) && (pro as Material).setColor(value, tempColor);
+                                pro && pro.getColor(value) && (pro as Material).setColor(value, _tempColor);
                             }
                             break;
                         default:
@@ -1797,4 +1785,6 @@ export class Animator extends Component {
     }
 }
 
-
+const _tempVector31: Vector3 = new Vector3();
+const _tempColor: Color = new Color();
+const _tempQuaternion1: Quaternion = new Quaternion();

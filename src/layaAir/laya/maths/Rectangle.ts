@@ -22,11 +22,6 @@ export class Rectangle implements IClone {
      */
     static TEMP: Rectangle = new Rectangle();
 
-    /** @private */
-    private static _temB: number[] = [];
-    /** @private */
-    private static _temA: number[] = [];
-
     /**
      * @en The x coordinate of the top-left corner of the rectangle.
      * @zh 矩形左上角的 X 轴坐标。
@@ -277,11 +272,10 @@ export class Rectangle implements IClone {
      * @return 顶点数据。
      */
     _getBoundPoints() {
-        var rst = Rectangle._temB;
-        rst.length = 0;
-        if (this.width == 0 || this.height == 0) return rst;
-        rst.push(this.x, this.y, this.x + this.width, this.y, this.x, this.y + this.height, this.x + this.width, this.y + this.height);
-        return rst;
+        _temB.length = 0;
+        if (this.width == 0 || this.height == 0) return _temB;
+        _temB.push(this.x, this.y, this.x + this.width, this.y, this.x, this.y + this.height, this.x + this.width, this.y + this.height);
+        return _temB;
     }
 
     /**
@@ -290,17 +284,16 @@ export class Rectangle implements IClone {
      * @zh 返回矩形的顶点数据。
      */
     static _getBoundPointS(x: number, y: number, width: number, height: number, sp?: { width: number, height?: number }): number[] {
-        var rst: any[] = Rectangle._temA;
-        rst.length = 0;
-        if (width == 0 || height == 0) return rst;
+        _temA.length = 0;
+        if (width == 0 || height == 0) return _temA;
         if (sp) {
             x *= sp.width;
             y *= sp.height;
             width *= sp.width;
             height *= sp.height;
         }
-        rst.push(x, y, x + width, y, x, y + height, x + width, y + height);
-        return rst;
+        _temA.push(x, y, x + width, y, x, y + height, x + width, y + height);
+        return _temA;
     }
 
     /**
@@ -370,3 +363,6 @@ export class Rectangle implements IClone {
         destObject.height = this.height;
     }
 }
+
+const _temB: number[] = [];
+const _temA: number[] = [];

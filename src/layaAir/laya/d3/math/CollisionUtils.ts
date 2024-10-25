@@ -11,22 +11,6 @@ import { Vector3 } from "../../maths/Vector3";
  * @zh Collision 类用于检测碰撞。
  */
 export class CollisionUtils {
-
-    /** @internal */
-    private static _tempV30: Vector3 = new Vector3();
-    /** @internal */
-    private static _tempV31: Vector3 = new Vector3();
-    /** @internal */
-    private static _tempV32: Vector3 = new Vector3();
-    /** @internal */
-    private static _tempV33: Vector3 = new Vector3();
-    /** @internal */
-    private static _tempV34: Vector3 = new Vector3();
-    /** @internal */
-    private static _tempV35: Vector3 = new Vector3();
-    /** @internal */
-    private static _tempV36: Vector3 = new Vector3();
-
     /**
      * @en constructor
      * @zh 构造方法
@@ -241,25 +225,25 @@ export class CollisionUtils {
         var v3eY: number = vertex3.y;
         var v3eZ: number = vertex3.z;
 
-        var _tempV30eX: number = CollisionUtils._tempV30.x;
-        var _tempV30eY: number = CollisionUtils._tempV30.y;
-        var _tempV30eZ: number = CollisionUtils._tempV30.z;
+        var _tempV30eX: number = _tempV30.x;
+        var _tempV30eY: number = _tempV30.y;
+        var _tempV30eZ: number = _tempV30.z;
 
         _tempV30eX = v2eX - v1eX;
         _tempV30eY = v2eY - v1eY;
         _tempV30eZ = v2eZ - v1eZ;
 
-        var _tempV31eX: number = CollisionUtils._tempV31.x;
-        var _tempV31eY: number = CollisionUtils._tempV31.y;
-        var _tempV31eZ: number = CollisionUtils._tempV31.z;
+        var _tempV31eX: number = _tempV31.x;
+        var _tempV31eY: number = _tempV31.y;
+        var _tempV31eZ: number = _tempV31.z;
 
         _tempV31eX = v3eX - v1eX;
         _tempV31eY = v3eY - v1eY;
         _tempV31eZ = v3eZ - v1eZ;
 
-        var _tempV32eX: number = CollisionUtils._tempV32.x;
-        var _tempV32eY: number = CollisionUtils._tempV32.y;
-        var _tempV32eZ: number = CollisionUtils._tempV32.z;
+        var _tempV32eX: number = _tempV32.x;
+        var _tempV32eY: number = _tempV32.y;
+        var _tempV32eZ: number = _tempV32.z;
 
         _tempV32eX = (rayDeY * _tempV31eZ) - (rayDeZ * _tempV31eY);
         _tempV32eY = (rayDeZ * _tempV31eX) - (rayDeX * _tempV31eZ);
@@ -275,9 +259,9 @@ export class CollisionUtils {
 
         var inversedeterminant: number = 1 / determinant;
 
-        var _tempV33eX: number = CollisionUtils._tempV33.x;
-        var _tempV33eY: number = CollisionUtils._tempV33.y;
-        var _tempV33eZ: number = CollisionUtils._tempV33.z;
+        var _tempV33eX: number = _tempV33.x;
+        var _tempV33eY: number = _tempV33.y;
+        var _tempV33eZ: number = _tempV33.z;
 
         _tempV33eX = rayOeX - v1eX;
         _tempV33eY = rayOeY - v1eY;
@@ -292,9 +276,9 @@ export class CollisionUtils {
             return false;
         }
 
-        var _tempV34eX: number = CollisionUtils._tempV34.x;
-        var _tempV34eY: number = CollisionUtils._tempV34.y;
-        var _tempV34eZ: number = CollisionUtils._tempV34.z;
+        var _tempV34eX: number = _tempV34.x;
+        var _tempV34eY: number = _tempV34.y;
+        var _tempV34eZ: number = _tempV34.z;
 
         _tempV34eX = (_tempV33eY * _tempV30eZ) - (_tempV33eZ * _tempV30eY);
         _tempV34eY = (_tempV33eZ * _tempV30eX) - (_tempV33eX * _tempV30eZ);
@@ -347,8 +331,8 @@ export class CollisionUtils {
             return false;
         }
 
-        Vector3.scale(ray.direction, distance, CollisionUtils._tempV30);
-        Vector3.add(ray.origin, CollisionUtils._tempV30, out);
+        Vector3.scale(ray.direction, distance, _tempV30);
+        Vector3.add(ray.origin, _tempV30, out);
         return true;
     }
 
@@ -364,10 +348,10 @@ export class CollisionUtils {
      */
     static intersectsRayAndPoint(ray: Ray, point: Vector3): boolean {
 
-        Vector3.subtract(ray.origin, point, CollisionUtils._tempV30);
+        Vector3.subtract(ray.origin, point, _tempV30);
 
-        var b: number = Vector3.dot(CollisionUtils._tempV30, ray.direction);
-        var c: number = Vector3.dot(CollisionUtils._tempV30, CollisionUtils._tempV30) - MathUtils3D.zeroTolerance;
+        var b: number = Vector3.dot(_tempV30, ray.direction);
+        var c: number = Vector3.dot(_tempV30, _tempV30) - MathUtils3D.zeroTolerance;
 
         if (c > 0 && b > 0)
             return false;
@@ -411,9 +395,9 @@ export class CollisionUtils {
         var ray2deY: number = ray2d.y;
         var ray2deZ: number = ray2d.z;
 
-        Vector3.cross(ray1d, ray2d, CollisionUtils._tempV30);
-        var tempV3: Vector3 = CollisionUtils._tempV30;
-        var denominator: number = Vector3.scalarLength(CollisionUtils._tempV30);
+        Vector3.cross(ray1d, ray2d, _tempV30);
+        var tempV3: Vector3 = _tempV30;
+        var denominator: number = Vector3.scalarLength(_tempV30);
 
         if (MathUtils3D.isZero(denominator)) {
 
@@ -444,21 +428,21 @@ export class CollisionUtils {
 
         var s: number = dets / denominator;
 
-        Vector3.scale(ray1d, s, CollisionUtils._tempV30);
-        Vector3.scale(ray2d, s, CollisionUtils._tempV31);
+        Vector3.scale(ray1d, s, _tempV30);
+        Vector3.scale(ray2d, s, _tempV31);
 
-        Vector3.add(ray1o, CollisionUtils._tempV30, CollisionUtils._tempV32);
-        Vector3.add(ray2o, CollisionUtils._tempV31, CollisionUtils._tempV33);
+        Vector3.add(ray1o, _tempV30, _tempV32);
+        Vector3.add(ray2o, _tempV31, _tempV33);
 
-        var point1e: Vector3 = CollisionUtils._tempV32;
-        var point2e: Vector3 = CollisionUtils._tempV33;
+        var point1e: Vector3 = _tempV32;
+        var point2e: Vector3 = _tempV33;
 
         if (!MathUtils3D.nearEqual(point2e.x, point1e.x) || !MathUtils3D.nearEqual(point2e.y, point1e.y) || !MathUtils3D.nearEqual(point2e.z, point1e.z)) {
             Vector3.ZERO.cloneTo(out);
             return false;
         }
 
-        out = CollisionUtils._tempV32;
+        out = _tempV32;
         return true;
     }
 
@@ -548,7 +532,7 @@ export class CollisionUtils {
             return false;
         }
 
-        var scaDis: Vector3 = CollisionUtils._tempV30;
+        var scaDis: Vector3 = _tempV30;
         Vector3.scale(ray.direction, distance, scaDis);
         Vector3.add(ray.origin, scaDis, out);
         return true;
@@ -703,10 +687,10 @@ export class CollisionUtils {
             Vector3.ZERO.cloneTo(out);
             return distance;
         }
-        Vector3.scale(ray.direction, distance, CollisionUtils._tempV30);
-        Vector3.add(ray.origin, CollisionUtils._tempV30, CollisionUtils._tempV31);
+        Vector3.scale(ray.direction, distance, _tempV30);
+        Vector3.add(ray.origin, _tempV30, _tempV31);
 
-        CollisionUtils._tempV31.cloneTo(out);
+        _tempV31.cloneTo(out);
 
         return distance;
     }
@@ -724,10 +708,10 @@ export class CollisionUtils {
     static intersectsRayAndSphereRD(ray: Ray, sphere: BoundSphere): number {
 
         var sphereR: number = sphere.radius;
-        Vector3.subtract(ray.origin, sphere.center, CollisionUtils._tempV30);
+        Vector3.subtract(ray.origin, sphere.center, _tempV30);
 
-        var b: number = Vector3.dot(CollisionUtils._tempV30, ray.direction);
-        var c: number = Vector3.dot(CollisionUtils._tempV30, CollisionUtils._tempV30) - (sphereR * sphereR);
+        var b: number = Vector3.dot(_tempV30, ray.direction);
+        var c: number = Vector3.dot(_tempV30, _tempV30) - (sphereR * sphereR);
 
         if (c > 0 && b > 0) {
             return -1;
@@ -767,10 +751,10 @@ export class CollisionUtils {
             return distance;
         }
 
-        Vector3.scale(ray.direction, distance, CollisionUtils._tempV30);
-        Vector3.add(ray.origin, CollisionUtils._tempV30, CollisionUtils._tempV31);
+        Vector3.scale(ray.direction, distance, _tempV30);
+        Vector3.add(ray.origin, _tempV30, _tempV31);
 
-        CollisionUtils._tempV31.cloneTo(out);
+        _tempV31.cloneTo(out);
         return distance;
     }
 
@@ -793,10 +777,10 @@ export class CollisionUtils {
         var sphereC: Vector3 = sphere.center;
         var sphereR: number = sphere.radius;
 
-        CollisionUtils.closestPointPointTriangle(sphereC, vertex1, vertex2, vertex3, CollisionUtils._tempV30);
-        Vector3.subtract(CollisionUtils._tempV30, sphereC, CollisionUtils._tempV31);
+        CollisionUtils.closestPointPointTriangle(sphereC, vertex1, vertex2, vertex3, _tempV30);
+        Vector3.subtract(_tempV30, sphereC, _tempV31);
 
-        var dot: number = Vector3.dot(CollisionUtils._tempV31, CollisionUtils._tempV31);
+        var dot: number = Vector3.dot(_tempV31, _tempV31);
 
         return dot <= sphereR * sphereR;
     }
@@ -839,9 +823,9 @@ export class CollisionUtils {
 
     static intersectsPlaneAndPlane(plane1: Plane, plane2: Plane): boolean {
 
-        Vector3.cross(plane1.normal, plane2.normal, CollisionUtils._tempV30);
+        Vector3.cross(plane1.normal, plane2.normal, _tempV30);
 
-        var denominator: number = Vector3.dot(CollisionUtils._tempV30, CollisionUtils._tempV30);
+        var denominator: number = Vector3.dot(_tempV30, _tempV30);
 
         if (MathUtils3D.isZero(denominator))
             return false;
@@ -866,19 +850,19 @@ export class CollisionUtils {
         var plane1nor: Vector3 = plane1.normal;
         var plane2nor: Vector3 = plane2.normal;
 
-        Vector3.cross(plane1nor, plane2nor, CollisionUtils._tempV34);
-        var denominator: number = Vector3.dot(CollisionUtils._tempV34, CollisionUtils._tempV34);
+        Vector3.cross(plane1nor, plane2nor, _tempV34);
+        var denominator: number = Vector3.dot(_tempV34, _tempV34);
 
         if (MathUtils3D.isZero(denominator))
             return false;
 
-        Vector3.scale(plane2nor, plane1.distance, CollisionUtils._tempV30);
-        Vector3.scale(plane1nor, plane2.distance, CollisionUtils._tempV31);
-        Vector3.subtract(CollisionUtils._tempV30, CollisionUtils._tempV31, CollisionUtils._tempV32);
-        Vector3.cross(CollisionUtils._tempV32, CollisionUtils._tempV34, CollisionUtils._tempV33);
+        Vector3.scale(plane2nor, plane1.distance, _tempV30);
+        Vector3.scale(plane1nor, plane2.distance, _tempV31);
+        Vector3.subtract(_tempV30, _tempV31, _tempV32);
+        Vector3.cross(_tempV32, _tempV34, _tempV33);
 
-        Vector3.normalize(CollisionUtils._tempV34, CollisionUtils._tempV34);
-        line = new Ray(CollisionUtils._tempV33, CollisionUtils._tempV34);
+        Vector3.normalize(_tempV34, _tempV34);
+        line = new Ray(_tempV33, _tempV34);
 
         return true;
     }
@@ -918,19 +902,19 @@ export class CollisionUtils {
         var boxMaxeY: number = boxMaxe.y;
         var boxMaxeZ: number = boxMaxe.z;
 
-        CollisionUtils._tempV30.x = (planeNoreX > 0) ? boxMineX : boxMaxeX;
-        CollisionUtils._tempV30.y = (planeNoreY > 0) ? boxMineY : boxMaxeY;
-        CollisionUtils._tempV30.z = (planeNoreZ > 0) ? boxMineZ : boxMaxeZ;
+        _tempV30.x = (planeNoreX > 0) ? boxMineX : boxMaxeX;
+        _tempV30.y = (planeNoreY > 0) ? boxMineY : boxMaxeY;
+        _tempV30.z = (planeNoreZ > 0) ? boxMineZ : boxMaxeZ;
 
-        CollisionUtils._tempV31.x = (planeNoreX > 0) ? boxMaxeX : boxMineX;
-        CollisionUtils._tempV31.y = (planeNoreY > 0) ? boxMaxeY : boxMineY;
-        CollisionUtils._tempV31.z = (planeNoreZ > 0) ? boxMaxeZ : boxMineZ;
+        _tempV31.x = (planeNoreX > 0) ? boxMaxeX : boxMineX;
+        _tempV31.y = (planeNoreY > 0) ? boxMaxeY : boxMineY;
+        _tempV31.z = (planeNoreZ > 0) ? boxMaxeZ : boxMineZ;
 
-        var distance: number = Vector3.dot(planeNor, CollisionUtils._tempV30);
+        var distance: number = Vector3.dot(planeNor, _tempV30);
         if (distance + planeD > 0)
             return Plane.PlaneIntersectionType_Front;
 
-        distance = Vector3.dot(planeNor, CollisionUtils._tempV31);
+        distance = Vector3.dot(planeNor, _tempV31);
         if (distance + planeD < 0)
             return Plane.PlaneIntersectionType_Back;
 
@@ -998,7 +982,7 @@ export class CollisionUtils {
     static intersectsBoxAndSphere(box: BoundBox, sphere: BoundSphere): boolean {
         var center: Vector3 = sphere.center;
         var radius: number = sphere.radius;
-        var nearest: Vector3 = CollisionUtils._tempV30;
+        var nearest: Vector3 = _tempV30;
         Vector3.Clamp(center, box.min, box.max, nearest);
         var distance: number = Vector3.distanceSquared(center, nearest);
         return distance <= radius * radius;
@@ -1116,8 +1100,8 @@ export class CollisionUtils {
 
         var sphereR: number = sphere.radius;
 
-        Vector3.Clamp(sphereC, boxMin, boxMax, CollisionUtils._tempV30);
-        var distance: number = Vector3.distanceSquared(sphereC, CollisionUtils._tempV30);
+        Vector3.Clamp(sphereC, boxMin, boxMax, _tempV30);
+        var distance: number = Vector3.distanceSquared(sphereC, _tempV30);
 
         if (distance > sphereR * sphereR)
             return ContainmentType.Disjoint;
@@ -1205,7 +1189,7 @@ export class CollisionUtils {
         var boxMaxeY: number = boxMax.y;
         var boxMaxeZ: number = boxMax.z;
 
-        var _tempV30e: Vector3 = CollisionUtils._tempV30;
+        var _tempV30e: Vector3 = _tempV30;
         var _tempV30eX: number = _tempV30e.x;
         var _tempV30eY: number = _tempV30e.y;
         var _tempV30eZ: number = _tempV30e.z;
@@ -1218,49 +1202,49 @@ export class CollisionUtils {
         _tempV30eX = sphereCeX - boxMineX;
         _tempV30eY = sphereCeY - boxMaxeY;
         _tempV30eZ = sphereCeZ - boxMaxeZ;
-        if (Vector3.scalarLengthSquared(CollisionUtils._tempV30) > radiusSquared)
+        if (Vector3.scalarLengthSquared(_tempV30) > radiusSquared)
             return ContainmentType.Intersects;
 
         _tempV30eX = sphereCeX - boxMaxeX;
         _tempV30eY = sphereCeY - boxMaxeY;
         _tempV30eZ = sphereCeZ - boxMaxeZ;
-        if (Vector3.scalarLengthSquared(CollisionUtils._tempV30) > radiusSquared)
+        if (Vector3.scalarLengthSquared(_tempV30) > radiusSquared)
             return ContainmentType.Intersects;
 
         _tempV30eX = sphereCeX - boxMaxeX;
         _tempV30eY = sphereCeY - boxMineY;
         _tempV30eZ = sphereCeZ - boxMaxeZ;
-        if (Vector3.scalarLengthSquared(CollisionUtils._tempV30) > radiusSquared)
+        if (Vector3.scalarLengthSquared(_tempV30) > radiusSquared)
             return ContainmentType.Intersects;
 
         _tempV30eX = sphereCeX - boxMineX;
         _tempV30eY = sphereCeY - boxMineY;
         _tempV30eZ = sphereCeZ - boxMaxeZ;
-        if (Vector3.scalarLengthSquared(CollisionUtils._tempV30) > radiusSquared)
+        if (Vector3.scalarLengthSquared(_tempV30) > radiusSquared)
             return ContainmentType.Intersects;
 
         _tempV30eX = sphereCeX - boxMineX;
         _tempV30eY = sphereCeY - boxMaxeY;
         _tempV30eZ = sphereCeZ - boxMineZ;
-        if (Vector3.scalarLengthSquared(CollisionUtils._tempV30) > radiusSquared)
+        if (Vector3.scalarLengthSquared(_tempV30) > radiusSquared)
             return ContainmentType.Intersects;
 
         _tempV30eX = sphereCeX - boxMaxeX;
         _tempV30eY = sphereCeY - boxMaxeY;
         _tempV30eZ = sphereCeZ - boxMineZ;
-        if (Vector3.scalarLengthSquared(CollisionUtils._tempV30) > radiusSquared)
+        if (Vector3.scalarLengthSquared(_tempV30) > radiusSquared)
             return ContainmentType.Intersects;
 
         _tempV30eX = sphereCeX - boxMaxeX;
         _tempV30eY = sphereCeY - boxMineY;
         _tempV30eZ = sphereCeZ - boxMineZ;
-        if (Vector3.scalarLengthSquared(CollisionUtils._tempV30) > radiusSquared)
+        if (Vector3.scalarLengthSquared(_tempV30) > radiusSquared)
             return ContainmentType.Intersects;
 
         _tempV30eX = sphereCeX - boxMineX;
         _tempV30eY = sphereCeY - boxMineY;
         _tempV30eZ = sphereCeZ - boxMineZ;
-        if (Vector3.scalarLengthSquared(CollisionUtils._tempV30) > radiusSquared)
+        if (Vector3.scalarLengthSquared(_tempV30) > radiusSquared)
             return ContainmentType.Intersects;
 
         return ContainmentType.Contains;
@@ -1310,19 +1294,19 @@ export class CollisionUtils {
      */
     static closestPointPointTriangle(point: Vector3, vertex1: Vector3, vertex2: Vector3, vertex3: Vector3, out: Vector3): void {
 
-        Vector3.subtract(vertex2, vertex1, CollisionUtils._tempV30);
-        Vector3.subtract(vertex3, vertex1, CollisionUtils._tempV31);
+        Vector3.subtract(vertex2, vertex1, _tempV30);
+        Vector3.subtract(vertex3, vertex1, _tempV31);
 
-        Vector3.subtract(point, vertex1, CollisionUtils._tempV32);
-        Vector3.subtract(point, vertex2, CollisionUtils._tempV33);
-        Vector3.subtract(point, vertex3, CollisionUtils._tempV34);
+        Vector3.subtract(point, vertex1, _tempV32);
+        Vector3.subtract(point, vertex2, _tempV33);
+        Vector3.subtract(point, vertex3, _tempV34);
 
-        var d1: number = Vector3.dot(CollisionUtils._tempV30, CollisionUtils._tempV32);
-        var d2: number = Vector3.dot(CollisionUtils._tempV31, CollisionUtils._tempV32);
-        var d3: number = Vector3.dot(CollisionUtils._tempV30, CollisionUtils._tempV33);
-        var d4: number = Vector3.dot(CollisionUtils._tempV31, CollisionUtils._tempV33);
-        var d5: number = Vector3.dot(CollisionUtils._tempV30, CollisionUtils._tempV34);
-        var d6: number = Vector3.dot(CollisionUtils._tempV31, CollisionUtils._tempV34);
+        var d1: number = Vector3.dot(_tempV30, _tempV32);
+        var d2: number = Vector3.dot(_tempV31, _tempV32);
+        var d3: number = Vector3.dot(_tempV30, _tempV33);
+        var d4: number = Vector3.dot(_tempV31, _tempV33);
+        var d5: number = Vector3.dot(_tempV30, _tempV34);
+        var d6: number = Vector3.dot(_tempV31, _tempV34);
 
         if (d1 <= 0 && d2 <= 0) {
             vertex1.cloneTo(out);
@@ -1337,7 +1321,7 @@ export class CollisionUtils {
         var vc: number = d1 * d4 - d3 * d2;
         if (vc <= 0 && d1 >= 0 && d3 <= 0) {
             var v: number = d1 / (d1 - d3);
-            Vector3.scale(CollisionUtils._tempV30, v, out);
+            Vector3.scale(_tempV30, v, out);
             Vector3.add(vertex1, out, out);
             return;
         }
@@ -1350,7 +1334,7 @@ export class CollisionUtils {
         var vb: number = d5 * d2 - d1 * d6;
         if (vb <= 0 && d2 >= 0 && d6 <= 0) {
             var w: number = d2 / (d2 - d6);
-            Vector3.scale(CollisionUtils._tempV31, w, out);
+            Vector3.scale(_tempV31, w, out);
             Vector3.add(vertex1, out, out);
             return;
         }
@@ -1367,9 +1351,9 @@ export class CollisionUtils {
         var denom: number = 1 / (va + vb + vc);
         var v2: number = vb * denom;
         var w2: number = vc * denom;
-        Vector3.scale(CollisionUtils._tempV30, v2, CollisionUtils._tempV35);
-        Vector3.scale(CollisionUtils._tempV31, w2, CollisionUtils._tempV36);
-        Vector3.add(CollisionUtils._tempV35, CollisionUtils._tempV36, out);
+        Vector3.scale(_tempV30, v2, _tempV35);
+        Vector3.scale(_tempV31, w2, _tempV36);
+        Vector3.add(_tempV35, _tempV36, out);
         Vector3.add(vertex1, out, out);
     }
 
@@ -1388,8 +1372,8 @@ export class CollisionUtils {
         var planeN: Vector3 = plane.normal;
         var t: number = Vector3.dot(planeN, point) - plane.distance;
 
-        Vector3.scale(planeN, t, CollisionUtils._tempV30);
-        Vector3.subtract(point, CollisionUtils._tempV30, out);
+        Vector3.scale(planeN, t, _tempV30);
+        Vector3.subtract(point, _tempV30, out);
     }
 
     /**
@@ -1403,8 +1387,8 @@ export class CollisionUtils {
      * @param out 包围盒上的最近点。
      */
     static closestPointBoxPoint(box: BoundBox, point: Vector3, out: Vector3): void {
-        Vector3.max(point, box.min, CollisionUtils._tempV30);
-        Vector3.min(CollisionUtils._tempV30, box.max, out);
+        Vector3.max(point, box.min, _tempV30);
+        Vector3.min(_tempV30, box.max, out);
     }
 
     /**
@@ -1449,5 +1433,10 @@ export class CollisionUtils {
 
 }
 
-
-
+const _tempV30: Vector3 = new Vector3();
+const _tempV31: Vector3 = new Vector3();
+const _tempV32: Vector3 = new Vector3();
+const _tempV33: Vector3 = new Vector3();
+const _tempV34: Vector3 = new Vector3();
+const _tempV35: Vector3 = new Vector3();
+const _tempV36: Vector3 = new Vector3();

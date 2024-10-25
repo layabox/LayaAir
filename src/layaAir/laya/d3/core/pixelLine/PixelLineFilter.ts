@@ -18,11 +18,6 @@ import { PixelLineVertex } from "./PixelLineVertex";
  * @zh `PixelLineFilter` 类用于线过滤器。
  */
 export class PixelLineFilter extends GeometryElement {
-	/** @private */
-	private static _tempVector0: Vector3 = new Vector3();
-	/** @private */
-	private static _tempVector1: Vector3 = new Vector3();
-
 	/**@internal */
 	private static _type: number = GeometryElement._typeCounter++;
 
@@ -74,8 +69,8 @@ export class PixelLineFilter extends GeometryElement {
 		this.bufferState = bufferState;
 		this.bufferState.applyState([this._vertexBuffer], null);
 
-		var min: Vector3 = PixelLineFilter._tempVector0;
-		var max: Vector3 = PixelLineFilter._tempVector1;
+		var min: Vector3 = _tempVector0;
+		var max: Vector3 = _tempVector1;
 		min.setValue(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE);
 		max.setValue(-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE);
 		this._bounds = new Bounds(min, max);
@@ -186,8 +181,8 @@ export class PixelLineFilter extends GeometryElement {
 	_reCalculateBound(): void {
 		if (this._calculateBound) {
 			var vertices: Float32Array = this._vertices;
-			var min: Vector3 = PixelLineFilter._tempVector0;
-			var max: Vector3 = PixelLineFilter._tempVector1;
+			var min: Vector3 = _tempVector0;
+			var max: Vector3 = _tempVector1;
 			min.setValue(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE);
 			max.setValue(-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE);
 			for (var i: number = 0; i < this._lineCount * 2; ++i) {
@@ -345,3 +340,5 @@ export class PixelLineFilter extends GeometryElement {
 	}
 }
 
+const _tempVector0: Vector3 = new Vector3();
+const _tempVector1: Vector3 = new Vector3();

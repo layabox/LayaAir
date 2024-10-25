@@ -533,9 +533,9 @@ export class RTTransform3D extends Transform3D {
      */
     translate(translation: Vector3, isLocal: boolean = true): void {
         if (isLocal) {
-            Matrix4x4.createFromQuaternion(this.localRotation, Transform3D._tempMatrix0);
-            Vector3.transformCoordinate(translation, Transform3D._tempMatrix0, Transform3D._tempVector30);
-            Vector3.add(this.localPosition, Transform3D._tempVector30, this._localPosition);
+            Matrix4x4.createFromQuaternion(this.localRotation, _tempMatrix0);
+            Vector3.transformCoordinate(translation, _tempMatrix0, _tempVector30);
+            Vector3.add(this.localPosition, _tempVector30, this._localPosition);
             this.localPosition = this._localPosition;
         } else {
             Vector3.add(this.position, translation, this._position);
@@ -554,16 +554,16 @@ export class RTTransform3D extends Transform3D {
         if (isRadian) {
             rot = rotation;
         } else {
-            Vector3.scale(rotation, Math.PI / 180.0, Transform3D._tempVector30);
-            rot = Transform3D._tempVector30;
+            Vector3.scale(rotation, Math.PI / 180.0, _tempVector30);
+            rot = _tempVector30;
         }
 
-        Quaternion.createFromYawPitchRoll(rot.y, rot.x, rot.z, Transform3D._tempQuaternion0);
+        Quaternion.createFromYawPitchRoll(rot.y, rot.x, rot.z, _tempQuaternion0);
         if (isLocal) {
-            Quaternion.multiply(this.localRotation, Transform3D._tempQuaternion0, this._localRotation);
+            Quaternion.multiply(this.localRotation, _tempQuaternion0, this._localRotation);
             this.localRotation = this._localRotation;
         } else {
-            Quaternion.multiply(Transform3D._tempQuaternion0, this.rotation, this._rotation);
+            Quaternion.multiply(_tempQuaternion0, this.rotation, this._rotation);
             this.rotation = this._rotation;
         }
     }
@@ -588,3 +588,7 @@ export class RTTransform3D extends Transform3D {
         this._nativeObj.setWorldLossyScale();
     }
 }
+
+const _tempVector30: Vector3 = new Vector3();
+const _tempQuaternion0: Quaternion = new Quaternion();
+const _tempMatrix0: Matrix4x4 = new Matrix4x4();

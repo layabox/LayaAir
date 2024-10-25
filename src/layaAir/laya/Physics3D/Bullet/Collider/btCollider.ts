@@ -1,6 +1,4 @@
 import { Transform3D } from "../../../d3/core/Transform3D";
-import { Matrix4x4 } from "../../../maths/Matrix4x4";
-import { Quaternion } from "../../../maths/Quaternion";
 import { Vector3 } from "../../../maths/Vector3";
 import { ICollider } from "../../interface/ICollider";
 import { btColliderShape } from "../Shape/btColliderShape";
@@ -57,14 +55,6 @@ export class btCollider implements ICollider {
     protected static _btVector30: number;
     /** @internal */
     protected static _btQuaternion0: number;
-    /** @internal */
-    protected static _tempVector30: Vector3;
-    /** @internal */
-    protected static _tempQuaternion0: Quaternion;
-    /** @internal */
-    protected static _tempQuaternion1: Quaternion;
-    /** @internal */
-    protected static _tempMatrix4x40: Matrix4x4;
 
     /**
      * @en The underlying Bullet physics collider object.
@@ -178,10 +168,6 @@ export class btCollider implements ICollider {
         let bt = btPhysicsCreateUtil._bt;
         btCollider._btVector30 = bt.btVector3_create(0, 0, 0);
         btCollider._btQuaternion0 = bt.btQuaternion_create(0, 0, 0, 1);
-        btCollider._tempVector30 = new Vector3();
-        btCollider._tempQuaternion0 = new Quaternion();
-        btCollider._tempQuaternion1 = new Quaternion();
-        btCollider._tempMatrix4x40 = new Matrix4x4();
     }
 
     /**
@@ -413,10 +399,9 @@ export class btCollider implements ICollider {
             //position.x-=pxoff; position.y-=pyoff; position.z-=pzoff; 这里错了，-=会修改模型位置，
             var btPosition = btCollider._btVector30;
             if (shapeOffset.x !== 0 || shapeOffset.y !== 0 || shapeOffset.z !== 0) {
-                var physicPosition = btCollider._tempVector30;
                 var worldMat = transform.worldMatrix;
-                Vector3.transformCoordinate(shapeOffset, worldMat, physicPosition);
-                bt.btVector3_setValue(btPosition, physicPosition.x, physicPosition.y, physicPosition.z);
+                Vector3.transformCoordinate(shapeOffset, worldMat, _tempVector30);
+                bt.btVector3_setValue(btPosition, _tempVector30.x, _tempVector30.y, _tempVector30.z);
             } else {
                 bt.btVector3_setValue(btPosition, position.x - pxoff, position.y - pyoff, position.z - pzoff);
             }
@@ -493,15 +478,14 @@ export class btCollider implements ICollider {
 
         if (localOffset.x !== 0 || localOffset.y !== 0 || localOffset.z !== 0) {
             var btScale: number = bt.btCollisionShape_getLocalScaling(colliderShape._btShape);
-            var rotShapePosition = btCollider._tempVector30;
-            rotShapePosition.x = localOffset.x * bt.btVector3_x(btScale);
-            rotShapePosition.y = localOffset.y * bt.btVector3_y(btScale);
-            rotShapePosition.z = localOffset.z * bt.btVector3_z(btScale);
-            Vector3.transformQuat(rotShapePosition, rotation, rotShapePosition);
-            position.x = bt.btVector3_x(btPosition) - rotShapePosition.x;
+            _tempVector30.x = localOffset.x * bt.btVector3_x(btScale);
+            _tempVector30.y = localOffset.y * bt.btVector3_y(btScale);
+            _tempVector30.z = localOffset.z * bt.btVector3_z(btScale);
+            Vector3.transformQuat(_tempVector30, rotation, _tempVector30);
+            position.x = bt.btVector3_x(btPosition) - _tempVector30.x;
             //TODO 临时加一个0.04，对一个人来说0.04的margin太大了，足以把脚陷入地下，所以先加回来
-            position.y = bt.btVector3_y(btPosition) - rotShapePosition.y + addmargin;
-            position.z = bt.btVector3_z(btPosition) - rotShapePosition.z;
+            position.y = bt.btVector3_y(btPosition) - _tempVector30.y + addmargin;
+            position.z = bt.btVector3_z(btPosition) - _tempVector30.z;
         } else {
             position.x = bt.btVector3_x(btPosition);
             position.y = bt.btVector3_y(btPosition);
@@ -619,3 +603,5 @@ export class btCollider implements ICollider {
         }
     }
 }
+
+const _tempVector30: Vector3 = new Vector3();

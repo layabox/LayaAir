@@ -13,21 +13,6 @@ import { Sprite3D } from "./Sprite3D";
  * @zh `Transform3D` 类用于实现3D变换。
  */
 export class Transform3D extends EventDispatcher {
-	/** @internal */
-	protected static _tempVector30: Vector3 = new Vector3();
-	/** @internal */
-	protected static _tempQuaternion0: Quaternion = new Quaternion();
-	/** @internal */
-	protected static _tempMatrix0: Matrix4x4 = new Matrix4x4();
-	/** @internal */
-	protected static _tempMatrix3x30: Matrix3x3 = new Matrix3x3();
-	/** @internal */
-	protected static _tempMatrix3x31: Matrix3x3 = new Matrix3x3();
-	/** @internal */
-	protected static _tempMatrix3x32: Matrix3x3 = new Matrix3x3();
-	/** @internal */
-	protected static _tempMatrix3x33: Matrix3x3 = new Matrix3x3();
-
 	/**@internal */
 	static TRANSFORM_LOCALQUATERNION: number = 0x01;
 	/**@internal */
@@ -380,8 +365,8 @@ export class Transform3D extends EventDispatcher {
 	 */
 	get localRotationEuler(): Vector3 {
 		if (this._getTransformFlag(Transform3D.TRANSFORM_LOCALEULER)) {
-			this._localRotation.getYawPitchRoll(Transform3D._tempVector30);
-			var euler: Vector3 = Transform3D._tempVector30;
+			this._localRotation.getYawPitchRoll(_tempVector30);
+			var euler: Vector3 = _tempVector30;
 			var localRotationEuler: Vector3 = this._localRotationEuler;
 			localRotationEuler.x = euler.y * Transform3D._angleToRandin;
 			localRotationEuler.y = euler.x * Transform3D._angleToRandin;
@@ -443,7 +428,7 @@ export class Transform3D extends EventDispatcher {
 
 	set position(value: Vector3) {
 		if (this._parent != null) {
-			var parentInvMat: Matrix4x4 = Transform3D._tempMatrix0;
+			var parentInvMat: Matrix4x4 = _tempMatrix0;
 			this._parent.worldMatrix.invert(parentInvMat);
 			Vector3.transformCoordinate(value, parentInvMat, this._localPosition);
 		}
@@ -475,8 +460,8 @@ export class Transform3D extends EventDispatcher {
 
 	set rotation(value: Quaternion) {
 		if (this._parent != null) {
-			this._parent.rotation.invert(Transform3D._tempQuaternion0);
-			Quaternion.multiply(Transform3D._tempQuaternion0, value, this._localRotation);
+			this._parent.rotation.invert(_tempQuaternion0);
+			Quaternion.multiply(_tempQuaternion0, value, this._localRotation);
 		} else {
 			value.cloneTo(this._localRotation);
 		}
@@ -494,8 +479,8 @@ export class Transform3D extends EventDispatcher {
 	 */
 	get rotationEuler(): Vector3 {
 		if (this._getTransformFlag(Transform3D.TRANSFORM_WORLDEULER)) {
-			this.rotation.getYawPitchRoll(Transform3D._tempVector30);//使用rotation属性,可能需要更新
-			var eulerE: Vector3 = Transform3D._tempVector30;
+			this.rotation.getYawPitchRoll(_tempVector30);//使用rotation属性,可能需要更新
+			var eulerE: Vector3 = _tempVector30;
 			var rotationEulerE: Vector3 = this._rotationEuler;
 			rotationEulerE.x = eulerE.y * Transform3D._angleToRandin;
 			rotationEulerE.y = eulerE.x * Transform3D._angleToRandin;
@@ -574,10 +559,10 @@ export class Transform3D extends EventDispatcher {
 	 * @internal
 	 */
 	_getScaleMatrix(): Matrix3x3 {
-		var invRotation: Quaternion = Transform3D._tempQuaternion0;
-		var invRotationMat: Matrix3x3 = Transform3D._tempMatrix3x30;
-		var worldRotScaMat: Matrix3x3 = Transform3D._tempMatrix3x31;
-		var scaMat: Matrix3x3 = Transform3D._tempMatrix3x32;
+		var invRotation: Quaternion = _tempQuaternion0;
+		var invRotationMat: Matrix3x3 = _tempMatrix3x30;
+		var worldRotScaMat: Matrix3x3 = _tempMatrix3x31;
+		var scaMat: Matrix3x3 = _tempMatrix3x32;
 		Matrix3x3.createFromMatrix4x4(this.worldMatrix, worldRotScaMat)
 		this.rotation.invert(invRotation);
 		Matrix3x3.createRotationQuaternion(invRotation, invRotationMat);
@@ -702,9 +687,9 @@ export class Transform3D extends EventDispatcher {
 	 */
 	translate(translation: Vector3, isLocal: boolean = true): void {
 		if (isLocal) {
-			Matrix4x4.createFromQuaternion(this.localRotation, Transform3D._tempMatrix0);
-			Vector3.transformCoordinate(translation, Transform3D._tempMatrix0, Transform3D._tempVector30);
-			Vector3.add(this.localPosition, Transform3D._tempVector30, this._localPosition);
+			Matrix4x4.createFromQuaternion(this.localRotation, _tempMatrix0);
+			Vector3.transformCoordinate(translation, _tempMatrix0, _tempVector30);
+			Vector3.add(this.localPosition, _tempVector30, this._localPosition);
 			this.localPosition = this._localPosition;
 		} else {
 			Vector3.add(this.position, translation, this._position);
@@ -727,16 +712,16 @@ export class Transform3D extends EventDispatcher {
 		if (isRadian) {
 			rot = rotation;
 		} else {
-			Vector3.scale(rotation, Math.PI / 180.0, Transform3D._tempVector30);
-			rot = Transform3D._tempVector30;
+			Vector3.scale(rotation, Math.PI / 180.0, _tempVector30);
+			rot = _tempVector30;
 		}
 
-		Quaternion.createFromYawPitchRoll(rot.y, rot.x, rot.z, Transform3D._tempQuaternion0);
+		Quaternion.createFromYawPitchRoll(rot.y, rot.x, rot.z, _tempQuaternion0);
 		if (isLocal) {
-			Quaternion.multiply(this.localRotation, Transform3D._tempQuaternion0, this._localRotation);
+			Quaternion.multiply(this.localRotation, _tempQuaternion0, this._localRotation);
 			this.localRotation = this._localRotation;
 		} else {
-			Quaternion.multiply(Transform3D._tempQuaternion0, this.rotation, this._rotation);
+			Quaternion.multiply(_tempQuaternion0, this.rotation, this._rotation);
 			this.rotation = this._rotation;
 		}
 	}
@@ -802,8 +787,8 @@ export class Transform3D extends EventDispatcher {
 				Quaternion.lookAt(this.localPosition, target, up, this._localRotation);
 				this._localRotation.invert(this._localRotation);
 			} else {
-				Vector3.subtract(this.localPosition, target, Transform3D._tempVector30);
-				Quaternion.rotationLookAt(Transform3D._tempVector30, up, this._localRotation);
+				Vector3.subtract(this.localPosition, target, _tempVector30);
+				Quaternion.rotationLookAt(_tempVector30, up, this._localRotation);
 				this._localRotation.invert(this._localRotation);
 			}
 
@@ -817,8 +802,8 @@ export class Transform3D extends EventDispatcher {
 				Quaternion.lookAt(worldPosition, target, up, this._rotation);
 				this._rotation.invert(this._rotation);
 			} else {
-				Vector3.subtract(this.position, target, Transform3D._tempVector30);
-				Quaternion.rotationLookAt(Transform3D._tempVector30, up, this._rotation);
+				Vector3.subtract(this.position, target, _tempVector30);
+				Quaternion.rotationLookAt(_tempVector30, up, this._rotation);
 				this._rotation.invert(this._rotation);
 			}
 			this.rotation = this._rotation;
@@ -881,8 +866,8 @@ export class Transform3D extends EventDispatcher {
 	 */
 	setWorldLossyScale(value: Vector3) {
 		if (this._parent !== null) {
-			var scaleMat: Matrix3x3 = Transform3D._tempMatrix3x33;
-			var localScaleMat: Matrix3x3 = Transform3D._tempMatrix3x33;
+			var scaleMat: Matrix3x3 = _tempMatrix3x33;
+			var localScaleMat: Matrix3x3 = _tempMatrix3x33;
 			var localScaleMatE: Float32Array = localScaleMat.elements;
 			var parInvScaleMat: Matrix3x3 = this._parent._getScaleMatrix();
 			parInvScaleMat.invert(parInvScaleMat);
@@ -921,8 +906,8 @@ export class Transform3D extends EventDispatcher {
 	 * @param out 输出的局部坐标。
 	 */
 	globalToLocal(pos: Vector3, out: Vector3): void {
-		this.worldMatrix.invert(Transform3D._tempMatrix0);
-		Vector3.transformV3ToV3(pos, Transform3D._tempMatrix0, out);
+		this.worldMatrix.invert(_tempMatrix0);
+		Vector3.transformV3ToV3(pos, _tempMatrix0, out);
 	}
 
 	/**
@@ -934,8 +919,8 @@ export class Transform3D extends EventDispatcher {
 	 * @param out 输出的局部法线向量。
 	 */
 	toLocalNormal(pos: Vector3, out: Vector3): void {
-		this.worldMatrix.invert(Transform3D._tempMatrix0);
-		Vector3.TransformNormal(pos, Transform3D._tempMatrix0, out);
+		this.worldMatrix.invert(_tempMatrix0);
+		Vector3.TransformNormal(pos, _tempMatrix0, out);
 	}
 
 	/**
@@ -950,8 +935,7 @@ export class Transform3D extends EventDispatcher {
 		this.rotationTo(this.rotation, forward, dir);
 		this.rotation = this.rotation;
 	}
-	/**@internal */
-	static tmpVec3: Vector3 = new Vector3();
+
 	/**
 	 * @en This is a function from glmatrix. Sets a quaternion to represent the shortest rotation from one vector to another.
 	 * Both vectors are assumed to be unit length.
@@ -969,11 +953,11 @@ export class Transform3D extends EventDispatcher {
 	rotationTo(out: Quaternion, a: Vector3, b: Vector3): boolean {
 		var dot: number = Vector3.dot(a, b);
 		if (dot < -0.999999) {// 180度了，可以选择多个轴旋转
-			Vector3.cross(Vector3.UnitX, a, Transform3D.tmpVec3);
-			if (Vector3.scalarLength(Transform3D.tmpVec3) < 0.000001)
-				Vector3.cross(Vector3.UnitY, a, Transform3D.tmpVec3);
-			Vector3.normalize(Transform3D.tmpVec3, Transform3D.tmpVec3);
-			Quaternion.createFromAxisAngle(Transform3D.tmpVec3, Math.PI, out);
+			Vector3.cross(Vector3.UnitX, a, tmpVec3);
+			if (Vector3.scalarLength(tmpVec3) < 0.000001)
+				Vector3.cross(Vector3.UnitY, a, tmpVec3);
+			Vector3.normalize(tmpVec3, tmpVec3);
+			Quaternion.createFromAxisAngle(tmpVec3, Math.PI, out);
 			return true
 		} else if (dot > 0.999999) {// 没有变化
 			out.x = 0;
@@ -983,10 +967,10 @@ export class Transform3D extends EventDispatcher {
 			return false;
 		} else {
 			// 下面是求这个四元数，这是一个简化求法，根据cos(a/2)=√((1+dot)/2), cos(a/2)sin(a/2)=sin(a)/2 就能推导出来
-			Vector3.cross(a, b, Transform3D.tmpVec3);
-			out.x = Transform3D.tmpVec3.x;
-			out.y = Transform3D.tmpVec3.y;
-			out.z = Transform3D.tmpVec3.z;
+			Vector3.cross(a, b, tmpVec3);
+			out.x = tmpVec3.x;
+			out.y = tmpVec3.y;
+			out.z = tmpVec3.z;
 			out.w = 1 + dot;
 			out.normalize(out);
 			return true;
@@ -1012,4 +996,11 @@ export class Transform3D extends EventDispatcher {
 	}
 }
 
-
+const _tempVector30: Vector3 = new Vector3();
+const _tempQuaternion0: Quaternion = new Quaternion();
+const _tempMatrix0: Matrix4x4 = new Matrix4x4();
+const _tempMatrix3x30: Matrix3x3 = new Matrix3x3();
+const _tempMatrix3x31: Matrix3x3 = new Matrix3x3();
+const _tempMatrix3x32: Matrix3x3 = new Matrix3x3();
+const _tempMatrix3x33: Matrix3x3 = new Matrix3x3();
+const tmpVec3: Vector3 = new Vector3();
