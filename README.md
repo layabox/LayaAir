@@ -48,7 +48,7 @@ npm run start
 
 #### Build
 
-In the root directory of the engine, rrun the followingcommand from the command line. After that, a build folder will be generated in the root directory, where the compiled engine is located. As shown below:
+In the root directory of the engine, run the following command from the command line. After that, a build folder will be generated in the root directory, where the compiled engine is located. As shown below:
 
 ```bash
 npm run build
