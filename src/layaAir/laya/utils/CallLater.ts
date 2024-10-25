@@ -30,7 +30,7 @@ export class CallLater {
         if (len > 0) {
             for (let i = 0, n = len - 1; i <= n; i++) {
                 let handler = laters[i];
-                this._map[handler.key] = null;
+                delete this._map[handler.key];
                 if (handler.method !== null) {
                     handler.run();
                     handler.clear();
@@ -91,7 +91,7 @@ export class CallLater {
     runCallLater(caller: any, method: Function): void {
         var handler = this._getHandler(caller, method);
         if (handler && handler.method != null) {
-            this._map[handler.key] = null;
+            delete this._map[handler.key];
             handler.run();
             handler.clear();
         }
@@ -108,7 +108,7 @@ export class CallLater {
     clear(caller: any, method: Function) {
         var handler = this._getHandler(caller, method);
         if (handler) {
-            this._map[handler.key] = null;
+            delete this._map[handler.key];
             handler.key = "";
             handler.clear();
             return true;
@@ -127,7 +127,7 @@ export class CallLater {
         for (var i = 0, n = this._laters.length; i < n; i++) {
             var handler = this._laters[i];
             if (handler.caller === caller) {
-                this._map[handler.key] = null;
+                delete this._map[handler.key];
                 handler.key = "";
                 handler.clear();
             }
