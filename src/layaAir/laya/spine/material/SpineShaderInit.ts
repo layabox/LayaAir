@@ -60,17 +60,28 @@ export class SpineShaderInit {
      */
     static SetSpineBlendMode(value: number, mat: Material) {
         switch (value) {
-            case 1: //light 
-            case 3: //screen
-                mat.blendSrc = RenderState.BLENDPARAM_ONE;
+            case 1: //Additive 
+                mat.blend = RenderState.BLEND_ENABLE_ALL;
+                mat.blendSrc = RenderState.BLENDPARAM_SRC_ALPHA;
                 mat.blendDst = RenderState.BLENDPARAM_ONE;
                 break;
-            case 2://multiply
+            case 3: //Screen
+                mat.blend = RenderState.BLEND_ENABLE_SEPERATE;
+                mat.blendSrcRGB = RenderState.BLENDPARAM_ONE;
+                mat.blendDstRGB = RenderState.BLENDPARAM_ONE_MINUS_SRC_COLOR;
+                mat.blendSrcAlpha = RenderState.BLENDPARAM_ONE;
+                mat.blendDstAlpha = RenderState.BLENDPARAM_ONE;
+                break;
+            case 2://Multiply
+                mat.blend = RenderState.BLEND_ENABLE_ALL;
+
                 mat.blendSrc = RenderState.BLENDPARAM_DST_COLOR;
                 mat.blendDst = RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA;
 
                 break;
             default://nomal
+                mat.blend = RenderState.BLEND_ENABLE_ALL;
+
                 mat.blendSrc = RenderState.BLENDPARAM_ONE;
                 mat.blendDst = RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA;
         }
