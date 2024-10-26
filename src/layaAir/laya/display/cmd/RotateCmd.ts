@@ -29,7 +29,6 @@ export class RotateCmd {
     pivotY: number;
 
     /**
-     * @private
      * @en Create a RotateCmd instance
      * @param angle Rotation angle in radians
      * @param pivotX Horizontal axis point coordinates.
@@ -59,7 +58,6 @@ export class RotateCmd {
     }
 
     /**
-     * @private
      * @en Execute the rotate command
      * @param context The rendering context
      * @param gx Global X offset
@@ -74,7 +72,6 @@ export class RotateCmd {
     }
 
     /**
-     * @private
      * @en The identifier for the RotateCmd
      * @zh 旋转命令的标识符
      */

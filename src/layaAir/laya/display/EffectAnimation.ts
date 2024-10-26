@@ -8,20 +8,13 @@ import { Ease } from "../utils/Ease"
  */
 export class EffectAnimation extends FrameAnimation {
     /**
-     * @private
      * 动效开始事件。
      */
     private static EFFECT_BEGIN: string = "effectbegin";
-
-    /**@internal */
     private _target: any;
-    /**@internal */
     private _playEvent: string;
-    /**@internal */
     private _initData: any = {};
-    /**@internal */
     private _aniKeys: any[];
-    /**@internal */
     private _effectClass: new () => any;
 
     /**
@@ -39,7 +32,6 @@ export class EffectAnimation extends FrameAnimation {
         this._addEvent();
     }
 
-    /**@private */
     private _onOtherBegin(effect: any): void {
         if (effect === this) return;
         this.stop();
@@ -55,20 +47,17 @@ export class EffectAnimation extends FrameAnimation {
         this._addEvent();
     }
 
-    /**@internal */
     private _addEvent(): void {
         if (!this._target || !this._playEvent) return;
         this._setControlNode(this._target);
         this._target.on(this._playEvent, this, this._onPlayAction);
     }
 
-    /**@internal */
     private _onPlayAction(): void {
         this.play(0, false);
     }
 
     /**
-     * @override
      * @en Play the animation effect.
      * @param start The starting position of the animation. Default is 0.
      * @param loop Whether to loop the animation. Default is true.
@@ -86,7 +75,6 @@ export class EffectAnimation extends FrameAnimation {
         super.play(start, loop, name);
     }
 
-    /**@private */
     private _recordInitData(): void {
         if (!this._aniKeys) return;
         var i: number, len: number;
@@ -136,9 +124,6 @@ export class EffectAnimation extends FrameAnimation {
         }
     }
 
-    /**
-     * @internal
-    */
     protected _displayToIndex(value: number): void {
         if (!this._animationData) return;
         if (value < 0) value = 0;
@@ -150,9 +135,6 @@ export class EffectAnimation extends FrameAnimation {
         }
     }
 
-    /**
-     * @override
-    */
     protected _displayNodeToFrame(node: any, frame: number, targetDic: any = null): void {
         if (!this._target) return;
         var target: any = this._target;
@@ -192,9 +174,6 @@ export class EffectAnimation extends FrameAnimation {
         }
     }
 
-    /**
-     * @internal
-    */
     protected _calculateKeyFrames(node: any): void {
         super._calculateKeyFrames(node);
         var keyFrames: any = node.keyframes, key: string, tKeyFrames: any[], target: number = node.target;

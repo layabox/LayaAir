@@ -78,7 +78,6 @@ export class DrawCurvesCmd implements IGraphicCMD {
     }
 
     /**
-     * @private
      * @en Execute the draw curves command
      * @param context The rendering context
      * @param gx Global X offset
@@ -94,7 +93,6 @@ export class DrawCurvesCmd implements IGraphicCMD {
     }
 
     /**
-     * @private
      * @en The identifier for the DrawCurvesCmd
      * @zh 绘制曲线命令的标识符
      */

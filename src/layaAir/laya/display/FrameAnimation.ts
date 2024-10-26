@@ -3,25 +3,11 @@ import { MathUtil } from "../maths/MathUtil"
 import { Ease } from "../utils/Ease"
 
 /**
- * @en Dispatched when the animation playback is complete.
- * @zh 动画播放完毕后调度。
- * @eventType Event.COMPLETE
- */
-/*[Event(name = "complete", type = "laya.events.Event")]*/
-
-/**
- * @en Dispatched when the animation plays to a certain label.
- * @zh 播放到某标签后调度。
- * @eventType Event.LABEL
- */
-/*[Event(name = "label", type = "laya.events.Event")]*/
-/**
  * @en Node keyframe animation playback class. Parses and plays node animations created in the IDE.
  * @zh 节点关键帧动画播放类。解析播放IDE内制作的节点动画。
  */
 export class FrameAnimation extends AnimationBase {
 
-    /**@private */
     private static _sortIndexFun(objpre: any, objnext: any) {
         return objpre.index - objnext.index
     }
@@ -38,7 +24,6 @@ export class FrameAnimation extends AnimationBase {
      * @zh 动画数据
      */
     _animationData: any;
-    /**@private */
     protected _usedFrames: any[];
 
     constructor() {
@@ -77,8 +62,6 @@ export class FrameAnimation extends AnimationBase {
     }
 
     /**
-     * @inheritDoc
-     * @override
      * @en Clears the animation data and resets the animation to its initial state.
      * @returns The instance of the AnimationBase.
      * @zh 清除动画数据并将动画重置为初始状态。
@@ -91,10 +74,6 @@ export class FrameAnimation extends AnimationBase {
         return this;
     }
 
-    /**
-     * @inheritDoc 
-     * @override
-     */
     protected _displayToIndex(value: number): void {
         if (!this._animationData) return;
         if (value < 0) value = 0;
@@ -106,7 +85,6 @@ export class FrameAnimation extends AnimationBase {
     }
 
     /**
-     * @private
      * 将节点设置到某一帧的状态
      * @param node 节点ID
      * @param frame
@@ -146,8 +124,8 @@ export class FrameAnimation extends AnimationBase {
     }
 
     /**
-     * @private
-     * 计算帧数据
+     * @en Calculate frame data
+     * @zh 计算帧数据
      */
     private _calculateDatas(): void {
         if (!this._animationData) return;
@@ -161,8 +139,8 @@ export class FrameAnimation extends AnimationBase {
     }
 
     /**
-     * @private
-     * 计算某个节点的帧数据
+     * @en Calculate the frame data of a node
+     * @zh 计算某个节点的帧数据
      */
     protected _calculateKeyFrames(node: any): void {
         var keyFrames: any = node.keyframes, key: string, tKeyFrames: any[], target: number = node.target;
@@ -229,8 +207,8 @@ export class FrameAnimation extends AnimationBase {
     }
 
     /**
-     * @private
-     * 计算节点某个属性的帧数据
+     * @en Calculate the frame data of a node's property
+     * @zh 计算节点某个属性的帧数据
      */
     private _calculateNodePropFrames(keyframes: any[], frames: any[], key: string, target: number): void {
         var i: number, len: number = keyframes.length - 1;
@@ -246,16 +224,13 @@ export class FrameAnimation extends AnimationBase {
         this._dealKeyFrame(keyframes[i]);
     }
 
-    /**
-     * @private
-     */
     private _dealKeyFrame(keyFrame: any): void {
         if (keyFrame.label && keyFrame.label != "") this.addLabel(keyFrame.label, keyFrame.index);
     }
 
     /**
-     * @private
-     * 计算两个关键帧直接的帧数据
+     * @en Calculate the frame data between two key frames
+     * @zh 计算两个关键帧直接的帧数据
      */
     private _calculateFrameValues(startFrame: any, endFrame: any, result: any[]): void {
         var i: number, easeFun: Function;

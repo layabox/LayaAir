@@ -86,59 +86,44 @@ export class Text extends Sprite {
     ignoreLang: boolean;
 
     /**
-     * @internal
      * @en Represents the text content string.
      * @zh 表示文本内容字符串。
      */
     protected _text: string;
 
     /**
-     * @internal
      * @en Represents the text overflow property.
      * @zh 表示文本的溢出属性。
      */
     protected _overflow: string = Text.VISIBLE;
 
     /**
-     * @internal
      * @en Split render.
      * @zh 拆分渲染。
      */
     protected _singleCharRender: boolean = false;
-
-    /**
-     * @internal
-     */
     protected _textStyle: TextStyle;
-
-    /**
-     * @internal
-     */
     protected _prompt: string = '';
 
     /**
-     * @internal
      * @en The color of the input prompt.
      * @zh 输入提示符颜色。
      */
     protected _promptColor: string;
 
     /**
-     * @internal
      * @en The background color of the text, represented as a string.
      * @zh 文本背景颜色，以字符串表示。
      */
     protected _bgColor: string;
 
     /**
-     * @internal
      * @en The border color of the text background, represented as a string.
      * @zh 文本边框背景颜色，以字符串表示。
      */
     protected _borderColor: string;
 
     /**
-     * @internal
      * @en The default padding information.
      * [top padding, right padding, bottom padding, left padding] (in pixels).
      * @zh 默认边距信息
@@ -148,7 +133,6 @@ export class Text extends Sprite {
 
 
     /**
-     * @internal
      * @en Indicates whether the text field using this text format automatically wraps.
      * If the value of wordWrap is true, the text field automatically wraps; if the value is false, the text field does not automatically wrap.
      * @zh 表示使用此文本格式的文本字段是否自动换行。
@@ -165,92 +149,38 @@ export class Text extends Sprite {
      */
     protected _asPassword: boolean;
 
-    /**
-     * @internal
-     */
     protected _htmlParseOptions: HtmlParseOptions;
 
-    /**
-     * @internal
-     */
     protected _templateVars: Record<string, string>;
 
     /**
-     * @internal
      * @en Indicates whether the text content has changed.
      * @zh 表示文本内容是否发生改变。
      */
     protected _isChanged: boolean;
 
     /**
-     * @internal
      * @en Indicates the width of the text in pixels.
      * @zh 表示文本的宽度，以像素为单位。
      */
     protected _textWidth: number = 0;
 
     /**
-     * @internal
      * @en Indicates the height of the text in pixels.
      * @zh 表示文本的高度，以像素为单位。
      */
     protected _textHeight: number = 0;
-
-    /**
-     * @internal
-     */
     protected _realFont: string;
-
-    /**
-     * @internal
-     */
     protected _bitmapFont: BitmapFont;
-
-    /**
-     * @internal
-     */
     protected _scrollPos: Point | null;
-
-    /**
-     * @internal
-     */
     protected _bgDrawCmd: DrawRectCmd;
-
-    /**
-     * @internal
-     */
     protected _html: boolean;
-
-    /**
-     * @internal
-     */
     protected _ubb: boolean;
-
-    /**
-     * @internal
-     */
     protected _lines: Array<ITextLine>;
-
-    /**
-     * @internal
-     */
-    protected _elements: Array<HtmlElement>;
-
-    /**
-     * @internal
-     */
+    protected _elements: Array<HtmlElement>
     protected _objContainer: Sprite;
-
-    /**
-     * @internal
-     */
     protected _maxWidth: number;
-
-    /**
-     * @internal
-     */
     protected _hideText: boolean;
-
     private _updatingLayout: boolean;
     private _fontSizeScale: number;
 
@@ -904,7 +834,6 @@ export class Text extends Sprite {
     }
 
     /**
-     * @internal
      * @en Parse the template content.
      * @param template The template content.
      * @returns The template string with placeholders substituted by their corresponding values from _templateVars.
@@ -1114,7 +1043,6 @@ export class Text extends Sprite {
     }
 
     /**
-     * @internal
      * 排版文本。
      * 进行宽高计算，渲染、重绘文本。
      */
@@ -1182,7 +1110,6 @@ export class Text extends Sprite {
     }
 
     /**
-     * @internal
      * @en Analyze text wrapping.
      * @zh 分析文本换行。
      */
@@ -1796,7 +1723,6 @@ export class Text extends Sprite {
     }
 
     /**
-     * @internal
      * @en Render the text.
      * @zh 渲染文字。
      */
@@ -1909,7 +1835,6 @@ export class Text extends Sprite {
     }
 
     /**
-     * @internal
      * @en Draw background
      * @zh 绘制背景
      */

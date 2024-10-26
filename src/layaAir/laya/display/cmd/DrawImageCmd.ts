@@ -47,7 +47,6 @@ export class DrawImageCmd implements IGraphicCMD {
     color: number = 0xffffffff;
 
     /**
-     * @private
      * @en Create a DrawImageCmd instance
      * @param texture Texture to be drawn
      * @param x X-axis offset
@@ -99,7 +98,6 @@ export class DrawImageCmd implements IGraphicCMD {
     }
 
     /**
-     * @private
      * @en Execute the draw image command
      * @param context The rendering context
      * @param gx Global X offset
@@ -116,7 +114,6 @@ export class DrawImageCmd implements IGraphicCMD {
     }
 
     /**
-     * @private
      * @en The identifier for the DrawImageCmd
      * @zh 绘制图片命令的标识符
      */

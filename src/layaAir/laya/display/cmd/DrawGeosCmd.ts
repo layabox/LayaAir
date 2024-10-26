@@ -63,7 +63,6 @@ export class DrawGeosCmd implements IGraphicCMD {
     }
 
     /**
-     * @private
      * @en Execute the draw geometries command
      * @param context The rendering context
      * @param gx Global x-coordinate
@@ -78,7 +77,6 @@ export class DrawGeosCmd implements IGraphicCMD {
     }
 
     /**
-     * @private
      * @en The identifier for the DrawGeosCmd
      * @zh 绘制多个几何体命令的标识符
      */

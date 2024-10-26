@@ -33,7 +33,6 @@ export class DrawGeoCmd implements IGraphicCMD {
     material: Material;
 
     /**
-     * @private
      * @en Create a DrawGeoCmd instance
      * @param geo Geometry element to be rendered
      * @param material Material used for rendering
@@ -107,7 +106,6 @@ export class DrawGeoCmd implements IGraphicCMD {
     }
 
     /**
-     * @private
      * @en Execute the draw geometry command
      * @param context The rendering context
      * @param gx Global x-coordinate
@@ -122,7 +120,6 @@ export class DrawGeoCmd implements IGraphicCMD {
     }
 
     /**
-     * @private
      * @en The identifier for the DrawGeoCmd
      * @zh 绘制几何体命令的ID
      */

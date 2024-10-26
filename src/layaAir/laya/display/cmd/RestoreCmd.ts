@@ -15,7 +15,6 @@ export class RestoreCmd {
 
 
     /**
-     * @private
      * @en Create a RestoreCmd instance
      * @returns RestoreCmd instance
      * @zh 创建一个恢复命令实例
@@ -37,7 +36,6 @@ export class RestoreCmd {
     }
 
     /**
-     * @private
      * @en Execute the restore command
      * @param context The rendering context
      * @zh 执行恢复命令
@@ -48,7 +46,6 @@ export class RestoreCmd {
     }
 
     /**
-     * @private
      * @en The identifier for the RestoreCmd
      * @zh 恢复命令的标识符
      */

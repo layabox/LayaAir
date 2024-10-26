@@ -73,9 +73,7 @@ export class Sprite extends Node {
     _renderType: number = 0;
     /**@internal */
     _transform: Matrix | null = null;
-    /**@internal */
     protected _tfChanged: boolean = false;
-    /**@internal */
     protected _repaint: number = SpriteConst.REPAINT_NONE;
     private _texture: Texture | null = null;
     private _sizeFlag: number = 0;
@@ -136,8 +134,6 @@ export class Sprite extends Node {
     _skinBaseUrl: string;
 
     /**
-     * @override
-     * @inheritDoc
      * @en Destroy the sprite.
      * @param destroyChild Whether to destroy child nodes. Default is true.
      * @zh 销毁精灵。
@@ -159,6 +155,7 @@ export class Sprite extends Node {
         this._graphics = null;
     }
 
+    /** @ignore */
     constructor() {
         super();
     }
@@ -250,17 +247,24 @@ export class Sprite extends Node {
 
 
     /**
-     * 设置cacheAs为非空时此值才有效，staticCache=true时，子对象变化时不会自动更新缓存，只能通过调用reCache方法手动刷新。
      * @deprecated
+     * 设置cacheAs为非空时此值才有效，staticCache=true时，子对象变化时不会自动更新缓存，只能通过调用reCache方法手动刷新。
      */
     get staticCache(): boolean {
         return this._getCacheStyle().staticCache;
     }
-
     /**@deprecated */
     set staticCache(value: boolean) {
         this._getCacheStyle().staticCache = value;
         if (!value) this.reCache();
+    }
+    /**
+     * @deprecated
+     * @en Call this method to refresh the cache when cacheAs is set.
+     * @zh 在设置 cacheAs 的情况下，调用此方法会重新刷新缓存。
+     */
+    reCache(): void {
+        this._repaint |= SpriteConst.REPAINT_CACHE;
     }
 
     /**
@@ -280,14 +284,6 @@ export class Sprite extends Node {
         }
     }
 
-    /**
-     * @deprecated
-     * @en Call this method to refresh the cache when cacheAs is set.
-     * @zh 在设置 cacheAs 的情况下，调用此方法会重新刷新缓存。
-     */
-    reCache(): void {
-        this._repaint |= SpriteConst.REPAINT_CACHE;
-    }
 
     /**
      * @en Get the repaint type.
@@ -497,8 +493,6 @@ export class Sprite extends Node {
     }
 
     /**
-     * @internal
-     * @protected
      * @en Called when the layout should be refreshed.
      * @zh 当需要刷新布局时调用。
      */
@@ -689,7 +683,7 @@ export class Sprite extends Node {
     }
 
     /**
-     * @private
+     * @ignore
      * @en Get the sprite style.
      * @return The sprite style (SpriteStyle).
      * @zh 获取精灵样式。
@@ -701,7 +695,7 @@ export class Sprite extends Node {
     }
 
     /**
-     * @private
+     * @ignore
      * @en Set the sprite style.
      * @param value The sprite style to set.
      * @zh 设置精灵样式。
@@ -915,8 +909,6 @@ export class Sprite extends Node {
     }
 
     /**
-     * @internal
-     * @protected 
      * @en Adjust the transform matrix.
      * @return The adjusted transform matrix.
      * @zh 调整变换矩阵。
@@ -1905,8 +1897,6 @@ export class Sprite extends Node {
     }
 
     /**
-     * @internal
-     * @protected
      * @en Starts listening to a specific event type. This method is called when a new event listener is added.
      * If it is a mouse event, it sets itself and its parent objects to accept mouse interaction events.
      * @param type The event type.
@@ -1928,8 +1918,6 @@ export class Sprite extends Node {
 
 
     /**
-    * @internal
-    * @protected
     * @en Ensures that when the node is set to accept mouse interaction events, all parent objects are also set to accept mouse interaction events.
     * @zh 当节点设置为接受鼠标交互事件时，确保所有父对象也被设置为接受鼠标交互事件。
     */
@@ -1947,9 +1935,6 @@ export class Sprite extends Node {
     }
 
     /**
-     * @internal
-     * @protected 
-     * @override
      * @en Set the parent node of the current node.
      * @param value The new parent node.
      * @zh 设置当前节点的父节点。
@@ -2043,9 +2028,6 @@ export class Sprite extends Node {
     }
 
     /**
-    * @internal
-    * @protected
-    * @override
     * @en Callback when a child node changes.
     * @param child The child node that has changed.
     * @zh 子节点发生变化时的回调。
@@ -2061,7 +2043,6 @@ export class Sprite extends Node {
     }
 
     /**
-     * @override
      * @en Repaint the parent node. When `cacheAs` is enabled, set all parent object caches to invalid.
      * @param type The type of repaint. Default is SpriteConst.REPAINT_CACHE.
      * @zh 重新绘制父节点。启用 `cacheAs` 时，设置所有父对象缓存失效。
@@ -2084,7 +2065,7 @@ export class Sprite extends Node {
     }
 
     /**
-     * @enYou can set a rectangular area as the clickable region, or set a HitArea instance as the clickable region. The HitArea can have both clickable and non-clickable areas defined. If the hitArea is not set, the mouse collision detection will be based on the area formed by the width and height of the object.
+     * @en You can set a rectangular area as the clickable region, or set a HitArea instance as the clickable region. The HitArea can have both clickable and non-clickable areas defined. If the hitArea is not set, the mouse collision detection will be based on the area formed by the width and height of the object.
      * @zh 可以设置一个矩形区域作为点击区域，或者设置一个 `HitArea` 实例作为点击区域，HitArea 内可以设置可点击和不可点击区域。如果不设置 hitArea，则根据宽高形成的区域进行鼠标碰撞检测。
      */
     get hitArea(): IHitArea {
@@ -2173,7 +2154,6 @@ export class Sprite extends Node {
 
     /**
      * @internal
-     * @override
      * @en Set the display status of the node.
      * @param value The display status.
      * @zh 设置节点的显示状态。
@@ -2657,7 +2637,6 @@ export class Sprite extends Node {
     }
 
     /**
-    * @internal 
     * @en Sets a global cache flag for a specific type.
     * @param type The type of cache flag to set.
     * @param value Whether to enable the cache flag.

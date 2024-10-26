@@ -173,7 +173,6 @@ export class FillTextCmd {
     }
 
     /**
-     * @private
      * @en The identifier for the FillTextCmd
      * @zh 绘制文字命令的标识符
      */
@@ -210,7 +209,13 @@ export class FillTextCmd {
         this._wordText && this._wordText.cleanCache();
     }
 
-    getBoundPoints(sp?: { width: number, height?: number }): number[] {
+    /**
+     * @en Gets the bounding points of the text element. Calculates and returns an array of points representing the bounding box of the text.
+     * @returns An array of numbers representing the bounding points.
+     * @zh 获取文本元素的边界点。计算并返回表示文本边界框的点数组。
+     * @returns 表示边界点的数字数组。
+     */
+    getBoundPoints(): number[] {
         if (!this._loosyBound) {
             let ctx = ILaya.Browser.context;
             ctx.save();
