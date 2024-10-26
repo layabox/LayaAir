@@ -26,49 +26,24 @@ import { Color } from "../maths/Color";
 import { LayaGL } from "../layagl/LayaGL";
 
 /**
- * @en Dispatched when the stage size is resized.
- * @zh stage大小经过重新调整时进行调度。
- * @eventType Event.RESIZE
- */
-/*[Event(name = "resize", type = "laya.events.Event")]*/
-/**
- * @en Dispatched when the stage gains focus. For example, when the browser or current tab is switched back from the background.
- * @zh 舞台获得焦点时调度。比如浏览器或者当前标签处于后台，重新切换回来时进行调度。
- * @eventType Event.FOCUS
- */
-/*[Event(name = "focus", type = "laya.events.Event")]*/
-/**
- * @en Dispatched when the stage loses focus. For example, when the browser or current tab is switched to the background.
- * @zh 舞台失去焦点时调度。比如浏览器或者当前标签被切换到后台后调度。
- * @eventType Event.BLUR
- */
-/*[Event(name = "blur", type = "laya.events.Event")]*/
-/**
- * @en Dispatched when the stage focus changes. Use Laya.stage.isFocused to get whether the current stage has focus.
- * @zh 舞台焦点变化时调度，使用Laya.stage.isFocused可以获取当前舞台是否获得焦点。
- * @eventType Event.FOCUS_CHANGE
- */
-/*[Event(name = "focuschange", type = "laya.events.Event")]*/
-/**
- * @en Dispatched when the stage visibility changes (e.g., when the browser or current tab is switched to the background). Use Laya.stage.isVisibility to get the current visibility state.
- * @zh 舞台可见性发生变化时调度（比如浏览器或者当前标签被切换到后台后调度），使用Laya.stage.isVisibility可以获取当前是否处于显示状态。
- * @eventType Event.VISIBILITY_CHANGE
- */
-/*[Event(name = "visibilitychange", type = "laya.events.Event")]*/
-/**
- * @en Dispatched when the browser fullscreen state changes, such as entering or exiting fullscreen mode.
- * @zh 浏览器全屏更改时调度，比如进入全屏或者退出全屏。
- * @eventType Event.FULL_SCREEN_CHANGE
- */
-/*[Event(name = "fullscreenchange", type = "laya.events.Event")]*/
-
-/**
  * @en Stage is the root node of the display list. All display objects are shown on the stage. It can be accessed through the Laya.stage singleton.
  * Stage provides several adaptation modes. Different adaptation modes will produce different canvas sizes. The larger the canvas, the greater the rendering pressure, so it's important to choose an appropriate adaptation scheme.
  * Stage provides different frame rate modes. The higher the frame rate, the greater the rendering pressure and power consumption. Reasonable use of frame rates or even dynamic changes in frame rates can help improve mobile phone power consumption.
+ * - Event.RESIZE("resize"): Discheduled when the stage size is resized.
+ * - Event.FOCUS("focus"): Dispatched when the stage gains focus. For example, when the browser or current tab is switched back from the background.
+ * - Event.BLUR("blur"): Dispatched when the stage loses focus. For example, when the browser or current tab is switched to the background.
+ * - Event.FOCUS_CHANGE("focuschange"): Dispatched when the stage focus changes. Use Laya.stage.isFocused to get whether the current stage has focus.
+ * - Event.VISIBILITY_CHANGE("visibilitychange"): Dispatched when the stage visibility changes (e.g., when the browser or current tab is switched to the background). Use Laya.stage.isVisibility to get the current visibility state.
+ * - Event.FULL_SCREEN_CHANGE("fullscreenchange"): Discheduled when the browser fullscreen state changes, such as entering or exiting fullscreen mode.
  * @zh Stage 是舞台类，显示列表的根节点，所有显示对象都在舞台上显示。通过 Laya.stage 单例访问。
  * Stage提供几种适配模式，不同的适配模式会产生不同的画布大小，画布越大，渲染压力越大，所以要选择合适的适配方案。
  * Stage提供不同的帧率模式，帧率越高，渲染压力越大，越费电，合理使用帧率甚至动态更改帧率有利于改进手机耗电。
+ * - Event.RESIZE("resize"): 舞台大小经过重新调整时进行调度。
+ * - Event.FOCUS("focus"): 舞台获得焦点时调度。比如浏览器或者当前标签处于后台，重新切换回来时进行调度。
+ * - Event.BLUR("blur"): 舞台失去焦点时调度。比如浏览器或者当前标签被切换到后台后调度。
+ * - Event.FOCUS_CHANGE("focuschange"): 舞台焦点变化时调度，使用Laya.stage.isFocused可以获取当前舞台是否获得焦点。
+ * - Event.VISIBILITY_CHANGE("visibilitychange"): 舞台可见性发生变化时调度（比如浏览器或者当前标签被切换到后台后调度），使用Laya.stage.isVisibility可以获取当前是否处于显示状态。
+ * - Event.FULL_SCREEN_CHANGE("fullscreenchange"): 浏览器全屏更改时调度，比如进入全屏或者退出全屏。
  */
 export class Stage extends Sprite {
     /**
@@ -112,8 +87,6 @@ export class Stage extends Sprite {
      * @zh 根据屏幕宽高比与设计宽高比的比较，自动选择缩放方式；如果屏幕宽高比小于设计宽高比，则保持宽度固定，缩放因子相等并计算画布高度；否则，保持高度固定，缩放因子相等并计算画布宽度。这种模式可以灵活适应不同的设备，但可能会导致内容被裁切或出现空白边缘。
      */
     static SCALE_FIXED_AUTO: string = "fixedauto";
-
-
 
     /**
      * @en Canvas is horizontally aligned to the left.
@@ -234,38 +207,24 @@ export class Stage extends Sprite {
     screenAdaptationEnabled: boolean = true;
     /**@internal */
     _canvasTransform: Matrix = new Matrix();
-    /**@private */
-    private _screenMode: string = "none";
-    /**@private */
-    private _scaleMode: string = "noscale";
-    /**@private */
-    private _alignV: string = "top";
-    /**@private */
-    private _alignH: string = "left";
-    /**@private */
-    private _bgColor: string = "gray";
     /**@internal */
     _mouseMoveTime: number = 0;
-    /**@private */
-    private _renderCount: number = 0;
-    /**@private */
-    private _safariOffsetY: number = 0;
-    /**@private */
-    private _frameStartTime: number = 0;
-    /**@private */
-    private _previousOrientation: number = Browser.window.orientation;
-    /**@private */
-    private _isFocused: boolean;
-    /**@private */
-    private _isVisibility: boolean;
     /**@internal webgl Color*/
     _wgColor = new Color(0, 0, 0, 0);// number[] | null = [0, 0, 0, 1];
     /**@internal */
     _scene3Ds: Scene3D[] = [];
-
-    /**@private */
+    private _screenMode: string = "none";
+    private _scaleMode: string = "noscale";
+    private _alignV: string = "top";
+    private _alignH: string = "left";
+    private _bgColor: string = "gray";
+    private _renderCount: number = 0;
+    private _safariOffsetY: number = 0;
+    private _frameStartTime: number = 0;
+    private _previousOrientation: number = Browser.window.orientation;
+    private _isFocused: boolean;
+    private _isVisibility: boolean;
     private _globalRepaintSet: boolean = false;		// 设置全局重画标志。这个是给IDE用的。IDE的Image无法在onload的时候通知对应的sprite重画。
-    /**@private */
     private _globalRepaintGet: boolean = false;		// 一个get一个set是为了把标志延迟到下一帧的开始，防止部分对象接收不到。
 
     /**
@@ -274,7 +233,11 @@ export class Stage extends Sprite {
      */
     useRetinalCanvas: boolean = false;
 
-    /**场景类，引擎中只有一个stage实例，此实例可以通过Laya.stage访问。*/
+    /**
+     * @ignore
+     * @en Stage class, there is only one stage instance in the engine. This instance can be accessed through Laya.stage.
+     * @zh 场景类，引擎中只有一个stage实例，此实例可以通过Laya.stage访问。
+     * */
     constructor() {
         super();
         super.set_transform(this._createTransform());
@@ -365,8 +328,10 @@ export class Stage extends Sprite {
     }
 
     /**
-     * @private
-     * 在移动端输入时，输入法弹出期间不进行画布尺寸重置。
+     * @en Returns whether it is currently in a text input state on mobile devices. 
+     * Note: Do not reset the canvas size while the input method is displayed during input on mobile devices.
+     * @zh 返回是否正处于移动端文本输入的状态。
+     * 注意，在移动端输入时，输入法弹出期间不要进行画布尺寸重置。
      */
     private _isInputting(): boolean {
         return (Browser.onMobile && InputManager.isTextInputting);
@@ -374,7 +339,6 @@ export class Stage extends Sprite {
 
     /**
      * @internal
-     * @override
      * @en Set the width of the stage.
      * @param value The numeric value to set as the width.
      * @zh 设置舞台的宽度。
@@ -388,7 +352,6 @@ export class Stage extends Sprite {
 
     /**
      * @internal
-     * @override
      * @en Get the width of the stage.
      * @zh 获取舞台的宽度。
      */
@@ -399,7 +362,6 @@ export class Stage extends Sprite {
 
     /**
      * @internal
-     * @override
      * @en Set the height of the stage.
      * @param value The numeric value to set as the height.
      * @zh 设置舞台的高度。
@@ -413,7 +375,6 @@ export class Stage extends Sprite {
 
     /**
      * @internal
-     * @override
      * @en Get the height of the stage.
      * @zh 获取舞台的高度。
      */
@@ -423,7 +384,6 @@ export class Stage extends Sprite {
     }
 
     /**
-     * @override
      * @en The matrix information of the object. By setting the matrix, node rotation, scaling, and displacement effects can be achieved.
      * @zh 对象的矩阵信息。通过设置矩阵可以实现节点旋转，缩放，位移效果。
      */
@@ -431,7 +391,6 @@ export class Stage extends Sprite {
         if (this._tfChanged) this._adjustTransform();
         return (this._transform = this._transform || this._createTransform());
     }
-
     set transform(value: Matrix) {
         super.set_transform(value);
     }
@@ -860,7 +819,6 @@ export class Stage extends Sprite {
     }
 
     /**
-     * @override
      * @en The X coordinate of the mouse on the Stage.
      * @zh 鼠标在 舞台 上的 X 轴坐标。
      */
@@ -869,7 +827,6 @@ export class Stage extends Sprite {
     }
 
     /**
-     * @override
      * @en The Y coordinate of the mouse on the Stage.
      * @zh 鼠标在 舞台 上的 Y 轴坐标。
      */
@@ -926,7 +883,6 @@ export class Stage extends Sprite {
     }
 
     /**
-     * @override
      * @en Redraw
      * @param type The type of redraw
      * @zh 重新绘制
@@ -937,7 +893,6 @@ export class Stage extends Sprite {
     }
 
     /**
-     * @override
      * @en Redraw the parent node
      * @param type The type of redraw
      * @zh 重新绘制父节点
@@ -955,7 +910,6 @@ export class Stage extends Sprite {
     }
 
     /**
-     * @private
      * @en Get frame start time.
      * @zh 获取帧开始时间
      */
@@ -974,7 +928,6 @@ export class Stage extends Sprite {
     }
 
     /**
-     * @override
      * @en Indicates whether it is visible, default is true. If set to invisible, the node will not be rendered.
      * @zh 表示是否可见，默认为true。如果设置不可见，节点将不被渲染。
      */
@@ -1078,12 +1031,11 @@ export class Stage extends Sprite {
     }
 
     /**
-     * @override
-     * @param context2D
-     * @param x
-     * @param y
+     * @param context2D The rendering context
+     * @param x The x-axis coordinate
+     * @param y The y-axis coordinate
      * @perfTag PerformanceDefine.T_UIRender
-     */
+    */
     private _render2d(context2D: Context, x: number, y: number) {
         Stat.draw2D = 0;
         context2D.startRender();
@@ -1158,12 +1110,12 @@ export class Stage extends Sprite {
         this._frameRate = value;
     }
 
-    /**@private */
+    /**@ignore */
     isGlobalRepaint(): boolean {
         return this._globalRepaintGet;
     }
 
-    /**@private */
+    /**@ignore */
     setGlobalRepaint(): void {
         this._globalRepaintSet = true;
     }

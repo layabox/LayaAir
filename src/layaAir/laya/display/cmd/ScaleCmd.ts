@@ -33,7 +33,6 @@ export class ScaleCmd {
     pivotY: number;
 
     /**
-     * @private
      * @en Create a ScaleCmd instance
      * @param scaleX Horizontal scaling value
      * @param scaleY Vertical scaling value
@@ -66,7 +65,6 @@ export class ScaleCmd {
     }
 
     /**
-     * @private
      * @en Execute the scale command
      * @param context The rendering context
      * @param gx Global X offset
@@ -81,7 +79,6 @@ export class ScaleCmd {
     }
 
     /**
-     * @private
      * @en The identifier for the ScaleCmd
      * @zh 缩放命令的标识符
      */

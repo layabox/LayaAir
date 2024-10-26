@@ -8,20 +8,6 @@ import { ILaya } from "../../ILaya";
 import { AtlasResource } from "../resource/AtlasResource";
 
 /**
- * @en Dispatched when the animation playback is complete.
- * @zh 动画播放完毕后调度。
- * @eventType Event.COMPLETE
- */
-/*[Event(name = "complete", type = "laya.events.Event")]*/
-
-/**
- * @en Dispatched when a specific label is reached during playback.
- * @zh 播放到某标签后调度。
- * @eventType Event.LABEL
- */
-/*[Event(name = "label", type = "laya.events.Event")]*/
-
-/**
  * @en The Animation class is a Graphics-based animation class. It implements interfaces for creating, playing, and controlling animations based on Graphics.
  * The animation template cache pool stores key-value pairs, where the key can be customized or read from a specified configuration file, and the value is the corresponding animation template, which is an array of Graphics objects. Each Graphics object corresponds to a frame image, and the essence of animation playback is switching Graphics objects at regular intervals.
  * This class uses an animation template cache pool, which trades some memory overhead for CPU savings. When the same animation template is used multiple times, compared to creating a new animation template each time, using the animation template cache pool only requires creation once, caching it for multiple reuses, thus saving the overhead of creating animation templates.
@@ -39,10 +25,7 @@ export class Animation extends AnimationBase {
      * 使用loadImages(...)、loadAtlas(...)、loadAnimation(...)、set source方法可以创建动画模版。使用play(...)可以播放指定动画。
      */
     static framesMap: any = {};
-    /**
-     * @private
-     * @internal
-     */
+
     protected _frames: any[];
 
     private _source: string;
@@ -66,8 +49,6 @@ export class Animation extends AnimationBase {
     }
 
     /**
-     * @inheritDoc
-     * @override
      * @en Destroys the object.
      * @param destroyChild Whether to destroy child nodes
      * @zh 销毁对象。
@@ -90,7 +71,6 @@ export class Animation extends AnimationBase {
     }
 
     /**
-     * @override
      * @en Starts playing the animation. It will search for an animation template with the key value "name" in the animation template cache pool. If it exists, it will initialize the current sequence frame with this animation template. If it doesn't exist, it will use the current sequence frame.
      * The play(...) method is designed to be called at any time after creating an instance. After calling, it will be in a playing state. When the corresponding resources are loaded, the animation frame filling method (set frames) is called, or the instance is displayed on the stage, it will determine whether it is in a playing state. If so, it will start playing.
      * Combined with the wrapMode property, you can set the animation playback order type.
@@ -109,10 +89,6 @@ export class Animation extends AnimationBase {
         super.play(start, loop, name);
     }
 
-    /**
-     * @private
-     * @internal
-     */
     protected _setFramesFromCache(name: string, showWarn: boolean = false): boolean {
         if (this._url) name = this._url + "#" + name;
         if (name && Animation.framesMap[name]) {
@@ -139,7 +115,6 @@ export class Animation extends AnimationBase {
         return false;
     }
 
-    /**@private */
     private _copyLabels(labels: any): any {
         if (!labels) return null;
         var rst: any;
@@ -151,22 +126,12 @@ export class Animation extends AnimationBase {
         return rst;
     }
 
-    /**
-     * @private 
-     * @override
-     * @internal
-    */
     protected _frameLoop(): void {
         if (this._visible && this._style.alpha > 0.01 && this._frames) {
             super._frameLoop();
         }
     }
 
-    /**
-     * @private 
-     * @override
-     * @internal
-    */
     protected _displayToIndex(value: number): void {
         if (this._frames) this.graphics = this._frames[value];
     }
@@ -237,7 +202,6 @@ export class Animation extends AnimationBase {
     }
 
     /**
-     * @override
      * @en Stops animation playback and clears object properties. It can then be stored in the object pool for easy object reuse.
      * @returns AnimationBase
      * @zh 停止动画播放，并清理对象属性。之后可存入对象池，方便对象复用。
@@ -355,7 +319,6 @@ export class Animation extends AnimationBase {
         return this;
     }
 
-    /**@private */
     private _loadAnimationData(url: string, loaded: Handler = null, atlas: string = null): void {
         if (atlas && !Loader.getAtlas(atlas)) {
             console.warn("atlas load fail:" + atlas);

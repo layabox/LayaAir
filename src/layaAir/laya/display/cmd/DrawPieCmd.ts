@@ -49,7 +49,6 @@ export class DrawPieCmd {
     private _endAngle: number;
 
     /**
-     * @private
      * @en Create a DrawPieCmd instance
      * @param x The X-axis position to start drawing
      * @param y The Y-axis position to start drawing
@@ -95,7 +94,6 @@ export class DrawPieCmd {
     }
 
     /**
-     * @private
      * @en Execute the drawing command
      * @param context The rendering context
      * @param gx Global X offset
@@ -112,7 +110,6 @@ export class DrawPieCmd {
     }
 
     /**
-     * @private
      * @en The identifier for the DrawPieCmd
      * @zh 绘制扇形命令的标识符
      */

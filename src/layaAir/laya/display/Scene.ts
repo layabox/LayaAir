@@ -23,9 +23,11 @@ export class Scene extends Sprite {
      * @zh 创建后还未被销毁的场景列表。此属性只读，请不要直接修改。用于方便查看未销毁的场景列表，便于内存管理。
      */
     static readonly unDestroyedScenes: Set<Scene> = new Set();
-    /**获取根节点*/
+    /**
+     * @en Get the root node
+     * @zh 获取根节点
+     * */
     private static _root: Sprite;
-    /**@private */
     private static _loadPage: Sprite;
 
     /**
@@ -41,17 +43,19 @@ export class Scene extends Sprite {
     _scene3D: any;
 
     /**
-     * @private
-     * @internal 
-     * 相对布局组件
+     * @en relative layout component
+     * @zh 相对布局组件
      */
     protected _widget: Widget;
 
-    /**场景时钟*/
+    /**
+     * @en The scene clock
+     * @zh 场景时钟
+     */
     private _timer: Timer;
-    /**@private */
     private _viewCreated: boolean = false;
 
+    /** @ignore */
     constructor(createChildren = true) {
         super();
 
@@ -64,7 +68,9 @@ export class Scene extends Sprite {
     }
 
     /**
-     * @private 兼容老项目
+     * @ignore
+     * @en Compatible with legacy projects
+     * @zh 兼容老项目
      */
     protected createChildren(): void {
     }
@@ -87,7 +93,7 @@ export class Scene extends Sprite {
     }
 
     /**
-     * @private
+     * @ignore
      * @en Load scene view. Used for loading mode. Compatible with old projects.
      * @param path The scene address.
      * @zh 装载场景视图。用于加载模式。兼容老项目。
@@ -124,7 +130,7 @@ export class Scene extends Sprite {
     }
 
     /**
-     * @private
+     * @ignore
      * @en Create view using view data. Compatible with old projects.
      * @param view The view data information.
      * @zh 通过视图数据创建视图。兼容老项目。
@@ -204,8 +210,6 @@ export class Scene extends Sprite {
     }
 
     /**
-     * @inheritDoc 
-     * @override
      * @en Destroy the scene.
      * @param destroyChild Whether to delete child nodes.
      * @zh 场景销毁。
@@ -224,8 +228,6 @@ export class Scene extends Sprite {
 
     /**
      * @internal
-     * @inheritDoc 
-     * @override
      * @en Get the width of the scene.
      * @zh 获取场景的宽度。
      */
@@ -243,8 +245,6 @@ export class Scene extends Sprite {
 
     /**
      * @internal
-     * @inheritDoc 
-     * @override
      * @en Get the height of the scene.
      * @zh 获取场景的高度。
      */
@@ -261,7 +261,6 @@ export class Scene extends Sprite {
     }
 
     /**
-     * @override
      * @en Scene clock
      * @zh 场景时钟
      */
@@ -365,20 +364,11 @@ export class Scene extends Sprite {
         }
     }
 
-    /**
-     * @internal
-     * @protected
-     */
     protected _shouldRefreshLayout(): void {
         super._shouldRefreshLayout();
         this.callLater(this._sizeChanged);
     }
 
-    /**
-     * @internal
-     * @private 
-     * @override
-    */
     protected _sizeChanged(): void {
         this.event(Event.RESIZE);
         if (this._widget !== Widget.EMPTY) this._widget.resetLayout();
@@ -395,8 +385,8 @@ export class Scene extends Sprite {
     }
 
     /**
-     * @private
-     * 获取对象的布局样式。请不要直接修改此对象
+     * @en Get the layout style of the object. Please do not directly modify this object
+     * @zh 获取对象的布局样式。请不要直接修改此对象
      */
     private _getWidget(): Widget {
         this._widget === Widget.EMPTY && (this._widget = this.addComponent(Widget));
@@ -494,7 +484,6 @@ export class Scene extends Sprite {
         return Scene.load(url, Handler.create(null, this._onSceneLoaded, [closeOther, complete, param]), progress);
     }
 
-    /**@private */
     private static _onSceneLoaded(closeOther: boolean, complete: Handler, param: any, scene: Scene): void {
         scene.open(closeOther, param);
         if (complete) complete.runWith(scene);

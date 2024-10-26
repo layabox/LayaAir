@@ -77,7 +77,6 @@ export class DrawRoundRectCmd {
 
 
     /**
-     * @private
      * @en Create a DrawRoundRectCmd instance
      * @param x The X-axis position of the rounded rectangle
      * @param y The Y-axis position of the rounded rectangle
@@ -134,7 +133,6 @@ export class DrawRoundRectCmd {
     }
 
     /**
-     * @private
      * @en Execute the drawing rounded rectangle command
      * @param context The rendering context
      * @param gx Global X offset
@@ -158,7 +156,6 @@ export class DrawRoundRectCmd {
     }
 
     /**
-     * @private
      * @en The identifier for the DrawRoundRectCmd
      * @zh 绘制圆角矩形命令的标识符
      */

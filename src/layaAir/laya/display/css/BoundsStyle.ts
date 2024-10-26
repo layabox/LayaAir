@@ -7,7 +7,6 @@ import { Pool } from "../../utils/Pool"
  * @zh 图形边界数据类
  */
 export class BoundsStyle {
-    /**@private */
     bounds: Rectangle|null;
     /**
      * @en Bounds set by the user

@@ -27,9 +27,7 @@ export class Node extends EventDispatcher {
     static EVENT_SET_ACTIVESCENE: string = "ActiveScene";
     /**@internal */
     static EVENT_SET_IN_ACTIVESCENE: string = "InActiveScene";
-    /**@private */
     private _bits: number = 0;
-    /**@private */
     private _hideFlags: number = 0;
 
     /**
@@ -68,6 +66,7 @@ export class Node extends EventDispatcher {
     _url: string;
 
     /**
+     * @ignore
      * @en Extra data of the node.
      * @zh 节点的额外数据。IDE内部使用。
      */
@@ -125,7 +124,7 @@ export class Node extends EventDispatcher {
         return this._destroyed;
     }
 
-
+    /** @ignore */
     constructor() {
         super();
         this._initialize();
@@ -170,7 +169,6 @@ export class Node extends EventDispatcher {
     }
 
     /**
-     * @private
      * @en Update the display status of the node in the stage.
      * This method checks the node's hierarchy to determine if it or any of its parents are displayed in the stage, and updates the DISPLAYED_INSTAGE flag accordingly.
      * @zh 更新节点在舞台中的显示状态。
@@ -226,7 +224,6 @@ export class Node extends EventDispatcher {
     }
 
     /**
-     * @internal
      * @en Start listening to a specific event type.
      * This method sets the DISPLAY flag if the event type is DISPLAY or UNDISPLAY and the node is not already marked as displayed.
      * @param type The event type to listen to.
@@ -475,7 +472,6 @@ export class Node extends EventDispatcher {
     }
 
     /**
-     * @internal
      * @en Callback when a child node changes.
      * @param child The child node that has changed.
      * @zh 子节点发生变化时的回调。
@@ -624,8 +620,6 @@ export class Node extends EventDispatcher {
     };
 
     /**
-     * @private
-     * @internal
      * @en Set the parent node of the current node.
      * @param value The new parent node.
      * @zh 设置当前节点的父节点。
@@ -683,8 +677,6 @@ export class Node extends EventDispatcher {
     }
 
     /**
-    * @private
-    * @internal
     * @en Set the display state of a node's children.
     * @param node The node whose children's display state needs to change.
     * @param display The display state to set.
@@ -838,8 +830,6 @@ export class Node extends EventDispatcher {
 
     //============================组件化支持==============================
     /** 
-     * @private
-     * @internal
      * @en The component list of this node.
      * @zh 节点的组件列表。
      */
@@ -896,8 +886,6 @@ export class Node extends EventDispatcher {
     }
 
     /**
-     * @private
-     * @internal
      * @en Actions performed when the node becomes active.
      * @zh 节点激活时执行的操作。
      */
@@ -906,8 +894,6 @@ export class Node extends EventDispatcher {
     }
 
     /**
-     * @private
-     * @internal
      * @en Actions performed when the node becomes inactive.
      * @zh 节点停用时执行的操作。
      */
@@ -916,8 +902,6 @@ export class Node extends EventDispatcher {
     }
 
     /**
-     * @private
-     * @internal
      * @en Actions performed when the node is added to the scene.
      * @zh 节点被添加到场景时执行的操作。
      */
@@ -927,8 +911,6 @@ export class Node extends EventDispatcher {
     }
 
     /**
-     * @private
-     * @internal
      * @en Actions performed when the node is removed from the scene.
      * @zh 节点从场景中移除时执行的操作。
      */
@@ -1089,8 +1071,6 @@ export class Node extends EventDispatcher {
     }
 
     /**
-     * @private
-     * @internal
      * @en Handle the addition of the node to its parent.
      * This method is called when the node is added to a parent node, updating the active state and scene reference if applicable.
      * @zh 处理节点被添加到父节点时的操作。
@@ -1108,8 +1088,6 @@ export class Node extends EventDispatcher {
 
 
     /**
-     * @private
-     * @internal
      * @en Handle the removal of the node from its parent.
      * This method is called when the node is removed from its parent node, updating the active state and scene reference if applicable.
      * @zh 处理节点从父节点移除时的操作。
@@ -1162,7 +1140,6 @@ export class Node extends EventDispatcher {
     }
 
     /**
-     * @internal
      * @en Destroy all components on the node.
      * @zh 销毁节点上的所有组件。
      */
@@ -1179,7 +1156,6 @@ export class Node extends EventDispatcher {
     }
 
     /**
-     * @internal
      * @en Handle changes to the node's components.
      * This method is called when a component is added, removed, or all components are destroyed.
      * @param comp The component that was changed.
