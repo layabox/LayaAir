@@ -811,10 +811,10 @@ class TimeKeeper {
         this.timer = timer;
     }
     update() {
-        this.delta =1 / 30;
-        // this.timer.delta / 1000;
-        // if (this.delta > this.maxDelta)
-        //     this.delta = this.maxDelta;
+        // this.delta =1 / 30;
+        this.delta = this.timer.delta / 1000;
+        if (this.delta > this.maxDelta)
+            this.delta = this.maxDelta;
     }
 }
 

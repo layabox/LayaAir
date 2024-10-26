@@ -16,9 +16,7 @@ import { ChangeRGBA } from "./change/ChangeRGBA";
 import { ChangeSlot } from "./change/ChangeSlot";
 import { IChange } from "./interface/IChange";
 import { IPreRender } from "./interface/IPreRender";
-import { ITimeline } from "./interface/ITimeLine";
 import { IVBChange } from "./interface/IVBChange";
-import { AttachmentTimeline } from "./timelines/AttachmentTimeline";
 
 export type FrameRenderData = {
     ib?: Uint16Array|Uint32Array|Uint8Array;
@@ -83,8 +81,6 @@ export class AnimationRender {
      * @zh 指示动画是否已缓存。
      */
     isCache: boolean;
-
-    timelines:ITimeline[] = [];
 
     /**
      * @en Creates a Float32Array representing a bone's transform.
@@ -186,8 +182,6 @@ export class AnimationRender {
         changeMap.clear();
         renderFrames.length = 0;
         let hasClip: boolean;
-
-        let lTimelines = this.timelines;
 
         for (let i = 0, n = timeline.length; i < n; i++) {
             let time = timeline[i];

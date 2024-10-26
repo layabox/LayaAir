@@ -17,13 +17,12 @@ import { SpineTemplet } from "../SpineTemplet";
 import { ISpineRender } from "../interface/ISpineRender";
 import { SpineShaderInit } from "../material/SpineShaderInit";
 import { SpineMeshUtils } from "../mesh/SpineMeshUtils";
-import { SkinAniRenderData } from "./AnimationRender";
 import { AnimationRenderProxy } from "./AnimationRenderProxy";
 import { SketonDynamicInfo, SketonOptimise, SkinAttach, TSpineBakeData } from "./SketonOptimise";
 import { VBCreator } from "./VBCreator";
 import { ISpineOptimizeRender } from "./interface/ISpineOptimizeRender";
 import { IVBChange } from "./interface/IVBChange";
-import { IVBIBUpdate } from "./interface/IVBIBUpdate";
+import { SkinRenderUpdate } from "./SkinRenderUpdate"; // 新增导入
 
 /**
  * @en SpineOptimizeRender used for optimized rendering of Spine animations.
@@ -50,18 +49,17 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
      * @zh Spine 插槽数组。
      */
     slots: spine.Slot[];
-
     /**
      * @en Array of SkinRender objects.
      * @zh SkinRender 对象数组。
      */
-    skinRenderArray: SkinRender[];
+    skinRenderArray: SkinRenderUpdate[];
 
     /**
      * @en Current SkinRender being used.
      * @zh 当前使用的 SkinRender。
      */
-    currentRender: SkinRender;
+    currentRender: SkinRenderUpdate;
     /** @internal */
     _skinIndex: number = 0;
     /** @internal */
@@ -115,8 +113,6 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
 
     private _renderProxytype: ERenderProxyType;
 
-    _dynamicInfo:SketonDynamicInfo;
-
     /**
      * @en Create a new SpineOptimizeRender instance.
      * @param spineOptimize SketonOptimise object containing optimization data.
@@ -132,16 +128,15 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
         this.boneMat = new Float32Array(spineOptimize.maxBoneNumber * 8);
         
         spineOptimize.skinAttachArray.forEach((value) => {
-            this.skinRenderArray.push(new SkinRender(this, value));
+            this.skinRenderArray.push(new SkinRenderUpdate(this, value));
         })
 
         let animators = spineOptimize.animators;
         for (let i = 0, n = animators.length; i < n; i++) {
             let animator = animators[i];
             this.animatorMap.set(animator.name, new AnimationRenderProxy(animator));
-        }
+    }
         this.currentRender = this.skinRenderArray[this._skinIndex];//default
-        this._dynamicInfo = spineOptimize._dynamicInfo;
     }
 
     /**
@@ -176,7 +171,7 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
         }
         //throw new Error("Method not implemented.");
     }
-    
+
     /**
      * @en Change the current skeleton.
      * @param skeleton The new spine skeleton to use.
@@ -311,7 +306,7 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
         let id = vertexDeclaration.id;
         let mesh = this._dynamicMap.get(id);
         if (!mesh && create) {
-            mesh = SpineMeshUtils.createMeshDynamic(vertexDeclaration, this._dynamicInfo.maxVertexCount , this._dynamicInfo.maxIndexCount );
+            mesh = SpineMeshUtils.createMeshDynamic(vertexDeclaration );
             this._dynamicMap.set(id , mesh);
         }
         return mesh;
@@ -366,7 +361,7 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
             }
 
             if (oldSkinData != currentSKin || !this._nodeOwner._mesh) {
-                currentRender.renderUpdate(currentSKin , -1);
+                currentRender.renderUpdate(currentSKin , -1 , -1);
             }
             // old.animator.mutiRenderAble
             // let mutiRenderAble = currentSKin.mutiRenderAble;
@@ -413,6 +408,7 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
     render(time: number): void {
         this.renderProxy.render(time, this.boneMat);
     }
+
 }
 
 enum ERenderProxyType {
@@ -421,7 +417,7 @@ enum ERenderProxyType {
     RenderBake
 }
 interface IRender {
-    change(skinRender: SkinRender, currentAnimation: AnimationRenderProxy): void;
+    change(skinRender: SkinRenderUpdate, currentAnimation: AnimationRenderProxy): void;
     leave(): void;
     render(curTime: number, boneMat: Float32Array): void;
 }
@@ -440,14 +436,13 @@ class RenderOptimize implements IRender {
      * @zh Spine 插槽数组。
      */
     slots: spine.Slot[];
-
     /** @internal */
     _renderNode: Spine2DRenderNode;
     /**
      * @en The current skin renderer.
      * @zh 当前皮肤渲染器。
      */
-    skinRender: SkinRender;
+    skinUpdate: SkinRenderUpdate;
     /**
      * @en The current animation render proxy.
      * @zh 当前动画渲染代理。
@@ -477,8 +472,8 @@ class RenderOptimize implements IRender {
      * @param currentRender 要使用的新皮肤渲染器。
      * @param currentAnimation 要使用的新动画渲染代理。
      */
-    change(currentRender: SkinRender, currentAnimation: AnimationRenderProxy) {
-        this.skinRender = currentRender;
+    change(currentRender: SkinRenderUpdate, currentAnimation: AnimationRenderProxy) {
+        this.skinUpdate = currentRender;
         this.currentAnimation = currentAnimation;
     }
     /**
@@ -498,7 +493,7 @@ class RenderOptimize implements IRender {
      * @param boneMat 用于渲染的骨骼矩阵。
      */
     render(curTime: number, boneMat: Float32Array) {
-        this.currentAnimation.render(this.bones, this.slots, this.skinRender, curTime, boneMat );//TODO bone
+        this.currentAnimation.render(this.bones, this.slots, this.skinUpdate, curTime, boneMat );//TODO bone
         // this.material.boneMat = boneMat;
         this._renderNode._spriteShaderData.setBuffer(SpineShaderInit.BONEMAT, boneMat);
     }
@@ -545,7 +540,7 @@ class RenderNormal implements IRender {
      * @param currentRender 要使用的新皮肤渲染器。
      * @param currentAnimation 要使用的新动画渲染代理。
      */
-    change(currentRender: SkinRender, currentAnimation: AnimationRenderProxy) {
+    change(currentRender: SkinRenderUpdate, currentAnimation: AnimationRenderProxy) {
         this._renerer = currentRender._renderer;
     }
 
@@ -631,7 +626,7 @@ class RenderBake implements IRender {
      * @en The current skin renderer.
      * @zh 当前皮肤渲染器。
      */
-    skinRender: SkinRender;
+    skinRender: SkinRenderUpdate;
     /**
      * @en The current animation render proxy.
      * @zh 当前动画渲染代理。
@@ -679,7 +674,7 @@ class RenderBake implements IRender {
      * @param currentRender 要使用的新皮肤渲染器。
      * @param currentAnimation 要使用的新动画渲染代理。
      */
-    change(currentRender: SkinRender, currentAnimation: AnimationRenderProxy) {
+    change(currentRender: SkinRenderUpdate, currentAnimation: AnimationRenderProxy) {
         this.skinRender = currentRender;
         this.currentAnimation = currentAnimation;
         this._renderNode._spriteShaderData.addDefine(SpineShaderInit.SPINE_SIMPLE);
@@ -726,224 +721,5 @@ class RenderBake implements IRender {
         // let boneMat = this.currentAnimation.render(this.bones, this.slots, this.skinRender, curTime);//TODO bone
         // this.material.boneMat = boneMat;
         this._renderNode._spriteShaderData.setVector(SpineShaderInit.SIMPLE_SIMPLEANIMATORPARAMS, this._simpleAnimatorParams);
-    }
-}
-
-
-/**
- * @en SkinRender used for rendering Spine skins.
- * @zh SkinRender 类用于渲染 Spine 皮肤。
- */
-class SkinRender implements IVBIBUpdate {
-
-    /**
-     * @en The owner of this SkinRender.
-     * @zh 此 SkinRender 的所有者。
-     */
-    owner: SpineOptimizeRender;
-    /**
-     * @en The name of the skin.
-     * @zh 皮肤的名称。
-     */
-    name: string;
-    // protected vb: IVertexBuffer;
-    // protected ib: IIndexBuffer;
-    // elements: [Material, number, number][];
-    private hasNormalRender: boolean;
-    
-    /** @internal */
-    _renderer: ISpineRender;
-
-    // elementsMap: Map<number, ElementCreator>;
-
-    /**
-     * @en The Spine template.
-     * @zh Spine 模板。
-     */
-    templet: SpineTemplet;
-
-    /**
-     * @en The type of skin attachment.
-     * @zh 皮肤附件的类型。
-     */
-    skinAttachType: ESpineRenderType;
-    /**
-     * @en The material for rendering.
-     * @zh 用于渲染的材质。
-     */
-    material: Material;
-    /**
-     * @en Array of current materials.
-     * @zh 当前材质数组。
-     */
-    currentMaterials: Material[] = [];
-
-    cacheMaterials: Material[][] = [];
-
-    vChanges:IVBChange[] = [];
-
-    /**
-     * @en Create a new instance of SkinRender.
-     * @param owner The SpineOptimizeRender that owns this SkinRender.
-     * @param skinAttach The SkinAttach data.
-     * @zh 创建 SkinRender 的新实例。
-     * @param owner 拥有此 SkinRender 的 SpineOptimizeRender。
-     * @param skinAttach SkinAttach 数据。
-     */
-    constructor(owner: SpineOptimizeRender, skinAttach: SkinAttach) {
-        this.owner = owner;
-        this.name = skinAttach.name;
-        // this.elements = [];
-        this.hasNormalRender = skinAttach.hasNormalRender;
-        // this.elementsMap = new Map();
-        this.skinAttachType = skinAttach.type;
-    }
-
-    /**
-     * @en Get material by name and blend mode.
-     * @param name The name of the texture.
-     * @param blendMode The blend mode.
-     * @zh 通过名称和混合模式获取材质。
-     * @param name 纹理的名称。
-     * @param blendMode 混合模式。
-     */
-    getMaterialByName(name: string, blendMode: number): Material {
-        return this.templet.getMaterial(this.templet.getTexture(name), blendMode);
-    }
-
-    /**
-     * @en Rendering Update
-     * @param skindata animation rendering data
-     * @param frame Current Frame
-     * @zh 渲染更新
-     * @param skindata 动画渲染数据
-     * @param frame 当前帧
-     */
-    renderUpdate( skindata:SkinAniRenderData, frame:number){
-        let frameData = skindata.getFrameData(frame);
-        let mulitRenderData = frameData.mulitRenderData
-        let mats:Material[] = this.cacheMaterials[mulitRenderData.id];
-        
-        let needUpdate = false;
-        if (!mats) {
-            mats = this.cacheMaterials[mulitRenderData.id] = [];
-            let renderData = mulitRenderData.renderData;
-            for (let i = 0, n = renderData.length; i < n; i++) {
-                let data = renderData[i];
-                let mat = this.getMaterialByName(data.textureName, data.blendMode);
-                mats.push(mat);
-            }
-        }
-
-        let renderNode = this.owner._nodeOwner;
-        if (this.currentMaterials != mats) {
-            renderNode._updateMaterials(mats);
-            needUpdate = true;
-        }
-        this.currentMaterials = mats;
-
-        let mesh : Mesh2D ;
-        if (skindata.isDynamic) {
-            let mesh = this.owner.getDynamicMesh(skindata.vb.vertexDeclaration);
-            
-            if (this.vChanges.length || frameData.vChanges || frame < 0) {
-                let needUpload = frame <= 0;
-                let currentChanges = this.vChanges;
-                let frameChanges = frameData.vChanges;
-                
-                if (frameChanges) {
-                    for (let i = 0 , n = frameChanges.length; i < n; i++) 
-                        currentChanges.indexOf(frameChanges[i]) == -1 && currentChanges.push(frameChanges[i]);
-                }
-
-                for (let i = currentChanges.length - 1; i > -1; i--) {
-                    let change = currentChanges[i];
-                    if ( change.startFrame <= frame 
-                        && change.endFrame >= frame 
-                        || frame <= 0) {
-                            if(change.updateVB(skindata.vb ,this.owner.slots)){
-                                needUpload = true;
-                            }else
-                                currentChanges.splice(i , 1);
-                    }else{
-                        currentChanges.splice(i , 1);
-                    }
-                }
-
-                if (needUpload) {
-                    this.uploadVertexBuffer( skindata.vb , mesh);
-                }
-            }
-
-            
-            if (frameData.ib || frame < 0) {
-                this.uploadIndexBuffer( frameData.ib , mesh)
-            }
-            needUpdate = SpineMeshUtils._updateSpineSubMesh(mesh , frameData , this.owner._dynamicInfo);
-            needUpdate = !renderNode._onMeshChange(mesh , needUpdate);
-        }else{
-            mesh = skindata.getMesh();
-            needUpdate = !renderNode._onMeshChange(mesh);
-        }
-
-        if (needUpdate) renderNode._updateRenderElements();
-            
-    }
-
-    /**
-     * @en Submit IndexData.
-     * @param indexData Vertex IndexData.
-     * @param mesh  Mesh2D object.
-     * @zh 提交索引数据。
-     * @param indexData 索引数据。
-     * @param mesh 网格对象。
-     */
-    uploadIndexBuffer( indexData:Uint16Array|Uint8Array|Uint32Array , mesh:Mesh2D){
-        let indexbuffer = mesh._indexBuffer;
-        indexbuffer._setIndexData(indexData , 0);
-    }
-
-    /**
-     * @en Submit vertex data.
-     * @param vbCreator Vertex buffer creator object.
-     * @param mesh Mesh2D object.
-     * @zh 提交顶点数据。
-     * @param vbCreator 构建顶点缓冲区对象。
-     * @param mesh 网格对象。
-     */
-    uploadVertexBuffer( vbCreator : VBCreator , mesh:Mesh2D){
-        let vertexBuffer = mesh.vertexBuffers[0];
-        let vblen = vbCreator.vbLength * 4;
-        vertexBuffer.setData(vbCreator.vb.buffer, 0, 0, vblen);
-    }
-
-    /**
-     * @en Initialize renderer
-     * @param skeleton spine.skeleton instance
-     * @param templet Engine spine animation template
-     * @param renderNode Rendering component
-     * @en 初始化渲染器
-     * @param skeleton spine.skeleton 实例
-     * @param templet 引擎spine动画模板
-     * @param renderNode 渲染组件
-     */
-    init(skeleton: spine.Skeleton, templet: SpineTemplet, renderNode: Spine2DRenderNode) {
-        this.templet = templet;
-        if (this.hasNormalRender) {
-            this._renderer = SpineAdapter.createNormalRender(templet, false);
-        }
-        if (templet.mainTexture) {
-            this.material = templet.getMaterial(templet.mainTexture, templet.mainBlendMode);
-        }
-    }
-
-    /**
-     * @en Render the skin at a specific time.
-     * @param time The time to render at.
-     * @zh 在特定时间渲染皮肤。
-     * @param time 要渲染的时间。
-     */
-    render(time: number) {
-
     }
 }

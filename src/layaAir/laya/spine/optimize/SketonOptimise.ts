@@ -89,8 +89,6 @@ export class SketonOptimise implements IPreRender {
      */
     bakeData: TSpineBakeData;
 
-    _dynamicInfo:SketonDynamicInfo;
-
     /** @ignore */
     constructor() {
         this.blendModeMap = new Map();
@@ -197,9 +195,6 @@ export class SketonOptimise implements IPreRender {
     initAnimation(animations: spine.Animation[]) {
         let maxBoneNumber = 0;
         //不同skin vbib长度可能不一致
-        let maxVertexCount = -Number.MAX_VALUE;
-        let maxIndexCount = -Number.MAX_VALUE;
-
         for (let i = 0, n = animations.length; i < n; i++) {
             let animation = animations[i];
             let animator = new AnimationRender();
@@ -215,17 +210,10 @@ export class SketonOptimise implements IPreRender {
                         maxBoneNumber = boneNumber;
                     }
                 }
-                maxVertexCount = Math.max(skinData.maxVertexCount, maxVertexCount) 
-                maxIndexCount = Math.max(skinData.maxIndexCount , maxIndexCount) 
             });
         }
         
         this.maxBoneNumber = maxBoneNumber;
-
-        this._dynamicInfo = {
-            maxIndexCount,
-            maxVertexCount,
-        }
     }
 
     /**

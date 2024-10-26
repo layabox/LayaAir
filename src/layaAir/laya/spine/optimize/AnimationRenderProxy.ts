@@ -1,6 +1,6 @@
 import { Spine2DRenderNode } from "../Spine2DRenderNode";
 import { AnimationRender, SkinAniRenderData } from "./AnimationRender";
-import { IVBIBUpdate } from "./interface/IVBIBUpdate";
+import { SkinRenderUpdate } from "./SkinRenderUpdate";
 
 /**
  * @en Animation rendering proxy class for managing animation state and rendering.
@@ -27,7 +27,6 @@ export class AnimationRenderProxy {
      * @zh 动画渲染器。
      */
     animator: AnimationRender;
-    //vb: VBCreator;
     /**
      * @en The current skin animation render data.
      * @zh 当前皮肤动画渲染数据。
@@ -83,7 +82,7 @@ export class AnimationRenderProxy {
      * @param updator VB/IB 更新器。
      * @param curTime 当前动画时间。
      */
-    renderWithOutMat(slots: spine.Slot[], updator: IVBIBUpdate, curTime: number) {
+    renderWithOutMat(slots: spine.Slot[], updator: SkinRenderUpdate, curTime: number) {
         let beforeFrame = this.currentFrameIndex;
         let nowFrame = this.animator.getFrameIndex(curTime, beforeFrame);
         let currentSKin = this.currentSKin;
@@ -92,7 +91,7 @@ export class AnimationRenderProxy {
         // if (currentSKin.checkVBChange(slots)) {
         //     updator.updateVB(vb.vb, vb.vbLength);
         // }
-        updator.renderUpdate(currentSKin , nowFrame);
+        updator.renderUpdate(currentSKin , nowFrame , beforeFrame);
         
         this.currentTime = curTime;
         this.currentFrameIndex = nowFrame;
@@ -116,7 +115,7 @@ export class AnimationRenderProxy {
      * @param curTime 当前动画时间。
      * @param boneMat 骨骼矩阵。
      */
-    render(bones: spine.Bone[], slots: spine.Slot[], updator: IVBIBUpdate, curTime: number, boneMat: Float32Array) {
+    render(bones: spine.Bone[], slots: spine.Slot[], updator: SkinRenderUpdate, curTime: number, boneMat: Float32Array) {
         this.renderWithOutMat(slots, updator, curTime );
         this.currentSKin.updateBoneMat(curTime, this.animator, bones, this.state, boneMat);
     }

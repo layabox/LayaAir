@@ -21,7 +21,24 @@ export class SpineMeshUtils{
 
     static SPINEMESH_COLOR2:number = 11;
 
-    static createMesh( type:ESpineRenderType , vbCreator:VBCreator , ibCreator:IBCreator , isDynamic:boolean = false , uploadBuffer:boolean = true):Mesh2D{
+    /**
+     * @en Creates a Mesh2D object for Spine rendering
+     * @param type: The Spine render type
+     * @param vbCreator: Vertex buffer creator
+     * @param ibCreator: Index buffer creator  
+     * @param isDynamic: Whether the mesh is dynamic
+     * @param uploadBuffer: Whether to upload buffer data
+     * @returns The created Mesh2D object
+     * @zh 创建用于 Spine 渲染的 Mesh2D 对象
+     * @param type: Spine 渲染类型
+     * @param vbCreator: 顶点缓冲区创建器
+     * @param ibCreator: 索引缓冲区创建器
+     * @param isDynamic: 是否为动态网格
+     * @param uploadBuffer: 是否上传缓冲区数据
+     * @returns 创建的 Mesh2D 对象
+     */
+    static createMesh(type: ESpineRenderType, vbCreator: VBCreator, ibCreator: IBCreator, isDynamic: boolean = false, uploadBuffer: boolean = true): Mesh2D {
+
         let mesh = new Mesh2D;
         
         let vertexBuffers:IVertexBuffer[] = [];
@@ -86,57 +103,34 @@ export class SpineMeshUtils{
 
         return mesh;
     }
-
-    static createMeshDynamic( vertexDeclaration:VertexDeclaration , maxVertexCount:number , maxIndexCount:number):Mesh2D{
+    
+    /**
+     * @en Creates a dynamic mesh based on the given vertex declaration.
+     * This method is used to generate a Mesh2D object with dynamic vertex data.
+     * @param vertexDeclaration The vertex declaration that defines the structure of vertex data.
+     * @returns A new Mesh2D object configured for dynamic rendering.
+     * @zh 根据给定的顶点声明创建一个动态网格。
+     * 此方法用于生成一个具有动态顶点数据的 Mesh2D 对象。
+     * @param vertexDeclaration 定义顶点数据结构的顶点声明。
+     * @returns 一个配置为动态渲染的新 Mesh2D 对象。
+     */
+    static createMeshDynamic(vertexDeclaration: VertexDeclaration): Mesh2D {
         let mesh = new Mesh2D;
-        
-        let indexByteCount = 2;
-        let indexFormat = IndexFormat.UInt16;
-        if (maxVertexCount < 256) {
-            indexByteCount = 1;
-            indexFormat = IndexFormat.UInt8;
-        }else if (maxVertexCount > 65535) {
-            indexByteCount = 4;
-            indexFormat = IndexFormat.UInt32;
-        }
-
         let vertexBuffers:IVertexBuffer[] = [];
-        
         let usage = BufferUsage.Dynamic;
-
         let vertexBuffer = LayaGL.renderDeviceFactory.createVertexBuffer(usage);
-        let vertexStride = vertexDeclaration.vertexStride;
         vertexBuffer.vertexDeclaration = vertexDeclaration;
-
-        let vbByteLength = maxVertexCount * vertexStride ;
-        vertexBuffer.setDataLength(vbByteLength);
-
         vertexBuffers.push(vertexBuffer);
-
-        mesh._vertexCount = vbByteLength / vertexStride;
         mesh._vertexBuffers = vertexBuffers;
-
-        let ibByteLength = maxIndexCount * indexByteCount;
-        // let ibUploadLength = ibCreator.ibLength; 
         let indexbuffer = LayaGL.renderDeviceFactory.createIndexBuffer(usage);
-        indexbuffer.indexType = indexFormat;
-        indexbuffer.indexCount = maxIndexCount;
-        indexbuffer._setIndexDataLength(ibByteLength);
-   
         mesh._indexBuffer = indexbuffer;
-
 
         let state = mesh._bufferState;
         state.applyState(vertexBuffers, indexbuffer);
-
-		var memorySize: number = vbByteLength + ibByteLength;
-        mesh._setCPUMemory(memorySize);
-        mesh._setGPUMemory(memorySize);
-
         return mesh;
     }
 
-    static _updateSpineSubMesh( mesh:Mesh2D , frameData:FrameRenderData , dynamicInfo : SketonDynamicInfo):boolean{
+    static _updateSpineSubMesh( mesh:Mesh2D , frameData:FrameRenderData ):boolean{
         let subMeshCount = mesh.subMeshCount;
         let mulitRenderData = frameData.mulitRenderData;
         let renderdata = mulitRenderData.renderData;

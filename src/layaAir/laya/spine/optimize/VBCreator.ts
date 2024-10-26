@@ -184,7 +184,7 @@ export abstract class VBCreator implements IGetBone {
         }
         offset = this.vbLength / this.vertexSize;
         map.set(attach.attachment, { offset: offset, attachment: attach });
-        if (attach.isPath) return offset;
+        if (!attach.vertexCount) return offset;
         
         if (offset + attach.vertexCount >= this.maxVertexCount) {//长度超标
             this.setBufferLength(offset + attach.vertexCount);
