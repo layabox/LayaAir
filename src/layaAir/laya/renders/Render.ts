@@ -2,6 +2,10 @@ import { Laya } from "../../Laya";
 import { LayaEnv } from "../../LayaEnv";
 import { IRenderEngine } from "../RenderDriver/DriverDesign/RenderDevice/IRenderEngine";
 import { HTMLCanvas } from "../resource/HTMLCanvas";
+import { Texture2D } from "../resource/Texture2D";
+import { Texture2DArray } from "../resource/Texture2DArray";
+import { TextureCube } from "../resource/TextureCube";
+import { HalfFloatUtils } from "../utils/HalfFloatUtils";
 import { BlendMode } from "../webgl/canvas/BlendMode";
 import { Shader2D } from "../webgl/shader/d2/Shader2D";
 import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
@@ -166,9 +170,13 @@ export class Render {
         Render._context = ctx;
         canvas._setContext(ctx);
 
-
         Shader2D.__init__();
         BlendMode._init_();
+        Texture2D.__init__();
+        TextureCube.__init__();
+        Texture2DArray.__init__();
+        HalfFloatUtils.__init__();
+
 
         return true;
     }

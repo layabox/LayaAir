@@ -191,13 +191,11 @@ export class Laya3D {
         PixelLineMaterial.defaultMaterial = pixelLineMaterial;
         TrailMaterial.defaultMaterial = new TrailMaterial();
         TrailMaterial.defaultMaterial.lock = true;
-        Texture2D.__init__();
-        TextureCube.__init__();
-        Texture2DArray.__init__();
+      
         SkyBox.__init__();
         SkyDome.__init__();
         ScreenQuad.__init__();
-        HalfFloatUtils.__init__();
+       
     }
 
     /**
