@@ -248,6 +248,7 @@ export class NavAgent extends Component {
     set destination(value: Vector3) {
         value.cloneTo(this._destination);
         if (!this._navManager) return;
+        if (this._currentNaveSurface == null|| !this._currentNaveSurface.enabled) return;
         let targetSurface: NavMeshSurface = this._navManager.getNavMeshSurface(value, this._agentType);
         if (targetSurface == this._currentNaveSurface) {
             this._currentNaveSurface.navMesh.requestMoveTarget(this, this._destination);
