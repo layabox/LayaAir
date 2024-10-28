@@ -37,6 +37,7 @@ export class pxCollisionTool {
             // trigger
             let otherShape = pxColliderShape._shapePool.get(collisionData.otherShape);
             let triggerShape = pxColliderShape._shapePool.get(collisionData.triggerShape);
+            if (!otherShape || !triggerShape) return null;
             collsion._colliderA = otherShape._pxCollider;
             collsion._colliderB = triggerShape._pxCollider;
             collsion._isTrigger = true;
@@ -44,6 +45,7 @@ export class pxCollisionTool {
             // collision
             let shape0 = pxColliderShape._shapePool.get(collisionData.pxShape0);
             let shape1 = pxColliderShape._shapePool.get(collisionData.pxShape1);
+            if (!shape0 || !shape1) return null;
             // get pxCollider
             collsion._colliderA = shape0._pxCollider;
             collsion._colliderB = shape1._pxCollider;

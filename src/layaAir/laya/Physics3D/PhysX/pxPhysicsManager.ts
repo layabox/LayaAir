@@ -162,6 +162,7 @@ export class pxPhysicsManager implements IPhysicsManager {
         collider.active = value;
         if (value) {
             collider._physicsManager = this;
+            collider.setWorldTransform(true);
         } else {
             collider._physicsManager = null;
         }
@@ -265,7 +266,6 @@ export class pxPhysicsManager implements IPhysicsManager {
             return;
         }
         let pxcollider = collider as pxCollider;
-        //collider._derivePhysicsTransformation(true);
         switch (pxcollider._type) {
             case pxColliderType.StaticCollider:
                 this._pxScene.addActor(pxcollider._pxActor, null);

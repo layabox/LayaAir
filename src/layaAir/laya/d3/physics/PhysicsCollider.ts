@@ -36,6 +36,11 @@ export class PhysicsCollider extends PhysicsColliderComponent {
         super();
     }
 
+    _onAdded(): void {
+        super._onAdded();
+        this.isTrigger = this._isTrigger;
+    }
+
     /**
      * @en If this collider is a trigger.
      * @zh 此碰撞器是否为触发器。

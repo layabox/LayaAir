@@ -115,8 +115,8 @@ export class btStaticCollider extends btCollider implements IStaticCollider {
         this._staticCapableMap.set(EColliderCapable.Collider_Friction, true);
         this._staticCapableMap.set(EColliderCapable.Collider_Restitution, true);
         this._staticCapableMap.set(EColliderCapable.Collider_RollingFriction, true);
-        this._staticCapableMap.set(EColliderCapable.Collider_DynamicFriction, true);
-        this._staticCapableMap.set(EColliderCapable.Collider_StaticFriction, true);
+        this._staticCapableMap.set(EColliderCapable.Collider_DynamicFriction, false);
+        this._staticCapableMap.set(EColliderCapable.Collider_StaticFriction, false);
         this._staticCapableMap.set(EColliderCapable.Collider_BounceCombine, true);
         this._staticCapableMap.set(EColliderCapable.Collider_FrictionCombine, true);
         this._staticCapableMap.set(EColliderCapable.Collider_EventFilter, false);
