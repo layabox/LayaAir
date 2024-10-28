@@ -30,6 +30,7 @@ import { Texture2D } from "../resource/Texture2D";
 import { Sprite } from "../display/Sprite";
 import { Color } from "../maths/Color";
 import { Rectangle } from "../maths/Rectangle";
+import { SpriteConst } from "../display/SpriteConst";
 
 /**
  * @en The spine animation consists of three parts: `SpineTemplet`, `SpineSkeletonRender`, and `SpineSkeleton`.
@@ -535,6 +536,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
         state.apply(this._skeleton);
         //@ts-ignore
         this._currentPlayTime = state.getCurrentPlayTime(this.trackIndex);
+        
         // spine在state.apply中发送事件，开发者可能会在事件中进行destory等操作，导致无法继续执行
         if (!this._state || !this._skeleton) {
             return;
@@ -542,7 +544,10 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
         // 计算骨骼的世界SRT(world SRT)
         this._skeleton.updateWorldTransform();
         this.spineItem.render(this._currentPlayTime);
-        (this.owner as Sprite).repaint && (this.owner as Sprite).repaint();
+
+        if ((this.owner as Sprite)._renderType & SpriteConst.FILTERS) {
+            (this.owner as Sprite).repaint();
+        }
     }
 
     private _flushExtSkin() {
