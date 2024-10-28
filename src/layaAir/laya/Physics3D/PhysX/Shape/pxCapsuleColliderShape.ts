@@ -90,7 +90,7 @@ export class pxCapsuleColliderShape extends pxColliderShape implements ICapsuleC
      * @param height 新的高度值。
      */
     setHeight(height: number): void {
-        this._halfHeight = height * 0.5;
+        this._halfHeight = (height - this._radius * 2) * 0.5;
         switch (this._upAxis) {
             case ColliderShapeUpAxis.X:
                 this._pxGeometry.halfHeight = this._halfHeight * this._scale.x;
@@ -115,7 +115,7 @@ export class pxCapsuleColliderShape extends pxColliderShape implements ICapsuleC
         if (this._pxShape && this._upAxis == upAxis)
             return;
         this._upAxis = upAxis;
-        this.setHeight(this._halfHeight);
+        this.setHeight((this._halfHeight + this._radius) * 2);
         this.setRadius(this._radius);
     }
 
@@ -127,7 +127,7 @@ export class pxCapsuleColliderShape extends pxColliderShape implements ICapsuleC
      */
     setOffset(position: Vector3): void {
         super.setOffset(position);
-        this.setHeight(this._halfHeight);
+        this.setHeight((this._halfHeight + this._radius) * 2);
         this.setRadius(this._radius);
     }
 

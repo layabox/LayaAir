@@ -124,7 +124,9 @@ export class PhysicsColliderComponent extends Component {
         if (this._collider && this._collider.getCapable(EColliderCapable.Collider_Friction)) {
             this._collider.setfriction(value);
         }
-        //this._btColliderObject && ILaya3D.Physics3D._bullet.btCollisionObject_setFriction(this._btColliderObject, value);
+        if (this._collider && this._collider.getCapable(EColliderCapable.Collider_StaticFriction)) {
+            this._collider.setStaticFriction(value);
+        }
     }
 
     /**
@@ -139,6 +141,9 @@ export class PhysicsColliderComponent extends Component {
         this._rollingFriction = value;
         if (this._collider && this._collider.getCapable(EColliderCapable.Collider_RollingFriction)) {
             this._collider.setRollingFriction(value);
+        }
+        if (this._collider && this._collider.getCapable(EColliderCapable.Collider_DynamicFriction)) {
+            this._collider.setDynamicFriction(value);
         }
     }
 
@@ -328,6 +333,9 @@ export class PhysicsColliderComponent extends Component {
         }
         this.owner.off(Event._Add_Script, this, this._setEventFilter);
         this.owner.on(Event._Add_Script, this, this._setEventFilter);
+        this.restitution = this._restitution;
+        this.friction = this._friction;
+        this.rollingFriction = this._rollingFriction;
     }
 
     /**
