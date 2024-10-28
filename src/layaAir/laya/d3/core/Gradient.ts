@@ -47,13 +47,6 @@ export class Gradient implements IClone {
 	set _rgbElements(value: Float32Array) {
 		this._rgbElementDatas = value;
 		this._maxColorRGBKeysCount = value ? value.length / 4 : 0;
-
-		if (this._gpuRGBData4) {
-			this._updateGpuData(this._gpuRGBData4, value, 16);
-		}
-		if (this._gpuRGBData8) {
-			this._updateGpuData(this._gpuRGBData8, value, 32);
-		}
 	}
 
 	private _maxColorAlphaKeysCount: number = 0;
@@ -90,14 +83,6 @@ export class Gradient implements IClone {
 	set _alphaElements(value: Float32Array) {
 		this._alphaElementDatas = value;
 		this._maxColorAlphaKeysCount = value ? value.length / 2 : 0;
-
-		if (this._gpuAlphaData4) {
-			this._updateGpuData(this._gpuAlphaData4, value, 8);
-		}
-
-		if (this._gpuAlphaData8) {
-			this._updateGpuData(this._gpuAlphaData8, value, 16);
-		}
 	}
 
 	get maxColorKeysCount(): number {
@@ -174,21 +159,6 @@ export class Gradient implements IClone {
 		this._rgbElementDatas[offset + 3] = value.b;
 
 		this._colorRGBKeysCount++;
-
-		if (this._gpuRGBData4 && this._colorRGBKeysCount <= 4) {
-			this._gpuRGBData4[offset] = key;
-			this._gpuRGBData4[offset + 1] = value.r;
-			this._gpuRGBData4[offset + 2] = value.g;
-			this._gpuRGBData4[offset + 3] = value.b;
-		}
-
-		if (this._gpuRGBData8 && this._colorRGBKeysCount <= 8) {
-			this._gpuRGBData8[offset] = key;
-			this._gpuRGBData8[offset + 1] = value.r;
-			this._gpuRGBData8[offset + 2] = value.g;
-			this._gpuRGBData8[offset + 3] = value.b;
-		}
-
 	}
 
 	/**
@@ -211,16 +181,6 @@ export class Gradient implements IClone {
 		this._alphaElementDatas[offset + 1] = value;
 
 		this._colorAlphaKeysCount++;
-
-		if (this._gpuAlphaData4 && this._colorAlphaKeysCount <= 4) {
-			this._gpuAlphaData4[offset] = key;
-			this._gpuAlphaData4[offset + 1] = value;
-		}
-
-		if (this._gpuAlphaData8 && this._colorAlphaKeysCount <= 8) {
-			this._gpuAlphaData4[offset] = key;
-			this._gpuAlphaData4[offset + 1] = value;
-		}
 	}
 
 	/**
@@ -501,59 +461,129 @@ export class Gradient implements IClone {
 		return curIndex;
 	}
 
-	private _updateGpuData(data: Float32Array, elements: Float32Array, dateLength: number) {
-		let length = Math.min(dateLength, elements.length);
+	/**
+	 * 更新 GPU data array
+	 * @param data GPU data array
+	 * @param elements 原始数据
+	 * @param dateLength GPU data length
+	 */
+	private _updateGpuData(data: Float32Array, elements: Float32Array) {
+		let length = Math.min(data.length, elements.length);
 		for (let index = 0; index < length; index++) {
 			data[index] = elements[index];
 		}
 	}
 
-	private _getGpuData(data: Float32Array, elements: Float32Array, dateLength: number): Float32Array {
-		if (!data) {
-			data = new Float32Array(dateLength);
-			this._updateGpuData(data, elements, dateLength);
+	private _fixGPUAlphaData(data: Float32Array) {
+		if (this.colorAlphaKeysCount == 1) {
+			let alpha = this._alphaElements[1];
+			data[0] = 0;
+			data[1] = alpha;
+			data[2] = 1;
+			data[3] = alpha;
 		}
-		return data;
+		else if (this.colorAlphaKeysCount == 2) {
+			data[0] = 0;
+			data[1] = this._alphaElements[1];
+			data[2] = 1;
+			data[3] = this._alphaElements[3];
+		}
+		else {
+			this._updateGpuData(data, this._alphaElements);
+		}
+	}
+
+	private _fixGPURGBData(data: Float32Array) {
+		if (this.colorRGBKeysCount == 1) {
+			let r = this._rgbElements[1];
+			let g = this._rgbElements[2];
+			let b = this._rgbElements[3];
+			data[0] = 0;
+			data[1] = r;
+			data[2] = g;
+			data[3] = b;
+			data[4] = 1;
+			data[5] = r;
+			data[6] = g;
+			data[7] = b;
+		}
+		else if (this.colorRGBKeysCount == 2) {
+			data[0] = 0;
+			data[1] = this._rgbElements[1];
+			data[2] = this._rgbElements[2];
+			data[3] = this._rgbElements[3];
+			data[4] = 1;
+			data[5] = this._rgbElements[5];
+			data[6] = this._rgbElements[6];
+			data[7] = this._rgbElements[7];
+		}
+		else {
+			this._updateGpuData(data, this._rgbElements);
+		}
 	}
 
 	private _gpuRGBData4: Float32Array;
 
 	/**
 	 * @internal
+	 * 获取 GPU rgb data
+	 * 并更新数据
 	 * @returns 
 	 */
-	_getGPURGBData4() {
-		return this._getGpuData(this._gpuRGBData4, this._rgbElementDatas, 16);
+	_getGPURGBData4(): Float32Array {
+		if (!this._gpuRGBData4) {
+			this._gpuRGBData4 = new Float32Array(16);
+		}
+		this._fixGPURGBData(this._gpuRGBData4);
+		return this._gpuRGBData4;
 	}
 
 	private _gpuRGBData8: Float32Array;
 
 	/**
 	 * @internal
+	 * 获取 GPU rgb data
+	 * 并更新数据
 	 * @returns 
 	 */
 	_getGPURGBData8() {
-		return this._getGpuData(this._gpuRGBData8, this._rgbElementDatas, 32);
+		if (!this._gpuRGBData8) {
+			this._gpuRGBData8 = new Float32Array(32);
+		}
+		this._fixGPURGBData(this._gpuRGBData8);
+		return this._gpuRGBData8;
 	}
 
 	private _gpuAlphaData4: Float32Array;
 
 	/**
 	 * @internal
+	 * 获取 GPU alpha data
+	 * 并更新数据
 	 * @returns 
 	 */
 	_getGPUAlphaData4(): Float32Array {
-		return this._getGpuData(this._gpuAlphaData4, this._alphaElementDatas, 8);
+		if (!this._gpuAlphaData4) {
+			this._gpuAlphaData4 = new Float32Array(8);
+		}
+		this._fixGPUAlphaData(this._gpuAlphaData4);
+		return this._gpuAlphaData4;
 	}
 
 	private _gpuAlphaData8: Float32Array;
 
 	/**
 	 * @internal
+	 * 获取 GPU alpha data
+	 * 并更新数据
 	 * @returns 
 	 */
 	_getGPUAlphaData8(): Float32Array {
-		return this._getGpuData(this._gpuAlphaData8, this._alphaElementDatas, 16);
+		if (!this._gpuAlphaData8) {
+			this._gpuAlphaData8 = new Float32Array(16);
+		}
+		this._fixGPUAlphaData(this._gpuAlphaData8);
+		return this._gpuAlphaData8;
 	}
 
 	/**
