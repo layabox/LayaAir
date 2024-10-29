@@ -33,7 +33,6 @@ export class SpineSkeleton extends Sprite {
     constructor() {
         super();
         this._spineComponent = this.addComponent(Spine2DRenderNode);
-        this._spineComponent.hideFlags |= HideFlags.HideAndDontSave;
     }
 
     /**
