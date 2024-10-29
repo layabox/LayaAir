@@ -7,14 +7,15 @@ import "laya/gltf/glTFLoader";
 import "laya/spine/ModuleDef";
 import "laya/ui/ModuleDef";
 
-import { Laya } from "../../../layaAir/Laya";
-import { Shader3D } from "../../../layaAir/laya/RenderEngine/RenderShader/Shader3D";
-import { Stage } from "../../../layaAir/laya/display/Stage";
-import { RenderSprite } from "../../../layaAir/laya/renders/RenderSprite";
-import { Stat } from "../../../layaAir/laya/utils/Stat";
+import { Laya } from "Laya";
+import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
+import { Stage } from "laya/display/Stage";
+import { RenderSprite } from "laya/renders/RenderSprite";
+import { Stat } from "laya/utils/Stat";
 
 //HierarchyLoader和MaterialLoader等是通过前面的import完成的
-let packurl = 'sample-resource/2d'
+let packurl = 'sample-resource/2d';
+(window as any).testtime=1000; //多等一会儿
 async function test(){
     //初始化引擎
     await Laya.init(0,0);
@@ -24,7 +25,7 @@ async function test(){
     Stat.show();
 
     RenderSprite;
-    await Laya.loader.loadPackage(packurl, null, null);
+    await Laya.loader.loadPackage(packurl);
     let scene = await Laya.loader.load(packurl+'/cacheasbmp.ls');
     let inst = scene.create();
     inst._children[0].cacheAs='none';//'normal';

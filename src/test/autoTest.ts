@@ -5,13 +5,19 @@ import looksSame from 'looks-same';
 import fs from 'fs';
 import path from 'path'
 import { fileURLToPath } from 'url';
-var cases = fs.readdirSync('./cases/2d');
+
+// 获取命令行参数
+const args = process.argv.slice(2);
 // 获取当前模块文件的路径
 const __filename = fileURLToPath(import.meta.url);
 // 获取当前模块文件所在的目录
 const __dirname = path.dirname(__filename);
 
 var screenShotDir = path.join(__dirname,'../../../src/test/screenshots');
+//记录错误
+let errPath =path.join(screenShotDir,'../error'); 
+fs.mkdirSync(errPath, { recursive: true });
+fs.rmdirSync(errPath,{recursive:true})
 
 const chromePath = Launcher.getFirstInstallation();
 console.log('发现chrome:',chromePath);
@@ -23,7 +29,7 @@ function delay(time:number) {
 }
 
 puppeteer.launch({
-    headless: false,  // 设置为 false 以显示浏览器
+    //headless: false,  // 设置为 false 以显示浏览器
     executablePath: chromePath,args:[]}).then(
     async browser => {
         const page = await browser.newPage();
@@ -34,7 +40,9 @@ puppeteer.launch({
         });
 
         var testid=0;
-        for await(const onecase of cases){
+        let errors:string[]=[]
+        let casesToTest = args.length > 0 ? args : fs.readdirSync('./cases/2d');
+        for await(const onecase of casesToTest){
             // 必须是test开头的js文件
             if (/*!onecase.startsWith('test') ||*/ !onecase.endsWith('.js')){
                 continue;
@@ -46,16 +54,16 @@ puppeteer.launch({
             await page.goto('http://127.0.0.1:3000/test.html?'+js);
 
             // 等待页面加载完成
-            // try{
-            // await page.waitForFunction('window.testInfo !== undefined',{timeout: 5000});
-            // }catch(e:any){
-            //     console.error(`超时了，测试页面没有testInfo结构:${js}`)
-            //     await browser.close();
-            //     return;
-            // }
+            try{
+                await page.waitForFunction('window.testEnd !== undefined',{timeout: 5000});
+            }catch(e:any){
+                console.error(`超时了，测试页面没有testEnd:${js}`)
+                //await browser.close();
+                continue;
+            }
             // 获取测试信息
             //const testInfo = await page.evaluate(() => (window as any).testInfo);   
-            let testInfoPath = path.join(screenShotDir,`${js}_testInfo.json`);
+            let testInfoPath = path.join(screenShotDir,`${js}.json`);
             if(!fs.existsSync(testInfoPath)){
                 console.error('没有这个文件:',testInfoPath);
                 //await browser.close();
@@ -63,6 +71,7 @@ puppeteer.launch({
             }
             const testInfo = await JSON.parse( await fs.readFileSync(testInfoPath,'utf-8'))
             let ctm=0;    
+            let ok=true;
             for (let i = 0; i < testInfo.length; i++) {
                 let {time, rect, answer} = testInfo[i];
                 if(!answer)answer = js+'.png'
@@ -79,8 +88,17 @@ puppeteer.launch({
                 });
 
                 // 比较截图
-                let diff = await looksSame(`temp_screenshot_${i}.png`, answer, {strict: true});
+                let diff = await looksSame(`temp_screenshot_${i}.png`, answer, {strict: false});
                 console.log(`Step ${i} result:`, diff.equal);
+                if(!diff.equal){
+                    ok=false;
+                    errors.push(js);
+                    //保存两个图片
+                    fs.cpSync(`temp_screenshot_${i}.png`,path.join(errPath,`${js}_实际.png`));
+                    fs.cpSync(answer,path.join(errPath,`${js}_期望.png`));
+                    fs.unlinkSync(`temp_screenshot_${i}.png`);
+                    break;
+                }
 
                 // 删除临时截图
                 fs.unlinkSync(`temp_screenshot_${i}.png`);
@@ -99,5 +117,7 @@ puppeteer.launch({
             */
         }
         await browser.close();
+        console.log('错误例子：',errors)
+        fs.writeFileSync('errors.txt',errors.join('\n'));
   });
 

@@ -48,11 +48,21 @@ export class FreeformLight2D extends BaseLight2D {
         this._material.setIntByIndex(Shader3D.CULL, RenderState.CULL_NONE);
         this._render = this._sprite.addComponent(Mesh2DRender);
         this._render.sharedMaterial = this._material;
+        this._defaultPoly();
     }
 
+    /**
+     * @en Get the range of light attenuation
+     * @zh 获取灯光衰减范围
+     */
     get falloffRange() {
         return this._falloffRange;
     }
+
+    /**
+     * @en Set the range of light attenuation
+     * @zh 设置灯光衰减范围
+     */
     set falloffRange(value: number) {
         if (this._falloffRange !== value) {
             this._falloffRange = value;
@@ -63,7 +73,8 @@ export class FreeformLight2D extends BaseLight2D {
     }
 
     /**
-     * 相应矩阵变换
+     * @en Response matrix transformation
+     * @zh 响应矩阵变换
      */
     protected _transformChange() {
         super._transformChange();
@@ -71,23 +82,52 @@ export class FreeformLight2D extends BaseLight2D {
     }
 
     /**
-     * 设置多边形顶点
+     * @en Set default ploy endpoint data
+     * @zh 设置默认多边形数据
      */
-    set polyPoints(poly: PolygonPoint2D) {
-        this._lightPolygon = poly;
-        this._globalPolygon = poly.clone();
-        this._needUpdateLight = true;
+    private _defaultPoly() {
+        if (!this._lightPolygon) {
+            const poly = new PolygonPoint2D();
+            poly.addPoint(-100, -100);
+            poly.addPoint(100, -100);
+            poly.addPoint(100, 100);
+            poly.addPoint(-100, 100);
+            this.polygonPoint = poly;
+        }
     }
 
     /**
-     * 获取多边形顶点
+     * @en Set polygon endpoint data
+     * @zh 设置多边形端点数据
+     * @param poly 
      */
-    get polyPoints() {
+    set polygonPoint(poly: PolygonPoint2D) {
+        if (poly) {
+           // poly._user = this;
+            this._lightPolygon = poly;
+            this._globalPolygon = poly.clone();
+            this._needUpdateLight = true;
+            (this.owner?.scene as Scene)?._light2DManager?.addLight(this);
+        } else {
+            // if (this._lightPolygon)
+            //     this._lightPolygon._user = null;
+            this._lightPolygon = null;
+            this._globalPolygon = null;
+            (this.owner?.scene as Scene)?._light2DManager?.removeLight(this);
+        }
+    }
+
+    /**
+     * @en Get polygon endpoint data
+     * @zh 获取多边形端点数据
+     */
+    get polygonPoint() {
         return this._lightPolygon;
     }
 
     /**
-     * 获取灯光范围
+     * @en Get light range
+     * @zh 获取灯光范围
      * @param screen 
      */
     getLightRange(screen?: Rectangle) {
@@ -124,7 +164,8 @@ export class FreeformLight2D extends BaseLight2D {
     }
 
     /**
-     * 渲染灯光贴图
+     * @en Render light texture
+     * @zh 渲染灯光贴图
      * @param scene 
      */
     renderLightTexture(scene: Scene) {
@@ -160,14 +201,16 @@ export class FreeformLight2D extends BaseLight2D {
     }
 
     /**
-     * 限制参数范围
+     * @en Limit param range
+     * @zh 限制参数范围
      */
     private _limitParam() {
         this._falloffRange = Math.max(Math.min(this._falloffRange, 10), 0);
     }
 
     /**
-     * 变换多边形顶点
+     * @en Transform ploy endpoint
+     * @zh 变换多边形顶点
      */
     private _transformPoly() {
         if (this._globalPolygon) {
@@ -194,7 +237,8 @@ export class FreeformLight2D extends BaseLight2D {
     }
 
     /**
-     * 创建灯光多边形
+     * @en Create light mesh
+     * @zh 创建灯光多边形网格
      * @param expand 
      * @param arcSegments 
      */
@@ -314,7 +358,8 @@ export class FreeformLight2D extends BaseLight2D {
     }
 
     /**
-     * 耳切法三角化凹多边形
+     * @en Triangulating concave polygons using ear cutting method
+     * @zh 耳切法三角化凹多边形
      * @param polygon 
      */
     private _earCut(polygon: number[]) {
@@ -353,7 +398,8 @@ export class FreeformLight2D extends BaseLight2D {
     }
 
     /**
-     * 是否耳尖
+     * @en Is ear tip
+     * @zh 是否耳尖
      * @param vertices 
      * @param indices 
      * @param vertexCount 
@@ -371,7 +417,8 @@ export class FreeformLight2D extends BaseLight2D {
     }
 
     /**
-     * 是否包含其他顶点
+     * @en Is include other vertices
+     * @zh 是否包含其他顶点
      * @param vertices 
      * @param indices 
      * @param vertexCount 
@@ -407,6 +454,10 @@ export class FreeformLight2D extends BaseLight2D {
         return false;
     }
 
+    /**
+     * @en Destroy
+     * @zh 销毁
+     */
     protected _onDestroy() {
         super._onDestroy();
         if (this._texLight) {

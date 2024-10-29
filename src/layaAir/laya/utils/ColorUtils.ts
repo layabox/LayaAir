@@ -15,7 +15,7 @@ export class ColorUtils {
     /**@private */
 
     /**@private */
-    private static _DEFAULT: any = ColorUtils._initDefault();
+    private static _DEFAULT: any;
 
     /**
      * @en An array representing the color in RGBA format, Value range 0-1
@@ -43,6 +43,8 @@ export class ColorUtils {
      * @param value 颜色值，可以是字符串（例如 "#ff0000"）或16进制颜色值（例如 0xff0000）。
      */
     constructor(value: any) {
+        if (!ColorUtils._DEFAULT)
+            ColorUtils._initDefault();
         if (value == null || value == 'none') {
             this.strColor = "#00000000";
             this.numColor = 0;

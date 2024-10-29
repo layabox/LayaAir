@@ -120,19 +120,15 @@ export class Shader3D {
 
     static init() {
         Shader3D._configDefineValues = LayaGL.unitRenderModuleDataFactory.createDefineDatas();
-        Shader3D.SHADERDEFINE_BLITSCREEN_INVERTY = Shader3D.getDefineByName("BLITSCREEN_INVERTY");
         Shader3D.SHADERDEFINE_REMAP_POSITIONZ = Shader3D.getDefineByName("REMAP_Z");
         Shader3D.SHADERDEFINE_LOD_TEXTURE_SAMPLE = Shader3D.getDefineByName("LOD_TEXTURE_SAMPLE");
         Shader3D.SHADERDEFINE_BREAK_TEXTURE_SAMPLE = Shader3D.getDefineByName("BREAK_TEXTURE_SAMPLE");
         if (LayaGL.renderEngine._remapZ)
             Shader3D._configDefineValues.add(Shader3D.SHADERDEFINE_REMAP_POSITIONZ);
-        if (LayaGL.renderEngine._screenInvertY && false)
-            Shader3D._configDefineValues.add(Shader3D.SHADERDEFINE_BLITSCREEN_INVERTY);
         if (LayaGL.renderEngine._lodTextureSample)
             Shader3D._configDefineValues.add(Shader3D.SHADERDEFINE_LOD_TEXTURE_SAMPLE);
         if (LayaGL.renderEngine._breakTextureSample)
             Shader3D._configDefineValues.add(Shader3D.SHADERDEFINE_BREAK_TEXTURE_SAMPLE);
-
         Shader3D._compileDefineDatas = LayaGL.unitRenderModuleDataFactory.createDefineDatas();
     }
 

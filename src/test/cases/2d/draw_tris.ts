@@ -7,10 +7,10 @@ import "laya/gltf/glTFLoader";
 import "laya/spine/ModuleDef";
 import "laya/ui/ModuleDef";
 
-import { Laya } from "../../../layaAir/Laya";
-import { Shader3D } from "../../../layaAir/laya/RenderEngine/RenderShader/Shader3D";
-import { Sprite } from "../../../layaAir/laya/display/Sprite";
-import { Stage } from "../../../layaAir/laya/display/Stage";
+import { Laya } from "Laya";
+import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
+import { Sprite } from "laya/display/Sprite";
+import { Stage } from "laya/display/Stage";
 
 /**
  * 注意这个的uv是基于图集本身而不是图集中的图片

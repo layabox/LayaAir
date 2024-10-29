@@ -3,10 +3,10 @@ import "laya/ModuleDef";
 import "laya/ui/ModuleDef";
 import "laya/ani/ModuleDef";
 
-import { Laya } from "../../../layaAir/Laya";
-import { Shader3D } from "../../../layaAir/laya/RenderEngine/RenderShader/Shader3D";
-import { Stage } from "../../../layaAir/laya/display/Stage";
-import { Sprite } from "../../../layaAir/laya/display/Sprite";
+import { Laya } from "Laya";
+import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
+import { Stage } from "laya/display/Stage";
+import { Sprite } from "laya/display/Sprite";
 
 (window as any).testtime=10000; //多等一会儿
 //设置了pivote后的mask效果

@@ -1,11 +1,11 @@
 import "laya/ModuleDef";
 
-import { Laya } from "../../../layaAir/Laya";
-import { Shader3D } from "../../../layaAir/laya/RenderEngine/RenderShader/Shader3D";
-import { Stage } from "../../../layaAir/laya/display/Stage";
-import { Sprite } from "../../../layaAir/laya/display/Sprite";
-import { BlurFilter } from "../../filters/BlurFilter";
-import { GlowFilter } from "../../filters/GlowFilter";
+import { Laya } from "Laya";
+import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
+import { Stage } from "laya/display/Stage";
+import { Sprite } from "laya/display/Sprite";
+import { BlurFilter } from "laya/filters/BlurFilter";
+import { GlowFilter } from "laya/filters/GlowFilter";
 
 /**
  * 多个glow的话，允许使用同一个对象

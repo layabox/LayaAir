@@ -2,10 +2,10 @@ import "laya/ModuleDef";
 import "laya/ani/ModuleDef";
 import "laya/ui/ModuleDef";
 
-import { Laya } from "../../../layaAir/Laya";
-import { Shader3D } from "../../../layaAir/laya/RenderEngine/RenderShader/Shader3D";
-import { Sprite } from "../../../layaAir/laya/display/Sprite";
-import { Stage } from "../../../layaAir/laya/display/Stage";
+import { Laya } from "Laya";
+import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
+import { Sprite } from "laya/display/Sprite";
+import { Stage } from "laya/display/Stage";
 
 //HierarchyLoader和MaterialLoader等是通过前面的import完成的
 

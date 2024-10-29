@@ -7,11 +7,11 @@ import "laya/gltf/glTFLoader";
 import "laya/spine/ModuleDef";
 import "laya/ui/ModuleDef";
 
-import { Laya } from "../../../layaAir/Laya";
-import { Shader3D } from "../../../layaAir/laya/RenderEngine/RenderShader/Shader3D";
-import { Stage } from "../../../layaAir/laya/display/Stage";
-import { RenderSprite } from "../../../layaAir/laya/renders/RenderSprite";
-import { Sprite } from "../../../layaAir/laya/display/Sprite";
+import { Laya } from "Laya";
+import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
+import { Stage } from "laya/display/Stage";
+import { RenderSprite } from "laya/renders/RenderSprite";
+import { Sprite } from "laya/display/Sprite";
 
 //HierarchyLoader和MaterialLoader等是通过前面的import完成的
 let packurl = 'sample-resource/2d'

@@ -25,8 +25,9 @@ export class CharSubmitCache {
     /**@internal */
     _colorFiler: ColorFilter;
 
-    constructor() {
-
+    constructor(ctx:Context) {
+        this._clipid = ctx._clipInfoID;
+        ctx._globalClipMatrix.copyTo(this._clipMatrix);
     }
 
     clear(): void {
@@ -90,7 +91,15 @@ export class CharSubmitCache {
         let submit = ctx._curSubmit = SubmitBase.create(ctx, _mesh, shaderValue);
         submit._key.other = this._imgId;
         submit._colorFiler = this._colorFiler;
-        ctx._copyClipInfo(submit.shaderValue);
+        //ctx._copyClipInfo(submit.shaderValue);
+        var cm = shaderValue.clipMatDir;
+        let clipInfo = this._clipMatrix;
+        cm.x = clipInfo.a; cm.y = clipInfo.b; cm.z = clipInfo.c; cm.w = clipInfo.d;
+        shaderValue.clipMatDir = cm;
+        var cmp = shaderValue.clipMatPos;
+        cmp.x = clipInfo.tx; cmp.y = clipInfo.ty;
+        shaderValue.clipMatPos = cmp;
+        
         submit.clipInfoID = this._clipid;
 
         for (var i = 0; i < n; i += 3) {

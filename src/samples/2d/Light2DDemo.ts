@@ -89,7 +89,7 @@ export class Light2DDemo {
             poly.addPoint(100 + ox, 100 + oy);
             poly.addPoint(0 + ox, 150 + oy);
             poly.addPoint(-100 + ox, 100 + oy);
-            light2.polyPoints = poly;
+            light2.polygonPoint = poly;
             spriteLight2.x = 200;
             spriteLight2.y = 300;
             light2.intensity = 1;
@@ -215,9 +215,9 @@ export class Light2DDemo {
                 poly.addPoint(27, 40);
                 poly.addPoint(32, 25);
                 poly.addPoint(42, 15);
-                ls.polyPoints = poly;
-                ls.canInLight = false;
-                ls.outside = false;
+                ls.polygonPoint = poly;
+                //ls.canInLight = false;
+                //ls.outside = false;
 
                 ape.addComponent(testMove);
                 ape.addChild(this.camera);

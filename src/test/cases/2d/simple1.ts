@@ -1,4 +1,4 @@
-import { Laya } from "../../../layaAir/Laya";
+import { Laya } from "Laya";
 import "../../loaders/AtlasLoader";
 import "../../loaders/TextureLoader";
 
@@ -9,20 +9,20 @@ import { WebGLIndexBuffer } from "../../RenderDriver/WebGLDriver/RenderDevice/We
 import { WebGLRenderGeometryElement } from "../../RenderDriver/WebGLDriver/RenderDevice/WebGLRenderGeometryElement";
 import { WebGLShaderInstance } from "../../RenderDriver/WebGLDriver/RenderDevice/WebGLShaderInstance";
 import { WebGLVertexBuffer } from "../../RenderDriver/WebGLDriver/RenderDevice/WebGLVertexBuffer";
-import { BufferTargetType, BufferUsage } from "../../../layaAir/laya/RenderEngine/RenderEnum/BufferTargetType";
-import { DrawType } from "../../../layaAir/laya/RenderEngine/RenderEnum/DrawType";
-import { IndexFormat } from "../../../layaAir/laya/RenderEngine/RenderEnum/IndexFormat";
-import { MeshTopology } from "../../../layaAir/laya/RenderEngine/RenderEnum/RenderPologyMode";
-import { VertexDeclaration } from "../../../layaAir/laya/RenderEngine/VertexDeclaration";
-import { Vector2 } from "../../../layaAir/laya/maths//Vector2";
-import { Vector4 } from "../../../layaAir/laya/maths//Vector4";
+import { BufferTargetType, BufferUsage } from "laya/RenderEngine/RenderEnum/BufferTargetType";
+import { DrawType } from "laya/RenderEngine/RenderEnum/DrawType";
+import { IndexFormat } from "laya/RenderEngine/RenderEnum/IndexFormat";
+import { MeshTopology } from "laya/RenderEngine/RenderEnum/RenderPologyMode";
+import { VertexDeclaration } from "laya/RenderEngine/VertexDeclaration";
+import { Vector2 } from "laya/maths//Vector2";
+import { Vector4 } from "laya/maths//Vector4";
 import { VertexElement } from "../../renders/VertexElement";
 import { VertexElementFormat } from "../../renders/VertexElementFormat";
 import { BaseTexture } from "../../resource/BaseTexture";
 import { Texture } from "../../resource/Texture";
-import { Byte } from "../../../layaAir/laya/utils/Byte";
-import { Shader2D } from "../../../layaAir/laya/webgl/shader/d2/Shader2D";
-import { ShaderDefines2D } from "../../../layaAir/laya/webgl/shader/d2/ShaderDefines2D";
+import { Byte } from "laya/utils/Byte";
+import { Shader2D } from "laya/webgl/shader/d2/Shader2D";
+import { ShaderDefines2D } from "laya/webgl/shader/d2/ShaderDefines2D";
 
 /**
  * 这是一个不用2d引擎来画2d的例子

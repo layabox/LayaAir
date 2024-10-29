@@ -1,9 +1,9 @@
 import "laya/ModuleDef";
 
-import { Laya } from "../../../layaAir/Laya";
-import { Shader3D } from "../../../layaAir/laya/RenderEngine/RenderShader/Shader3D";
-import { Stage } from "../../../layaAir/laya/display/Stage";
-import { Sprite } from "../../../layaAir/laya/display/Sprite";
+import { Laya } from "Laya";
+import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
+import { Stage } from "laya/display/Stage";
+import { Sprite } from "laya/display/Sprite";
 import { BlurFilter } from "../../filters/BlurFilter";
 import { GlowFilter } from "../../filters/GlowFilter";
 
