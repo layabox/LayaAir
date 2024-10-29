@@ -635,11 +635,20 @@ export class Sprite extends Node {
             rst.length = 0;
             pList = rst;
         }
+
+        if (this._renderNode) {
+            rec = Rectangle.TEMP;
+            rec.setTo(0, 0, this.width , this.height);
+            pList.push(...rec._getBoundPoints());
+        }
+
         if (this._texture) {
             rec = Rectangle.TEMP;
             rec.setTo(0, 0, this.width || this._texture.width, this.height || this._texture.height);
             pList.push(...rec._getBoundPoints());
         }
+
+       
         //处理子对象区域
         let chidren = this._children;
         for (let i = 0, n = chidren.length; i < n; i++) {
