@@ -162,7 +162,6 @@ export class pxPhysicsManager implements IPhysicsManager {
         collider.active = value;
         if (value) {
             collider._physicsManager = this;
-            collider.setWorldTransform(true);
         } else {
             collider._physicsManager = null;
         }
@@ -272,6 +271,7 @@ export class pxPhysicsManager implements IPhysicsManager {
                 Stat.physics_staticRigidBodyCount++;
                 break;
             case pxColliderType.RigidbodyCollider:
+                pxcollider.setWorldTransform(true);
                 this._pxScene.addActor(pxcollider._pxActor, null);
                 if (!(collider as pxDynamicCollider).IsKinematic) {
                     this._dynamicUpdateList.add(collider);
