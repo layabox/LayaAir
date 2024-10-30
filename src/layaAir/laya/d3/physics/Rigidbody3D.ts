@@ -16,8 +16,6 @@ export class Rigidbody3D extends PhysicsColliderComponent {
     /**@internal */
     protected _collider: IDynamicCollider;
     /** @internal */
-    private _btLayaMotionState: number;
-    /** @internal */
     private _isKinematic = false;
     /** @internal */
     private _mass = 1.0;
@@ -273,15 +271,15 @@ export class Rigidbody3D extends PhysicsColliderComponent {
      */
     protected _onAdded(): void {
         super._onAdded();
+        this.gravity = this._gravity;
+        this.trigger = this._trigger;
+        this.isKinematic = this._isKinematic;
         this.mass = this._mass;
         this.linearFactor = this._linearFactor;
         this.angularFactor = this._angularFactor;
         this.linearDamping = this._linearDamping;
         this.linearVelocity = this._linearVelocity;
         this.angularDamping = this._angularDamping;
-        this.gravity = this._gravity;
-        this.trigger = this._trigger;
-        this.isKinematic = this._isKinematic;
     }
 
     /**
@@ -290,7 +288,6 @@ export class Rigidbody3D extends PhysicsColliderComponent {
      */
     protected _onDestroy() {
         super._onDestroy();
-        this._btLayaMotionState = null;
         this._gravity = null;
         this._linearVelocity = null;
         this._angularVelocity = null;

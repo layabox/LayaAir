@@ -208,11 +208,14 @@ export class NavMeshSurface extends Component {
     _onEnable(): void {
         //start Build Tile
         let manager: NavigationManager = (this.owner.scene as Scene3D).getComponentElementManager("navMesh") as NavigationManager;
-        this._navMesh = new NavMesh(manager.getNavConfig(this._agentType), this._boundMin, this._boundMax, manager);
-        if (this._oriTiles) {
-            this._navMesh.navTileGrid.refeachConfig(this._oriTiles);
-            this._navMesh._navMeshInit()
+        if(!this._navMesh){
+            this._navMesh = new NavMesh(manager.getNavConfig(this._agentType), this._boundMin, this._boundMax, manager);
+            if (this._oriTiles) {
+                this._navMesh.navTileGrid.refeachConfig(this._oriTiles);
+                this._navMesh._navMeshInit()
+            }
         }
+
         manager.regNavMeshSurface(this);
     }
 
@@ -220,9 +223,9 @@ export class NavMeshSurface extends Component {
     * @internal
     */
     protected _onDisable(): void {
-        //remove all Tile 
-        this.cleanAllTile();
-
+        
+        let manager: NavigationManager = (this.owner.scene as Scene3D).getComponentElementManager("navMesh") as NavigationManager;
+        manager.removeNavMeshSurface(this);
     }
 
     /**
@@ -230,6 +233,7 @@ export class NavMeshSurface extends Component {
     */
     protected _onDestroy(): void {
         //clean up data
+        this.cleanAllTile();
         if (this._oriTiles) this._oriTiles = null;
     }
 

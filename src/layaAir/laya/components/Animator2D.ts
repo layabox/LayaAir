@@ -194,6 +194,12 @@ export class Animator2D extends Component {
                         ret.pro = { ower: pobj, key: pname, defVal: pobj ? pobj[pname] : null }
                         break;
                     }
+                    if ('_gcmds' === pname && null == pobj[pname] && pobj.graphics) {
+                        //对于_gcmds属性的特殊处理
+                        pobj = pobj.graphics;
+                        pname = "cmds";
+                    }
+
 
                     if (null == pobj[pname] && property == pobj) {
                         //有可能是组件,查找组件逻辑

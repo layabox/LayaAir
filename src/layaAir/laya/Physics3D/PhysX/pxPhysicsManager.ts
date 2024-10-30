@@ -265,13 +265,13 @@ export class pxPhysicsManager implements IPhysicsManager {
             return;
         }
         let pxcollider = collider as pxCollider;
-        //collider._derivePhysicsTransformation(true);
         switch (pxcollider._type) {
             case pxColliderType.StaticCollider:
                 this._pxScene.addActor(pxcollider._pxActor, null);
                 Stat.physics_staticRigidBodyCount++;
                 break;
             case pxColliderType.RigidbodyCollider:
+                pxcollider.setWorldTransform(true);
                 this._pxScene.addActor(pxcollider._pxActor, null);
                 if (!(collider as pxDynamicCollider).IsKinematic) {
                     this._dynamicUpdateList.add(collider);

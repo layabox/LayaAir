@@ -199,6 +199,8 @@ export class pxCollider implements ICollider {
                 if (!lastColliderShape && this.componentEnable) {
                     this._physicsManager.addCollider(this);
                 }
+            } else {
+                this._shape = null;
             }
         } else {
             if (this._isSimulate) {
@@ -233,6 +235,9 @@ export class pxCollider implements ICollider {
      * @param value 碰撞组值。
      */
     setCollisionGroup(value: number): void {
+        if (value == Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER) {
+            value = Physics3DUtils.PHYSXDEFAULTMASKVALUE;
+        }
         this._collisionGroup = value;
         this._shape.setSimulationFilterData(this._collisionGroup, this._canCollisionWith);
     }
@@ -243,6 +248,9 @@ export class pxCollider implements ICollider {
      * @param value 碰撞掩码值。
      */
     setCanCollideWith(value: number): void {
+        if (value == Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER) {
+            value = Physics3DUtils.PHYSXDEFAULTMASKVALUE;
+        }
         this._canCollisionWith = value;
         this._shape.setSimulationFilterData(this._collisionGroup, this._canCollisionWith);
     }

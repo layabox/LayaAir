@@ -499,7 +499,21 @@ export class ComboBox extends UIComponent {
         var labelColor: string = this._itemColors[2];
         this._itemHeight = (this._itemHeight) ? this._itemHeight : this._itemSize + 6;
         let _padding: string = (this.itemPadding) ? this.itemPadding : "3,3,3,3";
-        this._list.itemRender = this.itemRender || { type: "Box", child: [{ type: "Label", props: { name: "label", x: 1, padding: _padding, width: labelWidth, height: this._itemHeight, fontSize: this._itemSize, color: labelColor } }] };
+        this._list.itemRender = this.itemRender || {
+            _$type: "Box",
+            _$child: [
+                {
+                    _$type: "Label",
+                    name: "label",
+                    x: 1,
+                    padding: _padding,
+                    width: labelWidth,
+                    height: this._itemHeight,
+                    fontSize: this._itemSize,
+                    color: labelColor
+                }
+            ]
+        };
         this._list.repeatY = this._visibleNum;
         this._list.refresh();
     }
