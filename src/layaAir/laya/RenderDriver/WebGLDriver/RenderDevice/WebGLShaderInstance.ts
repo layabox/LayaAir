@@ -23,7 +23,7 @@ import { GPUEngineStatisticsInfo } from "../../../RenderEngine/RenderEnum/Render
  */
 export class WebGLShaderInstance implements IShaderInstance {
     /**@internal */
-    private _shaderPass: ShaderCompileDefineBase | ShaderPass;
+    private _shaderPass: ShaderPass;
 
     private _renderShaderInstance: GLShaderInstance;
 

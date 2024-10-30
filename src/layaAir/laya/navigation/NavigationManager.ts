@@ -364,4 +364,5 @@ export class NavigationManager implements IElementComponentManager {
 //reg nav Component Manager
 Scene3D.regManager(NavigationManager.managerName, NavigationManager);
 //reg loader init
+//(window as any).Recast&&Laya.addBeforeInitCallback(NavigationManager.initialize);
 Laya.addBeforeInitCallback(NavigationManager.initialize);

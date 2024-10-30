@@ -11,7 +11,7 @@ export class RTShaderPass implements IShaderPassData {
     private _validDefine: RTDefineDatas = new RTDefineDatas();
     private _createShaderInstanceFun: any;
     _nativeObj: any;
-    static _globalCompileDefine:RTDefineDatas = null;
+    static _globalCompileDefine: RTDefineDatas = null;
     is2D: boolean = false;
     private _pass: ShaderPass;
     constructor(pass: ShaderPass) {
@@ -21,6 +21,15 @@ export class RTShaderPass implements IShaderPassData {
         this.renderState = new RTRenderState();
         this.renderState.setNull();
         this._pass = pass;
+    }
+    private _nodeCommonMap: string[];
+
+    public get nodeCommonMap(): string[] {
+        return this._nodeCommonMap;
+    }
+
+    public set nodeCommonMap(value: string[]) {
+        this._nativeObj.setCommonUniformMap(value);
     }
     /** @internal */
     static getGlobalCompileDefine(): RTDefineDatas {

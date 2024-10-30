@@ -32,6 +32,16 @@ export class ShaderPass extends ShaderCompileDefineBase {
     }
     /**@internal */
     _nodeUniformCommonMap: Array<string>;
+
+     set nodeCommonMap(value: Array<string>) {
+        this._nodeUniformCommonMap = value;
+        this.moduleData.nodeCommonMap = value;
+    }
+
+    get nodeCommonMap() :Array<string>{
+        return this._nodeUniformCommonMap;
+    }
+
     /** 优先 ShaderPass 渲染状态 */
     private _statefirst: boolean = false;
     public get statefirst(): boolean {
@@ -89,9 +99,11 @@ export class ShaderPass extends ShaderCompileDefineBase {
      * @internal
      */
     withCompile(compileDefine: IDefineDatas, IS2d: boolean = false): IShaderInstance {
+
         var shader: IShaderInstance = this.moduleData.getCacheShader(compileDefine);
         if (shader)
             return shader;
+        console.log("compile");
         shader = ShaderPass.createShaderInstance(this, IS2d, compileDefine);
         this.moduleData.setCacheShader(compileDefine, shader);
         return shader;
