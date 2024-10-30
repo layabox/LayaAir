@@ -175,7 +175,7 @@ export class AnimationRender {
         let hasClip: boolean;
         for (let i = 0, n = timeline.length; i < n; i++) {
             let time = timeline[i];
-            if (time instanceof spine.AttachmentTimeline) {
+            if (time instanceof window.spine.AttachmentTimeline) {
                 let attachment = time as spine.AttachmentTimeline;
                 let frames = attachment.frames;
                 let attachmentNames = attachment.attachmentNames;
@@ -194,7 +194,7 @@ export class AnimationRender {
                     arr.push(change);
                 }
             }
-            else if (time instanceof spine.DrawOrderTimeline) {
+            else if (time instanceof window.spine.DrawOrderTimeline) {
                 let drawOrder = time as spine.DrawOrderTimeline;
                 let frames = drawOrder.frames;
                 let orders = time.drawOrders;
@@ -213,10 +213,10 @@ export class AnimationRender {
             }
             else if (
                 //@ts-ignore
-                time instanceof (spine.ColorTimeline || spine.RGBATimeline)
+                time instanceof (window.spine.ColorTimeline || window.spine.RGBATimeline)
                 //@ts-ignore
-                 || ( spine.TwoColorTimeline && time instanceof spine.TwoColorTimeline)
-                ) {
+                || (window.spine.TwoColorTimeline && time instanceof window.spine.TwoColorTimeline)
+            ) {
                 let rgba = time as spine.RGBATimeline;
                 let frames = rgba.frames;
                 let slotIndex = rgba.slotIndex;
@@ -257,7 +257,7 @@ export class AnimationRender {
                     }
                 }
             }
-            else if (time instanceof spine.DeformTimeline) {
+            else if (time instanceof window.spine.DeformTimeline) {
                 this.checkChangeVB();
                 let slotIndex = time.slotIndex;
                 let change = new ChangeDeform();

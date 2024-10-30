@@ -182,12 +182,12 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
         Vector2.TempVector2.setValue(context.width, context.height);
         this._spriteShaderData.setVector2(SpineShaderInit.Size, Vector2.TempVector2);
         // context.globalAlpha
-        if (this._oldAlpha !==  context.globalAlpha) {
+        if (this._oldAlpha !== context.globalAlpha) {
             let scolor = this.spineItem.getSpineColor();
-            let a = scolor.a *  context.globalAlpha;
-            let color = new Color(scolor.r , scolor.g , scolor.b , a);
+            let a = scolor.a * context.globalAlpha;
+            let color = new Color(scolor.r, scolor.g, scolor.b, a);
             this._spriteShaderData.setColor(SpineShaderInit.Color, color);
-            this._oldAlpha =  context.globalAlpha;
+            this._oldAlpha = context.globalAlpha;
         }
         context._copyClipInfoToShaderData(this._spriteShaderData);
     }
@@ -198,7 +198,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
      */
     resetExternalSkin() {
         if (this._skeleton) {
-            this._skeleton = new spine.Skeleton(this._templet.skeletonData);
+            this._skeleton = new window.spine.Skeleton(this._templet.skeletonData);
             this.spineItem.changeSkeleton(this._skeleton);
             this._flushExtSkin();
         }
@@ -351,7 +351,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
         if (!this._templet)
             return;
         if (value) {
-          
+
             if ((this.spineItem instanceof SpineNormalRender)) {
                 this.spineItem.destroy();
                 let before = SketonOptimise.normalRenderSwitch;
@@ -398,10 +398,10 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
             return;
 
         this._templet._addReference();
-        this._skeleton = new spine.Skeleton(this._templet.skeletonData);
-        this._stateData = new spine.AnimationStateData(this._skeleton.data);
+        this._skeleton = new window.spine.Skeleton(this._templet.skeletonData);
+        this._stateData = new window.spine.AnimationStateData(this._skeleton.data);
         // 动画状态类
-        this._state = new spine.AnimationState(this._stateData);
+        this._state = new window.spine.AnimationState(this._stateData);
         //this._renerer = new SpineSkeletonRenderer(templet, false);
         this._timeKeeper = new TimeKeeper(Laya.timer);
         //let sMesh=this._templet.slotManger.init(this._skeleton.drawOrder, this._templet,this._templet.mainTexture);
@@ -536,7 +536,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
         state.apply(this._skeleton);
         //@ts-ignore
         this._currentPlayTime = state.getCurrentPlayTime(this.trackIndex);
-        
+
         // spine在state.apply中发送事件，开发者可能会在事件中进行destory等操作，导致无法继续执行
         if (!this._state || !this._skeleton) {
             return;
@@ -923,14 +923,14 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
      * @param count 索引数量
      * @param offset 起始索引
      */
-    drawGeo(geo: IRenderGeometryElement, material: Material , count:number , offset:number ) {
+    drawGeo(geo: IRenderGeometryElement, material: Material, count: number, offset: number) {
         let element = Spine2DRenderNode.createRenderElement2D();
         let eleGeo = element.geometry;
         eleGeo.bufferState = geo.bufferState;
         eleGeo.indexFormat = geo.indexFormat;
         eleGeo.instanceCount = geo.instanceCount;
         eleGeo.clearRenderParams();
-        eleGeo.setDrawElemenParams(count , offset);
+        eleGeo.setDrawElemenParams(count, offset);
 
         this._renderElements.push(element);
         if (this._materials[0] != null) {

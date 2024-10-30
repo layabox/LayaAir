@@ -63,7 +63,7 @@ export class SpineTexture {
      * @param mode Spine纹理包裹模式
      */
     convertWrapMode(mode: spine.TextureWrap) {
-        return mode == spine.TextureWrap.ClampToEdge ? WrapMode.Clamp : (mode == spine.TextureWrap.MirroredRepeat ? WrapMode.Mirrored : WrapMode.Repeat);
+        return mode == window.spine.TextureWrap.ClampToEdge ? WrapMode.Clamp : (mode == window.spine.TextureWrap.MirroredRepeat ? WrapMode.Mirrored : WrapMode.Repeat);
     }
 
     /**

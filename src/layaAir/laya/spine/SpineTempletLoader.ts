@@ -47,14 +47,14 @@ class SpineTempletLoader implements IResourceLoader {
         let atlasPages: Array<ILoadURL> = [];
         let basePath = URL.getPath(task.url);
         //@ts-ignore
-        let atlas = new spine.TextureAtlas(atlasText, (path: string) => {
+        let atlas = new window.spine.TextureAtlas(atlasText, (path: string) => {
             let url = basePath + path;
             atlasPages.push({
                 url, type: Loader.TEXTURE2D,
                 propertyParams: {
                     premultiplyAlpha: true
                 },
-                constructParams:[0,0,TextureFormat.R8G8B8A8,false,false,true,true]
+                constructParams: [0, 0, TextureFormat.R8G8B8A8, false, false, true, true]
             });
             return new SpineTexture(null);
         });
@@ -100,7 +100,7 @@ class SpineTempletLoader implements IResourceLoader {
     }
 
     private parseAtlas4(desc: string | ArrayBuffer, atlasText: string, task: ILoadTask, templet: SpineTemplet): Promise<SpineTemplet> {
-        let atlas = new spine.TextureAtlas(atlasText);
+        let atlas = new window.spine.TextureAtlas(atlasText);
         let basePath = URL.getPath(task.url);
         return Laya.loader.load(atlas.pages.map((page: spine.TextureAtlasPage) => {
             return {
@@ -109,7 +109,7 @@ class SpineTempletLoader implements IResourceLoader {
                 propertyParams: {
                     premultiplyAlpha: true
                 },
-                constructParams:[0,0,TextureFormat.R8G8B8A8,false,false,true,true]
+                constructParams: [0, 0, TextureFormat.R8G8B8A8, false, false, true, true]
             }
         }),
             null, task.progress?.createCallback()).then((res: Array<Texture2D>) => {

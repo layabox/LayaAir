@@ -51,7 +51,7 @@ export class SpineSkeletonRenderer extends SpineNormalRenderBase implements ISpi
     // private temp3 = new window.spine.Color();
     // private temp4 = new window.spine.Color();
 
-    
+
     /**
      * @en Create a mesh with the given material.
      * @param material The material to be used for the mesh.
@@ -60,7 +60,7 @@ export class SpineSkeletonRenderer extends SpineNormalRenderBase implements ISpi
      * @param material 用于网格的材质。
      * @returns SpineMeshBase 对象。
      */
-    createMesh(material: Material): SpineMeshBase{
+    createMesh(material: Material): SpineMeshBase {
         return new SpineVirtualMesh(material);
     }
 
@@ -79,10 +79,10 @@ export class SpineSkeletonRenderer extends SpineNormalRenderBase implements ISpi
             this.vertexSize += 4;
         this.templet = templet;
         if (SpineSkeletonRenderer.vertices == null) {
-            SpineSkeletonRenderer.vertices = spine.Utils.newFloatArray(12 * 1024);
+            SpineSkeletonRenderer.vertices = window.spine.Utils.newFloatArray(12 * 1024);
         }
         this.renderable = { vertices: null, numVertices: 0, numFloats: 0 };
-        this.clipper = new spine.SkeletonClipping();
+        this.clipper = new window.spine.SkeletonClipping();
     }
 
     // drawOld(skeleton: spine.Skeleton, graphics: Graphics, slotRangeStart: number = -1, slotRangeEnd: number = -1) {
@@ -482,7 +482,7 @@ export class SpineSkeletonRenderer extends SpineNormalRenderBase implements ISpi
             clipper.clipEndWithSlot(slot);
         }
         clipper.clipEnd();
-        
+
         mesh && mesh.draw();
     }
 }

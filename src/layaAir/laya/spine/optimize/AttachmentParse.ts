@@ -67,7 +67,7 @@ export class AttachmentParse {
      * @zh 指示附件是否为裁剪附件。
      */
     isclip: boolean;
-    isPath:boolean;
+    isPath: boolean;
     /**
      * @en The source data of the attachment.
      * @zh 附件的源数据。
@@ -88,7 +88,7 @@ export class AttachmentParse {
      * @en The number of bones that affect a vertex.
      * @zh 影响一个顶点的最大骨骼数。
      */
-    vertexBones:number = 0;
+    vertexBones: number = 0;
 
     /**
      * @en Initializes the attachment parser with the given parameters.
@@ -113,7 +113,7 @@ export class AttachmentParse {
         this.blendMode = slot.blendMode;
         let color = this.color = new Color();
         let attchmentColor: spine.Color;
-        
+
         if (attachment instanceof window.spine.RegionAttachment) {
             attchmentColor = attachment.color;
             let region = attachment as spine.RegionAttachment;
@@ -172,8 +172,8 @@ export class AttachmentParse {
                         result.push([vertices[b], vertices[b + 1], vertices[b + 2], bones[v]]);
                     }
 
-                    if(result.length > needPoint) {
-                        this.vertexBones = Math.max(this.vertexBones ,result.length);
+                    if (result.length > needPoint) {
+                        this.vertexBones = Math.max(this.vertexBones, result.length);
                         result.length = needPoint;
                         this.isNormalRender = true;
                     }
@@ -193,7 +193,7 @@ export class AttachmentParse {
             this.attachment = null;
             this.isclip = true;
         }
-        else if (attachment instanceof spine.PathAttachment) {
+        else if (attachment instanceof window.spine.PathAttachment) {
             this.attachment = attachment.name;
             this.vertexArray = new Float32Array(attachment.vertices);
             this.isPath = true;

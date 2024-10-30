@@ -35,22 +35,22 @@ export class SpineTemplet extends Resource {
      * @en Base width of spine animation
      * @zh spine 动画基础宽度
      */
-    width:number;
+    width: number;
     /**
      * @en Base height of spine animation
      * @zh spine 动画基础高度
      */
-    height:number;
+    height: number;
     /**
      * @en X-axis offset of spine animation
      * @zh spine 动画X轴偏移
      */
-    offsetX:number;
+    offsetX: number;
     /**
      * @en Y-axis offset of spine animation
      * @zh spine 动画Y轴偏移
      */
-    offsetY:number;
+    offsetY: number;
     /**
      * @en Indicates if slot is needed
      * @zh 是否需要插槽
@@ -153,14 +153,14 @@ export class SpineTemplet extends Resource {
     /** @internal */
     _parse(desc: string | ArrayBuffer, atlas: spine.TextureAtlas, textures: Record<string, Texture2D>): void {
 
-        let atlasLoader = new spine.AtlasAttachmentLoader(atlas);
+        let atlasLoader = new window.spine.AtlasAttachmentLoader(atlas);
         if (desc instanceof ArrayBuffer) {
             //@ts-ignore
-            let skeletonBinary = new spine.SkeletonBinary(atlasLoader, false);
+            let skeletonBinary = new window.spine.SkeletonBinary(atlasLoader, false);
             this.skeletonData = skeletonBinary.readSkeletonData(new Uint8Array(desc));
         } else {
             //@ts-ignore
-            let skeletonJson = new spine.SkeletonJson(atlasLoader, false);
+            let skeletonJson = new window.spine.SkeletonJson(atlasLoader, false);
             this.skeletonData = skeletonJson.readSkeletonData(desc);
         }
 
