@@ -55,7 +55,7 @@ export class RenderCMD2DDemo {
                 let cmd = RenderCMD2DDemo.cmd = new CommandBuffer2D("test");
                 cmd.setRenderTarget(rt as any, true, Color.YELLOW);
                 cmd.drawMesh2DByTrans(mesh, new Vector2(0, 0), 0, new Vector2(), new Vector2(1, 1), t);
-                cmd._apply(true);
+                cmd.apply(true);
                 console.log(Utils3D.uint8ArrayToArrayBuffer(rt));
             }
             if (testRenderElementCMD) {//OK
@@ -71,7 +71,7 @@ export class RenderCMD2DDemo {
                 mat.setTranslate(100, 100);
                 cmd.drawRenderElement((mesh2Drender as any)._renderElements[0], mat);
                 mat.setTranslate(100, 300);
-                cmd._apply(true);
+                cmd.apply(true);
                 console.log(Utils3D.uint8ArrayToArrayBuffer(rt));
             }
 
@@ -81,7 +81,7 @@ export class RenderCMD2DDemo {
                 cmd.blitTextureQuad(t, rt as any, new Vector4(0, 0, 0.3, 0.3));
                 cmd.blitTextureQuad(t, rt as any, new Vector4(0.3, 0.3, 0.5, 0.5));
                 cmd.blitTextureQuad(t, rt as any, new Vector4(0.8, 0.8, 0.2, 0.2));
-                cmd._apply(true);
+                cmd.apply(true);
                 console.log(Utils3D.uint8ArrayToArrayBuffer(rt));
             }
         });
