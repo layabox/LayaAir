@@ -128,7 +128,7 @@ export class NoRenderBufferState implements IBufferState {
         this._vertexBuffers = vertexBuffers.slice();
         this._bindedIndexBuffer = indexBuffer;
     }
-    
+
     destroy(): void {
     }
 
@@ -499,7 +499,7 @@ export class NoRenderShaderData extends ShaderData {
             case ShaderDataType.Matrix4x4:
                 return this.getMatrix4x4(uniformIndex);
             default:
-                throw "unkone shader data type.";
+                throw "unknown shader data type.";
         }
     }
 
