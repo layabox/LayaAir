@@ -173,6 +173,7 @@ export class LayaGLQuickRunner {
 
     static drawLayaGL_drawNodes(sprite: Sprite, context: Context, x: number, y: number): void {
         var drawcallOptim = sprite._getBit(NodeFlags.DRAWCALL_OPTIMIZE) && context.drawCallOptimize(true);
+        let drawingToTexture = context._drawingToTexture;
         var style = sprite._style;
         x = x - style.pivotX;
         y = y - style.pivotY;
@@ -191,9 +192,14 @@ export class LayaGLQuickRunner {
             bottom = rect.bottom;
         }
 
+        let visFlag:boolean;
         for (let i = 0; i < n; ++i) {
             let ele = childs[i];
-            let visFlag = ele._visible || ele._getBit(NodeFlags.DISABLE_VISIBILITY);
+            if (drawingToTexture)
+                visFlag = ele._visible && !ele._getBit(NodeFlags.ESCAPE_DRAWING_TO_TEXTURE);
+            else
+                visFlag = ele._visible || ele._getBit(NodeFlags.DISABLE_VISIBILITY);
+
             if (rect && ((_x = ele._x) >= right   || 
                          (_x + ele.width) <= left || 
                          (_y = ele._y) >= bottom  || 

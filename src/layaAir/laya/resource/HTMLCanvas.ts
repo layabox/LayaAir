@@ -2,10 +2,10 @@ import { Texture } from "./Texture";
 import { Texture2D } from "./Texture2D";
 import { Context } from "../renders/Context";
 import { Browser } from "../utils/Browser";
-import { RenderTexture2D } from "./RenderTexture2D";
 import { Resource } from "./Resource";
 import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
 import { LayaEnv } from "../../LayaEnv";
+import { BaseTexture } from "./BaseTexture";
 
 /**
  * @en `HTMLCanvas` is a proxy class for the HTML Canvas, encapsulating the properties and methods of the Canvas.
@@ -17,7 +17,7 @@ export class HTMLCanvas extends Resource {
     /**@internal */
     _source: HTMLCanvasElement;
     /**@internal */
-    _texture: Texture | RenderTexture2D;
+    _texture: Texture | BaseTexture;
     protected _width: number;
     protected _height: number;
 
@@ -193,7 +193,7 @@ export class HTMLCanvas extends Resource {
      * @en Get the texture instance.
      * @zh 获取纹理实例
      */
-    getTexture(): Texture | null | RenderTexture2D {
+    getTexture(): Texture | null | BaseTexture {
         if (!this._texture) {
             var bitmap: Texture2D = new Texture2D(this.source.width, this.source.height, TextureFormat.R8G8B8A8, true, false, false);
             bitmap.setImageData(this.source, false, false);

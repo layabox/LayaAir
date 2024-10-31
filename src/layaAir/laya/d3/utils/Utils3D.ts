@@ -17,6 +17,7 @@ import { Quaternion } from "../../maths/Quaternion";
 import { Vector3 } from "../../maths/Vector3";
 import { Vector4 } from "../../maths/Vector4";
 import { RenderTexture } from "../../resource/RenderTexture";
+import { Utils } from "../../utils/Utils";
 
 /**
  * @en Utils3D is a class used to create 3D tools.
@@ -871,61 +872,7 @@ export class Utils3D {
      * @returns 
      */
     static uint8ArrayToArrayBuffer(rendertexture: RenderTexture) {
-        let pixelArray: Uint8Array | Float32Array;
-        let width = rendertexture.width;
-        let height = rendertexture.height;
-        switch (rendertexture.colorFormat) {
-            case RenderTargetFormat.R8G8B8:
-                pixelArray = new Uint8Array(width * height * 4);
-                break;
-            case RenderTargetFormat.R8G8B8A8:
-                pixelArray = new Uint8Array(width * height * 4);
-                break;
-            case RenderTargetFormat.R16G16B16A16:
-                pixelArray = new Float32Array(width * height * 4);
-                break;
-            default:
-                throw "this function is not surpprt " + rendertexture.format.toString() + "format Material";
-        }
-        rendertexture.getData(0, 0, rendertexture.width, rendertexture.height, pixelArray);
-        //tranceTo
-        //throw " rt get Data";
-        switch (rendertexture.colorFormat) {
-            case RenderTargetFormat.R16G16B16A16:
-                let ori = pixelArray;
-                let trans = new Uint8Array(width * height * 4);
-                for (let i = 0, n = ori.length; i < n; i++) {
-                    trans[i] = Math.min(Math.floor(ori[i] * 255), 255);
-                }
-                pixelArray = trans;
-                break;
-        }
-
-        let pixels = pixelArray;
-        var bs: String;
-        if (LayaEnv.isConch) {
-            //TODO:
-            //var base64img=__JS__("conchToBase64('image/png',1,pixels,canvasWidth,canvasHeight)");
-            //var l = base64img.split(",");
-            //if (isBase64)
-            //	return base64img;
-            //return base.utils.DBUtils.decodeArrayBuffer(l[1]);
-        }
-        else {
-            var canv: HTMLCanvas = new HTMLCanvas(true);
-            canv.lock = true;
-            canv.size(width, height);
-            var ctx2d = canv.getContext('2d');
-            //@ts-ignore
-            var imgdata: ImageData = ctx2d.createImageData(width, height);
-            //@ts-ignore
-            imgdata.data.set(new Uint8ClampedArray(pixels));
-            //@ts-ignore
-            ctx2d.putImageData(imgdata, 0, 0);;
-            bs = canv.source.toDataURL();
-            canv.destroy();
-        }
-        return bs;
+        return Utils.uint8ArrayToArrayBuffer(rendertexture);
     }
 
     /**
@@ -937,63 +884,7 @@ export class Utils3D {
      * @returns 一个 Promise，该 Promise 将解析为表示 RenderTexture 的 Base64 字符串。
      */
     static uint8ArrayToArrayBufferAsync(rendertexture: RenderTexture): Promise<String> {
-        let pixelArray: Uint8Array | Float32Array;
-        let width = rendertexture.width;
-        let height = rendertexture.height;
-        switch (rendertexture.colorFormat) {
-            case RenderTargetFormat.R8G8B8:
-                pixelArray = new Uint8Array(width * height * 4);
-                break;
-            case RenderTargetFormat.R8G8B8A8:
-                pixelArray = new Uint8Array(width * height * 4);
-                break;
-            case RenderTargetFormat.R16G16B16A16:
-                pixelArray = new Float32Array(width * height * 4);
-                break;
-            default:
-                throw "this function is not surpprt " + rendertexture.format.toString() + "format Material";
-        }
-        return rendertexture.getDataAsync(0, 0, rendertexture.width, rendertexture.height, pixelArray).then(() => {
-
-            //tranceTo
-            //throw " rt get Data";
-            switch (rendertexture.colorFormat) {
-                case RenderTargetFormat.R16G16B16A16:
-                    let ori = pixelArray;
-                    let trans = new Uint8Array(width * height * 4);
-                    for (let i = 0, n = ori.length; i < n; i++) {
-                        trans[i] = Math.min(Math.floor(ori[i] * 255), 255);
-                    }
-                    pixelArray = trans;
-                    break;
-            }
-
-            let pixels = pixelArray;
-            var bs: String;
-            if (LayaEnv.isConch) {
-                //TODO:
-                //var base64img=__JS__("conchToBase64('image/png',1,pixels,canvasWidth,canvasHeight)");
-                //var l = base64img.split(",");
-                //if (isBase64)
-                //	return base64img;
-                //return base.utils.DBUtils.decodeArrayBuffer(l[1]);
-            }
-            else {
-                var canv: HTMLCanvas = new HTMLCanvas(true);
-                canv.lock = true;
-                canv.size(width, height);
-                var ctx2d = canv.getContext('2d');
-                //@ts-ignore
-                var imgdata: ImageData = ctx2d.createImageData(width, height);
-                //@ts-ignore
-                imgdata.data.set(new Uint8ClampedArray(pixels));
-                //@ts-ignore
-                ctx2d.putImageData(imgdata, 0, 0);;
-                bs = canv.source.toDataURL();
-                canv.destroy();
-            }
-            return Promise.resolve(bs);
-        });
+        return Utils.uint8ArrayToArrayBufferAsync(rendertexture);
     }
 }
 

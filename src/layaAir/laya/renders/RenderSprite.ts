@@ -159,7 +159,7 @@ export class RenderSprite {
         let next = this._next;
         if (next == RenderSprite.NORENDER) return;
 
-        if (sprite._getBit(NodeFlags.DISABLE_INNER_CLIPPING)) {
+        if (sprite._getBit(NodeFlags.DISABLE_INNER_CLIPPING) && !context._drawingToTexture) {
             next._fun(sprite, context, x, y);
             return;
         }
@@ -215,7 +215,7 @@ export class RenderSprite {
 
     /**@internal IDE only*/
     _hitarea(sprite: Sprite, context: Context, x: number, y: number): void {
-        if (sprite.hitArea) {
+        if (!context._drawingToTexture && sprite.hitArea) {
             var style = sprite._style;
             var g = (<HitArea>sprite.hitArea)._hit;
             var temp = context.globalAlpha;
@@ -265,6 +265,7 @@ export class RenderSprite {
         x = x - sprite.pivotX;
         y = y - sprite.pivotY;
         let textLastRender: boolean = sprite._getBit(NodeFlags.DRAWCALL_OPTIMIZE) && context.drawCallOptimize(true);
+        let drawingToTexture = context._drawingToTexture;
         let rect: Rectangle;
         let left: number, top: number, right: number, bottom: number, x2: number, y2: number;
 
@@ -278,7 +279,11 @@ export class RenderSprite {
 
         for (let i = 0; i < n; ++i) {
             let ele = childs[i];
-            let visFlag = ele._visible || ele._getBit(NodeFlags.DISABLE_VISIBILITY);
+            let visFlag: boolean;
+            if (drawingToTexture)
+                visFlag = ele._visible && !ele._getBit(NodeFlags.ESCAPE_DRAWING_TO_TEXTURE);
+            else
+                visFlag = ele._visible || ele._getBit(NodeFlags.DISABLE_VISIBILITY);
             if (visFlag) {
                 if (rect && ((x2 = ele._x) >= right || (x2 + ele.width) <= left || (y2 = ele._y) >= bottom || (y2 + ele.height) <= top))
                     visFlag = false;
@@ -303,7 +308,7 @@ export class RenderSprite {
      * @param context 
      * @returns 
      */
-    _renderNextToCacheRT(sprite: Sprite, context: Context) {
+    _renderNextToCacheRT(sprite: Sprite, context: Context,marginLeft=0,marginTop=0,marginRight=0,marginBottom=0) {
         var _cacheStyle = sprite._getCacheStyle();
         if (sprite._needRepaint() || !_cacheStyle.renderTexture || ILaya.stage.isGlobalRepaint()) {
             if (_cacheStyle.renderTexture) {
@@ -312,6 +317,7 @@ export class RenderSprite {
             //如果需要构造RenderTexture
             // 先计算需要的texuture的大小。
             let scaleInfo = sprite._cacheStyle._calculateCacheRect(sprite, "bitmap"/*sprite._cacheStyle.cacheAs*/, 0, 0);
+            //tRec相当于贴图在sprite坐标系下的位置
             let tRec = _cacheStyle.cacheRect;
             if (tRec.width <= 0 || tRec.height <= 0){
                 //什么也没渲染，注意设置rt为null，后面会判断
@@ -321,8 +327,8 @@ export class RenderSprite {
             //计算cache画布的大小
             Stat.canvasBitmap++;
 
-            let w = tRec.width * scaleInfo.x;  //,
-            let h = tRec.height * scaleInfo.y;
+            let w = tRec.width * scaleInfo.x+marginLeft+marginRight;  //,
+            let h = tRec.height * scaleInfo.y+marginTop+marginBottom;
             let rt = new RenderTexture2D(w, h, RenderTargetFormat.R8G8B8A8);
             let ctx = new Context();
             ctx.copyState(context);
@@ -337,6 +343,8 @@ export class RenderSprite {
                 所以为了rt能正确的包含节点的渲染效果，应该偏移一下节点再渲染，具体就是取节点在rt坐标系下的值
                 当使用这个rt的时候，要反向偏移，即偏移rt在节点坐标系下的值
             */
+            tRec.x -= marginLeft;   //margin要算到偏移中
+            tRec.y -= marginTop;
             this._next._fun(sprite, ctx, -tRec.x, -tRec.y);
             ctx.endRender();
             //临时，恢复
@@ -353,7 +361,7 @@ export class RenderSprite {
         var _cacheStyle = sprite._cacheStyle;
         var _next = this._next;
 
-        if (_cacheStyle.mask && _cacheStyle.mask._getBit(NodeFlags.DISABLE_VISIBILITY)) {
+        if ( !context._drawingToTexture && _cacheStyle.mask && _cacheStyle.mask._getBit(NodeFlags.DISABLE_VISIBILITY)) {
             //虽然有mask但是mask不可见，则不走这个流程。
             _next._fun(sprite, context, x, y);
             return;
@@ -388,6 +396,7 @@ export class RenderSprite {
         let scaleInfo = sprite._getCacheStyle()._calculateCacheRect(sprite, "bitmap"/*sprite._cacheStyle.cacheAs*/, 0, 0);
         let tRec = sprite._cacheStyle.cacheRect;
         let ctx = new Context();
+        ctx._drawingToTexture=true;
         context && ctx.copyState(context);
         let rt = renderTexture;
         if (rt) {
@@ -413,6 +422,7 @@ export class RenderSprite {
         }
 
         ctx.endRender();
+        ctx._drawingToTexture=false;
         //临时，恢复
         //context && ctx.render2D.setRenderTarget(context.render2D.out); endRender实现了
         ctx.destroy();
