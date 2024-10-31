@@ -1,10 +1,11 @@
-
-import { IRenderCMD } from "../../../../RenderDriver/DriverDesign/3DRenderPass/IRendderCMD";
+import { IRenderCMD } from "../../../../RenderDriver/DriverDesign/RenderDevice/IRenderCMD";
 import { ShaderData } from "../../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
 import { LayaGL } from "../../../../layagl/LayaGL";
 import { RenderContext3D } from "../RenderContext3D";
 import { CommandBuffer } from "./CommandBuffer";
+
+
 
 /**
  * @en The `Command` class is used to create commands.
@@ -21,13 +22,13 @@ export class Command {
 	/** @internal */
 	static SCREENTEXTUREOFFSETSCALE_NAME: string = "u_OffsetScale";
 	/** @internal */
-	static MAINTEXTURE_TEXELSIZE_NAME: string = "u_MainTex_TexelSize";//todo：
+	static MAINTEXTURE_TEXELSIZE_NAME: string = "u_MainTex_TexelSize";
 	/** @internal */
-	static SCREENTEXTURE_ID: number;//todo：
+	static SCREENTEXTURE_ID: number;
 	/** @internal */
-	static SCREENTEXTUREOFFSETSCALE_ID: number;//todo：
+	static SCREENTEXTUREOFFSETSCALE_ID: number;
 	/** @internal */
-	static MAINTEXTURE_TEXELSIZE_ID: number;//todo：
+	static MAINTEXTURE_TEXELSIZE_ID: number;
 
 	/**@internal */
 	_commandBuffer: CommandBuffer = null;

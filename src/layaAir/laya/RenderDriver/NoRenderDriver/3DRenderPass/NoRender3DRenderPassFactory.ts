@@ -4,25 +4,21 @@ import { Camera } from "../../../d3/core/Camera";
 import { Transform3D } from "../../../d3/core/Transform3D";
 import { SceneRenderManagerOBJ } from "../../../d3/core/scene/SceneRenderManagerOBJ";
 import { Color } from "../../../maths/Color";
-import { Matrix4x4 } from "../../../maths/Matrix4x4";
-import { Vector2 } from "../../../maths/Vector2";
-import { Vector3 } from "../../../maths/Vector3";
 import { Vector4 } from "../../../maths/Vector4";
 import { Viewport } from "../../../maths/Viewport";
-import { BaseTexture } from "../../../resource/BaseTexture";
 import { FastSinglelist, SingletonList } from "../../../utils/SingletonList";
 import { IRender3DProcess, IRenderContext3D, IRenderElement3D, IInstanceRenderBatch, IInstanceRenderElement3D, ISkinRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { I3DRenderPassFactory } from "../../DriverDesign/3DRenderPass/I3DRenderPassFactory";
-import { DrawNodeCMDData, BlitQuadCMDData, DrawElementCMDData, SetViewportCMD, SetRenderTargetCMD, SetRenderDataCMD, SetShaderDefineCMD, IRenderCMD, RenderCMDType } from "../../DriverDesign/3DRenderPass/IRendderCMD";
+import { DrawNodeCMDData, BlitQuadCMDData, DrawElementCMDData, SetViewportCMD, SetRenderTargetCMD } from "../../DriverDesign/3DRenderPass/IRender3DCMD";
 import { ISceneRenderManager } from "../../DriverDesign/3DRenderPass/ISceneRenderManager";
+import { SetRenderDataCMD, SetShaderDefineCMD, IRenderCMD, RenderCMDType } from "../../DriverDesign/RenderDevice/IRenderCMD";
 import { IRenderGeometryElement } from "../../DriverDesign/RenderDevice/IRenderGeometryElement";
 import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
 import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
-import { ShaderData, ShaderDataItem, ShaderDataType } from "../../DriverDesign/RenderDevice/ShaderData";
+import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
 import { ISceneNodeData, ICameraNodeData, IBaseRenderNode } from "../../RenderModuleData/Design/3D/I3DRenderModuleData";
-import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
 import { WebBaseRenderNode } from "../../RenderModuleData/WebModuleData/3D/WebBaseRenderNode";
-import { NoRenderShaderData } from "../DriverDevice/NoRenderDeviceFactory";
+import { NoRenderSetRenderData, NoRenderSetShaderDefine, NoRenderShaderData } from "../DriverDevice/NoRenderDeviceFactory";
 import { NoInternalRT } from "../DriverDevice/NoRenderEngineFactory";
 
 export class NoRender3DRenderPassFactory implements I3DRenderPassFactory {
@@ -388,99 +384,6 @@ export class NoRenderSetRenderTargetCMD extends SetRenderTargetCMD {
         super();
         this.type = RenderCMDType.ChangeRenderTarget;
         this._clearColorValue = new Color();
-    }
-
-    apply(context: NoRenderRenderContext3D): void {
-    }
-}
-export class NoRenderSetRenderData extends SetRenderDataCMD {
-    type: RenderCMDType;
-    protected _dataType: ShaderDataType;
-    protected _propertyID: number;
-    protected _dest: NoRenderShaderData;
-    protected _value: ShaderDataItem;
-
-    data_v4: Vector4;
-    data_v3: Vector3;
-    data_v2: Vector2;
-    data_mat: Matrix4x4;
-    data_number: number;
-    data_texture: BaseTexture;
-    data_Color: Color;
-    data_Buffer: Float32Array;
-    get dataType(): ShaderDataType {
-        return this._dataType;
-    }
-
-    set dataType(value: ShaderDataType) {
-        this._dataType = value;
-    }
-
-    get propertyID(): number {
-        return this._propertyID;
-    }
-
-    set propertyID(value: number) {
-        this._propertyID = value;
-    }
-
-    get dest(): NoRenderShaderData {
-        return this._dest;
-    }
-
-    set dest(value: NoRenderShaderData) {
-        this._dest = value;
-    }
-
-    get value(): ShaderDataItem {
-        return this._value;
-    }
-    set value(value: ShaderDataItem) {
-
-    }
-
-    constructor() {
-        super();
-        this.type = RenderCMDType.ChangeData;
-    }
-
-    apply(context: NoRenderRenderContext3D): void {
-    }
-}
-
-export class NoRenderSetShaderDefine extends SetShaderDefineCMD {
-    type: RenderCMDType;
-    protected _define: ShaderDefine;
-    protected _dest: NoRenderShaderData;
-    protected _add: boolean;
-
-    get define(): ShaderDefine {
-        return this._define;
-    }
-
-    set define(value: ShaderDefine) {
-        this._define = value;
-    }
-
-    get dest(): NoRenderShaderData {
-        return this._dest;
-    }
-
-    set dest(value: NoRenderShaderData) {
-        this._dest = value;
-    }
-
-    get add(): boolean {
-        return this._add;
-    }
-
-    set add(value: boolean) {
-        this._add = value;
-    }
-
-    constructor() {
-        super();
-        this.type = RenderCMDType.ChangeShaderDefine;
     }
 
     apply(context: NoRenderRenderContext3D): void {

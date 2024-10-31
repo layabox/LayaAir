@@ -16,7 +16,7 @@ import { BufferState } from "../../../../webgl/utils/BufferState";
 import { VertexMesh } from "../../../../RenderEngine/RenderShader/VertexMesh";
 import { Laya3DRender } from "../../../RenderObjs/Laya3DRender";
 import { Transform3D } from "../../Transform3D";
-import { DrawElementCMDData } from "../../../../RenderDriver/DriverDesign/3DRenderPass/IRendderCMD";
+import { DrawElementCMDData } from "../../../../RenderDriver/DriverDesign/3DRenderPass/IRender3DCMD";
 import { IRenderElement3D } from "../../../../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
 
 /**

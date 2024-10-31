@@ -28,7 +28,7 @@ export class Mesh2DRender extends BaseRenderNode2D {
     private _baseRender2DTexture: BaseTexture;
 
     /**@internal */
-    private _color: Color;
+    private _color: Color = new Color();
 
 
     /**
@@ -185,5 +185,6 @@ export class Mesh2DRender extends BaseRenderNode2D {
         this._renderElements = [];
         this._materials = [];
         this._spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);
+        this._spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, this._color);
     }
 }

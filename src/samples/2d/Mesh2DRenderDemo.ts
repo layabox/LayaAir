@@ -2,14 +2,9 @@ import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";
 import { Loader } from "laya/net/Loader";
-import { Texture } from "laya/resource/Texture";
 import { Browser } from "laya/utils/Browser";
 import { Main } from "./../Main";
 import { Mesh2D, VertexMesh2D } from "laya/resource/Mesh2D"
-import { LayaGL } from "laya/layagl/LayaGL";
-import { BufferUsage } from "laya/RenderEngine/RenderEnum/BufferTargetType";
-import { MeshTopology } from "laya/RenderEngine/RenderEnum/RenderPologyMode";
-import { DrawType } from "laya/RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "laya/RenderEngine/RenderEnum/IndexFormat";
 import { Mesh2DRender } from "laya/display/Scene2DSpecial/Mesh2DRender"
 export class Mesh2DRenderDemo {

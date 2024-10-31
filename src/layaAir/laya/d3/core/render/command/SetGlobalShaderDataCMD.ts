@@ -3,7 +3,6 @@ import { CommandBuffer } from "./CommandBuffer";
 import { RenderContext3D } from "../RenderContext3D";
 import { LayaGL } from "../../../../layagl/LayaGL";
 import { ShaderDataType } from "../../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
-import { SetRenderDataCMD } from "../../../../RenderDriver/DriverDesign/3DRenderPass/IRendderCMD";
 import { SetShaderDataCMD } from "./SetShaderDataCMD";
 
 /**
