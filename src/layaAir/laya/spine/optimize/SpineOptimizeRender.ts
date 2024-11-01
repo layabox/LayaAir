@@ -1,3 +1,4 @@
+//@~AXIE:2.2
 import { BaseRender2DType, BaseRenderNode2D } from "../../NodeRender2D/BaseRenderNode2D";
 import { IIndexBuffer } from "../../RenderDriver/DriverDesign/RenderDevice/IIndexBuffer";
 import { IRenderGeometryElement } from "../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
@@ -366,7 +367,7 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
         }
         else {
             if (currentRender.vertexBones > 4) {
-                console.warn(`Current skin: ${currentRender.name}, Max number of bones influencing a vertex: ${currentRender.vertexBones}.`);
+                console.warn(`In FastRender mode - Current skin: ${currentRender.name} has ${currentRender.vertexBones} bones influencing each vertex. This exceeds the recommended limit of 4 bones per vertex.`);
             }
             
             switch (this.currentRender.skinAttachType) {
