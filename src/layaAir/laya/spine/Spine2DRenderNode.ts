@@ -110,7 +110,6 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
 
     private _pause: boolean = true;
 
-    private _currAniName: string = null;
     /** 动画播放的起始时间位置*/
     private _playStart: number;
     /** 动画播放的结束时间位置*/
@@ -311,7 +310,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
      * @param value 当前时间。
      */
     set currentTime(value: number) {
-        if (!this._currAniName || !this._templet)
+        if (!this._templet)
             return;
 
         value /= 1000;
@@ -329,10 +328,9 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
      * @returns 当前播放状态。
      */
     get playState(): number {
-        if (!this._currAniName)
-            return Spine2DRenderNode.STOPPED;
         if (this._pause)
-            return Spine2DRenderNode.PAUSED;
+            if (this._currentPlayTime) return Spine2DRenderNode.PAUSED;
+            else return Spine2DRenderNode.STOPPED;
         return Spine2DRenderNode.PLAYING;
     }
 
@@ -358,7 +356,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
                 SketonOptimise.normalRenderSwitch = false;
                 this.spineItem = this._templet.sketonOptimise._initSpineRender(this._skeleton, this._templet, this, this._state);
                 SketonOptimise.normalRenderSwitch = before;
-                this.play(this._currAniName, this._loop, true, this._currentPlayTime);
+                this.play(this._animationName, this._loop, true, this._currentPlayTime);
             }
         } else {
             this.changeNormal();
@@ -436,8 +434,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
                 if (entry.loop) { // 如果多次播放,发送complete事件
                     this.event(Event.COMPLETE);
                 } else { // 如果只播放一次，就发送stop事件
-                    this._currAniName = null;
-                    this.event(Event.STOPPED);
+                    this.stop();
                 }
             },
             event: (entry: any, event: any) => {
@@ -463,9 +460,10 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
         });
         this._flushExtSkin();
         this.event(Event.READY);
-
-        if (LayaEnv.isPlaying && this._animationName !== undefined)
+        
+        if (LayaEnv.isPlaying && this._animationName !== undefined){
             this.play(this._animationName, this._loop, true);
+        }
     }
 
     /**
@@ -486,26 +484,28 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
      * @param freshSkin 是否刷新皮肤数据。
      * @param playAudio 是否播放音频。
      */
-    play(nameOrIndex: any, loop: boolean, force: boolean = true, start: number = 0, end: number = 0, freshSkin: boolean = true, playAudio: boolean = true) {
+    play(nameOrIndex: string | number, loop: boolean, force: boolean = true, start: number = 0, end: number = 0, freshSkin: boolean = true, playAudio: boolean = true) {
         this._playAudio = playAudio;
         start /= 1000;
         end /= 1000;
-        let animationName = nameOrIndex;
         this._loop = loop;
         if (start < 0 || end < 0)
             throw new Error("SpineSkeleton: start and end must large than zero.");
         if ((end !== 0) && (start > end))
             throw new Error("SpineSkeleton: start must less than end.");
 
-        if (typeof animationName == "number") {
-            animationName = this.getAniNameByIndex(nameOrIndex);
+        if (typeof nameOrIndex == "number") {
+            nameOrIndex = this.getAniNameByIndex(nameOrIndex);
+        }else{
+            let hasAni = !!this.templet.findAnimation(nameOrIndex);
+            if (!hasAni) return
         }
 
-        if (force || this._pause || this._currAniName != animationName) {
-            this._currAniName = animationName;
-            this.spineItem.play(animationName);
+        if (force || this._pause || this._currentPlayTime || this._animationName != nameOrIndex) {
+            this._animationName = nameOrIndex;
+            this.spineItem.play(nameOrIndex);
             // 设置执行哪个动画
-            let trackEntry = this._state.setAnimation(this.trackIndex, animationName, loop);
+            let trackEntry = this._state.setAnimation(this.trackIndex, nameOrIndex, loop);
             // 设置起始和结束时间
             //let trackEntry = this._state.getCurrent(this.trackIndex);
             trackEntry.animationStart = start;
@@ -520,9 +520,9 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
             if (this._pause) {
                 this._pause = false;
                 this._beginUpdate();
-                //this.timer.frameLoop(1, this, this._update, null, true);
             }
             this._update();
+            this.event(Event.PLAYED);
         }
     }
 
@@ -578,8 +578,8 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
     getAniNameByIndex(index: number): string {
         return this._templet.getAniNameByIndex(index);
     }
-
     /**
+
      * @en Get the reference of a slot by its name
      * @param slotName The name of the slot
      * @zh 通过名字获取插槽的引用
@@ -643,7 +643,6 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
     stop(): void {
         if (!this._pause) {
             this._pause = true;
-            this._currAniName = null;
             this._clearUpdate();
             //this.timer.clear(this, this._update);
             this._state.update(-this._currentPlayTime);
@@ -744,7 +743,6 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
         this._state.clearListeners();
         this._state = null;
         //this._renerer = null;
-        this._currAniName = null;
         this._pause = true;
         this._clearUpdate();
         if (this._soundChannelArr.length > 0)
@@ -762,13 +760,13 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
      * @param loop 是否循环播放
      * @param delay 延迟调用时间
      */
-    addAnimation(nameOrIndex: any, loop: boolean = false, delay: number = 0) {
+    addAnimation(nameOrIndex: string | number, loop: boolean = false, delay: number = 0) {
         delay /= 1000;
         let animationName = nameOrIndex;
         if (typeof animationName == "number") {
             animationName = this.getAniNameByIndex(animationName);
         }
-        this._currAniName = animationName;
+        this._animationName = animationName;
         this._state.addAnimation(this.trackIndex, animationName, loop, delay);
     }
 
@@ -1039,7 +1037,6 @@ class TimeKeeper {
      */
     update() {
         // this.delta =1 / 30;
-
         this.delta = this.timer.delta / 1000;
         if (this.delta > this.maxDelta)
             this.delta = this.maxDelta;
@@ -1047,3 +1044,54 @@ class TimeKeeper {
 }
 
 ClassUtils.regClass("Spine2DRenderNode", Spine2DRenderNode);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

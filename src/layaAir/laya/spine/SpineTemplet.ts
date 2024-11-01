@@ -1,3 +1,4 @@
+//@~AXIE:1.2
 import { Resource } from "../resource/Resource";
 import { SketonOptimise } from "./optimize/SketonOptimise";
 import { Material } from "../resource/Material";
@@ -185,6 +186,18 @@ export class SpineTemplet extends Resource {
         let tAni = this.skeletonData.getAnimationByIndex(index);
         if (tAni) return tAni.name;
         return null;
+    }
+
+    /**
+     * @en Find the animation by its name
+     * @param name The name of the animation to find
+     * @returns The found animation index, or -1 if not found
+     * @zh 通过动画名称查找动画
+     * @param name 要查找的动画名称
+     * @returns 找到的动画索引，如果未找到则返回-1
+     */
+    findAnimation(name: string) {
+        return this.skeletonData.findAnimation(name);
     }
 
     /**
