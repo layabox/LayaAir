@@ -5,7 +5,6 @@ import { ICharacterController } from "./ICharacterController";
 import { IDynamicCollider } from "./IDynamicCollider";
 import { IPhysicsManager } from "./IPhysicsManager";
 import { IStaticCollider } from "./IStaticCollider";
-import { ICustomJoint } from "./Joint/ICustomJoint";
 import { ID6Joint } from "./Joint/ID6Joint";
 import { IFixedJoint } from "./Joint/IFixedJoint";
 import { IHingeJoint } from "./Joint/IHingeJoint";

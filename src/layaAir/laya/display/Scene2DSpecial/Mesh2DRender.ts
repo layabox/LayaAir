@@ -28,7 +28,7 @@ export class Mesh2DRender extends BaseRenderNode2D {
     private _baseRender2DTexture: BaseTexture;
 
     /**@internal */
-    private _color: Color;
+    private _color: Color = new Color();
 
 
     /**
@@ -154,14 +154,12 @@ export class Mesh2DRender extends BaseRenderNode2D {
         let mat = context._curMat;
         let vec3 = Vector3._tempVector3;
         vec3.x = mat.a;
-        vec3.y = mat.b;
+        vec3.y = mat.c;
         vec3.z = px + mat.tx;
-        //vec3.z = mat.tx + mat.a * px + mat.c * py;
         this._spriteShaderData.setVector3(BaseRenderNode2D.NMATRIX_0, vec3);
-        vec3.x = mat.c;
+        vec3.x = mat.b;
         vec3.y = mat.d;
         vec3.z = py + mat.ty;
-        //vec3.z = mat.ty + mat.b * px + mat.d * py;
         this._spriteShaderData.setVector3(BaseRenderNode2D.NMATRIX_1, vec3);
         this._setRenderSize(context.width, context.height)
         context._copyClipInfoToShaderData(this._spriteShaderData);
@@ -185,5 +183,6 @@ export class Mesh2DRender extends BaseRenderNode2D {
         this._renderElements = [];
         this._materials = [];
         this._spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);
+        this._spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, this._color);
     }
 }

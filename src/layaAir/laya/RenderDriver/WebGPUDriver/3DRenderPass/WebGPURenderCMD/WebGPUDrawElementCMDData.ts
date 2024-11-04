@@ -1,4 +1,5 @@
-import { DrawElementCMDData, RenderCMDType } from "../../../DriverDesign/3DRenderPass/IRendderCMD";
+import { DrawElementCMDData } from "../../../DriverDesign/3DRenderPass/IRender3DCMD";
+import { RenderCMDType } from "../../../DriverDesign/RenderDevice/IRenderCMD";
 import { WebGPURenderContext3D } from "../WebGPURenderContext3D";
 import { WebGPURenderElement3D } from "../WebGPURenderElement3D";
 

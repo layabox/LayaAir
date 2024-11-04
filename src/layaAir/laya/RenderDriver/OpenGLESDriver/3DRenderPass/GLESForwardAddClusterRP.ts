@@ -5,7 +5,7 @@ import { Color } from "../../../maths/Color";
 import { Vector4 } from "../../../maths/Vector4";
 import { Viewport } from "../../../maths/Viewport";
 import { DepthTextureMode } from "../../../resource/RenderTexture";
-import { IRenderCMD } from "../../DriverDesign/3DRenderPass/IRendderCMD";
+import { IRenderCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
 import { RTCameraNodeData } from "../../RenderModuleData/RuntimeModuleData/3D/RT3DRenderModuleData";
 import { RTBaseRenderNode } from "../../RenderModuleData/RuntimeModuleData/3D/RTBaseRenderNode";
 import { GLESInternalRT } from "../RenderDevice/GLESInternalRT";

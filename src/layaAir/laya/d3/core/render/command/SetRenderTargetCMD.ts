@@ -3,7 +3,7 @@ import { RenderTexture } from "../../../../resource/RenderTexture";
 import { CommandBuffer } from "./CommandBuffer";
 import { Color } from "../../../../maths/Color";
 import { Laya3DRender } from "../../../RenderObjs/Laya3DRender";
-import { SetRenderTargetCMD } from "../../../../RenderDriver/DriverDesign/3DRenderPass/IRendderCMD";
+import { SetRenderTargetCMD } from "../../../../RenderDriver/DriverDesign/3DRenderPass/IRender3DCMD";
 import { RenderClearFlag } from "../../../../RenderEngine/RenderEnum/RenderClearFlag";
 
 /**

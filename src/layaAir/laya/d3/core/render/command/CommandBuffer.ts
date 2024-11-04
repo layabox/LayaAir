@@ -328,7 +328,6 @@ export class CommandBuffer {
 	 * @param source 要设置的数据。
 	 */
 	setGlobalInt(nameID: number, source: number) {
-
 		let cmd = SetGlobalShaderDataCMD.create(nameID, source, ShaderDataType.Int, this);
 		this._commands.push(cmd);
 		cmd.getRenderCMD && this._renderCMDs.push(cmd.getRenderCMD());

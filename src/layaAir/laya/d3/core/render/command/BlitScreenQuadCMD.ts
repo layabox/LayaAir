@@ -11,7 +11,7 @@ import { RenderTexture } from "../../../../resource/RenderTexture";
 import { Laya3DRender } from "../../../RenderObjs/Laya3DRender";
 import { ShaderData } from "../../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { Transform3D } from "../../Transform3D";
-import { BlitQuadCMDData } from "../../../../RenderDriver/DriverDesign/3DRenderPass/IRendderCMD";
+import { BlitQuadCMDData } from "../../../../RenderDriver/DriverDesign/3DRenderPass/IRender3DCMD";
 import { Viewport } from "../../../../maths/Viewport";
 
 /**

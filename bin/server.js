@@ -221,8 +221,56 @@ function canvasesAreEqual(canvas1, canvas2) {
     return data1.every((val, index) => val === data2[index]);
 }
 
+async function compileTestDir(){
+    //编译所有源目录的文件
+    //TODO 遍历这个目录，递归子目录，找到所有的ts文件，编译到 ./tsc/test/子目录下，编译方法是上面的 compileTypeScript
+    //如果目标目录（./tsc/test目录下没有package.json就创建一个，内容只要是 {"type": "module"} 就行 ）
+
+    const srcDir = path.join(__dirname, '../src/test');
+    const destDir = path.join(__dirname, './tsc/test');
+
+    // 确保目标目录存在
+    fs.mkdirSync(destDir, { recursive: true });
+
+    // 检查并创建 package.json
+    const packageJsonPath = path.join(destDir, 'package.json');
+    try {
+        fs.accessSync(packageJsonPath);
+    } catch (error) {
+        // 如果 package.json 不存在，创建它
+        fs.writeFileSync(packageJsonPath, JSON.stringify({ type: "module" }, null, 2));
+        console.log('Created package.json in', destDir);
+    }
+
+    // 递归编译函数
+    async function compileRecursive(dir) {
+        const entries = fs.readdirSync(dir, { withFileTypes: true });
+
+        for (const entry of entries) {
+            const srcPath = path.join(dir, entry.name);
+            const relPath = path.relative(srcDir, srcPath);
+            const destPath = path.join(destDir, relPath);
+
+            if (entry.isDirectory()) {
+                fs.mkdirSync(destPath, { recursive: true });
+                await compileRecursive(srcPath);
+            } else if (entry.isFile() && path.extname(entry.name) === '.ts') {
+                const jsDestPath = destPath.replace('.ts', '.js');
+                fs.mkdirSync(path.dirname(jsDestPath), { recursive: true });
+                const compiledContent = compileTypeScript(srcPath, jsDestPath);
+                fs.writeFileSync(jsDestPath, compiledContent);
+            }
+        }
+    }
+
+    // 开始递归编译
+    await compileRecursive(srcDir);
+    console.log('Test directory compilation completed.');    
+}
+
 // 列出所有的2d测试
-app.get('/test', (req, res) => {
+app.get('/test', async (req, res) => {
+    await compileTestDir();
     const directoryPath = path.join(__dirname, 'tsc/test/cases/2d'); // 'test'目录路径
     fs.readdir(directoryPath, function (err, files) {
         // 处理读取目录的错误
@@ -257,6 +305,8 @@ app.use((req, res, next) => {
         if(!path.extname(filePath)) //只有没有扩展名的才加.js
             jsFilePath = `${filePath}.js`;
         if (fs.existsSync(jsFilePath)) {
+            //如果文件存在，但是比源文件旧，则需要重新编译
+            //TODO 
             req.url += '.js'; // 修改请求路径
         }else{
             //如果js文件不存在。可能是没有编译

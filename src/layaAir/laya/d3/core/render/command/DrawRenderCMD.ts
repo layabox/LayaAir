@@ -1,4 +1,4 @@
-import { DrawNodeCMDData } from "../../../../RenderDriver/DriverDesign/3DRenderPass/IRendderCMD";
+import { DrawNodeCMDData } from "../../../../RenderDriver/DriverDesign/3DRenderPass/IRender3DCMD";
 import { Material } from "../../../../resource/Material";
 import { Laya3DRender } from "../../../RenderObjs/Laya3DRender";
 import { BaseRender } from "../BaseRender";

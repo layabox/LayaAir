@@ -7,7 +7,7 @@ import { RenderElement } from "../RenderElement";
 import { Matrix4x4 } from "../../../../maths/Matrix4x4";
 import { Laya3DRender } from "../../../RenderObjs/Laya3DRender";
 import { Transform3D } from "../../Transform3D";
-import { DrawElementCMDData, DrawNodeCMDData } from "../../../../RenderDriver/DriverDesign/3DRenderPass/IRendderCMD";
+import { DrawElementCMDData, DrawNodeCMDData } from "../../../../RenderDriver/DriverDesign/3DRenderPass/IRender3DCMD";
 import { RenderContext3D } from "../RenderContext3D";
 
 /**
@@ -53,23 +53,23 @@ export class DrawMeshCMD extends Command {
         this._drawRenderCMDDData.subMeshIndex = value;
     }
 
-    /**@internal */
+
     private _subShaderIndex: number;
 
-    /**@internal */
+
     private _mesh: Mesh;
 
-    /**@internal */
-    _renderElemnts: RenderElement[];
 
-    /**@internal */
-    _meshRender: MeshRenderer;
+    private _renderElemnts: RenderElement[];
 
-    /**@internal */
-    _transform: Transform3D;
 
-    /**@internal */
-    _drawRenderCMDDData: DrawNodeCMDData;
+    private _meshRender: MeshRenderer;
+
+
+    private _transform: Transform3D;
+
+
+    private _drawRenderCMDDData: DrawNodeCMDData;
 
     constructor() {
         super();

@@ -3,13 +3,15 @@ import { Laya3DRender } from "../../../d3/RenderObjs/Laya3DRender";
 import { SceneRenderManagerOBJ } from "../../../d3/core/scene/SceneRenderManagerOBJ";
 import { IInstanceRenderBatch, IInstanceRenderElement3D, IRender3DProcess, IRenderContext3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { I3DRenderPassFactory } from "../../DriverDesign/3DRenderPass/I3DRenderPassFactory";
-import { DrawNodeCMDData, BlitQuadCMDData, DrawElementCMDData, SetViewportCMD, SetRenderTargetCMD, SetRenderDataCMD, SetShaderDefineCMD } from "../../DriverDesign/3DRenderPass/IRendderCMD";
+import { DrawNodeCMDData, BlitQuadCMDData, DrawElementCMDData, SetViewportCMD, SetRenderTargetCMD } from "../../DriverDesign/3DRenderPass/IRender3DCMD";
 import { ISceneRenderManager } from "../../DriverDesign/3DRenderPass/ISceneRenderManager";
+import { SetRenderDataCMD, SetShaderDefineCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
+import { GLESSetRenderData, GLESSetShaderDefine } from "../RenderDevice/GLESRenderCMD";
 import { GLESDirectLightShadowRP } from "./GLESDirectLightShadowRP";
 import { GLESForwardAddClusterRP } from "./GLESForwardAddClusterRP";
 import { GLESForwardAddRP } from "./GLESForwardAddRP";
 import { GLESRender3DProcess } from "./GLESRender3DProcess";
-import { GLESBlitQuadCMDData, GLESDrawElementCMDData, GLESDrawNodeCMDData, GLESSetRenderData, GLESSetRenderTargetCMD, GLESSetShaderDefine, GLESSetViewportCMD } from "./GLESRenderCMD/GLESRenderCMD";
+import { GLESBlitQuadCMDData, GLESDrawElementCMDData, GLESDrawNodeCMDData, GLESSetRenderTargetCMD, GLESSetViewportCMD } from "./GLESRenderCMD/GLES3DRenderCMD";
 import { GLESRenderContext3D } from "./GLESRenderContext3D";
 import { GLESRenderElement3D } from "./GLESRenderElement3D";
 import { GLESSkinRenderElement3D } from "./GLESSkinRenderElement3D";
@@ -56,10 +58,7 @@ export class GLES3DRenderPassFactory implements I3DRenderPassFactory {
         return new GLESSetRenderTargetCMD();
     }
 
-    createSetRenderData() {
-        return new GLESSetRenderData();
-    }
-
+  
     createSceneRenderManager(): ISceneRenderManager {
         return new SceneRenderManagerOBJ();
     }

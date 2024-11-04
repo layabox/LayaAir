@@ -19,7 +19,7 @@ async function test(){
     Shader3D.debugMode = true;
 
     await Laya.loader.loadPackage(packurl);
-    let tex = await Laya.loader.load('atlas/comp/image.png')
+    //let tex = await Laya.loader.load('atlas/comp/image.png')
     let sp = new Sprite();
     sp.anchorX=1;
     sp.anchorY=1;
