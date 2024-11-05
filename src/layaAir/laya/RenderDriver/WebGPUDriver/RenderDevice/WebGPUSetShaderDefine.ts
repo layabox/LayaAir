@@ -1,7 +1,6 @@
-import { SetShaderDefineCMD, RenderCMDType } from "../../../DriverDesign/3DRenderPass/IRendderCMD";
-import { ShaderDefine } from "../../../RenderModuleData/Design/ShaderDefine";
-import { WebGPUShaderData } from "../../RenderDevice/WebGPUShaderData";
-import { WebGPURenderContext3D } from "../WebGPURenderContext3D";
+import { RenderCMDType, SetShaderDefineCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
+import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
+import { WebGPUShaderData } from "./WebGPUShaderData";
 
 export class WebGPUSetShaderDefine extends SetShaderDefineCMD {
     type: RenderCMDType;
@@ -38,7 +37,7 @@ export class WebGPUSetShaderDefine extends SetShaderDefineCMD {
         this.type = RenderCMDType.ChangeShaderDefine;
     }
 
-    apply(context: WebGPURenderContext3D): void {
+    apply(context: any): void {
         if (this.add)
             this._dest.addDefine(this.define);
         else this._dest.removeDefine(this.define);

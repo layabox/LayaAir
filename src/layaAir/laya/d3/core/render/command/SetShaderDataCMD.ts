@@ -1,9 +1,9 @@
 import { Command } from "./Command";
 import { CommandBuffer } from "./CommandBuffer";
 import { ShaderData, ShaderDataItem, ShaderDataType } from "../../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
-import { SetRenderDataCMD, SetShaderDefineCMD } from "../../../../RenderDriver/DriverDesign/3DRenderPass/IRendderCMD";
 import { ShaderDefine } from "../../../../RenderDriver/RenderModuleData/Design/ShaderDefine";
 import { Laya3DRender } from "../../../RenderObjs/Laya3DRender";
+import { SetRenderDataCMD, SetShaderDefineCMD } from "../../../../RenderDriver/DriverDesign/RenderDevice/IRenderCMD";
 
 /**
  * @internal
@@ -56,7 +56,7 @@ export class SetShaderDataCMD extends Command {
 
 export class SetDefineCMD extends Command {
 	/**@internal */
-	private static _pool: any[] = [];
+	private static _pool: SetDefineCMD[] = [];
 
 	/**@internal */
 	_setRenderDefineCMD: SetShaderDefineCMD;

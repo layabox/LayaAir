@@ -1,14 +1,13 @@
-import { Color } from "../../../../maths/Color";
-import { Matrix3x3 } from "../../../../maths/Matrix3x3";
-import { Matrix4x4 } from "../../../../maths/Matrix4x4";
-import { Vector2 } from "../../../../maths/Vector2";
-import { Vector3 } from "../../../../maths/Vector3";
-import { Vector4 } from "../../../../maths/Vector4";
-import { BaseTexture } from "../../../../resource/BaseTexture";
-import { SetRenderDataCMD, RenderCMDType } from "../../../DriverDesign/3DRenderPass/IRendderCMD";
-import { ShaderDataType, ShaderDataItem } from "../../../DriverDesign/RenderDevice/ShaderData";
-import { WebGPUShaderData } from "../../RenderDevice/WebGPUShaderData";
-import { WebGPURenderContext3D } from "../WebGPURenderContext3D";
+import { Color } from "../../../maths/Color";
+import { Matrix3x3 } from "../../../maths/Matrix3x3";
+import { Matrix4x4 } from "../../../maths/Matrix4x4";
+import { Vector2 } from "../../../maths/Vector2";
+import { Vector3 } from "../../../maths/Vector3";
+import { Vector4 } from "../../../maths/Vector4";
+import { BaseTexture } from "../../../resource/BaseTexture";
+import { SetRenderDataCMD, RenderCMDType } from "../../DriverDesign/RenderDevice/IRenderCMD";
+import { ShaderDataType, ShaderDataItem } from "../../DriverDesign/RenderDevice/ShaderData";
+import { WebGPUShaderData } from "./WebGPUShaderData";
 
 export class WebGPUSetRenderData extends SetRenderDataCMD {
     type: RenderCMDType;
@@ -106,7 +105,7 @@ export class WebGPUSetRenderData extends SetRenderDataCMD {
         this.type = RenderCMDType.ChangeData;
     }
 
-    apply(context: WebGPURenderContext3D) {
+    apply(context: any) {
         switch (this.dataType) {
             case ShaderDataType.Int:
                 this.dest.setInt(this.propertyID, this.value as number);

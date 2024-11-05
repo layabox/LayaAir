@@ -6,7 +6,6 @@ import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode"
 import { Shader3D, ShaderFeatureType } from "../../../RenderEngine/RenderShader/Shader3D";
 import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
 import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
-import { Command } from "../../../d3/core/render/command/Command";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { Color } from "../../../maths/Color";
 import { Vector3 } from "../../../maths/Vector3";
@@ -14,8 +13,8 @@ import { VertexElement } from "../../../renders/VertexElement";
 import { VertexElementFormat } from "../../../renders/VertexElementFormat";
 import { FastSinglelist } from "../../../utils/SingletonList";
 import { IRenderContext2D } from "../../DriverDesign/2DRenderPass/IRenderContext2D";
+import { IRenderCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
 import { ShaderDataType } from "../../DriverDesign/RenderDevice/ShaderData";
-
 import { RenderState } from "../../RenderModuleData/Design/RenderState";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
 import { WebGLShaderData } from "../../RenderModuleData/WebModuleData/WebGLShaderData";
@@ -41,6 +40,8 @@ export class WebglRenderContext2D implements IRenderContext2D {
 
     private _offscreenWidth: number;
     private _offscreenHeight: number;
+
+
 
     constructor() {
         this._globalConfigShaderData = Shader3D._configDefineValues;
@@ -183,5 +184,17 @@ export class WebglRenderContext2D implements IRenderContext2D {
         node._prepare(this);
         node._render(this);
     }
+
+
+    runOneCMD(cmd: IRenderCMD): void {
+        cmd.apply(this);
+    }
+
+    runCMDList(cmds: IRenderCMD[]): void {
+        cmds.forEach(element => {
+            element.apply(this);
+        });
+    }
+
 
 }

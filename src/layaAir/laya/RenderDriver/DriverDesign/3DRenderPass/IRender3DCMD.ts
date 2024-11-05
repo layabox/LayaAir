@@ -3,35 +3,36 @@ import { Color } from "../../../maths/Color";
 import { Vector4 } from "../../../maths/Vector4";
 import { Viewport } from "../../../maths/Viewport";
 import { IBaseRenderNode } from "../../RenderModuleData/Design/3D/I3DRenderModuleData";
-import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
+import { IRenderCMD, RenderCMDType } from "../RenderDevice/IRenderCMD";
 import { InternalRenderTarget } from "../RenderDevice/InternalRenderTarget";
 import { InternalTexture } from "../RenderDevice/InternalTexture";
-import { ShaderDataItem, ShaderDataType, ShaderData } from "../RenderDevice/ShaderData";
+import { ShaderData } from "../RenderDevice/ShaderData";
 import { IRenderContext3D, IRenderElement3D } from "./I3DRenderPass";
 
-export enum RenderCMDType {
-    DrawNode,
-    DrawElement,
-    Blit,
-    ChangeData,
-    ChangeShaderDefine,
-    ChangeViewPort,
-    ChangeRenderTarget
-}
-
-//cmd
-export interface IRenderCMD {
-    type: RenderCMDType;
+export interface IRender3DCMD extends IRenderCMD {
     apply(context: IRenderContext3D): void;
 }
 
-export class DrawNodeCMDData implements IRenderCMD {
+
+export class DrawNodeCMDData implements IRender3DCMD {
+    /**
+     * @en render cmd type
+     * @zh 渲染指令类型
+     */
     type: RenderCMDType;
+
     protected _node: IBaseRenderNode;
+
     protected _destShaderData: ShaderData;
+
     protected _destSubShader: SubShader;
+
     protected _subMeshIndex: number;
 
+    /**
+     * @en render node
+     * @zh 渲染节点
+     */
     get node(): IBaseRenderNode {
         return this._node;
     }
@@ -63,25 +64,36 @@ export class DrawNodeCMDData implements IRenderCMD {
     set subMeshIndex(value: number) {
         this._subMeshIndex = value;
     }
-    
+
     apply(context: IRenderContext3D): void {
         throw new Error("Method not implemented.");
     }
 }
 
-export class BlitQuadCMDData implements IRenderCMD {
+export class BlitQuadCMDData implements IRender3DCMD {
+    /**
+     * @en render cmd type
+     * @zh 渲染指令类型
+     */
     type: RenderCMDType;
+
     protected _dest: InternalRenderTarget;
+
     protected _viewport: Viewport;
+
     protected _scissor: Vector4;
+
     protected _source: InternalTexture;
+
     protected _offsetScale: Vector4;
+
     protected _element: IRenderElement3D;
 
-    public get element(): IRenderElement3D {
+    get element(): IRenderElement3D {
         return this._element;
     }
-    public set element(value: IRenderElement3D) {
+
+    set element(value: IRenderElement3D) {
         this._element = value;
     }
 
@@ -130,7 +142,11 @@ export class BlitQuadCMDData implements IRenderCMD {
     }
 }
 
-export class DrawElementCMDData implements IRenderCMD {
+export class DrawElementCMDData implements IRender3DCMD {
+    /**
+     * @en render cmd type
+     * @zh 渲染指令类型
+     */
     type: RenderCMDType;
 
     setRenderelements(value: IRenderElement3D[]): void {
@@ -142,9 +158,15 @@ export class DrawElementCMDData implements IRenderCMD {
     }
 }
 
-export class SetViewportCMD implements IRenderCMD {
+export class SetViewportCMD implements IRender3DCMD {
+    /**
+     * @en render cmd type
+     * @zh 渲染指令类型
+     */
     type: RenderCMDType;
+
     protected _viewport: Viewport;
+
     protected _scissor: Vector4;
 
     public get viewport(): Viewport {
@@ -168,12 +190,21 @@ export class SetViewportCMD implements IRenderCMD {
     }
 }
 
-export class SetRenderTargetCMD implements IRenderCMD {
+export class SetRenderTargetCMD implements IRender3DCMD {
+    /**
+     * @en render cmd type
+     * @zh 渲染指令类型
+     */
     type: RenderCMDType;
+
     protected _rt: InternalRenderTarget;
+
     protected _clearFlag: number;
+
     protected _clearDepthValue: number;
+
     protected _clearStencilValue: number;
+
     protected _clearColorValue: Color;
 
     get rt(): InternalRenderTarget {
@@ -221,83 +252,4 @@ export class SetRenderTargetCMD implements IRenderCMD {
     }
 }
 
-export class SetRenderDataCMD implements IRenderCMD {
-    type: RenderCMDType;
-    protected _value: ShaderDataItem;
-    protected _dataType: ShaderDataType;
-    protected _propertyID: number;
-    protected _dest: ShaderData;
-
-    get value(): ShaderDataItem {
-        return this._value;
-    }
-
-    set value(value: ShaderDataItem) {
-        this._value = value;
-    }
-
-    get dataType(): ShaderDataType {
-        return this._dataType;
-    }
-
-    set dataType(value: ShaderDataType) {
-        this._dataType = value;
-    }
-
-    get propertyID(): number {
-        return this._propertyID;
-    }
-
-    set propertyID(value: number) {
-        this._propertyID = value;
-    }
-
-    get dest(): ShaderData {
-        return this._dest;
-    }
-
-    set dest(value: ShaderData) {
-        this._dest = value;
-    }
-
-    apply(context: IRenderContext3D): void {
-        throw new Error("Method not implemented.");
-    }
-}
-
-export class SetShaderDefineCMD implements IRenderCMD {
-    type: RenderCMDType;
-    protected _define: ShaderDefine;
-    protected _dest: ShaderData;
-    protected _add: boolean;
-
-    get define(): ShaderDefine {
-        return this._define;
-    }
-
-    set define(value: ShaderDefine) {
-        this._define = value;
-    }
-
-    get dest(): ShaderData {
-        return this._dest;
-    }
-
-    set dest(value: ShaderData) {
-        this._dest = value;
-    }
-
-    get add(): boolean {
-        return this._add;
-    }
-
-    set add(value: boolean) {
-        this._add = value;
-    }
-
-    apply(context: IRenderContext3D): void {
-        throw new Error("Method not implemented.");
-    }
-
-}
 

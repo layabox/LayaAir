@@ -1,5 +1,6 @@
 import { SubShader } from "../../../../RenderEngine/RenderShader/SubShader";
-import { DrawNodeCMDData, RenderCMDType } from "../../../DriverDesign/3DRenderPass/IRendderCMD";
+import { DrawNodeCMDData } from "../../../DriverDesign/3DRenderPass/IRender3DCMD";
+import { RenderCMDType } from "../../../DriverDesign/RenderDevice/IRenderCMD";
 import { WebBaseRenderNode } from "../../../RenderModuleData/WebModuleData/3D/WebBaseRenderNode";
 import { WebGPUShaderData } from "../../RenderDevice/WebGPUShaderData";
 import { WebGPURenderContext3D } from "../WebGPURenderContext3D";

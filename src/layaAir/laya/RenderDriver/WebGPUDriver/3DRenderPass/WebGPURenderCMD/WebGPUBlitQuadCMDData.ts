@@ -2,7 +2,8 @@ import { RenderClearFlag } from "../../../../RenderEngine/RenderEnum/RenderClear
 import { Command } from "../../../../d3/core/render/command/Command";
 import { Vector4 } from "../../../../maths/Vector4";
 import { Viewport } from "../../../../maths/Viewport";
-import { BlitQuadCMDData, RenderCMDType } from "../../../DriverDesign/3DRenderPass/IRendderCMD";
+import { BlitQuadCMDData } from "../../../DriverDesign/3DRenderPass/IRender3DCMD";
+import { RenderCMDType } from "../../../DriverDesign/RenderDevice/IRenderCMD";
 import { InternalTexture } from "../../../DriverDesign/RenderDevice/InternalTexture";
 import { WebGPUInternalRT } from "../../RenderDevice/WebGPUInternalRT";
 import { WebGPURenderContext3D } from "../WebGPURenderContext3D";

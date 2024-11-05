@@ -1,6 +1,7 @@
 import { Vector4 } from "../../../../maths/Vector4";
 import { Viewport } from "../../../../maths/Viewport";
-import { SetViewportCMD, RenderCMDType } from "../../../DriverDesign/3DRenderPass/IRendderCMD";
+import { SetViewportCMD } from "../../../DriverDesign/3DRenderPass/IRender3DCMD";
+import { RenderCMDType } from "../../../DriverDesign/RenderDevice/IRenderCMD";
 import { WebGPURenderContext3D } from "../WebGPURenderContext3D";
 
 export class WebGPUSetViewportCMD extends SetViewportCMD {

@@ -21,6 +21,7 @@ import { ShaderProcessInfo, ShaderCompileDefineBase } from "../../../webgl/utils
 import { CommandUniformMap, UniformProperty } from "../../DriverDesign/RenderDevice/CommandUniformMap";
 import { IBufferState } from "../../DriverDesign/RenderDevice/IBufferState";
 import { IIndexBuffer } from "../../DriverDesign/RenderDevice/IIndexBuffer";
+import { SetRenderDataCMD, RenderCMDType, SetShaderDefineCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
 import { IRenderDeviceFactory } from "../../DriverDesign/RenderDevice/IRenderDeviceFactory";
 import { IRenderGeometryElement } from "../../DriverDesign/RenderDevice/IRenderGeometryElement";
 import { IShaderInstance } from "../../DriverDesign/RenderDevice/IShaderInstance";
@@ -135,7 +136,7 @@ export class NoRenderBufferState implements IBufferState {
         this._vertexBuffers = vertexBuffers.slice();
         this._bindedIndexBuffer = indexBuffer;
     }
-    
+
     destroy(): void {
     }
 
@@ -618,6 +619,100 @@ export class NoRenderShaderData extends ShaderData {
             }
         }
         this._data = null;
+    }
+}
+
+export class NoRenderSetRenderData extends SetRenderDataCMD {
+    type: RenderCMDType;
+    protected _dataType: ShaderDataType;
+    protected _propertyID: number;
+    protected _dest: NoRenderShaderData;
+    protected _value: ShaderDataItem;
+
+    data_v4: Vector4;
+    data_v3: Vector3;
+    data_v2: Vector2;
+    data_mat: Matrix4x4;
+    data_number: number;
+    data_texture: BaseTexture;
+    data_Color: Color;
+    data_Buffer: Float32Array;
+    get dataType(): ShaderDataType {
+        return this._dataType;
+    }
+
+    set dataType(value: ShaderDataType) {
+        this._dataType = value;
+    }
+
+    get propertyID(): number {
+        return this._propertyID;
+    }
+
+    set propertyID(value: number) {
+        this._propertyID = value;
+    }
+
+    get dest(): NoRenderShaderData {
+        return this._dest;
+    }
+
+    set dest(value: NoRenderShaderData) {
+        this._dest = value;
+    }
+
+    get value(): ShaderDataItem {
+        return this._value;
+    }
+    set value(value: ShaderDataItem) {
+
+    }
+
+    constructor() {
+        super();
+        this.type = RenderCMDType.ChangeData;
+    }
+
+    apply(context: any): void {
+    }
+}
+
+export class NoRenderSetShaderDefine extends SetShaderDefineCMD {
+    type: RenderCMDType;
+    protected _define: ShaderDefine;
+    protected _dest: NoRenderShaderData;
+    protected _add: boolean;
+
+    get define(): ShaderDefine {
+        return this._define;
+    }
+
+    set define(value: ShaderDefine) {
+        this._define = value;
+    }
+
+    get dest(): NoRenderShaderData {
+        return this._dest;
+    }
+
+    set dest(value: NoRenderShaderData) {
+        this._dest = value;
+    }
+
+    get add(): boolean {
+        return this._add;
+    }
+
+    set add(value: boolean) {
+        this._add = value;
+    }
+
+    constructor() {
+        super();
+        this.type = RenderCMDType.ChangeShaderDefine;
+    }
+
+    apply(context: any): void {
     }
 }
 

@@ -15,6 +15,7 @@ import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
 import { InternalTexture } from "./InternalTexture";
 
 export type uboParams = { ubo: UniformBufferObject; uboBuffer: UnifromBufferData };
+
 export enum ShaderDataType {
     None,
     Int,
@@ -34,6 +35,53 @@ export enum ShaderDataType {
 }
 
 export type ShaderDataItem = number | boolean | Vector2 | Vector3 | Vector4 | Color | Matrix4x4 | BaseTexture | Float32Array | Matrix3x3;
+
+export function checkShaderDataValueLegal(value: any, shaderType: ShaderDataType) {
+    let legal = false;
+    switch (shaderType) {
+        case ShaderDataType.Int:
+        case ShaderDataType.Float:
+            legal = typeof value == "number";
+            break;
+        case ShaderDataType.Bool:
+            legal = typeof value == "boolean";
+            break;
+        case ShaderDataType.Vector2:
+            legal = value instanceof Vector2;
+            break;
+        case ShaderDataType.Vector3:
+            legal = value instanceof Vector3;
+            break;
+        case ShaderDataType.Vector4:
+            legal = value instanceof Vector4;
+            break;
+        case ShaderDataType.Color:
+            legal = value instanceof Color;
+            break;
+        case ShaderDataType.Matrix4x4:
+            legal = value instanceof Matrix4x4;
+            break;
+        case ShaderDataType.Texture2D:
+            legal = value instanceof BaseTexture;
+            break;
+        case ShaderDataType.TextureCube:
+            legal = value instanceof BaseTexture;
+            break;
+        case ShaderDataType.Buffer:
+            legal = value instanceof ArrayBuffer;
+            break;
+        case ShaderDataType.Matrix3x3:
+            legal = value instanceof Matrix3x3;
+            break;
+        default:
+            legal = false;
+            break
+    }
+    if (!legal)
+        console.warn("The setting value and Shader type do not match");
+    return legal;
+}
+
 
 export function ShaderDataDefaultValue(type: ShaderDataType) {
     switch (type) {

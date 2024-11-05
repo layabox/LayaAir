@@ -4,7 +4,8 @@ import texture_ps from './files/texture.ps.glsl';
 import texture_vs from './files/texture.vs.glsl';
 import baseRender2D_vs from './files/baseRender2D.vs';
 import baseRender2D_ps from './files/baseRender2D.fs';
-
+import ColorGLSL from "../d2/files/Color.glsl";
+import MathGLSL from "../d2/files/Math.glsl";
 import Sprite2DFrag from './NewShader/Sprite2DFrag.glsl';
 import Sprite2DShaderInfo from './NewShader/Sprite2DShaderInfo.glsl';
 import Sprite2DVertex from './NewShader/Sprite2DVertex.glsl';
@@ -57,7 +58,8 @@ export class Shader2D {
         Shader3D.addInclude("Sprite2DFrag.glsl", Sprite2DFrag);
         Shader3D.addInclude("Sprite2DVertex.glsl", Sprite2DVertex);
         Shader3D.addInclude("Sprite2DShaderInfo.glsl", Sprite2DShaderInfo);
-
+        Shader3D.addInclude("Color.glsl", ColorGLSL);
+        Shader3D.addInclude("Math.glsl", MathGLSL);
         //textureShader
         Shader2D.textureShader = Shader3D.add("Sprite2DTexture", false, false);
         Shader2D.textureShader.shaderType = ShaderFeatureType.D2;

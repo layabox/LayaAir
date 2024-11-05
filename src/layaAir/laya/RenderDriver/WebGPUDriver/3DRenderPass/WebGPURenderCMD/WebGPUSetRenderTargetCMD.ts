@@ -2,7 +2,8 @@ import { RenderClearFlag } from "../../../../RenderEngine/RenderEnum/RenderClear
 import { Color } from "../../../../maths/Color";
 import { Vector4 } from "../../../../maths/Vector4";
 import { Viewport } from "../../../../maths/Viewport";
-import { RenderCMDType, SetRenderTargetCMD } from "../../../DriverDesign/3DRenderPass/IRendderCMD";
+import { SetRenderTargetCMD } from "../../../DriverDesign/3DRenderPass/IRender3DCMD";
+import { RenderCMDType } from "../../../DriverDesign/RenderDevice/IRenderCMD";
 import { WebGPUInternalRT } from "../../RenderDevice/WebGPUInternalRT";
 import { WebGPURenderContext3D } from "../WebGPURenderContext3D";
 

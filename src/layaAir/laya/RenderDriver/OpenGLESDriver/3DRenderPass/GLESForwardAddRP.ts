@@ -1,5 +1,5 @@
 import { CommandBuffer } from "../../../d3/core/render/command/CommandBuffer";
-import { IRenderCMD } from "../../DriverDesign/3DRenderPass/IRendderCMD";
+import { IRenderCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
 import { GLESDirectLightShadowRP } from "./GLESDirectLightShadowRP";
 import { GLESForwardAddClusterRP } from "./GLESForwardAddClusterRP";
 import { GLESSpotLightShadowRP } from "./GLESSpotLightShadowRP";

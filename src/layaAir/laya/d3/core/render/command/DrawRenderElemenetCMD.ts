@@ -1,4 +1,4 @@
-import { DrawElementCMDData, IRenderCMD } from "../../../../RenderDriver/DriverDesign/3DRenderPass/IRendderCMD";
+import { DrawElementCMDData } from "../../../../RenderDriver/DriverDesign/3DRenderPass/IRender3DCMD";
 import { Laya3DRender } from "../../../RenderObjs/Laya3DRender";
 import { RenderElement } from "../RenderElement";
 import { Command } from "./Command";
