@@ -11,6 +11,7 @@ export interface IRenderContext2D {
     pipelineMode: string;
     sceneData: ShaderData;
     setRenderTarget(value: InternalRenderTarget, clear: boolean, clearColor: Color): void;
+    getRenderTarget(): InternalRenderTarget;
     setOffscreenView(width: number, height: number): void;
     drawRenderElementOne(node: IRenderElement2D): void;
     drawRenderElementList(list: SingletonList<IRenderElement2D>): number;

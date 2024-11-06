@@ -51,6 +51,9 @@ export class NoRenderElement2D implements IRenderElement2D {
 }
 
 export class NoRenderContext2D implements IRenderContext2D {
+    getRenderTarget(): InternalRenderTarget {
+        return null;
+    }
 
     sceneData: ShaderData;
     invertY: boolean;

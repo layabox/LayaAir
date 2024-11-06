@@ -36,6 +36,8 @@ export class GLESREnderContext2D implements IRenderContext2D {
 
     sceneData: ShaderData;
 
+    private _dist: GLESInternalRT;
+
     public get invertY(): boolean {
         return this._nativeObj.invertY;
     }
@@ -59,6 +61,7 @@ export class GLESREnderContext2D implements IRenderContext2D {
         (!GLESREnderContext2D.isCreateBlitScreenELement) && this.setBlitScreenElement();
 
     }
+
 
     private setBlitScreenElement() {
         let blitScreenElement = LayaGL.render2DRenderPassFactory.createRenderElement2D();
@@ -148,7 +151,12 @@ export class GLESREnderContext2D implements IRenderContext2D {
     }
 
     setRenderTarget(value: GLESInternalRT, clear: boolean, clearColor: Color): void {
+        this._dist = value;
         this._nativeObj.setRenderTarget(value ? value._nativeObj : null, clear, clearColor);
+    }
+
+    getRenderTarget(): GLESInternalRT {
+        return this._dist;
     }
 
     setOffscreenView(width: number, height: number): void {

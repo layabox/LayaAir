@@ -14,6 +14,7 @@ import { VertexElementFormat } from "../../../renders/VertexElementFormat";
 import { FastSinglelist } from "../../../utils/SingletonList";
 import { IRenderContext2D } from "../../DriverDesign/2DRenderPass/IRenderContext2D";
 import { IRenderCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
+import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
 import { ShaderDataType } from "../../DriverDesign/RenderDevice/ShaderData";
 import { RenderState } from "../../RenderModuleData/Design/RenderState";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
@@ -41,8 +42,6 @@ export class WebglRenderContext2D implements IRenderContext2D {
     private _offscreenWidth: number;
     private _offscreenHeight: number;
 
-
-
     constructor() {
         this._globalConfigShaderData = Shader3D._configDefineValues;
         if (LayaEnv.isConch && !WebglRenderContext2D.isCreateBlitScreenELement) {
@@ -65,6 +64,7 @@ export class WebglRenderContext2D implements IRenderContext2D {
             })
         }
     }
+
 
     /**
      * 兼容ConchWebGL
@@ -178,6 +178,10 @@ export class WebglRenderContext2D implements IRenderContext2D {
         }
         WebGLEngine.instance.scissorTest(false);
         WebGLEngine.instance.clearRenderTexture(clear ? RenderClearFlag.Color : RenderClearFlag.Nothing, this._clearColor);
+    }
+
+    getRenderTarget(): WebGLInternalRT {
+        return this._destRT;
     }
 
     drawRenderElementOne(node: WebGLRenderelement2D): void {
