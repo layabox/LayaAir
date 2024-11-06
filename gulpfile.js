@@ -483,16 +483,19 @@ gulp.task("buildJs", async () => {
 //拷贝引擎的第三方js库
 gulp.task("copyJsLibs", async () => {
     return gulp.src([
-        './src/layaAir/jsLibs/bullet.wasm',
         './src/layaAir/jsLibs/*.js',
-        './src/layaAir/jsLibs/physx.release.wasm',
-        './src/layaAir/jsLibs/physx.release.js.mem',
-        './src/layaAir/jsLibs/laya.Box2D.wasm.wasm',
-        './src/layaAir/jsLibs/recast-navigation-wasm.wasm',
-        './src/layaAir/jsLibs/spine.wasm_3.8.wasm',
-        './src/layaAir/jsLibs/naga_wasm_bg.wasm',
+        './src/layaAir/jsLibs/*.mjs',
+        './src/layaAir/jsLibs/*.wasm',
 
-        '!./src/layaAir/jsLibs/{laya.Box2D.js,cannon.js,bullet.js,physx.release.js,laya.Box2D.wasm.js,bullet.wasm.js,physx.wasm.js,recast-navigation.js,recast-navigation-wasm.js}'
+        '!./src/layaAir/jsLibs/laya.Box2D.js',
+        '!./src/layaAir/jsLibs/laya.Box2D.wasm.js',
+        '!./src/layaAir/jsLibs/cannon.js',
+        '!./src/layaAir/jsLibs/bullet.js',
+        '!./src/layaAir/jsLibs/bullet.wasm.js',
+        '!./src/layaAir/jsLibs/physx.release.js',
+        '!./src/layaAir/jsLibs/physx.wasm.js',
+        '!./src/layaAir/jsLibs/recast-navigation.js',
+        '!./src/layaAir/jsLibs/recast-navigation-wasm.js',
     ])
         .pipe(gulp.dest('./build/libs'));
 });
