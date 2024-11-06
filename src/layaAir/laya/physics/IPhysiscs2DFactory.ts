@@ -1,9 +1,148 @@
 import { IV2, Vector2 } from "../maths/Vector2";
-import { ColliderBase } from "./Collider2D/ColliderBase";
-import { FixtureBox2DDef } from "./Collider2D/ColliderStructInfo";
-import { Physics2DDebugDraw } from "./Physics2DDebugDraw";
-import { RigidBody2DInfo } from "./RigidBody2DInfo";
-import { physics2D_DistancJointDef, physics2D_GearJointDef, physics2D_MotorJointDef, physics2D_MouseJointJointDef, physics2D_PrismaticJointDef, physics2D_PulleyJointDef, physics2D_RevoluteJointDef, physics2D_WeldJointDef, physics2D_WheelJointDef } from "./joint/JointDefStructInfo";
+
+
+export enum PhysicsShape {
+    BoxShape,
+    CircleShape,
+    PolygonShape,
+    ChainShape,
+    EdgeShape,
+}
+
+export class FixtureBox2DDef {
+    density: number;
+    friction: number;
+    isSensor: boolean;
+    restitution: number;
+    shape: PhysicsShape;//Box2D Shape
+    groupIndex: number;
+}
+
+export class RigidBody2DInfo {
+    position: Vector2 = new Vector2()
+    angle: number;
+    allowSleep: boolean
+    angularDamping: number;
+    angularVelocity: number;
+    bullet: boolean;
+    fixedRotation: boolean;
+    gravityScale: number;
+    linearDamping: number;
+    linearVelocity: Vector2 = new Vector2();
+    type: string;
+    group: number;
+}
+
+/**
+ * Box2D distance Joint def Struct
+ */
+export class physics2D_DistancJointDef {
+    bodyA: any;
+    bodyB: any;
+    localAnchorA: Vector2 = new Vector2();
+    localAnchorB: Vector2 = new Vector2();
+    frequency: number;
+    dampingRatio: number;
+    collideConnected: boolean;
+    length: number;
+    maxLength: number;
+    minLength: number;
+    isLocalAnchor: boolean
+}
+
+export class physics2D_GearJointDef {
+    bodyA: any;
+    bodyB: any;
+    joint1: any;
+    joint2: any;
+    ratio: number;
+    collideConnected: boolean;
+}
+
+
+export class physics2D_MotorJointDef {
+    bodyA: any;
+    bodyB: any;
+    linearOffset: Vector2 = new Vector2();
+    angularOffset: number;
+    maxForce: number;
+    maxTorque: number;
+    correctionFactor: number;
+    collideConnected: boolean;
+}
+
+export class physics2D_MouseJointJointDef {
+    bodyA: any;
+    bodyB: any;
+    maxForce: number;
+    frequency: number;
+    dampingRatio: number;
+    target: Vector2 = new Vector2();
+}
+
+export class physics2D_PrismaticJointDef {
+    bodyA: any;
+    bodyB: any;
+    anchor: Vector2 = new Vector2();
+    axis: Vector2 = new Vector2();
+    enableMotor: boolean;
+    motorSpeed: number;
+    maxMotorForce: number;
+    enableLimit: boolean;
+    lowerTranslation: number;
+    upperTranslation: number;
+    collideConnected: boolean;
+}
+
+export class physics2D_PulleyJointDef {
+    bodyA: any;
+    bodyB: any;
+    groundAnchorA: Vector2 = new Vector2();
+    groundAnchorB: Vector2 = new Vector2();
+    localAnchorA: Vector2 = new Vector2();
+    localAnchorB: Vector2 = new Vector2();
+    ratio: number;
+    collideConnected: boolean;
+}
+
+export class physics2D_RevoluteJointDef {
+    bodyA: any;
+    bodyB: any;
+    anchor: Vector2 = new Vector2();
+    enableMotor: boolean;
+    motorSpeed: number;
+    maxMotorTorque: number;
+    enableLimit: boolean;
+    lowerAngle: number;
+    upperAngle: number;
+    collideConnected: boolean;
+}
+
+export class physics2D_WeldJointDef {
+    bodyA: any;
+    bodyB: any;
+    anchor: Vector2 = new Vector2();
+    frequency: number;
+    dampingRatio: number;
+    collideConnected: boolean;
+}
+
+export class physics2D_WheelJointDef {
+    bodyA: any;
+    bodyB: any;
+    anchor: Vector2 = new Vector2();
+    axis: Vector2 = new Vector2();
+    enableMotor: boolean;
+    motorSpeed: number;
+    maxMotorTorque: number;
+    enableLimit: boolean;
+    lowerTranslation: number;
+    upperTranslation: number;
+    frequency: number;
+    dampingRatio: number;
+    collideConnected: boolean;
+}
+
 
 export interface IPhysiscs2DFactory {
     /** 
@@ -50,11 +189,6 @@ export interface IPhysiscs2DFactory {
      * @internal
      */
     get world(): any;
-
-    /** 
-     * @internal
-     */
-    get debugDraw(): Physics2DDebugDraw;
 
     /** 
      * @internal
@@ -462,7 +596,7 @@ export interface IPhysiscs2DFactory {
     /** 
      * @internal
      */
-    set_fixture_collider(fixture: any, instance: ColliderBase): void
+    set_fixture_collider(fixture: any, instance: any): void
 
     /** 
      * @internal
@@ -490,6 +624,11 @@ export interface IPhysiscs2DFactory {
      * @internal
      */
     get_RigidBody_Angle(body: any): number;
+
+    /** 
+     * @internal
+     */
+    set_RigibBody_Enable(body: any, enable:boolean): void;
 
     /** 
      * @internal

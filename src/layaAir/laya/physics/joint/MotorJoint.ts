@@ -1,7 +1,7 @@
 import { JointBase } from "./JointBase";
 import { RigidBody } from "../RigidBody"
-import { physics2D_MotorJointDef } from "./JointDefStructInfo";
 import { Utils } from "../../utils/Utils";
+import { physics2D_MotorJointDef } from "../IPhysiscs2DFactory";
 
 /**
  * @en Motor Joint: Allows specifying the relative position and angle between two rigid bodies, and then attempts to achieve these targets by applying forces and torques, striving to maintain this configuration.

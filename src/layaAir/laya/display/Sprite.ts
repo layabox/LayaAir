@@ -2453,7 +2453,7 @@ export class Sprite extends Node {
      */
     getGlobalMatrix() {
         if (this._globalMatrix == null) this._globalMatrix = Matrix.create();
-        if (this.scene == null) { return this._globalMatrix; }
+        // if (this.scene == null) { return this._globalMatrix; }
         if (this._getGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Matrix)) {
             const style = this._style;
             this._globalMatrix.setMatrix(this._x, this._y, style.scaleX, style.scaleY, style.rotation, style.skewX, style.skewY, style.pivotX, style.pivotY);

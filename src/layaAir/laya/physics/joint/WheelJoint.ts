@@ -1,8 +1,8 @@
 import { JointBase } from "./JointBase";
 import { Point } from "../../maths/Point"
 import { RigidBody } from "../RigidBody"
-import { physics2D_WheelJointDef } from "./JointDefStructInfo";
 import { Utils } from "../../utils/Utils";
+import { physics2D_WheelJointDef } from "../IPhysiscs2DFactory";
 
 /**
  * @en WheelJoint: Allows an object to rotate around a fixed axis relative to another object, while also providing spring-like resistance along the axis for bouncing back.

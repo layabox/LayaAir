@@ -31,6 +31,7 @@ const packsDef = [{
         './layaAir/ILaya.ts',
         './layaAir/Laya.ts',
         './layaAir/LayaEnv.ts',
+        "./layaAir/laya/physics/IPhysiscs2DFactory.ts",
         './layaAir/laya/components/**/*.*',
         './layaAir/laya/display/**/*.*',
         './layaAir/laya/effect/**/*.*',
@@ -38,6 +39,7 @@ const packsDef = [{
         './layaAir/laya/filters/**/*.*',
         './layaAir/laya/layagl/**/*.*',
         './layaAir/laya/webgl/**/*.*',
+       
 
         './layaAir/laya/RenderDriver/DriverDesign/RenderDevice/**/*.*',
         
@@ -231,7 +233,7 @@ const packsDef = [{
     'input': [
         './layaAir/laya/physics/Collider2D/*.*',
         './layaAir/laya/physics/joint/*.*',
-        './layaAir/laya/physics/IPhysiscs2DFactory.ts',
+        // './layaAir/laya/physics/IPhysiscs2DFactory.ts',
         './layaAir/laya/physics/ModuleDef.ts',
         './layaAir/laya/physics/Physics2D.ts',
         './layaAir/laya/physics/Physics2DOption.ts',

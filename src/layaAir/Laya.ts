@@ -33,6 +33,8 @@ import { VertexElementFormat } from "./laya/renders/VertexElementFormat";
 import { DrawStyle } from "./laya/webgl/canvas/DrawStyle";
 import { Stat } from "./laya/utils/Stat";
 import { RenderPassStatisticsInfo } from "./laya/RenderEngine/RenderEnum/RenderStatInfo";
+import { TileMapLayer } from "./laya/display/Scene2DSpecial/TileMap/TileMapLayer";
+import { IPhysiscs2DFactory } from "./laya/physics/IPhysiscs2DFactory";
 
 /**
  * @en Laya is the reference entry for global objects.
@@ -75,6 +77,13 @@ export class Laya {
      * @zh Render类的引用。
      */
     static render: Render;
+
+    /**
+     * @ignore
+     * @en Reference to the Render class.
+     * @zh physics2D类的引用。
+     */
+    static physics2D:IPhysiscs2DFactory;
     private static _inited = false;
     private static _initCallbacks: Array<() => void | Promise<void>> = [];
     private static _beforeInitCallbacks: Array<(stageConfig: IStageConfig) => void | Promise<void>> = [];
@@ -220,6 +229,7 @@ export class Laya {
         MeshQuadTexture.__int__();
         MeshVG.__init__();
         MeshTexture.__init__();
+        
 
         Laya.render = Laya.createRender();
         render = Laya.render;
@@ -254,6 +264,7 @@ export class Laya {
         //Init internal 2D Value2D
         Value2D._initone(RenderSpriteData.Texture2D, TextureSV);
         Value2D._initone(RenderSpriteData.Primitive, PrimitiveSV);
+        TileMapLayer.__init__();
     }
 
     /**
