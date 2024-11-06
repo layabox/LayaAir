@@ -74,6 +74,10 @@ export class PixelLineRenderer extends BaseRender {
 
     set pixelLinesDatas(value: PixelLineData[]) {
         this.clear();
+        if (value.length > this._pixelLineFilter._maxLineCount) {
+            value = value.slice(0, this._pixelLineFilter._maxLineCount);
+            console.warn("reach max line count");
+        }
         this.addLines(value);
     }
 
@@ -203,7 +207,7 @@ export class PixelLineRenderer extends BaseRender {
             this._pixelLineFilter._updateLineData(this._pixelLineFilter._lineCount++, startPosition, endPosition, startColor, endColor);
         }
         else {
-            throw new Error("wrong lineCount");
+            throw new Error("reach max line count");
         }
 
         if (this._isRenderActive && !this._isInRenders && this._pixelLineFilter._lineCount > 0) {
@@ -234,7 +238,7 @@ export class PixelLineRenderer extends BaseRender {
             this._pixelLineFilter._updateLineData(this._pixelLineFilter._lineCount++, startPosition, endPosition, startColor, endColor, startNormal, endNormal);
         }
         else {
-            throw new Error("wrong lineCount");
+            throw new Error("reach max line count");
         }
 
         if (this._isRenderActive && !this._isInRenders && this._pixelLineFilter._lineCount > 0) {
@@ -254,7 +258,7 @@ export class PixelLineRenderer extends BaseRender {
         var lineCount: number = this._pixelLineFilter._lineCount;
         var addCount: number = lines.length;
         if (lineCount + addCount > this._pixelLineFilter._maxLineCount) {
-            throw new Error("wrong lineCount");
+            throw new Error("reach max line count");
         }
         else {
             this._pixelLineFilter._updateLineDatas(lineCount, lines);
