@@ -2,6 +2,7 @@ import { LayaGL } from "../../../layagl/LayaGL";
 import { Color } from "../../../maths/Color";
 import { SetRendertarget2DCMD } from "../../../RenderDriver/DriverDesign/2DRenderPass/IRender2DCMD";
 import { IRenderTarget } from "../../../RenderDriver/DriverDesign/RenderDevice/IRenderTarget";
+import { RenderState2D } from "../../../webgl/utils/RenderState2D";
 import { Command2D } from "./Command2D";
 
 export class Set2DRTCMD extends Command2D {
@@ -33,7 +34,7 @@ export class Set2DRTCMD extends Command2D {
     }
     public set renderTexture(value: IRenderTarget) {
         this._renderTexture = value;
-        this._setRenderTargetCMD.rt = value._renderTarget;
+        this._setRenderTargetCMD.rt = value?value._renderTarget:null;
     }
 
     constructor() {
@@ -42,7 +43,11 @@ export class Set2DRTCMD extends Command2D {
     }
 
     run(): void {
-        this._commandBuffer._renderSize.setValue(this._renderTexture._renderTarget._textures[0].width, this._renderTexture._renderTarget._textures[0].height)
+        if (this._renderTexture)
+            this._commandBuffer._renderSize.setValue(this._renderTexture._renderTarget._textures[0].width, this._renderTexture._renderTarget._textures[0].height)
+        else {
+            this._commandBuffer._renderSize.setValue(RenderState2D.width, RenderState2D.height);
+        }
     }
 
     getRenderCMD(): SetRendertarget2DCMD {

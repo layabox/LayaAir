@@ -61,6 +61,19 @@ export class CommandBuffer2D {
         return this._name;
     }
 
+    private cacheData: any = {}
+    private _cacheContextState() {
+        this.cacheData.rt = this._context.getRenderTarget();
+        this.cacheData.pipeline = this._context.pipelineMode;
+        this.cacheData.invertY = this._context.invertY;
+    }
+
+    private _recoverContextState() {
+        this._context.setRenderTarget(this.cacheData.rt, false, Color.BLACK);
+        this._context.pipelineMode = this.cacheData.pipeline;
+        this._context.invertY = this.cacheData.invertY;
+    }
+
     /**
      * 渲染所有渲染指令后恢复context状态
      */
@@ -74,7 +87,8 @@ export class CommandBuffer2D {
      * @zh 调用所有渲染指令。
      * @param render  是否立即渲染，默认为true
      */
-    apply(render: boolean = true): void {
+    apply(render: boolean = true, recoverContextStat: boolean = true): void {
+        recoverContextStat && this._cacheContextState();
         for (var i: number = 0, n: number = this._commands.length; i < n; i++) {
             let cmd = this._commands[i];
             cmd.run && cmd.run();
@@ -82,13 +96,15 @@ export class CommandBuffer2D {
         render && this._context.runCMDList(this._renderCMDs);
         //draw array
         Stat.cmdDrawCall += this._renderCMDs.length;
+        recoverContextStat && this._recoverContextState();
     }
 
     /**
      * @en Executes a single command from the command buffer.
      * @zh 从命令缓冲区执行单个命令。
      */
-    applyOne(): boolean {
+    applyOne(recoverContextStat: boolean = true): boolean {
+        recoverContextStat && this._cacheContextState();
         if (this._commands.length) {
             var cmd = this._commands.shift();
             cmd.run && cmd.run();
@@ -96,6 +112,7 @@ export class CommandBuffer2D {
             cmd.getRenderCMD && this._context.runOneCMD(this._renderCMDs.shift());
             cmd.recover();
         }
+        recoverContextStat && this._recoverContextState();
         return this._commands.length > 0;
     }
 
