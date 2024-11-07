@@ -7,18 +7,13 @@ import { Main } from "./../Main";
 import { Mesh2D, VertexMesh2D } from "laya/resource/Mesh2D"
 import { IndexFormat } from "laya/RenderEngine/RenderEnum/IndexFormat";
 import { Mesh2DRender } from "laya/display/Scene2DSpecial/Mesh2DRender"
-import { RenderTexture2D } from "laya/resource/RenderTexture2D";
 import { CommandBuffer2D } from "laya/display/Scene2DSpecial/RenderCMD2D/CommandBuffer2D"
 import { Vector2 } from "laya/maths/Vector2";
 import { Color } from "laya/maths/Color";
-import { Utils } from "laya/utils/Utils";
 import { Utils3D } from "laya/d3/utils/Utils3D";
 import { RenderTexture } from "laya/resource/RenderTexture";
 import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFormat";
-import { Material } from "laya/resource/Material";
 import { Matrix } from "laya/maths/Matrix";
-import { ShaderDataType } from "laya/RenderDriver/DriverDesign/RenderDevice/ShaderData";
-import { BaseRenderNode2D } from "laya/NodeRender2D/BaseRenderNode2D";
 import { Vector4 } from "laya/maths/Vector4";
 
 export class RenderCMD2DDemo {
