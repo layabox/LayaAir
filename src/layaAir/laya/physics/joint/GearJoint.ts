@@ -2,7 +2,7 @@ import { JointBase } from "./JointBase";
 import { RigidBody } from "../RigidBody"
 import { RevoluteJoint } from "./RevoluteJoint";
 import { PrismaticJoint } from "./PrismaticJoint";
-import { physics2D_GearJointDef } from "./JointDefStructInfo";
+import { physics2D_GearJointDef } from "../IPhysiscs2DFactory";
 
 /**
  * @en Gear joint: used to simulate the constraint relationship between two gears. When a gear rotates, the momentum generated has two output modes: one is the angular velocity of the gear itself, and the other is the linear velocity on the gear surface

@@ -3,7 +3,11 @@ import { Vector3 } from "../../maths/Vector3";
 import { BaseNavMeshSurface } from "./component/BaseNavMeshSurface";
 
 
-/**@internal */
+/**
+ * @internal
+ * @en Navigation agent link animation between two NavMeshSurfaces
+ * @zh 作用于两个NavMeshSurface之间的导航代理链接动画
+ */
 export class NavAgentLinkAnim {
 
     /**@internal */

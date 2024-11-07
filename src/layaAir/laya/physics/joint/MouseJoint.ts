@@ -5,7 +5,7 @@ import { Point } from "../../maths/Point"
 import { Physics2D } from "../Physics2D"
 import { RigidBody } from "../RigidBody"
 import { ILaya } from "../../../ILaya";
-import { physics2D_MouseJointJointDef } from "./JointDefStructInfo";
+import { physics2D_MouseJointJointDef } from "../IPhysiscs2DFactory";
 
 /**
  * @en Mouse joint: A physics constraint used to simulate the user dragging an object with the mouse. It typically allows a rigid body to follow the mouse cursor's movement while also being influenced by other physics effects such as collisions and gravity.

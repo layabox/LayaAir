@@ -1,15 +1,12 @@
 
 import { ILaya } from "../../../ILaya";
 import { IV2, Vector2 } from "../../maths/Vector2";
-import { ColliderBase } from "../Collider2D/ColliderBase";
-import { FixtureBox2DDef, PhysicsShape } from "../Collider2D/ColliderStructInfo";
-import { IPhysiscs2DFactory } from "../IPhysiscs2DFactory";
+import { FixtureBox2DDef, IPhysiscs2DFactory, physics2D_DistancJointDef, physics2D_GearJointDef, physics2D_MotorJointDef, physics2D_MouseJointJointDef, physics2D_PrismaticJointDef, physics2D_PulleyJointDef, physics2D_RevoluteJointDef, physics2D_WeldJointDef, physics2D_WheelJointDef, PhysicsShape, RigidBody2DInfo } from "../IPhysiscs2DFactory";
 import { Physics2D } from "../Physics2D";
 import { Physics2DOption } from "../Physics2DOption";
 import { Physics2DDebugDraw } from "../Physics2DDebugDraw";
-import { RigidBody2DInfo } from "../RigidBody2DInfo";
-import { physics2D_DistancJointDef, physics2D_GearJointDef, physics2D_MotorJointDef, physics2D_MouseJointJointDef, physics2D_PrismaticJointDef, physics2D_PulleyJointDef, physics2D_RevoluteJointDef, physics2D_WeldJointDef, physics2D_WheelJointDef } from "../joint/JointDefStructInfo"
 import { Browser } from "../../utils/Browser";
+import { Laya } from "../../../Laya";
 
 const b2_maxFloat = 1E+37;
 
@@ -1436,7 +1433,7 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      * @param fixture 夹具。
      * @param instance 碰撞器实例。
      */
-    set_fixture_collider(fixture: any, instance: ColliderBase) {
+    set_fixture_collider(fixture: any, instance: any) {
         fixture.collider = instance;
     }
 
@@ -1513,6 +1510,16 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      */
     get_RigidBody_Angle(body: any): number {
         return body.GetAngle();
+    }
+
+    /**
+     * @en Set the enable of a rigid body.
+     * @param body The rigid body.
+     * @zh 设置刚体是否激活。
+     * @param body 刚体。
+     */
+    set_RigibBody_Enable(body: any, enable:boolean): void {
+        body.SetEnabled(enable);
     }
 
     /**
@@ -2367,4 +2374,4 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
     }
 }
 
-Physics2D.I._factory = new physics2DwasmFactory()
+Physics2D.I._factory = Laya.physics2D= new physics2DwasmFactory()

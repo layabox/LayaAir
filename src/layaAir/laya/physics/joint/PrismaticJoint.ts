@@ -1,8 +1,8 @@
 import { JointBase } from "./JointBase";
 import { Physics2D } from "../Physics2D"
 import { RigidBody } from "../RigidBody"
-import { physics2D_PrismaticJointDef } from "./JointDefStructInfo";
 import { Utils } from "../../utils/Utils";
+import { physics2D_PrismaticJointDef } from "../IPhysiscs2DFactory";
 
 /**
  * @en Translation joint: A movement joint allows two objects to move relative to each other along a specified axis, but it prevents relative rotation

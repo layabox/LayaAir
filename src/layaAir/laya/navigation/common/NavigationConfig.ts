@@ -29,17 +29,11 @@ export enum ObstacleAvoidanceType {
     HighQuality
 }
 
-export class NavigationConfig {
-      
-    /**@internal  */
-    static readonly defaltAgentName: string = "humanoid";
-    /**@internal  */
-    static readonly defaltUnWalk: string = "unwalk";
-    /**@internal  */
-    static readonly defaltWalk: string = "walk";
-    /**@internal  */
-    static readonly defaltJump: string = "jump";
-
+export enum NavigationConfig {
+    defaltAgentName = "humanoid",
+    defaltUnWalk = "unwalk",
+    defaltWalk = "walk",
+    defaltJump = "jump",
 }
 
 export class NavAreaFlag {

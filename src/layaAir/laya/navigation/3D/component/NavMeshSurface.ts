@@ -5,6 +5,10 @@ import { RecastConfig } from "../../common/RecastConfig";
 import { NavigationManager } from "../NavigationManager";
 import { NavMesh } from "../NavMesh";
 
+/**
+ * @en NavMeshSurface is a 3D component used to generate navigation mesh.
+ * @zh NavMeshSurface 是一个用于3D生成导航网格的组件。
+ */
 export class NavMeshSurface extends BaseNavMeshSurface {
 
     get navMesh(): NavMesh {
@@ -23,7 +27,7 @@ export class NavMeshSurface extends BaseNavMeshSurface {
      * @internal
      */
     _getManager(): NavigationManager {
-        return NavigationManager.getNavManager(this);
+        return NavigationManager._getNavManager(this);
     }
     /**
      * @override

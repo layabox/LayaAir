@@ -3,25 +3,31 @@ import { Vector3 } from "../../maths/Vector3";
 import { ModifierVolumeData } from "../common/data/ModifierVolumeData";
 import { Navgiation2DUtils } from "./Navgiation2DUtils";
 import { NavMesh2DSurface } from "./component/NavMesh2DSurface";
-import { Matrix4x4 } from "../../maths/Matrix4x4";
 
 const tempVector3 = new Vector3();
+
+/**
+ * @en NavMesh2DModifierVolume is a 2D component that modifies the navigation mesh in a specific volume.
+ * @zh NavMesh2DModifierVolume 是一个在特定2D体积内修改导航网格的组件。
+ */
 export class NavMesh2DModifierVolume {
 
     /**@internal */
     private _volumeData: ModifierVolumeData;
 
+    /**@internal */
     private _position: Vector2 = new Vector2();
 
+    /**@internal */
     private _rotation: number = 0;
 
+    /**@internal */
     private _scale: Vector2 = new Vector2(1, 1);
 
-    private _worldMatrix:Matrix4x4 = new Matrix4x4();
-
     /**
-    * agentType
-    */
+     * @en Agent type for the navigation node
+     * @zh 导航节点的代理类型
+     */
     set agentType(value: string) {
         this._volumeData.agentType = value;
     }
@@ -31,7 +37,8 @@ export class NavMesh2DModifierVolume {
     }
 
     /**
-     * area 类型
+     * @en The area flag for this volume.
+     * @zh 该体积的区域标志。
      */
     set areaFlag(value: string) {
         this._volumeData.areaFlag = value;
@@ -44,7 +51,8 @@ export class NavMesh2DModifierVolume {
     private _pointDatas: number[] = [];
 
     /**
-    * datas
+     * @en The point data of the modifier volume.
+     * @zh 修改体积的点数据。
     */
     set datas(value: number[]) {
         this._pointDatas = value;
@@ -56,11 +64,10 @@ export class NavMesh2DModifierVolume {
     }
 
     /**
-     * transfrom
+     * @en The center of the modifier Polygen.
+     * @zh 修改凸多边形的中心点。
      */
-
     set position(value: Vector2) {
-        if(Vector2.equals(this._position,value)) return;
         value.cloneTo(this._position);
         this._transfromChange();
     }
@@ -70,8 +77,12 @@ export class NavMesh2DModifierVolume {
     }
 
 
+    /**
+     * @en The rotation of the modifier Polygen.
+     * @zh 修改凸多边形的旋转。
+     */
     set rotation(value: number) {
-        if(value == this._rotation) return;
+        if (value == this._rotation) return;
         this._rotation = value;
         this._transfromChange();
     }
@@ -80,8 +91,11 @@ export class NavMesh2DModifierVolume {
         return this._rotation;
     }
 
+    /**
+     * @en The scale of the modifier Polygen.
+     * @zh 修改凸多边形的缩放。
+     */
     set scale(value: Vector2) {
-        if(Vector2.equals(this._scale,value)) return;
         value.cloneTo(this._scale);
         this._transfromChange();
     }
@@ -93,18 +107,18 @@ export class NavMesh2DModifierVolume {
     constructor() {
         this._volumeData = new ModifierVolumeData();
     }
-    
-    bindSurface(surface: NavMesh2DSurface) {
+
+    /**
+     * @internal
+     */
+    _bindSurface(surface: NavMesh2DSurface) {
         this._volumeData._initSurface([surface]);
     }
 
-    setWorldMatrix(value:Matrix4x4){
-        if(this._worldMatrix.equalsOtherMatrix(value)) return;
-        value.cloneTo(this._worldMatrix);
-        this._transfromChange();
-    }
-
-    destroy() {
+    /**
+     * @internal
+     */
+    _destroy() {
         this._volumeData._destory();
     }
 
@@ -112,11 +126,11 @@ export class NavMesh2DModifierVolume {
     private _vector2dTo3d(): void {
         let pointCount = this._pointDatas.length >> 1;
         let index = 0;
-        let  datas = this._volumeData._datas;
+        let datas = this._volumeData._datas;
         datas.length = pointCount * 3;
         for (var i = 0; i < pointCount; i++) {
             index = i * 2;
-            Navgiation2DUtils.setValue3(this._pointDatas[index], this._pointDatas[index + 1], tempVector3);
+            Navgiation2DUtils._setValue3(this._pointDatas[index], this._pointDatas[index + 1], tempVector3);
             index = i * 3;
             datas[index] = tempVector3.x;
             datas[index + 1] = tempVector3.y;
@@ -124,11 +138,10 @@ export class NavMesh2DModifierVolume {
         }
         this._volumeData._refeashData();
     }
-    
+
     /**@internal */
     _transfromChange() {
-        Navgiation2DUtils.getTransfromMatrix4x4(this._position, this._rotation, this._scale, this._volumeData._transfrom);
-        Matrix4x4.multiply(this._worldMatrix,this._volumeData._transfrom,this._volumeData._transfrom);
+        Navgiation2DUtils._getTransfromMatrix4x4(this._position, this._rotation, this._scale, this._volumeData._transfrom);
         this._volumeData._refeahTransfrom();
     }
 }

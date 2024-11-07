@@ -2,7 +2,7 @@ import { JointBase } from "./JointBase";
 import { Point } from "../../maths/Point"
 import { Physics2D } from "../Physics2D"
 import { RigidBody } from "../RigidBody"
-import { physics2D_PulleyJointDef } from "./JointDefStructInfo";
+import { physics2D_PulleyJointDef } from "../IPhysiscs2DFactory";
 
 /**
  * @en PulleyJoint class, which connects two bodies to the ground and to each other, when one body rises, the other descends, simulating the behavior of a pulley system.

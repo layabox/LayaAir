@@ -11,9 +11,10 @@ export class NavAgent extends BaseNavAgent{
     /**@internal */
     protected _destination: Vector3 = new Vector3();
 
-      /**
-    * 轴心点的偏移
-    */
+    /**
+     * @en Offset of the pivot point.
+     * @zh 轴心点的偏移。
+     */
     set baseOffset(value: number) {
         this._baseOffset = value;
     }
@@ -22,7 +23,12 @@ export class NavAgent extends BaseNavAgent{
         return this._baseOffset;
     }
 
-
+    /**
+     * @en Set the destination for the agent.
+     * @param value The destination vector.
+     * @zh 设置代理的目的地。
+     * @param value 目的地位置向量。
+     */
     set destination(value: Vector3) {
         value.cloneTo(this._destination);
         this._setTarget(this._destination);
@@ -36,8 +42,8 @@ export class NavAgent extends BaseNavAgent{
      * @overload
      * @internal
      */
-    _getManager(): NavigationManager {
-        return NavigationManager.getNavManager(this);
+    protected _getManager(): NavigationManager {
+        return NavigationManager._getNavManager(this);
     }
     
     /**
@@ -69,7 +75,7 @@ export class NavAgent extends BaseNavAgent{
     /**
      * @override 
      */
-    _updatePosition(pos:Vector3,dir:Vector3){
+    protected  _updatePosition(pos:Vector3,dir:Vector3){
         let transform = (<Sprite3D>this.owner).transform;
         pos.y += this._baseOffset;
         transform.position = pos;

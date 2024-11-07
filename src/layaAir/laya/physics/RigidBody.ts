@@ -4,8 +4,8 @@ import { Sprite } from "..//display/Sprite"
 import { Point } from "../maths/Point"
 import { Utils } from "../utils/Utils"
 import { Physics2D } from "./Physics2D";
-import { RigidBody2DInfo } from "./RigidBody2DInfo";
 import { IV2, Vector2 } from "../maths/Vector2";
+import { RigidBody2DInfo } from "./IPhysiscs2DFactory";
 
 /**
  * @en 2D rigidbody, display objects are bound to the physics world through RigidBody to keep the positions of physics and display objects synchronized.
@@ -297,22 +297,18 @@ export class RigidBody extends Component {
         }
     }
 
-    /** @internal */
-    _onAwake(): void {
-        (<Sprite>this.owner).cacheGlobal = true;
-        this._createBody();
-        this.owner.on("GlobaChange", this, this._globalChangeHandler)
-    }
 
     /** @internal */
     _globalChangeHandler(flag: number) {
-        if (flag & RigidBody.changeFlag) this._needrefeshShape()
+        if (flag & RigidBody.changeFlag) this._needrefeshShape();
     }
 
     /** @internal */
     _onEnable(): void {
+        (<Sprite>this.owner).cacheGlobal = true;
         this._createBody();
-        this.owner.on("GlobaChange", this, this._globalChangeHandler)
+        Physics2D.I._factory.set_RigibBody_Enable(this._body, true);
+        this.owner.on("GlobaChange", this, this._globalChangeHandler);
     }
 
     /**
@@ -344,6 +340,7 @@ export class RigidBody extends Component {
             factory.set_rigidbody_Awake(this._body, true);
             this.owner.event("shapeChange");
         }
+        
     }
 
     /**
@@ -371,8 +368,7 @@ export class RigidBody extends Component {
         Physics2D.I._removeRigidBodyAttribute(this);
         this.owner.off("GlobaChange", this, this._globalChangeHandler)
         //添加到物理世界
-        this._body && Physics2D.I._factory.removeBody(this._body);
-        this._body = null;
+        Physics2D.I._factory.set_RigibBody_Enable(this._body, false);
     }
 
     /**@internal */

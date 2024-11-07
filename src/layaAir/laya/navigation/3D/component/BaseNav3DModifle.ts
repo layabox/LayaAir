@@ -8,17 +8,21 @@ import { NavigationManager } from "../NavigationManager";
 
 /**
  * @internal
- * <code>BaseNav3DModifle</code> 类用于实现3D导航修改器的父类。
+ * @en BaseNav3DModifle is the base class for dynamic navigation nodes.
+ * @zh BaseNav3DModifle 是动态导航节点的基类。
  */
 export class BaseNav3DModifle extends Component {
-     /**@internal */
+    /**@internal */
     protected _modifierData: BaseData;
-    protected _manager:NavigationManager;
 
-     /**
-    * agentType
-    */
-     set agentType(value: string) {
+    /**@internal */
+    protected _manager: NavigationManager;
+
+    /**
+     * @en Agent type for the navigation node
+     * @zh 导航节点的代理类型
+     */
+    set agentType(value: string) {
         this._modifierData.agentType = value;
     }
 
@@ -27,10 +31,11 @@ export class BaseNav3DModifle extends Component {
     }
 
     /**
-     * area 类型
+     * @en Area type for the navigation node
+     * @zh 导航节点的区域类型
      */
     set areaFlag(value: string) {
-       this._modifierData.areaFlag = value;
+        this._modifierData.areaFlag = value;
     }
 
     get areaFlag() {
@@ -47,22 +52,17 @@ export class BaseNav3DModifle extends Component {
      */
     protected _onEnable(): void {
         super._onEnable();
-        this._manager = NavigationManager.getNavManager(this);
-
-        
+        this._manager = NavigationManager._getNavManager(this);
         this._onWorldMatNeedChange();
         (this.owner as Sprite3D).transform.on(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange);
-
-      
     }
 
-    
     /**
      * @internal
      */
     protected _onWorldMatNeedChange() {
         var sprite3D: Sprite3D = this.owner as Sprite3D;
-        this._refeashTranfrom(sprite3D.transform.worldMatrix,this._modifierData._min,this._modifierData._max);
+        this._refeashTranfrom(sprite3D.transform.worldMatrix, this._modifierData._min, this._modifierData._max);
         this._modifierData._refeahTransfrom();
         this._modifierData._refeahBound();
     }
@@ -70,7 +70,7 @@ export class BaseNav3DModifle extends Component {
     /**
      * @internal
      */
-    _refeashTranfrom(mat: Matrix4x4, min:Vector3,max:Vector3) {
-        
+    _refeashTranfrom(mat: Matrix4x4, min: Vector3, max: Vector3) {
+
     }
 }

@@ -76,7 +76,7 @@ export class NavMeshLinkData extends BaseData{
         this._cacheDatas.length = 0;
         surface.forEach(element => {
             let cache = element._addModifileLink(this);
-            cache.setUpdateDataHander(Handler.create(this,this._updateBuffer,undefined,false));
+            cache._setUpdateDataHander(Handler.create(this,this._updateBuffer,undefined,false));
             this._cacheDatas.push(cache);
             cache._updateAreaFlag(this._areaFlags);
             cache._updateTransfrom(this._transfrom);
@@ -84,9 +84,10 @@ export class NavMeshLinkData extends BaseData{
         });
     }
 
-
+    /**
+     * @internal
+     */
     _updateBuffer(cache:CacheData,areaFlag:number): void {
-
         if(cache._getCacheFlag(CacheData.DataFlag|CacheData.TransfromFlag)){
             Vector3.transformCoordinate(this._startPoint,this._transfrom,this.globalStart);
             Vector3.transformCoordinate(this._endPoint,this._transfrom,this.globalEnd);
@@ -103,7 +104,7 @@ export class NavMeshLinkData extends BaseData{
             }
             ends.splice(index, 1);
             starts.splice(i);
-            surface.navMesh._addNavMeshLink(cache.id,this.globalStart, this.globalEnd, this._width, this._bidirectional, areaFlag);
+            surface._navMesh._addNavMeshLink(cache.id,this.globalStart, this.globalEnd, this._width, this._bidirectional, areaFlag);
         }
 
         if (ends.length > 0 && starts.length > 0) {
@@ -123,7 +124,7 @@ export class NavMeshLinkData extends BaseData{
         }
     }
 
-
+    /**@internal */
     getDistance():number{
         return Vector3.distance(this._startPoint,this._endPoint);
     }
