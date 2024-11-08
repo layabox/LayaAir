@@ -9,7 +9,7 @@ import { Navgiation2DUtils } from "./Navgiation2DUtils";
 
 
 
-let createObstacleData = function (slices: number, radiusOff: number = 0, radius: number = 1): NavTileCache {
+let create2DObstacleData = function (slices: number, radiusOff: number = 0, radius: number = 1): NavTileCache {
     let vertexs = new Float32Array(slices * 3);
     const triCount = slices - 2;
     let flags = new Uint8Array(triCount);
@@ -42,7 +42,7 @@ export class Navigation2DManage extends BaseNavigationManager {
     /**@internal */
     static checkFlag: number = Sprite.Sprite_GlobalDeltaFlage_Position_X | Sprite.Sprite_GlobalDeltaFlage_Position_Y | Sprite.Sprite_GlobalDeltaFlage_Rotation | Sprite.Sprite_GlobalDeltaFlage_Scale_X | Sprite.Sprite_GlobalDeltaFlage_Scale_Y
     /**@internal */
-    static managerName = "navMesh2D";
+    static _managerName = "navMesh2D";
     
     static _obstacleMap:Map<NavObstacles2DType,NavTileCache> = new Map();
 
@@ -51,37 +51,41 @@ export class Navigation2DManage extends BaseNavigationManager {
      * @internal
      * @param comp 
      */
-    static getNavManager(comp: Component): Navigation2DManage {
+    static _getNavManager(comp: Component): Navigation2DManage {
         let scene = comp.owner.scene as Scene;
         if (scene) {
-            return scene.getComponentElementManager(Navigation2DManage.managerName) as Navigation2DManage;
+            return scene.getComponentElementManager(Navigation2DManage._managerName) as Navigation2DManage;
         } else {
             return null;
         }
     }
 
-    static initialize(): Promise<void> {
+    /** @internal */
+    static __initialize(): Promise<void> {
         return BaseNavigationManager._initialize(() => {
             Navigation2DManage.__init__();
             Navgiation2DUtils.__init__();
         });
     }
 
-
+    /**@internal */
     protected static __init__(): void {
-        this._obstacleMap.set(NavObstacles2DType.RECT, createObstacleData(4, Math.PI / 4, 1 / Math.sqrt(2)));
-        this._obstacleMap.set(NavObstacles2DType.CIRCLE, createObstacleData(60, 0));
+        this._obstacleMap.set(NavObstacles2DType.RECT, create2DObstacleData(4, Math.PI / 4, 1 / Math.sqrt(2)));
+        this._obstacleMap.set(NavObstacles2DType.CIRCLE, create2DObstacleData(60, 0));
     }
 
-    static getObstacleData(type: NavObstacles2DType): NavTileCache {
+    /** @internal */
+    static _getObstacleData(type: NavObstacles2DType): NavTileCache {
         return this._obstacleMap.get(type);
     }
 
     constructor() {
-        super(Navigation2DManage.managerName);
+        super(Navigation2DManage._managerName);
     }
 
-    /**@override  */
+    /** 
+     * @internal 
+     */
     _init(): void {
         super._init();
         let config = this.getNavConfig(NavigationConfig.defaltAgentName);
@@ -91,6 +95,6 @@ export class Navigation2DManage extends BaseNavigationManager {
 }
 
 //reg nav Component Manager
-Scene.regManager(Navigation2DManage.managerName, Navigation2DManage);
+Scene.regManager(Navigation2DManage._managerName, Navigation2DManage);
 //reg loader init
-Laya.addBeforeInitCallback(Navigation2DManage.initialize);
+Laya.addBeforeInitCallback(Navigation2DManage.__initialize);

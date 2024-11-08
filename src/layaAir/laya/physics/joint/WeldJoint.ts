@@ -1,7 +1,7 @@
 import { JointBase } from "./JointBase";
 import { Point } from "../../maths/Point"
 import { RigidBody } from "../RigidBody"
-import { physics2D_WeldJointDef } from "./JointDefStructInfo";
+import { physics2D_WeldJointDef } from "../IPhysiscs2DFactory";
 
 /**
  * @en WeldJoint class, used to constrain two bodies together so they cannot move relative to each other. The relative position and angle between the two bodies are fixed, making them appear as a single rigid body.

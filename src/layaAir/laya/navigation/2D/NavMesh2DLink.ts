@@ -1,4 +1,3 @@
-import { Matrix4x4 } from "../../maths/Matrix4x4";
 import { Vector2 } from "../../maths/Vector2";
 import { Vector3 } from "../../maths/Vector3";
 import { NavMeshLinkData } from "../common/data/NavMeshLinkData";
@@ -12,35 +11,21 @@ const tempVec3 = new Vector3();
  */
 export class NavMesh2DLink {
 
+    /**@internal */
     private _data: NavMeshLinkData;
+
+    /**@internal */
     private _agentType: string;
+
+    /**@internal */
     private _start: Vector2 = new Vector2();
+
+    /**@internal */
     private _end: Vector2 = new Vector2();
-    /**
-     * 宽度
-     */
-    set width(value: number) {
-        this._data._updateWidth(value);
-    }
-
-    get width(): number {
-        return this._data._width;
-    }
-
 
     /**
-     * 地形标记
-     */
-    set areaFlag(value: string) {
-        this._data.areaFlag = value;
-    }
-
-    get areaFlag(): string {
-        return this._data.areaFlag;
-    }
-
-    /**
-     * 区域类型
+     * @en Agent type for the navigation node
+     * @zh 导航节点的代理类型
      */
     set agentType(value: string) {
         this._agentType = value;
@@ -50,8 +35,35 @@ export class NavMesh2DLink {
         return this._agentType;
     }
 
+
     /**
-     * 是否双向
+     * @en Area type for the navigation node
+     * @zh 导航节点的区域类型
+     */
+    set areaFlag(value: string) {
+        this._data.areaFlag = value;
+    }
+
+    get areaFlag(): string {
+        return this._data.areaFlag;
+    }
+
+
+    /**
+     * @en The width of the link
+     * @zh 链接的宽度
+     */
+    set width(value: number) {
+        this._data._updateWidth(value);
+    }
+
+    get width(): number {
+        return this._data._width;
+    }
+
+    /**
+     * @en Whether the link is bidirectional
+     * @zh 链接是否可双向通行
      */
     set bidirectional(value: boolean) {
         this._data._updateBidirectional(value);
@@ -62,12 +74,12 @@ export class NavMesh2DLink {
     }
 
     /**
-   * 起始位置
-   */
-
+     * @en The start position of the link（local position）
+     * @zh 链接的起始位置(局部坐标)
+     */
     set start(value: Vector2) {
         value.cloneTo(this._start);
-        Navgiation2DUtils.vec2ToVec3(this._start, tempVec3);
+        Navgiation2DUtils._vec2ToVec3(this._start, tempVec3);
         this._data._updateStartPoint(tempVec3);
     }
 
@@ -76,11 +88,12 @@ export class NavMesh2DLink {
     }
 
     /**
-     * 结束位置
+     * @en The end position of the link （local position）
+     * @zh 链接的结束位置(局部坐标)
      */
     set end(value: Vector2) {
         value.cloneTo(this._end);
-        Navgiation2DUtils.vec2ToVec3(this._end, tempVec3);
+        Navgiation2DUtils._vec2ToVec3(this._end, tempVec3);
         this._data._updateEndPoint(tempVec3);
     }
 
@@ -97,14 +110,8 @@ export class NavMesh2DLink {
         this.width = 10;
     }
 
-    bindSurface(surface: NavMesh2DSurface) {
+    _bindSurface(surface: NavMesh2DSurface) {
         this._data._initSurface([surface]);
-    }
-
-    /**@internal */
-    setWorldMatrix(worldMatrix:Matrix4x4) {
-        worldMatrix.cloneTo(this._data._transfrom);
-        this._data._refeahTransfrom();
     }
 
     destroy() {

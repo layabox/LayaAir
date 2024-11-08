@@ -16,7 +16,7 @@ export class NavMesh extends BaseNavMesh {
     */
     constructor(config: RecastConfig, min: Vector3, max: Vector3, surface: NavMeshSurface) {
         super(config, min, max, surface,true);
-        this._titileConfig.setMaxEdgeLen(12 / config.cellSize);
+        this._titileConfig._setMaxEdgeLen(12 / config.cellSize);
         this._titileConfig.maxSimplificationError = 0.9;
     }
 
@@ -28,7 +28,7 @@ export class NavMesh extends BaseNavMesh {
     _addTile(cache: NavTileCache, binds: any[], partitionType: number, maxSimplificationError: number) {
         super._addTile(cache, binds, partitionType, maxSimplificationError);
         if (this._debugMesh) {
-            Navgiation3DUtils.createDebugMesh(this, this._debugMesh);
+            Navgiation3DUtils._createDebugMesh(this, this._debugMesh);
         }
     }
 
@@ -37,7 +37,7 @@ export class NavMesh extends BaseNavMesh {
      * 
      */
     buildDebugMesh() {
-        this._debugMesh = Navgiation3DUtils.createDebugMesh(this, null);
+        this._debugMesh = Navgiation3DUtils._createDebugMesh(this, null);
         return this._debugMesh;
     }
 

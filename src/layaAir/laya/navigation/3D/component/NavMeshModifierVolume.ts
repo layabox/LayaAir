@@ -9,15 +9,25 @@ import { BaseNavigationManager } from "../../common/BaseNavigationManager";
 import { Matrix4x4 } from "../../../maths/Matrix4x4";
 import { Quaternion } from "../../../maths/Quaternion";
 
-
+/**
+ * @en NavMeshModifierVolume is a component that modifies the navigation mesh in a specific volume.
+ * @zh NavMeshModifierVolume 是一个在特定体积内修改导航网格的组件。
+ */
 export class NavMeshModifierVolume extends Component {
 
     /**@internal */
     protected _volumeData: ModifierVolumeData;
+    
+    /**@internal */
+    private _center: Vector3 = new Vector3();
+
+    /**@internal */
+    private _size: Vector3 = new Vector3(1, 1, 1);
 
     /**
-    * agentType
-    */
+     * @en The agent type that this volume applies to.
+     * @zh 该体积适用的代理类型。
+     */
     set agentType(value: string) {
         this._volumeData.agentType = value;
     }
@@ -27,7 +37,8 @@ export class NavMeshModifierVolume extends Component {
     }
 
     /**
-     * area 类型
+     * @en The area flag for this volume.
+     * @zh 该体积的区域标志。
      */
     set areaFlag(value: string) {
         this._volumeData.areaFlag = value;
@@ -37,15 +48,11 @@ export class NavMeshModifierVolume extends Component {
         return this._volumeData.areaFlag;
     }
     
-    /**@internal */
-    _center: Vector3 = new Vector3();
-    /**@internal */
-    _size: Vector3 = new Vector3(1, 1, 1);
-
 
     /**
-    * center
-    */
+     * @en The center of the modifier volume.
+     * @zh 修改体积的中心点。
+     */
     get center(): Vector3 {
         return this._center;
     }
@@ -55,7 +62,8 @@ export class NavMeshModifierVolume extends Component {
     }
 
     /**
-     * size
+     * @en The size of the modifier volume.
+     * @zh 修改体积的大小。
      */
     get size(): Vector3 {
         return this._size;
@@ -95,7 +103,7 @@ export class NavMeshModifierVolume extends Component {
     /**
      * @override 
      */
-    _onWorldMatNeedChange() {
+    protected _onWorldMatNeedChange() {
         let transform = this._volumeData._transfrom;
         Matrix4x4.createAffineTransformation(this._center, Quaternion.DEFAULT, this._size, transform);
         Matrix4x4.multiply((<Sprite3D>this.owner).transform.worldMatrix, transform, transform);

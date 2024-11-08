@@ -1,8 +1,8 @@
 import { JointBase } from "./JointBase";
 import { Physics2D } from "../Physics2D"
 import { RigidBody } from "../RigidBody"
-import { physics2D_RevoluteJointDef } from "./JointDefStructInfo";
 import { Utils } from "../../utils/Utils";
+import { physics2D_RevoluteJointDef } from "../IPhysiscs2DFactory";
 
 /**
  * @en Rotating joint forces two objects to share an anchor point, and the two objects rotate relative to each other

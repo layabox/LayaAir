@@ -22,7 +22,7 @@ const transfromPoint = function (x: number, y: number) {
     point.setTo(x, y);
     return mat.transformPoint(point);
 }
-
+/** @internal*/
 export class Navgiation2DUtils {
     private static _colorMap: Map<number, Color> = new Map<number, Color>();
     /**
@@ -41,25 +41,38 @@ export class Navgiation2DUtils {
         }
     }
 
-    public static vec2ToVec3 = function (value: Vector2, out: Vector3) {
+    /**
+     * @internal
+     */
+    static _vec2ToVec3 = function (value: Vector2, out: Vector3) {
         out.setValue(value.x, 0, value.y);
     }
 
-    public static setValue3(x: number, y: number, out: Vector3) {
+    /**
+     * @internal
+     */
+    static _setValue3(x: number, y: number, out: Vector3) {
         out.setValue(x, 0, y);
     }
 
-    public static getSpriteGlobalPos(sprite: Sprite, out: Vector3) {
-        this.setValue3(sprite.globalPosX, sprite.globalPosY, out);
+    /**
+     * @internal
+     */
+    static _getSpriteGlobalPos(sprite: Sprite, out: Vector3) {
+        this._setValue3(sprite.globalPosX, sprite.globalPosY, out);
     }
 
-    public static transfromVec2ToVec3(vec2: Vector2, mat: Matrix, out: Vector3) {
+    /**
+     * @internal
+     */
+    static _transfromVec2ToVec3(vec2: Vector2, mat: Matrix, out: Vector3) {
         out.x = mat.a * vec2.x + mat.c * vec2.y + mat.tx;
         out.y = 0;
         out.z = mat.b * vec2.x + mat.d * vec2.y + mat.ty;
     }
 
-    public static getSpriteMatrix4x4(sprite: Sprite, out: Matrix4x4) {
+    /** @internal*/
+    static _getSpriteMatrix4x4(sprite: Sprite, out: Matrix4x4) {
         let mat = sprite.getGlobalMatrix();
         out.elements[0] = mat.a;
         out.elements[1] = 0;
@@ -82,7 +95,8 @@ export class Navgiation2DUtils {
         out.elements[15] = 1;
     }
 
-    public static getTransfromMatrix4x4(pos: Vector2, rot: number, scale: Vector2, out: Matrix4x4) {
+    /** @internal*/
+    static _getTransfromMatrix4x4(pos: Vector2, rot: number, scale: Vector2, out: Matrix4x4) {
         out.identity();
         let rate = Utils.toRadian(rot);
         let sin = Math.sin(rate);
@@ -97,6 +111,7 @@ export class Navgiation2DUtils {
         out.elements[14] = pos.y;
     }
 
+    /** @internal*/
     private static _getTitleData(title: any, vbDatas: number[], size: Vector3, ibs: number[]): void {
         let header: any = title.getheader();
         if (!header) return null;
@@ -117,7 +132,7 @@ export class Navgiation2DUtils {
             for (var j = 0; j < triCount; j++) {
                 let index = (pd.triBase + j) * 4;
                 for (var k = 0; k < 3; k++) {
-                    const kvalue = tailTris[index + NavigationUtils.TitleMeshIbOff[k]];
+                    const kvalue = tailTris[index + NavigationUtils._TitleMeshIbOff[k]];
                     if (kvalue < vertCount) {
                         indexs.push(pverts[kvalue]);
                     } else {
@@ -162,6 +177,7 @@ export class Navgiation2DUtils {
 
     }
 
+    /** @internal*/
     private static _updateMesh2DData(mesh2d: Mesh2D, vbdata: Float32Array, ib: Uint16Array | Uint32Array, ibFormat: IndexFormat) {
         let vbArray = [];
         {
@@ -193,11 +209,12 @@ export class Navgiation2DUtils {
     }
 
     /**
+     * @internal
      * create navMesh tile to Laya Mesh 
      * @param navMesh 
      * @param mesh
      */
-    static createDebugMesh(navMesh: NavMesh2D, mesh: Mesh2D = null, isGlobal: boolean = false): Mesh2D {
+    static _createDebugMesh(navMesh: NavMesh2D, mesh: Mesh2D = null, isGlobal: boolean = false): Mesh2D {
         let m_navMesh = navMesh.navMesh;
         let tileCount = m_navMesh.getMaxTiles();
         let poses: number[] = []

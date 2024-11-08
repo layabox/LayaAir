@@ -2,7 +2,8 @@ import { IClone } from "../../utils/IClone";
 
 
 /**
- * create Recast navMesh Config
+ * @en create Recast navMesh Config
+ * @zh 创建Recast navMesh配置
  */
 export class RecastConfig implements IClone {
 
