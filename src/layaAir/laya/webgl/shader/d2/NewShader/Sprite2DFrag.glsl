@@ -197,7 +197,7 @@ vec4 transspaceColor(vec4 color)
 #endif
 
     void setglColor(in vec4 color){
-        color.a *= v_color.w;
+        color.a *= v_color.w*u_baseRenderColor.a;
         vec4 transColor = v_color;
         #ifndef GAMMASPACE
             transColor = gammaToLinear(v_color)*u_baseRenderColor;
