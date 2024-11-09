@@ -4,6 +4,11 @@ import { Vector3 } from "../../maths/Vector3";
 import { NavTileData } from "./NavTileData";
 import { RecastConfig } from "./RecastConfig";
 
+/**
+ * @internal 
+ * @en The NavMeshGrid class manages the grid division of the navigation mesh.
+ * @zh NavMeshGrid 类用于管理导航网格的网格划分。
+*/
 export class NavMeshGrid {
     /**@internal */
     private _config: RecastConfig;
@@ -23,65 +28,69 @@ export class NavMeshGrid {
     /**@internal */
     private _bordWidth: number = 0;
 
+    /**
+     * @internal 
+     * @en The width of a single tile.
+     * @zh 单个瓦片的宽度。
+    */
     get tileWidth() {
         return this._config.tileSize * this._config.cellSize;
     }
 
     /**
-    * get  bounds max of mesh
+     * @internal
+     * @en The bounding box of the navigation mesh.
+     * @zh 导航网格的最小值。
     */
-    public get max(): Vector3 {
+    get max(): Vector3 {
         return this._max;
     }
 
     /**
-    * get  bounds min of mesh
+     * @internal
+     * @en The bounding box of the navigation mesh.
+     * @zh 导航网格的最大值。
     */
-    public get min(): Vector3 {
+    get min(): Vector3 {
         return this._min;
     }
 
 
     /**
-    * get  bounds of mesh
-    */
-    public get config(): RecastConfig {
+     * @internal
+     * @en The configuration of the navigation mesh.
+     * @zh 导航网格的配置。
+     */
+    get config(): RecastConfig {
         return this._config;
     }
 
 
     /**
-    * get max tiles number
+     *@internal
+    * @en Get the maximum number of tiles.
+    * @zh 获取最大瓦片数量。
     */
-    public getMaxtiles() {
+    get maxtiles() {
         return this.maxXTileCount * this.maxZTileCount;
     }
 
     /**
-     * get max x tiles number
+     * @internal
+     * @en Get the maximum number of tiles along the x-axis.
+     * @zh 获取 x 轴方向的最大瓦片数量。
      */
-    public get maxXTileCount(): number {
+    get maxXTileCount(): number {
         return this._tileSize.x;
     }
 
     /**
-     * get max z tiles number
+     * @internal
+     * @en Get the maximum number of tiles along the z-axis.
+     * @zh 获取 z 轴方向的最大瓦片数量。
      */
-    public get maxZTileCount(): number {
+    get maxZTileCount(): number {
         return this._tileSize.y;
-    }
-
-    /**
-    * get max x cell number
-    */
-    public get maxXCellCount(): number {
-        return this._cellSize.x;
-    }
-    /**
-     * get max z cell number
-     */
-    public get maxZCellCount(): number {
-        return this._cellSize.y;
     }
 
     /**
@@ -98,18 +107,31 @@ export class NavMeshGrid {
     }
 
     /**
-     * refeachConfig
+     * @intertal
+     * @en Update the configuration and bounding box based on the given tile data.
+     * @param tile The navigation tile data.
+     * @zh 根据给定的瓦片数据更新配置和边界框。
+     * @param tile 导航瓦片数据。
      */
-    public refeachConfig(tile: NavTileData) {
+    _refeashBound(tile: NavTileData) {
         tile._boundMin.cloneTo(this._min);
         tile._boundMax.cloneTo(this._max);
         this._updateBound();
     }
 
     /**
-     * get tile index by Bound
+     * @internal
+     * @en Get the tile indices that intersect with the given bounding box.
+     * @param bound The bounding box to check.
+     * @param isbord Whether to include a border around the bounding box.
+     * @returns An array of tile indices.
+     * @zh 获取与给定边界框相交的瓦片索引。
+     * @param min 要检查的包围盒最小点。
+     * @param max 要检查的包围盒最大点。
+     * @param isbord 是否对包围盒进行阔边。
+     * @returns 瓦片索引数组。
      */
-    public getBoundTileIndex(min: Vector3, max: Vector3, isbord: boolean = false): number[] {
+    getBoundTileIndex(min: Vector3, max: Vector3, isbord: boolean = false): number[] {
         //阔边
         let pMinx = min.x;
         let pMinz = min.z;
@@ -123,10 +145,10 @@ export class NavMeshGrid {
             pMaxz += this._bordWidth;
         }
         let lists: number[] = [];
-        let minIx = Math.max(0, this.getTileXIndex(pMinx));
-        let maxIx = Math.min(this._tileSize.x - 1, this.getTileXIndex(pMaxx));
-        let minIz = Math.max(0, this.getTileZIndex(pMinz));
-        let maxIz = Math.min(this._tileSize.y - 1, this.getTileZIndex(pMaxz));
+        let minIx = Math.max(0, this._getTileXIndex(pMinx));
+        let maxIx = Math.min(this._tileSize.x - 1, this._getTileXIndex(pMaxx));
+        let minIz = Math.max(0, this._getTileZIndex(pMinz));
+        let maxIz = Math.min(this._tileSize.y - 1, this._getTileZIndex(pMaxz));
 
         for (var z = minIz; z <= maxIz; z++) {
             for (var x = minIx; x <= maxIx; x++) {
@@ -138,16 +160,19 @@ export class NavMeshGrid {
     }
 
     /**
+     * @internal
     * get tile index of map by position
     * @param x  世界坐标x
     * @param z  世界坐标z
     */
     getTileIndexByPos(x: number, z: number): number {
-        return this.getTileIndex(this.getTileXIndex(x), this.getTileZIndex(z));
+        return this.getTileIndex(this._getTileXIndex(x), this._getTileZIndex(z));
     }
 
     /**
-     * get tile index of map
+     * @internal
+     * @en get tile index of map
+     * @zh 获取地图的tile索引
      */
     getTileIndex(xIndex: number, zIndex: number): number {
         if (zIndex < 0 || zIndex >= this._tileSize.y) {
@@ -156,33 +181,24 @@ export class NavMeshGrid {
         if (xIndex < 0 || xIndex >= this._tileSize.x) {
             return -1;
         }
-        return zIndex * (this._tileSize.x) + xIndex;
+        return zIndex * this._tileSize.x + xIndex;
     }
 
     /**
+    * @internal
     * get tile x index
     */
-    getTileXIndex(value: number) {
+    private _getTileXIndex(value: number) {
         return this._getLeftValue(value - this._min.x);
     }
 
     /**
+    * @internal
     * get tile z index
     */
-    getTileZIndex(value: number) {
+    private _getTileZIndex(value: number) {
         return this._getLeftValue(value - this._min.z);
     }
-
-    /**
-     * need update 
-     */
-    public getUpdateTileIndexs(min: Vector3, max: Vector3, isbord: boolean = false, list: Set<number>) {
-        let tileindexs = this.getBoundTileIndex(min, max, isbord);
-        tileindexs.forEach((value) => {
-            list.add(value);
-        });
-    }
-
 
     /**
      * @internal
@@ -193,12 +209,13 @@ export class NavMeshGrid {
     }
 
     /**
+     * @internal
      * update bound
      */
     private _updateBound() {
         this._bordWidth = this._config.cellSize * 3;
-        let max = this._max;
-        let min = this._min;
+        const max = this._max;
+        const min = this._min;
         const tileWidth = this._config.cellSize * this._config.tileSize;
         this._tileSize.x = Math.ceil((max.x - min.x) / tileWidth);
         this._tileSize.y = Math.ceil((max.z - min.z) / tileWidth);

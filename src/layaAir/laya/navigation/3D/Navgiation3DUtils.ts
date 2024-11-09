@@ -13,16 +13,16 @@ import { NavMesh } from "./NavMesh";
 
 const tempVector3 = new Vector3();
 
+/**
+ * @internal
+ */
 export class Navgiation3DUtils {
 
     static __init__() {
     }
 
-
-
-
     /**@internal  */
-    static resetMesh(mesh: Mesh, vertexDeclaration: VertexDeclaration, vertices: Float32Array, indices: Uint16Array) {
+    static _resetMesh(mesh: Mesh, vertexDeclaration: VertexDeclaration, vertices: Float32Array, indices: Uint16Array) {
         var vertexBuffer: VertexBuffer3D = Laya3DRender.renderOBJCreate.createVertexBuffer3D(vertices.length * 4, BufferUsage.Static, true);
         vertexBuffer.vertexDeclaration = vertexDeclaration;
         vertexBuffer.setData(vertices.buffer);
@@ -54,7 +54,7 @@ export class Navgiation3DUtils {
     }
 
     /**@internal  */
-    static getTitleData(title: any, vbDatas: number[], center: Vector3, ibs: number[]): void {
+    static _getTitleData(title: any, vbDatas: number[], center: Vector3, ibs: number[]): void {
         let header: any = title.getheader();
         if (!header) return null;
         const vboff = vbDatas.length / 6; //兼容WGSL
@@ -69,7 +69,7 @@ export class Navgiation3DUtils {
             for (var j = 0; j < triCount; j++) {
                 let index = (pd.triBase + j) * 4;
                 for (var k = 0; k < 3; k++) {
-                    const kvalue = tailTris[index + NavigationUtils.TitleMeshIbOff[k]];
+                    const kvalue = tailTris[index + NavigationUtils._TitleMeshIbOff[k]];
                     if (kvalue < vertCount) {
                         ibs.push(pverts[kvalue] + vboff)
                     } else {
@@ -100,7 +100,7 @@ export class Navgiation3DUtils {
      * @param navMesh 
      * @param mesh
      */
-    static createDebugMesh(navMesh: NavMesh, mesh: Mesh) {
+    static _createDebugMesh(navMesh: NavMesh, mesh: Mesh) {
         let m_navMesh = navMesh.navMesh;
         let tileCount = m_navMesh.getMaxTiles();
         let min = navMesh.navTileGrid.min;
@@ -110,7 +110,7 @@ export class Navgiation3DUtils {
         let poses: number[] = []
         let indexs: number[] = [];
         for (var i = 0; i < tileCount; i++) {
-            Navgiation3DUtils.getTitleData(m_navMesh.getTile(i), poses, orig, indexs);
+            Navgiation3DUtils._getTitleData(m_navMesh.getTile(i), poses, orig, indexs);
         }
         let vertexDeclaration = VertexMesh.getVertexDeclaration("POSITION,NORMAL"); //兼容WSGL
         let vb = new Float32Array(poses);
@@ -118,7 +118,7 @@ export class Navgiation3DUtils {
         if (mesh == null) {
             mesh = PrimitiveMesh._createMesh(vertexDeclaration, vb, ib);
         } else {
-            this.resetMesh(mesh, vertexDeclaration, vb, ib);
+            this._resetMesh(mesh, vertexDeclaration, vb, ib);
         }
         Vector3.subtract(max, orig, mesh.bounds.max);
         Vector3.subtract(min, orig, mesh.bounds.min);

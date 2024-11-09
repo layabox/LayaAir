@@ -1,8 +1,8 @@
 import { JointBase } from "./JointBase";
 import { Physics2D } from "../Physics2D"
 import { RigidBody } from "../RigidBody"
-import { physics2D_DistancJointDef } from "./JointDefStructInfo";
 import { Sprite } from "../../display/Sprite";
+import { physics2D_DistancJointDef } from "../IPhysiscs2DFactory";
 
 /**
  * @en Distance Joint: A joint that maintains a fixed distance between two points on two bodies.

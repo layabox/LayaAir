@@ -1,6 +1,6 @@
 import { ColliderBase } from "./ColliderBase";
 import { Physics2D } from "../Physics2D";
-import { PhysicsShape } from "./ColliderStructInfo";
+import { PhysicsShape } from "../IPhysiscs2DFactory";
 
 /**
  * @en 2D edge collider.

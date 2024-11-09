@@ -1,7 +1,6 @@
 import { ColliderBase } from "./ColliderBase";
 import { Physics2D } from "../Physics2D";
-import { PhysicsShape } from "./ColliderStructInfo";
-import { Sprite } from "../../display/Sprite";
+import { PhysicsShape } from "../IPhysiscs2DFactory";
 
 /**
  * @en 2D polygon collider. Concave polygons are currently not supported. If it is a concave polygon, manually split it into multiple convex polygons first.

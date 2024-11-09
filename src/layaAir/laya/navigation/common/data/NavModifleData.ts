@@ -24,7 +24,7 @@ export class NavModifleData extends BaseData{
 
     constructor(){
         super();
-        this._bindData = NavigationUtils.createdtNavTileCache();
+        this._bindData = NavigationUtils._createdtNavTileCache();
     }
 
     /**
@@ -44,7 +44,7 @@ export class NavModifleData extends BaseData{
 
         if(cache._getCacheFlag(CacheData.DataFlag|CacheData.TransfromFlag)){
             this._bindData.transfromData(this._transfrom.elements);
-            NavigationUtils.transfromBoundBox(this._datas._boundMin,this._datas._boundMax,this._transfrom,this._min,this._max);
+            NavigationUtils._transfromBoundBox(this._datas._boundMin,this._datas._boundMax,this._transfrom,this._min,this._max);
             cache._cacheBound(this._min,this._max);
         }
     }
@@ -71,8 +71,8 @@ export class NavModifleData extends BaseData{
         this._cacheDatas = [];
         surface.forEach(element => {
             let cache = element._addModifileNavMesh(this)
-            cache.setUpdateDataHander(Handler.create(this,this._updateBuffer,undefined,false));
-            cache.setTileHander(Handler.create(this,this._updateTileIndexs,undefined,false));
+            cache._setUpdateDataHander(Handler.create(this,this._updateBuffer,undefined,false));
+            cache._setTileHander(Handler.create(this,this._updateTileIndexs,undefined,false));
             this._cacheDatas.push(cache);
             cache._updateAreaFlag(this._areaFlags);
             cache._updateTransfrom(this._transfrom);

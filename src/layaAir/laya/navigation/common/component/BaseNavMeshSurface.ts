@@ -15,64 +15,67 @@ import { ItemMapId } from "../ItemMapId";
 import { ModifierVolumeData } from "../data/ModifierVolumeData";
 import { NavModifleData } from "../data/NavModifleData";
 import { NavMeshLinkData } from "../data/NavMeshLinkData";
+import { NavigationPathData } from "../NavigationPathData";
 
 
 /**
- * 寻路网格组件的基类
+ * @en BaseNavMeshSurface is a base component used to generate navigation mesh. 2d and 3d integrate this class respectively.
+ * @zh BaseNavMeshSurface 是一个用于生成导航网格的基础组件，2d 和 3d 分别集成该类。
  */
 export class BaseNavMeshSurface extends Component {
-    /**@internal */
-    _datas: TextResource;
+    /**@internal 网格模型的数据 */
+    private _datas: TextResource;
 
     /**@internal */
-    _maxSimplificationError: number = 0.9;
+    private _maxSimplificationError: number = 0.9;
 
     /**@internal */
-    _agentType: string = NavigationConfig.defaltAgentName;
-
+    private _agentType: string = NavigationConfig.defaltAgentName;
 
     /**@internal */
-    _partitionType: PartitionType;
+    private _partitionType: PartitionType;
+
+    /**@internal */
+    private _boundMin: Vector3 = new Vector3();
+
+    /**@internal */
+    private _boundMax: Vector3 = new Vector3();
+
+    /**@internal load*/
+    private _oriTiles: NavTileData;
+
+    private _cachedata: CacheData;
+
+    /**@internal 是否开启异步处理*/
+    private _needAsyn: boolean = false;
+
+    private _cacheDataMap: Map<any, CacheData>;
+
+    /** @internal */
+    private _meshlinkOffMaps: ItemMapId<NavMeshLinkData>;
+
+    /** @internal */
+    private _meshVolumeMaps: ItemMapId<CacheData>;
+
 
     /**@intenral */
     _navMesh: BaseNavMesh;
 
     /**@internal */
-    _boundMin: Vector3 = new Vector3();
-
-    /**@internal */
-    _boundMax: Vector3 = new Vector3();
-
-    /**@internal load*/
-    _oriTiles: NavTileData;
-
-    _cachedata: CacheData;
-
-    /**@internal */
-    _featureCache: Map<number, Set<any>>;
-
-    _cacheDataMap: Map<any, CacheData>;
-
-    /** @internal */
-    _meshlinkOffMaps: ItemMapId<NavMeshLinkData>;
-
-    /** @internal */
-    _meshVolumeMaps: ItemMapId<CacheData>;
+    _buildTileList: Set<number>;
 
     /**@internal */
     _manager: BaseNavigationManager;
 
-    /**@internal */
-    _buildTileList: Set<number>;
-
-    /**@internal 是否开启异步处理*/
-    _needAsyn: boolean = false;
-
     /**@internal 延时改变列表*/
     _delayCacheMap: Set<CacheData>;
 
-    /**
-     * agent 类型
+    /**@internal */
+    _featureCache: Map<number, Set<any>>;
+
+     /**
+     * @en Agent type
+     * @zh 代理类型
      */
     set agentType(value: string) {
         if (this._agentType == value) return;
@@ -89,7 +92,8 @@ export class BaseNavMeshSurface extends Component {
     }
 
     /**
-     * area 类型
+     * @en Area type
+     * @zh 区域类型
      */
     set areaFlag(value: string) {
         this._cachedata._updateAreaFlag(value);
@@ -111,8 +115,9 @@ export class BaseNavMeshSurface extends Component {
     }
 
     /**
-    * 设置产生navMesh的方法
-    */
+     * @en Set the method for generating navMesh
+     * @zh 设置生成导航网格的方法
+     */
     set partitionType(value: PartitionType) {
         this._partitionType = value;
     }
@@ -121,22 +126,27 @@ export class BaseNavMeshSurface extends Component {
         return this._partitionType;
     }
 
-    /**
-     * 设置最小边缘
+     /**
+     * @readonly
+     * @en The minimum bounds of the navigation mesh
+     * @zh 导航网格的最小边界 
      */
     get min(): Vector3 {
         return this._boundMin;
     }
 
-    /** 
-     * 设置最大边缘
-     * */
+    /**
+     * @readonly
+     * @en The maximum bounds of the navigation mesh
+     * @zh 导航网格的最大边界 
+     */
     get max(): Vector3 {
         return this._boundMax;
     }
 
     /**
-     * 烘培数据
+     * @en Set navigation data
+     * @zh 设置导航数据
      */
     set datas(value: TextResource) {
         this._datas = value;
@@ -148,7 +158,8 @@ export class BaseNavMeshSurface extends Component {
     }
 
     /**
-     * 简化多边形边框可偏移的最大量
+     * @en The maximum amount of simplification error for the border of the polygon.
+     * @zh 简化多边形边框可偏移的最大量
      */
     set maxSimplificationError(value: number) {
         if (this._maxSimplificationError == value) return;
@@ -158,13 +169,6 @@ export class BaseNavMeshSurface extends Component {
 
     get maxSimplificationError() {
         return this._maxSimplificationError;
-    }
-
-    /**
-     * 获取navMesh
-     */
-    get navMesh(): BaseNavMesh {
-        return this._navMesh;
     }
 
 
@@ -180,31 +184,105 @@ export class BaseNavMeshSurface extends Component {
         this._featureCache = new Map<number, Set<any>>()
         this._partitionType = PartitionType.PARTITION_WATERSHED;
         this._cachedata = this._createCacheData();
-        this._cachedata.setUpdateDataHander(new Handler(this, this._updateOrigTileCache, undefined, false));
-        this._cachedata._cacheData([]);
+        this._cachedata._setUpdateDataHander(new Handler(this, this._updateOrigTileCache, undefined, false));
+        this._cachedata._cacheData = [];
         this._cacheDataMap = new Map<any, CacheData>();
         this._meshlinkOffMaps = new ItemMapId<NavMeshLinkData>(256);
         this._meshVolumeMaps = new ItemMapId<CacheData>(256);
     }
 
-
+    /**
+     * @internal
+     * @en Clean all Tile
+     * @zh 清理所有的Tile
+     */
     public cleanAllTile() {
-        //clear cache TODO
         for (var i = 0, n = this._oriTiles.length; i < n; i++) {
             let tile = this._oriTiles.getNavData(i);
-            this._navMesh.removeTile(tile.x, tile.y);
+            this._navMesh._removeTile(tile.x, tile.y);
         }
     }
 
+    /**
+     * @internal
+     * @en Rebuild the tile at the specified location
+     * @zh 重建指定位置的Tile
+     */
     public rebuildTile(pos: Vector3) {
         let index = this._navMesh.navTileGrid.getTileIndexByPos(pos.x, pos.z);
         this._buildTileList.add(index);
     }
 
-    /**@internal*/
+    /**
+     * @en Get the current point's Flag
+     * @param pos World coordinates;
+     * @param fiter Optional query filter.
+     * @returns flag
+     * @zh 获得当前点的Flag
+     * @param pos 世界坐标
+     * @param fiter 可选的查询过滤器。
+     * @return flag
+     */
+    public getPolyFlags(pos: Vector3, fiter: any = null): number {
+        if (this._navMesh == null) return -1;
+        return this._navMesh._getPolyFlags(pos, fiter);
+    }
+
+    /**
+     * @en Find the nearest polygon to the specified position.
+     * @param pos World coordinates.
+     * @param fiter Optional filter for the query.
+     * @param out Used to store the position.
+     * @returns Information about the nearest polygon.
+     * @zh 查找指定位置最近的多边形。
+     * @param pos 世界坐标。
+     * @param fiter 可选的查询过滤器。
+     * @param out 用于存储位置。
+     * @returns 最近多边形的引用id。
+     */
+    public findNearestPoly(pos: Vector3, fiter: any = null, out: Vector3) {
+        if (this._navMesh == null) return null;
+        return this._navMesh._findNearestPoly(pos, fiter, out);
+    }
+
+    /**
+     * @en Find a follow path for the specified agent.
+     * @param agent The navigation agent.
+     * @param fllowPaths Array to store the resulting path data.
+     * @returns Whether the path was successfully found.
+     * @zh 为指定的代理查找跟随路径。
+     * @param agent 导航代理。
+     * @param fllowPaths 用于存储结果路径数据的数组。
+     * @returns 是否成功找到路径。
+     */
+    public findFllowPath(outPaths: NavigationPathData[], startPos: Vector3, endPos: Vector3, speed: number, filter: any = null): boolean {
+        if (this._navMesh == null) return false;
+        return this._navMesh._findFllowPath(outPaths, startPos, endPos, speed, filter);
+    }
+
+    /**
+     * @en Find the distance to the nearest wall for the specified position.
+     * @param pos The world position.
+     * @param filter Optional filter for the query.
+     * @returns An object containing the distance, position, and normal of the nearest wall, or null if not found.
+     * @zh 查找指定位置到最近墙壁的距离。
+     * @param pos 世界位置。
+     * @param filter 可选的查询过滤器。
+     * @returns 包含最近墙壁的距离、位置和法线的对象，如果未找到则返回 null。
+     */
+    public findDistanceToWall(pos: Vector3, filter: any): { dist: number, pos: Array<number>, normal: Array<number> } {
+        if (this._navMesh == null) return null;
+        return this._navMesh._findDistanceToWall(pos, filter);
+    }
+
+    /**
+     * @internal
+     * @en refresh the original data Flag
+     * @zh 刷新原始数据的Flag
+    */
     protected _updateOrigTileCache(cache: CacheData, areaflags: number) {
         if (!cache._getCacheFlag(CacheData.AreaFlag)) return;
-        let datas = cache.cacheData;
+        let datas = cache._cacheData;
         let tileCount = datas.length;
 
         if (cache._getCacheFlag(CacheData.DataFlag | CacheData.AreaFlag)) {
@@ -215,7 +293,12 @@ export class BaseNavMeshSurface extends Component {
 
     }
 
-    /**@internal*/
+    /**
+     * @internal
+     * @en create CacheData
+     * @zh 创建CacheData
+     * 
+    */
     protected _createCacheData(): CacheData {
         return new CacheData(this);
     }
@@ -236,7 +319,7 @@ export class BaseNavMeshSurface extends Component {
         if (cacheData == null) return null;
         this._cacheDataMap.delete(data);
         cacheData._destroy();
-        this._navMesh._deleteCovexVoume(cacheData.id);
+        this._navMesh._deleteConvexVoume(cacheData.id);
         return cacheData;
     }
 
@@ -249,22 +332,22 @@ export class BaseNavMeshSurface extends Component {
     protected _updateNavData(): void {
         this._featureCache.clear();
         this._cleanBindData();
-        if (this._navMesh) this._navMesh.clearn();
+        if (this._navMesh) this._navMesh._clearn();
         if (this._datas) {
             this._oriTiles = new NavTileData(this._datas);
             if (this._navMesh) {
-                this._navMesh.navTileGrid.refeachConfig(this._oriTiles);
+                this._navMesh.navTileGrid._refeashBound(this._oriTiles);
                 this._navMesh._navMeshInit()
             }
             let bindDatas = [];
             for (var i = 0, n = this._oriTiles.length; i < n; i++) {
-                let bindData = NavigationUtils.createdtNavTileCache();
+                let bindData = NavigationUtils._createdtNavTileCache();
                 bindData.init(this._oriTiles.getNavData(i).bindData);
                 this._featureCache.set(i, new Set<any>([bindData]));
                 bindDatas.push(bindData);
             }
             this._cachedata._cacheBound(this._oriTiles._boundMin, this._oriTiles._boundMax);
-            this._cachedata._cacheData(bindDatas);
+            this._cachedata._cacheData = bindDatas;
             this._cacheDataMap.forEach((value) => { value._resetData() })
         } else {
             this._oriTiles = null;
@@ -284,11 +367,54 @@ export class BaseNavMeshSurface extends Component {
         this._manager = this._getManager();
         this._navMesh = this._crateNavMesh(this._manager.getNavConfig(this._agentType), this._boundMin, this._boundMax);
         if (this._oriTiles) {
-            this._navMesh.navTileGrid.refeachConfig(this._oriTiles);
+            this._navMesh.navTileGrid._refeashBound(this._oriTiles);
             this._navMesh._navMeshInit()
         }
 
         this._manager.regNavMeshSurface(this);
+    }
+
+
+    /**
+     * @internal
+     * @param dt 
+     */
+    _updata(dt: number) {
+        if (this._oriTiles == null) return;
+        this._delayCacheMap.forEach((value) => { value._updateCache() });
+        this._delayCacheMap.clear();
+        if (this._needAsyn) {
+            this._buildOneTileMesh();
+        } else {
+            this._buildAllTileMesh();
+        }
+        if (dt > 0) this._navMesh._updateNavMesh(dt);
+    }
+
+
+    /**
+     * @internal
+     * build one Mesh
+     */
+    protected _buildOneTileMesh() {
+        if (this._buildTileList.size == 0) return;
+        const setIter = this._buildTileList.keys();
+        let tileIndex = setIter.next().value;
+        let oritile = this._oriTiles.getNavData(tileIndex)
+        var featureCache = this._featureCache.get(tileIndex);
+        this._navMesh._addTile(oritile, [...featureCache], this._partitionType, this._maxSimplificationError);
+        this._buildTileList.delete(tileIndex);
+    }
+
+
+    /**
+     * @internal
+     * build all Mesh
+     */
+    protected _buildAllTileMesh() {
+        while (this._buildTileList.size > 0) {
+            this._buildOneTileMesh();
+        }
     }
 
     /**
@@ -305,6 +431,9 @@ export class BaseNavMeshSurface extends Component {
         if (this._oriTiles) this._oriTiles = null;
     }
 
+    /**
+     * @internal
+     */
     _cloneTo(dest: Component): void {
         let surface = dest as BaseNavMeshSurface;
         surface._agentType = this._agentType;
@@ -313,42 +442,15 @@ export class BaseNavMeshSurface extends Component {
         super._cloneTo(dest);
     }
 
-
-
     /**
      * @internal 
      */
     _cleanBindData() {
-        let bindDatas = this._cachedata.cacheData;
+        let bindDatas = this._cachedata._cacheData;
         bindDatas.forEach((value: any) => {
-            NavigationUtils.freeLayaData(value);
+            NavigationUtils._freeLayaData(value);
         });
-        this._cachedata._cacheData([]);
-    }
-
-    /**
-     * @internal
-     * start build one Mesh
-     */
-    _buildOneTileMesh() {
-        if (this._buildTileList.size == 0) return;
-        const setIter = this._buildTileList.keys();
-        let tileIndex = setIter.next().value;
-        let oritile = this._oriTiles.getNavData(tileIndex)
-        var featureCache = this._featureCache.get(tileIndex);
-        this._navMesh._addTile(oritile, [...featureCache], this._partitionType, this._maxSimplificationError);
-        this._buildTileList.delete(tileIndex);
-    }
-
-
-    /**
-     * @internal
-     * start build all Mesh
-     */
-    _buildAllTileMesh() {
-        while (this._buildTileList.size > 0) {
-            this._buildOneTileMesh();
-        }
+        this._cachedata._cacheData = [];
     }
 
     /**
@@ -366,7 +468,6 @@ export class BaseNavMeshSurface extends Component {
      * @param navModifile 
      */
     _removeModifileNavMesh(navModifile: NavModifleData) {
-
         this._removeCacheData(navModifile);
     }
 
@@ -381,7 +482,6 @@ export class BaseNavMeshSurface extends Component {
         return cache;
     }
 
-
     /** @internal */
     _addConvexVoume(volume: ModifierVolumeData) {
         let cache = this._getCahceData(volume);
@@ -389,7 +489,6 @@ export class BaseNavMeshSurface extends Component {
         if (volumeId == -1) {
             return null;
         }
-
         cache.id = volumeId;
         return cache;
     }
@@ -400,23 +499,6 @@ export class BaseNavMeshSurface extends Component {
      */
     _deleteCovexVoume(volume: ModifierVolumeData) {
         this._removeCacheData(volume);
-    }
-
-
-    /**
-     * @internal
-     * @param dt 
-     */
-    _updata(dt: number) {
-        if (this._oriTiles == null) return;
-        this._delayCacheMap.forEach((value) => { value._updateCache() });
-        this._delayCacheMap.clear();
-        if (this._needAsyn) {
-            this._buildOneTileMesh();
-        } else {
-            this._buildAllTileMesh();
-        }
-        this.navMesh._updateNavMesh(dt);
     }
 
 }

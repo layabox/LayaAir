@@ -7,14 +7,19 @@ import { BaseNav3DModifle } from "./BaseNav3DModifle";
 
 const tempVec3 = new Vector3();
 const tempVec31 = new Vector3();
+
 /**
- * <code>NavMeshLink</code> 网格外链接。
+ * @en NavMeshLink represents a connection between two points outside the navigation mesh.
+ * @zh NavMeshLink 表示导航网格外的两点之间的连接。
  */
 export class NavMeshLink extends BaseNav3DModifle {
 
+    /**@internal */
     private _agentType: string;
+    
     /**
-     * 宽度
+     * @en The width of the link
+     * @zh 链接的宽度
      */
     set width(value: number) {
         this._data._updateWidth(value);
@@ -24,31 +29,9 @@ export class NavMeshLink extends BaseNav3DModifle {
         return this._data._width;
     }
 
-
     /**
-     * 地形标记
-     */
-    set areaFlag(value: string) {
-        this._data.areaFlag = value;
-    }
-
-    get areaFlag(): string {
-        return this._data.areaFlag;
-    }
-
-    /**
-     * 区域类型
-     */
-    set agentType(value: string) {
-        this._agentType = value;
-    }
-
-    get agentType() {
-        return this._agentType;
-    }
-
-    /**
-     * 是否双向
+     * @en Whether the link is bidirectional
+     * @zh 链接是否可双向通行
      */
     set bidirectional(value: boolean) {
         this._data._updateBidirectional(value);
@@ -59,9 +42,9 @@ export class NavMeshLink extends BaseNav3DModifle {
     }
 
     /**
-   * 起始位置
-   */
-
+     * @en The start position of the link（local position）
+     * @zh 链接的起始位置(局部坐标)
+     */
     set start(value: Vector3) {
         this._data._updateStartPoint(value);
     }
@@ -71,7 +54,8 @@ export class NavMeshLink extends BaseNav3DModifle {
     }
 
     /**
-     * 结束位置
+     * @en The end position of the link （local position）
+     * @zh 链接的结束位置(局部坐标)
      */
     set end(value: Vector3) {
         this._data._updateEndPoint(value);
@@ -105,7 +89,6 @@ export class NavMeshLink extends BaseNav3DModifle {
     }
 
 
-
     /**
      * @internal
      */
@@ -115,6 +98,7 @@ export class NavMeshLink extends BaseNav3DModifle {
         this._modifierData._refeahTransfrom();
         Vector3.transformCoordinate(data._startPoint, mat, data.globalStart);
         Vector3.transformCoordinate(data._endPoint, mat, data.globalEnd);
+
     }
 
     /**@internal */

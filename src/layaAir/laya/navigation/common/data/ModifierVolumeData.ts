@@ -8,6 +8,11 @@ import { NavigationUtils } from "../NavigationUtils";
 
 const tempVec3 = new Vector3();
 const tempMat = new Matrix4x4();
+/**
+ * @internal
+ * @en Convex polygon data
+ * @zh 凸多边形数据
+ */
 export class ModifierVolumeData extends BaseData{
     /**@internal */
     _datas: number[] = [];
@@ -36,7 +41,7 @@ export class ModifierVolumeData extends BaseData{
                 }
                 this._max.setValue(1,1,1);
                 this._min.setValue(-1,-1,-1);
-                NavigationUtils.transfromBoundBox(this._min,this._max,this._transfrom,this._min,this._max);
+                NavigationUtils._transfromBoundBox(this._min,this._max,this._transfrom,this._min,this._max);
                 this._buffer[0] = this._min.x;
                 this._buffer[1] = this._min.y;
                 this._buffer[2] = this._min.z;
@@ -73,7 +78,7 @@ export class ModifierVolumeData extends BaseData{
             
         }
 
-        mesh._updateCovexVoume(cache.id,this._buffer,this._min.y,this._max.y,flag);
+        mesh._updateConvexVolume(cache.id,this._buffer,this._min.y,this._max.y,flag);
     }
 
 
@@ -84,7 +89,7 @@ export class ModifierVolumeData extends BaseData{
         this._cacheDatas = [];
         surface.forEach(element => {
             let cache = element._addConvexVoume(this);
-            cache.setUpdateDataHander(Handler.create(this,this._updateBuffer,undefined,false));
+            cache._setUpdateDataHander(Handler.create(this,this._updateBuffer,undefined,false));
             this._cacheDatas.push(cache);
             cache._updateAreaFlag(this._areaFlags);
             cache._updateTransfrom(this._transfrom);

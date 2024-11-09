@@ -1,8 +1,8 @@
 import { Component } from "../../components/Component";
-import { FixtureBox2DDef, PhysicsShape } from "./ColliderStructInfo";
 import { Physics2D } from "../Physics2D";
 import { RigidBody } from "../RigidBody";
 import { Sprite } from "../../display/Sprite";
+import { FixtureBox2DDef, PhysicsShape } from "../IPhysiscs2DFactory";
 
 
 /**
@@ -12,7 +12,7 @@ import { Sprite } from "../../display/Sprite";
 export class ColliderBase extends Component {
 
     /**@internal FixtureBox2DDef 数据 */
-    private static TempDef: FixtureBox2DDef = new FixtureBox2DDef()
+    static TempDef: FixtureBox2DDef = new FixtureBox2DDef()
 
     /**@internal 是否是传感器，传感器能够触发碰撞事件，但不会产生碰撞反应*/
     private _isSensor: boolean = false;
