@@ -2445,7 +2445,6 @@ export class Sprite extends Node {
 
 
     /**
-     * @internal
      * @en Get the global matrix of the sprite.
      * @returns The global transformation matrix of the sprite.
      * @zh 获取精灵的全局矩阵。
@@ -2453,13 +2452,18 @@ export class Sprite extends Node {
      */
     getGlobalMatrix() {
         if (this._globalMatrix == null) this._globalMatrix = Matrix.create();
-        if (this.scene == null) { return this._globalMatrix; }
-        if (this._getGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Matrix)) {
+        //if (this.scene == null) { return this._globalMatrix; }
+        if (this.cacheGlobal && !this._getGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Matrix)) {
+            return this._globalMatrix;
+        } else {
             const style = this._style;
             this._globalMatrix.setMatrix(this._x, this._y, style.scaleX, style.scaleY, style.rotation, style.skewX, style.skewY, style.pivotX, style.pivotY);
-            Matrix.mul(this._globalMatrix, (<Sprite>this.parent).getGlobalMatrix(), this._globalMatrix);
-            this._setGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Matrix, false);
-            this._syncGlobalFlag(Sprite.Sprite_GlobalDeltaFlage_Matrix, true);
+            if (this.parent) {
+                Matrix.mul(this._globalMatrix, (<Sprite>this.parent).getGlobalMatrix(), this._globalMatrix);
+                this._setGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Matrix, false);
+                this._syncGlobalFlag(Sprite.Sprite_GlobalDeltaFlage_Matrix, true);
+            }
+
         }
         return this._globalMatrix;
     }

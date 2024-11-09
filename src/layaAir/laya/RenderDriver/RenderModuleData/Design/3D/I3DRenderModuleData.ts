@@ -48,44 +48,29 @@ export interface IBaseRenderNode {
     volumetricGI: IVolumetricGIData;
     lightProbUpdateMark: number;
     irradientMode: IrradianceMode;
-
     set_renderUpdatePreCall(call: any, fun: any): void;
     set_caculateBoundingBox(call: any, fun: any): void;
-
-
     /**
      * @internal
      * @param value 
      */
     setRenderelements(value: IRenderElement3D[]): void;
-
     /**
      * @internal
      * @param value 
      */
     setLightmapScaleOffset(value: Vector4): void;
-
     /**
      * @internal
      * @param value 
      */
     setCommonUniformMap(value: string[]): void;
-
-    // /**
-    //  * @internal
-    //  * @param index 
-    //  * @param mat 
-    //  */
-    // setOneMaterial(index: number, mat: Material): void;
-
     /**
      * @override
      * @internal
      */
     destroy(): void;
-
     _applyLightProb(): void;
-
     _applyReflection(): void;
 }
 

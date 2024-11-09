@@ -128,6 +128,9 @@ export class CommandBuffer2D {
         this._renderCMDs.length = 0;
     }
 
+    
+
+
     /**
      * @en Gets the number of commands contained in the command buffer
      * @zh 获取命令缓冲区包含的命令数量

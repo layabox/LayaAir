@@ -67,6 +67,8 @@ export class DrawMesh2DCMD extends Command2D {
     set material(value: Material) {
         if (value == this.material)
             return;
+        if(!value)
+           value = Mesh2DRender.mesh2DDefaultMaterial;
         this._mesh2DRender.sharedMaterial = value;
         this._needUpdateElement = true;
     }
