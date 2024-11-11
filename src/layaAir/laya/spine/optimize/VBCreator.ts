@@ -65,7 +65,7 @@ export abstract class VBCreator implements IGetBone {
      */
     vertexFlag:string;
 
-    constructor( maxVertexCount :number , vertexFlag:string , auto: boolean = true ) {
+    constructor( vertexFlag:string , maxVertexCount :number = 0,  auto: boolean = true ) {
         this.maxVertexCount = maxVertexCount;
         this.vertexFlag = vertexFlag;
 
@@ -78,8 +78,26 @@ export abstract class VBCreator implements IGetBone {
             this._vertexDeclaration = SpineMeshUtils.getVertexDeclaration(this.vertexFlag);
             this.twoColorTint = vertexFlag.indexOf("COLOR2") != -1;
             this._vertexSize = this._vertexDeclaration.vertexStride / 4;
-            this.vb = new Float32Array(this.maxVertexCount * this.vertexSize);
+            this._updateBuffer();
         }
+    }
+
+    /**
+	 * @en set vertex buffer length.
+	 * @param maxVertexCount The Max length of Vertex count.
+	 * @zh 设置顶点缓冲长度。
+	 * @param maxVertexCount 顶点缓存区最大个数。
+	 */
+    setBufferLength(maxVertexCount:number){
+        if (maxVertexCount <= this.maxVertexCount) return;
+        this.maxVertexCount = maxVertexCount;
+        this._updateBuffer();
+    }
+
+    protected _updateBuffer(){
+        let oldbuffer = this.vb;
+        this.vb = new Float32Array(this.maxVertexCount * this.vertexSize); 
+        if (oldbuffer) this.vb.set(oldbuffer);
     }
 
     get vertexSize(): number{
@@ -166,70 +184,14 @@ export abstract class VBCreator implements IGetBone {
         }
         offset = this.vbLength / this.vertexSize;
         map.set(attach.attachment, { offset: offset, attachment: attach });
-        if (attach.isPath) return offset;
+        if (!attach.vertexCount) return offset;
+        
+        if (offset + attach.vertexCount >= this.maxVertexCount) {//长度超标
+            this.setBufferLength(offset + attach.vertexCount);
+        }
+        
         this.vbLength = this.appendVertexArray(attach, this.vb, this.vbLength, this);
         return offset;
-    }
-
-    /**
-     * @en Create index buffer for attachments.
-     * @param attachs Array of attachment parse data.
-     * @param ibCreator Index buffer creator.
-     * @param order Optional draw order array.
-     * @zh 为附件创建索引缓冲区。
-     * @param attachs 附件解析数据数组。
-     * @param ibCreator 索引缓冲区创建器。
-     * @param order 可选的绘制顺序数组。
-     */
-    createIB(attachs: AttachmentParse[], ibCreator: IBCreator, order?: number[]) {
-        let offset = 0;
-        let slotVBMap = this.slotVBMap;
-        let drawOrder;
-        let getAttach: (value: any) => AttachmentParse;
-        if (order) {
-            drawOrder = order;
-            getAttach = function (value: any) {
-                return attachs[value];
-            }
-        }
-        else {
-            drawOrder = attachs;
-            getAttach = function (value: any) {
-                return value;
-            }
-        }
-        let outRenderData = new MultiRenderData();
-        let texture;
-        let blend;
-
-        let ib = ibCreator.ib;
-        for (let i = 0, n = drawOrder.length; i < n; i++) {
-            let attach = getAttach(drawOrder[i]);
-            if (attach.attachment && !attach.isPath) {
-                let needAdd = false;
-                if (texture != attach.textureName) {
-                    texture = attach.textureName;
-                    needAdd = true;
-                }
-                if (blend != attach.blendMode) {
-                    blend = attach.blendMode;
-                    needAdd = true;
-                }
-                if (needAdd) {
-                    if (outRenderData.currentData) {
-                        outRenderData.endData(offset);
-                    }
-                    outRenderData.addData(attach.textureName, attach.blendMode, offset, 0);
-                }
-                let attachPos = slotVBMap.get(attach.slotId).get(attach.attachment);
-                offset = SlotUtils.appendIndexArray(attach, ib, attachPos.offset, offset);
-            }
-        }
-        if (texture) {
-            outRenderData.endData(offset);
-        }
-        ibCreator.outRenderData = outRenderData;
-        ibCreator.ibLength = offset;
     }
 
     /**
@@ -335,7 +297,7 @@ export abstract class VBCreator implements IGetBone {
 export class VBBoneCreator extends VBCreator {
 
     _create(): VBCreator {
-        return new VBBoneCreator(this.maxVertexCount, this.vertexFlag , false);
+        return new VBBoneCreator( this.vertexFlag ,this.maxVertexCount,  false);
     }
 
     /**
@@ -440,20 +402,29 @@ export class VBBoneCreator extends VBCreator {
             }
         }
         else {
-            let f = 0;
-            for (let j = 0, n = slotVertex.length; j < n; j += attachmentParse.stride) {
-                let leftsize = vside - 6;
-                let ox = offset + 6;
-                for (let z = 0; z < leftsize / 4; z++) {
-                    let slotOffset = j + z * 4;
-                    if (slotVertex[slotOffset + 2]) {
-                        let offset = ox + z * 4;
-                        out[offset] = slotVertex[slotOffset] + deform[f];
-                        out[offset + 1] = slotVertex[slotOffset + 1] + deform[f + 1];
-                        f += 2;
-                    }
+            let attchment = attachmentParse.sourceData as spine.MeshAttachment;
+            let bones = attchment.bones;
+            let vertexCount = attachmentParse.vertexCount;
+            let maxbones = (vside - 6) / 4;
+            
+            let f = 0,v = 0;
+            for (let w = 0 ; w < vertexCount; w++) {
+                let len = bones[v++];
+                let slotOffset = w * (vside - 6);
+                let vertexOffset = offset + w * vside + 6;
+
+                for (let i = 0; i < len; i++) {
+                    if (i >= maxbones) break;
+
+                    let deformOffset = f + i * 2;
+                    let slotIndex = slotOffset + i * 4;
+                    let boneOffset = vertexOffset + i * 4;
+                    out[boneOffset] = slotVertex[slotIndex] + deform[deformOffset];
+                    out[boneOffset + 1] = slotVertex[slotIndex + 1] + deform[deformOffset + 1];
                 }
-                offset += vside;
+
+                v += len;
+                f += 2 * len;
             }
             // console.log(f , deform.length);
         }
@@ -467,7 +438,7 @@ export class VBBoneCreator extends VBCreator {
 export class VBRigBodyCreator extends VBCreator {
     /** @internal */
     _create(): VBCreator {
-        return new VBRigBodyCreator(this.maxVertexCount , this.vertexFlag , false);
+        return new VBRigBodyCreator(this.vertexFlag , this.maxVertexCount ,  false);
     }
 
     /**
@@ -490,17 +461,18 @@ export class VBRigBodyCreator extends VBCreator {
         if (attachmentParse.stride == 2) {
             let boneid = boneGet.getBoneId(attachmentParse.boneIndex);
             for (let j = 0, n = slotVertex.length; j < n; j += attachmentParse.stride) {
-                vertexArray[offset + 6] = slotVertex[j];
-                vertexArray[offset + 7] = slotVertex[j + 1];
+                ///////////uv
+                vertexArray[offset + 0] = uvs[j];
+                vertexArray[offset + 1] = uvs[j + 1];
                 ///////////color
                 vertexArray[offset + 2] = color.r;
                 vertexArray[offset + 3] = color.g;
                 vertexArray[offset + 4] = color.b;
                 vertexArray[offset + 5] = color.a;
 
-                ///////////uv
-                vertexArray[offset + 0] = uvs[j];
-                vertexArray[offset + 1] = uvs[j + 1];
+                vertexArray[offset + 6] = slotVertex[j];
+                vertexArray[offset + 7] = slotVertex[j + 1];
+
                 vertexArray[offset + 8] = boneid;
                 offset += vside;
             }

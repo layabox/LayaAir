@@ -86,6 +86,11 @@ export class AttachmentParse {
      * @zh 附件中的索引数量。
      */
     indexCount:number = 0;
+    /**
+     * @en Indicates if normal rendering is required.
+     * @zh 指示是否需要正常渲染。
+     */
+    isNormalRender: boolean = false;
 
     /**
      * @en Initializes the attachment parser with the given parameters.
@@ -172,24 +177,15 @@ export class AttachmentParse {
                         // }
                     }
                     // console.log(boneMap);
-                    if (result.length == needPoint) {
-
-                    }
-                    else if (result.length < needPoint) {
-                        let n = needPoint - result.length;
-                        for (let i = 0; i < n; i++) {
-                            result.push([0, 0, 0, 0]);
-                        }
-                    }
-                    else {
-                        result = result.sort((a: any, b: any) => {
-                            return b[2] - a[2];
-                        });
+                    if(result.length > needPoint) {
+                        console.error(`The max number of bones (${needPoint}) that can affect a vertex in FastRender mode. `);
                         result.length = needPoint;
+                        this.isNormalRender = true;
                     }
 
-                    for (let i = 0; i < result.length; i++) {
+                    for (let i = 0; i < needPoint; i++) {
                         let v: any = result[i];
+                        if (!v) continue
                         vertexArray[offset + i * 4] = v[0];
                         vertexArray[offset + i * 4 + 1] = v[1];
                         vertexArray[offset + i * 4 + 2] = v[2];

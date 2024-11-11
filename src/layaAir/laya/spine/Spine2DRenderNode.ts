@@ -191,12 +191,17 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
         this._source = value;
 
         if (value) {
-            ILaya.loader.load(value, Loader.SPINE).then((templet: SpineTemplet) => {
-                if (!this._source || templet && !templet.isCreateFromURL(this._source))
-                    return;
-
-                this.templet = templet;
-            });
+            let template = ILaya.loader.getRes(value, Loader.SPINE);
+            if (template) {
+                this.templet = template;
+            }else{
+                ILaya.loader.load(value, Loader.SPINE).then((templet: SpineTemplet) => {
+                    if (!this._source || templet && !templet.isCreateFromURL(this._source))
+                        return;
+    
+                    this.templet = templet;
+                });
+            }
         }
         else
             this.templet = null;
@@ -806,6 +811,7 @@ class TimeKeeper {
         this.timer = timer;
     }
     update() {
+        // this.delta =1 / 30;
         this.delta = this.timer.delta / 1000;
         if (this.delta > this.maxDelta)
             this.delta = this.maxDelta;

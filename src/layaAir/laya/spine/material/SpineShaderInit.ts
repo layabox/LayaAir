@@ -16,7 +16,7 @@ import { VertexElementFormat } from "../../renders/VertexElementFormat";
 import { SpineMeshUtils } from "../mesh/SpineMeshUtils";
 /**
  * @en SpineShaderInit class handles the initialization and management of Spine shader-related components.
- * @zh SpineShaderInit ÀàÓÃÓÚ´¦Àí Spine ×ÅÉ«Æ÷Ïà¹Ø×é¼şµÄ³õÊ¼»¯ºÍ¹ÜÀí¡£
+ * @zh SpineShaderInit ç±»ç”¨äºå¤„ç† Spine ç€è‰²å™¨ç›¸å…³ç»„ä»¶çš„åˆå§‹åŒ–å’Œç®¡ç†ã€‚
  */
 export class SpineShaderInit {
 
@@ -24,7 +24,7 @@ export class SpineShaderInit {
 
     /**
      * @en Vertex declaration for normal Spine rendering.
-     * @zh ÓÃÓÚÆÕÍ¨ Spine äÖÈ¾µÄ¶¥µãÉùÃ÷¡£
+     * @zh ç”¨äºæ™®é€š Spine æ¸²æŸ“çš„é¡¶ç‚¹å£°æ˜ã€‚
      */
     static SpineNormalVertexDeclaration: VertexDeclaration;
 
@@ -33,13 +33,13 @@ export class SpineShaderInit {
 
     /**
      * @en Vertex declaration for instance normal matrix.
-     * @zh ÊµÀı·¨Ïß¾ØÕóµÄ¶¥µãÉùÃ÷¡£
+     * @zh å®ä¾‹æ³•çº¿çŸ©é˜µçš„é¡¶ç‚¹å£°æ˜ã€‚
      */
     static instanceNMatrixDeclaration:VertexDeclaration;
     
     /**
      * @en Vertex declaration for instance simple animator.
-     * @zh ÊµÀı¼òµ¥¶¯»­Æ÷µÄ¶¥µãÉùÃ÷¡£
+     * @zh å®ä¾‹ç®€å•åŠ¨ç”»å™¨çš„é¡¶ç‚¹å£°æ˜ã€‚
      */
     static instanceSimpleAnimatorDeclaration:VertexDeclaration;
 
@@ -47,23 +47,34 @@ export class SpineShaderInit {
      * @en Set the blend mode for Spine material.
      * @param value The blend mode value.
      * @param mat The material to set the blend mode for.
-     * @zh ÉèÖÃ Spine ²ÄÖÊµÄ»ìºÏÄ£Ê½¡£
-     * @param value »ìºÏÄ£Ê½Öµ¡£
-     * @param mat ÒªÉèÖÃ»ìºÏÄ£Ê½µÄ²ÄÖÊ¡£
+     * @zh è®¾ç½® Spine æè´¨çš„æ··åˆæ¨¡å¼ã€‚
+     * @param value æ··åˆæ¨¡å¼å€¼ã€‚
+     * @param mat è¦è®¾ç½®æ··åˆæ¨¡å¼çš„æè´¨ã€‚
      */
     static SetSpineBlendMode(value: number, mat: Material) {
         switch (value) {
-            case 1: //light 
-            case 3: //screen
-                mat.blendSrc = RenderState.BLENDPARAM_ONE;
+            case 1: //Additive 
+                mat.blend = RenderState.BLEND_ENABLE_ALL;
+                mat.blendSrc = RenderState.BLENDPARAM_SRC_ALPHA;
                 mat.blendDst = RenderState.BLENDPARAM_ONE;
                 break;
-            case 2://multiply
+            case 3: //Screen
+                mat.blend = RenderState.BLEND_ENABLE_SEPERATE;
+                mat.blendSrcRGB = RenderState.BLENDPARAM_ONE;
+                mat.blendDstRGB = RenderState.BLENDPARAM_ONE_MINUS_SRC_COLOR;
+                mat.blendSrcAlpha = RenderState.BLENDPARAM_ONE;
+                mat.blendDstAlpha = RenderState.BLENDPARAM_ONE;
+                break;
+            case 2://Multiply
+                mat.blend = RenderState.BLEND_ENABLE_ALL;
+
                 mat.blendSrc = RenderState.BLENDPARAM_DST_COLOR;
                 mat.blendDst = RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA;
 
                 break;
             default://nomal
+                mat.blend = RenderState.BLEND_ENABLE_ALL;
+
                 mat.blendSrc = RenderState.BLENDPARAM_ONE;
                 mat.blendDst = RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA;
         }
@@ -72,8 +83,8 @@ export class SpineShaderInit {
     /**
      * @en Initialize the Spine material with default settings.
      * @param mat The material to initialize.
-     * @zh Ê¹ÓÃÄ¬ÈÏÉèÖÃ³õÊ¼»¯ Spine ²ÄÖÊ¡£
-     * @param mat Òª³õÊ¼»¯µÄ²ÄÖÊ¡£
+     * @zh ä½¿ç”¨é»˜è®¤è®¾ç½®åˆå§‹åŒ– Spine æè´¨ã€‚
+     * @param mat è¦åˆå§‹åŒ–çš„æè´¨ã€‚
      */
     static initSpineMaterial(mat: Material) {
         mat.alphaTest = false;
@@ -87,7 +98,7 @@ export class SpineShaderInit {
 
     /**
      * @en Property ID for bone matrix.
-     * @zh ¹Ç÷À¾ØÕóµÄÊôĞÔ ID¡£
+     * @zh éª¨éª¼çŸ©é˜µçš„å±æ€§ IDã€‚
      */
     static BONEMAT: number;
 
@@ -100,37 +111,37 @@ export class SpineShaderInit {
     /**
      * @internal
      * @en Simple animator texture.
-     * @zh ¼òµ¥¶¯»­Æ÷ÎÆÀí¡£
+     * @zh ç®€å•åŠ¨ç”»å™¨çº¹ç†ã€‚
      */
     static SIMPLE_SIMPLEANIMATORTEXTURE: number;
     /**
      * @internal
      * @en Simple animator parameters.
-     * @zh ¼òµ¥¶¯»­Æ÷²ÎÊı¡£
+     * @zh ç®€å•åŠ¨ç”»å™¨å‚æ•°ã€‚
      */
     static SIMPLE_SIMPLEANIMATORPARAMS: number;
     /**
      * @internal
      * @en Simple animator texture size.
-     * @zh ¼òµ¥¶¯»­Æ÷ÎÆÀí³ß´ç¡£
+     * @zh ç®€å•åŠ¨ç”»å™¨çº¹ç†å°ºå¯¸ã€‚
      */
     static SIMPLE_SIMPLEANIMATORTEXTURESIZE: number;
 
     /**
      * @en Property ID for Spine texture.
-     * @zh Spine ÎÆÀíµÄÊôĞÔ ID¡£
+     * @zh Spine çº¹ç†çš„å±æ€§ IDã€‚
      */
     static SpineTexture: number;
 
     /**
      * @en Shader define for fast Spine rendering.
-     * @zh ¿ìËÙ Spine äÖÈ¾µÄ×ÅÉ«Æ÷¶¨Òå¡£
+     * @zh å¿«é€Ÿ Spine æ¸²æŸ“çš„ç€è‰²å™¨å®šä¹‰ã€‚
      */
     static SPINE_FAST: ShaderDefine;
 
     /**
      * @en Shader define for Spine rendering with runtime blending.
-     * @zh ÔËĞĞÊ±»ìºÏ Spine äÖÈ¾µÄ×ÅÉ«Æ÷¶¨Òå¡£
+     * @zh è¿è¡Œæ—¶æ··åˆ Spine æ¸²æŸ“çš„ç€è‰²å™¨å®šä¹‰ã€‚
      */
     static SPINE_RB: ShaderDefine;
 
@@ -142,13 +153,13 @@ export class SpineShaderInit {
 
     /**
      * @en Shader define for GPU instance rendering.
-     * @zh GPU ÊµÀıäÖÈ¾µÄ×ÅÉ«Æ÷¶¨Òå¡£
+     * @zh GPU å®ä¾‹æ¸²æŸ“çš„ç€è‰²å™¨å®šä¹‰ã€‚
      */
     static SPINE_GPU_INSTANCE:ShaderDefine;
 
     /**
      * @en TextureSV Mesh Descript.
-     * @zh ÎÆÀí Spine ¶¥µãÊôĞÔÃèÊö¡£
+     * @zh çº¹ç† Spine é¡¶ç‚¹å±æ€§æè¿°ã€‚
      */
     public static readonly textureSpineAttribute: { [name: string]: [number, ShaderDataType] } = {
         'a_uv': [0, ShaderDataType.Vector2],
@@ -171,7 +182,7 @@ export class SpineShaderInit {
 
     /**
      * @en Initialize Spine shader-related components.
-     * @zh ³õÊ¼»¯ Spine ×ÅÉ«Æ÷Ïà¹Ø×é¼ş¡£
+     * @zh åˆå§‹åŒ– Spine ç€è‰²å™¨ç›¸å…³ç»„ä»¶ã€‚
      */
     static init() {
         Shader3D.addInclude("SpineVertex.glsl", spineVertex);
