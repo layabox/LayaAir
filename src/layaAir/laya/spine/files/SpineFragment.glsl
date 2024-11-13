@@ -42,7 +42,7 @@ vec4 getColor(){
             color.xyz = gammaToLinear(color.xyz);
         #endif
     #endif
-     return color*vColor;
+    return color*vColor;
 }
 
 void clip(){

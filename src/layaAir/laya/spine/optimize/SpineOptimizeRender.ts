@@ -1,4 +1,4 @@
-//@~AXIE:2.2
+
 import { BaseRender2DType, BaseRenderNode2D } from "../../NodeRender2D/BaseRenderNode2D";
 import { IIndexBuffer } from "../../RenderDriver/DriverDesign/RenderDevice/IIndexBuffer";
 import { IRenderGeometryElement } from "../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
@@ -244,7 +244,12 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
         this._nodeOwner = renderNode;
         let scolor = skeleton.color;
         this.spineColor = new Color(scolor.r , scolor.g, scolor.b , scolor.a);
-        let color = new Color(scolor.r, scolor.g, scolor.b , scolor.a * (this._nodeOwner.owner as Sprite).alpha);
+        let color =  renderNode._spriteShaderData.getColor(SpineShaderInit.Color) || new Color();
+        color.setValue(scolor.r, scolor.g, scolor.b , scolor.a );
+        if (renderNode._renderAlpha !== undefined) {
+            color.a *= renderNode._renderAlpha;
+        }else
+            color.a *= (renderNode.owner as Sprite).alpha;
         renderNode._spriteShaderData.setColor(SpineShaderInit.Color, color);
         this.skinRenderArray.forEach((value) => {
             value.init(skeleton, templet, renderNode);
