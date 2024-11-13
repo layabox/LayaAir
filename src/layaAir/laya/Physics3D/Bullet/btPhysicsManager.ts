@@ -953,12 +953,12 @@ export class btPhysicsManager implements IPhysicsManager {
         if (btcollider._isSimulate || !collider.active)
             return;
         btcollider._derivePhysicsTransformation(true);
-        this._physicsUpdateList.add(btcollider);
         switch (btcollider._type) {
             case btColliderType.StaticCollider:
                 this._bt.btCollisionWorld_addCollisionObject(this._btCollisionWorld, btcollider._btCollider, btcollider._collisionGroup, btcollider._canCollideWith);
                 break;
             case btColliderType.RigidbodyCollider:
+                this._physicsUpdateList.add(btcollider);
                 this._addRigidBody(btcollider);
                 break;
             case btColliderType.CharactorCollider:
