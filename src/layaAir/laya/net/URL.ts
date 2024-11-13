@@ -3,23 +3,34 @@ import { AssetDb } from "../resource/AssetDb";
 import { Utils } from "../utils/Utils";
 
 /**
- * <p><code>URL</code> 提供URL格式化，URL版本管理的类。</p>
- * <p>引擎加载资源的时候，会自动调用formatURL函数格式化URL路径</p>
- * <p>通过basePath属性可以设置网络基础路径</p>
- * <p>通过设置customFormat函数，可以自定义URL格式化的方式</p>
+ * @en The `URL` class provides URL formatting and version management.
+ * - The engine automatically calls the formatURL function to format URL paths when loading resources.
+ * - You can set the network base path through the basePath property.
+ * - By setting the customFormat function, you can customize the way URLs are formatted.
+ * @zh `URL` 类提供URL格式化和版本管理功能。
+ * - 引擎加载资源时，会自动调用formatURL函数格式化URL路径。
+ * - 通过basePath属性可以设置网络基础路径。
+ * - 通过设置customFormat函数，可以自定义URL格式化的方式。
  */
 export class URL {
-    /**URL地址版本映射表，比如{"aaa/bb.png":"edcba","aaa/bb.png":"1342a"}，默认情况下，通过formatURL格式化后，会自动生成为"aaa/bb-1342a.png"的一个地址*/
+    /**
+     * @en URL address version mapping table. For example, {"aaa/bb.png":"edcba","aaa/bb.png":"1342a"}. By default, after formatting through formatURL, it will automatically generate an address like "aaa/bb-1342a.png".
+     * @zh URL地址版本映射表。例如，{"aaa/bb.png":"edcba","aaa/bb.png":"1342a"}。默认情况下，通过formatURL格式化后，会自动生成为"aaa/bb-1342a.png"的地址。
+     */
     static version: Record<string, string> = {};
 
-    /**基础路径。如果不设置，默认为当前网页的路径。最终地址将被格式化为 basePath+相对URL地址，*/
-    static basePath: string;
-    /**扩展的基础路径映射表，比如{"aa/":"http://abc.com/"},则把路径以aa/开头的资源映射到http://abc.com/下*/
+    /**
+     * @en Base path. If not set, it defaults to the path of the current web page. The final address will be formatted as basePath + relative URL address.
+     * @zh 基础路径。如果不设置，默认为当前网页的路径。最终地址将被格式化为 basePath + 相对URL地址。
+     */
+    static basePath: string = "";
+    /**
+     * @en Extended base path mapping table. For example, {"aa/":"http://abc.com/"}, then resources with paths starting with aa/ will be mapped to http://abc.com/.
+     * @zh 扩展的基础路径映射表。例如，{"aa/":"http://abc.com/"}，则把路径以aa/开头的资源映射到http://abc.com/下。
+     */
     static basePaths: Record<string, string> = {};
 
-    /**@private */
     private _url: string;
-    /**@private */
     private _path: string;
 
     private static overrideFileExts: Record<string, string> = {};
@@ -47,6 +58,10 @@ export class URL {
             URL.basePath = (location && location.protocol != undefined && location.protocol != "") ? URL.getPath(location.protocol + "//" + location.host + location.pathname) : "";
     }
 
+    /**
+     * @en Initialize file extension overrides for mini-game.
+     * @zh 初始化小游戏的文件扩展名覆盖。
+     */
     static initMiniGameExtensionOverrides() {
         if (LayaEnv.isPreview)
             return;
@@ -56,23 +71,37 @@ export class URL {
         this.usingSafeFileExts = true;
     }
 
-    /**创建一个新的 <code>URL</code> 实例。*/
+    /**
+     * @en Create a new `URL` instance.
+     * @param url The URL to be formatted.
+     * @zh 创建一个新的 `URL` 实例。
+     * @param url 要格式化的URL地址。
+     */
     constructor(url: string) {
         this._url = URL.formatURL(url);
         this._path = URL.getPath(url);
     }
 
-    /**格式化后的地址。*/
+    /**
+     * @en The formatted address.
+     * @zh 格式化后的地址。
+     */
     get url(): string {
         return this._url;
     }
 
-    /**地址的文件夹路径（不包括文件名）。*/
+    /**
+     * @en The folder path of the address (excluding the file name).
+     * @zh 地址的文件夹路径（不包括文件名）。
+     */
     get path(): string {
         return this._path;
     }
 
-    /** 自定义URL格式化的方式。例如： customFormat = function(url:String):String{} */
+    /**
+     * @en Custom URL formatting function. For example: customFormat = function(url:String):String{}
+     * @zh 自定义URL格式化的方式。例如：customFormat = function(url:String):String{}
+     */
     static customFormat: Function = function (url: string): string {
         return url;
     }
@@ -119,27 +148,30 @@ export class URL {
                 url = url.substring(0, i) + "-" + ver + url.substring(i);
             }
 
-            if (base == null) {
-                base = URL.basePath;
-                for (let k in URL.basePaths) {
-                    if (url.startsWith(k)) {
+                if (base == null) {
+                    base = URL.basePath;
+                    for (let k in URL.basePaths) {
+                        if (url.startsWith(k)) {
                         if (k.charCodeAt(0) === 126)
                             url = url.substring(k.length);
-                        base = URL.basePaths[k];
-                        break;
+                            base = URL.basePaths[k];
+                            break;
+                        }
                     }
                 }
-            }
-            url = URL.join(base, url);
+                url = URL.join(base, url);
         }
 
         return url;
     }
 
     /**
-     * 处理扩展名的自动转换
-     * @param url 地址。
-     * @return 格式化处理后的地址。
+     * @en Process automatic conversion of file extensions.
+     * @param url The address to be processed.
+     * @returns The processed address.
+     * @zh 处理扩展名的自动转换。
+     * @param url 要处理的地址。
+     * @return 处理后的地址。
      */
     static postFormatURL(url: string): string {
         if (URL.hasExtOverrides) {
@@ -153,7 +185,12 @@ export class URL {
     }
 
     /**
-     * 格式化相对路径。主要是处理.和..这些情况。
+     * @en Normalize a relative path. Mainly handles cases with '.' and '..'.
+     * @param url The URL to normalize.
+     * @returns The normalized URL.
+     * @zh 格式化相对路径。主要是处理 '.' 和 '..' 这些情况。
+     * @param url 要格式化的路径。
+     * @return 格式化后的路径。
      */
     static normalize(url: string): string {
         if (url.indexOf("./") == -1)
@@ -184,6 +221,14 @@ export class URL {
         return parts.join('/');
     }
 
+    /**
+     * @en Get the resource URL by UUID.
+     * @param url The input URL or UUID.
+     * @returns The resource URL.
+     * @zh 通过 UUID 获取资源 URL。
+     * @param url 输入的 URL 或 UUID。
+     * @return 资源 URL。
+     */
     static getResURLByUUID(url: string): string {
         if (Utils.isUUID(url))
             return "res://" + url;
@@ -192,10 +237,15 @@ export class URL {
     }
 
     /**
-    * 组合相对路径并格式化
-    * @param base
-    * @param path
-    */
+     * @en Combine and normalize relative paths.
+     * @param base The base path.
+     * @param path The path to join.
+     * @returns The combined and normalized path.
+     * @zh 组合相对路径并格式化。
+     * @param base 基础路径。
+     * @param path 要合并的路径。
+     * @return 合并并格式化后的路径。
+     */
     static join(base: string, path: string): string {
         if (!path) return "";
 
@@ -217,10 +267,12 @@ export class URL {
     }
 
     /**
-     * 获取指定 URL 的文件夹路径（不包括文件名）。
-     * <p><b>注意：</b>末尾有斜杠（/）。</p>
-     * @param url url地址。
-     * @return 返回文件夹路径。
+     * @en Get the folder path of the specified URL (excluding the file name). Note: the returned path has a trailing slash (/).
+     * @param url The URL address.
+     * @returns The folder path with a trailing slash (/).
+     * @zh 获取指定 URL 的文件夹路径（不包括文件名）。注意：末尾有斜杠（/）。
+     * @param url 地址。
+     * @return 文件夹路径。
      */
     static getPath(url: string): string {
         var ofs: number = url.lastIndexOf('/');
@@ -228,9 +280,12 @@ export class URL {
     }
 
     /**
-     * 获取指定 URL 的文件名。
+     * @en Get the file name of the specified URL.
+     * @param url The URL address.
+     * @returns The file name.
+     * @zh 获取指定 URL 的文件名。
      * @param url 地址。
-     * @return 返回文件名。
+     * @return 文件名。
      */
     static getFileName(url: string): string {
         var ofs: number = url.lastIndexOf('/');
@@ -238,9 +293,12 @@ export class URL {
     }
 
     /**
-     * 获取URL版本字符。
-     * @param url
-     * @return
+     * @en Get the version string of the URL.
+     * @param url The URL to check.
+     * @returns The version string or null if not found.
+     * @zh 获取 URL 版本字符。
+     * @param url 要检查的 URL。
+     * @return 版本字符串或 null（如果未找到）。
      */
     static getURLVerion(url: string): string {
         var index: number = url.indexOf("?");
@@ -248,7 +306,10 @@ export class URL {
     }
 
     /**
-     * 下载时，转换URL的扩展名。
+     * @en Override the file extension for downloading.
+     * @param originalExts The original extensions. For example, ["scene"].
+     * @param targetExt The target extension to convert to. For example, "json".
+     * @zh 下载时，转换 URL 的扩展名。
      * @param originalExts 原始扩展名。例如["scene"]。
      * @param targetExt 要转换为的扩展名。例如"json"。
      */
