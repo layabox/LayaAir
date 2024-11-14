@@ -527,6 +527,17 @@ export class Animator2D extends Component {
             this.gotoAndStop(name, layerIndex, normalizedTime);
         }
     }
+    /**
+     * @en Gets the controller layer.
+     * @param layerIndex The layer index. Defaults to 0.
+     * @returns The AnimatorControllerLayer at the specified index.
+     * @zh 获取控制器层。
+     * @param	layerIndex 层索引。
+     * @return 指定索引处的AnimatorControllerLayer。
+     */
+    getControllerLayer(layerInex: number = 0): AnimatorControllerLayer2D {
+        return this._controllerLayers[layerInex];
+    }
 
     /**
      * @en Jump to the specified time and stop playing the animation.
