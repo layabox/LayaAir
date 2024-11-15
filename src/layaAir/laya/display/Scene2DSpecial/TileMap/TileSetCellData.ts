@@ -1,20 +1,19 @@
-import { Color } from "../../../maths/Color";
-import { Vector2 } from "../../../maths/Vector2";
-import { Material } from "../../../resource/Material";
-import { TileAlternativesData } from "./TileAlternativeData";
+
+import { TileMapUtils } from "./TileMapUtils";
+import { TileAlternativesData } from "./TileAlternativesData";
 import { TileMap_CustomDataVariant, TillMap_CellNeighbor } from "./TileMapEnum";
 import { TILEMAPLAYERDIRTYFLAG } from "./TileMapLayer";
 import { TileMapLayerRenderTile } from "./TileMapLayerRenderTile";
-import { TileSet } from "./TileSet";
+import { Color } from "../../../maths/Color";
+import { Vector2 } from "../../../maths/Vector2";
+import { Vector4 } from "../../../maths/Vector4";
+import { Material } from "../../../resource/Material";
 
 
 class TileSetCellData_Light {
     //根据light功能定义
 }
 
-class TileSetCellData_PhysicsInfo {
-    //根据想实现的物理功能定义 
-}
 
 class TileSetCellData_NavigationInfo {
     //根据想实现的Navigation定义
@@ -25,11 +24,15 @@ class TileSetCellData_CustomData {
     value: number | boolean | string | Object;
 }
 
+
+
 /**
  * TileMap中一个Cell的数据结构
  */
+
 export class TileSetCellData {
 
+    private _index: number = 0;
     private _cellowner: TileAlternativesData;
 
     private _flip_h: boolean = false;
@@ -37,6 +40,8 @@ export class TileSetCellData {
     private _flip_v: boolean = false;
 
     private _transpose: boolean = false;
+
+    private _rotateCount: number = 0;
 
     private _texture_origin: Vector2;//单位像素
 
@@ -50,7 +55,7 @@ export class TileSetCellData {
 
     private _lightOccluders: TileSetCellData_Light[];
 
-    private _physics: TileSetCellData_PhysicsInfo[];
+    private _physics: number[];
 
     private _customDatas: TileSetCellData_CustomData[];
     //是否有地形
@@ -60,9 +65,15 @@ export class TileSetCellData {
 
     private _notiveRenderTile: TileMapLayerRenderTile[];
 
-    //随机值
-    private _probability: number;
+    //贴图旋转矩阵
+    _transData: Vector4 = new Vector4();
 
+    //随机值
+    private _probability: number = 1;
+
+    /**
+     * 原始顶点图块的引用
+     */
     public get cellowner(): TileAlternativesData {
         return this._cellowner;
     }
@@ -71,6 +82,9 @@ export class TileSetCellData {
         this._cellowner = value;
     }
 
+    /**
+     *  是否垂直翻转
+     */
     public get flip_h(): boolean {
         return this._flip_h;
     }
@@ -78,9 +92,11 @@ export class TileSetCellData {
     public set flip_h(value: boolean) {
         this._flip_h = value;
         this._notifyDataChange(TILEMAPLAYERDIRTYFLAG.CELL_UVTRAN);
-        TILEMAPLAYERDIRTYFLAG.CELL_QUADUV
     }
 
+    /**
+     * 是否水平翻转
+     */
     public get flip_v(): boolean {
         return this._flip_v;
     }
@@ -94,11 +110,29 @@ export class TileSetCellData {
         return this._transpose;
     }
 
+    /**
+     * 是否转置
+     */
     public set transpose(value: boolean) {
         this._transpose = value;
         this._notifyDataChange(TILEMAPLAYERDIRTYFLAG.CELL_UVTRAN);
     }
 
+    /**
+     * 旋转次数
+     */
+    public get rotateCount(): number {
+        return this._rotateCount;
+    }
+
+    public set rotateCount(value: number) {
+        this._rotateCount = value;
+        this._notifyDataChange(TILEMAPLAYERDIRTYFLAG.CELL_UVTRAN);
+    }
+
+    /**
+     * 贴图原点
+     */
     public get texture_origin(): Vector2 {
         return this._texture_origin;
     }
@@ -108,6 +142,9 @@ export class TileSetCellData {
         this._notifyDataChange(TILEMAPLAYERDIRTYFLAG.CELL_QUAD);
     }
 
+    /**
+     * 材质
+     */
     public get material(): Material {
         return this._material;
     }
@@ -117,6 +154,9 @@ export class TileSetCellData {
         this._notifyDataChange(TILEMAPLAYERDIRTYFLAG.CELL_CHANGE);
     }
 
+    /**
+     * 颜色
+     */
     public get colorModulate(): Color {
         return this._colorModulate;
     }
@@ -126,13 +166,25 @@ export class TileSetCellData {
         this._notifyDataChange(TILEMAPLAYERDIRTYFLAG.CELL_COLOR);
     }
 
+    /**
+     * 生成地形时概率
+     */
+    public get probability(): number {
+        return this._probability;
+    }
+    public set probability(value: number) {
+        this._probability = value;
+    }
+
+    /**
+     * z_index
+     */
     public get z_index(): number {
         return this._z_index;
     }
 
     public set z_index(value: number) {
         this._z_index = value;
-        //TODO Flag Dirty
     }
 
     public get y_sort_origin(): number {
@@ -152,19 +204,21 @@ export class TileSetCellData {
         this._terrain_set = value;
     }
 
-    public get probability(): number {
-        return this._probability;
+    public set physics(value: number[]) {
+        this._physics = value;
     }
-    public set probability(value: number) {
-        this._probability = value;
+
+    public get physics(): number[] {
+        return this._physics;
     }
 
     //custom module
-    constructor(owner: TileAlternativesData, index: number) {
-        this._cellowner = owner;
+    constructor() {
+        this._notiveRenderTile = [];
         this._flip_h = false;
         this._flip_v = false;
-        this.transpose = false;
+        this._transpose = false;
+        this._rotateCount = 0;
         this._texture_origin = new Vector2();
         this._colorModulate = new Color(1, 1, 1, 1);
         this._z_index = 0;
@@ -172,14 +226,28 @@ export class TileSetCellData {
         this._terrain_set = false;
     }
 
-    _notifyDataChange(data: TILEMAPLAYERDIRTYFLAG) {
-        this._notiveRenderTile.forEach(element => {
-            element._setDirtyFlag(this, data);
-        });
+    /**
+     * 初始化引用数据
+     * @param owner 
+     * @param index 
+     */
+    __init(owner: TileAlternativesData, index: number) {
+        this._index = index;
+        this._cellowner = owner;
     }
 
-    _getPosOffset() {
-        return this._texture_origin;//unit pixel
+    public getGid(): number {
+        return TileMapUtils.getGid(this._index, this._cellowner.getId());
+    }
+
+    _notifyDataChange(data: number) {
+        if (!this.cellowner) return;
+        let tileshape = this.cellowner.owner._owner.tileShape;
+        let out = TileMapUtils.getUvRotate(tileshape, this._flip_v, this._flip_h, this._transpose, this._rotateCount);
+        out.cloneTo(this._transData);
+        this._notiveRenderTile.forEach(element => {
+            element._setDirtyFlag(this.getGid(), data);
+        });
     }
 
     _removeNoticeRenderTile(layerRenderTile: TileMapLayerRenderTile) {
@@ -199,16 +267,6 @@ export class TileSetCellData {
     }
 
     _remove_lightOccluders(layerIndex: number) {
-        //TODO
-    }
-
-    //move_lightOccluders 
-
-    setPhysics(layerIndex: number, data: TileSetCellData_PhysicsInfo) {
-        //TODO
-    }
-
-    _remove_physics(layerIndex: number, data: TileSetCellData_PhysicsInfo) {
         //TODO
     }
 
@@ -270,6 +328,7 @@ export class TileSetCellData {
 
     }
 
+
     //删除
     destroy() {
         this._notiveRenderTile.forEach(element => {
@@ -277,4 +336,6 @@ export class TileSetCellData {
         });
         //destroy data TODO
     }
+
+
 }
