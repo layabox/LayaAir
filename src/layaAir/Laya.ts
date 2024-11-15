@@ -264,7 +264,7 @@ export class Laya {
         //Init internal 2D Value2D
         Value2D._initone(RenderSpriteData.Texture2D, TextureSV);
         Value2D._initone(RenderSpriteData.Primitive, PrimitiveSV);
-        TileMapLayer.__init__();
+        //TileMapLayer.__init__();
     }
 
     /**
