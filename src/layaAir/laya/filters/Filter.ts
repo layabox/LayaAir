@@ -133,9 +133,9 @@ export abstract class Filter extends EventDispatcher implements IFilter {
         var next = this._next;
         if (!next) return;
 
-        var filters = sprite.filters, len = filters.length , renderNode = sprite.renderNode2D;
+        var filters = sprite.filters, len = filters.length;
         //如果只有一个滤镜，那么还用原来的方式
-        if (len == 1 && !renderNode && (filters[0].type == Filter.COLOR)) {
+        if (len == 1 && (filters[0].type == Filter.COLOR)) {
             context.save();
             context.setColorFilter(filters[0] as ColorFilter);
             next._fun.call(next, sprite, context, x, y);

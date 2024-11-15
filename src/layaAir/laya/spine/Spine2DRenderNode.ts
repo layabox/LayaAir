@@ -31,6 +31,9 @@ import { Sprite } from "../display/Sprite";
 import { Color } from "../maths/Color";
 import { Rectangle } from "../maths/Rectangle";
 import { SpriteConst } from "../display/SpriteConst";
+import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
+import { Matrix4x4 } from "../maths/Matrix4x4";
+import { Vector4 } from "../maths/Vector4";
 
 /**
  * @en The spine animation consists of three parts: `SpineTemplet`, `SpineSkeletonRender`, and `SpineSkeleton`.
@@ -131,7 +134,8 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
 
     private _externalSkins: ExternalSkin[];
     private _skin: string;
-    private _oldAlpha: number;
+    /** @internal */
+    _renderAlpha: number;
 
     private _matBuffer: Float32Array = new Float32Array(6);
     /** @ignore */
@@ -169,6 +173,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
      * @param py Y坐标
      */
     addCMDCall(context: Context, px: number, py: number) {
+        let shaderData = this._spriteShaderData;
         let mat = context._curMat;
         let buffer = this._matBuffer;
         buffer[0] = mat.a;
@@ -177,17 +182,30 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
         buffer[3] = mat.b;
         buffer[4] = - mat.d;
         buffer[5] = mat.ty + mat.b * px + mat.d * py;
-        this._spriteShaderData.setBuffer(SpineShaderInit.NMatrix, buffer);
+        shaderData.setBuffer(SpineShaderInit.NMatrix, buffer);
         Vector2.TempVector2.setValue(context.width, context.height);
-        this._spriteShaderData.setVector2(SpineShaderInit.Size, Vector2.TempVector2);
-        // context.globalAlpha
-        if (this._oldAlpha !==  context.globalAlpha) {
+        shaderData.setVector2(SpineShaderInit.Size, Vector2.TempVector2);
+
+        if (this._renderAlpha !==  context.globalAlpha) {
             let scolor = this.spineItem.getSpineColor();
-            let a = scolor.a *  context.globalAlpha;
-            let color = new Color(scolor.r , scolor.g , scolor.b , a);
-            this._spriteShaderData.setColor(SpineShaderInit.Color, color);
-            this._oldAlpha =  context.globalAlpha;
+            let a = scolor.a * context.globalAlpha;
+            let color = shaderData.getColor(SpineShaderInit.Color) || new Color();
+            color.setValue(scolor.r , scolor.g , scolor.b , a);
+            shaderData.setColor(SpineShaderInit.Color, color);
+            this._renderAlpha =  context.globalAlpha;
         }
+        // 兼容 colorfilter
+        let filter = context._colorFiler;
+        if (filter) {
+            this._spriteShaderData.addDefine(ShaderDefines2D.FILTERCOLOR);
+            Matrix4x4.TEMPMatrix0.cloneByArray(filter._mat);
+            shaderData.setMatrix4x4(ShaderDefines2D.UNIFORM_COLORMAT, Matrix4x4.TEMPMatrix0);
+            Vector4.tempVec4.setValue(filter._alpha[0], filter._alpha[1], filter._alpha[2], filter._alpha[3]);
+            shaderData.setVector(ShaderDefines2D.UNIFORM_COLORALPHA, Vector4.tempVec4);
+        }else{
+            this._spriteShaderData.removeDefine(ShaderDefines2D.FILTERCOLOR);
+        }
+
         context._copyClipInfoToShaderData(this._spriteShaderData);
     }
 
