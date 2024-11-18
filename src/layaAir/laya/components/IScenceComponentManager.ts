@@ -1,24 +1,23 @@
 /**
  * @en Interface for the overall management of a type of component within a 3D scene.
- * @zh ÓÃÓÚ3D³¡¾°ÖĞÄ³ÀàĞÍ×é¼şµÄÈ«Ãæ¹ÜÀíµÄ½Ó¿Ú¡£
+ * @zh ç”¨äºå…¨é¢ç®¡ç†åœºæ™¯ä¸­çš„æŸä¸€ç±»ç»„ä»¶çš„ç•Œé¢ã€‚
  */
 export interface IElementComponentManager {
-
     /**
-     * @en An internal identifier used to find the manager by Scene3D.
-     * @zh ÓÉScene3DÓÃÀ´²éÕÒ¹ÜÀíÆ÷µÄÄÚ²¿Ãû³Æ¡£
+     * @en An internal identifier used to find the manager by Scene.
+     * @zh ç”¨äºæŒ‰SceneæŸ¥æ‰¾ç®¡ç†å™¨çš„å†…éƒ¨æ ‡è¯†ç¬¦ã€‚
      */
     name: string;
 
     /**
-     * @en Initialization method called during Scene3D initialization.
-     * @zh ÔÚScene3D³õÊ¼»¯ÆÚ¼äµ÷ÓÃµÄ·½·¨¡£
+     * @en Initialization method called during Scene initialization.
+     * @zh åœ¨Sceneåˆå§‹åŒ–æœŸé—´è°ƒç”¨çš„åˆå§‹åŒ–æ–¹æ³•ã€‚
      */
-    Init(data: any): void;
+    init(data: any): void;
 
     /**
      * @en Update method called every frame in the render loop.
-     * @zh ÔÚäÖÈ¾Ñ­»·ÖĞÃ¿Ö¡µ÷ÓÃµÄ¸üĞÂ·½·¨¡£
+     * @zh åœ¨æ¸²æŸ“å¾ªç¯ä¸­çš„æ¯å¸§è°ƒç”¨
      */
     update(dt: number): void;
 }

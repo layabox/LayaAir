@@ -1,4 +1,6 @@
 import { LayaGL } from "../../../layagl/LayaGL";
+import { Color } from "../../../maths/Color";
+import { Matrix } from "../../../maths/Matrix";
 import { Rectangle } from "../../../maths/Rectangle";
 import { Vector3 } from "../../../maths/Vector3";
 import { RenderState } from "../../../RenderDriver/RenderModuleData/Design/RenderState";
@@ -6,14 +8,18 @@ import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTarge
 import { WrapMode } from "../../../RenderEngine/RenderEnum/WrapMode";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { Material } from "../../../resource/Material";
+import { Mesh2D } from "../../../resource/Mesh2D";
+import { RenderTexture } from "../../../resource/RenderTexture";
 import { RenderTexture2D } from "../../../resource/RenderTexture2D";
+import { Texture2D } from "../../../resource/Texture2D";
 import { Browser } from "../../../utils/Browser";
 import { Scene } from "../../Scene";
 import { Sprite } from "../../Sprite";
-import { Mesh2DRender } from "../Mesh2DRender";
+import { CommandBuffer2D } from "../RenderCMD2D/CommandBuffer2D";
+import { DrawMesh2DCMD } from "../RenderCMD2D/DrawMesh2DCMD";
+import { Set2DRTCMD } from "../RenderCMD2D/Set2DRenderTargetCMD";
 import { BaseLight2D, Light2DType } from "./BaseLight2D";
 import { Light2DManager } from "./Light2DManager";
-import { ShowRenderTarget } from "./ShowRenderTarget";
 
 /**
  * 聚灯光
@@ -26,8 +32,9 @@ export class SpotLight2D extends BaseLight2D {
     private _falloffIntensity: number = 1; //边缘衰减系数，数越大，边缘变淡越快（0-10）
 
     //用于生成灯光贴图
-    private _sprite: Sprite;
-    private _render: Mesh2DRender;
+    private _cmdBuffer: CommandBuffer2D;
+    private _cmdRT: Set2DRTCMD;
+    private _cmdMesh: DrawMesh2DCMD;
     private _material: Material;
 
     constructor(innerRadius: number = 100, outerRadius: number = 200, innerAngle: number = 360, outerAngle: number = 360, falloff: number = 1) {
@@ -40,7 +47,6 @@ export class SpotLight2D extends BaseLight2D {
         this._falloffIntensity = falloff;
         this._limitParam();
 
-        this._sprite = new Sprite();
         this._material = new Material();
         this._material.setShaderName('LightGen2D');
         this._material.setBoolByIndex(Shader3D.DEPTH_WRITE, false);
@@ -50,8 +56,7 @@ export class SpotLight2D extends BaseLight2D {
         this._material.setIntByIndex(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ONE);
         this._material.setIntByIndex(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE);
         this._material.setIntByIndex(Shader3D.CULL, RenderState.CULL_NONE);
-        this._render = this._sprite.addComponent(Mesh2DRender);
-        this._render.sharedMaterial = this._material;
+        this._cmdBuffer = new CommandBuffer2D('Light2DRender_Freeform'); //渲染灯光贴图的命令流
     }
 
     /**
@@ -64,15 +69,17 @@ export class SpotLight2D extends BaseLight2D {
 
     /**
      * @en Set inner circle radius
+     * @param value Radius value
      * @zh 设置内圆半径
+     * @param value 半径值
      */
     set innerRadius(value: number) {
         if (this._innerRadius !== value) {
             this._innerRadius = value;
-            this.updateMark++;
             this._needUpdateLight = true;
+            this._needUpdateLightLocalRange = true;
             this._needUpdateLightWorldRange = true;
-            this.calcLocalRange();
+            super._clearScreenCache();
             this._limitParam();
         }
     }
@@ -87,15 +94,17 @@ export class SpotLight2D extends BaseLight2D {
 
     /**
      * @en Set outer circle radius
+     * @param value Radius value
      * @zh 设置外圆半径
+     * @param value 半径值
      */
     set outerRadius(value: number) {
         if (this._outerRadius !== value) {
             this._outerRadius = value;
-            this.updateMark++;
             this._needUpdateLight = true;
+            this._needUpdateLightLocalRange = true;
             this._needUpdateLightWorldRange = true;
-            this.calcLocalRange();
+            super._clearScreenCache();
             this._limitParam();
         }
     }
@@ -110,12 +119,13 @@ export class SpotLight2D extends BaseLight2D {
 
     /**
      * @en Set inner fan angle
+     * @param value Angle value
      * @zh 设置内扇形张角
+     * @param value 角度值
      */
     set innerAngle(value: number) {
         if (this._innerAngle !== value) {
             this._innerAngle = value;
-            this.updateMark++;
             this._needUpdateLight = true;
             this._limitParam();
         }
@@ -131,12 +141,13 @@ export class SpotLight2D extends BaseLight2D {
 
     /**
      * @en Set outer fan angle
+     * @param value Angle value
      * @zh 设置外扇形张角
+     * @param value 角度值
      */
     set outerAngle(value: number) {
         if (this._outerAngle !== value) {
             this._outerAngle = value;
-            this.updateMark++;
             this._needUpdateLight = true;
             this._limitParam();
         }
@@ -152,22 +163,24 @@ export class SpotLight2D extends BaseLight2D {
 
     /**
      * @en Set the edge attenuation coefficient
+     * @param value Attenuation value
      * @zh 设置边缘衰减系数
+     * @param value 衰减系数值
      */
     set falloffIntensity(value: number) {
         if (this._falloffIntensity !== value) {
             this._falloffIntensity = value;
-            this.updateMark++;
             this._needUpdateLight = true;
             this._limitParam();
         }
     }
 
     /**
-     * @en Calculate light range（local）
-     * @zh 计算灯光范围（局部坐标）
+     * @internal
+     * 计算灯光范围（局部坐标）
      */
-    protected calcLocalRange() {
+    protected _calcLocalRange() {
+        super._calcLocalRange();
         const w = this._outerRadius * 2.1 * Browser.pixelRatio | 0;
         const h = this._outerRadius * 2.1 * Browser.pixelRatio | 0;
         this._localRange.x = (-0.5 * w) | 0;
@@ -177,68 +190,85 @@ export class SpotLight2D extends BaseLight2D {
     }
 
     /**
-     * @en Calculate light range（world）
-     * @zh 计算灯光范围（世界坐标）
+     * @internal
+     * 计算灯光范围（世界坐标）
      * @param screen 
      */
-    protected calcWorldRange(screen?: Rectangle) {
-        super.calcWorldRange(screen);
-        const w = this._outerRadius * 2.1 * Browser.pixelRatio | 0;
-        const h = this._outerRadius * 2.1 * Browser.pixelRatio | 0;
+    protected _calcWorldRange(screen?: Rectangle) {
+        super._calcWorldRange(screen);
+        super._lightScaleAndRotation();
+
+        const sx = Math.abs((this.owner as Sprite).globalScaleX);
+        const sy = Math.abs((this.owner as Sprite).globalScaleY);
+        const w = this._outerRadius * 2.1 * Browser.pixelRatio * Math.max(sx, sy) | 0;
+        const h = this._outerRadius * 2.1 * Browser.pixelRatio * Math.max(sx, sy) | 0;
         this._worldRange.x = (-0.5 * w + (this.owner as Sprite).globalPosX * Browser.pixelRatio) | 0;
         this._worldRange.y = (-0.5 * h + (this.owner as Sprite).globalPosY * Browser.pixelRatio) | 0;
         this._worldRange.width = w;
         this._worldRange.height = h;
-        (this.owner?.scene as Scene)?._light2DManager?.needUpdateLightRange();
     }
 
     /**
      * @en Render light texture
+     * @param scene Scene object
      * @zh 渲染灯光贴图
-     * @param scene 
+     * @param scene 场景对象
      */
     renderLightTexture(scene: Scene) {
         super.renderLightTexture(scene);
         if (this._needUpdateLight) {
             this._needUpdateLight = false;
-            this.updateMark++;
-            const range = this._getRange();
+            const width = this._localRange.width;
+            const height = this._localRange.height;
+            if (width === 0 || height === 0) return;
             if (!this._texLight || !(this._texLight instanceof RenderTexture2D)) {
-                this._texLight = new RenderTexture2D(range.width, range.height, RenderTargetFormat.R8G8B8A8);
+                this._texLight = new RenderTexture2D(width, height, RenderTargetFormat.R8G8B8A8);
                 this._texLight.wrapModeU = WrapMode.Clamp;
                 this._texLight.wrapModeV = WrapMode.Clamp;
                 (this._texLight as RenderTexture2D)._invertY = LayaGL.renderEngine._screenInvertY;
+                if (!this._cmdRT)
+                    this._cmdRT = Set2DRTCMD.create(this._texLight as RenderTexture, true, Color.BLACK, LayaGL.renderEngine._screenInvertY);
+                else this._cmdRT.renderTexture = this._texLight as RenderTexture;
                 if (Light2DManager.DEBUG)
-                    console.log('create spot light texture', range.width, range.height);
+                    console.log('create spot light texture', width, height);
             }
-            else if (this._texLight.width !== range.width || this._texLight.height !== range.height) {
+            else if (this._texLight.width !== width || this._texLight.height !== height) {
                 this._texLight.destroy();
-                this._texLight = new RenderTexture2D(range.width, range.height, RenderTargetFormat.R8G8B8A8);
+                this._texLight = new RenderTexture2D(width, height, RenderTargetFormat.R8G8B8A8);
                 this._texLight.wrapModeU = WrapMode.Clamp;
                 this._texLight.wrapModeV = WrapMode.Clamp;
                 (this._texLight as RenderTexture2D)._invertY = LayaGL.renderEngine._screenInvertY;
+                if (!this._cmdRT)
+                    this._cmdRT = Set2DRTCMD.create(this._texLight as RenderTexture, true, Color.BLACK, LayaGL.renderEngine._screenInvertY);
+                else this._cmdRT.renderTexture = this._texLight as RenderTexture;
                 if (Light2DManager.DEBUG)
-                    console.log('update spot light texture', range.width, range.height);
+                    console.log('update spot light texture', width, height);
             }
-            if (this._render.shareMesh)
-                this._needToRecover.push(this._render.shareMesh);
-            this._render.shareMesh = this._createMesh();
-            scene.addChild(this._sprite);
-            this._sprite.drawToTexture(0, 0, 0, 0, this._texLight as RenderTexture2D);
-            scene.removeChild(this._sprite);
+            const mesh = this._createMesh(this._cmdMesh?.mesh, this._needToRecover);
+            if (!this._cmdMesh)
+                this._cmdMesh = DrawMesh2DCMD.create(mesh, Matrix.EMPTY, Texture2D.whiteTexture, Color.WHITE, this._material);
+            else {
+                if (this._cmdMesh.mesh)
+                    this._needToRecover.push(this._cmdMesh.mesh);
+                this._cmdMesh.mesh = mesh;
+            }
+            this._cmdBuffer.addCacheCommand(this._cmdRT);
+            this._cmdBuffer.addCacheCommand(this._cmdMesh);
+            this._cmdBuffer.apply(true);
+            this._cmdBuffer.clear(false);
             this._needUpdateLightAndShadow = true;
 
-            if (this.showLightTexture) {
-                if (!this.showRenderTarget)
-                    this.showRenderTarget = new ShowRenderTarget(scene, this._texLight, 0, 0, 300, 300);
-                else this.showRenderTarget.setRenderTarget(this._texLight);
+            if (Light2DManager.DEBUG) {
+                if (this.showLightTexture)
+                    this._printTextureToConsoleAsBase64();
+                console.log('update spot light texture');
             }
         }
     }
 
     /**
-     * @en Limit parameter range
-     * @zh 限制参数范围
+     * @internal
+     * 限制参数范围
      */
     private _limitParam() {
         this._innerAngle = Math.max(Math.min(this._innerAngle, 360), 0);
@@ -253,10 +283,12 @@ export class SpotLight2D extends BaseLight2D {
     }
 
     /**
-     * @en Create light mesh
-     * @zh 创建灯光多边形
+     * @internal
+     * 创建灯光多边形
+     * @param mesh 
+     * @param recover 
      */
-    private _createMesh() {
+    private _createMesh(mesh?: Mesh2D, recover?: any[]) {
         const segments1 = Math.max(4, Math.min(64, this._innerAngle / 5 | 0));
         const segments2 = Math.max(2, Math.min(64, (this._outerAngle - this._innerAngle) / 10 | 0));
         const falloffStep = 10;
@@ -264,13 +296,15 @@ export class SpotLight2D extends BaseLight2D {
         const inds: number[] = [];
 
         //中心坐标
-        const centerX = this._worldRange.width / 2;
-        const centerY = this._worldRange.height / 2;
+        const centerX = this._localRange.width / 2;
+        const centerY = this._localRange.height / 2;
 
         //将度数转换为弧度
         const innerAngleRad = this._innerAngle * Math.PI / 180;
         const outerAngleRad = this._outerAngle * Math.PI / 180;
-        const rotationAngleRad = (this.owner as Sprite).globalRotation * Math.PI / 180;
+
+        //左转偏移90度
+        const angleOffset = -Math.PI / 2;
 
         const _addFan = (startAngle: number, endAngle: number, leftU: number, rightU: number, segments: number) => {
             let start = points.length;
@@ -289,8 +323,8 @@ export class SpotLight2D extends BaseLight2D {
                 for (let i = 0; i <= segments; i++) {
                     const angle = startAngle + t * i;
                     const rr = j === 0 ? 1 : r * (j + 1);
-                    const x = centerX + rr * Math.cos(angle + rotationAngleRad);
-                    const y = centerY + rr * Math.sin(angle + rotationAngleRad);
+                    const x = centerX + rr * Math.cos(angle);
+                    const y = centerY + rr * Math.sin(angle);
                     const u = Math.pow(leftU + f * i, this._falloffIntensity);
                     points.push(new Vector3(x, y, u));
                     if (i > 0) {
@@ -310,8 +344,8 @@ export class SpotLight2D extends BaseLight2D {
             for (let j = 0; j < falloffStep; j++) {
                 for (let i = 0; i <= segments; i++) {
                     const angle = startAngle + t * i;
-                    const x = centerX + (this._innerRadius + l * (j + 1)) * Math.cos(angle + rotationAngleRad);
-                    const y = centerY + (this._innerRadius + l * (j + 1)) * Math.sin(angle + rotationAngleRad);
+                    const x = centerX + (this._innerRadius + l * (j + 1)) * Math.cos(angle);
+                    const y = centerY + (this._innerRadius + l * (j + 1)) * Math.sin(angle);
                     const u2 = Math.pow(leftU + f * i, this._falloffIntensity);
                     const u3 = Math.pow(1 - (j + 1) / falloffStep, this._falloffIntensity);
                     const u = u2 * u3;
@@ -325,16 +359,16 @@ export class SpotLight2D extends BaseLight2D {
             }
         };
 
-        _addFan(-outerAngleRad / 2, -innerAngleRad / 2, 0, 1, segments2); //左侧
-        _addFan(-innerAngleRad / 2, innerAngleRad / 2, 1, 1, segments1); //中心
-        _addFan(innerAngleRad / 2, outerAngleRad / 2, 1, 0, segments2); //右侧
+        _addFan(-outerAngleRad / 2 + angleOffset, -innerAngleRad / 2 + angleOffset, 0, 1, segments2); //左侧
+        _addFan(-innerAngleRad / 2 + angleOffset, innerAngleRad / 2 + angleOffset, 1, 1, segments1); //中心
+        _addFan(innerAngleRad / 2 + angleOffset, outerAngleRad / 2 + angleOffset, 1, 0, segments2); //右侧
 
-        return this._makeMesh(points, inds);
+        return this._makeOrUpdateMesh(points, inds, mesh, recover);
     }
 
     /**
-     * @en Destroy
-     * @zh 销毁
+     * @internal
+     * 销毁
      */
     protected _onDestroy() {
         super._onDestroy();

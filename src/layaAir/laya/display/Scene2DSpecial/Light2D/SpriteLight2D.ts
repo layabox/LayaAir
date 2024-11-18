@@ -5,7 +5,6 @@ import { Scene } from "../../Scene";
 import { Sprite } from "../../Sprite";
 import { BaseLight2D, Light2DType } from "../Light2D/BaseLight2D"
 import { Light2DManager } from "./Light2DManager";
-import { ShowRenderTarget } from "./ShowRenderTarget";
 
 /**
  * 精灵灯光
@@ -21,7 +20,9 @@ export class SpriteLight2D extends BaseLight2D {
 
     /**
      * @en Set the sprite texture
+     * @param value Texture object
      * @zh 设置精灵贴图
+     * @param value 贴图对象
      */
     set spriteTexture(value: Texture2D) {
         if (this._texLight === value)
@@ -32,8 +33,9 @@ export class SpriteLight2D extends BaseLight2D {
         if (value)
             this._texLight._addReference(1);
         this._needUpdateLight = true;
+        this._needUpdateLightLocalRange = true;
         this._needUpdateLightWorldRange = true;
-        this.calcLocalRange();
+        super._clearScreenCache();
     }
 
     /**
@@ -45,10 +47,11 @@ export class SpriteLight2D extends BaseLight2D {
     }
 
     /**
-     * @en Calculate light range（local）
-     * @zh 计算灯光范围（局部坐标）
+     * @internal
+     * 计算灯光范围（局部坐标）
      */
-    protected calcLocalRange() {
+    protected _calcLocalRange() {
+        super._calcLocalRange();
         const w = (this._texLight ? this._texLight.width : 100) * Browser.pixelRatio | 0;
         const h = (this._texLight ? this._texLight.height : 100) * Browser.pixelRatio | 0;
         this._localRange.x = (-0.5 * w) | 0;
@@ -58,45 +61,42 @@ export class SpriteLight2D extends BaseLight2D {
     }
 
     /**
-     * @en Calculate light range（world）
-     * @zh 计算灯光范围（世界坐标）
-     * @param screen 
+     * @internal
+     * 计算灯光范围（世界坐标）
+     * @param screen 屏幕位置和尺寸
      */
-    protected calcWorldRange(screen?: Rectangle) {
-        super.calcWorldRange(screen);
-        const w = (this._texLight ? this._texLight.width : 100) * (this.owner as Sprite).globalScaleX * Browser.pixelRatio | 0;
-        const h = (this._texLight ? this._texLight.height : 100) * (this.owner as Sprite).globalScaleY * Browser.pixelRatio | 0;
+    protected _calcWorldRange(screen?: Rectangle) {
+        super._calcWorldRange(screen);
+        super._lightScaleAndRotation();
+
+        const w = (this._texLight ? this._texLight.width : 100) * Browser.pixelRatio | 0;
+        const h = (this._texLight ? this._texLight.height : 100) * Browser.pixelRatio | 0;
         this._worldRange.x = (-0.5 * w + (this.owner as Sprite).globalPosX * Browser.pixelRatio) | 0;
         this._worldRange.y = (-0.5 * h + (this.owner as Sprite).globalPosY * Browser.pixelRatio) | 0;
         this._worldRange.width = w;
         this._worldRange.height = h;
-        (this.owner?.scene as Scene)?._light2DManager?.needUpdateLightRange();
     }
 
     /**
      * @en Render light texture
+     * @param scene Scene object
      * @zh 渲染灯光贴图
-     * @param scene 
+     * @param scene 场景对象
      */
     renderLightTexture(scene: Scene) {
         super.renderLightTexture(scene);
         if (this._needUpdateLight) {
             this._needUpdateLight = false;
-            this.updateMark++;
             this._needUpdateLightAndShadow = true;
-            if (this.showLightTexture) {
-                if (!this.showRenderTarget)
-                    this.showRenderTarget = new ShowRenderTarget(scene, this._texLight, 0, 0, 300, 300);
-                else this.showRenderTarget.setRenderTarget(this._texLight);
-            }
+
             if (Light2DManager.DEBUG)
                 console.log('update sprite light texture');
         }
     }
 
     /**
-     * @en Destroy
-     * @zh 销毁
+     * @internal
+     * 销毁
      */
     protected _onDestroy() {
         super._onDestroy();

@@ -837,7 +837,7 @@ export class Scene3D extends Sprite {
     set componentElementDatasMap(value: any) {
         this._componentElementDatasMap = value;
         this.componentElementMap.forEach((value, key) => {
-            value.Init(this._componentElementDatasMap[key])
+            value.init(this._componentElementDatasMap[key]);
         });
     }
 

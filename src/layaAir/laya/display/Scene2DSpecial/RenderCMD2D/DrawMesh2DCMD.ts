@@ -38,19 +38,19 @@ export class DrawMesh2DCMD extends Command2D {
 
     private _needUpdateElement: boolean;
 
-    private _matreix: Matrix;
+    private _matrix: Matrix;
 
     constructor() {
         super();
         this._drawElementData = LayaGL.render2DRenderPassFactory.createDraw2DElementCMDData();
         this._mesh2DRender = new Mesh2DRender();
         this._needUpdateElement = true;
-        this._matreix = new Matrix();
+        this._matrix = new Matrix();
     }
 
     _setMatrix(value: Matrix) {
-        value ? value.copyTo(this._matreix) : Matrix.EMPTY.copyTo(this._matreix)
-        let mat = this._matreix;
+        value ? value.copyTo(this._matrix) : Matrix.EMPTY.copyTo(this._matrix)
+        let mat = this._matrix;
         let vec3 = Vector3._tempVector3;
         vec3.x = mat.a;
         vec3.y = mat.b;
@@ -67,6 +67,8 @@ export class DrawMesh2DCMD extends Command2D {
     set material(value: Material) {
         if (value == this.material)
             return;
+        if (!value)
+            value = Mesh2DRender.mesh2DDefaultMaterial;
         this._mesh2DRender.sharedMaterial = value;
         this._needUpdateElement = true;
     }
@@ -95,7 +97,6 @@ export class DrawMesh2DCMD extends Command2D {
     set color(value: Color) {
         this._mesh2DRender.color = value;
     }
-
     get color(): Color {
         return this._mesh2DRender.color;
     }
@@ -122,11 +123,11 @@ export class DrawMesh2DCMD extends Command2D {
     }
 
     /**
-    * @inheritDoc
-    * @override
-    * @en Recovers the render command for reuse.
-    * @zh 回收渲染命令以供重用。
-    */
+     * @inheritDoc
+     * @override
+     * @en Recovers the render command for reuse.
+     * @zh 回收渲染命令以供重用。
+     */
     recover(): void {
         DrawMesh2DCMD._pool.push(this);
         super.recover();

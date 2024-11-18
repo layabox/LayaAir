@@ -116,14 +116,15 @@ export class CommandBuffer2D {
         return this._commands.length > 0;
     }
 
-
     /**
      * @en Clears the command buffer.
-     * @zh 清除命令缓冲区。
+     * @zh 清除命令缓冲区
+     * @param recover 
      */
-    clear(): void {
-        for (var i: number = 0, n: number = this._commands.length; i < n; i++)
-            this._commands[i].recover();
+    clear(recover: boolean = true): void {
+        if (recover) //是否需要回收cmd，如果cmd是缓存的，不需要回收
+            for (var i: number = 0, n: number = this._commands.length; i < n; i++)
+                this._commands[i].recover();
         this._commands.length = 0;
         this._renderCMDs.length = 0;
     }
@@ -135,7 +136,6 @@ export class CommandBuffer2D {
     getCommandsSize(): number {
         return this._commands.length;
     }
-
 
     /**
      * Set rendering instructions for rendering data
@@ -229,9 +229,10 @@ export class CommandBuffer2D {
      * @param renderTexture dest render target
      * @param clearColor clear color when change target
      * @param colorValue clear color value
+     * @param invertY invert y coordinate
      */
-    setRenderTarget(renderTexture: IRenderTarget, clearColor: boolean, colorValue: Color = Color.BLACK): void {
-        let cmd = Set2DRTCMD.create(renderTexture, clearColor, colorValue);
+    setRenderTarget(renderTexture: IRenderTarget, clearColor: boolean, colorValue: Color = Color.BLACK, invertY: boolean = true): void {
+        let cmd = Set2DRTCMD.create(renderTexture, clearColor, colorValue, invertY);
         this._commands.push(cmd);
         cmd._commandBuffer = this;
         cmd.getRenderCMD && this._renderCMDs.push(cmd.getRenderCMD());

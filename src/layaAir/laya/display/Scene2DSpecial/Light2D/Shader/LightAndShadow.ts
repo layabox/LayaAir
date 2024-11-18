@@ -8,6 +8,6 @@ export class LightAndShadow {
         LightGenShader2D.__init__();
         ShadowGenShader2D.__init__();
         LightAndShadowGenShader2D.__init__();
-        BaseLight2D.initLightRender2DRenderProperty();
+        BaseLight2D._initLightRender2DRenderProperty();
     }
 }

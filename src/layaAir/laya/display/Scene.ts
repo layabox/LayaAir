@@ -13,7 +13,15 @@ import { CommandUniformMap } from "../RenderDriver/DriverDesign/RenderDevice/Com
 import { Scene2DSpecialManager } from "./Scene2DSpecial/Scene2DSpecialManager";
 import { Render2DSimple } from "../renders/Render2D";
 import { Laya, stage } from "../../Laya";
-import { Light2DManager } from "./Scene2DSpecial/Light2D/Light2DManager";
+import { BaseRenderNode2D } from "../NodeRender2D/BaseRenderNode2D";
+
+export interface ILight2DManager {
+    preRenderUpdate(context: Context): void;
+    addRender(node: BaseRenderNode2D): void;
+    removeRender(node: BaseRenderNode2D): void;
+    _getLayerUpdateMark(layer: number): number;
+    _updateShaderDataByLayer(layer: number, shaderData: any): void;
+}
 
 /**
  * @en Scene class, responsible for scene creation, loading, destruction and other functions.
@@ -76,7 +84,7 @@ export class Scene extends Sprite {
     private _componentElementDatasMap: any = {};
 
     _specialManager: Scene2DSpecialManager;
-    _light2DManager: Light2DManager;
+    _light2DManager: ILight2DManager;
 
     constructor(createChildren = true) {
         super();
@@ -84,14 +92,15 @@ export class Scene extends Sprite {
         this._timer = ILaya.timer;
         this._widget = Widget.EMPTY;
 
-        this._light2DManager = new Light2DManager(this);
+        //this._light2DManager = new Light2DManager(this);
+        //this._light2DManager.enableNormal = true;
 
         this._scene = this;
         if (createChildren)
             this.createChildren();
         Scene.componentManagerMap.forEach((val, key) => {
             let cla: any = val;
-            this._specialManager.componentElementMap.set(key, new cla());
+            this._specialManager.componentElementMap.set(key, new cla(this));
         });
     }
 
@@ -101,7 +110,7 @@ export class Scene extends Sprite {
     set componentElementDatasMap(value: any) {
         this._componentElementDatasMap = value;
         this._specialManager.componentElementMap.forEach((value, key) => {
-            value.Init(this._componentElementDatasMap[key])
+            value.init(this._componentElementDatasMap[key]);
         });
     }
 
@@ -117,9 +126,9 @@ export class Scene extends Sprite {
     }
 
     /**
-   * 获得某个组件的管理器
-   * @param type 组件管理类
-   */
+     * 获得某个组件的管理器
+     * @param type 组件管理类
+     */
     getComponentElementManager(type: string) {
         return this._specialManager.componentElementMap.get(type);
     }

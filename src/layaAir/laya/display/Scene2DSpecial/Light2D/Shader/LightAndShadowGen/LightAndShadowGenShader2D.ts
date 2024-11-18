@@ -12,7 +12,10 @@ export class LightAndShadowGenShader2D {
 
     static readonly RenderUniform: UniformMapType = {
         'u_LightColor': ShaderDataType.Color,
+        'u_LightRotation': ShaderDataType.Float,
         'u_LightIntensity': ShaderDataType.Float,
+        'u_LightScale': ShaderDataType.Vector2,
+        'u_LightTextureSize': ShaderDataType.Vector2,
         'u_PCFIntensity': ShaderDataType.Float,
     }
 
@@ -22,7 +25,7 @@ export class LightAndShadowGenShader2D {
     }
 
     static __init__(): void {
-        this.renderShader = Shader3D.add("LightAndShadowGen2D", false, false);
+        this.renderShader = Shader3D.add('LightAndShadowGen2D', false, false);
         this.renderShader.shaderType = ShaderFeatureType.D2;
         const subShader = new SubShader(this.RenderAttribute, this.RenderUniform, {});
         this.renderShader.addSubShader(subShader);

@@ -1,4 +1,3 @@
-import { MathUtils3D } from "../../../maths/MathUtils3D";
 import { Rectangle } from "../../../maths/Rectangle";
 import { Vector2 } from "../../../maths/Vector2";
 import { BaseLight2D, Light2DType } from "./BaseLight2D";
@@ -14,7 +13,7 @@ export class DirectionLight2D extends BaseLight2D {
         super();
         this._type = Light2DType.Direction;
         this.directionAngle = directionAngle;
-        this.calcLocalRange();
+        this._calcLocalRange();
     }
 
     /**
@@ -27,7 +26,9 @@ export class DirectionLight2D extends BaseLight2D {
 
     /**
      * @en Set direction light angle
+     * @param value Angle value
      * @zh 设置灯光角度
+     * @param value 角度值
      */
     set directionAngle(value: number) {
         value %= 360;
@@ -49,14 +50,16 @@ export class DirectionLight2D extends BaseLight2D {
 
     /**
      * @en Set direction light vector
+     * @param value Direction value
      * @zh 设置灯光角度矢量
+     * @param value 方向矢量
      */
     set directionVector(value: Vector2) {
         const len = Vector2.scalarLength(value);
-        if (len > Number.EPSILON) {
+        if (len > 0) {
             const x = value.x / len;
             const y = value.y / len;
-            if (!MathUtils3D.nearEqual(this._directionVector.x, x) || !MathUtils3D.nearEqual(this._directionVector.y, y)) {
+            if (this._directionVector.x !== x || this._directionVector.y !== y) {
                 this._directionAngle = Math.atan2(y, x);
                 this._directionVector.x = x;
                 this._directionVector.y = y;
@@ -66,34 +69,46 @@ export class DirectionLight2D extends BaseLight2D {
     }
 
     /**
+     * @en Get light pos
+     * @zh 获取灯光位置
+     */
+    get lightPos() {
+        this._lightPos.x = -this.directionVector.x * 1.0e5;
+        this._lightPos.y = -this.directionVector.y * 1.0e5;
+        return this._lightPos;
+    }
+
+    /**
      * @internal
-     * @param screen 
+     * @param screen 屏幕位置和尺寸
      */
     _getRange(screen?: Rectangle) {
-        if (!this._worldRange)
-            this._worldRange = new Rectangle();
-        this.calcWorldRange(screen);
+        if (screen && !this._screenCache.equals(screen)) {
+            screen.cloneTo(this._screenCache);
+            this._calcWorldRange(screen);
+        }
         return this._worldRange;
     }
 
     /**
-     * @en Calculate light range（local）
-     * @zh 计算灯光范围（局部坐标）
+     * @internal
+     * 计算灯光范围（局部坐标）
      */
-    protected calcLocalRange() {
-        this._localRange.x = -10000;
-        this._localRange.y = -10000;
-        this._localRange.width = 20000;
-        this._localRange.height = 20000;
+    protected _calcLocalRange() {
+        super._calcLocalRange();
+        this._localRange.x = -1.0e4;
+        this._localRange.y = -1.0e4;
+        this._localRange.width = 2.0e4;
+        this._localRange.height = 2.0e4;
     }
 
     /**
-     * @en Calculate light range（world）
-     * @zh 计算灯光范围（世界坐标）
-     * @param screen 
+     * @internal
+     * 计算灯光范围（世界坐标）
+     * @param screen 屏幕位置和尺寸
      */
-    protected calcWorldRange(screen?: Rectangle) {
-        super.calcWorldRange(screen);
+    protected _calcWorldRange(screen?: Rectangle) {
+        super._calcWorldRange(screen);
         this._localRange.cloneTo(this._worldRange);
         if (screen) {
             this._worldRange.x += screen.x;
@@ -103,8 +118,9 @@ export class DirectionLight2D extends BaseLight2D {
 
     /**
      * @en Is light inside the screen
+     * @param screen Screen position and size
      * @zh 是否在屏幕内
-     * @param screen 
+     * @param screen 屏幕位置和尺寸
      */
     isInScreen(screen: Rectangle) {
         return true; //总是在屏幕内

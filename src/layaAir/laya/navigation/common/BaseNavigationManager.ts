@@ -137,7 +137,7 @@ export class BaseNavigationManager implements IElementComponentManager {
      * @internal
      * @param data 
      */
-    Init(data: any): void {
+    init(data: any): void {
         if (!data) return;
 
         const agents = data.agents;
