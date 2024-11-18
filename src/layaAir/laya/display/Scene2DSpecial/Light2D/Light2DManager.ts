@@ -35,7 +35,7 @@ import { LightAndShadow } from "./Shader/LightAndShadow";
 
 /**
  * @internal
- * 每一层用于渲染光影图的资源
+ * 每一层用于渲染光影图资源
  */
 class Light2DRenderRes {
     lights: BaseLight2D[] = []; //灯光对象
