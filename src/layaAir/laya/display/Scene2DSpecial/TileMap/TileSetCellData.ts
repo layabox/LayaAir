@@ -196,40 +196,18 @@ export class TileSetCellData {
         return this._physicsDatas;
     }
 
-    public set physicsDatas(value: TileSetCell_PhysicsInfo[]) {
-        this._physicsDatas = value;
-        this._notifyDataChange(1); 
-    }
-
     public get lightOccluderDatas() {
         return this._lightOccluderDatas;
-    }
-
-    public set lightOccluderDatas(value: TileSetCell_LightInfo[]) {
-        this._lightOccluderDatas = value;
-        this._notifyDataChange(2);
     }
 
     public get customDatas() {
         return this._customDatas;  
     }
 
-    public set customDatas(value: TileSetCell_CustomDataInfo[]) {
-        this._customDatas = value;
-        this._notifyDataChange(3); 
-    }
-
-    // Navigation data setter/getter
     public get navigationDatas() {
         return this._navigationDatas;
     }
 
-    public set navigationDatas(value: TileSetCell_NavigationInfo[]) {
-        this._navigationDatas = value; 
-        this._notifyDataChange(4);
-    }
-
- 
     //custom module
     constructor() {
         this._notiveRenderTile = [];
@@ -280,12 +258,12 @@ export class TileSetCellData {
         }
     }
 
-    set_LightOccluder(layerIndex: number, data: TileSetCell_LightInfo) {
+    set_lightOccluder(layerIndex: number, data: TileSetCell_LightInfo) {
         //TODO
         this._lightOccluderDatas[layerIndex] = data;
     }
 
-    get_LightOccluder(layerIndex:number):TileSetCell_LightInfo{
+    get_lightOccluder(layerIndex:number):TileSetCell_LightInfo{
         return this._lightOccluderDatas[layerIndex];
     }
 
@@ -321,7 +299,7 @@ export class TileSetCellData {
     }
 
     //注释TODO
-    set_customData(name: string, value: number | boolean | string | Object) {
+    set_customData(name: string, value: any) {
         //TODO
         //根据TileSet得到string的index，将Value赋值
     }
@@ -333,7 +311,7 @@ export class TileSetCellData {
     }
 
     //注释TODO
-    set_customDatabyid(id: number, value: number | boolean | string | Object) {
+    set_customDatabyid(id: number, value: any) {
         //TODO        
     }
 
@@ -342,17 +320,9 @@ export class TileSetCellData {
         //TODO
     }
 
-    /**
-     * @internal
-     */
-    _get_CustomData() {
-        return this._customDatas;
-    }
-
     cloneTo(dst: TileSetCellData) {
 
     }
-
 
     //删除
     destroy() {
