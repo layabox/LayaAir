@@ -148,11 +148,18 @@
         vec2 lightUV;
     };
 
+    #ifdef LIGHT_AND_SHADOW
+        varying vec2 v_lightUV;
+        uniform vec4 u_LightAndShadow2DParam;
+        void lightAndShadow(inout vertexInfo info) {
+            v_lightUV = info.lightUV;
+        }
+    #endif
+
     void transfrom(vec2 pos,vec3 xDir,vec3 yDir,out vec2 outPos){
         outPos.x=xDir.x*pos.x+xDir.y*pos.y+xDir.z;
         outPos.y=yDir.x*pos.x+yDir.y*pos.y+yDir.z;
     }
-
 
     void getGlobalPos(in vec2 localPos,out vec2 globalPos){
         transfrom(localPos,u_NMatrix_0,u_NMatrix_1,globalPos);
@@ -177,10 +184,10 @@
          #endif
 
          #ifdef LIGHT_AND_SHADOW
-            float x = u_NMatrix_0.x * info.pos.x + u_NMatrix_0.y * info.pos.y + u_NMatrix_0.z;
-            float y = u_NMatrix_1.x * info.pos.x + u_NMatrix_1.y * info.pos.y + u_NMatrix_1.z;
-            info.lightUV.x = (x - u_LightAndShadow2DParam.x) / u_LightAndShadow2DParam.z;
-            info.lightUV.y = 1.0 - (y - u_LightAndShadow2DParam.y) / u_LightAndShadow2DParam.w;
+            vec2 global;
+            getGlobalPos(info.pos, global);
+            info.lightUV.x = (global.x - u_LightAndShadow2DParam.x) / u_LightAndShadow2DParam.z;
+            info.lightUV.y = 1.0 - (global.y - u_LightAndShadow2DParam.y) / u_LightAndShadow2DParam.w;
         #endif
     }
 
