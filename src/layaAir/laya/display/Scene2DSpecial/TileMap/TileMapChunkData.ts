@@ -50,7 +50,7 @@ class SheetCellIndex {
  * 用来处理各项数据
  * @internal
  */
-export class TileMapLayerData {
+export class TileMapChunkData {
     //是否重新组织渲染
     private _reCreateRenderData: boolean;
     //vector2 表示渲染数据的第几个renderElement的第几个cell
@@ -109,10 +109,10 @@ export class TileMapLayerData {
         this._softList = [];
         this._needCheckGids = new Set();
         this._physisDelayCreate = new Set();
-        this.updateRenderTileSize(chunkx, chunky);
+        this.updateChunkData(chunkx, chunky);
     }
 
-    public updateRenderTileSize(chunkx: number, chunky: number) {
+    public updateChunkData(chunkx: number, chunky: number) {
         this._chunkx = chunkx;
         this._chunky = chunky;
         this._tileLayer._chunk.getCellPosByChunkPosAndIndex(chunkx, chunky, 0, this._oriCellIndex);
@@ -127,7 +127,7 @@ export class TileMapLayerData {
         let maxCount = this._tileLayer._chunk.maxCell;
         let bufferData = new Float32Array(buffer);
         if (bufferData.length != maxCount + 2) { console.error("setRenderData error"); return; }
-        this.updateRenderTileSize(bufferData[0], bufferData[1]);
+        this.updateChunkData(bufferData[0], bufferData[1]);
         let renderTileSize = this._tileLayer.renderTileSize;
         let index = 2;
         for (var j = 0; j < renderTileSize; j++) {
@@ -401,7 +401,7 @@ export class TileMapLayerData {
         //TODO
     }
 
-    _updateTile() {
+    _update() {
         this._upeateGridData();
         this._updateRenderData();
         this._updatePhysicsData();

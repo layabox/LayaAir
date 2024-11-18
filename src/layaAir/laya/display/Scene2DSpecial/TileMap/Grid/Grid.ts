@@ -7,7 +7,7 @@ import { BufferUsage } from "../../../../RenderEngine/RenderEnum/BufferTargetTyp
 import { IndexFormat } from "../../../../RenderEngine/RenderEnum/IndexFormat";
 import { TileShape } from "../TileMapEnum";
 import { TileMapLayer } from "../TileMapLayer";
-import { TileMapLayerData } from "../TileMapLayerData";
+import { TileMapChunkData } from "../TileMapChunkData";
 import { TileMapShaderInit } from "../TileMapShaderInit";
 import { BaseSheet } from "./BaseSheet";
 import { HalfOffSquareSheet } from "./HalfOffSquareSheet";

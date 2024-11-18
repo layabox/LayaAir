@@ -3,7 +3,7 @@ import { TileMapUtils } from "./TileMapUtils";
 import { TileAlternativesData } from "./TileAlternativesData";
 import { TillMap_CellNeighbor } from "./TileMapEnum";
 import { TILEMAPLAYERDIRTYFLAG } from "./TileMapLayer";
-import { TileMapLayerData } from "./TileMapLayerData";
+import { TileMapChunkData } from "./TileMapChunkData";
 import { Color } from "../../../maths/Color";
 import { Vector2 } from "../../../maths/Vector2";
 import { Vector4 } from "../../../maths/Vector4";
@@ -51,7 +51,7 @@ export class TileSetCellData {
 
     private _terrain_peering_bits: Uint16Array = new Uint16Array([-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]);
 
-    private _notiveRenderTile: TileMapLayerData[];
+    private _notiveRenderTile: TileMapChunkData[];
 
     //贴图旋转矩阵
     _transData: Vector4 = new Vector4();
@@ -246,13 +246,13 @@ export class TileSetCellData {
         });
     }
 
-    _removeNoticeRenderTile(layerRenderTile: TileMapLayerData) {
+    _removeNoticeRenderTile(layerRenderTile: TileMapChunkData) {
         let index = this._notiveRenderTile.indexOf(layerRenderTile);
         if (index != -1)
             this._notiveRenderTile.splice(index, 1);
     }
 
-    _addNoticeRenderTile(layerRenderTile: TileMapLayerData) {
+    _addNoticeRenderTile(layerRenderTile: TileMapChunkData) {
         if (this._notiveRenderTile.indexOf(layerRenderTile) == -1) {
             this._notiveRenderTile.push(layerRenderTile);
         }
