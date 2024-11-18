@@ -1,7 +1,7 @@
 import { Color } from "../../../maths/Color";
 import { Vector2 } from "../../../maths/Vector2";
 import { TileAlternativesData } from "./TileAlternativesData";
-import { TileMap_CustomDataVariant, TileShape, TillMap_TerrainMode } from "./TileMapEnum";
+import { TileShape, TillMap_TerrainMode } from "./TileMapEnum";
 import { TileMapUtils } from "./TileMapUtils";
 import { TileSetCellData } from "./TileSetCellData";
 import { TileSetCellGroup } from "./TileSetCellGroup";
@@ -11,64 +11,8 @@ import { Material } from "../../../resource/Material";
 import { RenderState } from "../../../RenderDriver/RenderModuleData/Design/RenderState";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderDefines2D } from "../../../webgl/shader/d2/ShaderDefines2D";
+import { TileMap_CustomDataLayer, TileMap_NavigationInfo, TileSet_LightOcclusionInfo, TileSet_PhysicsLayerInfo, TileSet_TerrainSetInfo } from "./TileSetInfos";
 
-
-
-export class TileSet_PhysicsLayerInfo {
-    layer: number;
-    mask: number;
-
-    /**
-     * @internal
-     */
-    _setTileSet() {
-
-    }
-}
-
-
-export class TileSet_TerrainSetInfo {
-    name: string;
-    EditorColor: Color;
-
-    /**
-     * @internal
-     */
-    _setTileSet() {
-
-    }
-}
-
-export class TileSet_LightOcclusionInfo {
-    lightMask: number;
-
-    /**
-     * @internal
-     */
-    _setTileSet() {
-
-    }
-}
-
-export class TileMap_NavigationInfo {
-    /**
-     * @internal
-     */
-    _setTileSet() {
-
-    }
-}
-
-export class TileMap_CustomDataLayer {
-    name: string;
-    Variant: TileMap_CustomDataVariant;
-    /**
-     * @internal
-     */
-    _setTileSet() {
-
-    }
-};
 
 export class TileSet extends Resource {
 
@@ -247,26 +191,27 @@ export class TileSet extends Resource {
     }
 
     addTileSetCellGroup(resource: TileSetCellGroup): void {
-        resource._owner = this;
-        this._baseCells.push(resource);
-        this._notifyTileSetCellGroupsChange();
+        if (resource) {
+            resource._owner = this;
+            this._baseCells.push(resource);
+            this._notifyTileSetCellGroupsChange();
+        }
     }
 
     getTileSetCellGroup(id: number): TileSetCellGroup {
-        return null;
+        let index = this._baseCellIds.indexOf(id);
+        return this._baseCells[index];
     }
 
     removeTileSetCellGroup(id: number): void {
-
+        let index = this._baseCellIds.indexOf(id);
+        this._baseCells.splice(index , 1);
+        this._notifyTileSetCellGroupsChange();
     }
 
     //customLayer
     get customLayers() {
         return this._customDataLayer;
-    }
-
-    set customLayers(value: TileMap_CustomDataLayer[]) {
-
     }
 
     addCustormDataLayer(layer: TileMap_CustomDataLayer): void {
@@ -283,11 +228,7 @@ export class TileSet extends Resource {
 
     //navigation
     get navigationLayers() {
-        return this._customDataLayer;
-    }
-
-    set navigationLayers(value: TileMap_NavigationInfo[]) {
-
+        return this._navigationLayers;
     }
 
     addNavigationLayers(layer: TileMap_NavigationInfo): void {
@@ -307,10 +248,6 @@ export class TileSet extends Resource {
         return this._lightOcclusion;
     }
 
-    set lightInfoLayers(value: TileSet_LightOcclusionInfo[]) {
-
-    }
-
     addlightInfoLayers(layer: TileSet_LightOcclusionInfo): void {
 
     }
@@ -328,24 +265,21 @@ export class TileSet extends Resource {
         return this._physicaLayers;
     }
 
-    set physicsLayers(value: TileSet_PhysicsLayerInfo[]) {
-
-    }
-
-    addPhysicsLayers(layer: TileSet_PhysicsLayerInfo): void {
-
+    addPhysicsLayers(layer: TileSet_PhysicsLayerInfo): number {
+        let index = this._physicaLayers.length;
+        this._physicaLayers.push(layer);
+        return index;
     }
 
     getPhysicsLayers(layerIndex: number): TileSet_PhysicsLayerInfo {
-        return null;
+        return this._physicaLayers[layerIndex];
     }
 
-    removePhysicsLayers(layerIndex: number): void {
-        return;
+    removePhysicsLayers(){
+
     }
 
     //Terrain  
-
     set terrainPatchMode(value: TillMap_TerrainMode) {
 
     }
@@ -356,10 +290,6 @@ export class TileSet extends Resource {
 
     get tileTerrains() {
         return this._terrains;
-    }
-
-    set tileTerrains(value: TileSet_TerrainSetInfo[]) {
-
     }
 
     addTileTerrain(layer: TileSet_TerrainSetInfo): void {

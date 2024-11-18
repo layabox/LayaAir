@@ -1,30 +1,14 @@
-
+//@~AXIE:2.2
 import { TileMapUtils } from "./TileMapUtils";
 import { TileAlternativesData } from "./TileAlternativesData";
-import { TileMap_CustomDataVariant, TillMap_CellNeighbor } from "./TileMapEnum";
+import { TillMap_CellNeighbor } from "./TileMapEnum";
 import { TILEMAPLAYERDIRTYFLAG } from "./TileMapLayer";
 import { TileMapLayerRenderTile } from "./TileMapLayerRenderTile";
 import { Color } from "../../../maths/Color";
 import { Vector2 } from "../../../maths/Vector2";
 import { Vector4 } from "../../../maths/Vector4";
 import { Material } from "../../../resource/Material";
-
-
-class TileSetCellData_Light {
-    //根据light功能定义
-}
-
-
-class TileSetCellData_NavigationInfo {
-    //根据想实现的Navigation定义
-}
-
-class TileSetCellData_CustomData {
-    type: TileMap_CustomDataVariant;
-    value: number | boolean | string | Object;
-}
-
-
+import { TileSetCell_CustomDataInfo, TileSetCell_LightInfo, TileSetCell_NavigationInfo, TileSetCell_PhysicsInfo } from "./TileSetInfos";
 
 /**
  * TileMap中一个Cell的数据结构
@@ -53,11 +37,15 @@ export class TileSetCellData {
 
     private _y_sort_origin: number;
 
-    private _lightOccluders: TileSetCellData_Light[];
+    ////////多级数据
+    private _lightOccluderDatas: TileSetCell_LightInfo[];
 
-    private _physics: number[];
+    private _navigationDatas:TileSetCell_NavigationInfo[];
 
-    private _customDatas: TileSetCellData_CustomData[];
+    private _physicsDatas: TileSetCell_PhysicsInfo[];
+
+    private _customDatas: TileSetCell_CustomDataInfo[];
+
     //是否有地形
     private _terrain_set: boolean;
 
@@ -204,14 +192,44 @@ export class TileSetCellData {
         this._terrain_set = value;
     }
 
-    public set physics(value: number[]) {
-        this._physics = value;
+    public get physicsDatas() {
+        return this._physicsDatas;
     }
 
-    public get physics(): number[] {
-        return this._physics;
+    public set physicsDatas(value: TileSetCell_PhysicsInfo[]) {
+        this._physicsDatas = value;
+        this._notifyDataChange(1); 
     }
 
+    public get lightOccluderDatas() {
+        return this._lightOccluderDatas;
+    }
+
+    public set lightOccluderDatas(value: TileSetCell_LightInfo[]) {
+        this._lightOccluderDatas = value;
+        this._notifyDataChange(2);
+    }
+
+    public get customDatas() {
+        return this._customDatas;  
+    }
+
+    public set customDatas(value: TileSetCell_CustomDataInfo[]) {
+        this._customDatas = value;
+        this._notifyDataChange(3); 
+    }
+
+    // Navigation data setter/getter
+    public get navigationDatas() {
+        return this._navigationDatas;
+    }
+
+    public set navigationDatas(value: TileSetCell_NavigationInfo[]) {
+        this._navigationDatas = value; 
+        this._notifyDataChange(4);
+    }
+
+ 
     //custom module
     constructor() {
         this._notiveRenderTile = [];
@@ -225,7 +243,7 @@ export class TileSetCellData {
         this._y_sort_origin = 0;
         this._terrain_set = false;
     }
-
+ 
     /**
      * 初始化引用数据
      * @param owner 
@@ -235,11 +253,11 @@ export class TileSetCellData {
         this._index = index;
         this._cellowner = owner;
     }
-
+ 
     public getGid(): number {
         return TileMapUtils.getGid(this._index, this._cellowner.getId());
     }
-
+ 
     _notifyDataChange(data: number) {
         if (!this.cellowner) return;
         let tileshape = this.cellowner.owner._owner.tileShape;
@@ -262,21 +280,29 @@ export class TileSetCellData {
         }
     }
 
-    setLightOccluders(layerIndex: number, data: TileSetCellData_Light) {
+    set_LightOccluder(layerIndex: number, data: TileSetCell_LightInfo) {
         //TODO
+        this._lightOccluderDatas[layerIndex] = data;
     }
 
-    _remove_lightOccluders(layerIndex: number) {
-        //TODO
+    get_LightOccluder(layerIndex:number):TileSetCell_LightInfo{
+        return this._lightOccluderDatas[layerIndex];
     }
 
-
-    set_terrainPeeringBits(index: TillMap_CellNeighbor, terrainIndex: number) {
-        //TODO
+    set_terrainPeeringBit(index: TillMap_CellNeighbor, terrainIndex: number) {
+        this._terrain_peering_bits[index] = terrainIndex;
     }
 
-    get_terrainPeeringBits(index: TillMap_CellNeighbor) {
-        //TODO
+    get_terrainPeeringBit(index: TillMap_CellNeighbor) {
+        return this._terrain_peering_bits[index];
+    }
+
+    set_physicsData(layerIndex:number , data:TileSetCell_PhysicsInfo){
+        this._physicsDatas[layerIndex] = data;
+    }
+
+    get_physicsData(layerIndex:number):TileSetCell_PhysicsInfo{
+        return this._physicsDatas[layerIndex];
     }
 
     /**
@@ -286,34 +312,33 @@ export class TileSetCellData {
         return this._terrain_peering_bits;
     }
 
-    set_navigationData(layerIndex: number, data: TileSetCellData_NavigationInfo) {
-        //TODO
+    set_navigationData(layerIndex: number, data: TileSetCell_NavigationInfo) {
+        this._navigationDatas[layerIndex] = data;
+    }
+
+    get_navigationData(layerIndex:number):TileSetCell_NavigationInfo{
+        return this._navigationDatas[layerIndex];
     }
 
     //注释TODO
-    _remove_navigations(layerIndex: number, data: TileSetCellData_NavigationInfo) {
-        //TODO
-    }
-
-    //注释TODO
-    set_custom_Data(name: string, value: number | boolean | string | Object) {
+    set_customData(name: string, value: number | boolean | string | Object) {
         //TODO
         //根据TileSet得到string的index，将Value赋值
     }
 
     //注释TODO
-    get_custom_data(name: string) {
+    get_customData(name: string) {
         //TODO
         //根据TileSet得到string的index，拿Value
     }
 
     //注释TODO
-    set_CustomDatabyid(id: number, value: number | boolean | string | Object) {
+    set_customDatabyid(id: number, value: number | boolean | string | Object) {
         //TODO        
     }
 
     //注释TODO
-    get_CustomDatabyid(id: number) {
+    get_customDatabyid(id: number) {
         //TODO
     }
 
