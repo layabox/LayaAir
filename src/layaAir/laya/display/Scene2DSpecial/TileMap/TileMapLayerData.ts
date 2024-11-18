@@ -12,6 +12,7 @@ import { Base64Tool } from "../../../utils/Base64Tool";
 import { ShaderDefines2D } from "../../../webgl/shader/d2/ShaderDefines2D";
 import { TileShape } from "./TileMapEnum";
 import { TILELAYER_SORTMODE, TileMapLayer, TILEMAPLAYERDIRTYFLAG } from "./TileMapLayer";
+import { TileMapShaderInit } from "./TileMapShaderInit";
 import { TileSetCellData } from "./TileSetCellData";
 interface ITileMapRenderElement {
     renderElement: IRenderElement2D,
@@ -46,60 +47,10 @@ class SheetCellIndex {
 
 
 /**
- * 用来产生渲染数据
-* @internal
-*/
-export class TileMapLayerRenderTile {
-    /**
-     * @internal
-     */
-    static _tileMapPositionUVColorDec: VertexDeclaration;
-
-    /**
-     * @internal
-     */
-    static _tileMapCellColorInstanceDec: VertexDeclaration;
-    /**
-     * @internal
-     */
-    static _tileMapCellPosScaleDec: VertexDeclaration;
-
-    /**
-     * @internal
-     */
-    static _tileMapCellUVOriScaleDec: VertexDeclaration;
-    /**
-     * @internal
-     */
-    static _tileMapCellUVTrans: VertexDeclaration;
-
-    /**
-     * @internal 初始化顶点格式
-     */
-    static _initDeclaration_() {
-        if (TileMapLayerRenderTile._tileMapPositionUVColorDec) return;
-        TileMapLayerRenderTile._tileMapPositionUVColorDec = new VertexDeclaration(32, [
-            new VertexElement(0, VertexElementFormat.Vector4, 0),//vec4 a_position uv
-            new VertexElement(16, VertexElementFormat.Vector4, 1),//vec4 a_color
-        ]);
-
-        TileMapLayerRenderTile._tileMapCellColorInstanceDec = new VertexDeclaration(16, [
-            new VertexElement(0, VertexElementFormat.Vector4, 2),//vec4 a_cellColor
-        ]);
-
-        TileMapLayerRenderTile._tileMapCellPosScaleDec = new VertexDeclaration(16, [
-            new VertexElement(0, VertexElementFormat.Vector4, 3),//vec4 a_cellPosScale
-        ]);
-
-        TileMapLayerRenderTile._tileMapCellUVOriScaleDec = new VertexDeclaration(16, [
-            new VertexElement(0, VertexElementFormat.Vector4, 4),//vec4 a_cellUVOriScale
-        ]);
-
-        TileMapLayerRenderTile._tileMapCellUVTrans = new VertexDeclaration(16, [
-            new VertexElement(0, VertexElementFormat.Vector4, 5),//vec4 a_uvTrans
-        ]);
-    }
-
+ * 用来处理各项数据
+ * @internal
+ */
+export class TileMapLayerData {
     //是否重新组织渲染
     private _reCreateRenderData: boolean;
     //vector2 表示渲染数据的第几个renderElement的第几个cell
@@ -141,6 +92,7 @@ export class TileMapLayerRenderTile {
      * 渲染块 y 坐标
      */
     _chunky: number;
+
     private _materail: Material;
 
     constructor(layer: TileMapLayer, chunkx: number, chunky: number, materail: Material = null) {
@@ -473,7 +425,7 @@ export class TileMapLayerRenderTile {
     _getCellPos(sheetCell:SheetCellIndex, out: Vector2) {
         out.x = this._oriCellIndex.x + sheetCell.cellx;
         out.y = this._oriCellIndex.y + sheetCell.celly;
-        this._tileLayer._grid.gridToPiex(out.x, out.y, out);
+        this._tileLayer._grid.gridToPixel(out.x, out.y, out);
     }
 
 
@@ -489,7 +441,6 @@ export class TileMapLayerRenderTile {
      * 合并到渲染列表
      */
     _mergeToElement(renderElements: IRenderElement2D[]){
-        this._updateTile();
         this._renderElementArray.forEach(element => {
             renderElements.push(element.renderElement);
         });
@@ -682,25 +633,25 @@ export class TileMapLayerRenderTile {
         instanceColorBuffer.instanceBuffer = true;
         instanceColorBuffer.setDataLength(instanceColor.byteLength);
         instanceColorBuffer.setData(instanceColor.buffer, 0, 0, instanceColor.byteLength);
-        instanceColorBuffer.vertexDeclaration = TileMapLayerRenderTile._tileMapCellColorInstanceDec;
+        instanceColorBuffer.vertexDeclaration = TileMapShaderInit._tileMapCellColorInstanceDec;
 
         let instanceposScalBuffer = LayaGL.renderDeviceFactory.createVertexBuffer(BufferUsage.Dynamic);
         instanceposScalBuffer.instanceBuffer = true;
         instanceposScalBuffer.setDataLength(instanceposScal.byteLength);
         instanceposScalBuffer.setData(instanceposScal.buffer, 0, 0, instanceposScal.byteLength);
-        instanceposScalBuffer.vertexDeclaration = TileMapLayerRenderTile._tileMapCellPosScaleDec;
+        instanceposScalBuffer.vertexDeclaration = TileMapShaderInit._tileMapCellPosScaleDec;
 
         let instanceuvOriScalBuffer = LayaGL.renderDeviceFactory.createVertexBuffer(BufferUsage.Dynamic);
         instanceuvOriScalBuffer.instanceBuffer = true;
         instanceuvOriScalBuffer.setDataLength(instanceuvOriScal.byteLength);
         instanceuvOriScalBuffer.setData(instanceuvOriScal.buffer, 0, 0, instanceuvOriScal.byteLength);
-        instanceuvOriScalBuffer.vertexDeclaration = TileMapLayerRenderTile._tileMapCellUVOriScaleDec;
+        instanceuvOriScalBuffer.vertexDeclaration = TileMapShaderInit._tileMapCellUVOriScaleDec;
 
         let instanceuvTransBuffer = LayaGL.renderDeviceFactory.createVertexBuffer(BufferUsage.Dynamic);
         instanceuvTransBuffer.instanceBuffer = true;
         instanceuvTransBuffer.setDataLength(instanceuvTrans.byteLength);
         instanceuvTransBuffer.setData(instanceuvTrans.buffer, 0, 0, instanceuvTrans.byteLength);
-        instanceuvTransBuffer.vertexDeclaration = TileMapLayerRenderTile._tileMapCellUVTrans;
+        instanceuvTransBuffer.vertexDeclaration = TileMapShaderInit._tileMapCellUVTrans;
 
         let binVertexBuffers = [this._tileLayer._getBaseVertexBuffer(), instanceColorBuffer, instanceposScalBuffer, instanceuvOriScalBuffer, instanceuvTransBuffer];
         let indexBuffer = this._tileLayer._getBaseIndexBuffer();

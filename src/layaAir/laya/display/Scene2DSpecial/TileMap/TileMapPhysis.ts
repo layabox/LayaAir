@@ -195,7 +195,7 @@ export class TileMapPhysis {
         }
 
         const temp = Vector2.TempVector2;
-        this._layer._grid.gridToPiex(cellRow, cellCol, temp);
+        this._layer._grid.gridToPixel(cellRow, cellCol, temp);
         let offx = temp.x;
         let offy = temp.y;
         let mat = this._layer._globalTramsfrom();

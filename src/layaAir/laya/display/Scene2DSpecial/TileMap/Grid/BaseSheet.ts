@@ -62,8 +62,8 @@ export class BaseSheet {
     /**
      * 像素系统转格子系统
      */
-    public piexToGrid(pixelX: number, pixelY: number, out: Vector2) {
-        TileMapUtils.transfromPointByValue(this._reverseMatrix, pixelX, pixelY, out);
+    public pixelToGrid(pixelx: number, pixely: number, out: Vector2) {
+        TileMapUtils.transfromPointByValue(this._reverseMatrix, pixelx, pixely, out);
     }
 
     /**
