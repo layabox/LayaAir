@@ -398,7 +398,7 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
     }
 
     name: string;
-    init(data: any): void {
+    Init(data: any): void {
     }
 
     update(dt: number): void {

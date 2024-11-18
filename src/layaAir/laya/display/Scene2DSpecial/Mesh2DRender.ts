@@ -21,16 +21,12 @@ export class Mesh2DRender extends BaseRenderNode2D {
      */
     static mesh2DDefaultMaterial: Material;
 
-    /**@internal */
     private _shareMesh: Mesh2D;
 
-    /**@internal */
     private _baseRender2DTexture: BaseTexture;
 
-    /**@internal */
     private _color: Color = new Color();
 
-    /**@internal */
     private _normal2DTexture: BaseTexture;
     private _normal2DStrength: number = 0;
 

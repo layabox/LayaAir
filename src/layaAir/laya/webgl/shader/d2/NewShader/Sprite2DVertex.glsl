@@ -54,9 +54,9 @@
             pos = vec4((a_position.x/u_size.x-0.5)*2.0,(0.5-a_position.y/u_size.y)*2.0,a_position.z,1.0);
         #endif
 
-        // #ifdef INVERTY
-        //     pos.y = -pos.y;
-        // #endif
+        #ifdef INVERTY
+            pos.y = -pos.y;
+        #endif
     }
 #endif
 
@@ -123,9 +123,9 @@
             glPosition = pos1;
         #endif
         
-        // #ifdef INVERTY
-        //     glPosition.y = -glPosition.y;
-        // #endif
+        #ifdef INVERTY
+            glPosition.y = -glPosition.y;
+        #endif
     }
 #endif
 
