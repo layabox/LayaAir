@@ -9,8 +9,6 @@
     vec4 transedPos;
 #endif
 
-
-
 #ifdef PRIMITIVEMESH
     uniform vec4 u_clipMatDir;
     uniform vec2 u_clipMatPos;// 这个是全局的，不用再应用矩阵了。
@@ -56,12 +54,11 @@
             pos = vec4((a_position.x/u_size.x-0.5)*2.0,(0.5-a_position.y/u_size.y)*2.0,a_position.z,1.0);
         #endif
 
-        #ifdef INVERTY
-            pos.y = -pos.y;
-        #endif
+        // #ifdef INVERTY
+        //     pos.y = -pos.y;
+        // #endif
     }
 #endif
-
 
 #ifdef TEXTUREVS
     uniform vec4 u_clipMatDir;
@@ -118,7 +115,6 @@
         #ifdef CAMERA2D
             pos.xy = (u_view2D *vec3(pos.x,pos.y,1.0)).xy+u_size/2.;
         #endif  
-        
 
         vec4 pos1 = vec4((pos.x/u_size.x-0.5)*2.0,(0.5-pos.y/u_size.y)*2.0,0.,1.0);
         #ifdef MVP3D
@@ -127,36 +123,29 @@
             glPosition = pos1;
         #endif
         
-        #ifdef INVERTY
-            glPosition.y = -glPosition.y;
-        #endif
+        // #ifdef INVERTY
+        //     glPosition.y = -glPosition.y;
+        // #endif
     }
-
 #endif
-
 
 #ifdef BASERENDER2D
     varying vec2 v_texcoord;
     varying vec4 v_color;
     varying vec2 v_cliped;
 
-   uniform vec3 u_NMatrix_0;
-   uniform vec3 u_NMatrix_1;
-   uniform vec2 u_baseRenderSize2D;
+    uniform vec3 u_NMatrix_0;
+    uniform vec3 u_NMatrix_1;
+    uniform vec2 u_baseRenderSize2D;
    
-   uniform vec4 u_clipMatDir;
-   uniform vec2 u_clipMatPos;// 这个是全局的，不用再应用矩阵了。
-
-    #ifdef LIGHT_AND_SHADOW
-        uniform vec4 u_LightAndShadow2DParam;
-     
-    #endif
-
+    uniform vec4 u_clipMatDir;
+    uniform vec2 u_clipMatPos;// 这个是全局的，不用再应用矩阵了。
+    
     struct vertexInfo {
         vec4 color;
         vec2 uv;
         vec2 pos;
-        vec2 lightUV[5];//TODO
+        vec2 lightUV;
     };
 
     void transfrom(vec2 pos,vec3 xDir,vec3 yDir,out vec2 outPos){
@@ -187,19 +176,11 @@
             info.uv = a_uv;
          #endif
 
-         #ifdef LIGHT_AND_SHADOW//TODO
-            vec2 global;
-            getGlobalPos(info.pos,global);
-            info.lightUV[0].x = (global.x - u_LightAndShadow2DParam.x) / u_LightAndShadow2DParam.z;
-            info.lightUV[0].y = 1.0 - (global.y - u_LightAndShadow2DParam.y) / u_LightAndShadow2DParam.w;
-            info.lightUV[1].x = info.lightUV[0].x - 2.0 / u_LightAndShadow2DParam.z;
-            info.lightUV[1].y = info.lightUV[0].y;
-            info.lightUV[2].x = info.lightUV[0].x + 2.0 / u_LightAndShadow2DParam.z;
-            info.lightUV[2].y = info.lightUV[0].y;
-            info.lightUV[3].x = info.lightUV[0].x;
-            info.lightUV[3].y = info.lightUV[0].y - 2.0 / u_LightAndShadow2DParam.w;
-            info.lightUV[4].x = info.lightUV[0].x;
-            info.lightUV[4].y = info.lightUV[0].y + 2.0 / u_LightAndShadow2DParam.w;
+         #ifdef LIGHT_AND_SHADOW
+            float x = u_NMatrix_0.x * info.pos.x + u_NMatrix_0.y * info.pos.y + u_NMatrix_0.z;
+            float y = u_NMatrix_1.x * info.pos.x + u_NMatrix_1.y * info.pos.y + u_NMatrix_1.z;
+            info.lightUV.x = (x - u_LightAndShadow2DParam.x) / u_LightAndShadow2DParam.z;
+            info.lightUV.y = 1.0 - (y - u_LightAndShadow2DParam.y) / u_LightAndShadow2DParam.w;
         #endif
     }
 

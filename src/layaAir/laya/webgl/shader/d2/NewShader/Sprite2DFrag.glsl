@@ -183,7 +183,6 @@ vec4 transspaceColor(vec4 color)
     }
 #endif
 
-
 #ifdef BASERENDER2D
     varying vec2 v_texcoord;
     varying vec4 v_color;
@@ -191,13 +190,40 @@ vec4 transspaceColor(vec4 color)
     uniform vec4 u_baseRenderColor;
 
 #ifdef LIGHT_AND_SHADOW
+    varying vec2 v_lightUV;
     uniform vec4 u_LightAndShadow2DParam;
     uniform vec4 u_LightAndShadow2DAmbient;
+    uniform float u_LightHeight;
     uniform sampler2D u_LightAndShadow2D;
+
+    #ifdef LIGHT_2D_NORMAL_PARAM
+        uniform sampler2D u_normal2DTexture;
+        uniform float u_normal2DStrength;
+    #endif
+
+    //从角度（0~1）解码为2D方向矢量
+    vec2 decodeVector2D(float encoded) {
+        //将[0, 1]映射回[-π, π]
+        float angle = (encoded - 0.5) * (2.0 * 3.14159);
+    
+        //通过角度重建方向向量
+        return vec2(cos(angle), sin(angle));
+    }
+
+    void lightAndShadow(inout vec4 color) {
+        vec4 ls = texture2D(u_LightAndShadow2D, v_lightUV);
+        ls.rgb = min(vec3(1.0), ls.rgb + u_LightAndShadow2DAmbient.rgb);
+        color.rgb *= ls.rgb;
+        #ifdef LIGHT_2D_NORMAL_PARAM
+            vec3 dr = normalize(vec3(decodeVector2D(ls.a), u_LightHeight));
+            vec3 normal = normalize(texture2D(u_normal2DTexture, v_texcoord).rgb * 2.0 - 1.0);
+            color.rgb = color.rgb * ((1.0 - u_normal2DStrength) + abs(dot(dr, normal.rgb)) * u_normal2DStrength);
+        #endif
+    }
 #endif
 
     void setglColor(in vec4 color){
-        color.a *= v_color.w*u_baseRenderColor.a;
+        color.a *= v_color.w * u_baseRenderColor.a;
         vec4 transColor = v_color;
         #ifndef GAMMASPACE
             transColor = gammaToLinear(v_color)*u_baseRenderColor;

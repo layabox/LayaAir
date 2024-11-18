@@ -1,7 +1,6 @@
 #define SHADER_NAME BaseRender2DVS
-#include "Sprite2DVertex.glsl";
 
-varying vec2 v_lightUV[5];
+#include "Sprite2DVertex.glsl";
 
 void main() {
 	vec4 pos;
@@ -12,7 +11,10 @@ void main() {
 
 	v_texcoord = info.uv;
 	v_color = info.color;
-    v_lightUV = info.lightUV;
+
+    #ifdef LIGHT_AND_SHADOW
+        lightAndShadow(info);
+    #endif
 
 	gl_Position = pos;
 }

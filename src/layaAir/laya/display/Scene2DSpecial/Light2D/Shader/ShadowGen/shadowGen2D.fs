@@ -12,6 +12,6 @@ void main()
     vec4 textureColor = texture2D(u_baseRender2DTexture, v_texcoord);
     textureColor = transspaceColor(textureColor);
     setglColor(textureColor);
-
     gl_FragColor.rgb *= v_color.rgb;
+    gl_FragColor.a = 1.0;
 }
