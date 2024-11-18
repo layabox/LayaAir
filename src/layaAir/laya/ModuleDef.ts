@@ -62,6 +62,11 @@ import { FreeformLight2D } from "./display/Scene2DSpecial/Light2D/FreeformLight2
 import { SpotLight2D } from "./display/Scene2DSpecial/Light2D/SpotLight2D";
 import { LightOccluder2D } from "./display/Scene2DSpecial/Light2D/LightOccluder2D";
 import { PolygonPoint2D } from "./display/Scene2DSpecial/Light2D/PolygonPoint2D";
+import { TileAlternativesData } from "./display/Scene2DSpecial/TileMap/TileAlternativesData";
+import { TileMapLayer } from "./display/Scene2DSpecial/TileMap/TileMapLayer";
+import { TileMapPhysis } from "./display/Scene2DSpecial/TileMap/TileMapPhysis";
+import { TileSet } from "./display/Scene2DSpecial/TileMap/TileSet";
+import { TileSetCellData } from "./display/Scene2DSpecial/TileMap/TileSetCellData";
 
 let c = ClassUtils.regClass;
 
@@ -121,3 +126,10 @@ c("FreeformLight2D", FreeformLight2D);
 c("SpotLight2D", SpotLight2D);
 c("LightOccluder2D", LightOccluder2D);
 c("PolygonPoint2D", PolygonPoint2D);
+
+/// TileMap
+c("TileSet", TileSet);
+c("TileMapLayer", TileMapLayer);
+c("TileSetCellData", TileSetCellData);
+c("TileAlternativesData", TileAlternativesData);
+c("TileMapPhysis", TileMapPhysis);
