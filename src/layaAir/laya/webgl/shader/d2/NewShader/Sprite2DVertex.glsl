@@ -156,7 +156,24 @@
         }
     #endif
 
-    void getVertexInfo(inout vertexInfo info) {
+    void transfrom(vec2 pos,vec3 xDir,vec3 yDir,out vec2 outPos){
+        outPos.x=xDir.x*pos.x+xDir.y*pos.y+xDir.z;
+        outPos.y=yDir.x*pos.x+yDir.y*pos.y+yDir.z;
+    }
+
+    void getGlobalPos(in vec2 localPos,out vec2 globalPos){
+        transfrom(localPos,u_NMatrix_0,u_NMatrix_1,globalPos);
+    }
+
+    void getViewPos(in vec2 globalPos,out vec2 viewPos){
+        #ifdef CAMERA2D
+            viewPos.xy = (u_view2D *vec3(globalPos,1.0)).xy+u_baseRenderSize2D/2.;
+        #else
+            viewPos.xy = globalPos;
+        #endif
+    }
+
+    void getVertexInfo(inout vertexInfo info){
          info.pos = a_position.xy;
          info.color = vec4(1.0,1.0,1.0,1.0);
          #ifdef COLOR
@@ -167,10 +184,10 @@
          #endif
 
          #ifdef LIGHT_AND_SHADOW
-            float x = u_NMatrix_0.x * info.pos.x + u_NMatrix_0.y * info.pos.y + u_NMatrix_0.z;
-            float y = u_NMatrix_1.x * info.pos.x + u_NMatrix_1.y * info.pos.y + u_NMatrix_1.z;
-            info.lightUV.x = (x - u_LightAndShadow2DParam.x) / u_LightAndShadow2DParam.z;
-            info.lightUV.y = 1.0 - (y - u_LightAndShadow2DParam.y) / u_LightAndShadow2DParam.w;
+            vec2 global;
+            getGlobalPos(info.pos, global);
+            info.lightUV.x = (global.x - u_LightAndShadow2DParam.x) / u_LightAndShadow2DParam.z;
+            info.lightUV.y = 1.0 - (global.y - u_LightAndShadow2DParam.y) / u_LightAndShadow2DParam.w;
         #endif
     }
 
@@ -188,19 +205,19 @@
         return cliped;
     }
 
-    void getPosition(inout vec4 pos){
-        pos = vec4(a_position.xy,0.,1.);
-        float x = u_NMatrix_0.x * pos.x + u_NMatrix_0.y * pos.y + u_NMatrix_0.z;
-        float y = u_NMatrix_1.x * pos.x + u_NMatrix_1.y * pos.y + u_NMatrix_1.z;
-        pos.xy = vec2(x,y);
-        #ifdef CAMERA2D
-            pos.xy = (u_view2D *vec3(pos.x,pos.y,1.0)).xy+u_baseRenderSize2D/2.;
-        #endif   
-        v_cliped = getClipedInfo(vec2(pos.xy));
-        pos= vec4((pos.x/u_baseRenderSize2D.x-0.5)*2.0,(0.5-pos.y/u_baseRenderSize2D.y)*2.0,0.,1.0);
+    void getProjectPos(in vec2 viewPos,out vec4 projectPos){
+        projectPos= vec4((viewPos.x/u_baseRenderSize2D.x-0.5)*2.0,(0.5-viewPos.y/u_baseRenderSize2D.y)*2.0,0.,1.0);
+        #ifdef INVERTY
+            projectPos.y = -projectPos.y;
+        #endif
+    }
 
-        // #ifdef INVERTY
-        //     pos.y = -pos.y;
-        // #endif
+    void getPosition(inout vec4 pos){
+        vec2 globalPos;
+        getGlobalPos(a_position.xy,globalPos);
+        vec2 viewPos;
+        getViewPos(globalPos,viewPos);
+        v_cliped = getClipedInfo(viewPos);
+        getProjectPos(viewPos,pos);
     }
 #endif

@@ -37,6 +37,14 @@ export class ChangeRGBA implements IVBChange {
         this.slotId = slotId;
     }
 
+    apply(frame:number , vb: VBCreator, slots: spine.Slot[]): boolean {
+        if (frame >= this.startFrame) {
+            this.updateVB(vb , slots);
+            return true;
+        }else
+            return false;
+    }
+
     /**
      * @en Initializes the change with the given VBCreator.
      * @param vb The VBCreator to initialize with.
@@ -72,8 +80,8 @@ export class ChangeRGBA implements IVBChange {
         if (slot.attachment) {
             let vertexSize = vb.vertexSize;
             let attachmentPos = this.sizeMap.get(slot.attachment.name);
-            let offset = attachmentPos.offset * vertexSize;
             let vbData = vb.vb;
+            let offset = attachmentPos.offset * vertexSize;
             let attachment = attachmentPos.attachment;
             let r, g, b, a;
             let attachmentColor = attachment.lightColor;

@@ -1,5 +1,6 @@
 import { Material } from "../../resource/Material";
 type RenderData = {
+    attachment:string;
     material?: Material;
     textureName: string;
     blendMode: number;
@@ -46,8 +47,8 @@ export class MultiRenderData {
      * @param offset 顶点缓冲区中的起始偏移量。
      * @param length 数据的初始长度。
      */
-    addData(textureName: string, blendMode: number, offset: number, length: number) {
-        this.currentData = { textureName: textureName, blendMode, offset, length }
+    addData(textureName: string, blendMode: number, offset: number, length: number , attachment:string) {
+        this.currentData = { textureName: textureName, blendMode, offset, length , attachment}
         this.renderData.push(this.currentData);
     }
 

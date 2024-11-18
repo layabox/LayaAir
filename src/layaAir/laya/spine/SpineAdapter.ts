@@ -77,7 +77,8 @@ export class SpineAdapter {
         //@ts-ignore
         stateProto.getCurrentPlayTimeOld = function (trackIndex: number) {
             //@ts-ignore
-            return Math.max(0, this.getCurrentOld(trackIndex).animationLast);
+            // return Math.max(0, this.getCurrentOld(trackIndex).animationLast);
+            return this.getCurrentOld(trackIndex).getAnimationTime();
         }
         //@ts-ignore
         stateProto.getCurrentPlayTime = stateProto.getCurrentPlayTimeOld;

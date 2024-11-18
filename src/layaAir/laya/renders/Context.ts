@@ -1076,7 +1076,7 @@ export class Context {
             this._drawTriUseAbsMatrix = true;
             var tuv = this._tempUV;
             tuv[0] = uv[0]; tuv[1] = uv[1]; tuv[2] = uv[2]; tuv[3] = uv[3]; tuv[4] = uv[4]; tuv[5] = uv[5]; tuv[6] = uv[6]; tuv[7] = uv[7];
-            this.drawTriangles(tex as Texture, 0, 0, tv, tuv, this._drawTexToDrawTri_Index, m || this._curMat, alpha, null, null);//用tuv而不是uv会提高效率
+            this.drawTriangles(tex as Texture, 0, 0, tv, tuv, this._drawTexToDrawTri_Index, m || this._curMat, alpha, null, 0xffffffff);//用tuv而不是uv会提高效率
             this._drawTriUseAbsMatrix = false;
             return true;
         }
