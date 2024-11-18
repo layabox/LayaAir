@@ -7,6 +7,7 @@ import { IRenderElement2D } from "../../DriverDesign/2DRenderPass/IRenderElement
 import { SetRenderDataCMD, SetShaderDefineCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
 import { WebGPUSetRenderData } from "../RenderDevice/WebGPUSetRenderData";
 import { WebGPUSetShaderDefine } from "../RenderDevice/WebGPUSetShaderDefine";
+import { WebGPUBlit2DQuadCMD, WebGPUDraw2DElementCMD, WebGPUSetRendertarget2DCMD } from "./WebGPU2DRenderCMD";
 import { WebGPURenderContext2D } from "./WebGPURenderContext2D";
 import { WebGPURenderElement2D } from "./WebGPURenderElement2D";
 
@@ -18,13 +19,13 @@ export class WebGPURender2DProcess implements I2DRenderPassFactory {
         return new WebGPUSetShaderDefine();
     }
     createBlit2DQuadCMDData(): Blit2DQuadCMD {
-        return null;//TODO
+        return new WebGPUBlit2DQuadCMD();
     }
     createDraw2DElementCMDData(): Draw2DElementCMD {
-        return null;//TODO
+        return new WebGPUDraw2DElementCMD();
     }
     createSetRendertarget2DCMD(): SetRendertarget2DCMD {
-        return null;//TODO
+        return new WebGPUSetRendertarget2DCMD();
     }
     createRenderElement2D(): IRenderElement2D {
         return new WebGPURenderElement2D();

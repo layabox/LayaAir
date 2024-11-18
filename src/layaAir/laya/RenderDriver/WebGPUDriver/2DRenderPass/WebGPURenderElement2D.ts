@@ -505,7 +505,7 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
                 this._stateKey[index] = stateKey;
             }
             context.pipelineCache.push({ name: shaderInstance.name, pipeline, shaderInstance, samples: context.destRT._samples, stateKey });
-            console.log('pipelineCache2d =', context.pipelineCache);
+            //console.log('pipelineCache2d =', context.pipelineCache);
             return pipeline;
         }
         return null;

@@ -87,7 +87,7 @@ export class WebGPUCodeGenerator {
         this.naga = new NagaWASM();
         await this.naga.init();
         this.inited = true;
-        console.log("naga inited");
+        //console.log("naga inited");
         if (next) next();
 
         Graphics.add2DGlobalUniformData(Shader3D.propertyNameToID('u_GraphicDummy'), 'u_GraphicDummy', ShaderDataType.Vector4);

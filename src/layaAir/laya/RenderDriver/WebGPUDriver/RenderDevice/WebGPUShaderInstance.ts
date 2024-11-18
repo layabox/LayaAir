@@ -118,9 +118,9 @@ export class WebGPUShaderInstance implements IShaderInstance {
         this._fsShader = device.createShaderModule({ code: shaderObj.fs });
 
         this.complete = true;
-        const dimension = shaderProcessInfo.is2D ? '2d' : '3d';
-        console.log('create ' + dimension + ' shaderInstance_' + this._id,
-            shaderPass._owner._owner.name, this._shaderPass, this.uniformSetMap, { vs: shaderObj.glsl_vs }, { fs: shaderObj.glsl_fs });
+        //const dimension = shaderProcessInfo.is2D ? '2d' : '3d';
+        //console.log('create ' + dimension + ' shaderInstance_' + this._id,
+        //    shaderPass._owner._owner.name, this._shaderPass, this.uniformSetMap, { vs: shaderObj.glsl_vs }, { fs: shaderObj.glsl_fs });
     }
 
     /**
