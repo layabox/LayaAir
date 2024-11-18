@@ -12,14 +12,15 @@ uniform vec3 u_dashed;
 
 void lineMat(in vec2 left,in vec2 right,inout vec3 xDir,inout vec3 yDir){
     vec2 dir=right-left;
-    float halfWidth=u_lineWidth+2.0;
-    float lineLength=length(dir)+halfWidth;
+   
+    float lineLength=length(dir)+2.0;
     dir=normalize(dir);
     xDir.x=dir.x*lineLength;
     yDir.x=dir.y*lineLength;
     
-    xDir.y=-dir.y*(halfWidth);
-    yDir.y=dir.x*(halfWidth);
+    float lineWidth=u_lineWidth+2.0;
+    xDir.y=-dir.y*lineWidth;
+    yDir.y=dir.x*lineWidth;
 
     xDir.z=(left.x+right.x)*0.5;
     yDir.z=(left.y+right.y)*0.5;
@@ -28,20 +29,16 @@ void lineMat(in vec2 left,in vec2 right,inout vec3 xDir,inout vec3 yDir){
 
 void main(){
     v_lineLength = a_linelength;
-   //v_lineLength = 1000.0;
-   v_texcoord = a_position.xy + vec2(0.5,0.5);
+    v_texcoord = (a_position.xy + vec2(0.5,0.5));
     
     vec2 left,right;
     getGlobalPos(a_linePos.xy,left);
     getGlobalPos(a_linePos.zw,right);
-    //getGlobalPos(vec2(500.0,200),left);
-    //getGlobalPos(vec2(1000.0,200),right);
 
     v_linePionts=vec4(left,right);
     vec3 xDir;
     vec3 yDir;
     lineMat(left,right,xDir,yDir);
-        
     transfrom(a_position.xy,xDir,yDir,v_position);
    
   
