@@ -1,3 +1,6 @@
+import { LayaGL } from "../../../layagl/LayaGL";
+import { Color } from "../../../maths/Color";
+import { Matrix } from "../../../maths/Matrix";
 import { Rectangle } from "../../../maths/Rectangle";
 import { Vector2 } from "../../../maths/Vector2";
 import { Vector3 } from "../../../maths/Vector3";
@@ -6,14 +9,19 @@ import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTarge
 import { WrapMode } from "../../../RenderEngine/RenderEnum/WrapMode";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { Material } from "../../../resource/Material";
+import { Mesh2D } from "../../../resource/Mesh2D";
+import { RenderTexture } from "../../../resource/RenderTexture";
 import { RenderTexture2D } from "../../../resource/RenderTexture2D";
+import { Texture2D } from "../../../resource/Texture2D";
 import { Browser } from "../../../utils/Browser";
 import { Scene } from "../../Scene";
 import { Sprite } from "../../Sprite";
-import { Mesh2DRender } from "../Mesh2DRender";
+import { CommandBuffer2D } from "../RenderCMD2D/CommandBuffer2D";
+import { DrawMesh2DCMD } from "../RenderCMD2D/DrawMesh2DCMD";
+import { Set2DRTCMD } from "../RenderCMD2D/Set2DRenderTargetCMD";
 import { BaseLight2D, Light2DType } from "./BaseLight2D";
+import { Light2DManager } from "./Light2DManager";
 import { PolygonPoint2D } from "./PolygonPoint2D";
-import { ShowRenderTarget } from "./ShowRenderTarget";
 
 /**
  * 自定义形状灯光
@@ -25,9 +33,13 @@ export class FreeformLight2D extends BaseLight2D {
     private _lightPolygon: PolygonPoint2D; //定义灯光的多边形顶点（顺时针存储）
     private _globalPolygon: PolygonPoint2D; //变换后的多边形顶点（顺时针存储）
 
+    private _localCircle: Vector3 = new Vector3(0, 0, 1); //灯光包围圆（x，y圆心，z半径，局部坐标）
+    private _worldCircle: Vector3 = new Vector3(0, 0, 1); //灯光包围圆（x，y圆心，z半径，世界坐标）
+
     //用于生成灯光贴图
-    private _sprite: Sprite;
-    private _render: Mesh2DRender;
+    private _cmdBuffer: CommandBuffer2D;
+    private _cmdRT: Set2DRTCMD;
+    private _cmdMesh: DrawMesh2DCMD;
     private _material: Material;
 
     /**
@@ -36,7 +48,6 @@ export class FreeformLight2D extends BaseLight2D {
     constructor() {
         super();
         this._type = Light2DType.Freeform;
-        this._sprite = new Sprite();
         this._material = new Material();
         this._material.setShaderName('LightGen2D');
         this._material.setBoolByIndex(Shader3D.DEPTH_WRITE, false);
@@ -46,8 +57,7 @@ export class FreeformLight2D extends BaseLight2D {
         this._material.setIntByIndex(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_SRC_ALPHA);
         this._material.setIntByIndex(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA);
         this._material.setIntByIndex(Shader3D.CULL, RenderState.CULL_NONE);
-        this._render = this._sprite.addComponent(Mesh2DRender);
-        this._render.sharedMaterial = this._material;
+        this._cmdBuffer = new CommandBuffer2D('Light2DRender_Freeform'); //渲染灯光贴图的命令流
         this._defaultPoly();
     }
 
@@ -61,29 +71,24 @@ export class FreeformLight2D extends BaseLight2D {
 
     /**
      * @en Set the range of light attenuation
+     * @param value Light attenuation value
      * @zh 设置灯光衰减范围
+     * @param value 灯光衰减范围值
      */
     set falloffRange(value: number) {
         if (this._falloffRange !== value) {
             this._falloffRange = value;
-            this.updateMark++;
             this._needUpdateLight = true;
+            this._needUpdateLightLocalRange = true;
+            this._needUpdateLightWorldRange = true;
+            super._clearScreenCache();
             this._limitParam();
         }
     }
 
     /**
-     * @en Response matrix transformation
-     * @zh 响应矩阵变换
-     */
-    protected _transformChange() {
-        super._transformChange();
-        this._transformPoly();
-    }
-
-    /**
-     * @en Set default ploy endpoint data
-     * @zh 设置默认多边形数据
+     * @internal
+     * 设置默认多边形数据
      */
     private _defaultPoly() {
         if (!this._lightPolygon) {
@@ -98,23 +103,25 @@ export class FreeformLight2D extends BaseLight2D {
 
     /**
      * @en Set polygon endpoint data
+     * @param poly Poly data
      * @zh 设置多边形端点数据
-     * @param poly 
+     * @param poly 多边形数据
      */
     set polygonPoint(poly: PolygonPoint2D) {
         if (poly) {
-           // poly._user = this;
             this._lightPolygon = poly;
             this._globalPolygon = poly.clone();
             this._needUpdateLight = true;
-            (this.owner?.scene as Scene)?._light2DManager?.addLight(this);
+            this._needUpdateLightLocalRange = true;
+            this._needUpdateLightWorldRange = true;
+            super._clearScreenCache();
+            ((this.owner?.scene as Scene)?._light2DManager as Light2DManager)?.addLight(this);
         } else {
-            // if (this._lightPolygon)
-            //     this._lightPolygon._user = null;
             this._lightPolygon = null;
             this._globalPolygon = null;
-            (this.owner?.scene as Scene)?._light2DManager?.removeLight(this);
+            ((this.owner?.scene as Scene)?._light2DManager as Light2DManager)?.removeLight(this);
         }
+        ((this.owner?.scene as Scene)?._light2DManager as Light2DManager)?.needCollectLightInLayer(this.layerMask);
     }
 
     /**
@@ -126,123 +133,192 @@ export class FreeformLight2D extends BaseLight2D {
     }
 
     /**
-     * @en Get light range
-     * @zh 获取灯光范围
-     * @param screen 
+     * @en Get light pos
+     * @zh 获取灯光位置
      */
-    getLightRange(screen?: Rectangle) {
-        if (this._globalPolygon) {
-            this._transformPoly();
-            let xmin = Number.POSITIVE_INFINITY;
-            let ymin = Number.POSITIVE_INFINITY;
-            let xmax = Number.NEGATIVE_INFINITY;
-            let ymax = Number.NEGATIVE_INFINITY;
-            const polygon = this._globalPolygon.points;
-            for (let i = polygon.length - 2; i > -1; i -= 2) {
-                const x = polygon[i + 0];
-                const y = polygon[i + 1];
-                if (xmin > x) xmin = x;
-                if (xmax < x) xmax = x;
-                if (ymin > y) ymin = y;
-                if (ymax < y) ymax = y;
-            }
-            let x = (xmax - xmin) * Browser.pixelRatio | 0;
-            let y = (ymax - ymin) * Browser.pixelRatio | 0;
-            const t = this._falloffRange * FreeformLight2D.FALLOF_WIDTH * 1.5 * Browser.pixelRatio | 0;
-            const w = this._range.width = x + 10 + t * 2;
-            const h = this._range.height = y + 10 + t * 2;
-            x = this._range.x = (xmin - 5 - t) | 0;
-            y = this._range.y = (ymin - 5 - t) | 0;
-            this._range.width = w;
-            this._range.height = h;
-            for (let i = polygon.length - 2; i > -1; i -= 2) {
-                polygon[i + 0] -= x;
-                polygon[i + 1] -= y;
-            }
+    get lightPos() {
+        this._getRange();
+        this._lightPos.x = this._worldCircle.x;
+        this._lightPos.y = this._worldCircle.y;
+        return this._lightPos;
+    }
+
+    /**
+     * @en Get light global position x
+     * @zh 获取灯光世界位置的X坐标值
+     */
+    getGlobalPosX() {
+        return this._worldCircle.x;
+    }
+
+    /**
+     * @en Get light global position y
+     * @zh 获取灯光世界位置的Y坐标值
+     */
+    getGlobalPosY() {
+        return this._worldCircle.y;
+    }
+
+    /**
+     * @internal
+     * 响应矩阵改变
+     */
+    protected _transformChange() {
+        if (this._lightPolygon)
+            super._transformChange();
+    }
+
+    /**
+     * @internal
+     * 计算灯光范围（局部坐标）
+     */
+    protected _calcLocalRange() {
+        super._calcLocalRange();
+        let xmin = Number.POSITIVE_INFINITY;
+        let ymin = Number.POSITIVE_INFINITY;
+        let xmax = Number.NEGATIVE_INFINITY;
+        let ymax = Number.NEGATIVE_INFINITY;
+        const polygon = this._lightPolygon.points;
+        for (let i = polygon.length - 2; i > -1; i -= 2) {
+            const x = polygon[i + 0];
+            const y = polygon[i + 1];
+            if (xmin > x) xmin = x;
+            if (xmax < x) xmax = x;
+            if (ymin > y) ymin = y;
+            if (ymax < y) ymax = y;
         }
-        return this._range;
+        let x = (xmax - xmin) * Browser.pixelRatio | 0;
+        let y = (ymax - ymin) * Browser.pixelRatio | 0;
+        const t = this._falloffRange * FreeformLight2D.FALLOF_WIDTH * 1.5 * Browser.pixelRatio | 0;
+        const w = this._localRange.width = x + 10 + t * 2;
+        const h = this._localRange.height = y + 10 + t * 2;
+        this._localRange.x = (xmin - 5 - t) | 0;
+        this._localRange.y = (ymin - 5 - t) | 0;
+        this._localRange.width = w;
+        this._localRange.height = h;
+
+        //计算局部坐标包围圆
+        this._localCircle.z = Math.sqrt(w * w + h * h) / 2 | 0;
+        this._localCircle.x = (this._localRange.x + w / 2) | 0;
+        this._localCircle.y = (this._localRange.y + h / 2) | 0;
+    }
+
+    /**
+     * @internal
+     * 计算灯光范围（世界坐标）
+     * @param screen 屏幕位置和尺寸
+     */
+    protected _calcWorldRange(screen?: Rectangle) {
+        super._calcWorldRange(screen);
+        super._lightScaleAndRotation();
+        this._lightPolygon.cloneTo(this._globalPolygon);
+
+        //计算世界坐标包围圆
+        const m = (this.owner as Sprite).getGlobalMatrix();
+        const ox = (this.owner as Sprite).globalPosX * Browser.pixelRatio;
+        const oy = (this.owner as Sprite).globalPosY * Browser.pixelRatio;
+        const sx = Math.abs((this.owner as Sprite).globalScaleX);
+        const sy = Math.abs((this.owner as Sprite).globalScaleY);
+        if (m) {
+            this._worldCircle.x = m.a * this._localCircle.x + m.c * this._localCircle.y + ox;
+            this._worldCircle.y = m.b * this._localCircle.x + m.d * this._localCircle.y + oy;
+        } else {
+            this._worldCircle.x = this._localCircle.x * sx + ox;
+            this._worldCircle.y = this._localCircle.y * sy + oy;
+        }
+        this._worldCircle.z = Math.sqrt(sx * sx + sy * sy) * this._localCircle.z;
+
+        //计算世界坐标包围盒
+        this._worldRange.x = (this._worldCircle.x - this._worldCircle.z) | 0;
+        this._worldRange.y = (this._worldCircle.y - this._worldCircle.z) | 0;
+        this._worldRange.width = this._worldCircle.z * 2 | 0;
+        this._worldRange.height = this._worldCircle.z * 2 | 0;
+
+        //对多边形顶点进行偏移（使其居中）
+        const x = this._localRange.x;
+        const y = this._localRange.y;
+        const polygon = this._globalPolygon.points;
+        for (let i = polygon.length - 2; i > -1; i -= 2) {
+            polygon[i + 0] -= x;
+            polygon[i + 1] -= y;
+        }
     }
 
     /**
      * @en Render light texture
+     * @param scene Scene object
      * @zh 渲染灯光贴图
-     * @param scene 
+     * @param scene 场景对象
      */
     renderLightTexture(scene: Scene) {
         super.renderLightTexture(scene);
-        if (this._globalPolygon && this._needUpdateLight) {
+        if (this._needUpdateLight) {
             this._needUpdateLight = false;
-            this.updateMark++;
-            const range = this.getLightRange();
+            const width = this._localRange.width;
+            const height = this._localRange.height;
+            if (width === 0 || height === 0) return;
             if (!this._texLight || !(this._texLight instanceof RenderTexture2D)) {
-                this._texLight = new RenderTexture2D(range.width, range.height, RenderTargetFormat.R8G8B8A8);
+                this._texLight = new RenderTexture2D(width, height, RenderTargetFormat.R8G8B8A8);
                 this._texLight.wrapModeU = WrapMode.Clamp;
                 this._texLight.wrapModeV = WrapMode.Clamp;
+                (this._texLight as RenderTexture2D)._invertY = LayaGL.renderEngine._screenInvertY;
+                if (!this._cmdRT)
+                    this._cmdRT = Set2DRTCMD.create(this._texLight as RenderTexture, true, Color.BLACK, LayaGL.renderEngine._screenInvertY);
+                else this._cmdRT.renderTexture = this._texLight as RenderTexture;
+                if (Light2DManager.DEBUG)
+                    console.log('create freeform light texture', width, height);
             }
-            else if (this._texLight.width !== range.width || this._texLight.height !== range.height) {
+            else if (this._texLight.width !== width || this._texLight.height !== height) {
                 this._texLight.destroy();
-                this._texLight = new RenderTexture2D(range.width, range.height, RenderTargetFormat.R8G8B8A8);
+                this._texLight = new RenderTexture2D(width, height, RenderTargetFormat.R8G8B8A8);
                 this._texLight.wrapModeU = WrapMode.Clamp;
                 this._texLight.wrapModeV = WrapMode.Clamp;
+                (this._texLight as RenderTexture2D)._invertY = LayaGL.renderEngine._screenInvertY;
+                if (!this._cmdRT)
+                    this._cmdRT = Set2DRTCMD.create(this._texLight as RenderTexture, true, Color.BLACK, LayaGL.renderEngine._screenInvertY);
+                else this._cmdRT.renderTexture = this._texLight as RenderTexture;
+                if (Light2DManager.DEBUG)
+                    console.log('update freeform light texture', width, height);
             }
-            if (this._render.shareMesh)
-                this._needToRecover.push(this._render.shareMesh);
-            this._render.shareMesh = this._createMesh(this._falloffRange * FreeformLight2D.FALLOF_WIDTH, 8);
-            scene.addChild(this._sprite);
-            this._sprite.drawToTexture(0, 0, 0, 0, this._texLight as RenderTexture2D);
-            scene.removeChild(this._sprite);
+            const mesh = this._createMesh(this._falloffRange * FreeformLight2D.FALLOF_WIDTH, 8, this._cmdMesh?.mesh, this._needToRecover);
+            if (!this._cmdMesh)
+                this._cmdMesh = DrawMesh2DCMD.create(mesh, Matrix.EMPTY, Texture2D.whiteTexture, Color.WHITE, this._material);
+            else {
+                if (this._cmdMesh.mesh)
+                    this._needToRecover.push(this._cmdMesh.mesh);
+                this._cmdMesh.mesh = mesh;
+            }
+            this._cmdBuffer.addCacheCommand(this._cmdRT);
+            this._cmdBuffer.addCacheCommand(this._cmdMesh);
+            this._cmdBuffer.apply(true);
+            this._cmdBuffer.clear(false);
+            this._needUpdateLightAndShadow = true;
 
-            if (this.showLightTexture) {
-                if (!this.showRenderTarget)
-                    this.showRenderTarget = new ShowRenderTarget(scene, this._texLight, 0, 0, 300, 300);
-                else this.showRenderTarget.setRenderTarget(this._texLight);
+            if (Light2DManager.DEBUG) {
+                if (this.showLightTexture)
+                    this._printTextureToConsoleAsBase64();
+                console.log('update freeform light texture');
             }
         }
     }
 
     /**
-     * @en Limit param range
-     * @zh 限制参数范围
+     * @internal
+     * 限制参数范围
      */
     private _limitParam() {
         this._falloffRange = Math.max(Math.min(this._falloffRange, 10), 0);
     }
 
     /**
-     * @en Transform ploy endpoint
-     * @zh 变换多边形顶点
-     */
-    private _transformPoly() {
-        if (this._globalPolygon) {
-            const globalPoly = this._globalPolygon.points;
-            const polygon = this._lightPolygon.points;
-            const len = polygon.length / 2 | 0;
-            const ox = (this.owner as Sprite).globalPosX * Browser.pixelRatio;
-            const oy = (this.owner as Sprite).globalPosY * Browser.pixelRatio;
-            const sx = (this.owner as Sprite).globalScaleX;
-            const sy = (this.owner as Sprite).globalScaleY;
-            const rotation = (this.owner as Sprite).globalRotation * Math.PI / 180;
-            const pivotX = (this.owner as Sprite).pivotX * Browser.pixelRatio;
-            const pivotY = (this.owner as Sprite).pivotY * Browser.pixelRatio;
-            const sinA = Math.sin(rotation);
-            const cosA = Math.cos(rotation);
-            let x = 0, y = 0;
-            for (let i = 0; i < len; i++) {
-                x = polygon[i * 2 + 0] * Browser.pixelRatio - pivotX;
-                y = polygon[i * 2 + 1] * Browser.pixelRatio - pivotY;
-                globalPoly[i * 2 + 0] = (x * cosA - y * sinA) * sx + pivotX + ox;
-                globalPoly[i * 2 + 1] = (x * sinA + y * cosA) * sy + pivotY + oy;
-            }
-        }
-    }
-
-    /**
-     * @en Create light mesh
-     * @zh 创建灯光多边形网格
+     * @internal
+     * 创建灯光多边形网格
      * @param expand 
      * @param arcSegments 
+     * @param mesh 
+     * @param recover 
      */
-    private _createMesh(expand: number, arcSegments: number = 8) {
+    private _createMesh(expand: number, arcSegments: number = 8, mesh?: Mesh2D, recover?: any[]) {
         const points: Vector3[] = [];
         const inds: number[] = [];
         const poly = this._globalPolygon.points;
@@ -354,12 +430,12 @@ export class FreeformLight2D extends BaseLight2D {
         //三角化多边形内部（使用耳切法）
         inds.push(...this._earCut(poly));
 
-        return this._makeMesh(points, inds);
+        return this._makeOrUpdateMesh(points, inds, mesh, recover);
     }
 
     /**
-     * @en Triangulating concave polygons using ear cutting method
-     * @zh 耳切法三角化凹多边形
+     * @internal
+     * 耳切法三角化凹多边形
      * @param polygon 
      */
     private _earCut(polygon: number[]) {
@@ -398,8 +474,8 @@ export class FreeformLight2D extends BaseLight2D {
     }
 
     /**
-     * @en Is ear tip
-     * @zh 是否耳尖
+     * @internal
+     * 是否耳尖
      * @param vertices 
      * @param indices 
      * @param vertexCount 
@@ -417,8 +493,8 @@ export class FreeformLight2D extends BaseLight2D {
     }
 
     /**
-     * @en Is include other vertices
-     * @zh 是否包含其他顶点
+     * @internal
+     * 是否包含其他顶点
      * @param vertices 
      * @param indices 
      * @param vertexCount 
@@ -455,8 +531,8 @@ export class FreeformLight2D extends BaseLight2D {
     }
 
     /**
-     * @en Destroy
-     * @zh 销毁
+     * @internal
+     * 销毁
      */
     protected _onDestroy() {
         super._onDestroy();

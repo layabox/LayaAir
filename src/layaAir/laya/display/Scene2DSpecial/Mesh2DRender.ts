@@ -27,6 +27,8 @@ export class Mesh2DRender extends BaseRenderNode2D {
 
     private _color: Color = new Color();
 
+    private _normal2DTexture: BaseTexture;
+    private _normal2DStrength: number = 0;
 
     /**
      * @en 2D Mesh 
@@ -100,6 +102,50 @@ export class Mesh2DRender extends BaseRenderNode2D {
 
     get texture(): BaseTexture {
         return this._baseRender2DTexture;
+    }
+
+    /**
+     * @en Rendering textures will not take effect if there is no UV in 2dmesh
+     * @zh 渲染纹理，如果2DMesh中没有uv，则不会生效 
+     */
+    set normalTexture(value: BaseTexture) {
+        if (value === this._normal2DTexture)
+            return;
+
+        if (this._normal2DTexture)
+            this._normal2DTexture._removeReference(1)
+
+        if (value)
+            value._addReference();
+        this._normal2DTexture = value;
+
+        this._spriteShaderData.setTexture(BaseRenderNode2D.NORMAL2DTEXTURE, value);
+        if (this._normal2DStrength > 0 && this._normal2DTexture)
+            this._spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_LIGHT2DNORMAL_PARAM);
+        else this._spriteShaderData.removeDefine(BaseRenderNode2D.SHADERDEFINE_LIGHT2DNORMAL_PARAM);
+    }
+
+    get normalTexture(): BaseTexture {
+        return this._normal2DTexture;
+    }
+
+    /**
+     * @en normal strengh
+     * @zh 法线效果强度
+     */
+    set normalStrength(value: number) {
+        value = Math.max(0, Math.min(1, value)); //值应该在0~1之间
+        if (this._normal2DStrength === value)
+            return
+        this._normal2DStrength = value;
+        this._spriteShaderData.setNumber(BaseRenderNode2D.NORMAL2DSTRENGTH, value);
+        if (value > 0 && this._normal2DTexture)
+            this._spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_LIGHT2DNORMAL_PARAM);
+        else this._spriteShaderData.removeDefine(BaseRenderNode2D.SHADERDEFINE_LIGHT2DNORMAL_PARAM);
+    }
+
+    get normalStrength() {
+        return this._normal2DStrength;
     }
 
     /**

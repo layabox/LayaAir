@@ -6,11 +6,11 @@ import { Sprite } from "../../Sprite";
 import { Mesh2DRender } from "../Mesh2DRender";
 
 /**
- * 用于显示渲染目标（灯光贴图）
+ * 用于显示渲染目标
  */
 export class ShowRenderTarget {
     private _sprite: Sprite;
-    private _render: Mesh2DRender;
+    private _render: Mesh2DRender; //二维网格渲染器
 
     constructor(scene: Scene, tex: BaseTexture, x: number, y: number, width: number, height: number) {
         this._sprite = scene.addChild(new Sprite());
@@ -21,7 +21,8 @@ export class ShowRenderTarget {
     }
 
     /**
-     * 设置待显示的渲染目标
+     * @en Set render target
+     * @zh 设置待显示的渲染目标
      * @param rt 
      */
     setRenderTarget(rt: BaseTexture) {
@@ -29,7 +30,8 @@ export class ShowRenderTarget {
     }
 
     /**
-     * 生成网格
+     * @en Generate the mesh
+     * @zh 生成网格
      */
     private _genMesh(x: number, y: number, width: number, height: number) {
         const vertices = new Float32Array(4 * 5);
