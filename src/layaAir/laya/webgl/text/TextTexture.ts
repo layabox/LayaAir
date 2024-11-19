@@ -130,13 +130,6 @@ export class TextTexture extends Texture2D {
         // 不再回收
         return new TextTexture(w, h);
     }
-    /**
-     * @override
-     */
-    protected _disposeResource(): void {
-        //console.log('destroy TextTexture');
-        this.destroy();
-    }
 
     /**
      * 定期清理
