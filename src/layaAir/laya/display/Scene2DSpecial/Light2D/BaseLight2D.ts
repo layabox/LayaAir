@@ -146,7 +146,7 @@ export class BaseLight2D extends Component {
      */
     set color(value: Color) {
         if (!value.equal(this._color)) {
-            this._color = value;
+            value.cloneTo(this._color);
             this._needUpdateLightAndShadow = true;
         }
     }
@@ -259,7 +259,7 @@ export class BaseLight2D extends Component {
      */
     set shadowColor(value: Color) {
         if (!value.equal(this._shadowColor)) {
-            this._shadowColor = value;
+            value.cloneTo(this._shadowColor);
             this._needUpdateLightAndShadow = true;
         }
     }

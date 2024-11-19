@@ -281,13 +281,16 @@ export class FreeformLight2D extends BaseLight2D {
                     console.log('update freeform light texture', width, height);
             }
             const mesh = this._createMesh(this._falloffRange * FreeformLight2D.FALLOF_WIDTH, 8, this._cmdMesh?.mesh, this._needToRecover);
-            if (!this._cmdMesh)
-                this._cmdMesh = DrawMesh2DCMD.create(mesh, Matrix.EMPTY, Texture2D.whiteTexture, Color.WHITE, this._material);
-            else {
-                if (this._cmdMesh.mesh)
-                    this._needToRecover.push(this._cmdMesh.mesh);
-                this._cmdMesh.mesh = mesh;
-            }
+            //if (!this._cmdMesh)
+            //this._cmdMesh = DrawMesh2DCMD.create(mesh, Matrix.EMPTY, Texture2D.whiteTexture, Color.WHITE, this._material);
+            //else {
+            //    if (this._cmdMesh.mesh)
+            //        this._needToRecover.push(this._cmdMesh.mesh);
+            //    this._cmdMesh.mesh = mesh;
+            //}
+            if (this._cmdMesh && this._cmdMesh.mesh)
+                this._needToRecover.push(this._cmdMesh.mesh);
+            this._cmdMesh = DrawMesh2DCMD.create(mesh, Matrix.EMPTY, Texture2D.whiteTexture, Color.WHITE, this._material);
             this._cmdBuffer.addCacheCommand(this._cmdRT);
             this._cmdBuffer.addCacheCommand(this._cmdMesh);
             this._cmdBuffer.apply(true);

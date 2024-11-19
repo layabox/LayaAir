@@ -433,7 +433,6 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
         for (let i = layers.length - 1; i > -1; i--) {
             const layer = layers[i];
             if (!light._isInRange(this._lightRangeSchmitt[layer])) {
-                //this._collectLightInScreenByLayer(layer); //收集该层屏幕内的灯光
                 const mask = (1 << layer);
                 this.needCollectLightInLayer(mask)
                 this.needUpdateLightRange(mask);
@@ -828,6 +827,7 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
      */
     private _getOccluderSegment(layer: number, lightX: number, lightY: number, lightRange: Rectangle, shadow: boolean) {
         const range = this._lightRangeSchmitt[layer];
+        if (!range) return this._segments;
         const x = range.x - 10;
         const y = range.y - 10;
         const w = range.width + 20;
