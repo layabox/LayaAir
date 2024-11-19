@@ -3,6 +3,8 @@ import { Vector2 } from "../../../maths/Vector2";
 import { Vector3 } from "../../../maths/Vector3";
 import { Grid } from "./Grid/Grid";
 
+const tempPoint = new Vector2();
+
 /**
  * @internal
  * TileMapChunk 瓦片地图块与渲染块之间的转换
@@ -41,13 +43,12 @@ export class TileMapChunk {
 
     /**
      * 将像素单位转换为chunk索引
-     * @param x  像素单位x
-     * @param y  像素单位y
+     * @param pixelx  像素单位x
+     * @param pixely  像素单位y
      * @param out 输出 x chunk列坐标 y chunk行坐标 z Chunk内部索引
      */
-    public getChunkPosByPiexl(piexlx: number, piexly: number, out: Vector3) {
-        const tempPoint = new Vector2();
-        this._pixexToCell.piexToGrid(piexlx, piexly, tempPoint);
+    public getChunkPosByPixel(pixelx: number, pixely: number, out: Vector3) {
+        this._pixexToCell.pixelToGrid(pixelx, pixely, tempPoint);
         this.getChunkPosByCell(Math.round(tempPoint.x), Math.round(tempPoint.y), out);
     }
 

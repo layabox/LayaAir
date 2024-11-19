@@ -12,8 +12,8 @@ export class IsometricSheet extends BaseSheet {
         this._vbData = [1, 1, 0, 1, 0, 0, 1, 0];
     }
 
-    public piexToGrid(pixelX: number, pixelY: number, out: Vector2) {
-        super.piexToGrid(pixelX, pixelY, out);
+    public pixelToGrid(pixelX: number, pixelY: number, out: Vector2) {
+        super.pixelToGrid(pixelX, pixelY, out);
         let row = Math.round(out.x);
         let col = Math.round(out.y);
         let offx = 0, offy = 0;

@@ -23,9 +23,6 @@ export class TileSetCellGroup {
 
     private _atlasSize: Vector2;
 
-
-    private _name: string;
-
     private _separation: Vector2;//cell separation,unin:pixel
 
     private _margin: Vector2;//offset off atlas unin:pixel
@@ -36,25 +33,10 @@ export class TileSetCellGroup {
 
     private _tileMatrix: Matrix = new Matrix();
 
-    private _id: number;
-
-    get id() {
-        return this._id;
-    }
-    set id(value: number) {
-        this._id = value;
-    }
+    id: number;
     
-    public get name(): string {
-        return this._name;
-    }
-
-    public set name(value: string) {
-        this._name = value;
-    }
-    
-
-
+    name: string;
+   
     get tiles():Record<number, Record<number, TileAlternativesData>>{
         return this._tiles;
     }
