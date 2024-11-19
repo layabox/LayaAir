@@ -7,7 +7,8 @@ import { BufferUsage } from "../../../../RenderEngine/RenderEnum/BufferTargetTyp
 import { IndexFormat } from "../../../../RenderEngine/RenderEnum/IndexFormat";
 import { TileShape } from "../TileMapEnum";
 import { TileMapLayer } from "../TileMapLayer";
-import { TileMapLayerRenderTile } from "../TileMapLayerRenderTile";
+import { TileMapChunkData } from "../TileMapChunkData";
+import { TileMapShaderInit } from "../TileMapShaderInit";
 import { BaseSheet } from "./BaseSheet";
 import { HalfOffSquareSheet } from "./HalfOffSquareSheet";
 import { HeixSheet } from "./HeixSheet";
@@ -35,7 +36,7 @@ export class Grid {
 
     constructor() {
         let vertex = this._vbs = LayaGL.renderDeviceFactory.createVertexBuffer(BufferUsage.Dynamic);
-        vertex.vertexDeclaration = TileMapLayerRenderTile._tileMapPositionUVColorDec;
+        vertex.vertexDeclaration = TileMapShaderInit._tileMapPositionUVColorDec;
         vertex.instanceBuffer = false;
         this._ibs = LayaGL.renderDeviceFactory.createIndexBuffer(BufferUsage.Dynamic);
         this._updateTileShape(TileShape.TILE_SHAPE_SQUARE);
@@ -127,14 +128,14 @@ export class Grid {
     /**
     * 像素系统转格子系统
     */
-    piexToGrid(pixelX: number, pixelY: number, out: Vector2) {
-        this._sheet.piexToGrid(pixelX, pixelY, out);
+    pixelToGrid(pixelX: number, pixelY: number, out: Vector2) {
+        this._sheet.pixelToGrid(pixelX, pixelY, out);
     }
 
     /**
      * 格子系统转像素系统
      */
-    gridToPiex(row: number, col: number, out: Vector2) {
+    gridToPixel(row: number, col: number, out: Vector2) {
         this._sheet.gridToPiex(row, col, out);
     }
 

@@ -15,7 +15,7 @@ export class TileMapPhysis {
         TileMapPhysis._tempDef = new FixtureBox2DDef();
 
     }
-    private _physisShapeMaps: Map<string, any>;
+    private _physisShapeMaps: Map<string, any[]>;
     private _layer: TileMapLayer;
 
     constructor(layer: TileMapLayer) {
@@ -168,11 +168,12 @@ export class TileMapPhysis {
     removePhysisShape(cellRow: number, cellCol: number): void {
         if(!this._enablePhysics()) return;
         let key = this._getCellKey(cellRow, cellCol);
-        let fixture = this._physisShapeMaps.get(key);
-        if (fixture) {
-            if (fixture && this._physicBody) {
+        let fixtures = this._physisShapeMaps.get(key);
+        if (fixtures) {
+            if (fixtures && this._physicBody) {
                 let factory = Laya.physics2D;
-                factory.rigidBody_DestroyFixture(this._physicBody, fixture);
+                for (let i = 0 , len = fixtures.length; i < len; i++)
+                    factory.rigidBody_DestroyFixture(this._physicBody, fixtures[i]);
             }
             this._physisShapeMaps.delete(key);
         }
@@ -181,30 +182,42 @@ export class TileMapPhysis {
     /**
      * 添加物理形状
      */
-    addPhysisShape(cellRow: number, cellCol: number, cell: TileSetCellData): void {
+    addPhysisShape(cellRow: number, cellCol: number, cell: TileSetCellData ): void {
         if(!this._enablePhysics()) return;
+
+        let physicsDatas = cell.physicsDatas;
+        if (!physicsDatas) return;
+
         let key = this._getCellKey(cellRow, cellCol);
-        let fixture = this._physisShapeMaps.get(key);
-        if (fixture) {
+        let fixtures = this._physisShapeMaps.get(key);
+        if (fixtures) {
             return;
         }
-        let physics = cell.physics;
-        if (!physics) return;
-        const length = physics.length;
+
         const temp = Vector2.TempVector2;
-        this._layer._grid.gridToPiex(cellRow, cellCol, temp);
+        this._layer._grid.gridToPixel(cellRow, cellCol, temp);
         let offx = temp.x;
         let offy = temp.y;
         let mat = this._layer._globalTramsfrom();
-        let datas:Array<number> = new Array(length);
-        for(var i=0;i<length;i+=2){
-            let x = physics[i];
-            let y = physics[i+1];
-            TileMapUtils.transfromPointByValue(mat, x+offx, y+offy, temp);
-            datas[i] = temp.x;
-            datas[i+1] = temp.y;
+
+        fixtures = [];
+        for (let i = 0 , l = physicsDatas.length; i < l ; i++) {
+            let data = physicsDatas[i];
+            if (!data) continue
+
+            let shape = data.shape;
+            let shapeLength = shape.length;
+            let datas:Array<number> = new Array(shapeLength);
+            for (let j = 0; j < shapeLength; j++) {
+                let x = shape[j];
+                let y = shape[j+1];
+                TileMapUtils.transfromPointByValue(mat, x+offx, y+offy, temp);
+                datas[j] = temp.x;
+                datas[j+1] = temp.y;
+            }
+            fixtures.push(this._createfixture(datas));
         }
-        this._physisShapeMaps.set(key, this._createfixture(datas));
+        this._physisShapeMaps.set(key, fixtures);
     }
 
     hasPhysisShape(cellRow: number, cellCol: number): boolean {

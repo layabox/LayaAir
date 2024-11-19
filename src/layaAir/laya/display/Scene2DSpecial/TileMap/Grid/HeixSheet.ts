@@ -36,8 +36,8 @@ export class HeixSheet extends BaseSheet {
     }
 
 
-    public piexToGrid(pixelX: number, pixelY: number, out: Vector2) {
-        super.piexToGrid(pixelX, pixelY, out);
+    public pixelToGrid(pixelX: number, pixelY: number, out: Vector2) {
+        super.pixelToGrid(pixelX, pixelY, out);
         this.prixToGrid(out, this._offset);
     }
 

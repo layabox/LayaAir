@@ -13,8 +13,8 @@ export class HalfOffSquareSheet extends BaseSheet {
         this._vbData = [1, 1, 0, 1, 0, 0, 1, 0];
     }
 
-    public piexToGrid(pixelX: number, pixelY: number, out: Vector2) {
-        super.piexToGrid(pixelX, pixelY, out);
+    public pixelToGrid(pixelX: number, pixelY: number, out: Vector2) {
+        super.pixelToGrid(pixelX, pixelY, out);
         let col = out.y = Math.round(out.y);
         out.x = Math.round(out.x + this._offset * (Math.abs(col) & 1) * 0.5);
     }
