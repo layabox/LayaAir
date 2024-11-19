@@ -87,7 +87,7 @@ export class WebGPUCodeGenerator {
         this.naga = new NagaWASM();
         await this.naga.init();
         this.inited = true;
-        console.log("naga inited");
+        //console.log("naga inited");
         if (next) next();
 
         Graphics.add2DGlobalUniformData(Shader3D.propertyNameToID('u_GraphicDummy'), 'u_GraphicDummy', ShaderDataType.Vector4);
@@ -882,7 +882,6 @@ mat4 transpose(mat4 m)
         const clusterSlices = Config3D.lightClusterCount;
 
         defineString.push('GRAPHICS_API_GLES3'); //默认支持GLES3
-        if (is2D) defineString.push('INVERT_Y_2D'); //某些2D处理需要反转Y轴
 
         let defineStr: string = '';
         defineStr += '#define MAX_LIGHT_COUNT ' + Config3D.maxLightCount + '\n';

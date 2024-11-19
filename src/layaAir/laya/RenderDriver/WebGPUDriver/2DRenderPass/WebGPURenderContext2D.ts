@@ -48,7 +48,6 @@ export class WebGPURenderContext2D implements IRenderContext2D {
         return this.destRT;
     }
 
-
     drawRenderElementList(list: FastSinglelist<WebGPURenderElement2D>): number {
         const len = list.length;
         if (len === 0) return 0; //没有需要渲染的对象
@@ -102,11 +101,11 @@ export class WebGPURenderContext2D implements IRenderContext2D {
     }
 
     runOneCMD(cmd: IRenderCMD): void {
-        //TODO
+        cmd.apply(this);
     }
 
     runCMDList(cmds: IRenderCMD[]): void {
-        //TODO
+        cmds.forEach(cmd => cmd.apply(this));
     }
 
     /**
