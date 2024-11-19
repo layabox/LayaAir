@@ -59,7 +59,7 @@ export class TileAlternativesData {
         return this._sizeByAtlas;
     }
     public set sizeByAtlas(value: Vector2) {
-        this._sizeByAtlas = value;
+        this._sizeByAtlas.setValue(value.x, value.y);
         this._setOriUV();
     }
 
@@ -210,7 +210,7 @@ export class TileAlternativesData {
      * 删除一个副本
      * @param index 
      */
-    _removeCellData(index: number):TileSetCellData {
+    _removeCellData(index: number): TileSetCellData {
         let celldata = this._tileDatas[index];
         if (!celldata) {
             celldata.destroy();

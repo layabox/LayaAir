@@ -81,11 +81,11 @@ export class TileSetCellGroup {
         this._recaculateUVOriProperty(true);
     }
 
-    public get atlasSize(): Vector2 {
+    get atlasSize(): Vector2 {
         return this._atlasSize;
     }
 
-    public set atlasSize(value: Vector2) {
+    set atlasSize(value: Vector2) {
         value.cloneTo(this._atlasSize);
         this._recaculateUVOriProperty(true);
     }
@@ -109,7 +109,7 @@ export class TileSetCellGroup {
         //TODO
         this._recaculateUVOriProperty(true);
     }
-    
+
     public get textureRegionSize(): Vector2 {
         return this._textureRegionSize;
     }
@@ -136,7 +136,6 @@ export class TileSetCellGroup {
         this._owner = value;
         this._owner.addTileSetCellGroup(this);
     }
-
 
 
     _recaculateUVOriProperty(needNotiveCell: boolean) {
@@ -176,8 +175,6 @@ export class TileSetCellGroup {
         out.y = Math.floor(id / this._maxCellCount.x);
     }
 
-
-
     _getTileUVOri(localPos: Vector2, out: Vector2) {
         let uvX = localPos.x * (this._textureRegionSize.x + this._separation.x) + this._margin.x;
         let uvY = localPos.y * (this._textureRegionSize.y + this._separation.y) + this._margin.y;
@@ -198,6 +195,28 @@ export class TileSetCellGroup {
             return null;
         }
         return this._tiles[y][x];
+    }
+
+    addAlternaltive(x: number, y: number, sizeInAtlas: Vector2) {
+        let data = this.getAlternative(x, y);
+        if (data) {
+            return data;
+        }
+        let tempv2 = Vector2.TempVector2;
+        this._getTileUVExtends(sizeInAtlas, tempv2);
+        if ((tempv2.x + x > this._atlasSize.x) || (tempv2.y + y > this._atlasSize.y))
+            return null;
+        let alterData = new TileAlternativesData();
+        alterData.sizeByAtlas = sizeInAtlas;
+        for (var j = 0; j < sizeInAtlas.y; j++) {
+            let ymap = this._tiles[j];
+            if (!ymap)
+                ymap = this._tiles[j] = {};
+            for (var i = 0; i < sizeInAtlas.x; i++) {
+                ymap[i] = alterData;
+            }
+        }
+        return alterData;
     }
 
     //移除一个alternative组
