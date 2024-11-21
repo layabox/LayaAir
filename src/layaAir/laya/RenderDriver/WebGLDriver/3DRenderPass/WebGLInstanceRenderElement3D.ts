@@ -103,12 +103,9 @@ export class WebGLInstanceRenderElement3D extends WebGLRenderElement3D implement
     private _updateData: Array<Float32Array> = [];
     private _updateDataNum: Array<number> = [];
     private _instanceStateInfo: WebGLInstanceStateInfo;
-    _invertFrontFace: boolean = true;
+
     drawCount: number;
     updateNums: number;
-    protected _getInvertFront(): boolean {
-        return this._invertFrontFace;
-    }
 
     constructor() {
         super();

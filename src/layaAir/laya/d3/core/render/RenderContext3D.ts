@@ -56,7 +56,14 @@ export class RenderContext3D {
     /** @internal */
     projectionViewMatrix: Matrix4x4;
 
-    camera: Camera;
+    private _camera: Camera;
+    public get camera(): Camera {
+        return this._camera;
+    }
+    public set camera(value: Camera) {
+        this._camera = value;
+        this._contextOBJ.cameraModuleData = value._renderDataModule;
+    }
     /**@internal */
     _scene: Scene3D;
     /**
@@ -196,7 +203,7 @@ export class RenderContext3D {
     drawRenderElement(renderelemt: IRenderElement3D): void {
         this._contextOBJ.drawRenderElementOne(renderelemt);
     }
-    
+
     /**@ignore */
     constructor() {
         this._contextOBJ = Laya3DRender.Render3DPassFactory.createRenderContext3D();
