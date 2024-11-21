@@ -1,21 +1,21 @@
+import { Laya } from "../../../../Laya";
 import { Vector2 } from "../../../maths/Vector2";
 import { TILEMAPLAYERDIRTYFLAG } from "./TileMapLayer";
 import { TileSetCellData } from "./TileSetCellData";
 import { TileSetCellGroup } from "./TileSetCellGroup";
 
-export enum TtileAnimationMode {
+export enum TileAnimationMode {
     DEFAULT,
     RANDOM_START_TIMES
 }
 
 //模板数据
-
 export class TileAlternativesData {
-
-    private _owner: TileSetCellGroup;
 
     //tileData
     _tileDatas: Record<number, TileSetCellData>;
+
+    private _owner: TileSetCellGroup;
 
     //Base Data
     private _localPos: Vector2;
@@ -23,7 +23,9 @@ export class TileAlternativesData {
     private _sizeByAtlas: Vector2;//unit int
 
     private _uvOri: Vector2;
+
     private _uvExtends: Vector2;
+
     private _uvSize: Vector2;
 
     //animator
@@ -33,38 +35,51 @@ export class TileAlternativesData {
 
     private _animation_speed: number = 1.0;
 
-    private _animationNode: TtileAnimationMode;
+    private _animationNode: TileAnimationMode;
 
     private _animationFrams: number[];
+    //动画总时间
+    private _totalAnimatorTime: number;
 
-    //记录动画总时间数量；方便计算动画
-    private _animationRunTime: number = 0;
+    private _animationFramsTime: number[];
+
     private _frameIndex: number = 0;
 
+    private _animatorUpdateMask: number = 0;
 
     /**
      * 格子的位置
      */
-    public get localPos(): Vector2 {
+    get localPos(): Vector2 {
         return this._localPos;
     }
-    public set localPos(value: Vector2) {
+    set localPos(value: Vector2) {
         this._localPos = value;
     }
 
     /**
      * 格子的大小
      */
-    public get sizeByAtlas(): Vector2 {
+    get sizeByAtlas(): Vector2 {
         return this._sizeByAtlas;
     }
-    public set sizeByAtlas(value: Vector2) {
+    set sizeByAtlas(value: Vector2) {
         this._sizeByAtlas.setValue(value.x, value.y);
         this._setOriUV();
     }
 
+    get owner(): TileSetCellGroup {
+        return this._owner;
+    }
+
+    set owner(value: TileSetCellGroup) {
+        if (value === this._owner) return;
+        this._owner = value;
+        this._setOriUV();
+    }
+
     /**
-     * 格子的备份数据
+     * 格子的备份数据IDE todo?
      */
     get tileDatas() {
         return this._tileDatas;
@@ -79,39 +94,49 @@ export class TileAlternativesData {
     }
 
     //animation
-    public get animation_columns(): number {
+    get animation_columns(): number {
         return this._animation_columns;
     }
-    public set animation_columns(value: number) {
+    set animation_columns(value: number) {
         this._animation_columns = value;
     }
 
-    public get animation_separation(): Vector2 {
+    get animation_separation(): Vector2 {
         return this._animation_separation;
     }
-    public set animation_separation(value: Vector2) {
+    set animation_separation(value: Vector2) {
         this._animation_separation = value;
     }
 
-    public get animation_speed(): number {
+    get animation_speed(): number {
         return this._animation_speed;
     }
-    public set animation_speed(value: number) {
+    set animation_speed(value: number) {
         this._animation_speed = value;
     }
 
-    public get animationNode(): TtileAnimationMode {
+    get animationMode(): TileAnimationMode {
         return this._animationNode;
     }
-    public set animationNode(value: TtileAnimationMode) {
+    set animationMode(value: TileAnimationMode) {
         this._animationNode = value;
     }
 
-    public set animationFrams(frams: number[]) {
+    set animationFrams(frams: number[]) {
         this._animationFrams = frams;
+        this._animationFramsTime = [];
+        this._animationFramsTime.length = frams.length;
+        this._totalAnimatorTime = 0;
+
+        for (var i = 0; i < frams.length; i++) {
+            this._animationFramsTime[i] = this._totalAnimatorTime;
+            this._totalAnimatorTime += frams[i];
+        }
+
+
     }
 
-    public get animationFrams() {
+    get animationFrams() {
         return this._animationFrams;
     }
 
@@ -124,27 +149,27 @@ export class TileAlternativesData {
         this._animationFrams = [];
         this._tileDatas = {};
         this._sizeByAtlas.setValue(1, 1);
+    }
 
+    /**
+     * @internal
+     */
+    _initialIndexFIrstCellData() {
         const celldata = new TileSetCellData();
         celldata.__init(this, 0);
         this._tileDatas[0] = celldata;
-
-        this._setOriUV();
-    }
-    get owner(): TileSetCellGroup {
-        return this._owner;
-    }
-    set owner(value: TileSetCellGroup) {
-        if (value === this._owner) return;
-        this._owner = value;
-        this._setOriUV();
     }
 
-    public getId(): number {
-        return this.owner._getGlobalAlternativesId(this.localPos.x, this.localPos.y);
+    /**
+     * @internal
+     */
+    _hasAni() {
+        return this._animationFrams.length > 1
     }
 
-
+    /**
+     * @internal
+     */
     _setOriUV() {
         if (!this._owner) {
             return;
@@ -154,10 +179,11 @@ export class TileAlternativesData {
         this._uvExtends.x = this._uvSize.x / atlasSize.x;
         this._uvExtends.y = this._uvSize.y / atlasSize.y;
         this._updateOriginUV(0, 0, TILEMAPLAYERDIRTYFLAG.CELL_QUAD | TILEMAPLAYERDIRTYFLAG.CELL_QUADUV);
-        this._owner._owner._addAnimatrionData(this);
     }
 
-
+    /**
+     * @internal
+     */
     _updateOriginUV(x: number, y: number, data: number) {
         this._uvOri.setValue(this.localPos.x + x, this.localPos.y + y);
         this._owner._getTileUVOri(this._uvOri, this._uvOri);
@@ -169,60 +195,96 @@ export class TileAlternativesData {
         }
     }
 
+    /**
+     * @internal
+     */
     _getTextureUVOri(): Vector2 {
         return this._uvOri;
     }
 
+    /**
+     * @internal
+     */
     _getTextureUVExtends(): Vector2 {
         return this._uvExtends;
     }
 
+    /**
+     * @internal
+     */
     _getTextureUVSize(): Vector2 {
         return this._uvSize;
     }
 
-    _updateAnimator(time: number) {
+    /**
+     * @internal
+     */
+    _updateAnimator() {
         //计算动画，如果根据时间动画有偏移 通知所有cellData dirty TILEMAPLAYERDIRTYFLAG.CELL_QUADUV
         //如果animator让uv变了
-        if (this._animationFrams.length === 0) { return; }
-        this._animationRunTime += time;
-        let curFrameTime = this._animationFrams[this._frameIndex];
-        if (this._animationRunTime < curFrameTime) { return; }
+        if (this._animationFrams.length <= 1 || Laya.timer.currFrame == this._animatorUpdateMask) { return; }
+        this._animatorUpdateMask = Laya.timer.currFrame;
+        let oldFrameIndex = this._frameIndex;
+        let cur = (Laya.timer.totalTime / 1000) % this._totalAnimatorTime;
 
-        this._animationRunTime -= curFrameTime;
-        this._frameIndex++;
-        if (this._frameIndex >= this._animationFrams.length) {
+        if (cur < this._animationFramsTime[this._frameIndex]) {
             this._frameIndex = 0;
         }
-        let x = this._frameIndex % this._animation_columns;
-        let y = Math.floor(this._frameIndex / this._animation_columns);
-        this._updateOriginUV(x * (1 + this._animation_separation.x), y * (1 + this._animation_separation.y), TILEMAPLAYERDIRTYFLAG.CELL_QUADUV);
+        let j = 0;
+        for (var i = this._frameIndex, n = this._animationFrams.length; i < n; i++) {
+            if (cur >= this._animationFramsTime[i]) {
+                this._frameIndex = i;
+            }
+        }
+        this._frameIndex += j;
+
+        if (oldFrameIndex == this._frameIndex) {
+            return;
+        }
+
+
+        let x;
+        let y;
+        if (this._animation_columns != 0) {
+            x = this._frameIndex % this._animation_columns;
+            y = Math.floor(this._frameIndex / this._animation_columns);
+        } else {
+            x = this._frameIndex;
+            y = 0;
+        }
+        this._updateOriginUV(x * (this._sizeByAtlas.x + this._animation_separation.x), y * (this._sizeByAtlas.y + this._animation_separation.y), TILEMAPLAYERDIRTYFLAG.CELL_QUADUV);
     }
 
+    getId(): number {
+        return this.owner._getGlobalAlternativesId(this.localPos.x, this.localPos.y);
+    }
 
-    public getCelldata(index: number): TileSetCellData {
+    getCelldata(index: number): TileSetCellData {
         return this._tileDatas[index];
     }
 
-
-
-    /**
-     * 删除一个副本
-     * @param index 
-     */
-    _removeCellData(index: number): TileSetCellData {
+    removeCellData(index: number) {
         let celldata = this._tileDatas[index];
-        if (!celldata) {
+        if (celldata) {
             celldata.destroy();
+            delete this._tileDatas[index];
         }
-        delete this._tileDatas[index];
+    }
+
+    addCellData(index: number) {
+        let celldata = this._tileDatas[index];
+        if (celldata) {
+            return celldata;
+        }
+        celldata = new TileSetCellData();
+        this._tileDatas
+        celldata.__init(this, index);
+        this._tileDatas[index] = celldata;
         return celldata;
     }
 
     destroy() {
         //TODO
     }
-
-
 
 }

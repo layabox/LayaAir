@@ -34,10 +34,10 @@ export class TileSetCellGroup {
     private _tileMatrix: Matrix = new Matrix();
 
     id: number;
-    
+
     name: string;
-   
-    get tiles():Record<number, Record<number, TileAlternativesData>>{
+
+    get tiles(): Record<number, Record<number, TileAlternativesData>> {
         return this._tiles;
     }
     set tiles(value: Record<number, Record<number, TileAlternativesData>>) {
@@ -189,7 +189,12 @@ export class TileSetCellGroup {
         if ((tempv2.x + x > this._atlasSize.x) || (tempv2.y + y > this._atlasSize.y))
             return null;
         let alterData = new TileAlternativesData();
-        alterData.sizeByAtlas = sizeInAtlas;
+        {
+            alterData.localPos = new Vector2(x, y);
+            alterData.sizeByAtlas = sizeInAtlas;
+            alterData.owner = this;
+            alterData._initialIndexFIrstCellData();
+        }
         for (var j = 0; j < sizeInAtlas.y; j++) {
             let ymap = this._tiles[j];
             if (!ymap)
@@ -198,6 +203,8 @@ export class TileSetCellGroup {
                 ymap[i] = alterData;
             }
         }
+
+
         return alterData;
     }
 
@@ -233,10 +240,10 @@ export class TileSetCellGroup {
     }
 
     //移除一个alternative组
-    removeCellData(localPos: Vector2, index: number): TileSetCellData {
+    removeCellData(localPos: Vector2, index: number): void {
         let tile = this.getAlternative(localPos.x, localPos.y);
         if (tile == null) { return null; }
-        return tile._removeCellData(index);
+        return tile.removeCellData(index);
     }
 
 

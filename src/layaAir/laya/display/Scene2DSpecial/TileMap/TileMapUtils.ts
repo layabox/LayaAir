@@ -132,5 +132,4 @@ export class TileMapUtils {
         point.x = matrix.a * x + matrix.c * y ;
         point.y = matrix.b * x + matrix.d * y ;
     }
-
 }

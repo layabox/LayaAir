@@ -1,4 +1,3 @@
-//@~AXIE:2.2
 import { TileMapUtils } from "./TileMapUtils";
 import { TileAlternativesData } from "./TileAlternativesData";
 import { TillMap_CellNeighbor } from "./TileMapEnum";
@@ -13,10 +12,10 @@ import { TileSetCell_CustomDataInfo, TileSetCell_LightInfo, TileSetCell_Navigati
 /**
  * TileMap中一个Cell的数据结构
  */
-
 export class TileSetCellData {
 
     private _index: number = 0;
+
     private _cellowner: TileAlternativesData;
 
     private _flip_h: boolean = false;
@@ -37,10 +36,10 @@ export class TileSetCellData {
 
     private _y_sort_origin: number;
 
-    ////////多级数据
+    //多级数据
     private _lightOccluderDatas: TileSetCell_LightInfo[];
 
-    private _navigationDatas:TileSetCell_NavigationInfo[];
+    private _navigationDatas: TileSetCell_NavigationInfo[];
 
     private _physicsDatas: TileSetCell_PhysicsInfo[];
 
@@ -53,12 +52,16 @@ export class TileSetCellData {
 
     private _notiveRenderTile: TileMapChunkData[];
 
-    //贴图旋转矩阵
-    _transData: Vector4 = new Vector4();
+
 
     //随机值
     private _probability: number = 1;
 
+    private _destroyed: boolean = false;
+
+    //贴图旋转矩阵
+    /**@internal */
+    _transData: Vector4 = new Vector4();
     /**
      * 原始顶点图块的引用
      */
@@ -79,7 +82,9 @@ export class TileSetCellData {
 
     public set flip_h(value: boolean) {
         this._flip_h = value;
+        this._updateTransData();
         this._notifyDataChange(TILEMAPLAYERDIRTYFLAG.CELL_UVTRAN);
+
     }
 
     /**
@@ -91,6 +96,7 @@ export class TileSetCellData {
 
     public set flip_v(value: boolean) {
         this._flip_v = value;
+        this._updateTransData();
         this._notifyDataChange(TILEMAPLAYERDIRTYFLAG.CELL_UVTRAN);
     }
 
@@ -103,6 +109,7 @@ export class TileSetCellData {
      */
     public set transpose(value: boolean) {
         this._transpose = value;
+        this._updateTransData();
         this._notifyDataChange(TILEMAPLAYERDIRTYFLAG.CELL_UVTRAN);
     }
 
@@ -115,6 +122,7 @@ export class TileSetCellData {
 
     public set rotateCount(value: number) {
         this._rotateCount = value;
+        this._updateTransData();
         this._notifyDataChange(TILEMAPLAYERDIRTYFLAG.CELL_UVTRAN);
     }
 
@@ -201,7 +209,7 @@ export class TileSetCellData {
     }
 
     public get customDatas() {
-        return this._customDatas;  
+        return this._customDatas;
     }
 
     public get navigationDatas() {
@@ -215,13 +223,14 @@ export class TileSetCellData {
         this._flip_v = false;
         this._transpose = false;
         this._rotateCount = 0;
-        this._texture_origin = new Vector2();
+        this._texture_origin = new Vector2(0, 0);
         this._colorModulate = new Color(1, 1, 1, 1);
         this._z_index = 0;
         this._y_sort_origin = 0;
         this._terrain_set = false;
+
     }
- 
+
     /**
      * 初始化引用数据
      * @param owner 
@@ -230,20 +239,24 @@ export class TileSetCellData {
     __init(owner: TileAlternativesData, index: number) {
         this._index = index;
         this._cellowner = owner;
+        this._updateTransData();
     }
- 
+
     public getGid(): number {
         return TileMapUtils.getGid(this._index, this._cellowner.getId());
     }
- 
+
     _notifyDataChange(data: number) {
         if (!this.cellowner) return;
-        let tileshape = this.cellowner.owner._owner.tileShape;
-        let out = TileMapUtils.getUvRotate(tileshape, this._flip_v, this._flip_h, this._transpose, this._rotateCount);
-        out.cloneTo(this._transData);
         this._notiveRenderTile.forEach(element => {
             element._setDirtyFlag(this.getGid(), data);
         });
+    }
+
+    private _updateTransData() {
+        let tileshape = this.cellowner.owner._owner.tileShape;
+        let out = TileMapUtils.getUvRotate(tileshape, this._flip_v, this._flip_h, this._transpose, this._rotateCount);
+        out.cloneTo(this._transData);
     }
 
     _removeNoticeRenderTile(layerRenderTile: TileMapChunkData) {
@@ -263,7 +276,7 @@ export class TileSetCellData {
         this._lightOccluderDatas[layerIndex] = data;
     }
 
-    get_lightOccluder(layerIndex:number):TileSetCell_LightInfo{
+    get_lightOccluder(layerIndex: number): TileSetCell_LightInfo {
         return this._lightOccluderDatas[layerIndex];
     }
 
@@ -275,11 +288,11 @@ export class TileSetCellData {
         return this._terrain_peering_bits[index];
     }
 
-    set_physicsData(layerIndex:number , data:TileSetCell_PhysicsInfo){
+    set_physicsData(layerIndex: number, data: TileSetCell_PhysicsInfo) {
         this._physicsDatas[layerIndex] = data;
     }
 
-    get_physicsData(layerIndex:number):TileSetCell_PhysicsInfo{
+    get_physicsData(layerIndex: number): TileSetCell_PhysicsInfo {
         return this._physicsDatas[layerIndex];
     }
 
@@ -294,7 +307,7 @@ export class TileSetCellData {
         this._navigationDatas[layerIndex] = data;
     }
 
-    get_navigationData(layerIndex:number):TileSetCell_NavigationInfo{
+    get_navigationData(layerIndex: number): TileSetCell_NavigationInfo {
         return this._navigationDatas[layerIndex];
     }
 
@@ -329,8 +342,7 @@ export class TileSetCellData {
         this._notiveRenderTile.forEach(element => {
             element._clearOneCell(this);
         });
+        this._destroyed = true;
         //destroy data TODO
     }
-
-
 }

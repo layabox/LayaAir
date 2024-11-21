@@ -1,17 +1,16 @@
 import { Color } from "../../../maths/Color";
 import { Vector2 } from "../../../maths/Vector2";
-import { TileAlternativesData } from "./TileAlternativesData";
 import { TileShape, TillMap_TerrainMode } from "./TileMapEnum";
 import { TileMapUtils } from "./TileMapUtils";
 import { TileSetCellData } from "./TileSetCellData";
 import { TileSetCellGroup } from "./TileSetCellGroup";
-import { Laya } from "../../../../Laya";
 import { Resource } from "../../../resource/Resource";
 import { Material } from "../../../resource/Material";
 import { RenderState } from "../../../RenderDriver/RenderModuleData/Design/RenderState";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderDefines2D } from "../../../webgl/shader/d2/ShaderDefines2D";
 import { TileMap_CustomDataLayer, TileMap_NavigationInfo, TileSet_LightOcclusionInfo, TileSet_PhysicsLayerInfo, TileSet_TerrainSetInfo } from "./TileSetInfos";
+import { TileMapLayer } from "./TileMapLayer";
 
 
 export class TileSet extends Resource {
@@ -38,14 +37,12 @@ export class TileSet extends Resource {
 
     private _defalutMats: Record<string, Material> = {};
 
-    //动画节点数据
-    protected _animaterionDatas: TileAlternativesData[];
+    private _ownerList: TileMapLayer[] = [];
 
     constructor() {
         super();
         this._tileSize = new Vector2(16, 16);
         this._tileShape = TileShape.TILE_SHAPE_SQUARE;
-        this._animaterionDatas = [];
         this._baseCells = [];
         this._baseCellIds = [];
         this._alternativesId = [];
@@ -62,6 +59,10 @@ export class TileSet extends Resource {
     set tileShape(value: TileShape) {
         if (this._tileShape === value) return;
         this._tileShape = value;
+        this._ownerList.forEach(element => {
+            element._grid._updateTileShape(this._tileShape, this._tileSize);
+            element._grid._updateBufferData();
+        });
     }
 
     /**
@@ -72,7 +73,12 @@ export class TileSet extends Resource {
     }
 
     set tileSize(value: Vector2) {
+        if (Vector2.equals(value, this._tileSize))
+            return;
         value.cloneTo(this._tileSize);
+        this._ownerList.forEach(element => {
+            element._grid._setTileSize(this._tileSize.x, this._tileSize.y);
+        });
     }
 
 
@@ -118,30 +124,17 @@ export class TileSet extends Resource {
         }
     }
 
-    /**
-     * 添加有动画的瓦片数据
-     * @param data 
-     * @returns 
-     */
-    _addAnimatrionData(data: TileAlternativesData) {
-        if (data.animationFrams.length <= 0) return;
-        if (this._animaterionDatas.indexOf(data) === -1) {
-            this._animaterionDatas.push(data);
-        }
+
+    _addOwner(tilemapLayer: TileMapLayer) {
+        if (this._ownerList.indexOf(tilemapLayer) == -1)
+            this._ownerList.push(tilemapLayer);
     }
 
-
-    /**
-     * 跟新动画数据
-     * @param data 
-     */
-    _updateAnimaterionDatas() {
-        let dt = Laya.timer.delta * 0.001;
-        this._animaterionDatas.forEach(element => {
-            element._updateAnimator(dt);
-        });
+    _removeOwner(tilemapLayer: TileMapLayer) {
+        let index = this._ownerList.indexOf(tilemapLayer)
+        if (index != -1)
+            this._ownerList.splice(index, 1);
     }
-
 
     _refeashAlternativesId() {
         let id = 1;
@@ -205,7 +198,7 @@ export class TileSet extends Resource {
 
     removeTileSetCellGroup(id: number): void {
         let index = this._baseCellIds.indexOf(id);
-        this._baseCells.splice(index , 1);
+        this._baseCells.splice(index, 1);
         this._notifyTileSetCellGroupsChange();
     }
 
@@ -275,7 +268,7 @@ export class TileSet extends Resource {
         return this._physicaLayers[layerIndex];
     }
 
-    removePhysicsLayers(){
+    removePhysicsLayers() {
 
     }
 

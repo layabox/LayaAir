@@ -172,9 +172,10 @@ export class RectClipper {
 
     /**
      * 设置裁切区域数据
-     * @param clipperRect 裁切区域矩形（相对于世界的参数）
-     * @param size 测试区域大小
+     * @param clipperRect 裁切区域矩形（相对于世界的参数） pixel
+     * @param size 测试区域大小 pixel
      * @param matrix 测试区域转世界矩阵
+     * @returns pixel
      */
     public setClipper(clipperRect: Rectangle, size: Vector2, matrix: Matrix, clipperRot: number=0) {
         //更新裁切区域数据
@@ -186,7 +187,6 @@ export class RectClipper {
 
 
         if (isDiffClipper || isDiffMatrix) {
-            this._matrix.identity();
             let ofx = this._clipperRect.x + this._clipperRect.width * 0.5;
             let ofy = this._clipperRect.y + this._clipperRect.height * 0.5;
             this._matrix.setMatrix(ofx, ofy, 1, 1, clipperRot, 0, 0, 0, 0);
@@ -198,6 +198,7 @@ export class RectClipper {
         if (isDiffClipper || isDiffSize || isDiffMatrix) {
             this._updateAxiDatas();
         }
+        return this._ploygRect
     }
 
     // 是否在裁切区域内

@@ -65,6 +65,10 @@ export class Timer {
         return this._delta;
     }
 
+    get totalTime(): number {
+        return this._lastTimer;
+    }
+
 
     /**
      * @internal

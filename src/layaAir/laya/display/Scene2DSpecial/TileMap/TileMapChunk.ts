@@ -13,55 +13,62 @@ const tempPoint = new Vector2();
  * 一个Chunk 内部的单元格索引从左到右，从上到下计算
  */
 export class TileMapChunk {
-    private _pixexToCell: Grid;
+
+    private _grid: Grid;
+
     private _chunkWidth: number;
+
     private _chunkHeight: number;
+
     private _maxCell: number;
+
     constructor(grid: Grid) {
-        this._pixexToCell = grid;
+        this._grid = grid;
         this._maxCell = 0;
-        this.setChunkSize(1, 1);
+        this._setChunkSize(1, 1);
     }
 
     /**
+     * 获得一个块内格子的最大数量
+     */
+    get maxCell(): number {
+        return this._maxCell;
+    }
+
+    /**
+     * @internal
      * 设置chunk的宽高
      * @param width 设置块的列数
      * @param height 设置块的行数
      */
-    public setChunkSize(width: number, height: number) {
+    _setChunkSize(width: number, height: number) {
         this._chunkWidth = width;
         this._chunkHeight = height;
         this._maxCell = width * height;
     }
 
     /**
-     * 获得一个块内格子的最大数量
-     */
-    public get maxCell(): number {
-        return this._maxCell;
-    }
-
-    /**
-     * 将像素单位转换为chunk索引
+     * @internal
+     * 将像素单位转换相应cell对应的ChunckLocal位置以及ChunckLocalIndex
      * @param pixelx  像素单位x
      * @param pixely  像素单位y
      * @param out 输出 x chunk列坐标 y chunk行坐标 z Chunk内部索引
      */
-    public getChunkPosByPixel(pixelx: number, pixely: number, out: Vector3) {
-        this._pixexToCell.pixelToGrid(pixelx, pixely, tempPoint);
-        this.getChunkPosByCell(Math.round(tempPoint.x), Math.round(tempPoint.y), out);
+    _getChunkPosByPixel(pixelx: number, pixely: number, out: Vector3) {
+        this._grid._pixelToGrid(pixelx, pixely, tempPoint);
+        this._getChunkPosByCell(Math.round(tempPoint.x), Math.round(tempPoint.y), out);
     }
 
     /**
-     * 将cell坐标转换为块的信息
+     * 根据cell坐标找到对应Chuck位置以及cell在chunck中的index
      * @param x 单元格x索引
      * @param y 单元格y索引
      * @param out 输出 x chunk列坐标 y chunk行坐标 z Chunk内部索引
      */
-    public getChunkPosByCell(cellRow: number, cellCol: number, out: Vector3) {
+    _getChunkPosByCell(cellRow: number, cellCol: number, out: Vector3) {
         out.x = Math.floor(cellRow / this._chunkWidth);
         out.y = Math.floor(cellCol / this._chunkHeight);
-        out.z = this.getChunkIndexByCellPos(cellRow, cellCol);
+        out.z = this._getChunkIndexByCellPos(cellRow, cellCol);
     }
 
     /**
@@ -70,7 +77,7 @@ export class TileMapChunk {
      * @param cellCol 单元格的行索引
      * @returns 单元格在chunk内部的索引 
      */
-    public getChunkIndexByCellPos(cellRow: number, cellCol: number):number {
+    _getChunkIndexByCellPos(cellRow: number, cellCol: number): number {
         return (cellRow % this._chunkWidth) + (cellCol % this._chunkHeight) * this._chunkWidth;
     }
 
@@ -82,31 +89,33 @@ export class TileMapChunk {
      * @param index 块内部的索引
      * @param out 输出单元格的行列索引
      */
-    public getCellPosByChunkPosAndIndex(chunkx: number, chunky: number, index: number, out: Vector2) {
+    _getCellPosByChunkPosAndIndex(chunkx: number, chunky: number, chunklocalindex: number, out: Vector2) {
         chunkx = Math.floor(chunkx);
         chunky = Math.floor(chunky);
-        index = index % this._maxCell;
-        out.x = chunkx * this._chunkWidth + index % this._chunkWidth;
-        out.y = chunky * this._chunkHeight + Math.floor(index / this._chunkWidth);
+        chunklocalindex = chunklocalindex % this._maxCell;
+        out.x = chunkx * this._chunkWidth + chunklocalindex % this._chunkWidth;
+        out.y = chunky * this._chunkHeight + Math.floor(chunklocalindex / this._chunkWidth);
     }
 
 
     /**
-     * 获得快的像素宽高
+     * @internal
+     * 获得块的像素宽高
      * @param out 输出块的像素宽高
      */
-    public getChunkSize(out: Vector2){
-        let basesheet = this._pixexToCell._sheet;
+    _getChunkSize(out: Vector2) {
+        let basesheet = this._grid._sheet;
         basesheet._getChunkSize(this._chunkWidth, this._chunkHeight, out);
     }
 
-    
+
     /**
+     * @internal
      * 获得块的左上角像素坐标
      */
-    public getChunkLeftTop(chunkx: number, chunky: number, out: Vector2) {
-        let basesheet = this._pixexToCell._sheet;
-        basesheet._getChunkLeftTop(chunkx, chunky,this._chunkWidth, this._chunkHeight, out);
+    _getChunkLeftTop(chunkx: number, chunky: number, out: Vector2) {
+        let basesheet = this._grid._sheet;
+        basesheet._getChunkLeftTop(chunkx * this._chunkWidth, chunky * this._chunkHeight, this._chunkWidth, this._chunkHeight, out);
     }
 
 }

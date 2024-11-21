@@ -4,11 +4,8 @@ import { Vector2 } from "../../../../maths/Vector2";
 import { IIndexBuffer } from "../../../../RenderDriver/DriverDesign/RenderDevice/IIndexBuffer";
 import { IVertexBuffer } from "../../../../RenderDriver/DriverDesign/RenderDevice/IVertexBuffer";
 import { BufferUsage } from "../../../../RenderEngine/RenderEnum/BufferTargetType";
-import { IndexFormat } from "../../../../RenderEngine/RenderEnum/IndexFormat";
 import { TileShape } from "../TileMapEnum";
-import { TileMapLayer } from "../TileMapLayer";
-import { TileMapChunkData } from "../TileMapChunkData";
-import { TileMapShaderInit } from "../TileMapShaderInit";
+import { TileMapShaderInit } from "../TileMapShader/TileMapShaderInit";
 import { BaseSheet } from "./BaseSheet";
 import { HalfOffSquareSheet } from "./HalfOffSquareSheet";
 import { HeixSheet } from "./HeixSheet";
@@ -22,16 +19,19 @@ import { RectSheet } from "./RectSheet";
  * 实现像素和格子系统之间的转换
  */
 export class Grid {
-    /**
-     * @internal
-     */
+    /**@internal */
     _sheet: BaseSheet;
-    private _tileShape: TileShape;
+    /**@internal */
+    _tileShape: TileShape;
+
     private _offset: Vector2 = new Vector2();
-    private _color: Color = new Color(0,0,0,0);
+
+    private _color: Color = new Color(0, 0, 0, 0);
 
     private _vbs: IVertexBuffer;
+
     private _ibs: IIndexBuffer;
+
     private _vbLength: number = 0;
 
     constructor() {
@@ -39,21 +39,13 @@ export class Grid {
         vertex.vertexDeclaration = TileMapShaderInit._tileMapPositionUVColorDec;
         vertex.instanceBuffer = false;
         this._ibs = LayaGL.renderDeviceFactory.createIndexBuffer(BufferUsage.Dynamic);
-        this._updateTileShape(TileShape.TILE_SHAPE_SQUARE);
     }
 
-    _updateConfig(layer:TileMapLayer){
-        let sameShape = this._updateTileShape(layer.tileSet.tileShape);
-        let sameColor = this._updateColor(layer.layerColor);
-        if(sameShape|| sameColor){
-            this._updateBufferData();
-        }
-        let size = layer.tileSet.tileSize;
-        this.setTileSize(size.x,size.y);
-    }
-
-    private _updateTileShape(tileShape: TileShape){
-        if(this._tileShape == tileShape) return false;
+    /**
+     * @internal
+     */
+    _updateTileShape(tileShape: TileShape, size: Vector2) {
+        if (this._tileShape == tileShape) return false;
         this._tileShape = tileShape;
         switch (this._tileShape) {
             case TileShape.TILE_SHAPE_SQUARE:
@@ -74,19 +66,24 @@ export class Grid {
                 break;
             default:
                 throw Error("unknow the type .");
-                break;
         }
+        this._setTileSize(size.x, size.y);
         return true;
     }
 
-    private _updateColor(color:Color){
-        if(color.equal(this._color)) return false;
+    /**
+     * @internal
+     */
+    _updateColor(color: Color) {
+        if (color.equal(this._color)) return false;
         color.cloneTo(this._color);
         return true;
     }
-    
 
-    private _updateBufferData() {
+    /**
+     * @internal
+     */
+    _updateBufferData() {
         let vbs = this._sheet.getvbs();
         let step = 8;
         let vbCount = vbs.length / 2;
@@ -107,50 +104,48 @@ export class Grid {
         this._vbs.setDataLength(buffer.byteLength);
         this._vbs.setData(buffer.buffer, 0, 0, buffer.buffer.byteLength);
 
-        let ib = new Uint8Array(this._sheet.getibs());
-        let indexBuffer =this._ibs;
+        let ib = new Uint16Array(this._sheet.getibs());
+        let indexBuffer = this._ibs;
         indexBuffer._setIndexDataLength(ib.buffer.byteLength);
         indexBuffer._setIndexData(ib, 0);
         this._vbLength = ib.length;
 
     }
 
-   
+
     /**
-     * 设置单元格像素大小
-     * @param x 
-     * @param y 
+     * @internal
      */
-    setTileSize(x: number, y: number) {
+    _setTileSize(x: number, y: number) {
         this._sheet.setTileSize(x, y);
     }
 
     /**
+     * @internal
     * 像素系统转格子系统
     */
-    pixelToGrid(pixelX: number, pixelY: number, out: Vector2) {
+    _pixelToGrid(pixelX: number, pixelY: number, out: Vector2) {
         this._sheet.pixelToGrid(pixelX, pixelY, out);
     }
 
     /**
+     * @internal
      * 格子系统转像素系统
      */
-    gridToPixel(row: number, col: number, out: Vector2) {
+    _gridToPixel(row: number, col: number, out: Vector2) {
         this._sheet.gridToPiex(row, col, out);
     }
 
     /**
      * 获得网格渲染VbBuffer
      */
-    getBaseVertexBuffer(): IVertexBuffer { return this._vbs; }
+    _getBaseVertexBuffer(): IVertexBuffer { return this._vbs; }
 
     /**
      * 获得网格渲染VbBuffer
      */
-    getBaseIndexBuffer(): IIndexBuffer { return this._ibs; }
+    _getBaseIndexBuffer(): IIndexBuffer { return this._ibs; }
 
-    getBaseIndexCount(): number { return this._vbLength; }
-
-    getBaseIndexFormat(): number { return IndexFormat.UInt8; }
+    _getBaseIndexCount(): number { return this._vbLength; }
 
 }

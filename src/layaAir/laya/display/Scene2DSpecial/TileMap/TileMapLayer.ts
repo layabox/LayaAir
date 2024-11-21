@@ -1,27 +1,20 @@
 
 import { Color } from "../../../maths/Color";
-import { Point } from "../../../maths/Point";
 import { Vector2 } from "../../../maths/Vector2";
 import { Vector3 } from "../../../maths/Vector3";
 import { BaseRenderNode2D } from "../../../NodeRender2D/BaseRenderNode2D";
 import { IRenderContext2D } from "../../../RenderDriver/DriverDesign/2DRenderPass/IRenderContext2D";
-import { IIndexBuffer } from "../../../RenderDriver/DriverDesign/RenderDevice/IIndexBuffer";
-import { IVertexBuffer } from "../../../RenderDriver/DriverDesign/RenderDevice/IVertexBuffer";
-import { RenderState } from "../../../RenderDriver/RenderModuleData/Design/RenderState";
-import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { Context } from "../../../renders/Context";
 import { Material } from "../../../resource/Material";
-import { ShaderDefines2D } from "../../../webgl/shader/d2/ShaderDefines2D";
 import { Sprite } from "../../Sprite";
 import { Grid } from "./Grid/Grid";
 import { TileMapChunk } from "./TileMapChunk";
 import { TileMapChunkData } from "./TileMapChunkData";
-import { TileMapShaderInit } from "./TileMapShaderInit";
+import { TileMapShaderInit } from "./TileMapShader/TileMapShaderInit";
 import { TileSet } from "./TileSet";
 import { TileMapPhysis } from "./TileMapPhysis";
 import { TileSetCellData } from "./TileSetCellData";
 import { Matrix } from "../../../maths/Matrix";
-import { TileMapUtils } from "./TileMapUtils";
 import { Laya } from "../../../../Laya";
 import { Rectangle } from "../../../maths/Rectangle";
 import { RectClipper } from "./RectClipper";
@@ -47,16 +40,16 @@ export enum TILEMAPLAYERDIRTYFLAG {
     LAYER_COLOR = 1 << 11,
 }
 
-
-
-const TempVector2: Vector2  = new Vector2();
-const TempVector21: Vector2  = new Vector2();
-const TempRectange: Rectangle  = new Rectangle();
+const TempRectange: Rectangle = new Rectangle();
 const TempMatrix: Matrix = new Matrix();
 export class TileMapLayer extends BaseRenderNode2D {
 
-    static _inited = false;
+    private static _inited = false;
 
+    /**
+     * @internal
+     * @returns 
+     */
     static __init__(): void {
         if (TileMapLayer._inited) return;
         this._inited = true;
@@ -64,7 +57,7 @@ export class TileMapLayer extends BaseRenderNode2D {
         TileMapPhysis.__init__();
     }
 
-
+    private _tileSet: TileSet;
 
     /**
      * @internal
@@ -84,88 +77,117 @@ export class TileMapLayer extends BaseRenderNode2D {
      */
     _cliper: RectClipper;
 
-    private _layerColor: Color;
+    private _layerColor: Color = new Color();
 
+    private _sortMode: TILELAYER_SORTMODE;
 
-    public get layerColor(): Color {
+    private _renderTileSize: number = 32;
+
+    private _navigationEnable: boolean;
+
+    private _physicsEnable: boolean;
+
+    private _lightEnable: boolean;
+
+    private _tileMapDatas: string[] = [];//TODO??
+
+    private _chunkDatas: Map<number, Map<number, TileMapChunkData>>;//数据结构需要改成好裁剪的方式TODO
+
+    private _physisDelayCreate: Set<TileMapChunkData>;
+
+    /**物理模块 */
+    private _tileMapPhysis: TileMapPhysis;
+
+    get layerColor(): Color {
         return this._layerColor;
     }
-    public set layerColor(value: Color) {
-        this._layerColor = value;
+
+    set layerColor(value: Color) {
+        value.cloneTo(this._layerColor);
+        if (this._grid._updateColor(value) && this._tileSet) {
+            this._grid._updateBufferData();
+        }
     }
-    private _sortMode: TILELAYER_SORTMODE;
-    public get sortMode(): TILELAYER_SORTMODE {
+
+    get sortMode(): TILELAYER_SORTMODE {
         return this._sortMode;
     }
-    public set sortMode(value: TILELAYER_SORTMODE) {
+
+    set sortMode(value: TILELAYER_SORTMODE) {
         this._sortMode = value;
     }
 
-    private _navigationEnable: boolean;
-    public get navigationEnable(): boolean {
+    get navigationEnable(): boolean {
         return this._navigationEnable;
     }
-    public set navigationEnable(value: boolean) {
+
+    set navigationEnable(value: boolean) {
         this._navigationEnable = value;
     }
-    private _physicsEnable: boolean;
-    public get physicsEnable(): boolean {
+
+    get physicsEnable(): boolean {
         return this._physicsEnable;
     }
-    public set physicsEnable(value: boolean) {
+
+    set physicsEnable(value: boolean) {
         this._physicsEnable = value;
     }
-    private _lightEnable: boolean;
-    public get lightEnable(): boolean {
+
+    get lightEnable(): boolean {
         return this._lightEnable;
     }
-    public set lightEnable(value: boolean) {
+
+    set lightEnable(value: boolean) {
         this._lightEnable = value;
     }
-    private _tileSet: TileSet;
-    public get tileSet(): TileSet {
+
+    get tileSet(): TileSet {
         return this._tileSet;
     }
-    public set tileSet(value: TileSet) {
+
+    set tileSet(value: TileSet) {
+        if (this._tileSet == value) {
+            return;
+        }
+        if (this._tileSet)
+            this._tileSet._removeOwner(this);
         this._tileSet = value;
+        if (value) {
+            this.tileSet._addOwner(this);
+            this._initialTileSet();
+        }
     }
 
-    private _renderTileSize: number = 32;
-    public get renderTileSize(): number {
+    get renderTileSize(): number {
         return this._renderTileSize;
     }
-    public set renderTileSize(value: number) {
+
+    set renderTileSize(value: number) {
         if (this._renderTileSize === value) return;
         this._renderTileSize = value;
         this._updateChunkData();
     }
 
-    private _tileMapDatas: string[] = [];
-
-    public get tileMapDatas(): string[] {
+    //TODO??
+    get tileMapDatas(): string[] {
         return this._tileMapDatas;
     }
 
-    public set tileMapDatas(value: string[]) {
+    set tileMapDatas(value: string[]) {
         this._tileMapDatas = value;
     }
 
-    private _chunkDatas: Map<number, Map<number, TileMapChunkData>>;//数据结构需要改成好裁剪的方式TODO
+    get tileMapPhysis(): TileMapPhysis {
+        return this._tileMapPhysis;
+    }
 
-    private _physisDelayCreate:Set<TileMapChunkData>;
-
-    /**
-     * @internal
-     * 物理模块
-     */
-    private _tileMapPhysis: TileMapPhysis;
     constructor() {
         super();
         this._layerColor = new Color(1, 1, 1, 1);
         this._chunkDatas = new Map<number, Map<number, TileMapChunkData>>();
         this._grid = new Grid();
         this._chunk = new TileMapChunk(this._grid);
-        this._chunk.setChunkSize(this._renderTileSize, this._renderTileSize);
+        this._chunk._setChunkSize(this._renderTileSize, this._renderTileSize);
         this._tileMapPhysis = new TileMapPhysis(this);
         this._cliper = new RectClipper();
         this._renderElements = [];
@@ -173,59 +195,61 @@ export class TileMapLayer extends BaseRenderNode2D {
         this._physisDelayCreate = new Set();
     }
 
+    private _initialTileSet() {
+        //config grid
+        this._grid._updateTileShape(this._tileSet.tileShape, this._tileSet.tileSize);
+        this._grid._updateColor(this._layerColor);
+        this._grid._updateBufferData();
 
-    get tileMapPhysis(): TileMapPhysis {
-        return this._tileMapPhysis;
+        //删除非法的数据
     }
 
-
     /**
-     * @private
+     * @private TODO
      * 修改renderTileSize 会触发此函数
      * 将所有的 TileMapChunkData 合并到一个二维表格中；同时计算所有格子的范围
      * 根据范围重新生成 TileMapChunkData
      */
     private _updateChunkData() {
-        const minVec = TempVector2;
-        minVec.setValue(Number.MAX_VALUE, Number.MAX_VALUE);
-        const maxVec = TempVector21;
-        maxVec.setValue(-Number.MIN_VALUE, -Number.MIN_VALUE);
-        let mergeDatas = new Map<number, Map<number, number>>();
-        let allDatas = []
-        this._chunkDatas.forEach((value, key) => {
-            value.forEach((chunkData, key1) => {
-                chunkData._mergeBuffer(mergeDatas, minVec, maxVec);
-                allDatas.push(chunkData);
-            });
-        });
+        // const minVec = TempVector2;
+        // minVec.setValue(Number.MAX_VALUE, Number.MAX_VALUE);
+        // const maxVec = TempVector21;
+        // maxVec.setValue(-Number.MIN_VALUE, -Number.MIN_VALUE);
+        // let mergeDatas = new Map<number, Map<number, number>>();
+        // let allDatas = []
+        // this._chunkDatas.forEach((value, key) => {
+        //     value.forEach((chunkData, key1) => {
+        //         chunkData._mergeBuffer(mergeDatas, minVec, maxVec);
+        //         allDatas.push(chunkData);
+        //     });
+        // });
 
-        this._chunk.setChunkSize(this._renderTileSize, this._renderTileSize);
-        if (minVec.x > maxVec.x || minVec.y > maxVec.y) { return; }
-        this._chunkDatas.clear();
-        const tempVec3 = Vector3._tempVector3;
-        this._chunk.getChunkPosByPixel(minVec.x, minVec.y, tempVec3);
-        let startRow = tempVec3.x;
-        let startCol = tempVec3.y;
-        this._chunk.getChunkPosByPixel(maxVec.x, maxVec.y, tempVec3);
-        let endRow = tempVec3.x;
-        let endCol = tempVec3.y;
+        // this._chunk._setChunkSize(this._renderTileSize, this._renderTileSize);
+        // if (minVec.x > maxVec.x || minVec.y > maxVec.y) { return; }
+        // this._chunkDatas.clear();
+        // const tempVec3 = Vector3._tempVector3;
+        // this._chunk._getChunkPosByPixel(minVec.x, minVec.y, tempVec3);
+        // let startRow = tempVec3.x;
+        // let startCol = tempVec3.y;
+        // this._chunk._getChunkPosByPixel(maxVec.x, maxVec.y, tempVec3);
+        // let endRow = tempVec3.x;
+        // let endCol = tempVec3.y;
 
-        let renderIndex = 0;
-        for (var j = startCol; j <= endCol; j++) {
-            for (var i = startRow; i <= endRow; i++) {
+        // let renderIndex = 0;
+        // for (var j = startCol; j <= endCol; j++) {
+        //     for (var i = startRow; i <= endRow; i++) {
 
-                if (renderIndex >= allDatas.length) {
-                    allDatas.push(new TileMapChunkData(this, 0, 0));
-                }
-                let chunkData = allDatas[renderIndex];
-                chunkData.updateChunkData(i, j);
-                if (chunkData._setBuffer(mergeDatas, minVec, maxVec)) {
-                    this._setLayerDataByPos(chunkData);
-                    renderIndex++;
-                }
-            }
-        }
-
+        //         if (renderIndex >= allDatas.length) {
+        //             allDatas.push(new TileMapChunkData(this, 0, 0));
+        //         }
+        //         let chunkData = allDatas[renderIndex];
+        //         chunkData.updateChunkData(i, j);
+        //         if (chunkData._setBuffer(mergeDatas, minVec, maxVec)) {
+        //             this._setLayerDataByPos(chunkData);
+        //             renderIndex++;
+        //         }
+        //     }
+        // }
     }
 
     /**
@@ -269,34 +293,6 @@ export class TileMapLayer extends BaseRenderNode2D {
         return rowData.get(chunkX);
     }
 
-    /**
-     * @internal
-     */
-    _getBaseVertexBuffer(): IVertexBuffer {
-        return this._grid.getBaseVertexBuffer();
-    }
-
-    /**
-     * @internal
-     */
-    _getBaseIndexBuffer(): IIndexBuffer {
-        return this._grid.getBaseIndexBuffer();
-    }
-
-    /**
-     * @internal
-     */
-    _getBaseIndexCount(): number {
-        return this._grid.getBaseIndexCount();
-    }
-
-    /**
-     * @internal
-     */
-    _getBaseIndexFormat(): number {
-        return this._grid.getBaseIndexFormat();
-    }
-
 
     onEnable(): void {
         super.onEnable();
@@ -305,6 +301,10 @@ export class TileMapLayer extends BaseRenderNode2D {
         this._tileMapPhysis._createPhysics();
     }
 
+    /**
+     * @internal
+     * @returns 
+     */
     _globalTramsfrom(): Matrix {
         return (<Sprite>this.owner).getGlobalMatrix();
     }
@@ -328,7 +328,6 @@ export class TileMapLayer extends BaseRenderNode2D {
 
         this._setRenderSize(context.width, context.height)
         context._copyClipInfoToShaderData(this._spriteShaderData);
-
     }
 
     /**
@@ -339,63 +338,64 @@ export class TileMapLayer extends BaseRenderNode2D {
     preRenderUpdate(context: IRenderContext2D): void {
         let tileSet = this._tileSet;
         if (tileSet == null) return;
-        this._grid._updateConfig(this);
+
         //更新TileSet 动画节点数据
-        this._tileSet._updateAnimaterionDatas();
+        //tileSet._updateAnimaterionDatas();
         //根据相机位置和大小计算出需要渲染的区域
-        const tempMat = TempMatrix;
-        const tempRect = TempRectange;
+        const clipChuckMat = TempMatrix;
+        const renderRect = TempRectange;
         let mat = this._globalTramsfrom();
 
         let scene = (<Sprite>this.owner).scene;
         let camera = scene._specialManager._mainCamera;
         if (camera == null) {
-            tempRect.setTo(0, 0, Laya.stage.width, Laya.stage.height);
-            mat.copyTo(tempMat);
+            renderRect.setTo(0, 0, Laya.stage.width, Laya.stage.height);
+            mat.copyTo(clipChuckMat);
         } else {
             let rect = camera._rect;
-            tempRect.setTo(rect.x, rect.y, rect.w - rect.x, rect.w - rect.y);
+            renderRect.setTo(rect.x, rect.y, rect.w - rect.x, rect.w - rect.y);
             let cameraMat = camera._getCameraTransform();
             var e: Float32Array = cameraMat.elements;
-            tempMat.a = e[0];
-            tempMat.b = e[1];
-            tempMat.c = e[3];
-            tempMat.d = e[4];
-            tempMat.tx = e[6];
-            tempMat.ty = e[7];
-            Matrix.mul(mat, tempMat, tempMat);
+            clipChuckMat.a = e[0];
+            clipChuckMat.b = e[1];
+            clipChuckMat.c = e[3];
+            clipChuckMat.d = e[4];
+            clipChuckMat.tx = e[6];
+            clipChuckMat.ty = e[7];
+            Matrix.mul(mat, clipChuckMat, clipChuckMat);
         }
-        let tempVec = Vector2.TempVector2;
-        this._chunk.getChunkSize(tempVec);
+        let oneChuckSize = Vector2.TempVector2;
+        this._chunk._getChunkSize(oneChuckSize);
 
-        this._cliper.setClipper(tempRect, tempVec, tempMat, 0);
+        //根据实际裁切框计算chunck矩阵的裁切框大小  返回 renderRect在Tilemap空间中的转换rect
+        let chuckLocalRect = this._cliper.setClipper(renderRect, oneChuckSize, clipChuckMat, 0);
+
         this._renderElements.length = 0;
 
-        let ploygRect = this._cliper.getploygRect();
-
         let tileSize = this.tileSet.tileSize;
-        let tempVec3 = Vector3._tempVector3;
-        this._chunk.getChunkPosByPixel(ploygRect.x - tileSize.x, ploygRect.y - tileSize.y, tempVec3);
-        let startRow = tempVec3.x;
-        let startCol = tempVec3.y;
-        this._chunk.getChunkPosByPixel(ploygRect.z + tileSize.x, ploygRect.w + tileSize.y, tempVec3);
-        let endRow = tempVec3.x;
-        let endCol = tempVec3.y;
 
-        for (var j = startCol; j <= endCol; j++) {
+        let tempVec3 = Vector3._tempVector3;
+        this._chunk._getChunkPosByPixel(chuckLocalRect.x - tileSize.x, chuckLocalRect.y - tileSize.y, tempVec3);
+        let chuckstartRow = tempVec3.x;
+        let chuckstartCol = tempVec3.y;
+        this._chunk._getChunkPosByPixel(chuckLocalRect.z + tileSize.x, chuckLocalRect.w + tileSize.y, tempVec3);
+        let chuckendRow = tempVec3.x;
+        let chuckendCol = tempVec3.y;
+
+        let checkPoint = Vector2.TempVector2;
+        for (var j = chuckstartCol; j <= chuckendCol; j++) {
             if (!this._chunkDatas.has(j)) { continue; }
             let rowData = this._chunkDatas.get(j);
-            for (var i = startRow; i <= endRow; i++) {
+            for (var i = chuckstartRow; i <= chuckendRow; i++) {
                 if (!rowData.has(i)) { continue; }
-                this._chunk.getChunkLeftTop(i, j, tempVec);
-                if (!this._cliper.isClipper(tempVec.x, tempVec.y)) {
+                this._chunk._getChunkLeftTop(i, j, checkPoint);
+                if (!this._cliper.isClipper(checkPoint.x, checkPoint.y)) {
                     let chunkData = rowData.get(i);
-                    chunkData._update();
-                    chunkData._mergeToElement(this._renderElements);
+                    chunkData._update();//更新数据
+                    chunkData._mergeToElement(this._renderElements);//更新渲染元素
                 }
             }
         }
-
     }
 
     /**
@@ -412,13 +412,13 @@ export class TileMapLayer extends BaseRenderNode2D {
         if (cellData == null) return;
         let tempVec3 = Vector3._tempVector3;
         if (isPixel) {
-            this._chunk.getChunkPosByPixel(x, y, tempVec3);
+            this._chunk._getChunkPosByPixel(x, y, tempVec3);
         } else {
-            this._chunk.getChunkPosByCell(x, y, tempVec3);
+            this._chunk._getChunkPosByCell(x, y, tempVec3);
         }
 
         let chunkData = this._getLayerDataTileByPos(tempVec3.x, tempVec3.y);
-        chunkData._updateCellGid(tempVec3.z, cellData.getGid());
+        chunkData._setCell(tempVec3.z, cellData);
     }
 
     /**
@@ -430,9 +430,9 @@ export class TileMapLayer extends BaseRenderNode2D {
     removeCell(x: number, y: number, isPixel: boolean = true) {
         let tempVec3 = Vector3._tempVector3;
         if (isPixel) {
-            this._chunk.getChunkPosByPixel(x, y, tempVec3);
+            this._chunk._getChunkPosByPixel(x, y, tempVec3);
         } else {
-            this._chunk.getChunkPosByCell(x, y, tempVec3);
+            this._chunk._getChunkPosByCell(x, y, tempVec3);
         }
 
         let chunkData = this._getLayerDataTileByPos(tempVec3.x, tempVec3.y);
@@ -443,19 +443,21 @@ export class TileMapLayer extends BaseRenderNode2D {
     * 像素系统转格子系统
     */
     piexToGrid(pixelX: number, pixelY: number, out: Vector2) {
-        this._grid.pixelToGrid(pixelX, pixelY, out);
+        this._grid._pixelToGrid(pixelX, pixelY, out);
     }
 
     /**
      * 格子系统转像素系统
      */
     gridToPixel(cellRow: number, cellCol: number, out: Vector2) {
-        this._grid.gridToPixel(cellRow, cellCol, out);
+        this._grid._gridToPixel(cellRow, cellCol, out);
     }
 
-   
+
     getDefalutMaterial(atlas: string): Material {
         return this.tileSet.getDefalutMaterial(atlas);
     }
 
 }
+
+Laya.addInitCallback(() => TileMapLayer.__init__());
