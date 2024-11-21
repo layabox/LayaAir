@@ -1,9 +1,9 @@
 
-import TileMapVS from "./TileMap.vs";
-import TileMapFS from "./TileMap.fs";
-import TileMapCommonGLSL from "./TileMapCommon.glsl"
-import TileMapVertexGLSL from "./TileMapVertex.glsl"
-import TileMapFragmentGLSL from "./TileMapFragment.glsl"
+import TileMapVS from "./TileMapShader/TileMap.vs";
+import TileMapFS from "./TileMapShader/TileMap.fs";
+import TileMapCommonGLSL from "./TileMapShader/TileMapCommon.glsl"
+import TileMapVertexGLSL from "./TileMapShader/TileMapVertex.glsl"
+import TileMapFragmentGLSL from "./TileMapShader/TileMapFragment.glsl"
 import { ShaderDataType } from "../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { Shader3D, ShaderFeatureType } from "../../../RenderEngine/RenderShader/Shader3D";
 import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
