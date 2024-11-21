@@ -214,11 +214,14 @@ export class FreeformLight2D extends BaseLight2D {
         this._lightPolygon.cloneTo(this._globalPolygon);
 
         //计算世界坐标包围圆
-        const m = (this.owner as Sprite).getGlobalMatrix();
+        //const m = (this.owner as Sprite).getGlobalMatrix();
+        const m = (this.owner as Sprite).transform; //改用局部变换矩阵
         const ox = (this.owner as Sprite).globalPosX * Browser.pixelRatio;
         const oy = (this.owner as Sprite).globalPosY * Browser.pixelRatio;
-        const sx = Math.abs((this.owner as Sprite).globalScaleX);
-        const sy = Math.abs((this.owner as Sprite).globalScaleY);
+        //const sx = Math.abs((this.owner as Sprite).globalScaleX);
+        //const sy = Math.abs((this.owner as Sprite).globalScaleY);
+        const sx = Math.abs((this.owner as Sprite).scaleX); //改用局部放缩
+        const sy = Math.abs((this.owner as Sprite).scaleY);
         if (m) {
             this._worldCircle.x = m.a * this._localCircle.x + m.c * this._localCircle.y + ox;
             this._worldCircle.y = m.b * this._localCircle.x + m.d * this._localCircle.y + oy;

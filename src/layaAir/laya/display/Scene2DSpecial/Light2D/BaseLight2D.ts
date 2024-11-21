@@ -654,8 +654,10 @@ export class BaseLight2D extends Component {
      */
     protected _lightScaleAndRotation() {
         //获取放缩量
-        const sx = Math.abs((this.owner as Sprite).globalScaleX);
-        const sy = Math.abs((this.owner as Sprite).globalScaleY);
+        //const sx = Math.abs((this.owner as Sprite).globalScaleX);
+        //const sy = Math.abs((this.owner as Sprite).globalScaleY);
+        const sx = Math.abs((this.owner as Sprite).scaleX); //改用局部放缩
+        const sy = Math.abs((this.owner as Sprite).scaleY);
 
         //设置灯光放缩
         Vector2.TempVector2.x = 1 / sx;
