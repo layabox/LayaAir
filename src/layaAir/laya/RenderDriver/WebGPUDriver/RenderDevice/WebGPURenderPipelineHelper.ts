@@ -495,7 +495,7 @@ export class WebGPURenderPipeline {
         descriptor.layout = shaderInstance.createPipelineLayout(device, 'pipelineLayout_' + this.idCounter, entries);
         descriptor.multisample.count = renderTarget._samples;
         const renderPipeline = device.createRenderPipeline(descriptor);
-        console.log('create renderPipeline_' + this.idCounter, stateKey, descriptor, renderTarget._samples, shaderInstance);
+        //console.log('create renderPipeline_' + this.idCounter, stateKey, descriptor, renderTarget._samples, shaderInstance);
         this.idCounter++;
         return renderPipeline;
     }

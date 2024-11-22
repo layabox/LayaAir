@@ -595,7 +595,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
                 this._pipeline[index] = pipeline;
             }
             context.pipelineCache.push({ name: shaderInstance.name, pipeline, shaderInstance, samples: context.destRT._samples, stateKey });
-            console.log('pipelineCache3d =', context.pipelineCache);
+            //console.log('pipelineCache3d =', context.pipelineCache);
             return pipeline;
         }
         return null;
