@@ -91,8 +91,7 @@ export class WebGLInstanceRenderBatch {
                         list.add(originElement);
                         list.add(element);
                         elementArray[instanceIndex] = instanceRenderElement;
-                        instanceMark.batched = true; //@ts-ignore
-                        instanceRenderElement._invertFrontFace = element.transform ? element.transform._isFrontFaceInvert : false;
+                        instanceMark.batched = true; 
                     }
                 } else {
                     instanceMark.updateMark = this._updateCountMark;
