@@ -5,15 +5,17 @@
 varying vec2 v_position;
 varying vec4 v_linePionts;
 varying float v_lineLength;
+varying vec2 v_linedir;
 
 uniform float u_lineWidth;
 uniform vec3 u_dashed;
 
 
+
 void lineMat(in vec2 left,in vec2 right,inout vec3 xDir,inout vec3 yDir){
     vec2 dir=right-left;
    
-    float lineLength=length(dir)+2.0;
+    float lineLength=length(dir)+u_lineWidth+2.0;
     dir=normalize(dir);
     xDir.x=dir.x*lineLength;
     yDir.x=dir.y*lineLength;
@@ -36,6 +38,7 @@ void main(){
     getGlobalPos(a_linePos.zw,right);
 
     v_linePionts=vec4(left,right);
+    v_linedir = normalize(right - left) * u_lineWidth*0.5;
     vec3 xDir;
     vec3 yDir;
     lineMat(left,right,xDir,yDir);
