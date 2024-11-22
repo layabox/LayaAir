@@ -198,7 +198,7 @@ export class WebGPURenderEngine implements IRenderEngine {
             })
             .then((device: GPUDevice) => {
                 this._initDevice(device);
-                console.log('WebGPU start');
+                //console.log('WebGPU start');
                 return Promise.resolve();
             }, (e) => {
                 console.log(e);
