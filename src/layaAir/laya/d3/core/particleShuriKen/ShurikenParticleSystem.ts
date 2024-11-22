@@ -1075,7 +1075,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 
         this._textureSheetAnimation = value;
 
-        if (value) {
+        if (value && value.enable) {
             var frameOverTime: FrameOverTime = value.frame;
             var textureAniType: number = frameOverTime.type;
             shaDat.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_TEXTURESHEETANIMATIONRANDOMCURVE);
@@ -1103,6 +1103,9 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
                         break;
                 }
             }
+        }
+        else {
+            shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_TEXTURESHEETANIMATIONRANDOMCURVE);
         }
     }
 
