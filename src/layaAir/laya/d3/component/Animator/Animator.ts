@@ -348,7 +348,6 @@ export class Animator extends Component {
             return;
         state.curTransition = transition;
 
-        console.log("通过");
         this._LateUpdateEvents.add(this.crossFade, this, [transition.destState.name, transition.transduration, layerindex, transition.transstartoffset]);
         //this.crossFade(transition.destState.name, transition.transduration, layerindex, transition.transstartoffset);
     }
@@ -1592,7 +1591,7 @@ export class Animator extends Component {
      * @param	normalizedTime 归一化的播放起始时间。
      */
     crossFade(name: string, transitionDuration: number, layerIndex: number = 0, normalizedTime: number = Number.NEGATIVE_INFINITY): void {
-        console.log("name:" + name + "," + "transitionDuration" + transitionDuration + "," + "layerIndex" + layerIndex);
+        //console.log("name:" + name + "," + "transitionDuration" + transitionDuration + "," + "layerIndex" + layerIndex);
         var controllerLayer = this._controllerLayers[layerIndex];
         if (controllerLayer) {
             var destAnimatorState = controllerLayer.getAnimatorState(name);
