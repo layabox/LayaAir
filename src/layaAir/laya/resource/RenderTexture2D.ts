@@ -232,7 +232,21 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
      * @returns 指定区域的像素数据。
      */
     getData(x: number, y: number, width: number, height: number): ArrayBufferView {
-        return LayaGL.textureContext.getRenderTextureData(this._renderTarget, x, y, width, height);
+        const pixelCount = width * height * 4;
+        let pixelArray: ArrayBufferView;
+        switch (this._renderTarget.colorFormat) {
+            case RenderTargetFormat.R8G8B8:
+            case RenderTargetFormat.R8G8B8A8:
+                pixelArray = new Uint8Array(pixelCount);
+                break;
+            case RenderTargetFormat.R16G16B16A16:
+                pixelArray = new Float32Array(pixelCount);
+                break;
+            default:
+                throw "this function is not surpprt " + this._renderTarget.colorFormat.toString() + "format Material";
+        }
+        LayaGL.textureContext.readRenderTargetPixelData(this._renderTarget, x, y, width, height, pixelArray);
+        return pixelArray;
     }
 
     /**

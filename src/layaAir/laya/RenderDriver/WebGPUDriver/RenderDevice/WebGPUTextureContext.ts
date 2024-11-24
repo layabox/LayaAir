@@ -1569,17 +1569,7 @@ export class WebGPUTextureContext implements ITextureContext {
         const device = WebGPURenderEngine._instance.getDevice();
         device.queue.copyExternalImageToTexture(image, textureCopyView, copySize);
     }
-    /**
-     * @deprecated 请使用getRenderTextureDataAsync函数代替
-     * @param internalTex 
-     * @param x 
-     * @param y 
-     * @param width 
-     * @param height 
-     */
-    getRenderTextureData(internalTex: InternalRenderTarget, x: number, y: number, width: number, height: number): ArrayBufferView {
-        throw new NotImplementedError();
-    }
+
     getRenderTextureDataAsync(internalTex: InternalRenderTarget, x: number, y: number, width: number, height: number): Promise<ArrayBufferView> {
         let bytesPerRow = 0;
         switch (internalTex.colorFormat) {
