@@ -1438,8 +1438,8 @@ export class Camera extends BaseCamera {
     viewportPointToRay(point: Vector2, out: Ray): void {
         this._rayViewport.x = this.viewport.x;
         this._rayViewport.y = this.viewport.y;
-        this._rayViewport.width = ILaya.stage._width;
-        this._rayViewport.height = ILaya.stage._height;
+        this._rayViewport.width = this.viewport.width;
+        this._rayViewport.height = this.viewport.height;
         Picker.calculateCursorRay(point, this._rayViewport, this._projectionMatrix, this.viewMatrix, null, out);
     }
 
