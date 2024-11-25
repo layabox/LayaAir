@@ -18,7 +18,7 @@ export class NavModifleBase extends Component {
 
     /**@internal */
     protected _boundMin: Vector3 = new Vector3();
-
+    /**@internal */
     protected _boundMax: Vector3 = new Vector3();
 
     /**@internal */
@@ -38,9 +38,6 @@ export class NavModifleBase extends Component {
         return this._dtNavTileCache;
     }
 
-    /**
-     * @internal
-     */
     get boundMin(): Vector3 {
         return this._boundMin;
     }
@@ -106,7 +103,7 @@ export class NavModifleBase extends Component {
     /**
      * @internal
      */
-    _refeashTranfrom(mat: Matrix4x4, min:Vector3,max:Vector3) {
+    _refeashTranfrom(mat: Matrix4x4, min: Vector3, max: Vector3) {
 
     }
 
