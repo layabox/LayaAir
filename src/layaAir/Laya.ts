@@ -33,6 +33,7 @@ import { VertexElementFormat } from "./laya/renders/VertexElementFormat";
 import { DrawStyle } from "./laya/webgl/canvas/DrawStyle";
 import { Stat } from "./laya/utils/Stat";
 import { RenderPassStatisticsInfo } from "./laya/RenderEngine/RenderEnum/RenderStatInfo";
+import { VertexMesh } from "./laya/RenderEngine/RenderShader/VertexMesh";
 
 /**
  * @en Laya is the reference entry for global objects.
@@ -217,6 +218,7 @@ export class Laya {
         stage = ((<any>window)).stage = ILaya.stage = Laya.stage = new Stage();
 
         VertexElementFormat.__init__();
+        VertexMesh.__init__();
         Shader3D.init();
         MeshQuadTexture.__int__();
         MeshVG.__init__();

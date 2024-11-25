@@ -134,7 +134,6 @@ export class Laya3D {
 
         ILaya3D.Scene3D = Scene3D;
         ILaya3D.Laya3D = Laya3D;
-        VertexMesh.__init__();
         VertexShurikenParticleBillboard.__init__();
         VertexShurikenParticleMesh.__init__();
         VertexPositionTexture0.__init__();

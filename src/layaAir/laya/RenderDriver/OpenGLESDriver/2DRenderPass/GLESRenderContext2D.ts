@@ -94,8 +94,6 @@ export class GLESREnderContext2D implements IRenderContext2D {
         let fs = `
             #define SHADER_NAME GLESblitScreenFS
 
-            #include "Color.glsl";
-
             varying vec2 v_Texcoord0;
 
             void main()
