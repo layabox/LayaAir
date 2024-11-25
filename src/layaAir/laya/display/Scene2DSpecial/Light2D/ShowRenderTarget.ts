@@ -17,7 +17,7 @@ export class ShowRenderTarget {
         this._render = this._sprite.addComponent(Mesh2DRender);
         this._render.lightReceive = false;
         if (tex) this._render.texture = tex;
-        this._render.shareMesh = this._genMesh(x, y, width, height);
+        this._render.sharedMesh = this._genMesh(x, y, width, height);
     }
 
     /**

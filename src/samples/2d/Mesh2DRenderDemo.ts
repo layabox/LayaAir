@@ -30,7 +30,7 @@ export class Mesh2DRenderDemo {
             var t = Laya.loader.getRes("res/apes/monkey2.png")._bitmap;
             var ape: Sprite = new Sprite();
             let mesh2Drender = ape.addComponent(Mesh2DRender);
-            mesh2Drender.shareMesh = this.generateCircleVerticesAndUV(100, 100);
+            mesh2Drender.sharedMesh = this.generateCircleVerticesAndUV(100, 100);
             mesh2Drender.texture = t;
             // ape.graphics.drawTexture(t, 0, 0);
             this.Main.box2D.addChild(ape);
