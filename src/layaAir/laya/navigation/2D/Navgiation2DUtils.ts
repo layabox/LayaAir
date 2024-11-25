@@ -178,7 +178,7 @@ export class Navgiation2DUtils {
     }
 
     /** @internal*/
-    private static _updateMesh2DData(mesh2d: Mesh2D, vbdata: Float32Array, ib: Uint16Array | Uint32Array, ibFormat: IndexFormat) {
+    private static _updateMesh2DData(mesh2d: Mesh2D, vbdata: Float32Array, ib: Uint16Array | Uint32Array, ibFormat: IndexFormat ,canRead :boolean= false) {
         let vbArray = [];
         {
             let vertex = LayaGL.renderDeviceFactory.createVertexBuffer(BufferUsage.Dynamic);
@@ -205,6 +205,11 @@ export class Navgiation2DUtils {
         mesh2d._vertices = [vbdata];
         mesh2d._indices = ib;
         mesh2d._vertexCount = vbdata.length / 9;
+
+        if (canRead) {
+            mesh2d._vertices = [vbdata];
+            mesh2d._indices = ib;
+        }
         return mesh2d;
     }
 

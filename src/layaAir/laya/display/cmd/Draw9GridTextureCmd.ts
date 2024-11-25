@@ -5,7 +5,6 @@ import { ColorUtils } from "../../utils/ColorUtils";
 import { Pool } from "../../utils/Pool"
 
 /**
- * @internal
  * @en Draw a texture with nine-grid information
  * @zh 绘制带九宫格信息的图片
  */

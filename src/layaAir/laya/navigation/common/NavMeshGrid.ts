@@ -5,7 +5,6 @@ import { NavTileData } from "./NavTileData";
 import { RecastConfig } from "./RecastConfig";
 
 /**
- * @internal 
  * @en The NavMeshGrid class manages the grid division of the navigation mesh.
  * @zh NavMeshGrid 类用于管理导航网格的网格划分。
 */
