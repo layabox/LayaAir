@@ -7,7 +7,6 @@ import { BaseData } from "../../common/data/BaseData";
 import { NavigationManager } from "../NavigationManager";
 
 /**
- * @internal
  * @en BaseNav3DModifle is the base class for dynamic navigation nodes.
  * @zh BaseNav3DModifle 是动态导航节点的基类。
  */
