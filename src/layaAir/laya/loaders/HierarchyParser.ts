@@ -114,7 +114,7 @@ export class HierarchyParser {
                         }
                     }
                     else {
-                        errors.push(new Error(`unknown type '${runtime || pstr}'`));
+                        errors.push(new Error(`missing node type '${runtime || pstr}' (in ${nodeData.name || 'noname'})`));
                     }
                 }
 
@@ -298,6 +298,8 @@ export class HierarchyParser {
                             }
                         }
                     }
+                    else
+                        errors.push(new Error(`missing component type '${compData._$type}' (in ${node.name || 'noname'})`));
                 }
 
                 if (comp)
