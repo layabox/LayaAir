@@ -39,7 +39,7 @@ export class TrailShaderCommon {
         spriteParms.addShaderUniform(TrailShaderCommon.WIDTHCURVEKEYLENGTH, "u_WidthCurveKeyLength", ShaderDataType.Int);
 
         TrailShaderCommon.attributeMap = {
-            'a_Position': [VertexTrail.TRAIL_POSITION0, ShaderDataType.Vector4],
+            'a_position': [VertexTrail.TRAIL_POSITION0, ShaderDataType.Vector4],
             'a_OffsetVector': [VertexTrail.TRAIL_OFFSETVECTOR, ShaderDataType.Vector3],
             'a_Texcoord0X': [VertexTrail.TRAIL_TEXTURECOORDINATE0X, ShaderDataType.Float],
             'a_Texcoord0Y': [VertexTrail.TRAIL_TEXTURECOORDINATE0Y, ShaderDataType.Float],

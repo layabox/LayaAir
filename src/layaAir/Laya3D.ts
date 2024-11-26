@@ -182,8 +182,6 @@ export class Laya3D {
         pixelLineMaterial.lock = true;
         pixelLineMaterial.enableVertexColor = true;
         PixelLineMaterial.defaultMaterial = pixelLineMaterial;
-        TrailMaterial.defaultMaterial = new TrailMaterial();
-        TrailMaterial.defaultMaterial.lock = true;
         Texture2D.__init__();
         TextureCube.__init__();
         Texture2DArray.__init__();

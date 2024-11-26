@@ -22,7 +22,7 @@ export class TrailBaseFilter {
     /**@internal */
     protected _textureMode: TrailTextureMode = TrailTextureMode.Stretch;
     /**@internal */
-    protected _trialGeometry: TrailGeometry;
+    _trialGeometry: TrailGeometry;
     /**@internal 拖尾总长度*/
     _totalLength: number = 0;
 
@@ -118,6 +118,7 @@ export class TrailBaseFilter {
     constructor(nodeShaderData: ShaderData) {
         this._nodeShaderData = nodeShaderData;
         this._initDefaultData();
+        this._trialGeometry = new TrailGeometry();
     }
 
     /**

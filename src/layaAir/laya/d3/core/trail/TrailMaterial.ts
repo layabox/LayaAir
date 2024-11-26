@@ -4,7 +4,7 @@ import { RenderState } from "../../../RenderDriver/RenderModuleData/Design/Rende
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { Material, MaterialRenderMode } from "../../../resource/Material";
-import { TrailShaderInit } from "./Trail/TrailShaderInit";
+import { TrailShaderInit } from "./Shader/TrailShaderInit";
 
 /**
  * @en The `TrailMaterial` class is used to implement trail materials.

@@ -61,7 +61,7 @@ export class TrailFilter extends TrailBaseFilter {
 		element.render = render;
 		element.material = material;
 		//element.renderSubShader = element.material.shader.getSubShaderAt(0);
-		this._trialGeometry = new TrailGeometry();
+		
 		element._renderElementOBJ.geometry = this._trialGeometry._geometryElementOBj;
 		elements.push(element);
 	}
