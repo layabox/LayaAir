@@ -89,24 +89,7 @@ export class TileSet extends Resource {
         }
     }
 
-    /**
-     * @internal
-     */
-    _notifyTileSetCellGroupsChange() {
-        let id = 1;
-        this._alternativesId.length = 0;
-        this._groupIds.length = 0;
-
-        for (let i = 0, len = this._groups.length; i < len; i++) {
-            const value = this._groups[i];
-            value._recaculateUVOriProperty(false);
-            this._alternativesId.push(id);
-            this._groupIds.push(value.id);
-            value._baseAlternativesId = id;
-            id += value._maxAlternativesCount;
-        }
-        this._alternativesId.push(id);
-    }
+    
 
     public getCellDataByGid(gid: number): TileSetCellData {
         if (gid <= 0) { return null; }
@@ -140,7 +123,7 @@ export class TileSet extends Resource {
             this._ownerList.splice(index, 1);
     }
 
-    _refeashAlternativesId() {
+    _notifyTileSetCellGroupsChange() {
         let id = 1;
         this._alternativesId.length = 0;
         this._groupIds.length = 0;

@@ -52,9 +52,6 @@ export class TileSetCellData {
 
     private _notiveRenderTile: TileMapChunkData[];
 
-    /** @private 网格id 16-23位index 0-15位nativeId */
-    _gid:number = -1;
-
     //随机值
     private _probability: number = 1;
 
@@ -229,7 +226,6 @@ export class TileSetCellData {
         this._z_index = 0;
         this._y_sort_origin = 0;
         this._terrain_set = false;
-
     }
 
     /**
@@ -241,13 +237,17 @@ export class TileSetCellData {
         this._index = index;
         this._cellowner = owner;
         this._updateTransData();
-        this._gid = TileMapUtils.getGid(index, owner._id);
+    }
+
+    /** @private 网格id 16-23位index 0-15位nativeId */
+    getGid(): number {
+        return TileMapUtils.getGid(this._index, this._cellowner.getId());
     }
 
     _notifyDataChange(data: number) {
         if (!this.cellowner) return;
         this._notiveRenderTile.forEach(element => {
-            element._setDirtyFlag(this._gid, data);
+            element._setDirtyFlag(this.getGid(), data);
         });
     }
 

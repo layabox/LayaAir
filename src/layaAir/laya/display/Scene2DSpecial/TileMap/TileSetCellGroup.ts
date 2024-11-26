@@ -32,7 +32,7 @@ export class TileSetCellGroup {
     private _tiles: Record<number, Record<number, TileAlternativesData>>;
 
     private _tileMatrix: Matrix = new Matrix();
-
+    /** 创建时固定 */
     id: number;
 
     name: string;
@@ -142,7 +142,7 @@ export class TileSetCellGroup {
     }
 
     onAtlasSizeChange() {
-        this._owner && this._owner._refeashAlternativesId();
+        this._owner && this._owner._notifyTileSetCellGroupsChange();
     }
 
     //获得全局的alternative的id

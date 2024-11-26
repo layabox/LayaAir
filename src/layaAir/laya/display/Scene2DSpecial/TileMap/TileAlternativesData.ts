@@ -50,9 +50,6 @@ export class TileAlternativesData {
 
     private _animatorUpdateMask: number = 0;
 
-    /** @private */
-    _id:number;
-
     /**
      * 格子的位置
      */
@@ -185,7 +182,11 @@ export class TileAlternativesData {
         this._uvExtends.x = this._uvSize.x / atlasSize.x;
         this._uvExtends.y = this._uvSize.y / atlasSize.y;
         this._updateOriginUV(0, 0, TILEMAPLAYERDIRTYFLAG.CELL_QUAD | TILEMAPLAYERDIRTYFLAG.CELL_QUADUV);
-        this._id = this.owner._getGlobalAlternativesId(this.localPos.x, this.localPos.y);
+    }
+
+    /** @private */
+    getId():number{
+        return this.owner._getGlobalAlternativesId(this.localPos.x, this.localPos.y);
     }
 
     /**
