@@ -56,7 +56,7 @@ export class RenderCMD2DDemo {
             if (testRenderElementCMD) {//OK
                 var ape: Sprite = new Sprite();
                 let mesh2Drender = ape.addComponent(Mesh2DRender);
-                mesh2Drender.shareMesh = mesh;
+                mesh2Drender.sharedMesh = mesh;
                 mesh2Drender.color = Color.BLUE;
                 mesh2Drender.texture = t;
 
