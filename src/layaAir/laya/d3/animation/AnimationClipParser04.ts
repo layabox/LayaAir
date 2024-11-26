@@ -1,20 +1,20 @@
 import { KeyframeNode } from "./KeyframeNode";
 import { KeyframeNodeList } from "./KeyframeNodeList";
 import { AnimationEvent } from "./AnimationEvent";
-import { FloatKeyframe } from "../core/FloatKeyframe"
-import { QuaternionKeyframe } from "../core/QuaternionKeyframe"
-import { Vector3Keyframe } from "../core/Vector3Keyframe"
 import { AnimationClip } from "./AnimationClip";
 import { Byte } from "../../utils/Byte";
 import { HalfFloatUtils } from "../../utils/HalfFloatUtils";
-import { Vector2Keyframe } from "../core/Vector2Keyframe";
-import { Vector4Keyframe } from "../core/Vector4Keyframe";
 import { KeyFrameValueType } from "../component/Animator/KeyframeNodeOwner";
 import { Quaternion } from "../../maths/Quaternion";
 import { Vector2 } from "../../maths/Vector2";
 import { Vector3 } from "../../maths/Vector3";
 import { Vector4 } from "../../maths/Vector4";
-import { WeightedMode } from "../core/Keyframe";
+import { FloatKeyframe } from "../../maths/FloatKeyframe";
+import { WeightedMode } from "../../maths/Keyframe";
+import { QuaternionKeyframe } from "../../maths/QuaternionKeyframe";
+import { Vector2Keyframe } from "../../maths/Vector2Keyframe";
+import { Vector3Keyframe } from "../../maths/Vector3Keyframe";
+import { Vector4Keyframe } from "../../maths/Vector4Keyframe";
 
 /**
  * @internal

@@ -3,7 +3,6 @@ import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
 import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
 import { DrawType } from "../../RenderEngine/RenderEnum/DrawType";
 import { BufferState } from "../../webgl/utils/BufferState";
-import { Laya3DRender } from "../RenderObjs/Laya3DRender";
 import { IRenderGeometryElement } from "../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
 import { LayaGL } from "../../layagl/LayaGL";
 

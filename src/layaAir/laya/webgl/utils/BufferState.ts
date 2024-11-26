@@ -20,9 +20,6 @@ export class BufferState {
 	/**@internal */
 	_vertexBuffers: VertexBuffer3D[];
 
-	/**@internal */
-	vertexlayout: VertexAttributeLayout;//WGPU 先不管
-
 	/**
 	 * 创建一个 <code>BufferState</code> 实例。
 	 */

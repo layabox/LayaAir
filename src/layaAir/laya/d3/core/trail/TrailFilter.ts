@@ -1,175 +1,51 @@
-import { Camera } from "../Camera";
-import { FloatKeyframe } from "../FloatKeyframe";
-import { GeometryElement } from "../GeometryElement";
-import { GradientMode } from "../GradientMode";
 import { BaseRender } from "../render/BaseRender";
 import { RenderContext3D } from "../render/RenderContext3D";
-import { TrailGeometry } from "./TrailGeometry";
 import { TrailMaterial } from "./TrailMaterial";
 import { TrailRenderer } from "./TrailRenderer";
 import { Sprite3D } from "../Sprite3D";
-import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
-import { TrailAlignment } from "./TrailAlignment";
-import { TrailTextureMode } from "../TrailTextureMode";
-import { Color } from "../../../maths/Color";
 import { Vector3 } from "../../../maths/Vector3";
-import { Gradient } from "../Gradient";
-import { LayaGL } from "../../../layagl/LayaGL";
 import { RenderElement } from "../render/RenderElement";
-import { ShaderDataType } from "../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { TrailShaderCommon } from "../../../display/RenderFeatureComman/Trail/TrailShaderCommon";
+import { TrailGeometry } from "../../../display/RenderFeatureComman/Trail/TrailGeometry";
+import { TrailBaseFilter } from "../../../display/RenderFeatureComman/TrailBaseFilter";
 
+/**
+ * @en Enum for trail alignment options.
+ * @zh 拖尾对齐方式枚举。
+ */
+export enum TrailAlignment {
+	/**
+	 * @en Align the trail to face the camera.
+	 * @zh 使拖尾面向摄像机。
+	 */
+	View,
+	/**
+	 * @en Align the trail with the direction of the component
+	 * @zh 使拖尾与组件的方向对齐。
+	 */
+	TransformZ
+}
 
 /**
  * @en The TrailFilter class is used to create a trailing filter.
  * @zh TrailFilter 类用于创建拖尾过滤器。
  */
-export class TrailFilter {
-	/**@internal */
-	static CURTIME: number;
-	/**@internal */
-	static LIFETIME: number;
-	/**@internal */
-	static WIDTHCURVE: number;
-	/**@internal */
-	static WIDTHCURVEKEYLENGTH: number;
-
-	/**
-	 * @internal
-	 */
-	static __init__() {
-		TrailFilter.CURTIME = Shader3D.propertyNameToID("u_CurTime");
-		TrailFilter.LIFETIME = Shader3D.propertyNameToID("u_LifeTime");
-		TrailFilter.WIDTHCURVE = Shader3D.propertyNameToID("u_WidthCurve");
-		TrailFilter.WIDTHCURVEKEYLENGTH = Shader3D.propertyNameToID("u_WidthCurveKeyLength");
-
-		const spriteParms = LayaGL.renderDeviceFactory.createGlobalUniformMap("TrailRender");
-		spriteParms.addShaderUniform(TrailFilter.CURTIME, "u_CurTime", ShaderDataType.Float);
-		spriteParms.addShaderUniform(TrailFilter.LIFETIME, "u_LifeTime", ShaderDataType.Float);
-		spriteParms.addShaderUniform(TrailFilter.WIDTHCURVE, "u_WidthCurve", ShaderDataType.Buffer);
-		spriteParms.addShaderUniform(TrailFilter.WIDTHCURVEKEYLENGTH, "u_WidthCurveKeyLength", ShaderDataType.Int);
-	}
-
-	/**@internal */
-	private _minVertexDistance: number;
-	/**@internal */
-	private _widthMultiplier: number;
-	/**@internal */
-	private _time: number;
-	/**@internal */
-	private _widthCurve: FloatKeyframe[];
-	/**@internal */
-	private _colorGradient: Gradient;
-	/**@internal */
-	private _textureMode: TrailTextureMode = TrailTextureMode.Stretch;
-	/**@internal */
-	private _trialGeometry: GeometryElement;
-	/**@internal 拖尾总长度*/
-	_totalLength: number = 0;
-	/**@internal */
-	_ownerRender: TrailRenderer;
-	/**@internal */
-	_lastPosition: Vector3 = new Vector3();
-	/**@internal */
-	_curtime: number = 0;
-
+export class TrailFilter extends TrailBaseFilter {
 	/**
 	 * @en The trail alignment.
 	 * @zh 轨迹准线。
 	 */
 	alignment: TrailAlignment = TrailAlignment.View;
 
-	/**
-	 * @en Fade out time.
-	 * @zh 淡出时间。
-	 */
-	get time(): number {
-		return this._time;
-	}
-
-	set time(value: number) {
-		this._time = value;
-		this._ownerRender._baseRenderNode.shaderData.setNumber(TrailFilter.LIFETIME, value);
-	}
-
-	/**
-	 * @en Minimum distance between new and old vertices
-	 * @zh 新旧顶点之间最小距离。
-	 */
-	get minVertexDistance(): number {
-		return this._minVertexDistance;
-	}
-
-	set minVertexDistance(value: number) {
-		this._minVertexDistance = value;
-	}
-
-	/**
-	 * @en The width multiplier.
-	 * @zh 宽度倍数。
-	 */
-	get widthMultiplier(): number {
-		return this._widthMultiplier;
-	}
-
-	set widthMultiplier(value: number) {
-		this._widthMultiplier = value;
-	}
-
-	/**
-	 * @en The width curve. The maximum number is 10.
-	 * @zh 宽度曲线。最多10个。
-	 */
-	get widthCurve(): FloatKeyframe[] {
-		return this._widthCurve;
-	}
-
-	set widthCurve(value: FloatKeyframe[]) {
-		this._widthCurve = value;
-		var widthCurveFloatArray: Float32Array = new Float32Array(value.length * 4);
-		var i: number, j: number, index: number = 0;
-		for (i = 0, j = value.length; i < j; i++) {
-			widthCurveFloatArray[index++] = value[i].time;
-			widthCurveFloatArray[index++] = value[i].inTangent;
-			widthCurveFloatArray[index++] = value[i].outTangent;
-			widthCurveFloatArray[index++] = value[i].value;
-		}
-		this._ownerRender._baseRenderNode.shaderData.setBuffer(TrailFilter.WIDTHCURVE, widthCurveFloatArray);
-		this._ownerRender._baseRenderNode.shaderData.setInt(TrailFilter.WIDTHCURVEKEYLENGTH, value.length);
-	}
-
-	/**
-	 * @en The color gradient.
-	 * @zh 颜色梯度。
-	 */
-	get colorGradient(): Gradient {
-		return this._colorGradient;
-	}
-
-	set colorGradient(value: Gradient) {
-		this._colorGradient = value;
-
-	}
-
-	/**
-	 * @en The texture mode.
-	 * @zh 纹理模式。
-	 */
-	get textureMode(): TrailTextureMode {
-		return this._textureMode;
-	}
-
-	set textureMode(value: TrailTextureMode) {
-		this._textureMode = value;
-	}
-
+	/**@internal */
+	_ownerRender: TrailRenderer;
 	/** @ignore */
 	constructor(owner: TrailRenderer) {
+		super(owner._baseRenderNode.shaderData);
 		this._ownerRender = owner;
-		this._initDefaultData();
 		this.addRenderElement();
 	}
-
-
+	
 	/**
 	 * @internal
 	 * @en Adds a render element to the renderer.
@@ -185,8 +61,8 @@ export class TrailFilter {
 		element.render = render;
 		element.material = material;
 		//element.renderSubShader = element.material.shader.getSubShaderAt(0);
-		this._trialGeometry = new TrailGeometry(this);
-		element.setGeometry(this._trialGeometry);
+		this._trialGeometry = new TrailGeometry();
+		element._renderElementOBJ.geometry = this._trialGeometry._geometryElementOBj;
 		elements.push(element);
 	}
 
@@ -200,72 +76,76 @@ export class TrailFilter {
 			return;
 		this._curtime += scene.timer._delta / 1000;
 		//设置颜色
-		render._baseRenderNode.shaderData.setNumber(TrailFilter.CURTIME, this._curtime);
+		render._baseRenderNode.shaderData.setNumber(TrailShaderCommon.CURTIME, this._curtime);
 		//现在的位置记录
 		var curPos: Vector3 = (this._ownerRender.owner as Sprite3D).transform.position;
-		var element: TrailGeometry = (<TrailGeometry>render._renderElements[0]._geometry);
-		element._updateDisappear();
-		element._updateTrail((<Camera>state.camera), this._lastPosition, curPos);
-		element._updateVertexBufferUV();
+
+		this._trialGeometry._updateDisappear(this._curtime, this._time);
+		if (!Vector3.equals(this._lastPosition, curPos)) {
+			if ((this._trialGeometry._endIndex - this._trialGeometry._activeIndex) === 0) {
+				this._trialGeometry._addTrailByFirstPosition(curPos, this._curtime);
+			} else {
+				var delVector3: Vector3 = TrailGeometry._tempVector36;
+				var pointAtoBVector3: Vector3 = TrailGeometry._tempVector35;
+				switch (this.alignment) {
+					case TrailAlignment.View:
+						var cameraMatrix = state.camera.viewMatrix;
+						Vector3.transformCoordinate(curPos, cameraMatrix, TrailGeometry._tempVector33);
+						Vector3.transformCoordinate(this._trialGeometry._lastFixedVertexPosition, cameraMatrix, TrailGeometry._tempVector34);
+						Vector3.subtract(TrailGeometry._tempVector33, TrailGeometry._tempVector34, delVector3);
+						Vector3.cross(TrailGeometry._tempVector33, delVector3, pointAtoBVector3);
+						break;
+					case TrailAlignment.TransformZ:
+						Vector3.subtract(curPos, this._trialGeometry._lastFixedVertexPosition, delVector3);
+						var forward: Vector3 = TrailGeometry._tempVector33;
+						(this._ownerRender.owner as Sprite3D).transform.getForward(forward);
+						Vector3.cross(delVector3, forward, pointAtoBVector3);//实时更新模式需要和view一样根据当前forward重新计算
+						break;
+				}
+
+				Vector3.normalize(pointAtoBVector3, pointAtoBVector3);
+				Vector3.scale(pointAtoBVector3, this._widthMultiplier / 2, pointAtoBVector3);
+
+				var delLength: number = Vector3.scalarLength(delVector3);
+				this._trialGeometry._addTrailByNextPosition(curPos, this._curtime, this._minVertexDistance, pointAtoBVector3, delLength)
+			}
+		}
+		this._trialGeometry._updateVertexBufferUV(this._colorGradient, this._textureMode);
 		//克隆到lastPosition
 		curPos.cloneTo(this._lastPosition);
-	}
 
-	/**
-	 * @internal
-	 */
-	_initDefaultData(): void {
-		this.time = 5.0;
-		this.minVertexDistance = 0.1;
-		this.widthMultiplier = 1;
-		this.textureMode = TrailTextureMode.Stretch;
+		if (this._trialGeometry._disappearBoundsMode) {
+			//caculate boundBox
+			var bounds = this._ownerRender.bounds;
+			var min: Vector3, max: Vector3;
+			var sprite3dPosition: Vector3 = (this._ownerRender.owner as Sprite3D).transform.position;
+			bounds.setMin(sprite3dPosition);
+			bounds.setMax(sprite3dPosition);
+			min = bounds.getMin();
+			max = bounds.getMax();
+			let _vertices1 = this._trialGeometry._vertices1;
+			for (var i: number = this._trialGeometry._activeIndex; i < this._trialGeometry._endIndex; i++) {
+				var posOffset = this._trialGeometry._floatCountPerVertices1 * 2 * i;
+				var pos: Vector3 = TrailGeometry._tempVector35;
+				var up: Vector3 = TrailGeometry._tempVector33;
+				var side: Vector3 = TrailGeometry._tempVector34;
 
-		var widthKeyFrames: FloatKeyframe[] = [];
-		var widthKeyFrame1: FloatKeyframe = new FloatKeyframe();
-		widthKeyFrame1.time = 0;
-		widthKeyFrame1.inTangent = 0;
-		widthKeyFrame1.outTangent = 0;
-		widthKeyFrame1.value = 1;
-		widthKeyFrames.push(widthKeyFrame1);
-		var widthKeyFrame2: FloatKeyframe = new FloatKeyframe();
-		widthKeyFrame2.time = 1;
-		widthKeyFrame2.inTangent = 0;
-		widthKeyFrame2.outTangent = 0;
-		widthKeyFrame2.value = 1;
-		widthKeyFrames.push(widthKeyFrame2);
-		this.widthCurve = widthKeyFrames;
+				pos.setValue(_vertices1[posOffset + 0], _vertices1[posOffset + 1], _vertices1[posOffset + 2]);
+				up.setValue(_vertices1[posOffset + 3], _vertices1[posOffset + 4], _vertices1[posOffset + 5]);
 
-		var gradient: Gradient = new Gradient();
-		gradient.setMaxKeyCount(2, 2);
-		gradient.mode = GradientMode.Blend;
-		gradient.addColorRGB(0, Color.WHITE);
-		gradient.addColorRGB(1, Color.WHITE);
-		gradient.addColorAlpha(0, 1);
-		gradient.addColorAlpha(1, 1);
-		this.colorGradient = gradient;
-	}
+				Vector3.add(pos, up, side);
+				Vector3.min(side, min, min);
+				Vector3.max(side, max, max);
+				Vector3.subtract(pos, up, side);
+				Vector3.min(side, min, min);
+				Vector3.max(side, max, max);
+			}
+			bounds.setMin(min);
+			bounds.setMax(max);
+			this._trialGeometry._disappearBoundsMode = false;
+		}
 
-	/**
-	 * @internal
-	 * @en Destroys the instance and releases resources.
-	 * @zh 销毁实例并释放资源。
-	 */
-	destroy(): void {
-		this._trialGeometry.destroy();
-		this._trialGeometry = null;
-		this._widthCurve = null;
-		this._colorGradient = null;
-	}
-
-	/**
-	 * @en Clears the trail.
-	 * @zh 清除拖尾。
-	 */
-	clear(): void {
-		(<TrailGeometry>this._trialGeometry).clear();
-		this._lastPosition.setValue(0, 0, 0);
-		this._curtime = 0;
-		this._totalLength = 0;
+		this._trialGeometry._updateRenderParams();
 	}
 }
 

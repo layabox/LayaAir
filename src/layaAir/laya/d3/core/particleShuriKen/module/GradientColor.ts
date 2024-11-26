@@ -1,6 +1,6 @@
-import { Gradient } from "../../Gradient"
 import { IClone } from "../../../../utils/IClone"
 import { Vector4 } from "../../../../maths/Vector4";
+import { Gradient } from "../../../../maths/Gradient";
 
 /**
  * @en The GradientColor class is used to create gradient colors.

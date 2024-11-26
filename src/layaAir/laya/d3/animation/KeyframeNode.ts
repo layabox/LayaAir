@@ -1,5 +1,5 @@
 import { KeyFrameValueType } from "../component/Animator/KeyframeNodeOwner";
-import { Keyframe } from "../core/Keyframe"
+import { Keyframe } from "../../maths/Keyframe";
 
 /**
  * @en The KeyframeNode class is used for animation keyframes.

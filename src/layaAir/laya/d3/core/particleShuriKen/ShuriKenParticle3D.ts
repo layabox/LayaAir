@@ -1,11 +1,11 @@
 import { Node } from "../../../display/Node";
 import { Color } from "../../../maths/Color";
+import { Gradient } from "../../../maths/Gradient";
 import { Vector2 } from "../../../maths/Vector2";
 import { Vector3 } from "../../../maths/Vector3";
 import { Vector4 } from "../../../maths/Vector4";
 import { Loader } from "../../../net/Loader";
 import { Texture } from "../../../resource/Texture";
-import { Gradient } from "../Gradient";
 import { RenderableSprite3D } from "../RenderableSprite3D";
 import { Sprite3D } from "../Sprite3D";
 import { Burst } from "./module/Burst";
@@ -43,16 +43,16 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 	private _particleSystem: ShurikenParticleSystem;
 
 	/**
-     * @en The particle system.
-     * @zh 粒子系统。
+	 * @en The particle system.
+	 * @zh 粒子系统。
 	 */
 	get particleSystem(): ShurikenParticleSystem {
 		return this._particleSystem;
 	}
 
 	/**
-     * @en The particle renderer.
-     * @zh 粒子渲染器。
+	 * @en The particle renderer.
+	 * @zh 粒子渲染器。
 	 */
 	get particleRenderer(): ShurikenParticleRenderer {
 		return <ShurikenParticleRenderer>this._render;

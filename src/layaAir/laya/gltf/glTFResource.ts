@@ -16,12 +16,9 @@ import { VertexDeclaration } from "../RenderEngine/VertexDeclaration";
 import { Animator } from "../d3/component/Animator/Animator";
 import { AnimatorControllerLayer } from "../d3/component/Animator/AnimatorControllerLayer";
 import { AnimatorState } from "../d3/component/Animator/AnimatorState";
-import { FloatKeyframe } from "../d3/core/FloatKeyframe";
 import { MeshFilter } from "../d3/core/MeshFilter";
-import { QuaternionKeyframe } from "../d3/core/QuaternionKeyframe";
 import { SkinnedMeshRenderer } from "../d3/core/SkinnedMeshRenderer";
 import { Sprite3D } from "../d3/core/Sprite3D";
-import { Vector3Keyframe } from "../d3/core/Vector3Keyframe";
 import { IndexBuffer3D } from "../d3/graphics/IndexBuffer3D";
 import { VertexBuffer3D } from "../d3/graphics/VertexBuffer3D";
 import { MorphTarget, MorphTargetChannel } from "../d3/resource/models/MorphTarget";
@@ -46,6 +43,9 @@ import { Laya3DRender } from "../d3/RenderObjs/Laya3DRender";
 import { RenderState } from "../RenderDriver/RenderModuleData/Design/RenderState";
 import { ShaderDefine } from "../RenderDriver/RenderModuleData/Design/ShaderDefine";
 import { MeshRenderer } from "../d3/core/MeshRenderer";
+import { FloatKeyframe } from "../maths/FloatKeyframe";
+import { QuaternionKeyframe } from "../maths/QuaternionKeyframe";
+import { Vector3Keyframe } from "../maths/Vector3Keyframe";
 
 const maxSubBoneCount = 24;
 
