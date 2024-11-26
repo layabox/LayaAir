@@ -9,7 +9,10 @@ export enum TileAnimationMode {
     RANDOM_START_TIMES
 }
 
-//模板数据
+/**
+ * 模板数据 
+ * 定义一个 tile 各种样式
+ */
 export class TileAlternativesData {
 
     //tileData
@@ -47,6 +50,9 @@ export class TileAlternativesData {
 
     private _animatorUpdateMask: number = 0;
 
+    /** @private */
+    _id:number;
+
     /**
      * 格子的位置
      */
@@ -65,7 +71,7 @@ export class TileAlternativesData {
     }
     set sizeByAtlas(value: Vector2) {
         this._sizeByAtlas.setValue(value.x, value.y);
-        this._setOriUV();
+        this._init();
     }
 
     get owner(): TileSetCellGroup {
@@ -75,7 +81,7 @@ export class TileAlternativesData {
     set owner(value: TileSetCellGroup) {
         if (value === this._owner) return;
         this._owner = value;
-        this._setOriUV();
+        this._init();
     }
 
     /**
@@ -170,7 +176,7 @@ export class TileAlternativesData {
     /**
      * @internal
      */
-    _setOriUV() {
+    _init() {
         if (!this._owner) {
             return;
         }
@@ -179,6 +185,7 @@ export class TileAlternativesData {
         this._uvExtends.x = this._uvSize.x / atlasSize.x;
         this._uvExtends.y = this._uvSize.y / atlasSize.y;
         this._updateOriginUV(0, 0, TILEMAPLAYERDIRTYFLAG.CELL_QUAD | TILEMAPLAYERDIRTYFLAG.CELL_QUADUV);
+        this._id = this.owner._getGlobalAlternativesId(this.localPos.x, this.localPos.y);
     }
 
     /**
@@ -255,10 +262,6 @@ export class TileAlternativesData {
         this._updateOriginUV(x * (this._sizeByAtlas.x + this._animation_separation.x), y * (this._sizeByAtlas.y + this._animation_separation.y), TILEMAPLAYERDIRTYFLAG.CELL_QUADUV);
     }
 
-    getId(): number {
-        return this.owner._getGlobalAlternativesId(this.localPos.x, this.localPos.y);
-    }
-
     getCelldata(index: number): TileSetCellData {
         return this._tileDatas[index];
     }
@@ -277,7 +280,6 @@ export class TileAlternativesData {
             return celldata;
         }
         celldata = new TileSetCellData();
-        this._tileDatas
         celldata.__init(this, index);
         this._tileDatas[index] = celldata;
         return celldata;

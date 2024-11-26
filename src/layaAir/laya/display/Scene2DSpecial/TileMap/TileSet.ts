@@ -11,6 +11,7 @@ import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderDefines2D } from "../../../webgl/shader/d2/ShaderDefines2D";
 import { TileMap_CustomDataLayer, TileMap_NavigationInfo, TileSet_LightOcclusionInfo, TileSet_PhysicsLayerInfo, TileSet_TerrainSetInfo } from "./TileSetInfos";
 import { TileMapLayer } from "./TileMapLayer";
+import { Texture2D } from "../../../resource/Texture2D";
 
 
 export class TileSet extends Resource {
@@ -30,12 +31,12 @@ export class TileSet extends Resource {
 
     private _lightOcclusion: Array<TileSet_LightOcclusionInfo>;
 
-    private _baseCells: TileSetCellGroup[];
-
+    private _groups: TileSetCellGroup[];
+    //用于快速查询
     private _alternativesId: Array<number>;
-    private _baseCellIds: Array<number>;
+    private _groupIds: Array<number>;
 
-    private _defalutMats: Record<string, Material> = {};
+    private _defalutMaterials: Record<string, Material> = {};
 
     private _ownerList: TileMapLayer[] = [];
 
@@ -43,8 +44,8 @@ export class TileSet extends Resource {
         super();
         this._tileSize = new Vector2(16, 16);
         this._tileShape = TileShape.TILE_SHAPE_SQUARE;
-        this._baseCells = [];
-        this._baseCellIds = [];
+        this._groups = [];
+        this._groupIds = [];
         this._alternativesId = [];
     }
 
@@ -83,8 +84,8 @@ export class TileSet extends Resource {
 
 
     protected _disposeResource(): void {
-        for (const key in this._defalutMats) {
-            this._defalutMats[key] && this._defalutMats[key].destroy();
+        for (const key in this._defalutMaterials) {
+            this._defalutMaterials[key] && this._defalutMaterials[key].destroy();
         }
     }
 
@@ -94,13 +95,13 @@ export class TileSet extends Resource {
     _notifyTileSetCellGroupsChange() {
         let id = 1;
         this._alternativesId.length = 0;
-        this._baseCellIds.length = 0;
+        this._groupIds.length = 0;
 
-        for (let i = 0, len = this._baseCells.length; i < len; i++) {
-            const value = this._baseCells[i];
+        for (let i = 0, len = this._groups.length; i < len; i++) {
+            const value = this._groups[i];
             value._recaculateUVOriProperty(false);
             this._alternativesId.push(id);
-            this._baseCellIds.push(value.id);
+            this._groupIds.push(value.id);
             value._baseAlternativesId = id;
             id += value._maxAlternativesCount;
         }
@@ -110,15 +111,18 @@ export class TileSet extends Resource {
     public getCellDataByGid(gid: number): TileSetCellData {
         if (gid <= 0) { return null; }
         const nativeId = TileMapUtils.getNativeId(gid);
+        //通过查找列表快速定位group
         const index = TileMapUtils.quickFoundIndex(this._alternativesId, nativeId);
         if (index === -1) {
             return null;
         }
-        const baseId = this._baseCellIds[index];
-        const baseCell = this._baseCells.find(cell => cell.id === baseId);
-        //const baseCell = this._baseCells.get(baseId);
-        if (baseCell) {
-            return baseCell.getCellDataByGid(gid);
+
+        const baseId = this._groupIds[index];
+        const group = this._groups.find(cell => cell.id === baseId);
+
+        if (group) {
+            const cellIndex = TileMapUtils.getCellIndex(gid);
+            return group.getCellDataByIndexAndNativeId( cellIndex , nativeId);
         } else {
             return null;
         }
@@ -139,13 +143,13 @@ export class TileSet extends Resource {
     _refeashAlternativesId() {
         let id = 1;
         this._alternativesId.length = 0;
-        this._baseCellIds.length = 0;
+        this._groupIds.length = 0;
 
-        for (let i = 0, len = this._baseCells.length; i < len; i++) {
-            const value = this._baseCells[i];
+        for (let i = 0, len = this._groups.length; i < len; i++) {
+            const value = this._groups[i];
             value._recaculateUVOriProperty(false);
             this._alternativesId.push(id);
-            this._baseCellIds.push(value.id);
+            this._groupIds.push(value.id);
             value._baseAlternativesId = id;
             id += value._maxAlternativesCount;
         }
@@ -186,19 +190,19 @@ export class TileSet extends Resource {
     addTileSetCellGroup(resource: TileSetCellGroup): void {
         if (resource) {
             resource._owner = this;
-            this._baseCells.push(resource);
+            this._groups.push(resource);
             this._notifyTileSetCellGroupsChange();
         }
     }
 
     getTileSetCellGroup(id: number): TileSetCellGroup {
-        let index = this._baseCellIds.indexOf(id);
-        return this._baseCells[index];
+        let index = this._groupIds.indexOf(id);
+        return this._groups[index];
     }
 
     removeTileSetCellGroup(id: number): void {
-        let index = this._baseCellIds.indexOf(id);
-        this._baseCells.splice(index, 1);
+        let index = this._groupIds.indexOf(id);
+        this._groups.splice(index, 1);
         this._notifyTileSetCellGroupsChange();
     }
 
@@ -298,11 +302,12 @@ export class TileSet extends Resource {
     }
 
     /**
-     * @param atlas 图集url
+     * @param texture 对象
      * @returns 获取实例
      */
-    getDefalutMaterial(atlas: string): Material {
-        let dMat = this._defalutMats[atlas];
+    getDefalutMaterial(texture: Texture2D): Material {
+        let url = texture.url;
+        let dMat = this._defalutMaterials[url];
         if (!dMat) {
             dMat = new Material();
             dMat.setShaderName("TileMapLayer");
@@ -315,7 +320,15 @@ export class TileSet extends Resource {
             dMat.setIntByIndex(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA);
             dMat.setFloatByIndex(ShaderDefines2D.UNIFORM_VERTALPHA, 1.0);
             dMat.setIntByIndex(Shader3D.CULL, RenderState.CULL_NONE);
-            this._defalutMats[atlas] = dMat;
+            
+            dMat.setTexture("u_render2DTexture", texture);
+            if (texture.gammaCorrection != 1) {//预乘纹理特殊处理
+                dMat.addDefine(ShaderDefines2D.GAMMATEXTURE);
+            } else {
+                dMat.removeDefine(ShaderDefines2D.GAMMATEXTURE);
+            }
+            
+            this._defalutMaterials[url] = dMat;
         }
         return dMat;
     }

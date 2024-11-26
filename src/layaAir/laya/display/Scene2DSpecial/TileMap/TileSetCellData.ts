@@ -52,7 +52,8 @@ export class TileSetCellData {
 
     private _notiveRenderTile: TileMapChunkData[];
 
-
+    /** @private 网格id 16-23位index 0-15位nativeId */
+    _gid:number = -1;
 
     //随机值
     private _probability: number = 1;
@@ -240,16 +241,13 @@ export class TileSetCellData {
         this._index = index;
         this._cellowner = owner;
         this._updateTransData();
-    }
-
-    public getGid(): number {
-        return TileMapUtils.getGid(this._index, this._cellowner.getId());
+        this._gid = TileMapUtils.getGid(index, owner._id);
     }
 
     _notifyDataChange(data: number) {
         if (!this.cellowner) return;
         this._notiveRenderTile.forEach(element => {
-            element._setDirtyFlag(this.getGid(), data);
+            element._setDirtyFlag(this._gid, data);
         });
     }
 

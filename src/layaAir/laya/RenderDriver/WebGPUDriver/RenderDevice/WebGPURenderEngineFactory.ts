@@ -24,6 +24,7 @@ export class WebGPURenderEngineFactory implements IRenderEngineFactory {
                 gpuConfig.powerPreference = Config.powerPreference;
                 break;
         }
+        //@ts-ignore
         // todo add required features
         gpuConfig.deviceDescriptor.requiredFeatures = [
             // "texture-compression-astc",
