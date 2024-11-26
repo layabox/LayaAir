@@ -68,11 +68,12 @@ export class Graphics {
     }
 
     /**
-     * @en Global shaderData
-     * @zh 全局着色器数据
+     * @deprecated 
+     * @en Global shaderData,deprecated  use Scene ShaderData replace
+     * @zh 全局着色器数据,请使用scene的ShaderData设置全局值
      */
-    static get globalShaderData() : ShaderData {
-        return Value2D.globalShaderData;
+    static get globalShaderData(): ShaderData {
+        return null;
     }
 
     /**@internal */

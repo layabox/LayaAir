@@ -19,26 +19,27 @@ export class NoRender2DProcess implements I2DRenderPassFactory {
 
 }
 
-export class NoRenderElement2D implements IRenderElement2D{
+export class NoRenderElement2D implements IRenderElement2D {
     geometry: IRenderGeometryElement;
     materialShaderData: ShaderData;
     value2DShaderData: ShaderData;
     subShader: SubShader;
     renderStateIsBySprite: boolean;
     destroy(): void {
-        
+
     }
-    
+
 }
 
-export class NoRenderContext2D implements IRenderContext2D{
+export class NoRenderContext2D implements IRenderContext2D {
+    sceneData: ShaderData;
     invertY: boolean;
     pipelineMode: string;
     setRenderTarget(value: InternalRenderTarget, clear: boolean, clearColor: Color): void {
-       
+
     }
     setOffscreenView(width: number, height: number): void {
- 
+
     }
     drawRenderElementOne(node: IRenderElement2D): void {
 
@@ -46,5 +47,5 @@ export class NoRenderContext2D implements IRenderContext2D{
     drawRenderElementList(list: SingletonList<IRenderElement2D>): number {
         return 0;
     }
-    
+
 }

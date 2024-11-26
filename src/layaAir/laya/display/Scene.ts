@@ -8,6 +8,10 @@ import { ILaya } from "../../ILaya";
 import { Prefab } from "../resource/HierarchyResource";
 import { NodeFlags } from "../Const";
 import { HierarchyLoader } from "../loaders/HierarchyLoader";
+import { ShaderData } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { LayaGL } from "../layagl/LayaGL";
+import { Context } from "../renders/Context";
+import { Render2DSimple } from "../renders/Render2D";
 
 /**
  * @en Scene class, responsible for scene creation, loading, destruction and other functions.
@@ -42,6 +46,8 @@ export class Scene extends Sprite {
      */
     _scene3D: any;
 
+
+
     /**
      * @en relative layout component
      * @zh 相对布局组件
@@ -55,6 +61,8 @@ export class Scene extends Sprite {
     private _timer: Timer;
     private _viewCreated: boolean = false;
 
+    private _shaderData: ShaderData;
+
     /** @ignore */
     constructor(createChildren = true) {
         super();
@@ -65,6 +73,7 @@ export class Scene extends Sprite {
         this._scene = this;
         if (createChildren)
             this.createChildren();
+        this._shaderData = LayaGL.renderDeviceFactory.createShaderData(null);
     }
 
     /**
@@ -280,6 +289,11 @@ export class Scene extends Sprite {
         return this._scene3D;
     }
 
+
+    get sceneShaderData() {
+        return this._shaderData;
+    }
+
     /**
      * @en The vertical distance (in pixels) between the top edge of the component and the top edge of its content area.
      * @zh 从组件顶边到其内容区域顶边之间的垂直距离（以像素为单位）。
@@ -363,6 +377,21 @@ export class Scene extends Sprite {
             this._getWidget().centerY = value;
         }
     }
+
+    /**
+    * @internal
+    * @param ctx 
+    * @param x 
+    * @param y 
+    */
+    render(ctx: Context, x: number, y: number): void {
+        Render2DSimple.rendercontext2D.sceneData = this._shaderData;
+        super.render(ctx, x, y);
+        Render2DSimple.rendercontext2D.sceneData = null;
+
+
+    }
+
 
     protected _shouldRefreshLayout(): void {
         super._shouldRefreshLayout();

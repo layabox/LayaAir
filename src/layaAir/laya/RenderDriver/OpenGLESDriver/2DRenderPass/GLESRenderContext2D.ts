@@ -12,7 +12,7 @@ import { VertexElementFormat } from "../../../renders/VertexElementFormat";
 import { FastSinglelist } from "../../../utils/SingletonList";
 import { IRenderContext2D } from "../../DriverDesign/2DRenderPass/IRenderContext2D";
 import { IRenderElement2D } from "../../DriverDesign/2DRenderPass/IRenderElement2D";
-import { ShaderDataType } from "../../DriverDesign/RenderDevice/ShaderData";
+import { ShaderData, ShaderDataType } from "../../DriverDesign/RenderDevice/ShaderData";
 import { RenderState } from "../../RenderModuleData/Design/RenderState";
 import { GLESInternalRT } from "../RenderDevice/GLESInternalRT";
 import { GLESRenderGeometryElement } from "../RenderDevice/GLESRenderGeometryElement";
@@ -46,6 +46,14 @@ export class GLESREnderContext2D implements IRenderContext2D {
         this._nativeObj.pipelineMode = "Forward";
         (!GLESREnderContext2D.isCreateBlitScreenELement) && this.setBlitScreenElement();
 
+    }
+    private _sceneData: ShaderData;
+    public get sceneData(): ShaderData {
+        return this._sceneData;
+    }
+    public set sceneData(value: ShaderData) {
+        this._sceneData = value;
+        //TODO Native
     }
 
     private setBlitScreenElement() {

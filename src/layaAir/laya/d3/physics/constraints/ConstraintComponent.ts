@@ -179,6 +179,7 @@ export class ConstraintComponent extends Component {
     /** @ignore */
     constructor() {
         super();
+        this._singleton = false;
     }
 
     /**
