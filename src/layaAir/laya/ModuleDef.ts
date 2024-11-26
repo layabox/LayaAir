@@ -64,7 +64,7 @@ import { LightOccluder2D } from "./display/Scene2DSpecial/Light2D/LightOccluder2
 import { PolygonPoint2D } from "./display/Scene2DSpecial/Light2D/PolygonPoint2D";
 import { TileAlternativesData } from "./display/Scene2DSpecial/TileMap/TileAlternativesData";
 import { TileMapLayer } from "./display/Scene2DSpecial/TileMap/TileMapLayer";
-import { TileMapPhysis } from "./display/Scene2DSpecial/TileMap/TileMapPhysis";
+import { TileMapPhysics } from "./display/Scene2DSpecial/TileMap/TileMapPhysics";
 import { TileSet } from "./display/Scene2DSpecial/TileMap/TileSet";
 import { TileSetCellData } from "./display/Scene2DSpecial/TileMap/TileSetCellData";
 
@@ -132,4 +132,4 @@ c("TileSet", TileSet);
 c("TileMapLayer", TileMapLayer);
 c("TileSetCellData", TileSetCellData);
 c("TileAlternativesData", TileAlternativesData);
-c("TileMapPhysis", TileMapPhysis);
+c("TileMapPhysis", TileMapPhysics);
