@@ -32,7 +32,7 @@ export class TileSetCellGroup {
     private _tiles: Record<number, Record<number, TileAlternativesData>>;
 
     private _tileMatrix: Matrix = new Matrix();
-
+    /** 创建时固定 */
     id: number;
 
     name: string;
@@ -132,7 +132,7 @@ export class TileSetCellGroup {
         for (var i in this._tiles) {
             let rowTile = this._tiles[i];
             for (var j in rowTile) {
-                rowTile[j]._setOriUV();
+                rowTile[j]._init();
             }
         }
         if (needNotiveCell) {
@@ -142,7 +142,7 @@ export class TileSetCellGroup {
     }
 
     onAtlasSizeChange() {
-        this._owner && this._owner._refeashAlternativesId();
+        this._owner && this._owner._notifyTileSetCellGroupsChange();
     }
 
     //获得全局的alternative的id
@@ -195,12 +195,12 @@ export class TileSetCellGroup {
             alterData.owner = this;
             alterData._initialIndexFIrstCellData();
         }
-        for (var j = 0; j < sizeInAtlas.y; j++) {
-            let ymap = this._tiles[j];
+        for (var j = 0 , sizey = sizeInAtlas.y; j < sizey; j++) {
+            let ymap = this._tiles[j + y];
             if (!ymap)
-                ymap = this._tiles[j] = {};
-            for (var i = 0; i < sizeInAtlas.x; i++) {
-                ymap[i] = alterData;
+                ymap = this._tiles[j + y] = {};
+            for (var i = 0 , sizex = sizeInAtlas.x; i < sizex; i++) {
+                ymap[i + x] = alterData;
             }
         }
 
@@ -237,6 +237,14 @@ export class TileSetCellGroup {
         let data = this.getAlternative(temp.x, temp.y);
         if (data == null) { return null; }
         return data.getCelldata(TileMapUtils.getCellIndex(gid));
+    }
+
+    getCellDataByIndexAndNativeId(index:number , nativeId:number){
+        const temp = Vector2.TempVector2;
+        this._getCellPosByAlternativesId(nativeId, temp);
+        let data = this.getAlternative(temp.x, temp.y);
+        if (data == null) { return null; }
+        return data.getCelldata(index);
     }
 
     //移除一个alternative组

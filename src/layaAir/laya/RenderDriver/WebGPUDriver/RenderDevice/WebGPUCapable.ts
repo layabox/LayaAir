@@ -54,6 +54,7 @@ export class WebGPUCapable {
                     this._capabilityMap.set(RenderCapable.COMPRESS_TEXTURE_ETC1, true);
                     this._capabilityMap.set(RenderCapable.COMPRESS_TEXTURE_ETC, true);
                     break;
+                    //@ts-ignore
                 case "float32-filterable":
                     this._capabilityMap.set(RenderCapable.Texture_FloatLinearFiltering, true);
                     break;

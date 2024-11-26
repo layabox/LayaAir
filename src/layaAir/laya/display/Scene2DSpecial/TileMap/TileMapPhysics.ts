@@ -9,10 +9,10 @@ import { TileSetCellData } from "./TileSetCellData";
  * @internal
  * 瓦片地图物理
  */
-export class TileMapPhysis {
+export class TileMapPhysics {
     private static _tempDef: any;
     static __init__(): void {
-        TileMapPhysis._tempDef = new FixtureBox2DDef();
+        TileMapPhysics._tempDef = new FixtureBox2DDef();
 
     }
     private _physisShapeMaps: Map<string, any[]>;
@@ -142,7 +142,7 @@ export class TileMapPhysis {
         if (!this._physicBody) return null;
         let factory = Laya.physics2D;
 
-        var def: any = TileMapPhysis._tempDef;
+        var def: any = TileMapPhysics._tempDef;
         def.density = this.density;
         def.friction = this.friction;
         def.isSensor = false;

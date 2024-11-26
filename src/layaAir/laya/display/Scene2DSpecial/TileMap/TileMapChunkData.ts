@@ -1,13 +1,15 @@
+
 import { LayaGL } from "../../../layagl/LayaGL";
 import { Vector2 } from "../../../maths/Vector2";
 import { IRenderElement2D } from "../../../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
+import { IVertexBuffer } from "../../../RenderDriver/DriverDesign/RenderDevice/IVertexBuffer";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
 import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode";
+import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
 import { Material } from "../../../resource/Material";
 import { Base64Tool } from "../../../utils/Base64Tool";
-import { ShaderDefines2D } from "../../../webgl/shader/d2/ShaderDefines2D";
 import { TileAlternativesData } from "./TileAlternativesData";
 import { TileShape } from "./TileMapEnum";
 import { TILELAYER_SORTMODE, TileMapLayer, TILEMAPLAYERDIRTYFLAG } from "./TileMapLayer";
@@ -19,6 +21,7 @@ interface ITileMapRenderElement {
     cacheData: Array<Float32Array>;
     updateFlag: Array<boolean>;
 }
+
 
 //用于存储格子的数据
 class ChunkCellInfo {
@@ -53,6 +56,10 @@ class ChunkCellInfo {
  * 用来处理各项数据
  */
 export class TileMapChunkData {
+    static instanceColorBufferIndex = 0;
+    static instanceposScalBufferIndex = 1;
+    static instanceuvOriScalBufferIndex = 2;
+    static instanceuvTransBufferIndex = 3;
     //是否重新组织渲染
     private _reCreateRenderData: boolean;
 
@@ -124,70 +131,62 @@ export class TileMapChunkData {
         this._updateChunkData(chunkx, chunky);
     }
 
+    /**
+     * @internal
+     * 将数据合并到二维map中
+     */
+    _mergeBuffer(datas: Map<number, Map<number, TileSetCellData>>, minRange: Vector2, maxRange: Vector2) {
+        const tempVec2 = Vector2.TempVector2;
+        let infos = this._chuckCellList;
+        for (let i = 0 , len = infos.length; i < len; i++) {
+            let info = infos[i];            
+            this._tileLayer._chunk._getCellPosByChunkPosAndIndex(0, 0, info.chuckLocalindex, tempVec2);
+            
+            let cellX = tempVec2.x + this._oriCellIndex.x;  
+            let cellY = tempVec2.y + this._oriCellIndex.y;  
+              
+            // 更新边界  
+            minRange.x = Math.min(minRange.x, cellX);  
+            minRange.y = Math.min(minRange.y, cellY);  
+            maxRange.x = Math.max(maxRange.x, cellX);   
+            maxRange.y = Math.max(maxRange.y, cellY);  
+  
+            let row = datas.get(cellY);
+            if (!row) {
+                row =new Map<number, TileSetCellData>();
+                datas.set(tempVec2.y, row);
+            }
+            row.set(tempVec2.x, info.cell);
+        }
+        
+    }
 
+    _setBuffer(datas: Map<number, Map<number, TileSetCellData>>, minRange: Vector2, maxRange: Vector2): boolean {
+        this._clearCell();
+        const chunk = this._tileLayer._chunk;
+        let starx = Math.max(minRange.x, this._oriCellIndex.x);
+        let stary = Math.max(minRange.y, this._oriCellIndex.y);
+        let endx = Math.min(maxRange.x, this._oriCellIndex.x + this._tileLayer.renderTileSize - 1);
+        let endy = Math.min(maxRange.y, this._oriCellIndex.y + this._tileLayer.renderTileSize - 1);
+        let haveData = false;
+        for (var j = stary; j <= endy; j++) {
+            let row = datas.get(j);
+            if (!row) continue;
+            for (var i = starx; i <= endx; i++) {
+                let data = row.get(i);
+                if (data) {
+                    const index = chunk._getChunkIndexByCellPos(i - this._oriCellIndex.x, j - this._oriCellIndex.y);
+                    this._setCell(index , data);
+                    haveData = true;
+                }
+            }
+        }
 
-    // /**
-    //  * @internal
-    //  * 将数据合并到二维map中
-    //  */
-    // _mergeBuffer(datas: Map<number, Map<number, number>>, minRange: Vector2, maxRange: Vector2) {
-    //     const tempVec2 = Vector2.TempVector2;
-    //     this._sheetCellMaps.forEach((cell, index) => {
-    //         this._tileLayer._chunk._getCellPosByChunkPosAndIndex(0, 0, index, tempVec2);
-    //         tempVec2.x += this._oriCellIndex.x;
-    //         tempVec2.y += this._oriCellIndex.y;
-    //         minRange.x = Math.min(minRange.x, tempVec2.x);
-    //         minRange.y = Math.min(minRange.y, tempVec2.y);
-    //         maxRange.x = Math.max(maxRange.x, tempVec2.x);
-    //         maxRange.y = Math.max(maxRange.y, tempVec2.y);
-    //         if (!datas.has(tempVec2.y)) {
-    //             datas.set(tempVec2.y, new Map<number, number>());
-    //         }
-    //         datas.get(tempVec2.y).set(tempVec2.x, cell.gid);
-    //     })
-    // }
+        this._reCreateRenderData = true;
+        return haveData;
+    }
 
-    // _setBuffer(datas: Map<number, Map<number, number>>, minRange: Vector2, maxRange: Vector2): boolean {
-    //     this._clearRenderData();
-    //     const chunk = this._tileLayer._chunk;
-    //     let starx = Math.max(minRange.x, this._oriCellIndex.x);
-    //     let stary = Math.max(minRange.y, this._oriCellIndex.y);
-    //     let endx = Math.min(maxRange.x, this._oriCellIndex.x + this._tileLayer.renderTileSize - 1);
-    //     let endy = Math.min(maxRange.y, this._oriCellIndex.y + this._tileLayer.renderTileSize - 1);
-    //     let haveData = false;
-    //     for (var j = stary; j <= endy; j++) {
-    //         if (!datas.has(j)) continue;
-    //         let row = datas.get(j);
-    //         for (var i = starx; i <= endx; i++) {
-    //             if (row.has(i)) {
-    //                 const index = chunk._getChunkIndexByCellPos(i - this._oriCellIndex.x, j - this._oriCellIndex.y);
-    //                 this._updateCellGid(index, row.get(i));
-    //                 haveData = true;
-    //             }
-    //         }
-    //     }
-    //     this._reCreateRenderData = true;
-    //     return haveData;
-    // }
-
-
-    // /**
-    //  * @internal
-    //  * 清理渲染节点数据
-    //  */
-    // _clearRenderData() {
-    //     //清理格子的数据
-    //     this._sheetCellMaps.clear();
-    //     //清理渲染引用数据
-    //     this._cellDataRefMap.clear();
-    //     this._clearnRefTileCellData();
-    //     this._needCheckGids.clear();
-    //     this._cellDirtyFlag.clear();
-    //     //清理渲染数据
-    //     this._clearRenderElement2D();
-    // }
-
-    private _updateChunkData(chunkx: number, chunky: number) {
+    _updateChunkData(chunkx: number, chunky: number) {
         this._chunkx = chunkx;
         this._chunky = chunky;
         this._tileLayer._chunk._getCellPosByChunkPosAndIndex(chunkx, chunky, 0, this._oriCellIndex);
@@ -266,10 +265,6 @@ export class TileMapChunkData {
             }
             this._createRenderElement(tempCellIndexArray);
         } else if (this._cellDirtyFlag.size > 0) {
-            let instanceColorBufferIndex = 0;//提成静态TODO
-            let instanceposScalBufferIndex = 1;
-            let instanceuvOriScalBufferIndex = 2;
-            let instanceuvTransBufferIndex = 3;
 
             this._cellDirtyFlag.forEach((value, key) => {
                 //cell posOri extends  
@@ -281,8 +276,8 @@ export class TileMapChunkData {
                     let cellData = chuckCellinfo.cell;
                     let tilemapRenderElementInfo = this._renderElementArray[chuckCellinfo._renderElementIndex];
                     if (value & TILEMAPLAYERDIRTYFLAG.CELL_CHANGE || (value & TILEMAPLAYERDIRTYFLAG.CELL_QUAD)) {
-                        let data = tilemapRenderElementInfo.cacheData[instanceposScalBufferIndex];
-                        tilemapRenderElementInfo.updateFlag[instanceposScalBufferIndex] = true;
+                        let data = tilemapRenderElementInfo.cacheData[TileMapChunkData.instanceposScalBufferIndex];
+                        tilemapRenderElementInfo.updateFlag[TileMapChunkData.instanceposScalBufferIndex] = true;
                         this._getCellPos(chuckCellinfo, pos);
                         let posOffset = cellData.texture_origin;
                         let dataoffset = chuckCellinfo._cellPosInRenderData * 4;
@@ -294,8 +289,8 @@ export class TileMapChunkData {
                     }
                     if ((value & TILEMAPLAYERDIRTYFLAG.CELL_CHANGE) || (value & TILEMAPLAYERDIRTYFLAG.CELL_QUADUV)) {
                         //cell uv /Animation
-                        let data = tilemapRenderElementInfo.cacheData[instanceuvOriScalBufferIndex];
-                        tilemapRenderElementInfo.updateFlag[instanceuvOriScalBufferIndex] = true;
+                        let data = tilemapRenderElementInfo.cacheData[TileMapChunkData.instanceuvOriScalBufferIndex];
+                        tilemapRenderElementInfo.updateFlag[TileMapChunkData.instanceuvOriScalBufferIndex] = true;
                         let dataoffset = chuckCellinfo._cellPosInRenderData * 4;
                         let uvOri = cellData.cellowner._getTextureUVOri();
                         let uvextend = cellData.cellowner._getTextureUVExtends();
@@ -306,8 +301,8 @@ export class TileMapChunkData {
                     }
                     if ((value & TILEMAPLAYERDIRTYFLAG.CELL_CHANGE) || (value & TILEMAPLAYERDIRTYFLAG.CELL_COLOR)) {
                         //cellColor
-                        let data = tilemapRenderElementInfo.cacheData[instanceColorBufferIndex];
-                        tilemapRenderElementInfo.updateFlag[instanceColorBufferIndex] = true;
+                        let data = tilemapRenderElementInfo.cacheData[TileMapChunkData.instanceColorBufferIndex];
+                        tilemapRenderElementInfo.updateFlag[TileMapChunkData.instanceColorBufferIndex] = true;
                         let dataoffset = chuckCellinfo._cellPosInRenderData * 4;
                         let color = cellData.colorModulate;
                         data[dataoffset] = color.r;
@@ -317,8 +312,8 @@ export class TileMapChunkData {
 
                     }
                     if ((value & TILEMAPLAYERDIRTYFLAG.CELL_CHANGE) || (value & TILEMAPLAYERDIRTYFLAG.CELL_UVTRAN)) {
-                        let data = tilemapRenderElementInfo.cacheData[instanceuvTransBufferIndex];
-                        tilemapRenderElementInfo.updateFlag[instanceuvTransBufferIndex] = true;
+                        let data = tilemapRenderElementInfo.cacheData[TileMapChunkData.instanceuvTransBufferIndex];
+                        tilemapRenderElementInfo.updateFlag[TileMapChunkData.instanceuvTransBufferIndex] = true;
                         let dataoffset = chuckCellinfo._cellPosInRenderData * 4;
                         let transData = cellData._transData;
                         data[dataoffset] = transData.x;
@@ -387,39 +382,24 @@ export class TileMapChunkData {
         if (mat == null) {
             mat = this._materail;
         }
+
         let texture = cellData.cellowner.owner.atlas;
         if (mat == null) {
-            mat = this._tileLayer.tileSet.getDefalutMaterial(texture.url);
+            mat = this._tileLayer.getDefalutMaterial(texture);
         }
-
-        mat.setTexture("u_render2DTexture", texture);
-
-        if (texture.gammaCorrection != 1) {//预乘纹理特殊处理
-            mat.addDefine(ShaderDefines2D.GAMMATEXTURE);
-        } else {
-            mat.removeDefine(ShaderDefines2D.GAMMATEXTURE);
-        }
-
 
         //init data
-        let renderElement = this._createRenderElement2D();
-
+        let element = TileChunkPool._getTileRenderElement(cellNum);
+        
         //init Buffer
-        let cachDatas = [new Float32Array(cellNum * 4), new Float32Array(cellNum * 4), new Float32Array(cellNum * 4), new Float32Array(cellNum * 4)];
-        let updateFlags = [false, false, false, false];
-        let instanceColor = cachDatas[0];
-        let instanceposScal = cachDatas[1];
-        let instanceuvOriScal = cachDatas[2];
-        let instanceuvTrans = cachDatas[3];
+        let renderElement = element.renderElement;
+        let cachDatas = element.cacheData;
+        let instanceColor = cachDatas[TileMapChunkData.instanceColorBufferIndex];
+        let instanceposScal = cachDatas[TileMapChunkData.instanceposScalBufferIndex];
+        let instanceuvOriScal = cachDatas[TileMapChunkData.instanceuvOriScalBufferIndex];
+        let instanceuvTrans = cachDatas[TileMapChunkData.instanceuvTransBufferIndex];
         let pos: Vector2 = Vector2.TempVector2;
-        let element: ITileMapRenderElement = {
-            renderElement: renderElement,
-            maxCell: cellNum,
-            cacheData: cachDatas,
-            updateFlag: updateFlags
-        }
-        element.renderElement.materialShaderData = mat.shaderData;
-        element.renderElement.subShader = mat.shader.getSubShaderAt(0);
+        
         let renderElementLength = this._renderElementArray.length;
         //fill Data
         for (var i = 0; i < cellNum; i++) {
@@ -457,64 +437,35 @@ export class TileMapChunkData {
             instanceuvTrans[dataOffset + 3] = transData.w;
         }
         //set VertexData
-        let instanceColorBuffer = LayaGL.renderDeviceFactory.createVertexBuffer(BufferUsage.Dynamic);
-        instanceColorBuffer.instanceBuffer = true;
-        instanceColorBuffer.setDataLength(instanceColor.byteLength);
-        instanceColorBuffer.setData(instanceColor.buffer, 0, 0, instanceColor.byteLength);
-        instanceColorBuffer.vertexDeclaration = TileMapShaderInit._tileMapCellColorInstanceDec;
+        let instanceColorBuffer = TileChunkPool._getVertexBuffer(TileMapShaderInit._tileMapCellColorInstanceDec , instanceColor );
+   
+        let instanceposScalBuffer = TileChunkPool._getVertexBuffer(TileMapShaderInit._tileMapCellPosScaleDec , instanceposScal );
 
-        let instanceposScalBuffer = LayaGL.renderDeviceFactory.createVertexBuffer(BufferUsage.Dynamic);
-        instanceposScalBuffer.instanceBuffer = true;
-        instanceposScalBuffer.setDataLength(instanceposScal.byteLength);
-        instanceposScalBuffer.setData(instanceposScal.buffer, 0, 0, instanceposScal.byteLength);
-        instanceposScalBuffer.vertexDeclaration = TileMapShaderInit._tileMapCellPosScaleDec;
+        let instanceuvOriScalBuffer = TileChunkPool._getVertexBuffer(TileMapShaderInit._tileMapCellUVOriScaleDec , instanceuvOriScal );
 
-        let instanceuvOriScalBuffer = LayaGL.renderDeviceFactory.createVertexBuffer(BufferUsage.Dynamic);
-        instanceuvOriScalBuffer.instanceBuffer = true;
-        instanceuvOriScalBuffer.setDataLength(instanceuvOriScal.byteLength);
-        instanceuvOriScalBuffer.setData(instanceuvOriScal.buffer, 0, 0, instanceuvOriScal.byteLength);
-        instanceuvOriScalBuffer.vertexDeclaration = TileMapShaderInit._tileMapCellUVOriScaleDec;
+        let instanceuvTransBuffer = TileChunkPool._getVertexBuffer(TileMapShaderInit._tileMapCellUVTrans , instanceuvTrans );
 
-        let instanceuvTransBuffer = LayaGL.renderDeviceFactory.createVertexBuffer(BufferUsage.Dynamic);
-        instanceuvTransBuffer.instanceBuffer = true;
-        instanceuvTransBuffer.setDataLength(instanceuvTrans.byteLength);
-        instanceuvTransBuffer.setData(instanceuvTrans.buffer, 0, 0, instanceuvTrans.byteLength);
-        instanceuvTransBuffer.vertexDeclaration = TileMapShaderInit._tileMapCellUVTrans;
+        let geometry = renderElement.geometry;
+        geometry.setDrawElemenParams(this._tileLayer._grid._getBaseIndexCount(), 0);
+        
+        renderElement.materialShaderData = mat.shaderData;
+        renderElement.subShader = mat.shader.getSubShaderAt(0);
+        renderElement.value2DShaderData = this._tileLayer._spriteShaderData;
 
         let binVertexBuffers = [this._tileLayer._grid._getBaseVertexBuffer(), instanceColorBuffer, instanceposScalBuffer, instanceuvOriScalBuffer, instanceuvTransBuffer];
         let indexBuffer = this._tileLayer._grid._getBaseIndexBuffer();
-        element.renderElement.geometry.bufferState.applyState(binVertexBuffers, indexBuffer);
-        element.renderElement.geometry.instanceCount = cellNum;
+
+        geometry.bufferState.applyState(binVertexBuffers, indexBuffer);
+        geometry.instanceCount = cellNum;
         chuckCellList.length = 0;
         this._renderElementArray.push(element);
     }
 
-    private _createRenderElement2D(): IRenderElement2D {
-        let geometry = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElementInstance);
-        let renderElement = LayaGL.render2DRenderPassFactory.createRenderElement2D();
-        renderElement.geometry = geometry;
-        geometry.bufferState = LayaGL.renderDeviceFactory.createBufferState();
-        geometry.setDrawElemenParams(this._tileLayer._grid._getBaseIndexCount(), 0);
-        geometry.indexFormat = IndexFormat.UInt16
-        renderElement.renderStateIsBySprite = false;
-        renderElement.value2DShaderData = this._tileLayer._spriteShaderData;
-        renderElement.nodeCommonMap = ["BaseRender2D"];
-        return renderElement;
-    }
-
     private _clearRenderElement2D() {
         for (var i = 0, n = this._renderElementArray.length; i < n; i++) {
-            let elementInfo = this._renderElementArray[i];
-            elementInfo.cacheData = null;
-            let geometry = elementInfo.renderElement.geometry;
-            for (let j = 2, jn = geometry.bufferState._vertexBuffers.length; j < jn; j++) {
-                geometry.bufferState._vertexBuffers[j].destroy();
-            }
-            geometry.bufferState.destroy();
-            geometry.destroy();
-            elementInfo.renderElement.destroy();
+            TileChunkPool._recoverTileRenderElement(this._renderElementArray[i]);
         }
-        this._renderElementArray = [];
+        this._renderElementArray.length = 0;
     }
 
     /**
@@ -617,16 +568,17 @@ export class TileMapChunkData {
             this._chuckCellList.push(chuckCellInfo);
         } else if (chuckCellInfo.cell != cellData) {//change one ChunkCellInfo
             let oldcell = chuckCellInfo.cell;
-            let localIndexArray = this._cellDataRefMap.get(oldcell.getGid());
+            let oldGid = oldcell.getGid();
+            let localIndexArray = this._cellDataRefMap.get(oldGid);
             localIndexArray.splice(localIndexArray.indexOf(chuckCellInfo.chuckLocalindex), 1);
             if (localIndexArray.length == 0) {
-                this._cellDataRefMap.delete(oldcell.getGid());
+                this._cellDataRefMap.delete(oldGid);
                 oldcell._removeNoticeRenderTile(this);
             }
             chuckCellInfo.cell = cellData;
-            localIndexArray = this._cellDataRefMap.get(cellData.getGid());
+            localIndexArray = this._cellDataRefMap.get(gid);
             localIndexArray.push(chuckCellInfo.chuckLocalindex);
-            this._setDirtyFlag(cellData.getGid(), TILEMAPLAYERDIRTYFLAG.CELL_CHANGE);//这里需要改一下
+            this._setDirtyFlag(gid, TILEMAPLAYERDIRTYFLAG.CELL_CHANGE);//这里需要改一下
         }
 
         //物理TODO
@@ -640,11 +592,11 @@ export class TileMapChunkData {
         let chunkCellInfo = this._cellDataMap[index];
         if (!chunkCellInfo)
             return;
-
-        let localIndexArray = this._cellDataRefMap.get(chunkCellInfo.cell.getGid());
+        let gid = chunkCellInfo.cell.getGid();
+        let localIndexArray = this._cellDataRefMap.get(gid);
         localIndexArray.slice(localIndexArray.indexOf(index))
         if (localIndexArray.length == 0) {
-            this._cellDataRefMap.delete(chunkCellInfo.cell.getGid());
+            this._cellDataRefMap.delete(gid);
             chunkCellInfo.cell._removeNoticeRenderTile(this);
         }
 
@@ -669,6 +621,8 @@ export class TileMapChunkData {
                 this._chuckCellList.splice(sotIndex, 1);
                 delete this._cellDataMap[element];
             });
+
+        cell._removeNoticeRenderTile(this);
         this._cellDataRefMap.delete(gid);
         this._reCreateRenderData = true;
         this._cellDirtyFlag.delete(gid);
@@ -677,7 +631,7 @@ export class TileMapChunkData {
     /**
      * @internal
      */
-    _setDirtyFlag(gid: number, flag: number) {
+    _setDirtyFlag(gid: number, flag: TILEMAPLAYERDIRTYFLAG) {
         if (this._cellDirtyFlag.has(gid)) {
             let newFlag = this._cellDirtyFlag.get(gid) | flag;
             this._cellDirtyFlag.set(gid, newFlag);
@@ -692,7 +646,7 @@ export class TileMapChunkData {
     _clearCell() {
         this._chuckCellList = [];
         this._cellDataMap = [];
-        this._cellDataRefMap.clear();
+        this._clearnRefTileCellData();
         this._cellDirtyFlag.clear();
         this._reCreateRenderData = true;
     }
@@ -711,3 +665,64 @@ export class TileMapChunkData {
 
 }
 
+class TileChunkPool{
+
+    static _instanceBufferPool:IVertexBuffer[] = [];
+    static _renderElementPool:ITileMapRenderElement[] = [];
+
+    static _getVertexBuffer(dec:VertexDeclaration , vertices:Float32Array){
+        let buffer = TileChunkPool._instanceBufferPool.pop();
+        if (!buffer) {
+            buffer = LayaGL.renderDeviceFactory.createVertexBuffer(BufferUsage.Dynamic);
+            buffer.instanceBuffer = true;
+        }
+        buffer.setDataLength(vertices.byteLength);
+        buffer.setData(vertices.buffer, 0, 0, vertices.byteLength);
+        buffer.vertexDeclaration = dec;
+        return buffer;
+    }
+
+    static _recoverVertexBuffer(buffer:IVertexBuffer){
+        this._instanceBufferPool.push(buffer);
+        
+    }
+
+    static _getTileRenderElement(cellNum : number):ITileMapRenderElement{
+        let element = TileChunkPool._renderElementPool.pop();
+        if(!element){
+            let geometry = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElementInstance);
+            let renderElement = LayaGL.render2DRenderPassFactory.createRenderElement2D();
+            renderElement.geometry = geometry;
+            geometry.bufferState = LayaGL.renderDeviceFactory.createBufferState();
+            geometry.indexFormat = IndexFormat.UInt16
+            renderElement.renderStateIsBySprite = false;
+            renderElement.nodeCommonMap = ["BaseRender2D"];
+
+            element = {
+                renderElement,
+                cacheData:null,
+                updateFlag:[false, false, false, false],
+                maxCell:0
+            }
+        }
+        element.cacheData =  [new Float32Array(cellNum * 4), new Float32Array(cellNum * 4), new Float32Array(cellNum * 4), new Float32Array(cellNum * 4)];
+        return element;
+    }
+
+    static _recoverTileRenderElement(element:ITileMapRenderElement){
+        element.cacheData = null;
+        let renderElement = element.renderElement;
+        renderElement.materialShaderData = null;
+        renderElement.value2DShaderData = null;
+        renderElement.subShader = null;
+
+        let geometry = renderElement.geometry;
+        for (let j = 2, jn = geometry.bufferState._vertexBuffers.length; j < jn; j++) 
+            TileChunkPool._recoverVertexBuffer(geometry.bufferState._vertexBuffers[j]);
+
+        let updateFlag = element.updateFlag;
+        for (let i = 0 ; i < 4; i++) updateFlag[i] = false;
+
+        TileChunkPool._renderElementPool.push(element);
+    }
+}

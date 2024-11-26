@@ -12,12 +12,13 @@ import { TileMapChunk } from "./TileMapChunk";
 import { TileMapChunkData } from "./TileMapChunkData";
 import { TileMapShaderInit } from "./TileMapShader/TileMapShaderInit";
 import { TileSet } from "./TileSet";
-import { TileMapPhysis } from "./TileMapPhysis";
+import { TileMapPhysics } from "./TileMapPhysics";
 import { TileSetCellData } from "./TileSetCellData";
 import { Matrix } from "../../../maths/Matrix";
 import { Laya } from "../../../../Laya";
 import { Rectangle } from "../../../maths/Rectangle";
 import { RectClipper } from "./RectClipper";
+import { Texture2D } from "../../../resource/Texture2D";
 
 export enum TILELAYER_SORTMODE {
     YSort,
@@ -42,6 +43,8 @@ export enum TILEMAPLAYERDIRTYFLAG {
 
 const TempRectange: Rectangle = new Rectangle();
 const TempMatrix: Matrix = new Matrix();
+const TempVector2_1: Vector2 = new Vector2();
+const TempVector2_2: Vector2 = new Vector2();
 export class TileMapLayer extends BaseRenderNode2D {
 
     private static _inited = false;
@@ -54,7 +57,7 @@ export class TileMapLayer extends BaseRenderNode2D {
         if (TileMapLayer._inited) return;
         this._inited = true;
         TileMapShaderInit.__init__();
-        TileMapPhysis.__init__();
+        TileMapPhysics.__init__();
     }
 
     private _tileSet: TileSet;
@@ -96,7 +99,7 @@ export class TileMapLayer extends BaseRenderNode2D {
     private _physisDelayCreate: Set<TileMapChunkData>;
 
     /**物理模块 */
-    private _tileMapPhysis: TileMapPhysis;
+    private _tileMapPhysis: TileMapPhysics;
 
     get layerColor(): Color {
         return this._layerColor;
@@ -177,7 +180,7 @@ export class TileMapLayer extends BaseRenderNode2D {
         this._tileMapDatas = value;
     }
 
-    get tileMapPhysis(): TileMapPhysis {
+    get tileMapPhysis(): TileMapPhysics {
         return this._tileMapPhysis;
     }
 
@@ -188,7 +191,7 @@ export class TileMapLayer extends BaseRenderNode2D {
         this._grid = new Grid();
         this._chunk = new TileMapChunk(this._grid);
         this._chunk._setChunkSize(this._renderTileSize, this._renderTileSize);
-        this._tileMapPhysis = new TileMapPhysis(this);
+        this._tileMapPhysis = new TileMapPhysics(this);
         this._cliper = new RectClipper();
         this._renderElements = [];
         this._materials = [];
@@ -205,51 +208,51 @@ export class TileMapLayer extends BaseRenderNode2D {
     }
 
     /**
-     * @private TODO
      * 修改renderTileSize 会触发此函数
      * 将所有的 TileMapChunkData 合并到一个二维表格中；同时计算所有格子的范围
      * 根据范围重新生成 TileMapChunkData
      */
     private _updateChunkData() {
-        // const minVec = TempVector2;
-        // minVec.setValue(Number.MAX_VALUE, Number.MAX_VALUE);
-        // const maxVec = TempVector21;
-        // maxVec.setValue(-Number.MIN_VALUE, -Number.MIN_VALUE);
-        // let mergeDatas = new Map<number, Map<number, number>>();
-        // let allDatas = []
-        // this._chunkDatas.forEach((value, key) => {
-        //     value.forEach((chunkData, key1) => {
-        //         chunkData._mergeBuffer(mergeDatas, minVec, maxVec);
-        //         allDatas.push(chunkData);
-        //     });
-        // });
+        const minVec = TempVector2_1;
+        minVec.setValue(Number.MAX_VALUE, Number.MAX_VALUE);
+        const maxVec = TempVector2_2;
+        maxVec.setValue(-Number.MIN_VALUE, -Number.MIN_VALUE);
 
-        // this._chunk._setChunkSize(this._renderTileSize, this._renderTileSize);
-        // if (minVec.x > maxVec.x || minVec.y > maxVec.y) { return; }
-        // this._chunkDatas.clear();
-        // const tempVec3 = Vector3._tempVector3;
-        // this._chunk._getChunkPosByPixel(minVec.x, minVec.y, tempVec3);
-        // let startRow = tempVec3.x;
-        // let startCol = tempVec3.y;
-        // this._chunk._getChunkPosByPixel(maxVec.x, maxVec.y, tempVec3);
-        // let endRow = tempVec3.x;
-        // let endCol = tempVec3.y;
+        let mergeDatas = new Map<number, Map<number, TileSetCellData>>();
+        let allDatas : TileMapChunkData[] = [];
+        this._chunkDatas.forEach((chunkDataMap, row) => {
+            chunkDataMap.forEach((chunkData, col) => { 
+                chunkData._mergeBuffer(mergeDatas , minVec , maxVec);
+                allDatas.push(chunkData);
+            });
+        });
 
-        // let renderIndex = 0;
-        // for (var j = startCol; j <= endCol; j++) {
-        //     for (var i = startRow; i <= endRow; i++) {
+        let tileSize = this._renderTileSize;
+        this._chunk._setChunkSize(tileSize, tileSize);
+        if (minVec.x > maxVec.x || minVec.y > maxVec.y) { return; }
 
-        //         if (renderIndex >= allDatas.length) {
-        //             allDatas.push(new TileMapChunkData(this, 0, 0));
-        //         }
-        //         let chunkData = allDatas[renderIndex];
-        //         chunkData.updateChunkData(i, j);
-        //         if (chunkData._setBuffer(mergeDatas, minVec, maxVec)) {
-        //             this._setLayerDataByPos(chunkData);
-        //             renderIndex++;
-        //         }
-        //     }
-        // }
+        this._chunkDatas.clear();
+        const tempVec3 = Vector3._tempVector3;
+        this._chunk._getChunkPosByCell(minVec.x, minVec.y, tempVec3);
+        let startRow = tempVec3.x;
+        let startCol = tempVec3.y;
+        this._chunk._getChunkPosByCell(maxVec.x, maxVec.y, tempVec3);
+        let endRow = tempVec3.x;
+        let endCol = tempVec3.y;
+
+        for (var j = startCol; j <= endCol; j ++) {
+            for (var i = startRow; i <= endRow; i++) {
+                let chunkData = allDatas.pop() || new TileMapChunkData(this, 0, 0);
+                chunkData._updateChunkData(i, j);
+                if (chunkData._setBuffer(mergeDatas, minVec, maxVec)) {
+                    this._setLayerDataByPos(chunkData);
+                }else{
+                    allDatas.push(chunkData);
+                }
+            }
+        }
+       
+        allDatas.forEach(data => data._destroy());      
     }
 
     /**
@@ -272,10 +275,12 @@ export class TileMapLayer extends BaseRenderNode2D {
     _setLayerDataByPos(tile: TileMapChunkData) {
         const chunkX = tile._chunkx;
         const chunkY = tile._chunky;
-        if (!this._chunkDatas.has(chunkY)) {
-            this._chunkDatas.set(chunkY, new Map<number, TileMapChunkData>());
+        let rowData = this._chunkDatas.get(chunkY)
+        if (!rowData) {
+            rowData = new Map<number, TileMapChunkData>();
+            this._chunkDatas.set(chunkY,rowData);
         }
-        this._chunkDatas.get(chunkY).set(chunkX, tile);
+        rowData.set(chunkX, tile);
     }
 
 
@@ -283,14 +288,17 @@ export class TileMapLayer extends BaseRenderNode2D {
      * @internal
      */
     _getLayerDataTileByPos(chunkX: number, chunkY: number): TileMapChunkData {
-        if (!this._chunkDatas.has(chunkY)) {
-            this._chunkDatas.set(chunkY, new Map<number, TileMapChunkData>());
-        }
         let rowData = this._chunkDatas.get(chunkY);
-        if (!rowData.has(chunkX)) {
-            rowData.set(chunkX, new TileMapChunkData(this, chunkX, chunkY));
+        if (!rowData) {
+            rowData = new Map<number, TileMapChunkData>();
+            this._chunkDatas.set(chunkY, rowData);
         }
-        return rowData.get(chunkX);
+        let data = rowData.get(chunkX);
+        if (!data) {
+            data = new TileMapChunkData(this, chunkX, chunkY)
+            rowData.set(chunkX, data);
+        }
+        return data;
     }
 
 
@@ -442,7 +450,7 @@ export class TileMapLayer extends BaseRenderNode2D {
     /**
     * 像素系统转格子系统
     */
-    piexToGrid(pixelX: number, pixelY: number, out: Vector2) {
+    pixelToGrid(pixelX: number, pixelY: number, out: Vector2) {
         this._grid._pixelToGrid(pixelX, pixelY, out);
     }
 
@@ -454,8 +462,8 @@ export class TileMapLayer extends BaseRenderNode2D {
     }
 
 
-    getDefalutMaterial(atlas: string): Material {
-        return this.tileSet.getDefalutMaterial(atlas);
+    getDefalutMaterial(texture: Texture2D): Material {
+        return this.tileSet.getDefalutMaterial(texture);
     }
 
 }

@@ -52,8 +52,6 @@ export class TileSetCellData {
 
     private _notiveRenderTile: TileMapChunkData[];
 
-
-
     //随机值
     private _probability: number = 1;
 
@@ -228,7 +226,6 @@ export class TileSetCellData {
         this._z_index = 0;
         this._y_sort_origin = 0;
         this._terrain_set = false;
-
     }
 
     /**
@@ -242,7 +239,8 @@ export class TileSetCellData {
         this._updateTransData();
     }
 
-    public getGid(): number {
+    /** @private 网格id 16-23位index 0-15位nativeId */
+    getGid(): number {
         return TileMapUtils.getGid(this._index, this._cellowner.getId());
     }
 

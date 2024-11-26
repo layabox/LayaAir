@@ -37,7 +37,7 @@ class TileSetAssetLoader implements IResourceLoader {
             for (let i = 0, len = data.cells.length; i < len; i++) {
                 this.createGroup(tileSet, data.cells[i]);
             }
-            tileSet._refeashAlternativesId();
+            tileSet._notifyTileSetCellGroupsChange();
             return tileSet;
         });
     }
