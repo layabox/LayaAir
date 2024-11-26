@@ -1,10 +1,12 @@
-import { SerializeUtil } from "../../../loaders/SerializeUtil";
-import { ILoadOptions, ILoadTask, ILoadURL, IResourceLoader, Loader } from "../../../net/Loader";
-import { TileSet } from "./TileSet";
-import { TileSetCellGroup } from "./TileSetCellGroup";
-import { URL } from "../../../net/URL";
+import { SerializeUtil } from "../../../../loaders/SerializeUtil";
+import { ILoadOptions, ILoadTask, ILoadURL, IResourceLoader, Loader } from "../../../../net/Loader";
+import { TileSet } from "../TileSet";
+import { TileSetCellGroup } from "../TileSetCellGroup";
+import { URL } from "../../../../net/URL";
+import { TileMapLayerDatas } from "../TileMapLayerDatas";
+import { Byte } from "../../../../utils/Byte";
 
-class TileSetAssetLoader implements IResourceLoader {
+class TileSetLoader implements IResourceLoader {
     load(task: ILoadTask): Promise<any> {
         
         return task.loader.fetch(task.url, "json", task.progress.createCallback(0.2), task.options).then(data => {
@@ -54,5 +56,41 @@ class TileSetAssetLoader implements IResourceLoader {
     }
 }
 
+class TileMapLayerLoader implements IResourceLoader{
+    load(task: ILoadTask): Promise<any> {
+        return task.loader.fetch(task.url, "arraybuffer", task.progress.createCallback(0.2), task.options).then(buffer=>{
+            if (!buffer) return null;
+            return this.parse(buffer);
+        })
+    }
 
-Loader.registerLoader(["tres"], TileSetAssetLoader, "tres");
+    parse(buffer:ArrayBuffer){
+        let byte = new Byte(buffer);
+        byte.pos = 0;
+        let version = byte.readUTFString();
+        if (!version.startsWith("TILEMAPLAYER_DATA")) return null;
+        let datas = new TileMapLayerDatas();
+        let chunkNum = byte.readUint32();
+        let chunks = [];
+        for (let i = 0; i < chunkNum; i++) {
+            let x = byte.readFloat32();            
+            let y = byte.readFloat32();
+            let length = byte.readUint32();
+
+            let tiles:number[] = [];
+            for (let j = 0; j < length; j++) {
+                let localId = byte.readUint32();
+                let gid = byte.readUint32();  
+                tiles.push(localId , gid);              
+            }
+
+            let chunkInfos = {x,y,length,tiles};
+            chunks.push(chunkInfos);
+        }
+        datas.chunks = chunks;
+        return datas;
+    }
+}
+
+Loader.registerLoader(["tres"], TileSetLoader, "tres");
+Loader.registerLoader(["trdata"], TileMapLayerLoader, "trdata");

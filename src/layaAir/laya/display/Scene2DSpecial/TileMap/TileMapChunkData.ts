@@ -78,12 +78,12 @@ export class TileMapChunkData {
 
     /**
      * 缓存chuckCellInfo数据
-     * Key1 chuckLocalIndex GID
+     * Key1 chuckLocalIndex
      * value ChunkCellInfo
      */
     private _cellDataMap: Record<number, ChunkCellInfo> = {};
 
-    //用于排序的列表
+    /** 用于排序的列表 */
     private _chuckCellList: ChunkCellInfo[] = [];
 
     private _physisDelayCreate: Set<number>;
@@ -106,13 +106,13 @@ export class TileMapChunkData {
     private _materail: Material;
 
     /**
-     * @internal
+     * @private
      * 渲染块 x 坐标
      */
     _chunkx: number;
 
     /**
-     * @internal
+     * @private
      * 渲染块 y 坐标
      */
     _chunky: number;
@@ -472,19 +472,26 @@ export class TileMapChunkData {
      * @internal
      * @param datas 渲染数据
      */
-    _setRenderData(datas: string) {
-        let buffer = Base64Tool.decode(datas);
+    _setRenderData(datas:{
+        x:number;
+        y:number;
+        length:number;
+        tiles:number[];
+     }) {
         let maxCount = this._tileLayer._chunk.maxCell;
+        if (datas.length > maxCount) { console.error("setRenderData error"); return; }
+        this._updateChunkData(datas.x, datas.y);
         let tileSet = this._tileLayer.tileSet;
-        let bufferData = new Float32Array(buffer);
-        if (bufferData.length != maxCount + 2) { console.error("setRenderData error"); return; }
-        this._updateChunkData(bufferData[0], bufferData[1]);
-        let renderTileSize = this._tileLayer.renderTileSize;
-        let index = 2;
-        for (var j = 0; j < renderTileSize; j++) {
-            for (var i = 0; i < renderTileSize; i++) {
-                this._setCell(index - 2, tileSet.getCellDataByGid(bufferData[index++]));
+        let tiles = datas.tiles;
+        let temp:Record<number , TileSetCellData> = {}
+        for (let i = 0 , len = tiles.length; i < len; i += 2) {
+            let gid = tiles[i + 1];
+            let celldata = temp[gid];
+            if (!celldata) {
+                celldata = tileSet.getCellDataByGid(gid);
+                temp[gid] = celldata;
             }
+            this._setCell(tiles[i] , celldata);            
         }
     }
 

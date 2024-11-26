@@ -19,6 +19,7 @@ import { Laya } from "../../../../Laya";
 import { Rectangle } from "../../../maths/Rectangle";
 import { RectClipper } from "./RectClipper";
 import { Texture2D } from "../../../resource/Texture2D";
+import { TileMapLayerDatas } from "./TileMapLayerDatas";
 
 export enum TILELAYER_SORTMODE {
     YSort,
@@ -92,9 +93,10 @@ export class TileMapLayer extends BaseRenderNode2D {
 
     private _lightEnable: boolean;
 
-    private _tileMapDatas: string[] = [];//TODO??
+    private _tileMapDatas: TileMapLayerDatas;
 
-    private _chunkDatas: Map<number, Map<number, TileMapChunkData>>;//数据结构需要改成好裁剪的方式TODO
+    /** @private */
+    _chunkDatas: Map<number, Map<number, TileMapChunkData>>;//数据结构需要改成好裁剪的方式TODO
 
     private _physisDelayCreate: Set<TileMapChunkData>;
 
@@ -172,11 +174,11 @@ export class TileMapLayer extends BaseRenderNode2D {
     }
 
     //TODO??
-    get tileMapDatas(): string[] {
+    get tileMapDatas(): TileMapLayerDatas {
         return this._tileMapDatas;
     }
 
-    set tileMapDatas(value: string[]) {
+    set tileMapDatas(value: TileMapLayerDatas) {
         this._tileMapDatas = value;
     }
 
@@ -259,11 +261,12 @@ export class TileMapLayer extends BaseRenderNode2D {
      * @internal
      */
     _updateMapDatas() {
-        if (this._tileMapDatas == null || this._tileMapDatas.length == 0) { return; }
-        let length = this._tileMapDatas.length;
-        for (var i = 0; i < length; i++) {
+        if (this._tileMapDatas == null || !this._tileMapDatas.chunks) { return; }
+        
+        let chunks = this._tileMapDatas.chunks;
+        for (var i = 0 , len = chunks.length; i < len; i++) {
             let data = new TileMapChunkData(this, 0, 0);
-            data._setRenderData(this._tileMapDatas[i]);
+            data._setRenderData(chunks[i]);
             this._setLayerDataByPos(data);
         }
     }
