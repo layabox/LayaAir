@@ -29,7 +29,7 @@ InputManager.prototype.getSprite3DUnderPoint = function (this: InputManager, x: 
     x = this._stage.width * normalWidth;
     y = this._stage.height * normalHeight;
 
-    _vec2.setValue(x * this._stage.clientScaleX, y * this._stage.clientScaleY);
+    _vec2.setValue(x, y);
 
     for (let scene of <Scene3D[]>this._stage._scene3Ds) {
         let sim = scene._physicsManager;
