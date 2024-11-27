@@ -25,7 +25,7 @@ export class ComboBox extends UIComponent {
     protected _isOpen: boolean;
     protected _itemColors: string[];
     protected _itemPadding: number[];
-    protected _itemSize: number = 12;
+    protected _itemSize: number = 18;
     protected _labels: string[] = [];
     /**
      * 下拉提示文本
@@ -409,7 +409,7 @@ export class ComboBox extends UIComponent {
         super();
 
         this._itemColors = Styles.comboBoxItemColors;
-        this._itemPadding = [3, 3, 3, 3];
+        this._itemPadding = [3, 3, 3, 10];
 
         this.skin = skin;
         this.labels = labels;
@@ -418,7 +418,7 @@ export class ComboBox extends UIComponent {
         this._button = new Button();
         this._button.hideFlags = HideFlags.HideAndDontSave;
         this._button.text.align = "left";
-        this._button.labelPadding = "0,0,0,5";
+        this._button.labelPadding = "0,0,0,10";
         this._button.on(Event.MOUSE_DOWN, this, this.onButtonMouseDown);
         this.addChild(this._button);
     }
@@ -498,7 +498,7 @@ export class ComboBox extends UIComponent {
         var labelWidth: number = this.width - 2;
         var labelColor: string = this._itemColors[2];
         this._itemHeight = (this._itemHeight) ? this._itemHeight : this._itemSize + 6;
-        let _padding: string = (this.itemPadding) ? this.itemPadding : "3,3,3,3";
+        let _padding: string = (this.itemPadding) ? this.itemPadding : "3,3,3,`10`";
         this._list.itemRender = this.itemRender || {
             _$type: "Box",
             _$child: [
