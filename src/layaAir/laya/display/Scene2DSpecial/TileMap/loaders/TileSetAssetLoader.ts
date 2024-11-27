@@ -56,41 +56,41 @@ class TileSetLoader implements IResourceLoader {
     }
 }
 
-class TileMapLayerLoader implements IResourceLoader{
-    load(task: ILoadTask): Promise<any> {
-        return task.loader.fetch(task.url, "arraybuffer", task.progress.createCallback(0.2), task.options).then(buffer=>{
-            if (!buffer) return null;
-            return this.parse(buffer);
-        })
-    }
+// class TileMapLayerLoader implements IResourceLoader{
+//     load(task: ILoadTask): Promise<any> {
+//         return task.loader.fetch(task.url, "arraybuffer", task.progress.createCallback(0.2), task.options).then(buffer=>{
+//             if (!buffer) return null;
+//             return this.parse(buffer);
+//         })
+//     }
 
-    parse(buffer:ArrayBuffer){
-        let byte = new Byte(buffer);
-        byte.pos = 0;
-        let version = byte.readUTFString();
-        if (!version.startsWith("TILEMAPLAYER_DATA")) return null;
-        let datas = new TileMapLayerDatas();
-        let chunkNum = byte.readUint32();
-        let chunks = [];
-        for (let i = 0; i < chunkNum; i++) {
-            let x = byte.readFloat32();            
-            let y = byte.readFloat32();
-            let length = byte.readUint32();
+//     parse(buffer:ArrayBuffer){
+//         let byte = new Byte(buffer);
+//         byte.pos = 0;
+//         let version = byte.readUTFString();
+//         if (!version.startsWith("TILEMAPLAYER_DATA")) return null;
+//         let datas = new TileMapLayerDatas();
+//         let chunkNum = byte.readUint32();
+//         let chunks = [];
+//         for (let i = 0; i < chunkNum; i++) {
+//             let x = byte.readFloat32();            
+//             let y = byte.readFloat32();
+//             let length = byte.readUint32();
 
-            let tiles:number[] = [];
-            for (let j = 0; j < length; j++) {
-                let localId = byte.readUint32();
-                let gid = byte.readUint32();  
-                tiles.push(localId , gid);              
-            }
+//             let tiles:number[] = [];
+//             for (let j = 0; j < length; j++) {
+//                 let localId = byte.readUint32();
+//                 let gid = byte.readUint32();  
+//                 tiles.push(localId , gid);              
+//             }
 
-            let chunkInfos = {x,y,length,tiles};
-            chunks.push(chunkInfos);
-        }
-        datas.chunks = chunks;
-        return datas;
-    }
-}
+//             let chunkInfos = {x,y,length,tiles};
+//             chunks.push(chunkInfos);
+//         }
+//         datas.chunks = chunks;
+//         return datas;
+//     }
+// }
 
 Loader.registerLoader(["tres"], TileSetLoader, "tres");
-Loader.registerLoader(["trdata"], TileMapLayerLoader, "trdata");
+// Loader.registerLoader(["trdata"], TileMapLayerLoader, "trdata");

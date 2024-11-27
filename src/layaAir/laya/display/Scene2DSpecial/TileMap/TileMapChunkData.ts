@@ -315,7 +315,7 @@ export class TileMapChunkData {
                         let data = tilemapRenderElementInfo.cacheData[TileMapChunkData.instanceuvTransBufferIndex];
                         tilemapRenderElementInfo.updateFlag[TileMapChunkData.instanceuvTransBufferIndex] = true;
                         let dataoffset = chuckCellinfo._cellPosInRenderData * 4;
-                        let transData = cellData._transData;
+                        let transData = cellData.transData;
                         data[dataoffset] = transData.x;
                         data[dataoffset + 1] = transData.y;
                         data[dataoffset + 2] = transData.z;
@@ -430,7 +430,7 @@ export class TileMapChunkData {
             instanceuvOriScal[dataOffset + 1] = uvOri.y;
             instanceuvOriScal[dataOffset + 2] = uvextend.x;
             instanceuvOriScal[dataOffset + 3] = uvextend.y;
-            const transData = celldata._transData;
+            const transData = celldata.transData;
             instanceuvTrans[dataOffset] = transData.x;
             instanceuvTrans[dataOffset + 1] = transData.y;
             instanceuvTrans[dataOffset + 2] = transData.z;

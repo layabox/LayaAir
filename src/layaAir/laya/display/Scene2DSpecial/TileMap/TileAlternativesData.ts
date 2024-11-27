@@ -177,6 +177,7 @@ export class TileAlternativesData {
         if (!this._owner) {
             return;
         }
+
         this._owner._getTileUVExtends(this._sizeByAtlas, this._uvSize);
         let atlasSize = this._owner.atlasSize;
         this._uvExtends.x = this._uvSize.x / atlasSize.x;

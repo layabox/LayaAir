@@ -57,9 +57,17 @@ export class TileSetCellData {
 
     private _destroyed: boolean = false;
 
-    //贴图旋转矩阵
+    private _updateTrans = true;
+
     /**@internal */
-    _transData: Vector4 = new Vector4();
+    private _transData: Vector4 = new Vector4();
+    
+    //贴图旋转矩阵
+    get transData(): Vector4 {
+        if(this._updateTrans) this._updateTransData();
+        return this._transData;
+    }
+   
     /**
      * 原始顶点图块的引用
      */
@@ -80,7 +88,7 @@ export class TileSetCellData {
 
     public set flip_h(value: boolean) {
         this._flip_h = value;
-        this._updateTransData();
+        this._updateTrans = true;
         this._notifyDataChange(TILEMAPLAYERDIRTYFLAG.CELL_UVTRAN);
 
     }
@@ -94,7 +102,7 @@ export class TileSetCellData {
 
     public set flip_v(value: boolean) {
         this._flip_v = value;
-        this._updateTransData();
+        this._updateTrans = true;
         this._notifyDataChange(TILEMAPLAYERDIRTYFLAG.CELL_UVTRAN);
     }
 
@@ -107,7 +115,7 @@ export class TileSetCellData {
      */
     public set transpose(value: boolean) {
         this._transpose = value;
-        this._updateTransData();
+        this._updateTrans = true;
         this._notifyDataChange(TILEMAPLAYERDIRTYFLAG.CELL_UVTRAN);
     }
 
@@ -120,7 +128,7 @@ export class TileSetCellData {
 
     public set rotateCount(value: number) {
         this._rotateCount = value;
-        this._updateTransData();
+        this._updateTrans = true;
         this._notifyDataChange(TILEMAPLAYERDIRTYFLAG.CELL_UVTRAN);
     }
 
@@ -236,7 +244,6 @@ export class TileSetCellData {
     __init(owner: TileAlternativesData, index: number) {
         this._index = index;
         this._cellowner = owner;
-        this._updateTransData();
     }
 
     /** @private 网格id 16-23位index 0-15位nativeId */
@@ -252,6 +259,7 @@ export class TileSetCellData {
     }
 
     private _updateTransData() {
+        this._updateTrans = false;
         let tileshape = this.cellowner.owner._owner.tileShape;
         let out = TileMapUtils.getUvRotate(tileshape, this._flip_v, this._flip_h, this._transpose, this._rotateCount);
         out.cloneTo(this._transData);
