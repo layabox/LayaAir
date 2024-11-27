@@ -18,11 +18,6 @@ vec2 dotToline(in vec2 a, vec2 b,in vec2 p){
     return ba*h + a;
 }
 
-vec2 transformUV(in vec2 texcoord, in vec4 tilingOffset)
-{
-    vec2 uv = texcoord * tilingOffset.zw + tilingOffset.xy;
-    return uv;
-}
 
 
 void main(){

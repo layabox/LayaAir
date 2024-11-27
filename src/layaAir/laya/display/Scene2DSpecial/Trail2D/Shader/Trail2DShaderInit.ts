@@ -6,12 +6,14 @@ import { TrailShaderCommon } from "../../../../display/RenderFeatureComman/Trail
 import { RenderState } from "../../../../RenderDriver/RenderModuleData/Design/RenderState";
 import { Material } from "../../../../resource/Material";
 import { Trail2DRender } from "../Trail2DRender";
+import { ShaderDataType } from "../../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { Vector4 } from "../../../../maths/Vector4";
 export class TrailShaderInit {
     static init() {
         TrailShaderCommon.init();
         let shader = Shader3D.add("Trail2D", false, false);
         shader.shaderType = ShaderFeatureType.Effect;
-        let subShader = new SubShader(TrailShaderCommon.attributeMap, TrailShaderCommon.uniformMap, TrailShaderCommon.defaultValue);
+        let subShader = new SubShader(TrailShaderCommon.attributeMap, { "u_TilingOffset": ShaderDataType.Vector4 }, { "u_TilingOffset": new Vector4(1, 1, 0, 0) });
         shader.addSubShader(subShader);
         let forwardPass = subShader.addShaderPass(TrailVS, TrailFS);
 

@@ -1,12 +1,17 @@
 import { Laya } from "../../../../Laya";
 import { LayaGL } from "../../../layagl/LayaGL";
+import { Color } from "../../../maths/Color";
 import { FloatKeyframe } from "../../../maths/FloatKeyframe";
 import { Gradient } from "../../../maths/Gradient";
 import { Point } from "../../../maths/Point";
 import { Vector3 } from "../../../maths/Vector3";
+import { Vector4 } from "../../../maths/Vector4";
 import { BaseRenderNode2D } from "../../../NodeRender2D/BaseRenderNode2D";
 import { Context } from "../../../renders/Context";
+import { BaseTexture } from "../../../resource/BaseTexture";
 import { Material } from "../../../resource/Material";
+import { Texture2D } from "../../../resource/Texture2D";
+import { ShaderDefines2D } from "../../../webgl/shader/d2/ShaderDefines2D";
 import { TrailGeometry } from "../../RenderFeatureComman/Trail/TrailGeometry";
 import { TrailShaderCommon } from "../../RenderFeatureComman/Trail/TrailShaderCommon";
 import { TrailTextureMode } from "../../RenderFeatureComman/Trail/TrailTextureMode";
@@ -20,6 +25,12 @@ export class Trail2DRender extends BaseRenderNode2D {
     static defaultTrail2DMaterial: Material;
 
     private static tempvec2_0: Point = new Point();
+
+    private _color: Color = new Color(0, 0, 0, 0);
+
+    private _tillOffset: Vector4 = new Vector4(0, 0, 1, 1);//贴图偏移量
+
+    private _baseRender2DTexture: BaseTexture;
 
     /**@internal */
     _trailFilter: TrailBaseFilter;
@@ -98,6 +109,53 @@ export class Trail2DRender extends BaseRenderNode2D {
     }
 
     /**
+  * @en Rendering textures will not take effect if there is no UV in 2dmesh
+  * @zh 渲染纹理，如果2DMesh中没有uv，则不会生效 
+  */
+    set texture(value: BaseTexture) {
+        if (!value) {
+            value = Texture2D.whiteTexture;
+        }
+        if (value == this._baseRender2DTexture)
+            return;
+
+        if (this._baseRender2DTexture)
+            this._baseRender2DTexture._removeReference(1)
+
+        value._addReference();
+        this._baseRender2DTexture = value;
+
+        this._spriteShaderData.setTexture(BaseRenderNode2D.BASERENDER2DTEXTURE, value);
+        if (value.gammaCorrection != 1) {//预乘纹理特殊处理
+            this._spriteShaderData.addDefine(ShaderDefines2D.GAMMATEXTURE);
+        } else {
+            this._spriteShaderData.removeDefine(ShaderDefines2D.GAMMATEXTURE);
+        }
+    }
+
+    get texture(): BaseTexture {
+        return this._baseRender2DTexture;
+    }
+
+    /**
+   * @en The color of the line segment.
+   * @zh 线段颜色
+   */
+    set color(value: Color) {
+        if (this._color.equal(value))
+            return
+        value = value ? value : Color.BLACK;
+        value.cloneTo(this._color);
+        this._spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, this._color);
+    }
+
+    get color() {
+        return this._color;
+    }
+
+
+
+    /**
      * 基于不同BaseRender的uniform集合
      * @internal
      */
@@ -156,8 +214,8 @@ export class Trail2DRender extends BaseRenderNode2D {
         (this.owner as Sprite).getGlobalPos(globalPos);
         let curPosV3 = Vector3._tempVector3;
         curPosV3.set(globalPos.x, globalPos.y, 0);
-        
-		trailGeometry._updateDisappear(curtime, this.time);
+
+        trailGeometry._updateDisappear(curtime, this.time);
         if (!Vector3.equals(this._trailFilter._lastPosition, curPosV3)) {
             if ((trailGeometry._endIndex - trailGeometry._activeIndex) === 0) {
                 trailGeometry._addTrailByFirstPosition(curPosV3, curtime);
