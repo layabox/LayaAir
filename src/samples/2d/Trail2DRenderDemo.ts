@@ -9,6 +9,8 @@ import { WrapMode } from "laya/RenderEngine/RenderEnum/WrapMode";
 import { BaseTexture } from "laya/resource/BaseTexture";
 import { Texture } from "laya/resource/Texture";
 import { Trail2DRender } from "laya/display/Scene2DSpecial/Trail2D/Trail2DRender"
+import { Texture2D } from "laya/resource/Texture2D";
+import { Color } from "laya/maths/Color";
 
 export class Trail2DRenderDemo {
     Main: typeof Main = null;
@@ -46,10 +48,11 @@ export class Trail2DRenderDemo {
 
         this.trail2Drender = ape2.addComponent(Trail2DRender) as Trail2DRender;
 
-        this.trail2Drender.widthMultiplier = 10;
+        this.trail2Drender.widthMultiplier = 50;
         this.trail2Drender.time = 0.5;
         this.trail2Drender.minVertexDistance = 1;
-
+        this.trail2Drender.texture = img.bitmap;
+        this.trail2Drender.color = Color.WHITE;
         Laya.timer.frameLoop(1, this, () => {
             this.rotateSprite.rotation += 1;
         })
