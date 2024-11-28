@@ -12,6 +12,7 @@ import { ShaderDefines2D } from "../../../webgl/shader/d2/ShaderDefines2D";
 import { TileMap_CustomDataLayer, TileMap_NavigationInfo, TileSet_LightOcclusionInfo, TileSet_PhysicsLayerInfo, TileSet_TerrainSetInfo } from "./TileSetInfos";
 import { TileMapLayer } from "./TileMapLayer";
 import { Texture2D } from "../../../resource/Texture2D";
+import { group } from "console";
 
 
 export class TileSet extends Resource {
@@ -33,7 +34,6 @@ export class TileSet extends Resource {
 
     private _groups: TileSetCellGroup[];
     //用于快速查询
-    private _alternativesId: Array<number>;
     private _groupIds: Array<number>;
 
     private _defalutMaterials: Record<string, Material> = {};
@@ -46,7 +46,6 @@ export class TileSet extends Resource {
         this._tileShape = TileShape.TILE_SHAPE_SQUARE;
         this._groups = [];
         this._groupIds = [];
-        this._alternativesId = [];
     }
 
     /**
@@ -93,19 +92,14 @@ export class TileSet extends Resource {
 
     public getCellDataByGid(gid: number): TileSetCellData {
         if (gid <= 0) { return null; }
-        const nativeId = TileMapUtils.getNativeId(gid);
+        const groupId = TileMapUtils.parseGroupId(gid);
         //通过查找列表快速定位group
-        const index = TileMapUtils.quickFoundIndex(this._alternativesId, nativeId);
-        if (index === -1) {
-            return null;
-        }
-
-        const baseId = this._groupIds[index];
-        const group = this._groups.find(cell => cell.id === baseId);
+        const group = this._groups.find(group => group.id == groupId);
 
         if (group) {
-            const cellIndex = TileMapUtils.getCellIndex(gid);
-            return group.getCellDataByIndexAndNativeId( cellIndex , nativeId);
+            const cellIndex = TileMapUtils.parseCellIndex(gid);
+            const nativeIndex = TileMapUtils.parseNativeIndex(gid);
+            return group.getCellDataByIndex( nativeIndex , cellIndex);
         } else {
             return null;
         }
@@ -124,19 +118,12 @@ export class TileSet extends Resource {
     }
 
     _notifyTileSetCellGroupsChange() {
-        let id = 1;
-        this._alternativesId.length = 0;
         this._groupIds.length = 0;
-
         for (let i = 0, len = this._groups.length; i < len; i++) {
             const value = this._groups[i];
             value._recaculateUVOriProperty(false);
-            this._alternativesId.push(id);
             this._groupIds.push(value.id);
-            value._baseAlternativesId = id;
-            id += value._maxAlternativesCount;
         }
-        this._alternativesId.push(id);
     }
 
     /**

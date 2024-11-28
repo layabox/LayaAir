@@ -3,69 +3,27 @@ import { Vector2 } from "../../../maths/Vector2";
 import { Vector4 } from "../../../maths/Vector4";
 import { TileShape } from "./TileMapEnum";
 
-const flipHByte = 1 << 30;
-const flipVByte = 1 << 29;
-const transposeByte = 1 << 28;
-const rotateByte = 7 << 24;
-const indexByte = 0xff << 16;
-const nativeIdByte = 0xffff;
-
-const flipByte = 0xff << 24;
-
-//gid 存储数据 30位flip_h 29位flip_v 28位transpose 24-27位rotate 16-23位index 0-15位nativeId
-
-// gid  16-23位index 0-15位nativeId
-
+const BYTE_POS_CELL = 24;
+const BYTE_POS_GROUP = 16;
+const BYTE_MASK_CELL = 0xff << BYTE_POS_CELL;
+const BYTE_MASK_GROUP = 0xff << BYTE_POS_GROUP;
+const BYTE_MASK_NATIVE = 0xffff;
+// gid组成，需要回收机制 (CellData.id << 24)  |  group.id << 16  | NativeData 的x + y * x;
 export class TileMapUtils {
+    
+    //获得CellIndex
+    public static parseCellIndex(gid: number): number { return (gid & BYTE_MASK_CELL) >> 24; }
 
-    private static indexByteOffset: number = 16;
-
-
-    // 或者旋转次数
-    public static getRotateCount(gid: number): number { return (gid & rotateByte) >> 26; }
-
-    //是否垂直翻转
-    public static getFlipH(gid: number): boolean { return (gid & flipHByte) != 0; }
-
-    // 是否水平翻转
-    public static getFlipV(gid: number): boolean { return (gid & flipVByte) != 0; }
-
-    // 是否转置
-    public static getTranspose(gid: number): boolean { return (gid & transposeByte) != 0; }
-
-    //获得翻转id
-    public static getFlip(gid: number): number { return (gid & flipByte) >> 24; }
-
-
-    //获得Gid
-    // public static getGid = function(cellindex: number, nativeId: number,flip_h: boolean =false, flip_v: boolean =false, transpose: boolean = false, rotateCount: number = 0): number {
-    //     let id = 0;
-    //     if (flip_h) {
-    //         id += flipHByte;
-    //     }
-    //     if (flip_v) {
-    //         id += flipVByte;
-    //     }
-    //     if (transpose) {
-    //         id += transposeByte;
-    //     }
-    //     id += rotateCount*rotateByte;
-
-    //     id += cellindex*indexByte;
-
-    //     return  id + nativeId;
-    // }
-
+    public static parseGroupId(gid: number): number { return (gid & BYTE_MASK_GROUP) >> 16; }
 
     //获得原始NativeId
-    public static getNativeId(gid: number): number { return gid & 0xFFFF; }
+    public static parseNativeIndex(gid:number):number{return gid & BYTE_MASK_NATIVE;}
 
-    //获得CellIndex
-    public static getCellIndex(gid: number): number { return (gid >> TileMapUtils.indexByteOffset) & 0xFF; }
-
+    public static getNativeId(groupId:number , index :number){ return (groupId << BYTE_POS_GROUP ) + index; }
+    
     //获得Gid 16-23位index 0-15位nativeId
-    public static getGid(cellindex: number, nativeId: number): number {
-        return (cellindex << TileMapUtils.indexByteOffset) + nativeId;
+    public static getGid(cellindex: number , nativeId: number): number {
+        return (cellindex << BYTE_POS_CELL) + nativeId;
     }
 
     //二分查找队列中所在值的位置

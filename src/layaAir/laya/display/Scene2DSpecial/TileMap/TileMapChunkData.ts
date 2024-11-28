@@ -71,19 +71,19 @@ export class TileMapChunkData {
 
     /**
      * 帧处理cell数据更新
-     * Key1 cellData GID
+     * Key1 cellData GID ---- 
      * value dirtyFlag
      */
     private _cellDirtyFlag: Map<number, number>;
 
     /**
      * 缓存chuckCellInfo数据
-     * Key1 chuckLocalIndex GID
+     * Key1 chuckLocalIndex
      * value ChunkCellInfo
      */
     private _cellDataMap: Record<number, ChunkCellInfo> = {};
 
-    //用于排序的列表
+    /** 用于排序的列表 */
     private _chuckCellList: ChunkCellInfo[] = [];
 
     private _physisDelayCreate: Set<number>;
@@ -106,13 +106,13 @@ export class TileMapChunkData {
     private _materail: Material;
 
     /**
-     * @internal
+     * @private
      * 渲染块 x 坐标
      */
     _chunkx: number;
 
     /**
-     * @internal
+     * @private
      * 渲染块 y 坐标
      */
     _chunky: number;
@@ -315,7 +315,7 @@ export class TileMapChunkData {
                         let data = tilemapRenderElementInfo.cacheData[TileMapChunkData.instanceuvTransBufferIndex];
                         tilemapRenderElementInfo.updateFlag[TileMapChunkData.instanceuvTransBufferIndex] = true;
                         let dataoffset = chuckCellinfo._cellPosInRenderData * 4;
-                        let transData = cellData._transData;
+                        let transData = cellData.transData;
                         data[dataoffset] = transData.x;
                         data[dataoffset + 1] = transData.y;
                         data[dataoffset + 2] = transData.z;
@@ -406,7 +406,7 @@ export class TileMapChunkData {
             let chuckcellInfo = chuckCellList[i];
             let celldata = chuckcellInfo.cell;
 
-            this._cellDataRefMap.get(celldata.getGid()).push(chuckcellInfo.chuckLocalindex);
+            this._cellDataRefMap.get(celldata.gid).push(chuckcellInfo.chuckLocalindex);
             chuckcellInfo._cellPosInRenderData = i;
             chuckcellInfo._renderElementIndex = renderElementLength;
             this._getCellPos(chuckcellInfo, pos);
@@ -430,7 +430,7 @@ export class TileMapChunkData {
             instanceuvOriScal[dataOffset + 1] = uvOri.y;
             instanceuvOriScal[dataOffset + 2] = uvextend.x;
             instanceuvOriScal[dataOffset + 3] = uvextend.y;
-            const transData = celldata._transData;
+            const transData = celldata.transData;
             instanceuvTrans[dataOffset] = transData.x;
             instanceuvTrans[dataOffset + 1] = transData.y;
             instanceuvTrans[dataOffset + 2] = transData.z;
@@ -472,19 +472,26 @@ export class TileMapChunkData {
      * @internal
      * @param datas 渲染数据
      */
-    _setRenderData(datas: string) {
-        let buffer = Base64Tool.decode(datas);
+    _setRenderData(datas:{
+        x:number;
+        y:number;
+        length:number;
+        tiles:number[];
+     }) {
         let maxCount = this._tileLayer._chunk.maxCell;
+        if (datas.length > maxCount) { console.error("setRenderData error"); return; }
+        this._updateChunkData(datas.x, datas.y);
         let tileSet = this._tileLayer.tileSet;
-        let bufferData = new Float32Array(buffer);
-        if (bufferData.length != maxCount + 2) { console.error("setRenderData error"); return; }
-        this._updateChunkData(bufferData[0], bufferData[1]);
-        let renderTileSize = this._tileLayer.renderTileSize;
-        let index = 2;
-        for (var j = 0; j < renderTileSize; j++) {
-            for (var i = 0; i < renderTileSize; i++) {
-                this._setCell(index - 2, tileSet.getCellDataByGid(bufferData[index++]));
+        let tiles = datas.tiles;
+        let temp:Record<number , TileSetCellData> = {}
+        for (let i = 0 , len = tiles.length; i < len; i += 2) {
+            let gid = tiles[i + 1];
+            let celldata = temp[gid];
+            if (!celldata) {
+                celldata = tileSet.getCellDataByGid(gid);
+                temp[gid] = celldata;
             }
+            this._setCell(tiles[i] , celldata);            
         }
     }
 
@@ -543,14 +550,14 @@ export class TileMapChunkData {
      */
     _setCell(index: number, cellData: TileSetCellData): void {
         //增加cell的时候 先查找是否有，没有直接增加，有直接change
-        let gid = cellData.getGid();
+        let gid = cellData.gid;
         if (gid <= 0)
             return;
 
         if (!this._cellDataRefMap.has(gid)) {
             this._cellDataRefMap.set(gid, []);
             if (cellData.cellowner._hasAni())
-                this._animatorAlterArray.set(cellData.cellowner.getId(), cellData.cellowner);
+                this._animatorAlterArray.set(cellData.cellowner.nativeId, cellData.cellowner);
             cellData._addNoticeRenderTile(this);
         }
 
@@ -568,7 +575,7 @@ export class TileMapChunkData {
             this._chuckCellList.push(chuckCellInfo);
         } else if (chuckCellInfo.cell != cellData) {//change one ChunkCellInfo
             let oldcell = chuckCellInfo.cell;
-            let oldGid = oldcell.getGid();
+            let oldGid = oldcell.gid;
             let localIndexArray = this._cellDataRefMap.get(oldGid);
             localIndexArray.splice(localIndexArray.indexOf(chuckCellInfo.chuckLocalindex), 1);
             if (localIndexArray.length == 0) {
@@ -592,7 +599,7 @@ export class TileMapChunkData {
         let chunkCellInfo = this._cellDataMap[index];
         if (!chunkCellInfo)
             return;
-        let gid = chunkCellInfo.cell.getGid();
+        let gid = chunkCellInfo.cell.gid;
         let localIndexArray = this._cellDataRefMap.get(gid);
         localIndexArray.slice(localIndexArray.indexOf(index))
         if (localIndexArray.length == 0) {
@@ -612,7 +619,7 @@ export class TileMapChunkData {
      * @internal
      */
     _clearOneCell(cell: TileSetCellData) {
-        let gid = cell.getGid();
+        let gid = cell.gid;
         let listArray = this._cellDataRefMap.get(gid);
         if (listArray)
             listArray.forEach(element => {

@@ -8,10 +8,6 @@ import { TileSetCellData } from "./TileSetCellData";
 
 
 export class TileSetCellGroup {
-
-    //用于记录基础的alternative id
-    _baseAlternativesId: number = 0;
-
     //当前最大的alternative 数量
     _maxAlternativesCount: number = 0;
 
@@ -32,6 +28,7 @@ export class TileSetCellGroup {
     private _tiles: Record<number, Record<number, TileAlternativesData>>;
 
     private _tileMatrix: Matrix = new Matrix();
+
     /** 创建时固定 */
     id: number;
 
@@ -147,14 +144,13 @@ export class TileSetCellGroup {
 
     //获得全局的alternative的id
     _getGlobalAlternativesId(x: number, y: number) {
-        return y * this._maxCellCount.x + x + this._baseAlternativesId;
+        return TileMapUtils.getNativeId(this.id , y * this._maxCellCount.x + x );
     }
 
     //全局的alternative的id转换为本地Cell 的坐标
-    _getCellPosByAlternativesId(nativesId: number, out: Vector2) {
-        let id = nativesId - this._baseAlternativesId;
-        out.x = id % this._maxCellCount.x;
-        out.y = Math.floor(id / this._maxCellCount.x);
+    _getCellPosByAlternativesId(nativeIndex: number, out: Vector2) {
+        out.x = nativeIndex % this._maxCellCount.x;
+        out.y = Math.floor(nativeIndex / this._maxCellCount.x);
     }
 
     _getTileUVOri(localPos: Vector2, out: Vector2) {
@@ -229,22 +225,12 @@ export class TileSetCellGroup {
         return tile.getCelldata(index);
     }
 
-    //通过 gid 获得一个TileSetCellData
-    getCellDataByGid(gid: number): TileSetCellData {
-        if (gid <= 0) { return null; }
+    getCellDataByIndex(nativeIndex:number , cellIndex:number){
         const temp = Vector2.TempVector2;
-        this._getCellPosByAlternativesId(TileMapUtils.getNativeId(gid), temp);
+        this._getCellPosByAlternativesId(nativeIndex, temp);
         let data = this.getAlternative(temp.x, temp.y);
         if (data == null) { return null; }
-        return data.getCelldata(TileMapUtils.getCellIndex(gid));
-    }
-
-    getCellDataByIndexAndNativeId(index:number , nativeId:number){
-        const temp = Vector2.TempVector2;
-        this._getCellPosByAlternativesId(nativeId, temp);
-        let data = this.getAlternative(temp.x, temp.y);
-        if (data == null) { return null; }
-        return data.getCelldata(index);
+        return data.getCelldata(cellIndex);
     }
 
     //移除一个alternative组

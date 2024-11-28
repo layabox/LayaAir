@@ -67,6 +67,7 @@ import { TileMapLayer } from "./display/Scene2DSpecial/TileMap/TileMapLayer";
 import { TileMapPhysics } from "./display/Scene2DSpecial/TileMap/TileMapPhysics";
 import { TileSet } from "./display/Scene2DSpecial/TileMap/TileSet";
 import { TileSetCellData } from "./display/Scene2DSpecial/TileMap/TileSetCellData";
+import { TileSetCellGroup } from "./display/Scene2DSpecial/TileMap/TileSetCellGroup";
 
 let c = ClassUtils.regClass;
 
@@ -129,7 +130,8 @@ c("PolygonPoint2D", PolygonPoint2D);
 
 /// TileMap
 c("TileSet", TileSet);
+c("TileSetCellGroup", TileSetCellGroup);
 c("TileMapLayer", TileMapLayer);
 c("TileSetCellData", TileSetCellData);
 c("TileAlternativesData", TileAlternativesData);
-c("TileMapPhysis", TileMapPhysics);
+c("TileMapPhysics", TileMapPhysics);
