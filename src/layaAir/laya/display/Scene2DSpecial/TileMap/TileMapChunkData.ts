@@ -71,7 +71,7 @@ export class TileMapChunkData {
 
     /**
      * 帧处理cell数据更新
-     * Key1 cellData GID
+     * Key1 cellData GID ---- 
      * value dirtyFlag
      */
     private _cellDirtyFlag: Map<number, number>;
@@ -406,7 +406,7 @@ export class TileMapChunkData {
             let chuckcellInfo = chuckCellList[i];
             let celldata = chuckcellInfo.cell;
 
-            this._cellDataRefMap.get(celldata.getGid()).push(chuckcellInfo.chuckLocalindex);
+            this._cellDataRefMap.get(celldata.gid).push(chuckcellInfo.chuckLocalindex);
             chuckcellInfo._cellPosInRenderData = i;
             chuckcellInfo._renderElementIndex = renderElementLength;
             this._getCellPos(chuckcellInfo, pos);
@@ -550,14 +550,14 @@ export class TileMapChunkData {
      */
     _setCell(index: number, cellData: TileSetCellData): void {
         //增加cell的时候 先查找是否有，没有直接增加，有直接change
-        let gid = cellData.getGid();
+        let gid = cellData.gid;
         if (gid <= 0)
             return;
 
         if (!this._cellDataRefMap.has(gid)) {
             this._cellDataRefMap.set(gid, []);
             if (cellData.cellowner._hasAni())
-                this._animatorAlterArray.set(cellData.cellowner.getId(), cellData.cellowner);
+                this._animatorAlterArray.set(cellData.cellowner.nativeId, cellData.cellowner);
             cellData._addNoticeRenderTile(this);
         }
 
@@ -575,7 +575,7 @@ export class TileMapChunkData {
             this._chuckCellList.push(chuckCellInfo);
         } else if (chuckCellInfo.cell != cellData) {//change one ChunkCellInfo
             let oldcell = chuckCellInfo.cell;
-            let oldGid = oldcell.getGid();
+            let oldGid = oldcell.gid;
             let localIndexArray = this._cellDataRefMap.get(oldGid);
             localIndexArray.splice(localIndexArray.indexOf(chuckCellInfo.chuckLocalindex), 1);
             if (localIndexArray.length == 0) {
@@ -599,7 +599,7 @@ export class TileMapChunkData {
         let chunkCellInfo = this._cellDataMap[index];
         if (!chunkCellInfo)
             return;
-        let gid = chunkCellInfo.cell.getGid();
+        let gid = chunkCellInfo.cell.gid;
         let localIndexArray = this._cellDataRefMap.get(gid);
         localIndexArray.slice(localIndexArray.indexOf(index))
         if (localIndexArray.length == 0) {
@@ -619,7 +619,7 @@ export class TileMapChunkData {
      * @internal
      */
     _clearOneCell(cell: TileSetCellData) {
-        let gid = cell.getGid();
+        let gid = cell.gid;
         let listArray = this._cellDataRefMap.get(gid);
         if (listArray)
             listArray.forEach(element => {

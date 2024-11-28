@@ -50,12 +50,16 @@ export class TileAlternativesData {
 
     private _animatorUpdateMask: number = 0;
 
+    /** @private */
+    nativeId:number;
+
     /**
      * 格子的位置
      */
     get localPos(): Vector2 {
         return this._localPos;
     }
+    
     set localPos(value: Vector2) {
         this._localPos = value;
     }
@@ -183,11 +187,7 @@ export class TileAlternativesData {
         this._uvExtends.x = this._uvSize.x / atlasSize.x;
         this._uvExtends.y = this._uvSize.y / atlasSize.y;
         this._updateOriginUV(0, 0, TILEMAPLAYERDIRTYFLAG.CELL_QUAD | TILEMAPLAYERDIRTYFLAG.CELL_QUADUV);
-    }
-
-    /** @private */
-    getId():number{
-        return this.owner._getGlobalAlternativesId(this.localPos.x, this.localPos.y);
+        this.nativeId = this.owner._getGlobalAlternativesId(this.localPos.x, this.localPos.y);
     }
 
     /**

@@ -62,6 +62,8 @@ export class TileSetCellData {
     /**@internal */
     private _transData: Vector4 = new Vector4();
     
+    gid:number = -1;
+
     //贴图旋转矩阵
     get transData(): Vector4 {
         if(this._updateTrans) this._updateTransData();
@@ -244,17 +246,13 @@ export class TileSetCellData {
     __init(owner: TileAlternativesData, index: number) {
         this._index = index;
         this._cellowner = owner;
-    }
-
-    /** @private 网格id 16-23位index 0-15位nativeId */
-    getGid(): number {
-        return TileMapUtils.getGid(this._index, this._cellowner.getId());
+        this.gid = TileMapUtils.getGid(this._index, this._cellowner.nativeId);
     }
 
     _notifyDataChange(data: number) {
         if (!this.cellowner) return;
         this._notiveRenderTile.forEach(element => {
-            element._setDirtyFlag(this.getGid(), data);
+            element._setDirtyFlag(this.gid, data);
         });
     }
 
