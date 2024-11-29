@@ -111,12 +111,9 @@ export class Downloader {
     imageWithWorker(owner: any, url: string, originalUrl: string, onProgress: (progress: number) => void, onComplete: (data: any, error?: string) => void): void {
         WorkerLoader.enable = true;
         if (WorkerLoader.enable) {
-            WorkerLoader.load(url, owner.workerLoaderOptions).then(ret => {
-                if (ret)
-                    onComplete(ret);
-                else
-                    onComplete(null, "workerloader failed!");
-            });
+            WorkerLoader.load(url, owner.workerLoaderOptions)
+                .then(onComplete)
+                .catch((error) => onComplete(null, error));
         }
         else
             this.image(owner, url, originalUrl, onProgress, onComplete);

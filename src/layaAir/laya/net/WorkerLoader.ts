@@ -62,9 +62,14 @@ export class WorkerLoader {
      * @return 返回解析后的加载图像。
      */
     static load(url: string, options: any): Promise<any> {
-        return new Promise(resolve => {
+        return new Promise((resolve, reject) => {
             WorkerLoader._worker.postMessage({ url, options });
-            WorkerLoader._dispatcher.once(url, resolve);
+            WorkerLoader._dispatcher.once(url, (data: any) => {
+                if (data.imageBitmap)
+                    resolve(data.imageBitmap);
+                else
+                    reject(data.msg);
+            });
         });
     }
 
@@ -79,7 +84,7 @@ export class WorkerLoader {
         if (data) {
             switch (data.type) {
                 case "Image":
-                    WorkerLoader._dispatcher.event(data.url, data.imageBitmap);
+                    WorkerLoader._dispatcher.event(data.url, data);
                     break;
                 case "Disable":
                     WorkerLoader.enable = false;

@@ -28,7 +28,7 @@ function loadImage2(url, options) {
         if ((xhr.status != 200 && xhr.status != 0) || response.byteLength < 10) {
             if (!failed) {
                 failed = true;
-                pngFail(url, "loadFail from onload" + xhr.status);
+                pngFail(url, xhr.status + ":" + xhr.statusText);
             }
 
             return;
@@ -67,11 +67,11 @@ function doCreateImageBitmap(response, url, options) {
         }).catch(
             function (e) {
                 showMsgToMain("catch e:" + e);
-                pngFail(url, "parse fail" + e + ":ya");
+                pngFail(url, "" + e);
             }
         )
     } catch (e) {
-        pngFail(url, "parse fail" + e.toString() + ":ya");
+        pngFail(url, "" + e);
     }
 }
 

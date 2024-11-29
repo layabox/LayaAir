@@ -718,8 +718,11 @@ export class Loader extends EventDispatcher {
             }
             else if (item.useWorkerLoader) {
                 Loader.downloader.imageWithWorker(item, url, item.originalUrl, item.onProgress, (data: any, error: string) => {
-                    if (!data)
+                    if (!data) {
                         item.useWorkerLoader = false; //重试不用worker
+                        if (!item.silent)
+                            Loader.warnFailed(item.url, error);
+                    }
                     this.completeItem(item, data, error);
                 });
             }
@@ -763,7 +766,7 @@ export class Loader extends EventDispatcher {
             ILaya.systemTimer.once(this.retryDelay, this, this.queueToDownload, [item], false);
         }
         else {
-            !item.silent && Loader.warnFailed(item.url);
+            !item.silent && Loader.warnFailed(item.url, error);
             if (item.onProgress)
                 item.onProgress(1);
 
