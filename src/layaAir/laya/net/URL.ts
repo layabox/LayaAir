@@ -23,7 +23,7 @@ export class URL {
      * @en Base path. If not set, it defaults to the path of the current web page. The final address will be formatted as basePath + relative URL address.
      * @zh 基础路径。如果不设置，默认为当前网页的路径。最终地址将被格式化为 basePath + 相对URL地址。
      */
-    static basePath: string = "";
+    static basePath: string;
     /**
      * @en Extended base path mapping table. For example, {"aa/":"http://abc.com/"}, then resources with paths starting with aa/ will be mapped to http://abc.com/.
      * @zh 扩展的基础路径映射表。例如，{"aa/":"http://abc.com/"}，则把路径以aa/开头的资源映射到http://abc.com/下。
