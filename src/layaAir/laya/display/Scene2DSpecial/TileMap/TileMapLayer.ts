@@ -101,7 +101,7 @@ export class TileMapLayer extends BaseRenderNode2D {
     private _physisDelayCreate: Set<TileMapChunkData>;
 
     /**物理模块 */
-    private _tileMapPhysis: TileMapPhysics;
+    private _tileMapPhysics: TileMapPhysics;
 
     get layerColor(): Color {
         return this._layerColor;
@@ -173,7 +173,6 @@ export class TileMapLayer extends BaseRenderNode2D {
         this._updateChunkData();
     }
 
-    //TODO??
     get tileMapDatas(): TileMapLayerDatas {
         return this._tileMapDatas;
     }
@@ -182,8 +181,8 @@ export class TileMapLayer extends BaseRenderNode2D {
         this._tileMapDatas = value;
     }
 
-    get tileMapPhysis(): TileMapPhysics {
-        return this._tileMapPhysis;
+    get tileMapPhysics(): TileMapPhysics {
+        return this._tileMapPhysics;
     }
 
     constructor() {
@@ -193,7 +192,7 @@ export class TileMapLayer extends BaseRenderNode2D {
         this._grid = new Grid();
         this._chunk = new TileMapChunk(this._grid);
         this._chunk._setChunkSize(this._renderTileSize, this._renderTileSize);
-        this._tileMapPhysis = new TileMapPhysics(this);
+        this._tileMapPhysics = new TileMapPhysics(this);
         this._cliper = new RectClipper();
         this._renderElements = [];
         this._materials = [];
@@ -309,7 +308,7 @@ export class TileMapLayer extends BaseRenderNode2D {
         super.onEnable();
         (<Sprite>this.owner).cacheGlobal = true;
         this._updateMapDatas();
-        this._tileMapPhysis._createPhysics();
+        this._tileMapPhysics._createPhysics();
     }
 
     /**

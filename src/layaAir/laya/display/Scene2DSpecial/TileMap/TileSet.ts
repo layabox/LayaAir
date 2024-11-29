@@ -9,10 +9,14 @@ import { Material } from "../../../resource/Material";
 import { RenderState } from "../../../RenderDriver/RenderModuleData/Design/RenderState";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderDefines2D } from "../../../webgl/shader/d2/ShaderDefines2D";
-import { TileMap_CustomDataLayer, TileMap_NavigationInfo, TileSet_LightOcclusionInfo, TileSet_PhysicsLayerInfo, TileSet_TerrainSetInfo } from "./TileSetInfos";
 import { TileMapLayer } from "./TileMapLayer";
 import { Texture2D } from "../../../resource/Texture2D";
 import { group } from "console";
+import { TileSetPhysicsLayer } from "./layers/TileSetPhysicsLayer";
+import { TileSetTerrainLayer } from "./layers/TileSetTerrainLayer";
+import { TileMapNavigationLayer } from "./layers/TileSetNavigationLayer";
+import { TileSetOcclusionLayer } from "./layers/TileSetOcclusionLayer";
+import { TileSetCustomDataLayer } from "./layers/TileSetCustomDataLayer";
 
 
 export class TileSet extends Resource {
@@ -21,16 +25,16 @@ export class TileSet extends Resource {
 
     private _tileSize: Vector2;
 
-    private _physicaLayers: Array<TileSet_PhysicsLayerInfo>;
+    private _physicsLayers: Array<TileSetPhysicsLayer>;
 
     private _terrainBatchMode: TillMap_TerrainMode;
-    private _terrains: Array<TileSet_TerrainSetInfo>;
+    private _terrains: Array<TileSetTerrainLayer>;
 
-    private _navigationLayers: Array<TileMap_NavigationInfo>;
+    private _navigationLayers: Array<TileMapNavigationLayer>;
 
-    private _customDataLayer: Array<TileMap_CustomDataLayer>;
+    private _customDataLayer: Array<TileSetCustomDataLayer>;
 
-    private _lightOcclusion: Array<TileSet_LightOcclusionInfo>;
+    private _lightOcclusion: Array<TileSetOcclusionLayer>;
 
     private _groups: TileSetCellGroup[];
     //用于快速查询
@@ -181,11 +185,11 @@ export class TileSet extends Resource {
         return this._customDataLayer;
     }
 
-    addCustormDataLayer(layer: TileMap_CustomDataLayer): void {
+    addCustormDataLayer(layer: TileSetCustomDataLayer): void {
 
     }
 
-    getCustormDataLayer(layerIndex: number): TileMap_CustomDataLayer {
+    getCustormDataLayer(layerIndex: number): TileSetCustomDataLayer {
         return null;
     }
 
@@ -198,11 +202,11 @@ export class TileSet extends Resource {
         return this._navigationLayers;
     }
 
-    addNavigationLayers(layer: TileMap_NavigationInfo): void {
+    addNavigationLayers(layer: TileMapNavigationLayer): void {
 
     }
 
-    getNavigationLayers(layerIndex: number): TileMap_NavigationInfo {
+    getNavigationLayers(layerIndex: number): TileMapNavigationLayer {
         return null;
     }
 
@@ -215,11 +219,11 @@ export class TileSet extends Resource {
         return this._lightOcclusion;
     }
 
-    addlightInfoLayers(layer: TileSet_LightOcclusionInfo): void {
+    addlightInfoLayers(layer: TileSetOcclusionLayer): void {
 
     }
 
-    getlightInfoLayers(layerIndex: number): TileSet_LightOcclusionInfo {
+    getlightInfoLayers(layerIndex: number): TileSetOcclusionLayer {
         return null;
     }
 
@@ -229,17 +233,17 @@ export class TileSet extends Resource {
 
     //physics
     get physicsLayers() {
-        return this._physicaLayers;
+        return this._physicsLayers;
     }
 
-    addPhysicsLayers(layer: TileSet_PhysicsLayerInfo): number {
-        let index = this._physicaLayers.length;
-        this._physicaLayers.push(layer);
+    addPhysicsLayers(layer: TileSetPhysicsLayer): number {
+        let index = this._physicsLayers.length;
+        this._physicsLayers.push(layer);
         return index;
     }
 
-    getPhysicsLayers(layerIndex: number): TileSet_PhysicsLayerInfo {
-        return this._physicaLayers[layerIndex];
+    getPhysicsLayers(layerIndex: number): TileSetPhysicsLayer {
+        return this._physicsLayers[layerIndex];
     }
 
     removePhysicsLayers() {
@@ -259,11 +263,11 @@ export class TileSet extends Resource {
         return this._terrains;
     }
 
-    addTileTerrain(layer: TileSet_TerrainSetInfo): void {
+    addTileTerrain(layer: TileSetTerrainLayer): void {
 
     }
 
-    getTileTerrain(layerIndex: number): TileSet_TerrainSetInfo {
+    getTileTerrain(layerIndex: number): TileSetTerrainLayer {
         return null;
     }
 

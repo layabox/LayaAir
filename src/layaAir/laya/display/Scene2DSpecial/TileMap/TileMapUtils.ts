@@ -1,6 +1,6 @@
-import { Matrix } from "../../../maths/Matrix";
-import { Vector2 } from "../../../maths/Vector2";
-import { Vector4 } from "../../../maths/Vector4";
+import { Matrix } from "./../../../maths/Matrix";
+import { Vector2 } from "./../../../maths/Vector2";
+import { Vector4 } from "./../../../maths/Vector4";
 import { TileShape } from "./TileMapEnum";
 
 const BYTE_POS_CELL = 24;

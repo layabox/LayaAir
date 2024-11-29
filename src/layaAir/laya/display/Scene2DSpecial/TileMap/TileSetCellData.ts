@@ -7,8 +7,31 @@ import { Color } from "../../../maths/Color";
 import { Vector2 } from "../../../maths/Vector2";
 import { Vector4 } from "../../../maths/Vector4";
 import { Material } from "../../../resource/Material";
-import { TileSetCell_CustomDataInfo, TileSetCell_LightInfo, TileSetCell_NavigationInfo, TileSetCell_PhysicsInfo } from "./TileSetInfos";
 
+export class TileSetCellOcclusionInfo {
+    //根据light功能定义
+    shape:number[];
+    index:number;
+ }
+ 
+ export class TileSetCellPhysicsInfo{
+    shape:number[];
+    index:number;
+ }
+ 
+ export class TileSetCellNavigationInfo {
+    //根据想实现的Navigation定义
+    shape:number[];
+    index:number;
+ }
+ 
+ export class TileSetCellCustomDataInfo {
+    index:number;
+    type: string;
+    value: any;
+ }
+ 
+ 
 /**
  * TileMap中一个Cell的数据结构
  */
@@ -37,13 +60,13 @@ export class TileSetCellData {
     private _y_sort_origin: number;
 
     //多级数据
-    private _lightOccluderDatas: TileSetCell_LightInfo[];
+    private _lightOccluderDatas: TileSetCellOcclusionInfo[];
 
-    private _navigationDatas: TileSetCell_NavigationInfo[];
+    private _navigationDatas: TileSetCellNavigationInfo[];
 
-    private _physicsDatas: TileSetCell_PhysicsInfo[];
+    private _physicsDatas: TileSetCellPhysicsInfo[];
 
-    private _customDatas: TileSetCell_CustomDataInfo[];
+    private _customDatas: TileSetCellCustomDataInfo[];
 
     //是否有地形
     private _terrain_set: boolean;
@@ -275,12 +298,12 @@ export class TileSetCellData {
         }
     }
 
-    set_lightOccluder(layerIndex: number, data: TileSetCell_LightInfo) {
+    set_lightOccluder(layerIndex: number, data: TileSetCellOcclusionInfo) {
         //TODO
         this._lightOccluderDatas[layerIndex] = data;
     }
 
-    get_lightOccluder(layerIndex: number): TileSetCell_LightInfo {
+    get_lightOccluder(layerIndex: number): TileSetCellOcclusionInfo {
         return this._lightOccluderDatas[layerIndex];
     }
 
@@ -292,11 +315,11 @@ export class TileSetCellData {
         return this._terrain_peering_bits[index];
     }
 
-    set_physicsData(layerIndex: number, data: TileSetCell_PhysicsInfo) {
+    set_physicsData(layerIndex: number, data: TileSetCellPhysicsInfo) {
         this._physicsDatas[layerIndex] = data;
     }
 
-    get_physicsData(layerIndex: number): TileSetCell_PhysicsInfo {
+    get_physicsData(layerIndex: number): TileSetCellPhysicsInfo {
         return this._physicsDatas[layerIndex];
     }
 
@@ -307,11 +330,11 @@ export class TileSetCellData {
         return this._terrain_peering_bits;
     }
 
-    set_navigationData(layerIndex: number, data: TileSetCell_NavigationInfo) {
+    set_navigationData(layerIndex: number, data: TileSetCellNavigationInfo) {
         this._navigationDatas[layerIndex] = data;
     }
 
-    get_navigationData(layerIndex: number): TileSetCell_NavigationInfo {
+    get_navigationData(layerIndex: number): TileSetCellNavigationInfo {
         return this._navigationDatas[layerIndex];
     }
 
