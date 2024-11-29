@@ -562,6 +562,17 @@ export class TileMapChunkData {
         this._cellDataRefMap.clear();
     }
 
+    _clearChunkCellInfo(){
+        for (let i = 0 , len = this._chuckCellList.length; i < len; i++) {
+            let physicsDatas = this._chuckCellList[i]._physicsDatas;
+            if (physicsDatas) {
+                for (let i = 0 , len = physicsDatas.length; i < len; i++)
+                    this._tileLayer.tileMapPhysics._destroyFixture(physicsDatas[i]);
+            }
+        }
+        this._chuckCellList = [];
+        this._cellDataMap = [];
+    }
     
     /**
      * @internal
@@ -706,8 +717,7 @@ export class TileMapChunkData {
      * @internal
      */
     _clearCell() {
-        this._chuckCellList = [];
-        this._cellDataMap = [];
+        this._clearChunkCellInfo();
         this._clearnRefTileCellData();
         this._cellDirtyFlag.clear();
         this._reCreateRenderData = true;
