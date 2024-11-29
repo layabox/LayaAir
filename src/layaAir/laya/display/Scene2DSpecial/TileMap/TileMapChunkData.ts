@@ -645,19 +645,6 @@ export class TileMapChunkData {
 
     }
 
-    /** @internal */
-    _clearChunkCellInfo(info:ChunkCellInfo){
-        let physicsDatas = info._physicsDatas;
-        if (physicsDatas) {
-            for (let i = 0 , len = physicsDatas.length; i < len; i++)
-                this._tileLayer.tileMapPhysics._destroyFixture(physicsDatas[i]);
-        }
-
-        let sotIndex = this._chuckCellList.indexOf(info);
-        this._chuckCellList.splice(sotIndex, 1);
-        delete this._cellDataMap[info.chuckLocalindex];
-    }
-
     /**
      * @internal
      */
@@ -666,7 +653,16 @@ export class TileMapChunkData {
         if (!chunkCellInfo)
             return;
 
-        this._clearChunkCellInfo(chunkCellInfo);
+        let physicsDatas = chunkCellInfo._physicsDatas;
+        if (physicsDatas) {
+            for (let i = 0 , len = physicsDatas.length; i < len; i++)
+                this._tileLayer.tileMapPhysics._destroyFixture(physicsDatas[i]);
+        }
+
+        let sotIndex = this._chuckCellList.indexOf(chunkCellInfo);
+        this._chuckCellList.splice(sotIndex, 1);
+        delete this._cellDataMap[chunkCellInfo.chuckLocalindex];
+
         let gid = chunkCellInfo.cell.gid;
         let localIndexArray = this._cellDataRefMap.get(gid);
         localIndexArray.slice(localIndexArray.indexOf(index));
@@ -686,7 +682,7 @@ export class TileMapChunkData {
         let gid = cell.gid;
         let listArray = this._cellDataRefMap.get(gid);
         if (listArray)
-            listArray.forEach(element =>this._clearChunkCellInfo(this._cellDataMap[element]));
+            listArray.forEach(element =>this._removeCell(element));
 
         cell._removeNoticeRenderTile(this);
         this._cellDataRefMap.delete(gid);
