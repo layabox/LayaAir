@@ -6,7 +6,6 @@ import { TextureCompareMode } from "../../../RenderEngine/RenderEnum/TextureComp
 import { TextureDimension } from "../../../RenderEngine/RenderEnum/TextureDimension";
 import { TextureFormat } from "../../../RenderEngine/RenderEnum/TextureFormat";
 import { ITextureContext } from "../../DriverDesign/RenderDevice/ITextureContext";
-import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
 import { GLESInternalRT } from "./GLESInternalRT";
 import { GLESInternalTex } from "./GLESInternalTex";
 

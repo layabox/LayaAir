@@ -11,22 +11,36 @@ import { PrefabImpl } from "laya/resource/PrefabImpl";
 import { Stat } from "laya/utils/Stat";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
+import { Handler } from "laya/utils/Handler";
+import { Event } from "laya/events/Event";
 
 export class UI3DDemo {
     public scene: Scene3D;
     public prefabIconPath: string = "res/ui/prefab/ui3d.lh";
     public prefabUIPath: string = "res/ui/prefab/ui3dpage.lh";
     public avatarPath: string = "res/threeDimen/fbx/Danding.lh";
-
+    public testCamera: Camera;
+    public testUI3D: UI3D;
+    public transMode = false;
     constructor() {
         Laya.init(0, 0).then(() => {
             Laya.stage.scaleMode = Stage.SCALE_FULL;
             Laya.stage.screenMode = Stage.SCREEN_NONE;
             Stat.show();
-            this.createScene();
+
+            this.PreloadingRes();
         });
     }
 
+
+    //批量预加载方式
+    PreloadingRes() {
+        //预加载所有资源
+        var resource: any[] = [
+            "res/uvtest.png"
+        ];
+        Laya.loader.load(resource, Handler.create(this, this.createScene));
+    }
 
     createScene(): void {
         this.scene = new Scene3D();
@@ -41,6 +55,8 @@ export class UI3DDemo {
         camera.transform.rotationEuler = new Vector3(-12, 0, 0);
         this.scene.addChild(camera);
         camera.clearFlag = CameraClearFlags.SolidColor;
+        this.testCamera = camera;
+
         Laya.loader.load([this.avatarPath, this.prefabIconPath, this.prefabUIPath]).then(() => {
             // add Avatar
             let avatar: Sprite3D = ((Laya.loader.getRes(this.avatarPath) as PrefabImpl).create() as Sprite3D);
@@ -49,7 +65,6 @@ export class UI3DDemo {
             this.createUI3DCom();
         });
     }
-
 
     createUI3DCom(): void {
         // 血条
@@ -74,6 +89,22 @@ export class UI3DDemo {
         sp3UI3DCom.scale = new Vector2(2, 2);
         sp3UI3DCom.billboard = true;
         sp3UI3DCom.enableHit = true;
+        this.testUI3D = sp3UI3DCom;
+        Laya.stage.on(Event.MOUSE_DOWN, this, this.onMouseLefeDown);
     }
 
+
+    onMouseLefeDown() {
+        this.transMode = !this.transMode;
+        if (this.transMode) {
+            this.testUI3D.cameraSpace = true;
+            this.testUI3D.attachCamera = this.testCamera;
+            this.testUI3D.cameraPlaneDistance = 10;
+
+            console.log("开");
+        } else {
+            this.testUI3D.cameraSpace = false;
+            console.log("关");
+        }
+    }
 }

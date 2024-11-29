@@ -5,7 +5,6 @@ import { Vector3 } from "../../../maths/Vector3";
 import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { RenderTexture2D } from "../../../resource/RenderTexture2D";
-import { Plane } from "../../math/Plane";
 import { Ray } from "../../math/Ray";
 import { Material, MaterialRenderMode } from "../../../resource/Material";
 import { MeshSprite3DShaderDeclaration } from "../MeshSprite3DShaderDeclaration";
@@ -20,13 +19,15 @@ import { Prefab } from "../../../resource/HierarchyResource";
 import { InputManager } from "../../../events/InputManager";
 import { NodeFlags } from "../../../Const";
 import { ILaya } from "../../../../ILaya";
-
 import { RenderContext3D } from "../render/RenderContext3D";
 import { Vector4 } from "../../../maths/Vector4";
 import { LayaEnv } from "../../../../LayaEnv";
 import { IRenderContext3D } from "../../../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
 import { RenderState } from "../../../RenderDriver/RenderModuleData/Design/RenderState";
 import { LayaGL } from "../../../layagl/LayaGL";
+import { Camera } from "../Camera";
+import { Quaternion } from "../../../maths/Quaternion";
+import { Utils } from "../../../utils/Utils";
 
 /**
  * @en UI3D class, used to create 3D UI components.
@@ -40,52 +41,48 @@ export class UI3D extends BaseRender {
      */
     declare owner: Sprite3D;
 
-    /**@intrtnal */
-    static TempMatrix = new Matrix4x4();
-    /**@internal */
-    static temp0: Vector3 = new Vector3();
-    /**@internal */
-    static temp1: Vector3 = new Vector3();
-    /**@internal */
-    static temp2: Vector3 = new Vector3();
     /**@internal */
     static DEBUG: boolean = false;
-    //功能,将2DUI显示到3D面板上 并检测射线
-    private _shellSprite: Sprite;
-    /**@internal UISprite*/
-    private _uisprite: Sprite;
-    /**@internal */
-    private _ui3DMat: Material;
-    /**@internal */
-    private _rendertexure2D: RenderTexture2D;
-    /**@internal */
-    private _geometry: UI3DGeometry;
-    /**@internal 2D是否需要重新绘制*/
-    private _needUpdate: boolean;
-    /**@internal */
-    private _uiPlane: Plane;
-    /**@internal */
-    private _size: Vector2;
-    /**@internal */
-    private _sizeChange: boolean = true;
-    /**@internal */
-    private _resolutionRate: number;
-    /**@internal */
-    private _view: boolean = true;
-    /**@internal */
-    private _bindPropertyName: string = "u_AlbedoTexture";
-    /**@internal */
-    private _hit: boolean = false;
-    /**@internal */
-    private _prefab: Prefab;
-    /**@internal 计算矩阵*/
-    private _matrix: Matrix4x4;
-    /**@internal 缩放 */
-    private _scale: Vector3;
     /**@internal */
     static _ray: Ray = new Ray(new Vector3(), new Vector3());
 
+    //功能,将2DUI显示到3D面板上 并检测射线
+    private _shellSprite: Sprite;
+    /** UISprite*/
+    private _uisprite: Sprite;
+
+    private _ui3DMat: Material;
+
+    private _rendertexure2D: RenderTexture2D;
+
+    private _geometry: UI3DGeometry;
+
+    private _size: Vector2;
+
+    private _sizeChange: boolean = true;
+
+    private _resolutionRate: number;
+
+    private _view: boolean = true;
+
+    private _bindPropertyName: string = "u_AlbedoTexture";
+
+    private _hit: boolean = false;
+
+    private _prefab: Prefab;
+    /** 计算矩阵*/
+    private _matrix: Matrix4x4;
+    /** 缩放 */
+    private _scale: Vector3;
+
+    private _cameraSpace: boolean = false;
+
+    private _camera: Camera;
+
+
     protected _worldParams: Vector4 = new Vector4();
+
+    private _cameraPlaneDistance: number;
 
     /**
      * @en UI nodes for 3D rendering
@@ -133,13 +130,14 @@ export class UI3D extends BaseRender {
     }
 
     set scale(value: Vector2) {
-        if (value.x <= 0 || value.y <= 0)
+        if (value.x <= 0 || value.y <= 0 || (Vector2.equals(value, this._size)))
             return;
         value.cloneTo(this._size);
         this._resizeRT();
         this.boundsChange = true;
         this._scale.setValue(value.x, value.y, 1);
     }
+
 
 
     /**
@@ -218,13 +216,56 @@ export class UI3D extends BaseRender {
         this._hit = value;
     }
 
+    /**
+     * @en use the mode that fits the camera
+     * @zh 是否使用贴合相机的模式
+     */
+    set cameraSpace(value: boolean) {
+        if (this._cameraSpace == value) {
+            return;
+        }
+        this._cameraSpace = value;
+        this._resizeRT();
+    }
+    get cameraSpace() {
+        return this._cameraSpace;
+    }
+
+    /**
+     * @en In cameraSpace mode, the distance from the camera
+     * @zh cameraSpace模式下，距离相机的距离
+     */
+    set cameraPlaneDistance(value: number) {
+        value = Math.max(0, value);
+        this._cameraPlaneDistance = value;
+
+    }
+    get cameraPlaneDistance() {
+        return this._cameraPlaneDistance;
+    }
+
+    /**
+     * @en Camera bind in cameraSpace mode
+     * @zh cameraSpace模式下绑定的相机
+     */
+    set attachCamera(value: Camera) {
+        if (this._camera == value)
+            return;
+        this._camera = value;
+        this._resizeRT();
+    }
+
+    get attachCamera() {
+        return this._camera;
+    }
+
+
     /** @ignore 
      * @en constructor method, initialize 3D UI.
      * @zh 构造方法，初始化3D UI。
     */
     constructor() {
         super();
-        this._uiPlane = new Plane(new Vector3(), 0);
         this._size = new Vector2(1, 1);
         this._resolutionRate = 128;
         this._shellSprite = new Sprite();
@@ -270,55 +311,21 @@ export class UI3D extends BaseRender {
         this.geometryBounds = this._geometry.bounds;
     }
 
-    /**
-     * @internal
-     */
-    private _resizeRT() {
-        let width = this._size.x * this._resolutionRate;
-        let height = this._size.y * this._resolutionRate;
-
-        let invertY = !LayaGL.renderEngine._screenInvertY;
-
-        if (!this._rendertexure2D) {
-            this._rendertexure2D = new RenderTexture2D(width, height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None);
-            this._rendertexure2D._invertY = invertY;
-        } else {
-            if (this._rendertexure2D.width != width || this._rendertexure2D.height != height) {
-                this._rendertexure2D.destroy();
-                this._rendertexure2D = new RenderTexture2D(width, height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None);
-                this._rendertexure2D._invertY = invertY;
-                this._setMaterialTexture();
-            }
-        }
-        this._submitRT();
+    private _isCameraSpaceMode() {
+        return this._cameraSpace && this._camera;
     }
 
     /**
-     * @internal
-     */
-    onPreRender(): void {
-        //this._geometry
-        if (this.billboard) {
-            this._sizeChange = false;
-            let camera = (this.owner.scene as Scene3D).cullInfoCamera;
-            Matrix4x4.createAffineTransformation(this._transform.position, camera.transform.rotation, this._scale, this._matrix);
-        } else if (this._sizeChange) {
-            this._sizeChange = false;
-            this._transform.worldMatrix.cloneTo(this._matrix);
-        }
-    }
-
-    /**
-    * 分析碰撞点
-    * @param hit 
-    */
+   * 分析碰撞点
+   * @param hit 
+   */
     private _parseHit(ray: Ray) {
         let _tempRay = UI3D._ray;
         let u, v;
         if (!this._uisprite || !LayaEnv.isPlaying) return null;
-        this._matrix.invert(UI3D.TempMatrix);
-        Vector3.transformCoordinate(ray.origin, UI3D.TempMatrix, _tempRay.origin);
-        Vector3.TransformNormal(ray.direction, UI3D.TempMatrix, _tempRay.direction);
+        this._matrix.invert(tempMatrix);
+        Vector3.transformCoordinate(ray.origin, tempMatrix, _tempRay.origin);
+        Vector3.TransformNormal(ray.direction, tempMatrix, _tempRay.direction);
         _tempRay.direction.normalize();
 
         let normalizeHitWidth = 0;
@@ -350,6 +357,73 @@ export class UI3D extends BaseRender {
     }
 
     /**
+     * @internal
+     */
+    private _resizeRT() {
+        let width;
+        let height;
+        if (this._isCameraSpaceMode()) {
+            width = this._camera.viewport.width;
+            height = this._camera.viewport.height;
+        } else {
+            width = this._size.x * this._resolutionRate;
+            height = this._size.y * this._resolutionRate;
+        }
+        let invertY = !LayaGL.renderEngine._screenInvertY;
+
+        if (!this._rendertexure2D) {
+            this._rendertexure2D = new RenderTexture2D(width, height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None);
+            this._rendertexure2D._invertY = invertY;
+        } else {
+            if (this._rendertexure2D.width != width || this._rendertexure2D.height != height) {
+                this._rendertexure2D.destroy();
+                this._rendertexure2D = new RenderTexture2D(width, height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None);
+                this._rendertexure2D._invertY = invertY;
+                this._setMaterialTexture();
+            }
+        }
+        this._submitRT();
+    }
+
+    /**
+     * @internal
+     */
+    onPreRender(): void {
+        //this._geometry
+        if (this._isCameraSpaceMode()) {
+            this.boundsChange = true;
+            let cameraforward = Vector3._tempVector3;
+            let rotate = Quaternion.TEMP;
+            let scale = Vector3._tempVector0;
+            let camera = this._camera;
+            camera.transform.getForward(cameraforward);
+            cameraforward = cameraforward.normalize()
+            Vector3.scale(cameraforward, this._cameraPlaneDistance, cameraforward);
+            Vector3.add(camera.transform.position, cameraforward, cameraforward);
+            camera.transform.rotation.cloneTo(rotate);
+            if (camera.orthographic) {
+                scale.setValue(camera.orthographicVerticalSize * camera.aspectRatio, camera.orthographicVerticalSize, 1);
+            } else {
+
+                let height = Math.tan(Utils.toRadian(camera.fieldOfView / 2)) * this._cameraPlaneDistance * 2;
+                scale.setValue(height * camera.aspectRatio, height, 1);
+            }
+            Matrix4x4.createAffineTransformation(cameraforward, rotate, scale, this._matrix);
+        } else {
+            if (this.billboard) {
+                this._sizeChange = false;
+                let camera = (this.owner.scene as Scene3D).cullInfoCamera;
+                Matrix4x4.createAffineTransformation(this._transform.position, camera.transform.rotation, this._scale, this._matrix);
+            } else if (this._sizeChange) {
+                this._sizeChange = false;
+                this._transform.worldMatrix.cloneTo(this._matrix);
+            }
+        }
+    }
+
+
+
+    /**
      * @en Get the UI rendering texture.
      * @zh 获得ui渲染图
      */
@@ -374,9 +448,7 @@ export class UI3D extends BaseRender {
      */
     _renderUpdate(context: IRenderContext3D): void {
         let shaderData = this._baseRenderNode.shaderData;
-
         shaderData.setMatrix4x4(Sprite3D.WORLDMATRIX, this._matrix);
-
         let transform = this.owner.transform;
         let worldParams = this._worldParams;
         worldParams.x = transform.getFrontFaceValue();
@@ -402,7 +474,7 @@ export class UI3D extends BaseRender {
      */
     _submitRT() {
         //判断是否需要重置
-        this._rendertexure2D && this._shellSprite.drawToTexture(this._rendertexure2D.width, this._rendertexure2D.height, 0, 0, this._rendertexure2D);
+        this._rendertexure2D && this._shellSprite.drawToRenderTexture2D(this._rendertexure2D.width, this._rendertexure2D.height, 0, 0, this._rendertexure2D, false);
         this._setMaterialTexture();
     }
 
@@ -439,8 +511,8 @@ export class UI3D extends BaseRender {
      * @internal
      */
     _calculateBoundingBox(): void {
-        var worldMat: Matrix4x4 = this._transform.worldMatrix;
-        this._geometry.bounds._tranform(worldMat, this._bounds);
+        //var worldMat: Matrix4x4 = this._transform.worldMatrix;
+        this._geometry.bounds._tranform(this._matrix, this._bounds);
     }
 
     /**
@@ -480,7 +552,6 @@ export class UI3D extends BaseRender {
         this._shellSprite && this._shellSprite.destroy();
         this._ui3DMat && this._ui3DMat.destroy();
         this._resolutionRate = null;
-        this._uiPlane = null;
         this._size = null;
         this._scale = null;
         this._matrix = null;
@@ -494,3 +565,4 @@ export class UI3D extends BaseRender {
     }
 }
 
+const tempMatrix = new Matrix4x4();

@@ -13,6 +13,8 @@ export class Vector3 implements IClone {
     static _tempVector4 = new Vector4();
     /**@internal*/
     static _tempVector3 = new Vector3();
+    /**@internal*/
+    static _tempVector0 = new Vector3();
 
     /**
      * @en Zero vector (0, 0, 0).
