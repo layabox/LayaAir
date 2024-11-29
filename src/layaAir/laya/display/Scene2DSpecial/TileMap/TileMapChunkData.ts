@@ -276,6 +276,7 @@ export class TileMapChunkData {
                 cellDataUseArray.forEach(element => {
                     let chuckCellinfo = this._cellDataMap[element];
                     let cellData = chuckCellinfo.cell;
+                    let nativesData = cellData.cellowner;
                     let tilemapRenderElementInfo = this._renderElementArray[chuckCellinfo._renderElementIndex];
                     if (value & TILEMAPLAYERDIRTYFLAG.CELL_CHANGE || (value & TILEMAPLAYERDIRTYFLAG.CELL_QUAD)) {
                         let data = tilemapRenderElementInfo.cacheData[TileMapChunkData.instanceposScalBufferIndex];
@@ -285,7 +286,7 @@ export class TileMapChunkData {
                         let dataoffset = chuckCellinfo._cellPosInRenderData * 4;
                         data[dataoffset] = pos.x + posOffset.x;
                         data[dataoffset + 1] = pos.y + posOffset.y;
-                        let uvSize = cellData.cellowner._getTextureUVSize();
+                        let uvSize = nativesData._getTextureUVSize();
                         data[dataoffset + 2] = uvSize.x;
                         data[dataoffset + 3] = uvSize.y;
 
@@ -295,8 +296,8 @@ export class TileMapChunkData {
                         let data = tilemapRenderElementInfo.cacheData[TileMapChunkData.instanceuvOriScalBufferIndex];
                         tilemapRenderElementInfo.updateFlag[TileMapChunkData.instanceuvOriScalBufferIndex] = true;
                         let dataoffset = chuckCellinfo._cellPosInRenderData * 4;
-                        let uvOri = cellData.cellowner._getTextureUVOri();
-                        let uvextend = cellData.cellowner._getTextureUVExtends();
+                        let uvOri = nativesData._getTextureUVOri();
+                        let uvextend = nativesData._getTextureUVExtends();
                         data[dataoffset] = uvOri.x;
                         data[dataoffset + 1] = uvOri.y;
                         data[dataoffset + 2] = uvextend.x;
@@ -437,7 +438,8 @@ export class TileMapChunkData {
             mat = this._materail;
         }
 
-        let texture = cellData.cellowner.owner.atlas;
+        let nativesData = cellData.cellowner;
+        let texture = nativesData.owner.atlas;
         if (mat == null) {
             mat = this._tileLayer.getDefalutMaterial(texture);
         }
@@ -475,11 +477,11 @@ export class TileMapChunkData {
             let posOffset = celldata.texture_origin;
             instanceposScal[dataOffset] = pos.x + posOffset.x;
             instanceposScal[dataOffset + 1] = pos.y + posOffset.y;
-            let uvSize = celldata.cellowner._getTextureUVSize();
+            let uvSize = nativesData._getTextureUVSize();
             instanceposScal[dataOffset + 2] = uvSize.x;
             instanceposScal[dataOffset + 3] = uvSize.y;
-            let uvOri = celldata.cellowner._getTextureUVOri();
-            let uvextend = celldata.cellowner._getTextureUVExtends();
+            let uvOri = nativesData._getTextureUVOri();
+            let uvextend = nativesData._getTextureUVExtends();
             instanceuvOriScal[dataOffset] = uvOri.x;
             instanceuvOriScal[dataOffset + 1] = uvOri.y;
             instanceuvOriScal[dataOffset + 2] = uvextend.x;

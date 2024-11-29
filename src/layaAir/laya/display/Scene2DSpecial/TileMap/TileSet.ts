@@ -11,7 +11,6 @@ import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderDefines2D } from "../../../webgl/shader/d2/ShaderDefines2D";
 import { TileMapLayer } from "./TileMapLayer";
 import { Texture2D } from "../../../resource/Texture2D";
-import { group } from "console";
 import { TileSetPhysicsLayer } from "./layers/TileSetPhysicsLayer";
 import { TileSetTerrainLayer } from "./layers/TileSetTerrainLayer";
 import { TileMapNavigationLayer } from "./layers/TileSetNavigationLayer";
