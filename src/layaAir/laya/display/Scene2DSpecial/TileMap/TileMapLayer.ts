@@ -40,6 +40,7 @@ export enum TILEMAPLAYERDIRTYFLAG {
     CELL_SORTCHANGE = 1 << 9,
     TILESET_SAZE = 1 << 10,
     LAYER_COLOR = 1 << 11,
+    LAYER_PHYSICS = 1 << 12,
 }
 
 const TempRectange: Rectangle = new Rectangle();

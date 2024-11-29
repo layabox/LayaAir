@@ -351,7 +351,7 @@ export class TileMapChunkData {
     }
 
     private _updatePhysicsData() {
-        if (!this._tileLayer.physicsEnable) return;
+        if (!this._tileLayer.physicsEnable || !this._cellDirtyFlag.size) return;
         let physicsLayers = this._tileLayer.tileSet.physicsLayers;
         let physics = this._tileLayer.tileMapPhysics;
         let layerCount = physicsLayers.length;
