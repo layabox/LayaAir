@@ -1027,12 +1027,11 @@ export class Context {
 
     //TODO 目前是为了方便，从设计上这样是不是不太好
     private _drawMesh(mesh: Sprite2DGeometry, vboff: number, vertNum: number, iboff: number, indexNum: number, shaderValue: Value2D, customMaterial: Material) {
+        if (!this._render2DManager._renderEnd) {
+            this._render2DManager.render(Render2DSimple.rendercontext2D);
+        }
         if (mesh.indexNum) {
-            let render2D = this._render2D;
-            if (!this._render2DManager._renderEnd) {
-                this._render2DManager.render(Render2DSimple.rendercontext2D);
-            }
-            render2D.draw(
+            this._render2D.draw(
                 mesh,
                 vboff, vertNum * mesh.vertexDeclarition.vertexStride,
                 iboff, indexNum * 2,
@@ -1456,6 +1455,9 @@ export class Context {
 
     //合并mesh之后，最后一点数据还没有渲染，这里强制渲染
     drawLeftData() {
+        if (!this._render2DManager._renderEnd) {
+            this._render2DManager.render(Render2DSimple.rendercontext2D);
+        }
         //剩下的
         this._drawToRender2D(this._curSubmit);
     }
