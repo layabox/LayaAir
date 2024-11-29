@@ -14,6 +14,7 @@ import { TileAlternativesData } from "./TileAlternativesData";
 import { TileShape } from "./TileMapEnum";
 import { TILELAYER_SORTMODE, TileMapLayer, TILEMAPLAYERDIRTYFLAG } from "./TileMapLayer";
 import { TileMapShaderInit } from "./TileMapShader/TileMapShaderInit";
+import { TileMapUtils } from "./TileMapUtils";
 import { TileSetCellData } from "./TileSetCellData";
 interface ITileMapRenderElement {
     renderElement: IRenderElement2D,
@@ -88,8 +89,6 @@ export class TileMapChunkData {
     /** 用于排序的列表 */
     private _chuckCellList: ChunkCellInfo[] = [];
 
-    private _physisDelayCreate: Set<number>;
-
     //渲染数据
     private _renderElementArray: ITileMapRenderElement[];
 
@@ -129,7 +128,6 @@ export class TileMapChunkData {
         this._reCreateRenderData = true;
         this._oriCellIndex = new Vector2(0, 0);
         this._renderElementArray = [];
-        this._physisDelayCreate = new Set();
         this._updateChunkData(chunkx, chunky);
     }
 
@@ -226,8 +224,12 @@ export class TileMapChunkData {
     }
 
     private _updateRenderData() {
+
         if (this._reCreateRenderData) {
+            this._reCreateRenderData = false;
+
             this._clearRenderElement();//清除渲染数据
+
             if (this._chuckCellList.length == 0)
                 return;
             switch (this._tileLayer.sortMode) {
@@ -265,9 +267,7 @@ export class TileMapChunkData {
                 tempCellIndexArray.push(chuckCellInfoData);
             }
             this._createRenderElement(tempCellIndexArray);
-        } else 
-        if (this._cellDirtyFlag.size > 0) {
-
+        } else if (this._cellDirtyFlag.size > 0) {
             this._cellDirtyFlag.forEach((value, key) => {
                 //cell posOri extends  
                 let pos: Vector2 = Vector2.TempVector2;
@@ -288,6 +288,7 @@ export class TileMapChunkData {
                         let uvSize = cellData.cellowner._getTextureUVSize();
                         data[dataoffset + 2] = uvSize.x;
                         data[dataoffset + 3] = uvSize.y;
+
                     }
                     if ((value & TILEMAPLAYERDIRTYFLAG.CELL_CHANGE) || (value & TILEMAPLAYERDIRTYFLAG.CELL_QUADUV)) {
                         //cell uv /Animation
@@ -300,6 +301,7 @@ export class TileMapChunkData {
                         data[dataoffset + 1] = uvOri.y;
                         data[dataoffset + 2] = uvextend.x;
                         data[dataoffset + 3] = uvextend.y;
+
                     }
                     if ((value & TILEMAPLAYERDIRTYFLAG.CELL_CHANGE) || (value & TILEMAPLAYERDIRTYFLAG.CELL_COLOR)) {
                         //cellColor
@@ -312,6 +314,7 @@ export class TileMapChunkData {
                         data[dataoffset + 2] = color.b;
                         data[dataoffset + 3] = color.a;
 
+
                     }
                     if ((value & TILEMAPLAYERDIRTYFLAG.CELL_CHANGE) || (value & TILEMAPLAYERDIRTYFLAG.CELL_UVTRAN)) {
                         let data = tilemapRenderElementInfo.cacheData[TileMapChunkData.instanceuvTransBufferIndex];
@@ -322,8 +325,15 @@ export class TileMapChunkData {
                         data[dataoffset + 1] = transData.y;
                         data[dataoffset + 2] = transData.z;
                         data[dataoffset + 3] = transData.w;
+
                     }
+
+                    
                 });
+
+                value &= ~(TILEMAPLAYERDIRTYFLAG.CELL_QUAD|TILEMAPLAYERDIRTYFLAG.CELL_QUADUV|TILEMAPLAYERDIRTYFLAG.CELL_COLOR|TILEMAPLAYERDIRTYFLAG.CELL_UVTRAN);
+                if (value) this._cellDirtyFlag.set(key,value);
+                else this._cellDirtyFlag.delete(key);
             })
 
             //update dirty buffer
@@ -341,28 +351,64 @@ export class TileMapChunkData {
     }
 
     private _updatePhysicsData() {
-        let tileLayer = this._tileLayer;
-        //TODO
-        if (!tileLayer.physicsEnable) { return; }
-        let chunk = tileLayer._chunk;
-        let physicsLayers = tileLayer.tileSet.physicsLayers;
-        let temp = Vector2.TempVector2;
+        if (!this._tileLayer.physicsEnable) return;
+        let physicsLayers = this._tileLayer.tileSet.physicsLayers;
+        let physics = this._tileLayer.tileMapPhysics;
+        let layerCount = physicsLayers.length;
+        let chunk = this._tileLayer._chunk;
+        let matrix = this._tileLayer._globalTramsfrom();
+        let pos: Vector2 = Vector2.TempVector2;
 
-        this._physisDelayCreate.forEach((value) => {
+        this._cellDirtyFlag.forEach((value, key) => {
+            //cell posOri extends  
+            let cellDataUseArray = this._cellDataRefMap.get(key);
 
-            chunk._getCellPosByChunkPosAndIndex(this._chunkx, this._chunky, value, temp);
-            let x = temp.x;
-            let y = temp.y;
-            let chunkInfo = this._cellDataMap[value];
+            cellDataUseArray.forEach(element => {
+                let chunkCellInfo = this._cellDataMap[element];
+                let cellData = chunkCellInfo.cell;
 
-            this._tileLayer.tileMapPhysics.removePhysisShape(x, y);
+                if ((value & TILEMAPLAYERDIRTYFLAG.CELL_CHANGE) ||(value & TILEMAPLAYERDIRTYFLAG.CELL_PHYSICS)) {
+                    chunk._getPixelByChunkPosAndIndex(this._chunkx , this._chunky , chunkCellInfo.chuckLocalindex , pos);
 
-            let chuckData = this._cellDataMap[value];
-            if (chuckData) {
-                this._tileLayer.tileMapPhysics.addPhysicsShape(x, y, chuckData.cell);
-            }
+                    let ofx = pos.x;
+                    let ofy = pos.y;
+
+                    let cellDatas = cellData.physicsDatas;
+
+                    let datas = chunkCellInfo._physicsDatas;
+                    if (!datas) {
+                        datas = [];
+                        chunkCellInfo._physicsDatas = datas;
+                    }
+
+                    for (let i = 0; i < layerCount; i++) {
+                        let data = datas[i];
+                        if (data) {
+                            physics._destroyFixture(data);
+                        }
+
+                        let shape = cellDatas[i].shape;
+                        let shapeLength = shape.length;
+                        let nShape: Array<number> = new Array(shapeLength);
+
+                        for (let j = 0; j < shapeLength; j++) {
+                            let x = shape[j];
+                            let y = shape[j + 1];
+                            TileMapUtils.transfromPointByValue(matrix, x + ofx, y + ofy, pos);
+                            nShape[j] = pos.x;
+                            nShape[j + 1] = pos.y;
+                        }
+
+                        data = physics._createFixture(physicsLayers[i] , nShape);
+                    }
+
+                }
+            });
+
+            value &= ~(TILEMAPLAYERDIRTYFLAG.CELL_PHYSICS | TILEMAPLAYERDIRTYFLAG.LAYER_PHYSICS);
+            if (value) this._cellDirtyFlag.set(key,value);
+            else this._cellDirtyFlag.delete(key);
         });
-        this._physisDelayCreate.clear();
     }
 
     private _updateLightShadowData() {
@@ -526,7 +572,6 @@ export class TileMapChunkData {
         this._updatePhysicsData();
         this._updateLightShadowData();
         this._updateNavigationData();
-        this._reCreateRenderData = false;
         this._cellDirtyFlag.clear();
     }
 
@@ -598,8 +643,19 @@ export class TileMapChunkData {
             this._setDirtyFlag(gid, TILEMAPLAYERDIRTYFLAG.CELL_CHANGE);//这里需要改一下
         }
 
-        //物理TODO
-        this._physisDelayCreate.add(index);
+    }
+
+    /** @internal */
+    _clearChunkCellInfo(info:ChunkCellInfo){
+        let physicsDatas = info._physicsDatas;
+        if (physicsDatas) {
+            for (let i = 0 , len = physicsDatas.length; i < len; i++)
+                this._tileLayer.tileMapPhysics._destroyFixture(physicsDatas[i]);
+        }
+
+        let sotIndex = this._chuckCellList.indexOf(info);
+        this._chuckCellList.splice(sotIndex, 1);
+        delete this._cellDataMap[info.chuckLocalindex];
     }
 
     /**
@@ -609,18 +665,16 @@ export class TileMapChunkData {
         let chunkCellInfo = this._cellDataMap[index];
         if (!chunkCellInfo)
             return;
+
+        this._clearChunkCellInfo(chunkCellInfo);
         let gid = chunkCellInfo.cell.gid;
         let localIndexArray = this._cellDataRefMap.get(gid);
-        localIndexArray.slice(localIndexArray.indexOf(index))
+        localIndexArray.slice(localIndexArray.indexOf(index));
         if (localIndexArray.length == 0) {
             this._cellDataRefMap.delete(gid);
             chunkCellInfo.cell._removeNoticeRenderTile(this);
         }
 
-        let sotIndex = this._chuckCellList.indexOf(chunkCellInfo);
-        this._chuckCellList.splice(sotIndex, 1);
-
-        delete this._cellDataMap[index];
         this._reCreateRenderData = true;
     }
 
@@ -632,12 +686,7 @@ export class TileMapChunkData {
         let gid = cell.gid;
         let listArray = this._cellDataRefMap.get(gid);
         if (listArray)
-            listArray.forEach(element => {
-                let chunkCellInfo = this._cellDataMap[element];
-                let sotIndex = this._chuckCellList.indexOf(chunkCellInfo);
-                this._chuckCellList.splice(sotIndex, 1);
-                delete this._cellDataMap[element];
-            });
+            listArray.forEach(element =>this._clearChunkCellInfo(this._cellDataMap[element]));
 
         cell._removeNoticeRenderTile(this);
         this._cellDataRefMap.delete(gid);

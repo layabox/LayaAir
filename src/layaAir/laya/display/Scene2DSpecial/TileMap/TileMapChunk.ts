@@ -97,6 +97,14 @@ export class TileMapChunk {
         out.y = chunky * this._chunkHeight + Math.floor(chunklocalindex / this._chunkWidth);
     }
 
+    _getPixelByChunkPosAndIndex(chunkx:number , chunky:number , chunklocalindex:number , out: Vector2){
+        chunkx = Math.floor(chunkx);
+        chunky = Math.floor(chunky);
+        chunklocalindex = chunklocalindex % this._maxCell;
+        let gridx = chunkx * this._chunkWidth + chunklocalindex % this._chunkWidth;
+        let gridy = chunky * this._chunkHeight + Math.floor(chunklocalindex / this._chunkWidth);
+        this._grid._gridToPixel(gridx, gridy , out);
+    }
 
     /**
      * @internal
