@@ -63,6 +63,7 @@ export class TileMapChunkData {
     static instanceposScalBufferIndex = 1;
     static instanceuvOriScalBufferIndex = 2;
     static instanceuvTransBufferIndex = 3;
+
     //是否重新组织渲染
     private _reCreateRenderData: boolean = true;
 
@@ -70,7 +71,7 @@ export class TileMapChunkData {
      * Key1 cellData GID
      * Value chuckLocalIndex[],同时计算引用
      */
-    private _cellDataRefMap: Map<number, number[]>;
+    private _cellDataRefMap: number[][];
 
     /**
      * 帧处理cell数据更新
@@ -86,15 +87,15 @@ export class TileMapChunkData {
      */
     private _cellDataMap: Record<number, ChunkCellInfo> = {};
 
-    /** 用于排序的列表 */
-    private _chuckCellList: ChunkCellInfo[] = [];
+    /** @private 用于排序的列表 */
+    _chuckCellList: ChunkCellInfo[] = [];
 
     //渲染数据
     private _renderElementArray: ITileMapRenderElement[];
 
     private _animatorAlterArray: Map<number, TileAlternativesData> = new Map();
 
-    private _tileLayer: TileMapLayer;
+    _tileLayer: TileMapLayer;
 
     private _oriCellIndex: Vector2;
 
@@ -104,32 +105,69 @@ export class TileMapChunkData {
 
     private _sortMode: TILELAYER_SORTMODE;
 
-    private _materail: Material;
-
     /**
-     * @private
      * 渲染块 x 坐标
      */
-    _chunkx: number;
+    chunkX: number;
 
     /**
-     * @private
      * 渲染块 y 坐标
      */
-    _chunky: number;
+    chunkY: number;
 
-
-    constructor(layer: TileMapLayer, chunkx: number, chunky: number, materail: Material = null) {
-        this._materail = materail;
-        this._cellDataRefMap = new Map();
+    constructor() {
+        this._cellDataRefMap = [];
         this._cellDirtyFlag = new Map();
         this._tileSize = new Vector2();
-        this._tileLayer = layer;
         this._reCreateRenderData = true;
         this._oriCellIndex = new Vector2(0, 0);
         this._renderElementArray = [];
-        this._updateChunkData(chunkx, chunky);
     }
+
+     /** @internal */
+     get cellDataRefMap(){
+        return this._cellDataRefMap;
+    }
+
+    /**
+     *  @internal 
+     *  危险操作
+     */
+    set cellDataRefMap( data: number[][] ) {
+        if (data) {
+            this._clearCell();
+            this._cellDataRefMap = data;
+        }
+    }
+
+    /** @internal */
+    _parseCellDataRefMap(){
+        //只做初始化，有数据就不处理
+        if (this._chuckCellList.length) return;
+        
+        let layer = this._tileLayer;
+        let tileSet = layer.tileSet;
+        let chunk = this._tileLayer._chunk;
+
+        let localPos = Vector2.TempVector2;
+
+        this._cellDataRefMap.forEach((localIndexs:number[],gid:number)=>{
+            if (localIndexs){
+                let cellData = tileSet.getCellDataByGid(gid);
+                for (let i = 0 , len = localIndexs.length; i < len; i++) {
+                    let index = localIndexs[i];
+                    chunk._getCellPosByChunkPosAndIndex(0, 0, index, localPos);
+                    let yorderValue = chunk._getChunkIndexByCellPos(localPos.y, localPos.x);
+                    let chuckCellInfo = new ChunkCellInfo(localPos.x, localPos.y, index, yorderValue, cellData.z_index, cellData);
+                    this._cellDataMap[index] = chuckCellInfo;
+                    this._chuckCellList.push(chuckCellInfo);
+                }
+            }
+        });
+
+        this._reCreateRenderData = true;
+    }
+
 
     /**
      * @internal
@@ -154,42 +192,45 @@ export class TileMapChunkData {
             let row = datas.get(cellY);
             if (!row) {
                 row =new Map<number, TileSetCellData>();
-                datas.set(tempVec2.y, row);
+                datas.set(cellY, row);
             }
-            row.set(tempVec2.x, info.cell);
+            row.set(cellX, info.cell);
         }
         
     }
 
-    _setBuffer(datas: Map<number, Map<number, TileSetCellData>>, minRange: Vector2, maxRange: Vector2): boolean {
+    _setBuffer(datas: Map<number, Map<number, TileSetCellData>>, minRange: Vector2, maxRange: Vector2 , tileSize:number ): number {
         this._clearCell();
         const chunk = this._tileLayer._chunk;
-        let starx = Math.max(minRange.x, this._oriCellIndex.x);
-        let stary = Math.max(minRange.y, this._oriCellIndex.y);
-        let endx = Math.min(maxRange.x, this._oriCellIndex.x + this._tileLayer.renderTileSize - 1);
-        let endy = Math.min(maxRange.y, this._oriCellIndex.y + this._tileLayer.renderTileSize - 1);
-        let haveData = false;
+        let ocix = this._oriCellIndex.x;
+        let ociy = this._oriCellIndex.y;
+        let starx = Math.max(minRange.x, ocix);
+        let stary = Math.max(minRange.y, ociy);
+        let endx = Math.min(maxRange.x, ocix + tileSize - 1);
+        let endy = Math.min(maxRange.y, ociy + tileSize - 1);
+        let mark = 0;
         for (var j = stary; j <= endy; j++) {
             let row = datas.get(j);
             if (!row) continue;
             for (var i = starx; i <= endx; i++) {
                 let data = row.get(i);
                 if (data) {
-                    const index = chunk._getChunkIndexByCellPos(i - this._oriCellIndex.x, j - this._oriCellIndex.y);
+                    const index = chunk._getChunkIndexByCellPos(i - ocix, j - ociy);
                     this._setCell(index , data);
-                    haveData = true;
+                    // haveData = true;
+                    mark ++
                 }
             }
         }
 
         this._reCreateRenderData = true;
-        return haveData;
+        return mark;
     }
 
-    _updateChunkData(chunkx: number, chunky: number) {
-        this._chunkx = chunkx;
-        this._chunky = chunky;
-        this._tileLayer._chunk._getCellPosByChunkPosAndIndex(chunkx, chunky, 0, this._oriCellIndex);
+    _updateChunkData(chunkX: number, chunkY: number) {
+        this.chunkX = chunkX;
+        this.chunkY = chunkY;
+        this._tileLayer._chunk._getCellPosByChunkPosAndIndex(chunkX, chunkY, 0, this._oriCellIndex);
     }
 
     private _upeateGridData() {
@@ -271,7 +312,7 @@ export class TileMapChunkData {
             this._cellDirtyFlag.forEach((value, key) => {
                 //cell posOri extends  
                 let pos: Vector2 = Vector2.TempVector2;
-                let cellDataUseArray = this._cellDataRefMap.get(key);
+                let cellDataUseArray = this._cellDataRefMap[key];
 
                 cellDataUseArray.forEach(element => {
                     let chuckCellinfo = this._cellDataMap[element];
@@ -362,14 +403,15 @@ export class TileMapChunkData {
 
         this._cellDirtyFlag.forEach((value, key) => {
             //cell posOri extends  
-            let cellDataUseArray = this._cellDataRefMap.get(key);
+            let cellDataUseArray = this._cellDataRefMap[key];
 
             cellDataUseArray.forEach(element => {
                 let chunkCellInfo = this._cellDataMap[element];
                 let cellData = chunkCellInfo.cell;
 
+                //TODO Layer变更时需要删除
                 if ((value & TILEMAPLAYERDIRTYFLAG.CELL_CHANGE) ||(value & TILEMAPLAYERDIRTYFLAG.CELL_PHYSICS)) {
-                    chunk._getPixelByChunkPosAndIndex(this._chunkx , this._chunky , chunkCellInfo.chuckLocalindex , pos);
+                    chunk._getPixelByChunkPosAndIndex(this.chunkX , this.chunkY , chunkCellInfo.chuckLocalindex , pos);
 
                     let ofx = pos.x;
                     let ofy = pos.y;
@@ -383,12 +425,13 @@ export class TileMapChunkData {
                     }
 
                     for (let i = 0; i < layerCount; i++) {
-                        let data = datas[i];
+                        let physicslayer = physicsLayers[i];
+                        let pIndex = physicslayer.index;
+                        let data = datas[pIndex];
                         if (data) {
                             physics._destroyFixture(data);
                         }
-
-                        let shape = cellDatas[i].shape;
+                        let shape = cellDatas[pIndex].shape;
                         let shapeLength = shape.length;
                         let nShape: Array<number> = new Array(shapeLength);
 
@@ -400,7 +443,7 @@ export class TileMapChunkData {
                             nShape[j + 1] = pos.y;
                         }
 
-                        data = physics._createFixture(physicsLayers[i] , nShape);
+                        data = physics._createFixture(physicslayer , nShape);
                     }
 
                 }
@@ -434,12 +477,9 @@ export class TileMapChunkData {
         let cellNum = chuckCellList.length;
         let cellData = chuckCellList[0].cell;
         let mat = cellData.material;
-        if (mat == null) {
-            mat = this._materail;
-        }
-
         let nativesData = cellData.cellowner;
         let texture = nativesData.owner.atlas;
+
         if (mat == null) {
             mat = this._tileLayer.getDefalutMaterial(texture);
         }
@@ -460,33 +500,34 @@ export class TileMapChunkData {
         //fill Data
         for (var i = 0; i < cellNum; i++) {
             let chuckcellInfo = chuckCellList[i];
-            let celldata = chuckcellInfo.cell;
+            let curCell = chuckcellInfo.cell;
+            let curNative = curCell.cellowner;
 
-            this._cellDataRefMap.get(celldata.gid).push(chuckcellInfo.chuckLocalindex);
+            // this._cellDataRefMap[curCell.gid].push(chuckcellInfo.chuckLocalindex);
             chuckcellInfo._cellPosInRenderData = i;
             chuckcellInfo._renderElementIndex = renderElementLength;
             this._getCellPos(chuckcellInfo, pos);
 
-            let color = celldata.colorModulate;
+            let color = curCell.colorModulate;
 
             let dataOffset = i * 4;
             instanceColor[dataOffset] = color.r;
             instanceColor[dataOffset + 1] = color.g;
             instanceColor[dataOffset + 2] = color.b;
             instanceColor[dataOffset + 3] = color.a;
-            let posOffset = celldata.texture_origin;
+            let posOffset = curCell.texture_origin;
             instanceposScal[dataOffset] = pos.x + posOffset.x;
             instanceposScal[dataOffset + 1] = pos.y + posOffset.y;
-            let uvSize = nativesData._getTextureUVSize();
+            let uvSize = curNative._getTextureUVSize();
             instanceposScal[dataOffset + 2] = uvSize.x;
             instanceposScal[dataOffset + 3] = uvSize.y;
-            let uvOri = nativesData._getTextureUVOri();
-            let uvextend = nativesData._getTextureUVExtends();
+            let uvOri = curNative._getTextureUVOri();
+            let uvextend = curNative._getTextureUVExtends();
             instanceuvOriScal[dataOffset] = uvOri.x;
             instanceuvOriScal[dataOffset + 1] = uvOri.y;
             instanceuvOriScal[dataOffset + 2] = uvextend.x;
             instanceuvOriScal[dataOffset + 3] = uvextend.y;
-            const transData = celldata.transData;
+            const transData = curCell.transData;
             instanceuvTrans[dataOffset] = transData.x;
             instanceuvTrans[dataOffset + 1] = transData.y;
             instanceuvTrans[dataOffset + 2] = transData.z;
@@ -561,7 +602,7 @@ export class TileMapChunkData {
             let cellData = tileSet.getCellDataByGid(key)
             cellData._removeNoticeRenderTile(this);
         });
-        this._cellDataRefMap.clear();
+        this._cellDataRefMap = [];
     }
 
     _clearChunkCellInfo(){
@@ -622,8 +663,8 @@ export class TileMapChunkData {
         if (gid <= 0)
             return;
 
-        if (!this._cellDataRefMap.has(gid)) {
-            this._cellDataRefMap.set(gid, []);
+        if (!this._cellDataRefMap[gid]) {
+            this._cellDataRefMap[gid] = [];
             if (cellData.cellowner._hasAni())
                 this._animatorAlterArray.set(cellData.cellowner.nativeId, cellData.cellowner);
             cellData._addNoticeRenderTile(this);
@@ -637,21 +678,21 @@ export class TileMapChunkData {
             chunk._getCellPosByChunkPosAndIndex(0, 0, index, localPos);
             let yorderValue = this._tileLayer._chunk._getChunkIndexByCellPos(localPos.y, localPos.x);
             let chuckCellInfo = new ChunkCellInfo(localPos.x, localPos.y, xorderValue, yorderValue, cellData.z_index, cellData);
-            this._cellDataRefMap.get(gid).push(xorderValue);
+            this._cellDataRefMap[gid].push(xorderValue);
             this._cellDataMap[index] = chuckCellInfo;
             this._reCreateRenderData = true;
             this._chuckCellList.push(chuckCellInfo);
         } else if (chuckCellInfo.cell != cellData) {//change one ChunkCellInfo
             let oldcell = chuckCellInfo.cell;
             let oldGid = oldcell.gid;
-            let localIndexArray = this._cellDataRefMap.get(oldGid);
+            let localIndexArray = this._cellDataRefMap[oldGid];
             localIndexArray.splice(localIndexArray.indexOf(chuckCellInfo.chuckLocalindex), 1);
             if (localIndexArray.length == 0) {
-                this._cellDataRefMap.delete(oldGid);
+                delete this._cellDataRefMap[oldGid];
                 oldcell._removeNoticeRenderTile(this);
             }
             chuckCellInfo.cell = cellData;
-            localIndexArray = this._cellDataRefMap.get(gid);
+            localIndexArray = this._cellDataRefMap[gid];
             localIndexArray.push(chuckCellInfo.chuckLocalindex);
             this._setDirtyFlag(gid, TILEMAPLAYERDIRTYFLAG.CELL_CHANGE);//这里需要改一下
         }
@@ -677,10 +718,10 @@ export class TileMapChunkData {
         delete this._cellDataMap[chunkCellInfo.chuckLocalindex];
 
         let gid = chunkCellInfo.cell.gid;
-        let localIndexArray = this._cellDataRefMap.get(gid);
+        let localIndexArray = this._cellDataRefMap[gid];
         localIndexArray.slice(localIndexArray.indexOf(index));
         if (localIndexArray.length == 0) {
-            this._cellDataRefMap.delete(gid);
+            delete this._cellDataRefMap[gid];
             chunkCellInfo.cell._removeNoticeRenderTile(this);
         }
 
@@ -693,12 +734,12 @@ export class TileMapChunkData {
      */
     _clearOneCell(cell: TileSetCellData) {
         let gid = cell.gid;
-        let listArray = this._cellDataRefMap.get(gid);
+        let listArray = this._cellDataRefMap[gid];
         if (listArray)
             listArray.forEach(element =>this._removeCell(element));
 
         cell._removeNoticeRenderTile(this);
-        this._cellDataRefMap.delete(gid);
+        delete this._cellDataRefMap[gid];
         this._reCreateRenderData = true;
         this._cellDirtyFlag.delete(gid);
     }
