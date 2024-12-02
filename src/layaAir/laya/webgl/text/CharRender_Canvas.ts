@@ -192,6 +192,7 @@ export class CharRender_Canvas extends ICharRender {
 		//if (canvas.width != (w + 1) || canvas.height != (h + 1)) {
 		CharRender_Canvas.canvas.width = Math.min(w + 1, this.maxTexW);
 		CharRender_Canvas.canvas.height = Math.min(h + 1, this.maxTexH);
+		ctx.font = font;
 		//}
 		ctx.clearRect(0, 0, w + 1 + lineWidth, h + 1 + lineWidth);
 		ctx.setTransform(1, 0, 0, 1, 0, 0);	// 强制清理缩放
