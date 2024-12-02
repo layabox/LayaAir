@@ -26,8 +26,8 @@ export class WebGPURenderContext2D implements IRenderContext2D {
     destRT: WebGPUInternalRT;
     invertY: boolean = false;
     pipelineMode: string = 'Forward';
-    sceneData: WebGPUShaderData = new WebGPUShaderData();
-    cameraData: WebGPUShaderData = new WebGPUShaderData();
+    sceneData: WebGPUShaderData = WebGPUShaderData.create();
+    cameraData: WebGPUShaderData = WebGPUShaderData.create();
     _globalConfigShaderData: WebDefineDatas;
     renderCommand: WebGPURenderCommandEncoder = new WebGPURenderCommandEncoder(); //渲染命令编码器
     pipelineCache: any[] = []; //所有的2D渲染管线缓存
@@ -114,10 +114,10 @@ export class WebGPURenderContext2D implements IRenderContext2D {
     private _submit() {
         const engine = WebGPURenderEngine._instance;
         this.renderCommand.end();
-        if (Laya.timer.currFrame != engine.frameCount) {
-            engine.frameCount = Laya.timer.currFrame;
-            engine.startFrame();
-        }
+        // if (Laya.timer.currFrame != engine.frameCount) {
+        //     engine.frameCount = Laya.timer.currFrame;
+        //     engine.startFrame();
+        // }
         if (WebGPUGlobal.useBigBuffer)
             engine.upload(); //上传所有Uniform数据
         this.device.queue.submit([this.renderCommand.finish()]);

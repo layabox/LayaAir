@@ -1,5 +1,3 @@
-import { Matrix4x4 } from "../../../maths/Matrix4x4";
-import { Vector2 } from "../../../maths/Vector2";
 import { Vector3 } from "../../../maths/Vector3";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
@@ -12,7 +10,6 @@ import { IndexBuffer3D } from "../../graphics/IndexBuffer3D";
 import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
 import { Bounds } from "../../math/Bounds";
 import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
-import { Utils3D } from "../../utils/Utils3D";
 import { GeometryElement } from "../GeometryElement";
 import { RenderContext3D } from "../render/RenderContext3D";
 import { UI3D } from "./UI3D";
@@ -22,8 +19,6 @@ import { UI3D } from "./UI3D";
  * @zh UI3DGeometry 类用于创建和管理 3D UI元素的几何结构的类。
  */
 export class UI3DGeometry extends GeometryElement {
-    /**@internal */
-    private static tempV0: Vector3 = new Vector3();
     /**@internal */
     private static _type: number = GeometryElement._typeCounter++;
     /* @internal 顶点buffer*/
@@ -91,116 +86,6 @@ export class UI3DGeometry extends GeometryElement {
     }
 
     /**
-     * @internal
-     * reset view vertex data
-     */
-    _resizeViewVertexData(size: Vector2, cameraDir: Vector3, cameraUp: Vector3, viewMode: boolean, worldPos: Vector3): void {
-        var halfwidth = size.x / 2;
-        var halfhight = size.y / 2;
-        if (viewMode) {
-            UI3DGeometry.tempV0.set(-halfwidth, halfhight, 0.0);
-            Utils3D.billboardTrans(UI3DGeometry.tempV0, cameraDir, cameraUp, this._positionArray[0]);
-            UI3DGeometry.tempV0.set(halfwidth, halfhight, 0.0);
-            Utils3D.billboardTrans(UI3DGeometry.tempV0, cameraDir, cameraUp, this._positionArray[1]);
-            UI3DGeometry.tempV0.set(-halfwidth, -halfhight, 0.0);
-            Utils3D.billboardTrans(UI3DGeometry.tempV0, cameraDir, cameraUp, this._positionArray[2]);
-            UI3DGeometry.tempV0.set(halfwidth, -halfhight, 0.0);
-            Utils3D.billboardTrans(UI3DGeometry.tempV0, cameraDir, cameraUp, this._positionArray[3]);
-            this._vertex[3] = this._vertex[11] = this._vertex[19] = this._vertex[27] = -cameraDir.x;
-            this._vertex[4] = this._vertex[12] = this._vertex[20] = this._vertex[28] = -cameraDir.y;
-            this._vertex[5] = this._vertex[13] = this._vertex[21] = this._vertex[29] = -cameraDir.z;
-        } else {
-            this._positionArray[0].set(-halfwidth, halfhight, 0.0);
-            this._positionArray[1].set(halfwidth, halfhight, 0.0);
-            this._positionArray[2].set(-halfwidth, -halfhight, 0.0);
-            this._positionArray[3].set(halfwidth, -halfhight, 0.0);
-        }
-        Vector3.add(this._positionArray[0], worldPos, this._positionArray[0]);
-        Vector3.add(this._positionArray[1], worldPos, this._positionArray[1]);
-        Vector3.add(this._positionArray[2], worldPos, this._positionArray[2]);
-        Vector3.add(this._positionArray[3], worldPos, this._positionArray[3]);
-        this._changeVertex(size);
-    }
-
-
-    /**
-     * @internal
-     * reset view vertex data
-     */
-    _resizeVertexData(size: Vector2): void {
-        var halfwidth = size.x / 2;
-        var halfhight = size.y / 2;
-        // if (viewMode) {
-        //     UI3DGeometry.tempV0.set(-halfwidth, halfhight, 0.0);
-        //     Utils3D.billboardTrans(UI3DGeometry.tempV0, cameraDir, cameraUp, this._positionArray[0]);
-        //     UI3DGeometry.tempV0.set(halfwidth, halfhight, 0.0);
-        //     Utils3D.billboardTrans(UI3DGeometry.tempV0, cameraDir, cameraUp, this._positionArray[1]);
-        //     UI3DGeometry.tempV0.set(-halfwidth, -halfhight, 0.0);
-        //     Utils3D.billboardTrans(UI3DGeometry.tempV0, cameraDir, cameraUp, this._positionArray[2]);
-        //     UI3DGeometry.tempV0.set(halfwidth, -halfhight, 0.0);
-        //     Utils3D.billboardTrans(UI3DGeometry.tempV0, cameraDir, cameraUp, this._positionArray[3]);
-        //     this._vertex[3] = this._vertex[11] = this._vertex[19] = this._vertex[27] = -cameraDir.x;
-        //     this._vertex[4] = this._vertex[12] = this._vertex[20] = this._vertex[28] = -cameraDir.y;
-        //     this._vertex[5] = this._vertex[13] = this._vertex[21] = this._vertex[29] = -cameraDir.z;
-        // } else {
-        this._positionArray[0].set(-halfwidth, halfhight, 0.0);
-        this._positionArray[1].set(halfwidth, halfhight, 0.0);
-        this._positionArray[2].set(-halfwidth, -halfhight, 0.0);
-        this._positionArray[3].set(halfwidth, -halfhight, 0.0);
-        // }
-        // Vector3.add(this._positionArray[0], worldPos, this._positionArray[0]);
-        // Vector3.add(this._positionArray[1], worldPos, this._positionArray[1]);
-        // Vector3.add(this._positionArray[2], worldPos, this._positionArray[2]);
-        // Vector3.add(this._positionArray[3], worldPos, this._positionArray[3]);
-        this._changeVertex(size);
-    }
-
-
-    /**
-     * @internal
-     * reset vertex data
-     */
-    _resizeWorldVertexData(size: Vector2, worldMat: Matrix4x4) {
-        let applyMat = (v3: Vector3, mat: Matrix4x4) => {
-            Vector3.transformV3ToV3(v3, mat, v3);
-            return v3;
-        }
-        var halfwidth = size.x / 2;
-        var halfhight = size.y / 2;
-        this._positionArray[0].set(-halfwidth, halfhight, 0.0);
-        this._positionArray[1].set(halfwidth, halfhight, 0.0);
-        this._positionArray[2].set(-halfwidth, -halfhight, 0.0);
-        this._positionArray[3].set(halfwidth, -halfhight, 0.0);
-        applyMat(this._positionArray[0], worldMat);
-        applyMat(this._positionArray[1], worldMat);
-        applyMat(this._positionArray[2], worldMat);
-        applyMat(this._positionArray[3], worldMat);
-        this._changeVertex(size);
-    }
-
-    private _changeVertex(size: Vector2) {
-        this._vertex[0] = this._positionArray[0].x;
-        this._vertex[1] = this._positionArray[0].y;
-        this._vertex[2] = this._positionArray[0].z;
-        this._vertex[8] = this._positionArray[1].x;
-        this._vertex[9] = this._positionArray[1].y;
-        this._vertex[10] = this._positionArray[1].z;
-        this._vertex[16] = this._positionArray[2].x;
-        this._vertex[17] = this._positionArray[2].y;
-        this._vertex[18] = this._positionArray[2].z;
-        this._vertex[24] = this._positionArray[3].x;
-        this._vertex[25] = this._positionArray[3].y;
-        this._vertex[26] = this._positionArray[3].z;
-        this._vertexBuffer.setData(this._vertex.buffer, 0, 0, this._vertex.length * 4);
-        UI3DGeometry.tempV0.setValue(size.x / 2, size.y / 2, 0.0);
-        this._bound.setExtent(UI3DGeometry.tempV0);
-        let halfWidth = (this._positionArray[3].x - this._positionArray[2].x) / 2;
-        let halfHeight = (this._positionArray[0].y - this._positionArray[2].y) / 2;
-        UI3DGeometry.tempV0.setValue(this._positionArray[2].x + halfWidth, this._positionArray[2].y + halfHeight, this._positionArray[2].z);
-        this._bound.setCenter(UI3DGeometry.tempV0);
-    }
-
-    /**
      * @inheritDoc
      * @internal
      * @override
@@ -228,3 +113,5 @@ export class UI3DGeometry extends GeometryElement {
         delete this._index;
     }
 }
+
+const tempV0: Vector3 = new Vector3();

@@ -321,14 +321,14 @@ export class LightOccluder2D extends Component {
         this._needUpdateLightWorldRange = false;
 
         //计算世界坐标包围圆
-        //const m = (this.owner as Sprite).getGlobalMatrix();
-        const m = (this.owner as Sprite).transform; //改用局部变换矩阵
+        const m = (this.owner as Sprite).getGlobalMatrix();
+        //const m = (this.owner as Sprite).transform; //改用局部变换矩阵
         const ox = (this.owner as Sprite).globalPosX * Browser.pixelRatio;
         const oy = (this.owner as Sprite).globalPosY * Browser.pixelRatio;
-        //const sx = Math.abs((this.owner as Sprite).globalScaleX);
-        //const sy = Math.abs((this.owner as Sprite).globalScaleY);
-        const sx = Math.abs((this.owner as Sprite).scaleX); //改用局部放缩
-        const sy = Math.abs((this.owner as Sprite).scaleY);
+        const sx = Math.abs((this.owner as Sprite).globalScaleX);
+        const sy = Math.abs((this.owner as Sprite).globalScaleY);
+        //const sx = Math.abs((this.owner as Sprite).scaleX); //改用局部放缩
+        //const sy = Math.abs((this.owner as Sprite).scaleY);
         if (m) {
             this._worldCircle.x = m.a * this._localCircle.x + m.c * this._localCircle.y + ox;
             this._worldCircle.y = m.b * this._localCircle.x + m.d * this._localCircle.y + oy;
@@ -336,7 +336,8 @@ export class LightOccluder2D extends Component {
             this._worldCircle.x = this._localCircle.x * sx + ox;
             this._worldCircle.y = this._localCircle.y * sy + oy;
         }
-        this._worldCircle.z = Math.sqrt(sx * sx + sy * sy) * this._localCircle.z;
+        //this._worldCircle.z = Math.sqrt(sx * sx + sy * sy) * this._localCircle.z;
+        this._worldCircle.z = Math.max(sx, sy) * this._localCircle.z;
 
         //计算世界坐标包围盒
         this._worldRange.x = (this._worldCircle.x - this._worldCircle.z) | 0;

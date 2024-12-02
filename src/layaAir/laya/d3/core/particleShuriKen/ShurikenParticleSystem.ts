@@ -8,7 +8,6 @@ import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
 import { Rand } from "../../math/Rand";
 import { Mesh } from "../../resource/models/Mesh";
 import { GeometryElement } from "../GeometryElement";
-import { Gradient } from "../Gradient";
 import { IClone } from "../../../utils/IClone";
 import { RenderContext3D } from "../render/RenderContext3D";
 import { Scene3D } from "../scene/Scene3D";
@@ -53,6 +52,7 @@ import { VertexMesh } from "../../../RenderEngine/RenderShader/VertexMesh";
 import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 import { ShaderData } from "../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { SerializeUtil } from "../../../loaders/SerializeUtil";
+import { Gradient } from "../../../maths/Gradient";
 
 
 /**

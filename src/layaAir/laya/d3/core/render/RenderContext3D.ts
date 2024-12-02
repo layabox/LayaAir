@@ -62,7 +62,8 @@ export class RenderContext3D {
     }
     public set camera(value: Camera) {
         this._camera = value;
-        this._contextOBJ.cameraModuleData = value._renderDataModule;
+        if (value)
+            this._contextOBJ.cameraModuleData = value._renderDataModule;
     }
     /**@internal */
     _scene: Scene3D;

@@ -1,14 +1,14 @@
 import { KeyframeNode } from "./KeyframeNode";
 import { KeyframeNodeList } from "./KeyframeNodeList";
 import { AnimationEvent } from "./AnimationEvent";
-import { FloatKeyframe } from "../core/FloatKeyframe"
-import { QuaternionKeyframe } from "../core/QuaternionKeyframe"
-import { Vector3Keyframe } from "../core/Vector3Keyframe"
 import { Byte } from "../../utils/Byte"
 import { AnimationClip } from "./AnimationClip";
 import { Quaternion } from "../../maths/Quaternion";
 import { Vector3 } from "../../maths/Vector3";
 import { Vector4 } from "../../maths/Vector4";
+import { FloatKeyframe } from "../../maths/FloatKeyframe";
+import { QuaternionKeyframe } from "../../maths/QuaternionKeyframe";
+import { Vector3Keyframe } from "../../maths/Vector3Keyframe";
 
 /**
  * @internal

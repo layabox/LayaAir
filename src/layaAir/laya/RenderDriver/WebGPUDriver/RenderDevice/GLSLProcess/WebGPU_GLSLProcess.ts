@@ -304,6 +304,7 @@ export class WebGPU_GLSLProcess {
 
                 if (glslCode[j] === ')') {
                     while (j >= 0 && glslCode[j] !== '(') j--; //继续向前寻找到对应的开始括号`(`
+                    if (j > 0) j--; //再往前一个，'('前面也许有空格
                     while (j >= 0 && /\s/.test(glslCode[j])) j--; //向前寻找函数返回类型的最后一个字符
                     let k = j;
                     while (k >= 0 && !/\s/.test(glslCode[k])) k--; //继续向前寻找到函数名称的开始位置

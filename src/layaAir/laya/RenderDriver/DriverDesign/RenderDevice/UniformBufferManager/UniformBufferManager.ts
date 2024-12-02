@@ -102,9 +102,9 @@ export class UniformBufferManager {
     }
 
     /**
-     * 开始新的一帧
+     * 帧结束时调用
      */
-    startFrame() {
+    endFrame() {
         //显示上传统计信息
         // const info = 'timeCost = ' + this.timeCostAvg + 'us, moveNum = ' + this.moveNum + ', uploadNum = ' + this.uploadNum + ', uploadByte = ' + this.uploadByte;
         // if (this.useBigBuffer)

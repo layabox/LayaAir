@@ -62,6 +62,8 @@ import { FreeformLight2D } from "./display/Scene2DSpecial/Light2D/FreeformLight2
 import { SpotLight2D } from "./display/Scene2DSpecial/Light2D/SpotLight2D";
 import { LightOccluder2D } from "./display/Scene2DSpecial/Light2D/LightOccluder2D";
 import { PolygonPoint2D } from "./display/Scene2DSpecial/Light2D/PolygonPoint2D";
+import { Gradient } from "./maths/Gradient";
+import { FloatKeyframe } from "./maths/FloatKeyframe";
 
 let c = ClassUtils.regClass;
 
@@ -113,6 +115,8 @@ c("Camera2D", Camera2D);
 c("Mesh2DRender", Mesh2DRender);
 c("BaseRenderNode2D", BaseRenderNode2D);
 c("Mesh2D", Mesh2D);
+c("Gradient", Gradient);
+c("FloatKeyframe", FloatKeyframe);
 
 c("BaseLight2D", BaseLight2D);
 c("DirectionLight2D", DirectionLight2D);

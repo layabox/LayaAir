@@ -232,6 +232,13 @@ vec4 transspaceColor(vec4 color)
         gl_FragColor = color;
     }
 
+    vec2 transformUV(in vec2 texcoord, in vec4 tilingOffset)
+    {
+        vec2 uv = texcoord * tilingOffset.zw + tilingOffset.xy;
+        return uv;
+    }
+
+
 #endif
 
 void clip(){

@@ -1,4 +1,3 @@
-import { VertexPositionTexture0 } from "../../graphics/Vertex/VertexPositionTexture0"
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode";
 import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
@@ -8,6 +7,7 @@ import { RenderContext3D } from "../../core/render/RenderContext3D";
 import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
 import { BufferState } from "../../../webgl/utils/BufferState";
 import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
+import { VertexPositionTexture } from "../../graphics/Vertex/VertexPositionTexture";
 
 /**
  * @en SkyDome class is used to create a sky dome.
@@ -16,10 +16,10 @@ import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 export class SkyDome extends GeometryElement {
 	/**@internal */
 	private static _radius: number = 1;
-    /**
-     * @en The singleton instance of the SkyDome.
-     * @zh SkyDome的实例。
-     */
+	/**
+	 * @en The singleton instance of the SkyDome.
+	 * @zh SkyDome的实例。
+	 */
 	static instance: SkyDome;
 
 	/**
@@ -34,20 +34,20 @@ export class SkyDome extends GeometryElement {
 	/**@internal */
 	private _slices: number;
 
-    /**
-     * @internal
-     * @en The number of stacks of the SkyDome.
-     * @zh SkyDome的堆数。
-     */
+	/**
+	 * @internal
+	 * @en The number of stacks of the SkyDome.
+	 * @zh SkyDome的堆数。
+	 */
 	get stacks(): number {
 		return this._stacks;
 	}
 
-    /**
-     * @internal
-     * @en The number of slices of the SkyDome.
-     * @zh SkyDome的层数。
-     */
+	/**
+	 * @internal
+	 * @en The number of slices of the SkyDome.
+	 * @zh SkyDome的层数。
+	 */
 	get slices(): number {
 		return this._slices;
 	}
@@ -61,10 +61,10 @@ export class SkyDome extends GeometryElement {
 	 * @param slices SkyDome的层数。
 	 */
 	constructor(stacks: number = 48, slices: number = 48) {
-		super(MeshTopology.Triangles,DrawType.DrawElement);
+		super(MeshTopology.Triangles, DrawType.DrawElement);
 		this._stacks = stacks;
 		this._slices = slices;
-		var vertexDeclaration: VertexDeclaration = VertexPositionTexture0.vertexDeclaration;
+		var vertexDeclaration: VertexDeclaration = VertexPositionTexture.vertexDeclaration;
 		var vertexFloatCount: number = vertexDeclaration.vertexStride / 4;
 		var numberVertices: number = (this._stacks + 1) * (this._slices + 1);
 		var numberIndices: number = (3 * this._stacks * (this._slices + 1)) * 2;
@@ -115,18 +115,18 @@ export class SkyDome extends GeometryElement {
 		indexBuffer.setData(indices);
 
 		var bufferState: BufferState = new BufferState();
-		bufferState.applyState([vertexBuffer],indexBuffer);
+		bufferState.applyState([vertexBuffer], indexBuffer);
 		this.bufferState = bufferState;
 		this.indexFormat = IndexFormat.UInt16;
-		this._geometryElementOBj.setDrawElemenParams(indexBuffer.indexCount,0);
+		this._geometryElementOBj.setDrawElemenParams(indexBuffer.indexCount, 0);
 	}
 
 	/**
 	 * @internal
 	 * UpdateGeometry Data
 	 */
-	 _updateRenderParams(state: RenderContext3D): void {
-		
+	_updateRenderParams(state: RenderContext3D): void {
+
 	}
 }
 

@@ -12,16 +12,19 @@ import { WebGPUResourceRecover } from "../RenderDevice/WebGPUResourceRecover";
  * 动态合批
  */
 export class WebGPUInstanceRenderBatch implements IInstanceRenderBatch {
-    static MaxInstanceCount: number = 1024;
+    static MAX_INSTANCE_COUNT: number = 1024;
 
-    private recoverList: FastSinglelist<WebGPUInstanceRenderElement3D>;
-    private _batchOpaqueMarks: any[] = [];
+    private _recoverList: FastSinglelist<WebGPUInstanceRenderElement3D>;
+    private _batchOpaqueMarks: BatchMark[][] = [];
     private _updateCountMark: number = 0;
 
     //private _gpuRecover: WebGPUResourceRecover; //GPU内存回收器
 
+    /**
+     * @ignore
+     */
     constructor() {
-        this.recoverList = new FastSinglelist();
+        this._recoverList = new FastSinglelist();
         //this._gpuRecover = new WebGPUResourceRecover();
     }
 
@@ -42,7 +45,7 @@ export class WebGPUInstanceRenderBatch implements IInstanceRenderBatch {
         const lightProbeFlag = (renderNode.volumetricGI ? renderNode.volumetricGI._id : -1) + 1;
         const giId = (reflectFlag << 10) + (lightmapFlag << 20) + lightProbeFlag;
 
-        const data = this._batchOpaqueMarks[renderId] || (this._batchOpaqueMarks[renderId] = {});
+        const data = this._batchOpaqueMarks[renderId] || (this._batchOpaqueMarks[renderId] = []);
         return data[giId] || (data[giId] = new BatchMark());
     }
 
@@ -55,7 +58,7 @@ export class WebGPUInstanceRenderBatch implements IInstanceRenderBatch {
 
         const elementCount = elements.length;
         const elementArray = elements.elements;
-        const maxInstanceCount = WebGPUInstanceRenderBatch.MaxInstanceCount;
+        const maxInstanceCount = WebGPUInstanceRenderBatch.MAX_INSTANCE_COUNT;
 
         elements.length = 0;
         this._updateCountMark++;
@@ -65,7 +68,7 @@ export class WebGPUInstanceRenderBatch implements IInstanceRenderBatch {
             if (element.canDynamicBatch && element.subShader._owner._enableInstancing) {
                 // shader 支持 instance
                 const instanceMark = this.getBatchMark(element);
-                if (this._updateCountMark == instanceMark.updateMark) {
+                if (this._updateCountMark === instanceMark.updateMark) {
                     const instanceIndex = instanceMark.indexInList;
                     if (instanceMark.batched) {
                         const originElement = <WebGPUInstanceRenderElement3D>elementArray[instanceIndex];
@@ -83,7 +86,7 @@ export class WebGPUInstanceRenderBatch implements IInstanceRenderBatch {
                         const originElement = elementArray[instanceIndex];
                         // 替换 renderElement
                         const instanceRenderElement = Laya3DRender.Render3DPassFactory.createInstanceRenderElement3D();
-                        this.recoverList.add(instanceRenderElement as WebGPUInstanceRenderElement3D);
+                        this._recoverList.add(instanceRenderElement as WebGPUInstanceRenderElement3D);
                         instanceRenderElement.subShader = element.subShader;
                         instanceRenderElement.materialShaderData = element.materialShaderData;
                         instanceRenderElement.materialRenderQueue = element.materialRenderQueue;
@@ -120,8 +123,8 @@ export class WebGPUInstanceRenderBatch implements IInstanceRenderBatch {
     }
 
     recoverData() {
-        for (let i = this.recoverList.length - 1; i > -1; i--)
-            this.recoverList.elements[i].recover();
-        this.recoverList.length = 0;
+        for (let i = this._recoverList.length - 1; i > -1; i--)
+            this._recoverList.elements[i].recover();
+        this._recoverList.length = 0;
     }
 }

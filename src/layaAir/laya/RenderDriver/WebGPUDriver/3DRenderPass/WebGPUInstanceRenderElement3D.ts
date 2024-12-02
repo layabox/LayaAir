@@ -91,7 +91,8 @@ export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D impleme
 
     private static _pool: WebGPUInstanceRenderElement3D[] = [];
     static create(): WebGPUInstanceRenderElement3D {
-        return this._pool.pop() ?? new WebGPUInstanceRenderElement3D();
+        const obj = this._pool.pop() ?? new WebGPUInstanceRenderElement3D();
+        return obj;
     }
 
     private static _bufferPool: Map<number, Float32Array[]> = new Map();
@@ -120,6 +121,7 @@ export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D impleme
         this.drawCount = 0;
         this.updateNums = 0;
         this.isRender = true;
+        //console.log('create instance element3d');
     }
 
     addUpdateBuffer(vb: WebGPUVertexBuffer, length: number) {
@@ -144,7 +146,8 @@ export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D impleme
         stateKey += dest.formatId + '_';
         stateKey += dest._samples + '_';
         stateKey += shaderInstance._id + '_';
-        stateKey += this.materialShaderData.stateKey;
+        if (this.materialShaderData)
+            stateKey += this.materialShaderData.stateKey;
         stateKey += this.geometry.bufferState.stateId + '_';
         stateKey += 'x';
         return stateKey;
@@ -160,9 +163,10 @@ export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D impleme
 
     protected _compileShader(context: WebGPURenderContext3D) {
         if (this.renderShaderData && !this.renderShaderData.instShaderData) {
-            this.renderShaderData.instShaderData = new WebGPUShaderData();
+            this.renderShaderData.instShaderData = WebGPUShaderData.create(null, 2);
             this.renderShaderData.cloneTo(this.renderShaderData.instShaderData);
         }
+
         //将场景或全局配置定义准备好
         const compileDefine = WebGPURenderElement3D._compileDefine;
         if (this._sceneData)
@@ -205,10 +209,6 @@ export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D impleme
                 this.materialShaderData?.createUniformBuffer(shaderInstance.uniformInfo[3], false);
             }
         }
-
-        //重编译着色器后，清理绑定组缓存
-        this.renderShaderData?.instShaderData?.clearBindGroup();
-        this.materialShaderData?.clearBindGroup();
     }
 
     /**

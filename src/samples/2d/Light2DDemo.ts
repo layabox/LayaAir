@@ -168,7 +168,7 @@ export class Light2DDemo {
             const tex = Laya.loader.getRes("res/bg2.png");
             const bk = this.scene.addChild(new Sprite());
             const mesh2Drender = bk.addComponent(Mesh2DRender);
-            mesh2Drender.shareMesh = this.generateRectVerticesAndUV(100000, 100000);
+            mesh2Drender.sharedMesh = this.generateRectVerticesAndUV(100000, 100000);
             mesh2Drender.texture = tex;
             mesh2Drender.lightReceive = true;
             bk.x = -50000;
@@ -177,7 +177,7 @@ export class Light2DDemo {
                 const tex = Laya.loader.getRes("res/apes/monkey2.png");
                 const ape = this.scene.addChild(new Sprite());
                 const mesh2Drender = ape.addComponent(Mesh2DRender);
-                mesh2Drender.shareMesh = this.generateRectVerticesAndUV(110, 145);
+                mesh2Drender.sharedMesh = this.generateRectVerticesAndUV(110, 145);
                 mesh2Drender.texture = tex;
                 mesh2Drender.lightReceive = true;
                 ape.x = 500;

@@ -79,12 +79,12 @@ export class DrawMesh2DCMD extends Command2D {
     set mesh(value: Mesh2D) {
         if (value == this.mesh)
             return;
-        this._mesh2DRender.shareMesh = value;
+        this._mesh2DRender.sharedMesh = value;
         this._needUpdateElement = true;
     }
 
     get mesh(): Mesh2D {
-        return this._mesh2DRender.shareMesh;
+        return this._mesh2DRender.sharedMesh;
     }
 
     set texture(value: BaseTexture) {

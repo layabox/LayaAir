@@ -54,7 +54,7 @@ export class WebGPURenderDeviceFactory implements IRenderDeviceFactory {
     }
 
     createShaderData(ownerResource?: Resource): ShaderData {
-        return new WebGPUShaderData(ownerResource);
+        return WebGPUShaderData.create(ownerResource);
     }
 }
 

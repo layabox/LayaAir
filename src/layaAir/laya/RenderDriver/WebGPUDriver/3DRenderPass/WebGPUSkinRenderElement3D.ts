@@ -1,4 +1,5 @@
 import { SkinnedMeshSprite3D } from "../../../d3/core/SkinnedMeshSprite3D";
+import { LayaGL } from "../../../layagl/LayaGL";
 import { ISkinRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { WebGPURenderBundle } from "../RenderDevice/WebGPUBundle/WebGPURenderBundle";
 import { WebGPURenderCommandEncoder } from "../RenderDevice/WebGPURenderCommandEncoder";
@@ -37,8 +38,8 @@ export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D implements 
                 this.renderShaderDatas = [];
             else this._destroyRenderShaderDatas();
             for (let i = 0; i < len; i++) {
-                this.renderShaderDatas[i] = new WebGPUShaderData();
-                this.renderShaderDatas[i].createUniformBuffer(this._shaderInstances[this._passIndex[0]].uniformInfo[2]);
+                this.renderShaderDatas[i] = WebGPUShaderData.create(null, 1);
+                this.renderShaderDatas[i].createUniformBuffer(this._shaderInstances[this._passIndex[0]].uniformInfo[2], false);
                 this.renderShaderData.cloneTo(this.renderShaderDatas[i]);
             }
             if (!this.renderShaderData.skinShaderData)
@@ -52,8 +53,10 @@ export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D implements 
      * 销毁renderShaderDatas数据
      */
     private _destroyRenderShaderDatas() {
-        for (let i = this.renderShaderDatas.length - 1; i > -1; i--)
+        for (let i = this.renderShaderDatas.length - 1; i > -1; i--) {
             this.renderShaderDatas[i].destroy();
+            this.renderShaderDatas[i].recover();
+        }
         this.renderShaderDatas.length = 0;
     }
 

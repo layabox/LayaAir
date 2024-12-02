@@ -16,6 +16,7 @@ import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
 import { GPUEngineStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
 import { WebGPUTimingManager } from "./WebGPUTimingManager";
 import { Laya } from "../../../../Laya";
+import { WebGPUShaderData } from "./WebGPUShaderData";
 
 export class WebGPUConfig {
     /**
@@ -227,26 +228,11 @@ export class WebGPURenderEngine implements IRenderEngine {
         return this._device;
     }
 
-    /**
-     * 开始新的一帧
-     */
-    startFrame() {
-        this.gpuBufferMgr.startFrame();
-        if (WebGPUGlobal.useTimeQuery)
-            this.timingManager.getGPUFrameTime().then(time => {
-                this.timingCount++;
-                this.timingQuerySum += time;
-                if (this.timingCount === 1)
-                    this.timingQueryStart = Laya.timer.currTimer;
-                if (this.timingCount >= 1 && Laya.timer.currTimer - this.timingQueryStart > 1000) {
-                    //每秒打印一次GPU帧时间消耗
-                    this.timingAverage = ((this.timingQuerySum / this.timingCount) * 1000 | 0) / 1000;
-                    //console.log('gpuFrameTimeCost = ' + this.timingAverage + 'ms, ' + this.timingManager.groupNum + 'submits');
-                    this.timingCount = 0;
-                    this.timingQuerySum = 0;
-                }
-            });
-    }
+    // /**
+    //  * 开始新的一帧
+    //  */
+    // startFrame() {
+    // }
 
     /**
      * 上传数据
@@ -431,6 +417,26 @@ export class WebGPURenderEngine implements IRenderEngine {
         this.screenResized = true;
     }
 
+    /**
+     * 结束一帧
+     */
     endFrame() {
+        this.gpuBufferMgr.endFrame();
+        WebGPUShaderData.endFrame();
+        if (WebGPUGlobal.useTimeQuery) {
+            this.timingManager.getGPUFrameTime().then(time => {
+                this.timingCount++;
+                this.timingQuerySum += time;
+                if (this.timingCount === 1)
+                    this.timingQueryStart = Laya.timer.currTimer;
+                if (this.timingCount >= 1 && Laya.timer.currTimer - this.timingQueryStart > 1000) {
+                    //每秒打印一次GPU帧时间消耗
+                    this.timingAverage = ((this.timingQuerySum / this.timingCount) * 1000 | 0) / 1000;
+                    console.log('gpuFrameTimeCost = ' + this.timingAverage + 'ms, ' + this.timingManager.groupNum + 'submits');
+                    this.timingCount = 0;
+                    this.timingQuerySum = 0;
+                }
+            });
+        }
     }
 }

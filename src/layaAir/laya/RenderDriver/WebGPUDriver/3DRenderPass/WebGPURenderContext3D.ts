@@ -433,10 +433,10 @@ export class WebGPURenderContext3D implements IRenderContext3D {
         const engine = WebGPURenderEngine._instance;
         if (this.blitScreen && engine.screenResized) return; //屏幕尺寸改变，丢弃这一帧
         this.renderCommand.end();
-        if (Laya.timer.currFrame != engine.frameCount) {
-            engine.frameCount = Laya.timer.currFrame;
-            engine.startFrame();
-        }
+        // if (Laya.timer.currFrame != engine.frameCount) {
+        //     engine.frameCount = Laya.timer.currFrame;
+        //     engine.startFrame();
+        // }
         engine.upload(); //上传所有Uniform数据
         this.device.queue.submit([this.renderCommand.finish()]);
         this._needStart = true;

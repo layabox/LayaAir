@@ -1104,6 +1104,7 @@ ${textureGLSL_fs}
 
         //console.log(wgsl_vs);
         //console.log(wgsl_fs);
+        console.log('codeGenerator', uniformMap);
 
         return { glsl_vs: dstVS, glsl_fs: dstFS, vs: wgsl_vs, fs: wgsl_fs, uniformInfo };
     }

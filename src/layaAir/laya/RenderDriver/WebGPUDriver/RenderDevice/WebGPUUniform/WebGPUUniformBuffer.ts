@@ -10,6 +10,7 @@ export class WebGPUUniformBuffer extends UniformBufferUser {
 
     uniformStr: string;
 
+    id: number;
     globalId: number;
     objectName: string = 'WebGPUUniformBuffer';
 
@@ -41,6 +42,7 @@ export class WebGPUUniformBuffer extends UniformBufferUser {
                 },
             };
         }
+        this.id = WebGPUGlobal.getUniformBufferId();
         this.globalId = WebGPUGlobal.getId(this);
         //console.log('createUniformBuffer: ' + name + ', set = ' + set + ', binding = ' + binding + ', size = ' + size);
     }
@@ -59,13 +61,6 @@ export class WebGPUUniformBuffer extends UniformBufferUser {
                 size: this.bufferBlock.size,
             },
         };
-    }
-
-    /**
-     * 清除GPUBuffer绑定
-     */
-    clearGPUBufferBind() {
-        (this.data as WebGPUShaderData).clearBindGroup();
     }
 
     /**

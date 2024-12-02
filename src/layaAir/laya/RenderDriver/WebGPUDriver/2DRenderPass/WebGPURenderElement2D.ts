@@ -26,9 +26,9 @@ import { WebGPUGlobal } from "../RenderDevice/WebGPUStatis/WebGPUGlobal";
 import { WebGPURenderContext2D } from "./WebGPURenderContext2D";
 
 export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineInfo {
-    static _sceneData: WebGPUShaderData = new WebGPUShaderData();
-    static _value2DShaderData: WebGPUShaderData = new WebGPUShaderData();
-    static _materialShaderData: WebGPUShaderData = new WebGPUShaderData();
+    static _sceneData: WebGPUShaderData = WebGPUShaderData.create(null, 3);
+    static _value2DShaderData: WebGPUShaderData = WebGPUShaderData.create(null, 3);
+    static _materialShaderData: WebGPUShaderData = WebGPUShaderData.create(null, 3);
     static _compileDefine: WebDefineDatas = new WebDefineDatas();
     static _defineStrings: Array<string> = [];
 
@@ -158,10 +158,6 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
             }
         }
 
-        //重编译着色器后，清理绑定组缓存
-        this.value2DShaderData?.clearBindGroup();
-        this.materialShaderData?.clearBindGroup();
-
         //提取当前渲染通道
         this._takeCurPass(context.pipelineMode);
     }
@@ -177,7 +173,8 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
         stateKey += dest.formatId + '_';
         stateKey += dest._samples + '_';
         stateKey += shaderInstance._id + '_';
-        stateKey += this.materialShaderData.stateKey;
+        if (this.materialShaderData)
+            stateKey += this.materialShaderData.stateKey;
         stateKey += this.geometry.bufferState.stateId + '_';
         stateKey += this.geometry.bufferState.updateBufferLayoutFlag;
         return stateKey;
@@ -505,7 +502,7 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
                 this._stateKey[index] = stateKey;
             }
             context.pipelineCache.push({ name: shaderInstance.name, pipeline, shaderInstance, samples: context.destRT._samples, stateKey });
-            //console.log('pipelineCache2d =', context.pipelineCache);
+            console.log('pipelineCache2d =', context.pipelineCache);
             return pipeline;
         }
         return null;
@@ -569,10 +566,7 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
             if (shaderInstance && shaderInstance.complete) {
                 this._getDepthStencilState(shaderInstance, context.destRT); //更新Stencil信息
                 if (WebGPUGlobal.useCache) { //启用缓存机制
-                    let stateKey: string;
-                    if (this.materialShaderData)
-                        stateKey = this._calcStateKey(shaderInstance, context.destRT, context);
-                    else stateKey = this._stateKey[index];
+                    const stateKey = this._calcStateKey(shaderInstance, context.destRT, context);
                     if (this._stateKey[index] !== stateKey || pipeline) { //缓存未命中
                         this._stateKey[index] = stateKey;
                         pipeline = this._pipeline[index] = shaderInstance.renderPipelineMap.get(stateKey);
