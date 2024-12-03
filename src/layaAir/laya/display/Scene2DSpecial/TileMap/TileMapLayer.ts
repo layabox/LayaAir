@@ -19,7 +19,7 @@ import { Laya } from "../../../../Laya";
 import { Rectangle } from "../../../maths/Rectangle";
 import { RectClipper } from "./RectClipper";
 import { Texture2D } from "../../../resource/Texture2D";
-import { TileMapLayerDatas } from "./TileMapLayerDatas";
+import { TileMapDatasParse } from "./loaders/TileSetAssetLoader";
 
 export enum TILELAYER_SORTMODE {
     YSort,
@@ -40,6 +40,7 @@ export enum TILEMAPLAYERDIRTYFLAG {
     CELL_SORTCHANGE = 1 << 9,
     TILESET_SAZE = 1 << 10,
     LAYER_COLOR = 1 << 11,
+    LAYER_PHYSICS = 1 << 12,
 }
 
 const TempRectange: Rectangle = new Rectangle();
@@ -93,15 +94,32 @@ export class TileMapLayer extends BaseRenderNode2D {
 
     private _lightEnable: boolean;
 
-    private _tileMapDatas: TileMapLayerDatas;
+    private _tileMapDatas: Uint8Array;
 
-    /** @private */
-    _chunkDatas: Map<number, Map<number, TileMapChunkData>>;//数据结构需要改成好裁剪的方式TODO
-
-    private _physisDelayCreate: Set<TileMapChunkData>;
+    private _chunkDatas: Record<number, Record<number, TileMapChunkData>>;//数据结构需要改成好裁剪的方式TODO
 
     /**物理模块 */
-    private _tileMapPhysis: TileMapPhysics;
+    private _tileMapPhysics: TileMapPhysics;
+
+    /** @internal */
+    get chunkDatas() {
+        return this._chunkDatas;
+    }
+
+    set chunkDatas(datas: Record<number, Record<number, TileMapChunkData>>) {
+        this._chunkDatas = datas;
+        if (datas) {
+            for (const col in datas) {
+                let chunkDatas = datas[col];
+                for (const row in chunkDatas) {
+                    let chunkData = chunkDatas[row];
+                    chunkData._tileLayer = this;
+                    chunkData._updateChunkData(chunkData.chunkX, chunkData.chunkY);
+                    chunkData._parseCellDataRefMap();
+                }
+            }
+        }
+    }
 
     get layerColor(): Color {
         return this._layerColor;
@@ -173,31 +191,29 @@ export class TileMapLayer extends BaseRenderNode2D {
         this._updateChunkData();
     }
 
-    //TODO??
-    get tileMapDatas(): TileMapLayerDatas {
+    get tileMapDatas(): Uint8Array {
         return this._tileMapDatas;
     }
 
-    set tileMapDatas(value: TileMapLayerDatas) {
+    set tileMapDatas(value: Uint8Array) {
         this._tileMapDatas = value;
     }
 
-    get tileMapPhysis(): TileMapPhysics {
-        return this._tileMapPhysis;
+    get tileMapPhysics(): TileMapPhysics {
+        return this._tileMapPhysics;
     }
 
     constructor() {
         super();
         this._layerColor = new Color(1, 1, 1, 1);
-        this._chunkDatas = new Map<number, Map<number, TileMapChunkData>>();
+        this._chunkDatas = []
         this._grid = new Grid();
         this._chunk = new TileMapChunk(this._grid);
         this._chunk._setChunkSize(this._renderTileSize, this._renderTileSize);
-        this._tileMapPhysis = new TileMapPhysics(this);
+        this._tileMapPhysics = new TileMapPhysics(this);
         this._cliper = new RectClipper();
         this._renderElements = [];
         this._materials = [];
-        this._physisDelayCreate = new Set();
     }
 
     private _initialTileSet() {
@@ -221,19 +237,24 @@ export class TileMapLayer extends BaseRenderNode2D {
         maxVec.setValue(-Number.MIN_VALUE, -Number.MIN_VALUE);
 
         let mergeDatas = new Map<number, Map<number, TileSetCellData>>();
-        let allDatas : TileMapChunkData[] = [];
-        this._chunkDatas.forEach((chunkDataMap, row) => {
-            chunkDataMap.forEach((chunkData, col) => { 
-                chunkData._mergeBuffer(mergeDatas , minVec , maxVec);
-                allDatas.push(chunkData);
-            });
-        });
+        // let orginLength = 0;
+        let allDatas: TileMapChunkData[] = [];
+
+        for (const col in this._chunkDatas) {
+            let chunkDatas = this._chunkDatas[col];
+            for (const row in chunkDatas) {
+                let chunkData = chunkDatas[row];
+                chunkData._tileLayer = this;
+                chunkData._updateChunkData(chunkData.chunkX, chunkData.chunkY);
+                chunkData._parseCellDataRefMap();
+            }
+        }
 
         let tileSize = this._renderTileSize;
         this._chunk._setChunkSize(tileSize, tileSize);
         if (minVec.x > maxVec.x || minVec.y > maxVec.y) { return; }
 
-        this._chunkDatas.clear();
+        this._chunkDatas = [];
         const tempVec3 = Vector3._tempVector3;
         this._chunk._getChunkPosByCell(minVec.x, minVec.y, tempVec3);
         let startRow = tempVec3.x;
@@ -242,30 +263,34 @@ export class TileMapLayer extends BaseRenderNode2D {
         let endRow = tempVec3.x;
         let endCol = tempVec3.y;
 
-        for (var j = startCol; j <= endCol; j ++) {
+        // let sum = 0;
+        for (var j = startCol; j <= endCol; j++) {
             for (var i = startRow; i <= endRow; i++) {
-                let chunkData = allDatas.pop() || new TileMapChunkData(this, 0, 0);
+                let chunkData = allDatas.pop() || new TileMapChunkData();
+                chunkData._tileLayer = this;
                 chunkData._updateChunkData(i, j);
-                if (chunkData._setBuffer(mergeDatas, minVec, maxVec)) {
+                let mark = chunkData._setBuffer(mergeDatas, minVec, maxVec, tileSize);
+                if (mark) {
+                    // sum += mark;
                     this._setLayerDataByPos(chunkData);
-                }else{
+                } else {
                     allDatas.push(chunkData);
                 }
             }
         }
-       
-        allDatas.forEach(data => data._destroy());      
+
+        allDatas.forEach(data => data._destroy());
     }
 
     /**
      * @internal
      */
     _updateMapDatas() {
-        if (this._tileMapDatas == null || !this._tileMapDatas.chunks) { return; }
-        
-        let chunks = this._tileMapDatas.chunks;
-        for (var i = 0 , len = chunks.length; i < len; i++) {
-            let data = new TileMapChunkData(this, 0, 0);
+        if (this._tileMapDatas == null || !this._tileMapDatas.length) { return; }
+        let chunks = TileMapDatasParse.read(this._tileMapDatas);
+        for (var i = 0, len = chunks.length; i < len; i++) {
+            let data = new TileMapChunkData();
+            data._tileLayer = this;
             data._setRenderData(chunks[i]);
             this._setLayerDataByPos(data);
         }
@@ -276,14 +301,14 @@ export class TileMapLayer extends BaseRenderNode2D {
      * @param tile 
      */
     _setLayerDataByPos(tile: TileMapChunkData) {
-        const chunkX = tile._chunkx;
-        const chunkY = tile._chunky;
-        let rowData = this._chunkDatas.get(chunkY)
+        const chunkX = tile.chunkX;
+        const chunkY = tile.chunkY;
+        let rowData = this._chunkDatas[chunkY];
         if (!rowData) {
-            rowData = new Map<number, TileMapChunkData>();
-            this._chunkDatas.set(chunkY,rowData);
+            rowData = [];
+            this._chunkDatas[chunkY] = rowData;
         }
-        rowData.set(chunkX, tile);
+        rowData[chunkX] = tile;
     }
 
 
@@ -291,15 +316,17 @@ export class TileMapLayer extends BaseRenderNode2D {
      * @internal
      */
     _getLayerDataTileByPos(chunkX: number, chunkY: number): TileMapChunkData {
-        let rowData = this._chunkDatas.get(chunkY);
+        let rowData = this._chunkDatas[chunkY];
         if (!rowData) {
-            rowData = new Map<number, TileMapChunkData>();
-            this._chunkDatas.set(chunkY, rowData);
+            rowData = [];
+            this._chunkDatas[chunkY] = rowData;
         }
-        let data = rowData.get(chunkX);
+        let data = rowData[chunkX];
         if (!data) {
-            data = new TileMapChunkData(this, chunkX, chunkY)
-            rowData.set(chunkX, data);
+            data = new TileMapChunkData();
+            data._tileLayer = this;
+            data._updateChunkData(chunkX, chunkY);
+            rowData[chunkX] = data;
         }
         return data;
     }
@@ -309,7 +336,7 @@ export class TileMapLayer extends BaseRenderNode2D {
         super.onEnable();
         (<Sprite>this.owner).cacheGlobal = true;
         this._updateMapDatas();
-        this._tileMapPhysis._createPhysics();
+        this._tileMapPhysics._createPhysics();
     }
 
     /**
@@ -395,13 +422,13 @@ export class TileMapLayer extends BaseRenderNode2D {
 
         let checkPoint = Vector2.TempVector2;
         for (var j = chuckstartCol; j <= chuckendCol; j++) {
-            if (!this._chunkDatas.has(j)) { continue; }
-            let rowData = this._chunkDatas.get(j);
+            if (!this._chunkDatas[j]) { continue; }
+            let rowData = this._chunkDatas[j];
             for (var i = chuckstartRow; i <= chuckendRow; i++) {
-                if (!rowData.has(i)) { continue; }
+                if (!rowData[i]) { continue; }
                 this._chunk._getChunkLeftTop(i, j, checkPoint);
                 if (!this._cliper.isClipper(checkPoint.x, checkPoint.y)) {
-                    let chunkData = rowData.get(i);
+                    let chunkData = rowData[i];
                     chunkData._update();//更新数据
                     chunkData._mergeToElement(this._renderElements);//更新渲染元素
                 }
