@@ -92,11 +92,6 @@ export class TileAlternativesData {
         return this._tileDatas;
     }
     set tileDatas(value: Record<number, TileSetCellData>) {
-        if (value) {
-            for (let k in value) {
-                value[k].__init(this, parseInt(k));
-            }
-        }
         this._tileDatas = value;
     }
 
@@ -187,7 +182,14 @@ export class TileAlternativesData {
         this._uvExtends.x = this._uvSize.x / atlasSize.x;
         this._uvExtends.y = this._uvSize.y / atlasSize.y;
         this._updateOriginUV(0, 0, TILEMAPLAYERDIRTYFLAG.CELL_QUAD | TILEMAPLAYERDIRTYFLAG.CELL_QUADUV);
+
+        //update ID
         this.nativeId = this.owner._getGlobalAlternativesId(this.localPos.x, this.localPos.y);
+        if (this._tileDatas) {
+            for (let k in this._tileDatas) {
+                this._tileDatas[k].__init(this, parseInt(k));
+            }
+        }
     }
 
     /**

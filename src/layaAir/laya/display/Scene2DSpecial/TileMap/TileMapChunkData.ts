@@ -107,7 +107,7 @@ export class TileMapChunkData {
 
     /** @private Editor */
     _material:Material;
-    
+
     /**
      * 渲染块 x 坐标
      */
@@ -134,11 +134,10 @@ export class TileMapChunkData {
 
     /**
      *  @internal 
-     *  危险操作
+     *  危险操作，序列化使用
      */
     set cellDataRefMap( data: number[][] ) {
         if (data) {
-            this._clearCell();
             this._cellDataRefMap = data;
         }
     }

@@ -26,8 +26,7 @@ export class TileSetCellOcclusionInfo {
  }
  
  export class TileSetCellCustomDataInfo {
-    index:number;
-    type: string;
+    id:number;
     value: any;
  }
  

@@ -1,6 +1,6 @@
 export class TileSetCustomDataLayer{
    /** 识别用索引 */
-   index:number;
+   id:number;
    name: string;
    variant: string;
 }
