@@ -53,11 +53,11 @@ export class DrawMesh2DCMD extends Command2D {
         let mat = this._matrix;
         let vec3 = Vector3._tempVector3;
         vec3.x = mat.a;
-        vec3.y = mat.b;
+        vec3.y = mat.c;
         vec3.z = mat.tx;
         //vec3.z = mat.tx + mat.a * px + mat.c * py;
         this._mesh2DRender._spriteShaderData.setVector3(BaseRenderNode2D.NMATRIX_0, vec3);
-        vec3.x = mat.c;
+        vec3.x = mat.b;
         vec3.y = mat.d;
         vec3.z = mat.ty;
         //vec3.z = mat.ty + mat.b * px + mat.d * py;
