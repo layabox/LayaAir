@@ -35,8 +35,8 @@ class TileSetLoader implements IResourceLoader {
         return task.loader.load(urls, options, task.progress.createCallback()).then(() => {
             let tileSet = new TileSet();
             tileSet.tileShape = data.tileShape?data.tileShape:0;
-            for (let i = 0, len = data.cells.length; i < len; i++) {
-                this.createGroup(tileSet, data.cells[i]);
+            for (let i = 0, len = data.groups.length; i < len; i++) {
+                this.createGroup(tileSet, data.groups[i]);
             }
             tileSet._notifyTileSetCellGroupsChange();
             return tileSet;

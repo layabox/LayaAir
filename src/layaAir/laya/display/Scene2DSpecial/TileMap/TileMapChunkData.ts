@@ -105,6 +105,9 @@ export class TileMapChunkData {
 
     private _sortMode: TILELAYER_SORTMODE;
 
+    /** @private Editor */
+    _material:Material;
+    
     /**
      * 渲染块 x 坐标
      */
@@ -479,6 +482,10 @@ export class TileMapChunkData {
         let mat = cellData.material;
         let nativesData = cellData.cellowner;
         let texture = nativesData.owner.atlas;
+
+        if (!mat) {
+            mat = this._material;
+        }
 
         if (mat == null) {
             mat = this._tileLayer.getDefalutMaterial(texture);
