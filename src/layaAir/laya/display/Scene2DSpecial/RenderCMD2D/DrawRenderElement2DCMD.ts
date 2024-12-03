@@ -51,11 +51,11 @@ export class DrawRenderElement2DCMD extends Command2D {
         if (this._matreix && this.renderElement.nodeCommonMap.indexOf("BaseRender2D") != -1) {
             let vec3 = Vector3._tempVector3;
             vec3.x = this._matreix.a;
-            vec3.y = this._matreix.b;
+            vec3.y = this._matreix.c;
             vec3.z = this._matreix.tx;
             //vec3.z = mat.tx + mat.a * px + mat.c * py;
             this._renderElement.value2DShaderData.setVector3(BaseRenderNode2D.NMATRIX_0, vec3);
-            vec3.x = this._matreix.c;
+            vec3.x = this._matreix.b;
             vec3.y = this._matreix.d;
             vec3.z = this._matreix.ty;
             //vec3.z = mat.ty + mat.b * px + mat.d * py;
