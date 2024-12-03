@@ -275,6 +275,10 @@ export class Sprite extends Node {
     }
 
     set renderNode2D(value: BaseRenderNode2D) {
+        if (value && this._renderNode) {
+            console.warn(this.name + " add RenderNode2D invalid, one sprite can only add one RenderNode")
+            return;
+        }
         if (value) {
             this._renderType |= SpriteConst.RENDERNODE2D;
             this._renderNode = value;
@@ -2460,7 +2464,7 @@ export class Sprite extends Node {
             this._globalMatrix.setMatrix(this._x, this._y, style.scaleX, style.scaleY, style.rotation, style.skewX, style.skewY, style.pivotX, style.pivotY);
             if (this.parent) {
                 Matrix.mul(this._globalMatrix, (<Sprite>this.parent).getGlobalMatrix(), this._globalMatrix);
-                 this._setGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Matrix, false);
+                this._setGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Matrix, false);
                 this._syncGlobalFlag(Sprite.Sprite_GlobalDeltaFlage_Matrix, true);
             }
 
