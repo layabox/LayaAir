@@ -349,9 +349,12 @@ export class Laya {
     }
 
     /**
-     * 
-     * @param name 
-     * @returns 
+     * @en Import a native library(e.g. dll/so/dylib). If not in the Conch environment, this function will return null.
+     * @param name The name of the library to import. e.g. `test.dll` 
+     * @returns The imported object.
+     * @zh 导入一个原生库（如dll/so/dylib）。
+     * @param name 要导入的库的名称。例如：`test.dll`
+     * @returns 导入的对象。 
      */
     static importNative(name: string): any {
         if (!LayaEnv.isConch)
