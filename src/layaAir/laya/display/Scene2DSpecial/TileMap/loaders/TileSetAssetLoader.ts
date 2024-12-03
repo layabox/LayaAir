@@ -11,17 +11,17 @@ class TileSetLoader implements IResourceLoader {
         return task.loader.fetch(task.url, "json", task.progress.createCallback(0.2), task.options).then(data => {
             if (!data)
                 return null;
-            if (!data.cells) data.cells = [];
-            const cellsData = data.cells;
+            if (!data.groups) data.groups = [];
+            const groups = data.groups;
             let basePath = URL.getPath(task.url);
             let urls :Array<ILoadURL> = [];
-            for (let i = 0, len = cellsData.length; i < len; i++) {
-                let atlas = cellsData[i].atlas;
+            for (let i = 0, len = groups.length; i < len; i++) {
+                let atlas = groups[i].atlas;
                 if (atlas&&atlas.path) {
                     atlas.path = URL.join(basePath, atlas.path);
                     urls.push({url:atlas.path,type:Loader.TEXTURE2D,propertyParams:{premultiplyAlpha:true}});
                 }else{
-                    urls.push({ url: "res://" + cellsData[i].atlas._$uuid, type: Loader.TEXTURE2D, propertyParams: { premultiplyAlpha: true } });
+                    urls.push({ url: "res://" + groups[i].atlas._$uuid, type: Loader.TEXTURE2D, propertyParams: { premultiplyAlpha: true } });
                 }
             }
             return this.load2(task, data, urls);
