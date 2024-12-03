@@ -550,10 +550,13 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
         let delta = this._timeKeeper.delta * this._playbackRate;
         // 在游戏循环中，update被调用，这样AnimationState就可以跟踪时间
         state.update(delta);
-        // 使用当前动画和事件设置骨架
-        state.apply(this._skeleton);
+
         //@ts-ignore
         this._currentPlayTime = state.getCurrentPlayTime(this.trackIndex);
+        
+        // 使用当前动画和事件设置骨架
+        state.apply(this._skeleton);
+
         
         // spine在state.apply中发送事件，开发者可能会在事件中进行destory等操作，导致无法继续执行
         if (!this._state || !this._skeleton) {
