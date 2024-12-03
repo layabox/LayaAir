@@ -96,26 +96,28 @@ export class TileMapLayer extends BaseRenderNode2D {
 
     private _tileMapDatas: Uint8Array;
 
-    private _chunkDatas: TileMapChunkData[][];//数据结构需要改成好裁剪的方式TODO
+    private _chunkDatas: Record<number, Record<number, TileMapChunkData>>;//数据结构需要改成好裁剪的方式TODO
 
     /**物理模块 */
     private _tileMapPhysics: TileMapPhysics;
 
     /** @internal */
-    get chunkDatas(){
+    get chunkDatas() {
         return this._chunkDatas;
     }
 
-    set chunkDatas(datas:TileMapChunkData[][]){
+    set chunkDatas(datas: Record<number, Record<number, TileMapChunkData>>) {
         this._chunkDatas = datas;
         if (datas) {
-            datas.forEach(chunkDatas =>{
-                chunkDatas.forEach(chunkData=>{
+            for (const col in datas) {
+                let chunkDatas = datas[col];
+                for (const row in chunkDatas) {
+                    let chunkData = chunkDatas[row];
                     chunkData._tileLayer = this;
-                    chunkData._updateChunkData(chunkData.chunkX , chunkData.chunkY);
+                    chunkData._updateChunkData(chunkData.chunkX, chunkData.chunkY);
                     chunkData._parseCellDataRefMap();
-                })
-            })
+                }
+            }
         }
     }
 
@@ -236,14 +238,17 @@ export class TileMapLayer extends BaseRenderNode2D {
 
         let mergeDatas = new Map<number, Map<number, TileSetCellData>>();
         // let orginLength = 0;
-        let allDatas : TileMapChunkData[] = [];
-        this._chunkDatas.forEach((chunkDataMap, row) => {
-            chunkDataMap.forEach((chunkData, col) => { 
-                // orginLength += chunkData._chuckCellList.length;
-                chunkData._mergeBuffer(mergeDatas , minVec , maxVec);
-                allDatas.push(chunkData);
-            });
-        });
+        let allDatas: TileMapChunkData[] = [];
+
+        for (const col in this._chunkDatas) {
+            let chunkDatas = this._chunkDatas[col];
+            for (const row in chunkDatas) {
+                let chunkData = chunkDatas[row];
+                chunkData._tileLayer = this;
+                chunkData._updateChunkData(chunkData.chunkX, chunkData.chunkY);
+                chunkData._parseCellDataRefMap();
+            }
+        }
 
         let tileSize = this._renderTileSize;
         this._chunk._setChunkSize(tileSize, tileSize);
@@ -259,22 +264,22 @@ export class TileMapLayer extends BaseRenderNode2D {
         let endCol = tempVec3.y;
 
         // let sum = 0;
-        for (var j = startCol; j <= endCol; j ++) {
+        for (var j = startCol; j <= endCol; j++) {
             for (var i = startRow; i <= endRow; i++) {
                 let chunkData = allDatas.pop() || new TileMapChunkData();
                 chunkData._tileLayer = this;
                 chunkData._updateChunkData(i, j);
-                let mark = chunkData._setBuffer(mergeDatas, minVec, maxVec , tileSize);
+                let mark = chunkData._setBuffer(mergeDatas, minVec, maxVec, tileSize);
                 if (mark) {
                     // sum += mark;
                     this._setLayerDataByPos(chunkData);
-                }else{
+                } else {
                     allDatas.push(chunkData);
                 }
             }
         }
-        
-        allDatas.forEach(data => data._destroy());      
+
+        allDatas.forEach(data => data._destroy());
     }
 
     /**
@@ -283,7 +288,7 @@ export class TileMapLayer extends BaseRenderNode2D {
     _updateMapDatas() {
         if (this._tileMapDatas == null || !this._tileMapDatas.length) { return; }
         let chunks = TileMapDatasParse.read(this._tileMapDatas);
-        for (var i = 0 , len = chunks.length; i < len; i++) {
+        for (var i = 0, len = chunks.length; i < len; i++) {
             let data = new TileMapChunkData();
             data._tileLayer = this;
             data._setRenderData(chunks[i]);
@@ -300,7 +305,7 @@ export class TileMapLayer extends BaseRenderNode2D {
         const chunkY = tile.chunkY;
         let rowData = this._chunkDatas[chunkY];
         if (!rowData) {
-            rowData =  [];
+            rowData = [];
             this._chunkDatas[chunkY] = rowData;
         }
         rowData[chunkX] = tile;
@@ -320,7 +325,7 @@ export class TileMapLayer extends BaseRenderNode2D {
         if (!data) {
             data = new TileMapChunkData();
             data._tileLayer = this;
-            data._updateChunkData(chunkX , chunkY);
+            data._updateChunkData(chunkX, chunkY);
             rowData[chunkX] = data;
         }
         return data;
