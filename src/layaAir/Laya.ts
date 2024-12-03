@@ -354,6 +354,9 @@ export class Laya {
      * @returns 
      */
     static importNative(name: string): any {
+        if (!LayaEnv.isConch)
+            return null;
+
         let path = (<any>window).$DLL_PATHS[name];
         let obj = (<any>window).importNative(path || name);
         if (!obj)
