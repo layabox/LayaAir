@@ -30,10 +30,3 @@ export enum TileShape {
     TILE_SHAPE_HALF_OFFSET_SQUARE,//错位quad
     TILE_SHAPE_HEXAGON,//六边形
 }
-
-export enum TileMap_CustomDataVariant{
-    Number,
-    Bool,
-    String,
-    Object,
-}

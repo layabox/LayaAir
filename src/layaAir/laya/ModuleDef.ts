@@ -68,7 +68,6 @@ import { Line2DRender } from "./display/Scene2DSpecial/Line2D/Line2DRender";
 import { Trail2DRender } from "./display/Scene2DSpecial/Trail2D/Trail2DRender";
 
 let c = ClassUtils.regClass;
-
 c("Record", Object);
 c("Node", Node);
 c("Sprite", Sprite);

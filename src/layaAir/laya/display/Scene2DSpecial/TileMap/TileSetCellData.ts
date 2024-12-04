@@ -1,34 +1,42 @@
+import { TileMapUtils } from "./TileMapUtils";
+import { TileAlternativesData } from "./TileAlternativesData";
+import { TillMap_CellNeighbor } from "./TileMapEnum";
+import { TILEMAPLAYERDIRTYFLAG } from "./TileMapLayer";
+import { TileMapChunkData } from "./TileMapChunkData";
 import { Color } from "../../../maths/Color";
 import { Vector2 } from "../../../maths/Vector2";
+import { Vector4 } from "../../../maths/Vector4";
 import { Material } from "../../../resource/Material";
-import { TileAlternativesData } from "./TileAlternativeData";
-import { TileMap_CustomDataVariant, TillMap_CellNeighbor } from "./TileMapEnum";
-import { TILEMAPLAYERDIRTYFLAG } from "./TileMapLayer";
-import { TileMapLayerRenderTile } from "./TileMapLayerRenderTile";
-import { TileSet } from "./TileSet";
 
-
-class TileSetCellData_Light {
+export class TileSetCellOcclusionInfo {
     //根据light功能定义
-}
-
-class TileSetCellData_PhysicsInfo {
-    //根据想实现的物理功能定义 
-}
-
-class TileSetCellData_NavigationInfo {
+    shape:number[];
+    index:number;
+ }
+ 
+ export class TileSetCellPhysicsInfo{
+    shape:number[];
+    index:number;
+ }
+ 
+ export class TileSetCellNavigationInfo {
     //根据想实现的Navigation定义
-}
-
-class TileSetCellData_CustomData {
-    type: TileMap_CustomDataVariant;
-    value: number | boolean | string | Object;
-}
-
+    shape:number[];
+    index:number;
+ }
+ 
+ export class TileSetCellCustomDataInfo {
+    id:number;
+    value: any;
+ }
+ 
+ 
 /**
  * TileMap中一个Cell的数据结构
  */
 export class TileSetCellData {
+
+    private _index: number = 0;
 
     private _cellowner: TileAlternativesData;
 
@@ -37,6 +45,8 @@ export class TileSetCellData {
     private _flip_v: boolean = false;
 
     private _transpose: boolean = false;
+
+    private _rotateCount: number = 0;
 
     private _texture_origin: Vector2;//单位像素
 
@@ -48,21 +58,43 @@ export class TileSetCellData {
 
     private _y_sort_origin: number;
 
-    private _lightOccluders: TileSetCellData_Light[];
+    //多级数据
+    private _lightOccluderDatas: TileSetCellOcclusionInfo[];
 
-    private _physics: TileSetCellData_PhysicsInfo[];
+    private _navigationDatas: TileSetCellNavigationInfo[];
 
-    private _customDatas: TileSetCellData_CustomData[];
+    private _physicsDatas: TileSetCellPhysicsInfo[];
+
+    private _customDatas: TileSetCellCustomDataInfo[];
+
     //是否有地形
     private _terrain_set: boolean;
 
     private _terrain_peering_bits: Uint16Array = new Uint16Array([-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]);
 
-    private _notiveRenderTile: TileMapLayerRenderTile[];
+    private _notiveRenderTile: TileMapChunkData[];
 
     //随机值
-    private _probability: number;
+    private _probability: number = 1;
 
+    private _destroyed: boolean = false;
+
+    private _updateTrans = true;
+
+    /**@internal */
+    private _transData: Vector4 = new Vector4();
+    
+    gid:number = -1;
+
+    //贴图旋转矩阵
+    get transData(): Vector4 {
+        if(this._updateTrans) this._updateTransData();
+        return this._transData;
+    }
+   
+    /**
+     * 原始顶点图块的引用
+     */
     public get cellowner(): TileAlternativesData {
         return this._cellowner;
     }
@@ -71,22 +103,30 @@ export class TileSetCellData {
         this._cellowner = value;
     }
 
+    /**
+     *  是否垂直翻转
+     */
     public get flip_h(): boolean {
         return this._flip_h;
     }
 
     public set flip_h(value: boolean) {
         this._flip_h = value;
+        this._updateTrans = true;
         this._notifyDataChange(TILEMAPLAYERDIRTYFLAG.CELL_UVTRAN);
-        TILEMAPLAYERDIRTYFLAG.CELL_QUADUV
+
     }
 
+    /**
+     * 是否水平翻转
+     */
     public get flip_v(): boolean {
         return this._flip_v;
     }
 
     public set flip_v(value: boolean) {
         this._flip_v = value;
+        this._updateTrans = true;
         this._notifyDataChange(TILEMAPLAYERDIRTYFLAG.CELL_UVTRAN);
     }
 
@@ -94,11 +134,31 @@ export class TileSetCellData {
         return this._transpose;
     }
 
+    /**
+     * 是否转置
+     */
     public set transpose(value: boolean) {
         this._transpose = value;
+        this._updateTrans = true;
         this._notifyDataChange(TILEMAPLAYERDIRTYFLAG.CELL_UVTRAN);
     }
 
+    /**
+     * 旋转次数
+     */
+    public get rotateCount(): number {
+        return this._rotateCount;
+    }
+
+    public set rotateCount(value: number) {
+        this._rotateCount = value;
+        this._updateTrans = true;
+        this._notifyDataChange(TILEMAPLAYERDIRTYFLAG.CELL_UVTRAN);
+    }
+
+    /**
+     * 贴图原点
+     */
     public get texture_origin(): Vector2 {
         return this._texture_origin;
     }
@@ -108,6 +168,9 @@ export class TileSetCellData {
         this._notifyDataChange(TILEMAPLAYERDIRTYFLAG.CELL_QUAD);
     }
 
+    /**
+     * 材质
+     */
     public get material(): Material {
         return this._material;
     }
@@ -117,6 +180,9 @@ export class TileSetCellData {
         this._notifyDataChange(TILEMAPLAYERDIRTYFLAG.CELL_CHANGE);
     }
 
+    /**
+     * 颜色
+     */
     public get colorModulate(): Color {
         return this._colorModulate;
     }
@@ -126,13 +192,25 @@ export class TileSetCellData {
         this._notifyDataChange(TILEMAPLAYERDIRTYFLAG.CELL_COLOR);
     }
 
+    /**
+     * 生成地形时概率
+     */
+    public get probability(): number {
+        return this._probability;
+    }
+    public set probability(value: number) {
+        this._probability = value;
+    }
+
+    /**
+     * z_index
+     */
     public get z_index(): number {
         return this._z_index;
     }
 
     public set z_index(value: number) {
         this._z_index = value;
-        //TODO Flag Dirty
     }
 
     public get y_sort_origin(): number {
@@ -152,73 +230,96 @@ export class TileSetCellData {
         this._terrain_set = value;
     }
 
-    public get probability(): number {
-        return this._probability;
+    public get physicsDatas() {
+        return this._physicsDatas;
     }
-    public set probability(value: number) {
-        this._probability = value;
+
+    public get lightOccluderDatas() {
+        return this._lightOccluderDatas;
+    }
+
+    public get customDatas() {
+        return this._customDatas;
+    }
+
+    public get navigationDatas() {
+        return this._navigationDatas;
     }
 
     //custom module
-    constructor(owner: TileAlternativesData, index: number) {
-        this._cellowner = owner;
+    constructor() {
+        this._notiveRenderTile = [];
         this._flip_h = false;
         this._flip_v = false;
-        this.transpose = false;
-        this._texture_origin = new Vector2();
+        this._transpose = false;
+        this._rotateCount = 0;
+        this._texture_origin = new Vector2(0, 0);
         this._colorModulate = new Color(1, 1, 1, 1);
         this._z_index = 0;
         this._y_sort_origin = 0;
         this._terrain_set = false;
     }
 
-    _notifyDataChange(data: TILEMAPLAYERDIRTYFLAG) {
+    /**
+     * 初始化引用数据
+     * @param owner 
+     * @param index 
+     */
+    __init(owner: TileAlternativesData, index: number) {
+        this._index = index;
+        this._cellowner = owner;
+        this.gid = TileMapUtils.getGid(this._index, this._cellowner.nativeId);
+    }
+
+    _notifyDataChange(data: number) {
+        if (!this.cellowner) return;
         this._notiveRenderTile.forEach(element => {
-            element._setDirtyFlag(this, data);
+            element._setDirtyFlag(this.gid, data);
         });
     }
 
-    _getPosOffset() {
-        return this._texture_origin;//unit pixel
+    private _updateTransData() {
+        this._updateTrans = false;
+        let tileshape = this.cellowner.owner._owner.tileShape;
+        let out = TileMapUtils.getUvRotate(tileshape, this._flip_v, this._flip_h, this._transpose, this._rotateCount);
+        out.cloneTo(this._transData);
     }
 
-    _removeNoticeRenderTile(layerRenderTile: TileMapLayerRenderTile) {
+    _removeNoticeRenderTile(layerRenderTile: TileMapChunkData) {
         let index = this._notiveRenderTile.indexOf(layerRenderTile);
-        if (this._notiveRenderTile.indexOf(layerRenderTile) != -1)
+        if (index != -1)
             this._notiveRenderTile.splice(index, 1);
     }
 
-    _addNoticeRenderTile(layerRenderTile: TileMapLayerRenderTile) {
+    _addNoticeRenderTile(layerRenderTile: TileMapChunkData) {
         if (this._notiveRenderTile.indexOf(layerRenderTile) == -1) {
             this._notiveRenderTile.push(layerRenderTile);
         }
     }
 
-    setLightOccluders(layerIndex: number, data: TileSetCellData_Light) {
+    set_lightOccluder(layerIndex: number, data: TileSetCellOcclusionInfo) {
         //TODO
+        this._lightOccluderDatas[layerIndex] = data;
     }
 
-    _remove_lightOccluders(layerIndex: number) {
-        //TODO
+    get_lightOccluder(layerIndex: number): TileSetCellOcclusionInfo {
+        return this._lightOccluderDatas[layerIndex];
     }
 
-    //move_lightOccluders 
-
-    setPhysics(layerIndex: number, data: TileSetCellData_PhysicsInfo) {
-        //TODO
+    set_terrainPeeringBit(index: TillMap_CellNeighbor, terrainIndex: number) {
+        this._terrain_peering_bits[index] = terrainIndex;
     }
 
-    _remove_physics(layerIndex: number, data: TileSetCellData_PhysicsInfo) {
-        //TODO
+    get_terrainPeeringBit(index: TillMap_CellNeighbor) {
+        return this._terrain_peering_bits[index];
     }
 
-
-    set_terrainPeeringBits(index: TillMap_CellNeighbor, terrainIndex: number) {
-        //TODO
+    set_physicsData(layerIndex: number, data: TileSetCellPhysicsInfo) {
+        this._physicsDatas[layerIndex] = data;
     }
 
-    get_terrainPeeringBits(index: TillMap_CellNeighbor) {
-        //TODO
+    get_physicsData(layerIndex: number): TileSetCellPhysicsInfo {
+        return this._physicsDatas[layerIndex];
     }
 
     /**
@@ -228,42 +329,34 @@ export class TileSetCellData {
         return this._terrain_peering_bits;
     }
 
-    set_navigationData(layerIndex: number, data: TileSetCellData_NavigationInfo) {
-        //TODO
+    set_navigationData(layerIndex: number, data: TileSetCellNavigationInfo) {
+        this._navigationDatas[layerIndex] = data;
+    }
+
+    get_navigationData(layerIndex: number): TileSetCellNavigationInfo {
+        return this._navigationDatas[layerIndex];
     }
 
     //注释TODO
-    _remove_navigations(layerIndex: number, data: TileSetCellData_NavigationInfo) {
-        //TODO
-    }
-
-    //注释TODO
-    set_custom_Data(name: string, value: number | boolean | string | Object) {
+    set_customData(name: string, value: any) {
         //TODO
         //根据TileSet得到string的index，将Value赋值
     }
 
     //注释TODO
-    get_custom_data(name: string) {
+    get_customData(name: string) {
         //TODO
         //根据TileSet得到string的index，拿Value
     }
 
     //注释TODO
-    set_CustomDatabyid(id: number, value: number | boolean | string | Object) {
+    set_customDatabyid(id: number, value: any) {
         //TODO        
     }
 
     //注释TODO
-    get_CustomDatabyid(id: number) {
+    get_customDatabyid(id: number) {
         //TODO
-    }
-
-    /**
-     * @internal
-     */
-    _get_CustomData() {
-        return this._customDatas;
     }
 
     cloneTo(dst: TileSetCellData) {
@@ -275,6 +368,7 @@ export class TileSetCellData {
         this._notiveRenderTile.forEach(element => {
             element._clearOneCell(this);
         });
+        this._destroyed = true;
         //destroy data TODO
     }
 }
