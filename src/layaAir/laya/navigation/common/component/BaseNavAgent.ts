@@ -312,6 +312,7 @@ export class BaseNavAgent extends Component {
     protected _setTarget(value: Vector3) {
         value.cloneTo(this._targetPos);
         if (!this._navManager) return;
+        if (this._currentNaveSurface == null|| !this._currentNaveSurface.enabled) return;
         let targetSurface: BaseNavMeshSurface = this._navManager.getNavMeshSurface(value, this._agentType);
         if (targetSurface == this._currentNaveSurface) {
             this._currentNaveSurface._navMesh._requestMoveTarget(this, this._targetPos);
