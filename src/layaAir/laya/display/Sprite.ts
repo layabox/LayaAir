@@ -30,6 +30,7 @@ import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetForma
 import { BaseRenderNode2D } from "../NodeRender2D/BaseRenderNode2D";
 import { Vector2 } from "../maths/Vector2";
 import type { Stage } from "./Stage";
+import { Component } from "../components/Component";
 
 /**
  * @en Sprite is a basic display list node for displaying graphical content. By default, Sprite does not accept mouse events. Through the graphics API, images or vector graphics can be drawn, supporting operations like rotation, scaling, translation, and more. Sprite also functions as a container class, allowing the addition of multiple child nodes.
@@ -275,13 +276,9 @@ export class Sprite extends Node {
     }
 
     set renderNode2D(value: BaseRenderNode2D) {
-        if (value && this._renderNode) {
-            console.warn(this.name + " add RenderNode2D invalid, one sprite can only add one RenderNode")
-            return;
-        }
+        this._renderNode = value;
         if (value) {
             this._renderType |= SpriteConst.RENDERNODE2D;
-            this._renderNode = value;
         } else {
             this._renderType &= ~SpriteConst.RENDERNODE2D;
         }
@@ -2733,7 +2730,6 @@ export class Sprite extends Node {
     get globalDeltaFlages(): number {
         return this._globalDeltaFlages;
     }
-
     /**
      * @internal
      * @param flag 
@@ -2746,5 +2742,16 @@ export class Sprite extends Node {
                 (element as Sprite)._syncGlobalFlag(flag, value);
             });
         }
+    }
+
+    _addComponentInstance(comp: Component): void {
+        if (
+            comp instanceof BaseRenderNode2D &&
+            this._components?.some((c) => c instanceof BaseRenderNode2D)
+        ) {
+            console.warn(`${this.name} add RenderNode2D invalid, one sprite can only add one RenderNode`);
+            return;
+        }
+        super._addComponentInstance(comp);
     }
 }
