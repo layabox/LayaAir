@@ -163,6 +163,5 @@ export class Physics_CollisionFiltering {
         Laya.stage.off(Event.MOUSE_OUT, this, this.mouseUp);
         Laya.stage.off(Event.MOUSE_UP, this, this.destoryJoint);
         Laya.stage.off(Event.MOUSE_OUT, this, this.destoryJoint);
-        Physics2D.I.destroyWorld()
     }
 }

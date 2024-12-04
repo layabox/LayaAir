@@ -494,6 +494,11 @@ export interface IPhysiscs2DFactory {
     /** 
      * @internal
      */
+    set_RigibBody_Enable(body: any, enable:boolean): void;
+
+    /** 
+     * @internal
+     */
     set_RigibBody_Transform(body: any, x: number, y: number, angle: number): void;
 
     /** 

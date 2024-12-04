@@ -112,6 +112,5 @@ export class Physics_Tumbler {
     dispose() {
         Laya.stage.offAll(Event.DOUBLE_CLICK);
         Laya.stage.removeChild(this.label);
-        Physics2D.I.destroyWorld()
     }
 }
