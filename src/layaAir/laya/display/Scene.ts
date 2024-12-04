@@ -449,6 +449,14 @@ export class Scene extends Sprite {
     }
 
     /**
+     * @en Gets shader data from scene's manager
+     * @zh 获取场景的着色器数据
+     */
+    get sceneShaderData() {
+        return this._specialManager._shaderData;
+    }
+ 
+    /**
      * @internal
      * @param ctx 
      * @param x 
@@ -461,7 +469,7 @@ export class Scene extends Sprite {
         if (this._light2DManager)
             this._light2DManager.preRenderUpdate(ctx);
     }
-
+ 
     /**
      * @internal
      * @param ctx 
