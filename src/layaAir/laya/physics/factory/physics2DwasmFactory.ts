@@ -345,7 +345,8 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      * @zh 创建Box2D世界。
      */
     start() {
-        this._PIXEL_RATIO = Physics2DOption.pixelRatio * Browser.pixelRatio;;
+        if(this._world) return;
+        this._PIXEL_RATIO = Physics2DOption.pixelRatio * Browser.pixelRatio;
         this._Re_PIXEL_RATIO = 1 / this._PIXEL_RATIO;
         var gravity: any = this.createPhyVec2(Physics2DOption.gravity.x, Physics2DOption.gravity.y);
         this._world = new this.box2d.b2World(gravity);
@@ -1403,6 +1404,7 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      */
     createfixture(body: any, fixtureDef: any) {
         let data = body.CreateFixture(fixtureDef);
+        data = this.castObject(data, this.box2d.b2Fixture);
         data.world = this._world;
         data.shape = this.get_fixtureshape(data.GetShape(), fixtureDef.shapeType);
         data.filter = data.GetFilterData();
