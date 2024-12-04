@@ -29,6 +29,7 @@ import { SpineEmptyRender } from "./optimize/SpineEmptyRender";
 import { Texture2D } from "../resource/Texture2D";
 import { Mesh2D } from "../resource/Mesh2D";
 import { Vector3 } from "../maths/Vector3";
+import { Sprite } from "../display/Sprite";
 
 
 /**动画开始播放调度
@@ -196,11 +197,11 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
             let template = ILaya.loader.getRes(value, Loader.SPINE);
             if (template) {
                 this.templet = template;
-            }else{
+            } else {
                 ILaya.loader.load(value, Loader.SPINE).then((templet: SpineTemplet) => {
                     if (!this._source || templet && !templet.isCreateFromURL(this._source))
                         return;
-    
+
                     this.templet = templet;
                 });
             }
@@ -318,7 +319,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
         if (!this._templet)
             return;
         if (value) {
-          
+
             if ((this.spineItem instanceof SpineNormalRender)) {
                 this.spineItem.destroy();
                 let before = SketonOptimise.normalRenderSwitch;
@@ -429,8 +430,8 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
         });
         this._flushExtSkin();
         this.event(Event.READY);
-        
-        if (LayaEnv.isPlaying && this._animationName !== undefined){
+
+        if (LayaEnv.isPlaying && this._animationName !== undefined) {
             this.play(this._animationName, this._loop, true);
         }
     }
@@ -458,7 +459,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
 
         if (typeof nameOrIndex == "number") {
             nameOrIndex = this.getAniNameByIndex(nameOrIndex);
-        }else{
+        } else {
             let hasAni = !!this.templet.findAnimation(nameOrIndex);
             if (!hasAni) return
         }
@@ -497,11 +498,11 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
 
         //@ts-ignore
         this._currentPlayTime = state.getCurrentPlayTime(this.trackIndex);
-        
+
         // 使用当前动画和事件设置骨架
         state.apply(this._skeleton);
 
-        
+
         // spine在state.apply中发送事件，开发者可能会在事件中进行destory等操作，导致无法继续执行
         if (!this._state || !this._skeleton) {
             return;

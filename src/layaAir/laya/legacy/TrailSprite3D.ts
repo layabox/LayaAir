@@ -1,8 +1,9 @@
-import { FloatKeyframe } from "../d3/core/FloatKeyframe";
-import { Gradient } from "../d3/core/Gradient";
+
 import { TrailFilter } from "../d3/core/trail/TrailFilter";
 import { TrailRenderer } from "../d3/core/trail/TrailRenderer";
 import { Color } from "../maths/Color";
+import { FloatKeyframe } from "../maths/FloatKeyframe";
+import { Gradient } from "../maths/Gradient";
 import { Loader } from "../net/Loader";
 import { Material } from "../resource/Material";
 

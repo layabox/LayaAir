@@ -1,4 +1,3 @@
-import { Gradient } from "../d3/core/Gradient";
 import { Burst } from "../d3/core/particleShuriKen/module/Burst";
 import { ColorOverLifetime } from "../d3/core/particleShuriKen/module/ColorOverLifetime";
 import { Emission } from "../d3/core/particleShuriKen/module/Emission";
@@ -25,6 +24,7 @@ import { ShurikenParticleMaterial } from "../d3/core/particleShuriKen/ShurikenPa
 import { ShurikenParticleRenderer } from "../d3/core/particleShuriKen/ShurikenParticleRenderer";
 import { ShurikenParticleSystem } from "../d3/core/particleShuriKen/ShurikenParticleSystem";
 import { Color } from "../maths/Color";
+import { Gradient } from "../maths/Gradient";
 import { Vector2 } from "../maths/Vector2";
 import { Vector3 } from "../maths/Vector3";
 import { Vector4 } from "../maths/Vector4";

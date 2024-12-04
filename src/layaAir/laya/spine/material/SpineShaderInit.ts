@@ -104,7 +104,7 @@ export class SpineShaderInit {
 
     // static NMatrix: number;
 
-    // static Color: number;
+    static Color: number;
 
     // static Size: number;
 

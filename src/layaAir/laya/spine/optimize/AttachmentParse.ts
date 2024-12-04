@@ -91,11 +91,6 @@ export class AttachmentParse {
      * @zh 指示是否需要正常渲染。
      */
     isNormalRender: boolean = false;
-    /**
-     * @en Indicates if normal rendering is required.
-     * @zh 指示是否需要正常渲染。
-     */
-    isNormalRender: boolean = false;
 
     /**
      * @en The number of bones that affect a vertex.

@@ -13,6 +13,7 @@ import { Scene2DSpecialManager } from "./Scene2DSpecial/Scene2DSpecialManager";
 import { Render2DSimple } from "../renders/Render2D";
 import { Laya, stage } from "../../Laya";
 import { BaseRenderNode2D } from "../NodeRender2D/BaseRenderNode2D";
+import { HierarchyLoader } from "../loaders/HierarchyLoader";
 
 export interface ILight2DManager {
     preRenderUpdate(context: Context): void;
@@ -346,11 +347,6 @@ export class Scene extends Sprite {
      */
     get scene3D() {
         return this._scene3D;
-    }
-
-
-    get sceneShaderData() {
-        return this._shaderData;
     }
 
     /**

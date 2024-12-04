@@ -34,6 +34,7 @@ import { DrawStyle } from "./laya/webgl/canvas/DrawStyle";
 import { Stat } from "./laya/utils/Stat";
 import { RenderPassStatisticsInfo } from "./laya/RenderEngine/RenderEnum/RenderStatInfo";
 import { IPhysiscs2DFactory } from "./laya/physics/IPhysiscs2DFactory";
+import { VertexMesh } from "./laya/RenderEngine/RenderShader/VertexMesh";
 
 /**
  * @en Laya is the reference entry for global objects.

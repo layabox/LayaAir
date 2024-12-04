@@ -12,7 +12,6 @@ import { VertexElementFormat } from "../../../renders/VertexElementFormat";
 import { FastSinglelist } from "../../../utils/SingletonList";
 import { IRenderContext2D } from "../../DriverDesign/2DRenderPass/IRenderContext2D";
 import { IRenderCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
-import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
 import { ShaderData, ShaderDataType } from "../../DriverDesign/RenderDevice/ShaderData";
 import { RenderState } from "../../RenderModuleData/Design/RenderState";
 import { GLESInternalRT } from "../RenderDevice/GLESInternalRT";
@@ -33,8 +32,6 @@ export class GLESREnderContext2D implements IRenderContext2D {
      * @internal
      */
     _nativeObj: any;
-
-    sceneData: ShaderData;
 
     private _dist: GLESInternalRT;
 

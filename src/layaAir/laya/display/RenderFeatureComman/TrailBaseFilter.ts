@@ -154,7 +154,6 @@ export class TrailBaseFilter {
         this.widthCurve = widthKeyFrames;
 
         var gradient: Gradient = new Gradient();
-        gradient.setMaxKeyCount(2, 2);
         gradient.mode = GradientMode.Blend;
         gradient.addColorRGB(0, Color.WHITE);
         gradient.addColorRGB(1, Color.WHITE);

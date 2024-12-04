@@ -31,7 +31,7 @@ export class SkinRenderUpdate {
     name: string;
 
     private hasNormalRender: boolean;
-    
+
     /** @internal */
     _renderer: ISpineRender;
 
@@ -65,6 +65,12 @@ export class SkinRenderUpdate {
     vChanges: IVBChange[] = [];
 
     /**
+     * @en The number of bones that affect a vertex.
+     * @zh 影响一个顶点的最大骨骼数。
+     */
+    vertexBones: number = 0;
+
+    /**
      * @en Create a new instance of SkinRender.
      * @param owner The SpineOptimizeRender that owns this SkinRender.
      * @param skinAttach The SkinAttach data.
@@ -76,6 +82,7 @@ export class SkinRenderUpdate {
         this.owner = owner;
         this.name = skinAttach.name;
         this.hasNormalRender = skinAttach.hasNormalRender;
+        this.vertexBones = skinAttach.vertexBones;
         this.skinAttachType = skinAttach.type;
     }
 
@@ -103,7 +110,7 @@ export class SkinRenderUpdate {
         if (skindata.isDynamic) {
             needUpdate = this.updateDynamicRender(skindata, frame, lastFrame, renderNode);
         } else {
-            needUpdate = this.handleRender(skindata, frame, renderNode , skindata.getMesh());
+            needUpdate = this.handleRender(skindata, frame, renderNode, skindata.getMesh());
         }
         if (needUpdate) renderNode._updateRenderElements();
     }
@@ -124,7 +131,7 @@ export class SkinRenderUpdate {
         }
 
         let needUpdateMesh = SpineMeshUtils._updateSpineSubMesh(mesh, frameData);
-        let needUpdateRender = this.handleRender(skindata, frame, renderNode , mesh);
+        let needUpdateRender = this.handleRender(skindata, frame, renderNode, mesh);
         return needUpdateMesh || needUpdateRender;
     }
 
@@ -155,7 +162,7 @@ export class SkinRenderUpdate {
         return needUpload;
     }
 
-    private handleRender(skindata: SkinAniRenderData, frame: number, renderNode: Spine2DRenderNode , mesh:Mesh2D): boolean {
+    private handleRender(skindata: SkinAniRenderData, frame: number, renderNode: Spine2DRenderNode, mesh: Mesh2D): boolean {
         let frameData = skindata.getFrameData(frame);
         let mulitRenderData = frameData.mulitRenderData;
         let mats = this.cacheMaterials[mulitRenderData.id] || this.createMaterials(mulitRenderData);
@@ -170,7 +177,7 @@ export class SkinRenderUpdate {
     }
 
     private createMaterials(mulitRenderData: MultiRenderData): Material[] {
-        let mats = mulitRenderData.renderData.map(data => 
+        let mats = mulitRenderData.renderData.map(data =>
             this.getMaterialByName(data.textureName, data.blendMode)
         );
         this.cacheMaterials[mulitRenderData.id] = mats;

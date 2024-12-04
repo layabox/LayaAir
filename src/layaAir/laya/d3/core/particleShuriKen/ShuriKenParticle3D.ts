@@ -1,6 +1,4 @@
-import { Node } from "../../../display/Node";
 import { RenderableSprite3D } from "../RenderableSprite3D";
-import { Sprite3D } from "../Sprite3D";
 import { ShurikenParticleRenderer } from "./ShurikenParticleRenderer";
 import { ShurikenParticleSystem } from "./ShurikenParticleSystem";
 

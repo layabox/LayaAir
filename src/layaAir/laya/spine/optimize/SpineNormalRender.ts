@@ -1,3 +1,4 @@
+import { BaseRenderNode2D } from "../../NodeRender2D/BaseRenderNode2D";
 import { Sprite } from "../../display/Sprite";
 import { Color } from "../../maths/Color";
 import { Spine2DRenderNode } from "../Spine2DRenderNode";

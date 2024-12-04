@@ -214,6 +214,8 @@ export class Stage extends Sprite {
     _wgColor = new Color(0, 0, 0, 0);// number[] | null = [0, 0, 0, 1];
     /**@internal */
     _scene3Ds: Scene3D[] = [];
+    /**@internal */
+    _scene2Ds: Scene[] = [];
     private _screenMode: string = "none";
     private _scaleMode: string = "noscale";
     private _alignV: string = "top";
