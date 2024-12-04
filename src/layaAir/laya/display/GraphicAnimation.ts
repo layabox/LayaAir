@@ -5,46 +5,33 @@ import { Loader } from "../net/Loader"
 import { Texture } from "../resource/Texture"
 
 /**
- * @private
+ * @ignore
  * @en Graphics animation parser
  * @zh Graphics动画解析器
  */
 export class GraphicAnimation extends FrameAnimation {
     /**
-     * @private
      * @en List of animations
      * @zh 动画列表
      */
     animationList: any[];
     /**
-     * @private
      * @en Dictionary of animations
      * @zh 动画字典
      */
     animationDic: any;
-    /**@private */
     protected _nodeList: any[];
-    /**@private */
     protected _nodeDefaultProps: any;
-    /**@private */
     protected _gList: any[];
-    /**@private */
     protected _nodeIDAniDic: any = {};
 
-    /**@private */
     protected static _drawTextureCmd: any[] = [["skin", null], ["x", 0], ["y", 0], ["width", -1], ["height", -1], ["pivotX", 0], ["pivotY", 0], ["scaleX", 1], ["scaleY", 1], ["rotation", 0], ["alpha", 1], ["skewX", 0], ["skewY", 0], ["anchorX", 0], ["anchorY", 0]];
-    /**@private */
     protected static _temParam: any[] = [];
-    /**@private */
     private static _I: GraphicAnimation;
-    /**@private */
     private static _rootMatrix: Matrix;
-    /**@private */
     private _rootNode: any;
-    /**@private */
     protected _nodeGDic: any;
 
-    /**@private */
     private _parseNodeList(uiView: any): void {
         if (!this._nodeList) this._nodeList = [];
         this._nodeDefaultProps[uiView.compId] = uiView.props;
@@ -58,7 +45,6 @@ export class GraphicAnimation extends FrameAnimation {
         }
     }
 
-    /**@private */
     private _calGraphicData(aniData: any): void {
         this._setUp(null, aniData);
         this._createGraphicData();
@@ -70,7 +56,6 @@ export class GraphicAnimation extends FrameAnimation {
         }
     }
 
-    /**@private */
     private _createGraphicData(): void {
         var gList: any[] = [];
         var i: number, len: number = this.count;
@@ -85,8 +70,6 @@ export class GraphicAnimation extends FrameAnimation {
         }
         this._gList = gList;
     }
-
-    /**@private */
     protected _createFrameGraphic(frame: number): any {
         var g: Graphics = new Graphics();
         if (!GraphicAnimation._rootMatrix) GraphicAnimation._rootMatrix = new Matrix();
@@ -125,11 +108,7 @@ export class GraphicAnimation extends FrameAnimation {
             this._updateNodeGraphic(childs[i], frame, tResultTransform, g, tGraphicAlpha);
         }
     }
-    /**
-     * @internal
-     * @param tNodeG 
-     * @param g 
-     */
+
     protected _updateNoChilds(tNodeG: GraphicNode, g: Graphics): void {
         if (!tNodeG.skin) return;
         var tTex: Texture = this._getTextureByUrl(tNodeG.skin);
@@ -193,21 +172,15 @@ export class GraphicAnimation extends FrameAnimation {
         }
     }
 
-    /**
-     * @private 
-     * @override
-    */
+
     protected _calculateKeyFrames(node: any): void {
         super._calculateKeyFrames(node);
         this._nodeIDAniDic[node.target] = node;
     }
 
-    /**@private */
     protected getNodeDataByID(nodeID: number): any {
         return this._nodeIDAniDic[nodeID];
     }
-
-    /**@private */
     protected _getParams(obj: any, params: any[], frame: number, obj2: any): any[] {
         var rst: any[] = GraphicAnimation._temParam;
         rst.length = params.length;
@@ -218,7 +191,6 @@ export class GraphicAnimation extends FrameAnimation {
         return rst;
     }
 
-    /**@private */
     private _getObjVar(obj: any, key: string, frame: number, noValue: any, obj2: any): any {
         if (key in obj) {
             var vArr: any[] = obj[key];
@@ -230,12 +202,7 @@ export class GraphicAnimation extends FrameAnimation {
         }
         return noValue;
     }
-    /**
-     * @internal
-     * @param nodeID 
-     * @param frame 
-     * @param rst 
-     */
+
     protected _getNodeGraphicData(nodeID: number, frame: number, rst: GraphicNode): GraphicNode {
         if (!rst)
             rst = new GraphicNode();
@@ -316,13 +283,11 @@ export class GraphicAnimation extends FrameAnimation {
     }
     private static _tempMt: Matrix = new Matrix();
 
-    /**@private */
     protected _getTextureByUrl(url: string): any {
         return Loader.getRes(url);
     }
 
     /**
-     * @private
      * @en Set animation data
      * @param uiView The UI view containing animation data
      * @param aniName The name of the animation to set 
@@ -406,7 +371,6 @@ export class GraphicAnimation extends FrameAnimation {
     }
 
     /**
-     * @private
      * @en Set up animation data
      * This method processes the animations in the UI view, creating a list and dictionary of animation frames.
      * @param uiView The UI view containing animation data
@@ -435,8 +399,6 @@ export class GraphicAnimation extends FrameAnimation {
             this.animationDic = aniDic;
         }
     }
-
-    /**@private */
     protected _clear(): void {
         this.animationList = null;
         this.animationDic = null;

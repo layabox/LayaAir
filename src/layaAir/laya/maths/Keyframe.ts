@@ -39,9 +39,8 @@ export class Keyframe implements IClone {
      * @zh 克隆到另一个对象。
      * @param destObject 克隆源。
      */
-    cloneTo(destObject: any): void {
-        var destKeyFrame: Keyframe = (<Keyframe>destObject);
-        destKeyFrame.time = this.time;
+    cloneTo(destObject: Keyframe): void {
+        destObject.time = this.time;
     }
 
     /**

@@ -140,7 +140,6 @@ export class BitmapFont extends Resource {
     }
 
     /**
-     * @internal
      * @en Destroys the bitmap font. This is called by default when Text.unregisterBitmapFont is invoked.
      * @zh 销毁位图字体，调用 Text.unregisterBitmapFont 时，默认会销毁。
      */

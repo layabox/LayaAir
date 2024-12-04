@@ -53,7 +53,7 @@ export class AnimationClip extends Resource {
 				AnimationClipParser04.parse(clip, reader, version);
 				break;
 			default:
-				throw "unknown animationClip version.";
+				throw new Error("unknown animationClip version.");
 		}
 		return clip;
 	}
@@ -551,9 +551,8 @@ export class AnimationClip extends Resource {
 						v4Data.w -= v4FrameValue.w;
 					}
 					break;
-					break;
 				default:
-					throw "AnimationClip:unknown node type.";
+					throw new Error("AnimationClip:unknown node type.");
 			}
 		}
 	}

@@ -224,5 +224,5 @@
 // }
 
 // function MeshAddTangent(boxMesh1: Mesh) {
-//     throw new Error("Function not implemented.");
+//     throw new NotImplementedError;
 // }

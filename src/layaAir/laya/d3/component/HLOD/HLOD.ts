@@ -167,42 +167,4 @@ export class HLOD extends Component {
             resource.load(this.applyResource, this);
         }
     }
-
-    /**
-     * @ignore
-     * @en Called when the component is enabled.
-     * @zh 当组件启用时调用。
-     */
-    onEnable() {
-        super.onEnable();
-        //根据
-    }
-
-    /**
-     * @ignore
-     * @en Called when the component is disabled.
-     * @zh 当组件禁用时调用。
-     */
-    onDisable() {
-        super.onDisable();
-    }
-
-    /**
-     * @ignore
-     * @en Called when the component is destroyed.
-     * @zh 当组件被销毁时调用。
-     */
-    onDestroy() {
-        super.onDestroy();
-        //TODO删除
-    }
-
-    /**
-     * @en Clones the HLOD component to another object.
-     * @zh 将 HLOD 组件克隆到另一个对象。
-     */
-    _cloneTo(dest: HLOD) {
-        //Clone to
-        throw "cant clone HLOD"
-    }
 }

@@ -2,8 +2,11 @@ import { PhysicsForceMode } from "../../../d3/physics/PhysicsColliderComponent";
 import { MeshColliderShape } from "../../../d3/physics/shape/MeshColliderShape";
 import { Quaternion } from "../../../maths/Quaternion";
 import { Vector3 } from "../../../maths/Vector3";
+import { NotImplementedError } from "../../../utils/Error";
 import { IDynamicCollider } from "../../interface/IDynamicCollider";
+import { Physics3DStatInfo } from "../../interface/Physics3DStatInfo";
 import { EColliderCapable } from "../../physicsEnum/EColliderCapable";
+import { EPhysicsStatisticsInfo } from "../../physicsEnum/EPhysicsStatisticsInfo";
 import { btColliderShape } from "../Shape/btColliderShape";
 import { btMeshColliderShape } from "../Shape/btMeshColliderShape";
 import { btPhysicsCreateUtil } from "../btPhysicsCreateUtil";
@@ -91,6 +94,7 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
 
     constructor(manager: btPhysicsManager) {
         super(manager);
+        Physics3DStatInfo.addStatisticsInfo(EPhysicsStatisticsInfo.C_PhysicaDynamicRigidBody, 1);
     }
 
     /**
@@ -426,7 +430,7 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
      * @param value 角速度。
      */
     setMaxAngularVelocity(value: number): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     /**
@@ -436,7 +440,7 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
      * @param value 速度。
      */
     setMaxDepenetrationVelocity(value: number): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     //这里是bug把  类都不对
@@ -464,7 +468,7 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
      * @param value 求解器迭代次数。
      */
     setSolverIterations(value: number): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     /**
@@ -509,6 +513,8 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
             bt.btCollisionObject_forceActivationState(this._btCollider, btPhysicsManager.ACTIVATIONSTATE_DISABLE_DEACTIVATION);//触发器开启主动检测,并防止睡眠
             this._enableProcessCollisions = false;
             this._updateMass(0);//必须设置Mass为0来保证InverMass为0
+            Physics3DStatInfo.addStatisticsInfo(EPhysicsStatisticsInfo.C_PhysicaKinematicRigidBody, 1);
+            Physics3DStatInfo.addStatisticsInfo(EPhysicsStatisticsInfo.C_PhysicaDynamicRigidBody, -1);
         } else {
             if ((flags & btPhysicsManager.COLLISIONFLAGS_KINEMATIC_OBJECT) > 0)
                 flags = flags ^ btPhysicsManager.COLLISIONFLAGS_KINEMATIC_OBJECT;
@@ -760,6 +766,11 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
      * @zh 销毁刚体。
      */
     destroy(): void {
+        if (this._isKinematic) {
+            Physics3DStatInfo.addStatisticsInfo(EPhysicsStatisticsInfo.C_PhysicaKinematicRigidBody, -1);
+        } else {
+            Physics3DStatInfo.addStatisticsInfo(EPhysicsStatisticsInfo.C_PhysicaDynamicRigidBody, -1);
+        }
         let bt = btPhysicsCreateUtil._bt;
         bt.btMotionState_destroy(this._btLayaMotionState);
         super.destroy();

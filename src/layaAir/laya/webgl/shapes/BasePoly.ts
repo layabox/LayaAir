@@ -5,11 +5,11 @@ const minAngle = 15 * Math.PI / 180; // 15度的弧度值
  * 精度
  */
 const precision = 1e-13;
-export class BasePoly {
+const tempData: any[] = new Array(256);
+const tempIndexs: any[] = new Array(4);
+const vec2 = new Vector2();
 
-    private static tempData: any[] = new Array(256);
-    private static vec2: Vector2;
-    private static tempIndexs: any[] = new Array(4);
+export class BasePoly {
 
     private static _checkMinAngle(p1x: number, p1y: number, p2x: number, p2y: number, p3x: number, p3y: number): boolean {
         // 计算相邻线段的方向向量
@@ -45,8 +45,8 @@ export class BasePoly {
     static createLine2(p: any[], indices: any[], lineWidth: number, indexBase: number, outVertex: any[], loop: boolean): any[] {
 
         if (p.length < 4) return null;
-	let offset = indexBase;
-        var points: any[] = BasePoly.tempData.length > (p.length + 2) ? BasePoly.tempData : new Array(p.length + 2);	//可能有loop，所以+2
+        let offset = indexBase;
+        var points: any[] = tempData.length > (p.length + 2) ? tempData : new Array(p.length + 2);	//可能有loop，所以+2
         points[0] = p[0]; points[1] = p[1];
         /*
         var points:Array = p.concat();
@@ -64,13 +64,13 @@ export class BasePoly {
             }
         }
         //如果终点和起点没有重合，且要求loop的情况的处理
-        let delta=Math.abs(p[0] - points[newlen - 2]) + Math.abs(p[1] - points[newlen - 1]);
+        let delta = Math.abs(p[0] - points[newlen - 2]) + Math.abs(p[1] - points[newlen - 1]);
         if (loop && delta > 0) {
-            if(delta>precision){
+            if (delta > precision) {
                 points[newlen++] = p[0]; points[newlen++] = p[1];
             }
-            else{
-                points[newlen-2] = p[0]; points[newlen-1] = p[1];
+            else {
+                points[newlen - 2] = p[0]; points[newlen - 1] = p[1];
             }
         }
 
@@ -86,8 +86,8 @@ export class BasePoly {
         p2y = points[3];
         // let startIndex = result.length;
 
-        this.vec2 = this.getNormal(p1x, p1y, p2x, p2y, w, this.vec2);
-        result.push(p1x - this.vec2.x, p1y - this.vec2.y, p1x + this.vec2.x, p1y + this.vec2.y);
+        this.getNormal(p1x, p1y, p2x, p2y, w, vec2);
+        result.push(p1x - vec2.x, p1y - vec2.y, p1x + vec2.x, p1y + vec2.y);
         for (i = 1; i < length - 1; i++) {
             p1x = points[(i - 1) * 2];
             p1y = points[(i - 1) * 2 + 1];
@@ -100,7 +100,7 @@ export class BasePoly {
             indices.push(indexBase + 0, indexBase + 1, indexBase + 3, indexBase + 3, indexBase + 2, indexBase + 0);
             indexBase += 2;
             // 夹角小于阈值,视为尖角,使用线段的中点作为拐角处的顶点
-            indexBase += this._setMiddleVertexs(p1x, p1y, p2x, p2y, p3x, p3y, w, result, this.vec2, indices, indexBase);
+            indexBase += this._setMiddleVertexs(p1x, p1y, p2x, p2y, p3x, p3y, w, result, vec2, indices, indexBase);
         }
 
         p1x = points[newlen - 4];
@@ -108,20 +108,19 @@ export class BasePoly {
         p2x = points[newlen - 2];
         p2y = points[newlen - 1];
 
-        this.vec2 = this.getNormal(p1x, p1y, p2x, p2y, w, this.vec2);
-        result.push(p2x - this.vec2.x, p2y - this.vec2.y, p2x + this.vec2.x, p2y + this.vec2.y);
+        this.getNormal(p1x, p1y, p2x, p2y, w, vec2);
+        result.push(p2x - vec2.x, p2y - vec2.y, p2x + vec2.x, p2y + vec2.y);
         indices.push(indexBase + 0, indexBase + 1, indexBase + 3, indexBase + 3, indexBase + 2, indexBase + 0);
         if (p2x == points[0] && p2y == points[1]) {
             p3x = points[2];
             p3y = points[3];
             let last = result.length / 2;
             indexBase += 4;
-            let tempIndexs = BasePoly.tempIndexs;
             tempIndexs[0] = offset + last - 2;
             tempIndexs[1] = offset + last - 1;
             tempIndexs[2] = offset;
             tempIndexs[3] = offset + 1;
-            this._setMiddleVertexs(p1x, p1y, p2x, p2y, p3x, p3y, w, result, this.vec2, indices, indexBase, tempIndexs);
+            this._setMiddleVertexs(p1x, p1y, p2x, p2y, p3x, p3y, w, result, vec2, indices, indexBase, tempIndexs);
         }
         return result;
     }

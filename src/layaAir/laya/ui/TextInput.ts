@@ -21,7 +21,6 @@ import { URL } from "../net/URL";
  * - Event.BLUR事件：当输入框失去焦点时调度。
  */
 export class TextInput extends Label {
-    /** @internal */
     protected _skin: string;
     /** @internal */
     declare _graphics: AutoBitmap;

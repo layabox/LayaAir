@@ -16,7 +16,7 @@ export class NavMeshLink extends BaseNav3DModifle {
 
     /**@internal */
     private _agentType: string;
-    
+
     /**
      * @en The width of the link
      * @zh 链接的宽度
@@ -102,14 +102,13 @@ export class NavMeshLink extends BaseNav3DModifle {
     }
 
     /**@internal */
-    _cloneTo(dest: Component): void {
-        let link = dest as NavMeshLink;
-        this.start.cloneTo(link.start);
-        this.end.cloneTo(link.end);
-        link.agentType = this.agentType;
-        link.areaFlag = this.areaFlag;
-        link.bidirectional = this.bidirectional;
-        link.width = this.width;
+    _cloneTo(dest: NavMeshLink): void {
+        dest.start = this.start;
+        dest.end = this.end;
+        dest.agentType = this._agentType;
+        dest.areaFlag = this.areaFlag;
+        dest.width = this.width;
+        dest.bidirectional = this.bidirectional;
         super._cloneTo(dest);
     }
 }

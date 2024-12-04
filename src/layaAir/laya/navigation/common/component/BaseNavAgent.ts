@@ -500,4 +500,3 @@ export class BaseNavAgent extends Component {
         agent.maxAcceleration = this.maxAcceleration;
         super._cloneTo(dest);
     }
-}

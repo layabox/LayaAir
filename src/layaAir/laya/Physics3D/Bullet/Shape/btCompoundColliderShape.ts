@@ -152,11 +152,10 @@ export class btCompoundColliderShape extends btColliderShape implements ICompoun
 	 * @inheritDoc
 	 * @override
 	 */
-	cloneTo(destObject: any): void {
-		var destCompoundColliderShape: CompoundColliderShape = (<CompoundColliderShape>destObject);
-		destCompoundColliderShape.clearChildShape();
+	cloneTo(destObject: CompoundColliderShape): void {
+		destObject.clearChildShape();
 		for (var i: number = 0, n: number = this._childColliderShapes.length; i < n; i++)
-			destCompoundColliderShape.addChildShape(this._childColliderShapes[i].clone());
+			destObject.addChildShape(this._childColliderShapes[i].clone());
 	}
 
 	/**

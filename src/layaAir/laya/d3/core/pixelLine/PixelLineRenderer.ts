@@ -5,6 +5,7 @@ import { Vector3 } from "../../../maths/Vector3";
 import { IMeshRenderNode } from "../../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
 
 import { Material } from "../../../resource/Material";
+import { OutOfRangeError } from "../../../utils/Error";
 import { Bounds } from "../../math/Bounds";
 import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 import { UnlitMaterial } from "../material/UnlitMaterial";
@@ -73,6 +74,10 @@ export class PixelLineRenderer extends BaseRender {
 
     set pixelLinesDatas(value: PixelLineData[]) {
         this.clear();
+        if (value.length > this._pixelLineFilter._maxLineCount) {
+            value = value.slice(0, this._pixelLineFilter._maxLineCount);
+            console.warn("reach max line count");
+        }
         this.addLines(value);
     }
 
@@ -202,7 +207,7 @@ export class PixelLineRenderer extends BaseRender {
             this._pixelLineFilter._updateLineData(this._pixelLineFilter._lineCount++, startPosition, endPosition, startColor, endColor);
         }
         else {
-            throw "PixelLineSprite3D: lineCount has equal with maxLineCount.";
+            throw new Error("reach max line count");
         }
 
         if (this._isRenderActive && !this._isInRenders && this._pixelLineFilter._lineCount > 0) {
@@ -233,7 +238,7 @@ export class PixelLineRenderer extends BaseRender {
             this._pixelLineFilter._updateLineData(this._pixelLineFilter._lineCount++, startPosition, endPosition, startColor, endColor, startNormal, endNormal);
         }
         else {
-            throw "PixelLineSprite3D: lineCount has equal with maxLineCount.";
+            throw new Error("reach max line count");
         }
 
         if (this._isRenderActive && !this._isInRenders && this._pixelLineFilter._lineCount > 0) {
@@ -253,7 +258,7 @@ export class PixelLineRenderer extends BaseRender {
         var lineCount: number = this._pixelLineFilter._lineCount;
         var addCount: number = lines.length;
         if (lineCount + addCount > this._pixelLineFilter._maxLineCount) {
-            throw "PixelLineSprite3D: lineCount plus lines count must less than maxLineCount.";
+            throw new Error("reach max line count");
         }
         else {
             this._pixelLineFilter._updateLineDatas(lineCount, lines);
@@ -277,7 +282,7 @@ export class PixelLineRenderer extends BaseRender {
         if (index < this._pixelLineFilter._lineCount)
             this._pixelLineFilter._removeLineData(index);
         else
-            throw "PixelLineSprite3D: index must less than lineCount.";
+            throw new OutOfRangeError(index);
         if (this._isRenderActive && this._isInRenders && this._pixelLineFilter._lineCount == 0) {
             this.owner.scene && this.owner.scene._removeRenderObject(this);
             this._isInRenders = false;
@@ -312,7 +317,7 @@ export class PixelLineRenderer extends BaseRender {
         }
 
         else
-            throw "PixelLineSprite3D: index must less than lineCount.";
+            throw new OutOfRangeError(index);
     }
 
     /**
@@ -348,7 +353,7 @@ export class PixelLineRenderer extends BaseRender {
         }
 
         else
-            throw "PixelLineSprite3D: index must less than lineCount.";
+            throw new OutOfRangeError(index);
     }
 
     /**
@@ -363,7 +368,7 @@ export class PixelLineRenderer extends BaseRender {
         if (index < this.lineCount)
             this._pixelLineFilter._getLineData(index, out);
         else
-            throw "PixelLineSprite3D: index must less than lineCount.";
+            throw new OutOfRangeError(index);
     }
 
     /**
@@ -407,15 +412,14 @@ export class PixelLineRenderer extends BaseRender {
      * @override
      * @param dest 
      */
-    _cloneTo(dest: Component): void {
+    _cloneTo(dest: PixelLineRenderer): void {
         super._cloneTo(dest);
-        let render = dest as PixelLineRenderer;
-        render.maxLineCount = this.maxLineCount;
+        dest.maxLineCount = this.maxLineCount;
         const lineCount = this.lineCount;
         let linedata = new PixelLineData();
         for (let i = 0, n = lineCount; i < n; i++) {
             this.getLine(i, linedata);
-            render.addLine(linedata.startPosition, linedata.endPosition, linedata.startColor, linedata.endColor);
+            dest.addLine(linedata.startPosition, linedata.endPosition, linedata.startColor, linedata.endColor);
         }
     }
 

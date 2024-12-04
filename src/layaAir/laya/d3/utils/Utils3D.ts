@@ -3,13 +3,9 @@ import { Texture2D } from "../../resource/Texture2D";
 import { PixelLineSprite3D } from "../core/pixelLine/PixelLineSprite3D";
 import { BoundBox } from "../math/BoundBox";
 import { TextureGenerator } from "../resource/TextureGenerator";
-import { ILaya3D } from "../../../ILaya3D";
-import { HTMLCanvas } from "../../resource/HTMLCanvas";
 import { TextureFormat } from "../../RenderEngine/RenderEnum/TextureFormat";
 import { FilterMode } from "../../RenderEngine/RenderEnum/FilterMode";
 import { WrapMode } from "../../RenderEngine/RenderEnum/WrapMode";
-import { RenderTargetFormat } from "../../RenderEngine/RenderEnum/RenderTargetFormat";
-import { LayaEnv } from "../../../LayaEnv";
 import { Bounds } from "../math/Bounds";
 import { Color } from "../../maths/Color";
 import { Matrix4x4 } from "../../maths/Matrix4x4";
@@ -24,15 +20,6 @@ import { Utils } from "../../utils/Utils";
  * @zh Utils3D 类用于创建3D工具。
  */
 export class Utils3D {
-    private static _tempVector3_0: Vector3 = new Vector3();
-    private static _tempVector3_1: Vector3 = new Vector3();
-    private static _tempVector3_2: Vector3 = new Vector3();
-
-    private static _tempArray16_0: Float32Array = new Float32Array(16);
-    private static _tempArray16_1: Float32Array = new Float32Array(16);
-    private static _tempArray16_2: Float32Array = new Float32Array(16);
-    private static _tempArray16_3: Float32Array = new Float32Array(16);
-
     /**
      * @internal
      */
@@ -63,9 +50,9 @@ export class Utils3D {
      */
     private static _rotationTransformScaleSkinAnimation(tx: number, ty: number, tz: number, qx: number, qy: number, qz: number, qw: number, sx: number, sy: number, sz: number, outArray: Float32Array, outOffset: number): void {
 
-        var re: Float32Array = Utils3D._tempArray16_0;
-        var se: Float32Array = Utils3D._tempArray16_1;
-        var tse: Float32Array = Utils3D._tempArray16_2;
+        var re: Float32Array = _tempArray16_0;
+        var se: Float32Array = _tempArray16_1;
+        var tse: Float32Array = _tempArray16_2;
 
         //平移
 
@@ -132,25 +119,18 @@ export class Utils3D {
     }
 
     /**
-     * @internal
-     */
-    static _compIdToNode: any = new Object();
-    static _tempV0: Vector3 = new Vector3();
-    static _tempV1: Vector3 = new Vector3();
-
-    /**
      * @en Convert vertices to a billboard
      * @zh 将顶点进行广告牌转换
      */
     static billboardTrans(v0: Vector3, cameraDir: Vector3, cameraUp: Vector3, out: Vector3) {
         //vec3 positionOS = vertex.positionOS.x * normalize(cross(u_CameraDirection, u_CameraUp));
         //positionOS += vertex.positionOS.y * normalize(u_CameraUp);
-        Vector3.normalize(cameraUp, Utils3D._tempV1);
-        Vector3.cross(cameraDir, cameraUp, Utils3D._tempV0);
-        Vector3.normalize(Utils3D._tempV0, Utils3D._tempV0);
-        Vector3.scale(Utils3D._tempV0, v0.x, out);
-        Vector3.scale(cameraUp, v0.y, Utils3D._tempV1);
-        Vector3.add(out, Utils3D._tempV1, out);
+        Vector3.normalize(cameraUp, _tempVector3_1);
+        Vector3.cross(cameraDir, cameraUp, _tempVector3_0);
+        Vector3.normalize(_tempVector3_0, _tempVector3_0);
+        Vector3.scale(_tempVector3_0, v0.x, out);
+        Vector3.scale(cameraUp, v0.y, _tempVector3_1);
+        Vector3.add(out, _tempVector3_1, out);
     }
 
     /**
@@ -168,9 +148,9 @@ export class Utils3D {
      * @returns 若P在三角形内，返回true，否则返回false。
      */
     static PointinTriangle(A: Vector3, B: Vector3, C: Vector3, P: Vector3): boolean {
-        let v0 = C.vsub(A, Utils3D._tempVector3_0);
-        let v1 = B.vsub(A, Utils3D._tempVector3_1);
-        let v2 = P.vsub(A, Utils3D._tempVector3_2);
+        let v0 = C.vsub(A, _tempVector3_0);
+        let v1 = B.vsub(A, _tempVector3_1);
+        let v2 = P.vsub(A, _tempVector3_2);
 
         let dot00 = v0.dot(v0);
         let dot01 = v0.dot(v1);
@@ -314,7 +294,7 @@ export class Utils3D {
         var i: number, ai0: number, ai1: number, ai2: number, ai3: number;
 
         if (outArray === rightArray) {
-            rightArray = Utils3D._tempArray16_3;
+            rightArray = _tempArray16_3;
             for (i = 0; i < 16; ++i) {
                 rightArray[i] = outArray[outOffset + i];
             }
@@ -685,8 +665,8 @@ export class Utils3D {
      * @internal
      */
     static scaleBlend(sa: Vector3, sb: Vector3, w: number, out: Vector3): void {
-        var saw: Vector3 = Utils3D._tempVector3_0;
-        var sbw: Vector3 = Utils3D._tempVector3_1;
+        var saw: Vector3 = _tempVector3_0;
+        var sbw: Vector3 = _tempVector3_1;
         Utils3D.scaleWeight(sa, 1.0 - w, saw);
         Utils3D.scaleWeight(sb, w, sbw);
         var sng: Vector3 = w > 0.5 ? sb : sa;
@@ -747,8 +727,8 @@ export class Utils3D {
         if (debugLine.lineCount + 12 > debugLine.maxLineCount)
             debugLine.maxLineCount += 12;
 
-        var start: Vector3 = Utils3D._tempVector3_0;
-        var end: Vector3 = Utils3D._tempVector3_1;
+        var start: Vector3 = _tempVector3_0;
+        var end: Vector3 = _tempVector3_1;
         var min: Vector3 = boundBox.min;
         var max: Vector3 = boundBox.max;
 
@@ -890,3 +870,11 @@ export class Utils3D {
 
 (window as any).getRTBase64 = Utils3D.uint8ArrayToArrayBuffer;
 const TEMPVector30 = new Vector3();
+const _tempVector3_0: Vector3 = new Vector3();
+const _tempVector3_1: Vector3 = new Vector3();
+const _tempVector3_2: Vector3 = new Vector3();
+
+const _tempArray16_0: Float32Array = new Float32Array(16);
+const _tempArray16_1: Float32Array = new Float32Array(16);
+const _tempArray16_2: Float32Array = new Float32Array(16);
+const _tempArray16_3: Float32Array = new Float32Array(16);

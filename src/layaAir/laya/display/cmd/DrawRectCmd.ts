@@ -57,7 +57,6 @@ export class DrawRectCmd {
     percent: boolean;
 
     /**
-     * @private
      * @en Create a DrawRectCmd instance
      * @param x The X-axis position to start drawing
      * @param y The Y-axis position to start drawing
@@ -103,7 +102,6 @@ export class DrawRectCmd {
     }
 
     /**
-     * @private
      * @en Execute the drawing rectangle command
      * @param context The rendering context
      * @param gx Global X offset
@@ -126,7 +124,6 @@ export class DrawRectCmd {
     }
 
     /**
-     * @private
      * @en The identifier for the DrawRectCmd
      * @zh 绘制矩形命令的标识符
      */

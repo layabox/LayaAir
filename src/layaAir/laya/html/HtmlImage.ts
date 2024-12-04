@@ -18,6 +18,7 @@ export class HtmlImage implements IHtmlObject {
 
     private _owner: Text;
     private _element: HtmlElement;
+    private _v: number = 0;
 
     /**
      * @en Creates a new HtmlImage object.
@@ -86,8 +87,9 @@ export class HtmlImage implements IHtmlObject {
                 this.obj.height = tex.sourceHeight;
         }
         else {
+            let ver = this._v;
             ILaya.loader.load(src, { silent: true }).then(tex => {
-                if (this.obj.destroyed) return;
+                if (this.obj.destroyed || ver != this._v) return;
                 let w = this.obj.width;
                 let h = this.obj.height;
                 this.obj.texture = tex;
@@ -123,6 +125,7 @@ export class HtmlImage implements IHtmlObject {
         this.obj.texture = null;
         this._owner = null;
         this._element = null;
+        this._v++;
     }
 
     /**

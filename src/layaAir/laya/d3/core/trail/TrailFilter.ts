@@ -133,17 +133,14 @@ export class TrailFilter extends TrailBaseFilter {
 				pos.setValue(_vertices1[posOffset + 0], _vertices1[posOffset + 1], _vertices1[posOffset + 2]);
 				up.setValue(_vertices1[posOffset + 3], _vertices1[posOffset + 4], _vertices1[posOffset + 5]);
 
-				Vector3.add(pos, up, side);
-				Vector3.min(side, min, min);
-				Vector3.max(side, max, max);
-				Vector3.subtract(pos, up, side);
-				Vector3.min(side, min, min);
-				Vector3.max(side, max, max);
-			}
-			bounds.setMin(min);
-			bounds.setMax(max);
-			this._trialGeometry._disappearBoundsMode = false;
-		}
+		var gradient: Gradient = new Gradient();
+		gradient.mode = GradientMode.Blend;
+		gradient.addColorRGB(0, Color.WHITE);
+		gradient.addColorRGB(1, Color.WHITE);
+		gradient.addColorAlpha(0, 1);
+		gradient.addColorAlpha(1, 1);
+		this.colorGradient = gradient;
+	}
 
 		this._trialGeometry._updateRenderParams();
 	}

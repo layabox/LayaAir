@@ -90,17 +90,16 @@ export class TextureSheetAnimation implements IClone {
 	 * @zh 克隆到目标对象。
 	 * @param destObject 要克隆到的目标对象。
 	 */
-	cloneTo(destObject: any): void {
-		var destTextureSheetAnimation: TextureSheetAnimation = (<TextureSheetAnimation>destObject);
-		this.tiles.cloneTo(destTextureSheetAnimation.tiles);
-		destTextureSheetAnimation.type = this.type;
-		destTextureSheetAnimation.randomRow = this.randomRow;
-		destTextureSheetAnimation.rowIndex = this.rowIndex;
-		destTextureSheetAnimation.cycles = this.cycles;
-		destTextureSheetAnimation.enableUVChannels = this.enableUVChannels;
-		destTextureSheetAnimation.enable = this.enable;
-		this._frame.cloneTo(destTextureSheetAnimation._frame);
-		this._startFrame.cloneTo(destTextureSheetAnimation._startFrame);
+	cloneTo(destObject: TextureSheetAnimation): void {
+		this.tiles.cloneTo(destObject.tiles);
+		destObject.type = this.type;
+		destObject.randomRow = this.randomRow;
+		destObject.rowIndex = this.rowIndex;
+		destObject.cycles = this.cycles;
+		destObject.enableUVChannels = this.enableUVChannels;
+		destObject.enable = this.enable;
+		this._frame.cloneTo(destObject._frame);
+		this._startFrame.cloneTo(destObject._startFrame);
 	}
 
 	/**

@@ -798,7 +798,7 @@ export class BaseRender extends Component {
      * @zh 从 Scene 移除会调用此方法。
      */
     _setUnBelongScene() {
-        this._statRemove
+        this._statRemove();
         this._scene._volumeManager.removeMotionObject(this);
         let batch = this._batchRender;
         this._batchRender && this._batchRender._removeOneRender(this);
@@ -823,14 +823,13 @@ export class BaseRender extends Component {
      * @override
      * @param dest 
      */
-    _cloneTo(dest: Component): void {
+    _cloneTo(dest: BaseRender): void {
         super._cloneTo(dest);
-        let render = (dest as BaseRender);
-        render.receiveShadow = this.receiveShadow;
-        render.sharedMaterials = this.sharedMaterials;
-        render.reflectionMode = this.reflectionMode;
-        render.castShadow = this.castShadow;
-        render.sortingFudge = this.sortingFudge;
+        dest.receiveShadow = this.receiveShadow;
+        dest.sharedMaterials = this.sharedMaterials;
+        dest.reflectionMode = this.reflectionMode;
+        dest.castShadow = this.castShadow;
+        dest.sortingFudge = this.sortingFudge;
     }
 
     /**

@@ -69,10 +69,9 @@ export class Physics3DColliderShape implements IClone {
 	 * @zh 将此对象克隆到目标对象。
 	 * @param destObject 目标对象。
 	 */
-	cloneTo(destObject: any): void {
-		var destColliderShape: Physics3DColliderShape = (<Physics3DColliderShape>destObject);
-		this._localOffset.cloneTo(destColliderShape.localOffset);
-		destColliderShape.localOffset = destColliderShape.localOffset;
+	cloneTo(destObject: Physics3DColliderShape): void {
+		this._localOffset.cloneTo(destObject.localOffset);
+		destObject.localOffset = destObject.localOffset;
 	}
 
 	/**

@@ -91,12 +91,11 @@ export class StartFrame implements IClone {
 	 * @zh 克隆到目标对象。
 	 * @param destObject 要克隆到的目标对象。
 	 */
-	cloneTo(destObject: any): void {
-		var destStartFrame: StartFrame = (<StartFrame>destObject);
-		destStartFrame._type = this._type;
-		destStartFrame._constant = this._constant;
-		destStartFrame._constantMin = this._constantMin;
-		destStartFrame._constantMax = this._constantMax;
+	cloneTo(destObject: StartFrame): void {
+		destObject._type = this._type;
+		destObject._constant = this._constant;
+		destObject._constantMin = this._constantMin;
+		destObject._constantMax = this._constantMax;
 	}
 
 	/**

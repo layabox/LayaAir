@@ -17,16 +17,6 @@ import { WebXRSessionManager } from "./WebXRSessionManager";
  */
 export class WebXRInputManager {
     /**
-     * @en A temporary Vector3 for calculations.
-     * @zh 用于计算的临时 Vector3。
-     */
-    static tempVec: Vector3 = new Vector3();
-    /**
-     * @en Another temporary Vector3 for calculations.
-     * @zh 另一个用于计算的临时 Vector3。
-     */
-    static tempVec1: Vector3 = new Vector3();
-    /**
      * Session Manager
      */
     private webXRSessionManager: WebXRSessionManager;
@@ -87,10 +77,10 @@ export class WebXRInputManager {
             let line = this.controllerLineRender.get(handness);
             line.clear();
             let ray = xrInput.ray;
-            WebXRInputManager.tempVec.setValue(ray.origin.x, ray.origin.y, ray.origin.z);
-            Vector3.scale(ray.direction, this.rayLength, WebXRInputManager.tempVec1);
-            Vector3.add(WebXRInputManager.tempVec, WebXRInputManager.tempVec1, WebXRInputManager.tempVec1);
-            line.addLine(WebXRInputManager.tempVec, WebXRInputManager.tempVec1, this.lineColor, this.lineColor);
+            tempVec.setValue(ray.origin.x, ray.origin.y, ray.origin.z);
+            Vector3.scale(ray.direction, this.rayLength, tempVec1);
+            Vector3.add(tempVec, tempVec1, tempVec1);
+            line.addLine(tempVec, tempVec1, this.lineColor, this.lineColor);
         }
     }
 
@@ -107,14 +97,14 @@ export class WebXRInputManager {
             let xrInput: WebXRInput;
             if (!this.controllers.has(key)) {
                 xrInput = this.getController(key);
-            }else
+            } else
                 xrInput = this.controllers.get(key);
-            if(xrInput){
+            if (xrInput) {
                 xrInput = this.controllers.get(key);
                 xrInput._inputSource = inputSource;
                 xrInput._updateByXRPose(xrFrame, refSpace);
             }
-            
+
         }
     }
 
@@ -177,3 +167,5 @@ export class WebXRInputManager {
     }
 }
 
+const tempVec: Vector3 = new Vector3();
+const tempVec1: Vector3 = new Vector3();

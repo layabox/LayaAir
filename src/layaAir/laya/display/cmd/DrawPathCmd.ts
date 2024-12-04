@@ -40,7 +40,6 @@ export class DrawPathCmd {
     pen: any;
 
     /**
-     * @private
      * @en Create a DrawPathCmd instance
      * @param x The X-axis position to start drawing
      * @param y The Y-axis position to start drawing
@@ -78,7 +77,6 @@ export class DrawPathCmd {
     }
 
     /**
-     * @private
      * @en Execute the drawing command
      * @param context The rendering context
      * @param gx Global X offset
@@ -93,7 +91,6 @@ export class DrawPathCmd {
     }
 
     /**
-     * @private
      * @en The identifier for the DrawPathCmd
      * @zh 根据路径绘制矢量图形命令的标识符
      */

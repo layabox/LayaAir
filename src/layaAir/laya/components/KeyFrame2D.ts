@@ -69,9 +69,8 @@ export class Keyframe2D implements IClone {
      * @zh 将当前关键帧的属性复制到另一个 Keyframe2D 实例。
      * @param destObject 要复制属性的 Keyframe2D 实例。
      */
-    cloneTo(destObject: any): void {
-        var destKeyFrame: Keyframe2D = (<Keyframe2D>destObject);
-        destKeyFrame.time = this.time;
+    cloneTo(destObject: Keyframe2D): void {
+        destObject.time = this.time;
     }
 
 }

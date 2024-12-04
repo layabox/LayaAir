@@ -232,7 +232,7 @@ export class AnimatorTransition {
                         return false;
                     }
                     if (con.type == AniStateConditionType.Trigger) {
-                        if (triggerCatch) triggerCatch = [];
+                        if (!triggerCatch) triggerCatch = [];
                         triggerCatch.push(con.id);
                     }
                 }

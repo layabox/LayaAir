@@ -66,7 +66,6 @@ export class FillTextureCmd {
     color: number = 0xffffffff;
 
     /**
-     * @private
      * @en Create a FillTextureCmd instance
      * @param texture The texture to be filled
      * @param x X-axis offset
@@ -114,7 +113,6 @@ export class FillTextureCmd {
     }
 
     /**
-     * @private
      * @en Execute the fill texture command
      * @param context The rendering context
      * @param gx Global X offset
@@ -137,7 +135,6 @@ export class FillTextureCmd {
     }
 
     /**
-     * @private
      * @en The identifier for the FillTextureCmd
      * @zh 填充贴图命令的标识符
      */

@@ -1,34 +1,80 @@
 import { Byte } from "../../utils/Byte";
 import { BinHashUtils } from "./BinHashUtils";
 import { JsonBinRead } from "./JsonBinRead";
-
-
 /**
- * ...
- * @author LaoXie
+ * @en The JsonBinWrite class is responsible for serializing various data types into a binary format that can be saved or transmitted.
+ * @zh JsonBinWrite类负责将各种数据类型序列化为可保存或传输的二进制格式。
  */
 export class JsonBinWrite {
+	/**
+	 * @en A special string used for compression identification within the serialized data.
+	 * @zh 用于在序列化数据中标识压缩的特殊字符串。
+	 */
 	static COMPRESS: string = "_$TeMpkEy$_CoMpReSs";
+	/**
+	 * @en A special string used to mark keys that should not be saved.
+	 * @zh 用于标记不应保存的键的特殊字符串。
+	 */
 	static NOSAVEKEY: string = "_$TeMpkEyNoSv$_";
+	/**
+	* @en A special string used to mark an object that should not be saved in a specific way.
+	* @zh 用于以特定方式标记不应保存的对象的特殊字符串。
+	*/
 	static NOSAVETHISOBJ: string = "$__$disbaleJsonBinSv";
+	/**
+	 * @en The length of the special NOSAVEKEY string.
+	 * @zh 特殊的NOSAVEKEY字符串的长度。
+	 */
 	static NOSAVE_KEY_LEN: number = 15;
-
+	/**
+	 * @en A constant value used to indicate a specific action related to not saving an object (delete).
+	 * @zh 用于指示与不保存对象相关的特定操作（删除）的常量值。
+	 */
 	static NOSAVETHISOBJ_DELETE: number = 2;
+	/**
+	 * @en A constant value used to indicate a specific action related to not saving an object (true).
+	 * @zh 用于指示与不保存对象相关的特定操作（真）的常量值。
+	 */
 	static NOSAVETHISOBJ_TRUE: number = 1;
-
+	/**
+	 * @en The singleton instance of the JsonBinWrite class.
+	 * @zh JsonBinWrite类的单例实例。
+	 */
 	private static _instance: JsonBinWrite;
-
+	/**
+	 * @en Gets the singleton instance of the JsonBinWrite class. If it doesn't exist, creates a new one.
+	 * @returns The singleton instance of the JsonBinWrite class.
+	 * @zh 获取JsonBinWrite类的单例实例。如果不存在，则创建一个新的实例。
+	 * @returns JsonBinWrite类的单例实例。
+	 */
 	static get instance(): JsonBinWrite {
 		return JsonBinWrite._instance || (JsonBinWrite._instance = new JsonBinWrite());
 	}
-
+	/**
+	 * @en An object used to store references to other objects during the serialization process.
+	 * @zh 在序列化过程中用于存储对其他对象引用的对象。
+	 */
 	objectRef: any = {};
-
+	/**
+	 * @en A flag used to enable or disable certain class-related functionality during serialization.
+	 * @zh 在序列化期间用于启用或禁用某些与类相关功能的标志。
+	 */
 	private _classEnable_: boolean;
 
 	constructor() {
 	}
-
+	/**
+	 * @en Saves a key-value pair with a specific value type to the output buffer.
+	 * @param key The key to be saved.
+	 * @param valueType The type of the value associated with the key.
+	 * @param keyMap A mapping object that keeps track of keys and their corresponding values and indices.
+	 * @param out The output buffer where the data is written.
+	 * @zh 将具有特定值类型的键值对保存到输出缓冲区。
+	 * @param key 要保存的键。
+	 * @param valueType 与键关联的值的类型。
+	 * @param keyMap 用于跟踪键及其对应的值和索引的映射对象。
+	 * @param out 写入数据的输出缓冲区。
+	 */
 	private _saveKey(key: string, valueType: number, keyMap: SaveKeyMap, out: Byte): void {
 		//之前这里的分隔符不够特殊，导致出问题了，换成了更特殊的字符
 		this.deep++;
@@ -42,7 +88,14 @@ export class JsonBinWrite {
 		out.writeUint16(keyNum);
 		this.deep--;
 	}
-
+    /**
+     * @en Determines the appropriate array value type based on the typeof the given value.
+     * @param value The value for which the array value type is to be determined.
+     * @returns The determined array value type as a number.
+     * @zh 根据给定值的类型确定合适的数组值类型。
+     * @param value 要确定数组值类型的那个值。
+     * @returns 确定的数组值类型（以数字表示）。
+     */
 	private _getValueArrayType(value: any): number {
 		switch (typeof (value)) {
 			case "number":
@@ -61,7 +114,20 @@ export class JsonBinWrite {
 		}
 		return JsonBinRead.OBJECT;
 	}
-
+    /**
+     * @en Writes a string or a word text value to the output buffer along with its associated key.
+     * @param keyMap A mapping object that keeps track of keys and their corresponding values and indices.
+     * @param key The key associated with the value. Can be null.
+     * @param value The value to be written.
+     * @param out The output buffer where the data is written.
+     * @param isWordText A flag indicating whether the value is a word text.
+     * @zh 将字符串或单词文本值及其关联的键写入输出缓冲区。
+     * @param keyMap 用于跟踪键及其对应的值和索引的映射对象。
+     * @param key 与值关联的键。可以为null。
+     * @param value 要写入的值。
+     * @param out 写入数据的输出缓冲区。
+     * @param isWordText 指示值是否为单词文本的标志。
+     */
 	private _writeStrOrWordText(keyMap: SaveKeyMap, key: any, value: any, out: any, isWordText: boolean): void {
 		var type: number = isWordText ? JsonBinRead.WORDTEXT : JsonBinRead.STRING;
 		(key != null) ? (this._saveKey(key, type, keyMap, out)) : (out.writeUint8(type));
@@ -73,7 +139,16 @@ export class JsonBinWrite {
 		}
 		out.writeUint16(keyNum);
 	}
-
+    /**
+     * @en Writes a string value to the output buffer.
+     * @param keyMap A mapping object that keeps track of keys and their corresponding values and indices.
+     * @param value The value to be written.
+     * @param out The output buffer where the data is written.
+     * @zh 将字符串值写入输出缓冲区。
+     * @param keyMap 用于跟踪键及其对应的值和索引的映射对象。
+     * @param value 要写入的值。
+     * @param out 写入数据的输出缓冲区。
+     */
 	private _writeString(keyMap: SaveKeyMap, value: any, out: any): void {
 		var keyNum: number = keyMap.keys[value];
 		if (!keyNum) {
@@ -83,7 +158,14 @@ export class JsonBinWrite {
 		}
 		out.writeUint16(keyNum);
 	}
-
+    /**
+     * @en Gets the type of the given object as a string.
+     * @param value The object for which the type is to be determined.
+     * @returns The type of the object as a string.
+     * @zh 获取给定对象的类型（以字符串表示）。
+     * @param value 要确定类型的那个对象。
+     * @returns 给定对象的类型（以字符串表示）。
+     */
 	private _getObjectTypeof(value: any): string {
 		if (value instanceof ArrayBuffer)
 			return "ArrayBuffer";
@@ -100,11 +182,25 @@ export class JsonBinWrite {
 			return "WordText";
 		return "object";
 	}
-
+    /**
+     * @en Checks if the given object is a word text.
+     * @param o The object to be checked.
+     * @returns True if the object is a word text, false otherwise.
+     * @zh 检查给定对象是否为单词文本。
+     * @param o 要检查的对象。
+     * @returns 如果对象是单词文本则返回true，否则返回false。
+     */
 	static isWordText(o: any): boolean {
 		return o && o._text && (o._$_$ISWORDTYEXT || o.lastGCCnt != null);
 	}
-
+    /**
+     * @en Writes the length value to the output buffer in a specific format depending on its magnitude.
+     * @param out The output buffer where the data is written.
+     * @param len The length value to be written.
+     * @zh 根据长度值的大小以特定格式将其写入输出缓冲区。
+     * @param out 写入数据的输出缓冲区。
+     * @param len 要写入的长度值。
+     */
 	private _writeLen(out: Byte, len: number): void {
 		if (len < 0x80)
 			out.writeUint8(len);
@@ -114,7 +210,14 @@ export class JsonBinWrite {
 		}
 		else throw "jsonbin save len must<0x8000" + " " + len;
 	}
-
+    /**
+     * @en Writes a large number value to the output buffer in a specific format.
+     * @param out The output buffer where the data is written.
+     * @param value The large number value to be written.
+     * @zh 以特定格式将大数值写入输出缓冲区。
+     * @param out 写入数据的输出缓冲区。
+     * @param value 要写入的大数值。
+     */
 	private _writeBigNumber(out: Byte, value: number): void {
 		let numstr = value.toString(16);
 		let n1 = parseInt(numstr.substring(0, numstr.length - 7), 16);
@@ -123,8 +226,27 @@ export class JsonBinWrite {
 		out.writeInt32(n2);
 		if (JsonBinRead._toLargeNumber(n1, n2) != value) throw "save big number err:" + value;
 	}
-
+    /**
+     * @en A counter used to keep track of the depth during the serialization process.
+     * @zh 在序列化过程中用于跟踪深度的计数器。
+     */
 	private deep = 0;
+	/**
+     * @en Writes a single key-value pair or object to the output buffer.
+     * @param out The output buffer where the data is written.
+     * @param keyMap A mapping object that keeps track of keys and their corresponding values and indices.
+     * @param key The key associated with the value. Can be null.
+     * @param value The value to be written.
+     * @param parent The parent object of the value (if applicable).
+     * @returns True if the write operation was successful, false otherwise.
+     * @zh 将单个键值对或对象写入输出缓冲区。
+     * @param out 写入数据的输出缓冲区。
+     * @param keyMap 用于跟踪键及其对应的值和索引的映射对象。
+     * @param key 与值关联的键。可以为null。
+     * @param value 要写入的值。
+     * @param parent 值的父对象（如果适用）。
+     * @returns 如果写入操作成功则返回true，否则返回false。
+     */
 	private _writeOne(out: Byte, keyMap: SaveKeyMap, key: any, value: any, parent: any): boolean {
 		if (value == undefined) {
 			return false;
@@ -237,7 +359,22 @@ export class JsonBinWrite {
 
 		return this._saveArray(parent, out, keyMap, key, value);
 	}
-
+    /**
+     * @en Saves an array of values to the output buffer.
+     * @param parent The parent object of the array (if applicable).
+     * @param out The output buffer where the data is written.
+     * @param keyMap A mapping object that keeps track of keys and their corresponding values and indices.
+     * @param key The key associated with the array (if applicable).
+     * @param value The array of values to be written.
+     * @returns True if the save operation was successful, false otherwise.
+     * @zh 将数组的值保存到输出缓冲区。
+     * @param parent 数组的父对象（如果适用）。
+     * @param out 写入数据的输出缓冲区。
+     * @param keyMap 用于跟踪键及其对应的值和索引的映射对象。
+     * @param key 与数组关联的键（如果适用）。
+     * @param value 要保存的数组值。
+     * @returns 如果保存操作成功则返回true，否则返回false。
+     */
 	private _saveArray(parent: any, out: Byte, keyMap: SaveKeyMap, key: string, value: any): boolean {
 		var j: number, n: number = value.length;
 		if (n === 0) {
@@ -316,7 +453,26 @@ export class JsonBinWrite {
 		}
 		return true;
 	}
-
+    /**
+     * @en Handles the compression of data if applicable.
+     * @param out The output buffer where the data is written.
+     * @param keyMap A mapping object that keeps track of keys and their corresponding values and indices.
+     * @param key The key associated with the data (if applicable).
+     * @param value The data to be compressed (if applicable).
+     * @param posHead The position of the head of the data in the buffer.
+     * @param dataPos The position of the data in the buffer.
+     * @param compress The compression factor or related information.
+     * @param typeArray The type of the array or data structure.
+     * @zh 如果适用，处理数据的压缩操作。
+     * @param out 写入数据的输出缓冲区。
+     * @param keyMap 用于跟踪键及其对应的值和 indices的映射对象。
+     * @param key 与数据关联的键（如果适用）。
+     * @param value 要压缩的数据（如果适用）。
+     * @param posHead 缓冲区中数据头部的位置。
+     * @param dataPos 缓冲区中数据的位置。
+     * @param compress 压缩因子或相关信息。
+     * @param typeArray 数组或数据结构的类型。
+     */
 	private _useCompress(out: Byte, keyMap: SaveKeyMap, key: string, value: any, posHead: number, dataPos: number, compress: number, typeArray: number): void {
 		var dLen: number = out.pos - dataPos;
 		if (dLen < 64) {
@@ -363,7 +519,16 @@ export class JsonBinWrite {
 			out.writeUint32(same.pos);
 		}
 	}
-
+    /**
+     * @en Writes an object to the output buffer.
+     * @param out The output buffer where the data is written.
+     * @param keyMap A mapping object that keeps track of keys and their corresponding values and indices.
+     * @param o The object to be written.
+     * @zh 将对象写入输出缓冲区。
+     * @param out 写入数据的输出缓冲区。
+     * @param keyMap 用于跟踪键及其对应的值和 indices的映射对象。
+     * @param o 要写入的对象。
+     */
 	private _writeObject(out: Byte, keyMap: SaveKeyMap, o: any): any {
 		//新增加，支持自动创建指定类型对象
 		this._classEnable_ && o.__CLASS__ && this._writeString(keyMap, o.__CLASS__, out);
@@ -376,7 +541,16 @@ export class JsonBinWrite {
 			(this._classEnable_ && key == "__CLASS__") || this._writeOne(out, keyMap, key, o[key], o);
 		}
 	}
-
+    /**
+     * @en Serializes the given object into a binary format and returns the resulting buffer.
+     * @param o The object to be serialized.
+     * @param __CLASS__ A flag indicating whether to include class information (default is false).
+     * @returns The serialized object as an ArrayBuffer.
+     * @zh 将给定对象序列化为二进制格式并返回生成的缓冲区。
+     * @param o 要序列化的对象。
+     * @param __CLASS__ 一个标志，指示是否包含类信息（默认值为false）。
+     * @returns 作为ArrayBuffer的序列化对象。
+     */
 	write(o: any, __CLASS__ = false): ArrayBuffer {
 		this.deep = 0;
 		this._classEnable_ = __CLASS__;
@@ -397,18 +571,32 @@ export class JsonBinWrite {
 		return r.buffer;
 	}
 }
-
-
-
-
+/**
+ * @en A mapping object used to keep track of keys, their corresponding values, and indices during the serialization process.
+ * @zh 在序列化过程中用于跟踪键、其对应的值和索引的映射对象。
+ */
 class SaveKeyMap {
-	keys: any = {};
-	strs: any[] = ["BEGIN", 0];
-	keyArray: any[] = [];
+    /**
+     * @en An object that stores keys and their corresponding values or indices.
+     * @zh 一个存储键及其对应的值或索引的对象。
+     */
+    keys: any = {};
+
+    /**
+     * @en An array that stores strings related to the keys and values.
+     * @zh 一个存储与键和值相关的字符串的数组。
+     */
+    strs: any[] = ["BEGIN", 0];
+
+    /**
+     * @en An array that stores keys or related data in a specific order.
+     * @zh 一个按特定顺序存储键或相关数据的数组。
+     */
+    keyArray: any[] = [];
+
+    /**
+     * @en An index used to keep track of the number of keys or related elements.
+     * @zh 一个用于跟踪键或相关元素数量的索引。
+     */
 	keyIndex: number = 1;
 }
-
-/*
-__CLASS__:'Sprite'
-不产生object，而是直接产生这个类
-*/

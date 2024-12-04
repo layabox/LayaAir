@@ -1323,12 +1323,11 @@ export class Material extends Resource implements IClone {
      * @zh 克隆当前材质到目标材质对象。
      * @param destObject 目标材质对象。
      */
-    cloneTo(destObject: any): void {
-        var destBaseMaterial: Material = (<Material>destObject);
-        destBaseMaterial.name = this.name;
-        destBaseMaterial.renderQueue = this.renderQueue;
-        destBaseMaterial.setShaderName(this._shader._name);
-        this._shaderValues.cloneTo(destBaseMaterial._shaderValues);
+    cloneTo(destObject: Material): void {
+        destObject.name = this.name;
+        destObject.renderQueue = this.renderQueue;
+        destObject.setShaderName(this._shader._name);
+        this._shaderValues.cloneTo(destObject._shaderValues);
     }
 
     /**

@@ -36,7 +36,7 @@ export class Emission implements IClone {
 
 	set emissionRate(value: number) {
 		if (value < 0)
-			throw new Error("ParticleBaseShape:emissionRate value must large or equal than 0.");
+			throw new Error("emissionRate value must large or equal than 0.");
 		this._emissionRate = value;
 	}
 
@@ -155,10 +155,8 @@ export class Emission implements IClone {
 	 * @zh 克隆到目标对象。
 	 * @param destObject 要克隆到的目标对象。
 	 */
-	cloneTo(destObject: any): void {
-		var destEmission: Emission = (<Emission>destObject);
-
-		var destBursts: Burst[] = destEmission._bursts;
+	cloneTo(destObject: Emission): void {
+		var destBursts: Burst[] = destObject._bursts;
 		destBursts.length = this._bursts.length;
 		for (var i: number = 0, n: number = this._bursts.length; i < n; i++) {
 			var destBurst: Burst = destBursts[i];
@@ -168,9 +166,9 @@ export class Emission implements IClone {
 				destBursts[i] = this._bursts[i].clone();
 		}
 
-		destEmission._emissionRate = this._emissionRate;
-		destEmission._emissionRateOverDistance = this._emissionRateOverDistance;
-		destEmission.enable = this.enable;
+		destObject._emissionRate = this._emissionRate;
+		destObject._emissionRateOverDistance = this._emissionRateOverDistance;
+		destObject.enable = this.enable;
 	}
 
 	/**

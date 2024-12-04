@@ -40,7 +40,7 @@ InputManager.prototype.getSprite3DUnderPoint = function (this: InputManager, x: 
             let camera = <Camera>cameras[i];
             let viewport: Viewport = camera.viewport;
             let ratio = Config3D.pixelRatio;
-            if (pageX >= viewport.x && pageY >= viewport.y && pageX <= viewport.width / ratio && pageY <= viewport.height / ratio) {
+            if (pageX >= viewport.x && pageY >= viewport.y && pageX <= (viewport.width / ratio + viewport.x) && pageY <= (viewport.height / ratio + viewport.y)) {
                 //Physics
                 camera.viewportPointToRay(_vec2, _ray);
 

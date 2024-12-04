@@ -45,7 +45,6 @@ export class DrawPolyCmd {
     lineWidth: number;
 
     /**
-     * @private
      * @en Create a DrawPolyCmd instance
      * @param x The X-axis position to start drawing
      * @param y The Y-axis position to start drawing
@@ -85,7 +84,6 @@ export class DrawPolyCmd {
     }
 
     /**
-     * @private
      * @en Execute the drawing polygon command
      * @param context The rendering context
      * @param gx Global X offset
@@ -102,7 +100,6 @@ export class DrawPolyCmd {
     }
 
     /**
-     * @private
      * @en The identifier for the DrawPolyCmd
      * @zh 绘制多边形命令的标识符
      */

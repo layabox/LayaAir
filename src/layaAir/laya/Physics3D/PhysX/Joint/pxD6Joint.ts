@@ -248,4 +248,13 @@ export class pxD6Joint extends pxJoint implements ID6Joint {
     getSwingZAngle(): number {
         return this._pxJoint.getSwingZAngle();
     }
+
+    /**
+     * @en Destroy joint
+     * @zh 销毁关节
+     */
+    destroy(): void {
+        this._pxJoint && this._pxJoint.release();
+        super.destroy();
+    }
 }

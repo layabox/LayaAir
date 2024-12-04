@@ -193,7 +193,7 @@ export class AnimationClipParser03 {
 						valueQua.w = reader.getFloat32();
 						break;
 					default:
-						throw "AnimationClipParser03:unknown type.";
+						throw new Error("AnimationClipParser03:unknown type.");
 				}
 			}
 		}

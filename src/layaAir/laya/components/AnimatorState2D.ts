@@ -327,11 +327,10 @@ export class AnimatorState2D extends EventDispatcher implements IClone {
      * @zh 将当前动画状态的属性拷贝到目标对象。
      * @param destObject 要拷贝属性的目标对象。
      */
-    cloneTo(destObject: any): void {
-        var dest: AnimatorState2D = <AnimatorState2D>destObject;
-        dest.name = this.name;
-        dest.speed = this.speed;
-        dest.clip = this._clip;
+    cloneTo(destObject: AnimatorState2D): void {
+        destObject.name = this.name;
+        destObject.speed = this.speed;
+        destObject.clip = this._clip;
     }
 
     /**

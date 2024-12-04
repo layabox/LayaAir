@@ -39,7 +39,7 @@ export class FillTextCmd {
     private _align: number;
     private _fontObj: FontInfo;
 
-    private _loosyBound:Rectangle=null;
+    private _loosyBound: Rectangle = null;
     /**
      * @en Text content
      * @zh 文本内容
@@ -173,7 +173,6 @@ export class FillTextCmd {
     }
 
     /**
-     * @private
      * @en The identifier for the FillTextCmd
      * @zh 绘制文字命令的标识符
      */
@@ -210,10 +209,14 @@ export class FillTextCmd {
         this._wordText && this._wordText.cleanCache();
     }
 
-
-
-    getBoundPoints(sp?: { width: number, height?: number }): number[] {
-        if(!this._loosyBound){
+    /**
+     * @en Gets the bounding points of the text element. Calculates and returns an array of points representing the bounding box of the text.
+     * @returns An array of numbers representing the bounding points.
+     * @zh 获取文本元素的边界点。计算并返回表示文本边界框的点数组。
+     * @returns 表示边界点的数字数组。
+     */
+    getBoundPoints(): number[] {
+        if (!this._loosyBound) {
             let ctx = ILaya.Browser.context;
             ctx.save();
             ctx.font = this.font;
@@ -223,20 +226,23 @@ export class FillTextCmd {
             let x = this.x;
             let y = this.y;
 
-            switch(this._align){
+            switch (this._align) {
                 case Const.ENUM_TEXTALIGN_CENTER:
-                    x-=w/2;
-                break;
+                    x -= w / 2;
+                    break;
                 case Const.ENUM_TEXTALIGN_RIGHT:
-                    x-=w;
-                break;
+                    x -= w;
+                    break;
                 default:
-                break;
+                    break;
             }
             //留一些余量
-            x-=4;
-            y-=this._fontObj._size;            
-            this._loosyBound = new Rectangle(x,y,w+8,this._fontObj._size*2);
+            if (!this._fontObj)
+                this.font = null;
+
+            x -= 4;
+            y -= this._fontObj._size;
+            this._loosyBound = new Rectangle(x, y, w + 8, this._fontObj._size * 2);
         }
 
         return Rectangle._getBoundPointS(this._loosyBound.x, this._loosyBound.y, this._loosyBound.width, this._loosyBound.height, null)

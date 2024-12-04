@@ -137,13 +137,12 @@ export class CircleShape extends BaseShape {
 	 * @zh 克隆到目标对象。
 	 * @param destObject 要克隆到的目标对象。
 	 */
-	cloneTo(destObject: any): void {
+	cloneTo(destObject: CircleShape): void {
 		super.cloneTo(destObject);
-		var destShape: CircleShape = (<CircleShape>destObject);
-		destShape.radius = this.radius;
-		destShape.arc = this.arc;
-		destShape.emitFromEdge = this.emitFromEdge;
-		destShape.randomDirection = this.randomDirection;
+		destObject.radius = this.radius;
+		destObject.arc = this.arc;
+		destObject.emitFromEdge = this.emitFromEdge;
+		destObject.randomDirection = this.randomDirection;
 	}
 
 	/**

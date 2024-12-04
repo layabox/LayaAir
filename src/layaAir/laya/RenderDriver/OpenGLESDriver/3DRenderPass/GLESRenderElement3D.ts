@@ -14,15 +14,7 @@ export enum RenderElementType {
     Instance = 2,
 }
 export class GLESRenderElement3D implements IRenderElement3D {
-    /** @internal */
-    static _compileDefine: RTDefineDatas = null;
-    static getCompileDefine(): RTDefineDatas {
-        if (!GLESRenderElement3D._compileDefine) {
-            GLESRenderElement3D._compileDefine = new RTDefineDatas();
-            RTShaderPass._globalCompileDefine =  GLESRenderElement3D._compileDefine;
-        }
-        return GLESRenderElement3D._compileDefine;
-    }
+    
     private _geometry: GLESRenderGeometryElement;
 
     private _materialShaderData: GLESShaderData;
@@ -118,7 +110,7 @@ export class GLESRenderElement3D implements IRenderElement3D {
 
     constructor() {
         this.init();
-        (window as any).conchGLESRenderElement3D.setCompileDefine((GLESRenderElement3D.getCompileDefine() as any)._nativeObj)
+        (window as any).conchGLESRenderElement3D.setCompileDefine((RTShaderPass.getGlobalCompileDefine() as any)._nativeObj);
     }
 
     destroy(): void {

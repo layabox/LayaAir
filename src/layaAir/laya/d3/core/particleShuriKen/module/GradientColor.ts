@@ -152,15 +152,14 @@ export class GradientColor implements IClone {
 	 * @zh 克隆到目标对象。
 	 * @param destObject 要克隆到的目标对象。
 	 */
-	cloneTo(destObject: any): void {
-		var destGradientColor: GradientColor = (<GradientColor>destObject);
-		destGradientColor._type = this._type;
-		this._constant.cloneTo(destGradientColor._constant);
-		this._constantMin.cloneTo(destGradientColor._constantMin);
-		this._constantMax.cloneTo(destGradientColor._constantMax);
-		this._gradient.cloneTo(destGradientColor._gradient);
-		this._gradientMin.cloneTo(destGradientColor._gradientMin);
-		this._gradientMax.cloneTo(destGradientColor._gradientMax);
+	cloneTo(destObject: GradientColor): void {
+		destObject._type = this._type;
+		this._constant.cloneTo(destObject._constant);
+		this._constantMin.cloneTo(destObject._constantMin);
+		this._constantMax.cloneTo(destObject._constantMax);
+		this._gradient.cloneTo(destObject._gradient);
+		this._gradientMin.cloneTo(destObject._gradientMin);
+		this._gradientMax.cloneTo(destObject._gradientMax);
 	}
 
 	/**

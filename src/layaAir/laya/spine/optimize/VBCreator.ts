@@ -6,6 +6,7 @@ import { IBCreator } from "./IBCreator";
 import { MultiRenderData } from "./MultiRenderData";
 import { SlotUtils } from "./SlotUtils";
 import { IGetBone } from "./interface/IGetBone";
+import { SpineOptimizeConst } from "./SpineOptimizeConst";
 
 /**
  * @en Abstract class for creating vertex buffers in a spine skeleton animation system.
@@ -298,6 +299,14 @@ export class VBBoneCreator extends VBCreator {
 
     _create(): VBCreator {
         return new VBBoneCreator( this.vertexFlag ,this.maxVertexCount,  false);
+    }
+
+    /**
+     * @en The size of each vertex in the vertex buffer.
+     * @zh 顶点缓冲区中每个顶点的大小。
+     */
+    get vertexSize(): number {
+        return SpineOptimizeConst.BONEVERTEX;
     }
 
     /**

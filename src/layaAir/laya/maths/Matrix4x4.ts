@@ -7,6 +7,7 @@ const _tempVector0 = new Vector3();
 const _tempVector1 = new Vector3();
 const _tempVector2 = new Vector3();
 const _tempVector3 = new Vector3();
+const _tempQuaternion = new Quaternion();
 const DEFAULTARRAY = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
 
 /**
@@ -115,8 +116,8 @@ export class Matrix4x4 implements IClone {
      * @param result 输出结果矩阵。
      */
     static createRotationYawPitchRoll(yaw: number, pitch: number, roll: number, result: Matrix4x4): void {
-        Quaternion.createFromYawPitchRoll(yaw, pitch, roll, Quaternion.TEMP);
-        Matrix4x4.createRotationQuaternion(Quaternion.TEMP, result);
+        Quaternion.createFromYawPitchRoll(yaw, pitch, roll, _tempQuaternion);
+        Matrix4x4.createRotationQuaternion(_tempQuaternion, result);
     }
 
     /**
@@ -534,9 +535,9 @@ export class Matrix4x4 implements IClone {
      */
     getElementByRowColumn(row: number, column: number): number {
         if (row < 0 || row > 3)
-            throw new Error("row Rows and columns for matrices run from 0 to 3, inclusive.");
+            throw new Error("row for matrices run from 0 to 3, inclusive.");
         if (column < 0 || column > 3)
-            throw new Error("column Rows and columns for matrices run from 0 to 3, inclusive.");
+            throw new Error("column for matrices run from 0 to 3, inclusive.");
 
         return this.elements[(row * 4) + column];
     }
@@ -554,9 +555,9 @@ export class Matrix4x4 implements IClone {
      */
     setElementByRowColumn(row: number, column: number, value: number): void {
         if (row < 0 || row > 3)
-            throw new Error("row Rows and columns for matrices run from 0 to 3, inclusive.");
+            throw new Error("row for matrices run from 0 to 3, inclusive.");
         if (column < 0 || column > 3)
-            throw new Error("column Rows and columns for matrices run from 0 to 3, inclusive.");
+            throw new Error("column for matrices run from 0 to 3, inclusive.");
 
         this.elements[(row * 4) + column] = value;
     }
@@ -927,7 +928,7 @@ export class Matrix4x4 implements IClone {
      * @zh 克隆矩阵到另一个对象
      * @param destObject 克隆源。
      */
-    cloneTo(destObject: any): void {
+    cloneTo(destObject: Matrix4x4): void {
         var i: number, s: Float32Array, d: Float32Array;
         s = this.elements;
         d = destObject.elements;
@@ -1038,7 +1039,7 @@ export class Matrix4x4 implements IClone {
      * @returns 如果矩阵是反向的返回true，否则返回false
      */
     getInvertFront(): boolean {
-        this.decomposeTransRotScale(_tempVector0, Quaternion.TEMP, _tempVector1);
+        this.decomposeTransRotScale(_tempVector0, _tempQuaternion, _tempVector1);
         var scale: Vector3 = _tempVector1;
         var isInvert: boolean = scale.x < 0;
         (scale.y < 0) && (isInvert = !isInvert);

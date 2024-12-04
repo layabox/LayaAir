@@ -167,10 +167,16 @@ export class SpineShaderInit {
         'a_position': [2, ShaderDataType.Vector2],
         "a_weight": [3, ShaderDataType.Float],
         "a_BoneId": [4, ShaderDataType.Float],
-
         'a_PosWeightBoneID_2': [5, ShaderDataType.Vector4],
         'a_PosWeightBoneID_3': [6, ShaderDataType.Vector4],
         'a_PosWeightBoneID_4': [7, ShaderDataType.Vector4],
+
+        // 'a_PosWeightBoneID_1': [2, ShaderDataType.Vector4],//pos.xy weight boneID
+        // 'a_PosWeightBoneID_2': [3, ShaderDataType.Vector4],
+        // 'a_PosWeightBoneID_3': [4, ShaderDataType.Vector4],
+        // 'a_PosWeightBoneID_4': [5, ShaderDataType.Vector4],
+        // 'a_PosWeightBoneID_5': [6, ShaderDataType.Vector4],
+        // 'a_PosWeightBoneID_6': [7, ShaderDataType.Vector4],
 
         'a_NMatrix_0': [8, ShaderDataType.Vector3],
         'a_NMatrix_1': [9, ShaderDataType.Vector3],

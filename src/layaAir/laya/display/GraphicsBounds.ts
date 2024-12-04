@@ -34,18 +34,14 @@ const _initMatrix: Matrix = new Matrix();
 const _tempMatrixArrays: any[] = [];
 
 /**
- * @private
+ * @ignore
  * @en Graphic bounds data class
  * @zh 图形边界数据类
  */
 export class GraphicsBounds {
-    /**@private */
     private _temp: number[];
-    /**@private */
     private _bounds: Rectangle;
-    /**@private */
     private _rstBoundPoints: number[];
-    /**@private */
     private _cacheBoundsType: boolean = false;
     /**@internal */
     _graphics: Graphics;
@@ -99,7 +95,6 @@ export class GraphicsBounds {
     }
 
     /**
-     * @private
      * @en Get the list of boundary points.
      * @param realSize (Optional) Use the real size of the image. Default is false.
      * @returns An array of boundary points.
@@ -216,7 +211,7 @@ export class GraphicsBounds {
                     addPointArrToRst(rst, (<Draw9GridTextureCmd>cmd).getBoundPoints(sp), tMatrix);
                     break;
                 case FillTextCmd.ID:
-                    addPointArrToRst(rst, (<FillTextCmd>cmd).getBoundPoints(sp), tMatrix);
+                    addPointArrToRst(rst, (<FillTextCmd>cmd).getBoundPoints(), tMatrix);
                     break;
                 default:
                     //没有相应功能的取sprite的

@@ -108,8 +108,7 @@ export enum CameraEventFlags {
  * @zh Camera 类用于创建摄像机。
  */
 export class Camera extends BaseCamera {
-    /** @internal */
-    static _tempVector20: Vector2 = new Vector2();
+
     /** @internal*/
     static _context3DViewPortCatch: Viewport = new Viewport(0, 0, 0, 0);
     /**@internal */
@@ -320,8 +319,7 @@ export class Camera extends BaseCamera {
                 bytelength = 1;
                 break;
             default:
-                throw "Type is not supported";
-                break;
+                throw new Error("Type is not supported");
         }
         let rt = new RenderTexture(renderCubeSize, renderCubeSize, rtFormat, RenderTargetFormat.DEPTH_16, false, 0, false, false);
         camera.fieldOfView = 90;
@@ -393,7 +391,7 @@ export class Camera extends BaseCamera {
                 finalformat = TextureFormat.R8G8B8A8;
                 break;
             default:
-                throw "Type is not supported";
+                throw new Error("Type is not supported");
         }
         let textureCube = new TextureCube(renderCubeSize, format, true, false);
         textureCube.setPixelsData(pixels, false, false);
@@ -1001,21 +999,6 @@ export class Camera extends BaseCamera {
     }
 
     /**
-     * @inheritDoc
-     * @override
-     * @internal
-     */
-    _parse(data: any, spriteMap: any): void {
-        super._parse(data, spriteMap);
-        var clearFlagData: any = data.clearFlag;
-        (clearFlagData !== undefined) && (this.clearFlag = clearFlagData);
-        var viewport: any[] = data.viewport;
-        this.normalizedViewport = new Viewport(viewport[0], viewport[1], viewport[2], viewport[3]);
-        var enableHDR: boolean = data.enableHDR;
-        (enableHDR !== undefined) && (this.enableHDR = enableHDR);
-    }
-
-    /**
      * @en Clone the camera.
      * @zh 克隆相机。
      */
@@ -1453,10 +1436,11 @@ export class Camera extends BaseCamera {
      * @param out  输出射线。
      */
     viewportPointToRay(point: Vector2, out: Ray): void {
+        point.setValue(point.x * ILaya.stage.clientScaleX, point.y * ILaya.stage.clientScaleY);
         this._rayViewport.x = this.viewport.x;
         this._rayViewport.y = this.viewport.y;
-        this._rayViewport.width = ILaya.stage._width;
-        this._rayViewport.height = ILaya.stage._height;
+        this._rayViewport.width = this.viewport.width;
+        this._rayViewport.height = this.viewport.height;
         Picker.calculateCursorRay(point, this._rayViewport, this._projectionMatrix, this.viewMatrix, null, out);
     }
 
@@ -1469,14 +1453,13 @@ export class Camera extends BaseCamera {
      * @param out  输出射线。
      */
     normalizedViewportPointToRay(point: Vector2, out: Ray): void {
-        var finalPoint: Vector2 = Camera._tempVector20;
         var vp: Viewport = this.normalizedViewport;
         point.x = point.x * Config3D.pixelRatio;
         point.y = point.y * Config3D.pixelRatio;
-        finalPoint.x = point.x * vp.width;
-        finalPoint.y = point.y * vp.height;
+        _tempVector20.x = point.x * vp.width;
+        _tempVector20.y = point.y * vp.height;
 
-        Picker.calculateCursorRay(finalPoint, this.viewport, this._projectionMatrix, this.viewMatrix, null, out);
+        Picker.calculateCursorRay(_tempVector20, this.viewport, this._projectionMatrix, this.viewMatrix, null, out);
     }
 
     /**
@@ -1626,3 +1609,5 @@ export class Camera extends BaseCamera {
     _boundFrustumBuffer: Float32Array;
 }
 
+
+const _tempVector20: Vector2 = new Vector2();

@@ -4,7 +4,6 @@ import { Bone } from "./Bone";
 import { Graphics } from "../../display/Graphics";
 import { Matrix } from "../../maths/Matrix";
 
-
 /**
  * @internal
  * @en The `PathConstraint` class is used to control the movement of bones based on a path.
@@ -210,8 +209,7 @@ export class PathConstraint {
 			}
 		}
 	}
-	/**@internal */
-	private static _tempMt: Matrix = new Matrix();
+
 	/**
 	 * @en Calculate the world coordinates of vertices.
 	 * @param boneSlot The bone slot to which the vertices belong.
@@ -271,7 +269,7 @@ export class PathConstraint {
 			//bone = boneSlot.parent;
 
 
-			if (!tBoneMt) tBoneMt = PathConstraint._tempMt;
+			if (!tBoneMt) tBoneMt = _tempMt;
 			var x: number = tBoneMt.tx;
 			var y: number = tBoneMt.ty;
 			var a: number = tBoneMt.a, bb: number = tBoneMt.b, c: number = tBoneMt.c, d: number = tBoneMt.d;
@@ -611,4 +609,4 @@ export class PathConstraint {
 
 }
 
-
+const _tempMt: Matrix = new Matrix();

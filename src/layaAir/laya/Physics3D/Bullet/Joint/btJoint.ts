@@ -1,8 +1,11 @@
 import { Sprite3D } from "../../../d3/core/Sprite3D";
 import { Vector3 } from "../../../maths/Vector3";
+import { NotImplementedError } from "../../../utils/Error";
 import { ICollider } from "../../interface/ICollider";
 import { IJoint } from "../../interface/Joint/IJoint";
+import { Physics3DStatInfo } from "../../interface/Physics3DStatInfo";
 import { EJointCapable } from "../../physicsEnum/EJointCapable";
+import { EPhysicsStatisticsInfo } from "../../physicsEnum/EPhysicsStatisticsInfo";
 import { btCollider } from "../Collider/btCollider";
 import { btPhysicsCreateUtil } from "../btPhysicsCreateUtil";
 import { btPhysicsManager } from "../btPhysicsManager";
@@ -127,10 +130,15 @@ export class btJoint implements IJoint {
     constructor(manager: btPhysicsManager) {
         this._manager = manager;
         this.initJoint();
+        Physics3DStatInfo.addStatisticsInfo(EPhysicsStatisticsInfo.C_PhysicsJoint, 1);
     }
 
     protected _createJoint() {
         //override it
+    }
+
+    destroy(): void {
+        Physics3DStatInfo.addStatisticsInfo(EPhysicsStatisticsInfo.C_PhysicsJoint, -1);
     }
 
     /**
@@ -195,21 +203,21 @@ export class btJoint implements IJoint {
      * @zh 获取关节的线性力。
      */
     getlinearForce(): Vector3 {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
     /**
      * @en Get the angular force of the joint.
      * @zh 获取关节的角力。
      */
     getAngularForce(): Vector3 {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
     /**
      * @en Check if the joint is valid.
      * @zh 检查关节是否有效。
      */
     isValid(): boolean {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
     /**
      * @en Enable or disable the joint.
@@ -294,7 +302,7 @@ export class btJoint implements IJoint {
      * @param value 要设置的质量比例。
      */
     setConnectedMassScale(value: number): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
     /**
      * @en Set the inertia scale of the connected body.
@@ -303,7 +311,7 @@ export class btJoint implements IJoint {
      * @param value 要设置的惯性比例。
      */
     setConnectedInertiaScale(value: number): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
     /**
      * @en Set the mass scale of the joint.
@@ -312,7 +320,7 @@ export class btJoint implements IJoint {
      * @param value 要设置的质量比例。
      */
     setMassScale(value: number): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
     /**
      * @en Set the inertia scale of the joint.
@@ -321,7 +329,7 @@ export class btJoint implements IJoint {
      * @param value 要设置的惯性比例。
      */
     setInertiaScale(value: number): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
     /**
      * @en Set the break force of the joint.

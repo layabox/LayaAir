@@ -176,6 +176,7 @@ export class Laya {
         //beforeInitCallbacks 是按顺序执行
         Laya._beforeInitCallbacks.forEach(func => steps.push(() => func(stageConfig)));
 
+
         steps.push(() => LayaGL.renderOBJCreate.createEngine(null, Browser.mainCanvas));
         steps.push(() => Laya.initRender2D(stageConfig));
         if (laya3D)
@@ -224,6 +225,7 @@ export class Laya {
         stage = ((<any>window)).stage = ILaya.stage = Laya.stage = new Stage();
 
         VertexElementFormat.__init__();
+        VertexMesh.__init__();
         Shader3D.init();
         MeshQuadTexture.__int__();
         MeshVG.__init__();

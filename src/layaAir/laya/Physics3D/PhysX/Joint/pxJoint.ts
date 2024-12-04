@@ -2,6 +2,8 @@ import { Sprite3D } from "../../../d3/core/Sprite3D";
 import { Quaternion } from "../../../maths/Quaternion";
 import { Vector3 } from "../../../maths/Vector3";
 import { IJoint } from "../../interface/Joint/IJoint";
+import { Physics3DStatInfo } from "../../interface/Physics3DStatInfo";
+import { EPhysicsStatisticsInfo } from "../../physicsEnum/EPhysicsStatisticsInfo";
 import { pxCollider } from "../Collider/pxCollider";
 import { pxPhysicsManager } from "../pxPhysicsManager";
 
@@ -99,6 +101,7 @@ export class pxJoint implements IJoint {
         this._connectlocalPos = new Vector3();
         this._linearForce = new Vector3();
         this._angularForce = new Vector3();
+        Physics3DStatInfo.addStatisticsInfo(EPhysicsStatisticsInfo.C_PhysicsJoint, 1);
     }
 
     /**@internal */
@@ -121,6 +124,10 @@ export class pxJoint implements IJoint {
     /**@internal */
     protected _createJoint() {
 
+    }
+
+    destroy(): void {
+        Physics3DStatInfo.addStatisticsInfo(EPhysicsStatisticsInfo.C_PhysicsJoint, -1);
     }
 
     /**@internal */

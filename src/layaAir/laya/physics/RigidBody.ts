@@ -364,7 +364,8 @@ export class RigidBody extends Component {
 
     /**@internal */
     _onDisable(): void {
-        this.owner.off("GlobaChange", this, this._globalChangeHandler)
+        this.owner.off("GlobaChange", this, this._globalChangeHandler);
+        (<Sprite>this.owner).cacheGlobal = false;
         //添加到物理世界
         Physics2D.I._factory.set_RigibBody_Enable(this._body, false);
     }

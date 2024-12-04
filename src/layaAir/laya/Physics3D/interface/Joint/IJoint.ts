@@ -127,4 +127,10 @@ export interface IJoint {
    * @param value 为true时启用碰撞，为false时禁用。
    */
   isCollision(value: boolean): void;
+
+  /**
+   * @en Destroy the joint.
+   * @zh 销毁关节。
+   */
+  destroy(): void;
 }

@@ -5,6 +5,7 @@ import { Physics3DUtils } from "../../../d3/utils/Physics3DUtils";
 import { Event } from "../../../events/Event";
 import { Quaternion } from "../../../maths/Quaternion";
 import { Vector3 } from "../../../maths/Vector3";
+import { NotImplementedError } from "../../../utils/Error";
 import { ICollider } from "../../interface/ICollider";
 import { pxColliderShape } from "../Shape/pxColliderShape";
 import { partFlag, pxPhysicsManager } from "../pxPhysicsManager";
@@ -151,7 +152,7 @@ export class pxCollider implements ICollider {
      * @param value 要设置的摩擦力值。
      */
     setfriction?(value: number): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
     /**
      * @en Sets the rolling friction value for the collider.
@@ -160,7 +161,7 @@ export class pxCollider implements ICollider {
      * @param value 要设置的滚动摩擦力值。
      */
     setRollingFriction?(value: number): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     protected setActorFlag(flag: pxActorFlag, value: boolean) {
@@ -198,6 +199,8 @@ export class pxCollider implements ICollider {
                 if (!lastColliderShape && this.componentEnable) {
                     this._physicsManager.addCollider(this);
                 }
+            } else {
+                this._shape = null;
             }
         } else {
             if (this._isSimulate) {
@@ -232,6 +235,9 @@ export class pxCollider implements ICollider {
      * @param value 碰撞组值。
      */
     setCollisionGroup(value: number): void {
+        if (value == Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER) {
+            value = Physics3DUtils.PHYSXDEFAULTMASKVALUE;
+        }
         this._collisionGroup = value;
         this._shape.setSimulationFilterData(this._collisionGroup, this._canCollisionWith);
     }
@@ -242,6 +248,9 @@ export class pxCollider implements ICollider {
      * @param value 碰撞掩码值。
      */
     setCanCollideWith(value: number): void {
+        if (value == Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER) {
+            value = Physics3DUtils.PHYSXDEFAULTMASKVALUE;
+        }
         this._canCollisionWith = value;
         this._shape.setSimulationFilterData(this._collisionGroup, this._canCollisionWith);
     }

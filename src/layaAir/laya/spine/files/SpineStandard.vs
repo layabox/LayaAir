@@ -6,6 +6,8 @@
 
 void main()
 {
+    vColor.rgb = vColor.rgb*vec3(u_color.a);
+
     vec4 pos = getSpinePos();
     vertexInfo info;
     getVertexInfo(info);

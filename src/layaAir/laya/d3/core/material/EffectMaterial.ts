@@ -131,7 +131,7 @@ export class EffectMaterial extends Material {
 				this.removeDefine(Material.SHADERDEFINE_ADDTIVEFOG);
 				break;
 			default:
-				throw new Error("MeshEffectMaterial : renderMode value error.");
+				throw new Error("unknown renderMode: " + value);
 		}
 	}
 }

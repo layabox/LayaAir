@@ -82,8 +82,7 @@ export class BaseCamera extends Sprite3D {
     protected static _invertYProjectionMatrix: Matrix4x4 = new Matrix4x4();
     /**@internal */
     protected static _invertYProjectionViewMatrix: Matrix4x4 = new Matrix4x4();
-    /**@internal */
-    static _tempMatrix4x40: Matrix4x4 = new Matrix4x4();
+
     /**@internal */
     static CameraUBOData: UnifromBufferData;
     /**
@@ -614,24 +613,6 @@ export class BaseCamera extends Sprite3D {
     protected _onInActive(): void {
         ((<Scene3D>this._scene))._removeCamera(this);
         super._onInActive();
-    }
-
-    /**
-     * @inheritDoc
-     * @override
-     * @internal
-     */
-    _parse(data: any, spriteMap: any): void {
-        super._parse(data, spriteMap);
-
-        this.orthographic = data.orthographic;
-        (data.orthographicVerticalSize !== undefined) && (this.orthographicVerticalSize = data.orthographicVerticalSize);
-        (data.fieldOfView !== undefined) && (this.fieldOfView = data.fieldOfView);
-        this.nearPlane = data.nearPlane;
-        this.farPlane = data.farPlane;
-
-        var color: any[] = data.clearColor;
-        this.clearColor = new Color(color[0], color[1], color[2], color[3]);
     }
 
     /**

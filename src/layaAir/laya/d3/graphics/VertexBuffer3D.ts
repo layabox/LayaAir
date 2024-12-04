@@ -2,6 +2,7 @@ import { IVertexBuffer } from "../../RenderDriver/DriverDesign/RenderDevice/IVer
 import { BufferTargetType, BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
 import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
 import { LayaGL } from "../../layagl/LayaGL";
+import { NotReadableError } from "../../utils/Error";
 
 
 /**
@@ -19,7 +20,7 @@ export class VertexBuffer3D {
 	/** @internal */
 	_float32Reader: Float32Array | null = null;
 
-	bufferUsage:BufferUsage;
+	bufferUsage: BufferUsage;
 
 	/**
 	 * @en The vertex declaration.
@@ -118,7 +119,7 @@ export class VertexBuffer3D {
 		if (this._canRead)
 			return <Uint8Array>this._buffer;
 		else
-			throw new Error("Can't read data from VertexBuffer with only write flag!");
+			throw new NotReadableError();
 	}
 
 	/**
@@ -130,7 +131,7 @@ export class VertexBuffer3D {
 		if (this._canRead)
 			return this._float32Reader;
 		else
-			throw new Error("Can't read data from VertexBuffer with only write flag!");
+			throw new NotReadableError();
 	}
 
 	/**

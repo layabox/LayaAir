@@ -142,30 +142,5 @@ export class AreaLightCom extends Light {
      */
     protected _removeFromLightQueue(): void {
     }
-
-    /**
-     * @inheritDoc
-     * @override
-     * @internal
-     */
-    _parse(data: any, spriteMap: any): void {
-        super._parse(data, spriteMap);
-        //this.range = data.range;
-    }
-    /**
-     * @inheritDoc
-     * @override
-     * @internal
-     */
-    _cloneTo(dest: AreaLightCom): void {
-        super._cloneTo(dest);
-    }
-
-    /**
-     * @internal
-     */
-    protected _create(): Component {
-        return new AreaLightCom();
-    }
 }
 

@@ -1,4 +1,3 @@
-import { ColorFilter } from "../../filters/ColorFilter"
 import { Matrix } from "../../maths/Matrix"
 import { Context } from "../../renders/Context"
 import { Texture } from "../../resource/Texture"
@@ -70,7 +69,6 @@ export class DrawTrianglesCmd {
     color: number | null;
 
     /**
-     * @private
      * @en Create a DrawTrianglesCmd instance
      * @param texture The texture to be drawn
      * @param x X-axis offset
@@ -126,7 +124,6 @@ export class DrawTrianglesCmd {
     }
 
     /**
-     * @private
      * @en Execute the drawing triangles command
      * @param context The rendering context
      * @param gx Global X offset
@@ -141,7 +138,6 @@ export class DrawTrianglesCmd {
     }
 
     /**
-     * @private
      * @en The identifier for the DrawTrianglesCmd
      * @zh 绘制三角形命令的标识符
      */

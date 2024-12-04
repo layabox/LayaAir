@@ -73,27 +73,6 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
     static _maxElapsedTime: number = 1.0 / 3.0;
 
     /**@internal */
-    protected static _tempVector30: Vector3 = new Vector3();
-    /**@internal */
-    protected static _tempVector31: Vector3 = new Vector3();
-    /**@internal */
-    protected static _tempVector32: Vector3 = new Vector3();
-    /**@internal */
-    protected static _tempVector33: Vector3 = new Vector3();
-    /**@internal */
-    protected static _tempVector34: Vector3 = new Vector3();
-    /**@internal */
-    protected static _tempVector35: Vector3 = new Vector3();
-    /**@internal */
-    protected static _tempVector36: Vector3 = new Vector3();
-    /**@internal */
-    protected static _tempVector37: Vector3 = new Vector3();
-    /** @internal */
-    protected static _tempPosition: Vector3 = new Vector3();
-    /** @internal */
-    protected static _tempDirection: Vector3 = new Vector3();
-
-    /**@internal */
     protected static _type: number = GeometryElement._typeCounter++;
     /** @internal */
     _bounds: Bounds = null;
@@ -787,8 +766,21 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
                     case 1:
                         shaDat.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_RANDOMCOLOROVERLIFETIME);
                         let gradientColor: Gradient = color.gradient;
-                        let alphaElements: Float32Array = gradientColor.alphaElements;
-                        let rgbElements: Float32Array = gradientColor.rgbElements;
+                        let alphaElements: Float32Array;
+                        let rgbElements: Float32Array;
+                        if (gradientColor.maxColorKeysCount > 4) {
+                            shaDat.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_COLORKEYCOUNT_8);
+
+                            alphaElements = gradientColor._getGPUAlphaData8();
+                            rgbElements = gradientColor._getGPURGBData8();
+                        }
+                        else {
+                            shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_COLORKEYCOUNT_8);
+
+                            alphaElements = gradientColor._getGPUAlphaData4();
+                            rgbElements = gradientColor._getGPURGBData4();
+                        }
+
                         shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.COLOROVERLIFEGRADIENTALPHAS, alphaElements);
                         shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.COLOROVERLIFEGRADIENTCOLORS, rgbElements);
                         shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.MAXCOLOROVERLIFEGRADIENTALPHAS, alphaElements);
@@ -807,23 +799,36 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
                         }
                         shaDat.setVector(ShuriKenParticle3DShaderDeclaration.COLOROVERLIFEGRADIENTRANGES, ranges);
                         shaDat.setVector(ShuriKenParticle3DShaderDeclaration.MAXCOLOROVERLIFEGRADIENTRANGES, ranges);
-                        if (gradientColor.maxColorAlphaKeysCount == 8) {
-                            shaDat.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_COLORKEYCOUNT_8);
-                        }
-                        else {
-                            shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_COLORKEYCOUNT_8);
-                        }
                         break;
                     case 3:
                         shaDat.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_RANDOMCOLOROVERLIFETIME);
                         let minGradientColor: Gradient = color.gradientMin;
                         let maxGradientColor: Gradient = color.gradientMax;
 
-                        let minalphaElements: Float32Array = minGradientColor.alphaElements;
-                        let minrgbElements: Float32Array = minGradientColor.rgbElements;
+                        let minalphaElements: Float32Array;
+                        let minrgbElements: Float32Array;
 
-                        let maxalphaElements: Float32Array = maxGradientColor.alphaElements;
-                        let maxrgbElements: Float32Array = maxGradientColor.rgbElements;
+                        let maxalphaElements: Float32Array;
+                        let maxrgbElements: Float32Array;
+
+                        let maxkeyCount = Math.max(minGradientColor.maxColorKeysCount, maxGradientColor.maxColorKeysCount);
+                        if (maxkeyCount > 4) {
+                            shaDat.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_COLORKEYCOUNT_8);
+
+                            minalphaElements = minGradientColor._getGPUAlphaData8();
+                            minrgbElements = minGradientColor._getGPURGBData8();
+                            maxalphaElements = maxGradientColor._getGPUAlphaData8();
+                            maxrgbElements = maxGradientColor._getGPURGBData8();
+                        }
+                        else {
+                            shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_COLORKEYCOUNT_8);
+
+                            minalphaElements = minGradientColor._getGPUAlphaData4();
+                            minrgbElements = minGradientColor._getGPURGBData4();
+                            maxalphaElements = maxGradientColor._getGPUAlphaData4();
+                            maxrgbElements = maxGradientColor._getGPURGBData4();
+                        }
+
                         shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.COLOROVERLIFEGRADIENTALPHAS, minalphaElements);
                         shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.COLOROVERLIFEGRADIENTCOLORS, minrgbElements);
                         shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.MAXCOLOROVERLIFEGRADIENTALPHAS, maxalphaElements);
@@ -855,14 +860,6 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
                             maxRanges.w = Math.max(maxRanges.w, alphaKey);
                         }
                         shaDat.setVector(ShuriKenParticle3DShaderDeclaration.MAXCOLOROVERLIFEGRADIENTRANGES, maxRanges);
-
-                        let maxkeyCount = Math.max(minGradientColor.maxColorAlphaKeysCount, maxGradientColor.maxColorAlphaKeysCount);
-                        if (maxkeyCount == 8) {
-                            shaDat.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_COLORKEYCOUNT_8);
-                        }
-                        else {
-                            shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_COLORKEYCOUNT_8);
-                        }
                         break;
                     default:
                         break;
@@ -1078,7 +1075,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 
         this._textureSheetAnimation = value;
 
-        if (value) {
+        if (value && value.enable) {
             var frameOverTime: FrameOverTime = value.frame;
             var textureAniType: number = frameOverTime.type;
             shaDat.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_TEXTURESHEETANIMATIONRANDOMCURVE);
@@ -1106,6 +1103,9 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
                         break;
                 }
             }
+        }
+        else {
+            shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_TEXTURESHEETANIMATIONRANDOMCURVE);
         }
     }
 
@@ -1299,10 +1299,10 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
         }
 
         // shape
-        var zDirectionSpeed: Vector3 = ShurikenParticleSystem._tempVector30;
-        var fDirectionSpeed: Vector3 = ShurikenParticleSystem._tempVector31;
-        var zEmisionOffsetXYZ: Vector3 = ShurikenParticleSystem._tempVector32;
-        var fEmisionOffsetXYZ: Vector3 = ShurikenParticleSystem._tempVector33;
+        var zDirectionSpeed: Vector3 = _tempVector30;
+        var fDirectionSpeed: Vector3 = _tempVector31;
+        var zEmisionOffsetXYZ: Vector3 = _tempVector32;
+        var fEmisionOffsetXYZ: Vector3 = _tempVector33;
 
         zDirectionSpeed.setValue(0, 0, 1);
         fDirectionSpeed.setValue(0, 0, 0);
@@ -1397,7 +1397,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
                 break;
         }
 
-        var endSizeOffset: Vector3 = ShurikenParticleSystem._tempVector36;
+        var endSizeOffset: Vector3 = _tempVector36;
         endSizeOffset.setValue(1, 1, 1);
         if (this.sizeOverLifetime && this.sizeOverLifetime.enable) {
             var gradientSize: GradientSize = this.sizeOverLifetime.size;
@@ -1410,8 +1410,8 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
         Vector3.scale(endSizeOffset, offsetSize, endSizeOffset);
 
         // var distance: number = speedOrigan * time;
-        var speedZOffset: Vector3 = ShurikenParticleSystem._tempVector34;
-        var speedFOffset: Vector3 = ShurikenParticleSystem._tempVector35;
+        var speedZOffset: Vector3 = _tempVector34;
+        var speedFOffset: Vector3 = _tempVector35;
 
         if (speedOrigan > 0) {
             Vector3.scale(zDirectionSpeed, speedOrigan, speedZOffset);
@@ -1424,7 +1424,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 
         if (this.velocityOverLifetime && this.velocityOverLifetime.enable) {
             var gradientVelocity: GradientVelocity = this.velocityOverLifetime.velocity;
-            var velocitySpeedOffset: Vector3 = ShurikenParticleSystem._tempVector37;
+            var velocitySpeedOffset: Vector3 = _tempVector37;
             velocitySpeedOffset.setValue(0, 0, 0);
             switch (gradientVelocity.type) {
                 case 0: // 常量模式
@@ -1790,7 +1790,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
                     var vbCount: number = Math.floor(totalVertexCount / 65535) + 1;
                     var lastVBVertexCount: number = totalVertexCount % 65535;
                     if (vbCount > 1) {//TODO:随后支持
-                        throw new Error("ShurikenParticleSystem:the maxParticleCount multiply mesh vertexCount is large than 65535.");
+                        throw new Error("the maxParticleCount multiply mesh vertexCount is large than 65535.");
                     }
 
                     vbMemorySize = vertexDeclaration.vertexStride * lastVBVertexCount;
@@ -1934,8 +1934,8 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
      * @zh 发射一个粒子。
      */
     emit(time: number): boolean {
-        var position: Vector3 = ShurikenParticleSystem._tempPosition;
-        var direction: Vector3 = ShurikenParticleSystem._tempDirection;
+        var position: Vector3 = _tempPosition;
+        var direction: Vector3 = _tempDirection;
         if (this._shape && this._shape.enable) {
             if (this.autoRandomSeed)
                 this._shape.generatePositionAndDirection(position, direction);
@@ -2204,7 +2204,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
                 case 1:
                     break;
                 default:
-                    throw new Error("ShurikenParticleMaterial: SimulationSpace value is invalid.");
+                    throw new Error("unknown simulationSpace: " + this.simulationSpace);
             }
             offset = i + this._simulationUV_Index;
             this._vertices[offset++] = startU;
@@ -2333,7 +2333,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
                 }
                 break;
             default:
-                throw new Error("Utils3D: startDelayType is invalid.");
+                throw new Error("unknown startDelayType: " + this.startDelayType);
         }
         this._frameRateTime = this._currentTime + this._playStartDelay;//同步频率模式发射时间,更新函数中小于延迟时间不会更新此时间。
 
@@ -2386,94 +2386,92 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
      * @zh 克隆到目标对象。
      * @param destObject 要克隆到的目标对象。
      */
-    cloneTo(destObject: any): void {
-        var dest: ShurikenParticleSystem = (<ShurikenParticleSystem>destObject);
+    cloneTo(destObject: ShurikenParticleSystem): void {
+        destObject._useCustomBounds = this._useCustomBounds;
+        (this._customBounds) && (this._customBounds.cloneTo(destObject._customBounds));
 
-        dest._useCustomBounds = this._useCustomBounds;
-        (this._customBounds) && (this._customBounds.cloneTo(dest._customBounds));
+        destObject.duration = this.duration;
+        destObject.looping = this.looping;
+        destObject.prewarm = this.prewarm;
+        destObject.startDelayType = this.startDelayType;
+        destObject.startDelay = this.startDelay;
+        destObject.startDelayMin = this.startDelayMin;
+        destObject.startDelayMax = this.startDelayMax;
 
-        dest.duration = this.duration;
-        dest.looping = this.looping;
-        dest.prewarm = this.prewarm;
-        dest.startDelayType = this.startDelayType;
-        dest.startDelay = this.startDelay;
-        dest.startDelayMin = this.startDelayMin;
-        dest.startDelayMax = this.startDelayMax;
+        destObject._maxStartLifetime = this._maxStartLifetime;
+        destObject.startLifetimeType = this.startLifetimeType;
+        destObject.startLifetimeConstant = this.startLifetimeConstant;
+        this.startLifeTimeGradient.cloneTo(destObject.startLifeTimeGradient);
+        destObject.startLifetimeConstantMin = this.startLifetimeConstantMin;
+        destObject.startLifetimeConstantMax = this.startLifetimeConstantMax;
+        this.startLifeTimeGradientMin.cloneTo(destObject.startLifeTimeGradientMin);
+        this.startLifeTimeGradientMax.cloneTo(destObject.startLifeTimeGradientMax);
 
-        dest._maxStartLifetime = this._maxStartLifetime;
-        dest.startLifetimeType = this.startLifetimeType;
-        dest.startLifetimeConstant = this.startLifetimeConstant;
-        this.startLifeTimeGradient.cloneTo(dest.startLifeTimeGradient);
-        dest.startLifetimeConstantMin = this.startLifetimeConstantMin;
-        dest.startLifetimeConstantMax = this.startLifetimeConstantMax;
-        this.startLifeTimeGradientMin.cloneTo(dest.startLifeTimeGradientMin);
-        this.startLifeTimeGradientMax.cloneTo(dest.startLifeTimeGradientMax);
+        destObject.startSpeedType = this.startSpeedType;
+        destObject.startSpeedConstant = this.startSpeedConstant;
+        destObject.startSpeedConstantMin = this.startSpeedConstantMin;
+        destObject.startSpeedConstantMax = this.startSpeedConstantMax;
 
-        dest.startSpeedType = this.startSpeedType;
-        dest.startSpeedConstant = this.startSpeedConstant;
-        dest.startSpeedConstantMin = this.startSpeedConstantMin;
-        dest.startSpeedConstantMax = this.startSpeedConstantMax;
+        destObject.dragType = this.dragType;
+        destObject.dragConstant = this.dragConstant;
+        destObject.dragSpeedConstantMax = this.dragSpeedConstantMax;
+        destObject.dragSpeedConstantMin = this.dragSpeedConstantMin;
 
-        dest.dragType = this.dragType;
-        dest.dragConstant = this.dragConstant;
-        dest.dragSpeedConstantMax = this.dragSpeedConstantMax;
-        dest.dragSpeedConstantMin = this.dragSpeedConstantMin;
+        destObject.threeDStartSize = this.threeDStartSize;
+        destObject.startSizeType = this.startSizeType;
+        destObject.startSizeConstant = this.startSizeConstant;
+        this.startSizeConstantSeparate.cloneTo(destObject.startSizeConstantSeparate);
+        destObject.startSizeConstantMin = this.startSizeConstantMin;
+        destObject.startSizeConstantMax = this.startSizeConstantMax;
+        this.startSizeConstantMinSeparate.cloneTo(destObject.startSizeConstantMinSeparate);
+        this.startSizeConstantMaxSeparate.cloneTo(destObject.startSizeConstantMaxSeparate);
 
-        dest.threeDStartSize = this.threeDStartSize;
-        dest.startSizeType = this.startSizeType;
-        dest.startSizeConstant = this.startSizeConstant;
-        this.startSizeConstantSeparate.cloneTo(dest.startSizeConstantSeparate);
-        dest.startSizeConstantMin = this.startSizeConstantMin;
-        dest.startSizeConstantMax = this.startSizeConstantMax;
-        this.startSizeConstantMinSeparate.cloneTo(dest.startSizeConstantMinSeparate);
-        this.startSizeConstantMaxSeparate.cloneTo(dest.startSizeConstantMaxSeparate);
+        destObject.threeDStartRotation = this.threeDStartRotation;
+        destObject.startRotationType = this.startRotationType;
+        destObject.startRotationConstant = this.startRotationConstant;
+        this.startRotationConstantSeparate.cloneTo(destObject.startRotationConstantSeparate);
+        destObject.startRotationConstantMin = this.startRotationConstantMin;
+        destObject.startRotationConstantMax = this.startRotationConstantMax;
+        this.startRotationConstantMinSeparate.cloneTo(destObject.startRotationConstantMinSeparate);
+        this.startRotationConstantMaxSeparate.cloneTo(destObject.startRotationConstantMaxSeparate);
 
-        dest.threeDStartRotation = this.threeDStartRotation;
-        dest.startRotationType = this.startRotationType;
-        dest.startRotationConstant = this.startRotationConstant;
-        this.startRotationConstantSeparate.cloneTo(dest.startRotationConstantSeparate);
-        dest.startRotationConstantMin = this.startRotationConstantMin;
-        dest.startRotationConstantMax = this.startRotationConstantMax;
-        this.startRotationConstantMinSeparate.cloneTo(dest.startRotationConstantMinSeparate);
-        this.startRotationConstantMaxSeparate.cloneTo(dest.startRotationConstantMaxSeparate);
+        destObject.randomizeRotationDirection = this.randomizeRotationDirection;
 
-        dest.randomizeRotationDirection = this.randomizeRotationDirection;
+        destObject.startColorType = this.startColorType;
+        this.startColorConstant.cloneTo(destObject.startColorConstant);
+        this.startColorConstantMin.cloneTo(destObject.startColorConstantMin);
+        this.startColorConstantMax.cloneTo(destObject.startColorConstantMax);
 
-        dest.startColorType = this.startColorType;
-        this.startColorConstant.cloneTo(dest.startColorConstant);
-        this.startColorConstantMin.cloneTo(dest.startColorConstantMin);
-        this.startColorConstantMax.cloneTo(dest.startColorConstantMax);
+        destObject.gravityModifier = this.gravityModifier;
+        destObject.simulationSpace = this.simulationSpace;
+        destObject.simulationSpeed = this.simulationSpeed;
+        destObject.scaleMode = this.scaleMode;
+        destObject.playOnAwake = this.playOnAwake;
+        destObject.autoRandomSeed = this.autoRandomSeed;
+        destObject.randomSeed[0] = this.randomSeed[0];
 
-        dest.gravityModifier = this.gravityModifier;
-        dest.simulationSpace = this.simulationSpace;
-        dest.simulationSpeed = this.simulationSpeed;
-        dest.scaleMode = this.scaleMode;
-        dest.playOnAwake = this.playOnAwake;
-        dest.autoRandomSeed = this.autoRandomSeed;
-        dest.randomSeed[0] = this.randomSeed[0];
-
-        dest.maxParticles = this.maxParticles;
+        destObject.maxParticles = this.maxParticles;
 
         //TODO:可做更优判断
-        (this._emission) && (dest._emission = this._emission.clone());
-        (this.shape) && (dest.shape = this.shape.clone());
-        (this.velocityOverLifetime) && (dest.velocityOverLifetime = this.velocityOverLifetime.clone());
-        (this.colorOverLifetime) && (dest.colorOverLifetime = this.colorOverLifetime.clone());
-        (this.sizeOverLifetime) && (dest.sizeOverLifetime = this.sizeOverLifetime.clone());
-        (this.rotationOverLifetime) && (dest.rotationOverLifetime = this.rotationOverLifetime.clone());
-        (this.textureSheetAnimation) && (dest.textureSheetAnimation = this.textureSheetAnimation.clone());
+        (this._emission) && (destObject._emission = this._emission.clone());
+        (this.shape) && (destObject.shape = this.shape.clone());
+        (this.velocityOverLifetime) && (destObject.velocityOverLifetime = this.velocityOverLifetime.clone());
+        (this.colorOverLifetime) && (destObject.colorOverLifetime = this.colorOverLifetime.clone());
+        (this.sizeOverLifetime) && (destObject.sizeOverLifetime = this.sizeOverLifetime.clone());
+        (this.rotationOverLifetime) && (destObject.rotationOverLifetime = this.rotationOverLifetime.clone());
+        (this.textureSheetAnimation) && (destObject.textureSheetAnimation = this.textureSheetAnimation.clone());
         //
 
-        dest.isPerformanceMode = this.isPerformanceMode;
+        destObject.isPerformanceMode = this.isPerformanceMode;
 
-        dest._isEmitting = this._isEmitting;
-        dest._isPlaying = this._isPlaying;
-        dest._isPaused = this._isPaused;
-        dest._playStartDelay = this._playStartDelay;
-        dest._frameRateTime = this._frameRateTime;
-        dest._emissionTime = this._emissionTime;
-        dest._totalDelayTime = this._totalDelayTime;
-        dest._burstsIndex = this._burstsIndex;
+        destObject._isEmitting = this._isEmitting;
+        destObject._isPlaying = this._isPlaying;
+        destObject._isPaused = this._isPaused;
+        destObject._playStartDelay = this._playStartDelay;
+        destObject._frameRateTime = this._frameRateTime;
+        destObject._emissionTime = this._emissionTime;
+        destObject._totalDelayTime = this._totalDelayTime;
+        destObject._burstsIndex = this._burstsIndex;
     }
 
     /**
@@ -2489,4 +2487,13 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
     }
 }
 
-
+const _tempVector30: Vector3 = new Vector3();
+const _tempVector31: Vector3 = new Vector3();
+const _tempVector32: Vector3 = new Vector3();
+const _tempVector33: Vector3 = new Vector3();
+const _tempVector34: Vector3 = new Vector3();
+const _tempVector35: Vector3 = new Vector3();
+const _tempVector36: Vector3 = new Vector3();
+const _tempVector37: Vector3 = new Vector3();
+const _tempPosition: Vector3 = new Vector3();
+const _tempDirection: Vector3 = new Vector3();

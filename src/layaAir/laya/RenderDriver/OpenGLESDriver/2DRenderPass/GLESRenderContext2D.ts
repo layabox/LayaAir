@@ -13,7 +13,7 @@ import { FastSinglelist } from "../../../utils/SingletonList";
 import { IRenderContext2D } from "../../DriverDesign/2DRenderPass/IRenderContext2D";
 import { IRenderCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
 import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
-import { ShaderDataType } from "../../DriverDesign/RenderDevice/ShaderData";
+import { ShaderData, ShaderDataType } from "../../DriverDesign/RenderDevice/ShaderData";
 import { RenderState } from "../../RenderModuleData/Design/RenderState";
 import { GLESInternalRT } from "../RenderDevice/GLESInternalRT";
 import { GLESRenderGeometryElement } from "../RenderDevice/GLESRenderGeometryElement";
@@ -60,6 +60,14 @@ export class GLESREnderContext2D implements IRenderContext2D {
         this._nativeObj.pipelineMode = "Forward";
         (!GLESREnderContext2D.isCreateBlitScreenELement) && this.setBlitScreenElement();
 
+    }
+    private _sceneData: ShaderData;
+    public get sceneData(): ShaderData {
+        return this._sceneData;
+    }
+    public set sceneData(value: ShaderData) {
+        this._sceneData = value;
+        //TODO Native
     }
 
 
@@ -108,8 +116,6 @@ export class GLESREnderContext2D implements IRenderContext2D {
         `
         let fs = `
             #define SHADER_NAME GLESblitScreenFS
-
-            #include "Color.glsl";
 
             varying vec2 v_Texcoord0;
 

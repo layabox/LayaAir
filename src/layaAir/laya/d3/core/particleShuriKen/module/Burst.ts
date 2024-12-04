@@ -58,11 +58,10 @@ export class Burst implements IClone {
 	 * @zh 克隆到目标对象。
 	 * @param destObject 要克隆到的目标对象。
 	 */
-	cloneTo(destObject: any): void {
-		var destBurst: Burst = (<Burst>destObject);
-		destBurst._time = this._time;
-		destBurst._minCount = this._minCount;
-		destBurst._maxCount = this._maxCount;
+	cloneTo(destObject: Burst): void {
+		destObject._time = this._time;
+		destObject._minCount = this._minCount;
+		destObject._maxCount = this._maxCount;
 	}
 
 	/**

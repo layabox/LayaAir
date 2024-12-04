@@ -220,12 +220,6 @@ export class LensFlareEffect extends PostProcessEffect {
     }
 
     /**@internal */
-    private _tempV3: Vector3;
-
-    /**@internal */
-    private _tempV4: Vector4;
-
-    /**@internal */
     private _flareCMDS: LensFlareCMD[];
 
     /**@internal */
@@ -318,8 +312,6 @@ export class LensFlareEffect extends PostProcessEffect {
         this._flareCMDS = [];
         this._flareCMDS.push(new LensFlareCMD());
         this._center = new Vector2();
-        this._tempV3 = new Vector3();
-        this._tempV4 = new Vector4();
     }
 
     /**
@@ -354,15 +346,15 @@ export class LensFlareEffect extends PostProcessEffect {
     caculateDirCenter(camera: Camera) {
         //center caculate start
         // lightDirection
-        (this._light as DirectionLightCom).direction.cloneTo(this._tempV3);
+        (this._light as DirectionLightCom).direction.cloneTo(_tempV3);
         // lightDir revert
-        Vector3.scale(this._tempV3, -10, this._tempV3);
+        Vector3.scale(_tempV3, -10, _tempV3);
         // offset of light to camera
-        Vector3.add(camera.transform.position, this._tempV3, this._tempV3);
+        Vector3.add(camera.transform.position, _tempV3, _tempV3);
         // to screen space
-        Vector3.transformV3ToV4(this._tempV3, camera.projectionViewMatrix, this._tempV4);
+        Vector3.transformV3ToV4(_tempV3, camera.projectionViewMatrix, _tempV4);
         // normalize x\y coordinate
-        this._center.setValue(this._tempV4.x / this._tempV4.w, this._tempV4.y / this._tempV4.w);
+        this._center.setValue(_tempV4.x / _tempV4.w, _tempV4.y / _tempV4.w);
         // angle caculatge
         var angle: number = Utils.toAngle(Math.atan2(this._center.x, this._center.y));
         // angle round
@@ -434,3 +426,6 @@ export class LensFlareEffect extends PostProcessEffect {
         this._needUpdate = false;
     }
 }
+
+const _tempV3: Vector3 = new Vector3();
+const _tempV4: Vector4 = new Vector4();

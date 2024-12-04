@@ -192,7 +192,7 @@ export class UnlitMaterial extends Material {
 				this.depthTest = RenderState.DEPTHTEST_LESS;
 				break;
 			default:
-				throw new Error("UnlitMaterial : renderMode value error.");
+				throw new Error("unknown renderMode: " + value);
 		}
 	}
 }

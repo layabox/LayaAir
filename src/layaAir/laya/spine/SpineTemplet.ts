@@ -1,8 +1,10 @@
+//@~AXIE:1.2
 import { Resource } from "../resource/Resource";
 import { SketonOptimise } from "./optimize/SketonOptimise";
 import { Material } from "../resource/Material";
 import { SpineShaderInit } from "./material/SpineShaderInit";
 import { Texture2D } from "../resource/Texture2D";
+import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
 
 
 /**
@@ -30,7 +32,26 @@ export class SpineTemplet extends Resource {
 
     private _textures: Record<string, Texture2D>;
     private _basePath: string;
-
+    /**
+     * @en Base width of spine animation
+     * @zh spine 动画基础宽度
+     */
+    width:number;
+    /**
+     * @en Base height of spine animation
+     * @zh spine 动画基础高度
+     */
+    height:number;
+    /**
+     * @en X-axis offset of spine animation
+     * @zh spine 动画X轴偏移
+     */
+    offsetX:number;
+    /**
+     * @en Y-axis offset of spine animation
+     * @zh spine 动画Y轴偏移
+     */
+    offsetY:number;
     /**
      * @en Indicates if slot is needed
      * @zh 是否需要插槽
@@ -42,7 +63,6 @@ export class SpineTemplet extends Resource {
      * @zh 骨骼优化对象
      */
     sketonOptimise: SketonOptimise;
-
 
     /** @ignore */
     constructor() {
@@ -95,6 +115,11 @@ export class SpineTemplet extends Resource {
      * @param blendMode 要使用的混合模式
      */
     getMaterial(texture: Texture2D, blendMode: number): Material {
+        if (!texture) {
+            console.error("SpineError:cant Find Main Texture");
+            texture = Texture2D.whiteTexture;
+        }
+
         let key = texture.id + "_" + blendMode;
         let mat = this.materialMap.get(key);
         if (!mat) {
@@ -102,7 +127,11 @@ export class SpineTemplet extends Resource {
             mat.setShaderName("SpineStandard");
             SpineShaderInit.initSpineMaterial(mat);
             mat.setTextureByIndex(SpineShaderInit.SpineTexture, texture);
-
+            if (texture.gammaCorrection != 1) {
+                mat.addDefine(ShaderDefines2D.GAMMATEXTURE);
+            } else {
+                mat.removeDefine(ShaderDefines2D.GAMMATEXTURE);
+            }
             SpineShaderInit.SetSpineBlendMode(blendMode, mat);
             //mat.color = this.owner.spineColor;
             //mat.setVector2("u_size",new Vector2(Laya.stage.width,Laya.stage.height));
@@ -139,6 +168,10 @@ export class SpineTemplet extends Resource {
         this._textures = textures;
         this.mainBlendMode = this.skeletonData.slots[0]?.blendMode || 0;
         this.mainTexture = this._mainTexture;
+        this.width = this.skeletonData.width;
+        this.height = this.skeletonData.height;
+        this.offsetX = this.skeletonData.x;
+        this.offsetY = this.skeletonData.y;
         this.sketonOptimise.checkMainAttach(this.skeletonData);
     }
 
@@ -153,6 +186,18 @@ export class SpineTemplet extends Resource {
         let tAni = this.skeletonData.getAnimationByIndex(index);
         if (tAni) return tAni.name;
         return null;
+    }
+
+    /**
+     * @en Find the animation by its name
+     * @param name The name of the animation to find
+     * @returns The found animation index, or -1 if not found
+     * @zh 通过动画名称查找动画
+     * @param name 要查找的动画名称
+     * @returns 找到的动画索引，如果未找到则返回-1
+     */
+    findAnimation(name: string) {
+        return this.skeletonData.findAnimation(name);
     }
 
     /**

@@ -1,8 +1,12 @@
+
 import { BaseRender2DType, BaseRenderNode2D } from "../../NodeRender2D/BaseRenderNode2D";
 import { IIndexBuffer } from "../../RenderDriver/DriverDesign/RenderDevice/IIndexBuffer";
 import { IRenderGeometryElement } from "../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
 import { IVertexBuffer } from "../../RenderDriver/DriverDesign/RenderDevice/IVertexBuffer";
 import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
+import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
+import { Sprite } from "../../display/Sprite";
+import { LayaGL } from "../../layagl/LayaGL";
 import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
 import { Color } from "../../maths/Color";
 import { Vector2 } from "../../maths/Vector2";
@@ -138,6 +142,9 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
     }
         this.currentRender = this.skinRenderArray[this._skinIndex];//default
     }
+    getSpineColor(): Color {
+        return this.spineColor;
+    }
 
     /**
      * @en Destroy the SpineOptimizeRender instance.
@@ -169,7 +176,7 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
             this._clear();
             this.play(this._curAnimationName);
         }
-        //throw new Error("Method not implemented.");
+        //throw new NotImplementedError();
     }
 
     /**
@@ -203,6 +210,14 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
         this.slots = skeleton.slots;
         this._nodeOwner = renderNode;
         let scolor = skeleton.color;
+        this.spineColor = new Color(scolor.r , scolor.g, scolor.b , scolor.a);
+        let color =  renderNode._spriteShaderData.getColor(SpineShaderInit.Color) || new Color();
+        color.setValue(scolor.r, scolor.g, scolor.b , scolor.a );
+        if (renderNode._renderAlpha !== undefined) {
+            color.a *= renderNode._renderAlpha;
+        }else
+            color.a *= (renderNode.owner as Sprite).alpha;
+        renderNode._spriteShaderData.setColor(SpineShaderInit.Color, color);
         this.spineColor = new Color(scolor.r * scolor.a, scolor.g * scolor.a, scolor.b * scolor.a, scolor.a);
         renderNode._spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, this.spineColor);
         this.skinRenderArray.forEach((value) => {
@@ -341,6 +356,10 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
             this.renderProxytype = ERenderProxyType.RenderNormal;
         }
         else {
+            if (currentRender.vertexBones > 4) {
+                console.warn(`In FastRender mode - Current skin: ${currentRender.name} has ${currentRender.vertexBones} bones influencing each vertex. This exceeds the recommended limit of 4 bones per vertex.`);
+            }
+            
             switch (this.currentRender.skinAttachType) {
                 case ESpineRenderType.boneGPU:
                     this._nodeOwner._spriteShaderData.addDefine(SpineShaderInit.SPINE_FAST);

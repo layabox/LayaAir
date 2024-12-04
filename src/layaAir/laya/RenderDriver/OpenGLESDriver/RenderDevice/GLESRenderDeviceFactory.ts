@@ -21,6 +21,7 @@ import { GLESShaderData } from "./GLESShaderData";
 import { GLESCommandUniformMap } from "./GLESCommandUniformMap";
 import { Laya } from "../../../../Laya";
 import { LayaGL } from "../../../layagl/LayaGL";
+import { NotImplementedError } from "../../../utils/Error";
 
 export class GLESRenderDeviceFactory implements IRenderDeviceFactory {
     createShaderData(ownerResource: Resource): ShaderData {
@@ -51,7 +52,7 @@ export class GLESRenderDeviceFactory implements IRenderDeviceFactory {
         return new GLESRenderGeometryElement(mode, drawType);
     }
     createEngine(config: Config, canvas: any): Promise<void> {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
 }
