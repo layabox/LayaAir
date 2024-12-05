@@ -7,26 +7,26 @@ import { Vector2 } from "../../../maths/Vector2";
 import { Vector4 } from "../../../maths/Vector4";
 import { Material } from "../../../resource/Material";
 
-export type TileSetCellOcclusionInfo = {
+export class TileSetCellOcclusionInfo {
     //根据light功能定义
     shape: number[];
     index: number;
 }
 
-export type TileSetCellPhysicsInfo = {
+export class TileSetCellPhysicsInfo {
     shape: number[];
     index: number;
 }
 
-export type TileSetCellNavigationInfo = {
+export class TileSetCellNavigationInfo {
     //根据想实现的Navigation定义
     shape: number[];
     index: number;
 }
 
-export type TileSetCellCustomDataInfo = {
-    id?:number;
-    name?:string;
+export class TileSetCellCustomDataInfo {
+    id:number;
+    name:string;
     value: any;
 }
 
