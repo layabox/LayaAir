@@ -1,6 +1,6 @@
 import { Laya } from "../../../../Laya";
 import { Vector2 } from "../../../maths/Vector2";
-import { TILEMAPLAYERDIRTYFLAG } from "./TileMapLayer";
+import { DirtyFlagType, TileMapDirtyFlag } from "./TileMapEnum";
 import { TileSetCellData } from "./TileSetCellData";
 import { TileSetCellGroup } from "./TileSetCellGroup";
 
@@ -91,7 +91,13 @@ export class TileAlternativesData {
     get tileDatas() {
         return this._tileDatas;
     }
+
     set tileDatas(value: Record<number, TileSetCellData>) {
+        if (this._owner && value) {
+            for (let k in value) {
+                value[k].__init(this, parseInt(k));
+            }
+        }
         this._tileDatas = value;
     }
 
@@ -181,10 +187,10 @@ export class TileAlternativesData {
         let atlasSize = this._owner.atlasSize;
         this._uvExtends.x = this._uvSize.x / atlasSize.x;
         this._uvExtends.y = this._uvSize.y / atlasSize.y;
-        this._updateOriginUV(0, 0, TILEMAPLAYERDIRTYFLAG.CELL_QUAD | TILEMAPLAYERDIRTYFLAG.CELL_QUADUV);
+        this._updateOriginUV(0, 0, TileMapDirtyFlag.CELL_QUAD | TileMapDirtyFlag.CELL_QUADUV);
 
         //update ID
-        this.nativeId = this.owner._getGlobalAlternativesId(this.localPos.x, this.localPos.y);
+        this.nativeId = this._owner._getGlobalAlternativesId(this.localPos.x, this.localPos.y);
         if (this._tileDatas) {
             for (let k in this._tileDatas) {
                 this._tileDatas[k].__init(this, parseInt(k));
@@ -202,7 +208,7 @@ export class TileAlternativesData {
         this._uvOri.x = (this._uvOri.x + this._uvSize.x * 0.5) / atlasSize.x;
         this._uvOri.y = (this._uvOri.y + this._uvSize.y * 0.5) / atlasSize.y;
         for (let k in this._tileDatas) {
-            this._tileDatas[k]._notifyDataChange(data);
+            this._tileDatas[k]._notifyDataChange(data, DirtyFlagType.RENDER);
         }
     }
 
@@ -263,7 +269,7 @@ export class TileAlternativesData {
             x = this._frameIndex;
             y = 0;
         }
-        this._updateOriginUV(x * (this._sizeByAtlas.x + this._animation_separation.x), y * (this._sizeByAtlas.y + this._animation_separation.y), TILEMAPLAYERDIRTYFLAG.CELL_QUADUV);
+        this._updateOriginUV(x * (this._sizeByAtlas.x + this._animation_separation.x), y * (this._sizeByAtlas.y + this._animation_separation.y), TileMapDirtyFlag.CELL_QUADUV);
     }
 
     getCelldata(index: number): TileSetCellData {

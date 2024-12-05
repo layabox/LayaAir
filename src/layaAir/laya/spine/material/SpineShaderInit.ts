@@ -20,16 +20,11 @@ import { SpineMeshUtils } from "../mesh/SpineMeshUtils";
  */
 export class SpineShaderInit {
 
-    static SpineFastVertexDeclaration: VertexDeclaration;
-
     /**
      * @en Vertex declaration for normal Spine rendering.
      * @zh 用于普通 Spine 渲染的顶点声明。
      */
     static SpineNormalVertexDeclaration: VertexDeclaration;
-
-    // static SpineRBVertexDeclaration: VertexDeclaration;
-
 
     /**
      * @en Vertex declaration for instance normal matrix.
@@ -101,12 +96,6 @@ export class SpineShaderInit {
      * @zh 骨骼矩阵的属性 ID。
      */
     static BONEMAT: number;
-
-    // static NMatrix: number;
-
-    static Color: number;
-
-    // static Size: number;
 
     /**
      * @internal
@@ -194,9 +183,6 @@ export class SpineShaderInit {
         Shader3D.addInclude("SpineVertex.glsl", spineVertex);
         Shader3D.addInclude("SpineFragment.glsl", spineFragment);
         SpineShaderInit.BONEMAT = Shader3D.propertyNameToID("u_sBone");
-        // SpineShaderInit.NMatrix = Shader3D.propertyNameToID("u_NMatrix");
-        // SpineShaderInit.Color = Shader3D.propertyNameToID("u_color");
-        // SpineShaderInit.Size = Shader3D.propertyNameToID("u_size");
         SpineShaderInit.SpineTexture = Shader3D.propertyNameToID("u_spineTexture");
         SpineShaderInit.SPINE_FAST = Shader3D.getDefineByName("SPINE_FAST");
         SpineShaderInit.SPINE_RB = Shader3D.getDefineByName("SPINE_RB");

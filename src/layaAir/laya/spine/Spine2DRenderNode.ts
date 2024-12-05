@@ -164,12 +164,12 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
         // let buffer = this._matBuffer;
         this._nMatrix_0.setValue(mat.a, mat.b, mat.tx + mat.a * px + mat.c * py);
         this._nMatrix_1.setValue(mat.c, mat.d, mat.ty + mat.b * px + mat.d * py);
-        this._spriteShaderData.setVector3(BaseRenderNode2D.NMATRIX_0, this._nMatrix_0);
-        this._spriteShaderData.setVector3(BaseRenderNode2D.NMATRIX_1, this._nMatrix_1);
+        shaderData.setVector3(BaseRenderNode2D.NMATRIX_0, this._nMatrix_0);
+        shaderData.setVector3(BaseRenderNode2D.NMATRIX_1, this._nMatrix_1);
 
         Vector2.TempVector2.setValue(context.width, context.height);
-        this._spriteShaderData.setVector2(BaseRenderNode2D.BASERENDERSIZE, Vector2.TempVector2);
-        context._copyClipInfoToShaderData(this._spriteShaderData);
+        shaderData.setVector2(BaseRenderNode2D.BASERENDERSIZE, Vector2.TempVector2);
+        context._copyClipInfoToShaderData(shaderData);
     }
 
     /**
