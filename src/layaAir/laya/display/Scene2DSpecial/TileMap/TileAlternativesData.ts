@@ -1,6 +1,6 @@
 import { Laya } from "../../../../Laya";
 import { Vector2 } from "../../../maths/Vector2";
-import { DirtyFlagType, TileMapLayerDirtyFlag } from "./TileMapEnum";
+import { DirtyFlagType, TileMapDirtyFlag } from "./TileMapEnum";
 import { TileSetCellData } from "./TileSetCellData";
 import { TileSetCellGroup } from "./TileSetCellGroup";
 
@@ -187,7 +187,7 @@ export class TileAlternativesData {
         let atlasSize = this._owner.atlasSize;
         this._uvExtends.x = this._uvSize.x / atlasSize.x;
         this._uvExtends.y = this._uvSize.y / atlasSize.y;
-        this._updateOriginUV(0, 0, TileMapLayerDirtyFlag.CELL_QUAD | TileMapLayerDirtyFlag.CELL_QUADUV);
+        this._updateOriginUV(0, 0, TileMapDirtyFlag.CELL_QUAD | TileMapDirtyFlag.CELL_QUADUV);
 
         //update ID
         this.nativeId = this._owner._getGlobalAlternativesId(this.localPos.x, this.localPos.y);
@@ -269,7 +269,7 @@ export class TileAlternativesData {
             x = this._frameIndex;
             y = 0;
         }
-        this._updateOriginUV(x * (this._sizeByAtlas.x + this._animation_separation.x), y * (this._sizeByAtlas.y + this._animation_separation.y), TileMapLayerDirtyFlag.CELL_QUADUV);
+        this._updateOriginUV(x * (this._sizeByAtlas.x + this._animation_separation.x), y * (this._sizeByAtlas.y + this._animation_separation.y), TileMapDirtyFlag.CELL_QUADUV);
     }
 
     getCelldata(index: number): TileSetCellData {

@@ -1,6 +1,6 @@
 import { TileMapUtils } from "./TileMapUtils";
 import { TileAlternativesData } from "./TileAlternativesData";
-import { DirtyFlagType, TileMapLayerDirtyFlag, TillMap_CellNeighbor } from "./TileMapEnum";
+import { DirtyFlagType, TileMapDirtyFlag, TillMap_CellNeighbor } from "./TileMapEnum";
 import { TileMapChunkData } from "./TileMapChunkData";
 import { Color } from "../../../maths/Color";
 import { Vector2 } from "../../../maths/Vector2";
@@ -9,21 +9,21 @@ import { Material } from "../../../resource/Material";
 
 export class TileSetCellOcclusionInfo {
     //根据light功能定义
-    shape:number[];
-    index:number;
- }
- 
- export class TileSetCellPhysicsInfo{
-    shape:number[];
-    index:number;
- }
- 
- export class TileSetCellNavigationInfo {
+    shape: number[];
+    index: number;
+}
+
+export class TileSetCellPhysicsInfo {
+    shape: number[];
+    index: number;
+}
+
+export class TileSetCellNavigationInfo {
     //根据想实现的Navigation定义
-    shape:number[];
-    index:number;
- }
- 
+    shape: number[];
+    index: number;
+}
+
 /**
  * TileMap中一个Cell的数据结构
  */
@@ -76,15 +76,15 @@ export class TileSetCellData {
 
     /**@internal */
     private _transData: Vector4 = new Vector4();
-    
-    gid:number = -1;
+
+    gid: number = -1;
 
     //贴图旋转矩阵
     get transData(): Vector4 {
-        if(this._updateTrans) this._updateTransData();
+        if (this._updateTrans) this._updateTransData();
         return this._transData;
     }
-   
+
     /**
      * 原始顶点图块的引用
      */
@@ -106,7 +106,7 @@ export class TileSetCellData {
     public set flip_h(value: boolean) {
         this._flip_h = value;
         this._updateTrans = true;
-        this._notifyDataChange(TileMapLayerDirtyFlag.CELL_UVTRAN, DirtyFlagType.RENDER);
+        this._notifyDataChange(TileMapDirtyFlag.CELL_UVTRAN, DirtyFlagType.RENDER);
 
     }
 
@@ -120,7 +120,7 @@ export class TileSetCellData {
     public set flip_v(value: boolean) {
         this._flip_v = value;
         this._updateTrans = true;
-        this._notifyDataChange(TileMapLayerDirtyFlag.CELL_UVTRAN, DirtyFlagType.RENDER);
+        this._notifyDataChange(TileMapDirtyFlag.CELL_UVTRAN, DirtyFlagType.RENDER);
     }
 
     public get transpose(): boolean {
@@ -133,7 +133,7 @@ export class TileSetCellData {
     public set transpose(value: boolean) {
         this._transpose = value;
         this._updateTrans = true;
-        this._notifyDataChange(TileMapLayerDirtyFlag.CELL_UVTRAN, DirtyFlagType.RENDER);
+        this._notifyDataChange(TileMapDirtyFlag.CELL_UVTRAN, DirtyFlagType.RENDER);
     }
 
     /**
@@ -146,7 +146,7 @@ export class TileSetCellData {
     public set rotateCount(value: number) {
         this._rotateCount = value;
         this._updateTrans = true;
-        this._notifyDataChange(TileMapLayerDirtyFlag.CELL_UVTRAN, DirtyFlagType.RENDER);
+        this._notifyDataChange(TileMapDirtyFlag.CELL_UVTRAN, DirtyFlagType.RENDER);
     }
 
     /**
@@ -158,7 +158,7 @@ export class TileSetCellData {
 
     public set texture_origin(value: Vector2) {
         value.cloneTo(this._texture_origin);
-        this._notifyDataChange(TileMapLayerDirtyFlag.CELL_QUAD , DirtyFlagType.RENDER);
+        this._notifyDataChange(TileMapDirtyFlag.CELL_QUAD, DirtyFlagType.RENDER);
     }
 
     /**
@@ -170,7 +170,7 @@ export class TileSetCellData {
 
     public set material(value: Material) {
         this._material = value;
-        this._notifyDataChange(TileMapLayerDirtyFlag.CELL_CHANGE, DirtyFlagType.RENDER);
+        this._notifyDataChange(TileMapDirtyFlag.CELL_CHANGE, DirtyFlagType.RENDER);
     }
 
     /**
@@ -182,7 +182,7 @@ export class TileSetCellData {
 
     public set colorModulate(value: Color) {
         this._colorModulate = value;
-        this._notifyDataChange(TileMapLayerDirtyFlag.CELL_COLOR , DirtyFlagType.RENDER);
+        this._notifyDataChange(TileMapDirtyFlag.CELL_COLOR, DirtyFlagType.RENDER);
     }
 
     /**
@@ -227,16 +227,33 @@ export class TileSetCellData {
         return this._physicsDatas;
     }
 
+    public set physicsDatas(value) {
+        this._physicsDatas = value;
+        this._notifyDataChange(TileMapDirtyFlag.CELL_PHYSICS , DirtyFlagType.PHYSICS);
+    }
+
     public get lightOccluderDatas() {
         return this._lightOccluderDatas;
+    }
+
+    public set lightOccluderDatas(value) {
+        this._lightOccluderDatas = value;
     }
 
     public get customDatas() {
         return this._customDatas;
     }
 
+    public set customDatas(value) {
+        this._customDatas = value;
+    }
+
     public get navigationDatas() {
         return this._navigationDatas;
+    }
+
+    public set navigationDatas(value) {
+        this._navigationDatas = value
     }
 
     //custom module
@@ -264,10 +281,10 @@ export class TileSetCellData {
         this.gid = TileMapUtils.getGid(this._index, this._cellowner.nativeId);
     }
 
-    _notifyDataChange(data: TileMapLayerDirtyFlag , type:DirtyFlagType) {
+    _notifyDataChange(data: TileMapDirtyFlag, type: DirtyFlagType) {
         if (!this.cellowner) return;
         this._notiveRenderTile.forEach(element => {
-            element._setDirtyFlag(this.gid, data ,type);
+            element._setDirtyFlag(this.gid, data, type);
         });
     }
 

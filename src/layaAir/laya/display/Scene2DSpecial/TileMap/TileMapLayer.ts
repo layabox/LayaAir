@@ -20,7 +20,7 @@ import { Rectangle } from "../../../maths/Rectangle";
 import { RectClipper } from "./RectClipper";
 import { Texture2D } from "../../../resource/Texture2D";
 import { TileMapDatasParse } from "./loaders/TileSetAssetLoader";
-import { TILELAYER_SORTMODE } from "./TileMapEnum";
+import { TileLayerSortMode } from "./TileMapEnum";
 
 const TempRectange: Rectangle = new Rectangle();
 const TempMatrix: Matrix = new Matrix();
@@ -63,7 +63,7 @@ export class TileMapLayer extends BaseRenderNode2D {
 
     private _layerColor: Color = new Color();
 
-    private _sortMode: TILELAYER_SORTMODE;
+    private _sortMode: TileLayerSortMode;
 
     private _renderTileSize: number = 32;
 
@@ -111,11 +111,11 @@ export class TileMapLayer extends BaseRenderNode2D {
         }
     }
 
-    get sortMode(): TILELAYER_SORTMODE {
+    get sortMode(): TileLayerSortMode {
         return this._sortMode;
     }
 
-    set sortMode(value: TILELAYER_SORTMODE) {
+    set sortMode(value: TileLayerSortMode) {
         this._sortMode = value;
     }
 

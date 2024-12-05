@@ -32,13 +32,13 @@ export enum TileShape {
 }
 
 
-export enum TILELAYER_SORTMODE {
+export enum TileLayerSortMode {
     YSort,
     ZINDEXSORT,
     XSort
 }
 
-export enum TileMapLayerDirtyFlag {
+export enum TileMapDirtyFlag {
     CELL_CHANGE = 1 << 0,//add remove create...
     CELL_COLOR = 1 << 1,//a_color
     CELL_QUAD = 1 << 2,//a_quad xy offset,zw extend

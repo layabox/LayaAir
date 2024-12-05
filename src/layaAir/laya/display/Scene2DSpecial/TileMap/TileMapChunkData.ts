@@ -11,7 +11,7 @@ import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
 import { Material } from "../../../resource/Material";
 import { Base64Tool } from "../../../utils/Base64Tool";
 import { TileAlternativesData } from "./TileAlternativesData";
-import { DirtyFlagType, TILELAYER_SORTMODE, TileMapLayerDirtyFlag, TileShape } from "./TileMapEnum";
+import { DirtyFlagType, TileLayerSortMode, TileMapDirtyFlag, TileShape } from "./TileMapEnum";
 import { TileMapLayer } from "./TileMapLayer";
 import { TileMapShaderInit } from "./TileMapShader/TileMapShaderInit";
 import { TileMapUtils } from "./TileMapUtils";
@@ -107,7 +107,7 @@ export class TileMapChunkData {
 
     private _tileSize: Vector2;
 
-    private _sortMode: TILELAYER_SORTMODE;
+    private _sortMode: TileLayerSortMode;
 
     /** @private Editor */
     _material: Material;
@@ -260,7 +260,7 @@ export class TileMapChunkData {
         if (this._gridShape != tileShape) {
             this._gridShape = tileShape;
             this._cellDataRefMap.forEach((value, key) => {
-                this._setDirtyFlag(key, TileMapLayerDirtyFlag.CELL_QUAD , DirtyFlagType.RENDER);
+                this._setDirtyFlag(key, TileMapDirtyFlag.CELL_QUAD , DirtyFlagType.RENDER);
             });
             this._reCreateRenderData = true;
         }
@@ -268,7 +268,7 @@ export class TileMapChunkData {
         if (!Vector2.equals(this._tileSize, tileSet.tileSize)) {
             tileSet.tileSize.cloneTo(this._tileSize);
             this._cellDataRefMap.forEach((value, key) => {
-                this._setDirtyFlag(key, TileMapLayerDirtyFlag.CELL_QUAD | TileMapLayerDirtyFlag.CELL_QUADUV , DirtyFlagType.RENDER);
+                this._setDirtyFlag(key, TileMapDirtyFlag.CELL_QUAD | TileMapDirtyFlag.CELL_QUADUV , DirtyFlagType.RENDER);
             });
         }
     }
@@ -283,13 +283,13 @@ export class TileMapChunkData {
             if (this._chuckCellList.length == 0)
                 return;
             switch (this._tileLayer.sortMode) {
-                case TILELAYER_SORTMODE.YSort:
+                case TileLayerSortMode.YSort:
                     this._chuckCellList.sort((a, b) => { return a.yOrderValue - b.yOrderValue });
                     break;
-                case TILELAYER_SORTMODE.XSort:
+                case TileLayerSortMode.XSort:
                     this._chuckCellList.sort((a, b) => { return a.chuckLocalindex - b.chuckLocalindex });
                     break;
-                case TILELAYER_SORTMODE.ZINDEXSORT:
+                case TileLayerSortMode.ZINDEXSORT:
                     this._chuckCellList.sort((a, b) => {
                         if (a.zOrderValue == b.zOrderValue) { return a.chuckLocalindex - b.chuckLocalindex }
                         else { return a.zOrderValue - b.zOrderValue }
@@ -332,7 +332,7 @@ export class TileMapChunkData {
                         let cellData = chuckCellinfo.cell;
                         let nativesData = cellData.cellowner;
                         let tilemapRenderElementInfo = this._renderElementArray[chuckCellinfo._renderElementIndex];
-                        if (value & TileMapLayerDirtyFlag.CELL_CHANGE || (value & TileMapLayerDirtyFlag.CELL_QUAD)) {
+                        if (value & TileMapDirtyFlag.CELL_CHANGE || (value & TileMapDirtyFlag.CELL_QUAD)) {
                             let data = tilemapRenderElementInfo.cacheData[TileMapChunkData.instanceposScalBufferIndex];
                             tilemapRenderElementInfo.updateFlag[TileMapChunkData.instanceposScalBufferIndex] = true;
                             this._getCellPos(chuckCellinfo, pos);
@@ -345,7 +345,7 @@ export class TileMapChunkData {
                             data[dataoffset + 3] = uvSize.y;
 
                         }
-                        if ((value & TileMapLayerDirtyFlag.CELL_CHANGE) || (value & TileMapLayerDirtyFlag.CELL_QUADUV)) {
+                        if ((value & TileMapDirtyFlag.CELL_CHANGE) || (value & TileMapDirtyFlag.CELL_QUADUV)) {
                             //cell uv /Animation
                             let data = tilemapRenderElementInfo.cacheData[TileMapChunkData.instanceuvOriScalBufferIndex];
                             tilemapRenderElementInfo.updateFlag[TileMapChunkData.instanceuvOriScalBufferIndex] = true;
@@ -358,7 +358,7 @@ export class TileMapChunkData {
                             data[dataoffset + 3] = uvextend.y;
 
                         }
-                        if ((value & TileMapLayerDirtyFlag.CELL_CHANGE) || (value & TileMapLayerDirtyFlag.CELL_COLOR)) {
+                        if ((value & TileMapDirtyFlag.CELL_CHANGE) || (value & TileMapDirtyFlag.CELL_COLOR)) {
                             //cellColor
                             let data = tilemapRenderElementInfo.cacheData[TileMapChunkData.instanceColorBufferIndex];
                             tilemapRenderElementInfo.updateFlag[TileMapChunkData.instanceColorBufferIndex] = true;
@@ -371,7 +371,7 @@ export class TileMapChunkData {
 
 
                         }
-                        if ((value & TileMapLayerDirtyFlag.CELL_CHANGE) || (value & TileMapLayerDirtyFlag.CELL_UVTRAN)) {
+                        if ((value & TileMapDirtyFlag.CELL_CHANGE) || (value & TileMapDirtyFlag.CELL_UVTRAN)) {
                             let data = tilemapRenderElementInfo.cacheData[TileMapChunkData.instanceuvTransBufferIndex];
                             tilemapRenderElementInfo.updateFlag[TileMapChunkData.instanceuvTransBufferIndex] = true;
                             let dataoffset = chuckCellinfo._cellPosInRenderData * 4;
@@ -427,7 +427,7 @@ export class TileMapChunkData {
                 let cellData = chunkCellInfo.cell;
 
                 //TODO Layer变更时需要删除
-                if ((value & TileMapLayerDirtyFlag.CELL_CHANGE) || (value & TileMapLayerDirtyFlag.CELL_PHYSICS)) {
+                if ((value & TileMapDirtyFlag.CELL_CHANGE) || (value & TileMapDirtyFlag.CELL_PHYSICS)) {
                     chunk._getPixelByChunkPosAndIndex(this.chunkX, this.chunkY, chunkCellInfo.chuckLocalindex, pos);
 
                     let ofx = pos.x;
@@ -715,7 +715,7 @@ export class TileMapChunkData {
             chuckCellInfo.cell = cellData;
             localIndexArray = this._cellDataRefMap[gid];
             localIndexArray.push(chuckCellInfo.chuckLocalindex);
-            this._setDirtyFlag(gid, TileMapLayerDirtyFlag.CELL_CHANGE);//这里需要改一下
+            this._setDirtyFlag(gid, TileMapDirtyFlag.CELL_CHANGE);//这里需要改一下
         }
 
     }
@@ -777,7 +777,7 @@ export class TileMapChunkData {
     /**
      * @internal
      */
-    _setDirtyFlag(gid: number, flag: TileMapLayerDirtyFlag, type = DirtyFlagType.ALL) {
+    _setDirtyFlag(gid: number, flag: TileMapDirtyFlag, type = DirtyFlagType.ALL) {
         if (type == DirtyFlagType.ALL) {
             for (let i = 0, len = this._dirtyFlags.length; i < len; i++) {
                 let flags = this._dirtyFlags[i];

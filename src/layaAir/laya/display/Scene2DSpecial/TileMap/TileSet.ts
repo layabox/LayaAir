@@ -1,6 +1,6 @@
 import { Color } from "../../../maths/Color";
 import { Vector2 } from "../../../maths/Vector2";
-import { TileShape, TillMap_TerrainMode } from "./TileMapEnum";
+import { TileMapDirtyFlag, TileShape, TillMap_TerrainMode } from "./TileMapEnum";
 import { TileMapUtils } from "./TileMapUtils";
 import { TileSetCellData } from "./TileSetCellData";
 import { TileSetCellGroup } from "./TileSetCellGroup";
@@ -184,6 +184,10 @@ export class TileSet extends Resource {
         return this._customDataLayer;
     }
 
+    set customLayers(value) {
+        this._customDataLayer = value;
+    }
+
     addCustormDataLayer(layer: TileSetCustomDataLayer): void {
 
     }
@@ -199,6 +203,10 @@ export class TileSet extends Resource {
     //navigation
     get navigationLayers() {
         return this._navigationLayers;
+    }
+
+    set navigationLayers(value) {
+        this._navigationLayers = value;
     }
 
     addNavigationLayers(layer: TileMapNavigationLayer): void {
@@ -218,6 +226,10 @@ export class TileSet extends Resource {
         return this._lightOcclusion;
     }
 
+    set lightInfoLayers(value) {
+        this._lightOcclusion = value;
+    }
+
     addlightInfoLayers(layer: TileSetOcclusionLayer): void {
 
     }
@@ -233,6 +245,10 @@ export class TileSet extends Resource {
     //physics
     get physicsLayers() {
         return this._physicsLayers;
+    }
+
+    set physicsLayers(value) {
+        this._physicsLayers = value;
     }
 
     addPhysicsLayers(layer: TileSetPhysicsLayer): number {
@@ -260,6 +276,10 @@ export class TileSet extends Resource {
 
     get tileTerrains() {
         return this._terrains;
+    }
+
+    set tileTerrains(value) {
+        this._terrains = value;
     }
 
     addTileTerrain(layer: TileSetTerrainLayer): void {
