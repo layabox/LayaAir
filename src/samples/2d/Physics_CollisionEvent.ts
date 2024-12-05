@@ -117,6 +117,5 @@ export class Physics_CollisionEvent {
         ground.off(Event.TRIGGER_ENTER, this, this.onTriggerEnter);
         ground.off(Event.TRIGGER_EXIT, this, this.onTriggerExit);
         Laya.physicsTimer.clearAll(this);
-        Physics2D.I.destroyWorld()
     }
 }

@@ -368,13 +368,9 @@ export class RigidBody extends Component {
 
     /**@internal */
     _onDisable(): void {
-        Physics2D.I._removeRigidBody(this);
-        Physics2D.I._removeRigidBodyAttribute(this);
-        this.owner.off("GlobaChange", this, this._globalChangeHandler);
-        (<Sprite>this.owner).cacheGlobal = false;
+        this.owner.off("GlobaChange", this, this._globalChangeHandler)
         //添加到物理世界
-        this._body && Physics2D.I._factory.removeBody(this._body);
-        this._body = null;
+        Physics2D.I._factory.set_RigibBody_Enable(this._body, false);
     }
 
     /**@internal */

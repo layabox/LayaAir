@@ -143,6 +143,5 @@ export class Physics_Bridge {
     dispose() {
         Laya.stage.offAll(Event.CLICK);
         Laya.stage.removeChild(this.label);
-        Physics2D.I.destroyWorld();
     }
 }
