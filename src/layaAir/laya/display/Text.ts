@@ -1153,13 +1153,13 @@ export class Text extends Sprite {
             }
         };
 
-        let getTextWidthByCmd = (text: string, cmd: ITextCmd) => {
+        let getTextWidth2 = (text: string, font: string, fontSize: number) => {
             if (bfont) {
-                return bfont.getTextWidth(text, cmd.fontSize);
+                return bfont.getTextWidth(text, fontSize);
             }
             else {
                 let t = Browser.context.font;
-                Browser.context.font = cmd.ctxFont;
+                Browser.context.font = font;
                 let ret = Browser.context.measureText(text);
                 Browser.context.font = t;
                 return ret ? ret.width : 100;
@@ -1285,7 +1285,7 @@ export class Text extends Sprite {
             let str = cmd.wt.text.substring(pos);
 
             cmd.wt.setText(cmd.wt.text.substring(0, pos));
-            cmd.width = cmd.wt.width = getTextWidthByCmd(cmd.wt.text, cmd);
+            cmd.width = cmd.wt.width = getTextWidth2(cmd.wt.text, cmd.ctxFont, cmd.fontSize);
 
             let cmd2: ITextCmd = cmdPool.length > 0 ? cmdPool.pop() : <any>{};
             if (!cmd2.wt)
@@ -1294,7 +1294,7 @@ export class Text extends Sprite {
             cmd2.style = cmd.style;
             cmd2.ctxFont = cmd.ctxFont;
             cmd2.fontSize = cmd.fontSize;
-            cmd2.width = cmd2.wt.width = getTextWidthByCmd(str, cmd);
+            cmd2.width = cmd2.wt.width = getTextWidth2(str, cmd.ctxFont, cmd.fontSize);
             cmd2.height = cmd.height;
 
             cmd2.next = cmd.next;
@@ -1609,49 +1609,73 @@ export class Text extends Sprite {
                 }
             }
         }
-        else if (this._overflow == Text.ELLIPSIS && (this._textWidth > rectWidth || this._textHeight > rectHeight)) {
+        else if (this._overflow == Text.ELLIPSIS
+            && (this._textWidth > rectWidth || this._textHeight > rectHeight || !this._wordWrap && this._lines.length > 1)) {
             //删掉超出的行
-            let i = this._lines.findIndex(line => line.y + line.height > rectHeight);
-            if (i == 0) i = 1;
+            let i: number;
+            if (!this._wordWrap && this._lines.length > 1)
+                i = 1;
+            else {
+                i = this._lines.findIndex(line => line.y + line.height > rectHeight);
+                if (i == 0) i = 1;
+            }
             let linesDeleted = false;
             if (i != -1 && this._lines.length > i) {
-                recoverLines(this._lines.splice(i, this._lines.length - i));
+                recoverLines(this._lines.splice(i, this._lines.length - i), true);
                 linesDeleted = true;
             }
 
             //在最后一行加省略号
-            let lastLine = this._lines[this._lines.length - 1];
-            let cmd = lastLine.cmd;
+            curLine = this._lines[this._lines.length - 1];
+            let cmd = curLine.cmd;
             let next: ITextCmd;
+            let textCmd: ITextCmd;
             let done = false;
             while (cmd) {
                 next = cmd.next;
+                if (!cmd.obj)
+                    textCmd = cmd;
 
                 if (done) {
-                    if (cmd.obj)
-                        cmd.obj = null;
-                    else if (cmd.wt)
-                        cmd.wt.cleanCache();
+                    cleanCmd(cmd, true);
                     cmdPool.push(cmd);
                 }
                 else if ((!next && linesDeleted) || cmd.x + cmd.width > rectWidth) {
-                    if (cmd.obj) //如果最后是个图片，那就删除图片，换成省略号
-                        cmd.obj = null;
-                    if (!cmd.wt)
-                        cmd.wt = new WordText();
+                    if (cmd.obj) { //如果最后是个图片，那就删除图片，换成省略号
+                        cleanCmd(cmd, true);
 
-                    cmd.wt.setText(cmd.wt.text.substring(0, Math.max(0, cmd.wt.text.length - 2)) + ellipsisStr);
-                    fontSize = cmd.style.fontSize;
-                    cmd.width = cmd.wt.width = getTextWidth(cmd.wt.text);
-                    cmd.wt.splitRender = this._singleCharRender;
+                        cmd.wt = new WordText();
+                        cmd.wt.setText(ellipsisStr);
+                        if (textCmd) {
+                            cmd.ctxFont = textCmd.ctxFont;
+                            cmd.fontSize = textCmd.fontSize;
+                            cmd.height = textCmd.height;
+                            cmd.style = textCmd.style;
+                        }
+                        else {
+                            cmd.ctxFont = ctxFont;
+                            cmd.fontSize = fontSize;
+                            cmd.height = charHeight;
+                            cmd.style = this._textStyle;
+                        }
+                        cmd.wt.splitRender = this._singleCharRender;
+                    }
+                    else {
+                        let i = cmd.wt.text.length - 2;
+                        if (i > 0 && isLowSurrogate(cmd.wt.text.charCodeAt(i)))
+                            i--;
+                        cmd.wt.setText(cmd.wt.text.substring(0, Math.max(0, i)) + ellipsisStr);
+                    }
+                    cmd.width = cmd.wt.width = getTextWidth2(cmd.wt.text, cmd.ctxFont, cmd.fontSize);
                     cmd.next = null;
                     done = true;
+                    addLine(true);//重新计算最后一行行高
                 }
 
                 cmd = next;
             }
 
-            if (done)
+            if (done || linesDeleted)
                 calcTextSize();
         }
 
@@ -1892,14 +1916,11 @@ export interface ITextLine {
 const cmdPool: Array<ITextCmd> = [];
 const linePool: Array<ITextLine> = [];
 
-function recoverLines(lines: Array<ITextLine>) {
+function recoverLines(lines: Array<ITextLine>, releaseObjs?: boolean) {
     for (let line of lines) {
         let cmd = line.cmd;
         while (cmd) {
-            if (cmd.obj)
-                cmd.obj = null;
-            else if (cmd.wt)
-                cmd.wt.cleanCache();
+            cleanCmd(cmd, releaseObjs);
             cmdPool.push(cmd);
             cmd = cmd.next;
         }
@@ -1908,6 +1929,19 @@ function recoverLines(lines: Array<ITextLine>) {
 
     linePool.push(...lines);
     lines.length = 0;
+}
+
+function cleanCmd(cmd: ITextCmd, releaseObj: boolean) {
+    if (cmd.obj) {
+        if (releaseObj) {
+            cmd.obj.element.obj = null;
+            cmd.obj.release();
+            Pool.recoverByClass(cmd.obj);
+        }
+        cmd.obj = null;
+    }
+    else if (cmd.wt)
+        cmd.wt.cleanCache();
 }
 
 const emojiTest = /[\uD800-\uDBFF][\uDC00-\uDFFF]/;
