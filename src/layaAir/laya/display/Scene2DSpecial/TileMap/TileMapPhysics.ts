@@ -19,23 +19,29 @@ export class TileMapPhysics {
     
     private _layer: TileMapLayer;
 
+    enable:boolean = false;
+
+    _rigidBodys: any[] = [];
+
     constructor(layer: TileMapLayer) {
         this._layer = layer;
     }
+    
+    updateState(bool:boolean){
+        let result = !!Laya.physics2D && bool;
+        if (result) {//todo
+            
+        }else{
 
-    private _physicsBody: any;
-
-    private _enablePhysics(): boolean {
-        if (Laya.physics2D == null) return false;
-        return this._layer.physicsEnable;
+        }
+        this.enable = result;
     }
 
-    _createPhysics(): void {
-        if (!this._enablePhysics()) return;
+    createRigidBody():any {
         let factory = Laya.physics2D;
         var defRigidBodyDef = new RigidBody2DInfo();
         defRigidBodyDef.angle = 0;
-        defRigidBodyDef.allowSleep = false;
+        // defRigidBodyDef.allowSleep = false;
         defRigidBodyDef.angularDamping = 0;
 
         defRigidBodyDef.bullet = false;
@@ -46,13 +52,44 @@ export class TileMapPhysics {
         defRigidBodyDef.type = "static";
         defRigidBodyDef.angularVelocity = 0;
         defRigidBodyDef.linearVelocity.setValue(0, 0);
+        let rigidBody = factory.rigidBodyDef_Create(defRigidBodyDef);
+        this._rigidBodys.push(rigidBody);
+        return rigidBody;
+    }
 
-        this._physicsBody = factory.rigidBodyDef_Create(defRigidBodyDef);
+    //激活所有
+    _enableRigidBodys(){
+        if(!this.enable) return;
+        for (let i = 0 , len = this._rigidBodys.length ; i < len; i++) 
+            this._enableRigidBody(this._rigidBodys[i]);
+    }
+
+    //关闭所有
+    _disableRigidBodys(){
+        if(!this.enable) return;
+        for (let i = 0 , len = this._rigidBodys.length ; i < len; i++) 
+            this._disableRigidBody(this._rigidBodys[i]);
+    }
+
+
+    _enableRigidBody(rigidBody:any){
+        Laya.physics2D.set_RigibBody_Enable(rigidBody,true);
+    }
+
+    _disableRigidBody(rigidBody:any){
+        Laya.physics2D.set_RigibBody_Enable(rigidBody,false);
+    }
+
+    destroyRigidBoyd(rigidBody:any){
+        let index = this._rigidBodys.indexOf(rigidBody);
+        if (index !== -1) {
+            this._rigidBodys.splice(index , 1);
+        }
+        Laya.physics2D.removeBody(rigidBody);
     }
 
     /** 创建Shape */
-    _createFixture(layer:TileSetPhysicsLayer , data: number[]): any {
-        if (!this._physicsBody) return null;
+    createFixture(rigidBody:any , layer:TileSetPhysicsLayer , data: number[]): any {
         let factory = Laya.physics2D;
 
         var def: any = TileMapPhysics._tempDef;
@@ -63,7 +100,7 @@ export class TileMapPhysics {
         def.shape = PhysicsShape.PolygonShape;
         let fixtureDef = factory.createFixtureDef(def);
         factory.set_PolygonShape_data(fixtureDef._shape, 0, 0, data, 1, 1);
-        let fixture = factory.createfixture(this._physicsBody, fixtureDef);
+        let fixture = factory.createfixture(rigidBody, fixtureDef);
         factory.set_fixtureDef_GroupIndex(fixture, layer.group);
         factory.set_fixtureDef_CategoryBits(fixture, layer.category);
         factory.set_fixtureDef_maskBits(fixture, layer.mask);
@@ -71,53 +108,13 @@ export class TileMapPhysics {
         return fixture;
     }
 
+    
 
     /**
      * 移除物理形状
      */
-    _destroyFixture(fixture:any): void {
-        if (!this._physicsBody) return;
-        Laya.physics2D.rigidBody_DestroyFixture(this._physicsBody, fixture);
+    destroyFixture( rigidBody:any , fixture:any): void {
+        Laya.physics2D.rigidBody_DestroyFixture(rigidBody, fixture);
     }
 
-    /**
-     * 添加物理形状
-     */
-    // addPhysicsShape(cellRow: number, cellCol: number, cell: TileSetCellData): void {
-    //     if (!this._enablePhysics()) return;
-
-    //     let physicsDatas = cell.physicsDatas;
-    //     if (!physicsDatas) return;
-
-    //     let key = this._getCellKey(cellRow, cellCol);
-    //     let fixtures = this._physicsShapeMaps.get(key);
-    //     if (fixtures) {
-    //         return;
-    //     }
-
-    //     const temp = Vector2.TempVector2;
-    //     this._layer._grid._gridToPixel(cellRow, cellCol, temp);
-    //     let offx = temp.x;
-    //     let offy = temp.y;
-    //     let mat = this._layer._globalTramsfrom();
-
-    //     fixtures = [];
-    //     for (let i = 0, l = physicsDatas.length; i < l; i++) {
-    //         let data = physicsDatas[i];
-    //         if (!data) continue
-
-    //         let shape = data.shape;
-    //         let shapeLength = shape.length;
-    //         let datas: Array<number> = new Array(shapeLength);
-    //         for (let j = 0; j < shapeLength; j++) {
-    //             let x = shape[j];
-    //             let y = shape[j + 1];
-    //             TileMapUtils.transfromPointByValue(mat, x + offx, y + offy, temp);
-    //             datas[j] = temp.x;
-    //             datas[j + 1] = temp.y;
-    //         }
-    //         fixtures.push(this._createfixture(datas));
-    //     }
-    //     this._physicsShapeMaps.set(key, fixtures);
-    // }
 }

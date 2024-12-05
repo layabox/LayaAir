@@ -5,7 +5,7 @@ import { TileMapChunkData } from "./TileMapChunkData";
 import { TileMapLayer } from "./TileMapLayer";
 import { TileMapPhysics } from "./TileMapPhysics";
 import { TileSet } from "./TileSet";
-import { TileSetCellData, TileSetCellPhysicsInfo } from "./TileSetCellData";
+import { TileSetCellData, TileSetCellPhysicsInfo,TileSetCellCustomDataInfo,TileSetCellNavigationInfo, TileSetCellOcclusionInfo } from "./TileSetCellData";
 import { TileSetCellGroup } from "./TileSetCellGroup";
 
 let c = ClassUtils.regClass;
@@ -20,3 +20,6 @@ c("TileMapChunkData", TileMapChunkData);
 c("TileMapPhysics", TileMapPhysics);
 c("TileSetPhysicsLayer", TileSetPhysicsLayer);
 c("TileSetCellPhysicsInfo", TileSetCellPhysicsInfo);
+c("TileSetCellCustomDataInfo", TileSetCellCustomDataInfo);
+c("TileSetCellNavigationInfo", TileSetCellNavigationInfo);
+c("TileSetCellOcclusionInfo", TileSetCellOcclusionInfo);

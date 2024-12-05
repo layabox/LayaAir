@@ -20,28 +20,7 @@ import { Rectangle } from "../../../maths/Rectangle";
 import { RectClipper } from "./RectClipper";
 import { Texture2D } from "../../../resource/Texture2D";
 import { TileMapDatasParse } from "./loaders/TileSetAssetLoader";
-
-export enum TILELAYER_SORTMODE {
-    YSort,
-    ZINDEXSORT,
-    XSort
-}
-
-export enum TILEMAPLAYERDIRTYFLAG {
-    CELL_CHANGE = 1 << 0,//add remove create...
-    CELL_COLOR = 1 << 1,//a_color
-    CELL_QUAD = 1 << 2,//a_quad xy offset,zw extend
-    CELL_QUADUV = 1 << 3,//a_UV xy offset,zw extend
-    CELL_UVTRAN = 1 << 4,
-    CELL_PHYSICS = 1 << 5,
-    CELL_TERRAIN = 1 << 6,
-    CELL_LIGHTSHADOW = 1 << 7,
-    CELL_NAVIGATION = 1 << 8,
-    CELL_SORTCHANGE = 1 << 9,
-    TILESET_SAZE = 1 << 10,
-    LAYER_COLOR = 1 << 11,
-    LAYER_PHYSICS = 1 << 12,
-}
+import { TileLayerSortMode } from "./TileMapEnum";
 
 const TempRectange: Rectangle = new Rectangle();
 const TempMatrix: Matrix = new Matrix();
@@ -84,7 +63,7 @@ export class TileMapLayer extends BaseRenderNode2D {
 
     private _layerColor: Color = new Color();
 
-    private _sortMode: TILELAYER_SORTMODE;
+    private _sortMode: TileLayerSortMode;
 
     private _renderTileSize: number = 32;
 
@@ -132,11 +111,11 @@ export class TileMapLayer extends BaseRenderNode2D {
         }
     }
 
-    get sortMode(): TILELAYER_SORTMODE {
+    get sortMode(): TileLayerSortMode {
         return this._sortMode;
     }
 
-    set sortMode(value: TILELAYER_SORTMODE) {
+    set sortMode(value: TileLayerSortMode) {
         this._sortMode = value;
     }
 
@@ -153,6 +132,7 @@ export class TileMapLayer extends BaseRenderNode2D {
     }
 
     set physicsEnable(value: boolean) {
+        this._tileMapPhysics.updateState(value);
         this._physicsEnable = value;
     }
 
@@ -336,7 +316,7 @@ export class TileMapLayer extends BaseRenderNode2D {
         super.onEnable();
         (<Sprite>this.owner).cacheGlobal = true;
         this._updateMapDatas();
-        this._tileMapPhysics._createPhysics();
+        this._tileMapPhysics._enableRigidBodys();
     }
 
     /**
@@ -457,6 +437,27 @@ export class TileMapLayer extends BaseRenderNode2D {
 
         let chunkData = this._getLayerDataTileByPos(tempVec3.x, tempVec3.y);
         chunkData._setCell(tempVec3.z, cellData);
+    }
+
+    /**
+     * 获取一个CellData数据
+     * @param x 
+     * @param y 
+     * @param isPixel 是否是像素坐标 true: 像素坐标 false: 格子坐标
+     */
+    getCellData(x:number , y:number , isPixel = true){
+        let tempVec3 = Vector3._tempVector3;
+        if (isPixel) {
+            this._chunk._getChunkPosByPixel(x, y, tempVec3);
+        } else {
+            this._chunk._getChunkPosByCell(x, y, tempVec3);
+        }
+
+        let rowData = this._chunkDatas[tempVec3.y];
+        if (!rowData) return null;
+        let data = rowData[tempVec3.x];
+        if (!data) return null;
+        return data.getCell(tempVec3.z);
     }
 
     /**
