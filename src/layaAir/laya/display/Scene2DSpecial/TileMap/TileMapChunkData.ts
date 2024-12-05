@@ -443,7 +443,7 @@ export class TileMapChunkData {
 
                     for (let i = 0; i < layerCount; i++) {
                         let physicslayer = physicsLayers[i];
-                        let pIndex = physicslayer.index;
+                        let pIndex = physicslayer.id;
                         let data = datas[pIndex];
                         if (data) {
                             physics.destroyFixture(rigidBody, data);

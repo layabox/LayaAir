@@ -1,5 +1,5 @@
 export class TileSetOcclusionLayer{
    /** 识别用索引 */
-   index:number;
+   id:number;
    lightMask: number;
 }

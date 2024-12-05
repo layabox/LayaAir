@@ -1,5 +1,5 @@
 export class TileMapNavigationLayer{
    /** 识别用索引 */
-   index:number;
+   id:number;
    layers:number[];
 }

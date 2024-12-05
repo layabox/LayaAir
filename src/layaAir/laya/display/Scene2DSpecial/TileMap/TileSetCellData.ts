@@ -10,22 +10,18 @@ import { Material } from "../../../resource/Material";
 export class TileSetCellOcclusionInfo {
     //根据light功能定义
     shape: number[];
-    index: number;
 }
 
 export class TileSetCellPhysicsInfo {
     shape: number[];
-    index: number;
 }
 
 export class TileSetCellNavigationInfo {
     //根据想实现的Navigation定义
     shape: number[];
-    index: number;
 }
 
 export class TileSetCellCustomDataInfo {
-    id:number;
     name:string;
     value: any;
 }
@@ -58,9 +54,9 @@ export class TileSetCellData {
     private _y_sort_origin: number;
 
     //多级数据
-    private _lightOccluderDatas: TileSetCellOcclusionInfo[];
+    private _lightOccluderDatas: Record<number , TileSetCellOcclusionInfo>;
 
-    private _navigationDatas: TileSetCellNavigationInfo[];
+    private _navigationDatas: Record< number , TileSetCellNavigationInfo>;
 
     private _physicsDatas: Record<number , TileSetCellPhysicsInfo>;
 
