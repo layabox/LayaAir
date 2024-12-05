@@ -7,21 +7,27 @@ import { Vector2 } from "../../../maths/Vector2";
 import { Vector4 } from "../../../maths/Vector4";
 import { Material } from "../../../resource/Material";
 
-export class TileSetCellOcclusionInfo {
+export type TileSetCellOcclusionInfo = {
     //根据light功能定义
     shape: number[];
     index: number;
 }
 
-export class TileSetCellPhysicsInfo {
+export type TileSetCellPhysicsInfo = {
     shape: number[];
     index: number;
 }
 
-export class TileSetCellNavigationInfo {
+export type TileSetCellNavigationInfo = {
     //根据想实现的Navigation定义
     shape: number[];
     index: number;
+}
+
+export type TileSetCellCustomDataInfo = {
+    id?:number;
+    name?:string;
+    value: any;
 }
 
 /**
@@ -56,9 +62,9 @@ export class TileSetCellData {
 
     private _navigationDatas: TileSetCellNavigationInfo[];
 
-    private _physicsDatas: TileSetCellPhysicsInfo[];
+    private _physicsDatas: Record<number , TileSetCellPhysicsInfo>;
 
-    private _customDatas: Record<number, any>;
+    private _customDatas: Record<number, TileSetCellCustomDataInfo>;
 
     //是否有地形
     private _terrain_set: boolean;
