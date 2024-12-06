@@ -22,7 +22,7 @@ export class TileSetCellNavigationInfo {
 }
 
 export class TileSetCellCustomDataInfo {
-    name:string;
+    // name:string;
     value: any;
 }
 
@@ -349,30 +349,44 @@ export class TileSetCellData {
         return this._navigationDatas[layerIndex];
     }
 
-    //注释TODO
-    set_customData(name: string, value: any) {
-        //TODO
-        //根据TileSet得到string的index，将Value赋值
+    set_customData(name: string, value: any) :void{
+        let layer = this._cellowner._owner._owner.getCustomDataLayer(name);
+        if (!layer) return;
+        let data = this._customDatas[layer.id];
+        if (!data) {
+            this._customDatas[layer.id] = {value};
+        }else data.value = value;
     }
 
-    //注释TODO
     get_customData(name: string) {
-        //TODO
-        //根据TileSet得到string的index，拿Value
+        let layer = this._cellowner._owner._owner.getCustomDataLayer(name);
+        if (!layer) return null
+        return this._customDatas[layer.id]?.value;
     }
 
-    //注释TODO
-    set_customDatabyid(id: number, value: any) {
-        //TODO        
+    set_customDataById(id: number, value: any) {
+        let data = this._customDatas[id];
+        if (!data) {
+            this._customDatas[id] = {value};
+        }else data.value = value;      
     }
 
-    //注释TODO
-    get_customDatabyid(id: number) {
-        //TODO
+    get_customDataById(id: number) {
+        return this._customDatas[id]?.value;
     }
 
     cloneTo(dst: TileSetCellData) {
-
+        dst._flip_h = this._flip_h;
+        dst._flip_v = this._flip_v;
+        dst._material = this._material;
+        dst._cellowner = this._cellowner;
+        dst._rotateCount = this._rotateCount;
+        dst._transpose = this._transpose;
+        dst._z_index = this._z_index;
+        dst._y_sort_origin = this._y_sort_origin;
+        this._transData.cloneTo(dst._transData);
+        
+        dst._updateTrans = true;
     }
 
     //删除

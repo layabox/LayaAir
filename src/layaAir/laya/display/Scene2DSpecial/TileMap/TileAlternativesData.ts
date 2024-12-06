@@ -15,10 +15,11 @@ export enum TileAnimationMode {
  */
 export class TileAlternativesData {
 
-    //tileData
+    /** @internal */
     _tileDatas: Record<number, TileSetCellData>;
 
-    private _owner: TileSetCellGroup;
+    /** @internal */
+    _owner: TileSetCellGroup;
 
     //Base Data
     private _localPos: Vector2;

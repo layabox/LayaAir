@@ -334,12 +334,21 @@ export class TileMapLayer extends BaseRenderNode2D {
         return data;
     }
 
+    onAwake(): void {
+        super.onAwake();
+        this._updateMapDatas();
+    }
+
 
     onEnable(): void {
         super.onEnable();
         this.owner._setBit(NodeFlags.CACHE_GLOBAL, true);
-        this._updateMapDatas();
         this._tileMapPhysics._enableRigidBodys();
+    }
+
+    onDisable(): void {
+        super.onDisable();
+        this._tileMapPhysics._disableRigidBodys();
     }
 
     /**

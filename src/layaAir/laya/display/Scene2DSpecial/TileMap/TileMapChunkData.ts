@@ -145,6 +145,8 @@ export class TileMapChunkData {
      */
     set cellDataRefMap(data: number[][]) {
         if (data) {
+            for (let i = 0 , len = data.length; i < len; i++)
+                !data[i] && delete data[i];
             this._cellDataRefMap = data;
         }
     }
@@ -421,7 +423,6 @@ export class TileMapChunkData {
         dirtyFlag.forEach((value, key) => {
             //cell posOri extends  
             let cellDataUseArray = this._cellDataRefMap[key];
-
             cellDataUseArray.forEach(element => {
                 let chunkCellInfo = this._cellDataMap[element];
                 let cellData = chunkCellInfo.cell;
@@ -469,6 +470,7 @@ export class TileMapChunkData {
 
         dirtyFlag.clear();
     }
+
 
     private _updateLightShadowData() {
         //TODO
@@ -804,7 +806,7 @@ export class TileMapChunkData {
      */
     _destroy() {
         if (this._rigidBody) {
-            this._tileLayer.tileMapPhysics.destroyRigidBoyd(this._rigidBody);
+            this._tileLayer.tileMapPhysics.destroyRigidBody(this._rigidBody);
             this._rigidBody = null;
         }
         this._clearCell();
