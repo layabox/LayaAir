@@ -3,7 +3,7 @@ import { Texture2D } from "../../../resource/Texture2D";
 import { Browser } from "../../../utils/Browser";
 import { Scene } from "../../Scene";
 import { Sprite } from "../../Sprite";
-import { BaseLight2D, Light2DType } from "../Light2D/BaseLight2D"
+import { BaseLight2D, Light2DType } from "../Light2D/BaseLight2D";
 import { Light2DManager } from "./Light2DManager";
 
 /**
@@ -52,10 +52,11 @@ export class SpriteLight2D extends BaseLight2D {
      */
     protected _calcLocalRange() {
         super._calcLocalRange();
+
         const w = (this._texLight ? this._texLight.width : 100) * Browser.pixelRatio | 0;
         const h = (this._texLight ? this._texLight.height : 100) * Browser.pixelRatio | 0;
-        this._localRange.x = (-0.5 * w) | 0;
-        this._localRange.y = (-0.5 * h) | 0;
+        this._localRange.x = -0.5 * w;
+        this._localRange.y = -0.5 * h;
         this._localRange.width = w;
         this._localRange.height = h;
     }
@@ -67,14 +68,25 @@ export class SpriteLight2D extends BaseLight2D {
      */
     protected _calcWorldRange(screen?: Rectangle) {
         super._calcWorldRange(screen);
-        super._lightScaleAndRotation();
+        this._lightScaleAndRotation();
 
-        const w = (this._texLight ? this._texLight.width : 100) * Browser.pixelRatio | 0;
-        const h = (this._texLight ? this._texLight.height : 100) * Browser.pixelRatio | 0;
-        this._worldRange.x = (-0.5 * w + (this.owner as Sprite).globalPosX * Browser.pixelRatio) | 0;
-        this._worldRange.y = (-0.5 * h + (this.owner as Sprite).globalPosY * Browser.pixelRatio) | 0;
-        this._worldRange.width = w;
-        this._worldRange.height = h;
+        const x = this._localRange.x;
+        const y = this._localRange.y;
+        const w = this._localRange.width;
+        const h = this._localRange.height;
+        const sx = Math.abs((this.owner as Sprite).globalScaleX);
+        const sy = Math.abs((this.owner as Sprite).globalScaleY);
+        const px = (this.owner as Sprite).globalPosX * Browser.pixelRatio;
+        const py = (this.owner as Sprite).globalPosY * Browser.pixelRatio;
+        const m = Math.max(w * sx, h * sy) | 0;
+        this._worldRange.x = (px - m * 0.5) | 0;
+        this._worldRange.y = (py - m * 0.5) | 0;
+        this._worldRange.width = m;
+        this._worldRange.height = m;
+        this._lightRange.x = (px + x) | 0;
+        this._lightRange.y = (py + y) | 0;
+        this._lightRange.width = w;
+        this._lightRange.height = h;
     }
 
     /**

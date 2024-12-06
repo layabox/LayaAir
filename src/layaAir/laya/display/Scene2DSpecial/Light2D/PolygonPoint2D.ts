@@ -30,7 +30,7 @@ export class PolygonPoint2D {
      * @zh 添加顶点
      * @param x 
      * @param y 
-     * @param index 
+     * @param index 插入位置，-1代表插入最后
      */
     addPoint(x: number, y: number, index: number = -1) {
         if (index < 0) {

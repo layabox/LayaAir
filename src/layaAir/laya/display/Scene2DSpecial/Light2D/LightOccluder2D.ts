@@ -113,9 +113,6 @@ export class LightOccluder2D extends Component {
      */
     private _worldRange: Rectangle = new Rectangle();
 
-    private _localCircle: Vector3 = new Vector3(0, 0, 1); //遮光器包围圆（x，y圆心，z半径，局部坐标）
-    private _worldCircle: Vector3 = new Vector3(0, 0, 1); //遮光器包围圆（x，y圆心，z半径，世界坐标）
-
     /**
      * @internal
      * 需要更新遮光器
@@ -303,13 +300,6 @@ export class LightOccluder2D extends Component {
             this._localRange.height = maxY - minY;
         }
         this._needUpdateLightLocalRange = false;
-
-        //计算局部坐标包围圆
-        const w = this._localRange.width;
-        const h = this._localRange.height;
-        this._localCircle.z = Math.sqrt(w * w + h * h) / 2 | 0;
-        this._localCircle.x = (this._localRange.x + w / 2) | 0;
-        this._localCircle.y = (this._localRange.y + h / 2) | 0;
     }
 
     /**
@@ -320,30 +310,23 @@ export class LightOccluder2D extends Component {
         this._transformPoly();
         this._needUpdateLightWorldRange = false;
 
-        //计算世界坐标包围圆
-        const m = (this.owner as Sprite).getGlobalMatrix();
-        //const m = (this.owner as Sprite).transform; //改用局部变换矩阵
-        const ox = (this.owner as Sprite).globalPosX * Browser.pixelRatio;
-        const oy = (this.owner as Sprite).globalPosY * Browser.pixelRatio;
-        const sx = Math.abs((this.owner as Sprite).globalScaleX);
-        const sy = Math.abs((this.owner as Sprite).globalScaleY);
-        //const sx = Math.abs((this.owner as Sprite).scaleX); //改用局部放缩
-        //const sy = Math.abs((this.owner as Sprite).scaleY);
-        if (m) {
-            this._worldCircle.x = m.a * this._localCircle.x + m.c * this._localCircle.y + ox;
-            this._worldCircle.y = m.b * this._localCircle.x + m.d * this._localCircle.y + oy;
-        } else {
-            this._worldCircle.x = this._localCircle.x * sx + ox;
-            this._worldCircle.y = this._localCircle.y * sy + oy;
+        let xmin = Number.POSITIVE_INFINITY;
+        let ymin = Number.POSITIVE_INFINITY;
+        let xmax = Number.NEGATIVE_INFINITY;
+        let ymax = Number.NEGATIVE_INFINITY;
+        const polygon = this._globalPolygon.points;
+        for (let i = polygon.length - 2; i > -1; i -= 2) {
+            const x = polygon[i + 0];
+            const y = polygon[i + 1];
+            if (xmin > x) xmin = x;
+            if (xmax < x) xmax = x;
+            if (ymin > y) ymin = y;
+            if (ymax < y) ymax = y;
         }
-        //this._worldCircle.z = Math.sqrt(sx * sx + sy * sy) * this._localCircle.z;
-        this._worldCircle.z = Math.max(sx, sy) * this._localCircle.z;
-
-        //计算世界坐标包围盒
-        this._worldRange.x = (this._worldCircle.x - this._worldCircle.z) | 0;
-        this._worldRange.y = (this._worldCircle.y - this._worldCircle.z) | 0;
-        this._worldRange.width = this._worldCircle.z * 2 | 0;
-        this._worldRange.height = this._worldCircle.z * 2 | 0;
+        this._worldRange.x = xmin;
+        this._worldRange.y = ymin;
+        this._worldRange.width = xmax - xmin;
+        this._worldRange.height = ymax - ymin;
     }
 
     /**
@@ -423,13 +406,13 @@ export class LightOccluder2D extends Component {
      * 变换多边形顶点
      */
     private _transformPoly() {
-        const m = (this.owner as Sprite).transform;
         if (this._globalPolygon) {
             const globalPoly = this._globalPolygon.points;
             const polygon = this._occluderPolygon.points;
+            const len = polygon.length / 2 | 0;
             const ox = (this.owner as Sprite).globalPosX * Browser.pixelRatio;
             const oy = (this.owner as Sprite).globalPosY * Browser.pixelRatio;
-            const len = polygon.length / 2 | 0;
+            const m = (this.owner as Sprite).getGlobalMatrix();
             if (m) {
                 for (let i = 0; i < len; i++) {
                     const x = polygon[i * 2 + 0] * Browser.pixelRatio;
@@ -438,10 +421,8 @@ export class LightOccluder2D extends Component {
                     globalPoly[i * 2 + 1] = m.b * x + m.d * y + oy;
                 }
             } else {
-                //const sx = Math.abs((this.owner as Sprite).globalScaleX);
-                //const sy = Math.abs((this.owner as Sprite).globalScaleY);
-                const sx = Math.abs((this.owner as Sprite).scaleX); //改用局部放缩
-                const sy = Math.abs((this.owner as Sprite).scaleY);
+                const sx = Math.abs((this.owner as Sprite).globalScaleX);
+                const sy = Math.abs((this.owner as Sprite).globalScaleY);
                 for (let i = 0; i < len; i++) {
                     const x = polygon[i * 2 + 0] * Browser.pixelRatio;
                     const y = polygon[i * 2 + 1] * Browser.pixelRatio;

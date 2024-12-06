@@ -26,10 +26,10 @@ export enum Light2DType {
 }
 
 export enum ShadowFilterType {
-    None = 1,
-    PCF5 = 5,
-    PCF9 = 9,
-    PCF13 = 13,
+    None,
+    PCF5,
+    PCF9,
+    PCF13,
 }
 
 /**
@@ -90,6 +90,7 @@ export class BaseLight2D extends Component {
 
     protected _localRange: Rectangle = new Rectangle(); //灯光范围（局部坐标）
     protected _worldRange: Rectangle = new Rectangle(); //灯光范围（世界坐标）
+    protected _lightRange: Rectangle = new Rectangle(); //灯光范围（光影图）
 
     private _recoverFC: number = 0; //回收资源帧序号
     protected _needToRecover: any[] = []; //需要回收的资源
@@ -137,7 +138,7 @@ export class BaseLight2D extends Component {
      * @zh 获取灯光颜色
      */
     get color(): Color {
-        return this._color;
+        return this._color.clone();
     }
 
     /**
@@ -212,15 +213,15 @@ export class BaseLight2D extends Component {
         }
     }
 
-    /**
-     * @en Get light pos
-     * @zh 获取灯光位置
-     */
-    get lightPos() {
-        this._lightPos.x = ((this.owner as Sprite).globalPosX * Browser.pixelRatio) | 0;
-        this._lightPos.y = ((this.owner as Sprite).globalPosY * Browser.pixelRatio) | 0;
-        return this._lightPos;
-    }
+    // /**
+    //  * @en Get light pos
+    //  * @zh 获取灯光位置
+    //  */
+    // get lightPos() {
+    //     this._lightPos.x = ((this.owner as Sprite).globalPosX * Browser.pixelRatio) | 0;
+    //     this._lightPos.y = ((this.owner as Sprite).globalPosY * Browser.pixelRatio) | 0;
+    //     return this._lightPos;
+    // }
 
     /**
      * @en Is shadow enable
@@ -248,7 +249,7 @@ export class BaseLight2D extends Component {
      * @zh 获取阴影颜色
      */
     get shadowColor(): Color {
-        return this._shadowColor;
+        return this._shadowColor.clone();
     }
 
     /**
@@ -303,7 +304,7 @@ export class BaseLight2D extends Component {
         if (value !== this._shadowFilterType) {
             this._shadowFilterType = value;
             this._needUpdateLightAndShadow = true;
-            this._notifyShadowPCFChange();
+            this._notifyShadowPCFChange(this.layerMask);
         }
     }
 
@@ -325,6 +326,7 @@ export class BaseLight2D extends Component {
         if (value !== this._shadowFilterSmooth) {
             this._shadowFilterSmooth = value;
             this._needUpdateLightAndShadow = true;
+            this._needUpdateLightWorldRange = true;
         }
     }
 
@@ -415,8 +417,9 @@ export class BaseLight2D extends Component {
      * @internal
      * 通知此灯阴影PCF参数的改变
      */
-    private _notifyShadowPCFChange() {
+    private _notifyShadowPCFChange(newLayer: number) {
         ((this.owner?.scene as Scene)?._light2DManager as Light2DManager)?.lightShadowPCFChange(this);
+        ((this.owner?.scene as Scene)?._light2DManager as Light2DManager)?.needCollectLightInLayer(newLayer);
     }
 
     /**
@@ -451,6 +454,7 @@ export class BaseLight2D extends Component {
      */
     protected _transformChange() {
         this._clearScreenCache();
+        this._needUpdateLightAndShadow = true;
         this._needUpdateLightWorldRange = true;
         ((this.owner.scene as Scene)?._light2DManager as Light2DManager)?._lightTransformChange(this);
     }
@@ -487,12 +491,25 @@ export class BaseLight2D extends Component {
      * 获取灯光范围（世界坐标）
      * @param screen 
      */
-    _getRange(screen?: Rectangle) {
+    _getWorldRange(screen?: Rectangle) {
         if (this._needUpdateLightLocalRange)
             this._calcLocalRange();
         if (this._needUpdateLightWorldRange)
             this._calcWorldRange(screen);
         return this._worldRange;
+    }
+
+    /**
+     * @internal
+     * 获取灯光范围（光影图）
+     * @param screen 
+     */
+    _getLightRange(screen?: Rectangle) {
+        if (this._needUpdateLightLocalRange)
+            this._calcLocalRange();
+        if (this._needUpdateLightWorldRange)
+            this._calcWorldRange(screen);
+        return this._lightRange;
     }
 
     /**
@@ -516,11 +533,24 @@ export class BaseLight2D extends Component {
     }
 
     /**
+     * 矩形1是否包含矩形2
+     * @param rect1
+     * @param rect2 
+     */
+    private _rectContain(rect1: Rectangle, rect2: Rectangle) {
+        return (
+            rect2.x >= rect1.x &&
+            rect2.y >= rect1.y &&
+            (rect2.x + rect2.width) <= (rect1.x + rect1.width) &&
+            (rect2.y + rect2.height) <= (rect1.y + rect1.height));
+    }
+
+    /**
      * @internal
      * 是否在指定范围内
      */
     _isInRange(range: Rectangle) {
-        return range && this._getRange().intersects(range);
+        return range && this._rectContain(range, this._getWorldRange());
     }
 
     /**
@@ -531,29 +561,53 @@ export class BaseLight2D extends Component {
         return this._type;
     }
 
-    /**
-     * @en Get light range height
-     * @zh 获取灯光影响范围矩形的高度值
-     */
-    getHeight() {
-        if (this._needUpdateLightLocalRange)
-            this._calcLocalRange();
-        if (this._needUpdateLightWorldRange)
-            this._calcWorldRange();
-        return this._worldRange.height;
-    }
+    // /**
+    //  * @en Get light range height
+    //  * @zh 获取灯光影响范围矩形的高度值
+    //  */
+    // getWorldHeight() {
+    //     if (this._needUpdateLightLocalRange)
+    //         this._calcLocalRange();
+    //     if (this._needUpdateLightWorldRange)
+    //         this._calcWorldRange();
+    //     return this._worldRange.height;
+    // }
 
-    /**
-     * @en Get light range width
-     * @zh 获取灯光影响范围矩形的宽度值
-     */
-    getWidth() {
-        if (this._needUpdateLightLocalRange)
-            this._calcLocalRange();
-        if (this._needUpdateLightWorldRange)
-            this._calcWorldRange();
-        return this._worldRange.width;
-    }
+    // /**
+    //  * @en Get light range width
+    //  * @zh 获取灯光影响范围矩形的宽度值
+    //  */
+    // getWorldWidth() {
+    //     if (this._needUpdateLightLocalRange)
+    //         this._calcLocalRange();
+    //     if (this._needUpdateLightWorldRange)
+    //         this._calcWorldRange();
+    //     return this._worldRange.width;
+    // }
+
+    // /**
+    //  * @en Get light range height
+    //  * @zh 获取灯光影响范围矩形的高度值
+    //  */
+    // getLightHeight() {
+    //     if (this._needUpdateLightLocalRange)
+    //         this._calcLocalRange();
+    //     if (this._needUpdateLightWorldRange)
+    //         this._calcWorldRange();
+    //     return this._lightRange.height;
+    // }
+
+    // /**
+    //  * @en Get light range width
+    //  * @zh 获取灯光影响范围矩形的宽度值
+    //  */
+    // getLightWidth() {
+    //     if (this._needUpdateLightLocalRange)
+    //         this._calcLocalRange();
+    //     if (this._needUpdateLightWorldRange)
+    //         this._calcWorldRange();
+    //     return this._lightRange.width;
+    // }
 
     /**
      * @en Get light global position x
@@ -654,10 +708,8 @@ export class BaseLight2D extends Component {
      */
     protected _lightScaleAndRotation() {
         //获取放缩量
-        //const sx = Math.abs((this.owner as Sprite).globalScaleX);
-        //const sy = Math.abs((this.owner as Sprite).globalScaleY);
-        const sx = Math.abs((this.owner as Sprite).scaleX); //改用局部放缩
-        const sy = Math.abs((this.owner as Sprite).scaleY);
+        const sx = Math.abs((this.owner as Sprite).globalScaleX);
+        const sy = Math.abs((this.owner as Sprite).globalScaleY);
 
         //设置灯光放缩
         Vector2.TempVector2.x = 1 / sx;
@@ -700,7 +752,7 @@ export class BaseLight2D extends Component {
             && cache.right === screen.height) {
             return this._isInScreen;
         }
-        this._isInScreen = this._getRange().intersects(screen);
+        this._isInScreen = this._getWorldRange().intersects(screen);
         screen.cloneTo(cache);
         return this._isInScreen;
     }
@@ -729,7 +781,7 @@ export class BaseLight2D extends Component {
         if (mesh) {
             const idx = mesh.getIndices();
             const ver = mesh.getVertices()[0];
-            if (idx.length >= indices.length && ver.byteLength >= vertices.byteLength) { //mesh可以复用
+            if (idx.length >= indices.length && ver.byteLength >= vertices.byteLength && false) { //mesh可以复用
                 idx.set(indices);
                 mesh.setVertexByIndex(vertices.buffer, 0);
                 mesh.getSubMesh(0).setDrawElemenParams(indices.length, 0);
