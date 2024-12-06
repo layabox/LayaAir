@@ -146,7 +146,7 @@ export class BaseLight2D extends Component {
      * @zh 设置灯光颜色
      */
     set color(value: Color) {
-        if (!value.equal(this._color)) {
+        if (value == this._color || !value.equal(this._color)) {
             value.cloneTo(this._color);
             this._needUpdateLightAndShadow = true;
         }
@@ -259,7 +259,7 @@ export class BaseLight2D extends Component {
      * @param value 阴影颜色值
      */
     set shadowColor(value: Color) {
-        if (!value.equal(this._shadowColor)) {
+        if (value == this._shadowColor || !value.equal(this._shadowColor)) {
             value.cloneTo(this._shadowColor);
             this._needUpdateLightAndShadow = true;
         }
