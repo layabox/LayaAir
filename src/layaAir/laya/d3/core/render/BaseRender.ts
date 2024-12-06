@@ -657,6 +657,7 @@ export class BaseRender extends Component {
      * @protected
      */
     protected _onDisable(): void {
+        super._onDisable();
         if (this.owner) {
             (this.owner as Sprite3D).transform.off(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange);//如果为合并BaseRender,owner可能为空
             (this.owner as Sprite3D).off(Event.LAYERCHANGE, this, this._changeLayer);
@@ -666,6 +667,7 @@ export class BaseRender extends Component {
         scene._removeRenderObject(this);
         this._setUnBelongScene();
         this.volume = null;
+
     }
 
     /**
