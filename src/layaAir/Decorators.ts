@@ -449,10 +449,22 @@ export interface FTypeDescriptor {
     inspector: string;
 
     /**
-     * @en Used for Component, indicates the type of node this component can be mounted on. Default is null.
+     * @en Applicable to Components, indicates the type of node this component can be mounted on. Default is null.
      * @zh 对Component使用，表示这个组件允许挂载的节点类型。默认null。
      */
     worldType: "2d" | "3d" | null;
+
+    /** 
+     * @en Applicable to Components, when AddComponent, add dependent Components at the same time.
+     * @zh 对Component适用，当AddComponent时同时添加依赖的Component。
+     */
+    requireComponents?: Array<string>;
+
+    /** 
+     * @en When creating a new node or adding a component, the dependent engine library is automatically added for Node and Component. For example: ["laya. physicals3D"]
+     * @zh 对Node和Component使用，当新建Node或者添加Component时，自动添加依赖的引擎库。例如：["laya.physics3D"]
+     */
+    requireEngineLibs?: Array<string>;
 
     /**
      * @en Used for Component, if true and menu property is defined, this component will also 

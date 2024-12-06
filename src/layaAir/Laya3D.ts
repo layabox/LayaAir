@@ -57,6 +57,7 @@ import { Laya } from "./Laya";
 import { PixelLineMaterial } from "./laya/d3/core/pixelLine/PixelLineMaterial";
 import { Texture2DArray } from "./laya/resource/Texture2DArray";
 import { PlayerConfig } from "./Config";
+import { Physics3DStatInfo } from "./laya/Physics3D/interface/Physics3DStatInfo";
 
 /**
  * @en Laya3D class is used to initialize 3D settings.
@@ -130,7 +131,6 @@ export class Laya3D {
 
         ILaya3D.Scene3D = Scene3D;
         ILaya3D.Laya3D = Laya3D;
-        VertexMesh.__init__();
         VertexShurikenParticleBillboard.__init__();
         VertexShurikenParticleMesh.__init__();
         VertexPositionTexture.__init__();
@@ -182,13 +182,11 @@ export class Laya3D {
         pixelLineMaterial.lock = true;
         pixelLineMaterial.enableVertexColor = true;
         PixelLineMaterial.defaultMaterial = pixelLineMaterial;
-        Texture2D.__init__();
-        TextureCube.__init__();
-        Texture2DArray.__init__();
+      
         SkyBox.__init__();
         SkyDome.__init__();
         ScreenQuad.__init__();
-        HalfFloatUtils.__init__();
+       
     }
 
     /**
@@ -201,7 +199,7 @@ export class Laya3D {
         }
         else {
             Laya3D._enablePhysics = true;
-
+            Physics3DStatInfo.initStatisticsInfo();
             if (PlayerConfig.physics3D)
                 Object.assign(Scene3D.physicsSettings, PlayerConfig.physics3D);
             return Laya3D._PhysicsCreateUtil.initialize();

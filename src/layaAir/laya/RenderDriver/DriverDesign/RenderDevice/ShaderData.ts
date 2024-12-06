@@ -10,6 +10,7 @@ import { Vector4 } from "../../../maths/Vector4";
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { Resource } from "../../../resource/Resource";
 import { IClone } from "../../../utils/IClone";
+import { NotImplementedError } from "../../../utils/Error";
 import { IDefineDatas } from "../../RenderModuleData/Design/IDefineDatas";
 import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
 import { InternalTexture } from "./InternalTexture";
@@ -130,23 +131,23 @@ export class ShaderData implements IClone {
      * @param uboData 
      */
     _addCheckUBO(key: string, ubo: UniformBufferObject, uboData: UnifromBufferData) {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     _releaseUBOData() {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
 
     getDefineData(): IDefineDatas {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     /**
      * @internal
      */
     getData(): any {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     /**
@@ -154,11 +155,11 @@ export class ShaderData implements IClone {
      * @param value 宏定义。
      */
     addDefine(define: ShaderDefine): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     addDefines(define: IDefineDatas): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     /**
@@ -166,7 +167,7 @@ export class ShaderData implements IClone {
      * @param value 宏定义。
      */
     removeDefine(define: ShaderDefine): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     /**
@@ -174,14 +175,14 @@ export class ShaderData implements IClone {
      * @param value 宏定义。
      */
     hasDefine(define: ShaderDefine): boolean {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     /**
      * 清空宏定义。
      */
     clearDefine(): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     /**
@@ -190,7 +191,7 @@ export class ShaderData implements IClone {
      * @return  布尔。
      */
     getBool(index: number): boolean {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     /**
@@ -199,7 +200,7 @@ export class ShaderData implements IClone {
      * @param	value 布尔。
      */
     setBool(index: number, value: boolean): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     /**
@@ -208,7 +209,7 @@ export class ShaderData implements IClone {
      * @return  整形。
      */
     getInt(index: number): number {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     /**
@@ -217,7 +218,7 @@ export class ShaderData implements IClone {
      * @param	value 整形。
      */
     setInt(index: number, value: number): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     /**
@@ -226,7 +227,7 @@ export class ShaderData implements IClone {
      * @return	浮点。
      */
     getNumber(index: number): number {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     /**
@@ -235,7 +236,7 @@ export class ShaderData implements IClone {
      * @param	value 浮点。
      */
     setNumber(index: number, value: number): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     /**
@@ -244,7 +245,7 @@ export class ShaderData implements IClone {
      * @return Vector2向量。
      */
     getVector2(index: number): Vector2 {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     /**
@@ -253,7 +254,7 @@ export class ShaderData implements IClone {
      * @param	value Vector2向量。
      */
     setVector2(index: number, value: Vector2): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     /**
@@ -262,7 +263,7 @@ export class ShaderData implements IClone {
      * @return Vector3向量。
      */
     getVector3(index: number): Vector3 {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     /**
@@ -271,7 +272,7 @@ export class ShaderData implements IClone {
      * @param	value Vector3向量。
      */
     setVector3(index: number, value: Vector3): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     /**
@@ -280,7 +281,7 @@ export class ShaderData implements IClone {
      * @return  向量。
      */
     getVector(index: number): Vector4 {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     /**
@@ -289,7 +290,7 @@ export class ShaderData implements IClone {
      * @param	value 向量。
      */
     setVector(index: number, value: Vector4): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     /**
@@ -298,7 +299,7 @@ export class ShaderData implements IClone {
      * @returns 颜色
      */
     getColor(index: number): Color {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     /**
@@ -307,7 +308,7 @@ export class ShaderData implements IClone {
      * @param value 颜色值
      */
     setColor(index: number, value: Color): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     /**
@@ -316,7 +317,7 @@ export class ShaderData implements IClone {
      * @return  矩阵。
      */
     getMatrix4x4(index: number): Matrix4x4 {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     /**
@@ -325,7 +326,7 @@ export class ShaderData implements IClone {
      * @param	value  矩阵。
      */
     setMatrix4x4(index: number, value: Matrix4x4): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     /**
@@ -334,7 +335,7 @@ export class ShaderData implements IClone {
      * @returns 
      */
     getMatrix3x3(index: number): Matrix3x3 {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     /**
@@ -343,7 +344,7 @@ export class ShaderData implements IClone {
      * @param value 
      */
     setMatrix3x3(index: number, value: Matrix3x3): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     /**
@@ -352,7 +353,7 @@ export class ShaderData implements IClone {
      * @return
      */
     getBuffer(index: number): Float32Array {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     /**
@@ -361,7 +362,7 @@ export class ShaderData implements IClone {
      * @param	value  buffer数据。
      */
     setBuffer(index: number, value: Float32Array): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     /**
@@ -370,7 +371,7 @@ export class ShaderData implements IClone {
      * @param	value 纹理。
      */
     setTexture(index: number, value: BaseTexture): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     /**
@@ -379,7 +380,7 @@ export class ShaderData implements IClone {
      * @return  纹理。
      */
     getTexture(index: number): BaseTexture {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     /**
@@ -388,11 +389,11 @@ export class ShaderData implements IClone {
      * @param value 
      */
     setUniformBuffer(index: number, value: UniformBufferObject) {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     getUniformBuffer(index: number): UniformBufferObject {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     setShaderData(uniformIndex: number, type: ShaderDataType, value: ShaderDataItem | Quaternion) {
@@ -432,7 +433,7 @@ export class ShaderData implements IClone {
                 this.setBuffer(uniformIndex, <Float32Array>value);
                 break;
             default:
-                throw new Error(`unkown shader data type: ${type}`);
+                throw new Error(`unknown shader data type: ${type}`);
         }
     }
 
@@ -464,7 +465,7 @@ export class ShaderData implements IClone {
             case ShaderDataType.Matrix4x4:
                 return this.getMatrix4x4(uniformIndex);
             default:
-                throw "unkone shader data type.";
+                throw "unknown shader data type.";
         }
     }
 
@@ -472,7 +473,7 @@ export class ShaderData implements IClone {
      * @private
      */
     _setInternalTexture(index: number, value: InternalTexture): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
 
@@ -481,7 +482,7 @@ export class ShaderData implements IClone {
      * @param	destObject 克隆源。
      */
     cloneTo(destObject: ShaderData): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     /**
@@ -490,7 +491,7 @@ export class ShaderData implements IClone {
      * @param uboDatas 
      */
     _cloneUBO(uboDatas: Map<string, uboParams>) {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     /**
@@ -498,15 +499,15 @@ export class ShaderData implements IClone {
      * @return	 克隆副本。
      */
     clone(): any {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     reset() {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     destroy(): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 }
 

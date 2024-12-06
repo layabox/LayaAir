@@ -47,8 +47,6 @@ export class IkConstraint {
 	 * @zh 一个静态属性，用于将度数转换为弧度。
 	 */
 	static degRad: number = Math.PI / 180;
-	/**@internal */
-	private static _tempMatrix: Matrix = new Matrix();
 
 	//TODO:coverage
 	constructor(data: IkConstraintData, bones: Bone[]) {
@@ -65,10 +63,10 @@ export class IkConstraint {
 		this.bendDirection = data.bendDirection;
 	}
 
-    /**
-     * @en Apply the IK constraint
-     * @zh 应用IK约束
-     */
+	/**
+	 * @en Apply the IK constraint
+	 * @zh 应用IK约束
+	 */
 	apply(): void {
 		switch (this._bones.length) {
 			case 1:
@@ -107,14 +105,14 @@ export class IkConstraint {
 	private _sp: Sprite;
 	private isDebug: boolean = false;
 
-    /**
-     * @en Update the position of the debug sprite
-     * @param x The x-coordinate of the new position
-     * @param y The y-coordinate of the new position
-     * @zh 更新调试精灵的位置
-     * @param x 新位置的x坐标
-     * @param y 新位置的y坐标
-     */
+	/**
+	 * @en Update the position of the debug sprite
+	 * @param x The x-coordinate of the new position
+	 * @param y The y-coordinate of the new position
+	 * @zh 更新调试精灵的位置
+	 * @param x 新位置的x坐标
+	 * @param y 新位置的y坐标
+	 */
 	//TODO:coverage
 	updatePos(x: number, y: number): void {
 		if (this._sp) {
@@ -383,14 +381,12 @@ export class IkConstraint {
 		pRotation = Math.atan2(cwy - parent.resultMatrix.ty, cwx - parent.resultMatrix.tx);
 		parent.setRotation(pRotation);
 
-		var pTarMatrix: Matrix;
-		pTarMatrix = IkConstraint._tempMatrix;
-		pTarMatrix.identity();
-		pTarMatrix.rotate(pRotation);
-		pTarMatrix.scale(parent.resultMatrix.getScaleX(), parent.resultMatrix.getScaleY());
-		pTarMatrix.translate(parent.resultMatrix.tx, parent.resultMatrix.ty);
+		_tempMatrix.identity();
+		_tempMatrix.rotate(pRotation);
+		_tempMatrix.scale(parent.resultMatrix.getScaleX(), parent.resultMatrix.getScaleY());
+		_tempMatrix.translate(parent.resultMatrix.tx, parent.resultMatrix.ty);
 
-		pTarMatrix.copyTo(parent.resultMatrix);
+		_tempMatrix.copyTo(parent.resultMatrix);
 		parent.updateChild();
 
 
@@ -400,15 +396,15 @@ export class IkConstraint {
 		child.setRotation(childRotation);
 
 		var childTarMatrix: Matrix;
-		childTarMatrix = IkConstraint._tempMatrix;
+		childTarMatrix = _tempMatrix;
 		childTarMatrix.identity();
 		childTarMatrix.rotate(childRotation);
 		childTarMatrix.scale(child.resultMatrix.getScaleX(), child.resultMatrix.getScaleY());
 		childTarMatrix.translate(cwx, cwy);
 
-		pTarMatrix.copyTo(child.resultMatrix);
+		_tempMatrix.copyTo(child.resultMatrix);
 		child.updateChild();
 	}
 }
 
-
+const _tempMatrix: Matrix = new Matrix();

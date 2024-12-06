@@ -130,7 +130,7 @@ export class KeyframeNodeOwner {
 					(<Quaternion>this.value).cloneTo(this.crossFixedValue);
 					break;
 				default:
-					throw "Animator:unknown type.";
+					throw new Error("Animator:unknown type.");
 			}
 
 		}

@@ -38,11 +38,11 @@ export class GLESShaderData extends ShaderData {
     //  * @param uboData 
     //  */
     // _addCheckUBO(key: string, ubo: UniformBufferObject, uboData: UnifromBufferData) {
-    //     throw new Error("Method not implemented.");//TODO
+    //     throw new NotImplementedError();//TODO
     // }
 
     _releaseUBOData() {
-        //throw new Error("Method not implemented.");//TODO
+        //throw new NotImplementedError();//TODO
         //TODO GLES Temply dont surpport UBO
     }
 
@@ -56,7 +56,7 @@ export class GLESShaderData extends ShaderData {
     }
 
     getUniformBuffer(index: number): UniformBufferObject {
-        //throw new Error("Method not implemented.");
+        //throw new NotImplementedError();
         //TODO
         return null;
     }

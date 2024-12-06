@@ -92,7 +92,6 @@ export class DrawCircleCmd implements IGraphicCMD {
     }
 
     /**
-     * @private
      * @en Execute the draw circle command
      * @param context The rendering context
      * @param gx Global X offset
@@ -114,7 +113,6 @@ export class DrawCircleCmd implements IGraphicCMD {
     }
 
     /**
-     * @private
      * @en The identifier for the DrawCircleCmd
      * @zh 绘制圆形命令的标识符
      */

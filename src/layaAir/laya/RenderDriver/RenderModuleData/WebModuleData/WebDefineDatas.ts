@@ -146,15 +146,14 @@ export class WebDefineDatas implements IDefineDatas {
 	 * 克隆。
 	 * @param	destObject 克隆源。
 	 */
-	cloneTo(destObject: any): void {
-		var destDefineData: WebDefineDatas = (<WebDefineDatas>destObject);
-		var destMask: Array<number> = destDefineData._mask;
+	cloneTo(destObject: WebDefineDatas): void {
+		var destMask: Array<number> = destObject._mask;
 		var mask: Array<number> = this._mask;
 		var count: number = this._length;
 		destMask.length = count;
 		for (var i: number = 0; i < count; i++)
 			destMask[i] = mask[i];
-		destDefineData._length = count;
+		destObject._length = count;
 	}
 
 	/**

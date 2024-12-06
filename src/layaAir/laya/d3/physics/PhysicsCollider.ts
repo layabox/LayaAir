@@ -36,6 +36,11 @@ export class PhysicsCollider extends PhysicsColliderComponent {
         super();
     }
 
+    _onAdded(): void {
+        super._onAdded();
+        this.isTrigger = this._isTrigger;
+    }
+
     /**
      * @en If this collider is a trigger.
      * @zh 此碰撞器是否为触发器。
@@ -50,21 +55,6 @@ export class PhysicsCollider extends PhysicsColliderComponent {
             this._collider.setTrigger(value);
             this._setEventFilter();
         }
-    }
-
-    /**
-     * @deprecated
-     * @inheritDoc
-     * @override
-     * @internal
-     */
-    _parse(data: any): void {
-        (data.friction != null) && (this.friction = data.friction);
-        (data.rollingFriction != null) && (this.rollingFriction = data.rollingFriction);
-        (data.restitution != null) && (this.restitution = data.restitution);
-        (data.isTrigger != null) && (this.isTrigger = data.isTrigger);
-        super._parse(data);
-        this._parseShape(data.shapes);
     }
 
     /**

@@ -39,10 +39,9 @@ export class SizeOverLifetime implements IClone {
 	 * @zh 克隆到目标对象。
 	 * @param destObject 要克隆到的目标对象。
 	 */
-	cloneTo(destObject: any): void {
-		var destSizeOverLifetime: SizeOverLifetime = (<SizeOverLifetime>destObject);
-		this._size.cloneTo(destSizeOverLifetime._size);
-		destSizeOverLifetime.enable = this.enable;
+	cloneTo(destObject: SizeOverLifetime): void {
+		this._size.cloneTo(destObject._size);
+		destObject.enable = this.enable;
 	}
 
 	/**

@@ -179,6 +179,7 @@ export class ConstraintComponent extends Component {
     /** @ignore */
     constructor() {
         super();
+        this._singleton = false;
     }
 
     /**
@@ -219,7 +220,7 @@ export class ConstraintComponent extends Component {
      * @protected
      */
     protected _onDestroy() {
-
+        this._joint.destroy();
     }
 
     /**

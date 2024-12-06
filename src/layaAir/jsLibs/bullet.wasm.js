@@ -5,7 +5,7 @@ function locateFile(path) {
 }
 let scriptDirectory = "";
 if(typeof document!=="undefined") {
-  scriptDirectory = document.currentScript?.src || "";
+  scriptDirectory = (document.currentScript && document.currentScript.src) ? document.currentScript.src : "";
   if(scriptDirectory)
     scriptDirectory = scriptDirectory.substr(0, scriptDirectory.replace(/[?#].*/, "").lastIndexOf("/") + 1)
 }

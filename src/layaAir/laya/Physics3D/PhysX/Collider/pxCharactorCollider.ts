@@ -6,8 +6,9 @@ import { pxCapsuleColliderShape } from "../Shape/pxCapsuleColliderShape";
 import { pxPhysicsCreateUtil } from "../pxPhysicsCreateUtil";
 import { partFlag, pxPhysicsManager } from "../pxPhysicsManager";
 import { pxCollider, pxColliderType } from "./pxCollider";
-import { pxDynamicCollider } from "./pxDynamicCollider";
 import { Event } from "../../../events/Event";
+import { EPhysicsStatisticsInfo } from "../../physicsEnum/EPhysicsStatisticsInfo";
+import { Physics3DStatInfo } from "../../interface/Physics3DStatInfo";
 export enum ControllerNonWalkableMode {
     /**
      * @en Stops character from climbing up non-walkable slopes, but doesn't move it otherwise.
@@ -93,6 +94,7 @@ export class pxCharactorCollider extends pxCollider implements ICharacterControl
     constructor(manager: pxPhysicsManager) {
         super(manager);
         this._type = pxColliderType.CharactorCollider;
+        Physics3DStatInfo.addStatisticsInfo(EPhysicsStatisticsInfo.C_PhysicaCharacterController, 1);
     }
 
     private _getNodeScale() {
@@ -178,13 +180,14 @@ export class pxCharactorCollider extends pxCollider implements ICharacterControl
         this._pxController.setShapeID(this._pxNullShape._id);
         // pxColliderShape._shapePool.set(this._id, this as any);
         this.setRadius(this._radius);
-        this.setHeight(this._height);
+        this.setHeight(this._height * 2);
         this.setPosition(this.owner.transform.position);
         this.setStepOffset(this._stepOffset);
         this.setUpDirection(this._upDirection);
         this.setSlopeLimit(this._slopeLimit);
         this.setGravity(this._gravity);
         this.setPushForce(this._pushForce);
+        this.setSkinWidth(this._contactOffset);
         this.setNonWalkableMode(this._nonWalkableMode);
         this.setEventFilter(this._characterEvents);
         this._setCharacterCollisonFlag(ECharacterCollisionFlag.eCOLLISION_SIDES);
@@ -291,8 +294,8 @@ export class pxCharactorCollider extends pxCollider implements ICharacterControl
      */
     getWorldTransform() {
         const v3 = this._pxController.getPosition();
-        pxDynamicCollider._tempTranslation.set(v3.x, v3.y, v3.z);
-        this.owner.transform.position = pxDynamicCollider._tempTranslation;
+        _tempTranslation.set(v3.x, v3.y, v3.z);
+        this.owner.transform.position = _tempTranslation;
     }
 
     /**
@@ -357,7 +360,8 @@ export class pxCharactorCollider extends pxCollider implements ICharacterControl
      * @param value 高度值。
      */
     setHeight(value: number) {
-        this._height = value;
+        // 实际上在physx中是halfHeight
+        this._height = value * 0.5;
         let scale = this._getNodeScale();
         this._pxController && this._pxController.resize(this._height * scale.y)
     }
@@ -434,3 +438,5 @@ export class pxCharactorCollider extends pxCollider implements ICharacterControl
     }
 
 }
+
+const _tempTranslation = new Vector3();

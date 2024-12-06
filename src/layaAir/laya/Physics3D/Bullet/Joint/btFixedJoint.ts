@@ -32,4 +32,14 @@ export class btFixedJoint extends btJoint implements IFixedJoint {
         }
     }
 
+    /**
+     * @en Destroy joint
+     * @zh 销毁关节
+     */
+    destroy(): void {
+        this._btJoint = null;
+        this._btJointFeedBackObj = null;
+        super.destroy();
+    }
+
 }

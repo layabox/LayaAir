@@ -1,6 +1,8 @@
 import { Vector3 } from "../../../maths/Vector3";
 import { IStaticCollider } from "../../interface/IStaticCollider";
+import { Physics3DStatInfo } from "../../interface/Physics3DStatInfo";
 import { EColliderCapable } from "../../physicsEnum/EColliderCapable";
+import { EPhysicsStatisticsInfo } from "../../physicsEnum/EPhysicsStatisticsInfo";
 import { btPhysicsCreateUtil } from "../btPhysicsCreateUtil";
 import { btPhysicsManager } from "../btPhysicsManager";
 import { btCollider, btColliderType } from "./btCollider";
@@ -87,6 +89,7 @@ export class btStaticCollider extends btCollider implements IStaticCollider {
     constructor(physicsManager: btPhysicsManager) {
         super(physicsManager);
         this._enableProcessCollisions = false;
+        Physics3DStatInfo.addStatisticsInfo(EPhysicsStatisticsInfo.C_PhysicaStaticRigidBody, 1);
     }
 
     /**
@@ -112,8 +115,8 @@ export class btStaticCollider extends btCollider implements IStaticCollider {
         this._staticCapableMap.set(EColliderCapable.Collider_Friction, true);
         this._staticCapableMap.set(EColliderCapable.Collider_Restitution, true);
         this._staticCapableMap.set(EColliderCapable.Collider_RollingFriction, true);
-        this._staticCapableMap.set(EColliderCapable.Collider_DynamicFriction, true);
-        this._staticCapableMap.set(EColliderCapable.Collider_StaticFriction, true);
+        this._staticCapableMap.set(EColliderCapable.Collider_DynamicFriction, false);
+        this._staticCapableMap.set(EColliderCapable.Collider_StaticFriction, false);
         this._staticCapableMap.set(EColliderCapable.Collider_BounceCombine, true);
         this._staticCapableMap.set(EColliderCapable.Collider_FrictionCombine, true);
         this._staticCapableMap.set(EColliderCapable.Collider_EventFilter, false);
@@ -130,6 +133,15 @@ export class btStaticCollider extends btCollider implements IStaticCollider {
         let bt = btPhysicsCreateUtil._bt;
         var btColliderObject = this._btCollider;
         bt.btRigidBody_setCenterOfMassPos(btColliderObject, value.x, value.y, value.z);
+    }
+
+    /**
+     * @en Destroy Static Collider
+     * @zh 销毁静态碰撞器
+     */
+    destroy(): void {
+        this._btCollider = null;
+        Physics3DStatInfo.addStatisticsInfo(EPhysicsStatisticsInfo.C_PhysicaStaticRigidBody, -1);
     }
 
 }

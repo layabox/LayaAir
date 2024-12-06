@@ -144,7 +144,7 @@ export class BlinnPhongMaterial extends Material {
 				this.depthTest = RenderState.DEPTHTEST_LESS;
 				break;
 			default:
-				throw new Error("Material:renderMode value error.");
+				throw new Error("unknown renderMode: " + value);
 		}
 	}
 
@@ -396,12 +396,11 @@ export class BlinnPhongMaterial extends Material {
 	 * @zh 将此材质的属性克隆到另一个材质。
 	 * @param destObject 要克隆到的目标材质。
 	 */
-	cloneTo(destObject: any): void {
+	cloneTo(destObject: BlinnPhongMaterial): void {
 		super.cloneTo(destObject);
-		var destMaterial: BlinnPhongMaterial = (<BlinnPhongMaterial>destObject);
-		destMaterial.albedoIntensity = this.albedoIntensity;
-		destMaterial.enableVertexColor = this.enableVertexColor;
-		this.albedoColor.cloneTo(destMaterial.albedoColor);
+		destObject.albedoIntensity = this.albedoIntensity;
+		destObject.enableVertexColor = this.enableVertexColor;
+		this.albedoColor.cloneTo(destObject.albedoColor);
 	}
 
 

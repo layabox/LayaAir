@@ -89,7 +89,6 @@ export class DrawLineCmd implements IGraphicCMD {
     }
 
     /**
-     * @private
      * @en Execute the draw bend line command
      * @param context The rendering context
      * @param gx Global X offset
@@ -112,7 +111,6 @@ export class DrawLineCmd implements IGraphicCMD {
 
 
     /**
-     * @private
      * @en The identifier for the DrawLineCmd
      * @zh 绘制单条曲线命令的标识符
      */

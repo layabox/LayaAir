@@ -10,8 +10,6 @@ import { Quaternion } from "./Quaternion";
  */
 export class Vector3 implements IClone {
     /**@internal*/
-    static _tempVector4 = new Vector4();
-    /**@internal*/
     static _tempVector3 = new Vector3();
     /**@internal*/
     static _tempVector0 = new Vector3();
@@ -257,11 +255,10 @@ export class Vector3 implements IClone {
      * @param result 输出的转换后的三维向量。
      */
     static transformV3ToV3(vector: Vector3, transform: Matrix4x4, result: Vector3): void {
-        var intermediate: Vector4 = Vector3._tempVector4;
-        Vector3.transformV3ToV4(vector, transform, intermediate);
-        result.x = intermediate.x;
-        result.y = intermediate.y;
-        result.z = intermediate.z;
+        Vector3.transformV3ToV4(vector, transform, _tempVector4);
+        result.x = _tempVector4.x;
+        result.y = _tempVector4.y;
+        result.z = _tempVector4.z;
     }
 
     /**
@@ -682,11 +679,10 @@ export class Vector3 implements IClone {
      * @zh 将当前向量克隆到目标对象。
      * @param destObject 克隆的目标对象。
      */
-    cloneTo(destObject: any): void {
-        var destVector3: Vector3 = (<Vector3>destObject);
-        destVector3.x = this.x;
-        destVector3.y = this.y;
-        destVector3.z = this.z;
+    cloneTo(destObject: Vector3): void {
+        destObject.x = this.x;
+        destObject.y = this.y;
+        destObject.z = this.z;
     }
 
     /**
@@ -712,3 +708,4 @@ export class Vector3 implements IClone {
     }
 }
 
+const _tempVector4 = new Vector4();

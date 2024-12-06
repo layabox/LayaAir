@@ -3,13 +3,15 @@ import { Collision } from "../../d3/physics/Collision";
 import { HitResult } from "../../d3/physics/HitResult";
 import { PhysicsSettings } from "../../d3/physics/PhysicsSettings";
 import { PhysicsUpdateList } from "../../d3/physics/PhysicsUpdateList";
-import { Physics3DUtils } from "../../d3/utils/Physics3DUtils";
 import { Event } from "../../events/Event";
 import { Quaternion } from "../../maths/Quaternion";
 import { Vector3 } from "../../maths/Vector3";
+import { NotImplementedError } from "../../utils/Error";
 import { Stat } from "../../utils/Stat";
 import { ICollider } from "../interface/ICollider";
 import { IPhysicsManager } from "../interface/IPhysicsManager";
+import { Physics3DStatInfo } from "../interface/Physics3DStatInfo";
+import { EPhysicsStatisticsInfo } from "../physicsEnum/EPhysicsStatisticsInfo";
 import { pxCharactorCollider } from "./Collider/pxCharactorCollider";
 import { pxCollider, pxColliderType } from "./Collider/pxCollider";
 import { pxDynamicCollider } from "./Collider/pxDynamicCollider";
@@ -147,6 +149,7 @@ export class pxPhysicsManager implements IPhysicsManager {
         }
         this.fixedTime = physicsSettings.fixedTimeStep;
     }
+
     /**
      * @en Set the active state of a collider.
      * @param collider The collider to set.
@@ -170,7 +173,7 @@ export class pxPhysicsManager implements IPhysicsManager {
      * @param value 是否启用调试绘制器。
      */
     enableDebugDrawer?(value: boolean): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     /**
@@ -262,13 +265,13 @@ export class pxPhysicsManager implements IPhysicsManager {
             return;
         }
         let pxcollider = collider as pxCollider;
-        //collider._derivePhysicsTransformation(true);
         switch (pxcollider._type) {
             case pxColliderType.StaticCollider:
                 this._pxScene.addActor(pxcollider._pxActor, null);
                 Stat.physics_staticRigidBodyCount++;
                 break;
             case pxColliderType.RigidbodyCollider:
+                pxcollider.setWorldTransform(true);
                 this._pxScene.addActor(pxcollider._pxActor, null);
                 if (!(collider as pxDynamicCollider).IsKinematic) {
                     this._dynamicUpdateList.add(collider);
@@ -336,6 +339,7 @@ export class pxPhysicsManager implements IPhysicsManager {
     private _collision_EnterEvent() {
         this._contactCollisionsBegin.forEach((value: Collision, key: number) => {
             if (!value) return;
+            Physics3DStatInfo.addStatisticsInfo(EPhysicsStatisticsInfo.C_PhysicsEventCount, 1);
             let ownerA = value._colliderA.owner;
             let ownerB = value._colliderB.owner;
             value.other = value._colliderB.component;
@@ -352,6 +356,7 @@ export class pxPhysicsManager implements IPhysicsManager {
     private _collision_StayEvent() {
         this._contactCollisionsPersist.forEach((value: Collision, key: number) => {
             if (!value) return;
+            Physics3DStatInfo.addStatisticsInfo(EPhysicsStatisticsInfo.C_PhysicsEventCount, 1);
             let ownerA = value._colliderA.owner;
             let ownerB = value._colliderB.owner;
             value.other = value._colliderB.component;
@@ -368,6 +373,7 @@ export class pxPhysicsManager implements IPhysicsManager {
     private _collision_ExitEvent() {
         this._contactCollisionsEnd.forEach((value: Collision, key: number) => {
             if (!value) return;
+            Physics3DStatInfo.addStatisticsInfo(EPhysicsStatisticsInfo.C_PhysicsEventCount, 1);
             let ownerA = value._colliderA.owner;
             let ownerB = value._colliderB.owner;
             value.other = value._colliderB.component;
@@ -396,6 +402,7 @@ export class pxPhysicsManager implements IPhysicsManager {
         // trigger
         this._triggerCollisionsBegin.forEach((value: Collision, key: number) => {
             if (!value) return;
+            Physics3DStatInfo.addStatisticsInfo(EPhysicsStatisticsInfo.C_PhysicsEventCount, 1);
             let ownerA = value._colliderA.owner;
             let ownerB = value._colliderB.owner;
             // value.other = value._colliderB;
@@ -413,6 +420,7 @@ export class pxPhysicsManager implements IPhysicsManager {
     private _trigger_StayEvent() {
         this._triggerCollisionsPersist.forEach((value: Collision, key: number) => {
             if (!value) return;
+            Physics3DStatInfo.addStatisticsInfo(EPhysicsStatisticsInfo.C_PhysicsEventCount, 1);
             let ownerA = value._colliderA.owner;
             let ownerB = value._colliderB.owner;
             // value.other = value._colliderB;
@@ -431,6 +439,7 @@ export class pxPhysicsManager implements IPhysicsManager {
     private _trigger_ExitEvent() {
         this._triggerCollisionsEnd.forEach((value: Collision, key: number) => {
             if (!value) return;
+            Physics3DStatInfo.addStatisticsInfo(EPhysicsStatisticsInfo.C_PhysicsEventCount, 1);
             let ownerA = value._colliderA.owner;
             let ownerB = value._colliderB.owner;
             // value.other = value._colliderB;

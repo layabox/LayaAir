@@ -1,7 +1,8 @@
 import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
 import { IRenderElement2D } from "../../DriverDesign/2DRenderPass/IRenderElement2D";
+import { RTDefineDatas } from "../../RenderModuleData/RuntimeModuleData/RTDefineDatas";
+import { RTShaderPass } from "../../RenderModuleData/RuntimeModuleData/RTShaderPass";
 import { RTSubShader } from "../../RenderModuleData/RuntimeModuleData/RTSubShader";
-import { GLESRenderElement3D } from "../3DRenderPass/GLESRenderElement3D";
 import { GLESRenderGeometryElement } from "../RenderDevice/GLESRenderGeometryElement";
 import { GLESShaderData } from "../RenderDevice/GLESShaderData";
 
@@ -51,7 +52,7 @@ export class GLESREnderElement2D implements IRenderElement2D {
     _nativeObj: any;
     protected init(): void {
         this._nativeObj = new (window as any).conchGLESRenderElement2D();
-        (window as any).conchGLESRenderElement2D.setCompileDefine(GLESRenderElement3D.getCompileDefine()._nativeObj);
+        (window as any).conchGLESRenderElement2D.setCompileDefine(RTShaderPass.getGlobalCompileDefine()._nativeObj);
     }
     constructor() {
         this.init();

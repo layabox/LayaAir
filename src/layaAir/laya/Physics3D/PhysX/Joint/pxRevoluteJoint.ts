@@ -162,4 +162,13 @@ export class pxRevoluteJoint extends pxJoint implements IHingeJoint {
     setDriveForceLimit(limit: number): void {
         this._pxJoint && this._pxJoint.setDriveForceLimit(limit);
     }
+
+    /**
+     * @en Destroy joint
+     * @zh 销毁关节
+     */
+    destroy(): void {
+        this._pxJoint && this._pxJoint.release();
+        super.destroy();
+    }
 }

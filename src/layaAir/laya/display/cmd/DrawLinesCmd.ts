@@ -40,7 +40,6 @@ export class DrawLinesCmd implements IGraphicCMD {
     lineWidth: number = 0;
 
     /**
-     * @private
      * @en Create a DrawLinesCmd instance
      * @param x X-axis position to start drawing
      * @param y Y-axis position to start drawing
@@ -78,7 +77,6 @@ export class DrawLinesCmd implements IGraphicCMD {
     }
 
     /**
-     * @private
      * @en Execute the draw continuous lines command
      * @param context The rendering context
      * @param gx Global X offset
@@ -94,7 +92,6 @@ export class DrawLinesCmd implements IGraphicCMD {
     }
 
     /**
-     * @private
      * @en The identifier for the DrawLinesCmd
      * @zh 绘制连续曲线命令的标识符
      */

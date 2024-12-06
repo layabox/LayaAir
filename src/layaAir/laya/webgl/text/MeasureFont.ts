@@ -1,20 +1,22 @@
 import { CharRenderInfo } from "./CharRenderInfo";
 import { ICharRender } from "./ICharRender";
 
-export interface IFontMeasure{
-    getFontSizeInfo(font: string, size:number): number;
+export interface IFontMeasure {
+    getFontSizeInfo(font: string, size: number): number;
 }
 
 var pixelBBX = [0, 0, 0, 0];
-export class MeasureFont implements IFontMeasure{
+const tmpRI = new CharRenderInfo();
+
+export class MeasureFont implements IFontMeasure {
     private bmpData32: Uint32Array;
-    private static tmpRI = new CharRenderInfo();
+
     private charRender: ICharRender;
-    constructor(charRender:ICharRender){
+    constructor(charRender: ICharRender) {
         this.charRender = charRender;
     }
 
-    getFontSizeInfo(font: string, size:number): number {
+    getFontSizeInfo(font: string, size: number): number {
         let fontstr = 'bold ' + size + 'px ' + font;
         // bbx初始大小
         pixelBBX[0] = size / 2;// 16;
@@ -27,17 +29,17 @@ export class MeasureFont implements IFontMeasure{
         var marginr = 16;
         var marginb = 16;
         this.charRender.scale(1, 1);
-        MeasureFont.tmpRI.height = size;
+        tmpRI.height = size;
         this.charRender.fontsz = size;
-        var bmpdt = this.charRender.getCharBmp('g', fontstr, 0, 'red', null, MeasureFont.tmpRI, orix, oriy, marginr, marginb);
+        var bmpdt = this.charRender.getCharBmp('g', fontstr, 0, 'red', null, tmpRI, orix, oriy, marginr, marginb);
         this.bmpData32 = new Uint32Array(bmpdt.data.buffer);
         //测量宽度是 tmpRI.width
         this.updateBbx(bmpdt, pixelBBX, false);
-        bmpdt = this.charRender.getCharBmp('有', fontstr, 0, 'red', null, MeasureFont.tmpRI, oriy, oriy, marginr, marginb);// '有'比'国'大
+        bmpdt = this.charRender.getCharBmp('有', fontstr, 0, 'red', null, tmpRI, oriy, oriy, marginr, marginb);// '有'比'国'大
         this.bmpData32 = new Uint32Array(bmpdt.data.buffer);
         // 国字的宽度就用系统测量的，不再用像素检测
-        if (pixelBBX[2] < orix + MeasureFont.tmpRI.width)
-            pixelBBX[2] = orix + MeasureFont.tmpRI.width;
+        if (pixelBBX[2] < orix + tmpRI.width)
+            pixelBBX[2] = orix + tmpRI.width;
         this.updateBbx(bmpdt, pixelBBX, false);//TODO 改成 true
         // 原点在 16,16
         var xoff = Math.max(orix - pixelBBX[0], 0);

@@ -312,7 +312,7 @@ export class Bounds implements IClone {
      * @zh 克隆这个边界到另一个对象。
      * @param destObject 克隆目标对象。
      */
-    cloneTo(destObject: any): void {
+    cloneTo(destObject: Bounds): void {
         this._imp.cloneTo(destObject._imp);
     }
 

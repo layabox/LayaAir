@@ -17,7 +17,7 @@ export class NavMeshModifierVolume extends Component {
 
     /**@internal */
     protected _volumeData: ModifierVolumeData;
-    
+
     /**@internal */
     private _center: Vector3 = new Vector3();
 
@@ -47,7 +47,7 @@ export class NavMeshModifierVolume extends Component {
     get areaFlag() {
         return this._volumeData.areaFlag;
     }
-    
+
 
     /**
      * @en The center of the modifier volume.
@@ -92,7 +92,7 @@ export class NavMeshModifierVolume extends Component {
         (this.owner as Sprite3D).transform.on(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange)
     }
 
-    
+
     /**
      * @internal
      */
@@ -112,10 +112,11 @@ export class NavMeshModifierVolume extends Component {
 
 
     /**@internal */
-    _cloneTo(dest: Component): void {
-        let volume = dest as NavMeshModifierVolume;
-        this._size.cloneTo(volume._size);
-        this._center.cloneTo(volume._center);
+    _cloneTo(dest: NavMeshModifierVolume): void {
+        dest.size = this.size;
+        dest.center = this.center;
+        dest.agentType = this.agentType;
+        dest.areaFlag = this.areaFlag;
         super._cloneTo(dest);
     }
 }

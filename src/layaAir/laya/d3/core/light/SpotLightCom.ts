@@ -2,7 +2,6 @@ import { Scene3D } from "../scene/Scene3D";
 import { Light, LightType } from "./Light";
 import { Component } from "../../../components/Component";
 import { Vector3 } from "../../../maths/Vector3";
-
 import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 import { ISpotLightData } from "../../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
 
@@ -35,10 +34,10 @@ export class SpotLightCom extends Light {
 	};
 
 
-    /**
-     * @en The cone angle of the spotlight.
-     * @zh 聚光灯的锥形角度。
-     */
+	/**
+	 * @en The cone angle of the spotlight.
+	 * @zh 聚光灯的锥形角度。
+	 */
 	get spotAngle(): number {
 		return this._dataModule.spotAngle;
 	}
@@ -47,10 +46,10 @@ export class SpotLightCom extends Light {
 		this._dataModule.spotAngle = Math.max(Math.min(value, 179), 0);
 	}
 
-    /**
-     * @en The range of the spotlight.
-     * @zh 聚光灯的范围。
-     */
+	/**
+	 * @en The range of the spotlight.
+	 * @zh 聚光灯的范围。
+	 */
 	get range(): number {
 		return this._dataModule.spotRange;
 	}
@@ -92,37 +91,14 @@ export class SpotLightCom extends Light {
 		(<Scene3D>this.owner.scene)._spotLights.remove(this);
 	}
 
-
 	/**
 	 * @inheritDoc
 	 * @override
 	 * @internal
 	 */
-	_parse(data: any, spriteMap: any): void {
-		super._parse(data, spriteMap);
-		this.range = data.range;
-		this.spotAngle = data.spotAngle;
-	}
-	/**
-	 * @inheritDoc
-	 * @override
-	 * @internal
-	 */
-	_cloneTo(dest: Component): void {
+	_cloneTo(dest: SpotLightCom): void {
 		super._cloneTo(dest);
-		var spotLight = <SpotLightCom>dest;
-		spotLight.range = this.range;
-		spotLight.spotAngle = this.spotAngle;
+		dest.range = this.range;
+		dest.spotAngle = this.spotAngle;
 	}
-
-
-	/**
-	 * @internal
-	 */
-	protected _create(): Component {
-		return new SpotLightCom();
-	}
-
 }
-
-

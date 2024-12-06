@@ -33,8 +33,8 @@ import { VertexElementFormat } from "./laya/renders/VertexElementFormat";
 import { DrawStyle } from "./laya/webgl/canvas/DrawStyle";
 import { Stat } from "./laya/utils/Stat";
 import { RenderPassStatisticsInfo } from "./laya/RenderEngine/RenderEnum/RenderStatInfo";
-import { TileMapLayer } from "./laya/display/Scene2DSpecial/TileMap/TileMapLayer";
 import { IPhysiscs2DFactory } from "./laya/physics/IPhysiscs2DFactory";
+import { VertexMesh } from "./laya/RenderEngine/RenderShader/VertexMesh";
 
 /**
  * @en Laya is the reference entry for global objects.
@@ -83,13 +83,13 @@ export class Laya {
      * @en Reference to the Render class.
      * @zh physics2D类的引用。
      */
-    static physics2D:IPhysiscs2DFactory;
+    static physics2D: IPhysiscs2DFactory;
+
     private static _inited = false;
     private static _initCallbacks: Array<() => void | Promise<void>> = [];
     private static _beforeInitCallbacks: Array<(stageConfig: IStageConfig) => void | Promise<void>> = [];
     private static _afterInitCallbacks: Array<() => void | Promise<void>> = [];
     private static _evcode: string = "eva" + "l";
-    private static isNativeRender_enable: boolean = false;
 
     /**
      * @en Initialize the engine. To use the engine, you need to initialize it first.
@@ -177,6 +177,7 @@ export class Laya {
         //beforeInitCallbacks 是按顺序执行
         Laya._beforeInitCallbacks.forEach(func => steps.push(() => func(stageConfig)));
 
+
         steps.push(() => LayaGL.renderOBJCreate.createEngine(null, Browser.mainCanvas));
         steps.push(() => Laya.initRender2D(stageConfig));
         if (laya3D)
@@ -225,11 +226,12 @@ export class Laya {
         stage = ((<any>window)).stage = ILaya.stage = Laya.stage = new Stage();
 
         VertexElementFormat.__init__();
+        VertexMesh.__init__();
         Shader3D.init();
         MeshQuadTexture.__int__();
         MeshVG.__init__();
         MeshTexture.__init__();
-        
+
 
         Laya.render = Laya.createRender();
         render = Laya.render;
@@ -348,6 +350,25 @@ export class Laya {
     static addAfterInitCallback(callback: () => void | Promise<void>): void {
         Laya._afterInitCallbacks.push(callback);
     }
+
+    /**
+     * @en Import a native library(e.g. dll/so/dylib). If not in the Conch environment, this function will return null.
+     * @param name The name of the library to import. e.g. `test.dll` 
+     * @returns The imported object.
+     * @zh 导入一个原生库（如dll/so/dylib）。
+     * @param name 要导入的库的名称。例如：`test.dll`
+     * @returns 导入的对象。 
+     */
+    static importNative(name: string): any {
+        if (!LayaEnv.isConch)
+            return null;
+
+        let path = (<any>window).$DLL_PATHS[name];
+        let obj = (<any>window).importNative(path || name);
+        if (!obj)
+            throw new Error(`failed to load ${name}`);
+        return obj;
+    }
 }
 
 ILaya.Laya = Laya;
@@ -377,3 +398,4 @@ export var enableDebugPanel = Laya.enableDebugPanel;
 export var addInitCallback = Laya.addInitCallback;
 export var addBeforeInitCallback = Laya.addBeforeInitCallback;
 export var addAfterInitCallback = Laya.addAfterInitCallback;
+export var importNative = Laya.importNative;

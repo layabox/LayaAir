@@ -99,9 +99,10 @@ export class PerformanceDefine {
     static C_PhysicaCharacterController: string;
     static C_PhysicsJoint: string;
     //--------PerformanceLoadDefine--------
-    static T_LoadResourceTime: string;//TODO
-    static C_LoadResourceCount: string;//TODO
-    static C_LoadRequestCount: string;//TODO
+    static T_LoadResourceTime: string;//Loader.LoaderStat_LoadResourceTime
+    static C_LoadResourceCount: string;//Loader.LoaderStat_LoaderResourceCount
+    static C_LoadRequestCount: string;//Loader.LoaderStat_LoadRequestCount
+    static T_LoadRequestTime:string//Loader.LoaderStat_LoadRequestTime
     //--------Performance2DRenderDefine--------
     static T_UITime: string;
     static C_UICount: string;

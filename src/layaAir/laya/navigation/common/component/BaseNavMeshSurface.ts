@@ -365,10 +365,12 @@ export class BaseNavMeshSurface extends Component {
     */
     _onEnable(): void {
         this._manager = this._getManager();
-        this._navMesh = this._crateNavMesh(this._manager.getNavConfig(this._agentType), this._boundMin, this._boundMax);
-        if (this._oriTiles) {
-            this._navMesh.navTileGrid._refeashBound(this._oriTiles);
-            this._navMesh._navMeshInit()
+        if (!this._navMesh) {
+            this._navMesh = this._crateNavMesh(this._manager.getNavConfig(this._agentType), this._boundMin, this._boundMax);
+            if (this._oriTiles) {
+                this._navMesh.navTileGrid._refeashBound(this._oriTiles);
+                this._navMesh._navMeshInit()
+            }
         }
 
         this._manager.regNavMeshSurface(this);
@@ -422,6 +424,7 @@ export class BaseNavMeshSurface extends Component {
     */
     protected _onDisable(): void {
         this.cleanAllTile();
+        this._manager.removeNavMeshSurface(this);
     }
 
     /**

@@ -1,5 +1,4 @@
 import { ILaya } from "../../ILaya";
-import { Laya } from "../../Laya";
 import { Const } from "../Const";
 import { RenderManager2D } from "../NodeRender2D/RenderManager2D";
 import { IRenderGeometryElement } from "../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
@@ -9,7 +8,6 @@ import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
 import { Shader3D } from "../RenderEngine/RenderShader/Shader3D";
 import { Sprite } from "../display/Sprite";
 import { ColorFilter } from "../filters/ColorFilter";
-import { LayaGL } from "../layagl/LayaGL";
 import { Bezier } from "../maths/Bezier";
 import { Color } from "../maths/Color";
 import { Matrix } from "../maths/Matrix";
@@ -21,7 +19,6 @@ import { Vector4 } from "../maths/Vector4";
 import { BaseTexture } from "../resource/BaseTexture";
 import { HTMLCanvas } from "../resource/HTMLCanvas";
 import { Material } from "../resource/Material";
-import { RenderTexture } from "../resource/RenderTexture";
 import { RenderTexture2D } from "../resource/RenderTexture2D";
 import { Texture } from "../resource/Texture";
 import { Texture2D } from "../resource/Texture2D";
@@ -56,6 +53,8 @@ import { Render2D, Render2DSimple } from "./Render2D";
 import { IAutoExpiringResource } from "./ResNeedTouch";
 
 const defaultClipMatrix = new Matrix(Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_CLIP_SIZE, 0, 0);
+const tmpuv1: any[] = [0, 0, 0, 0, 0, 0, 0, 0];
+const tmpMat = new Matrix();
 
 export interface IGraphicCMD {
     run(context: Context, gx: number, gy: number): void;
@@ -82,7 +81,6 @@ export interface IGraphicCMD {
  * @private
  */
 export class Context {
-    private static tmpuv1: any[] = [0, 0, 0, 0, 0, 0, 0, 0];
 
     /**@internal */
     private _canvas: HTMLCanvas;
@@ -103,9 +101,6 @@ export class Context {
     private _fillStyle = DrawStyle.DEFAULT;
     /**@internal */
     private _strokeStyle = DrawStyle.DEFAULT;
-
-    /**@internal */
-    private _tmpMatrix = new Matrix();		// chrome下静态的访问比从this访问要慢
 
     private static SEGNUM = 32;
     private static _contextcount = 0;
@@ -958,7 +953,7 @@ export class Context {
         cmp.x = clipInfo.tx; cmp.y = clipInfo.ty;
         shaderValue.clipMatPos = cmp;
     }
-	/**@internal */
+    /**@internal */
     _copyClipInfoToShaderData(shaderData: ShaderData) {
         let clipInfo = this._globalClipMatrix;
         Vector4.tempVec4.setValue(clipInfo.a, clipInfo.b, clipInfo.c, clipInfo.d)
@@ -1244,7 +1239,7 @@ export class Context {
             }
             return;
         }
-        var tmpMat = this._tmpMatrix;
+
         //克隆transform,因为要应用tx，ty，这里不能修改原始的transform
         tmpMat.a = transform.a; tmpMat.b = transform.b; tmpMat.c = transform.c; tmpMat.d = transform.d; tmpMat.tx = transform.tx + tx; tmpMat.ty = transform.ty + ty;
         tmpMat._bTransform = transform._bTransform;
@@ -1288,7 +1283,6 @@ export class Context {
         //this._drawCount++;
 
         // 为了提高效率，把一些变量放到这里
-        var tmpMat = this._tmpMatrix;
         var webGLImg = tex.bitmap;
         var preKey: SubmitKey = this._curSubmit._key;
         var sameKey = preKey.submitType === SubmitBase.KEY_TRIANGLES &&
@@ -1979,7 +1973,7 @@ export class Context {
      */
     private _fillTexture_h(tex: Texture, imgid: number, uv: ArrayLike<number>, oriw: number, orih: number, x: number, y: number, w: number, color: number): void {
         if (oriw <= 0)
-            console.error('_fillTexture_h error: oriw must>0');
+            return;//console.error('_fillTexture_h error: oriw must>0');
 
         var stx = x;
         var num = Math.floor(w / oriw);
@@ -1992,7 +1986,7 @@ export class Context {
         if (left > 0) {
             var du = uv[2] - uv[0];
             var uvr = uv[0] + du * (left / oriw);
-            var tuv: any[] = Context.tmpuv1;
+            var tuv: any[] = tmpuv1;
             tuv[0] = uv[0]; tuv[1] = uv[1]; tuv[2] = uvr; tuv[3] = uv[3];
             tuv[4] = uvr; tuv[5] = uv[5]; tuv[6] = uv[6]; tuv[7] = uv[7];
             this._inner_drawTexture(tex, imgid, stx, y, left, orih, this._curMat, tuv, 1, false, color);
@@ -2012,7 +2006,7 @@ export class Context {
      */
     private _fillTexture_v(tex: Texture, imgid: number, uv: ArrayLike<number>, oriw: number, orih: number, x: number, y: number, h: number, color: number): void {
         if (orih <= 0)
-            console.error('_fillTexture_v error: orih must>0');
+            return; //console.error('_fillTexture_v error: orih must>0');
         var sty = y;
         var num = Math.floor(h / orih);
         var left = h % orih;
@@ -2024,7 +2018,7 @@ export class Context {
         if (left > 0) {
             var dv = uv[7] - uv[1];
             var uvb = uv[1] + dv * (left / orih);
-            var tuv: any[] = Context.tmpuv1;
+            var tuv: any[] = tmpuv1;
             tuv[0] = uv[0]; tuv[1] = uv[1]; tuv[2] = uv[2]; tuv[3] = uv[3];
             tuv[4] = uv[4]; tuv[5] = uvb; tuv[6] = uv[6]; tuv[7] = uvb;
             this._inner_drawTexture(tex, imgid, x, sty, oriw, left, this._curMat, tuv, 1, false, color);

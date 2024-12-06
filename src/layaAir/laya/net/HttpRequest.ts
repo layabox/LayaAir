@@ -4,44 +4,37 @@ import { Browser } from "../utils/Browser";
 import { XML } from "../html/XML";
 
 /**
- * 请求进度改变时调度。
- * @eventType Event.PROGRESS
- * */
-/*[Event(name = "progress", type = "laya.events.Event")]*/
-/**
- * 请求结束后调度。
- * @eventType Event.COMPLETE
- * */
-/*[Event(name = "complete", type = "laya.events.Event")]*/
-/**
- * 请求出错时调度。
- * @eventType Event.ERROR
- * */
-/*[Event(name = "error", type = "laya.events.Event")]*/
-
-/**
- * <p> <code>HttpRequest</code> 通过封装 HTML <code>XMLHttpRequest</code> 对象提供了对 HTTP 协议的完全的访问，包括做出 POST 和 HEAD 请求以及普通的 GET 请求的能力。 <code>HttpRequest</code> 只提供以异步的形式返回 Web 服务器的响应，并且能够以文本或者二进制的形式返回内容。</p>
- * <p><b>注意：</b>建议每次请求都使用新的 <code>HttpRequest</code> 对象，因为每次调用该对象的send方法时，都会清空之前设置的数据，并重置 HTTP 请求的状态，这会导致之前还未返回响应的请求被重置，从而得不到之前请求的响应结果。</p>
+ * @en The `HttpRequest` class encapsulates the HTML `XMLHttpRequest` object to provide full access to the HTTP protocol, including the ability to make POST and HEAD requests as well as regular GET requests. `HttpRequest` only provides asynchronous responses from web servers and can return content in either text or binary form.
+ * - Note: It is recommended to use a new `HttpRequest` object for each request, as each call to the send method of this object will clear previously set data and reset the HTTP request status. This can cause previously unreturned responses to be reset, resulting in the loss of response results from previous requests.
+ * - EventType Event.PROGRESS: Dispatch when the request progress changes.
+ * - EventType Event.COMPLETE: Dispatch after the request ends.
+ * - EventType Event.ERROR: Dispatch when the request fails.
+ * @zh `HttpRequest` 类通过封装 HTML `XMLHttpRequest` 对象提供了对 HTTP 协议的完全访问，包括发送 POST 和 HEAD 请求以及普通的 GET 请求的能力。`HttpRequest` 只以异步形式返回 Web 服务器的响应，并且能够以文本或二进制形式返回内容。
+ * - 注意：建议每次请求都使用新的 `HttpRequest` 对象，因为每次调用该对象的 send 方法时，都会清空之前设置的数据，并重置 HTTP 请求的状态，这会导致之前还未返回响应的请求被重置，从而得不到之前请求的响应结果。
+ * - EventType Event.PROGRESS: 请求进度改变时调度。
+ * - EventType Event.COMPLETE: 请求结束后调度。
+ * - EventType Event.ERROR: 请求出错时调度。
  */
 export class HttpRequest extends EventDispatcher {
-    /**@private */
     protected _http = new XMLHttpRequest();
-    /**@private */
     private static _urlEncode: Function = encodeURI;
-    /**@private */
     protected _responseType: string;
-    /**@private */
     protected _data: any;
-    /**@private */
     protected _url: string;
 
     /**
-     * 发送 HTTP 请求。
-     * @param	url				请求的地址。大多数浏览器实施了一个同源安全策略，并且要求这个 URL 与包含脚本的文本具有相同的主机名和端口。
-     * @param	data			(default = null)发送的数据。
-     * @param	method			(default = "get")用于请求的 HTTP 方法。值包括 "get"、"post"、"head"。
-     * @param	responseType	(default = "text")Web 服务器的响应类型，可设置为 "text"、"json"、"xml"、"arraybuffer"。
-     * @param	headers			(default = null) HTTP 请求的头部信息。参数形如key-value数组：key是头部的名称，不应该包括空白、冒号或换行；value是头部的值，不应该包括换行。比如["Content-Type", "application/json"]。
+     * @en Send an HTTP request.
+     * @param url The URL to request. Most browsers implement a same-origin security policy and require that the URL has the same hostname and port as the script.
+     * @param data (default = null) The data to be sent.
+     * @param method (default = "get") The HTTP method used for the request. Values include "get", "post", "head".
+     * @param responseType (default = "text") The response type from the web server, can be set to "text", "json", "xml", "arraybuffer".
+     * @param headers (default = null) The header information for the HTTP request. Parameters are in the form of a key-value array: key is the name of the header, should not include whitespace, colon, or newline; value is the value of the header, should not include newline. For example ["Content-Type", "application/json"].
+     * @zh 发送 HTTP 请求。
+     * @param url 请求的地址。大多数浏览器实施了同源安全策略，要求此 URL 与包含脚本的文本具有相同的主机名和端口。
+     * @param data (默认值 = null) 发送的数据。
+     * @param method (默认值 = "get") 用于请求的 HTTP 方法。值包括 "get"、"post"、"head"。
+     * @param responseType (默认值 = "text") Web 服务器的响应类型，可设置为 "text"、"json"、"xml"、"arraybuffer"。
+     * @param headers (默认值 = null) HTTP 请求的头部信息。参数形如 key-value 数组：key 是头部的名称，不应包括空白、冒号或换行；value 是头部的值，不应包括换行。例如 ["Content-Type", "application/json"]。
      */
     send(url: string, data: any = null,
         method: "get" | "post" | "head" = "get",
@@ -99,8 +92,9 @@ export class HttpRequest extends EventDispatcher {
     }
 
     /**
-     * @private
-     * 请求进度的侦听处理函数。
+     * @en The listening and processing function for requesting progress.
+     * @param e The event object.
+     * @zh 请求进度的侦听处理函数。
      * @param	e 事件对象。
      */
     protected _onProgress(e: any): void {
@@ -108,8 +102,9 @@ export class HttpRequest extends EventDispatcher {
     }
 
     /**
-     * @private
-     * 请求中断的侦听处理函数。
+     * @en The listening and processing function for request interruption.
+     * @param e The event object.
+     * @zh 请求中断的侦听处理函数。
      * @param	e 事件对象。
      */
     protected _onAbort(e: any): void {
@@ -117,8 +112,9 @@ export class HttpRequest extends EventDispatcher {
     }
 
     /**
-     * @private
-     * 请求出错侦的听处理函数。
+     * @en The listening and processing function for request errors.
+     * @param e The event object.
+     * @zh 请求出错侦的听处理函数。
      * @param	e 事件对象。
      */
     protected _onError(e: any): void {
@@ -126,8 +122,9 @@ export class HttpRequest extends EventDispatcher {
     }
 
     /**
-     * @private
-     * 请求消息返回的侦听处理函数。
+     * @en The listening and processing function for request completion.
+     * @param e The event object.
+     * @zh 请求消息返回的侦听处理函数。
      * @param	e 事件对象。
      */
     protected _onLoad(e: any): void {
@@ -142,8 +139,9 @@ export class HttpRequest extends EventDispatcher {
     }
 
     /**
-     * @private
-     * 请求错误的处理函数。
+     * @en Request error handling function.
+     * @param message The error message.
+     * @zh 请求错误的处理函数。
      * @param	message 错误信息。
      */
     protected error(message: string): void {
@@ -153,8 +151,8 @@ export class HttpRequest extends EventDispatcher {
     }
 
     /**
-     * @private
-     * 请求成功完成的处理函数。
+     * @en The processing function for successfully completing the request.
+     * @zh 请求成功完成的处理函数。
      */
     protected complete(): void {
         this.clear();
@@ -175,31 +173,42 @@ export class HttpRequest extends EventDispatcher {
     }
 
     /**
-     * @private
-     * 清除当前请求。
+     * @en Clear the current request.
+     * @zh 清除当前请求。
      */
     protected clear(): void {
         var http: any = this._http;
         http.onerror = http.onabort = http.onprogress = http.onload = null;
     }
 
-    /** 请求的地址。*/
+    /**
+     * @en The requested URL.
+     * @zh 请求的地址。
+     */
     get url(): string {
         return this._url;
     }
 
-    /** 返回的数据。*/
+    /**
+     * @en The data.
+     * @zh 数据。
+     */
     get data(): any {
         return this._data;
     }
 
     /**
-     * 本对象所封装的原生 XMLHttpRequest 引用。
+     * @en The reference to the native XMLHttpRequest object encapsulated by this object.
+     * @zh 本对象所封装的原生 XMLHttpRequest 引用。
      */
     get http(): any {
         return this._http;
     }
 
+    /**
+     * @en Reset the HttpRequest object, clearing all event listeners and data.
+     * @zh 重置 HttpRequest 对象，清除所有事件监听器和数据。
+     */
     reset() {
         this.offAll();
         this._data = null;

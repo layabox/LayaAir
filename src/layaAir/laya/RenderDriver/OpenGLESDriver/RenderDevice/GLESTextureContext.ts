@@ -160,8 +160,4 @@ export class GLESTextureContext implements ITextureContext {
     updateVideoTexture(texture: GLESInternalTex, video: HTMLVideoElement, premultiplyAlpha: boolean, invertY: boolean): void {
         this._native.updateVideoTexture(texture._nativeObj, (video as any)._nativeObj.conchImgId, premultiplyAlpha, invertY);
     }
-
-    getRenderTextureData(internalTex: GLESInternalRT, x: number, y: number, width: number, height: number): ArrayBufferView {
-        return this._native.getRenderTextureData(internalTex._nativeObj, x, y, width, height);
-    }
 }

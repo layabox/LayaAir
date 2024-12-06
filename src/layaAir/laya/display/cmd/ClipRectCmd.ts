@@ -33,7 +33,6 @@ export class ClipRectCmd  implements IGraphicCMD{
     height: number;
 
     /**
-     * @private
      * @en Creates or retrieves a ClipRectCmd instance from the object pool and initializes it with the specified parameters.
      * @param x The x-coordinate of the top-left corner of the clip rectangle.
      * @param y The y-coordinate of the top-left corner of the clip rectangle.
@@ -66,7 +65,6 @@ export class ClipRectCmd  implements IGraphicCMD{
     }
 
     /**
-     * @private
      * @en Execute the clip rectangle command in the given context.
      * @param context The rendering context.
      * @param gx The global x coordinate.
@@ -81,7 +79,6 @@ export class ClipRectCmd  implements IGraphicCMD{
     }
 
     /**
-     * @private
      * @en The identifier for the ClipRectCmd
      * @zh 裁剪命令的标识符
      */

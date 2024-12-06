@@ -20,16 +20,11 @@ import { SpineMeshUtils } from "../mesh/SpineMeshUtils";
  */
 export class SpineShaderInit {
 
-    static SpineFastVertexDeclaration: VertexDeclaration;
-
     /**
      * @en Vertex declaration for normal Spine rendering.
      * @zh 用于普通 Spine 渲染的顶点声明。
      */
     static SpineNormalVertexDeclaration: VertexDeclaration;
-
-    // static SpineRBVertexDeclaration: VertexDeclaration;
-
 
     /**
      * @en Vertex declaration for instance normal matrix.
@@ -102,12 +97,6 @@ export class SpineShaderInit {
      */
     static BONEMAT: number;
 
-    // static NMatrix: number;
-
-    // static Color: number;
-
-    // static Size: number;
-
     /**
      * @internal
      * @en Simple animator texture.
@@ -167,10 +156,16 @@ export class SpineShaderInit {
         'a_position': [2, ShaderDataType.Vector2],
         "a_weight": [3, ShaderDataType.Float],
         "a_BoneId": [4, ShaderDataType.Float],
-
         'a_PosWeightBoneID_2': [5, ShaderDataType.Vector4],
         'a_PosWeightBoneID_3': [6, ShaderDataType.Vector4],
         'a_PosWeightBoneID_4': [7, ShaderDataType.Vector4],
+
+        // 'a_PosWeightBoneID_1': [2, ShaderDataType.Vector4],//pos.xy weight boneID
+        // 'a_PosWeightBoneID_2': [3, ShaderDataType.Vector4],
+        // 'a_PosWeightBoneID_3': [4, ShaderDataType.Vector4],
+        // 'a_PosWeightBoneID_4': [5, ShaderDataType.Vector4],
+        // 'a_PosWeightBoneID_5': [6, ShaderDataType.Vector4],
+        // 'a_PosWeightBoneID_6': [7, ShaderDataType.Vector4],
 
         'a_NMatrix_0': [8, ShaderDataType.Vector3],
         'a_NMatrix_1': [9, ShaderDataType.Vector3],
@@ -188,9 +183,6 @@ export class SpineShaderInit {
         Shader3D.addInclude("SpineVertex.glsl", spineVertex);
         Shader3D.addInclude("SpineFragment.glsl", spineFragment);
         SpineShaderInit.BONEMAT = Shader3D.propertyNameToID("u_sBone");
-        // SpineShaderInit.NMatrix = Shader3D.propertyNameToID("u_NMatrix");
-        // SpineShaderInit.Color = Shader3D.propertyNameToID("u_color");
-        // SpineShaderInit.Size = Shader3D.propertyNameToID("u_size");
         SpineShaderInit.SpineTexture = Shader3D.propertyNameToID("u_spineTexture");
         SpineShaderInit.SPINE_FAST = Shader3D.getDefineByName("SPINE_FAST");
         SpineShaderInit.SPINE_RB = Shader3D.getDefineByName("SPINE_RB");

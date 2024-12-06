@@ -195,12 +195,11 @@ export class Color implements IClone {
      * @zh 克隆颜色到目标对象。
      * @param destObject 目标克隆对象。
      */
-    cloneTo(destObject: any): void {
-        var destColor: Color = (<Color>destObject);
-        destColor.r = this.r;
-        destColor.g = this.g;
-        destColor.b = this.b;
-        destColor.a = this.a;
+    cloneTo(destObject: Color): void {
+        destObject.r = this.r;
+        destObject.g = this.g;
+        destObject.b = this.b;
+        destObject.a = this.a;
     }
 
     /**

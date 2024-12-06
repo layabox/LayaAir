@@ -337,6 +337,24 @@ export class BaseNavigationManager implements IElementComponentManager {
         surfaces.add(nav);
     }
 
+    /**
+     * remove NavMeshSurface
+     * @internal
+     * @param nav
+     */
+    public removeNavMeshSurface(nav: BaseNavMeshSurface) {
+        if (!nav) {
+            console.error("cannot remove empyt NavMeshSurface.");
+            return;
+        }
+        const agentType = nav.agentType;
+        let surfaces: SingletonList<BaseNavMeshSurface> = this._naveMeshMaps.get(agentType);
+        if (surfaces == null) {
+            return;
+        }
+        surfaces.remove(nav);
+    }
+
 
     /**
      * @en Get the corresponding NavMeshSurface based on a world position.

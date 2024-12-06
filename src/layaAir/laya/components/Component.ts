@@ -166,7 +166,7 @@ export class Component {
      */
     _setOwner(node: Node) {
         if (this._status != 0) {
-            throw 'reuse a destroyed component';
+            throw new Error('reuse a destroyed component');
         }
         this.owner = node;
 

@@ -45,7 +45,6 @@ import { ShaderData, ShaderDataType } from "../RenderDriver/DriverDesign/RenderD
  * Graphics is stored as a command stream and can be accessed through the cmds property. Graphics is a lighter object than Sprite, and proper use can improve application performance (for example, changing a large number of node drawings to a collection of Graphics commands of one node can reduce the consumption of creating a large number of nodes).
  * @zh Graphics 类用于创建绘图显示对象。Graphics可以同时绘制多个位图或者矢量图，还可以结合save，restore，transform，scale，rotate，translate，alpha等指令对绘图效果进行变化。
  * Graphics以命令流方式存储，可以通过cmds属性访问所有命令流。Graphics是比Sprite更轻量级的对象，合理使用能提高应用性能(比如把大量的节点绘图改为一个节点的Graphics命令集合，能减少大量节点创建消耗)。
- * @see laya.display.Sprite#graphics
  */
 export class Graphics {
 
@@ -65,26 +64,24 @@ export class Graphics {
     }
 
     /**
-     * @en Global shaderData
-     * @zh 全局着色器数据
+     * @deprecated 
+     * @en Global shaderData,deprecated  use Scene ShaderData replace
+     * @zh 全局着色器数据,请使用scene的ShaderData设置全局值
      */
-    static get globalShaderData() : ShaderData {
-        return Value2D.globalShaderData;
+    static get globalShaderData(): ShaderData {
+        return null;
     }
 
     /**@internal */
     _sp: Sprite | null = null;
     /**@internal */
     _render: (sprite: Sprite, context: Context, x: number, y: number) => void = this._renderEmpty;
-    /**@private */
     private _cmds: IGraphicCMD[] = [];
-    /**@private */
     protected _vectorgraphArray: any[] | null = null;
-    /**@private */
     private _graphicBounds: GraphicsBounds | null = null;
-
     private _material: Material;
 
+    /**@ignore */
     constructor() {
         this._createData();
     }
@@ -149,7 +146,7 @@ export class Graphics {
         }
     }
 
-    /**@private */
+    /** @ignore */
     _clearBoundsCache(onSizeChanged?: boolean): void {
         if (this._graphicBounds) {
             if (!onSizeChanged || this._graphicBounds._affectBySize)
@@ -176,7 +173,6 @@ export class Graphics {
     }
 
     /**@internal */
-    //TODO:coverage
     _isOnlyOne(): boolean {
         return this._cmds.length === 1;
     }
@@ -251,7 +247,6 @@ export class Graphics {
     }
 
     /**
-     * @private
      * @en Get the list of endpoints.
      * @param realSize (Optional) Use the real size of the image, default is false.
      * @returns An array of endpoint coordinates.
@@ -569,7 +564,6 @@ export class Graphics {
     }
 
     /**
-     * @private
      * @en Replace text color.
      * @param color The new color
      * @zh 替换文本颜色。

@@ -116,13 +116,12 @@ export class BoxShape extends BaseShape {
 	 * @zh 克隆到目标对象。
 	 * @param destObject 要克隆到的目标对象。
 	 */
-	cloneTo(destObject: any): void {
+	cloneTo(destObject: BoxShape): void {
 		super.cloneTo(destObject);
-		var destShape: BoxShape = (<BoxShape>destObject);
-		destShape.x = this.x;
-		destShape.y = this.y;
-		destShape.z = this.z;
-		destShape.randomDirection = this.randomDirection;
+		destObject.x = this.x;
+		destObject.y = this.y;
+		destObject.z = this.z;
+		destObject.randomDirection = this.randomDirection;
 	}
 
 	/**

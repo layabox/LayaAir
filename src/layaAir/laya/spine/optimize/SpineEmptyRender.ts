@@ -1,4 +1,5 @@
 import { BaseRenderNode2D } from "../../NodeRender2D/BaseRenderNode2D";
+import { Color } from "../../maths/Color";
 import { SpineTemplet } from "../SpineTemplet";
 import { TSpineBakeData } from "./SketonOptimise";
 import { ISpineOptimizeRender } from "./interface/ISpineOptimizeRender";
@@ -8,6 +9,9 @@ import { ISpineOptimizeRender } from "./interface/ISpineOptimizeRender";
  * @zh 空实现的渲染器，用于优化 Spine 动画的渲染。
  */
 export class SpineEmptyRender implements ISpineOptimizeRender{
+    getSpineColor(): Color {
+       return Color.WHITE;
+    }
     /**
      * @en Changes the skeleton.
      * @param skeleton The new spine skeleton.
@@ -15,7 +19,7 @@ export class SpineEmptyRender implements ISpineOptimizeRender{
      * @param skeleton 新的 Spine 骨骼。
      */
     changeSkeleton(skeleton: spine.Skeleton): void {
-        //throw new Error("Method not implemented.");
+        //throw new NotImplementedError();
     }
     /**
      * @en Singleton instance of SpineEmptyRender.
@@ -35,7 +39,7 @@ export class SpineEmptyRender implements ISpineOptimizeRender{
      * @param state Spine 动画状态。
      */
     init(skeleton: spine.Skeleton, templet: SpineTemplet, renderNode: BaseRenderNode2D, state: spine.AnimationState): void {
-        //throw new Error("Method not implemented.");
+        //throw new NotImplementedError();
     }
     /**
      * @en Plays the specified animation.
@@ -44,7 +48,7 @@ export class SpineEmptyRender implements ISpineOptimizeRender{
      * @param animationName 要播放的动画名称。
      */
     play(animationName: string): void {
-        //throw new Error("Method not implemented.");
+        //throw new NotImplementedError();
     }
     /**
      * @en Renders the spine animation.
@@ -53,7 +57,7 @@ export class SpineEmptyRender implements ISpineOptimizeRender{
      * @param time 当前渲染时间。
      */
     render(time: number): void {
-        //throw new Error("Method not implemented.");
+        //throw new NotImplementedError();
     }
     /**
      * @en Sets the skin index.
@@ -62,7 +66,7 @@ export class SpineEmptyRender implements ISpineOptimizeRender{
      * @param index 要设置的皮肤索引。
      */
     setSkinIndex(index: number): void {
-        //throw new Error("Method not implemented.");
+        //throw new NotImplementedError();
     }
     /**
      * @en Initializes bake data.
@@ -71,14 +75,14 @@ export class SpineEmptyRender implements ISpineOptimizeRender{
      * @param obj Spine 烘焙数据。
      */
     initBake(obj: TSpineBakeData): void {
-        //throw new Error("Method not implemented.");
+        //throw new NotImplementedError();
     }
     /**
      * @en Destroys the renderer.
      * @zh 销毁渲染器。
      */
     destroy(): void {
-        //throw new Error("Method not implemented.");
+        //throw new NotImplementedError();
     }
     
 }

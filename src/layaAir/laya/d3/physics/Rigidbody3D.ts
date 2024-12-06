@@ -1,10 +1,8 @@
-import { Component } from "../../components/Component";
 import { Vector3 } from "../../maths/Vector3";
 import { PhysicsColliderComponent, PhysicsForceMode } from "./PhysicsColliderComponent";
 import { Laya3D } from "../../../Laya3D";
 import { IDynamicCollider } from "../../Physics3D/interface/IDynamicCollider";
 import { Scene3D } from "../core/scene/Scene3D";
-import { Utils3D } from "../utils/Utils3D";
 import { Quaternion } from "../../maths/Quaternion";
 import { EColliderCapable } from "../../Physics3D/physicsEnum/EColliderCapable";
 import { EPhysicsCapable } from "../../Physics3D/physicsEnum/EPhycisCapable";
@@ -17,8 +15,6 @@ import { Event } from "../../events/Event";
 export class Rigidbody3D extends PhysicsColliderComponent {
     /**@internal */
     protected _collider: IDynamicCollider;
-    /** @internal */
-    private _btLayaMotionState: number;
     /** @internal */
     private _isKinematic = false;
     /** @internal */
@@ -275,15 +271,15 @@ export class Rigidbody3D extends PhysicsColliderComponent {
      */
     protected _onAdded(): void {
         super._onAdded();
+        this.gravity = this._gravity;
+        this.trigger = this._trigger;
+        this.isKinematic = this._isKinematic;
         this.mass = this._mass;
         this.linearFactor = this._linearFactor;
         this.angularFactor = this._angularFactor;
         this.linearDamping = this._linearDamping;
         this.linearVelocity = this._linearVelocity;
         this.angularDamping = this._angularDamping;
-        this.gravity = this._gravity;
-        this.trigger = this._trigger;
-        this.isKinematic = this._isKinematic;
     }
 
     /**
@@ -292,7 +288,6 @@ export class Rigidbody3D extends PhysicsColliderComponent {
      */
     protected _onDestroy() {
         super._onDestroy();
-        this._btLayaMotionState = null;
         this._gravity = null;
         this._linearVelocity = null;
         this._angularVelocity = null;
@@ -305,18 +300,17 @@ export class Rigidbody3D extends PhysicsColliderComponent {
      * @override
      * @internal
      */
-    _cloneTo(dest: Component): void {
+    _cloneTo(dest: Rigidbody3D): void {
         super._cloneTo(dest);
-        var destRigidbody3D: Rigidbody3D = (<Rigidbody3D>dest);
-        destRigidbody3D.isKinematic = this._isKinematic;
-        destRigidbody3D.mass = this._mass;
-        destRigidbody3D.gravity = this._gravity;
-        destRigidbody3D.angularDamping = this._angularDamping;
-        destRigidbody3D.linearDamping = this._linearDamping;
-        destRigidbody3D.linearVelocity = this._linearVelocity;
-        destRigidbody3D.angularVelocity = this._angularVelocity;
-        destRigidbody3D.linearFactor = this._linearFactor;
-        destRigidbody3D.angularFactor = this._angularFactor;
+        dest.isKinematic = this._isKinematic;
+        dest.mass = this._mass;
+        dest.gravity = this._gravity;
+        dest.angularDamping = this._angularDamping;
+        dest.linearDamping = this._linearDamping;
+        dest.linearVelocity = this._linearVelocity;
+        dest.angularVelocity = this._angularVelocity;
+        dest.linearFactor = this._linearFactor;
+        dest.angularFactor = this._angularFactor;
     }
 
     /**
@@ -417,43 +411,8 @@ export class Rigidbody3D extends PhysicsColliderComponent {
      * @param localOffset 受力点距离质点的偏移
      */
     applyForceXYZ(fx: number, fy: number, fz: number, localOffset: Vector3 = null): void {
-        Utils3D._tempV0.set(fx, fy, fz);
-        this.applyForce(Utils3D._tempV0, localOffset);
-    }
-
-
-    /**
-     * @deprecated
-     * @inheritDoc
-     * @override
-     * @internal
-     */
-    _parse(data: any): void {
-        (data.friction != null) && (this.friction = data.friction);
-        (data.rollingFriction != null) && (this.rollingFriction = data.rollingFriction);
-        (data.restitution != null) && (this.restitution = data.restitution);
-        (data.mass != null) && (this.mass = data.mass);
-        (data.linearDamping != null) && (this.linearDamping = data.linearDamping);
-        (data.angularDamping != null) && (this.angularDamping = data.angularDamping);
-
-        if (data.linearFactor != null) {
-            var linFac = this.linearFactor;
-            linFac.fromArray(data.linearFactor);
-            this.linearFactor = linFac;
-        }
-        if (data.angularFactor != null) {
-            var angFac = this.angularFactor;
-            angFac.fromArray(data.angularFactor);
-            this.angularFactor = angFac;
-        }
-
-        if (data.gravity) {
-            this.gravity.fromArray(data.gravity);
-            this.gravity = this.gravity;
-        }
-        super._parse(data);
-        this._parseShape(data.shapes);
-        (data.isKinematic != null) && (this.isKinematic = data.isKinematic);
+        _tempV0.set(fx, fy, fz);
+        this.applyForce(_tempV0, localOffset);
     }
 
     /**
@@ -487,4 +446,4 @@ export class Rigidbody3D extends PhysicsColliderComponent {
 
 }
 
-
+const _tempV0: Vector3 = new Vector3();

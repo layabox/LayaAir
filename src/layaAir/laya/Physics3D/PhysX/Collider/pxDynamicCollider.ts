@@ -2,10 +2,12 @@ import { PhysicsForceMode } from "../../../d3/physics/PhysicsColliderComponent";
 import { Quaternion } from "../../../maths/Quaternion";
 import { Vector3 } from "../../../maths/Vector3";
 import { IDynamicCollider } from "../../interface/IDynamicCollider";
+import { Physics3DStatInfo } from "../../interface/Physics3DStatInfo";
 import { EColliderCapable } from "../../physicsEnum/EColliderCapable";
+import { EPhysicsStatisticsInfo } from "../../physicsEnum/EPhysicsStatisticsInfo";
 import { pxPhysicsCreateUtil } from "../pxPhysicsCreateUtil";
 import { pxPhysicsManager } from "../pxPhysicsManager";
-import { pxCollider, pxColliderType } from "./pxCollider";
+import { pxActorFlag, pxCollider, pxColliderType } from "./pxCollider";
 
 /**
  * @en The collision detection mode constants.
@@ -108,6 +110,8 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
         this._dynamicCapableMap.set(EColliderCapable.Collider_AllowTrigger, true);
         this._dynamicCapableMap.set(EColliderCapable.Collider_CollisionGroup, true);
         this._dynamicCapableMap.set(EColliderCapable.Collider_Restitution, true);
+        this._dynamicCapableMap.set(EColliderCapable.Collider_Friction, false);
+        this._dynamicCapableMap.set(EColliderCapable.Collider_RollingFriction, false);
         this._dynamicCapableMap.set(EColliderCapable.Collider_DynamicFriction, true);
         this._dynamicCapableMap.set(EColliderCapable.Collider_StaticFriction, true);
         this._dynamicCapableMap.set(EColliderCapable.Collider_BounceCombine, true);
@@ -137,15 +141,22 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
         this._dynamicCapableMap.set(EColliderCapable.RigidBody_WorldOrientation, true);
     }
 
-    static _tempTranslation = new Vector3();
-
-    private static _tempRotation = new Quaternion();
-
     /**
      * @en Indicates whether the collider is kinematic.
      * @zh 表示碰撞体是否是运动学的。
      */
     IsKinematic: boolean = false;
+
+    private _mass: number = 1.0;
+    private _linearDamping: number = 0.0;
+    private _angularDamping: number = 0.0;
+    private _linearVelocity: Vector3 = new Vector3();
+    private _angularVelocity: Vector3 = new Vector3();
+    private _centerOfMass: Vector3 = new Vector3(0, 0, 0);
+    private _inertiaTensor: Vector3 = new Vector3(1, 1, 1);
+    private _sleepThreshold: number = 5e-3;
+    private _collisionDetectionMode: CollisionDetectionMode = CollisionDetectionMode.Discrete;
+    private _solverIterations: number = 4.0;
 
     /**
      * @en Create a pxDynamicCollider instance.
@@ -157,6 +168,7 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
         super(manager);
         this._enableProcessCollisions = true;
         this._type = pxColliderType.RigidbodyCollider;
+        Physics3DStatInfo.addStatisticsInfo(EPhysicsStatisticsInfo.C_PhysicaDynamicRigidBody, 1);
     }
 
     /**
@@ -178,13 +190,18 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
     protected _initColliderShapeByCollider() {
         super._initColliderShapeByCollider();
         this.setWorldTransform(true);
-        this.setTrigger(this._isTrigger);
-        this.setCenterOfMass(new Vector3());
-        this.setInertiaTensor(new Vector3(1, 1, 1));
-        this.setSolverIterations(4);
-        this.setIsKinematic(false);
-        this.setCollisionDetectionMode(CollisionDetectionMode.Discrete);
-        this.setSleepThreshold(5e-3);
+        this.setTrigger(this._isTrigger);// setTrigger会重置刚体的物理行为，需要重新设置质量等参数
+        this.setInertiaTensor(this._inertiaTensor);
+        this.setMass(this._mass);
+        this.setIsKinematic(this.IsKinematic);
+        this.setAngularDamping(this._angularDamping);
+        this.setAngularVelocity(this._angularVelocity);
+        this.setLinearDamping(this._linearDamping);
+        this.setLinearVelocity(this._linearVelocity);
+        this.setCenterOfMass(this._centerOfMass);
+        this.setCollisionDetectionMode(this._collisionDetectionMode);
+        this.setSolverIterations(this._solverIterations);
+        this.setSleepThreshold(this._sleepThreshold);
     }
 
     /**
@@ -195,8 +212,8 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
      */
     setWorldPosition(value: Vector3): void {
         const transform = this._pxActor.getGlobalPose();
-        pxDynamicCollider._tempRotation.setValue(transform.rotation.x, transform.rotation.y, transform.rotation.z, transform.rotation.w);
-        this._pxActor.setGlobalPose(this._transformTo(value, pxDynamicCollider._tempRotation), true);
+        _tempRotation.setValue(transform.rotation.x, transform.rotation.y, transform.rotation.z, transform.rotation.w);
+        this._pxActor.setGlobalPose(this._transformTo(value, _tempRotation), true);
     }
 
     /**
@@ -207,8 +224,8 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
      */
     setWorldRotation(value: Quaternion): void {
         const transform = this._pxActor.getGlobalPose();
-        pxDynamicCollider._tempTranslation.setValue(transform.translation.x, transform.translation.y, transform.translation.z);
-        this._pxActor.setGlobalPose(this._transformTo(pxDynamicCollider._tempTranslation, value), true);
+        _tempTranslation.setValue(transform.translation.x, transform.translation.y, transform.translation.z);
+        this._pxActor.setGlobalPose(this._transformTo(_tempTranslation, value), true);
     }
 
     /**
@@ -217,10 +234,10 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
      */
     getWorldTransform() {
         const transform = this._pxActor.getGlobalPose();
-        pxDynamicCollider._tempTranslation.set(transform.translation.x, transform.translation.y, transform.translation.z);
-        pxDynamicCollider._tempRotation.set(transform.rotation.x, transform.rotation.y, transform.rotation.z, transform.rotation.w);
-        this.owner.transform.position = pxDynamicCollider._tempTranslation;
-        this.owner.transform.rotation = pxDynamicCollider._tempRotation;
+        _tempTranslation.set(transform.translation.x, transform.translation.y, transform.translation.z);
+        _tempRotation.set(transform.rotation.x, transform.rotation.y, transform.rotation.z, transform.rotation.w);
+        this.owner.transform.position = _tempTranslation;
+        this.owner.transform.rotation = _tempRotation;
     }
 
     /**
@@ -241,6 +258,7 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
      * @param value 线性阻尼值。
      */
     setLinearDamping(value: number): void {
+        this._linearDamping = value;
         this._pxActor.setLinearDamping(value);
     }
 
@@ -251,6 +269,7 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
      * @param value 角度阻尼值。
      */
     setAngularDamping(value: number): void {
+        this._angularDamping = value;
         this._pxActor.setAngularDamping(value);
     }
 
@@ -261,6 +280,7 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
      * @param value 线性速度向量。
      */
     setLinearVelocity(value: Vector3): void {
+        this._linearVelocity = value;
         this._pxActor.setLinearVelocity(value, true);
     }
 
@@ -272,8 +292,8 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
      */
     getLinearVelocity(): Vector3 {
         let velocity = this._pxActor.getLinearVelocity();
-        pxDynamicCollider._tempTranslation.set(velocity.x, velocity.y, velocity.z);
-        return pxDynamicCollider._tempTranslation;
+        _tempTranslation.set(velocity.x, velocity.y, velocity.z);
+        return _tempTranslation;
     }
 
     /**
@@ -283,6 +303,7 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
      * @param value 角速度向量。
      */
     setAngularVelocity(value: Vector3): void {
+        this._angularVelocity = value;
         this._pxActor.setAngularVelocity(value, true);
     }
 
@@ -294,8 +315,9 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
      */
     getAngularVelocity(): Vector3 {
         let angVelocity = this._pxActor.getAngularVelocity();
-        pxDynamicCollider._tempTranslation.set(angVelocity.x, angVelocity.y, angVelocity.z);
-        return pxDynamicCollider._tempTranslation;
+        _tempTranslation.set(angVelocity.x, angVelocity.y, angVelocity.z);
+        this._angularVelocity.setValue(angVelocity.x, angVelocity.y, angVelocity.z);
+        return _tempTranslation;
     }
 
     /**
@@ -305,6 +327,8 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
      * @param value 质量值。
      */
     setMass(value: number): void {
+        value = Math.max(value, 1e-07);
+        this._mass = value;
         this._pxActor.setMassAndUpdateInertia(value);
     }
 
@@ -315,6 +339,7 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
      * @param value 质心向量。
      */
     setCenterOfMass(value: Vector3): void {
+        this._centerOfMass = value;
         this._pxActor.setCMassLocalPose(value);
     }
 
@@ -335,6 +360,7 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
      * @param value 睡眠阈值。
      */
     setSleepThreshold(value: number): void {
+        this._sleepThreshold = value;
         this._pxActor.setSleepThreshold(value);
     }
 
@@ -345,6 +371,7 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
      * @param value 碰撞检测模式。
      */
     setCollisionDetectionMode(value: number): void {
+        this._collisionDetectionMode = value;
         switch (value) {
             case CollisionDetectionMode.Continuous:
                 this._pxActor.setRigidBodyFlag(pxPhysicsCreateUtil._physX.PxRigidBodyFlag.eENABLE_CCD, true);
@@ -371,6 +398,7 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
      * @param value 求解器迭代次数。
      */
     setSolverIterations(value: number): void {
+        this._solverIterations = value;
         this._pxActor.setSolverIterationCounts(value, 1);
     }
 
@@ -387,6 +415,8 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
             if (this._isSimulate)
                 this._physicsManager._dynamicUpdateList.remove(this);
             this._pxActor.setRigidBodyFlag(pxPhysicsCreateUtil._physX.PxRigidBodyFlag.eKINEMATIC, true);
+            Physics3DStatInfo.addStatisticsInfo(EPhysicsStatisticsInfo.C_PhysicaKinematicRigidBody, 1);
+            Physics3DStatInfo.addStatisticsInfo(EPhysicsStatisticsInfo.C_PhysicaDynamicRigidBody, -1);
         } else {
             this._enableProcessCollisions = true;
             if (this._isSimulate && this.inPhysicUpdateListIndex == -1)
@@ -473,15 +503,27 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
             return;
         }
 
-        const tempTranslation = pxDynamicCollider._tempTranslation;
-        const tempRotation = pxDynamicCollider._tempRotation;
         this.getWorldTransform();
         if (positionOrRotation instanceof Vector3) {
-            this._pxActor.setKinematicTarget(positionOrRotation, tempRotation);
+            this._pxActor.setKinematicTarget(positionOrRotation, _tempRotation);
         } else {
-            this._pxActor.setKinematicTarget(tempTranslation, positionOrRotation);
+            this._pxActor.setKinematicTarget(_tempTranslation, positionOrRotation);
         }
     }
 
-
+    /**
+     * @en Destroy Rigidbody
+     * @zh 销毁刚体
+     */
+    destroy(): void {
+        if (this.IsKinematic) {
+            Physics3DStatInfo.addStatisticsInfo(EPhysicsStatisticsInfo.C_PhysicaKinematicRigidBody, -1);
+        } else {
+            Physics3DStatInfo.addStatisticsInfo(EPhysicsStatisticsInfo.C_PhysicaDynamicRigidBody, -1);
+        }
+        super.destroy();
+    }
 }
+
+const _tempRotation = new Quaternion();
+const _tempTranslation = new Vector3();

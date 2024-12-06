@@ -69,27 +69,9 @@ export class PointLightCom extends Light {
      * @override
      * @internal
      */
-    _parse(data: any, spriteMap: any): void {
-        super._parse(data, spriteMap);
-        this.range = data.range;
-    }
-    /**
-     * @inheritDoc
-     * @override
-     * @internal
-     */
     _cloneTo(dest: PointLightCom): void {
         super._cloneTo(dest);
-        var pointlight = dest as PointLightCom;
-        pointlight.range = this.range;
-        pointlight._lightType = LightType.Point;
+        dest.range = this.range;
+        dest._lightType = LightType.Point;
     }
-
-    /**
-     * @internal
-     */
-    protected _create(): Component {
-        return new PointLightCom();
-    }
-
 }

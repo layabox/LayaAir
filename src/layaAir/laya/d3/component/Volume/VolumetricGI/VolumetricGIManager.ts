@@ -135,6 +135,5 @@ export class VolumetricGIManager implements IVolumeManager {
      * @zh 销毁实例并释放资源。
      */
     destroy(): void {
-        // throw new Error("Method not implemented.");
     }
 }

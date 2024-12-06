@@ -95,11 +95,10 @@ export class MeshColliderShape extends Physics3DColliderShape {
 	 * @zh 将数据克隆到目标对象
 	 * @param destObject 目标对象。
 	 */
-	cloneTo(destObject: any): void {
-		var destMeshCollider: MeshColliderShape = (<MeshColliderShape>destObject);
-		destMeshCollider.convex = this._convex;
-		destMeshCollider._convexVertexMax = this._convexVertexMax;
-		destMeshCollider.mesh = this._mesh;
+	cloneTo(destObject: MeshColliderShape): void {
+		destObject.convex = this._convex;
+		destObject._convexVertexMax = this._convexVertexMax;
+		destObject.mesh = this._mesh;
 		super.cloneTo(destObject);
 	}
 

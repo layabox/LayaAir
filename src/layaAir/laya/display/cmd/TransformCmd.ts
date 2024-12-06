@@ -30,7 +30,6 @@ export class TransformCmd {
     pivotY: number;
 
     /**
-     * @private
      * @en Create a TransformCmd instance
      * @param matrix The transformation matrix
      * @param pivotX Horizontal axis point coordinates
@@ -60,7 +59,6 @@ export class TransformCmd {
     }
 
     /**
-     * @private
      * @en Execute the transform command
      * @param context The rendering context
      * @param gx Global X offset
@@ -75,7 +73,6 @@ export class TransformCmd {
     }
 
     /**
-     * @private
      * @en The identifier for the TransformCmd
      * @zh 矩阵变换命令的标识符
      */

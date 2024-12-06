@@ -108,10 +108,9 @@ export class Plane {
 	 * @zh 克隆平面到另一个对象。
      * @param destObject 克隆目标对象。
      */
-	cloneTo(destObject: any): void {
-		var dest: Plane = <Plane>destObject;
-		this.normal.cloneTo(dest.normal);
-		dest.distance = this.distance;
+	cloneTo(destObject: Plane): void {
+		this.normal.cloneTo(destObject.normal);
+		destObject.distance = this.distance;
 	}
 
     /**

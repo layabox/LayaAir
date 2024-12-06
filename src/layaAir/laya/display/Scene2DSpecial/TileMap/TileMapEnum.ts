@@ -31,9 +31,31 @@ export enum TileShape {
     TILE_SHAPE_HEXAGON,//六边形
 }
 
-export enum TileMap_CustomDataVariant{
-    Number,
-    Bool,
-    String,
-    Object,
+
+export enum TileLayerSortMode {
+    YSort,
+    ZINDEXSORT,
+    XSort
+}
+
+export enum TileMapDirtyFlag {
+    CELL_CHANGE = 1 << 0,//add remove create...
+    CELL_COLOR = 1 << 1,//a_color
+    CELL_QUAD = 1 << 2,//a_quad xy offset,zw extend
+    CELL_QUADUV = 1 << 3,//a_UV xy offset,zw extend
+    CELL_UVTRAN = 1 << 4,
+    CELL_PHYSICS = 1 << 5,
+    CELL_TERRAIN = 1 << 6,
+    CELL_LIGHTSHADOW = 1 << 7,
+    CELL_NAVIGATION = 1 << 8,
+    CELL_SORTCHANGE = 1 << 9,
+    TILESET_SAZE = 1 << 10,
+    LAYER_COLOR = 1 << 11,
+    LAYER_PHYSICS = 1 << 12,
+}
+
+export enum DirtyFlagType{
+    ALL = -1,
+    RENDER,
+    PHYSICS,
 }

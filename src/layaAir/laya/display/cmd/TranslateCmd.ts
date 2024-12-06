@@ -23,7 +23,6 @@ export class TranslateCmd {
     ty: number;
 
     /**
-     * @private
      * @en Create a TranslateCmd instance
      * @param tx The value to be added to the horizontal coordinate
      * @param ty The value to be added to the vertical coordinate
@@ -50,7 +49,6 @@ export class TranslateCmd {
     }
 
     /**
-     * @private
      * @en Execute the translate command
      * @param context The rendering context
      * @zh 执行位移命令
@@ -61,7 +59,6 @@ export class TranslateCmd {
     }
 
     /**
-     * @private
      * @en The identifier for the TranslateCmd
      * @zh 位移命令的标识符
      */

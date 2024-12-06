@@ -22,7 +22,6 @@ export enum RenderSpriteData {
 
 //系统自带渲染数据，不可忽视，如果不设置自定义Shader，将调用引擎本身的Shader
 export class Value2D {
-    static globalShaderData: ShaderData;
     protected static _cache: any[] = [];
     protected static _typeClass: any = [];
     static _compileDefine: IDefineDatas;
@@ -89,7 +88,6 @@ export class Value2D {
         Value2D._typeClass[type] = classT;
         Value2D._cache[type] = [];
         Value2D._cache[type]._length = 0;
-        Value2D.globalShaderData = LayaGL.renderDeviceFactory.createShaderData(null);
     }
 
     /**

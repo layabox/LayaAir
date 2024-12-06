@@ -57,7 +57,6 @@ export class DrawEllipseCmd implements IGraphicCMD {
 
 
     /**
-     * @private
      * @en Create a DrawEllipseCmd instance
      * @param x X-axis position of the ellipse center
      * @param y Y-axis position of the ellipse center
@@ -103,7 +102,6 @@ export class DrawEllipseCmd implements IGraphicCMD {
     }
 
     /**
-     * @private
      * @en Execute the draw ellipse command
      * @param context The rendering context
      * @param gx Global X offset
@@ -126,7 +124,6 @@ export class DrawEllipseCmd implements IGraphicCMD {
     }
 
     /**
-     * @private
      * @en The identifier for the DrawEllipseCmd
      * @zh 绘制椭圆命令的标识符
      */

@@ -153,10 +153,9 @@ export class GradientDataNumber implements IClone {
 	 * @zh 克隆到目标对象。
 	 * @param destObject 要克隆到的目标对象。
 	 */
-	cloneTo(destObject: any): void {
-		var destGradientDataNumber: GradientDataNumber = <GradientDataNumber>destObject;
-		destGradientDataNumber._currentLength = this._currentLength;
-		var destElements: Float32Array = destGradientDataNumber._elements;
+	cloneTo(destObject: GradientDataNumber): void {
+		destObject._currentLength = this._currentLength;
+		var destElements: Float32Array = destObject._elements;
 		for (var i: number = 0, n: number = this._elements.length; i < n; i++)
 			destElements[i] = this._elements[i];
 	}

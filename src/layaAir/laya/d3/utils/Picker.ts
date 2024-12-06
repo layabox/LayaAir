@@ -11,12 +11,6 @@ import { Ray } from "../math/Ray"
  * @zh Picker 类用于创建拾取。
  */
 export class Picker {
-	private static _tempVector30: Vector3 = new Vector3();
-	private static _tempVector31: Vector3 = new Vector3();
-	private static _tempVector32: Vector3 = new Vector3();
-	private static _tempVector33: Vector3 = new Vector3();
-	private static _tempVector34: Vector3 = new Vector3();
-
 	/** @ignore */
 	constructor() {
 	}
@@ -42,20 +36,20 @@ export class Picker {
 		var x: number = point.x;
 		var y: number = point.y;
 
-		var nearSource: Vector3 = Picker._tempVector30;
+		var nearSource: Vector3 = _tempVector30;
 		var nerSourceE: Vector3 = nearSource;
 		nerSourceE.x = x;
 		nerSourceE.y = y;
 		nerSourceE.z = viewPort.minDepth;
 
-		var farSource: Vector3 = Picker._tempVector31;
+		var farSource: Vector3 = _tempVector31;
 		var farSourceE: Vector3 = farSource;
 		farSourceE.x = x;
 		farSourceE.y = y;
 		farSourceE.z = viewPort.maxDepth;
 
 		var nearPoint: Vector3 = out.origin;
-		var farPoint: Vector3 = Picker._tempVector32;
+		var farPoint: Vector3 = _tempVector32;
 
 		viewPort.unprojectFromWVP(nearSource, projectionMatrix, viewMatrix, world, nearPoint);
 		viewPort.unprojectFromWVP(farSource, projectionMatrix, viewMatrix, world, farPoint);
@@ -85,13 +79,13 @@ export class Picker {
 
 		var result: number;
 		// Compute vectors along two edges of the triangle.
-		var edge1: Vector3 = Picker._tempVector30, edge2: Vector3 = Picker._tempVector31;
+		var edge1: Vector3 = _tempVector30, edge2: Vector3 = _tempVector31;
 
 		Vector3.subtract(vertex2, vertex1, edge1);
 		Vector3.subtract(vertex3, vertex1, edge2);
 
 		// Compute the determinant.
-		var directionCrossEdge2: Vector3 = Picker._tempVector32;
+		var directionCrossEdge2: Vector3 = _tempVector32;
 		Vector3.cross(ray.direction, edge2, directionCrossEdge2);
 
 		var determinant: number;
@@ -106,7 +100,7 @@ export class Picker {
 		var inverseDeterminant: number = 1.0 / determinant;
 
 		// Calculate the U parameter of the intersection point.
-		var distanceVector: Vector3 = Picker._tempVector33;
+		var distanceVector: Vector3 = _tempVector33;
 		Vector3.subtract(ray.origin, vertex1, distanceVector);
 
 		var triangleU: number;
@@ -120,7 +114,7 @@ export class Picker {
 		}
 
 		// Calculate the V parameter of the intersection point.
-		var distanceCrossEdge1: Vector3 = Picker._tempVector34;
+		var distanceCrossEdge1: Vector3 = _tempVector34;
 		Vector3.cross(distanceVector, edge1, distanceCrossEdge1);
 
 		var triangleV: number;
@@ -173,4 +167,8 @@ export class Picker {
 	}
 }
 
-
+const _tempVector30: Vector3 = new Vector3();
+const _tempVector31: Vector3 = new Vector3();
+const _tempVector32: Vector3 = new Vector3();
+const _tempVector33: Vector3 = new Vector3();
+const _tempVector34: Vector3 = new Vector3();

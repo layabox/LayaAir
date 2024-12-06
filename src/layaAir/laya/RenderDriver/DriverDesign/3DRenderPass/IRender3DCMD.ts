@@ -2,6 +2,7 @@ import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
 import { Color } from "../../../maths/Color";
 import { Vector4 } from "../../../maths/Vector4";
 import { Viewport } from "../../../maths/Viewport";
+import { NotImplementedError } from "../../../utils/Error";
 import { IBaseRenderNode } from "../../RenderModuleData/Design/3D/I3DRenderModuleData";
 import { IRenderCMD, RenderCMDType } from "../RenderDevice/IRenderCMD";
 import { InternalRenderTarget } from "../RenderDevice/InternalRenderTarget";
@@ -66,7 +67,7 @@ export class DrawNodeCMDData implements IRender3DCMD {
     }
 
     apply(context: IRenderContext3D): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 }
 
@@ -138,7 +139,7 @@ export class BlitQuadCMDData implements IRender3DCMD {
     }
 
     apply(context: IRenderContext3D): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 }
 
@@ -150,11 +151,11 @@ export class DrawElementCMDData implements IRender3DCMD {
     type: RenderCMDType;
 
     setRenderelements(value: IRenderElement3D[]): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     apply(context: IRenderContext3D): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 }
 
@@ -186,7 +187,7 @@ export class SetViewportCMD implements IRender3DCMD {
     }
 
     apply(context: IRenderContext3D): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 }
 
@@ -248,7 +249,7 @@ export class SetRenderTargetCMD implements IRender3DCMD {
     }
 
     apply(context: IRenderContext3D): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 }
 

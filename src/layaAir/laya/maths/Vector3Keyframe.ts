@@ -57,20 +57,19 @@ export class Vector3Keyframe extends Keyframe {
 	/**
 	* @override
 	* @en Clone
-	* @param destObject The target object to clone to.
+	* @param dest The target object to clone to.
 	* @zh 克隆
-	* @param destObject 克隆源。
+	* @param dest 克隆源。
 	*/
-	cloneTo(dest: any): void {
+	cloneTo(dest: Vector3Keyframe): void {
 		super.cloneTo(dest);
-		var destKeyFarme: Vector3Keyframe = (<Vector3Keyframe>dest);
-		this.inTangent.cloneTo(destKeyFarme.inTangent);
-		this.outTangent.cloneTo(destKeyFarme.outTangent);
-		this.value.cloneTo(destKeyFarme.value);
+		this.inTangent.cloneTo(dest.inTangent);
+		this.outTangent.cloneTo(dest.outTangent);
+		this.value.cloneTo(dest.value);
 		if (this.weightedMode) {
-			this.inWeight.cloneTo(destKeyFarme.inWeight);
-			this.outWeight.cloneTo(destKeyFarme.outWeight);
-			this.weightedMode.cloneTo(destKeyFarme.weightedMode);
+			this.inWeight.cloneTo(dest.inWeight);
+			this.outWeight.cloneTo(dest.outWeight);
+			this.weightedMode.cloneTo(dest.weightedMode);
 		}
 
 	}

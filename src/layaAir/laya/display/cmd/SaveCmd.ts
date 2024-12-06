@@ -15,7 +15,6 @@ export class SaveCmd {
 
 
     /**
-     * @private
      * @en Create a SaveCmd instance
      * @returns SaveCmd instance
      * @zh 创建一个存储命令实例
@@ -37,7 +36,6 @@ export class SaveCmd {
     }
 
     /**
-     * @private
      * @en Execute the save command
      * @param context The rendering context
      * @zh 执行存储命令
@@ -48,7 +46,6 @@ export class SaveCmd {
     }
 
     /**
-     * @private
      * @en The identifier for the SaveCmd
      * @zh 存储命令的标识符
      */

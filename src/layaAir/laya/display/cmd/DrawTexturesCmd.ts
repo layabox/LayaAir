@@ -31,7 +31,6 @@ export class DrawTexturesCmd {
     colors: number[];
 
     /**
-     * @private
      * @en Create a DrawTexturesCmd instance
      * @param texture The texture to be drawn
      * @param pos Drawing times and coordinates
@@ -64,7 +63,6 @@ export class DrawTexturesCmd {
     }
 
     /**
-     * @private
      * @en Execute the drawing textures command
      * @param context The rendering context
      * @param gx Global X offset
@@ -79,7 +77,6 @@ export class DrawTexturesCmd {
     }
 
     /**
-     * @private
      * @en The identifier for the DrawTexturesCmd
      * @zh 根据坐标集合绘制多个贴图命令的标识符
      */

@@ -267,7 +267,7 @@ export class AnimatorControllerLayer implements IClone {
     addState(state: AnimatorState): void {
         var stateName: string = state.name;
         if (this.getAnimatorState(stateName)) {
-            throw "AnimatorControllerLayer:this stat's name has exist.";
+            throw new Error("AnimatorControllerLayer:this stat's name has exist.");
         } else {
             this._states.push(state);
             if (stateName == this._defaultStateNameCatch) {
@@ -319,13 +319,12 @@ export class AnimatorControllerLayer implements IClone {
      * @zh 将此AnimatorControllerLayer的属性克隆到另一个对象。
      * @param destObject 要克隆到的目标对象。
      */
-    cloneTo(destObject: any): void {
-        var dest: AnimatorControllerLayer = (<AnimatorControllerLayer>destObject);
-        dest.name = this.name;
-        dest.blendingMode = this.blendingMode;
-        dest.defaultWeight = this.defaultWeight;
-        dest.playOnWake = this.playOnWake;
-        this.avatarMask && (dest.avatarMask = this._avatarMask.clone());
+    cloneTo(destObject: AnimatorControllerLayer): void {
+        destObject.name = this.name;
+        destObject.blendingMode = this.blendingMode;
+        destObject.defaultWeight = this.defaultWeight;
+        destObject.playOnWake = this.playOnWake;
+        this.avatarMask && (destObject.avatarMask = this._avatarMask.clone());
     }
 
     /**

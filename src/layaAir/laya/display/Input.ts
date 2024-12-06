@@ -1,50 +1,26 @@
 import { Text } from "./Text";
 import { Event } from "../events/Event"
-import { Matrix } from "../maths/Matrix"
 import { ILaya } from "../../ILaya";
 import { LayaEnv } from "../../LayaEnv";
 import { InputManager } from "../events/InputManager";
 import { Render } from "../renders/Render";
-import { Config } from "../../Config";
 import { SpriteUtils } from "../utils/SpriteUtils";
 import { SerializeUtil } from "../loaders/SerializeUtil";
-
-/**
- * @en Dispatched when one or more text characters are input by the user.
- * @zh 当用户输入一个或多个文本字符时后调度。
- * @eventType Event.INPUT
- * */
-/*[Event(name = "input", type = "laya.events.Event")]*/
-/**
- * @en Dispatched after the text has changed.
- * @zh 文本发生变化后调度。
- * @eventType Event.CHANGE
- * */
-/*[Event(name = "change", type = "laya.events.Event")]*/
-/**
- * @en Dispatched when the user presses the Enter key in the input field.
- * @zh 用户在输入框内敲回车键后，将会调度 enter 事件。
- * @eventType Event.ENTER
- * */
-/*[Event(name = "enter", type = "laya.events.Event")]*/
-/**
- * @en Dispatched when the display object receives focus.
- * @zh 显示对象获得焦点后调度。
- * @eventType Event.FOCUS
- * */
-/*[Event(name = "focus", type = "laya.events.Event")]*/
-/**
- * @en Dispatched when the display object loses focus.
- * @zh 显示对象失去焦点后调度。
- * @eventType Event.BLUR
- * */
-/*[Event(name = "blur", type = "laya.events.Event")]*/
-
 /**
  * @en The Input class is used to create display objects to display and input text.
  * The Input class encapsulates the native text input box. Due to differences between browsers, there may be slight deviations between the position of the default text of this object and the position of the text when the user clicks to input.
+ * - Event.INPUT: Dispatched when one or more text characters are input by the user.
+ * - Event.CHANGE: Dispatched after the text has changed.
+ * - Event.ENTER: Dispatched when the user presses the Enter key in the input field.
+ * - Event.FOCUS: Dispatched when the display object receives focus.
+ * - Event.BLUR: Dispatched when the display object loses focus.
  * @zh Input 类用于创建显示对象以显示和输入文本。
  * Input 类封装了原生的文本输入框，由于不同浏览器的差异，会导致此对象的默认文本的位置与用户点击输入时的文本的位置有少许的偏差。
+ * - Event.INPUT: 当用户输入一个或多个文本字符时后调度。
+ * - Event.CHANGE: 文本发生变化后调度。
+ * - Event.ENTER: 用户在输入框内敲回车键后，将会调度 enter 事件。
+ * - Event.FOCUS: 显示对象获得焦点后调度。
+ * - Event.BLUR: 显示对象失去焦点后调度。
  */
 export class Input extends Text {
     /**
@@ -119,17 +95,11 @@ export class Input extends Text {
      */
     static TYPE_SEARCH: string = "search";
 
-    /**@private */
     protected static input: HTMLInputElement;
-    /**@private */
     protected static area: HTMLTextAreaElement;
-    /**@private */
     protected static inputElement: HTMLInputElement | HTMLTextAreaElement;
-    /**@private */
     protected static inputContainer: HTMLDivElement;
-    /**@private */
     protected static confirmButton: any;
-    /**@private */
     protected static promptStyleDOM: any;
 
     protected _focus: boolean;
@@ -142,7 +112,6 @@ export class Input extends Text {
     private _type: string = "text";
 
     /**
-     * @private
      * @en Indicates whether the application is running in an iframe on iOS.
      * @zh 指示应用程序是否在iOS的iframe中运行。
      */
@@ -182,7 +151,10 @@ export class Input extends Text {
         }
     }
 
-    // 移动平台在单击事件触发后弹出输入法
+    /**
+     * @en Pop up the input method on mobile platforms after clicking the event.
+     * @zh 移动平台单击事件触发后弹出输入法。
+     */
     private static _popupInputMethod(e: any): void {
         //e.preventDefault();
         if (!InputManager.isTextInputting) return;
@@ -301,7 +273,8 @@ export class Input extends Text {
         this.focus = true;
     }
     /**
-     * 在输入期间，如果 Input 实例的位置改变，调用_syncInputTransform同步输入框的位置。
+     * @en Sync the position of the input box when the Input instance changes during input.
+     * @zh 在输入期间，如果 Input 实例的位置改变，调用_syncInputTransform同步输入框的位置。
      */
     private _syncInputTransform(): void {
         var inputElement = this.nativeInput;
@@ -441,7 +414,10 @@ export class Input extends Text {
             ILaya.systemTimer.frameLoop(1, this, this._syncInputTransform);
     }
 
-    // 设置DOM输入框提示符颜色。
+    /**
+     * @en Set the prompt color of DOM input box.
+     * @zh 设置DOM输入框提示符颜色。
+     */
     private _setPromptColor(): void {
         // 创建style标签
         Input.promptStyleDOM = ILaya.Browser.getElementById("promptStyle");
@@ -455,7 +431,6 @@ export class Input extends Text {
         Input.promptStyleDOM.innerText = "input::-webkit-input-placeholder, textarea::-webkit-input-placeholder {" + "color:" + this._promptColor + "}" + "input:-moz-placeholder, textarea:-moz-placeholder {" + "color:" + this._promptColor + "}" + "input::-moz-placeholder, textarea::-moz-placeholder {" + "color:" + this._promptColor + "}" + "input:-ms-input-placeholder, textarea:-ms-input-placeholder {" + "color:" + this._promptColor + "}";
     }
 
-    /**@private */
     private _focusOut(): void {
         if (!InputManager.isTextInputting) return;
         if (!InputManager.isiOSWKwebView)
@@ -476,7 +451,6 @@ export class Input extends Text {
         ILaya.Browser.onPC && ILaya.systemTimer.clear(this, this._syncInputTransform);
     }
 
-    /**@private */
     private _onKeyDown(e: any): void {
         if (e.keyCode === 13) {
             // 移动平台单行输入状态下点击回车收回输入法。 
@@ -501,8 +475,6 @@ export class Input extends Text {
     }
 
     /**
-     * @inheritDoc
-     * @override
      * @en The text content of the input field.
      * @zh 输入框的文本内容。
      */
@@ -532,8 +504,6 @@ export class Input extends Text {
     }
 
     /**
-     * @inheritDoc
-     * @override
      * @en Set the color of the input text.
      * @zh 设置输入文本的颜色。
      */
@@ -545,8 +515,6 @@ export class Input extends Text {
     }
 
     /**
-     * @inheritDoc
-     * @override
      * @en The background color of the input text.
      * @zh 输入文本的背景颜色。
      */

@@ -1,14 +1,12 @@
 
 import { Component } from "../../../components/Component";
 import { NodeFlags } from "../../../Const";
-import { Loader } from "../../../net/Loader";
 import { Stat } from "../../../utils/Stat";
 import { AnimationClip } from "../../animation/AnimationClip";
 import { AnimatorStateScript } from "../../animation/AnimatorStateScript";
 import { KeyframeNode } from "../../animation/KeyframeNode";
 import { KeyframeNodeList } from "../../animation/KeyframeNodeList";
 import { Material } from "../../../resource/Material";
-import { RenderableSprite3D } from "../../core/RenderableSprite3D";
 import { Sprite3D } from "../../core/Sprite3D";
 import { Utils3D } from "../../utils/Utils3D";
 import { AnimatorControllerLayer } from "./AnimatorControllerLayer";
@@ -27,6 +25,7 @@ import { Vector3 } from "../../../maths/Vector3";
 import { Vector4 } from "../../../maths/Vector4";
 import { AnimatorUpdateMode } from "../../../components/AnimatorUpdateMode";
 import { AnimatorStateCondition } from "../../../components/AnimatorStateCondition";
+import { Delegate } from "../../../utils/Delegate";
 
 export type AnimatorParams = { [key: number]: number | boolean };
 
@@ -36,13 +35,6 @@ export type AnimatorParams = { [key: number]: number | boolean };
  * @zh `Animator` 类用于创建3D动画组件。
  */
 export class Animator extends Component {
-    /**@internal */
-    private static _tempVector31: Vector3 = new Vector3();
-    /**@internal */
-    private static _tempColor: Color = new Color();
-    /**@internal */
-    private static _tempQuaternion1: Quaternion = new Quaternion();
-
     /**
      * @en Culling mode: Always animate.
      * @zh 裁剪模式：始终播放动画。
@@ -78,8 +70,6 @@ export class Animator extends Component {
     _linkAvatarSpritesData: any = {};
     /**@internal */
     _linkAvatarSprites: Sprite3D[] = [];
-    /**@internal */
-    _renderableSprites: RenderableSprite3D[] = [];
 
     /**	
      * @en Culling mode，By default, when set to invisible, the animation will not play at all.
@@ -99,6 +89,8 @@ export class Animator extends Component {
     _animationNodeParentIndices: Int16Array;
     /**@internal */
     private _finishSleep: boolean = false;
+
+    private _LateUpdateEvents: Delegate = new Delegate();
 
     /**
      * @internal
@@ -346,10 +338,18 @@ export class Animator extends Component {
      * @returns 
      */
     private _applyTransition(state: AnimatorState, layerindex: number, transition: AnimatorTransition) {
-        if (!transition || transition == state.curTransition)
+        if (!transition) {
+            if (state.curTransition)
+                state.curTransition = null;
+            return;
+        }
+
+        if (transition == state.curTransition)
             return;
         state.curTransition = transition;
-        this.crossFade(transition.destState.name, transition.transduration, layerindex, transition.transstartoffset);
+
+        this._LateUpdateEvents.add(this.crossFade, this, [transition.destState.name, transition.transduration, layerindex, transition.transstartoffset]);
+        //this.crossFade(transition.destState.name, transition.transduration, layerindex, transition.transstartoffset);
     }
 
     /**
@@ -663,10 +663,9 @@ export class Animator extends Component {
     private _applyRotation(nodeOwner: KeyframeNodeOwner, additive: boolean, weight: number, isFirstLayer: boolean, clipRot: Quaternion, localRotation: Quaternion): void {
         if (nodeOwner.updateMark === this._updateMark) {//一定非第一层
             if (additive) {
-                var tempQuat: Quaternion = Animator._tempQuaternion1;//使用临时四元数_tempQuaternion1，避免引用错乱
-                Utils3D.quaternionWeight(clipRot, weight, tempQuat);
-                tempQuat.normalize(tempQuat);
-                Quaternion.multiply(localRotation, tempQuat, localRotation);
+                Utils3D.quaternionWeight(clipRot, weight, _tempQuaternion1);
+                _tempQuaternion1.normalize(_tempQuaternion1);
+                Quaternion.multiply(localRotation, _tempQuaternion1, localRotation);
             } else {
                 Quaternion.lerp(localRotation, clipRot, weight, localRotation);
             }
@@ -684,10 +683,9 @@ export class Animator extends Component {
             } else {
                 defaultRot = nodeOwner.defaultValue;
                 if (additive) {
-                    tempQuat = Animator._tempQuaternion1;
-                    Utils3D.quaternionWeight(clipRot, weight, tempQuat);
-                    tempQuat.normalize(tempQuat);
-                    Quaternion.multiply(defaultRot, tempQuat, localRotation);
+                    Utils3D.quaternionWeight(clipRot, weight, _tempQuaternion1);
+                    _tempQuaternion1.normalize(_tempQuaternion1);
+                    Quaternion.multiply(defaultRot, _tempQuaternion1, localRotation);
                 } else {
                     Quaternion.lerp(defaultRot, clipRot, weight, localRotation);
                 }
@@ -701,11 +699,10 @@ export class Animator extends Component {
     private _applyScale(nodeOwner: KeyframeNodeOwner, additive: boolean, weight: number, isFirstLayer: boolean, clipSca: Vector3, localScale: Vector3): void {
         if (nodeOwner.updateMark === this._updateMark) {//一定非第一层
             if (additive) {
-                var scale: Vector3 = Animator._tempVector31;
-                Utils3D.scaleWeight(clipSca, weight, scale);
-                localScale.x = localScale.x * scale.x;
-                localScale.y = localScale.y * scale.y;
-                localScale.z = localScale.z * scale.z;
+                Utils3D.scaleWeight(clipSca, weight, _tempVector31);
+                localScale.x = localScale.x * _tempVector31.x;
+                localScale.y = localScale.y * _tempVector31.y;
+                localScale.z = localScale.z * _tempVector31.z;
             } else {
                 Utils3D.scaleBlend(localScale, clipSca, weight, localScale);
             }
@@ -724,11 +721,10 @@ export class Animator extends Component {
             } else {
                 defaultSca = nodeOwner.defaultValue;
                 if (additive) {
-                    scale = Animator._tempVector31;
-                    Utils3D.scaleWeight(clipSca, weight, scale);
-                    localScale.x = defaultSca.x * scale.x;
-                    localScale.y = defaultSca.y * scale.y;
-                    localScale.z = defaultSca.z * scale.z;
+                    Utils3D.scaleWeight(clipSca, weight, _tempVector31);
+                    localScale.x = defaultSca.x * _tempVector31.x;
+                    localScale.y = defaultSca.y * _tempVector31.y;
+                    localScale.z = defaultSca.z * _tempVector31.z;
                 } else {
                     Utils3D.scaleBlend(defaultSca, clipSca, weight, localScale);
                 }
@@ -1229,18 +1225,17 @@ export class Animator extends Component {
                                     break;
                             }
                             value = proPat[m];
-                            let tempColor = Animator._tempColor;
-                            tempColor.r = nodeOwner.defaultValue.x;
-                            tempColor.g = nodeOwner.defaultValue.y;
-                            tempColor.b = nodeOwner.defaultValue.z;
-                            tempColor.a = nodeOwner.defaultValue.w;
+                            _tempColor.r = nodeOwner.defaultValue.x;
+                            _tempColor.g = nodeOwner.defaultValue.y;
+                            _tempColor.b = nodeOwner.defaultValue.z;
+                            _tempColor.a = nodeOwner.defaultValue.w;
                             if (!nodeOwner.isMaterial) {
-                                pro && (pro[value] = tempColor);
+                                pro && (pro[value] = _tempColor);
                                 if (nodeOwner.callbackFun) {
                                     nodeOwner.animatorDataSetCallBack();
                                 }
                             } else {
-                                pro && pro.getColor(value) && (pro as Material).setColor(value, tempColor);
+                                pro && pro.getColor(value) && (pro as Material).setColor(value, _tempColor);
                             }
                             break;
                         default:
@@ -1329,58 +1324,6 @@ export class Animator extends Component {
     }
 
     /**
-     * @inheritDoc
-     * @internal
-     * @override
-     */
-    _parse(data: any): void {
-        var play: any = data.playOnWake;
-        var layersData: any[] = data.layers;
-        for (var i: number = 0; i < layersData.length; i++) {
-            var layerData: any = layersData[i];
-            var animatorLayer: AnimatorControllerLayer = new AnimatorControllerLayer(layerData.name);
-            if (i === 0)
-                animatorLayer.defaultWeight = 1.0;//TODO:
-            else
-                animatorLayer.defaultWeight = layerData.weight;
-
-            var blendingModeData: any = layerData.blendingMode;
-            (blendingModeData) && (animatorLayer.blendingMode = blendingModeData);
-            this.addControllerLayer(animatorLayer);
-            var states: any[] = layerData.states;
-            for (var j: number = 0, m: number = states.length; j < m; j++) {
-                var state: any = states[j];
-                var clipPath: string = state.clipPath;
-                if (clipPath) {
-                    var name: string = state.name;
-                    var motion: AnimationClip;
-                    motion = Loader.getRes(clipPath);
-                    if (motion) {//加载失败motion为空
-                        var animatorState: AnimatorState = new AnimatorState();
-                        animatorState.name = name;
-                        animatorState.clip = motion;
-                        state.speed && (animatorState.speed = state.speed);
-                        animatorLayer.addState(animatorState);
-                        (j === 0) && (this.getControllerLayer(i).defaultState = animatorState);
-                    }
-                }
-            }
-            (play !== undefined) && (animatorLayer.playOnWake = play);
-            //avatarMask
-            let layerMaskData = layerData.avatarMask;
-            if (layerMaskData) {
-                let avaMask = new AvatarMask();
-                animatorLayer.avatarMask = avaMask;
-                for (var bips in layerMaskData) {
-                    avaMask.setTransformActive(bips, layerMaskData[bips]);
-                }
-            }
-        }
-        var cullingModeData: any = data.cullingMode;
-        (cullingModeData !== undefined) && (this.cullingMode = cullingModeData);
-    }
-
-    /**
      * @internal
      * @perfTag PerformanceDefine.T_AnimatorUpdate
      */
@@ -1431,6 +1374,7 @@ export class Animator extends Component {
                     var crossScale: number = (crossDuratuion > crossClipDuration && 0 != crossClipDuration) ? crossClipDuration / crossDuratuion : 1.0;//如果过度时间大于过度动作时间,则减慢速度
                     var crossSpeed: number = this._speed * crossState.speed;
                     this._updatePlayer(crossState, crossPlayStateInfo, delta * crossScale * crossSpeed, crossClip.islooping, i);
+
                     var crossWeight: number = ((crossPlayStateInfo._elapsedTime - startPlayTime) / crossScale) / crossDuratuion;
                     var needUpdateFinishcurrentState = false;
                     if (crossWeight >= 1.0) {
@@ -1489,28 +1433,29 @@ export class Animator extends Component {
                     break;
             }
         }
+        this._LateUpdateEvents.invoke();
+        this._LateUpdateEvents.clear();
     }
 
     /**
      * @internal
      * @override
      */
-    _cloneTo(dest: Component): void {
-        var animator: Animator = (<Animator>dest);
-        animator.cullingMode = this.cullingMode;
+    _cloneTo(dest: Animator): void {
+        dest.cullingMode = this.cullingMode;
 
         for (var i: number = 0, n: number = this._controllerLayers.length; i < n; i++) {
             var controllLayer: AnimatorControllerLayer = this._controllerLayers[i];
-            animator.addControllerLayer(controllLayer.clone());
+            dest.addControllerLayer(controllLayer.clone());
             var animatorStates: AnimatorState[] = controllLayer._states;
             for (var j: number = 0, m: number = animatorStates.length; j < m; j++) {
                 var state: AnimatorState = animatorStates[j].clone();
-                var cloneLayer: AnimatorControllerLayer = animator.getControllerLayer(i);
+                var cloneLayer: AnimatorControllerLayer = dest.getControllerLayer(i);
                 cloneLayer.addState(state);
                 (j == 0) && (cloneLayer.defaultState = state);
             }
         }
-        animator.controller = this._controller
+        dest.controller = this._controller;
     }
 
     /**
@@ -1646,6 +1591,7 @@ export class Animator extends Component {
      * @param	normalizedTime 归一化的播放起始时间。
      */
     crossFade(name: string, transitionDuration: number, layerIndex: number = 0, normalizedTime: number = Number.NEGATIVE_INFINITY): void {
+        //console.log("name:" + name + "," + "transitionDuration" + transitionDuration + "," + "layerIndex" + layerIndex);
         var controllerLayer = this._controllerLayers[layerIndex];
         if (controllerLayer) {
             var destAnimatorState = controllerLayer.getAnimatorState(name);
@@ -1854,4 +1800,6 @@ export class Animator extends Component {
     }
 }
 
-
+const _tempVector31: Vector3 = new Vector3();
+const _tempColor: Color = new Color();
+const _tempQuaternion1: Quaternion = new Quaternion();

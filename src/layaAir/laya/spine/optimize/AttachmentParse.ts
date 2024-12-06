@@ -93,6 +93,12 @@ export class AttachmentParse {
     isNormalRender: boolean = false;
 
     /**
+     * @en The number of bones that affect a vertex.
+     * @zh 影响一个顶点的最大骨骼数。
+     */
+    vertexBones:number = 0;
+
+    /**
      * @en Initializes the attachment parser with the given parameters.
      * @param attachment The spine attachment to parse.
      * @param boneIndex The index of the bone.
@@ -163,22 +169,24 @@ export class AttachmentParse {
                 let bones = mesh.bones;
                 let v = 0;
                 let needPoint = (vside - 6) / 4;
+                this.vertexBones = needPoint;
+
                 for (let w = 0, b = 0; w < vertexSize; w++) {
                     let n = bones[v++];
                     n += v;
+                    let result = [];
                     let offset = w * this.stride;
                     let nid = 0;
 
-                    let result = [];
                     for (; v < n; v++, b += 3, nid++) {
                         result.push([vertices[b], vertices[b + 1], vertices[b + 2], bones[v]]);
                         // if(boneMap.indexOf(bones[v]) == -1){
                         //     boneMap.push(bones[v]);
                         // }
                     }
-                    // console.log(boneMap);
+
                     if(result.length > needPoint) {
-                        console.error(`The max number of bones (${needPoint}) that can affect a vertex in FastRender mode. `);
+                        this.vertexBones = Math.max(this.vertexBones ,result.length);
                         result.length = needPoint;
                         this.isNormalRender = true;
                     }

@@ -9,8 +9,6 @@ import { Vector4 } from "./Vector4";
  */
 export class Viewport {
 	/** @internal */
-	static _tempMatrix4x4: Matrix4x4 = new Matrix4x4();
-	/** @internal */
 	static _tempViewport: Viewport = new Viewport(0, 0, 0, 0);
 	/**
 	 * @en X-axis coordinate
@@ -135,10 +133,10 @@ export class Viewport {
 	 */
 	unprojectFromWVP(source: Vector3, projection: Matrix4x4, view: Matrix4x4, world: Matrix4x4, out: Vector3): void {
 
-		Matrix4x4.multiply(projection, view, Viewport._tempMatrix4x4);
-		(world) && (Matrix4x4.multiply(Viewport._tempMatrix4x4, world, Viewport._tempMatrix4x4));
-		Viewport._tempMatrix4x4.invert(Viewport._tempMatrix4x4);
-		this.unprojectFromMat(source, Viewport._tempMatrix4x4, out);
+		Matrix4x4.multiply(projection, view, _tempMatrix4x4);
+		(world) && (Matrix4x4.multiply(_tempMatrix4x4, world, _tempMatrix4x4));
+		_tempMatrix4x4.invert(_tempMatrix4x4);
+		this.unprojectFromMat(source, _tempMatrix4x4, out);
 	}
 
 	/**
@@ -176,4 +174,4 @@ export class Viewport {
 	}
 }
 
-
+const _tempMatrix4x4: Matrix4x4 = new Matrix4x4();

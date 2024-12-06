@@ -1,62 +1,80 @@
+import { Matrix } from "../../../maths/Matrix";
 import { Vector2 } from "../../../maths/Vector2";
-import { Vector4 } from "../../../maths/Vector4";
 import { Texture2D } from "../../../resource/Texture2D";
-import { TileAlternativesData } from "./TileAlternativeData";
+import { TileAlternativesData } from "./TileAlternativesData";
+import { TileMapUtils } from "./TileMapUtils";
 import { TileSet } from "./TileSet";
 import { TileSetCellData } from "./TileSetCellData";
 
-//cell资源管理器
-export class TileSetCellGroup {
 
-    private _owner: TileSet;
+export class TileSetCellGroup {
+    //当前最大的alternative 数量
+    _maxAlternativesCount: number = 0;
+
+    private _maxCellCount: Vector2 = new Vector2();
+
+    _owner: TileSet;
 
     private _atlas: Texture2D;
 
     private _atlasSize: Vector2;
 
-    private _indexOfTileSet: number;
-
-    private _name: string;
-
     private _separation: Vector2;//cell separation,unin:pixel
 
-    private _offset: Vector2;//offset off atlas unin:pixel
+    private _margin: Vector2;//offset off atlas unin:pixel
 
     private _textureRegionSize: Vector2;//cell size
 
-    private _render_uvOffset = new Vector2();
+    private _tiles: Record<number, Record<number, TileAlternativesData>>;
 
-    private _render_uvCellExtend = new Vector2();
+    private _tileMatrix: Matrix = new Matrix();
 
-    private _render_uvSeparation = new Vector2();
+    /** 创建时固定 */
+    id: number;
 
-    private _tiles: Map<number, Map<number, TileAlternativesData>>;//tile data map
+    name: string;
+
+    get tiles(): Record<number, Record<number, TileAlternativesData>> {
+        return this._tiles;
+    }
+    set tiles(value: Record<number, Record<number, TileAlternativesData>>) {
+        if (value) {
+            for (let y in value) {
+                for (let x in value[y]) {
+                    value[y][x].owner = this;
+                }
+            }
+        }
+        this._tiles = value;
+    }
 
     public get atlas(): Texture2D {
         return this._atlas;
     }
 
     public set atlas(value: Texture2D) {
+        if (this._atlas === value) return;
+        value._addReference();
         this._atlas = value;
         this._atlasSize.setValue(value.width, value.height);
-        //TODO
         this._recaculateUVOriProperty(true);
     }
 
-    public get name(): string {
-        return this._name;
+    get atlasSize(): Vector2 {
+        return this._atlasSize;
     }
 
-    public set name(value: string) {
-        this._name = value;
+    set atlasSize(value: Vector2) {
+        value.cloneTo(this._atlasSize);
+        this._recaculateUVOriProperty(true);
     }
 
-    public get offset(): Vector2 {
-        return this._offset;
+    public get margin(): Vector2 {
+        return this._margin;
     }
 
-    public set offset(value: Vector2) {
-        value.cloneTo(this._offset);
+    public set margin(value: Vector2) {
+        value.cloneTo(this._margin);
         //TODO
         this._recaculateUVOriProperty(true);
     }
@@ -81,78 +99,147 @@ export class TileSetCellGroup {
         this._recaculateUVOriProperty(true);
     }
 
-    constructor(owner: TileSet, indexInTileSet: number, name: string) {
-        this._owner = owner;
-        this._indexOfTileSet = indexInTileSet;
-        this._tiles = new Map();
-        this.name = name;
+    constructor() {
+        this._tiles = {};
+        this._separation = new Vector2();
+        this._margin = new Vector2();
+        this._textureRegionSize = new Vector2();
+        this._atlasSize = new Vector2();
+    }
+    get owner() {
+        return this._owner;
     }
 
-    private _recaculateUVOriProperty(needNotiveCell: boolean) {
-        //uvoffset
-        this._render_uvOffset.setValue(this._offset.x / this._atlasSize.x, this._offset.y / this._atlasSize.y);
-        //uvcellExtend
-        this._render_uvCellExtend.setValue(this._textureRegionSize.x / this._atlasSize.x, this._textureRegionSize.y / this._atlasSize.y);
-        //uvseparation
-        this._render_uvSeparation.setValue(this._separation.x / this._atlasSize.x, this._separation.y / this._atlasSize.y);
-        //if(needNotiveCell)
-        //通知所有tilesetnative，
+    set owner(value) {
+        if (this._owner != null) console.error("owner is not null");
+        this._owner = value;
+        this._owner.addTileSetCellGroup(this);
     }
 
-    _getTileUVOri(localPos: Vector2) {
-        let uvX = localPos.x * (this._render_uvCellExtend.x + this._render_uvSeparation.x) + this._render_uvOffset.x;
-        let uvY = localPos.y * (this._render_uvCellExtend.y + this._render_uvSeparation.y) + this._render_uvOffset.y;
-        Vector2.TempVector2.setValue(uvX, uvY);
-        return Vector2.TempVector2;
+
+    _recaculateUVOriProperty(needNotiveCell: boolean) {
+        this._tileMatrix.identity();
+        this._tileMatrix.scale(this._textureRegionSize.x + this._separation.x, this._textureRegionSize.y + this._separation.y);
+        this._tileMatrix.translate(this._margin.x, this._margin.y);
+        this._tileMatrix.invert();
+        let maxX = Math.floor((this._atlasSize.x - this._margin.x) / (this._textureRegionSize.x + this._separation.x));
+        let maxY = Math.floor((this._atlasSize.y - this._margin.y) / (this._textureRegionSize.y + this._separation.y));
+        this._maxAlternativesCount = maxX * maxY;
+        this._maxCellCount.setValue(maxX, maxY);
+        for (var i in this._tiles) {
+            let rowTile = this._tiles[i];
+            for (var j in rowTile) {
+                rowTile[j]._init();
+            }
+        }
+        if (needNotiveCell) {
+            this._owner && this._owner._notifyTileSetCellGroupsChange();
+        }
+
     }
 
-    _getTileUVExtends(size: Vector2) {
-        let u = (size.x - 1) * this._render_uvSeparation.x + this._render_uvCellExtend.x * size.x;
-        let v = (size.y - 1) * this._render_uvSeparation.y + this._render_uvCellExtend.y * size.y;
-        Vector2.TempVector2.setValue(u / 2, v / 2);
-        return Vector2.TempVector2;
+    onAtlasSizeChange() {
+        this._owner && this._owner._notifyTileSetCellGroupsChange();
     }
 
-    //根据像素获得localPos
-    getLocalPos(pixel: Vector2): Vector2 {
-        return null;
+    //获得全局的alternative的id
+    _getGlobalAlternativesId(x: number, y: number) {
+        return TileMapUtils.getNativeId(this.id , y * this._maxCellCount.x + x );
     }
 
-    //创建一个alternative组
-    createAlternative(localPos: Vector2, size: Vector2): TileAlternativesData {
-        //_tiles
-        return null
+    //全局的alternative的id转换为本地Cell 的坐标
+    _getCellPosByAlternativesId(nativeIndex: number, out: Vector2) {
+        out.x = nativeIndex % this._maxCellCount.x;
+        out.y = Math.floor(nativeIndex / this._maxCellCount.x);
     }
+
+    _getTileUVOri(localPos: Vector2, out: Vector2) {
+        let uvX = localPos.x * (this._textureRegionSize.x + this._separation.x) + this._margin.x;
+        let uvY = localPos.y * (this._textureRegionSize.y + this._separation.y) + this._margin.y;
+        out.setValue(uvX, uvY);
+        return out;
+    }
+
+    _getTileUVExtends(size: Vector2, out: Vector2) {
+        out.x = (size.x - 1) * this._separation.x + this._textureRegionSize.x * size.x;
+        out.y = (size.y - 1) * this._separation.y + this._textureRegionSize.y * size.y;
+        return out;
+    }
+
 
     //获得一个alternative组
-    getAlternative(localPos: Vector2): TileAlternativesData {
-        //_tiles
-        return null;
+    getAlternative(x: number, y: number): TileAlternativesData {
+        if (!this._tiles[y]) {
+            return null;
+        }
+        return this._tiles[y][x];
+    }
+
+    addAlternaltive(x: number, y: number, sizeInAtlas: Vector2) {
+        let data = this.getAlternative(x, y);
+        if (data) {
+            return data;
+        }
+        let tempv2 = Vector2.TempVector2;
+        this._getTileUVExtends(sizeInAtlas, tempv2);
+        if ((tempv2.x + x > this._atlasSize.x) || (tempv2.y + y > this._atlasSize.y))
+            return null;
+        let alterData = new TileAlternativesData();
+        {
+            alterData.localPos = new Vector2(x, y);
+            alterData.sizeByAtlas = sizeInAtlas;
+            alterData.owner = this;
+            alterData._initialIndexFIrstCellData();
+        }
+        for (var j = 0 , sizey = sizeInAtlas.y; j < sizey; j++) {
+            let ymap = this._tiles[j + y];
+            if (!ymap)
+                ymap = this._tiles[j + y] = {};
+            for (var i = 0 , sizex = sizeInAtlas.x; i < sizex; i++) {
+                ymap[i + x] = alterData;
+            }
+        }
+
+
+        return alterData;
     }
 
     //移除一个alternative组
     removeAlternaltive(localPos: Vector2): void {
-        //_tiles
-    }
-
-    //创建一个alternative组
-    createNewCellData(localPos: Vector2): TileSetCellData {
-        return null
+        if (!this._tiles[localPos.y]) {
+            return;
+        }
+        let rowMap = this._tiles[localPos.y];
+        if (!rowMap[localPos.x]) {
+            return;
+        }
+        //rowMap.delete(localPos.x);
+        delete rowMap[localPos.x];
     }
 
     //获得一个alternative组
     getCellData(localPos: Vector2, index: number): TileSetCellData {
-        return null;
+        // return null;
+        let tile = this.getAlternative(localPos.x, localPos.y);
+        if (tile == null) { return null; }
+        return tile.getCelldata(index);
+    }
+
+    getCellDataByIndex(nativeIndex:number , cellIndex:number){
+        const temp = Vector2.TempVector2;
+        this._getCellPosByAlternativesId(nativeIndex, temp);
+        let data = this.getAlternative(temp.x, temp.y);
+        if (data == null) { return null; }
+        return data.getCelldata(cellIndex);
     }
 
     //移除一个alternative组
-    removeCellData(localPos: Vector2, index: number): TileSetCellData {
-        return null;
+    removeCellData(localPos: Vector2, index: number): void {
+        let tile = this.getAlternative(localPos.x, localPos.y);
+        if (tile == null) { return null; }
+        return tile.removeCellData(index);
     }
 
-    removeTile(localPos: Vector2, index: number) {
-        
-    }
 
     release() {
         //删除 TODO

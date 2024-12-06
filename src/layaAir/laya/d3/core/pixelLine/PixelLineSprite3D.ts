@@ -143,13 +143,5 @@ export class PixelLineSprite3D extends RenderableSprite3D {
     clear(): void {
         (this._render as PixelLineRenderer).clear();
     }
-
-    /**
-     * @internal
-     */
-    protected _create(): Node {
-        return new Sprite3D();
-    }
-
 }
 

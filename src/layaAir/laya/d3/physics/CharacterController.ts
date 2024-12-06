@@ -32,7 +32,7 @@ export class CharacterController extends PhysicsColliderComponent {
     /**@internal */
     private _offset: Vector3 = new Vector3();
     /**@internal */
-    private _contactOffset: number;
+    private _contactOffset: number = 0.0;
     /**@internal */
     private _minDistance: number = 0;
     /**@internal */
@@ -57,6 +57,20 @@ export class CharacterController extends PhysicsColliderComponent {
         }
     }
 
+    protected _onAdded(): void {
+        super._onAdded();
+        this.radius = this._radius;
+        this.height = this._height;
+        this.gravity = this._gravity;
+        this.minDistance = this._minDistance;
+        this.pushForce = this._pushForce;
+        this.centerOffset = this._offset;
+        this.skinWidth = this._contactOffset;
+        this.maxSlope = this._maxSlope;
+        this.stepHeight = this._stepHeight;
+        this.upAxis = this._upAxis;
+    }
+
     /**
      * @en The frame loop.
      * @zh 帧循环
@@ -64,6 +78,7 @@ export class CharacterController extends PhysicsColliderComponent {
     onUpdate(): void {
         if (this._collider && this._collider.getCapable(ECharacterCapable.Character_SimulateGravity)) {
             // physX need to simulate character Gravity.
+            this._simGravity.setValue(this._gravity.x / 60.0, this._gravity.y / 60.0, this._gravity.z / 60.0);
             this.move(this._simGravity);
         }
     }
@@ -317,13 +332,12 @@ export class CharacterController extends PhysicsColliderComponent {
      * @override
      * @internal
      */
-    _cloneTo(dest: Component): void {
+    _cloneTo(dest: CharacterController): void {
         super._cloneTo(dest);
-        var destCharacterController: CharacterController = <CharacterController>dest;
-        destCharacterController.stepHeight = this._stepHeight;
-        destCharacterController.upAxis = this._upAxis;
-        destCharacterController.maxSlope = this._maxSlope;
-        destCharacterController.gravity = this._gravity;
+        dest.stepHeight = this._stepHeight;
+        dest.upAxis = this._upAxis;
+        dest.maxSlope = this._maxSlope;
+        dest.gravity = this._gravity;
     }
 
     /**

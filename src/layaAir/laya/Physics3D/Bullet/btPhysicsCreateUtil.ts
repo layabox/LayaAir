@@ -5,6 +5,7 @@ import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
 import { PhysicsSettings } from "../../d3/physics/PhysicsSettings";
 import { Mesh } from "../../d3/resource/models/Mesh";
 import { PrimitiveMesh } from "../../d3/resource/models/PrimitiveMesh";
+import { NotImplementedError } from "../../utils/Error";
 import { IPhysicsCreateUtil } from "../interface/IPhysicsCreateUtil";
 import { ID6Joint } from "../interface/Joint/ID6Joint";
 import { IHingeJoint } from "../interface/Joint/IHingeJoint";
@@ -242,7 +243,7 @@ export class btPhysicsCreateUtil implements IPhysicsCreateUtil {
      * @zh 创建平面碰撞器形状。
      */
     createPlaneColliderShape(): IPlaneColliderShape {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     /**

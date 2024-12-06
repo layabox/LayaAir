@@ -4,24 +4,14 @@ import { NodeFlags } from "../Const"
 import { Event } from "../events/Event"
 
 /**
- * @en Dispatched when the animation playback is complete.
- * @zh 动画播放完毕后调度。
- * @eventType Event.COMPLETE
- */
-/*[Event(name = "complete", type = "laya.events.Event")]*/
-
-/**
- * @en Dispatched when a specific label is reached during playback.
- * @zh 播放到某标签后调度。
- * @eventType Event.LABEL
- */
-/*[Event(name = "label", type = "laya.events.Event")]*/
-
-/**
  * @en Base class for animations, providing basic animation playback control methods and frame label event-related functionality.
  * This class can be inherited, but should not be instantiated directly as some methods need to be implemented by subclasses.
+ * - Event.COMPLETE dispatched when the animation playback is complete.
+ * - Event.LABEL dispatched when a specific label is reached during playback.
  * @zh 动画基类，提供了基础的动画播放控制方法和帧标签事件相关功能。
  * 可以继承此类，但不要直接实例化此类，因为有些方法需要由子类实现。
+ * - Event.COMPLETE 动画播放完毕后调度。
+ * - Event.LABEL 播放到某标签后调度。
  */
 export class AnimationBase extends Sprite {
     /**
@@ -50,23 +40,16 @@ export class AnimationBase extends Sprite {
      * @zh 播放顺序类型：AnimationBase.WRAP_POSITIVE为正序播放(默认值)，AnimationBase.WRAP_REVERSE为倒序播放，AnimationBase.WRAP_PINGPONG为pingpong播放(当按指定顺序播放完结尾后，如果继续播发，则会改变播放顺序)。
      */
     wrapMode: number = 0;
-    /**@private 播放间隔(单位：毫秒)。*/
+    /** 播放间隔(单位：毫秒)。*/
     protected _interval: number = Config.animationInterval;
-    /**@private */
     protected _index: number;
-    /**@private */
     protected _count: number;
-    /**@private */
     protected _isPlaying: boolean;
-    /**@private */
     protected _labels: any;
     /**是否是逆序播放*/
     protected _isReverse: boolean = false;
-    /**@private */
     protected _frameRateChanged: boolean = false;
-    /**@private */
     protected _actionName: string;
-    /**@private */
     private _controlNode: Sprite;
 
     /**
@@ -127,7 +110,6 @@ export class AnimationBase extends Sprite {
         }
     }
 
-    /**@private */
     protected _getFrameByLabel(label: string): number {
         for (var i: number = 0; i < this._count; i++) {
             var item: any = this._labels[i];
@@ -136,7 +118,6 @@ export class AnimationBase extends Sprite {
         return 0;
     }
 
-    /**@private */
     protected _frameLoop(): void {
         if (!this._controlNode || this._controlNode._destroyed) {
             this.clearTimer(this, this._frameLoop);
@@ -195,15 +176,14 @@ export class AnimationBase extends Sprite {
         }
     }
 
-    /**@internal 
-     * @override
+    /**
+     * @internal 
     */
     _setDisplay(value: boolean): void {
         super._setDisplay(value);
         this._resumePlay();
     }
 
-    /**@private */
     protected _resumePlay(): void {
         if (this._isPlaying) {
             if (this._controlNode.displayedInStage) this.play(this._index, this.loop, this._actionName);
@@ -257,7 +237,6 @@ export class AnimationBase extends Sprite {
         }
     }
 
-    /**@private */
     private _removeLabelFromList(list: any[], label: string): void {
         if (!list) return;
         for (var i: number = list.length - 1; i >= 0; i--) {
@@ -298,7 +277,6 @@ export class AnimationBase extends Sprite {
     }
 
     /**
-     * @private
      * @en Displays the specified frame.
      * @param value The index of the frame to display.
      * @zh 显示到某帧

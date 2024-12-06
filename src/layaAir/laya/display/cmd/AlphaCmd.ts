@@ -19,7 +19,6 @@ export class AlphaCmd implements IGraphicCMD {
     alpha: number;
 
     /**
-     * @private
      * @en Creates or retrieves an AlphaCmd instance from the object pool and initializes it with the specified alpha value.
      * @param alpha The alpha value to set for the AlphaCmd instance.
      * @returns An AlphaCmd instance initialized with the given alpha value.
@@ -42,7 +41,6 @@ export class AlphaCmd implements IGraphicCMD {
     }
 
     /**
-     * @private
      * @en Execute the alpha command in the given context.
      * @param context The rendering context.
      * @param gx The global x coordinate (unused in this method).
@@ -57,9 +55,8 @@ export class AlphaCmd implements IGraphicCMD {
     }
 
     /**
-     * @private
-     * @en The identifier for the AlphaCmd
-     * @zh 透明命令的标识符
+     * @en Get the identifier for the AlphaCmd
+     * @zh 获得透明命令的标识符
      */
     get cmdID(): string {
         return AlphaCmd.ID;

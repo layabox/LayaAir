@@ -70,7 +70,6 @@ export class DrawTextureCmd {
     uv: number[] | null = null;
 
     /**
-     * @private
      * @en Create a DrawTextureCmd instance
      * @param texture The texture to be drawn
      * @param x X-axis offset
@@ -135,7 +134,6 @@ export class DrawTextureCmd {
     }
 
     /**
-     * @private
      * @en Execute the draw texture command.
      * @param context The rendering context.
      * @param gx Starting X coordinate.
@@ -151,7 +149,6 @@ export class DrawTextureCmd {
     }
 
     /**
-     * @private
      * @en The identifier for the DrawTextureCmd
      * @zh 绘制单个贴图命令的标识符
      */
