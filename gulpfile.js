@@ -296,6 +296,12 @@ const packsDef = [{
         './layaAir/laya/legacy/**/**.ts'
     ],
 },
+{
+    'libName': "tiledmap_discarded",
+    'input': [
+        './layaAir/laya/TileMap_Discarded/**/**.ts'
+    ],
+},
 ];
 
 /*
