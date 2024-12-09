@@ -10,6 +10,8 @@ import { Light2DManager } from "./Light2DManager";
  * 精灵灯光
  */
 export class SpriteLight2D extends BaseLight2D {
+    declare owner: Sprite;
+
     /**
      * @ignore
      */
@@ -55,8 +57,8 @@ export class SpriteLight2D extends BaseLight2D {
 
         const w = (this._texLight ? this._texLight.width : 100) * Browser.pixelRatio | 0;
         const h = (this._texLight ? this._texLight.height : 100) * Browser.pixelRatio | 0;
-        this._localRange.x = -0.5 * w;
-        this._localRange.y = -0.5 * h;
+        this._localRange.x = -w / 2;
+        this._localRange.y = -h / 2;
         this._localRange.width = w;
         this._localRange.height = h;
     }
@@ -74,13 +76,13 @@ export class SpriteLight2D extends BaseLight2D {
         const y = this._localRange.y;
         const w = this._localRange.width;
         const h = this._localRange.height;
-        const sx = Math.abs((this.owner as Sprite).globalScaleX);
-        const sy = Math.abs((this.owner as Sprite).globalScaleY);
-        const px = (this.owner as Sprite).globalPosX * Browser.pixelRatio;
-        const py = (this.owner as Sprite).globalPosY * Browser.pixelRatio;
+        const sx = Math.abs(this.owner.globalScaleX);
+        const sy = Math.abs(this.owner.globalScaleY);
+        const px = this.owner.globalPosX * Browser.pixelRatio;
+        const py = this.owner.globalPosY * Browser.pixelRatio;
         const m = Math.max(w * sx, h * sy) | 0;
-        this._worldRange.x = (px - m * 0.5) | 0;
-        this._worldRange.y = (py - m * 0.5) | 0;
+        this._worldRange.x = (px - m / 2) | 0;
+        this._worldRange.y = (py - m / 2) | 0;
         this._worldRange.width = m;
         this._worldRange.height = m;
         this._lightRange.x = (px + x) | 0;

@@ -2,7 +2,6 @@ import { LayaGL } from "../../../layagl/LayaGL";
 import { Color } from "../../../maths/Color";
 import { Matrix } from "../../../maths/Matrix";
 import { Rectangle } from "../../../maths/Rectangle";
-import { Vector2 } from "../../../maths/Vector2";
 import { Vector3 } from "../../../maths/Vector3";
 import { RenderState } from "../../../RenderDriver/RenderModuleData/Design/RenderState";
 import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
@@ -37,6 +36,8 @@ export class SpotLight2D extends BaseLight2D {
     private _cmdRT: Set2DRTCMD;
     private _cmdMesh: DrawMesh2DCMD;
     private _material: Material;
+
+    declare owner: Sprite;
 
     constructor(innerRadius: number = 100, outerRadius: number = 200, innerAngle: number = 90, outerAngle: number = 120, falloff: number = 1) {
         super();
@@ -188,8 +189,8 @@ export class SpotLight2D extends BaseLight2D {
 
         const w = this._outerRadius * 2.1 * Browser.pixelRatio | 0;
         const h = this._outerRadius * 2.1 * Browser.pixelRatio | 0;
-        this._localRange.x = -0.5 * w | 0;
-        this._localRange.y = -0.5 * h | 0;
+        this._localRange.x = -w / 2;
+        this._localRange.y = -h / 2;
         this._localRange.width = w;
         this._localRange.height = h;
     }
@@ -203,33 +204,17 @@ export class SpotLight2D extends BaseLight2D {
         super._calcWorldRange(screen);
         this._lightScaleAndRotation();
 
-        // const sx = Math.abs((this.owner as Sprite).globalScaleX);
-        // const sy = Math.abs((this.owner as Sprite).globalScaleY);
-        // const px = (this.owner as Sprite).globalPosX * Browser.pixelRatio;
-        // const py = (this.owner as Sprite).globalPosY * Browser.pixelRatio;
-        // const ss = Math.max(sx, sy);
-        // const w = this._outerRadius * 2.1 * Browser.pixelRatio * ss | 0;
-        // const h = this._outerRadius * 2.1 * Browser.pixelRatio * ss | 0;
-        // this._worldRange.x = (-0.5 * w + (this.owner as Sprite).globalPosX * Browser.pixelRatio) | 0;
-        // this._worldRange.y = (-0.5 * h + (this.owner as Sprite).globalPosY * Browser.pixelRatio) | 0;
-        // this._worldRange.width = w;
-        // this._worldRange.height = h;
-        // this._lightRange.x = (px + x) | 0;
-        // this._lightRange.y = (py + y) | 0;
-        // this._lightRange.width = w;
-        // this._lightRange.height = h;
-
         const x = this._localRange.x;
         const y = this._localRange.y;
         const w = this._localRange.width;
         const h = this._localRange.height;
-        const sx = Math.abs((this.owner as Sprite).globalScaleX);
-        const sy = Math.abs((this.owner as Sprite).globalScaleY);
-        const px = (this.owner as Sprite).globalPosX * Browser.pixelRatio;
-        const py = (this.owner as Sprite).globalPosY * Browser.pixelRatio;
+        const sx = Math.abs(this.owner.globalScaleX);
+        const sy = Math.abs(this.owner.globalScaleY);
+        const px = this.owner.globalPosX * Browser.pixelRatio;
+        const py = this.owner.globalPosY * Browser.pixelRatio;
         const m = Math.max(w * sx, h * sy) | 0;
-        this._worldRange.x = (px - m * 0.5) | 0;
-        this._worldRange.y = (py - m * 0.5) | 0;
+        this._worldRange.x = (px - m / 2) | 0;
+        this._worldRange.y = (py - m / 2) | 0;
         this._worldRange.width = m;
         this._worldRange.height = m;
         this._lightRange.x = (px + x) | 0;
@@ -248,8 +233,9 @@ export class SpotLight2D extends BaseLight2D {
         super.renderLightTexture(scene);
         if (this._needUpdateLight) {
             this._needUpdateLight = false;
-            const width = this._localRange.width;
-            const height = this._localRange.height;
+            const range = this._getLocalRange();
+            const width = range.width;
+            const height = range.height;
             if (width === 0 || height === 0) return;
             if (!this._texLight || !(this._texLight instanceof RenderTexture2D)) {
                 this._texLight = new RenderTexture2D(width, height, RenderTargetFormat.R8G8B8A8);
@@ -275,16 +261,9 @@ export class SpotLight2D extends BaseLight2D {
                     console.log('update spot light texture', width, height);
             }
             const mesh = this._createMesh(this._cmdMesh?.mesh, this._needToRecover);
-            // if (!this._cmdMesh)
-            //     this._cmdMesh = DrawMesh2DCMD.create(mesh, Matrix.EMPTY, Texture2D.whiteTexture, Color.WHITE, this._material);
-            // else {
-            //     if (this._cmdMesh.mesh)
-            //         this._needToRecover.push(this._cmdMesh.mesh);
-            //     this._cmdMesh.mesh = mesh;
-            // }
-            if (this._cmdMesh && this._cmdMesh.mesh)
-                this._needToRecover.push(this._cmdMesh.mesh);
-            this._cmdMesh = DrawMesh2DCMD.create(mesh, Matrix.EMPTY, Texture2D.whiteTexture, Color.WHITE, this._material);
+            if (!this._cmdMesh)
+                this._cmdMesh = DrawMesh2DCMD.create(mesh, Matrix.EMPTY, Texture2D.whiteTexture, Color.WHITE, this._material);
+            else this._cmdMesh.mesh = mesh;
             this._cmdBuffer.addCacheCommand(this._cmdRT);
             this._cmdBuffer.addCacheCommand(this._cmdMesh);
             this._cmdBuffer.apply(true);
@@ -329,8 +308,9 @@ export class SpotLight2D extends BaseLight2D {
         const inds: number[] = [];
 
         //中心坐标
-        const centerX = this._localRange.width / 2;
-        const centerY = this._localRange.height / 2;
+        const range = this._getLightRange();
+        const centerX = range.width / 2;
+        const centerY = range.height / 2;
 
         //将度数转换为弧度
         const innerAngleRad = this._innerAngle * Math.PI / 180;

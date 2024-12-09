@@ -1,10 +1,8 @@
 import { Component } from "../../../components/Component";
 import { Rectangle } from "../../../maths/Rectangle";
 import { Vector2 } from "../../../maths/Vector2";
-import { Vector3 } from "../../../maths/Vector3";
 import { Browser } from "../../../utils/Browser";
 import { Pool } from "../../../utils/Pool";
-import { Scene } from "../../Scene";
 import { Sprite } from "../../Sprite";
 import { Light2DManager } from "./Light2DManager";
 import { LightLine2D } from "./LightLine2D";
@@ -16,12 +14,13 @@ import { PolygonPoint2D } from "./PolygonPoint2D";
 export class LightOccluder2D extends Component {
     /**
      * @internal
-     * 遮光器计数器
      */
-    static _idCounter: number = 0;
+    static _idCounter: number = 0; //遮光器计数器
 
     private _layerMask: number = 1; //遮光器层掩码（哪些层有遮光器）
     private _layers: number[] = [0]; //遮光器层数组（哪些层有遮光器）
+
+    declare owner: Sprite;
 
     /**
      * @en Get layer mask
@@ -74,7 +73,10 @@ export class LightOccluder2D extends Component {
      * @param value 布尔值
      */
     set canInLight(value: boolean) {
-        this._canInLight = value;
+        if (value !== this._canInLight) {
+            this._canInLight = value;
+            this._needUpdate = true;
+        }
     }
 
     private _outside: boolean = true; //是否只是外圈起作用
@@ -94,14 +96,16 @@ export class LightOccluder2D extends Component {
      * @param 布尔值
      */
     set outside(value: boolean) {
-        this._outside = value;
+        if (value !== this._outside) {
+            this._outside = value;
+            this._needUpdate = true;
+        }
     }
 
     /**
      * @internal
-     * 遮光器Id
      */
-    _occluderId: number = 0;
+    _occluderId: number = 0; //遮光器Id，在所有遮光器对象里保持唯一
 
     /**
      * 遮光器范围（局部坐标）
@@ -115,10 +119,10 @@ export class LightOccluder2D extends Component {
 
     /**
      * @internal
-     * 需要更新遮光器
      */
-    _needUpdate: boolean = false;
+    _needUpdate: boolean = false; //需要更新遮光器
 
+    private _needTransformPoly: boolean = false; //是否需要变换多边形顶点
     private _needUpdateLightLocalRange: boolean = false; //是否需要更新遮光器区域（局部坐标）
     private _needUpdateLightWorldRange: boolean = false; //是否需要更新遮光器区域（世界坐标）
 
@@ -147,9 +151,9 @@ export class LightOccluder2D extends Component {
      */
     protected _onEnable(): void {
         super._onEnable();
-        (this.owner as Sprite).on("2DtransChanged", this, this._transformChange);
-        (this.owner as Sprite).transChangeNotify = true;
-        ((this.owner.scene as Scene)?._light2DManager as Light2DManager)?.addOccluder(this);
+        this.owner.on("2DtransChanged", this, this._transformChange);
+        this.owner.transChangeNotify = true;
+        (this.owner?.scene?._light2DManager as Light2DManager)?.addOccluder(this);
     }
 
     /**
@@ -157,8 +161,8 @@ export class LightOccluder2D extends Component {
      */
     protected _onDisable(): void {
         super._onDisable();
-        (this.owner as Sprite).off("2DtransChanged", this, this._transformChange);
-        ((this.owner.scene as Scene)?._light2DManager as Light2DManager)?.removeOccluder(this);
+        this.owner.off("2DtransChanged", this, this._transformChange);
+        (this.owner?.scene?._light2DManager as Light2DManager)?.removeOccluder(this);
     }
 
     /**
@@ -168,7 +172,7 @@ export class LightOccluder2D extends Component {
      * @param newLayer 新层遮罩
      */
     private _notifyOccluderLayerChange(oldLayer: number, newLayer: number) {
-        ((this.owner?.scene as Scene)?._light2DManager as Light2DManager)?.occluderLayerMarkChange(this, oldLayer, newLayer);
+        (this.owner?.scene?._light2DManager as Light2DManager)?.occluderLayerMarkChange(this, oldLayer, newLayer);
     }
 
     /**
@@ -176,8 +180,8 @@ export class LightOccluder2D extends Component {
      * 响应矩阵改变
      */
     protected _transformChange() {
-        this._transformPoly();
         this._needUpdate = true;
+        this._needTransformPoly = true;
         this._needUpdateLightWorldRange = true;
     }
 
@@ -188,6 +192,7 @@ export class LightOccluder2D extends Component {
      * @param poly 多边形数据
      */
     set polygonPoint(poly: PolygonPoint2D) {
+        const light2DManager = this.owner?.scene?._light2DManager as Light2DManager;
         if (poly) {
             this._occluderPolygon = poly;
             this._globalPolygon = poly.clone();
@@ -195,16 +200,18 @@ export class LightOccluder2D extends Component {
                 this._cutPolygon = new PolygonPoint2D();
             else this._cutPolygon.clear();
             this._needUpdate = true;
+            this._needTransformPoly = true;
             this._needUpdateLightLocalRange = true;
             this._needUpdateLightWorldRange = true;
-            ((this.owner?.scene as Scene)?._light2DManager as Light2DManager)?.addOccluder(this);
+            light2DManager?.addOccluder(this);
         } else {
             this._occluderPolygon = null;
             this._globalPolygon = null;
-            this._cutPolygon.clear();
-            ((this.owner?.scene as Scene)?._light2DManager as Light2DManager)?.removeOccluder(this);
+            if (this._cutPolygon)
+                this._cutPolygon.clear();
+            light2DManager?.removeOccluder(this);
         }
-        ((this.owner?.scene as Scene)?._light2DManager as Light2DManager)?.needCollectLightInLayer(this.layerMask);
+        light2DManager?.needCollectLightInLayer(this.layerMask);
     }
 
     /**
@@ -224,6 +231,10 @@ export class LightOccluder2D extends Component {
      * @param lightY 灯光位置y值
      */
     getSegment(lightX: number, lightY: number) {
+        if (this._needTransformPoly) {
+            this._needTransformPoly = false;
+            this._transformPoly();
+        }
         lightX |= 0; //取整，避免缓存误差
         lightY |= 0;
         if (this._segLight.x === lightX && this._segLight.y === lightY) {
@@ -307,7 +318,10 @@ export class LightOccluder2D extends Component {
      * 计算范围（世界坐标）
      */
     private _calcWorldRange() {
-        this._transformPoly();
+        if (this._needTransformPoly) {
+            this._needTransformPoly = false;
+            this._transformPoly();
+        }
         this._needUpdateLightWorldRange = false;
 
         let xmin = Number.POSITIVE_INFINITY;
@@ -362,21 +376,23 @@ export class LightOccluder2D extends Component {
     selectByLight(x: number, y: number) {
         if (this._occluderPolygon) {
             if (!this.canInLight) {
+                if (this._needTransformPoly) {
+                    this._needTransformPoly = false;
+                    this._transformPoly();
+                }
                 let intersections = 0;
-                const poly = this._occluderPolygon.points;
+                const poly = this._globalPolygon.points;
                 const len = poly.length / 2 | 0;
-                const ox = this.owner ? (this.owner as Sprite).globalPosX * Browser.pixelRatio : 0;
-                const oy = this.owner ? (this.owner as Sprite).globalPosY * Browser.pixelRatio : 0;
 
                 for (let i = 0; i < len; i++) {
                     const currentX = poly[i * 2 + 0];
                     const currentY = poly[i * 2 + 1];
                     const nextX = poly[((i + 1) % len) * 2 + 0]; //处理闭合
                     const nextY = poly[((i + 1) % len) * 2 + 1]; //处理闭合
-                    const cx = currentX + ox;
-                    const cy = currentY + oy;
-                    const nx = nextX + ox;
-                    const ny = nextY + oy;
+                    const cx = currentX;
+                    const cy = currentY;
+                    const nx = nextX;
+                    const ny = nextY;
 
                     //检查水平射线是否由当前点向右延伸
                     if ((cy > y) !== (ny > y)) {
@@ -410,9 +426,9 @@ export class LightOccluder2D extends Component {
             const globalPoly = this._globalPolygon.points;
             const polygon = this._occluderPolygon.points;
             const len = polygon.length / 2 | 0;
-            const ox = (this.owner as Sprite).globalPosX * Browser.pixelRatio;
-            const oy = (this.owner as Sprite).globalPosY * Browser.pixelRatio;
-            const m = (this.owner as Sprite).getGlobalMatrix();
+            const ox = this.owner.globalPosX * Browser.pixelRatio;
+            const oy = this.owner.globalPosY * Browser.pixelRatio;
+            const m = this.owner.getGlobalMatrix();
             if (m) {
                 for (let i = 0; i < len; i++) {
                     const x = polygon[i * 2 + 0] * Browser.pixelRatio;
@@ -421,8 +437,8 @@ export class LightOccluder2D extends Component {
                     globalPoly[i * 2 + 1] = m.b * x + m.d * y + oy;
                 }
             } else {
-                const sx = Math.abs((this.owner as Sprite).globalScaleX);
-                const sy = Math.abs((this.owner as Sprite).globalScaleY);
+                const sx = Math.abs(this.owner.globalScaleX);
+                const sy = Math.abs(this.owner.globalScaleY);
                 for (let i = 0; i < len; i++) {
                     const x = polygon[i * 2 + 0] * Browser.pixelRatio;
                     const y = polygon[i * 2 + 1] * Browser.pixelRatio;
@@ -440,7 +456,7 @@ export class LightOccluder2D extends Component {
 
     /**
      * @internal
-     * 选择外边缘顶点
+     * 选择出口边（包括部分出口边）
      * @param polygon 
      * @param outsidePointX 
      * @param outsidePointY 
@@ -448,6 +464,8 @@ export class LightOccluder2D extends Component {
      */
     private _selectOutside(polygon: number[], outsidePointX: number, outsidePointY: number, outPoly: number[]) {
         let abX = 0, abY = 0, cdX = 0, cdY = 0, acX = 0, acY = 0, det = 0, t = 0, u = 0;
+
+        //是否相交
         const _intersect = (ax: number, ay: number, bx: number, by: number,
             cx: number, cy: number, dx: number, dy: number, e: Vector2) => {
             //线段ab的方向向量
@@ -481,6 +499,11 @@ export class LightOccluder2D extends Component {
             return false;
         }
 
+        //是否顺时针
+        const _clockwise = (ax: number, ay: number, bx: number, by: number, cx: number, cy: number) => {
+            return ((bx - ax) * (cy - ay) - (by - ay) * (cx - ax)) > 0;
+        }
+
         outPoly.length = 0; //清空输出数组
         const cutPoly = this._cutPolygon.points;
         cutPoly.length = 0;
@@ -497,26 +520,32 @@ export class LightOccluder2D extends Component {
             interP1 = false;
             interP2 = false;
 
-            for (let j = 0; j < n; j++) {
-                if (i !== j) {
-                    if (_intersect(polygon[j * 2], polygon[j * 2 + 1], polygon[((j + 1) % n) * 2], polygon[((j + 1) % n) * 2 + 1],
-                        p1x, p1y, outsidePointX, outsidePointY, outPoint)) {
-                        interP1 = true;
-                        break;
+            //线段的端点和光源必须顺时针排列，否则肯定不是出口边
+            if (!_clockwise(p1x, p1y, p2x, p2y, outsidePointX, outsidePointY)) {
+                interP1 = true;
+                interP2 = true;
+            } else {
+                for (let j = 0; j < n; j++) {
+                    if (i !== j) {
+                        if (_intersect(polygon[j * 2], polygon[j * 2 + 1], polygon[((j + 1) % n) * 2], polygon[((j + 1) % n) * 2 + 1],
+                            p1x, p1y, outsidePointX, outsidePointY, outPoint)) {
+                            interP1 = true;
+                            break;
+                        }
                     }
                 }
-            }
-            for (let j = 0; j < n; j++) {
-                if (i !== j) {
-                    if (_intersect(polygon[j * 2], polygon[j * 2 + 1], polygon[((j + 1) % n) * 2], polygon[((j + 1) % n) * 2 + 1],
-                        p2x, p2y, outsidePointX, outsidePointY, outPoint)) {
-                        interP2 = true;
-                        break;
+                for (let j = 0; j < n; j++) {
+                    if (i !== j) {
+                        if (_intersect(polygon[j * 2], polygon[j * 2 + 1], polygon[((j + 1) % n) * 2], polygon[((j + 1) % n) * 2 + 1],
+                            p2x, p2y, outsidePointX, outsidePointY, outPoint)) {
+                            interP2 = true;
+                            break;
+                        }
                     }
                 }
             }
 
-            if (!interP1 && !interP2)
+            if (!interP1 && !interP2) //两个端点都不和多边形相交，整条边是出口边
                 outPoly.push(i);
             if (!interP1 && interP2) {
                 const inter = this._findNearestIntersection(p1x, p1y, p2x, p2y, outsidePointX, outsidePointY, polygon);

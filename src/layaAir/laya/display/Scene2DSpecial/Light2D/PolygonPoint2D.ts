@@ -10,7 +10,7 @@ export class PolygonPoint2D {
     }
 
     /**
-     * @en get points
+     * @en Get points
      * @zh 获取点集
      */
     get points(): number[] {
@@ -18,15 +18,20 @@ export class PolygonPoint2D {
     }
 
     /**
-     * @en set points
+     * @en Set points
+     * @param value
      * @zh 设置点集
+     * @param value 
      */
     set points(value: number[]) {
         this._points = value;
     }
 
     /**
-     * @en add point
+     * @en Add point
+     * @param x 
+     * @param y 
+     * @param index 插入位置，-1代表插入最后
      * @zh 添加顶点
      * @param x 
      * @param y 
@@ -44,7 +49,10 @@ export class PolygonPoint2D {
     }
 
     /**
-     * @en update point
+     * @en Update point
+     * @param x 
+     * @param y 
+     * @param index 
      * @zh 更新顶点
      * @param x 
      * @param y 
@@ -58,7 +66,8 @@ export class PolygonPoint2D {
     }
 
     /**
-     * @en remove point
+     * @en Remove point
+     * @param index 
      * @zh 删除顶点
      * @param index 
      */
@@ -68,7 +77,7 @@ export class PolygonPoint2D {
     }
 
     /**
-     * @en clear points
+     * @en Clear points
      * @zh 清空顶点
      */
     clear() {
@@ -86,8 +95,10 @@ export class PolygonPoint2D {
     }
 
     /**
-     * @en clone object
+     * @en Clone object
+     * @param other 
      * @zh 克隆对象
+     * @param other 
      */
     cloneTo(other: PolygonPoint2D) {
         const p = this._points;

@@ -28,6 +28,10 @@ export class Occluder2DAgent {
     }
 
     /**
+     * @en Create a occluder
+     * @param index Unique index
+     * @param param Shader parameter object
+     * @returns Occluder Object
      * @zh 创建遮光器
      * @param index 唯一索引
      * @param param 遮光器参数对象
@@ -63,6 +67,9 @@ export class Occluder2DAgent {
     }
 
     /**
+     * @zh Get the occluder object
+     * @param index Unique index
+     * @returns Occluder object (successful), undefined (failed)
      * @zh 获取遮光器
      * @param index 唯一索引
      * @returns 遮光器对象（成功），undefined（失败）
@@ -72,6 +79,11 @@ export class Occluder2DAgent {
     }
 
     /**
+     * @en Set the occluder position
+     * @param index Unique index
+     * @param x X Coordinate value
+     * @param y Y Coordinate value
+     * @returns Occluder object (successful), undefined (failed)
      * @zh 设置遮光器位置
      * @param index 唯一索引
      * @param x X坐标值
@@ -86,6 +98,10 @@ export class Occluder2DAgent {
     }
 
     /**
+     * @en Set the occluder rotation
+     * @param index Unique index
+     * @param rot Rotation angle
+     * @returns Occluder object (successful), undefined (failed)
      * @zh 设置遮光器旋转
      * @param index 唯一索引
      * @param rot 旋转角度
@@ -99,10 +115,15 @@ export class Occluder2DAgent {
     }
 
     /**
+     * @en Set the occluder scale
+     * @param index Unique index
+     * @param x X scale value
+     * @param y Y scale value
+     * @returns Occluder object (successful), undefined (failed)
      * @zh 设置遮光器放缩
      * @param index 唯一索引
-     * @param x X坐标值
-     * @param y Y坐标值
+     * @param x X放缩值
+     * @param y Y放缩值
      * @returns 遮光器对象（成功），undefined（失败）
      */
     setScale(index: number, x: number, y: number) {
@@ -113,6 +134,9 @@ export class Occluder2DAgent {
     }
 
     /**
+     * @en Remove the occluder
+     * @param index Unique index
+     * @returns true (successful), false(failed)
      * @zh 删除指定遮光器
      * @param index 唯一索引
      * @returns true（成功），false（失败）
@@ -127,6 +151,7 @@ export class Occluder2DAgent {
     }
 
     /**
+     * @en Clear all occluders
      * @zh 清除所有遮光器
      */
     clearOccluder() {

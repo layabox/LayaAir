@@ -60,24 +60,15 @@ export class DirectionLight2D extends BaseLight2D {
         if (len > 0) {
             const x = value.x / len;
             const y = value.y / len;
-            if (this._directionVector.x !== x || this._directionVector.y !== y) {
-                this._directionAngle = Math.atan2(y, x);
+            if (value === this._directionVector
+                || this._directionVector.x !== x || this._directionVector.y !== y) {
+                this._directionAngle = Math.atan2(y, x) * 180 / Math.PI;
                 this._directionVector.x = x;
                 this._directionVector.y = y;
                 this._needUpdateLightAndShadow = true;
             }
         }
     }
-
-    // /**
-    //  * @en Get light pos
-    //  * @zh 获取灯光位置
-    //  */
-    // get lightPos() {
-    //     this._lightPos.x = -this.directionVector.x * 1.0e5;
-    //     this._lightPos.y = -this.directionVector.y * 1.0e5;
-    //     return this._lightPos;
-    // }
 
     /**
      * @internal
@@ -97,6 +88,7 @@ export class DirectionLight2D extends BaseLight2D {
      */
     protected _calcLocalRange() {
         super._calcLocalRange();
+
         this._localRange.x = -DirectionLight2D.LIGHT_SIZE / 2;
         this._localRange.y = -DirectionLight2D.LIGHT_SIZE / 2;
         this._localRange.width = DirectionLight2D.LIGHT_SIZE;
@@ -110,11 +102,11 @@ export class DirectionLight2D extends BaseLight2D {
      */
     protected _calcWorldRange(screen?: Rectangle) {
         super._calcWorldRange(screen);
-        this._localRange.cloneTo(this._worldRange);
-        if (screen) {
-            this._worldRange.x += screen.x;
-            this._worldRange.y += screen.y;
-        }
+
+        this._worldRange.x = this._localRange.x + (screen ? (screen.x | 0) : 0);
+        this._worldRange.y = this._localRange.y + (screen ? (screen.y | 0) : 0);
+        this._worldRange.width = this._localRange.width;
+        this._worldRange.height = this._localRange.height;
     }
 
     /**
