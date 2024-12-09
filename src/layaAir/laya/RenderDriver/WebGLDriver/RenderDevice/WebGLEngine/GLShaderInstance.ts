@@ -10,7 +10,6 @@ import { Vector4 } from "../../../../maths/Vector4";
 import { BaseTexture } from "../../../../resource/BaseTexture";
 import { Texture2D } from "../../../../resource/Texture2D";
 import { TextureCube } from "../../../../resource/TextureCube";
-import { InternalTexture } from "../../../DriverDesign/RenderDevice/InternalTexture";
 import { ShaderDataType } from "../../../DriverDesign/RenderDevice/ShaderData";
 import { WebGLEngine } from "../WebGLEngine";
 import { GLObject } from "./GLObject";
@@ -18,6 +17,8 @@ import { GLObject } from "./GLObject";
 
 
 export class GLShaderInstance extends GLObject {
+
+    static _ErrorShaderInfo: string;
 
     _engine: WebGLEngine;
 
@@ -143,9 +144,9 @@ export class GLShaderInstance extends GLObject {
         gl.compileShader(shader);
         if (this._engine._isShaderDebugMode && !gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
             if (!LayaEnv.isPlaying) {
-                console.warn(gl.getShaderInfoLog(shader));
+                console.warn(GLShaderInstance._ErrorShaderInfo + "\n" + gl.getShaderInfoLog(shader));
             } else {
-                console.error(gl.getShaderInfoLog(shader));
+                console.error(GLShaderInstance._ErrorShaderInfo + "\n" + gl.getShaderInfoLog(shader));
             }
         }
         return shader;

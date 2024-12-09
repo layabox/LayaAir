@@ -33,12 +33,12 @@ export class ShaderPass extends ShaderCompileDefineBase {
     /**@internal */
     _nodeUniformCommonMap: Array<string>;
 
-     set nodeCommonMap(value: Array<string>) {
+    set nodeCommonMap(value: Array<string>) {
         this._nodeUniformCommonMap = value;
         this.moduleData.nodeCommonMap = value;
     }
 
-    get nodeCommonMap() :Array<string>{
+    get nodeCommonMap(): Array<string> {
         return this._nodeUniformCommonMap;
     }
 
@@ -85,8 +85,7 @@ export class ShaderPass extends ShaderCompileDefineBase {
         defines.length = 0;
         Shader3D._getNamesByDefineData(compileDefine, defines);
         shaderProcessInfo.defineString = defines;
-
-
+        shaderProcessInfo.shaderShowInfo = `ShaderName:${shaderpass._owner._owner.name},PipelineMode:${shaderpass.pipelineMode}`;
 
         if (Shader3D.debugMode)
             ShaderVariantCollection.active.add(shaderpass, defines);

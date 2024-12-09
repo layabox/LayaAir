@@ -13,6 +13,7 @@ export class ShaderProcessInfo {
     attributeMap: { [name: string]: [number, ShaderDataType] };
     uniformMap: UniformMapType;
     is2D: boolean;
+    shaderShowInfo:string;
     //....其他数据
 };
 export class ShaderCompileDefineBase {
