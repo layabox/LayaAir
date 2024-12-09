@@ -186,8 +186,8 @@ export class TileAlternativesData {
 
         this._owner._getTileUVExtends(this._sizeByAtlas, this._regionSize);
         let atlasSize = this._owner.atlasSize;
-        this._uvExtends.x = this._regionSize.x / atlasSize.x;
-        this._uvExtends.y = this._regionSize.y / atlasSize.y;
+        this._uvExtends.x = Math.max(this._regionSize.x - 1 , 0)/ atlasSize.x;
+        this._uvExtends.y = Math.max(this._regionSize.y - 1 , 0) / atlasSize.y;
         this._updateOriginUV(0, 0, TileMapDirtyFlag.CELL_QUAD | TileMapDirtyFlag.CELL_QUADUV);
 
         //update ID
