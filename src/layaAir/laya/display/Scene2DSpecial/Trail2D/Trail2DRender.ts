@@ -26,7 +26,7 @@ export class Trail2DRender extends BaseRenderNode2D {
 
     private static tempvec2_0: Point = new Point();
 
-    private _color: Color = new Color(0, 0, 0, 0);
+    private _color: Color = new Color(1, 1, 1, 1);
 
     private _tillOffset: Vector4 = new Vector4(0, 0, 1, 1);//贴图偏移量
 
@@ -246,6 +246,8 @@ export class Trail2DRender extends BaseRenderNode2D {
         super();
         this._renderElements = [];
         this._materials = [];
+        this.widthMultiplier = 50;
+        this.time = 0.5;
         this._spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);
         if (!Trail2DRender.defaultTrail2DMaterial)
             TrailShaderInit.init();

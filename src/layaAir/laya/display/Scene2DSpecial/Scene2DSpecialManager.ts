@@ -24,8 +24,8 @@ export class Scene2DSpecialManager {
             return;
         this._mainCamera && (this._mainCamera._isMain = false);
         this._mainCamera = camera;
-        this._mainCamera._isMain = true;
         if (this._mainCamera) {
+            this._mainCamera._isMain = true;
             this._shaderData.addDefine(Camera2D.SHADERDEFINE_CAMERA2D)
         } else {
             this._shaderData.removeDefine(Camera2D.SHADERDEFINE_CAMERA2D);
