@@ -23,7 +23,8 @@ export class TileSetCellGroup {
 
     private _margin: Vector2;//offset off atlas unin:pixel
 
-    private _textureRegionSize: Vector2;//cell size
+    /** cell size*/
+    private _textureRegionSize: Vector2;
 
     private _tiles: Record<number, Record<number, TileAlternativesData>>;
 
@@ -89,6 +90,9 @@ export class TileSetCellGroup {
         this._recaculateUVOriProperty(true);
     }
 
+    /**
+     * 每个块的大小
+     */
     public get textureRegionSize(): Vector2 {
         return this._textureRegionSize;
     }
@@ -153,7 +157,8 @@ export class TileSetCellGroup {
         out.y = Math.floor(nativeIndex / this._maxCellCount.x);
     }
 
-    _getTileUVOri(localPos: Vector2, out: Vector2) {
+    /** 获取瓦片的像素起始点 */
+    _getTilePixelOrgin(localPos: Vector2, out: Vector2) {
         let uvX = localPos.x * (this._textureRegionSize.x + this._separation.x) + this._margin.x;
         let uvY = localPos.y * (this._textureRegionSize.y + this._separation.y) + this._margin.y;
         out.setValue(uvX, uvY);

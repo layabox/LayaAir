@@ -42,8 +42,8 @@ export class TileSetCellData {
     private _transpose: boolean = false;
 
     private _rotateCount: number = 0;
-
-    private _texture_origin: Vector2;//单位像素
+    //单位像素
+    private _texture_origin: Vector2;
 
     private _material: Material;
 

@@ -21,16 +21,16 @@ export class TileAlternativesData {
     /** @internal */
     _owner: TileSetCellGroup;
 
-    //Base Data
+    /** Base Data 瓦片在group中的位置 uint int */
     private _localPos: Vector2;
-
-    private _sizeByAtlas: Vector2;//unit int
-
+    /** group中单位大小 uint int */
+    private _sizeByAtlas: Vector2;
+    /** uv 原点,瓦片正中心的uv值 */
     private _uvOri: Vector2;
-
+    /** uv范围 0- 1 */
     private _uvExtends: Vector2;
-
-    private _uvSize: Vector2;
+    /** 实际区域大小 */
+    private _regionSize: Vector2;
 
     //animator
     private _animation_columns: number = 0;
@@ -154,7 +154,7 @@ export class TileAlternativesData {
         this._sizeByAtlas = new Vector2();
         this._uvOri = new Vector2();
         this._uvExtends = new Vector2();
-        this._uvSize = new Vector2();
+        this._regionSize = new Vector2();
         this._animationFrams = [];
         this._tileDatas = {};
         this._sizeByAtlas.setValue(1, 1);
@@ -184,14 +184,14 @@ export class TileAlternativesData {
             return;
         }
 
-        this._owner._getTileUVExtends(this._sizeByAtlas, this._uvSize);
+        this._owner._getTileUVExtends(this._sizeByAtlas, this._regionSize);
         let atlasSize = this._owner.atlasSize;
-        this._uvExtends.x = this._uvSize.x / atlasSize.x;
-        this._uvExtends.y = this._uvSize.y / atlasSize.y;
+        this._uvExtends.x = this._regionSize.x / atlasSize.x;
+        this._uvExtends.y = this._regionSize.y / atlasSize.y;
         this._updateOriginUV(0, 0, TileMapDirtyFlag.CELL_QUAD | TileMapDirtyFlag.CELL_QUADUV);
 
         //update ID
-        this.nativeId = this._owner._getGlobalAlternativesId(this.localPos.x, this.localPos.y);
+        this.nativeId = this._owner._getGlobalAlternativesId(this._localPos.x, this._localPos.y);
         if (this._tileDatas) {
             for (let k in this._tileDatas) {
                 this._tileDatas[k].__init(this, parseInt(k));
@@ -203,11 +203,11 @@ export class TileAlternativesData {
      * @internal
      */
     _updateOriginUV(x: number, y: number, data: number) {
-        this._uvOri.setValue(this.localPos.x + x, this.localPos.y + y);
-        this._owner._getTileUVOri(this._uvOri, this._uvOri);
+        this._uvOri.setValue(this._localPos.x + x, this._localPos.y + y);
+        this._owner._getTilePixelOrgin(this._uvOri, this._uvOri);
         let atlasSize = this._owner.atlasSize;
-        this._uvOri.x = (this._uvOri.x + this._uvSize.x * 0.5) / atlasSize.x;
-        this._uvOri.y = (this._uvOri.y + this._uvSize.y * 0.5) / atlasSize.y;
+        this._uvOri.x = (this._uvOri.x + this._regionSize.x * 0.5) / atlasSize.x;
+        this._uvOri.y = (this._uvOri.y + this._regionSize.y * 0.5) / atlasSize.y;
         for (let k in this._tileDatas) {
             this._tileDatas[k]._notifyDataChange(data, DirtyFlagType.RENDER);
         }
@@ -230,8 +230,8 @@ export class TileAlternativesData {
     /**
      * @internal
      */
-    _getTextureUVSize(): Vector2 {
-        return this._uvSize;
+    _getRegionSize(): Vector2 {
+        return this._regionSize;
     }
 
     /**

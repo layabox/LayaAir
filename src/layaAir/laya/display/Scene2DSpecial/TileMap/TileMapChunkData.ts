@@ -145,7 +145,7 @@ export class TileMapChunkData {
      */
     set cellDataRefMap(data: number[][]) {
         if (data) {
-            for (let i = 0 , len = data.length; i < len; i++)
+            for (let i = 0, len = data.length; i < len; i++)
                 !data[i] && delete data[i];
             this._cellDataRefMap = data;
         }
@@ -173,6 +173,7 @@ export class TileMapChunkData {
                     this._cellDataMap[index] = chuckCellInfo;
                     this._chuckCellList.push(chuckCellInfo);
                 }
+                this._setDirtyFlag(gid, TileMapDirtyFlag.CELL_CHANGE);
             }
         });
 
@@ -342,7 +343,7 @@ export class TileMapChunkData {
                             let dataoffset = chuckCellinfo._cellPosInRenderData * 4;
                             data[dataoffset] = pos.x + posOffset.x;
                             data[dataoffset + 1] = pos.y + posOffset.y;
-                            let uvSize = nativesData._getTextureUVSize();
+                            let uvSize = nativesData._getRegionSize();
                             data[dataoffset + 2] = uvSize.x;
                             data[dataoffset + 3] = uvSize.y;
 
@@ -426,16 +427,15 @@ export class TileMapChunkData {
             cellDataUseArray.forEach(element => {
                 let chunkCellInfo = this._cellDataMap[element];
                 let cellData = chunkCellInfo.cell;
+                let cellDatas = cellData.physicsDatas;
 
                 //TODO Layer变更时需要删除
-                if ((value & TileMapDirtyFlag.CELL_CHANGE) || (value & TileMapDirtyFlag.CELL_PHYSICS)) {
+                if (cellDatas && (value & TileMapDirtyFlag.CELL_CHANGE) || (value & TileMapDirtyFlag.CELL_PHYSICS)) {
+
                     chunk._getPixelByChunkPosAndIndex(this.chunkX, this.chunkY, chunkCellInfo.chuckLocalindex, pos);
 
                     let ofx = pos.x;
                     let ofy = pos.y;
-
-                    let cellDatas = cellData.physicsDatas;
-
                     let datas = chunkCellInfo._physicsDatas;
                     if (!datas) {
                         datas = [];
@@ -445,6 +445,9 @@ export class TileMapChunkData {
                     for (let i = 0; i < layerCount; i++) {
                         let physicslayer = physicsLayers[i];
                         let pIndex = physicslayer.id;
+                        if (!cellDatas[pIndex])
+                            continue
+
                         let data = datas[pIndex];
                         if (data) {
                             physics.destroyFixture(rigidBody, data);
@@ -453,7 +456,7 @@ export class TileMapChunkData {
                         let shapeLength = shape.length;
                         let nShape: Array<number> = new Array(shapeLength);
 
-                        for (let j = 0; j < shapeLength; j++) {
+                        for (let j = 0; j < shapeLength; j+=2) {
                             let x = shape[j];
                             let y = shape[j + 1];
                             TileMapUtils.transfromPointByValue(matrix, x + ofx, y + ofy, pos);
@@ -470,7 +473,6 @@ export class TileMapChunkData {
 
         dirtyFlag.clear();
     }
-
 
     private _updateLightShadowData() {
         //TODO
@@ -537,12 +539,16 @@ export class TileMapChunkData {
             instanceColor[dataOffset + 2] = color.b;
             instanceColor[dataOffset + 3] = color.a;
             let posOffset = curCell.texture_origin;
+            //贴图的原点
             instanceposScal[dataOffset] = pos.x + posOffset.x;
             instanceposScal[dataOffset + 1] = pos.y + posOffset.y;
-            let uvSize = curNative._getTextureUVSize();
+            let uvSize = curNative._getRegionSize();
+            //实际像素范围
             instanceposScal[dataOffset + 2] = uvSize.x;
             instanceposScal[dataOffset + 3] = uvSize.y;
+            //uv中心点
             let uvOri = curNative._getTextureUVOri();
+            //uv范围
             let uvextend = curNative._getTextureUVExtends();
             instanceuvOriScal[dataOffset] = uvOri.x;
             instanceuvOriScal[dataOffset + 1] = uvOri.y;
