@@ -21,10 +21,10 @@ export class TileSetCellNavigationInfo {
     shape: number[];
 }
 
-export class TileSetCellCustomDataInfo {
-    // name:string;
-    value: any;
-}
+// export class TileSetCellCustomDataInfo {
+//     // name:string;
+//     value: any;
+// }
 
 /**
  * TileMap中一个Cell的数据结构
@@ -60,7 +60,7 @@ export class TileSetCellData {
 
     private _physicsDatas: Record<number , TileSetCellPhysicsInfo>;
 
-    private _customDatas: Record<number, TileSetCellCustomDataInfo>;
+    private _customDatas: Record<number, any>;
 
     //是否有地形
     private _terrain_set: boolean;
@@ -352,27 +352,21 @@ export class TileSetCellData {
     set_customData(name: string, value: any) :void{
         let layer = this._cellowner._owner._owner.getCustomDataLayer(name);
         if (!layer) return;
-        let data = this._customDatas[layer.id];
-        if (!data) {
-            this._customDatas[layer.id] = {value};
-        }else data.value = value;
+        this._customDatas[layer.id] = value;
     }
 
     get_customData(name: string) {
         let layer = this._cellowner._owner._owner.getCustomDataLayer(name);
         if (!layer) return null
-        return this._customDatas[layer.id]?.value;
+        return this._customDatas[layer.id];
     }
 
     set_customDataById(id: number, value: any) {
-        let data = this._customDatas[id];
-        if (!data) {
-            this._customDatas[id] = {value};
-        }else data.value = value;      
+        this._customDatas[id] = value;    
     }
 
     get_customDataById(id: number) {
-        return this._customDatas[id]?.value;
+        return this._customDatas[id];
     }
 
     cloneTo(dst: TileSetCellData) {
