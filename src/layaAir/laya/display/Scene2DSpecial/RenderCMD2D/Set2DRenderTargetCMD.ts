@@ -9,7 +9,7 @@ export class Set2DRTCMD extends Command2D {
     /**@internal */
     private static _pool: any[] = [];
 
-    static create(renderTexture: IRenderTarget, clearColor: boolean, colorValue: Color, renderInvertY = true): Set2DRTCMD {
+    static create(renderTexture: IRenderTarget, clearColor: boolean, colorValue: Color, renderInvertY: boolean = true): Set2DRTCMD {
         var cmd: Set2DRTCMD;
         cmd = Set2DRTCMD._pool.length > 0 ? Set2DRTCMD._pool.pop() : new Set2DRTCMD();
         cmd.renderTexture = renderTexture;
@@ -34,7 +34,7 @@ export class Set2DRTCMD extends Command2D {
     }
     public set renderTexture(value: IRenderTarget) {
         this._renderTexture = value;
-        this._setRenderTargetCMD.rt = value?value._renderTarget:null;
+        this._setRenderTargetCMD.rt = value ? value._renderTarget : null;
     }
 
     constructor() {

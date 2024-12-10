@@ -252,7 +252,7 @@ export class Stage extends Sprite {
         this._setBit(NodeFlags.ACTIVE_INHIERARCHY, true);
         this._isFocused = true;
         this._isVisibility = true;
-        this._transform = Matrix.create();
+        this._transform = new Matrix();
 
         //this.drawCallOptimize=true;
         this.useRetinalCanvas = LayaEnv.isConch ? true : Config.useRetinalCanvas;

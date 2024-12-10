@@ -234,9 +234,7 @@ export class Sprite extends Node {
     destroy(destroyChild: boolean = true): void {
         super.destroy(destroyChild);
         this._cacheStyle && this._cacheStyle.recover();
-        this._transform && this._transform.recover();
         this._cacheStyle = null;
-        this._transform = null;
         this._texture && this._texture._removeReference();
         this._texture = null;
         this._graphics && this._ownGraphics && this._graphics.destroy();
@@ -439,19 +437,20 @@ export class Sprite extends Node {
             return this._transform;
 
         this._tfChanged = false;
-        var sx = this._scaleX, sy = this._scaleY;
-        var sskx = this._skewX;
-        var ssky = this._skewY;
-        var rot = this._rotation;
-        var m = this._transform || (this._transform = Matrix.create());
+        let m = this._transform || (this._transform = new Matrix());
+        let sx = this._scaleX, sy = this._scaleY;
+        let sskx = this._skewX;
+        let ssky = this._skewY;
+        let rot = this._rotation;
+
         if (rot || sx !== 1 || sy !== 1 || sskx !== 0 || ssky !== 0) {
             m._bTransform = true;
-            var skx = (rot - sskx) * 0.0174532922222222;//laya.CONST.PI180;
-            var sky = (rot + ssky) * 0.0174532922222222;
-            var cx = Math.cos(sky);
-            var ssx = Math.sin(sky);
-            var cy = Math.sin(skx);
-            var ssy = Math.cos(skx);
+            let skx = (rot - sskx) * 0.0174532922222222;//laya.CONST.PI180;
+            let sky = (rot + ssky) * 0.0174532922222222;
+            let cx = Math.cos(sky);
+            let ssx = Math.sin(sky);
+            let cy = Math.sin(skx);
+            let ssy = Math.cos(skx);
             m.a = sx * cx;
             m.b = sx * ssx;
             m.c = -sy * cy;
@@ -466,7 +465,7 @@ export class Sprite extends Node {
 
     set transform(value: Matrix) {
         this._tfChanged = false;
-        let m = this._transform || (this._transform = Matrix.create());
+        let m = this._transform || (this._transform = new Matrix());
         if (value !== m)
             value.copyTo(m);
         if (value) { //设置transform时重置x,y
@@ -1660,9 +1659,8 @@ export class Sprite extends Node {
         if (!point) return point;
         point.x -= this.pivotX;
         point.y -= this.pivotY;
-        if (this.transform) {
+        if (this._transform)
             this._transform.transformPoint(point);
-        }
         point.x += this._x;
         point.y += this._y;
         var scroll: Rectangle = this._scrollRect;
@@ -1690,10 +1688,8 @@ export class Sprite extends Node {
             point.x += scroll.x;
             point.y += scroll.y;
         }
-        if (this.transform) {
-            //_transform.setTranslate(0,0);
+        if (this._transform)
             this._transform.invertTransformPoint(point);
-        }
         point.x += this.pivotX;
         point.y += this.pivotY;
         return point;
