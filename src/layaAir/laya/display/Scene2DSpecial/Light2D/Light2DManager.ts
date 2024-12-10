@@ -915,13 +915,15 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
         const w = range.width + 20;
         const h = range.height + 20;
         const segments = this._segments;
-        for (let i = segments.length - 1; i > -1; i--)
-            Pool.recover('LightLine2D', segments[i]);
+        if (segments.length >= 4) {
+            for (let i = 0; i < 4; i++) //只能recover本函数创建的4个线段
+                Pool.recover('LightLine2D', segments[i]);
+        }
         segments.length = 0;
-        segments.push(Pool.getItemByClass('LightLine2D', LightLine2D).create(x, y, x + w, y, false)); //上边框
-        segments.push(Pool.getItemByClass('LightLine2D', LightLine2D).create(x + w, y, x + w, y + h, false)); //右边框
-        segments.push(Pool.getItemByClass('LightLine2D', LightLine2D).create(x + w, y + h, x, y + h, false)); //下边框
-        segments.push(Pool.getItemByClass('LightLine2D', LightLine2D).create(x, y + h, x, y, false)); //左边框
+        segments.push(Pool.getItemByClass('LightLine2D', LightLine2D).create(x, y, x + w, y)); //上边框
+        segments.push(Pool.getItemByClass('LightLine2D', LightLine2D).create(x + w, y, x + w, y + h)); //右边框
+        segments.push(Pool.getItemByClass('LightLine2D', LightLine2D).create(x + w, y + h, x, y + h)); //下边框
+        segments.push(Pool.getItemByClass('LightLine2D', LightLine2D).create(x, y + h, x, y)); //左边框
         const occluders = this._occludersInLayer[layer];
         if (occluders && shadow) {
             for (let i = occluders.length - 1; i > -1; i--) {
@@ -1217,9 +1219,13 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
         let ret = mesh;
         const lightX = _calcLightX(light, pcf);
         const lightY = _calcLightY(light, pcf);
-        const lightOffsetX = light._getLightRange().x;
-        const lightOffsetY = light._getLightRange().y;
-        const ss = this._getOccluderSegment(layer, lightX, lightY, light._getWorldRange(), light.shadowEnable);
+        const lightRange = light._getLightRange();
+        const worldRange = light._getWorldRange();
+        const lightOffsetX = lightRange.x;
+        const lightOffsetY = lightRange.y;
+        const lightWidth = lightRange.width;
+        const lightHeight = lightRange.height;
+        const ss = this._getOccluderSegment(layer, lightX, lightY, worldRange, light.shadowEnable);
         const poly = this._getLightPolygon(lightX, lightY, ss);
         const len = poly.length;
         if (len > 2) {
@@ -1231,7 +1237,7 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
             }
             if (mesh)
                 this._needToRecover.push(mesh);
-            ret = this._genLightMesh(lightX, lightY, light._getLightRange().width, light._getLightRange().height, lightOffsetX, lightOffsetY, layerOffsetX, layerOffsetY, this._points);
+            ret = this._genLightMesh(lightX, lightY, lightWidth, lightHeight, lightOffsetX, lightOffsetY, layerOffsetX, layerOffsetY, this._points);
         }
         return ret;
     }
@@ -1259,9 +1265,12 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
         let ret = mesh;
         const lightX = _calcLightX(light);
         const lightY = _calcLightY(light);
-        const lightOffsetX = light._getLightRange().x;
-        const lightOffsetY = light._getLightRange().y;
+        const lightRange = light._getLightRange();
         const worldRange = light._getWorldRange();
+        const lightOffsetX = lightRange.x;
+        const lightOffsetY = lightRange.y;
+        const lightWidth = lightRange.width;
+        const lightHeight = lightRange.height;
         const ss = this._getOccluderSegment(layer, lightX, lightY, worldRange, light.shadowEnable);
         const poly = this._getLightPolygon(lightX, lightY, ss);
         const len = poly.length;
@@ -1275,7 +1284,7 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
             const radius = Math.max(worldRange.width, worldRange.height) * 2;
             if (mesh)
                 this._needToRecover.push(mesh);
-            ret = this._genShadowMesh(lightX, lightY, light._getLightRange().width, light._getLightRange().height, lightOffsetX, lightOffsetY, layerOffsetX, layerOffsetY, this._points, radius);
+            ret = this._genShadowMesh(lightX, lightY, lightWidth, lightHeight, lightOffsetX, lightOffsetY, layerOffsetX, layerOffsetY, this._points, radius);
         }
         return ret;
     }

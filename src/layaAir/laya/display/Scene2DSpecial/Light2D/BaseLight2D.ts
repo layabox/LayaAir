@@ -399,8 +399,11 @@ export class BaseLight2D extends Component {
      * 通知此灯光层的改变
      */
     private _notifyLightLayerChange(oldLayer: number, newLayer: number) {
-        ((this.owner?.scene)?._light2DManager as Light2DManager)?.lightLayerMarkChange(this, oldLayer, newLayer);
-        ((this.owner?.scene)?._light2DManager as Light2DManager)?.needCollectLightInLayer(newLayer);
+        const light2DManager = this.owner?.scene?._light2DManager as Light2DManager;
+        if (light2DManager) {
+            light2DManager.lightLayerMarkChange(this, oldLayer, newLayer);
+            light2DManager.needCollectLightInLayer(newLayer);
+        }
     }
 
     /**

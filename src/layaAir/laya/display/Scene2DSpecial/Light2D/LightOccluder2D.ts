@@ -153,7 +153,6 @@ export class LightOccluder2D extends Component {
      */
     protected _onEnable(): void {
         super._onEnable();
-
         this.owner._setBit(NodeFlags.DEMAND_TRANS_EVENT, true);
         this.owner.on(Event.TRANSFORM_CHANGED, this, this._transformChange);
         (this.owner.scene?._light2DManager as Light2DManager)?.addOccluder(this);
@@ -165,7 +164,7 @@ export class LightOccluder2D extends Component {
     protected _onDisable(): void {
         super._onDisable();
         this.owner.off(Event.TRANSFORM_CHANGED, this, this._transformChange);
-        (this.owner.scene?._light2DManager as Light2DManager)?.removeOccluder(this);
+        (this.owner?.scene?._light2DManager as Light2DManager)?.removeOccluder(this);
     }
 
     /**
@@ -226,6 +225,18 @@ export class LightOccluder2D extends Component {
     }
 
     /**
+     * 清理缓存
+     */
+    private _clearCache() {
+        const segments = this._segments;
+        for (let i = segments.length - 1; i > -1; i--)
+            Pool.recover('LightLine2D', segments[i]);
+        segments.length = 0;
+        this._segLight.x = Number.POSITIVE_INFINITY;
+        this._segLight.y = Number.POSITIVE_INFINITY;
+    }
+
+    /**
      * @en Get occluder's segments
      * @param lightX Light position x
      * @param lightY Light position y
@@ -273,8 +284,7 @@ export class LightOccluder2D extends Component {
                             const index1 = a * 2;
                             const index2 = ((a + 1) % len) * 2;
                             segments.push(Pool.getItemByClass('LightLine2D', LightLine2D).create(poly[index1], poly[index1 + 1], poly[index2], poly[index2 + 1]));
-                        }
-                        else {
+                        } else {
                             a = (-a - 1) * 2; //转成正常序号
                             const index1 = a * 2;
                             const index2 = ((a + 1) % len) * 2;
@@ -449,11 +459,7 @@ export class LightOccluder2D extends Component {
                     globalPoly[i * 2 + 1] = y * sy + oy;
                 }
             }
-
-            //使缓存失效
-            this._segments.length = 0;
-            this._segLight.x = Number.POSITIVE_INFINITY;
-            this._segLight.y = Number.POSITIVE_INFINITY;
+            this._clearCache();
         }
     }
 
