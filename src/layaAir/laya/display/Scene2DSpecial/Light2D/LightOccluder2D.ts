@@ -164,7 +164,7 @@ export class LightOccluder2D extends Component {
     protected _onDisable(): void {
         super._onDisable();
         this.owner.off(Event.TRANSFORM_CHANGED, this, this._transformChange);
-        (this.owner?.scene?._light2DManager as Light2DManager)?.removeOccluder(this);
+        (this.owner.scene?._light2DManager as Light2DManager)?.removeOccluder(this);
     }
 
     /**
