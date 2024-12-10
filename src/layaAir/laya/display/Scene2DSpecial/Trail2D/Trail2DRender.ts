@@ -244,10 +244,11 @@ export class Trail2DRender extends BaseRenderNode2D {
 
     constructor() {
         super();
-        this._renderElements = [];
+        this._renderElements = [];        
         this._materials = [];
         this._time = 0.5;
         this._widthMultiplier = 50;
+        this._spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, this._color);
         this._spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);
         if (!Trail2DRender.defaultTrail2DMaterial)
             TrailShaderInit.init();
