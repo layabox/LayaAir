@@ -17,9 +17,14 @@ import { WebGLRenderEngineFactory } from "laya/RenderDriver/WebGLDriver/RenderDe
 import { Laya3D } from "Laya3D";
 import { btPhysicsCreateUtil } from "laya/Physics3D/Bullet/btPhysicsCreateUtil";
 import { Skeleton_SpineAdapted } from "./2d/Skeleton_SpineAdapted";
+import { Physics2D } from "laya/physics/Physics2D";
+import { physics2DwasmFactory } from "laya/physics/factory/physics2DwasmFactory"
+import { HierarchyLoader } from "laya/loaders/HierarchyLoader";
+import { LegacyUIParser } from "laya/legacy/LegacyUIParser";
 
 Resource.DEBUG = true;
 LayaGL.renderOBJCreate = new WebGLRenderEngineFactory();
-//Physics2D.I._factory = new physics2DJSFactory();
+Physics2D.I._factory = new physics2DwasmFactory();
 Laya3D.PhysicsCreateUtil = new btPhysicsCreateUtil();
-new Main(true, false);
+HierarchyLoader.legacySceneOrPrefab = LegacyUIParser;
+new Main(false, false);

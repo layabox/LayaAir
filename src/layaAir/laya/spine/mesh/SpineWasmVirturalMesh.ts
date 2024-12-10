@@ -8,7 +8,7 @@ import { SpineMeshBase } from "./SpineMeshBase";
 
 /**
  * @en SpineWasmVirturalMesh class for handling Spine skeleton mesh rendering using WebAssembly.
- * @zh SpineWasmVirturalMesh ÀàÓÃÓÚÊ¹ÓÃ WebAssembly ´¦Àí Spine ¹Ç÷ÀÍø¸ñäÖÈ¾¡£
+ * @zh SpineWasmVirturalMesh ç±»ç”¨äºä½¿ç”¨ WebAssembly å¤„ç† Spine éª¨éª¼ç½‘æ ¼æ¸²æŸ“ã€‚
  */
 export class SpineWasmVirturalMesh extends SpineMeshBase {
 
@@ -16,8 +16,8 @@ export class SpineWasmVirturalMesh extends SpineMeshBase {
     /**
      * @en Create a SpineWasmVirturalMesh instance.
      * @param material Material to be used for rendering.
-     * @zh ´´½¨ SpineWasmVirturalMesh ÊµÀı¡£
-     * @param material ÓÃÓÚäÖÈ¾µÄ²ÄÖÊ¡£
+     * @zh åˆ›å»º SpineWasmVirturalMesh å®ä¾‹ã€‚
+     * @param material ç”¨äºæ¸²æŸ“çš„æè´¨ã€‚
      */
     constructor(material: Material) {
         super(material);
@@ -28,7 +28,7 @@ export class SpineWasmVirturalMesh extends SpineMeshBase {
 
     /**
      * @en The vertex declaration for the mesh.
-     * @zh Íø¸ñµÄ¶¥µãÉùÃ÷¡£
+     * @zh ç½‘æ ¼çš„é¡¶ç‚¹å£°æ˜ã€‚
      */
     get vertexDeclarition(): VertexDeclaration {
         return SpineShaderInit.SpineNormalVertexDeclaration;

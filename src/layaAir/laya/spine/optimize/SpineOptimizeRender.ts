@@ -70,7 +70,7 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
     _curAnimationName: string;
 
     /** @internal */
-    _dynamicMap:Map<number,Mesh2D>;
+    _dynamicMap: Map<number, Mesh2D>;
 
     private _isRender: boolean;
 
@@ -130,7 +130,7 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
         this.animatorMap = new Map();
         this.skinRenderArray = [];
         this.boneMat = new Float32Array(spineOptimize.maxBoneNumber * 8);
-        
+
         spineOptimize.skinAttachArray.forEach((value) => {
             this.skinRenderArray.push(new SkinRenderUpdate(this, value));
         })
@@ -139,7 +139,7 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
         for (let i = 0, n = animators.length; i < n; i++) {
             let animator = animators[i];
             this.animatorMap.set(animator.name, new AnimationRenderProxy(animator));
-    }
+        }
         this.currentRender = this.skinRenderArray[this._skinIndex];//default
     }
     getSpineColor(): Color {
@@ -151,7 +151,7 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
      * @zh 销毁 SpineOptimizeRender 实例。
      */
     destroy(): void {
-        this._dynamicMap.forEach(mesh=>mesh.destroy());
+        this._dynamicMap.forEach(mesh => mesh.destroy());
         this._dynamicMap.clear();
         //throw new NotImplementedError();
     }
@@ -210,16 +210,16 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
         this.slots = skeleton.slots;
         this._nodeOwner = renderNode;
         let scolor = skeleton.color;
-        this.spineColor = new Color(scolor.r , scolor.g, scolor.b , scolor.a);
-        let color =  renderNode._spriteShaderData.getColor(SpineShaderInit.Color) || new Color();
-        color.setValue(scolor.r, scolor.g, scolor.b , scolor.a );
+
+        let color = renderNode._spriteShaderData.getColor(BaseRenderNode2D.BASERENDER2DCOLOR) || new Color();
+        color.setValue(scolor.r, scolor.g, scolor.b, scolor.a);
         if (renderNode._renderAlpha !== undefined) {
             color.a *= renderNode._renderAlpha;
-        }else
-            color.a *= renderNode.owner.alpha;
-        renderNode._spriteShaderData.setColor(SpineShaderInit.Color, color);
-        this.spineColor = new Color(scolor.r * scolor.a, scolor.g * scolor.a, scolor.b * scolor.a, scolor.a);
-        renderNode._spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, this.spineColor);
+        } else
+            color.a *= (renderNode.owner as Sprite).alpha;
+
+        renderNode._spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, color);
+
         this.skinRenderArray.forEach((value) => {
             value.init(skeleton, templet, renderNode);
         });
@@ -317,12 +317,12 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
      * @param [create=true] 
      * @returns 
      */
-    getDynamicMesh( vertexDeclaration:VertexDeclaration , create = true){
+    getDynamicMesh(vertexDeclaration: VertexDeclaration, create = true) {
         let id = vertexDeclaration.id;
         let mesh = this._dynamicMap.get(id);
         if (!mesh && create) {
-            mesh = SpineMeshUtils.createMeshDynamic(vertexDeclaration );
-            this._dynamicMap.set(id , mesh);
+            mesh = SpineMeshUtils.createMeshDynamic(vertexDeclaration);
+            this._dynamicMap.set(id, mesh);
         }
         return mesh;
     }
@@ -359,7 +359,7 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
             if (currentRender.vertexBones > 4) {
                 console.warn(`In FastRender mode - Current skin: ${currentRender.name} has ${currentRender.vertexBones} bones influencing each vertex. This exceeds the recommended limit of 4 bones per vertex.`);
             }
-            
+
             switch (this.currentRender.skinAttachType) {
                 case ESpineRenderType.boneGPU:
                     this._nodeOwner._spriteShaderData.addDefine(SpineShaderInit.SPINE_FAST);
@@ -380,14 +380,14 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
             }
 
             if (oldSkinData != currentSKin || !this._nodeOwner._mesh) {
-                currentRender.renderUpdate(currentSKin , -1 , -1);
+                currentRender.renderUpdate(currentSKin, -1, -1);
             }
             // old.animator.mutiRenderAble
             // let mutiRenderAble = currentSKin.mutiRenderAble;
             if (this._isRender) {
                 //
                 // if (mutiRenderAble != oldSkinData.mutiRenderAble) {
-                    // this._clear();
+                // this._clear();
                 // }
             }
             else {
@@ -395,7 +395,7 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
                 this.renderProxytype = ERenderProxyType.RenderOptimize;
                 // if (mutiRenderAble) {
                 //     //this._nodeOwner.drawGeos(currentRender.geo, currentRender.elements);
-                    // this.renderProxytype = ERenderProxyType.RenderOptimize;
+                // this.renderProxytype = ERenderProxyType.RenderOptimize;
                 // }
                 // else {
                 //     // currentRender.material&&this._nodeOwner.drawGeo(currentRender.geo, currentRender.material);
@@ -512,7 +512,7 @@ class RenderOptimize implements IRender {
      * @param boneMat 用于渲染的骨骼矩阵。
      */
     render(curTime: number, boneMat: Float32Array) {
-        this.currentAnimation.render(this.bones, this.slots, this.skinUpdate, curTime, boneMat );//TODO bone
+        this.currentAnimation.render(this.bones, this.slots, this.skinUpdate, curTime, boneMat);//TODO bone
         // this.material.boneMat = boneMat;
         this._renderNode._spriteShaderData.setBuffer(SpineShaderInit.BONEMAT, boneMat);
     }
@@ -734,7 +734,7 @@ class RenderBake implements IRender {
      * @param boneMat 用于渲染的骨骼矩阵。
      */
     render(curTime: number, boneMat: Float32Array) {
-        this.currentAnimation.renderWithOutMat(this.slots, this.skinRender, curTime );
+        this.currentAnimation.renderWithOutMat(this.slots, this.skinRender, curTime);
         this._simpleAnimatorOffset.y = curTime / this.step;
         this._computeAnimatorParamsData();
         // let boneMat = this.currentAnimation.render(this.bones, this.slots, this.skinRender, curTime);//TODO bone

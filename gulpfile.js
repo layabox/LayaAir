@@ -66,7 +66,8 @@ const packsDef = [{
         './layaAir/laya/tools/**/*.*',
         './layaAir/laya/html/**/*.*',
         './layaAir/Config3D.ts',
-        "./layaAir/laya/bt/**/*.*"
+        "./layaAir/laya/bt/**/*.*",
+        './layaAir/laya/physics/IPhysiscs2DFactory.ts',
     ],
 },
 {
@@ -231,7 +232,7 @@ const packsDef = [{
     'input': [
         './layaAir/laya/physics/Collider2D/*.*',
         './layaAir/laya/physics/joint/*.*',
-        './layaAir/laya/physics/IPhysiscs2DFactory.ts',
+        
         './layaAir/laya/physics/ModuleDef.ts',
         './layaAir/laya/physics/Physics2D.ts',
         './layaAir/laya/physics/Physics2DOption.ts',
@@ -294,6 +295,12 @@ const packsDef = [{
     'libName': "legacyParser",
     'input': [
         './layaAir/laya/legacy/**/**.ts'
+    ],
+},
+{
+    'libName': "tiledmap_discarded",
+    'input': [
+        './layaAir/laya/TileMap_Discarded/**/**.ts'
     ],
 },
 ];

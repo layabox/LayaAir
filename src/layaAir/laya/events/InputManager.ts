@@ -1,10 +1,13 @@
 import { HideFlags, NodeFlags } from "../Const";
 import { Node } from "../display/Node";
+import { Scene } from "../display/Scene";
 import { Sprite } from "../display/Sprite";
 import { Stage } from "../display/Stage";
 import { Point } from "../maths/Point";
 import { Rectangle } from "../maths/Rectangle";
+import { Vector3 } from "../maths/Vector3";
 import { Browser } from "../utils/Browser";
+import { RenderState2D } from "../webgl/utils/RenderState2D";
 import { Event, ITouchInfo } from "./Event";
 
 var _isFirstTouch = true;
@@ -560,8 +563,24 @@ export class InputManager {
      * @returns 该点下的sprite，如果没有找到则返回null。
      */
     getSpriteUnderPoint(sp: Sprite, x: number, y: number): Sprite {
+        if (sp instanceof Scene && sp._specialManager?._mainCamera) {
+            let point = Point.TEMP;
+            point.setTo(x, y);
+            //如果之前没有Camera，根据scene计算screen坐标
+            point = sp.localToGlobal(point);
+            let camera2D = sp._specialManager._mainCamera;
+            //根据camera计算实际的world坐标
+            point = camera2D.localToGlobal(point);
+            //根据实际坐标计算scene的实际local坐标
+            point.x -= RenderState2D.width * 0.5;
+            point.y -= RenderState2D.height * 0.5;
+            sp.globalToLocal(point);
+            x = point.x;
+            y = point.y;
+        }
+
         //如果有裁剪，则先判断是否在裁剪范围内
-        let scrollRect = sp.scrollRect;
+        let scrollRect = sp._scrollRect;
         if (scrollRect && !sp._getBit(NodeFlags.DISABLE_INNER_CLIPPING)) {
             _tempRect.setTo(scrollRect.x, scrollRect.y, scrollRect.width, scrollRect.height);
             if (!_tempRect.contains(x, y))
@@ -580,6 +599,7 @@ export class InputManager {
             if (!child._destroyed
                 && (childEditing ? ((!child.hasHideFlag(HideFlags.HideInHierarchy) || child.mouseThrough) && !child._getBit(NodeFlags.HIDE_BY_EDITOR)) : child._mouseState > 1)
                 && (child._visible || child._getBit(NodeFlags.DISABLE_VISIBILITY))) {
+
                 _tempPoint.setTo(x, y);
                 child.fromParentPoint(_tempPoint);
                 let ret = this.getSpriteUnderPoint(child, _tempPoint.x, _tempPoint.y);

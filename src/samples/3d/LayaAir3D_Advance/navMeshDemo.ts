@@ -18,9 +18,9 @@ import { UnlitMaterial } from "laya/d3/core/material/UnlitMaterial";
 import { PixelLineSprite3D } from "laya/d3/core/pixelLine/PixelLineSprite3D";
 import { Color } from "laya/maths/Color";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
-import { NavAgent } from "laya/navigation/3D/Component/NavAgent";
+import { NavAgent } from "laya/navigation/3D/component/NavAgent";
 import { Node } from "laya/display/Node";
-import { NavMeshSurface } from "laya/navigation/3D/Component/NavMeshSurface";
+import { NavMeshSurface } from "laya/navigation/3D/component/NavMeshSurface";
 
 
 export class NavMeshDemo {
@@ -73,7 +73,7 @@ class NavMeshScript extends Script {
         this.camera = this._scene.getChildByName("Main Camera") as Camera;
         this._lineSprite = new PixelLineSprite3D(100000);
         let suface = this.owner.getComponent(NavMeshSurface)
-        this.showDebugMesh(suface);
+        this.showDebugMesh(suface as NavMeshSurface);
         let click = this.camera.getComponent(CameraClick);
         if (click) {
             click.clickHandler = Handler.create(this, this.stageClickHandler, null, false)
@@ -108,6 +108,7 @@ class NavMeshScript extends Script {
         }
         this.drawBoundingBox(this._lineSprite, suface.min, suface.max, Color.GREEN);
     }
+
     private drawBoundingBox(lineSprite3D: PixelLineSprite3D, min: Vector3, max: Vector3, color: Color): void {
         let corners: Vector3[] = [];
         corners.push(min.clone())

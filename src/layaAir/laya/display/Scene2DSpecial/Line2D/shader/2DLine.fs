@@ -27,9 +27,10 @@ void main(){
     vec2 p1 = dotToline(left, v_linePionts.zw+v_linedir, v_position);
     float t = v_lineLength + length(left- p1)-u_dashed.z;
     d *= step(fract(t/u_dashed.x), u_dashed.y);
-    vec2 uv =  transformUV(vec2(t,v_texcoord.y),u_TilingOffset);
+    vec2 uv =  transformUV(v_texcoord.xy,u_TilingOffset);
     vec4 textureColor = texture2D(u_baseRender2DTexture, fract(uv));
     textureColor = transspaceColor(textureColor*u_baseRenderColor);
 
     gl_FragColor = vec4(textureColor.rgb,textureColor.a*smoothstep(0.0,2.0,d));
+    //gl_FragColor = vec4(fract(uv.x) ,fract(uv.y),0.0,textureColor.a*smoothstep(0.0,2.0,d));
 }

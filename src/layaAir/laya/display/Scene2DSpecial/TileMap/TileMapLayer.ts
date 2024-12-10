@@ -21,6 +21,7 @@ import { RectClipper } from "./RectClipper";
 import { Texture2D } from "../../../resource/Texture2D";
 import { TileMapDatasParse } from "./loaders/TileSetAssetLoader";
 import { NodeFlags } from "../../../Const";
+import { TileLayerSortMode } from "./TileMapEnum";
 
 export enum TILELAYER_SORTMODE {
     YSort,
@@ -85,7 +86,7 @@ export class TileMapLayer extends BaseRenderNode2D {
 
     private _layerColor: Color = new Color();
 
-    private _sortMode: TILELAYER_SORTMODE;
+    private _sortMode: TileLayerSortMode;
 
     private _renderTileSize: number = 32;
 
@@ -133,11 +134,11 @@ export class TileMapLayer extends BaseRenderNode2D {
         }
     }
 
-    get sortMode(): TILELAYER_SORTMODE {
+    get sortMode(): TileLayerSortMode {
         return this._sortMode;
     }
 
-    set sortMode(value: TILELAYER_SORTMODE) {
+    set sortMode(value: TileLayerSortMode) {
         this._sortMode = value;
     }
 
@@ -154,6 +155,7 @@ export class TileMapLayer extends BaseRenderNode2D {
     }
 
     set physicsEnable(value: boolean) {
+        this._tileMapPhysics.updateState(value);
         this._physicsEnable = value;
     }
 
@@ -337,7 +339,7 @@ export class TileMapLayer extends BaseRenderNode2D {
         super.onEnable();
         this.owner._setBit(NodeFlags.CACHE_GLOBAL, true);
         this._updateMapDatas();
-        this._tileMapPhysics._createPhysics();
+        this._tileMapPhysics._enableRigidBodys();
     }
 
     /**
@@ -458,6 +460,27 @@ export class TileMapLayer extends BaseRenderNode2D {
 
         let chunkData = this._getLayerDataTileByPos(tempVec3.x, tempVec3.y);
         chunkData._setCell(tempVec3.z, cellData);
+    }
+
+    /**
+     * 获取一个CellData数据
+     * @param x 
+     * @param y 
+     * @param isPixel 是否是像素坐标 true: 像素坐标 false: 格子坐标
+     */
+    getCellData(x: number, y: number, isPixel = true) {
+        let tempVec3 = Vector3.TEMP;
+        if (isPixel) {
+            this._chunk._getChunkPosByPixel(x, y, tempVec3);
+        } else {
+            this._chunk._getChunkPosByCell(x, y, tempVec3);
+        }
+
+        let rowData = this._chunkDatas[tempVec3.y];
+        if (!rowData) return null;
+        let data = rowData[tempVec3.x];
+        if (!data) return null;
+        return data.getCell(tempVec3.z);
     }
 
     /**

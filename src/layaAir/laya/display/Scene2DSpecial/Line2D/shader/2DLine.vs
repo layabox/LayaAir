@@ -31,8 +31,11 @@ void lineMat(in vec2 left,in vec2 right,inout vec3 xDir,inout vec3 yDir){
 
 void main(){
     v_lineLength = a_linelength;
-    v_texcoord = (a_position.xy + vec2(0.5,0.5));
-    
+    vec2 oriUV = (a_position.xy + vec2(0.5,0.5));
+    //v_texcoord
+     oriUV.x = (oriUV.x*length(a_linePos.xy-a_linePos.zw)+a_linelength)/50.0;
+    v_texcoord = oriUV;
+
     vec2 left,right;
     getGlobalPos(a_linePos.xy,left);
     getGlobalPos(a_linePos.zw,right);

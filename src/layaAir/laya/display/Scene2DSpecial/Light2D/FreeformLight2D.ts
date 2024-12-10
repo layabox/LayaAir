@@ -33,14 +33,16 @@ export class FreeformLight2D extends BaseLight2D {
     private _lightPolygon: PolygonPoint2D; //定义灯光的多边形顶点（顺时针存储）
     private _globalPolygon: PolygonPoint2D; //变换后的多边形顶点（顺时针存储）
 
-    private _localCircle: Vector3 = new Vector3(0, 0, 1); //灯光包围圆（x，y圆心，z半径，局部坐标）
-    private _worldCircle: Vector3 = new Vector3(0, 0, 1); //灯光包围圆（x，y圆心，z半径，世界坐标）
+    private _localCenter: Vector2 = new Vector2(); //多边形中心（局部坐标）
+    private _worldCenter: Vector2 = new Vector2(); //多边形中心（世界坐标）
 
     //用于生成灯光贴图
     private _cmdBuffer: CommandBuffer2D;
     private _cmdRT: Set2DRTCMD;
     private _cmdMesh: DrawMesh2DCMD;
     private _material: Material;
+
+    declare owner: Sprite;
 
     /**
      * @ignore
@@ -108,6 +110,7 @@ export class FreeformLight2D extends BaseLight2D {
      * @param poly 多边形数据
      */
     set polygonPoint(poly: PolygonPoint2D) {
+        const light2DManager = this.owner?.scene?._light2DManager as Light2DManager;
         if (poly) {
             this._lightPolygon = poly;
             this._globalPolygon = poly.clone();
@@ -115,13 +118,13 @@ export class FreeformLight2D extends BaseLight2D {
             this._needUpdateLightLocalRange = true;
             this._needUpdateLightWorldRange = true;
             super._clearScreenCache();
-            ((this.owner?.scene as Scene)?._light2DManager as Light2DManager)?.addLight(this);
+            light2DManager?.addLight(this);
         } else {
             this._lightPolygon = null;
             this._globalPolygon = null;
-            ((this.owner?.scene as Scene)?._light2DManager as Light2DManager)?.removeLight(this);
+            light2DManager?.removeLight(this);
         }
-        ((this.owner?.scene as Scene)?._light2DManager as Light2DManager)?.needCollectLightInLayer(this.layerMask);
+        light2DManager?.needCollectLightInLayer(this.layerMask);
     }
 
     /**
@@ -133,22 +136,11 @@ export class FreeformLight2D extends BaseLight2D {
     }
 
     /**
-     * @en Get light pos
-     * @zh 获取灯光位置
-     */
-    get lightPos() {
-        this._getRange();
-        this._lightPos.x = this._worldCircle.x;
-        this._lightPos.y = this._worldCircle.y;
-        return this._lightPos;
-    }
-
-    /**
      * @en Get light global position x
      * @zh 获取灯光世界位置的X坐标值
      */
     getGlobalPosX() {
-        return this._worldCircle.x;
+        return super.getGlobalPosX() + this._worldCenter.x;
     }
 
     /**
@@ -156,7 +148,7 @@ export class FreeformLight2D extends BaseLight2D {
      * @zh 获取灯光世界位置的Y坐标值
      */
     getGlobalPosY() {
-        return this._worldCircle.y;
+        return super.getGlobalPosY() + this._worldCenter.y;
     }
 
     /**
@@ -174,6 +166,7 @@ export class FreeformLight2D extends BaseLight2D {
      */
     protected _calcLocalRange() {
         super._calcLocalRange();
+
         let xmin = Number.POSITIVE_INFINITY;
         let ymin = Number.POSITIVE_INFINITY;
         let xmax = Number.NEGATIVE_INFINITY;
@@ -187,20 +180,17 @@ export class FreeformLight2D extends BaseLight2D {
             if (ymin > y) ymin = y;
             if (ymax < y) ymax = y;
         }
-        let x = (xmax - xmin) * Browser.pixelRatio | 0;
-        let y = (ymax - ymin) * Browser.pixelRatio | 0;
-        const t = this._falloffRange * FreeformLight2D.FALLOF_WIDTH * 1.5 * Browser.pixelRatio | 0;
-        const w = this._localRange.width = x + 10 + t * 2;
-        const h = this._localRange.height = y + 10 + t * 2;
-        this._localRange.x = (xmin - 5 - t) | 0;
-        this._localRange.y = (ymin - 5 - t) | 0;
+        let x = (xmax - xmin) * Browser.pixelRatio;
+        let y = (ymax - ymin) * Browser.pixelRatio;
+        const t = this._falloffRange * FreeformLight2D.FALLOF_WIDTH * Browser.pixelRatio;
+        const w = (x + 2 + t * 2) | 0;
+        const h = (y + 2 + t * 2) | 0;
+        this._localCenter.x = (xmax + xmin) / 2;
+        this._localCenter.y = (ymax + ymin) / 2;
+        this._localRange.x = -w / 2;
+        this._localRange.y = -h / 2;
         this._localRange.width = w;
         this._localRange.height = h;
-
-        //计算局部坐标包围圆
-        this._localCircle.z = Math.sqrt(w * w + h * h) / 2 | 0;
-        this._localCircle.x = (this._localRange.x + w / 2) | 0;
-        this._localCircle.y = (this._localRange.y + h / 2) | 0;
     }
 
     /**
@@ -210,37 +200,37 @@ export class FreeformLight2D extends BaseLight2D {
      */
     protected _calcWorldRange(screen?: Rectangle) {
         super._calcWorldRange(screen);
-        super._lightScaleAndRotation();
-        this._lightPolygon.cloneTo(this._globalPolygon);
+        this._lightScaleAndRotation();
 
-        //计算世界坐标包围圆
-        const m = this.owner.getGlobalMatrix();
-        const ox = this.owner.globalPosX * Browser.pixelRatio;
-        const oy = this.owner.globalPosY * Browser.pixelRatio;
-        const sx = Math.abs(this.owner.globalScaleX);
-        const sy = Math.abs(this.owner.globalScaleY);
-        if (m) {
-            this._worldCircle.x = m.a * this._localCircle.x + m.c * this._localCircle.y + ox;
-            this._worldCircle.y = m.b * this._localCircle.x + m.d * this._localCircle.y + oy;
-        } else {
-            this._worldCircle.x = this._localCircle.x * sx + ox;
-            this._worldCircle.y = this._localCircle.y * sy + oy;
-        }
-        this._worldCircle.z = Math.sqrt(sx * sx + sy * sy) * this._localCircle.z;
-
-        //计算世界坐标包围盒
-        this._worldRange.x = (this._worldCircle.x - this._worldCircle.z) | 0;
-        this._worldRange.y = (this._worldCircle.y - this._worldCircle.z) | 0;
-        this._worldRange.width = this._worldCircle.z * 2 | 0;
-        this._worldRange.height = this._worldCircle.z * 2 | 0;
-
-        //对多边形顶点进行偏移（使其居中）
         const x = this._localRange.x;
         const y = this._localRange.y;
+        const w = this._localRange.width;
+        const h = this._localRange.height;
+        const sx = Math.abs(this.owner.globalScaleX);
+        const sy = Math.abs(this.owner.globalScaleY);
+        const px = this.owner.globalPosX * Browser.pixelRatio;
+        const py = this.owner.globalPosY * Browser.pixelRatio;
+        const m = Math.max(w * sx, h * sy) | 0;
+        const mat = this.owner.getGlobalMatrix();
+        if (mat) {
+            this._worldCenter.x = mat.a * this._localCenter.x + mat.c * this._localCenter.y;
+            this._worldCenter.y = mat.b * this._localCenter.x + mat.d * this._localCenter.y;
+        }
+        this._worldRange.x = (px - m / 2 + this._worldCenter.x) | 0;
+        this._worldRange.y = (py - m / 2 + this._worldCenter.y) | 0;
+        this._worldRange.width = m;
+        this._worldRange.height = m;
+        this._lightRange.x = (px + x + this._worldCenter.x) | 0;
+        this._lightRange.y = (py + y + this._worldCenter.y) | 0;
+        this._lightRange.width = w;
+        this._lightRange.height = h;
+
+        //对多边形顶点进行偏移（使生成的灯光贴图居中）
         const polygon = this._globalPolygon.points;
+        this._lightPolygon.cloneTo(this._globalPolygon);
         for (let i = polygon.length - 2; i > -1; i -= 2) {
-            polygon[i + 0] -= x;
-            polygon[i + 1] -= y;
+            polygon[i + 0] -= (x + this._localCenter.x);
+            polygon[i + 1] -= (y + this._localCenter.y);
         }
     }
 
@@ -254,8 +244,9 @@ export class FreeformLight2D extends BaseLight2D {
         super.renderLightTexture(scene);
         if (this._needUpdateLight) {
             this._needUpdateLight = false;
-            const width = this._localRange.width;
-            const height = this._localRange.height;
+            const range = this._getLocalRange();
+            const width = range.width;
+            const height = range.height;
             if (width === 0 || height === 0) return;
             if (!this._texLight || !(this._texLight instanceof RenderTexture2D)) {
                 this._texLight = new RenderTexture2D(width, height, RenderTargetFormat.R8G8B8A8);
@@ -280,14 +271,11 @@ export class FreeformLight2D extends BaseLight2D {
                 if (Light2DManager.DEBUG)
                     console.log('update freeform light texture', width, height);
             }
+            this._getWorldRange(); //createMesh之前要保证calcWorldRange已经执行
             const mesh = this._createMesh(this._falloffRange * FreeformLight2D.FALLOF_WIDTH, 8, this._cmdMesh?.mesh, this._needToRecover);
             if (!this._cmdMesh)
-                this._cmdMesh = DrawMesh2DCMD.create(mesh, Matrix.EMPTY, Texture2D.whiteTexture, Color.WHITE, this._material);
-            else {
-                if (this._cmdMesh.mesh)
-                    this._needToRecover.push(this._cmdMesh.mesh);
-                this._cmdMesh.mesh = mesh;
-            }
+               this._cmdMesh = DrawMesh2DCMD.create(mesh, Matrix.EMPTY, Texture2D.whiteTexture, Color.WHITE, this._material);
+            else this._cmdMesh.mesh = mesh;
             this._cmdBuffer.addCacheCommand(this._cmdRT);
             this._cmdBuffer.addCacheCommand(this._cmdMesh);
             this._cmdBuffer.apply(true);

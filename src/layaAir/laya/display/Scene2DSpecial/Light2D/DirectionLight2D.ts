@@ -6,6 +6,7 @@ import { BaseLight2D, Light2DType } from "./BaseLight2D";
  * 线性灯光
  */
 export class DirectionLight2D extends BaseLight2D {
+    static LIGHT_SIZE: number = 20000; //尺寸
     private _directionAngle: number = 0; //灯光角度
     private _directionVector: Vector2 = new Vector2(1, 0); //灯光角度矢量
 
@@ -59,8 +60,9 @@ export class DirectionLight2D extends BaseLight2D {
         if (len > 0) {
             const x = value.x / len;
             const y = value.y / len;
-            if (this._directionVector.x !== x || this._directionVector.y !== y) {
-                this._directionAngle = Math.atan2(y, x);
+            if (value === this._directionVector
+                || this._directionVector.x !== x || this._directionVector.y !== y) {
+                this._directionAngle = Math.atan2(y, x) * 180 / Math.PI;
                 this._directionVector.x = x;
                 this._directionVector.y = y;
                 this._needUpdateLightAndShadow = true;
@@ -69,20 +71,10 @@ export class DirectionLight2D extends BaseLight2D {
     }
 
     /**
-     * @en Get light pos
-     * @zh 获取灯光位置
-     */
-    get lightPos() {
-        this._lightPos.x = -this.directionVector.x * 1.0e5;
-        this._lightPos.y = -this.directionVector.y * 1.0e5;
-        return this._lightPos;
-    }
-
-    /**
      * @internal
      * @param screen 屏幕位置和尺寸
      */
-    _getRange(screen?: Rectangle) {
+    _getWorldRange(screen?: Rectangle) {
         if (screen && !this._screenCache.equals(screen)) {
             screen.cloneTo(this._screenCache);
             this._calcWorldRange(screen);
@@ -96,10 +88,11 @@ export class DirectionLight2D extends BaseLight2D {
      */
     protected _calcLocalRange() {
         super._calcLocalRange();
-        this._localRange.x = -1.0e4;
-        this._localRange.y = -1.0e4;
-        this._localRange.width = 2.0e4;
-        this._localRange.height = 2.0e4;
+
+        this._localRange.x = -DirectionLight2D.LIGHT_SIZE / 2;
+        this._localRange.y = -DirectionLight2D.LIGHT_SIZE / 2;
+        this._localRange.width = DirectionLight2D.LIGHT_SIZE;
+        this._localRange.height = DirectionLight2D.LIGHT_SIZE;
     }
 
     /**
@@ -109,11 +102,11 @@ export class DirectionLight2D extends BaseLight2D {
      */
     protected _calcWorldRange(screen?: Rectangle) {
         super._calcWorldRange(screen);
-        this._localRange.cloneTo(this._worldRange);
-        if (screen) {
-            this._worldRange.x += screen.x;
-            this._worldRange.y += screen.y;
-        }
+
+        this._worldRange.x = this._localRange.x + (screen ? (screen.x | 0) : 0);
+        this._worldRange.y = this._localRange.y + (screen ? (screen.y | 0) : 0);
+        this._worldRange.width = this._localRange.width;
+        this._worldRange.height = this._localRange.height;
     }
 
     /**

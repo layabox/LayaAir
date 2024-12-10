@@ -13,12 +13,14 @@ import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { Mesh2D, VertexMesh2D } from "../../../resource/Mesh2D";
 import { RenderTexture } from "../../../resource/RenderTexture";
-import { Browser } from "../../../utils/Browser";
 import { Utils } from "../../../utils/Utils";
 import { Scene } from "../../Scene";
 import { Sprite } from "../../Sprite";
 import { Light2DManager } from "./Light2DManager";
 
+/**
+ * 灯光类型
+ */
 export enum Light2DType {
     Base,
     Spot,
@@ -27,11 +29,14 @@ export enum Light2DType {
     Direction,
 }
 
+/**
+ * 阴影边缘类型
+ */
 export enum ShadowFilterType {
-    None = 1,
-    PCF5 = 5,
-    PCF9 = 9,
-    PCF13 = 13,
+    None,
+    PCF5,
+    PCF9,
+    PCF13,
 }
 
 /**
@@ -55,7 +60,7 @@ export class BaseLight2D extends Component {
      */
     static LIGHTANDSHADOW_AMBIENT: number;
 
-    static idCounter: number = 0; //用于区别不同灯光对象的id计数器
+    static idCounter: number = 0; //灯光对象计数器
 
     declare owner: Sprite;
 
@@ -80,7 +85,6 @@ export class BaseLight2D extends Component {
     private _intensity: number = 1; //灯光强度
     private _lightRotation: number = 0; //灯光旋转
     private _lightScale: Vector2 = new Vector2(1, 1); //灯光放缩
-    protected _lightPos: Vector2 = new Vector2(); //灯光位置
 
     private _layerMask: number = 1; //灯光层掩码（哪些层有灯光）
     private _layers: number[] = [0]; //灯光层数组（哪些层有灯光）
@@ -94,6 +98,7 @@ export class BaseLight2D extends Component {
 
     protected _localRange: Rectangle = new Rectangle(); //灯光范围（局部坐标）
     protected _worldRange: Rectangle = new Rectangle(); //灯光范围（世界坐标）
+    protected _lightRange: Rectangle = new Rectangle(); //灯光范围（光影图）
 
     private _recoverFC: number = 0; //回收资源帧序号
     protected _needToRecover: any[] = []; //需要回收的资源
@@ -118,7 +123,7 @@ export class BaseLight2D extends Component {
     /**
      * @internal
      */
-    _lightId: number;
+    _lightId: number; //灯光对象Id，在所有灯光对象里保持唯一
     /**
      * @internal
      */
@@ -126,7 +131,7 @@ export class BaseLight2D extends Component {
     /**
      * @internal
      */
-    _needUpdateLightAndShadow: boolean = false; //是否需要更新整体光影图
+    _needUpdateLightAndShadow: boolean = false; //是否需要更新光影图
     /**
      * @internal
      */
@@ -149,8 +154,8 @@ export class BaseLight2D extends Component {
      * @zh 设置灯光颜色
      */
     set color(value: Color) {
-        if (!value.equal(this._color)) {
-            this._color = value;
+        if (value === this._color || !value.equal(this._color)) {
+            value.cloneTo(this._color);
             this._needUpdateLightAndShadow = true;
         }
     }
@@ -210,20 +215,10 @@ export class BaseLight2D extends Component {
      * @param value 灯光放缩值
      */
     set lightScale(value: Vector2) {
-        if (!Vector2.equals(value, this._lightScale)) {
+        if (value === this._lightScale || !Vector2.equals(value, this._lightScale)) {
             value.cloneTo(this._lightScale);
             this._needUpdateLightAndShadow = true;
         }
-    }
-
-    /**
-     * @en Get light pos
-     * @zh 获取灯光位置
-     */
-    get lightPos() {
-        this._lightPos.x = (this.owner.globalPosX * Browser.pixelRatio) | 0;
-        this._lightPos.y = (this.owner.globalPosY * Browser.pixelRatio) | 0;
-        return this._lightPos;
     }
 
     /**
@@ -244,6 +239,7 @@ export class BaseLight2D extends Component {
         if (value !== this._shadowEnable) {
             this._shadowEnable = value;
             this._needUpdateLightAndShadow = true;
+            this._notifyShadowEnableChange();
         }
     }
 
@@ -262,8 +258,8 @@ export class BaseLight2D extends Component {
      * @param value 阴影颜色值
      */
     set shadowColor(value: Color) {
-        if (!value.equal(this._shadowColor)) {
-            this._shadowColor = value;
+        if (value === this._shadowColor || !value.equal(this._shadowColor)) {
+            value.cloneTo(this._shadowColor);
             this._needUpdateLightAndShadow = true;
         }
     }
@@ -329,6 +325,7 @@ export class BaseLight2D extends Component {
         if (value !== this._shadowFilterSmooth) {
             this._shadowFilterSmooth = value;
             this._needUpdateLightAndShadow = true;
+            this._needUpdateLightWorldRange = true;
         }
     }
 
@@ -356,7 +353,6 @@ export class BaseLight2D extends Component {
             for (let i = 0; i < Light2DManager.MAX_LAYER; i++)
                 if (value & (1 << i))
                     this._layers.push(i);
-            console.log(...this._layers);
         }
     }
 
@@ -412,7 +408,7 @@ export class BaseLight2D extends Component {
      * 通知此灯阴影接受层的改变
      */
     private _notifyShadowCastLayerChange(oldLayer: number, newLayer: number) {
-        ((this.owner?.scene)?._light2DManager as Light2DManager)?.lightShadowLayerMarkChange(this, oldLayer, newLayer);
+        (this.owner?.scene?._light2DManager as Light2DManager)?.lightShadowLayerMarkChange(this, oldLayer, newLayer);
     }
 
     /**
@@ -420,7 +416,19 @@ export class BaseLight2D extends Component {
      * 通知此灯阴影PCF参数的改变
      */
     private _notifyShadowPCFChange() {
-        ((this.owner?.scene)?._light2DManager as Light2DManager)?.lightShadowPCFChange(this);
+        const light2DManager = this.owner?.scene?._light2DManager as Light2DManager;
+        if (light2DManager) {
+            light2DManager.lightShadowPCFChange(this);
+            light2DManager.needCollectLightInLayer(this.layerMask);
+        }
+    }
+
+    /**
+     * @internal
+     * 通知此灯阴影使能改变
+     */
+    private _notifyShadowEnableChange() {
+        (this.owner?.scene?._light2DManager as Light2DManager)?.lightShadowEnableChange(this);
     }
 
     /**
@@ -455,8 +463,9 @@ export class BaseLight2D extends Component {
      */
     protected _transformChange() {
         this._clearScreenCache();
+        this._needUpdateLightAndShadow = true;
         this._needUpdateLightWorldRange = true;
-        ((this.owner.scene as Scene)?._light2DManager as Light2DManager)?._lightTransformChange(this);
+        (this.owner?.scene?._light2DManager as Light2DManager)?._lightTransformChange(this);
     }
 
     /**
@@ -488,15 +497,38 @@ export class BaseLight2D extends Component {
 
     /**
      * @internal
+     * 获取灯光范围（局部坐标）
+     */
+    _getLocalRange() {
+        if (this._needUpdateLightLocalRange)
+            this._calcLocalRange();
+        return this._localRange;
+    }
+
+    /**
+     * @internal
      * 获取灯光范围（世界坐标）
      * @param screen 
      */
-    _getRange(screen?: Rectangle) {
+    _getWorldRange(screen?: Rectangle) {
         if (this._needUpdateLightLocalRange)
             this._calcLocalRange();
         if (this._needUpdateLightWorldRange)
             this._calcWorldRange(screen);
         return this._worldRange;
+    }
+
+    /**
+     * @internal
+     * 获取灯光范围（光影图）
+     * @param screen 
+     */
+    _getLightRange(screen?: Rectangle) {
+        if (this._needUpdateLightLocalRange)
+            this._calcLocalRange();
+        if (this._needUpdateLightWorldRange)
+            this._calcWorldRange(screen);
+        return this._lightRange;
     }
 
     /**
@@ -520,11 +552,24 @@ export class BaseLight2D extends Component {
     }
 
     /**
+     * 矩形1是否包含矩形2
+     * @param rect1
+     * @param rect2 
+     */
+    private _rectContain(rect1: Rectangle, rect2: Rectangle) {
+        return (
+            rect2.x >= rect1.x &&
+            rect2.y >= rect1.y &&
+            (rect2.x + rect2.width) <= (rect1.x + rect1.width) &&
+            (rect2.y + rect2.height) <= (rect1.y + rect1.height));
+    }
+
+    /**
      * @internal
      * 是否在指定范围内
      */
     _isInRange(range: Rectangle) {
-        return range && this._getRange().intersects(range);
+        return range && this._rectContain(range, this._getWorldRange());
     }
 
     /**
@@ -536,37 +581,11 @@ export class BaseLight2D extends Component {
     }
 
     /**
-     * @en Get light range height
-     * @zh 获取灯光影响范围矩形的高度值
-     */
-    getHeight() {
-        if (this._needUpdateLightLocalRange)
-            this._calcLocalRange();
-        if (this._needUpdateLightWorldRange)
-            this._calcWorldRange();
-        return this._worldRange.height;
-    }
-
-    /**
-     * @en Get light range width
-     * @zh 获取灯光影响范围矩形的宽度值
-     */
-    getWidth() {
-        if (this._needUpdateLightLocalRange)
-            this._calcLocalRange();
-        if (this._needUpdateLightWorldRange)
-            this._calcWorldRange();
-        return this._worldRange.width;
-    }
-
-    /**
      * @en Get light global position x
      * @zh 获取灯光世界位置的X坐标值
      */
     getGlobalPosX() {
-        if (this.owner instanceof Sprite)
-            return this.owner.globalPosX;
-        return 0;
+        return this.owner.globalPosX;
     }
 
     /**
@@ -574,9 +593,7 @@ export class BaseLight2D extends Component {
      * @zh 获取灯光世界位置的Y坐标值
      */
     getGlobalPosY() {
-        if (this.owner instanceof Sprite)
-            return this.owner.globalPosY;
-        return 0;
+        return this.owner.globalPosY;
     }
 
     /**
@@ -648,8 +665,7 @@ export class BaseLight2D extends Component {
      */
     protected _calcWorldRange(screen?: Rectangle) {
         this._needUpdateLightWorldRange = false;
-        //通知上层检查灯光范围
-        ((this.owner?.scene as Scene)?._light2DManager as Light2DManager)?._checkLightRange(this);
+        (this.owner?.scene?._light2DManager as Light2DManager)?.needCheckLightRange(this);
     }
 
     /**
@@ -702,7 +718,7 @@ export class BaseLight2D extends Component {
             && cache.right === screen.height) {
             return this._isInScreen;
         }
-        this._isInScreen = this._getRange().intersects(screen);
+        this._isInScreen = this._getWorldRange().intersects(screen);
         screen.cloneTo(cache);
         return this._isInScreen;
     }
