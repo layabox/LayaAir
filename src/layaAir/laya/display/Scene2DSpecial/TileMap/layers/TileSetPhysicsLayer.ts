@@ -1,7 +1,7 @@
 export class TileSetPhysicsLayer {
 
    /** 识别用索引 */
-   index:number;
+   id:number;
    
    /** @internal 密度值，值可以为零或者是正数，建议使用相似的密度，这样做可以改善堆叠稳定性，默认值为10*/
    private _density: number = 10;

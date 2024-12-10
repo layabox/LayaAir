@@ -16,6 +16,9 @@ export class TileMapPhysics {
 
     private _layer: TileMapLayer;
 
+    /**
+     * 是否启动了物理
+     */
     enable:boolean = false;
 
     _rigidBodys: any[] = [];
@@ -26,11 +29,8 @@ export class TileMapPhysics {
     
     updateState(bool:boolean){
         let result = !!Laya.physics2D && bool;
-        if (result) {//todo
-            
-        }else{
-
-        }
+        if (result) this._enableRigidBodys();
+        else this._disableRigidBodys();
         this.enable = result;
     }
 
@@ -77,7 +77,7 @@ export class TileMapPhysics {
         Laya.physics2D.set_RigibBody_Enable(rigidBody,false);
     }
 
-    destroyRigidBoyd(rigidBody:any){
+    destroyRigidBody(rigidBody:any){
         let index = this._rigidBodys.indexOf(rigidBody);
         if (index !== -1) {
             this._rigidBodys.splice(index , 1);
