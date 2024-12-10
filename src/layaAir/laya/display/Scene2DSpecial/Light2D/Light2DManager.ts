@@ -236,8 +236,10 @@ class Light2DRenderRes {
      */
     updateLightMesh(mesh: Mesh2D, i: number, j: number) {
         this.lightMeshs[i][j] = mesh;
-        if (this._cmdLightMeshs[i] && this._cmdLightMeshs[i][j])
-            this._cmdLightMeshs[i][j].mesh = mesh;
+        if (Light2DManager.REUSE_CMD) {
+            if (this._cmdLightMeshs[i] && this._cmdLightMeshs[i][j])
+                this._cmdLightMeshs[i][j].mesh = mesh;
+        }
     }
 
     /**
@@ -247,8 +249,10 @@ class Light2DRenderRes {
      */
     updateShadowMesh(mesh: Mesh2D, i: number) {
         this.shadowMeshs[i] = mesh;
-        if (this._cmdShadowMeshs[i])
-            this._cmdShadowMeshs[i].mesh = mesh;
+        if (Light2DManager.REUSE_CMD) {
+            if (this._cmdShadowMeshs[i])
+                this._cmdShadowMeshs[i].mesh = mesh;
+        }
     }
 
     /**
@@ -264,14 +268,18 @@ class Light2DRenderRes {
                     if (recover && this.shadowMeshs[i])
                         recover.push(this.shadowMeshs[i]);
                     this.shadowMeshs[i] = null;
-                    if (this._cmdShadowMeshs[i]) {
-                        this._cmdShadowMeshs[i].recover();
-                        this._cmdShadowMeshs[i] = null;
+                    if (Light2DManager.REUSE_CMD) {
+                        if (this._cmdShadowMeshs[i]) {
+                            this._cmdShadowMeshs[i].recover();
+                            this._cmdShadowMeshs[i] = null;
+                        }
                     }
                 } else {
                     if (light._isNeedShadowMesh()) {
-                        if (!this._cmdShadowMeshs[i])
-                            this._cmdShadowMeshs[i] = DrawMesh2DCMD.create(this.shadowMeshs[i], Matrix.EMPTY, this.textures[i], Color.WHITE, this.materialShadow[i]);
+                        if (Light2DManager.REUSE_CMD) {
+                            if (!this._cmdShadowMeshs[i])
+                                this._cmdShadowMeshs[i] = DrawMesh2DCMD.create(this.shadowMeshs[i], Matrix.EMPTY, this.textures[i], Color.WHITE, this.materialShadow[i]);
+                        }
                         if (!this.materialShadow[i]) {
                             this.materialShadow[i] = new Material();
                             this._initMaterial(this.materialShadow[i], true);
@@ -287,24 +295,41 @@ class Light2DRenderRes {
     /**
      * 渲染光影图
      */
-    render() {
-        if (this._cmdRT) {
-            this._cmdBuffer.addCacheCommand(this._cmdRT);
-            for (let i = 0, len = this._cmdLightMeshs.length; i < len; i++) {
-                const cmds = this._cmdLightMeshs[i];
-                for (let j = 0, len = cmds.length; j < len; j++) {
-                    const cmd = cmds[j];
-                    if (cmd.mesh && cmd.texture && cmd.material)
+    render(rt?: RenderTexture2D) {
+        if (Light2DManager.REUSE_CMD) {
+            if (this._cmdRT) {
+                this._cmdBuffer.addCacheCommand(this._cmdRT);
+                for (let i = 0, len = this._cmdLightMeshs.length; i < len; i++) {
+                    const cmds = this._cmdLightMeshs[i];
+                    for (let j = 0, len = cmds.length; j < len; j++) {
+                        const cmd = cmds[j];
+                        if (cmd.mesh && cmd.material)
+                            this._cmdBuffer.addCacheCommand(cmd);
+                    }
+                }
+                for (let i = 0, len = this._cmdShadowMeshs.length; i < len; i++) {
+                    const cmd = this._cmdShadowMeshs[i];
+                    if (cmd && cmd.mesh && cmd.material)
                         this._cmdBuffer.addCacheCommand(cmd);
                 }
+                this._cmdBuffer.apply(true);
+                this._cmdBuffer.clear(false);
             }
-            for (let i = 0, len = this._cmdShadowMeshs.length; i < len; i++) {
-                const cmd = this._cmdShadowMeshs[i];
-                if (cmd && cmd.mesh && cmd.texture && cmd.material)
-                    this._cmdBuffer.addCacheCommand(cmd);
+        } else {
+            this._cmdBuffer.setRenderTarget(rt, true, Color.CLEAR, this._invertY);
+            for (let i = 0, len = this.lightMeshs.length; i < len; i++) {
+                const meshs = this.lightMeshs[i];
+                for (let j = 0, len = meshs.length; j < len; j++)
+                    if (meshs[j] && this.material[i])
+                        this._cmdBuffer.drawMesh2DByMatrix(meshs[j], Matrix.EMPTY, this.textures[i], Color.WHITE, this.material[i]);
+            }
+            for (let i = 0, len = this.shadowMeshs.length; i < len; i++) {
+                const mesh = this.shadowMeshs[i];
+                if (mesh && this.materialShadow[i])
+                    this._cmdBuffer.drawMesh2DByMatrix(mesh, Matrix.EMPTY, this.textures[i], Color.WHITE, this.materialShadow[i]);
             }
             this._cmdBuffer.apply(true);
-            this._cmdBuffer.clear(false);
+            this._cmdBuffer.clear(true);
         }
     }
 }
@@ -330,6 +355,8 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
     static MAX_LAYER: number = 32; //最大层数
     static LIGHT_SCHMITT_SIZE: number = 100; //灯光施密特边缘尺寸
     static SCREEN_SCHMITT_SIZE: number = 200; //屏幕施密特边缘尺寸
+    static REUSE_CMD: boolean = true; //复用CMD开关
+    static REUSE_MESH: boolean = true; //复用Mesh开关
     static DEBUG: boolean = false; //是否打印调试信息
 
     lsTarget: RenderTexture2D[] = []; //渲染目标（光影图），数量等于有灯光的层数
@@ -832,8 +859,10 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
         if (!this._lightRenderRes[layer])
             this._lightRenderRes[layer] = new Light2DRenderRes(LayaGL.renderEngine._screenInvertY);
         this._lightRenderRes[layer].addLights(this._lightsInLayer[layer], this._needToRecover);
-        this._lightRenderRes[layer].setRenderTargetCMD(this.lsTarget[layer]);
-        this._lightRenderRes[layer].buildRenderMeshCMD();
+        if (Light2DManager.REUSE_CMD) {
+            this._lightRenderRes[layer].setRenderTargetCMD(this.lsTarget[layer]);
+            this._lightRenderRes[layer].buildRenderMeshCMD();
+        }
         if (Light2DManager.DEBUG)
             console.log('update layer render res', layer);
     }
@@ -1097,8 +1126,9 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
                 occluderChange = false;
             }
             if (needRender) { //更新光影图和方向图
-                renderRes.updateMaterial();
-                renderRes.render();
+                if (Light2DManager.REUSE_CMD)
+                    renderRes.updateMaterial();
+                renderRes.render(this.lsTarget[layer]);
             }
         }
 
@@ -1239,6 +1269,8 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
                 this._needToRecover.push(mesh);
             ret = this._genLightMesh(lightX, lightY, lightWidth, lightHeight, lightOffsetX, lightOffsetY, layerOffsetX, layerOffsetY, this._points);
         }
+        for (let i = 0; i < len; i++)
+            Pool.recover('Vector4', poly[i]); //poly来自内存池，需要归还
         return ret;
     }
 
@@ -1286,6 +1318,8 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
                 this._needToRecover.push(mesh);
             ret = this._genShadowMesh(lightX, lightY, lightWidth, lightHeight, lightOffsetX, lightOffsetY, layerOffsetX, layerOffsetY, this._points, radius);
         }
+        for (let i = 0; i < len; i++)
+            Pool.recover('Vector4', poly[i]); //poly来自内存池，需要归还
         return ret;
     }
 
@@ -1482,8 +1516,8 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
             uniqueAngles.push(angle - 0.0001, angle, angle + 0.0001);
         }
 
-        const ray = Pool.getItemByClass('LightLine2D_Ray', LightLine2D).create(0, 0, 0, 0);
-        const result = new Vector4();
+        const ray = Pool.getItemByClass('LightLine2D', LightLine2D).create(0, 0, 0, 0);
+        const result = Pool.getItemByClass('Vector4', Vector4);
 
         //Rays in all directions
         let intersects = [];
@@ -1504,8 +1538,10 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
             let closestIntersect: Vector4;
             for (let i = 0, len = segments.length; i < len; i++) {
                 if (!this._getIntersection(ray, segments[i], result)) continue;
-                if (!closestIntersect)
-                    closestIntersect = result.clone();
+                if (!closestIntersect) {
+                    closestIntersect = Pool.getItemByClass('Vector4', Vector4);
+                    result.cloneTo(closestIntersect);
+                }
                 else if (result.z < closestIntersect.z)
                     closestIntersect.setValue(result.x, result.y, result.z, result.w);
             }
@@ -1518,7 +1554,8 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
             intersects.push(closestIntersect);
         }
 
-        Pool.recover('LightLine2D_Ray', ray);
+        Pool.recover('LightLine2D', ray);
+        Pool.recover('Vector4', result);
 
         //Sort intersects by angle
         intersects = intersects.sort((a, b) => { return a.w - b.w; });
