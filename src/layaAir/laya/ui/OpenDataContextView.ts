@@ -6,6 +6,7 @@ import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
 import { ILaya } from "../../ILaya";
 import { LayaEnv } from "../../LayaEnv";
 import { Browser } from "../utils/Browser";
+import { TransformKind } from "../display/SpriteConst";
 
 /**
  * @en OpenDataContext component for displaying OpenData in WeChat mini-games. Instantiate this component directly to optimally display OpenData based on the component's width, height, and position.
@@ -83,19 +84,16 @@ export class OpenDataContextView extends UIComponent {
     /**
      * @ignore
      */
-    _setWidth(value: number) {
-        super._setWidth(value);
-        if ((window as any).sharedCanvas) (window as any).sharedCanvas.width = value;
-        this.callLater(this.updateViewPort);
-    }
+    protected _transChanged(kind: TransformKind) {
+        super._transChanged(kind);
 
-    /**
-     * @ignore
-     */
-    _setHeight(value: number) {
-        super._setHeight(value);
-        if ((window as any).sharedCanvas) (window as any).sharedCanvas.height = value;
-        this.callLater(this.updateViewPort);
+        if ((kind & TransformKind.Size) != 0) {
+            if ((window as any).sharedCanvas) {
+                (window as any).sharedCanvas.width = this._width;
+                (window as any).sharedCanvas.height = this._height;
+            }
+            this.callLater(this.updateViewPort);
+        }
     }
 
     /**

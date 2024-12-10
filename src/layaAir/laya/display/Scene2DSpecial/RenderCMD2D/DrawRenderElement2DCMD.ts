@@ -49,7 +49,7 @@ export class DrawRenderElement2DCMD extends Command2D {
     _setMatrix(value: Matrix) {
         value ? (this._matreix = value.clone()) : (this._matreix = null);
         if (this._matreix && this.renderElement.nodeCommonMap.indexOf("BaseRender2D") != -1) {
-            let vec3 = Vector3._tempVector3;
+            let vec3 = Vector3.TEMP;
             vec3.x = this._matreix.a;
             vec3.y = this._matreix.c;
             vec3.z = this._matreix.tx;

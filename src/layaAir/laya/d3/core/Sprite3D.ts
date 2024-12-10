@@ -132,7 +132,7 @@ export class Sprite3D extends Node {
         if (this._layer !== value) {
             if (value >= 0 && value <= 30) {
                 this._layer = value;
-                this.event(Event.LAYERCHANGE, value);
+                this.event(Event.LAYER_CHANGE, value);
             } else {
                 throw new Error("Layer value must be 0-30.");
             }
@@ -150,7 +150,7 @@ export class Sprite3D extends Node {
     /**@internal IDE only*/
     set isStatic(value: boolean) {
         this._isStatic = value ? StaticFlag.StaticBatch : StaticFlag.Normal;
-        this.event(Event.staticMask, this._isStatic);
+        this.event(Event.STATIC_MASK, this._isStatic);
     }
 
     /**
@@ -233,16 +233,12 @@ export class Sprite3D extends Node {
     }
 
     /**
-     * @internal
-     * @protected
-     * @param type 
+     * @ignore
      */
     protected onStartListeningToType(type: string) {
         super.onStartListeningToType(type);
-        if (type.startsWith("collision"))
-            this._setBit(NodeFlags.PROCESS_COLLISIONS, true);
-        else if (type.startsWith("trigger"))
-            this._setBit(NodeFlags.PROCESS_TRIGGERS, true);
+        if (type.startsWith("collision") || type.startsWith("trigger"))
+            this.event(Event.UPDATE_PHY_EVENT_FILTER);
     }
 
     /**
@@ -274,11 +270,11 @@ export class Sprite3D extends Node {
     /**
      * @internal
      */
-    private static _createSprite3DInstance(scrSprite: Sprite3D): Node {
-        var node: Node = scrSprite._create();
-        var children: any[] = scrSprite._children;
-        for (var i: number = 0, n: number = children.length; i < n; i++) {
-            var child: any = Sprite3D._createSprite3DInstance(children[i])
+    private static _createSprite3DInstance(scrSprite: Sprite3D): Sprite3D {
+        let node: Sprite3D = new (<typeof Sprite3D>Object.getPrototypeOf(scrSprite).constructor)();
+        let children = <Sprite3D[]>scrSprite._children;
+        for (let i: number = 0, n: number = children.length; i < n; i++) {
+            let child = Sprite3D._createSprite3DInstance(children[i]);
             node.addChild(child);
         }
         return node;
@@ -287,10 +283,10 @@ export class Sprite3D extends Node {
     /**
      * @internal
      */
-    private static _parseSprite3DInstance(srcRoot: Node, dstRoot: Node, scrSprite: Node, dstSprite: Node): void {
-        var srcChildren: any[] = scrSprite._children;
-        var dstChildren: any[] = dstSprite._children;
-        for (var i: number = 0, n: number = srcChildren.length; i < n; i++)
+    private static _parseSprite3DInstance(srcRoot: Sprite3D, dstRoot: Sprite3D, scrSprite: Sprite3D, dstSprite: Sprite3D): void {
+        let srcChildren = <Sprite3D[]>scrSprite._children;
+        let dstChildren = <Sprite3D[]>dstSprite._children;
+        for (let i: number = 0, n: number = srcChildren.length; i < n; i++)
             Sprite3D._parseSprite3DInstance(srcRoot, dstRoot, srcChildren[i], dstChildren[i])
         scrSprite._cloneTo(dstSprite, srcRoot, dstRoot);
     }
@@ -302,7 +298,7 @@ export class Sprite3D extends Node {
      * @returns	克隆副本。
      */
     clone(): Node {
-        var dstSprite3D: Node = Sprite3D._createSprite3DInstance(this);
+        let dstSprite3D = Sprite3D._createSprite3DInstance(this);
         Sprite3D._parseSprite3DInstance(this, dstSprite3D, this, dstSprite3D);
         return dstSprite3D;
     }
@@ -321,13 +317,6 @@ export class Sprite3D extends Node {
 
         super.destroy(destroyChild);
         this._transform = null;
-    }
-
-    /**
-     * @internal
-     */
-    protected _create(): Node {
-        return new Sprite3D();
     }
 }
 

@@ -345,7 +345,7 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      * @zh 创建Box2D世界。
      */
     start() {
-        if(this._world) return;
+        if (this._world) return;
         this._PIXEL_RATIO = Physics2DOption.pixelRatio * Browser.pixelRatio;
         this._Re_PIXEL_RATIO = 1 / this._PIXEL_RATIO;
         var gravity: any = this.createPhyVec2(Physics2DOption.gravity.x, Physics2DOption.gravity.y);
@@ -1520,7 +1520,7 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      * @zh 设置刚体是否激活。
      * @param body 刚体。
      */
-    set_RigibBody_Enable(body: any, enable:boolean): void {
+    set_RigibBody_Enable(body: any, enable: boolean): void {
         body.SetEnabled(enable);
     }
 
@@ -2376,4 +2376,4 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
     }
 }
 
-Physics2D.I._factory = Laya.physics2D= new physics2DwasmFactory()
+Physics2D.I._factory = Laya.physics2D = new physics2DwasmFactory()

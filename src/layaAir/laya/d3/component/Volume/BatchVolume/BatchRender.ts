@@ -142,7 +142,7 @@ export class BatchRender extends BaseRender {
         if (!this.checkLOD || !this._lodRateArray || this._lodRateArray.length < 1) {
             this._changeLOD(0);
         } else {
-            let checkCamera = (this.owner.scene as Scene3D).cullInfoCamera as Camera;
+            let checkCamera = this.owner.scene.cullInfoCamera;
             let maxYDistance = checkCamera.maxlocalYDistance;
             Vector3.subtract(this._bounds._imp.getCenter(), checkCamera.transform.position, tempVec);
             //大于farplane,或者不在视锥内.不做lod操作

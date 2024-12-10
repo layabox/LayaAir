@@ -9,52 +9,52 @@ export class Color implements IClone {
      * @en Red color
      * @zh 红色
      */
-    static RED: Color = new Color(1, 0, 0, 1);
+    static readonly RED: Readonly<Color> = new Color(1, 0, 0, 1);
     /**
      * @en Green color
      * @zh 绿色
      */
-    static GREEN: Color = new Color(0, 1, 0, 1);
+    static readonly GREEN: Readonly<Color> = new Color(0, 1, 0, 1);
     /**
      * @en Blue color
      * @zh 蓝色
      */
-    static BLUE: Color = new Color(0, 0, 1, 1);
+    static readonly BLUE: Readonly<Color> = new Color(0, 0, 1, 1);
     /**
      * @en Cyan color
      * @zh 蓝绿色
      */
-    static CYAN: Color = new Color(0, 1, 1, 1);
+    static readonly CYAN: Readonly<Color> = new Color(0, 1, 1, 1);
     /**
      * @en Yellow color
      * @zh 黄色
      */
-    static YELLOW: Color = new Color(1, 0.92, 0.016, 1);
+    static readonly YELLOW: Readonly<Color> = new Color(1, 0.92, 0.016, 1);
     /**
      * @en Magenta color
      * @zh 品红色
      */
-    static MAGENTA: Color = new Color(1, 0, 1, 1);
+    static readonly MAGENTA: Readonly<Color> = new Color(1, 0, 1, 1);
     /**
      * @en Gray color
      * @zh 灰色
      */
-    static GRAY: Color = new Color(0.5, 0.5, 0.5, 1);
+    static readonly GRAY: Readonly<Color> = new Color(0.5, 0.5, 0.5, 1);
     /**
      * @en White color
      * @zh 白色
      */
-    static WHITE: Color = new Color(1, 1, 1, 1);
+    static WHITE: Readonly<Color> = new Color(1, 1, 1, 1);
     /**
      * @en Black color
      * @zh 黑色
      */
-    static BLACK: Color = new Color(0, 0, 0, 1);
+    static readonly BLACK: Readonly<Color> = new Color(0, 0, 0, 1);
     /**
      * @en Fully transparent
      * @zh 全透明
      */
-    static CLEAR: Color = new Color(0, 0, 0, 0);
+    static readonly CLEAR: Readonly<Color> = new Color(0, 0, 0, 0);
 
     /**
      * @en Convert gamma space value to linear space.

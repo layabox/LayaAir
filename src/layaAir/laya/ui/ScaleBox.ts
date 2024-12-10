@@ -1,5 +1,6 @@
 import { Box } from "./Box"
 import { ILaya } from "../../ILaya";
+import { TransformKind } from "../display/SpriteConst";
 
 /**
  * @en The `ScaleBox` is a container that automatically scales its content to fit the stage size while maintaining the original aspect ratio.
@@ -39,24 +40,12 @@ export class ScaleBox extends Box {
     }
 
     /**
-     * @en Sets the width of the container and updates the original width.
-     * @param value The new width value.
-     * @zh 设置容器的宽度并更新原始宽度。
-     * @param value 新的宽度值。
+     * @ignore
      */
-    set_width(value: number): void {
-        super.set_width(value);
-        this._oldW = value;
-    }
+    protected _transChanged(kind: TransformKind) {
+        super._transChanged(kind);
 
-    /**
-     * @en Sets the height of the container and updates the original height.
-     * @param value The new height value.
-     * @zh 设置容器的高度并更新原始高度。
-     * @param value 新的高度值。
-     */
-    set_height(value: number) {
-        super.set_height(value);
-        this._oldH = value;
+        this._oldW = this._width;
+        this._oldH = this._height;
     }
 }

@@ -1,6 +1,5 @@
 import { Matrix4x4 } from "./Matrix4x4";
 import { MathUtils3D } from "./MathUtils3D";
-import { Vector2 } from "./Vector2";
 import { IClone } from "../utils/IClone";
 
 /**
@@ -45,8 +44,7 @@ export class Vector4 implements IClone {
      */
     static readonly UnitW: Readonly<Vector4> = new Vector4(0.0, 0.0, 0.0, 1.0);
 
-    /** @internal */
-    static tempVec4: Vector4 = new Vector4(0.0, 0.0, 0.0, 0.0);
+    static readonly TEMP: Vector4 = new Vector4(0.0, 0.0, 0.0, 0.0);
 
     /**
      * @en X coordinate.

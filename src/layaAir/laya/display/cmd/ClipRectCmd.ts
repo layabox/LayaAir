@@ -1,11 +1,12 @@
-import { Context, IGraphicCMD } from "../../renders/Context"
+import { Context } from "../../renders/Context"
 import { Pool } from "../../utils/Pool"
+import { IGraphicsCmd } from "../IGraphics";
 
 /**
  * @en Clip command
  * @zh 裁剪命令
  */
-export class ClipRectCmd  implements IGraphicCMD{
+export class ClipRectCmd implements IGraphicsCmd {
     /**
      * @en Identifier for the ClipRectCmd
      * @zh 裁剪命令的标识符
@@ -85,6 +86,5 @@ export class ClipRectCmd  implements IGraphicCMD{
     get cmdID(): string {
         return ClipRectCmd.ID;
     }
-
 }
 

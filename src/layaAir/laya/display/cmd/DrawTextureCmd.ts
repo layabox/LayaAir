@@ -1,16 +1,17 @@
-import { ColorFilter } from "../../filters/ColorFilter"
 import { Matrix } from "../../maths/Matrix"
+import { Rectangle } from "../../maths/Rectangle";
 import { Context } from "../../renders/Context"
 import { Texture } from "../../resource/Texture"
 import { ClassUtils } from "../../utils/ClassUtils";
 import { ColorUtils } from '../../utils/ColorUtils';
 import { Pool } from "../../utils/Pool";
+import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
 
 /**
  * @en Draw a single texture
  * @zh 绘制单个贴图
  */
-export class DrawTextureCmd {
+export class DrawTextureCmd implements IGraphicsCmd {
     /**
      * @en Identifier for the DrawTextureCmd
      * @zh 绘制单个贴图命令的标识符
@@ -146,6 +147,13 @@ export class DrawTextureCmd {
 
     run(context: Context, gx: number, gy: number): void {
         this.texture && context.drawTextureWithTransform(this.texture, this.x, this.y, this.width, this.height, this.matrix, gx, gy, this.alpha, this.blendMode, this.uv, this.color);
+    }
+
+    /**
+     * @ignore
+     */
+    getBounds(assembler: IGraphicsBoundsAssembler): void {
+        Rectangle.TEMP.setTo(this.x, this.y, this.width, this.height).getBoundPoints(assembler.points);
     }
 
     /**

@@ -1,13 +1,14 @@
 import { Bezier } from "../../maths/Bezier";
-import { Context, IGraphicCMD } from "../../renders/Context"
+import { Context } from "../../renders/Context"
 import { ClassUtils } from "../../utils/ClassUtils";
 import { Pool } from "../../utils/Pool"
+import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
 
 /**
  * @en Draw curves command
  * @zh 绘制曲线命令
  */
-export class DrawCurvesCmd implements IGraphicCMD {
+export class DrawCurvesCmd implements IGraphicsCmd {
     /**
      * @en Identifier for the DrawCurvesCmd
      * @zh 绘制曲线命令的标识符
@@ -101,11 +102,11 @@ export class DrawCurvesCmd implements IGraphicCMD {
     }
 
     /**
-     * @en Get the bounding points of the curves.
-     * @zh 获取贝塞尔曲线上的点数据。
+     * @ignore
      */
-    getBoundPoints(): number[] {
-        return Bezier.I.getBezierPoints(this.points);
+    getBounds(assembler: IGraphicsBoundsAssembler): void {
+        assembler.points.push(...Bezier.I.getBezierPoints(this.points));
+        assembler.flushPoints(this.x, this.y);
     }
 }
 

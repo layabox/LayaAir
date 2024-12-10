@@ -47,13 +47,15 @@ export class EffectBase extends Component {
     protected _comlete: Handler;
     protected _tween: Tween;
 
+    declare owner: Sprite;
+
     protected _onAwake(): void {
-        this.target = this.target || (<Sprite>this.owner);
-        if (this.autoDestroyAtComplete) 
+        this.target = this.target || this.owner;
+        if (this.autoDestroyAtComplete)
             this._comlete = Handler.create(this.target, this.target.destroy, null, false);
-        if (this.eventName) 
+        if (this.eventName)
             this.owner.on(this.eventName, this, this._exeTween);
-        else 
+        else
             this._exeTween();
     }
 

@@ -17,6 +17,8 @@ export class JointBase extends Component {
     /**@internal */
     protected _factory: IPhysiscs2DFactory;
 
+    declare owner: Sprite;
+
     /**
      * @readonly
      * @en [read-only] Native joint object.

@@ -1,3 +1,4 @@
+import { NodeFlags } from "../../../Const";
 import { Sprite } from "../../../display/Sprite";
 import { Vector2 } from "../../../maths/Vector2";
 import { Vector3 } from "../../../maths/Vector3";
@@ -15,6 +16,8 @@ export class Nav2DAgent extends BaseNavAgent {
 
     /**@internal */
     private _destination: Vector2 = new Vector2();
+
+    declare owner: Sprite;
 
     /**
     * @en Set the destination for the agent.
@@ -43,7 +46,7 @@ export class Nav2DAgent extends BaseNavAgent {
 
     onAwake(): void {
         super.onAwake();
-        (<Sprite>this.owner).cacheGlobal = true;
+        this.owner._setBit(NodeFlags.CACHE_GLOBAL, true);
     }
 
     /**@internal */
@@ -60,8 +63,7 @@ export class Nav2DAgent extends BaseNavAgent {
      * @internal 
      */
     _getradius(): number {
-        let sprite = this.owner as Sprite;
-        return this._radius * Math.max(sprite.globalScaleX, sprite.globalScaleY);
+        return this._radius * Math.max(this.owner.globalScaleX, this.owner.globalScaleY);
     }
 
 
@@ -78,7 +80,7 @@ export class Nav2DAgent extends BaseNavAgent {
      * @zh 获取当前渲染世界坐标
      */
     _getpos(pos: Vector3): void {
-        Navgiation2DUtils._getSpriteGlobalPos(this.owner as Sprite, pos);
+        Navgiation2DUtils._getSpriteGlobalPos(this.owner, pos);
     }
 
     /**
@@ -93,9 +95,8 @@ export class Nav2DAgent extends BaseNavAgent {
      * 同步寻路位置和方向到渲染引擎
      */
     _updatePosition(pos: Vector3, dir: Vector3) {
-        let sprite = this.owner as Sprite;
-        sprite.setGlobalPos(pos.x, pos.z);
-        sprite.globalRotation = Math.atan2(dir.x, dir.z) * 180 / Math.PI;
+        this.owner.setGlobalPos(pos.x, pos.z);
+        this.owner.globalRotation = Math.atan2(dir.x, dir.z) * 180 / Math.PI;
     }
 
 

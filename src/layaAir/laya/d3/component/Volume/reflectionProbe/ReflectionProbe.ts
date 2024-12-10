@@ -144,7 +144,7 @@ export class ReflectionProbe extends Volume {
 
 	_reCaculateBoundBox() {
 		super._reCaculateBoundBox();
-		this.owner && this._dataModule.setProbePosition((this.owner as Sprite3D).transform.position);
+		this.owner && this._dataModule.setProbePosition(this.owner.transform.position);
 		this.bounds.cloneTo(this._dataModule.bound);
 	}
 
@@ -191,7 +191,7 @@ export class ReflectionProbe extends Volume {
 	 * @zh 探针的位置
 	 */
 	get probePosition(): Vector3 {
-		return (this.owner as Sprite3D).transform.position;
+		return this.owner.transform.position;
 	}
 
 	/**

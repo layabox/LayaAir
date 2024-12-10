@@ -171,7 +171,7 @@ export class Animator2D extends Component {
             if ("" == ownPat) {
                 continue;
             } else {
-                property = property.getChildByName(ownPat);
+                property = property.getChild(ownPat);
                 if (!property)
                     break;
             }

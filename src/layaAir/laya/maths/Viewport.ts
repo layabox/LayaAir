@@ -8,8 +8,9 @@ import { Vector4 } from "./Vector4";
  * @zh `Viewport` 类用于创建视口。
  */
 export class Viewport {
-	/** @internal */
-	static _tempViewport: Viewport = new Viewport(0, 0, 0, 0);
+
+	static readonly TEMP: Viewport = new Viewport(0, 0, 0, 0);
+
 	/**
 	 * @en X-axis coordinate
 	 * @zh X轴坐标

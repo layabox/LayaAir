@@ -102,7 +102,7 @@ export class MeshRenderer extends BaseRender {
      */
     protected _onEnable(): void {
         super._onEnable();
-        const filter = this.owner.getComponent(MeshFilter) as MeshFilter;
+        const filter = this.owner.getComponent(MeshFilter);
         if (filter) filter._enabled && this._onMeshChange(filter.sharedMesh);
     }
 
@@ -387,7 +387,7 @@ export class MeshRenderer extends BaseRender {
                 var renderElement: RenderElement = this._renderElements[i];
                 if (!renderElement) {
                     renderElement = this._renderElements[i] = this._renderElements[i] ? this._renderElements[i] : this._createRenderElement();
-                    this.owner && renderElement.setTransform((this.owner as Sprite3D)._transform);
+                    this.owner && renderElement.setTransform(this.owner._transform);
                     renderElement.render = this;
                 }
                 materials[i] = materials[i] || BlinnPhongMaterial.defaultMaterial;

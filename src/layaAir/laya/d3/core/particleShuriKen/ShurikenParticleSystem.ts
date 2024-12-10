@@ -1129,7 +1129,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
         this._firstFreeElement = 0;
         this._firstRetiredElement = 0;
 
-        this._owner = render.owner as Sprite3D;
+        this._owner = render.owner;
         this._ownerRender = render;
         this._useCustomBounds = false;
 

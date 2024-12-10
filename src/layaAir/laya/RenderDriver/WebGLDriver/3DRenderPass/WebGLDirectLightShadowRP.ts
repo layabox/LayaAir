@@ -86,7 +86,7 @@ export class WebGLDirectLightShadowRP {
 
     set light(value: WebDirectLight) {
         this._light = value;
-        var lightWorld: Matrix4x4 = Matrix4x4.TEMPMatrix0;
+        var lightWorld: Matrix4x4 = Matrix4x4.TEMP;
         var lightWorldE: Float32Array = lightWorld.elements;
         var lightUp: Vector3 = this._lightup;
         var lightSide: Vector3 = this._lightSide;
@@ -140,7 +140,7 @@ export class WebGLDirectLightShadowRP {
         var boundSpheres: Float32Array = this._splitBoundSpheres;
         ShadowUtils.getCascadesSplitDistance(this._light.shadowTwoCascadeSplits, this._light._shadowFourCascadeSplits, cameraNear, shadowFar, this.camera.fieldOfView * MathUtils3D.Deg2Rad, this.camera.aspectRatio, this.shadowCastMode, splitDistance);
         ShadowUtils.getCameraFrustumPlanes(this.camera._projectViewMatrix, frustumPlanes);
-        var forward: Vector3 = Vector3._tempVector3;
+        var forward: Vector3 = Vector3.TEMP;
         this.camera.transform.getForward(forward);
         Vector3.normalize(forward, forward);
         for (var i: number = 0; i < this._cascadeCount; i++) {
@@ -193,16 +193,16 @@ export class WebGLDirectLightShadowRP {
 
 
             if (this._renderQueue.elements.length > 0) {// if one cascade have anything to render.
-                Viewport._tempViewport.set(offsetX, offsetY, resolution, resolution);
-                Vector4.tempVec4.setValue(offsetX + 1, offsetY + 1, resolution - 2, resolution - 2);
-                context.setViewPort(Viewport._tempViewport);
-                context.setScissor(Vector4.tempVec4);
+                Viewport.TEMP.set(offsetX, offsetY, resolution, resolution);
+                Vector4.TEMP.setValue(offsetX + 1, offsetY + 1, resolution - 2, resolution - 2);
+                context.setViewPort(Viewport.TEMP);
+                context.setScissor(Vector4.TEMP);
             }
             else {
-                Viewport._tempViewport.set(offsetX, offsetY, resolution, resolution);
-                context.setViewPort(Viewport._tempViewport);
-                Vector4.tempVec4.setValue(offsetX, offsetY, resolution, resolution);
-                context.setScissor(Vector4.tempVec4);
+                Viewport.TEMP.set(offsetX, offsetY, resolution, resolution);
+                context.setViewPort(Viewport.TEMP);
+                Vector4.TEMP.setValue(offsetX, offsetY, resolution, resolution);
+                context.setScissor(Vector4.TEMP);
             }
 
             if (sliceData.cameraUBO && sliceData.cameraUBData) {

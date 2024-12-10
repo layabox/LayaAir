@@ -1,18 +1,17 @@
 import { Context } from "../../renders/Context"
 import { Pool } from "../../utils/Pool"
+import { IGraphicsCmd } from "../IGraphics";
 
 /**
  * @en Restore command, used in conjunction with save
  * @zh 恢复命令，与save配套使用
  */
-export class RestoreCmd {
+export class RestoreCmd implements IGraphicsCmd {
     /**
      * @en Identifier for the RestoreCmd
      * @zh 恢复命令的标识符
      */
     static ID: string = "Restore";
-
-
 
     /**
      * @en Create a RestoreCmd instance
@@ -21,9 +20,7 @@ export class RestoreCmd {
      * @returns 恢复命令实例
      */
     static create(): RestoreCmd {
-        var cmd: RestoreCmd = Pool.getItemByClass("RestoreCmd", RestoreCmd);
-
-        return cmd;
+        return Pool.getItemByClass("RestoreCmd", RestoreCmd);
     }
 
     /**
@@ -31,7 +28,6 @@ export class RestoreCmd {
      * @zh 回收到对象池
      */
     recover(): void {
-
         Pool.recover("RestoreCmd", this);
     }
 
@@ -52,5 +48,4 @@ export class RestoreCmd {
     get cmdID(): string {
         return RestoreCmd.ID;
     }
-
 }

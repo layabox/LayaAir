@@ -106,7 +106,7 @@ export class TipManager extends UIComponent {
 
 
     private _showToStage(dis: Sprite, offX: number = 0, offY: number = 0): void {
-        var rec: Rectangle = dis.getBounds();
+        let rec = dis.getBounds(Rectangle.TEMP);
         dis.x = ILaya.stage.mouseX + offX;
         dis.y = ILaya.stage.mouseY + offY;
         if (dis._x + rec.width > ILaya.stage.width) {

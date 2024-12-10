@@ -108,8 +108,6 @@ export class Shader3D {
 
     /**@internal */
     static _propertyNameMap: any = {};
-    /**@internal */
-    private static _propertyNameCounter: number = 0;
 
     /**@internal */
     static _preCompileShader: { [key: string]: Shader3D } = {};

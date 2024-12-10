@@ -963,7 +963,7 @@ export class Scene3D extends Sprite {
                     intCor.y = Color.gammaToLinearSpace(dirLight.color.g);
                     intCor.z = Color.gammaToLinearSpace(dirLight.color.b);
                     Vector3.scale(intCor, dirLight._intensity, intCor);
-                    (dirLight.owner as Sprite3D).transform.worldMatrix.getForward(dir);
+                    dirLight.owner.transform.worldMatrix.getForward(dir);
                     Vector3.normalize(dir, dir);//矩阵有缩放时需要归一化
                     ligPix[off] = intCor.x;
                     ligPix[off + 1] = intCor.y;
@@ -996,7 +996,7 @@ export class Scene3D extends Sprite {
                 this._pointLights.normalLightOrdering(mainPointLightIndex);
                 for (var i: number = 0; i < poiCount; i++, curCount++) {
                     var poiLight: PointLightCom = poiElements[i];
-                    var pos: Vector3 = (poiLight.owner as Sprite3D).transform.position;
+                    var pos: Vector3 = poiLight.owner.transform.position;
                     var intCor: Vector3 = poiLight._intensityColor;
                     var off: number = floatWidth * curCount;
                     intCor.x = Color.gammaToLinearSpace(poiLight.color.r);
@@ -1028,14 +1028,14 @@ export class Scene3D extends Sprite {
                 for (var i: number = 0; i < spoCount; i++, curCount++) {
                     var spoLight: SpotLightCom = spoElements[i];
                     var dir: Vector3 = spoLight.direction;
-                    var pos: Vector3 = (spoLight.owner as Sprite3D).transform.position;
+                    var pos: Vector3 = spoLight.owner.transform.position;
                     var intCor: Vector3 = spoLight._intensityColor;
                     var off: number = floatWidth * curCount;
                     intCor.x = Color.gammaToLinearSpace(spoLight.color.r);
                     intCor.y = Color.gammaToLinearSpace(spoLight.color.g);
                     intCor.z = Color.gammaToLinearSpace(spoLight.color.b);
                     Vector3.scale(intCor, spoLight._intensity, intCor);
-                    (spoLight.owner as Sprite3D).transform.worldMatrix.getForward(dir);
+                    spoLight.owner.transform.worldMatrix.getForward(dir);
                     Vector3.normalize(dir, dir);
                     ligPix[off] = intCor.x;
                     ligPix[off + 1] = intCor.y;
@@ -1073,7 +1073,7 @@ export class Scene3D extends Sprite {
                 dirLight._intensityColor.z = Color.gammaToLinearSpace(dirLight.color.b);
                 Vector3.scale(dirLight._intensityColor, dirLight._intensity, dirLight._intensityColor);
 
-                (dirLight.owner as Sprite3D).transform.worldMatrix.getForward(dirLight.direction);
+                dirLight.owner.transform.worldMatrix.getForward(dirLight.direction);
                 Vector3.normalize(dirLight.direction, dirLight.direction);
                 shaderValues.setVector3(Scene3D.LIGHTDIRCOLOR, dirLight._intensityColor);
                 shaderValues.setVector3(Scene3D.LIGHTDIRECTION, dirLight.direction);
@@ -1097,7 +1097,7 @@ export class Scene3D extends Sprite {
                 poiLight._intensityColor.z = Color.gammaToLinearSpace(poiLight.color.b);
                 Vector3.scale(poiLight._intensityColor, poiLight._intensity, poiLight._intensityColor);
                 shaderValues.setVector3(Scene3D.POINTLIGHTCOLOR, poiLight._intensityColor);
-                shaderValues.setVector3(Scene3D.POINTLIGHTPOS, (poiLight.owner as Sprite3D).transform.position);
+                shaderValues.setVector3(Scene3D.POINTLIGHTPOS, poiLight.owner.transform.position);
                 shaderValues.setNumber(Scene3D.POINTLIGHTRANGE, poiLight.range);
                 shaderValues.setInt(Scene3D.POINTLIGHTMODE, poiLight._lightmapBakedType);
                 shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_POINTLIGHT);
@@ -1113,8 +1113,8 @@ export class Scene3D extends Sprite {
                 spotLight._intensityColor.z = Color.gammaToLinearSpace(spotLight.color.b);
                 Vector3.scale(spotLight._intensityColor, spotLight._intensity, spotLight._intensityColor);
                 shaderValues.setVector3(Scene3D.SPOTLIGHTCOLOR, spotLight._intensityColor);
-                shaderValues.setVector3(Scene3D.SPOTLIGHTPOS, (spotLight.owner as Sprite3D).transform.position);
-                (spotLight.owner as Sprite3D).transform.worldMatrix.getForward(spotLight.direction);
+                shaderValues.setVector3(Scene3D.SPOTLIGHTPOS, spotLight.owner.transform.position);
+                spotLight.owner.transform.worldMatrix.getForward(spotLight.direction);
                 Vector3.normalize(spotLight.direction, spotLight.direction);
                 shaderValues.setVector3(Scene3D.SPOTLIGHTDIRECTION, spotLight.direction);
                 shaderValues.setNumber(Scene3D.SPOTLIGHTRANGE, spotLight.range);

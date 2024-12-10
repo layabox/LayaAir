@@ -9,11 +9,6 @@ import { Quaternion } from "./Quaternion";
  * @zh `Vector3` 类用于创建三维向量。
  */
 export class Vector3 implements IClone {
-    /**@internal*/
-    static _tempVector3 = new Vector3();
-    /**@internal*/
-    static _tempVector0 = new Vector3();
-
     /**
      * @en Zero vector (0, 0, 0).
      * @zh 零向量 (0, 0, 0)。
@@ -59,6 +54,12 @@ export class Vector3 implements IClone {
      * @zh 上向量 (0, 1, 0)。
      */
     static readonly Up: Readonly<Vector3> = new Vector3(0, 1, 0);
+
+    /**
+     * @en Temporary vector.
+     * @zh 临时向量。
+     */
+    static readonly TEMP = new Vector3();
 
     /**
      * @en Calculates the squared distance between two three-dimensional vectors.

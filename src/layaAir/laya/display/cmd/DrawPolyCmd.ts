@@ -1,12 +1,13 @@
 import { Context } from "../../renders/Context"
 import { ClassUtils } from "../../utils/ClassUtils";
 import { Pool } from "../../utils/Pool"
+import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
 
 /**
  * @en Draw a polygon
  * @zh 绘制多边形
  */
-export class DrawPolyCmd {
+export class DrawPolyCmd implements IGraphicsCmd {
     /**
      * @en Identifier for the DrawPolyCmd
      * @zh 绘制多边形命令的标识符
@@ -97,6 +98,14 @@ export class DrawPolyCmd {
         let isConvexPolygon = this.points.length <= 6;
         let offset = (this.lineWidth >= 1 && this.lineColor) ? (this.lineWidth % 2 === 0 ? 0 : 0.5) : 0;
         this.points && context._drawPoly(this.x + offset + gx, this.y + offset + gy, this.points, this.fillColor, this.lineColor, this.lineWidth, isConvexPolygon, 0);
+    }
+
+    /**
+     * @ignore
+     */
+    getBounds(assembler: IGraphicsBoundsAssembler): void {
+        assembler.points.push(...this.points);
+        assembler.flushPoints(this.x, this.y);
     }
 
     /**

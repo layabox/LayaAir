@@ -172,7 +172,7 @@ export class ShurikenParticleRenderer extends BaseRender {
 
         var elements: RenderElement[] = this._renderElements;
         var element: RenderElement = elements[0] = new RenderElement();
-        element.setTransform((this.owner as Sprite3D)._transform);
+        element.setTransform(this.owner._transform);
         element.render = this;
         element.setGeometry(this._particleSystem);
         element.material = ShurikenParticleMaterial.defaultMaterial;
@@ -209,13 +209,13 @@ export class ShurikenParticleRenderer extends BaseRender {
         var bounds: Bounds;
         if (particleSystem._useCustomBounds) {
             bounds = particleSystem.customBounds;
-            bounds._tranform((this.owner as Sprite3D).transform.worldMatrix, this._bounds);
+            bounds._tranform(this.owner.transform.worldMatrix, this._bounds);
         }
         else if (particleSystem._simulationSupported()) {
             // todo need update Bounds
             particleSystem._generateBounds();
             bounds = particleSystem._bounds;
-            bounds._tranform((this.owner as Sprite3D).transform.worldMatrix, this._bounds);
+            bounds._tranform(this.owner.transform.worldMatrix, this._bounds);
             // 在世界坐标下考虑重力影响
             if (particleSystem.gravityModifier != 0) {
                 var max: Vector3 = this._bounds.getMax();
@@ -267,7 +267,7 @@ export class ShurikenParticleRenderer extends BaseRender {
     _renderUpdate(context: IRenderContext3D): void {
         var particleSystem: ShurikenParticleSystem = this._particleSystem;
         var sv: ShaderData = this._baseRenderNode.shaderData;
-        var transform: Transform3D = (this.owner as Sprite3D).transform;
+        var transform: Transform3D = this.owner.transform;
         switch (particleSystem.simulationSpace) {
             case 0: //World
                 break;

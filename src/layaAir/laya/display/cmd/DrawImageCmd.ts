@@ -1,13 +1,15 @@
-import { Context, IGraphicCMD } from "../../renders/Context"
+import { Rectangle } from "../../maths/Rectangle";
+import { Context } from "../../renders/Context"
 import { Texture } from "../../resource/Texture"
 import { ColorUtils } from "../../utils/ColorUtils";
 import { Pool } from "../../utils/Pool"
+import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
 
 /**
  * @en Draw image command
  * @zh 绘制图片命令
  */
-export class DrawImageCmd implements IGraphicCMD {
+export class DrawImageCmd implements IGraphicsCmd {
     /**
      * @en Identifier for the DrawImageCmd
      * @zh 绘制图片命令的标识符
@@ -111,6 +113,13 @@ export class DrawImageCmd implements IGraphicCMD {
         if (this.texture) {
             context.drawTexture(this.texture, this.x + gx, this.y + gy, this.width, this.height, this.color);
         }
+    }
+
+    /**
+     * @ignore
+     */
+    getBounds(assembler: IGraphicsBoundsAssembler): void {
+        Rectangle.TEMP.setTo(this.x, this.y, this.width, this.height).getBoundPoints(assembler.points);
     }
 
     /**

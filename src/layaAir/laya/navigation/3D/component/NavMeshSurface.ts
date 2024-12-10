@@ -33,6 +33,6 @@ export class NavMeshSurface extends BaseNavMeshSurface {
      * @override
      */
     protected _crateNavMesh(config: RecastConfig, min: Vector3, max: Vector3): NavMesh {
-        return new NavMesh(config,min,max,this);
+        return new NavMesh(config, min, max, this);
     }
 }

@@ -4,6 +4,7 @@ import { IShaderInstance } from "../../DriverDesign/RenderDevice/IShaderInstance
 import { WebGPURenderEngine } from "./WebGPURenderEngine";
 import { WebGPUBindingInfoType, WebGPUCodeGenerator, WebGPUUniformPropertyBindingInfo } from "./WebGPUCodeGenerator";
 import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
+import { NotImplementedError } from "../../../utils/Error";
 
 /**
  * WebGPU着色器实例
@@ -33,10 +34,10 @@ export class WebGPUShaderInstance implements IShaderInstance {
         this.globalId = WebGPUGlobal.getId(this);
     }
     _serializeShader(): ArrayBuffer {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
     _deserialize(buffer: ArrayBuffer): boolean {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     /**

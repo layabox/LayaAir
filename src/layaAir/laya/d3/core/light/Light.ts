@@ -62,6 +62,8 @@ export class Light extends Component {
      */
     color: Color;
 
+    declare owner: Sprite3D;
+
     /**
      * @en The light intensity.
      * @zh 灯光强度。
@@ -185,8 +187,8 @@ export class Light extends Component {
      * @zh 灯光世界矩阵
      */
     get lightWorldMatrix(): Matrix4x4 {
-        var position = (this.owner as Sprite3D).transform.position;
-        var quaterian = (this.owner as Sprite3D).transform.rotation;
+        var position = this.owner.transform.position;
+        var quaterian = this.owner.transform.rotation;
         Matrix4x4.createAffineTransformation(position, quaterian, Vector3.ONE, this._lightWoldMatrix);
         return this._lightWoldMatrix;
     }
@@ -231,7 +233,7 @@ export class Light extends Component {
     /**@internal */
     _setOwner(node: Sprite3D): void {
         super._setOwner(node);
-        this._dataModule.transform = (this.owner as Sprite3D).transform;
+        this._dataModule.transform = this.owner.transform;
     }
 
     /**@internal */

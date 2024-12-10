@@ -14,6 +14,7 @@ import { HierarchyParser } from "../loaders/HierarchyParser";
 import { UIComponent } from "./UIComponent";
 import { ScrollType } from "./Styles";
 import { HierarchyLoader } from "../loaders/HierarchyLoader";
+import { TransformKind } from "../display/SpriteConst";
 
 
 /**
@@ -294,7 +295,7 @@ export class List extends Box {
                 this._scrollBar.target = this._content;
                 this._scrollBar.on(Event.CHANGE, this, this.onScrollBarChange);
                 this.addChild(this._scrollBar);
-                this._content.scrollRect = Rectangle.create();
+                this._content.scrollRect = new Rectangle();
             }
         }
     }
@@ -473,19 +474,13 @@ export class List extends Box {
     }
 
     /**
-     * @internal
-    */
-    _setWidth(value: number) {
-        super._setWidth(value);
-        this._setCellChanged();
-    }
+     * @ignore
+     */
+    protected _transChanged(kind: TransformKind) {
+        super._transChanged(kind);
 
-    /**
-     * @internal
-    */
-    _setHeight(value: number) {
-        super._setHeight(value);
-        this._setCellChanged();
+        if ((kind & TransformKind.Size) != 0)
+            this._setCellChanged();
     }
 
     private _getOneCell(): UIComponent {
@@ -624,7 +619,7 @@ export class List extends Box {
         this._cellChanged = false;
         if (this._itemRender) {
             //获取滚动条
-            this.scrollBar = (<ScrollBar>this.getChildByName("scrollBar"));
+            this.scrollBar = this.getChild("scrollBar");
 
             //自适应宽高
             let cell = this._getOneCell();
@@ -709,7 +704,7 @@ export class List extends Box {
      * @param index 单元格的属性 index 值。
      */
     protected changeCellState(cell: UIComponent, visible: boolean, index: number): void {
-        let selectBox = (<Clip>cell.getChildByName("selectBox"));
+        let selectBox: Clip = cell.getChild("selectBox");
         if (selectBox) {
             this.selectEnable = true;
             selectBox.visible = visible;
@@ -772,7 +767,7 @@ export class List extends Box {
             }
         }
 
-        let r = this._content._style.scrollRect;
+        let r = this._content._scrollRect;
         if (this._isVertical) {
             r.y = scrollValue - this._offset.y;
             r.x = -this._offset.x;
@@ -893,12 +888,12 @@ export class List extends Box {
      * @zh 初始化单元格信息。
      */
     initItems(): void {
-        if (!this._itemRender && this.getChildByName("item0") != null) {
+        if (!this._itemRender && this.getChild("item0") != null) {
             this.repeatX = 1;
             let count: number;
             count = 0;
             for (let i = 0; i < 10000; i++) {
-                let cell = <UIComponent>this.getChildByName("item" + i);
+                let cell: UIComponent = this.getChild("item" + i);
                 if (cell) {
                     this.addCell(cell);
                     count++;
@@ -926,7 +921,7 @@ export class List extends Box {
         if (this._scrollBar) {
             let r = this._content.scrollRect;
             if (!r)
-                r = Rectangle.create();
+                r = new Rectangle();
             r.setTo(-this._offset.x, -this._offset.y, width, height);
             this._content.scrollRect = r;
         }

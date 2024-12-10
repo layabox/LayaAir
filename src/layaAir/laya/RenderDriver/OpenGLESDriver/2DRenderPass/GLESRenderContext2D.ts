@@ -175,7 +175,7 @@ export class GLESREnderContext2D implements IRenderContext2D {
     }
 
     runCMDList(cmds: IRenderCMD[]): void {
-        //throw new Error("Method not implemented.");
+        //throw new NotImplementedError();
         //TODO
     }
 

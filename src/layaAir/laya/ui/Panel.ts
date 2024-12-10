@@ -8,6 +8,7 @@ import { Event } from "../events/Event"
 import { Rectangle } from "../maths/Rectangle"
 import { HideFlags } from "../Const";
 import { ScrollType } from "./Styles";
+import { TransformKind } from "../display/SpriteConst";
 
 /**
  * @en Panel is a panel container class.
@@ -62,7 +63,16 @@ export class Panel extends Box {
     protected createChildren(): void {
         this._content = new Box();
         this._content.hideFlags = HideFlags.HideAndDontSave;
-        super.addChild(this._content);
+        this.addChildDirect(this._content);
+    }
+
+    /**
+     * @internal
+     * @param node 
+     * @returns 
+     */
+    addChildDirect(node: Node): Node {
+        return super.addChildAt(node, this.numChildren);
     }
 
     /**
@@ -74,18 +84,9 @@ export class Panel extends Box {
      * @returns 添加的子节点对象。
      */
     addChild<T extends Node>(child: T): T {
-        child.on(Event.RESIZE, this, this.onResize);
+        child.on(Event.RESIZE, this, this._setScrollChanged);
         this._setScrollChanged();
         return this._content.addChild(child);
-    }
-
-    /**
-    * @en Event handler for the child object's Event.RESIZE event.
-    * @zh 子对象的 Event.RESIZE 事件侦听处理函数。
-    */
-
-    private onResize(): void {
-        this._setScrollChanged();
     }
 
     /**
@@ -98,8 +99,8 @@ export class Panel extends Box {
      * @param index 子节点对象的索引位置。
      * @returns 添加的子节点对象。
      */
-    addChildAt(child: Node, index: number): Node {
-        child.on(Event.RESIZE, this, this.onResize);
+    addChildAt<T extends Node>(child: T, index: number): T {
+        child.on(Event.RESIZE, this, this._setScrollChanged);
         this._setScrollChanged();
         return this._content.addChildAt(child, index);
     }
@@ -112,16 +113,12 @@ export class Panel extends Box {
      * @param child 要移除的子节点对象。
      * @returns 移除的子节点对象。
      */
-    removeChild(child: Node): Node {
-        child.off(Event.RESIZE, this, this.onResize);
+    removeChild(child: Node, destroy?: boolean): Node {
+        child.off(Event.RESIZE, this, this._setScrollChanged);
         this._setScrollChanged();
-        if (child._parent == this && this._children) {
+        if (child._parent == this) {
             let index = this._children.indexOf(child);
-            if (index != -1) {
-                this._children.splice(index, 1);
-                (<any>child)._setParent(null);
-            }
-            return child;
+            return super.removeChildAt(index, destroy);
         }
         else
             return this._content.removeChild(child);
@@ -135,10 +132,10 @@ export class Panel extends Box {
      * @param index 子节点对象的索引位置。
      * @returns 移除的子节点对象。
      */
-    removeChildAt(index: number): Node {
-        this.getChildAt(index).off(Event.RESIZE, this, this.onResize);
+    removeChildAt(index: number, destroy?: boolean): Node {
+        this.getChildAt(index).off(Event.RESIZE, this, this._setScrollChanged);
         this._setScrollChanged();
-        return this._content.removeChildAt(index);
+        return this._content.removeChildAt(index, destroy);
     }
 
     /**
@@ -151,10 +148,9 @@ export class Panel extends Box {
      * @param endIndex 结束位置。默认值为 0x7fffffff。
      * @returns 返回对象本身。
      */
-    removeChildren(beginIndex: number = 0, endIndex: number = 0x7fffffff): Node {
-        this._content.removeChildren(beginIndex, endIndex);
+    removeChildren(beginIndex?: number, endIndex?: number, destroy?: boolean): void {
+        this._content.removeChildren(beginIndex, endIndex, destroy);
         this._setScrollChanged();
-        return this;
     }
 
     /**
@@ -165,7 +161,7 @@ export class Panel extends Box {
      * @param index 子节点对象的索引位置。
      * @returns 指定索引位置处的子节点对象。
      */
-    getChildAt(index: number): Node {
+    getChildAt<T extends Node>(index: number, classType?: new (...args: any[]) => T): T {
         return this._content.getChildAt(index);
     }
 
@@ -177,8 +173,8 @@ export class Panel extends Box {
      * @param name 子节点对象的名称。
      * @returns 具有指定名称的子节点对象。
      */
-    getChildByName(name: string): Node {
-        return this._content.getChildByName(name);
+    getChild<T extends Node>(name: string, classType?: new (...args: any[]) => T): T {
+        return this._content.getChild(name);
     }
 
     /**
@@ -271,21 +267,19 @@ export class Panel extends Box {
         let content = this._content;
         content.width = width;
         content.height = height;
-        content._style.scrollRect || (content.scrollRect = Rectangle.create());
-        content._style.scrollRect.setTo(0, 0, width, height);
+        content._scrollRect || (content.scrollRect = new Rectangle());
+        content._scrollRect.setTo(0, 0, width, height);
         content.scrollRect = content.scrollRect;
     }
 
-    /**@ignore */
-    _setWidth(value: number) {
-        super._setWidth(value);
-        this._setScrollChanged();
-    }
+    /**
+     * @ignore
+     */
+    protected _transChanged(kind: TransformKind) {
+        super._transChanged(kind);
 
-    /**@ignore */
-    _setHeight(value: number) {
-        super._setHeight(value);
-        this._setScrollChanged();
+        if ((kind & TransformKind.Size) != 0)
+            this._setScrollChanged();
     }
 
     /**
@@ -361,7 +355,7 @@ export class Panel extends Box {
         scrollBar._skinBaseUrl = this._skinBaseUrl;
         scrollBar.skin = this._hScrollBarSkin;
         scrollBar.on(Event.LOADED, this, this._setScrollChanged);
-        super.addChild(scrollBar);
+        this.addChildDirect(scrollBar);
         this._setScrollChanged();
     }
 
@@ -375,7 +369,7 @@ export class Panel extends Box {
         scrollBar._skinBaseUrl = this._skinBaseUrl;
         scrollBar.skin = this._vScrollBarSkin;
         scrollBar.on(Event.LOADED, this, this._setScrollChanged);
-        super.addChild(scrollBar);
+        this.addChildDirect(scrollBar);
         this._setScrollChanged();
     }
 
@@ -453,9 +447,9 @@ export class Panel extends Box {
      */
 
     protected onScrollBarChange(scrollBar: ScrollBar): void {
-        var rect = this._content._style.scrollRect;
+        let rect = this._content._scrollRect;
         if (rect) {
-            var start = Math.round(scrollBar.value);
+            let start = Math.round(scrollBar.value);
             scrollBar.isVertical ? rect.y = start : rect.x = start;
             this._content.scrollRect = rect;
         }
@@ -525,7 +519,7 @@ export class Panel extends Box {
     private onScrollEnd(): void {
         super.cacheAs = this._usedCache;
     }
-    
+
     protected _setScrollChanged(): void {
         if (!this._scrollChanged) {
             this._scrollChanged = true;

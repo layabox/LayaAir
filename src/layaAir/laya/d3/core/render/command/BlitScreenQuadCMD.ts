@@ -167,20 +167,20 @@ export class BlitScreenQuadCMD extends Command {
 		var dest: RenderTexture = this._dest ? this._dest : this._commandBuffer._camera._internalRenderTexture;//set dest
 		if (dest != this._dest) this._blitQuadCMDData.dest = dest._renderTarget;
 		if (dest) {//set viewport
-			Viewport._tempViewport.set(0, 0, dest.width, dest.height);
-			Vector4.tempVec4.setValue(0, 0, dest.width, dest.height);
-			this._blitQuadCMDData.viewport = Viewport._tempViewport;
-			this._blitQuadCMDData.scissor = Vector4.tempVec4;
+			Viewport.TEMP.set(0, 0, dest.width, dest.height);
+			Vector4.TEMP.setValue(0, 0, dest.width, dest.height);
+			this._blitQuadCMDData.viewport = Viewport.TEMP;
+			this._blitQuadCMDData.scissor = Vector4.TEMP;
 		}
 		else {
 			let camera = this._commandBuffer._camera;
 			let viewport: Viewport = camera.viewport;
 			let vpH = viewport.height;
 			let vpY = RenderContext3D.clientHeight - viewport.y - vpH;
-			Viewport._tempViewport.set(viewport.x, vpY, viewport.width, vpH);
-			Vector4.tempVec4.setValue(viewport.x, vpY, viewport.width, vpH);
-			this._blitQuadCMDData.viewport = Viewport._tempViewport;
-			this._blitQuadCMDData.scissor = Vector4.tempVec4;
+			Viewport.TEMP.set(viewport.x, vpY, viewport.width, vpH);
+			Vector4.TEMP.setValue(viewport.x, vpY, viewport.width, vpH);
+			this._blitQuadCMDData.viewport = Viewport.TEMP;
+			this._blitQuadCMDData.scissor = Vector4.TEMP;
 		}
 
 		let invertY = dest ? true : false;

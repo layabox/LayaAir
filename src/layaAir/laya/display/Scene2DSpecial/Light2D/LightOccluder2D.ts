@@ -1,4 +1,6 @@
 import { Component } from "../../../components/Component";
+import { NodeFlags } from "../../../Const";
+import { Event } from "../../../events/Event";
 import { Rectangle } from "../../../maths/Rectangle";
 import { Vector2 } from "../../../maths/Vector2";
 import { Vector3 } from "../../../maths/Vector3";
@@ -22,6 +24,8 @@ export class LightOccluder2D extends Component {
 
     private _layerMask: number = 1; //遮光器层掩码（哪些层有遮光器）
     private _layers: number[] = [0]; //遮光器层数组（哪些层有遮光器）
+
+    declare owner: Sprite;
 
     /**
      * @en Get layer mask
@@ -150,8 +154,9 @@ export class LightOccluder2D extends Component {
      */
     protected _onEnable(): void {
         super._onEnable();
-        (this.owner as Sprite).on("2DtransChanged", this, this._transformChange);
-        (this.owner as Sprite).transChangeNotify = true;
+
+        this.owner._setBit(NodeFlags.DEMAND_TRANS_EVENT, true);
+        this.owner.on(Event.TRANSFORM_CHANGED, this, this._transformChange);
         ((this.owner.scene as Scene)?._light2DManager as Light2DManager)?.addOccluder(this);
     }
 
@@ -160,7 +165,7 @@ export class LightOccluder2D extends Component {
      */
     protected _onDisable(): void {
         super._onDisable();
-        (this.owner as Sprite).off("2DtransChanged", this, this._transformChange);
+        this.owner.off(Event.TRANSFORM_CHANGED, this, this._transformChange);
         ((this.owner.scene as Scene)?._light2DManager as Light2DManager)?.removeOccluder(this);
     }
 
@@ -321,11 +326,11 @@ export class LightOccluder2D extends Component {
         this._needUpdateLightWorldRange = false;
 
         //计算世界坐标包围圆
-        const m = (this.owner as Sprite).transform;
-        const ox = (this.owner as Sprite).globalPosX * Browser.pixelRatio;
-        const oy = (this.owner as Sprite).globalPosY * Browser.pixelRatio;
-        const sx = Math.abs((this.owner as Sprite).globalScaleX);
-        const sy = Math.abs((this.owner as Sprite).globalScaleY);
+        const m = this.owner.transform;
+        const ox = this.owner.globalPosX * Browser.pixelRatio;
+        const oy = this.owner.globalPosY * Browser.pixelRatio;
+        const sx = Math.abs(this.owner.globalScaleX);
+        const sy = Math.abs(this.owner.globalScaleY);
         if (m) {
             this._worldCircle.x = m.a * this._localCircle.x + m.c * this._localCircle.y + ox;
             this._worldCircle.y = m.b * this._localCircle.x + m.d * this._localCircle.y + oy;
@@ -378,8 +383,8 @@ export class LightOccluder2D extends Component {
                 let intersections = 0;
                 const poly = this._occluderPolygon.points;
                 const len = poly.length / 2 | 0;
-                const ox = this.owner ? (this.owner as Sprite).globalPosX * Browser.pixelRatio : 0;
-                const oy = this.owner ? (this.owner as Sprite).globalPosY * Browser.pixelRatio : 0;
+                const ox = this.owner ? this.owner.globalPosX * Browser.pixelRatio : 0;
+                const oy = this.owner ? this.owner.globalPosY * Browser.pixelRatio : 0;
 
                 for (let i = 0; i < len; i++) {
                     const currentX = poly[i * 2 + 0];
@@ -419,12 +424,12 @@ export class LightOccluder2D extends Component {
      * 变换多边形顶点
      */
     private _transformPoly() {
-        const m = (this.owner as Sprite).transform;
+        const m = this.owner.transform;
         if (this._globalPolygon) {
             const globalPoly = this._globalPolygon.points;
             const polygon = this._occluderPolygon.points;
-            const ox = (this.owner as Sprite).globalPosX * Browser.pixelRatio;
-            const oy = (this.owner as Sprite).globalPosY * Browser.pixelRatio;
+            const ox = this.owner.globalPosX * Browser.pixelRatio;
+            const oy = this.owner.globalPosY * Browser.pixelRatio;
             const len = polygon.length / 2 | 0;
             if (m) {
                 for (let i = 0; i < len; i++) {
@@ -434,8 +439,8 @@ export class LightOccluder2D extends Component {
                     globalPoly[i * 2 + 1] = m.b * x + m.d * y + oy;
                 }
             } else {
-                const sx = Math.abs((this.owner as Sprite).globalScaleX);
-                const sy = Math.abs((this.owner as Sprite).globalScaleY);
+                const sx = Math.abs(this.owner.globalScaleX);
+                const sy = Math.abs(this.owner.globalScaleY);
                 for (let i = 0; i < len; i++) {
                     const x = polygon[i * 2 + 0] * Browser.pixelRatio;
                     const y = polygon[i * 2 + 1] * Browser.pixelRatio;

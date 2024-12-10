@@ -49,10 +49,8 @@ export class GrahamScan {
         if (!rst) rst = [];
         rst.length = 0;
         if (tempUse) {
-            //				rst=_mPointList.slice(0,count);
             GrahamScan.getFrom(rst, GrahamScan._mPointList, count);
         } else {
-            //				rst=_mPointList.splice(0,count);
             GrahamScan.getFromR(rst, GrahamScan._mPointList, count);
         }
         return rst;
@@ -137,13 +135,11 @@ export class GrahamScan {
     /**
      * @en Find the minimum polygon vertex set that includes all points.
      * @param pList The [x,y...] list.
-     * @returns The minimum polygon vertex set.
      * @zh 寻找包括所有点的最小多边形顶点集合。
      * @param pList 形如[x0,y0,x1,y1...]的点列表。
-     * @returns  最小多边形顶点集合。
      */
-    static scanPList(pList: any[]): any[] {
-        return Utils.copyArray(pList, GrahamScan.pointListToPlist(GrahamScan.scan(GrahamScan.pListToPointList(pList, true))));
+    static scanPList(pList: number[]): void {
+        Utils.copyArray(pList, GrahamScan.pointListToPlist(GrahamScan.scan(GrahamScan.pListToPointList(pList, true))));
     }
 
     /**

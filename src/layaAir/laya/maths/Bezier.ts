@@ -1,7 +1,6 @@
 import { Point } from "./Point";
 
 /**
- * @private
  * @en Utility class for calculating Bezier curves.
  * @zh 计算贝塞尔曲线的工具类。
  */
@@ -12,12 +11,10 @@ export class Bezier {
      * @zh 工具类单例
      */
     static I: Bezier = new Bezier();
-    /** @private */
+
     private _controlPoints: any[] = [new Point(), new Point(), new Point()];
-    /** @private */
     private _calFun: Function = this.getPoint2;
 
-    /** @private */
     private _switchPoint(x: number, y: number): void {
         var tPoint: Point = this._controlPoints.shift();
         tPoint.setTo(x, y);
@@ -91,11 +88,10 @@ export class Bezier {
      * @param count 贝塞尔曲线的阶数（2表示二次曲线，3表示三次曲线）
      * @returns 贝塞尔曲线上的点组成的数组
      */
-    getBezierPoints(pList: any[], inSertCount: number = 5, count: number = 2): any[] {
-        var i: number, len: number;
-        len = pList.length;
+    getBezierPoints(pList: number[], inSertCount: number = 5, count: number = 2): number[] {
+        let len = pList.length;
         if (len < (count + 1) * 2) return [];
-        var rst: any[] = [];
+        var rst: number[] = [];
         switch (count) {
             case 2:
                 this._calFun = this.getPoint2;
@@ -109,10 +105,10 @@ export class Bezier {
         while (this._controlPoints.length <= count) {
             this._controlPoints.push(Point.create());
         }
-        for (i = 0; i < count * 2; i += 2) {
+        for (let i = 0; i < count * 2; i += 2) {
             this._switchPoint(pList[i], pList[i + 1]);
         }
-        for (i = count * 2; i < len; i += 2) {
+        for (let i = count * 2; i < len; i += 2) {
             this._switchPoint(pList[i], pList[i + 1]);
             if ((i / 2) % count == 0) this.insertPoints(inSertCount, rst);
         }

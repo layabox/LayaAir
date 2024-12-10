@@ -27,7 +27,7 @@ import { TranslateCmd } from "./cmd/TranslateCmd"
 import { Matrix } from "../maths/Matrix"
 import { Point } from "../maths/Point"
 import { Rectangle } from "../maths/Rectangle"
-import { Context, IGraphicCMD } from "../renders/Context"
+import { Context } from "../renders/Context"
 import { Texture } from "../resource/Texture"
 import { Utils } from "../utils/Utils"
 import { VectorGraphManager } from "../utils/VectorGraphManager"
@@ -35,11 +35,12 @@ import { ILaya } from "../../ILaya";
 import { WordText } from "../utils/WordText";
 import { ColorUtils } from "../utils/ColorUtils";
 import type { Material } from "../resource/Material";
-import { Value2D } from "../webgl/shader/d2/value/Value2D";
 import { DrawEllipseCmd } from "./cmd/DrawEllipseCmd";
 import { DrawRoundRectCmd } from "./cmd/DrawRoundRectCmd";
 import { LayaGL } from "../layagl/LayaGL";
-import { ShaderData, ShaderDataType } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { ShaderDataType } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { IGraphicsCmd } from "./IGraphics";
+
 /**
  * @en The Graphics class is used to create drawing display objects. Graphics can draw multiple bitmaps or vector graphics simultaneously, and can also combine instructions such as save, restore, transform, scale, rotate, translate, alpha, etc. to change the drawing effect.
  * Graphics is stored as a command stream and can be accessed through the cmds property. Graphics is a lighter object than Sprite, and proper use can improve application performance (for example, changing a large number of node drawings to a collection of Graphics commands of one node can reduce the consumption of creating a large number of nodes).
@@ -63,20 +64,12 @@ export class Graphics {
         sceneUniformMap.addShaderUniform(propertyID, propertyKey, uniformtype);
     }
 
-    /**
-     * @deprecated 
-     * @en Global shaderData,deprecated  use Scene ShaderData replace
-     * @zh 全局着色器数据,请使用scene的ShaderData设置全局值
-     */
-    static get globalShaderData(): ShaderData {
-        return null;
-    }
+    _sp: Sprite | null = null;
 
     /**@internal */
-    _sp: Sprite | null = null;
-    /**@internal */
     _render: (sprite: Sprite, context: Context, x: number, y: number) => void = this._renderEmpty;
-    private _cmds: IGraphicCMD[] = [];
+
+    private _cmds: IGraphicsCmd[] = [];
     protected _vectorgraphArray: any[] | null = null;
     private _graphicBounds: GraphicsBounds | null = null;
     private _material: Material;
@@ -86,19 +79,15 @@ export class Graphics {
         this._createData();
     }
 
-    /**@internal */
-    _createData(): void {
+    protected _createData(): void {
 
     }
 
-    /**@internal */
-    _clearData(): void {
+    protected _clearData(): void {
 
     }
 
-    /**@internal */
-    _destroyData(): void {
-
+    protected _destroyData(): void {
     }
 
     /**
@@ -151,14 +140,6 @@ export class Graphics {
         if (this._graphicBounds) {
             if (!onSizeChanged || this._graphicBounds._affectBySize)
                 this._graphicBounds.reset();
-        }
-    }
-
-    /**@private */
-    private _initGraphicBounds(): void {
-        if (!this._graphicBounds) {
-            this._graphicBounds = GraphicsBounds.create();
-            this._graphicBounds._graphics = this;
         }
     }
 
@@ -241,9 +222,10 @@ export class Graphics {
      * @param realSize （可选）使用图片的真实大小，默认为false。
      * @returns 位置与宽高组成的一个 Rectangle 对象。
      */
-    getBounds(realSize: boolean = false): Rectangle {
-        this._initGraphicBounds();
-        return this._graphicBounds!.getBounds(realSize);
+    getBounds(realSize?: boolean): Readonly<Rectangle> {
+        if (!this._graphicBounds)
+            this._graphicBounds = GraphicsBounds.create();
+        return this._graphicBounds!.getBounds(this, realSize);
     }
 
     /**
@@ -254,9 +236,10 @@ export class Graphics {
      * @param realSize （可选）使用图片的真实大小，默认为false。
      * @returns 端点坐标的数组。
      */
-    getBoundPoints(realSize: boolean = false): any[] {
-        this._initGraphicBounds();
-        return this._graphicBounds!.getBoundPoints(realSize);
+    getBoundPoints(realSize?: boolean): ReadonlyArray<number> {
+        if (!this._graphicBounds)
+            this._graphicBounds = GraphicsBounds.create();
+        return this._graphicBounds!.getBoundPoints(this, realSize);
     }
 
     /**

@@ -1,13 +1,14 @@
 import { Rectangle } from "../../maths/Rectangle";
-import { Context, IGraphicCMD } from "../../renders/Context"
+import { Context } from "../../renders/Context"
 import { ClassUtils } from "../../utils/ClassUtils";
 import { Pool } from "../../utils/Pool"
+import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
 
 /**
  * @en Draw circle command
  * @zh 绘制圆形命令
  */
-export class DrawCircleCmd implements IGraphicCMD {
+export class DrawCircleCmd implements IGraphicsCmd {
     /**
      * @en Identifier for the DrawCircleCmd
      * @zh 绘制圆形命令的标识符
@@ -121,15 +122,15 @@ export class DrawCircleCmd implements IGraphicCMD {
     }
 
     /**
-     * @en Get the bounding points of the circle
-     * @param sp The sprite that draws the cmd
-     * @returns An array of bounding points
-     * @zh 获取圆形的包围盒顶点数据
-     * @param sp 绘制cmd的精灵
-     * @returns 包围盒顶点数据数组
+     * @ignore
      */
-    getBoundPoints(sp?: { width: number, height?: number }): number[] {
-        return Rectangle._getBoundPointS(this.x - this.radius, this.y - this.radius, this.radius + this.radius, this.radius + this.radius, this.percent ? sp : null);
+    getBounds(assembler: IGraphicsBoundsAssembler): void {
+        let rect = Rectangle.TEMP.setTo(this.x - this.radius, this.y - this.radius, this.radius + this.radius, this.radius + this.radius)
+        if (this.percent) {
+            rect.scale(assembler.width, assembler.height);
+            assembler.affectBySize = true;
+        }
+        rect.getBoundPoints(assembler.points);
     }
 }
 

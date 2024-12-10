@@ -1,3 +1,4 @@
+import { NodeFlags } from "../../../Const";
 import { Sprite } from "../../../display/Sprite";
 import { Matrix4x4 } from "../../../maths/Matrix4x4";
 import { Vector3 } from "../../../maths/Vector3";
@@ -26,6 +27,8 @@ export class NavMesh2DSurface extends BaseNavMeshSurface {
 
     /** @internal */
     protected _transfrom: Matrix4x4 = new Matrix4x4();
+
+    declare owner: Sprite;
 
     /**
      * @en The modifier volume that modifies the surface of the navigation mesh.
@@ -105,7 +108,7 @@ export class NavMesh2DSurface extends BaseNavMeshSurface {
 
     onAwake(): void {
         super.onAwake();
-        (<Sprite>this.owner).cacheGlobal = true;
+        this.owner._setBit(NodeFlags.CACHE_GLOBAL, true);
         this._navMeshVolumes.forEach((volume) => {
             volume._bindSurface(this);
         });

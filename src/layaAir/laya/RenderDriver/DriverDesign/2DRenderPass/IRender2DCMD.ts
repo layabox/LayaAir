@@ -1,6 +1,7 @@
 import { Color } from "../../../maths/Color";
 import { Vector4 } from "../../../maths/Vector4";
 import { Viewport } from "../../../maths/Viewport";
+import { NotImplementedError } from "../../../utils/Error";
 import { InternalRenderTarget } from "../RenderDevice/InternalRenderTarget";
 import { InternalTexture } from "../RenderDevice/InternalTexture";
 import { IRenderCMD, RenderCMDType } from "../RenderDevice/IRenderCMD";
@@ -75,7 +76,7 @@ export class SetRendertarget2DCMD implements IRender2DCMD {
     }
 
     apply(context: IRenderContext2D): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 }
 
@@ -87,11 +88,11 @@ export class Draw2DElementCMD implements IRender2DCMD {
     type: RenderCMDType;
 
     setRenderelements(value: IRenderElement2D[]): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     apply(context: IRenderContext2D): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 }
 
@@ -158,6 +159,6 @@ export class Blit2DQuadCMD implements IRender2DCMD {
     }
 
     apply(context: IRenderContext2D): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 }

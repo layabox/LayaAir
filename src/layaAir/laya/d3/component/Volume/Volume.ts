@@ -66,6 +66,8 @@ export class Volume extends Component {
     /** @internal @protected 重要性 */
     protected _importance: number;
 
+    declare owner: Sprite3D;
+
     /**
      * @en constractor of Volume 
      * @zh 体积组件的构造函数。
@@ -126,7 +128,7 @@ export class Volume extends Component {
      * @zh 体积的探针位置。
      */
     get probePosition(): Vector3 {
-        return (this.owner as Sprite3D).transform.position;
+        return this.owner.transform.position;
     }
 
     /**
@@ -147,8 +149,8 @@ export class Volume extends Component {
      * @override
      */
     protected _onEnable(): void {
-        (this.owner as Sprite3D).transform.on(Event.TRANSFORM_CHANGED, this, this._VolumeChange);
-        this._volumeManager = ((this.owner as Sprite3D).scene as Scene3D)._volumeManager;
+        this.owner.transform.on(Event.TRANSFORM_CHANGED, this, this._VolumeChange);
+        this._volumeManager = this.owner.scene._volumeManager;
         this._volumeManager.add(this);
         this._reCaculateBoundBox();
     }
@@ -159,7 +161,7 @@ export class Volume extends Component {
      * @override
      */
     protected _onDisable(): void {
-        (this.owner as Sprite3D).transform.off(Event.TRANSFORM_CHANGED, this, this._VolumeChange);
+        this.owner.transform.off(Event.TRANSFORM_CHANGED, this, this._VolumeChange);
         this._volumeManager.remove(this);
     }
 
@@ -208,6 +210,6 @@ export class Volume extends Component {
      * @internal
      */
     _reCaculateBoundBox() {
-        this.owner && this._primitiveBounds._tranform((this.owner as Sprite3D).transform.worldMatrix, this._bounds);
+        this.owner && this._primitiveBounds._tranform(this.owner.transform.worldMatrix, this._bounds);
     }
 }

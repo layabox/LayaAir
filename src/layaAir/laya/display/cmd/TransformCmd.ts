@@ -1,12 +1,13 @@
 import { Matrix } from "../../maths/Matrix"
 import { Context } from "../../renders/Context"
 import { Pool } from "../../utils/Pool"
+import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
 
 /**
  * @en Transform command
  * @zh 矩阵变换命令
  */
-export class TransformCmd {
+export class TransformCmd implements IGraphicsCmd {
     /**
      * @en Identifier for the TransformCmd
      * @zh 矩阵变换命令的标识符
@@ -73,6 +74,17 @@ export class TransformCmd {
     }
 
     /**
+     * @ignore
+     */
+    getBounds(assembler: IGraphicsBoundsAssembler): void {
+        tempMatrix.identity();
+        tempMatrix.translate(-this.pivotX, -this.pivotY);
+        tempMatrix.concat(this.matrix);
+        tempMatrix.translate(this.pivotX, this.pivotY);
+        assembler.concatMatrix(tempMatrix);
+    }
+
+    /**
      * @en The identifier for the TransformCmd
      * @zh 矩阵变换命令的标识符
      */
@@ -82,3 +94,4 @@ export class TransformCmd {
 
 }
 
+const tempMatrix = new Matrix();

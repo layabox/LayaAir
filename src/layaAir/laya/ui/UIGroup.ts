@@ -539,7 +539,7 @@ export class UIGroup extends Box {
     initItems(): void {
         this._items.length = 0;
         for (let i = 0; i < 10000; i++) {
-            let item = <ISelect>this.getChildByName("item" + i);
+            let item: ISelect = this.getChild("item" + i);
             if (item == null)
                 break;
             this._items.push(item);

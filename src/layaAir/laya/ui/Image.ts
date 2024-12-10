@@ -8,6 +8,7 @@ import { UIUtils } from "./UIUtils"
 import { ILaya } from "../../ILaya";
 import { URL } from "../net/URL";
 import { SerializeUtil } from "../loaders/SerializeUtil";
+import { TransformKind } from "../display/SpriteConst";
 
 /**
  * @en The Image class represents a bitmap image or drawing graphics display object.
@@ -87,7 +88,7 @@ export class Image extends UIComponent {
             this._useSourceSize = true; //重置，因为size会改变
         }
         else
-            this.onCompResize();
+            this._sizeChanged();
     }
 
     /**
@@ -170,23 +171,21 @@ export class Image extends UIComponent {
     }
 
     /**
-     * @internal
+     * @ignore
      */
-    _setWidth(value: number) {
-        super._setWidth(value);
-        this._graphics.width = value;
-        if (!SerializeUtil.isDeserializing)
-            this._useSourceSize = false;
-    }
+    protected _transChanged(kind: TransformKind) {
+        super._transChanged(kind);
 
-    /**
-     * @internal
-     */
-    _setHeight(value: number) {
-        super._setHeight(value);
-        this._graphics.height = value;
-        if (!SerializeUtil.isDeserializing)
-            this._useSourceSize = false;
+        if ((kind & TransformKind.Width) != 0)
+            this._graphics.width = this._width;
+
+        if ((kind & TransformKind.Height) != 0)
+            this._graphics.height = this._height;
+
+        if ((kind & TransformKind.Size) != 0) {
+            if (!SerializeUtil.isDeserializing)
+                this._useSourceSize = false;
+        }
     }
 
     protected measureWidth(): number {
@@ -200,6 +199,7 @@ export class Image extends UIComponent {
     protected createChildren(): void {
         this.setGraphics(new AutoBitmap(), true);
     }
+
     /**
      * @en Set the data source of the object.
      * @param value The data source.

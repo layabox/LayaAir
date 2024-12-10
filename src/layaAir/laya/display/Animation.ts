@@ -127,7 +127,7 @@ export class Animation extends AnimationBase {
     }
 
     protected _frameLoop(): void {
-        if (this._visible && this._style.alpha > 0.01 && this._frames) {
+        if (this._visible && this._alpha > 0.01 && this._frames) {
             super._frameLoop();
         }
     }

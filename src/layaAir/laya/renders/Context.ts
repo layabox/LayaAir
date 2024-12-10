@@ -1,12 +1,11 @@
 import { ILaya } from "../../ILaya";
 import { Const } from "../Const";
 import { RenderManager2D } from "../NodeRender2D/RenderManager2D";
-import { IRenderGeometryElement } from "../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
 import { ShaderData } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { RenderState } from "../RenderDriver/RenderModuleData/Design/RenderState";
 import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
 import { Shader3D } from "../RenderEngine/RenderShader/Shader3D";
-import { Sprite } from "../display/Sprite";
+import { type Sprite } from "../display/Sprite";
 import { ColorFilter } from "../filters/ColorFilter";
 import { Bezier } from "../maths/Bezier";
 import { Color } from "../maths/Color";
@@ -55,27 +54,6 @@ import { IAutoExpiringResource } from "./ResNeedTouch";
 const defaultClipMatrix = new Matrix(Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_CLIP_SIZE, 0, 0);
 const tmpuv1: any[] = [0, 0, 0, 0, 0, 0, 0, 0];
 const tmpMat = new Matrix();
-
-export interface IGraphicCMD {
-    run(context: Context, gx: number, gy: number): void;
-    recover(): void;//如有回收，实现这个函数
-    get cmdID(): string;
-    //other
-    percent?: boolean;
-    pivotX?: number;
-    pivotY?: number;
-    scaleX?: number;
-    scaleY?: number;
-    angle?: number;
-    tx?: number;
-    ty?: number;
-    matrix?: Matrix;
-    x?: number;
-    y?: number;
-    width?: number;
-    height?: number;
-    points?: any;
-}
 
 /**
  * @private
@@ -200,7 +178,7 @@ export class Context {
     private _clear = false;
 
     private _shaderValueNeedRelease: Value2D[] = [];
-    
+
     _render2DManager: RenderManager2D;
 
     static __init__(): void {
@@ -876,8 +854,8 @@ export class Context {
             //if(texture.uvrect[2]<1.0||texture.uvrect[3]<1.0)//这表示是大图集中的一部分，只有这时候才用特殊shader
             sv.shaderData.addDefine(ShaderDefines2D.FILLTEXTURE);
             var arry = texuvRect.concat();
-            Vector4.tempVec4.setValue(arry[0], arry[1], arry[2], arry[3]);
-            sv.u_TexRange = Vector4.tempVec4;
+            Vector4.TEMP.setValue(arry[0], arry[1], arry[2], arry[3]);
+            sv.u_TexRange = Vector4.TEMP;
             submit = this._curSubmit = SubmitBase.create(this, this._mesh, sv);
             this.fillShaderValue(sv);
             submit.clipInfoID = this._clipInfoID;
@@ -956,10 +934,10 @@ export class Context {
     /**@internal */
     _copyClipInfoToShaderData(shaderData: ShaderData) {
         let clipInfo = this._globalClipMatrix;
-        Vector4.tempVec4.setValue(clipInfo.a, clipInfo.b, clipInfo.c, clipInfo.d)
-        shaderData.setVector(ShaderDefines2D.UNIFORM_CLIPMATDIR, Vector4.tempVec4);
-        Vector2.TempVector2.setValue(clipInfo.tx, clipInfo.ty);
-        shaderData.setVector2(ShaderDefines2D.UNIFORM_CLIPMATPOS, Vector2.TempVector2);
+        Vector4.TEMP.setValue(clipInfo.a, clipInfo.b, clipInfo.c, clipInfo.d)
+        shaderData.setVector(ShaderDefines2D.UNIFORM_CLIPMATDIR, Vector4.TEMP);
+        Vector2.TEMP.setValue(clipInfo.tx, clipInfo.ty);
+        shaderData.setVector2(ShaderDefines2D.UNIFORM_CLIPMATPOS, Vector2.TEMP);
     }
 
     //通用的部分的比较
@@ -1009,10 +987,10 @@ export class Context {
         if (submit._colorFiler) {
             var ft = submit._colorFiler;
             shaderValue.setFilter(ft);
-            Matrix4x4.TEMPMatrix0.cloneByArray(ft._mat);
-            shaderdata.setMatrix4x4(ShaderDefines2D.UNIFORM_COLORMAT, Matrix4x4.TEMPMatrix0);
-            Vector4.tempVec4.setValue(ft._alpha[0], ft._alpha[1], ft._alpha[2], ft._alpha[3]);
-            shaderdata.setVector(ShaderDefines2D.UNIFORM_COLORALPHA, Vector4.tempVec4);
+            Matrix4x4.TEMP.cloneByArray(ft._mat);
+            shaderdata.setMatrix4x4(ShaderDefines2D.UNIFORM_COLORMAT, Matrix4x4.TEMP);
+            Vector4.TEMP.setValue(ft._alpha[0], ft._alpha[1], ft._alpha[2], ft._alpha[3]);
+            shaderdata.setVector(ShaderDefines2D.UNIFORM_COLORALPHA, Vector4.TEMP);
         }
 
         this._drawMesh(mesh, 0, mesh.vertexNum, submit._startIdx, mesh.indexNum, submit.shaderValue, submit.material);
@@ -1253,7 +1231,7 @@ export class Context {
             //如果curmat没有旋转。
             tmpMat.tx += curMat.tx;
             tmpMat.ty += curMat.ty;
-            transform = tmpMat;     
+            transform = tmpMat;
         }
         this._drawTextureM(tex, x, y, width, height, transform, alpha, uv, color);
         if (blendMode)

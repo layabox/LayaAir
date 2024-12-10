@@ -7,8 +7,7 @@ import { ShaderVariable } from "../../../RenderEngine/RenderShader/ShaderVariabl
 import { RenderStateContext } from "../../../RenderEngine/RenderStateContext";
 import { CommandEncoder } from "../../../layagl/CommandEncoder";
 import { LayaGL } from "../../../layagl/LayaGL";
-import { Stat } from "../../../utils/Stat";
-import { ShaderCompileDefineBase, ShaderProcessInfo } from "../../../webgl/utils/ShaderCompileDefineBase";
+import { ShaderProcessInfo } from "../../../webgl/utils/ShaderCompileDefineBase";
 import { IShaderInstance } from "../../DriverDesign/RenderDevice/IShaderInstance";
 import { RenderState } from "../../RenderModuleData/Design/RenderState";
 import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
@@ -77,6 +76,11 @@ export class WebGLShaderInstance implements IShaderInstance {
     _create(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderPass): void {
         let shaderObj = GLSLCodeGenerator.GLShaderLanguageProcess3D(shaderProcessInfo.defineString, shaderProcessInfo.attributeMap, shaderProcessInfo.uniformMap, shaderProcessInfo.vs, shaderProcessInfo.ps);
         this._renderShaderInstance = WebGLEngine.instance.createShaderInstance(shaderObj.vs, shaderObj.fs, shaderProcessInfo.attributeMap);
+        if (WebGLEngine._lastShaderError) {
+            console.warn(`[ShaderCompile]Error compiling shader '${shaderPass._owner._owner.name}' (pipelineMode=${shaderPass.pipelineMode})\n`,
+                WebGLEngine._lastShaderError);
+        }
+
         if (this._renderShaderInstance._complete) {
             this._shaderPass = shaderPass;
             shaderProcessInfo.is2D ? this._create2D() : this._create3D();

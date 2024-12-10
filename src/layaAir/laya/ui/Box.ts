@@ -17,7 +17,7 @@ export class Box extends UIComponent {
     set_dataSource(value: any) {
         this._dataSource = value;
         for (let name in value) {
-            let comp = (<UIComponent>this.getChildByName(name));
+            let comp = (<UIComponent>this.getChild(name));
             if (comp)
                 comp.dataSource = value[name];
             else if (name in this && !((this as any)[name] instanceof Function))

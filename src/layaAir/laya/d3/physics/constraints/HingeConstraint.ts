@@ -233,6 +233,6 @@ export class HingeConstraint extends ConstraintComponent {
      * @zh 获取关节的角速度，单位为度每秒。
      */
     getVelocity(): Vector3 {
-        return this._joint ? this._joint.getVelocity() : Vector3._tempVector3.set(0, 0, 0);
+        return this._joint ? this._joint.getVelocity() : Vector3.TEMP.set(0, 0, 0);
     }
 }

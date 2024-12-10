@@ -4,12 +4,13 @@ import { Texture } from "../../resource/Texture"
 import { ClassUtils } from "../../utils/ClassUtils"
 import { ColorUtils } from "../../utils/ColorUtils"
 import { Pool } from "../../utils/Pool"
+import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
 
 /**
  * @en Draw triangles command
  * @zh 绘制三角形命令
  */
-export class DrawTrianglesCmd {
+export class DrawTrianglesCmd implements IGraphicsCmd {
     /**
      * @en Identifier for the DrawTrianglesCmd
      * @zh 绘制三角形命令的标识符
@@ -98,6 +99,7 @@ export class DrawTrianglesCmd {
         matrix: Matrix | null, alpha: number, color: string | number, blendMode: string | null): DrawTrianglesCmd {
         var cmd: DrawTrianglesCmd = Pool.getItemByClass("DrawTrianglesCmd", DrawTrianglesCmd);
         cmd.texture = texture;
+        texture._addReference();
         cmd.x = x;
         cmd.y = y;
         cmd.vertices = vertices;
@@ -115,6 +117,7 @@ export class DrawTrianglesCmd {
      * @zh 回收到对象池
      */
     recover(): void {
+        this.texture?._removeReference();
         this.texture = null;
         this.vertices = null;
         this.uvs = null;
@@ -146,13 +149,12 @@ export class DrawTrianglesCmd {
     }
 
     /**
-     * @en Get the boundary points of the triangles
-     * @zh 获取三角形的边界点
+     * @ignore
      */
-    getBoundPoints(): number[] {
+    getBounds(assembler: IGraphicsBoundsAssembler): void {
         let vert = this.vertices;
         var vnum = vert.length;
-        if (vnum < 2) return [];
+        if (vnum < 2) return;
         var minx = vert[0];
         var miny = vert[1];
         var maxx = minx;
@@ -166,7 +168,7 @@ export class DrawTrianglesCmd {
             if (maxy < cy) maxy = cy;
         }
 
-        return [minx, miny, maxx, miny, maxx, maxy, minx, maxy];
+        assembler.points.push(minx, miny, maxx, miny, maxx, maxy, minx, maxy);
     }
 }
 

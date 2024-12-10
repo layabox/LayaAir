@@ -16,6 +16,7 @@ import { Vector3 } from "../../../maths/Vector3";
 import { Vector4 } from "../../../maths/Vector4";
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { Resource } from "../../../resource/Resource";
+import { NotImplementedError } from "../../../utils/Error";
 import { FastSinglelist } from "../../../utils/SingletonList";
 import { ShaderProcessInfo, ShaderCompileDefineBase } from "../../../webgl/utils/ShaderCompileDefineBase";
 import { CommandUniformMap, UniformProperty } from "../../DriverDesign/RenderDevice/CommandUniformMap";
@@ -94,10 +95,10 @@ export class NoRenderCommandUnifojrmMap extends CommandUniformMap {
 
 export class NoRenderShaderInstance implements IShaderInstance {
     _serializeShader(): ArrayBuffer {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
     _deserialize(buffer: ArrayBuffer): boolean {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
     _create(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderPass): void {
     }

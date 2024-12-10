@@ -193,7 +193,7 @@ export class Trail2DRender extends BaseRenderNode2D {
    */
     addCMDCall(context: Context, px: number, py: number): void {
         let mat = context._curMat;
-        let vec3 = Vector3._tempVector3;
+        let vec3 = Vector3.TEMP;
         vec3.x = mat.a;
         vec3.y = mat.c;
         vec3.z = px * mat.a + py * mat.c + mat.tx;
@@ -211,8 +211,8 @@ export class Trail2DRender extends BaseRenderNode2D {
         let trailGeometry = this._trailFilter._trialGeometry;
         this._spriteShaderData.setNumber(TrailShaderCommon.CURTIME, curtime);
         let globalPos = Trail2DRender.tempvec2_0;
-        (this.owner as Sprite).getGlobalPos(globalPos);
-        let curPosV3 = Vector3._tempVector3;
+        this.owner.getGlobalPos(globalPos);
+        let curPosV3 = Vector3.TEMP;
         curPosV3.set(globalPos.x, globalPos.y, 0);
 
         trailGeometry._updateDisappear(curtime, this.time);

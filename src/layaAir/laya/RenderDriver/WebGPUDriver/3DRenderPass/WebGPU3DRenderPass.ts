@@ -82,7 +82,7 @@ export class WebGPU3DRenderPass implements IRender3DProcess {
             camera.viewport.cloneTo(viewport);
         }
         renderPass.setViewPort(viewport);
-        const scissor = Vector4.tempVec4;
+        const scissor = Vector4.TEMP;
         scissor.setValue(viewport.x, viewport.y, viewport.width, viewport.height);
         renderPass.setScissor(scissor);
 

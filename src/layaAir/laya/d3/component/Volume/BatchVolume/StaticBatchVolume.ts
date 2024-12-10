@@ -46,9 +46,9 @@ export class StaticBatchVolume extends Volume {
      * @returns 
      */
     private _getStaticInstanceBatchRender(): StaticInstanceBatchRender {
-        let render = (this.owner as Sprite3D).getComponent(StaticInstanceBatchRender);
+        let render = this.owner.getComponent(StaticInstanceBatchRender);
         if (!render) {
-            render = (this.owner as Sprite3D).addComponent(StaticInstanceBatchRender) as StaticInstanceBatchRender;
+            render = this.owner.addComponent(StaticInstanceBatchRender);
         }
         return render;
     }
@@ -58,9 +58,9 @@ export class StaticBatchVolume extends Volume {
      * @returns 
      */
     private _getStatiVertexMergeBatchRender(): StatiVertexMergeBatchRender {
-        let render = (this.owner as Sprite3D).getComponent(StatiVertexMergeBatchRender);
+        let render = this.owner.getComponent(StatiVertexMergeBatchRender);
         if (!render) {
-            render = (this.owner as Sprite3D).addComponent(StatiVertexMergeBatchRender) as StatiVertexMergeBatchRender;
+            render = this.owner.addComponent(StatiVertexMergeBatchRender);
         }
         return render;
     }
@@ -157,12 +157,12 @@ export class StaticBatchVolume extends Volume {
     set customBatchRenders(value: BatchRender[]) {
         if (this._customBatchs) {
             this._customBatchs.forEach(element => {
-                (this.owner as Sprite3D)._destroyComponent(element);
+                this.owner._destroyComponent(element);
             });
         }
         this._customBatchs = value;
         this._customBatchs.forEach(element => {
-            (this.owner as Sprite3D).addComponentInstance(element);
+            this.owner.addComponentInstance(element);
         });
         this.enableCustomBatchRender = this._enableCustomBatch;
     }

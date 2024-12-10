@@ -1,10 +1,7 @@
 import { Laya } from "../../../../Laya";
-import { Vector2 } from "../../../maths/Vector2";
-import { FixtureBox2DDef, IPhysiscs2DFactory, PhysicsShape, RigidBody2DInfo } from "../../../physics/IPhysiscs2DFactory";
+import { FixtureBox2DDef, PhysicsShape, RigidBody2DInfo } from "../../../physics/IPhysiscs2DFactory";
 import { TileSetPhysicsLayer } from "./layers/TileSetPhysicsLayer";
 import { TileMapLayer } from "./TileMapLayer";
-import { TileMapUtils } from "./TileMapUtils";
-import { TileSetCellData } from "./TileSetCellData";
 
 /**
  * @internal
@@ -16,7 +13,7 @@ export class TileMapPhysics {
     static __init__(): void {
         TileMapPhysics._tempDef = new FixtureBox2DDef();
     }
-    
+
     private _layer: TileMapLayer;
 
     constructor(layer: TileMapLayer) {
@@ -51,7 +48,7 @@ export class TileMapPhysics {
     }
 
     /** 创建Shape */
-    _createFixture(layer:TileSetPhysicsLayer , data: number[]): any {
+    _createFixture(layer: TileSetPhysicsLayer, data: number[]): any {
         if (!this._physicsBody) return null;
         let factory = Laya.physics2D;
 
@@ -75,7 +72,7 @@ export class TileMapPhysics {
     /**
      * 移除物理形状
      */
-    _destroyFixture(fixture:any): void {
+    _destroyFixture(fixture: any): void {
         if (!this._physicsBody) return;
         Laya.physics2D.rigidBody_DestroyFixture(this._physicsBody, fixture);
     }

@@ -24,6 +24,8 @@ export class NavMeshModifierVolume extends Component {
     /**@internal */
     private _size: Vector3 = new Vector3(1, 1, 1);
 
+    declare owner: Sprite3D;
+
     /**
      * @en The agent type that this volume applies to.
      * @zh 该体积适用的代理类型。
@@ -89,7 +91,7 @@ export class NavMeshModifierVolume extends Component {
         BaseNavigationManager.findNavMeshSurface(surface, this.owner, [this.agentType]);
         this._volumeData._initSurface(surface);
         this._onWorldMatNeedChange();
-        (this.owner as Sprite3D).transform.on(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange)
+        this.owner.transform.on(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange)
     }
 
 
@@ -106,7 +108,7 @@ export class NavMeshModifierVolume extends Component {
     protected _onWorldMatNeedChange() {
         let transform = this._volumeData._transfrom;
         Matrix4x4.createAffineTransformation(this._center, Quaternion.DEFAULT, this._size, transform);
-        Matrix4x4.multiply((<Sprite3D>this.owner).transform.worldMatrix, transform, transform);
+        Matrix4x4.multiply(this.owner.transform.worldMatrix, transform, transform);
         this._volumeData._refeahTransfrom();
     }
 

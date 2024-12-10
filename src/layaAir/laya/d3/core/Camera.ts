@@ -1598,13 +1598,6 @@ export class Camera extends BaseCamera {
             this._cameraEventCommandBuffer[event].length = 0;
     }
 
-    /**
-     * @internal
-     */
-    protected _create(): Node {
-        return new Camera();
-    }
-
     /** @internal [NATIVE]*/
     _boundFrustumBuffer: Float32Array;
 }

@@ -227,7 +227,7 @@ export class Navgiation2DUtils {
         if (isGlobal) {
             mat.identity();
         } else {
-            let sprite = navMesh._surface.owner as Sprite;
+            let sprite = navMesh._surface.owner;
             sprite.getGlobalMatrix().copyTo(mat);
             mat.invert();
         }

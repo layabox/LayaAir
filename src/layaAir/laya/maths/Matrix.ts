@@ -17,12 +17,13 @@ export class Matrix {
      * @en An initialized Matrix object. The content of this object is not allowed to be modified.
      * @zh 一个初始化的 Matrix 对象，不允许修改此对象内容。
      */
-    static EMPTY: Matrix = new Matrix();
+    static readonly EMPTY: Readonly<Matrix> = new Matrix();
     /**
      * @en A Matrix object used for temporary operations.
      * @zh 用于中转使用的 Matrix 对象。
      */
-    static TEMP: Matrix = new Matrix();
+    static readonly TEMP: Matrix = new Matrix();
+
     /**@internal */
     static _createFun: Function | null = null;
 
@@ -472,7 +473,7 @@ export class Matrix {
      * @returns 与原始实例具有完全相同的属性的新 Matrix 实例。
      */
     clone(): Matrix {
-        var dec: Matrix = Matrix.create();
+        var dec: Matrix = new Matrix();
         dec.a = this.a;
         dec.b = this.b;
         dec.c = this.c;

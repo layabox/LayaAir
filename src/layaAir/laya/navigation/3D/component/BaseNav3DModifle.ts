@@ -17,6 +17,8 @@ export class BaseNav3DModifle extends Component {
     /**@internal */
     protected _manager: NavigationManager;
 
+    declare owner: Sprite3D;
+
     /**
      * @en Agent type for the navigation node
      * @zh 导航节点的代理类型
@@ -53,15 +55,14 @@ export class BaseNav3DModifle extends Component {
         super._onEnable();
         this._manager = NavigationManager._getNavManager(this);
         this._onWorldMatNeedChange();
-        (this.owner as Sprite3D).transform.on(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange);
+        this.owner.transform.on(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange);
     }
 
     /**
      * @internal
      */
     protected _onWorldMatNeedChange() {
-        var sprite3D: Sprite3D = this.owner as Sprite3D;
-        this._refeashTranfrom(sprite3D.transform.worldMatrix, this._modifierData._min, this._modifierData._max);
+        this._refeashTranfrom(this.owner.transform.worldMatrix, this._modifierData._min, this._modifierData._max);
         this._modifierData._refeahTransfrom();
         this._modifierData._refeahBound();
     }

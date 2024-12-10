@@ -2,7 +2,8 @@ import { LayaGL } from "../../../layagl/LayaGL";
 import { IShaderInstance } from "../../DriverDesign/RenderDevice/IShaderInstance";
 import { GLSLCodeGenerator } from "../../../RenderEngine/RenderShader/GLSLCodeGenerator";
 import { ShaderPass } from "../../../RenderEngine/RenderShader/ShaderPass";
-import {  ShaderProcessInfo } from "../../../webgl/utils/ShaderCompileDefineBase";
+import { ShaderProcessInfo } from "../../../webgl/utils/ShaderCompileDefineBase";
+import { NotImplementedError } from "../../../utils/Error";
 /**
  * @internal
  * <code>ShaderInstance</code> 类用于实现ShaderInstance。
@@ -19,10 +20,10 @@ export class GLESShaderInstance implements IShaderInstance {
 
 	}
 	_serializeShader(): ArrayBuffer {
-		throw new Error("Method not implemented.");
+		throw new NotImplementedError();
 	}
 	_deserialize(buffer: ArrayBuffer): boolean {
-		throw new Error("Method not implemented.");
+		throw new NotImplementedError();
 	}
 
 	_create(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderPass): void {
@@ -32,9 +33,9 @@ export class GLESShaderInstance implements IShaderInstance {
 		for (var k in shaderProcessInfo.attributeMap) {
 			this._attributeMapTemp.set(k, shaderProcessInfo.attributeMap[k][0]);
 		}
-	
+
 		this._nativeObj = new (window as any).conchGLESShaderInstance(shaderProcessInfo.is2D, shaderObj.vs, shaderObj.fs, this._attributeMapTemp, (shaderPass.moduleData as any)._nativeObj);
-		
+
 	}
 
 	/**

@@ -6,6 +6,7 @@ import { UIUtils } from "./UIUtils"
 import { HideFlags } from "../Const";
 import { SerializeUtil } from "../loaders/SerializeUtil";
 import { LayaEnv } from "../../LayaEnv";
+import { TransformKind } from "../display/SpriteConst";
 
 export type LabelFitContent = "no" | "yes" | "height";
 
@@ -360,7 +361,7 @@ export class Label extends UIComponent {
 
     set strikethroughColor(value: string) {
         this._tf.strikethroughColor = value;
-    }    
+    }
 
     /**
      * @en Whether the text ignores language localization.
@@ -428,19 +429,15 @@ export class Label extends UIComponent {
     }
 
     /**
-     * @internal
+     * @ignore
      */
-    _setWidth(value: number): void {
-        super._setWidth(value);
-        this._tf.width = value;
-    }
+    protected _transChanged(kind: TransformKind) {
+        super._transChanged(kind);
 
-    /**
-     * @internal
-     */
-    _setHeight(value: number) {
-        super._setHeight(value);
-        this._tf.height = value;
+        if ((kind & TransformKind.Width) != 0)
+            this._tf.width = this._width;
+        if ((kind & TransformKind.Height) != 0)
+            this._tf.height = this._height;
     }
 
     protected createChildren(): void {
@@ -451,7 +448,7 @@ export class Label extends UIComponent {
         this._tf.on(Event.CHANGE, () => {
             this.event(Event.CHANGE);
             if (!this._isWidthSet || !this._isHeightSet)
-                this.onCompResize();
+                this._sizeChanged();
         });
         this.addChild(this._tf);
     }
@@ -464,38 +461,17 @@ export class Label extends UIComponent {
         return this._tf.height;
     }
 
-    get_width(): number {
-        if (this._isWidthSet || this._tf.text) return super.get_width();
-        return 0;
-    }
-
     /**
-     * @en Sets the width of the label.
-     * @param value The new width value.
-     * @zh 设置文本标签的宽度。
-     * @param value 新的宽度值。
+     * @ignore
      */
-    set_width(value: number): void {
-        if (this._fitContent == "yes" && !this._fitFlag)
-            return;
-        super.set_width(value);
-    }
+    size(width: number, height: number): this {
+        if (this._fitContent == "yes" && !this._fitFlag) //锁定了width
+            width = this._width;
 
-    get_height(): number {
-        if (this._isHeightSet || this._tf.text) return super.get_height();
-        return 0;
-    }
+        if ((this._fitContent == "yes" || this._fitContent == "height") && !this._fitFlag) //锁定了height
+            height = this._height;
 
-    /**
-     * @en Sets the height of the label.
-     * @param value The new height value.
-     * @zh 设置文本标签的高度。
-     * @param value 新的高度值。
-     */
-    set_height(value: number): void {
-        if ((this._fitContent == "yes" || this._fitContent == "height") && !this._fitFlag)
-            return;
-        super.set_height(value);
+        return super.size(width, height);
     }
 
     set_dataSource(value: any) {

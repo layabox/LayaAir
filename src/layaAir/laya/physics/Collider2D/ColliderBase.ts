@@ -53,12 +53,14 @@ export class ColliderBase extends Component {
      */
     rigidBody: RigidBody;
 
+    declare owner: Sprite;
+
     /**
      * @internal
      * 获得节点的全局缩放X
      */
     protected get scaleX(): number {
-        return (<Sprite>this.owner).globalScaleX;
+        return this.owner.globalScaleX;
     }
 
     /**
@@ -66,17 +68,17 @@ export class ColliderBase extends Component {
      * 获得节点的全局缩放Y
      */
     protected get scaleY(): number {
-        return (<Sprite>this.owner).globalScaleY;
+        return this.owner.globalScaleY;
     }
 
     /**@internal 创建获得相对于描点x的偏移 */
     protected get pivotoffx(): number {
-        return this._x - (<Sprite>this.owner).pivotX;
+        return this._x - this.owner.pivotX;
     }
 
     /**@internal 创建获得相对于描点y的偏移 */
     protected get pivotoffy(): number {
-        return this._y - (<Sprite>this.owner).pivotY;
+        return this._y - this.owner.pivotY;
     }
 
     /**

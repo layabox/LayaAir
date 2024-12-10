@@ -65,7 +65,7 @@ export class SpineNormalRender implements ISpineOptimizeRender {
         if (renderNode._renderAlpha !== undefined) {
             color.a *= renderNode._renderAlpha;
         }else
-            color.a *= (renderNode.owner as Sprite).alpha;
+            color.a *= renderNode.owner.alpha;
         renderNode._spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, color);
         renderNode._spriteShaderData.removeDefine(SpineShaderInit.SPINE_FAST);
         renderNode._spriteShaderData.removeDefine(SpineShaderInit.SPINE_RB);

@@ -5,9 +5,6 @@ import { Quaternion } from "./Quaternion";
 import { IClone } from "../utils/IClone";
 
 const _DEFAULTELEMENTS = new Float32Array([1, 0, 0, 0, 1, 0, 0, 0, 1]);
-const _tempV30 = new Vector3();
-const _tempV31 = new Vector3();
-const _tempV32 = new Vector3();
 
 /**
  * @en The Matrix3x3 class is used to create a 3x3 matrix.
@@ -23,7 +20,8 @@ export class Matrix3x3 implements IClone {
      * @en Temporary variable
      * @zh 临时变量
      */
-    static Temp: Matrix3x3 = new Matrix3x3();
+    static readonly TEMP: Matrix3x3 = new Matrix3x3();
+
     /**
      * @en Create a rotation matrix from a quaternion.
      * @param rotation The rotation quaternion.
@@ -517,3 +515,7 @@ export class Matrix3x3 implements IClone {
         m[6] = vz.x; m[7] = vz.y; m[8] = vz.z;
     }
 }
+
+const _tempV30 = new Vector3();
+const _tempV31 = new Vector3();
+const _tempV32 = new Vector3();

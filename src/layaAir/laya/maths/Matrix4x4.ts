@@ -3,11 +3,6 @@ import { Quaternion } from "./Quaternion";
 import { MathUtils3D } from "./MathUtils3D";
 import { IClone } from "../utils/IClone";
 
-const _tempVector0 = new Vector3();
-const _tempVector1 = new Vector3();
-const _tempVector2 = new Vector3();
-const _tempVector3 = new Vector3();
-const _tempQuaternion = new Quaternion();
 const DEFAULTARRAY = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
 
 /**
@@ -16,17 +11,10 @@ const DEFAULTARRAY = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0,
  */
 export class Matrix4x4 implements IClone {
     /**
-     * @internal
      * @en Temporary matrix for internal calculations.
      * @zh 用于内部计算的临时矩阵。
      */
-    static TEMPMatrix0: Matrix4x4 = new Matrix4x4();
-    /**
-     * @internal
-     * @en Another temporary matrix for internal calculations.
-     * @zh 另一个用于内部计算的临时矩阵。
-     */
-    static TEMPMatrix1: Matrix4x4 = new Matrix4x4();
+    static readonly TEMP: Matrix4x4 = new Matrix4x4();
 
     /**
      * @en Default matrix. Do not modify.
@@ -116,8 +104,8 @@ export class Matrix4x4 implements IClone {
      * @param result 输出结果矩阵。
      */
     static createRotationYawPitchRoll(yaw: number, pitch: number, roll: number, result: Matrix4x4): void {
-        Quaternion.createFromYawPitchRoll(yaw, pitch, roll, _tempQuaternion);
-        Matrix4x4.createRotationQuaternion(_tempQuaternion, result);
+        Quaternion.createFromYawPitchRoll(yaw, pitch, roll, Quaternion.TEMP);
+        Matrix4x4.createRotationQuaternion(Quaternion.TEMP, result);
     }
 
     /**
@@ -638,7 +626,7 @@ export class Matrix4x4 implements IClone {
      * @returns 是否分解成功。
      */
     decomposeTransRotScale(translation: Vector3, rotation: Quaternion, scale: Vector3): boolean {
-        var rotationMatrix: Matrix4x4 = _tempMatrix4x4;
+        var rotationMatrix: Matrix4x4 = _tempMatrix;
         if (this.decomposeTransRotMatScale(translation, rotationMatrix, scale)) {
             Quaternion.createFromMatrix4x4(rotationMatrix, rotation);
             return true;
@@ -1039,7 +1027,7 @@ export class Matrix4x4 implements IClone {
      * @returns 如果矩阵是反向的返回true，否则返回false
      */
     getInvertFront(): boolean {
-        this.decomposeTransRotScale(_tempVector0, _tempQuaternion, _tempVector1);
+        this.decomposeTransRotScale(_tempVector0, Quaternion.TEMP, _tempVector1);
         var scale: Vector3 = _tempVector1;
         var isInvert: boolean = scale.x < 0;
         (scale.y < 0) && (isInvert = !isInvert);
@@ -1048,4 +1036,8 @@ export class Matrix4x4 implements IClone {
     }
 }
 
-const _tempMatrix4x4 = new Matrix4x4();
+const _tempVector0 = new Vector3();
+const _tempVector1 = new Vector3();
+const _tempVector2 = new Vector3();
+const _tempVector3 = new Vector3();
+const _tempMatrix = new Matrix4x4();

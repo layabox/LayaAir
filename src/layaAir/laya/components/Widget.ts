@@ -21,6 +21,8 @@ export class Widget extends Component {
     private _centerX: number = null;
     private _centerY: number = null;
 
+    declare owner: Sprite;
+
     constructor() {
         super();
 
@@ -68,7 +70,7 @@ export class Widget extends Component {
      * @zh 重置对象的水平布局（X轴方向）。
      */
     resetLayoutX(): boolean {
-        var owner: Sprite = (<Sprite>this.owner);
+        var owner: Sprite = this.owner;
         if (!owner) return false;
         var parent: Sprite = (<Sprite>owner.parent);
         if (parent) {

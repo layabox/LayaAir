@@ -6,6 +6,7 @@ import { HideFlags } from "../Const"
 import { URL } from "../net/URL"
 import { Utils } from "../utils/Utils"
 import { AssetDb } from "../resource/AssetDb"
+import { TransformKind } from "../display/SpriteConst"
 
 /**
  * @en The `ProgressBar` component displays the loading progress of content.
@@ -144,7 +145,7 @@ export class ProgressBar extends UIComponent {
             return Promise.resolve();
         }
     }
-    
+
     protected _skinLoaded(): void {
         if (this._destroyed)
             return;
@@ -184,14 +185,13 @@ export class ProgressBar extends UIComponent {
     }
 
     /**
-     * @en Sets the width of the component.
-     * @param value The width value to set.
-     * @zh 设置组件的宽度。
-     * @param value 要设置的宽度值。
+     * @ignore
      */
-    set_width(value: number): void {
-        super.set_width(value);
-        this.callLater(this.changeValue);
+    protected _transChanged(kind: TransformKind): void {
+        super._transChanged(kind);
+
+        if ((kind & TransformKind.Width) != 0)
+            this.callLater(this.changeValue);
     }
 
     /**

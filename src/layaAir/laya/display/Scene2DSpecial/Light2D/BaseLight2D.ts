@@ -1,5 +1,7 @@
 import { Laya } from "../../../../Laya";
 import { Component } from "../../../components/Component";
+import { NodeFlags } from "../../../Const";
+import { Event } from "../../../events/Event";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { Color } from "../../../maths/Color";
 import { Rectangle } from "../../../maths/Rectangle";
@@ -54,6 +56,8 @@ export class BaseLight2D extends Component {
     static LIGHTANDSHADOW_AMBIENT: number;
 
     static idCounter: number = 0; //用于区别不同灯光对象的id计数器
+
+    declare owner: Sprite;
 
     /**
      * @internal
@@ -217,8 +221,8 @@ export class BaseLight2D extends Component {
      * @zh 获取灯光位置
      */
     get lightPos() {
-        this._lightPos.x = ((this.owner as Sprite).globalPosX * Browser.pixelRatio) | 0;
-        this._lightPos.y = ((this.owner as Sprite).globalPosY * Browser.pixelRatio) | 0;
+        this._lightPos.x = (this.owner.globalPosX * Browser.pixelRatio) | 0;
+        this._lightPos.y = (this.owner.globalPosY * Browser.pixelRatio) | 0;
         return this._lightPos;
     }
 
@@ -399,8 +403,8 @@ export class BaseLight2D extends Component {
      * 通知此灯光层的改变
      */
     private _notifyLightLayerChange(oldLayer: number, newLayer: number) {
-        ((this.owner?.scene as Scene)?._light2DManager as Light2DManager)?.lightLayerMarkChange(this, oldLayer, newLayer);
-        ((this.owner?.scene as Scene)?._light2DManager as Light2DManager)?.needCollectLightInLayer(newLayer);
+        ((this.owner?.scene)?._light2DManager as Light2DManager)?.lightLayerMarkChange(this, oldLayer, newLayer);
+        ((this.owner?.scene)?._light2DManager as Light2DManager)?.needCollectLightInLayer(newLayer);
     }
 
     /**
@@ -408,7 +412,7 @@ export class BaseLight2D extends Component {
      * 通知此灯阴影接受层的改变
      */
     private _notifyShadowCastLayerChange(oldLayer: number, newLayer: number) {
-        ((this.owner?.scene as Scene)?._light2DManager as Light2DManager)?.lightShadowLayerMarkChange(this, oldLayer, newLayer);
+        ((this.owner?.scene)?._light2DManager as Light2DManager)?.lightShadowLayerMarkChange(this, oldLayer, newLayer);
     }
 
     /**
@@ -416,7 +420,7 @@ export class BaseLight2D extends Component {
      * 通知此灯阴影PCF参数的改变
      */
     private _notifyShadowPCFChange() {
-        ((this.owner?.scene as Scene)?._light2DManager as Light2DManager)?.lightShadowPCFChange(this);
+        ((this.owner?.scene)?._light2DManager as Light2DManager)?.lightShadowPCFChange(this);
     }
 
     /**
@@ -424,9 +428,9 @@ export class BaseLight2D extends Component {
      */
     protected _onEnable(): void {
         super._onEnable();
-        (this.owner as Sprite).on("2DtransChanged", this, this._transformChange);
-        (this.owner as Sprite).transChangeNotify = true;
-        ((this.owner.scene as Scene)?._light2DManager as Light2DManager)?.addLight(this);
+        this.owner.on(Event.TRANSFORM_CHANGED, this, this._transformChange);
+        this.owner._setBit(NodeFlags.DEMAND_TRANS_EVENT, true);
+        ((this.owner.scene)?._light2DManager as Light2DManager)?.addLight(this);
     }
 
     /**
@@ -435,8 +439,8 @@ export class BaseLight2D extends Component {
     protected _onDisable(): void {
         super._onDisable();
         this._clearScreenCache();
-        (this.owner as Sprite).off("2DtransChanged", this, this._transformChange);
-        ((this.owner.scene as Scene)?._light2DManager as Light2DManager)?.removeLight(this);
+        this.owner.off(Event.TRANSFORM_CHANGED, this, this._transformChange);
+        ((this.owner.scene)?._light2DManager as Light2DManager)?.removeLight(this);
     }
 
     /**
@@ -654,16 +658,16 @@ export class BaseLight2D extends Component {
      */
     protected _lightScaleAndRotation() {
         //获取放缩量
-        const sx = Math.abs((this.owner as Sprite).globalScaleX);
-        const sy = Math.abs((this.owner as Sprite).globalScaleY);
+        const sx = Math.abs(this.owner.globalScaleX);
+        const sy = Math.abs(this.owner.globalScaleY);
 
         //设置灯光放缩
-        Vector2.TempVector2.x = 1 / sx;
-        Vector2.TempVector2.y = 1 / sy;
-        this.lightScale = Vector2.TempVector2;
+        Vector2.TEMP.x = 1 / sx;
+        Vector2.TEMP.y = 1 / sy;
+        this.lightScale = Vector2.TEMP;
 
         //设置灯光旋转
-        this.lightRotation = (this.owner as Sprite).globalRotation * Math.PI / 180;
+        this.lightRotation = this.owner.globalRotation * Math.PI / 180;
     }
 
     /**

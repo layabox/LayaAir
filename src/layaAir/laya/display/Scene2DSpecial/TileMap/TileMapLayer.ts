@@ -20,6 +20,7 @@ import { Rectangle } from "../../../maths/Rectangle";
 import { RectClipper } from "./RectClipper";
 import { Texture2D } from "../../../resource/Texture2D";
 import { TileMapDatasParse } from "./loaders/TileSetAssetLoader";
+import { NodeFlags } from "../../../Const";
 
 export enum TILELAYER_SORTMODE {
     YSort,
@@ -255,7 +256,7 @@ export class TileMapLayer extends BaseRenderNode2D {
         if (minVec.x > maxVec.x || minVec.y > maxVec.y) { return; }
 
         this._chunkDatas = [];
-        const tempVec3 = Vector3._tempVector3;
+        const tempVec3 = Vector3.TEMP;
         this._chunk._getChunkPosByCell(minVec.x, minVec.y, tempVec3);
         let startRow = tempVec3.x;
         let startCol = tempVec3.y;
@@ -334,7 +335,7 @@ export class TileMapLayer extends BaseRenderNode2D {
 
     onEnable(): void {
         super.onEnable();
-        (<Sprite>this.owner).cacheGlobal = true;
+        this.owner._setBit(NodeFlags.CACHE_GLOBAL, true);
         this._updateMapDatas();
         this._tileMapPhysics._createPhysics();
     }
@@ -343,8 +344,8 @@ export class TileMapLayer extends BaseRenderNode2D {
      * @internal
      * @returns 
      */
-    _globalTramsfrom(): Matrix {
-        return (<Sprite>this.owner).getGlobalMatrix();
+    _globalTransfrom(): Matrix {
+        return this.owner.getGlobalMatrix();
     }
 
     /**
@@ -356,8 +357,8 @@ export class TileMapLayer extends BaseRenderNode2D {
      * @param py 
      */
     addCMDCall(context: Context, px: number, py: number): void {
-        let mat = this._globalTramsfrom();
-        let vec3 = Vector3._tempVector3;
+        let mat = this._globalTransfrom();
+        let vec3 = Vector3.TEMP;
         vec3.setValue(mat.a, mat.c, mat.tx);
         this._spriteShaderData.setVector3(BaseRenderNode2D.NMATRIX_0, vec3);
 
@@ -382,9 +383,9 @@ export class TileMapLayer extends BaseRenderNode2D {
         //根据相机位置和大小计算出需要渲染的区域
         const clipChuckMat = TempMatrix;
         const renderRect = TempRectange;
-        let mat = this._globalTramsfrom();
+        let mat = this._globalTransfrom();
 
-        let scene = (<Sprite>this.owner).scene;
+        let scene = this.owner.scene;
         let camera = scene._specialManager._mainCamera;
         if (camera == null) {
             renderRect.setTo(0, 0, Laya.stage.width, Laya.stage.height);
@@ -402,7 +403,7 @@ export class TileMapLayer extends BaseRenderNode2D {
             clipChuckMat.ty = e[7];
             Matrix.mul(mat, clipChuckMat, clipChuckMat);
         }
-        let oneChuckSize = Vector2.TempVector2;
+        let oneChuckSize = Vector2.TEMP;
         this._chunk._getChunkSize(oneChuckSize);
 
         //根据实际裁切框计算chunck矩阵的裁切框大小  返回 renderRect在Tilemap空间中的转换rect
@@ -412,7 +413,7 @@ export class TileMapLayer extends BaseRenderNode2D {
 
         let tileSize = this.tileSet.tileSize;
 
-        let tempVec3 = Vector3._tempVector3;
+        let tempVec3 = Vector3.TEMP;
         this._chunk._getChunkPosByPixel(chuckLocalRect.x - tileSize.x, chuckLocalRect.y - tileSize.y, tempVec3);
         let chuckstartRow = tempVec3.x;
         let chuckstartCol = tempVec3.y;
@@ -420,7 +421,7 @@ export class TileMapLayer extends BaseRenderNode2D {
         let chuckendRow = tempVec3.x;
         let chuckendCol = tempVec3.y;
 
-        let checkPoint = Vector2.TempVector2;
+        let checkPoint = Vector2.TEMP;
         for (var j = chuckstartCol; j <= chuckendCol; j++) {
             if (!this._chunkDatas[j]) { continue; }
             let rowData = this._chunkDatas[j];
@@ -448,7 +449,7 @@ export class TileMapLayer extends BaseRenderNode2D {
         //调用 TileMapChunkData._update
         //将生成的所有的renderelement2D添加到组件的renderElement
         if (cellData == null) return;
-        let tempVec3 = Vector3._tempVector3;
+        let tempVec3 = Vector3.TEMP;
         if (isPixel) {
             this._chunk._getChunkPosByPixel(x, y, tempVec3);
         } else {
@@ -466,7 +467,7 @@ export class TileMapLayer extends BaseRenderNode2D {
      * @param isPixel 是否是像素坐标 true: 像素坐标 false: 格子坐标
      */
     removeCell(x: number, y: number, isPixel: boolean = true) {
-        let tempVec3 = Vector3._tempVector3;
+        let tempVec3 = Vector3.TEMP;
         if (isPixel) {
             this._chunk._getChunkPosByPixel(x, y, tempVec3);
         } else {

@@ -156,7 +156,7 @@ this._type =type=3;
 				}
 				//
 				//if (_target is Sprite) {
-					//var bg:Sprite = Sprite(_target).getChildByName("bg") as Sprite;
+					//var bg:Sprite = Sprite(_target).getChild("bg") as Sprite;
 					//if (bg) {
 						//bg.width = _target.width;
 						//bg.height = _target.height;

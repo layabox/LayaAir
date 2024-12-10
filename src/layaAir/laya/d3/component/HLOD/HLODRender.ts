@@ -174,7 +174,7 @@ export class HLODRender extends BaseRender {
                 }
                 //sort TODO
                 // let position = context.camera.transform.position;
-                // let oriPisition = (this.owner as Sprite3D)
+                // let oriPisition = this.owner;
                 // hodMesh = hodMesh.sort((a,b)=>{
 
                 //     return 10;

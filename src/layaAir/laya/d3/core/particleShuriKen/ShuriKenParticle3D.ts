@@ -8,6 +8,8 @@ import { ShurikenParticleSystem } from "./ShurikenParticleSystem";
  */
 export class ShuriKenParticle3D extends RenderableSprite3D {
 
+	declare _render: ShurikenParticleRenderer;
+
 	/** @internal */
 	private _particleSystem: ShurikenParticleSystem;
 
@@ -24,7 +26,7 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 	 * @zh 粒子渲染器。
 	 */
 	get particleRenderer(): ShurikenParticleRenderer {
-		return <ShurikenParticleRenderer>this._render;
+		return this._render;
 	}
 
 	/**
@@ -34,8 +36,8 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 	 */
 	constructor() {
 		super(null);
-		this._render = this.addComponent(ShurikenParticleRenderer) as ShurikenParticleRenderer;
-		this._particleSystem = (this._render as ShurikenParticleRenderer)._particleSystem;
+		this._render = this.addComponent(ShurikenParticleRenderer);
+		this._particleSystem = this._render._particleSystem;
 	}
 
 	/**

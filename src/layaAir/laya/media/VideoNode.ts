@@ -6,6 +6,7 @@ import { VideoTexture } from "./VideoTexture";
 import { LayaEnv } from "../../LayaEnv";
 import { SpriteUtils } from "../utils/SpriteUtils";
 import { Event } from "../events/Event";
+import { TransformKind } from "../display/SpriteConst";
 
 /**
  * @en VideoNode displays video on Canvas. Video may not be effective in all browsers.
@@ -393,59 +394,29 @@ export class VideoNode extends Sprite {
     }
 
     /**
-     * @internal
+     * @ignore
      */
-    _setX(value: number): void {
-        super._setX(value);
-        if (this._videoTexture && LayaEnv.isConch) {
-            var transform: any = SpriteUtils.getTransformRelativeToWindow(this, 0, 0);
-            this._videoTexture.element.style.left = transform.x;
-        }
-    }
-
-    /**
-     * @internal
-     */
-    _setY(value: number): void {
-        super._setY(value);
-        if (this._videoTexture && LayaEnv.isConch) {
-            var transform: any = SpriteUtils.getTransformRelativeToWindow(this, 0, 0);
-            this._videoTexture.element.style.top = transform.y;
-        }
-    }
-
-    /**
-     * @internal
-     */
-    set_width(value: number): void {
-        super.set_width(value);
+    protected _transChanged(kind: TransformKind): void {
+        super._transChanged(kind);
 
         if (!this._videoTexture)
             return;
+
         if (LayaEnv.isConch) {
-            var transform: any = SpriteUtils.getTransformRelativeToWindow(this, 0, 0);
-            this._videoTexture.element.width = value * transform.scaleX;
+            if ((kind & TransformKind.Pos) != 0) {
+                let transform = SpriteUtils.getTransformRelativeToWindow(this, 0, 0);
+                this._videoTexture.element.style.left = transform.x;
+                this._videoTexture.element.style.top = transform.y;
+            }
+            else if ((kind & TransformKind.Size) != 0) {
+                let transform = SpriteUtils.getTransformRelativeToWindow(this, 0, 0);
+                this._videoTexture.element.width = this._width * transform.scaleX;
+                this._videoTexture.element.height = this._height * transform.scaleY;
+            }
         }
         else {
-            this._videoTexture.element.width = this.width / ILaya.Browser.pixelRatio;
-        }
-    }
-
-    /**
-     * @internal
-     */
-    set_height(value: number) {
-        super.set_height(value);
-
-        if (!this._videoTexture)
-            return;
-        if (LayaEnv.isConch) {
-            var transform: any = SpriteUtils.getTransformRelativeToWindow(this, 0, 0);
-            this._videoTexture.element.height = value * transform.scaleY;
-
-        }
-        else {
-            this._videoTexture.element.height = this.height / ILaya.Browser.pixelRatio;
+            this._videoTexture.element.width = this._width / ILaya.Browser.pixelRatio;
+            this._videoTexture.element.height = this._height / ILaya.Browser.pixelRatio;
         }
     }
 

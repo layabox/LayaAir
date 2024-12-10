@@ -9,6 +9,7 @@ import { Texture } from "../resource/Texture"
 import { Handler } from "../utils/Handler"
 import { ILaya } from "../../ILaya";
 import { URL } from "../net/URL";
+import { TransformKind } from "../display/SpriteConst";
 /**
  * @en The `Clip` class is a bitmap slice animation.
  * `Clip` can split an image into a slice animation by horizontal split count `clipX`, vertical split count `clipY`, 
@@ -21,7 +22,7 @@ import { URL } from "../net/URL";
  * 从左向右，从上到下，分割组合为一个切片动画。
  * Image和Clip组件是唯一支持异步加载的两个组件，比如clip.skin = "abc/xxx.png"，其他UI组件均不支持异步加载。
  */
-export class Clip extends UIComponent {   
+export class Clip extends UIComponent {
     protected _sources: Texture[];
     protected _skin: string;
     protected _clipX: number = 1;
@@ -92,10 +93,10 @@ export class Clip extends UIComponent {
         this._setClipChanged()
     }
 
-     /**
+    /**
      * @en Height of each slice when dividing vertically. Takes precedence over `clipY` when set together with `clipY`.
      * @zh 竖向分割时每个切片的高度，与 `clipY` 同时设置时优先级高于 `clipY` 。
-     */
+    */
     get clipHeight(): number {
         return this._clipHeight;
     }
@@ -119,10 +120,10 @@ export class Clip extends UIComponent {
         this.event(Event.LOADED);
     }
 
-     /**
+    /**
      * @en Resource group.
      * @zh 资源分组。
-     */
+    */
     get group(): string {
         return this._group;
     }
@@ -287,19 +288,15 @@ export class Clip extends UIComponent {
     }
 
     /**
-     * @internal
+     * @ignore
      */
-    _setWidth(value: number) {
-        super._setWidth(value);
-        this._graphics.width = value;
-    }
+    protected _transChanged(kind: TransformKind) {
+        super._transChanged(kind);
 
-    /**
-     * @internal
-     */
-    _setHeight(value: number) {
-        super._setHeight(value);
-        this._graphics.height = value;
+        if ((kind & TransformKind.Width) != 0)
+            this._graphics.width = this._width;
+        if ((kind & TransformKind.Height) != 0)
+            this._graphics.height = this._height;
     }
 
     protected _loop(): void {
@@ -360,7 +357,7 @@ export class Clip extends UIComponent {
 
         this.index = this._index;
         this.event(Event.LOADED);
-        this.onCompResize();
+        this._sizeChanged();
     }
 
     protected measureWidth(): number {

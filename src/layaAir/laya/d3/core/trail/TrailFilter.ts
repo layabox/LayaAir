@@ -57,7 +57,7 @@ export class TrailFilter extends TrailBaseFilter {
 		var material: TrailMaterial = (<TrailMaterial>render.sharedMaterials[0]);
 		(material) || (material = TrailMaterial.defaultMaterial);
 		var element: RenderElement = new RenderElement();
-		element.setTransform((this._ownerRender.owner as Sprite3D)._transform);
+		element.setTransform(this._ownerRender.owner._transform);
 		element.render = render;
 		element.material = material;
 		//element.renderSubShader = element.material.shader.getSubShaderAt(0);
@@ -78,7 +78,7 @@ export class TrailFilter extends TrailBaseFilter {
 		//设置颜色
 		render._baseRenderNode.shaderData.setNumber(TrailShaderCommon.CURTIME, this._curtime);
 		//现在的位置记录
-		var curPos: Vector3 = (this._ownerRender.owner as Sprite3D).transform.position;
+		var curPos: Vector3 = this._ownerRender.owner.transform.position;
 
 		this._trialGeometry._updateDisappear(this._curtime, this._time);
 		if (!Vector3.equals(this._lastPosition, curPos)) {
@@ -98,7 +98,7 @@ export class TrailFilter extends TrailBaseFilter {
 					case TrailAlignment.TransformZ:
 						Vector3.subtract(curPos, this._trialGeometry._lastFixedVertexPosition, delVector3);
 						var forward: Vector3 = TrailGeometry._tempVector33;
-						(this._ownerRender.owner as Sprite3D).transform.getForward(forward);
+						this._ownerRender.owner.transform.getForward(forward);
 						Vector3.cross(delVector3, forward, pointAtoBVector3);//实时更新模式需要和view一样根据当前forward重新计算
 						break;
 				}
@@ -118,7 +118,7 @@ export class TrailFilter extends TrailBaseFilter {
 			//caculate boundBox
 			var bounds = this._ownerRender.bounds;
 			var min: Vector3, max: Vector3;
-			var sprite3dPosition: Vector3 = (this._ownerRender.owner as Sprite3D).transform.position;
+			var sprite3dPosition: Vector3 = this._ownerRender.owner.transform.position;
 			bounds.setMin(sprite3dPosition);
 			bounds.setMax(sprite3dPosition);
 			min = bounds.getMin();

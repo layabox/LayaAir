@@ -1,3 +1,4 @@
+import { TransformKind } from "../display/SpriteConst";
 import { Event } from "../events/Event"
 import { Button } from "./Button"
 
@@ -39,15 +40,14 @@ export class Radio extends Button {
     }
 
     /**
-     * @internal
-     * @en Sets the internal text width when the autoSize property is false.
-     * @param value The new width value.
-     * @zh 当 autoSize 属性为 false 时，设置内部文本宽度。
-     * @param value 新的宽度值。
+     * @ignore
      */
-    _setWidth(value: number): void {
-        if (!this._autoSize) {
-            this._text.width = this.width - this._text.x;
+    protected _transChanged(kind: TransformKind) {
+        super._transChanged(kind);
+
+        if ((kind & TransformKind.Width) != 0) {
+            if (!this._autoSize)
+                this._text.width = this._width - this._text.x;
         }
     }
 
@@ -86,7 +86,8 @@ export class Radio extends Button {
 
     protected changeClips(): void {
         super.changeClips();
-        this._setWidth(this._width);
-    }
 
+        if (!this._autoSize)
+            this._text.width = this.width - this._text.x;
+    }
 }

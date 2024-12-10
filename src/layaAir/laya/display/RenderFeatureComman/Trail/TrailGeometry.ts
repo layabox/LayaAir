@@ -192,7 +192,7 @@ export class TrailGeometry {
         //     case TrailAlignment.TransformZ:
         //         Vector3.subtract(position, this._lastFixedVertexPosition, delVector3);
         //         var forward: Vector3 = TrailGeometry2._tempVector32;
-        //         (this._owner._ownerRender.owner as Sprite3D).transform.getForward(forward);
+        //         this._owner._ownerRender.owner.transform.getForward(forward);
         //         Vector3.cross(delVector3, forward, pointAtoBVector3);//实时更新模式需要和view一样根据当前forward重新计算
         //         break;
         // }
@@ -305,7 +305,7 @@ export class TrailGeometry {
         //var min: Vector3, max: Vector3;
         // if (this._disappearBoundsMode) {//如果有顶点消失时候，需要重新计算包围盒
         //     bounds = this._owner._ownerRender.bounds;
-        //     var sprite3dPosition: Vector3 = (this._owner._ownerRender.owner as Sprite3D).transform.position;
+        //     var sprite3dPosition: Vector3 = this._owner._ownerRender.owner.transform.position;
         //     bounds.setMin(sprite3dPosition);
         //     bounds.setMax(sprite3dPosition);
         //     min = bounds.getMin();

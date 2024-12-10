@@ -294,7 +294,7 @@ export class Tree extends Box {
         var item: ITreeDataSource = cell.dataSource;
         if (item) {
             cell.left = item.x;
-            var arrow = cell.getChildByName("arrow") as Clip;
+            let arrow: Clip = cell.getChild("arrow");
             if (arrow) {
                 if (item.hasChild) {
                     arrow.visible = true;
@@ -306,7 +306,7 @@ export class Tree extends Box {
                     arrow.visible = false;
                 }
             }
-            var folder = cell.getChildByName("folder") as Clip;
+            let folder: Clip = cell.getChild("folder");
             if (folder) {
                 if (folder.clipY == 2) {
                     folder.index = item.isDirectory ? 0 : 1;

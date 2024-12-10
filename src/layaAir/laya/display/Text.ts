@@ -18,6 +18,7 @@ import { HtmlParser } from "../html/HtmlParser";
 import { UBBParser } from "../html/UBBParser";
 import { HtmlParseOptions } from "../html/HtmlParseOptions";
 import { Browser } from "../utils/Browser";
+import { TransformKind } from "./SpriteConst";
 
 /**
  * @en The Text class is used to create display objects to show text.
@@ -256,60 +257,47 @@ export class Text extends Sprite {
     }
 
     /**
-     * @internal
+     * @ignore
      */
-    _getBoundPointsM(ifRotate: boolean = false): any[] {
-        var rec: Rectangle = Rectangle.TEMP;
-        rec.setTo(0, 0, this.width, this.height);
-        return rec._getBoundPoints();
+    protected _getBoundPointsM(ifRotate?: boolean, out?: number[]): number[] {
+        return Rectangle.TEMP.setTo(0, 0, this.width, this.height).getBoundPoints(out);
     }
 
     /**
-     * @en Get the scrollable visible window.
-     * @param realSize Whether to use the real size of the image. Default is false.
-     * @zh 获取滚动可视视窗。
-     * @param realSize 是否使用图片的真实大小。默认为 false。
+     * @ignore
      */
-    getGraphicBounds(realSize: boolean = false): Rectangle {
-        var rec: Rectangle = Rectangle.TEMP;
-        rec.setTo(0, 0, this.width, this.height);
-        return rec;
+    getGraphicBounds(realSize?: boolean, out?: Rectangle): Rectangle {
+        return (out || new Rectangle).setTo(0, 0, this.width, this.height);
     }
 
     /**
-     * @internal
+     * @ignore
      */
-    get_width(): number {
-        if (this._isWidthSet) return this._width;
-        return this.textWidth;
-    }
-    /**
-     * @internal
-     */
-    _setWidth(value: number) {
-        super._setWidth(value);
-        if (!this._updatingLayout)
-            this.markChanged();
-        else
-            this.drawBg();
+    protected measureWidth(): number {
+        this.typeset();
+        return this._textWidth;
     }
 
     /**
-     * @internal
+     * @ignore
      */
-    get_height(): number {
-        if (this._isHeightSet) return this._height;
-        return this.textHeight;
+    protected measureHeight(): number {
+        this.typeset();
+        return this._textHeight;
     }
+
     /**
-     * @internal
+     * @ignore
      */
-    _setHeight(value: number) {
-        super._setHeight(value);
-        if (!this._updatingLayout)
-            this.markChanged();
-        else
-            this.drawBg();
+    protected _transChanged(kind: TransformKind) {
+        super._transChanged(kind);
+
+        if ((kind & TransformKind.Size) != 0) {
+            if (!this._updatingLayout)
+                this.markChanged();
+            else
+                this.drawBg();
+        }
     }
 
     /**

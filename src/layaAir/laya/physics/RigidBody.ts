@@ -6,6 +6,8 @@ import { Utils } from "../utils/Utils"
 import { Physics2D } from "./Physics2D";
 import { IV2, Vector2 } from "../maths/Vector2";
 import { RigidBody2DInfo } from "./IPhysiscs2DFactory";
+import { NodeFlags } from "../Const";
+import { TransformKind } from "../display/SpriteConst";
 
 /**
  * @en 2D rigidbody, display objects are bound to the physics world through RigidBody to keep the positions of physics and display objects synchronized.
@@ -18,9 +20,6 @@ import { RigidBody2DInfo } from "./IPhysiscs2DFactory";
  * 可以通过IDE-"项目设置"-"2D物理"-"是否开启2D物理绘制" 开启物理辅助线显示，或者通过代码 Physics2D.I.enableDebugDraw = true。
  */
 export class RigidBody extends Component {
-
-    /**@internal 用于判断节点属性更改时更新物理属性*/
-    private static changeFlag: number = Sprite.Sprite_GlobalDeltaFlage_Position_X | Sprite.Sprite_GlobalDeltaFlage_Position_Y | Sprite.Sprite_GlobalDeltaFlage_Rotation | Sprite.Sprite_GlobalDeltaFlage_Scale_X | Sprite.Sprite_GlobalDeltaFlage_Scale_Y
 
     /**
      * @internal
@@ -101,6 +100,8 @@ export class RigidBody extends Component {
      * @zh [只读] 自定义标签。
      */
     label: string = "RigidBody";
+
+    declare owner: Sprite;
 
     /**
      * @en The original body object.
@@ -253,7 +254,7 @@ export class RigidBody extends Component {
     _createBody(): void {
         if (this._body || !this.owner) return;
         let factory = Physics2D.I._factory;
-        var sp: Sprite = (<Sprite>this.owner);
+        var sp: Sprite = this.owner;
         var defRigidBodyDef = new RigidBody2DInfo();
         defRigidBodyDef.position.setValue(sp.globalPosX, sp.globalPosY);
         defRigidBodyDef.angle = Utils.toRadian(sp.globalRotation);
@@ -300,15 +301,16 @@ export class RigidBody extends Component {
 
     /** @internal */
     _globalChangeHandler(flag: number) {
-        if (flag & RigidBody.changeFlag) this._needrefeshShape();
+        if ((flag & TransformKind.TRS) != 0)
+            this._needrefeshShape();
     }
 
     /** @internal */
     _onEnable(): void {
-        (<Sprite>this.owner).cacheGlobal = true;
+        this.owner._setBit(NodeFlags.CACHE_GLOBAL, true);
         this._createBody();
         Physics2D.I._factory.set_RigibBody_Enable(this._body, true);
-        this.owner.on("GlobaChange", this, this._globalChangeHandler);
+        this.owner.on(Sprite.GLOBAL_CHANGE, this, this._globalChangeHandler);
     }
 
     /**
@@ -327,8 +329,8 @@ export class RigidBody extends Component {
      */
     _updatePhysicsAttribute(): void {
         var factory = Physics2D.I._factory;
-        var sp: Sprite = (<Sprite>this.owner);
-        factory.set_RigibBody_Transform(this._body, sp.globalPosX, sp.globalPosY, Utils.toRadian((<Sprite>this.owner).globalRotation));
+        var sp: Sprite = this.owner;
+        factory.set_RigibBody_Transform(this._body, sp.globalPosX, sp.globalPosY, Utils.toRadian(this.owner.globalRotation));
         var comps: any[] = this.owner.getComponents(ColliderBase);
         if (comps) {
             for (var i: number = 0, n: number = comps.length; i < n; i++) {
@@ -340,7 +342,7 @@ export class RigidBody extends Component {
             factory.set_rigidbody_Awake(this._body, true);
             this.owner.event("shapeChange");
         }
-        
+
     }
 
     /**
@@ -354,18 +356,17 @@ export class RigidBody extends Component {
         }
         var factory = Physics2D.I._factory;
         if (Physics2D.I._factory.get_rigidBody_IsAwake(this._body)) {
-            var pos = Vector2.TempVector2;
-            factory.get_RigidBody_Position(this.body, pos);
-            var sp: Sprite = (<Sprite>this.owner);
-            sp.setGlobalPos(pos.x, pos.y);
-            sp.globalRotation = Utils.toAngle(factory.get_RigidBody_Angle(this.body));
+            var pos = Vector2.TEMP;
+            factory.get_RigidBody_Position(this.body, pos)
+            this.owner.setGlobalPos(pos.x, pos.y);
+            this.owner.globalRotation = Utils.toAngle(factory.get_RigidBody_Angle(this.body));
         }
     }
 
     /**@internal */
     _onDisable(): void {
-        this.owner.off("GlobaChange", this, this._globalChangeHandler);
-        (<Sprite>this.owner).cacheGlobal = false;
+        this.owner.off(Sprite.GLOBAL_CHANGE, this, this._globalChangeHandler);
+        this.owner._setBit(NodeFlags.CACHE_GLOBAL, false);
         //添加到物理世界
         Physics2D.I._factory.set_RigibBody_Enable(this._body, false);
     }
@@ -374,7 +375,7 @@ export class RigidBody extends Component {
     _onDestroy(): void {
         Physics2D.I._removeRigidBody(this);
         Physics2D.I._removeRigidBodyAttribute(this);
-        this.owner.off("GlobaChange", this, this._globalChangeHandler)
+        this.owner.off(Sprite.GLOBAL_CHANGE, this, this._globalChangeHandler)
         //添加到物理世界
         this._body && Physics2D.I._factory.removeBody(this._body);
         this._body = null;
@@ -473,8 +474,7 @@ export class RigidBody extends Component {
     setAngle(value: any): void {
         if (!this._body) this._onAwake();
         var factory = Physics2D.I._factory;
-        var sp: Sprite = (<Sprite>this.owner);
-        factory.set_RigibBody_Transform(this._body, sp.globalPosX, sp.globalPosY, value);
+        factory.set_RigibBody_Transform(this._body, this.owner.globalPosX, this.owner.globalPosY, value);
         factory.set_rigidbody_Awake(this._body, true);
     }
 
@@ -513,7 +513,7 @@ export class RigidBody extends Component {
      * @param y 像素坐标的 y 值。
      */
     getWorldPoint(x: number, y: number): Point {
-        return (<Sprite>this.owner)._getGlobalCacheLocalToGlobal(x, y);
+        return this.owner._globalCacheLocalToGlobal(x, y);
     }
 
     /**
@@ -525,6 +525,6 @@ export class RigidBody extends Component {
      * @param y 像素坐标的 y 值。
      */
     getLocalPoint(x: number, y: number): Point {
-        return (<Sprite>this.owner)._getGlobalCacheGlobalToLocal(x, y);
+        return this.owner._globalCacheGlobalToLocal(x, y);
     }
 }

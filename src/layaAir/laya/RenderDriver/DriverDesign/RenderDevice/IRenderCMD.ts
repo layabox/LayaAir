@@ -1,3 +1,4 @@
+import { NotImplementedError } from "../../../utils/Error";
 import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
 import { ShaderDataItem, ShaderDataType, ShaderData } from "./ShaderData";
 
@@ -64,7 +65,7 @@ export class SetRenderDataCMD implements IRenderCMD {
     }
 
     apply(context: any): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 }
 
@@ -106,6 +107,6 @@ export class SetShaderDefineCMD implements IRenderCMD {
     }
 
     apply(context: any): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 }

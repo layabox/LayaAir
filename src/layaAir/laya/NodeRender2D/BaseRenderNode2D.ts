@@ -173,6 +173,8 @@ export class BaseRenderNode2D extends Component {
      */
     _lightRecord: boolean = false;
 
+    declare owner: Sprite;
+
     /**
      * 基于不同BaseRender的uniform集合
      * @internal
@@ -247,9 +249,8 @@ export class BaseRenderNode2D extends Component {
      */
     protected _onEnable(): void {
         super._onEnable();
-        if (this.owner) {
-            (this.owner as Sprite).renderNode2D = this;
-        }
+
+        this.owner.renderNode2D = this;
         if (this._lightReceive)
             this._addRenderToLightManager();
     }
@@ -259,12 +260,11 @@ export class BaseRenderNode2D extends Component {
      * @protected
      */
     protected _onDisable(): void {
-        if (this.owner) {
-            (this.owner as Sprite).renderNode2D = null;
-        }
-        super._onDisable();
+        this.owner.renderNode2D = null;
         if (this._lightReceive)
             this._removeRenderNodeByLayer();
+
+        super._onDisable();
     }
 
     /**
@@ -277,7 +277,6 @@ export class BaseRenderNode2D extends Component {
             m && !m.destroyed && m._removeReference();
         }
         this._spriteShaderData.destroy();
-        this.owner = null;
     }
 
     /**

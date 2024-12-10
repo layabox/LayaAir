@@ -1,18 +1,17 @@
 import { Context } from "../../renders/Context"
 import { Pool } from "../../utils/Pool"
+import { IGraphicsCmd } from "../IGraphics";
 
 /**
  * @en Save command, used in conjunction with restore
  * @zh 存储命令，与restore配套使用
  */
-export class SaveCmd {
+export class SaveCmd implements IGraphicsCmd {
     /**
      * @en Identifier for the SaveCmd
      * @zh 存储命令的标识符
      */
     static ID: string = "Save";
-
-
 
     /**
      * @en Create a SaveCmd instance
@@ -21,9 +20,7 @@ export class SaveCmd {
      * @returns 存储命令实例
      */
     static create(): SaveCmd {
-        var cmd: SaveCmd = Pool.getItemByClass("SaveCmd", SaveCmd);
-
-        return cmd;
+        return Pool.getItemByClass("SaveCmd", SaveCmd);
     }
 
     /**
@@ -31,7 +28,6 @@ export class SaveCmd {
      * @zh 回收到对象池
      */
     recover(): void {
-
         Pool.recover("SaveCmd", this);
     }
 
@@ -52,6 +48,5 @@ export class SaveCmd {
     get cmdID(): string {
         return SaveCmd.ID;
     }
-
 }
 

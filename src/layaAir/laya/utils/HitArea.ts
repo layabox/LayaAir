@@ -1,4 +1,5 @@
 import { LayaEnv } from "../../LayaEnv";
+import { TranslateCmd } from "../display/cmd/TranslateCmd";
 import { Graphics } from "../display/Graphics"
 import { Sprite } from "../display/Sprite";
 import { Point } from "../maths/Point"
@@ -56,9 +57,9 @@ export class HitArea implements IHitArea {
             let cmd = cmds[i];
             if (!cmd) continue;
             switch (cmd.cmdID) {
-                case "Translate":
-                    x -= cmd.tx;
-                    y -= cmd.ty;
+                case TranslateCmd.ID:
+                    x -= (<TranslateCmd>cmd).tx;
+                    y -= (<TranslateCmd>cmd).ty;
             }
             if (HitArea._isHitCmd(x, y, sp, cmd)) return true;
         }

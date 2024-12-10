@@ -386,7 +386,7 @@ export class Cluster {
     private _updatePointLightPerspective(near: number, far: number, viewMat: Matrix4x4, pointLight: PointLightCom, lightIndex: number, xPlanes: Vector3[], yPlanes: Vector3[]): void {
         var lightBound: LightBound = _tempLightBound;
         var lightviewPos: Vector3 = _tempVector30;
-        Vector3.transformV3ToV3((pointLight.owner as Sprite3D)._transform.position, viewMat, lightviewPos);//World to View
+        Vector3.transformV3ToV3(pointLight.owner._transform.position, viewMat, lightviewPos);//World to View
         lightviewPos.z *= -1;
         if (!this._shrinkSphereLightZPerspective(near, far, lightviewPos, pointLight.range, lightBound))
             return;
@@ -403,9 +403,9 @@ export class Cluster {
         var viewPos: Vector3 = _tempVector30;
         var forward: Vector3 = _tempVector31;
         var viewConeCap: Vector3 = _tempVector34;
-        var position: Vector3 = (spotLight.owner as Sprite3D)._transform.position;
+        var position: Vector3 = spotLight.owner._transform.position;
         var range: number = spotLight.range;
-        (spotLight.owner as Sprite3D)._transform.worldMatrix.getForward(forward);
+        spotLight.owner._transform.worldMatrix.getForward(forward);
         Vector3.normalize(forward, forward);
         Vector3.scale(forward, range, viewConeCap);
         Vector3.add(position, viewConeCap, viewConeCap);
@@ -430,7 +430,7 @@ export class Cluster {
     private _updatePointLightOrth(halfX: number, halfY: number, near: number, far: number, viewMat: Matrix4x4, pointLight: PointLightCom, lightIndex: number): void {
         var lightBound: LightBound = _tempLightBound;
         var lightviewPos: Vector3 = _tempVector30;
-        Vector3.transformV3ToV3((pointLight.owner as Sprite3D)._transform.position, viewMat, lightviewPos);//World to View
+        Vector3.transformV3ToV3(pointLight.owner._transform.position, viewMat, lightviewPos);//World to View
         lightviewPos.z *= -1;
 
         if (!this._shrinkSphereLightByBoundOrth(halfX, halfY, near, far, lightviewPos, pointLight.range, lightBound))
@@ -446,9 +446,9 @@ export class Cluster {
         var viewPos: Vector3 = _tempVector30;
         var forward: Vector3 = _tempVector31;
         var viewConeCap: Vector3 = _tempVector34;
-        var position: Vector3 = (spotLight.owner as Sprite3D)._transform.position;
+        var position: Vector3 = spotLight.owner._transform.position;
         var range: number = spotLight.range;
-        (spotLight.owner as Sprite3D)._transform.worldMatrix.getForward(forward);
+        spotLight.owner._transform.worldMatrix.getForward(forward);
         Vector3.normalize(forward, forward);
         Vector3.scale(forward, range, viewConeCap);
         Vector3.add(position, viewConeCap, viewConeCap);

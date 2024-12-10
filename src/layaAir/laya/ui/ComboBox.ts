@@ -11,6 +11,7 @@ import { Point } from "../maths/Point"
 import { Handler } from "../utils/Handler"
 import { ILaya } from "../../ILaya";
 import { HideFlags } from "../Const";
+import { TransformKind } from "../display/SpriteConst";
 
 /**
  * @en The `ComboBox` component contains a drop-down list from which the user can select a single value.
@@ -394,7 +395,7 @@ export class ComboBox extends UIComponent {
     }
 
     set stateNum(value: number) {
-        this._button.stateNum = value
+        this._button.stateNum = value;
     }
 
     /**
@@ -414,6 +415,7 @@ export class ComboBox extends UIComponent {
         this.skin = skin;
         this.labels = labels;
     }
+
     protected createChildren(): void {
         this._button = new Button();
         this._button.hideFlags = HideFlags.HideAndDontSave;
@@ -441,21 +443,19 @@ export class ComboBox extends UIComponent {
 
 
     /**
-     * @internal
+     * @ignore
      */
-    _setWidth(value: number) {
-        super._setWidth(value);
-        this._button.width = this._width;
-        this._itemChanged = true;
-        this._listChanged = true;
-    }
+    protected _transChanged(kind: TransformKind) {
+        super._transChanged(kind);
 
-    /**
-     * @internal
-     */
-    _setHeight(value: number) {
-        super._setHeight(value);
-        this._button.height = this._height;
+        if ((kind & TransformKind.Width) != 0) {
+            this._button.width = this.width;
+            this._itemChanged = true;
+            this._listChanged = true;
+        }
+
+        if ((kind & TransformKind.Height) != 0)
+            this._button.height = this.height;
     }
 
     private _onStageMouseWheel(e: Event): void {
@@ -532,7 +532,7 @@ export class ComboBox extends UIComponent {
             if (this._isCustomList) return;
             let box = this._list.getCell(index);
             if (!box) return;
-            let label: Label = (<Label>box.getChildByName("label"));
+            let label: Label = box.getChild("label");
             if (label) {
                 if (type === Event.ROLL_OVER) {
                     label.bgColor = this._itemColors[0];

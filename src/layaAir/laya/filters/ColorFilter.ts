@@ -88,10 +88,10 @@ export class ColorFilter extends Filter implements IFilter {
         //shaderdata
         let shadersv = new TextureSV();// this.shaderData;
         shadersv.setFilter(this);
-        Matrix4x4.TEMPMatrix0.cloneByArray(this._mat);
-        shadersv.shaderData.setMatrix4x4(ShaderDefines2D.UNIFORM_COLORMAT, Matrix4x4.TEMPMatrix0);
-        Vector4.tempVec4.setValue(this._alpha[0], this._alpha[1], this._alpha[2], this._alpha[3]);
-        shadersv.shaderData.setVector(ShaderDefines2D.UNIFORM_COLORALPHA, Vector4.tempVec4);
+        Matrix4x4.TEMP.cloneByArray(this._mat);
+        shadersv.shaderData.setMatrix4x4(ShaderDefines2D.UNIFORM_COLORMAT, Matrix4x4.TEMP);
+        Vector4.TEMP.setValue(this._alpha[0], this._alpha[1], this._alpha[2], this._alpha[3]);
+        shadersv.shaderData.setVector(ShaderDefines2D.UNIFORM_COLORALPHA, Vector4.TEMP);
 
         shadersv.size = new Vector2(texwidth, texheight);
         shadersv.textureHost = srctexture;

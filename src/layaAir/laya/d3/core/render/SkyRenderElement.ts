@@ -83,12 +83,10 @@ export class SkyRenderElement extends RenderElement {
      */
     renderpre(context: RenderContext3D) {
         if (context.invertY) {
-            let tempprojectMat = Matrix4x4.TEMPMatrix0;
-            let tempProjectView = Matrix4x4.TEMPMatrix1;
-            Matrix4x4.multiply(InvertYScaleMat, this._projectionMatrix, tempprojectMat);
-            Matrix4x4.multiply(tempprojectMat, this._viewMatrix, tempProjectView);
-            this._renderElementOBJ.renderShaderData.setMatrix4x4(SkyRenderer.SKYPROJECTIONMATRIX, tempprojectMat);
-            this._renderElementOBJ.renderShaderData.setMatrix4x4(SkyRenderer.SKYPROJECTIONVIEWMATRIX, tempProjectView);
+            Matrix4x4.multiply(InvertYScaleMat, this._projectionMatrix, Matrix4x4.TEMP);
+            Matrix4x4.multiply(Matrix4x4.TEMP, this._viewMatrix, tmpMatrix);
+            this._renderElementOBJ.renderShaderData.setMatrix4x4(SkyRenderer.SKYPROJECTIONMATRIX, Matrix4x4.TEMP);
+            this._renderElementOBJ.renderShaderData.setMatrix4x4(SkyRenderer.SKYPROJECTIONVIEWMATRIX, tmpMatrix);
         }
         else {
             Matrix4x4.multiply(this._projectionMatrix, this._viewMatrix, this._projectViewMatrix);
@@ -103,3 +101,5 @@ export class SkyRenderElement extends RenderElement {
     }
 
 }
+
+const tmpMatrix = new Matrix4x4();

@@ -9,6 +9,7 @@ import { NavAgentLinkAnim } from "../NavAgentLinkAnim";
 import { CrowdAgentState, NavigationConfig, ObstacleAvoidanceType, UpdateFlags } from "../NavigationConfig";
 import { BaseNavMeshSurface } from "./BaseNavMeshSurface";
 import { NavMeshLinkData } from "../data/NavMeshLinkData";
+import { NotImplementedError } from "../../../utils/Error";
 
 const tempVector3 = new Vector3();
 const tempVector31 = new Vector3();
@@ -312,7 +313,7 @@ export class BaseNavAgent extends Component {
     protected _setTarget(value: Vector3) {
         value.cloneTo(this._targetPos);
         if (!this._navManager) return;
-        if (this._currentNaveSurface == null|| !this._currentNaveSurface.enabled) return;
+        if (this._currentNaveSurface == null || !this._currentNaveSurface.enabled) return;
         let targetSurface: BaseNavMeshSurface = this._navManager.getNavMeshSurface(value, this._agentType);
         if (targetSurface == this._currentNaveSurface) {
             this._currentNaveSurface._navMesh._requestMoveTarget(this, this._targetPos);
@@ -366,7 +367,7 @@ export class BaseNavAgent extends Component {
      * @internal 
      */
     _getpos(vec: Vector3) {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     /**@internal */
@@ -425,14 +426,14 @@ export class BaseNavAgent extends Component {
      * @internal 
      */
     _getheight(): number {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     /**
      * @internal 
      */
     _getradius(): number {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     /**
@@ -484,7 +485,7 @@ export class BaseNavAgent extends Component {
      * @internal 
      */
     protected _updatePosition(pos: Vector3, dir: Vector3) {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     /**@internal */

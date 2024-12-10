@@ -198,12 +198,12 @@ export class SpotLight2D extends BaseLight2D {
         super._calcWorldRange(screen);
         super._lightScaleAndRotation();
 
-        const sx = Math.abs((this.owner as Sprite).globalScaleX);
-        const sy = Math.abs((this.owner as Sprite).globalScaleY);
+        const sx = Math.abs(this.owner.globalScaleX);
+        const sy = Math.abs(this.owner.globalScaleY);
         const w = this._outerRadius * 2.1 * Browser.pixelRatio * Math.max(sx, sy) | 0;
         const h = this._outerRadius * 2.1 * Browser.pixelRatio * Math.max(sx, sy) | 0;
-        this._worldRange.x = (-0.5 * w + (this.owner as Sprite).globalPosX * Browser.pixelRatio) | 0;
-        this._worldRange.y = (-0.5 * h + (this.owner as Sprite).globalPosY * Browser.pixelRatio) | 0;
+        this._worldRange.x = (-0.5 * w + this.owner.globalPosX * Browser.pixelRatio) | 0;
+        this._worldRange.y = (-0.5 * h + this.owner.globalPosY * Browser.pixelRatio) | 0;
         this._worldRange.width = w;
         this._worldRange.height = h;
     }

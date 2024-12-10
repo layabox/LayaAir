@@ -9,7 +9,6 @@ import { Utils3D } from "../utils/Utils3D";
 import { Vector3 } from "../../maths/Vector3";
 
 const tempVec = new Vector3();
-const tempVec1 = new Vector3();
 
 /**
  * @en The `LODInfo` class describes Level of Detail (LOD) data.
@@ -30,8 +29,6 @@ export class LODInfo {
 
     /**@internal */
     private _group: LODGroup;
-
-
 
     /**
      * @en Constructor method of LODInfo.
@@ -66,19 +63,19 @@ export class LODInfo {
             return;
         if (this._group) {//remove old event
             // this._renders.forEach(element => {
-            //     (element.owner as Sprite3D).transform.off(Event.TRANSFORM_CHANGED, this._group._updateRecaculateFlag);
+            //     element.owner.transform.off(Event.TRANSFORM_CHANGED, this._group._updateRecaculateFlag);
             //     element._LOD = -1;
             // })
             for (let i = 0, n = this._renders.length; i < n; i++) {
                 let element = this._renders[i];
-                (element.owner as Sprite3D).transform.off(Event.TRANSFORM_CHANGED, this._group._updateRecaculateFlag);
+                element.owner.transform.off(Event.TRANSFORM_CHANGED, this._group._updateRecaculateFlag);
                 element._LOD = -1;
             }
         }
         this._group = value;
         for (let i = 0, n = this._renders.length; i < n; i++) {
             let element = this._renders[i];
-            (element.owner as Sprite3D).transform.on(Event.TRANSFORM_CHANGED, this._group, this._group._updateRecaculateFlag);
+            element.owner.transform.on(Event.TRANSFORM_CHANGED, this._group, this._group._updateRecaculateFlag);
             element._LOD = this._lodIndex;
         }
     }
@@ -210,6 +207,8 @@ export class LODGroup extends Component {
      * @zh LOD节点比例
      */
     private _nowRate: number;
+
+    declare owner: Sprite3D;
 
     /**
      * @en Constructor method of LODGroup.
@@ -351,7 +350,7 @@ export class LODGroup extends Component {
         this._lods.forEach(element => {
             let renderarray = element._renders;
             for (var i = 0; i < renderarray.length; i++) {
-                element.removeNode(renderarray[i].owner as Sprite3D);
+                element.removeNode(renderarray[i].owner);
             }
         })
     }
@@ -403,7 +402,7 @@ export class LODGroup extends Component {
             let cloneLOD = new LODInfo(lod.mincullRate);
             lodArray.push(cloneLOD);
             lod._renders.forEach(element => {
-                let node = cloneHierachFun(this.owner as Sprite3D, element.owner as Sprite3D, lodGroup.owner as Sprite3D);
+                let node = cloneHierachFun(this.owner, element.owner, lodGroup.owner);
                 if (node)
                     cloneLOD.addNode(node);
             });
@@ -446,7 +445,7 @@ export class LODGroup extends Component {
     onPreRender() {
         this.recalculateBounds();
         //查看相机的距离
-        let checkCamera = (this.owner.scene as Scene3D).cullInfoCamera as Camera;
+        let checkCamera = this.owner.scene.cullInfoCamera as Camera;
         let maxYDistance = checkCamera.maxlocalYDistance;
         let cameraFrustum = checkCamera.boundFrustum;
         Vector3.subtract(this._lodPosition, checkCamera.transform.position, tempVec);

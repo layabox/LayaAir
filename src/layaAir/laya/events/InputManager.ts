@@ -561,7 +561,7 @@ export class InputManager {
      */
     getSpriteUnderPoint(sp: Sprite, x: number, y: number): Sprite {
         //如果有裁剪，则先判断是否在裁剪范围内
-        let scrollRect = sp._style.scrollRect;
+        let scrollRect = sp.scrollRect;
         if (scrollRect && !sp._getBit(NodeFlags.DISABLE_INNER_CLIPPING)) {
             _tempRect.setTo(scrollRect.x, scrollRect.y, scrollRect.width, scrollRect.height);
             if (!_tempRect.contains(x, y))
@@ -622,11 +622,11 @@ export class InputManager {
      */
     hitTest(sp: Sprite, x: number, y: number, editing?: boolean): boolean {
         let isHit: boolean = false;
-        if (sp.scrollRect) {
-            x -= sp._style.scrollRect.x;
-            y -= sp._style.scrollRect.y;
+        if (sp._scrollRect) {
+            x -= sp._scrollRect.x;
+            y -= sp._scrollRect.y;
         }
-        let hitArea = sp._style.hitArea;
+        let hitArea = sp._hitArea;
         let mouseThrough = sp.mouseThrough;
         if (editing) {
             hitArea = null;
@@ -642,7 +642,7 @@ export class InputManager {
             if (!mouseThrough)
                 isHit = (hitArea ? hitArea : _tempRect.setTo(0, 0, sp.width, sp.height)).contains(x, y, sp);
             else //如果可穿透，则根据子对象实际大小进行碰撞
-                isHit = sp.getGraphicBounds().contains(x, y);
+                isHit = sp.getGraphicBounds(false, Rectangle.TEMP).contains(x, y);
         }
         return isHit;
     }

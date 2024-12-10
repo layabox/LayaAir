@@ -1,11 +1,13 @@
+import { Matrix } from "../../maths/Matrix";
 import { Context } from "../../renders/Context"
 import { Pool } from "../../utils/Pool"
+import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
 
 /**
  * @en Rotate command
  * @zh 旋转命令
  */
-export class RotateCmd {
+export class RotateCmd implements IGraphicsCmd {
     /**
      * @en Identifier for the RotateCmd
      * @zh 旋转命令的标识符
@@ -72,6 +74,17 @@ export class RotateCmd {
     }
 
     /**
+     * @ignore
+     */
+    getBounds(assembler: IGraphicsBoundsAssembler): void {
+        tempMatrix.identity();
+        tempMatrix.translate(-this.pivotX, -this.pivotY);
+        tempMatrix.rotate(this.angle);
+        tempMatrix.translate(this.pivotX, this.pivotY);
+        assembler.concatMatrix(tempMatrix);
+    }
+
+    /**
      * @en The identifier for the RotateCmd
      * @zh 旋转命令的标识符
      */
@@ -81,3 +94,4 @@ export class RotateCmd {
 
 }
 
+const tempMatrix = new Matrix();

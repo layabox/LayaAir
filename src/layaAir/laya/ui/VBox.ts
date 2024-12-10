@@ -1,3 +1,4 @@
+import { TransformKind } from "../display/SpriteConst";
 import { LayoutBox } from "./LayoutBox";
 import { UIComponent } from "./UIComponent";
 
@@ -34,11 +35,13 @@ export class VBox extends LayoutBox {
     public isSortItem: boolean = false;
 
     /**
-     * @internal
+     * @ignore
      */
-    _setWidth(value: number) {
-        super._setWidth(value);
-        this.callLater(this.changeItems);
+    protected _transChanged(kind: TransformKind) {
+        super._transChanged(kind);
+
+        if ((kind & TransformKind.Width) != 0)
+            this.callLater(this.changeItems);
     }
 
     protected changeItems(): void {

@@ -195,7 +195,7 @@ export class Mesh2DRender extends BaseRenderNode2D {
      */
     addCMDCall(context: Context, px: number, py: number): void {
         let mat = context._curMat;
-        let vec3 = Vector3._tempVector3;
+        let vec3 = Vector3.TEMP;
         vec3.x = mat.a;
         vec3.y = mat.c;
         vec3.z = px * mat.a + py * mat.c + mat.tx;

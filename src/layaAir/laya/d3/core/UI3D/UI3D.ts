@@ -35,12 +35,6 @@ import { Utils } from "../../../utils/Utils";
  */
 export class UI3D extends BaseRender {
 
-    /**
-     * @en The Sprite3D owner of this UI3D component.
-     * @zh 3D UI组件所属的3D节点。
-     */
-    declare owner: Sprite3D;
-
     /**@internal */
     static DEBUG: boolean = false;
     /**@internal */
@@ -296,9 +290,9 @@ export class UI3D extends BaseRender {
             this.sharedMaterial = this._ui3DMat;
         }
         this._setMaterialTexture();
-        var material: Material = (<Material>this.sharedMaterial);
+        var material: Material = this.sharedMaterial;
         var element: RenderElement = new RenderElement();
-        element.setTransform((this.owner as Sprite3D)._transform);
+        element.setTransform(this.owner._transform);
         element.render = this;
         element.material = material;
         element.renderSubShader = element.material.shader.getSubShaderAt(0);
@@ -392,9 +386,9 @@ export class UI3D extends BaseRender {
         //this._geometry
         if (this._isCameraSpaceMode()) {
             this.boundsChange = true;
-            let cameraforward = Vector3._tempVector3;
+            let cameraforward = Vector3.TEMP;
             let rotate = Quaternion.TEMP;
-            let scale = Vector3._tempVector0;
+            let scale = tempVec3;
             let camera = this._camera;
             camera.transform.getForward(cameraforward);
             cameraforward = cameraforward.normalize()
@@ -412,7 +406,7 @@ export class UI3D extends BaseRender {
         } else {
             if (this.billboard) {
                 this._sizeChange = false;
-                let camera = (this.owner.scene as Scene3D).cullInfoCamera;
+                let camera = this.owner.scene.cullInfoCamera;
                 Matrix4x4.createAffineTransformation(this._transform.position, camera.transform.rotation, this._scale, this._matrix);
             } else if (this._sizeChange) {
                 this._sizeChange = false;
@@ -438,7 +432,7 @@ export class UI3D extends BaseRender {
      * @returns 
      */
     _getCameraDistance(rayOri: Vector3): number {
-        return Vector3.distance(rayOri, (this.owner as Sprite3D).transform.position);
+        return Vector3.distance(rayOri, this.owner.transform.position);
     }
 
     /**
@@ -528,8 +522,8 @@ export class UI3D extends BaseRender {
      */
     protected _onDisable(): void {
         super._onDisable();
-        (this.owner as Sprite3D).transform.off(Event.TRANSFORM_CHANGED, this, this._transByRotate);//如果为合并BaseRender,owner可能为空
-        (this.owner.scene as Scene3D)._UI3DManager.remove(this);
+        this.owner.transform.off(Event.TRANSFORM_CHANGED, this, this._transByRotate);//如果为合并BaseRender,owner可能为空
+        this.owner.scene._UI3DManager.remove(this);
     }
 
     /**
@@ -537,8 +531,8 @@ export class UI3D extends BaseRender {
      */
     protected _onEnable(): void {
         super._onEnable();
-        (this.owner.scene as Scene3D)._UI3DManager.add(this);
-        (this.owner as Sprite3D).transform.on(Event.TRANSFORM_CHANGED, this, this._transByRotate);//如果为合并BaseRender,owner可能为空
+        this.owner.scene._UI3DManager.add(this);
+        this.owner.transform.on(Event.TRANSFORM_CHANGED, this, this._transByRotate);//如果为合并BaseRender,owner可能为空
         this._transByRotate();
     }
 
@@ -566,3 +560,4 @@ export class UI3D extends BaseRender {
 }
 
 const tempMatrix = new Matrix4x4();
+const tempVec3 = new Vector3();

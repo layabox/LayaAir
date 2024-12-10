@@ -146,7 +146,7 @@ export class ViewStack extends Box {
     initItems(): void {
         this._items.length = 0;
         for (var i: number = 0; i < 10000; i++) {
-            var item: Sprite = (<Sprite>this.getChildByName("item" + i));
+            var item: Sprite = this.getChild("item" + i);
             if (item == null) {
                 break;
             }

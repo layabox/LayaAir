@@ -51,7 +51,7 @@ export class DrawMesh2DCMD extends Command2D {
     _setMatrix(value: Matrix) {
         value ? value.copyTo(this._matrix) : Matrix.EMPTY.copyTo(this._matrix)
         let mat = this._matrix;
-        let vec3 = Vector3._tempVector3;
+        let vec3 = Vector3.TEMP;
         vec3.x = mat.a;
         vec3.y = mat.c;
         vec3.z = mat.tx;

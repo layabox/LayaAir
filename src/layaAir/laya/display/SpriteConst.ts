@@ -21,4 +21,19 @@ export class SpriteConst {
     static REPAINT_ALL = 0x03;
 }
 
+export enum TransformKind {
+    Pos = 0x01,
+    Width = 0x02,
+    Height = 0x04,
+    Anchor = 0x08,
+    Scale = 0x10,
+    Skew = 0x20,
+    Rotation = 0x40,
+    Matrix = 0x80,
+
+    Size = Width | Height,
+    Layout = Size | Scale | Anchor,
+    TRS = Pos | Rotation | Scale
+}
+
 

@@ -1,12 +1,13 @@
 import { Context } from "../../renders/Context"
 import { ClassUtils } from "../../utils/ClassUtils";
 import { Pool } from "../../utils/Pool"
+import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
 
 /**
  * @en Draw a pie chart
  * @zh 绘制扇形
  */
-export class DrawPieCmd {
+export class DrawPieCmd implements IGraphicsCmd {
     /**
      * @en Identifier for the DrawPieCmd
      * @zh 绘制扇形命令的标识符
@@ -142,12 +143,10 @@ export class DrawPieCmd {
     }
 
     /**
-     * @en Get the boundary points of the pie chart
-     * @zh 获取扇形的边界点
+     * @ignore
      */
-    getBoundPoints(): number[] {
-        let rst: any[] = _tempPoints;
-        _tempPoints.length = 0;
+    getBounds(assembler: IGraphicsBoundsAssembler): void {
+        let rst = assembler.points;
         let k: number = Math.PI / 180;
         let d1: number = this.endAngle - this.startAngle;
         let x = this.x, y = this.y, radius = this.radius;
@@ -157,7 +156,7 @@ export class DrawPieCmd {
             rst.push(x + radius, y - radius);
             rst.push(x + radius, y + radius);
             rst.push(x - radius, y + radius);
-            return rst;
+            return;
         }
         // 
         rst.push(x, y);	// 中心
@@ -185,10 +184,7 @@ export class DrawPieCmd {
             var csr: number = cs * k;
             rst.push(x + radius * Math.cos(csr), y + radius * Math.sin(csr));
         }
-        return rst;
     }
 }
-
-const _tempPoints: any[] = [];
 
 ClassUtils.regClass("DrawPieCmd", DrawPieCmd);

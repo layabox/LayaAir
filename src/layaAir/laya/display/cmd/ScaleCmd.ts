@@ -1,10 +1,12 @@
+import { Matrix } from "../../maths/Matrix";
 import { Context } from "../../renders/Context"
 import { Pool } from "../../utils/Pool"
+import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
 /**
  * @en Scale command
  * @zh 缩放命令
  */
-export class ScaleCmd {
+export class ScaleCmd implements IGraphicsCmd {
     /**
      * @en Identifier for the ScaleCmd
      * @zh 缩放命令的标识符
@@ -79,6 +81,17 @@ export class ScaleCmd {
     }
 
     /**
+     * @ignore
+     */
+    getBounds(assembler: IGraphicsBoundsAssembler): void {
+        tempMatrix.identity();
+        tempMatrix.translate(-this.pivotX, -this.pivotY);
+        tempMatrix.scale(this.scaleX, this.scaleY);
+        tempMatrix.translate(this.pivotX, this.pivotY);
+        assembler.concatMatrix(tempMatrix);
+    }
+
+    /**
      * @en The identifier for the ScaleCmd
      * @zh 缩放命令的标识符
      */
@@ -88,3 +101,4 @@ export class ScaleCmd {
 
 }
 
+const tempMatrix = new Matrix();

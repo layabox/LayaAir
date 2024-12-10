@@ -1,4 +1,4 @@
-import { Event } from "../events/Event"
+import { TransformKind } from "../display/SpriteConst";
 import { Texture } from "../resource/Texture"
 import { Clip } from "./Clip"
 
@@ -58,7 +58,7 @@ export class FontClip extends Clip {
      * @zh 内部使用，显示文字的高度。
      */
     private _wordsH: number = 0;
-    
+
     /**
      * @en Font clip index.
      * @zh 字体切片索引。
@@ -186,23 +186,13 @@ export class FontClip extends Clip {
     }
 
     /**
-     * @internal
-     * @inheritDoc 
-     * @override
+     * @ignore
      */
-    _setWidth(value: number) {
-        super._setWidth(value);
-        this.callLater(this.changeValue);
-    }
+    protected _transChanged(kind: TransformKind) {
+        super._transChanged(kind);
 
-    /**
-     * @internal
-     * @inheritDoc 
-     * @override
-     */
-    _setHeight(value: number) {
-        super._setHeight(value);
-        this.callLater(this.changeValue);
+        if ((kind & TransformKind.Size) != 0)
+            this.callLater(this.changeValue);
     }
 
     /**

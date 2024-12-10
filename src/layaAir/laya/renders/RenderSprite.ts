@@ -4,7 +4,6 @@ import { NodeFlags } from "../Const";
 import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
 import { Sprite } from "../display/Sprite";
 import { SpriteConst } from "../display/SpriteConst";
-import { SpriteStyle } from "../display/css/SpriteStyle";
 import { Filter } from "../filters/Filter";
 import { Rectangle } from "../maths/Rectangle";
 import { RenderTexture2D } from "../resource/RenderTexture2D";
@@ -29,15 +28,11 @@ const INIT = 0x11111;
  * @zh 精灵渲染器
  */
 export class RenderSprite {
-    /** @private*/
     static cacheNormalEnable = true;
-    /** @private */
     static renders: RenderSprite[] = [];
-    /** @private */
     protected static NORENDER = new RenderSprite(0, null);
-    /** @internal */
+
     _next: RenderSprite;
-    /** @internal */
     _fun: (sp: Sprite, ctx: Context, x: number, y: number) => void;
 
     /** @internal */
@@ -144,17 +139,14 @@ export class RenderSprite {
             this._next._fun(sprite, context, x, y);
     }
 
-    /**@internal */
     _no(sprite: Sprite, context: Context, x: number, y: number): void {
     }
 
-    /**@internal */
     _custom(sprite: Sprite, context: Context, x: number, y: number): void {
         sprite.customRender(context, x, y);
         this._next._fun(sprite, context, 0, 0);
     }
 
-    /**@internal */
     _clip(sprite: Sprite, context: Context, x: number, y: number): void {
         let next = this._next;
         if (next == RenderSprite.NORENDER) return;
@@ -164,7 +156,7 @@ export class RenderSprite {
             return;
         }
 
-        let r = sprite._style.scrollRect;
+        let r = sprite._scrollRect;
         let width = r.width;
         let height = r.height;
         if (width === 0)
@@ -177,7 +169,6 @@ export class RenderSprite {
         context.restore();
     }
 
-    /**@internal */
     _texture(sprite: Sprite, context: Context, x: number, y: number): void {
         if (!sprite._getBit(NodeFlags.HIDE_BY_EDITOR)) {
             var tex = sprite.texture;
@@ -201,38 +192,32 @@ export class RenderSprite {
             this._next._fun(sprite, context, x, y);
     }
 
-    /**@internal */
     _graphics(sprite: Sprite, context: Context, x: number, y: number): void {
         if (!sprite._getBit(NodeFlags.HIDE_BY_EDITOR)) {
-            let style = sprite._style;
             let g = sprite._graphics;
-            g && g._render(sprite, context, x - style.pivotX, y - style.pivotY);
+            g && g._render(sprite, context, x - sprite._pivotX, y - sprite._pivotY);
         }
 
         if (this._next != RenderSprite.NORENDER)
             this._next._fun(sprite, context, x, y);
     }
 
-    /**@internal IDE only*/
     _hitarea(sprite: Sprite, context: Context, x: number, y: number): void {
         if (!context._drawingToTexture && sprite.hitArea) {
-            var style = sprite._style;
-            var g = (<HitArea>sprite.hitArea)._hit;
-            var temp = context.globalAlpha;
+            let g = (<HitArea>sprite.hitArea)._hit;
+            let temp = context.globalAlpha;
             context.globalAlpha *= 0.5;
-            g && g._render(sprite, context, x - style.pivotX, y - style.pivotY);
+            g && g._render(sprite, context, x - sprite._pivotX, y - sprite._pivotY);
             g = (<HitArea>sprite.hitArea)._unHit;
-            g && g._render(sprite, context, x - style.pivotX, y - style.pivotY);
+            g && g._render(sprite, context, x - sprite._pivotX, y - sprite._pivotY);
             context.globalAlpha = temp;
         }
         if (this._next != RenderSprite.NORENDER)
             this._next._fun(sprite, context, x, y);
     }
 
-    /**@internal */
     _alpha(sprite: Sprite, context: Context, x: number, y: number): void {
-        var style = sprite._style;
-        var alpha = style.alpha;
+        let alpha = sprite._alpha;
         if (alpha > 0.01 || sprite._needRepaint()) {
             //save alpha to temp
             var temp = context.globalAlpha;
@@ -258,9 +243,7 @@ export class RenderSprite {
         }
     }
 
-    /**@internal */
     _children(sprite: Sprite, context: Context, x: number, y: number): void {
-        let style: SpriteStyle = sprite._style;
         let childs = <Sprite[]>sprite._children, n = childs.length;
         x = x - sprite.pivotX;
         y = y - sprite.pivotY;
@@ -269,8 +252,8 @@ export class RenderSprite {
         let rect: Rectangle;
         let left: number, top: number, right: number, bottom: number, x2: number, y2: number;
 
-        if (style.viewport) {
-            rect = style.viewport;
+        if (sprite._viewport) {
+            rect = sprite._viewport;
             left = rect.x;
             top = rect.y;
             right = rect.right;
@@ -308,7 +291,7 @@ export class RenderSprite {
      * @param context 
      * @returns 
      */
-    _renderNextToCacheRT(sprite: Sprite, context: Context,marginLeft=0,marginTop=0,marginRight=0,marginBottom=0) {
+    _renderNextToCacheRT(sprite: Sprite, context: Context, marginLeft = 0, marginTop = 0, marginRight = 0, marginBottom = 0) {
         var _cacheStyle = sprite._getCacheStyle();
         if (sprite._needRepaint() || !_cacheStyle.renderTexture || ILaya.stage.isGlobalRepaint()) {
             if (_cacheStyle.renderTexture) {
@@ -327,8 +310,8 @@ export class RenderSprite {
             //计算cache画布的大小
             Stat.canvasBitmap++;
 
-            let w = tRec.width * scaleInfo.x+marginLeft+marginRight;  //,
-            let h = tRec.height * scaleInfo.y+marginTop+marginBottom;
+            let w = tRec.width * scaleInfo.x + marginLeft + marginRight;  //,
+            let h = tRec.height * scaleInfo.y + marginTop + marginBottom;
             let rt = new RenderTexture2D(w, h, RenderTargetFormat.R8G8B8A8);
             let ctx = new Context();
             ctx.copyState(context);
@@ -356,7 +339,6 @@ export class RenderSprite {
         return false;
     }
 
-    /**@internal */
     _canvas(sprite: Sprite, context: Context, x: number, y: number): void {
         var _cacheStyle = sprite._cacheStyle;
         var _next = this._next;
@@ -473,18 +455,13 @@ export class RenderSprite {
         return false;
     }
 
-    /**@internal */
     _blend(sprite: Sprite, context: Context, x: number, y: number): void {
-        var style = sprite._style;
         context.save();
-        context.globalCompositeOperation = style.blendMode;
+        context.globalCompositeOperation = sprite._blendMode;
         this._next._fun(sprite, context, x, y);
         context.restore();
     }
 
-    //保存rect，避免被修改。例如 RenderSprite.RenderToCacheTexture 会修改cache的rect
-    private _spriteRect_TextureSpace = new Rectangle();
-    private _maskRect_TextureSpace = new Rectangle();
     _mask(sprite: Sprite, ctx: Context, x: number, y: number): void {
         let cache = sprite._getCacheStyle();
         //由于mask必须是sprite的子，因此mask变了必然导致sprite的重绘，所以就不缓存多个rt了
@@ -499,7 +476,8 @@ export class RenderSprite {
              * 然后在t空间做rect交集
              */
             sprite._cacheStyle._calculateCacheRect(sprite, "bitmap", 0, 0);
-            let spRect_TS = this._spriteRect_TextureSpace.copyFrom(cache.cacheRect);
+            //保存rect，避免被修改。例如 RenderSprite.RenderToCacheTexture 会修改cache的rect
+            spRect_TS.copyFrom(cache.cacheRect);
             if (spRect_TS.width <= 0 || spRect_TS.height <= 0)
                 return;
             //转到sprite的原始空间
@@ -513,7 +491,8 @@ export class RenderSprite {
             //TODO mask如果非常简单，就不要先渲染到texture上
             let maskcache = mask._getCacheStyle();
             maskcache._calculateCacheRect(mask, "bitmap", 0, 0);  //后面的参数传入mask.xy没有效果，只能后面自己单独加上
-            let maskRect_TS = this._maskRect_TextureSpace.copyFrom(maskcache.cacheRect);
+            //保存rect，避免被修改。例如 RenderSprite.RenderToCacheTexture 会修改cache的rect
+            maskRect_TS.copyFrom(maskcache.cacheRect);
             //maskRect是mask自己的,相对于自己的锚点，要转到sprite原始空间
             //把mask的xy应用一下，就是在sprite原始空间（t空间）的位置
             maskRect_TS.x += mask._x;
@@ -565,4 +544,7 @@ export class RenderSprite {
             x + rect.x, y + rect.y, tex.width, tex.height, null, 1, [0, 1, 1, 1, 1, 0, 0, 0])
     }
 }
+
+const spRect_TS = new Rectangle();
+const maskRect_TS = new Rectangle();
 

@@ -1,7 +1,6 @@
 import { Laya } from "../../../Laya";
 import { Component } from "../../components/Component";
 import { Scene } from "../../display/Scene";
-import { Sprite } from "../../display/Sprite";
 import { BaseNavigationManager } from "../common/BaseNavigationManager";
 import { NavigationConfig } from "../common/NavigationConfig";
 import { NavTileCache } from "../common/NavTileData";
@@ -39,8 +38,7 @@ export enum NavObstacles2DType {
     CUSTOMER,
 }
 export class Navigation2DManage extends BaseNavigationManager {
-    /**@internal */
-    static checkFlag: number = Sprite.Sprite_GlobalDeltaFlage_Position_X | Sprite.Sprite_GlobalDeltaFlage_Position_Y | Sprite.Sprite_GlobalDeltaFlage_Rotation | Sprite.Sprite_GlobalDeltaFlage_Scale_X | Sprite.Sprite_GlobalDeltaFlage_Scale_Y
+
     /**@internal */
     static _managerName = "navMesh2D";
     

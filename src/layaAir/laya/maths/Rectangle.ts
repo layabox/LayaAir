@@ -1,6 +1,5 @@
 import { IClone } from "../utils/IClone";
 import { Pool } from "../utils/Pool";
-import { Point } from "./Point";
 
 /**
  * @en The `Rectangle` object is an area defined by its position, as indicated by its top-left corner point (x, y), and by its width and height.
@@ -15,12 +14,12 @@ export class Rectangle implements IClone {
      * @en Global empty rectangle area with x=0, y=0, width=0, height=0. The content of this object is not allowed to be modified.
      * @zh 全局空的矩形区域，x=0, y=0, width=0, height=0。不允许修改此对象内容。
      */
-    static EMPTY: Rectangle = new Rectangle();
+    static readonly EMPTY: Readonly<Rectangle> = new Rectangle();
     /**
      * @en Global temporary rectangle area. This object is used for global reuse to reduce object creation.
      * @zh 全局临时的矩形区域，此对象用于全局复用，以减少对象创建。
      */
-    static TEMP: Rectangle = new Rectangle();
+    static readonly TEMP: Rectangle = new Rectangle();
 
     /**
      * @en The x coordinate of the top-left corner of the rectangle.
@@ -74,12 +73,20 @@ export class Rectangle implements IClone {
         return this.x + this.width;
     }
 
+    set right(value: number) {
+        this.width = value - this.x;
+    }
+
     /**
      * @en The y-coordinate of the bottom side of this rectangle. It is equal to the sum of the y and height properties.
      * @zh 此矩形底端的 Y 轴坐标。等于 y 和 height 属性的和。
      */
     get bottom(): number {
         return this.y + this.height;
+    }
+
+    set bottom(value: number) {
+        this.height = value - this.y;
     }
 
     /**
@@ -96,7 +103,7 @@ export class Rectangle implements IClone {
      * @param	height	矩形的高。
      * @return	返回属性值修改后的矩形对象本身。
      */
-    setTo(x: number, y: number, width: number, height: number): Rectangle {
+    setTo(x: number, y: number, width: number, height: number): this {
         this.x = x;
         this.y = y;
         this.width = width;
@@ -108,7 +115,7 @@ export class Rectangle implements IClone {
      * @en Resets the rectangle to default values (x=0, y=0, width=0, height=0).
      * @zh 重置矩形为默认值（x=0, y=0, width=0, height=0）。
      */
-    reset(): Rectangle {
+    reset(): this {
         this.x = this.y = this.width = this.height = 0;
         return this;
     }
@@ -141,7 +148,7 @@ export class Rectangle implements IClone {
      * @param sourceRect 源 Rectangle 对象。
      * @return 返回属性值修改后的矩形对象本身。
      */
-    copyFrom(source: Rectangle): Rectangle {
+    copyFrom(source: Rectangle): this {
         this.x = source.x;
         this.y = source.y;
         this.width = source.width;
@@ -192,7 +199,7 @@ export class Rectangle implements IClone {
      * @param out	（可选）待输出的矩形区域。如果为空则创建一个新的。建议：尽量复用对象，减少对象创建消耗。
      * @return	返回相交的矩形区域对象。
      */
-    intersection(rect: Rectangle, out: Rectangle | null = null): Rectangle | null {
+    intersection(rect: Rectangle, out?: Rectangle): Rectangle {
         if (!this.intersects(rect)) return null;
         out || (out = new Rectangle());
         out.x = Math.max(this.x, rect.x);
@@ -214,12 +221,30 @@ export class Rectangle implements IClone {
      * @param	out	用于存储输出结果的矩形对象。如果为空，则创建一个新的。建议：尽量复用对象，减少对象创建消耗。Rectangle.TEMP对象用于对象复用。
      * @return	充当两个矩形的联合的新 Rectangle 对象。
      */
-    union(source: Rectangle, out: Rectangle | null = null): Rectangle {
+    union(source: Rectangle, out?: Rectangle): Rectangle {
         out || (out = new Rectangle());
-        this.clone(out);
+        this.cloneTo(out);
         if (source.width <= 0 || source.height <= 0) return out;
         out.addPoint(source.x, source.y);
         out.addPoint(source.right, source.bottom);
+        return out;
+    }
+
+    /**
+     * @zh 缩放矩形
+     * @param scaleX X缩放值 
+     * @param scaleY Y缩放值
+     * @returns 本对象
+     * @en Scales the rectangle.
+     * @param scaleX The scaling factor in the x-direction.
+     * @param scaleY The scaling factor in the y-direction.
+     * @returns This object. 
+     */
+    scale(scaleX: number, scaleY: number): this {
+        this.x *= scaleX;
+        this.y *= scaleY;
+        this.width *= scaleX;
+        this.height *= scaleY;
         return this;
     }
 
@@ -256,7 +281,7 @@ export class Rectangle implements IClone {
      * @param y	点的 Y 坐标。
      * @return 返回此 Rectangle 对象。
      */
-    addPoint(x: number, y: number): Rectangle {
+    addPoint(x: number, y: number): this {
         this.x > x && (this.width += this.x - x, this.x = x);//左边界比较
         this.y > y && (this.height += this.y - y, this.y = y);//上边界比较
         if (this.width < x - this.x) this.width = x - this.x;//右边界比较
@@ -265,64 +290,45 @@ export class Rectangle implements IClone {
     }
 
     /**
-     * @internal
      * @en Returns vertex data representing the current rectangle.
      * @return Vertex data.
      * @zh 返回代表当前矩形的顶点数据。
      * @return 顶点数据。
      */
-    _getBoundPoints() {
-        _temB.length = 0;
-        if (this.width == 0 || this.height == 0) return _temB;
-        _temB.push(this.x, this.y, this.x + this.width, this.y, this.x, this.y + this.height, this.x + this.width, this.y + this.height);
-        return _temB;
+    getBoundPoints(out?: Array<number>): Array<number> {
+        out = out || [];
+        if (this.width == 0 || this.height == 0) return out;
+        out.push(this.x, this.y, this.x + this.width, this.y, this.x, this.y + this.height, this.x + this.width, this.y + this.height);
+        return out;
     }
 
     /**
-     * @internal
-     * @en Returns vertex data of a rectangle.
-     * @zh 返回矩形的顶点数据。
-     */
-    static _getBoundPointS(x: number, y: number, width: number, height: number, sp?: { width: number, height?: number }): number[] {
-        _temA.length = 0;
-        if (width == 0 || height == 0) return _temA;
-        if (sp) {
-            x *= sp.width;
-            y *= sp.height;
-            width *= sp.width;
-            height *= sp.height;
-        }
-        _temA.push(x, y, x + width, y, x, y + height, x + width, y + height);
-        return _temA;
-    }
-
-    /**
-     * @internal
      * @en Returns the smallest rectangle that contains all the points.
-     * @param pointList List of points.
-     * @param rst Optional Rectangle object to store the result.
+     * @param points List of points.
+     * @param out Optional Rectangle object to store the result.
      * @returns The smallest rectangle that contains all the points.
      * @zh 返回包含所有点的最小矩形。
-     * @param pointList 点列表。
-     * @param rst （可选）用于存储结果的矩形对象。
+     * @param points 点列表。
+     * @param out （可选）用于存储结果的矩形对象。
      * @return 包含所有点的最小矩形矩形对象。
      */
-    static _getWrapRec(pointList: ArrayLike<number>, rst: Rectangle | null = null): Rectangle {
+    static _getWrapRec(points: ArrayLike<number>, out?: Rectangle): Rectangle {
+        out = out || new Rectangle();
+        if (!points || points.length < 1)
+            return out.setTo(0, 0, 0, 0);
 
-        if (!pointList || pointList.length < 1) return rst ? rst.setTo(0, 0, 0, 0) : Rectangle.TEMP.setTo(0, 0, 0, 0);
-        rst = rst ? rst : Rectangle.create();
-        var i: number, len: number = pointList.length, minX: number, maxX: number, minY: number, maxY: number, tPoint: Point = Point.TEMP;
+        let i: number, len: number = points.length, minX: number, maxX: number, minY: number, maxY: number;
         minX = minY = 99999;
         maxX = maxY = -minX;
         for (i = 0; i < len; i += 2) {
-            tPoint.x = pointList[i];
-            tPoint.y = pointList[i + 1];
-            minX = minX < tPoint.x ? minX : tPoint.x;
-            minY = minY < tPoint.y ? minY : tPoint.y;
-            maxX = maxX > tPoint.x ? maxX : tPoint.x;
-            maxY = maxY > tPoint.y ? maxY : tPoint.y;
+            let tx = points[i];
+            let ty = points[i + 1];
+            minX = minX < tx ? minX : tx;
+            minY = minY < ty ? minY : ty;
+            maxX = maxX > tx ? maxX : tx;
+            maxY = maxY > ty ? maxY : ty;
         }
-        return rst.setTo(minX, minY, maxX - minX, maxY - minY);
+        return out.setTo(minX, minY, maxX - minX, maxY - minY);
     }
 
     /**
@@ -332,8 +338,7 @@ export class Rectangle implements IClone {
      * @return 如果 Rectangle 对象的宽度或高度小于等于 0，则返回 true 值，否则返回 false。
      */
     isEmpty(): boolean {
-        if (this.width <= 0 || this.height <= 0) return true;
-        return false;
+        return this.width <= 0 || this.height <= 0;
     }
 
     /**
@@ -344,7 +349,7 @@ export class Rectangle implements IClone {
      * @param out （可选）用于存储结果的矩形对象。如果为空，则创建一个新的。建议：尽量复用对象，减少对象创建消耗。Rectangle.TEMP对象用于对象复用。
      * @return 一个 Rectangle 对象，其 x、y、width 和 height 属性的值与当前 Rectangle 对象的对应值相同。
      */
-    clone(out: Rectangle | null = null): Rectangle {
+    clone(out?: Rectangle): Rectangle {
         out || (out = new Rectangle());
         this.cloneTo(out);
         return out;
@@ -363,6 +368,3 @@ export class Rectangle implements IClone {
         destObject.height = this.height;
     }
 }
-
-const _temB: number[] = [];
-const _temA: number[] = [];

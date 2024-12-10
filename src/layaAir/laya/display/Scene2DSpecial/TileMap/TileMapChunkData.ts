@@ -151,7 +151,7 @@ export class TileMapChunkData {
         let tileSet = layer.tileSet;
         let chunk = this._tileLayer._chunk;
 
-        let localPos = Vector2.TempVector2;
+        let localPos = Vector2.TEMP;
 
         this._cellDataRefMap.forEach((localIndexs:number[],gid:number)=>{
             if (localIndexs){
@@ -176,7 +176,7 @@ export class TileMapChunkData {
      * 将数据合并到二维map中
      */
     _mergeBuffer(datas: Map<number, Map<number, TileSetCellData>>, minRange: Vector2, maxRange: Vector2) {
-        const tempVec2 = Vector2.TempVector2;
+        const tempVec2 = Vector2.TEMP;
         let infos = this._chuckCellList;
         for (let i = 0 , len = infos.length; i < len; i++) {
             let info = infos[i];            
@@ -313,7 +313,7 @@ export class TileMapChunkData {
         } else if (this._cellDirtyFlag.size > 0) {
             this._cellDirtyFlag.forEach((value, key) => {
                 //cell posOri extends  
-                let pos: Vector2 = Vector2.TempVector2;
+                let pos: Vector2 = Vector2.TEMP;
                 let cellDataUseArray = this._cellDataRefMap[key];
 
                 cellDataUseArray.forEach(element => {
@@ -400,8 +400,8 @@ export class TileMapChunkData {
         let physics = this._tileLayer.tileMapPhysics;
         let layerCount = physicsLayers.length;
         let chunk = this._tileLayer._chunk;
-        let matrix = this._tileLayer._globalTramsfrom();
-        let pos: Vector2 = Vector2.TempVector2;
+        let matrix = this._tileLayer._globalTransfrom();
+        let pos: Vector2 = Vector2.TEMP;
 
         this._cellDirtyFlag.forEach((value, key) => {
             //cell posOri extends  
@@ -500,7 +500,7 @@ export class TileMapChunkData {
         let instanceposScal = cachDatas[TileMapChunkData.instanceposScalBufferIndex];
         let instanceuvOriScal = cachDatas[TileMapChunkData.instanceuvOriScalBufferIndex];
         let instanceuvTrans = cachDatas[TileMapChunkData.instanceuvTransBufferIndex];
-        let pos: Vector2 = Vector2.TempVector2;
+        let pos: Vector2 = Vector2.TEMP;
         
         let renderElementLength = this._renderElementArray.length;
         //fill Data
@@ -679,7 +679,7 @@ export class TileMapChunkData {
         let chuckCellInfo = this._cellDataMap[index];
         if (chuckCellInfo == null) {//create one ChunkCellInfo
             let chunk = this._tileLayer._chunk;
-            let localPos = Vector2.TempVector2;
+            let localPos = Vector2.TEMP;
             let xorderValue = index;
             chunk._getCellPosByChunkPosAndIndex(0, 0, index, localPos);
             let yorderValue = this._tileLayer._chunk._getChunkIndexByCellPos(localPos.y, localPos.x);

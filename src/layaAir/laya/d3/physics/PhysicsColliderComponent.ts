@@ -88,6 +88,8 @@ export class PhysicsColliderComponent extends Component {
     /**@internal */
     protected _eventsArray: string[];
 
+    declare owner: Sprite3D;
+
     /**
      * @en The collider object.
      * @zh 碰撞器对象。
@@ -331,8 +333,6 @@ export class PhysicsColliderComponent extends Component {
             this.initCollider();
             this.owner.off(Node.EVENT_SET_ACTIVESCENE, this, this._onAdded);
         }
-        this.owner.off(Event._Add_Script, this, this._setEventFilter);
-        this.owner.on(Event._Add_Script, this, this._setEventFilter);
         this.restitution = this._restitution;
         this.friction = this._friction;
         this.rollingFriction = this._rollingFriction;
@@ -343,7 +343,7 @@ export class PhysicsColliderComponent extends Component {
      * @protected
      */
     protected _onEnable(): void {
-        (<Sprite3D>this.owner).transform.on(Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
+        this.owner.transform.on(Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
         this._physicsManager = ((<Scene3D>this.owner._scene))._physicsManager;
         //ILaya3D.Physics3D._bullet.btCollisionObject_setContactProcessingThreshold(this._btColliderObject, 0);
         this._collider && (this._collider.componentEnable = true);
@@ -351,6 +351,9 @@ export class PhysicsColliderComponent extends Component {
             this._physicsManager.setActiveCollider(this.collider, true);
             this._physicsManager.addCollider(this._collider);
         }
+
+        this.owner.on(Event.UPDATE_PHY_EVENT_FILTER, this, this._setEventFilter);
+        this._setEventFilter();
     }
 
     /**
@@ -358,13 +361,15 @@ export class PhysicsColliderComponent extends Component {
      * @protected
      */
     protected _onDisable(): void {
-        (<Sprite3D>this.owner).transform.off(Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
+        this.owner.transform.off(Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
         this._collider && (this._collider.componentEnable = false);
         if (this._colliderShape) {
             this._physicsManager.removeCollider(this._collider);
             this._physicsManager.setActiveCollider(this.collider, false);
         }
         this._physicsManager = null;
+
+        this.owner.off(Event.UPDATE_PHY_EVENT_FILTER, this, this._setEventFilter);
     }
 
     /**

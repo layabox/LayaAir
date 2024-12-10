@@ -1,9 +1,10 @@
 import { TextInput } from "./TextInput";
 import { VScrollBar } from "./VScrollBar";
 import { HScrollBar } from "./HScrollBar";
-import { ScrollType, Styles } from "./Styles";
+import { ScrollType } from "./Styles";
 import { Event } from "../events/Event"
 import { HideFlags } from "../Const";
+import { TransformKind } from "../display/SpriteConst";
 
 /**
  * @en The TextArea class is used to create a multi-line text area display object for displaying and inputting text.
@@ -185,19 +186,13 @@ export class TextArea extends TextInput {
     }
 
     /**
-     * @internal
+     * @ignore
      */
-    _setWidth(value: number) {
-        super._setWidth(value);
-        this.callLater(this.changeScroll);
-    }
+    protected _transChanged(kind: TransformKind) {
+        super._transChanged(kind);
 
-    /**
-     * @internal
-     */
-    _setHeight(value: number) {
-        super._setHeight(value);
-        this.callLater(this.changeScroll);
+        if ((kind & TransformKind.Size) != 0)
+            this.callLater(this.changeScroll);
     }
 
     protected initialize(): void {

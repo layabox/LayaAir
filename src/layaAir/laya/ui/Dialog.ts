@@ -233,7 +233,7 @@ export class Dialog extends View {
 
     /** 提取拖拽区域*/
     protected _dealDragArea(): void {
-        var dragTarget: Sprite = (<Sprite>this.getChildByName("drag"));
+        var dragTarget: Sprite = this.getChild("drag");
         if (dragTarget) {
             this.dragArea = dragTarget._x + "," + dragTarget._y + "," + dragTarget.width + "," + dragTarget.height;
             dragTarget.removeSelf();

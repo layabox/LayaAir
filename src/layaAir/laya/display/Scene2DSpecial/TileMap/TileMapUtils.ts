@@ -73,7 +73,7 @@ export class TileMapUtils {
         let rotate = -this.getRotateAngle(rountCount, tileshape);
         const cos = Math.cos(rotate);
         const sin = Math.sin(rotate);
-        let out = Vector4.tempVec4;
+        let out = Vector4.TEMP;
         out.x = cos * vx * dx - sin * vx * dy;
         out.y = cos * vy * dy - sin * vy * dx;
         out.z = sin * vx * dx + cos * vx * dy;

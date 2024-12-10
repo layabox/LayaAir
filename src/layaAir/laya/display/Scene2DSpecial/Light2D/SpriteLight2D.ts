@@ -71,8 +71,8 @@ export class SpriteLight2D extends BaseLight2D {
 
         const w = (this._texLight ? this._texLight.width : 100) * Browser.pixelRatio | 0;
         const h = (this._texLight ? this._texLight.height : 100) * Browser.pixelRatio | 0;
-        this._worldRange.x = (-0.5 * w + (this.owner as Sprite).globalPosX * Browser.pixelRatio) | 0;
-        this._worldRange.y = (-0.5 * h + (this.owner as Sprite).globalPosY * Browser.pixelRatio) | 0;
+        this._worldRange.x = (-0.5 * w + this.owner.globalPosX * Browser.pixelRatio) | 0;
+        this._worldRange.y = (-0.5 * h + this.owner.globalPosY * Browser.pixelRatio) | 0;
         this._worldRange.width = w;
         this._worldRange.height = h;
     }

@@ -82,7 +82,7 @@ export class GLESRender3DProcess implements IRender3DProcess {
         }
 
         renderpass.setViewPort(viewport);
-        let scissor = Vector4.tempVec4;
+        let scissor = Vector4.TEMP;
         scissor.setValue(viewport.x, viewport.y, viewport.width, viewport.height);
         // todo
         renderpass.setScissor(scissor);

@@ -19,14 +19,10 @@ import { BaseNav3DModifle } from "./BaseNav3DModifle";
 export class NavMeshObstacles extends BaseNav3DModifle {
 
     /**@internal */
-    static _boundMin:Vector3 = new Vector3(-0.5, -0.5, -0.5);
+    static _boundMin: Vector3 = new Vector3(-0.5, -0.5, -0.5);
 
     /**@internal */
-    static _boundMax:Vector3 = new Vector3(0.5, 0.5, 0.5);
-    
-    /**@internal */
-    static _TempVec3: Vector3 = new Vector3();
-
+    static _boundMax: Vector3 = new Vector3(0.5, 0.5, 0.5);
 
     /**@internal */
     private _meshType: NavObstaclesMeshType = NavObstaclesMeshType.BOX;
@@ -129,7 +125,7 @@ export class NavMeshObstacles extends BaseNav3DModifle {
         return this._radius;
     }
 
-    
+
     /**
      * @en Sets the baked navigation data.
      * @param value The TextResource containing the navigation data.
@@ -137,11 +133,11 @@ export class NavMeshObstacles extends BaseNav3DModifle {
      * @param value 包含导航数据的 TextResource。
      */
     set datas(value: TextResource) {
-        if(this._oriTiles){
+        if (this._oriTiles) {
             this._oriTiles.destroy();
             this._oriTiles = null;
         }
-        if(value != null){
+        if (value != null) {
             this._oriTiles = new NavTileData(value);
         }
         this._changeData();
@@ -149,10 +145,10 @@ export class NavMeshObstacles extends BaseNav3DModifle {
     }
 
     get datas(): TextResource {
-        if(this._oriTiles) return this._oriTiles._res;
+        if (this._oriTiles) return this._oriTiles._res;
         return null;
     }
-    
+
     constructor() {
         super();
         this._localMat = new Matrix4x4();
@@ -165,7 +161,7 @@ export class NavMeshObstacles extends BaseNav3DModifle {
         super._onEnable();
         let min = this._modifierData._min;
         let max = this._modifierData._max;
-        let surface = this._manager.getNavMeshSurfacesByBound(min,max,this._modifierData.agentType);
+        let surface = this._manager.getNavMeshSurfacesByBound(min, max, this._modifierData.agentType);
         (<NavModifleData>this._modifierData)._initSurface(surface);
     }
 
@@ -173,25 +169,25 @@ export class NavMeshObstacles extends BaseNav3DModifle {
     /**
      * @internal
      */
-    _refeashTranfrom(mat: Matrix4x4, min:Vector3,max:Vector3) {
+    _refeashTranfrom(mat: Matrix4x4, min: Vector3, max: Vector3) {
         if (this._meshType == NavObstaclesMeshType.BOX) {
             Matrix4x4.createAffineTransformation(this._center, Quaternion.DEFAULT, this._size, this._localMat);
         } else {
-            NavMeshObstacles._TempVec3.setValue(this.radius, this.height, this.radius);
-            Matrix4x4.createAffineTransformation(this._center, Quaternion.DEFAULT, NavMeshObstacles._TempVec3, this._localMat);
+            Vector3.TEMP.setValue(this.radius, this.height, this.radius);
+            Matrix4x4.createAffineTransformation(this._center, Quaternion.DEFAULT, Vector3.TEMP, this._localMat);
         }
         Matrix4x4.multiply(mat, this._localMat, this._modifierData._transfrom);
         let data = this._modifierData as NavModifleData;
-        if(data.datas == null) return;
+        if (data.datas == null) return;
         let boundmin = data.datas._boundMin;
         let boundmax = data.datas._boundMax;
-        NavigationUtils._transfromBoundBox(boundmin,boundmax,this._modifierData._transfrom,min,max);
+        NavigationUtils._transfromBoundBox(boundmin, boundmax, this._modifierData._transfrom, min, max);
         this._modifierData._refeahTransfrom();
     }
 
-     /**@internal */
+    /**@internal */
     _changeData() {
-        if(!this._enabled) return;
+        if (!this._enabled) return;
         let modiferData = this._modifierData as NavModifleData;
         switch (this._meshType) {
             case NavObstaclesMeshType.BOX:
@@ -201,9 +197,9 @@ export class NavMeshObstacles extends BaseNav3DModifle {
                 modiferData.datas = NavigationManager._getObstacleData(NavObstaclesMeshType.CYLINDER);
                 break;
             case NavObstaclesMeshType.CUSTOMER:
-                if(this._oriTiles){
+                if (this._oriTiles) {
                     modiferData.datas = this._oriTiles.getNavData(0);
-                }else{
+                } else {
                     modiferData.datas = null;
                 }
                 break;

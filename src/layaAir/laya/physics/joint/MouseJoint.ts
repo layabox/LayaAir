@@ -82,7 +82,7 @@ export class MouseJoint extends JointBase {
 
     /**@internal */
     protected _onEnable(): void {
-        (<Sprite>this.owner).mouseEnabled = true;
+        this.owner.mouseEnabled = true;
         this.owner.on(Event.MOUSE_DOWN, this, this._onMouseDown);
     }
 

@@ -1,3 +1,4 @@
+import { TransformKind } from "../display/SpriteConst";
 import { LayoutBox } from "./LayoutBox";
 import { UIComponent } from "./UIComponent";
 
@@ -28,20 +29,23 @@ export class HBox extends LayoutBox {
     static BOTTOM: string = "bottom";
 
     /**
-     * @internal
+     * @ignore
      */
-    _setHeight(value: number) {
-        super._setHeight(value);
-        this.callLater(this.changeItems);
+    protected _transChanged(kind: TransformKind) {
+        super._transChanged(kind);
+
+        if ((kind & TransformKind.Height) != 0)
+            this.callLater(this.changeItems);
     }
+
     protected sortItem(items: any[]): void {
         if (items) items.sort(function (a: any, b: any): number { return a.x - b.x; });
     }
 
     protected changeItems(): void {
         this._itemChanged = false;
-        var items: any[] = [];
-        var maxHeight = 0;
+        let items: UIComponent[] = [];
+        let maxHeight = 0;
         for (let i = 0, n = this.numChildren; i < n; i++) {
             let item = (<UIComponent>this.getChildAt(i));
             if (item) {

@@ -10,8 +10,10 @@ export class NavMesh2D extends BaseNavMesh {
     /**@internal */
     protected _debugMesh: Mesh2D;
 
-    constructor(config: RecastConfig, min:Vector3,max:Vector3, surface:NavMesh2DSurface) {
-        super(config,min,max,surface,false);
+    declare _surface: NavMesh2DSurface;
+
+    constructor(config: RecastConfig, min: Vector3, max: Vector3, surface: NavMesh2DSurface) {
+        super(config, min, max, surface, false);
         this._titileConfig._setMaxEdgeLen(1000);
     }
 
@@ -21,15 +23,15 @@ export class NavMesh2D extends BaseNavMesh {
      * @param binds 
      * @param partitionType 
      */
-    _addTile(cache:NavTileCache, binds: any[], partitionType: number,maxSimplificationError:number){
+    _addTile(cache: NavTileCache, binds: any[], partitionType: number, maxSimplificationError: number) {
         const config = this._grid.config;
         config.cellHeight = 0.1;
         config.agentHeight = 0.3;
         config.agentMaxSlope = 45;
         config.agentMaxClimb = 0.3;
-        super._addTile(cache,binds,partitionType,maxSimplificationError);
+        super._addTile(cache, binds, partitionType, maxSimplificationError);
         if (this._debugMesh) {
-            Navgiation2DUtils._createDebugMesh(this, this._debugMesh,true);
+            Navgiation2DUtils._createDebugMesh(this, this._debugMesh, true);
         }
     }
 
@@ -38,10 +40,10 @@ export class NavMesh2D extends BaseNavMesh {
     * 
     */
     buildDebugMesh() {
-        if(this._debugMesh == null){
-            this._debugMesh = Navgiation2DUtils._createDebugMesh(this, this._debugMesh,true);
+        if (this._debugMesh == null) {
+            this._debugMesh = Navgiation2DUtils._createDebugMesh(this, this._debugMesh, true);
         }
         return this._debugMesh;
     }
-    
+
 }

@@ -68,8 +68,7 @@ export class LayaGLQuickRunner {
      * @param y 渲染的 y 坐标。
      */
     static alpha_drawTexture(sprite: Sprite, context: Context, x: number, y: number): void {
-        var style = sprite._style;
-        var alpha = style.alpha;
+        var alpha = sprite.alpha;
         var tex = sprite.texture;
         if (alpha > 0.01 || sprite._needRepaint()) {
             var temp = context.globalAlpha;
@@ -81,8 +80,8 @@ export class LayaGLQuickRunner {
             width = tex.width * wRate;
             height = tex.height * hRate;
             if (width <= 0 || height <= 0) return null;
-            var px = x - style.pivotX + tex.offsetX * wRate;
-            var py = y - style.pivotY + tex.offsetY * hRate;
+            var px = x - sprite.pivotX + tex.offsetX * wRate;
+            var py = y - sprite.pivotY + tex.offsetY * hRate;
             if (!sprite._getBit(NodeFlags.HIDE_BY_EDITOR))
                 context.drawTexture(tex, px, py, width, height);
             context.globalAlpha = temp;
@@ -102,8 +101,7 @@ export class LayaGLQuickRunner {
      * @param y 渲染的 y 坐标。
      */
     static alpha_transform_drawTexture(sprite: Sprite, context: Context, x: number, y: number): void {
-        var style = sprite._style;
-        var alpha = style.alpha;
+        var alpha = sprite.alpha;
         var tex = sprite.texture;
         if (alpha > 0.01 || sprite._needRepaint()) {
             var temp = context.globalAlpha;
@@ -118,8 +116,8 @@ export class LayaGLQuickRunner {
             width = tex.width * wRate;
             height = tex.height * hRate;
             if (width <= 0 || height <= 0) return null;
-            var px = -style.pivotX + tex.offsetX * wRate;
-            var py = -style.pivotY + tex.offsetY * hRate;
+            var px = -sprite.pivotX + tex.offsetX * wRate;
+            var py = -sprite.pivotY + tex.offsetY * hRate;
             if (!sprite._getBit(NodeFlags.HIDE_BY_EDITOR))
                 context.drawTexture(tex, px, py, width, height);
             context.restore();
@@ -141,8 +139,7 @@ export class LayaGLQuickRunner {
      * @param y 渲染的 y 坐标。
      */
     static alpha_transform_drawLayaGL(sprite: Sprite, context: Context, x: number, y: number): void {
-        var style = sprite._style;
-        var alpha = style.alpha;
+        var alpha = sprite.alpha;
         if (alpha > 0.01 || sprite._needRepaint()) {
             var temp = context.globalAlpha;
             context.globalAlpha *= alpha;
@@ -150,7 +147,7 @@ export class LayaGLQuickRunner {
             context.save();
             context.transformByMatrix(sprite.transform, x, y);
             if (!sprite._getBit(NodeFlags.HIDE_BY_EDITOR))
-                sprite._graphics && sprite._graphics._render(sprite, context, -style.pivotX, -style.pivotY);
+                sprite._graphics && sprite._graphics._render(sprite, context, -sprite.pivotX, -sprite.pivotY);
             context.restore();
 
             context.globalAlpha = temp;
@@ -170,13 +167,12 @@ export class LayaGLQuickRunner {
      * @param y 渲染的 y 坐标。
      */
     static alpha_drawLayaGL(sprite: Sprite, context: Context, x: number, y: number): void {
-        var style = sprite._style;
-        var alpha = style.alpha;
+        var alpha = sprite.alpha;
         if (alpha > 0.01 || sprite._needRepaint()) {
             var temp = context.globalAlpha;
             context.globalAlpha *= alpha;
             if (!sprite._getBit(NodeFlags.HIDE_BY_EDITOR))
-                sprite._graphics && sprite._graphics._render(sprite, context, x - style.pivotX, y - style.pivotY);
+                sprite._graphics && sprite._graphics._render(sprite, context, x - sprite.pivotX, y - sprite.pivotY);
             context.globalAlpha = temp;
         }
     }
@@ -194,11 +190,10 @@ export class LayaGLQuickRunner {
      * @param y 渲染的 y 坐标。
      */
     static transform_drawLayaGL(sprite: Sprite, context: Context, x: number, y: number): void {
-        var style = sprite._style;
         context.save();
         context.transformByMatrix(sprite.transform, x, y);
         if (!sprite._getBit(NodeFlags.HIDE_BY_EDITOR))
-            sprite._graphics && sprite._graphics._render(sprite, context, -style.pivotX, -style.pivotY);
+            sprite._graphics && sprite._graphics._render(sprite, context, -sprite.pivotX, -sprite.pivotY);
         context.restore();
     }
 
@@ -216,19 +211,18 @@ export class LayaGLQuickRunner {
      */
     static transform_drawNodes(sprite: Sprite, context: Context, x: number, y: number): void {
         var drawcallOptim = sprite._getBit(NodeFlags.DRAWCALL_OPTIMIZE) && context.drawCallOptimize(true);
-        var style = sprite._style;
         context.save();
         context.transformByMatrix(sprite.transform, x, y);
 
-        x = -style.pivotX;
-        y = -style.pivotY;
+        x = -sprite.pivotX;
+        y = -sprite.pivotY;
 
         var childs: any[] = sprite._children, n = childs.length;
         let rect: Rectangle;
         let left: number, top: number, right: number, bottom: number, _x: number, _y: number;
 
-        if (style.viewport) {
-            rect = style.viewport;
+        if (sprite.viewport) {
+            rect = sprite.viewport;
             left = rect.x;
             top = rect.y;
             right = rect.right;
@@ -268,9 +262,8 @@ export class LayaGLQuickRunner {
     static drawLayaGL_drawNodes(sprite: Sprite, context: Context, x: number, y: number): void {
         var drawcallOptim = sprite._getBit(NodeFlags.DRAWCALL_OPTIMIZE) && context.drawCallOptimize(true);
         let drawingToTexture = context._drawingToTexture;
-        var style = sprite._style;
-        x = x - style.pivotX;
-        y = y - style.pivotY;
+        x = x - sprite.pivotX;
+        y = y - sprite.pivotY;
         if (!sprite._getBit(NodeFlags.HIDE_BY_EDITOR))
             sprite._graphics && sprite._graphics._render(sprite, context, x, y);
 
@@ -278,8 +271,8 @@ export class LayaGLQuickRunner {
         let rect: Rectangle;
         let left: number, top: number, right: number, bottom: number, _x: number, _y: number;
 
-        if (style.viewport) {
-            rect = style.viewport;
+        if (sprite.viewport) {
+            rect = sprite.viewport;
             left = rect.x;
             top = rect.y;
             right = rect.right;

@@ -73,7 +73,7 @@ export class BaseNavMeshSurface extends Component {
     /**@internal */
     _featureCache: Map<number, Set<any>>;
 
-     /**
+    /**
      * @en Agent type
      * @zh 代理类型
      */
@@ -126,7 +126,7 @@ export class BaseNavMeshSurface extends Component {
         return this._partitionType;
     }
 
-     /**
+    /**
      * @readonly
      * @en The minimum bounds of the navigation mesh
      * @zh 导航网格的最小边界 

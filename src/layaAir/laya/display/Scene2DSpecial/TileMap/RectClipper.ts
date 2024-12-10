@@ -40,7 +40,7 @@ class AlexData {
     }
 
     public updateVerter(rectDatas: number[], ploygons: number[]) {
-        let temp = Vector2.TempVector2;
+        let temp = Vector2.TEMP;
         this._getDotMinMax(rectDatas, temp);
         this._rectValueMin = temp.x;
         this._rectValueMax = temp.y;
@@ -116,7 +116,7 @@ export class RectClipper {
         let halfw = this._polygonW;
         let halfh = this._polygonH;
         this._polygons = [];
-        const p = Vector2.TempVector2;
+        const p = Vector2.TEMP;
         TileMapUtils.transfromPointNByValue(this._matrix, -halfw, -halfh, p);
         this._polygons.push(p.x, p.y);
         TileMapUtils.transfromPointNByValue(this._matrix, halfw, -halfh, p);
@@ -203,7 +203,7 @@ export class RectClipper {
 
     // 是否在裁切区域内
     public isClipper(x: number, y: number): boolean {
-        const p = Vector2.TempVector2;
+        const p = Vector2.TEMP;
         TileMapUtils.transfromPointByValue(this._matrix, x, y, p);
         if (this._axis[0].testCollider(p.x, p.y)) return true;
         if (this._axis[1].testCollider(p.x, p.y)) return true;

@@ -6,6 +6,7 @@ import { Sprite } from "../display/Sprite"
 import { Event } from "../events/Event"
 import { ILaya } from "../../ILaya";
 import { SerializeUtil } from "../loaders/SerializeUtil";
+import { TransformKind } from "../display/SpriteConst";
 
 /**
  * @en UIComponent is the base class of UI Component.
@@ -246,14 +247,13 @@ export class UIComponent extends Sprite {
     }
 
     /**
-     * @en Called when the layout should be refreshed.
-     * This method will call the `_sizeChanged` method later to perform the actual layout refresh.
-     * @zh 当需要刷新布局时调用。
-     * 这个方法会在稍后调用 `_sizeChanged` 方法来执行实际的布局刷新。
+     * @ignore
      */
-    protected _shouldRefreshLayout(): void {
-        super._shouldRefreshLayout();
-        this.callLater(this._sizeChanged);
+    protected _transChanged(kind: TransformKind): void {
+        super._transChanged(kind);
+
+        if ((kind & TransformKind.Layout) != 0)
+            this.callLater(this._sizeChanged);
     }
 
     /**
@@ -271,7 +271,7 @@ export class UIComponent extends Sprite {
     * @zh 子节点发生变化时的回调。
     * @param child 发生变化的子节点。
     */
-    protected _childChanged(child: Node = null): void {
+    protected _childChanged(child?: Node): void {
         this.callLater(this._sizeChanged);
         super._childChanged(child);
     }
@@ -375,34 +375,6 @@ export class UIComponent extends Sprite {
      */
     private onMouseOut(e: Event): void {
         ILaya.stage.event(UIEvent.HIDE_TIP, this._toolTip);
-    }
-
-    /**
-     * @en The method to be invoked when the component is resized.
-     * It handles the logic for when the component's size changes.
-     * @zh 组件大小调整时调用的方法。
-     * 它处理组件大小发生变化时的逻辑。
-     */
-    protected onCompResize(): void {
-        this._sizeChanged();
-    }
-
-    /**
-     * @en Get the width of the object.
-     * @zh 获取对象的宽度。
-     */
-    get_width(): number {
-        if (this._isWidthSet) return this._width;
-        return this.measureWidth();
-    }
-
-    /**
-     * @en Get the height of the object.
-     * @zh 获取对象的高度。
-     */
-    get_height(): number {
-        if (this._isHeightSet) return this._height;
-        return this.measureHeight();
     }
 
     /**

@@ -1,12 +1,13 @@
 import { Context } from "../../renders/Context"
 import { ClassUtils } from "../../utils/ClassUtils";
 import { Pool } from "../../utils/Pool"
+import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
 
 /**
  * @en Draw vector graphics based on the path
  * @zh 根据路径绘制矢量图形
  */
-export class DrawPathCmd {
+export class DrawPathCmd implements IGraphicsCmd {
     /**
      * @en Identifier for the DrawPathCmd
      * @zh 根据路径绘制矢量图形命令的标识符
@@ -99,27 +100,22 @@ export class DrawPathCmd {
     }
 
     /**
-     * @en Get the boundary points of the path
-     * @zh 获取路径的边界点
+     * @ignore
      */
-    getBoundPoints(): number[] {
-        let rst: any[] = _tempPoints;
-        rst.length = 0;
+    getBounds(assembler: IGraphicsBoundsAssembler): void {
         let paths = this.paths;
         let len = paths.length;
         for (let i = 0; i < len; i++) {
             let tCMD = paths[i];
             if (tCMD.length > 1) {
-                rst.push(tCMD[1], tCMD[2]);
+                assembler.points.push(tCMD[1], tCMD[2]);
                 if (tCMD.length > 3) {
-                    rst.push(tCMD[3], tCMD[4]);
+                    assembler.points.push(tCMD[3], tCMD[4]);
                 }
             }
         }
-        return rst;
+        assembler.flushPoints(this.x, this.y);
     }
 }
-
-const _tempPoints: any[] = [];
 
 ClassUtils.regClass("DrawPathCmd", DrawPathCmd);

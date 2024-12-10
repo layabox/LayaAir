@@ -2,19 +2,7 @@ import { Vector3 } from "./Vector3";
 import { Matrix4x4 } from "./Matrix4x4";
 import { Matrix3x3 } from "./Matrix3x3";
 import { MathUtils3D } from "./MathUtils3D";
-import { Vector2 } from "./Vector2";
 import { IClone } from "../utils/IClone";
-
-/**@internal */
-const TEMPVector30 = new Vector3();
-/**@internal */
-const TEMPVector31 = new Vector3();
-/**@internal */
-const TEMPVector32 = new Vector3();
-/**@internal */
-const TEMPVector33 = new Vector3();
-/**@internal */
-const _tempMatrix3x3 = new Matrix3x3();
 
 /**
  * @en The `Quaternion` class is used to create quaternions.
@@ -23,7 +11,7 @@ const _tempMatrix3x3 = new Matrix3x3();
 export class Quaternion implements IClone {
 
     /**@internal */
-    static TEMP = new Quaternion();
+    static readonly TEMP = new Quaternion();
 
     /**
      * @en Default quaternion, read-only.
@@ -107,7 +95,7 @@ export class Quaternion implements IClone {
      * @param out 旋转后的输出四元数
      */
     static rotationAxisAngle(axis: Vector3, rad: number, out: Quaternion): void {
-        const normalAxis = Vector3._tempVector3
+        const normalAxis = Vector3.TEMP
         Vector3.normalize(axis, normalAxis);
         rad *= 0.5;
         const s = Math.sin(rad);
@@ -508,11 +496,11 @@ export class Quaternion implements IClone {
 
         Vector3.transformQuat(Vector3.ForwardRH, this, TEMPVector31/*forwarldRH*/);
 
-        Vector3.transformQuat(Vector3.Up, this, TEMPVector32/*up*/);
-        var upe: Vector3 = TEMPVector32;
+        let upe: Vector3 = TEMPVector32;
+        let angle: Vector3 = TEMPVector33;
 
-        Quaternion.angleTo(Vector3.ZERO, TEMPVector31, TEMPVector33/*angle*/);
-        var angle: Vector3 = TEMPVector33;
+        Vector3.transformQuat(Vector3.Up, this, upe);
+        Quaternion.angleTo(Vector3.ZERO, TEMPVector31, angle);
 
         if (angle.x == Math.PI / 2) {
             angle.y = Quaternion.arcTanAngle(upe.z, upe.x);
@@ -521,11 +509,12 @@ export class Quaternion implements IClone {
             angle.y = Quaternion.arcTanAngle(-upe.z, -upe.x);
             angle.z = 0;
         } else {
-            Matrix4x4.createRotationY(-angle.y, Matrix4x4.TEMPMatrix0);
-            Matrix4x4.createRotationX(-angle.x, Matrix4x4.TEMPMatrix1);
+            Matrix4x4.createRotationY(-angle.y, Matrix4x4.TEMP);
+            Vector3.transformCoordinate(upe, Matrix4x4.TEMP, upe);
 
-            Vector3.transformCoordinate(TEMPVector32, Matrix4x4.TEMPMatrix0, TEMPVector32);
-            Vector3.transformCoordinate(TEMPVector32, Matrix4x4.TEMPMatrix1, TEMPVector32);
+            Matrix4x4.createRotationX(-angle.x, Matrix4x4.TEMP);
+            Vector3.transformCoordinate(upe, Matrix4x4.TEMP, upe);
+
             angle.z = Quaternion.arcTanAngle(upe.y, -upe.x);
         }
 
@@ -656,8 +645,8 @@ export class Quaternion implements IClone {
      * @param	out    输出四元数
      */
     static lookAt(eye: Vector3, target: Vector3, up: Vector3, out: Quaternion): void {
-        Matrix3x3.lookAt(eye, target, up, _tempMatrix3x3);
-        Quaternion.rotationMatrix(_tempMatrix3x3, out);
+        Matrix3x3.lookAt(eye, target, up, Matrix3x3.TEMP);
+        Quaternion.rotationMatrix(Matrix3x3.TEMP, out);
     }
 
     /**
@@ -673,8 +662,8 @@ export class Quaternion implements IClone {
      * @param out 输出四元数
      */
     static forwardLookAt(eye: Vector3, target: Vector3, up: Vector3, out: Quaternion): void {
-        Matrix3x3.forwardLookAt(eye, target, up, _tempMatrix3x3);
-        Quaternion.rotationMatrix(_tempMatrix3x3, out);
+        Matrix3x3.forwardLookAt(eye, target, up, Matrix3x3.TEMP);
+        Quaternion.rotationMatrix(Matrix3x3.TEMP, out);
     }
 
     /**
@@ -770,3 +759,8 @@ export class Quaternion implements IClone {
         }
     }
 }
+
+const TEMPVector30 = new Vector3();
+const TEMPVector31 = new Vector3();
+const TEMPVector32 = new Vector3();
+const TEMPVector33 = new Vector3();

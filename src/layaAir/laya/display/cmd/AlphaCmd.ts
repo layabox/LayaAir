@@ -1,11 +1,12 @@
-import { Context, IGraphicCMD } from "../../renders/Context"
+import { Context } from "../../renders/Context"
 import { Pool } from "../../utils/Pool"
+import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
 
 /**
  * @en Alpha command.
  * @zh 透明命令
  */
-export class AlphaCmd implements IGraphicCMD {
+export class AlphaCmd implements IGraphicsCmd {
     /**
      * @en Identifier for the AlphaCmd
      * @zh 透明命令的标识符
@@ -52,6 +53,13 @@ export class AlphaCmd implements IGraphicCMD {
      */
     run(context: Context, gx: number, gy: number): void {
         context.alpha(this.alpha);
+    }
+
+    /**
+     * @ignore
+     */
+    getBounds(assembler: IGraphicsBoundsAssembler): void {
+        //empty
     }
 
     /**

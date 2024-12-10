@@ -11,8 +11,6 @@ import { Utils } from "../utils/Utils";
  */
 export class Component {
     /**
-     * @private
-     * @internal
      * @en Unique identifier for the component.
      * @zh 组件的唯一标识。
      */
@@ -33,21 +31,18 @@ export class Component {
     _enabled: boolean = true;
 
     /**
-     * @internal
      * @en Whether the component is a singleton, meaning only one instance of this type of script can be added to the same node.
      * @zh 是否为单例，即同一个节点只能添加此类型的脚本一次。
      */
     _singleton: boolean;
 
     /**
-     * @internal
      * @en Whether the script can run in the IDE environment.
      * @zh 是否可以在 IDE 环境中运行。
      */
     runInEditor: boolean;
 
     /**
-     * @internal
      * @en The path of the script file.
      * @zh 脚本文件的路径。
      */
@@ -142,7 +137,7 @@ export class Component {
     }
 
     /**
-     * @internal
+     * @ignore
      */
     _isScript(): boolean {
         return false;
@@ -178,21 +173,21 @@ export class Component {
     }
 
     /**
-     * @internal
+     * @ignore
      * 被添加到节点后调用，可根据需要重写此方法
      */
     protected _onAdded(): void {
     }
 
     /**
-     * @internal
+     * @ignore
      * 被激活后调用，可根据需要重写此方法
      */
     protected _onAwake(): void {
     }
 
     /**
-     * @internal
+     * @ignore
      * 被激活后调用，可根据需要重写此方法
      */
     protected _onEnable(): void {
@@ -200,7 +195,7 @@ export class Component {
     }
 
     /**
-     * @internal
+     * @ignore
      * 被禁用时调用，可根据需要重写此方法
      * 销毁组件
      */
@@ -209,7 +204,7 @@ export class Component {
     }
 
     /**
-     * @internal
+     * @ignore
      * 被销毁时调用，可根据需要重写此方法
      */
     protected _onDestroy(): void {
@@ -237,7 +232,7 @@ export class Component {
     }
 
     /**
-     * @internal
+     * @ignore
      */
     _setActive(value: boolean): void {
         if (value) {

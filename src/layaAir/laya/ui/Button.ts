@@ -11,6 +11,7 @@ import { UIUtils } from "./UIUtils"
 import { Handler } from "../utils/Handler"
 import { ILaya } from "../../ILaya";
 import { URL } from "../net/URL";
+import { TransformKind } from "../display/SpriteConst";
 /**
  * @en The Button component is used to represent a button with multiple states. The Button component can display a text label, an icon, or both.
  * The states can be single-state, two-state (normal, pressed), or three-state (normal, hover, pressed). By default, it is three-state.
@@ -409,6 +410,7 @@ export class Button extends UIComponent implements ISelect {
             this.skin = skin;
         this.label = label;
     }
+
     protected measureWidth(): number {
         if (this._skin)
             this.runCallLater(this.changeClips);
@@ -526,24 +528,21 @@ export class Button extends UIComponent implements ISelect {
 
 
     /**
-     * @internal
+     * @ignore
      */
-    _setWidth(value: number) {
-        super._setWidth(value);
-        if (this._autoSize) {
-            this._graphics.width = value;
-            this._text && (this._text.width = value);
-        }
-    }
+    protected _transChanged(kind: TransformKind) {
+        super._transChanged(kind);
 
-    /**
-     * @internal
-     */
-    _setHeight(value: number) {
-        super._setHeight(value);
         if (this._autoSize) {
-            this._graphics.height = value;
-            this._text && (this._text.height = value);
+            if ((kind & TransformKind.Width) != 0) {
+                this._graphics.width = this._width;
+                this._text && (this._text.width = this._width);
+            }
+
+            if ((kind & TransformKind.Height) != 0) {
+                this._graphics.height = this._height;
+                this._text && (this._text.height = this._height);
+            }
         }
     }
 
@@ -599,7 +598,7 @@ export class Button extends UIComponent implements ISelect {
             this.callLater(this.changeState);
         }
     }
-    
+
     /**
      * @en Sets the data source.
      * @zh 设置数据源。

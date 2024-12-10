@@ -3,7 +3,6 @@ import { Sprite } from "../display/Sprite";
 import { Matrix } from "../maths/Matrix";
 import { Point } from "../maths/Point";
 import { Rectangle } from "../maths/Rectangle";
-import { Utils } from "./Utils";
 
 export class SpriteUtils {
     /**

@@ -1,6 +1,6 @@
 import { Point } from "../../maths/Point"
 import { Rectangle } from "../../maths/Rectangle"
-import { CachePage, Cache_Info } from "../../renders/SpriteCache"
+import { Cache_Info } from "../../renders/SpriteCache"
 import { RenderTexture2D } from "../../resource/RenderTexture2D"
 import { Pool } from "../../utils/Pool"
 import { Sprite } from "../Sprite"
@@ -84,7 +84,6 @@ export class CacheStyle {
         this.staticCache = false;
         this.mask = null;
         this.maskParent = null;
-        if (this.cacheRect) this.cacheRect.recover();
         this.cacheRect = null;
         this.cacheInfo.reset();
         return this
@@ -108,7 +107,7 @@ export class CacheStyle {
     _calculateCacheRect(sprite: Sprite, tCacheType: string, x: number, y: number): Point {
         var _cacheStyle = sprite._getCacheStyle();
         if (!_cacheStyle.cacheRect)
-            _cacheStyle.cacheRect = Rectangle.create();
+            _cacheStyle.cacheRect = new Rectangle();
         var tRec: Rectangle;
 
         //计算显示对象的绘图区域
@@ -127,14 +126,14 @@ export class CacheStyle {
             tRec.height = Math.floor(tRec.height);
             _cacheStyle.cacheRect.copyFrom(tRec);
         } else {
-            _cacheStyle.cacheRect.setTo(-sprite._style.pivotX, -sprite._style.pivotY, 1, 1);
+            _cacheStyle.cacheRect.setTo(-sprite.pivotX, -sprite.pivotY, 1, 1);
         }
         tRec = _cacheStyle.cacheRect;
 
 
         //处理显示对象的scrollRect偏移
-        if (sprite._style.scrollRect) {
-            var scrollRect: Rectangle = sprite._style.scrollRect;
+        if (sprite.scrollRect) {
+            var scrollRect: Rectangle = sprite.scrollRect;
             tRec.x -= scrollRect.x;
             tRec.y -= scrollRect.y;
         }

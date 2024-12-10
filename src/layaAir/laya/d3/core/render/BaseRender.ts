@@ -208,6 +208,8 @@ export class BaseRender extends Component {
 
     _renderElements: RenderElement[] = [];
 
+    declare owner: Sprite3D;
+
     /**
      * @en Whether to enable the renderer.
      * @zh 是否启用。
@@ -627,12 +629,12 @@ export class BaseRender extends Component {
      * @protected
      */
     protected _onAdded(): void {
-        this._transform = (this.owner as Sprite3D).transform;
-        (this.owner as Sprite3D)._isRenderNode++;
+        this._transform = this.owner.transform;
+        this.owner._isRenderNode++;
         this.setRenderbitFlag(RenderBitFlag.RenderBitFlag_Editor, this.owner._getBit(NodeFlags.HIDE_BY_EDITOR));
         this._baseRenderNode.transform = this._transform;
-        this._changeLayer((this.owner as Sprite3D).layer);
-        this._changeStaticMask((this.owner as Sprite3D)._isStatic);
+        this._changeLayer(this.owner.layer);
+        this._changeStaticMask(this.owner._isStatic);
     }
 
     /**
@@ -641,14 +643,13 @@ export class BaseRender extends Component {
      */
     protected _onEnable(): void {
         super._onEnable();
-        if (this.owner) {
-            (this.owner as Sprite3D).transform.on(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange);//如果为合并BaseRender,owner可能为空
-            (this.owner as Sprite3D).on(Event.LAYERCHANGE, this, this._changeLayer);
-            (this.owner as Sprite3D).on(Event.staticMask, this, this._changeStaticMask);
-            this._changeLayer((this.owner as Sprite3D).layer);
-            this._changeStaticMask((this.owner as Sprite3D)._isStatic);
-        }
-        (<Scene3D>this.owner.scene)._addRenderObject(this);
+
+        this.owner.transform.on(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange);//如果为合并BaseRender,owner可能为空
+        this.owner.on(Event.LAYER_CHANGE, this, this._changeLayer);
+        this.owner.on(Event.STATIC_MASK, this, this._changeStaticMask);
+        this._changeLayer(this.owner.layer);
+        this._changeStaticMask(this.owner._isStatic);
+        this.owner.scene._addRenderObject(this);
         this._setBelongScene(this.owner.scene);
     }
 
@@ -657,13 +658,11 @@ export class BaseRender extends Component {
      * @protected
      */
     protected _onDisable(): void {
-        if (this.owner) {
-            (this.owner as Sprite3D).transform.off(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange);//如果为合并BaseRender,owner可能为空
-            (this.owner as Sprite3D).off(Event.LAYERCHANGE, this, this._changeLayer);
-            (this.owner as Sprite3D).off(Event.staticMask, this, this._changeStaticMask);
-        }
-        let scene = <Scene3D>this.owner.scene;
-        scene._removeRenderObject(this);
+        this.owner.transform.off(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange);//如果为合并BaseRender,owner可能为空
+        this.owner.off(Event.LAYER_CHANGE, this, this._changeLayer);
+        this.owner.off(Event.STATIC_MASK, this, this._changeStaticMask);
+
+        this.owner.scene._removeRenderObject(this);
         this._setUnBelongScene();
         this.volume = null;
     }
@@ -673,13 +672,13 @@ export class BaseRender extends Component {
      * @internal
      */
     protected _onDestroy() {
-        if (this.owner as Sprite3D)
-            (this.owner as Sprite3D)._isRenderNode--;
+        //按理说this.owner不会是空，但引擎里有直接new BaseRender的特殊用法
+        if (this.owner)
+            this.owner._isRenderNode--;
         (this._motionIndexList !== -1) && (this._scene._sceneRenderManager.removeMotionObject(this));
         (this._scene) && this._scene.sceneRenderableManager.removeRenderObject(this);
         this._baseRenderNode.destroy();
-        var i: number = 0, n: number = 0;
-        for (i = 0, n = this._sharedMaterials.length; i < n; i++) {
+        for (let i = 0, n = this._sharedMaterials.length; i < n; i++) {
             let m = this._sharedMaterials[i];
             m && !m.destroyed && m._removeReference();
         }

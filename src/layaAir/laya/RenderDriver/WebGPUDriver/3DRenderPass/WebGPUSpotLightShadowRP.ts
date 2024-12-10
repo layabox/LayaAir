@@ -121,10 +121,10 @@ export class WebGPUSpotLightShadowRP {
         context.cameraData = <WebGPUShaderData>shadowSpotData.cameraShaderValue;
         context.cameraUpdateMask++;
 
-        Viewport._tempViewport.set(shadowSpotData.offsetX, shadowSpotData.offsetY, shadowSpotData.resolution, shadowSpotData.resolution);
-        Vector4.tempVec4.setValue(shadowSpotData.offsetX, shadowSpotData.offsetY, shadowSpotData.resolution, shadowSpotData.resolution);
-        context.setViewPort(Viewport._tempViewport);
-        context.setScissor(Vector4.tempVec4);
+        Viewport.TEMP.set(shadowSpotData.offsetX, shadowSpotData.offsetY, shadowSpotData.resolution, shadowSpotData.resolution);
+        Vector4.TEMP.setValue(shadowSpotData.offsetX, shadowSpotData.offsetY, shadowSpotData.resolution, shadowSpotData.resolution);
+        context.setViewPort(Viewport.TEMP);
+        context.setScissor(Vector4.TEMP);
 
         if (shadowSpotData.cameraUBO && shadowSpotData.cameraUBData) //这里可能会有问题
             shadowSpotData.cameraUBO.setDataByUniformBufferData(shadowSpotData.cameraUBData);

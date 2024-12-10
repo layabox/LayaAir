@@ -2,7 +2,7 @@ import { Sprite } from "./Sprite";
 import { Node } from "./Node";
 import { Config } from "./../../Config";
 import { Input } from "./Input";
-import { SpriteConst } from "./SpriteConst";
+import { TransformKind } from "./SpriteConst";
 import { NodeFlags } from "../Const"
 import { Event } from "../events/Event"
 import { InputManager } from "../events/InputManager"
@@ -243,7 +243,7 @@ export class Stage extends Sprite {
      * */
     constructor() {
         super();
-        super.set_transform(this._createTransform());
+
         //重置默认值，请不要修改
         this.mouseEnabled = true;
         this.hitTestPrior = true;
@@ -252,6 +252,7 @@ export class Stage extends Sprite {
         this._setBit(NodeFlags.ACTIVE_INHIERARCHY, true);
         this._isFocused = true;
         this._isVisibility = true;
+        this._transform = Matrix.create();
 
         //this.drawCallOptimize=true;
         this.useRetinalCanvas = LayaEnv.isConch ? true : Config.useRetinalCanvas;
@@ -341,61 +342,32 @@ export class Stage extends Sprite {
     }
 
     /**
-     * @internal
-     * @en Set the width of the stage.
-     * @param value The numeric value to set as the width.
-     * @zh 设置舞台的宽度。
-     * @param value  要设置的宽度数值。
+     * @ignore
      */
-    set_width(value: number) {
-        this.designWidth = value;
-        super.set_width(value);
-        this.updateCanvasSize(true);
+    protected _transChanged(kind: TransformKind) {
+        super._transChanged(kind);
+
+        if ((kind & TransformKind.Size) != 0) {
+            this.designWidth = this._width;
+            this.designHeight = this._height;
+            this.updateCanvasSize(true);
+        }
     }
 
     /**
-     * @internal
-     * @en Get the width of the stage.
-     * @zh 获取舞台的宽度。
+     * @ignore
      */
-    get_width(): number {
+    protected measureWidth(): number {
         this.needUpdateCanvasSize();
-        return super.get_width();
+        return this._width;
     }
 
     /**
-     * @internal
-     * @en Set the height of the stage.
-     * @param value The numeric value to set as the height.
-     * @zh 设置舞台的高度。
-     * @param value 要设置的高度数值。
+     * @ignore
      */
-    set_height(value: number) {
-        this.designHeight = value;
-        super.set_height(value);
-        this.updateCanvasSize(true);
-    }
-
-    /**
-     * @internal
-     * @en Get the height of the stage.
-     * @zh 获取舞台的高度。
-     */
-    get_height(): number {
+    protected measureHeight(): number {
         this.needUpdateCanvasSize();
-        return super.get_height();
-    }
-
-    /**
-     * @en The matrix information of the object. By setting the matrix, node rotation, scaling, and displacement effects can be achieved.
-     * @zh 对象的矩阵信息。通过设置矩阵可以实现节点旋转，缩放，位移效果。
-     */
-    get transform(): Matrix {
-        if (this._tfChanged) this._adjustTransform();
-        return (this._transform = this._transform || this._createTransform());
-    }
-    set transform(value: Matrix) {
-        super.set_transform(value);
+        return this._height;
     }
 
     /**
@@ -579,12 +551,12 @@ export class Stage extends Sprite {
         mat.tx = this._formatData(mat.tx);
         mat.ty = this._formatData(mat.ty);
 
-        super.set_transform(this.transform);
+        this.transform = this.transform; //force call
         Stage._setStageStyle(canvas, canvasWidth, canvasHeight, mat);
         //修正用户自行设置的偏移
         if (this._safariOffsetY) mat.translate(0, -this._safariOffsetY);
         this.visible = true;
-        this._repaint |= SpriteConst.REPAINT_CACHE;
+        this.repaint();
 
         this.event(Event.RESIZE);
     }
@@ -885,25 +857,6 @@ export class Stage extends Sprite {
         this._screenMode = value;
     }
 
-    /**
-     * @en Redraw
-     * @param type The type of redraw
-     * @zh 重新绘制
-     * @param type 重新绘制类型
-     */
-    repaint(type: number = SpriteConst.REPAINT_CACHE): void {
-        this._repaint |= type;
-    }
-
-    /**
-     * @en Redraw the parent node
-     * @param type The type of redraw
-     * @zh 重新绘制父节点
-     * @param type 重新绘制类型
-     */
-    parentRepaint(type: number = SpriteConst.REPAINT_CACHE): void {
-    }
-
     /**@internal */
     _loop(): boolean {
         this._globalRepaintGet = this._globalRepaintSet;
@@ -939,12 +892,9 @@ export class Stage extends Sprite {
     }
 
     set visible(value: boolean) {
-        if (this.visible !== value) {
-            super.set_visible(value);
-            Stage._setVisibleStyle(value);
-        }
+        super.visible = value;
+        Stage._setVisibleStyle(value);
     }
-
 
     /**
      * @internal

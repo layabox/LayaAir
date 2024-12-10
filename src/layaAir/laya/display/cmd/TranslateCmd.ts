@@ -1,10 +1,12 @@
+import { Matrix } from "../../maths/Matrix";
 import { Context } from "../../renders/Context"
 import { Pool } from "../../utils/Pool"
+import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
 /**
  * @en Translate command
  * @zh 位移命令
  */
-export class TranslateCmd {
+export class TranslateCmd implements IGraphicsCmd {
     /**
      * @en Identifier for the TranslateCmd
      * @zh 位移命令的标识符
@@ -59,12 +61,22 @@ export class TranslateCmd {
     }
 
     /**
+     * @ignore
+     */
+    getBounds(assembler: IGraphicsBoundsAssembler): void {
+        tempMatrix.identity();
+        tempMatrix.translate(this.tx, this.ty);
+        assembler.concatMatrix(tempMatrix);
+    }
+
+    /**
      * @en The identifier for the TranslateCmd
      * @zh 位移命令的标识符
      */
     get cmdID(): string {
         return TranslateCmd.ID;
     }
-
 }
+
+const tempMatrix = new Matrix();
 

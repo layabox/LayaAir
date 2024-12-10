@@ -7,9 +7,12 @@ import { NavigationManager } from "../NavigationManager";
 
 const TempQuaternion: Quaternion = new Quaternion();
 const tempVector3: Vector3 = new Vector3();
-export class NavAgent extends BaseNavAgent{
+
+export class NavAgent extends BaseNavAgent {
     /**@internal */
     protected _destination: Vector3 = new Vector3();
+
+    declare owner: Sprite3D;
 
     /**
      * @en Offset of the pivot point.
@@ -45,22 +48,22 @@ export class NavAgent extends BaseNavAgent{
     protected _getManager(): NavigationManager {
         return NavigationManager._getNavManager(this);
     }
-    
+
     /**
      * @internal 
      */
-    _getpos(vec:Vector3){
-        let transform = (<Sprite3D>this.owner).transform;
+    _getpos(vec: Vector3) {
+        let transform = this.owner.transform;
         transform.position.cloneTo(vec);
         vec.y -= this._baseOffset;
     }
 
-    
+
     /**
      * @internal 
      */
     _getheight(): number {
-        let scale = (<Sprite3D>this.owner).transform.getWorldLossyScale();
+        let scale = this.owner.transform.getWorldLossyScale();
         return this._height * scale.y;
     }
 
@@ -68,18 +71,18 @@ export class NavAgent extends BaseNavAgent{
      * @internal 
      */
     _getradius(): number {
-        let scale = (<Sprite3D>this.owner).transform.getWorldLossyScale();
+        let scale = this.owner.transform.getWorldLossyScale();
         return this._radius * Math.max(scale.x, scale.y);
     }
 
     /**
      * @override 
      */
-    protected  _updatePosition(pos:Vector3,dir:Vector3){
-        let transform = (<Sprite3D>this.owner).transform;
+    protected _updatePosition(pos: Vector3, dir: Vector3) {
+        let transform = this.owner.transform;
         pos.y += this._baseOffset;
         transform.position = pos;
-        if (MathUtils3D.isZero(dir.length()))   return;
+        if (MathUtils3D.isZero(dir.length())) return;
         let up = tempVector3;
         transform.getUp(up);
         Vector3.normalize(dir, dir);
@@ -87,5 +90,5 @@ export class NavAgent extends BaseNavAgent{
         transform.rotation = TempQuaternion;
     }
 
-    
+
 }

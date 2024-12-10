@@ -24,7 +24,8 @@ export class Vector2 implements IClone {
      * @en Temporary Vector2 for calculations.
      * @zh 用于计算的临时 Vector2。
      */
-    static TempVector2 = new Vector2();
+    static readonly TEMP = new Vector2();
+
     /**
      * @en X-axis coordinate.
      * @zh X 轴坐标。

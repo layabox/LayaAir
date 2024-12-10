@@ -7,12 +7,13 @@ import { Const } from "../../Const";
 import { ClassUtils } from "../../utils/ClassUtils";
 import { Config } from "../../../Config";
 import { Rectangle } from "../../maths/Rectangle";
+import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
 
 /**
  * @en Draw text command
  * @zh 绘制文字命令
  */
-export class FillTextCmd {
+export class FillTextCmd implements IGraphicsCmd {
     /**
      * @en Identifier for the FillTextCmd
      * @zh 绘制文字命令的标识符
@@ -210,12 +211,9 @@ export class FillTextCmd {
     }
 
     /**
-     * @en Gets the bounding points of the text element. Calculates and returns an array of points representing the bounding box of the text.
-     * @returns An array of numbers representing the bounding points.
-     * @zh 获取文本元素的边界点。计算并返回表示文本边界框的点数组。
-     * @returns 表示边界点的数字数组。
+     * @ignore
      */
-    getBoundPoints(): number[] {
+    getBounds(assembler: IGraphicsBoundsAssembler): void {
         if (!this._loosyBound) {
             let ctx = ILaya.Browser.context;
             ctx.save();
@@ -245,7 +243,7 @@ export class FillTextCmd {
             this._loosyBound = new Rectangle(x, y, w + 8, this._fontObj._size * 2);
         }
 
-        return Rectangle._getBoundPointS(this._loosyBound.x, this._loosyBound.y, this._loosyBound.width, this._loosyBound.height, null)
+        Rectangle.TEMP.setTo(this._loosyBound.x, this._loosyBound.y, this._loosyBound.width, this._loosyBound.height).getBoundPoints(assembler.points);
     }
 
 }

@@ -153,7 +153,7 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
     destroy(): void {
         this._dynamicMap.forEach(mesh=>mesh.destroy());
         this._dynamicMap.clear();
-        //throw new Error("Method not implemented.");
+        //throw new NotImplementedError();
     }
 
     /**
@@ -216,7 +216,7 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
         if (renderNode._renderAlpha !== undefined) {
             color.a *= renderNode._renderAlpha;
         }else
-            color.a *= (renderNode.owner as Sprite).alpha;
+            color.a *= renderNode.owner.alpha;
         renderNode._spriteShaderData.setColor(SpineShaderInit.Color, color);
         this.spineColor = new Color(scolor.r * scolor.a, scolor.g * scolor.a, scolor.b * scolor.a, scolor.a);
         renderNode._spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, this.spineColor);

@@ -1,12 +1,13 @@
-import { Context, IGraphicCMD } from "../../renders/Context"
+import { Context } from "../../renders/Context"
 import { ClassUtils } from "../../utils/ClassUtils";
 import { Pool } from "../../utils/Pool"
+import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
 
 /**
  * @en Draw continuous curves command
  * @zh 绘制连续曲线命令
  */
-export class DrawLinesCmd implements IGraphicCMD {
+export class DrawLinesCmd implements IGraphicsCmd {
     /**
      * @en Identifier for the DrawLinesCmd
      * @zh 绘制连续曲线命令的标识符
@@ -92,13 +93,21 @@ export class DrawLinesCmd implements IGraphicCMD {
     }
 
     /**
+     * @ignore
+     */
+    getBounds(assembler: IGraphicsBoundsAssembler): void {
+        assembler.points.push(...this.points);
+        assembler.flushPoints(this.x, this.y);
+    }
+
+    /**
      * @en The identifier for the DrawLinesCmd
      * @zh 绘制连续曲线命令的标识符
      */
     get cmdID(): string {
         return DrawLinesCmd.ID;
     }
-
 }
+
 
 ClassUtils.regClass("DrawLinesCmd", DrawLinesCmd);

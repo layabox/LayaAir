@@ -1,14 +1,16 @@
-import { Context, IGraphicCMD } from "../../renders/Context"
+import { Rectangle } from "../../maths/Rectangle";
+import { Context } from "../../renders/Context"
 import { Texture } from "../../resource/Texture"
 import { ClassUtils } from "../../utils/ClassUtils";
 import { ColorUtils } from "../../utils/ColorUtils";
 import { Pool } from "../../utils/Pool"
+import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
 
 /**
  * @en Draw a texture with nine-grid information
  * @zh 绘制带九宫格信息的图片
  */
-export class Draw9GridTextureCmd implements IGraphicCMD {
+export class Draw9GridTextureCmd implements IGraphicsCmd {
     /**
      * @en Identifier for the Draw9GridTextureCmd
      * @zh 绘制带九宫格信息的图片命令的标识符
@@ -41,7 +43,7 @@ export class Draw9GridTextureCmd implements IGraphicCMD {
      */
     height: number;
 
-   /**
+    /**
      * @en The size grid of the texture.
      * The size grid is a 3x3 division of the texture, allowing it to be scaled without distorting the corners and edges. 
      * The array contains five values representing the top, right, bottom, and left margins, and whether to repeat the fill (0: no repeat, 1: repeat). 
@@ -145,26 +147,15 @@ export class Draw9GridTextureCmd implements IGraphicCMD {
     }
 
     /**
-     * @en Get the bounding points of the 9-grid texture
-     * @param sp The sprite that draws the cmd, containing width and height information
-     * @returns An array of bounding points [x1, y1, x2, y2, x3, y3, x4, y4]
-     * @zh 获取九宫格纹理的边界顶点数据
-     * @param sp 绘制cmd的精灵，包含宽度和高度信息
-     * @returns 包围盒顶点数据数组 [x1, y1, x2, y2, x3, y3, x4, y4]
+     * @ignore
      */
-    getBoundPoints(sp?: { width: number, height?: number }): number[] {
-        let minx = this.x;
-        let miny = this.y;
-        let maxx = this.width;
-        let maxy = this.height;
+    getBounds(assembler: IGraphicsBoundsAssembler): void {
+        let rect = Rectangle.TEMP.setTo(this.x, this.y, this.width, this.height);
         if (this.percent) {
-            minx *= sp.width;
-            miny *= sp.height;
-            maxx *= sp.width;
-            maxy *= sp.height;
+            rect.scale(assembler.width, assembler.height);
+            assembler.affectBySize = true;
         }
-
-        return [minx, miny, maxx, miny, maxx, maxy, minx, maxy];
+        rect.getBoundPoints(assembler.points);
     }
 }
 

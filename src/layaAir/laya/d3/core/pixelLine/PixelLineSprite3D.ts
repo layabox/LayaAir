@@ -28,11 +28,11 @@ export class PixelLineSprite3D extends RenderableSprite3D {
      * @zh 最大线数量。
      */
     get maxLineCount(): number {
-        return (this._render as PixelLineRenderer).maxLineCount;
+        return this._render.maxLineCount;
     }
 
     set maxLineCount(value: number) {
-        (this._render as PixelLineRenderer).maxLineCount = value;
+        this._render.maxLineCount = value;
     }
 
     /**
@@ -40,7 +40,7 @@ export class PixelLineSprite3D extends RenderableSprite3D {
      * @zh 当前线数量。
      */
     get lineCount(): number {
-        return (this._render as PixelLineRenderer).lineCount;
+        return this._render.lineCount;
     }
 
     /**
@@ -48,7 +48,7 @@ export class PixelLineSprite3D extends RenderableSprite3D {
      * @zh 像素线渲染器。
      */
     get pixelLineRenderer(): PixelLineRenderer {
-        return (<PixelLineRenderer>this._render);
+        return this._render;
     }
 
     /**
@@ -64,8 +64,8 @@ export class PixelLineSprite3D extends RenderableSprite3D {
         super(name);
 
         this._render = this.addComponent(PixelLineRenderer);
-        this._geometryFilter = (this._render as PixelLineRenderer)._pixelLineFilter;
-        (this._render as PixelLineRenderer).maxLineCount = maxCount;
+        this._geometryFilter = this._render._pixelLineFilter;
+        this._render.maxLineCount = maxCount;
         let material = this._render.material = new UnlitMaterial();
         material.enableVertexColor = true;
     }
@@ -121,7 +121,7 @@ export class PixelLineSprite3D extends RenderableSprite3D {
      * @param endColor  新的线段终点颜色。
      */
     setLine(index: number, startPosition: Vector3, endPosition: Vector3, startColor: Color, endColor: Color): void {
-        (this._render as PixelLineRenderer).setLine(index, startPosition, endPosition, startColor, endColor);
+        this._render.setLine(index, startPosition, endPosition, startColor, endColor);
     }
 
     /**
@@ -133,7 +133,7 @@ export class PixelLineSprite3D extends RenderableSprite3D {
      * @param out  输出对象，用于存储线段数据。
      */
     getLine(index: number, out: PixelLineData): void {
-        (this._render as PixelLineRenderer).getLine(index, out);
+        this._render.getLine(index, out);
     }
 
     /**
@@ -141,7 +141,7 @@ export class PixelLineSprite3D extends RenderableSprite3D {
      * @zh 清除所有线段。
      */
     clear(): void {
-        (this._render as PixelLineRenderer).clear();
+        this._render.clear();
     }
 }
 

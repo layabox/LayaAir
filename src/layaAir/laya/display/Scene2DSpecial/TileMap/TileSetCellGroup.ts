@@ -180,7 +180,7 @@ export class TileSetCellGroup {
         if (data) {
             return data;
         }
-        let tempv2 = Vector2.TempVector2;
+        let tempv2 = Vector2.TEMP;
         this._getTileUVExtends(sizeInAtlas, tempv2);
         if ((tempv2.x + x > this._atlasSize.x) || (tempv2.y + y > this._atlasSize.y))
             return null;
@@ -226,7 +226,7 @@ export class TileSetCellGroup {
     }
 
     getCellDataByIndex(nativeIndex:number , cellIndex:number){
-        const temp = Vector2.TempVector2;
+        const temp = Vector2.TEMP;
         this._getCellPosByAlternativesId(nativeIndex, temp);
         let data = this.getAlternative(temp.x, temp.y);
         if (data == null) { return null; }

@@ -168,7 +168,7 @@ export class PixelLineRenderer extends BaseRender {
         (material) || (material = PixelLineMaterial.defaultMaterial);
         var renderElement: RenderElement = renderObjects[index];
         (renderElement) || (renderElement = renderObjects[index] = new RenderElement());
-        renderElement.setTransform((this.owner as Sprite3D)._transform);
+        renderElement.setTransform(this.owner._transform);
         renderElement.setGeometry(this._pixelLineFilter);
         renderElement.render = this;
         renderElement.material = material;

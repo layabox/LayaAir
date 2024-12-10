@@ -488,12 +488,6 @@ export class BaseCamera extends Sprite3D {
         this._calculateProjectionMatrix();
     }
 
-    /**
-     * @internal
-     */
-    protected _create(): Node {
-        return new BaseCamera();
-    }
 
     /**
      * @internal

@@ -500,7 +500,7 @@ export class ShadowUtils {
     // * @internal
     // */
     // static getSpotLightShadowData(shadowSpotData: ShadowSpotData, spotLight: SpotLightCom, resolution: number, shadowParams: Vector4, shadowSpotMatrices: Matrix4x4, shadowMapSize: Vector4) {
-    //     var out: Vector3 = shadowSpotData.position = (spotLight.owner as Sprite3D).transform.position;
+    //     var out: Vector3 = shadowSpotData.position = spotLight.owner.transform.position;
     //     shadowSpotData.resolution = resolution;
     //     shadowMapSize.setValue(1.0 / resolution, 1.0 / resolution, resolution, resolution);
     //     shadowSpotData.offsetX = 0;

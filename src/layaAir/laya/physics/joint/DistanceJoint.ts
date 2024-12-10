@@ -148,8 +148,7 @@ export class DistanceJoint extends JointBase {
      */
     protected _createJoint(): void {
         if (!this._joint) {
-            let node = <Sprite>this.owner;
-            this.selfBody = this.selfBody || node.getComponent(RigidBody);
+            this.selfBody = this.selfBody || this.owner.getComponent(RigidBody);
             if (!this.selfBody) throw "selfBody can not be empty";
             let point = this.getBodyAnchor(this.selfBody, this.selfAnchor[0], this.selfAnchor[1]);
             var def = DistanceJoint._temp || (DistanceJoint._temp = new physics2D_DistancJointDef());

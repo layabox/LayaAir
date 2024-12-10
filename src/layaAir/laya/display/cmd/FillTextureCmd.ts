@@ -5,12 +5,13 @@ import { Texture } from "../../resource/Texture"
 import { ClassUtils } from "../../utils/ClassUtils";
 import { ColorUtils } from "../../utils/ColorUtils";
 import { Pool } from "../../utils/Pool";
+import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
 
 /**
  * @en Fill texture command
  * @zh 填充贴图命令
  */
-export class FillTextureCmd {
+export class FillTextureCmd implements IGraphicsCmd {
     /**
      * @en Identifier for the FillTextureCmd
      * @zh 填充贴图命令的标识符
@@ -135,26 +136,27 @@ export class FillTextureCmd {
     }
 
     /**
+     * @ignore
+     */
+    getBounds(assembler: IGraphicsBoundsAssembler): void {
+        let rect: Rectangle;
+        if (this.width && this.height)
+            rect = Rectangle.TEMP.setTo(this.x, this.y, this.width, this.height);
+        else
+            rect = Rectangle.TEMP.setTo(this.x, this.y, this.texture.width, this.texture.height);
+        if (this.percent) {
+            rect.scale(assembler.width, assembler.height);
+            assembler.affectBySize = true;
+        }
+        rect.getBoundPoints(assembler.points);
+    }
+
+    /**
      * @en The identifier for the FillTextureCmd
      * @zh 填充贴图命令的标识符
      */
     get cmdID(): string {
         return FillTextureCmd.ID;
-    }
-
-    /**
-     * @en Get the vertex data of the bounding box
-     * @param sp The sprite that draws the command
-     * @returns Array of vertex data
-     * @zh 获取包围盒的顶点数据
-     * @param sp 绘制命令的精灵对象
-     * @returns 顶点数据数组
-     */
-    getBoundPoints(sp?: { width: number, height?: number }): number[] {
-        if (this.width && this.height)
-            return Rectangle._getBoundPointS(this.x, this.y, this.width, this.height, this.percent ? sp : null);
-        else
-            return Rectangle._getBoundPointS(this.x, this.y, this.texture.width, this.texture.height);
     }
 }
 

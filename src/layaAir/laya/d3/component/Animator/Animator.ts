@@ -280,7 +280,7 @@ export class Animator extends Component {
                 if (ownPat === "") {//TODO:直接不存
                     break;
                 } else {
-                    property = property.getChildByName(ownPat);
+                    property = property.getChild(ownPat);
                     if (!property)
                         break;
                 }

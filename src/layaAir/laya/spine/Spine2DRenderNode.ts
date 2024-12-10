@@ -167,8 +167,8 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
         this._spriteShaderData.setVector3(BaseRenderNode2D.NMATRIX_0, this._nMatrix_0);
         this._spriteShaderData.setVector3(BaseRenderNode2D.NMATRIX_1, this._nMatrix_1);
 
-        Vector2.TempVector2.setValue(context.width, context.height);
-        this._spriteShaderData.setVector2(BaseRenderNode2D.BASERENDERSIZE, Vector2.TempVector2);
+        Vector2.TEMP.setValue(context.width, context.height);
+        this._spriteShaderData.setVector2(BaseRenderNode2D.BASERENDERSIZE, Vector2.TEMP);
         context._copyClipInfoToShaderData(this._spriteShaderData);
     }
 
@@ -510,7 +510,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
         // 计算骨骼的世界SRT(world SRT)
         this._skeleton.updateWorldTransform();
         this.spineItem.render(this._currentPlayTime);
-        (this.owner as Sprite).repaint();
+        this.owner.repaint();
     }
 
     private _flushExtSkin() {

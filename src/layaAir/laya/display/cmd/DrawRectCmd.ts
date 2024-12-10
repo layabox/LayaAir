@@ -2,12 +2,13 @@ import { Rectangle } from "../../maths/Rectangle";
 import { Context } from "../../renders/Context"
 import { ClassUtils } from "../../utils/ClassUtils";
 import { Pool } from "../../utils/Pool"
+import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
 
 /**
  * @en Draw a rectangle
  * @zh 绘制矩形
  */
-export class DrawRectCmd {
+export class DrawRectCmd implements IGraphicsCmd {
     /**
      * @en Identifier for the DrawRectCmd
      * @zh 绘制矩形命令的标识符
@@ -132,15 +133,15 @@ export class DrawRectCmd {
     }
 
     /**
-     * @en Get the vertex data of the bounding box
-     * @param sp The sprite that draws the command
-     * @returns Array of vertex data
-     * @zh 获取包围盒的顶点数据
-     * @param sp 绘制命令的精灵对象
-     * @returns 顶点数据数组
+     * @ignore
      */
-    getBoundPoints(sp?: { width: number, height?: number }): number[] {
-        return Rectangle._getBoundPointS(this.x, this.y, this.width, this.height, this.percent ? sp : null)
+    getBounds(assembler: IGraphicsBoundsAssembler): void {
+        let rect = Rectangle.TEMP.setTo(this.x, this.y, this.width, this.height);
+        if (this.percent) {
+            rect.scale(assembler.width, assembler.height);
+            assembler.affectBySize = true;
+        }
+        rect.getBoundPoints(assembler.points);
     }
 }
 

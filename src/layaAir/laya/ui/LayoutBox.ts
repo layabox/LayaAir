@@ -67,48 +67,19 @@ export class LayoutBox extends Box {
         this._setItemChanged();
     }
 
-    /** 
-     * @en Adds a child object.
-     * @param child The child object to add.
-     * @returns The added child object.
-     * @zh 添加子节点对象。
-     * @param child 要添加的子节点对象。
-     * @returns 添加的子节点对象。
-    */
-    addChild<T extends Node>(child: T): T {
-        child.on(Event.RESIZE, this, this.onResize);
-        this._setItemChanged();
-        return super.addChild(child);
-    }
-
-    /** 
-     * @en Adds a child object at a specified index position.
-     * @param child The child object to add.
-     * @param index The index position to add the child object.
-     * @returns The added child object.
-     * @zh 在指定的索引位置添加子节点对象。
-     * @param child 要添加的子节点对象。
-     * @param index 用于添加子节点对象的索引位置。
-     * @returns 添加的子节点对象。
-    */
-    addChildAt(child: Node, index: number): Node {
-        child.on(Event.RESIZE, this, this.onResize);
-        this._setItemChanged();
-        return super.addChildAt(child, index);
-    }
-
     /**
-     * @en Removes a child object at a specified index position.
-     * @param index The index position of the child object.
-     * @returns The removed child object.
-     * @zh 删除指定索引位置的子节点对象。
-     * @param index 子节点对象的索引位置。
-     * @returns 删除的子节点对象。
-    */
-    removeChildAt(index: number): Node {
-        this.getChildAt(index).off(Event.RESIZE, this, this.onResize);
-        this._setItemChanged();
-        return super.removeChildAt(index);
+     * @ignore
+     */
+    protected _childChanged(child?: Node): void {
+        super._childChanged(child);
+
+        if (child) {
+            if (child.parent == this)
+                child.on(Event.RESIZE, this, this.onResize);
+            else
+                child.off(Event.RESIZE, this, this.onResize);
+            this._setItemChanged();
+        }
     }
 
     /**

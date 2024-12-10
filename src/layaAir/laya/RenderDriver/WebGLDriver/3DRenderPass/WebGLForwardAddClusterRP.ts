@@ -182,10 +182,10 @@ export class WebGLForwardAddClusterRP {
         var shadervalue = context.sceneData;
         shadervalue.addDefine(DepthPass.DEPTHPASS);
         shadervalue.setVector(DepthPass.DEFINE_SHADOW_BIAS, Vector4.ZERO);
-        Viewport._tempViewport.set(viewport.x, viewport.y, viewport.width, viewport.height);
-        Vector4.tempVec4.setValue(viewport.x, viewport.y, viewport.width, viewport.height);
-        context.setViewPort(Viewport._tempViewport);
-        context.setScissor(Vector4.tempVec4);
+        Viewport.TEMP.set(viewport.x, viewport.y, viewport.width, viewport.height);
+        Vector4.TEMP.setValue(viewport.x, viewport.y, viewport.width, viewport.height);
+        context.setViewPort(Viewport.TEMP);
+        context.setScissor(Vector4.TEMP);
         context.setRenderTarget(this.depthTarget, RenderClearFlag.Depth);
         context.setClearData(RenderClearFlag.Depth, Color.BLACK, 1, 0);
 
@@ -231,10 +231,10 @@ export class WebGLForwardAddClusterRP {
         context.pipelineMode = this.depthNormalPipelineMode;
         //传入shader该传的值
         var viewport = this._viewPort;
-        Viewport._tempViewport.set(viewport.x, viewport.y, viewport.width, viewport.height);
-        Vector4.tempVec4.setValue(viewport.x, viewport.y, viewport.width, viewport.height);
-        context.setViewPort(Viewport._tempViewport);
-        context.setScissor(Vector4.tempVec4);
+        Viewport.TEMP.set(viewport.x, viewport.y, viewport.width, viewport.height);
+        Vector4.TEMP.setValue(viewport.x, viewport.y, viewport.width, viewport.height);
+        context.setViewPort(Viewport.TEMP);
+        context.setScissor(Vector4.TEMP);
         context.setClearData(RenderClearFlag.Color | RenderClearFlag.Depth, this._defaultNormalDepthColor, 1, 0);
         context.setRenderTarget(this.depthNormalTarget, RenderClearFlag.Color | RenderClearFlag.Depth);
         this.opaqueList.renderQueue(context);

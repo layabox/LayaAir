@@ -10,13 +10,13 @@ export class Point {
      * @en Temporary public object for reuse.
      * @zh 临时使用的公用对象。
      */
-    static TEMP: Point = new Point();
+    static readonly TEMP: Point = new Point();
     /**
      * @private
      * @en Global empty point object (x=0, y=0), the content of this object is not allowed to be modified.
      * @zh 全局空的point对象(x=0，y=0)，不允许修改此对象内容。
      */
-    static EMPTY: Point = new Point();
+    static readonly EMPTY: Readonly<Point> = new Point();
 
     /**
      * @en The horizontal coordinate of this point.

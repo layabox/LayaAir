@@ -305,12 +305,12 @@ export class Event {
      * @en Triggered when a 3D layer changes.
      * @zh 3D layer改变时触发。
      */
-    static LAYERCHANGE = "layerChange";
+    static LAYER_CHANGE = "layerChange";
     /**
     * @en Triggered when 3D Static changes.
     * @zh 3D Static改变时触发。
     */
-    static staticMask = "staticMask";
+    static STATIC_MASK = "staticMask";
 
     /**
      * @en For 2D physics collision or 3D physics trigger start.
@@ -349,8 +349,12 @@ export class Event {
      */
     static JOINT_BREAK = "jointbreak";
 
-    /** @internal */
-    static _Add_Script = "addscript";
+    /**
+     * @zh 激活物理3D事件过滤器。
+     * @en Activate the physics 3D event filter.
+     */
+    static UPDATE_PHY_EVENT_FILTER = "physics3dEventFilter";
+
     /**
      * @en Checks whether the specified event type is a mouse event.
      * @param type The type of the event.

@@ -6,32 +6,24 @@ import { SubShader, UniformMapType } from "../../RenderEngine/RenderShader/SubSh
 import { LayaGL } from "../../layagl/LayaGL";
 import { IShaderCompiledObj } from "./ShaderCompile";
 import { ShaderNode } from "./ShaderNode";
-export class ShaderProcessInfo {
+
+export interface ShaderProcessInfo {
     defineString: string[];
     vs: ShaderNode;
     ps: ShaderNode;
-    attributeMap: { [name: string]: [number, ShaderDataType] };
+    attributeMap: Record<string, [number, ShaderDataType]>;
     uniformMap: UniformMapType;
     is2D: boolean;
     //....其他数据
-};
+}
+
 export class ShaderCompileDefineBase {
-    /** @internal */
-    static _defineStrings: Array<string> = [];
-    /** @internal */
-    public _VS: ShaderNode;
-    /** @internal */
-    public _PS: ShaderNode;
-    /** @internal */
+    _VS: ShaderNode;
+    _PS: ShaderNode;
     _defs: Set<string>;
-    /** @internal */
     _validDefine: IDefineDatas;
-
-    /** @internal */
     _owner: SubShader;
-    /** @internal */
     name: string;
-
 
     constructor(owner: any, name: string, compiledObj: IShaderCompiledObj) {
         this._owner = owner;
@@ -40,14 +32,11 @@ export class ShaderCompileDefineBase {
         this._PS = compiledObj.psNode;
         this._defs = compiledObj.defs;
         this._validDefine = LayaGL.unitRenderModuleDataFactory.createDefineDatas();
+
         for (let k of compiledObj.defs)
             this._validDefine.add(Shader3D.getDefineByName(k));
     }
 
-   
-    /**
-     * @internal
-     */
     withCompile(compileDefine: IDefineDatas): IShaderInstance {
         return null;
     }

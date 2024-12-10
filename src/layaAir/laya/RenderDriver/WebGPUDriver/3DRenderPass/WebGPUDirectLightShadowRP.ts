@@ -84,7 +84,7 @@ export class WebGPUDirectLightShadowRP {
 
     set light(value: WebDirectLight) {
         this._light = value;
-        const lightWorld = Matrix4x4.TEMPMatrix0;
+        const lightWorld = Matrix4x4.TEMP;
         const lightWorldE = lightWorld.elements;
         const lightUp = this._lightUp;
         const lightSide = this._lightSide;
@@ -141,7 +141,7 @@ export class WebGPUDirectLightShadowRP {
         ShadowUtils.getCascadesSplitDistance(light.shadowTwoCascadeSplits, light._shadowFourCascadeSplits,
             cameraNear, shadowFar, camera.fieldOfView * MathUtils3D.Deg2Rad, camera.aspectRatio, this.shadowCastMode, splitDistance);
         ShadowUtils.getCameraFrustumPlanes(camera._projectViewMatrix, frustumPlanes);
-        const forward = Vector3._tempVector3;
+        const forward = Vector3.TEMP;
         camera.transform.getForward(forward);
         Vector3.normalize(forward, forward);
         let sliceData: ShadowSliceData;
@@ -173,10 +173,10 @@ export class WebGPUDirectLightShadowRP {
         context.saveViewPortAndScissor();
 
         //清除阴影深度信息
-        Viewport._tempViewport.set(0, 0, this._shadowMapWidth, this._shadowMapHeight);
-        Vector4.tempVec4.setValue(0, 0, this._shadowMapWidth, this._shadowMapHeight);
-        context.setViewPort(Viewport._tempViewport);
-        context.setScissor(Vector4.tempVec4);
+        Viewport.TEMP.set(0, 0, this._shadowMapWidth, this._shadowMapHeight);
+        Vector4.TEMP.setValue(0, 0, this._shadowMapWidth, this._shadowMapHeight);
+        context.setViewPort(Viewport.TEMP);
+        context.setScissor(Vector4.TEMP);
         context.setClearData(RenderClearFlag.Depth, Color.BLACK, 1, 0);
         context.clearRenderTarget();
 
@@ -202,15 +202,15 @@ export class WebGPUDirectLightShadowRP {
             const offsetY = sliceData.offsetY;
 
             if (this._renderQueue.elements.length > 0) {
-                Viewport._tempViewport.set(offsetX, offsetY, resolution, resolution);
-                Vector4.tempVec4.setValue(offsetX + 1, offsetY + 1, resolution - 2, resolution - 2);
-                context.setViewPort(Viewport._tempViewport);
-                context.setScissor(Vector4.tempVec4);
+                Viewport.TEMP.set(offsetX, offsetY, resolution, resolution);
+                Vector4.TEMP.setValue(offsetX + 1, offsetY + 1, resolution - 2, resolution - 2);
+                context.setViewPort(Viewport.TEMP);
+                context.setScissor(Vector4.TEMP);
             } else {
-                Viewport._tempViewport.set(offsetX, offsetY, resolution, resolution);
-                Vector4.tempVec4.setValue(offsetX, offsetY, resolution, resolution);
-                context.setViewPort(Viewport._tempViewport);
-                context.setScissor(Vector4.tempVec4);
+                Viewport.TEMP.set(offsetX, offsetY, resolution, resolution);
+                Vector4.TEMP.setValue(offsetX, offsetY, resolution, resolution);
+                context.setViewPort(Viewport.TEMP);
+                context.setScissor(Vector4.TEMP);
             }
 
             this._renderQueue.renderQueue(context);

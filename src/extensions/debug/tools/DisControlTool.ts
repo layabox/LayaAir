@@ -257,7 +257,7 @@ import { SimpleResizer } from "./resizer/SimpleResizer"
 		static setResizeAbleEx(node:Sprite):void
 		{
 			var clickItem:Sprite;
-			clickItem = (<Sprite>node.getChildByName("resizeBtn") );
+			clickItem = (<Sprite>node.getChild("resizeBtn") );
 			if (clickItem)
 			{
 				SimpleResizer.setResizeAble(clickItem, node);

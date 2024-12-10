@@ -49,6 +49,8 @@ export class WebGLEngine extends EventDispatcher implements IRenderEngine {
     //兼容ConchWebGL
     static _lastFrameBuffer_WebGLOBJ: WebGLFramebuffer = null;
 
+    static _lastShaderError: string;
+
     _context: WebGLRenderingContext | WebGL2RenderingContext;
 
     private _lost: boolean = false;

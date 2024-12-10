@@ -14,6 +14,7 @@ import { Render2DSimple } from "../renders/Render2D";
 import { Laya, stage } from "../../Laya";
 import { BaseRenderNode2D } from "../NodeRender2D/BaseRenderNode2D";
 import { HierarchyLoader } from "../loaders/HierarchyLoader";
+import { TransformKind } from "./SpriteConst";
 
 export interface ILight2DManager {
     preRenderUpdate(context: Context): void;
@@ -295,39 +296,7 @@ export class Scene extends Sprite {
         Scene.unDestroyedScenes.delete(this);
     }
 
-    /**
-     * @internal
-     * @en Get the width of the scene.
-     * @zh 获取场景的宽度。
-     */
-    get_width(): number {
-        if (this._isWidthSet) return this._width;
-        var max: number = 0;
-        for (var i: number = this.numChildren - 1; i > -1; i--) {
-            var comp: Sprite = (<Sprite>this.getChildAt(i));
-            if (comp._visible) {
-                max = Math.max(comp._x + comp.width * comp.scaleX, max);
-            }
-        }
-        return max;
-    }
 
-    /**
-     * @internal
-     * @en Get the height of the scene.
-     * @zh 获取场景的高度。
-     */
-    get_height(): number {
-        if (this._isHeightSet) return this._height;
-        var max: number = 0;
-        for (var i: number = this.numChildren - 1; i > -1; i--) {
-            var comp: Sprite = (<Sprite>this.getChildAt(i));
-            if (comp._visible) {
-                max = Math.max(comp._y + comp.height * comp.scaleY, max);
-            }
-        }
-        return max;
-    }
 
     /**
      * @en Scene clock
@@ -453,7 +422,7 @@ export class Scene extends Sprite {
     get sceneShaderData() {
         return this._specialManager._shaderData;
     }
- 
+
     /**
      * @internal
      * @param ctx 
@@ -467,7 +436,7 @@ export class Scene extends Sprite {
         if (this._light2DManager)
             this._light2DManager.preRenderUpdate(ctx);
     }
- 
+
     /**
      * @internal
      * @param ctx 
@@ -481,16 +450,14 @@ export class Scene extends Sprite {
         Render2DSimple.rendercontext2D.sceneData = null;
     }
 
-
-
-
     /**
-     * @internal
-     * @protected
+     * @ignore
      */
-    protected _shouldRefreshLayout(): void {
-        super._shouldRefreshLayout();
-        this.callLater(this._sizeChanged);
+    protected _transChanged(kind: TransformKind): void {
+        super._transChanged(kind);
+
+        if ((kind & TransformKind.Layout) != 0)
+            this.callLater(this._sizeChanged);
     }
 
     protected _sizeChanged(): void {

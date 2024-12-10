@@ -25,8 +25,6 @@ import { RenderElement } from "./render/RenderElement";
  */
 export class SkinnedMeshRenderer extends MeshRenderer {
 
-    declare owner: Sprite3D;
-
     /**@internal */
     protected _cacheMesh: Mesh;
 
@@ -47,8 +45,6 @@ export class SkinnedMeshRenderer extends MeshRenderer {
     _renderElements: RenderElement[];
     /** @internal */
     _skinnedData: any[];
-    /** @internal */
-    private _skinnedDataLoopMarks: Uint32Array;
     /**@internal */
     protected _localBounds: Bounds;
     /**@internal */
@@ -88,14 +84,14 @@ export class SkinnedMeshRenderer extends MeshRenderer {
             if (this._cacheRootBone)
                 this._cacheRootBone.transform.off(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange);
             else
-                (this.owner as Sprite3D).transform.off(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange);
+                this.owner.transform.off(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange);
 
             if (value) {
                 value.transform.on(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange);
                 this._baseRenderNode.transform = value.transform;
             }
             else {
-                (this.owner as Sprite3D).transform.on(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange);
+                this.owner.transform.on(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange);
                 this._baseRenderNode.transform = this.owner.transform;
             }
 
@@ -192,7 +188,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
                     if (this._cacheRootBone) {
                         renderElement.setTransform(this._cacheRootBone.transform);
                     } else {
-                        renderElement.setTransform((this.owner as Sprite3D)._transform);
+                        renderElement.setTransform(this.owner._transform);
                     }
                     renderElement.render = this;
                 }
@@ -311,7 +307,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
         //rootBone Clone
         var rootBone: Sprite3D = this.rootBone;
         if (rootBone) {
-            let node = cloneHierachFun(this.owner as Sprite3D, this.rootBone as Sprite3D, dest.owner as Sprite3D);
+            let node = cloneHierachFun(this.owner, this.rootBone, dest.owner);
             if (node)
                 dest.rootBone = node;
             else
@@ -323,7 +319,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
         let n = destBone.length = bones.length;
         for (var i = 0; i < n; i++) {
             let ceckNode = bones[i];
-            destBone[i] = cloneHierachFun(this.owner as Sprite3D, ceckNode, dest.owner as Sprite3D);
+            destBone[i] = cloneHierachFun(this.owner, ceckNode, dest.owner);
         }
         dest.bones = dest.bones;
         //bounds
@@ -341,7 +337,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
         if (this._cacheRootBone)
             (!this._cacheRootBone._destroyed) && (this._cacheRootBone.transform.off(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange));
         else
-            (this.owner && !this.owner._destroyed) && ((this.owner as Sprite3D).transform.off(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange));
+            (this.owner && !this.owner._destroyed) && (this.owner.transform.off(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange));
         super._onDestroy();
     }
 }

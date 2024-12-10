@@ -1,12 +1,13 @@
-import { Context, IGraphicCMD } from "../../renders/Context"
+import { Context } from "../../renders/Context"
 import { ClassUtils } from "../../utils/ClassUtils";
 import { Pool } from "../../utils/Pool"
+import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
 
 /**
  * @en Draw bend line command
  * @zh 绘制单条曲线命令
  */
-export class DrawLineCmd implements IGraphicCMD {
+export class DrawLineCmd implements IGraphicsCmd {
     /**
      * @en Identifier for the DrawLineCmd
      * @zh 绘制单条曲线命令的标识符
@@ -119,37 +120,30 @@ export class DrawLineCmd implements IGraphicCMD {
     }
 
     /**
-     * @en Get the bounding points of the line
-     * @param sp The sprite that draws the cmd
-     * @returns An array of bounding points
-     * @zh 获取直线的包围盒顶点数据
-     * @param sp 绘制cmd的精灵
-     * @returns 包围盒顶点数据数组
+     * @ignore
      */
-    getBoundPoints(sp?: { width: number, height?: number }): number[] {
-        _tempPoints.length = 0;
+    getBounds(assembler: IGraphicsBoundsAssembler): void {
         let lineWidth: number;
         lineWidth = this.lineWidth * 0.5;
 
         let fromX = this.fromX, fromY = this.fromY, toX = this.toX, toY = this.toY;
         if (this.percent) {
-            fromX *= sp.width;
-            fromY *= sp.height;
-            toX *= sp.width;
-            toY *= sp.height;
+            fromX *= assembler.width;
+            fromY *= assembler.height;
+            toX *= assembler.width;
+            toY *= assembler.height;
+
+            assembler.affectBySize = true;
         }
 
         if (fromX == toX) {
-            _tempPoints.push(fromX + lineWidth, fromY, toX + lineWidth, toY, fromX - lineWidth, fromY, toX - lineWidth, toY);
+            assembler.points.push(fromX + lineWidth, fromY, toX + lineWidth, toY, fromX - lineWidth, fromY, toX - lineWidth, toY);
         } else if (fromY == toY) {
-            _tempPoints.push(fromX, fromY + lineWidth, toX, toY + lineWidth, fromX, fromY - lineWidth, toX, toY - lineWidth);
+            assembler.points.push(fromX, fromY + lineWidth, toX, toY + lineWidth, fromX, fromY - lineWidth, toX, toY - lineWidth);
         } else {
-            _tempPoints.push(fromX, fromY, toX, toY);
+            assembler.points.push(fromX, fromY, toX, toY);
         }
-
-        return _tempPoints;
     }
 }
-const _tempPoints: any[] = [];
 
 ClassUtils.regClass("DrawLineCmd", DrawLineCmd);
