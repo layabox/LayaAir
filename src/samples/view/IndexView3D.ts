@@ -133,438 +133,438 @@ import { Config } from "Config";
 
 export class IndexView3D extends IndexViewUI {
 
-	private _bigIndex: number = -1;
-	private _smallIndex: number;
-	private _oldView: any;
+    private _bigIndex: number = -1;
+    private _smallIndex: number;
+    private _oldView: any;
 
-	private oldPath: string = URL.basePath;
+    private oldPath: string = URL.basePath;
 
-	private btn: Button;
-	private btnOn: boolean = false;
-	private a_length: number;
-	private b_length: number;
-	private m_length: number;
-	// performance合集先去掉
-	// CannonPhysics3D先去掉
-	private _comboxBigArr2: any[] = ['Resource', 'Scene3D', 'Camera', 'Lighting', 'Sprite3D', 'Mesh', 'Material', 'Texture', 'Animation3D', 'Physics3D', 'MouseLnteraction', 'Script', 'Sky', 'Particle3D', 'Trail', 'Shader', 'Advance', 'Demo', 'PostProcess', 'WebXR'];
-	//var s:Secne3DPlayer2D    
-	//AStarFindPath 删除
-	// Scene2DPlayer3D暂时去掉
-	private _advanceClsArr: any[] = [DrawTextTexture, Laya3DCombineHtml, NavMeshDemo, Secne3DPlayer2D, VideoPlayIn3DWorld, CommandBuffer_Outline, CommandBuffer_BlurryGlass, CommandBuffer_DrawCustomInstance, CameraDepthModeTextureDemo, ReflectionProbeDemo, SeparableSSS_RenderDemo, UI3DDemo, LodDemo];
-	private _advanceArr: any[] = ['DrawTextTexture', 'Laya3DCombineHtml', 'NavMeshDemo', 'Secne3DPlayer2D', 'VideoPlayIn3DWorld', 'CommandBuffer_Outline', 'CommandBuffer_BlurryGlass', 'CommandBuffer_DrawCustomInstance', 'CameraDepthTextureDemo', 'ReflectionProbeDemo', 'SeparableSSS_RenderDemo', 'UI3DDemo', 'LodDemo'];
+    private btn: Button;
+    private btnOn: boolean = false;
+    private a_length: number;
+    private b_length: number;
+    private m_length: number;
+    // performance合集先去掉
+    // CannonPhysics3D先去掉
+    private _comboxBigArr2: any[] = ['Resource', 'Scene3D', 'Camera', 'Lighting', 'Sprite3D', 'Mesh', 'Material', 'Texture', 'Animation3D', 'Physics3D', 'MouseLnteraction', 'Script', 'Sky', 'Particle3D', 'Trail', 'Shader', 'Advance', 'Demo', 'PostProcess', 'WebXR'];
+    //var s:Secne3DPlayer2D    
+    //AStarFindPath 删除
+    // Scene2DPlayer3D暂时去掉
+    private _advanceClsArr: any[] = [DrawTextTexture, Laya3DCombineHtml, NavMeshDemo, Secne3DPlayer2D, VideoPlayIn3DWorld, CommandBuffer_Outline, CommandBuffer_BlurryGlass, CommandBuffer_DrawCustomInstance, CameraDepthModeTextureDemo, ReflectionProbeDemo, SeparableSSS_RenderDemo, UI3DDemo, LodDemo];
+    private _advanceArr: any[] = ['DrawTextTexture', 'Laya3DCombineHtml', 'NavMeshDemo', 'Secne3DPlayer2D', 'VideoPlayIn3DWorld', 'CommandBuffer_Outline', 'CommandBuffer_BlurryGlass', 'CommandBuffer_DrawCustomInstance', 'CameraDepthTextureDemo', 'ReflectionProbeDemo', 'SeparableSSS_RenderDemo', 'UI3DDemo', 'LodDemo'];
 
-	private _postProcessClsArr: any[] = [PostProcessBloom, PostProcess_Blur, PostProcess_Edge, PostProcessDoF, ProstProcess_AO, PostProcess_LensFlare];
-	private _postProcessArr: any[] = ['PostProcessBloom', 'PostProcess_Blur', 'PostProcess_Edge', 'PostProcessDOF', 'PostProcessAO', 'PostProcess_LensFlare'];
-	private _animationClsArr: any[] = [AnimationEventDemo, AnimatorDemo, BoneLinkSprite3D, AnimationLayerBlend, AnimatorStateScriptDemo, CameraAnimation, RigidbodyAnimationDemo, SimpleSkinAnimationInstance, SkeletonMask];
-	private _animationArr: any[] = ["AnimationEventDemo", 'Animator', "BoneLinkSprite3D", "AnimationLayerBlend", "AnimatorStateScript", "CameraAnimation", "RigidbodyAnimation", "SimpleSkinAnimationInstance,SkinMask"];
+    private _postProcessClsArr: any[] = [PostProcessBloom, PostProcess_Blur, PostProcess_Edge, PostProcessDoF, ProstProcess_AO, PostProcess_LensFlare];
+    private _postProcessArr: any[] = ['PostProcessBloom', 'PostProcess_Blur', 'PostProcess_Edge', 'PostProcessDOF', 'PostProcessAO', 'PostProcess_LensFlare'];
+    private _animationClsArr: any[] = [AnimationEventDemo, AnimatorDemo, BoneLinkSprite3D, AnimationLayerBlend, AnimatorStateScriptDemo, CameraAnimation, RigidbodyAnimationDemo, SimpleSkinAnimationInstance, SkeletonMask];
+    private _animationArr: any[] = ["AnimationEventDemo", 'Animator', "BoneLinkSprite3D", "AnimationLayerBlend", "AnimatorStateScript", "CameraAnimation", "RigidbodyAnimation", "SimpleSkinAnimationInstance,SkinMask"];
 
-	private _cameraClsArr: any[] = [CameraDemo, CameraMSAADemo, CameraLayer, CameraLookAt, CameraRay, D3SpaceToD2Space, MultiCamera, OrthographicCamera, PickPixel, RenderTargetCamera];
-	private _cameraArr: any[] = ['Camera', 'CameraMSAADemo', 'CameraLayer', 'CameraLookAt', 'CameraRay', 'D3SpaceToD2Space', 'MultiCamera', 'OrthographicCamera', 'PickPixel', 'RenderTargetCamera'];
-	// GhostModelShow暂时去掉
-	private _demoClsArr: any[] = [DamagedHelmetModelShow, CerberusModelShow, GrassDemo];
-	private _demoArr: any[] = ['DamagedHelmetModelShow', 'CerberusModelShow', 'Grass'];
+    private _cameraClsArr: any[] = [CameraDemo, CameraMSAADemo, CameraLayer, CameraLookAt, CameraRay, D3SpaceToD2Space, MultiCamera, OrthographicCamera, PickPixel, RenderTargetCamera];
+    private _cameraArr: any[] = ['Camera', 'CameraMSAADemo', 'CameraLayer', 'CameraLookAt', 'CameraRay', 'D3SpaceToD2Space', 'MultiCamera', 'OrthographicCamera', 'PickPixel', 'RenderTargetCamera'];
+    // GhostModelShow暂时去掉
+    private _demoClsArr: any[] = [DamagedHelmetModelShow, CerberusModelShow, GrassDemo];
+    private _demoArr: any[] = ['DamagedHelmetModelShow', 'CerberusModelShow', 'Grass'];
 
-	private _lightingClsArr: any[] = [DirectionLightDemo, PointLightDemo, RealTimeShadow, SpotLightShadowMap, SpotLightDemo, MultiLight, VolumetricGIDemo];
-	private _lightingArr: any[] = ['DirectionLight', 'PointLight', 'RealTimeShadow', 'SpotLightShadowMap', 'SpotLight', 'MultiLight', 'VolumetricGIDemo'];
-	// Blinnphong_Transmission废弃
-	private _mterialClsArr: any[] = [BlinnPhong_DiffuseMap, BlinnPhong_NormalMap, BlinnPhong_SpecularMap, BlinnPhongMaterialLoad, EffectMaterialDemo, MaterialDemo, PBRMaterialDemo, PBRCoatMaterialDemo, UnlitMaterialDemo, StencilDemo];//BlinnPhong_DiffuseMap,BlinnPhong_NormalMap,BlinnPhong_SpecularMap,BlinnPhongMaterialLoad,EffectMaterialDemo,UnlitMaterialDemo
-	private _materilArr: any[] = ['BlinnPhong_DiffuseMap', 'BlinnPhong_NormalMap', "BlinnPhong_SpecularMap", "BlinnPhongMaterialLoad", "EffectMaterial", "Material", "PBRMaterial", "PBRCoatMaterialDemo", "UnlitMaterial", "StencilDemo"];
+    private _lightingClsArr: any[] = [DirectionLightDemo, PointLightDemo, RealTimeShadow, SpotLightShadowMap, SpotLightDemo, MultiLight, VolumetricGIDemo];
+    private _lightingArr: any[] = ['DirectionLight', 'PointLight', 'RealTimeShadow', 'SpotLightShadowMap', 'SpotLight', 'MultiLight', 'VolumetricGIDemo'];
+    // Blinnphong_Transmission废弃
+    private _mterialClsArr: any[] = [BlinnPhong_DiffuseMap, BlinnPhong_NormalMap, BlinnPhong_SpecularMap, BlinnPhongMaterialLoad, EffectMaterialDemo, MaterialDemo, PBRMaterialDemo, PBRCoatMaterialDemo, UnlitMaterialDemo, StencilDemo];//BlinnPhong_DiffuseMap,BlinnPhong_NormalMap,BlinnPhong_SpecularMap,BlinnPhongMaterialLoad,EffectMaterialDemo,UnlitMaterialDemo
+    private _materilArr: any[] = ['BlinnPhong_DiffuseMap', 'BlinnPhong_NormalMap', "BlinnPhong_SpecularMap", "BlinnPhongMaterialLoad", "EffectMaterial", "Material", "PBRMaterial", "PBRCoatMaterialDemo", "UnlitMaterial", "StencilDemo"];
 
-	private _meshClsArr: any[] = [ChangeMesh, CustomMesh, MeshLoad, BlendShapeDemo];
-	private _meshArr: any[] = ['ChangeMesh', 'CustomMesh', "MeshLoad", 'BlendShapeDemo'];
-	// TouchScriptSample暂时去掉
-	private _mouseLnteractionClsArr: any[] = [MouseInteraction, MultiTouch];
-	private _mouseLnteractionArr: any[] = ['MouseInteraction', 'MultiTouch'];
+    private _meshClsArr: any[] = [ChangeMesh, CustomMesh, MeshLoad, BlendShapeDemo];
+    private _meshArr: any[] = ['ChangeMesh', 'CustomMesh', "MeshLoad", 'BlendShapeDemo'];
+    // TouchScriptSample暂时去掉
+    private _mouseLnteractionClsArr: any[] = [MouseInteraction, MultiTouch];
+    private _mouseLnteractionArr: any[] = ['MouseInteraction', 'MultiTouch'];
 
-	private _particleClsArr: any[] = [Particle_BurningGround, Particle_EternalLight];
-	private _particleArr: any[] = ['Particle_BurningGround', 'Particle_EternalLight'];
-	// 性能分析的先去掉
-	// StaticBatchingTest
-	// DynamicBatchTest
-	private _performanceClsArr: any[] = [DynamicBatchTest];
-	private _performanceArr: any[] = ['DynamicBatchTest'];
+    private _particleClsArr: any[] = [Particle_BurningGround, Particle_EternalLight];
+    private _particleArr: any[] = ['Particle_BurningGround', 'Particle_EternalLight'];
+    // 性能分析的先去掉
+    // StaticBatchingTest
+    // DynamicBatchTest
+    private _performanceClsArr: any[] = [DynamicBatchTest];
+    private _performanceArr: any[] = ['DynamicBatchTest'];
 
-	private _physicsClsArr: any[] = [PhysicsWorld_BaseCollider, PhysicsWorld_BuildingBlocks, PhysicsWorld_Character, PhysicsWorld_CollisionFiflter, PhysicsWorld_ContinueCollisionDetection, PhysicsWorld_Kinematic, PhysicsWorld_MeshCollider, PhysicsWorld_RayShapeCast, PhysicsWorld_TriggerAndCollisionEvent, PhysicsWorld_ConstraintFixedJoint, PhysicsWorld_ConstraintSpringJoint, PhysicsWorld_ConstraintHingeJoint, PhysicsWorld_ConfigurableJoint];
-	private _physicslArr: any[] = ['PhysicsWorld_BaseCollider', 'PhysicsWorld_BuildingBlocks', 'PhysicsWorld_Character', 'PhysicsWorld_CollisionFiflter', 'PhysicsWorld_ContinueCollisionDetection', 'PhysicsWorld_Kinematic', 'PhysicsWorld_MeshCollider', 'PhysicsWorld_RayShapeCast', 'PhysicsWorld_TriggerAndCollisionEvent', 'PhysicsWorld_ConstraintFixedJoint', 'PhysicsWorld_ConstraintSpringJoint', 'PhysicsWorld_ConstraintHingeJoint', 'PhysicsWorld_ConfigurableJoint'];
+    private _physicsClsArr: any[] = [PhysicsWorld_BaseCollider, PhysicsWorld_BuildingBlocks, PhysicsWorld_Character, PhysicsWorld_CollisionFiflter, PhysicsWorld_ContinueCollisionDetection, PhysicsWorld_Kinematic, PhysicsWorld_MeshCollider, PhysicsWorld_RayShapeCast, PhysicsWorld_TriggerAndCollisionEvent, PhysicsWorld_ConstraintFixedJoint, PhysicsWorld_ConstraintSpringJoint, PhysicsWorld_ConstraintHingeJoint, PhysicsWorld_ConfigurableJoint];
+    private _physicslArr: any[] = ['PhysicsWorld_BaseCollider', 'PhysicsWorld_BuildingBlocks', 'PhysicsWorld_Character', 'PhysicsWorld_CollisionFiflter', 'PhysicsWorld_ContinueCollisionDetection', 'PhysicsWorld_Kinematic', 'PhysicsWorld_MeshCollider', 'PhysicsWorld_RayShapeCast', 'PhysicsWorld_TriggerAndCollisionEvent', 'PhysicsWorld_ConstraintFixedJoint', 'PhysicsWorld_ConstraintSpringJoint', 'PhysicsWorld_ConstraintHingeJoint', 'PhysicsWorld_ConfigurableJoint'];
 
-	private _resourceClsArr: any[] = [GarbageCollection, LoadResourceDemo, LoadGltfResource];
-	private _resourceArr: any[] = ['GarbageCollection', 'LoadResourceDemo', 'LoadGltfResource'];
+    private _resourceClsArr: any[] = [GarbageCollection, LoadResourceDemo, LoadGltfResource];
+    private _resourceArr: any[] = ['GarbageCollection', 'LoadResourceDemo', 'LoadGltfResource'];
 
-	private _scene3DClsArr: any[] = [EnvironmentalReflection, LightmapScene, SceneLoad1, FogDemo];
-	private _scene3DArr: any[] = ['EnvironmentalReflection', 'LightmapScene', 'SceneLoad1', 'FogDemo'];
+    private _scene3DClsArr: any[] = [EnvironmentalReflection, LightmapScene, SceneLoad1, FogDemo];
+    private _scene3DArr: any[] = ['EnvironmentalReflection', 'LightmapScene', 'SceneLoad1', 'FogDemo'];
 
-	private _scriptClsArr: any[] = [ScriptDemo];
-	private _scriptArr: any[] = ['ScriptDemo'];
+    private _scriptClsArr: any[] = [ScriptDemo];
+    private _scriptArr: any[] = ['ScriptDemo'];
 
-	private _shaderClsArr: any[] = [Shader_MultiplePassOutline, Shader_GlowingEdge, Shader_Simple];
-	private _shaderArr: any[] = ['Shader_MultiplePassOutline', 'Shader_GlowingEdge', 'Shader_Simple'];
-	// GriendSkyAmbientDemo渐变环境光废弃
-	private _skyClsArr: any[] = [Sky_Procedural, Sky_SkyBox];
-	private _skyArr: any[] = ['Sky_Procedural', 'Sky_SkyBox'];
+    private _shaderClsArr: any[] = [Shader_MultiplePassOutline, Shader_GlowingEdge, Shader_Simple];
+    private _shaderArr: any[] = ['Shader_MultiplePassOutline', 'Shader_GlowingEdge', 'Shader_Simple'];
+    // GriendSkyAmbientDemo渐变环境光废弃
+    private _skyClsArr: any[] = [Sky_Procedural, Sky_SkyBox];
+    private _skyArr: any[] = ['Sky_Procedural', 'Sky_SkyBox'];
 
-	private _sprite3DClsArr: any[] = [PixelLineSprite3DDemo, SkinnedMeshSprite3DDemo, Sprite3DClone, Sprite3DLoad, Sprite3DParent, TransformDemo];
-	private _sprite3DArr: any[] = ['PixelLineSprite3D', 'SkinnedMeshSprite3D', "Sprite3DClone", 'Sprite3DLoad', 'Sprite3DParent', 'Transform'];
+    private _sprite3DClsArr: any[] = [PixelLineSprite3DDemo, SkinnedMeshSprite3DDemo, Sprite3DClone, Sprite3DLoad, Sprite3DParent, TransformDemo];
+    private _sprite3DArr: any[] = ['PixelLineSprite3D', 'SkinnedMeshSprite3D', "Sprite3DClone", 'Sprite3DLoad', 'Sprite3DParent', 'Transform'];
 
-	private _textureClsArr: any[] = [TextureDemo, HalfFloatTexture, TextureGPUCompression, GPUCompression_ETC2, GPUCompression_ASTC];
-	private _textureArr: any[] = ['Texture', 'HalfFloatTexture', 'TextureGPUCompression', 'ETC2Texture', 'ASTCTexture'];
+    private _textureClsArr: any[] = [TextureDemo, HalfFloatTexture, TextureGPUCompression, GPUCompression_ETC2, GPUCompression_ASTC];
+    private _textureArr: any[] = ['Texture', 'HalfFloatTexture', 'TextureGPUCompression', 'ETC2Texture', 'ASTCTexture'];
 
-	private _trailClsArr: any[] = [TrailDemo, TrailRender];
-	private _trailArr: any[] = ['Trail', 'TrailRender'];
+    private _trailClsArr: any[] = [TrailDemo, TrailRender];
+    private _trailArr: any[] = ['Trail', 'TrailRender'];
 
-	private _webXRClsArr: any[] = [WebXRStart, WebXRControllerDemo];
-	private _WebXRArr: any[] = ['WebXRStart', 'WebXRControllerDemo'];
-
-
-	// private _testPerformanceClsArr:any[] = [ArrayObjectPerformance,DataViewPerformance,MemoryTest,SkinAnimationPerformance,StaticBatchTest,];
-	// private _testPerformanceArr:any[] = ['ArrayObjectPerformance','DataViewPerformance','MemoryTest','SkinAnimationPerformance','StaticBatchTest'];
+    private _webXRClsArr: any[] = [WebXRStart, WebXRControllerDemo];
+    private _WebXRArr: any[] = ['WebXRStart', 'WebXRControllerDemo'];
 
 
-	constructor() {
-		super();
-		this.initView3D();
-		this.initEvent();
-		Laya.init(0, 0).then(() => {
-			Laya.stage.scaleMode = Stage.SCALE_FULL;
-			Laya.stage.screenMode = Stage.SCREEN_NONE;
-			Stat.show();
-			this.zOrder = 99999;
-		});
-	}
-
-	private initEvent(): void {
-		this.bigComBox.selectHandler = new Handler(this, this.onBigComBoxSelectHandler);
-		this.smallComBox.selectHandler = new Handler(this, this.onSmallBoxSelectHandler);
-		Laya.stage.on("next", this, this.onNext);
-	}
-
-	onNext(data: any) {
-		if (data.hasOwnProperty("bigType")) {
-			//示例切换
-			this.a_length = data.bigType;
-			var smallType: number = data.smallType;
-			this.switchFunc(this.a_length, smallType);
-		} else {
-			var isMaster: any = parseInt(Browser.getQueryString("isMaster")) || 0;
-			if (isMaster) return;
-			//示例内单独小类型切换
-			this._oldView && this._oldView['stypeFun' + data.stype] && this._oldView['stypeFun' + data.stype](data.value);
-		}
-	}
-
-	private initView3D(): void {
-		var lables: string = this._comboxBigArr2.toString();
-		this.box1.mouseThrough = true;
-		this.bigComBox.labels = lables;
-		this.bigComBox.selectedIndex = 0;
-		this.bigComBox.visibleNum = 15;//_comboxBigArr.length;
-		this.bigComBox.list.scrollType = ScrollType.Vertical;
-		this.bigComBox.autoSize = false;
-		this.bigComBox.list.selectEnable = true;
-		this.bigComBox.width = 230;
-		this.bigComBox.height = 50;
-		this.bigComBox.labelSize = 35;
-		this.bigComBox.itemSize = 30;
-		this.bigComBox.left = 50;
-		this.bigComBox.bottom = 50;
-		this.smallComBox.x = this.bigComBox.x + this.bigComBox.width + 20;
-
-		this.smallComBox.selectedIndex = 0;
-		//默认显示第一项
-		//onSmallBoxSelectHandler(0);
-		this.smallComBox.list.scrollType = ScrollType.Vertical;
-		this.smallComBox.visibleNum = 15;//_comboBoxSpriteArr.length;
-		this.smallComBox.list.selectEnable = true;
-		this.smallComBox.width = 360;
-		this.smallComBox.height = 50;
-		this.smallComBox.labelSize = 35;
-		this.smallComBox.itemSize = 30;
-		this.smallComBox.left = 300;
-		this.smallComBox.bottom = 50;
-
-		this.btn = new Button();
-		this.btn.skin = "comp/vscroll$down.png"
-		this.addChild(this.btn);
-		this.btn.scale(4, 4);
-		this.btn.bottom = 50;
-		//btn.right = -430;
-		this.btn.left = 700;
-		this.btn.on(Event.MOUSE_DOWN, this, this.nextBtn);
-	}
-	private i: number = 0;
-	private nextBtn(): void {
-		//_bigIndex += 1;
-		var isMaster: any = Browser.getQueryString("isMaster");
-		var i_length: number;
-		this.a_length = this._bigIndex;
-		if (this.smallComBox.selectedIndex == this.b_length) {
-			this.a_length += 1;
-			i_length = 0;
-		}
-		else {
-			i_length = this.smallComBox.selectedIndex + 1;
-		}
-		var bigType: number = this.a_length;
-		var smallType: number = i_length;
-		if (Main.isOpenSocket && parseInt(isMaster) == 1) {
-			//主控制推送
-			Client.instance.send({ type: "next", bigType: bigType, smallType: smallType, isMaster: isMaster });
-		} else {
-
-			this.switchFunc(this.a_length, i_length);
-		}
-
-	}
-
-	private onSmallBoxSelectHandler(index: number): void {
-		if (index < 0)
-			return;
-		if (this.btnOn && this.m_length != 0) {
-			return;
-		}
-		var isMaster: any = parseInt(Browser.getQueryString("isMaster")) || 0;
-		if (Main.isOpenSocket && !this.btnOn && isMaster) {
-			this.onDirectSwitch();
-		}
-		this.m_length += 1;
-		this.onClearPreBox();
-		this.resetConfig();
-		this._smallIndex = index;
-		if (false) {
-			if (this.i % 2 == 0) {
-				this._oldView = new RealTimeShadow;
-			}
-			else {
-				this._oldView = new RealTimeShadow;
-			}
-		}
-		else {
-
-			var _comboxBigArr2: any[] = ['Resource', 'Scene3D', 'Camera', 'Lighting', 'Sprite3D', 'Mesh', 'Material', 'Texture', 'Animation3D', 'Physics3D', 'MouseLnteraction', 'Sky', 'Script', 'Particle3D', 'Trail', 'Shader', 'Advance', 'Demo', 'PostProcess', 'WebXR'];
-			switch (this._bigIndex) {
-				case 0:
-					this._oldView = new this._resourceClsArr[index];
-					this.b_length = this._resourceClsArr.length - 1;
-					break;
-				case 1:
-					this._oldView = new this._scene3DClsArr[index];
-					this.b_length = this._scene3DClsArr.length - 1;
-					break;
-				case 2:
-					this._oldView = new this._cameraClsArr[index];
-					this.b_length = this._cameraClsArr.length - 1;
-					break;
-				case 3:
-					this._oldView = new this._lightingClsArr[index];
-					this.b_length = this._lightingClsArr.length - 1;
-					break;
-				case 4:
-					this._oldView = new this._sprite3DClsArr[index];
-					this.b_length = this._sprite3DClsArr.length - 1;
-					break;
-				case 5:
-					this._oldView = new this._meshClsArr[index];
-					this.b_length = this._meshClsArr.length - 1;
-					break;
-				case 6:
-					this._oldView = new this._mterialClsArr[index];
-					this.b_length = this._mterialClsArr.length - 1;
-					break;
-				case 7:
-					this._oldView = new this._textureClsArr[index];
-					this.b_length = this._textureClsArr.length - 1;
-					break;
-				case 8:
-					this._oldView = new this._animationClsArr[index];
-					this.b_length = this._animationClsArr.length - 1;
-					break;
-				case 9:
-					this._oldView = new this._physicsClsArr[index];
-					this.b_length = this._physicsClsArr.length - 1;
-					break;
-				case 10:
-					this._oldView = new this._mouseLnteractionClsArr[index];
-					this.b_length = this._mouseLnteractionClsArr.length - 1;
-					break;
-				case 11:
-					this._oldView = new this._scriptClsArr[index];
-					this.b_length = this._scriptClsArr.length - 1;
-					break;
-				case 12:
-					this._oldView = new this._skyClsArr[index];
-					this.b_length = this._skyClsArr.length - 1;
-					break;
-				case 13:
-					this._oldView = new this._particleClsArr[index];
-					this.b_length = this._particleClsArr.length - 1;
-					break;
-				case 14:
-					this._oldView = new this._trailClsArr[index];
-					this.b_length = this._trailClsArr.length - 1;
-					break;
-				case 15:
-					this._oldView = new this._shaderClsArr[index];
-					this.b_length = this._shaderClsArr.length - 1;
-					break;
-				case 16:
-					this._oldView = new this._advanceClsArr[index];
-					this.b_length = this._advanceClsArr.length - 1;
-					break;
-				case 17:
-					this._oldView = new this._demoClsArr[index];
-					this.b_length = this._demoClsArr.length - 1;
-					break;
-				case 18:
-					this._oldView = new this._postProcessClsArr[index];
-					this.b_length = this._postProcessClsArr.length - 1;
-					break;
-				case 19:
-					this._oldView = new this._webXRClsArr[index];
-					this.b_length = this._webXRClsArr.length - 1;
-					break;
-				case 20:
-					this._oldView = new this._performanceClsArr[index];
-					this.b_length = this._performanceClsArr.length - 1;
-					break;
-				// 	this._oldView = new this._testPerformanceClsArr[index];
-				// 	this.b_length = this._testPerformanceClsArr.length - 1;
-				// 	break;
-				default:
-					break;
-			}
-		}
-	}
-
-	private onClearPreBox(): void {
-		Laya.timer.clearAll(this._oldView);
-		Laya.stage.offAllCaller(this._oldView);
-		if (this._oldView) {
-			var i: number = Laya.stage.numChildren - 1;
-			for (i; i > -1; i--) {
-				if ((Laya.stage.getChildAt(i)) == this || (Laya.stage.getChildAt(i)) instanceof List) {
-					//trace("__________________");
-				}
-				else if (Laya.stage.getChildAt(i)) {
-					Laya.stage.getChildAt(i).destroy();
-				}
-			}
-		}
-		this._oldView = null;
-		Resource.destroyUnusedResources();
-		URL.basePath = this.oldPath;//还原BasePath
-
-	}
-
-	/**
-	 * 恢复默认Config配置
-	 */
-	private resetConfig(): void {
-		Config.isAlpha = false;
-		Config.useRetinalCanvas = false;
-	}
-
-	/**
-	 * 
-	 * @param bigListIndex 
-	 * @param smallListIndex 
-	 * @param isAutoSwitch 是否自动切换
-	 */
-	switchFunc(bigListIndex: number, smallListIndex: number, isAutoSwitch: boolean = true): void {
-		this.btnOn = true;
-		this.m_length = 0;
-		this.bigComBox.selectedIndex = bigListIndex;
-		this.onBigComBoxSelectHandler(bigListIndex, smallListIndex, isAutoSwitch);
-		this.btnOn = false;
-	}
+    // private _testPerformanceClsArr:any[] = [ArrayObjectPerformance,DataViewPerformance,MemoryTest,SkinAnimationPerformance,StaticBatchTest,];
+    // private _testPerformanceArr:any[] = ['ArrayObjectPerformance','DataViewPerformance','MemoryTest','SkinAnimationPerformance','StaticBatchTest'];
 
 
-	private onBigComBoxSelectHandler(index: number, smallIndex: number = 0, isAutoSwitch: boolean = false): void {
-		if (this._bigIndex != index) {
-			var isMaster: any = parseInt(Browser.getQueryString("isMaster")) || 0;
-			if (Main.isOpenSocket && !isAutoSwitch && isMaster) {
-				this.onDirectSwitch();
-				return;
-			}
-			this._bigIndex = index;
-			var labelStr: string;
-			switch (index) {
-				case 0:
-					labelStr = this._resourceArr.toString();
-					break;
-				case 1:
-					labelStr = this._scene3DArr.toString();
-					break;
-				case 2:
-					labelStr = this._cameraArr.toString();
-					break;
-				case 3:
-					labelStr = this._lightingArr.toString();
-					break;
-				case 4:
-					labelStr = this._sprite3DArr.toString();
-					break;
-				case 5:
-					labelStr = this._meshArr.toString();
-					break;
-				case 6:
-					labelStr = this._materilArr.toString();
-					break;
-				case 7:
-					labelStr = this._textureArr.toString();
-					break;
-				case 8:
-					labelStr = this._animationArr.toString();
-					break;
-				case 9:
-					labelStr = this._physicslArr.toString();
-					break;
-				case 10:
-					labelStr = this._mouseLnteractionArr.toString();
-					break;
-				case 11:
-					labelStr = this._scriptArr.toString();
-					break;
-				case 12:
-					labelStr = this._skyArr.toString();
-					break;
-				case 13:
-					labelStr = this._particleArr.toString();
-					break;
-				case 14:
-					labelStr = this._trailArr.toString();
-					break;
-				case 15:
-					labelStr = this._shaderArr.toString();
-					break;
-				case 16:
-					labelStr = this._advanceArr.toString();
-					break;
-				case 17:
-					labelStr = this._demoArr.toString();
-					break;
-				case 18:
-					labelStr = this._postProcessArr.toString();
-					break;
-				case 19:
-					labelStr = this._WebXRArr.toString();
-					break;
-				case 20:
-					labelStr = this._performanceArr.toString();
-					break;
-				default:
-					break;
-			}
-			this.smallComBox.labels = labelStr;
-		}
-		this.smallComBox.selectedIndex = smallIndex;
-	}
+    constructor() {
+        super();
+        this.initView3D();
+        this.initEvent();
+        Laya.init(0, 0).then(() => {
+            Laya.stage.scaleMode = Stage.SCALE_FULL;
+            Laya.stage.screenMode = Stage.SCREEN_NONE;
+            Stat.show();
+            this.zOrder = 99999;
+        });
+    }
 
-	onDirectSwitch() {
-		var smallType: number = this.smallComBox.selectedIndex;
-		var bigType: number = this.bigComBox.selectedIndex;
-		if (this._bigIndex != this.bigComBox.selectedIndex)
-			smallType = 0;
-		//主控制推送
-		Client.instance.send({ type: "next", bigType: bigType, smallType: smallType });
-	}
+    private initEvent(): void {
+        this.bigComBox.selectHandler = new Handler(this, this.onBigComBoxSelectHandler);
+        this.smallComBox.selectHandler = new Handler(this, this.onSmallBoxSelectHandler);
+        Laya.stage.on("next", this, this.onNext);
+    }
+
+    onNext(data: any) {
+        if (data.hasOwnProperty("bigType")) {
+            //示例切换
+            this.a_length = data.bigType;
+            var smallType: number = data.smallType;
+            this.switchFunc(this.a_length, smallType);
+        } else {
+            var isMaster: any = parseInt(Browser.getQueryString("isMaster")) || 0;
+            if (isMaster) return;
+            //示例内单独小类型切换
+            this._oldView && this._oldView['stypeFun' + data.stype] && this._oldView['stypeFun' + data.stype](data.value);
+        }
+    }
+
+    private initView3D(): void {
+        var lables: string = this._comboxBigArr2.toString();
+        this.box1.mouseThrough = true;
+        this.bigComBox.labels = lables;
+        this.bigComBox.selectedIndex = 0;
+        this.bigComBox.visibleNum = 15;//_comboxBigArr.length;
+        this.bigComBox.list.scrollType = ScrollType.Vertical;
+        this.bigComBox.autoSize = false;
+        this.bigComBox.list.selectEnable = true;
+        this.bigComBox.width = 230;
+        this.bigComBox.height = 50;
+        this.bigComBox.labelSize = 35;
+        this.bigComBox.itemSize = 30;
+        this.bigComBox.left = 50;
+        this.bigComBox.bottom = 50;
+        this.smallComBox.x = this.bigComBox.x + this.bigComBox.width + 20;
+
+        this.smallComBox.selectedIndex = 0;
+        //默认显示第一项
+        //onSmallBoxSelectHandler(0);
+        this.smallComBox.list.scrollType = ScrollType.Vertical;
+        this.smallComBox.visibleNum = 15;//_comboBoxSpriteArr.length;
+        this.smallComBox.list.selectEnable = true;
+        this.smallComBox.width = 360;
+        this.smallComBox.height = 50;
+        this.smallComBox.labelSize = 35;
+        this.smallComBox.itemSize = 30;
+        this.smallComBox.left = 300;
+        this.smallComBox.bottom = 50;
+
+        this.btn = new Button();
+        this.btn.skin = "comp/vscroll$down.png"
+        this.addChild(this.btn);
+        this.btn.scale(4, 4);
+        this.btn.bottom = 50;
+        //btn.right = -430;
+        this.btn.left = 700;
+        this.btn.on(Event.MOUSE_DOWN, this, this.nextBtn);
+    }
+    private i: number = 0;
+    private nextBtn(): void {
+        //_bigIndex += 1;
+        var isMaster: any = Browser.getQueryString("isMaster");
+        var i_length: number;
+        this.a_length = this._bigIndex;
+        if (this.smallComBox.selectedIndex == this.b_length) {
+            this.a_length += 1;
+            i_length = 0;
+        }
+        else {
+            i_length = this.smallComBox.selectedIndex + 1;
+        }
+        var bigType: number = this.a_length;
+        var smallType: number = i_length;
+        if (Main.isOpenSocket && parseInt(isMaster) == 1) {
+            //主控制推送
+            Client.instance.send({ type: "next", bigType: bigType, smallType: smallType, isMaster: isMaster });
+        } else {
+
+            this.switchFunc(this.a_length, i_length);
+        }
+
+    }
+
+    private onSmallBoxSelectHandler(index: number): void {
+        if (index < 0)
+            return;
+        if (this.btnOn && this.m_length != 0) {
+            return;
+        }
+        var isMaster: any = parseInt(Browser.getQueryString("isMaster")) || 0;
+        if (Main.isOpenSocket && !this.btnOn && isMaster) {
+            this.onDirectSwitch();
+        }
+        this.m_length += 1;
+        this.onClearPreBox();
+        this.resetConfig();
+        this._smallIndex = index;
+        if (false) {
+            if (this.i % 2 == 0) {
+                this._oldView = new RealTimeShadow;
+            }
+            else {
+                this._oldView = new RealTimeShadow;
+            }
+        }
+        else {
+
+            var _comboxBigArr2: any[] = ['Resource', 'Scene3D', 'Camera', 'Lighting', 'Sprite3D', 'Mesh', 'Material', 'Texture', 'Animation3D', 'Physics3D', 'MouseLnteraction', 'Sky', 'Script', 'Particle3D', 'Trail', 'Shader', 'Advance', 'Demo', 'PostProcess', 'WebXR'];
+            switch (this._bigIndex) {
+                case 0:
+                    this._oldView = new this._resourceClsArr[index];
+                    this.b_length = this._resourceClsArr.length - 1;
+                    break;
+                case 1:
+                    this._oldView = new this._scene3DClsArr[index];
+                    this.b_length = this._scene3DClsArr.length - 1;
+                    break;
+                case 2:
+                    this._oldView = new this._cameraClsArr[index];
+                    this.b_length = this._cameraClsArr.length - 1;
+                    break;
+                case 3:
+                    this._oldView = new this._lightingClsArr[index];
+                    this.b_length = this._lightingClsArr.length - 1;
+                    break;
+                case 4:
+                    this._oldView = new this._sprite3DClsArr[index];
+                    this.b_length = this._sprite3DClsArr.length - 1;
+                    break;
+                case 5:
+                    this._oldView = new this._meshClsArr[index];
+                    this.b_length = this._meshClsArr.length - 1;
+                    break;
+                case 6:
+                    this._oldView = new this._mterialClsArr[index];
+                    this.b_length = this._mterialClsArr.length - 1;
+                    break;
+                case 7:
+                    this._oldView = new this._textureClsArr[index];
+                    this.b_length = this._textureClsArr.length - 1;
+                    break;
+                case 8:
+                    this._oldView = new this._animationClsArr[index];
+                    this.b_length = this._animationClsArr.length - 1;
+                    break;
+                case 9:
+                    this._oldView = new this._physicsClsArr[index];
+                    this.b_length = this._physicsClsArr.length - 1;
+                    break;
+                case 10:
+                    this._oldView = new this._mouseLnteractionClsArr[index];
+                    this.b_length = this._mouseLnteractionClsArr.length - 1;
+                    break;
+                case 11:
+                    this._oldView = new this._scriptClsArr[index];
+                    this.b_length = this._scriptClsArr.length - 1;
+                    break;
+                case 12:
+                    this._oldView = new this._skyClsArr[index];
+                    this.b_length = this._skyClsArr.length - 1;
+                    break;
+                case 13:
+                    this._oldView = new this._particleClsArr[index];
+                    this.b_length = this._particleClsArr.length - 1;
+                    break;
+                case 14:
+                    this._oldView = new this._trailClsArr[index];
+                    this.b_length = this._trailClsArr.length - 1;
+                    break;
+                case 15:
+                    this._oldView = new this._shaderClsArr[index];
+                    this.b_length = this._shaderClsArr.length - 1;
+                    break;
+                case 16:
+                    this._oldView = new this._advanceClsArr[index];
+                    this.b_length = this._advanceClsArr.length - 1;
+                    break;
+                case 17:
+                    this._oldView = new this._demoClsArr[index];
+                    this.b_length = this._demoClsArr.length - 1;
+                    break;
+                case 18:
+                    this._oldView = new this._postProcessClsArr[index];
+                    this.b_length = this._postProcessClsArr.length - 1;
+                    break;
+                case 19:
+                    this._oldView = new this._webXRClsArr[index];
+                    this.b_length = this._webXRClsArr.length - 1;
+                    break;
+                case 20:
+                    this._oldView = new this._performanceClsArr[index];
+                    this.b_length = this._performanceClsArr.length - 1;
+                    break;
+                // 	this._oldView = new this._testPerformanceClsArr[index];
+                // 	this.b_length = this._testPerformanceClsArr.length - 1;
+                // 	break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    private onClearPreBox(): void {
+        Laya.timer.clearAll(this._oldView);
+        Laya.stage.offAllCaller(this._oldView);
+        if (this._oldView) {
+            var i: number = Laya.stage.numChildren - 1;
+            for (i; i > -1; i--) {
+                if ((Laya.stage.getChildAt(i)) == this || (Laya.stage.getChildAt(i)) instanceof List) {
+                    //trace("__________________");
+                }
+                else if (Laya.stage.getChildAt(i)) {
+                    Laya.stage.getChildAt(i).destroy();
+                }
+            }
+        }
+        this._oldView = null;
+        Resource.destroyUnusedResources();
+        URL.basePath = this.oldPath;//还原BasePath
+
+    }
+
+    /**
+     * 恢复默认Config配置
+     */
+    private resetConfig(): void {
+        Config.isAlpha = false;
+        Config.useRetinalCanvas = false;
+    }
+
+    /**
+     * 
+     * @param bigListIndex 
+     * @param smallListIndex 
+     * @param isAutoSwitch 是否自动切换
+     */
+    switchFunc(bigListIndex: number, smallListIndex: number, isAutoSwitch: boolean = true): void {
+        this.btnOn = true;
+        this.m_length = 0;
+        this.bigComBox.selectedIndex = bigListIndex;
+        this.onBigComBoxSelectHandler(bigListIndex, smallListIndex, isAutoSwitch);
+        this.btnOn = false;
+    }
+
+
+    private onBigComBoxSelectHandler(index: number, smallIndex: number = 0, isAutoSwitch: boolean = false): void {
+        if (this._bigIndex != index) {
+            var isMaster: any = parseInt(Browser.getQueryString("isMaster")) || 0;
+            if (Main.isOpenSocket && !isAutoSwitch && isMaster) {
+                this.onDirectSwitch();
+                return;
+            }
+            this._bigIndex = index;
+            var labelStr: string;
+            switch (index) {
+                case 0:
+                    labelStr = this._resourceArr.toString();
+                    break;
+                case 1:
+                    labelStr = this._scene3DArr.toString();
+                    break;
+                case 2:
+                    labelStr = this._cameraArr.toString();
+                    break;
+                case 3:
+                    labelStr = this._lightingArr.toString();
+                    break;
+                case 4:
+                    labelStr = this._sprite3DArr.toString();
+                    break;
+                case 5:
+                    labelStr = this._meshArr.toString();
+                    break;
+                case 6:
+                    labelStr = this._materilArr.toString();
+                    break;
+                case 7:
+                    labelStr = this._textureArr.toString();
+                    break;
+                case 8:
+                    labelStr = this._animationArr.toString();
+                    break;
+                case 9:
+                    labelStr = this._physicslArr.toString();
+                    break;
+                case 10:
+                    labelStr = this._mouseLnteractionArr.toString();
+                    break;
+                case 11:
+                    labelStr = this._scriptArr.toString();
+                    break;
+                case 12:
+                    labelStr = this._skyArr.toString();
+                    break;
+                case 13:
+                    labelStr = this._particleArr.toString();
+                    break;
+                case 14:
+                    labelStr = this._trailArr.toString();
+                    break;
+                case 15:
+                    labelStr = this._shaderArr.toString();
+                    break;
+                case 16:
+                    labelStr = this._advanceArr.toString();
+                    break;
+                case 17:
+                    labelStr = this._demoArr.toString();
+                    break;
+                case 18:
+                    labelStr = this._postProcessArr.toString();
+                    break;
+                case 19:
+                    labelStr = this._WebXRArr.toString();
+                    break;
+                case 20:
+                    labelStr = this._performanceArr.toString();
+                    break;
+                default:
+                    break;
+            }
+            this.smallComBox.labels = labelStr;
+        }
+        this.smallComBox.selectedIndex = smallIndex;
+    }
+
+    onDirectSwitch() {
+        var smallType: number = this.smallComBox.selectedIndex;
+        var bigType: number = this.bigComBox.selectedIndex;
+        if (this._bigIndex != this.bigComBox.selectedIndex)
+            smallType = 0;
+        //主控制推送
+        Client.instance.send({ type: "next", bigType: bigType, smallType: smallType });
+    }
 }
 
