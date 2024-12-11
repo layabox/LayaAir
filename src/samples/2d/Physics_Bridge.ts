@@ -14,6 +14,7 @@ import { CircleCollider } from "laya/physics/Collider2D/CircleCollider";
 import { PolygonCollider } from "laya/physics/Collider2D/PolygonCollider";
 import { Vector2 } from "laya/maths/Vector2";
 import { Physics2D } from "laya/physics/Physics2D";
+import { Physics2DOption } from "laya/physics/Physics2DOption";
 
 export class Physics_Bridge {
     Main: typeof Main = null;
@@ -127,6 +128,7 @@ export class Physics_Bridge {
             tempVec.y = targetY - circleCollider.y;
             Vector2.normalize(tempVec, tempVec);
             Vector2.scale(tempVec, 25, tempVec);
+            Vector2.scale(tempVec, Physics2DOption.pixelRatio, tempVec);
             circleBody.linearVelocity = tempVec.toArray();
             Laya.timer.frameOnce(120, this, function () {
                 newBall.destroy();
