@@ -444,14 +444,18 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
      * @param node 渲染节点
      */
     addRender(node: BaseRenderNode2D): void {
-        const layerMask = node.layer;
-        for (let i = 0; i < Light2DManager.MAX_LAYER; i++) {
-            if (layerMask & (1 << i)) {
-                this._spriteNumInLayer[i]++;
-                if (this._spriteNumInLayer[i] === 1)
-                    this._spriteLayer.push(i);
-            }
-        }
+        // const layerMask = node.layer;
+        // for (let i = 0; i < Light2DManager.MAX_LAYER; i++) {
+        //     if (layerMask & (1 << i)) {
+        //         this._spriteNumInLayer[i]++;
+        //         if (this._spriteNumInLayer[i] === 1)
+        //             this._spriteLayer.push(i);
+        //     }
+        // }
+        const layer = node.layer;
+        this._spriteNumInLayer[layer]++;
+        if (this._spriteNumInLayer[layer] === 1)
+            this._spriteLayer.push(layer);
     }
 
     /**
@@ -461,14 +465,18 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
      * @param node 渲染节点
      */
     removeRender(node: BaseRenderNode2D): void {
-        const layerMask = node.layer;
-        for (let i = 0; i < Light2DManager.MAX_LAYER; i++) {
-            if (layerMask & (1 << i)) {
-                this._spriteNumInLayer[i]--;
-                if (this._spriteNumInLayer[i] === 0)
-                    this._spriteLayer.splice(this._spriteLayer.indexOf(i), 1);
-            }
-        }
+        // const layerMask = node.layer;
+        // for (let i = 0; i < Light2DManager.MAX_LAYER; i++) {
+        //     if (layerMask & (1 << i)) {
+        //         this._spriteNumInLayer[i]--;
+        //         if (this._spriteNumInLayer[i] === 0)
+        //             this._spriteLayer.splice(this._spriteLayer.indexOf(i), 1);
+        //     }
+        // }
+        const layer = node.layer;
+        this._spriteNumInLayer[layer]--;
+        if (this._spriteNumInLayer[layer] === 0)
+            this._spriteLayer.splice(this._spriteLayer.indexOf(layer), 1);
     }
 
     name: string;
@@ -840,6 +848,9 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
             param.y = y;
         }
 
+        //设置更新标志
+        this._updateMark[layer]++;
+
         //更新该层的渲染资源
         this._updateLayerRenderRes(layer);
 
@@ -1056,7 +1067,8 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
         for (let i = this._lightLayer.length - 1; i > -1; i--) {
             let needRender = false;
             const layer = this._lightLayer[i];
-            //if (this._spriteNumInLayer[layer] === 0) continue; //该层没有精灵，跳过
+            if (this._spriteNumInLayer[layer] === 0)
+                continue; //该层没有精灵，跳过
             const renderRes = this._lightRenderRes[layer];
             const occluders = this._occludersInLayer[layer];
             const layerMask = (1 << layer);
@@ -1119,7 +1131,6 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
                         this._needToRecover.push(shadowMesh);
                         renderRes.shadowMeshs[j] = null;
                     }
-                    this._updateMark[layer]++;
                     needRender = true;
                 }
                 lightChange = false;

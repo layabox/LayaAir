@@ -92,7 +92,6 @@ export class BaseRenderNode2D extends Component {
         commandUniform.addShaderUniform(BaseRenderNode2D.BASERENDER2DCOLOR, "u_baseRenderColor", ShaderDataType.Color);
         commandUniform.addShaderUniform(BaseRenderNode2D.BASERENDER2DTEXTURE, "u_baseRender2DTexture", ShaderDataType.Texture2D);
         commandUniform.addShaderUniform(BaseRenderNode2D.BASERENDERSIZE, "u_baseRenderSize2D", ShaderDataType.Vector2);
-
         commandUniform.addShaderUniform(BaseRenderNode2D.NORMAL2DTEXTURE, "u_normal2DTexture", ShaderDataType.Texture2D);
         commandUniform.addShaderUniform(BaseRenderNode2D.NORMAL2DSTRENGTH, "u_normal2DStrength", ShaderDataType.Float);
     }
@@ -145,7 +144,6 @@ export class BaseRenderNode2D extends Component {
     /**
      * @internal
      * 渲染标签位,用于渲染分层
-     * render flag layer bit
      */
     private _layer: number = 0;
 
@@ -166,7 +164,7 @@ export class BaseRenderNode2D extends Component {
     /**
      * @internal Light params
      */
-    _lightUpdateMask: number;
+    _lightUpdateMark: number = 0;
     /**
      *@internal Light params 
      *render是否已经记录在manager中，避免重复记录
@@ -219,7 +217,6 @@ export class BaseRenderNode2D extends Component {
         this._spriteShaderData = LayaGL.renderDeviceFactory.createShaderData(null);
         this._renderType = BaseRender2DType.baseRenderNode;
         this._ordingMode = Render2DOrderMode.elementIndex;
-        //this._layer = 1; ?
     }
 
     /**
@@ -293,7 +290,7 @@ export class BaseRenderNode2D extends Component {
                 this._removeRenderNodeByLayer();
                 this._layer = value;
                 this._addRenderToLightManager();
-                this._changeLayer();
+                this._resetUpdateMark();
             } else {
                 throw new Error("Layer value must be 0-30.");
             }
@@ -305,31 +302,31 @@ export class BaseRenderNode2D extends Component {
             return;
         this._lightReceive = value;
         if (value) {
-            this._spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_LIGHTANDSHADOW);
             this._addRenderToLightManager();
+            this._spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_LIGHTANDSHADOW);
         }
         else {
-            this._spriteShaderData.removeDefine(BaseRenderNode2D.SHADERDEFINE_LIGHTANDSHADOW);
             this._removeRenderNodeByLayer();
+            this._spriteShaderData.removeDefine(BaseRenderNode2D.SHADERDEFINE_LIGHTANDSHADOW);
         }
+        this._resetUpdateMark();
     }
 
     get lightReceive() {
         return this._lightReceive;
     }
 
-    _lightUpdateMark: number;
-    _changeLayer() {
+    _resetUpdateMark() {
         this._lightUpdateMark = 0;
     }
 
     _updateLight() {
         if (!this.lightReceive || !this.owner.scene || !this.owner.scene._light2DManager) return;
-        const lightRP = (this.owner.scene as Scene)._light2DManager;
-        const updateMask = lightRP._getLayerUpdateMark(this._layer);
-        if (this._lightUpdateMask != lightRP._getLayerUpdateMark(this._layer)) {
-            lightRP._updateShaderDataByLayer(this._layer, this._spriteShaderData);
-            this._lightUpdateMask = updateMask;
+        const light2DManager = (this.owner.scene as Scene)._light2DManager;
+        const updateMark = light2DManager._getLayerUpdateMark(this.layer);
+        if (this._lightUpdateMark !== updateMark) {
+            this._lightUpdateMark = updateMark;
+            light2DManager._updateShaderDataByLayer(this.layer, this._spriteShaderData);
         }
     }
 
@@ -337,9 +334,9 @@ export class BaseRenderNode2D extends Component {
      * light Manager
      */
     private _addRenderToLightManager() {
-        let lightRP = (this.owner.scene as Scene)._light2DManager;
-        if (lightRP && !this._lightRecord) {
-            lightRP.addRender(this);
+        let light2DManager = (this.owner.scene as Scene)._light2DManager;
+        if (light2DManager && !this._lightRecord) {
+            light2DManager.addRender(this);
             this._lightReceive = true;
         }
     }
@@ -348,9 +345,9 @@ export class BaseRenderNode2D extends Component {
      * lightManager
      */
     private _removeRenderNodeByLayer() {
-        let lightRP = (this.owner.scene as Scene)._light2DManager;
-        if (lightRP && this._lightRecord) {
-            lightRP.removeRender(this);
+        let light2DManager = (this.owner.scene as Scene)._light2DManager;
+        if (light2DManager && this._lightRecord) {
+            light2DManager.removeRender(this);
             this._lightReceive = false;
         }
     }
