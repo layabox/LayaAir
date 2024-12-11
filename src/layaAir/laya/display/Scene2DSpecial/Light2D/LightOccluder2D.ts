@@ -335,25 +335,26 @@ export class LightOccluder2D extends Component {
             this._needTransformPoly = false;
             this._transformPoly();
         }
-        this._needUpdateLightWorldRange = false;
-
-        let xmin = Number.POSITIVE_INFINITY;
-        let ymin = Number.POSITIVE_INFINITY;
-        let xmax = Number.NEGATIVE_INFINITY;
-        let ymax = Number.NEGATIVE_INFINITY;
-        const polygon = this._globalPolygon.points;
-        for (let i = polygon.length - 2; i > -1; i -= 2) {
-            const x = polygon[i + 0];
-            const y = polygon[i + 1];
-            if (xmin > x) xmin = x;
-            if (xmax < x) xmax = x;
-            if (ymin > y) ymin = y;
-            if (ymax < y) ymax = y;
+        if (this._globalPolygon) {
+            let xmin = Number.POSITIVE_INFINITY;
+            let ymin = Number.POSITIVE_INFINITY;
+            let xmax = Number.NEGATIVE_INFINITY;
+            let ymax = Number.NEGATIVE_INFINITY;
+            const polygon = this._globalPolygon.points;
+            for (let i = polygon.length - 2; i > -1; i -= 2) {
+                const x = polygon[i + 0];
+                const y = polygon[i + 1];
+                if (xmin > x) xmin = x;
+                if (xmax < x) xmax = x;
+                if (ymin > y) ymin = y;
+                if (ymax < y) ymax = y;
+            }
+            this._worldRange.x = xmin;
+            this._worldRange.y = ymin;
+            this._worldRange.width = xmax - xmin;
+            this._worldRange.height = ymax - ymin;
         }
-        this._worldRange.x = xmin;
-        this._worldRange.y = ymin;
-        this._worldRange.width = xmax - xmin;
-        this._worldRange.height = ymax - ymin;
+        this._needUpdateLightWorldRange = false;
     }
 
     /**

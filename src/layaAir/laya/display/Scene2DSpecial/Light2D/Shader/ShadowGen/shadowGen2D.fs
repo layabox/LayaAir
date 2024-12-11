@@ -13,5 +13,5 @@ void main()
     textureColor = transspaceColor(textureColor);
     setglColor(textureColor);
     gl_FragColor.rgb *= v_color.rgb;
-    gl_FragColor.a = 1.0;
+    gl_FragColor.a = 0.0;
 }
