@@ -321,12 +321,12 @@ class Light2DRenderRes {
                 const meshs = this.lightMeshs[i];
                 for (let j = 0, len = meshs.length; j < len; j++)
                     if (meshs[j] && this.material[i])
-                        this._cmdBuffer.drawMesh2DByMatrix(meshs[j], Matrix.EMPTY, this.textures[i], Color.WHITE, this.material[i]);
+                        this._cmdBuffer.drawMesh(meshs[j], Matrix.EMPTY, this.textures[i], Color.WHITE, this.material[i]);
             }
             for (let i = 0, len = this.shadowMeshs.length; i < len; i++) {
                 const mesh = this.shadowMeshs[i];
                 if (mesh && this.materialShadow[i])
-                    this._cmdBuffer.drawMesh2DByMatrix(mesh, Matrix.EMPTY, this.textures[i], Color.WHITE, this.materialShadow[i]);
+                    this._cmdBuffer.drawMesh(mesh, Matrix.EMPTY, this.textures[i], Color.WHITE, this.materialShadow[i]);
             }
             this._cmdBuffer.apply(true);
             this._cmdBuffer.clear(true);
