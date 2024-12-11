@@ -22,7 +22,7 @@ import { Texture2D } from "../../../resource/Texture2D";
 import { TileMapDatasParse } from "./loaders/TileSetAssetLoader";
 import { NodeFlags } from "../../../Const";
 import { TileLayerSortMode } from "./TileMapEnum";
-import { Node } from "../../Node";
+import { TileMapOccluder } from "./TileMapOccluder";
 
 export enum TILELAYER_SORTMODE {
     YSort,
@@ -105,6 +105,8 @@ export class TileMapLayer extends BaseRenderNode2D {
     /**物理模块 */
     private _tileMapPhysics: TileMapPhysics;
 
+    private _tileMapOccluder:TileMapOccluder;
+
     /** @internal */
     get chunkDatas() {
         return this._chunkDatas;
@@ -166,6 +168,7 @@ export class TileMapLayer extends BaseRenderNode2D {
     }
 
     set lightEnable(value: boolean) {
+        this._tileMapOccluder.updateState(value);
         this._lightEnable = value;
     }
 
@@ -208,6 +211,10 @@ export class TileMapLayer extends BaseRenderNode2D {
         return this._tileMapPhysics;
     }
 
+    get tileMapOccluder(): TileMapOccluder {
+        return this._tileMapOccluder;
+    }
+
     constructor() {
         super();
         this._layerColor = new Color(1, 1, 1, 1);
@@ -216,6 +223,7 @@ export class TileMapLayer extends BaseRenderNode2D {
         this._chunk = new TileMapChunk(this._grid);
         this._chunk._setChunkSize(this._renderTileSize, this._renderTileSize);
         this._tileMapPhysics = new TileMapPhysics(this);
+        this._tileMapOccluder = new TileMapOccluder(this);
         this._cliper = new RectClipper();
         this._renderElements = [];
         this._materials = [];
@@ -351,6 +359,11 @@ export class TileMapLayer extends BaseRenderNode2D {
     onDisable(): void {
         super.onDisable();
         this._tileMapPhysics._disableRigidBodys();
+    }
+
+    onDestroy(): void {
+        super.onDestroy();
+        this._tileMapOccluder.clear();
     }
 
     /**
