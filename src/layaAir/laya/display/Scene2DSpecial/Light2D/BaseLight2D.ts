@@ -750,7 +750,9 @@ export class BaseLight2D extends Component {
         if (mesh) {
             const idx = mesh.getIndices();
             const ver = mesh.getVertices()[0];
-            if (idx.length >= indices.length && ver.byteLength >= vertices.byteLength) { //mesh可以复用
+            if (Light2DManager.REUSE_MESH
+                && idx.length >= indices.length
+                && ver.byteLength >= vertices.byteLength) { //mesh可以复用
                 idx.set(indices);
                 mesh.setVertexByIndex(vertices.buffer, 0);
                 mesh.getSubMesh(0).setDrawElemenParams(indices.length, 0);
