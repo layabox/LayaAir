@@ -22,6 +22,7 @@ import { Texture2D } from "../../../resource/Texture2D";
 import { TileMapDatasParse } from "./loaders/TileSetAssetLoader";
 import { NodeFlags } from "../../../Const";
 import { TileLayerSortMode } from "./TileMapEnum";
+import { Node } from "../../Node";
 
 export enum TILELAYER_SORTMODE {
     YSort,
@@ -79,6 +80,7 @@ export class TileMapLayer extends BaseRenderNode2D {
     _grid: Grid;
 
 
+    declare owner: Sprite;
     /**
      * @internal
      */
@@ -334,12 +336,21 @@ export class TileMapLayer extends BaseRenderNode2D {
         return data;
     }
 
+    onAwake(): void {
+        super.onAwake();
+        this._updateMapDatas();
+    }
+
 
     onEnable(): void {
         super.onEnable();
         this.owner._setBit(NodeFlags.CACHE_GLOBAL, true);
-        this._updateMapDatas();
         this._tileMapPhysics._enableRigidBodys();
+    }
+
+    onDisable(): void {
+        super.onDisable();
+        this._tileMapPhysics._disableRigidBodys();
     }
 
     /**
@@ -520,6 +531,20 @@ export class TileMapLayer extends BaseRenderNode2D {
         return this.tileSet.getDefalutMaterial(texture);
     }
 
+    // _darwTestPoint(points:number[]){
+    //     let gsp = new Sprite;
+    //     Laya.stage.addChild(gsp);
+    //     let sprite = this.owner;
+    //     let lastx = points[0];
+    //     let lasty = points[1];
+    //     for (let i = 2 , len = points.length; i < len; i+=2) {
+    //         let p1x = points[i]; 
+    //         let p1y = points[i + 1];
+    //         gsp.graphics.drawLine(lastx ,lasty  , p1x, p1y , "#ff0000");
+    //         lastx = p1x;
+    //         lasty = p1y;
+    //     }
+    // }
 }
 
 Laya.addInitCallback(() => TileMapLayer.__init__());

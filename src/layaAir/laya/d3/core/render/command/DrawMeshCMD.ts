@@ -62,8 +62,8 @@ export class DrawMeshCMD extends Command {
 
     private _renderElemnts: RenderElement[];
 
-
-    private _meshRender: MeshRenderer;
+    /**@internal */
+    _meshRender: MeshRenderer;
 
 
     private _transform: Transform3D;

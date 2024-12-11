@@ -78,7 +78,9 @@ export class TileMapChunk {
      * @returns 单元格在chunk内部的索引 
      */
     _getChunkIndexByCellPos(cellRow: number, cellCol: number): number {
-        return (cellRow % this._chunkWidth) + (cellCol % this._chunkHeight) * this._chunkWidth;
+        let chunkX = (cellRow + this._chunkWidth) % this._chunkWidth;
+        let chunkY = (cellCol + this._chunkHeight) % this._chunkHeight;
+        return chunkX + chunkY * this._chunkWidth;
     }
 
 

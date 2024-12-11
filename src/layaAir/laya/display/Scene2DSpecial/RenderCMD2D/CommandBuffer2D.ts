@@ -29,9 +29,7 @@ import { Set2DDefineCMD, Set2DShaderDataCMD } from "./Set2DShaderDataCMD";
  */
 export class CommandBuffer2D {
 
-    static instance: CommandBuffer2D = new CommandBuffer2D();
-
-    private _context: IRenderContext2D
+    private _context: IRenderContext2D;
 
     private _name: string;
 
@@ -47,7 +45,7 @@ export class CommandBuffer2D {
     _renderSize: Vector2 = new Vector2();
 
     /** @ignore */
-    constructor(name: string = null) {
+    constructor(name?: string) {
         this._name = name;
         this._context = Render2DSimple.rendercontext2D;
         this._commands = [];
@@ -212,7 +210,7 @@ export class CommandBuffer2D {
      * @param shader copy use shader
      * @param shaderData copy use data for shader
      */
-    blitTextureQuad(source: BaseTexture, dest: IRenderTarget, offsetScale: Vector4 = null, shader: Shader3D = null, shaderData: ShaderData = null): void {
+    blitTextureQuad(source: BaseTexture, dest: IRenderTarget, offsetScale?: Vector4, shader?: Shader3D, shaderData?: ShaderData): void {
         let cmd = Blit2DCMD.create(source, dest, offsetScale, shader, shaderData);
         this._commands.push(cmd);
         cmd._commandBuffer = this;
@@ -251,21 +249,6 @@ export class CommandBuffer2D {
     }
 
     /**
-     * 渲染元素位置指令
-     * @param mesh 
-     * @param mat 
-     * @param meshTexture 
-     * @param color 
-     * @param material 
-     */
-    drawMesh2DByMatrix(mesh: Mesh2D, mat: Matrix, meshTexture: BaseTexture = Texture2D.whiteTexture, color: Color = Color.WHITE, material: Material = Mesh2DRender.mesh2DDefaultMaterial) {
-        let cmd = DrawMesh2DCMD.create(mesh, mat, meshTexture, color, material);
-        this._commands.push(cmd);
-        cmd._commandBuffer = this;
-        cmd.getRenderCMD && this._renderCMDs.push(cmd.getRenderCMD());
-    }
-
-    /**
      * 渲染Mesh2D指令
      * @param mesh 
      * @param pos 
@@ -276,10 +259,11 @@ export class CommandBuffer2D {
      * @param color 
      * @param material 
      */
-    drawMesh2DByTrans(mesh: Mesh2D, pos: Vector2 = Vector2.ZERO, rotate: number = 0, skew: Vector2 = Vector2.ZERO, scale: Vector2 = Vector2.ONE, meshTexture: BaseTexture = Texture2D.whiteTexture, color: Color = Color.WHITE, material: Material = Mesh2DRender.mesh2DDefaultMaterial) {
-        let mat = Matrix.TEMP;
-        mat.setMatrix(pos.x, pos.y, scale.x, scale.y, rotate, skew.x, skew.y, 0, 0);
-        this.drawMesh2DByMatrix(mesh, mat, meshTexture, color, material);
+    drawMesh(mesh: Mesh2D, mat: Matrix, meshTexture?: BaseTexture, color?: Color, material?: Material): void {
+        let cmd = DrawMesh2DCMD.create(mesh, mat, meshTexture || Texture2D.whiteTexture, color || Color.WHITE, material || Mesh2DRender.mesh2DDefaultMaterial);
+        this._commands.push(cmd);
+        cmd._commandBuffer = this;
+        cmd.getRenderCMD && this._renderCMDs.push(cmd.getRenderCMD());
     }
 
     drawQuad() {

@@ -5,7 +5,6 @@ import { FloatKeyframe } from "../../../maths/FloatKeyframe";
 import { Gradient } from "../../../maths/Gradient";
 import { Point } from "../../../maths/Point";
 import { Vector3 } from "../../../maths/Vector3";
-import { Vector4 } from "../../../maths/Vector4";
 import { BaseRenderNode2D } from "../../../NodeRender2D/BaseRenderNode2D";
 import { Context } from "../../../renders/Context";
 import { BaseTexture } from "../../../resource/BaseTexture";
@@ -16,23 +15,18 @@ import { TrailGeometry } from "../../RenderFeatureComman/Trail/TrailGeometry";
 import { TrailShaderCommon } from "../../RenderFeatureComman/Trail/TrailShaderCommon";
 import { TrailTextureMode } from "../../RenderFeatureComman/Trail/TrailTextureMode";
 import { TrailBaseFilter } from "../../RenderFeatureComman/TrailBaseFilter";
-import { Sprite } from "../../Sprite";
 import { TrailShaderInit } from "./Shader/Trail2DShaderInit";
 
 export class Trail2DRender extends BaseRenderNode2D {
 
-    /**@internal */
     static defaultTrail2DMaterial: Material;
-
-    private static tempvec2_0: Point = new Point();
 
     private _color: Color = new Color(1, 1, 1, 1);
 
-    private _tillOffset: Vector4 = new Vector4(0, 0, 1, 1);//贴图偏移量
-
     private _baseRender2DTexture: BaseTexture;
 
-    /**@internal */
+    private _time: number;
+    private _widthMultiplier: number;
     _trailFilter: TrailBaseFilter;
 
 
@@ -41,11 +35,13 @@ export class Trail2DRender extends BaseRenderNode2D {
      * @zh 淡出时间。单位: 秒。
      */
     get time(): number {
-        return this._trailFilter.time;
+        return this._time;
     }
 
     set time(value: number) {
-        this._trailFilter.time = value;
+        this._time = value;
+        if (this._trailFilter)
+            this._trailFilter.time = value;
     }
 
     /**
@@ -65,11 +61,13 @@ export class Trail2DRender extends BaseRenderNode2D {
      * @zh 宽度倍数。
      */
     get widthMultiplier(): number {
-        return this._trailFilter.widthMultiplier;
+        return this._widthMultiplier;
     }
 
     set widthMultiplier(value: number) {
-        this._trailFilter.widthMultiplier = value;
+        this._widthMultiplier = value;
+        if (this._trailFilter)
+            this._trailFilter.widthMultiplier = value;
     }
 
     /**
@@ -170,6 +168,8 @@ export class Trail2DRender extends BaseRenderNode2D {
     protected _onAdded(): void {
         super._onAdded();
         this._trailFilter = new TrailBaseFilter(this._spriteShaderData);
+        this._trailFilter.time = this._time;
+        this._trailFilter.widthMultiplier = this._widthMultiplier;
         this._initRender();
     }
 
@@ -210,7 +210,7 @@ export class Trail2DRender extends BaseRenderNode2D {
         let curtime = this._trailFilter._curtime += Laya.timer._delta / 1000;
         let trailGeometry = this._trailFilter._trialGeometry;
         this._spriteShaderData.setNumber(TrailShaderCommon.CURTIME, curtime);
-        let globalPos = Trail2DRender.tempvec2_0;
+        let globalPos = Point.TEMP;
         this.owner.getGlobalPos(globalPos);
         let curPosV3 = Vector3.TEMP;
         curPosV3.set(globalPos.x, globalPos.y, 0);
@@ -244,10 +244,11 @@ export class Trail2DRender extends BaseRenderNode2D {
 
     constructor() {
         super();
-        this._renderElements = [];
+        this._renderElements = [];        
         this._materials = [];
-        this.widthMultiplier = 50;
-        this.time = 0.5;
+        this._time = 0.5;
+        this._widthMultiplier = 50;
+        this._spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, this._color);
         this._spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);
         if (!Trail2DRender.defaultTrail2DMaterial)
             TrailShaderInit.init();

@@ -188,16 +188,32 @@ export class TileSet extends Resource {
         this._customDataLayer = value;
     }
 
-    addCustormDataLayer(layer: TileSetCustomDataLayer): void {
+    addCustomDataLayer(layer: TileSetCustomDataLayer): void {
 
     }
 
-    getCustormDataLayer(layerIndex: number): TileSetCustomDataLayer {
+    getCustomDataLayer(name: string): TileSetCustomDataLayer {
+        let layers = this._customDataLayer;
+        if (!layers || !layers.length) return null
+        for (let i = 0 , len = layers.length; i < len; i++) {
+            let layer = layers[i];
+            if (layer.name == name) {
+                return layer;
+            }            
+        }
         return null;
     }
 
-    removeCustormDataLayer(layerIndex: number): void {
-        return;
+    removeCustomDataLayer(name: string): void {
+        let layers = this._customDataLayer;
+        if (!layers || !layers.length) return null
+        for (let i = 0 , len = layers.length; i < len; i++) {
+            let layer = layers[i];
+            if (layer.name == name) {
+                layers.splice(i , 0);
+                break;
+            }            
+        }
     }
 
     //navigation
