@@ -1515,7 +1515,7 @@ export class Sprite extends Node {
             }
         }
 
-        if (this._transform != null) {
+        if (!this.transform) {
             let len = pts.length;
             for (let i = 0; i < len; i += 2) {
                 tmpPoint.x = pts[i];
@@ -1525,8 +1525,15 @@ export class Sprite extends Node {
                 pts[i + 1] = tmpPoint.y;
             }
         }
-        else
-            Utils.transPointList(pts, this._x - px, this._y - py);
+        else {
+            let dx = this._x - px;
+            let dy = this._y - py;
+            let len: number = pts.length;
+            for (let i = 0; i < len; i += 2) {
+                pts[i] += dx;
+                pts[i + 1] += dy;
+            }
+        }
 
         return pts;
     }
@@ -1607,9 +1614,10 @@ export class Sprite extends Node {
         var ele: Sprite = this;
         globalNode = globalNode || ILaya.stage;
         while (ele && !ele._destroyed) {
-            if (ele == globalNode) break;
+            if (ele == globalNode)
+                break;
             point = ele.toParentPoint(point);
-            ele = (<Sprite>ele.parent);
+            ele = <Sprite>ele.parent;
         }
 
         return point;
@@ -1661,7 +1669,7 @@ export class Sprite extends Node {
         if (!point) return point;
         point.x -= this.pivotX;
         point.y -= this.pivotY;
-        if (this._transform)
+        if (this.transform)
             this._transform.transformPoint(point);
         point.x += this._x;
         point.y += this._y;
@@ -1690,7 +1698,7 @@ export class Sprite extends Node {
             point.x += scroll.x;
             point.y += scroll.y;
         }
-        if (this._transform)
+        if (this.transform)
             this._transform.invertTransformPoint(point);
         point.x += this.pivotX;
         point.y += this.pivotY;
