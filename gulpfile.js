@@ -275,12 +275,6 @@ const packsDef = [{
     ],
 },
 {
-    "libName": 'performancetool',
-    'input': [
-        './extensions/performanceTool/**/*.*'
-    ],
-},
-{
     'libName': "navMesh",
     'input': [
         './layaAir/laya/navigation/**/**.ts'

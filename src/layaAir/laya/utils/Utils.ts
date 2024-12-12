@@ -19,8 +19,8 @@ export class Utils {
      * @param angle The angle value.
      * @returns The radian value.
      * @zh 将角度转换为弧度。
-     * @param	angle 角度值。
-     * @return	返回弧度值。
+     * @param angle 角度值。
+     * @return 返回弧度值。
      */
     static toRadian(angle: number): number {
         return angle * _pi2;
@@ -31,8 +31,8 @@ export class Utils {
      * @param radian The radian value.
      * @returns The angle value in degrees.
      * @zh 将弧度转换为角度。
-     * @param	radian 弧度值。
-     * @return	返回角度值。
+     * @param radian 弧度值。
+     * @return 返回角度值。
      */
     static toAngle(radian: number): number {
         return radian * _pi;
@@ -120,9 +120,9 @@ export class Utils {
      * @param array The new values to be copied into the source array.
      * @returns The copied source array.
      * @zh 清空 source 数组，并复制 array 数组的值。
-     * @param	source 需要赋值的数组。
-     * @param	array 新的数组值。
-     * @return 	复制后的数据 source 。
+     * @param source 需要赋值的数组。
+     * @param array 新的数组值。
+     * @return  复制后的数据 source 。
      */
     static copyArray(source: any[], array: any[]): any[] {
         source || (source = []);
@@ -136,33 +136,14 @@ export class Utils {
     }
 
     /**
-     * @private
-     * @en Batch translates point coordinates by the specified offsets.
-     * @param points The list of point coordinates.
-     * @param x The offset to translate along the x-axis.
-     * @param y The offset to translate along the y-axis.
-     * @zh 批量移动点坐标，按照指定的偏移量。
-     * @param points 坐标列表。
-     * @param x x轴偏移量。
-     * @param y y轴偏移量。
-     */
-    static transPointList(points: any[], x: number, y: number): void {
-        var i: number, len: number = points.length;
-        for (i = 0; i < len; i += 2) {
-            points[i] += x;
-            points[i + 1] += y;
-        }
-    }
-
-    /**
      * @en Parses a string and returns an integer. Unlike the native JavaScript parseInt, if the string is empty or not a number, this method returns 0 instead of NaN.
      * @param str The string to be parsed.
      * @param radix The radix for parsing the number (between 2 and 36). Defaults to 0, which means decimal. The other values range from 2 to 36. If it starts with "0xX" or "0X", it will be based on 16. If the parameter is not within the above range, this method returns 0.
      * @returns The parsed number.
      * @zh 解析字符串并返回一个整数。与 JavaScript 原生的 parseInt 不同，如果字符串为空或非数字，这里返回 0 而不是 NaN。
-     * @param	str		要被解析的字符串。
-     * @param	radix	表示要解析的数字的基数。默认值为0，表示10进制，其他值介于 2 ~ 36 之间。如果它以 “0x” 或 “0X” 开头，将以 16 为基数。如果该参数不在上述范围内，则此方法返回 0。
-     * @return	返回解析后的数字。
+     * @param str 要被解析的字符串。
+     * @param radix 表示要解析的数字的基数。默认值为0，表示10进制，其他值介于 2 ~ 36 之间。如果它以 “0x” 或 “0X” 开头，将以 16 为基数。如果该参数不在上述范围内，则此方法返回 0。
+     * @return 返回解析后的数字。
      */
     static parseInt(str: string, radix: number = 0): number {
         var result: any = parseInt(str, radix);
@@ -342,7 +323,7 @@ export class Utils {
             //var base64img=__JS__("conchToBase64('image/png',1,pixels,canvasWidth,canvasHeight)");
             //var l = base64img.split(",");
             //if (isBase64)
-            //	return base64img;
+            // return base64img;
             //return base.utils.DBUtils.decodeArrayBuffer(l[1]);
             // }
             // else {

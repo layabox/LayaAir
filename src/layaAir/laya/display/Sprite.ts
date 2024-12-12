@@ -1431,8 +1431,10 @@ export class Sprite extends Node {
             return out.copyFrom(this._userBounds);
         if (!this._graphics && this._children.length === 0 && !this._texture)
             return out.setTo(0, 0, this._width, this._height); //不要this.width，不然死循环
-        else
+        else {
+            tmpPoints.length = 0;
             return Rectangle._getWrapRec(this._getBoundPointsM(false, tmpPoints), out);
+        }
     }
 
     /**
@@ -1513,7 +1515,7 @@ export class Sprite extends Node {
             }
         }
 
-        if (this._transform != null) {
+        if (!this.transform) {
             let len = pts.length;
             for (let i = 0; i < len; i += 2) {
                 tmpPoint.x = pts[i];
@@ -1523,8 +1525,15 @@ export class Sprite extends Node {
                 pts[i + 1] = tmpPoint.y;
             }
         }
-        else
-            Utils.transPointList(pts, this._x - px, this._y - py);
+        else {
+            let dx = this._x - px;
+            let dy = this._y - py;
+            let len: number = pts.length;
+            for (let i = 0; i < len; i += 2) {
+                pts[i] += dx;
+                pts[i + 1] += dy;
+            }
+        }
 
         return pts;
     }
@@ -1605,9 +1614,10 @@ export class Sprite extends Node {
         var ele: Sprite = this;
         globalNode = globalNode || ILaya.stage;
         while (ele && !ele._destroyed) {
-            if (ele == globalNode) break;
+            if (ele == globalNode)
+                break;
             point = ele.toParentPoint(point);
-            ele = (<Sprite>ele.parent);
+            ele = <Sprite>ele.parent;
         }
 
         return point;
@@ -1659,7 +1669,7 @@ export class Sprite extends Node {
         if (!point) return point;
         point.x -= this.pivotX;
         point.y -= this.pivotY;
-        if (this._transform)
+        if (this.transform)
             this._transform.transformPoint(point);
         point.x += this._x;
         point.y += this._y;
@@ -1688,7 +1698,7 @@ export class Sprite extends Node {
             point.x += scroll.x;
             point.y += scroll.y;
         }
-        if (this._transform)
+        if (this.transform)
             this._transform.invertTransformPoint(point);
         point.x += this.pivotX;
         point.y += this.pivotY;

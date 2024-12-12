@@ -405,7 +405,7 @@ export class Tween {
         else {
             startValue.writeTo(this.startValue, this.startValue.length);
             let len = this.startValue.length - prop.i;
-            (<Vector2 | Vector3 | Vector4 | Color>endValue).writeTo(this.endValue, this.endValue.length);
+            endValue.writeTo(this.endValue, this.endValue.length);
             prop.type = propType || (len == 4 && startValue instanceof Color) ? TweenValueType.Color : (len - 1);
         }
 
@@ -515,7 +515,7 @@ export class Tween {
      * @param args 缓动函数的额外参数。
      * @return Tween对象。
      */
-    setEase(value: EaseFunction, args?: number[]): this {
+    setEase(value: EaseFunction, args?: ReadonlyArray<number>): this {
         this._easeFunc = value;
         this._easeArgs.length = 0;
         if (args)
@@ -785,7 +785,7 @@ export class Tween {
 
     /**
      * @en Pause the tween. It can be resumed using resume() or restart().
-     * @zh 暂停缓动。可以通过 resume() 或 restart() 重新开始。
+     * @zh 暂停缓动。可以通过 resume() 重新开始。
      */
     pause(): Tween {
         this._paused = true;
