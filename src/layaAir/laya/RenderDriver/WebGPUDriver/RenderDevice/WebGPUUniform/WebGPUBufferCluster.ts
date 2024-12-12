@@ -13,7 +13,7 @@ export class WebGPUBufferCluster extends UniformBufferCluster {
         super(blockSize, blockNum, manager);
         this.objectName = 'WebGPUBufferCluster';
         this.globalId = WebGPUGlobal.getId(this);
-        WebGPUGlobal.action(this, 'allocMemory', this.totalSize);
+        WebGPUGlobal.action(this, 'allocMemory', this._totalSize);
     }
 
     /**
@@ -21,7 +21,7 @@ export class WebGPUBufferCluster extends UniformBufferCluster {
      */
     destroy() {
         if (super.destroy()) {
-            WebGPUGlobal.action(this, 'releaseMemory | uniform', this.totalSize);
+            WebGPUGlobal.action(this, 'releaseMemory | uniform', this._totalSize);
             WebGPUGlobal.releaseId(this);
             return true;
         }

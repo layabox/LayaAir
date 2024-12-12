@@ -47,7 +47,7 @@ export class UniformBufferUser implements IUniformBufferUser {
         this.manager = manager;
         this.needUpload = false;
 
-        if (manager.useBigBuffer) {
+        if (manager._useBigBuffer) {
             this.bufferBlock = manager.getBlock(size, this);
             this.offset = this.bufferBlock.offset;
         } else this.bufferAlone = new UniformBufferAlone(size, manager);
@@ -422,7 +422,7 @@ export class UniformBufferUser implements IUniformBufferUser {
      */
     upload() {
         if (this.needUpload) {
-            if (this.manager.useBigBuffer)
+            if (this.manager._useBigBuffer)
                 this.bufferBlock.needUpload();
             else this.bufferAlone.upload();
             this.needUpload = false;
@@ -433,7 +433,7 @@ export class UniformBufferUser implements IUniformBufferUser {
      * 清除所有uniform
      */
     clear() {
-        if (this.manager.useBigBuffer)
+        if (this.manager._useBigBuffer)
             new Uint8Array(this.bufferBlock.cluster.data).fill(0, this.bufferBlock.offset, this.bufferBlock.offset + this.bufferBlock.size);
         else new Uint8Array(this.bufferAlone.data).fill(0);
         this.strId = '';
@@ -447,7 +447,7 @@ export class UniformBufferUser implements IUniformBufferUser {
      */
     destroy() {
         if (!this.destroyed) {
-            if (this.manager.useBigBuffer)
+            if (this.manager._useBigBuffer)
                 this.manager.freeBlock(this.bufferBlock);
             else this.bufferAlone.destroy();
             this.destroyed = true;
@@ -470,7 +470,7 @@ export class UniformBufferUser implements IUniformBufferUser {
      */
     protected _getUniformItem(name: string, tac: TypedArrayConstructor, type: string, offset: number, align: number, size: number, elements: number, count: number) {
         let view: TypedArray;
-        if (this.manager.useBigBuffer)
+        if (this.manager._useBigBuffer)
             view = new tac(this.bufferBlock.cluster.data, this.bufferBlock.offset + offset, size / tac.BYTES_PER_ELEMENT);
         else view = new tac(this.bufferAlone.data, offset, size / tac.BYTES_PER_ELEMENT);
         return { name, view, type, align, size, elements, count };

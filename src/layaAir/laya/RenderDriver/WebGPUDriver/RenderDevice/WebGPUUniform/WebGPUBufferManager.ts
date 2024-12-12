@@ -10,7 +10,7 @@ import { WebGPUStatis } from "../WebGPUStatis/WebGPUStatis";
 export class WebGPUBufferManager extends UniformBufferManager {
     globalId: number; //全局id
     objectName: string; //本对象名称
-
+    renderContext: any;
     constructor(useBigBuffer: boolean) {
         super(useBigBuffer);
         this.objectName = 'WebGPUBufferManager';
@@ -38,7 +38,7 @@ export class WebGPUBufferManager extends UniformBufferManager {
             usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
         });
     }
-    
+
     /**
      * 将数据写入GPU内存
      * @param buffer GPU内存对象

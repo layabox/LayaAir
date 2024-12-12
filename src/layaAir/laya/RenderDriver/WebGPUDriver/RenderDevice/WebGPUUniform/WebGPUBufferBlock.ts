@@ -10,12 +10,13 @@ export class WebGPUBufferBlock extends UniformBufferBlock {
     globalId: number; //全局id
     objectName: string; //本对象名称
 
-    constructor(sn: number, buffer: WebGPUBufferCluster, index: number, size: number, alignedSize: number, user: WebGPUUniformBuffer) {
-        super(sn, buffer, index, size, alignedSize, user);
+    constructor(buffer: WebGPUBufferCluster, index: number, size: number, alignedSize: number, user: WebGPUUniformBuffer) {
+        super(buffer, index, size, alignedSize, user);
         this.objectName = 'WebGPUBufferBlock';
         this.globalId = WebGPUGlobal.getId(this);
         WebGPUGlobal.action(this, 'getMemory', this.alignedSize);
     }
+
 
     /**
      * 销毁
