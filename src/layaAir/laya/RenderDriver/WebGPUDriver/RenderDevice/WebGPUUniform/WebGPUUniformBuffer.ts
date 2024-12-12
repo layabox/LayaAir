@@ -20,7 +20,7 @@ export class WebGPUUniformBuffer extends UniformBufferUser {
         super(name, size, manager, data);
         this.set = set;
         this.binding = binding;
-        if (manager.useBigBuffer) {
+        if (manager._useBigBuffer) {
             this._gpuBuffer = this.bufferBlock.cluster.buffer;
             this._gpuBindGroupEntry = {
                 binding,

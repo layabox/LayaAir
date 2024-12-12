@@ -83,7 +83,7 @@ export class WebGPURenderContext3D implements IRenderContext3D {
     constructor() {
         this.globalId = WebGPUGlobal.getId(this);
         this.device = WebGPURenderEngine._instance.getDevice();
-        WebGPURenderEngine._instance.gpuBufferMgr.setRenderContext(this);
+        WebGPURenderEngine._instance.gpuBufferMgr.renderContext = this;
     }
 
     get sceneData(): WebGPUShaderData {

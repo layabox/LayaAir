@@ -21,6 +21,7 @@ import { Vector2 } from "laya/maths/Vector2";
 import { CheckBox } from "laya/ui/CheckBox";
 import { Handler } from "laya/utils/Handler";
 import { Utils } from "laya/utils/Utils";
+import { Physics2DOption } from "laya/physics/Physics2DOption";
 
 const dampingRatio: number = 0.5;
 const frequencyHz: number = 10.0;
@@ -224,7 +225,6 @@ export class Physics_Strandbeests {
 
         // 单击产生新的小球刚体
         Laya.stage.on(Event.CLICK, this, () => {
-
             let tempVec = this.TempVec;
             let newBall = new Sprite();
             newBall.pos(Laya.stage.mouseX, Laya.stage.mouseY);
@@ -236,6 +236,7 @@ export class Physics_Strandbeests {
             tempVec.y = this.chassis.y - newBall.y;
             Vector2.normalize(tempVec, tempVec);
             Vector2.scale(tempVec, 50, tempVec);
+            Vector2.scale(tempVec, Physics2DOption.pixelRatio, tempVec);
             circleBody.linearVelocity = tempVec.toArray();
             Laya.timer.frameOnce(120, this, function () {
                 newBall.destroy();

@@ -14,7 +14,7 @@ float encodeVector2D(vec2 dir) {
     float angle = atan(dir.y, dir.x);
 
     //将角度从[-π, π]映射到[0, 1]
-    return angle * (0.5 / 3.14159) + 0.5;
+    return abs(angle * (1.0 / 3.14159));
 }
 
 #include "Sprite2DFrag.glsl";
@@ -28,6 +28,6 @@ void main()
     setglColor(textureColor);
     gl_FragColor.rgb *= v_color.rgb * u_PCFIntensity;
     float lumin = gl_FragColor.r * 0.3 + gl_FragColor.g * 0.59 + gl_FragColor.b * 0.11;
-    vec2 dir = vec2((v_uv.x - 0.5) * lumin, (v_uv.y - 0.5) * lumin);
-    gl_FragColor.a = encodeVector2D(dir); //方向编码到A通道
+    vec2 dir = vec2(v_uv.x - 0.5, v_uv.y - 0.5);
+    gl_FragColor.a = encodeVector2D(dir) * lumin; //方向编码到A通道
 }

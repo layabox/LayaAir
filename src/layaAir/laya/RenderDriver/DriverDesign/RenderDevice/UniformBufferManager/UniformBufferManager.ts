@@ -41,34 +41,64 @@ export function roundDown(n: number, align: number) {
     return res > n ? res - align : res;
 }
 
+export class UBOStat {
+    moveNum: number = 0; //内存块的移动次数
+
+    uploadNum: number = 0; //每帧上传次数
+
+    uploadByte: number = 0; //每帧上传字节数
+
+    timeCostAvg: number = 0; //花费时间（帧平均）
+
+    timeCostSum: number = 0; //花费时间（总数）
+
+    timeCostCount: number = 0; //统计花费时间的计数器
+}
+
 /**
  * Uniform内存块管理
  */
 export class UniformBufferManager {
-    renderContext: any; //渲染上下文对象
-    clustersAll: Map<number, UniformBufferCluster[]>; //所有大内存块，按尺寸分组
-    clustersCur: Map<number, UniformBufferCluster> //当前大内存块，按尺寸分组
-    useBigBuffer: boolean = true; //是否使用大内存模式
-    destroyed: boolean = false; //该对象是否已经销毁
 
-    snCounter: number = 0; //序号计数器
-    byteAlign: number = 256; //字节对齐
+
+    private _clustersAll: Map<number, UniformBufferCluster[]>; //所有大内存块，按尺寸分组
+
+    private _clustersCur: Map<number, UniformBufferCluster>; //当前大内存块，按尺寸分组
+
+    private _destroyed: boolean = false; //该对象是否已经销毁
+
+    //更新数据缓存数组
+    private _needUpdateCluster: Array<UniformBufferCluster> = [];
+    //释放内存缓存数组
+    private _removeHoleArray: Array<UniformBufferCluster> = [];
+    //优化内存位置数据
+    private _optimizeBufferPosArray: Array<UniformBufferCluster> = [];
+
+    _useBigBuffer: boolean = true; //是否使用大内存模式
+
+    //序号计数器
+    _snCounter: number = 0;
+
+    //字节对齐
+    byteAlign: number = 256;
+
+    //config
     clusterMaxBlock: number = 256; //每个Cluster最多容纳的Block数量
+    //config
     uploadThreshold: number = 200; //判定为动态块的上传次数阈值
+    //config
+    optimizeMemoryThreshold: number = 100;//移除内存空洞的阈值
 
-    moveNum: number = 0; //内存块的移动次数
-    uploadNum: number = 0; //每帧上传次数
-    uploadByte: number = 0; //每帧上传字节数
-    removeHoleTimer: number = 0; //移除空洞的计时器
+    //统计相关
+    _state: UBOStat;
 
-    timeCostAvg: number = 0; //花费时间（帧平均）
-    timeCostSum: number = 0; //花费时间（总数）
-    timeCostCount: number = 0; //统计花费时间的计数器
+    _enableStat: boolean = false;
 
     constructor(useBigBuffer: boolean) {
-        this.clustersAll = new Map();
-        this.clustersCur = new Map();
-        this.useBigBuffer = useBigBuffer;
+        this._clustersAll = new Map();
+        this._clustersCur = new Map();
+        this._useBigBuffer = useBigBuffer;
+        this._state = new UBOStat();
     }
 
     /**
@@ -79,22 +109,22 @@ export class UniformBufferManager {
     private _addCluster(size: number, blockNum: number = 10) {
         const alignedSize = roundUp(size, this.byteAlign);
         const cluster = new UniformBufferCluster(alignedSize, blockNum, this);
-        const clusters = this.clustersAll.get(alignedSize);
+        const clusters = this._clustersAll.get(alignedSize);
         if (clusters) {
             clusters.push(cluster);
             cluster.sn = clusters.length - 1;
         }
-        else this.clustersAll.set(alignedSize, [cluster]);
-        this.clustersCur.set(alignedSize, cluster);
+        else this._clustersAll.set(alignedSize, [cluster]);
+        this._clustersCur.set(alignedSize, cluster);
         return cluster;
     }
 
     /**
-     * 移除空洞
+     * 移除Manager的UBO大的Buffer中的内存空洞
      */
-    private _removeHole() {
-        if (this.useBigBuffer) {
-            this.clustersAll.forEach(clusters => {
+    removeHole() {
+        if (this._useBigBuffer) {
+            this._clustersAll.forEach(clusters => {
                 for (let i = clusters.length - 1; i > -1; i--)
                     clusters[i].removeHole();
             });
@@ -105,23 +135,31 @@ export class UniformBufferManager {
      * 开始新的一帧
      */
     startFrame() {
-        //显示上传统计信息
-        // const info = 'timeCost = ' + this.timeCostAvg + 'us, moveNum = ' + this.moveNum + ', uploadNum = ' + this.uploadNum + ', uploadByte = ' + this.uploadByte;
-        // if (this.useBigBuffer)
-        //     console.log('BigBuffer ' + info);
-        // else console.log('AloneBuffer ' + info);
-
         //按帧计数的清零
-        this.uploadNum = 0;
-        this.uploadByte = 0;
+        if (this._enableStat) {
+            this._state.uploadNum = 0;
+            this._state.uploadByte = 0;
+        }
     }
 
     /**
-     * 设置渲染上下文
-     * @param renderContext 
+     * 结束一帧数据处理
      */
-    setRenderContext(renderContext: any) {
-        this.renderContext = renderContext;
+    endFrame() {
+        if (!this._useBigBuffer)
+            return;
+        if (this._removeHoleArray.length > 0) {
+            for (var i = 0; i < this._removeHoleArray.length; i++) {
+                this._removeHoleArray[i].removeHole();
+            }
+            this._removeHoleArray.length = 0;
+        }
+        if (this._optimizeBufferPosArray.length > 0) {
+            for (var i = 0; i < this._optimizeBufferPosArray.length; i++) {
+                this._optimizeBufferPosArray[i].optimize();
+            }
+            this._optimizeBufferPosArray.length = 0;
+        }
     }
 
     /**
@@ -143,17 +181,17 @@ export class UniformBufferManager {
     removeCluster(size: number, sn: number) {
         const alignedSize = roundUp(size, this.byteAlign);
         if (sn === -1) {
-            this.clustersAll.delete(alignedSize);
-            this.clustersCur.delete(alignedSize);
+            this._clustersAll.delete(alignedSize);
+            this._clustersCur.delete(alignedSize);
             return;
         }
-        const cluster = this.clustersCur.get(alignedSize);
-        const clusters = this.clustersAll.get(alignedSize);
+        const cluster = this._clustersCur.get(alignedSize);
+        const clusters = this._clustersAll.get(alignedSize);
         if (clusters.length > sn) {
             clusters.splice(sn, 1);
             if (clusters.length === 0) {
-                this.clustersAll.delete(alignedSize);
-                this.clustersCur.delete(alignedSize);
+                this._clustersAll.delete(alignedSize);
+                this._clustersCur.delete(alignedSize);
                 return;
             } else {
                 for (let i = sn; i < clusters.length; i++)
@@ -162,7 +200,7 @@ export class UniformBufferManager {
         } else return;
         if (cluster.sn === sn) {
             if (clusters.length === 1)
-                this.clustersCur.set(alignedSize, clusters[0]);
+                this._clustersCur.set(alignedSize, clusters[0]);
             else {
                 let index = 0;
                 let usedNum = clusters[0].usedNum;
@@ -172,7 +210,7 @@ export class UniformBufferManager {
                         usedNum = clusters[i].usedNum;
                     }
                 }
-                this.clustersCur.set(alignedSize, clusters[index]);
+                this._clustersCur.set(alignedSize, clusters[index]);
             }
         }
     }
@@ -184,18 +222,18 @@ export class UniformBufferManager {
      */
     getBlock(size: number, user: IUniformBufferUser) {
         const alignedSize = roundUp(size, this.byteAlign);
-        let cluster = this.clustersCur.get(alignedSize);
+        let cluster = this._clustersCur.get(alignedSize);
         if (!cluster)
             return this._addCluster(alignedSize).getBlock(size, user);
         if (cluster.usedNum < this.clusterMaxBlock)
             return cluster.getBlock(size, user);
 
         cluster = null;
-        const clusters = this.clustersAll.get(alignedSize);
+        const clusters = this._clustersAll.get(alignedSize);
         for (let i = clusters.length - 1; i > -1; i--) {
             if (clusters[i].usedNum < this.clusterMaxBlock) {
                 cluster = clusters[i];
-                this.clustersCur.set(alignedSize, cluster);
+                this._clustersCur.set(alignedSize, cluster);
                 break;
             }
         }
@@ -213,7 +251,7 @@ export class UniformBufferManager {
         if (cluster) {
             if (cluster.freeBlock(bb)) {
                 if (cluster.usedNum === 0)
-                    this.removeCluster(cluster.blockSize, cluster.sn);
+                    this.removeCluster(cluster._blockSize, cluster.sn);
                 return true;
             }
             return false;
@@ -221,38 +259,64 @@ export class UniformBufferManager {
         return false;
     }
 
-    /**
-     * 上传数据
-     */
+    // /**
+    //  * 上传所有数据上传数据
+    //  */
+    // uploadAll() {
+    //     if (this._useBigBuffer) {
+    //         const t = performance.now();
+    //         this._clustersAll.forEach(clusters => {
+    //             for (let i = clusters.length - 1; i > -1; i--) {
+    //                 clusters[i].upload();
+    //             }
+    //         });
+
+    //         if (this._enableStat) {
+    //             this._state.timeCostSum += performance.now() - t;
+    //             this._state.timeCostCount++;
+    //             if (this._state.timeCostCount > 100) {
+    //                 this._state.timeCostAvg = (this._state.timeCostSum / this._state.timeCostCount) * 1000 | 0;
+    //                 this._state.timeCostSum = 0;
+    //                 this._state.timeCostCount = 0;
+    //             }
+    //         }
+    //     }
+    // }
+
     upload() {
-        if (this.useBigBuffer) {
-            const t = performance.now();
-            this.clustersAll.forEach(clusters => {
-                for (let i = clusters.length - 1; i > -1; i--) {
-                    clusters[i].upload();
-                    clusters[i].optimize();
-                }
-            });
-            this.timeCostSum += performance.now() - t;
-            this.timeCostCount++;
-            if (this.timeCostCount > 100) {
-                this.timeCostAvg = (this.timeCostSum / this.timeCostCount) * 1000 | 0;
-                this.timeCostSum = 0;
-                this.timeCostCount = 0;
-            }
-            this.removeHoleTimer++;
-            if (this.removeHoleTimer > 1000) { //定期移除内存空洞
-                this.removeHoleTimer = 0;
-                this._removeHole();
+        if (this._useBigBuffer) {
+            let cluster: UniformBufferCluster;
+            for (let i = 0; i < this._needUpdateCluster.length; i++) {
+                cluster = this._needUpdateCluster[i];
+                cluster.upload();
+                cluster._inManagerUpdateArray = false;
             }
         }
+        this._needUpdateCluster.length = 0;
+    }
+
+    _addUpdateArray(cluster: UniformBufferCluster) {
+        if (cluster._inManagerUpdateArray)
+            return;
+        this._needUpdateCluster.push(cluster);
+        cluster._inManagerUpdateArray = true;
+    }
+
+    _addRemoveHoleCluster(cluster: UniformBufferCluster) {
+        if (this._removeHoleArray.indexOf(cluster) != -1)
+            this._removeHoleArray.push(cluster);
+    }
+
+    _addoptimizeBufferPos(cluster: UniformBufferCluster) {
+        if (this._optimizeBufferPosArray.indexOf(cluster) != -1)
+            this._optimizeBufferPosArray.push(cluster);
     }
 
     /**
      * 清理所有内存
      */
     clear() {
-        this.clustersAll.forEach(clusters => {
+        this._clustersAll.forEach(clusters => {
             for (let i = clusters.length - 1; i > -1; i--)
                 clusters[i].clear();
         });
@@ -262,11 +326,11 @@ export class UniformBufferManager {
      * 销毁
      */
     destroy() {
-        if (!this.destroyed) {
+        if (!this._destroyed) {
             this.clear();
-            this.clustersAll.clear();
-            this.clustersCur.clear();
-            this.destroyed = true;
+            this._clustersAll.clear();
+            this._clustersCur.clear();
+            this._destroyed = true;
             return true;
         }
         console.warn('UniformBufferManager: object alreay destroyed!');

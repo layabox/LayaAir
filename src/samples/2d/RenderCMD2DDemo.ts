@@ -8,7 +8,6 @@ import { Mesh2D, VertexMesh2D } from "laya/resource/Mesh2D"
 import { IndexFormat } from "laya/RenderEngine/RenderEnum/IndexFormat";
 import { Mesh2DRender } from "laya/display/Scene2DSpecial/Mesh2DRender"
 import { CommandBuffer2D } from "laya/display/Scene2DSpecial/RenderCMD2D/CommandBuffer2D"
-import { Vector2 } from "laya/maths/Vector2";
 import { Color } from "laya/maths/Color";
 import { Utils3D } from "laya/d3/utils/Utils3D";
 import { RenderTexture } from "laya/resource/RenderTexture";
@@ -49,7 +48,9 @@ export class RenderCMD2DDemo {
             if (testMesh2DCMD) {//OK
                 let cmd = RenderCMD2DDemo.cmd = new CommandBuffer2D("test");
                 cmd.setRenderTarget(rt as any, true, Color.YELLOW);
-                cmd.drawMesh2DByTrans(mesh, new Vector2(0, 0), 0, new Vector2(), new Vector2(1, 1), t);
+                let mat = Matrix.TEMP;
+                mat.setMatrix(0, 0, 1, 1, 0, 0, 0, 0, 0);
+                cmd.drawMesh(mesh,mat, t);
                 cmd.apply(true);
                 console.log(Utils3D.uint8ArrayToArrayBuffer(rt));
             }
