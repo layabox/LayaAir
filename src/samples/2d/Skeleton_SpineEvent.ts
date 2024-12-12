@@ -7,7 +7,7 @@ import { Event } from "laya/events/Event";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Tween } from "laya/utils/Tween";
+import { Tween } from "laya/tween/Tween";
 import { Main } from "./../Main";
 
 export class Skeleton_SpineEvent {

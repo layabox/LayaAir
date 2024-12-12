@@ -16,15 +16,16 @@ import { LayaGL } from "laya/layagl/LayaGL";
 import { WebGLRenderEngineFactory } from "laya/RenderDriver/WebGLDriver/RenderDevice/WebGLRenderEngineFactory";
 import { Laya3D } from "Laya3D";
 import { btPhysicsCreateUtil } from "laya/Physics3D/Bullet/btPhysicsCreateUtil";
-import { Skeleton_SpineAdapted } from "./2d/Skeleton_SpineAdapted";
 import { Physics2D } from "laya/physics/Physics2D";
 import { physics2DwasmFactory } from "laya/physics/factory/physics2DwasmFactory"
 import { HierarchyLoader } from "laya/loaders/HierarchyLoader";
 import { LegacyUIParser } from "laya/legacy/LegacyUIParser";
+import { RenderCMD2DDemo } from "./2d/RenderCMD2DDemo";
+import { SceneLoad1 } from "./3d/LayaAir3D_Scene3D/SceneLoad1";
 
 Resource.DEBUG = true;
 LayaGL.renderOBJCreate = new WebGLRenderEngineFactory();
 Physics2D.I._factory = new physics2DwasmFactory();
 Laya3D.PhysicsCreateUtil = new btPhysicsCreateUtil();
 HierarchyLoader.legacySceneOrPrefab = LegacyUIParser;
-new Main(false, false);
+new Main(true, false,SceneLoad1);

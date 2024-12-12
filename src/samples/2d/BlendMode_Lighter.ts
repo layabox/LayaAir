@@ -2,7 +2,7 @@ import { Laya } from "Laya";
 import { Animation } from "laya/display/Animation";
 import { Stage } from "laya/display/Stage";
 import { Handler } from "laya/utils/Handler";
-import { Tween } from "laya/utils/Tween";
+import { Tween } from "laya/tween/Tween";
 import { Main } from "./../Main";
 
 export class BlendMode_Lighter {
@@ -85,7 +85,7 @@ export class BlendMode_Lighter {
 	private evalBgColor(): void {
 		var color: number = Math.random() * 0xFFFFFF;
 		var channels: any[] = this.getColorChannals(color);
-		this.bgColorTweener.to(this.bgColorChannels, { "r": channels[0], "g": channels[1], "b": channels[2] }, this.gradientInterval, null, Handler.create(this, this.onTweenComplete));
+		Tween.to(this.bgColorChannels, { "r": channels[0], "g": channels[1], "b": channels[2] }, this.gradientInterval, null, Handler.create(this, this.onTweenComplete));
 	}
 
 	private getColorChannals(color: number): any[] {
