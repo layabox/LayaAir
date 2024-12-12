@@ -5,6 +5,11 @@
  * 合理使用对象池可以有效减少对象创建的开销，避免频繁的垃圾回收，从而优化游戏流畅度。
  */
 
+export interface IPool<T> {
+    borrow(...argArray: any[]): T;
+    returns(element: T | Array<T>): void;
+}
+
 export class Pool {
     /**@private */
     private static _CLSID: number = 0;
@@ -146,6 +151,52 @@ export class Pool {
         return rst;
     }
 
+    static createPool<T>(type: new () => T, init?: (arg0: T) => void, reset?: (arg0: T) => void): IPool<T> {
+        return new SimplePool<T>(type, init, reset);
+    }
 }
 
+class SimplePool<T extends Object> {
+    pool: Array<T>;
+    _init: (arg0: T, ...argArray: any[]) => void;
+    _reset: (arg0: T) => void;
+    _ct: new () => T;
 
+    public constructor(type: new () => T, init?: (arg0: T) => void, reset?: (arg0: T) => void) {
+        this._init = init;
+        this._reset = reset;
+        this._ct = type;
+        this.pool = [];
+    }
+
+    public borrow(...argArray: any[]): T {
+        let ret: T;
+        if (this.pool.length > 0)
+            ret = this.pool.pop();
+        else
+            ret = new this._ct();
+
+        if (this._init)
+            this._init(ret, ...argArray);
+
+        return ret;
+    }
+
+    public returns(element: T | Array<T>) {
+        if (Array.isArray(element)) {
+            let count = element.length;
+            for (let i = 0; i < count; i++) {
+                let element2 = element[i];
+                if (this._reset)
+                    this._reset(element2);
+                this.pool.push(element2);
+            }
+            element.length = 0;
+        }
+        else {
+            if (this._reset)
+                this._reset(element);
+            this.pool.push(element);
+        }
+    }
+}

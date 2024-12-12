@@ -207,7 +207,7 @@ export class Trail2DRender extends BaseRenderNode2D {
     }
 
     onPreRender(): void {
-        let curtime = this._trailFilter._curtime += Laya.timer._delta / 1000;
+        let curtime = this._trailFilter._curtime += Laya.timer.delta / 1000;
         let trailGeometry = this._trailFilter._trialGeometry;
         this._spriteShaderData.setNumber(TrailShaderCommon.CURTIME, curtime);
         let globalPos = Point.TEMP;

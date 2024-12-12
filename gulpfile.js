@@ -63,6 +63,7 @@ const packsDef = [{
         './layaAir/laya/resource/**/*.*',
         './layaAir/laya/system/**/*.*',
         './layaAir/laya/utils/**/*.*',
+        './layaAir/laya/tween/**/*.*',
         './layaAir/laya/tools/**/*.*',
         './layaAir/laya/html/**/*.*',
         './layaAir/Config3D.ts',
@@ -232,7 +233,7 @@ const packsDef = [{
     'input': [
         './layaAir/laya/physics/Collider2D/*.*',
         './layaAir/laya/physics/joint/*.*',
-        
+
         './layaAir/laya/physics/ModuleDef.ts',
         './layaAir/laya/physics/Physics2D.ts',
         './layaAir/laya/physics/Physics2DOption.ts',
@@ -271,12 +272,6 @@ const packsDef = [{
     'libName': 'ani',
     'input': [
         './layaAir/laya/ani/**/*.*'
-    ],
-},
-{
-    'libName': 'debugtool',
-    'input': [
-        './extensions/debug/**/*.*'
     ],
 },
 {

@@ -553,7 +553,7 @@ export class Vector3 implements IClone {
      * @param arr 目标数组。
      * @param offset 数组偏移。默认值为 0。
      */
-    writeTo(arr: Float32Array, offset: number = 0): void {
+    writeTo(arr: { [n: number]: number }, offset: number = 0): void {
         arr[offset + 0] = this.x;
         arr[offset + 1] = this.y;
         arr[offset + 2] = this.z;

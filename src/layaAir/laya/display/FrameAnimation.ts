@@ -1,6 +1,6 @@
 import { AnimationBase } from "./AnimationBase";
 import { MathUtil } from "../maths/MathUtil"
-import { Ease } from "../utils/Ease"
+import { Ease } from "../tween/Ease"
 
 /**
  * @en Node keyframe animation playback class. Parses and plays node animations created in the IDE.

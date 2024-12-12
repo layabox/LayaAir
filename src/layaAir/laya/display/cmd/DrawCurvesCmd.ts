@@ -105,7 +105,7 @@ export class DrawCurvesCmd implements IGraphicsCmd {
      * @ignore
      */
     getBounds(assembler: IGraphicsBoundsAssembler): void {
-        assembler.points.push(...Bezier.I.getBezierPoints(this.points));
+        Bezier.getPoints(this.points, 5, 2, assembler.points);
         assembler.flushPoints(this.x, this.y);
     }
 }

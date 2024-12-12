@@ -1,6 +1,6 @@
 import { FrameAnimation } from "./FrameAnimation";
 import { ClassUtils } from "../utils/ClassUtils"
-import { Ease } from "../utils/Ease"
+import { Ease } from "../tween/Ease"
 
 /**
  * @en Effect template. Used to add animation effects to specified target objects. Each effect has a unique target object, while the same object can add multiple effects. When one effect starts playing, other effects will automatically stop playing.

@@ -10,12 +10,10 @@ import { RenderSprite } from "./laya/renders/RenderSprite";
 import { Context } from "./laya/renders/Context";
 import { HTMLCanvas } from "./laya/resource/HTMLCanvas";
 import { Browser } from "./laya/utils/Browser";
-import { CacheManger } from "./laya/utils/CacheManger";
 import { Timer } from "./laya/utils/Timer";
 import { PrimitiveSV } from "./laya/webgl/shader/d2/value/PrimitiveSV";
 import { TextureSV } from "./laya/webgl/shader/d2/value/TextureSV";
 import { RenderSpriteData, Value2D } from "./laya/webgl/shader/d2/value/Value2D";
-import { WebGL } from "./laya/webgl/WebGL";
 import { Mouse } from "./laya/utils/Mouse";
 import { MeshVG } from "./laya/webgl/utils/MeshVG";
 import { MeshQuadTexture } from "./laya/webgl/utils/MeshQuadTexture";
@@ -24,7 +22,6 @@ import { WeakObject } from "./laya/utils/WeakObject";
 import { RenderStateContext } from "./laya/RenderEngine/RenderStateContext";
 import { IStageConfig, LayaEnv } from "./LayaEnv";
 import { URL } from "./laya/net/URL";
-import { RunDriver } from "./laya/utils/RunDriver";
 import { Config } from "./Config";
 import { Shader3D } from "./laya/RenderEngine/RenderShader/Shader3D";
 import { LayaGL } from "./laya/layagl/LayaGL";
@@ -35,6 +32,7 @@ import { Stat } from "./laya/utils/Stat";
 import { RenderPassStatisticsInfo } from "./laya/RenderEngine/RenderEnum/RenderStatInfo";
 import { IPhysiscs2DFactory } from "./laya/physics/IPhysiscs2DFactory";
 import { VertexMesh } from "./laya/RenderEngine/RenderShader/VertexMesh";
+import type { Laya3D } from "./Laya3D";
 
 /**
  * @en Laya is the reference entry for global objects.
@@ -48,7 +46,6 @@ export class Laya {
      * @zh 舞台对象的引用。
      */
     static stage: Stage = null;
-
     /**
      * @ignore 
      * @en System clock manager, used by the engine internally.
@@ -113,8 +110,6 @@ export class Laya {
             return Promise.resolve();
         Laya._inited = true;
         Stat.renderPassStatArray.length = RenderPassStatisticsInfo.RenderPassStatisticCount;
-        if (!WebGL.enable())
-            throw new Error("Must support webGL!");
 
         let stageConfig: IStageConfig;
         if (typeof (args[0]) === "number") {
@@ -128,12 +123,6 @@ export class Laya {
 
         Browser.__init__();
         URL.__init__();
-
-        let laya3D = (<any>window)["Laya3D"];
-        if (laya3D) {
-            RunDriver.changeWebGLSize = laya3D._changeWebGLSize;
-            Render.is3DMode = true;
-        }
 
         // 创建主画布
         //这个其实在Render中感觉更合理，但是runtime要求第一个canvas是主画布，所以必须在下面的那个离线画布之前
@@ -167,8 +156,6 @@ export class Laya {
         WeakObject.__init__();
         Mouse.__init__();
 
-        CacheManger.beginCheck();
-
         let steps: Array<() => any> = [];
 
         if (LayaEnv.beforeInit)
@@ -180,6 +167,8 @@ export class Laya {
 
         steps.push(() => LayaGL.renderOBJCreate.createEngine(null, Browser.mainCanvas));
         steps.push(() => Laya.initRender2D(stageConfig));
+
+        let laya3D = <typeof Laya3D>(<any>window)["Laya3D"];
         if (laya3D)
             steps.push(() => laya3D.__init__());
 

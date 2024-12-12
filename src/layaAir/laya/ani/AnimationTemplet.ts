@@ -7,7 +7,7 @@ import { Resource } from "../resource/Resource";
 import { MathUtil } from "../maths/MathUtil";
 import { IAniLib } from "./AniLibPack";
 import { Byte } from "../utils/Byte";
-import { BezierLerp } from "./math/BezierLerp";
+import { Bezier } from "../maths/Bezier";
 
 /**
  * @en The AnimationTemplate class is used for animation template resources.
@@ -79,7 +79,7 @@ export class AnimationTemplet extends Resource {
      */
     //TODO:coverage
     private static _BezierInterpolation_6(bone: AnimationNodeContent, index: number, out: Float32Array, outOfs: number, data: Float32Array, dt: number, dData: Float32Array, duration: number, nextData: Float32Array, interData: any[] = null, offset: number = 0): number {
-        out[outOfs] = data[index] + (nextData[index] - data[index]) * BezierLerp.getBezierRate(dt / duration, interData[offset], interData[offset + 1], interData[offset + 2], interData[offset + 3]);
+        out[outOfs] = data[index] + (nextData[index] - data[index]) * Bezier.getRate(dt / duration, interData[offset], interData[offset + 1], interData[offset + 2], interData[offset + 3]);
         return 5;
     }
 
@@ -89,7 +89,7 @@ export class AnimationTemplet extends Resource {
     //TODO:coverage
     private static _BezierInterpolation_7(bone: AnimationNodeContent, index: number, out: Float32Array, outOfs: number, data: Float32Array, dt: number, dData: Float32Array, duration: number, nextData: Float32Array, interData: any[] = null, offset: number = 0): number {
         //interData=[x0,y0,x1,y1,start,d,offTime,allTime]
-        out[outOfs] = interData[offset + 4] + interData[offset + 5] * BezierLerp.getBezierRate((dt * 0.001 + interData[offset + 6]) / interData[offset + 7], interData[offset], interData[offset + 1], interData[offset + 2], interData[offset + 3]);
+        out[outOfs] = interData[offset + 4] + interData[offset + 5] * Bezier.getRate((dt * 0.001 + interData[offset + 6]) / interData[offset + 7], interData[offset], interData[offset + 1], interData[offset + 2], interData[offset + 3]);
         return 9;
     }
 

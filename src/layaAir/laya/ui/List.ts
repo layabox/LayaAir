@@ -8,7 +8,7 @@ import { Event } from "../events/Event";
 import { Point } from "../maths/Point";
 import { Rectangle } from "../maths/Rectangle";
 import { Handler } from "../utils/Handler";
-import { Tween } from "../utils/Tween";
+import { Tween } from "../tween/Tween";
 import { HideFlags } from "../Const";
 import { HierarchyParser } from "../loaders/HierarchyParser";
 import { UIComponent } from "./UIComponent";

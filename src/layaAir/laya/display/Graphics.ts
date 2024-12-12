@@ -30,7 +30,6 @@ import { Rectangle } from "../maths/Rectangle"
 import { Context } from "../renders/Context"
 import { Texture } from "../resource/Texture"
 import { Utils } from "../utils/Utils"
-import { VectorGraphManager } from "../utils/VectorGraphManager"
 import { ILaya } from "../../ILaya";
 import { WordText } from "../utils/WordText";
 import { ColorUtils } from "../utils/ColorUtils";
@@ -127,12 +126,6 @@ export class Graphics {
             this._sp._renderType &= ~SpriteConst.GRAPHICS;
         }
         this._repaint();
-        if (this._vectorgraphArray) {
-            for (let i = 0, len = this._vectorgraphArray.length; i < len; i++) {
-                VectorGraphManager.getInstance().deleteShape(this._vectorgraphArray[i]);
-            }
-            this._vectorgraphArray.length = 0;
-        }
     }
 
     /** @ignore */

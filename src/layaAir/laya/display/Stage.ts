@@ -13,18 +13,19 @@ import { RenderInfo } from "../renders/RenderInfo"
 import { Context } from "../renders/Context"
 import { HTMLCanvas } from "../resource/HTMLCanvas"
 import { Browser } from "../utils/Browser"
-import { CallLater } from "../utils/CallLater"
 import { ColorUtils } from "../utils/ColorUtils"
-import { RunDriver } from "../utils/RunDriver"
-import { VectorGraphManager } from "../utils/VectorGraphManager"
 import { Stat } from "../utils/Stat";
 import { ILaya } from "../../ILaya";
 import { ComponentDriver } from "../components/ComponentDriver";
 import { LayaEnv } from "../../LayaEnv";
-import { Scene3D } from "../d3/core/scene/Scene3D";
+import type { Scene3D } from "../d3/core/scene/Scene3D";
 import { Color } from "../maths/Color";
 import { LayaGL } from "../layagl/LayaGL";
-import { Scene } from "./Scene";
+import type { Scene } from "./Scene";
+import { RenderState2D } from "../webgl/utils/RenderState2D";
+import type { Laya3D } from "../../Laya3D";
+import { Timer } from "../utils/Timer";
+import { Tween } from "../tween/Tween";
 
 /**
  * @en Stage is the root node of the display list. All display objects are shown on the stage. It can be accessed through the Laya.stage singleton.
@@ -513,7 +514,6 @@ export class Stage extends Sprite {
 
         //处理canvas大小
         canvas.size(canvasWidth, canvasHeight);
-        RunDriver.changeWebGLSize(canvasWidth, canvasHeight);
         mat.scale(realWidth / canvasWidth / pixelRatio, realHeight / canvasHeight / pixelRatio);
 
         //处理水平对齐
@@ -555,9 +555,14 @@ export class Stage extends Sprite {
         Stage._setStageStyle(canvas, canvasWidth, canvasHeight, mat);
         //修正用户自行设置的偏移
         if (this._safariOffsetY) mat.translate(0, -this._safariOffsetY);
+
+        RenderState2D.width = canvasWidth;
+        RenderState2D.height = canvasHeight;
+        (<typeof Laya3D>(<any>window)['Laya3D'])?._changeWebGLSize(canvasWidth, canvasHeight);
+        LayaGL.renderEngine.resizeOffScreen(canvasWidth, canvasHeight);
+
         this.visible = true;
         this.repaint();
-
         this.event(Event.RESIZE);
     }
 
@@ -928,7 +933,7 @@ export class Stage extends Sprite {
             if (!this._visible) {
                 this._renderCount++;
                 if (this._renderCount % 5 === 0) {
-                    CallLater.I._update();
+                    Timer.callLaters._update();
                     Stat.loopCount++;
                     RenderInfo.loopCount = Stat.loopCount;
                     this._runComponents();
@@ -949,7 +954,7 @@ export class Stage extends Sprite {
         if (!isFastMode && !isDoubleLoop)//统一双帧处理渲染
             return;
 
-        CallLater.I._update();
+        Timer.callLaters._update();
         Stat.loopCount++;
         RenderInfo.loopCount = Stat.loopCount;
 
@@ -976,8 +981,6 @@ export class Stage extends Sprite {
             this._render2d(context2D, x, y);
 
             this._componentDriver.callPostRender();
-
-            VectorGraphManager.instance && VectorGraphManager.getInstance().endDispose();
         }
         else
             this._runComponents();
@@ -1002,7 +1005,6 @@ export class Stage extends Sprite {
     }
 
     private _runComponents() {
-
         this._componentDriver.callStart();
         this._componentDriver.callUpdate();
         this._componentDriver.callLateUpdate();
@@ -1013,6 +1015,7 @@ export class Stage extends Sprite {
         ILaya.systemTimer._update();
         ILaya.physicsTimer._update();
         ILaya.timer._update();
+        Tween._runAll();
     }
 
     /**

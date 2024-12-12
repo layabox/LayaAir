@@ -667,7 +667,7 @@ export class Animator2D extends Component {
         }
 
 
-        var delta = this.owner.timer._delta / 1000.0;
+        var delta = this.owner.timer.delta / 1000.0;
         delta = this._applyUpdateMode(delta);
         if (0 == this.speed || 0 == delta) return;
         var needRender = true;//TODO:有渲染节点才可将needRender变为true

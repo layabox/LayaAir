@@ -5,9 +5,9 @@ import { Event } from "../events/Event"
 import { Box } from "./Box"
 import { Dialog } from "./Dialog"
 import { UIComponent } from "./UIComponent"
-import { Ease } from "../utils/Ease"
+import { Ease } from "../tween/Ease"
 import { Handler } from "../utils/Handler"
-import { Tween } from "../utils/Tween"
+import { Tween } from "../tween/Tween"
 import { ILaya } from "../../ILaya";
 
 /**
@@ -41,7 +41,9 @@ export class DialogManager extends Sprite {
      */
     popupEffect = (dialog: Dialog) => {
         dialog.scale(1, 1);
-        dialog._effectTween = Tween.from(dialog, { x: ILaya.stage.width / 2, y: ILaya.stage.height / 2, scaleX: 0, scaleY: 0 }, 300, Ease.backOut, Handler.create(this, this.doOpen, [dialog]), 0, false, false);
+        if (dialog._effectTween != null)
+            Tween.kill(dialog._effectTween);
+        dialog._effectTween = Tween.from(dialog, { x: ILaya.stage.width / 2, y: ILaya.stage.height / 2, scaleX: 0, scaleY: 0 }, 300, Ease.backOut, Handler.create(this, this.doOpen, [dialog])).id;
     }
 
     /**
@@ -50,7 +52,9 @@ export class DialogManager extends Sprite {
      * @zh 全局默认关闭对话框效果，可以设置一个效果代替默认的关闭效果，如果不想有任何效果，可以赋值为 null。
      */
     closeEffect = (dialog: Dialog) => {
-        dialog._effectTween = Tween.to(dialog, { x: ILaya.stage.width / 2, y: ILaya.stage.height / 2, scaleX: 0, scaleY: 0 }, 300, Ease.strongOut, Handler.create(this, this.doClose, [dialog]), 0, false, false);
+        if (dialog._effectTween != null)
+            Tween.kill(dialog._effectTween);
+        dialog._effectTween = Tween.to(dialog, { x: ILaya.stage.width / 2, y: ILaya.stage.height / 2, scaleX: 0, scaleY: 0 }, 300, Ease.strongOut, Handler.create(this, this.doClose, [dialog])).id;
     }
 
     /** 
@@ -105,8 +109,8 @@ export class DialogManager extends Sprite {
     }
 
     private _clearDialogEffect(dialog: Dialog): void {
-        if (dialog._effectTween) {
-            Tween.clear(dialog._effectTween);
+        if (dialog._effectTween != null) {
+            Tween.kill(dialog._effectTween);
             dialog._effectTween = null;
         }
     }

@@ -1,11 +1,12 @@
-import { Pool } from "./Pool";
+import { Pool } from "../utils/Pool";
 import { Tween } from "./Tween";
-import { Browser } from "./Browser";
-import { Handler } from "./Handler";
-import { Utils } from "./Utils";
+import { Browser } from "../utils/Browser";
+import { Handler } from "../utils/Handler";
+import { Utils } from "../utils/Utils";
 import { Event } from "../events/Event"
 import { EventDispatcher } from "../events/EventDispatcher"
 import { ILaya } from "../../ILaya";
+import { EaseFunction } from "./Ease";
 
 /**
  * @en When the entire slow motion ends, it will be scheduled
@@ -27,7 +28,7 @@ import { ILaya } from "../../ILaya";
 export class TimeLine extends EventDispatcher {
 
     private _labelDic: any;
-    private _tweenDic: any = {};
+    private _tweenDic: Array<number> = [];
     private _tweenDataList: any[] = [];
     private _endTweenDataList: any[];//以结束时间进行排序
     private _currTime: number = 0;
@@ -35,8 +36,6 @@ export class TimeLine extends EventDispatcher {
     private _startTime: number = 0;
     /**当前动画数据播放到第几个了*/
     private _index: number = 0;
-    /**为TWEEN创建属于自己的唯一标识，方便管理*/
-    private _gidIndex: number = 0;
     /**保留所有对象第一次注册动画时的状态（根据时间跳转时，需要把对象的恢复，再计算接下来的状态）*/
     private _firstTweenDic: any = {};
     /**是否需要排序*/
@@ -63,14 +62,14 @@ export class TimeLine extends EventDispatcher {
      * @param offset The time offset relative to the previous object (in milliseconds).
      * @returns An instance of TimeLine.
      * @zh 控制一个对象，从当前位置移动到目标位置。
-     * @param	target		要控制的对象。
-     * @param	props		要控制对象的属性。
-     * @param	duration	对象TWEEN的时间。
-     * @param	ease		缓动类型
-     * @param	offset		相对于上一个对象，偏移多长时间（单位：毫秒）。
+     * @param target  要控制的对象。
+     * @param props  要控制对象的属性。
+     * @param duration 对象TWEEN的时间。
+     * @param ease  缓动类型
+     * @param offset  相对于上一个对象，偏移多长时间（单位：毫秒）。
      */
-    static to(target: any, props: any, duration: number, ease: Function = null, offset: number = 0): TimeLine {
-        return (new TimeLine()).to(target, props, duration, ease, offset);
+    static to(target: any, props: any, duration: number, ease: EaseFunction = null, offset: number = 0): TimeLine {
+        return new TimeLine().to(target, props, duration, ease, offset);
     }
 
     /**
@@ -81,14 +80,14 @@ export class TimeLine extends EventDispatcher {
      * @param ease The type of easing function.
      * @param offset The time offset relative to the previous object (in milliseconds).
      * @zh 从 props 属性，缓动到当前状态。
-     * @param	target		target 目标对象(即将更改属性值的对象)
-     * @param	props		要控制对象的属性
-     * @param	duration	对象TWEEN的时间
-     * @param	ease		缓动类型
-     * @param	offset		相对于上一个对象，偏移多长时间（单位：毫秒）
+     * @param target  target 目标对象(即将更改属性值的对象)
+     * @param props  要控制对象的属性
+     * @param duration 对象TWEEN的时间
+     * @param ease  缓动类型
+     * @param offset  相对于上一个对象，偏移多长时间（单位：毫秒）
      */
-    static from(target: any, props: any, duration: number, ease: Function = null, offset: number = 0): TimeLine {
-        return (new TimeLine()).from(target, props, duration, ease, offset);
+    static from(target: any, props: any, duration: number, ease: EaseFunction = null, offset: number = 0): TimeLine {
+        return new TimeLine().from(target, props, duration, ease, offset);
     }
 
     /**
@@ -100,13 +99,13 @@ export class TimeLine extends EventDispatcher {
      * @param offset The time offset from the start of the previous TWEEN (in milliseconds).
      * @returns An instance of TimeLine.
      * @zh 控制一个对象，从当前位置移动到目标位置。
-     * @param	target		要控制的对象。
-     * @param	props		要控制对象的属性。
-     * @param	duration	对象TWEEN的时间。
-     * @param	ease		缓动类型
-     * @param	offset		相对于上一个对象，偏移多长时间（单位：毫秒）。
+     * @param target  要控制的对象。
+     * @param props  要控制对象的属性。
+     * @param duration 对象TWEEN的时间。
+     * @param ease  缓动类型
+     * @param offset  相对于上一个对象，偏移多长时间（单位：毫秒）。
      */
-    to(target: any, props: any, duration: number, ease: Function = null, offset: number = 0): TimeLine {
+    to(target: any, props: any, duration: number, ease: EaseFunction = null, offset: number = 0): TimeLine {
         return this._create(target, props, duration, ease, offset, true);
     }
 
@@ -124,12 +123,12 @@ export class TimeLine extends EventDispatcher {
      * @param ease 缓动类型，用于指定缓动效果的函数。
      * @param offset 相对于上一个缓动，延迟启动当前缓动的时间偏移量（单位：毫秒）。。
      */
-    from(target: any, props: any, duration: number, ease: Function = null, offset: number = 0): TimeLine {
+    from(target: any, props: any, duration: number, ease: EaseFunction = null, offset: number = 0): TimeLine {
         return this._create(target, props, duration, ease, offset, false);
     }
 
     /** @private */
-    private _create(target: any, props: any, duration: number, ease: Function, offset: number, isTo: boolean): TimeLine {
+    private _create(target: any, props: any, duration: number, ease: EaseFunction, offset: number, isTo: boolean): TimeLine {
         var tTweenData: tweenData = Pool.getItemByClass("tweenData", tweenData);
         tTweenData.isTo = isTo;
         tTweenData.type = 0;
@@ -151,8 +150,8 @@ export class TimeLine extends EventDispatcher {
      * @param label The name of the label to add.
      * @param offset The offset time in milliseconds from the previous animation.
      * @zh 在时间队列中加入一个标签，相对于上一个动画的偏移时间。
-     * @param	label	标签名称。
-     * @param	offset	标签相对于上个动画的偏移时间(单位：毫秒)。
+     * @param label 标签名称。
+     * @param offset 标签相对于上个动画的偏移时间(单位：毫秒)。
      */
     addLabel(label: string, offset: number): TimeLine {
         var tTweenData: tweenData = Pool.getItemByClass("tweenData", tweenData);
@@ -192,25 +191,20 @@ export class TimeLine extends EventDispatcher {
      */
     gotoTime(time: number): void {
         if (this._tweenDataList == null || this._tweenDataList.length == 0) return;
-        var tTween: Tween;
-        var tObject: any;
-        for (var p in this._firstTweenDic) {
-            tObject = this._firstTweenDic[p];
+        for (let p in this._firstTweenDic) {
+            let tObject = this._firstTweenDic[p];
             if (tObject) {
-                for (var tDataP in tObject) {
+                for (let tDataP in tObject) {
                     if (tDataP in tObject.diyTarget) {
                         tObject.diyTarget[tDataP] = tObject[tDataP];
                     }
                 }
             }
         }
-        for (p in this._tweenDic) {
-            tTween = this._tweenDic[p];
-            tTween.clear();
-            delete this._tweenDic[p];
-        }
+        for (let p of this._tweenDic)
+            Tween.kill(p);
+        this._tweenDic.length = 0;
         this._index = 0;
-        this._gidIndex = 0;
         this._currTime = time;
         this._lastTime = Browser.now();
         var tTweenDataCopyList: any[];
@@ -257,13 +251,12 @@ export class TimeLine extends EventDispatcher {
             if (tTweenData.type == 0) {
                 if (time >= tTweenData.startTime && time < tTweenData.endTime) {
                     this._index = Math.max(this._index, i + 1);
-                    this._gidIndex++;
-                    tTween = Pool.getItemByClass("tween", Tween);
-                    tTween._create(tTweenData.target, tTweenData.data, tTweenData.duration, tTweenData.ease, Handler.create(this, this._animComplete, [this._gidIndex]), 0, false, tTweenData.isTo, true, false);
-                    tTween.setStartTime(this._currTime - (time - tTweenData.startTime));
-                    tTween._updateEase(this._currTime);
-                    tTween.gid = this._gidIndex;
-                    this._tweenDic[this._gidIndex] = tTween;
+                    let tTween: Tween;
+                    if (tTweenData.isTo)
+                        tTween = Tween.to(tTweenData.target, tTweenData.data, tTweenData.duration, tTweenData.ease, Handler.create(this, this._animComplete));
+                    else
+                        tTween = Tween.from(tTweenData.target, tTweenData.data, tTweenData.duration, tTweenData.ease, Handler.create(this, this._animComplete));
+                    this._tweenDic.push(tTween.id);
                 }
             }
         }
@@ -325,7 +318,7 @@ export class TimeLine extends EventDispatcher {
                 var tTweenData: tweenData = this._tweenDataList[i];
                 if (tTweenData != null && tTweenData.type == 0) {
                     var tTarget: any = tTweenData.target;
-                    var gid: number = (tTarget.$_GID || (tTarget.$_GID = Utils.getGID()));
+                    var gid = Utils.getGID(tTarget);
                     var tSrcData: any = null;
                     //把对象的初始属性保留下来，方便跳转时，回复到初始状态
                     if (this._firstTweenDic[gid] == null) {
@@ -363,10 +356,8 @@ export class TimeLine extends EventDispatcher {
                 if (!this._tweenDataList) return;
                 this.gotoTime(0);
             } else {
-                for (var p in this._tweenDic) {
-                    tTween = this._tweenDic[p];
-                    tTween.complete();
-                }
+                for (let p of this._tweenDic)
+                    Tween.kill(p, true);
                 this.pause();
                 this._complete();
                 return;
@@ -378,11 +369,6 @@ export class TimeLine extends EventDispatcher {
         var tCurrTime: number = this._currTime += tFrameTime * this.scale;
         this._lastTime = tNow;
 
-        for (p in this._tweenDic) {
-            tTween = this._tweenDic[p];
-            tTween._updateEase(tCurrTime);
-        }
-
         var tTween: Tween;
         if (this._tweenDataList.length != 0 && this._index < this._tweenDataList.length) {
             var tTweenData: tweenData = this._tweenDataList[this._index];
@@ -390,29 +376,26 @@ export class TimeLine extends EventDispatcher {
                 this._index++;
                 //创建TWEEN
                 if (tTweenData.type == 0) {
-                    this._gidIndex++;
-                    tTween = Pool.getItemByClass("tween", Tween);
-                    tTween._create(tTweenData.target, tTweenData.data, tTweenData.duration, tTweenData.ease, Handler.create(this, this._animComplete, [this._gidIndex]), 0, false, tTweenData.isTo, true, false);
-                    tTween.setStartTime(tCurrTime);
-                    tTween.gid = this._gidIndex;
-                    this._tweenDic[this._gidIndex] = tTween;
-                    tTween._updateEase(tCurrTime);
+                    let tTween: Tween;
+                    if (tTweenData.isTo)
+                        tTween = Tween.to(tTweenData.target, tTweenData.data, tTweenData.duration, tTweenData.ease, Handler.create(this, this._animComplete));
+                    else
+                        tTween = Tween.from(tTweenData.target, tTweenData.data, tTweenData.duration, tTweenData.ease, Handler.create(this, this._animComplete));
+                    this._tweenDic.push(tTween.id);
                 } else {
                     this.event(Event.LABEL, tTweenData.data);
                 }
             }
         }
-
-
     }
 
     /**
      * 指定的动画索引处的动画播放完成后，把此动画从列表中删除。
-     * @param	index
+     * @param index
      */
     private _animComplete(index: number): void {
-        var tTween: Tween = this._tweenDic[index];
-        if (tTween) delete this._tweenDic[index];
+        let i = this._tweenDic.indexOf(index);
+        if (i > -1) this._tweenDic.splice(i, 1);
     }
 
     /** @private */
@@ -454,12 +437,9 @@ export class TimeLine extends EventDispatcher {
                 delete this._labelDic[p];
             }
         }
-        var tTween: Tween;
-        for (p in this._tweenDic) {
-            tTween = this._tweenDic[p];
-            tTween.clear();
-            delete this._tweenDic[p];
-        }
+        for (let p of this._tweenDic)
+            Tween.kill(p);
+        this._tweenDic.length = 0;
         for (p in this._firstTweenDic) {
             delete this._firstTweenDic[p];
         }
@@ -477,7 +457,6 @@ export class TimeLine extends EventDispatcher {
         this._lastTime = 0;
         this._startTime = 0;
         this._index = 0;
-        this._gidIndex = 0;
         this.scale = 1;
         ILaya.timer.clear(this, this._update);
     }
@@ -542,7 +521,7 @@ class tweenData {
      * @en Easing function of the tween.
      * @zh 缓动的缓动函数。
      */
-    ease: Function;
+    ease: EaseFunction;
 
     /**
      * @en Data associated with the tween.

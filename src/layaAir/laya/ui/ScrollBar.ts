@@ -6,9 +6,9 @@ import { Styles } from "./Styles";
 import { Sprite } from "../display/Sprite"
 import { Event } from "../events/Event"
 import { Point } from "../maths/Point"
-import { Ease } from "../utils/Ease"
+import { Ease } from "../tween/Ease"
 import { Handler } from "../utils/Handler"
-import { Tween } from "../utils/Tween"
+import { Tween } from "../tween/Tween"
 import { ILaya } from "../../ILaya";
 import { HideFlags } from "../Const";
 import { URL } from "../net/URL";
@@ -549,7 +549,7 @@ export class ScrollBar extends UIComponent {
         this._lastPoint || (this._lastPoint = new Point());
         this._lastPoint.setTo(ILaya.stage.mouseX, ILaya.stage.mouseY);
         ILaya.timer.clear(this, this.tweenMove);
-        Tween.clearTween(this);
+        Tween.killAll(this);
         ILaya.stage.once(Event.MOUSE_UP, this, this.onStageMouseUp2);
         ILaya.stage.once(Event.MOUSE_OUT, this, this.onStageMouseUp2);
         ILaya.timer.frameLoop(1, this, this.loop);
@@ -570,7 +570,7 @@ export class ScrollBar extends UIComponent {
         this._lastPoint || (this._lastPoint = new Point());
         this._lastPoint.setTo(ILaya.stage.mouseX, ILaya.stage.mouseY);
         ILaya.timer.clear(this, this.tweenMove);
-        Tween.clearTween(this);
+        Tween.killAll(this);
         ILaya.stage.once(Event.MOUSE_UP, this, this.onStageMouseUp2);
         ILaya.stage.once(Event.MOUSE_OUT, this, this.onStageMouseUp2);
         ILaya.timer.frameLoop(1, this, this.loop);
@@ -806,7 +806,7 @@ export class ScrollBar extends UIComponent {
     stopScroll(): void {
         this.onStageMouseUp2(null);
         ILaya.timer.clear(this, this.tweenMove);
-        Tween.clearTween(this);
+        Tween.killAll(this);
     }
 
     /**

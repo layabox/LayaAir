@@ -1,6 +1,6 @@
 import { Handler } from "../utils/Handler";
 import { Sprite } from "../display/Sprite";
-import { Tween } from "../utils/Tween";
+import { Tween } from "../tween/Tween";
 import { Component } from "../components/Component";
 
 /**
@@ -61,7 +61,7 @@ export class EffectBase extends Component {
 
     protected _exeTween(): void {
         this._tween = this._doTween();
-        this._tween.repeat = this.repeat;
+        this._tween.setRepeat(this.repeat);
     }
 
     protected _doTween(): Tween {

@@ -229,11 +229,12 @@ export class Color implements IClone {
      * @param b 蓝色分量。
      * @param a 透明度分量。
      */
-    setValue(r: number, g: number, b: number, a: number) {
+    setValue(r: number, g: number, b: number, a: number): Color {
         this.r = r;
         this.g = g;
         this.b = b;
         this.a = a;
+        return this;
     }
 
     /**
@@ -259,6 +260,21 @@ export class Color implements IClone {
      */
     toArray(): Array<number> {
         return [this.r, this.g, this.b, this.a];
+    }
+
+    /**
+     * @en Writes the color rgb values to a array.
+     * @param arr The target array.
+     * @param offset The offset in the array. Default is 0.
+     * @zh 将颜色rgb数值写入数组。
+     * @zh arr 目标数组。
+     * @zh offset 数组偏移。默认值为 0。
+     */
+    writeTo(arr: { [n: number]: number }, offset: number = 0): void {
+        arr[offset + 0] = this.r;
+        arr[offset + 1] = this.g;
+        arr[offset + 2] = this.b;
+        arr[offset + 3] = this.a;
     }
 
     /**

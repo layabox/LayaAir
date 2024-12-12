@@ -74,7 +74,7 @@ export class TrailFilter extends TrailBaseFilter {
 		const scene = this._ownerRender.owner.scene
 		if (!scene)
 			return;
-		this._curtime += scene.timer._delta / 1000;
+		this._curtime += scene.timer.delta / 1000;
 		//设置颜色
 		render._baseRenderNode.shaderData.setNumber(TrailShaderCommon.CURTIME, this._curtime);
 		//现在的位置记录

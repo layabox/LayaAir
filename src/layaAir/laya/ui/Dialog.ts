@@ -8,7 +8,7 @@ import { Event } from "../events/Event"
 import { Point } from "../maths/Point"
 import { Rectangle } from "../maths/Rectangle"
 import { Handler } from "../utils/Handler"
-import { Tween } from "../utils/Tween"
+import { Tween } from "../tween/Tween"
 
 /**
  * @en The `Dialog` component is a pop-up dialog box that implements the functionality of popping up, dragging, and modal windows.
@@ -129,7 +129,7 @@ export class Dialog extends View {
     /**@internal */
     _param: any;
     /**@internal */
-    _effectTween: Tween;
+    _effectTween: number;
 
     /**
      * @en The handler function that will be triggered when the dialog is closed.

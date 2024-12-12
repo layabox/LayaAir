@@ -23,8 +23,6 @@ export class Render {
     static _context: Context;
     /** @internal 主画布。canvas和webgl渲染都用这个画布*/
     static _mainCanvas: HTMLCanvas;
-    /** 表示是否是 3D 模式。*/
-    static is3DMode: boolean;
     /**自定义帧循环 */
     static _customRequestAnimationFrame: any;
     /**帧循环函数 */
@@ -98,9 +96,7 @@ export class Render {
         let fps = Config.FPS;
         let ifps = Render.ifps = 1000 / fps; //如果VR的话，需要改这个
         function loop(stamp: number) {
-            //let perf = PerfHUD.inst;
             let sttm = performance.now();
-            //perf && perf.updateValue(0, sttm-lastFrmTm);
             lastFrmTm = sttm;
             if (me._first) {
                 // 把starttm转成帧对齐
@@ -119,7 +115,6 @@ export class Render {
                 Render.lastFrm = frm;
                 ILaya.stage._loop();
             }
-            //perf && perf.updateValue(1, performance.now()-sttm);
 
             if (!!Render._customRequestAnimationFrame && !!Render._loopFunction) {
                 Render._customRequestAnimationFrame(Render._loopFunction);
@@ -145,7 +140,7 @@ export class Render {
      */
     private _onVisibilitychange(): void {
         if (!ILaya.stage.isVisibility) {
-            this._timeId = window.setInterval(this._enterFrame, 1000);
+            this._timeId = window.setInterval(_enterFrame, 1000);
         } else if (this._timeId != 0) {
             window.clearInterval(this._timeId);
         }
@@ -186,11 +181,6 @@ export class Render {
     }
 
 
-    /**@private */
-    private _enterFrame(e: any = null): void {
-        ILaya.stage._loop();
-    }
-
     /** 目前使用的渲染器。*/
     static get context(): Context {
         return Render._context;
@@ -200,4 +190,8 @@ export class Render {
     static get canvas(): any {
         return Render._mainCanvas.source;
     }
+}
+
+function _enterFrame(): void {
+    ILaya.stage._loop();
 }

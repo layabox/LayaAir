@@ -58,9 +58,10 @@ export class Vector2 implements IClone {
      * @param x 要设置的 X 值。
      * @param y 要设置的 Y 值。
      */
-    setValue(x: number, y: number): void {
+    setValue(x: number, y: number): Vector2 {
         this.x = x;
         this.y = y;
+        return this;
     }
 
     /**
@@ -116,14 +117,14 @@ export class Vector2 implements IClone {
     }
 
     /**
-     * @en Writes the vector to a Float32Array.
-     * @param array The target Float32Array.
+     * @en Writes the vector to a array.
+     * @param array The target array.
      * @param offset The offset in the array. Default is 0.
-     * @zh 将向量写入 Float32Array 数组。
-     * @param array 目标 Float32Array 数组。
+     * @zh 将向量写入数组。
+     * @param array 目标数组。
      * @param offset 数组偏移。默认值为 0。
      */
-    writeTo(array: Float32Array, offset: number = 0): void {
+    writeTo(array: { [n: number]: number }, offset: number = 0): void {
         array[offset + 0] = this.x;
         array[offset + 1] = this.y;
     }
@@ -190,7 +191,7 @@ export class Vector2 implements IClone {
      * @param b 
      * @returns 
      */
-    static distance(a:Vector2 , b:Vector2){
+    static distance(a: Vector2, b: Vector2) {
         let x = a.x - b.x;
         let y = a.y - b.y;
         return Math.sqrt(x * x + y * y);

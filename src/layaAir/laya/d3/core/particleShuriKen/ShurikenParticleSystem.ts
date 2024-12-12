@@ -1544,7 +1544,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
             this._simulateUpdate = false;
         }
         else {
-            var elapsedTime: number = ((this._startUpdateLoopCount !== Stat.loopCount && !this._isPaused) && (<Scene3D>this._owner._scene)) ? ((<Scene3D>this._owner._scene)).timer._delta / 1000.0 : 0;
+            var elapsedTime: number = ((this._startUpdateLoopCount !== Stat.loopCount && !this._isPaused) && (<Scene3D>this._owner._scene)) ? ((<Scene3D>this._owner._scene)).timer.delta / 1000.0 : 0;
             elapsedTime = Math.min(ShurikenParticleSystem._maxElapsedTime, elapsedTime * this.simulationSpeed);
             this._updateParticles(elapsedTime);
         }

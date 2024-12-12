@@ -1,6 +1,6 @@
 import { EffectBase } from "././EffectBase";
-import { Tween } from "../utils/Tween";
-import { Ease } from "../utils/Ease";
+import { Tween } from "../tween/Tween";
+import { Ease } from "../tween/Ease";
 
 /**
  * @en Fade in effect

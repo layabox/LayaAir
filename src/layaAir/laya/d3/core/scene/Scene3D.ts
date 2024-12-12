@@ -845,7 +845,7 @@ export class Scene3D extends Sprite {
      * @internal
      */
     _update(): void {
-        var delta: number = this.timer._delta / 1000;
+        var delta: number = this.timer.delta / 1000;
         this._time += delta;
         this._shaderValues.setNumber(Scene3D.TIME, this._time);
         //Physics

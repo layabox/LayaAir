@@ -1856,15 +1856,7 @@ export class Context {
     }
 
     quadraticCurveTo(cpx: number, cpy: number, x: number, y: number): void {
-        var tBezier: Bezier = Bezier.I;
-        var tResultArray: any[] = [];
-        //var _x1:Number = x, _y1:Number = y;
-        //x = _curMat.a * _x1 + _curMat.c * _y1 ;// + _curMat.tx;
-        //y = _curMat.b * _x1 + _curMat.d * _y1;// + _curMat.ty;
-        //_x1 = cpx, _y1 = cpy;
-        //cpx = _curMat.a * _x1 + _curMat.c * _y1;// + _curMat.tx;
-        //cpy = _curMat.b * _x1 + _curMat.d * _y1;// + _curMat.ty;
-        var tArray: any[] = tBezier.getBezierPoints([this._path._lastOriX, this._path._lastOriY, cpx, cpy, x, y], 30, 2);
+        var tArray: any[] = Bezier.getPoints([this._path._lastOriX, this._path._lastOriY, cpx, cpy, x, y], 30, 2);
         for (var i = 0, n = tArray.length / 2; i < n; i++) {
             this.lineTo(tArray[i * 2], tArray[i * 2 + 1]);
         }

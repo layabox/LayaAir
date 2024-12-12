@@ -3,9 +3,9 @@ import { Event } from "../events/Event";
 import { Point } from "../maths/Point";
 import { Rectangle } from "../maths/Rectangle";
 import { ILaya } from "./../../ILaya";
-import { Ease } from "./Ease";
+import { Ease } from "../tween/Ease";
 import { Handler } from "./Handler";
-import { Tween } from "./Tween";
+import { Tween } from "../tween/Tween";
 
 /**
  * @private
@@ -63,7 +63,7 @@ export class Dragging {
     private _offsetX: number;
     private _offsetY: number;
     private _offsets: any[];
-    private _tween: Tween;
+    private _tween: number;
     private _parent: Sprite;
 
     /**
@@ -115,8 +115,8 @@ export class Dragging {
     private clearTimer(): void {
         ILaya.systemTimer.clear(this, this.loop);
         ILaya.systemTimer.clear(this, this.tweenMove);
-        if (this._tween) {
-            this._tween.recover();
+        if (this._tween != null) {
+            Tween.kill(this._tween);
             this._tween = null;
         }
     }
@@ -261,7 +261,7 @@ export class Dragging {
             var obj: any = {};
             if (!isNaN(tx)) obj.x = tx;
             if (!isNaN(ty)) obj.y = ty;
-            this._tween = Tween.to(this.target, obj, this.elasticBackTime, Ease.sineOut, Handler.create(this, this.clear), 0, false, false);
+            this._tween = Tween.to(this.target, obj, this.elasticBackTime, Ease.sineOut, Handler.create(this, this.clear)).id;
         } else {
             this.clear();
         }

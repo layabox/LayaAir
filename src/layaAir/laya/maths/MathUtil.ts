@@ -6,22 +6,6 @@
 export class MathUtil {
 
     /**
-     * @en Subtracts two 3D vectors.
-     * @param l The left vector.
-     * @param r The right vector.
-     * @param o The output vector to store the result.
-     * @zh 计算两个三维向量的差。
-     * @param l 左向量。
-     * @param r 右向量。
-     * @param o 用于存储结果的输出向量。
-     */
-    static subtractVector3(l: Float32Array, r: Float32Array, o: Float32Array): void {
-        o[0] = l[0] - r[0];
-        o[1] = l[1] - r[1];
-        o[2] = l[2] - r[2];
-    }
-
-    /**
      * @en Performs linear interpolation between two values.
      * @param left The start value.
      * @param right The end value.
@@ -38,58 +22,77 @@ export class MathUtil {
     }
 
     /**
-     * @en Scales a 3D vector by a scalar value.
-     * @param f The input vector.
-     * @param b The scalar value.
-     * @param e The output vector to store the result.
-     * @zh 将三维向量乘以一个标量值。
-     * @param f 输入向量。
-     * @param b 标量值。
-     * @param e 用于存储结果的输出向量。
+     * @en Repeats a value `t` within the range of `0` to `length`.
+     * 
+     * This function calculates the remainder of `t` divided by `length`,
+     * effectively wrapping `t` around within the interval `[0, length)`.
+     * 
+     * @param t - The value to be repeated.
+     * @param length - The length of the interval within which to repeat the value.
+     * @returns The repeated value within the interval `[0, length)`.
+     * @zh 重复一个值 `t`，使其范围限定在 `0` 到 `length` 之间。
+     * @param t - 要重复的值。
+     * @param length - 要重复的范围长度。
+     * @returns 重复的值，其范围在 `[0, length)` 之间。
      */
-    static scaleVector3(f: Float32Array, b: number, e: Float32Array): void {
-        e[0] = f[0] * b;
-        e[1] = f[1] * b;
-        e[2] = f[2] * b;
+    static repeat(t: number, length: number): number {
+        return t - Math.floor(t / length) * length;
     }
 
     /**
-     * @en Performs linear interpolation between two 3D vectors.
-     * @param l The start vector.
-     * @param r The end vector.
-     * @param t The interpolation amount (0-1).
-     * @param o The output vector to store the result.
-     * @zh 在两个三维向量之间进行线性插值。
-     * @param l 起始向量。
-     * @param r 终止向量。
-     * @param t 插值比率（0-1）。
-     * @param o 用于存储结果的输出向量。
+     * @en Calculates the distance between two points (x1, y1) and (x2, y2) in a 2D space.
+     * @param x1 - The x-coordinate of the first point.
+     * @param y1 - The y-coordinate of the first point.
+     * @param x2 - The x-coordinate of the second point.
+     * @param y2 - The y-coordinate of the second point.
+     * @returns The distance between the two points.
+     * @zh 计算二维空间中两点 (x1, y1) 和 (x2, y2) 之间的距离。
+     * @param x1 第一个点的 X 坐标。
+     * @param y1 第一个点的 Y 坐标。
+     * @param x2 第二个点的 X 坐标。
+     * @param y2 第二个点的 Y 坐标。
+     * @returns 两点之间的距离。
      */
-    static lerpVector3(l: Float32Array, r: Float32Array, t: number, o: Float32Array): void {
-        var ax: number = l[0], ay: number = l[1], az: number = l[2];
-        o[0] = ax + t * (r[0] - ax);
-        o[1] = ay + t * (r[1] - ay);
-        o[2] = az + t * (r[2] - az);
+    static distance(x1: number, y1: number, x2: number, y2: number): number {
+        return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
     }
 
     /**
-     * @en Performs linear interpolation between two 4D vectors.
-     * @param l The start vector.
-     * @param r The end vector.
-     * @param t The interpolation amount (0-1).
-     * @param o The output vector to store the result.
-     * @zh 在两个四维向量之间进行线性插值。
-     * @param l 起始向量。
-     * @param r 终止向量。
-     * @param t 插值比率（0-1）。
-     * @param o 用于存储结果的输出向量。
+     * @en Clamps a value between a minimum float and maximum float value.
+     * @param value The value to clamp.
+     * @param min The minimum value. If `value` is less than `min`, `min` is returned. 
+     * @param max The maximum value. If `value` is greater than `max`, `max` is returned. 
+     * @returns The clamped value.
+     * @zh 将值限制在指定范围内。
+     * @param value 要限制的值。
+     * @param min 最小值，如果 `value` 小于 `min`，返回 `min`。
+     * @param max 最大值，如果 `value` 大于 `max`，返回 `max`。
+     * @returns 限制后的值。 
      */
-    static lerpVector4(l: Float32Array, r: Float32Array, t: number, o: Float32Array): void {
-        var ax: number = l[0], ay: number = l[1], az: number = l[2], aw: number = l[3];
-        o[0] = ax + t * (r[0] - ax);
-        o[1] = ay + t * (r[1] - ay);
-        o[2] = az + t * (r[2] - az);
-        o[3] = aw + t * (r[3] - aw);
+    static clamp(value: number, min: number, max: number): number {
+        if (value < min)
+            value = min;
+        else if (value > max)
+            value = max;
+        return value;
+    }
+
+    /**
+     * @en Clamps a value between 0 and 1.
+     * @param value The value to clamp.
+     * @returns The clamped value.
+     * @zh 将值限制在 0 和 1 之间。
+     * @param value 要限制的值。
+     * @returns 限制后的值。
+     */
+    static clamp01(value: number): number {
+        if (isNaN(value))
+            value = 0;
+        else if (value > 1)
+            value = 1;
+        else if (value < 0)
+            value = 0;
+        return value;
     }
 
     /**

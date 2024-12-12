@@ -1329,7 +1329,7 @@ export class Animator extends Component {
      */
     onUpdate(): void {
         let timer = this.owner._scene.timer;
-        let delta = timer._delta / 1000.0;//Laya.timer.delta已结包含Laya.timer.scale
+        let delta = timer.delta / 1000.0;//Laya.timer.delta已包含Laya.timer.scale
         delta = this._applyUpdateMode(delta);
         if (this._speed === 0 || delta === 0)//delta为0无需更新,可能造成crossWeight计算值为NaN
             return;

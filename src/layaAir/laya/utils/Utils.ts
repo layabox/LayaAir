@@ -98,11 +98,19 @@ export class Utils {
     }
 
     /**
-     * @en Gets a globally unique ID.
-     * @zh 获取一个全局唯一ID。
+     * @en Assigns a global unique ID for the given target-method pair.
+     * @param method The method, it can be a function or a function name.
+     * @param target The target. It's optional. 
+     * @returns A unique ID for the given target-method pair. 
+     * @zh 为一个target-method对分配一个全局唯一ID。
+     * @param method 方法，可以是一个函数或者函数名。
+     * @param target 目标对象，可选。
+     * @return 分配到的唯一ID。
      */
-    static getGID(): number {
-        return _gid++;
+    static getGID(target: Object | null, method?: Function | string): string {
+        let cid: number = target ? ((target as any)[objUidKey] || ((target as any)[objUidKey] = _gid++)) : 0;
+        let mid: number | string = method ? (typeof (method) === "string" ? method : ((method as any)[objUidKey] || ((method as any)[objUidKey] = _gid++))) : 0;
+        return cid + "_" + mid;
     }
 
     /**
@@ -250,7 +258,7 @@ export class Utils {
      * @param rendertexture 要转换的RenderTexture
      * @returns 转换后的Base64字符串
      */
-        static uint8ArrayToArrayBuffer(rendertexture: RenderTexture | RenderTexture2D): string {
+    static uint8ArrayToArrayBuffer(rendertexture: RenderTexture | RenderTexture2D): string {
         let pixelArray: Uint8Array | Float32Array;
         const width = rendertexture.width;
         const height = rendertexture.height;
@@ -353,3 +361,4 @@ export class Utils {
     }
 }
 
+const objUidKey = Symbol();

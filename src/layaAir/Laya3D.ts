@@ -28,14 +28,10 @@ import { Mesh } from "./laya/d3/resource/models/Mesh";
 import { PrimitiveMesh } from "./laya/d3/resource/models/PrimitiveMesh";
 import { SkyBox } from "./laya/d3/resource/models/SkyBox";
 import { SkyDome } from "./laya/d3/resource/models/SkyDome";
-import { TextureCube } from "./laya/resource/TextureCube";
 import { ShaderInit3D } from "./laya/d3/shader/ShaderInit3D";
-import { Texture2D } from "./laya/resource/Texture2D";
-import { WebGL } from "./laya/webgl/WebGL";
 import { ShadowUtils } from "./laya/d3/core/light/ShadowUtils";
 import { ShadowCasterPass } from "./laya/d3/shadowMap/ShadowCasterPass";
 import { SimpleSkinnedMeshSprite3D } from "./laya/d3/core/SimpleSkinnedMeshSprite3D";
-import { HalfFloatUtils } from "./laya/utils/HalfFloatUtils";
 import { Camera } from "./laya/d3/core/Camera";
 import { BaseCamera } from "./laya/d3/core/BaseCamera";
 import { ShuriKenParticle3DShaderDeclaration } from "./laya/d3/core/particleShuriKen/ShuriKenParticle3DShaderDeclaration";
@@ -48,14 +44,12 @@ import { SkyPanoramicMaterial } from "./laya/d3/core/material/SkyPanoramicMateri
 import { BloomEffect } from "./laya/d3/core/render/PostEffect/BloomEffect";
 import { ScalableAO } from "./laya/d3/core/render/PostEffect/ScalableAO";
 import { GaussianDoF } from "./laya/d3/core/render/PostEffect/GaussianDoF";
-import { VertexMesh } from "./laya/RenderEngine/RenderShader/VertexMesh";
 import { ColorGradEffect } from "./laya/d3/core/render/PostEffect/ColorGradEffect";
 import { LensFlareEffect } from "./laya/d3/core/render/PostEffect/LensFlares/LensFlareEffect";
 import { IPhysicsCreateUtil } from "./laya/Physics3D/interface/IPhysicsCreateUtil";
 import { LayaGL } from "./laya/layagl/LayaGL";
 import { Laya } from "./Laya";
 import { PixelLineMaterial } from "./laya/d3/core/pixelLine/PixelLineMaterial";
-import { Texture2DArray } from "./laya/resource/Texture2DArray";
 import { PlayerConfig } from "./Config";
 import { Physics3DStatInfo } from "./laya/Physics3D/interface/Physics3DStatInfo";
 
@@ -93,7 +87,7 @@ export class Laya3D {
      * @returns {boolean} True if physics is enabled, false otherwise.
      * @returns {boolean} 如果启用了物理则返回true，否则返回false。
      */
-    static get enablePhysics(): any {
+    static get enablePhysics(): boolean {
         return Laya3D._enablePhysics;
     }
 
@@ -101,7 +95,6 @@ export class Laya3D {
      *@internal
      */
     static _changeWebGLSize(width: number, height: number): void {
-        WebGL.onStageResize(width, height);
         RenderContext3D.clientWidth = width;
         RenderContext3D.clientHeight = height;
     }
@@ -182,11 +175,11 @@ export class Laya3D {
         pixelLineMaterial.lock = true;
         pixelLineMaterial.enableVertexColor = true;
         PixelLineMaterial.defaultMaterial = pixelLineMaterial;
-      
+
         SkyBox.__init__();
         SkyDome.__init__();
         ScreenQuad.__init__();
-       
+
     }
 
     /**

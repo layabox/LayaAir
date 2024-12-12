@@ -71,7 +71,7 @@ export class Component {
      * @zh 组件的构造方法
      */
     constructor() {
-        this._id = Utils.getGID();
+        this._id = _idCounter++;
         this._singleton = Object.getPrototypeOf(this)._$singleton ?? true;
 
         this._initialize();
@@ -392,3 +392,5 @@ export class Component {
 }
 
 export interface IComponentExtra { }
+
+var _idCounter = 0;
