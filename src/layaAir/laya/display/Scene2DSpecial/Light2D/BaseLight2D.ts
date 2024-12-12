@@ -142,17 +142,13 @@ export class BaseLight2D extends Component {
     _needUpdateLightWorldRange: boolean = false; //是否需要更新灯光区域（世界坐标）
 
     /**
-     * @en Get light color
-     * @zh 获取灯光颜色
+     * @en The light color
+     * @zh 灯光颜色
      */
     get color(): Color {
         return this._color;
     }
 
-    /**
-     * @en Set light color
-     * @zh 设置灯光颜色
-     */
     set color(value: Color) {
         if (value === this._color || !value.equal(this._color)) {
             value.cloneTo(this._color);
@@ -161,17 +157,13 @@ export class BaseLight2D extends Component {
     }
 
     /**
-     * @en Get light intensity
-     * @zh 获取灯光强度
+     * @en The light intensity
+     * @zh 灯光强度
      */
     get intensity(): number {
         return this._intensity;
     }
 
-    /**
-     * @en Set light intensity
-     * @zh 设置灯光强度
-     */
     set intensity(value: number) {
         if (value !== this._intensity) {
             this._intensity = value;
@@ -180,19 +172,13 @@ export class BaseLight2D extends Component {
     }
 
     /**
-     * @en Get light rotation angle
-     * @zh 获取灯光旋转角度
+     * @en The light rotation angle
+     * @zh 灯光旋转角度
      */
     get lightRotation(): number {
         return this._lightRotation;
     }
 
-    /**
-     * @en Set light rotation angle
-     * @param value Light rotation value
-     * @zh 设置灯光旋转角度
-     * @param value 灯光旋转值
-     */
     set lightRotation(value: number) {
         if (value !== this._lightRotation) {
             this._lightRotation = value;
@@ -201,19 +187,13 @@ export class BaseLight2D extends Component {
     }
 
     /**
-     * @en Get light scale
-     * @zh 获取灯光放缩
+     * @en The light scale
+     * @zh 灯光的缩放值
      */
     get lightScale() {
         return this._lightScale;
     }
 
-    /**
-     * @en Set light scale
-     * @param value Light scale value
-     * @zh 设置灯光放缩
-     * @param value 灯光放缩值
-     */
     set lightScale(value: Vector2) {
         if (value === this._lightScale || !Vector2.equals(value, this._lightScale)) {
             value.cloneTo(this._lightScale);
@@ -222,19 +202,13 @@ export class BaseLight2D extends Component {
     }
 
     /**
-     * @en Is shadow enable
-     * @zh 获取阴影是否使能
+     * @en Is shadow enable, true means enable shadow, false means disable shadow.
+     * @zh 阴影是否启用，true 表示启用阴影，false 表示禁用阴影。
      */
     get shadowEnable(): boolean {
         return this._shadowEnable;
     }
 
-    /**
-     * @en Enable shadow
-     * @param value Enable value
-     * @zh 使能灯光阴影
-     * @param value 使能值
-     */
     set shadowEnable(value: boolean) {
         if (value !== this._shadowEnable) {
             this._shadowEnable = value;
@@ -244,19 +218,13 @@ export class BaseLight2D extends Component {
     }
 
     /**
-     * @en Get shadow color
-     * @zh 获取阴影颜色
+     * @en The shadow color
+     * @zh 阴影颜色
      */
     get shadowColor(): Color {
         return this._shadowColor;
     }
 
-    /**
-     * @en Set shadow color
-     * @param value Shadow color value
-     * @zh 设置阴影颜色
-     * @param value 阴影颜色值
-     */
     set shadowColor(value: Color) {
         if (value === this._shadowColor || !value.equal(this._shadowColor)) {
             value.cloneTo(this._shadowColor);
@@ -265,19 +233,13 @@ export class BaseLight2D extends Component {
     }
 
     /**
-     * @en Get shadow strength
-     * @zh 获取阴影强度
+     * @en The shadow strength
+     * @zh 阴影强度
      */
     get shadowStrength(): number {
         return this._shadowStrength;
     }
 
-    /**
-     * @en Set shadow strength
-     * @param value Shadow strength value
-     * @zh 设置阴影强度
-     * @param value 阴影强度值
-     */
     set shadowStrength(value: number) {
         if (value !== this._shadowStrength) {
             this._shadowStrength = value;
@@ -286,19 +248,21 @@ export class BaseLight2D extends Component {
     }
 
     /**
-     * @en Get shadow filter type
-     * @zh 获取阴影平滑类型
+     * @en Shadow filter type
+     * - 0: None: not filter, the edge is completely sharp. The calculation efficiency is the highest, but the visual effect is the worst, suitable for performance-sensitive scenarios.
+     * - 1: PCF5: Use 5 sampling points for blurring. The edge has a certain smooth effect, but the blur degree is limited, suitable for medium blur requirements.
+     * - 2: PCF9: Use 9 sampling points for blurring. The edge has a stronger smooth effect, suitable for high-quality shadow scenes. Calculation cost is medium, visual effect is significantly improved.
+     * - 3: PCF13: Use 13 sampling points for blurring, one of the highest quality blur algorithms. The edge is very soft, suitable for scenes that require extremely
+     * @zh 阴影滤波类型
+     * - 0: None: 没有滤波处理，阴影边缘是完全锐利的。计算效率最高，但视觉效果最差，适合性能敏感的场景。
+     * - 1: PCF5: 使用 5 个采样点 进行模糊处理。阴影边缘有一定的平滑效果，但模糊程度有限，适合中等模糊需求的场景。计算开销较低，平衡性能和质量。
+     * - 2: PCF9: 使用 9 个采样点进行模糊处理。阴影边缘有更强的平滑效果，适合高质量光影的场景。计算开销适中，视觉效果明显提升。
+     * - 3: PCF13: 使用 13 个采样点进行模糊处理，是最高质量的模糊算法之一。阴影边缘非常柔和，适合对视觉质量要求极高的场景。计算开销较高，但效果非常细腻。
      */
     get shadowFilterType(): ShadowFilterType {
         return this._shadowFilterType;
     }
 
-    /**
-     * @en Set shadow filter type
-     * @param value Shadow filter type value
-     * @zh 设置阴影平滑类型
-     * @param value 阴影平滑类型值
-     */
     set shadowFilterType(value: ShadowFilterType) {
         if (value !== this._shadowFilterType) {
             this._shadowFilterType = value;
@@ -308,19 +272,13 @@ export class BaseLight2D extends Component {
     }
 
     /**
-     * @en Get shadow filter smooth
-     * @zh 获取阴影边缘平滑系数
+     * @en The shadow filter smooth
+     * @zh 阴影滤波平滑系数
      */
     get shadowFilterSmooth(): number {
         return this._shadowFilterSmooth;
     }
 
-    /**
-     * @en Set shadow filter smooth
-     * @param value Filter smooth value
-     * @zh 设置阴影边缘平滑系数
-     * @param value 阴影平滑系数值
-     */
     set shadowFilterSmooth(value: number) {
         if (value !== this._shadowFilterSmooth) {
             this._shadowFilterSmooth = value;
@@ -330,19 +288,13 @@ export class BaseLight2D extends Component {
     }
 
     /**
-     * @en Get layer mask
-     * @zh 获取灯光层遮罩（灯光影响哪些层）
+     * @en the layer mask
+     * @zh 灯光层遮罩（灯光影响哪些层）
      */
     get layerMask(): number {
         return this._layerMask;
     }
 
-    /**
-     * @en Set layer mask
-     * @param value Layer mask value
-     * @zh 设置灯光层遮罩（灯光影响哪些层）
-     * @param value 层遮罩值
-     */
     set layerMask(value: number) {
         if (this._layerMask !== value) {
             this._needUpdateLightAndShadow = true;
@@ -365,19 +317,13 @@ export class BaseLight2D extends Component {
     }
 
     /**
-     * @en Get shadow layer mask
-     * @zh 获取阴影层遮罩（阴影影响哪些层）
+     * @en The shadow layer mask
+     * @zh 阴影层遮罩（阴影影响哪些层）
      */
     get shadowLayerMask(): number {
         return this._shadowLayerMask;
     }
 
-    /**
-     * @en Set shadow layer mask
-     * @param value shadow layer mask value
-     * @zh 设置阴影层遮罩（阴影影响哪些层）
-     * @param value 阴影遮罩值
-     */
     set shadowLayerMask(value: number) {
         if (value !== this._shadowLayerMask) {
             this._needUpdateLightAndShadow = true;
@@ -395,8 +341,8 @@ export class BaseLight2D extends Component {
     }
 
     /**
-     * @internal
-     * 通知此灯光层的改变
+     * @en notify this light layer change
+     * @zh 通知此灯光层的改变
      */
     private _notifyLightLayerChange(oldLayer: number, newLayer: number) {
         const light2DManager = this.owner?.scene?._light2DManager as Light2DManager;
@@ -407,16 +353,16 @@ export class BaseLight2D extends Component {
     }
 
     /**
-     * @internal
-     * 通知此灯阴影接受层的改变
+     * @en notify this light shadow layer change
+     * @zh 通知此灯阴影接受层的改变
      */
     private _notifyShadowCastLayerChange(oldLayer: number, newLayer: number) {
         (this.owner?.scene?._light2DManager as Light2DManager)?.lightShadowLayerMarkChange(this, oldLayer, newLayer);
     }
 
     /**
-     * @internal
-     * 通知此灯阴影PCF参数的改变
+     * @en notify this light shadow PCF change
+     * @zh 通知此灯阴影PCF参数的改变
      */
     private _notifyShadowPCFChange() {
         const light2DManager = this.owner?.scene?._light2DManager as Light2DManager;
@@ -427,16 +373,13 @@ export class BaseLight2D extends Component {
     }
 
     /**
-     * @internal
-     * 通知此灯阴影使能改变
+     * @en notify this light shadow enable change
+     * @zh 通知此灯阴影启用改变
      */
     private _notifyShadowEnableChange() {
         (this.owner?.scene?._light2DManager as Light2DManager)?.lightShadowEnableChange(this);
     }
 
-    /**
-     * @internal
-     */
     protected _onEnable(): void {
         super._onEnable();
         this.owner.on(Event.TRANSFORM_CHANGED, this, this._transformChange);
@@ -444,9 +387,6 @@ export class BaseLight2D extends Component {
         ((this.owner.scene)?._light2DManager as Light2DManager)?.addLight(this);
     }
 
-    /**
-     * @internal
-     */
     protected _onDisable(): void {
         super._onDisable();
         this._clearScreenCache();
@@ -454,15 +394,13 @@ export class BaseLight2D extends Component {
         ((this.owner.scene)?._light2DManager as Light2DManager)?.removeLight(this);
     }
 
-    /**
-     * @internal
-     */
+
     protected _onDestroy() {
     }
 
     /**
-     * @internal
-     * 响应矩阵改变
+     * @en Response matrix change
+     * @zh 响应矩阵改变
      */
     protected _transformChange() {
         this._clearScreenCache();
@@ -472,8 +410,8 @@ export class BaseLight2D extends Component {
     }
 
     /**
-     * @intenal
-     * 清除屏幕尺寸缓存
+     * @en Clear screen size cache
+     * @zh 清除屏幕尺寸缓存
      */
     protected _clearScreenCache() {
         this._screenCache.width = 0;
@@ -482,7 +420,8 @@ export class BaseLight2D extends Component {
 
     /**
      * @internal
-     * 计算PCF系数
+     * @en Calculate PCF coefficient
+     * @zh 计算PCF系数
      */
     _pcfIntensity() {
         switch (this.shadowFilterType) {
@@ -500,7 +439,8 @@ export class BaseLight2D extends Component {
 
     /**
      * @internal
-     * 获取灯光范围（局部坐标）
+     * @en Get light range (local coordinates)
+     * @zh 获取灯光范围（局部坐标）
      */
     _getLocalRange() {
         if (this._needUpdateLightLocalRange)
@@ -510,8 +450,8 @@ export class BaseLight2D extends Component {
 
     /**
      * @internal
-     * 获取灯光范围（世界坐标）
-     * @param screen 
+     * @en Get light range (world coordinates)
+     * @zh 获取灯光范围（世界坐标）
      */
     _getWorldRange(screen?: Rectangle) {
         if (this._needUpdateLightLocalRange)
@@ -523,8 +463,8 @@ export class BaseLight2D extends Component {
 
     /**
      * @internal
-     * 获取灯光范围（光影图）
-     * @param screen 
+     * @en Get light range (light map)
+     * @zh 获取灯光范围（光影图）
      */
     _getLightRange(screen?: Rectangle) {
         if (this._needUpdateLightLocalRange)
@@ -727,13 +667,20 @@ export class BaseLight2D extends Component {
     }
 
     /**
-     * @internal
-     * 生成网格对象
-     * @param points 
-     * @param inds 
-     * @param mesh 复用的mesh
-     * @param recover 如果mesh没有被复用，则将mesh放入recover队列
+     * @en Generates or updates a mesh object.
+     * @param points Vertex data representing the coordinates of the mesh vertices.
+     * @param inds Index data representing how the mesh vertices are connected.
+     * @param mesh Optional reusable mesh object. If provided, this mesh object will be updated if possible.
+     * @param recover Optional recovery queue. If the mesh object is not reused, it will be added to this queue.
+     * @returns The generated or updated mesh object.
+     * @zh 创建或更新网格对象
+     * @param points 顶点数据，表示网格的顶点坐标。
+     * @param inds 索引数据，表示网格顶点的连接方式。
+     * @param mesh 可选的复用网格对象，如果传入则尝试更新此网格对象。不传则会创建一个新的网格对象。
+     * @param recover 可选的回收队列，如果网格对象未被复用，则将其放入回收队列。
+     * @returns 生成或更新后的网格对象。
      */
+    
     protected _makeOrUpdateMesh(points: Vector3[], inds: number[], mesh?: Mesh2D, recover?: any[]) {
         const vertices = new Float32Array(points.length * 5);
         const indices = new Uint16Array(inds);
