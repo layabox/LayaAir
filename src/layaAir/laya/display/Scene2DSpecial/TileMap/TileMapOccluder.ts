@@ -1,5 +1,6 @@
 import { Light2DManager } from "../Light2D/Light2DManager";
 import { Occluder2DAgent } from "../Light2D/Occluder2DAgent";
+import { DirtyFlagType, TileMapDirtyFlag } from "./TileMapEnum";
 import { TileMapLayer } from "./TileMapLayer";
 
 /**
@@ -31,7 +32,30 @@ export class TileMapOccluder {
 
 
    updateState(bool:boolean){
-      this.enable = bool && !!this._agent;
+      let result = bool && !!this._agent;
+      if (result) this._activeAllOccluders();
+      else this._removeAllOccluders();
+      this.enable = result;
+   }
+   
+   _activeAllOccluders(){
+      let chunks = this._layer.chunkDatas;
+      for (const cdkey in chunks) {
+         let chunkdatas = chunks[cdkey];
+         for (const key in chunkdatas) {
+            let data = chunkdatas[key];
+            let cellDataRefMap = data.cellDataRefMap;
+            cellDataRefMap.forEach((value,gid)=>{
+               data._setDirtyFlag( gid ,TileMapDirtyFlag.CELL_LIGHTSHADOW , DirtyFlagType.OCCLUSION);                  
+            })
+         }
+      }
+   }
+
+   _removeAllOccluders(){
+      this._agent.clearOccluder();
+      this._usedIds.length = 0;
+      this._nextId = 1;
    }
    /**
      * 添加一个遮光器
@@ -78,12 +102,10 @@ export class TileMapOccluder {
    /**
      * 清理所有遮光器
      */
-   clear(): void {
+   destroy(): void {
       if (!this.enable) return;
-      this._agent.clearOccluder();
+      this._removeAllOccluders();
       this._agent = null;
-      this._usedIds.length = 0;
-      this._nextId = 1;
    }
 
 }
