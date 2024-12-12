@@ -354,16 +354,18 @@ export class TileMapLayer extends BaseRenderNode2D {
         super.onEnable();
         this.owner._setBit(NodeFlags.CACHE_GLOBAL, true);
         this._tileMapPhysics._enableRigidBodys();
+        this._tileMapOccluder._activeAllOccluders();
     }
 
     onDisable(): void {
         super.onDisable();
         this._tileMapPhysics._disableRigidBodys();
+        this._tileMapOccluder._removeAllOccluders();
     }
 
     onDestroy(): void {
         super.onDestroy();
-        this._tileMapOccluder.clear();
+        this._tileMapOccluder.destroy();
     }
 
     /**
