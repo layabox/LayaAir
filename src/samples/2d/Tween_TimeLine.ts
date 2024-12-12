@@ -3,7 +3,7 @@ import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";
 import { Event } from "laya/events/Event";
 import { Keyboard } from "laya/events/Keyboard";
-import { TimeLine } from "laya/utils/TimeLine";
+import { TimeLine } from "laya/tween/TimeLine";
 import { Main } from "./../Main";
 
 export class Tween_TimeLine {

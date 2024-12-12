@@ -42,8 +42,6 @@ import { Panel } from "laya/ui/Panel";
 import { Mouse } from "laya/utils/Mouse";
 import { Handler } from "laya/utils/Handler";
 import { LocalStorage } from "laya/net/LocalStorage";
-import { Ease } from "laya/utils/Ease";
-import { Tween } from "laya/utils/Tween";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { EventDispatcher } from "laya/events/EventDispatcher";
 import { ScrollType } from "laya/ui/Styles";

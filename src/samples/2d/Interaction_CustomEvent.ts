@@ -3,8 +3,8 @@ import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";
 import { Event } from "laya/events/Event";
 import { Browser } from "laya/utils/Browser";
-import { Ease } from "laya/utils/Ease";
-import { Tween } from "laya/utils/Tween";
+import { Ease } from "laya/tween/Ease";
+import { Tween } from "laya/tween/Tween";
 import { Main } from "./../Main";
 
 export class Interaction_CustomEvent {

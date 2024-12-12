@@ -3,8 +3,8 @@ import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";
 import { Event } from "laya/events/Event";
 import { Browser } from "laya/utils/Browser";
-import { Tween } from "laya/utils/Tween";
 import { Main } from "./../Main";
+import { Tween } from "laya/tween/Tween";
 
 export class Interaction_Swipe {
 	//swipe滚动范围
