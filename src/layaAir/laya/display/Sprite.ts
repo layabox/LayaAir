@@ -1431,8 +1431,10 @@ export class Sprite extends Node {
             return out.copyFrom(this._userBounds);
         if (!this._graphics && this._children.length === 0 && !this._texture)
             return out.setTo(0, 0, this._width, this._height); //不要this.width，不然死循环
-        else
+        else {
+            tmpPoints.length = 0;
             return Rectangle._getWrapRec(this._getBoundPointsM(false, tmpPoints), out);
+        }
     }
 
     /**
