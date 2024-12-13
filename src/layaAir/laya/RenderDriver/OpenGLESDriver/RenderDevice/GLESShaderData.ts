@@ -1,5 +1,3 @@
-import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
-import { UniformBufferObject } from "../../../RenderEngine/UniformBufferObject";
 import { Color } from "../../../maths/Color";
 import { Matrix3x3 } from "../../../maths/Matrix3x3";
 import { Matrix4x4 } from "../../../maths/Matrix4x4";
@@ -28,37 +26,6 @@ export class GLESShaderData extends ShaderData {
         this._nativeObj = new (window as any).conchGLESShaderData((this._defineDatas as any)._nativeObj);
         this._textureData = {};
         this._bufferData = {};
-    }
-
-    // /**
-    //  * @internal
-    //  * 增加一个UBO Block
-    //  * @param key 
-    //  * @param ubo 
-    //  * @param uboData 
-    //  */
-    // _addCheckUBO(key: string, ubo: UniformBufferObject, uboData: UnifromBufferData) {
-    //     throw new NotImplementedError();//TODO
-    // }
-
-    _releaseUBOData() {
-        //throw new NotImplementedError();//TODO
-        //TODO GLES Temply dont surpport UBO
-    }
-
-    /**
-    * 
-    * @param index 
-    * @param value 
-    */
-    setUniformBuffer(index: number, value: UniformBufferObject) {
-        //TODO
-    }
-
-    getUniformBuffer(index: number): UniformBufferObject {
-        //throw new NotImplementedError();
-        //TODO
-        return null;
     }
 
     getDefineData(): RTDefineDatas {

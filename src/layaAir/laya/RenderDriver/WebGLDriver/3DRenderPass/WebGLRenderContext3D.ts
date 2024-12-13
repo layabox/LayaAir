@@ -184,10 +184,17 @@ export class WebGLRenderContext3D implements IRenderContext3D {
             this._start();
             this._needStart = false;
         }
+
         let elements = list.elements;
         for (var i: number = 0, n: number = list.length; i < n; i++) {
             elements[i]._preUpdatePre(this);//render
         }
+
+        let bufferMgr = WebGLEngine.instance.bufferMgr;
+        if (bufferMgr) {
+            bufferMgr.upload();
+        }
+
         for (var i: number = 0, n: number = list.length; i < n; i++) {
             elements[i]._render(this);//render
         }
@@ -202,6 +209,11 @@ export class WebGLRenderContext3D implements IRenderContext3D {
         }
 
         node._preUpdatePre(this);
+
+        let bufferMgr = WebGLEngine.instance.bufferMgr;
+        if (bufferMgr) {
+            bufferMgr.upload();
+        }
         node._render(this);
         return 0;
     }
@@ -216,6 +228,10 @@ export class WebGLRenderContext3D implements IRenderContext3D {
         let elements = list.elements;
         for (var i: number = 0, n: number = list.length; i < n; i++) {
             elements[i]._preUpdatePre(this);//render
+        }
+        let bufferMgr = WebGLEngine.instance.bufferMgr;
+        if (bufferMgr) {
+            bufferMgr.upload();
         }
         for (var i: number = 0, n: number = list.length; i < n; i++) {
             var time = performance.now();//T_Render_CameraOtherDest Stat
@@ -248,6 +264,10 @@ export class WebGLRenderContext3D implements IRenderContext3D {
         }
 
         node._preUpdatePre(this);
+        let bufferMgr = WebGLEngine.instance.bufferMgr;
+        if (bufferMgr) {
+            bufferMgr.upload();
+        }
         var time = performance.now();//T_Render_CameraOtherDest Stat
         node._render(this);
         if (node.owner) {

@@ -1,5 +1,3 @@
-import { UnifromBufferData } from "../../../RenderEngine/UniformBufferData";
-import { UniformBufferObject } from "../../../RenderEngine/UniformBufferObject";
 import { Color } from "../../../maths/Color";
 import { Matrix3x3 } from "../../../maths/Matrix3x3";
 import { Matrix4x4 } from "../../../maths/Matrix4x4";
@@ -14,8 +12,7 @@ import { NotImplementedError } from "../../../utils/Error";
 import { IDefineDatas } from "../../RenderModuleData/Design/IDefineDatas";
 import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
 import { InternalTexture } from "./InternalTexture";
-
-export type uboParams = { ubo: UniformBufferObject; uboBuffer: UnifromBufferData };
+import { CommandUniformMap, UniformProperty } from "./CommandUniformMap";
 
 export enum ShaderDataType {
     None,
@@ -122,21 +119,14 @@ export class ShaderData implements IClone {
         this._ownerResource = ownerResource;
     }
 
+    createUniformBuffer(name: string, uniformMap: CommandUniformMap): void {
 
-    /**
-     * @internal
-     * 增加一个UBO Block
-     * @param key 
-     * @param ubo 
-     * @param uboData 
-     */
-    _addCheckUBO(key: string, ubo: UniformBufferObject, uboData: UnifromBufferData) {
-        throw new NotImplementedError();
     }
 
-    _releaseUBOData() {
-        throw new NotImplementedError();
+    updateUBOBuffer(name: string): void {
+
     }
+
 
 
     getDefineData(): IDefineDatas {
@@ -184,6 +174,14 @@ export class ShaderData implements IClone {
     clearDefine(): void {
         throw new NotImplementedError();
     }
+
+    /**
+     * 清空数据 与 宏定义
+     */
+    clearData(): void {
+        throw new Error("Method not implemented.");
+    }
+
 
     /**
      * 获取布尔。
@@ -383,19 +381,6 @@ export class ShaderData implements IClone {
         throw new NotImplementedError();
     }
 
-    /**
-     * 
-     * @param index 
-     * @param value 
-     */
-    setUniformBuffer(index: number, value: UniformBufferObject) {
-        throw new NotImplementedError();
-    }
-
-    getUniformBuffer(index: number): UniformBufferObject {
-        throw new NotImplementedError();
-    }
-
     setShaderData(uniformIndex: number, type: ShaderDataType, value: ShaderDataItem | Quaternion) {
         switch (type) {
             case ShaderDataType.Int:
@@ -486,23 +471,10 @@ export class ShaderData implements IClone {
     }
 
     /**
-     * clone UBO Data
-     * @internal
-     * @param uboDatas 
-     */
-    _cloneUBO(uboDatas: Map<string, uboParams>) {
-        throw new NotImplementedError();
-    }
-
-    /**
      * 克隆。
      * @return	 克隆副本。
      */
     clone(): any {
-        throw new NotImplementedError();
-    }
-
-    reset() {
         throw new NotImplementedError();
     }
 

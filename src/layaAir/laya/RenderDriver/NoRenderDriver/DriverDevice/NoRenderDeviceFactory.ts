@@ -4,8 +4,6 @@ import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
 import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode";
 import { ShaderPass } from "../../../RenderEngine/RenderShader/ShaderPass";
-import { UnifromBufferData } from "../../../RenderEngine/UniformBufferData";
-import { UniformBufferObject } from "../../../RenderEngine/UniformBufferObject";
 import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
 import { Color } from "../../../maths/Color";
 import { Matrix3x3 } from "../../../maths/Matrix3x3";
@@ -28,7 +26,7 @@ import { IRenderGeometryElement } from "../../DriverDesign/RenderDevice/IRenderG
 import { IShaderInstance } from "../../DriverDesign/RenderDevice/IShaderInstance";
 import { IVertexBuffer } from "../../DriverDesign/RenderDevice/IVertexBuffer";
 import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
-import { ShaderData, ShaderDataItem, ShaderDataType, uboParams } from "../../DriverDesign/RenderDevice/ShaderData";
+import { ShaderData, ShaderDataItem, ShaderDataType } from "../../DriverDesign/RenderDevice/ShaderData";
 import { IDefineDatas } from "../../RenderModuleData/Design/IDefineDatas";
 import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
@@ -82,15 +80,6 @@ export class NoRenderCommandUnifojrmMap extends CommandUniformMap {
     addShaderUniformArray(propertyID: number, propertyName: string, uniformtype: ShaderDataType, arrayLength: number, block: string = ""): void {
 
     } //兼容WGSL
-
-    /**
-     * 增加一个Uniform
-     * @param propertyID 
-     * @param propertyKey 
-     */
-    addShaderBlockUniform(propertyID: number, blockname: string, blockProperty: UniformProperty[]): void {
-
-    }
 }
 
 export class NoRenderShaderInstance implements IShaderInstance {
@@ -168,22 +157,6 @@ export class NoRenderShaderData extends ShaderData {
     /** @internal */
     _defineDatas: WebDefineDatas = new WebDefineDatas();
 
-    /**
-     * @internal
-     * 增加一个UBO Block
-     * @param key 
-     * @param ubo 
-     * @param uboData 
-     */
-    _addCheckUBO(key: string, ubo: UniformBufferObject, uboData: UnifromBufferData) {
-
-    }
-
-    _releaseUBOData() {
-
-    }
-
-
     getDefineData(): WebDefineDatas {
         return this._defineDatas;
     }
@@ -227,6 +200,9 @@ export class NoRenderShaderData extends ShaderData {
      * 清空宏定义。
      */
     clearDefine(): void {
+
+    }
+    clearData(): void {
 
     }
 
@@ -428,19 +404,6 @@ export class NoRenderShaderData extends ShaderData {
         return this._data[index];
     }
 
-    /**
-     * 
-     * @param index 
-     * @param value 
-     */
-    setUniformBuffer(index: number, value: UniformBufferObject) {
-        this._data[index] = value;
-    }
-
-    getUniformBuffer(index: number): UniformBufferObject {
-        return this._data[index];
-    }
-
     setShaderData(uniformIndex: number, type: ShaderDataType, value: ShaderDataItem | Quaternion) {
         switch (type) {
             case ShaderDataType.Int:
@@ -568,15 +531,6 @@ export class NoRenderShaderData extends ShaderData {
     }
 
     /**
-     * clone UBO Data
-     * @internal
-     * @param uboDatas 
-     */
-    _cloneUBO(uboDatas: Map<string, uboParams>) {
-
-    }
-
-    /**
      * 克隆。
      * @return	 克隆副本。
      */
@@ -584,18 +538,6 @@ export class NoRenderShaderData extends ShaderData {
         var dest: NoRenderShaderData = new NoRenderShaderData();
         this.cloneTo(dest);
         return dest;
-    }
-
-    reset() {
-        for (var k in this._data) {
-            //维护Refrence
-            var value: any = this._data[k];
-            if (value instanceof Resource) {
-                value._removeReference();
-            }
-        }
-        this._data = {};
-        this._defineDatas.clear();
     }
 
     destroy(): void {

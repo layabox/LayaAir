@@ -1365,6 +1365,9 @@ export class Camera extends BaseCamera {
      * @param scene 要渲染的场景。
      */
     render(scene: Scene3D): void {
+        if (Config3D._uniformBlock) {
+            scene._shaderValues.updateUBOBuffer(Scene3D.UBONAME_SCENE);
+        }
         // set context
         let context = RenderContext3D._instance;
         context.scene = scene;
@@ -1404,8 +1407,8 @@ export class Camera extends BaseCamera {
         this._applyViewProject(this.viewMatrix, this.projectionMatrix, context.invertY);
         this._contextApply(context);
         // todo proterty name
-        if (this._cameraUniformData && this._cameraUniformUBO) {
-            this._cameraUniformUBO.setDataByUniformBufferData(this._cameraUniformData);
+        if (Config3D._uniformBlock) {
+            this._shaderValues.updateUBOBuffer(BaseCamera.UBONAME_CAMERA);
         }
 
         if (this.clearFlag == CameraClearFlags.Sky) {

@@ -4,6 +4,7 @@ import { GLSLCodeGenerator } from "../../../RenderEngine/RenderShader/GLSLCodeGe
 import { ShaderPass } from "../../../RenderEngine/RenderShader/ShaderPass";
 import { ShaderProcessInfo } from "../../../webgl/utils/ShaderCompileDefineBase";
 import { NotImplementedError } from "../../../utils/Error";
+import { Config3D } from "../../../../Config3D";
 /**
  * @internal
  * <code>ShaderInstance</code> 类用于实现ShaderInstance。
@@ -28,7 +29,10 @@ export class GLESShaderInstance implements IShaderInstance {
 
 	_create(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderPass): void {
 		this._shaderPass = shaderPass;
+		let useMaterial = Config3D._matUseUBO;//TODO 临时解决2D Mat
+        Config3D._matUseUBO =  !shaderProcessInfo.is2D; 
 		let shaderObj = GLSLCodeGenerator.GLShaderLanguageProcess3D(shaderProcessInfo.defineString, shaderProcessInfo.attributeMap, shaderProcessInfo.uniformMap, shaderProcessInfo.vs, shaderProcessInfo.ps);
+		Config3D._matUseUBO = useMaterial;
 		this._attributeMapTemp.clear();
 		for (var k in shaderProcessInfo.attributeMap) {
 			this._attributeMapTemp.set(k, shaderProcessInfo.attributeMap[k][0]);

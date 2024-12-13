@@ -1,4 +1,3 @@
-import { BufferTargetType, BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
 import { RenderParams } from "../../../RenderEngine/RenderEnum/RenderParams";
 import { GPUEngineStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
@@ -9,7 +8,6 @@ import { ITextureContext } from "../../DriverDesign/RenderDevice/ITextureContext
 import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
 import { IDefineDatas } from "../../RenderModuleData/Design/IDefineDatas";
 import { RTShaderDefine } from "../../RenderModuleData/RuntimeModuleData/RTShaderDefine";
-import { GLBuffer } from "../../WebGLDriver/RenderDevice/WebGLEngine/GLBuffer";
 import { WebGLConfig } from "../../WebGLDriver/RenderDevice/WebGLEngine/WebGLConfig";
 import { GLESTextureContext } from "./GLESTextureContext";
 
@@ -39,6 +37,11 @@ export class GLESEngine implements IRenderEngine {
   endFrame(): void {
 
   }
+
+  startFrame(): void {
+
+  }
+  
   _remapZ: boolean = true;
   _screenInvertY: boolean = false;
   _lodTextureSample: boolean = true;

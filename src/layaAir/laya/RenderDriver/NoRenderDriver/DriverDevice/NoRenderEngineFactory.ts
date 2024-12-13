@@ -1,9 +1,7 @@
 import { Config } from "../../../../Config";
-import { Laya } from "../../../../Laya";
 import { DDSTextureInfo } from "../../../RenderEngine/DDSTextureInfo";
 import { HDRTextureInfo } from "../../../RenderEngine/HDRTextureInfo";
 import { KTXTextureInfo } from "../../../RenderEngine/KTXTextureInfo";
-import { BufferTargetType, BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { FilterMode } from "../../../RenderEngine/RenderEnum/FilterMode";
 import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
 import { RenderParams } from "../../../RenderEngine/RenderEnum/RenderParams";
@@ -13,7 +11,6 @@ import { TextureCompareMode } from "../../../RenderEngine/RenderEnum/TextureComp
 import { TextureDimension } from "../../../RenderEngine/RenderEnum/TextureDimension";
 import { TextureFormat } from "../../../RenderEngine/RenderEnum/TextureFormat";
 import { WrapMode } from "../../../RenderEngine/RenderEnum/WrapMode";
-import { UniformBufferObject } from "../../../RenderEngine/UniformBufferObject";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { IRenderEngine } from "../../DriverDesign/RenderDevice/IRenderEngine";
 import { IRenderEngineFactory } from "../../DriverDesign/RenderDevice/IRenderEngineFactory";
@@ -22,12 +19,8 @@ import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRe
 import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
 import { IDefineDatas } from "../../RenderModuleData/Design/IDefineDatas";
 import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
-import { GLBuffer } from "../../WebGLDriver/RenderDevice/WebGLEngine/GLBuffer";
 
 export class NoRenderEngineFactory implements IRenderEngineFactory {
-    createUniformBufferObject(glPointer: number, name: string, bufferUsage: BufferUsage, byteLength: number, isSingle: boolean): UniformBufferObject {
-        return new UniformBufferObject(glPointer, name, bufferUsage, byteLength, isSingle);
-    }
     createEngine(config: Config, canvas: any): Promise<void> {
         LayaGL.renderEngine = new NoRenderEngine();
         LayaGL.textureContext = LayaGL.renderEngine.getTextureContext();
@@ -39,9 +32,6 @@ export class NoRenderEngineFactory implements IRenderEngineFactory {
 
 
 export class NoRenderEngine implements IRenderEngine {
-    endFrame(): void {
-
-    }
     _context: any;
     _isShaderDebugMode: boolean;
     _renderOBJCreateContext: IRenderEngineFactory;
@@ -55,6 +45,12 @@ export class NoRenderEngine implements IRenderEngine {
     copySubFrameBuffertoTex(texture: InternalTexture, level: number, xoffset: number, yoffset: number, x: number, y: number, width: number, height: number): void {
     }
     resizeOffScreen(width: number, height: number): void {
+    }
+    endFrame(): void {
+
+    }
+    startFrame(): void {
+
     }
 
     /**@internal */

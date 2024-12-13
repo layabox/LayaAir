@@ -38,7 +38,7 @@ export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D implements 
             else this._destroyRenderShaderDatas();
             for (let i = 0; i < len; i++) {
                 this.renderShaderDatas[i] = new WebGPUShaderData();
-                this.renderShaderDatas[i].createUniformBuffer(this._shaderInstances[this._passIndex[0]].uniformInfo[2]);
+                this.renderShaderDatas[i]._createUniformBuffer(this._shaderInstances[this._passIndex[0]].uniformInfo[2]);
                 this.renderShaderData.cloneTo(this.renderShaderDatas[i]);
             }
             if (!this.renderShaderData.skinShaderData)

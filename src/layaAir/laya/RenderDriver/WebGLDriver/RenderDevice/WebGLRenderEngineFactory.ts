@@ -2,8 +2,6 @@
 import { Config } from "../../../../Config";
 import { Laya } from "../../../../Laya";
 import { LayaGL } from "../../../layagl/LayaGL";
-import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
-import { UniformBufferObject } from "../../../RenderEngine/UniformBufferObject";
 import { IRenderEngineFactory } from "../../DriverDesign/RenderDevice/IRenderEngineFactory";
 import { WebGLEngine } from "./WebGLEngine";
 import { WebGLMode } from "./WebGLEngine/GLEnum/WebGLMode";
@@ -13,10 +11,6 @@ import { WebGLConfig } from "./WebGLEngine/WebGLConfig";
 export class WebGLRenderEngineFactory implements IRenderEngineFactory {
     /**@internal */
     private globalBlockMap: any = {};
-
-    createUniformBufferObject(glPointer: number, name: string, bufferUsage: BufferUsage, byteLength: number, isSingle: boolean): UniformBufferObject {
-        return new UniformBufferObject(glPointer, name, bufferUsage, byteLength, isSingle);
-    }
 
     createEngine(config: any, canvas: any): Promise<void> {
         let engine: WebGLEngine;

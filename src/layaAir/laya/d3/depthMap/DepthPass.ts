@@ -1,15 +1,11 @@
-import { Config3D } from "../../../Config3D";
 import { Camera } from "../core/Camera";
 import { RenderTargetFormat } from "../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
-import { UnifromBufferData } from "../../RenderEngine/UniformBufferData";
-import { UniformBufferObject } from "../../RenderEngine/UniformBufferObject";
-import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
-import { DepthCasterData } from "./DepthCasterData";
 import { Vector4 } from "../../maths/Vector4";
 import { DepthTextureMode, RenderTexture } from "../../resource/RenderTexture";
 import { ShaderDefine } from "../../RenderDriver/RenderModuleData/Design/ShaderDefine";
 import { Viewport } from "../../maths/Viewport";
+import { Scene3D } from "../core/scene/Scene3D";
 
 /**
  * @en The `DepthPass` class is responsible for handling depth rendering and shadow mapping in a 3D scene.
@@ -38,7 +34,7 @@ export class DepthPass {
         DepthPass.DEPTHTEXTURE = Shader3D.propertyNameToID("u_CameraDepthTexture");
         DepthPass.DEPTHNORMALSTEXTURE = Shader3D.propertyNameToID("u_CameraDepthNormalsTexture");
         DepthPass.DEPTHZBUFFERPARAMS = Shader3D.propertyNameToID("u_ZBufferParams");
-        DepthPass.SHADOWUNIFORMBLOCK = Shader3D.propertyNameToID(UniformBufferObject.UBONAME_SHADOW);
+        DepthPass.SHADOWUNIFORMBLOCK = Shader3D.propertyNameToID(Scene3D.UBONAME_SHADOW);
     }
 
     /**@internal */
@@ -47,22 +43,8 @@ export class DepthPass {
     private _depthNormalsTexture: RenderTexture;
     /**@internal */
     private _viewPort: Viewport;
-    /**@internal */
-    private _camera: Camera;
-    /** @internal */
-    private _castDepthData: UnifromBufferData;
-    /** @internal */
-    private _castDepthUBO: UniformBufferObject;
     /** @ignore */
     constructor() {
-        if (Config3D._uniformBlock) {
-            this._castDepthData = DepthCasterData.createDepthCasterUniformBlock();
-            this._castDepthUBO = UniformBufferObject.getBuffer(UniformBufferObject.UBONAME_SHADOW, 0);
-            if (!this._castDepthUBO) {
-                this._castDepthUBO = UniformBufferObject.create(UniformBufferObject.UBONAME_SHADOW, BufferUsage.Dynamic, this._castDepthData.getbyteLength(), true);
-            }
-
-        }
     }
 
     /**
@@ -78,7 +60,6 @@ export class DepthPass {
      */
     getTarget(camera: Camera, depthType: DepthTextureMode, depthTextureFormat: RenderTargetFormat): void {
         this._viewPort = camera.viewport;
-        this._camera = camera;
         switch (depthType) {
             case DepthTextureMode.Depth:
                 camera.depthTexture = this._depthTexture = RenderTexture.createFromPool(this._viewPort.width, this._viewPort.height, depthTextureFormat, RenderTargetFormat.None, false, 1);

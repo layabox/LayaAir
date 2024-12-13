@@ -1,24 +1,15 @@
 import { Config } from "../../../../Config";
 import { Laya } from "../../../../Laya";
-import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { VertexMesh } from "../../../RenderEngine/RenderShader/VertexMesh";
-import { UniformBufferObject } from "../../../RenderEngine/UniformBufferObject";
 import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
 import { LayaGL } from "../../../layagl/LayaGL";
-import { NotImplementedError } from "../../../utils/Error";
 import { IRenderEngineFactory } from "../../DriverDesign/RenderDevice/IRenderEngineFactory";
-
-import { GLESCommandUniformMap } from "./GLESCommandUniformMap";
 import { GLESEngine, GLESMode } from "./GLESEngine";
 
 
 
 export class GLESRenderEngineFactory implements IRenderEngineFactory {
     _nativeObj: any;
-    createUniformBufferObject(glPointer: number, name: string, bufferUsage: BufferUsage, byteLength: number, isSingle: boolean): UniformBufferObject {
-        throw new NotImplementedError();
-    }
-
     createEngine(config: Config, canvas: any): Promise<void> {
         let engine: GLESEngine;
         let glConfig: any = { stencil: Config.isStencil, alpha: Config.isAlpha, antialias: Config.isAntialias, premultipliedAlpha: Config.premultipliedAlpha, preserveDrawingBuffer: Config.preserveDrawingBuffer, depth: Config.isDepth, failIfMajorPerformanceCaveat: Config.isfailIfMajorPerformanceCaveat, powerPreference: Config.powerPreference };

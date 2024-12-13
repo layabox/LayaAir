@@ -1,9 +1,6 @@
 import { Config } from "../../Config";
-import { Config3D } from "../../Config3D";
 import { ILaya } from "../../ILaya";
-import { BufferUsage } from "../RenderEngine/RenderEnum/BufferTargetType";
 import { Shader3D } from "../RenderEngine/RenderShader/Shader3D";
-import { UniformBufferObject } from "../RenderEngine/UniformBufferObject";
 import { LayaGL } from "../layagl/LayaGL";
 import { Color } from "../maths/Color";
 import { Matrix3x3 } from "../maths/Matrix3x3";
@@ -22,6 +19,7 @@ import { ShaderData, ShaderDataDefaultValue, ShaderDataItem, ShaderDataType } fr
 import { RenderState } from "../RenderDriver/RenderModuleData/Design/RenderState";
 import { IDefineDatas } from "../RenderDriver/RenderModuleData/Design/IDefineDatas";
 import { IRenderElement3D } from "../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
+import { UniformProperty } from "../RenderDriver/DriverDesign/RenderDevice/CommandUniformMap";
 
 
 /**
@@ -605,33 +603,11 @@ export class Material extends Resource implements IClone {
         this.destroyedImmediately = Config.destroyResourceImmediatelyDefault;
     }
 
-    private _bindShaderInfo(shader: Shader3D) {
-        //update UBOData by Shader
-        let subShader = shader.getSubShaderAt(0);//TODO	
-        // ubo
-        let shaderUBODatas = subShader._uniformBufferDataMap;
-        if (!shaderUBODatas)
-            return;
-        for (let key of shaderUBODatas.keys()) {
-            //create data
-            let uboData = shaderUBODatas.get(key).clone();
-            //create UBO
-            let ubo = UniformBufferObject.create(key, BufferUsage.Dynamic, uboData.getbyteLength(), false);
-            this._shaderValues.setUniformBuffer(Shader3D.propertyNameToID(key), ubo);
-            this._shaderValues._addCheckUBO(key, ubo, uboData);
-        }
-    }
-
-    private _releaseUBOData() {
-        this._shaderValues._releaseUBOData();
-    }
-
     /**
      * @en Destroys the resources.
      * @zh 销毁资源。
      */
     protected _disposeResource(): void {
-        this._releaseUBOData();
         this._shaderValues.destroy();
         this._shaderValues = null;
         this.ownerElements.clear();
@@ -652,7 +628,7 @@ export class Material extends Resource implements IClone {
      * @returns uniform属性的映射表。
      */
     effectiveProperty() {
-        return this._shader.getSubShaderAt(0)._uniformTypeMap;
+        return this._shader.getSubShaderAt(0)._uniformMap;
     }
 
     /**
@@ -669,18 +645,13 @@ export class Material extends Resource implements IClone {
             this._shader = Shader3D.find("BLINNPHONG");
         }
 
-        if (Config3D._uniformBlock) {
-            this._releaseUBOData();
-            //bind shader info
-            // todo 清理残留 shader data
-            this._bindShaderInfo(this._shader);
-        }
-
+        this.shaderData.clearDefine();
+        this.shaderData.clearData();
         // set default value
         // todo subShader 选择
         let subShader = this._shader.getSubShaderAt(0);
         let defaultValue = subShader._uniformDefaultValue;
-        let typeMap = subShader._uniformTypeMap;
+        let typeMap = subShader._uniformMap;
         this.applyUniformDefaultValue(typeMap, defaultValue);
         this._notifyOwnerElements();
     }
@@ -688,16 +659,20 @@ export class Material extends Resource implements IClone {
     /**
      * @internal
      */
-    applyUniformDefaultValue(typeMap: Map<string, ShaderDataType>, defaultValue: Record<string, ShaderDataItem>) {
-        typeMap.forEach((type, key) => {
-            if (defaultValue && defaultValue[key] != undefined) {
-                let value = defaultValue[key];
-                this.setShaderData(key, type, value);
-            }
-            else {
-                let value = ShaderDataDefaultValue(type);
-                if (value) {
-                    this.setShaderData(key, type, value);
+    applyUniformDefaultValue(uniformMap: Map<number, UniformProperty>, defaultValue: Record<string, ShaderDataItem>) {
+        uniformMap.forEach((uniform, id) => {
+            if (uniform.arrayLength <= 0) {
+                let type = uniform.uniformtype;
+                let uniformName = uniform.propertyName;
+                if (defaultValue && defaultValue[uniformName] != undefined) {
+                    let value = defaultValue[uniformName];
+                    this.setShaderData(uniformName, type, value);
+                }
+                else {
+                    let value = ShaderDataDefaultValue(type);
+                    if (value) {
+                        this.setShaderData(uniformName, type, value);
+                    }
                 }
             }
         });

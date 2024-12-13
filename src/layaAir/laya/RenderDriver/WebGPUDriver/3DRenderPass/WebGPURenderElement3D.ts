@@ -172,8 +172,8 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
             compile = true;
         } else {
             const index = this._passIndex[0];
-            this._sceneData?.createUniformBuffer(this._shaderInstances[index].uniformInfo[0], true);
-            this._cameraData?.createUniformBuffer(this._shaderInstances[index].uniformInfo[1], true);
+            this._sceneData?._createUniformBuffer(this._shaderInstances[index].uniformInfo[0], true);
+            this._cameraData?._createUniformBuffer(this._shaderInstances[index].uniformInfo[1], true);
         }
 
         //是否反转面片
@@ -217,10 +217,10 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
 
             //创建uniform缓冲区，各pass共享shaderData，因此只需要创建一份
             if (i === 0) {
-                this._sceneData?.createUniformBuffer(shaderInstance.uniformInfo[0], true);
-                this._cameraData?.createUniformBuffer(shaderInstance.uniformInfo[1], true);
-                this.renderShaderData?.createUniformBuffer(shaderInstance.uniformInfo[2], false);
-                this.materialShaderData?.createUniformBuffer(shaderInstance.uniformInfo[3], false);
+                this._sceneData?._createUniformBuffer(shaderInstance.uniformInfo[0], true);
+                this._cameraData?._createUniformBuffer(shaderInstance.uniformInfo[1], true);
+                this.renderShaderData?._createUniformBuffer(shaderInstance.uniformInfo[2], false);
+                this.materialShaderData?._createUniformBuffer(shaderInstance.uniformInfo[3], false);
             }
         }
 

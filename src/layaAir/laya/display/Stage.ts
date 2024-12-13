@@ -957,7 +957,7 @@ export class Stage extends Sprite {
         Timer.callLaters._update();
         Stat.loopCount++;
         RenderInfo.loopCount = Stat.loopCount;
-
+        LayaGL.renderEngine.startFrame();
         if (this.renderingEnabled) {
 
             for (let i = 0, n = this._scene2Ds.length; i < n; i++) {
