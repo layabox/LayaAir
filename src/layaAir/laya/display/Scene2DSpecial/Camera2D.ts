@@ -48,7 +48,7 @@ export class Camera2D extends Sprite {
     /**@internal */
     private _limit_Right: number;
     /**@internal */
-    private _limit_Buttom: number;
+    private _limit_Bottom: number;
     /**@internal */
     private _limit_Top: number;
     /**@internal */
@@ -91,7 +91,7 @@ export class Camera2D extends Sprite {
     /**
     * @en Scnene's main camera? Only one main camera can be used in a scene
     * @returns value
-    * @zh cnene的主摄像机，一个Scene中只能由一个主摄像机
+    * @zh 场景的主摄像机，一个场景中只能有一个主摄像机
     * @returns 是否为主相机
     */
     public get isMain(): boolean {
@@ -132,12 +132,12 @@ export class Camera2D extends Sprite {
         this._limit_Right = value;
     }
 
-    public get limit_Buttom(): number {
-        return this._limit_Buttom;
+    public get limit_Bottom(): number {
+        return this._limit_Bottom;
     }
 
-    public set limit_Buttom(value: number) {
-        this._limit_Buttom = value;
+    public set limit_Bottom(value: number) {
+        this._limit_Bottom = value;
     }
 
     public get limit_Top(): number {
@@ -249,7 +249,7 @@ export class Camera2D extends Sprite {
         this.limit_Left = -10000000;
         this.limit_Right = 10000000;
         this.limit_Top = -10000000;
-        this.limit_Buttom = 10000000;
+        this.limit_Bottom = 10000000;
         this.drag_Left = 0.2;//0-1
         this.drag_Right = 0.2;
         this.drag_Top = 0.2;
@@ -307,8 +307,8 @@ export class Camera2D extends Sprite {
                 this._cameraPos.x -= sceneRect_right - this.limit_Right;
             }
 
-            if (sceneRect_bottom > this.limit_Buttom) {
-                this._cameraPos.y -= sceneRect_bottom - this.limit_Buttom;
+            if (sceneRect_bottom > this.limit_Bottom) {
+                this._cameraPos.y -= sceneRect_bottom - this.limit_Bottom;
             }
             if (sceneRect_top < this.limit_Top) {
                 this._cameraPos.y -= sceneRect_top - this.limit_Top;
