@@ -105,7 +105,7 @@ export class Laya3D {
     static __init__() {
         Config3D._multiLighting = Config3D.enableMultiLight && LayaGL.renderEngine.getCapable(RenderCapable.TextureFormat_R32G32B32A32);
         Config3D._uniformBlock = Config3D.enableUniformBufferObject && LayaGL.renderEngine.getCapable(RenderCapable.UnifromBufferObject);
-
+        Config3D._matUseUBO = Config3D._uniformBlock && Config3D._matUseUBO;
         if (Config3D.maxLightCount > 2048) {
             Config3D.maxLightCount = 2048;
             console.warn("Config3D: maxLightCount must less equal 2048.");

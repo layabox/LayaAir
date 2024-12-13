@@ -1,7 +1,7 @@
 import { Config3D } from "../../../../Config3D";
 import { RenderParams } from "../../../RenderEngine/RenderEnum/RenderParams";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
-import { UniformMapType } from "../../../RenderEngine/RenderShader/SubShader";
+import { UniformProperty } from "../../DriverDesign/RenderDevice/CommandUniformMap";
 import { SkinnedMeshSprite3D } from "../../../d3/core/SkinnedMeshSprite3D";
 import { Graphics } from "../../../display/Graphics";
 import { LayaGL } from "../../../layagl/LayaGL";
@@ -224,19 +224,25 @@ export class WebGPUCodeGenerator {
                 }
             } else if (uniformMap) {
                 const data = uniformMap._idata;
-                for (const key in data) {
+
+                data.forEach((uniform, id) => {
                     let nameStr: string;
-                    if (data[key].arrayLength > 0) { //数组
-                        nameStr = `${data[key].propertyName}[${data[key].arrayLength}]`;
-                        arrayMap[nameStr] = data[key].arrayLength;
-                    } else nameStr = data[key].propertyName;
-                    const typeStr = this._getAttributeT2S(data[key].uniformtype);
-                    if (data[key].propertyName.indexOf('.') !== -1) continue;
-                    if (typeStr === '') continue;
-                    else if (typeStr === 'sampler2D' || typeStr === 'samplerCube' || typeStr === 'sampler2DArray')
+                    if (uniform.arrayLength > 0) {
+                        // 数组
+                    }
+
+                    if (uniform.propertyName.indexOf('.') !== -1) return;
+
+                    const typeStr = this._getAttributeT2S(uniform.uniformtype);
+                    if (typeStr === '')
+                        return;
+                    else if (typeStr === 'sampler2D' || typeStr === 'samplerCube' || typeStr === 'sampler2DArray') {
                         textureUniforms.push({ name: nameStr, type: typeStr, set });
-                    else sortedUniforms[this._getAttributeS2N(typeStr)].push({ name: nameStr, type: typeStr, set });
-                }
+                    }
+                    else {
+                        sortedUniforms[this._getAttributeS2N(typeStr)].push({ name: nameStr, type: typeStr, set });
+                    }
+                });
             }
             for (let i = 1; i < typeNum; i++)
                 sortedUniforms[0].push(...sortedUniforms[i]);
@@ -389,19 +395,20 @@ export class WebGPUCodeGenerator {
                 }
             } else if (uniformMap) {
                 const data = uniformMap._idata;
-                for (const key in data) {
+
+                data.forEach((uniform, id) => {
                     let nameStr: string;
-                    if (data[key].arrayLength > 0) { //数组
-                        nameStr = `${data[key].propertyName}[${data[key].arrayLength}]`;
-                        arrayMap[nameStr] = data[key].arrayLength;
-                    } else nameStr = data[key].propertyName;
-                    const typeStr = this._getAttributeT2S(data[key].uniformtype);
-                    if (data[key].propertyName.indexOf('.') !== -1) continue;
-                    if (typeStr === '') continue;
+                    if (uniform.arrayLength > 0) { //数组
+                        nameStr = `${uniform.propertyName}[${uniform.arrayLength}]`;
+                        arrayMap[nameStr] = uniform.arrayLength;
+                    } else nameStr = uniform.propertyName;
+                    const typeStr = this._getAttributeT2S(uniform.uniformtype);
+                    if (uniform.propertyName.indexOf('.') !== -1) return;
+                    if (typeStr === '') return;
                     else if (typeStr === 'sampler2D' || typeStr === 'samplerCube' || typeStr === 'sampler2DArray')
                         textureUniforms.push({ name: nameStr, type: typeStr, set });
                     else sortedUniforms[this._getAttributeS2N(typeStr)].push({ name: nameStr, type: typeStr, set });
-                }
+                });
             }
             //按照type顺序组织uniform（尽可能减少padding）
             for (let i = 1; i < typeNum; i++)
@@ -1115,18 +1122,12 @@ ${textureGLSL_fs}
      * @param VS 
      * @param FS 
      */
-    static collectUniform(defineString: string[], uniformMap: UniformMapType, VS: ShaderNode, FS: ShaderNode) {
+    static collectUniform(defineString: string[], uniformMap: Map<number, UniformProperty>, VS: ShaderNode, FS: ShaderNode) {
         //将uniformMap转换为uniformMapEx
         const uniformMapEx: WebGPUUniformMapType = {};
-        for (const key in uniformMap) {
-            if (typeof uniformMap[key] === 'object') {
-                const blockUniform = <{ [name: string]: ShaderDataType }>uniformMap[key];
-                for (const uniformName in blockUniform) {
-                    const dataType = blockUniform[uniformName];
-                    uniformMapEx[uniformName] = { name: uniformName, type: dataType };
-                }
-            } else uniformMapEx[key] = { name: key, type: uniformMap[key] as ShaderDataType };
-        }
+        uniformMap.forEach((uniform, id) => {
+            uniformMapEx[uniform.propertyName] = { name: uniform.propertyName, type: uniform.uniformtype };
+        });
 
         defineString.push('GRAPHICS_API_GLES3'); //默认支持GLES3
 

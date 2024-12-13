@@ -1,4 +1,5 @@
 
+import { Config3D } from "../../../../Config3D";
 import { ShaderPass } from "../../../RenderEngine/RenderShader/ShaderPass";
 import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
 import { Transform3D } from "../../../d3/core/Transform3D";
@@ -54,6 +55,15 @@ export class WebGLRenderElement3D implements IRenderElement3D {
 
     _preUpdatePre(context: WebGLRenderContext3D) {
         this._compileShader(context);
+         // material ubo
+         if (this.materialShaderData && Config3D._matUseUBO) {
+            let subShader = this.subShader;
+            let materialData = this.materialShaderData;
+            let matSubBuffer = materialData.createSubUniformBuffer("Material", subShader._uniformMap);
+            if (matSubBuffer && matSubBuffer.needUpload) {
+                matSubBuffer.bufferBlock.needUpload();
+            }
+        }
         this._invertFront = this._getInvertFront();
     }
 

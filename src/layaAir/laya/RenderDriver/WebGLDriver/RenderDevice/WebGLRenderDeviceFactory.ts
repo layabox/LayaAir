@@ -56,7 +56,7 @@ export class WebGLRenderDeviceFactory implements IRenderDeviceFactory {
     createGlobalUniformMap(blockName: string): WebGLCommandUniformMap {
         let comMap = this.globalBlockMap[blockName];
         if (!comMap)
-            comMap = this.globalBlockMap[blockName] = new WebGLCommandUniformMap(blockName);;
+            comMap = this.globalBlockMap[blockName] = new WebGLCommandUniformMap(blockName);
         return comMap;
     }
 

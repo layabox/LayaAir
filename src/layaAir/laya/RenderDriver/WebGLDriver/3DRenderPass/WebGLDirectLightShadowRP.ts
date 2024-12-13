@@ -1,3 +1,4 @@
+import { Config3D } from "../../../../Config3D";
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
 import { RenderPassStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
 import { BaseCamera } from "../../../d3/core/BaseCamera";
@@ -205,8 +206,8 @@ export class WebGLDirectLightShadowRP {
                 context.setScissor(Vector4.TEMP);
             }
 
-            if (sliceData.cameraUBO && sliceData.cameraUBData) {
-                sliceData.cameraUBO.setDataByUniformBufferData(sliceData.cameraUBData);
+            if (Config3D._uniformBlock) {
+                sliceData.cameraShaderValue.updateUBOBuffer(BaseCamera.UBONAME_CAMERA);
             }
 
             context.setClearData(RenderClearFlag.Depth, Color.BLACK, 1, 0);

@@ -1,15 +1,11 @@
-import { Config3D } from "../../../../Config3D";
-import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
+
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
-import { UnifromBufferData } from "../../../RenderEngine/UniformBufferData";
-import { UniformBufferObject } from "../../../RenderEngine/UniformBufferObject";
 import { BaseCamera } from "../../../d3/core/BaseCamera";
 import { ShadowMode } from "../../../d3/core/light/ShadowMode";
 import { CommandBuffer } from "../../../d3/core/render/command/CommandBuffer";
 import { Scene3DShaderDeclaration } from "../../../d3/core/scene/Scene3DShaderDeclaration";
 import { ShadowCasterPass } from "../../../d3/shadowMap/ShadowCasterPass";
-import { CameraCullInfo, ShadowSpotData } from "../../../d3/shadowMap/ShadowSliceData";
-import { LayaGL } from "../../../layagl/LayaGL";
+import {  ShadowSpotData } from "../../../d3/shadowMap/ShadowSliceData";
 import { Color } from "../../../maths/Color";
 import { MathUtils3D } from "../../../maths/MathUtils3D";
 import { Matrix4x4 } from "../../../maths/Matrix4x4";
@@ -126,8 +122,8 @@ export class WebGPUSpotLightShadowRP {
         context.setViewPort(Viewport.TEMP);
         context.setScissor(Vector4.TEMP);
 
-        if (shadowSpotData.cameraUBO && shadowSpotData.cameraUBData) //这里可能会有问题
-            shadowSpotData.cameraUBO.setDataByUniformBufferData(shadowSpotData.cameraUBData);
+        // if (shadowSpotData.cameraUBO && shadowSpotData.cameraUBData) //这里可能会有问题
+        //     shadowSpotData.cameraUBO.setDataByUniformBufferData(shadowSpotData.cameraUBData);
 
         context.setClearData(RenderClearFlag.Depth, Color.BLACK, 1, 0);
         this._renderQueue.renderQueue(context);

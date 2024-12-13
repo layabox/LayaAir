@@ -96,10 +96,10 @@ export class GLBuffer extends GLObject {
 
 
 
-    setData(srcData: ArrayBuffer | ArrayBufferView, offset: number): void {
+    setData(srcData: ArrayBuffer, offset: number): void {
         let gl = this._gl;
         this.bindBuffer();
-        gl.bufferSubData(this._glTarget, offset, <ArrayBufferView>srcData);
+        gl.bufferSubData(this._glTarget, offset, srcData);
         WebGLEngine.instance._addStatisticsInfo(GPUEngineStatisticsInfo.C_GeometryBufferUploadCount, 1);
         this.unbindBuffer();
     }
@@ -112,15 +112,10 @@ export class GLBuffer extends GLObject {
         this.unbindBuffer();
     }
 
-
     bindBufferBase(glPointer: number) {
-        if (this._engine._getBindUBOBuffer(glPointer) != this) {
-            const gl = <WebGL2RenderingContext>this._gl;
-            gl.bindBufferBase(this._glTarget, glPointer, this._glBuffer);
-            this._engine._setBindUBOBuffer(glPointer, this);
-        }
+        const gl = <WebGL2RenderingContext>this._gl;
+        gl.bindBufferBase(this._glTarget, glPointer, this._glBuffer);
     }
-
 
     bindBufferRange(glPointer: number, offset: number, byteCount: number) {
         const gl = <WebGL2RenderingContext>this._gl;

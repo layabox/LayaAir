@@ -27,6 +27,7 @@ import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { Material } from "../../../resource/Material";
 import { Texture } from "../../../resource/Texture";
+import { WebGPUCommandUniformMap } from "./WebGPUCommandUniformMap";
 
 /**
  * 着色器数据
@@ -128,13 +129,19 @@ export class WebGPUShaderData extends ShaderData {
         WebGPUShaderData.objectCount++;
     }
 
+    createUniformBuffer(name: string, uniformMap: WebGPUCommandUniformMap): void {
+
+    }
+    updateUBOBuffer(name: string): void {
+
+    }
     /**
      * 创建UniformBuffer
      * @param info 
      * @param single 
      * @param inst 
      */
-    createUniformBuffer(info: WebGPUUniformPropertyBindingInfo, single: boolean = false, inst: boolean = false) {
+    _createUniformBuffer(info: WebGPUUniformPropertyBindingInfo, single: boolean = false, inst: boolean = false) {
         //如果指明了这种类型UniformBuffer是single的，则不会重复创建
         if (single && this._uniformBuffer) return;
         if (info && info.uniform) {
@@ -991,8 +998,6 @@ export class WebGPUShaderData extends ShaderData {
         this.cloneTo(dest);
         return dest;
     }
-
-    _releaseUBOData() { }
 
     /**
      * 清理

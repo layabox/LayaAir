@@ -1,17 +1,14 @@
-import { BaseCamera } from "../core/BaseCamera";
 import { ShadowCascadesMode } from "../core/light/ShadowCascadesMode";
 import { ShadowMapFormat, ShadowUtils } from "../core/light/ShadowUtils";
 import { SpotLightCom } from "../core/light/SpotLightCom";
 import { Config3D } from "../../../Config3D";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
-import { UnifromBufferData } from "../../RenderEngine/UniformBufferData";
-import { UniformBufferObject } from "../../RenderEngine/UniformBufferObject";
-import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
-import { DepthCasterData } from "../depthMap/DepthCasterData";
 import { RenderTexture } from "../../resource/RenderTexture";
 import { LayaGL } from "../../layagl/LayaGL";
 import { DirectionLightCom } from "../core/light/DirectionLightCom";
 import { ShaderDataType } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { Scene3D } from "../core/scene/Scene3D";
+import { CommandUniformMap } from "../../RenderDriver/DriverDesign/RenderDevice/CommandUniformMap";
 
 /**
  * @internal
@@ -19,6 +16,8 @@ import { ShaderDataType } from "../../RenderDriver/DriverDesign/RenderDevice/Sha
  * @zh ShadowCasterPass 类用于实现阴影渲染管线。
  */
 export class ShadowCasterPass {
+
+    static shadowCasterUBOUniformMap: CommandUniformMap;
     /** @internal */
     static SHADOW_BIAS: number;
     /** @internal */
@@ -59,19 +58,10 @@ export class ShadowCasterPass {
         const sceneUniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap("Scene3D");
 
         if (Config3D._uniformBlock) {
-            sceneUniformMap.addShaderBlockUniform(Shader3D.propertyNameToID(UniformBufferObject.UBONAME_SHADOW), UniformBufferObject.UBONAME_SHADOW, [
-                {
-                    id: ShadowCasterPass.SHADOW_BIAS,
-                    propertyName: "u_ShadowBias",
-                    uniformtype: ShaderDataType.Vector4
-
-                },
-                {
-                    id: ShadowCasterPass.SHADOW_LIGHT_DIRECTION,
-                    propertyName: "u_ShadowLightDirection",
-                    uniformtype: ShaderDataType.Vector3
-                }
-            ])
+            let UBOUniformMap = ShadowCasterPass.shadowCasterUBOUniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap(Scene3D.UBONAME_SHADOW);
+            UBOUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_BIAS, "u_ShadowBias", ShaderDataType.Vector4);
+            UBOUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_LIGHT_DIRECTION, "u_ShadowLightDirection", ShaderDataType.Vector3);
+            sceneUniformMap.addShaderUniform(Shader3D.propertyNameToID(Scene3D.UBONAME_SHADOW), Scene3D.UBONAME_SHADOW, ShaderDataType.None);
         } else {
             sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_BIAS, "u_ShadowBias", ShaderDataType.Vector4);
             sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_LIGHT_DIRECTION, "u_ShadowLightDirection", ShaderDataType.Vector3);
@@ -92,12 +82,7 @@ export class ShadowCasterPass {
     }
 
 
-    /** @internal */
-    _castDepthBufferData: UnifromBufferData;
-    _castDepthBufferOBJ: UniformBufferObject;
 
-    _castDepthCameraBufferData: UnifromBufferData;
-    _castDepthCameraBufferOBJ: UniformBufferObject;
 
     /** @internal */
     private _shadowDirectLightMap: RenderTexture;
@@ -109,20 +94,6 @@ export class ShadowCasterPass {
      * @zh 创建  ShadowCasterPass 类的新实例。
      */
     constructor() {
-        if (Config3D._uniformBlock) {
-            this._castDepthBufferData = DepthCasterData.createDepthCasterUniformBlock();
-            this._castDepthBufferOBJ = UniformBufferObject.getBuffer(UniformBufferObject.UBONAME_SHADOW, 0);
-            if (!this._castDepthBufferOBJ) {
-                this._castDepthBufferOBJ = UniformBufferObject.create(UniformBufferObject.UBONAME_SHADOW, BufferUsage.Dynamic, this._castDepthBufferData.getbyteLength(), true);
-            }
-            BaseCamera.createCameraUniformBlock();
-            this._castDepthCameraBufferData = BaseCamera.CameraUBOData.clone();
-            this._castDepthCameraBufferOBJ = UniformBufferObject.getBuffer(UniformBufferObject.UBONAME_CAMERA, 1);
-            if (!this._castDepthCameraBufferOBJ) {
-                this._castDepthCameraBufferOBJ = UniformBufferObject.create(UniformBufferObject.UBONAME_CAMERA, BufferUsage.Dynamic, this._castDepthCameraBufferData.getbyteLength(), false);
-            }
-        }
-
     }
 
     /**

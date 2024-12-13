@@ -199,10 +199,10 @@ export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D impleme
 
             //创建uniform缓冲区
             if (i === 0) {
-                this._sceneData?.createUniformBuffer(shaderInstance.uniformInfo[0], true);
-                this._cameraData?.createUniformBuffer(shaderInstance.uniformInfo[1], true);
-                this.renderShaderData?.instShaderData?.createUniformBuffer(shaderInstance.uniformInfo[2], false);
-                this.materialShaderData?.createUniformBuffer(shaderInstance.uniformInfo[3], false);
+                this._sceneData?._createUniformBuffer(shaderInstance.uniformInfo[0], true);
+                this._cameraData?._createUniformBuffer(shaderInstance.uniformInfo[1], true);
+                this.renderShaderData?.instShaderData?._createUniformBuffer(shaderInstance.uniformInfo[2], false);
+                this.materialShaderData?._createUniformBuffer(shaderInstance.uniformInfo[3], false);
             }
         }
 
