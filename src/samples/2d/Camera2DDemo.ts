@@ -69,7 +69,7 @@ export class Camera2DDemo {
         camera.limit_Left = -1000;
         camera.limit_Right = 3000;
         camera.limit_Top = -1000;
-        camera.limit_Buttom = 3000;
+        camera.limit_Bottom = 3000;
     }
 
 
