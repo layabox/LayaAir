@@ -1,51 +1,118 @@
 import type { Tween } from "./Tween";
-import { TweenValue } from "./TweenValue";
 
-export type TweenCallback = (tween: ITweener) => void;
+/**
+ * @en Tween callback function.
+ * @param tweener The current tweener.
+ * @zh 缓动回调函数。
+ * @param tweener 当前的tweener。
+ */
+export type TweenCallback = (tweener: ITweener) => void;
 
+/**
+ * @en Ease function is a function that takes a time parameter and returns a value between 0 and 1.
+ * @param t Current time between 0 and the duration (inclusive).
+ * @param b The initial value of the animated property.
+ * @param c The total change in the animated property.
+ * @param d The duration of the motion.
+ * @param args Additional arguments.
+ * @zh Ease函数是一个接受时间参数并返回0到1之间值的函数。
+ * @param t 当前时间，取值范围是0到持续时间（包括持续时间）。
+ * @param b 属性的初始值。
+ * @param c 属性的变化总量。
+ * @param d 动画的持续时间。
+ * @param args 额外的参数。
+ */
 export type EaseFunction = (t: number, b: number, c: number, d: number, ...args: any[]) => number;
 
+/**
+ * @en TweenInterpolator is a function that calculates the value of the tween at a given time.
+ * @param time The current time.
+ * @param start The start value.
+ * @param end The end value.
+ * @param value The current value.
+ * @param index The index of the number in the number array.
+ * @param args The additional arguments.
+ * @zh TweenInterpolator 是一个在给定时间计算缓动值的函数。
+ * @param time 当前时间。
+ * @param start 开始值。
+ * @param end 结束值。
+ * @param value 当前值。
+ * @param index 数字在数字数组中的索引。
+ * @param args 额外的参数。
+ */
 export type TweenInterpolator<T extends any[]> = (time: number, start: number, end: number, value: number, index: number, ...args: T) => number;
 
 /**
- * @internal
+ * @en The Tween system uses adapters to convert different value types to and from number arrays for tween calculations.
+ * @zh Tween系统通过适配器来将不同的值类型与数字数组互相转换，以便进行缓动计算。
  */
-export enum TweenValueType {
-    Number,
-    Boolean,
-    Vec2,
-    Vec3,
-    Vec4,
-    Color,
-    StringColor
-}
+export type TweenValueAdapter = {
+    /**
+     * @en Push value to number array.
+     * @param value The value to write. 
+     * @param array The number array to write to. 
+     * @zh 将值推入到数字数组中。
+     * @param value 要写入的值。
+     * @param array 要写入的数字数组。 
+     */
+    write: (value: any, array: ITweenValue) => void;
 
-/**
- * @internal
- */
-export type TweenPropInfo = { name: string; type: TweenValueType; offset: number; };
+    /**
+     * @en Read value from number array.
+     * @param array The number array to read from. 
+     * @param offset The offset of the number array. 
+     * @returns The value read.
+     * @zh 从数字数组中读取值。
+     * @param array 要读取的数字数组。
+     * @param offset 数字数组的偏移量。
+     * @returns 读取的值。 
+     */
+    read: (array: ITweenValue, offset: number) => any;
+};
+
+export interface ITweenValue extends Array<number> {
+    /**
+     * @en Get value by property name.
+     * @param name Property name. 
+     * @returns Value.
+     * @zh 通过属性名称获取值。
+     * @param name 属性名称。
+     * @returns 值。
+     */
+    get(name: string): any;
+
+    /**
+     * @en Get value by property index.
+     * @param index Property index.
+     * @returns Value.
+     * @zh 通过属性索引获取值。
+     * @param index 属性索引。
+     * @returns 值。
+     */
+    getAt(index: number): any;
+}
 
 export interface ITweener {
     /**
      * @en The starting value of the tweener. Even if the tweener is running, you can still modify it.
      * @zh 缓动的初始值。即使tweener在运行过程中，也可以修改它。
      */
-    readonly startValue: TweenValue;
+    readonly startValue: ITweenValue;
     /**
      * @en The end value of the tweener. Even if the tweener is running, you can still modify it.
      * @zh 缓动的结束值。即使tweener在运行过程中，也可以修改它。
      */
-    readonly endValue: TweenValue;
+    readonly endValue: ITweenValue;
     /**
      * @en The current value of the tweener. You can get the tweener value at any time during the tweener.
      * @zh 缓动的当前值。可以在缓动进行中的任意时刻获取tweener的值。
      */
-    readonly value: Readonly<TweenValue>;
+    readonly value: Readonly<ITweenValue>;
     /**
      * @en The difference between the value of the last update callback and the value of the current update callback.
      * @zh 上一次update回调与本次update回调的value值的差值。
      */
-    readonly deltaValue: Readonly<TweenValue>;
+    readonly deltaValue: Readonly<ITweenValue>;
 
     /**
      * @en The name of the Tweener.

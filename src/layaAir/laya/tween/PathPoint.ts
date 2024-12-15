@@ -1,3 +1,4 @@
+import { Pool } from "../utils/Pool";
 
 export enum CurveType {
     /**
@@ -64,86 +65,27 @@ export class PathPoint {
 
     /**
      * @en Create a cardinalspline curve point.
-     * @param x X axis value.
-     * @param y Y axis value. 
-     * @param curveType Curve type. 
-     * @returns A new instance of PathPoint.
      * @zh 创建一个 PathPoint 的实例。
-     * @param x X 轴坐标。
-     * @param y Y 轴坐标。
-     * @param curveType 曲线类型。
-     * @returns PathPoint 实例。 
      */
-    static newPoint(x: number, y: number, curveType: number): PathPoint {
-        let pt = new PathPoint();
-        pt.x = x || 0;
-        pt.y = y || 0;
-        pt.c1_x = 0;
-        pt.c1_y = 0;
-        pt.c2_x = 0;
-        pt.c2_y = 0;
-        pt.curve = curveType || CurveType.CRSpline;
-
-        return pt;
-    }
-
-    /**
-     * @en Create a bezier curve point.
-     * @param x X axis value. 
-     * @param y Y axis value. 
-     * @param control1_x Control point 1 X axis value. 
-     * @param control1_y Control point 1 Y axis value. 
-     * @returns A new instance of PathPoint. 
-     * @zh 创建一个贝塞尔曲线点。
-     * @param x X 轴坐标。
-     * @param y Y 轴坐标。
-     * @param control1_x 控制点1的 X 轴坐标。
-     * @param control1_y 控制点1的 Y 轴坐标。
-     * @returns PathPoint 实例。
-     */
-    static newBezierPoint(x: number, y: number, control1_x: number, control1_y: number): PathPoint {
-        let pt = new PathPoint();
-        pt.x = x || 0;
-        pt.y = y || 0;
-        pt.c1_x = control1_x || 0;
-        pt.c1_y = control1_y || 0;
-        pt.c2_x = 0;
-        pt.c2_y = 0;
-        pt.curve = CurveType.Bezier;
-
-        return pt;
-    }
-
-    /**
-     * Create a cubic bezier curve point.
-     * @param x X axis value.
-     * @param y Y axis value.
-     * @param control1_x Control point 1 X axis value.
-     * @param control1_y Control point 1 Y axis value. 
-     * @param control2_x Control point 2 X axis value. 
-     * @param control2_y Control point 2 Y axis value. 
-     * @returns A new instance of PathPoint.
-     * @zh 创建一个三次贝塞尔曲线点。
-     * @param x X 轴坐标。
-     * @param y Y 轴坐标。
-     * @param control1_x 控制点1的 X 轴坐标。
-     * @param control1_y 控制点1的 Y 轴坐标。
-     * @param control2_x 控制点2的 X 轴坐标。
-     * @param control2_y 控制点2的 Y 轴坐标。
-     * @returns PathPoint 实例。
-     */
-    static newCubicBezierPoint(x: number, y: number, control1_x: number, control1_y: number,
+    static create(x: number, y: number, control1_x: number, control1_y: number,
         control2_x: number, control2_y: number): PathPoint {
-        let pt = new PathPoint();
+        let pt = pool.take();
         pt.x = x || 0;
         pt.y = y || 0;
         pt.c1_x = control1_x || 0;
         pt.c1_y = control1_y || 0;
         pt.c2_x = control2_x || 0;
         pt.c2_y = control2_y || 0;
-        pt.curve = CurveType.CubicBezier;
 
         return pt;
+    }
+
+    /**
+     * @en Recycle a PathPoint, make it available for reuse.
+     * @zh 回收一个 PathPoint，将其置为可重用状态。
+     */
+    recover() {
+        pool.recover(this);
     }
 
     /**
@@ -153,7 +95,7 @@ export class PathPoint {
      * @returns PathPoint 实例。 
      */
     clone(): PathPoint {
-        let pt = new PathPoint();
+        let pt = pool.take();
         pt.x = this.x;
         pt.y = this.y;
         pt.c1_x = this.c1_x;
@@ -164,4 +106,19 @@ export class PathPoint {
 
         return pt;
     }
+
+    /**
+     * @internal
+     */
+    _reset() {
+        this.x = 0;
+        this.y = 0;
+        this.c1_x = 0;
+        this.c1_y = 0;
+        this.c2_x = 0;
+        this.c2_y = 0;
+        this.curve = 0;
+    }
 }
+
+const pool = Pool.createPool(PathPoint, null, e => e._reset());

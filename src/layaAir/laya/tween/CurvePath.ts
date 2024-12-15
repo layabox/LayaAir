@@ -29,7 +29,7 @@ export class CurvePath {
      * @zh 创建一条曲线。
      * @param points 点列表。 
      */
-    create(...points: Array<PathPoint>): void {
+    create(...points: ReadonlyArray<PathPoint>): void {
         this._segments.length = 0;
         let pts = this._points;
         pts.length = 0;
@@ -201,23 +201,23 @@ export class CurvePath {
     /**
      * @en Get the anchor points of the specified segment.
      * @param segmentIndex The index of the segment.
-     * @param points The array to store the result.
+     * @param out The array to store the result.
      * @returns The anchor points of the specified segment.
      * @zh 获取指定分段的锚点。
      * @param segmentIndex 分段的索引。
-     * @param points 用于存储结果的数组。
+     * @param out 用于存储结果的数组。
      * @returns 指定分段的锚点。
      */
-    getAnchorsInSegment(segmentIndex: number, points?: Array<Point>): Array<Point> {
-        if (points == null)
-            points = [];
+    getAnchorsInSegment(segmentIndex: number, out?: Array<Point>): Array<Point> {
+        if (out == null)
+            out = [];
 
         let pts = this._points;
         let seg = this._segments[segmentIndex];
         for (let i = 0; i < seg.ptCount; i++)
-            points.push(new Point(pts[seg.ptStart + i].x, pts[seg.ptStart + i].y));
+            out.push(new Point(pts[seg.ptStart + i].x, pts[seg.ptStart + i].y));
 
-        return points;
+        return out;
     }
 
     /**
@@ -225,33 +225,33 @@ export class CurvePath {
      * @param segmentIndex The index of the segment.
      * @param t0 The start distance of the segment. It should be a value between 0 and 1. 
      * @param t1 The end distance of the segment. It should be a value between 0 and 1.
-     * @param points The array to store the result. 
-     * @param ts The array to store the distance value of each point. 
+     * @param outPoints The array to store the result. 
+     * @param outTs The array to store the distance value of each point. 
      * @param pointDensity The density of the points. It means the step of distance value between two points. Default is 0.1.
      * @returns The points in the specified segment.
      * @zh 获取指定分段中的点。
      * @param segmentIndex 分段的索引。
      * @param t0 分段的起始距离值，应该是0到1之间的值。
      * @param t1 分段的结束距离值，应该是0到1之间的值。
-     * @param points 用于存储结果的数组。
-     * @param ts 用于存储每个点的距离值的数组。
+     * @param outPoints 用于存储结果的数组。
+     * @param outTs 用于存储每个点的距离值的数组。
      * @param pointDensity 点的密度，表示两个点之间的距离值的步长。默认是0.1。
      * @returns 指定分段中的点。
      */
-    getPointsInSegment(segmentIndex: number, t0: number, t1: number, points?: Array<Point>, ts?: Array<number>, pointDensity?: number): Array<Point> {
-        if (points == null)
-            points = [];
+    getPointsInSegment(segmentIndex: number, t0: number, t1: number, outPoints?: Array<Point>, outTs?: Array<number>, pointDensity?: number): Array<Point> {
+        if (outPoints == null)
+            outPoints = [];
         if (!pointDensity || isNaN(pointDensity))
             pointDensity = 0.1;
         let pts = this._points;
 
-        if (ts)
-            ts.push(t0);
+        if (outTs)
+            outTs.push(t0);
         let seg = this._segments[segmentIndex];
         if (seg.type == CurveType.Straight) {
-            points.push(new Point(MathUtil.lerp(pts[seg.ptStart].x, pts[seg.ptStart + 1].x, t0),
+            outPoints.push(new Point(MathUtil.lerp(pts[seg.ptStart].x, pts[seg.ptStart + 1].x, t0),
                 MathUtil.lerp(pts[seg.ptStart].y, pts[seg.ptStart + 1].y, t0)));
-            points.push(new Point(MathUtil.lerp(pts[seg.ptStart].x, pts[seg.ptStart + 1].x, t1),
+            outPoints.push(new Point(MathUtil.lerp(pts[seg.ptStart].x, pts[seg.ptStart + 1].x, t1),
                 MathUtil.lerp(pts[seg.ptStart].y, pts[seg.ptStart + 1].y, t1)));
         }
         else {
@@ -261,50 +261,50 @@ export class CurvePath {
             else
                 func = this.onCRSplineCurve;
 
-            points.push(func.call(this, seg.ptStart, seg.ptCount, t0, new Point()));
+            outPoints.push(func.call(this, seg.ptStart, seg.ptCount, t0, new Point()));
             let SmoothAmount: number = Math.min(seg.length * pointDensity, 50);
             for (let j = 0; j <= SmoothAmount; j++) {
                 let t = j / SmoothAmount;
                 if (t > t0 && t < t1) {
-                    points.push(func.call(this, seg.ptStart, seg.ptCount, t, new Point()));
-                    if (ts)
-                        ts.push(t);
+                    outPoints.push(func.call(this, seg.ptStart, seg.ptCount, t, new Point()));
+                    if (outTs)
+                        outTs.push(t);
                 }
             }
-            points.push(func.call(this, seg.ptStart, seg.ptCount, t1, new Point()));
+            outPoints.push(func.call(this, seg.ptStart, seg.ptCount, t1, new Point()));
         }
 
-        if (ts)
-            ts.push(t1);
+        if (outTs)
+            outTs.push(t1);
 
-        return points;
+        return outPoints;
     }
 
     /**
      * @en Get all the points on the curve.
-     * @param points The array to store the result. 
-     * @param ts The array to store the distance value of each point. 
+     * @param out The array to store the result. 
+     * @param outTs The array to store the distance value of each point. 
      * @param pointDensity The density of the points. It means the step of distance value between two points. Default is 0.1. 
      * @returns All the points on the curve.
      * @zh 获取曲线上的所有点。
-     * @param points 用于存储结果的数组。
-     * @param ts 用于存储每个点的距离值的数组。
+     * @param out 用于存储结果的数组。
+     * @param outTs 用于存储每个点的距离值的数组。
      * @param pointDensity 点的密度，表示两个点之间的距离值的步长。默认是0.1。
      * @returns 曲线上的所有点。 
      */
-    getAllPoints(points?: Array<Point>, ts?: Array<number>, pointDensity?: number): Array<Point> {
-        if (points == null)
-            points = [];
+    getAllPoints(out?: Array<Point>, outTs?: Array<number>, pointDensity?: number): Array<Point> {
+        if (out == null)
+            out = [];
         if (!pointDensity || isNaN(pointDensity))
             pointDensity = 0.1;
 
         for (let i = 0, cnt = this._segments.length; i < cnt; i++)
-            this.getPointsInSegment(i, 0, 1, points, ts, pointDensity);
+            this.getPointsInSegment(i, 0, 1, out, outTs, pointDensity);
 
-        return points;
+        return out;
     }
 
-    private onCRSplineCurve(ptStart: number, ptCount: number, t: number, result: Point): Point {
+    private onCRSplineCurve(ptStart: number, ptCount: number, t: number, out: Point): Point {
         let adjustedIndex: number = Math.floor(t * (ptCount - 4)) + ptStart; //Since the equation works with 4 points, we adjust the starting point depending on t to return a point on the specific segment
 
         let pts = this._points;
@@ -324,13 +324,13 @@ export class CurvePath {
         let t2: number = ((-3 * adjustedT + 4) * adjustedT + 1) * adjustedT * 0.5;
         let t3: number = ((adjustedT - 1) * adjustedT * adjustedT) * 0.5;
 
-        result.x = p0x * t0 + p1x * t1 + p2x * t2 + p3x * t3;
-        result.y = p0y * t0 + p1y * t1 + p2y * t2 + p3y * t3;
+        out.x = p0x * t0 + p1x * t1 + p2x * t2 + p3x * t3;
+        out.y = p0y * t0 + p1y * t1 + p2y * t2 + p3y * t3;
 
-        return result;
+        return out;
     }
 
-    private onBezierCurve(ptStart: number, ptCount: number, t: number, result: Point): Point {
+    private onBezierCurve(ptStart: number, ptCount: number, t: number, out: Point): Point {
         let t2: number = 1 - t;
         let pts = this._points;
         let p0x: number = pts[ptStart].x;
@@ -343,15 +343,15 @@ export class CurvePath {
         if (ptCount == 4) {
             let cp1x: number = pts[ptStart + 3].x;
             let cp1y: number = pts[ptStart + 3].y;
-            result.x = t2 * t2 * t2 * p0x + 3 * t2 * t2 * t * cp0x + 3 * t2 * t * t * cp1x + t * t * t * p1x;
-            result.y = t2 * t2 * t2 * p0y + 3 * t2 * t2 * t * cp0y + 3 * t2 * t * t * cp1y + t * t * t * p1y;
+            out.x = t2 * t2 * t2 * p0x + 3 * t2 * t2 * t * cp0x + 3 * t2 * t * t * cp1x + t * t * t * p1x;
+            out.y = t2 * t2 * t2 * p0y + 3 * t2 * t2 * t * cp0y + 3 * t2 * t * t * cp1y + t * t * t * p1y;
         }
         else {
-            result.x = t2 * t2 * p0x + 2 * t2 * t * cp0x + t * t * p1x;
-            result.y = t2 * t2 * p0y + 2 * t2 * t * cp0y + t * t * p1y;
+            out.x = t2 * t2 * p0x + 2 * t2 * t * cp0x + t * t * p1x;
+            out.y = t2 * t2 * p0y + 2 * t2 * t * cp0y + t * t * p1y;
         }
 
-        return result;
+        return out;
     }
 }
 
