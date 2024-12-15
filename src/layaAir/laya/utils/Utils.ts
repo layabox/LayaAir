@@ -1,4 +1,5 @@
 import { LayaGL } from "../layagl/LayaGL";
+import { Color } from "../maths/Color";
 import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
 import { RenderTexture } from "../resource/RenderTexture";
 import { RenderTexture2D } from "../resource/RenderTexture2D";
@@ -39,62 +40,17 @@ export class Utils {
     }
 
     /**
-     * @en Converts an unsigned integer color value to a string representation.
-     * @param color The color value.
-     * @returns A string representation of the color value.
-     * @zh 将 uint 类型的颜色值转换为字符串型颜色值。
-     * @param color 颜色值。
-     * @return 字符串型颜色值。
+     * @deprecated Please use Color.hexToString instead.
      */
     static toHexColor(color: number): string {
-        if (color < 0 || isNaN(color)) return null;
-        var str: string = color.toString(16);
-        while (str.length < 6) str = "0" + str;
-        return "#" + str;
+        return Color.hexToString(color);
     }
 
     /**
-     * @en Converts a string color value to a number color.
-     * @param value The string color value.
-     * @returns The color value as a number.
-     * @zh 将字符串型颜色值转换为数字型颜色值。
-     * @param value 字符串颜色值
-     * @returns 作为数字的颜色值
+     * @deprecated Please use Color.stringToHex instead.
      */
     static fromStringColor(value: string): number {
-        if (!value)
-            return 0;
-
-        if (value.indexOf("rgba(") >= 0 || value.indexOf("rgb(") >= 0) {
-            let p1 = value.indexOf("(");
-            let p2 = value.indexOf(")");
-            if (p1 == -1 || p2 == -1)
-                return 0;
-
-            value = value.substring(p1 + 1, p2);
-            let arr: any[] = value.split(",");
-            let len = arr.length;
-            for (let i = 0; i < len; i++) {
-                arr[i] = parseFloat(arr[i]);
-                if (isNaN(arr[i]))
-                    arr[i] = 0;
-            }
-            if (arr.length == 4)
-                return (arr[0] << 24) + (arr[1] << 16) + (arr[2] << 8) + Math.round(arr[3] * 255);
-            else
-                return (arr[0] << 16) + (arr[1] << 8) + arr[2];
-        } else {
-            value.charAt(0) === '#' && (value = value.substring(1));
-            let len = value.length;
-            if (len === 3 || len === 4) {
-                let temp: string = "";
-                for (let i = 0; i < len; i++) {
-                    temp += (value[i] + value[i]);
-                }
-                value = temp;
-            }
-            return parseInt(value, 16);
-        }
+        return Color.stringToHex(value);
     }
 
     /**

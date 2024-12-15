@@ -1,4 +1,4 @@
-import { Utils } from "./Utils"
+import { Color } from "../maths/Color";
 
 const _COLOR_MAP: Record<string, string> = { "purple": "#800080", "orange": "#ffa500", "white": '#FFFFFF', "red": '#FF0000', "green": '#00FF00', "blue": '#0000FF', "black": '#000000', "yellow": '#FFFF00', 'gray': '#808080' };
 
@@ -54,11 +54,11 @@ export class ColorUtils {
 
         let color: number;
         if (typeof (value) == 'string') {
-            color = Utils.fromStringColor(value);
+            color = Color.stringToHex(value);
             this.strColor = value;
         } else {
             color = value;
-            this.strColor = Utils.toHexColor(color);
+            this.strColor = Color.hexToString(color);
         }
 
         if (this.strColor.indexOf("rgba") >= 0 || this.strColor.length === 9) {

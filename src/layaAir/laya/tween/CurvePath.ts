@@ -6,10 +6,13 @@ export class CurvePath {
     private _segments: Array<Segment>;
     private _points: Array<Point>;
     private _fullLength: number;
+    private _cacheT: number;
+    private _curPt: Point;
 
     constructor() {
         this._segments = [];
         this._points = [];
+        this._curPt = new Point();
     }
 
     /**
@@ -31,6 +34,7 @@ export class CurvePath {
         let pts = this._points;
         pts.length = 0;
         this._fullLength = 0;
+        this._cacheT = null;
 
         let cnt = points.length;
         if (cnt == 0)
@@ -132,19 +136,22 @@ export class CurvePath {
      * @param out 用于存储计算结果的点。
      * @returns 曲线上的指定距离的点。
      */
-    getPointAt(t: number, out?: Point): Point {
-        if (!out)
-            out = new Point();
-        else
-            out.setTo(0, 0);
-
-        let pts = this._points;
+    getPointAt(t: number): Readonly<Point> {
+        let out = this._curPt;
         t = MathUtil.clamp01(t);
+
+        if (t === this._cacheT)
+            return out;
+
+        out.setTo(0, 0);
+        this._cacheT = t;
+
         let cnt = this._segments.length;
         if (cnt == 0) {
             return out;
         }
 
+        let pts = this._points;
         if (t == 1) {
             let seg = this._segments[cnt - 1];
 

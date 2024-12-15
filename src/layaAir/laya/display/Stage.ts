@@ -25,7 +25,7 @@ import type { Scene } from "./Scene";
 import { RenderState2D } from "../webgl/utils/RenderState2D";
 import type { Laya3D } from "../../Laya3D";
 import { Timer } from "../utils/Timer";
-import { Tween } from "../tween/Tween";
+import { Tweener } from "../tween/Tweener";
 
 /**
  * @en Stage is the root node of the display list. All display objects are shown on the stage. It can be accessed through the Laya.stage singleton.
@@ -1015,7 +1015,7 @@ export class Stage extends Sprite {
         ILaya.systemTimer._update();
         ILaya.physicsTimer._update();
         ILaya.timer._update();
-        Tween._runAll();
+        Tweener._runAll();
     }
 
     /**
