@@ -129,7 +129,7 @@ export class Dialog extends View {
     /**@internal */
     _param: any;
     /**@internal */
-    _effectTween: number;
+    _effectTween: Tween;
 
     /**
      * @en The handler function that will be triggered when the dialog is closed.

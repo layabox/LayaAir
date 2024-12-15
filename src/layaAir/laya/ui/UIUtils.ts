@@ -1,6 +1,5 @@
 import { Sprite } from "../display/Sprite"
 import { ColorFilter } from "../filters/ColorFilter"
-import { Utils } from "../utils/Utils"
 import { WeakObject } from "../utils/WeakObject"
 
 /**
@@ -34,18 +33,6 @@ export class UIUtils {
             }
         }
         return temp;
-    }
-
-    /**
-     * @en Convert a uint color value to a string color value.
-     * @param color The uint color value.
-     * @returns The string color value.
-     * @zh 转换 uint 类型颜色值为字符型颜色值。
-     * @param color uint颜色值。
-     * @returns 字符型颜色值。
-     */
-    static toColor(color: number): string {
-        return Utils.toHexColor(color);
     }
 
     /**

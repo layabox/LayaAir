@@ -12,7 +12,7 @@ export class ButtonEffect {
 
     private _tar: Sprite;
     private _curState: number = 0;
-    private _curTween: number;
+    private _curTween: Tween;
     /**
      * effectScale
      * @prop {name:effectScale,type:number, tips:"缩放值",default:"1.5"}
@@ -47,25 +47,16 @@ export class ButtonEffect {
 
     private toChangedState(): void {
         this._curState = 1;
-        if (this._curTween != null) Tween.kill(this._curTween);
-        this._curTween = Tween.to(this._tar,
-            { scaleX: this.effectScale, scaleY: this.effectScale },
-            this.tweenTime,
-            (Ease as any)[this.effectEase],
-            Handler.create(this, this.tweenComplete)).id;
+        if (this._curTween) Tween.clear(this._curTween);
+        this._curTween = Tween.to(this._tar, { scaleX: this.effectScale, scaleY: this.effectScale }, this.tweenTime, (Ease as any)[this.effectEase], Handler.create(this, this.tweenComplete));
     }
 
     private toInitState(): void {
         if (this._curState == 2) return;
-        if (this._curTween != null) Tween.kill(this._curTween);
+        if (this._curTween) Tween.clear(this._curTween);
         this._curState = 2;
-        this._curTween = Tween.to(this._tar,
-            { scaleX: 1, scaleY: 1 },
-            this.tweenTime,
-            (Ease as any)[this.backEase],
-            Handler.create(this, this.tweenComplete)).id;
+        this._curTween = Tween.to(this._tar, { scaleX: 1, scaleY: 1 }, this.tweenTime, (Ease as any)[this.backEase], Handler.create(this, this.tweenComplete));
     }
-
     private tweenComplete(): void {
         this._curState = 0;
         this._curTween = null;

@@ -5,7 +5,7 @@
         "outDir": "../../bin/tsc/layaAir",
         "lib": ["es2019", "dom"], 
         "composite": true,
-        "stripInternal": false,
+        "stripInternal": true,
         "removeComments": false,
         "preserveConstEnums": false,
         "noImplicitAny": true,

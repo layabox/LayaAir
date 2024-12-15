@@ -63,7 +63,7 @@ export class Dragging {
     private _offsetX: number;
     private _offsetY: number;
     private _offsets: any[];
-    private _tween: number;
+    private _tween: Tween;
     private _parent: Sprite;
 
     /**
@@ -261,7 +261,7 @@ export class Dragging {
             var obj: any = {};
             if (!isNaN(tx)) obj.x = tx;
             if (!isNaN(ty)) obj.y = ty;
-            this._tween = Tween.to(this.target, obj, this.elasticBackTime, Ease.sineOut, Handler.create(this, this.clear)).id;
+            this._tween = Tween.to(this.target, obj, this.elasticBackTime, Ease.sineOut, Handler.create(this, this.clear));
         } else {
             this.clear();
         }
