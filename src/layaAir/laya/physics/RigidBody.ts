@@ -301,14 +301,18 @@ export class RigidBody extends Component {
 
     /** @internal */
     _globalChangeHandler(flag: number) {
-        if ((flag & TransformKind.TRS) != 0)
+        if (this.type == "static" )
             this._needrefeshShape();
+    }
+
+    protected _onAwake(): void {
+        this._createBody();
+      
     }
 
     /** @internal */
     _onEnable(): void {
         this.owner._setBit(NodeFlags.CACHE_GLOBAL, true);
-        this._createBody();
         Physics2D.I._factory.set_RigibBody_Enable(this._body, true);
         this.owner.on(Sprite.GLOBAL_CHANGE, this, this._globalChangeHandler);
     }
