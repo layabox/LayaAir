@@ -1,10 +1,15 @@
 import { ILaya } from "../../ILaya";
 import { IPool, Pool } from "../utils/Pool";
 import { Ease } from "./Ease";
-import { TweenValue } from "./TweenValue";
+import { TweenValue, TweenValueAdapterKey } from "./TweenValue";
 import { Color } from "../maths/Color";
-import { EaseFunction, TweenInterpolator, ITweener, TweenCallback, TweenPropInfo, TweenValueType } from "./ITweener";
+import { EaseFunction, TweenInterpolator, ITweener, TweenCallback, TweenValueAdapter } from "./ITween";
 import type { Tween } from "./Tween";
+
+/**
+ * @internal
+ */
+export type TweenPropInfo = { name: string; type: 0 | 1 | 2 | TweenValueAdapter, offset: number; };
 
 export class Tweener implements ITweener {
     id: number;
@@ -51,7 +56,7 @@ export class Tweener implements ITweener {
     _active: boolean;
 
     static create(owner: Tween): Tweener {
-        let tweener = Tweener._pool.borrow();
+        let tweener = Tweener._pool.take();
         _activeTweens[_totalActiveTweens++] = tweener;
         tweener.owner = owner;
         return tweener;
@@ -132,12 +137,13 @@ export class Tweener implements ITweener {
     }
 
     go<T>(propName: string, startValue: T, endValue: T): this {
-        let prop = _propsPool.borrow();
+        let prop = _propsPool.take();
         this.props.push(prop);
         prop.name = propName;
         prop.offset = this.startValue.length;
 
         let type = typeof (startValue);
+        let adapter: TweenValueAdapter;
         if (type === "number") {
             prop.type = 0;
             this.startValue.push(startValue as number);
@@ -146,15 +152,12 @@ export class Tweener implements ITweener {
         else if (type === "string") {//for string color
             this.startValue.push(Color.stringToHex(startValue as string));
             this.endValue.push(Color.stringToHex(endValue as string));
-            prop.type = TweenValueType.StringColor;
+            prop.type = 2;
         }
-        else if (type == "object" && startValue != null && 'writeTo' in (<any>startValue)) { //Vector2/3/4 and Color
-            (<any>startValue).writeTo(this.startValue, this.startValue.length);
-            (<any>endValue).writeTo(this.endValue, this.endValue.length);
-            let len = this.startValue.length - prop.offset;
-            prop.type = len;
-            if (len == 4 && startValue instanceof Color)
-                prop.type = TweenValueType.Color;
+        else if (type == "object" && (adapter = (<any>startValue)[TweenValueAdapterKey]) != null) {
+            adapter.write(startValue, this.startValue);
+            adapter.write(endValue, this.endValue);
+            prop.type = adapter;
         }
         else { //default use boolean
             this.startValue.push(startValue ? 1 : 0);
@@ -253,7 +256,7 @@ export class Tweener implements ITweener {
         this.target = null;
         this.lifecycleOwner = null;
         this.userData = null;
-        _propsPool.returns(this.props);
+        _propsPool.recover(this.props);
         this.onStart = this.onUpdate = this.onComplete = null;
         this.onStartCaller = this.onUpdateCaller = this.onCompleteCaller = null;
     }
@@ -347,19 +350,15 @@ export class Tweener implements ITweener {
             for (let i = 0, n = this.props.length; i < n; i++) {
                 let prop = this.props[i];
                 if (prop.name) {
-                    if (prop.type === 1) { //boolean
-                        let v = this._ended === 1 ? this.endValue.read(prop.type, prop.offset)
-                            : this.startValue.read(prop.type, prop.offset);
-                        if (this.target[prop.name] === v) //optimize for boolean color
-                            continue;
-                        this.target[prop.name] = v;
-                    }
-                    else {
-                        let v = this.value.read(prop.type, prop.offset);
-                        if (prop.type === 6 && this.target[prop.name] === v) //optimize for string color
-                            continue;
-                        this.target[prop.name] = v;
-                    }
+                    let v = prop.type === 1 ? (this._ended === 1 ? this.endValue.read(prop.type, prop.offset)
+                        : this.startValue.read(prop.type, prop.offset))
+                        : this.value.read(prop.type, prop.offset);
+
+                    if ((prop.type === 0 || prop.type === 1 || prop.type === 2)
+                        && this.target[prop.name] === v) //optimize for primitive value
+                        continue;
+
+                    this.target[prop.name] = v;
                 }
             }
         }
@@ -420,7 +419,7 @@ export class Tweener implements ITweener {
             else if (tweener._killed) {
                 _activeTweenMap.delete(tweener.id);
                 tweener.owner?._check();
-                Tweener._pool.returns(tweener);
+                Tweener._pool.recover(tweener);
                 _activeTweens[i] = null;
 
                 if (freePosStart == -1)

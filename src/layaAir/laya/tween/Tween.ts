@@ -1,7 +1,7 @@
 
 import { Handler } from "../utils/Handler";
 import { Tweener } from "./Tweener";
-import { EaseFunction, TweenInterpolator, TweenCallback } from "./ITweener";
+import { EaseFunction, TweenInterpolator, TweenCallback } from "./ITween";
 import { IPool, Pool } from "../utils/Pool";
 import { CurvePath } from "./CurvePath";
 
@@ -15,7 +15,7 @@ import { CurvePath } from "./CurvePath";
  *  .to("x", 100).to("y", 200).ease(Laya.Ease.sineInOut).then(callback);
  * 
  * //tween a vector property of an object
- * Laya.Tween.create(target.transform).duration(1000).lifecycleOwner(target).to("localPosition", new Laya.Vector3(1,1,1));
+ * Laya.Tween.create(target.transform, target).duration(1000).to("localPosition", new Laya.Vector3(1,1,1));
  * 
  * //tween a hex color property of an object, r/g/b channel are tweened separately.
  * Laya.Tween.create(target).duration(1000).to("color", 0xffffff).interp(Laya.Tween.seperateChannel, 3);
@@ -34,23 +34,27 @@ import { CurvePath } from "./CurvePath";
  */
 export class Tween {
     private _target: any;
+    private _lo: any;
     private _cur: Tweener;
     private _par: Tweener;
     private _queue: Array<number>;
     private _head: number;
 
     /**
+     * @en Create a new Tween object. You can set the properties of the Tween by chaining. It will start automatically and does not need to be called separately.
+     * @param target The target object of the Tween. It can be empty.
+     * @param lifecycleOwner The lifecycle object, when destroyed, the tween will automatically stop. In general, if the target object of the task has a destroyed property, this property does not need to be set. If the target object of the task does not have a destroyed property, this property can be set.
+     * @returns A Tween object.
      * @zh 创建一个新的缓动对象。使用返回的对象可以设置缓动的属性和其他选项。
      * 缓动会自动开始，无需额外API调用。如果不想tween被立刻执行，可以调用pause，后续再调用resume。
      * @param target 缓动的目标对象。可以为空。
+     * @param lifecycleOwner 生命周期对象，当销毁时，缓动会自动停止。一般情况下，如果任务的目标对象有 destroyed 属性，则不需要设置此属性。如果任务的目标对象没有 destroyed 属性，则可以设置此属性。
      * @returns 返回一个Tween对象。
-     * @en Create a new Tween object. You can set the properties of the Tween by chaining. It will start automatically and does not need to be called separately.
-     * @param target The target object of the Tween. It can be empty.
-     * @returns A Tween object.
      */
-    static create(target?: any): Tween {
-        let tween = Tween._pool.borrow();
+    static create(target?: any, lifecycleOwner?: { destroyed: boolean }): Tween {
+        let tween = Tween._pool.take();
         tween._target = target;
+        tween._lo = lifecycleOwner;
         return tween;
     }
 
@@ -198,7 +202,7 @@ export class Tween {
 
         for (let p in props) {
             let value = props[p];
-            if (typeof (value) == 'number' || (<any>value).writeTo != null) {
+            if (p in tweener.target) {
                 isTo ? tweener.go(p, tweener.target[p], value) : tweener.go(p, value, tweener.target[p]);
             }
         }
@@ -285,14 +289,18 @@ export class Tween {
     /**
      * @en Start a new tween task, which will start immediately after the current task ends.
      * @param target The target object of the Tween. If it is empty, the target object pass in create method will be used.
+     * @param lifecycleOwner The lifecycle object, when destroyed, the tween will automatically stop. In general, if the target object of the task has a destroyed property, this property does not need to be set. If the target object of the task does not have a destroyed property, this property can be set.
      * @returns The Tween object.
      * @zh 开启一个新的缓动任务，它将在当前任务结束后立刻开始。
      * @param target 缓动的目标对象。如果为空，将使用create方法传入的目标对象。
+     * @param lifecycleOwner 生命周期对象，当销毁时，缓动会自动停止。一般情况下，如果任务的目标对象有 destroyed 属性，则不需要设置此属性。如果任务的目标对象没有 destroyed 属性，则可以设置此属性。
      * @return Tween对象。
      */
-    chain(target?: any): this {
-        if (target !== undefined)
+    chain(target?: any, lifecycleOwner?: { destroyed: boolean }): this {
+        if (target !== undefined) {
             this._target = target;
+            this._lo = lifecycleOwner;
+        }
 
         if (this._queue.length == 0)
             return this;
@@ -304,22 +312,27 @@ export class Tween {
 
         this._cur = Tweener.create(this);
         this._cur.target = this._target;
+        this._cur.lifecycleOwner = this._lo;
         this._queue.push(this._cur.id);
         return this;
     }
 
     /**
      * @en Start a new tween task, which will start at the same time as the current task.
-     * @param target The target object of the Tween. If it is empty, the target object pass in create method will be used.
+     * @param target The target object of the Tween. If it is empty, the target object pass in chain or create method will be used.
+     * @param lifecycleOwner The lifecycle object, when destroyed, the tween will automatically stop. In general, if the target object of the task has a destroyed property, this property does not need to be set. If the target object of the task does not have a destroyed property, this property can be set.
      * @returns The Tween object.
      * @zh 开启一个新的缓动任务，它和当前任务同时开始。
-     * @param target 缓动的目标对象。如果为空，将使用create方法传入的目标对象。
+     * @param target 缓动的目标对象。如果为空，将使用chain或create方法传入的目标对象。
+     * @param lifecycleOwner 生命周期对象，当销毁时，缓动会自动停止。一般情况下，如果任务的目标对象有 destroyed 属性，则不需要设置此属性。如果任务的目标对象没有 destroyed 属性，则可以设置此属性。
      * @return Tween对象。
      */
-    parallel(target?: any): this {
+    parallel(target?: any, lifecycleOwner?: { destroyed: boolean }): this {
         if (this._queue.length == 0) {
-            if (target !== undefined)
+            if (target !== undefined) {
                 this._target = target;
+                this._lo = lifecycleOwner;
+            }
             return this;
         }
 
@@ -329,7 +342,14 @@ export class Tween {
         }
 
         this._cur = Tweener.create(this);
-        this._cur.target = target !== undefined ? target : this._par.target;
+        if (target !== undefined) {
+            this._cur.target = target;
+            this._cur.lifecycleOwner = lifecycleOwner;
+        }
+        else {
+            this._cur.target = this._par.target;
+            this._cur.lifecycleOwner = this._par.lifecycleOwner;
+        }
         this._cur.duration = this._par.duration;
         if (this._par._active)
             this._cur.activate();
@@ -498,27 +518,6 @@ export class Tween {
     }
 
     /**
-     * @en Set an object, when the destroyed property of the object is true, the task will automatically stop.
-     * In general, if the target of the task has a destroyed property, you do not need to set this property. If the target of the task does not have a destroyed property, you can set this property.
-     * @param value An object with a lifecycle
-     * @return Tween object.
-     * @zh 设置一个对象，当对象的 destroyed 属性为 true 时，任务会自动停止。
-     * 一般情况下，如果任务的目标对象有 destroyed 属性，则不需要设置此属性。如果任务的目标对象没有 destroyed 属性，则可以设置此属性。
-     * @param value 有生命周期的对象。
-     * @return Tween对象。
-     * @example
-     * ```ts
-     * //aNode.transfrom has no destroyed property, so set lifecycleOwner to aNode. 
-     * //The tween will be automatically stopped when aNode is destroyed.
-     * Laya.Tween.create(aNode.transform).duration(1000).lifecycleOwner(aNode);
-     * ```
-     */
-    lifecycleOwner(value: { destroyed: boolean }): this {
-        this.cur(false).lifecycleOwner = value;
-        return this;
-    }
-
-    /**
      * @en Set a custom update callback for the current task. The update callback is executed for every frame during the task.
      * @param callback The update callback.
      * @param callbackThis The update callback execution context. 
@@ -660,7 +659,7 @@ export class Tween {
      */
     recover(): void {
         this.kill(false);
-        Tween._pool.returns(this);
+        Tween._pool.recover(this);
     }
 
     private constructor() {
@@ -679,6 +678,7 @@ export class Tween {
 
             this._cur = Tweener.create(this);
             this._cur.target = this._target;
+            this._cur.lifecycleOwner = this._lo;
             this._cur.activate();
             this._queue.push(this._cur.id);
         }

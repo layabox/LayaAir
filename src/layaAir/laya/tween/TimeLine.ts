@@ -6,7 +6,7 @@ import { Utils } from "../utils/Utils";
 import { Event } from "../events/Event"
 import { EventDispatcher } from "../events/EventDispatcher"
 import { ILaya } from "../../ILaya";
-import { EaseFunction, ITweener } from "./ITweener";
+import { EaseFunction, ITweener } from "./ITween";
 
 /**
  * @en When the entire slow motion ends, it will be scheduled
