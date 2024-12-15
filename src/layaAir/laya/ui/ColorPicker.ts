@@ -1,7 +1,6 @@
 import { UIComponent } from "./UIComponent";
 import { Box } from "./Box";
 import { Button } from "./Button";
-import { UIUtils } from "./UIUtils";
 import { Graphics } from "../display/Graphics"
 import { Input } from "../display/Input"
 import { Sprite } from "../display/Sprite"
@@ -10,6 +9,7 @@ import { Point } from "../maths/Point"
 import { Handler } from "../utils/Handler"
 import { ILaya } from "../../ILaya";
 import { HideFlags } from "../Const";
+import { Color } from "../maths/Color";
 
 /**
  * @en The `ColorPicker` component displays a color palette from which the user can select a color.
@@ -251,7 +251,7 @@ export class ColorPicker extends UIComponent {
                 else if (j === 1) color = 0x000000;
                 else color = (((i * 3 + j / 6) % 3 << 0) + ((i / 6) << 0) * 3) * 0x33 << 16 | j % 6 * 0x33 << 8 | (i << 0) % 6 * 0x33;
 
-                var strColor: string = UIUtils.toColor(color);
+                var strColor: string = Color.hexToString(color);
                 this._colors.push(strColor);
 
                 var x: number = j * this._gridSize;

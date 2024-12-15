@@ -6,7 +6,7 @@ import { Utils } from "../utils/Utils";
 import { Event } from "../events/Event"
 import { EventDispatcher } from "../events/EventDispatcher"
 import { ILaya } from "../../ILaya";
-import { EaseFunction } from "./Ease";
+import { EaseFunction, ITweener } from "./ITweener";
 
 /**
  * @en When the entire slow motion ends, it will be scheduled
@@ -28,7 +28,7 @@ import { EaseFunction } from "./Ease";
 export class TimeLine extends EventDispatcher {
 
     private _labelDic: any;
-    private _tweenDic: Array<number> = [];
+    private _tweenDic: Array<Tween> = [];
     private _tweenDataList: any[] = [];
     private _endTweenDataList: any[];//以结束时间进行排序
     private _currTime: number = 0;
@@ -256,7 +256,7 @@ export class TimeLine extends EventDispatcher {
                         tTween = Tween.to(tTweenData.target, tTweenData.data, tTweenData.duration, tTweenData.ease, Handler.create(this, this._animComplete));
                     else
                         tTween = Tween.from(tTweenData.target, tTweenData.data, tTweenData.duration, tTweenData.ease, Handler.create(this, this._animComplete));
-                    this._tweenDic.push(tTween.id);
+                    this._tweenDic.push(tTween);
                 }
             }
         }
@@ -357,7 +357,7 @@ export class TimeLine extends EventDispatcher {
                 this.gotoTime(0);
             } else {
                 for (let p of this._tweenDic)
-                    Tween.kill(p, true);
+                    p.complete();
                 this.pause();
                 this._complete();
                 return;
@@ -369,7 +369,6 @@ export class TimeLine extends EventDispatcher {
         var tCurrTime: number = this._currTime += tFrameTime * this.scale;
         this._lastTime = tNow;
 
-        var tTween: Tween;
         if (this._tweenDataList.length != 0 && this._index < this._tweenDataList.length) {
             var tTweenData: tweenData = this._tweenDataList[this._index];
             if (tCurrTime >= tTweenData.startTime) {
@@ -381,7 +380,7 @@ export class TimeLine extends EventDispatcher {
                         tTween = Tween.to(tTweenData.target, tTweenData.data, tTweenData.duration, tTweenData.ease, Handler.create(this, this._animComplete));
                     else
                         tTween = Tween.from(tTweenData.target, tTweenData.data, tTweenData.duration, tTweenData.ease, Handler.create(this, this._animComplete));
-                    this._tweenDic.push(tTween.id);
+                    this._tweenDic.push(tTween);
                 } else {
                     this.event(Event.LABEL, tTweenData.data);
                 }
@@ -393,8 +392,8 @@ export class TimeLine extends EventDispatcher {
      * 指定的动画索引处的动画播放完成后，把此动画从列表中删除。
      * @param index
      */
-    private _animComplete(index: number): void {
-        let i = this._tweenDic.indexOf(index);
+    private _animComplete(tweener: ITweener): void {
+        let i = this._tweenDic.indexOf(tweener.owner);
         if (i > -1) this._tweenDic.splice(i, 1);
     }
 

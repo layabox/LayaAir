@@ -1,116 +1,136 @@
-import { ILaya } from "../../ILaya";
-import type { Node } from "../display/Node";
-import { Point } from "../maths/Point";
-import { Handler } from "../utils/Handler";
-import { IPool, Pool } from "../utils/Pool";
-import { Ease, EaseFunction } from "./Ease";
-import { CurvePath } from "./CurvePath";
-import { TweenValue, TweenValueType } from "./TweenValue";
-import { Vector2 } from "../maths/Vector2";
-import { Vector3 } from "../maths/Vector3";
-import { Vector4 } from "../maths/Vector4";
-import { Color } from "../maths/Color";
 
-export type TweenCallback = (tween: Tween) => void;
-type TweenPropDef = { name: string, type: TweenValueType, i: number, shake?: boolean };
+import { Handler } from "../utils/Handler";
+import { Tweener } from "./Tweener";
+import { EaseFunction, TweenInterpolator, TweenCallback } from "./ITweener";
+import { IPool, Pool } from "../utils/Pool";
+import { CurvePath } from "./CurvePath";
 
 /**
  * @en The `Tween` class is an easing class. It is used to implement the interpolation of properties of a target object.
  * @zh `Tween` 类是一个缓动类。使用此类能够实现对目标对象属性的渐变。
+ * @example
+ * ```ts
+ * //tween a numeric property of an object
+ * let tween = Laya.Tween.create(target).duration(1000).delay(1000)
+ *  .to("x", 100).to("y", 200).ease(Laya.Ease.sineInOut).then(callback);
+ * 
+ * //tween a vector property of an object
+ * Laya.Tween.create(target.transform).duration(1000).lifecycleOwner(target).to("localPosition", new Laya.Vector3(1,1,1));
+ * 
+ * //tween a hex color property of an object, r/g/b channel are tweened separately.
+ * Laya.Tween.create(target).duration(1000).to("color", 0xffffff).interp(Laya.Tween.seperateChannel, 3);
+ * 
+ * //Somewhere want to kill the tween immediately.
+ * tween.kill();
+ * 
+ * //or kill by target
+ * Laya.Tween.killAll(target);
+ * 
+ * //use chain and parallel to create complex sequences
+ * Laya.Tween.create(target).duration(1000).to("x", 100)
+ *   .chain().duration(500).to("y", 200)
+ *   .parallel().to("visible", true)
+ * ```
  */
 export class Tween {
-    /**
-     * @en A positive integer, representing the unique id of the Tween object. If you need to access the Tween after creating it, you should save this id and then call Tween.getTween(id) to get it.
-     * @zh 一个正整数，是Tween对象的唯一标识。如果创建Tween后后续需要引用它，保留此id，然后使用getTween(id)获取它。
-     */
-    readonly id: number;
-    /**
-     * @en The starting value of the Tween. Even if the Tween is running, you can still modify it.
-     * @zh 缓动的初始值。即使Tween在运行过程中，也可以修改它。
-     */
-    readonly startValue: TweenValue;
-    /**
-     * @en The end value of the Tween. Even if the Tween is running, you can still modify it.
-     * @zh 缓动的结束值。即使Tween在运行过程中，也可以修改它。
-     */
-    readonly endValue: TweenValue;
-    /**
-     * @en The current value of the Tween. You can get the Tween value at any time during the Tween.
-     * @zh 缓动的当前值。可以在缓动进行中的任意时刻获取Tween的值。
-     */
-    readonly value: TweenValue;
-    /**
-     * @en The difference between the value of the last update callback and the value of the current update callback.
-     * @zh 上一次update回调与本次update回调的value值的差值。
-     */
-    readonly deltaValue: TweenValue;
-
     private _target: any;
-    private _killed: boolean;
-    private _paused: boolean;
-    private _props: Array<TweenPropDef>;
-    private _propsCnt: number;
-    private _delay: number;
-    private _duration: number;
-    private _breakpoint: number;
-    private _easeFunc: EaseFunction;
-    private _easeArgs: number[];
-    private _repeat: number;
-    private _yoyo: boolean;
-    private _timeScale: number;
-    private _ignoreEngineScale: boolean;
-    private _snapping: boolean;
-    private _userData: any;
-    private _path: CurvePath;
-
-    private _onUpdate: TweenCallback;
-    private _onStart: TweenCallback;
-    private _onComplete: TweenCallback;
-    private _onUpdateCaller: any;
-    private _onStartCaller: any;
-    private _onCompleteCaller: any;
-
-    private _started: boolean;
-    private _ended: number;
-    private _startFrame: number;
-    private _elapsedTime: number;
-    private _normalizedTime: number;
+    private _cur: Tweener;
+    private _par: Tweener;
+    private _queue: Array<number>;
+    private _head: number;
 
     /**
      * @zh 创建一个新的缓动对象。使用返回的对象可以设置缓动的属性和其他选项。
      * 缓动会自动开始，无需额外API调用。如果不想tween被立刻执行，可以调用pause，后续再调用resume。
-     * 请不要缓存返回的tween对象，它会在内部被池化，缓动结束后自动回收，对缓存的tween对象操作是危险的。
-     * 在start,update,complete回调中，会自动传递当前的tween对象。如果在其他情况需要获得tween对象，可以保存tween对象的id，然后使用Tween.getTween(id)获取它，可以使用Tween.killTween(id)立即结束它.
      * @param target 缓动的目标对象。可以为空。
      * @returns 返回一个Tween对象。
      * @en Create a new Tween object. You can set the properties of the Tween by chaining. It will start automatically and does not need to be called separately.
-     * Please do not cache the returned Tween object, it will be pooled internally, and the Tween object operation is dangerous.
-     * In the start, update, and complete callbacks, the current Tween object will be automatically passed. If you need to get the Tween object in other cases, you can save the id of the Tween object, and then use Tween.getTween(id) to get it, and use Tween.killTween(id) to end it immediately.
      * @param target The target object of the Tween. It can be empty.
      * @returns A Tween object.
-     * @example
-     * ```ts
-     * //tween a numeric property of an object
-     * let tweenId = Laya.Tween.create(target)
-     *   .setDuration(1000)
-     *   .to("x", 100).to("y", 200)
-     *   .setEase(Laya.Ease.sineInOut).setDelay(1000).onUpdate(onUpdate).onComplete(onComplete);
-     * 
-     * //tween a vector property of an object
-     * Laya.Tween.create(target.transform).setDuration(1000).to("localPosition", new Laya.Vector3(1,1,1));
-     * 
-     * //tween a hex color property of an object, r/g/b channel are tweened separately.
-     * Laya.Tween.create(target).setDuration(1000).to("color", 0xffffff, Laya.TweenValueType.HexColor);
-     * 
-     * //Somewhere want to kill the tween immediately.
-     * Laya.Tween.kill(tweenId);
-     * ```
      */
     static create(target?: any): Tween {
-        let tweener = Tween._pool.borrow();
-        _activeTweens[_totalActiveTweens++] = tweener;
-        tweener._target = target;
-        return tweener;
+        let tween = Tween._pool.borrow();
+        tween._target = target;
+        return tween;
+    }
+
+    /**
+     * @en Check if any Tween is running on the specified target.
+     * @param target The target object.
+     * @returns Returns true if there is a Tween running on the target.
+     * @zh 检查指定对象上是否有任何 Tween 正在运行。
+     * @param target 指定的对象。
+     * @return 如果有任何 Tween 正在运行，则返回 true。
+     */
+    static isTweening(target: any): boolean {
+        return Tweener.isTweening(target);
+    }
+
+    /**
+     * Query a Tween object by target.
+     * @param id The Tween object. 
+     * @returns The Tween object. If it doesn't exist, it will return null.
+     */
+    static getTween(target: any): Tween | null {
+        tmpArray.length = 0;
+        this.getTweens(target, tmpArray);
+        return tmpArray.length > 0 ? tmpArray[0] : null;
+    }
+
+    /**
+     * @en Get all Tweens that are running on the specified target. If none, returns an empty array or the passed-in non-null array.
+     * @param target The target object. 
+     * @param out An array to receive the Tween objects. 
+     * @returns An array of Tween objects that are running on the specified target.
+     * @zh 获取指定对象上正在运行的所有 Tween。如果没有，返回空数组或传入的非空对象。
+     * @param target 指定的对象。
+     * @param out 接收 Tween 对象的数组。
+     * @return 正在运行的所有 Tween 的数组。 
+     */
+    static getTweens(target: any, out?: Array<Tween>): Array<Tween> {
+        return Tweener.getTweens(target, out);
+    }
+
+    /**
+     * @en Kill a specific tween.
+     * @param tween The tween object to clear.
+     * @zh 清理某个特定的缓动。
+     * @param tween 要清理的缓动对象。
+     */
+    static kill(tween: Tween): void {
+        if (tween)
+            tween.kill();
+    }
+
+    /**
+     * @deprecated Use kill instead.
+     */
+    static clear(tween: Tween): void {
+        if (tween)
+            tween.kill();
+    }
+
+    /**
+     * @en Kill all Tweens by the specified target.
+     * @param target The target object.
+     * @param completed If true, the tweens will be set to the end state, and the complete callback will be called.
+     * If false, the complete callback will not be called. 
+     * @returns Returns true if there any tweens are existing and killed.
+     * @zh 结束指定对象上的所有 Tween。
+     * @param target 指定的对象。
+     * @param completed 如果为 true，Tween 将设置到结束状态, complete 回调将会被执行。
+     * 如果为 false，complete 回调将不会被执行。
+     * @return 如果存在并且成功结束 Tween 返回 true，否则返回 false。 
+     */
+    static killAll(target: any, completed?: boolean): boolean {
+        return Tweener.killAll(target, completed);
+    }
+
+    /**
+     * @deprecated Use killAll instead.
+     */
+    static clearAll(target: any): void {
+        Tween.killAll(target);
     }
 
     /**
@@ -133,15 +153,18 @@ export class Tween {
      * @param coverBefore 是否覆盖之前的缓动。
      * @return 返回Tween对象。
      */
-    static to(target: any, props: Readonly<Record<string, any>>, duration: number, ease?: EaseFunction, complete?: Handler | Function, delay?: number, coverBefore?: boolean): Tween {
+    static to(target: any, props: Readonly<Record<string, any>>, duration: number, ease?: EaseFunction, complete?: Handler, delay?: number, coverBefore?: boolean): Tween {
         if (coverBefore)
             Tween.killAll(target);
 
-        return Tween.legacySetup(Tween.create(target), props, duration, ease, complete, delay, true);
+        let tween = Tween.create(target);
+        Tween.tweenLegacy(tween.cur(true), props, duration, ease, complete, delay, true);
+        return tween;
     }
 
     /**
-     * @en From the props attribute, tween to the current state. This is a compatibility function, recommended to use Tween.create instead.
+     * @en From the props attribute, tween to the current state. 
+     * This is a compatibility function, recommended to use Tween.create instead.
      * @param target The target object whose properties will be tweened.
      * @param props The list of properties to change, e.g., {x:100, y:20, ease:Ease.backOut, complete:Handler.create(this,onComplete), update:new Handler(this,onUpdate)}.
      * @param duration The time taken for the tween in milliseconds.
@@ -150,7 +173,8 @@ export class Tween {
      * @param delay The delay before the tween starts.
      * @param coverBefore Whether to override the previous tween.
      * @returns Returns the Tween object.
-     * @zh 从props属性，缓动到当前状态。这是兼容老版本的函数签名，建议使用Twee.create替代。
+     * @zh 从props属性，缓动到当前状态。
+     * 这是兼容老版本的函数签名，建议使用Twee.create替代。
      * @param target 目标对象(即将更改属性值的对象)。
      * @param props 变化的属性列表，比如{x:100,y:20,ease:Ease.backOut,complete:Handler.create(this,onComplete),update:new Handler(this,onComplete)}。
      * @param duration 花费的时间，单位毫秒。
@@ -160,574 +184,423 @@ export class Tween {
      * @param coverBefore 是否覆盖之前的缓动。
      * @return	返回Tween对象。
      */
-    static from(target: any, props: Record<string, any>, duration: number, ease?: EaseFunction, complete?: Handler | Function, delay?: number, coverBefore?: boolean): Tween {
+    static from(target: any, props: Record<string, any>, duration: number, ease?: EaseFunction, complete?: Handler, delay?: number, coverBefore?: boolean): Tween {
         if (coverBefore)
             Tween.killAll(target);
 
-        return Tween.legacySetup(Tween.create(target), props, duration, ease, complete, delay, false);
-    }
-
-    private static legacySetup(tween: Tween, props: Record<string, any>, duration: number, ease: EaseFunction, complete: Handler | Function, delay: number, isTo: boolean): Tween {
-        tween._duration = duration;
-
-        for (let p in props) {
-            let value = props[p];
-            if (typeof (value) == 'number' || (<Vector2 | Vector3 | Vector4 | Color>value).writeTo != null) {
-                isTo ? tween.to(p, value) : tween.from(p, value);
-            }
-        }
-
-        if (props.ease)
-            tween.setEase(props.ease, props.easeArgs);
-        if (props.update) {
-            if (typeof (props.update) === "function")
-                tween.onUpdate(<TweenCallback>props.update);
-            else //handler
-                tween.onUpdate(props.update.runWith, props.update);
-        }
-        if (props.complete) {
-            if (typeof (props.complete) === "function")
-                tween.onComplete(<TweenCallback>props.complete);
-            else //handler
-                tween.onComplete(props.complete.runWith, props.complete);
-        }
-
-        if (ease != null)
-            tween.setEase(ease);
-
-        if (delay != null)
-            tween.setDelay(delay);
-
-        if (complete) {
-            if (typeof (complete) === "function")
-                tween.onComplete(<TweenCallback>complete);
-            else
-                tween.onComplete(complete.runWith, complete);
-        }
-
+        let tween = Tween.create(target);
+        Tween.tweenLegacy(tween.cur(true), props, duration, ease, complete, delay, false);
         return tween;
     }
 
-    /**
-     * Query a Tween object by ID.
-     * @param id The ID of the Tween object. 
-     * @returns The Tween object. If it doesn't exist, it will return null.
-     */
-    static getTween(id: number): Tween | null {
-        return _activeTweenMap.get(id);
-    }
+    private static tweenLegacy(tweener: Tweener, props: Record<string, any>, duration: number, ease: EaseFunction, complete: Handler, delay: number, isTo: boolean): void {
+        tweener.duration = duration;
 
-    /**
-     * @en Check if any Tween is running on the specified target.
-     * @param target The target object.
-     * @returns Returns true if there is a Tween running on the target.
-     * @zh 检查指定对象上是否有任何 Tween 正在运行。
-     * @param target 指定的对象。
-     * @return 如果有任何 Tween 正在运行，则返回 true。
-     */
-    static isTweening(target: any): boolean {
-        if (target == null)
-            return false;
-
-        for (let i = 0; i < _totalActiveTweens; i++) {
-            let tweener = _activeTweens[i];
-            if (tweener && tweener.target == target && !tweener._killed)
-                return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * @en Get all Tweens that are running on the specified target.
-     * @param target The target object. 
-     * @param out An array to receive the Tween objects. 
-     * @returns An array of Tween objects that are running on the specified target.
-     * @zh 获取指定对象上正在运行的所有 Tween。
-     * @param target 指定的对象。
-     * @param out 接收 Tween 对象的数组。
-     * @return 正在运行的所有 Tween 的数组。 
-     */
-    static getTweens(target: any, out?: Array<Tween>): Array<Tween> {
-        out = out || [];
-        if (target == null)
-            return out;
-
-        let cnt = _totalActiveTweens;
-        for (let i = 0; i < cnt; i++) {
-            let tweener = _activeTweens[i];
-            if (tweener && tweener.target == target && !tweener._killed) {
-                out.push(tweener);
+        for (let p in props) {
+            let value = props[p];
+            if (typeof (value) == 'number' || (<any>value).writeTo != null) {
+                isTo ? tweener.go(p, tweener.target[p], value) : tweener.go(p, value, tweener.target[p]);
             }
         }
 
-        return out;
-    }
-
-    /**
-     * @en Kill a Tween by its ID. The tween will be removed from the Tween system and stopped immediately.
-     * @param tweenId The ID of the Tween object.
-     * @param complete If true, the tween will be set to the end state, and the complete callback will be called.
-     * If false, the complete callback will not be called.
-     * @returns Returns true if the Tween is existing and killed.
-     * @zh 通过指定的 ID 结束指定的 Tween，结束时会立即从 Tween 系统中移除。
-     * @param tweenId Tween 对象的 ID。
-     * @param complete 如果为 true，Tween 将设置到结束状态, complete 回调将会被执行。
-     * 如果为 false，complete 回调将不会被执行。
-     * @return 如果存在并且成功结束 Tween 返回 true，否则返回 false。
-     */
-    static kill(tweenId: number, complete?: boolean): boolean {
-        let tween = _activeTweenMap.get(tweenId);
-        if (!tween || tween._killed)
-            return false;
-
-        tween.kill(complete);
-        return true;
-    }
-
-    /**
-     * @en Kill all Tweens by the specified target.
-     * @param target The target object.
-     * @param completed If true, the tweens will be set to the end state, and the complete callback will be called.
-     * If false, the complete callback will not be called. 
-     * @returns Returns true if there any tweens are existing and killed.
-     * @zh 结束指定对象上的所有 Tween。
-     * @param target 指定的对象。
-     * @param completed 如果为 true，Tween 将设置到结束状态, complete 回调将会被执行。
-     * 如果为 false，complete 回调将不会被执行。
-     * @return 如果存在并且成功结束 Tween 返回 true，否则返回 false。 
-     */
-    static killAll(target: any, completed?: boolean): boolean {
-        if (target == null)
-            return false;
-
-        let flag = false;
-        let cnt = _totalActiveTweens;
-        for (let i = 0; i < cnt; i++) {
-            let tweener = _activeTweens[i];
-            if (tweener && tweener.target == target && !tweener._killed) {
-                tweener.kill(completed);
-                flag = true;
-            }
+        if (props.ease) {
+            tweener.ease = props.ease;
+            if (props.easeArgs)
+                tweener.easeArgs.push(...props.easeArgs);
+        }
+        if (props.update) {
+            tweener.onUpdate = props.update.runWith;
+            tweener.onUpdateCaller = props.update;
+        }
+        if (props.complete) {
+            tweener.onComplete = props.complete.runWith;
+            tweener.onCompleteCaller = props.complete;
         }
 
-        return flag;
-    }
+        if (ease != null)
+            tweener.ease = ease;
 
-    /**
-     * @deprecated Use kill instead.
-     */
-    static clear(tween: Tween): void {
-        tween.kill();
-    }
+        if (delay != null)
+            tweener.delay = delay;
 
-    /**
-     * @deprecated Use killAll instead.
-     */
-    static clearAll(target: any): void {
-        Tween.killAll(target);
-    }
-
-    constructor() {
-        this.startValue = new TweenValue();
-        this.endValue = new TweenValue();
-        this.value = new TweenValue();
-        this.deltaValue = new TweenValue();
-        this._props = [];
-        this._easeArgs = [];
-
-        this.startValue._props = this._props;
-        this.endValue._props = this._props;
-        this.value._props = this._props;
-        this.deltaValue._props = this._props;
+        if (complete) {
+            tweener.onComplete = complete.runWith;
+            tweener.onCompleteCaller = complete;
+        }
     }
 
     /**
      * @en Tweens the object's property to the sepecified value.
-     * @param propName The name of the property.
+     * @param propName The name of the property. 
+     * The property can be a number, string, boolean, Vector2, Vector3, Vector4, or Color. If it is a string, it is implicitly a color value.
      * @param value The target value of the property. 
-     * @param propType The value type of the property. This is optional, if the type of value can be inferred from the value, propType can be omitted.
      * @returns The Tween object.
      * @zh 缓动对象的属性到指定值。
+     * 属性类型可以是数字，字符串，布尔值，Vector2, Vector3, Vector4, Color。如果是字符串，则隐含为颜色值。
      * @param propName 属性名称。
      * @param value 属性目标值。
-     * @param propType 属性类型。这是可选的，如果从value的类型能推断出来，propType可以不传。
      * @return Tween对象。 
      */
-    to<T extends Vector2 | Vector3 | Vector4 | Color | number>(propName: string, value: T, propType?: TweenValueType): this {
-        return this.go(propName, this._target[propName], value, propType);
+    to(propName: string, value: any): this {
+        this.cur(true).go(propName, this._target[propName], value);
+        return this;
     }
 
     /**
      * @en Tweens the object's property from the specified value to the current value.
-     * @param propName The name of the property. 
-     * @param value The start value of the property. 
-     * @param propType The value type of the property. This is optional, if the type of value can be inferred from the value, propType can be omitted.
+     * @param propName The name of the property.
+     * The property can be a number, string, boolean, Vector2, Vector3, Vector4, or Color. If it is a string, it is implicitly a color value.
+     * @param value The start value of the property.
      * @returns The Tween object.
      * @zh 缓动对象的属性从指定值到当前值。
      * @param propName 属性名称。
+     * 属性类型可以是数字，字符串，布尔值，Vector2, Vector3, Vector4, Color。如果是字符串，则隐含为颜色值。
      * @param value 属性目标值。
-     * @param propType 属性类型。这是可选的，如果从value的类型能推断出来，propType可以不传。
      * @return Tween对象。 
      */
-    from<T extends Vector2 | Vector3 | Vector4 | Color | number>(propName: string, value: T, propType?: TweenValueType): this {
-        return this.go(propName, value, this._target[propName], propType);
+    from(propName: string, value: any): this {
+        this.cur(true).go(propName, value, this._target[propName]);
+        return this;
     }
 
     /**
      * @en Tweens the object's property from the start value to the end value.
      * @param propName The name of the property.
+     * The property can be a number, string, boolean, Vector2, Vector3, Vector4, or Color. If it is a string, it is implicitly a color value.
      * @param startValue The start value of the property.
      * @param endValue The end value of the property. 
-     * @param propType The value type of the property. This is optional, if the type of value can be inferred from the value, propType can be omitted. 
      * @returns The Tween object.
      * @zh 缓动对象的属性从指定的起始值到指定的结束值。
      * @param propName 属性名称。
+     * 属性类型可以是数字，字符串，布尔值，Vector2, Vector3, Vector4, Color。如果是字符串，则隐含为颜色值。
      * @param startValue 属性起始值。
      * @param endValue 属性结束值。
-     * @param propType 属性类型。这是可选的，如果从value的类型能推断出来，propType可以不传。
      * @return Tween对象。
      */
-    go<T extends Vector2 | Vector3 | Vector4 | Color | number>(propName: string, startValue: T, endValue: T, propType?: TweenValueType): this {
-        let prop = this._props[this._propsCnt];
-        if (!prop)
-            prop = this._props[this._propsCnt] = { name: "", type: TweenValueType.None, i: 0 };
-        this._propsCnt++;
-        prop.name = propName;
-        prop.i = this.startValue.length;
-        prop.shake = false;
-
-        if (typeof (startValue) === "number" || typeof (endValue) === "number") {
-            this.startValue.push(<number>startValue);
-            this.endValue.push(<number>endValue);
-            prop.type = propType || 0;
-        }
-        else {
-            startValue.writeTo(this.startValue, this.startValue.length);
-            let len = this.startValue.length - prop.i;
-            endValue.writeTo(this.endValue, this.endValue.length);
-            prop.type = propType || (len == 4 && startValue instanceof Color) ? TweenValueType.Color : (len - 1);
-        }
-
+    go<T>(propName: string, startValue: T, endValue: T): this {
+        this.cur(true).go(propName, startValue, endValue);
         return this;
     }
 
     /**
-     * @en Play shake effect on the specified property.
-     * @param propName The name of the property. 
-     * @param amplitude The amplitude of the shake effect. 
+     * @en Start a new tween task, which will start immediately after the current task ends.
+     * @param target The target object of the Tween. If it is empty, the target object pass in create method will be used.
      * @returns The Tween object.
-     * @zh 实现一个属性的震动效果。
-     * @param propName 属性名称。
-     * @param amplitude 震动幅度。
+     * @zh 开启一个新的缓动任务，它将在当前任务结束后立刻开始。
+     * @param target 缓动的目标对象。如果为空，将使用create方法传入的目标对象。
      * @return Tween对象。
      */
-    shake<T extends Vector2 | Vector3 | Vector4 | Color | number>(propName: string, amplitude: T): this;
-    /**
-     * @en Play shake effect on the specified property.
-     * @param propName The name of the property. 
-     * @param startValue The start value of the property. 
-     * @param amplitude The amplitude of the shake effect.
-     * @returns The Tween object.
-     * @zh 实现一个属性的震动效果。
-     * @param propName 属性名称。
-     * @param startValue 属性起始值。
-     * @param amplitude 震动幅度。
-     * @return Tween对象。 
-     */
-    shake<T extends Vector2 | Vector3 | Vector4 | Color | number>(propName: string, startValue: T, amplitude: T): this;
-    shake<T extends Vector2 | Vector3 | Vector4 | Color | number>(propName: string, startValue: T, amplitude?: T): this {
-        if (arguments.length == 2) {
-            amplitude = startValue;
-            startValue = this._target[propName];
+    chain(target?: any): this {
+        if (target !== undefined)
+            this._target = target;
+
+        if (this._queue.length == 0)
+            return this;
+
+        if (this._par != null) {
+            this._queue.push(-2);
+            this._par = null;
         }
 
-        this.go(propName, startValue, amplitude);
-        this._props[this._propsCnt - 1].shake = true;
-
+        this._cur = Tweener.create(this);
+        this._cur.target = this._target;
+        this._queue.push(this._cur.id);
         return this;
     }
 
     /**
-     * @en Get the target of the Tween.
-     * @zh 获得缓动的目标对象。
-     */
-    get target(): any {
-        return this._target;
-    }
-
-    /**
-     * @en Set the delay time in milliseconds.
-     * @param value The delay time in milliseconds. 
-     * @returns The Tween object. 
-     */
-    setDelay(value: number): this {
-        this._delay = value;
-        return this;
-    }
-
-    /**
-     * @en Get the delay time in milliseconds.
-     * @zh 获取延迟时间，以毫秒为单位。
-     */
-    get delay(): number {
-        return this._delay;
-    }
-
-    /**
-     * @en Set the duration of the Tween.
-     * @param value The duration of the Tween in milliseconds. 
-     * @returns The Tween object. 
-     */
-    setDuration(value: number): this {
-        this._duration = value;
-        return this;
-    }
-
-    /**
-     * @en Get the duration of the Tween.
-     * @zh 获取缓动的持续时间，以毫秒为单位。
-     */
-    get duration(): number {
-        return this._duration;
-    }
-
-    /**
-     * @en Set the breakpoint of the Tween. If the time reaches the breakpoint, the Tween will end.
-     * @param value The breakpoint of the Tween in milliseconds.
+     * @en Start a new tween task, which will start at the same time as the current task.
+     * @param target The target object of the Tween. If it is empty, the target object pass in create method will be used.
      * @returns The Tween object.
-     * @zh 设置缓动的断点时间。如果时间达到断点时间，缓动将会结束。
-     * @param value 缓动的断点时间，以毫秒为单位。
-     * @return Tween对象。 
+     * @zh 开启一个新的缓动任务，它和当前任务同时开始。
+     * @param target 缓动的目标对象。如果为空，将使用create方法传入的目标对象。
+     * @return Tween对象。
      */
-    setBreakpoint(value: number): this {
-        this._breakpoint = value;
+    parallel(target?: any): this {
+        if (this._queue.length == 0) {
+            if (target !== undefined)
+                this._target = target;
+            return this;
+        }
+
+        if (this._par == null) {
+            this._queue.push(-1);
+            this._par = this._cur;
+        }
+
+        this._cur = Tweener.create(this);
+        this._cur.target = target !== undefined ? target : this._par.target;
+        this._cur.duration = this._par.duration;
+        if (this._par._active)
+            this._cur.activate();
+        this._queue.push(this._cur.id);
         return this;
     }
 
     /**
-     * @en Set the easing function of the Tween. Use the Laya.Ease class for preset easing functions.
+     * @en Set the delay time of the current task.
+     * @param value The delay time in milliseconds.
+     * @return Tween object.
+     * @zh 设置当前任务的延迟时间。
+     * @param value 延迟时间，以毫秒为单位。
+     * @return Tween对象。
+     */
+    delay(value: number): this {
+        this.cur(false).delay = value;
+        return this;
+    }
+
+    /**
+     * @en Set the duration of the current task.
+     * @param value The duration in milliseconds. 
+     * @returns The Tween object. 
+     * @zh 设置当前任务的持续时间。
+     * @param value 持续时间，以毫秒为单位。
+     * @return Tween对象。
+     */
+    duration(value: number): this {
+        this.cur(false).duration = value;
+        return this;
+    }
+
+    /**
+     * @en Set the breakpoint of the current task. If the time reaches the breakpoint, the task will end.
+     * @param value The breakpoint in milliseconds.
+     * @returns The Tween object.
+     * @zh 设置当前任务的断点时间。如果时间达到断点时间，任务将会结束。
+     * @param value 任务的断点时间，以毫秒为单位。
+     * @return Tween对象。
+     */
+    breakpoint(value: number): this {
+        this.cur(false).breakpoint = value;
+        return this;
+    }
+
+    /**
+     * @en Set the easing function of the current task. Use the Laya.Ease class for preset easing functions.
      * @param value The easing function.
      * @param args Extra parameters for the easing function.
-     * @returns The Tween object. 
-     * @zh 设置缓动的缓动函数。可以使用Laya.Ease中的缓动函数。
+     * @returns The Tween object.
+     * @zh 设置当前任务的缓动函数。可以使用Laya.Ease类中的预设缓动函数。
      * @param value 缓动函数。
      * @param args 缓动函数的额外参数。
      * @return Tween对象。
      */
-    setEase(value: EaseFunction, args?: ReadonlyArray<number>): this {
-        this._easeFunc = value;
-        this._easeArgs.length = 0;
+    ease(value: EaseFunction, ...args: Array<any>): this {
+        let cur = this.cur(false);
+        cur.ease = value;
+        cur.easeArgs.length = 0;
         if (args)
-            this._easeArgs.push(...args);
+            cur.easeArgs.push(...args);
         return this;
     }
 
     /**
-     * @en Set the number of repetitions of the Tween.
-     * If the repeat is 0, then the Tween will play once. If the repeat is -1, then the Tween will loop indefinitely. 
-     * If the repeat is 1, then the Tween will play twice, and so on.
-     * @param repeat The number of repetitions of the Tween.
-     * @param yoyo If yoyo is true, after the first play, the Tween will alternate back and forth. 
+     * @en Set the interpolation function of the current task. e.g. Laya.Tween.seperateChannel.
+     * @param value The interpolation function.
+     * @param args Extra parameters for the interpolation function. 
      * @returns The Tween object.
-     * @zh 设置缓动的重复次数。
-     * 如果 repeat 为 0，则缓动将播放一次。如果 repeat 为 -1，则缓动将无限循环。
-     * 如果 repeat 为 1，则缓动将播放两次，依此类推。
-     * @param repeat 缓动的重复次数。
-     * @param yoyo 如果 yoyo 为 true，缓动将在第一次播放后来回交替播放。
+     * @zh 设置当前任务的插值函数。比如Laya.Tween.seperateChannel。
+     * @param value 插值函数。
+     * @param args 插值函数的额外参数。
      * @return Tween对象。 
      */
-    setRepeat(repeat: number, yoyo?: boolean): this {
-        this._repeat = repeat;
-        this._yoyo = yoyo;
+    interp<T extends any[]>(value: TweenInterpolator<T>, ...args: T): this {
+        let cur = this.cur(false);
+        cur.interp = value;
+        cur.interpArgs.length = 0;
+        if (args)
+            cur.interpArgs.push(...args);
         return this;
     }
 
     /**
-     * @en Get the number of repetitions of the Tween.
-     * @zh 获取缓动的重复次数。
-     */
-    get repeat(): number {
-        return this._repeat;
-    }
-
-    /**
-     * @deprecated Use setRepeat instead.
-     */
-    set repeat(value: number) {
-        this._repeat = value;
-    }
-
-    /**
-     * @en Set the time scale of the Tween.
-     * @param value The time scale of the Tween. 
+     * @en Set the number of repetitions of the current task.
+     * If the repeat is 0, then the task will play once. If the repeat is -1, then the task will loop indefinitely. 
+     * If the repeat is 1, then the task will play twice, and so on.
+     * @param repeat The number of repetitions of the task.
+     * @param yoyo If yoyo is true, after the first play, the task will alternate back and forth. 
      * @returns The Tween object.
-     * @zh 设置缓动的时间缩放。
-     * @param value 缓动的时间缩放。
+     * @zh 设置当前任务的重复次数。
+     * 如果 repeat 为 0，则任务将播放一次。如果 repeat 为 -1，则任务将无限循环。
+     * 如果 repeat 为 1，则任务将播放两次，依此类推。
+     * @param repeat 任务的重复次数。
+     * @param yoyo 如果 yoyo 为 true，任务将在第一次播放后来回交替播放。
      * @return Tween对象。
      */
-    setTimeScale(value: number): this {
-        this._timeScale = value;
+    repeat(repeat: number, yoyo?: boolean): this {
+        let cur = this.cur(false);
+        cur.repeat = repeat;
+        cur.yoyo = yoyo;
         return this;
     }
 
     /**
-     * @en Set whether the Tween ignores the time scale from Laya.timer.
-     * @param value If true, then the time scale of the Tween will not be affected by Laya.timer. 
+     * @en Set the time scale of the current task.
+     * @param value The time scale.
      * @returns The Tween object.
-     * @zh 设置缓动是否忽略Laya.timer的时间缩放。
-     * @param value 如果为 true，缓动的时间缩放不会受到Laya.timer的影响。
+     * @zh 设置当前任务的时间缩放。
+     * @param value 任务的时间缩放。
      * @return Tween对象。
      */
-    setIgnoreEngineTimeScale(value: boolean): this {
-        this._ignoreEngineScale = value;
+    timeScale(value: number): this {
+        this.cur(false).timeScale = value;
         return this;
     }
 
     /**
-     * @en Set whether the Tween value is rounded to an integer.
-     * @param value If true, the Tween value will be rounded to an integer.
+     * @en Set whether current task will ignore the time scale from Laya.timer.
+     * @param value If true, then the time scale of current task will not be affected by Laya.timer. 
      * @returns The Tween object.
-     * @zh 设置缓动的值是否取整。
-     * @param value 如果为 true，缓动的值将取整。
-     * @return Tween对象。 
+     * @zh 设置当前任务是否忽略Laya.timer的时间缩放。
+     * @param value 如果为 true，任务的时间缩放不会受到Laya.timer的影响。
+     * @return Tween对象。
      */
-    setSnapping(value: boolean): this {
-        this._snapping = value;
+    ignoreEngineTimeScale(value: boolean): this {
+        this.cur(false).ignoreEngineTimeScale = value;
         return this;
     }
 
     /**
-     * @en Set the path of the Tween. The path is a CurvePath object. It is used to implement path tweening and only supports two-dimensional vectors.
-     * @param value The path of the Tween. 
+     * @en Set whether the property values of current task is rounded to an integer.
+     * @param value If true, the property values will be rounded to an integer.
      * @returns The Tween object.
-     * @zh 设置缓动的路径。路径是一个CurvePath对象, 用于实现路径缓动，只支持二维向量。
-     * @param value 缓动的路径。
-     * @return Tween对象。 
+     * @zh 设置当前任务的属性值是否取整。
+     * @param value 如果为 true，属性值将会取整。
+     * @return Tween对象。
      */
-    setPath(value: CurvePath): this {
-        this._path = value;
+    snapping(value: boolean): this {
+        this.cur(false).snapping = value;
         return this;
     }
 
     /**
-     * @en Set the user data of the Tween.
-     * @param value The user data of the Tween.
+     * @en Set the user data of the current task.
+     * @param value The user data of the current task.
      * @returns The Tween object. 
      */
-    setUserData(value: any): this {
-        this._userData = value;
+    userData(value: any): this {
+        this.cur(false).userData = value;
         return this;
     }
 
     /**
-     * @en Get the user data of the Tween.
-     * @zh 获取缓动的用户数据。
-     */
-    get userData(): any {
-        return this._userData;
-    }
-
-    /**
-     * @en Set a custom update callback for the Tween. The update callback is executed for every frame during the Tween.
-     * @param callback The update callback.
-     * @param target The update callback execution context. 
+     * @en Set the name of current task.
+     * @param value The name of the current task. 
      * @returns The Tween object.
-     * @zh 设置缓动的自定义更新回调。更新回调会在缓动的每一帧执行。
-     * @param callback 更新回调函数。
-     * @param target 更新回调执行上下文。
-     * @return Tween对象。 
-     */
-    onUpdate(callback: TweenCallback, target?: any): this {
-        this._onUpdate = callback;
-        this._onUpdateCaller = target;
-        return this;
-    }
-
-    /**
-     * @en Set a custom start callback for the Tween. The start callback is executed when the Tween starts.
-     * @param callback The start callback.
-     * @param target The start callback execution context. 
-     * @returns The Tween object.
-     * @zh 设置缓动的自定义开始回调。开始回调会在缓动开始时执行。
-     * @param callback 开始回调函数。
-     * @param target 开始回调执行上下文。
-     * @return Tween对象。 
-     */
-    onStart(callback: TweenCallback, target?: any): this {
-        this._onStart = callback;
-        this._onStartCaller = target;
-        return this;
-    }
-
-    /**
-     * @en Set a custom complete callback for the Tween. The complete callback is executed when the Tween finishes.
-     * If the tween is killed before completion and the parameter `complete` is false, the complete callback will not be called.
-     * @param callback The complete callback.
-     * @param target The complete callback execution context.
-     * @returns The Tween object.
-     * @zh 设置缓动的自定义结束回调。结束回调会在缓动结束时执行。
-     * 如果缓动在结束前被Kill，并且参数`complete`为false，结束回调不会被调用。
-     * @param callback 结束回调函数。
-     * @param target 结束回调执行上下文。
+     * @zh 设置当前任务的名称。
+     * @param value 当前任务的名称。
      * @return Tween对象。
      */
-    onComplete(callback: TweenCallback, target?: any): this {
-        this._onComplete = callback;
-        this._onCompleteCaller = target;
+    name(value: string): this {
+        this.cur(false).name = value;
         return this;
     }
 
     /**
-     * @en The normalized time of the Tween. The value is between 0 and 1.
-     * @zh 缓动的归一化时间。取值在 0 和 1 之间。
+     * @en Set an object, when the destroyed property of the object is true, the task will automatically stop.
+     * In general, if the target of the task has a destroyed property, you do not need to set this property. If the target of the task does not have a destroyed property, you can set this property.
+     * @param value An object with a lifecycle
+     * @return Tween object.
+     * @zh 设置一个对象，当对象的 destroyed 属性为 true 时，任务会自动停止。
+     * 一般情况下，如果任务的目标对象有 destroyed 属性，则不需要设置此属性。如果任务的目标对象没有 destroyed 属性，则可以设置此属性。
+     * @param value 有生命周期的对象。
+     * @return Tween对象。
+     * @example
+     * ```ts
+     * //aNode.transfrom has no destroyed property, so set lifecycleOwner to aNode. 
+     * //The tween will be automatically stopped when aNode is destroyed.
+     * Laya.Tween.create(aNode.transform).duration(1000).lifecycleOwner(aNode);
+     * ```
      */
-    get normalizedTime(): number {
-        return this._normalizedTime;
+    lifecycleOwner(value: { destroyed: boolean }): this {
+        this.cur(false).lifecycleOwner = value;
+        return this;
     }
 
     /**
-     * @en Whether the Tween is completed. 
-     * If the Tween is killed, this property will still be false.
-     * @zh 缓动是否已结束。如果缓动是被kill掉的，此属性仍然为false。
+     * @en Set a custom update callback for the current task. The update callback is executed for every frame during the task.
+     * @param callback The update callback.
+     * @param callbackThis The update callback execution context. 
+     * @returns The Tween object.
+     * @zh 设置当前任务的自定义更新回调。更新回调会在任务的每一帧执行。
+     * @param callback 更新回调函数。
+     * @param callbackThis 更新回调执行上下文。
+     * @return Tween对象。
      */
-    get completed(): boolean {
-        return this._ended != 0;
+    onUpdate(callback: TweenCallback, callbackThis?: any): this {
+        let cur = this.cur(false);
+        cur.onUpdate = callback;
+        cur.onUpdateCaller = callbackThis;
+        return this;
     }
 
     /**
-     * @en Whether the Tween is completed. 
-     * If the Tween is reached the breakpoint, this property will still be false.
-     * If the Tween is killed, this property will still be false.
-     * @zh 缓动是否已结束。
-     * 如果缓动是由于到达breakpoint结束的，此属性仍然为false。
-     * 如果缓动是被kill掉的，此属性仍然为false。
+     * @en Set a custom start callback for the current task. The start callback is executed when the task starts.
+     * @param callback The start callback.
+     * @param callbackThis The start callback execution context. 
+     * @returns The Tween object.
+     * @zh 设置当前任务的自定义开始回调。开始回调会在任务开始时执行。
+     * @param callback 开始回调函数。
+     * @param callbackThis 开始回调执行上下文。
+     * @return Tween对象。
      */
-    get allCompleted(): boolean {
-        return this._ended == 1;
+    onStart(callback: TweenCallback, callbackThis?: any): this {
+        let cur = this.cur(false);
+        cur.onStart = callback;
+        cur.onStartCaller = callbackThis;
+        return this;
     }
 
     /**
-     * @en Seek the Tween to a specified time.
+     * @en Set a custom complete callback for the current task. The complete callback is executed when the task finishes.
+     * Note that if there are parallel tasks, the complete callback will only be called when all tasks are finished.
+     * If the task is killed before it ends, and the parameter complete is false, the complete callback will not be called.
+     * @param callback The complete callback.
+     * @param callbackThis The complete callback execution context.
+     * @returns The Tween object.
+     * @zh 设置当前任务的自定义结束回调。结束回调会在任务结束时执行。
+     * 注意，如果有并行任务，只是在当前任务结束就会调用结束回调，而并不是所有并行的任务。
+     * 如果任务在结束前被 kill，并且参数 complete 为 false，则不会调用结束回调。
+     * @param callback 结束回调函数。
+     * @param callbackThis 结束回调执行上下文。
+     * @return Tween对象。
+     */
+    then(callback: TweenCallback, callbackThis?: any): this {
+        let cur = this.cur(false);
+        cur.onComplete = callback;
+        cur.onCompleteCaller = callbackThis;
+        return this;
+    }
+
+    /**
+     * @en Seek current task to a specified time.
      * @param time The time to seek to, in milliseconds.
      * @returns The Tween object.
-     * @zh 将缓动播放头跳转到指定的时间。
+     * @zh 将当前任务的播放头跳转到指定的时间。
      * @param time 要跳转到的时间，以毫秒为单位。
      * @return Tween对象。
      */
-    seek(time: number): Tween {
-        if (this._killed)
-            return this;
+    seek(time: number): this {
+        this.cur(false).seek(time);
+        return this;
+    }
 
-        this._elapsedTime = time;
-        if (this._elapsedTime < this._delay) {
-            if (this._started)
-                this._elapsedTime = this._delay;
-            else
-                return this;
-        }
+    /**
+     * @en Pause the tween. It can be resumed using resume() or restart().
+     * @zh 暂停缓动。可以通过 resume() 重新开始。
+     */
+    pause(): this {
+        forEach(this._queue, tween => tween.paused = true);
+        return this;
+    }
 
-        this.update2();
+    /**
+     * @en Resume the paused tween.
+     * @zh 恢复已暂停的缓动。
+     */
+    resume(): this {
+        forEach(this._queue, tween => tween.paused = false);
         return this;
     }
 
@@ -742,334 +615,189 @@ export class Tween {
      * @return Tween对象。 
      */
     kill(complete?: boolean): void {
-        if (this._killed)
+        if (this._queue.length == 0)
             return;
 
-        if (complete) {
-            if (this._ended == 0) {
-                if (this._breakpoint >= 0)
-                    this._elapsedTime = this._delay + this._breakpoint;
-                else if (this._repeat >= 0)
-                    this._elapsedTime = this._delay + this._duration * (this._repeat + 1);
-                else
-                    this._elapsedTime = this._delay + this._duration * 2;
-                this.update2();
-            }
+        let arr = this._queue.concat();
+        this._head = -1;
+        this._cur = null;
+        this._queue.length = 0;
 
-            this.callCompleteCallback();
-        }
-
-        this._killed = true;
+        forEach(arr, tween => {
+            tween.kill(complete);
+            tween.owner = null;
+        });
     }
 
     /**
-     * @deprecated Use kill instead.
+     * @en Whether the Tween is completed. 
+     * If the Tween is killed, this property will still be false.
+     * @zh 缓动是否已结束。如果缓动是被kill掉的，此属性仍然为false。
+     */
+    get completed(): boolean {
+        return this._head >= 0 && this._queue.length === 0;
+    }
+
+    /**
+     * @en Immediately complete the tween and reach the end point.
+     * @zh 立即结束缓动并到达终点。
      */
     complete(): void {
         this.kill(true);
     }
 
     /**
-     * @deprecated Use kill instead.
+     * @en Clear the tween. Same as kill(false).
+     * @zh 清理缓动。和kill(false)作用一样。
      */
     clear(): void {
         this.kill(false);
     }
 
     /**
-     * @deprecated Use kill instead.
+     * @en Clear the tween and return it to the object pool. Note: After calling this method, this object cannot be used again, otherwise it will cause unpredictable problems.
+     * @zh 清理缓动，并将缓动对象回收到对象池。注意：调用此方法，本对象不能再使用，否则会造成不可预料的问题。
      */
     recover(): void {
         this.kill(false);
+        Tween._pool.returns(this);
     }
 
-    /**
-     * @en Pause the tween. It can be resumed using resume() or restart().
-     * @zh 暂停缓动。可以通过 resume() 重新开始。
-     */
-    pause(): Tween {
-        this._paused = true;
-        return this;
+    private constructor() {
+        this._queue = [];
+        this._head = -1;
     }
 
-    /**
-     * @en Resume the paused tween.
-     * @zh 恢复已暂停的缓动。
-     */
-    resume(): Tween {
-        this._paused = false;
-        return this;
-    }
-
-    private init(): void {
-        _idCounter++;
-        if (_idCounter < 1)
-            _idCounter = 1;
-        (<{ -readonly [P in keyof this]: this[P] }>this).id = _idCounter;
-        _activeTweenMap.set(this.id, this);
-        this._delay = 0;
-        this._duration = 0;
-        this._breakpoint = -1;
-        this._easeFunc = Ease.linearNone;
-        this._easeArgs.length = 0;
-        this._timeScale = 1;
-        this._snapping = false;
-        this._repeat = 0;
-        this._yoyo = false;
-        this._started = false;
-        this._paused = false;
-        this._killed = false;
-        this._startFrame = ILaya.timer.currFrame;
-        this._elapsedTime = 0;
-        this._normalizedTime = 0;
-        this._ended = 0;
-        this._propsCnt = 0;
-        this.startValue.length = 0;
-        this.endValue.length = 0;
-        this.value.length = 0;
-    }
-
-    private reset(): void {
-        (<{ -readonly [P in keyof this]: this[P] }>this).id = -1;
-        this._target = null;
-        this._userData = null;
-        this._path = null;
-        this._onStart = this._onUpdate = this._onComplete = null;
-        this._onStartCaller = this._onUpdateCaller = this._onCompleteCaller = null;
-    }
-
-    private update(dt: number): void {
-        if (this._timeScale != 1)
-            dt *= this._timeScale;
-        if (dt == 0)
-            return;
-
-        if (this._ended != 0) { //Maybe completed by seek
-            this.callCompleteCallback();
-            this._killed = true;
-            return;
-        }
-
-        this._elapsedTime += dt;
-        this.update2();
-
-        if (this._ended != 0) {
-            if (!this._killed) {
-                this.callCompleteCallback();
-                this._killed = true;
-            }
-        }
-    }
-
-    private update2(): void {
-        this._ended = 0;
-
-        if (this.startValue.length == 0) { //DelayedCall
-            if (this._elapsedTime >= this._delay + this._duration)
-                this._ended = 1;
-
-            return;
-        }
-
-        if (!this._started) {
-            if (this._elapsedTime < this._delay)
-                return;
-
-            this._started = true;
-            this.value.length = this.startValue.length;
-            this.value.push(...this.startValue);
-            this.deltaValue.length = this.startValue.length;
-            this.deltaValue.fill(0);
-            this.callStartCallback();
-            if (this._killed)
-                return;
-        }
-
-        let reversed: boolean = false;
-        let tt: number = this._elapsedTime - this._delay;
-        if (this._breakpoint >= 0 && tt >= this._breakpoint) {
-            tt = this._breakpoint;
-            this._ended = 2;
-        }
-
-        if (this._repeat != 0) {
-            let round: number = Math.floor(tt / this._duration);
-            tt -= this._duration * round;
-            if (this._yoyo)
-                reversed = round % 2 == 1;
-
-            if (this._repeat > 0 && this._repeat - round < 0) {
-                if (this._yoyo)
-                    reversed = this._repeat % 2 == 1;
-                tt = this._duration;
-                this._ended = 1;
-            }
-        }
-        else if (tt >= this._duration) {
-            tt = this._duration;
-            this._ended = 1;
-        }
-
-        this._normalizedTime = this._easeFunc(reversed ? (this._duration - tt) : tt, 0, 1, this._duration, ...this._easeArgs);
-
-        this.value.fill(0);
-        this.deltaValue.fill(0);
-
-        if (this._path) {
-            let pt = this._path.getPointAt(this._normalizedTime, tmpPoint);
-            if (this._snapping) {
-                pt.x = Math.round(pt.x);
-                pt.y = Math.round(pt.y);
-            }
-            this.deltaValue[0] = pt.x - this.value[0];
-            this.deltaValue[1] = pt.y - this.value[1];
-            this.value[0] = pt.x;
-            this.value[1] = pt.y;
-        }
-        else {
-            let j = 0;
-            let p: TweenPropDef;
-            let nj = 0;
-            for (let i = 0, n = this.startValue.length; i < n; i++) {
-                if (i == nj) {
-                    p = this._props[j++];
-                    nj = j < this._propsCnt ? this._props[j].i : -1;
-                }
-
-                let n1 = this.startValue[i];
-                let n2 = this.endValue[i];
-                let f: number;
-                if (p && p.shake) {
-                    if (this._ended === 0) {
-                        let am = n2 * (1 - this._normalizedTime);
-                        let am2: number = am * (Math.random() > 0.5 ? 1 : -1);
-                        f = n1 + am2;
-                    }
-                    else
-                        f = n1;
-                }
+    private cur(call: boolean): Tweener {
+        if (!this._cur) {
+            if (this._head != -1) {
+                if (call)
+                    this.kill(false);
                 else
-                    f = n1 + (n2 - n1) * this._normalizedTime;
-                if (this._snapping)
-                    f = Math.round(f);
-                this.deltaValue[i] = f - this.value[i];
-                this.value[i] = f;
+                    throw new Error("Tween has been started. clear first!");
             }
+
+            this._cur = Tweener.create(this);
+            this._cur.target = this._target;
+            this._cur.activate();
+            this._queue.push(this._cur.id);
         }
 
-        if (this._target != null) {
-            for (let i = 0, n = this._propsCnt; i < n; i++) {
-                let prop = this._props[i];
-                if (prop.name)
-                    this._target[prop.name] = this.value.read(prop.type, prop.i);
-            }
-        }
-
-        this.callUpdateCallback();
-    }
-
-    private callStartCallback(): void {
-        if (this._onStart) {
-            try {
-                this._onStart.call(this._onStartCaller, this);
-            }
-            catch (err) {
-                console.warn("error in start callback > ", err);
-            }
-        }
-    }
-
-    private callUpdateCallback(): void {
-        if (this._onUpdate) {
-            try {
-                this._onUpdate.call(this._onUpdateCaller, this);
-            }
-            catch (err) {
-                console.warn("error in update callback > ", err);
-            }
-        }
-    }
-
-    private callCompleteCallback(): void {
-        if (this._onComplete) {
-            try {
-                this._onComplete.call(this._onCompleteCaller, this);
-            }
-            catch (err) {
-                console.warn("error in complete callback > ", err);
-            }
-        }
+        return this._cur;
     }
 
     /**
      * @internal
      */
-    static _pool: IPool<Tween> = Pool.createPool(Tween, e => e.init(), e => e.reset());
+    _check(): void {
+        if (this._cur) {
+            this._head = 0;
+            this._cur = null;
+        }
 
-    /**
-     * @internal
-     */
-    static _runAll(): void {
-        let cnt = _totalActiveTweens;
-        if (cnt == 0)
-            return;
+        let i = this._head, cnt = this._queue.length;
+        for (; i < cnt; i++) {
+            let id = this._queue[i];
+            if (id < 0)
+                continue;
 
-        let frame = ILaya.timer.currFrame;
-        let dt = ILaya.timer.delta;
-        let udt = ILaya.timer.unscaledDelta;
-        let freePosStart = -1;
-        for (let i = 0; i < cnt; i++) {
-            let tweener = _activeTweens[i];
-            if (tweener == null) {
-                if (freePosStart == -1)
-                    freePosStart = i;
-            }
-            else if (tweener._killed) {
-                _activeTweenMap.delete(tweener.id);
-                Tween._pool.returns(tweener);
-                _activeTweens[i] = null;
+            let tween = Tweener.getTween(id);
+            if (tween && !tween._killed) {
+                if (tween._active)
+                    break;
 
-                if (freePosStart == -1)
-                    freePosStart = i;
-            }
-            else {
-                if (tweener._target && (<Node>tweener._target).destroyed)
-                    tweener._killed = true;
-                else if (!tweener._paused)
-                    tweener.update(tweener._startFrame == frame ? 0 : tweener._ignoreEngineScale ? udt : dt);
-
-                if (freePosStart != -1) {
-                    _activeTweens[freePosStart] = tweener;
-                    _activeTweens[i] = null;
-                    freePosStart++;
+                tween.activate();
+                if (this._queue[i + 1] == -1) {
+                    for (let j = i + 2; j < cnt; j++) {
+                        let id = this._queue[j];
+                        if (id < 0)
+                            break;
+                        let tween = Tweener.getTween(id);
+                        if (tween && !tween._killed)
+                            tween.activate();
+                        else
+                            this._queue[i] = -3;
+                    }
                 }
+                break;
             }
+            else
+                this._queue[i] = -3;
         }
 
-        if (freePosStart >= 0) {
-            if (_totalActiveTweens != cnt) { //new tweens added
-                let j = cnt;
-                cnt = _totalActiveTweens - cnt;
-                for (let i = 0; i < cnt; i++) {
-                    _activeTweens[freePosStart++] = _activeTweens[j];
-                    _activeTweens[j] = null;
-                    j++;
-                }
-            }
-            _totalActiveTweens = freePosStart;
+        this._head = i;
+        if (i >= cnt)
+            this._queue.length = 0;
+    }
+
+    /**
+     * @en This is an interpolator that implements a shake effect.
+     * @param amplitude The amplitude of the shake effect.
+     * @zh 这是一个实现震动效果的插值器。
+     * @param amplitude 震动幅度。
+     * @example
+     * ```ts
+     * //The value pass in `to` is not used, so it can be any value.
+     * Laya.Tween.create(target).duration(1000).to("x",0).to("y",0).interp(Laya.Tween.shake, 3);
+     * ```
+     */
+    static shake(time: number, start: number, end: number, value: number, index: number, amplitude: number): number {
+        if (time == 1)
+            return start;
+
+        let am = amplitude * (1 - time);
+        let am2 = am * (Math.random() > 0.5 ? 1 : -1);
+        return start + am2;
+    }
+
+    /**
+     * @en This is an interpolator that separates a numeric color value into each channel for interpolation.
+     * For example, from 0x000000 to 0xffffff tween, by default, it will increase directly from 0x000000 to 0xffffff, instead of R/G/B increasing from 0x00 to 0xff respectively. Using this interpolator, R/G/B can increase from 0x00 to 0xff respectively.
+     * @param channels The number of channels to interpolate. For example, if it is RGB, this value is 3. If it is RGBA, this value is 4.
+     * @zh 这是一个实现将一个数字颜色值分离各个通道分别进行插值的插值器。
+     * 例如从0x000000到0xffffff缓动，默认情况下是直接从0x000000一直增大到0xffffff，而不是R/G/B分别从0x00到0xff。使用这个插值器可以让R/G/B分别从0x00到0xff。
+     * @param channels 要插值的通道数。例如，如果是RGB，这个值就是3。如果是RGBA，这个值就是4。
+     * @example
+     * ```ts
+     * Laya.Tween.create(target).duration(1000).to("color",0xffffff).interp(Laya.Tween.seperateChannel, 3);
+     * ```
+     */
+    static seperateChannel(time: number, start: number, end: number, value: number, index: number, channels?: number): number {
+        let v = 0;
+        channels = channels || 3;
+        for (let i = 0; i < channels; i++) {
+            let j = i * 8;
+            let n0 = (start >> j) & 0xFF;
+            let n1 = (end >> j) & 0xFF;
+
+            v += (n0 + (n1 - n0) * time) << j;
         }
+        return v;
+    }
+
+    /**
+     * @en This is an interpolator that uses a curve path. The value will be obtained from the curve path. Note: Only supports up to two values, because CurvePath only supports two dimensions.
+     * @zh 这是一个使用曲线路径的插值器。数值将从曲线路径中获取。注意：只支持最多缓动两个数值，因为CurvePath只支持二维。
+     */
+    static followPath(time: number, start: number, end: number, value: number, index: number, path: CurvePath): number {
+        let pt = path.getPointAt(time);
+        return index == 0 ? pt.x : index == 1 ? pt.y : null;
     }
 
     /**
      * @internal
      */
-    static _getMap(): ReadonlyMap<number, Tween> {
-        return _activeTweenMap;
-    }
+    static _pool: IPool<Tween> = Pool.createPool(<any>Tween);
 }
 
-var _idCounter = 0;
-var _activeTweens: Tween[] = [];
-var _activeTweenMap: Map<number, Tween> = new Map();
-var _totalActiveTweens: number = 0;
-const tmpPoint = new Point();
+const tmpArray: Array<Tween> = [];
+
+function forEach(all: Array<number>, callback: (t: Tweener) => void): void {
+    for (let e of all) {
+        if (e > 0) {
+            let tween = Tweener.getTween(e);
+            if (tween && !tween._killed)
+                callback(tween);
+        }
+    }
+}

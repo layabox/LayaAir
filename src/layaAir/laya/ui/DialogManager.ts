@@ -43,7 +43,7 @@ export class DialogManager extends Sprite {
         dialog.scale(1, 1);
         if (dialog._effectTween != null)
             Tween.kill(dialog._effectTween);
-        dialog._effectTween = Tween.from(dialog, { x: ILaya.stage.width / 2, y: ILaya.stage.height / 2, scaleX: 0, scaleY: 0 }, 300, Ease.backOut, Handler.create(this, this.doOpen, [dialog])).id;
+        dialog._effectTween = Tween.from(dialog, { x: ILaya.stage.width / 2, y: ILaya.stage.height / 2, scaleX: 0, scaleY: 0 }, 300, Ease.backOut, Handler.create(this, this.doOpen, [dialog]));
     }
 
     /**
@@ -54,7 +54,7 @@ export class DialogManager extends Sprite {
     closeEffect = (dialog: Dialog) => {
         if (dialog._effectTween != null)
             Tween.kill(dialog._effectTween);
-        dialog._effectTween = Tween.to(dialog, { x: ILaya.stage.width / 2, y: ILaya.stage.height / 2, scaleX: 0, scaleY: 0 }, 300, Ease.strongOut, Handler.create(this, this.doClose, [dialog])).id;
+        dialog._effectTween = Tween.to(dialog, { x: ILaya.stage.width / 2, y: ILaya.stage.height / 2, scaleX: 0, scaleY: 0 }, 300, Ease.strongOut, Handler.create(this, this.doClose, [dialog]));
     }
 
     /** 
@@ -109,7 +109,7 @@ export class DialogManager extends Sprite {
     }
 
     private _clearDialogEffect(dialog: Dialog): void {
-        if (dialog._effectTween != null) {
+        if (dialog._effectTween) {
             Tween.kill(dialog._effectTween);
             dialog._effectTween = null;
         }
