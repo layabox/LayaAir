@@ -11,6 +11,9 @@ import type { Tween } from "./Tween";
  */
 export type TweenPropInfo = { name: string; type: 0 | 1 | 2 | TweenValueAdapter, offset: number; };
 
+/**
+ * @internal
+ */
 export class Tweener implements ITweener {
     id: number;
     name: string;
@@ -142,7 +145,7 @@ export class Tweener implements ITweener {
         prop.name = propName;
         prop.offset = this.startValue.length;
 
-        let type = typeof (startValue);
+        const type = typeof (startValue);
         let adapter: TweenValueAdapter;
         if (type === "number") {
             prop.type = 0;
@@ -333,17 +336,25 @@ export class Tweener implements ITweener {
         this.value.fill(0);
         this.deltaValue.fill(0);
 
-        for (let i = 0, n = this.startValue.length; i < n; i++) {
-            let n1 = this.startValue[i];
-            let n2 = this.endValue[i];
-            let f = n1 + (n2 - n1) * t;
-            if (this.interp)
-                f = this.interp(t, n1, n2, f, i, ...this.interpArgs);
-
-            if (this.snapping)
-                f = Math.round(f);
-            this.deltaValue[i] = f - this.value[i];
-            this.value[i] = f;
+        if (this.interp) {
+            this.interp(t, this.startValue, this.endValue, this.value, ...this.interpArgs);
+            for (let i = 0, n = this.startValue.length; i < n; i++) {
+                let f = this.value[i];
+                if (this.snapping)
+                    f = Math.round(f);
+                this.deltaValue[i] = f - this.value[i];
+            }
+        }
+        else {
+            for (let i = 0, n = this.startValue.length; i < n; i++) {
+                let n1 = this.startValue[i];
+                let n2 = this.endValue[i];
+                let f = n1 + (n2 - n1) * t;
+                if (this.snapping)
+                    f = Math.round(f);
+                this.deltaValue[i] = f - this.value[i];
+                this.value[i] = f;
+            }
         }
 
         if (this.target != null) {

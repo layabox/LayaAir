@@ -1,4 +1,5 @@
 import { Color } from "../maths/Color";
+import { Point } from "../maths/Point";
 import { Vector2 } from "../maths/Vector2";
 import { Vector3 } from "../maths/Vector3";
 import { Vector4 } from "../maths/Vector4";
@@ -23,6 +24,12 @@ export class TweenValue extends Array<number> implements ITweenValue {
         if (!prop)
             throw new OutOfRangeError(index);
         return this.read(prop.type, prop.offset);
+    }
+
+    copy(source: ITweenValue): this {
+        this.length = 0;
+        this.push(...source);
+        return this;
     }
 
     /**
@@ -77,5 +84,15 @@ const color = new Color();
     write,
     read: (array: TweenValue, offset: number) => {
         return color.setValue(array[offset], array[offset + 1], array[offset + 2], array[offset + 3]);
+    },
+};
+
+const pt = new Point();
+(<any>Point.prototype)[TweenValueAdapterKey] = <TweenValueAdapter>{
+    write: (value: Point, array: TweenValue) => {
+        array.push(value.x, value.y);
+    },
+    read: (array: TweenValue, offset: number) => {
+        return pt.setTo(array[offset], array[offset + 1]);
     },
 };

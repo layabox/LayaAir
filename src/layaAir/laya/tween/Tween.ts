@@ -1,9 +1,10 @@
 
 import { Handler } from "../utils/Handler";
 import { Tweener } from "./Tweener";
-import { EaseFunction, TweenInterpolator, TweenCallback } from "./ITween";
+import { EaseFunction, TweenInterpolator, TweenCallback, ITweener, ITweenValue, EaseType } from "./ITween";
 import { IPool, Pool } from "../utils/Pool";
 import { CurvePath } from "./CurvePath";
+import { Ease } from "./Ease";
 
 /**
  * @en The `Tween` class is an easing class. It is used to implement the interpolation of properties of a target object.
@@ -398,17 +399,20 @@ export class Tween {
 
     /**
      * @en Set the easing function of the current task. Use the Laya.Ease class for preset easing functions.
-     * @param value The easing function.
+     * @param value The easing function, or the name of the easing function.
      * @param args Extra parameters for the easing function.
      * @returns The Tween object.
-     * @zh 设置当前任务的缓动函数。可以使用Laya.Ease类中的预设缓动函数。
+     * @zh 设置当前任务的缓动函数。可以使用Laya.Ease类中的预设缓动函数，或者一个缓动函数的名称。
      * @param value 缓动函数。
      * @param args 缓动函数的额外参数。
      * @return Tween对象。
      */
-    ease(value: EaseFunction, ...args: Array<any>): this {
+    ease(value: EaseFunction | EaseType, ...args: Array<any>): this {
         let cur = this.cur(false);
-        cur.ease = value;
+        if (typeof (value) === "string")
+            cur.ease = Ease[value];
+        else
+            cur.ease = value;
         cur.easeArgs.length = 0;
         if (args)
             cur.easeArgs.push(...args);
@@ -604,6 +608,24 @@ export class Tween {
     }
 
     /**
+     * @en Find a tweener by name.
+     * @param name The name of the tweener. 
+     * @returns The Tween object.
+     * @zh 通过名字查找一个缓动。
+     * @param name 缓动的名字。
+     * @return Tween对象。 
+     */
+    findTweener(name: string): ITweener | null {
+        for (let i = 0, n = this._queue.length; i < n; i++) {
+            if (i < 0) continue;
+            let tween = Tweener.getTween(this._queue[i]);
+            if (tween && tween.name == name)
+                return tween;
+        }
+        return null;
+    }
+
+    /**
      * @en Kill the Tween. The Tween will be stopped and will be removed from the Tween system.
      * @param complete If true, the Tween will be set to the end state, and the complete callback will be called.
      * If false, the complete callback will not be called.
@@ -741,47 +763,43 @@ export class Tween {
      * Laya.Tween.create(target).duration(1000).to("x",0).to("y",0).interp(Laya.Tween.shake, 3);
      * ```
      */
-    static shake(time: number, start: number, end: number, value: number, index: number, amplitude: number): number {
+    static shake(time: number, start: Readonly<ITweenValue>, end: Readonly<ITweenValue>, result: ITweenValue, amplitude: number): void {
         if (time == 1)
-            return start;
-
-        let am = amplitude * (1 - time);
-        let am2 = am * (Math.random() > 0.5 ? 1 : -1);
-        return start + am2;
+            result.copy(start);
+        else {
+            let am = amplitude * (1 - time);
+            let am2 = am * (Math.random() > 0.5 ? 1 : -1);
+            for (let i = 0; i < start.length; i++)
+                result[i] = start[i] + am2;
+        }
     }
 
     /**
      * @en This is an interpolator that separates a numeric color value into each channel for interpolation.
      * For example, from 0x000000 to 0xffffff tween, by default, it will increase directly from 0x000000 to 0xffffff, instead of R/G/B increasing from 0x00 to 0xff respectively. Using this interpolator, R/G/B can increase from 0x00 to 0xff respectively.
-     * @param channels The number of channels to interpolate. For example, if it is RGB, this value is 3. If it is RGBA, this value is 4.
+     * @param channels The number of channels to interpolate. For example, if it is RGB, this value is 3. If it is RGBA, this value is 4. Default is 3.
      * @zh 这是一个实现将一个数字颜色值分离各个通道分别进行插值的插值器。
      * 例如从0x000000到0xffffff缓动，默认情况下是直接从0x000000一直增大到0xffffff，而不是R/G/B分别从0x00到0xff。使用这个插值器可以让R/G/B分别从0x00到0xff。
-     * @param channels 要插值的通道数。例如，如果是RGB，这个值就是3。如果是RGBA，这个值就是4。
+     * @param channels 要插值的通道数。例如，如果是RGB，这个值就是3。如果是RGBA，这个值就是4。默认为3。
      * @example
      * ```ts
      * Laya.Tween.create(target).duration(1000).to("color",0xffffff).interp(Laya.Tween.seperateChannel, 3);
      * ```
      */
-    static seperateChannel(time: number, start: number, end: number, value: number, index: number, channels?: number): number {
-        let v = 0;
+    static seperateChannel(time: number, start: Readonly<ITweenValue>, end: Readonly<ITweenValue>, result: ITweenValue, channels?: number): void {
         channels = channels || 3;
-        for (let i = 0; i < channels; i++) {
-            let j = i * 8;
-            let n0 = (start >> j) & 0xFF;
-            let n1 = (end >> j) & 0xFF;
-
-            v += (n0 + (n1 - n0) * time) << j;
-        }
-        return v;
+        for (let i = 0; i < start.length; i++)
+            result[i] = interpByChannel(time, start[i], end[i], channels);
     }
 
     /**
      * @en This is an interpolator that uses a curve path. The value will be obtained from the curve path. Note: Only supports up to two values, because CurvePath only supports two dimensions.
-     * @zh 这是一个使用曲线路径的插值器。数值将从曲线路径中获取。注意：只支持最多缓动两个数值，因为CurvePath只支持二维。
+     * @zh 这是一个使用曲线路径的插值器。数值将从曲线路径中获取。注意：只支持最多缓动两个数值，也就是两个数字，或者一个Vector2，因为CurvePath只支持二维。
      */
-    static followPath(time: number, start: number, end: number, value: number, index: number, path: CurvePath): number {
+    static followPath(time: number, start: Readonly<ITweenValue>, end: Readonly<ITweenValue>, result: ITweenValue, path: CurvePath): void {
         let pt = path.getPointAt(time);
-        return index == 0 ? pt.x : index == 1 ? pt.y : null;
+        result[0] = pt.x;
+        result[1] = pt.y;
     }
 
     /**
@@ -800,4 +818,16 @@ function forEach(all: Array<number>, callback: (t: Tweener) => void): void {
                 callback(tween);
         }
     }
+}
+
+function interpByChannel(time: number, start: number, end: number, channels: number): number {
+    let v = 0;
+    for (let i = 0; i < channels; i++) {
+        let j = i * 8;
+        let n0 = (start >> j) & 0xFF;
+        let n1 = (end >> j) & 0xFF;
+
+        v += (n0 + (n1 - n0) * time) << j;
+    }
+    return v;
 }
