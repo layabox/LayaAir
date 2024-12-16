@@ -6,23 +6,16 @@ export class PolygonPoint2D {
 
     constructor(points?: number[]) {
         if (points)
-            this.points.push(...points);
+            this._points.push(...points);
     }
 
     /**
-     * @en Get points
-     * @zh 获取点集
+     * @en The points
+     * @zh 点集
      */
-    get points(): number[] {
+    get points() {
         return this._points;
     }
-
-    /**
-     * @en Set points
-     * @param value
-     * @zh 设置点集
-     * @param value 
-     */
     set points(value: number[]) {
         this._points = value;
     }
@@ -31,7 +24,7 @@ export class PolygonPoint2D {
      * @en Add point
      * @param x 
      * @param y 
-     * @param index 插入位置，-1代表插入最后
+     * @param index Insert position，-1 is to last
      * @zh 添加顶点
      * @param x 
      * @param y 
@@ -39,12 +32,12 @@ export class PolygonPoint2D {
      */
     addPoint(x: number, y: number, index: number = -1) {
         if (index < 0) {
-            this.points.push(x, y);
+            this._points.push(x, y);
         } else {
-            for (let i = this.points.length; i > index; i--)
-                this.points[i] = this.points[i - 1];
-            this.points[index * 2 + 0] = x;
-            this.points[index * 2 + 1] = y;
+            for (let i = this._points.length; i > index; i--)
+                this._points[i] = this._points[i - 1];
+            this._points[index * 2 + 0] = x;
+            this._points[index * 2 + 1] = y;
         }
     }
 
@@ -52,28 +45,28 @@ export class PolygonPoint2D {
      * @en Update point
      * @param x 
      * @param y 
-     * @param index 
+     * @param index Update position
      * @zh 更新顶点
      * @param x 
      * @param y 
-     * @param index 
+     * @param index 更新位置
      */
     updatePoint(x: number, y: number, index: number) {
-        if (index < (this.points.length / 2 | 0) && index >= 0) {
-            this.points[index * 2 + 0] = x;
-            this.points[index * 2 + 1] = y;
+        if (index < (this._points.length / 2 | 0) && index >= 0) {
+            this._points[index * 2 + 0] = x;
+            this._points[index * 2 + 1] = y;
         }
     }
 
     /**
      * @en Remove point
-     * @param index 
+     * @param index Remove position
      * @zh 删除顶点
-     * @param index 
+     * @param index 删除位置
      */
     removePoint(index: number) {
-        if (index < this.points.length && index >= 0)
-            this.points.splice(index, 1);
+        if (index < this._points.length && index >= 0)
+            this._points.splice(index, 1);
     }
 
     /**
@@ -81,16 +74,16 @@ export class PolygonPoint2D {
      * @zh 清空顶点
      */
     clear() {
-        this.points.length = 0;
+        this._points.length = 0;
     }
 
     /**
-     * @en clone object
+     * @en Clone object
      * @zh 克隆对象
      */
     clone() {
         const poly = new PolygonPoint2D();
-        poly.points.push(...this.points);
+        poly._points.push(...this._points);
         return poly;
     }
 
@@ -101,12 +94,8 @@ export class PolygonPoint2D {
      * @param other 
      */
     cloneTo(other: PolygonPoint2D) {
-        const p = this._points;
-        const op = other._points;
-        const len = p.length;
-        op.length = len;
-        for (let i = 0; i < len; i++)
-            op[i] = p[i];
+        other._points.length = 0;
+        other._points.push(...this._points);
         return other;
     }
 }

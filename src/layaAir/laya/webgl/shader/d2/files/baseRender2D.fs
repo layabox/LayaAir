@@ -12,7 +12,7 @@ void main()
     clip();
     vec4 textureColor = texture2D(u_baseRender2DTexture, v_texcoord);
 
-    #ifdef LIGHT_AND_SHADOW
+    #ifdef LIGHT2D_ENABLE
         lightAndShadow(textureColor);
     #endif
 

@@ -12,7 +12,6 @@ import { Mesh2D } from "../../../resource/Mesh2D";
 import { RenderTexture } from "../../../resource/RenderTexture";
 import { RenderTexture2D } from "../../../resource/RenderTexture2D";
 import { Texture2D } from "../../../resource/Texture2D";
-import { Browser } from "../../../utils/Browser";
 import { Scene } from "../../Scene";
 import { Sprite } from "../../Sprite";
 import { CommandBuffer2D } from "../RenderCMD2D/CommandBuffer2D";
@@ -61,7 +60,7 @@ export class SpotLight2D extends BaseLight2D {
         this._material.setIntByIndex(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ONE);
         this._material.setIntByIndex(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE);
         this._material.setIntByIndex(Shader3D.CULL, RenderState.CULL_NONE);
-        this._cmdBuffer = new CommandBuffer2D('Light2DRender_Freeform'); //渲染灯光贴图的命令流
+        this._cmdBuffer = new CommandBuffer2D('Light2DRender_Spot'); //渲染灯光贴图的命令流
     }
 
     /**
@@ -187,8 +186,8 @@ export class SpotLight2D extends BaseLight2D {
     protected _calcLocalRange() {
         super._calcLocalRange();
 
-        const w = this._outerRadius * 2.1 * Browser.pixelRatio | 0;
-        const h = this._outerRadius * 2.1 * Browser.pixelRatio | 0;
+        const w = this._outerRadius * 2.1 | 0;
+        const h = this._outerRadius * 2.1 | 0;
         this._localRange.x = -w / 2;
         this._localRange.y = -h / 2;
         this._localRange.width = w;
@@ -210,8 +209,8 @@ export class SpotLight2D extends BaseLight2D {
         const h = this._localRange.height;
         const sx = Math.abs(this.owner.globalScaleX);
         const sy = Math.abs(this.owner.globalScaleY);
-        const px = this.owner.globalPosX * Browser.pixelRatio;
-        const py = this.owner.globalPosY * Browser.pixelRatio;
+        const px = this.owner.globalPosX;
+        const py = this.owner.globalPosY;
         const m = Math.max(w * sx, h * sy) | 0;
         this._worldRange.x = (px - m / 2) | 0;
         this._worldRange.y = (py - m / 2) | 0;
