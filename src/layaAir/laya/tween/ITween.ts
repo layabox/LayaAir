@@ -1,3 +1,4 @@
+import { Ease } from "./Ease";
 import type { Tween } from "./Tween";
 
 /**
@@ -7,6 +8,12 @@ import type { Tween } from "./Tween";
  * @param tweener 当前的tweener。
  */
 export type TweenCallback = (tweener: ITweener) => void;
+
+/**
+ * @en Builtin ease function names.
+ * @zh 内置的缓动函数名称。
+ */
+export type EaseType = keyof typeof Ease;
 
 /**
  * @en Ease function is a function that takes a time parameter and returns a value between 0 and 1.
@@ -40,7 +47,7 @@ export type EaseFunction = (t: number, b: number, c: number, d: number, ...args:
  * @param index 数字在数字数组中的索引。
  * @param args 额外的参数。
  */
-export type TweenInterpolator<T extends any[]> = (time: number, start: number, end: number, value: number, index: number, ...args: T) => number;
+export type TweenInterpolator<T extends any[]> = (time: number, start: Readonly<ITweenValue>, end: Readonly<ITweenValue>, result: ITweenValue, ...args: T) => void;
 
 /**
  * @en The Tween system uses adapters to convert different value types to and from number arrays for tween calculations.
@@ -90,6 +97,16 @@ export interface ITweenValue extends Array<number> {
      * @returns 值。
      */
     getAt(index: number): any;
+
+    /**
+     * @en Copy all values from another ITweenValue.
+     * @param source The source ITweenValue.
+     * @returns The current ITweenValue.
+     * @zh 从另一个 ITweenValue 复制所有值。
+     * @param source 源 ITweenValue。
+     * @returns 当前 ITweenValue。 
+     */
+    copy(source: ITweenValue): this;
 }
 
 export interface ITweener {
