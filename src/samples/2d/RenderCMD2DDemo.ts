@@ -14,6 +14,7 @@ import { RenderTexture } from "laya/resource/RenderTexture";
 import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFormat";
 import { Matrix } from "laya/maths/Matrix";
 import { Vector4 } from "laya/maths/Vector4";
+import { Texture } from "laya/resource/Texture";
 
 export class RenderCMD2DDemo {
     Main: typeof Main = null;
@@ -36,7 +37,7 @@ export class RenderCMD2DDemo {
     private showApe(): void {
         Laya.loader.load("res/apes/monkey2.png", Loader.IMAGE).then(() => {
 
-            let rt = new RenderTexture(500, 500, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None);
+            let rtMesh = new RenderTexture(500, 500, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None);
 
             let mesh = this.generateCircleVerticesAndUV(100, 100);
 
@@ -47,13 +48,20 @@ export class RenderCMD2DDemo {
             let testBLitQuadRTCMD = true
             if (testMesh2DCMD) {//OK
                 let cmd = RenderCMD2DDemo.cmd = new CommandBuffer2D("test");
-                cmd.setRenderTarget(rt as any, true, Color.YELLOW);
+                cmd.setRenderTarget(rtMesh as any, true, Color.YELLOW);
                 let mat = Matrix.TEMP;
                 mat.setMatrix(0, 0, 1, 1, 0, 0, 0, 0, 0);
-                cmd.drawMesh(mesh,mat, t);
+                cmd.drawMesh(mesh, mat, t);
                 cmd.apply(true);
-                console.log(Utils3D.uint8ArrayToArrayBuffer(rt));
+                console.log(Utils3D.uint8ArrayToArrayBuffer(rtMesh));
             }
+            let sp1: Sprite = new Sprite();
+            sp1.texture = new Texture(rtMesh);
+            sp1.pos(300, 10);
+            sp1.scale(0.5, 0.5);
+            this.Main.box2D.addChild(sp1);
+
+            let rtMeshRender = new RenderTexture(500, 500, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None);
             if (testRenderElementCMD) {//OK
                 var ape: Sprite = new Sprite();
                 let mesh2Drender = ape.addComponent(Mesh2DRender);
@@ -62,24 +70,35 @@ export class RenderCMD2DDemo {
                 mesh2Drender.texture = t;
 
                 let cmd = RenderCMD2DDemo.cmd = new CommandBuffer2D("test");
-                cmd.setRenderTarget(rt as any, true, Color.YELLOW);
+                cmd.setRenderTarget(rtMeshRender as any, true, Color.YELLOW);
                 let mat = new Matrix();
                 mat.setTranslate(100, 100);
                 cmd.drawRenderElement((mesh2Drender as any)._renderElements[0], mat);
                 mat.setTranslate(100, 300);
                 cmd.apply(true);
-                console.log(Utils3D.uint8ArrayToArrayBuffer(rt));
+                console.log(Utils3D.uint8ArrayToArrayBuffer(rtMeshRender));
             }
+            let sp2: Sprite = new Sprite();
+            sp2.texture = new Texture(rtMeshRender);
+            sp2.pos(600, 10);
+            sp2.scale(0.5, 0.5);
+            this.Main.box2D.addChild(sp2);
 
+            let rtBlit = new RenderTexture(500, 500, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None);
             if (testBLitQuadRTCMD) {
                 let cmd = RenderCMD2DDemo.cmd = new CommandBuffer2D("test");
-                cmd.setRenderTarget(rt as any, true, Color.YELLOW);
-                cmd.blitTextureQuad(t, rt as any, new Vector4(0, 0, 0.3, 0.3));
-                cmd.blitTextureQuad(t, rt as any, new Vector4(0.3, 0.3, 0.5, 0.5));
-                cmd.blitTextureQuad(t, rt as any, new Vector4(0.8, 0.8, 0.2, 0.2));
+                cmd.setRenderTarget(rtBlit as any, true, Color.YELLOW);
+                cmd.blitTextureQuad(t, rtBlit as any, new Vector4(0, 0, 0.3, 0.3));
+                cmd.blitTextureQuad(t, rtBlit as any, new Vector4(0.3, 0.3, 0.5, 0.5));
+                cmd.blitTextureQuad(t, rtBlit as any, new Vector4(0.8, 0.8, 0.2, 0.2));
                 cmd.apply(true);
-                console.log(Utils3D.uint8ArrayToArrayBuffer(rt));
+                console.log(Utils3D.uint8ArrayToArrayBuffer(rtBlit));
             }
+            let sp3: Sprite = new Sprite();
+            sp3.texture = new Texture(rtBlit);
+            sp3.pos(900, 10);
+            sp3.scale(0.5, 0.5);
+            this.Main.box2D.addChild(sp3);
         });
     }
 

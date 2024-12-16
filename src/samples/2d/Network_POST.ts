@@ -14,13 +14,13 @@ export class Network_POST {
 	constructor(maincls: typeof Main) {
 		this.Main = maincls;
 
-		Laya.init(Browser.clientWidth, Browser.clientHeight).then(()=>{
+		Laya.init(Browser.clientWidth, Browser.clientHeight).then(() => {
 			Laya.stage.alignV = Stage.ALIGN_MIDDLE;
 			Laya.stage.alignH = Stage.ALIGN_CENTER;
-	
+
 			Laya.stage.scaleMode = "showall";
 			Laya.stage.bgColor = "#232628";
-	
+
 			this.connect();
 			this.showLogger();
 		});
@@ -32,7 +32,7 @@ export class Network_POST {
 		this.hr.once(Event.PROGRESS, this, this.onHttpRequestProgress);
 		this.hr.once(Event.COMPLETE, this, this.onHttpRequestComplete);
 		this.hr.once(Event.ERROR, this, this.onHttpRequestError);
-		this.hr.send('http://xkxz.zhonghao.huo.inner.layabox.com/api/getData', 'name=myname&psword=xxx', 'post', 'text');
+		this.hr.send('https://httpbin.org/post', 'key1=value1&key2=value2', 'post', 'text');
 	}
 
 	private showLogger(): void {
