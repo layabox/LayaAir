@@ -1,4 +1,3 @@
-
 import { Laya } from "Laya";
 import { Stat } from "laya/utils/Stat";
 import { Camera } from "laya/d3/core/Camera";
@@ -22,7 +21,6 @@ import { Texture2D } from "laya/resource/Texture2D";
 import { Button } from "laya/ui/Button";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
-
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import Client from "../../Client";
 import { Color } from "laya/maths/Color";
@@ -163,15 +161,12 @@ export class PhysicsWorld_RayShapeCast {
 				this.changeActionButton0.label = "射线模式";
 				break;
 			case 1:
-				return;
 				this.changeActionButton0.label = "盒子模式";
 				break;
 			case 2:
-				return;
 				this.changeActionButton0.label = "球模式";
 				break;
 			case 3:
-				return;
 				this.changeActionButton0.label = "胶囊模式";
 				break;
 		}
@@ -234,7 +229,6 @@ export class PhysicsWorld_RayShapeCast {
 				}
 				break;
 			case 1:
-				return;
 				//创建盒型碰撞器
 				var boxCollider: BoxColliderShape = new BoxColliderShape(1.0, 1.0, 1.0);
 				for (i = 0; i < 21; i++) {
@@ -256,7 +250,7 @@ export class PhysicsWorld_RayShapeCast {
 				if (this.castAll) {
 					//进行形状检测,检测所有碰撞的物体
 
-					//this.scene.physicsSimulation(boxCollider, this.from, this.to, this.hitResults);
+					this.scene.physicsSimulation.shapeCastAll(boxCollider.shape, this.from, this.to, this.hitResults);
 					//遍历检测到的所有物体，并将其设置为红色
 					for (i = 0, n = this.hitResults.length; i < n; i++)
 						((<BlinnPhongMaterial>((<MeshSprite3D>this.hitResults[i].collider.owner)).meshRenderer.sharedMaterial)).albedoColor = new Color(1.0, 0.0, 0.0, 1.0);
@@ -267,7 +261,6 @@ export class PhysicsWorld_RayShapeCast {
 				}
 				break;
 			case 2:
-				return;
 				//创建球型碰撞器
 				var sphereCollider: SphereColliderShape = new SphereColliderShape(0.5);
 				for (i = 0; i < 41; i++) {
@@ -283,17 +276,16 @@ export class PhysicsWorld_RayShapeCast {
 				//使用球型碰撞器进行形状检测
 				if (this.castAll) {
 					//进行形状检测,检测所有碰撞的物体
-					//this.scene.physicsSimulation.shapeCastAll(sphereCollider, this.from, this.to, this.hitResults);
+					this.scene.physicsSimulation.shapeCastAll(sphereCollider.shape, this.from, this.to, this.hitResults);
 					for (i = 0, n = this.hitResults.length; i < n; i++)
 						((<BlinnPhongMaterial>((<MeshSprite3D>this.hitResults[i].collider.owner)).meshRenderer.sharedMaterial)).albedoColor = new Color(1.0, 0.0, 0.0, 1.0);
 				} else {
 					//进行形状检测,检测第一个碰撞物体
-					//if (this.scene.physicsSimulation.shapeCast(sphereCollider, this.from, this.to, this.hitResult))
-					//	((<BlinnPhongMaterial>((<MeshSprite3D>this.hitResult.collider.owner)).meshRenderer.sharedMaterial)).albedoColor = new Color(1.0, 0.0, 0.0, 1.0);
+					if (this.scene.physicsSimulation.shapeCast(sphereCollider.shape, this.from, this.to, this.hitResult))
+						((<BlinnPhongMaterial>((<MeshSprite3D>this.hitResult.collider.owner)).meshRenderer.sharedMaterial)).albedoColor = new Color(1.0, 0.0, 0.0, 1.0);
 				}
 				break;
 			case 3:
-				return;
 				//创建胶囊型碰撞器
 				var capsuleCollider: CapsuleColliderShape = new CapsuleColliderShape(0.25, 1.0);
 				for (i = 0; i < 41; i++) {
@@ -309,13 +301,13 @@ export class PhysicsWorld_RayShapeCast {
 				//使用胶囊碰撞器进行形状检测
 				if (this.castAll) {
 					//进行形状检测,检测所有碰撞的物体
-					//	this.scene.physicsSimulation.shapeCastAll(capsuleCollider, this.from, this.to, this.hitResults);
+					this.scene.physicsSimulation.shapeCastAll(capsuleCollider.shape, this.from, this.to, this.hitResults);
 					for (i = 0, n = this.hitResults.length; i < n; i++)
 						((<BlinnPhongMaterial>((<MeshSprite3D>this.hitResults[i].collider.owner)).meshRenderer.sharedMaterial)).albedoColor = new Color(1.0, 0.0, 0.0, 1.0);
 				} else {
 					//进行形状检测,检测第一个碰撞物体
-					//			if (this.scene.physicsSimulation.shapeCast(capsuleCollider, this.from, this.to, this.hitResult))
-					//				((<BlinnPhongMaterial>((<MeshSprite3D>this.hitResult.collider.owner)).meshRenderer.sharedMaterial)).albedoColor = new Color(1.0, 0.0, 0.0, 1.0);
+					if (this.scene.physicsSimulation.shapeCast(capsuleCollider.shape, this.from, this.to, this.hitResult))
+						((<BlinnPhongMaterial>((<MeshSprite3D>this.hitResult.collider.owner)).meshRenderer.sharedMaterial)).albedoColor = new Color(1.0, 0.0, 0.0, 1.0);
 				}
 				break;
 		}
