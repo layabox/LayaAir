@@ -4,6 +4,7 @@ import { NodeFlags } from "../Const";
 import { Node } from "../display/Node"
 import { Pool } from "../utils/Pool"
 import { Utils } from "../utils/Utils";
+import { ComponentDriver } from "./ComponentDriver";
 
 /**
  * @en The Component class is used to create the base class for components.
@@ -58,6 +59,11 @@ export class Component {
      * @zh 组件的额外数据。IDE内部使用。
      */
     _extra: IComponentExtra;
+
+    /**
+     * @internal
+     */
+    _driver: ComponentDriver;
 
     /**
      * @en The hide flags that determine the hiding behavior of the component.
@@ -253,8 +259,8 @@ export class Component {
                 this._enableState = true;
 
                 if (LayaEnv.isPlaying || this.runInEditor) {
-                    let driver = (this.owner._is3D && this.owner._scene)?._componentDriver || ILaya.stage._componentDriver;
-                    driver.add(this);
+                    this._driver = (this.owner._is3D && this.owner._scene)?._componentDriver || ILaya.stage._componentDriver;
+                    this._driver.add(this);
 
                     if (LayaEnv.isPlaying && this._isScript())
                         this.setupScript();
@@ -265,8 +271,8 @@ export class Component {
         } else if (this._enableState) {
             this._enableState = false;
             if (LayaEnv.isPlaying || this.runInEditor) {
-                let driver = (this.owner._is3D && this.owner._scene)?._componentDriver || ILaya.stage._componentDriver;
-                driver.remove(this);
+                if (this._driver)
+                    this._driver.remove(this);
 
                 ILaya.stage.offAllCaller(this);
 
@@ -316,9 +322,9 @@ export class Component {
         this._setActive(false);
         this._status = 4;
 
-        if (LayaEnv.isPlaying || this.runInEditor) {
-            let driver = (this.owner._is3D && this.owner._scene)?._componentDriver || ILaya.stage._componentDriver;
-            driver._toDestroys.add(this);
+        if (this._driver) {
+            this._driver._toDestroys.add(this);
+            this._driver = null;
         }
     }
 
