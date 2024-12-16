@@ -188,7 +188,7 @@ export class GLShaderInstance extends GLObject {
                 one.fun = this._uniformMatrix2fv;
                 break;
             case gl.FLOAT_MAT3:
-                one.fun = isArray ? this._uniformMatrix3f : this._uniformMatrix3fv;
+                one.fun = isArray ? this._uniformMatrix3fv : this._uniformMatrix3f;
                 break;
             case gl.FLOAT_MAT4:
                 one.fun = isArray ? this._uniformMatrix4fv : this._uniformMatrix4f;
