@@ -110,12 +110,19 @@ export class DirectionLight2D extends BaseLight2D {
     }
 
     /**
-     * @en Is light inside the screen
-     * @param screen Screen position and size
-     * @zh 是否在屏幕内
+     * @internal
+     * 灯光是否在指定范围内
+     */
+    _isInRange(range: Rectangle) {
+        return true; //总是在指定范围内
+    }
+
+    /**
+     * @internal
+     * 灯光是否在屏幕内
      * @param screen 屏幕位置和尺寸
      */
-    isInScreen(screen: Rectangle) {
+    _isInScreen(screen: Rectangle) {
         return true; //总是在屏幕内
     }
 }

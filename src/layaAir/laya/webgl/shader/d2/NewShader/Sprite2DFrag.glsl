@@ -189,14 +189,14 @@ vec4 transspaceColor(vec4 color)
     uniform sampler2D u_baseRender2DTexture;
     uniform vec4 u_baseRenderColor;
 
-#ifdef LIGHT_AND_SHADOW
+#ifdef LIGHT2D_ENABLE
     varying vec2 v_lightUV;
     uniform vec4 u_LightAndShadow2DParam;
     uniform vec4 u_LightAndShadow2DAmbient;
     uniform float u_LightHeight;
     uniform sampler2D u_LightAndShadow2D;
 
-    #ifdef LIGHT_2D_NORMAL_PARAM
+    #ifdef LIGHT2D_NORMAL_PARAM
         uniform sampler2D u_normal2DTexture;
         uniform float u_normal2DStrength;
     #endif
@@ -211,13 +211,19 @@ vec4 transspaceColor(vec4 color)
     }
 
     void lightAndShadow(inout vec4 color) {
-        vec4 ls = texture2D(u_LightAndShadow2D, v_lightUV);
-        ls.rgb = min(vec3(1.0), ls.rgb + u_LightAndShadow2DAmbient.rgb);
-        color.rgb *= ls.rgb;
-        #ifdef LIGHT_2D_NORMAL_PARAM
-            vec3 dr = normalize(vec3(decodeVector2D(ls.a), u_LightHeight));
-            vec3 normal = normalize(texture2D(u_normal2DTexture, v_texcoord).rgb * 2.0 - 1.0);
-            color.rgb = color.rgb * ((1.0 - u_normal2DStrength) + abs(dot(dr, normal.rgb)) * u_normal2DStrength);
+        #ifdef LIGHT2D_EMPTY //场景中没有灯光，但环境光还是可以起作用的
+            vec4 ls = vec4(0.0);
+            ls.rgb = min(vec3(1.0), ls.rgb + u_LightAndShadow2DAmbient.rgb);
+            color.rgb *= ls.rgb;
+        #else
+            vec4 ls = texture2D(u_LightAndShadow2D, v_lightUV);
+            ls.rgb = min(vec3(1.0), ls.rgb + u_LightAndShadow2DAmbient.rgb);
+            color.rgb *= ls.rgb;
+            #ifdef LIGHT2D_NORMAL_PARAM
+                vec3 dr = normalize(vec3(decodeVector2D(ls.a), u_LightHeight));
+                vec3 normal = normalize(texture2D(u_normal2DTexture, v_texcoord).rgb * 2.0 - 1.0);
+                color.rgb = color.rgb * ((1.0 - u_normal2DStrength) + abs(dot(dr, normal.rgb)) * u_normal2DStrength);
+            #endif
         #endif
     }
 #endif

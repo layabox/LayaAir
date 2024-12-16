@@ -121,8 +121,8 @@ export class Mesh2DRender extends BaseRenderNode2D {
 
         this._spriteShaderData.setTexture(BaseRenderNode2D.NORMAL2DTEXTURE, value);
         if (this._normal2DStrength > 0 && this._normal2DTexture)
-            this._spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_LIGHT2DNORMAL_PARAM);
-        else this._spriteShaderData.removeDefine(BaseRenderNode2D.SHADERDEFINE_LIGHT2DNORMAL_PARAM);
+            this._spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_LIGHT2D_NORMAL_PARAM);
+        else this._spriteShaderData.removeDefine(BaseRenderNode2D.SHADERDEFINE_LIGHT2D_NORMAL_PARAM);
     }
 
     get normalTexture(): BaseTexture {
@@ -140,8 +140,8 @@ export class Mesh2DRender extends BaseRenderNode2D {
         this._normal2DStrength = value;
         this._spriteShaderData.setNumber(BaseRenderNode2D.NORMAL2DSTRENGTH, value);
         if (value > 0 && this._normal2DTexture)
-            this._spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_LIGHT2DNORMAL_PARAM);
-        else this._spriteShaderData.removeDefine(BaseRenderNode2D.SHADERDEFINE_LIGHT2DNORMAL_PARAM);
+            this._spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_LIGHT2D_NORMAL_PARAM);
+        else this._spriteShaderData.removeDefine(BaseRenderNode2D.SHADERDEFINE_LIGHT2D_NORMAL_PARAM);
     }
 
     get normalStrength() {

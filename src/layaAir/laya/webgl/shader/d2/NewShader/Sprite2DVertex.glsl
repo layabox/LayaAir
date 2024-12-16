@@ -148,7 +148,7 @@
         vec2 lightUV;
     };
 
-    #ifdef LIGHT_AND_SHADOW
+    #ifdef LIGHT2D_ENABLE
         varying vec2 v_lightUV;
         uniform vec4 u_LightAndShadow2DParam;
         void lightAndShadow(inout vertexInfo info) {
@@ -183,7 +183,7 @@
             info.uv = a_uv;
          #endif
 
-         #ifdef LIGHT_AND_SHADOW
+         #ifdef LIGHT2D_ENABLE
             vec2 global;
             getGlobalPos(info.pos, global);
             info.lightUV.x = (global.x - u_LightAndShadow2DParam.x) / u_LightAndShadow2DParam.z;

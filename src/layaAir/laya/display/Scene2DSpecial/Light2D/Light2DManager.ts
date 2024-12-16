@@ -18,7 +18,6 @@ import { BaseTexture } from "../../../resource/BaseTexture";
 import { Material } from "../../../resource/Material";
 import { Mesh2D, VertexMesh2D } from "../../../resource/Mesh2D";
 import { RenderTexture2D } from "../../../resource/RenderTexture2D";
-import { Browser } from "../../../utils/Browser";
 import { Pool } from "../../../utils/Pool";
 import { Utils } from "../../../utils/Utils";
 import { RenderState2D } from "../../../webgl/utils/RenderState2D";
@@ -47,13 +46,15 @@ class Light2DRenderRes {
     shadowMeshs: Mesh2D[] = []; //阴影网格，数量等于当前层的灯光数量
     needShadowMesh: boolean[] = []; //是否需要阴影网格，数量等于当前层的灯光数量
 
+    private _layer: number = 0; //对应的层
     private _invertY: boolean = false; //是否颠倒Y轴
     private _cmdRT: Set2DRTCMD; //渲染目标缓存
     private _cmdLightMeshs: DrawMesh2DCMD[][] = []; //渲染命令缓存（灯光）
     private _cmdShadowMeshs: DrawMesh2DCMD[] = []; //渲染命令缓存（阴影）
     private _cmdBuffer: CommandBuffer2D = new CommandBuffer2D('Light2DRender'); //渲染光影图的命令流
 
-    constructor(invertY: boolean) {
+    constructor(layer: number, invertY: boolean) {
+        this._layer = layer;
         this._invertY = invertY;
     }
 
@@ -91,7 +92,7 @@ class Light2DRenderRes {
      */
     addLights(lights: BaseLight2D[], recover?: any[]) {
         const length = lights.length;
-        if (recover)
+        if (!Light2DManager.REUSE_MESH && recover)
             this._needRecoverMesh(recover, length);
 
         this.lights = lights;
@@ -264,8 +265,11 @@ class Light2DRenderRes {
         for (let i = this.lights.length - 1; i > -1; i--) {
             if (this.lights[i] === light) {
                 this.needShadowMesh[i] = false;
-                if (!light.shadowEnable) {
-                    if (recover && this.shadowMeshs[i])
+                if (!light.shadowEnable
+                    || !light._isNeedShadowMesh()
+                    || (light.shadowLayerMask & (1 << this._layer)) === 0) {
+                    if (!Light2DManager.REUSE_MESH
+                        && recover && this.shadowMeshs[i])
                         recover.push(this.shadowMeshs[i]);
                     this.shadowMeshs[i] = null;
                     if (Light2DManager.REUSE_CMD) {
@@ -275,17 +279,15 @@ class Light2DRenderRes {
                         }
                     }
                 } else {
-                    if (light._isNeedShadowMesh()) {
-                        if (Light2DManager.REUSE_CMD) {
-                            if (!this._cmdShadowMeshs[i])
-                                this._cmdShadowMeshs[i] = DrawMesh2DCMD.create(this.shadowMeshs[i], Matrix.EMPTY, this.textures[i], Color.WHITE, this.materialShadow[i]);
-                        }
-                        if (!this.materialShadow[i]) {
-                            this.materialShadow[i] = new Material();
-                            this._initMaterial(this.materialShadow[i], true);
-                        }
-                        this.needShadowMesh[i] = true;
+                    if (Light2DManager.REUSE_CMD) {
+                        if (!this._cmdShadowMeshs[i])
+                            this._cmdShadowMeshs[i] = DrawMesh2DCMD.create(this.shadowMeshs[i], Matrix.EMPTY, this.textures[i], Color.WHITE, this.materialShadow[i]);
                     }
+                    if (!this.materialShadow[i]) {
+                        this.materialShadow[i] = new Material();
+                        this._initMaterial(this.materialShadow[i], true);
+                    }
+                    this.needShadowMesh[i] = true;
                 }
                 return;
             }
@@ -387,8 +389,8 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
     private _occluders: LightOccluder2D[] = []; //场景中的所有遮光器
 
     private _works: number = 0; //每帧工作负载（渲染光影图次数，每渲染一个灯光算一次）
-    private _updateMark: number[] = new Array(Light2DManager.MAX_LAYER).fill(0); //各层的更新标识
-    private _updateLayerLight: boolean[] = new Array(Light2DManager.MAX_LAYER).fill(false); //各层是否需要更新灯光图
+    private _updateMark: number[] = new Array(Light2DManager.MAX_LAYER).fill(1); //各层的更新标识
+    private _updateLayerLight: boolean[] = new Array(Light2DManager.MAX_LAYER).fill(false); //各层是否需要更新光影图
     private _spriteLayer: number[] = []; //具有精灵的层序号
     private _spriteNumInLayer: number[] = new Array(Light2DManager.MAX_LAYER).fill(0); //精灵在各层中的数量
     private _lightLayer: number[] = []; //具有灯光的层序号（屏幕内）
@@ -404,8 +406,10 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
 
     private _recoverFC: number = 0; //回收资源帧序号
     private _needToRecover: any[] = []; //需要回收的资源
+    private _needUpdateLightRes: number = 0; //是否需要更新灯光资源
     private _needUpdateLightRange: number = 0; //是否需要更新灯光范围
     private _needCollectLightInLayer: number = 0; //是否需要更新各层中的灯光
+    private _needCollectOccluderInLight: number = 0; //是否需要更新各层中影响各灯光的遮光器
     private _lightsNeedCheckRange: BaseLight2D[] = []; //需要检查范围的灯光
 
     private _tempRange: Rectangle = new Rectangle();
@@ -444,14 +448,6 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
      * @param node 渲染节点
      */
     addRender(node: BaseRenderNode2D): void {
-        // const layerMask = node.layer;
-        // for (let i = 0; i < Light2DManager.MAX_LAYER; i++) {
-        //     if (layerMask & (1 << i)) {
-        //         this._spriteNumInLayer[i]++;
-        //         if (this._spriteNumInLayer[i] === 1)
-        //             this._spriteLayer.push(i);
-        //     }
-        // }
         const layer = node.layer;
         this._spriteNumInLayer[layer]++;
         if (this._spriteNumInLayer[layer] === 1)
@@ -465,14 +461,6 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
      * @param node 渲染节点
      */
     removeRender(node: BaseRenderNode2D): void {
-        // const layerMask = node.layer;
-        // for (let i = 0; i < Light2DManager.MAX_LAYER; i++) {
-        //     if (layerMask & (1 << i)) {
-        //         this._spriteNumInLayer[i]--;
-        //         if (this._spriteNumInLayer[i] === 0)
-        //             this._spriteLayer.splice(this._spriteLayer.indexOf(i), 1);
-        //     }
-        // }
         const layer = node.layer;
         this._spriteNumInLayer[layer]--;
         if (this._spriteNumInLayer[layer] === 0)
@@ -534,75 +522,89 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
 
     /**
      * @en Need update the light range
-     * @param layerMark 
+     * @param layerMask 
      * @zh 需要更新灯光范围
-     * @param layerMark 
+     * @param layerMask 
      */
-    needUpdateLightRange(layerMark: number) {
-        this._needUpdateLightRange |= layerMark;
+    needUpdateLightRange(layerMask: number) {
+        this._needUpdateLightRange |= layerMask;
     }
 
     /**
      * @en Need collect light in layers
-     * @param layerMark 
+     * @param layerMask 
      * @zh 是否需要收集各层中的灯光
-     * @param layerMark 
+     * @param layerMask 
      */
-    needCollectLightInLayer(layerMark: number) {
-        this._needCollectLightInLayer |= layerMark;
+    needCollectLightInLayer(layerMask: number) {
+        this._needCollectLightInLayer |= layerMask;
     }
 
     /**
-     * @en light layer mark change
+     * @en Need collect occluder in layers who effect lights
+     * @param layerMask 
+     * @zh 是否需要收集各层中影响各灯光的遮光器
+     * @param layerMask 
+     */
+    needCollectOccluderInLight(layerMask: number) {
+        this._needCollectOccluderInLight |= layerMask;
+    }
+
+    /**
+     * @en light layer mask change
      * @param light 
-     * @param oldLayer 
-     * @param newLayer 
+     * @param oldLayerMask 
+     * @param newLayerMask 
      * @zh 灯光的影响层发生变化
      * @param light 
-     * @param oldLayer 
-     * @param newLayer 
+     * @param oldLayerMask 
+     * @param newLayerMask 
      */
-    lightLayerMarkChange(light: BaseLight2D, oldLayer: number, newLayer: number) {
-        for (let i = 0; i < Light2DManager.MAX_LAYER; i++) {
-            const mask = 1 << i;
-            const index = this._lightsInLayerAll[i]?.indexOf(light);
-            if (newLayer & mask) {
-                if (index === undefined || index === -1) {
-                    if (!this._lightsInLayerAll[i])
-                        this._lightsInLayerAll[i] = [];
-                    this._lightsInLayerAll[i].push(light); //将灯光加入受影响的层
-                    if (this._lightLayerAll.indexOf(i) === -1) //记录有灯光的层序号
-                        this._lightLayerAll.push(i);
-                    this._collectLightInScreenByLayer(i); //收集该层屏幕内的灯光
-                    this._updateLayerLight[i] = true;
-                }
-            } else if (oldLayer & mask) {
-                if (index >= 0) {
-                    this._lightsInLayerAll[i].splice(index, 1); //将灯光从受影响的层中去除
-                    if (this._lightsInLayerAll[i].length === 0) //如果受影响的层已经没有灯光，将层序号去除
-                        this._lightLayerAll.splice(this._lightLayerAll.indexOf(i), 1);
-                    this._collectLightInScreenByLayer(i); //收集该层屏幕内的灯光
-                    this._updateLayerLight[i] = true;
+    lightLayerMaskChange(light: BaseLight2D, oldLayerMask: number, newLayerMask: number) {
+        if (this._lights.indexOf(light) !== -1) { //执行这段逻辑之前必须保证该灯光已经添加
+            for (let i = 0; i < Light2DManager.MAX_LAYER; i++) {
+                const mask = 1 << i;
+                const index = this._lightsInLayerAll[i]?.indexOf(light);
+                if (newLayerMask & mask) {
+                    if (index === undefined || index === -1) {
+                        if (!this._lightsInLayerAll[i])
+                            this._lightsInLayerAll[i] = [];
+                        this._lightsInLayerAll[i].push(light); //将灯光加入受影响的层
+                        if (this._lightLayerAll.indexOf(i) === -1) //记录有灯光的层序号
+                            this._lightLayerAll.push(i);
+                        this._collectLightInScreenByLayer(i); //收集该层屏幕内的灯光
+                        this._updateLayerLight[i] = true;
+                    }
+                } else if (oldLayerMask & mask) {
+                    if (index >= 0) {
+                        this._lightsInLayerAll[i].splice(index, 1); //将灯光从受影响的层中去除
+                        if (this._lightsInLayerAll[i].length === 0) //如果受影响的层已经没有灯光，将层序号去除
+                            this._lightLayerAll.splice(this._lightLayerAll.indexOf(i), 1);
+                        this._collectLightInScreenByLayer(i); //收集该层屏幕内的灯光
+                        this._updateLayerLight[i] = true;
+                    }
                 }
             }
+            this.needUpdateLightRange(newLayerMask); //通知相应的层更新灯光范围并集
+            if (Light2DManager.DEBUG)
+                console.log('light layer mask change', light, oldLayerMask, newLayerMask);
         }
-        if (Light2DManager.DEBUG)
-            console.log('light layer mark change', light, oldLayer, newLayer);
     }
 
     /**
      * @en light shadow layer mark change
      * @param light 
-     * @param oldLayer 
-     * @param newLayer 
+     * @param oldLayerMask 
+     * @param newLayerMask 
      * @zh 灯光的阴影影响层发生变化
      * @param light 
-     * @param oldLayer 
-     * @param newLayer 
+     * @param oldLayerMask 
+     * @param newLayerMask 
      */
-    lightShadowLayerMarkChange(light: BaseLight2D, oldLayer: number, newLayer: number) {
+    lightShadowLayerMaskChange(light: BaseLight2D, oldLayerMask: number, newLayerMask: number) {
+        this.needCollectOccluderInLight(oldLayerMask || newLayerMask);
         if (Light2DManager.DEBUG)
-            console.log('light shadow layer mark change', light, oldLayer, newLayer);
+            console.log('light shadow layer mask change', light, oldLayerMask, newLayerMask);
     }
 
     /**
@@ -636,9 +638,8 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
      */
     clearLight() {
         this._lights.length = 0;
-        for (let i = 0; i < this._lightLayerAll.length; i++)
-            this._lightsInLayerAll[this._lightLayerAll[i]].length = 0;
         this._lightLayerAll.length = 0;
+        this._lightsInLayerAll.length = 0;
     }
 
     /**
@@ -753,37 +754,42 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
     }
 
     /**
-     * @en Occluder layer mark change
+     * @en Occluder layer change
      * @param occluder 
-     * @param oldLayer 
-     * @param newLayer 
+     * @param oldLayerMask 
+     * @param newLayerMask 
      * @zh 遮光器的影响层发生变化
      * @param occluder 
-     * @param oldLayer 
-     * @param newLayer 
+     * @param oldLayerMask 
+     * @param newLayerMask 
      */
-    occluderLayerMarkChange(occluder: LightOccluder2D, oldLayer: number, newLayer: number) {
-        for (let i = 0; i < Light2DManager.MAX_LAYER; i++) {
-            const mask = 1 << i;
-            const index = this._occludersInLayer[i]?.indexOf(occluder);
-            if (newLayer & mask) {
-                if (index === undefined || index === -1) {
-                    if (!this._occludersInLayer[i])
-                        this._occludersInLayer[i] = [];
-                    this._occludersInLayer[i].push(occluder); //将遮光器加入受影响的层
-                    if (this._occluderLayer.indexOf(i) === -1) //记录有遮光器的层序号
-                        this._occluderLayer.push(i);
-                }
-            } else if (oldLayer & mask) {
-                if (index >= 0) {
-                    this._occludersInLayer[i].splice(index, 1); //将遮光器从受影响的层中去除
-                    if (this._occludersInLayer[i].length === 0) //如果受影响的层已经没有遮光器，将层序号去除
-                        this._occluderLayer.splice(this._occluderLayer.indexOf(i), 1);
+    occluderLayerMaskChange(occluder: LightOccluder2D, oldLayerMask: number, newLayerMask: number) {
+        if (this._occluders.indexOf(occluder) !== -1) { //执行这段逻辑之前必须保证该遮光器已经添加
+            for (let i = 0; i < Light2DManager.MAX_LAYER; i++) {
+                const mask = 1 << i;
+                const index = this._occludersInLayer[i]?.indexOf(occluder);
+                if (newLayerMask & mask) {
+                    if (index === undefined || index === -1) {
+                        if (!this._occludersInLayer[i])
+                            this._occludersInLayer[i] = [];
+                        this._occludersInLayer[i].push(occluder); //将遮光器加入受影响的层
+                        if (this._occluderLayer.indexOf(i) === -1) //记录有遮光器的层序号
+                            this._occluderLayer.push(i);
+                    }
+                } else if (oldLayerMask & mask) {
+                    if (index >= 0) {
+                        this._occludersInLayer[i].splice(index, 1); //将遮光器从受影响的层中去除
+                        if (this._occludersInLayer[i].length === 0) //如果受影响的层已经没有遮光器，将层序号去除
+                            this._occluderLayer.splice(this._occluderLayer.indexOf(i), 1);
+                    }
                 }
             }
+            this._needCollectOccluderInLight |= oldLayerMask;
+            this._needCollectOccluderInLight |= newLayerMask;
+
+            if (Light2DManager.DEBUG)
+                console.log('occluder layer change', occluder, oldLayerMask, newLayerMask);
         }
-        if (Light2DManager.DEBUG)
-            console.log('occluder layer mark change', occluder, oldLayer, newLayer);
     }
 
     /**
@@ -809,7 +815,7 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
         }
 
         for (let i = lightsAll.length - 1; i > -1; i--) {
-            if (lightsAll[i].isInScreen(this._screenSchmitt)) {
+            if (lightsAll[i]._isInScreen(this._screenSchmitt)) {
                 lights.push(lightsAll[i]);
                 if (this._lightLayer.indexOf(layer) === -1)
                     this._lightLayer.push(layer);
@@ -833,7 +839,7 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
             lsTarget.wrapModeV = WrapMode.Clamp;
             lsTarget._invertY = LayaGL.renderEngine._screenInvertY;
             if (Light2DManager.DEBUG)
-                console.log('create light layer texture', z, w, layer);
+                console.log('create light layer texture', x, y, z, w, layer);
         } else if (param.z != z || param.w != w) {
             this._needToRecover.push(lsTarget);
             param.setValue(x, y, z, w);
@@ -842,7 +848,7 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
             lsTarget.wrapModeV = WrapMode.Clamp;
             lsTarget._invertY = LayaGL.renderEngine._screenInvertY;
             if (Light2DManager.DEBUG)
-                console.log('update light layer texture', z, w, layer);
+                console.log('update light layer texture', x, y, z, w, layer);
         } else {
             param.x = x;
             param.y = y;
@@ -857,6 +863,7 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
         //收集影响灯光的遮光器
         for (let i = lights.length - 1; i > -1; i--)
             this._collectOccludersInLight(layer, lights[i], i);
+        this._needCollectOccluderInLight &= ~(1 << layer);
 
         if (Light2DManager.DEBUG)
             console.log('collect light in screen by layer', layer);
@@ -868,8 +875,9 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
      */
     private _updateLayerRenderRes(layer: number) {
         if (!this._lightRenderRes[layer])
-            this._lightRenderRes[layer] = new Light2DRenderRes(LayaGL.renderEngine._screenInvertY);
+            this._lightRenderRes[layer] = new Light2DRenderRes(layer, LayaGL.renderEngine._screenInvertY);
         this._lightRenderRes[layer].addLights(this._lightsInLayer[layer], this._needToRecover);
+        this._needUpdateLightRes |= (1 << layer);
         if (Light2DManager.REUSE_CMD) {
             this._lightRenderRes[layer].setRenderTargetCMD(this.lsTarget[layer]);
             this._lightRenderRes[layer].buildRenderMeshCMD();
@@ -898,6 +906,7 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
     private _calcLightRange(layer: number) {
         const range = this._tempRange.reset();
         const lights = this._lightsInLayer[layer];
+        const screen = this._screenSchmitt;
         for (let i = 0, len = lights.length; i < len; i++) {
             if (i === 0) {
                 const r = lights[i]._getWorldRange(this._screenSchmitt);
@@ -912,6 +921,7 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
                 range.union(lights[i]._getWorldRange(this._screenSchmitt), range);
             }
         }
+        range.union(screen, range); //不要小于屏幕，避免IDE中滚动屏幕时，灯光计算范围过窄
         if (Light2DManager.DEBUG)
             console.log('light range =', range.x, range.y, range.width, range.height);
 
@@ -931,7 +941,7 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
             rangeSchmitt.height = (range.height + Light2DManager.LIGHT_SCHMITT_SIZE * 2) | 0;
             this._lightRangeChange[layer] = true;
             if (Light2DManager.DEBUG)
-                console.log('light range schmitt =', rangeSchmitt.x, rangeSchmitt.y, rangeSchmitt.width, rangeSchmitt.height);
+                console.log('light range schmitt =', rangeSchmitt.x, rangeSchmitt.y, rangeSchmitt.width, rangeSchmitt.height, layer);
         }
 
         if (Light2DManager.DEBUG)
@@ -942,12 +952,12 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
     /**
      * 提取指定层中灯光遮挡器线段
      * @param layer 
+     * @param sn 
      * @param lightX 
      * @param lightY 
-     * @param lightRange 
      * @param shadow 
      */
-    private _getOccluderSegment(layer: number, lightX: number, lightY: number, lightRange: Rectangle, shadow: boolean) {
+    private _getOccluderSegment(layer: number, sn: number, lightX: number, lightY: number, shadow: boolean) {
         const range = this._lightRangeSchmitt[layer];
         if (!range) return this._segments;
         const x = range.x - 10;
@@ -964,13 +974,14 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
         segments.push(Pool.getItemByClass('LightLine2D', LightLine2D).create(x + w, y, x + w, y + h)); //右边框
         segments.push(Pool.getItemByClass('LightLine2D', LightLine2D).create(x + w, y + h, x, y + h)); //下边框
         segments.push(Pool.getItemByClass('LightLine2D', LightLine2D).create(x, y + h, x, y)); //左边框
-        const occluders = this._occludersInLayer[layer];
-        if (occluders && shadow) {
-            for (let i = occluders.length - 1; i > -1; i--) {
-                const occluder = occluders[i];
-                if (occluder.isInLightRange(lightRange)
-                    && occluder.selectByLight(lightX, lightY))
-                    segments.push(...occluder.getSegment(lightX, lightY));
+        if (shadow && this._occludersInLight[layer]) {
+            const occluders = this._occludersInLight[layer][sn];
+            if (occluders) {
+                for (let i = occluders.length - 1; i > -1; i--) {
+                    const occluder = occluders[i];
+                    if (occluder.selectByLight(lightX, lightY))
+                        segments.push(...occluder.getSegment(lightX, lightY));
+                }
             }
         }
         if (Light2DManager.DEBUG)
@@ -993,10 +1004,12 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
                 this._occludersInLight[layer][sn] = [];
             const result = this._occludersInLight[layer][sn];
             result.length = 0;
-            const range = light._getWorldRange(this._screenSchmitt);
-            for (let i = occluders.length - 1; i > -1; i--)
-                if (range.intersects(occluders[i]._getRange()))
-                    result.push(occluders[i]);
+            if (light.shadowLayerMask & (1 << layer)) {
+                const range = light._getWorldRange(this._screenSchmitt);
+                for (let i = occluders.length - 1; i > -1; i--)
+                    if (range.intersects(occluders[i]._getRange()))
+                        result.push(occluders[i]);
+            }
         }
     };
 
@@ -1057,6 +1070,16 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
                     this._collectLightInScreenByLayer(layer); //收集该层屏幕内灯光
             }
         }
+        if (this._needCollectOccluderInLight > 0) {
+            for (let i = this._lightLayerAll.length - 1; i > -1; i--) {
+                const layer = this._lightLayerAll[i];
+                if (this._needCollectOccluderInLight & (1 << layer)) {
+                    const lights = this._lightsInLayer[layer];
+                    for (let i = lights.length - 1; i > -1; i--)
+                        this._collectOccludersInLight(layer, lights[i], i); //收集影响灯光的遮光器
+                }
+            }
+        }
 
         //遍历需要检查范围的灯光
         for (let i = this._lightsNeedCheckRange.length - 1; i > -1; i--)
@@ -1067,8 +1090,6 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
         for (let i = this._lightLayer.length - 1; i > -1; i--) {
             let needRender = false;
             const layer = this._lightLayer[i];
-            if (this._spriteNumInLayer[layer] === 0)
-                continue; //该层没有精灵，跳过
             const renderRes = this._lightRenderRes[layer];
             const occluders = this._occludersInLayer[layer];
             const layerMask = (1 << layer);
@@ -1076,6 +1097,8 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
             const y = this._screenSchmitt.y;
             if (this._needUpdateLightRange & layerMask)
                 this._calcLightRange(layer);
+            if (this._spriteNumInLayer[layer] === 0)
+                continue; //该层没有精灵，跳过
             if (occluders)
                 for (let j = occluders.length - 1; j > -1; j--)
                     occluders[j]._getRange();
@@ -1083,8 +1106,14 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
             let screenChange = false; //屏幕是否有变化
             let occluderChange = false; //遮光器是否有变化
             if (this._screenSchmittChange
-                || this._needCollectLightInLayer > 0) //屏幕位置和尺寸是否改变
+                || (this._needCollectLightInLayer & layerMask) > 0
+                || (this._needCollectOccluderInLight & layerMask) > 0
+                || (this._needUpdateLightRes & layerMask) > 0) //需要更新灯光资源（灯光有增减）
                 screenChange = true;
+            if (this._updateLayerLight[layer]) { //是否需要更新该层光影图
+                this._updateLayerLight[layer] = false;
+                screenChange = true;
+            }
             if (this._lightRangeChange[layer]) { //灯光围栏是否改变
                 this._lightRangeChange[layer] = false;
                 screenChange = true;
@@ -1103,7 +1132,7 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
                 }
                 if (screenChange || occluderChange || lightChange) { //状态有改变，更新光照网格和阴影网格
                     for (let k = lightMesh.length - 1; k > -1; k--) { //遍历PCF
-                        renderRes.updateLightMesh(this._update(layer, x, y, light, lightMesh[k], k), j, k);
+                        renderRes.updateLightMesh(this._update(layer, x, y, light, lightMesh[k], k, j), j, k);
                         works++;
                     }
                     const pcfIntensity = light._pcfIntensity();
@@ -1115,7 +1144,7 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
                     material.setFloat('u_PCFIntensity', pcfIntensity);
                     renderRes.textures[j] = light._texLight;
                     if (light.shadowLayerMask & layerMask) { //此灯光该层有阴影
-                        if (light._isNeedShadowMesh()) {
+                        if (light._isNeedShadowMesh() && materialShadow) {
                             materialShadow.setColor('u_LightColor', light.color);
                             materialShadow.setColor('u_ShadowColor', light.shadowColor);
                             materialShadow.setFloat('u_LightIntensity', light.intensity);
@@ -1124,11 +1153,12 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
                             materialShadow.setVector2('u_LightTextureSize', light._getTextureSize());
                             materialShadow.setFloat('u_Shadow2DStrength', light.shadowStrength);
                             materialShadow.setFloat('u_PCFIntensity', pcfIntensity);
-                            renderRes.updateShadowMesh(this._updateShadow(layer, x, y, light, shadowMesh), j);
+                            renderRes.updateShadowMesh(this._updateShadow(layer, x, y, light, shadowMesh, j), j);
                             works++;
                         }
                     } else if (shadowMesh) { //此灯光该层无阴影
-                        this._needToRecover.push(shadowMesh);
+                        if (!Light2DManager.REUSE_MESH)
+                            this._needToRecover.push(shadowMesh);
                         renderRes.shadowMeshs[j] = null;
                     }
                     needRender = true;
@@ -1136,7 +1166,7 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
                 lightChange = false;
                 occluderChange = false;
             }
-            if (needRender) { //更新光影图和方向图
+            if (needRender) { //更新光影图
                 if (Light2DManager.REUSE_CMD)
                     renderRes.updateMaterial();
                 renderRes.render(this.lsTarget[layer]);
@@ -1153,8 +1183,10 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
                 this._occluders[j]._needUpdate = false;
         }
         this._screenSchmittChange = false;
+        this._needUpdateLightRes = 0;
         this._needUpdateLightRange = 0;
         this._needCollectLightInLayer = 0;
+        this._needCollectOccluderInLight = 0;
 
         //显示工作负载
         if (Light2DManager.DEBUG) {
@@ -1186,10 +1218,10 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
             shaderData.setColor(Shader3D.propertyNameToID('u_LightAndShadow2DAmbient'), this.config.ambient);
         else shaderData.setColor(Shader3D.propertyNameToID('u_LightAndShadow2DAmbient'), Color.CLEAR);
         if (this.lsTarget[layer]) {
-            shaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_LIGHTANDSHADOW);
+            shaderData.removeDefine(BaseRenderNode2D.SHADERDEFINE_LIGHT2D_EMPTY);
             shaderData.setTexture(Shader3D.propertyNameToID('u_LightAndShadow2D'), this.lsTarget[layer]);
         } else {
-            shaderData.removeDefine(BaseRenderNode2D.SHADERDEFINE_LIGHTANDSHADOW);
+            shaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_LIGHT2D_EMPTY);
             shaderData.setTexture(Shader3D.propertyNameToID('u_LightAndShadow2D'), null);
             shaderData.setTexture(Shader3D.propertyNameToID('u_LightDirection2D'), null);
         }
@@ -1244,29 +1276,33 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
      * @param light 
      * @param mesh 
      * @param pcf 
+     * @param sn 
      */
-    private _update(layer: number, layerOffsetX: number, layerOffsetY: number, light: BaseLight2D, mesh: Mesh2D, pcf: number) {
+    private _update(layer: number, layerOffsetX: number, layerOffsetY: number, light: BaseLight2D, mesh: Mesh2D, pcf: number, sn: number) {
         const _calcLightX = (light: BaseLight2D, pcf: number) => {
             if (light.getLightType() === Light2DType.Direction)
-                return this._screen.x - ((light as DirectionLight2D).directionVector.x + this._PCF[pcf].x * 0.01) * DirectionLight2D.LIGHT_SIZE * Browser.pixelRatio / 4;
-            return (light.getGlobalPosX() + this._PCF[pcf].x * light.shadowFilterSmooth) * Browser.pixelRatio;
+                return this._screen.x + this._screen.width / 2 -
+                    ((light as DirectionLight2D).directionVector.x +
+                        this._PCF[pcf].x * light.shadowFilterSmooth * 0.01) * DirectionLight2D.LIGHT_SIZE / 4;
+            return (light.getGlobalPosX() + this._PCF[pcf].x * light.shadowFilterSmooth);
         };
         const _calcLightY = (light: BaseLight2D, pcf: number) => {
             if (light.getLightType() === Light2DType.Direction)
-                return this._screen.y - ((light as DirectionLight2D).directionVector.y + this._PCF[pcf].y * 0.01) * DirectionLight2D.LIGHT_SIZE * Browser.pixelRatio / 4;
-            return (light.getGlobalPosY() + this._PCF[pcf].y * light.shadowFilterSmooth) * Browser.pixelRatio;
+                return this._screen.y + this._screen.height / 2 -
+                    ((light as DirectionLight2D).directionVector.y +
+                        this._PCF[pcf].y * light.shadowFilterSmooth * 0.01) * DirectionLight2D.LIGHT_SIZE / 4;
+            return (light.getGlobalPosY() + this._PCF[pcf].y * light.shadowFilterSmooth);
         };
 
         let ret = mesh;
         const lightX = _calcLightX(light, pcf);
         const lightY = _calcLightY(light, pcf);
         const lightRange = light._getLightRange();
-        const worldRange = light._getWorldRange();
         const lightOffsetX = lightRange.x;
         const lightOffsetY = lightRange.y;
         const lightWidth = lightRange.width;
         const lightHeight = lightRange.height;
-        const ss = this._getOccluderSegment(layer, lightX, lightY, worldRange, light.shadowEnable);
+        const ss = this._getOccluderSegment(layer, sn, lightX, lightY, light.shadowEnable);
         const poly = this._getLightPolygon(lightX, lightY, ss);
         const len = poly.length;
         if (len > 2) {
@@ -1276,9 +1312,7 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
                 this._points[index++] = poly[i].x;
                 this._points[index++] = poly[i].y;
             }
-            if (mesh)
-                this._needToRecover.push(mesh);
-            ret = this._genLightMesh(lightX, lightY, lightWidth, lightHeight, lightOffsetX, lightOffsetY, layerOffsetX, layerOffsetY, this._points);
+            ret = this._genLightMesh(lightX, lightY, lightWidth, lightHeight, lightOffsetX, lightOffsetY, layerOffsetX, layerOffsetY, this._points, mesh);
         }
         for (let i = 0; i < len; i++)
             Pool.recover('Vector4', poly[i]); //poly来自内存池，需要归还
@@ -1292,17 +1326,20 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
      * @param layerOffsetY 
      * @param light 
      * @param mesh 
+     * @param sn 
      */
-    private _updateShadow(layer: number, layerOffsetX: number, layerOffsetY: number, light: BaseLight2D, mesh: Mesh2D) {
+    private _updateShadow(layer: number, layerOffsetX: number, layerOffsetY: number, light: BaseLight2D, mesh: Mesh2D, sn: number) {
         const _calcLightX = (light: BaseLight2D) => {
             if (light.getLightType() == Light2DType.Direction)
-                return this._screen.x - (light as DirectionLight2D).directionVector.x * DirectionLight2D.LIGHT_SIZE * Browser.pixelRatio / 4;
-            return light.getGlobalPosX() * Browser.pixelRatio;
+                return this._screen.x + this._screen.width / 2 -
+                    (light as DirectionLight2D).directionVector.x * DirectionLight2D.LIGHT_SIZE / 4;
+            return light.getGlobalPosX();
         };
         const _calcLightY = (light: BaseLight2D) => {
             if (light.getLightType() == Light2DType.Direction)
-                return this._screen.y - (light as DirectionLight2D).directionVector.y * DirectionLight2D.LIGHT_SIZE * Browser.pixelRatio / 4;
-            return light.getGlobalPosY() * Browser.pixelRatio;
+                return this._screen.y + this._screen.height / 2 -
+                    (light as DirectionLight2D).directionVector.y * DirectionLight2D.LIGHT_SIZE / 4;
+            return light.getGlobalPosY();
         };
 
         let ret = mesh;
@@ -1314,7 +1351,7 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
         const lightOffsetY = lightRange.y;
         const lightWidth = lightRange.width;
         const lightHeight = lightRange.height;
-        const ss = this._getOccluderSegment(layer, lightX, lightY, worldRange, light.shadowEnable);
+        const ss = this._getOccluderSegment(layer, sn, lightX, lightY, light.shadowEnable);
         const poly = this._getLightPolygon(lightX, lightY, ss);
         const len = poly.length;
         if (len > 2) {
@@ -1325,13 +1362,41 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
                 this._points[index++] = poly[i].y;
             }
             const radius = Math.max(worldRange.width, worldRange.height) * 2;
-            if (mesh)
-                this._needToRecover.push(mesh);
-            ret = this._genShadowMesh(lightX, lightY, lightWidth, lightHeight, lightOffsetX, lightOffsetY, layerOffsetX, layerOffsetY, this._points, radius);
+            ret = this._genShadowMesh(lightX, lightY, lightWidth, lightHeight, lightOffsetX, lightOffsetY, layerOffsetX, layerOffsetY, this._points, radius, mesh);
         }
         for (let i = 0; i < len; i++)
             Pool.recover('Vector4', poly[i]); //poly来自内存池，需要归还
         return ret;
+    }
+
+    /**
+     * @en Generates or updates a mesh object.
+     * @param vertices Vertex data representing the coordinates of the mesh vertices.
+     * @param indices Index data representing how the mesh vertices are connected.
+     * @param mesh Optional reusable mesh object. If provided, this mesh object will be updated if possible.
+     * @returns The generated or updated mesh object.
+     * @zh 创建或更新网格对象
+     * @param vertices 顶点数据，表示网格的顶点坐标。
+     * @param indices 索引数据，表示网格顶点的连接方式。
+     * @param mesh 可选的复用网格对象，如果传入则尝试更新此网格对象。不传则会创建一个新的网格对象。
+     * @returns 生成或更新后的网格对象。
+    */
+    private _makeOrUpdateMesh(vertices: Float32Array, indices: Uint16Array, mesh?: Mesh2D) {
+        if (mesh) {
+            const idx = mesh.getIndices();
+            const ver = mesh.getVertices()[0];
+            if (Light2DManager.REUSE_MESH
+                && idx.length >= indices.length
+                && ver.byteLength >= vertices.byteLength) { //mesh可以复用
+                mesh.setIndices(indices);
+                mesh.setVertexByIndex(vertices.buffer, 0);
+                mesh.getSubMesh(0).clearRenderParams();
+                mesh.getSubMesh(0).setDrawElemenParams(indices.length, 0);
+                return mesh; //返回原mesh
+            } else this._needToRecover.push(mesh); //mesh不可以复用，回收
+        }
+        const declaration = VertexMesh2D.getVertexDeclaration(['POSITION,UV'], false)[0];
+        return Mesh2D.createMesh2DByPrimitive([vertices], [declaration], indices, IndexFormat.UInt16, [{ length: indices.length, start: 0 }], true);
     }
 
     /**
@@ -1345,9 +1410,11 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
      * @param layerOffsetX 光影图的偏移值
      * @param layerOffsetY 
      * @param inputPoints 顶点
+     * @param mesh 
      */
     private _genLightMesh(lightX: number, lightY: number, lightWidth: number, lightHeight: number,
-        lightOffsetX: number, lightOffsetY: number, layerOffsetX: number, layerOffsetY: number, inputPoints: number[]) {
+        lightOffsetX: number, lightOffsetY: number, layerOffsetX: number, layerOffsetY: number,
+        inputPoints: number[], mesh: Mesh2D) {
         const vertices = new Float32Array((inputPoints.length / 2 + 1) * 5);
         const indices = new Uint16Array(inputPoints.length / 2 * 3);
         const centerX = lightOffsetX + lightWidth / 2; //灯光贴图中心对应的世界坐标
@@ -1376,8 +1443,8 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
         indices[index++] = 0;
         indices[index++] = 1;
         indices[index++] = inputPoints.length / 2;
-        const declaration = VertexMesh2D.getVertexDeclaration(['POSITION,UV'], false)[0];
-        return Mesh2D.createMesh2DByPrimitive([vertices], [declaration], indices, IndexFormat.UInt16, [{ length: indices.length, start: 0 }]);
+
+        return this._makeOrUpdateMesh(vertices, indices, mesh);
     }
 
     /**
@@ -1392,9 +1459,11 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
      * @param layerOffsetY 
      * @param inputPoints 顶点
      * @param radius 圆半径
+     * @param mesh 
      */
     private _genShadowMesh(lightX: number, lightY: number, lightWidth: number, lightHeight: number,
-        lightOffsetX: number, lightOffsetY: number, layerOffsetX: number, layerOffsetY: number, inputPoints: number[], radius: number) {
+        lightOffsetX: number, lightOffsetY: number, layerOffsetX: number, layerOffsetY: number,
+        inputPoints: number[], radius: number, mesh: Mesh2D) {
         const points: number[] = [];
         const inds: number[] = [];
         const len = inputPoints.length;
@@ -1444,8 +1513,7 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
             vertices[index++] = 0.5 + (points[i + 1] - centerY) / lightHeight; //将y从[-height/2, height/2]映射到[0,1]
         }
 
-        const declaration = VertexMesh2D.getVertexDeclaration(['POSITION,UV'], false)[0];
-        return Mesh2D.createMesh2DByPrimitive([vertices], [declaration], indices, IndexFormat.UInt16, [{ length: indices.length, start: 0 }]);
+        return this._makeOrUpdateMesh(vertices, indices, mesh);
     }
 
     /**

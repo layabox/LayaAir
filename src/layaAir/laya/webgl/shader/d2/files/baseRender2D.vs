@@ -12,7 +12,7 @@ void main() {
 	v_texcoord = info.uv;
 	v_color = info.color;
 
-    #ifdef LIGHT_AND_SHADOW
+    #ifdef LIGHT2D_ENABLE
         lightAndShadow(info);
     #endif
 

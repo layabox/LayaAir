@@ -13,7 +13,6 @@ import { Mesh2D } from "../../../resource/Mesh2D";
 import { RenderTexture } from "../../../resource/RenderTexture";
 import { RenderTexture2D } from "../../../resource/RenderTexture2D";
 import { Texture2D } from "../../../resource/Texture2D";
-import { Browser } from "../../../utils/Browser";
 import { Scene } from "../../Scene";
 import { Sprite } from "../../Sprite";
 import { CommandBuffer2D } from "../RenderCMD2D/CommandBuffer2D";
@@ -180,9 +179,9 @@ export class FreeformLight2D extends BaseLight2D {
             if (ymin > y) ymin = y;
             if (ymax < y) ymax = y;
         }
-        let x = (xmax - xmin) * Browser.pixelRatio;
-        let y = (ymax - ymin) * Browser.pixelRatio;
-        const t = this._falloffRange * FreeformLight2D.FALLOF_WIDTH * Browser.pixelRatio;
+        let x = (xmax - xmin);
+        let y = (ymax - ymin);
+        const t = this._falloffRange * FreeformLight2D.FALLOF_WIDTH;
         const w = (x + 2 + t * 2) | 0;
         const h = (y + 2 + t * 2) | 0;
         this._localCenter.x = (xmax + xmin) / 2;
@@ -208,8 +207,8 @@ export class FreeformLight2D extends BaseLight2D {
         const h = this._localRange.height;
         const sx = Math.abs(this.owner.globalScaleX);
         const sy = Math.abs(this.owner.globalScaleY);
-        const px = this.owner.globalPosX * Browser.pixelRatio;
-        const py = this.owner.globalPosY * Browser.pixelRatio;
+        const px = this.owner.globalPosX;
+        const py = this.owner.globalPosY;
         const m = Math.max(w * sx, h * sy) | 0;
         const mat = this.owner.getGlobalMatrix();
         if (mat) {
