@@ -1,18 +1,19 @@
 import { MathUtil } from "../maths/MathUtil";
-import { Point } from "../maths/Point";
+import { Vector3 } from "../maths/Vector3";
+import { Pool } from "../utils/Pool";
 import { CurveType, PathPoint } from "./PathPoint";
 
 export class CurvePath {
     private _segments: Array<Segment>;
-    private _points: Array<Point>;
+    private _points: Array<Vector3>;
     private _fullLength: number;
     private _cacheT: number;
-    private _curPt: Point;
+    private _curPt: Vector3;
 
     constructor() {
         this._segments = [];
         this._points = [];
-        this._curPt = new Point();
+        this._curPt = new Vector3();
     }
 
     /**
@@ -32,7 +33,7 @@ export class CurvePath {
     create(...points: ReadonlyArray<PathPoint>): void {
         this._segments.length = 0;
         let pts = this._points;
-        pts.length = 0;
+        pool.recover(this._points);
         this._fullLength = 0;
         this._cacheT = null;
 
@@ -40,11 +41,11 @@ export class CurvePath {
         if (cnt == 0)
             return;
 
-        let splinePoints: Array<Point> = [];
+        let splinePoints: Array<Vector3> = [];
 
         let prev = points[0];
         if (prev.curve == CurveType.CRSpline)
-            splinePoints.push(new Point(prev.x, prev.y));
+            splinePoints.push(prev.pos.cloneTo(pool.take()));
 
         for (let i = 1; i < cnt; i++) {
             let current = points[i];
@@ -55,35 +56,35 @@ export class CurvePath {
                 seg.ptStart = pts.length;
                 if (prev.curve == CurveType.Straight) {
                     seg.ptCount = 2;
-                    pts.push(new Point(prev.x, prev.y));
-                    pts.push(new Point(current.x, current.y));
+                    pts.push(prev.pos.cloneTo(pool.take()));
+                    pts.push(current.pos.cloneTo(pool.take()));
                 }
                 else if (prev.curve == CurveType.Bezier) {
                     seg.ptCount = 3;
-                    pts.push(new Point(prev.x, prev.y));
-                    pts.push(new Point(current.x, current.y));
-                    pts.push(new Point(prev.c1_x, prev.c1_y));
+                    pts.push(prev.pos.cloneTo(pool.take()));
+                    pts.push(current.pos.cloneTo(pool.take()));
+                    pts.push(prev.c1.cloneTo(pool.take()));
                 }
                 else if (prev.curve == CurveType.CubicBezier) {
                     seg.ptCount = 4;
-                    pts.push(new Point(prev.x, prev.y));
-                    pts.push(new Point(current.x, current.y));
-                    pts.push(new Point(prev.c1_x, prev.c1_y));
-                    pts.push(new Point(prev.c2_x, prev.c2_y));
+                    pts.push(prev.pos.cloneTo(pool.take()));
+                    pts.push(current.pos.cloneTo(pool.take()));
+                    pts.push(prev.c1.cloneTo(pool.take()));
+                    pts.push(prev.c2.cloneTo(pool.take()));
                 }
-                seg.length = MathUtil.distance(prev.x, prev.y, current.x, current.y);
+                seg.length = Vector3.distance(prev.pos, current.pos);
                 this._fullLength += seg.length;
                 this._segments.push(seg);
             }
 
             if (current.curve != CurveType.CRSpline) {
                 if (splinePoints.length > 0) {
-                    splinePoints.push(new Point(current.x, current.y));
+                    splinePoints.push(current.pos.cloneTo(pool.take()));
                     this.createSplineSegment(splinePoints);
                 }
             }
             else
-                splinePoints.push(new Point(current.x, current.y));
+                splinePoints.push(current.pos.cloneTo(pool.take()));
 
             prev = current;
         }
@@ -92,25 +93,23 @@ export class CurvePath {
             this.createSplineSegment(splinePoints);
     }
 
-    private createSplineSegment(splinePoints: Array<Point>): void {
+    private createSplineSegment(splinePoints: Array<Vector3>): void {
         let cnt = splinePoints.length;
         splinePoints.splice(0, 0, splinePoints[0]);
         splinePoints.push(splinePoints[cnt]);
         splinePoints.push(splinePoints[cnt]);
         cnt += 3;
 
-        let pts = this._points;
         let seg: Segment = {};
         seg.type = CurveType.CRSpline;
-        seg.ptStart = pts.length;
+        seg.ptStart = this._points.length;
         seg.ptCount = cnt;
 
-        pts = pts.concat(splinePoints);
+        this._points = this._points.concat(splinePoints);
 
         seg.length = 0;
         for (let i = 1; i < cnt; i++) {
-            seg.length += MathUtil.distance(splinePoints[i - 1].x, splinePoints[i - 1].y,
-                splinePoints[i].x, splinePoints[i].y);
+            seg.length += Vector3.distance(splinePoints[i - 1], splinePoints[i]);
         }
         this._fullLength += seg.length;
         this._segments.push(seg);
@@ -136,14 +135,14 @@ export class CurvePath {
      * @param out 用于存储计算结果的点。
      * @returns 曲线上的指定距离的点。
      */
-    getPointAt(t: number): Readonly<Point> {
+    getPointAt(t: number): Readonly<Vector3> {
         let out = this._curPt;
         t = MathUtil.clamp01(t);
 
         if (t === this._cacheT)
             return out;
 
-        out.setTo(0, 0);
+        out.set(0, 0, 0);
         this._cacheT = t;
 
         let cnt = this._segments.length;
@@ -155,16 +154,13 @@ export class CurvePath {
         if (t == 1) {
             let seg = this._segments[cnt - 1];
 
-            if (seg.type == CurveType.Straight) {
-                out.x = MathUtil.lerp(pts[seg.ptStart].x, pts[seg.ptStart + 1].x, t);
-                out.y = MathUtil.lerp(pts[seg.ptStart].y, pts[seg.ptStart + 1].y, t);
-
-                return out;
-            }
+            if (seg.type == CurveType.Straight)
+                Vector3.lerp(pts[seg.ptStart], pts[seg.ptStart + 1], t, out);
             else if (seg.type == CurveType.Bezier || seg.type == CurveType.CubicBezier)
-                return this.onBezierCurve(seg.ptStart, seg.ptCount, t, out);
+                this.onBezierCurve(seg.ptStart, seg.ptCount, t, out);
             else
-                return this.onCRSplineCurve(seg.ptStart, seg.ptCount, t, out);
+                this.onCRSplineCurve(seg.ptStart, seg.ptCount, t, out);
+            return out;
         }
 
         for (let i = 0, len = t * this._fullLength; i < cnt; i++) {
@@ -174,14 +170,12 @@ export class CurvePath {
             if (len < 0) {
                 t = 1 + len / seg.length;
 
-                if (seg.type == CurveType.Straight) {
-                    out.x = MathUtil.lerp(pts[seg.ptStart].x, pts[seg.ptStart + 1].x, t);
-                    out.y = MathUtil.lerp(pts[seg.ptStart].y, pts[seg.ptStart + 1].y, t);
-                }
+                if (seg.type == CurveType.Straight)
+                    Vector3.lerp(pts[seg.ptStart], pts[seg.ptStart + 1], t, out);
                 else if (seg.type == CurveType.Bezier || seg.type == CurveType.CubicBezier)
-                    out = this.onBezierCurve(seg.ptStart, seg.ptCount, t, out);
+                    this.onBezierCurve(seg.ptStart, seg.ptCount, t, out);
                 else
-                    out = this.onCRSplineCurve(seg.ptStart, seg.ptCount, t, out);
+                    this.onCRSplineCurve(seg.ptStart, seg.ptCount, t, out);
 
                 break;
             }
@@ -208,14 +202,14 @@ export class CurvePath {
      * @param out 用于存储结果的数组。
      * @returns 指定分段的锚点。
      */
-    getAnchorsInSegment(segmentIndex: number, out?: Array<Point>): Array<Point> {
+    getAnchorsInSegment(segmentIndex: number, out?: Array<Vector3>): Array<Readonly<Vector3>> {
         if (out == null)
             out = [];
 
         let pts = this._points;
         let seg = this._segments[segmentIndex];
         for (let i = 0; i < seg.ptCount; i++)
-            out.push(new Point(pts[seg.ptStart + i].x, pts[seg.ptStart + i].y));
+            out.push(pts[seg.ptStart + i]);
 
         return out;
     }
@@ -238,7 +232,7 @@ export class CurvePath {
      * @param pointDensity 点的密度，表示两个点之间的距离值的步长。默认是0.1。
      * @returns 指定分段中的点。
      */
-    getPointsInSegment(segmentIndex: number, t0: number, t1: number, outPoints?: Array<Point>, outTs?: Array<number>, pointDensity?: number): Array<Point> {
+    getPointsInSegment(segmentIndex: number, t0: number, t1: number, outPoints?: Array<Vector3>, outTs?: Array<number>, pointDensity?: number): Array<Vector3> {
         if (outPoints == null)
             outPoints = [];
         if (!pointDensity || isNaN(pointDensity))
@@ -249,10 +243,12 @@ export class CurvePath {
             outTs.push(t0);
         let seg = this._segments[segmentIndex];
         if (seg.type == CurveType.Straight) {
-            outPoints.push(new Point(MathUtil.lerp(pts[seg.ptStart].x, pts[seg.ptStart + 1].x, t0),
-                MathUtil.lerp(pts[seg.ptStart].y, pts[seg.ptStart + 1].y, t0)));
-            outPoints.push(new Point(MathUtil.lerp(pts[seg.ptStart].x, pts[seg.ptStart + 1].x, t1),
-                MathUtil.lerp(pts[seg.ptStart].y, pts[seg.ptStart + 1].y, t1)));
+            let v = new Vector3();
+            Vector3.lerp(pts[seg.ptStart], pts[seg.ptStart + 1], t0, v);
+            outPoints.push(v);
+            v = new Vector3();
+            Vector3.lerp(pts[seg.ptStart], pts[seg.ptStart + 1], t1, v);
+            outPoints.push(v);
         }
         else {
             let func: Function;
@@ -261,17 +257,17 @@ export class CurvePath {
             else
                 func = this.onCRSplineCurve;
 
-            outPoints.push(func.call(this, seg.ptStart, seg.ptCount, t0, new Point()));
+            outPoints.push(func.call(this, seg.ptStart, seg.ptCount, t0, new Vector3()));
             let SmoothAmount: number = Math.min(seg.length * pointDensity, 50);
             for (let j = 0; j <= SmoothAmount; j++) {
                 let t = j / SmoothAmount;
                 if (t > t0 && t < t1) {
-                    outPoints.push(func.call(this, seg.ptStart, seg.ptCount, t, new Point()));
+                    outPoints.push(func.call(this, seg.ptStart, seg.ptCount, t, new Vector3()));
                     if (outTs)
                         outTs.push(t);
                 }
             }
-            outPoints.push(func.call(this, seg.ptStart, seg.ptCount, t1, new Point()));
+            outPoints.push(func.call(this, seg.ptStart, seg.ptCount, t1, new Vector3()));
         }
 
         if (outTs)
@@ -292,7 +288,7 @@ export class CurvePath {
      * @param pointDensity 点的密度，表示两个点之间的距离值的步长。默认是0.1。
      * @returns 曲线上的所有点。 
      */
-    getAllPoints(out?: Array<Point>, outTs?: Array<number>, pointDensity?: number): Array<Point> {
+    getAllPoints(out?: Array<Vector3>, outTs?: Array<number>, pointDensity?: number): Array<Vector3> {
         if (out == null)
             out = [];
         if (!pointDensity || isNaN(pointDensity))
@@ -304,18 +300,14 @@ export class CurvePath {
         return out;
     }
 
-    private onCRSplineCurve(ptStart: number, ptCount: number, t: number, out: Point): Point {
+    private onCRSplineCurve(ptStart: number, ptCount: number, t: number, out: Vector3): Vector3 {
         let adjustedIndex: number = Math.floor(t * (ptCount - 4)) + ptStart; //Since the equation works with 4 points, we adjust the starting point depending on t to return a point on the specific segment
 
         let pts = this._points;
-        let p0x: number = pts[adjustedIndex].x;
-        let p0y: number = pts[adjustedIndex].y;
-        let p1x: number = pts[adjustedIndex + 1].x;
-        let p1y: number = pts[adjustedIndex + 1].y;
-        let p2x: number = pts[adjustedIndex + 2].x;
-        let p2y: number = pts[adjustedIndex + 2].y;
-        let p3x: number = pts[adjustedIndex + 3].x;
-        let p3y: number = pts[adjustedIndex + 3].y;
+        let p0 = pts[adjustedIndex];
+        let p1 = pts[adjustedIndex + 1];
+        let p2 = pts[adjustedIndex + 2];
+        let p3 = pts[adjustedIndex + 3];
 
         let adjustedT: number = (t == 1) ? 1 : MathUtil.repeat(t * (ptCount - 4), 1); // Then we adjust t to be that value on that new piece of segment... for t == 1f don't use repeat (that would return 0f);
 
@@ -324,36 +316,38 @@ export class CurvePath {
         let t2: number = ((-3 * adjustedT + 4) * adjustedT + 1) * adjustedT * 0.5;
         let t3: number = ((adjustedT - 1) * adjustedT * adjustedT) * 0.5;
 
-        out.x = p0x * t0 + p1x * t1 + p2x * t2 + p3x * t3;
-        out.y = p0y * t0 + p1y * t1 + p2y * t2 + p3y * t3;
+        out.x = p0.x * t0 + p1.x * t1 + p2.x * t2 + p3.x * t3;
+        out.y = p0.y * t0 + p1.y * t1 + p2.y * t2 + p3.y * t3;
+        out.z = p0.z * t0 + p1.z * t1 + p2.z * t2 + p3.z * t3;
 
         return out;
     }
 
-    private onBezierCurve(ptStart: number, ptCount: number, t: number, out: Point): Point {
+    private onBezierCurve(ptStart: number, ptCount: number, t: number, out: Vector3): Vector3 {
         let t2: number = 1 - t;
         let pts = this._points;
-        let p0x: number = pts[ptStart].x;
-        let p0y: number = pts[ptStart].y;
-        let p1x: number = pts[ptStart + 1].x;
-        let p1y: number = pts[ptStart + 1].y;
-        let cp0x: number = pts[ptStart + 2].x;
-        let cp0y: number = pts[ptStart + 2].y;
+        let p0 = pts[ptStart];
+        let p1 = pts[ptStart + 1];
+        let cp0 = pts[ptStart + 2];
 
         if (ptCount == 4) {
-            let cp1x: number = pts[ptStart + 3].x;
-            let cp1y: number = pts[ptStart + 3].y;
-            out.x = t2 * t2 * t2 * p0x + 3 * t2 * t2 * t * cp0x + 3 * t2 * t * t * cp1x + t * t * t * p1x;
-            out.y = t2 * t2 * t2 * p0y + 3 * t2 * t2 * t * cp0y + 3 * t2 * t * t * cp1y + t * t * t * p1y;
+            let cp1 = pts[ptStart + 3];
+            Vector3.add(p0.scale(t2 * t2 * t2, tmpVec3), cp0.scale(3 * t2 * t2 * t, tmpVec31), tmpVec3);
+            Vector3.add(cp1.scale(3 * t2 * t * t, tmpVec3), p1.scale(t * t * t, tmpVec31), tmpVec31);
+            Vector3.add(tmpVec3, tmpVec31, out);
         }
         else {
-            out.x = t2 * t2 * p0x + 2 * t2 * t * cp0x + t * t * p1x;
-            out.y = t2 * t2 * p0y + 2 * t2 * t * cp0y + t * t * p1y;
+            Vector3.add(p0.scale(t2 * t2, tmpVec3), cp0.scale(2 * t2 * t, tmpVec31), tmpVec3);
+            Vector3.add(tmpVec3, p1.scale(t * t, tmpVec31), out);
         }
 
         return out;
     }
 }
+
+const tmpVec3 = new Vector3();
+const tmpVec31 = new Vector3();
+const pool = Pool.createPool(Vector3, null, e => e.set(0, 0, 0));
 
 interface Segment {
     type?: number;

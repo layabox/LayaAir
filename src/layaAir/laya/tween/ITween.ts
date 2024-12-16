@@ -56,13 +56,13 @@ export type TweenInterpolator<T extends any[]> = (time: number, start: Readonly<
 export type TweenValueAdapter = {
     /**
      * @en Push value to number array.
-     * @param value The value to write. 
      * @param array The number array to write to. 
+     * @param value The value to write. 
      * @zh 将值推入到数字数组中。
-     * @param value 要写入的值。
      * @param array 要写入的数字数组。 
+     * @param value 要写入的值。
      */
-    write: (value: any, array: ITweenValue) => void;
+    write: (array: Array<number>, value: any) => void;
 
     /**
      * @en Read value from number array.
@@ -72,9 +72,9 @@ export type TweenValueAdapter = {
      * @zh 从数字数组中读取值。
      * @param array 要读取的数字数组。
      * @param offset 数字数组的偏移量。
-     * @returns 读取的值。 
+     * @returns 读取的值。
      */
-    read: (array: ITweenValue, offset: number) => any;
+    read: (array: Array<number>, offset: number) => any;
 };
 
 export interface ITweenValue extends Array<number> {
@@ -97,6 +97,26 @@ export interface ITweenValue extends Array<number> {
      * @returns 值。
      */
     getAt(index: number): any;
+
+    /**
+     * @en Set value by property name.
+     * @param name Property name. 
+     * @param value Value.
+     * @zh 通过属性名称设置值。
+     * @param name 属性名称。
+     * @param value 值。 
+     */
+    set(name: string, value: any): void;
+
+    /**
+     * @en Set value by property index.
+     * @param index Property index. 
+     * @param value Value.
+     * @zh 通过属性索引设置值。
+     * @param index 属性索引。
+     * @param value 值。 
+     */
+    setAt(index: number, value: any): void;
 
     /**
      * @en Copy all values from another ITweenValue.

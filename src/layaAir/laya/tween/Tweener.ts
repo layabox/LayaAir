@@ -158,8 +158,8 @@ export class Tweener implements ITweener {
             prop.type = 2;
         }
         else if (type == "object" && (adapter = (<any>startValue)[TweenValueAdapterKey]) != null) {
-            adapter.write(startValue, this.startValue);
-            adapter.write(endValue, this.endValue);
+            adapter.write(this.startValue, startValue);
+            adapter.write(this.endValue, endValue);
             prop.type = adapter;
         }
         else { //default use boolean
