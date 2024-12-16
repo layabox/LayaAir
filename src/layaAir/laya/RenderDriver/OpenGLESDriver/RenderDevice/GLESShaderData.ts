@@ -39,6 +39,10 @@ export class GLESShaderData extends ShaderData {
         //TODO  想个方案
     }
 
+    clearData(): void {
+        
+    }
+
     /**
      * 增加Shader宏定义。
      * @param value 宏定义。

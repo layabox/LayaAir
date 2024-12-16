@@ -95,4 +95,4 @@ export class Navigation2DManage extends BaseNavigationManager {
 //reg nav Component Manager
 Scene.regManager(Navigation2DManage._managerName, Navigation2DManage);
 //reg loader init
-Laya.addBeforeInitCallback(Navigation2DManage.__initialize);
+//Laya.addBeforeInitCallback(Navigation2DManage.__initialize);

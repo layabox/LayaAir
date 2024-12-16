@@ -28,11 +28,16 @@ export class BaseNavigationManager implements IElementComponentManager {
             callback && callback();
             return Promise.resolve();
         } else {
-            return (window as any).Recast().then((Recast: any) => {
-                NavigationUtils._initialize(Recast);
-                callback && callback();
+            
+            if((window as any).Recast){
+                return (window as any).Recast().then((Recast: any) => {
+                    NavigationUtils._initialize(Recast);
+                    callback && callback();
+                    return Promise.resolve();
+                });
+            }else{
                 return Promise.resolve();
-            });
+            }
         }
     }
 

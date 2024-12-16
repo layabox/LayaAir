@@ -171,12 +171,16 @@ export class GLESREnderContext2D implements IRenderContext2D {
     }
 
     runOneCMD(cmd: IRenderCMD): void {
-        //TODO
+        this._nativeObj.runOneCMD((cmd as any)._nativeObj);
     }
 
     runCMDList(cmds: IRenderCMD[]): void {
-        //throw new NotImplementedError();
-        //TODO
+        let nativeobCMDs: any[] = [];
+        cmds.forEach(element => {
+            nativeobCMDs.push((element as any)._nativeObj);
+        });
+
+        this._nativeObj.runCMDList(nativeobCMDs);
     }
 
 
