@@ -1,3 +1,4 @@
+import { Vector3 } from "../maths/Vector3";
 import { Pool } from "../utils/Pool";
 
 export enum CurveType {
@@ -25,58 +26,37 @@ export enum CurveType {
 
 export class PathPoint {
     /**
-     * @en X axis value.
-     * @zh X 轴坐标。
+     * @en Position.
+     * @zh 位置。
      */
-    x: number = 0;
-    /**
-     * @en Y axis value.
-     * @zh Y 轴坐标。
-     */
-    y: number = 0;
+    pos: Vector3 = new Vector3();
 
     /**
-     * @en Control point 1 X axis value.
-     * @zh 控制点1的 X 轴坐标。
+     * @en Control point 1.
+     * @zh 控制点1。
      */
-    c1_x: number = 0;
-    /**
-     * @en Control point 1 Y axis value.
-     * @zh 控制点1的 Y 轴坐标。
-     */
-    c1_y: number = 0;
+    c1: Vector3 = new Vector3();
 
     /**
-     * @en Control point 2 X axis value.
-     * @zh 控制点2的 X 轴坐标。
+     * @en Control point 2.
+     * @zh 控制点2。
      */
-    c2_x: number = 0;
-    /**
-     * @en Control point 2 Y axis value.
-     * @zh 控制点2的 Y 轴坐标。
-     */
-    c2_y: number = 0;
+    c2: Vector3 = new Vector3();
 
     /**
      * @en Curve type.
      * @zh 曲线类型。
      */
-    curve: number = 0;
+    curve: CurveType = 0;
 
     /**
      * @en Create a cardinalspline curve point.
      * @zh 创建一个 PathPoint 的实例。
      */
-    static create(x: number, y: number, control1_x: number, control1_y: number,
-        control2_x: number, control2_y: number): PathPoint {
+    static create(x: number, y: number, z: number, curve?: number): PathPoint {
         let pt = pool.take();
-        pt.x = x || 0;
-        pt.y = y || 0;
-        pt.c1_x = control1_x || 0;
-        pt.c1_y = control1_y || 0;
-        pt.c2_x = control2_x || 0;
-        pt.c2_y = control2_y || 0;
-
+        pt.pos.set(x, y, z);
+        pt.curve = curve || 0;
         return pt;
     }
 
@@ -96,14 +76,10 @@ export class PathPoint {
      */
     clone(): PathPoint {
         let pt = pool.take();
-        pt.x = this.x;
-        pt.y = this.y;
-        pt.c1_x = this.c1_x;
-        pt.c1_y = this.c1_y;
-        pt.c2_x = this.c2_x;
-        pt.c2_y = this.c2_y;
+        this.pos.cloneTo(pt.pos);
+        this.c1.cloneTo(pt.c1);
+        this.c2.cloneTo(pt.c2);
         pt.curve = this.curve;
-
         return pt;
     }
 
@@ -111,12 +87,9 @@ export class PathPoint {
      * @internal
      */
     _reset() {
-        this.x = 0;
-        this.y = 0;
-        this.c1_x = 0;
-        this.c1_y = 0;
-        this.c2_x = 0;
-        this.c2_y = 0;
+        this.pos.set(0, 0, 0);
+        this.c1.set(0, 0, 0);
+        this.c2.set(0, 0, 0);
         this.curve = 0;
     }
 }

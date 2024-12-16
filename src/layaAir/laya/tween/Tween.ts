@@ -793,13 +793,16 @@ export class Tween {
     }
 
     /**
-     * @en This is an interpolator that uses a curve path. The value will be obtained from the curve path. Note: Only supports up to two values, because CurvePath only supports two dimensions.
-     * @zh 这是一个使用曲线路径的插值器。数值将从曲线路径中获取。注意：只支持最多缓动两个数值，也就是两个数字，或者一个Vector2，因为CurvePath只支持二维。
+     * @en This is an interpolator that uses a curve path. The value will be obtained from the curve path.
+     * @zh 这是一个使用曲线路径的插值器。数值将从曲线路径中获取。
      */
-    static followPath(time: number, start: Readonly<ITweenValue>, end: Readonly<ITweenValue>, result: ITweenValue, path: CurvePath): void {
+    static useCurvePath(time: number, start: Readonly<ITweenValue>, end: Readonly<ITweenValue>, result: ITweenValue, path: CurvePath): void {
         let pt = path.getPointAt(time);
         result[0] = pt.x;
-        result[1] = pt.y;
+        if (result.length > 1)
+            result[1] = pt.y;
+        if (result.length > 2)
+            result[2] = pt.z;
     }
 
     /**
