@@ -35,9 +35,9 @@ export class VertexMesh2D {
      * @param compatible 是否启用兼容模式。
      * @return 顶点声明数组。
      */
-	static getVertexDeclaration(vertexFlags: string[], compatible: boolean = true): VertexDeclaration[] {
-        let verDecs:VertexDeclaration[] = []
-        for (let i = 0 , len = vertexFlags.length; i < len; i++) {
+    static getVertexDeclaration(vertexFlags: string[], compatible: boolean = true): VertexDeclaration[] {
+        let verDecs: VertexDeclaration[] = []
+        for (let i = 0, len = vertexFlags.length; i < len; i++) {
             let vertexFlag = vertexFlags[i];
             let verDec: VertexDeclaration = VertexMesh2D._vertexDeclarationMap[vertexFlag + (compatible ? "_0" : "_1")];//TODO:兼容模式
             if (!verDec) {
@@ -135,7 +135,7 @@ export class Mesh2D extends Resource {
      * @param canRead vb 和 ib 数据是否可读
      * @returns 返回一个mesh2D实例。可用于mesh2DRender组件渲染
      */
-    static createMesh2DByPrimitive(vbs: Float32Array[], vbDeclaration: VertexDeclaration[], ib: Uint16Array | Uint32Array, ibFormat: IndexFormat, submeshInfo: { start: number, length: number }[] , canRead = false) {
+    static createMesh2DByPrimitive(vbs: Float32Array[], vbDeclaration: VertexDeclaration[], ib: Uint16Array | Uint32Array, ibFormat: IndexFormat, submeshInfo: { start: number, length: number }[], canRead = false) {
         let mesh2d = new Mesh2D();
         mesh2d.canRead = canRead;
         let vbArray = [];
@@ -168,7 +168,7 @@ export class Mesh2D extends Resource {
             mesh2d._vertices = vertices;
             mesh2d._indices = ib;
         }
-        
+
         return mesh2d;
     }
 
@@ -182,7 +182,7 @@ export class Mesh2D extends Resource {
         ILaya.loader.load(url, complete, null, Loader.MESH);
     }
 
-    
+
 
     /** @internal */
     _bufferState: IBufferState;
@@ -256,11 +256,11 @@ export class Mesh2D extends Resource {
     }
 
     /** 是否保留数据 */
-    canRead:boolean = false;
+    canRead: boolean = false;
     /** @internal */
-    _vertices:ArrayBuffer[] = null;
+    _vertices: ArrayBuffer[] = null;
     /** @internal */
-    _indices:Uint16Array | Uint32Array |Uint8Array = null;
+    _indices: Uint16Array | Uint32Array | Uint8Array = null;
     // /**
     //  * 设置indexformat
     //  * @param 索引格式
@@ -361,10 +361,10 @@ export class Mesh2D extends Resource {
      * @en VertexBuffer data that was set earlier
      * @zh 之前设置的vertexbuffer数据
      */
-    getVertices():ArrayBuffer[]{
+    getVertices(): ArrayBuffer[] {
         if (!this.canRead || !this._vertices) {
             throw new Error("Can't getVertices without the canRead flag, or if the canRead flag is false before setVertices!");
-        }else{
+        } else {
             return this._vertices;
         }
     }
@@ -399,13 +399,23 @@ export class Mesh2D extends Resource {
             format = IndexFormat.UInt8;
 
         let indexBuffer = this._indexBuffer;
-        if (this._indexFormat !== format || indexBuffer.indexCount !== indices.length) {//format chang and length chang will recreate the indexBuffer
+        if (indexBuffer.indexCount < indices.length) {
+            console.error("Mesh2D:set indices buffer large than ori indices");
+        }
+        var iscreateBuffer = false;
+        if (this._indexFormat !== format || indexBuffer.indexCount < indices.length) {//format chang and length chang will recreate the indexBuffer
             indexBuffer.destroy();
+            iscreateBuffer = true;
             this._indexBuffer = indexBuffer = LayaGL.renderDeviceFactory.createIndexBuffer(BufferUsage.Static);
+            this._indexBuffer._setIndexDataLength(indices.byteLength);
             indexBuffer.indexCount = indexBuffer.indexCount;
             indexBuffer.indexType = format;
         }
         indexBuffer._setIndexData(indices, 0);
+
+        if (iscreateBuffer) {
+            this._bufferState.applyState(this._bufferState._vertexBuffers, indexBuffer);
+        }
 
         if (this.canRead) {
             this._indices = indices;
@@ -416,10 +426,10 @@ export class Mesh2D extends Resource {
      * @en The indexbuffer data that was set earlier
      * @zh 之前设置的索引buffer数据
      */
-    getIndices(){
+    getIndices() {
         if (!this.canRead || !this._indices) {
             throw new Error("Can't getIndices without the canRead flag, or if the canRead flag is false before setIndices!");
-        }else{
+        } else {
             return this._indices;
         }
     }
