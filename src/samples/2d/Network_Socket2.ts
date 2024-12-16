@@ -16,7 +16,7 @@ export class Network_Socket2 {
 	private connect(): void {
 		this.socket = new Socket();
 		//socket.connect("echo.websocket.org", 80);
-		this.socket.connectByUrl("wss://devxq.layabox.com:17000");
+		this.socket.connectByUrl("wss://echo.websocket.org:443");
 
 		this.output = this.socket.output;
 

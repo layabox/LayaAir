@@ -10,7 +10,7 @@ export class BlendMode_Lighter {
 	private phoenixWidth: number = 750;
 	private phoenixHeight: number = 550;
 
-	private bgColorTweener: Tween = new Tween();
+	private bgColorTweener: Tween = Tween.create();
 	private gradientInterval: number = 2000;
 	private bgColorChannels: any = { 'r': 99, 'g': 0, 'b': 0xFF };
 
