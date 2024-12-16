@@ -79,6 +79,7 @@ export class LightOccluder2D extends Component {
         if (value !== this._outside) {
             this._outside = value;
             this._needUpdate = true;
+            this._clearCache();
         }
     }
 
