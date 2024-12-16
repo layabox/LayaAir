@@ -77,7 +77,7 @@ export class WebGLShaderInstance implements IShaderInstance {
     _create(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderPass): void {
         let shaderObj = GLSLCodeGenerator.GLShaderLanguageProcess3D(shaderProcessInfo.defineString, shaderProcessInfo.attributeMap, shaderProcessInfo.uniformMap, shaderProcessInfo.vs, shaderProcessInfo.ps);
         let useMaterial = Config3D._matUseUBO;//TODO 临时解决2D Mat
-        Config3D._matUseUBO =  !shaderProcessInfo.is2D; 
+        Config3D._matUseUBO = (!shaderProcessInfo.is2D) && Config3D._matUseUBO;
         this._renderShaderInstance = WebGLEngine.instance.createShaderInstance(shaderObj.vs, shaderObj.fs, shaderProcessInfo.attributeMap);
         Config3D._matUseUBO = useMaterial;
         if (WebGLEngine._lastShaderError) {
@@ -129,17 +129,13 @@ export class WebGLShaderInstance implements IShaderInstance {
         this._sprite2DUniformParamsMap = new CommandEncoder();
         this._materialUniformParamsMap = new CommandEncoder();
         this._sceneUniformParamsMap = new CommandEncoder();
-        const scene2DParms = LayaGL.renderDeviceFactory.createGlobalUniformMap("scene2D") as WebGLCommandUniformMap;
         //const sprite2DParms = LayaGL.renderDeviceFactory.createGlobalUniformMap("Sprite2D") as WebGLCommandUniformMap;//分开，根据不同的Render
         const sceneParms = LayaGL.renderDeviceFactory.createGlobalUniformMap("Sprite2DGlobal") as WebGLCommandUniformMap;//分开，根据不同的Render
         let i, n;
         let data: ShaderVariable[] = this._renderShaderInstance.getUniformMap();
         for (i = 0, n = data.length; i < n; i++) {
             let one: ShaderVariable = data[i];
-            if (scene2DParms.hasPtrID(one.dataOffset)) {
-                this._sceneUniformParamsMap.addShaderUniform(one);
-            }
-            else if (this.hasSpritePtrID(one.dataOffset)) {
+            if (this.hasSpritePtrID(one.dataOffset)) {
                 this._sprite2DUniformParamsMap.addShaderUniform(one);
             } else if (sceneParms.hasPtrID(one.dataOffset)) {
                 this._sceneUniformParamsMap.addShaderUniform(one);

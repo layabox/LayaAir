@@ -25,7 +25,7 @@ export class SetRendertarget2DCMD implements IRender2DCMD {
 
     protected _clearColorValue: Color;
 
-    private _invertY: boolean;
+    protected _invertY: boolean;
 
     /**
      * @en Flip Y Rendering
