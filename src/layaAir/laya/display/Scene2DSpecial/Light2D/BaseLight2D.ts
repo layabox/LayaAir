@@ -103,7 +103,7 @@ export class BaseLight2D extends Component {
     private _recoverFC: number = 0; //回收资源帧序号
     protected _needToRecover: any[] = []; //需要回收的资源
 
-    private _isInScreen: boolean = false; //是否在屏幕（缓存）
+    private _inScreen: boolean = false; //是否在屏幕（缓存）
     protected _screenCache: Rectangle = new Rectangle(); //屏幕参数缓存
 
     private _texSize: Vector2 = new Vector2(1, 1); //灯光贴图尺寸
@@ -148,7 +148,6 @@ export class BaseLight2D extends Component {
     get color(): Color {
         return this._color;
     }
-
     set color(value: Color) {
         if (value === this._color || !value.equal(this._color)) {
             value.cloneTo(this._color);
@@ -163,7 +162,6 @@ export class BaseLight2D extends Component {
     get intensity(): number {
         return this._intensity;
     }
-
     set intensity(value: number) {
         if (value !== this._intensity) {
             this._intensity = value;
@@ -178,7 +176,6 @@ export class BaseLight2D extends Component {
     get lightRotation(): number {
         return this._lightRotation;
     }
-
     set lightRotation(value: number) {
         if (value !== this._lightRotation) {
             this._lightRotation = value;
@@ -193,7 +190,6 @@ export class BaseLight2D extends Component {
     get lightScale() {
         return this._lightScale;
     }
-
     set lightScale(value: Vector2) {
         if (value === this._lightScale || !Vector2.equals(value, this._lightScale)) {
             value.cloneTo(this._lightScale);
@@ -208,7 +204,6 @@ export class BaseLight2D extends Component {
     get shadowEnable(): boolean {
         return this._shadowEnable;
     }
-
     set shadowEnable(value: boolean) {
         if (value !== this._shadowEnable) {
             this._shadowEnable = value;
@@ -224,7 +219,6 @@ export class BaseLight2D extends Component {
     get shadowColor(): Color {
         return this._shadowColor;
     }
-
     set shadowColor(value: Color) {
         if (value === this._shadowColor || !value.equal(this._shadowColor)) {
             value.cloneTo(this._shadowColor);
@@ -239,7 +233,6 @@ export class BaseLight2D extends Component {
     get shadowStrength(): number {
         return this._shadowStrength;
     }
-
     set shadowStrength(value: number) {
         if (value !== this._shadowStrength) {
             this._shadowStrength = value;
@@ -262,7 +255,6 @@ export class BaseLight2D extends Component {
     get shadowFilterType(): ShadowFilterType {
         return this._shadowFilterType;
     }
-
     set shadowFilterType(value: ShadowFilterType) {
         if (value !== this._shadowFilterType) {
             this._shadowFilterType = value;
@@ -278,7 +270,6 @@ export class BaseLight2D extends Component {
     get shadowFilterSmooth(): number {
         return this._shadowFilterSmooth;
     }
-
     set shadowFilterSmooth(value: number) {
         if (value !== this._shadowFilterSmooth) {
             this._shadowFilterSmooth = value;
@@ -294,11 +285,10 @@ export class BaseLight2D extends Component {
     get layerMask(): number {
         return this._layerMask;
     }
-
     set layerMask(value: number) {
-        if (this._layerMask !== value) {
+        if (value !== this._layerMask) {
             this._needUpdateLightAndShadow = true;
-            this._notifyLightLayerChange(this._layerMask, value);
+            this._notifyLightLayerMaskChange(this._layerMask, value);
             this._layerMask = value;
 
             this._layers.length = 0;
@@ -323,12 +313,12 @@ export class BaseLight2D extends Component {
     get shadowLayerMask(): number {
         return this._shadowLayerMask;
     }
-
     set shadowLayerMask(value: number) {
         if (value !== this._shadowLayerMask) {
             this._needUpdateLightAndShadow = true;
-            this._notifyShadowCastLayerChange(this._shadowLayerMask, value);
+            this._notifyShadowCastLayerMaskChange(this._shadowLayerMask, value);
             this._shadowLayerMask = value;
+            this._notifyShadowEnableChange();
         }
     }
 
@@ -341,23 +331,23 @@ export class BaseLight2D extends Component {
     }
 
     /**
-     * @en notify this light layer change
-     * @zh 通知此灯光层的改变
+     * @en notify this light layer mask change
+     * @zh 通知此灯光层遮罩的改变
      */
-    private _notifyLightLayerChange(oldLayer: number, newLayer: number) {
+    private _notifyLightLayerMaskChange(oldLayerMask: number, newLayerMask: number) {
         const light2DManager = this.owner?.scene?._light2DManager as Light2DManager;
         if (light2DManager) {
-            light2DManager.lightLayerMarkChange(this, oldLayer, newLayer);
-            light2DManager.needCollectLightInLayer(newLayer);
+            light2DManager.lightLayerMaskChange(this, oldLayerMask, newLayerMask);
+            light2DManager.needCollectLightInLayer(newLayerMask);
         }
     }
 
     /**
-     * @en notify this light shadow layer change
-     * @zh 通知此灯阴影接受层的改变
+     * @en notify this light shadow layer mask change
+     * @zh 通知此灯阴影层遮罩的改变
      */
-    private _notifyShadowCastLayerChange(oldLayer: number, newLayer: number) {
-        (this.owner?.scene?._light2DManager as Light2DManager)?.lightShadowLayerMarkChange(this, oldLayer, newLayer);
+    private _notifyShadowCastLayerMaskChange(oldLayerMask: number, newLayerMask: number) {
+        (this.owner?.scene?._light2DManager as Light2DManager)?.lightShadowLayerMaskChange(this, oldLayerMask, newLayerMask);
     }
 
     /**
@@ -384,19 +374,17 @@ export class BaseLight2D extends Component {
         super._onEnable();
         this.owner.on(Event.TRANSFORM_CHANGED, this, this._transformChange);
         this.owner._setBit(NodeFlags.DEMAND_TRANS_EVENT, true);
-        ((this.owner.scene)?._light2DManager as Light2DManager)?.addLight(this);
+        (this.owner.scene?._light2DManager as Light2DManager)?.addLight(this);
     }
 
     protected _onDisable(): void {
         super._onDisable();
         this._clearScreenCache();
         this.owner.off(Event.TRANSFORM_CHANGED, this, this._transformChange);
-        ((this.owner.scene)?._light2DManager as Light2DManager)?.removeLight(this);
+        (this.owner.scene?._light2DManager as Light2DManager)?.removeLight(this);
     }
 
-
-    protected _onDestroy() {
-    }
+    protected _onDestroy() { }
 
     /**
      * @en Response matrix change
@@ -505,14 +493,6 @@ export class BaseLight2D extends Component {
             rect2.y >= rect1.y &&
             (rect2.x + rect2.width) <= (rect1.x + rect1.width) &&
             (rect2.y + rect2.height) <= (rect1.y + rect1.height));
-    }
-
-    /**
-     * @internal
-     * 是否在指定范围内
-     */
-    _isInRange(range: Rectangle) {
-        return range && this._rectContain(range, this._getWorldRange());
     }
 
     /**
@@ -648,22 +628,29 @@ export class BaseLight2D extends Component {
     }
 
     /**
-     * @en Is light range inside the screen
-     * @param screen Screen rectangle
-     * @zh 灯光范围是否在屏幕内
-     * @param screen 屏幕矩形
+     * @internal
+     * 灯光是否在指定范围内
      */
-    isInScreen(screen: Rectangle) {
+    _isInRange(range: Rectangle) {
+        return range && this._rectContain(range, this._getWorldRange());
+    }
+
+    /**
+     * @internal
+     * 灯光是否在屏幕内
+     * @param screen 屏幕位置和尺寸
+     */
+    _isInScreen(screen: Rectangle) {
         const cache = this._screenCache;
         if (cache.x === screen.x
             && cache.y === screen.y
             && cache.width === screen.width
             && cache.right === screen.height) {
-            return this._isInScreen;
+            return this._inScreen;
         }
-        this._isInScreen = this._getWorldRange().intersects(screen);
+        this._inScreen = this._getWorldRange().intersects(screen);
         screen.cloneTo(cache);
-        return this._isInScreen;
+        return this._inScreen;
     }
 
     /**
@@ -680,7 +667,7 @@ export class BaseLight2D extends Component {
      * @param recover 可选的回收队列，如果网格对象未被复用，则将其放入回收队列。
      * @returns 生成或更新后的网格对象。
      */
-    
+
     protected _makeOrUpdateMesh(points: Vector3[], inds: number[], mesh?: Mesh2D, recover?: any[]) {
         const vertices = new Float32Array(points.length * 5);
         const indices = new Uint16Array(inds);
@@ -700,8 +687,9 @@ export class BaseLight2D extends Component {
             if (Light2DManager.REUSE_MESH
                 && idx.length >= indices.length
                 && ver.byteLength >= vertices.byteLength) { //mesh可以复用
-                idx.set(indices);
+                mesh.setIndices(indices);
                 mesh.setVertexByIndex(vertices.buffer, 0);
+                mesh.getSubMesh(0).clearRenderParams();
                 mesh.getSubMesh(0).setDrawElemenParams(indices.length, 0);
                 return mesh; //返回原mesh
             } else if (recover) //mesh不可以复用，回收

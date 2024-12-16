@@ -57,7 +57,6 @@ export class BaseRenderNode2D extends Component {
      */
     static NORMAL2DTEXTURE: number;
     static NORMAL2DSTRENGTH: number;
-    static SHADERDEFINE_LIGHT2DNORMAL_PARAM: ShaderDefine;
 
     /**
      * 2D渲染节点宏
@@ -67,7 +66,9 @@ export class BaseRenderNode2D extends Component {
     /**
      * 2D灯光宏
      */
-    static SHADERDEFINE_LIGHTANDSHADOW: ShaderDefine;
+    static SHADERDEFINE_LIGHT2D_ENABLE: ShaderDefine;
+    static SHADERDEFINE_LIGHT2D_EMPTY: ShaderDefine;
+    static SHADERDEFINE_LIGHT2D_NORMAL_PARAM: ShaderDefine;
 
     /**
      * @internal
@@ -83,8 +84,9 @@ export class BaseRenderNode2D extends Component {
         BaseRenderNode2D.NORMAL2DSTRENGTH = Shader3D.propertyNameToID("u_normal2DStrength");
 
         BaseRenderNode2D.SHADERDEFINE_BASERENDER2D = Shader3D.getDefineByName("BASERENDER2D");
-        BaseRenderNode2D.SHADERDEFINE_LIGHTANDSHADOW = Shader3D.getDefineByName("LIGHT_AND_SHADOW");
-        BaseRenderNode2D.SHADERDEFINE_LIGHT2DNORMAL_PARAM = Shader3D.getDefineByName("LIGHT_2D_NORMAL_PARAM");
+        BaseRenderNode2D.SHADERDEFINE_LIGHT2D_ENABLE = Shader3D.getDefineByName("LIGHT2D_ENABLE");
+        BaseRenderNode2D.SHADERDEFINE_LIGHT2D_EMPTY = Shader3D.getDefineByName("LIGHT2D_EMPTY");
+        BaseRenderNode2D.SHADERDEFINE_LIGHT2D_NORMAL_PARAM = Shader3D.getDefineByName("LIGHT2D_NORMAL_PARAM");
 
         const commandUniform = LayaGL.renderDeviceFactory.createGlobalUniformMap("BaseRender2D");
         commandUniform.addShaderUniform(BaseRenderNode2D.NMATRIX_0, "u_NMatrix_0", ShaderDataType.Vector3);
@@ -303,11 +305,11 @@ export class BaseRenderNode2D extends Component {
         this._lightReceive = value;
         if (value) {
             this._addRenderToLightManager();
-            this._spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_LIGHTANDSHADOW);
+            this._spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_LIGHT2D_ENABLE);
         }
         else {
             this._removeRenderNodeByLayer();
-            this._spriteShaderData.removeDefine(BaseRenderNode2D.SHADERDEFINE_LIGHTANDSHADOW);
+            this._spriteShaderData.removeDefine(BaseRenderNode2D.SHADERDEFINE_LIGHT2D_ENABLE);
         }
         this._resetUpdateMark();
     }
@@ -337,7 +339,7 @@ export class BaseRenderNode2D extends Component {
         let light2DManager = (this.owner.scene as Scene)._light2DManager;
         if (light2DManager && !this._lightRecord) {
             light2DManager.addRender(this);
-            this._lightReceive = true;
+            this._lightRecord = true;
         }
     }
 
@@ -345,10 +347,10 @@ export class BaseRenderNode2D extends Component {
      * lightManager
      */
     private _removeRenderNodeByLayer() {
-        let light2DManager = (this.owner.scene as Scene)._light2DManager;
+        const light2DManager = (this.owner.scene as Scene)._light2DManager;
         if (light2DManager && this._lightRecord) {
             light2DManager.removeRender(this);
-            this._lightReceive = false;
+            this._lightRecord = false;
         }
     }
 

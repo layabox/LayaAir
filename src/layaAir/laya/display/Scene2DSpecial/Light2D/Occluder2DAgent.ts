@@ -21,7 +21,9 @@ export type Occluder2DParam = {
  */
 export class Occluder2DAgent {
     private _scene: Scene; //场景对象
-    occluderMap: Map<number, LightOccluder2D> = new Map(); //由代理创建的遮光器
+    private _occluderMap: Map<number, LightOccluder2D> = new Map(); //由代理创建的遮光器
+
+    declare owner: Sprite;
 
     constructor(scene: Scene) {
         this._scene = scene;
@@ -40,7 +42,7 @@ export class Occluder2DAgent {
     addOccluder(index: number, param: Occluder2DParam) {
         let sprite: Sprite;
         let polygon: PolygonPoint2D;
-        let occluder = this.occluderMap.get(index);
+        let occluder = this._occluderMap.get(index);
         const poly = param.poly;
         const layerMask = param.layerMask ?? 1;
         const px = param.px ?? 0;
@@ -56,8 +58,8 @@ export class Occluder2DAgent {
         if (!occluder) {
             sprite = this._scene.addChild(new Sprite());
             occluder = sprite.addComponent(LightOccluder2D);
-            this.occluderMap.set(index, occluder);
-        } else sprite = (occluder.owner as Sprite);
+            this._occluderMap.set(index, occluder);
+        } else sprite = occluder.owner;
         sprite.pos(px, py);
         sprite.scale(sx, sy);
         sprite.rotation = rot;
@@ -75,7 +77,7 @@ export class Occluder2DAgent {
      * @returns 遮光器对象（成功），undefined（失败）
      */
     getOccluder(index: number) {
-        return this.occluderMap.get(index);
+        return this._occluderMap.get(index);
     }
 
     /**
@@ -91,9 +93,9 @@ export class Occluder2DAgent {
      * @returns 遮光器对象（成功），undefined（失败）
      */
     setPos(index: number, x: number, y: number) {
-        const occluder = this.occluderMap.get(index);
+        const occluder = this._occluderMap.get(index);
         if (occluder)
-            (occluder.owner as Sprite).pos(x, y);
+            occluder.owner.pos(x, y);
         return occluder;
     }
 
@@ -108,9 +110,9 @@ export class Occluder2DAgent {
      * @returns 遮光器对象（成功），undefined（失败）
      */
     setRot(index: number, rot: number) {
-        const occluder = this.occluderMap.get(index);
+        const occluder = this._occluderMap.get(index);
         if (occluder)
-            (occluder.owner as Sprite).rotation = rot;
+            occluder.owner.rotation = rot;
         return occluder;
     }
 
@@ -127,9 +129,9 @@ export class Occluder2DAgent {
      * @returns 遮光器对象（成功），undefined（失败）
      */
     setScale(index: number, x: number, y: number) {
-        const occluder = this.occluderMap.get(index);
+        const occluder = this._occluderMap.get(index);
         if (occluder)
-            (occluder.owner as Sprite).scale(x, y);
+            occluder.owner.scale(x, y);
         return occluder;
     }
 
@@ -142,12 +144,12 @@ export class Occluder2DAgent {
      * @returns true（成功），false（失败）
      */
     removeOccluder(index: number) {
-        const occluder = this.occluderMap.get(index);
+        const occluder = this._occluderMap.get(index);
         if (occluder) {
-            (occluder.owner as Sprite).destroy();
+            occluder.owner.destroy();
             occluder.destroy();
         }
-        return this.occluderMap.delete(index);
+        return this._occluderMap.delete(index);
     }
 
     /**
@@ -155,10 +157,10 @@ export class Occluder2DAgent {
      * @zh 清除所有遮光器
      */
     clearOccluder() {
-        this.occluderMap.forEach(occluder => {
-            (occluder.owner as Sprite).destroy();
+        this._occluderMap.forEach(occluder => {
+            occluder.owner.destroy();
             occluder.destroy();
         });
-        this.occluderMap.clear();
+        this._occluderMap.clear();
     }
 }

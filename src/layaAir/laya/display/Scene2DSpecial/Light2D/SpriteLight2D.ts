@@ -1,6 +1,5 @@
 import { Rectangle } from "../../../maths/Rectangle";
 import { Texture2D } from "../../../resource/Texture2D";
-import { Browser } from "../../../utils/Browser";
 import { Scene } from "../../Scene";
 import { Sprite } from "../../Sprite";
 import { BaseLight2D, Light2DType } from "../Light2D/BaseLight2D";
@@ -55,8 +54,8 @@ export class SpriteLight2D extends BaseLight2D {
     protected _calcLocalRange() {
         super._calcLocalRange();
 
-        const w = (this._texLight ? this._texLight.width : 100) * Browser.pixelRatio | 0;
-        const h = (this._texLight ? this._texLight.height : 100) * Browser.pixelRatio | 0;
+        const w = (this._texLight ? this._texLight.width : 100) | 0;
+        const h = (this._texLight ? this._texLight.height : 100) | 0;
         this._localRange.x = -w / 2;
         this._localRange.y = -h / 2;
         this._localRange.width = w;
@@ -78,8 +77,8 @@ export class SpriteLight2D extends BaseLight2D {
         const h = this._localRange.height;
         const sx = Math.abs(this.owner.globalScaleX);
         const sy = Math.abs(this.owner.globalScaleY);
-        const px = this.owner.globalPosX * Browser.pixelRatio;
-        const py = this.owner.globalPosY * Browser.pixelRatio;
+        const px = this.owner.globalPosX;
+        const py = this.owner.globalPosY;
         const m = Math.max(w * sx, h * sy) | 0;
         this._worldRange.x = (px - m / 2) | 0;
         this._worldRange.y = (py - m / 2) | 0;

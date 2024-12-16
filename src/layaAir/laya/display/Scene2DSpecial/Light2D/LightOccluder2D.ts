@@ -3,7 +3,6 @@ import { NodeFlags } from "../../../Const";
 import { Event } from "../../../events/Event";
 import { Rectangle } from "../../../maths/Rectangle";
 import { Vector2 } from "../../../maths/Vector2";
-import { Browser } from "../../../utils/Browser";
 import { Pool } from "../../../utils/Pool";
 import { Sprite } from "../../Sprite";
 import { Light2DManager } from "./Light2DManager";
@@ -19,28 +18,21 @@ export class LightOccluder2D extends Component {
      */
     static _idCounter: number = 0; //遮光器计数器
 
-    private _layerMask: number = 1; //遮光器层掩码（哪些层有遮光器）
-    private _layers: number[] = [0]; //遮光器层数组（哪些层有遮光器）
+    private _layerMask: number = 1; //遮光器层掩码
+    private _layers: number[] = [0]; //遮光器层数组
 
     declare owner: Sprite;
 
     /**
-     * @en Get layer mask
-     * @zh 获取遮光器层遮罩（遮光器影响哪些层）
+     * @en the layer mask
+     * @zh 遮光器层遮罩（遮光器影响哪些层）
      */
     get layerMask(): number {
         return this._layerMask;
     }
-
-    /**
-     * @en Set layer mask
-     * @param value Layer mask value
-     * @zh 设置遮光器层遮罩（遮光器影响哪些层）
-     * @param value 层遮罩值
-     */
     set layerMask(value: number) {
-        if (this._layerMask !== value) {
-            this._notifyOccluderLayerChange(this.layerMask, value);
+        if (value !== this._layerMask) {
+            this._layerMaskChange(this._layerMask, value);
             this._layerMask = value;
 
             this._layers.length = 0;
@@ -51,8 +43,8 @@ export class LightOccluder2D extends Component {
     }
 
     /**
-     * @en Get light layers
-     * @zh 获取灯光层数组（灯光影响哪些层）
+     * @en The occluder layers
+     * @zh 遮光器层数组
      */
     get layers() {
         return this._layers;
@@ -61,19 +53,12 @@ export class LightOccluder2D extends Component {
     private _canInLight: boolean = true; //如果灯光原点落入遮光器内部，是否挡光
 
     /**
-     * @en Get can in light boolean value
-     * @zh 获取灯光在内部时是否挡光
+     * @en Can in light boolean value
+     * @zh 灯光在内部时是否挡光
      */
     get canInLight(): boolean {
         return this._canInLight;
     }
-
-    /**
-     * @en Set can in light boolean value
-     * @param value Boolean value
-     * @zh 设置灯光在内部时是否挡光
-     * @param value 布尔值
-     */
     set canInLight(value: boolean) {
         if (value !== this._canInLight) {
             this._canInLight = value;
@@ -84,19 +69,12 @@ export class LightOccluder2D extends Component {
     private _outside: boolean = true; //是否只是外圈起作用
 
     /**
-     * @en Get is only outside shadow the light
+     * @en Only outside shadow the light
      * @zh 获取是否只是外圈遮挡光线
      */
     get outside(): boolean {
         return this._outside;
     }
-
-    /**
-     * @en Set is only outside shadow the light
-     * @param value Boolean value
-     * @zh 设置是否只是外圈遮挡光线
-     * @param 布尔值
-     */
     set outside(value: boolean) {
         if (value !== this._outside) {
             this._outside = value;
@@ -170,21 +148,21 @@ export class LightOccluder2D extends Component {
     /**
      * @internal
      * 通知此遮光器层的改变
-     * @param oldLayer 旧层遮罩
-     * @param newLayer 新层遮罩
+     * @param oldLayerMask 旧层掩码
+     * @param newLayerMask 新层掩码
      */
-    private _notifyOccluderLayerChange(oldLayer: number, newLayer: number) {
-        (this.owner?.scene?._light2DManager as Light2DManager)?.occluderLayerMarkChange(this, oldLayer, newLayer);
+    private _layerMaskChange(oldLayerMask: number, newLayerMask: number) {
+        (this.owner?.scene?._light2DManager as Light2DManager)?.occluderLayerMaskChange(this, oldLayerMask, newLayerMask);
     }
 
     /**
-     * @internal
      * 响应矩阵改变
      */
-    protected _transformChange() {
+    private _transformChange() {
         this._needUpdate = true;
         this._needTransformPoly = true;
         this._needUpdateLightWorldRange = true;
+        (this.owner?.scene?._light2DManager as Light2DManager)?.needCollectOccluderInLight(this.layerMask);
     }
 
     /**
@@ -213,7 +191,7 @@ export class LightOccluder2D extends Component {
                 this._cutPolygon.clear();
             light2DManager?.removeOccluder(this);
         }
-        light2DManager?.needCollectLightInLayer(this.layerMask);
+        light2DManager?.needCollectOccluderInLight(this.layerMask);
     }
 
     /**
@@ -440,13 +418,13 @@ export class LightOccluder2D extends Component {
             const globalPoly = this._globalPolygon.points;
             const polygon = this._occluderPolygon.points;
             const len = polygon.length / 2 | 0;
-            const ox = this.owner.globalPosX * Browser.pixelRatio;
-            const oy = this.owner.globalPosY * Browser.pixelRatio;
+            const ox = this.owner.globalPosX;
+            const oy = this.owner.globalPosY;
             const m = this.owner.getGlobalMatrix();
             if (m) {
                 for (let i = 0; i < len; i++) {
-                    const x = polygon[i * 2 + 0] * Browser.pixelRatio;
-                    const y = polygon[i * 2 + 1] * Browser.pixelRatio;
+                    const x = polygon[i * 2 + 0];
+                    const y = polygon[i * 2 + 1];
                     globalPoly[i * 2 + 0] = m.a * x + m.c * y + ox;
                     globalPoly[i * 2 + 1] = m.b * x + m.d * y + oy;
                 }
@@ -454,8 +432,8 @@ export class LightOccluder2D extends Component {
                 const sx = Math.abs(this.owner.globalScaleX);
                 const sy = Math.abs(this.owner.globalScaleY);
                 for (let i = 0; i < len; i++) {
-                    const x = polygon[i * 2 + 0] * Browser.pixelRatio;
-                    const y = polygon[i * 2 + 1] * Browser.pixelRatio;
+                    const x = polygon[i * 2 + 0];
+                    const y = polygon[i * 2 + 1];
                     globalPoly[i * 2 + 0] = x * sx + ox;
                     globalPoly[i * 2 + 1] = y * sy + oy;
                 }
