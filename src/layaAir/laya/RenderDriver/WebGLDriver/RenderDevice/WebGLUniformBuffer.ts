@@ -49,7 +49,7 @@ export class WebGLUniformBuffer extends WebGLUniformBufferBase {
     }
 
     upload() {
-        if(this.needUpload){
+        if (this.needUpload) {
             this._buffer.setData(this._data, 0);
             this.needUpload = false;
         }

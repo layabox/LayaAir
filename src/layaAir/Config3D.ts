@@ -21,7 +21,7 @@ export class Config3D {
      * @en Whether to enable UniformBuffer
      * @zh 是否启用UniformBuffer
      */
-    static enableUniformBufferObject = false;
+    static enableUniformBufferObject = true;
 
     /**
      * @en Set 3D RT resolution multiplier

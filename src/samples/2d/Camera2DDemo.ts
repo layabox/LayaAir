@@ -8,6 +8,7 @@ import { Scene } from "laya/display/Scene";
 import { Camera2D } from "laya/display/Scene2DSpecial/Camera2D";
 import { Script } from "laya/components/Script";
 import { Event } from "laya/events/Event";
+import { Area2D } from "laya/display/Area2D";
 
 export class Camera2DDemo {
     Main: typeof Main = null;
@@ -26,12 +27,15 @@ export class Camera2DDemo {
 
     }
 
+    private area;
     private showApe(): void {
 
         var scene = new Scene();
         this.Main.box2D.addChild(scene);
+        var area2D = this.area = new Area2D();
+        scene.addChild(area2D);
         var bg: Sprite = new Sprite();
-        scene.addChild(bg);
+        area2D.addChild(bg);
         bg.loadImage("res/guide/crazy_snowball.png");
         bg.x = 0;
         bg.y = 0;
@@ -49,7 +53,7 @@ export class Camera2DDemo {
             this.testSmooth(camera);
             camera.isMain = true;
             ape.addComponent(testMove);
-            scene.addChild(ape);
+            this.area.addChild(ape);
         });
     }
 

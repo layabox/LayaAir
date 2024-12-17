@@ -399,7 +399,7 @@ export class TileMapLayer extends BaseRenderNode2D {
         let mat = this._globalTransfrom();
 
         let scene = this.owner.scene;
-        let camera = scene._specialManager._mainCamera;
+        let camera = scene._curCamera;
         if (camera == null) {
             renderRect.setTo(0, 0, Laya.stage.width, Laya.stage.height);
             mat.copyTo(clipChuckMat);

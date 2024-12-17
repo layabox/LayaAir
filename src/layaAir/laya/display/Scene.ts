@@ -15,6 +15,8 @@ import { Laya, stage } from "../../Laya";
 import { BaseRenderNode2D } from "../NodeRender2D/BaseRenderNode2D";
 import { HierarchyLoader } from "../loaders/HierarchyLoader";
 import { TransformKind } from "./SpriteConst";
+import { Area2D } from "./Area2D";
+import { Camera2D } from "./Scene2DSpecial/Camera2D";
 
 export interface ILight2DManager {
     preRenderUpdate(context: Context): void;
@@ -71,7 +73,10 @@ export class Scene extends Sprite {
      */
     _scene3D: any;
 
-
+    /**
+     * @internal
+     */
+    _Area2Ds: Area2D[] = [];
 
     /**
      * @en relative layout component
@@ -91,6 +96,7 @@ export class Scene extends Sprite {
 
     _specialManager: Scene2DSpecialManager;
     _light2DManager: ILight2DManager;
+    _curCamera: Camera2D;
 
     constructor(createChildren = true) {
         super();
@@ -431,7 +437,6 @@ export class Scene extends Sprite {
      */
     _preRenderUpdate(ctx: Context, x: number, y: number) {
         //更新2DScene场景数据    
-        this._specialManager._preRenderUpdate(ctx);
         Render2DSimple.rendercontext2D.sceneData = this._specialManager._shaderData;
         if (this._light2DManager)
             this._light2DManager.preRenderUpdate(ctx);
@@ -442,10 +447,6 @@ export class Scene extends Sprite {
      * @param ctx 
      */
     _recoverRenderSceneState(ctx: Context) {
-        //恢复2D场景数据状态
-        if (!ctx._render2DManager._renderEnd) {
-            ctx._render2DManager.render(Render2DSimple.rendercontext2D);
-        }
         ctx.drawLeftData();
         Render2DSimple.rendercontext2D.sceneData = null;
     }
