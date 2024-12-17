@@ -32,7 +32,33 @@ const packsDef = [{
         './layaAir/Laya.ts',
         './layaAir/LayaEnv.ts',
         './layaAir/laya/components/**/*.*',
-        './layaAir/laya/display/**/*.*',
+        // trail spearate start
+        './layaAir/laya/display/cmd/**/*.*',
+        './layaAir/laya/display/css/**/*.*',
+        './layaAir/laya/display/Scene2DSpecial/Light2D/**/*.*',
+        './layaAir/laya/display/Scene2DSpecial/Line2D/**/*.*',
+        './layaAir/laya/display/Scene2DSpecial/RenderCMD2D/**/*.*',
+        './layaAir/laya/display/Scene2DSpecial/TileMap/**/*.*',
+        './layaAir/laya/display/Scene2DSpecial/Camera2D.ts',
+        './layaAir/laya/display/Scene2DSpecial/Mesh2DRender.ts',
+        './layaAir/laya/display/Scene2DSpecial/Scene2DSpecialManager.ts',
+        './layaAir/laya/display/Animation.ts',
+        './layaAir/laya/display/AnimationBase.ts',
+        './layaAir/laya/display/BitmapFont.ts',
+        './layaAir/laya/display/EffectAnimation.ts',
+        './layaAir/laya/display/FrameAnimation.ts',
+        './layaAir/laya/display/GraphicAnimation.ts',
+        './layaAir/laya/display/Graphics.ts',
+        './layaAir/laya/display/GraphicsBounds.ts',
+        './layaAir/laya/display/IGraphics.ts',
+        './layaAir/laya/display/Input.ts',
+        './layaAir/laya/display/Node.ts',
+        './layaAir/laya/display/Scene.ts',
+        './layaAir/laya/display/Sprite.ts',
+        './layaAir/laya/display/SpriteConst.ts',
+        './layaAir/laya/display/Stage.ts',
+        './layaAir/laya/display/Text.ts',
+        // trail separate end
         './layaAir/laya/effect/**/*.*',
         './layaAir/laya/events/**/*.*',
         './layaAir/laya/filters/**/*.*',
@@ -76,7 +102,30 @@ const packsDef = [{
     'input': [
         './layaAir/laya/d3/animation/**/*.*',
         './layaAir/laya/d3/component/**/*.*',
-        './layaAir/laya/d3/core/**/*.*',
+        // trail3d spearate start
+        './layaAir/laya/d3/core/light/**/*.*',
+        './layaAir/laya/d3/core/material/**/*.*',
+        './layaAir/laya/d3/core/particleShuriKen/**/*.*',
+        './layaAir/laya/d3/core/pixelLine/**/*.*',
+        './layaAir/laya/d3/core/render/**/*.*',
+        './layaAir/laya/d3/core/scene/**/*.*',
+        './layaAir/laya/d3/core/UI3D/**/*.*',
+        './layaAir/laya/d3/core/BaseCamera.ts',
+        './layaAir/laya/d3/core/Camera.ts',
+        './layaAir/laya/d3/core/GeometryElement.ts',
+        './layaAir/laya/d3/core/MeshFilter.ts',
+        './layaAir/laya/d3/core/MeshRenderer.ts',
+        './layaAir/laya/d3/core/MeshSprite3D.ts',
+        './layaAir/laya/d3/core/MeshSprite3DShaderDeclaration.ts',
+        './layaAir/laya/d3/core/RenderableSprite3D.ts',
+        './layaAir/laya/d3/core/SimpleSkinnedMeshRenderer.ts',
+        './layaAir/laya/d3/core/SimpleSkinnedMeshSprite3D.ts',
+        './layaAir/laya/d3/core/SkinnedMeshRenderer.ts',
+        './layaAir/laya/d3/core/SkinnedMeshSprite3D.ts',
+        './layaAir/laya/d3/core/SkinnedMeshSprite3DShaderDeclaration.ts',
+        './layaAir/laya/d3/core/Sprite3D.ts',
+        './layaAir/laya/d3/core/Transform3D.ts',
+        // trail3d spearate end
         './layaAir/laya/d3/depthMap/*.*',
         './layaAir/laya/d3/graphics/**/*.*',
         './layaAir/laya/d3/loaders/**/*.*',
@@ -290,6 +339,25 @@ const packsDef = [{
     'libName': "tiledmap_discarded",
     'input': [
         './layaAir/laya/TileMap_Discarded/**/**.ts'
+    ],
+},
+{
+    'libName': "trailCommon",
+    'input': [
+        './layaAir/laya/display/RenderFeatureComman/Trail/**/**.ts',
+        './layaAir/laya/display/RenderFeatureComman/TrailBaseFilter.ts'
+    ],
+},
+{
+    'libName': "trail2D",
+    'input': [
+        './layaAir/laya/display/Scene2DSpecial/Trail2D/**/**.ts'
+    ],
+},
+{
+    'libName': "trail3D",
+    'input': [
+        './layaAir/laya/d3/core/trail/**/**.ts'
     ],
 },
 ];

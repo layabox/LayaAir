@@ -65,7 +65,6 @@ import { PolygonPoint2D } from "./display/Scene2DSpecial/Light2D/PolygonPoint2D"
 import { Gradient } from "./maths/Gradient";
 import { FloatKeyframe } from "./maths/FloatKeyframe";
 import { Line2DRender } from "./display/Scene2DSpecial/Line2D/Line2DRender";
-import { Trail2DRender } from "./display/Scene2DSpecial/Trail2D/Trail2DRender";
 
 let c = ClassUtils.regClass;
 c("Record", Object);
@@ -128,4 +127,3 @@ c("LightOccluder2D", LightOccluder2D);
 c("PolygonPoint2D", PolygonPoint2D);
 
 c("Line2DRender", Line2DRender);
-c("Trail2DRender", Trail2DRender);

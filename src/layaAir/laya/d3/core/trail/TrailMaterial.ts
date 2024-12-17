@@ -1,3 +1,4 @@
+import { Laya } from "../../../../Laya";
 import { Color } from "../../../maths/Color";
 import { Vector4 } from "../../../maths/Vector4";
 import { RenderState } from "../../../RenderDriver/RenderModuleData/Design/RenderState";
@@ -145,4 +146,10 @@ export class TrailMaterial extends Material {
 		}
 	}
 }
+
+Laya.addAfterInitCallback(() => {
+	if (!TrailMaterial.defaultMaterial) {
+		TrailMaterial.__initDefine__();
+	}
+})
 

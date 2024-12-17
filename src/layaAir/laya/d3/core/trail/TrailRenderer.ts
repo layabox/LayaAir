@@ -1,7 +1,5 @@
-import { Sprite3D } from "../Sprite3D"
 import { BaseRender } from "../render/BaseRender"
 import { TrailAlignment, TrailFilter } from "./TrailFilter";
-import { Component } from "../../../components/Component";
 import { Bounds } from "../../math/Bounds";
 import { RenderContext3D } from "../render/RenderContext3D";
 import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
