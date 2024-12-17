@@ -340,6 +340,7 @@ export class TextRender extends EventDispatcher {
             var dt = samePagesData[id];
             if (!dt) continue;
             var pri: any[] = dt.words;
+            if(!pri) continue;
             var count = pri.length; if (count <= 0) continue;
             var tex = <TextTexture>samePagesData[id].tex;
             for (var j = 0; j < count; j++) {
@@ -367,7 +368,7 @@ export class TextRender extends EventDispatcher {
             var pri = txts[i];
             if (!pri) continue;
             var tex = <TextTexture>pri.tex;
-            if (tex.destroyed || tex.genID != pri.texgen) {
+            if (tex && (tex.destroyed || tex.genID != pri.texgen)) {
                 return true;
             }
         }

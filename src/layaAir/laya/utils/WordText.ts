@@ -101,7 +101,7 @@ export class WordText {
                 if (!p) continue;
                 let tex = p.tex;
                 let words = p.words;
-                if (words.length == 1 && tex && tex.ri) {// 如果有ri表示是独立贴图
+                if (words && words.length == 1 && tex && tex.ri) {// 如果有ri表示是独立贴图
                     tex.destroy();
                 }
             }
