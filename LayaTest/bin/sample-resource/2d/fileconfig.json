@@ -1,0 +1,109 @@
+{
+    "files": {
+        "atlas": [
+            "comp.atlas",
+            "comp.png"
+        ],
+        "internal": [
+            "sky.jpg"
+        ],
+        "resources": [
+            "layaAir.png",
+			"ttt.png"
+        ]
+    },
+    "config": [
+        {
+            "t": 1,
+            "prefix": "atlas/comp/",
+            "frames": [
+                "image.png",
+                "combobox.png",
+                "img_bg.png",
+                "tab.png",
+                "fontClip_num.png",
+                "button.png",
+                "fontClip.png",
+                "checkbox.png",
+                "check_circle.png",
+                "radio.png",
+                "radiogroup.png",
+                "colorPicker.png",
+                "vslider$bar.png",
+                "hscroll.png",
+                "clip_num.png",
+                "hslider$bar.png",
+                "hslider.png",
+                "vslider.png",
+                "img_bg2.png",
+                "img_bg3.png",
+                "progress$bar.png",
+                "textarea.png",
+                "textinput.png",
+                "btn_close.png",
+                "hscroll$bar.png",
+                "hscroll$down.png",
+                "hscroll$up.png",
+                "vscroll$bar.png",
+                "vscroll$down.png",
+                "vscroll$up.png",
+                "progress.png",
+                "img_bg4.png",
+                "img_bg5.png",
+                "vscroll.png",
+                "clip_tree_folder.png",
+                "clip_tree_arrow.png",
+                "img_blank.png",
+                "html.png",
+                "label.png"
+            ],
+            "i": 0
+        },
+        {
+            "sRGB": true,
+            "wrapMode": 1,
+            "filterMode": 1,
+            "anisoLevel": 1,
+            "mipmap": false,
+            "pma": true,
+            "files": [
+                {
+                    "file": "",
+                    "ext": "png",
+                    "format": 1
+                }
+            ],
+            "platforms": {
+                "0": 0,
+                "1": 0,
+                "2": 0
+            },
+            "t": 0,
+            "i": [
+                1,
+                3
+            ]
+        },
+        {
+            "sRGB": true,
+            "wrapMode": 1,
+            "filterMode": 1,
+            "mipmap": false,
+            "pma": false,
+            "files": [
+                {
+                    "file": "",
+                    "ext": "jpg",
+                    "format": 1
+                }
+            ],
+            "platforms": {
+                "0": 0,
+                "1": 0,
+                "2": 0
+            },
+            "t": 0,
+            "i": 2
+        }
+    ]
+}

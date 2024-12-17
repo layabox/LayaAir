@@ -1,0 +1,70 @@
+<html>
+
+<head>
+    <meta charset='utf-8' />
+    <title>LayaAir Examples</title>
+    <meta name='renderer' content='webkit'>
+    <meta name='viewport'
+        content='width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no' />
+    <meta name='apple-mobile-web-app-capable' content='yes' />
+    <meta name='full-screen' content='true' />
+    <meta name='x5-fullscreen' content='true' />
+    <meta name='360-fullscreen' content='true' />
+    <meta http-equiv='expires' content='0' />
+    <meta name='laya' screenorientation='landscape' />
+    <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+    <meta http-equiv='expires' content='0' />
+    <meta http-equiv='Cache-Control' content='no-siteapp' />
+</head>
+
+<body>
+    <!--由于其他地方都是请求没有.js扩展名的文件，这里也要去掉js,否则，例如会同时有laya和laya.js导致对象出错-->
+    <script type="importmap">
+        {
+            "imports": {
+                "laya/":"/tsc/layaAir/laya/",
+                "Laya3D":"/tsc/layaAir/Laya3D",
+                "Config3D":"/tsc/layaAir/Config3D",
+                "ILaya3D":"/tsc/layaAir/ILaya3D",
+                "Laya":"/tsc/layaAir/Laya",
+                "Config":"/tsc/layaAir/Config",
+                "ILaya":"/tsc/layaAir/ILaya"
+            }
+        }
+    </script>
+    <script>
+        const socket = new WebSocket(`ws://${location.host}`);
+
+        socket.addEventListener('open', (event) => {
+            //console.log('Connected to WebSocket server');
+        });
+
+        socket.addEventListener('message', (event) => {
+            const data = JSON.parse(event.data);
+            if (data.type === 'fileChanged') {
+                console.log('File changed:', data.file);
+                // 如果变更的文件与当前页面相关，则刷新
+                if (isRelevantFile(data.file)) {
+                    location.reload();
+                }
+            }
+        });
+
+        function isRelevantFile(file) {
+            // 这里的逻辑需要根据你的项目结构来定制
+            // 例如，你可以检查文件路径是否与当前页面相关
+            return true; // 这里简单地总是返回 true，即任何文件变化都刷新
+        }
+    </script>
+
+    <!-- <script src='laya.performancetool.js'></script> -->
+    <!-- <script src='laya.physics3D.wasm.js'></script> -->
+    <!-- <script src ='physX/physx.release.js.js'></script> -->
+    <!--<script src='box2d.js'></script>-->
+    <!--<script src='../../bin/spine-core-3.8.js'></script> -->
+    <!-- <script src='../../bin/webxr-polyfill.module.js' type='module'></script> -->
+    <script src='tsc/test/test.js' type='module'></script>
+    <!-- <script src='meshopt_simplifier.js'></script> -->
+</body>
+
+</html>

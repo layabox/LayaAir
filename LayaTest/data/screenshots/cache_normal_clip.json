@@ -1,0 +1,22 @@
+[
+  {
+    "time": 100,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 400,
+      "height": 400
+    },
+    "answer": "cache_normal_clip_0_20241009T112929.png"
+  },
+  {
+    "time": 2000,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 400,
+      "height": 400
+    },
+    "answer": "cache_normal_clip_1_20241009T112931.png"
+  }
+]
