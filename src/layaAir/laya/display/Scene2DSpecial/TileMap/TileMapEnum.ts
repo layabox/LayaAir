@@ -58,4 +58,5 @@ export enum DirtyFlagType{
     ALL = -1,
     RENDER,
     PHYSICS,
+    OCCLUSION,
 }

@@ -17,7 +17,6 @@ import { TileMapNavigationLayer } from "./layers/TileSetNavigationLayer";
 import { TileSetOcclusionLayer } from "./layers/TileSetOcclusionLayer";
 import { TileSetCustomDataLayer } from "./layers/TileSetCustomDataLayer";
 
-
 export class TileSet extends Resource {
 
     private _tileShape: TileShape;
@@ -31,7 +30,7 @@ export class TileSet extends Resource {
 
     private _navigationLayers: Array<TileMapNavigationLayer>;
 
-    private _customDataLayer: Array<TileSetCustomDataLayer>;
+    private _customDataLayers: Array<TileSetCustomDataLayer>;
 
     private _lightOcclusion: Array<TileSetOcclusionLayer>;
 
@@ -130,10 +129,11 @@ export class TileSet extends Resource {
     }
 
     /**
+     * TODO 改成事件？
      * @internal
      */
     private _notifyCustomDataLayerChange() {
-
+        // this.event
     }
     /**
      * @internal
@@ -181,39 +181,30 @@ export class TileSet extends Resource {
 
     //customLayer
     get customLayers() {
-        return this._customDataLayer;
+        return this._customDataLayers;
     }
 
     set customLayers(value) {
-        this._customDataLayer = value;
+        this._customDataLayers = value;
     }
 
-    addCustomDataLayer(layer: TileSetCustomDataLayer): void {
-
+    addCustomDataLayer(layer: TileSetCustomDataLayer): boolean {
+        if (!this._customDataLayers) this._customDataLayers = [];
+        let result = this._addLayer(this._customDataLayers , "name" , layer);
+        result && this._notifyCustomDataLayerChange();
+        return result;
     }
 
     getCustomDataLayer(name: string): TileSetCustomDataLayer {
-        let layers = this._customDataLayer;
-        if (!layers || !layers.length) return null
-        for (let i = 0 , len = layers.length; i < len; i++) {
-            let layer = layers[i];
-            if (layer.name == name) {
-                return layer;
-            }            
-        }
-        return null;
+        let result = this._getLayer(this._customDataLayers , "name" , name);
+        if (result) this._notifyCustomDataLayerChange();
+        return result
     }
 
-    removeCustomDataLayer(name: string): void {
-        let layers = this._customDataLayer;
-        if (!layers || !layers.length) return null
-        for (let i = 0 , len = layers.length; i < len; i++) {
-            let layer = layers[i];
-            if (layer.name == name) {
-                layers.splice(i , 0);
-                break;
-            }            
-        }
+    removeCustomDataLayer(name: string): TileSetCustomDataLayer {
+        let result = this._removeLayer(this._customDataLayers,"name" , name);
+        if (result) this._notifyCustomDataLayerChange();
+        return result
     }
 
     //navigation
@@ -229,11 +220,11 @@ export class TileSet extends Resource {
 
     }
 
-    getNavigationLayers(layerIndex: number): TileMapNavigationLayer {
+    getNavigationLayers(id: number): TileMapNavigationLayer {
         return null;
     }
 
-    removeNavigationLayers(layerIndex: number): void {
+    removeNavigationLayers(id: number): void {
         return;
     }
 
@@ -246,16 +237,23 @@ export class TileSet extends Resource {
         this._lightOcclusion = value;
     }
 
-    addlightInfoLayers(layer: TileSetOcclusionLayer): void {
-
+    addLightInfoLayer(layer: TileSetOcclusionLayer): boolean {
+        if (!this._lightOcclusion) this._lightOcclusion = [];
+        let result = this._addLayer(this._lightOcclusion, "id" , layer);
+        result && this._notifyRenderLayerChange();
+        return result;
     }
 
-    getlightInfoLayers(layerIndex: number): TileSetOcclusionLayer {
-        return null;
+    getLightInfoLayer(id: number): TileSetOcclusionLayer {
+        let result = this._getLayer(this._lightOcclusion, "id" , id);
+        result && this._notifyRenderLayerChange();
+        return result
     }
 
-    removelightInfoLayers(layerIndex: number): void {
-        return;
+    removeLightInfoLayer(id: number): TileSetOcclusionLayer {
+        let result = this._removeLayer(this._lightOcclusion, "id" , id);
+        result && this._notifyRenderLayerChange();
+        return result;
     }
 
     //physics
@@ -267,18 +265,53 @@ export class TileSet extends Resource {
         this._physicsLayers = value;
     }
 
-    addPhysicsLayers(layer: TileSetPhysicsLayer): number {
-        let index = this._physicsLayers.length;
-        this._physicsLayers.push(layer);
-        return index;
+    addPhysicsLayer(layer: TileSetPhysicsLayer): boolean {
+        if (!this._physicsLayers) this._physicsLayers = [];
+        let result = this._addLayer(this._physicsLayers, "id" , layer);
+        result && this._notifyPhysicsLayerChange();
+        return result;
     }
 
-    getPhysicsLayers(layerIndex: number): TileSetPhysicsLayer {
-        return this._physicsLayers[layerIndex];
+    getPhysicsLayer(id: number): TileSetPhysicsLayer {
+        let result = this._getLayer(this._physicsLayers, "id" , id);
+        result && this._notifyPhysicsLayerChange();
+        return result;
     }
 
-    removePhysicsLayers() {
+    removePhysicsLayer(id:number) : TileSetPhysicsLayer {
+        let result = this._removeLayer(this._physicsLayers , "id" , id);
+        result && this._notifyPhysicsLayerChange();
+        return result;
+    }
 
+    private _addLayer<T extends {id?:number , name?:string} >(layers:T[] , key:"id"|"name" ,layer:T){
+        for (let i = 0 , len = layers.length; i < len; i++) {
+            if (layer[key] == layers[i][key]) {
+                return false;
+            }            
+        }
+        layers.push(layer);
+        return true;
+    }
+
+    private _getLayer<T extends {id?:number , name?:string}>(layers:T[] , key:"id"|"name"  , value:number|string):T{
+        if (!layers || !layers.length) return null
+        for (let i = 0 , len = layers.length; i < len; i++) {
+            if (value == layers[i][key]) {
+                return layers[i];
+            }            
+        }
+        return null;
+    }
+
+    private _removeLayer<T extends {id?:number , name?:string}>(layers:T[], key:"id"|"name"  , value:number|string):T{
+        if (!layers || !layers.length) return null
+        for (let i = 0 , len = layers.length; i < len; i++) {
+            if (value == layers[i][key]) {
+                return layers.splice(i , 1)[0];
+            }            
+        }
+        return null;
     }
 
     //Terrain  
@@ -302,11 +335,11 @@ export class TileSet extends Resource {
 
     }
 
-    getTileTerrain(layerIndex: number): TileSetTerrainLayer {
+    getTileTerrain(id: number): TileSetTerrainLayer {
         return null;
     }
 
-    removeTileTerrain(layerIndex: number): void {
+    removeTileTerrain(id: number): void {
         return;
     }
 
