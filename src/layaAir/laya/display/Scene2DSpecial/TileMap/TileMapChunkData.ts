@@ -42,6 +42,8 @@ class ChunkCellInfo {
 
     _physicsDatas: any[];
 
+    _occlusionIds:number[];
+
     _renderElementIndex: number;//在第几个RenderElement中
 
     _cellPosInRenderData: number;//渲染数据中的第几个cell
@@ -76,13 +78,13 @@ export class TileMapChunkData {
 
     /**
      * 帧处理cell数据更新
-     * 0 render , 1 physics
+     * 0 render , 1 physics 3 light
      * Key1 cellData GID ---- 
      * value dirtyFlag
      */
     private _dirtyFlags: Map<number, number>[] = [];
 
-    private _dirtyTypes = 2;
+    private _dirtyTypes = 3;
 
     /**
      * 缓存chuckCellInfo数据
@@ -475,7 +477,68 @@ export class TileMapChunkData {
     }
 
     private _updateLightShadowData() {
-        //TODO
+        if (!this._tileLayer.tileMapOccluder.enable || !this._dirtyFlags[DirtyFlagType.OCCLUSION].size) return;
+        let occluder = this._tileLayer.tileMapOccluder;
+        let dirtyFlag = this._dirtyFlags[DirtyFlagType.OCCLUSION];
+
+
+        let lightInfoLayers = this._tileLayer.tileSet.lightInfoLayers;
+        let layerCount = lightInfoLayers.length;
+        let chunk = this._tileLayer._chunk;
+        let matrix = this._tileLayer._globalTransfrom();
+        let pos: Vector2 = Vector2.TEMP;
+
+        dirtyFlag.forEach((value, key) => {
+            let cellDataUseArray = this._cellDataRefMap[key];
+            cellDataUseArray.forEach(element => {
+                let chunkCellInfo = this._cellDataMap[element];
+                let cellData = chunkCellInfo.cell;
+                let cellDatas = cellData.lightOccluderDatas;
+
+                //TODO Layer变更时需要删除
+                if (cellDatas && (value & TileMapDirtyFlag.CELL_CHANGE) || (value & TileMapDirtyFlag.CELL_LIGHTSHADOW)) {
+
+                    chunk._getPixelByChunkPosAndIndex(this.chunkX, this.chunkY, chunkCellInfo.chuckLocalindex, pos);
+
+                    let ofx = pos.x;
+                    let ofy = pos.y;
+                    let ids = chunkCellInfo._occlusionIds;
+                    if (!ids) {
+                        ids = [];
+                        chunkCellInfo._occlusionIds = ids;
+                    }
+
+                    for (let i = 0; i < layerCount; i++) {
+                        let layer = lightInfoLayers[i];
+                        let pIndex = layer.id;
+                        if (!cellDatas[pIndex])
+                            continue
+
+                        let id = ids[pIndex];
+                        if (id) {
+                            occluder.removeOccluder(id);
+                        }
+                        let shape = cellDatas[pIndex].shape;
+                        let shapeLength = shape.length;
+                        let nShape: Array<number> = new Array(shapeLength);
+
+                        for (let j = 0; j < shapeLength; j+=2) {
+                            let x = shape[j];
+                            let y = shape[j + 1];
+                            TileMapUtils.transfromPointByValue(matrix, x + ofx, y + ofy, pos);
+                            nShape[j] = pos.x;
+                            nShape[j + 1] = pos.y;
+                        }
+
+                        id = occluder.addOccluder(nShape , layer.layerMask);
+                        ids[pIndex] = id;
+                    }
+
+                }
+            });
+        });
+
+        dirtyFlag.clear();
     }
 
     private _updateNavigationData() {
