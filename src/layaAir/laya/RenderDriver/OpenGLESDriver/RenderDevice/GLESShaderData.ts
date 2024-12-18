@@ -10,6 +10,7 @@ import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture
 import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
 import { RTDefineDatas } from "../../RenderModuleData/RuntimeModuleData/RTDefineDatas";
 import { RTShaderDefine } from "../../RenderModuleData/RuntimeModuleData/RTShaderDefine";
+import { GLESCommandUniformMap } from "./GLESCommandUniformMap";
 import { GLESInternalTex } from "./GLESInternalTex";
 
 export class GLESShaderData extends ShaderData {
@@ -28,6 +29,15 @@ export class GLESShaderData extends ShaderData {
         this._bufferData = {};
     }
 
+    createUniformBuffer(name: string, uniformMap: GLESCommandUniformMap): void {
+        this._nativeObj.createUniformBuffer(name, uniformMap._nativeObj);
+    }
+
+    updateUBOBuffer(name: string): void {
+        this._nativeObj.updateUBOBuffer(name);
+    }
+
+
     getDefineData(): RTDefineDatas {
         return this._defineDatas;
     }
@@ -40,7 +50,7 @@ export class GLESShaderData extends ShaderData {
     }
 
     clearData(): void {
-        
+        this._nativeObj.clearData();
     }
 
     /**

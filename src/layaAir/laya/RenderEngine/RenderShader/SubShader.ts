@@ -103,6 +103,7 @@ export class SubShader {
 
             }
         }
+        this.moduleData.setUniformMap(this._uniformMap);
     }
 
     private addUniform(name: string, type: ShaderDataType) {

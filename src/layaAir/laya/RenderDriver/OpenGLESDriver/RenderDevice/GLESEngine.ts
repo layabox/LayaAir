@@ -35,11 +35,11 @@ export class GLESEngine implements IRenderEngine {
     this._nativeObj = new (window as any).conchGLESEngine(config, webglMode);
   }
   endFrame(): void {
-
+    this._nativeObj.startFrame();
   }
 
   startFrame(): void {
-
+    this._nativeObj.endFrame();
   }
   
   _remapZ: boolean = true;
