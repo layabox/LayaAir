@@ -3,9 +3,8 @@ import { Quaternion } from "../../../maths/Quaternion";
 import { Vector3 } from "../../../maths/Vector3";
 import { IColliderShape } from "../../interface/Shape/IColliderShape";
 import { pxCollider } from "../Collider/pxCollider";
-import { pxPhysicsCreateUtil } from "../pxPhysicsCreateUtil";
-import { partFlag } from "../pxPhysicsManager";
 import { pxPhysicsMaterial } from "../pxPhysicsMaterial";
+import { partFlag, pxStatics } from "../pxStatics";
 
 
 /**
@@ -71,11 +70,11 @@ export class pxColliderShape implements IColliderShape {
     protected _createShape() {
         this._id = pxColliderShape._pxShapeID++;
         this._pxMaterials[0] = new pxPhysicsMaterial();
-        this._pxShape = pxPhysicsCreateUtil._pxPhysics.createShape(
+        this._pxShape = pxStatics._physics.createShape(
             this._pxGeometry,
             this._pxMaterials[0]._pxMaterial,
             true,
-            new pxPhysicsCreateUtil._physX.PxShapeFlags(this._shapeFlags)
+            new pxStatics._physX.PxShapeFlags(this._shapeFlags)
         );
         this._pxShape.setUUID(this._id);
         pxColliderShape._shapePool.set(this._id, this);
@@ -144,7 +143,7 @@ export class pxColliderShape implements IColliderShape {
 
     _setShapeFlags(flags: ShapeFlag) {
         this._shapeFlags = flags;
-        if (this._pxShape) this._pxShape.setFlags(new pxPhysicsCreateUtil._physX.PxShapeFlags(this._shapeFlags));
+        if (this._pxShape) this._pxShape.setFlags(new pxStatics._physX.PxShapeFlags(this._shapeFlags));
     }
 
     /**

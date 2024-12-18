@@ -3,12 +3,12 @@ import { Vector3 } from "../../../maths/Vector3";
 import { ICharacterController } from "../../interface/ICharacterController";
 import { ECharacterCapable } from "../../physicsEnum/ECharacterCapable";
 import { pxCapsuleColliderShape } from "../Shape/pxCapsuleColliderShape";
-import { pxPhysicsCreateUtil } from "../pxPhysicsCreateUtil";
-import { partFlag, pxPhysicsManager } from "../pxPhysicsManager";
+import type { pxPhysicsManager } from "../pxPhysicsManager";
 import { pxCollider, pxColliderType } from "./pxCollider";
 import { Event } from "../../../events/Event";
 import { EPhysicsStatisticsInfo } from "../../physicsEnum/EPhysicsStatisticsInfo";
 import { Physics3DStatInfo } from "../../interface/Physics3DStatInfo";
+import { partFlag, pxStatics } from "../pxStatics";
 export enum ControllerNonWalkableMode {
     /**
      * @en Stops character from climbing up non-walkable slopes, but doesn't move it otherwise.
@@ -102,7 +102,7 @@ export class pxCharactorCollider extends pxCollider implements ICharacterControl
     }
 
     protected _initCollider(): void {
-        this._pxActor = pxPhysicsCreateUtil._pxPhysics.createRigidDynamic(this._transformTo(new Vector3(), new Quaternion()));
+        this._pxActor = pxStatics._physics.createRigidDynamic(this._transformTo(new Vector3(), new Quaternion()));
     }
 
     /**
@@ -165,7 +165,7 @@ export class pxCharactorCollider extends pxCollider implements ICharacterControl
      */
     _createController() {
         let desc: any;
-        const pxPhysics = pxPhysicsCreateUtil._physX;
+        const pxPhysics = pxStatics._physX;
         desc = new pxPhysics.PxCapsuleControllerDesc();
         this._characterCollisionFlags = new pxPhysics.PxControllerCollisionFlags(ECharacterCollisionFlag.eCOLLISION_DOWN);
         let scale = this._getNodeScale();

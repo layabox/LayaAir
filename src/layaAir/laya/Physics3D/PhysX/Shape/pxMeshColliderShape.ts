@@ -3,8 +3,8 @@ import { Mesh } from "../../../d3/resource/models/Mesh";
 import { Quaternion } from "../../../maths/Quaternion";
 import { Vector3 } from "../../../maths/Vector3";
 import { IMeshColliderShape } from "../../interface/Shape/IMeshColliderShape";
-import { pxPhysicsCreateUtil } from "../pxPhysicsCreateUtil";
 import { pxPhysicsMaterial } from "../pxPhysicsMaterial";
+import { pxStatics } from "../pxStatics";
 import { pxColliderShape } from "./pxColliderShape";
 
 export enum PxConvexFlag {
@@ -46,7 +46,7 @@ export class pxMeshColliderShape extends pxColliderShape implements IMeshCollide
     constructor() {
         super();
         this._convex = false;
-        this._meshScale = new pxPhysicsCreateUtil._physX.PxMeshScale(Vector3.ONE, Quaternion.DEFAULT);
+        this._meshScale = new pxStatics._physX.PxMeshScale(Vector3.ONE, Quaternion.DEFAULT);
         this._id = pxColliderShape._pxShapeID++;
         this._pxMaterials[0] = new pxPhysicsMaterial();
     }
@@ -54,7 +54,7 @@ export class pxMeshColliderShape extends pxColliderShape implements IMeshCollide
     private _getMeshPosition(): any {
         let posArray = new Array<Vector3>();
         this._mesh.getPositions(posArray);
-        let vecpointer = new pxPhysicsCreateUtil._physX.PxVec3Vector();
+        let vecpointer = new pxStatics._physX.PxVec3Vector();
         posArray.forEach((vec: Vector3, index: number) => {
             vecpointer.push_back(vec);
         })
@@ -67,9 +67,9 @@ export class pxMeshColliderShape extends pxColliderShape implements IMeshCollide
         let traCount = indexCount / 3;
         let data = null
         if (indices instanceof Uint32Array) {
-            data = pxPhysicsCreateUtil.createUint32Array(indexCount);
+            data = pxStatics.createUint32Array(indexCount);
         } else {
-            data = pxPhysicsCreateUtil.createUint16Array(indexCount);
+            data = pxStatics.createUint16Array(indexCount);
         }
         for (var i = 0; i < traCount; i++) {
             let index = i * 3;
@@ -85,11 +85,11 @@ export class pxMeshColliderShape extends pxColliderShape implements IMeshCollide
         if (!this._mesh) return;
         if (!this._mesh._convexMesh) {
             let vecpointer = this._getMeshPosition();
-            this._mesh._convexMesh = pxPhysicsCreateUtil._physX.createConvexMeshFromBuffer(vecpointer, pxPhysicsCreateUtil._pxPhysics, this._limitvertex, pxPhysicsCreateUtil._tolerancesScale, PxConvexFlag.eCOMPUTE_CONVEX);
+            this._mesh._convexMesh = pxStatics._physX.createConvexMeshFromBuffer(vecpointer, pxStatics._physics, this._limitvertex, pxStatics._tolerancesScale, PxConvexFlag.eCOMPUTE_CONVEX);
             vecpointer.delete();
         }
-        let flags = new pxPhysicsCreateUtil._physX.PxConvexMeshGeometryFlags(PxConvexMeshGeometryFlag.eTIGHT_BOUNDS);
-        this._pxGeometry = new pxPhysicsCreateUtil._physX.PxConvexMeshGeometry(this._mesh._convexMesh, this._meshScale, flags);
+        let flags = new pxStatics._physX.PxConvexMeshGeometryFlags(PxConvexMeshGeometryFlag.eTIGHT_BOUNDS);
+        this._pxGeometry = new pxStatics._physX.PxConvexMeshGeometry(this._mesh._convexMesh, this._meshScale, flags);
         if (this._pxShape && this._pxCollider)
             this._pxCollider._pxActor.detachShape(this._pxShape, true);
         else if (this._pxShape) {
@@ -107,12 +107,12 @@ export class pxMeshColliderShape extends pxColliderShape implements IMeshCollide
             //trans indices
             let indicesData = this._getIndices();
 
-            this._mesh._triangleMesh = pxPhysicsCreateUtil._physX.createTriMesh(vecpointer, indicesData.ptr, this._mesh.indexCount, this._mesh.indexFormat == IndexFormat.UInt32 ? false : true, pxPhysicsCreateUtil._tolerancesScale, pxPhysicsCreateUtil._pxPhysics);
+            this._mesh._triangleMesh = pxStatics._physX.createTriMesh(vecpointer, indicesData.ptr, this._mesh.indexCount, this._mesh.indexFormat == IndexFormat.UInt32 ? false : true, pxStatics._tolerancesScale, pxStatics._physics);
             vecpointer.delete();
-            pxPhysicsCreateUtil.freeBuffer(indicesData);
+            pxStatics.freeBuffer(indicesData);
         }
-        let flags = new pxPhysicsCreateUtil._physX.PxMeshGeometryFlags(PxMeshGeometryFlag.eTIGHT_BOUNDS);
-        this._pxGeometry = new pxPhysicsCreateUtil._physX.PxTriangleMeshGeometry(this._mesh._triangleMesh, this._meshScale, flags);
+        let flags = new pxStatics._physX.PxMeshGeometryFlags(PxMeshGeometryFlag.eTIGHT_BOUNDS);
+        this._pxGeometry = new pxStatics._physX.PxTriangleMeshGeometry(this._mesh._triangleMesh, this._meshScale, flags);
         if (this._pxShape && this._pxCollider)
             this._pxCollider._pxActor.detachShape(this._pxShape, true);
         else if (this._pxShape) {
@@ -131,11 +131,11 @@ export class pxMeshColliderShape extends pxColliderShape implements IMeshCollide
         if (!this._pxMaterials[0]) {
             this._pxMaterials[0] = new pxPhysicsMaterial();
         }
-        this._pxShape = pxPhysicsCreateUtil._pxPhysics.createShape(
+        this._pxShape = pxStatics._physics.createShape(
             this._pxGeometry,
             this._pxMaterials[0]._pxMaterial,
             true,
-            new pxPhysicsCreateUtil._physX.PxShapeFlags(this._shapeFlags)
+            new pxStatics._physX.PxShapeFlags(this._shapeFlags)
         );
         this._pxShape.setUUID(this._id);
         pxColliderShape._shapePool.set(this._id, this);

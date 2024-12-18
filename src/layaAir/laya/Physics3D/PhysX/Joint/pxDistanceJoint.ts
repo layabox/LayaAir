@@ -1,5 +1,5 @@
 import { ISpringJoint } from "../../interface/Joint/ISpringJoint";
-import { pxPhysicsCreateUtil } from "../pxPhysicsCreateUtil";
+import { pxStatics } from "../pxStatics";
 import { pxJoint } from "./pxJoint";
 
 /**
@@ -15,7 +15,7 @@ export class pxDistanceJoint extends pxJoint implements ISpringJoint {
         this._localPos.cloneTo(transform.translation);
         const transform1 = pxJoint._tempTransform1;
         this._connectlocalPos.cloneTo(transform1.translation);
-        this._pxJoint = pxPhysicsCreateUtil._pxPhysics.createDistanceJoint(this._collider._pxActor, transform.translation, transform.rotation, this._connectCollider._pxActor, transform1.translation, transform1.rotation);
+        this._pxJoint = pxStatics._physics.createDistanceJoint(this._collider._pxActor, transform.translation, transform.rotation, this._connectCollider._pxActor, transform1.translation, transform1.rotation);
         this._pxJoint.setUUID(this._id);
         this._pxJoint.setDistanceJointFlag(2, true); // enable max distance;
         this._pxJoint.setDistanceJointFlag(4, true); // enable min distance;

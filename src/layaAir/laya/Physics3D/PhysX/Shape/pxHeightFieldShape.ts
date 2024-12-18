@@ -1,6 +1,6 @@
 import { Vector3 } from "../../../maths/Vector3";
 import { IHeightFieldShape } from "../../interface/Shape/IHeightFieldShape";
-import { pxPhysicsCreateUtil } from "../pxPhysicsCreateUtil";
+import { pxStatics } from "../pxStatics";
 import { pxColliderShape } from "./pxColliderShape";
 import { PxMeshGeometryFlag } from "./pxMeshColliderShape";
 
@@ -41,7 +41,7 @@ export class pxHeightFieldShape extends pxColliderShape implements IHeightFieldS
             this._minHeight = Math.min(value, this._minHeight);
         })
         let deltaHeight = this._maxHeight - this._minHeight;
-        let data = pxPhysicsCreateUtil.createFloat32Array(this._heightData.length);
+        let data = pxStatics.createFloat32Array(this._heightData.length);
         this._heightData.forEach((value, index) => {
             data.buffer[index] = (value - this._minHeight) / deltaHeight;
         })
@@ -54,7 +54,7 @@ export class pxHeightFieldShape extends pxColliderShape implements IHeightFieldS
      */
     private getFlagData() {
         let indexCount: number = this._numRows * this._numCols;
-        let data = pxPhysicsCreateUtil.createUint8Array(indexCount);
+        let data = pxStatics.createUint8Array(indexCount);
         if (this._flag) {
             data.buffer.set(this._flag);
         } else {
@@ -70,14 +70,14 @@ export class pxHeightFieldShape extends pxColliderShape implements IHeightFieldS
         //heightData
         let heightdata = this.getHeightData();
         let flagdata = this.getFlagData();
-        this._heightFiled = pxPhysicsCreateUtil._physX.createHeightField(this._numRows, this._numCols, heightdata.ptr, flagdata.ptr, pxPhysicsCreateUtil._allocator, pxPhysicsCreateUtil._tolerancesScale, pxPhysicsCreateUtil._pxPhysics);
+        this._heightFiled = pxStatics._physX.createHeightField(this._numRows, this._numCols, heightdata.ptr, flagdata.ptr, pxStatics._allocator, pxStatics._tolerancesScale, pxStatics._physics);
         let heightScale = (this._scale.y * (this._maxHeight - this._minHeight)) / 32767;
-        let flags = new pxPhysicsCreateUtil._physX.PxMeshGeometryFlags(PxMeshGeometryFlag.eTIGHT_BOUNDS);
-        this._pxGeometry = new pxPhysicsCreateUtil._physX.PxHeightFieldGeometry(this._heightFiled, flags, heightScale, this._scale.x, this._scale.z);
+        let flags = new pxStatics._physX.PxMeshGeometryFlags(PxMeshGeometryFlag.eTIGHT_BOUNDS);
+        this._pxGeometry = new pxStatics._physX.PxHeightFieldGeometry(this._heightFiled, flags, heightScale, this._scale.x, this._scale.z);
         this._pxShape && this._pxCollider._pxActor.detachShape(this._pxShape, true);
         this._createShape();
-        pxPhysicsCreateUtil.freeBuffer(heightdata);
-        pxPhysicsCreateUtil.freeBuffer(flagdata);
+        pxStatics.freeBuffer(heightdata);
+        pxStatics.freeBuffer(flagdata);
     }
 
     /**

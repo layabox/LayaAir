@@ -5,7 +5,7 @@ import { IJoint } from "../../interface/Joint/IJoint";
 import { Physics3DStatInfo } from "../../interface/Physics3DStatInfo";
 import { EPhysicsStatisticsInfo } from "../../physicsEnum/EPhysicsStatisticsInfo";
 import { pxCollider } from "../Collider/pxCollider";
-import { pxPhysicsManager } from "../pxPhysicsManager";
+import type { pxPhysicsManager } from "../pxPhysicsManager";
 
 /**
  * joint flag
