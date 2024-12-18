@@ -26,7 +26,7 @@ import { Command2D } from "../RenderCMD2D/Command2D";
 import { CommandBuffer2D } from "../RenderCMD2D/CommandBuffer2D";
 import { DrawMesh2DCMD } from "../RenderCMD2D/DrawMesh2DCMD";
 import { Set2DRTCMD } from "../RenderCMD2D/Set2DRenderTargetCMD";
-import { BaseLight2D, Light2DType } from "./BaseLight2D";
+import { type BaseLight2D, Light2DType } from "./BaseLight2D";
 import { DirectionLight2D } from "./DirectionLight2D";
 import { LightLine2D } from "./LightLine2D";
 import { LightOccluder2DCore } from "./LightOccluder2DCore";

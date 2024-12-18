@@ -1,4 +1,3 @@
-import { Laya } from "../../Laya";
 import { LayaEnv } from "../../LayaEnv";
 import { Camera2D } from "../display/Scene2DSpecial/Camera2D";
 import { BaseRenderNode2D } from "../NodeRender2D/BaseRenderNode2D";
@@ -120,7 +119,7 @@ export class Render {
             }
         }
         ILaya.stage.on("visibilitychange", this, this._onVisibilitychange);
-        LayaEnv.isConch && Laya.timer.frameOnce(2, null, Render.gc);
+        LayaEnv.isConch && ILaya.timer.frameOnce(2, null, Render.gc);
     }
 
     private _timeId: number = 0;

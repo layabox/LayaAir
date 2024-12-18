@@ -22,10 +22,10 @@ import { BufferState } from "../../../webgl/utils/BufferState";
 import { VertexMesh } from "../../../RenderEngine/RenderShader/VertexMesh";
 import { MorphTargetData } from "./MorphTargetData";
 import { Config } from "../../../../Config";
-import { Laya3D } from "../../../../Laya3D";
 import { EPhysicsCapable } from "../../../Physics3D/physicsEnum/EPhycisCapable";
 import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 import { NotReadableError } from "../../../utils/Error";
+import { ILaya3D } from "../../../../ILaya3D";
 /**
  * @internal
  */
@@ -794,8 +794,9 @@ export class Mesh extends Resource implements IClone {
         if (this._convexMesh == null) {
             return null;
         }
-        if (this.__convexMesh == null && Laya3D._PhysicsCreateUtil && Laya3D._PhysicsCreateUtil.getPhysicsCapable(EPhysicsCapable.Physics_CreateCorveMesh)) {
-            this.__convexMesh = Laya3D._PhysicsCreateUtil.createCorveMesh(this);
+        let util = ILaya3D.Laya3D._PhysicsCreateUtil;
+        if (this.__convexMesh == null && util && util.getPhysicsCapable(EPhysicsCapable.Physics_CreateCorveMesh)) {
+            this.__convexMesh = util.createCorveMesh(this);
         }
         return this.__convexMesh;
     }

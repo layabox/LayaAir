@@ -9,7 +9,7 @@ window.screenOrientation = "sensor_landscape";
 loadLib("jsLibs/spine-core-3.8.js")
 loadLib("jsLibs/laya.Box2d.js")
 loadLib("jsLibs/bullet.js")
-loadLib("astar.js")
+loadLib("3rd/astar.js")
 
 loadLib("rollUp/laya.js");
 loadLib("rollUp/bundle.js");

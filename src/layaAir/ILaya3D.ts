@@ -1,5 +1,5 @@
-import { Scene3D } from "./laya/d3/core/scene/Scene3D";
-import { Laya3D } from "./Laya3D";
+import type { Scene3D } from "./laya/d3/core/scene/Scene3D";
+import type { Laya3D } from "./Laya3D";
 
 /**
  * @internal
