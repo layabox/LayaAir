@@ -72,7 +72,6 @@ export class HLODBatchMesh extends GeometryElement {
 
     /**
      * @internal
-     * @override
      */
     _prepareRender(state: RenderContext3D): boolean {
         this._mesh._uploadVerticesData();
@@ -81,7 +80,6 @@ export class HLODBatchMesh extends GeometryElement {
 
     /**
      * @internal
-     * @override
      */
     _updateRenderParams(state: RenderContext3D): void {
         var mesh: Mesh = this._mesh;

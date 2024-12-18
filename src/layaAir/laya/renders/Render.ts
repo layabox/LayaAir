@@ -34,8 +34,6 @@ export class Render {
     private _first = true;
     /** 刚启动的时间。由于微信的rAF不标准，传入的stamp参数不对，因此自己计算一个从启动开始的相对时间 */
     private _startTm = 0;
-
-    /** @internal */
     private static ifps = 1000 / 60;
 
     static _Render: Render;
@@ -53,12 +51,6 @@ export class Render {
         return Render._customEngine;
     }
 
-    // static clearResources(){
-    //     Laya.timer.frameOnce(2, this, () => {
-
-    //         EngineUtils.gc();
-    //     })
-    // }
 
     static gc() {
         if (LayaEnv.isConch) {
@@ -131,13 +123,8 @@ export class Render {
         LayaEnv.isConch && Laya.timer.frameOnce(2, null, Render.gc);
     }
 
-    /**@private */
     private _timeId: number = 0;
 
-    /**@private */
-    /**
-     * @performanceTool  func count 
-     */
     private _onVisibilitychange(): void {
         if (!ILaya.stage.isVisibility) {
             this._timeId = window.setInterval(_enterFrame, 1000);

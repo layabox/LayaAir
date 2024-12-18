@@ -180,7 +180,6 @@ export class SpotLight2D extends BaseLight2D {
     }
 
     /**
-     * @internal
      * 计算灯光范围（局部坐标）
      */
     protected _calcLocalRange() {
@@ -195,7 +194,6 @@ export class SpotLight2D extends BaseLight2D {
     }
 
     /**
-     * @internal
      * 计算灯光范围（世界坐标）
      * @param screen 
      */
@@ -278,7 +276,6 @@ export class SpotLight2D extends BaseLight2D {
     }
 
     /**
-     * @internal
      * 限制参数范围
      */
     private _limitParam() {
@@ -294,7 +291,6 @@ export class SpotLight2D extends BaseLight2D {
     }
 
     /**
-     * @internal
      * 创建灯光多边形
      * @param mesh 
      * @param recover 
@@ -379,7 +375,6 @@ export class SpotLight2D extends BaseLight2D {
     }
 
     /**
-     * @internal
      * 销毁
      */
     protected _onDestroy() {

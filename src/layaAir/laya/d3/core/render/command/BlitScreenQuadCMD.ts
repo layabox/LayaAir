@@ -59,27 +59,19 @@ export class BlitScreenQuadCMD extends Command {
 		return cmd;
 	}
 
-	/**@internal */
 	private _source: BaseTexture = null;
-	/**@internal */
 	private _dest: RenderTexture = null;
-	/**@internal */
 	private _offsetScale: Vector4 = new Vector4();
-	/**@internal */
 	private _shader: Shader3D = null;
-	/**@internal */
 	private _shaderData: ShaderData = null;
-	/**@internal */
 	private _subShader: number = 0;
-	/**@internal */
 	private _sourceTexelSize: Vector4 = new Vector4();
-	/**@internal */
 	private _renderElement: RenderElement;
-	/**@internal */
 	private _transform3D: Transform3D;
 	/**@internal */
 	_blitQuadCMDData: BlitQuadCMDData;
 
+	/**@ignore */
 	constructor() {
 		super();
 		this._blitQuadCMDData = Laya3DRender.Render3DPassFactory.createBlitQuadCMDData();
@@ -127,16 +119,13 @@ export class BlitScreenQuadCMD extends Command {
 	}
 
 	/**
-	 * @override
 	 * @internal
-	 * @returns 
 	 */
 	getRenderCMD(): BlitQuadCMDData {
 		return this._blitQuadCMDData;
 	}
 
 	/**
-	 * @internal
 	 * @param shader 
 	 * @param subShader 
 	 * @param shaderData 
@@ -150,8 +139,6 @@ export class BlitScreenQuadCMD extends Command {
 	}
 
 	/**
-	 * @inheritDoc
-	 * @override
 	 * @en Execute the command.
 	 * @zh 执行命令。
 	 */
@@ -190,8 +177,6 @@ export class BlitScreenQuadCMD extends Command {
 	}
 
 	/**
-	 * @inheritDoc
-	 * @override
 	 * @en Recover the command for reuse.
 	 * @zh 回收命令以重复使用。
 	 */

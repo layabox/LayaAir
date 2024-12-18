@@ -1,9 +1,7 @@
-import { Node } from "../../display/Node";
 import { Mesh } from "../resource/models/Mesh";
 import { MeshFilter } from "./MeshFilter";
 import { RenderableSprite3D } from "./RenderableSprite3D";
 import { SkinnedMeshRenderer } from "./SkinnedMeshRenderer";
-import { Sprite3D } from "./Sprite3D";
 import { SkinnedMeshSprite3DShaderDeclaration } from "./SkinnedMeshSprite3DShaderDeclaration";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { LayaGL } from "../../layagl/LayaGL";
@@ -33,7 +31,6 @@ export class SkinnedMeshSprite3D extends RenderableSprite3D {
         commandUniform.addShaderUniform(SkinnedMeshSprite3D.BONES, "u_Bones", ShaderDataType.Buffer);
     }
 
-    /** @internal */
     private _meshFilter: MeshFilter;
 
     /**
@@ -69,8 +66,6 @@ export class SkinnedMeshSprite3D extends RenderableSprite3D {
     }
 
     /**
-     * @inheritDoc
-     * @override
      * @en Destroy the SkinnedMeshSprite3D instance.
      * @param destroyChild Whether to destroy child nodes.
      * @zh 销毁 SkinnedMeshSprite3D 实例。

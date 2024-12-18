@@ -11,13 +11,8 @@ export class CapsuleColliderShape extends Physics3DColliderShape {
 	/**@internal */
 	_shape: ICapsuleColliderShape;
 
-	/**@internal */
 	private _radius: number;
-
-	/**@internal */
 	private _length: number;
-
-	/**@internal */
 	private _orientation: number;
 
     /**
@@ -81,10 +76,6 @@ export class CapsuleColliderShape extends Physics3DColliderShape {
 		this.orientation = orientation;
 	}
 
-	/**
-	 * @internal
-	 * @override
-	 */
 	protected _createShape() {
 		if (Laya3D.PhysicsCreateUtil.getPhysicsCapable(EPhysicsCapable.Physics_CapsuleColliderShape))
 			this._shape = Laya3D.PhysicsCreateUtil.createCapsuleColliderShape();
@@ -94,12 +85,10 @@ export class CapsuleColliderShape extends Physics3DColliderShape {
 	}
 
 	/**
-	 * @inheritDoc
-	 * @override
 	 * @en Clone a new CapsuleColliderShape object.
-	 * @rerurn Clone CapsuleColliderShape object.
+	 * @returns Clone CapsuleColliderShape object.
 	 * @zh 克隆一个新的 胶囊形状碰撞器 对象。
-	 * @return 克隆的 胶囊形状碰撞器 对象。
+	 * @returns 克隆的 胶囊形状碰撞器 对象。
 	 */
 	clone(): any {
 		var dest: CapsuleColliderShape = new CapsuleColliderShape(this._radius, this._length, this._orientation);
@@ -108,8 +97,6 @@ export class CapsuleColliderShape extends Physics3DColliderShape {
 	}
 
 	/**
-	 * @inheritDoc
-	 * @override
 	 * @en Clone data to target.
 	 * @param destObject Clone target.
 	 * @zh 克隆数据到目标

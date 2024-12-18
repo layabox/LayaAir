@@ -138,25 +138,21 @@ export class BaseRenderNode2D extends Component {
     _spriteShaderData: ShaderData;
 
     /**
-     * @internal
      * 唯一ID
      */
     private _renderid: number;
 
     /**
-     * @internal
      * 渲染标签位,用于渲染分层
      */
     private _layer: number = 0;
 
     /**
-     * @internal
      * 节点内的渲染排序模式
      */
     private _ordingMode: Render2DOrderMode;
 
     /**
-     * @internal
      * 渲染目标大小
      */
     private _rtsize: Vector2 = new Vector2();
@@ -177,16 +173,10 @@ export class BaseRenderNode2D extends Component {
 
     /**
      * 基于不同BaseRender的uniform集合
-     * @internal
      */
     protected _getcommonUniformMap(): Array<string> {
         return ["BaseRender2D"];
     }
-
-    /**
-     * @internal
-     * @returns 
-     */
     protected _getRect(): Vector4 {
         return null;//get sprite ?
     }
@@ -195,9 +185,6 @@ export class BaseRenderNode2D extends Component {
         //TODO
     }
 
-    /**
-     * @internal
-     */
     private _changeMaterialReference(lastValue: Material, value: Material): void {
         (lastValue) && (lastValue._removeReference());
         (value) && (value._addReference());//TODO:value可以为空
@@ -213,6 +200,7 @@ export class BaseRenderNode2D extends Component {
         this._spriteShaderData.setVector2(BaseRenderNode2D.BASERENDERSIZE, this._rtsize);
     }
 
+    /**@ignore */
     constructor() {
         super();
         this._renderid = BaseRenderNode2D._uniqueIDCounter++;
@@ -242,10 +230,6 @@ export class BaseRenderNode2D extends Component {
      */
     preRenderUpdate?(context: IRenderContext2D): void;
 
-    /**
-     * @internal
-     * @protected
-     */
     protected _onEnable(): void {
         super._onEnable();
 
@@ -254,10 +238,6 @@ export class BaseRenderNode2D extends Component {
             this._addRenderToLightManager();
     }
 
-    /**
-     * @internal
-     * @protected
-     */
     protected _onDisable(): void {
         this.owner.renderNode2D = null;
         if (this._lightReceive)
@@ -268,7 +248,6 @@ export class BaseRenderNode2D extends Component {
 
     /**
      * override it
-     * @internal
      */
     protected _onDestroy() {
         for (var i = 0, n = this._materials.length; i < n; i++) {

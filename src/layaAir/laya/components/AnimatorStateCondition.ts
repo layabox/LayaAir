@@ -47,18 +47,11 @@ export class AnimatorStateCondition {
     }
 
     /**
-     * @internal 状态条件类型
+     * @en The type of the condition.
+     * @zh 状态条件类型
      */
     protected _type: AniStateConditionType;
-
-    /**
-     * @internal
-     */
     private _id: number;
-
-    /**
-     * @intenral
-     */
     private _name: string;
 
     /**
@@ -117,14 +110,8 @@ export class AnimatorStateCondition {
  * @zh 数值条件类。用于处理基于数值比较的条件。
  */
 export class AnimatorStateNumberCondition extends AnimatorStateCondition {
-    /**
-     * @internal
-     */
-    private _numberValue: number;
 
-    /**
-     * @internal
-     */
+    private _numberValue: number;
     private _numberCompareFlag: AniStateConditionNumberCompressType;
 
     /**
@@ -181,9 +168,7 @@ export class AnimatorStateNumberCondition extends AnimatorStateCondition {
  * @zh 布尔条件类。用于处理基于布尔值的条件。
  */
 export class AnimatorStateBoolCondition extends AnimatorStateCondition {
-    /**
-     * @internal
-     */
+
     private _compareFlag: boolean;
 
     /**

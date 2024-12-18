@@ -24,14 +24,13 @@ import { PixelLineMaterial } from "./PixelLineMaterial";
  * @zh PixelLineRenderer 类用于线渲染器。
  */
 export class PixelLineRenderer extends BaseRender {
-    /** @internal */
     protected _projectionViewWorldMatrix: Matrix4x4;
 
     /**@internal */
     _pixelLineFilter: PixelLineFilter;
-    /** @private 是否调用active */
+    /**  是否调用active */
     private _isRenderActive: Boolean = false;
-    /** @private 是否加入渲染队列*/
+    /**  是否加入渲染队列*/
     private _isInRenders: Boolean = false;
 
     private _needUpdatelines: boolean = false;
@@ -102,19 +101,11 @@ export class PixelLineRenderer extends BaseRender {
         return this._pixelLineFilter._lineCount;
     }
 
-    /**
-     * @internal
-     * @protected
-     */
     protected _onAdded(): void {
         super._onAdded();
         this._changeRenderObjects(0, PixelLineMaterial.defaultMaterial);
     }
 
-    /**
-     * @internal
-     * @protected
-     */
     protected _onEnable(): void {
         this._isRenderActive = true;
         if (this._pixelLineFilter._lineCount != 0) {
@@ -124,10 +115,6 @@ export class PixelLineRenderer extends BaseRender {
         this._setBelongScene(this.owner.scene);
     }
 
-    /**
-     * @internal
-     * @protected
-     */
     protected _onDisable(): void {
         if (this._pixelLineFilter && this._pixelLineFilter._lineCount != 0 && this._isRenderActive) {
             this.owner.scene._removeRenderObject(this);
@@ -161,7 +148,6 @@ export class PixelLineRenderer extends BaseRender {
 
     /**
      * @internal
-     * @inheritDoc
      */
     _changeRenderObjects(index: number, material: Material): void {
         var renderObjects: RenderElement[] = this._renderElements;
@@ -370,10 +356,6 @@ export class PixelLineRenderer extends BaseRender {
         else
             throw new OutOfRangeError(index);
     }
-
-    /**
-     * @internal
-     */
     private _updateLineDatas() {
         let n = this.lineCount;
         this._lines = [];
@@ -397,21 +379,11 @@ export class PixelLineRenderer extends BaseRender {
         }
     }
 
-    /**
-     * @internal
-     * @protected
-     */
     protected _onDestroy() {
         this._pixelLineFilter.destroy();
         this._pixelLineFilter = null;
         super._onDestroy();
     }
-
-    /**
-     * @internal
-     * @override
-     * @param dest 
-     */
     _cloneTo(dest: PixelLineRenderer): void {
         super._cloneTo(dest);
         dest.maxLineCount = this.maxLineCount;

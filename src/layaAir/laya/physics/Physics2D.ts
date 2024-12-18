@@ -17,7 +17,6 @@ import { PlayerConfig } from "../../Config";
  */
 export class Physics2D extends EventDispatcher {
 
-    /**@internal */
     private static _I: Physics2D;
 
     /**
@@ -28,10 +27,10 @@ export class Physics2D extends EventDispatcher {
         return Physics2D._I || (Physics2D._I = new Physics2D());
     }
 
-    /**@internal 是否已经激活*/
+    /** 是否已经激活*/
     private _enabled: boolean;
 
-    /**@internal 根容器*/
+    /** 根容器*/
     private _worldRoot: Sprite;
 
     /**
@@ -228,7 +227,6 @@ export class Physics2D extends EventDispatcher {
         this._updataattributeLists.remove(body);
     }
 
-    /**@internal*/
     private _update(): void {
         //同步渲染世界参数到物理世界
         for (var i = 0, n = this._updataattributeLists.length; i < n; i++) {

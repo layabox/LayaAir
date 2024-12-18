@@ -436,8 +436,6 @@ export class UI3D extends BaseRender {
     }
 
     /**
-     * @inheritDoc
-     * @override
      * @internal
      */
     _renderUpdate(context: IRenderContext3D): void {
@@ -451,7 +449,6 @@ export class UI3D extends BaseRender {
 
     /**
      * @internal
-     * @override
      * @param context 
      */
     renderUpdate(context: RenderContext3D): void {
@@ -500,8 +497,6 @@ export class UI3D extends BaseRender {
     }
 
     /**
-     * @inheritDoc
-     * @override
      * @internal
      */
     _calculateBoundingBox(): void {
@@ -509,26 +504,15 @@ export class UI3D extends BaseRender {
         this._geometry.bounds._tranform(this._matrix, this._bounds);
     }
 
-    /**
-     * @internal
-     */
     protected _onAdded(): void {
         super._onAdded();
         this._addRenderElement();
     }
-
-    /**
-     * @internal
-     */
     protected _onDisable(): void {
         super._onDisable();
         this.owner.transform.off(Event.TRANSFORM_CHANGED, this, this._transByRotate);//如果为合并BaseRender,owner可能为空
         this.owner.scene._UI3DManager.remove(this);
     }
-
-    /**
-     * @internal
-     */
     protected _onEnable(): void {
         super._onEnable();
         this.owner.scene._UI3DManager.add(this);
@@ -536,9 +520,6 @@ export class UI3D extends BaseRender {
         this._transByRotate();
     }
 
-    /**
-     * @internal
-     */
     protected _onDestroy() {
         super._onDestroy();
         this._rendertexure2D && this._rendertexure2D.destroy();

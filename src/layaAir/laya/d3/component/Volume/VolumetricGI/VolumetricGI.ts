@@ -26,12 +26,9 @@ export class VolumetricGI extends Volume {
     }
     /** @internal IDE*/
     probeLocations: Float32Array;
-    /**@internal */
     private _probeCounts: Vector3;
-    /**@internal */
     private _probeStep: Vector3;
     /**
-     * @internal
      * x: irradiance probe texel size
      * y: distance probe texel size
      * z: normalBias
@@ -58,13 +55,7 @@ export class VolumetricGI extends Volume {
         this._volumetricProbeID = VolumetricGI.getID();
         this._dataModule.intensity = 1;
     }
-
-    /**
-     * @inheritdoc
-     * @internal
-     * @protected
-     * @override
-    */
+    
     protected _onEnable(): void {
         super._onEnable();
         this._dataModule.updateMark = ILaya3D.Scene3D._updateMark;

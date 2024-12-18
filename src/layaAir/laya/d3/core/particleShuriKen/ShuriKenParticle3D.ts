@@ -10,7 +10,6 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 
 	declare _render: ShurikenParticleRenderer;
 
-	/** @internal */
 	private _particleSystem: ShurikenParticleSystem;
 
 	/**
@@ -41,7 +40,6 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 	}
 
 	/**
-	 * @override
 	 * @en Destroy this object.
 	 * @param	destroyChild Whether to destroy the child node. If true, the child node will be destroyed, otherwise it will not be destroyed.
 	 * @zh 销毁此对象。

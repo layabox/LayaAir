@@ -18,24 +18,13 @@ import { PixelLineVertex } from "./PixelLineVertex";
  * @zh `PixelLineFilter` 类用于线过滤器。
  */
 export class PixelLineFilter extends GeometryElement {
-	/**@internal */
 	private static _type: number = GeometryElement._typeCounter++;
-
-	/** @internal */
 	private _floatCountPerVertices: number = 10;
-
-
-	/** @internal */
 	private _vertexBuffer: VertexBuffer3D;
-	/** @internal */
 	private _vertices: Float32Array;
-	/** @internal */
 	private _minUpdate: number = Number.MAX_VALUE;
-	/** @internal */
 	private _maxUpdate: number = Number.MIN_VALUE;
-	/** @internal */
 	private _floatBound: Float32Array = new Float32Array(6);
-	/** @internal */
 	private _calculateBound: boolean = true;
 
 	/** @internal */
@@ -77,8 +66,6 @@ export class PixelLineFilter extends GeometryElement {
 	}
 
 	/**
-	 *	{@inheritDoc PixelLineFilter._getType}
-	 *	@override
 	 *  @internal
 	 */
 	_getType(): number {
@@ -114,9 +101,6 @@ export class PixelLineFilter extends GeometryElement {
 		this._maxUpdate = Number.MIN_VALUE;
 	}
 
-	/**
-	 * @internal
-	 */
 	private _updateLineVertices(offset: number, startPosition: Vector3, endPosition: Vector3, startColor: Color, endColor: Color, startNormal: Vector3 = null, endNormal: Vector3 = null): void {
 		if (startPosition) {
 			this._vertices[offset + 0] = startPosition.x;
@@ -297,8 +281,6 @@ export class PixelLineFilter extends GeometryElement {
 	}
 
 	/**
-	 * @inheritDoc
-	 * @override
 	 * @internal
 	 */
 	_prepareRender(state: RenderContext3D): boolean {
@@ -306,8 +288,6 @@ export class PixelLineFilter extends GeometryElement {
 	}
 
 	/**
-	 * @inheritDoc
-	 * @override
 	 * @internal
 	 */
 	_updateRenderParams(state: RenderContext3D): void {
@@ -323,8 +303,6 @@ export class PixelLineFilter extends GeometryElement {
 	}
 
 	/**
-	 * @inheritDoc
-	 * @override
 	 * @en Destroy the PixelLineFilter instance.
 	 * @zh 销毁PixelLineFilter实例。
 	 */

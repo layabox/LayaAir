@@ -15,19 +15,18 @@ import { BatchRender } from "./BatchRender";
  */
 export class StaticInstanceBatchRender extends BatchRender {
 
-    /**@internal instanceBatchManager*/
+    /** instanceBatchManager*/
     private _batchManager: InstanceBatchManager;
 
-    /**@internal  记录每个BatchMask对应的Instance的数量*/
+    /** 记录每个BatchMask对应的Instance的数量*/
     private _insBatchMarksNums: number[] = [];
 
-    /**@interal */
     private _insElementMarksArray: InstanceRenderElement[] = [];
 
-    /**@interal batch rule:Batch min count*/
+    /** batch rule:Batch min count*/
     private _instanceBatchminNums: number = 10;
 
-    /**@interal cache udpate element*/
+    /** cache udpate element*/
     private _updateChangeElement: InstanceRenderElement[] = [];
 
     /**
@@ -178,8 +177,6 @@ export class StaticInstanceBatchRender extends BatchRender {
     }
 
     /**
-     * @internal
-     * @override
      * @en Determines whether the render instance meets the batch conditions.
      * @param render The base render object to check for batching conditions.
      * @returns boolean True if the render instance meets the batching conditions; otherwise, false.
@@ -200,9 +197,8 @@ export class StaticInstanceBatchRender extends BatchRender {
         return true;
     }
 
-    /**
-     * @override
-     * @internal
+    /** 
+     * 
      * @en Recalculate the bounding box
      * @zh 重新计算包围盒
      */
@@ -220,11 +216,6 @@ export class StaticInstanceBatchRender extends BatchRender {
         return this._bounds;
     }
 
-    /**
-     * @internal
-     * @protected
-     * destroy
-     */
     protected _onDestroy() {
         super._onDestroy();
     }
@@ -232,7 +223,6 @@ export class StaticInstanceBatchRender extends BatchRender {
     /**
      * 添加合批到render
      * @param render 
-     * @internal
      * @returns 
      */
     _batchOneRender(render: BaseRender) {
@@ -249,9 +239,7 @@ export class StaticInstanceBatchRender extends BatchRender {
     }
 
     /**
-     * 删除合批
-     * @Override
-     * @internal
+     * 删除合批 
      * @param render 
      * @returns 
      */
@@ -270,9 +258,7 @@ export class StaticInstanceBatchRender extends BatchRender {
     }
 
     /**
-     * 合批过的更新数据
-     * @override
-     * @internal
+     * 合批过的更新数据 
      * @param render 
      * @returns 
      */
@@ -289,7 +275,6 @@ export class StaticInstanceBatchRender extends BatchRender {
     }
 
     /**
-     * @internal
      * @en Clean up all renderings
      * @zh 清理所有渲染
      */

@@ -46,21 +46,15 @@ export class Animator extends Component {
      */
     static CULLINGMODE_CULLCOMPLETELY: number = 2;
 
-    /**@internal */
     private _speed: number;
-    /**@internal */
     private _keyframeNodeOwnerMap: any;
-    /**@internal */
     private _keyframeNodeOwners: KeyframeNodeOwner[] = [];
-    /**@internal */
     private _updateMark: number;
-    /**@internal */
     private _controllerLayers: AnimatorControllerLayer[];
-    /**@internal 更新模式*/
+    /** 更新模式*/
     private _updateMode: AnimatorUpdateMode = AnimatorUpdateMode.Normal;
-    /**@internal 降低更新频率调整值*/
+    /** 降低更新频率调整值*/
     private _lowUpdateDelty: number = 20;
-    /**@internal */
     private _animatorParams: AnimatorParams = {};
     // /**@internal */
     // _linkSprites: any;
@@ -87,7 +81,6 @@ export class Animator extends Component {
     _animationNodeWorldMatrixs: Float32Array;
     /**@internal	[NATIVE]*/
     _animationNodeParentIndices: Int16Array;
-    /**@internal */
     private _finishSleep: boolean = false;
 
     private _LateUpdateEvents: Delegate = new Delegate();
@@ -176,6 +169,7 @@ export class Animator extends Component {
     }
 
     /**
+     * @ignore
      * @en The constructor of Animator.
      * @zh 构造方法，创建动画组件。
      */
@@ -187,10 +181,6 @@ export class Animator extends Component {
         this._keyframeNodeOwnerMap = {};
         this._updateMark = 0;
     }
-
-    /**
-     * @internal
-     */
     private _addKeyframeNodeOwner(clipOwners: KeyframeNodeOwner[], node: KeyframeNode, propertyOwner: any): void {
         var nodeIndex = node._indexInList;
         var fullPath = node.fullPath;
@@ -298,9 +288,6 @@ export class Animator extends Component {
         }
     }
 
-    /**
-     * @internal
-     */
     private _updatePlayer(animatorState: AnimatorState, playState: AnimatorPlayState, elapsedTime: number, islooping: boolean, layerIndex: number): void {
         var clipDuration: number = animatorState._clip!._duration * (animatorState.clipEnd - animatorState.clipStart);
         var lastElapsedTime: number = playState._elapsedTime;
@@ -353,7 +340,6 @@ export class Animator extends Component {
     }
 
     /**
-     * @internal
      * @param animatorState 
      * @param playState 
      */
@@ -363,9 +349,6 @@ export class Animator extends Component {
         }
     }
 
-    /**
-     * @internal
-     */
     private _updateEventScript(stateInfo: AnimatorState, playStateInfo: AnimatorPlayState): void {
         if (!this.owner._getBit(NodeFlags.HAS_SCRIPT))
             return;
@@ -385,9 +368,6 @@ export class Animator extends Component {
         this._eventScript(events, parentPlayTime, time);
         playStateInfo._parentPlayTime = time;
     }
-    /**
-    * @internal
-    */
     private _eventScript(events: AnimationEvent[], parentPlayTime: number, currPlayTime: number) {
         let scripts = this.owner.components;
         for (let i = 0, len = events.length; i < len; i++) {
@@ -408,7 +388,6 @@ export class Animator extends Component {
 
     /**
      * 更新clip数据
-     * @internal
      */
     private _updateClipDatas(animatorState: AnimatorState, addtive: boolean, playStateInfo: AnimatorPlayState, animatorMask: AvatarMask = null): void {
         var clip = animatorState._clip;
@@ -420,9 +399,6 @@ export class Animator extends Component {
         clip!._evaluateClipDatasRealTime(clip!._nodes!, curPlayTime, currentFrameIndices!, addtive, frontPlay, animatorState._realtimeDatas, animatorMask);
     }
 
-    /**
-     * @internal
-     */
     private _applyFloat(defaultValue: number, nodeOwner: KeyframeNodeOwner, additive: boolean, weight: number, isFirstLayer: boolean, data: number): number {
         if (nodeOwner.updateMark === this._updateMark) {//一定非第一层
             if (additive) {
@@ -610,9 +586,6 @@ export class Animator extends Component {
         return defaultValue;
     }
 
-    /**
-     * @internal
-     */
     private _applyPositionAndRotationEuler(nodeOwner: KeyframeNodeOwner, additive: boolean, weight: number, isFirstLayer: boolean, data: Vector3, out: Vector3): void {
         if (nodeOwner.updateMark === this._updateMark) {//一定非第一层
             if (additive) {
@@ -657,9 +630,6 @@ export class Animator extends Component {
         }
     }
 
-    /**
-     * @internal
-     */
     private _applyRotation(nodeOwner: KeyframeNodeOwner, additive: boolean, weight: number, isFirstLayer: boolean, clipRot: Quaternion, localRotation: Quaternion): void {
         if (nodeOwner.updateMark === this._updateMark) {//一定非第一层
             if (additive) {
@@ -693,9 +663,6 @@ export class Animator extends Component {
         }
     }
 
-    /**
-     * @internal
-     */
     private _applyScale(nodeOwner: KeyframeNodeOwner, additive: boolean, weight: number, isFirstLayer: boolean, clipSca: Vector3, localScale: Vector3): void {
         if (nodeOwner.updateMark === this._updateMark) {//一定非第一层
             if (additive) {
@@ -732,9 +699,6 @@ export class Animator extends Component {
         }
     }
 
-    /**
-     * @internal
-     */
     private _applyCrossData(nodeOwner: KeyframeNodeOwner, additive: boolean, weight: number, isFirstLayer: boolean, srcValue: any, desValue: any, crossWeight: number): void {
         var pro: any = nodeOwner.propertyOwner;
         let lastpro;
@@ -1033,9 +997,6 @@ export class Animator extends Component {
         }
     }
 
-    /**
-     * @internal
-     */
     private _setCrossClipDatasToNode(controllerLayer: AnimatorControllerLayer, srcState: AnimatorState, destState: AnimatorState, crossWeight: number, isFirstLayer: boolean): void {
         var nodeOwners: KeyframeNodeOwner[] = controllerLayer._crossNodesOwners;
         var ownerCount: number = controllerLayer._crossNodesOwnersCount;
@@ -1070,10 +1031,6 @@ export class Animator extends Component {
 
     }
 
-
-    /**
-     * @internal
-     */
     private _setFixedCrossClipDatasToNode(controllerLayer: AnimatorControllerLayer, destState: AnimatorState, crossWeight: number, isFirstLayer: boolean): void {
         var nodeOwners: KeyframeNodeOwner[] = controllerLayer._crossNodesOwners;
         var ownerCount: number = controllerLayer._crossNodesOwnersCount;
@@ -1098,9 +1055,6 @@ export class Animator extends Component {
         }
     }
 
-    /**
-     * @internal
-     */
     private _revertDefaultKeyframeNodes(clipStateInfo: AnimatorState): void {
         var nodeOwners: KeyframeNodeOwner[] = clipStateInfo._nodeOwners;
         for (var i: number = 0, n: number = nodeOwners.length; i < n; i++) {
@@ -1259,10 +1213,6 @@ export class Animator extends Component {
         }
     }
 
-    /**
-     * @internal
-     * @protected
-     */
     protected _onEnable(): void {
         for (let i = 0, n = this._controllerLayers.length; i < n; i++) {
             if (this._controllerLayers[i].playOnWake) {
@@ -1272,10 +1222,6 @@ export class Animator extends Component {
         }
     }
 
-    /**
-     * @internal
-     * @protected
-     */
     protected _onDestroy() {
         for (let i = 0, n = this._controllerLayers.length; i < n; i++)
             this._controllerLayers[i]._removeReference();
@@ -1439,7 +1385,6 @@ export class Animator extends Component {
 
     /**
      * @internal
-     * @override
      */
     _cloneTo(dest: Animator): void {
         dest.cullingMode = this.cullingMode;

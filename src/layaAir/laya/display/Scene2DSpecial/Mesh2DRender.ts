@@ -161,9 +161,6 @@ export class Mesh2DRender extends BaseRenderNode2D {
         return this._materials[0];
     }
 
-    /**
-     * @internal
-     */
     private _changeMesh() {
         let submeshNum = this._sharedMesh ? this._sharedMesh.subMeshCount : 0;
         if (submeshNum > this._renderElements.length) {
@@ -209,6 +206,7 @@ export class Mesh2DRender extends BaseRenderNode2D {
         this._lightReceive && this._updateLight();
     }
 
+    /**@ignore */
     constructor() {
         super();
         if (!Mesh2DRender.mesh2DDefaultMaterial) {

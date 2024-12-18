@@ -8,61 +8,34 @@ import { Matrix } from "../../maths/Matrix";
 import { Loader } from "../../net/Loader";
 
 /**
- * @en The animation is scheduled after playing.
- * @zh 动画播放完毕后调度。
- * @eventType Event.COMPLETE
- */
-/*[Event(name = "complete", type = "laya.events.Event")]*/
-
-/**
- * @en Schedule after playing to a tag.
- * @zh 播放到某标签后调度。
- * @eventType Event.LABEL
- */
-/*[Event(name = "label", type = "laya.events.Event")]*/
-
-/**
- * @en Schedule after loading.
- * @zh 加载完成后调度。
- * @eventType Event.LOADED
- */
-/*[Event(name = "loaded", type = "laya.events.Event")]*/
-
-/**
- * @en Schedule after enter post frame.
- * @zh 进入帧后调度。
- * @eventType Event.FRAME
- */
-/*[Event(name = "frame", type = "laya.events.Event")]*/
-
-/**
  * @en MovieClip is used to play SWF animations that have been processed by tools.
+ * - Event.COMPLETE: After the animation is played.
+ * - Event.LABEL: After playing to a tag.
+ * - Event.LOADED: After loading.
+ * - Event.FRAME: After entering the frame.
  * @zh MovieClip 用于播放经过工具处理后的 swf 动画。
+ * - Event.COMPLETE: 动画播放完毕后调度。
+ * - Event.LABEL: 播放到某标签后调度。
+ * - Event.LOADED: 加载完成后调度。
+ * - Event.FRAME: 进入帧后调度。
  */
 export class MovieClip extends Sprite {
-    /**@internal */
     protected static _ValueList: any[] = ["x", "y", "width", "height", "scaleX", "scaleY", "rotation", "alpha"];
-    /**@internal 数据起始位置。*/
+    /** 数据起始位置。*/
     protected _start: number = 0;
-    /**@internal 当前位置。*/
+    /** 当前位置。*/
     protected _Pos: number = 0;
-    /**@internal 数据。*/
+    /** 数据。*/
     protected _data: Byte;
-    /**@internal */
     protected _curIndex: number;
-    /**@internal */
     protected _preIndex: number;
-    /**@internal */
     protected _playIndex: number;
-    /**@internal */
     protected _playing: boolean;
-    /**@internal */
     protected _ended: boolean = true;
-    /**@internal 总帧数。*/
+    /** 总帧数。*/
     protected _count: number;
     /**@internal id_data起始位置表*/
     _ids: any;
-    /**@internal */
     protected _loadedImage: any = {};
     /**@internal id_实例表*/
     _idOfSprite: any[];
@@ -70,18 +43,14 @@ export class MovieClip extends Sprite {
     _parentMovieClip: MovieClip;
     /**@internal 需要更新的movieClip表*/
     _movieClipList: MovieClip[];
-    /**@internal */
     protected _labels: any;
     /** 
      * @en Resource root directory
      * @zh 资源根目录
      */
     basePath: string;
-    /**@internal */
     private _isRoot: boolean;
-    /**@internal */
     private _completeHandler: Handler;
-    /**@internal */
     private _endFrame: number = -1;
     private _source: string;
 
@@ -121,7 +90,6 @@ export class MovieClip extends Sprite {
     }
 
     /**
-     * @override
      * @en Destroys this object and its referenced Texture.
      * @param destroyChild Whether to destroy child nodes simultaneously. If true, child nodes are destroyed; otherwise, they are not.
      * @zh 销毁此对象及其引用的Texture。
@@ -134,7 +102,6 @@ export class MovieClip extends Sprite {
 
     /**
      * @internal
-     * @override 
      */
     _setDisplay(value: boolean): void {
         super._setDisplay(value);
@@ -144,7 +111,6 @@ export class MovieClip extends Sprite {
     }
     /**
      * @internal 
-     * @override
      */
     protected _onDisplay(value?: boolean): void {
         if (value) this.timer.loop(this.interval, this, this.updates, null, true);
@@ -152,7 +118,6 @@ export class MovieClip extends Sprite {
     }
 
     /**
-     * @private
      * @en Update the timeline of the MovieClip.
      * @zh 更新 MovieClip 的时间轴。
      */
@@ -228,7 +193,6 @@ export class MovieClip extends Sprite {
         return this._playing;
     }
     /**
-     * @internal
      * 动画的帧更新处理函数。
      */
     //TODO:coverage
@@ -278,7 +242,6 @@ export class MovieClip extends Sprite {
     }
 
     /**
-     * @internal
      * 清理。
      */
     private _clear(): void {
@@ -320,7 +283,6 @@ export class MovieClip extends Sprite {
             this._displayFrame(index);
     }
 
-    /**@internal */
     //TODO:coverage
     private _displayFrame(frameIndex: number = -1): void {
         if (frameIndex != -1) {
@@ -329,14 +291,12 @@ export class MovieClip extends Sprite {
         }
     }
 
-    /**@internal */
     private _reset(rm: boolean = true): void {
         if (rm && this._curIndex != 1) this.removeChildren();
         this._preIndex = this._curIndex = -1;
         this._Pos = this._start;
     }
 
-    /**@internal */
     //TODO:coverage
     private _parseFrame(frameIndex: number): void {
         var mc: MovieClip, sp: Sprite, key: number, type: number, tPos: number, ttype: number, ifAdd: boolean = false;
@@ -448,7 +408,6 @@ export class MovieClip extends Sprite {
         this._Pos = _data.pos;
     }
 
-    /**@internal */
     //TODO:coverage
     _setData(data: Byte, start: number): void {
         this._data = data;
@@ -497,7 +456,6 @@ export class MovieClip extends Sprite {
         });
     }
 
-    /**@internal */
     //TODO:coverage
     private _initState(): void {
         this._reset();
@@ -509,7 +467,6 @@ export class MovieClip extends Sprite {
         this._playing = preState;
     }
 
-    /**@internal */
     //TODO:coverage
     private _initData(data: Byte, basePath: string): void {
         this.basePath = basePath;

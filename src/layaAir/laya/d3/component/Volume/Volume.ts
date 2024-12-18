@@ -51,24 +51,24 @@ export class volumeIntersectInfo {
  * @zh 表示场景中的体积组件。
  */
 export class Volume extends Component {
-    /**@internal */
     protected _primitiveBounds: Bounds;
-    /** @internal @protected 包围盒 */
+    /**包围盒 */
     protected _bounds: Bounds;
     /**@internal @protected cache number of around Volume */
     protected _aroundVolumeCacheNum: number = 0;
-    /** @internal @protected around Volume */
+    /**around Volume */
     protected _aroundVolume: Volume[];
-    /** @internal @protected volume manager */
+    /**volume manager */
     protected _volumeManager: VolumeManager;
-    /** @internal @protected volume intersect Comonent */
+    /**volume intersect Comonent */
     protected _type: number;
-    /** @internal @protected 重要性 */
+    /**重要性 */
     protected _importance: number;
 
     declare owner: Sprite3D;
 
     /**
+     * @ignore
      * @en constractor of Volume 
      * @zh 体积组件的构造函数。
      */
@@ -141,13 +141,7 @@ export class Volume extends Component {
 
     set importance(value: number) {
         this._importance = value;
-    }
-
-    /**
-     * @internal
-     * @inheritDoc
-     * @override
-     */
+    } 
     protected _onEnable(): void {
         this.owner.transform.on(Event.TRANSFORM_CHANGED, this, this._VolumeChange);
         this._volumeManager = this.owner.scene._volumeManager;
@@ -155,11 +149,6 @@ export class Volume extends Component {
         this._reCaculateBoundBox();
     }
 
-    /**
-     * @internal
-     * @inheritDoc
-     * @override
-     */
     protected _onDisable(): void {
         this.owner.transform.off(Event.TRANSFORM_CHANGED, this, this._VolumeChange);
         this._volumeManager.remove(this);

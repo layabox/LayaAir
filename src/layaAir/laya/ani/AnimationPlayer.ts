@@ -4,75 +4,56 @@ import { Stat } from "../utils/Stat";
 import { Event } from "../events/Event";
 import { EventDispatcher } from "../events/EventDispatcher";
 
-
-/**
- * @en Schedule at start of playback.
- * @zh 开始播放时调度。
- * @eventType Event.PLAYED
- * */
-/*[Event(name = "played", type = "laya.events.Event")]*/
-/**
- * @en Schedule when paused.
- * @zh 暂停时调度。
- * @eventType Event.PAUSED
- * */
-/*[Event(name = "paused", type = "laya.events.Event")]*/
-/**
- * @en Schedule upon completion of one cycle. 
- * @zh 完成一次循环时调度。
- * @eventType Event.COMPLETE
- * */
-/*[Event(name = "complete", type = "laya.events.Event")]*/
-/**
- * @enSchedule when stopped.
- * @zh 停止时调度。
- * @eventType Event.STOPPED
- * */
-/*[Event(name = "stopped", type = "laya.events.Event")]*/
-
 /**
  * @en The AnimationPlayer class is used for animation players.
+ * - Event.PLAYED: Schedule at start of playback.
+ * - Event.PAUSED: Schedule when paused.
+ * - Event.COMPLETE: Schedule upon completion of one cycle.
+ * - Event.STOPPED: Schedule when stopped.
  * @zh AnimationPlayer类用于动画播放器。
+ * - Event.PLAYED: 开始播放时调度。
+ * - Event.PAUSED: 暂停时调度。
+ * - Event.COMPLETE: 完成一次循环时调度。
+ * - Event.STOPPED: 停止时调度。
  */
 export class AnimationPlayer extends EventDispatcher {
-	/**@internal */
 	private _destroyed: boolean;
-	/**@internal 数据模板*/
+	/**@zh 数据模板*/
 	private _templet: AnimationTemplet;
-	/**@internal 当前精确时间，不包括重播时间*/
+	/**@zh 当前精确时间，不包括重播时间*/
 	private _currentTime: number;
-	/**@internal 当前帧时间，不包括重播时间*/
+	/**@zh 当前帧时间，不包括重播时间*/
 	private _currentFrameTime: number;	// 这个是根据当前帧数反向计算的时间。 
-	/**@internal 动画播放的起始时间位置*/
+	/**@zh 动画播放的起始时间位置*/
 	private _playStart: number;
-	/**@internal 动画播放的结束时间位置*/
+	/**@zh 动画播放的结束时间位置*/
 	private _playEnd: number;
-	/**@internal 动画播放一次的总时间*/
+	/**@zh 动画播放一次的总时间*/
 	private _playDuration: number;
-	/**@internal 动画播放总时间*/
+	/**@zh 动画播放总时间*/
 	private _overallDuration: number;
-	/**@internal 是否在一次动画结束时停止。 设置这个标志后就不会再发送complete事件了*/
+	/**@zh 是否在一次动画结束时停止。 设置这个标志后就不会再发送complete事件了*/
 	private _stopWhenCircleFinish: boolean;
+	/**@zh 播放时帧数*/
+	private _startUpdateLoopCount: number;
+	/**@zh 当前动画索引*/
+	private _currentAnimationClipIndex: number;
+	/**@zh 当前帧数*/
+	private _currentKeyframeIndex: number;
+	/**@zh 是否暂停*/
+	private _paused: boolean;
+	/**@zh 默认帧率,必须大于0*/
+	private _cacheFrameRate: number;
+	/**@zh 帧率间隔时间*/
+	private _cacheFrameRateInterval: number;
+	/**@zh 缓存播放速率*/
+	private _cachePlayRate: number;
 	/**
 	 * @internal
 	 * @en The elapsed playback time, including replay time.
 	 * @zh 已播放时间，包括重播时间。
 	 */
 	_elapsedPlaybackTime: number;
-	/**@internal 播放时帧数*/
-	private _startUpdateLoopCount: number;
-	/**@internal 当前动画索引*/
-	private _currentAnimationClipIndex: number;
-	/**@internal 当前帧数*/
-	private _currentKeyframeIndex: number;
-	/**@internal 是否暂停*/
-	private _paused: boolean;
-	/**@internal 默认帧率,必须大于0*/
-	private _cacheFrameRate: number;
-	/**@internal 帧率间隔时间*/
-	private _cacheFrameRateInterval: number;
-	/**@internal 缓存播放速率*/
-	private _cachePlayRate: number;
 
 	/**
 	 * @en Whether to cache.
@@ -531,7 +512,7 @@ export class AnimationPlayer extends EventDispatcher {
 	 * @param immediate Whether to stop immediately. The default value is true.
 	 * @zh 停止播放当前动画。
 	 * 如果不是立即停止，则会等待动画播放完成后再停止。
-	 * @param	immediate 是否立即停止，默认为true。
+	 * @param immediate 是否立即停止，默认为true。
 	 */
 	stop(immediate: boolean = true): void {
 		if (immediate) {
@@ -544,7 +525,7 @@ export class AnimationPlayer extends EventDispatcher {
 	}
 
 	/**
-	 * @private
+	 * @ignore
 	 */
 	destroy(): void {
 

@@ -8,13 +8,9 @@ import { Vector3 } from "../../../maths/Vector3";
  * <code>CompoundColliderShape</code> 类用于创建组合碰撞器。
  */
 export class CompoundColliderShape extends Physics3DColliderShape {
-	/**@internal */
 	private static _btVector3One: number;
-	/**@internal */
 	private static _btTransform: number;
-	/**@internal */
 	private static _btOffset: number;
-	/**@internal */
 	private static _btRotation: number;
 
 	/**
@@ -27,8 +23,6 @@ export class CompoundColliderShape extends Physics3DColliderShape {
 		// CompoundColliderShape._btOffset = bt.btVector3_create(0, 0, 0);
 		// CompoundColliderShape._btRotation = bt.btQuaternion_create(0, 0, 0, 1);
 	}
-
-	/**@internal */
 	private _childColliderShapes: Physics3DColliderShape[] = [];
 
 	/**
@@ -40,9 +34,6 @@ export class CompoundColliderShape extends Physics3DColliderShape {
 		// this._btShape = ILaya3D.Physics3D._bullet.btCompoundShape_create();
 	}
 
-	/**
-	 * @internal
-	 */
 	private _clearChildShape(shape: any): void {
 		shape._attatched = false;
 		shape._compoundParent = null;
@@ -151,8 +142,6 @@ export class CompoundColliderShape extends Physics3DColliderShape {
 	/**
 	 * 将数据克隆到目标节点
 	 * @param 目标节点
-	 * @inheritDoc
-	 * @override
 	 */
 	cloneTo(destObject: CompoundColliderShape): void {
 		destObject.clearChildShape();
@@ -160,20 +149,12 @@ export class CompoundColliderShape extends Physics3DColliderShape {
 			destObject.addChildShape(this._childColliderShapes[i].clone());
 	}
 
-	/**
-	 * @inheritDoc
-	 * @override
-	 */
 	clone(): any {
 		var dest: CompoundColliderShape = new CompoundColliderShape();
 		this.cloneTo(dest);
 		return dest;
 	}
 
-	/**
-	 * @inheritDoc
-	 * @override
-	 */
 	destroy(): void {
 		// super.destroy();
 		// for (var i: number = 0, n: number = this._childColliderShapes.length; i < n; i++) {

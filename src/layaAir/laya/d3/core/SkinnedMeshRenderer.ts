@@ -24,11 +24,7 @@ import { RenderElement } from "./render/RenderElement";
  * @zh `SkinnedMeshRenderer` 类用于蒙皮网格渲染。
  */
 export class SkinnedMeshRenderer extends MeshRenderer {
-
-    /**@internal */
     protected _cacheMesh: Mesh;
-
-    /**@internal */
     protected __bones: Sprite3D[] = [];
 
     /**@internal 不可删  IDE数据在这里*/
@@ -45,12 +41,8 @@ export class SkinnedMeshRenderer extends MeshRenderer {
     _renderElements: RenderElement[];
     /** @internal */
     _skinnedData: any[];
-    /**@internal */
     protected _localBounds: Bounds;
-    /**@internal */
     protected _cacheRootBone: Sprite3D;
-
-    /**@internal */
     protected _worldParams = new Vector4();
 
     /**@internal */
@@ -136,7 +128,6 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 
     /**
      * override it
-     * @returns 
      */
     protected _createBaseRenderNode(): IBaseRenderNode {
         this._ownerSkinRenderNode = Laya3DRender.Render3DModuleDataFactory.createSkinRenderNode();
@@ -145,8 +136,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 
     /**
     * @inheritDoc
-    * @internal
-    * @override
+    * @internal 
     */
     _needRender(boundFrustum: BoundFrustum, context: RenderContext3D): boolean {
         if (!Stat.enableSkin)
@@ -156,7 +146,6 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 
     /**
      *@inheritDoc
-     *@override
      *@internal
      */
     _createRenderElement(): RenderElement {
@@ -207,8 +196,6 @@ export class SkinnedMeshRenderer extends MeshRenderer {
         this._meshChange = true;
     }
     /**
-    *@inheritDoc
-    *@override
     *@internal
     */
     _onMeshChange(value: Mesh): void {
@@ -270,11 +257,6 @@ export class SkinnedMeshRenderer extends MeshRenderer {
         super.renderUpdate(context);
         this._isISkinRenderNode() && this._ownerSkinRenderNode.computeSkinnedData();
     }
-
-    /**
-     * @override
-     * @param dest 
-     */
     _cloneTo(dest: SkinnedMeshRenderer): void {
         //get common parent
         let getCommomParent = (rootNode: Sprite3D, rootCheckNode: Sprite3D): Sprite3D => {
@@ -328,11 +310,6 @@ export class SkinnedMeshRenderer extends MeshRenderer {
         (dest.localBounds) && (dest.localBounds = dest.localBounds);
         super._cloneTo(dest);
     }
-
-    /**
-     * @internal
-     * @protected
-     */
     protected _onDestroy() {
         if (this._cacheRootBone)
             (!this._cacheRootBone._destroyed) && (this._cacheRootBone.transform.off(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange));

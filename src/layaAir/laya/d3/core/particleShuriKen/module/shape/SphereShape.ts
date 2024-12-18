@@ -32,11 +32,7 @@ export class SphereShape extends BaseShape {
 		this.emitFromShell = false;
 	}
 
-	/**
-	 * @inheritDoc
-	 * @override
-	 * @internal
-	 */
+
 	protected _getShapeBoundBox(boundBox: BoundBox): void {
 		var min: Vector3 = boundBox.min;
 		min.x = min.y = min.z = -this.radius;
@@ -44,11 +40,6 @@ export class SphereShape extends BaseShape {
 		max.x = max.y = max.z = this.radius;
 	}
 
-	/**
-	 * @inheritDoc
-	 * @override
-	 * @internal
-	 */
 	protected _getSpeedBoundBox(boundBox: BoundBox): void {
 		var min: Vector3 = boundBox.min;
 		min.x = min.y = min.z = -1;
@@ -99,7 +90,6 @@ export class SphereShape extends BaseShape {
 	}
 
 	/**
-	 * @override
 	 * @en Clones to a target object.
 	 * @param destObject The target object to clone to.
 	 * @zh 克隆到目标对象。
@@ -113,7 +103,6 @@ export class SphereShape extends BaseShape {
 	}
 
 	/**
-	 * @override
 	 * @en Clone.
 	 * @returns Clone copy.
 	 * @zh 克隆。

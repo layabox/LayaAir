@@ -63,9 +63,7 @@ export enum FogMode {
  * @zh Scene3D类用于实现3D场景。
  */
 export class Scene3D extends Sprite {
-    /** @internal */
     private static _lightTexture: Texture2D;
-    /** @internal */
     private static _lightPixles: Float32Array;
     /** @internal */
     static _shadowCasterPass: ShadowCasterPass;
@@ -356,7 +354,7 @@ export class Scene3D extends Sprite {
     private _physicsStepTime: number = 0;
     /**@internal */
     _sunColor: Color = new Color(1.0, 1.0, 1.0);
-    /**@interanl */
+    /**@internal */
     _sundir: Vector3 = new Vector3();
     /**@internal*/
     _id = Scene3D.sceneID++;
@@ -672,7 +670,6 @@ export class Scene3D extends Sprite {
     }
 
     /**
-     * @override
      * @en The scene timer.
      * @zh 场景时钟。
      */
@@ -874,30 +871,17 @@ export class Scene3D extends Sprite {
         this._group = value;
     }
 
-    /**
-     * @internal
-     * @inheritDoc
-     * @override
-     */
     protected _onActive(): void {
         super._onActive();
         ILaya.stage._scene3Ds.push(this);
     }
 
-    /**
-     * @internal
-     * @inheritDoc
-     * @override
-     */
     protected _onInActive(): void {
         super._onInActive();
         var scenes: any[] = ILaya.stage._scene3Ds;
         scenes.splice(scenes.indexOf(this), 1);
     }
 
-    /**
-     * @internal
-     */
     private _prepareSceneToRender(): void {
         var shaderValues: ShaderData = this._shaderValues;
         var multiLighting: boolean = Config3D._multiLighting && Stat.enableMulLight;
@@ -1155,8 +1139,6 @@ export class Scene3D extends Sprite {
     }
 
     /**
-     * @inheritDoc
-     * @override
      * @en Destroys the scene.
      * @param destroyChild Whether to destroy the child node.
      * @zh 销毁场景。
@@ -1208,8 +1190,6 @@ export class Scene3D extends Sprite {
     }
 
     /**
-     * @inheritDoc
-     * @override
      * @internal
      */
     render(ctx: Context): void {
@@ -1348,7 +1328,7 @@ export class Scene3D extends Sprite {
     /**
      * @deprecated
      * 获取光照贴图浅拷贝列表。
-     * @return 获取光照贴图浅拷贝列表。
+     * @returns 获取光照贴图浅拷贝列表。
      */
     getlightmaps(): Texture2D[] {
         var lightmapColors: Texture2D[] = new Array(this._lightmaps.length);

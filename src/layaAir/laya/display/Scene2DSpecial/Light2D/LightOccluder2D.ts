@@ -65,9 +65,6 @@ export class LightOccluder2D extends Component {
         this._core = new LightOccluder2DCore();
     }
 
-    /**
-     * @internal
-     */
     protected _onEnable(): void {
         super._onEnable();
         this.owner._setBit(NodeFlags.DEMAND_TRANS_EVENT, true);
@@ -77,9 +74,6 @@ export class LightOccluder2D extends Component {
         this._core._onEnable();
     }
 
-    /**
-     * @internal
-     */
     protected _onDisable(): void {
         super._onDisable();
         this.owner.off(Event.TRANSFORM_CHANGED, this._core, this._core._transformChange);

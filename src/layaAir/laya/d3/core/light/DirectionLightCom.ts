@@ -91,18 +91,11 @@ export class DirectionLightCom extends Light {
 		this._dataModule = Laya3DRender.Render3DModuleDataFactory.createDirectLight();
 	}
 
-	/**
-	 * @internal
-	 * @override
-	 */
 	protected _addToLightQueue(): void {
 		(<Scene3D>this.owner.scene)._directionLights.add(this);
 	}
 
-	/**
-	 * @internal
-	 * @override
-	 */
+
 	protected _removeFromLightQueue(): void {
 		(<Scene3D>this.owner.scene)._directionLights.remove(this);
 	}

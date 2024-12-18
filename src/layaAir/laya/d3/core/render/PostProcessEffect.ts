@@ -46,8 +46,6 @@ export class PostProcessEffect {
 	}
 
 	/**
-	 * @inheritDoc
-	 * @override
 	 * @en Gets the camera depth texture mode flag based on post-processing settings.
 	 * @zh 根据后期处理设置获取摄像机深度纹理模式标志。
 	 */
@@ -56,8 +54,6 @@ export class PostProcessEffect {
 	}
 
 	/**
-	 * @inheritDoc
-	 * @override
 	 * @en Called when added to the post-processing stack.
 	 * @param postprocess The post-processing component.
 	 * @zh 在添加到后期处理栈时调用。
@@ -68,8 +64,6 @@ export class PostProcessEffect {
 	}
 
 	/**
-	 * @inheritDoc
-	 * @override
 	 * @en Releases the effect.
 	 * @param postprocess The post-processing component.
 	 * @zh 释放效果。

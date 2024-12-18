@@ -19,17 +19,15 @@ import { UI3D } from "./UI3D";
  * @zh UI3DGeometry 类用于创建和管理 3D UI元素的几何结构的类。
  */
 export class UI3DGeometry extends GeometryElement {
-    /**@internal */
     private static _type: number = GeometryElement._typeCounter++;
-    /* @internal 顶点buffer*/
+    /* @zh 顶点buffer*/
     private _vertexBuffer: VertexBuffer3D;
-    /* @internal 顶点数据*/
+    /* @zh 顶点数据*/
     private _vertex: Float32Array;
-    /**@internal indexbuffer */
+    /**@en indexbuffer */
     private _indexBuffer: IndexBuffer3D;
-    /**@internal index数据 */
+    /**@zh index数据 */
     private _index: Uint16Array;
-    /**@internal */
     private _bound: Bounds;
     /**@internal */
     _positionArray: Vector3[];
@@ -53,10 +51,6 @@ export class UI3DGeometry extends GeometryElement {
     get bounds() {
         return this._bound;
     }
-
-    /**
-     * @internal
-     */
     private _createBuffer() {
         var vertexDeclaration: VertexDeclaration = VertexMesh.getVertexDeclaration("POSITION,NORMAL,UV");
         var halfLong: number = 1 / 2;
@@ -86,9 +80,7 @@ export class UI3DGeometry extends GeometryElement {
     }
 
     /**
-     * @inheritDoc
      * @internal
-     * @override
      */
     _updateRenderParams(state: RenderContext3D): void {
         this.clearRenderParams();
@@ -96,8 +88,6 @@ export class UI3DGeometry extends GeometryElement {
     }
 
     /**
-     * @inheritDoc
-     * @override
      * @en Destroys the instance and releases resources.
      * @zh 销毁实例并释放资源。
      */

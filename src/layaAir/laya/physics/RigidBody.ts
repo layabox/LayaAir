@@ -22,7 +22,6 @@ import { TransformKind } from "../display/SpriteConst";
 export class RigidBody extends Component {
 
     /**
-     * @internal
      * @en The type of rigidbody, supports three types: static, dynamic and kinematic, default is dynamic.
      * static: Static type, motionless, not affected by gravity, mass is infinitely large, can be controlled by node movement, rotation, and scaling.
      * dynamic: Dynamic type, affected by gravity.
@@ -34,31 +33,31 @@ export class RigidBody extends Component {
      */
     protected _type: string = "dynamic";
 
-    /**@internal 是否允许休眠，允许休眠能提高性能*/
+    /** 是否允许休眠，允许休眠能提高性能*/
     protected _allowSleep: boolean = true;
 
-    /**@internal 角速度，设置会导致旋转*/
+    /** 角速度，设置会导致旋转*/
     protected _angularVelocity: number = 0;
 
-    /**@internal 旋转速度阻尼系数，范围可以在0到无穷大之间，0表示没有阻尼，无穷大表示满阻尼，通常阻尼的值应该在0到0.1之间*/
+    /** 旋转速度阻尼系数，范围可以在0到无穷大之间，0表示没有阻尼，无穷大表示满阻尼，通常阻尼的值应该在0到0.1之间*/
     protected _angularDamping: number = 0;
 
-    /**@internal 线性运动速度，比如{x:10,y:10}*/
+    /** 线性运动速度，比如{x:10,y:10}*/
     protected _linearVelocity: any = { x: 0, y: 0 };
 
-    /**@internal 线性速度阻尼系数，范围可以在0到无穷大之间，0表示没有阻尼，无穷大表示满阻尼，通常阻尼的值应该在0到0.1之间*/
+    /** 线性速度阻尼系数，范围可以在0到无穷大之间，0表示没有阻尼，无穷大表示满阻尼，通常阻尼的值应该在0到0.1之间*/
     protected _linearDamping: number = 0;
 
-    /**@internal 是否高速移动的物体，设置为true，可以防止高速穿透*/
+    /** 是否高速移动的物体，设置为true，可以防止高速穿透*/
     protected _bullet: boolean = false;
 
-    /**@internal 是否允许旋转，如果不希望刚体旋转，这设置为false*/
+    /** 是否允许旋转，如果不希望刚体旋转，这设置为false*/
     protected _allowRotation: boolean = true;
 
-    /**@internal 重力缩放系数，设置为0为没有重力*/
+    /** 重力缩放系数，设置为0为没有重力*/
     protected _gravityScale: number = 1;
 
-    /**@internal 原始刚体*/
+    /** 原始刚体*/
     protected _body: any;
 
     /**

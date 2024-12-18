@@ -39,8 +39,6 @@ export class BoxShape extends BaseShape {
 	}
 
 	/**
-	 * @inheritDoc
-	 * @override
 	 * @internal
 	 */
 	protected _getShapeBoundBox(boundBox: BoundBox): void {
@@ -54,11 +52,6 @@ export class BoxShape extends BaseShape {
 		max.z = this.z * 0.5;
 	}
 
-	/**
-	 * @inheritDoc
-	 * @override
-	 * @internal
-	 */
 	protected _getSpeedBoundBox(boundBox: BoundBox): void {
 		var min: Vector3 = boundBox.min;
 		min.x = 0.0;
@@ -110,7 +103,6 @@ export class BoxShape extends BaseShape {
 	}
 
 	/**
-	 * @override
 	 * @en Clones to a target object.
 	 * @param destObject The target object to clone to.
 	 * @zh 克隆到目标对象。
@@ -125,7 +117,6 @@ export class BoxShape extends BaseShape {
 	}
 
 	/**
-	 * @override
 	 * @en Clone.
 	 * @returns Clone copy.
 	 * @zh 克隆。

@@ -20,18 +20,11 @@ export class AnimationTemplet extends Resource {
      */
     static interpolation: any[] = [AnimationTemplet._LinearInterpolation_0, AnimationTemplet._QuaternionInterpolation_1, AnimationTemplet._AngleInterpolation_2, AnimationTemplet._RadiansInterpolation_3, AnimationTemplet._Matrix4x4Interpolation_4, AnimationTemplet._NoInterpolation_5, AnimationTemplet._BezierInterpolation_6, AnimationTemplet._BezierInterpolation_7];
 
-    /**
-     * @private
-     */
     //TODO:coverage
     private static _LinearInterpolation_0(bone: AnimationNodeContent, index: number, out: Float32Array, outOfs: number, data: Float32Array, dt: number, dData: Float32Array, duration: number, nextData: Float32Array, interData: any[] = null): number {
         out[outOfs] = data[index] + dt * dData[index];
         return 1;
     }
-
-    /**
-     * @private
-     */
     //TODO:coverage
     private static _QuaternionInterpolation_1(bone: any, index: number, out: Float32Array, outOfs: number, data: Float32Array, dt: number, dData: Float32Array, duration: number, nextData: Float32Array, interData: any[] = null): number {
         var amount: number = duration === 0 ? 0 : dt / duration;
@@ -39,25 +32,16 @@ export class AnimationTemplet extends Resource {
         return 4;
     }
 
-    /**
-     * @private
-     */
     //TODO:coverage
     private static _AngleInterpolation_2(bone: AnimationNodeContent, index: number, out: Float32Array, outOfs: number, data: Float32Array, dt: number, dData: Float32Array, duration: number, nextData: Float32Array, interData: any[] = null): number {
         return 0;
     }
 
-    /**
-     * @private
-     */
     //TODO:coverage
     private static _RadiansInterpolation_3(bone: AnimationNodeContent, index: number, out: Float32Array, outOfs: number, data: Float32Array, dt: number, dData: Float32Array, duration: number, nextData: Float32Array, interData: any[] = null): number {
         return 0;
     }
 
-    /**
-     * @private
-     */
     //TODO:coverage
     private static _Matrix4x4Interpolation_4(bone: any, index: number, out: Float32Array, outOfs: number, data: Float32Array, dt: number, dData: Float32Array, duration: number, nextData: Float32Array, interData: any[] = null): number {
         for (let i = 0; i < 16; i++, index++)
@@ -65,27 +49,19 @@ export class AnimationTemplet extends Resource {
         return 16;
     }
 
-    /**
-     * @private
-     */
+
     //TODO:coverage
     private static _NoInterpolation_5(bone: AnimationNodeContent, index: number, out: Float32Array, outOfs: number, data: Float32Array, dt: number, dData: Float32Array, duration: number, nextData: Float32Array, interData: any[] = null): number {
         out[outOfs] = data[index];
         return 1;
     }
 
-    /**
-     * @private
-     */
     //TODO:coverage
     private static _BezierInterpolation_6(bone: AnimationNodeContent, index: number, out: Float32Array, outOfs: number, data: Float32Array, dt: number, dData: Float32Array, duration: number, nextData: Float32Array, interData: any[] = null, offset: number = 0): number {
         out[outOfs] = data[index] + (nextData[index] - data[index]) * Bezier.getRate(dt / duration, interData[offset], interData[offset + 1], interData[offset + 2], interData[offset + 3]);
         return 5;
     }
 
-    /**
-     * @private
-     */
     //TODO:coverage
     private static _BezierInterpolation_7(bone: AnimationNodeContent, index: number, out: Float32Array, outOfs: number, data: Float32Array, dt: number, dData: Float32Array, duration: number, nextData: Float32Array, interData: any[] = null, offset: number = 0): number {
         //interData=[x0,y0,x1,y1,start,d,offTime,allTime]
@@ -135,11 +111,12 @@ export class AnimationTemplet extends Resource {
     /**@internal */
     _fullFrames: any[] = null;
 
-    /**@private 
+    /**
      * 记录每个骨骼当前在动画的第几帧。这个是为了去掉缓存的帧索引数据。
     */
     private _boneCurKeyFrm: any[] = [];	// TODO 其实这个应该放到skeleton中
 
+    /**@ignore */
     constructor() {
         super();
     }
@@ -315,23 +292,20 @@ export class AnimationTemplet extends Resource {
 
     /**
      * @en Calculate which keyframe corresponds to the current time.
+     * - There is an issue with the last frame. For example, if the time of the second to last frame is 0.033ms,
+     * the next two frames are very close together. When the actual last frame is given, the time calculated
+     * based on the frame number actually falls on the second to last frame. 
+     * Using accumulated time consistent with AnimationPlayer will resolve this issue.
      * @param nodeframes The keyframe data for the current bone.
      * @param nodeid The bone ID, used for updating the _boneCurKeyFrm.
      * @param tm The current time in the animation.
      * @returns The index of the keyframe that corresponds to the current time.
-     * @note 
-     * There is an issue with the last frame. For example, if the time of the second to last frame is 0.033ms,
-     * the next two frames are very close together. When the actual last frame is given, the time calculated
-     * based on the frame number actually falls on the second to last frame. 
-     * Using accumulated time consistent with AnimationPlayer will resolve this issue.
      * @zh 计算当前时间应该对应关键帧的哪一帧。
+     * - 最后一帧有问题，例如倒数第二帧时间是0.033ms,则后两帧非常靠近，当实际给最后一帧的时候，根据帧数计算出的时间实际上落在倒数第二帧使用与AnimationPlayer一致的累积时间就行
      * @param nodeframes 当前骨骼的关键帧数据。
      * @param nodeid 骨骼ID，用于更新 _boneCurKeyFrm。
      * @param tm 当前动画的时间。
      * @returns 对应当前时间的关键帧的索引。
-     * @note
-     * 	最后一帧有问题，例如倒数第二帧时间是0.033ms,则后两帧非常靠近，当实际给最后一帧的时候，根据帧数计算出的时间实际上落在倒数第二帧
-     *  	使用与AnimationPlayer一致的累积时间就行
      */
     getNodeKeyFrame(nodeframes: KeyFramesContent[], nodeid: number, tm: number): number {
         var cid: any = this._boneCurKeyFrm[nodeid];

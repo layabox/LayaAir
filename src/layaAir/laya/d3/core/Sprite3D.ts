@@ -4,7 +4,6 @@ import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { Stat } from "../../utils/Stat";
 import { Prefab } from "../../resource/HierarchyResource";
 import { ILaya } from "../../../ILaya";
-import { NodeFlags } from "../../Const";
 import { Matrix4x4 } from "../../maths/Matrix4x4";
 import { Quaternion } from "../../maths/Quaternion";
 import { Vector3 } from "../../maths/Vector3";
@@ -100,7 +99,6 @@ export class Sprite3D extends Node {
         });
     }
 
-    /** @internal */
     private _id: number;
 
     /** @internal */
@@ -187,30 +185,16 @@ export class Sprite3D extends Node {
         this.name = name ? name : "New Sprite3D";
     }
 
-    /**
-    * @internal
-    * @protected
-    */
     protected _onActive(): void {
         super._onActive();
         Stat.sprite3DCount++;
     }
 
-    /**
-     * @internal
-     * @protected
-     */
     protected _onInActive(): void {
         super._onInActive();
         Stat.sprite3DCount--;
     }
 
-
-    /**
-     * @internal
-     * @inheritDoc
-     * @override
-     */
     protected _onAdded(): void {
         if (this._parent instanceof Sprite3D) {
             var parent3D: Sprite3D = (<Sprite3D>this._parent);
@@ -221,20 +205,12 @@ export class Sprite3D extends Node {
         super._onAdded();
     }
 
-    /**
-     * @internal
-     * @inheritDoc
-     * @override
-     */
     protected _onRemoved(): void {
         super._onRemoved();
         if (this._parent instanceof Sprite3D)
             this.transform._setParent(null);
     }
 
-    /**
-     * @ignore
-     */
     protected onStartListeningToType(type: string) {
         super.onStartListeningToType(type);
         if (type.startsWith("collision") || type.startsWith("trigger"))
@@ -242,7 +218,6 @@ export class Sprite3D extends Node {
     }
 
     /**
-     * @override
      * @internal
      * 克隆。
      * @param	destObject 克隆源。
@@ -266,10 +241,6 @@ export class Sprite3D extends Node {
         destObject.layer = this.layer;
         super._cloneTo(destObject, srcRoot, dstRoot);
     }
-
-    /**
-     * @internal
-     */
     private static _createSprite3DInstance(scrSprite: Sprite3D): Sprite3D {
         let node: Sprite3D = new (<typeof Sprite3D>Object.getPrototypeOf(scrSprite).constructor)();
         let children = <Sprite3D[]>scrSprite._children;
@@ -280,9 +251,6 @@ export class Sprite3D extends Node {
         return node;
     }
 
-    /**
-     * @internal
-     */
     private static _parseSprite3DInstance(srcRoot: Sprite3D, dstRoot: Sprite3D, scrSprite: Sprite3D, dstSprite: Sprite3D): void {
         let srcChildren = <Sprite3D[]>scrSprite._children;
         let dstChildren = <Sprite3D[]>dstSprite._children;
@@ -304,8 +272,6 @@ export class Sprite3D extends Node {
     }
 
     /**
-     * @inheritDoc
-     * @override
      * @en destroy
      * @param dextroychild whether to destroy the child node.
      * @zh 销毁

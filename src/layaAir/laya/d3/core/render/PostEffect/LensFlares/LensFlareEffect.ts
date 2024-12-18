@@ -26,28 +26,28 @@ import { LensFlareShaderInit } from "./LensFlareShaderInit";
  * @zh 镜头光晕元素
  */
 export class LensFlareElement {
-    /**@internal active*/
+    /** active*/
     private _active: boolean = true;
 
-    /**@internal tintColor */
+    /** tintColor */
     private _tint: Color = new Color(1, 1, 1, 1);
 
-    /**@internal intensity*/
+    /** intensity*/
     private _intensity: number = 1;
 
-    /**@internal texture*/
+    /** texture*/
     private _texture: BaseTexture = Texture2D.whiteTexture;
 
-    /**@internal positionOffet In screen space */
+    /** positionOffet In screen space */
     private _positionOffset: Vector2 = new Vector2(0, 0);
 
-    /**@internal scale in each dimension */
+    /** scale in each dimension */
     private _scale: Vector2 = new Vector2(1, 1);
 
-    /**@internal */
+    /** */
     private _autoRotate: boolean = false;
 
-    /**@internal rotation with angle */
+    /** rotation with angle */
     private _rotation: number = 0;
 
     //AxisTransform
@@ -56,7 +56,6 @@ export class LensFlareElement {
     private _angularOffset: number = 0;//0-360°
 
     // TODO
-    /**@internal */
     private _aspectRatio: boolean = false;
     /**@internal */
     private _modulateByLightColor: boolean = false;
@@ -198,7 +197,7 @@ export class LensFlareData extends Resource {
  * @zh 镜头光晕效果
  */
 export class LensFlareEffect extends PostProcessEffect {
-    /**@interal */
+    /**@internal */
     static SHADERDEFINE_AUTOROTATE: ShaderDefine;
 
     /**
@@ -219,28 +218,20 @@ export class LensFlareEffect extends PostProcessEffect {
         LensFlareEffect.__initDefine__();
     }
 
-    /**@internal */
     private _flareCMDS: LensFlareCMD[];
 
-    /**@internal */
     private _center: Vector2;
 
-    /**@internal */
     private _rotate: number
 
-    /**@internal */
     private _light: Light;
 
-    /**@internal */
     private _effectIntensity: number = 1;
 
-    /**@internal */
     private _effectScale: number = 1;
 
-    /**@internal */
     private _needUpdate: boolean = false;
 
-    /**@internal */
     _lensFlareData: LensFlareData;
 
     /**
@@ -414,8 +405,6 @@ export class LensFlareEffect extends PostProcessEffect {
     }
 
     /**
-     * @inheritDoc
-     * @override
      * @en Release the effect
      * @param postprocess Post-processing node
      * @zh 释放效果

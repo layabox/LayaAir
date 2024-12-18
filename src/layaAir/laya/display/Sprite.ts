@@ -1874,9 +1874,6 @@ export class Sprite extends Node {
         }
     }
 
-    /**
-     * @ignore
-     */
     protected onStartListeningToType(type: string) {
         super.onStartListeningToType(type);
 
@@ -1901,9 +1898,6 @@ export class Sprite extends Node {
         super._setDisplay(value);
     }
 
-    /**
-     * @ignore
-     */
     protected _onDisplay(v?: boolean): void {
         if (this._mouseState !== 1) {
             var ele: Sprite = this;
@@ -1917,9 +1911,6 @@ export class Sprite extends Node {
         }
     }
 
-    /**
-     * @ignore
-     */
     protected _setParent(value: Node): void {
         super._setParent(value);
         if (value && this._getBit(NodeFlags.HAS_MOUSE)) {
@@ -1927,9 +1918,6 @@ export class Sprite extends Node {
         }
     }
 
-    /**
-     * @ignore
-     */
     protected _childChanged(child?: Node): void {
         super._childChanged(child);
 
@@ -1940,9 +1928,6 @@ export class Sprite extends Node {
         this.repaint(SpriteConst.REPAINT_ALL);
     }
 
-    /**
-     * @ignore
-     */
     protected _addComponentInstance(comp: Component): void {
         if (
             comp instanceof BaseRenderNode2D &&
@@ -1954,9 +1939,6 @@ export class Sprite extends Node {
         super._addComponentInstance(comp);
     }
 
-    /**
-     * @ignore
-     */
     protected _onSetBit(bit: number, value: boolean): void {
         super._onSetBit(bit, value);
 
@@ -1989,19 +1971,12 @@ export class Sprite extends Node {
     //miner 为了不破坏之前的local性能架构，采用标致开启的方式来增加GlobalMode的更新系统，优化需要高频调用Global数据的
     //因为此块功能比较集中，顾单独写在下方
 
-    /**@internal */
     private _gDeltaFlages: number = 0;
-    /**@internal */
     private _gPosx: number = 0.0;
-    /**@internal */
     private _gPosy: number = 0.0;
-    /**@internal */
     private _gRotate: number = 0.0;
-    /**@internal */
     private _gScaleX: number = 1.0;
-    /**@internal */
     private _gScaleY: number = 1.0;
-    /**@internal */
     private _gMatrix: Matrix;
 
     public static GLOBAL_CHANGE = "globalChange";
@@ -2183,9 +2158,6 @@ export class Sprite extends Node {
         }
     }
 
-    /**
-     * @internal
-     */
     private _cacheGlobalPos() {
         if (this._getGlobalFlag(TransformKind.Matrix | TransformKind.Pos)) {
             this._setGlobalFlag(TransformKind.Pos, false);
@@ -2195,9 +2167,6 @@ export class Sprite extends Node {
         }
     }
 
-    /**
-     * @internal
-     */
     private _cacheGlobalScale() {
         if (this._getGlobalFlag(TransformKind.Matrix | TransformKind.Scale)) {
             this._setGlobalFlag(TransformKind.Scale, false);
@@ -2207,15 +2176,11 @@ export class Sprite extends Node {
         }
     }
 
-    /**
-     * @internal
-     */
     private _getGlobalFlag(type: number): boolean {
         return (this._gDeltaFlages & type) != 0;
     }
 
     /**
-     * @internal
      * @en Sets a global cache flag for a specific type.
      * @param type The type of cache flag to set.
      * @param value Whether to enable the cache flag.
@@ -2234,7 +2199,6 @@ export class Sprite extends Node {
     }
 
     /**
-     * @internal
      * @param flag 
      * @param value 
      */

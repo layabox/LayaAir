@@ -15,8 +15,6 @@ export class PointLightCom extends Light {
      * @zh 声明点光源的数据模块。
      */
     declare _dataModule: IPointLightData;
-
-    /** @internal */
     private _range: number;
 
     /**
@@ -48,25 +46,15 @@ export class PointLightCom extends Light {
         this._dataModule = Laya3DRender.Render3DModuleDataFactory.createPointLight();
     }
 
-    /**
-     * @internal
-     * @override
-     */
     protected _addToLightQueue(): void {
         this.owner.scene._pointLights.add(this);
     }
 
-    /**
-     * @internal
-     * @override
-     */
     protected _removeFromLightQueue(): void {
         this.owner.scene._pointLights.remove(this);
     }
 
     /**
-     * @inheritDoc
-     * @override
      * @internal
      */
     _cloneTo(dest: PointLightCom): void {

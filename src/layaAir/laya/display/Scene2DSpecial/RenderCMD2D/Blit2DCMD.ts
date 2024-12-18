@@ -117,14 +117,14 @@ export class Blit2DCMD extends Command2D {
      * @param offsetScale offset and scale Value,(Based on percentage)
      * @param shader use shader
      * @param shaderData data for shader
-     * @returns 
+     * @returns render command
      * @zh 创建一个纹理拷贝渲染指令
      * @param source 拷贝原图
      * @param dest 拷贝目标
      * @param offsetScale 偏移缩放（基于百分比）
      * @param shader 拷贝使用Shader
      * @param shaderData 拷贝使用的shader对应的渲染数据
-     * @returns 
+     * @returns 渲染指令 
      */
     static create(source: BaseTexture, dest: IRenderTarget, offsetScale: Vector4 = null, shader: Shader3D = null, shaderData: ShaderData = null) {
         if (!Blit2DCMD._blitShaderData)
@@ -214,9 +214,7 @@ export class Blit2DCMD extends Command2D {
     }
 
     /**
-     * @override
      * @internal
-     * @returns 
      */
     getRenderCMD(): Blit2DQuadCMD {
         return this._blitQuadCMDData;
@@ -238,9 +236,6 @@ export class Blit2DCMD extends Command2D {
         this._renderElement.subShader = this._shader.getSubShaderAt(0);
     }
 
-    /**
-     * @destroy
-     */
     destroy() {
         this._commandBuffer = null;
         this._context = null;

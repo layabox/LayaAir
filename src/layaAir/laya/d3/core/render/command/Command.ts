@@ -29,7 +29,6 @@ export class Command {
 	static SCREENTEXTUREOFFSETSCALE_ID: number;
 	/** @internal */
 	static MAINTEXTURE_TEXELSIZE_ID: number;
-
 	/**@internal */
 	_commandBuffer: CommandBuffer = null;
 	/**@internal */
@@ -46,7 +45,6 @@ export class Command {
 	}
 	/**@ignore */
 	constructor() {
-
 	}
 
 	/**
@@ -64,15 +62,12 @@ export class Command {
 	}
 
 	/**
-	 * @override
 	 * @internal
-	 * @returns 
 	 */
 	getRenderCMD?(): IRenderCMD;
 
 	/**
 	 * @internal
-	 * @destroy
 	 */
 	destroy() {
 		this._commandBuffer = null;

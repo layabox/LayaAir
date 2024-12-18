@@ -376,7 +376,6 @@ export class BlinnPhongMaterial extends Material {
 	}
 
 	/**
-	 * @override
 	 * @en Clone.
 	 * @returns Clone Copy.
 	 * @zh 克隆。
@@ -389,8 +388,6 @@ export class BlinnPhongMaterial extends Material {
 	}
 
 	/**
-	 * @override
-	 * @inheritDoc
 	 * @en Clone the properties of this material to another material.
 	 * @param destObject The target material to clone to.
 	 * @zh 将此材质的属性克隆到另一个材质。

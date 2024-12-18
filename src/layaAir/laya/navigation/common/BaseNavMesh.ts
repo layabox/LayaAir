@@ -443,7 +443,7 @@ export class BaseNavMesh {
     }
 
     /**
-     * @internals
+     * @internal
      * @en remove a tile
      * @zh 删除一个tile
      * @param cellX 

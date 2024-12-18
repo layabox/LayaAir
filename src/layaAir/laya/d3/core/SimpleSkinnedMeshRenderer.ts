@@ -12,20 +12,11 @@ import { RenderContext3D } from "./render/RenderContext3D";
 import { SimpleSkinnedMeshSprite3D } from "./SimpleSkinnedMeshSprite3D";
 
 export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
-    // /**@internal 解决循环引用 */
-    // static SIMPLE_SIMPLEANIMATORTEXTURE: number;
-    // /**@internal 解决循环引用*/
-    // static SIMPLE_SIMPLEANIMATORPARAMS: number;
-    // /**@internal 解决循环引用*/
-    // static SIMPLE_SIMPLEANIMATORTEXTURESIZE: number;
-
-    /**@internal */
     private _simpleAnimatorTexture: Texture2D;
     /**@internal */
     _simpleAnimatorParams: Vector4;
-    /**@internal */
     private _simpleAnimatorTextureSize: number;
-    /**@internal  x simpleAnimation offset,y simpleFrameOffset*/
+    /**  x simpleAnimation offset,y simpleFrameOffset*/
     private _simpleAnimatorOffset: Vector2;
     /**@internal */
     _bonesNums: number;
@@ -91,21 +82,11 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
         this._baseRenderNode.shaderData.setVector(SimpleSkinnedMeshSprite3D.SIMPLE_SIMPLEANIMATORPARAMS, new Vector4());
     }
 
-    /**
-     * @internal
-     * @protected
-     * @returns 
-     */
     protected _createBaseRenderNode(): IBaseRenderNode {
         this._ownerSimpleRenderNode = Laya3DRender.Render3DModuleDataFactory.createSimpleSkinRenderNode();
         return this._ownerSimpleRenderNode;
     }
 
-    /**
-     * @internal
-     * @protected
-     * @returns 
-     */
     protected _getcommonUniformMap(): string[] {
         return ["Sprite3D", "SimpleSkinnedMesh"];
     }
@@ -127,8 +108,6 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
     }
 
     /**
-     *@inheritDoc
-     *@override
      *@internal
      */
     _createRenderElement() {
@@ -164,8 +143,6 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
     }
 
     /**
-    *@inheritDoc
-    *@override
     *@internal
     */
     _onMeshChange(value: Mesh): void {
@@ -176,7 +153,7 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
         this._setRenderElements();
 
     }
-    
+
     /**
      * @internal
      * 克隆到目标
@@ -190,8 +167,6 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
     }
 
     /**
-     * @internal
-     * @protected
      * 删除节点
      */
     protected _onDestroy() {

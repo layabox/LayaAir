@@ -234,8 +234,7 @@ export class RenderableSprite3D extends Sprite3D {
 
 	/** 
 	 * @internal
-	 * @inheritDoc
-	 * @override
+	 * @inheritDoc 
 	 */
 	protected _onInActive(): void {
 		super._onInActive();
@@ -243,8 +242,7 @@ export class RenderableSprite3D extends Sprite3D {
 
 	/** 
 	 * @internal
-	 * @inheritDoc
-	 * @override
+	 * @inheritDoc 
 	 */
 	protected _onActive(): void {
 		super._onActive();
@@ -252,8 +250,7 @@ export class RenderableSprite3D extends Sprite3D {
 
 	/**
 	 * @internal
-	 * @inheritDoc
-	 * @override
+	 * @inheritDoc 
 	 */
 	protected _onActiveInScene(): void {
 		super._onActiveInScene();
@@ -267,8 +264,7 @@ export class RenderableSprite3D extends Sprite3D {
 
 	/**
 	 * @inheritDoc
-	 * @internal
-	 * @override
+	 * @internal 
 	 */
 	_setBelongScene(scene: Node): void {
 		super._setBelongScene(scene);
@@ -277,8 +273,7 @@ export class RenderableSprite3D extends Sprite3D {
 
 	/**
 	 * @inheritDoc
-	 * @internal
-	 * @override
+	 * @internal 
 	 */
 	_setUnBelongScene(): void {
 		super._setUnBelongScene();

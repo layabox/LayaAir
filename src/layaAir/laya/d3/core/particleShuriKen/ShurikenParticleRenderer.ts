@@ -33,17 +33,12 @@ export class ShurikenParticleRenderer extends BaseRender {
      * @zh 重力值。
      */
     static gravity: Vector3 = new Vector3(0, -9.81, 0);
-    /** @internal */
     private _finalGravity: Vector3 = new Vector3();
     private _dragConstant: Vector2 = new Vector2();
-
-
-    /**@internal */
     private _renderMode: number;
-    /**@internal */
     private _mesh: Mesh = null;
 
-    /**@interanl */
+    /**@internal */
     _particleSystem: ShurikenParticleSystem;
     /**
      * @en Scale of camera speed in stretched billboard mode (currently not supported).
@@ -153,16 +148,10 @@ export class ShurikenParticleRenderer extends BaseRender {
         this._baseRenderNode.renderNodeType = BaseRenderType.ParticleRender
     }
 
-    /**
-     * @override
-     */
     protected _getcommonUniformMap(): Array<string> {
         return ["Sprite3D", "ShurikenSprite3D"];
     }
 
-    /**
-    * @override
-    */
     protected _onAdded(): void {
         super._onAdded();
         if (!LayaGL.renderEngine.getCapable(RenderCapable.DrawElement_Instance)) {
@@ -179,20 +168,12 @@ export class ShurikenParticleRenderer extends BaseRender {
 
         this._setRenderElements();
     }
-
-    /**
-    * @override
-    */
     protected _onEnable(): void {
         super._onEnable();
 
         Stat.particleRenderNode++;
         (this._particleSystem.playOnAwake && LayaEnv.isPlaying) && (this._particleSystem.play());
     }
-
-    /**
-    * @override
-    */
     protected _onDisable(): void {
         super._onDisable();
         Stat.particleRenderNode--;
@@ -200,9 +181,7 @@ export class ShurikenParticleRenderer extends BaseRender {
     }
 
     /**
-     * @inheritDoc
      * @internal
-     * @override
      */
     _calculateBoundingBox(): void {
         var particleSystem: ShurikenParticleSystem = this._particleSystem;
@@ -238,9 +217,7 @@ export class ShurikenParticleRenderer extends BaseRender {
     }
 
     /**
-     * @inheritDoc
      * @internal
-     * @override
      */
     _needRender(boundFrustum: BoundFrustum, context: RenderContext3D): boolean {
         if (!Stat.enableParticle)
@@ -260,9 +237,7 @@ export class ShurikenParticleRenderer extends BaseRender {
     }
 
     /**
-     * @inheritDoc
      * @internal
-     * @override
      */
     _renderUpdate(context: IRenderContext3D): void {
         var particleSystem: ShurikenParticleSystem = this._particleSystem;
@@ -327,7 +302,6 @@ export class ShurikenParticleRenderer extends BaseRender {
     }
 
     /**
-     * @perfTag PerformanceDefine.T_ShurikenUpdate
      * @en Update the render state.
      * @param context The render context.
      * @zh 更新渲染状态。
@@ -342,7 +316,6 @@ export class ShurikenParticleRenderer extends BaseRender {
     }
 
     /**
-     * @override
      * @en The bounding box. Read-only, not allowed to modify its value.
      * @zh 包围盒。只读，不允许修改其值。
      */
@@ -356,7 +329,6 @@ export class ShurikenParticleRenderer extends BaseRender {
 
     /**
      * @internal
-     * @override
      */
     _cloneTo(dest: ShurikenParticleRenderer): void {
         this._particleSystem.cloneTo(dest._particleSystem);
