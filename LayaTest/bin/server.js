@@ -12,11 +12,10 @@ const express = require('express');
 const path = require('path');
 const fs = require('fs');
 const WebSocket = require('ws');
-const chokidar = require('chokidar');
-const ts = require('typescript');
 const http = require('http');
 const multer = require('multer');
 const { createCanvas, loadImage } = require('canvas');
+const {compileTestDir,layaSrc,findCorrespondingTsFile,compileTypeScript,copyFile} = require('./watchAndCompile')
 
 const app = express();
 
@@ -33,121 +32,6 @@ wss.on('connection', (ws) => {
   });
 
 const port = 4000;
-
-var outdir;
-
-function watchAndCompile(srcDir, outDir) {
-    outdir = outDir;
-    if (!fs.existsSync(outDir)) {
-        fs.mkdirSync(outDir, { recursive: true });
-    }
-
-    const watcher = chokidar.watch(srcDir, {
-        ignored: /(^|[\/\\])\../,
-        persistent: true,
-        awaitWriteFinish: {
-            stabilityThreshold: 2000,
-            pollInterval: 100
-          },
-          usePolling: false, // 设置为 true 如果需要使用轮询模式
-          interval: 100, // 轮询间隔，仅在 usePolling 为 true 时使用        
-    });
-
-    watcher.on('change', (filePath) => {
-        const relativePath = path.relative(srcDir, filePath);
-        console.log('变化:', relativePath)
-        //忽略screenshots的变化
-        if(relativePath.startsWith('test/screenshots')||relativePath.startsWith('test\\screenshots')){
-            return;
-        }
-        const outPath = path.join(outDir, relativePath);
-        const fileExt = path.extname(filePath);
-
-        fs.mkdirSync(path.dirname(outPath), { recursive: true });
-
-        if (fileExt === '.ts') {
-            compileTypeScript(filePath, outPath);
-        } else if (fileExt === '.glsl' || fileExt === '.vs') {
-            copyFile(filePath, outPath);
-        }
-        
-        // 通知所有连接的客户端
-        const message = JSON.stringify({ type: 'fileChanged', file: relativePath });
-        clients.forEach(client => {
-            if (client.readyState === WebSocket.OPEN) {
-                client.send(message);
-            }
-        });
-    });
-
-    console.log(`Watching ${srcDir} for changes...`);
-}
-
-/**
- * 找到js文件的源码
- * @param {string} jsFilePath 
- * @returns 
- */
-function findCorrespondingTsFile(jsFilePath) {
-    console.log(`查找${jsFilePath}的源文件`)
-    const possibleTsPath = jsFilePath.replace('.js', '.ts');
-    const srcPath = path.join(__dirname, layaSrc);
-    
-    //注意加上tsc
-    let relativePath = path.relative(path.join(__dirname,'tsc'), possibleTsPath);
-    const srcTsPath = path.join(srcPath, relativePath);
-    
-    if (fs.existsSync(srcTsPath)) {
-        return srcTsPath;
-    } 
-
-    //引擎源码中没有找到，可能是测试源码
-    if(relativePath.startsWith('test')){
-        relativePath = relativePath.substring(5);
-    }
-
-    const testPath = path.join(__dirname, testSrc);
-    const testTsPath = path.join(testPath, relativePath);
-    console.log('没有找到，可能是',testTsPath,relativePath)
-
-    if (fs.existsSync(testTsPath)) {
-         return testTsPath;
-    }
-    return null;
-}
-
-function compileTypeScript(filePath, outPath) {
-    const source = fs.readFileSync(filePath, 'utf8');
-    const result = ts.transpileModule(source, {
-        compilerOptions: {
-            module: ts.ModuleKind.ESNext,
-            target: ts.ScriptTarget.ES2017,
-            //removeComments: true,
-        },
-    });
-
-    const jsPath = outPath.replace('.ts', '.js');
-    fs.mkdirSync(path.dirname(jsPath), { recursive: true });
-    //用 writeFileSync 可能有写磁盘的延迟，所以用fd
-    const fd = fs.openSync(jsPath, 'w');
-    fs.writeSync(fd, result.outputText);
-    fs.fsyncSync(fd);
-    fs.closeSync(fd);
-    //fs.writeFileSync(jsPath, result.outputText);
-    console.log(`编译到: ${path.relative(outdir, jsPath)}`);
-    return result.outputText;
-}
-
-function copyFile(src, dest) {
-    fs.mkdirSync(path.dirname(dest), { recursive: true });
-    fs.copyFileSync(src, dest);
-    console.log(`拷贝到: ${ path.relative(outdir,dest)}`);
-}
-
-var layaSrc = '../../src'
-var testSrc = '../src'
-watchAndCompile( path.join(__dirname,layaSrc), './tsc/');
-watchAndCompile( path.join(__dirname,testSrc), './tsc/test/');
 
 var resultDir = '../data/screenshots';
 fs.mkdirSync(resultDir,{recursive:true});
@@ -209,77 +93,6 @@ app.post('/upload', upload.single('screenshot'), async (req, res) => {
   
 });
 
-async function checkExistingImage(pageId, newCanvas) {
-    const dir = path.join(__dirname, 'screenshots');
-    const files = fs.readdirSync(dir).filter(f => f.startsWith(pageId));
-
-    for (let file of files) {
-        const filePath = path.join(dir, file);
-        const existingImage = await loadImage(filePath);
-        const existingCanvas = createCanvas(existingImage.width, existingImage.height);
-        const ctx = existingCanvas.getContext('2d');
-        ctx.drawImage(existingImage, 0, 0);
-
-        if (canvasesAreEqual(newCanvas, existingCanvas)) {
-            return filePath;
-        }
-    }
-
-    return null;
-}
-
-function canvasesAreEqual(canvas1, canvas2) {
-    const data1 = canvas1.getContext('2d').getImageData(0, 0, canvas1.width, canvas1.height).data;
-    const data2 = canvas2.getContext('2d').getImageData(0, 0, canvas2.width, canvas2.height).data;
-    return data1.every((val, index) => val === data2[index]);
-}
-
-async function compileTestDir(){
-    //编译所有源目录的文件
-    //TODO 遍历这个目录，递归子目录，找到所有的ts文件，编译到 ./tsc/test/子目录下，编译方法是上面的 compileTypeScript
-    //如果目标目录（./tsc/test目录下没有package.json就创建一个，内容只要是 {"type": "module"} 就行 ）
-
-    const srcDir = path.join(__dirname, testSrc);
-    const destDir = path.join(__dirname, './tsc/test');
-
-    // 确保目标目录存在
-    fs.mkdirSync(destDir, { recursive: true });
-
-    // 检查并创建 package.json
-    // const packageJsonPath = path.join(destDir, 'package.json');
-    // try {
-    //     fs.accessSync(packageJsonPath);
-    // } catch (error) {
-    //     // 如果 package.json 不存在，创建它
-    //     fs.writeFileSync(packageJsonPath, JSON.stringify({ type: "module" }, null, 2));
-    //     console.log('Created package.json in', destDir);
-    // }
-
-    // 递归编译函数
-    async function compileRecursive(dir) {
-        const entries = fs.readdirSync(dir, { withFileTypes: true });
-
-        for (const entry of entries) {
-            const srcPath = path.join(dir, entry.name);
-            const relPath = path.relative(srcDir, srcPath);
-            const destPath = path.join(destDir, relPath);
-
-            if (entry.isDirectory()) {
-                fs.mkdirSync(destPath, { recursive: true });
-                await compileRecursive(srcPath);
-            } else if (entry.isFile() && path.extname(entry.name) === '.ts') {
-                const jsDestPath = destPath.replace('.ts', '.js');
-                fs.mkdirSync(path.dirname(jsDestPath), { recursive: true });
-                const compiledContent = compileTypeScript(srcPath, jsDestPath);
-                fs.writeFileSync(jsDestPath, compiledContent);
-            }
-        }
-    }
-
-    // 开始递归编译
-    await compileRecursive(srcDir);
-    console.log('Test directory compilation completed.');    
-}
 
 // 列出所有的2d测试
 app.get('/test', async (req, res) => {
@@ -308,7 +121,7 @@ app.get('/test', async (req, res) => {
 
 app.use((req, res, next) => {
 	//如果是目录，但是不是以/结尾的，算文件，避免express返回301。因为遇到一个问题 SceneRenderManager.js所在目录有一个 SceneRenderManager 目录
-	console.log(req.path);
+	//console.log(req.path);
     let filePath = path.join(__dirname, req.path);
 	
     // 检查原始文件是否存在
