@@ -7,7 +7,7 @@ import { RecastConfig } from "../../common/RecastConfig";
 import { Navigation2DManage } from "../Navigation2DManage";
 import { NavMesh2D } from "../NavMesh2D";
 import { NavMesh2DLink } from "../NavMesh2DLink";
-import { NavMesh2DModifierVolume } from "../NavMesh2DModifierVolume";
+import { NavMesh2DModifierArea } from "../NavMesh2DModifierArea";
 import { NavMesh2DObstacles } from "../NavMesh2DObstacles";
 
 /**
@@ -17,7 +17,7 @@ import { NavMesh2DObstacles } from "../NavMesh2DObstacles";
 export class NavMesh2DSurface extends BaseNavMeshSurface {
 
     /** @internal */
-    protected _navMeshVolumes: NavMesh2DModifierVolume[] = [];
+    protected _navMeshAreas: NavMesh2DModifierArea[] = [];
 
     /** @internal */
     protected _navMeshObstacles: NavMesh2DObstacles[] = [];
@@ -31,25 +31,25 @@ export class NavMesh2DSurface extends BaseNavMeshSurface {
     declare owner: Sprite;
 
     /**
-     * @en The modifier volume that modifies the surface of the navigation mesh.
-     * @zh 修改导航网格表面的修改体积。
+     * @en Modified areas of the navigation mesh surface.
+     * @zh 导航网格表面的修改区域。
      */
-    public set volumes(value: NavMesh2DModifierVolume[]) {
-        if (this._navMeshVolumes.length > 0) {
-            this._navMeshVolumes.forEach((volume) => {
-                volume._destroy();
+    public set areas(value: NavMesh2DModifierArea[]) {
+        if (this._navMeshAreas.length > 0) {
+            this._navMeshAreas.forEach((area) => {
+                area._destroy();
             });
         }
-        this._navMeshVolumes = value;
+        this._navMeshAreas = value;
         if (this._navMesh) {
-            this._navMeshVolumes.forEach((volume) => {
-                volume._bindSurface(this);
+            this._navMeshAreas.forEach((area) => {
+                area._bindSurface(this);
             });
         }
     }
 
-    public get volumes(): NavMesh2DModifierVolume[] {
-        return this._navMeshVolumes;
+    public get areas(): NavMesh2DModifierArea[] {
+        return this._navMeshAreas;
     }
 
     /**
@@ -75,9 +75,13 @@ export class NavMesh2DSurface extends BaseNavMeshSurface {
     }
 
     /**
-     * @en The links that modify the surface of the navigation mesh.
-     * @zh 修改导航网格表面的链接。
+     * @en Links on the navigation mesh surface.
+     * @zh 导航网格表面的链接。
      */
+    public get navMeshLink(): NavMesh2DLink[] {
+        return this._navMeshLink;
+    }
+
     public set navMeshLink(value: NavMesh2DLink[]) {
         if (this._navMeshLink.length > 0) {
             this._navMeshLink.forEach((link) => {
@@ -93,24 +97,22 @@ export class NavMesh2DSurface extends BaseNavMeshSurface {
     }
 
 
-    public get navMeshLink(): NavMesh2DLink[] {
-        return this._navMeshLink;
-    }
-
-
     /**
      * <code>实例化一个寻路功能<code>
+     * @ignore
      */
     constructor() {
         super();
     }
 
-
+    /**
+     * @ignore
+     */
     onAwake(): void {
         super.onAwake();
         this.owner._setBit(NodeFlags.CACHE_GLOBAL, true);
-        this._navMeshVolumes.forEach((volume) => {
-            volume._bindSurface(this);
+        this._navMeshAreas.forEach((area) => {
+            area._bindSurface(this);
         });
         this._navMeshObstacles.forEach((obstacle) => {
             obstacle._bindSurface(this);
@@ -126,10 +128,6 @@ export class NavMesh2DSurface extends BaseNavMeshSurface {
         return Navigation2DManage._getNavManager(this);
     }
 
-
-    /**
-     * @override
-     */
     protected _crateNavMesh(config: RecastConfig, min: Vector3, max: Vector3): NavMesh2D {
         return new NavMesh2D(config, min, max, this);
     }

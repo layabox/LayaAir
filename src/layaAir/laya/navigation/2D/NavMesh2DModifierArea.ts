@@ -7,21 +7,17 @@ import { NavMesh2DSurface } from "./component/NavMesh2DSurface";
 const tempVector3 = new Vector3();
 
 /**
- * @en NavMesh2DModifierVolume is a 2D component that modifies the navigation mesh in a specific volume.
- * @zh NavMesh2DModifierVolume 是一个在特定2D体积内修改导航网格的组件。
+ * @en NavMesh2DModifierArea is a 2D component that modifies the navigation mesh in a specific Area.
+ * @zh NavMesh2DModifierArea 是一个在特定2D区域内修改导航网格的组件。
  */
-export class NavMesh2DModifierVolume {
+export class NavMesh2DModifierArea {
 
-    /**@internal */
-    private _volumeData: ModifierVolumeData;
+    private _AreaData: ModifierVolumeData;
 
-    /**@internal */
     private _position: Vector2 = new Vector2();
 
-    /**@internal */
     private _rotation: number = 0;
 
-    /**@internal */
     private _scale: Vector2 = new Vector2(1, 1);
 
     /**
@@ -29,30 +25,30 @@ export class NavMesh2DModifierVolume {
      * @zh 导航节点的代理类型
      */
     set agentType(value: string) {
-        this._volumeData.agentType = value;
+        this._AreaData.agentType = value;
     }
 
     get agentType() {
-        return this._volumeData.agentType;
+        return this._AreaData.agentType;
     }
 
     /**
-     * @en The area flag for this volume.
-     * @zh 该体积的区域标志。
+     * @en The flag for this Area.
+     * @zh 该区域的标志。
      */
     set areaFlag(value: string) {
-        this._volumeData.areaFlag = value;
+        this._AreaData.areaFlag = value;
     }
 
     get areaFlag() {
-        return this._volumeData.areaFlag;
+        return this._AreaData.areaFlag;
     }
 
     private _pointDatas: number[] = [];
 
     /**
-     * @en The point data of the modifier volume.
-     * @zh 修改体积的点数据。
+     * @en The point data of the modifier Area.
+     * @zh 修改区域的多边形顶点数据。
     */
     set datas(value: number[]) {
         this._pointDatas = value;
@@ -105,28 +101,26 @@ export class NavMesh2DModifierVolume {
     }
 
     constructor() {
-        this._volumeData = new ModifierVolumeData();
+        this._AreaData = new ModifierVolumeData();
     }
 
     /**
      * @internal
      */
     _bindSurface(surface: NavMesh2DSurface) {
-        this._volumeData._initSurface([surface]);
+        this._AreaData._initSurface([surface]);
     }
 
     /**
      * @internal
      */
     _destroy() {
-        this._volumeData._destory();
+        this._AreaData._destory();
     }
-
-    /**@internal */
     private _vector2dTo3d(): void {
         let pointCount = this._pointDatas.length >> 1;
         let index = 0;
-        let datas = this._volumeData._datas;
+        let datas = this._AreaData._datas;
         datas.length = pointCount * 3;
         for (var i = 0; i < pointCount; i++) {
             index = i * 2;
@@ -136,12 +130,12 @@ export class NavMesh2DModifierVolume {
             datas[index + 1] = tempVector3.y;
             datas[index + 2] = tempVector3.z;
         }
-        this._volumeData._refeashData();
+        this._AreaData._refeashData();
     }
 
     /**@internal */
     _transfromChange() {
-        Navgiation2DUtils._getTransfromMatrix4x4(this._position, this._rotation, this._scale, this._volumeData._transfrom);
-        this._volumeData._refeahTransfrom();
+        Navgiation2DUtils._getTransfromMatrix4x4(this._position, this._rotation, this._scale, this._AreaData._transfrom);
+        this._AreaData._refeahTransfrom();
     }
 }
