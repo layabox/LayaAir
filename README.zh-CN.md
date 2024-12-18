@@ -38,11 +38,13 @@ npm install
 
 #### 运行示例
 
-在引擎根目录，用命令行执行`npm run start`命令，如下所示：
+1. 拷贝 `src/layaAir/jsLibs`目录到bin目录内。
+2. 在引擎根目录，用命令行执行`npm run start`命令，如下所示：
 
 ```bash
 npm run start
 ```
+3. 使用Live Server打开bin/index.html.
 
 #### 编译引擎
 
