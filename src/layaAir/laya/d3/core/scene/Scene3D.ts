@@ -40,7 +40,6 @@ import { Color } from "../../../maths/Color";
 import { Vector3 } from "../../../maths/Vector3";
 import { Vector4 } from "../../../maths/Vector4";
 import { RenderTexture } from "../../../resource/RenderTexture";
-import { Laya3D } from "../../../../Laya3D";
 import { IPhysicsManager } from "../../../Physics3D/interface/IPhysicsManager";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { ISceneNodeData } from "../../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
@@ -51,6 +50,7 @@ import { RenderTexture2D } from "../../../resource/RenderTexture2D";
 import { BaseRender } from "../render/BaseRender";
 import { Viewport } from "../../../maths/Viewport";
 import { IElementComponentManager } from "../../../components/IScenceComponentManager";
+import { ILaya3D } from "../../../../ILaya3D";
 
 export enum FogMode {
     Linear = 0, //Linear
@@ -745,8 +745,8 @@ export class Scene3D extends Sprite {
         if (LayaEnv.isConch && (window as any).conchConfig.getGraphicsAPI() != 2) {
             this._nativeObj = new (window as any).conchSubmitScene3D(this.renderSubmit.bind(this));
         }
-        if (Laya3D.enablePhysics)
-            this._physicsManager = Laya3D.PhysicsCreateUtil.createPhysicsManger(Scene3D.physicsSettings);
+        if (ILaya3D.Laya3D.enablePhysics)
+            this._physicsManager = ILaya3D.Laya3D.PhysicsCreateUtil.createPhysicsManger(Scene3D.physicsSettings);
 
         this._shaderValues = LayaGL.renderDeviceFactory.createShaderData(null);
         this._shaderValues.addDefines(Shader3D._configDefineValues);
@@ -813,7 +813,7 @@ export class Scene3D extends Sprite {
             if (this._physicsStepTime > Scene3D.physicsSettings.fixedTimeStep) {
 
                 let physicsManager = this._physicsManager;
-                if (Laya3D.enablePhysics && Stat.enablePhysicsUpdate) {
+                if (ILaya3D.Laya3D.enablePhysics && Stat.enablePhysicsUpdate) {
                     physicsManager.update(this._physicsStepTime);
                 }
                 this._physicsStepTime = 0;

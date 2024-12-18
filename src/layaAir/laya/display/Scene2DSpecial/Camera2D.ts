@@ -1,4 +1,4 @@
-import { Laya } from "../../../Laya";
+import { ILaya } from "../../../ILaya";
 import { LayaGL } from "../../layagl/LayaGL";
 import { Matrix3x3 } from "../../maths/Matrix3x3";
 import { Point } from "../../maths/Point";
@@ -131,7 +131,7 @@ export class Camera2D extends Sprite {
     private _findOwenrArea() {
         let ele = this as any;
         while (ele) {
-            if (ele === this._scene || ele === Laya.stage) break;
+            if (ele === this._scene || ele === ILaya.stage) break;
             if (ele instanceof Area2D) {
                 this._ownerArea = ele;
                 if (this._isMain && !this._ownerArea.mainCamera)
