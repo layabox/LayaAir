@@ -4,8 +4,8 @@ import { IStaticCollider } from "../../interface/IStaticCollider";
 import { Physics3DStatInfo } from "../../interface/Physics3DStatInfo";
 import { EColliderCapable } from "../../physicsEnum/EColliderCapable";
 import { EPhysicsStatisticsInfo } from "../../physicsEnum/EPhysicsStatisticsInfo";
-import { pxPhysicsCreateUtil } from "../pxPhysicsCreateUtil";
-import { pxPhysicsManager } from "../pxPhysicsManager";
+import type { pxPhysicsManager } from "../pxPhysicsManager";
+import { pxStatics } from "../pxStatics";
 import { pxCollider } from "./pxCollider";
 
 /**
@@ -73,7 +73,7 @@ export class pxStaticCollider extends pxCollider implements IStaticCollider {
     }
 
     protected _initCollider() {
-        this._pxActor = pxPhysicsCreateUtil._pxPhysics.createRigidStatic(this._transformTo(new Vector3(), new Quaternion()));
+        this._pxActor = pxStatics._physics.createRigidStatic(this._transformTo(new Vector3(), new Quaternion()));
 
     }
 

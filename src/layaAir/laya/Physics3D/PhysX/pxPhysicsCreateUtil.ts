@@ -33,6 +33,7 @@ import { Mesh } from "../../d3/resource/models/Mesh";
 import { VertexMesh } from "../../RenderEngine/RenderShader/VertexMesh";
 import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
 import { PrimitiveMesh } from "../../d3/resource/models/PrimitiveMesh";
+import { pxStatics } from "./pxStatics";
 
 
 /**
@@ -40,25 +41,7 @@ import { PrimitiveMesh } from "../../d3/resource/models/PrimitiveMesh";
  * @zh PhysX物理创建工具类
  */
 export class pxPhysicsCreateUtil implements IPhysicsCreateUtil {
-    static _physXPVD: boolean = false;
-    static _PxPvdPort: any = 5425;
-    //** @internal PhysX wasm object */
-    static _physX: any;
-    // /** @internal PhysX Foundation SDK singleton class */
-    static _pxFoundation: any;
-    // /** @internal PhysX physics object */
-    static _pxPhysics: any;
 
-    static _allocator: any;
-    /**@internal pvd */
-    static _pvd: any;
-    /**@internal */
-    static _PxPvdTransport: any;
-    /**@internal */
-    static _physXSimulationCallbackInstance: any;
-    /**@internal */
-    static _sceneDesc: any;
-    static _tolerancesScale: any;
 
     protected _physicsEngineCapableMap: Map<any, any>;
 
@@ -132,7 +115,7 @@ export class pxPhysicsCreateUtil implements IPhysicsCreateUtil {
         var queue: any = [];
         const pvdTransport = physX.PxPvdTransport.implement({
             connect: function () {
-                let url = 'ws://127.0.0.1:' + pxPhysicsCreateUtil._PxPvdPort;
+                let url = 'ws://127.0.0.1:' + pxStatics._PxPvdPort;
                 socket = new WebSocket(url, ['binary'])
                 socket.onopen = (e) => {
                     console.log('Connected to PhysX Debugger');
@@ -168,8 +151,8 @@ export class pxPhysicsCreateUtil implements IPhysicsCreateUtil {
         const gPvd = physX.PxCreatePvd(pxFoundation);
         let socketsuccess = physX.MyCreatepvdTransport(pvdTransport, gPvd);
         // console.log("PVD connect is " + socketsuccess);
-        pxPhysicsCreateUtil._pvd = gPvd;
-        pxPhysicsCreateUtil._PxPvdTransport = pvdTransport;
+        pxStatics._pvd = gPvd;
+        pxStatics._PxPvdTransport = pvdTransport;
         return gPvd;
     }
 
@@ -178,20 +161,20 @@ export class pxPhysicsCreateUtil implements IPhysicsCreateUtil {
         const defaultErrorCallback = new physX.PxDefaultErrorCallback();
         const allocator = new physX.PxDefaultAllocator();
         const pxFoundation = physX.PxCreateFoundation(version, allocator, defaultErrorCallback);
-        pxPhysicsCreateUtil._tolerancesScale = new physX.PxTolerancesScale();
+        pxStatics._tolerancesScale = new physX.PxTolerancesScale();
         let pxPhysics;
-        if (pxPhysicsCreateUtil._physXPVD) {
+        if (pxStatics._physXPVD) {
             let gPvd = this._physxPVDSocketConnect(physX, pxFoundation);
-            pxPhysics = physX.CreatePVDPhysics(pxFoundation, pxPhysicsCreateUtil._tolerancesScale, true, gPvd);
+            pxPhysics = physX.CreatePVDPhysics(pxFoundation, pxStatics._tolerancesScale, true, gPvd);
             physX.PxInitExtensions(pxPhysics, gPvd);
         } else {
-            pxPhysics = physX.CreateDefaultPhysics(pxFoundation, pxPhysicsCreateUtil._tolerancesScale);
+            pxPhysics = physX.CreateDefaultPhysics(pxFoundation, pxStatics._tolerancesScale);
             physX.InitDefaultExtensions(pxPhysics);
         }
-        pxPhysicsCreateUtil._physX = physX;
-        pxPhysicsCreateUtil._pxFoundation = pxFoundation;
-        pxPhysicsCreateUtil._pxPhysics = pxPhysics;
-        pxPhysicsCreateUtil._allocator = allocator;
+        pxStatics._physX = physX;
+        pxStatics._foundation = pxFoundation;
+        pxStatics._physics = pxPhysics;
+        pxStatics._allocator = allocator;
     }
 
     /**
@@ -407,62 +390,6 @@ export class pxPhysicsCreateUtil implements IPhysicsCreateUtil {
         return (<any>mesh).__convexMesh;
 
     }
-
-    /**
-     * @en Create a Float32Array with allocated memory.
-     * @param length The length of the array.
-     * @zh 创建具有分配内存的Float32Array。
-     * @param length 数组的长度。
-     */
-    static createFloat32Array(length: number): { ptr: number, buffer: Float32Array } {
-        let ptr = this._physX._malloc(4 * length);
-        const buffer = new Float32Array(this._physX.HEAPF32.buffer, ptr, length);
-        return { ptr: ptr, buffer: buffer }
-    }
-
-    /**
-     * @en Create a Uint32Array with allocated memory.
-     * @param length The length of the array.
-     * @zh 创建具有分配内存的Uint32Array。
-     * @param length 数组的长度。
-     */
-    static createUint32Array(length: number): { ptr: number, buffer: Uint32Array } {
-        let ptr = this._physX._malloc(4 * length);
-        const buffer = new Uint32Array(this._physX.HEAPU32.buffer, ptr, length);
-        return { ptr: ptr, buffer: buffer }
-    }
-    /**
-     * @en Create a Uint16Array with allocated memory.
-     * @param length The length of the array.
-     * @zh 创建具有分配内存的Uint16Array。
-     * @param length 数组的长度。
-     */
-    static createUint16Array(length: number): { ptr: number, buffer: Uint16Array } {
-        let ptr = this._physX._malloc(2 * length);
-        const buffer = new Uint16Array(this._physX.HEAPU16.buffer, ptr, length);
-        return { ptr: ptr, buffer: buffer }
-    }
-    /**
-     * @en Create a Uint8Array with allocated memory.
-     * @param length The length of the array.
-     * @zh 创建具有分配内存的Uint8Array。
-     * @param length 数组的长度。
-     */
-    static createUint8Array(length: number): { ptr: number, buffer: Uint8Array } {
-        let ptr = this._physX._malloc(length);
-        const buffer = new Uint8Array(this._physX.HEAPU8.buffer, ptr, length);
-        return { ptr: ptr, buffer: buffer }
-    }
-    /**
-     * @en Free the allocated memory for a buffer.
-     * @param data The buffer object to free.
-     * @zh 释放为缓冲区分配的内存。
-     * @param data 要释放的缓冲区对象。
-     */
-    static freeBuffer(data: any) {
-        this._physX._free(data.ptr);
-    }
-
 }
 
 Laya3D.PhysicsCreateUtil = new pxPhysicsCreateUtil()

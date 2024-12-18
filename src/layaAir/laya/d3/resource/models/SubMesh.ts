@@ -159,7 +159,6 @@ export class SubMesh extends GeometryElement {
 	}
 
 	/**
-	 * {@inheritDoc GeometryElement.destroy}
 	 * @override
 	 * @en Destroys the submesh and releases resources.
 	 * @zh 销毁子网格并释放资源。

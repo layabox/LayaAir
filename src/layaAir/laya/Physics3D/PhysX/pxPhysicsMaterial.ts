@@ -1,5 +1,5 @@
 import { PhysicsCombineMode } from "../../d3/physics/PhysicsColliderComponent";
-import { pxPhysicsCreateUtil } from "./pxPhysicsCreateUtil";
+import { pxStatics } from "./pxStatics";
 
 /**
  * @en Represents a physics material in the PhysX engine.
@@ -25,7 +25,7 @@ export class pxPhysicsMaterial {
      * @zh 创建一个新的pxPhysicsMaterial类。
      */
     constructor() {
-        this._pxMaterial = pxPhysicsCreateUtil._pxPhysics.createMaterial(this._staticFriction, this._dynamicFriction, this._bounciness);
+        this._pxMaterial = pxStatics._physics.createMaterial(this._staticFriction, this._dynamicFriction, this._bounciness);
     }
 
     /**

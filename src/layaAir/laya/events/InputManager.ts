@@ -1,4 +1,5 @@
 import { HideFlags, NodeFlags } from "../Const";
+import { Area2D } from "../display/Area2D";
 import { Node } from "../display/Node";
 import { Scene } from "../display/Scene";
 import { Sprite } from "../display/Sprite";
@@ -563,12 +564,12 @@ export class InputManager {
      * @returns 该点下的sprite，如果没有找到则返回null。
      */
     getSpriteUnderPoint(sp: Sprite, x: number, y: number): Sprite {
-        if (sp instanceof Scene && sp._specialManager?._mainCamera) {
+        if (sp instanceof Area2D && sp.mainCamera) {
             let point = Point.TEMP;
             point.setTo(x, y);
             //如果之前没有Camera，根据scene计算screen坐标
             point = sp.localToGlobal(point);
-            let camera2D = sp._specialManager._mainCamera;
+            let camera2D = sp.mainCamera;
             //根据camera计算实际的world坐标
             point = camera2D.localToGlobal(point);
             //根据实际坐标计算scene的实际local坐标

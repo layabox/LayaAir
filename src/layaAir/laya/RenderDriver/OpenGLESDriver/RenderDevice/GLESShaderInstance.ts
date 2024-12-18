@@ -30,7 +30,7 @@ export class GLESShaderInstance implements IShaderInstance {
 	_create(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderPass): void {
 		this._shaderPass = shaderPass;
 		let useMaterial = Config3D._matUseUBO;//TODO 临时解决2D Mat
-        Config3D._matUseUBO =  !shaderProcessInfo.is2D; 
+		Config3D._matUseUBO = (!shaderProcessInfo.is2D) && Config3D._matUseUBO;
 		let shaderObj = GLSLCodeGenerator.GLShaderLanguageProcess3D(shaderProcessInfo.defineString, shaderProcessInfo.attributeMap, shaderProcessInfo.uniformMap, shaderProcessInfo.vs, shaderProcessInfo.ps);
 		Config3D._matUseUBO = useMaterial;
 		this._attributeMapTemp.clear();

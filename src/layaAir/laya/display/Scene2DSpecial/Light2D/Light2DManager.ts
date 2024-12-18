@@ -1234,13 +1234,27 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
      * 更新屏幕尺寸和偏移参数
      */
     private _updateScreen() {
-        const camera = this._scene._specialManager._mainCamera;
-        if (camera) {
-            this._screen.x = (camera.getCameraPos().x - RenderState2D.width / 2) | 0;
-            this._screen.y = (camera.getCameraPos().y - RenderState2D.height / 2) | 0;
-            this._screen.width = RenderState2D.width | 0;
-            this._screen.height = RenderState2D.height | 0;
-        } else {
+        const area2DArrays = this._scene._Area2Ds;
+        if (area2DArrays.length>0) {
+            let xL = 10000000;
+            let xR = -10000000;
+            let yB = 10000000;
+            let yT = -10000000;
+             for(var i = 0;i<area2DArrays.length;i++){
+                let camera = area2DArrays[i].mainCamera;
+                if(camera){
+                    let rect = camera._rect;
+                    xL = Math.min(xL,rect.x);
+                    xR = Math.max(xR,rect.y);
+                    yB = Math.min(yB,rect.z);
+                    yT = Math.max(yT,rect.w);
+                }
+            }
+            this._screen.x = xL;
+            this._screen.y = yB;
+            this._screen.width = xR-xL;
+            this._screen.height = yT-yB;
+        } else{
             this._screen.x = 0;
             this._screen.y = 0;
             this._screen.width = RenderState2D.width | 0;

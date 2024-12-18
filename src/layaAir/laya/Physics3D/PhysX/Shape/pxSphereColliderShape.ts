@@ -1,6 +1,6 @@
 import { Vector3 } from "../../../maths/Vector3";
 import { ISphereColliderShape } from "../../interface/Shape/ISphereColliderShape";
-import { pxPhysicsCreateUtil } from "../pxPhysicsCreateUtil";
+import { pxStatics } from "../pxStatics";
 import { pxColliderShape } from "./pxColliderShape";
 
 /**
@@ -19,7 +19,7 @@ export class pxSphereColliderShape extends pxColliderShape implements ISphereCol
      */
     constructor() {
         super();
-        this._pxGeometry = new pxPhysicsCreateUtil._physX.PxSphereGeometry(this._radius);
+        this._pxGeometry = new pxStatics._physX.PxSphereGeometry(this._radius);
         this._createShape();
     }
 

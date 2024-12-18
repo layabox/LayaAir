@@ -1,7 +1,7 @@
 import { Quaternion } from "../../../maths/Quaternion";
 import { Vector3 } from "../../../maths/Vector3";
 import { IHingeJoint } from "../../interface/Joint/IHingeJoint";
-import { pxPhysicsCreateUtil } from "../pxPhysicsCreateUtil";
+import { pxStatics } from "../pxStatics";
 import { pxJoint } from "./pxJoint";
 
 export enum PxRevoluteJointFlag {
@@ -51,7 +51,7 @@ export class pxRevoluteJoint extends pxJoint implements IHingeJoint {
         this._localPos.cloneTo(transform.translation);
         const transform1 = pxJoint._tempTransform1;
         this._connectlocalPos.cloneTo(transform1.translation);
-        this._pxJoint = pxPhysicsCreateUtil._pxPhysics.createRevoluteJoint(this._collider._pxActor, transform.translation, transform.rotation, this._connectCollider._pxActor, transform1.translation, transform1.rotation);
+        this._pxJoint = pxStatics._physics.createRevoluteJoint(this._collider._pxActor, transform.translation, transform.rotation, this._connectCollider._pxActor, transform1.translation, transform1.rotation);
         this._pxJoint.setUUID(this._id);
     }
 

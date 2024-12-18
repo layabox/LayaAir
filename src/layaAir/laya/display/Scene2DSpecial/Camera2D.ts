@@ -1,3 +1,4 @@
+import { Laya } from "../../../Laya";
 import { LayaGL } from "../../layagl/LayaGL";
 import { Matrix3x3 } from "../../maths/Matrix3x3";
 import { Point } from "../../maths/Point";
@@ -8,6 +9,7 @@ import { ShaderDefine } from "../../RenderDriver/RenderModuleData/Design/ShaderD
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { RenderTexture } from "../../resource/RenderTexture";
 import { RenderState2D } from "../../webgl/utils/RenderState2D";
+import { Area2D } from "../Area2D";
 import { Node } from "../Node";
 import { Scene } from "../Scene";
 import { Sprite } from "../Sprite";
@@ -19,7 +21,6 @@ export class Camera2D extends Sprite {
     /**@internal */
     static shaderValueInit() {
         if (!Scene.scene2DUniformMap) {
-            //Scene.scene2DUniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap("scene2D");
             Scene.scene2DUniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap("Sprite2DGlobal"); //名称保持一致 //兼容Light2D
         }
         let scene2DUniformMap = Scene.scene2DUniformMap;
@@ -72,6 +73,8 @@ export class Camera2D extends Sprite {
     /**@internal */
     _isMain: boolean;
     /**@internal */
+    _ownerArea: Area2D;
+    /**@internal */
     _cameraRotation: number;//angle 
 
 
@@ -98,15 +101,44 @@ export class Camera2D extends Sprite {
         return this._isMain;
     }
     public set isMain(value: boolean) {
-        if (this.scene) {
+        if (this._ownerArea) {
             if (value) {
-                this.scene._specialManager._setMainCamera(this);
+                this._ownerArea._setMainCamera(this);
+                this._isMain = true;
             }
             else {
-                (this.scene._specialManager._mainCamera == this) && this.scene._specialManager._setMainCamera(null);
+                if (this._ownerArea.mainCamera == this) {
+                    this._ownerArea._setMainCamera(null);
+                    this._isMain = false;
+                }
             }
-        } else {
-            this._isMain = value;
+        }
+        this._isMain = value;
+    }
+
+    _setUnBelongScene(): void {
+        if (this._ownerArea.mainCamera == this)
+            this._ownerArea._setMainCamera(null);
+        this._ownerArea = null;
+        super._setUnBelongScene();
+    }
+
+    _setBelongScene(scene: Node): void {
+        super._setBelongScene(scene);
+        this._findOwenrArea();
+    }
+
+    private _findOwenrArea() {
+        let ele = this as any;
+        while (ele) {
+            if (ele === this._scene || ele === Laya.stage) break;
+            if (ele instanceof Area2D) {
+                this._ownerArea = ele;
+                if (this._isMain && !this._ownerArea.mainCamera)
+                    this._ownerArea._setMainCamera(this);
+                break;
+            }
+            ele = (<Sprite>ele._parent);
         }
     }
 
@@ -214,26 +246,8 @@ export class Camera2D extends Sprite {
 
     private _viewRect: Vector2 = new Vector2();
 
-    getCameraPos(){
+    getCameraPos() {
         return this._cameraPos;
-    }
-
-    /**
-     * @internal
-     */
-    _setBelongScene(scene: Node): void {
-        super._setBelongScene(scene);
-        if (this._isMain) {
-            this.scene._specialManager._setMainCamera(this);
-        }
-    }
-
-    /**
-     * @internal
-     */
-    _setUnBelongScene(): void {
-        this.scene._specialManager._setMainCamera(null);
-        super._setUnBelongScene();
     }
 
     /**

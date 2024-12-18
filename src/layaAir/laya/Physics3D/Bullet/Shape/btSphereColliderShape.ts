@@ -1,5 +1,5 @@
 import { ISphereColliderShape } from "../../interface/Shape/ISphereColliderShape";
-import { btPhysicsCreateUtil } from "../btPhysicsCreateUtil";
+import { btStatics } from "../btStatics";
 import { btColliderShape } from "./btColliderShape";
 /**
  * @en The `btSphereColliderShape` class is used to create and manage spherical collision shapes.
@@ -18,11 +18,10 @@ export class btSphereColliderShape extends btColliderShape implements ISphereCol
     }
 
     protected _createShape() {
-        let bt = btPhysicsCreateUtil._bt;
         if (this._btShape) {
-            bt.btCollisionShape_destroy(this._btShape);
+            btStatics.bt.btCollisionShape_destroy(this._btShape);
         }
-        this._btShape = bt.btSphereShape_create(this._radius);
+        this._btShape = btStatics.bt.btSphereShape_create(this._radius);
     }
 
     /**

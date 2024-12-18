@@ -1,8 +1,7 @@
 import { IFixedJoint } from "../../interface/Joint/IFixedJoint";
-import { btCollider } from "../Collider/btCollider";
 import { btRigidBodyCollider } from "../Collider/btRigidBodyCollider";
-import { btPhysicsCreateUtil } from "../btPhysicsCreateUtil";
 import { btPhysicsManager } from "../btPhysicsManager";
+import { btStatics } from "../btStatics";
 import { btJoint } from "./btJoint";
 /**
  * @en Class `btFixedJoint` is used to create a fixed joint in the physical engine.
@@ -21,7 +20,7 @@ export class btFixedJoint extends btJoint implements IFixedJoint {
     }
 
     protected _createJoint(): void {
-        let bt = btPhysicsCreateUtil._bt;
+        let bt = btStatics.bt;
         this._manager && this._manager.removeJoint(this);
         if (this._collider && this._connectCollider) {
             this._btJoint = bt.btFixedConstraint_create((this._collider as btRigidBodyCollider)._btCollider, this._btTempTrans0, (this._connectCollider as btRigidBodyCollider)._btCollider, this._btTempTrans1, 0);

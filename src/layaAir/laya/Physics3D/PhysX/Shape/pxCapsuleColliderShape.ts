@@ -2,7 +2,7 @@ import { Quaternion } from "../../../maths/Quaternion";
 import { Vector3 } from "../../../maths/Vector3";
 import { ICapsuleColliderShape } from "../../interface/Shape/ICapsuleColliderShape";
 import { pxCollider } from "../Collider/pxCollider";
-import { pxPhysicsCreateUtil } from "../pxPhysicsCreateUtil";
+import { pxStatics } from "../pxStatics";
 import { pxColliderShape } from "./pxColliderShape";
 /**
  * The up axis of the collider shape.
@@ -37,7 +37,7 @@ export class pxCapsuleColliderShape extends pxColliderShape implements ICapsuleC
      */
     constructor() {
         super();
-        this._pxGeometry = new pxPhysicsCreateUtil._physX.PxCapsuleGeometry(this._radius, this._halfHeight);
+        this._pxGeometry = new pxStatics._physX.PxCapsuleGeometry(this._radius, this._halfHeight);
         this._createShape();
     }
 

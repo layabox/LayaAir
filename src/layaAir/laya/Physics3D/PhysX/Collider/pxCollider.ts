@@ -8,7 +8,8 @@ import { Vector3 } from "../../../maths/Vector3";
 import { NotImplementedError } from "../../../utils/Error";
 import { ICollider } from "../../interface/ICollider";
 import { pxColliderShape } from "../Shape/pxColliderShape";
-import { partFlag, pxPhysicsManager } from "../pxPhysicsManager";
+import type { pxPhysicsManager } from "../pxPhysicsManager";
+import { partFlag } from "../pxStatics";
 /**
  * @en Enumeration of collider types.
  * @zh 碰撞器类型枚举。

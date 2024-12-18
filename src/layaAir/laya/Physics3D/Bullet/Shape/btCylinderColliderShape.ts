@@ -1,6 +1,6 @@
 import { Vector3 } from "../../../maths/Vector3";
 import { ICylinderColliderShape } from "../../interface/Shape/ICylinderColliderShape";
-import { btPhysicsCreateUtil } from "../btPhysicsCreateUtil";
+import { btStatics } from "../btStatics";
 import { btColliderShape } from "./btColliderShape";
 /**
  * @en The `btCylinderColliderShape` class is used to create and manage cylinder collision shapes.
@@ -18,13 +18,12 @@ export class btCylinderColliderShape extends btColliderShape implements ICylinde
     private _btSize: any;
     constructor() {
         super();
-        let bt = btPhysicsCreateUtil._bt;
-        this._btSize = bt.btVector3_create(0, 0, 0);
+        this._btSize = btStatics.bt.btVector3_create(0, 0, 0);
     }
 
     protected _createShape() {
         //TODO MIner
-        let bt = btPhysicsCreateUtil._bt;
+        let bt = btStatics.bt;
         if (this._btShape) {
             bt.btCollisionShape_destroy(this._btShape);
         }

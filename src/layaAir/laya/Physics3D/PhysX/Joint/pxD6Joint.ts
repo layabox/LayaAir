@@ -9,7 +9,7 @@ export enum PxD6JointDriveFlag {
 import { Quaternion } from "../../../maths/Quaternion";
 import { Vector3 } from "../../../maths/Vector3";
 import { D6Axis, D6Drive, D6MotionType, ID6Joint } from "../../interface/Joint/ID6Joint";
-import { pxPhysicsCreateUtil } from "../pxPhysicsCreateUtil";
+import { pxStatics } from "../pxStatics";
 import { pxJoint } from "./pxJoint";
 
 /**
@@ -38,7 +38,7 @@ export class pxD6Joint extends pxJoint implements ID6Joint {
         this._localPos.cloneTo(transform.translation);
         const transform1 = pxJoint._tempTransform1;
         this._connectlocalPos.cloneTo(transform1.translation);
-        this._pxJoint = pxPhysicsCreateUtil._pxPhysics.createD6Joint(this._collider._pxActor, transform.translation, transform.rotation, this._connectCollider._pxActor, transform1.translation, transform1.rotation);
+        this._pxJoint = pxStatics._physics.createD6Joint(this._collider._pxActor, transform.translation, transform.rotation, this._connectCollider._pxActor, transform1.translation, transform1.rotation);
         this._initAllConstrainInfo();
         this._pxJoint.setUUID(this._id);
     }

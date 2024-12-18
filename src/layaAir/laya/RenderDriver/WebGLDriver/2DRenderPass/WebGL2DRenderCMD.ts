@@ -74,7 +74,6 @@ export class WebGLBlit2DQuadCMD extends Blit2DQuadCMD {
             WebGLBlit2DQuadCMD._init_();
         }
         this.type = RenderCMDType.Blit;
-        this._viewport = new Viewport();
         this._offsetScale = new Vector4();
         this._sourceTexelSize = new Vector4();
     }

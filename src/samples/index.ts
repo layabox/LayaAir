@@ -9,6 +9,8 @@ import "laya/gltf/glTFLoader";
 import "laya/navigation/common/ModuleDef";
 import "laya/navigation/3D/ModuleDef";
 import "laya/navigation/2D/ModuleDef";
+import "laya/trail/trail2D/ModuleDef";
+import "laya/trail/trail3D/ModuleDef";
 
 import { Resource } from "laya/resource/Resource";
 import { Main } from "./Main";
@@ -28,4 +30,4 @@ LayaGL.renderOBJCreate = new WebGLRenderEngineFactory();
 Physics2D.I._factory = new physics2DwasmFactory();
 Laya3D.PhysicsCreateUtil = new btPhysicsCreateUtil();
 HierarchyLoader.legacySceneOrPrefab = LegacyUIParser;
-new Main(true, false,SceneLoad1);
+new Main(true, false);

@@ -1,14 +1,14 @@
 import { btCollider, btColliderType } from "./btCollider";
-import { btPhysicsCreateUtil } from "../btPhysicsCreateUtil";
 import { ICharacterController } from "../../interface/ICharacterController";
 import { Vector3 } from "../../../maths/Vector3";
-import { btPhysicsManager } from "../btPhysicsManager";
+import type { btPhysicsManager } from "../btPhysicsManager";
 import { ECharacterCapable } from "../../physicsEnum/ECharacterCapable";
 import { btColliderShape } from "../Shape/btColliderShape";
 import { PhysicsCombineMode } from "../../../d3/physics/PhysicsColliderComponent";
 import { btCapsuleColliderShape } from "../Shape/btCapsuleColliderShape";
 import { EPhysicsStatisticsInfo } from "../../physicsEnum/EPhysicsStatisticsInfo";
 import { Physics3DStatInfo } from "../../interface/Physics3DStatInfo";
+import { btStatics, convertToBulletVec3 } from "../btStatics";
 
 /**
  * @en The btCharacterCollider class is used to handle 3D physics character colliders.
@@ -48,8 +48,7 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
     componentEnable: boolean;
 
     static __init__(): void {
-        let bt = btPhysicsCreateUtil._bt;
-        btCharacterCollider._btTempVector30 = bt.btVector3_create(0, 0, 0);
+        btCharacterCollider._btTempVector30 = btStatics.bt.btVector3_create(0, 0, 0);
         btCharacterCollider._btTempVector31 = new Vector3(0, 0, 0);
         btCharacterCollider.initCapable();
     }
@@ -75,10 +74,10 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
     constructor(physicsManager: btPhysicsManager) {
         super(physicsManager);
         this._enableProcessCollisions = true;
-        var bt = btPhysicsCreateUtil._bt;
+        var bt = btStatics.bt;
         var ghostObject: number = bt.btPairCachingGhostObject_create();
         bt.btCollisionObject_setUserIndex(ghostObject, this._id);
-        bt.btCollisionObject_setCollisionFlags(ghostObject, btPhysicsManager.COLLISIONFLAGS_CHARACTER_OBJECT);
+        bt.btCollisionObject_setCollisionFlags(ghostObject, btStatics.COLLISIONFLAGS_CHARACTER_OBJECT);
         bt.btCollisionObject_setContactProcessingThreshold(ghostObject, 0);
         this._btCollider = ghostObject;
         Physics3DStatInfo.addStatisticsInfo(EPhysicsStatisticsInfo.C_PhysicaCharacterController, 1);
@@ -110,8 +109,7 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
      */
     setPosition(value: Vector3): void {
         // bullet no direct setposition
-        var bt = btPhysicsCreateUtil._bt;
-        bt.btKinematicCharacterController_setCurrentPosition(this._btKinematicCharacter, value.x, value.y, value.z);
+        btStatics.bt.btKinematicCharacterController_setCurrentPosition(this._btKinematicCharacter, value.x, value.y, value.z);
     }
     /**
      * @en Get the current position.
@@ -120,7 +118,7 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
      * @returns 位置向量。
      */
     getPosition(): Vector3 {
-        var bt = btPhysicsCreateUtil._bt;
+        var bt = btStatics.bt;
         let pPos = bt.btKinematicCharacterController_getCurrentPosition(this._btKinematicCharacter);
         btCharacterCollider._btTempVector31.setValue(bt.btVector3_x(pPos), bt.btVector3_y(pPos), bt.btVector3_z(pPos))
         return btCharacterCollider._btTempVector31;
@@ -243,7 +241,7 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
 
     protected _onShapeChange() {
         super._onShapeChange();
-        var bt = btPhysicsCreateUtil._bt;
+        var bt = btStatics.bt;
         if (this._btKinematicCharacter)
             bt.btKinematicCharacterController_destroy(this._btKinematicCharacter);
 
@@ -266,8 +264,7 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
      * @param value 新的世界位置向量。
      */
     setWorldPosition(value: Vector3): void {
-        var bt = btPhysicsCreateUtil._bt;
-        bt.btKinematicCharacterController_setCurrentPosition(this._btKinematicCharacter, value.x, value.y, value.z);
+        btStatics.bt.btKinematicCharacterController_setCurrentPosition(this._btKinematicCharacter, value.x, value.y, value.z);
     }
 
     /**
@@ -278,9 +275,8 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
      */
     move(disp: Vector3): void {
         var btMovement: number = btCharacterCollider._btVector30;
-        var bt = btPhysicsCreateUtil._bt;
-        bt.btVector3_setValue(btMovement, disp.x, disp.y, disp.z);
-        bt.btKinematicCharacterController_setWalkDirection(this._btKinematicCharacter, btMovement);
+        btStatics.bt.btVector3_setValue(btMovement, disp.x, disp.y, disp.z);
+        btStatics.bt.btKinematicCharacterController_setWalkDirection(this._btKinematicCharacter, btMovement);
     }
 
     /**
@@ -290,11 +286,10 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
      * @param velocity 跳跃速度向量。
      */
     jump(velocity: Vector3): void {
-        var bt = btPhysicsCreateUtil._bt;
         var btVelocity: number = btCharacterCollider._btVector30;
         if (velocity) {
-            btPhysicsManager._convertToBulletVec3(velocity, btVelocity);
-            bt.btKinematicCharacterController_jump(this._btKinematicCharacter, btVelocity);
+            convertToBulletVec3(velocity, btVelocity);
+            btStatics.bt.btKinematicCharacterController_jump(this._btKinematicCharacter, btVelocity);
         }
     }
 
@@ -306,8 +301,7 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
      */
     setJumpSpeed(value: number): void {
         this._jumpSpeed = value;
-        var bt = btPhysicsCreateUtil._bt;
-        bt.btKinematicCharacterController_setJumpSpeed(this._btKinematicCharacter, value);
+        btStatics.bt.btKinematicCharacterController_setJumpSpeed(this._btKinematicCharacter, value);
     }
 
     /**
@@ -318,8 +312,7 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
      */
     setStepOffset(offset: number): void {
         this._stepHeight = offset;
-        var bt = btPhysicsCreateUtil._bt;
-        bt.btKinematicCharacterController_setStepHeight(this._btKinematicCharacter, offset);
+        btStatics.bt.btKinematicCharacterController_setStepHeight(this._btKinematicCharacter, offset);
     }
 
     /**
@@ -330,10 +323,9 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
      */
     setUpDirection(up: Vector3) {
         up.cloneTo(this._upAxis);
-        var bt = btPhysicsCreateUtil._bt;
         var btUpAxis: number = btCharacterCollider._btTempVector30;
-        btPhysicsManager._convertToBulletVec3(up, btUpAxis);
-        bt.btKinematicCharacterController_setUp(this._btKinematicCharacter, btUpAxis);
+        convertToBulletVec3(up, btUpAxis);
+        btStatics.bt.btKinematicCharacterController_setUp(this._btKinematicCharacter, btUpAxis);
     }
 
     /**
@@ -341,8 +333,7 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
      * @zh 获取角色的垂直速度。
      */
     getVerticalVel(): number {
-        var bt = btPhysicsCreateUtil._bt;
-        return bt.btKinematicCharacterController_getVerticalVelocity(this._btKinematicCharacter);
+        return btStatics.bt.btKinematicCharacterController_getVerticalVelocity(this._btKinematicCharacter);
     }
 
     /**
@@ -353,8 +344,7 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
      */
     setSlopeLimit(slopeLimit: number): void {
         this._maxSlope = slopeLimit;
-        var bt = btPhysicsCreateUtil._bt;
-        bt.btKinematicCharacterController_setMaxSlope(this._btKinematicCharacter, (slopeLimit / 180) * Math.PI);
+        btStatics.bt.btKinematicCharacterController_setMaxSlope(this._btKinematicCharacter, (slopeLimit / 180) * Math.PI);
     }
 
     /**
@@ -364,9 +354,8 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
      * @param value 下落速度值。
      */
     setfallSpeed(value: number): void {
-        var bt = btPhysicsCreateUtil._bt;
         this._fallSpeed = value;
-        bt.btKinematicCharacterController_setFallSpeed(this._btKinematicCharacter, value);
+        btStatics.bt.btKinematicCharacterController_setFallSpeed(this._btKinematicCharacter, value);
     }
 
     /**
@@ -378,8 +367,7 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
     setPushForce(value: number): void {
         this._pushForce = value;
         if (this._btCollider && this._btKinematicCharacter) {
-            var bt = btPhysicsCreateUtil._bt;
-            bt.btKinematicCharacterController_setPushForce(this._btKinematicCharacter, value);
+            btStatics.bt.btKinematicCharacterController_setPushForce(this._btKinematicCharacter, value);
         }
     }
 
@@ -391,10 +379,9 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
      */
     setGravity(value: Vector3): void {
         this._gravity = value;
-        var bt = btPhysicsCreateUtil._bt;
         var btGravity: number = btCharacterCollider._btTempVector30;
-        bt.btVector3_setValue(btGravity, value.x, value.y, value.z);
-        bt.btKinematicCharacterController_setGravity(this._btKinematicCharacter, btGravity);
+        btStatics.bt.btVector3_setValue(btGravity, value.x, value.y, value.z);
+        btStatics.bt.btKinematicCharacterController_setGravity(this._btKinematicCharacter, btGravity);
     }
 
     /**
@@ -404,7 +391,7 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
      * @param cb 处理每个重叠对象的回调函数。
      */
     getOverlappingObj(cb: (body: btCollider) => void) {
-        var bt = btPhysicsCreateUtil._bt;
+        var bt = btStatics.bt;
         let ghost = this._btCollider;
         let num = bt.btCollisionObject_getNumOverlappingObjects(ghost);
         for (let i = 0; i < num; i++) {
@@ -431,8 +418,7 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
      * @zh 销毁角色控制器
      */
     destroy(): void {
-        let bt = btPhysicsCreateUtil._bt;
-        bt.btKinematicCharacterController_destroy(this._btKinematicCharacter);
+        btStatics.bt.btKinematicCharacterController_destroy(this._btKinematicCharacter);
         Physics3DStatInfo.addStatisticsInfo(EPhysicsStatisticsInfo.C_PhysicaCharacterController, -1);
         super.destroy();
         this._btKinematicCharacter = null;

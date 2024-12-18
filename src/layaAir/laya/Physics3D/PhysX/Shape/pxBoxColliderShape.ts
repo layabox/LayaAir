@@ -1,6 +1,6 @@
 import { Vector3 } from "../../../maths/Vector3";
 import { IBoxColliderShape } from "../../interface/Shape/IBoxColliderShape";
-import { pxPhysicsCreateUtil } from "../pxPhysicsCreateUtil";
+import { pxStatics } from "../pxStatics";
 import { pxColliderShape } from "./pxColliderShape";
 
 /**
@@ -19,7 +19,7 @@ export class pxBoxColliderShape extends pxColliderShape implements IBoxColliderS
     constructor() {
         super();
         this._size = new Vector3(0.5, 0.5, 0.5);
-        this._pxGeometry = new pxPhysicsCreateUtil._physX.PxBoxGeometry(
+        this._pxGeometry = new pxStatics._physX.PxBoxGeometry(
             this._size.x / 2,
             this._size.y / 2,
             this._size.z / 2

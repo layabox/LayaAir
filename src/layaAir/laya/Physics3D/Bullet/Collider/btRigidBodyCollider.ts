@@ -9,8 +9,8 @@ import { EColliderCapable } from "../../physicsEnum/EColliderCapable";
 import { EPhysicsStatisticsInfo } from "../../physicsEnum/EPhysicsStatisticsInfo";
 import { btColliderShape } from "../Shape/btColliderShape";
 import { btMeshColliderShape } from "../Shape/btMeshColliderShape";
-import { btPhysicsCreateUtil } from "../btPhysicsCreateUtil";
-import { btPhysicsManager } from "../btPhysicsManager";
+import type { btPhysicsManager } from "../btPhysicsManager";
+import { btStatics, convertToBulletVec3 } from "../btStatics";
 import { btCollider, btColliderType } from "./btCollider";
 /**
  * @en The `btRigidBodyCollider` class is used to implement 3D physics rigid body colliders.
@@ -46,7 +46,7 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
     * @internal
     */
     static __init__(): void {
-        let bt = btPhysicsCreateUtil._bt;
+        let bt = btStatics.bt;
         btRigidBodyCollider._btTempVector30 = bt.btVector3_create(0, 0, 0);
         btRigidBodyCollider._btTempVector31 = bt.btVector3_create(0, 0, 0);
         btRigidBodyCollider._RBtempVector30 = new Vector3(0, 0, 0);
@@ -174,9 +174,8 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
      * @param value 坐标位置。
      */
     setWorldPosition(value: Vector3): void {
-        let bt = btPhysicsCreateUtil._bt;
         var btColliderObject = this._btCollider;
-        bt.btRigidBody_setCenterOfMassPos(btColliderObject, value.x, value.y, value.z);
+        btStatics.bt.btRigidBody_setCenterOfMassPos(btColliderObject, value.x, value.y, value.z);
     }
 
     /**
@@ -186,9 +185,8 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
      * @param value 旋转四元数。
      */
     setWorldRotation(value: Quaternion): void {
-        let bt = btPhysicsCreateUtil._bt;
         var btColliderObject = this._btCollider;
-        bt.btRigidBody_setCenterOfMassOrientation(btColliderObject, value.x, value.y, value.z, value.w);
+        btStatics.bt.btRigidBody_setCenterOfMassOrientation(btColliderObject, value.x, value.y, value.z, value.w);
     }
 
     /**
@@ -210,15 +208,14 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
      */
     private _setoverrideGravity(value: boolean) {
         this._overrideGravity = value;
-        let bt = btPhysicsCreateUtil._bt;
         if (this._btCollider) {
-            var flag: number = bt.btRigidBody_getFlags(this._btCollider);
+            var flag: number = btStatics.bt.btRigidBody_getFlags(this._btCollider);
             if (value) {
                 if ((flag & btRigidBodyCollider._BT_DISABLE_WORLD_GRAVITY) === 0)
-                    bt.btRigidBody_setFlags(this._btCollider, flag | btRigidBodyCollider._BT_DISABLE_WORLD_GRAVITY);
+                    btStatics.bt.btRigidBody_setFlags(this._btCollider, flag | btRigidBodyCollider._BT_DISABLE_WORLD_GRAVITY);
             } else {
                 if ((flag & btRigidBodyCollider._BT_DISABLE_WORLD_GRAVITY) > 0)
-                    bt.btRigidBody_setFlags(this._btCollider, flag ^ btRigidBodyCollider._BT_DISABLE_WORLD_GRAVITY);
+                    btStatics.bt.btRigidBody_setFlags(this._btCollider, flag ^ btRigidBodyCollider._BT_DISABLE_WORLD_GRAVITY);
             }
         }
     }
@@ -229,7 +226,7 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
     */
     private _updateMass(mass: number): void {
         if (this._btCollider && this._btColliderShape && this._btColliderShape._btShape) {
-            let bt = btPhysicsCreateUtil._bt;
+            let bt = btStatics.bt;
             bt.btCollisionShape_calculateLocalInertia(this._btColliderShape._btShape, mass, btRigidBodyCollider._btInertia);
             bt.btRigidBody_setMassProps(this._btCollider, mass, btRigidBodyCollider._btInertia);
             bt.btRigidBody_updateInertiaTensor(this._btCollider); //this was the major headache when I had to debug Slider and Hinge constraint
@@ -241,14 +238,13 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
      * @zh 是否处于睡眠状态。
      */
     private isSleeping(): boolean {
-        let bt = btPhysicsCreateUtil._bt;
         if (this._btCollider)
-            return bt.btCollisionObject_getActivationState(this._btCollider) === btPhysicsManager.ACTIVATIONSTATE_ISLAND_SLEEPING;
+            return btStatics.bt.btCollisionObject_getActivationState(this._btCollider) === btStatics.ACTIVATIONSTATE_ISLAND_SLEEPING;
         return false;
     }
 
     protected _initCollider() {
-        let bt = btPhysicsCreateUtil._bt;
+        let bt = btStatics.bt;
         var motionState: number = bt.layaMotionState_create();
         bt.layaMotionState_set_rigidBodyID(motionState, this._id);
         this._btLayaMotionState = motionState;
@@ -277,8 +273,7 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
         if (this._isKinematic) {
             this._updateMass(0);
         } else {
-            let bt = btPhysicsCreateUtil._bt;
-            bt.btRigidBody_setCenterOfMassTransform(this._btCollider, bt.btCollisionObject_getWorldTransform(this._btCollider));//修改Shape会影响坐标,需要更新插值坐标,否则物理引擎motionState.setWorldTrans数据为旧数据
+            btStatics.bt.btRigidBody_setCenterOfMassTransform(this._btCollider, btStatics.bt.btCollisionObject_getWorldTransform(this._btCollider));//修改Shape会影响坐标,需要更新插值坐标,否则物理引擎motionState.setWorldTrans数据为旧数据
             this._updateMass(this._mass);
         }
     }
@@ -291,9 +286,8 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
      */
     setLinearDamping(value: number): void {
         this._linearDamping = value;
-        let bt = btPhysicsCreateUtil._bt;
         if (this._btCollider)
-            bt.btRigidBody_setDamping(this._btCollider, value, this._angularDamping);
+            btStatics.bt.btRigidBody_setDamping(this._btCollider, value, this._angularDamping);
     }
 
     /**
@@ -304,9 +298,8 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
      */
     setAngularDamping(value: number): void {
         this._angularDamping = value;
-        let bt = btPhysicsCreateUtil._bt;
         if (this._btCollider)
-            bt.btRigidBody_setDamping(this._btCollider, this._linearDamping, value);
+            btStatics.bt.btRigidBody_setDamping(this._btCollider, this._linearDamping, value);
     }
 
     /**
@@ -317,12 +310,11 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
      */
     setLinearVelocity(value: Vector3): void {
         this._linearVelocity = value;
-        let bt = btPhysicsCreateUtil._bt;
         if (this._btCollider) {
             var btValue: number = btRigidBodyCollider._btTempVector30;
-            btPhysicsManager._convertToBulletVec3(value, btValue);
+            convertToBulletVec3(value, btValue);
             (this.isSleeping()) && (this.wakeUp());//可能会因睡眠导致设置线速度无效
-            bt.btRigidBody_setLinearVelocity(this._btCollider, btValue);
+            btStatics.bt.btRigidBody_setLinearVelocity(this._btCollider, btValue);
         }
     }
 
@@ -333,7 +325,7 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
      * @returns 当前的线速度。
      */
     getLinearVelocity(): Vector3 {
-        let bt = btPhysicsCreateUtil._bt;
+        let bt = btStatics.bt;
         let velocity = bt.btRigidBody_getLinearVelocity(this._btCollider);
         btRigidBodyCollider._RBtempVector30.setValue(bt.btVector3_x(velocity), bt.btVector3_y(velocity), bt.btVector3_z(velocity));
         return btRigidBodyCollider._RBtempVector30;
@@ -346,8 +338,7 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
      * @param value 线速度阈值。
      */
     setSleepLinearVelocity(value: Vector3): void {
-        let bt = btPhysicsCreateUtil._bt;
-        bt.btRigidBody_setSleepingThresholds(this._btCollider, value, bt.btRigidBody_getAngularSleepingThreshold(this._btCollider));
+        btStatics.bt.btRigidBody_setSleepingThresholds(this._btCollider, value, btStatics.bt.btRigidBody_getAngularSleepingThreshold(this._btCollider));
     }
 
     /**
@@ -358,12 +349,11 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
      */
     setAngularVelocity(value: Vector3): void {
         this._angularVelocity = value;
-        let bt = btPhysicsCreateUtil._bt;
         if (this._btCollider) {
             var btValue: number = btRigidBodyCollider._btTempVector30;
-            btPhysicsManager._convertToBulletVec3(value, btValue);
+            convertToBulletVec3(value, btValue);
             (this.isSleeping()) && (this.wakeUp());//可能会因睡眠导致设置角速度无效
-            bt.btRigidBody_setAngularVelocity(this._btCollider, btValue);
+            btStatics.bt.btRigidBody_setAngularVelocity(this._btCollider, btValue);
         }
     }
 
@@ -374,7 +364,7 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
      * @returns 当前的角速度。
      */
     getAngularVelocity(): Vector3 {
-        let bt = btPhysicsCreateUtil._bt;
+        let bt = btStatics.bt;
         let angVelocity = bt.btRigidBody_getAngularVelocity(this._btCollider);
         btRigidBodyCollider._RBtempVector30.setValue(bt.btVector3_x(angVelocity), bt.btVector3_y(angVelocity), bt.btVector3_z(angVelocity));
         return btRigidBodyCollider._RBtempVector30;
@@ -400,7 +390,7 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
      */
     setInertiaTensor(value: Vector3): void {
         this._gravity = value;
-        let bt = btPhysicsCreateUtil._bt;
+        let bt = btStatics.bt;
         bt.btVector3_setValue(btRigidBodyCollider._btGravity, value.x, value.y, value.z);
         bt.btRigidBody_setGravity(this._btCollider, btRigidBodyCollider._btGravity);
         if (value.equal(this._physicsManager._gravity)) {
@@ -418,9 +408,8 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
      * @param value 质心。
      */
     setCenterOfMass(value: Vector3) {
-        let bt = btPhysicsCreateUtil._bt;
         var btColliderObject = this._btCollider;
-        bt.btRigidBody_setCenterOfMassPos(btColliderObject, value.x, value.y, value.z);
+        btStatics.bt.btRigidBody_setCenterOfMassPos(btColliderObject, value.x, value.y, value.z);
     }
 
     /**
@@ -445,9 +434,8 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
 
     //这里是bug把  类都不对
     setSleepThreshold(value: number): void {
-        let bt = btPhysicsCreateUtil._bt;
         //btRigidBody_getLinearSleepingThreshold
-        this._btCollider && bt.btRigidBody_setSleepingThresholds(this._btCollider, value, bt.btRigidBody_getAngularSleepingThreshold(this._btCollider));
+        this._btCollider && btStatics.bt.btRigidBody_setSleepingThresholds(this._btCollider, value, btStatics.bt.btRigidBody_getAngularSleepingThreshold(this._btCollider));
     }
 
     /**
@@ -457,8 +445,7 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
      * @param value 角速度阈值。
      */
     setSleepAngularVelocity(value: number) {
-        let bt = btPhysicsCreateUtil._bt;
-        bt.btRigidBody_setSleepingThresholds(this._btCollider, bt.btRigidBody_getLinearSleepingThreshold(this._btCollider), value);
+        btStatics.bt.btRigidBody_setSleepingThresholds(this._btCollider, btStatics.bt.btRigidBody_getLinearSleepingThreshold(this._btCollider), value);
     }
 
     /**
@@ -478,7 +465,6 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
      * @param value 碰撞检测模式。
      */
     setCollisionDetectionMode(value: number): void {
-        let bt = btPhysicsCreateUtil._bt;
         var canInSimulation = this._isSimulate;
         //如果动态改变只能重新添加。否则world不能正确记录动态物体
         canInSimulation && this._physicsManager.removeCollider(this);
@@ -488,7 +474,7 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
         } else {
             canInSimulation && this._updateMass(this._mass);
         }
-        bt.btCollisionObject_setCollisionFlags(this._btCollider, value);
+        btStatics.bt.btCollisionObject_setCollisionFlags(this._btCollider, value);
         canInSimulation && this._physicsManager.addCollider(this);
     }
 
@@ -501,25 +487,25 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
     setIsKinematic(value: boolean): void {
         this._isKinematic = value;
         //this._controlBySimulation = !value;//isKinematic not controll by Simulation
-        let bt = btPhysicsCreateUtil._bt;
+        let bt = btStatics.bt;
         let oldSimulate = this._isSimulate;
         oldSimulate && this._physicsManager.removeCollider(this);
         var natColObj: any = this._btCollider;
         var flags: number = bt.btCollisionObject_getCollisionFlags(natColObj);
         if (value) {
-            flags = flags | btPhysicsManager.COLLISIONFLAGS_KINEMATIC_OBJECT;
+            flags = flags | btStatics.COLLISIONFLAGS_KINEMATIC_OBJECT;
             bt.btCollisionObject_setCollisionFlags(natColObj, flags);//加入场景前必须配置flag,加入后无效
             // TODO kinematic直接禁止睡眠有问题，例如如果实际不动的话，会导致与他接触的物体都无法进入睡眠状态
-            bt.btCollisionObject_forceActivationState(this._btCollider, btPhysicsManager.ACTIVATIONSTATE_DISABLE_DEACTIVATION);//触发器开启主动检测,并防止睡眠
+            bt.btCollisionObject_forceActivationState(this._btCollider, btStatics.ACTIVATIONSTATE_DISABLE_DEACTIVATION);//触发器开启主动检测,并防止睡眠
             this._enableProcessCollisions = false;
             this._updateMass(0);//必须设置Mass为0来保证InverMass为0
             Physics3DStatInfo.addStatisticsInfo(EPhysicsStatisticsInfo.C_PhysicaKinematicRigidBody, 1);
             Physics3DStatInfo.addStatisticsInfo(EPhysicsStatisticsInfo.C_PhysicaDynamicRigidBody, -1);
         } else {
-            if ((flags & btPhysicsManager.COLLISIONFLAGS_KINEMATIC_OBJECT) > 0)
-                flags = flags ^ btPhysicsManager.COLLISIONFLAGS_KINEMATIC_OBJECT;
+            if ((flags & btStatics.COLLISIONFLAGS_KINEMATIC_OBJECT) > 0)
+                flags = flags ^ btStatics.COLLISIONFLAGS_KINEMATIC_OBJECT;
             bt.btCollisionObject_setCollisionFlags(natColObj, flags);//加入场景前必须配置flag,加入后无效
-            bt.btCollisionObject_setActivationState(this._btCollider, btPhysicsManager.ACTIVATIONSTATE_ACTIVE_TAG);
+            bt.btCollisionObject_setActivationState(this._btCollider, btStatics.ACTIVATIONSTATE_ACTIVE_TAG);
             this._enableProcessCollisions = true;
             this._updateMass(this._mass);
         }
@@ -542,19 +528,18 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
      * @param angularFactor 角度因子约束。
      */
     setConstraints(linearFactor: Vector3, angularFactor: Vector3): void {
-        let bt = btPhysicsCreateUtil._bt;
         //if (!linearFactor.equal(this._linearFactor)) {
         linearFactor.cloneTo(linearFactor);
         var btValue: number = btRigidBodyCollider._btTempVector30;
-        btPhysicsManager._convertToBulletVec3(linearFactor, btValue);
-        bt.btRigidBody_setLinearFactor(this._btCollider, btValue);
+        convertToBulletVec3(linearFactor, btValue);
+        btStatics.bt.btRigidBody_setLinearFactor(this._btCollider, btValue);
         //}
 
         //if (!angularFactor.equal(this._angularFactor)) {
         angularFactor.cloneTo(this._angularFactor);
         var btValue: number = btRigidBodyCollider._btTempVector30;
-        btPhysicsManager._convertToBulletVec3(angularFactor, btValue);
-        bt.btRigidBody_setAngularFactor(this._btCollider, btValue);
+        convertToBulletVec3(angularFactor, btValue);
+        btStatics.bt.btRigidBody_setAngularFactor(this._btCollider, btValue);
         //}
     }
 
@@ -566,15 +551,14 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
      */
     setTrigger(value: boolean): void {
         this._isTrigger = value;
-        let bt = btPhysicsCreateUtil._bt;
         if (this._btCollider) {
-            var flags: number = bt.btCollisionObject_getCollisionFlags(this._btCollider);
+            var flags: number = btStatics.bt.btCollisionObject_getCollisionFlags(this._btCollider);
             if (value) {
-                if ((flags & btPhysicsManager.COLLISIONFLAGS_NO_CONTACT_RESPONSE) === 0)
-                    bt.btCollisionObject_setCollisionFlags(this._btCollider, flags | btPhysicsManager.COLLISIONFLAGS_NO_CONTACT_RESPONSE);
+                if ((flags & btStatics.COLLISIONFLAGS_NO_CONTACT_RESPONSE) === 0)
+                    btStatics.bt.btCollisionObject_setCollisionFlags(this._btCollider, flags | btStatics.COLLISIONFLAGS_NO_CONTACT_RESPONSE);
             } else {
-                if ((flags & btPhysicsManager.COLLISIONFLAGS_NO_CONTACT_RESPONSE) !== 0)
-                    bt.btCollisionObject_setCollisionFlags(this._btCollider, flags ^ btPhysicsManager.COLLISIONFLAGS_NO_CONTACT_RESPONSE);
+                if ((flags & btStatics.COLLISIONFLAGS_NO_CONTACT_RESPONSE) !== 0)
+                    btStatics.bt.btCollisionObject_setCollisionFlags(this._btCollider, flags ^ btStatics.COLLISIONFLAGS_NO_CONTACT_RESPONSE);
             }
         }
     }
@@ -590,7 +574,7 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
     private _applyForce(force: Vector3, localOffset: Vector3 = null): void {
         if (this._btCollider == null)
             throw "Attempted to call a Physics function that is avaliable only when the Entity has been already added to the Scene.";
-        let bt = btPhysicsCreateUtil._bt;
+        let bt = btStatics.bt;
         var btForce = btRigidBodyCollider._btTempVector30;
         bt.btVector3_setValue(btForce, force.x, force.y, force.z);
         this.wakeUp();
@@ -612,11 +596,10 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
     private _applyTorque(torque: Vector3): void {
         if (this._btCollider == null)
             throw "Attempted to call a Physics function that is avaliable only when the Entity has been already added to the Scene.";
-        let bt = btPhysicsCreateUtil._bt;
         var btTorque: number = btRigidBodyCollider._btTempVector30;
         this.wakeUp();
-        bt.btVector3_setValue(btTorque, torque.x, torque.y, torque.z);
-        bt.btRigidBody_applyTorque(this._btCollider, btTorque);
+        btStatics.bt.btVector3_setValue(btTorque, torque.x, torque.y, torque.z);
+        btStatics.bt.btRigidBody_applyTorque(this._btCollider, btTorque);
     }
 
     /**
@@ -630,7 +613,7 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
     private _applyImpulse(impulse: Vector3, localOffset: Vector3 = null): void {
         if (this._btCollider == null)
             throw "Attempted to call a Physics function that is avaliable only when the Entity has been already added to the Scene.";
-        let bt = btPhysicsCreateUtil._bt;
+        let bt = btStatics.bt;
         bt.btVector3_setValue(btRigidBodyCollider._btImpulse, impulse.x, impulse.y, impulse.z);
         this.wakeUp();
         if (localOffset) {
@@ -650,11 +633,10 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
     private _applyTorqueImpulse(torqueImpulse: Vector3): void {
         if (this._btCollider == null)
             throw "Attempted to call a Physics function that is avaliable only when the Entity has been already added to the Scene.";
-        let bt = btPhysicsCreateUtil._bt;
         var btTorqueImpulse: number = btRigidBodyCollider._btTempVector30;
         this.wakeUp();
-        bt.btVector3_setValue(btTorqueImpulse, torqueImpulse.x, torqueImpulse.y, torqueImpulse.z);
-        bt.btRigidBody_applyTorqueImpulse(this._btCollider, btTorqueImpulse);
+        btStatics.bt.btVector3_setValue(btTorqueImpulse, torqueImpulse.x, torqueImpulse.y, torqueImpulse.z);
+        btStatics.bt.btRigidBody_applyTorqueImpulse(this._btCollider, btTorqueImpulse);
     }
 
     /**
@@ -707,7 +689,7 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
         var rigidBody: number = this._btCollider;
         if (rigidBody == null)
             throw "Attempted to call a Physics function that is avaliable only when the Entity has been already added to the Scene.";
-        let bt = btPhysicsCreateUtil._bt;
+        let bt = btStatics.bt;
         bt.btRigidBody_clearForces(rigidBody);
         var btZero: number = btRigidBodyCollider._btVector3Zero;
         bt.btCollisionObject_setInterpolationLinearVelocity(rigidBody, btZero);
@@ -721,8 +703,7 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
      * @zh 唤醒刚体。
      */
     wakeUp(): void {
-        let bt = btPhysicsCreateUtil._bt;
-        this._btCollider && (bt.btCollisionObject_activate(this._btCollider, false));
+        this._btCollider && (btStatics.bt.btCollisionObject_activate(this._btCollider, false));
     }
 
     /**
@@ -733,7 +714,7 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
      * @param force 是否强制更新。
      */
     _derivePhysicsTransformation(force: boolean): void {
-        let bt = btPhysicsCreateUtil._bt;
+        let bt = btStatics.bt;
         var btColliderObject = this._btCollider;
         //btColliderObject 当前的trasform
         var oriTransform: number = bt.btCollisionObject_getWorldTransform(btColliderObject);
@@ -771,8 +752,7 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
         } else {
             Physics3DStatInfo.addStatisticsInfo(EPhysicsStatisticsInfo.C_PhysicaDynamicRigidBody, -1);
         }
-        let bt = btPhysicsCreateUtil._bt;
-        bt.btMotionState_destroy(this._btLayaMotionState);
+        btStatics.bt.btMotionState_destroy(this._btLayaMotionState);
         super.destroy();
     }
 

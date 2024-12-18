@@ -1,13 +1,13 @@
 import { btCollider } from "./Collider/btCollider";
 
-export interface IPhyDebugDrawer{
+export interface IPhyDebugDrawer {
     /**
      * @en Set the color.
      * @param c The color value.
      * @zh 设置颜色。
      * @param c 颜色值。
      */
-    color(c:number):void;
+    color(c: number): void;
     /**
      * @en Draw a line.
      * @param sx Start point x coordinate.
@@ -24,19 +24,19 @@ export interface IPhyDebugDrawer{
      * @param ey 终点 y 坐标。
      * @param ez 终点 z 坐标。
      */
-    line(sx:number,sy:number,sz:number, ex:number, ey:number,ez:number):void;
+    line(sx: number, sy: number, sz: number, ex: number, ey: number, ez: number): void;
     /**
      * @en Clear drawn lines.
      * @zh 清除画线结果。
      */
-    clear():void;
+    clear(): void;
 }
 /**
  * @internal
  */
 export class BulletInteractive {
-    mem:WebAssembly.Memory;
-    dbgLine:IPhyDebugDrawer;
+    mem: WebAssembly.Memory;
+    dbgLine: IPhyDebugDrawer;
     /**
      * @ignore
      * @en Creates an instance of BulletInteractive.
@@ -46,9 +46,9 @@ export class BulletInteractive {
      * @param mem WebAssembly 内存。
      * @param dbgline 如果要显示物理线框，要设置这个。
      */
-    constructor(mem:WebAssembly.Memory, dbgline:IPhyDebugDrawer){
-        this.mem=mem;
-        this.dbgLine=dbgline;
+    constructor(mem: WebAssembly.Memory, dbgline: IPhyDebugDrawer) {
+        this.mem = mem;
+        this.dbgLine = dbgline;
     }
     /**
      * @en Dynamic physical body, called once when initialized, Kinematic physical body, called every physical tick (if not in sleep state), let the physical engine know the position of the body.
@@ -92,18 +92,18 @@ export class BulletInteractive {
      * @param ez 终点 z 坐标。
      * @param color 线段颜色。
      */
-    drawLine=(sx: number, sy: number, sz: number, ex: number, ey: number, ez: number, color: number)=>{
-        if(!this.dbgLine) return;
+    drawLine = (sx: number, sy: number, sz: number, ex: number, ey: number, ez: number, color: number) => {
+        if (!this.dbgLine) return;
         this.dbgLine.color(color);
-        this.dbgLine.line(sx,sy,sz,ex,ey,ez);
+        this.dbgLine.line(sx, sy, sz, ex, ey, ez);
     }
 
     /**
      * @en Clear all debug lines.
      * @zh 清除所有调试线段。
      */
-    clearLine=()=>{
-        if(!this.dbgLine) return;
+    clearLine = () => {
+        if (!this.dbgLine) return;
         this.dbgLine.clear();
     }
 
@@ -115,8 +115,8 @@ export class BulletInteractive {
      * @param ptr WebAssembly 内存中消息字符串的指针。
      * @param len 消息字符串的长度。
      */
-    jslog=(ptr: number, len: number)=>{
-        if(!this.mem) return;
+    jslog = (ptr: number, len: number) => {
+        if (!this.mem) return;
         let td = new TextDecoder();
         let str = new Uint8Array(this.mem.buffer, ptr, len);
         let jsstr = td.decode(str);

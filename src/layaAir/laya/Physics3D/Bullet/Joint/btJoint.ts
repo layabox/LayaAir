@@ -7,8 +7,8 @@ import { Physics3DStatInfo } from "../../interface/Physics3DStatInfo";
 import { EJointCapable } from "../../physicsEnum/EJointCapable";
 import { EPhysicsStatisticsInfo } from "../../physicsEnum/EPhysicsStatisticsInfo";
 import { btCollider } from "../Collider/btCollider";
-import { btPhysicsCreateUtil } from "../btPhysicsCreateUtil";
 import { btPhysicsManager } from "../btPhysicsManager";
+import { btStatics } from "../btStatics";
 /**
  * @en Class `btJoint` is the base class for all joints in LayaAir physics engine.
  * @zh 类`btJoint`用于实现物理关节的基类。
@@ -177,7 +177,7 @@ export class btJoint implements IJoint {
      * @param pos 要设置的局部位置。
      */
     setLocalPos(pos: Vector3): void {
-        let bt = btPhysicsCreateUtil._bt;
+        let bt = btStatics.bt;
         this._anchor = pos;
         bt.btVector3_setValue(this._btTempVector30, this._anchor.x, this._anchor.y, this._anchor.z);
         bt.btVector3_setValue(this._btTempVector31, this._connectAnchor.x, this._connectAnchor.y, this._connectAnchor.z);
@@ -191,7 +191,7 @@ export class btJoint implements IJoint {
      * @param pos 要设置的连接局部位置。
      */
     setConnectLocalPos(pos: Vector3): void {
-        let bt = btPhysicsCreateUtil._bt;
+        let bt = btStatics.bt;
         this._connectAnchor = pos;
         bt.btVector3_setValue(this._btTempVector30, this._anchor.x, this._anchor.y, this._anchor.z);
         bt.btVector3_setValue(this._btTempVector31, this._connectAnchor.x, this._connectAnchor.y, this._connectAnchor.z);
@@ -226,8 +226,7 @@ export class btJoint implements IJoint {
      * @param value 是否启用关节。
      */
     isEnable(value: boolean): void {
-        let bt = btPhysicsCreateUtil._bt;
-        bt.btTypedConstraint_setEnabled(this._btJoint, value);
+        btStatics.bt.btTypedConstraint_setEnabled(this._btJoint, value);
     }
     /**
      * @en Set whether collision is enabled between connected bodies.
@@ -241,7 +240,7 @@ export class btJoint implements IJoint {
     }
 
     protected initJoint() {
-        let bt = btPhysicsCreateUtil._bt;
+        let bt = btStatics.bt;
         this._breakForce = -1;
         this._breakTorque = -1;
         this._btTempVector30 = bt.btVector3_create(0, 0, 0);
@@ -287,7 +286,7 @@ export class btJoint implements IJoint {
      * @zh 获取bt回调参数。
      */
     _btFeedBackInfo() {
-        var bt = btPhysicsCreateUtil._bt;
+        var bt = btStatics.bt;
         var applyForce: number = bt.btJointFeedback_getAppliedForceBodyA(this._btJointFeedBackObj);
         var applyTorque: number = bt.btJointFeedback_getAppliedTorqueBodyA(this._btJointFeedBackObj);
         this._currentTorque.setValue(bt.btVector3_x(applyTorque), bt.btVector3_y(applyTorque), bt.btVector3_z(applyTorque));
