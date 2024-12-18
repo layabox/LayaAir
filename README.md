@@ -40,11 +40,14 @@ npm install
 
 #### Run examples
 
-Run the following command from the command line in the engine root directory, as shown below:
+1. Copy `src/layaAir/jsLibs` into `bin` folder.
+
+2. Run the following command from the command line in the repo root directory, as shown below:
 
 ```bash
 npm run start
 ```
+3. Open bin/index.html with live server.
 
 #### Build
 
