@@ -6,12 +6,10 @@
  * sensor_portrait     竖屏(双方向)
  */
 window.screenOrientation = "sensor_landscape";
-loadLib("spine-core-3.8.js")
-loadLib("laya.Box2d.js")
-//loadLib("cannon.js")
-//-----libs-begin-----
+loadLib("jsLibs/spine-core-3.8.js")
+loadLib("jsLibs/laya.Box2d.js")
+loadLib("jsLibs/bullet.js")
 loadLib("astar.js")
-loadLib("laya.physics3D.js")
-//-----libs-end-------
+
 loadLib("rollUp/laya.js");
 loadLib("rollUp/bundle.js");
