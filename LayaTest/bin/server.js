@@ -92,19 +92,27 @@ function findCorrespondingTsFile(jsFilePath) {
     console.log(`查找${jsFilePath}的源文件`)
     const possibleTsPath = jsFilePath.replace('.js', '.ts');
     const srcPath = path.join(__dirname, layaSrc);
-    //const testPath = path.join(process.cwd(), '../test');
     
     //注意加上tsc
-    const relativePath = path.relative(path.join(__dirname,'tsc'), possibleTsPath);
+    let relativePath = path.relative(path.join(__dirname,'tsc'), possibleTsPath);
     const srcTsPath = path.join(srcPath, relativePath);
-    //const testTsPath = path.join(testPath, relativePath);
-
+    
     if (fs.existsSync(srcTsPath)) {
         return srcTsPath;
     } 
-    // else if (fs.existsSync(testTsPath)) {
-    //     return testTsPath;
-    // }
+
+    //引擎源码中没有找到，可能是测试源码
+    if(relativePath.startsWith('test')){
+        relativePath = relativePath.substring(5);
+    }
+
+    const testPath = path.join(__dirname, testSrc);
+    const testTsPath = path.join(testPath, relativePath);
+    console.log('没有找到，可能是',testTsPath,relativePath)
+
+    if (fs.existsSync(testTsPath)) {
+         return testTsPath;
+    }
     return null;
 }
 
@@ -136,7 +144,6 @@ function copyFile(src, dest) {
     console.log(`拷贝到: ${ path.relative(outdir,dest)}`);
 }
 
-// 使用示例
 var layaSrc = '../../src'
 var testSrc = '../src'
 watchAndCompile( path.join(__dirname,layaSrc), './tsc/');
@@ -341,6 +348,7 @@ app.use((req, res, next) => {
         }
     }else{
 		try{
+            //处理既有 aa.js 又有 aa/ 目录的情况，只有请求包含/才算路径
 			const stats = fs.statSync(filePath);
 			if (stats.isDirectory() && !req.path.endsWith('/')) {
 				let jsFilePath = `${filePath}.js`;
