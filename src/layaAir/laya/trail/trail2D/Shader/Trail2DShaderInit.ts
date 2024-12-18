@@ -1,13 +1,13 @@
 import TrailVS from "./Trail2D.vs";
 import TrailFS from "./Trail2D.fs";
-import { Shader3D, ShaderFeatureType } from "../../../../RenderEngine/RenderShader/Shader3D";
-import { SubShader } from "../../../../RenderEngine/RenderShader/SubShader";
-import { TrailShaderCommon } from "../../../../display/RenderFeatureComman/Trail/TrailShaderCommon";
-import { RenderState } from "../../../../RenderDriver/RenderModuleData/Design/RenderState";
-import { Material } from "../../../../resource/Material";
+import { Vector4 } from "../../../maths/Vector4";
+import { ShaderDataType } from "../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { RenderState } from "../../../RenderDriver/RenderModuleData/Design/RenderState";
+import { Shader3D, ShaderFeatureType } from "../../../RenderEngine/RenderShader/Shader3D";
+import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
+import { Material } from "../../../resource/Material";
+import { TrailShaderCommon } from "../../trailCommon/RenderFeatureComman/Trail/TrailShaderCommon";
 import { Trail2DRender } from "../Trail2DRender";
-import { ShaderDataType } from "../../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
-import { Vector4 } from "../../../../maths/Vector4";
 export class TrailShaderInit {
     static init() {
         TrailShaderCommon.init();

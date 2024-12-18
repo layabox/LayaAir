@@ -16,7 +16,7 @@ import { ReflectionProbe } from "../d3/component/Volume/reflectionProbe/Reflecti
 import { DirectionLightCom } from "../d3/core/light/DirectionLightCom";
 import { PointLightCom } from "../d3/core/light/PointLightCom";
 import { SpotLightCom } from "../d3/core/light/SpotLightCom";
-import { TrailRenderer } from "../d3/core/trail/TrailRenderer";
+import { TrailRenderer } from "../trail/trail3D/TrailRenderer";
 
 /**
  * @internal

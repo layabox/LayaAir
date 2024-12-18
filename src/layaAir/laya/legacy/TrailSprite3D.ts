@@ -1,11 +1,10 @@
-
-import { TrailFilter } from "../d3/core/trail/TrailFilter";
-import { TrailRenderer } from "../d3/core/trail/TrailRenderer";
 import { Color } from "../maths/Color";
 import { FloatKeyframe } from "../maths/FloatKeyframe";
 import { Gradient } from "../maths/Gradient";
 import { Loader } from "../net/Loader";
 import { Material } from "../resource/Material";
+import { TrailFilter } from "../trail/trail3D/TrailFilter";
+import { TrailRenderer } from "../trail/trail3D/TrailRenderer";
 
 TrailRenderer && (function () {
     TrailRenderer.prototype._parse = function (this: TrailRenderer, data: any, spriteMap: any): void {

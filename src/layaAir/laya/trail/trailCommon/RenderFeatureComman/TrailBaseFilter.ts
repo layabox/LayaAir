@@ -1,9 +1,9 @@
-import { Color } from "../../maths/Color";
-import { FloatKeyframe } from "../../maths/FloatKeyframe";
-import { Gradient } from "../../maths/Gradient";
-import { GradientMode } from "../../maths/GradientMode";
-import { Vector3 } from "../../maths/Vector3";
-import { ShaderData } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { Color } from "../../../maths/Color";
+import { FloatKeyframe } from "../../../maths/FloatKeyframe";
+import { Gradient } from "../../../maths/Gradient";
+import { GradientMode } from "../../../maths/GradientMode";
+import { Vector3 } from "../../../maths/Vector3";
+import { ShaderData } from "../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { TrailGeometry } from "./Trail/TrailGeometry";
 import { TrailShaderCommon } from "./Trail/TrailShaderCommon";
 import { TrailTextureMode } from "./Trail/TrailTextureMode";

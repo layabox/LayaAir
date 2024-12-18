@@ -1,6 +1,6 @@
-import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
-import { VertexElement } from "../../../renders/VertexElement";
-import { VertexElementFormat } from "../../../renders/VertexElementFormat";
+import { VertexDeclaration } from "../../../../RenderEngine/VertexDeclaration";
+import { VertexElement } from "../../../../renders/VertexElement";
+import { VertexElementFormat } from "../../../../renders/VertexElementFormat";
 
 /**
  * @internal
