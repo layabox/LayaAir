@@ -10,7 +10,7 @@ import "laya/ui/ModuleDef";
 import { Laya } from "Laya";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { Stage } from "laya/display/Stage";
-import { usewebgl } from "../../utils";
+import { usewebgl } from "../../utils/utils";
 import { Event } from "laya/events/Event";
 import { Sprite } from "laya/display/Sprite";
 

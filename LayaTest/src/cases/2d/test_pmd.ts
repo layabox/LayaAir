@@ -13,6 +13,7 @@ import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { Matrix4x4 } from "laya/maths/Matrix4x4";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
 import { Mesh } from "laya/d3/resource/models/Mesh";
+import { CameraController1 } from "../../utils/CameraController1"
 
 MeshReader; //MeshLoader.v3d 赋值
 
@@ -34,6 +35,7 @@ async function test(){
     camera.farPlane=200;
     camera.transform.translate(new Vector3(0, 0, 10));
     camera.transform.rotate(new Vector3(0, 0, 0), true, false);
+    camera.addComponent(CameraController1);
 
     // 创建平行光
     let directlightSprite = new Sprite3D();

@@ -1,7 +1,7 @@
 
 import { Laya } from "Laya";
 //import test from "./simple1"
-import { usewebgl } from "./utils"
+import { usewebgl } from "./utils/utils"
 
 let testfile = window.location.search.substring(1);
 async function testf(){

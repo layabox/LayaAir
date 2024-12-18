@@ -11,7 +11,7 @@ import { Laya } from "Laya";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";
-import { usewebgl } from "../../utils";
+import { usewebgl } from "../../utils/utils";
 
 //HierarchyLoader和MaterialLoader等是通过前面的import完成的
 usewebgl();
