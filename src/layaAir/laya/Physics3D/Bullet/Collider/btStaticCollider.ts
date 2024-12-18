@@ -3,8 +3,8 @@ import { IStaticCollider } from "../../interface/IStaticCollider";
 import { Physics3DStatInfo } from "../../interface/Physics3DStatInfo";
 import { EColliderCapable } from "../../physicsEnum/EColliderCapable";
 import { EPhysicsStatisticsInfo } from "../../physicsEnum/EPhysicsStatisticsInfo";
-import { btPhysicsCreateUtil } from "../btPhysicsCreateUtil";
-import { btPhysicsManager } from "../btPhysicsManager";
+import type { btPhysicsManager } from "../btPhysicsManager";
+import { btStatics } from "../btStatics";
 import { btCollider, btColliderType } from "./btCollider";
 /**
  * @en The `btStaticCollider` class is used to create and manage static colliders.
@@ -23,20 +23,20 @@ export class btStaticCollider extends btCollider implements IStaticCollider {
     }
 
     protected _initCollider() {
-        let bt = btPhysicsCreateUtil._bt;
+        let bt = btStatics.bt;
         var btColObj: number = bt.btCollisionObject_create();
         bt.btCollisionObject_setUserIndex(btColObj, this._id);
-        bt.btCollisionObject_forceActivationState(btColObj, btPhysicsManager.ACTIVATIONSTATE_DISABLE_SIMULATION);//prevent simulation
+        bt.btCollisionObject_forceActivationState(btColObj, btStatics.ACTIVATIONSTATE_DISABLE_SIMULATION);//prevent simulation
 
         var flags: number = bt.btCollisionObject_getCollisionFlags(btColObj);
         if ((this.owner).isStatic) {//TODO:
-            if ((flags & btPhysicsManager.COLLISIONFLAGS_KINEMATIC_OBJECT) > 0)
-                flags = flags ^ btPhysicsManager.COLLISIONFLAGS_KINEMATIC_OBJECT;
-            flags = flags | btPhysicsManager.COLLISIONFLAGS_STATIC_OBJECT;
+            if ((flags & btStatics.COLLISIONFLAGS_KINEMATIC_OBJECT) > 0)
+                flags = flags ^ btStatics.COLLISIONFLAGS_KINEMATIC_OBJECT;
+            flags = flags | btStatics.COLLISIONFLAGS_STATIC_OBJECT;
         } else {
-            if ((flags & btPhysicsManager.COLLISIONFLAGS_STATIC_OBJECT) > 0)
-                flags = flags ^ btPhysicsManager.COLLISIONFLAGS_STATIC_OBJECT;
-            flags = flags | btPhysicsManager.COLLISIONFLAGS_KINEMATIC_OBJECT;
+            if ((flags & btStatics.COLLISIONFLAGS_STATIC_OBJECT) > 0)
+                flags = flags ^ btStatics.COLLISIONFLAGS_STATIC_OBJECT;
+            flags = flags | btStatics.COLLISIONFLAGS_KINEMATIC_OBJECT;
         }
         bt.btCollisionObject_setCollisionFlags(btColObj, flags);
         this._btCollider = btColObj;
@@ -50,15 +50,15 @@ export class btStaticCollider extends btCollider implements IStaticCollider {
      */
     setTrigger(value: boolean): void {
         this._isTrigger = value;
-        let bt = btPhysicsCreateUtil._bt;
+        let bt = btStatics.bt;
         if (this._btCollider) {
             var flags: number = bt.btCollisionObject_getCollisionFlags(this._btCollider);
             if (value) {
-                if ((flags & btPhysicsManager.COLLISIONFLAGS_NO_CONTACT_RESPONSE) === 0)
-                    bt.btCollisionObject_setCollisionFlags(this._btCollider, flags | btPhysicsManager.COLLISIONFLAGS_NO_CONTACT_RESPONSE);
+                if ((flags & btStatics.COLLISIONFLAGS_NO_CONTACT_RESPONSE) === 0)
+                    bt.btCollisionObject_setCollisionFlags(this._btCollider, flags | btStatics.COLLISIONFLAGS_NO_CONTACT_RESPONSE);
             } else {
-                if ((flags & btPhysicsManager.COLLISIONFLAGS_NO_CONTACT_RESPONSE) !== 0)
-                    bt.btCollisionObject_setCollisionFlags(this._btCollider, flags ^ btPhysicsManager.COLLISIONFLAGS_NO_CONTACT_RESPONSE);
+                if ((flags & btStatics.COLLISIONFLAGS_NO_CONTACT_RESPONSE) !== 0)
+                    bt.btCollisionObject_setCollisionFlags(this._btCollider, flags ^ btStatics.COLLISIONFLAGS_NO_CONTACT_RESPONSE);
             }
         }
     }
@@ -130,9 +130,8 @@ export class btStaticCollider extends btCollider implements IStaticCollider {
      * @param value 坐标位置。
      */
     setWorldPosition(value: Vector3): void {
-        let bt = btPhysicsCreateUtil._bt;
         var btColliderObject = this._btCollider;
-        bt.btRigidBody_setCenterOfMassPos(btColliderObject, value.x, value.y, value.z);
+        btStatics.bt.btRigidBody_setCenterOfMassPos(btColliderObject, value.x, value.y, value.z);
     }
 
     /**

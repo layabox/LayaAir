@@ -1,7 +1,7 @@
 import { Vector3 } from "../../../maths/Vector3";
 import { IColliderShape } from "../../interface/Shape/IColliderShape";
+import { btStatics } from "../btStatics";
 import { btCollider } from "../Collider/btCollider";
-import { btPhysicsCreateUtil } from "../btPhysicsCreateUtil";
 /**
  * @en The `btColliderShape` class is the base class for defining and managing physics collision shapes.
  * @zh 类`btColliderShape` 用于定义和管理物理碰撞形状的基类。
@@ -59,8 +59,7 @@ export class btColliderShape implements IColliderShape {
 
     constructor() {
         this._localOffset = new Vector3(0, 0, 0);
-        let bt = btPhysicsCreateUtil._bt;
-        this._btScale = bt.btVector3_create(1, 1, 1);
+        this._btScale = btStatics.bt.btVector3_create(1, 1, 1);
         this._worldScale = new Vector3(-1, -1, -1);
         this._destroyed = false;
     }
@@ -99,9 +98,8 @@ export class btColliderShape implements IColliderShape {
         if (this._btShape && this._worldScale.equal(scale))
             return;
         scale.cloneTo(this._worldScale);
-        let bt = btPhysicsCreateUtil._bt;
-        bt.btVector3_setValue(this._btScale, this._worldScale.x, this._worldScale.y, this._worldScale.z);
-        bt.btCollisionShape_setLocalScaling(this._btShape, this._btScale);
+        btStatics.bt.btVector3_setValue(this._btScale, this._worldScale.x, this._worldScale.y, this._worldScale.z);
+        btStatics.bt.btCollisionShape_setLocalScaling(this._btShape, this._btScale);
     }
 
     /**
@@ -110,7 +108,7 @@ export class btColliderShape implements IColliderShape {
      */
     destroy(): void {
         if (this._btShape && !this._destroyed) {
-            btPhysicsCreateUtil._bt.btCollisionShape_destroy(this._btShape);
+            btStatics.bt.btCollisionShape_destroy(this._btShape);
             this._btShape = null;
             this._destroyed = true;
         }

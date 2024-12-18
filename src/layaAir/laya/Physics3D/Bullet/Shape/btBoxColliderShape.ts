@@ -1,6 +1,6 @@
 import { Vector3 } from "../../../maths/Vector3";
 import { IBoxColliderShape } from "../../interface/Shape/IBoxColliderShape";
-import { btPhysicsCreateUtil } from "../btPhysicsCreateUtil";
+import { btStatics } from "../btStatics";
 import { btColliderShape } from "./btColliderShape";
 /**
  * @en The `btBoxColliderShape` class is used to create and manage box collision shapes for the physics engine.
@@ -14,23 +14,20 @@ export class btBoxColliderShape extends btColliderShape implements IBoxColliderS
 
     constructor() {
         super();
-        let bt = btPhysicsCreateUtil._bt;
         this._size = new Vector3(0.5, 0.5, 0.5);
-        this._btSize = bt.btVector3_create(0, 0, 0);
+        this._btSize = btStatics.bt.btVector3_create(0, 0, 0);
     }
 
     private changeBoxShape() {
-        let bt = btPhysicsCreateUtil._bt;
         if (this._btShape) {
-            bt.btCollisionShape_destroy(this._btShape);
+            btStatics.bt.btCollisionShape_destroy(this._btShape);
         }
         this._createShape();
     }
 
     protected _createShape() {
-        let bt = btPhysicsCreateUtil._bt;
-        bt.btVector3_setValue(this._btSize, this._size.x / 2, this._size.y / 2, this._size.z / 2);
-        this._btShape = bt.btBoxShape_create(this._btSize);
+        btStatics.bt.btVector3_setValue(this._btSize, this._size.x / 2, this._size.y / 2, this._size.z / 2);
+        this._btShape = btStatics.bt.btBoxShape_create(this._btSize);
     }
 
     protected _getType(): number {

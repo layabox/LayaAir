@@ -1,12 +1,10 @@
-import { ConfigurableConstraint } from "../../../d3/physics/constraints/ConfigurableConstraint";
 import { Quaternion } from "../../../maths/Quaternion";
 import { Vector3 } from "../../../maths/Vector3";
 import { NotImplementedError } from "../../../utils/Error";
-import { ICustomJoint } from "../../interface/Joint/ICustomJoint";
 import { D6Axis, D6Drive, D6MotionType, ID6Joint } from "../../interface/Joint/ID6Joint";
 import { btRigidBodyCollider } from "../Collider/btRigidBodyCollider";
-import { btPhysicsCreateUtil } from "../btPhysicsCreateUtil";
 import { btPhysicsManager } from "../btPhysicsManager";
+import { btStatics } from "../btStatics";
 import { btJoint } from "./btJoint";
 /**
  * @en The `btCustomJoint` class is used for detailed control of joints.
@@ -130,14 +128,13 @@ export class btCustomJoint extends btJoint implements ID6Joint {
      * @zh 初始化关节。
      */
     initJoint() {
-        let bt = btPhysicsCreateUtil._bt;
         super.initJoint();
-        this._btAxis = bt.btVector3_create(-1.0, 0.0, 0.0);
-        this._btsceondAxis = bt.btVector3_create(0.0, 1.0, 0.0);
+        this._btAxis = btStatics.bt.btVector3_create(-1.0, 0.0, 0.0);
+        this._btsceondAxis = btStatics.bt.btVector3_create(0.0, 1.0, 0.0);
     }
 
     protected _createJoint(): void {
-        let bt = btPhysicsCreateUtil._bt;
+        let bt = btStatics.bt;
         this._manager && this._manager.removeJoint(this);
         if (this._collider && this._connectCollider) {
             this._btJoint = bt.btGeneric6DofSpring2Constraint_create((this._collider as btRigidBodyCollider)._btCollider, this._btTempTrans0, (this._connectCollider as btRigidBodyCollider)._btCollider, this._btTempTrans1, 0);
@@ -185,8 +182,7 @@ export class btCustomJoint extends btJoint implements ID6Joint {
      * @param equilibriumPoint 要设置的平衡点值。
      */
     setEquilibriumPoint(axis: number, equilibriumPoint: number): void {
-        var bt = btPhysicsCreateUtil._bt;
-        bt.btGeneric6DofSpring2Constraint_setEquilibriumPoint(this._btJoint, axis, equilibriumPoint);
+        btStatics.bt.btGeneric6DofSpring2Constraint_setEquilibriumPoint(this._btJoint, axis, equilibriumPoint);
     }
 
     /**
@@ -197,8 +193,7 @@ export class btCustomJoint extends btJoint implements ID6Joint {
      */
     setLocalPos(pos: Vector3): void {
         super.setLocalPos(pos);
-        let bt = btPhysicsCreateUtil._bt;
-        this._btJoint && bt.btGeneric6DofSpring2Constraint_setFrames(this._btJoint, this._btTempTrans0, this._btTempTrans1);
+        this._btJoint && btStatics.bt.btGeneric6DofSpring2Constraint_setFrames(this._btJoint, this._btTempTrans0, this._btTempTrans1);
     }
 
     /**
@@ -209,8 +204,7 @@ export class btCustomJoint extends btJoint implements ID6Joint {
      */
     setConnectLocalPos(pos: Vector3): void {
         super.setConnectLocalPos(pos);
-        let bt = btPhysicsCreateUtil._bt;
-        this._btJoint && bt.btGeneric6DofSpring2Constraint_setFrames(this._btJoint, this._btTempTrans0, this._btTempTrans1);
+        this._btJoint && btStatics.bt.btGeneric6DofSpring2Constraint_setFrames(this._btJoint, this._btTempTrans0, this._btTempTrans1);
     }
 
     /**
@@ -222,7 +216,7 @@ export class btCustomJoint extends btJoint implements ID6Joint {
      * @param secendary 次轴向量。
      */
     setAxis(axis: Vector3, secendary: Vector3): void {
-        var bt = btPhysicsCreateUtil._bt;
+        var bt = btStatics.bt;
         this._axis.setValue(axis.x, axis.y, axis.y);
         this._secondAxis.setValue(secendary.x, secendary.y, secendary.z);
         this._btAxis = bt.btVector3_setValue(-axis.x, axis.y, axis.z);
@@ -265,7 +259,7 @@ export class btCustomJoint extends btJoint implements ID6Joint {
                 maxLimit = this._maxAngularZLimit;
             }
         }
-        let bt = btPhysicsCreateUtil._bt;
+        let bt = btStatics.bt;
         if (axis == D6Axis.eFREE) {
             bt.btGeneric6DofSpring2Constraint_setLimit(this._btJoint, motionType, 1, 0);
         } else if (axis == D6Axis.eLIMITED) {
@@ -289,7 +283,7 @@ export class btCustomJoint extends btJoint implements ID6Joint {
      * @param limitIfNeeded 是否在需要时设置限制（默认：true）。
      */
     _setSpring(axis: D6Axis, motionType: D6MotionType, springValue: number, limitIfNeeded: boolean = true): void {
-        let bt = btPhysicsCreateUtil._bt;
+        let bt = btStatics.bt;
         var enableSpring: Boolean = springValue > 0 && axis == D6Axis.eLIMITED;
         bt.btGeneric6DofSpring2Constraint_enableSpring(this._btJoint, motionType, enableSpring);
         if (enableSpring)
@@ -309,9 +303,8 @@ export class btCustomJoint extends btJoint implements ID6Joint {
      */
     _setBounce(axis: D6Axis, motionType: D6MotionType, bounce: number): void {
         if (axis == D6Axis.eLIMITED) {
-            var bt = btPhysicsCreateUtil._bt
             bounce = bounce <= 0 ? 0 : bounce;
-            bt.btGeneric6DofSpring2Constraint_setBounce(this._btJoint, motionType, bounce);
+            btStatics.bt.btGeneric6DofSpring2Constraint_setBounce(this._btJoint, motionType, bounce);
         }
     }
 
@@ -330,9 +323,8 @@ export class btCustomJoint extends btJoint implements ID6Joint {
      */
     _setDamp(axis: D6Axis, motionType: D6MotionType, damp: number, limitIfNeeded: boolean = true): void {
         if (axis == D6Axis.eLIMITED) {
-            var bt = btPhysicsCreateUtil._bt;
             damp = damp <= 0 ? 0 : damp;
-            bt.btGeneric6DofSpring2Constraint_setDamping(this._btJoint, motionType, damp, limitIfNeeded);
+            btStatics.bt.btGeneric6DofSpring2Constraint_setDamping(this._btJoint, motionType, damp, limitIfNeeded);
         }
     }
 
@@ -536,8 +528,7 @@ export class btCustomJoint extends btJoint implements ID6Joint {
      */
     setDrive(index: D6Drive, stiffness: number, damping: number, forceLimit: number): void {
         // enable motor
-        let bt = btPhysicsCreateUtil._bt;
-        bt.btGeneric6DofSpring2Constraint_enableMotor(this._btJoint, index, true);
+        btStatics.bt.btGeneric6DofSpring2Constraint_enableMotor(this._btJoint, index, true);
     }
 
     /**
@@ -549,10 +540,9 @@ export class btCustomJoint extends btJoint implements ID6Joint {
      * @param rotate 目标旋转。
      */
     setDriveTransform(position: Vector3, rotate: Quaternion): void {
-        let bt = btPhysicsCreateUtil._bt;
         let axis = D6Drive.eY;
         // TODO
-        // bt.btGeneric6DofSpring2Constraint_setServoTarget(this._btJoint, axis, target);
+        // btStatics.bt.btGeneric6DofSpring2Constraint_setServoTarget(this._btJoint, axis, target);
     }
 
     /**
@@ -564,7 +554,7 @@ export class btCustomJoint extends btJoint implements ID6Joint {
      * @param angular 目标角速度。
      */
     setDriveVelocity(position: Vector3, angular: Vector3): void {
-        let bt = btPhysicsCreateUtil._bt;
+        let bt = btStatics.bt;
         let axis = D6Drive.eX;
         // position
         bt.btGeneric6DofSpring2Constraint_setTargetVelocity(this._btJoint, axis, position.x);

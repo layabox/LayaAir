@@ -2,8 +2,8 @@ import { Vector3 } from "../../../maths/Vector3";
 import { NotImplementedError } from "../../../utils/Error";
 import { ISpringJoint } from "../../interface/Joint/ISpringJoint";
 import { btRigidBodyCollider } from "../Collider/btRigidBodyCollider";
-import { btPhysicsCreateUtil } from "../btPhysicsCreateUtil";
 import { btPhysicsManager } from "../btPhysicsManager";
+import { btStatics } from "../btStatics";
 import { btJoint } from "./btJoint";
 /**
  * @en The `btSpringJoint` class is used to create and manage spring joints in the physics engine.
@@ -30,7 +30,7 @@ export class btSpringJoint extends btJoint implements ISpringJoint {
     _maxDistance: number = Number.MAX_VALUE;
 
     protected _createJoint(): void {
-        var bt = btPhysicsCreateUtil._bt;
+        var bt = btStatics.bt;
         // last param 0 is R0.XYZ
         this._manager && this._manager.removeJoint(this);
         if (this._collider && this._connectCollider) {
@@ -48,7 +48,7 @@ export class btSpringJoint extends btJoint implements ISpringJoint {
      * @zh 初始化关节约束信息。
      */
     _initJointConstraintInfo() {
-        let bt = btPhysicsCreateUtil._bt;
+        let bt = btStatics.bt;
         bt.btGeneric6DofSpring2Constraint_setLimit(this._btJoint, btSpringJoint.ANGULARSPRING_AXIS_X, 0, 0);
         bt.btGeneric6DofSpring2Constraint_setLimit(this._btJoint, btSpringJoint.ANGULARSPRING_AXIS_Y, 0, 0);
         bt.btGeneric6DofSpring2Constraint_setLimit(this._btJoint, btSpringJoint.ANGULARSPRING_AXIS_Z, 0, 0);
@@ -76,8 +76,7 @@ export class btSpringJoint extends btJoint implements ISpringJoint {
      */
     setLocalPos(pos: Vector3): void {
         super.setLocalPos(pos);
-        let bt = btPhysicsCreateUtil._bt;
-        this._btJoint && bt.btGeneric6DofSpring2Constraint_setFrames(this._btJoint, this._btTempTrans0, this._btTempTrans1);
+        this._btJoint && btStatics.bt.btGeneric6DofSpring2Constraint_setFrames(this._btJoint, this._btTempTrans0, this._btTempTrans1);
     }
 
     /**
@@ -88,8 +87,7 @@ export class btSpringJoint extends btJoint implements ISpringJoint {
      */
     setConnectLocalPos(pos: Vector3): void {
         super.setConnectLocalPos(pos);
-        let bt = btPhysicsCreateUtil._bt;
-        this._btJoint && bt.btGeneric6DofSpring2Constraint_setFrames(this._btJoint, this._btTempTrans0, this._btTempTrans1);
+        this._btJoint && btStatics.bt.btGeneric6DofSpring2Constraint_setFrames(this._btJoint, this._btTempTrans0, this._btTempTrans1);
     }
 
     /**
@@ -115,8 +113,7 @@ export class btSpringJoint extends btJoint implements ISpringJoint {
             return;
         }
         this._minDistance = distance;
-        var bt = btPhysicsCreateUtil._bt;
-        bt.btGeneric6DofSpring2Constraint_setLimit(this._btJoint, btSpringJoint.LINEARSPRING_AXIS_Y, this._minDistance, this._maxDistance);
+        btStatics.bt.btGeneric6DofSpring2Constraint_setLimit(this._btJoint, btSpringJoint.LINEARSPRING_AXIS_Y, this._minDistance, this._maxDistance);
     }
     /**
      * @en Sets the maximum distance of the spring joint.
@@ -131,8 +128,7 @@ export class btSpringJoint extends btJoint implements ISpringJoint {
             return;
         }
         this._maxDistance = distance;
-        var bt = btPhysicsCreateUtil._bt;
-        bt.btGeneric6DofSpring2Constraint_setLimit(this._btJoint, btSpringJoint.LINEARSPRING_AXIS_Y, this._minDistance, this._maxDistance);
+        btStatics.bt.btGeneric6DofSpring2Constraint_setLimit(this._btJoint, btSpringJoint.LINEARSPRING_AXIS_Y, this._minDistance, this._maxDistance);
     }
     /**
      * @ignore 
@@ -149,7 +145,7 @@ export class btSpringJoint extends btJoint implements ISpringJoint {
      * @param stiffness 刚度值。
      */
     setStiffness(stiffness: number): void {
-        var bt = btPhysicsCreateUtil._bt;
+        var bt = btStatics.bt;
         var enableSpring: Boolean = stiffness > 0;
         // in btSpringJoint only Y-Axis default
         bt.btGeneric6DofSpring2Constraint_enableSpring(this._btJoint, btSpringJoint.LINEARSPRING_AXIS_Y, enableSpring);
@@ -165,9 +161,8 @@ export class btSpringJoint extends btJoint implements ISpringJoint {
     setDamping(damping: number): void {
         if (!this._btJoint)
             return;
-        var bt = btPhysicsCreateUtil._bt;
         damping = damping <= 0 ? 0 : damping;
-        bt.btGeneric6DofSpring2Constraint_setDamping(this._btJoint, btSpringJoint.LINEARSPRING_AXIS_Y, damping, true);
+        btStatics.bt.btGeneric6DofSpring2Constraint_setDamping(this._btJoint, btSpringJoint.LINEARSPRING_AXIS_Y, damping, true);
     }
 
     /**

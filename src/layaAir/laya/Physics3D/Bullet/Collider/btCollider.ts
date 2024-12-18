@@ -2,11 +2,11 @@ import { Transform3D } from "../../../d3/core/Transform3D";
 import { Vector3 } from "../../../maths/Vector3";
 import { ICollider } from "../../interface/ICollider";
 import { btColliderShape } from "../Shape/btColliderShape";
-import { btPhysicsCreateUtil } from "../btPhysicsCreateUtil";
-import { btPhysicsManager } from "../btPhysicsManager";
+import type { btPhysicsManager } from "../btPhysicsManager";
 import { Sprite3D } from "../../../d3/core/Sprite3D";
 import { PhysicsColliderComponent, PhysicsCombineMode } from "../../../d3/physics/PhysicsColliderComponent";
 import { NotImplementedError } from "../../../utils/Error";
+import { btStatics } from "../btStatics";
 
 export enum btColliderType {
     RigidbodyCollider,
@@ -165,9 +165,8 @@ export class btCollider implements ICollider {
     * @internal
     */
     static __init__(): void {
-        let bt = btPhysicsCreateUtil._bt;
-        btCollider._btVector30 = bt.btVector3_create(0, 0, 0);
-        btCollider._btQuaternion0 = bt.btQuaternion_create(0, 0, 0, 1);
+        btCollider._btVector30 = btStatics.bt.btVector3_create(0, 0, 0);
+        btCollider._btQuaternion0 = btStatics.bt.btQuaternion_create(0, 0, 0, 1);
     }
 
     /**
@@ -178,8 +177,8 @@ export class btCollider implements ICollider {
      * @param physicsManager 物理管理器。
      */
     constructor(physicsManager: btPhysicsManager) {
-        this._collisionGroup = btPhysicsManager.COLLISIONFILTERGROUP_DEFAULTFILTER;
-        this._canCollideWith = btPhysicsManager.COLLISIONFILTERGROUP_ALLFILTER;
+        this._collisionGroup = btStatics.COLLISIONFILTERGROUP_DEFAULTFILTER;
+        this._canCollideWith = btStatics.COLLISIONFILTERGROUP_ALLFILTER;
         this._physicsManager = physicsManager;
         this._id = btCollider._colliderID++;
         this._isTrigger = false;
@@ -312,11 +311,10 @@ export class btCollider implements ICollider {
 
     protected _onShapeChange() {
         var btColObj: any = this._btCollider;
-        let bt = btPhysicsCreateUtil._bt;
-        var flags: number = bt.btCollisionObject_getCollisionFlags(btColObj);
+        var flags: number = btStatics.bt.btCollisionObject_getCollisionFlags(btColObj);
 
-        if ((flags & btPhysicsManager.COLLISIONFLAGS_CUSTOM_MATERIAL_CALLBACK) > 0)
-            bt.btCollisionObject_setCollisionFlags(btColObj, flags ^ btPhysicsManager.COLLISIONFLAGS_CUSTOM_MATERIAL_CALLBACK);
+        if ((flags & btStatics.COLLISIONFLAGS_CUSTOM_MATERIAL_CALLBACK) > 0)
+            btStatics.bt.btCollisionObject_setCollisionFlags(btColObj, flags ^ btStatics.COLLISIONFLAGS_CUSTOM_MATERIAL_CALLBACK);
     }
 
     /**
@@ -331,7 +329,7 @@ export class btCollider implements ICollider {
             return;
         var lastColliderShape: btColliderShape = this._btColliderShape;
         this._btColliderShape = shape;
-        let bt = btPhysicsCreateUtil._bt;
+        let bt = btStatics.bt;
         if (shape) {
             if (this._btCollider) {
                 bt.btCollisionObject_setCollisionShape(this._btCollider, shape._btShape);
@@ -357,8 +355,7 @@ export class btCollider implements ICollider {
      * @zh 销毁碰撞器。
      */
     destroy(): void {
-        let bt = btPhysicsCreateUtil._bt;
-        bt.btCollisionObject_destroy(this._btCollider);
+        btStatics.bt.btCollisionObject_destroy(this._btCollider);
         delete btCollider._physicObjectsMap[this._id];
         this._destroyed = true;
     }
@@ -371,11 +368,10 @@ export class btCollider implements ICollider {
      * @param force 是否强制更新。
      */
     _derivePhysicsTransformation(force: boolean): void {
-        let bt = btPhysicsCreateUtil._bt;
         var btColliderObject: number = this._btCollider;
-        var btTransform: number = bt.btCollisionObject_getWorldTransform(btColliderObject);
+        var btTransform: number = btStatics.bt.btCollisionObject_getWorldTransform(btColliderObject);
         this._innerDerivePhysicsTransformation(btTransform, force);
-        bt.btCollisionObject_setWorldTransform(btColliderObject, btTransform);
+        btStatics.bt.btCollisionObject_setWorldTransform(btColliderObject, btTransform);
     }
 
     /**
@@ -388,7 +384,7 @@ export class btCollider implements ICollider {
      * @param force 是否强制更新。
      */
     _innerDerivePhysicsTransformation(physicTransformPtr: number, force: boolean): void {
-        let bt = btPhysicsCreateUtil._bt;
+        let bt = btStatics.bt;
         var transform = this._transform;
         let pxoff = 0;
         let pyoff = 0;
@@ -443,7 +439,7 @@ export class btCollider implements ICollider {
      */
     _updateTransformComponent(physicsTransform: number, syncRot = true, addmargin = 0): void {
         //TODO:Need Test!!! because _innerDerivePhysicsTransformation update position use worldMatrix,not(position rotation WorldLossyScale),maybe the center is no different.
-        let bt = btPhysicsCreateUtil._bt;
+        let bt = btStatics.bt;
         var colliderShape = this._btColliderShape;
         var localOffset = colliderShape._localOffset;
         //var localRotation = colliderShape._localRotation;
@@ -546,9 +542,8 @@ export class btCollider implements ICollider {
      * @param value 弹性值。
      */
     setBounciness(value: number): void {
-        let bt = btPhysicsCreateUtil._bt;
         this._restitution = value;
-        this._btCollider && bt.btCollisionObject_setRestitution(this._btCollider, value);
+        this._btCollider && btStatics.bt.btCollisionObject_setRestitution(this._btCollider, value);
     }
 
     /**
@@ -558,9 +553,8 @@ export class btCollider implements ICollider {
      * @param value 摩擦力值。
      */
     setfriction(value: number): void {
-        let bt = btPhysicsCreateUtil._bt;
         this._friction = value;
-        this._btCollider && bt.btCollisionObject_setFriction(this._btCollider, value);
+        this._btCollider && btStatics.bt.btCollisionObject_setFriction(this._btCollider, value);
     }
 
     /**
@@ -570,9 +564,8 @@ export class btCollider implements ICollider {
      * @param value 滚动摩擦力值。
      */
     setRollingFriction(value: number): void {
-        let bt = btPhysicsCreateUtil._bt;
         this._rollingFriction = value;
-        this._btCollider && bt.btCollisionObject_setRollingFriction(this._btCollider, value);
+        this._btCollider && btStatics.bt.btCollisionObject_setRollingFriction(this._btCollider, value);
     }
 
     /**
@@ -583,9 +576,8 @@ export class btCollider implements ICollider {
      */
     setCcdMotionThreshold(value: number): void {
         if (this._physicsManager.enableCCD) {
-            let bt = btPhysicsCreateUtil._bt;
             this._ccdThreshold = value;
-            this._btCollider && bt.btCollisionObject_setCcdMotionThreshold(this._btCollider, value);
+            this._btCollider && btStatics.bt.btCollisionObject_setCcdMotionThreshold(this._btCollider, value);
         }
     }
 
@@ -597,9 +589,8 @@ export class btCollider implements ICollider {
      */
     setCcdSweptSphereRadius(value: number): void {
         if (this._physicsManager.enableCCD) {
-            let bt = btPhysicsCreateUtil._bt;
             this._ccdSwapSphereRadius = value;
-            this._btCollider && bt.btCollisionObject_setCcdSweptSphereRadius(this._btCollider, value);
+            this._btCollider && btStatics.bt.btCollisionObject_setCcdSweptSphereRadius(this._btCollider, value);
         }
     }
 }

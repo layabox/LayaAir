@@ -1,13 +1,12 @@
 import { Vector3 } from "../../../maths/Vector3";
 import { IConeColliderShape } from "../../interface/Shape/IConeColliderShape";
-import { btPhysicsCreateUtil } from "../btPhysicsCreateUtil";
+import { btStatics } from "../btStatics";
 import { btColliderShape } from "./btColliderShape";
 /**
  * @en The `btConeColliderShape` class creates a cone shape, which is a cylinder with a conical top.
  * @zh 类 `btConeColliderShape` 用于创建和管理物理引擎中圆锥碰撞器形状。
  */
 export class btConeColliderShape extends btColliderShape implements IConeColliderShape {
-    private static _tempVector30: Vector3 = new Vector3();
     /**@internal */
     private _radius: number = 0.25;
     /**@internal */
@@ -20,7 +19,7 @@ export class btConeColliderShape extends btColliderShape implements IConeCollide
 
     protected _createShape() {
         //TODO MIner
-        let bt = btPhysicsCreateUtil._bt;
+        let bt = btStatics.bt;
         if (this._btShape) {
             bt.btCollisionShape_destroy(this._btShape);
         }

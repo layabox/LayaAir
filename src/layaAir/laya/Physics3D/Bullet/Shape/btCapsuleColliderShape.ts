@@ -1,6 +1,6 @@
 import { Vector3 } from "../../../maths/Vector3";
 import { ICapsuleColliderShape } from "../../interface/Shape/ICapsuleColliderShape";
-import { btPhysicsCreateUtil } from "../btPhysicsCreateUtil";
+import { btStatics } from "../btStatics";
 import { btColliderShape } from "./btColliderShape";
 /**
  * @en The `btCapsuleColliderShape` class is used to create and manage capsule-shaped colliders.
@@ -20,7 +20,7 @@ export class btCapsuleColliderShape extends btColliderShape implements ICapsuleC
 
     protected _createShape() {
         //TODO MIner
-        let bt = btPhysicsCreateUtil._bt;
+        let bt = btStatics.bt;
         if (this._btShape) {
             bt.btCollisionShape_destroy(this._btShape);
         }

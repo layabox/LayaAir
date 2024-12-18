@@ -27,6 +27,7 @@ import { btMeshColliderShape } from "./Shape/btMeshColliderShape";
 import { btSphereColliderShape } from "./Shape/btSphereColliderShape";
 import { BulletInteractive } from "./btInteractive";
 import { btPhysicsManager } from "./btPhysicsManager";
+import { btStatics } from "./btStatics";
 /**
  * @en The `btPhysicsCreateUtil` class is responsible for creating and managing various physics objects and capabilities within the Bullet physics engine.
  * @zh `btPhysicsCreateUtil` 类负责在 Bullet 物理引擎中创建和管理各种物理对象和功能。
@@ -76,8 +77,6 @@ export class btPhysicsCreateUtil implements IPhysicsCreateUtil {
         return this._physicsEngineCapableMap.get(value);
     }
 
-    /**@internal */
-    static _bt: any;
     /**
      * @en Initializes the Bullet physics engine. This includes setting up the physics memory, creating an instance of the Bullet physics engine, and initializing various physics components.
      * @returns A promise that resolves when initialization is complete.
@@ -87,7 +86,7 @@ export class btPhysicsCreateUtil implements IPhysicsCreateUtil {
     initialize(): Promise<void> {
         let physics3D: Function = (window as any).Physics3D;
         physics3D(Math.max(16, Config3D.defaultPhysicsMemory) * 16, new BulletInteractive(null, null)).then(() => {
-            btPhysicsCreateUtil._bt = (window as any).Physics3D;
+            btStatics.bt = (window as any).Physics3D;
             this.initPhysicsCapable();
             btPhysicsManager.init();
             btCollider.__init__();
@@ -278,7 +277,7 @@ export class btPhysicsCreateUtil implements IPhysicsCreateUtil {
         if (mesh._convexMesh == null) {
             return null;
         }
-        let bt = btPhysicsCreateUtil._bt;
+        let bt = btStatics.bt;
         if ((<any>mesh).__convexMesh == null) {
             let convexMesh = mesh._convexMesh;
             let vertexCount = bt.btShapeHull_numVertices(convexMesh);
