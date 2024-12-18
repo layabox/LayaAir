@@ -1,20 +1,20 @@
-import { Laya } from "../../../../Laya";
-import { LayaGL } from "../../../layagl/LayaGL";
-import { Color } from "../../../maths/Color";
-import { FloatKeyframe } from "../../../maths/FloatKeyframe";
-import { Gradient } from "../../../maths/Gradient";
-import { Point } from "../../../maths/Point";
-import { Vector3 } from "../../../maths/Vector3";
-import { BaseRenderNode2D } from "../../../NodeRender2D/BaseRenderNode2D";
-import { Context } from "../../../renders/Context";
-import { BaseTexture } from "../../../resource/BaseTexture";
-import { Material } from "../../../resource/Material";
-import { Texture2D } from "../../../resource/Texture2D";
-import { ShaderDefines2D } from "../../../webgl/shader/d2/ShaderDefines2D";
-import { TrailGeometry } from "../../RenderFeatureComman/Trail/TrailGeometry";
-import { TrailShaderCommon } from "../../RenderFeatureComman/Trail/TrailShaderCommon";
-import { TrailTextureMode } from "../../RenderFeatureComman/Trail/TrailTextureMode";
-import { TrailBaseFilter } from "../../RenderFeatureComman/TrailBaseFilter";
+import { Context } from "vm";
+import { Laya } from "../../../Laya";
+import { LayaGL } from "../../layagl/LayaGL";
+import { Color } from "../../maths/Color";
+import { FloatKeyframe } from "../../maths/FloatKeyframe";
+import { Gradient } from "../../maths/Gradient";
+import { Point } from "../../maths/Point";
+import { Vector3 } from "../../maths/Vector3";
+import { BaseRenderNode2D } from "../../NodeRender2D/BaseRenderNode2D";
+import { BaseTexture } from "../../resource/BaseTexture";
+import { Material } from "../../resource/Material";
+import { Texture2D } from "../../resource/Texture2D";
+import { ShaderDefines2D } from "../../webgl/shader/d2/ShaderDefines2D";
+import { TrailGeometry } from "../trailCommon/RenderFeatureComman/Trail/TrailGeometry";
+import { TrailShaderCommon } from "../trailCommon/RenderFeatureComman/Trail/TrailShaderCommon";
+import { TrailTextureMode } from "../trailCommon/RenderFeatureComman/Trail/TrailTextureMode";
+import { TrailBaseFilter } from "../trailCommon/RenderFeatureComman/TrailBaseFilter";
 import { TrailShaderInit } from "./Shader/Trail2DShaderInit";
 
 export class Trail2DRender extends BaseRenderNode2D {
@@ -244,7 +244,7 @@ export class Trail2DRender extends BaseRenderNode2D {
 
     constructor() {
         super();
-        this._renderElements = [];        
+        this._renderElements = [];
         this._materials = [];
         this._time = 0.5;
         this._widthMultiplier = 50;

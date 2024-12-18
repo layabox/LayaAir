@@ -8,9 +8,8 @@ import { Sprite } from "laya/display/Sprite";
 import { WrapMode } from "laya/RenderEngine/RenderEnum/WrapMode";
 import { BaseTexture } from "laya/resource/BaseTexture";
 import { Texture } from "laya/resource/Texture";
-import { Trail2DRender } from "laya/display/Scene2DSpecial/Trail2D/Trail2DRender"
-import { Texture2D } from "laya/resource/Texture2D";
 import { Color } from "laya/maths/Color";
+import { Trail2DRender } from "laya/trail/trail2D/Trail2DRender";
 
 export class Trail2DRenderDemo {
     Main: typeof Main = null;

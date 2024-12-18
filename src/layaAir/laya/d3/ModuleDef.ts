@@ -48,9 +48,6 @@ import { SimpleSkinnedMeshRenderer } from "./core/SimpleSkinnedMeshRenderer";
 import { SimpleSkinnedMeshSprite3D } from "./core/SimpleSkinnedMeshSprite3D";
 import { SkinnedMeshRenderer } from "./core/SkinnedMeshRenderer";
 import { SkinnedMeshSprite3D } from "./core/SkinnedMeshSprite3D";
-import { TrailFilter } from "./core/trail/TrailFilter";
-import { TrailMaterial } from "./core/trail/TrailMaterial";
-import { TrailRenderer } from "./core/trail/TrailRenderer";
 import { Transform3D } from "./core/Transform3D";
 import { SphericalHarmonicsL2 } from "./graphics/SphericalHarmonicsL2";
 import { BoundBox } from "./math/BoundBox";
@@ -114,8 +111,6 @@ c("SkinnedMeshSprite3D", SkinnedMeshSprite3D);
 c("SkinnedMeshRenderer", SkinnedMeshRenderer);
 c("SimpleSkinnedMeshRenderer", SimpleSkinnedMeshRenderer);
 c("SkyRenderer", SkyRenderer);
-c("TrailFilter", TrailFilter);
-c("TrailRenderer", TrailRenderer);
 c("PixelLineRenderer", PixelLineRenderer);
 c("PixelLineData", PixelLineData);
 
@@ -151,7 +146,6 @@ c("SkyPanoramicMaterial", SkyPanoramicMaterial);
 c("SkyProceduralMaterial", SkyProceduralMaterial);
 c("UnlitMaterial", UnlitMaterial);
 c("ShurikenParticleMaterial", ShurikenParticleMaterial);
-c("TrailMaterial", TrailMaterial);
 
 c("ShuriKenParticle3D", ShuriKenParticle3D);
 c("ShurikenParticleRenderer", ShurikenParticleRenderer);

@@ -1,9 +1,9 @@
 import TrailVS from "./Trail.vs";
 import TrailFS from "./Trail.fs";
-import { Shader3D, ShaderFeatureType } from "../../../../RenderEngine/RenderShader/Shader3D";
-import { SubShader } from "../../../../RenderEngine/RenderShader/SubShader";
-import { TrailShaderCommon } from "../../../../display/RenderFeatureComman/Trail/TrailShaderCommon";
 import { TrailMaterial } from "../TrailMaterial";
+import { Shader3D, ShaderFeatureType } from "../../../RenderEngine/RenderShader/Shader3D";
+import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
+import { TrailShaderCommon } from "../../trailCommon/RenderFeatureComman/Trail/TrailShaderCommon";
 export class TrailShaderInit {
     static init() {
         TrailShaderCommon.init();

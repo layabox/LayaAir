@@ -1,14 +1,14 @@
-import { LayaGL } from "../../../layagl/LayaGL";
-import { Color } from "../../../maths/Color";
-import { Gradient } from "../../../maths/Gradient";
-import { Vector3 } from "../../../maths/Vector3";
-import { IBufferState } from "../../../RenderDriver/DriverDesign/RenderDevice/IBufferState";
-import { IRenderGeometryElement } from "../../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
-import { IVertexBuffer } from "../../../RenderDriver/DriverDesign/RenderDevice/IVertexBuffer";
-import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
-import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
-import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode";
-import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
+import { LayaGL } from "../../../../layagl/LayaGL";
+import { Color } from "../../../../maths/Color";
+import { Gradient } from "../../../../maths/Gradient";
+import { Vector3 } from "../../../../maths/Vector3";
+import { IBufferState } from "../../../../RenderDriver/DriverDesign/RenderDevice/IBufferState";
+import { IRenderGeometryElement } from "../../../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
+import { IVertexBuffer } from "../../../../RenderDriver/DriverDesign/RenderDevice/IVertexBuffer";
+import { BufferUsage } from "../../../../RenderEngine/RenderEnum/BufferTargetType";
+import { DrawType } from "../../../../RenderEngine/RenderEnum/DrawType";
+import { MeshTopology } from "../../../../RenderEngine/RenderEnum/RenderPologyMode";
+import { VertexDeclaration } from "../../../../RenderEngine/VertexDeclaration";
 import { TrailTextureMode } from "./TrailTextureMode";
 import { VertexTrail } from "./VertexTrail";
 
