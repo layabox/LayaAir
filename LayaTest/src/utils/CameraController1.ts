@@ -138,12 +138,12 @@ export class CameraController1 extends Script3D {
 
     private onMouseWheelHandler(e: Event): void {
         if (e.delta > 0) {
-            this._dist /= 1.2;
-            this.camera.orthographicVerticalSize /= 1.2;
-        }
-        else {
             this._dist *= 1.2;
             this.camera.orthographicVerticalSize *= 1.2;
+        }
+        else {
+            this._dist /= 1.2;
+            this.camera.orthographicVerticalSize /= 1.2;
         }
         if (this._dist < this.minDist) this._dist = this.minDist;
         if (this._dist > this.maxDist) this._dist = this.maxDist;

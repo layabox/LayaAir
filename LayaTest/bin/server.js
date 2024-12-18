@@ -15,7 +15,7 @@ const WebSocket = require('ws');
 const http = require('http');
 const multer = require('multer');
 const { createCanvas, loadImage } = require('canvas');
-const {compileTestDir,layaSrc,findCorrespondingTsFile,compileTypeScript,copyFile} = require('./watchAndCompile')
+const {compileTestDir,layaSrc,findCorrespondingTsFile,compileTypeScript,copyFile,startWatch} = require('./watchAndCompile')
 
 const app = express();
 
@@ -30,6 +30,8 @@ wss.on('connection', (ws) => {
     clients.add(ws);
     ws.on('close', () => clients.delete(ws));
   });
+
+startWatch(clients);
 
 const port = 4000;
 

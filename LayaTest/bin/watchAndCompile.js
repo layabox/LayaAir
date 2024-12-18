@@ -2,6 +2,10 @@ const path = require('path');
 const fs = require('fs');
 const chokidar = require('chokidar');
 const ts = require('typescript');
+const WebSocket = require('ws');
+
+//
+var clients;
 
 function copyFile(src, dest) {
     fs.mkdirSync(path.dirname(dest), { recursive: true });
@@ -163,12 +167,21 @@ async function compileTestDir() {
 
 var layaSrc = '../../src'
 var testSrc = '../src'
-watchAndCompile(path.join(__dirname, layaSrc), './tsc/');
-watchAndCompile(path.join(__dirname, testSrc), './tsc/test/');
+
+/**
+ * 
+ * @param {Set} clients 
+ */
+function startWatch(connected_clients){
+    clients = connected_clients;
+    watchAndCompile(path.join(__dirname, layaSrc), './tsc/');
+    watchAndCompile(path.join(__dirname, testSrc), './tsc/test/');    
+}
 
 module.exports = {
     compileTestDir, layaSrc, testSrc,
     findCorrespondingTsFile,
     compileTypeScript,
-    copyFile
+    copyFile,
+    startWatch
 };
