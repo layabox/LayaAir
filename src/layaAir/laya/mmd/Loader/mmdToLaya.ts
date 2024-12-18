@@ -20,17 +20,13 @@ export function mmdToMesh(info: PmxObject): Mesh {
         const vertexSize = 12 + 12 + 8 + //pos+norm+uv
             + 16 + 16; //  boneIndices(4) + boneWeights(4)
         const vertexData = new ArrayBuffer(vertexCount * vertexSize);
-        const positionArray = new Float32Array(vertexData, 0, vertexCount * 3);
-        const normalArray = new Float32Array(vertexData, vertexCount * 12, vertexCount * 3);
-        const uvArray = new Float32Array(vertexData, vertexCount * 24, vertexCount * 2);
-        // 修改：将骨骼索引和权重数组扩展为4个元素
-        const boneIndicesArray = new Uint16Array(vertexData, vertexCount * 32, vertexCount * 4);
-        const boneWeightsArray = new Float32Array(vertexData, vertexCount * 40, vertexCount * 4);
-
+        const floatArray = new Float32Array(vertexData);
+        const floatStride = vertexSize/4;
         let minx = 10000, miny = 10000, minz = 10000;
         let maxx = -10000, maxy = -10000, maxz = -10000;
 
-        for (let i = 0; i < vertexCount; i++) {
+        let curFloat = 0;
+        for (let i = 0; i < vertexCount; i++,curFloat+=floatStride) {
             // 读取位置
             let curVert = vertices[i];
             let x = curVert.position[0];
@@ -39,57 +35,72 @@ export function mmdToMesh(info: PmxObject): Mesh {
             if (x < minx) minx = x; if (x > maxx) maxx = x;
             if (y < miny) miny = y; if (y > maxy) maxy = y;
             if (z < minz) minz = z; if (z > maxz) maxz = z;
-            positionArray[i * 3] = x;
-            positionArray[i * 3 + 1] = y;
-            positionArray[i * 3 + 2] = z;
+
+            //pos
+            floatArray[curFloat] = x;
+            floatArray[curFloat+1] = y;
+            floatArray[curFloat+2] = z;
 
             // 读取法线
-            normalArray[i * 3] = curVert.normal[0];
-            normalArray[i * 3 + 1] = curVert.normal[1];
-            normalArray[i * 3 + 2] = curVert.normal[2];
+            floatArray[curFloat+3] = curVert.normal[0];
+            floatArray[curFloat+4] = curVert.normal[1];
+            floatArray[curFloat+5] = curVert.normal[2];
 
             // 读取UV
-            uvArray[i * 2] = curVert.uv[0];
-            uvArray[i * 2 + 1] = 1 - curVert.uv[1]; // 修改：PMX的UV坐标系与常见3D坐标系不同，需要翻转Y轴
+            floatArray[curFloat+6] = curVert.uv[0];
+            floatArray[curFloat+7] = 1 - curVert.uv[1]; // 修改：PMX的UV坐标系与常见3D坐标系不同，需要翻转Y轴
 
             // 读取骨骼权重类型
             const weightType = curVert.weightType;
             // 修改：重写骨骼权重读取逻辑
+            let boneInfoPos = curFloat+8;
             switch (weightType) {
                 case 0: // BDEF1
                     let boneweight0 = curVert.boneWeight as PmxObject.Vertex.BoneWeight<typeof weightType>;
-                    boneIndicesArray[i * 4] = boneweight0.boneIndices;//TODO 根据 this._modelInfo.boneIndexSize
-                    boneWeightsArray[i * 4] = 1.0;
+                    //boneIndicesArray[i * 4] = boneweight0.boneIndices;//TODO 根据 this._modelInfo.boneIndexSize
+                    //boneWeightsArray[i * 4] = 1.0;
+                    floatArray[boneInfoPos] = boneweight0.boneIndices;
+                    floatArray[boneInfoPos+1] = boneweight0.boneIndices;
+                    floatArray[boneInfoPos+2] = boneweight0.boneIndices;
+                    floatArray[boneInfoPos+3] = boneweight0.boneIndices;
+                    floatArray[boneInfoPos+4] = 1.0;
+                    floatArray[boneInfoPos+5] = 0.0;
+                    floatArray[boneInfoPos+6] = 0.0;
+                    floatArray[boneInfoPos+7] = 0.0;
                     break;
                 case 1: // BDEF2
                     let boneweight1 = curVert.boneWeight as PmxObject.Vertex.BoneWeight<typeof weightType>;
-                    boneIndicesArray[i * 4] = boneweight1.boneIndices[0];
-                    boneIndicesArray[i * 4 + 1] = boneweight1.boneIndices[1];
-                    boneWeightsArray[i * 4] = boneweight1.boneWeights;
-                    boneWeightsArray[i * 4 + 1] = 1 - boneweight1.boneWeights;
+                    floatArray[boneInfoPos] = boneweight1.boneIndices[0];
+                    floatArray[boneInfoPos+1] = boneweight1.boneIndices[1];
+                    floatArray[boneInfoPos+2] = 0;
+                    floatArray[boneInfoPos+3] = 0;
+                    floatArray[boneInfoPos+4] = boneweight1.boneWeights;;
+                    floatArray[boneInfoPos+5] = 1-boneweight1.boneWeights;;
+                    floatArray[boneInfoPos+6] = 0.0;
+                    floatArray[boneInfoPos+7] = 0.0;                    
                     break;
                 case 2: // BDEF4
                     let boneweight2 = curVert.boneWeight as PmxObject.Vertex.BoneWeight<typeof weightType>;
                     for (let j = 0; j < 4; j++) {
-                        boneIndicesArray[i * 4 + j] = boneweight2.boneIndices[j];
+                        floatArray[boneInfoPos + j] = boneweight2.boneIndices[j];
                     }
                     //这种情况下权重和不保证=1
                     for (let j = 0; j < 4; j++) {
-                        boneWeightsArray[i * 4 + j] = boneweight2.boneWeights[j];
+                        floatArray[boneInfoPos + 4 + j] = boneweight2.boneWeights[j];
                     }
                     break;
                 case 3: // SDEF
                     let boneweight3 = curVert.boneWeight as PmxObject.Vertex.BoneWeight<typeof weightType>;
                     console.log("SDEF weight type not fully supported");
                     // 简化处理SDEF，仅读取必要数据
-                    for (let j = 0; j < 2; j++) {
-                        boneIndicesArray[i * 4 + j] = boneweight3.boneIndices[j];
-                    }
-                    boneWeightsArray[i * 4] = boneweight3.boneWeights.boneWeight0;
-                    boneWeightsArray[i * 4 + 1] = 1 - boneWeightsArray[i * 4];
-                    boneweight3.boneWeights.c;
-                    boneweight3.boneWeights.r0;
-                    boneweight3.boneWeights.r1;
+                    // for (let j = 0; j < 2; j++) {
+                    //     boneIndicesArray[i * 4 + j] = boneweight3.boneIndices[j];
+                    // }
+                    // boneWeightsArray[i * 4] = boneweight3.boneWeights.boneWeight0;
+                    // boneWeightsArray[i * 4 + 1] = 1 - boneWeightsArray[i * 4];
+                    // boneweight3.boneWeights.c;
+                    // boneweight3.boneWeights.r0;
+                    // boneweight3.boneWeights.r1;
                     break;
                 case 4://QDEF
                     throw '2'
@@ -115,12 +126,16 @@ export function mmdToMesh(info: PmxObject): Mesh {
     }
     //index buffer
     const indexCount = info.indices.length;
-    // const indexData = new Uint16Array(indexCount);
-    // for (let i = 0; i < indexCount; i++) {
-    // }
+    const indexData = new Uint16Array(indexCount);
+    const indices = info.indices;
+    for (let i = 0; i < indexCount; i+=3) {
+        indexData[i] = indices[i];
+        indexData[i+1] = indices[i+2];
+        indexData[i+2] = indices[i+1];
+    }
 
     const indexBuffer = new IndexBuffer3D(IndexFormat.UInt16, indexCount, BufferUsage.Static, true);
-    indexBuffer.setData(info.indices);
+    indexBuffer.setData(indexData);
 
     mesh._indexBuffer = indexBuffer;
     mesh._indexFormat = IndexFormat.UInt16;
