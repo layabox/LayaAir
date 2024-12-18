@@ -66,8 +66,6 @@ export class LensFlareElementGeomtry extends GeometryElement {
 
     /**
      * @ignore
-     * @en Constructor method, initialize the instance.
-     * @zh 构造方法，初始化实例
      */
     constructor() {
         super(MeshTopology.Triangles, DrawType.DrawElementInstance);
@@ -75,9 +73,6 @@ export class LensFlareElementGeomtry extends GeometryElement {
         this._createBuffer();
     }
 
-    /**
-     * @internal
-     */
     private _createBuffer() {
         //VB
         this._vertexBuffer = Laya3DRender.renderOBJCreate.createVertexBuffer3D(LensFlareElementGeomtry.lensQuadVertices.length * 4, BufferUsage.Dynamic, false);
@@ -104,8 +99,6 @@ export class LensFlareElementGeomtry extends GeometryElement {
     }
 
     /**
-     *	{@inheritDoc PixelLineFilter._getType}
-     *	@override
      *  @internal
      */
     _getType(): number {

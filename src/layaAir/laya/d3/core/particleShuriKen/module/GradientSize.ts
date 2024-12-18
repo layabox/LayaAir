@@ -314,7 +314,7 @@ export class GradientSize implements IClone {
 	 * @param meshMode Indicates whether the calculation is for mesh mode.
 	 * @returns The maximum size found in the gradient.
 	 * @zh 获取渐变中的最大尺寸。
-	 * @param	meshMode 是否是网格模式
+	 * @param meshMode 是否是网格模式
 	 * @returns 返回渐变中找到的最大尺寸。
 	 */
 	getMaxSizeInGradient(meshMode: boolean = false): number {

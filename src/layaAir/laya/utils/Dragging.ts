@@ -206,7 +206,7 @@ export class Dragging {
 
     /**
      * 舞台的抬起事件侦听函数。
-     * @param	e Event 对象。
+     * @param e Event 对象。
      */
     private onStageMouseUp(e: Event): void {
         ILaya.stage.off(Event.MOUSE_UP, this, this.onStageMouseUp);

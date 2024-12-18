@@ -132,7 +132,7 @@ export class HTMLCanvas extends Resource {
     /**
      * @internal
      * 设置 Canvas 渲染上下文。是webgl用来替换_ctx用的
-     * @param	context Canvas 渲染上下文。
+     * @param context Canvas 渲染上下文。
      */
     _setContext(context: Context): void {
         this._ctx = context;
@@ -144,8 +144,8 @@ export class HTMLCanvas extends Resource {
      * @param other
      * @return The Canvas rendering context Context object.
      * @zh 获取 Canvas 渲染上下文。
-     * @param	contextID 上下文ID.
-     * @param	other
+     * @param contextID 上下文ID.
+     * @param other
      * @return  Canvas 渲染上下文 Context 对象。
      */
     getContext(contextID: string, other: any = null): Context {

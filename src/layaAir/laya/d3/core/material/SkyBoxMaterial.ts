@@ -78,7 +78,6 @@ export class SkyBoxMaterial extends Material {
 	}
 
 	/**
-	 * @override
 	 * @en Clone.
 	 * @returns Clone copy.
 	 * @zh 克隆。

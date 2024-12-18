@@ -24,8 +24,8 @@ export class SubShader {
      * 注册glsl所用到的Uniform
      * 会在生成Uniformmap的时候根据包含的Include文件，添加所需要的uniform因素
      * @param includeName 
-     * @param uniformInfo 
-     * @param defaultUniformData 
+     * @param uniformMap 
+     * @param defaultValue 
      */
     public static regIncludeBindUnifrom(includeName: string, uniformMap: { [name: string]: ShaderDataType }, defaultValue: { [key: string]: any }) {
         let obj: any = {};
@@ -76,8 +76,8 @@ export class SubShader {
 
     /**
      * 创建一个 <code>SubShader</code> 实例。
-     * @param	attributeMap  顶点属性表。
-     * @param	uniformMap  uniform属性表。
+     * @param attributeMap  顶点属性表。
+     * @param uniformMap  uniform属性表。
      */
     constructor(attributeMap: { [name: string]: [number, ShaderDataType] } = SubShader.DefaultAttributeMap, uniformMap: UniformMapType = {}, uniformDefaultValue: { [name: string]: ShaderDataItem } = null) {
         this.moduleData = LayaGL.unitRenderModuleDataFactory.createSubShader();
@@ -133,8 +133,7 @@ export class SubShader {
     /**
      * 添加着色器Pass
      * @param vs 
-     * @param ps 
-     * @param stateMap 
+     * @param ps
      * @param pipelineMode 渲染管线模式。 
      */
     addShaderPass(vs: string, ps: string, pipelineMode: string = "Forward"): ShaderPass {

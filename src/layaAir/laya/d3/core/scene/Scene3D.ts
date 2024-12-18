@@ -40,7 +40,6 @@ import { Color } from "../../../maths/Color";
 import { Vector3 } from "../../../maths/Vector3";
 import { Vector4 } from "../../../maths/Vector4";
 import { RenderTexture } from "../../../resource/RenderTexture";
-import { Laya3D } from "../../../../Laya3D";
 import { IPhysicsManager } from "../../../Physics3D/interface/IPhysicsManager";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { ISceneNodeData } from "../../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
@@ -51,6 +50,7 @@ import { RenderTexture2D } from "../../../resource/RenderTexture2D";
 import { BaseRender } from "../render/BaseRender";
 import { Viewport } from "../../../maths/Viewport";
 import { IElementComponentManager } from "../../../components/IScenceComponentManager";
+import { ILaya3D } from "../../../../ILaya3D";
 
 export enum FogMode {
     Linear = 0, //Linear
@@ -63,9 +63,7 @@ export enum FogMode {
  * @zh Scene3D类用于实现3D场景。
  */
 export class Scene3D extends Sprite {
-    /** @internal */
     private static _lightTexture: Texture2D;
-    /** @internal */
     private static _lightPixles: Float32Array;
     /** @internal */
     static _shadowCasterPass: ShadowCasterPass;
@@ -356,7 +354,7 @@ export class Scene3D extends Sprite {
     private _physicsStepTime: number = 0;
     /**@internal */
     _sunColor: Color = new Color(1.0, 1.0, 1.0);
-    /**@interanl */
+    /**@internal */
     _sundir: Vector3 = new Vector3();
     /**@internal*/
     _id = Scene3D.sceneID++;
@@ -672,7 +670,6 @@ export class Scene3D extends Sprite {
     }
 
     /**
-     * @override
      * @en The scene timer.
      * @zh 场景时钟。
      */
@@ -745,8 +742,8 @@ export class Scene3D extends Sprite {
         if (LayaEnv.isConch && (window as any).conchConfig.getGraphicsAPI() != 2) {
             this._nativeObj = new (window as any).conchSubmitScene3D(this.renderSubmit.bind(this));
         }
-        if (Laya3D.enablePhysics)
-            this._physicsManager = Laya3D.PhysicsCreateUtil.createPhysicsManger(Scene3D.physicsSettings);
+        if (ILaya3D.Laya3D.enablePhysics)
+            this._physicsManager = ILaya3D.Laya3D.PhysicsCreateUtil.createPhysicsManger(Scene3D.physicsSettings);
 
         this._shaderValues = LayaGL.renderDeviceFactory.createShaderData(null);
         this._shaderValues.addDefines(Shader3D._configDefineValues);
@@ -813,7 +810,7 @@ export class Scene3D extends Sprite {
             if (this._physicsStepTime > Scene3D.physicsSettings.fixedTimeStep) {
 
                 let physicsManager = this._physicsManager;
-                if (Laya3D.enablePhysics && Stat.enablePhysicsUpdate) {
+                if (ILaya3D.Laya3D.enablePhysics && Stat.enablePhysicsUpdate) {
                     physicsManager.update(this._physicsStepTime);
                 }
                 this._physicsStepTime = 0;
@@ -874,30 +871,17 @@ export class Scene3D extends Sprite {
         this._group = value;
     }
 
-    /**
-     * @internal
-     * @inheritDoc
-     * @override
-     */
     protected _onActive(): void {
         super._onActive();
         ILaya.stage._scene3Ds.push(this);
     }
 
-    /**
-     * @internal
-     * @inheritDoc
-     * @override
-     */
     protected _onInActive(): void {
         super._onInActive();
         var scenes: any[] = ILaya.stage._scene3Ds;
         scenes.splice(scenes.indexOf(this), 1);
     }
 
-    /**
-     * @internal
-     */
     private _prepareSceneToRender(): void {
         var shaderValues: ShaderData = this._shaderValues;
         var multiLighting: boolean = Config3D._multiLighting && Stat.enableMulLight;
@@ -1155,8 +1139,6 @@ export class Scene3D extends Sprite {
     }
 
     /**
-     * @inheritDoc
-     * @override
      * @en Destroys the scene.
      * @param destroyChild Whether to destroy the child node.
      * @zh 销毁场景。
@@ -1208,8 +1190,6 @@ export class Scene3D extends Sprite {
     }
 
     /**
-     * @inheritDoc
-     * @override
      * @internal
      */
     render(ctx: Context): void {
@@ -1296,11 +1276,11 @@ export class Scene3D extends Sprite {
     /**
      * @en Sets a global shader value for rendering.
      * @param name The name corresponding to the shader.
-     * @param shaderDataType The type of the shader data.
+     * @param type The type of the shader data.
      * @param value The value of the rendering data.
      * @zh 设置全局渲染着色器值。
      * @param name 数据对应着色器名字
-     * @param shaderDataType 渲染数据类型
+     * @param type 渲染数据类型
      * @param value 渲染数据值
      */
     setGlobalShaderValue(name: string, type: ShaderDataType, value: ShaderDataItem) {
@@ -1348,7 +1328,7 @@ export class Scene3D extends Sprite {
     /**
      * @deprecated
      * 获取光照贴图浅拷贝列表。
-     * @return 获取光照贴图浅拷贝列表。
+     * @returns 获取光照贴图浅拷贝列表。
      */
     getlightmaps(): Texture2D[] {
         var lightmapColors: Texture2D[] = new Array(this._lightmaps.length);

@@ -10,9 +10,7 @@ import { Vector3 } from "../../../../../maths/Vector3";
  * @zh ConeShape类用于创建锥形粒子发射器。
  */
 export class ConeShape extends BaseShape {
-	/** @internal */
 	protected static _tempPositionPoint: Vector2 = new Vector2();
-	/** @internal */
 	protected static _tempDirectionPoint: Vector2 = new Vector2();
 
 	/**
@@ -63,12 +61,6 @@ export class ConeShape extends BaseShape {
 		this.angle = deg / 180 * Math.PI;
 	}
 
-
-	/**
-	 * @inheritDoc
-	 * @override
-	 * @internal
-	 */
 	protected _getShapeBoundBox(boundBox: BoundBox): void {
 		const coneRadius2: number = this.radius + this.length * Math.sin(this.angle);
 		const coneLength: number = this.length * Math.cos(this.angle);
@@ -82,11 +74,6 @@ export class ConeShape extends BaseShape {
 		max.z = coneLength;//TODO:是否为负
 	}
 
-	/**
-	 * @inheritDoc
-	 * @override
-	 * @internal
-	 */
 	protected _getSpeedBoundBox(boundBox: BoundBox): void {
 		const sinA: number = Math.sin(this.angle);
 		var min: Vector3 = boundBox.min;
@@ -263,7 +250,6 @@ export class ConeShape extends BaseShape {
 	}
 
 	/**
-	 * @override
 	 * @en Clones to a target object.
 	 * @param destObject The target object to clone to.
 	 * @zh 克隆到目标对象。
@@ -279,7 +265,6 @@ export class ConeShape extends BaseShape {
 	}
 
 	/**
-	 * @override
 	 * @en Clone.
 	 * @returns Clone copy.
 	 * @zh 克隆。

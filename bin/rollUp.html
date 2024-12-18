@@ -18,38 +18,17 @@
 </head>
 
 <body>
-    <script defer src="import/es-module-shims.js" type='module'></script>
-    <script src="https://api.map.baidu.com/api?v=2.0&ak=LIhOlvWfdiPYMCsK5wsqlFQD8wW4Bfy6&s=1&callback=appendCode"></script>
-    <script type="importmap-shim">
-        {
-            "imports": {
-                
-            }, 
-            "secondBaseUrl": "/tsc/layaAir/",
-            "scopes": {
-                ".": {
-                    "laya/":"tsc/layaAir/laya/",
-                    "Laya3D":"tsc/layaAir/Laya3D.js",
-                    "Config3D":"tsc/layaAir/Config3D.js",
-                    "ILaya3D":"tsc/layaAir/ILaya3D.js",
-                    "Laya":"tsc/layaAir/Laya.js",
-                    "Config":"tsc/layaAir/Config.js",
-                    "ILaya":"tsc/layaAir/ILaya.js"
-                }
-            }
-        }
-    </script>
-    <script src='astar.js'></script>
     <script src='rollUp/laya.js'></script>
-    <script src='laya.physics3D.js'></script>
-    <!-- <script src='laya.physics3D.wasm.js'></script> -->
-    <!-- <script src ='physX/physx.release.js.js'></script> -->
-    <script src='laya.Box2D.js'></script>
-    <script src='spine-core-3.8.js'></script>
+    
+    <script src='jsLibs/bullet.js'></script>
+    <script src='jsLibs/laya.Box2D.js'></script>
+    <script src='jsLibs/spine-core-3.8.js'></script>
+
+    <script src='3rd/astar.js'></script>
+    <script src='3rd/webxr-polyfill.module.js' type='module'></script>
+
     <script src='rollUp/bundle.js'></script>
-    <script src='webxr-polyfill.module.js' type='module'></script>
-    <!-- <script src='laya.performancetool.js'></script> -->
-    <!-- <script src='meshopt_simplifier.js'></script> -->
+
 </body>
 
 </html>

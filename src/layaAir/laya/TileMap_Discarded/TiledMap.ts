@@ -199,13 +199,13 @@ export class TiledMap {
      * @param enableLinear Whether to enable linear sampling to improve texture quality.
      * @param limitRange Whether to restrict the map to the display area.
      * @zh 使用指定参数创建地图。
-     * @param	mapName 		JSON文件名字
-     * @param	viewRect 		视口区域
-     * @param	completeHandler 地图创建完成的回调函数
-     * @param	viewRectPadding 视口扩充区域，把视口区域上、下、左、右扩充一下，防止视口移动时的穿帮
-     * @param	gridSize 		grid大小
-     * @param	enableLinear 	是否开启线性取样（为false时，可以解决地图黑线的问题，但画质会锐化）
-     * @param	limitRange		把地图限制在显示区域
+     * @param mapName 		JSON文件名字
+     * @param viewRect 		视口区域
+     * @param completeHandler 地图创建完成的回调函数
+     * @param viewRectPadding 视口扩充区域，把视口区域上、下、左、右扩充一下，防止视口移动时的穿帮
+     * @param gridSize 		grid大小
+     * @param enableLinear 	是否开启线性取样（为false时，可以解决地图黑线的问题，但画质会锐化）
+     * @param limitRange		把地图限制在显示区域
      */
     createMap(mapName: string, viewRect: Rectangle, completeHandler: Handler, viewRectPadding: Rectangle = null, gridSize: Point = null, enableLinear: boolean = true, limitRange: boolean = false): void {
         this._enableLinear = enableLinear;
@@ -244,7 +244,7 @@ export class TiledMap {
      * @en Parse the texture data inside the JSON file after successful reading, and start loading.
      * @param tJsonData The JSON data.
      * @zh JSON文件读取成功后，解析里面的纹理数据，进行加载。
-     * @param	tJsonData JSON数据
+     * @param tJsonData JSON数据
      */
     private onJsonComplete(tJsonData: any): void {
         this._mapSprite = new Sprite();
@@ -315,8 +315,8 @@ export class TiledMap {
      * @param relativePath The relative path to merge with the base path.
      * @returns The resolved path.
      * @zh 合并路径。
-     * @param	resPath 基础资源路径
-     * @param	relativePath 相对路径
+     * @param resPath 基础资源路径
+     * @param relativePath 相对路径
      * @return 解析后的路径
      */
     private mergePath(resPath: string, relativePath: string): string {
@@ -362,7 +362,7 @@ export class TiledMap {
      * @en Handle the completion of texture loading. If all textures are loaded, begin initializing the map.
      * @param tTexture The loaded texture.
      * @zh 纹理加载完成的处理。如果所有纹理都加载完成，开始初始化地图。
-     * @param	tTexture 纹理数据
+     * @param tTexture 纹理数据
      */
     private onTextureComplete(tTexture: Texture): void {
         var json: any = this._jsonData;
@@ -534,9 +534,9 @@ export class TiledMap {
      * @param defaultV The default value to return if the specified user data does not exist.
      * @returns The retrieved user data or the default value if not found.
      * @zh 根据地块的ID和标识符检索与之关联的用户数据，并可选择提供默认值。
-     * @param	id 地块的唯一ID
-     * @param	sign 用户数据在地块数据中的标识符
-     * @param	defaultV 默认值，如果指定的用户数据不存在则返回
+     * @param id 地块的唯一ID
+     * @param sign 用户数据在地块数据中的标识符
+     * @param defaultV 默认值，如果指定的用户数据不存在则返回
      * @return 得到的用户数据或默认值
      */
     getTileUserData(id: number, sign: string, defaultV: any = null): any {
@@ -590,7 +590,7 @@ export class TiledMap {
      * @param index The index of the texture. Default to starting from 1.
      * @returns The TileTexSet object at the specified index, or null if not found.
      * @zh 通过索引值获取一块指定的地图纹理，默认索引从1开始。
-     * @param	index 纹理的索引值。
+     * @param index 纹理的索引值。
      * @return 索引处的TileTexSet对象，如果没有找到则返回null
      */
     getTexture(index: number): TileTexSet {
@@ -605,7 +605,7 @@ export class TiledMap {
      * @param name The name of the property to retrieve.
      * @returns The value of the specified property, or null if not found.
      * @zh 获取地图的自定义属性。
-     * @param	name	属性名称
+     * @param name	属性名称
      * @return 得到的属性值，如果没有找到则返回null
      */
     getMapProperties(name: string): any {
@@ -622,9 +622,9 @@ export class TiledMap {
      * @param name The name of the property to retrieve.
      * @returns The value of the specified property for the given tile, or null if not found.
      * @zh 获取tile的自定义属性。
-     * @param	index	地图块索引
-     * @param	id		具体的TileSetID 
-     * @param	name	属性名称
+     * @param index	地图块索引
+     * @param id		具体的TileSetID 
+     * @param name	属性名称
      * @returns 给定tile的指定属性值，如果没有找到则返回null
      */
     getTileProperties(index: number, id: number, name: string): any {
@@ -641,9 +641,9 @@ export class TiledMap {
      * @param height The height of the sprite.
      * @returns The created GridSprite object, or null if not created.
      * @zh 通过纹理索引生成一个可控制物件。
-     * @param	index	纹理索引，默认从1开始
-     * @param	width		精灵的宽
-     * @param	height		精灵的高
+     * @param index	纹理索引，默认从1开始
+     * @param width		精灵的宽
+     * @param height		精灵的高
      * @returns 生成的GridSprite对象，如果没有生成则返回null
      */
     getSprite(index: number, width: number, height: number): GridSprite {
@@ -675,8 +675,8 @@ export class TiledMap {
      * @param scaleX The horizontal scale value for the pivot point.
      * @param scaleY The vertical scale value for the pivot point.
      * @zh 根据缩放值设置视口的缩放中心点，例如：scaleX= scaleY= 0.5 表示以视口中心缩放。
-     * @param	scaleX	水平缩放值
-     * @param	scaleY	垂直缩放值
+     * @param scaleX	水平缩放值
+     * @param scaleY	垂直缩放值
      */
     setViewPortPivotByScale(scaleX: number, scaleY: number): void {
         this._pivotScaleX = scaleX;
@@ -687,7 +687,7 @@ export class TiledMap {
      * @en Set the map's scale, which affects the size of the map within the viewport.
      * @param scale The new scale value. Scale less than or equal to zero will be ignored.
      * @zh 设置地图缩放，影响地图在视口中的大小。
-     * @param	scale	新的缩放值，小于等于0的缩放值将被忽略
+     * @param scale	新的缩放值，小于等于0的缩放值将被忽略
      */
     set scale(scale: number) {
         if (scale <= 0)
@@ -712,8 +712,8 @@ export class TiledMap {
      * @param moveX The new x-coordinate for the viewport.
      * @param moveY The new y-coordinate for the viewport.
      * @zh 移动视口到新的位置。
-     * @param	moveX	视口的新x坐标
-     * @param	moveY	视口的新y坐标
+     * @param moveX	视口的新x坐标
+     * @param moveY	视口的新y坐标
      */
     moveViewPort(moveX: number, moveY: number): void {
         this._x = -moveX;
@@ -731,10 +731,10 @@ export class TiledMap {
      * @param width The new width of the viewport.
      * @param height The new height of the viewport.
      * @zh 改变视口的大小和/或位置。
-     * @param	moveX	视口的坐标x
-     * @param	moveY	视口的坐标y
-     * @param	width	视口的宽
-     * @param	height	视口的高
+     * @param moveX	视口的坐标x
+     * @param moveY	视口的坐标y
+     * @param width	视口的宽
+     * @param height	视口的高
      */
     changeViewPort(moveX: number, moveY: number, width: number, height: number): void {
         if (moveX == this._rect.x && moveY == this._rect.y && width == this._rect.width && height == this._rect.height) return;
@@ -756,9 +756,9 @@ export class TiledMap {
      * @param rect The Rectangle object to store the result (optional).
      * @returns The resulting Rectangle with the new viewport dimensions and position.
      * @zh 基于锚点计算，通过宽和高来重新计算视口。
-     * @param	width		新视口宽
-     * @param	height		新视口高
-     * @param	rect		返回的结果
+     * @param width		新视口宽
+     * @param height		新视口高
+     * @param rect		返回的结果
      * @returns	返回的Rectangle对象，包含新的视口的宽高和位置
      */
     changeViewPortBySize(width: number, height: number, rect: Rectangle = null): Rectangle {
@@ -944,8 +944,8 @@ export class TiledMap {
      * @param gridX The X-coordinate of the grid.
      * @param gridY The Y-coordinate of the grid.
      * @zh 显示地图中指定的网格。
-     * @param	gridX	网格的X坐标
-     * @param	gridY	网格的Y坐标
+     * @param gridX	网格的X坐标
+     * @param gridY	网格的Y坐标
      */
     private showGrid(gridX: number, gridY: number): void {
         if (gridX < 0 || gridX >= this._gridW || gridY < 0 || gridY >= this._gridH) {
@@ -990,7 +990,7 @@ export class TiledMap {
      * @en Cache an array of grids by rendering them to an off-screen canvas.
      * @param arr An array of GridSprite objects to cache.
      * @zh 通过将网格渲染到离屏画布上来缓存网格数组。
-     * @param	arr	要缓存的GridSprite数组。
+     * @param arr	要缓存的GridSprite数组。
      */
     private cacheGridsArray(arr: any[]): void {
         var canvas: any;
@@ -1028,8 +1028,8 @@ export class TiledMap {
      * @param gridY The Y-coordinate of the grid position.
      * @returns An array of grid sprites for the specified grid position.
      * @zh 检索或初始化地图中特定网格位置的网格精灵数组。
-     * @param	gridX	网格位置的X坐标
-     * @param	gridY	网格位置的Y坐标
+     * @param gridX	网格位置的X坐标
+     * @param gridY	网格位置的Y坐标
      * @return	指定网格位置的网格精灵数组
      */
     private getGridArray(gridX: number, gridY: number): any[] {
@@ -1238,8 +1238,8 @@ export class TiledMap {
      * @param gridX The X-coordinate of the grid to hide.
      * @param gridY The Y-coordinate of the grid to hide.
      * @zh 隐藏地图中指定的网格。
-     * @param	gridX	要隐藏的网格的X坐标
-     * @param	gridY	要隐藏的网格的Y坐标
+     * @param gridX	要隐藏的网格的X坐标
+     * @param gridY	要隐藏的网格的Y坐标
      */
     private hideGrid(gridX: number, gridY: number): void {
         if (gridX < 0 || gridX >= this._gridW || gridY < 0 || gridY >= this._gridH) {
@@ -1265,8 +1265,8 @@ export class TiledMap {
      * @param objectName The name of the object to find.
      * @returns The GridSprite object if found, or null if not found.
      * @zh 根据名称从特定层中获取一个对象。
-     * @param	layerName	物体所在层的名称
-     * @param	objectName	要查找的物体的名称
+     * @param layerName	物体所在层的名称
+     * @param objectName	要查找的物体的名称
      * @return	找到的GridSprite对象，如果没找到则返回null
      */
     getLayerObject(layerName: string, objectName: string): GridSprite {

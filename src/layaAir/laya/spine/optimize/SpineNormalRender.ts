@@ -1,5 +1,4 @@
 import { BaseRenderNode2D } from "../../NodeRender2D/BaseRenderNode2D";
-import { Sprite } from "../../display/Sprite";
 import { Color } from "../../maths/Color";
 import { Spine2DRenderNode } from "../Spine2DRenderNode";
 import { SpineAdapter } from "../SpineAdapter";
@@ -35,7 +34,7 @@ export class SpineNormalRender implements ISpineOptimizeRender {
     }
     /** @internal */
     _owner: Spine2DRenderNode;
-    /** @ineternal */
+    /** @internal */
     _renerer: ISpineRender;
     /** @internal */
     _skeleton: spine.Skeleton;

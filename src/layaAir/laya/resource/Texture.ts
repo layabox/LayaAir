@@ -126,16 +126,16 @@ export class Texture extends Resource {
     /**
      * @internal
      * 根据指定资源和坐标、宽高、偏移量等创建 <code>Texture</code> 对象。
-     * @param	source 绘图资源 Texture2D 或者 Texture 对象。
-     * @param	x 起始绝对坐标 x 。
-     * @param	y 起始绝对坐标 y 。
-     * @param	width 宽绝对值。
-     * @param	height 高绝对值。
-     * @param	offsetX X 轴偏移量（可选）。
-     * @param	offsetY Y 轴偏移量（可选）。
-     * @param	sourceWidth 原始宽度，包括被裁剪的透明区域（可选）。
-     * @param	sourceHeight 原始高度，包括被裁剪的透明区域（可选）。
-     * @param	outTexture 返回的Texture对象。
+     * @param source 绘图资源 Texture2D 或者 Texture 对象。
+     * @param x 起始绝对坐标 x 。
+     * @param y 起始绝对坐标 y 。
+     * @param width 宽绝对值。
+     * @param height 高绝对值。
+     * @param offsetX X 轴偏移量（可选）。
+     * @param offsetY Y 轴偏移量（可选）。
+     * @param sourceWidth 原始宽度，包括被裁剪的透明区域（可选）。
+     * @param sourceHeight 原始高度，包括被裁剪的透明区域（可选）。
+     * @param outTexture 返回的Texture对象。
      * @return  <code>Texture</code> 对象。
      */
     static _create(source: Texture | BaseTexture, x: number, y: number, width: number, height: number,
@@ -289,11 +289,15 @@ export class Texture extends Resource {
 
     /**
      * @en Creates an instance of Texture class.
-     * @param bitmap Bitmap resource.
+     * @param source Bitmap resource.
      * @param uv UV data information.
+     * @param sourceWidth Original width of the texture.
+     * @param sourceHeight Original height of the texture.
      * @zh 创建 Texture 类的新实例
-     * @param bitmap 位图资源。
+     * @param source 位图资源。
      * @param uv UV 数据信息。
+     * @param sourceWidth 纹理原始宽度。
+     * @param sourceHeight 纹理原始高度。
      */
     constructor(source: Texture | BaseTexture = null, uv: ArrayLike<number> = null,
         sourceWidth: number = 0, sourceHeight: number = 0) {

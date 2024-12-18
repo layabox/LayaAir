@@ -10,6 +10,7 @@ export class DirectionLight2D extends BaseLight2D {
     private _directionAngle: number = 0; //灯光角度
     private _directionVector: Vector2 = new Vector2(1, 0); //灯光角度矢量
 
+    /**@ignore */
     constructor(directionAngle: number = 0) {
         super();
         this._type = Light2DType.Direction;
@@ -83,7 +84,6 @@ export class DirectionLight2D extends BaseLight2D {
     }
 
     /**
-     * @internal
      * 计算灯光范围（局部坐标）
      */
     protected _calcLocalRange() {
@@ -96,7 +96,6 @@ export class DirectionLight2D extends BaseLight2D {
     }
 
     /**
-     * @internal
      * 计算灯光范围（世界坐标）
      * @param screen 屏幕位置和尺寸
      */

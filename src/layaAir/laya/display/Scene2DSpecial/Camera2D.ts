@@ -1,4 +1,4 @@
-import { Laya } from "../../../Laya";
+import { ILaya } from "../../../ILaya";
 import { LayaGL } from "../../layagl/LayaGL";
 import { Matrix3x3 } from "../../maths/Matrix3x3";
 import { Point } from "../../maths/Point";
@@ -32,41 +32,23 @@ export class Camera2D extends Sprite {
     static VIEW2D: number;
     /**@internal */
     static SHADERDEFINE_CAMERA2D: ShaderDefine;
-    /**@internal */
     private _cameraPos: Vector2 = new Vector2();
-    /**@internal */
     private _cameraSmoothPos: Vector2 = new Vector2();
-    /**@internal */
     private _firstUpdate: boolean = true;
-    /**@internal */
     private _cameraMatrix: Matrix3x3 = new Matrix3x3();
-    /**@internal */
     private _cameraInvertMatrix: Matrix3x3 = new Matrix3x3();
-    /**@internal */
     private _ignoreRotation: boolean = true;
-    /**@internal */
     private _limit_Left: number;
-    /**@internal */
     private _limit_Right: number;
-    /**@internal */
     private _limit_Bottom: number;
-    /**@internal */
     private _limit_Top: number;
-    /**@internal */
     private _dragHorizontalEnable: boolean;
-    /**@internal */
     private _dragVerticalEnable: boolean;
-    /**@internal */
     private _drag_Left: number;//0-1
-    /**@internal */
     private _drag_Right: number;
-    /**@internal */
     private _drag_Top: number;
-    /**@internal */
     private _drag_Bottom: number;
-    /**@internal */
     private _positionSmooth: boolean;
-    /**@internal */
     private _positionSpeed: number;//
     /**@internal TODO*/
     _renderTarget: RenderTexture;
@@ -131,7 +113,7 @@ export class Camera2D extends Sprite {
     private _findOwenrArea() {
         let ele = this as any;
         while (ele) {
-            if (ele === this._scene || ele === Laya.stage) break;
+            if (ele === this._scene || ele === ILaya.stage) break;
             if (ele instanceof Area2D) {
                 this._ownerArea = ele;
                 if (this._isMain && !this._ownerArea.mainCamera)
@@ -257,6 +239,7 @@ export class Camera2D extends Sprite {
      * visiableLayer渲染层功能
      * zoom功能
      * RenderTarget功能
+     * @ignore
      */
     constructor() {
         super();

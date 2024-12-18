@@ -320,7 +320,6 @@ export class pxCollider implements ICollider {
     }
 
     /**
-     * {@inheritDoc ICollider.setWorldTransform }
      * @en Sets the world transform of the collider.
      * @param focus Whether to force update even if no change is detected.
      * @zh 设置碰撞器的世界变换。

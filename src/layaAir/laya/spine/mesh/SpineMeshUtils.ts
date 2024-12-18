@@ -23,18 +23,18 @@ export class SpineMeshUtils{
 
     /**
      * @en Creates a Mesh2D object for Spine rendering
-     * @param type: The Spine render type
-     * @param vbCreator: Vertex buffer creator
-     * @param ibCreator: Index buffer creator  
-     * @param isDynamic: Whether the mesh is dynamic
-     * @param uploadBuffer: Whether to upload buffer data
+     * @param type The Spine render type
+     * @param vbCreator Vertex buffer creator
+     * @param ibCreator Index buffer creator  
+     * @param isDynamic Whether the mesh is dynamic
+     * @param uploadBuffer Whether to upload buffer data
      * @returns The created Mesh2D object
      * @zh 创建用于 Spine 渲染的 Mesh2D 对象
-     * @param type: Spine 渲染类型
-     * @param vbCreator: 顶点缓冲区创建器
-     * @param ibCreator: 索引缓冲区创建器
-     * @param isDynamic: 是否为动态网格
-     * @param uploadBuffer: 是否上传缓冲区数据
+     * @param type Spine 渲染类型
+     * @param vbCreator 顶点缓冲区创建器
+     * @param ibCreator 索引缓冲区创建器
+     * @param isDynamic 是否为动态网格
+     * @param uploadBuffer 是否上传缓冲区数据
      * @returns 创建的 Mesh2D 对象
      */
     static createMesh(type: ESpineRenderType, vbCreator: VBCreator, ibCreator: IBCreator, isDynamic: boolean = false, uploadBuffer: boolean = true): Mesh2D {

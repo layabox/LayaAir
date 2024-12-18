@@ -151,7 +151,6 @@ export class FreeformLight2D extends BaseLight2D {
     }
 
     /**
-     * @internal
      * 响应矩阵改变
      */
     protected _transformChange() {
@@ -160,7 +159,6 @@ export class FreeformLight2D extends BaseLight2D {
     }
 
     /**
-     * @internal
      * 计算灯光范围（局部坐标）
      */
     protected _calcLocalRange() {
@@ -193,7 +191,6 @@ export class FreeformLight2D extends BaseLight2D {
     }
 
     /**
-     * @internal
      * 计算灯光范围（世界坐标）
      * @param screen 屏幕位置和尺寸
      */
@@ -290,7 +287,6 @@ export class FreeformLight2D extends BaseLight2D {
     }
 
     /**
-     * @internal
      * 限制参数范围
      */
     private _limitParam() {
@@ -298,7 +294,6 @@ export class FreeformLight2D extends BaseLight2D {
     }
 
     /**
-     * @internal
      * 创建灯光多边形网格
      * @param expand 
      * @param arcSegments 
@@ -421,7 +416,6 @@ export class FreeformLight2D extends BaseLight2D {
     }
 
     /**
-     * @internal
      * 耳切法三角化凹多边形
      * @param polygon 
      */
@@ -461,7 +455,6 @@ export class FreeformLight2D extends BaseLight2D {
     }
 
     /**
-     * @internal
      * 是否耳尖
      * @param vertices 
      * @param indices 
@@ -480,7 +473,6 @@ export class FreeformLight2D extends BaseLight2D {
     }
 
     /**
-     * @internal
      * 是否包含其他顶点
      * @param vertices 
      * @param indices 
@@ -518,7 +510,6 @@ export class FreeformLight2D extends BaseLight2D {
     }
 
     /**
-     * @internal
      * 销毁
      */
     protected _onDestroy() {

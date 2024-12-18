@@ -17,17 +17,11 @@ export class Script extends Component {
      * @zh 脚本所属精灵
      */
     declare owner: Sprite | Sprite3D;
-
-    /**
-
-     * @override
-     */
     _isScript(): boolean {
         return true;
     }
 
     /**
-     * @internal
      * 设置脚本
      */
     protected setupScript(): void {

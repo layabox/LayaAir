@@ -35,11 +35,11 @@ export class BasePoly {
 
     /**
      * 构造线的三角形数据。根据一个位置数组生成vb和ib
-     * @param	p
-     * @param	indices
-     * @param	lineWidth
-     * @param	indexBase				顶点开始的值，ib中的索引会加上这个
-     * @param	outVertex
+     * @param p
+     * @param indices
+     * @param lineWidth
+     * @param indexBase				顶点开始的值，ib中的索引会加上这个
+     * @param outVertex
      * @return
      */
     static createLine2(p: any[], indices: any[], lineWidth: number, indexBase: number, outVertex: any[], loop: boolean): any[] {
@@ -208,13 +208,13 @@ export class BasePoly {
      * 当采用左左右右交点的时候，直接用切线的垂线。采用左右左右的时候，用切线
      * 切线直接采用两个方向的平均值。不能用3-1的方式，那样垂线和下一段可能都在同一方向（例如都在右方）
      * 注意把重合的点去掉
-     * @param	path
-     * @param	color
-     * @param	width
-     * @param	loop
-     * @param	outvb
-     * @param	vbstride  顶点占用几个float,(bytelength/4)
-     * @param	outib
+     * @param path
+     * @param color
+     * @param width
+     * @param loop
+     * @param outvb
+     * @param vbstride  顶点占用几个float,(bytelength/4)
+     * @param outib
      * test:
      * 横线
      * [100,100, 400,100]

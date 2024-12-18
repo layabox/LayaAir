@@ -55,8 +55,10 @@ export class pxColliderShape implements IColliderShape {
     _id: number;
 
     /**
-     * @en Filter data for collision and query. [0]: group, [1]: mask, [2]: event
-     * @zh 碰撞和查询的过滤数据。[0]: 组, [1]: 掩码, [2]: 事件
+     * @en Filter data for collision and query. 
+     * - 0: group, 1: mask, 2: event
+     * @zh 碰撞和查询的过滤数据。
+     * - 0]: 组, 1: 掩码, 2: 事件
      */
     filterData: pxFilterData = { word0: Physics3DUtils.PHYSXDEFAULTMASKVALUE, word1: Physics3DUtils.PHYSXDEFAULTMASKVALUE, word2: 0, word3: 0 };//PxFilterData
 
@@ -64,9 +66,6 @@ export class pxColliderShape implements IColliderShape {
     constructor() {
 
     }
-    /**
-     * @override
-     */
     protected _createShape() {
         this._id = pxColliderShape._pxShapeID++;
         this._pxMaterials[0] = new pxPhysicsMaterial();

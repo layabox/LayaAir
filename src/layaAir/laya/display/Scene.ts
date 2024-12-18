@@ -11,7 +11,6 @@ import { Context } from "../renders/Context";
 import { CommandUniformMap } from "../RenderDriver/DriverDesign/RenderDevice/CommandUniformMap";
 import { Scene2DSpecialManager } from "./Scene2DSpecial/Scene2DSpecialManager";
 import { Render2DSimple } from "../renders/Render2D";
-import { Laya, stage } from "../../Laya";
 import { BaseRenderNode2D } from "../NodeRender2D/BaseRenderNode2D";
 import { HierarchyLoader } from "../loaders/HierarchyLoader";
 import { TransformKind } from "./SpriteConst";
@@ -131,7 +130,7 @@ export class Scene extends Sprite {
     }
 
     _update() {
-        var delta: number = Laya.timer.delta * 0.001;
+        var delta: number = ILaya.timer.delta * 0.001;
         this._specialManager.componentElementMap.forEach((value) => {
             value.update(delta);
         });
@@ -469,15 +468,15 @@ export class Scene extends Sprite {
     protected _onAdded(): void {
         super._onAdded();
         if (this.displayedInStage) {
-            stage._scene2Ds.push(this);
+            ILaya.stage._scene2Ds.push(this);
         }
     }
 
     protected _onRemoved(): void {
         super._onRemoved();
         if (this.displayedInStage) {
-            let index = stage._scene2Ds.indexOf(this);
-            stage._scene2Ds.splice(index, 1);
+            let index = ILaya.stage._scene2Ds.indexOf(this);
+            ILaya.stage._scene2Ds.splice(index, 1);
         }
     }
 

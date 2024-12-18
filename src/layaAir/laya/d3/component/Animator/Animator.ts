@@ -46,21 +46,15 @@ export class Animator extends Component {
      */
     static CULLINGMODE_CULLCOMPLETELY: number = 2;
 
-    /**@internal */
     private _speed: number;
-    /**@internal */
     private _keyframeNodeOwnerMap: any;
-    /**@internal */
     private _keyframeNodeOwners: KeyframeNodeOwner[] = [];
-    /**@internal */
     private _updateMark: number;
-    /**@internal */
     private _controllerLayers: AnimatorControllerLayer[];
-    /**@internal 更新模式*/
+    /** 更新模式*/
     private _updateMode: AnimatorUpdateMode = AnimatorUpdateMode.Normal;
-    /**@internal 降低更新频率调整值*/
+    /** 降低更新频率调整值*/
     private _lowUpdateDelty: number = 20;
-    /**@internal */
     private _animatorParams: AnimatorParams = {};
     // /**@internal */
     // _linkSprites: any;
@@ -87,7 +81,6 @@ export class Animator extends Component {
     _animationNodeWorldMatrixs: Float32Array;
     /**@internal	[NATIVE]*/
     _animationNodeParentIndices: Int16Array;
-    /**@internal */
     private _finishSleep: boolean = false;
 
     private _LateUpdateEvents: Delegate = new Delegate();
@@ -176,6 +169,7 @@ export class Animator extends Component {
     }
 
     /**
+     * @ignore
      * @en The constructor of Animator.
      * @zh 构造方法，创建动画组件。
      */
@@ -187,10 +181,6 @@ export class Animator extends Component {
         this._keyframeNodeOwnerMap = {};
         this._updateMark = 0;
     }
-
-    /**
-     * @internal
-     */
     private _addKeyframeNodeOwner(clipOwners: KeyframeNodeOwner[], node: KeyframeNode, propertyOwner: any): void {
         var nodeIndex = node._indexInList;
         var fullPath = node.fullPath;
@@ -298,9 +288,6 @@ export class Animator extends Component {
         }
     }
 
-    /**
-     * @internal
-     */
     private _updatePlayer(animatorState: AnimatorState, playState: AnimatorPlayState, elapsedTime: number, islooping: boolean, layerIndex: number): void {
         var clipDuration: number = animatorState._clip!._duration * (animatorState.clipEnd - animatorState.clipStart);
         var lastElapsedTime: number = playState._elapsedTime;
@@ -353,7 +340,6 @@ export class Animator extends Component {
     }
 
     /**
-     * @internal
      * @param animatorState 
      * @param playState 
      */
@@ -363,9 +349,6 @@ export class Animator extends Component {
         }
     }
 
-    /**
-     * @internal
-     */
     private _updateEventScript(stateInfo: AnimatorState, playStateInfo: AnimatorPlayState): void {
         if (!this.owner._getBit(NodeFlags.HAS_SCRIPT))
             return;
@@ -385,9 +368,6 @@ export class Animator extends Component {
         this._eventScript(events, parentPlayTime, time);
         playStateInfo._parentPlayTime = time;
     }
-    /**
-    * @internal
-    */
     private _eventScript(events: AnimationEvent[], parentPlayTime: number, currPlayTime: number) {
         let scripts = this.owner.components;
         for (let i = 0, len = events.length; i < len; i++) {
@@ -408,7 +388,6 @@ export class Animator extends Component {
 
     /**
      * 更新clip数据
-     * @internal
      */
     private _updateClipDatas(animatorState: AnimatorState, addtive: boolean, playStateInfo: AnimatorPlayState, animatorMask: AvatarMask = null): void {
         var clip = animatorState._clip;
@@ -420,9 +399,6 @@ export class Animator extends Component {
         clip!._evaluateClipDatasRealTime(clip!._nodes!, curPlayTime, currentFrameIndices!, addtive, frontPlay, animatorState._realtimeDatas, animatorMask);
     }
 
-    /**
-     * @internal
-     */
     private _applyFloat(defaultValue: number, nodeOwner: KeyframeNodeOwner, additive: boolean, weight: number, isFirstLayer: boolean, data: number): number {
         if (nodeOwner.updateMark === this._updateMark) {//一定非第一层
             if (additive) {
@@ -610,9 +586,6 @@ export class Animator extends Component {
         return defaultValue;
     }
 
-    /**
-     * @internal
-     */
     private _applyPositionAndRotationEuler(nodeOwner: KeyframeNodeOwner, additive: boolean, weight: number, isFirstLayer: boolean, data: Vector3, out: Vector3): void {
         if (nodeOwner.updateMark === this._updateMark) {//一定非第一层
             if (additive) {
@@ -657,9 +630,6 @@ export class Animator extends Component {
         }
     }
 
-    /**
-     * @internal
-     */
     private _applyRotation(nodeOwner: KeyframeNodeOwner, additive: boolean, weight: number, isFirstLayer: boolean, clipRot: Quaternion, localRotation: Quaternion): void {
         if (nodeOwner.updateMark === this._updateMark) {//一定非第一层
             if (additive) {
@@ -693,9 +663,6 @@ export class Animator extends Component {
         }
     }
 
-    /**
-     * @internal
-     */
     private _applyScale(nodeOwner: KeyframeNodeOwner, additive: boolean, weight: number, isFirstLayer: boolean, clipSca: Vector3, localScale: Vector3): void {
         if (nodeOwner.updateMark === this._updateMark) {//一定非第一层
             if (additive) {
@@ -732,9 +699,6 @@ export class Animator extends Component {
         }
     }
 
-    /**
-     * @internal
-     */
     private _applyCrossData(nodeOwner: KeyframeNodeOwner, additive: boolean, weight: number, isFirstLayer: boolean, srcValue: any, desValue: any, crossWeight: number): void {
         var pro: any = nodeOwner.propertyOwner;
         let lastpro;
@@ -1033,9 +997,6 @@ export class Animator extends Component {
         }
     }
 
-    /**
-     * @internal
-     */
     private _setCrossClipDatasToNode(controllerLayer: AnimatorControllerLayer, srcState: AnimatorState, destState: AnimatorState, crossWeight: number, isFirstLayer: boolean): void {
         var nodeOwners: KeyframeNodeOwner[] = controllerLayer._crossNodesOwners;
         var ownerCount: number = controllerLayer._crossNodesOwnersCount;
@@ -1070,10 +1031,6 @@ export class Animator extends Component {
 
     }
 
-
-    /**
-     * @internal
-     */
     private _setFixedCrossClipDatasToNode(controllerLayer: AnimatorControllerLayer, destState: AnimatorState, crossWeight: number, isFirstLayer: boolean): void {
         var nodeOwners: KeyframeNodeOwner[] = controllerLayer._crossNodesOwners;
         var ownerCount: number = controllerLayer._crossNodesOwnersCount;
@@ -1098,9 +1055,6 @@ export class Animator extends Component {
         }
     }
 
-    /**
-     * @internal
-     */
     private _revertDefaultKeyframeNodes(clipStateInfo: AnimatorState): void {
         var nodeOwners: KeyframeNodeOwner[] = clipStateInfo._nodeOwners;
         for (var i: number = 0, n: number = nodeOwners.length; i < n; i++) {
@@ -1259,10 +1213,6 @@ export class Animator extends Component {
         }
     }
 
-    /**
-     * @internal
-     * @protected
-     */
     protected _onEnable(): void {
         for (let i = 0, n = this._controllerLayers.length; i < n; i++) {
             if (this._controllerLayers[i].playOnWake) {
@@ -1272,10 +1222,6 @@ export class Animator extends Component {
         }
     }
 
-    /**
-     * @internal
-     * @protected
-     */
     protected _onDestroy() {
         for (let i = 0, n = this._controllerLayers.length; i < n; i++)
             this._controllerLayers[i]._removeReference();
@@ -1439,7 +1385,6 @@ export class Animator extends Component {
 
     /**
      * @internal
-     * @override
      */
     _cloneTo(dest: Animator): void {
         dest.cullingMode = this.cullingMode;
@@ -1463,7 +1408,7 @@ export class Animator extends Component {
      * @param layerIndex The layer index.
      * @returns The default animation state.
      * @zh 获取默认动画状态。
-     * @param	layerIndex 层索引。
+     * @param layerIndex 层索引。
      * @return 默认动画状态。
      */
     getDefaultState(layerIndex: number = 0): AnimatorState {
@@ -1476,7 +1421,7 @@ export class Animator extends Component {
      * @param state The animation state to add.
      * @param layerIndex The layer index. 
      * @zh 添加动画状态。
-     * @param	state 动画状态。
+     * @param state 动画状态。
      * @param   layerIndex 层索引。
      */
     addState(state: AnimatorState, layerIndex: number = 0): void {
@@ -1490,7 +1435,7 @@ export class Animator extends Component {
      * @param state The animation state to remove.
      * @param layerIndex The layer index.
      * @zh 移除动画状态。
-     * @param	state 动画状态。
+     * @param state 动画状态。
      * @param   layerIndex 层索引。
      */
     removeState(state: AnimatorState, layerIndex: number = 0): void {
@@ -1519,11 +1464,11 @@ export class Animator extends Component {
      * @param layerIndex The layer index. Defaults to 0.
      * @returns The AnimatorControllerLayer at the specified index.
      * @zh 获取控制器层。
-     * @param	layerIndex 层索引。
+     * @param layerIndex 层索引。
      * @return 指定索引处的AnimatorControllerLayer。
      */
-    getControllerLayer(layerInex: number = 0): AnimatorControllerLayer {
-        return this._controllerLayers[layerInex];
+    getControllerLayer(layerIndex: number = 0): AnimatorControllerLayer {
+        return this._controllerLayers[layerIndex];
     }
 
     /**
@@ -1532,9 +1477,9 @@ export class Animator extends Component {
      * @param layerIndex The layer index. Defaults to 0.
      * @param normalizedTime The normalized start time of the animation. Defaults to Number.NEGATIVE_INFINITY.
      * @zh 播放动画。
-     * @param	name 如果为null则播放默认动画，否则按名字播放动画片段。
-     * @param	layerIndex 层索引。
-     * @param	normalizedTime 归一化的播放起始时间。
+     * @param name 如果为null则播放默认动画，否则按名字播放动画片段。
+     * @param layerIndex 层索引。
+     * @param normalizedTime 归一化的播放起始时间。
      */
     play(name: string | null = null, layerIndex: number = 0, normalizedTime: number = Number.NEGATIVE_INFINITY): void {
         var controllerLayer: AnimatorControllerLayer = this._controllerLayers[layerIndex];
@@ -1585,10 +1530,10 @@ export class Animator extends Component {
      * @param layerIndex The layer index. Defaults to 0.
      * @param normalizedTime The normalized start time of the animation. Defaults to Number.NEGATIVE_INFINITY.
      * @zh 在当前动画状态和目标动画状态之间进行融合过渡播放。
-     * @param	name 目标动画状态。
-     * @param	transitionDuration 过渡时间,该值为当前动画状态的归一化时间，值在0.0~1.0之间。
-     * @param	layerIndex 层索引。
-     * @param	normalizedTime 归一化的播放起始时间。
+     * @param name 目标动画状态。
+     * @param transitionDuration 过渡时间,该值为当前动画状态的归一化时间，值在0.0~1.0之间。
+     * @param layerIndex 层索引。
+     * @param normalizedTime 归一化的播放起始时间。
      */
     crossFade(name: string, transitionDuration: number, layerIndex: number = 0, normalizedTime: number = Number.NEGATIVE_INFINITY): void {
         //console.log("name:" + name + "," + "transitionDuration" + transitionDuration + "," + "layerIndex" + layerIndex);
@@ -1774,7 +1719,7 @@ export class Animator extends Component {
      * @param name The name or index of the parameter.
      * @returns The value of the parameter.
      * @zh 获取参数的值。
-     * @param	name 属性的名字或者索引
+     * @param name 属性的名字或者索引
      * @return 属性值
      */
     getParamsvalue(name: number): number | boolean;
@@ -1795,8 +1740,8 @@ export class Animator extends Component {
      * @param   layerIndex 层索引。
      * @return  动画播放状态。
      */
-    getCurrentAnimatorPlayState(layerInex: number = 0): AnimatorPlayState {
-        return this._controllerLayers[layerInex]._playStateInfo!;
+    getCurrentAnimatorPlayState(layerIndex: number = 0): AnimatorPlayState {
+        return this._controllerLayers[layerIndex]._playStateInfo!;
     }
 }
 

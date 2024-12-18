@@ -13,7 +13,6 @@ export class BoxColliderShape extends Physics3DColliderShape {
 
 	/**@internal */
 	_shape: IBoxColliderShape;
-	/**@internal */
 	private _size: Vector3;
 
 	/**
@@ -31,11 +30,7 @@ export class BoxColliderShape extends Physics3DColliderShape {
 		this._size = new Vector3(sizeX, sizeY, sizeZ);
 		this._shape.setSize(this._size);
 	}
-
-	/**
-	 * @internal
-	 * @protected
-	 */
+	
 	protected _createShape() {
 		if (Laya3D.PhysicsCreateUtil.getPhysicsCapable(EPhysicsCapable.Physics_BoxColliderShape))
 			this._shape = Laya3D.PhysicsCreateUtil.createBoxColliderShape();
@@ -83,8 +78,7 @@ export class BoxColliderShape extends Physics3DColliderShape {
 	}
 
 	//-------------------deprecated-------------------
-	/**
-	 * @description
+	/** 
 	 * @en X-axis size.
 	 * @zh X轴尺寸。
 	 */
@@ -100,7 +94,6 @@ export class BoxColliderShape extends Physics3DColliderShape {
 	}
 
 	/**
-	 * @description
 	 * @en Y-axis size.
 	 * @zh Y轴尺寸。
 	 */
@@ -116,7 +109,6 @@ export class BoxColliderShape extends Physics3DColliderShape {
 	}
 
 	/**
-	 * @description
 	 * @en Z-axis size.
 	 * @zh Z轴尺寸。
 	 */

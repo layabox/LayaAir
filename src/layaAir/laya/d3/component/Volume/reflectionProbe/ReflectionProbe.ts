@@ -28,7 +28,6 @@ export enum ReflectionProbeMode {
 	simple = 1,
 }
 /**
- * @miner
  * @en used to implement reflection probe components
  * @zh 用于实现反射探针组件
  */

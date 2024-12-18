@@ -53,8 +53,8 @@ export class VertexDeclaration {
 
     /**
      * 创建一个 <code>VertexDeclaration</code> 实例。
-     * @param	vertexStride 顶点跨度。
-     * @param	vertexElements 顶点元素集合。
+     * @param vertexStride 顶点跨度。
+     * @param vertexElements 顶点元素集合。
      */
     constructor(vertexStride: number, vertexElements: Array<VertexElement>) {
         this._id = ++VertexDeclaration._uniqueIDCounter;

@@ -75,25 +75,16 @@ export class SpotLightCom extends Light {
 		this._dataModule = Laya3DRender.Render3DModuleDataFactory.createSpotLight();
 	}
 
-	/**
-	 * @internal
-	 * @override
-	 */
+
 	protected _addToLightQueue(): void {
 		(<Scene3D>this.owner.scene)._spotLights.add(this);
 	}
 
-	/**
-	 * @internal
-	 * @override
-	 */
 	protected _removeFromLightQueue(): void {
 		(<Scene3D>this.owner.scene)._spotLights.remove(this);
 	}
 
 	/**
-	 * @inheritDoc
-	 * @override
 	 * @internal
 	 */
 	_cloneTo(dest: SpotLightCom): void {

@@ -306,26 +306,15 @@ export class PhysicsColliderComponent extends Component {
         this.canCollideWith = this._canCollideWith;
     }
 
-    /**
-     * @internal
-     * @protected
-     */
     protected _initCollider() {
         //createCollider
         //Override it
     }
 
-    /**
-     * @internal
-     */
     protected _setEventFilter() {
         // override it
     }
 
-    /**
-     * @internal
-     * @protected
-     */
     protected _onAdded(): void {
         if (!this.owner.scene) {
             this.owner.on(Node.EVENT_SET_ACTIVESCENE, this, this._onAdded);
@@ -338,10 +327,6 @@ export class PhysicsColliderComponent extends Component {
         this.rollingFriction = this._rollingFriction;
     }
 
-    /**
-     * @internal
-     * @protected
-     */
     protected _onEnable(): void {
         this.owner.transform.on(Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
         this._physicsManager = ((<Scene3D>this.owner._scene))._physicsManager;
@@ -356,10 +341,6 @@ export class PhysicsColliderComponent extends Component {
         this._setEventFilter();
     }
 
-    /**
-     * @internal
-     * @protected
-     */
     protected _onDisable(): void {
         this.owner.transform.off(Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
         this._collider && (this._collider.componentEnable = false);
@@ -372,10 +353,6 @@ export class PhysicsColliderComponent extends Component {
         this.owner.off(Event.UPDATE_PHY_EVENT_FILTER, this, this._setEventFilter);
     }
 
-    /**
-     * @internal
-     * @protected
-     */
     protected _onDestroy() {
         this._collider.destroy();
         this._colliderShape && this._colliderShape.destroy();
@@ -399,8 +376,6 @@ export class PhysicsColliderComponent extends Component {
     }
 
     /**
-     * @inheritDoc
-     * @override
      * @internal
      */
     _cloneTo(dest: PhysicsColliderComponent): void {

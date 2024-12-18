@@ -242,8 +242,6 @@ export class Light extends Component {
     }
 
     /**
-     * @inheritDoc
-     * @override
      * @internal
      */
     _cloneTo(dest: Light) {
@@ -252,10 +250,6 @@ export class Light extends Component {
         dest.intensity = this.intensity;
         dest.lightmapBakedType = this.lightmapBakedType;
     }
-
-    /**
-     * @internal
-     */
     private _addToScene(): void {
         var scene: Scene3D = <Scene3D>this.owner.scene;
         var maxLightCount: number = Config3D.maxLightCount;
@@ -271,9 +265,6 @@ export class Light extends Component {
         }
     }
 
-    /**
-     * @internal
-     */
     private _removeFromScene(): void {
         var scene: Scene3D = <Scene3D>this.owner._scene;
         if (!scene)
@@ -293,30 +284,14 @@ export class Light extends Component {
         }
     }
 
-    /**
-     * @internal
-     */
     protected _addToLightQueue(): void {
     }
 
-    /**
-     * @internal
-     */
     protected _removeFromLightQueue(): void {
     }
-
-    /**
-     * @internal
-     * @protected
-     */
     protected _onEnable(): void {
         (this.lightmapBakedType !== LightMode.bakeOnly) && (this._addToScene());
     }
-
-    /**
-     * @internal
-     * @protected
-     */
     protected _onDisable(): void {
         (this.lightmapBakedType !== LightMode.bakeOnly) && (this._removeFromScene());
     }

@@ -234,8 +234,8 @@ export class Vector4 implements IClone {
     }
     /**
      * 判断两个四维向量是否相等。
-     * @param	a 四维向量。
-     * @param	b 四维向量。
+     * @param a 四维向量。
+     * @param b 四维向量。
      * @return  是否相等。
      */
     static equals(a: Vector4, b: Vector4): boolean {

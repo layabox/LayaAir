@@ -12,7 +12,6 @@ export class EventDispatcher {
     private _events: Record<string, Delegate>;
 
     /**
-     * @internal
      * @protected
      * @en Start listening to a specific event type.
      * This method is called when a new event listener is added.
@@ -71,6 +70,17 @@ export class EventDispatcher {
     /**
      * @en Register an event listener object with the EventDispatcher object so that the listener receives event notifications.
      * @param type The type of event.
+     * @param listener The listener function.
+     * @returns This EventDispatcher object.
+     * @zh 使用 EventDispatcher 对象注册指定类型的事件侦听器对象，以使侦听器能够接收事件通知。
+     * @param type 事件的类型。
+     * @param listener 事件侦听函数。
+     * @returns 此 EventDispatcher 对象。
+     */
+    on(type: string, listener: Function): EventDispatcher;
+    /**
+     * @en Register an event listener object with the EventDispatcher object so that the listener receives event notifications.
+     * @param type The type of event.
      * @param caller The execution scope of the event listener function.
      * @param listener The listener function.
      * @param args (Optional) The callback parameters of the event listener function.
@@ -82,7 +92,6 @@ export class EventDispatcher {
      * @param args （可选）事件侦听函数的回调参数。
      * @returns 此 EventDispatcher 对象。
      */
-    on(type: string, listener: Function): EventDispatcher;
     on(type: string, caller: any, listener: Function, args?: any[]): EventDispatcher;
     on(type: string, caller: any, listener?: Function, args?: any[]): EventDispatcher {
         if (arguments.length == 2) {
@@ -103,6 +112,17 @@ export class EventDispatcher {
     /**
      * @en Register an event listener object with the EventDispatcher object so that the listener receives event notifications. This event listener responds once and is automatically removed after the first call.
      * @param type The type of event.
+     * @param listener The listener function.
+     * @returns This EventDispatcher object.
+     * @zh 使用 EventDispatcher 对象注册指定类型的事件侦听器对象，以使侦听器能够接收事件通知，此侦听事件响应一次后自动移除。
+     * @param type 事件的类型。
+     * @param listener 事件侦听函数。
+     * @returns 此 EventDispatcher 对象。
+     */
+    once(type: string, listener: Function): EventDispatcher;
+    /**
+     * @en Register an event listener object with the EventDispatcher object so that the listener receives event notifications. This event listener responds once and is automatically removed after the first call.
+     * @param type The type of event.
      * @param caller The execution scope of the event listener function.
      * @param listener The listener function.
      * @param args (Optional) The callback parameters of the event listener function.
@@ -114,7 +134,6 @@ export class EventDispatcher {
      * @param args （可选）事件侦听函数的回调参数。
      * @returns 此 EventDispatcher 对象。
      */
-    once(type: string, listener: Function): EventDispatcher;
     once(type: string, caller: any, listener: Function, args?: any[]): EventDispatcher;
     once(type: string, caller: any, listener?: Function, args?: any[]): EventDispatcher {
         if (arguments.length == 2) {
@@ -135,6 +154,17 @@ export class EventDispatcher {
     /**
      * @en Remove a listener from the EventDispatcher object.
      * @param type The type of event.
+     * @param listener The listener function.
+     * @returns This EventDispatcher object.
+     * @zh 从 EventDispatcher 对象中删除侦听器。
+     * @param type 事件的类型。
+     * @param listener 事件侦听函数。
+     * @returns 此 EventDispatcher 对象。
+     */
+    off(type: string, listener: Function): EventDispatcher;
+    /**
+     * @en Remove a listener from the EventDispatcher object.
+     * @param type The type of event.
      * @param caller The execution scope of the event listener function.
      * @param listener The listener function.
      * @returns This EventDispatcher object.
@@ -144,7 +174,6 @@ export class EventDispatcher {
      * @param listener 事件侦听函数。
      * @returns 此 EventDispatcher 对象。
      */
-    off(type: string, listener: Function): EventDispatcher;
     off(type: string, caller: any, listener?: Function, args?: any[]): EventDispatcher;
     off(type: string, caller: any, listener?: Function): EventDispatcher {
         if (arguments.length == 2) {

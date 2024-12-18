@@ -21,8 +21,8 @@ export class View extends Scene {
      * @param url The path to the UI.
      * @param json The UI content in JSON format.
      * @zh 兼容老版本，注册UI配置信息。比如注册一个路径为"test/TestPage"的页面，UI内容是IDE生成的json
-     * @param	url		UI的路径
-     * @param	json	UI内容
+     * @param url		UI的路径
+     * @param json	UI内容
      */
     static regUI(url: string, json: any): void {
         ILaya.loader.cacheRes(url, json);

@@ -66,9 +66,7 @@ export class WebGLEngine extends EventDispatcher implements IRenderEngine {
 
     private _webglMode: WebGLMode;
 
-    /**@internal */
     private _propertyNameMap: any = {};
-    /**@internal */
     private _propertyNameCounter: number = 0;
     /**@internal */
     _renderOBJCreateContext: IRenderEngineFactory;
@@ -138,9 +136,7 @@ export class WebGLEngine extends EventDispatcher implements IRenderEngine {
     //GLRenderState
     _GLRenderState: GLRenderState;
     // todo  这个 map 和 get 函数转移到 ShaderDefine 里面
-    /**@internal */
     private static _defineMap: { [key: string]: ShaderDefine } = {};
-    /**@internal */
     private static _defineCounter: number = 0;
     /**@internal */
     static _maskMap: Array<{ [key: number]: string }> = [];
@@ -151,6 +147,7 @@ export class WebGLEngine extends EventDispatcher implements IRenderEngine {
     //GPU统计数据
     private _GLStatisticsInfo: Map<GPUEngineStatisticsInfo, number> = new Map();
     static instance: WebGLEngine;
+    /** @ignore */
     constructor(config: WebGLConfig, webglMode: WebGLMode = WebGLMode.Auto) {
         super();
         this._config = config;
@@ -204,8 +201,8 @@ export class WebGLEngine extends EventDispatcher implements IRenderEngine {
     }
 
     /**
-     * GL Context
-     * @member {WebGLRenderingContext}
+     * @en webGL rendering context
+     * @zh 获取 webGL 渲染上下文
      */
     get gl() {
         return this._context;

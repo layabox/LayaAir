@@ -10,19 +10,10 @@ export enum AreaShape {
  * @zh AreaLightCom 类用于创建区域光。
  */
 export class AreaLightCom extends Light {
-    /**@internal */
     private _areaShape: AreaShape;
-
-    /**@internal */
     private _power: number;
-
-    /**@internal */
     private _size: Vector2;
-
-    /**@internal */
     private _spread: number;
-
-    /**@internal */
     private _maxBounces: number;
     /**
      * @ignore
@@ -129,17 +120,9 @@ export class AreaLightCom extends Light {
     }
 
 
-    /**
-     * @internal
-     * @override
-     */
     protected _addToLightQueue(): void {
     }
 
-    /**
-     * @internal
-     * @override
-     */
     protected _removeFromLightQueue(): void {
     }
 }

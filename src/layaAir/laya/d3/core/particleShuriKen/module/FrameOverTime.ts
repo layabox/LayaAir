@@ -27,7 +27,7 @@ export class FrameOverTime implements IClone {
      * @param overTime The time frame.
      * @returns The time frame.
      * @zh 通过时间帧创建一个 FrameOverTime 实例。
-     * @param	overTime 时间帧。
+     * @param overTime 时间帧。
      * @return 时间帧。
      */
     static createByOverTime(overTime: GradientDataInt): FrameOverTime {
@@ -43,8 +43,8 @@ export class FrameOverTime implements IClone {
      * @param constantMax The maximum constant frame.
      * @returns The time frame.
      * @zh 通过随机双固定帧创建一个 FrameOverTime 实例。
-     * @param	constantMin 最小固定帧。
-     * @param	constantMax 最大固定帧。
+     * @param constantMin 最小固定帧。
+     * @param constantMax 最大固定帧。
      * @return 时间帧。
      */
     static createByRandomTwoConstant(constantMin: number = 0, constantMax: number = 0): FrameOverTime {
@@ -61,8 +61,8 @@ export class FrameOverTime implements IClone {
      * @param gradientFrameMax The maximum time frame.
      * @returns The time frame.
      * @zh 通过随机双时间帧创建一个 FrameOverTime 实例。
-     * @param	gradientFrameMin 最小时间帧。
-     * @param	gradientFrameMax 最大时间帧。
+     * @param gradientFrameMin 最小时间帧。
+     * @param gradientFrameMax 最大时间帧。
      * @return 时间帧。
      */
     static createByRandomTwoOverTime(gradientFrameMin: GradientDataInt, gradientFrameMax: GradientDataInt): FrameOverTime {

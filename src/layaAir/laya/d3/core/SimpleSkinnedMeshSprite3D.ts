@@ -1,8 +1,6 @@
-import { Node } from "../../display/Node";
 import { Mesh } from "../resource/models/Mesh";
 import { MeshFilter } from "./MeshFilter";
 import { RenderableSprite3D } from "./RenderableSprite3D";
-import { Sprite3D } from "./Sprite3D";
 import { SimpleSkinnedMeshRenderer } from "./SimpleSkinnedMeshRenderer";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { LayaGL } from "../../layagl/LayaGL";
@@ -37,7 +35,6 @@ export class SimpleSkinnedMeshSprite3D extends RenderableSprite3D {
         commandUniform.addShaderUniform(SimpleSkinnedMeshSprite3D.SIMPLE_SIMPLEANIMATORTEXTURESIZE, "u_SimpleAnimatorTextureSize", ShaderDataType.Float);
     }
 
-    /** @internal */
     private _meshFilter: MeshFilter;
 
     /**
@@ -71,10 +68,6 @@ export class SimpleSkinnedMeshSprite3D extends RenderableSprite3D {
         (mesh) && (this._meshFilter.sharedMesh = mesh);
     }
 
-    /**
-     * @inheritDoc
-     * @override
-     */
     destroy(destroyChild: boolean = true): void {
         if (this._destroyed)
             return;

@@ -114,7 +114,6 @@ export class PBRStandardMaterial extends PBRMaterial {
 	}
 
 	/**
-	 * @override
 	 * @en Clone.
 	 * @returns Clone copy.
 	 * @zh 克隆。

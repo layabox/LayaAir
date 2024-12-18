@@ -1,4 +1,3 @@
-import { Laya } from "../../Laya";
 import { LayaEnv } from "../../LayaEnv";
 import { Camera2D } from "../display/Scene2DSpecial/Camera2D";
 import { BaseRenderNode2D } from "../NodeRender2D/BaseRenderNode2D";
@@ -34,8 +33,6 @@ export class Render {
     private _first = true;
     /** 刚启动的时间。由于微信的rAF不标准，传入的stamp参数不对，因此自己计算一个从启动开始的相对时间 */
     private _startTm = 0;
-
-    /** @internal */
     private static ifps = 1000 / 60;
 
     static _Render: Render;
@@ -53,12 +50,6 @@ export class Render {
         return Render._customEngine;
     }
 
-    // static clearResources(){
-    //     Laya.timer.frameOnce(2, this, () => {
-
-    //         EngineUtils.gc();
-    //     })
-    // }
 
     static gc() {
         if (LayaEnv.isConch) {
@@ -69,8 +60,8 @@ export class Render {
 
     /**
      * 初始化引擎。
-     * @param	width 游戏窗口宽度。
-     * @param	height	游戏窗口高度。
+     * @param width 游戏窗口宽度。
+     * @param height	游戏窗口高度。
      */
     constructor(width: number, height: number, mainCanv: HTMLCanvas) {
         Render._Render = this;
@@ -128,16 +119,11 @@ export class Render {
             }
         }
         ILaya.stage.on("visibilitychange", this, this._onVisibilitychange);
-        LayaEnv.isConch && Laya.timer.frameOnce(2, null, Render.gc);
+        LayaEnv.isConch && ILaya.timer.frameOnce(2, null, Render.gc);
     }
 
-    /**@private */
     private _timeId: number = 0;
 
-    /**@private */
-    /**
-     * @performanceTool  func count 
-     */
     private _onVisibilitychange(): void {
         if (!ILaya.stage.isVisibility) {
             this._timeId = window.setInterval(_enterFrame, 1000);

@@ -17,7 +17,7 @@ export class DrawMesh2DCMD extends Command2D {
     /**
      * @param mesh 
      * @param mat 
-     * @param meshTexture 
+     * @param texture 
      * @param color 
      * @param material 
      * @returns 

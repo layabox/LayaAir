@@ -172,8 +172,8 @@ export class Byte {
      * @returns The read `Float32Array` object.
      * @zh 从字节流中 `start` 参数指定的位置开始，读取 `len` 参数指定的字节数的数据，用于创建一个 `Float32Array` 对象并返回此对象。
      * 注意：返回的 Float32Array 对象，在 JavaScript 环境下，是原生的 HTML5 Float32Array 对象，对此对象的读取操作都是基于运行此程序的当前主机字节序，此顺序可能与实际数据的字节序不同，如果使用此对象进行读取，需要用户知晓实际数据的字节序和当前主机字节序，如果相同，可正常读取，否则需要用户对实际数据(Float32Array.buffer)包装一层 DataView ，使用 DataView 对象可按照指定的字节序进行读取。
-     * @param	start	开始位置。
-     * @param	len		需要读取的字节长度。如果要读取的长度超过可读取范围，则只返回可读范围内的值。
+     * @param start	开始位置。
+     * @param len		需要读取的字节长度。如果要读取的长度超过可读取范围，则只返回可读范围内的值。
      * @return  读取的 Float32Array 对象。
      */
     getFloat32Array(start: number, len: number): any {
@@ -186,8 +186,8 @@ export class Byte {
      * @param len The number of bytes to read. If the length to be read exceeds the readable range, only the values within the readable range are returned.
      * @returns The read `Float32Array` object.
      * @zh 从字节流中 `start` 参数指定的位置开始，读取 `len` 参数指定的字节数的数据，用于创建一个 `Float32Array` 对象并返回此对象。
-     * @param	start	开始位置。
-     * @param	len		需要读取的字节长度。如果要读取的长度超过可读取范围，则只返回可读范围内的值。
+     * @param start	开始位置。
+     * @param len		需要读取的字节长度。如果要读取的长度超过可读取范围，则只返回可读范围内的值。
      * @return  读取的 Float32Array 对象。
      */
     readFloat32Array(start: number, len: number): any {
@@ -205,8 +205,8 @@ export class Byte {
      * @param len The number of bytes to read. If the length to be read exceeds the readable range, only the values within the readable range are returned.
      * @returns The read `Uint8Array` object.
      * @zh 从字节流中 `start` 参数指定的位置开始，读取 `len` 参数指定的字节数的数据，用于创建一个 `Uint8Array` 对象并返回此对象。
-     * @param	start	开始位置。
-     * @param	len		需要读取的字节长度。如果要读取的长度超过可读取范围，则只返回可读范围内的值。
+     * @param start	开始位置。
+     * @param len		需要读取的字节长度。如果要读取的长度超过可读取范围，则只返回可读范围内的值。
      * @return  读取的 Uint8Array 对象。
      */
     getUint8Array(start: number, len: number): Uint8Array {
@@ -219,8 +219,8 @@ export class Byte {
      * @param len The number of bytes to read. If the length to be read exceeds the readable range, only the values within the readable range are returned.
      * @returns The read `Uint8Array` object.
      * @zh 从字节流中 `start` 参数指定的位置开始，读取 `len` 参数指定的字节数的数据，用于创建一个 `Uint8Array` 对象并返回此对象。
-     * @param	start	开始位置。
-     * @param	len		需要读取的字节长度。如果要读取的长度超过可读取范围，则只返回可读范围内的值。
+     * @param start	开始位置。
+     * @param len		需要读取的字节长度。如果要读取的长度超过可读取范围，则只返回可读范围内的值。
      * @return  读取的 Uint8Array 对象。
      */
     readUint8Array(start: number, len: number): Uint8Array {
@@ -240,8 +240,8 @@ export class Byte {
      * @returns The created `Int16Array` object.
      * @zh 从字节流中 `start` 参数指定的位置开始，读取 `len` 参数指定的字节数的数据，用于创建一个 `Int16Array` 对象并返回此对象。
      * 注意：返回的 `Int16Array` 对象是 JavaScript 环境下原生的 HTML5 `Int16Array` 对象，对此对象的读取操作都是基于运行此程序的当前主机字节序。此顺序可能与实际数据的字节序不同，如果使用此对象进行读取，需要用户知晓实际数据的字节序和当前主机字节序，如果相同，可正常读取，否则需要用户对实际数据 (`Int16Array.buffer`) 包装一层 `DataView` 对象，使用 `DataView` 对象可按照指定的字节序进行读取。
-     * @param	start	开始读取的字节偏移量位置。
-     * @param	len		需要读取的字节长度。如果要读取的长度超过可读取范围，则只返回可读范围内的值。
+     * @param start	开始读取的字节偏移量位置。
+     * @param len		需要读取的字节长度。如果要读取的长度超过可读取范围，则只返回可读范围内的值。
      * @return  读取的 Int16Array 对象。
      */
     getInt16Array(start: number, len: number): any {
@@ -254,8 +254,8 @@ export class Byte {
      * @param len The number of bytes to read. Only values within the readable range are returned if the length exceeds the range.
      * @returns The created `Int16Array` object.
      * @zh 从字节流中 `start` 参数指定的位置开始，读取 `len` 参数指定的字节数的数据，用于创建一个 `Int16Array` 对象并返回此对象。
-     * @param	start	开始读取的字节偏移量位置。
-     * @param	len		需要读取的字节长度。如果要读取的长度超过可读取范围，则只返回可读范围内的值。
+     * @param start	开始读取的字节偏移量位置。
+     * @param len		需要读取的字节长度。如果要读取的长度超过可读取范围，则只返回可读范围内的值。
      * @return  读取的 Uint8Array 对象。
      */
     readInt16Array(start: number, len: number): any {
@@ -600,7 +600,7 @@ export class Byte {
     /**
      * @private
      * 读取指定长度的 UTF 型字符串。
-     * @param	len 需要读取的长度。
+     * @param len 需要读取的长度。
      * @return 读取的字符串。
      */
     private _rUTF(len: number): string {

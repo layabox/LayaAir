@@ -32,15 +32,9 @@ export class Command2D {
     }
 
     /**
-     * @override
      * @internal
-     * @returns 
      */
     getRenderCMD?(): IRenderCMD;
-
-    /**
-     * @destroy
-     */
     destroy() {
         this._commandBuffer = null;
         this._context = null;

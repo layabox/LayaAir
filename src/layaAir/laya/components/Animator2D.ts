@@ -532,11 +532,11 @@ export class Animator2D extends Component {
      * @param layerIndex The layer index. Defaults to 0.
      * @returns The AnimatorControllerLayer at the specified index.
      * @zh 获取控制器层。
-     * @param	layerIndex 层索引。
+     * @param layerIndex 层索引。
      * @return 指定索引处的AnimatorControllerLayer。
      */
-    getControllerLayer(layerInex: number = 0): AnimatorControllerLayer2D {
-        return this._controllerLayers[layerInex];
+    getControllerLayer(layerIndex: number = 0): AnimatorControllerLayer2D {
+        return this._controllerLayers[layerIndex];
     }
 
     /**
@@ -736,10 +736,10 @@ export class Animator2D extends Component {
      * @param normalizedTime The normalized start time for playback.
      * @param transitionDuration The duration of the transition in normalized time (between 0.0 and 1.0).
      * @zh 在当前动画状态和目标动画状态之间进行融合过渡播放。
-     * @param	name 目标动画状态。
-     * @param	layerIndex 层索引。
-     * @param	normalizedTime 归一化的播放起始时间。
-     * @param	transitionDuration 过渡时间,该值为当前动画状态的归一化时间，值在0.0~1.0之间。
+     * @param name 目标动画状态。
+     * @param layerIndex 层索引。
+     * @param normalizedTime 归一化的播放起始时间。
+     * @param transitionDuration 过渡时间,该值为当前动画状态的归一化时间，值在0.0~1.0之间。
      */
     crossFade(name: string, layerIndex: number, normalizedTime: number, transitionDuration: number): boolean;
     /**

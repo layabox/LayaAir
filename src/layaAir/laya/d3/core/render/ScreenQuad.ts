@@ -97,8 +97,6 @@ export class ScreenQuad extends GeometryElement {
 	}
 
 	/**
-	 * @inheritDoc
-	 * @override
 	 * @en Destroys the ScreenQuad instance.
 	 * @zh 销毁ScreenQuad实例。
 	 */

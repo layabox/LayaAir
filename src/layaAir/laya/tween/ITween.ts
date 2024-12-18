@@ -36,15 +36,13 @@ export type EaseFunction = (t: number, b: number, c: number, d: number, ...args:
  * @param time The current time.
  * @param start The start value.
  * @param end The end value.
- * @param value The current value.
- * @param index The index of the number in the number array.
+ * @param result The result value.
  * @param args The additional arguments.
  * @zh TweenInterpolator 是一个在给定时间计算缓动值的函数。
  * @param time 当前时间。
  * @param start 开始值。
  * @param end 结束值。
- * @param value 当前值。
- * @param index 数字在数字数组中的索引。
+ * @param result 结果值。
  * @param args 额外的参数。
  */
 export type TweenInterpolator<T extends any[]> = (time: number, start: Readonly<ITweenValue>, end: Readonly<ITweenValue>, result: ITweenValue, ...args: T) => void;

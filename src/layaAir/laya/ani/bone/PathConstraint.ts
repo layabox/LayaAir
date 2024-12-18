@@ -306,13 +306,13 @@ export class PathConstraint {
 
 	/**
 	 * 计算路径上的节点
-	 * @param	boneSlot
-	 * @param	boneList
-	 * @param	graphics
-	 * @param	spacesCount
-	 * @param	tangents
-	 * @param	percentPosition
-	 * @param	percentSpacing
+	 * @param boneSlot
+	 * @param boneList
+	 * @param graphics
+	 * @param spacesCount
+	 * @param tangents
+	 * @param percentPosition
+	 * @param percentSpacing
 	 * @return
 	 */
 	//TODO:coverage

@@ -76,7 +76,6 @@ export class EffectMaterial extends Material {
 	}
 
 	/**
-	 * @override
 	 * @en Clone the material.
 	 * @returns A clone of the material.
 	 * @zh 克隆材质。

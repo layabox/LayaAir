@@ -624,9 +624,9 @@ export class Quaternion implements IClone {
      * @param up The up vector.
      * @param out The output quaternion.
      * @zh 计算旋转观察四元数。
-     * @param	forward 方向
-     * @param	up     上向量
-     * @param	out    输出四元数
+     * @param forward 方向
+     * @param up     上向量
+     * @param out    输出四元数
      */
     static rotationLookAt(forward: Vector3, up: Vector3, out: Quaternion): void {
         Quaternion.lookAt(Vector3.ZERO, forward, up, out);
@@ -639,10 +639,10 @@ export class Quaternion implements IClone {
      * @param up The up vector.
      * @param out The output quaternion.
      * @zh 计算观察四元数（适用于相机和灯光）。
-     * @param	eye    观察者位置
-     * @param	target 目标位置
-     * @param	up     上向量
-     * @param	out    输出四元数
+     * @param eye    观察者位置
+     * @param target 目标位置
+     * @param up     上向量
+     * @param out    输出四元数
      */
     static lookAt(eye: Vector3, target: Vector3, up: Vector3, out: Quaternion): void {
         Matrix3x3.lookAt(eye, target, up, Matrix3x3.TEMP);
@@ -681,8 +681,8 @@ export class Quaternion implements IClone {
      * @param value The input quaternion.
      * @param out The output inverse quaternion.
      * @zh 计算四元数的逆四元数。
-     * @param	value 四元数。
-     * @param	out 逆四元数。
+     * @param value 四元数。
+     * @param out 逆四元数。
      */
     static invert(value: Quaternion, out: Quaternion): void {
         var lengthSq: number = value.lengthSquared();
@@ -701,8 +701,8 @@ export class Quaternion implements IClone {
      * @param matrix3x3 The 3x3 rotation matrix.
      * @param out The output quaternion.
      * @zh 通过一个3x3旋转矩阵创建一个四元数。
-     * @param	matrix3x3  3x3矩阵
-     * @param	out        四元数
+     * @param matrix3x3  3x3矩阵
+     * @param out        四元数
      */
     static rotationMatrix(matrix3x3: Matrix3x3, out: Quaternion): void {
         var me: Float32Array = matrix3x3.elements;

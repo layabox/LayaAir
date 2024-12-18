@@ -25,8 +25,8 @@ export class TileAniSprite extends Sprite {
      * @param aniName The unique name of the current animation display object.
      * @param tileTextureSet The animation set that the current display object belongs to.
      * @zh 确定当前显示对象的名称以及属于哪个动画。
-     * @param	aniName	当前动画显示对象的名字，名字唯一
-     * @param	tileTextureSet 当前显示对象属于哪个动画（一个动画，可以绑定多个同类显示对象）
+     * @param aniName	当前动画显示对象的名字，名字唯一
+     * @param tileTextureSet 当前显示对象属于哪个动画（一个动画，可以绑定多个同类显示对象）
      */
     setTileTextureSet(aniName: string, tileTextureSet: TileTexSet): void {
         this._aniName = aniName;

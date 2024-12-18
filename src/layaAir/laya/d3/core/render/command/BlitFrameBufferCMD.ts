@@ -67,29 +67,26 @@ export class BlitFrameBufferCMD {
 		cmd._viewPort = viewport;
 		return cmd;
 	}
-	/**@internal source 原始贴图*/
+	/** source 原始贴图*/
 	private _source: BaseTexture = null;
-	/**@internal dest 目标 如果为null，将会默认为主画布*/
+	/** dest 目标 如果为null，将会默认为主画布*/
 	private _dest: RenderTexture = null;
-	/**@internal 偏移缩放*/
+	/** 偏移缩放*/
 	private _offsetScale: Vector4 = null;
-	/**@internal */
+	/** */
 	_texture_size: Vector4 = null;
-	/**@internal 渲染shader*/
+	/** 渲染shader*/
 	private _shader: Shader3D = null;
-	/**@internal 渲染数据*/
+	/** 渲染数据*/
 	private _shaderData: ShaderData = null;
-	/**@internal subshader的节点*/
+	/** subshader的节点*/
 	private _subShader: number = 0;
-	/**@internal 渲染设置*/
+	/** 渲染设置*/
 	private _viewPort: Viewport = null;
-	// /**@internal */
 	// private _sourceTexelSize: Vector4 = new Vector4();
-	/**@internal */
 	private _renderElement: RenderElement;
-	/**@internal */
 	private _transform3D: Transform3D;
-
+	/**@ignore */
 	constructor() {
 		this._transform3D = Laya3DRender.Render3DModuleDataFactory.createTransform(null);
 		this._renderElement = new RenderElement();
@@ -126,8 +123,6 @@ export class BlitFrameBufferCMD {
 	}
 
 	/**
-	 * @inheritDoc
-	 * @override
 	 * @en Execute the render command.
 	 * @zh 执行渲染命令。
 	 */
@@ -168,8 +163,6 @@ export class BlitFrameBufferCMD {
 	}
 
 	/**
-	 * @inheritDoc
-	 * @override
 	 * @en Recycle the command instance.
 	 * @zh 回收命令实例。
 	 */

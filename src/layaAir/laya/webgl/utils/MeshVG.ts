@@ -32,9 +32,9 @@ export class MeshVG extends Sprite2DGeometry {
 
     /**
      * 往矢量mesh中添加顶点和index。会把rgba和points在mesh中合并。
-     * @param	points	顶点数组，只包含x,y。[x,y,x,y...]
-     * @param	rgba	rgba颜色
-     * @param	ib		index数组。
+     * @param points	顶点数组，只包含x,y。[x,y,x,y...]
+     * @param rgba	rgba颜色
+     * @param ib		index数组。
      */
     addVertAndIBToMesh(points: number[], rgba: number, ib: any[]): void {
         var startpos = this._vertNum * MeshVG.const_stride;

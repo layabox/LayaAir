@@ -415,8 +415,8 @@
 
 // 	/**
 // 	 * 平移变换。
-// 	 * @param 	translation 移动距离。
-// 	 * @param 	isLocal 是否局部空间。
+// 	 * @param translation 移动距离。
+// 	 * @param isLocal 是否局部空间。
 // 	 */
 // 	translate(translation: Vector3, isLocal: boolean = true): void {
 // 		this.float64Array[0] = translation.x;
@@ -428,9 +428,9 @@
 
 // 	/**
 // 	 * 旋转变换。
-// 	 * @param 	rotations 旋转幅度。
-// 	 * @param 	isLocal 是否局部空间。
-// 	 * @param 	isRadian 是否弧度制。
+// 	 * @param rotations 旋转幅度。
+// 	 * @param isLocal 是否局部空间。
+// 	 * @param isRadian 是否弧度制。
 // 	 */
 // 	rotate(rotation: Vector3, isLocal: boolean = true, isRadian: boolean = true): void {
 // 		this.float64Array[0] = rotation.x;
@@ -476,9 +476,9 @@
 
 // 	/**
 // 	 * 观察目标位置。
-// 	 * @param	target 观察目标。
-// 	 * @param	up 向上向量。
-// 	 * @param	isLocal 是否局部空间。
+// 	 * @param target 观察目标。
+// 	 * @param up 向上向量。
+// 	 * @param isLocal 是否局部空间。
 // 	 */
 // 	lookAt(target: Vector3, up: Vector3, isLocal: boolean = false,isCamera:boolean = true): void {
 // 		this.float64Array[0] = target.x;

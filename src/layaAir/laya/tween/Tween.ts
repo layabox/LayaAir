@@ -73,7 +73,7 @@ export class Tween {
 
     /**
      * Query a Tween object by target.
-     * @param id The Tween object. 
+     * @param target The target object.
      * @returns The Tween object. If it doesn't exist, it will return null.
      */
     static getTween(target: any): Tween | null {

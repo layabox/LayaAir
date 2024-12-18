@@ -53,8 +53,6 @@ export class BaseRender extends Component {
 
     /** @internal */
     static _meshVerticeDefine: Array<ShaderDefine> = [];
-
-    /**@internal */
     private static _uniqueIDCounter: number = 0;
 
     /**@internal */
@@ -184,26 +182,18 @@ export class BaseRender extends Component {
 
     /**@interface */
     _receiveShadow: boolean;
-
-    /** @internal */
     protected _bounds: Bounds;
-
-    /**@internal */
     protected _transform: Transform3D;
 
-    /**@internal 如果这个值不是0,说明有一些条件使他不能加入渲染队列，例如如果是1，证明此节点被lod淘汰*/
+    /** 如果这个值不是0,说明有一些条件使他不能加入渲染队列，例如如果是1，证明此节点被lod淘汰*/
     private _volume: Volume;
 
-    /**@internal */
     protected _asynNative: boolean;
 
-    /** @internal */
     private _materialsInstance: boolean[];
 
-    /**@internal */
     private _renderid: number;
 
-    /**@internal */
     private _lightmapScaleOffset: Vector4 = new Vector4();
 
     _renderElements: RenderElement[] = [];
@@ -578,7 +568,6 @@ export class BaseRender extends Component {
 
     /**
      * set BaseRenderElement
-     * @param mesh 
      */
     protected _setRenderElements() {
         let arrayElement: IRenderElement3D[] = [];
@@ -589,7 +578,6 @@ export class BaseRender extends Component {
     }
 
     /**
-     * @internal
      * BaseRender motion
      */
     protected _onWorldMatNeedChange(flag: number): void {
@@ -598,20 +586,10 @@ export class BaseRender extends Component {
         this._batchRender && this._batchRender._updateOneRender(this);
     }
 
-    /**
-     * @internal
-     * @protected
-     * @returns 
-     */
     protected _getcommonUniformMap(): Array<string> {
         return ["Sprite3D"];
     }
 
-    /**
-     * @internal
-     * @protected
-     * @returns 
-     */
     protected _createBaseRenderNode(): IBaseRenderNode {
         return Laya3DRender.Render3DModuleDataFactory.createBaseRenderNode();
     }
@@ -623,11 +601,6 @@ export class BaseRender extends Component {
     renderUpdate(context: RenderContext3D) {
 
     }
-
-    /**
-     * @internal
-     * @protected
-     */
     protected _onAdded(): void {
         this._transform = this.owner.transform;
         this.owner._isRenderNode++;
@@ -636,11 +609,6 @@ export class BaseRender extends Component {
         this._changeLayer(this.owner.layer);
         this._changeStaticMask(this.owner._isStatic);
     }
-
-    /**
-     * @internal
-     * @protected
-     */
     protected _onEnable(): void {
         super._onEnable();
 
@@ -653,10 +621,6 @@ export class BaseRender extends Component {
         this._setBelongScene(this.owner.scene);
     }
 
-    /**
-     * @internal
-     * @protected
-     */
     protected _onDisable(): void {
         this.owner.transform.off(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange);//如果为合并BaseRender,owner可能为空
         this.owner.off(Event.LAYER_CHANGE, this, this._changeLayer);
@@ -667,11 +631,6 @@ export class BaseRender extends Component {
         this.volume = null;
 
     }
-
-    /**
-     * override it
-     * @internal
-     */
     protected _onDestroy() {
         //按理说this.owner不会是空，但引擎里有直接new BaseRender的特殊用法
         if (this.owner)
@@ -692,7 +651,6 @@ export class BaseRender extends Component {
     }
 
     /**
-     * @internal
      * 确定间接光模式
      */
     private _getIrradientMode() {
@@ -704,26 +662,14 @@ export class BaseRender extends Component {
             this._baseRenderNode.irradientMode = IrradianceMode.Common;
         }
     }
-
-    /**
-     * @internal
-     * @param layer 
-     */
     private _changeLayer(layer: number) {
         this._baseRenderNode.layer = layer;
     }
 
-    /**
-     * @internal
-     * @param staticmask 
-     */
     private _changeStaticMask(staticmask: number) {
         this._baseRenderNode.staticMask = staticmask;
     }
 
-    /**
-     * @internal
-     */
     private _changeMaterialReference(lastValue: Material, value: Material): void {
         (lastValue) && (lastValue._removeReference());
         value && value._addReference();
@@ -817,12 +763,6 @@ export class BaseRender extends Component {
         else
             return true;
     }
-
-    /**
-     * @internal
-     * @override
-     * @param dest 
-     */
     _cloneTo(dest: BaseRender): void {
         super._cloneTo(dest);
         dest.receiveShadow = this.receiveShadow;
@@ -867,11 +807,6 @@ export class BaseRender extends Component {
         this.sharedMaterial = value;
         this._isSupportRenderFeature();
     }
-    /**
-     * @internal
-     * @override
-     * @param dest 
-     */
     get materials(): Material[] {
         for (var i: number = 0, n: number = this._sharedMaterials.length; i < n; i++) {
             if (!this._materialsInstance[i]) {

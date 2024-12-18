@@ -22,9 +22,7 @@ import { Vector4 } from "../../../maths/Vector4";
 
 
 export class Line2DRender extends BaseRenderNode2D {
-    /**@internal */
     private static defaultDashedValue: Vector3 = new Vector3(20, 1, 0);
-    /**@internal */
     private static defaultLine2DMaterial: Material;
 
     /**
@@ -372,6 +370,7 @@ export class Line2DRender extends BaseRenderNode2D {
 
     }
 
+    /**@ignore */
     constructor() {
         super();
         Line2DRender._createDefaultLineMaterial();

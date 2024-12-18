@@ -149,8 +149,6 @@ export class LightSprite extends Sprite3D {
 	}
 
 	/**
-	 * @inheritDoc
-	 * @override
 	 * @internal
 	 */
 	_cloneTo(destObject: LightSprite, rootSprite: Node, dstSprite: Node) {
@@ -160,15 +158,9 @@ export class LightSprite extends Sprite3D {
 		destObject.lightmapBakedType = this.lightmapBakedType;
 	}
 
-	/**
-	 * @internal
-	 */
 	protected _addToLightQueue(): void {
 	}
 
-	/**
-	 * @internal
-	 */
 	protected _removeFromLightQueue(): void {
 	}
 }

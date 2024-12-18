@@ -12,39 +12,32 @@ import { StatiVertexMergeBatchRender } from "./StatiVertexMergeBatchRender";
  */
 export class StaticBatchVolume extends Volume {
 
-    /**@internal 缓存可以合并的*/
+    /** 缓存可以合并的*/
     private _cacheRender: SingletonList<BaseRender>;
 
-    /**@internal 已经合并了的BaseRender */
+    /** 已经合并了的BaseRender */
     private _batchRender: SingletonList<BaseRender>;
 
-    /**@internal 是否根据LOD属性优化 */
+    /** 是否根据LOD属性优化 */
     private _checkLOD: boolean;//是否考虑LOD
 
     /** StaticInstanceBatch */
-    /**@internal 是否开启静态物体Instance的合批 */
+    /** 是否开启静态物体Instance的合批 */
     private _enableStaticInstanceBatch: boolean;
 
-    /**@internal 内置静态物体Instance合批 */
+    /** 内置静态物体Instance合批 */
     private _instanceBatchRender: StaticInstanceBatchRender;
 
     /**StaticVertexMergeBatch */
-    /**@internal 是否开启顶点静态合批 TODO */
+    /** 是否开启顶点静态合批 TODO */
     private _enableStaticVertexMergeBatch: boolean;
 
-    /**@internal 顶点静态合批  TODO*/
+    /** 顶点静态合批  TODO*/
     private _vertexMergeBatchRender: StatiVertexMergeBatchRender;
 
-    /**@internal CustomBatch自定义的batch流程*/
+    /** CustomBatch自定义的batch流程*/
     private _enableCustomBatch: boolean;
-
-    /**@internal */
     private _customBatchs: BatchRender[] = [];
-
-    /**
-     * @internal
-     * @returns 
-     */
     private _getStaticInstanceBatchRender(): StaticInstanceBatchRender {
         let render = this.owner.getComponent(StaticInstanceBatchRender);
         if (!render) {
@@ -52,11 +45,6 @@ export class StaticBatchVolume extends Volume {
         }
         return render;
     }
-
-    /**
-     * @internal
-     * @returns 
-     */
     private _getStatiVertexMergeBatchRender(): StatiVertexMergeBatchRender {
         let render = this.owner.getComponent(StatiVertexMergeBatchRender);
         if (!render) {
@@ -168,6 +156,7 @@ export class StaticBatchVolume extends Volume {
     }
 
     /**
+     * @ignore
      * @en Constructor method，initialize rendering related settings.
      * @zh 构造方法，初始化渲染相关的设置。
      */
@@ -227,10 +216,6 @@ export class StaticBatchVolume extends Volume {
         renderNode._batchRender._removeOneRender(renderNode);
     }
 
-    /**
-     * @internal
-     * @protected
-     */
     protected _onEnable(): void {
         super._onEnable();
         if (this._enableStaticInstanceBatch)
@@ -244,10 +229,6 @@ export class StaticBatchVolume extends Volume {
         }
     }
 
-    /**
-     * @internal
-     * @protected
-     */
     protected _onDisable(): void {
         super._onDisable();
         if (this._enableStaticInstanceBatch)
@@ -262,8 +243,7 @@ export class StaticBatchVolume extends Volume {
     }
 
     /**
-     * @internal
-     * @override
+     * @internal 
      * @en Adds a render node to the volume when it enters.
      * This method handles the addition of static batch render nodes.
      * @param renderNode The render node to be added.
@@ -284,8 +264,7 @@ export class StaticBatchVolume extends Volume {
     }
 
     /**
-     * @internal
-     * @override
+     * @internal 
      * @en Removes a render node from the volume when it exits.
      * This method handles the removal of static batch render nodes.
      * @param renderNode The render node to be removed.

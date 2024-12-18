@@ -369,9 +369,9 @@ export class Node extends EventDispatcher {
 
     /**
      * @en Add multiple child nodes.
-     * @param ...args A variable number of child nodes to be added.
+     * @param args A variable number of child nodes to be added.
      * @zh 批量增加子节点。
-     * @param ...args 无数子节点。
+     * @param args 无数子节点。
      */
     addChildren(...args: Node[]): void {
         var i: number = 0, n: number = args.length;

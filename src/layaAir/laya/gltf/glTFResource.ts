@@ -2027,7 +2027,7 @@ export class glTFResource extends Prefab {
     }
 
     /**
-     * @interna
+     * @internal
      * 获取 Animator 根节点
      */
     private getAnimationRoot(channels: glTF.glTFAnimationChannel[]): Sprite3D {

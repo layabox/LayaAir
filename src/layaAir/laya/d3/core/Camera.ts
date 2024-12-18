@@ -1,5 +1,4 @@
 import { Config3D } from "../../../Config3D";
-import { Node } from "../../display/Node";
 import { Event } from "../../events/Event";
 import { BaseTexture } from "../../resource/BaseTexture";
 import { PostProcess } from "../component/PostProcess";
@@ -406,43 +405,24 @@ export class Camera extends BaseCamera {
     }
 
 
-    /** @internal */
     protected _aspectRatio: number;
-    /** @internal */
     protected _viewport: Viewport;
-    /** @internal */
     protected _rayViewport: Viewport;
-    /** @internal */
     protected _normalizedViewport: Viewport;
-    /** @internal */
     protected _viewMatrix: Matrix4x4;
-    /** @internal */
     protected _projectionMatrix: Matrix4x4;
-    /** @internal */
     protected _projectionViewMatrix: Matrix4x4;
-    /** @internal */
     protected _boundFrustum: BoundFrustum;
-    /** @internal */
     private _updateViewMatrix: boolean = true;
-    /** @internal */
     protected _postProcess: PostProcess = null;
-    /** @internal */
     protected _enableHDR: boolean = false;
-    /** @internal */
     private _viewportParams: Vector4 = new Vector4();
-    /** @internal */
     private _projectionParams: Vector4 = new Vector4();
-    /** @internal*/
     protected _needBuiltInRenderTexture: boolean = false;
-    /**@internal */
     protected _msaa: boolean = false;
-    /**@internal */
     private _fxaa: boolean = false;
-    /** @internal*/
     private _depthTextureMode: DepthTextureMode;
-    /** @internal */
     _offScreenRenderTexture: RenderTexture = null;
-    /** @internal */
     _internalRenderTexture: RenderTexture = null;
     /**
      * @internal
@@ -453,8 +433,6 @@ export class Camera extends BaseCamera {
     /**@internal */
     _internalCommandBuffer: CommandBuffer = new CommandBuffer();
     /**
-     * @internal
-     * @protected
      * @en Depth texture format
      * @zh 深度贴图格式
      */
@@ -485,7 +463,6 @@ export class Camera extends BaseCamera {
     /** @internal */
     _cameraEventCommandBuffer: { [key: string]: CommandBuffer[] } = {};
     /**
-     * @internal
      * @en Implement shadow rendering using CommandBuffer
      * @zh 实现CommandBuffer的阴影渲染
      */
@@ -903,9 +880,9 @@ export class Camera extends BaseCamera {
      * @param nearPlane The near clipping plane distance.
      * @param farPlane The far clipping plane distance.
      * @zh 创建一个Camera实例。
-     * @param	aspectRatio 横纵比。
-     * @param	nearPlane 近裁面。
-     * @param	farPlane 远裁面。
+     * @param aspectRatio 横纵比。
+     * @param nearPlane 近裁面。
+     * @param farPlane 远裁面。
      */
     constructor(aspectRatio: number = 0, nearPlane: number = 0.3, farPlane: number = 1000) {
         super(nearPlane, farPlane);
@@ -933,9 +910,6 @@ export class Camera extends BaseCamera {
         this._renderDataModule.aspectRatio = this.aspectRatio;
     }
 
-    /**
-     * @internal
-     */
     private _calculationViewport(normalizedViewport: Viewport, width: number, height: number): void {
         var lx: number = normalizedViewport.x * width;//不应限制x范围
         var ly: number = normalizedViewport.y * height;//不应限制y范围
@@ -958,11 +932,6 @@ export class Camera extends BaseCamera {
         this._viewport.height = pixelRightY - pixelLeftY;
     }
 
-    /**
-     * @inheritDoc
-     * @override
-     * @internal
-     */
     protected _calculateProjectionMatrix(): void {
         if (!this._useUserProjectionMatrix) {
             if (this._orthographic) {
@@ -1122,8 +1091,7 @@ export class Camera extends BaseCamera {
     }
 
 
-    /**
-     * @override
+    /** 
      * @internal
      */
     _prepareCameraToRender(): void {
@@ -1357,8 +1325,7 @@ export class Camera extends BaseCamera {
     }
 
 
-    /**
-     * @override
+    /** 
      * @en Render the scene.
      * @param scene The scene to render.
      * @zh 渲染场景。
@@ -1526,9 +1493,7 @@ export class Camera extends BaseCamera {
         }
     }
 
-    /**
-     * @override
-     * @inheritDoc
+    /** 
      * @en Destroy the Camera node.
      * @param destroyChild Whether to destroy child nodes.
      * @zh 删除Camera节点。

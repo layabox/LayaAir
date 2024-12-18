@@ -34,7 +34,7 @@ export class ColorPicker extends UIComponent {
     protected _borderColor: string = "#000000";
     /**
      * @en Represents the color value selected or input in the color sample list panel.
-     * @cn 表示颜色样本列表面板选择或输入的颜色值。
+     * @zh 表示颜色样本列表面板选择或输入的颜色值。
      */
     protected _inputColor: string = "#000000";
     /**

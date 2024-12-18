@@ -9,22 +9,11 @@ import { RecastConfig } from "./RecastConfig";
  * @zh NavMeshGrid 类用于管理导航网格的网格划分。
 */
 export class NavMeshGrid {
-    /**@internal */
     private _config: RecastConfig;
-
-    /**@internal */
     private _min: Vector3;
-
-    /**@internal */
     private _max: Vector3;
-
-    /**@internal */
     private _tileSize: Vector2;
-
-    /**@internal */
     private _cellSize: Vector2;
-
-    /**@internal */
     private _bordWidth: number = 0;
 
     /**
@@ -94,6 +83,7 @@ export class NavMeshGrid {
 
     /**
      * <code>实例化一个NavMeshGrid组件<code>
+     * @ignore
      */
     constructor(config: RecastConfig, min: Vector3, max: Vector3) {
         this._config = config;
@@ -106,7 +96,7 @@ export class NavMeshGrid {
     }
 
     /**
-     * @intertal
+     * @internal
      * @en Update the configuration and bounding box based on the given tile data.
      * @param tile The navigation tile data.
      * @zh 根据给定的瓦片数据更新配置和边界框。
@@ -184,7 +174,6 @@ export class NavMeshGrid {
     }
 
     /**
-    * @internal
     * get tile x index
     */
     private _getTileXIndex(value: number) {
@@ -192,7 +181,6 @@ export class NavMeshGrid {
     }
 
     /**
-    * @internal
     * get tile z index
     */
     private _getTileZIndex(value: number) {
@@ -200,7 +188,6 @@ export class NavMeshGrid {
     }
 
     /**
-     * @internal
      * get tile index of map
      */
     private _getLeftValue(value: number): number {
@@ -208,7 +195,6 @@ export class NavMeshGrid {
     }
 
     /**
-     * @internal
      * update bound
      */
     private _updateBound() {

@@ -124,7 +124,6 @@ export class UnlitMaterial extends Material {
 	}
 
 	/**
-	 * @override
 	 * @en Clone.
 	 * @returns Clone copy.
 	 * @zh 克隆。

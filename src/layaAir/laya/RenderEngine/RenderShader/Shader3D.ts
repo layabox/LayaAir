@@ -170,10 +170,10 @@ export class Shader3D {
 
     /**
      * 通过宏定义名字编译shader。
-     * @param	shaderName Shader名称。
+     * @param shaderName Shader名称。
      * @param   subShaderIndex 子着色器索引。
      * @param   passIndex  通道索引。
-     * @param	defineNames 宏定义名字集合。
+     * @param defineNames 宏定义名字集合。
      * @param   nodeCommonMap ubo集合名称集合
      */
     static compileShaderByDefineNames(shaderName: string, subShaderIndex: number, passIndex: number, defineNames: string[], nodeCommonMap: string[]): boolean {
@@ -231,7 +231,7 @@ export class Shader3D {
 
     /**
      * 获取ShaderCompile3D。
-     * @param	name
+     * @param name
      * @return ShaderCompile3D。
      */
     static find(name: string): Shader3D {
@@ -299,7 +299,7 @@ export class Shader3D {
 
     /**
      * 添加子着色器。
-     * @param 子着色器。
+     * @param subShader 子着色器。
      */
     addSubShader(subShader: SubShader): void {
         this._subShaders.push(subShader);
@@ -309,7 +309,7 @@ export class Shader3D {
 
     /**
      * 在特定索引获取子着色器。
-     * @param	index 索引。
+     * @param index 索引。
      * @return 子着色器。
      */
     getSubShaderAt(index: number): SubShader {

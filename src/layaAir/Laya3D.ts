@@ -19,7 +19,6 @@ import { RenderableSprite3D } from "./laya/d3/core/RenderableSprite3D";
 import { Scene3D } from "./laya/d3/core/scene/Scene3D";
 import { SkinnedMeshSprite3D } from "./laya/d3/core/SkinnedMeshSprite3D";
 import { Sprite3D } from "./laya/d3/core/Sprite3D";
-import { TrailMaterial } from "./laya/d3/core/trail/TrailMaterial";
 import { SubMeshInstanceBatch } from "./laya/d3/graphics/SubMeshInstanceBatch";
 import { VertexPositionTexture } from "./laya/d3/graphics/Vertex/VertexPositionTexture";
 import { VertexShurikenParticleBillboard } from "./laya/d3/graphics/Vertex/VertexShurikenParticleBillboard";
@@ -162,7 +161,6 @@ export class Laya3D {
         BlinnPhongMaterial.__initDefine__();
         SkyProceduralMaterial.__initDefine__();
         UnlitMaterial.__initDefine__();
-        TrailMaterial.__initDefine__();
         ShurikenParticleMaterial.__initDefine__();
         SkyBoxMaterial.__initDefine__();
         Command.__init__();

@@ -15,6 +15,7 @@ import { Const } from "../../Const";
 import { IFontMeasure } from "./MeasureFont";
 import { EventDispatcher } from "../../events/EventDispatcher";
 
+/** @ignore */
 export class TextRender extends EventDispatcher {
     //config
     static useOldCharBook = false;
@@ -125,7 +126,7 @@ export class TextRender extends EventDispatcher {
 
     /**
      * 设置当前字体，获得字体的大小信息。
-     * @param	font
+     * @param font
      */
     setFont(font: FontInfo): void {
         if (this.lastFont == font) return;
@@ -151,8 +152,7 @@ export class TextRender extends EventDispatcher {
      * 从string中取出一个完整的char，例如emoji的话要多个
      * 会修改 _curStrPos
      * TODO 由于各种文字中的组合写法，这个需要能扩展，以便支持泰文等
-     * @param	str
-     * @param	start	开始位置
+     * @param str
      */
     getNextChar(str: string): string | null {
         var len = str.length;
@@ -328,7 +328,7 @@ export class TextRender extends EventDispatcher {
 
     /**
      * 画出重新按照贴图顺序分组的文字。
-     * @param	samePagesData
+     * @param samePagesData
      * @param  startx 保存的数据是相对位置，所以需要加上这个偏移。用相对位置更灵活一些。
      * @param y {int} 因为这个只能画在一行上所以没有必要保存y。所以这里再把y传进来
      */
@@ -358,8 +358,8 @@ export class TextRender extends EventDispatcher {
 
     /**
      * 检查 txts数组中有没有被释放的资源
-     * @param	txts {{ri:CharRenderInfo,...}[][]}
-     * @param	startid
+     * @param txts {{ri:CharRenderInfo,...}[][]}
+     * @param startid
      * @return
      */
     hasFreedText(txts: any[]): boolean {
@@ -488,8 +488,8 @@ export class TextRender extends EventDispatcher {
 
     /**
      * 添加数据到大图集
-     * @param	w
-     * @param	h
+     * @param w
+     * @param h
      * @return
      */
     addBmpData(data: ImageData, ri: CharRenderInfo): TextAtlas {

@@ -528,8 +528,8 @@ export class RTTransform3D extends Transform3D {
 
     /**
      * 平移变换。
-     * @param 	translation 移动距离。
-     * @param 	isLocal 是否局部空间。
+     * @param translation 移动距离。
+     * @param isLocal 是否局部空间。
      */
     translate(translation: Vector3, isLocal: boolean = true): void {
         if (isLocal) {
@@ -545,9 +545,9 @@ export class RTTransform3D extends Transform3D {
 
     /**
      * 旋转变换。
-     * @param 	rotations 旋转幅度。
-     * @param 	isLocal 是否局部空间。
-     * @param 	isRadian 是否弧度制。
+     * @param rotation 旋转幅度。
+     * @param isLocal 是否局部空间。
+     * @param isRadian 是否弧度制。
      */
     rotate(rotation: Vector3, isLocal: boolean = true, isRadian: boolean = true): void {
         var rot: Vector3;

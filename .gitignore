@@ -1,6 +1,8 @@
 bin/res
 bin/tsc
 bin/uploads
+bin/rollUp
+bin/jsLibs
 node_modules
 .cache
 .vscode/chrome

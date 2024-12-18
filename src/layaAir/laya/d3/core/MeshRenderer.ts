@@ -28,11 +28,8 @@ import { Stat } from "../../utils/Stat"
  * @zh `MeshRenderer` 类用于网格渲染器。
  */
 export class MeshRenderer extends BaseRender {
-    /** @internal */
     protected _revertStaticBatchDefineUV1: boolean = false;
-    /** @internal */
     protected _projectionViewWorldMatrix: Matrix4x4;
-    /** @internal */
     protected _mesh: Mesh;
 
     /**
@@ -55,8 +52,6 @@ export class MeshRenderer extends BaseRender {
 
     private _morphWeightChange: boolean = true;
 
-    private _moduleData: IMeshRenderNode;
-
     /**
      * @ignore
      * @en Creates an instance of MeshRenderer.
@@ -67,13 +62,6 @@ export class MeshRenderer extends BaseRender {
         this._projectionViewWorldMatrix = new Matrix4x4();
         this._baseRenderNode.renderNodeType = BaseRenderType.MeshRender;
     }
-
-
-
-    /**
-     * override it
-     * @returns 
-     */
     protected _createBaseRenderNode(): IMeshRenderNode {
 
         return Laya3DRender.Render3DModuleDataFactory.createMeshRenderNode();
@@ -97,9 +85,6 @@ export class MeshRenderer extends BaseRender {
         return this._mesh;
     }
 
-    /**
-     * @internal
-     */
     protected _onEnable(): void {
         super._onEnable();
         const filter = this.owner.getComponent(MeshFilter);
@@ -107,7 +92,6 @@ export class MeshRenderer extends BaseRender {
     }
 
     /**
-     * @internal
      * @param mesh 
      * @param out 
      */
@@ -119,8 +103,6 @@ export class MeshRenderer extends BaseRender {
     }
 
     /**
-     * @internal
-     * @protected
      * @param mesh 
      */
     protected _changeVertexDefine(mesh: Mesh) {
@@ -264,8 +246,6 @@ export class MeshRenderer extends BaseRender {
     }
 
     /**
-     * @internal
-     * @protected
      * @en Update morph target data (shader define) when updating mesh.
      * @param mesh The mesh to update.
      * @zh 更新网格时更新变形目标数据（着色器定义）。
@@ -454,19 +434,13 @@ export class MeshRenderer extends BaseRender {
         }
         this._meshChange = false;
     }
-
-    /**
-     * @internal
-     * @protected
-     */
     protected _onDestroy() {
         super._onDestroy();
         this._morphTargetValues = null;
     }
 
     /**
-     * @internal
-     * @override
+     * @internal 
      * @param dest 
      */
     _cloneTo(dest: MeshRenderer): void {

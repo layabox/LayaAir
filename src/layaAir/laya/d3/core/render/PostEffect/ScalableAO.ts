@@ -138,19 +138,17 @@ export class ScalableAO extends PostProcessEffect {
         compositionPass.renderState.cull = RenderState.CULL_NONE;
     }
 
-    /*@internal scalable AO shader*/
+    /* scalable AO shader*/
     private _shader: Shader3D;
 
-    /**@internal shader data */
+    /** shader data */
     private _shaderData: ShaderData;
 
-    /*@internal blurHorizontal Ao Shader */
+    /* blurHorizontal Ao Shader */
     private _aoBlurHorizontalShader: Shader3D;
 
-    /**@internal */
     private _aoComposition: Shader3D;
 
-    /**@internal */
     private _aoParams: Vector3 = new Vector3();
 
     private _aoQuality: AOQUALITY = AOQUALITY.MEDIUM;
@@ -244,8 +242,6 @@ export class ScalableAO extends PostProcessEffect {
     }
 
     /**
-     * @internal
-     * @override
      * @en Get the camera depth texture mode flag.
      * @zh 获取相机深度纹理模式标志。
      */
@@ -254,8 +250,6 @@ export class ScalableAO extends PostProcessEffect {
     }
 
     /**
-     * @internal
-     * @override
      * @en Render the ambient occlusion effect.
      * @param context The post-process render context.
      * @zh 渲染环境光遮挡效果。

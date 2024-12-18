@@ -12,7 +12,6 @@ import { RenderElement } from "./RenderElement";
  */
 export class SubMeshRenderElement extends RenderElement {
 
-	/** @internal */
 	private _dynamicWorldPositionNormalNeedUpdate: boolean;
 
 	/** @internal */
@@ -34,6 +33,7 @@ export class SubMeshRenderElement extends RenderElement {
 
 
 	/**
+	 * @ignore
 	 * 创建一个 <code>SubMeshRenderElement</code> 实例。
 	 */
 	constructor() {
@@ -41,19 +41,11 @@ export class SubMeshRenderElement extends RenderElement {
 		this._dynamicWorldPositionNormalNeedUpdate = true;
 		this._renderElementOBJ.canDynamicBatch = true;
 	}
-
-	/**
-	 * @internal
-	 */
 	private _onWorldMatrixChanged(): void {
 		this._dynamicWorldPositionNormalNeedUpdate = true;
 	}
 
 
-	/**
-	 * @inheritDoc
-	 * @override
-	 */
 	setTransform(transform: Transform3D): void {
 		if (this.transform !== transform) {
 			(this.transform) && (this.transform.off(Event.TRANSFORM_CHANGED, this, this._onWorldMatrixChanged));
@@ -63,10 +55,6 @@ export class SubMeshRenderElement extends RenderElement {
 		}
 	}
 
-	/**
-	 * @inheritDoc
-	 * @override
-	 */
 	setGeometry(geometry: GeometryElement): void {
 		if (this._geometry !== geometry) {
 			this._geometry = geometry;
@@ -74,10 +62,6 @@ export class SubMeshRenderElement extends RenderElement {
 		}
 	}
 
-	/**
-	 * @inheritDoc
-	 * @override
-	 */
 	destroy(): void {
 		if (!this._renderElementOBJ) return;
 		(this.transform) && this.transform.off(Event.TRANSFORM_CHANGED, this, this._onWorldMatrixChanged);

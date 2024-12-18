@@ -16,9 +16,9 @@ export abstract class Sprite2DGeometry implements ISprite2DGeometry {
     protected _IBBuff: ArrayBuffer;
 
     /**
-     * @param	stride
-     * @param	vballoc  vb预分配的大小。主要是用来提高效率。防止不断的resizebfufer
-     * @param	iballoc
+     * @param stride
+     * @param vballoc  vb预分配的大小。主要是用来提高效率。防止不断的resizebfufer
+     * @param iballoc
      */
     constructor(stride: number, vballoc: number, iballoc: number) {
         this._stride = stride;
@@ -55,7 +55,7 @@ export abstract class Sprite2DGeometry implements ISprite2DGeometry {
 
     /**
     * 在当前的基础上需要多大空间，单位是byte
-    * @param	sz
+    * @param sz
     */
     protected expVBSize(len: number) {
         if (len) {

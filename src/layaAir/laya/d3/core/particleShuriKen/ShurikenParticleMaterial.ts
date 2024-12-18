@@ -27,9 +27,8 @@ export class ShurikenParticleMaterial extends Material {
 	static SHADERDEFINE_DIFFUSEMAP: ShaderDefine;
 	/**@internal */
 	static SHADERDEFINE_TINTCOLOR: ShaderDefine;
-	/**@interanl */
+	/**@internal */
 	static SHADERDEFINE_ADDTIVEFOG: ShaderDefine;
-
 	/**@internal */
 	static DIFFUSETEXTURE: number;
 	/**@internal */
@@ -122,7 +121,6 @@ export class ShurikenParticleMaterial extends Material {
 	}
 
 	/**
-	 * @override
 	 * @en Clone.
 	 * @returns Clone copy.
 	 * @zh 克隆。

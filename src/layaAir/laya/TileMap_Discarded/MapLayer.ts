@@ -206,9 +206,9 @@ export class MapLayer extends Sprite {
      * @param tileY The Y coordinate on the map grid.
      * @param screenPos The Point object to store the calculated screen coordinates.
      * @zh 通过地图坐标得到屏幕坐标。
-     * @param	tileX 格子坐标X
-     * @param	tileY 格子坐标Y
-     * @param	screenPos 把计算好的屏幕坐标数据，放到此对象中
+     * @param tileX 格子坐标X
+     * @param tileY 格子坐标Y
+     * @param screenPos 把计算好的屏幕坐标数据，放到此对象中
      */
     getScreenPositionByTilePos(tileX: number, tileY: number, screenPos: Point = null): void {
         if (screenPos) {

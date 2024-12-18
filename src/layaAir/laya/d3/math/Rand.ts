@@ -55,9 +55,9 @@ export class Rand {
 
 	/**
 	 * @en Constructor method.
-	 * @param	seed  32bit unsigned integer random seed.
+	 * @param seed  32bit unsigned integer random seed.
 	 * @zh 构造方法。
-	 * @param	seed  32位无符号整型随机种子。
+	 * @param seed  32位无符号整型随机种子。
 	 */
 	constructor(seed: number) {
 		this.seeds[0] = seed;

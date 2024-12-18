@@ -1,4 +1,3 @@
-import { Node } from "../../display/Node";
 import { Event } from "../../events/Event";
 import { Config3D } from "../../../Config3D";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
@@ -78,11 +77,8 @@ export class BaseCamera extends Sprite3D {
      * @zh 渲染模式：前向渲染。
      */
     static RENDERINGTYPE_FORWARDRENDERING: string = "FORWARDRENDERING";
-    /**@internal */
     protected static _invertYScaleMatrix: Matrix4x4 = new Matrix4x4(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);//Matrix4x4.createScaling(new Vector3(1, -1, 1), _invertYScaleMatrix);
-    /**@internal */
     protected static _invertYProjectionMatrix: Matrix4x4 = new Matrix4x4();
-    /**@internal */
     protected static _invertYProjectionViewMatrix: Matrix4x4 = new Matrix4x4();
 
     /**
@@ -171,7 +167,6 @@ export class BaseCamera extends Sprite3D {
      */
     protected _renderEngine: IRenderEngine;
     /**
-     * @internal
      * @en The opening height at the farthest point of the camera.
      * @zh 相机最远处的开合高度。
      */
@@ -205,7 +200,6 @@ export class BaseCamera extends Sprite3D {
      */
     protected _orthographic: boolean;
     /**
-     * @internal
      * @en Whether to use a user-defined projection matrix. If a user projection matrix is used, changes to camera projection-related parameters will not affect the projection matrix value. The ResetProjectionMatrix method needs to be called to update it.
      * @zh 是否使用用户自定义投影矩阵。如果使用了用户投影矩阵，摄像机投影矩阵相关的参数改变则不改变投影矩阵的值，需调用ResetProjectionMatrix方法来更新。
      */
@@ -406,15 +400,9 @@ export class BaseCamera extends Sprite3D {
         this._yrange = Math.tan(halffield) * dist * 2;
     }
 
-    /**
-     * @internal
-     */
     protected _calculateProjectionMatrix(): void {
     }
 
-    /**
-     * @internal
-     */
     protected _onScreenSizeChanged(): void {
         this._calculateProjectionMatrix();
     }
@@ -450,22 +438,6 @@ export class BaseCamera extends Sprite3D {
         this._shaderValues.setVector3(BaseCamera.CAMERADIRECTION, this._forward);
         this._shaderValues.setVector3(BaseCamera.CAMERAUP, this._up);
     }
-
-    // /**
-    //  * @internal
-    //  */
-    // _setShaderValue(index: number, value: any) {
-    // 	if (this._cameraUniformData && this._cameraUniformData._has(index))
-    // 		this._cameraUniformData._setData(index, value);
-    // 	this._shaderValues.setValueData(index, value);
-    // }
-
-    // /**
-    //  * @internal
-    //  */
-    // _getShaderValue(index: number): any {
-    // 	return this._shaderValues.getValueData(index);
-    // }
 
 
     /**
@@ -521,28 +493,17 @@ export class BaseCamera extends Sprite3D {
         this._useUserProjectionMatrix = false;
         this._calculateProjectionMatrix();
     }
-
-    /**
-     * @inheritDoc
-     * @override
-     */
     protected _onActive(): void {
         ((<Scene3D>this._scene))._addCamera(this);
         super._onActive();
     }
 
-    /**
-     * @inheritDoc
-     * @override
-     */
     protected _onInActive(): void {
         ((<Scene3D>this._scene))._removeCamera(this);
         super._onInActive();
     }
 
     /**
-     * @inheritDoc
-     * @override
      * @en Destroy the camera.
      * @param destroyChild Whether to destroy child nodes.
      * @zh 销毁相机。

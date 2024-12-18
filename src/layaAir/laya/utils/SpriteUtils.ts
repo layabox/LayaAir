@@ -40,7 +40,7 @@ export class SpriteUtils {
      * @param sprite The Sprite object to calculate.
      * @returns The Rectangle object with the calculated values.
      * @zh 计算传入的显示对象 Sprite 在全局坐标系中的坐标和缩放值，返回一个 Rectangle 对象，存放计算出的坐标 X 值、Y 值、ScaleX 值和 ScaleY 值。
-     * @param	sprite Sprite 对象。
+     * @param sprite Sprite 对象。
      * @return  矩形对象 Rectangle。
      */
     static getGlobalPosAndScale(sprite: Sprite): Rectangle {
@@ -54,9 +54,9 @@ export class SpriteUtils {
      * @param y The y coordinate relative to the `coordinateSpace`.
      * @returns An object containing the transformed x, y coordinates, and scale factor.
      * @zh 获取指定区域内相对于窗口左上角的transform。
-     * @param	coordinateSpace	坐标空间，不能是Stage引用
-     * @param	x				相对于coordinateSpace的x坐标
-     * @param	y				相对于coordinateSpace的y坐标
+     * @param coordinateSpace	坐标空间，不能是Stage引用
+     * @param x				相对于coordinateSpace的x坐标
+     * @param y				相对于coordinateSpace的y坐标
      * @returns 包含转换后的x、y坐标以及缩放因子的对象
      */
     static getTransformRelativeToWindow(coordinateSpace: Sprite, x: number, y: number): any {
@@ -142,12 +142,12 @@ export class SpriteUtils {
      * @param width The width of the area.
      * @param height The height of the area.
      * @zh 使DOM元素适应舞台内指定区域。
-     * @param	dom				DOM元素引用
-     * @param	coordinateSpace	坐标空间，不能是Stage引用
-     * @param	x				相对于coordinateSpace的x坐标
-     * @param	y				相对于coordinateSpace的y坐标
-     * @param	width			宽度
-     * @param	height			高度
+     * @param dom				DOM元素引用
+     * @param coordinateSpace	坐标空间，不能是Stage引用
+     * @param x				相对于coordinateSpace的x坐标
+     * @param y				相对于coordinateSpace的y坐标
+     * @param width			宽度
+     * @param height			高度
      */
     static fitDOMElementInArea(dom: any, coordinateSpace: Sprite, x: number, y: number, width: number, height: number): void {
         if (!dom._fitLayaAirInitialized) {

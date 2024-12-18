@@ -215,9 +215,6 @@ export class ExtendTerrainMaterial extends Material {
 		this.renderMode = ExtendTerrainMaterial.RENDERMODE_OPAQUE;
 	}
 
-	/**
-	 * @internal
-	 */
 	private _setDetailNum(value: number): void {
 		switch (value) {
 			case 1:
@@ -261,7 +258,6 @@ export class ExtendTerrainMaterial extends Material {
 	/**
 	* 克隆。
 	* @return	 克隆副本。
-	* @override
 	*/
 	clone(): any {
 		var dest: ExtendTerrainMaterial = new ExtendTerrainMaterial();

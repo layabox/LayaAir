@@ -10,7 +10,6 @@ import { Vector3 } from "../../../../../maths/Vector3";
  * @zh CircleShape 类用于创建环形粒子发射器。
  */
 export class CircleShape extends BaseShape {
-	/** @internal */
 	protected static _tempPositionPoint: Vector2 = new Vector2();
 
 	/**
@@ -54,12 +53,6 @@ export class CircleShape extends BaseShape {
 		this.arc = deg / 180 * Math.PI;
 	}
 
-
-	/**
-	 * @inheritDoc
-	 * @override
-	 * @internal
-	 */
 	protected _getShapeBoundBox(boundBox: BoundBox): void {
 		var min: Vector3 = boundBox.min;
 		min.x = min.z = -this.radius;
@@ -69,11 +62,6 @@ export class CircleShape extends BaseShape {
 		max.y = 0;
 	}
 
-	/**
-	 * @inheritDoc
-	 * @override
-	 * @internal
-	 */
 	protected _getSpeedBoundBox(boundBox: BoundBox): void {
 		var min: Vector3 = boundBox.min;
 		min.x = min.y = -1;
@@ -131,7 +119,6 @@ export class CircleShape extends BaseShape {
 	}
 
 	/**
-	 * @override
 	 * @en Clones to a target object.
 	 * @param destObject The target object to clone to.
 	 * @zh 克隆到目标对象。

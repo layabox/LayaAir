@@ -389,14 +389,14 @@ export class Matrix4x4 implements IClone {
      * @en Create a perspective projection matrix using FOV.
      * @param fov The field of view in radians.
      * @param aspect The aspect ratio (width / height).
-     * @param near The near clipping plane.
-     * @param far The far clipping plane.
+     * @param znear The near clipping plane.
+     * @param zfar The far clipping plane.
      * @param out The output matrix.
      * @zh 通过FOV创建透视投影矩阵。
      * @param fov 视角（以弧度为单位）。
      * @param aspect 横纵比（宽/高）。
-     * @param near 近裁面。
-     * @param far 远裁面。
+     * @param znear 近裁面。
+     * @param zfar 远裁面。
      * @param out 输出矩阵。
      */
     static createPerspective(fov: number, aspect: number, znear: number, zfar: number, out: Matrix4x4): void {
@@ -445,16 +445,16 @@ export class Matrix4x4 implements IClone {
      * @param right The right boundary of the frustum.
      * @param bottom The bottom boundary of the frustum.
      * @param top The top boundary of the frustum.
-     * @param near The near boundary of the frustum.
-     * @param far The far boundary of the frustum.
+     * @param znear The near boundary of the frustum.
+     * @param zfar The far boundary of the frustum.
      * @param out The output matrix.
      * @zh 计算正交投影矩阵。
      * @param left 视椎左边界。
      * @param right 视椎右边界。
      * @param bottom 视椎底边界。
      * @param top 视椎顶边界。
-     * @param near 视椎近边界。
-     * @param far 视椎远边界。
+     * @param znear 视椎近边界。
+     * @param zfar 视椎远边界。
      * @param out 输出矩阵。
      */
     static createOrthoOffCenter(left: number, right: number, bottom: number, top: number, znear: number, zfar: number, out: Matrix4x4): void {
@@ -479,9 +479,7 @@ export class Matrix4x4 implements IClone {
 
     /**
      * @en Constructor method.
-     * @param Elements Elements of a 4x4 matrix
      * @zh 构造方法
-     * @param Elements 4x4矩阵的各元素
      */
     constructor(m11: number = 1, m12: number = 0, m13: number = 0, m14: number = 0, m21: number = 0, m22: number = 1, m23: number = 0, m24: number = 0, m31: number = 0, m32: number = 0, m33: number = 1, m34: number = 0, m41: number = 0, m42: number = 0, m43: number = 0, m44: number = 1, elements: Float32Array = null) {
         if (arguments.length == 0) {

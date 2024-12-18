@@ -279,7 +279,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
 
     /**
      * 设置当前播放位置
-     * @param	value 当前时间
+     * @param value 当前时间
      */
     set currentTime(value: number) {
         if (!this._templet)
@@ -439,13 +439,13 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
     /**
      * 播放动画
      *
-     * @param	nameOrIndex	动画名字或者索引
-     * @param	loop		是否循环播放
-     * @param	force		false,如果要播的动画跟上一个相同就不生效,true,强制生效
-     * @param	start		起始时间
-     * @param	end			结束时间
-     * @param	freshSkin	是否刷新皮肤数据
-     * @param	playAudio	是否播放音频
+     * @param nameOrIndex	动画名字或者索引
+     * @param loop		是否循环播放
+     * @param force		false,如果要播的动画跟上一个相同就不生效,true,强制生效
+     * @param start		起始时间
+     * @param end			结束时间
+     * @param freshSkin	是否刷新皮肤数据
+     * @param playAudio	是否播放音频
      */
     play(nameOrIndex: string | number, loop: boolean, force: boolean = true, start: number = 0, end: number = 0, freshSkin: boolean = true, playAudio: boolean = true) {
         this._playAudio = playAudio;
@@ -534,7 +534,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
 
     /**
      * 得到指定动画的名字
-     * @param	index	动画的索引
+     * @param index	动画的索引
      */
     getAniNameByIndex(index: number): string {
         return this._templet.getAniNameByIndex(index);
@@ -550,7 +550,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
 
     /**
      * 设置动画播放速率
-     * @param	value	1为标准速率
+     * @param value	1为标准速率
      */
     playbackRate(value: number): void {
         this._playbackRate = value;
@@ -558,7 +558,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
 
     /**
      * 通过名字显示一套皮肤
-     * @param	name	皮肤的名字
+     * @param name	皮肤的名字
      */
     showSkinByName(name: string): void {
         this.showSkinByIndex(this._templet.getSkinIndexByName(name));
@@ -566,7 +566,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
 
     /**
      * 通过索引显示一套皮肤
-     * @param	skinIndex	皮肤索引
+     * @param skinIndex	皮肤索引
      */
     showSkinByIndex(skinIndex: number): void {
         this.spineItem.setSkinIndex(skinIndex);

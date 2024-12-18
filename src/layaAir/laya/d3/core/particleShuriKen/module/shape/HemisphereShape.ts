@@ -33,11 +33,6 @@ export class HemisphereShape extends BaseShape {
 		this.emitFromShell = false;
 	}
 
-	/**
-	 * @inheritDoc
-	 * @override
-	 * @internal
-	 */
 	protected _getShapeBoundBox(boundBox: BoundBox): void {
 		var min: Vector3 = boundBox.min;
 		min.x = min.y = min.z = -this.radius;
@@ -46,11 +41,7 @@ export class HemisphereShape extends BaseShape {
 		max.z = 0;
 	}
 
-	/**
-	 * @inheritDoc
-	 * @override
-	 * @internal
-	 */
+
 	protected _getSpeedBoundBox(boundBox: BoundBox): void {
 		var min: Vector3 = boundBox.min;
 		min.x = min.y = -1;
@@ -60,7 +51,6 @@ export class HemisphereShape extends BaseShape {
 	}
 
 	/** 
-	 * @override
 	 * @en Generates initial position and direction for particles.
 	 * @param position The particle position.
 	 * @param direction The particle direction.
@@ -106,7 +96,6 @@ export class HemisphereShape extends BaseShape {
 	}
 
 	/**
-	 * @override
 	 * @en Clones to a target object.
 	 * @param destObject The target object to clone to.
 	 * @zh 克隆到目标对象。
@@ -120,7 +109,6 @@ export class HemisphereShape extends BaseShape {
 	}
 
 	/**
-	 * @override
 	 * @en Clone.
 	 * @returns Clone copy.
 	 * @zh 克隆。

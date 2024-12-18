@@ -63,7 +63,6 @@ export class SpriteLight2D extends BaseLight2D {
     }
 
     /**
-     * @internal
      * 计算灯光范围（世界坐标）
      * @param screen 屏幕位置和尺寸
      */
@@ -108,7 +107,6 @@ export class SpriteLight2D extends BaseLight2D {
     }
 
     /**
-     * @internal
      * 销毁
      */
     protected _onDestroy() {
