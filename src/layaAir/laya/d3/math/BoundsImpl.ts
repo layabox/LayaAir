@@ -165,11 +165,11 @@ export class BoundsImpl implements IClone {
 
     /**
      * @en Constructor method.
-     * @param	min  The minimum point of the bounding box.
-     * @param	max  The maximum point of the bounding box.
+     * @param min  The minimum point of the bounding box.
+     * @param max  The maximum point of the bounding box.
      * @zh 构造方法。
-     * @param	min  min 最小坐标
-     * @param	max  max 最大坐标。
+     * @param min  min 最小坐标
+     * @param max  max 最大坐标。
      */
     constructor(min?: Vector3, max?: Vector3) {
         min && min.cloneTo(this._boundBox.min);

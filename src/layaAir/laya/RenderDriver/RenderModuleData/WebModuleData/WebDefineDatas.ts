@@ -144,7 +144,7 @@ export class WebDefineDatas implements IDefineDatas {
 
 	/**
 	 * 克隆。
-	 * @param	destObject 克隆源。
+	 * @param destObject 克隆源。
 	 */
 	cloneTo(destObject: WebDefineDatas): void {
 		var destMask: Array<number> = destObject._mask;

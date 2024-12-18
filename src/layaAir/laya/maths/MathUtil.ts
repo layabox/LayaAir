@@ -193,8 +193,8 @@ export class MathUtil {
      * @param b The second number to compare.
      * @returns 0 if a equals b, -1 if b > a, 1 if b < a.
      * @zh 一个用来确定数组元素排序顺序的比较函数。
-     * @param	a 待比较数字。
-     * @param	b 待比较数字。
+     * @param a 待比较数字。
+     * @param b 待比较数字。
      * @returns 如果a等于b 则值为0；如果b>a则值为-1；如果b<则值为1。
      */
     static sortSmallFirst(a: number, b: number): number {

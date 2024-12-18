@@ -20,11 +20,11 @@ export class BoundBox implements IClone {
 
 	/**
 	 * @en Constructor method of the bounding box.
-	 * @param	min The minimum vertex of the bounding box.
-	 * @param	max The maximum vertex of the bounding box.
+	 * @param min The minimum vertex of the bounding box.
+	 * @param max The maximum vertex of the bounding box.
 	 * @zh 包围盒的构造方法。
-	 * @param	min 包围盒的最小顶点。
-	 * @param	max 包围盒的最大顶点。
+	 * @param min 包围盒的最小顶点。
+	 * @param max 包围盒的最大顶点。
 	 */
 	constructor(min: Vector3, max: Vector3) {
 		this.min = min;

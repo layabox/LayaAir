@@ -60,8 +60,8 @@ export class Render {
 
     /**
      * 初始化引擎。
-     * @param	width 游戏窗口宽度。
-     * @param	height	游戏窗口高度。
+     * @param width 游戏窗口宽度。
+     * @param height	游戏窗口高度。
      */
     constructor(width: number, height: number, mainCanv: HTMLCanvas) {
         Render._Render = this;

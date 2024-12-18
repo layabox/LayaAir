@@ -95,7 +95,7 @@ export class HttpRequest extends EventDispatcher {
      * @en The listening and processing function for requesting progress.
      * @param e The event object.
      * @zh 请求进度的侦听处理函数。
-     * @param	e 事件对象。
+     * @param e 事件对象。
      */
     protected _onProgress(e: any): void {
         if (e && e.lengthComputable) this.event(Event.PROGRESS, e.loaded / e.total);
@@ -105,7 +105,7 @@ export class HttpRequest extends EventDispatcher {
      * @en The listening and processing function for request interruption.
      * @param e The event object.
      * @zh 请求中断的侦听处理函数。
-     * @param	e 事件对象。
+     * @param e 事件对象。
      */
     protected _onAbort(e: any): void {
         this.error("Request was aborted by user");
@@ -115,7 +115,7 @@ export class HttpRequest extends EventDispatcher {
      * @en The listening and processing function for request errors.
      * @param e The event object.
      * @zh 请求出错侦的听处理函数。
-     * @param	e 事件对象。
+     * @param e 事件对象。
      */
     protected _onError(e: any): void {
         this.error("Request failed Status:" + this._http.status + " text:" + this._http.statusText);
@@ -125,7 +125,7 @@ export class HttpRequest extends EventDispatcher {
      * @en The listening and processing function for request completion.
      * @param e The event object.
      * @zh 请求消息返回的侦听处理函数。
-     * @param	e 事件对象。
+     * @param e 事件对象。
      */
     protected _onLoad(e: any): void {
         var http: any = this._http;
@@ -142,7 +142,7 @@ export class HttpRequest extends EventDispatcher {
      * @en Request error handling function.
      * @param message The error message.
      * @zh 请求错误的处理函数。
-     * @param	message 错误信息。
+     * @param message 错误信息。
      */
     protected error(message: string): void {
         this.clear();

@@ -60,9 +60,9 @@ export class IBCreator {
 
     /**
 	 * @en set index buffer length.
-	 * @param	maxIndexCount The Max length of Index count.
+	 * @param maxIndexCount The Max length of Index count.
 	 * @zh 设置索引缓冲长度。
-	 * @param	maxIndexCount 索引最大个数。
+	 * @param maxIndexCount 索引最大个数。
 	 */
     setBufferLength(maxIndexCount:number){
         if (maxIndexCount <= this.maxIndexCount) return;

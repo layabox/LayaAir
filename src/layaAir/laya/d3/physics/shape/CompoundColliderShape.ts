@@ -78,7 +78,7 @@ export class CompoundColliderShape extends Physics3DColliderShape {
 
 	/**
 	 * 添加子碰撞器形状。
-	 * @param	shape 子碰撞器形状。
+	 * @param shape 子碰撞器形状。
 	 */
 	addChildShape(shape: any): void {
 		// if (shape._attatched)
@@ -106,7 +106,7 @@ export class CompoundColliderShape extends Physics3DColliderShape {
 
 	/**
 	 * 移除子碰撞器形状。
-	 * @param	shape 子碰撞器形状。
+	 * @param shape 子碰撞器形状。
 	 */
 	removeChildShape(shape:any): void {
 		// if (shape._compoundParent === this) {
@@ -141,7 +141,7 @@ export class CompoundColliderShape extends Physics3DColliderShape {
 
 	/**
 	 * 将数据克隆到目标节点
-	 * @param 目标节点
+	 * @param destObject 目标节点
 	 */
 	cloneTo(destObject: CompoundColliderShape): void {
 		destObject.clearChildShape();

@@ -75,7 +75,7 @@ export class WebGLRenderElement3D implements IRenderElement3D {
     /**
      * render RenderElement
      * context:GLESRenderContext3D
-     * @param renderqueue 
+     * @param context 
      */
     _render(context: WebGLRenderContext3D): void {
         var forceInvertFace: boolean = context.invertY;

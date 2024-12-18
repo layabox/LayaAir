@@ -223,11 +223,9 @@ export class Blit2DCMD extends Command2D {
     /**
      * @en change render shader
      * @param shader use shader
-     * @param subShader shader index of ShaderList
      * @param shaderData data for shader
      * @zh 设置着色器
      * @param shader 使用着色器
-     * @param subShader 着色器索引（目前都是0）
      * @param shaderData 着色器数据
      */
     setshader(shader: Shader3D, shaderData: ShaderData) {

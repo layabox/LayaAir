@@ -41,9 +41,9 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 
 	/**
 	 * @en Destroy this object.
-	 * @param	destroyChild Whether to destroy the child node. If true, the child node will be destroyed, otherwise it will not be destroyed.
+	 * @param destroyChild Whether to destroy the child node. If true, the child node will be destroyed, otherwise it will not be destroyed.
 	 * @zh 销毁此对象。
-	 * @param	destroyChild 是否同时销毁子节点，若值为true,则销毁子节点，否则不销毁子节点。
+	 * @param destroyChild 是否同时销毁子节点，若值为true,则销毁子节点，否则不销毁子节点。
 	 */
 	destroy(destroyChild: boolean = true): void {
 		if (this._destroyed)

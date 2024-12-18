@@ -220,7 +220,7 @@ export class Sprite3D extends Node {
     /**
      * @internal
      * 克隆。
-     * @param	destObject 克隆源。
+     * @param destObject 克隆源。
      */
     _cloneTo(destObject: Sprite3D, srcRoot: Node, dstRoot: Node): void {
         if (this._destroyed)
@@ -273,7 +273,7 @@ export class Sprite3D extends Node {
 
     /**
      * @en destroy
-     * @param dextroychild whether to destroy the child node.
+     * @param destroyChild whether to destroy the child node.
      * @zh 销毁
      * @param destroyChild 是否销毁子节点
      */

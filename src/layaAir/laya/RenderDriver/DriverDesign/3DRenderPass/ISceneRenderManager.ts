@@ -8,7 +8,7 @@ import { FastSinglelist } from "../../../utils/SingletonList";
 export interface ISceneRenderManager {
 
     list: FastSinglelist<BaseRender>;
-    baseRenderList:FastSinglelist<IBaseRenderNode>
+    baseRenderList: FastSinglelist<IBaseRenderNode>
 
     /**
      * add one BaseRender
@@ -32,7 +32,6 @@ export interface ISceneRenderManager {
     addMotionObject(object: BaseRender): void;
     /**
      * 更新运动物体
-     * @param object 
      */
     updateMotionObjects(): void;
     /**

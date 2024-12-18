@@ -375,8 +375,8 @@ export class Clip extends UIComponent {
      * @param from Start index.
      * @param to End index, -1 is not limited.
      * @zh 播放切片动画。
-     * @param	from	开始索引
-     * @param	to		结束索引，-1为不限制
+     * @param from	开始索引
+     * @param to		结束索引，-1为不限制
      */
     play(from: number = 0, to: number = -1): void {
         this._setClipChanged();

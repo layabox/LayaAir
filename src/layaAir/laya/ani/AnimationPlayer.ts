@@ -448,11 +448,11 @@ export class AnimationPlayer extends EventDispatcher {
 	 * @param playStart The start time position of the playback.
 	 * @param playEnd The end time position of the playback (0 for the longest end time position of one loop of the animation).
 	 * @zh 基于时间来播放动画。
-	 * @param	index 动画索引。
-	 * @param	playbackRate 播放速率。
-	 * @param	duration 播放时长（0为1次,Number.MAX_VALUE为循环播放）。
-	 * @param	playStart 播放的起始时间位置。
-	 * @param	playEnd 播放的结束时间位置。（0为动画一次循环的最长结束时间位置）。
+	 * @param index 动画索引。
+	 * @param playbackRate 播放速率。
+	 * @param overallDuration 播放时长（0为1次,Number.MAX_VALUE为循环播放）。
+	 * @param playStart 播放的起始时间位置。
+	 * @param playEnd 播放的结束时间位置。（0为动画一次循环的最长结束时间位置）。
 	 */
 	play(index: number = 0, playbackRate: number = 1.0, overallDuration: number = /*int.MAX_VALUE*/ 2147483647, playStart: number = 0, playEnd: number = 0): void {
 		if (!this._templet)
@@ -494,12 +494,12 @@ export class AnimationPlayer extends EventDispatcher {
 	 * @param playEndFrame The original end frame rate position for playback (0 for the longest end time position of one loop of the animation).
 	 * @param fpsIn3DBuilder The frames per second in the 3D builder.
 	 * @zh 基于帧的参数来播放动画。
-	 * @param	index 动画索引。
-	 * @param	playbackRate 播放速率。
-	 * @param	duration 播放时长（0为1次,Number.MAX_VALUE为循环播放）。
-	 * @param	playStartFrame 播放的原始起始帧率位置。
-	 * @param	playEndFrame 播放的原始结束帧率位置。（0为动画一次循环的最长结束时间位置）。
-	 * @param	fpsIn3DBuilder 3D构建器中的帧率。
+	 * @param index 动画索引。
+	 * @param playbackRate 播放速率。
+	 * @param overallDuration 播放时长（0为1次,Number.MAX_VALUE为循环播放）。
+	 * @param playStartFrame 播放的原始起始帧率位置。
+	 * @param playEndFrame 播放的原始结束帧率位置。（0为动画一次循环的最长结束时间位置）。
+	 * @param fpsIn3DBuilder 3D构建器中的帧率。
 	 */
 	playByFrame(index: number = 0, playbackRate: number = 1.0, overallDuration: number = /*int.MAX_VALUE*/ 2147483647, playStartFrame: number = 0, playEndFrame: number = 0, fpsIn3DBuilder: number = 30): void {
 		var interval: number = 1000.0 / fpsIn3DBuilder;

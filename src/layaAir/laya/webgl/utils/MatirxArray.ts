@@ -3,9 +3,9 @@ export class MatirxArray {
     /**
      * 4*4矩阵数组相乘。
      * o=a*b;
-     * @param	a 4*4矩阵数组。
-     * @param	b 4*4矩阵数组。
-     * @param	o 4*4矩阵数组。
+     * @param a 4*4矩阵数组。
+     * @param b 4*4矩阵数组。
+     * @param o 4*4矩阵数组。
      */
     //TODO:coverage
     static ArrayMul(a: any[], b: any[], o: any[]): void {

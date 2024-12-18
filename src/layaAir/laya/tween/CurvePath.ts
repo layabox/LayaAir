@@ -128,11 +128,9 @@ export class CurvePath {
     /**
      * @en Get the point on the curve at the specified distance.
      * @param t Distance value. It should be a value between 0 and 1.
-     * @param out The point on the curve at the specified distance. 
      * @returns The point on the curve at the specified distance.
      * @zh 获取曲线上的指定距离的点。
      * @param t 距离值，它应该是0到1之间的值。
-     * @param out 用于存储计算结果的点。
      * @returns 曲线上的指定距离的点。
      */
     getPointAt(t: number): Readonly<Vector3> {

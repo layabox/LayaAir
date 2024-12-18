@@ -573,7 +573,7 @@ export class Templet extends AnimationTemplet {
      * @param name The name of the texture.
      * @returns The requested texture object.
      * @zh 通过名称获取指定的纹理。
-     * @param	name	纹理的名字
+     * @param name	纹理的名字
      * @returns 所请求的纹理对象。
      */
     getTexture(name: string): Texture {
@@ -595,9 +595,9 @@ export class Templet extends AnimationTemplet {
      * @param freshDisplayIndex Whether to reset the slot textures, default is true.
      * @return Whether the skin was successfully displayed.
      * @zh 使用插槽字典和皮肤索引显示指定的皮肤。
-     * @param	boneSlotDic	插槽字典的引用
-     * @param	skinIndex	要显示的皮肤的索引
-     * @param	freshDisplayIndex	是否重置插槽纹理，默认为true
+     * @param boneSlotDic	插槽字典的引用
+     * @param skinIndex	要显示的皮肤的索引
+     * @param freshDisplayIndex	是否重置插槽纹理，默认为true
      * @return	是否显示皮肤成功
      */
     showSkinByIndex(boneSlotDic: any, skinIndex: number, freshDisplayIndex: boolean = true): boolean {
@@ -631,7 +631,7 @@ export class Templet extends AnimationTemplet {
      * @param skinName The name of the skin.
      * @return The index of the skin, or -1 if not found.
      * @zh 通过皮肤名称获取皮肤索引。
-     * @param	skinName	皮肤名称
+     * @param skinName	皮肤名称
      * @return	皮肤索引，找不到返回-1
      */
     getSkinIndexByName(skinName: string): number {
@@ -665,8 +665,8 @@ export class Templet extends AnimationTemplet {
      * @param frameIndex The index of the frame within the animation.
      * @return The graphics object for the specified animation frame, or null if not available.
      * @zh 获取特定动画帧的缓冲图形数据。
-     * @param	aniIndex	动画索引
-     * @param	frameIndex	帧索引
+     * @param aniIndex	动画索引
+     * @param frameIndex	帧索引
      * @return	指定动画帧的对象，如果不存在则返回null
      */
     getGrahicsDataWithCache(aniIndex: number, frameIndex: number): Graphics {
@@ -684,9 +684,9 @@ export class Templet extends AnimationTemplet {
      * @param frameIndex The index of the frame within the animation.
      * @param graphics The graphics object to cache.
      * @zh 保存特定动画帧的图形数据到缓冲区。
-     * @param	aniIndex	动画索引
-     * @param	frameIndex	帧索引
-     * @param	graphics	要缓存的数据
+     * @param aniIndex	动画索引
+     * @param frameIndex	帧索引
+     * @param graphics	要缓存的数据
      */
     setGrahicsDataWithCache(aniIndex: number, frameIndex: number, graphics: Graphics): void {
         this._graphicsCache[aniIndex][frameIndex] = graphics;
@@ -696,7 +696,7 @@ export class Templet extends AnimationTemplet {
      * @en Deletes animation data at the specified index.
      * @param aniIndex The index of the animation data to delete.
      * @zh 删除指定索引的动画数据。
-     * @param	aniIndex	要删除的动画索引
+     * @param aniIndex	要删除的动画索引
      */
     deleteAniData(aniIndex: number): void {
         if (this._anis[aniIndex]) {

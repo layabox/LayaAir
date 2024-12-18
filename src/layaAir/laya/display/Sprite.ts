@@ -995,9 +995,11 @@ export class Sprite extends Node {
 
     /**
      * @en Set the anchor coordinate
-     * @param value The anchor coordinate to set.
+     * @param x The x coordinate of the anchor.
+     * @param y The y coordinate of the anchor.
      * @zh 设置锚点坐标
-     * @param value 要设置的锚点的坐标。
+     * @param x 锚点的X坐标
+     * @param y 锚点的Y坐标
      */
     anchor(x: number, y: number): this {
         if (this._anchorX != x || this._anchorY != y) {

@@ -251,10 +251,7 @@ export class CommandBuffer2D {
     /**
      * 渲染Mesh2D指令
      * @param mesh 
-     * @param pos 
-     * @param rotate 
-     * @param skew 
-     * @param scale 
+     * @param mat 
      * @param meshTexture 
      * @param color 
      * @param material 

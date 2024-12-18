@@ -31,6 +31,8 @@ export class Batch2DInfo {
         this._pool.push(info);
     }
 }
+
+/** @ignore */
 export class RenderManager2D {
 
     /**

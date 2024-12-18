@@ -6,7 +6,7 @@ import { Sprite2DGeometry } from "./Sprite2DGeometry";
 
 /**
  * 直接创建一个固定的ib。按照固定四边形的索引。
- * @param	var QuadNum
+ * @param var QuadNum
  */
 function createQuadIB(quadNum: number) {
 	let ibbuf = new Byte(quadNum * 6 * 2);

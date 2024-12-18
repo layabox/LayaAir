@@ -43,13 +43,13 @@ export class Shake extends EventDispatcher {
      * @en Starts responding to device shaking.
      * The response is based on the threshold of instantaneous velocity and the interval between shakes.
      * @param threshold The threshold for the instantaneous velocity for a shake response, which is approximately between 5 to 10 for a mild shake.
-     * @param timeout The interval time for responding to device shakes.
+     * @param interval The interval time for responding to device shakes.
      * @zh 开始响应设备摇晃。
      * @param threshold 响应瞬时速度的阈值，轻度摇晃的值约在 5 到 10 之间。
-     * @param timeout 设备摇晃的响应间隔时间。
+     * @param interval 设备摇晃的响应间隔时间。
      */
-    start(throushold: number, interval: number): void {
-        this.throushold = throushold;
+    start(threshold: number, interval: number): void {
+        this.throushold = threshold;
         this.shakeInterval = interval;
 
         this.lastX = this.lastY = this.lastZ = NaN;

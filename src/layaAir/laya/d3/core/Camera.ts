@@ -880,9 +880,9 @@ export class Camera extends BaseCamera {
      * @param nearPlane The near clipping plane distance.
      * @param farPlane The far clipping plane distance.
      * @zh 创建一个Camera实例。
-     * @param	aspectRatio 横纵比。
-     * @param	nearPlane 近裁面。
-     * @param	farPlane 远裁面。
+     * @param aspectRatio 横纵比。
+     * @param nearPlane 近裁面。
+     * @param farPlane 远裁面。
      */
     constructor(aspectRatio: number = 0, nearPlane: number = 0.3, farPlane: number = 1000) {
         super(nearPlane, farPlane);

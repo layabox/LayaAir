@@ -1276,11 +1276,11 @@ export class Scene3D extends Sprite {
     /**
      * @en Sets a global shader value for rendering.
      * @param name The name corresponding to the shader.
-     * @param shaderDataType The type of the shader data.
+     * @param type The type of the shader data.
      * @param value The value of the rendering data.
      * @zh 设置全局渲染着色器值。
      * @param name 数据对应着色器名字
-     * @param shaderDataType 渲染数据类型
+     * @param type 渲染数据类型
      * @param value 渲染数据值
      */
     setGlobalShaderValue(name: string, type: ShaderDataType, value: ShaderDataItem) {

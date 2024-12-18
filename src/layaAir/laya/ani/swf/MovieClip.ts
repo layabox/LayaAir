@@ -151,8 +151,8 @@ export class MovieClip extends Sprite {
      * @param label The name of the label.
      * @param index The frame index to add the label to.
      * @zh 在指定的帧索引上增加一个标签，播放到此索引后会派发label事件。
-     * @param	label	标签名称
-     * @param	index	索引位置
+     * @param label	标签名称
+     * @param index	索引位置
      */
     addLabel(label: string, index: number): void {
         if (!this._labels) this._labels = {};
@@ -163,7 +163,7 @@ export class MovieClip extends Sprite {
      * @en Remove the corresponding label from the specified label name.
      * @param label The name of the label to remove. If not provided, all labels are removed.
      * @zh 从指定的标签名字删除对应标签。
-     * @param	label 标签名字，如果label为空，则删除所有Label
+     * @param label 标签名字，如果label为空，则删除所有Label
      */
     removeLabel(label: string): void {
         if (!label) this._labels = null;
@@ -272,9 +272,9 @@ export class MovieClip extends Sprite {
 
     /**
      * @en Play Animation
-     * @param	index frame index
+     * @param index frame index
      * @zh 播放动画。
-     * @param	index 帧索引
+     * @param index 帧索引
      */
     play(index: number = 0, loop: boolean = true): void {
         this.loop = loop;

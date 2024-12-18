@@ -421,10 +421,7 @@ export class VideoNode extends Sprite {
     }
 
     /**
-     * @en Destroy the internal event bindings and optionally destroy child nodes
-     * @param destroyChildren Whether to destroy child nodes
-     * @zh 销毁内部事件绑定，并可选择是否删除子节点
-     * @param destroyChildren 是否删除子节点
+     * @ignore
      */
     destroy(detroyChildren: boolean = true): void {
         this.videoTexture = null;

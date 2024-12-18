@@ -182,7 +182,7 @@ export class WebXRInput extends EventDispatcher {
      * @param index The index of the axis.
      * @param type The type of event.
      * @param caller The execution scope of the event listener function.
-     * @param list ener The event listener function.
+     * @param listener The event listener function.
      * @zh 为游戏手柄轴添加事件侦听器。
      * @param index 轴索引。
      * @param type 事件类型。

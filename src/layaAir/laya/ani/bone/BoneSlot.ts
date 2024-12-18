@@ -120,8 +120,8 @@ export class BoneSlot {
      * @param tarName The name of the texture to be replaced.
      * @param newName The name of the new texture to replace with.
      * @zh 替换贴图名。
-     * @param	tarName 要替换的贴图名
-     * @param	newName 替换后的贴图名
+     * @param tarName 要替换的贴图名
+     * @param newName 替换后的贴图名
      */
     replaceDisplayByName(tarName: string, newName: string): void {
         if (!this.currSlotData) return;
@@ -137,8 +137,8 @@ export class BoneSlot {
      * @param tarIndex The index of the display to be replaced.
      * @param newIndex The new index to replace with.
      * @zh 替换贴图索引。
-     * @param	tarIndex 要替换的索引
-     * @param	newIndex 替换后的索引
+     * @param tarIndex 要替换的索引
+     * @param newIndex 替换后的索引
      */
     replaceDisplayByIndex(tarIndex: number, newIndex: number): void {
         if (!this.currSlotData) return;
@@ -427,7 +427,7 @@ export class BoneSlot {
 
     /**
      * 显示蒙皮动画
-     * @param	boneMatrixArray 当前帧的骨骼矩阵
+     * @param boneMatrixArray 当前帧的骨骼矩阵
      */
     private skinMesh(boneMatrixArray: any[], skinSprite: any): void {
         var tTexture: Texture = this.currTexture;

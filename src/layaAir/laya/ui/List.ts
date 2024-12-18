@@ -1018,11 +1018,11 @@ export class List extends Box {
      * @param source The data source to add.
      * @param index The index at which to insert the data source.
      * @zh 添加单元格数据源到对应的数据索引处。
-     * @param souce 单元格数据源。
+     * @param source 单元格数据源。
      * @param index 索引。
      */
-    addItemAt(souce: any, index: number): void {
-        this._array!.splice(index, 0, souce);
+    addItemAt(source: any, index: number): void {
+        this._array!.splice(index, 0, source);
         this.array = this._array!;
     }
 

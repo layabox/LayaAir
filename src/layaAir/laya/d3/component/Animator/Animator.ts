@@ -1408,7 +1408,7 @@ export class Animator extends Component {
      * @param layerIndex The layer index.
      * @returns The default animation state.
      * @zh 获取默认动画状态。
-     * @param	layerIndex 层索引。
+     * @param layerIndex 层索引。
      * @return 默认动画状态。
      */
     getDefaultState(layerIndex: number = 0): AnimatorState {
@@ -1421,7 +1421,7 @@ export class Animator extends Component {
      * @param state The animation state to add.
      * @param layerIndex The layer index. 
      * @zh 添加动画状态。
-     * @param	state 动画状态。
+     * @param state 动画状态。
      * @param   layerIndex 层索引。
      */
     addState(state: AnimatorState, layerIndex: number = 0): void {
@@ -1435,7 +1435,7 @@ export class Animator extends Component {
      * @param state The animation state to remove.
      * @param layerIndex The layer index.
      * @zh 移除动画状态。
-     * @param	state 动画状态。
+     * @param state 动画状态。
      * @param   layerIndex 层索引。
      */
     removeState(state: AnimatorState, layerIndex: number = 0): void {
@@ -1464,11 +1464,11 @@ export class Animator extends Component {
      * @param layerIndex The layer index. Defaults to 0.
      * @returns The AnimatorControllerLayer at the specified index.
      * @zh 获取控制器层。
-     * @param	layerIndex 层索引。
+     * @param layerIndex 层索引。
      * @return 指定索引处的AnimatorControllerLayer。
      */
-    getControllerLayer(layerInex: number = 0): AnimatorControllerLayer {
-        return this._controllerLayers[layerInex];
+    getControllerLayer(layerIndex: number = 0): AnimatorControllerLayer {
+        return this._controllerLayers[layerIndex];
     }
 
     /**
@@ -1477,9 +1477,9 @@ export class Animator extends Component {
      * @param layerIndex The layer index. Defaults to 0.
      * @param normalizedTime The normalized start time of the animation. Defaults to Number.NEGATIVE_INFINITY.
      * @zh 播放动画。
-     * @param	name 如果为null则播放默认动画，否则按名字播放动画片段。
-     * @param	layerIndex 层索引。
-     * @param	normalizedTime 归一化的播放起始时间。
+     * @param name 如果为null则播放默认动画，否则按名字播放动画片段。
+     * @param layerIndex 层索引。
+     * @param normalizedTime 归一化的播放起始时间。
      */
     play(name: string | null = null, layerIndex: number = 0, normalizedTime: number = Number.NEGATIVE_INFINITY): void {
         var controllerLayer: AnimatorControllerLayer = this._controllerLayers[layerIndex];
@@ -1530,10 +1530,10 @@ export class Animator extends Component {
      * @param layerIndex The layer index. Defaults to 0.
      * @param normalizedTime The normalized start time of the animation. Defaults to Number.NEGATIVE_INFINITY.
      * @zh 在当前动画状态和目标动画状态之间进行融合过渡播放。
-     * @param	name 目标动画状态。
-     * @param	transitionDuration 过渡时间,该值为当前动画状态的归一化时间，值在0.0~1.0之间。
-     * @param	layerIndex 层索引。
-     * @param	normalizedTime 归一化的播放起始时间。
+     * @param name 目标动画状态。
+     * @param transitionDuration 过渡时间,该值为当前动画状态的归一化时间，值在0.0~1.0之间。
+     * @param layerIndex 层索引。
+     * @param normalizedTime 归一化的播放起始时间。
      */
     crossFade(name: string, transitionDuration: number, layerIndex: number = 0, normalizedTime: number = Number.NEGATIVE_INFINITY): void {
         //console.log("name:" + name + "," + "transitionDuration" + transitionDuration + "," + "layerIndex" + layerIndex);
@@ -1719,7 +1719,7 @@ export class Animator extends Component {
      * @param name The name or index of the parameter.
      * @returns The value of the parameter.
      * @zh 获取参数的值。
-     * @param	name 属性的名字或者索引
+     * @param name 属性的名字或者索引
      * @return 属性值
      */
     getParamsvalue(name: number): number | boolean;
@@ -1740,8 +1740,8 @@ export class Animator extends Component {
      * @param   layerIndex 层索引。
      * @return  动画播放状态。
      */
-    getCurrentAnimatorPlayState(layerInex: number = 0): AnimatorPlayState {
-        return this._controllerLayers[layerInex]._playStateInfo!;
+    getCurrentAnimatorPlayState(layerIndex: number = 0): AnimatorPlayState {
+        return this._controllerLayers[layerIndex]._playStateInfo!;
     }
 }
 

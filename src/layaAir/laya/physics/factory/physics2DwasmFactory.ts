@@ -768,13 +768,13 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      * @param dampingRatio 阻尼比。
      * @param isdamping 是否应用阻尼。
      */
-    set_Joint_frequencyAndDampingRatio(Joint: any, frequency: number, dampingRatio: number, isdamping: boolean): void {
+    set_Joint_frequencyAndDampingRatio(joint: any, frequency: number, dampingRatio: number, isdamping: boolean): void {
         let out: any = {}
-        this.box2d.b2AngularStiffness(out, frequency, dampingRatio, Joint.GetBodyA(), Joint.GetBodyB());
+        this.box2d.b2AngularStiffness(out, frequency, dampingRatio, joint.GetBodyA(), joint.GetBodyB());
         if (!isdamping) {
-            Joint.SetStiffness(out.stiffness);
+            joint.SetStiffness(out.stiffness);
         }
-        Joint.SetDamping(out.damping);
+        joint.SetDamping(out.damping);
     }
 
     /**
@@ -863,11 +863,11 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      * @param stiffness 刚度。
      * @param damping 阻尼。
      */
-    set_DistanceJointStiffnessDamping(joint: any, steffness: number, damping: number) {
+    set_DistanceJointStiffnessDamping(joint: any, stiffness: number, damping: number) {
         let out: any = {};
         let bodyA = joint.GetBodyA();
         let bodyB = joint.GetBodyB();
-        this.box2d.b2LinearStiffness(out, steffness, damping, bodyA, bodyB);
+        this.box2d.b2LinearStiffness(out, stiffness, damping, bodyA, bodyB);
         joint.SetStiffness(out.stiffness);
         joint.SetDamping(out.damping);
     }

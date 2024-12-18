@@ -13,7 +13,7 @@ export class GradientAngularVelocity implements IClone {
 	 * @param constant The constant angular velocity.
 	 * @return The gradient angular velocity.
 	 * @zh 通过固定角速度创建一个 `GradientAngularVelocity` 实例。
-	 * @param	constant 固定角速度。
+	 * @param constant 固定角速度。
 	 * @return 渐变角速度。
 	 */
 	static createByConstant(constant: number): GradientAngularVelocity {

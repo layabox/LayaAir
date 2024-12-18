@@ -82,7 +82,7 @@ export class Skeleton extends Sprite {
      * @en Constructs method of Skeleton animation.
      * @param aniMode - Animation mode, 0 for no costume changes support, 1 or 2 for costume changes support.
      * @zh 骨骼动画的构造方法
-     * @param	aniMode	动画模式，0不支持换装，1、2支持换装
+     * @param aniMode	动画模式，0不支持换装，1、2支持换装
      */
     constructor(aniMode: number = 0) {
         super();
@@ -231,7 +231,7 @@ export class Skeleton extends Sprite {
 
     /**
      * 初始化动画
-     * @param	templet		模板
+     * @param templet		模板
      */
     protected init(templet: Templet): void {
         if (this._templet) {
@@ -409,7 +409,7 @@ export class Skeleton extends Sprite {
 
     /**
      * 更新动画
-     * @param	autoKey true为正常更新，false为index手动更新
+     * @param autoKey true为正常更新，false为index手动更新
      */
     private _update(autoKey: boolean = true): void {
         if (autoKey && this._pause) return;
@@ -494,7 +494,7 @@ export class Skeleton extends Sprite {
 
     /**
      * 创建grahics图像. 并且保存到cache中
-     * @param	_clipIndex 第几帧
+     * @param _clipIndex 第几帧
      */
     protected _createGraphics(_clipIndex: number = -1): GraphicsAni {
         if (_clipIndex == -1) _clipIndex = this._clipIndex;
@@ -774,10 +774,10 @@ export class Skeleton extends Sprite {
 
     /**
      * 设置deform数据
-     * @param	tDeformAniData
-     * @param	tDeformDic
-     * @param	_boneSlotArray
-     * @param	curTime
+     * @param tDeformAniData
+     * @param tDeformDic
+     * @param _boneSlotArray
+     * @param curTime
      */
     private _setDeform(tDeformAniData: DeformAniData, tDeformDic: any, _boneSlotArray: any[], curTime: number): void {
         if (!tDeformAniData) return;
@@ -941,7 +941,7 @@ export class Skeleton extends Sprite {
      * @param slotName The name of the slot.
      * @param texture The custom texture to be applied.
      * @zh 为指定的插槽设置自定义皮肤。
-     * @param name 插糟的名字
+     * @param slotName 插糟的名字
      * @param texture 自定义的纹理
      */
     setSlotSkin(slotName: string, texture: Texture): void {
@@ -1108,8 +1108,8 @@ export class Skeleton extends Sprite {
 
     /**
      * 得到缓冲数据
-     * @param	aniIndex
-     * @param	frameIndex
+     * @param aniIndex
+     * @param frameIndex
      * @return
      */
     private _getGrahicsDataWithCache(aniIndex: number, frameIndex: number): Graphics {
@@ -1118,9 +1118,9 @@ export class Skeleton extends Sprite {
 
     /**
      * 保存缓冲grahpics
-     * @param	aniIndex
-     * @param	frameIndex
-     * @param	graphics
+     * @param aniIndex
+     * @param frameIndex
+     * @param graphics
      */
     private _setGrahicsDataWithCache(aniIndex: number, frameIndex: number, graphics: Graphics): void {
         this._graphicsCache[aniIndex][frameIndex] = graphics;

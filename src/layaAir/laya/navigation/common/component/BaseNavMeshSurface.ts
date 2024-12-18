@@ -242,13 +242,19 @@ export class BaseNavMeshSurface extends Component {
 
     /**
      * @en Find a follow path for the specified agent.
-     * @param agent The navigation agent.
-     * @param fllowPaths Array to store the resulting path data.
-     * @returns Whether the path was successfully found.
-     * @zh 为指定的代理查找跟随路径。
-     * @param agent 导航代理。
-     * @param fllowPaths 用于存储结果路径数据的数组。
-     * @returns 是否成功找到路径。
+     * @param outPaths The generated path.
+     * @param startPos The starting position.
+     * @param endPos The destination position.
+     * @param speed The speed of the agent.
+     * @param filter Optional filter for the query.
+     * @returns True if the path is found.
+     * @zh 为指定代理查找跟随路径。
+     * @param outPaths 生成的路径。
+     * @param startPos 起始位置。
+     * @param endPos 目标位置。
+     * @param speed 代理的速度。
+     * @param filter 可选的查询过滤器。
+     * @returns 如果找到路径则返回 true。
      */
     public findFllowPath(outPaths: NavigationPathData[], startPos: Vector3, endPos: Vector3, speed: number, filter: any = null): boolean {
         if (this._navMesh == null) return false;

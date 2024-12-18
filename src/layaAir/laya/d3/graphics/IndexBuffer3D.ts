@@ -55,15 +55,15 @@ export class IndexBuffer3D {
 
 	/**
 	 * @en Constructor method, create index buffer.
-	 * @param	indexType Index type.
-	 * @param	indexCount Index count.
-	 * @param	bufferUsage IndexBuffer3D usage type.
-	 * @param	canRead Whether the buffer can be read.
+	 * @param indexType Index type.
+	 * @param indexCount Index count.
+	 * @param bufferUsage IndexBuffer3D usage type.
+	 * @param canRead Whether the buffer can be read.
 	 * @zh 构造方法,创建索引缓冲。
-	 * @param	indexType 索引类型。
-	 * @param	indexCount 索引个数。
-	 * @param	bufferUsage IndexBuffer3D用途类型。
-	 * @param	canRead 是否可读。
+	 * @param indexType 索引类型。
+	 * @param indexCount 索引个数。
+	 * @param bufferUsage IndexBuffer3D用途类型。
+	 * @param canRead 是否可读。
 	 */
 	constructor(indexType: IndexFormat, indexCount: number, bufferUsage: BufferUsage = BufferUsage.Static, canRead: boolean = false) {
 		this._deviceBuffer = LayaGL.renderDeviceFactory.createIndexBuffer(bufferUsage);

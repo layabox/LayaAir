@@ -22,7 +22,7 @@ export class InstanceRenderElementOBJ extends WebGLRenderElement3D {
      * @param vb 
      * @param length 每个instance属性的数据长度
      */
-    addUpdateBuffer(vb: VertexBuffer3D,length:number) {
+    addUpdateBuffer(vb: VertexBuffer3D, length: number) {
         this._vertexBuffer3D[this.updateNums] = vb;
         this._updateDataNum[this.updateNums++] = length;
     }
@@ -32,7 +32,7 @@ export class InstanceRenderElementOBJ extends WebGLRenderElement3D {
      * @param index index of Buffer3D
      * @param length length of array
      */
-    getUpdateData(index: number,length:number): Float32Array {
+    getUpdateData(index: number, length: number): Float32Array {
         let data = this._updateData[index];
         if (!data || data.length < length) {
             data = this._updateData[index] = new Float32Array(length);

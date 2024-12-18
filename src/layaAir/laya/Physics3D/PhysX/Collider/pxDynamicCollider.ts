@@ -489,7 +489,6 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
 
 
     /**
-     * {@inheritDoc IDynamicCollider.move }
      * @en Move the kinematic actor to a new pose.
      * @param positionOrRotation The new position or rotation.
      * @param rotation The new rotation (optional).

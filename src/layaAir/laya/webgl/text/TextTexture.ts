@@ -44,9 +44,9 @@ export class TextTexture extends Texture2D {
 
     /**
      * 添加一个文字位图
-     * @param	data
-     * @param	x			拷贝位置。
-     * @param	y
+     * @param data
+     * @param x			拷贝位置。
+     * @param y
      * @param  uv  
      * @return uv数组  如果uv不为空就返回传入的uv，否则new一个数组
      */
@@ -79,9 +79,9 @@ export class TextTexture extends Texture2D {
     /**
      * 添加一个文字
      * 玩一玩不支持 getImageData，只能用canvas的方式
-     * @param	canv
-     * @param	x
-     * @param	y
+     * @param canv
+     * @param x
+     * @param y
      */
     addCharCanvas(canv: any, x: number, y: number, uv: any[] = null): any[] {
 

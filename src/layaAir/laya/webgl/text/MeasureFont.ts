@@ -52,10 +52,10 @@ export class MeasureFont implements IFontMeasure {
 
     /**
      * 检查当前线是否存在数据
-     * @param	data
-     * @param	l
-     * @param	sx
-     * @param	ex
+     * @param data
+     * @param l
+     * @param sx
+     * @param ex
      * @return
      */
     private checkBmpLine(data: ImageData, l: number, sx: number, ex: number): boolean {
@@ -72,8 +72,8 @@ export class MeasureFont implements IFontMeasure {
     /**
      * 根据bmp数据和当前的包围盒，更新包围盒
      * 由于选择的文字是连续的，所以可以用二分法
-     * @param	data
-     * @param	curbbx 	[l,t,r,b]
+     * @param data
+     * @param curbbx 	[l,t,r,b]
      * @param   onlyH 不检查左右
      */
     private updateBbx(data: ImageData, curbbx: number[], onlyH: boolean = false): void {

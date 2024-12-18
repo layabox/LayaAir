@@ -257,11 +257,7 @@ export class BaseNavMesh {
     }
 
     /**
-     * @internal
-     * @en Find the Path from start to end
-     * @param agent 
-     * @param fllowPaths 
-     * @returns 
+     * @internal 
      */
     _findFllowPath(fllowPaths: NavigationPathData[], startPos: Vector3, endPos: Vector3, speed: number, filter: any = null): boolean {
         if (!filter) filter = this._defatfilter;
