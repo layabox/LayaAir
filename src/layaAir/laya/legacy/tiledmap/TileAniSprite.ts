@@ -1,4 +1,4 @@
-import { Sprite } from "../display/Sprite";
+import { Sprite } from "../../display/Sprite";
 import { TileTexSet } from "./TileTexSet";
 
 
