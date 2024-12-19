@@ -34,6 +34,7 @@ export class GLSLCodeGenerator {
         if (useUniformBlock) {
             let uniformsStr = "";
             let blockStr = "uniform Material {\n";
+            let blockPropertyCount = 0;
 
             uniformsMap.forEach((uniform, key) => {
                 let dataType = uniform.uniformtype;
@@ -45,6 +46,7 @@ export class GLSLCodeGenerator {
                 if (typeStr != "") {
                     if (supportUniformBlock(dataType)) {
                         blockStr += `${typeStr} ${uniformName};\n`;
+                        blockPropertyCount++;
                     }
                     else {
                         uniformsStr += `uniform ${typeStr} ${uniformName};\n`;
@@ -52,8 +54,13 @@ export class GLSLCodeGenerator {
                 }
             });
             blockStr += "};\n";
+            if (blockPropertyCount > 0) {
+                return blockStr + uniformsStr;
+            }
+            else {
+                return uniformsStr;
+            }
 
-            return blockStr + uniformsStr;
         }
         else {
             let uniformsStr = "";
