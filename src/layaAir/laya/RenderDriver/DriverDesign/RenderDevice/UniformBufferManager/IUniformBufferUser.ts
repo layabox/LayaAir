@@ -13,4 +13,5 @@ export interface IUniformBufferUser {
 
     clearGPUBufferBind(): void;
     notifyGPUBufferChange(): void;
+    updateOver():void;
 }

@@ -172,6 +172,7 @@ export class UniformBufferCluster {
                 endIndex = i;
                 next = true;
                 this.needUpload[i] = false;
+                this._blocks[i].user.updateOver();
             } else {
                 //如果当前块不需要上传，且之前有需要上传的块，则上传数据
                 if (next) {

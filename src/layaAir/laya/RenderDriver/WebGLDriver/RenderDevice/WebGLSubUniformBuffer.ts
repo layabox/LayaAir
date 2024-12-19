@@ -47,6 +47,9 @@ export class WebGLSubUniformBuffer extends WebGLUniformBufferBase implements IUn
         this.bufferBlock = mgr.getBlock(bufferSize, this);
         this.needUpload = true;
     }
+    updateOver(): void {
+       this.needUpload = false;
+    }
 
     clearGPUBufferBind(): void {
         // throw new Error("Method not implemented.");

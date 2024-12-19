@@ -52,6 +52,9 @@ export class UniformBufferUser implements IUniformBufferUser {
             this.offset = this.bufferBlock.offset;
         } else this.bufferAlone = new UniformBufferAlone(size, manager);
     }
+    updateOver(): void {
+      this.needUpload = false;
+    }
 
     /**
      * 通知GPUBuffer改变
