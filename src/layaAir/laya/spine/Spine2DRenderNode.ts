@@ -237,6 +237,17 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
     }
 
     /**
+     * 最大播放间隔
+     */
+    get maxDetlaTime(): number {
+        return this._timeKeeper.maxDelta;
+    }
+
+    set maxDetlaTime(value: number) {
+        this._timeKeeper.maxDelta = value;
+    }
+
+    /**
      * 是否循环
      */
     get loop(): boolean {
