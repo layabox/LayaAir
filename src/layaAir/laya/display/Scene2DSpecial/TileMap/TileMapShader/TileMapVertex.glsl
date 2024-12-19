@@ -1,5 +1,8 @@
 
-#include "TileMapCommon.glsl"
+#include "Sprite2DVertex.glsl";
+
+#include "TileMapCommon.glsl";
+
 varying vec2 v_cliped;
 uniform vec2 u_baseRenderSize2D;
 

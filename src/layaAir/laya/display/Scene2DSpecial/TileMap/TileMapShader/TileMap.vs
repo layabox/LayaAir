@@ -14,5 +14,10 @@ void main(){
     vec4 wordpos;
     getWorldPos(info,wordpos);
     setVertexInfo(info);
+
+    #ifdef LIGHT2D_ENABLE
+        lightAndShadow(info);
+    #endif
+    
     gl_Position=wordpos;
 }
