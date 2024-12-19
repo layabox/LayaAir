@@ -36,15 +36,15 @@ LayaAir引擎积极拥抱AI，已内置AIGC框架，提供AI创作生成、AI控
 npm install
 ```
 
-#### 运行示例
+#### 测试引擎
 
-1. 拷贝 `src/layaAir/jsLibs`目录到bin目录内。
-2. 在引擎根目录，用命令行执行`npm run start`命令，如下所示：
+在引擎根目录，用命令行执行`npm run start`命令，如下所示：
 
 ```bash
 npm run start
 ```
-3. 使用Live Server打开bin/index.html.
+
+然后使用Live Server打开bin/index.html.
 
 #### 编译引擎
 
