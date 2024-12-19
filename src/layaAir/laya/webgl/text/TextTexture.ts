@@ -17,7 +17,7 @@ export class TextTexture extends Texture2D {
     private static pool: TextTexture[] = new Array(10); // 回收用
     private static poolLen = 0;
     private static cleanTm = 0;
-    static EVENT_REUSE='texture_recycling'
+    static EVENT_REUSE = 'texture_recycling'
 
     /**@internal */
     _discardTm = 0;			//释放的时间。超过一定时间会被真正删除
@@ -27,8 +27,8 @@ export class TextTexture extends Texture2D {
     lastTouchTm = 0;
     ri: CharRenderInfo = null; 		// 如果是独立文字贴图的话带有这个信息
     //public var isIso:Boolean = false;
-    constructor(textureW=TextRender.atlasWidth, textureH=TextRender.atlasWidth) {
-        super(textureW,textureH,TextureFormat.R8G8B8A8,false,false,true,true);
+    constructor(textureW = TextRender.atlasWidth, textureH = TextRender.atlasWidth) {
+        super(textureW, textureH, TextureFormat.R8G8B8A8, false, false, true, true);
         this.setPixelsData(null, true, false);
         this.lock = true;//防止被资源管理清除
         //    this._render2DContext = LayaGL.render2DContext;
@@ -141,7 +141,7 @@ export class TextTexture extends Texture2D {
         var curtm = RenderInfo.loopStTm;// Laya.stage.getFrameTm();
         if (TextTexture.cleanTm === 0) TextTexture.cleanTm = curtm;
         //每隔checkCleanTextureDt看看pool中的贴图有没有很老的可以删除的
-        if (curtm - TextTexture.cleanTm >= TextRender.checkCleanTextureDt) {	
+        if (curtm - TextTexture.cleanTm >= TextRender.checkCleanTextureDt) {
             for (let i = 0; i < TextTexture.poolLen; i++) {
                 var p = TextTexture.pool[i];
                 if (curtm - p._discardTm >= TextRender.destroyUnusedTextureDt) {//超过20秒没用的删掉
@@ -161,7 +161,7 @@ export class TextTexture extends Texture2D {
      * 这个贴图被当前帧使用了。
      * 这个是基于贴图的，更简单，效率更高
      */
-    touchTexture(){
+    touchTexture() {
         let frame = RenderInfo.loopCount;
         if (this.lastTouchTm != frame) {
             //每帧都重新统计覆盖率

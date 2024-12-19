@@ -250,7 +250,7 @@ export class Laya {
         if (!!(window as any).conch && "conchUseWXAdapter" in Browser.window) {
             Input.isAppUseNewInput = true;
         }
-        Input.__init__();
+        Input.__init__(Render.canvas);
         SoundManager.autoStopMusic = true;
         //Init internal 2D Value2D
         Value2D._initone(RenderSpriteData.Texture2D, TextureSV);

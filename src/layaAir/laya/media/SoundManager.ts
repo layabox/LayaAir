@@ -77,21 +77,21 @@ export class SoundManager {
      * @zh 当前播放的 Channel 列表。
      */
     private static _channels: any[] = [];
-    
+
     private static _autoStopMusic: boolean;
-    
+
     private static _blurPaused: boolean = false;
-    
+
     private static _isActive: boolean = true;
     /**@internal */
     static _soundClass: new () => any;
     /**@internal */
     static _musicClass: new () => any;
-    
+
     private static _lastSoundUsedTimeDic: any = {};
-    
+
     private static _isCheckingDispose: boolean = false;
-    
+
     private static _soundCache: Record<string, Sound> = {};
 
     /**@internal */
@@ -148,7 +148,7 @@ export class SoundManager {
             ILaya.timer.loop(5000, null, SoundManager._checkDisposeSound);
         }
     }
-    
+
     private static _checkDisposeSound(): void {
         let tTime: number = ILaya.Browser.now();
         let hasCheck: boolean = false;

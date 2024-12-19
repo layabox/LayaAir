@@ -1,18 +1,10 @@
 import { ILaya } from "../../ILaya";
 import { Const } from "../Const";
-import { IRenderElement2D } from "../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
-import { IRenderGeometryElement } from "../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
 import { RenderState } from "../RenderDriver/RenderModuleData/Design/RenderState";
-import { BufferUsage } from "../RenderEngine/RenderEnum/BufferTargetType";
-import { DrawType } from "../RenderEngine/RenderEnum/DrawType";
-import { IndexFormat } from "../RenderEngine/RenderEnum/IndexFormat";
-import { MeshTopology } from "../RenderEngine/RenderEnum/RenderPologyMode";
 import { Shader3D } from "../RenderEngine/RenderShader/Shader3D";
-import { VertexDeclaration } from "../RenderEngine/VertexDeclaration";
 import { type Sprite } from "../display/Sprite";
 import { SpriteConst } from "../display/SpriteConst";
 import { Event } from "../events/Event";
-import { LayaGL } from "../layagl/LayaGL";
 import { Matrix } from "../maths/Matrix";
 import { Matrix4x4 } from "../maths/Matrix4x4";
 import { Rectangle } from "../maths/Rectangle";
@@ -23,79 +15,10 @@ import { Value2D } from "../webgl/shader/d2/value/Value2D";
 import { TextTexture } from "../webgl/text/TextTexture";
 import { Context } from "./Context";
 import { DefferTouchResContext } from "./DefferTouchResContext";
-import { ISprite2DGeometry, Render2D } from "./Render2D";
+import { Render2D } from "./Render2D";
 import { type RenderSprite } from "./RenderSprite";
-import { RenderToCache } from "./RenderToCache";
+import { RenderObject2D, RenderToCache } from "./RenderToCache";
 import { IAutoExpiringResource } from "./ResNeedTouch";
-
-export class RenderObject2D implements ISprite2DGeometry {
-    vboff: number;
-    vblen: number;
-    iboff: number;
-    iblen: number;
-    mtl: Value2D;
-    //本地裁剪，给cacheas = normal用，用来组合出一个世界裁剪
-    localClipMatrix: Matrix;
-
-    dynaResourcesNeedTouch: any[];
-    vertexDeclarition: VertexDeclaration;
-    vbBuffer: ArrayBuffer;
-    ibBuffer: ArrayBuffer;
-
-    geo: IRenderGeometryElement;
-    renderElement: IRenderElement2D;
-
-    constructor(mesh: ISprite2DGeometry, vboff: number, vblen: number, iboff: number, iblen: number, mtl: Value2D) {
-        this.localClipMatrix = new Matrix();
-        this.vertexDeclarition = mesh.vertexDeclarition;
-        this.vbBuffer = new ArrayBuffer(vblen);
-        this.ibBuffer = new ArrayBuffer(iblen);
-        (new Uint8Array(this.vbBuffer)).set(new Uint8Array(mesh.vbBuffer, vboff, vblen));
-        (new Uint8Array(this.ibBuffer)).set(new Uint8Array(mesh.ibBuffer, iboff, iblen));
-        this.mtl = mtl; //TODO clone?
-        this.vboff = 0;
-        this.vblen = vblen;
-        this.iboff = 0;
-        this.iblen = iblen;
-    }
-
-    toNativeMesh() {
-        let renderDevice = LayaGL.renderDeviceFactory;
-        let geo = this.geo = renderDevice.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
-        let mesh = geo.bufferState = renderDevice.createBufferState();
-        let vb = renderDevice.createVertexBuffer(BufferUsage.Dynamic);
-        vb.vertexDeclaration = this.vertexDeclarition;
-        let ib = renderDevice.createIndexBuffer(BufferUsage.Dynamic);
-        mesh.applyState([vb], ib)
-        geo.indexFormat = IndexFormat.UInt16;
-        vb.setDataLength(this.vblen);
-        vb.setData(this.vbBuffer, this.vboff, 0, this.vblen)
-        ib._setIndexDataLength(this.iblen)
-        ib._setIndexData(new Uint16Array(this.ibBuffer, this.iboff, this.iblen / 2), 0)
-        geo.clearRenderParams();
-        geo.setDrawElemenParams(this.iblen / 2, 0);
-
-        this.renderElement = LayaGL.render2DRenderPassFactory.createRenderElement2D();
-        this.renderElement.geometry = geo;
-        this.renderElement.value2DShaderData = this.mtl.shaderData;
-        this.renderElement.subShader = this.mtl._defaultShader.getSubShaderAt(0);
-        this.renderElement.materialShaderData = null;
-        this.renderElement.nodeCommonMap = ["Sprite2D"];
-    }
-
-    destroyGPUResource() {
-        this.renderElement && this.renderElement.destroy();
-        let geo = this.geo;
-        if (geo) {
-            geo.bufferState._vertexBuffers[0].destroy();
-            geo.bufferState._bindedIndexBuffer.destroy();
-            geo.bufferState.destroy();
-            geo.bufferState
-            geo.destroy();
-            this.geo = null;
-        }
-    }
-}
 
 export class Cache_Info {
     //相对所在page的信息.如果本身就是normal则就是自己的cache结果
