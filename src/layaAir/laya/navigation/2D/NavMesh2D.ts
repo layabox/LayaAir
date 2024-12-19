@@ -7,11 +7,11 @@ import { NavMesh2DSurface } from "./component/NavMesh2DSurface";
 import { Navgiation2DUtils } from "./Navgiation2DUtils";
 
 export class NavMesh2D extends BaseNavMesh {
-    /**@internal */
     protected _debugMesh: Mesh2D;
 
     declare _surface: NavMesh2DSurface;
 
+    /** @ignore */
     constructor(config: RecastConfig, min: Vector3, max: Vector3, surface: NavMesh2DSurface) {
         super(config, min, max, surface, false);
         this._titileConfig._setMaxEdgeLen(1000);

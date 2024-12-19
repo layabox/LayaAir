@@ -9,98 +9,84 @@ import { Navigation2DManage, NavObstacles2DType } from "./Navigation2DManage";
 const tempVec2 = new Vector2();
 export class NavMesh2DObstacles {
 
-    /**@internal */
     private _modifierData: NavModifleData;
-
-    /**@internal */
     private _position: Vector2 = new Vector2();
-
-    /**@internal */
     private _rotation: number = 0;
-
-    /**@internal */
     private _scale: Vector2 = new Vector2(1, 1);
-
-    /**@internal */
     private _size: Vector2 = new Vector2();
-
-    /**@internal */
     private _radius: number = 50;
+    private _meshType: NavObstacles2DType = NavObstacles2DType.RECT;
 
     /**@internal load*/
     _oriTiles: NavTileData;
-
-    /**@internal */
-    private _meshType: NavObstacles2DType = NavObstacles2DType.RECT;
-
     /**
      * @en Agent type for the navigation node
      * @zh 导航节点的代理类型
      */
-    set agentType(value: string) {
-        this._modifierData.agentType = value;
-    }
-
     get agentType() {
         return this._modifierData.agentType;
+    }
+    set agentType(value: string) {
+        this._modifierData.agentType = value;
     }
 
     /**
      * @en Area type for the navigation node
      * @zh 导航节点的区域类型
      */
+    get areaFlag() {
+        return this._modifierData.areaFlag;
+    }
     set areaFlag(value: string) {
         this._modifierData.areaFlag = value;
     }
 
-    get areaFlag() {
-        return this._modifierData.areaFlag;
-    }
-
     /**
      * @en The center of the modifier Obstacles.
-     * @zh 修改阻挡的中心点。
+     * @zh 障碍的中心点。
      */
+    get position(): Vector2 {
+        return this._position;
+    }
     set position(value: Vector2) {
         value.cloneTo(this._position);
         this._transfromChange();
     }
 
-    get position(): Vector2 {
-        return this._position;
-    }
-
     /**
      * @en The rotation of the modifier Obstacles.
-     * @zh 修改阻挡的旋转。
+     * @zh 障碍的旋转。
      */
+    get rotation(): number {
+        return this._rotation;
+    }
     set rotation(value: number) {
         if (value == this._rotation) return;
         this._rotation = value;
         this._transfromChange();
     }
 
-    get rotation(): number {
-        return this._rotation;
-    }
-
     /**
      * @en The scale of the modifier Obstacles.
-     * @zh 修改阻挡的缩放。
+     * @zh 障碍的缩放。
      */
+    get scale(): Vector2 {
+        return this._scale;
+    }
+
     set scale(value: Vector2) {
         value.cloneTo(this._scale);
         this._transfromChange();
     }
 
-    get scale(): Vector2 {
-        return this._scale;
-    }
-
     /**
      * @en The data of the modifier Obstacles.
-     * @zh 修改阻挡的数据。
+     * @zh 障碍的数据。
      */
+    get datas(): TextResource {
+        if (this._oriTiles) return this._oriTiles._res;
+        return null;
+    }
     set datas(value: TextResource) {
         if (this._oriTiles) {
             this._oriTiles.destroy();
@@ -113,18 +99,19 @@ export class NavMesh2DObstacles {
         this._transfromChange();
     }
 
-    get datas(): TextResource {
-        if (this._oriTiles) return this._oriTiles._res;
-        return null;
-    }
-
     /**
      * @en The type of the modifier Obstacles.
-     * @zh 修改阻挡的类型。
-     * 0:BOX 正方体
-     * 1:CAPSULE 圆
-     * 2:CUSTOMER 自定义Mesh
+     * - NavObstacles2DType.RECT : rectangle Mesh
+     * - NavObstacles2DType.CIRCLE : circle Mesh
+     * - NavObstacles2DType.CUSTOMER : Custom Mesh
+     * @zh 修改障碍的类型。
+     * - NavObstacles2DType.RECT : 矩形网格
+     * - NavObstacles2DType.CIRCLE : 圆形网格
+     * - NavObstacles2DType.CUSTOMER : 自定义网格
      */
+    get meshType() {
+        return this._meshType;
+    }
     set meshType(value: NavObstacles2DType) {
         if (this._meshType == value)
             return;
@@ -132,36 +119,32 @@ export class NavMesh2DObstacles {
         this._changeData();
     }
 
-    get meshType() {
-        return this._meshType;
-    }
-
     /**
      * @en The size of the modifier Obstacles.
-     * @zh 修改阻挡的大小。
+     * @zh 障碍的大小。
      */
+    get size(): Vector2 {
+        return this._size;
+    }
     set size(value: Vector2) {
         value.cloneTo(this._size);
         this._transfromChange();
     }
 
-    get size(): Vector2 {
-        return this._size;
-    }
 
     /**
      * @en The radius of the modifier Obstacles.
-     * @zh 修改阻挡的半径。
+     * @zh 障碍的半径。
      */
+    get radius() {
+        return this._radius;
+    }
     set radius(value: number) {
         this._radius = value;
         this._transfromChange();
     }
 
-    get radius() {
-        return this._radius;
-    }
-
+    /**@ignore */
     constructor() {
         this._modifierData = new NavModifleData();
         this._changeData();

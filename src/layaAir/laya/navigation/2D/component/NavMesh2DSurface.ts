@@ -16,16 +16,9 @@ import { NavMesh2DObstacles } from "../NavMesh2DObstacles";
  */
 export class NavMesh2DSurface extends BaseNavMeshSurface {
 
-    /** @internal */
     protected _navMeshAreas: NavMesh2DModifierArea[] = [];
-
-    /** @internal */
     protected _navMeshObstacles: NavMesh2DObstacles[] = [];
-
-    /** @internal */
     protected _navMeshLink: NavMesh2DLink[] = [];
-
-    /** @internal */
     protected _transfrom: Matrix4x4 = new Matrix4x4();
 
     declare owner: Sprite;
@@ -34,6 +27,9 @@ export class NavMesh2DSurface extends BaseNavMeshSurface {
      * @en Modified areas of the navigation mesh surface.
      * @zh 导航网格表面的修改区域。
      */
+    public get areas(): NavMesh2DModifierArea[] {
+        return this._navMeshAreas;
+    }
     public set areas(value: NavMesh2DModifierArea[]) {
         if (this._navMeshAreas.length > 0) {
             this._navMeshAreas.forEach((area) => {
@@ -48,14 +44,14 @@ export class NavMesh2DSurface extends BaseNavMeshSurface {
         }
     }
 
-    public get areas(): NavMesh2DModifierArea[] {
-        return this._navMeshAreas;
-    }
 
     /**
      * @en The obstacles that modify the surface of the navigation mesh.
-     * @zh 修改导航网格表面的障碍物。
+     * @zh 导航网格表面的障碍物。
      */
+    public get obstacles(): NavMesh2DObstacles[] {
+        return this._navMeshObstacles;
+    }
     public set obstacles(value: NavMesh2DObstacles[]) {
         if (this._navMeshObstacles.length > 0) {
             this._navMeshObstacles.forEach((obstacle) => {
@@ -68,10 +64,6 @@ export class NavMesh2DSurface extends BaseNavMeshSurface {
                 obstacle._bindSurface(this);
             });
         }
-    }
-
-    public get obstacles(): NavMesh2DObstacles[] {
-        return this._navMeshObstacles;
     }
 
     /**

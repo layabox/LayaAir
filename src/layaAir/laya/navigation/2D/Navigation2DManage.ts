@@ -41,8 +41,8 @@ export class Navigation2DManage extends BaseNavigationManager {
 
     /**@internal */
     static _managerName = "navMesh2D";
-    
-    static _obstacleMap:Map<NavObstacles2DType,NavTileCache> = new Map();
+
+    static _obstacleMap: Map<NavObstacles2DType, NavTileCache> = new Map();
 
     /**
      * 获取导航管理器
@@ -66,7 +66,6 @@ export class Navigation2DManage extends BaseNavigationManager {
         });
     }
 
-    /**@internal */
     protected static __init__(): void {
         this._obstacleMap.set(NavObstacles2DType.RECT, create2DObstacleData(4, Math.PI / 4, 1 / Math.sqrt(2)));
         this._obstacleMap.set(NavObstacles2DType.CIRCLE, create2DObstacleData(60, 0));
@@ -77,6 +76,7 @@ export class Navigation2DManage extends BaseNavigationManager {
         return this._obstacleMap.get(type);
     }
 
+    /**@ignore */
     constructor() {
         super(Navigation2DManage._managerName);
     }

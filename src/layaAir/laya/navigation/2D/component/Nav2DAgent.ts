@@ -13,28 +13,25 @@ const tempVector3 = new Vector3();
  * <code>Nav2DAgent</code> 类用于创建2D导航代理。
  */
 export class Nav2DAgent extends BaseNavAgent {
-
-    /**@internal */
     private _destination: Vector2 = new Vector2();
 
     declare owner: Sprite;
 
     /**
-    * @en Set the destination for the agent.
+    * @en The destination for the agent.
     * @param value The destination vector.
-    * @zh 设置代理的目的地。
+    * @zh 代理的目的地。
     * @param value 目的地位置向量。
     */
+    get destination(): Vector2 {
+        return this._destination;
+    }
     set destination(value: Vector2) {
         value.cloneTo(this._destination);
         Navgiation2DUtils._vec2ToVec3(this._destination, tempVector3);
         this._setTarget(tempVector3);
     }
-
-    get destination(): Vector2 {
-        return this._destination;
-    }
-
+    /**@ignore */
     constructor() {
         super();
         this._baseOffset = 0;
@@ -43,7 +40,7 @@ export class Nav2DAgent extends BaseNavAgent {
         this._Acceleration = 300;
 
     }
-
+    /**@ignore */
     onAwake(): void {
         super.onAwake();
         this.owner._setBit(NodeFlags.CACHE_GLOBAL, true);
@@ -82,10 +79,7 @@ export class Nav2DAgent extends BaseNavAgent {
     _getpos(pos: Vector3): void {
         Navgiation2DUtils._getSpriteGlobalPos(this.owner, pos);
     }
-
-    /**
-     * @internal
-     */
+    
     protected _getManager(): BaseNavigationManager {
         return Navigation2DManage._getNavManager(this);
     }
