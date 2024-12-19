@@ -125,46 +125,41 @@ export class Tweener implements ITweener {
     }
 
     constructor() {
-        this.startValue = new TweenValue();
-        this.endValue = new TweenValue();
-        this.value = new TweenValue();
-        this.deltaValue = new TweenValue();
         this.props = [];
         this.easeArgs = [];
         this.interpArgs = [];
-
-        this.startValue._props = this.props;
-        this.endValue._props = this.props;
-        this.value._props = this.props;
-        this.deltaValue._props = this.props;
+        this.startValue = new TweenValue(this.props);
+        this.endValue = new TweenValue(this.props);
+        this.value = new TweenValue(this.props);
+        this.deltaValue = new TweenValue(this.props);
     }
 
     go<T>(propName: string, startValue: T, endValue: T): this {
         let prop = _propsPool.take();
         this.props.push(prop);
         prop.name = propName;
-        prop.offset = this.startValue.length;
+        prop.offset = this.startValue.nums.length;
 
         const type = typeof (startValue);
         let adapter: TweenValueAdapter;
         if (type === "number") {
             prop.type = 0;
-            this.startValue.push(startValue as number);
-            this.endValue.push(endValue as number);
+            this.startValue.nums.push(startValue as number);
+            this.endValue.nums.push(endValue as number);
         }
         else if (type === "string") {//for string color
-            this.startValue.push(Color.stringToHex(startValue as string));
-            this.endValue.push(Color.stringToHex(endValue as string));
+            this.startValue.nums.push(Color.stringToHex(startValue as string));
+            this.endValue.nums.push(Color.stringToHex(endValue as string));
             prop.type = 2;
         }
         else if (type == "object" && (adapter = (<any>startValue)[TweenValueAdapterKey]) != null) {
-            adapter.write(this.startValue, startValue);
-            adapter.write(this.endValue, endValue);
+            adapter.write(this.startValue.nums, startValue);
+            adapter.write(this.endValue.nums, endValue);
             prop.type = adapter;
         }
         else { //default use boolean
-            this.startValue.push(startValue ? 1 : 0);
-            this.endValue.push(endValue ? 1 : 0);
+            this.startValue.nums.push(startValue ? 1 : 0);
+            this.endValue.nums.push(endValue ? 1 : 0);
             prop.type = 1;
         }
 
@@ -231,9 +226,9 @@ export class Tweener implements ITweener {
         this.duration = 0;
         this.breakpoint = -1;
 
-        this.startValue.length = 0;
-        this.endValue.length = 0;
-        this.value.length = 0;
+        this.startValue.nums.length = 0;
+        this.endValue.nums.length = 0;
+        this.value.nums.length = 0;
         this.ease = Ease.linear;
         this.easeArgs.length = 0;
         this.timeScale = 1;
@@ -295,10 +290,9 @@ export class Tweener implements ITweener {
                 return;
 
             this._started = true;
-            this.value.length = 0;
-            this.value.push(...this.startValue);
-            this.deltaValue.length = this.startValue.length;
-            this.deltaValue.fill(0);
+            this.value.copy(this.startValue);
+            this.deltaValue.nums.length = this.startValue.nums.length;
+            this.deltaValue.nums.fill(0);
             this.callStartCallback();
             if (this._killed)
                 return;
@@ -333,27 +327,32 @@ export class Tweener implements ITweener {
         let t = dur > 0 ? this.ease(reversed ? (dur - tt) : tt, 0, 1, dur, ...this.easeArgs) : 1;
         this._normalizedTime = t;
 
-        this.value.fill(0);
-        this.deltaValue.fill(0);
+        let startNums = this.startValue.nums;
+        let endNums = this.endValue.nums;
+        let valueNums = this.value.nums;
+        let deltaNums = this.deltaValue.nums;
+
+        valueNums.fill(0);
+        deltaNums.fill(0);
 
         if (this.interp) {
-            this.interp(t, this.startValue, this.endValue, this.value, ...this.interpArgs);
-            for (let i = 0, n = this.startValue.length; i < n; i++) {
-                let f = this.value[i];
+            this.interp(t, startNums, endNums, valueNums, ...this.interpArgs);
+            for (let i = 0, n = startNums.length; i < n; i++) {
+                let f = valueNums[i];
                 if (this.snapping)
                     f = Math.round(f);
-                this.deltaValue[i] = f - this.value[i];
+                deltaNums[i] = f - valueNums[i];
             }
         }
         else {
-            for (let i = 0, n = this.startValue.length; i < n; i++) {
-                let n1 = this.startValue[i];
-                let n2 = this.endValue[i];
+            for (let i = 0, n = startNums.length; i < n; i++) {
+                let n1 = startNums[i];
+                let n2 = endNums[i];
                 let f = n1 + (n2 - n1) * t;
                 if (this.snapping)
                     f = Math.round(f);
-                this.deltaValue[i] = f - this.value[i];
-                this.value[i] = f;
+                deltaNums[i] = f - valueNums[i];
+                valueNums[i] = f;
             }
         }
 

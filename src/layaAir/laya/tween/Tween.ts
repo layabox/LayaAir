@@ -763,9 +763,11 @@ export class Tween {
      * Laya.Tween.create(target).duration(1000).to("x",0).to("y",0).interp(Laya.Tween.shake, 3);
      * ```
      */
-    static shake(time: number, start: Readonly<ITweenValue>, end: Readonly<ITweenValue>, result: ITweenValue, amplitude: number): void {
-        if (time == 1)
-            result.copy(start);
+    static shake(time: number, start: ReadonlyArray<number>, end: ReadonlyArray<number>, result: Array<number>, amplitude: number): void {
+        if (time == 1) {
+            result.length = 0;
+            result.push(...start);
+        }
         else {
             let am = amplitude * (1 - time);
             let am2 = am * (Math.random() > 0.5 ? 1 : -1);
@@ -786,7 +788,7 @@ export class Tween {
      * Laya.Tween.create(target).duration(1000).to("color",0xffffff).interp(Laya.Tween.seperateChannel, 3);
      * ```
      */
-    static seperateChannel(time: number, start: Readonly<ITweenValue>, end: Readonly<ITweenValue>, result: ITweenValue, channels?: number): void {
+    static seperateChannel(time: number, start: ReadonlyArray<number>, end: ReadonlyArray<number>, result: Array<number>, channels?: number): void {
         channels = channels || 3;
         for (let i = 0; i < start.length; i++)
             result[i] = interpByChannel(time, start[i], end[i], channels);
@@ -796,7 +798,7 @@ export class Tween {
      * @en This is an interpolator that uses a curve path. The value will be obtained from the curve path.
      * @zh 这是一个使用曲线路径的插值器。数值将从曲线路径中获取。
      */
-    static useCurvePath(time: number, start: Readonly<ITweenValue>, end: Readonly<ITweenValue>, result: ITweenValue, path: CurvePath): void {
+    static useCurvePath(time: number, start: ReadonlyArray<number>, end: ReadonlyArray<number>, result: Array<number>, path: CurvePath): void {
         let pt = path.getPointAt(time);
         result[0] = pt.x;
         if (result.length > 1)

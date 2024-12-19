@@ -45,7 +45,7 @@ export type EaseFunction = (t: number, b: number, c: number, d: number, ...args:
  * @param result 结果值。
  * @param args 额外的参数。
  */
-export type TweenInterpolator<T extends any[]> = (time: number, start: Readonly<ITweenValue>, end: Readonly<ITweenValue>, result: ITweenValue, ...args: T) => void;
+export type TweenInterpolator<T extends any[]> = (time: number, start: ReadonlyArray<number>, end: ReadonlyArray<number>, result: Array<number>, ...args: T) => void;
 
 /**
  * @en The Tween system uses adapters to convert different value types to and from number arrays for tween calculations.
@@ -75,7 +75,13 @@ export type TweenValueAdapter = {
     read: (array: Array<number>, offset: number) => any;
 };
 
-export interface ITweenValue extends Array<number> {
+export interface ITweenValue {
+    /**
+     * @en The numbers array of the tween value.
+     * @zh 缓动值的数字数组。
+     */
+    readonly nums: Array<number>;
+
     /**
      * @en Get value by property name.
      * @param name Property name. 
@@ -115,6 +121,12 @@ export interface ITweenValue extends Array<number> {
      * @param value 值。 
      */
     setAt(index: number, value: any): void;
+
+    /**
+     * @en The number of properties in the tween value.
+     * @zh 缓动值中的属性数量。
+     */
+    readonly count: number;
 
     /**
      * @en Copy all values from another ITweenValue.

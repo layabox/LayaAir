@@ -7,9 +7,14 @@ import { OutOfRangeError } from "../utils/Error";
 import { ITweenValue, TweenValueAdapter } from "./ITween";
 import type { TweenPropInfo } from "./Tweener";
 
-export class TweenValue extends Array<number> implements ITweenValue {
-    /** @internal */
-    _props: Array<TweenPropInfo>;
+export class TweenValue implements ITweenValue {
+    readonly nums: Array<number>;
+    private _props: Array<TweenPropInfo>;
+
+    constructor(props: Array<TweenPropInfo>) {
+        this._props = props;
+        this.nums = [];
+    }
 
     get(name: string): any {
         let prop = this._props.find(e => e.name == name);
@@ -41,9 +46,13 @@ export class TweenValue extends Array<number> implements ITweenValue {
         this.write(prop.type, prop.offset, value);
     }
 
+    get count() {
+        return this._props.length;
+    }
+
     copy(source: ITweenValue): this {
-        this.length = 0;
-        this.push(...source);
+        this.nums.length = 0;
+        this.nums.push(...source.nums);
         return this;
     }
 
@@ -53,13 +62,13 @@ export class TweenValue extends Array<number> implements ITweenValue {
     read(type: TweenPropInfo["type"], offset: number): any {
         switch (type) {
             case 0:
-                return this[offset];
+                return this.nums[offset];
             case 1:
-                return !!this[offset];
+                return !!this.nums[offset];
             case 2:
-                return Color.hexToString(this[offset]);
+                return Color.hexToString(this.nums[offset]);
             default:
-                return type.read(this, offset);
+                return type.read(this.nums, offset);
         }
     }
 
@@ -69,18 +78,18 @@ export class TweenValue extends Array<number> implements ITweenValue {
     write(type: TweenPropInfo["type"], offset: number, value: any): void {
         switch (type) {
             case 0:
-                this[offset] = value;
+                this.nums[offset] = value;
                 break;
             case 1:
-                this[offset] = value ? 1 : 0;
+                this.nums[offset] = value ? 1 : 0;
                 break;
             case 2:
-                this[offset] = Color.stringToHex(value);
+                this.nums[offset] = Color.stringToHex(value);
                 break;
             default: {
                 tmpArr.length = 0;
                 type.write(tmpArr, value);
-                tmpArr.forEach((v, i) => this[offset + i] = v);
+                tmpArr.forEach((v, i) => this.nums[offset + i] = v);
             }
         }
     }
