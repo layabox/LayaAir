@@ -21,8 +21,9 @@ import { RectClipper } from "./RectClipper";
 import { Texture2D } from "../../../resource/Texture2D";
 import { TileMapDatasParse } from "./loaders/TileSetAssetLoader";
 import { NodeFlags } from "../../../Const";
-import { TileLayerSortMode } from "./TileMapEnum";
-import { TileMapOccluder } from "./TileMapOccluder";
+import { DIRTY_TYPES, DirtyFlagType, TileLayerSortMode, TileMapDirtyFlag } from "./TileMapEnum";
+import { TileMapOccluderAgent } from "./TileMapOccluderAgent";
+import { Event } from "../../../events/Event";
 
 export enum TILELAYER_SORTMODE {
     YSort,
@@ -105,7 +106,10 @@ export class TileMapLayer extends BaseRenderNode2D {
     /**物理模块 */
     private _tileMapPhysics: TileMapPhysics;
 
-    private _tileMapOccluder:TileMapOccluder;
+    private _tileMapOccluder: TileMapOccluderAgent;
+
+    /** @internal */
+    _needUpdateDirtys:boolean[] = [];
 
     /** @internal */
     get chunkDatas() {
@@ -211,7 +215,7 @@ export class TileMapLayer extends BaseRenderNode2D {
         return this._tileMapPhysics;
     }
 
-    get tileMapOccluder(): TileMapOccluder {
+    get tileMapOccluder(): TileMapOccluderAgent {
         return this._tileMapOccluder;
     }
 
@@ -223,7 +227,7 @@ export class TileMapLayer extends BaseRenderNode2D {
         this._chunk = new TileMapChunk(this._grid);
         this._chunk._setChunkSize(this._renderTileSize, this._renderTileSize);
         this._tileMapPhysics = new TileMapPhysics(this);
-        this._tileMapOccluder = new TileMapOccluder(this);
+        this._tileMapOccluder = new TileMapOccluderAgent(this);
         this._cliper = new RectClipper();
         this._renderElements = [];
         this._materials = [];
@@ -353,19 +357,29 @@ export class TileMapLayer extends BaseRenderNode2D {
     onEnable(): void {
         super.onEnable();
         this.owner._setBit(NodeFlags.CACHE_GLOBAL, true);
-        this._tileMapPhysics._enableRigidBodys();
-        this._tileMapOccluder._activeAllOccluders();
+        this._tileMapOccluder._updateManager();
+        this._tileMapPhysics.enable && this._tileMapPhysics.enableRigidBodys();
+        this._tileMapOccluder.enable && this._tileMapOccluder.enableAllOccluders();
+        this.owner.on(Event.TRANSFORM_CHANGED, this, this._refreshLayer);
     }
 
     onDisable(): void {
         super.onDisable();
-        this._tileMapPhysics._disableRigidBodys();
-        this._tileMapOccluder._removeAllOccluders();
+        this._tileMapPhysics.enable && this._tileMapPhysics.disableRigidBodys();
+        this._tileMapOccluder.enable && this._tileMapOccluder._removeAllOccluders();
+        this.owner.off(Event.TRANSFORM_CHANGED, this, this._refreshLayer);
     }
 
     onDestroy(): void {
         super.onDestroy();
+        this._tileMapPhysics
         this._tileMapOccluder.destroy();
+    }
+
+    private _refreshLayer() {
+        for (let i = 1; i < DIRTY_TYPES; i++) {
+            this._needUpdateDirtys[i] = true;
+        }
     }
 
     /**
@@ -450,19 +464,28 @@ export class TileMapLayer extends BaseRenderNode2D {
         let chuckendCol = tempVec3.y;
 
         let checkPoint = Vector2.TEMP;
+
+        let needUpdateDirty = !!this._needUpdateDirtys.length;
+        
         for (var j = chuckstartCol; j <= chuckendCol; j++) {
             if (!this._chunkDatas[j]) { continue; }
             let rowData = this._chunkDatas[j];
             for (var i = chuckstartRow; i <= chuckendRow; i++) {
-                if (!rowData[i]) { continue; }
+                let chunkData = rowData[i];
+                if (!chunkData) { continue; }
+                //更新dirty类型
+                needUpdateDirty && chunkData._forceUpdateDrity(this._needUpdateDirtys);
+
                 this._chunk._getChunkLeftTop(i, j, checkPoint);
+                //是否需要渲染
                 if (!this._cliper.isClipper(checkPoint.x, checkPoint.y)) {
-                    let chunkData = rowData[i];
                     chunkData._update();//更新数据
                     chunkData._mergeToElement(this._renderElements);//更新渲染元素
                 }
             }
         }
+
+        this._needUpdateDirtys.length = 0;
     }
 
     /**

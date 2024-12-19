@@ -39,16 +39,13 @@ class TileSetLoader implements IResourceLoader {
                 this.createGroup(tileSet, data.groups[i]);
             }
             tileSet.physicsLayers = SerializeUtil.decodeObj(data.physicsLayers);
+            tileSet.lightInfoLayers = SerializeUtil.decodeObj(data.lightInfoLayers);
             tileSet.customLayers = SerializeUtil.decodeObj(data.customLayers);
             tileSet.navigationLayers = SerializeUtil.decodeObj(data.navigationLayers);
             tileSet.tileTerrains = SerializeUtil.decodeObj(data.tileTerrains);
             tileSet._notifyTileSetCellGroupsChange();
             return tileSet;
         });
-    }
-
-    private createLayers(tileSet:TileSet , data:any){
-        
     }
 
     private createGroup(tileSet: TileSet, data: any) {
