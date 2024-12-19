@@ -1,6 +1,6 @@
 import { TiledMap } from "./TiledMap";
 import { TileAniSprite } from "./TileAniSprite";
-import { Sprite } from "../display/Sprite";
+import { Sprite } from "../../display/Sprite";
 
 /**
  * @deprecated

@@ -3,7 +3,6 @@ import { Event } from "../events/Event"
 import { ILaya } from "../../ILaya";
 import { LayaEnv } from "../../LayaEnv";
 import { InputManager } from "../events/InputManager";
-import { Render } from "../renders/Render";
 import { SpriteUtils } from "../utils/SpriteUtils";
 import { SerializeUtil } from "../loaders/SerializeUtil";
 /**
@@ -138,7 +137,7 @@ export class Input extends Text {
     }
 
     /**@internal */
-    static __init__(): void {
+    static __init__(canvas: HTMLCanvasElement): void {
         Input._createInputElement();
 
         // 移动端通过画布的touchend调用focus
@@ -147,7 +146,7 @@ export class Input extends Text {
             if (ILaya.Browser.onMiniGame || ILaya.Browser.onBDMiniGame || ILaya.Browser.onQGMiniGame || ILaya.Browser.onKGMiniGame || ILaya.Browser.onVVMiniGame || ILaya.Browser.onAlipayMiniGame || ILaya.Browser.onQQMiniGame || ILaya.Browser.onBLMiniGame || ILaya.Browser.onTTMiniGame || ILaya.Browser.onHWMiniGame || ILaya.Browser.onTBMiniGame) {
                 isTrue = true;
             }
-            Render.canvas.addEventListener(Input.IOS_IFRAME ? (isTrue ? "touchend" : "click") : "touchend", Input._popupInputMethod);
+            canvas.addEventListener(Input.IOS_IFRAME ? (isTrue ? "touchend" : "click") : "touchend", Input._popupInputMethod);
         }
     }
 

@@ -264,26 +264,38 @@ export const allBundles = [{
     ],
 },
 {
-    name: 'navMesh',
+    name: 'navMeshCommon',
     input: [
-        'laya/navigation/**/**.ts'
+        'laya/navigation/common/**/*.ts'
     ],
     copy: ['jsLibs/recast-navigation-wasm.wasm'],
     output: {
-        'laya.navMesh.js': ['jsLibs/recast-navigation.js'],
-        'laya.navMesh_wasm.js': ['jsLibs/recast-navigation-wasm.js'],
+        'laya.navMeshCommon.js': ['jsLibs/recast-navigation.js'],
+        'laya.navMeshCommon_wasm.js': ['jsLibs/recast-navigation-wasm.js'],
     }
+},
+{
+    name: 'navMesh2d',
+    input: [
+        'laya/navigation/2D/**/*.ts'
+    ]
+},
+{
+    name: 'navMesh3d',
+    input: [
+        'laya/navigation/3D/**/*.ts'
+    ]
 },
 {
     name: 'legacyParser',
     input: [
-        'laya/legacy/**/**.ts'
+        'laya/legacy/*.ts'
     ],
 },
 {
     name: 'tiledmap_discarded',
     input: [
-        'laya/TileMap_Discarded/**/**.ts'
+        'laya/legacy/tiledmap/**/*.ts'
     ],
 }
 ];

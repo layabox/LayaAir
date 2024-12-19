@@ -1,10 +1,8 @@
 import { TextAtlas } from "./TextAtlas";
 import { TextTexture } from "./TextTexture";
-import { Sprite } from "../../display/Sprite"
 import { Point } from "../../maths/Point"
 import { RenderInfo } from "../../renders/RenderInfo"
 import { Context } from "../../renders/Context"
-import { Texture } from "../../resource/Texture"
 import { FontInfo } from "../../utils/FontInfo"
 import { WordText } from "../../utils/WordText"
 import { CharRenderInfo } from "./CharRenderInfo"
@@ -43,7 +41,7 @@ export class TextRender extends EventDispatcher {
      */
     private fontSizeInfo: { [key: string]: number } = {};
     charRender: ICharRender;
-    private mapFont: any = {};		// 把font名称映射到数字
+    mapFont: any = {};		// 把font名称映射到数字
     private fontID = 0;
 
     private fontScaleX = 1.0;						//临时缩放。
@@ -55,7 +53,7 @@ export class TextRender extends EventDispatcher {
     static textRenderInst: TextRender;	//debug
 
     textAtlases: TextAtlas[] = [];		// 所有的大图集
-    private isoTextures: TextTexture[] = [];	// 所有的独立贴图
+    isoTextures: TextTexture[] = [];	// 所有的独立贴图
 
     private static imgdtRect = [0, 0, 0, 0];
 
@@ -111,7 +109,7 @@ export class TextRender extends EventDispatcher {
         return szinfo;
     }
 
-    private getFontSizeInfo(font: string) {
+    getFontSizeInfo(font: string) {
         var finfo = this.fontSizeInfo[font];
         if (!finfo) {
             if (TextRender.isWan1Wan) {
@@ -460,15 +458,15 @@ export class TextRender extends EventDispatcher {
             imgdt = this.charRender.getCharBmp(str, this.fontStr, lineWidth, color, strokeColor, ri,
                 margin, margin, margin, margin, TextRender.imgdtRect);
             if (imgdt) {
-                if(imgdt.width>TextRender.atlasWidth||imgdt.height>TextRender.atlasWidth){
+                if (imgdt.width > TextRender.atlasWidth || imgdt.height > TextRender.atlasWidth) {
                     var tex = TextTexture.getTextTexture(imgdt.width, imgdt.height);
                     tex.addChar(imgdt, 0, 0, ri.uv);
                     ri.texture = tex;
                     ri.orix = margin; // 这里是原始的，不需要乘scale,因为scale的会创建一个scale之前的rect
                     ri.oriy = margin;
                     tex.ri = ri;
-                    this.isoTextures.push(tex);    
-                }else{
+                    this.isoTextures.push(tex);
+                } else {
                     atlas = this.addBmpData(imgdt, ri);
                     if (TextRender.isWan1Wan) {
                         // 这时候 imgdtRect 是不好使的，要自己设置
@@ -479,7 +477,7 @@ export class TextRender extends EventDispatcher {
                         ri.orix = (this.fontSizeOffX + lineExt);	// 由于是相对于imagedata的，上面会根据包边调整左上角，所以原点也要相应反向调整
                         ri.oriy = (this.fontSizeOffY + lineExt);
                     }
-                    atlas.charMaps[key] = ri;                    
+                    atlas.charMaps[key] = ri;
                 }
             }
         }
@@ -615,82 +613,6 @@ export class TextRender extends EventDispatcher {
      */
     cleanAtlases(): void {
         // TODO 根据覆盖率决定是否清理
-    }
-
-
-    printDbgInfo(): void {
-        console.log('图集个数:' + this.textAtlases.length + ',每个图集大小:' + TextRender.atlasWidth + 'x' + TextRender.atlasWidth, ' 用canvas:', TextRender.isWan1Wan);
-        console.log('图集占用空间:' + (TextRender.atlasWidth * TextRender.atlasWidth * 4 / 1024 / 1024 * this.textAtlases.length) + 'M');
-        console.log('缓存用到的字体:');
-        for (var f in this.mapFont) {
-            var fontsz = this.getFontSizeInfo(f);
-            var offx = fontsz >> 24
-            var offy = (fontsz >> 16) & 0xff;
-            var fw = (fontsz >> 8) & 0xff;
-            var fh = fontsz & 0xff;
-            console.log('    ' + f, ' off:', offx, offy, ' size:', fw, fh);
-        }
-        var num = 0;
-        console.log('缓存数据:');
-        var totalUsedRate = 0;	// 总使用率
-        var totalUsedRateAtlas = 0;
-        this.textAtlases.forEach(function (a: TextAtlas): void {
-            var id = a.texture.id;
-            var dt = RenderInfo.loopCount - a.texture.lastTouchTm
-            var dtstr = dt > 0 ? ('' + dt + '帧以前') : '当前帧';
-            totalUsedRate += a.texture.curUsedCovRate;
-            totalUsedRateAtlas += a.texture.curUsedCovRateAtlas;
-            console.log('--图集(id:' + id + ',当前使用率:' + (a.texture.curUsedCovRate * 1000 | 0) + '‰', '当前图集使用率:', (a.texture.curUsedCovRateAtlas * 100 | 0) + '%', '图集使用率:', (a.usedRate * 100 | 0), '%, 使用于:' + dtstr + ')--:');
-            for (var k in a.charMaps) {
-                var ri: CharRenderInfo = a.charMaps[k];
-                console.log('     off:', ri.orix, ri.oriy, ' bmp宽高:', ri.bmpWidth, ri.bmpHeight, '无效:', ri.deleted, 'touchdt:', (RenderInfo.loopCount - ri.touchTick), '位置:', ri.uv[0] * TextRender.atlasWidth | 0, ri.uv[1] * TextRender.atlasWidth | 0,
-                    '字符:', ri.char, 'key:', k);
-                num++;
-            }
-        });
-        console.log('独立贴图文字(' + this.isoTextures.length + '个):');
-        this.isoTextures.forEach(function (tex: TextTexture): void {
-            console.log('    size:', tex.width, tex.height, 'touch间隔:', (RenderInfo.loopCount - tex.lastTouchTm), 'char:', tex.ri.char);
-        });
-        console.log('总缓存:', num, '总使用率:', totalUsedRate, '总当前图集使用率:', totalUsedRateAtlas);
-
-    }
-
-    // 在屏幕上显示某个大图集
-    showAtlas(n: number, bgcolor: string, x: number, y: number, w: number, h: number): Sprite {
-        if (!this.textAtlases[n]) {
-            console.log('没有这个图集');
-            return null;
-        }
-        var sp = new Sprite();
-        var texttex = this.textAtlases[n].texture;
-        var texture: any = {
-            width: TextRender.atlasWidth,
-            height: TextRender.atlasWidth,
-            sourceWidth: TextRender.atlasWidth,
-            sourceHeight: TextRender.atlasWidth,
-            offsetX: 0,
-            offsetY: 0,
-            getIsReady: function (): boolean { return true; },
-            _addReference: function (): void { },
-            _removeReference: function (): void { },
-            _getSource: function (): any { return texttex._getSource(); },
-            bitmap: { id: texttex.id },
-            _uv: Texture.DEF_UV
-        };
-        (<any>sp).size = function (w: number, h: number): Sprite {
-            this.width = w;
-            this.height = h;
-            sp.graphics.clear();
-            sp.graphics.drawRect(0, 0, sp.width, sp.height, bgcolor);
-            sp.graphics.drawTexture(<Texture>texture, 0, 0, sp.width, sp.height);
-            return <Sprite>this;
-        }
-        sp.graphics.drawRect(0, 0, w, h, bgcolor);
-        sp.graphics.drawTexture(<Texture>texture, 0, 0, w, h);
-        sp.pos(x, y);
-        ILaya.stage.addChild(sp);
-        return sp;
     }
 }
 

@@ -6,13 +6,11 @@ import { Handler } from "../utils/Handler"
 import { Timer } from "../utils/Timer"
 import { ILaya } from "../../ILaya";
 import { Prefab } from "../resource/HierarchyResource";
-import { NodeFlags } from "../Const";
 import { Context } from "../renders/Context";
 import { CommandUniformMap } from "../RenderDriver/DriverDesign/RenderDevice/CommandUniformMap";
 import { Scene2DSpecialManager } from "./Scene2DSpecial/Scene2DSpecialManager";
 import { Render2DSimple } from "../renders/Render2D";
 import { BaseRenderNode2D } from "../NodeRender2D/BaseRenderNode2D";
-import { HierarchyLoader } from "../loaders/HierarchyLoader";
 import { TransformKind } from "./SpriteConst";
 import { Area2D } from "./Area2D";
 import { Camera2D } from "./Scene2DSpecial/Camera2D";
@@ -88,30 +86,22 @@ export class Scene extends Sprite {
      * @zh 场景时钟
      */
     private _timer: Timer;
-    private _viewCreated: boolean = false;
 
     /** @internal */
-    private _componentElementDatasMap: any = {};
-
+    _componentElementDatasMap: any = {};
     _specialManager: Scene2DSpecialManager;
     _light2DManager: ILight2DManager;
     _curCamera: Camera2D;
 
-    constructor(createChildren = true) {
+    constructor() {
         super();
         this._specialManager = new Scene2DSpecialManager();
         this._timer = ILaya.timer;
         this._widget = Widget.EMPTY;
 
-        //this._light2DManager = new Light2DManager(this);
-        //this._light2DManager.enableNormal = true;
-
         this._scene = this;
-        if (createChildren)
-            this.createChildren();
         Scene.componentManagerMap.forEach((val, key) => {
-            let cla: any = val;
-            this._specialManager.componentElementMap.set(key, new cla(this));
+            this._specialManager.componentElementMap.set(key, new val(this));
         });
     }
 
@@ -142,80 +132,6 @@ export class Scene extends Sprite {
      */
     getComponentElementManager(type: string) {
         return this._specialManager.componentElementMap.get(type);
-    }
-
-    /**
-     * @private 兼容老项目
-     */
-    protected createChildren(): void {
-    }
-
-    /**
-     * @en Compatible loading mode, load mode setting uimap
-     * @param url The URL of the uimap JSON file.
-     * @zh 兼容加载模式，加载模式设置uimap
-     * @param url url uimapJSON 文件的 URL。
-     */
-    static setUIMap(url: string): void {
-        let uimap = ILaya.loader.getRes(url);
-        if (uimap) {
-            for (let key in uimap) {
-                ILaya.Loader.loadedMap[key + ".scene"] = uimap[key];
-            }
-        } else {
-            throw "请提前加载uimap的json，再使用该接口设置！";
-        }
-    }
-
-    /**
-     * @ignore
-     * @en Load scene view. Used for loading mode. Compatible with old projects.
-     * @param path The scene address.
-     * @zh 装载场景视图。用于加载模式。兼容老项目。
-     * @param path 场景地址。
-     */
-    loadScene(path: string): void {
-        Scene.unDestroyedScenes.add(this);
-        let url: string = path.indexOf(".") > -1 ? path : path + ".scene";
-        let content: Prefab = ILaya.loader.getRes(url);
-        if (content) {
-            if (!this._viewCreated) {
-                content.create({ root: this });
-                this._viewCreated = true;
-                Scene.unDestroyedScenes.add(this);
-            }
-        } else {
-            this._setBit(NodeFlags.NOT_READY, true);
-            ILaya.loader.load(url, null, value => {
-                if (Scene._loadPage) Scene._loadPage.event("progress", value);
-            }).then((content: Prefab) => {
-                if (!content) throw "Can not find scene:" + path;
-                if (!this._viewCreated) {
-                    this.url = url;
-                    Scene.hideLoadingPage();
-
-                    content.create({ root: this });
-                    this._viewCreated = true;
-                    Scene.unDestroyedScenes.add(this);
-                }
-                else
-                    this._setBit(NodeFlags.NOT_READY, false);
-            });
-        }
-    }
-
-    /**
-     * @ignore
-     * @en Create view using view data. Compatible with old projects.
-     * @param view The view data information.
-     * @zh 通过视图数据创建视图。兼容老项目。
-     * @param view 视图数据信息。
-     */
-    createView(view: any): void {
-        if (view && !this._viewCreated) {
-            this._viewCreated = true;
-            HierarchyLoader.legacySceneOrPrefab.createByData(this, view);
-        }
     }
 
     /**
@@ -553,7 +469,6 @@ export class Scene extends Sprite {
             else
                 throw "Not a scene:" + url;
 
-            scene._viewCreated = true;
             if (scene._scene3D)
                 scene._scene3D._scene2D = scene;
             Scene.unDestroyedScenes.add(scene);

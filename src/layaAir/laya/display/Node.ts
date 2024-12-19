@@ -968,7 +968,7 @@ export class Node extends EventDispatcher {
      * @zh 该节点自身是否激活。
      */
     get active(): boolean {
-        return !this._getBit(NodeFlags.NOT_READY) && !this._getBit(NodeFlags.NOT_ACTIVE);
+        return !this._getBit(NodeFlags.NOT_ACTIVE);
     }
 
     set active(value: boolean) {
@@ -1143,7 +1143,7 @@ export class Node extends EventDispatcher {
 
         this._onActive();
         for (let child of this._children) {
-            (!child._getBit(NodeFlags.NOT_ACTIVE) && !child._getBit(NodeFlags.NOT_READY)) && (child._activeHierarchy(activeChangeScripts, fromSetter));
+            !child._getBit(NodeFlags.NOT_ACTIVE) && (child._activeHierarchy(activeChangeScripts, fromSetter));
         }
         if (!this._getBit(NodeFlags.AWAKED)) {
             this._setBit(NodeFlags.AWAKED, true);

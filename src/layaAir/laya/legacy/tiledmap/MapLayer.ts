@@ -1,6 +1,6 @@
-import { Sprite } from "../display/Sprite";
-import { Point } from "../maths/Point";
-import { Texture } from "../resource/Texture";
+import { Sprite } from "../../display/Sprite";
+import { Point } from "../../maths/Point";
+import { Texture } from "../../resource/Texture";
 import { GridSprite } from "./GridSprite";
 import { IMap } from "./IMap";
 import { TileAniSprite } from "./TileAniSprite";

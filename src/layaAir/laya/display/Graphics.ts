@@ -358,6 +358,7 @@ export class Graphics {
      * @param type (Optional) Fill type: 'repeat', 'repeat-x', 'repeat-y', or 'no-repeat'. Default is 'repeat'.
      * @param offset (Optional) Texture offset. Default is null.
      * @param color (Optional) Color. Default is null.
+     * @param percent (Optional) Whether to use percentages. Default is false.
      * @zh 用纹理填充
      * @param texture 用于填充的纹理
      * @param x X轴偏移量
@@ -367,10 +368,11 @@ export class Graphics {
      * @param type （可选）填充类型：'repeat'、'repeat-x'、'repeat-y'或'no-repeat'。默认为'repeat'。
      * @param offset （可选）贴图纹理偏移。默认为null。
      * @param color （可选）颜色。默认为null。
+     * @param percent （可选）是否使用百分比。默认为false。
      */
-    fillTexture(texture: Texture, x: number, y: number, width: number = 0, height: number = 0, type: string = "repeat", offset: Point | null = null, color: string = null): FillTextureCmd | null {
+    fillTexture(texture: Texture, x: number, y: number, width: number = 0, height: number = 0, type: string = "repeat", offset: Point | null = null, color: string = null, percent: boolean = false): FillTextureCmd | null {
         if (texture && texture.bitmap)
-            return this.addCmd(FillTextureCmd.create(texture, x, y, width, height, type, offset || Point.EMPTY, color));
+            return this.addCmd(FillTextureCmd.create(texture, x, y, width, height, type, offset || Point.EMPTY, color, percent));
         else
             return null;
     }

@@ -10,7 +10,6 @@ import { Context } from "../renders/Context";
 import { HTMLCanvas } from "../resource/HTMLCanvas";
 import { Texture } from "../resource/Texture";
 import { Handler } from "../utils/Handler";
-import { Utils } from "../utils/Utils";
 import { CacheStyle } from "./css/CacheStyle";
 import { Graphics } from "./Graphics";
 import { Node } from "./Node";
@@ -26,7 +25,6 @@ import { IHitArea } from "../utils/IHitArea";
 import type { Material } from "../resource/Material";
 import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
 import { BaseRenderNode2D } from "../NodeRender2D/BaseRenderNode2D";
-import type { Stage } from "./Stage";
 import { Component } from "../components/Component";
 
 /**

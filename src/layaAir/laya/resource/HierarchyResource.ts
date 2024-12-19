@@ -1,5 +1,4 @@
 import { Node } from "../display/Node";
-import { HierarchyLoader } from "../loaders/HierarchyLoader";
 import { Resource } from "./Resource";
 
 /**
@@ -13,13 +12,6 @@ export class Prefab extends Resource {
      * @zh 预制体资源的版本号。
      */
     public readonly version: number;
-
-    /**
-     * @internal
-     * @en Compatible with the LayaAir 2.x engine.
-     * @zh 兼容LayaAir2.x引擎
-     */
-    json: any;
 
     /**
      * @ignore
@@ -44,10 +36,7 @@ export class Prefab extends Resource {
      * @param errors 错误内容
      */
     create(options?: Record<string, any>, errors?: Array<any>): Node {
-        if (this.json) //兼容2.0
-            return HierarchyLoader.legacySceneOrPrefab.createByData(null, this.json);
-        else
-            return null;
+        return null;
     }
 }
 

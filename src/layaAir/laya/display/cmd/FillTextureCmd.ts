@@ -88,7 +88,7 @@ export class FillTextureCmd implements IGraphicsCmd {
      * @param color 绘图颜色
      * @returns FillTextureCmd实例
      */
-    static create(texture: Texture, x: number, y: number, width: number, height: number, type: string, offset: Point, color: string): FillTextureCmd {
+    static create(texture: Texture, x: number, y: number, width: number, height: number, type: string, offset: Point, color: string, percent?: boolean): FillTextureCmd {
         var cmd: FillTextureCmd = Pool.getItemByClass("FillTextureCmd", FillTextureCmd);
         cmd.texture = texture;
         texture._addReference();
@@ -99,6 +99,7 @@ export class FillTextureCmd implements IGraphicsCmd {
         cmd.type = type;
         cmd.offset = offset;
         cmd.color = color != null ? ColorUtils.create(color).numColor : 0xffffffff;
+        cmd.percent = percent;
         return cmd;
     }
 
