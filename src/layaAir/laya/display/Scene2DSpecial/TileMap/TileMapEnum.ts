@@ -60,3 +60,5 @@ export enum DirtyFlagType{
     PHYSICS,
     OCCLUSION,
 }
+
+export const DIRTY_TYPES = 3;

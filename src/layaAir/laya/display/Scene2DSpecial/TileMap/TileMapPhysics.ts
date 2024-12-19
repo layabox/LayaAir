@@ -29,9 +29,11 @@ export class TileMapPhysics {
     
     updateState(bool:boolean){
         let result = !!Laya.physics2D && bool;
-        if (result) this._enableRigidBodys();
-        else this._disableRigidBodys();
-        this.enable = result;
+        if (result != this.enable) {
+            if (result) this.enableRigidBodys();
+            else this.disableRigidBodys();
+            this.enable = result;
+        }
     }
 
     createRigidBody():any {
@@ -55,19 +57,16 @@ export class TileMapPhysics {
     }
 
     //激活所有
-    _enableRigidBodys(){
-        if(!this.enable) return;
+    enableRigidBodys(){
         for (let i = 0 , len = this._rigidBodys.length ; i < len; i++) 
             this._enableRigidBody(this._rigidBodys[i]);
     }
 
     //关闭所有
-    _disableRigidBodys(){
-        if(!this.enable) return;
+    disableRigidBodys(){
         for (let i = 0 , len = this._rigidBodys.length ; i < len; i++) 
             this._disableRigidBody(this._rigidBodys[i]);
     }
-
 
     _enableRigidBody(rigidBody:any){
         Laya.physics2D.set_RigibBody_Enable(rigidBody,true);
@@ -79,6 +78,7 @@ export class TileMapPhysics {
 
     destroyRigidBody(rigidBody:any){
         let index = this._rigidBodys.indexOf(rigidBody);
+        //!!
         if (index !== -1) {
             this._rigidBodys.splice(index , 1);
         }
