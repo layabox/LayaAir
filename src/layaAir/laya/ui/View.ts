@@ -3,6 +3,7 @@ import { UIComponent } from "./UIComponent"
 import { ILaya } from "../../ILaya";
 
 /**
+ * @deprecated
  * @en The View class represents a view component.
  * - In LayaAir 2.x, View inherited from the Scene class. However, in 3.x, Scene represents a broader concept encompassing both 2D and 3D. Therefore, in 3.x, understanding Scene as just a 2D scene view node is not appropriate. Scene has been retained for compatibility purposes, but the concept of a scene should be understood as encompassing both 2D and 3D scene data files.
  * @zh View 是一个视图类。
@@ -40,12 +41,16 @@ export class View extends Scene {
 
     /** @ignore */
     constructor() {
-        super(false);   // 先不要createChildren 因为 this._widget还没有赋值
+        super();   // 先不要createChildren 因为 this._widget还没有赋值
 
         //3.0里View并不是Scene
         this._scene = null;
 
         this.createChildren();
+    }
+
+    /** @ignore */
+    protected createChildren() {
     }
 
     changeData(key: string): void {
