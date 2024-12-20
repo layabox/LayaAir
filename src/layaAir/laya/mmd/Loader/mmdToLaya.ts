@@ -1,12 +1,18 @@
+import { AnimationClip } from "../../d3/animation/AnimationClip";
+import { KeyframeNode } from "../../d3/animation/KeyframeNode";
+import { KeyframeNodeList } from "../../d3/animation/KeyframeNodeList";
+import { KeyFrameValueType } from "../../d3/component/Animator/KeyframeNodeOwner";
 import { IndexBuffer3D } from "../../d3/graphics/IndexBuffer3D";
 import { VertexBuffer3D } from "../../d3/graphics/VertexBuffer3D";
 import { Bounds } from "../../d3/math/Bounds";
 import { Mesh } from "../../d3/resource/models/Mesh";
 import { SubMesh } from "../../d3/resource/models/SubMesh";
 import { Vector3 } from "../../maths/Vector3";
+import { Vector3Keyframe } from "../../maths/Vector3Keyframe";
 import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
 import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
 import { VertexMesh } from "../../RenderEngine/RenderShader/VertexMesh";
+import { MmdAnimation } from "./Animation/mmdAnimation";
 import { PmxObject } from "./Parser/pmxObject";
 
 export function mmdToMesh(info: PmxObject): Mesh {
@@ -156,4 +162,65 @@ export function mmdToMesh(info: PmxObject): Mesh {
     //material
     mesh.calculateBounds();
     return mesh;
+}
+
+
+export function vmdToLayaClip(vmddata:MmdAnimation){
+    let boneTracks = vmddata.boneTracks;
+    let b0 = boneTracks[0];
+    b0.frameNumbers;    //时间
+    b0.rotations;   //帧数*4   Q:x,y,z,w
+    b0.rotationInterpolations;//x1,x2,y1,y2
+
+    //动画示例
+    let clip = new AnimationClip();
+    clip.name='test';
+    clip._frameRate=30;
+    clip._duration = 10;
+    var nodes: KeyframeNodeList = clip._nodes!;
+    nodes.count = 1;
+
+    let node = new KeyframeNode();
+    node.type=KeyFrameValueType.Vector3;
+    nodes.setNodeByIndex(0,node);
+    node._indexInList = 0;
+    //下面的不对， owner是sprite3d对象，不是属性
+    node._setOwnerPathCount(0);//只有一个属性
+    //node._setOwnerPathByIndex(0,'transform');
+    //node._setOwnerPathByIndex(1,'localPosition');
+    //addNodeList(["transform", "localPosition"]);
+    let nodePath = node._joinOwnerPath('/');
+
+    node.propertyOwner = "transform";
+    node._setPropertyCount(1);
+    node._setPropertyByIndex(0,'localPosition');
+    var fullPath = nodePath + "." + node.propertyOwner + "." + node._joinProperty(".");
+    node.fullPath = fullPath;
+    node.nodePath = nodePath;
+    let keyframeCount = 3;
+    node._setKeyframeCount(keyframeCount);
+
+
+    let key1 = new Vector3Keyframe(true);
+    node._setKeyframeByIndex(0,key1);
+    key1.time=0.0;
+    key1.inTangent.setValue(0,0,0);
+    key1.outTangent.setValue(0,0,0);
+    key1.value.setValue(0,0,0);
+
+    let key2 = new Vector3Keyframe(true);
+    node._setKeyframeByIndex(1,key2);
+    key2.time=5.0;
+    key2.inTangent.setValue(0,0,0);
+    key2.outTangent.setValue(0,0,0);
+    key2.value.setValue(10,0,0);
+
+    let key3 = new Vector3Keyframe(true);
+    node._setKeyframeByIndex(2,key3);
+    key3.time=10.0;
+    key3.inTangent.setValue(0,0,0);
+    key3.outTangent.setValue(0,0,0);
+    key3.value.setValue(0,0,0);
+    
+    return clip;
 }

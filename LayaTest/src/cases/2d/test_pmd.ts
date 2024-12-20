@@ -14,6 +14,9 @@ import { Matrix4x4 } from "laya/maths/Matrix4x4";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
 import { Mesh } from "laya/d3/resource/models/Mesh";
 import { CameraController1 } from "../../utils/CameraController1"
+import { Animator } from "laya/d3/component/Animator/Animator";
+import { AnimatorState } from "laya/d3/component/Animator/AnimatorState";
+import { AnimatorControllerLayer } from "laya/d3/component/Animator/AnimatorControllerLayer";
 
 MeshReader; //MeshLoader.v3d 赋值
 
@@ -50,18 +53,35 @@ async function test(){
 
     // 加载模型
     let meshData = await Laya.loader.load(lm) as Mesh;
-
+    
     // 创建MeshSprite3D并应用加载的网格数据
     let meshSprite = new MeshSprite3D(meshData);
     scene.addChild(meshSprite);
-
+    
     // 调整模型位置和缩放
     meshSprite.transform.position = new Vector3(0, 0, 0);
     meshSprite.transform.setWorldLossyScale(new Vector3(1, 1, 1));
-
+    
     let mtl = new BlinnPhongMaterial();
     meshSprite.meshRenderer.sharedMaterial = mtl;
     console.log("Mesh loaded and added to scene");
+
+    let vmd = await Laya.loader.load('./pmx/miku_v2/wavefile_v2.vmd');
+    let animator: Animator = meshSprite.addComponent(Animator);
+    let animatorLayer: AnimatorControllerLayer = new AnimatorControllerLayer("AnimatorLayer");
+    animator.addControllerLayer(animatorLayer);
+    animatorLayer.defaultWeight = 1.0;    
+    // 创建动画状态
+    let state: AnimatorState = new AnimatorState();
+    state.name = "move";
+    state.clip = vmd;
+
+    //这时候会查找对象
+    animatorLayer.addState(state);
+
+    // 播放动画
+    animator.play("move");
+
 }
 
 

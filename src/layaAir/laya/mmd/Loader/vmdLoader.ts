@@ -1,6 +1,9 @@
 
+import { ILoadTask, IResourceLoader } from "../../net/Loader";
+import { AssetDb } from "../../resource/AssetDb";
 import { MmdAnimation } from "./Animation/mmdAnimation";
 import { MmdBoneAnimationTrack, MmdCameraAnimationTrack, MmdMorphAnimationTrack, MmdMovableBoneAnimationTrack, MmdPropertyAnimationTrack } from "./Animation/mmdAnimationTrack";
+import { vmdToLayaClip } from "./mmdToLaya";
 import { VmdData, VmdObject } from "./Parser/vmdObject";
 
 /**
@@ -14,7 +17,7 @@ function delay(time:number) {
     });
 }
 
-export class VmdLoader {
+export class VmdLoader implements IResourceLoader{
     /**
      * Remove empty tracks for optimization when loading data
      */
@@ -33,6 +36,16 @@ export class VmdLoader {
      */
     public constructor() {
         this.optimizeEmptyTracks = true;
+    }
+
+    async load(task: ILoadTask): Promise<any> {
+        let url = AssetDb.inst.getSubAssetURL(task.url, task.uuid, null, "pmd");
+        const data = await task.loader.fetch(url, "arraybuffer", task.progress.createCallback(), task.options);
+        if (!data)
+            return null;
+        let ret = await this.loadFromBufferAsync('',data);
+        return vmdToLayaClip(ret);
+        return ret;
     }
 
     /**
