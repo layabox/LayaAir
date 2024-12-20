@@ -40,7 +40,7 @@ export class GLSLCodeGenerator {
                 let dataType = uniform.uniformtype;
                 let uniformName = uniform.propertyName;
                 if (uniform.arrayLength > 0) {
-                    uniformName = `${uniformName}[${uniform.arrayLength}]`;
+                    // uniformName = `${uniformName}[${uniform.arrayLength}]`;
                 }
                 let typeStr = getAttributeType(dataType);
                 if (typeStr != "") {
