@@ -1,3 +1,4 @@
+import { Laya } from "../../../../Laya";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { Color } from "../../../maths/Color";
 import { Matrix } from "../../../maths/Matrix";
@@ -198,14 +199,18 @@ export class FreeformLight2D extends BaseLight2D {
         super._calcWorldRange(screen);
         this._lightScaleAndRotation();
 
+        const t = Laya.stage.transform;
+        const ssx = t ? t.a : 1;
+        const ssy = t ? t.d : 1;
+
         const x = this._localRange.x;
         const y = this._localRange.y;
         const w = this._localRange.width;
         const h = this._localRange.height;
-        const sx = Math.abs(this.owner.globalScaleX);
-        const sy = Math.abs(this.owner.globalScaleY);
-        const px = this.owner.globalPosX;
-        const py = this.owner.globalPosY;
+        const sx = Math.abs(this.owner.globalScaleX) * ssx;
+        const sy = Math.abs(this.owner.globalScaleY) * ssy;
+        const px = this.owner.globalPosX * ssx;
+        const py = this.owner.globalPosY * ssy;
         const m = Math.max(w * sx, h * sy) | 0;
         const mat = this.owner.getGlobalMatrix();
         if (mat) {
@@ -270,7 +275,7 @@ export class FreeformLight2D extends BaseLight2D {
             this._getWorldRange(); //createMesh之前要保证calcWorldRange已经执行
             const mesh = this._createMesh(this._falloffRange * FreeformLight2D.FALLOF_WIDTH, 8, this._cmdMesh?.mesh, this._needToRecover);
             if (!this._cmdMesh)
-               this._cmdMesh = DrawMesh2DCMD.create(mesh, Matrix.EMPTY, Texture2D.whiteTexture, Color.WHITE, this._material);
+                this._cmdMesh = DrawMesh2DCMD.create(mesh, Matrix.EMPTY, Texture2D.whiteTexture, Color.WHITE, this._material);
             else this._cmdMesh.mesh = mesh;
             this._cmdBuffer.addCacheCommand(this._cmdRT);
             this._cmdBuffer.addCacheCommand(this._cmdMesh);
