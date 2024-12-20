@@ -1,7 +1,7 @@
 import { UIComponent } from "./UIComponent";
 import { ISelect } from "./ISelect";
 import { Styles } from "./Styles";
-import { NodeFlags, HideFlags } from "../Const"
+import { HideFlags } from "../Const"
 import { Text } from "../display/Text"
 import { Event } from "../events/Event"
 import { Loader } from "../net/Loader"
@@ -454,10 +454,6 @@ export class Button extends UIComponent implements ISelect {
         }
     }
     protected initialize(): void {
-        if (this._mouseState !== 1) {
-            this.mouseEnabled = true;
-            this._setBit(NodeFlags.HAS_MOUSE, true);
-        }
         this.on(Event.MOUSE_OVER, this, this.onMouse);
         this.on(Event.MOUSE_OUT, this, this.onMouse);
         this.on(Event.MOUSE_DOWN, this, this.onMouse);

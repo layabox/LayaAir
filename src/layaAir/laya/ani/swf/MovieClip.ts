@@ -82,6 +82,9 @@ export class MovieClip extends Sprite {
             this._movieClipList = [this];
             this._isRoot = true;
             this._setBitUp(NodeFlags.DISPLAY);
+
+            this.on(Event.DISPLAY, this, this._onDisplay);
+            this.on(Event.UNDISPLAY, this, this._onDisplay);
         } else {
             this._isRoot = false;
             this._movieClipList = parentMovieClip._movieClipList;
@@ -100,21 +103,11 @@ export class MovieClip extends Sprite {
         super.destroy(destroyChild);
     }
 
-    /**
-     * @internal
-     */
-    _setDisplay(value: boolean): void {
-        super._setDisplay(value);
-        if (this._isRoot) {
-            this._onDisplay(value);
-        }
-    }
-    /**
-     * @internal 
-     */
-    protected _onDisplay(value?: boolean): void {
-        if (value) this.timer.loop(this.interval, this, this.updates, null, true);
-        else this.timer.clear(this, this.updates);
+    private _onDisplay(): void {
+        if (this.displayedInStage)
+            this.timer.loop(this.interval, this, this.updates, null, true);
+        else
+            this.timer.clear(this, this.updates);
     }
 
     /**
