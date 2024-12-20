@@ -102,8 +102,8 @@ export class WebGLUniformBufferDescriptor implements IClone {
                 arrayLength: 0,
             }
             this.uniforms.set(index, uniform);
-            this._currentLength += alignStride;
-            this._byteLength += uniform.viewByteLength;
+            this._currentLength += size;
+            this._byteLength += size * tsc.BYTES_PER_ELEMENT;
         }
     }
 
