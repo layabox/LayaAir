@@ -13,10 +13,7 @@ import { Area2D } from "../Area2D";
 import { Node } from "../Node";
 import { Scene } from "../Scene";
 import { Sprite } from "../Sprite";
-export enum AnchoreMode {
-    DragCenter,
-    FixedTopLeft
-}
+
 export class Camera2D extends Sprite {
     /**@internal */
     static shaderValueInit() {
@@ -28,10 +25,12 @@ export class Camera2D extends Sprite {
         scene2DUniformMap.addShaderUniform(Camera2D.VIEW2D, "u_view2D", ShaderDataType.Matrix3x3);
         Camera2D.SHADERDEFINE_CAMERA2D = Shader3D.getDefineByName("CAMERA2D");
     }
+
     /**@internal */
     static VIEW2D: number;
     /**@internal */
     static SHADERDEFINE_CAMERA2D: ShaderDefine;
+
     private _cameraPos: Vector2 = new Vector2();
     private _cameraSmoothPos: Vector2 = new Vector2();
     private _firstUpdate: boolean = true;
@@ -98,19 +97,28 @@ export class Camera2D extends Sprite {
         this._isMain = value;
     }
 
+    /**
+     * @ignore
+     */
     _setUnBelongScene(): void {
-        if (this._ownerArea.mainCamera == this)
-            this._ownerArea._setMainCamera(null);
-        this._ownerArea = null;
+        if (this._ownerArea != null) {
+            if (this._ownerArea.mainCamera == this)
+                this._ownerArea._setMainCamera(null);
+            this._ownerArea = null;
+        }
         super._setUnBelongScene();
     }
 
+    /**
+     * @ignore
+     * @param scene 
+     */
     _setBelongScene(scene: Node): void {
         super._setBelongScene(scene);
-        this._findOwenrArea();
+        this._findOwnerArea();
     }
 
-    private _findOwenrArea() {
+    private _findOwnerArea() {
         let ele = this as any;
         while (ele) {
             if (ele === this._scene || ele === ILaya.stage) break;
@@ -121,6 +129,9 @@ export class Camera2D extends Sprite {
                 break;
             }
             ele = (<Sprite>ele._parent);
+        }
+        if (this._ownerArea == null) {
+            console.warn("Camera2D must be a descendant of Area2D");
         }
     }
 
