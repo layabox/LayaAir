@@ -35,6 +35,7 @@ export class NodeFlags {
     static EDITING_NODE = 0x10000; //IDE use
     static HIDE_BY_EDITOR = 0x20000; //IDE use
     static LOCK_BY_EDITOR = 0x40000;//IDE use
+    static AREA_2D = 0x80000;
 }
 
 export class HideFlags {
