@@ -7,6 +7,7 @@ import { Node } from "./Node";
 export class Area2D extends Sprite {
     private _mainCamera: Camera2D;
     declare _scene: Scene;
+
     get mainCamera(): Camera2D {
         return this._mainCamera;
     }

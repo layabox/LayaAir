@@ -243,10 +243,12 @@ export class Clip extends UIComponent {
         this.skin = url;
     }
 
-    protected _onDisplay(e?: boolean): void {
+    private _onDisplay(): void {
         if (this._isPlaying) {
-            if (this._getBit(NodeFlags.DISPLAYED_INSTAGE)) this.play();
-            else this.stop();
+            if (this.displayedInStage)
+                this.play();
+            else
+                this.stop();
         } else if (this._autoPlay) {
             this.play();
         }

@@ -580,6 +580,9 @@ export class InputManager {
             y = point.y;
         }
 
+        if (sp._is3D)
+            return null;
+
         //如果有裁剪，则先判断是否在裁剪范围内
         let scrollRect = sp._scrollRect;
         if (scrollRect && !sp._getBit(NodeFlags.DISABLE_INNER_CLIPPING)) {
@@ -599,8 +602,7 @@ export class InputManager {
             //只有接受交互事件的，才进行处理
             if (!child._destroyed
                 && (childEditing ? ((!child.hasHideFlag(HideFlags.HideInHierarchy) || child.mouseThrough) && !child._getBit(NodeFlags.HIDE_BY_EDITOR)) : child._mouseState > 1)
-                && (child._visible || child._getBit(NodeFlags.DISABLE_VISIBILITY))) {
-
+                && child._getBit(NodeFlags.ACTUAL_VISIBLE)) {
                 _tempPoint.setTo(x, y);
                 child.fromParentPoint(_tempPoint);
                 let ret = this.getSpriteUnderPoint(child, _tempPoint.x, _tempPoint.y);

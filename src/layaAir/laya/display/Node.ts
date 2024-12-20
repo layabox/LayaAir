@@ -11,6 +11,8 @@ import { OutOfRangeError } from "../utils/Error"
 import { type Stage } from "./Stage"
 
 const ARRAY_EMPTY: any[] = [];
+const initBits = NodeFlags.ACTIVE | NodeFlags.ACTUAL_VISIBLE;
+const reactiveBits = NodeFlags.DISPLAY | NodeFlags.CACHE_GLOBAL | NodeFlags.DEMAND_TRANS_EVENT | NodeFlags.FORCE_INVISIBLE | NodeFlags.DISABLE_VISIBILITY;
 
 /**
  * @en The `Node` class is the base class for all objects that can be placed in the display list.
@@ -136,7 +138,8 @@ export class Node extends EventDispatcher {
     constructor() {
         super();
 
-        this._reactiveBits |= NodeFlags.DISPLAY;
+        this._bits = initBits;
+        this._reactiveBits = reactiveBits;
         this._initialize();
     }
 
@@ -153,28 +156,26 @@ export class Node extends EventDispatcher {
      * @en Set a specific bit of the node.
      * @param bit The bit to set.
      * @param value The value to set, true or false.
+     * @return Whether the bit was changed.
      * @zh 设置节点的特定位。
      * @param bit 要设置的位。
      * @param value 要设置的值,true或false。
+     * @returns 位是否有变化。
      */
-    _setBit(bit: number, value: boolean): void {
-        if ((bit & this._reactiveBits) != 0) {
-            //要判断全部标志没有命中，所以用非值判断
-            let preValue = (this._bits & bit) == 0;
-            if (preValue != !value) {
-                if (value)
-                    this._bits |= bit;
-                else
-                    this._bits &= ~bit;
-                this._onSetBit(bit, value);
-            }
-        }
-        else {
-            if (value)
-                this._bits |= bit;
-            else
-                this._bits &= ~bit;
-        }
+    _setBit(bit: number, value: boolean): boolean {
+        //要判断全部标志没有命中，所以用非值判断
+        if (((this._bits & bit) == 0) === !value)
+            return false;
+
+        if (value)
+            this._bits |= bit;
+        else
+            this._bits &= ~bit;
+
+        if ((bit & this._reactiveBits) != 0)
+            this._onSetBit(bit, value);
+
+        return true;
     }
 
     /**
@@ -765,8 +766,6 @@ export class Node extends EventDispatcher {
         }
     }
 
-
-
     /**
      * @internal
      * @en Set the display status of the node.
@@ -777,8 +776,10 @@ export class Node extends EventDispatcher {
     _setDisplay(value: boolean): void {
         if (this._getBit(NodeFlags.DISPLAYED_INSTAGE) !== value) {
             this._setBit(NodeFlags.DISPLAYED_INSTAGE, value);
-            if (value) this.event(Event.DISPLAY);
-            else this.event(Event.UNDISPLAY);
+            if (value)
+                this.event(Event.DISPLAY);
+            else
+                this.event(Event.UNDISPLAY);
         }
     }
 
@@ -968,16 +969,16 @@ export class Node extends EventDispatcher {
      * @zh 该节点自身是否激活。
      */
     get active(): boolean {
-        return !this._getBit(NodeFlags.NOT_ACTIVE);
+        return this._getBit(NodeFlags.ACTIVE);
     }
 
     set active(value: boolean) {
         value = !!value;
-        if (!this._getBit(NodeFlags.NOT_ACTIVE) !== value) {
+        if (this._getBit(NodeFlags.ACTIVE) !== value) {
             if (this._activeChangeScripts && this._activeChangeScripts.length !== 0) {
                 throw new Error("recursive set active");
             } else {
-                this._setBit(NodeFlags.NOT_ACTIVE, !value);
+                this._setBit(NodeFlags.ACTIVE, value);
                 if (this._parent) {
                     if (this._parent.activeInHierarchy) {
                         this._processActive(value, true);
@@ -1143,7 +1144,7 @@ export class Node extends EventDispatcher {
 
         this._onActive();
         for (let child of this._children) {
-            !child._getBit(NodeFlags.NOT_ACTIVE) && (child._activeHierarchy(activeChangeScripts, fromSetter));
+            child._getBit(NodeFlags.ACTIVE) && (child._activeHierarchy(activeChangeScripts, fromSetter));
         }
         if (!this._getBit(NodeFlags.AWAKED)) {
             this._setBit(NodeFlags.AWAKED, true);
@@ -1173,7 +1174,7 @@ export class Node extends EventDispatcher {
         this._setBit(NodeFlags.ACTIVE_INHIERARCHY, false);
 
         for (let child of this._children) {
-            (child && !child._getBit(NodeFlags.NOT_ACTIVE)) && (child._inActiveHierarchy(activeChangeScripts, fromSetter));
+            (child && child._getBit(NodeFlags.ACTIVE)) && (child._inActiveHierarchy(activeChangeScripts, fromSetter));
         }
         this.onDisable();
     }

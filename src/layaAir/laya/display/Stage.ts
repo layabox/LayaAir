@@ -245,7 +245,6 @@ export class Stage extends Sprite {
     constructor() {
         super();
 
-        //重置默认值，请不要修改
         this.mouseEnabled = true;
         this.hitTestPrior = true;
         this.autoSize = false;
@@ -254,12 +253,9 @@ export class Stage extends Sprite {
         this._isFocused = true;
         this._isVisibility = true;
         this._transform = new Matrix();
-
-        //this.drawCallOptimize=true;
         this.useRetinalCanvas = LayaEnv.isConch ? true : Config.useRetinalCanvas;
 
-        var window: any = Browser.window;
-        //var _me = this;	
+        let window: any = Browser.window;
 
         window.addEventListener("focus", () => {
             this._isFocused = true;

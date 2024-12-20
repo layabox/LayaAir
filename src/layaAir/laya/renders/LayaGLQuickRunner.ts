@@ -217,7 +217,7 @@ export class LayaGLQuickRunner {
         x = -sprite.pivotX;
         y = -sprite.pivotY;
 
-        var childs: any[] = sprite._children, n = childs.length;
+        var childs = <Sprite[]>sprite._children, n = childs.length;
         let rect: Rectangle;
         let left: number, top: number, right: number, bottom: number, _x: number, _y: number;
 
@@ -231,7 +231,7 @@ export class LayaGLQuickRunner {
 
         for (let i = 0; i < n; ++i) {
             let ele = childs[i];
-            let visFlag = ele._visible || ele._getBit(NodeFlags.DISABLE_VISIBILITY);
+            let visFlag = ele._getBit(NodeFlags.ACTUAL_VISIBLE);
             if (rect && (
                 (_x = ele._x) >= right ||
                 (_x + ele.width) <= left ||
@@ -260,14 +260,14 @@ export class LayaGLQuickRunner {
      * @param y 渲染的 y 坐标。
      */
     static drawLayaGL_drawNodes(sprite: Sprite, context: Context, x: number, y: number): void {
-        var drawcallOptim = sprite._getBit(NodeFlags.DRAWCALL_OPTIMIZE) && context.drawCallOptimize(true);
+        let drawcallOptim = sprite._getBit(NodeFlags.DRAWCALL_OPTIMIZE) && context.drawCallOptimize(true);
         let drawingToTexture = context._drawingToTexture;
         x = x - sprite.pivotX;
         y = y - sprite.pivotY;
         if (!sprite._getBit(NodeFlags.HIDE_BY_EDITOR))
             sprite._graphics && sprite._graphics._render(sprite, context, x, y);
 
-        var childs: any[] = sprite._children, n = childs.length;
+        let childs = <Sprite[]>sprite._children;
         let rect: Rectangle;
         let left: number, top: number, right: number, bottom: number, _x: number, _y: number;
 
@@ -279,13 +279,11 @@ export class LayaGLQuickRunner {
             bottom = rect.bottom;
         }
 
-        let visFlag: boolean;
-        for (let i = 0; i < n; ++i) {
+        for (let i = 0, n = childs.length; i < n; ++i) {
             let ele = childs[i];
-            if (drawingToTexture)
-                visFlag = ele._visible && !ele._getBit(NodeFlags.ESCAPE_DRAWING_TO_TEXTURE);
-            else
-                visFlag = ele._visible || ele._getBit(NodeFlags.DISABLE_VISIBILITY);
+            let visFlag = ele._getBit(NodeFlags.ACTUAL_VISIBLE);
+            if (drawingToTexture && ele._getBit(NodeFlags.ESCAPE_DRAWING_TO_TEXTURE))
+                visFlag = false;
 
             if (rect && ((_x = ele._x) >= right ||
                 (_x + ele.width) <= left ||
