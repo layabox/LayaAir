@@ -215,6 +215,9 @@ export class TileMapLayer extends BaseRenderNode2D {
         return this._tileMapOccluder;
     }
 
+    /**
+     * @ignore
+     */
     constructor() {
         super();
         this._layerColor = new Color(1, 1, 1, 1);
@@ -228,6 +231,7 @@ export class TileMapLayer extends BaseRenderNode2D {
         this._renderElements = [];
         this._materials = [];
         this.sortMode = TileLayerSortMode.YSort;
+        this._spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);
     }
 
     private _initialTileSet() {

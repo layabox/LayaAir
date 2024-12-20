@@ -2,13 +2,11 @@
 #include "TileMapFragment.glsl"
 
 void main() {
-    vertexInfo info;
-    getVertexInfo(info);
-    vec4 textureColor = getTextureColor(info.uv);
+    vec4 textureColor = getTextureColor(v_texcoord);
 
     #ifdef LIGHT2D_ENABLE
         lightAndShadow(textureColor);
     #endif
     
-    gl_FragColor = textureColor*info.color;
+    gl_FragColor = textureColor*v_color;
 }
