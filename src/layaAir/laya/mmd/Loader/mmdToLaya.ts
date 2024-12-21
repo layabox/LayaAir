@@ -7,6 +7,7 @@ import { VertexBuffer3D } from "../../d3/graphics/VertexBuffer3D";
 import { Bounds } from "../../d3/math/Bounds";
 import { Mesh } from "../../d3/resource/models/Mesh";
 import { SubMesh } from "../../d3/resource/models/SubMesh";
+import { Keyframe } from "../../maths/Keyframe";
 import { Vector3 } from "../../maths/Vector3";
 import { Vector3Keyframe } from "../../maths/Vector3Keyframe";
 import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
@@ -164,6 +165,63 @@ export function mmdToMesh(info: PmxObject): Mesh {
     return mesh;
 }
 
+class MyVector3Keyframe extends Vector3Keyframe{
+    constructor(tm:number, value:Vector3, inTangent?:Vector3, outTangent?:Vector3){
+        super();
+        this.time = tm;
+        value.cloneTo(this.value);
+        if(inTangent) inTangent.cloneTo(this.inTangent);
+        if(outTangent) outTangent.cloneTo(this.outTangent);
+    }
+}
+
+class MyKeyFrameNode extends KeyframeNode{
+    constructor(type:KeyFrameValueType){
+        super();
+        this.type = type;
+    }
+
+    setProp(owner:string[]|null,prop:string[]){
+        if(owner){
+            this._setOwnerPathCount(owner.length);
+            for(let i=0,n=owner.length;i<n; i++){
+                this._setOwnerPathByIndex(i,owner[i]);
+            }
+        }else{
+            this._setOwnerPathCount(0);
+        }
+        this.propertyOwner = prop[0];
+        let propLen = prop.length-1;
+        if(propLen>0){
+            this._setPropertyCount(propLen);
+            for(let i=0;i<propLen; i++){
+                this._setPropertyByIndex(i,prop[i+1]);
+            }
+        }
+        let nodePath = this._joinOwnerPath('/');
+        var fullPath = nodePath + "." + this.propertyOwner + "." + this._joinProperty(".");
+        this.fullPath = fullPath;
+        this.nodePath = nodePath;
+    }
+
+    setKeyframes(keys:Keyframe[]){
+        this._setKeyframeCount(keys.length);
+        for(let i=0,n=keys.length;i<n; i++){
+            this._setKeyframeByIndex(i,keys[i]);
+        }
+    }
+}
+
+class MyKeyframeNodeList extends KeyframeNodeList{
+    setNodes(nodes:MyKeyFrameNode[]){
+        let cnt = nodes.length;
+        this.count = cnt;
+        for(let i=0;i<cnt; i++){
+            this.setNodeByIndex(i,nodes[i]);
+            nodes[i]._indexInList = i;
+        }
+    }
+}
 
 export function vmdToLayaClip(vmddata:MmdAnimation){
     let boneTracks = vmddata.boneTracks;
@@ -177,50 +235,19 @@ export function vmdToLayaClip(vmddata:MmdAnimation){
     clip.name='test';
     clip._frameRate=30;
     clip._duration = 10;
-    var nodes: KeyframeNodeList = clip._nodes!;
-    nodes.count = 1;
+    var nodes = clip._nodes = new MyKeyframeNodeList();
 
-    let node = new KeyframeNode();
-    node.type=KeyFrameValueType.Vector3;
-    nodes.setNodeByIndex(0,node);
-    node._indexInList = 0;
-    //下面的不对， owner是sprite3d对象，不是属性
-    node._setOwnerPathCount(0);//只有一个属性
-    //node._setOwnerPathByIndex(0,'transform');
-    //node._setOwnerPathByIndex(1,'localPosition');
-    //addNodeList(["transform", "localPosition"]);
-    let nodePath = node._joinOwnerPath('/');
+    let node = new MyKeyFrameNode(KeyFrameValueType.Vector3);
+    node.setProp(null,['transform','localPosition']);
 
-    node.propertyOwner = "transform";
-    node._setPropertyCount(1);
-    node._setPropertyByIndex(0,'localPosition');
-    var fullPath = nodePath + "." + node.propertyOwner + "." + node._joinProperty(".");
-    node.fullPath = fullPath;
-    node.nodePath = nodePath;
-    let keyframeCount = 3;
-    node._setKeyframeCount(keyframeCount);
+    let keys = [
+        new MyVector3Keyframe(0,new Vector3()),
+        new MyVector3Keyframe(5,new Vector3(10,0,0)),
+        new MyVector3Keyframe(10,new Vector3()),
+    ]
+    node.setKeyframes(keys);
 
-
-    let key1 = new Vector3Keyframe(true);
-    node._setKeyframeByIndex(0,key1);
-    key1.time=0.0;
-    key1.inTangent.setValue(0,0,0);
-    key1.outTangent.setValue(0,0,0);
-    key1.value.setValue(0,0,0);
-
-    let key2 = new Vector3Keyframe(true);
-    node._setKeyframeByIndex(1,key2);
-    key2.time=5.0;
-    key2.inTangent.setValue(0,0,0);
-    key2.outTangent.setValue(0,0,0);
-    key2.value.setValue(10,0,0);
-
-    let key3 = new Vector3Keyframe(true);
-    node._setKeyframeByIndex(2,key3);
-    key3.time=10.0;
-    key3.inTangent.setValue(0,0,0);
-    key3.outTangent.setValue(0,0,0);
-    key3.value.setValue(0,0,0);
+    nodes.setNodes([node]);
     
     return clip;
 }
