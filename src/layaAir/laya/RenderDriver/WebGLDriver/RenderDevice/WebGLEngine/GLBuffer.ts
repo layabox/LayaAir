@@ -130,7 +130,7 @@ export class GLBuffer extends GLObject {
             if (bindInfo.buffer != this._glBuffer || bindInfo.offset != offset || bindInfo.size != byteCount) {
                 gl.bindBufferRange(this._glTarget, glPointer, this._glBuffer, offset, byteCount);
                 bindInfo.buffer = this._glBuffer;
-                bindInfo.offset = 0;
+                bindInfo.offset = offset;
                 bindInfo.size = byteCount;
             }
         }
