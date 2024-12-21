@@ -1565,7 +1565,7 @@ export class Sprite extends Node {
             out.push(...this._graphics.getBoundPoints());
 
         if (this._renderNode != null || this._texture != null)
-            tmpRect2.setTo(0, 0, this._width, this._height).getBoundPoints(out);
+            tmpRect2.setTo(0, 0, this._width||this._texture?.width, this._height||this._texture?.height).getBoundPoints(out);
 
         //处理子对象区域
         let chidren = this._children;
