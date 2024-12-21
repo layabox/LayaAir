@@ -5,8 +5,8 @@ import { Vector3 } from "../../maths/Vector3";
 import { LayaGL } from "../../layagl/LayaGL";
 import { BoundFrustum } from "../math/BoundFrustum";
 import { ShaderData } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
-import { Config3D } from "../../../Config3D";
 import { BaseCamera } from "../core/BaseCamera";
+import { Config } from "../../../Config";
 
 
 
@@ -141,7 +141,7 @@ export class ShadowSpotData {
     constructor() {
         this.cameraShaderValue = LayaGL.renderDeviceFactory.createShaderData(null);
 
-        if (Config3D._uniformBlock) {
+        if (Config._uniformBlock) {
             this.cameraShaderValue.createUniformBuffer(BaseCamera.UBONAME_CAMERA, BaseCamera.caemraUBOUnifromMap);
         }
 
@@ -235,7 +235,7 @@ export class ShadowSliceData {
     constructor() {
         this.cameraShaderValue = LayaGL.renderDeviceFactory.createShaderData(null);
 
-        if (Config3D._uniformBlock) {
+        if (Config._uniformBlock) {
             this.cameraShaderValue.createUniformBuffer(BaseCamera.UBONAME_CAMERA, BaseCamera.caemraUBOUnifromMap);
         }
 

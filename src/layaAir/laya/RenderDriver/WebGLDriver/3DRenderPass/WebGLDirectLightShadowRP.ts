@@ -1,3 +1,4 @@
+import { Config } from "../../../../Config";
 import { Config3D } from "../../../../Config3D";
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
 import { RenderPassStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
@@ -207,7 +208,7 @@ export class WebGLDirectLightShadowRP {
                 context.setScissor(Vector4.TEMP);
             }
 
-            if (Config3D._uniformBlock) {
+            if (Config._uniformBlock) {
                 shaderValues.updateUBOBuffer(Scene3D.UBONAME_SHADOW);
                 sliceData.cameraShaderValue.updateUBOBuffer(BaseCamera.UBONAME_CAMERA);
             }

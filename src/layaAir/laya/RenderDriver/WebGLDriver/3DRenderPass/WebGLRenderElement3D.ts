@@ -1,4 +1,5 @@
 
+import { Config } from "../../../../Config";
 import { Config3D } from "../../../../Config3D";
 import { ShaderPass } from "../../../RenderEngine/RenderShader/ShaderPass";
 import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
@@ -55,8 +56,8 @@ export class WebGLRenderElement3D implements IRenderElement3D {
 
     _preUpdatePre(context: WebGLRenderContext3D) {
         this._compileShader(context);
-         // material ubo
-         if (this.materialShaderData && Config3D._matUseUBO) {
+        // material ubo
+        if (this.materialShaderData && Config.matUseUBO) {
             let subShader = this.subShader;
             let materialData = this.materialShaderData;
             let matSubBuffer = materialData.createSubUniformBuffer("Material", subShader._uniformMap);

@@ -15,6 +15,17 @@ export class Config {
      */
     static useWebGL2: boolean = true;
 
+    /**@internal */
+    static _uniformBlock: boolean;
+
+    static matUseUBO: boolean = false;
+
+    /** 
+    * @en Whether to enable UniformBuffer
+    * @zh 是否启用UniformBuffer
+    */
+    static enableUniformBufferObject = true;
+
     /**
      * @en FPS limit
      * @zh 限制FPS 

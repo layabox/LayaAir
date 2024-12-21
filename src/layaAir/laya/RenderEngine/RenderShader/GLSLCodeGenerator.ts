@@ -6,6 +6,7 @@ import { ShaderNode } from "../../webgl/utils/ShaderNode";
 import { RenderParams } from "../RenderEnum/RenderParams";
 import { RenderCapable } from "../RenderEnum/RenderCapable";
 import { UniformProperty } from "../../RenderDriver/DriverDesign/RenderDevice/CommandUniformMap";
+import { Config } from "../../../Config";
 
 /**
  * @internal
@@ -92,7 +93,7 @@ export class GLSLCodeGenerator {
         var defineStr: string = "";
 
         // 拼接 shader attribute
-        let useUniformBlock = Config3D._matUseUBO;
+        let useUniformBlock = Config.matUseUBO;
         let attributeglsl = GLSLCodeGenerator.glslAttributeString(attributeMap);
         let uniformglsl = GLSLCodeGenerator.glslUniformString(uniformMap, useUniformBlock);
 

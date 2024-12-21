@@ -34,6 +34,7 @@ import { WebGLInternalRT } from "./WebGLInternalRT";
 import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { Config3D } from "../../../../Config3D";
 import { WebGLUniformBufferManager } from "./WebGLUniformBufferManager";
+import { Config } from "../../../../Config";
 
 /**
  * 封装Webgl
@@ -299,10 +300,12 @@ export class WebGLEngine extends EventDispatcher implements IRenderEngine {
         this._GLRenderDrawContext = new GLRenderDrawContext(this);
         this._initBufferBlock();
         canvas.addEventListener("webglcontextlost", this.webglContextLost)
+        Config._uniformBlock = Config.enableUniformBufferObject && this.getCapable(RenderCapable.UnifromBufferObject);
+        Config.matUseUBO =Config.matUseUBO && this.getCapable(RenderCapable.UnifromBufferObject);
     }
 
     private _initBufferBlock() {
-        const useUBO = Config3D.enableUniformBufferObject && this.getCapable(RenderCapable.UnifromBufferObject);
+        const useUBO = Config.enableUniformBufferObject && this.getCapable(RenderCapable.UnifromBufferObject);
         if (useUBO) {
             const gl = <WebGL2RenderingContext>this._context;
 

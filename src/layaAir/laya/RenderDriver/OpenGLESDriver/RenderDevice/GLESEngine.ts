@@ -1,3 +1,4 @@
+import { Config } from "../../../../Config";
 import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
 import { RenderParams } from "../../../RenderEngine/RenderEnum/RenderParams";
 import { GPUEngineStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
@@ -33,6 +34,7 @@ export class GLESEngine implements IRenderEngine {
   private _GLTextureContext: GLESTextureContext;
   constructor(config: WebGLConfig, webglMode: GLESMode = GLESMode.Auto) {
     this._nativeObj = new (window as any).conchGLESEngine(config, webglMode);
+
   }
   endFrame(): void {
     this._nativeObj.startFrame();
@@ -41,7 +43,7 @@ export class GLESEngine implements IRenderEngine {
   startFrame(): void {
     this._nativeObj.endFrame();
   }
-  
+
   _remapZ: boolean = true;
   _screenInvertY: boolean = false;
   _lodTextureSample: boolean = true;
@@ -54,6 +56,14 @@ export class GLESEngine implements IRenderEngine {
     this._nativeObj.enableStatistics = value;
   }
 
+  setUseUniformBlock(value: boolean) {
+    this._nativeObj.setUseUniformBlock(value);
+
+  }
+
+  setMatUseUBO(value: boolean) {
+    this._nativeObj.setMatUseUBO(value);
+  }
   resizeOffScreen(width: number, height: number): void {
     this._nativeObj.resizeOffScreen(width, height);
   }
@@ -74,6 +84,10 @@ export class GLESEngine implements IRenderEngine {
   initRenderEngine(canvas: any): void {
     this._nativeObj.initRenderEngine();
     this._GLTextureContext = new GLESTextureContext(this._nativeObj.getTextureContext());
+    Config._uniformBlock = Config.enableUniformBufferObject && this.getCapable(RenderCapable.UnifromBufferObject);
+    Config.matUseUBO = Config.matUseUBO && this.getCapable(RenderCapable.UnifromBufferObject);
+    this._nativeObj.enableUniformBufferObject = Config._uniformBlock;
+    this._nativeObj.matUseUBO = Config.matUseUBO;
   }
   copySubFrameBuffertoTex(texture: InternalTexture, level: number, xoffset: number, yoffset: number, x: number, y: number, width: number, height: number): void {
     throw new NotImplementedError();

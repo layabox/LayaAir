@@ -129,8 +129,8 @@ export class GLShaderInstance extends GLObject {
                 one.isArray = false;
                 one.type = (gl as WebGL2RenderingContext).UNIFORM_BUFFER;
                 one.dataOffset = this._engine.propertyNameToID(uniformBlockName);
-                let location = gl2.getUniformBlockIndex(prog, uniformBlockName);
-                let bindingPoint = one.location = i;
+                let location = one.location = gl2.getUniformBlockIndex(prog, uniformBlockName);
+                let bindingPoint = i;
                 gl2.uniformBlockBinding(this._program, location, bindingPoint);
                 this._uniformObjectMap[one.name] = one;
                 this._uniformMap.push(one);

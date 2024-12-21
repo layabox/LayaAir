@@ -51,6 +51,7 @@ import { BaseRender } from "../render/BaseRender";
 import { Viewport } from "../../../maths/Viewport";
 import { IElementComponentManager } from "../../../components/IScenceComponentManager";
 import { ILaya3D } from "../../../../ILaya3D";
+import { Config } from "../../../../Config";
 
 export enum FogMode {
     Linear = 0, //Linear
@@ -196,7 +197,7 @@ export class Scene3D extends Sprite {
         Scene3D.GIRotate = Shader3D.propertyNameToID("u_GIRotate");
 
         let sceneUniformMap: CommandUniformMap = Scene3D.sceneUniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap("Scene3D");
-        if (Config3D._uniformBlock) {
+        if (Config._uniformBlock) {
             Scene3D.SCENEUNIFORMBLOCK = Shader3D.propertyNameToID(Scene3D.UBONAME_SCENE);
             sceneUniformMap.addShaderUniform(Scene3D.SCENEUNIFORMBLOCK, Scene3D.UBONAME_SCENE, ShaderDataType.None);
             let sceneUBOUniformMap = Scene3D.sceneUBOUniformMap =  LayaGL.renderDeviceFactory.createGlobalUniformMap(Scene3D.UBONAME_SCENE);
@@ -276,7 +277,7 @@ export class Scene3D extends Sprite {
         }
         Scene3D._shadowCasterPass = new ShadowCasterPass();
         //UniformBuffer
-        if (Config3D._uniformBlock)
+        if (Config._uniformBlock)
             configShaderValue.add(Shader3D.SHADERDEFINE_ENUNIFORMBLOCK);
 
         let supportFloatTex = LayaGL.renderEngine.getCapable(RenderCapable.TextureFormat_R32G32B32A32);
@@ -747,7 +748,7 @@ export class Scene3D extends Sprite {
 
         this._shaderValues = LayaGL.renderDeviceFactory.createShaderData(null);
         this._shaderValues.addDefines(Shader3D._configDefineValues);
-        if (Config3D._uniformBlock) {
+        if (Config._uniformBlock) {
             this._shaderValues.createUniformBuffer(Scene3D.UBONAME_SCENE, Scene3D.sceneUBOUniformMap);
             //ShadowUniformBlock
             //Scene3D._shadowCasterPass

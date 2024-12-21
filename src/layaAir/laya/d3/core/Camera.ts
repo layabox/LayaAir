@@ -33,6 +33,7 @@ import { Transform3D } from "./Transform3D";
 import { Cluster } from "../graphics/renderPath/Cluster";
 import { Viewport } from "../../maths/Viewport";
 import { RenderPassStatisticsInfo } from "../../RenderEngine/RenderEnum/RenderStatInfo";
+import { Config } from "../../../Config";
 
 /**
  * @en Camera clear flags.
@@ -1332,7 +1333,7 @@ export class Camera extends BaseCamera {
      * @param scene 要渲染的场景。
      */
     render(scene: Scene3D): void {
-        if (Config3D._uniformBlock) {
+        if (Config._uniformBlock) {
             scene._shaderValues.updateUBOBuffer(Scene3D.UBONAME_SCENE);
         }
         // set context
@@ -1374,7 +1375,7 @@ export class Camera extends BaseCamera {
         this._applyViewProject(this.viewMatrix, this.projectionMatrix, context.invertY);
         this._contextApply(context);
         // todo proterty name
-        if (Config3D._uniformBlock) {
+        if (Config._uniformBlock) {
             this._shaderValues.updateUBOBuffer(BaseCamera.UBONAME_CAMERA);
         }
 

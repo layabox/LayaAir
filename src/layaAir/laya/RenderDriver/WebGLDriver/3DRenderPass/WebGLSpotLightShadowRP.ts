@@ -1,4 +1,4 @@
-import { Config3D } from "../../../../Config3D";
+import { Config } from "../../../../Config";
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
 import { RenderPassStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
 import { BaseCamera } from "../../../d3/core/BaseCamera";
@@ -125,7 +125,7 @@ export class WebGLSpotLightShadowRP {
         context.setViewPort(Viewport.TEMP);
         context.setScissor(Vector4.TEMP);
 
-        if (Config3D._uniformBlock) {
+        if (Config._uniformBlock) {
             shaderValues.updateUBOBuffer(Scene3D.UBONAME_SHADOW);
             shadowSpotData.cameraShaderValue.updateUBOBuffer(BaseCamera.UBONAME_CAMERA);
         }

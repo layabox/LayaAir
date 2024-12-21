@@ -17,11 +17,7 @@ export class Config3D {
      */
     static enableStaticBatch: boolean = true;
 
-    /** 
-     * @en Whether to enable UniformBuffer
-     * @zh 是否启用UniformBuffer
-     */
-    static enableUniformBufferObject = true;
+   
 
     /**
      * @en Set 3D RT resolution multiplier
@@ -111,10 +107,7 @@ export class Config3D {
 
 
     //----引擎内部使用,不暴露给开发者----
-    /**@internal */
-    static _uniformBlock: boolean;
-    /**@internal */
-    static _matUseUBO: boolean = false;
+
     /**@internal 设置分辨率宽度*/
     static _resoluWidth: number = -1;
     /**@internal 设置分辨率高度*/

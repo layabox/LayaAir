@@ -13,6 +13,7 @@ import { ShaderDefine } from "../../RenderDriver/RenderModuleData/Design/ShaderD
 import { IRenderEngine } from "../../RenderDriver/DriverDesign/RenderDevice/IRenderEngine";
 import { CommandUniformMap } from "../../RenderDriver/DriverDesign/RenderDevice/CommandUniformMap";
 import { SkyRenderElement } from "./render/SkyRenderElement";
+import { Config } from "../../../Config";
 
 /**
  * @en The `BaseCamera` class is used to create the parent class of cameras.
@@ -107,7 +108,7 @@ export class BaseCamera extends Sprite3D {
         BaseCamera.OPAQUETEXTUREPARAMS = Shader3D.propertyNameToID("u_OpaqueTextureParams");
         BaseCamera.DEPTHZBUFFERPARAMS = Shader3D.propertyNameToID("u_ZBufferParams");
 
-        if (Config3D._uniformBlock) {
+        if (Config._uniformBlock) {
             BaseCamera.CAMERAUNIFORMBLOCK = Shader3D.propertyNameToID(BaseCamera.UBONAME_CAMERA);
             camerauniformMap.addShaderUniform(BaseCamera.CAMERAUNIFORMBLOCK, BaseCamera.UBONAME_CAMERA, ShaderDataType.None);
             let ubomap = BaseCamera.caemraUBOUnifromMap = LayaGL.renderDeviceFactory.createGlobalUniformMap(BaseCamera.UBONAME_CAMERA);
@@ -387,7 +388,7 @@ export class BaseCamera extends Sprite3D {
         this.useOcclusionCulling = true;
         this._renderEngine = LayaGL.renderEngine;
         this._orthographic = false;
-        if (Config3D._uniformBlock) {
+        if (Config._uniformBlock) {
             this._shaderValues.createUniformBuffer(BaseCamera.UBONAME_CAMERA, BaseCamera.caemraUBOUnifromMap);
         }
 
