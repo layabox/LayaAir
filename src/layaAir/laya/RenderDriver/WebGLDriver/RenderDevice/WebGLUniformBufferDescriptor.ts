@@ -44,7 +44,7 @@ export class WebGLUniformBufferDescriptor implements IClone {
         return this._byteLength;
     }
 
-    private _maxAlignment: number = 0;
+    private _maxAlignment: number = 4;
 
     uniforms: Map<number, WebGLUniform>;
 
@@ -134,7 +134,7 @@ export class WebGLUniformBufferDescriptor implements IClone {
                 break;
             case ShaderDataType.Matrix3x3:
                 alignStride = 12;
-                this.addUniformItem(index, 9, alignStride, arraySize, Float32Array);
+                this.addUniformItem(index, 12, alignStride, arraySize, Float32Array);
                 break;
             case ShaderDataType.Matrix4x4:
                 alignStride = 16;
