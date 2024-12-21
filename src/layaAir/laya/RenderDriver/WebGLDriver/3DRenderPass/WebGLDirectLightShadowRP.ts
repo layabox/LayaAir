@@ -6,6 +6,7 @@ import { ShadowCascadesMode } from "../../../d3/core/light/ShadowCascadesMode";
 import { ShadowMode } from "../../../d3/core/light/ShadowMode";
 import { ShadowUtils } from "../../../d3/core/light/ShadowUtils";
 import { CommandBuffer } from "../../../d3/core/render/command/CommandBuffer";
+import { Scene3D } from "../../../d3/core/scene/Scene3D";
 import { Scene3DShaderDeclaration } from "../../../d3/core/scene/Scene3DShaderDeclaration";
 import { BoundSphere } from "../../../d3/math/BoundSphere";
 import { Plane } from "../../../d3/math/Plane";
@@ -207,6 +208,7 @@ export class WebGLDirectLightShadowRP {
             }
 
             if (Config3D._uniformBlock) {
+                shaderValues.updateUBOBuffer(Scene3D.UBONAME_SHADOW);
                 sliceData.cameraShaderValue.updateUBOBuffer(BaseCamera.UBONAME_CAMERA);
             }
 

@@ -4,6 +4,7 @@ import { RenderPassStatisticsInfo } from "../../../RenderEngine/RenderEnum/Rende
 import { BaseCamera } from "../../../d3/core/BaseCamera";
 import { ShadowMode } from "../../../d3/core/light/ShadowMode";
 import { CommandBuffer } from "../../../d3/core/render/command/CommandBuffer";
+import { Scene3D } from "../../../d3/core/scene/Scene3D";
 import { Scene3DShaderDeclaration } from "../../../d3/core/scene/Scene3DShaderDeclaration";
 import { ShadowCasterPass } from "../../../d3/shadowMap/ShadowCasterPass";
 import { ShadowSpotData } from "../../../d3/shadowMap/ShadowSliceData";
@@ -125,6 +126,7 @@ export class WebGLSpotLightShadowRP {
         context.setScissor(Vector4.TEMP);
 
         if (Config3D._uniformBlock) {
+            shaderValues.updateUBOBuffer(Scene3D.UBONAME_SHADOW);
             shadowSpotData.cameraShaderValue.updateUBOBuffer(BaseCamera.UBONAME_CAMERA);
         }
 
