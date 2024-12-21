@@ -144,6 +144,8 @@ export class WebGLEngine extends EventDispatcher implements IRenderEngine {
     /** @internal */
     bufferMgr: WebGLUniformBufferManager;
 
+    _uboBindingMap: { buffer: WebGLBuffer, offset: number, size: number }[];
+
     //GPU统计数据
     private _GLStatisticsInfo: Map<GPUEngineStatisticsInfo, number> = new Map();
     static instance: WebGLEngine;
@@ -308,6 +310,12 @@ export class WebGLEngine extends EventDispatcher implements IRenderEngine {
 
             let offsetAlignment = gl.getParameter(gl.UNIFORM_BUFFER_OFFSET_ALIGNMENT);
             this.bufferMgr = new WebGLUniformBufferManager(this, offsetAlignment);
+
+            let maxBlockCount = gl.getParameter(gl.MAX_UNIFORM_BUFFER_BINDINGS);
+            this._uboBindingMap = new Array(maxBlockCount);
+            for (let i = 0; i < maxBlockCount; i++) {
+                this._uboBindingMap[i] = { buffer: null, offset: 0, size: 0 };
+            }
         }
     }
 
