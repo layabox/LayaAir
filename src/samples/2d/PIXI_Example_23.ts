@@ -81,7 +81,7 @@ export class PIXI_Example_23 {
 				laser.scaleY = laser.alpha;
 				if (laser.alpha < 0.01) {
 					this.lasers.splice(i, 1);
-					Laya.stage.removeChild(laser);
+					laser.removeSelf();
 					i--;
 				}
 			}

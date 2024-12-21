@@ -2,371 +2,30 @@ import { Laya } from "../../../../Laya";
 import { IElementComponentManager } from "../../../components/IScenceComponentManager";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { Color } from "../../../maths/Color";
-import { Matrix } from "../../../maths/Matrix";
 import { Rectangle } from "../../../maths/Rectangle";
 import { Vector2 } from "../../../maths/Vector2";
 import { Vector4 } from "../../../maths/Vector4";
 import { BaseRenderNode2D } from "../../../NodeRender2D/BaseRenderNode2D";
 import { ShaderData } from "../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
-import { RenderState } from "../../../RenderDriver/RenderModuleData/Design/RenderState";
 import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
 import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { WrapMode } from "../../../RenderEngine/RenderEnum/WrapMode";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { Context } from "../../../renders/Context";
-import { BaseTexture } from "../../../resource/BaseTexture";
-import { Material } from "../../../resource/Material";
 import { Mesh2D, VertexMesh2D } from "../../../resource/Mesh2D";
 import { RenderTexture2D } from "../../../resource/RenderTexture2D";
 import { Pool } from "../../../utils/Pool";
 import { Utils } from "../../../utils/Utils";
 import { RenderState2D } from "../../../webgl/utils/RenderState2D";
 import { ILight2DManager, Scene } from "../../Scene";
-import { Command2D } from "../RenderCMD2D/Command2D";
-import { CommandBuffer2D } from "../RenderCMD2D/CommandBuffer2D";
-import { DrawMesh2DCMD } from "../RenderCMD2D/DrawMesh2DCMD";
-import { Set2DRTCMD } from "../RenderCMD2D/Set2DRenderTargetCMD";
-import { type BaseLight2D, Light2DType } from "./BaseLight2D";
+import { BaseLight2D, Light2DType } from "./BaseLight2D";
 import { DirectionLight2D } from "./DirectionLight2D";
+import { Light2DConfig } from "./Light2DConfig";
+import { Light2DRenderRes } from "./Light2DRenderByCmd";
 import { LightLine2D } from "./LightLine2D";
 import { LightOccluder2DCore } from "./LightOccluder2DCore";
 import { Occluder2DAgent } from "./Occluder2DAgent";
 import { LightAndShadow } from "./Shader/LightAndShadow";
-
-/**
- * @internal
- * 每一层用于渲染光影图的资源
- */
-class Light2DRenderRes {
-    lights: BaseLight2D[] = []; //灯光对象
-    textures: BaseTexture[] = []; //灯光贴图，数量等于当前层的灯光数量
-    material: Material[] = []; //生成光影图的材质，数量等于当前层的灯光数量
-    materialShadow: Material[] = []; //生成阴影图的材质，数量等于当前层的灯光数量
-    lightMeshs: Mesh2D[][] = []; //灯光网格，数量等于当前层的灯光数量*PCF值
-    shadowMeshs: Mesh2D[] = []; //阴影网格，数量等于当前层的灯光数量
-    needShadowMesh: boolean[] = []; //是否需要阴影网格，数量等于当前层的灯光数量
-
-    private _layer: number = 0; //对应的层
-    private _invertY: boolean = false; //是否颠倒Y轴
-    private _cmdRT: Set2DRTCMD; //渲染目标缓存
-    private _cmdLightMeshs: DrawMesh2DCMD[][] = []; //渲染命令缓存（灯光）
-    private _cmdShadowMeshs: DrawMesh2DCMD[] = []; //渲染命令缓存（阴影）
-    private _cmdBuffer: CommandBuffer2D = new CommandBuffer2D('Light2DRender'); //渲染光影图的命令流
-
-    constructor(layer: number, invertY: boolean) {
-        this._layer = layer;
-        this._invertY = invertY;
-    }
-
-    /**
-     * 初始化材质
-     * @param material 待初始化的材质
-     * @param shadow 是否用于渲染阴影
-     */
-    private _initMaterial(material: Material, shadow: boolean) {
-        if (shadow) {
-            material.setShaderName('ShadowGen2D');
-            material.setFloat('u_Shadow2DStrength', 0.5);
-            material.setColor('u_ShadowColor', new Color(0, 0, 0, 1));
-        }
-        else material.setShaderName('LightAndShadowGen2D');
-        material.setColor('u_LightColor', new Color(1, 1, 1, 1));
-        material.setFloat('u_LightRotation', 0);
-        material.setFloat('u_LightIntensity', 1);
-        material.setFloat('u_PCFIntensity', 1);
-        material.setVector2('u_LightTextureSize', new Vector2(1, 1));
-        material.setVector2('u_LightScale', new Vector2(1, 1));
-        material.setBoolByIndex(Shader3D.DEPTH_WRITE, false);
-        material.setIntByIndex(Shader3D.DEPTH_TEST, RenderState.DEPTHTEST_OFF);
-        material.setIntByIndex(Shader3D.BLEND, RenderState.BLEND_ENABLE_ALL);
-        material.setIntByIndex(Shader3D.BLEND_EQUATION, RenderState.BLENDEQUATION_ADD);
-        material.setIntByIndex(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ONE);
-        material.setIntByIndex(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE);
-        material.setIntByIndex(Shader3D.CULL, RenderState.CULL_NONE);
-    }
-
-    /**
-     * @en add lights group
-     * @param lights the lights object array
-     * @param recover the queue for recovery
-     * @zh 添加灯光组
-     * @param lights 灯光对象数组
-     * @param recover 回收队列
-     */
-    addLights(lights: BaseLight2D[], recover?: any[]) {
-        const length = lights.length;
-        if (!Light2DManager.REUSE_MESH && recover)
-            this._needRecoverMesh(recover, length);
-
-        this.lights = lights;
-        this.textures.length = length;
-        this.lightMeshs.length = length;
-        this.shadowMeshs.length = length;
-
-        //遍历所有灯（建立灯光资源）
-        for (let i = 0; i < length; i++) {
-            const light = lights[i];
-            const pcf = 1 / light._pcfIntensity() | 0;
-
-            if (!this.lightMeshs[i])
-                this.lightMeshs[i] = [];
-            this.lightMeshs[i].length = pcf;
-
-            if (!this.material[i]) {
-                this.material[i] = new Material();
-                this._initMaterial(this.material[i], false);
-            }
-            this.textures[i] = light._texLight;
-        }
-
-        //遍历所有灯（建立阴影资源）
-        for (let i = 0; i < length; i++) {
-            const light = lights[i];
-            if (light._isNeedShadowMesh()) {
-                if (!this.materialShadow[i]) {
-                    this.materialShadow[i] = new Material();
-                    this._initMaterial(this.materialShadow[i], true);
-                }
-                this.needShadowMesh[i] = true;
-            } else this.needShadowMesh[i] = false;
-        }
-    }
-
-    /**
-     * @en update lights group PCF
-     * @param light the lights object
-     * @zh 更新灯光组PCF
-     * @param light 灯光对象
-     */
-    updateLightPCF(light: BaseLight2D) {
-        for (let i = 0, len = this.lights.length; i < len; i++) {
-            if (this.lights[i] === light) {
-                const pcf = 1 / light._pcfIntensity() | 0;
-                if (!this.lightMeshs[i])
-                    this.lightMeshs[i] = [];
-                this.lightMeshs[i].length = pcf;
-            }
-        }
-    }
-
-    /**
-     * @en put mesh into recover queue
-     * @param recover recover queue
-     * @param length the length to be reserved, the previous will be recycled
-     * @zh 将mesh放入回收队列
-     * @param recover 回收队列
-     * @param length 保留的长度，之前的会被回收
-     */
-    private _needRecoverMesh(recover: any[], length: number) {
-        for (let i = this.lightMeshs.length - 1; i >= length; i--) {
-            if (this.lightMeshs[i]) {
-                const meshs = this.lightMeshs[i];
-                if (meshs[i]) {
-                    for (let j = meshs.length - 1; j > -1; j--) {
-                        recover.push(meshs[j]);
-                        meshs[j] = null;
-                    }
-                }
-            }
-        }
-        for (let i = this.shadowMeshs.length - 1; i >= length; i--) {
-            if (this.shadowMeshs[i]) {
-                recover.push(this.shadowMeshs[i]);
-                this.shadowMeshs[i] = null;
-            }
-        }
-    }
-
-    /**
-     * @en set render target command
-     * @param rt render target
-     * @zh 设置渲染目标命令
-     * @param rt 渲染目标 
-     */
-    setRenderTargetCMD(rt: RenderTexture2D) {
-        if (!this._cmdRT)
-            this._cmdRT = Set2DRTCMD.create(rt, true, Color.CLEAR, this._invertY);
-        else this._cmdRT.renderTexture = rt;
-    }
-
-    /**
-     * @en build render mesh command cache
-     * @zh 建立渲染网格命令缓存
-     */
-    buildRenderMeshCMD() {
-        //清理旧缓存
-        for (let i = this._cmdLightMeshs.length - 1; i > -1; i--) {
-            const cmds = this._cmdLightMeshs[i];
-            for (let j = cmds.length - 1; j > -1; j--)
-                cmds[j].recover();
-            cmds.length = 0;
-        }
-        this._cmdLightMeshs.length = 0;
-        for (let i = this._cmdShadowMeshs.length - 1; i > -1; i--)
-            if (this._cmdShadowMeshs[i])
-                this._cmdShadowMeshs[i].recover();
-        this._cmdShadowMeshs.length = 0;
-
-        //创建新缓存
-        for (let i = 0, len = this.lightMeshs.length; i < len; i++) {
-            const meshs = this.lightMeshs[i];
-            const cmds: Command2D[] = this._cmdLightMeshs[i] = [];
-            for (let j = meshs.length - 1; j > -1; j--)
-                cmds.push(DrawMesh2DCMD.create(meshs[j], Matrix.EMPTY, this.textures[i], Color.WHITE, this.material[i]));
-        }
-        for (let i = 0, len = this.shadowMeshs.length; i < len; i++) {
-            if (this.needShadowMesh)
-                this._cmdShadowMeshs.push(DrawMesh2DCMD.create(this.shadowMeshs[i], Matrix.EMPTY, this.textures[i], Color.WHITE, this.materialShadow[i]));
-            else this._cmdShadowMeshs.push(null);
-        }
-    }
-
-    /**
-     * @en update command cache's render material
-     * @zh 更新命令缓存中的渲染材质
-     */
-    updateMaterial() {
-        for (let i = 0, len = this._cmdLightMeshs.length; i < len; i++) {
-            const cmds = this._cmdLightMeshs[i];
-            for (let j = 0, len = cmds.length; j < len; j++) {
-                cmds[j].texture = this.textures[i];
-                cmds[j].material = this.material[i];
-            }
-        }
-        for (let i = 0, len = this._cmdShadowMeshs.length; i < len; i++) {
-            if (this._cmdShadowMeshs[i]) {
-                this._cmdShadowMeshs[i].texture = this.textures[i];
-                this._cmdShadowMeshs[i].material = this.materialShadow[i];
-            }
-        }
-    }
-
-    /**
-     * @en update command cache's mesh
-     * @param mesh mesh object
-     * @param i array index
-     * @param j array index
-     * @zh 更新命令缓存中的网格
-     * @param mesh 网格对象
-     * @param i 数组索引
-     * @param j 数组索引
-     */
-    updateLightMesh(mesh: Mesh2D, i: number, j: number) {
-        this.lightMeshs[i][j] = mesh;
-        if (Light2DManager.REUSE_CMD) {
-            if (this._cmdLightMeshs[i] && this._cmdLightMeshs[i][j])
-                this._cmdLightMeshs[i][j].mesh = mesh;
-        }
-    }
-
-    /**
-     * @en update command cache's mesh
-     * @param mesh  mesh object
-     * @param i array index    
-     * @zh 更新命令缓存中的网格
-     * @param mesh 网格对象
-     * @param i 数组索引
-     */
-    updateShadowMesh(mesh: Mesh2D, i: number) {
-        this.shadowMeshs[i] = mesh;
-        if (Light2DManager.REUSE_CMD) {
-            if (this._cmdShadowMeshs[i])
-                this._cmdShadowMeshs[i].mesh = mesh;
-        }
-    }
-
-    /**
-     * @en enable shadow
-     * @param light light object
-     * @param recover revert array
-     * @zh 启用阴影
-     * @param light 光源对象
-     * @param recover 回收队列
-     */
-    enableShadow(light: BaseLight2D, recover: any[]) {
-        const layer = this._layer;
-        for (let i = this.lights.length - 1; i > -1; i--) {
-            if (this.lights[i] === light) {
-                this.needShadowMesh[i] = false;
-                if (!light.shadowEnable
-                    || !light._isNeedShadowMesh()
-                    || (light.shadowLayerMask & (1 << layer)) === 0) {
-                    if (!Light2DManager.REUSE_MESH
-                        && recover && this.shadowMeshs[i])
-                        recover.push(this.shadowMeshs[i]);
-                    this.shadowMeshs[i] = null;
-                    if (Light2DManager.REUSE_CMD) {
-                        if (this._cmdShadowMeshs[i]) {
-                            this._cmdShadowMeshs[i].recover();
-                            this._cmdShadowMeshs[i] = null;
-                        }
-                    }
-                } else {
-                    if (Light2DManager.REUSE_CMD) {
-                        if (!this._cmdShadowMeshs[i])
-                            this._cmdShadowMeshs[i] = DrawMesh2DCMD.create(this.shadowMeshs[i], Matrix.EMPTY, this.textures[i], Color.WHITE, this.materialShadow[i]);
-                    }
-                    if (!this.materialShadow[i]) {
-                        this.materialShadow[i] = new Material();
-                        this._initMaterial(this.materialShadow[i], true);
-                    }
-                    this.needShadowMesh[i] = true;
-                }
-                return;
-            }
-        }
-    }
-
-    /**
-     * 渲染光影图
-     */
-    render(rt?: RenderTexture2D) {
-        if (Light2DManager.REUSE_CMD) {
-            if (this._cmdRT) {
-                this._cmdBuffer.addCacheCommand(this._cmdRT);
-                for (let i = 0, len = this._cmdLightMeshs.length; i < len; i++) {
-                    const cmds = this._cmdLightMeshs[i];
-                    for (let j = 0, len = cmds.length; j < len; j++) {
-                        const cmd = cmds[j];
-                        if (cmd.mesh && cmd.material)
-                            this._cmdBuffer.addCacheCommand(cmd);
-                    }
-                }
-                for (let i = 0, len = this._cmdShadowMeshs.length; i < len; i++) {
-                    const cmd = this._cmdShadowMeshs[i];
-                    if (cmd && cmd.mesh && cmd.material)
-                        this._cmdBuffer.addCacheCommand(cmd);
-                }
-                this._cmdBuffer.apply(true);
-                this._cmdBuffer.clear(false);
-            }
-        } else {
-            this._cmdBuffer.setRenderTarget(rt, true, Color.CLEAR, this._invertY);
-            for (let i = 0, len = this.lightMeshs.length; i < len; i++) {
-                const meshs = this.lightMeshs[i];
-                for (let j = 0, len = meshs.length; j < len; j++)
-                    if (meshs[j] && this.material[i])
-                        this._cmdBuffer.drawMesh(meshs[j], Matrix.EMPTY, this.textures[i], Color.WHITE, this.material[i]);
-            }
-            for (let i = 0, len = this.shadowMeshs.length; i < len; i++) {
-                const mesh = this.shadowMeshs[i];
-                if (mesh && this.materialShadow[i])
-                    this._cmdBuffer.drawMesh(mesh, Matrix.EMPTY, this.textures[i], Color.WHITE, this.materialShadow[i]);
-            }
-            this._cmdBuffer.apply(true);
-            this._cmdBuffer.clear(true);
-        }
-    }
-}
-
-/**
- * 2D灯光全局配置参数
- */
-export class Light2DConfig {
-    lightHeight: number = 1; //灯光高度（0~1，影响法线效果）
-    ambient: Color = new Color(0.25, 0.25, 0.25, 0); //环境光
-    ambientLayerMask: number = 1; //环境光影响的层
-}
 
 /**
  * 生成2D光影图的渲染流程
@@ -820,10 +479,16 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
      * @param layer 层序号
      */
     private _collectLightInScreenByLayer(layer: number) {
-        if (this._screenSchmitt.width === 0) return;
-
         let lights = this._lightsInLayer[layer];
         const lightsAll = this._lightsInLayerAll[layer];
+
+        if (this._screenSchmitt.width === 0
+            || this._screenSchmitt.height === 0) {
+            if (!lights)
+                this._lightsInLayer[layer] = [];
+            else lights.length = 0;
+            return;
+        }
 
         if (!lights)
             lights = this._lightsInLayer[layer] = [];
@@ -898,7 +563,7 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
      */
     private _updateLayerRenderRes(layer: number) {
         if (!this._lightRenderRes[layer])
-            this._lightRenderRes[layer] = new Light2DRenderRes(layer, LayaGL.renderEngine._screenInvertY);
+            this._lightRenderRes[layer] = new Light2DRenderRes(this._scene, layer, LayaGL.renderEngine._screenInvertY);
         this._lightRenderRes[layer].addLights(this._lightsInLayer[layer], this._needToRecover);
         this._needUpdateLightRes |= (1 << layer);
         if (Light2DManager.REUSE_CMD) {
@@ -1262,8 +927,8 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
             let xR = -10000000;
             let yB = 10000000;
             let yT = -10000000;
-            for (var i = 0; i < area2DArrays.length; i++) {
-                let camera = area2DArrays[i].mainCamera;
+            for (let i = 0; i < area2DArrays.length; i++) {
+                const camera = area2DArrays[i].mainCamera;
                 if (camera) {
                     let rect = camera._rect;
                     xL = Math.min(xL, rect.x);
@@ -1276,6 +941,12 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
             this._screen.y = yB;
             this._screen.width = xR - xL;
             this._screen.height = yT - yB;
+            if (this._screen.width < 0 || this._screen.height < 0) {
+                this._screen.x = 0;
+                this._screen.y = 0;
+                this._screen.width = RenderState2D.width | 0;
+                this._screen.height = RenderState2D.height | 0;
+            }
         } else {
             this._screen.x = 0;
             this._screen.y = 0;

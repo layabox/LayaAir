@@ -219,8 +219,6 @@ export class Sprite extends Node {
     /** @ignore */
     constructor() {
         super();
-
-        this._reactiveBits |= NodeFlags.CACHE_GLOBAL | NodeFlags.DEMAND_TRANS_EVENT;
     }
 
     /**
@@ -552,7 +550,7 @@ export class Sprite extends Node {
     set visible(value: boolean) {
         if (this._visible !== value) {
             this._visible = value;
-            this.parentRepaint(SpriteConst.REPAINT_ALL);
+            this._processVisible();
         }
     }
 
@@ -671,10 +669,12 @@ export class Sprite extends Node {
     }
 
     set cacheAs(value: string) {
-        if (value === this._cacheStyle.userSetCache) return;
+        if (value === this._cacheStyle.userSetCache)
+            return;
         this._getCacheStyle().userSetCache = value;
 
-        if (this.mask && value === 'normal') return;
+        if (this.mask && value === 'normal')
+            return;
         if (value == 'bitmap' || value == 'normal') {
             this._renderType |= SpriteConst.CANVAS;
         } else {
@@ -815,6 +815,8 @@ export class Sprite extends Node {
 
     set mouseEnabled(value: boolean) {
         this._mouseState = value ? 2 : 1;
+        if (this._mouseState === 2 && (<Sprite>this._parent)?._mouseState === 0)
+            (<Sprite>this._parent).mouseEnabled = true;
     }
 
     /**
@@ -1457,7 +1459,7 @@ export class Sprite extends Node {
 
         for (let i = this.numChildren - 1; i >= 0; i--) {
             let child = <Sprite>this.getChildAt(i);
-            if (ignoreInvisibles && !child._visible)
+            if (ignoreInvisibles && !child._getBit(NodeFlags.ACTUAL_VISIBLE))
                 continue;
 
             let w = child.width;
@@ -1563,13 +1565,13 @@ export class Sprite extends Node {
             out.push(...this._graphics.getBoundPoints());
 
         if (this._renderNode != null || this._texture != null)
-            tmpRect2.setTo(0, 0, this._width, this._height).getBoundPoints(out);
+            tmpRect2.setTo(0, 0, this._width||this._texture?.width, this._height||this._texture?.height).getBoundPoints(out);
 
         //处理子对象区域
         let chidren = this._children;
         for (let i = 0, n = chidren.length; i < n; i++) {
             let child = <Sprite>chidren[i];
-            if (child._visible && child._cacheStyle.maskParent != this) {
+            if (child._getBit(NodeFlags.ACTUAL_VISIBLE) && child._cacheStyle.maskParent != this) {
                 out.push(...child._boundPointsToParent(ifRotate));
             }
         }
@@ -1877,52 +1879,42 @@ export class Sprite extends Node {
     protected onStartListeningToType(type: string) {
         super.onStartListeningToType(type);
 
-        if (this._mouseState !== 1 && Event.isMouseEvent(type)) {
+        if (this._mouseState === 0 && Event.isMouseEvent(type))
             this.mouseEnabled = true;
-            this._setBit(NodeFlags.HAS_MOUSE, true);
-            if (this._parent) {
-                this._onDisplay();
-            }
-        }
     }
-
 
     /**
      * @ignore
      */
     _setDisplay(value: boolean): void {
-        this._getCacheStyle();
-        if (!value) {
+        if (!value && this._cacheStyle)
             this._cacheStyle.onInvisible();
-        }
         super._setDisplay(value);
     }
 
-    protected _onDisplay(v?: boolean): void {
-        if (this._mouseState !== 1) {
-            var ele: Sprite = this;
-            ele = (<Sprite>ele.parent);
-            while (ele && ele._mouseState !== 1) {
-                if (ele._getBit(NodeFlags.HAS_MOUSE)) break;
-                ele.mouseEnabled = true;
-                ele._setBit(NodeFlags.HAS_MOUSE, true);
-                ele = (<Sprite>ele.parent);
-            }
-        }
+    /**
+     * @internal
+     */
+    _processVisible(forceInvisible?: boolean): void {
+        if (this._setBit(NodeFlags.ACTUAL_VISIBLE, this._visible && !forceInvisible && !this._getBit(NodeFlags.FORCE_INVISIBLE)
+            || this._getBit(NodeFlags.DISABLE_VISIBILITY)))
+            this.parentRepaint(SpriteConst.REPAINT_ALL);
     }
 
     protected _setParent(value: Node): void {
         super._setParent(value);
-        if (value && this._getBit(NodeFlags.HAS_MOUSE)) {
-            this._onDisplay();
+        if (value && this._mouseState === 2 && (<Sprite>value)._mouseState === 0) {
+            (<Sprite>value).mouseEnabled = true;
         }
     }
 
     protected _childChanged(child?: Node): void {
         super._childChanged(child);
 
-        if (this._children.length) this._renderType |= SpriteConst.CHILDS;
-        else this._renderType &= ~SpriteConst.CHILDS;
+        if (this._children.length)
+            this._renderType |= SpriteConst.CHILDS;
+        else
+            this._renderType &= ~SpriteConst.CHILDS;
         if (child && this._getBit(NodeFlags.HAS_ZORDER))
             ILaya.systemTimer.callLater(this, this.updateZOrder);
         this.repaint(SpriteConst.REPAINT_ALL);
@@ -1951,7 +1943,7 @@ export class Sprite extends Node {
                     this._parent._setBit(NodeFlags.CACHE_GLOBAL, value);
             } else {
                 //更新子节点
-                for (let child of <Sprite[]>this._children)
+                for (let child of this._children)
                     child._setBit(NodeFlags.CACHE_GLOBAL, value);
             }
         }
@@ -1962,13 +1954,17 @@ export class Sprite extends Node {
                     this._parent._setBit(NodeFlags.DEMAND_TRANS_EVENT, value);
             } else {
                 //更新子节点
-                for (let child of <Sprite[]>this._children)
+                for (let child of this._children)
                     child._setBit(NodeFlags.DEMAND_TRANS_EVENT, value);
             }
         }
+
+        if ((bit & NodeFlags.FORCE_INVISIBLE) != 0 || (bit & NodeFlags.DISABLE_VISIBILITY) != 0) {
+            this._processVisible();
+        }
     }
 
-    //miner 为了不破坏之前的local性能架构，采用标致开启的方式来增加GlobalMode的更新系统，优化需要高频调用Global数据的
+    //miner 为了不破坏之前的local性能架构，采用标志开启的方式来增加GlobalMode的更新系统，优化需要高频调用Global数据的
     //因为此块功能比较集中，顾单独写在下方
 
     private _gDeltaFlages: number = 0;

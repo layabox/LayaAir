@@ -71,7 +71,7 @@ export class WebGLUniformBufferDescriptor implements IClone {
 
     addUniformItem(index: number, size: number, alignStride: number, arraySize: number, tsc: DataViewType) {
         if (arraySize > 0) {
-            this.alignmentPadding(size <= 2 ? size : 4);
+            this.alignmentPadding(4);
             let arrayStride = arraySize * alignStride;
             let view: Float32Array;
             let uniform: WebGLUniform = {
@@ -102,8 +102,8 @@ export class WebGLUniformBufferDescriptor implements IClone {
                 arrayLength: 0,
             }
             this.uniforms.set(index, uniform);
-            this._currentLength += alignStride;
-            this._byteLength += uniform.viewByteLength;
+            this._currentLength += size;
+            this._byteLength += size * tsc.BYTES_PER_ELEMENT;
         }
     }
 
@@ -112,15 +112,15 @@ export class WebGLUniformBufferDescriptor implements IClone {
         switch (type) {
             case ShaderDataType.Int:
             case ShaderDataType.Bool:
-                alignStride = 1;
+                alignStride = 4;
                 this.addUniformItem(index, 1, alignStride, arraySize, Int32Array);
                 break;
             case ShaderDataType.Float:
-                alignStride = 1;
+                alignStride = 4;
                 this.addUniformItem(index, 1, alignStride, arraySize, Float32Array);
                 break;
             case ShaderDataType.Vector2:
-                alignStride = 2;
+                alignStride = 4;
                 this.addUniformItem(index, 2, alignStride, arraySize, Float32Array);
                 break;
             case ShaderDataType.Vector3:

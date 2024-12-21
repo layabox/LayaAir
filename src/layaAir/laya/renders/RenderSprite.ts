@@ -231,7 +231,7 @@ export class RenderSprite {
 
     /**@internal */
     _transform(sprite: Sprite, context: Context, x: number, y: number): void {
-        var transform = sprite.transform, _next = this._next;
+        let transform = sprite.transform, _next = this._next;
         if (transform && _next != RenderSprite.NORENDER) {
             context.save();
             context.transform(transform.a, transform.b, transform.c, transform.d, transform.tx + x, transform.ty + y);
@@ -262,15 +262,13 @@ export class RenderSprite {
 
         for (let i = 0; i < n; ++i) {
             let ele = childs[i];
-            let visFlag: boolean;
-            if (drawingToTexture)
-                visFlag = ele._visible && !ele._getBit(NodeFlags.ESCAPE_DRAWING_TO_TEXTURE);
-            else
-                visFlag = ele._visible || ele._getBit(NodeFlags.DISABLE_VISIBILITY);
+            let visFlag = ele._getBit(NodeFlags.ACTUAL_VISIBLE);
+            if (drawingToTexture && ele._getBit(NodeFlags.ESCAPE_DRAWING_TO_TEXTURE))
+                visFlag = false;
             if (visFlag) {
                 if (rect && ((x2 = ele._x) >= right || (x2 + ele.width) <= left || (y2 = ele._y) >= bottom || (y2 + ele.height) <= top))
                     visFlag = false;
-                else if (sprite._cacheStyle.mask == ele && !ele._getBit(NodeFlags.DISABLE_VISIBILITY))
+                else if (sprite._cacheStyle.mask == ele && ele._visible) //ele._visible condition for case that selected in IDE
                     visFlag = false;
             }
 
@@ -292,19 +290,19 @@ export class RenderSprite {
      * @returns 
      */
     _renderNextToCacheRT(sprite: Sprite, context: Context, marginLeft = 0, marginTop = 0, marginRight = 0, marginBottom = 0) {
-        var _cacheStyle = sprite._getCacheStyle();
-        if (sprite._needRepaint() || !_cacheStyle.renderTexture || ILaya.stage.isGlobalRepaint()) {
-            if (_cacheStyle.renderTexture) {
-                _cacheStyle.renderTexture.destroy();//TODO 优化， 如果大小相同，可以重复利用
+        let cache = sprite._getCacheStyle();
+        if (sprite._needRepaint() || !cache.renderTexture || ILaya.stage.isGlobalRepaint()) {
+            if (cache.renderTexture) {
+                cache.renderTexture.destroy();//TODO 优化， 如果大小相同，可以重复利用
             }
             //如果需要构造RenderTexture
             // 先计算需要的texuture的大小。
-            let scaleInfo = sprite._cacheStyle._calculateCacheRect(sprite, "bitmap"/*sprite._cacheStyle.cacheAs*/, 0, 0);
+            let scaleInfo = cache._calculateCacheRect(sprite, "bitmap"/*sprite._cacheStyle.cacheAs*/, 0, 0);
             //tRec相当于贴图在sprite坐标系下的位置
-            let tRec = _cacheStyle.cacheRect;
+            let tRec = cache.cacheRect;
             if (tRec.width <= 0 || tRec.height <= 0) {
                 //什么也没渲染，注意设置rt为null，后面会判断
-                _cacheStyle.renderTexture = null;
+                cache.renderTexture = null;
                 return false;
             }
             //计算cache画布的大小
@@ -333,19 +331,17 @@ export class RenderSprite {
             //临时，恢复
             //ctx.render2D.setRenderTarget(context.render2D.out);endRender实现了
             ctx.destroy();
-            _cacheStyle.renderTexture = rt;
+            cache.renderTexture = rt;
             return true;    //重绘
         }
         return false;
     }
 
     _canvas(sprite: Sprite, context: Context, x: number, y: number): void {
-        var _cacheStyle = sprite._cacheStyle;
-        var _next = this._next;
-
-        if (!context._drawingToTexture && _cacheStyle.mask && _cacheStyle.mask._getBit(NodeFlags.DISABLE_VISIBILITY)) {
-            //虽然有mask但是mask不可见，则不走这个流程。
-            _next._fun(sprite, context, x, y);
+        let cache = sprite._cacheStyle;
+        let next = this._next;
+        if (sprite._getBit(NodeFlags.HIDE_BY_EDITOR)) {
+            next._fun(sprite, context, x, y);
             return;
         }
 
@@ -355,14 +351,14 @@ export class RenderSprite {
             context.drawLeftData();
             this._renderNextToCacheRT(sprite, context);
             // RenderSprite.RenderToCacheTexture(sprite,context,x,y)
-            var tRec = _cacheStyle.cacheRect;
+            let tRec = cache.cacheRect;
             context._material = sprite.graphics.material;
-            let rt = _cacheStyle.renderTexture;
+            let rt = cache.renderTexture;
             rt && context._drawRenderTexture(rt, x + tRec.x, y + tRec.y, rt.width, rt.height, null, 1, [0, 1, 1, 1, 1, 0, 0, 0]);
             context._material = null;
         } else {
             if (!RenderSprite.cacheNormalEnable) {
-                _next._fun(sprite, context, x, y);
+                next._fun(sprite, context, x, y);
                 return;
             } else {
                 context.drawLeftData();
@@ -444,12 +440,12 @@ export class RenderSprite {
      * @returns 一个布尔值，表示是否创建了新的缓存纹理（true 表示重绘，false 表示未重绘）。
      */
     static RenderToCacheTexture(sprite: Sprite, context: Context | null, x: number, y: number, isDrawRenderRect: boolean = true) {
-        var _cacheStyle = sprite._getCacheStyle();
-        if (sprite._needRepaint() || !_cacheStyle.renderTexture || ILaya.stage.isGlobalRepaint()) {
-            if (_cacheStyle.renderTexture) {
-                _cacheStyle.renderTexture.destroy();//TODO 优化， 如果大小相同，可以重复利用
+        let cache = sprite._getCacheStyle();
+        if (sprite._needRepaint() || !cache.renderTexture || ILaya.stage.isGlobalRepaint()) {
+            if (cache.renderTexture) {
+                cache.renderTexture.destroy();//TODO 优化， 如果大小相同，可以重复利用
             }
-            _cacheStyle.renderTexture = RenderSprite.RenderToRenderTexture(sprite, context, x, y, null, isDrawRenderRect);
+            cache.renderTexture = RenderSprite.RenderToRenderTexture(sprite, context, x, y, null, isDrawRenderRect);
             return true;    //重绘
         }
         return false;
@@ -475,7 +471,7 @@ export class RenderSprite {
              * 目前的做法是把sprite的rect和mask的rect都转到sprite的原始原点（左上角）空间，这里叫做TextureSpace，简称t空间
              * 然后在t空间做rect交集
              */
-            sprite._cacheStyle._calculateCacheRect(sprite, "bitmap", 0, 0);
+            cache._calculateCacheRect(sprite, "bitmap", 0, 0);
             //保存rect，避免被修改。例如 RenderSprite.RenderToCacheTexture 会修改cache的rect
             spRect_TS.copyFrom(cache.cacheRect);
             if (spRect_TS.width <= 0 || spRect_TS.height <= 0)
