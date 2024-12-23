@@ -44,7 +44,7 @@ export class Node extends EventDispatcher {
      * @en Child object collection, please do not modify this object directly.
      * @zh 子对象集合，请不要直接修改此对象。
      */
-    _children: Node[] = ARRAY_EMPTY;
+    _children: Node[];
     /**
      * @internal
      * @en Parent node object.
@@ -140,6 +140,7 @@ export class Node extends EventDispatcher {
 
         this._bits = initBits;
         this._reactiveBits = reactiveBits;
+        this._children = [];
         this._initialize();
     }
 
@@ -308,18 +309,19 @@ export class Node extends EventDispatcher {
      * @param destroyChild 是否同时销毁子节点,若值为true,则销毁子节点,否则不销毁子节点。
      */
     destroy(destroyChild: boolean = true): void {
+        if (this._destroyed)
+            return;
+
         this._destroyed = true;
         this.destroyAllComponent();
         this._parent && this._parent.removeChild(this);
 
         //销毁子节点
-        if (this._children) {
-            if (destroyChild) this.destroyChildren();
-            else this.removeChildren();
-        }
+        if (destroyChild)
+            this.destroyChildren();
+        else
+            this.removeChildren();
         this.onDestroy();
-
-        this._children = null;
 
         //移除所有事件监听
         this.offAll();
@@ -339,12 +341,9 @@ export class Node extends EventDispatcher {
      * @zh 销毁所有子节点,但不销毁节点本身。
      */
     destroyChildren(): void {
-        //销毁子节点
-        if (this._children) {
-            //为了保持销毁顺序，所以需要正序销毁
-            for (let i = 0, n = this._children.length; i < n; i++) {
-                this._children[0] && this._children[0].destroy(true);
-            }
+        //为了保持销毁顺序，所以需要正序销毁
+        for (let i = 0, n = this._children.length; i < n; i++) {
+            this._children[0] && this._children[0].destroy(true);
         }
     }
 
@@ -402,7 +401,6 @@ export class Node extends EventDispatcher {
                 this._childChanged();
             } else {
                 node._parent && node._parent.removeChild(node);
-                this._children === ARRAY_EMPTY && (this._children = []);
                 this._children.splice(index, 0, node);
                 node._setParent(this);
             }
@@ -596,7 +594,6 @@ export class Node extends EventDispatcher {
      * @returns 被删除的节点。
      */
     removeChild(node: Node, destroy?: boolean): Node {
-        if (!this._children) return node;
         let index: number = this._children.indexOf(node);
         return this.removeChildAt(index, destroy);
     }
@@ -793,8 +790,10 @@ export class Node extends EventDispatcher {
     */
     private _displayChild(node: Node, display: boolean): void {
         for (let child of node._children) {
-            if (!child) continue;
-            if (!child._getBit(NodeFlags.DISPLAY)) continue;
+            if (!child)
+                continue;
+            if (!child._getBit(NodeFlags.DISPLAY))
+                continue;
             if (child._children.length > 0) {
                 this._displayChild(child, display);
             } else {
